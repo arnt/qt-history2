@@ -61,8 +61,10 @@
     provides a few convenience functions that make handling lists of
     strings easier.
 
-    Like QList, QStringList is \l{implicitly shared}. Passing string
-    lists around as value parameters is both fast and safe.
+    Like QList, QStringList is \l{implicitly shared}. QStringList
+    provides fast index-based access as well as fast insertions and
+    removals. Passing string lists as value parameters is both fast
+    and safe.
 
     Strings can be added to a list using append(), operator+=(), or
     operator<<(). For example:
@@ -75,7 +77,7 @@
     QList's Java-style and STL-style iterator types. Here are
     examples of each approach.
 
-    Index:
+    Indexing:
     \code
         for (int i = 0; i < fonts.size(); ++i)
             cout << fonts.at(i).ascii() << endl;
@@ -153,8 +155,8 @@
 /*!
     \fn QStringList::QStringList(const QString &str)
 
-    Constructs a string list consisting of the single string \a str.
-    Longer lists are easily created as follows:
+    Constructs a string list that contains one string, \a str. Longer
+    lists are easily created like this:
 
     \code
         list = (QStringList() << str1 << str2 << str3);
@@ -164,7 +166,7 @@
 /*!
     \fn QStringList::QStringList(const char *str)
 
-    Constructs a string list consisting of the single string \a str.
+    Constructs a string list that contains one string, \a str.
 */
 
 /*!
@@ -201,9 +203,10 @@
 
     If you want to sort your strings in an arbitrary order, consider
     using a QMap. For example, you could use a QMap\<QString,
-    QString\> to create a case-insensitive ordering (e.g. mapping the
-    lower-case text to the text), or a QMap\<int, QString\> to sort
-    the strings by some integer index.
+    QString\> to create a case-insensitive ordering (e.g. with the
+    keys being lower-case versions of the strings, and the values
+    being the strings), or a QMap\<int, QString\> to sort the strings
+    by some integer index.
 
     \sa qHeapSort()
 */
@@ -217,8 +220,7 @@ void QStringList::sort()
 
     \overload
 
-    This version of the function uses a QChar as separator, rather
-    than a regular expression.
+    This version of the function uses a QChar as separator.
 
     \sa join() QString::section()
 */
@@ -227,8 +229,7 @@ void QStringList::sort()
 
     \overload
 
-    This version of the function uses a QString as separator, rather
-    than a regular expression.
+    This version of the function uses a QString as separator.
 
     If \a sep is an empty string, the return value is a list of
     one-character strings: split(QString(""), "four") returns the
@@ -256,9 +257,12 @@ void QStringList::sort()
     is false (the default), and the four-item list "a", "", "b", "c"
     if \a allowEmptyEntries is true.
 
+    Use \c{split(QRegExp("\\s+"), str)} to split on arbitrary amounts
+    of whitespace.
+
     If \a sep does not match anywhere in \a str, split() returns a
-    single element list with the element containing the single string
-    \a str.
+    single element list with the element containing the original
+    string, \a str.
 
     \sa join() QString::section()
 */
@@ -268,14 +272,15 @@ void QStringList::sort()
 /*!
     Returns a list of all the strings containing the substring \a str.
 
-    If \a cs is \l QString::CaseSensitive, the string comparison is
-    case sensitive; otherwise the comparison is case insensitive.
+    If \a cs is \l QString::CaseSensitive (the default), the string
+    comparison is case sensitive; otherwise the comparison is case
+    insensitive.
 
     \code
     QStringList list;
-    list << "Bill Gates" << "John Doe" << "Bill Clinton";
+    list << "Bill Murray" << "John Doe" << "Bill Clinton";
     list = list.find("Bill");
-    // list: ["Bill Gates", "Bill Clinton"]
+    // list: ["Bill Murray", "Bill Clinton"]
     \endcode
 
     \sa QString::contains()
@@ -309,12 +314,13 @@ QStringList QStringList::find(const QRegExp &rx) const
 #endif
 
 /*!
-    Replaces every occurrence of the string \a before in the strings
-    that constitute the string list with the string \a after. Returns
-    a reference to the string list.
+    Replaces every occurrence of the string \a before, in each of the
+    string list's strings, with the string \a after. Returns a
+    reference to the string list.
 
-    If \a cs is \l QString::CaseSensitive, the search is case
-    sensitive; otherwise the search is case insensitive.
+    If \a cs is \l QString::CaseSensitive (the default), the \a before
+    string is search for case sensitively; otherwise the search is
+    case insensitive.
 
     Example:
     \code
@@ -337,8 +343,9 @@ QStringList& QStringList::replace(const QString &before, const QString &after, Q
 /*!
     \overload
 
-    Replaces every occurrence of the regexp \a rx in the string
-    with \a after. Returns a reference to the string list.
+    Replaces every occurrence of the regexp \a rx, in each of the
+    string lists's strings, with \a after. Returns a reference to the
+    string list.
 
     Example:
     \code
@@ -348,17 +355,17 @@ QStringList& QStringList::replace(const QString &before, const QString &after, Q
         // list == ["olpha", "beta", "gamma", "epsilon"]
     \endcode
 
-    For regexps containing \link qregexp.html#capturing-text
-    capturing parentheses \endlink, occurrences of \bold{\\1},
-    \bold{\\2}, ..., in \a after are replaced with \a{rx}.cap(1),
-    \a{rx}.cap(2), ...
+    For regular expressions that contain \link
+    qregexp.html#capturing-text capturing parentheses \endlink,
+    occurrences of \bold{\\1}, \bold{\\2}, ..., in \a after are
+    replaced with \a{rx}.cap(1), \a{rx}.cap(2), ...
 
     Example:
     \code
         QStringList list;
-        list << "Bill Clinton" << "Gates, Bill";
+        list << "Bill Clinton" << "Murray, Bill";
         list.replace(QRegExp("^(.*), (.*)$"), "\\2 \\1");
-        // list == ["Bill Clinton", "Bill Gates"]
+        // list == ["Bill Clinton", "Bill Murray"]
     \endcode
 
     \sa replace()
@@ -373,8 +380,9 @@ QStringList& QStringList::replace(const QRegExp &rx, const QString &after)
 #endif
 
 /*!
-    Joins the string list into a single string with each element
-    separated by the string \a sep (which can be empty).
+    Joins the all the string list's strings into a single string with
+    each element separated by the string \a sep (which can be an empty
+    string).
 
     \sa QString::split()
 */

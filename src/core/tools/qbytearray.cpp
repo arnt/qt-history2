@@ -466,6 +466,11 @@ QByteArray::Data QByteArray::shared_empty = { Q_ATOMIC_INIT(1), 0, 0, shared_emp
         QByteArray ba("Hello");
     \endcode
 
+    Although the size() is 5, the byte array also maintains an extra
+    '\\0' character at the end so that if function is used that asks
+    for a pointer to the underlying data (e.g. a call to data()), the
+    data pointed to is guaranteed to be '\\0'-terminated.
+
     QByteArray makes a deep copy of the \c{const char *} data, so you
     can modify it later without experiencing side effects. (If for
     performance reasons you don't want to take a deep copy of the
@@ -749,6 +754,11 @@ QByteArray &QByteArray::operator=(const char *str)
 /*! \fn int QByteArray::size() const
 
     Returns the number of bytes in this byte array.
+
+    The last byte in the byte array is at position size() - 1; the
+    byte at position size() is always '\\0'--this is maintained for
+    the benefit of functions that access the underlying data, e.g. the
+    data() functions.
 
     \sa isEmpty(), resize()
 */
@@ -1814,7 +1824,7 @@ int QByteArray::lastIndexOf(const QByteArray &ba, int from) const
     Returns the index position of the last occurrence of the string \a
     str in the byte array, searching backward from index position \a
     from. If \a from is -1 (the default), the search starts at the
-    last byte. Returns -1 if \a str could not be found.
+    last (size() - 1) byte. Returns -1 if \a str could not be found.
 */
 
 /*! \fn int QByteArray::lastIndexOf(const char *str, int from) const
@@ -1823,7 +1833,7 @@ int QByteArray::lastIndexOf(const QByteArray &ba, int from) const
     Returns the index position of the last occurrence of the string \a
     str in the byte array, searching backward from index position \a
     from. If \a from is -1 (the default), the search starts at the
-    last byte. Returns -1 if \a str could not be found.
+    last (size() - 1) byte. Returns -1 if \a str could not be found.
 */
 
 /*!
@@ -1832,7 +1842,7 @@ int QByteArray::lastIndexOf(const QByteArray &ba, int from) const
     Returns the index position of the last occurrence of character \a
     ch in the byte array, searching backward from index position \a
     from. If \a from is -1 (the default), the search starts at the
-    last byte. Returns -1 if \a ch could not be found.
+    last (size() - 1) byte. Returns -1 if \a ch could not be found.
 
     Example:
     \code
@@ -2587,16 +2597,16 @@ bool QByteArray::ensure_constructed()
 }
 
 /*!
-    Returns a byte array of length \a width that contains this byte
+    Returns a byte array of size() \a width that contains this byte
     array padded by the \a fill character.
 
-    If \a truncate is false and the length of the byte array is more
+    If \a truncate is false and the size() of the byte array is more
     than \a width, then the returned byte array is a copy of this byte
     array.
 
-    If \a truncate is true and the length of the byte array is more
+    If \a truncate is true and the size() of the byte array is more
     than \a width, then any bytes in a copy of the byte array
-    after length \a width are removed, and the copy is returned.
+    after position \a width are removed, and the copy is returned.
 
     \code
         QByteArray x("apple");
@@ -2626,14 +2636,14 @@ QByteArray QByteArray::leftJustified(int width, char fill, bool truncate) const
 }
 
 /*!
-    Returns a byte array of length \a width that contains the \a fill
+    Returns a byte array of size() \a width that contains the \a fill
     character followed by this byte array.
 
-    If \a truncate is false and the length of the byte array is more
+    If \a truncate is false and the size() of the byte array is more
     than \a width, then the returned byte array is a copy of this byte
     array.
 
-    If \a truncate is true and the length of the byte array is more
+    If \a truncate is true and the size() of the byte array is more
     than \a width, then the resulting byte array is truncated at
     position \a width.
 
@@ -3195,9 +3205,9 @@ QByteArray QByteArray::number(Q_ULLONG n, int base)
 
     \code
         double d = 12.34;
-        QByteArray ds = QByteArray("'E' format, precision 3, gives %1")
+        QByteArray ba = QByteArray("'E' format, precision 3, gives %1")
                         .arg(d, 0, 'E', 3);
-        // ds == "1.234E+001"
+        // ba == "'E' format, precision 3, gives 1.234E+001"
     \endcode
 
     \sa toDouble()
