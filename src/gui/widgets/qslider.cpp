@@ -61,8 +61,11 @@ void QSliderPrivate::init()
 
 int QSliderPrivate::pixelPosToRangeValue(int pos) const
 {
-    QRect gr = q->style().querySubControlMetrics(QStyle::CC_Slider, q, QStyle::SC_SliderGroove);
-    QRect sr = q->style().querySubControlMetrics(QStyle::CC_Slider, q, QStyle::SC_SliderHandle);
+    Q4StyleOptionSlider opt = getStyleOption();
+    QRect gr = q->style().querySubControlMetrics(QStyle::CC_Slider, &opt, QStyle::SC_SliderGroove,
+                                                 q);
+    QRect sr = q->style().querySubControlMetrics(QStyle::CC_Slider, &opt, QStyle::SC_SliderHandle,
+                                                 q);
     int sliderMin, sliderMax, sliderLength;
 
     if (orientation == Qt::Horizontal) {

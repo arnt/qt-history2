@@ -53,16 +53,6 @@ public:
     QSize sizeFromContents(ContentsType ct, const Q4StyleOption *opt, const QSize &contentsSize,
                            const QFontMetrics &fm, const QWidget *widget = 0) const;
 
-    void drawComplexControl(ComplexControl control,
-                             QPainter* p,
-                             const QWidget* widget,
-                             const QRect& r,
-                             const QPalette &pal,
-                             SFlags flags = Style_Default,
-                             SCFlags sub = SC_All,
-                             SCFlags subActive = SC_None,
-                             const QStyleOption& = QStyleOption::Default) const;
-
     int pixelMetric(PixelMetric metric,
                      const QWidget *widget = 0) const;
 

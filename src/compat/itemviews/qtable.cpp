@@ -1258,11 +1258,19 @@ void QComboTableItem::paint(QPainter *p, const QPalette &pal,
     QStyle::SFlags flags = QStyle::Style_Default;
     if(isEnabled() && table()->isEnabled())
         flags |= QStyle::Style_Enabled;
-    table()->style().drawComplexControl(QStyle::CC_ComboBox, p, fakeCombo, fakeCombo->rect(), pal2, flags);
+    // Since we still have the "fakeCombo" may as well use it in this case.
+    Q4StyleOptionComboBox opt(0);
+    opt.rect = fakeCombo->rect();
+    opt.palette = pal2;
+    opt.state = flags;
+    opt.parts = QStyle::SC_All;
+    opt.activeParts = QStyle::SC_None;
+    opt.editable = fakeCombo->editable();
+    table()->style().drawComplexControl(QStyle::CC_ComboBox, &opt, p, fakeCombo);
 
     p->save();
-    QRect textR = table()->style().querySubControlMetrics(QStyle::CC_ComboBox, fakeCombo,
-                                                         QStyle::SC_ComboBoxEditField);
+    QRect textR = table()->style().querySubControlMetrics(QStyle::CC_ComboBox, &opt,
+                                                          QStyle::SC_ComboBoxEditField, fakeCombo);
     int align = alignment(); // alignment() changes entries
     p->drawText(textR, wordWrap() ? (align | Qt::WordBreak) : align, entries.at(current));
     p->restore();

@@ -56,28 +56,17 @@ public:
     QSize sizeFromContents(ContentsType ct, const Q4StyleOption *opt, const QSize &contentsSize,
                            const QFontMetrics &fm, const QWidget *widget = 0) const;
 
-    void drawComplexControl(ComplexControl control, QPainter* p, const QWidget* w, const QRect& r,
-                            const QPalette& pal, SFlags flags, SCFlags sub, SCFlags subActive,
-                            const QStyleOption& = QStyleOption::Default) const;
-
-
     int pixelMetric(PixelMetric metric, const QWidget *widget) const;
 
-
-    QRect querySubControlMetrics(ComplexControl control, const QWidget *w,SubControl sc,
-                                 const QStyleOption& = QStyleOption::Default) const;
-
     QRect subRect(SubRect, const QWidget *w) const;
-
-    SubControl querySubControl(ComplexControl control, const QWidget *widget, const QPoint &pos,
-                               const QStyleOption& = QStyleOption::Default) const;
 
     int styleHint(StyleHint sh, const QWidget *, const QStyleOption &, QStyleHintReturn *) const;
 
     QSize sizeFromContents(ContentsType contents, const QWidget *w, const QSize &contentsSize,
                            const QStyleOption& = QStyleOption::Default) const;
 
-    QPixmap stylePixmap(StylePixmap sp, const QWidget *widget, const QStyleOption& = QStyleOption::Default) const;
+    QPixmap stylePixmap(StylePixmap sp, const QWidget *widget,
+                        const QStyleOption& = QStyleOption::Default) const;
 
     QPixmap stylePixmap(PixmapType pixmaptype, const QPixmap &pixmap,
                         const QPalette &pal, const QStyleOption& = QStyleOption::Default) const;

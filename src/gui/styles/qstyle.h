@@ -419,33 +419,10 @@ public:
     typedef uint SCFlags;
 
 
-    virtual void drawComplexControl(ComplexControl control,
-                                     QPainter *p,
-                                     const QWidget *widget,
-                                     const QRect &r,
-                                     const QPalette &pal,
-                                     SFlags how = Style_Default,
-                                     SCFlags sub = SC_All,
-                                     SCFlags subActive = SC_None,
-                                     const QStyleOption& = QStyleOption::Default) const = 0;
-    virtual void drawComplexControlMask(ComplexControl control,
-                                         QPainter *p,
-                                         const QWidget *widget,
-                                         const QRect &r,
-                                         const QStyleOption& = QStyleOption::Default) const = 0;
-
-    virtual QRect querySubControlMetrics(ComplexControl control,
-                                          const QWidget *widget,
-                                          SubControl sc,
-                                          const QStyleOption& = QStyleOption::Default) const = 0;
-    virtual SubControl querySubControl(ComplexControl control,
-                                        const QWidget *widget,
-                                        const QPoint &pos,
-                                        const QStyleOption& = QStyleOption::Default) const = 0;
-    // Qt 4...
     virtual void drawComplexControl(ComplexControl cc, const Q4StyleOptionComplex *opt, QPainter *p,
                                     const QWidget *w = 0) const = 0;
-    virtual void drawComplexControlMask(ComplexControl cc, const Q4StyleOptionComplex *opt, QPainter *p, const QWidget *w = 0) const = 0;
+    virtual void drawComplexControlMask(ComplexControl cc, const Q4StyleOptionComplex *opt,
+                                        QPainter *p, const QWidget *w = 0) const = 0;
     virtual SubControl querySubControl(ComplexControl cc, const Q4StyleOptionComplex *opt,
                                        const QPoint &pt, const QWidget *w = 0) const = 0;
     virtual QRect querySubControlMetrics(ComplexControl cc, const Q4StyleOptionComplex *opt,
@@ -814,12 +791,6 @@ private:
                    const QPixmap *pixmap,
                    const QString &text, int len = -1,
                    const QColor *penColor = 0) const;
-
-    void QT_COMPAT drawComplexControl(ComplexControl control,
-                             QPainter *p, const QWidget *widget, const QRect &r,
-                             const QColorGroup &cg, SFlags how = Style_Default,
-                             SCFlags sub = SC_All, SCFlags subActive = SC_None,
-                             const QStyleOption& = QStyleOption::Default) const;
 #endif // QT_COMPAT
 
 #if defined(Q_DISABLE_COPY)

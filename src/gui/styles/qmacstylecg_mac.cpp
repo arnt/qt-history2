@@ -332,16 +332,6 @@ void QMacStyleCG::polish(QApplication *app)
     app->setPalette(pal);
 }
 
-void QMacStyleCG::drawComplexControl(ComplexControl control, QPainter *p, const QWidget *w,
-                                     const QRect &r, const QPalette& pal, SFlags flags, SCFlags sub,
-                                     SCFlags subActive, const QStyleOption &opt) const
-{
-    switch (control) {
-    default:
-        QWindowsStyle::drawComplexControl(control, p, w, r, pal, flags, sub, subActive, opt);
-    }
-}
-
 int QMacStyleCG::pixelMetric(PixelMetric metric, const QWidget *widget) const
 {
     SInt32 ret;
@@ -511,17 +501,6 @@ int QMacStyleCG::pixelMetric(PixelMetric metric, const QWidget *widget) const
 }
 
 
-QRect QMacStyleCG::querySubControlMetrics(ComplexControl control, const QWidget *widget,
-                                          SubControl sc, const QStyleOption &opt) const
-{
-    QRect rect;
-    switch (control) {
-    default:
-        rect = QCommonStyle::querySubControlMetrics(control, widget, sc, opt);
-    }
-    return rect;
-}
-
 QRect QMacStyleCG::subRect(SubRect sr, const QWidget *widget) const
 {
     QRect subrect;
@@ -542,17 +521,6 @@ QRect QMacStyleCG::subRect(SubRect sr, const QWidget *widget) const
             subrect = QWindowsStyle::subRect(sr, widget);
     }
     return subrect;
-}
-
-QStyle::SubControl QMacStyleCG::querySubControl(ComplexControl control, const QWidget *widget,
-                                                const QPoint &pos, const QStyleOption &opt) const
-{
-    SubControl sc = SC_None;
-    switch (control) {
-    default:
-        sc = QCommonStyle::querySubControl(control, widget, pos, opt);
-    }
-    return sc;
 }
 
 int QMacStyleCG::styleHint(StyleHint sh, const QWidget *widget, const QStyleOption &opt,

@@ -754,26 +754,6 @@ QPixmap QWindowsStyle::stylePixmap(StylePixmap stylepixmap,
     return QCommonStyle::stylePixmap(stylepixmap, widget, opt);
 }
 
-/*!\reimp
-*/
-void QWindowsStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
-                                        const QWidget *widget,
-                                        const QRect &r,
-                                        const QPalette &pal,
-                                        SFlags flags,
-                                        SCFlags sub,
-                                        SCFlags subActive,
-                                        const QStyleOption& opt) const
-{
-    switch (ctrl) {
-    default:
-        QCommonStyle::drawComplexControl(ctrl, p, widget, r, pal, flags, sub,
-                                          subActive, opt);
-        break;
-    }
-}
-
-
 /*! \reimp */
 int QWindowsStyle::styleHint(StyleHint hint,
                               const QWidget *widget,

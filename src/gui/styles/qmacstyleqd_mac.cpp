@@ -20,7 +20,6 @@
 #include <private/qdialogbuttons_p.h>
 #include <private/qpainter_p.h>
 #include <private/qt_mac_p.h>
-#include <private/qt_mac_p.h>
 #include <private/qtitlebar_p.h>
 #include <qapplication.h>
 #include <qaquastyle_mac.h>
@@ -66,9 +65,10 @@ public:
 void QMacStyleQDPainter::setport()
 {
     QQuickDrawPaintEngine *mpe = NULL;
-    if(d_ptr->engine && (d_ptr->engine->type() == QPaintEngine::QuickDraw || d_ptr->engine->type() == QPaintEngine::CoreGraphics))
+    if (d_ptr->engine && (d_ptr->engine->type() == QPaintEngine::QuickDraw
+                         || d_ptr->engine->type() == QPaintEngine::CoreGraphics))
         mpe = static_cast<QQuickDrawPaintEngine *>(d_ptr->engine);
-    if(mpe) {
+    if (mpe) {
         mpe->updateState(d_ptr->state);
         if(mpe->type() == QPaintEngine::QuickDraw) {
             mpe->setupQDPort(true);
@@ -392,149 +392,6 @@ void QMacStyleQD::unPolish(QWidget* w)
     }
 }
 
-void QMacStyleQD::drawComplexControl(ComplexControl ctrl, QPainter *p,
-                                        const QWidget *widget,
-                                        const QRect &r,
-                                        const QPalette &pal,
-                                        SFlags flags,
-                                        SCFlags sub,
-                                        SCFlags subActive,
-                                        const QStyleOption& opt) const
-{
-    ThemeDrawState tds = kThemeStateActive;
-    if(qAquaActive(pal)) {
-        if(!(flags & Style_Enabled))
-            tds = kThemeStateUnavailable;
-    } else if(flags & Style_Enabled) {
-        tds = kThemeStateInactive;
-    } else {
-        tds = kThemeStateUnavailableInactive;
-    }
-
-    switch(ctrl) {
-    case CC_ScrollBar: {
-        if(!widget)
-            break;
-        QScrollBar *scrollbar = (QScrollBar *) widget;
-        ThemeTrackDrawInfo ttdi;
-        memset(&ttdi, '\0', sizeof(ttdi));
-        switch (qt_aqua_size_constrain(widget)) {
-        case QAquaSizeUnknown:
-        case QAquaSizeLarge:
-            ttdi.kind = kThemeMediumScrollBar;
-            break;
-        case QAquaSizeMini:
-#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3) && 0
-            if (QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER) {
-                ttdi.kind = kThemeMiniScrollBar;
-                break;
-            }
-#endif
-        case QAquaSizeSmall:
-            ttdi.kind = kThemeSmallScrollBar;
-            break;
-        }
-        ttdi.bounds = *qt_glb_mac_rect(r, p);
-        ttdi.min = scrollbar->minimum();
-        ttdi.max = scrollbar->maximum();
-        ttdi.value = scrollbar->value();
-        ttdi.attributes |= kThemeTrackShowThumb;
-        if(scrollbar->orientation() == Qt::Horizontal)
-            ttdi.attributes |= kThemeTrackHorizontal;
-        if(scrollbar->invertedAppearance())
-            ttdi.attributes |= kThemeTrackRightToLeft;
-        if(!qAquaActive(pal))
-            ttdi.enableState = kThemeTrackInactive;
-        else if(!scrollbar->isEnabled())
-            ttdi.enableState = kThemeTrackDisabled;
-        if(subActive == SC_ScrollBarSubLine)
-            ttdi.trackInfo.scrollbar.pressState = kThemeRightInsideArrowPressed |
-                                                  kThemeLeftOutsideArrowPressed;
-        else if(subActive == SC_ScrollBarAddLine)
-            ttdi.trackInfo.scrollbar.pressState = kThemeLeftInsideArrowPressed |
-                                                  kThemeRightOutsideArrowPressed;
-        else if(subActive == SC_ScrollBarAddPage)
-            ttdi.trackInfo.scrollbar.pressState = kThemeRightTrackPressed;
-        else if(subActive == SC_ScrollBarSubPage)
-            ttdi.trackInfo.scrollbar.pressState = kThemeLeftTrackPressed;
-        else if(subActive == SC_ScrollBarSlider)
-            ttdi.trackInfo.scrollbar.pressState = kThemeThumbPressed;
-        ttdi.trackInfo.scrollbar.viewsize = scrollbar->pageStep();
-        ((QMacStyleQDPainter *)p)->setport();
-        DrawThemeTrack(&ttdi, NULL, NULL, 0);
-        break; }
-    case CC_Slider: {
-        if(!widget)
-            break;
-        QSlider *sldr = (QSlider *)widget;
-        bool horizontal = sldr->orientation() == Qt::Horizontal;
-        bool invertedAppearance = sldr->invertedAppearance();
-        ThemeTrackDrawInfo ttdi;
-        memset(&ttdi, '\0', sizeof(ttdi));
-        switch (qt_aqua_size_constrain(widget)) {
-        case QAquaSizeUnknown:
-        case QAquaSizeLarge:
-            ttdi.kind = kThemeMediumSlider;
-            break;
-        case QAquaSizeMini:
-#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-            if (QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER) {
-                ttdi.kind = kThemeMiniSlider;
-                break;
-            }
-#endif
-        case QAquaSizeSmall:
-            ttdi.kind = kThemeSmallSlider;
-            break;
-        }
-        ttdi.bounds = *qt_glb_mac_rect(widget->rect(), p);
-        ttdi.min = sldr->minimum();
-        ttdi.max = sldr->maximum();
-        ttdi.value = sldr->value();
-        ttdi.attributes |= kThemeTrackShowThumb;
-#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_2)
-        if(flags & Style_HasFocus)
-            ttdi.attributes |= kThemeTrackHasFocus;
-#endif
-        if(horizontal)
-            ttdi.attributes |= kThemeTrackHorizontal;
-        if(!horizontal == !invertedAppearance)
-            ttdi.attributes |= kThemeTrackRightToLeft;
-        if(widget->isEnabled())
-            ttdi.enableState |= kThemeTrackActive;
-        if(!qAquaActive(pal))
-            ttdi.enableState = kThemeTrackInactive;
-        else if(!sldr->isEnabled())
-            ttdi.enableState = kThemeTrackDisabled;
-        if(sldr->tickmarks() == QSlider::Above)
-            ttdi.trackInfo.slider.thumbDir = kThemeThumbUpward;
-        else
-            ttdi.trackInfo.slider.thumbDir = kThemeThumbDownward;
-        if(subActive == SC_SliderGroove)
-            ttdi.trackInfo.slider.pressState = kThemeLeftTrackPressed;
-        else if(subActive == SC_SliderHandle)
-            ttdi.trackInfo.slider.pressState = kThemeThumbPressed;
-
-        //The AppManager draws outside my rectangle, so account for that difference..
-        Rect macRect;
-        GetThemeTrackBounds(&ttdi, &macRect);
-        ttdi.bounds.left  += ttdi.bounds.left  - macRect.left;
-        ttdi.bounds.right -= macRect.right - ttdi.bounds.right;
-
-        ((QMacStyleQDPainter *)p)->setport();
-        DrawThemeTrack(&ttdi, NULL, NULL, 0);
-        if(sub & SC_SliderTickmarks) {
-	    int numTicks = (sldr->maximum() - sldr->minimum() + 1) / sldr->pageStep();
-            if(sldr->tickInterval())
-                numTicks = sldr->width() / sldr->tickInterval();
-            DrawThemeTrackTickMarks(&ttdi, numTicks, NULL, 0);
-        }
-        break; }
-    default:
-        QWindowsStyle::drawComplexControl(ctrl, p, widget, r, pal, flags, sub, subActive, opt);
-    }
-}
-
 int QMacStyleQD::pixelMetric(PixelMetric metric, const QWidget *widget) const
 {
     SInt32 ret = 0;
@@ -759,134 +616,6 @@ int QMacStyleQD::pixelMetric(PixelMetric metric, const QWidget *widget) const
     return ret;
 }
 
-QRect QMacStyleQD::querySubControlMetrics(ComplexControl control,
-                                            const QWidget *w,
-                                            SubControl sc,
-                                            const QStyleOption& opt) const
-{
-    switch(control) {
-    case CC_ScrollBar: {
-        if(!w)
-            return QRect();
-        QScrollBar *scrollbar = (QScrollBar *) w;
-        ThemeTrackDrawInfo ttdi;
-        memset(&ttdi, '\0', sizeof(ttdi));
-        switch (qt_aqua_size_constrain(w)) {
-        case QAquaSizeUnknown:
-        case QAquaSizeLarge:
-            ttdi.kind = kThemeMediumScrollBar;
-            break;
-        case QAquaSizeMini:
-#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3) && 0
-            if (QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER) {
-                ttdi.kind = kThemeMiniScrollBar;
-                break;
-            }
-#endif
-        case QAquaSizeSmall:
-            ttdi.kind = kThemeSmallScrollBar;
-            break;
-        }
-        ttdi.bounds = *qt_glb_mac_rect(w->rect());
-        ttdi.min = scrollbar->minimum();
-        ttdi.max = scrollbar->maximum();
-        ttdi.value = scrollbar->value();
-        ttdi.attributes |= kThemeTrackShowThumb;
-        if(scrollbar->orientation() == Qt::Horizontal)
-            ttdi.attributes |= kThemeTrackHorizontal;
-        if(!qAquaActive(scrollbar->palette()))
-            ttdi.enableState = kThemeTrackInactive;
-        else if(!scrollbar->isEnabled())
-            ttdi.enableState = kThemeTrackDisabled;
-        ttdi.trackInfo.scrollbar.viewsize = scrollbar->pageStep();
-        switch(sc) {
-        case SC_ScrollBarGroove: {
-            Rect mrect;
-            GetThemeTrackDragRect(&ttdi, &mrect);
-            return QRect(mrect.left, mrect.top, mrect.right - mrect.left, mrect.bottom - mrect.top);
-            break; }
-        case SC_ScrollBarSlider: {
-            Rect r;
-            RgnHandle rgn = qt_mac_get_rgn();
-            GetThemeTrackThumbRgn(&ttdi, rgn);
-            GetRegionBounds(rgn, &r);
-            QRect ret = QRect(r.left, r.top, (r.right - r.left), (r.bottom - r.top));
-            qt_mac_dispose_rgn(rgn);
-            return ret; }
-        default:
-            break;
-        }
-        break; }
-    case CC_Slider: {
-        if(!w)
-            return QRect();
-        QSlider *sldr = (QSlider *)w;
-        bool horizontal = sldr->orientation() == Qt::Horizontal;
-        bool invertedAppearance = sldr->invertedAppearance();
-        ThemeTrackDrawInfo ttdi;
-        memset(&ttdi, '\0', sizeof(ttdi));
-        switch (qt_aqua_size_constrain(w)) {
-        case QAquaSizeUnknown:
-        case QAquaSizeLarge:
-            ttdi.kind = kThemeMediumSlider;
-            break;
-        case QAquaSizeMini:
-#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-            if (QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER) {
-                ttdi.kind = kThemeMiniSlider;
-                break;
-            }
-#endif
-        case QAquaSizeSmall:
-            ttdi.kind = kThemeSmallSlider;
-            break;
-        }
-#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_2)
-        if(w->hasFocus())
-            ttdi.attributes |= kThemeTrackHasFocus;
-#endif
-        ttdi.bounds = *qt_glb_mac_rect(w->rect());
-        ttdi.min = sldr->minimum();
-        ttdi.max = sldr->maximum();
-        ttdi.value = sldr->value();
-        ttdi.attributes |= kThemeTrackShowThumb;
-        if(horizontal)
-            ttdi.attributes |= kThemeTrackHorizontal;
-        if(!horizontal == !invertedAppearance)
-            ttdi.attributes |= kThemeTrackRightToLeft;
-        if(!qAquaActive(sldr->palette()))
-            ttdi.enableState = kThemeTrackInactive;
-        else if(!sldr->isEnabled())
-            ttdi.enableState = kThemeTrackDisabled;
-        if(sldr->tickmarks() == QSlider::Above)
-            ttdi.trackInfo.slider.thumbDir = kThemeThumbUpward;
-        else
-            ttdi.trackInfo.slider.thumbDir = kThemeThumbDownward;
-
-        Rect mrect;
-        switch(sc) {
-        case SC_SliderGroove: {
-            GetThemeTrackBounds(&ttdi, &mrect);
-            return QRect(mrect.left, mrect.top,
-                         mrect.right - mrect.left, mrect.bottom - mrect.top); }
-        case SC_SliderHandle: {
-            RgnHandle rgn = qt_mac_get_rgn();
-            GetThemeTrackThumbRgn(&ttdi, rgn);
-            GetRegionBounds(rgn, &mrect);
-            QRect ret = QRect(mrect.left, mrect.top, (mrect.right - mrect.left) + 1,
-                              (mrect.bottom - mrect.top) + 1);
-            qt_mac_dispose_rgn(rgn);
-            return ret; }
-        default:
-            break;
-        }
-        break; }
-    default:
-        break;
-    }
-    return QCommonStyle::querySubControlMetrics(control, w, sc, opt);
-}
-
 QRect QMacStyleQD::subRect(SubRect r, const QWidget *w) const
 {
     QRect ret;
@@ -990,74 +719,6 @@ QRect QMacStyleQD::subRect(SubRect r, const QWidget *w) const
         break;
     default:
         ret = QWindowsStyle::subRect(r, w);
-        break;
-    }
-    return ret;
-}
-
-QStyle::SubControl QMacStyleQD::querySubControl(ComplexControl control,
-                                                 const QWidget *widget,
-                                                 const QPoint &pos,
-                                                 const QStyleOption& opt) const
-{
-    SubControl ret = SC_None;
-    switch(control) {
-    case CC_ScrollBar: {
-        if(!widget)
-            break;
-        QScrollBar *scrollbar = (QScrollBar *) widget;
-        ThemeTrackDrawInfo ttdi;
-        memset(&ttdi, '\0', sizeof(ttdi));
-        switch (qt_aqua_size_constrain(widget)) {
-        case QAquaSizeUnknown:
-        case QAquaSizeLarge:
-            ttdi.kind = kThemeMediumScrollBar;
-            break;
-        case QAquaSizeMini:
-#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3) && 0
-            if (QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER) {
-                ttdi.kind = kThemeMiniScrollBar;
-                break;
-            }
-#endif
-        case QAquaSizeSmall:
-            ttdi.kind = kThemeSmallScrollBar;
-            break;
-        }
-        ttdi.bounds = *qt_glb_mac_rect(widget->rect());
-        ttdi.min = scrollbar->minimum();
-        ttdi.max = scrollbar->maximum();
-        ttdi.value = scrollbar->value();
-        ttdi.attributes |= kThemeTrackShowThumb;
-        if(scrollbar->orientation() == Qt::Horizontal)
-            ttdi.attributes |= kThemeTrackHorizontal;
-        if(!qAquaActive(scrollbar->palette()))
-            ttdi.enableState = kThemeTrackInactive;
-        else if(!scrollbar->isEnabled())
-            ttdi.enableState = kThemeTrackDisabled;
-        ttdi.trackInfo.scrollbar.viewsize = scrollbar->pageStep();
-        Point pt = { pos.y(), pos.x() };
-        Rect mrect;
-        GetThemeTrackBounds(&ttdi, &mrect);
-        ControlPartCode cpc;
-        if(HitTestThemeScrollBarArrows(&ttdi.bounds, ttdi.enableState,
-                                       0, scrollbar->orientation() == Qt::Horizontal,
-                                       pt, &mrect, &cpc)) {
-            if(cpc == kControlUpButtonPart)
-                ret = SC_ScrollBarSubLine;
-            else if(cpc == kControlDownButtonPart)
-                ret = SC_ScrollBarAddLine;
-        } else if(HitTestThemeTrack(&ttdi, pt, &cpc)) {
-            if(cpc == kControlPageUpPart)
-                ret = SC_ScrollBarSubPage;
-            else if(cpc == kControlPageDownPart)
-                ret = SC_ScrollBarAddPage;
-            else
-                ret = SC_ScrollBarSlider;
-        }
-        break; }
-    default:
-        ret = QCommonStyle::querySubControl(control, widget, pos, opt);
         break;
     }
     return ret;
@@ -1239,47 +900,6 @@ QSize QMacStyleQD::sizeFromContents(ContentsType contents, const QWidget *widget
         }
         if(sz.height() > tabh)
             sz.setHeight(tabh);
-        break; }
-    case CT_MenuItem: {
-        if(!widget || opt.isDefault())
-            break;
-        const QMenu *menu = (const QMenu *) widget;
-        bool checkable = menu->isCheckable();
-        QAction *mi = opt.action();
-        int maxpmw = opt.maxIconWidth();
-        int w = sz.width(), h = sz.height();
-
-        if(mi->isSeparator()) {
-            w = 10;
-            SInt16 ash;
-            GetThemeMenuSeparatorHeight(&ash);
-            h = ash;
-        } else {
-            h = qMax(h, menu->fontMetrics().height() + 2);
-            if(!mi->icon().isNull())
-                h = qMax(h, mi->icon().pixmap(QIconSet::Small, QIconSet::Normal).height() + 4);
-        }
-
-        if(!mi->text().isNull()) {
-            if(mi->text().indexOf('\t') >= 0)
-                w += 12;
-        }
-        if (mi->menu())
-            w += 20;
-
-        if(maxpmw)
-            w += maxpmw + 6;
-        if(checkable && maxpmw < 20)
-            w += 20 - maxpmw;
-        if(checkable || maxpmw > 0)
-            w += 2;
-        if(::qt_cast<QComboBox*>(widget->parentWidget())
-            && widget->parentWidget()->isVisible())
-            w = qMax(w, querySubControlMetrics(CC_ComboBox, widget->parentWidget(),
-                        SC_ComboBoxEditField).width());
-        else
-            w += 12;
-        sz = QSize(w, h);
         break; }
     case CT_PushButton:
         sz = QWindowsStyle::sizeFromContents(contents, widget, contentsSize, opt);

@@ -173,46 +173,15 @@ void QMacStyle::unPolish(QWidget* w)
 }
 
 /*! \reimp */
-void QMacStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
-                                        const QWidget *widget,
-                                        const QRect &r,
-                                        const QPalette &pal,
-                                        SFlags flags,
-                                        SCFlags sub,
-                                        SCFlags subActive,
-                                        const QStyleOption& opt) const
-{
-    correctStyle(p)->drawComplexControl(ctrl, p, widget, r, pal, flags, sub, subActive, opt);
-}
-
-/*! \reimp */
 int QMacStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
 {
     return correctStyle(widget)->pixelMetric(metric, widget);
 }
 
 /*! \reimp */
-QRect QMacStyle::querySubControlMetrics(ComplexControl control,
-                                            const QWidget *w,
-                                            SubControl sc,
-                                            const QStyleOption& opt) const
-{
-    return correctStyle(w)->querySubControlMetrics(control, w, sc, opt);
-}
-
-/*! \reimp */
 QRect QMacStyle::subRect(SubRect r, const QWidget *w) const
 {
     return correctStyle(w)->subRect(r, w);
-}
-
-/*! \reimp */
-QStyle::SubControl QMacStyle::querySubControl(ComplexControl control,
-                                                 const QWidget *widget,
-                                                 const QPoint &pos,
-                                                 const QStyleOption& opt) const
-{
-    return correctStyle(widget)->querySubControl(control, widget, pos, opt);
 }
 
 /*! \reimp */
@@ -376,13 +345,6 @@ void QMacStyle::drawComplexControl(ComplexControl cc, const Q4StyleOptionComplex
                                    const QWidget *w) const
 {
     correctStyle(p)->drawComplexControl(cc, opt, p, w);
-}
-
-/*! \reimp */
-void QMacStyle::drawComplexControlMask(ComplexControl cc, const Q4StyleOptionComplex *opt,
-                                       QPainter *p, const QWidget *w) const
-{
-    correctStyle(p)->drawComplexControlMask(cc, opt, p, w);
 }
 
 /*! \reimp */
