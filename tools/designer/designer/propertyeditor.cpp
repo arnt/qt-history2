@@ -2834,7 +2834,7 @@ bool PropertyList::eventFilter( QObject *o, QEvent *e )
 	    QApplication::sendEvent( o, &ke2 );
 	    return TRUE;
 	}
-    } else if ( e->type() == QEvent::FocusOut && o->inherits( "QLineEdit" ) ) {
+    } else if ( e->type() == QEvent::FocusOut && o->inherits( "QLineEdit" ) && editor->formWindow() ) {
 	QTimer::singleShot( 100, editor->formWindow()->commandHistory(), SLOT( checkCompressedCommand() ) );
     } else if ( o == viewport() ) {
 	QMouseEvent *me;
