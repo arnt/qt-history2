@@ -4619,10 +4619,8 @@ void QFileDialog::doMimeTypeLookup()
     }
 
     QRect r;
-    for ( uint i = 0; i < 5; ++i ) {
-	QFileDialogPrivate::File *item = d->pendingItems.first();
-	if ( !item )
-	    break;
+    QFileDialogPrivate::File *item = d->pendingItems.first();
+    if ( item ) {
 	QFileInfo fi;
 	if ( d->url.isLocalFile() )
 	    fi.setFile( QUrl( d->url.path(), item->info.name() ).path() );
@@ -4631,12 +4629,14 @@ void QFileDialog::doMimeTypeLookup()
 	const QPixmap *p = iconProvider()->pixmap( fi );
 	if ( p && p != item->pixmap( 0 ) && p != fifteenTransparentPixels ) {
 	    item->hasMimePixmap = TRUE;
+	    
 	    // evil hack to avoid much too much repaints!
 	    qApp->processEvents();
 	    files->viewport()->setUpdatesEnabled( FALSE );
 	    item->setPixmap( 0, *p );
 	    qApp->processEvents();
 	    files->viewport()->setUpdatesEnabled( TRUE );
+	
 	    if ( files->isVisible() ) {
 		QRect ir( files->itemRect( item ) );
 		if ( ir != QRect( 0, 0, -1, -1 ) )
@@ -4647,8 +4647,9 @@ void QFileDialog::doMimeTypeLookup()
 		    r = r.unite( ir );
 	    }
 	}
-   	d->pendingItems.removeFirst();
+	d->pendingItems.removeFirst();
     }
+    
     if ( d->moreFiles->isVisible() )
 	d->moreFiles->viewport()->repaint( r, FALSE );
     else
