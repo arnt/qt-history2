@@ -31,6 +31,7 @@
 #include "qstrlist.h"
 #endif // QT_H
 
+class QObject;
 
 struct QMetaData				// member function meta data
 {						//   for signal and slots
@@ -68,13 +69,13 @@ public:
     const char*	name() const { return n; }		// name of the property
 
     bool writeable() const { return set != 0; }
-    bool isValid() const { return get != 0 && !testFlags( UnresolvedEnum | UnresolvedDesignable | UnresolvedStoreable ) ; }
+    bool isValid() const { return get != 0 && !testFlags( UnresolvedEnum | UnresolvedDesignable | UnresolvedStored ) ; }
 
     bool isSetType() const { return ( enumData != 0 && enumData->set ); }
     bool isEnumType() const { return ( enumData != 0 ); }
     QStrList enumKeys() const;			// enumeration names
 
-    bool isStoreable() const { return ( isValid() && set != 0 && !testFlags( NotStoreable | UnresolvedStoreable ) ); }
+    bool stored( QObject* ) const;
     bool isDesignable() const { return ( isValid() && set != 0 && !testFlags( NotDesignable | UnresolvedDesignable ) ); }
 
     const char* t;
@@ -90,10 +91,12 @@ public:
 
     enum Flags  {
 	UnresolvedEnum       = 0x00000001,
-	UnresolvedStoreable  = 0x00000002,
-	UnresolvedDesignable = 0x00000004,
-	NotDesignable        = 0x00000008,
-	NotStoreable         = 0x00000010
+	UnresolvedSet        = 0x00000002,
+	UnresolvedEnumOrSet  = 0x00000004,
+	UnresolvedStored     = 0x00000008,
+	UnresolvedDesignable = 0x00000010,
+	NotDesignable        = 0x00000020,
+	NotStored            = 0x00000040
     };
 
     inline bool testFlags( uint f ) const

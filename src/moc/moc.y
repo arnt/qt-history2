@@ -124,7 +124,7 @@ struct Property
 	      const QCString& st, int d, const QCString& de, bool nd, bool ov )
 	: lineNo(l), type(t), name(n), set(s), get(g), setfunc(0), getfunc(0),
 	  sspec(Unspecified), gspec(Unspecified), defaultValue( de ), stored( st ),
-	  designable( d ), nodefault( nd ), override( ov )
+	  designable( d ), nodefault( nd ), override( ov ), oredEnum( -1 )
     {}
 
     int lineNo;
@@ -137,6 +137,8 @@ struct Property
     int designable; // Allowed values are TRUE, FALSE and -1
     bool nodefault;
     bool override;
+    int oredEnum; // If the enums item may be ored. That means the data type is int.
+		  // Allowed values are TRUE, FALSE and -1
 
     Function* setfunc;
     Function* getfunc;
@@ -1864,6 +1866,18 @@ bool isPropertyType( const char* type )
     return FALSE;
 }
 
+/*!
+  Returns TRUE if the type is not one of a QVariant types.
+  So it is either a enum/set or an error.
+*/
+bool isEnumType( const char* type )
+{
+    if ( qvariant_nameToType( type ) != 0 )
+	return FALSE;
+
+    return TRUE;
+}
+
 void finishProps()
 {
     int entry = 0;
@@ -1945,16 +1959,45 @@ int generateProps()
 		    tmp = tmp.mid( 6, tmp.length() - 6 );
 		tmp = tmp.simplifyWhiteSpace();
 		if ( p->type == tmp ) {
+		    // If it is an enum then it may not be a set
+		    bool ok = TRUE;
+		    for( QListIterator<Enum> lit( enums ); lit.current(); ++lit )
+			if ( lit.current()->name == p->type && lit.current()->set )
+			    ok = FALSE;
+		    if ( !ok ) continue;
 		    p->gspec = spec;
 		    p->getfunc = f;
+		    p->oredEnum = FALSE;
 		    break;
+		}
+		else if ( isEnumType( p->type ) ) {
+		    if ( tmp == "int" || tmp == "uint" || tmp == "unsigned int" ) {
+			// Test wether the enum is really a set (unfortunately we dont know enums of super classes)
+			bool ok = TRUE;
+			for( QListIterator<Enum> lit( enums ); lit.current(); ++lit )
+			    if ( lit.current()->name == p->type && !lit.current()->set )
+				ok = FALSE;
+			if ( !ok ) continue;
+		        p->gspec = spec;
+		        p->getfunc = f;
+			p->oredEnum = TRUE;			
+		    }
 		}
 	    }
 	    if ( p->getfunc == 0 ) {
 		if ( displayWarnings ) {
+
+		    // Is the type a set, that means, mentioned in Q_SETS ?
+		    bool set = FALSE;
+		    for( QListIterator<Enum> lit( enums ); lit.current(); ++lit )
+			if ( lit.current()->name == p->type && lit.current()->set )
+			    set = TRUE;
+
 		    fprintf( stderr, "%s:%d: Warning: Property '%s' not available.\n",
 			     fileName.data(), p->lineNo, (const char*) p->name );
-		    fprintf( stderr, "   Have been looking for public get functions \n"
+		    fprintf( stderr, "   Have been looking for public get functions \n");
+		    if ( !set ) {
+			fprintf( stderr,
 			     "      %s %s() const\n"
 			     "      %s& %s() const\n"
 			     "      const %s& %s() const\n"
@@ -1963,6 +2006,17 @@ int generateProps()
 			     (const char*) p->type, (const char*) p->get,
 			     (const char*) p->type, (const char*) p->get,
 			     (const char*) p->type, (const char*) p->get );
+		    }
+		    if ( set || !isPropertyType( p->type ) ) {
+			fprintf( stderr,
+			     "      int %s() const\n"
+			     "      uint %s() const\n"
+			     "      unsigned int %s() const\n",
+			     (const char*) p->get,
+			     (const char*) p->get,
+			     (const char*) p->get,
+			     (const char*) p->get );
+		    }
 		    if ( p->type == "QCString" )
 			fprintf( stderr, "      const char* %s() const\n",
 				 (const char*)p->get );
@@ -2018,22 +2072,65 @@ int generateProps()
 		tmp = tmp.simplifyWhiteSpace();
 
 		if ( p->type == tmp && f->args->count() == 1 ) {
+		    // If it is an enum then it may not be a set
+		    if ( p->oredEnum == TRUE )
+			continue;
+		    bool ok = TRUE;
+		    for( QListIterator<Enum> lit( enums ); lit.current(); ++lit )
+			if ( lit.current()->name == p->type && lit.current()->set )
+			    ok = FALSE;
+		    if ( !ok ) continue;
 		    p->sspec = spec;
 		    p->setfunc = f;
+		    p->oredEnum = FALSE;
 		    break;
+		}
+		else if ( isEnumType( p->type ) && f->args->count() == 1 ) {
+		    if ( tmp == "int" || tmp == "uint" || tmp == "unsigned int" ) {
+		        if ( p->oredEnum == FALSE )
+			    continue;
+			// Test wether the enum is really a set (unfortunately we dont know enums of super classes)
+			bool ok = TRUE;
+			for( QListIterator<Enum> lit( enums ); lit.current(); ++lit )
+			    if ( lit.current()->name == p->type && !lit.current()->set )
+				ok = FALSE;
+			if ( !ok ) continue;
+		        p->sspec = spec;
+		        p->setfunc = f;
+			p->oredEnum = TRUE;			
+		    }
 		}
 	    }
 	    if ( p->setfunc == 0 ) {
 		if ( displayWarnings ) {
+
+		    // Is the type a set, that means, mentioned in Q_SETS ?
+		    bool set = FALSE;
+		    for( QListIterator<Enum> lit( enums ); lit.current(); ++lit )
+			if ( lit.current()->name == p->type && lit.current()->set )
+			    set = TRUE;
+
 		    fprintf( stderr, "%s:%d: Warning: Property '%s' not writable.\n",
 			     fileName.data(), p->lineNo, (const char*) p->name );
-		    fprintf( stderr, "   Have been looking for public set functions \n"
+		    fprintf( stderr, "   Have been looking for public set functions \n");
+		    if ( !set && p->oredEnum != TRUE ) {
+			fprintf( stderr,
 			     "      void %s( %s )\n"
 			     "      void %s( %s& )\n"
 			     "      void %s( const %s& )\n",
 			     (const char*) p->set, (const char*) p->type,
 			     (const char*) p->set, (const char*) p->type,
 			     (const char*) p->set, (const char*) p->type );
+		    }
+		    if ( set || ( !isPropertyType( p->type ) && p->oredEnum != FALSE ) ) {
+			fprintf( stderr,
+			     "      void %s( int )\n"
+			     "      void %s( uint )\n"
+			     "      void %s( unsigned int )\n",
+			     (const char*) p->set,
+			     (const char*) p->set,
+			     (const char*) p->set );
+		    }
 
 		    if ( p->type == "QCString" )
 			fprintf( stderr, "      void %s( const char* ) const\n",
@@ -2077,7 +2174,7 @@ int generateProps()
 	    }
 	    if ( !found ) {
 		if ( displayWarnings ) {
-		    fprintf( stderr, "%s:%d: Warning: Property '%s' not storeable.\n",
+		    fprintf( stderr, "%s:%d: Warning: Property '%s' not stored.\n",
 			     fileName.data(), p->lineNo, (const char*) p->name );
 		    fprintf( stderr, "   Have been looking for public function \n"
 			     "      bool %s() const\n",
@@ -2182,14 +2279,22 @@ int generateProps()
 		    enumpos = k;
 	    }
 
+	    // Is it an enum of this class ?
 	    if ( enumpos != -1 )
 		fprintf( out, "    props_tbl[%d].enumData = &enum_tbl[%i];\n", entry, enumpos );
-	    else if (!isPropertyType( it.current()->type ) )
-		fprintf( out, "    props_tbl[%d].setFlags(QMetaProperty::UnresolvedEnum);\n", entry );
+	    // Is it an unknown enum that needs to be resolved ?
+	    else if (!isPropertyType( it.current()->type ) ) {
+		if ( it.current()->oredEnum == TRUE )
+		    fprintf( out, "    props_tbl[%d].setFlags(QMetaProperty::UnresolvedSet);\n", entry );
+		else if ( it.current()->oredEnum == FALSE )
+		    fprintf( out, "    props_tbl[%d].setFlags(QMetaProperty::UnresolvedEnum);\n", entry );
+		else
+		    fprintf( out, "    props_tbl[%d].setFlags(QMetaProperty::UnresolvedEnumOrSet);\n", entry );
+	    }
 
 	    // Handle STORED
 	    if ( it.current()->stored == "false" )
-		fprintf( out, "    props_tbl[%d].setFlags(QMetaProperty::NotStoreable);\n", entry );
+		fprintf( out, "    props_tbl[%d].setFlags(QMetaProperty::NotStored);\n", entry );
 	    else if ( !it.current()->stored.isEmpty() && it.current()->stored != "true" )
 	    {
 		fprintf( out, "    typedef bool(%s::*s3_t%d)()const;\n", (const char*)className, count );
@@ -2201,7 +2306,7 @@ int generateProps()
 
 	    // OVERRIDE but no STORED ?
 	    if ( it.current()->override && it.current()->stored.isEmpty() )
-		fprintf( out, "    props_tbl[%d].setFlags(QMetaProperty::UnresolvedStoreable);\n", entry );
+		fprintf( out, "    props_tbl[%d].setFlags(QMetaProperty::UnresolvedStored);\n", entry );
 
 	    // Handle DESIGNABLE
 	    if ( it.current()->designable == false )

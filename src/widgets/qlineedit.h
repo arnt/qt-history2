@@ -47,7 +47,7 @@ class Q_EXPORT QLineEdit : public QWidget
     Q_PROPERTY( EchoMode echoMode READ echoMode WRITE setEchoMode )
     Q_PROPERTY( QString displayText READ displayText )
     Q_PROPERTY( int cursorPosition READ cursorPosition WRITE setCursorPosition )
-    Q_PROPERTY( int alignment READ alignment WRITE setAlignment )
+    Q_PROPERTY( Alignment alignment READ alignment WRITE setAlignment )
     Q_PROPERTY( bool edited READ edited WRITE setEdited )
     Q_PROPERTY( bool hasMarkedText READ hasMarkedText )
     Q_PROPERTY( QString markedText READ markedText )

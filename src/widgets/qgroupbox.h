@@ -41,8 +41,8 @@ class Q_EXPORT QGroupBox : public QFrame
 {
     Q_OBJECT
     Q_PROPERTY( QString title READ title WRITE setTitle )
-    Q_PROPERTY( int alignment READ alignment WRITE setAlignment )
-	
+    Q_PROPERTY( Alignment alignment READ alignment WRITE setAlignment )
+	// #### columns and layout not available for properties.
 public:
     QGroupBox( QWidget *parent=0, const char *name=0 );
     QGroupBox( const QString &title, QWidget *parent=0, const char* name=0 );

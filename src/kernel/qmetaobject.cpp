@@ -428,13 +428,13 @@ void QMetaObject::resolveProperty( QMetaProperty* prop )
 		}
 	    }
 
-	    if ( prop->testFlags( QMetaProperty::UnresolvedStoreable ) )
+	    if ( prop->testFlags( QMetaProperty::UnresolvedStored ) )
 	    {
-		if ( !p->testFlags( QMetaProperty::UnresolvedStoreable ) )
+		if ( !p->testFlags( QMetaProperty::UnresolvedStored ) )
 		{
-		    prop->clearFlags( QMetaProperty::UnresolvedStoreable );
-		    if ( p->testFlags( QMetaProperty::NotStoreable ) )
-			prop->setFlags( QMetaProperty::NotStoreable );
+		    prop->clearFlags( QMetaProperty::UnresolvedStored );
+		    if ( p->testFlags( QMetaProperty::NotStored ) )
+			prop->setFlags( QMetaProperty::NotStored );
 		    prop->store = p->store;
 		}
 	    }
@@ -448,9 +448,19 @@ void QMetaObject::resolveProperty( QMetaProperty* prop )
 		}
 	    }
 	}
-	if ( prop->testFlags( QMetaProperty::UnresolvedEnum ) ) {
+	if ( prop->testFlags( QMetaProperty::UnresolvedEnum | QMetaProperty::UnresolvedSet | QMetaProperty::UnresolvedEnumOrSet ) ) {
 	    QMetaEnum* e = super->enumerator( prop->t);
-	    if ( e ) {
+	    if ( e && e->set ) {
+		if ( !prop->testFlags( QMetaProperty::UnresolvedSet | QMetaProperty::UnresolvedEnumOrSet ) )
+		    qDebug("The property %s %s::%s assumed that '%s' was listed in Q_ENUMS, but it was listed in Q_SETS",
+			   prop->type(), className(), prop->name(), prop->type() );
+		prop->enumData = e;
+		prop->clearFlags( QMetaProperty::UnresolvedEnum );
+	    }
+	    else if ( e && !e->set ) {
+		if ( !prop->testFlags( QMetaProperty::UnresolvedEnum | QMetaProperty::UnresolvedEnumOrSet ) )
+		    qDebug("The property %s %s::%s assumed that '%s' was listed in Q_SETS, but it was listed in Q_ENUMS",
+			   prop->type(), className(), prop->name(), prop->type() );
 		prop->enumData = e;
 		prop->clearFlags( QMetaProperty::UnresolvedEnum );
 	    }
@@ -584,4 +594,19 @@ QStrList QMetaProperty::enumKeys() const
 	     l.append( enumData->items[i].key );
      }
      return l;
+}
+
+bool QMetaProperty::stored( QObject* o ) const
+{
+    if ( !isValid() || set == 0 || testFlags( NotStored | UnresolvedStored ) )
+	return FALSE;
+
+    if ( store == 0 )
+	return TRUE;
+
+    typedef bool (QObject::*ProtoBool)() const;	
+    ProtoBool m;
+    m = *((ProtoBool*)&store);
+
+    return (o->*m)();
 }

@@ -290,7 +290,6 @@ class Q_EXPORT QIconView : public QScrollView
     friend struct QIconViewPrivate;
 
     Q_OBJECT
-    // #### count does not work
     // #### sorting and soring direction dont work
     Q_ENUMS( SelectionMode ItemTextPos Arrangement ResizeMode )
     Q_PROPERTY( bool sorting READ sorting )

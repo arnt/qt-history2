@@ -41,7 +41,8 @@ class Q_EXPORT QToolBar: public QWidget
     Q_PROPERTY( QString label READ label WRITE setLabel )
     Q_PROPERTY( bool hStretchable READ isHorizontalStretchable WRITE setHorizontalStretchable )
     Q_PROPERTY( bool vStretchable READ isVerticalStretchable WRITE setVerticalStretchable )
-    // ####### Should support Orientation, too!
+    Q_PROPERTY( Orientation orientation READ orientation WRITE setOrientation )
+
 public:
     QToolBar( const QString &label,
 	      QMainWindow *, QMainWindow::ToolBarDock = QMainWindow::Top,

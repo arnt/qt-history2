@@ -37,7 +37,7 @@ struct QHeaderData;
 class Q_EXPORT QHeader : public QWidget
 {
     Q_OBJECT
-    // #### Orientation is missing
+    Q_PROPERTY( Orientation orientation READ orientation WRITE setOrientation )
     Q_PROPERTY( bool tracking READ tracking WRITE setTracking )
     Q_PROPERTY( int count READ count )
     Q_PROPERTY( int offset READ offset WRITE setOffset )

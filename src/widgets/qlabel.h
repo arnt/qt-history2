@@ -38,8 +38,8 @@ class Q_EXPORT QLabel : public QFrame
     Q_OBJECT
     Q_PROPERTY( QString text READ text WRITE setText )
     Q_PROPERTY( QPixmap pixmap READ pixmap WRITE setPixmap )
-    // #### Add Qt::TextFormat
-    Q_PROPERTY( int alignment READ alignment WRITE setAlignment )
+    Q_PROPERTY( TextFormat textFormat READ textFormat WRITE setTextFormat )
+    Q_PROPERTY( Alignment alignment READ alignment WRITE setAlignment )
     Q_PROPERTY( int indent READ indent WRITE setIndent )
     Q_PROPERTY( bool autoResize READ autoResize WRITE setAutoResize )
 	
@@ -55,8 +55,8 @@ public:
     QPixmap     *pixmap()	const	{ return lpixmap; }
     QMovie      *movie()		const;
 
-    Qt::TextFormat textFormat() const;
-    void 	 setTextFormat( Qt::TextFormat );
+    TextFormat textFormat() const;
+    void 	 setTextFormat( TextFormat );
 
     int		 alignment() const	{ return align; }
     virtual void setAlignment( int );
@@ -108,7 +108,7 @@ private:
     ushort	align;
     short	extraMargin;
     uint	autoresize:1;
-    Qt::TextFormat textformat;
+    TextFormat textformat;
     QSimpleRichText* doc;
     QAccel *	accel;
     QLabelPrivate* d;

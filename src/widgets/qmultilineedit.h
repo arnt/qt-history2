@@ -44,7 +44,7 @@ class Q_EXPORT QMultiLineEdit : public QTableView
     Q_PROPERTY( bool atBeginning READ atBeginning )
     Q_PROPERTY( bool atEnd READ atEnd )
     Q_PROPERTY( int maxLineWidth READ maxLineWidth )
-    Q_PROPERTY( int alignment READ alignment WRITE setAlignment )
+    Q_PROPERTY( Alignment alignment READ alignment WRITE setAlignment )
     Q_PROPERTY( bool edited READ edited WRITE setEdited )
     Q_PROPERTY( EchoMode echoMode READ echoMode WRITE setEchoMode )
     Q_PROPERTY( int maxLength READ maxLength WRITE setMaxLength )

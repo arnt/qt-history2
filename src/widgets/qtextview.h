@@ -42,8 +42,9 @@ class QMimeSourceFactory;
 class Q_EXPORT QTextView : public QScrollView
 {
     Q_OBJECT
-    // ######### Should support property textFormat
     // ######### setText should not have the default parameter
+    Q_PROPERTY( QString text READ text )
+    Q_PROPERTY( TextFormat textFormat READ textFormat WRITE setTextFormat )
     Q_PROPERTY( QBrush paper READ paper WRITE setPaper )
     Q_PROPERTY( QColorGroup paperColorGroup READ paperColorGroup WRITE setPaperColorGroup )
     Q_PROPERTY( QColor linkColor READ linkColor WRITE setLinkColor )
@@ -60,8 +61,8 @@ public:
     virtual QString text() const;
     virtual QString context() const;
 
-    Qt::TextFormat textFormat() const;
-    void setTextFormat( Qt::TextFormat );
+    TextFormat textFormat() const;
+    void setTextFormat( TextFormat );
 
 
     QStyleSheet* styleSheet() const;
@@ -73,7 +74,7 @@ public:
     // ##### This non const thing is obsolete
     const QBrush& paper();
     const QBrush& paper() const;
-    
+
     void setPaperColorGroup( const QColorGroup& colgrp);
     const QColorGroup &paperColorGroup() const;
 

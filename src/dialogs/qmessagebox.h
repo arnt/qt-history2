@@ -41,7 +41,7 @@ class Q_EXPORT QMessageBox : public QDialog
     Q_PROPERTY( QString text READ text WRITE setText )
     Q_PROPERTY( Icon icon READ icon WRITE setIcon )
     Q_PROPERTY( QPixmap iconPixmap READ iconPixmap WRITE setIconPixmap )
-	// ##### "Qt::" is in the way Q_PROPERTY( TextFormat textFormat READ textFormat WRITE setTextFormat )
+    Q_PROPERTY( TextFormat textFormat READ textFormat WRITE setTextFormat )
 
 public:
     enum Icon { NoIcon = 0, Information = 1, Warning = 2, Critical = 3 };
@@ -123,8 +123,8 @@ public:
 
     static QPixmap standardIcon( Icon icon, GUIStyle style );
 
-    Qt::TextFormat textFormat() const;
-    void 	 setTextFormat( Qt::TextFormat );
+    TextFormat textFormat() const;
+    void 	 setTextFormat( TextFormat );
 
 protected:
     void	resizeEvent( QResizeEvent * );
