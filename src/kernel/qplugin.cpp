@@ -59,7 +59,7 @@
 */
 
 /*!
-  \fn bool QCleanUpHandler::clean()
+  \fn bool QCleanUpHandler::isClean()
 
   Return TRUE if there are any undeleted objects this handler
   has to care about.

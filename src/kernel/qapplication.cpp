@@ -3189,14 +3189,14 @@ void MyApplication::commitData( QSessionManager& sm ) {
 */
 
 /*!
-  \fn void QSessionManager::setProperty( const QString& name, const QString& value )
+  \overload void QSessionManager::setManagerProperty( const QString& name, const QString& value )
 
   Low-level write access to the application's identification and state
   record kept in the session manager.
 */
 
 /*!
-  \fn void QSessionManager::setProperty( const QString& name, const QStringList& value )
+  \fn void QSessionManager::setManagerProperty( const QString& name, const QStringList& value )
 
   Low-level write access to the application's identification and state
   record kept in the session manager.

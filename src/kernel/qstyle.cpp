@@ -447,7 +447,7 @@ void QStyle::drawComboButtonMask( QPainter *p, int x, int y, int w, int h)
 
 
 
-/*! \fn void QStyle::getButtonShift( int &x, int &y)
+/*! \fn void QStyle::getButtonShift( int &x, int &y) const
   Some GUI styles shift the contents of a button when the button is down.
   The default implementation returns 0 for both x and y.
  */
@@ -624,7 +624,7 @@ TODO
 
 /*!
 
-  \fn void QStyle::scrollBarMetrics( const QScrollBar*, int &, int &, int &, int& )
+  \fn void QStyle::scrollBarMetrics( const QScrollBar*, int &, int &, int &, int& ) const
 
   Returns the metrics of the passed scrollbar: sliderMin, sliderMax,
   sliderLength and buttonDim.
@@ -751,7 +751,7 @@ Draws a checkmark suitable for checkboxes and checkable menu items.
  */
 
 
-/*! \fn int QStyle::extraPopupMenuItemWidth( bool checkable, int maxpmw, QMenuItem* mi, const QFontMetrics& fm )
+/*! \fn int QStyle::extraPopupMenuItemWidth( bool checkable, int maxpmw, QMenuItem* mi, const QFontMetrics& fm ) const
 
   Returns the extra width of a menu item \a mi, that means all extra
   pixels besides the space the menu item text requires. \a checkable
@@ -774,7 +774,7 @@ int QStyle::popupSubmenuIndicatorWidth( const QFontMetrics& fm  ) const
 
 
 
-/*! \fn int QStyle::popupMenuItemHeight( bool checkable, QMenuItem* mi, const QFontMetrics& fm  )
+/*! \fn int QStyle::popupMenuItemHeight( bool checkable, QMenuItem* mi, const QFontMetrics& fm ) const
 
   Returns the height of the menu item \a mi. \a checkable defines,
   whether the menu has a check column, \a fm defines the font metrics
@@ -891,7 +891,7 @@ int QStyle::buttonDefaultIndicatorWidth() const
   Sets the width of the default-button indicator frame.
 
   In a future version of the Qt library, this function will be removed
-  and subclasses will be able to reimplement buttonDefaultIndicatorWidth()
+  and subclasses will be able to reimplement buttonDefaultIndicatorWidth().
 */
 void QStyle::setButtonDefaultIndicatorWidth( int w )
 { //### TODO: pick up desktop settings on Windows
@@ -900,13 +900,13 @@ void QStyle::setButtonDefaultIndicatorWidth( int w )
 
 
 /*!
-  \fn QRect QStyle::pushButtonContentsRect( QPushButton* btn )
+  \fn QRect QStyle::pushButtonContentsRect( QPushButton* btn ) const
 
   Auxiliary function to return the contents rectangle of a push button
   \a btn. The contents rectangle is the space available for the button
   label.
 
-  The result depends on the look (buttonRect() ), whether the
+  The result depends on the look (buttonRect()), whether the
   button needs space for a default indicator
   (buttonDefaultIndicatorWidth()) and whether it is pushed down and
   needs to be shifted (getButtonShift()).

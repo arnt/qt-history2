@@ -738,7 +738,7 @@ QLayout::QLayout( int space, const char *name )
     delete it.
 */
 
-/*! \fn QLayoutIterator iterator();
+/*! \fn QLayoutIterator QLayout::iterator();
   Implemented in subclasses to return an iterator that iterates over
   the children of this layout.
 
@@ -787,7 +787,7 @@ QLayout::QLayout( int space, const char *name )
 
 
 
-
+#if 1 // OBSOLETE
 /*!
   \fn int QLayout::defaultBorder() const
 
@@ -795,6 +795,7 @@ QLayout::QLayout( int space, const char *name )
   Returns the internal spacing for the geometry manager. Replaced by
   spacing()
 */
+#endif
 
 /*!
   \fn int QLayout::spacing() const
@@ -1185,7 +1186,7 @@ void QLayout::addChildLayout( QLayout *l )
 }
 
 
-
+#if 1 // OBSOLETE
 /*!
   \overload void QLayout::freeze()
 
@@ -1204,6 +1205,7 @@ void QLayout::addChildLayout( QLayout *l )
 
   As a special case, freeze(0,0) is equivalent to setResizeMode( \c Fixed )
 */
+#endif
 
 void QLayout::freeze( int w, int h )
 {
@@ -1507,12 +1509,12 @@ Sets the hasHeightForWidth() flag to \a b.
 */
 
 
-/*! \fn void QSizePolicy::operator==( const QSizePolicy &s )
+/*! \fn bool QSizePolicy::operator==( const QSizePolicy &s )
   Returns TRUE if this policy is equal to \a s, or FALSE if
   they are different.
 */
 
-/*! \fn void QSizePolicy::operator!=( const QSizePolicy &s )
+/*! \fn bool QSizePolicy::operator!=( const QSizePolicy &s )
   Returns TRUE if this policy is different from \a s, or FALSE if
   they are equal.
 */

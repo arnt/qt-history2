@@ -1285,7 +1285,7 @@ static int textBox( QWidget *parent, QMessageBox::Icon severity,
   \a button0Text is not supplied, "OK" (translated) will be used.
   \a button1Text is the text of the second button and is optional.
   \a button2Text is the text of the third button and is optional.  \a
-  defaultbuttonNumber (0-2) is the index of the default button;
+  defaultButtonNumber (0-2) is the index of the default button;
   pressing Return or Enter is the same as clicking the default button.
   It defaults to 0 (the first button).  \a escapeButtonNumber is the
   index of the Escape button; pressing Escape is the same as clicking
@@ -1323,7 +1323,7 @@ int QMessageBox::information( QWidget *parent, const QString &caption,
   \a button0Text is not supplied, "OK" (translated) will be used.
   \a button1Text is the text of the second button and is optional, and
   \a button2Text is the text of the third button and is optional.  \a
-  defaultbuttonNumber (0-2) is the index of the default button;
+  defaultButtonNumber (0-2) is the index of the default button;
   pressing Return or Enter is the same as clicking the default button.
   It defaults to 0 (the first button).  \a escapeButtonNumber is the
   index of the Escape button; pressing Escape is the same as clicking
@@ -1361,7 +1361,7 @@ int QMessageBox::warning( QWidget *parent, const QString &caption,
   \a button0Text is not supplied, "OK" (translated) will be used.
   \a button1Text is the text of the second button and is optional, and
   \a button2Text is the text of the third button and is optional.  \a
-  defaultbuttonNumber (0-2) is the index of the default button;
+  defaultButtonNumber (0-2) is the index of the default button;
   pressing Return or Enter is the same as clicking the default button.
   It defaults to 0 (the first button).  \a escapeButtonNumber is the
   index of the Escape button; pressing Escape is the same as clicking

@@ -14,12 +14,15 @@
 
 /* tmake ignore Q_OBJECT */
 
+/*
+  If you change this, make sure to change tokenizer.h as well.
+*/
 static const char kwords[][12] = {
     "char", "class", "const", "double", "enum", "inline", "int", "long",
     "operator", "private", "protected", "public", "short", "signals", "signed",
     "slots", "static", "struct", "template", "typedef", "union", "unsigned",
     "virtual", "void", "volatile", "Q_ENUMS", "Q_EXPORT", "Q_OBJECT",
-    "Q_OVERRIDE", "Q_PACKED", "Q_PROPERTY"
+    "Q_OVERRIDE", "Q_PROPERTY"
 };
 
 static const int KwordHashTableSize = 512;
@@ -28,7 +31,8 @@ static bool kwordInitialized = FALSE;
 
 /*
   This function is a perfect hash function for the 37 keywords of C99 (with a
-  hash table size of 512).  It should perform well on our part of C++.
+  hash table size of 512).  It should perform well on our part of Qt-enhanced
+  C++.
 */
 static int hashKword( const char *s, int len )
 {
@@ -299,7 +303,6 @@ int Tokenizer::getToken()
 	}
     }
 
-    // ### needs testing
     if ( yyPreprocessorSkipping.count() > 1 )
 	warning( 0, yyTokLoc, "Expected #endif before end of file" );
 
@@ -354,11 +357,20 @@ void Tokenizer::start( const Location& loc )
     yyCh = getChar();
 }
 
+/*
+  Returns the next token, if # was met.  This function interprets the
+  preprocessor directive, skips over any #ifdef'd out tokens, and returns the
+  token after all of that.
+*/
 int Tokenizer::getTokenAfterPreprocessor()
 {
     static QRegExp *comment = 0;
     static QRegExp *versionX = 0;
 
+    /*
+      Build our regular expressions for matching C or C++ style comment, and for
+      matching the symbol that gives the text for \version.
+    */
     if ( comment == 0 ) {
 	comment = new QRegExp( QString("/(?:\\*.*\\*/|/.*\n)") );
 	comment->setMinimal( TRUE );
@@ -395,6 +407,23 @@ int Tokenizer::getTokenAfterPreprocessor()
     condition.replace( *comment, QString::null );
     condition = condition.simplifyWhiteSpace();
 
+    /*
+      The #if, #ifdef, #ifndef, #elif, #else, and #endif directives have an
+      effect on the skipping stack.  For instance, if the code processed so far
+      is
+
+	  #if 1
+	  #if 0
+	  #if 1
+	  // ...
+	  #else
+
+      the skipping stack contains, from bottom to top, FALSE TRUE TRUE (assuming
+      0 is false and 1 is true).  If at least one entry of the stack is TRUE, the
+      tokens are skipped.
+
+      This mechanism is simple and unreadable.
+    */
     if ( directive[0] == QChar('i') ) {
 	if ( directive == QString("if") )
 	    pushSkipping( !isTrue(condition) );
@@ -421,11 +450,20 @@ int Tokenizer::getTokenAfterPreprocessor()
 
     int tok;
     do {
+	/*
+	  This is subtle.  If getToken() meets another #, it will call
+	  getTokenAfterPreprocessor() once again, which could in turn call
+	  getToken() again, etc.
+	*/
 	tok = getToken();
     } while ( yyNumPreprocessorSkipping > 0 );
     return tok;
 }
 
+/*
+  Pushes a new skipping value onto the stack.  This corresponds to entering a
+  new #if block.
+*/
 void Tokenizer::pushSkipping( bool skip )
 {
     yyPreprocessorSkipping.push( skip );
@@ -433,6 +471,9 @@ void Tokenizer::pushSkipping( bool skip )
 	yyNumPreprocessorSkipping++;
 }
 
+/*
+  Pops a skipping value from the stack.  This corresponds to reaching a #endif.
+*/
 bool Tokenizer::popSkipping()
 {
     if ( yyPreprocessorSkipping.isEmpty() ) {
@@ -446,6 +487,11 @@ bool Tokenizer::popSkipping()
     return skip;
 }
 
+/*
+  Returns TRUE if the condition evaluates as true, otherwise FALSE.  The
+  condition is represented by a string.  Unsophisticated parsing techniques are
+  used.
+*/
 bool Tokenizer::isTrue( const QString& condition ) const
 {
     static QRegExp *definedX = 0;
@@ -457,6 +503,16 @@ bool Tokenizer::isTrue( const QString& condition ) const
     int firstAnd = -1;
     int parenDepth = 0;
 
+    /*
+      Find the first logical operator at top level, but be careful about
+      precedence.  Examples:
+
+	  X || Y          // the or
+	  X || Y || Z     // the leftmost or
+	  X || Y && Z     // the or
+	  X && Y || Z     // the or
+	  (X || Y) && Z   // the and
+    */
     for ( int i = 0; i < (int) condition.length() - 1; i++ ) {
 	QChar ch = condition[i];
 	if ( ch == QChar('(') ) {
@@ -529,4 +585,11 @@ void StringTokenizer::start( const Location& loc, const char *in, int len )
     yyPos = 0;
     yyLen = len;
     Tokenizer::start( loc );
+}
+
+void StringTokenizer::stop()
+{
+    yyIn = 0;
+    yyPos = 0;
+    yyLen = 0;
 }

@@ -569,12 +569,6 @@ QImage QImage::copy(int x, int y, int w, int h, int conversion_flags) const
 */
 
 /*!
-  \obsolete
-  \fn QImage QImage::copy(QRect& r) const
-  Use the const version.
-*/
-
-/*!
   \fn bool QImage::isNull() const
   Returns TRUE if it is a null image.
 

@@ -540,7 +540,7 @@ int QProgressDialog::progress() const
 
 
 /*!
-  Sets the current amount of progress made to \a prog units of the
+  Sets the current amount of progress made to \a progress units of the
   total number of steps.  For the progress dialog to work correctly,
   you must at least call this with the parameter 0 initially, then
   later with QProgressDialog::totalSteps(), and you may call it any

@@ -344,10 +344,10 @@ static bool matchClassDecl( Decl *context )
 {
     bool isClass = ( yyTok == Tok_class );
     yyTok = getToken();
-    match( Tok_Q_EXPORT );
-    match( Tok_Q_PACKED );
-    if ( !match(Tok_Ident) )
+    if ( yyTok != Tok_Ident && yyTok != Tok_Q_EXPORT )
 	return FALSE;
+    while ( yyTok == Tok_Ident || yyTok == Tok_Q_EXPORT )
+	yyTok = getToken();
     if ( yyTok != Tok_Colon && yyTok != Tok_LeftBrace )
 	return FALSE;
 

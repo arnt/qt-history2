@@ -606,8 +606,8 @@ void QCanvas::resize(int w, int h)
   connects to this signal to keep the scrollview size correct.
 */
 
-/*!  Change the efficiency tuning parameters to \a mxclusers clusters,
-each of size \a chunksize (square).  This is a slow operation.
+/*!  Change the efficiency tuning parameters to \a mxclusters clusters,
+each of size \a chunksze (square).  This is a slow operation.
 
 Internally, a canvas uses a low-resolution "chunk matrix" to keep
 track of all the items in the canvas. In Qt 2.2, the default for a
@@ -1380,7 +1380,7 @@ class QCanvasItemExtra {
 
 /*!
 \class QCanvasItem qcanvas.h
-\brief The QCanvasItem is an abstract graphic object on a QCanvas.
+\brief The QCanvasItem class is an abstract graphic object on a QCanvas.
 \module canvas
 
 A QCanvasItem object can be moved in the x(), y() and z() dimensions
@@ -1524,7 +1524,7 @@ void QCanvasItem::setAnimated(bool y)
   Sets the vertical component of the item's velocity to \a vy.
 */
 
-/*! Sets the item to be animated and moving by \a dx and \a dy pixels
+/*! Sets the item to be animated and moving by \a vx and \a vy pixels
   in the horizontal and vertical directions respectively.
 
   \sa advance().
@@ -2470,7 +2470,7 @@ int QCanvasSprite::absY2() const
 }
 
 /*!
-The bottom edge of the sprite image, \a if the sprite was moved to \a ny.
+The bottom edge of the sprite image, \e if the sprite was moved to \a ny.
 
 \sa absY()
 */
@@ -3858,8 +3858,6 @@ void QCanvasSprite::setSequence(QCanvasPixmapArray* a)
 }
 
 /*!
-\fn QCanvasSprite::changeChunks()
-
 \internal
 
 Marks any chunks the sprite touches as changed.

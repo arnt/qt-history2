@@ -467,8 +467,7 @@ Decl::Decl( Kind kind, const Location& loc, const QString& name, Decl *context )
 	    cat = &context->priv;
 	}
 	cat->append( this );
-	if ( a != Private || config->isInternal() )
-	    context->all.append( this );
+	context->all.append( this );
     }
 }
 
@@ -1061,13 +1060,13 @@ QString FunctionDecl::mangledName() const
 	param++;
     }
     while ( param != parameterEnd() ) {
-	m += QChar( ',' );
+	m += QString( ", " );
 	m += (*param).dataType().toString();
 	++param;
     }
     m += QChar( ')' );
     if ( isConst() )
-	m += QString("const");
+	m += QString( " const" );
     return m;
 }
 

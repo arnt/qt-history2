@@ -413,7 +413,7 @@ void QIconViewItemLineEdit::focusOutEvent( QFocusEvent * )
 /*!
   \class QIconDragItem qiconview.h
 
-  \brief The QIconDragItem class is the internal data structure of a QIconDrag
+  \brief The QIconDragItem class is the internal data structure of a QIconDrag.
 
   \module iconview
 
@@ -501,7 +501,8 @@ bool QIconDragData::operator==( const QIconDragData &i ) const
 /*!
   \class QIconDrag qiconview.h
 
-  \brief The QIconDrag class is the drag object which is used for moving items in the iconview
+  \brief The QIconDrag class is the drag object which is used for moving items
+  in the iconview.
 
   \ingroup draganddrop
 

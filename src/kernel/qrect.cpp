@@ -591,8 +591,7 @@ bool QRect::contains( const QPoint &p, bool proper ) const
 }
 
 /*!
-  \fn bool QRect::contains( int x, int y, bool proper ) const
-  \overload bool QRect::contains( const QPoint &p, bool proper ) const
+  \overload bool QRect::contains( int x, int y, bool proper ) const
 */
 
 /*!

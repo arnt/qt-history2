@@ -2906,9 +2906,8 @@ void QWidget::reparentFocusWidgets( QWidget * oldtlw )
 
   \obsolete
 
-  This method is provided to aid porting to Qt 2.0.  The function is
-  renamed to reparent() in 2.0, and we hope the FAQs about it will
-  stop.
+  This method is provided to aid porting from Qt 1.0 to Qt 2.0.  It
+  has been renamed reparent() in 2.0.
 */
 
 
@@ -3797,7 +3796,8 @@ QSize QWidget::minimumSizeHint() const
 
 
 /*!
-  \fn QWidget *QWidget::parentWidget() const
+  \fn QWidget *QWidget::parentWidget( bool sameWindow ) const
+
   Returns a pointer to the parent of this widget, or a null pointer if
   it does not have any parent widget.
 */

@@ -471,7 +471,7 @@ QString QApplicationComponentInterface::interfaceID() const
 }
 
 /*!
-  \fn QObject* QApplicationComponentInterface::component()
+  \fn QObject* QApplicationComponentInterface::component() const
 
   Returns the pointer to the handled object.
 */

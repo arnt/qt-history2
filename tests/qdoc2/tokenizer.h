@@ -12,6 +12,12 @@
 
 #include "location.h"
 
+/*
+  Here come the C++ tokens we support.  The first part contains all-purpose
+  tokens; then comes keywords.  If you add a keyword, make sure to modify the
+  keyword array in tokenizer.cpp as well, and make sure Tok_FirstKeyword and
+  Tok_LastKeyword are right.
+*/
 enum { Tok_Eoi, Tok_Ampersand, Tok_Aster, Tok_LeftParen, Tok_RightParen,
        Tok_LeftParenAster, Tok_Equal, Tok_LeftBrace, Tok_RightBrace,
        Tok_Semicolon, Tok_Colon, Tok_LeftAngle, Tok_RightAngle, Tok_Comma,
@@ -24,7 +30,7 @@ enum { Tok_Eoi, Tok_Ampersand, Tok_Aster, Tok_LeftParen, Tok_RightParen,
        Tok_short, Tok_signals, Tok_signed, Tok_slots, Tok_static, Tok_struct,
        Tok_template, Tok_typedef, Tok_union, Tok_unsigned, Tok_virtual,
        Tok_void, Tok_volatile, Tok_Q_ENUMS, Tok_Q_EXPORT, Tok_Q_OBJECT,
-       Tok_Q_OVERRIDE, Tok_Q_PACKED, Tok_Q_PROPERTY,
+       Tok_Q_OVERRIDE, Tok_Q_PROPERTY,
 
        Tok_FirstKeyword = Tok_char, Tok_LastKeyword = Tok_Q_PROPERTY };
 
@@ -132,7 +138,7 @@ public:
     virtual int getch();
 
     void start( const Location& loc, const char *in, int len );
-    void stop() { yyIn = 0; yyPos = 0; yyLen = 0; }
+    void stop();
 
 private:
 #if defined(Q_DISABLE_COPY)
