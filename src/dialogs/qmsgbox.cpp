@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#45 $
+** $Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#46 $
 **
 ** Implementation of QMessageBox class
 **
@@ -16,7 +16,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#45 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#46 $");
 
 // Message box icons, from page 210 of the Windows style guide.
 
@@ -307,7 +307,7 @@ static const int LastButton = QMessageBox::Ignore;
 */
 
 static const char *mb_texts[] = {
-    0, "&OK", "&Cancel", "&Yes", "&No", "&Abort", "&Retry", "&Ignore", 0
+    0, "OK", "Cancel", "Yes", "No", "Abort", "Retry", "Ignore", 0
 };
 
 
