@@ -991,7 +991,13 @@ void QScrollView::wheelEvent( QWheelEvent *e ){
 */
 void QScrollView::contextMenuEvent( QContextMenuEvent *e )
 {
-    e->accept();
+    QContextMenuEvent ce( e->reason(), viewport()->mapFromGlobal( e->globalPos() ),
+			  e->globalPos() );
+    viewportContextMenuEvent( &ce );
+    if ( ce.isAccepted() )
+	e->accept();
+    else
+	e->ignore();
 }
 
 /*!
@@ -1306,6 +1312,8 @@ bool QScrollView::eventFilter( QObject *obj, QEvent *e )
 	    break;
 	case QEvent::ContextMenu:
 	    viewportContextMenuEvent( (QContextMenuEvent*)e );
+	    if ( ((QContextMenuEvent*)e)->isAccepted() )
+		return TRUE;
 	    break;
 	case QEvent::ChildRemoved:
 	    removeChild((QWidget*)((QChildEvent*)e)->child());
