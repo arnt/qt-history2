@@ -1069,15 +1069,13 @@ void QWidget::lower()
 
 void QWidget::stackUnder(QWidget* w)
 {
-
-  //### quick-and-dirty changeover to the new objectlist.
-  //### may not work, but no-one uses this function anyway :-)
     QWidget *p = parentWidget();
     if (!p || !w || isTopLevel() || p != w->parentWidget())
         return;
     int loc = p->d->children.indexOf(w);
     if (loc >= 0 && p->d->children.contains(this)) {
         p->d->children.removeAll(this);
+        loc = p->d->children.indexOf(w);
         p->d->children.insert(loc, this);
     }
     if (p) {
