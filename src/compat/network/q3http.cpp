@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id$
 **
-** Implementation of QHttp and related classes.
+** Implementation of Q3Http and related classes.
 **
 ** Created : 970521
 **
@@ -35,29 +35,31 @@
 **
 **********************************************************************/
 
-#include "qhttp.h"
+#include "q3http.h"
 
 #ifndef QT_NO_NETWORKPROTOCOL_HTTP
 
-#include "qsocket.h"
+#include "q3socket.h"
 #include "qtextstream.h"
 #include "qmap.h"
 #include "qstring.h"
 #include "qstringlist.h"
-#include "qcstring.h"
+#include "q3cstring.h"
 #include "qbuffer.h"
-#include "qurloperator.h"
+#include "q3urloperator.h"
 #include "qtimer.h"
-#include "private/qinternal_p.h"
+#include "private/q3membuf_p.h"
+#include "qevent.h"
+#include "q3url.h"
 
-//#define QHTTP_DEBUG
+//#define Q3HTTP_DEBUG
 
-class QHttpPrivate
+class Q3HttpPrivate
 {
 public:
-    QHttpPrivate() :
-	state( QHttp::Unconnected ),
-	error( QHttp::NoError ),
+    Q3HttpPrivate() :
+	state( Q3Http::Unconnected ),
+	error( Q3Http::NoError ),
 	hostname( QString::null ),
 	port( 0 ),
 	toDevice( 0 ),
@@ -69,11 +71,11 @@ public:
 	pending.setAutoDelete( TRUE );
     }
 
-    QSocket socket;
-    QPtrList<QHttpRequest> pending;
+    Q3Socket socket;
+    Q3PtrList<Q3HttpRequest> pending;
 
-    QHttp::State state;
-    QHttp::Error error;
+    Q3Http::State state;
+    Q3Http::Error error;
     QString errorString;
 
     QString hostname;
@@ -87,30 +89,30 @@ public:
     uint bytesTotal;
     Q_LONG chunkedSize;
 
-    QHttpRequestHeader header;
+    Q3HttpRequestHeader header;
 
     bool readHeader;
     QString headerStr;
-    QHttpResponseHeader response;
+    Q3HttpResponseHeader response;
 
     int idleTimer;
 
-    QMembuf rba;
+    Q3Membuf rba;
 };
 
-class QHttpRequest
+class Q3HttpRequest
 {
 public:
-    QHttpRequest()
+    Q3HttpRequest()
     {
 	id = ++idCounter;
     }
-    virtual ~QHttpRequest()
+    virtual ~Q3HttpRequest()
     { }
 
-    virtual void start( QHttp * ) = 0;
+    virtual void start( Q3Http * ) = 0;
     virtual bool hasRequestHeader();
-    virtual QHttpRequestHeader requestHeader();
+    virtual Q3HttpRequestHeader requestHeader();
 
     virtual QIODevice* sourceDevice() = 0;
     virtual QIODevice* destinationDevice() = 0;
@@ -121,56 +123,56 @@ private:
     static int idCounter;
 };
 
-int QHttpRequest::idCounter = 0;
+int Q3HttpRequest::idCounter = 0;
 
-bool QHttpRequest::hasRequestHeader()
+bool Q3HttpRequest::hasRequestHeader()
 {
     return FALSE;
 }
 
-QHttpRequestHeader QHttpRequest::requestHeader()
+Q3HttpRequestHeader Q3HttpRequest::requestHeader()
 {
-    return QHttpRequestHeader();
+    return Q3HttpRequestHeader();
 }
 
 /****************************************************
  *
- * QHttpNormalRequest
+ * Q3HttpNormalRequest
  *
  ****************************************************/
 
-class QHttpNormalRequest : public QHttpRequest
+class Q3HttpNormalRequest : public Q3HttpRequest
 {
 public:
-    QHttpNormalRequest( const QHttpRequestHeader &h, QIODevice *d, QIODevice *t ) :
+    Q3HttpNormalRequest( const Q3HttpRequestHeader &h, QIODevice *d, QIODevice *t ) :
 	header(h), to(t)
     {
 	is_ba = FALSE;
 	data.dev = d;
     }
 
-    QHttpNormalRequest( const QHttpRequestHeader &h, QByteArray *d, QIODevice *t ) :
+    Q3HttpNormalRequest( const Q3HttpRequestHeader &h, QByteArray *d, QIODevice *t ) :
 	header(h), to(t)
     {
 	is_ba = TRUE;
 	data.ba = d;
     }
 
-    ~QHttpNormalRequest()
+    ~Q3HttpNormalRequest()
     {
 	if ( is_ba )
 	    delete data.ba;
     }
 
-    void start( QHttp * );
+    void start( Q3Http * );
     bool hasRequestHeader();
-    QHttpRequestHeader requestHeader();
+    Q3HttpRequestHeader requestHeader();
 
     QIODevice* sourceDevice();
     QIODevice* destinationDevice();
 
 protected:
-    QHttpRequestHeader header;
+    Q3HttpRequestHeader header;
 
 private:
     union {
@@ -181,7 +183,7 @@ private:
     QIODevice *to;
 };
 
-void QHttpNormalRequest::start( QHttp *http )
+void Q3HttpNormalRequest::start( Q3Http *http )
 {
     http->d->header = header;
 
@@ -211,75 +213,75 @@ void QHttpNormalRequest::start( QHttp *http )
     http->sendRequest();
 }
 
-bool QHttpNormalRequest::hasRequestHeader()
+bool Q3HttpNormalRequest::hasRequestHeader()
 {
     return TRUE;
 }
 
-QHttpRequestHeader QHttpNormalRequest::requestHeader()
+Q3HttpRequestHeader Q3HttpNormalRequest::requestHeader()
 {
     return header;
 }
 
-QIODevice* QHttpNormalRequest::sourceDevice()
+QIODevice* Q3HttpNormalRequest::sourceDevice()
 {
     if ( is_ba )
 	return 0;
     return data.dev;
 }
 
-QIODevice* QHttpNormalRequest::destinationDevice()
+QIODevice* Q3HttpNormalRequest::destinationDevice()
 {
     return to;
 }
 
 /****************************************************
  *
- * QHttpPGHRequest
- * (like a QHttpNormalRequest, but for the convenience
+ * Q3HttpPGHRequest
+ * (like a Q3HttpNormalRequest, but for the convenience
  * functions put(), get() and head() -- i.e. set the
  * host header field correctly before sending the
  * request)
  *
  ****************************************************/
 
-class QHttpPGHRequest : public QHttpNormalRequest
+class Q3HttpPGHRequest : public Q3HttpNormalRequest
 {
 public:
-    QHttpPGHRequest( const QHttpRequestHeader &h, QIODevice *d, QIODevice *t ) :
-	QHttpNormalRequest( h, d, t )
+    Q3HttpPGHRequest( const Q3HttpRequestHeader &h, QIODevice *d, QIODevice *t ) :
+	Q3HttpNormalRequest( h, d, t )
     { }
 
-    QHttpPGHRequest( const QHttpRequestHeader &h, QByteArray *d, QIODevice *t ) :
-	QHttpNormalRequest( h, d, t )
+    Q3HttpPGHRequest( const Q3HttpRequestHeader &h, QByteArray *d, QIODevice *t ) :
+	Q3HttpNormalRequest( h, d, t )
     { }
 
-    ~QHttpPGHRequest()
+    ~Q3HttpPGHRequest()
     { }
 
-    void start( QHttp * );
+    void start( Q3Http * );
 };
 
-void QHttpPGHRequest::start( QHttp *http )
+void Q3HttpPGHRequest::start( Q3Http *http )
 {
     header.setValue( "Host", http->d->hostname );
-    QHttpNormalRequest::start( http );
+    Q3HttpNormalRequest::start( http );
 }
 
 /****************************************************
  *
- * QHttpSetHostRequest
+ * Q3HttpSetHostRequest
  *
  ****************************************************/
 
-class QHttpSetHostRequest : public QHttpRequest
+class Q3HttpSetHostRequest : public Q3HttpRequest
 {
 public:
-    QHttpSetHostRequest( const QString &h, Q_UINT16 p ) :
+    Q3HttpSetHostRequest( const QString &h, Q_UINT16 p ) :
 	hostname(h), port(p)
     { }
 
-    void start( QHttp * );
+    void start( Q3Http * );
 
     QIODevice* sourceDevice()
     { return 0; }
@@ -291,7 +293,7 @@ private:
     Q_UINT16 port;
 };
 
-void QHttpSetHostRequest::start( QHttp *http )
+void Q3HttpSetHostRequest::start( Q3Http *http )
 {
     http->d->hostname = hostname;
     http->d->port = port;
@@ -300,16 +302,16 @@ void QHttpSetHostRequest::start( QHttp *http )
 
 /****************************************************
  *
- * QHttpCloseRequest
+ * Q3HttpCloseRequest
  *
  ****************************************************/
 
-class QHttpCloseRequest : public QHttpRequest
+class Q3HttpCloseRequest : public Q3HttpRequest
 {
 public:
-    QHttpCloseRequest()
+    Q3HttpCloseRequest()
     { }
-    void start( QHttp * );
+    void start( Q3Http * );
 
     QIODevice* sourceDevice()
     { return 0; }
@@ -317,20 +319,20 @@ public:
     { return 0; }
 };
 
-void QHttpCloseRequest::start( QHttp *http )
+void Q3HttpCloseRequest::start( Q3Http *http )
 {
     http->close();
 }
 
 /****************************************************
  *
- * QHttpHeader
+ * Q3HttpHeader
  *
  ****************************************************/
 
 /*!
-    \class QHttpHeader qhttp.h
-    \brief The QHttpHeader class contains header information for HTTP.
+    \class Q3HttpHeader q3http.h
+    \brief The Q3HttpHeader class contains header information for HTTP.
 \if defined(commercial)
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
@@ -339,10 +341,10 @@ void QHttpCloseRequest::start( QHttp *http )
     \module network
 
     In most cases you should use the more specialized derivatives of
-    this class, QHttpResponseHeader and QHttpRequestHeader, rather
-    than directly using QHttpHeader.
+    this class, Q3HttpResponseHeader and Q3HttpRequestHeader, rather
+    than directly using Q3HttpHeader.
 
-    QHttpHeader provides the HTTP header fields. A HTTP header field
+    Q3HttpHeader provides the HTTP header fields. A HTTP header field
     consists of a name followed by a colon, a single space, and the
     field value. (See RFC 1945.) Field names are case-insensitive. A
     typical header field looks like this:
@@ -367,17 +369,17 @@ void QHttpCloseRequest::start( QHttp *http )
     set the value for a key which already exists the previous value
     will be discarded.
 
-    \sa QHttpRequestHeader QHttpResponseHeader
+    \sa Q3HttpRequestHeader Q3HttpResponseHeader
 */
 
 /*!
-    \fn int QHttpHeader::majorVersion() const
+    \fn int Q3HttpHeader::majorVersion() const
 
     Returns the major protocol-version of the HTTP header.
 */
 
 /*!
-    \fn int QHttpHeader::minorVersion() const
+    \fn int Q3HttpHeader::minorVersion() const
 
     Returns the minor protocol-version of the HTTP header.
 */
@@ -385,7 +387,7 @@ void QHttpCloseRequest::start( QHttp *http )
 /*!
 	Constructs an empty HTTP header.
 */
-QHttpHeader::QHttpHeader()
+Q3HttpHeader::Q3HttpHeader()
     : valid( TRUE )
 {
 }
@@ -393,7 +395,7 @@ QHttpHeader::QHttpHeader()
 /*!
 	Constructs a copy of \a header.
 */
-QHttpHeader::QHttpHeader( const QHttpHeader& header )
+Q3HttpHeader::Q3HttpHeader( const Q3HttpHeader& header )
     : valid( header.valid )
 {
     values = header.values;
@@ -407,7 +409,7 @@ QHttpHeader::QHttpHeader( const QHttpHeader& header )
     "\r\n" delimited lines; each of these lines should have the format
     key, colon, space, value.
 */
-QHttpHeader::QHttpHeader( const QString& str )
+Q3HttpHeader::Q3HttpHeader( const QString& str )
     : valid( TRUE )
 {
     parse( str );
@@ -416,14 +418,14 @@ QHttpHeader::QHttpHeader( const QString& str )
 /*!
     Destructor.
 */
-QHttpHeader::~QHttpHeader()
+Q3HttpHeader::~Q3HttpHeader()
 {
 }
 
 /*!
     Assigns \a h and returns a reference to this http header.
 */
-QHttpHeader& QHttpHeader::operator=( const QHttpHeader& h )
+Q3HttpHeader& Q3HttpHeader::operator=( const Q3HttpHeader& h )
 {
     values = h.values;
     valid = h.valid;
@@ -433,9 +435,9 @@ QHttpHeader& QHttpHeader::operator=( const QHttpHeader& h )
 /*!
     Returns TRUE if the HTTP header is valid; otherwise returns FALSE.
 
-    A QHttpHeader is invalid if it was created by parsing a malformed string.
+    A Q3HttpHeader is invalid if it was created by parsing a malformed string.
 */
-bool QHttpHeader::isValid() const
+bool Q3HttpHeader::isValid() const
 {
     return valid;
 }
@@ -443,13 +445,13 @@ bool QHttpHeader::isValid() const
 /*! \internal
     Parses the HTTP header string \a str for header fields and adds
     the keys/values it finds. If the string is not parsed successfully
-    the QHttpHeader becomes \link isValid() invalid\endlink.
+    the Q3HttpHeader becomes \link isValid() invalid\endlink.
 
     Returns TRUE if \a str was successfully parsed; otherwise returns FALSE.
 
     \sa toString()
 */
-bool QHttpHeader::parse( const QString& str )
+bool Q3HttpHeader::parse( const QString& str )
 {
     QStringList lst;
     int pos = str.find( '\n' );
@@ -489,7 +491,7 @@ bool QHttpHeader::parse( const QString& str )
 
 /*! \internal
 */
-void QHttpHeader::setValid( bool v )
+void Q3HttpHeader::setValid( bool v )
 {
     valid = v;
 }
@@ -500,7 +502,7 @@ void QHttpHeader::setValid( bool v )
 
     \sa setValue() removeValue() hasKey() keys()
 */
-QString QHttpHeader::value( const QString& key ) const
+QString Q3HttpHeader::value( const QString& key ) const
 {
     return values[ key.lower() ];
 }
@@ -510,7 +512,7 @@ QString QHttpHeader::value( const QString& key ) const
 
     \sa hasKey()
 */
-QStringList QHttpHeader::keys() const
+QStringList Q3HttpHeader::keys() const
 {
     return values.keys();
 }
@@ -521,7 +523,7 @@ QStringList QHttpHeader::keys() const
 
     \sa value() setValue() keys()
 */
-bool QHttpHeader::hasKey( const QString& key ) const
+bool Q3HttpHeader::hasKey( const QString& key ) const
 {
     return values.contains( key.lower() );
 }
@@ -536,7 +538,7 @@ bool QHttpHeader::hasKey( const QString& key ) const
 
     \sa value() hasKey() removeValue()
 */
-void QHttpHeader::setValue( const QString& key, const QString& value )
+void Q3HttpHeader::setValue( const QString& key, const QString& value )
 {
     values[ key.lower() ] = value;
 }
@@ -546,7 +548,7 @@ void QHttpHeader::setValue( const QString& key, const QString& value )
 
     \sa value() setValue()
 */
-void QHttpHeader::removeValue( const QString& key )
+void Q3HttpHeader::removeValue( const QString& key )
 {
     values.remove( key.lower() );
 }
@@ -559,7 +561,7 @@ void QHttpHeader::removeValue( const QString& key )
 
     \sa parse()
 */
-bool QHttpHeader::parseLine( const QString& line, int )
+bool Q3HttpHeader::parseLine( const QString& line, int )
 {
     int i = line.find( ":" );
     if ( i == -1 )
@@ -577,7 +579,7 @@ bool QHttpHeader::parseLine( const QString& line, int )
     QString. It consists of lines with the format: key, colon, space,
     value, "\r\n".
 */
-QString QHttpHeader::toString() const
+QString Q3HttpHeader::toString() const
 {
     if ( !isValid() )
 	return "";
@@ -597,7 +599,7 @@ QString QHttpHeader::toString() const
 
     \sa contentLength() setContentLength()
 */
-bool QHttpHeader::hasContentLength() const
+bool Q3HttpHeader::hasContentLength() const
 {
     return hasKey( "content-length" );
 }
@@ -608,7 +610,7 @@ bool QHttpHeader::hasContentLength() const
 
     \sa setContentLength() hasContentLength()
 */
-uint QHttpHeader::contentLength() const
+uint Q3HttpHeader::contentLength() const
 {
     return values[ "content-length" ].toUInt();
 }
@@ -619,7 +621,7 @@ uint QHttpHeader::contentLength() const
 
     \sa contentLength() hasContentLength()
 */
-void QHttpHeader::setContentLength( int len )
+void Q3HttpHeader::setContentLength( int len )
 {
     values[ "content-length" ] = QString::number( len );
 }
@@ -630,7 +632,7 @@ void QHttpHeader::setContentLength( int len )
 
     \sa contentType() setContentType()
 */
-bool QHttpHeader::hasContentType() const
+bool Q3HttpHeader::hasContentType() const
 {
     return hasKey( "content-type" );
 }
@@ -640,7 +642,7 @@ bool QHttpHeader::hasContentType() const
 
     \sa setContentType() hasContentType()
 */
-QString QHttpHeader::contentType() const
+QString Q3HttpHeader::contentType() const
 {
     QString type = values[ "content-type" ];
     if ( type.isEmpty() )
@@ -659,20 +661,20 @@ QString QHttpHeader::contentType() const
 
     \sa contentType() hasContentType()
 */
-void QHttpHeader::setContentType( const QString& type )
+void Q3HttpHeader::setContentType( const QString& type )
 {
     values[ "content-type" ] = type;
 }
 
 /****************************************************
  *
- * QHttpResponseHeader
+ * Q3HttpResponseHeader
  *
  ****************************************************/
 
 /*!
-    \class QHttpResponseHeader qhttp.h
-    \brief The QHttpResponseHeader class contains response header information for HTTP.
+    \class Q3HttpResponseHeader q3http.h
+    \brief The Q3HttpResponseHeader class contains response header information for HTTP.
 \if defined(commercial)
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
@@ -680,7 +682,7 @@ void QHttpHeader::setContentType( const QString& type )
     \ingroup io
     \module network
 
-    This class is used by the QHttp class to report the header
+    This class is used by the Q3Http class to report the header
     information that the client received from the server.
 
     HTTP responses have a status code that indicates the status of the
@@ -690,13 +692,13 @@ void QHttpHeader::setContentType( const QString& type )
     code ("reason phrase"). This class allows you to get the status
     code and the reason phrase.
 
-    \sa QHttpRequestHeader QHttp
+    \sa Q3HttpRequestHeader Q3Http
 */
 
 /*!
     Constructs an empty HTTP response header.
 */
-QHttpResponseHeader::QHttpResponseHeader()
+Q3HttpResponseHeader::Q3HttpResponseHeader()
 {
     setValid( FALSE );
 }
@@ -706,16 +708,16 @@ QHttpResponseHeader::QHttpResponseHeader()
     the reason phrase \a text and the protocol-version \a majorVer and
     \a minorVer.
 */
-QHttpResponseHeader::QHttpResponseHeader( int code, const QString& text, int majorVer, int minorVer )
-    : QHttpHeader(), statCode( code ), reasonPhr( text ), majVer( majorVer ), minVer( minorVer )
+Q3HttpResponseHeader::Q3HttpResponseHeader( int code, const QString& text, int majorVer, int minorVer )
+    : Q3HttpHeader(), statCode( code ), reasonPhr( text ), majVer( majorVer ), minVer( minorVer )
 {
 }
 
 /*!
     Constructs a copy of \a header.
 */
-QHttpResponseHeader::QHttpResponseHeader( const QHttpResponseHeader& header )
-    : QHttpHeader( header ), statCode( header.statCode ), reasonPhr( header.reasonPhr ), majVer( header.majVer ), minVer( header.minVer )
+Q3HttpResponseHeader::Q3HttpResponseHeader( const Q3HttpResponseHeader& header )
+    : Q3HttpHeader( header ), statCode( header.statCode ), reasonPhr( header.reasonPhr ), majVer( header.majVer ), minVer( header.minVer )
 {
 }
 
@@ -727,8 +729,8 @@ QHttpResponseHeader::QHttpResponseHeader( const QHttpResponseHeader& header )
     reason-phrase); each of remaining lines should have the format key, colon,
     space, value.
 */
-QHttpResponseHeader::QHttpResponseHeader( const QString& str )
-    : QHttpHeader()
+Q3HttpResponseHeader::Q3HttpResponseHeader( const QString& str )
+    : Q3HttpHeader()
 {
     parse( str );
 }
@@ -739,7 +741,7 @@ QHttpResponseHeader::QHttpResponseHeader( const QString& str )
 
     \sa statusCode() reasonPhrase() majorVersion() minorVersion()
 */
-void QHttpResponseHeader::setStatusLine( int code, const QString& text, int majorVer, int minorVer )
+void Q3HttpResponseHeader::setStatusLine( int code, const QString& text, int majorVer, int minorVer )
 {
     setValid( TRUE );
     statCode = code;
@@ -753,7 +755,7 @@ void QHttpResponseHeader::setStatusLine( int code, const QString& text, int majo
 
     \sa reasonPhrase() majorVersion() minorVersion()
 */
-int QHttpResponseHeader::statusCode() const
+int Q3HttpResponseHeader::statusCode() const
 {
     return statCode;
 }
@@ -763,7 +765,7 @@ int QHttpResponseHeader::statusCode() const
 
     \sa statusCode() majorVersion() minorVersion()
 */
-QString QHttpResponseHeader::reasonPhrase() const
+QString Q3HttpResponseHeader::reasonPhrase() const
 {
     return reasonPhr;
 }
@@ -773,7 +775,7 @@ QString QHttpResponseHeader::reasonPhrase() const
 
     \sa minorVersion() statusCode() reasonPhrase()
 */
-int QHttpResponseHeader::majorVersion() const
+int Q3HttpResponseHeader::majorVersion() const
 {
     return majVer;
 }
@@ -783,17 +785,17 @@ int QHttpResponseHeader::majorVersion() const
 
     \sa majorVersion() statusCode() reasonPhrase()
 */
-int QHttpResponseHeader::minorVersion() const
+int Q3HttpResponseHeader::minorVersion() const
 {
     return minVer;
 }
 
 /*! \reimp
 */
-bool QHttpResponseHeader::parseLine( const QString& line, int number )
+bool Q3HttpResponseHeader::parseLine( const QString& line, int number )
 {
     if ( number != 0 )
-	return QHttpHeader::parseLine( line, number );
+	return Q3HttpHeader::parseLine( line, number );
 
     QString l = line.simplifyWhiteSpace();
     if ( l.length() < 10 )
@@ -821,21 +823,21 @@ bool QHttpResponseHeader::parseLine( const QString& line, int number )
 
 /*! \reimp
 */
-QString QHttpResponseHeader::toString() const
+QString Q3HttpResponseHeader::toString() const
 {
     QString ret( "HTTP/%1.%2 %3 %4\r\n%5\r\n" );
-    return ret.arg( majVer ).arg ( minVer ).arg( statCode ).arg( reasonPhr ).arg( QHttpHeader::toString() );
+    return ret.arg( majVer ).arg ( minVer ).arg( statCode ).arg( reasonPhr ).arg( Q3HttpHeader::toString() );
 }
 
 /****************************************************
  *
- * QHttpRequestHeader
+ * Q3HttpRequestHeader
  *
  ****************************************************/
 
 /*!
-    \class QHttpRequestHeader qhttp.h
-    \brief The QHttpRequestHeader class contains request header information for
+    \class Q3HttpRequestHeader q3http.h
+    \brief The Q3HttpRequestHeader class contains request header information for
 \if defined(commercial)
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
@@ -847,7 +849,7 @@ QString QHttpResponseHeader::toString() const
     \ingroup io
     \module network
 
-    This class is used in the QHttp class to report the header
+    This class is used in the Q3Http class to report the header
     information if the client requests something from the server.
 
     HTTP requests have a method which describes the request's action.
@@ -860,11 +862,11 @@ QString QHttpResponseHeader::toString() const
     obtained using method(), path(), majorVersion() and
     minorVersion().
 
-    This class is a QHttpHeader subclass so that class's functions,
-    e.g. \link QHttpHeader::setValue() setValue()\endlink, \link
-    QHttpHeader::value() value()\endlink, etc. are also available.
+    This class is a Q3HttpHeader subclass so that class's functions,
+    e.g. \link Q3HttpHeader::setValue() setValue()\endlink, \link
+    Q3HttpHeader::value() value()\endlink, etc. are also available.
 
-    \sa QHttpResponseHeader QHttp
+    \sa Q3HttpResponseHeader Q3Http
 
     \important value() setValue()
 */
@@ -872,8 +874,8 @@ QString QHttpResponseHeader::toString() const
 /*!
     Constructs an empty HTTP request header.
 */
-QHttpRequestHeader::QHttpRequestHeader()
-    : QHttpHeader()
+Q3HttpRequestHeader::Q3HttpRequestHeader()
+    : Q3HttpHeader()
 {
     setValid( FALSE );
 }
@@ -882,16 +884,16 @@ QHttpRequestHeader::QHttpRequestHeader()
     Constructs a HTTP request header for the method \a method, the
     request-URI \a path and the protocol-version \a majorVer and \a minorVer.
 */
-QHttpRequestHeader::QHttpRequestHeader( const QString& method, const QString& path, int majorVer, int minorVer )
-    : QHttpHeader(), m( method ), p( path ), majVer( majorVer ), minVer( minorVer )
+Q3HttpRequestHeader::Q3HttpRequestHeader( const QString& method, const QString& path, int majorVer, int minorVer )
+    : Q3HttpHeader(), m( method ), p( path ), majVer( majorVer ), minVer( minorVer )
 {
 }
 
 /*!
     Constructs a copy of \a header.
 */
-QHttpRequestHeader::QHttpRequestHeader( const QHttpRequestHeader& header )
-    : QHttpHeader( header ), m( header.m ), p( header.p ), majVer( header.majVer ), minVer( header.minVer )
+Q3HttpRequestHeader::Q3HttpRequestHeader( const Q3HttpRequestHeader& header )
+    : Q3HttpHeader( header ), m( header.m ), p( header.p ), majVer( header.majVer ), minVer( header.minVer )
 {
 }
 
@@ -902,8 +904,8 @@ QHttpRequestHeader::QHttpRequestHeader( const QHttpRequestHeader& header )
     HTTP-version); each of the remaining lines should have the format key,
     colon, space, value.
 */
-QHttpRequestHeader::QHttpRequestHeader( const QString& str )
-    : QHttpHeader()
+Q3HttpRequestHeader::Q3HttpRequestHeader( const QString& str )
+    : Q3HttpHeader()
 {
     parse( str );
 }
@@ -915,7 +917,7 @@ QHttpRequestHeader::QHttpRequestHeader( const QString& str )
 
     \sa method() path() majorVersion() minorVersion()
 */
-void QHttpRequestHeader::setRequest( const QString& method, const QString& path, int majorVer, int minorVer )
+void Q3HttpRequestHeader::setRequest( const QString& method, const QString& path, int majorVer, int minorVer )
 {
     setValid( TRUE );
     m = method;
@@ -929,7 +931,7 @@ void QHttpRequestHeader::setRequest( const QString& method, const QString& path,
 
     \sa path() majorVersion() minorVersion() setRequest()
 */
-QString QHttpRequestHeader::method() const
+QString Q3HttpRequestHeader::method() const
 {
     return m;
 }
@@ -939,7 +941,7 @@ QString QHttpRequestHeader::method() const
 
     \sa method() majorVersion() minorVersion() setRequest()
 */
-QString QHttpRequestHeader::path() const
+QString Q3HttpRequestHeader::path() const
 {
     return p;
 }
@@ -949,7 +951,7 @@ QString QHttpRequestHeader::path() const
 
     \sa minorVersion() method() path() setRequest()
 */
-int QHttpRequestHeader::majorVersion() const
+int Q3HttpRequestHeader::majorVersion() const
 {
     return majVer;
 }
@@ -959,17 +961,17 @@ int QHttpRequestHeader::majorVersion() const
 
     \sa majorVersion() method() path() setRequest()
 */
-int QHttpRequestHeader::minorVersion() const
+int Q3HttpRequestHeader::minorVersion() const
 {
     return minVer;
 }
 
 /*! \reimp
 */
-bool QHttpRequestHeader::parseLine( const QString& line, int number )
+bool Q3HttpRequestHeader::parseLine( const QString& line, int number )
 {
     if ( number != 0 )
-	return QHttpHeader::parseLine( line, number );
+	return Q3HttpHeader::parseLine( line, number );
 
     QStringList lst = QStringList::split( " ", line.simplifyWhiteSpace() );
     if ( lst.count() > 0 ) {
@@ -993,23 +995,23 @@ bool QHttpRequestHeader::parseLine( const QString& line, int number )
 
 /*! \reimp
 */
-QString QHttpRequestHeader::toString() const
+QString Q3HttpRequestHeader::toString() const
 {
     QString first( "%1 %2");
     QString last(" HTTP/%3.%4\r\n%5\r\n" );
     return first.arg( m ).arg( p ) +
-	last.arg( majVer ).arg( minVer ).arg( QHttpHeader::toString());
+	last.arg( majVer ).arg( minVer ).arg( Q3HttpHeader::toString());
 }
 
 
 /****************************************************
  *
- * QHttp
+ * Q3Http
  *
  ****************************************************/
 /*!
-    \class QHttp qhttp.h
-    \brief The QHttp class provides an implementation of the HTTP protocol.
+    \class Q3Http q3http.h
+    \brief The Q3Http class provides an implementation of the HTTP protocol.
 \if defined(commercial)
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
@@ -1018,7 +1020,7 @@ QString QHttpRequestHeader::toString() const
     \module network
 
     This class provides two different interfaces: one is the
-    QNetworkProtocol interface that allows you to use HTTP through the
+    Q3NetworkProtocol interface that allows you to use HTTP through the
     QUrlOperator abstraction. The other is a direct interface to HTTP
     that allows you to have more control over the requests and that
     allows you to access the response header fields.
@@ -1026,7 +1028,7 @@ QString QHttpRequestHeader::toString() const
     Don't mix the two interfaces, since the behavior is not
     well-defined.
 
-    If you want to use QHttp with the QNetworkProtocol interface, you
+    If you want to use Q3Http with the Q3NetworkProtocol interface, you
     do not use it directly, but rather through a QUrlOperator, for
     example:
 
@@ -1035,11 +1037,11 @@ QString QHttpRequestHeader::toString() const
     op.get( "index.html" );
     \endcode
 
-    This code will only work if the QHttp class is registered; to
-    register the class, you must call qInitNetworkProtocols() before
+    This code will only work if the Q3Http class is registered; to
+    register the class, you must call q3InitNetworkProtocols() before
     using a QUrlOperator with HTTP.
 
-    The QNetworkProtocol interface for HTTP only supports the
+    The Q3NetworkProtocol interface for HTTP only supports the
     operations operationGet() and operationPut(), i.e.
     QUrlOperator::get() and QUrlOperator::put(), if you use it with a
     QUrlOperator.
@@ -1071,13 +1073,13 @@ QString QHttpRequestHeader::toString() const
     http://www.trolltech.com/index.html):
 
     \code
-    QHttpRequestHeader header( "GET", "/index.html" );
+    Q3HttpRequestHeader header( "GET", "/index.html" );
     header.setValue( "Host", "www.trolltech.com" );
     http->setHost( "www.trolltech.com" );
     http->request( header );
     \endcode
 
-    For the common HTTP requests \c GET, \c POST and \c HEAD, QHttp
+    For the common HTTP requests \c GET, \c POST and \c HEAD, Q3Http
     provides the convenience functions get(), post() and head(). They
     already use a reasonable header and if you don't have to set
     special header fields, they are easier to use. The above example
@@ -1165,7 +1167,7 @@ QString QHttpRequestHeader::toString() const
     network failure is considered as an error. If the server response
     contains an error status, like a 404 response, this is reported as
     a normal response case. So you should always check the \link
-    QHttpResponseHeader::statusCode() status code \endlink of the
+    Q3HttpResponseHeader::statusCode() status code \endlink of the
     response header.
 
     The functions currentId() and currentRequest() provide more
@@ -1174,22 +1176,22 @@ QString QHttpRequestHeader::toString() const
     The functions hasPendingRequests() and clearPendingRequests()
     allow you to query and clear the list of pending requests.
 
-    \sa \link network.html Qt Network Documentation \endlink QNetworkProtocol, QUrlOperator QFtp
+    \sa \link network.html Qt Network Documentation \endlink Q3NetworkProtocol, QUrlOperator Q3Ftp
 */
 
 /*!
-    Constructs a QHttp object.
+    Constructs a Q3Http object.
 */
-QHttp::QHttp()
+Q3Http::Q3Http()
 {
     init();
 }
 
 /*!
-    Constructs a QHttp object. The parameters \a parent and \a name
+    Constructs a Q3Http object. The parameters \a parent and \a name
     are passed on to the QObject constructor.
 */
-QHttp::QHttp( QObject* parent, const char* name )
+Q3Http::Q3Http( QObject* parent, const char* name )
 {
     if ( parent )
 	parent->insertChild( this );
@@ -1198,14 +1200,14 @@ QHttp::QHttp( QObject* parent, const char* name )
 }
 
 /*!
-    Constructs a QHttp object. Subsequent requests are done by
+    Constructs a Q3Http object. Subsequent requests are done by
     connecting to the server \a hostname on port \a port. The
     parameters \a parent and \a name are passed on to the QObject
     constructor.
 
     \sa setHost()
 */
-QHttp::QHttp( const QString &hostname, Q_UINT16 port, QObject* parent, const char* name )
+Q3Http::Q3Http( const QString &hostname, Q_UINT16 port, QObject* parent, const char* name )
 {
     if ( parent )
 	parent->insertChild( this );
@@ -1216,10 +1218,10 @@ QHttp::QHttp( const QString &hostname, Q_UINT16 port, QObject* parent, const cha
     d->port = port;
 }
 
-void QHttp::init()
+void Q3Http::init()
 {
     bytesRead = 0;
-    d = new QHttpPrivate;
+    d = new Q3HttpPrivate;
     d->errorString = tr( "Unknown error" );
 
     connect( &d->socket, SIGNAL( connected() ),
@@ -1239,17 +1241,17 @@ void QHttp::init()
 }
 
 /*!
-    Destroys the QHttp object. If there is an open connection, it is
+    Destroys the Q3Http object. If there is an open connection, it is
     closed.
 */
-QHttp::~QHttp()
+Q3Http::~Q3Http()
 {
     abort();
     delete d;
 }
 
 /*!
-    \enum QHttp::State
+    \enum Q3Http::State
 
     This enum is used to specify the state the client is in:
 
@@ -1268,7 +1270,7 @@ QHttp::~QHttp()
     \sa stateChanged() state()
 */
 
-/*!  \enum QHttp::Error
+/*!  \enum Q3Http::Error
 
     This enum identifies the error that occurred.
 
@@ -1287,9 +1289,9 @@ QHttp::~QHttp()
 */
 
 /*!
-    \fn void QHttp::stateChanged( int state )
+    \fn void Q3Http::stateChanged( int state )
 
-    This signal is emitted when the state of the QHttp object changes.
+    This signal is emitted when the state of the Q3Http object changes.
     The argument \a state is the new state of the connection; it is
     one of the \l State values.
 
@@ -1301,7 +1303,7 @@ QHttp::~QHttp()
 */
 
 /*!
-    \fn void QHttp::responseHeaderReceived( const QHttpResponseHeader& resp )
+    \fn void Q3Http::responseHeaderReceived( const Q3HttpResponseHeader& resp )
 
     This signal is emitted when the HTTP header of a server response
     is available. The header is passed in \a resp.
@@ -1310,7 +1312,7 @@ QHttp::~QHttp()
 */
 
 /*!
-    \fn void QHttp::readyRead( const QHttpResponseHeader& resp )
+    \fn void Q3Http::readyRead( const Q3HttpResponseHeader& resp )
 
     This signal is emitted when there is new response data to read.
 
@@ -1331,7 +1333,7 @@ QHttp::~QHttp()
 */
 
 /*!
-    \fn void QHttp::dataSendProgress( int done, int total )
+    \fn void Q3Http::dataSendProgress( int done, int total )
 
     This signal is emitted when this object sends data to a HTTP
     server to inform it about the progress of the upload.
@@ -1350,7 +1352,7 @@ QHttp::~QHttp()
 */
 
 /*!
-    \fn void QHttp::dataReadProgress( int done, int total )
+    \fn void Q3Http::dataReadProgress( int done, int total )
 
     This signal is emitted when this object reads data from a HTTP
     server to indicate the current progress of the download.
@@ -1369,7 +1371,7 @@ QHttp::~QHttp()
 */
 
 /*!
-    \fn void QHttp::requestStarted( int id )
+    \fn void Q3Http::requestStarted( int id )
 
     This signal is emitted when processing the request identified by
     \a id starts.
@@ -1378,7 +1380,7 @@ QHttp::~QHttp()
 */
 
 /*!
-    \fn void QHttp::requestFinished( int id, bool error )
+    \fn void Q3Http::requestFinished( int id, bool error )
 
     This signal is emitted when processing the request identified by
     \a id has finished. \a error is TRUE if an error occurred during
@@ -1388,7 +1390,7 @@ QHttp::~QHttp()
 */
 
 /*!
-    \fn void QHttp::done( bool error )
+    \fn void Q3Http::done( bool error )
 
     This signal is emitted when the last pending request has finished;
     (it is emitted after the last request's requestFinished() signal).
@@ -1411,9 +1413,9 @@ QHttp::~QHttp()
 
     \sa clearPendingRequests()
 */
-void QHttp::abort()
+void Q3Http::abort()
 {
-    QHttpRequest *r = d->pending.getFirst();
+    Q3HttpRequest *r = d->pending.getFirst();
     if ( r == 0 )
 	return;
 
@@ -1429,10 +1431,10 @@ void QHttp::abort()
 
     \sa get() post() request() readyRead() readBlock() readAll()
 */
-Q_ULONG QHttp::bytesAvailable() const
+Q_ULONG Q3Http::bytesAvailable() const
 {
-#if defined(QHTTP_DEBUG)
-    qDebug( "QHttp::bytesAvailable(): %d bytes", (int)d->rba.size() );
+#if defined(Q3HTTP_DEBUG)
+    qDebug( "Q3Http::bytesAvailable(): %d bytes", (int)d->rba.size() );
 #endif
     return d->rba.size();
 }
@@ -1443,11 +1445,11 @@ Q_ULONG QHttp::bytesAvailable() const
 
     \sa get() post() request() readyRead() bytesAvailable() readAll()
 */
-Q_LONG QHttp::readBlock( char *data, Q_ULONG maxlen )
+Q_LONG Q3Http::readBlock( char *data, Q_ULONG maxlen )
 {
     if ( data == 0 && maxlen != 0 ) {
 #if defined(QT_CHECK_NULL)
-	qWarning( "QHttp::readBlock: Null pointer error" );
+	qWarning( "Q3Http::readBlock: Null pointer error" );
 #endif
 	return -1;
     }
@@ -1456,8 +1458,8 @@ Q_LONG QHttp::readBlock( char *data, Q_ULONG maxlen )
     d->rba.consumeBytes( maxlen, data );
 
     d->bytesDone += maxlen;
-#if defined(QHTTP_DEBUG)
-    qDebug( "QHttp::readBlock(): read %d bytes (%d bytes done)", (int)maxlen, d->bytesDone );
+#if defined(Q3HTTP_DEBUG)
+    qDebug( "Q3Http::readBlock(): read %d bytes (%d bytes done)", (int)maxlen, d->bytesDone );
 #endif
     return maxlen;
 }
@@ -1467,7 +1469,7 @@ Q_LONG QHttp::readBlock( char *data, Q_ULONG maxlen )
 
     \sa get() post() request() readyRead() bytesAvailable() readBlock()
 */
-QByteArray QHttp::readAll()
+QByteArray Q3Http::readAll()
 {
     Q_ULONG avail = bytesAvailable();
     QByteArray tmp( avail );
@@ -1482,9 +1484,9 @@ QByteArray QHttp::readAll()
 
     \sa currentRequest()
 */
-int QHttp::currentId() const
+int Q3Http::currentId() const
 {
-    QHttpRequest *r = d->pending.getFirst();
+    Q3HttpRequest *r = d->pending.getFirst();
     if ( r == 0 )
 	return 0;
     return r->id;
@@ -1494,16 +1496,16 @@ int QHttp::currentId() const
     Returns the request header of the HTTP request being executed. If
     the request is one issued by setHost() or closeConnection(), it
     returns an invalid request header, i.e.
-    QHttpRequestHeader::isValid() returns FALSE.
+    Q3HttpRequestHeader::isValid() returns FALSE.
 
     \sa currentId()
 */
-QHttpRequestHeader QHttp::currentRequest() const
+Q3HttpRequestHeader Q3Http::currentRequest() const
 {
-    QHttpRequest *r = d->pending.getFirst();
+    Q3HttpRequest *r = d->pending.getFirst();
     if ( r != 0 && r->hasRequestHeader() )
 	return r->requestHeader();
-    return QHttpRequestHeader();
+    return Q3HttpRequestHeader();
 }
 
 /*!
@@ -1516,9 +1518,9 @@ QHttpRequestHeader QHttp::currentRequest() const
 
     \sa currentDestinationDevice() post() request()
 */
-QIODevice* QHttp::currentSourceDevice() const
+QIODevice* Q3Http::currentSourceDevice() const
 {
-    QHttpRequest *r = d->pending.getFirst();
+    Q3HttpRequest *r = d->pending.getFirst();
     if ( !r )
 	return 0;
     return r->sourceDevice();
@@ -1534,9 +1536,9 @@ QIODevice* QHttp::currentSourceDevice() const
 
     \sa currentDestinationDevice() get() post() request()
 */
-QIODevice* QHttp::currentDestinationDevice() const
+QIODevice* Q3Http::currentDestinationDevice() const
 {
-    QHttpRequest *r = d->pending.getFirst();
+    Q3HttpRequest *r = d->pending.getFirst();
     if ( !r )
 	return 0;
     return r->destinationDevice();
@@ -1551,7 +1553,7 @@ QIODevice* QHttp::currentDestinationDevice() const
 
     \sa clearPendingRequests() currentId() currentRequest()
 */
-bool QHttp::hasPendingRequests() const
+bool Q3Http::hasPendingRequests() const
 {
     return d->pending.count() > 1;
 }
@@ -1563,9 +1565,9 @@ bool QHttp::hasPendingRequests() const
 
     \sa hasPendingRequests() abort()
 */
-void QHttp::clearPendingRequests()
+void Q3Http::clearPendingRequests()
 {
-    QHttpRequest *r = 0;
+    Q3HttpRequest *r = 0;
     if ( d->pending.count() > 0 )
 	r = d->pending.take( 0 );
     d->pending.clear();
@@ -1588,9 +1590,9 @@ void QHttp::clearPendingRequests()
 
     \sa get() post() head() request() requestStarted() requestFinished() done()
 */
-int QHttp::setHost(const QString &hostname, Q_UINT16 port )
+int Q3Http::setHost(const QString &hostname, Q_UINT16 port )
 {
-    return addRequest( new QHttpSetHostRequest( hostname, port ) );
+    return addRequest( new Q3HttpSetHostRequest( hostname, port ) );
 }
 
 /*!
@@ -1619,11 +1621,11 @@ int QHttp::setHost(const QString &hostname, Q_UINT16 port )
 
     \sa setHost() post() head() request() requestStarted() requestFinished() done()
 */
-int QHttp::get( const QString& path, QIODevice* to )
+int Q3Http::get( const QString& path, QIODevice* to )
 {
-    QHttpRequestHeader header( "GET", path );
+    Q3HttpRequestHeader header( "GET", path );
     header.setValue( "Connection", "Keep-Alive" );
-    return addRequest( new QHttpPGHRequest( header, (QIODevice*)0, to ) );
+    return addRequest( new Q3HttpPGHRequest( header, (QIODevice*)0, to ) );
 }
 
 /*!
@@ -1654,11 +1656,11 @@ int QHttp::get( const QString& path, QIODevice* to )
 
     \sa setHost() get() head() request() requestStarted() requestFinished() done()
 */
-int QHttp::post( const QString& path, QIODevice* data, QIODevice* to  )
+int Q3Http::post( const QString& path, QIODevice* data, QIODevice* to  )
 {
-    QHttpRequestHeader header( "POST", path );
+    Q3HttpRequestHeader header( "POST", path );
     header.setValue( "Connection", "Keep-Alive" );
-    return addRequest( new QHttpPGHRequest( header, data, to ) );
+    return addRequest( new Q3HttpPGHRequest( header, data, to ) );
 }
 
 /*!
@@ -1666,11 +1668,11 @@ int QHttp::post( const QString& path, QIODevice* data, QIODevice* to  )
 
     \a data is used as the content data of the HTTP request.
 */
-int QHttp::post( const QString& path, const QByteArray& data, QIODevice* to )
+int Q3Http::post( const QString& path, const QByteArray& data, QIODevice* to )
 {
-    QHttpRequestHeader header( "POST", path );
+    Q3HttpRequestHeader header( "POST", path );
     header.setValue( "Connection", "Keep-Alive" );
-    return addRequest( new QHttpPGHRequest( header, new QByteArray(data), to ) );
+    return addRequest( new Q3HttpPGHRequest( header, new QByteArray(data), to ) );
 }
 
 /*!
@@ -1691,11 +1693,11 @@ int QHttp::post( const QString& path, const QByteArray& data, QIODevice* to )
 
     \sa setHost() get() post() request() requestStarted() requestFinished() done()
 */
-int QHttp::head( const QString& path )
+int Q3Http::head( const QString& path )
 {
-    QHttpRequestHeader header( "HEAD", path );
+    Q3HttpRequestHeader header( "HEAD", path );
     header.setValue( "Connection", "Keep-Alive" );
-    return addRequest( new QHttpPGHRequest( header, (QIODevice*)0, 0 ) );
+    return addRequest( new Q3HttpPGHRequest( header, (QIODevice*)0, 0 ) );
 }
 
 /*!
@@ -1725,9 +1727,9 @@ int QHttp::head( const QString& path )
 
     \sa setHost() get() post() head() requestStarted() requestFinished() done()
 */
-int QHttp::request( const QHttpRequestHeader &header, QIODevice *data, QIODevice *to )
+int Q3Http::request( const Q3HttpRequestHeader &header, QIODevice *data, QIODevice *to )
 {
-    return addRequest( new QHttpNormalRequest( header, data, to ) );
+    return addRequest( new Q3HttpNormalRequest( header, data, to ) );
 }
 
 /*!
@@ -1735,18 +1737,18 @@ int QHttp::request( const QHttpRequestHeader &header, QIODevice *data, QIODevice
 
     \a data is used as the content data of the HTTP request.
 */
-int QHttp::request( const QHttpRequestHeader &header, const QByteArray &data, QIODevice *to  )
+int Q3Http::request( const Q3HttpRequestHeader &header, const QByteArray &data, QIODevice *to  )
 {
-    return addRequest( new QHttpNormalRequest( header, new QByteArray(data), to ) );
+    return addRequest( new Q3HttpNormalRequest( header, new QByteArray(data), to ) );
 }
 
 /*!
     Closes the connection; this is useful if you have a keep-alive
     connection and want to close it.
 
-    For the requests issued with get(), post() and head(), QHttp sets
+    For the requests issued with get(), post() and head(), Q3Http sets
     the connection to be keep-alive. You can also do this using the
-    header you pass to the request() function. QHttp only closes the
+    header you pass to the request() function. Q3Http only closes the
     connection to the HTTP server if the response header requires it
     to do so.
 
@@ -1764,12 +1766,12 @@ int QHttp::request( const QHttpRequestHeader &header, const QByteArray &data, QI
 
     \sa stateChanged() abort() requestStarted() requestFinished() done()
 */
-int QHttp::closeConnection()
+int Q3Http::closeConnection()
 {
-    return addRequest( new QHttpCloseRequest() );
+    return addRequest( new Q3HttpCloseRequest() );
 }
 
-int QHttp::addRequest( QHttpRequest *req )
+int Q3Http::addRequest( Q3HttpRequest *req )
 {
     d->pending.append( req );
 
@@ -1780,9 +1782,9 @@ int QHttp::addRequest( QHttpRequest *req )
     return req->id;
 }
 
-void QHttp::startNextRequest()
+void Q3Http::startNextRequest()
 {
-    QHttpRequest *r = d->pending.getFirst();
+    Q3HttpRequest *r = d->pending.getFirst();
     if ( r == 0 )
 	return;
 
@@ -1795,7 +1797,7 @@ void QHttp::startNextRequest()
     r->start( this );
 }
 
-void QHttp::sendRequest()
+void Q3Http::sendRequest()
 {
     if ( d->hostname.isNull() ) {
 	finishedWithError( tr("No server set to connect to"), UnknownError );
@@ -1807,8 +1809,8 @@ void QHttp::sendRequest()
     // Do we need to setup a new connection or can we reuse an
     // existing one ?
     if ( d->socket.peerName() != d->hostname || d->socket.peerPort() != d->port
-        || d->socket.state() != QSocket::Connection ) {
-	setState( QHttp::Connecting );
+        || d->socket.state() != Q3Socket::Connection ) {
+	setState( Q3Http::Connecting );
 	d->socket.connectToHost( d->hostname, d->port );
     } else {
         slotConnected();
@@ -1816,9 +1818,9 @@ void QHttp::sendRequest()
 
 }
 
-void QHttp::finishedWithSuccess()
+void Q3Http::finishedWithSuccess()
 {
-    QHttpRequest *r = d->pending.getFirst();
+    Q3HttpRequest *r = d->pending.getFirst();
     if ( r == 0 )
 	return;
 
@@ -1831,9 +1833,9 @@ void QHttp::finishedWithSuccess()
     }
 }
 
-void QHttp::finishedWithError( const QString& detail, int errorCode )
+void Q3Http::finishedWithError( const QString& detail, int errorCode )
 {
-    QHttpRequest *r = d->pending.getFirst();
+    Q3HttpRequest *r = d->pending.getFirst();
     if ( r == 0 )
 	return;
 
@@ -1845,7 +1847,7 @@ void QHttp::finishedWithError( const QString& detail, int errorCode )
     emit done( TRUE );
 }
 
-void QHttp::slotClosed()
+void Q3Http::slotClosed()
 {
     if ( d->state == Closing )
 	return;
@@ -1866,7 +1868,7 @@ void QHttp::slotClosed()
     d->idleTimer = startTimer( 0 );
 }
 
-void QHttp::slotConnected()
+void Q3Http::slotConnected()
 {
     if ( d->state != Sending ) {
 	d->bytesDone = 0;
@@ -1876,8 +1878,8 @@ void QHttp::slotConnected()
     QString str = d->header.toString();
     d->bytesTotal = str.length();
     d->socket.writeBlock( str.latin1(), d->bytesTotal );
-#if defined(QHTTP_DEBUG)
-    qDebug( "QHttp: write request header:\n---{\n%s}---", str.latin1() );
+#if defined(Q3HTTP_DEBUG)
+    qDebug( "Q3Http: write request header:\n---{\n%s}---", str.latin1() );
 #endif
 
     if ( d->postDevice ) {
@@ -1889,16 +1891,16 @@ void QHttp::slotConnected()
     }
 }
 
-void QHttp::slotError( int err )
+void Q3Http::slotError( int err )
 {
     d->postDevice = 0;
 
     if ( d->state == Connecting || d->state == Reading || d->state == Sending ) {
 	switch ( err ) {
-	    case QSocket::ErrConnectionRefused:
+	    case Q3Socket::ErrConnectionRefused:
 		finishedWithError( tr("Connection refused"), ConnectionRefused );
 		break;
-	    case QSocket::ErrHostNotFound:
+	    case Q3Socket::ErrHostNotFound:
 		finishedWithError( tr("Host %1 not found").arg(d->socket.peerName()), HostNotFound );
 		break;
 	    default:
@@ -1910,7 +1912,7 @@ void QHttp::slotError( int err )
     close();
 }
 
-void QHttp::slotBytesWritten( int written )
+void Q3Http::slotBytesWritten( int written )
 {
     d->bytesDone += written;
     emit dataSendProgress( d->bytesDone, d->bytesTotal );
@@ -1936,7 +1938,7 @@ void QHttp::slotBytesWritten( int written )
     }
 }
 
-void QHttp::slotReadyRead()
+void Q3Http::slotReadyRead()
 {
     if ( d->state != Reading ) {
 	setState( Reading );
@@ -1961,13 +1963,13 @@ void QHttp::slotReadyRead()
 	if ( !end )
 	    return;
 
-#if defined(QHTTP_DEBUG)
-	qDebug( "QHttp: read response header:\n---{\n%s}---", d->headerStr.latin1() );
+#if defined(Q3HTTP_DEBUG)
+	qDebug( "Q3Http: read response header:\n---{\n%s}---", d->headerStr.latin1() );
 #endif
-	d->response = QHttpResponseHeader( d->headerStr );
+	d->response = Q3HttpResponseHeader( d->headerStr );
 	d->headerStr = "";
-#if defined(QHTTP_DEBUG)
-	qDebug( "QHttp: read response header:\n---{\n%s}---", d->response.toString().latin1() );
+#if defined(Q3HTTP_DEBUG)
+	qDebug( "Q3Http: read response header:\n---{\n%s}---", d->response.toString().latin1() );
 #endif
 	// Check header
 	if ( !d->response.isValid() ) {
@@ -2084,8 +2086,8 @@ void QHttp::slotReadyRead()
 		    d->toDevice->writeBlock( arr->data(), n );
 		    delete arr;
 		    d->bytesDone += n;
-#if defined(QHTTP_DEBUG)
-		    qDebug( "QHttp::slotReadyRead(): read %ld bytes (%d bytes done)", n, d->bytesDone );
+#if defined(Q3HTTP_DEBUG)
+		    qDebug( "Q3Http::slotReadyRead(): read %ld bytes (%d bytes done)", n, d->bytesDone );
 #endif
 		    if ( d->response.hasContentLength() )
 			emit dataReadProgress( d->bytesDone, d->response.contentLength() );
@@ -2093,8 +2095,8 @@ void QHttp::slotReadyRead()
 			emit dataReadProgress( d->bytesDone, 0 );
 		} else {
 		    d->rba.append( arr );
-#if defined(QHTTP_DEBUG)
-		    qDebug( "QHttp::slotReadyRead(): read %ld bytes (%ld bytes done)", n, d->bytesDone + bytesAvailable() );
+#if defined(Q3HTTP_DEBUG)
+		    qDebug( "Q3Http::slotReadyRead(): read %ld bytes (%ld bytes done)", n, d->bytesDone + bytesAvailable() );
 #endif
 		    if ( d->response.hasContentLength() )
 			emit dataReadProgress( d->bytesDone + bytesAvailable(), d->response.contentLength() );
@@ -2125,7 +2127,7 @@ void QHttp::slotReadyRead()
 
     \sa State stateChanged()
 */
-QHttp::State QHttp::state() const
+Q3Http::State Q3Http::state() const
 {
     return d->state;
 }
@@ -2137,7 +2139,7 @@ QHttp::State QHttp::state() const
 
     If you start a new request, the error status is reset to \c NoError.
 */
-QHttp::Error QHttp::error() const
+Q3Http::Error Q3Http::error() const
 {
     return d->error;
 }
@@ -2148,14 +2150,14 @@ QHttp::Error QHttp::error() const
     when receiving a requestFinished() or a done() signal with the \c
     error argument \c TRUE.
 */
-QString QHttp::errorString() const
+QString Q3Http::errorString() const
 {
     return d->errorString;
 }
 
 /*! \reimp
 */
-void QHttp::timerEvent( QTimerEvent *e )
+void Q3Http::timerEvent( QTimerEvent *e )
 {
     if ( e->timerId() == d->idleTimer ) {
 	killTimer( d->idleTimer );
@@ -2172,22 +2174,23 @@ void QHttp::timerEvent( QTimerEvent *e )
     }
 }
 
-void QHttp::killIdleTimer()
+void Q3Http::killIdleTimer()
 {
-    killTimer( d->idleTimer );
+    if (d->idleTimer)
+        killTimer( d->idleTimer );
     d->idleTimer = 0;
 }
 
-void QHttp::setState( int s )
+void Q3Http::setState( int s )
 {
-#if defined(QHTTP_DEBUG)
-    qDebug( "QHttp state changed %d -> %d", d->state, s );
+#if defined(Q3HTTP_DEBUG)
+    qDebug( "Q3Http state changed %d -> %d", d->state, s );
 #endif
     d->state = (State)s;
     emit stateChanged( s );
 }
 
-void QHttp::close()
+void Q3Http::close()
 {
     // If no connection is open -> ignore
     if ( d->state == Closing || d->state == Unconnected )
@@ -2204,7 +2207,7 @@ void QHttp::close()
 	d->socket.close();
 
 	// Did close succeed immediately ?
-	if ( d->socket.state() == QSocket::Idle ) {
+	if ( d->socket.state() == Q3Socket::Idle ) {
 	    // Prepare to emit the requestFinished() signal.
 	    d->idleTimer = startTimer( 0 );
 	}
@@ -2213,22 +2216,22 @@ void QHttp::close()
 
 /**********************************************************************
  *
- * QHttp implementation of the QNetworkProtocol interface
+ * Q3Http implementation of the Q3NetworkProtocol interface
  *
  *********************************************************************/
 /*! \reimp
 */
-int QHttp::supportedOperations() const
+int Q3Http::supportedOperations() const
 {
     return OpGet | OpPut;
 }
 
 /*! \reimp
 */
-void QHttp::operationGet( QNetworkOperation *op )
+void Q3Http::operationGet( Q3NetworkOperation *op )
 {
-    connect( this, SIGNAL(readyRead(const QHttpResponseHeader&)),
-	    this, SLOT(clientReply(const QHttpResponseHeader&)) );
+    connect( this, SIGNAL(readyRead(const Q3HttpResponseHeader&)),
+	    this, SLOT(clientReply(const Q3HttpResponseHeader&)) );
     connect( this, SIGNAL(done(bool)),
 	    this, SLOT(clientDone(bool)) );
     connect( this, SIGNAL(stateChanged(int)),
@@ -2236,8 +2239,8 @@ void QHttp::operationGet( QNetworkOperation *op )
 
     bytesRead = 0;
     op->setState( StInProgress );
-    QUrl u( operationInProgress()->arg( 0 ) );
-    QHttpRequestHeader header( "GET", u.encodedPathAndQuery(), 1, 0 );
+    Q3Url u( operationInProgress()->arg( 0 ) );
+    Q3HttpRequestHeader header( "GET", u.encodedPathAndQuery(), 1, 0 );
     header.setValue( "Host", u.host() );
     setHost( u.host(), u.port() != -1 ? u.port() : 80 );
     request( header );
@@ -2245,10 +2248,10 @@ void QHttp::operationGet( QNetworkOperation *op )
 
 /*! \reimp
 */
-void QHttp::operationPut( QNetworkOperation *op )
+void Q3Http::operationPut( Q3NetworkOperation *op )
 {
-    connect( this, SIGNAL(readyRead(const QHttpResponseHeader&)),
-	    this, SLOT(clientReply(const QHttpResponseHeader&)) );
+    connect( this, SIGNAL(readyRead(const Q3HttpResponseHeader&)),
+	    this, SLOT(clientReply(const Q3HttpResponseHeader&)) );
     connect( this, SIGNAL(done(bool)),
 	    this, SLOT(clientDone(bool)) );
     connect( this, SIGNAL(stateChanged(int)),
@@ -2256,16 +2259,16 @@ void QHttp::operationPut( QNetworkOperation *op )
 
     bytesRead = 0;
     op->setState( StInProgress );
-    QUrl u( operationInProgress()->arg( 0 ) );
-    QHttpRequestHeader header( "POST", u.encodedPathAndQuery(), 1, 0 );
+    Q3Url u( operationInProgress()->arg( 0 ) );
+    Q3HttpRequestHeader header( "POST", u.encodedPathAndQuery(), 1, 0 );
     header.setValue( "Host", u.host() );
     setHost( u.host(), u.port() != -1 ? u.port() : 80 );
     request( header, op->rawArg(1) );
 }
 
-void QHttp::clientReply( const QHttpResponseHeader &rep )
+void Q3Http::clientReply( const Q3HttpResponseHeader &rep )
 {
-    QNetworkOperation *op = operationInProgress();
+    Q3NetworkOperation *op = operationInProgress();
     if ( op ) {
 	if ( rep.statusCode() >= 400 && rep.statusCode() < 600 ) {
 	    op->setState( StFailed );
@@ -2301,19 +2304,19 @@ void QHttp::clientReply( const QHttpResponseHeader &rep )
     }
 }
 
-void QHttp::clientDone( bool err )
+void Q3Http::clientDone( bool err )
 {
-    disconnect( this, SIGNAL(readyRead(const QHttpResponseHeader&)),
-	    this, SLOT(clientReply(const QHttpResponseHeader&)) );
+    disconnect( this, SIGNAL(readyRead(const Q3HttpResponseHeader&)),
+	    this, SLOT(clientReply(const Q3HttpResponseHeader&)) );
     disconnect( this, SIGNAL(done(bool)),
 	    this, SLOT(clientDone(bool)) );
     disconnect( this, SIGNAL(stateChanged(int)),
 	    this, SLOT(clientStateChanged(int)) );
 
     if ( err ) {
-	QNetworkOperation *op = operationInProgress();
+	Q3NetworkOperation *op = operationInProgress();
 	if ( op ) {
-	    op->setState( QNetworkProtocol::StFailed );
+	    op->setState( Q3NetworkProtocol::StFailed );
 	    op->setProtocolDetail( errorString() );
 	    switch ( error() ) {
 		case ConnectionRefused:
@@ -2332,11 +2335,11 @@ void QHttp::clientDone( bool err )
 	    emit finished( op );
 	}
     } else {
-	QNetworkOperation *op = operationInProgress();
+	Q3NetworkOperation *op = operationInProgress();
 	if ( op ) {
 	    if ( op->state() != StFailed ) {
-		op->setState( QNetworkProtocol::StDone );
-		op->setErrorCode( QNetworkProtocol::NoError );
+		op->setState( Q3NetworkProtocol::StDone );
+		op->setErrorCode( Q3NetworkProtocol::NoError );
 	    }
 	    emit finished( op );
 	}
@@ -2344,7 +2347,7 @@ void QHttp::clientDone( bool err )
 
 }
 
-void QHttp::clientStateChanged( int state )
+void Q3Http::clientStateChanged( int state )
 {
     if ( url() ) {
 	switch ( (State)state ) {

@@ -149,8 +149,8 @@ public:
     qInitNetworkProtocols() function. The protocols currently
     supported are:
     \list
-    \i \link QFtp FTP\endlink,
-    \i \link QHttp HTTP\endlink,
+    \i \link Q3Ftp FTP\endlink,
+    \i \link Q3Http HTTP\endlink,
     \i \link Q3LocalFs local file system\endlink.
     \endlist
 
@@ -379,7 +379,7 @@ const Q3NetworkOperation *Q3UrlOperator::startOperation( Q3NetworkOperation *op 
 	d->networkProtocol->addOperation( op );
 	if ( op->operation() == Q3NetworkProtocol::OpListChildren )
 	    clearEntries();
-	return op;
+        return op;
     }
 
     // error

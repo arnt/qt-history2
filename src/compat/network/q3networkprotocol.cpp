@@ -577,7 +577,7 @@ void Q3NetworkProtocol::registerNetworkProtocol( const QString &protocol,
     protocol. For example, if you need to do some FTP operations, do
     the following:
     \code
-    QFtp *ftp = Q3NetworkProtocol::getNetworkProtocol( "ftp" );
+    Q3Ftp *ftp = Q3NetworkProtocol::getNetworkProtocol( "ftp" );
     \endcode
     This returns a pointer to a new instance of an ftp implementation
     or null if no protocol for ftp was registered. The ownership of

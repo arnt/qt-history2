@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id: $
 **
-** Definition of QFtp class.
+** Definition of Q3Ftp class.
 **
 ** Created : 970521
 **
@@ -35,39 +35,32 @@
 **
 **********************************************************************/
 
-#ifndef QFTP_H
-#define QFTP_H
+#ifndef Q3FTP_H
+#define Q3FTP_H
 
 #ifndef QT_H
 #include "qstring.h" // char*->QString conversion
 #include "qurlinfo.h"
-#include "qnetworkprotocol.h"
+#include "q3networkprotocol.h"
 #endif // QT_H
-
-#if !defined( QT_MODULE_NETWORK ) || defined( QT_LICENSE_PROFESSIONAL ) || defined( QT_INTERNAL_NETWORK )
-#define QM_EXPORT_FTP
-#else
-#define QM_EXPORT_FTP Q_EXPORT
-#endif
 
 #ifndef QT_NO_NETWORKPROTOCOL_FTP
 
+class Q3Socket;
+class Q3FtpCommand;
 
-class QSocket;
-class QFtpCommand;
-
-class QM_EXPORT_FTP QFtp : public QNetworkProtocol
+class Q_COMPAT_EXPORT Q3Ftp : public Q3NetworkProtocol
 {
     Q_OBJECT
 
 public:
-    QFtp(); // ### Qt 4.0: get rid of this overload
-    QFtp( QObject *parent, const char *name=0 );
-    virtual ~QFtp();
+    Q3Ftp(); // ### Qt 4.0: get rid of this overload
+    Q3Ftp( QObject *parent, const char *name=0 );
+    virtual ~Q3Ftp();
 
     int supportedOperations() const;
 
-    // non-QNetworkProtocol functions:
+    // non-Q3NetworkProtocol functions:
     enum State {
 	Unconnected,
 	HostLookup,
@@ -145,16 +138,16 @@ signals:
 
 protected:
     void parseDir( const QString &buffer, QUrlInfo &info ); // ### Qt 4.0: delete this? (not public API)
-    void operationListChildren( QNetworkOperation *op );
-    void operationMkDir( QNetworkOperation *op );
-    void operationRemove( QNetworkOperation *op );
-    void operationRename( QNetworkOperation *op );
-    void operationGet( QNetworkOperation *op );
-    void operationPut( QNetworkOperation *op );
+    void operationListChildren( Q3NetworkOperation *op );
+    void operationMkDir( Q3NetworkOperation *op );
+    void operationRemove( Q3NetworkOperation *op );
+    void operationRename( Q3NetworkOperation *op );
+    void operationGet( Q3NetworkOperation *op );
+    void operationPut( Q3NetworkOperation *op );
 
     // ### Qt 4.0: delete these
     // unused variables:
-    QSocket *commandSocket, *dataSocket;
+    Q3Socket *commandSocket, *dataSocket;
     bool connectionReady, passiveMode;
     int getTotalSize, getDoneSize;
     bool startGetOnFail;
@@ -163,9 +156,9 @@ protected:
 
 private:
     void init();
-    int addCommand( QFtpCommand * );
+    int addCommand( Q3FtpCommand * );
 
-    bool checkConnection( QNetworkOperation *op );
+    bool checkConnection( Q3NetworkOperation *op );
 
 private slots:
     void startNextCommand();
@@ -196,4 +189,4 @@ protected slots:
 
 #endif // QT_NO_NETWORKPROTOCOL_FTP
 
-#endif // QFTP_H
+#endif // Q3FTP_H

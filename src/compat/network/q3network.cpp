@@ -35,33 +35,33 @@
 **
 **********************************************************************/
 
-#include "qnetwork.h"
+#include "q3network.h"
 
 #ifndef QT_NO_NETWORK
 
-#include "qnetworkprotocol.h"
+#include "q3networkprotocol.h"
 
 // protocols
-#include "qftp.h"
-#include "qhttp.h"
+#include "q3ftp.h"
+#include "q3http.h"
 
-/*! \file qnetwork.h */
+/*! \file q3network.h */
 /*!
-    \relates QUrlOperator
+    \relates Q3UrlOperator
 
     This function registers the network protocols for FTP and HTTP.
     You must call this function before you use QUrlOperator for
     these protocols.
 
-    This function is declared in \l qnetwork.h.
+    This function is declared in \l q3network.h.
 */
-void qInitNetworkProtocols()
+void q3InitNetworkProtocols()
 {
 #ifndef QT_NO_NETWORKPROTOCOL_FTP
-    QNetworkProtocol::registerNetworkProtocol( "ftp", new QNetworkProtocolFactory< QFtp > );
+    Q3NetworkProtocol::registerNetworkProtocol( "ftp", new Q3NetworkProtocolFactory< Q3Ftp > );
 #endif
 #ifndef QT_NO_NETWORKPROTOCOL_HTTP
-    QNetworkProtocol::registerNetworkProtocol( "http", new QNetworkProtocolFactory< QHttp > );
+    Q3NetworkProtocol::registerNetworkProtocol( "http", new Q3NetworkProtocolFactory< Q3Http > );
 #endif
 }
 

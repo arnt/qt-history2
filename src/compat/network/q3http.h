@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id$
 **
-** Definition of QHttp and related classes.
+** Definition of Q3Http and related classes.
 **
 ** Created : 970521
 **
@@ -35,42 +35,35 @@
 **
 **********************************************************************/
 
-#ifndef QHTTP_H
-#define QHTTP_H
+#ifndef Q3HTTP_H
+#define Q3HTTP_H
 
 #ifndef QT_H
 #include "qobject.h"
-#include "qnetworkprotocol.h"
+#include "q3networkprotocol.h"
+#include "qmap.h"
 #include "qstringlist.h"
 #endif // QT_H
 
-#if !defined( QT_MODULE_NETWORK ) || defined( QT_LICENSE_PROFESSIONAL ) || defined( QT_INTERNAL_NETWORK )
-#define QM_EXPORT_HTTP
-#define QM_TEMPLATE_EXTERN_HTTP
-#else
-#define QM_EXPORT_HTTP Q_EXPORT
-#define QM_TEMPLATE_EXTERN_HTTP Q_TEMPLATE_EXTERN
-#endif
-
 #ifndef QT_NO_NETWORKPROTOCOL_HTTP
 
-class QSocket;
+class Q3Socket;
 class QTimerEvent;
 class QTextStream;
 class QIODevice;
 
-class QHttpPrivate;
-class QHttpRequest;
+class Q3HttpPrivate;
+class Q3HttpRequest;
 
-class QM_EXPORT_HTTP QHttpHeader
+class Q_COMPAT_EXPORT Q3HttpHeader
 {
 public:
-    QHttpHeader();
-    QHttpHeader( const QHttpHeader& header );
-    QHttpHeader( const QString& str );
-    virtual ~QHttpHeader();
+    Q3HttpHeader();
+    Q3HttpHeader( const Q3HttpHeader& header );
+    Q3HttpHeader( const QString& str );
+    virtual ~Q3HttpHeader();
 
-    QHttpHeader& operator=( const QHttpHeader& h );
+    Q3HttpHeader& operator=( const Q3HttpHeader& h );
 
     QString value( const QString& key ) const;
     void setValue( const QString& key, const QString& value );
@@ -103,17 +96,17 @@ private:
     bool valid;
 };
 
-class QM_EXPORT_HTTP QHttpResponseHeader : public QHttpHeader
+class Q_COMPAT_EXPORT Q3HttpResponseHeader : public Q3HttpHeader
 {
 private:
-    QHttpResponseHeader( int code, const QString& text = QString::null, int majorVer = 1, int minorVer = 1 );
-    QHttpResponseHeader( const QString& str );
+    Q3HttpResponseHeader( int code, const QString& text = QString::null, int majorVer = 1, int minorVer = 1 );
+    Q3HttpResponseHeader( const QString& str );
 
     void setStatusLine( int code, const QString& text = QString::null, int majorVer = 1, int minorVer = 1 );
 
 public:
-    QHttpResponseHeader();
-    QHttpResponseHeader( const QHttpResponseHeader& header );
+    Q3HttpResponseHeader();
+    Q3HttpResponseHeader( const Q3HttpResponseHeader& header );
 
     int statusCode() const;
     QString reasonPhrase() const;
@@ -132,16 +125,16 @@ private:
     int majVer;
     int minVer;
 
-    friend class QHttp;
+    friend class Q3Http;
 };
 
-class QM_EXPORT_HTTP QHttpRequestHeader : public QHttpHeader
+class Q_COMPAT_EXPORT Q3HttpRequestHeader : public Q3HttpHeader
 {
 public:
-    QHttpRequestHeader();
-    QHttpRequestHeader( const QString& method, const QString& path, int majorVer = 1, int minorVer = 1 );
-    QHttpRequestHeader( const QHttpRequestHeader& header );
-    QHttpRequestHeader( const QString& str );
+    Q3HttpRequestHeader();
+    Q3HttpRequestHeader( const QString& method, const QString& path, int majorVer = 1, int minorVer = 1 );
+    Q3HttpRequestHeader( const Q3HttpRequestHeader& header );
+    Q3HttpRequestHeader( const QString& str );
 
     void setRequest( const QString& method, const QString& path, int majorVer = 1, int minorVer = 1 );
 
@@ -163,15 +156,15 @@ private:
     int minVer;
 };
 
-class QM_EXPORT_HTTP QHttp : public QNetworkProtocol
+class Q_COMPAT_EXPORT Q3Http : public Q3NetworkProtocol
 {
     Q_OBJECT
 
 public:
-    QHttp();
-    QHttp( QObject* parent, const char* name = 0 ); // ### Qt 4.0: make parent=0 and get rid of the QHttp() constructor
-    QHttp( const QString &hostname, Q_UINT16 port=80, QObject* parent=0, const char* name = 0 );
-    virtual ~QHttp();
+    Q3Http();
+    Q3Http( QObject* parent, const char* name = 0 ); // ### Qt 4.0: make parent=0 and get rid of the Q3Http() constructor
+    Q3Http( const QString &hostname, Q_UINT16 port=80, QObject* parent=0, const char* name = 0 );
+    virtual ~Q3Http();
 
     int supportedOperations() const;
 
@@ -193,8 +186,8 @@ public:
     int post( const QString& path, QIODevice* data, QIODevice* to=0  );
     int post( const QString& path, const QByteArray& data, QIODevice* to=0 );
     int head( const QString& path );
-    int request( const QHttpRequestHeader &header, QIODevice *device=0, QIODevice *to=0 );
-    int request( const QHttpRequestHeader &header, const QByteArray &data, QIODevice *to=0 );
+    int request( const Q3HttpRequestHeader &header, QIODevice *device=0, QIODevice *to=0 );
+    int request( const Q3HttpRequestHeader &header, const QByteArray &data, QIODevice *to=0 );
 
     int closeConnection();
 
@@ -205,7 +198,7 @@ public:
     int currentId() const;
     QIODevice* currentSourceDevice() const;
     QIODevice* currentDestinationDevice() const;
-    QHttpRequestHeader currentRequest() const;
+    Q3HttpRequestHeader currentRequest() const;
     bool hasPendingRequests() const;
     void clearPendingRequests();
 
@@ -219,8 +212,8 @@ public slots:
 
 signals:
     void stateChanged( int );
-    void responseHeaderReceived( const QHttpResponseHeader& resp );
-    void readyRead( const QHttpResponseHeader& resp );
+    void responseHeaderReceived( const Q3HttpResponseHeader& resp );
+    void readyRead( const Q3HttpResponseHeader& resp );
     void dataSendProgress( int, int );
     void dataReadProgress( int, int );
 
@@ -229,13 +222,13 @@ signals:
     void done( bool );
 
 protected:
-    void operationGet( QNetworkOperation *op );
-    void operationPut( QNetworkOperation *op );
+    void operationGet( Q3NetworkOperation *op );
+    void operationPut( Q3NetworkOperation *op );
 
     void timerEvent( QTimerEvent * );
 
 private slots:
-    void clientReply( const QHttpResponseHeader &rep );
+    void clientReply( const Q3HttpResponseHeader &rep );
     void clientDone( bool );
     void clientStateChanged( int );
 
@@ -247,11 +240,11 @@ private slots:
     void slotBytesWritten( int );
 
 private:
-    QHttpPrivate *d;
+    Q3HttpPrivate *d;
     void *unused; // ### Qt 4.0: remove this (in for binary compatibility)
     int bytesRead;
 
-    int addRequest( QHttpRequest * );
+    int addRequest( Q3HttpRequest * );
     void sendRequest();
     void finishedWithSuccess();
     void finishedWithError( const QString& detail, int errorCode );
@@ -262,13 +255,11 @@ private:
     void setState( int );
     void close();
 
-    friend class QHttpNormalRequest;
-    friend class QHttpSetHostRequest;
-    friend class QHttpCloseRequest;
-    friend class QHttpPGHRequest;
+    friend class Q3HttpNormalRequest;
+    friend class Q3HttpSetHostRequest;
+    friend class Q3HttpCloseRequest;
+    friend class Q3HttpPGHRequest;
 };
 
-#define Q_DEFINED_QHTTP
-#include "qwinexport.h"
 #endif
 #endif

@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id$
 **
-** Implementation of QFtp class.
+** Implementation of Q3Ftp class.
 **
 ** Created : 970521
 **
@@ -35,31 +35,33 @@
 **
 **********************************************************************/
 
-#include "qftp.h"
+#include "q3ftp.h"
 
 #ifndef QT_NO_NETWORKPROTOCOL_FTP
 
-#include "qsocket.h"
-#include "qsocketdevice.h"
+#include "q3socket.h"
+#include "q3socketdevice.h"
 #include "qurlinfo.h"
-#include "qurloperator.h"
+#include "q3urloperator.h"
 #include "qstringlist.h"
 #include "qregexp.h"
 #include "qtimer.h"
 #include "qfileinfo.h"
-#include "qptrdict.h" // binary compatibility
+#include "q3ptrdict.h" // binary compatibility
+#include "q3cstring.h"
+#include "qcoreapplication.h"
 
 #ifndef QT_NO_TEXTCODEC
 #include "qtextcodec.h"
 #endif
 
-//#define QFTPPI_DEBUG
-//#define QFTPDTP_DEBUG
+//#define Q3FTPPI_DEBUG
+//#define Q3FTPDTP_DEBUG
 
 
-class QFtpPI;
+class Q3FtpPI;
 
-class QFtpDTP : public QObject
+class Q3FtpDTP : public QObject
 {
     Q_OBJECT
 
@@ -72,7 +74,7 @@ public:
 	CsConnectionRefused
     };
 
-    QFtpDTP( QFtpPI *p, QObject *parent=0, const char *name=0 );
+    Q3FtpDTP( Q3FtpPI *p, QObject *parent=0, const char *name=0 );
 
     void setData( QByteArray * );
     void setDevice( QIODevice * );
@@ -92,7 +94,7 @@ public:
     void connectToHost( const QString & host, Q_UINT16 port )
     { socket.connectToHost( host, port ); }
 
-    QSocket::State socketState() const
+    Q3Socket::State socketState() const
     { return socket.state(); }
 
     Q_ULONG bytesAvailable() const
@@ -137,8 +139,8 @@ private:
 	data.dev = 0;
     }
 
-    QSocket socket;
-    QFtpPI *pi;
+    Q3Socket socket;
+    Q3FtpPI *pi;
     QString err;
     int bytesDone;
     int bytesTotal;
@@ -153,12 +155,12 @@ private:
     bool is_ba;
 };
 
-class QFtpPI : public QObject
+class Q3FtpPI : public QObject
 {
     Q_OBJECT
 
 public:
-    QFtpPI( QObject *parent = 0 );
+    Q3FtpPI( QObject *parent = 0 );
 
     void connectToHost( const QString &host, Q_UINT16 port );
 
@@ -174,7 +176,7 @@ public:
 
     bool rawCommand;
 
-    QFtpDTP dtp; // the PI has a DTP which is not the design of RFC 959, but it
+    Q3FtpDTP dtp; // the PI has a DTP which is not the design of RFC 959, but it
 		 // makes the design simpler this way
 signals:
     void connectState( int );
@@ -212,7 +214,7 @@ private:
     bool processReply();
     bool startNextCmd();
 
-    QSocket commandSocket;
+    Q3Socket commandSocket;
     QString replyText;
     char replyCode[3];
     State state;
@@ -226,19 +228,19 @@ private:
 
 /**********************************************************************
  *
- * QFtpCommand implemenatation
+ * Q3FtpCommand implemenatation
  *
  *********************************************************************/
-class QFtpCommand
+class Q3FtpCommand
 {
 public:
-    QFtpCommand( QFtp::Command cmd, QStringList raw );
-    QFtpCommand( QFtp::Command cmd, QStringList raw, const QByteArray &ba );
-    QFtpCommand( QFtp::Command cmd, QStringList raw, QIODevice *dev );
-    ~QFtpCommand();
+    Q3FtpCommand( Q3Ftp::Command cmd, QStringList raw );
+    Q3FtpCommand( Q3Ftp::Command cmd, QStringList raw, const QByteArray &ba );
+    Q3FtpCommand( Q3Ftp::Command cmd, QStringList raw, QIODevice *dev );
+    ~Q3FtpCommand();
 
     int id;
-    QFtp::Command command;
+    Q3Ftp::Command command;
     QStringList rawCmds;
 
     // If is_ba is TRUE, ba is used; ba is never 0.
@@ -252,30 +254,30 @@ public:
     static int idCounter;
 };
 
-int QFtpCommand::idCounter = 0;
+int Q3FtpCommand::idCounter = 0;
 
-QFtpCommand::QFtpCommand( QFtp::Command cmd, QStringList raw )
+Q3FtpCommand::Q3FtpCommand( Q3Ftp::Command cmd, QStringList raw )
     : command(cmd), rawCmds(raw), is_ba(FALSE)
 {
     id = ++idCounter;
     data.dev = 0;
 }
 
-QFtpCommand::QFtpCommand( QFtp::Command cmd, QStringList raw, const QByteArray &ba )
+Q3FtpCommand::Q3FtpCommand( Q3Ftp::Command cmd, QStringList raw, const QByteArray &ba )
     : command(cmd), rawCmds(raw), is_ba(TRUE)
 {
     id = ++idCounter;
     data.ba = new QByteArray( ba );
 }
 
-QFtpCommand::QFtpCommand( QFtp::Command cmd, QStringList raw, QIODevice *dev )
+Q3FtpCommand::Q3FtpCommand( Q3Ftp::Command cmd, QStringList raw, QIODevice *dev )
     : command(cmd), rawCmds(raw), is_ba(FALSE)
 {
     id = ++idCounter;
     data.dev = dev;
 }
 
-QFtpCommand::~QFtpCommand()
+Q3FtpCommand::~Q3FtpCommand()
 {
     if ( is_ba )
 	delete data.ba;
@@ -283,12 +285,12 @@ QFtpCommand::~QFtpCommand()
 
 /**********************************************************************
  *
- * QFtpDTP implemenatation
+ * Q3FtpDTP implemenatation
  *
  *********************************************************************/
-QFtpDTP::QFtpDTP( QFtpPI *p, QObject *parent, const char *name ) :
+Q3FtpDTP::Q3FtpDTP( Q3FtpPI *p, QObject *parent, const char *name ) :
     QObject( parent, name ),
-    socket( 0, "QFtpDTP_socket" ),
+    socket( 0, "Q3FtpDTP_socket" ),
     pi( p ),
     callWriteData( FALSE )
 {
@@ -306,23 +308,23 @@ QFtpDTP::QFtpDTP( QFtpPI *p, QObject *parent, const char *name ) :
 	     SLOT( socketBytesWritten(int) ) );
 }
 
-void QFtpDTP::setData( QByteArray *ba )
+void Q3FtpDTP::setData( QByteArray *ba )
 {
     is_ba = TRUE;
     data.ba = ba;
 }
 
-void QFtpDTP::setDevice( QIODevice *dev )
+void Q3FtpDTP::setDevice( QIODevice *dev )
 {
     is_ba = FALSE;
     data.dev = dev;
 }
 
-void QFtpDTP::writeData()
+void Q3FtpDTP::writeData()
 {
     if ( is_ba ) {
-#if defined(QFTPDTP_DEBUG)
-	qDebug( "QFtpDTP::writeData: write %d bytes", data.ba->size() );
+#if defined(Q3FTPDTP_DEBUG)
+	qDebug( "Q3FtpDTP::writeData: write %d bytes", data.ba->size() );
 #endif
 	if ( data.ba->size() == 0 )
 	    emit dataTransferProgress( 0, bytesTotal );
@@ -336,8 +338,8 @@ void QFtpDTP::writeData()
 	char buf[blockSize];
 	while ( !data.dev->atEnd() && socket.bytesToWrite()==0 ) {
 	    Q_LONG read = data.dev->readBlock( buf, blockSize );
-#if defined(QFTPDTP_DEBUG)
-	    qDebug( "QFtpDTP::writeData: writeBlock() of size %d bytes", (int)read );
+#if defined(Q3FTPDTP_DEBUG)
+	    qDebug( "Q3FtpDTP::writeData: writeBlock() of size %d bytes", (int)read );
 #endif
 	    socket.writeBlock( buf, read );
 	    if ( !data.dev )
@@ -354,25 +356,25 @@ void QFtpDTP::writeData()
     }
 }
 
-inline bool QFtpDTP::hasError() const
+inline bool Q3FtpDTP::hasError() const
 {
     return !err.isNull();
 }
 
-inline QString QFtpDTP::errorMessage() const
+inline QString Q3FtpDTP::errorMessage() const
 {
     return err;
 }
 
-inline void QFtpDTP::clearError()
+inline void Q3FtpDTP::clearError()
 {
     err = QString::null;
 }
 
-void QFtpDTP::abortConnection()
+void Q3FtpDTP::abortConnection()
 {
-#if defined(QFTPDTP_DEBUG)
-    qDebug( "QFtpDTP::abortConnection" );
+#if defined(Q3FTPDTP_DEBUG)
+    qDebug( "Q3FtpDTP::abortConnection" );
 #endif
     callWriteData = FALSE;
     clearData();
@@ -381,7 +383,7 @@ void QFtpDTP::abortConnection()
     socket.close();
 }
 
-bool QFtpDTP::parseDir( const QString &buffer, const QString &userName, QUrlInfo *info )
+bool Q3FtpDTP::parseDir( const QString &buffer, const QString &userName, QUrlInfo *info )
 {
     QStringList lst = QStringList::split( " ", buffer );
 
@@ -502,7 +504,7 @@ bool QFtpDTP::parseDir( const QString &buffer, const QString &userName, QUrlInfo
 	info->setName( lst[ 8 ].stripWhiteSpace() );
     else {
 	QString n;
-	for ( uint i = 8; i < lst.count(); ++i )
+	for ( uint i = 8; i < (uint) lst.count(); ++i )
 	    n += lst[ i ] + " ";
 	n = n.stripWhiteSpace();
 	info->setName( n );
@@ -510,7 +512,7 @@ bool QFtpDTP::parseDir( const QString &buffer, const QString &userName, QUrlInfo
     return TRUE;
 }
 
-void QFtpDTP::socketConnected()
+void Q3FtpDTP::socketConnected()
 {
 #if !defined (Q_WS_QWS)
     // Use a large send buffer to reduce the number
@@ -522,20 +524,20 @@ void QFtpDTP::socketConnected()
 #endif
 
     bytesDone = 0;
-#if defined(QFTPDTP_DEBUG)
-    qDebug( "QFtpDTP::connectState( CsConnected )" );
+#if defined(Q3FTPDTP_DEBUG)
+    qDebug( "Q3FtpDTP::connectState( CsConnected )" );
 #endif
-    emit connectState( QFtpDTP::CsConnected );
+    emit connectState( Q3FtpDTP::CsConnected );
 }
 
-void QFtpDTP::socketReadyRead()
+void Q3FtpDTP::socketReadyRead()
 {
     if ( pi->currentCommand().isEmpty() ) {
 	socket.close();
-#if defined(QFTPDTP_DEBUG)
-	qDebug( "QFtpDTP::connectState( CsClosed )" );
+#if defined(Q3FTPDTP_DEBUG)
+	qDebug( "Q3FtpDTP::connectState( CsClosed )" );
 #endif
-	emit connectState( QFtpDTP::CsClosed );
+	emit connectState( Q3FtpDTP::CsClosed );
 	return;
     }
 
@@ -543,8 +545,8 @@ void QFtpDTP::socketReadyRead()
 	while ( socket.canReadLine() ) {
 	    QUrlInfo i;
 	    QString line = socket.readLine();
-#if defined(QFTPDTP_DEBUG)
-	    qDebug( "QFtpDTP read (list): '%s'", line.latin1() );
+#if defined(Q3FTPDTP_DEBUG)
+	    qDebug( "Q3FtpDTP read (list): '%s'", line.latin1() );
 #endif
 	    if ( parseDir( line, "", &i ) ) {
 		emit listInfo( i );
@@ -566,14 +568,14 @@ void QFtpDTP::socketReadyRead()
 	    }
 	    ba.resize( bytesRead );
 	    bytesDone += bytesRead;
-#if defined(QFTPDTP_DEBUG)
-	    qDebug( "QFtpDTP read: %d bytes (total %d bytes)", (int)bytesRead, bytesDone );
+#if defined(Q3FTPDTP_DEBUG)
+	    qDebug( "Q3FtpDTP read: %d bytes (total %d bytes)", (int)bytesRead, bytesDone );
 #endif
 	    emit dataTransferProgress( bytesDone, bytesTotal );
 	    data.dev->writeBlock( ba );
 	} else {
-#if defined(QFTPDTP_DEBUG)
-	    qDebug( "QFtpDTP readyRead: %d bytes available (total %d bytes read)", (int)bytesAvailable(), bytesDone );
+#if defined(Q3FTPDTP_DEBUG)
+	    qDebug( "Q3FtpDTP readyRead: %d bytes available (total %d bytes read)", (int)bytesAvailable(), bytesDone );
 #endif
 	    emit dataTransferProgress( bytesDone+socket.bytesAvailable(), bytesTotal );
 	    emit readyRead();
@@ -581,37 +583,37 @@ void QFtpDTP::socketReadyRead()
     }
 }
 
-void QFtpDTP::socketError( int e )
+void Q3FtpDTP::socketError( int e )
 {
-    if ( e == QSocket::ErrHostNotFound ) {
-#if defined(QFTPDTP_DEBUG)
-	qDebug( "QFtpDTP::connectState( CsHostNotFound )" );
+    if ( e == Q3Socket::ErrHostNotFound ) {
+#if defined(Q3FTPDTP_DEBUG)
+	qDebug( "Q3FtpDTP::connectState( CsHostNotFound )" );
 #endif
-	emit connectState( QFtpDTP::CsHostNotFound );
-    } else if ( e == QSocket::ErrConnectionRefused ) {
-#if defined(QFTPDTP_DEBUG)
-	qDebug( "QFtpDTP::connectState( CsConnectionRefused )" );
+	emit connectState( Q3FtpDTP::CsHostNotFound );
+    } else if ( e == Q3Socket::ErrConnectionRefused ) {
+#if defined(Q3FTPDTP_DEBUG)
+	qDebug( "Q3FtpDTP::connectState( CsConnectionRefused )" );
 #endif
-	emit connectState( QFtpDTP::CsConnectionRefused );
+	emit connectState( Q3FtpDTP::CsConnectionRefused );
     }
 }
 
-void QFtpDTP::socketConnectionClosed()
+void Q3FtpDTP::socketConnectionClosed()
 {
     if ( !is_ba && data.dev ) {
 	clearData();
     }
-#if defined(QFTPDTP_DEBUG)
-    qDebug( "QFtpDTP::connectState( CsClosed )" );
+#if defined(Q3FTPDTP_DEBUG)
+    qDebug( "Q3FtpDTP::connectState( CsClosed )" );
 #endif
-    emit connectState( QFtpDTP::CsClosed );
+    emit connectState( Q3FtpDTP::CsClosed );
 }
 
-void QFtpDTP::socketBytesWritten( int bytes )
+void Q3FtpDTP::socketBytesWritten( int bytes )
 {
     bytesDone += bytes;
-#if defined(QFTPDTP_DEBUG)
-    qDebug( "QFtpDTP::bytesWritten( %d )", bytesDone );
+#if defined(Q3FTPDTP_DEBUG)
+    qDebug( "Q3FtpDTP::bytesWritten( %d )", bytesDone );
 #endif
     emit dataTransferProgress( bytesDone, bytesTotal );
     if ( callWriteData )
@@ -620,14 +622,14 @@ void QFtpDTP::socketBytesWritten( int bytes )
 
 /**********************************************************************
  *
- * QFtpPI implemenatation
+ * Q3FtpPI implemenatation
  *
  *********************************************************************/
-QFtpPI::QFtpPI( QObject *parent ) :
+Q3FtpPI::Q3FtpPI( QObject *parent ) :
     QObject( parent ),
     rawCommand(FALSE),
     dtp( this ),
-    commandSocket( 0, "QFtpPI_socket" ),
+    commandSocket( 0, "Q3FtpPI_socket" ),
     state( Begin ), abortState( None ),
     currentCmd( QString::null ),
     waitForDtpToConnect( FALSE ),
@@ -650,9 +652,9 @@ QFtpPI::QFtpPI( QObject *parent ) :
 	     SLOT(dtpConnectState(int)) );
 }
 
-void QFtpPI::connectToHost( const QString &host, Q_UINT16 port )
+void Q3FtpPI::connectToHost( const QString &host, Q_UINT16 port )
 {
-    emit connectState( QFtp::HostLookup );
+    emit connectState( Q3Ftp::HostLookup );
     commandSocket.connectToHost( host, port );
 }
 
@@ -664,13 +666,13 @@ void QFtpPI::connectToHost( const QString &host, Q_UINT16 port )
   If there are pending commands in the queue this functions returns FALSE and
   the \a cmds are not added to the queue; otherwise it returns TRUE.
 */
-bool QFtpPI::sendCommands( const QStringList &cmds )
+bool Q3FtpPI::sendCommands( const QStringList &cmds )
 {
     if ( !pendingCommands.isEmpty() )
 	return FALSE;
 
-    if ( commandSocket.state()!=QSocket::Connected || state!=Idle ) {
-	emit error( QFtp::NotConnected, QFtp::tr( "Not connected" ) );
+    if ( commandSocket.state()!=Q3Socket::Connected || state!=Idle ) {
+	emit error( Q3Ftp::NotConnected, Q3Ftp::tr( "Not connected" ) );
 	return TRUE; // there are no pending commands
     }
 
@@ -679,7 +681,7 @@ bool QFtpPI::sendCommands( const QStringList &cmds )
     return TRUE;
 }
 
-void QFtpPI::clearPendingCommands()
+void Q3FtpPI::clearPendingCommands()
 {
     pendingCommands.clear();
     dtp.abortConnection();
@@ -687,7 +689,7 @@ void QFtpPI::clearPendingCommands()
     state = Idle;
 }
 
-void QFtpPI::abort()
+void Q3FtpPI::abort()
 {
     pendingCommands.clear();
 
@@ -696,8 +698,8 @@ void QFtpPI::abort()
 	return;
 
     abortState = AbortStarted;
-#if defined(QFTPPI_DEBUG)
-    qDebug( "QFtpPI send: ABOR" );
+#if defined(Q3FTPPI_DEBUG)
+    qDebug( "Q3FtpPI send: ABOR" );
 #endif
     commandSocket.writeBlock( "ABOR\r\n", 6 );
 
@@ -705,45 +707,45 @@ void QFtpPI::abort()
 	dtp.abortConnection();
 }
 
-void QFtpPI::hostFound()
+void Q3FtpPI::hostFound()
 {
-    emit connectState( QFtp::Connecting );
+    emit connectState( Q3Ftp::Connecting );
 }
 
-void QFtpPI::connected()
+void Q3FtpPI::connected()
 {
     state = Begin;
-#if defined(QFTPPI_DEBUG)
-//    qDebug( "QFtpPI state: %d [connected()]", state );
+#if defined(Q3FTPPI_DEBUG)
+//    qDebug( "Q3FtpPI state: %d [connected()]", state );
 #endif
-    emit connectState( QFtp::Connected );
+    emit connectState( Q3Ftp::Connected );
 }
 
-void QFtpPI::connectionClosed()
+void Q3FtpPI::connectionClosed()
 {
     commandSocket.close();
-    emit connectState( QFtp::Unconnected );
+    emit connectState( Q3Ftp::Unconnected );
 }
 
-void QFtpPI::delayedCloseFinished()
+void Q3FtpPI::delayedCloseFinished()
 {
-    emit connectState( QFtp::Unconnected );
+    emit connectState( Q3Ftp::Unconnected );
 }
 
-void QFtpPI::error( int e )
+void Q3FtpPI::error( int e )
 {
-    if ( e == QSocket::ErrHostNotFound ) {
-	emit connectState( QFtp::Unconnected );
-	emit error( QFtp::HostNotFound,
-		    QFtp::tr( "Host %1 not found" ).arg( commandSocket.peerName() ) );
-    } else if ( e == QSocket::ErrConnectionRefused ) {
-	emit connectState( QFtp::Unconnected );
-	emit error( QFtp::ConnectionRefused,
-		    QFtp::tr( "Connection refused to host %1" ).arg( commandSocket.peerName() ) );
+    if ( e == Q3Socket::ErrHostNotFound ) {
+	emit connectState( Q3Ftp::Unconnected );
+	emit error( Q3Ftp::HostNotFound,
+		    Q3Ftp::tr( "Host %1 not found" ).arg( commandSocket.peerName() ) );
+    } else if ( e == Q3Socket::ErrConnectionRefused ) {
+	emit connectState( Q3Ftp::Unconnected );
+	emit error( Q3Ftp::ConnectionRefused,
+		    Q3Ftp::tr( "Connection refused to host %1" ).arg( commandSocket.peerName() ) );
     }
 }
 
-void QFtpPI::readyRead()
+void Q3FtpPI::readyRead()
 {
     if ( waitForDtpToClose )
 	return;
@@ -800,20 +802,20 @@ void QFtpPI::readyRead()
   Returns TRUE if the reply was processed or FALSE if the reply has to be
   processed at a later point.
 */
-bool QFtpPI::processReply()
+bool Q3FtpPI::processReply()
 {
-#if defined(QFTPPI_DEBUG)
-//    qDebug( "QFtpPI state: %d [processReply() begin]", state );
+#if defined(Q3FTPPI_DEBUG)
+//    qDebug( "Q3FtpPI state: %d [processReply() begin]", state );
     if ( replyText.length() < 400 )
-	qDebug( "QFtpPI recv: %d %s", 100*replyCode[0]+10*replyCode[1]+replyCode[2], replyText.latin1() );
+	qDebug( "Q3FtpPI recv: %d %s", 100*replyCode[0]+10*replyCode[1]+replyCode[2], replyText.latin1() );
     else
-	qDebug( "QFtpPI recv: %d (text skipped)", 100*replyCode[0]+10*replyCode[1]+replyCode[2] );
+	qDebug( "Q3FtpPI recv: %d (text skipped)", 100*replyCode[0]+10*replyCode[1]+replyCode[2] );
 #endif
 
     // process 226 replies ("Closing Data Connection") only when the data
     // connection is really closed to avoid short reads of the DTP
     if ( 100*replyCode[0]+10*replyCode[1]+replyCode[2] == 226 ) {
-	if ( dtp.socketState() != QSocket::Idle ) {
+	if ( dtp.socketState() != Q3Socket::Idle ) {
 	    waitForDtpToClose = TRUE;
 	    return FALSE;
 	}
@@ -841,7 +843,7 @@ bool QFtpPI::processReply()
 		return TRUE;
 	    } else if ( replyCode[0] == 2 ) {
 		state = Idle;
-		emit finished( QFtp::tr( "Connected to host %1" ).arg( commandSocket.peerName() ) );
+		emit finished( Q3Ftp::tr( "Connected to host %1" ).arg( commandSocket.peerName() ) );
 		break;
 	    }
 	    // ### error handling
@@ -856,8 +858,8 @@ bool QFtpPI::processReply()
 	    // ### spontaneous message
 	    return TRUE;
     }
-#if defined(QFTPPI_DEBUG)
-//    qDebug( "QFtpPI state: %d [processReply() intermediate]", state );
+#if defined(Q3FTPPI_DEBUG)
+//    qDebug( "Q3FtpPI state: %d [processReply() intermediate]", state );
 #endif
 
     // special actions on certain replies
@@ -873,8 +875,8 @@ bool QFtpPI::processReply()
         // info.
 	QRegExp addrPortPattern("(\\d+),(\\d+),(\\d+),(\\d+),(\\d+),(\\d+)");
 	if (addrPortPattern.search(replyText) == -1) {
-#if defined(QFTPPI_DEBUG)
-	    qDebug( "QFtp: bad 227 response -- address and port information missing" );
+#if defined(Q3FTPPI_DEBUG)
+	    qDebug( "Q3Ftp: bad 227 response -- address and port information missing" );
 #endif
 	    // ### error handling
 	} else {
@@ -891,7 +893,7 @@ bool QFtpPI::processReply()
 	    pendingCommands.pop_front();
 	}
 	// 230 User logged in, proceed.
-	emit connectState( QFtp::LoggedIn );
+	emit connectState( Q3Ftp::LoggedIn );
     } else if ( replyCodeInt == 213 ) {
 	// 213 File status.
 	if ( currentCmd.startsWith("SIZE ") )
@@ -911,7 +913,7 @@ bool QFtpPI::processReply()
 	    // no break!
 	case Idle:
 	    if ( dtp.hasError() ) {
-		emit error( QFtp::UnknownError, dtp.errorMessage() );
+		emit error( Q3Ftp::UnknownError, dtp.errorMessage() );
 		dtp.clearError();
 	    }
 	    startNextCmd();
@@ -920,34 +922,34 @@ bool QFtpPI::processReply()
 	    // ### do nothing
 	    break;
 	case Failure:
-	    emit error( QFtp::UnknownError, replyText );
+	    emit error( Q3Ftp::UnknownError, replyText );
 	    state = Idle;
 	    startNextCmd();
 	    break;
     }
-#if defined(QFTPPI_DEBUG)
-//    qDebug( "QFtpPI state: %d [processReply() end]", state );
+#if defined(Q3FTPPI_DEBUG)
+//    qDebug( "Q3FtpPI state: %d [processReply() end]", state );
 #endif
     return TRUE;
 }
 
 #ifndef QT_NO_TEXTCODEC
-Q_EXPORT QTextCodec *qt_ftp_filename_codec = 0;
+Q_CORE_EXPORT QTextCodec *qt_ftp_filename_codec = 0;
 #endif
 
 /*
   Starts next pending command. Returns FALSE if there are no pending commands,
   otherwise it returns TRUE.
 */
-bool QFtpPI::startNextCmd()
+bool Q3FtpPI::startNextCmd()
 {
     if ( waitForDtpToConnect )
 	// don't process any new commands until we are connected
 	return TRUE;
 
-#if defined(QFTPPI_DEBUG)
+#if defined(Q3FTPPI_DEBUG)
     if ( state != Idle )
-	qDebug( "QFtpPI startNextCmd: Internal error! QFtpPI called in non-Idle state %d", state );
+	qDebug( "Q3FtpPI startNextCmd: Internal error! Q3FtpPI called in non-Idle state %d", state );
 #endif
     if ( pendingCommands.isEmpty() ) {
 	currentCmd = QString::null;
@@ -956,14 +958,14 @@ bool QFtpPI::startNextCmd()
     }
     currentCmd = pendingCommands.first();
     pendingCommands.pop_front();
-#if defined(QFTPPI_DEBUG)
-    qDebug( "QFtpPI send: %s", currentCmd.left( currentCmd.length()-2 ).latin1() );
+#if defined(Q3FTPPI_DEBUG)
+    qDebug( "Q3FtpPI send: %s", currentCmd.left( currentCmd.length()-2 ).latin1() );
 #endif
     state = Waiting;
 #ifndef QT_NO_TEXTCODEC
     if ( qt_ftp_filename_codec ) {
 	int len;
-	QCString enc = qt_ftp_filename_codec->fromUnicode(currentCmd,len);
+	Q3CString enc = qt_ftp_filename_codec->fromUnicode(currentCmd,len);
 	commandSocket.writeBlock( enc.data(), len );
     } else
 #endif
@@ -973,10 +975,10 @@ bool QFtpPI::startNextCmd()
     return TRUE;
 }
 
-void QFtpPI::dtpConnectState( int s )
+void Q3FtpPI::dtpConnectState( int s )
 {
     switch ( s ) {
-	case QFtpDTP::CsClosed:
+	case Q3FtpDTP::CsClosed:
 	    if ( waitForDtpToClose ) {
 		// there is an unprocessed reply
 		if ( processReply() )
@@ -987,14 +989,14 @@ void QFtpPI::dtpConnectState( int s )
 	    waitForDtpToClose = FALSE;
 	    readyRead();
 	    return;
-	case QFtpDTP::CsConnected:
+	case Q3FtpDTP::CsConnected:
 	    waitForDtpToConnect = FALSE;
 	    startNextCmd();
 	    return;
-	case QFtpDTP::CsHostNotFound:
-	case QFtpDTP::CsConnectionRefused:
-	    emit error( QFtp::ConnectionRefused,
-			QFtp::tr( "Connection refused for data connection" ) );
+	case Q3FtpDTP::CsHostNotFound:
+	case Q3FtpDTP::CsConnectionRefused:
+	    emit error( Q3Ftp::ConnectionRefused,
+			Q3Ftp::tr( "Connection refused for data connection" ) );
 	    startNextCmd();
 	    return;
 	default:
@@ -1004,51 +1006,51 @@ void QFtpPI::dtpConnectState( int s )
 
 /**********************************************************************
  *
- * QFtpPrivate
+ * Q3FtpPrivate
  *
  *********************************************************************/
-class QFtpPrivate
+class Q3FtpPrivate
 {
 public:
-    QFtpPrivate() :
+    Q3FtpPrivate() :
 	close_waitForStateChange(FALSE),
-	state( QFtp::Unconnected ),
-	error( QFtp::NoError ),
+	state( Q3Ftp::Unconnected ),
+	error( Q3Ftp::NoError ),
 	npWaitForLoginDone( FALSE )
     { pending.setAutoDelete( TRUE ); }
 
-    QFtpPI pi;
-    QPtrList<QFtpCommand> pending;
+    Q3FtpPI pi;
+    Q3PtrList<Q3FtpCommand> pending;
     bool close_waitForStateChange;
-    QFtp::State state;
-    QFtp::Error error;
+    Q3Ftp::State state;
+    Q3Ftp::Error error;
     QString errorString;
 
     bool npWaitForLoginDone;
 };
 
-static QPtrDict<QFtpPrivate> *d_ptr = 0;
+static Q3PtrDict<Q3FtpPrivate> *d_ptr = 0;
 static void cleanup_d_ptr()
 {
     delete d_ptr;
     d_ptr = 0;
 }
-static QFtpPrivate* d( const QFtp* foo )
+static Q3FtpPrivate* d( const Q3Ftp* foo )
 {
     if ( !d_ptr ) {
-	d_ptr = new QPtrDict<QFtpPrivate>;
+	d_ptr = new Q3PtrDict<Q3FtpPrivate>;
 	d_ptr->setAutoDelete( TRUE );
 	qAddPostRoutine( cleanup_d_ptr );
     }
-    QFtpPrivate* ret = d_ptr->find( (void*)foo );
+    Q3FtpPrivate* ret = d_ptr->find( (void*)foo );
     if ( ! ret ) {
-	ret = new QFtpPrivate;
+	ret = new Q3FtpPrivate;
 	d_ptr->replace( (void*) foo, ret );
     }
     return ret;
 }
 
-static void delete_d( const QFtp* foo )
+static void delete_d( const Q3Ftp* foo )
 {
     if ( d_ptr )
 	d_ptr->remove( (void*) foo );
@@ -1056,12 +1058,12 @@ static void delete_d( const QFtp* foo )
 
 /**********************************************************************
  *
- * QFtp implementation
+ * Q3Ftp implementation
  *
  *********************************************************************/
 /*!
-    \class QFtp qftp.h
-    \brief The QFtp class provides an implementation of the FTP protocol.
+    \class Q3Ftp q3ftp.h
+    \brief The Q3Ftp class provides an implementation of the FTP protocol.
 \if defined(commercial)
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
@@ -1079,7 +1081,7 @@ static void delete_d( const QFtp* foo )
     Don't mix the two interfaces, since the behavior is not
     well-defined.
 
-    If you want to use QFtp with the QNetworkProtocol interface, you
+    If you want to use Q3Ftp with the QNetworkProtocol interface, you
     do not use it directly, but rather through a QUrlOperator, for
     example:
 
@@ -1088,9 +1090,9 @@ static void delete_d( const QFtp* foo )
     op.listChildren(); // Asks the server to provide a directory listing
     \endcode
 
-    This code will only work if the QFtp class is registered; to
-    register the class, you must call qInitNetworkProtocols() before
-    using a QUrlOperator with QFtp.
+    This code will only work if the Q3Ftp class is registered; to
+    register the class, you must call q3InitNetworkProtocols() before
+    using a QUrlOperator with Q3Ftp.
 
     The rest of this descrption describes the direct interface to FTP.
 
@@ -1119,7 +1121,7 @@ static void delete_d( const QFtp* foo )
     simply achieved:
 
     \code
-    QFtp *ftp = new QFtp( this ); // this is an optional QObject parent
+    Q3Ftp *ftp = new Q3Ftp( this ); // this is an optional QObject parent
     ftp->connectToHost( "ftp.trolltech.com" );
     ftp->login();
     \endcode
@@ -1219,22 +1221,22 @@ static void delete_d( const QFtp* foo )
     experienced network programmer and want to have complete control
     you can use rawCommand() to execute arbitrary FTP commands.
 
-    \sa \link network.html Qt Network Documentation \endlink QNetworkProtocol, QUrlOperator QHttp
+    \sa \link network.html Qt Network Documentation \endlink QNetworkProtocol, QUrlOperator Q3Http
 */
 
 /*!
-    Constructs a QFtp object.
+    Constructs a Q3Ftp object.
 */
-QFtp::QFtp() : QNetworkProtocol()
+Q3Ftp::Q3Ftp() : Q3NetworkProtocol()
 {
     init();
 }
 
 /*!
-    Constructs a QFtp object. The \a parent and \a name parameters
+    Constructs a Q3Ftp object. The \a parent and \a name parameters
     are passed to the QObject constructor.
 */
-QFtp::QFtp( QObject *parent, const char *name ) : QNetworkProtocol()
+Q3Ftp::Q3Ftp( QObject *parent, const char *name ) : Q3NetworkProtocol()
 {
     if ( parent )
 	parent->insertChild( this );
@@ -1242,9 +1244,9 @@ QFtp::QFtp( QObject *parent, const char *name ) : QNetworkProtocol()
     init();
 }
 
-void QFtp::init()
+void Q3Ftp::init()
 {
-    QFtpPrivate *d = ::d( this );
+    Q3FtpPrivate *d = ::d( this );
     d->errorString = tr( "Unknown error" );
 
     connect( &d->pi, SIGNAL(connectState(int)),
@@ -1265,7 +1267,7 @@ void QFtp::init()
 }
 
 /*!
-    \enum QFtp::State
+    \enum Q3Ftp::State
 
     This enum defines the connection state:
 
@@ -1281,7 +1283,7 @@ void QFtp::init()
     \sa stateChanged() state()
 */
 /*!
-    \enum QFtp::Error
+    \enum Q3Ftp::Error
 
     This enum identifies the error that occurred.
 
@@ -1297,7 +1299,7 @@ void QFtp::init()
 */
 
 /*!
-    \enum QFtp::Command
+    \enum Q3Ftp::Command
 
     This enum is used as the return value for the currentCommand() function.
     This allows you to perform specific actions for particular
@@ -1324,7 +1326,7 @@ void QFtp::init()
 */
 
 /*!
-    \fn void QFtp::stateChanged( int state )
+    \fn void Q3Ftp::stateChanged( int state )
 
     This signal is emitted when the state of the connection changes.
     The argument \a state is the new state of the connection; it is
@@ -1338,7 +1340,7 @@ void QFtp::init()
 */
 
 /*!
-    \fn void QFtp::listInfo( const QUrlInfo &i );
+    \fn void Q3Ftp::listInfo( const QUrlInfo &i );
 
     This signal is emitted for each directory entry the list() command
     finds. The details of the entry are stored in \a i.
@@ -1347,7 +1349,7 @@ void QFtp::init()
 */
 
 /*!
-    \fn void QFtp::commandStarted( int id )
+    \fn void Q3Ftp::commandStarted( int id )
 
     This signal is emitted when processing the command identified by
     \a id starts.
@@ -1356,7 +1358,7 @@ void QFtp::init()
 */
 
 /*!
-    \fn void QFtp::commandFinished( int id, bool error )
+    \fn void Q3Ftp::commandFinished( int id, bool error )
 
     This signal is emitted when processing the command identified by
     \a id has finished. \a error is TRUE if an error occurred during
@@ -1366,7 +1368,7 @@ void QFtp::init()
 */
 
 /*!
-    \fn void QFtp::done( bool error )
+    \fn void Q3Ftp::done( bool error )
 
     This signal is emitted when the last pending command has finished;
     (it is emitted after the last command's commandFinished() signal).
@@ -1377,7 +1379,7 @@ void QFtp::init()
 */
 
 /*!
-    \fn void QFtp::readyRead()
+    \fn void Q3Ftp::readyRead()
 
     This signal is emitted in response to a get() command when there
     is new data to read.
@@ -1397,14 +1399,14 @@ void QFtp::init()
 */
 
 /*!
-    \fn void QFtp::dataTransferProgress( int done, int total )
+    \fn void Q3Ftp::dataTransferProgress( int done, int total )
 
     This signal is emitted in response to a get() or put() request to
     indicate the current progress of the download or upload.
 
     \a done is the amount of data that has already been transferred
     and \a total is the total amount of data to be read or written. It
-    is possible that the QFtp class is not able to determine the total
+    is possible that the Q3Ftp class is not able to determine the total
     amount of data that should be transferred, in which case \a total
     is 0. (If you connect this signal to a QProgressBar, the progress
     bar shows a busy indicator if the total is 0).
@@ -1417,7 +1419,7 @@ void QFtp::init()
 */
 
 /*!
-    \fn void QFtp::rawCommandReply( int replyCode, const QString &detail );
+    \fn void Q3Ftp::rawCommandReply( int replyCode, const QString &detail );
 
     This signal is emitted in response to the rawCommand() function.
     \a replyCode is the 3 digit reply code and \a detail is the text
@@ -1444,12 +1446,12 @@ void QFtp::init()
 
     \sa stateChanged() commandStarted() commandFinished()
 */
-int QFtp::connectToHost( const QString &host, Q_UINT16 port )
+int Q3Ftp::connectToHost( const QString &host, Q_UINT16 port )
 {
     QStringList cmds;
     cmds << host;
     cmds << QString::number( (uint)port );
-    return addCommand( new QFtpCommand( ConnectToHost, cmds ) );
+    return addCommand( new Q3FtpCommand( ConnectToHost, cmds ) );
 }
 
 /*!
@@ -1470,12 +1472,12 @@ int QFtp::connectToHost( const QString &host, Q_UINT16 port )
 
     \sa commandStarted() commandFinished()
 */
-int QFtp::login( const QString &user, const QString &password )
+int Q3Ftp::login( const QString &user, const QString &password )
 {
     QStringList cmds;
     cmds << ( QString("USER ") + ( user.isNull() ? QString("anonymous") : user ) + "\r\n" );
     cmds << ( QString("PASS ") + ( password.isNull() ? QString("anonymous@") : password ) + "\r\n" );
-    return addCommand( new QFtpCommand( Login, cmds ) );
+    return addCommand( new Q3FtpCommand( Login, cmds ) );
 }
 
 /*!
@@ -1496,9 +1498,9 @@ int QFtp::login( const QString &user, const QString &password )
 
     \sa stateChanged() commandStarted() commandFinished()
 */
-int QFtp::close()
+int Q3Ftp::close()
 {
-    return addCommand( new QFtpCommand( Close, QStringList("QUIT\r\n") ) );
+    return addCommand( new Q3FtpCommand( Close, QStringList("QUIT\r\n") ) );
 }
 
 /*!
@@ -1518,7 +1520,7 @@ int QFtp::close()
 
     \sa listInfo() commandStarted() commandFinished()
 */
-int QFtp::list( const QString &dir )
+int Q3Ftp::list( const QString &dir )
 {
     QStringList cmds;
     cmds << "TYPE A\r\n";
@@ -1527,7 +1529,7 @@ int QFtp::list( const QString &dir )
 	cmds << "LIST\r\n";
     else
 	cmds << ( "LIST " + dir + "\r\n" );
-    return addCommand( new QFtpCommand( List, cmds ) );
+    return addCommand( new Q3FtpCommand( List, cmds ) );
 }
 
 /*!
@@ -1544,9 +1546,9 @@ int QFtp::list( const QString &dir )
 
     \sa commandStarted() commandFinished()
 */
-int QFtp::cd( const QString &dir )
+int Q3Ftp::cd( const QString &dir )
 {
-    return addCommand( new QFtpCommand( Cd, QStringList("CWD "+dir+"\r\n") ) );
+    return addCommand( new Q3FtpCommand( Cd, QStringList("CWD "+dir+"\r\n") ) );
 }
 
 /*!
@@ -1586,7 +1588,7 @@ int QFtp::cd( const QString &dir )
     \sa readyRead() dataTransferProgress() commandStarted()
     commandFinished()
 */
-int QFtp::get( const QString &file, QIODevice *dev )
+int Q3Ftp::get( const QString &file, QIODevice *dev )
 {
     QStringList cmds;
     cmds << ( "SIZE " + file + "\r\n" );
@@ -1594,8 +1596,8 @@ int QFtp::get( const QString &file, QIODevice *dev )
     cmds << "PASV\r\n";
     cmds << ( "RETR " + file + "\r\n" );
     if ( dev )
-	return addCommand( new QFtpCommand( Get, cmds, dev ) );
-    return addCommand( new QFtpCommand( Get, cmds ) );
+	return addCommand( new Q3FtpCommand( Get, cmds, dev ) );
+    return addCommand( new Q3FtpCommand( Get, cmds ) );
 }
 
 /*!
@@ -1616,14 +1618,14 @@ int QFtp::get( const QString &file, QIODevice *dev )
 
     \sa dataTransferProgress() commandStarted() commandFinished()
 */
-int QFtp::put( const QByteArray &data, const QString &file )
+int Q3Ftp::put( const QByteArray &data, const QString &file )
 {
     QStringList cmds;
     cmds << "TYPE I\r\n";
     cmds << "PASV\r\n";
     cmds << ( "ALLO " + QString::number(data.size()) + "\r\n" );
     cmds << ( "STOR " + file + "\r\n" );
-    return addCommand( new QFtpCommand( Put, cmds, data ) );
+    return addCommand( new Q3FtpCommand( Put, cmds, data ) );
 }
 
 /*!
@@ -1637,7 +1639,7 @@ int QFtp::put( const QByteArray &data, const QString &file )
     operation (it is safe to delete it when the commandFinished() is
     emitted).
 */
-int QFtp::put( QIODevice *dev, const QString &file )
+int Q3Ftp::put( QIODevice *dev, const QString &file )
 {
     QStringList cmds;
     cmds << "TYPE I\r\n";
@@ -1645,7 +1647,7 @@ int QFtp::put( QIODevice *dev, const QString &file )
     if ( !dev->isSequentialAccess() )
 	cmds << ( "ALLO " + QString::number(dev->size()) + "\r\n" );
     cmds << ( "STOR " + file + "\r\n" );
-    return addCommand( new QFtpCommand( Put, cmds, dev ) );
+    return addCommand( new Q3FtpCommand( Put, cmds, dev ) );
 }
 
 /*!
@@ -1662,9 +1664,9 @@ int QFtp::put( QIODevice *dev, const QString &file )
 
     \sa commandStarted() commandFinished()
 */
-int QFtp::remove( const QString &file )
+int Q3Ftp::remove( const QString &file )
 {
-    return addCommand( new QFtpCommand( Remove, QStringList("DELE "+file+"\r\n") ) );
+    return addCommand( new Q3FtpCommand( Remove, QStringList("DELE "+file+"\r\n") ) );
 }
 
 /*!
@@ -1681,9 +1683,9 @@ int QFtp::remove( const QString &file )
 
     \sa commandStarted() commandFinished()
 */
-int QFtp::mkdir( const QString &dir )
+int Q3Ftp::mkdir( const QString &dir )
 {
-    return addCommand( new QFtpCommand( Mkdir, QStringList("MKD "+dir+"\r\n") ) );
+    return addCommand( new Q3FtpCommand( Mkdir, QStringList("MKD "+dir+"\r\n") ) );
 }
 
 /*!
@@ -1700,9 +1702,9 @@ int QFtp::mkdir( const QString &dir )
 
     \sa commandStarted() commandFinished()
 */
-int QFtp::rmdir( const QString &dir )
+int Q3Ftp::rmdir( const QString &dir )
 {
-    return addCommand( new QFtpCommand( Rmdir, QStringList("RMD "+dir+"\r\n") ) );
+    return addCommand( new Q3FtpCommand( Rmdir, QStringList("RMD "+dir+"\r\n") ) );
 }
 
 /*!
@@ -1719,18 +1721,18 @@ int QFtp::rmdir( const QString &dir )
 
     \sa commandStarted() commandFinished()
 */
-int QFtp::rename( const QString &oldname, const QString &newname )
+int Q3Ftp::rename( const QString &oldname, const QString &newname )
 {
     QStringList cmds;
     cmds << ( "RNFR " + oldname + "\r\n" );
     cmds << ( "RNTO " + newname + "\r\n" );
-    return addCommand( new QFtpCommand( Rename, cmds ) );
+    return addCommand( new Q3FtpCommand( Rename, cmds ) );
 }
 
 /*!
     Sends the raw FTP command \a command to the FTP server. This is
     useful for low-level FTP access. If the operation you wish to
-    perform has an equivalent QFtp function, we recommend using the
+    perform has an equivalent Q3Ftp function, we recommend using the
     function instead of raw FTP commands since the functions are
     easier and safer.
 
@@ -1745,10 +1747,10 @@ int QFtp::rename( const QString &oldname, const QString &newname )
 
     \sa rawCommandReply() commandStarted() commandFinished()
 */
-int QFtp::rawCommand( const QString &command )
+int Q3Ftp::rawCommand( const QString &command )
 {
     QString cmd = command.stripWhiteSpace() + "\r\n";
-    return addCommand( new QFtpCommand( RawCommand, QStringList(cmd) ) );
+    return addCommand( new Q3FtpCommand( RawCommand, QStringList(cmd) ) );
 }
 
 /*!
@@ -1757,9 +1759,9 @@ int QFtp::rawCommand( const QString &command )
 
     \sa get() readyRead() readBlock() readAll()
 */
-Q_ULONG QFtp::bytesAvailable() const
+Q_ULONG Q3Ftp::bytesAvailable() const
 {
-    QFtpPrivate *d = ::d( this );
+    Q3FtpPrivate *d = ::d( this );
     return d->pi.dtp.bytesAvailable();
 }
 
@@ -1769,9 +1771,9 @@ Q_ULONG QFtp::bytesAvailable() const
 
     \sa get() readyRead() bytesAvailable() readAll()
 */
-Q_LONG QFtp::readBlock( char *data, Q_ULONG maxlen )
+Q_LONG Q3Ftp::readBlock( char *data, Q_ULONG maxlen )
 {
-    QFtpPrivate *d = ::d( this );
+    Q3FtpPrivate *d = ::d( this );
     return d->pi.dtp.readBlock( data, maxlen );
 }
 
@@ -1781,9 +1783,9 @@ Q_LONG QFtp::readBlock( char *data, Q_ULONG maxlen )
 
     \sa get() readyRead() bytesAvailable() readBlock()
 */
-QByteArray QFtp::readAll()
+QByteArray Q3Ftp::readAll()
 {
-    QFtpPrivate *d = ::d( this );
+    Q3FtpPrivate *d = ::d( this );
     return d->pi.dtp.readAll();
 }
 
@@ -1816,9 +1818,9 @@ QByteArray QFtp::readAll()
 
     \sa clearPendingCommands()
 */
-void QFtp::abort()
+void Q3Ftp::abort()
 {
-    QFtpPrivate *d = ::d( this );
+    Q3FtpPrivate *d = ::d( this );
     if ( d->pending.isEmpty() )
 	return;
 
@@ -1832,10 +1834,10 @@ void QFtp::abort()
 
     \sa currentCommand()
 */
-int QFtp::currentId() const
+int Q3Ftp::currentId() const
 {
-    QFtpPrivate *d = ::d( this );
-    QFtpCommand *c = d->pending.getFirst();
+    Q3FtpPrivate *d = ::d( this );
+    Q3FtpCommand *c = d->pending.getFirst();
     if ( c == 0 )
 	return 0;
     return c->id;
@@ -1847,10 +1849,10 @@ int QFtp::currentId() const
 
     \sa currentId()
 */
-QFtp::Command QFtp::currentCommand() const
+Q3Ftp::Command Q3Ftp::currentCommand() const
 {
-    QFtpPrivate *d = ::d( this );
-    QFtpCommand *c = d->pending.getFirst();
+    Q3FtpPrivate *d = ::d( this );
+    Q3FtpCommand *c = d->pending.getFirst();
     if ( c == 0 )
 	return None;
     return c->command;
@@ -1866,10 +1868,10 @@ QFtp::Command QFtp::currentCommand() const
 
     \sa get() put()
 */
-QIODevice* QFtp::currentDevice() const
+QIODevice* Q3Ftp::currentDevice() const
 {
-    QFtpPrivate *d = ::d( this );
-    QFtpCommand *c = d->pending.getFirst();
+    Q3FtpPrivate *d = ::d( this );
+    Q3FtpCommand *c = d->pending.getFirst();
     if ( !c )
 	return 0;
     if ( c->is_ba )
@@ -1886,9 +1888,9 @@ QIODevice* QFtp::currentDevice() const
 
     \sa clearPendingCommands() currentId() currentCommand()
 */
-bool QFtp::hasPendingCommands() const
+bool Q3Ftp::hasPendingCommands() const
 {
-    QFtpPrivate *d = ::d( this );
+    Q3FtpPrivate *d = ::d( this );
     return d->pending.count() > 1;
 }
 
@@ -1899,10 +1901,10 @@ bool QFtp::hasPendingCommands() const
 
     \sa hasPendingCommands() abort()
 */
-void QFtp::clearPendingCommands()
+void Q3Ftp::clearPendingCommands()
 {
-    QFtpPrivate *d = ::d( this );
-    QFtpCommand *c = 0;
+    Q3FtpPrivate *d = ::d( this );
+    Q3FtpCommand *c = 0;
     if ( d->pending.count() > 0 )
 	c = d->pending.take( 0 );
     d->pending.clear();
@@ -1916,9 +1918,9 @@ void QFtp::clearPendingCommands()
 
     \sa State stateChanged()
 */
-QFtp::State QFtp::state() const
+Q3Ftp::State Q3Ftp::state() const
 {
-    QFtpPrivate *d = ::d( this );
+    Q3FtpPrivate *d = ::d( this );
     return d->state;
 }
 
@@ -1929,9 +1931,9 @@ QFtp::State QFtp::state() const
 
     If you start a new command, the error status is reset to \c NoError.
 */
-QFtp::Error QFtp::error() const
+Q3Ftp::Error Q3Ftp::error() const
 {
-    QFtpPrivate *d = ::d( this );
+    Q3FtpPrivate *d = ::d( this );
     return d->error;
 }
 
@@ -1946,15 +1948,15 @@ QFtp::Error QFtp::error() const
     the message comes from Qt, the string has already passed through
     tr().
 */
-QString QFtp::errorString() const
+QString Q3Ftp::errorString() const
 {
-    QFtpPrivate *d = ::d( this );
+    Q3FtpPrivate *d = ::d( this );
     return d->errorString;
 }
 
-int QFtp::addCommand( QFtpCommand *cmd )
+int Q3Ftp::addCommand( Q3FtpCommand *cmd )
 {
-    QFtpPrivate *d = ::d( this );
+    Q3FtpPrivate *d = ::d( this );
     d->pending.append( cmd );
 
     if ( d->pending.count() == 1 )
@@ -1964,11 +1966,11 @@ int QFtp::addCommand( QFtpCommand *cmd )
     return cmd->id;
 }
 
-void QFtp::startNextCommand()
+void Q3Ftp::startNextCommand()
 {
-    QFtpPrivate *d = ::d( this );
+    Q3FtpPrivate *d = ::d( this );
 
-    QFtpCommand *c = d->pending.getFirst();
+    Q3FtpCommand *c = d->pending.getFirst();
     if ( c == 0 )
 	return;
 
@@ -1998,7 +2000,7 @@ void QFtp::startNextCommand()
 		d->pi.dtp.setDevice( c->data.dev );
 	    }
 	} else if ( c->command == Close ) {
-	    d->state = QFtp::Closing;
+	    d->state = Q3Ftp::Closing;
 	    emit stateChanged( d->state );
 	}
 	if ( !d->pi.sendCommands( c->rawCmds ) ) {
@@ -2007,10 +2009,10 @@ void QFtp::startNextCommand()
     }
 }
 
-void QFtp::piFinished( const QString& )
+void Q3Ftp::piFinished( const QString& )
 {
-    QFtpPrivate *d = ::d( this );
-    QFtpCommand *c = d->pending.getFirst();
+    Q3FtpPrivate *d = ::d( this );
+    Q3FtpCommand *c = d->pending.getFirst();
     if ( c == 0 )
 	return;
 
@@ -2019,7 +2021,7 @@ void QFtp::piFinished( const QString& )
 	// disconnect the SIGNAL-SIGNAL temporary to make sure that we
 	// don't get the commandFinished() signal before the stateChanged()
 	// signal.
-	if ( d->state != QFtp::Unconnected ) {
+	if ( d->state != Q3Ftp::Unconnected ) {
 	    d->close_waitForStateChange = TRUE;
 	    return;
 	}
@@ -2034,10 +2036,10 @@ void QFtp::piFinished( const QString& )
     }
 }
 
-void QFtp::piError( int errorCode, const QString &text )
+void Q3Ftp::piError( int errorCode, const QString &text )
 {
-    QFtpPrivate *d = ::d( this );
-    QFtpCommand *c = d->pending.getFirst();
+    Q3FtpPrivate *d = ::d( this );
+    Q3FtpCommand *c = d->pending.getFirst();
 
     // non-fatal errors
     if ( c->command==Get && d->pi.currentCommand().startsWith("SIZE ") ) {
@@ -2092,9 +2094,9 @@ void QFtp::piError( int errorCode, const QString &text )
 	startNextCommand();
 }
 
-void QFtp::piConnectState( int state )
+void Q3Ftp::piConnectState( int state )
 {
-    QFtpPrivate *d = ::d( this );
+    Q3FtpPrivate *d = ::d( this );
     d->state = (State)state;
     emit stateChanged( d->state );
     if ( d->close_waitForStateChange ) {
@@ -2103,10 +2105,10 @@ void QFtp::piConnectState( int state )
     }
 }
 
-void QFtp::piFtpReply( int code, const QString &text )
+void Q3Ftp::piFtpReply( int code, const QString &text )
 {
     if ( currentCommand() == RawCommand ) {
-	QFtpPrivate *d = ::d( this );
+	Q3FtpPrivate *d = ::d( this );
 	d->pi.rawCommand = TRUE;
 	emit rawCommandReply( code, text );
     }
@@ -2115,7 +2117,7 @@ void QFtp::piFtpReply( int code, const QString &text )
 /*!
     Destructor.
 */
-QFtp::~QFtp()
+Q3Ftp::~Q3Ftp()
 {
     abort();
     close();
@@ -2124,12 +2126,12 @@ QFtp::~QFtp()
 
 /**********************************************************************
  *
- * QFtp implementation of the QNetworkProtocol interface
+ * Q3Ftp implementation of the Q3NetworkProtocol interface
  *
  *********************************************************************/
 /*!  \reimp
 */
-void QFtp::operationListChildren( QNetworkOperation *op )
+void Q3Ftp::operationListChildren( Q3NetworkOperation *op )
 {
     op->setState( StInProgress );
 
@@ -2140,7 +2142,7 @@ void QFtp::operationListChildren( QNetworkOperation *op )
 
 /*!  \reimp
 */
-void QFtp::operationMkDir( QNetworkOperation *op )
+void Q3Ftp::operationMkDir( Q3NetworkOperation *op )
 {
     op->setState( StInProgress );
 
@@ -2149,17 +2151,17 @@ void QFtp::operationMkDir( QNetworkOperation *op )
 
 /*!  \reimp
 */
-void QFtp::operationRemove( QNetworkOperation *op )
+void Q3Ftp::operationRemove( Q3NetworkOperation *op )
 {
     op->setState( StInProgress );
 
     cd( ( url()->path().isEmpty() ? QString( "/" ) : url()->path() ) );
-    remove( QUrl( op->arg( 0 ) ).path() );
+    remove( Q3Url( op->arg( 0 ) ).path() );
 }
 
 /*!  \reimp
 */
-void QFtp::operationRename( QNetworkOperation *op )
+void Q3Ftp::operationRename( Q3NetworkOperation *op )
 {
     op->setState( StInProgress );
 
@@ -2169,29 +2171,29 @@ void QFtp::operationRename( QNetworkOperation *op )
 
 /*!  \reimp
 */
-void QFtp::operationGet( QNetworkOperation *op )
+void Q3Ftp::operationGet( Q3NetworkOperation *op )
 {
     op->setState( StInProgress );
 
-    QUrl u( op->arg( 0 ) );
+    Q3Url u( op->arg( 0 ) );
     get( u.path() );
 }
 
 /*!  \reimp
 */
-void QFtp::operationPut( QNetworkOperation *op )
+void Q3Ftp::operationPut( Q3NetworkOperation *op )
 {
     op->setState( StInProgress );
 
-    QUrl u( op->arg( 0 ) );
+    Q3Url u( op->arg( 0 ) );
     put( op->rawArg(1), u.path() );
 }
 
 /*!  \reimp
 */
-bool QFtp::checkConnection( QNetworkOperation *op )
+bool Q3Ftp::checkConnection( Q3NetworkOperation *op )
 {
-    QFtpPrivate *d = ::d( this );
+    Q3FtpPrivate *d = ::d( this );
     if ( state() == Unconnected && !d->npWaitForLoginDone ) {
 	connect( this, SIGNAL(listInfo(const QUrlInfo&)),
 		this, SLOT(npListInfo(const QUrlInfo&)) );
@@ -2209,7 +2211,7 @@ bool QFtp::checkConnection( QNetworkOperation *op )
 	    case OpGet:
 	    case OpPut:
 		{
-		    QUrl u( op->arg( 0 ) );
+		    Q3Url u( op->arg( 0 ) );
 		    connectToHost( u.host(), u.port() != -1 ? u.port() : 21 );
 		}
 		break;
@@ -2229,7 +2231,7 @@ bool QFtp::checkConnection( QNetworkOperation *op )
 
 /*!  \reimp
 */
-int QFtp::supportedOperations() const
+int Q3Ftp::supportedOperations() const
 {
     return OpListChildren | OpMkDir | OpRemove | OpRename | OpGet | OpPut;
 }
@@ -2239,12 +2241,12 @@ int QFtp::supportedOperations() const
     listing which came from the FTP server, and sets the values which
     have been parsed to the url info object, \a info.
 */
-void QFtp::parseDir( const QString &buffer, QUrlInfo &info )
+void Q3Ftp::parseDir( const QString &buffer, QUrlInfo &info )
 {
-    QFtpDTP::parseDir( buffer, url()->user(), &info );
+    Q3FtpDTP::parseDir( buffer, url()->user(), &info );
 }
 
-void QFtp::npListInfo( const QUrlInfo & i )
+void Q3Ftp::npListInfo( const QUrlInfo & i )
 {
     if ( url() ) {
 	QRegExp filt( url()->nameFilter(), FALSE, TRUE );
@@ -2256,12 +2258,12 @@ void QFtp::npListInfo( const QUrlInfo & i )
     }
 }
 
-void QFtp::npDone( bool err )
+void Q3Ftp::npDone( bool err )
 {
-    QFtpPrivate *d = ::d( this );
+    Q3FtpPrivate *d = ::d( this );
 
     bool emitFinishedSignal = FALSE;
-    QNetworkOperation *op = operationInProgress();
+    Q3NetworkOperation *op = operationInProgress();
     if ( op ) {
 	if ( err ) {
 	    op->setProtocolDetail( errorString() );
@@ -2334,7 +2336,7 @@ void QFtp::npDone( bool err )
 	emit finished( op );
 }
 
-void QFtp::npStateChanged( int state )
+void Q3Ftp::npStateChanged( int state )
 {
     if ( url() ) {
 	if ( state == Connecting )
@@ -2353,12 +2355,12 @@ void QFtp::npStateChanged( int state )
     }
 }
 
-void QFtp::npDataTransferProgress( int bDone, int bTotal )
+void Q3Ftp::npDataTransferProgress( int bDone, int bTotal )
 {
-    emit QNetworkProtocol::dataTransferProgress( bDone, bTotal, operationInProgress() );
+    emit Q3NetworkProtocol::dataTransferProgress( bDone, bTotal, operationInProgress() );
 }
 
-void QFtp::npReadyRead()
+void Q3Ftp::npReadyRead()
 {
     emit data( readAll(), operationInProgress() );
 }
@@ -2366,50 +2368,50 @@ void QFtp::npReadyRead()
 // ### unused -- delete in Qt 4.0
 /*!  \internal
 */
-void QFtp::hostFound()
+void Q3Ftp::hostFound()
 {
 }
 /*!  \internal
 */
-void QFtp::connected()
+void Q3Ftp::connected()
 {
 }
 /*!  \internal
 */
-void QFtp::closed()
+void Q3Ftp::closed()
 {
 }
 /*!  \internal
 */
-void QFtp::dataHostFound()
+void Q3Ftp::dataHostFound()
 {
 }
 /*!  \internal
 */
-void QFtp::dataConnected()
+void Q3Ftp::dataConnected()
 {
 }
 /*!  \internal
 */
-void QFtp::dataClosed()
+void Q3Ftp::dataClosed()
 {
 }
 /*!  \internal
 */
-void QFtp::dataReadyRead()
+void Q3Ftp::dataReadyRead()
 {
 }
 /*!  \internal
 */
-void QFtp::dataBytesWritten( int )
+void Q3Ftp::dataBytesWritten( int )
 {
 }
 /*!  \internal
 */
-void QFtp::error( int )
+void Q3Ftp::error( int )
 {
 }
 
-#include "qftp.moc"
+#include "q3ftp.moc"
 
 #endif // QT_NO_NETWORKPROTOCOL_FTP
