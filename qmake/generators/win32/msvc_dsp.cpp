@@ -329,7 +329,8 @@ DspMakefileGenerator::init()
 	}
 
 	if ( (project->variables()["TARGET"].first() == "qt" ||
-	      project->variables()["TARGET"].first() == "qt-mt") ) {
+	      project->variables()["TARGET"].first() == "qt-mt") &&
+	     !project->variables()["QMAKE_LIB_FLAG"].isEmpty() ) {
 	    if ( !project->variables()["QMAKE_QT_DLL"].isEmpty() ) {
 		project->variables()["DEFINES"].append("QT_MAKEDLL");
 		project->variables()["MSVCDSP_DLLBASE"].append("/base:\"0x39D00000\"");
@@ -361,13 +362,13 @@ DspMakefileGenerator::init()
     if ( project->isActiveConfig("thread") ) {
 	project->variables()["DEFINES"].append("QT_THREAD_SUPPORT" );
 	if ( project->isActiveConfig("debug") ) {
-	    if ( project->isActiveConfig("dll") ) {
+	    if ( project->isActiveConfig("dll") || project->variables()["TARGET"].first() == "qtmain" ) {
 		project->variables()["MSVCDSP_MTDEF"].append("-MDd");
 	    } else {
 		project->variables()["MSVCDSP_MTDEF"].append("-MTd");
 	    }
 	} else {
-	    if ( project->isActiveConfig("dll") ) {
+	    if ( project->isActiveConfig("dll") || project->variables()["TARGET"].first() == "qtmain" ) {
 		project->variables()["MSVCDSP_MTDEF"].append("-MD");
 	    } else {
 		project->variables()["MSVCDSP_MTDEF"].append("-MT");
@@ -444,14 +445,12 @@ DspMakefileGenerator::init()
 	project->variables()["MSVCDSP_RELDEFS"].clear();
     }
     if ( !project->variables()["DESTDIR"].isEmpty() ) {
-	project->variables()["TARGET"].first().prepend(project->variables()["DESTDIR"].first() +  "\\");
+	project->variables()["TARGET"].first().prepend(project->variables()["DESTDIR"].first());
 	Option::fixPathToTargetOS(project->variables()["TARGET"].first());
-	int hver = findHighestVersion(project->variables()["QMAKE_LIBDIR_QT"].first(), "qt");
-        QString imp = project->variables()["TARGET"].first();
-        imp.replace(QRegExp("\\.dll"), QString("%1.dll").arg(hver));
-        project->variables()["MSVCDSP_TARGET"].append(
-	    QString("/out:\"") + imp + "\"");
+	project->variables()["MSVCDSP_TARGET"].append(
+	    QString("/out:\"") + project->variables()["TARGET"].first() + "\"");
 	if ( project->isActiveConfig("dll") ) {
+	    QString imp = project->variables()["TARGET"].first();
 	    imp.replace(QRegExp("\\.dll"), ".lib");
 	    project->variables()["MSVCDSP_TARGET"].append(QString(" /implib:\"") + imp + "\"");
 	}
