@@ -1095,7 +1095,7 @@ int indentForBottomLine( const QStringList& program, QChar typedIn )
 static QString fileContents( const QString& fileName )
 {
     QFile f( fileName );
-    if ( !f.open(IO_ReadOnly) ) {
+    if ( !f.open(QFile::ReadOnly) ) {
         qWarning( "yyindent error: Cannot open file '%s' for reading: %s",
                   fileName.latin1(), strerror(errno) );
         return QString();

@@ -1081,7 +1081,7 @@ bool CppCodeParser::makeFunctionNode(const QString& synopsis, QStringList *paren
 void CppCodeParser::parseQiteratorDotH(const Location &location, const QString &filePath)
 {
     QFile file(filePath);
-    if (!file.open(IO_ReadOnly))
+    if (!file.open(QFile::ReadOnly))
 	return;
 
     QString text = file.readAll();

@@ -391,7 +391,7 @@ QString Config::copyFile( const Location& location,
 			  const QString& targetDirPath )
 {
     QFile inFile( sourceFilePath );
-    if ( !inFile.open(IO_ReadOnly) ) {
+    if ( !inFile.open(QFile::ReadOnly) ) {
 	location.fatal( tr("Cannot open input file '%1'")
 			.arg(inFile.fileName()) );
 	return "";
@@ -403,7 +403,7 @@ QString Config::copyFile( const Location& location,
 	outFileName = outFileName.mid( slash );
 
     QFile outFile( targetDirPath + "/" + outFileName );
-    if ( !outFile.open(IO_WriteOnly) ) {
+    if ( !outFile.open(QFile::WriteOnly) ) {
 	location.fatal( tr("Cannot open output file '%1'")
 			.arg(outFile.fileName()) );
 	return "";
@@ -477,9 +477,9 @@ void Config::load( Location location, const QString& fileName )
 	location.fatal( tr("Too many nested includes") );
 
     QFile fin( fileName );
-    if ( !fin.open(IO_ReadOnly | IO_Translate) ) {
+    if ( !fin.open(QFile::ReadOnly | QFile::Translate) ) {
 	fin.setFileName(fileName + ".qdoc");
-	if (!fin.open(IO_ReadOnly | IO_Translate))
+	if (!fin.open(QFile::ReadOnly | QFile::Translate))
 	    location.fatal( tr("Cannot open file '%1'").arg(fileName) );
     }
 

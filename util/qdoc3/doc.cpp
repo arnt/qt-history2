@@ -1189,7 +1189,7 @@ void DocParser::include( const QString& fileName )
 	location().warning( tr("Cannot find leaf file '%1'").arg(fileName) );
     } else {
 	QFile inFile( filePath );
-	if ( !inFile.open(IO_ReadOnly) ) {
+	if ( !inFile.open(QFile::ReadOnly) ) {
 	    location().warning( tr("Cannot open leaf file '%1'")
 				.arg(userFriendlyFilePath) );
 	} else {
@@ -2347,7 +2347,7 @@ CodeMarker *Doc::quoteFromFile(const Location &location, Quoter &quoter, const Q
 	location.warning(tr("Cannot find example file '%1'").arg(fileName));
     } else {
 	QFile inFile(filePath);
-	if (!inFile.open(IO_ReadOnly)) {
+	if (!inFile.open(QFile::ReadOnly)) {
 	    location.warning(tr("Cannot open example file '%1'").arg(userFriendlyFilePath));
 	} else {
 	    QTextStream inStream(&inFile);
