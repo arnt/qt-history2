@@ -19,7 +19,7 @@ QDocListItem::~QDocListItem()
 {
 }
 
-QString QDocListItem::key( int column, bool ascending ) const
+QString QDocListItem::key( int, bool ) const
 {
     QString key = line;
     return key.rightJustify( 7, '0' );
@@ -46,8 +46,8 @@ QDocMainWindow::QDocMainWindow( QWidget* parent, const char* name ) : QMainWindo
     qtdirenv = getenv( "QTDIR" );
     QSettings settings;
     settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
-    int x = settings.readNumEntry( "/qDocGUI/geometry/x", 20 );
-    int y = settings.readNumEntry( "/qDocGUI/geometry/y", 20 );
+    int x = settings.readNumEntry( "/qDocGUI/geometry/x", 0 );
+    int y = settings.readNumEntry( "/qDocGUI/geometry/y", 0 );
     int width = settings.readNumEntry( "/qDocGUI/geometry/width", 200 );
     int height = settings.readNumEntry( "/qDocGUI/geometry/height", 200 );
     setGeometry( x, y, width, height );
@@ -85,7 +85,7 @@ void QDocMainWindow::populateListView()
 
 void QDocMainWindow::readOutput()
 {
-    outputText.append( proc->readStderr() );
+    outputText.append( QString(proc->readStderr()) );
 }
 
 void QDocMainWindow::activateEditor( QListViewItem * item )
@@ -239,8 +239,8 @@ QDocMainWindow::~QDocMainWindow()
 {
     QSettings settings;
     settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
-    settings.writeEntry( "/qDocGUI/geometry/x", geometry().x() );
-    settings.writeEntry( "/qDocGUI/geometry/y", geometry().y() );
+    settings.writeEntry( "/qDocGUI/geometry/x", x() );
+    settings.writeEntry( "/qDocGUI/geometry/y", y() );
     settings.writeEntry( "/qDocGUI/geometry/width", width() );
     settings.writeEntry( "/qDocGUI/geometry/height", height() );
     proc->kill();
