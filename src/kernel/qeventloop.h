@@ -63,8 +63,7 @@ public:
     enum ProcessEvents {
 	AllEvents              = 0x00,
 	ExcludeUserInput       = 0x01,
-	ExcludeSocketNotifiers = 0x02,
-	ExcludePOSIXSignals    = 0x04
+	ExcludeSocketNotifiers = 0x02
     };
     typedef uint ProcessEventsFlags;
 

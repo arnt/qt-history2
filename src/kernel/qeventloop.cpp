@@ -74,8 +74,6 @@ static QEventLoop *INSTANCE = 0;
            ( ButtonPress, KeyPress, etc. )
     \value ExcludeSocketNotifiers - Do not process socket notifier
            events.
-    \value ExcludePOSIXSignals - Do not process POSIX signal events
-           ( Only available on UNIX ).
 
     \sa processOneEvent(), processEvents(), processNextEvent()
 */
@@ -300,18 +298,24 @@ void QEventLoop::processEvents( ProcessEventsFlags flags, int maxTime )
 
     Wakes up the event loop.  This function is thread safe, and can be
     called by any running thread.
+
+    \sa awake()
 */
 
 /*! \fn void QEventLoop::awake()
 
-    This signal is emitted just before the event loop begins
-    processing newly arrived events.
+    This signal is emitted after the event loop returns from a
+    function that could block.
+
+    \sa wakeUp() aboutToBlock()
 */
 
 /*! \fn void QEventLoop::aboutToBlock()
 
-    This signal is emitted just before the event loop calls a function
-    that could block.
+    This signal is emitted before the event loop calls a function that
+    could block.
+
+    \sa awake()
 */
 
 /*! \fn bool QEventLoop::processNextEvent( ProcessEventsFlags flags, bool canWait )
