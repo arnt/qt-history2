@@ -72,7 +72,8 @@ public:
     uint ncols : 4; //4 bits is probably plenty
 
     //selection
-    uint mouseDown : 1, hasHadMouse : 1, motions;
+    uint mouseDown : 1, hasHadMouse : 1;
+    int motions;
     QAction *currentAction;
     QAction *actionAt(QPoint p) const;
     void setFirstActionActive();

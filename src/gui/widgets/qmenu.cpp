@@ -305,7 +305,7 @@ void QMenuPrivate::setCurrentAction(QAction *action, int popup, bool activateFir
     }
     if (activeMenu && (!action || !action->menu())) { //otherwise done in popupAction
         QMenu *menu = activeMenu;
-        activeMenu = NULL;
+        activeMenu = 0;
         menu->hide();
     }
 }
@@ -1278,6 +1278,7 @@ void QMenu::popup(const QPoint &p, QAction *atAction)
 #endif
 
     if (QApplication::isEffectEnabled(Qt::UI_AnimateMenu)) {
+        emit aboutToShow();
         if (QApplication::isEffectEnabled(Qt::UI_FadeMenu))
             qFadeEffect(this);
         else if (d->causedPopup)
@@ -1914,6 +1915,8 @@ void QMenu::mouseMoveEvent(QMouseEvent *e)
     if (!isVisible() || d->mouseEventTaken(e))
         return;
     d->motions++;
+    if (d->motions == 0) // ignore first mouse move event (see enterEvent())
+        return;
     d->hasHadMouse |= rect().contains(e->pos());
 
     QAction *action = d->actionAt(e->pos());
@@ -1937,6 +1940,14 @@ void QMenu::mouseMoveEvent(QMouseEvent *e)
     } else {
         d->setCurrentAction(action, style()->styleHint(QStyle::SH_Menu_SubMenuPopupDelay, 0, this));
     }
+}
+
+/*!
+  \reimp
+*/
+void QMenu::enterEvent(QEvent *)
+{
+    d->motions = -1; // force us to ignore the generate mouse move in mouseMoveEvent()
 }
 
 /*!
@@ -2013,7 +2024,7 @@ void QMenu::internalDelayedPopup()
 
     //hide the current item
     if (QMenu *menu = d->activeMenu) {
-        d->activeMenu = NULL;
+        d->activeMenu = 0;
         menu->hide();
     }
 
