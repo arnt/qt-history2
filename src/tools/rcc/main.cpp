@@ -76,9 +76,9 @@ listResourceFile(const QString &file)
                 if(res.toElement().tagName() == QLatin1String("file")) {
                     QString fileName(res.firstChild().toText().data());
                     QFileInfo file(filePath + fileName);
-                    QString name;
-                    if(res.toElement().hasAttribute("name"))
-                        name = res.toElement().attribute("name");
+                    QString alias;
+                    if(res.toElement().hasAttribute("alias")) 
+                        alias = res.toElement().attribute("alias");
                     if(!file.exists() || file.isDir()) {
                         bool recursive = false;
                         if(res.toElement().hasAttribute("recursive")) {
@@ -100,8 +100,8 @@ listResourceFile(const QString &file)
                                 continue;
                             if(!subFiles[subFile].isDir()) {
                                 RCCFileInfo res;
-                                if(!name.isNull())
-                                    res.name = name + "/";
+                                if(!alias.isNull())
+                                    res.name = alias + "/";
                                 else
                                     res.name = fileName + "/";
                                 res.name += subFiles[subFile].fileName();
@@ -114,7 +114,7 @@ listResourceFile(const QString &file)
                         }
                     } else {
                         RCCFileInfo res;
-                        res.name = name.isNull() ? fileName : name;
+                        res.name = alias.isNull() ? fileName : alias;
                         res.fileinfo = QFileInfo(file);
                         resource.files.append(res);
                     }
