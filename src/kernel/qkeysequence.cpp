@@ -602,10 +602,10 @@ QKeySequence &QKeySequence::operator=( const QKeySequence & keysequence )
 
 bool QKeySequence::operator==( const QKeySequence& keysequence ) const
 {
-    return ( d->key[0] == keysequence.d->key[0] &&
-	     d->key[1] == keysequence.d->key[1] &&
-	     d->key[2] == keysequence.d->key[2] &&
-	     d->key[3] == keysequence.d->key[3] );
+    return ( (d->key[0]&~UNICODE_ACCEL) == (keysequence.d->key[0]&~UNICODE_ACCEL) &&
+	     (d->key[1]&~UNICODE_ACCEL) == (keysequence.d->key[1]&~UNICODE_ACCEL) &&
+	     (d->key[2]&~UNICODE_ACCEL) == (keysequence.d->key[2]&~UNICODE_ACCEL) &&
+	     (d->key[3]&~UNICODE_ACCEL) == (keysequence.d->key[3]&~UNICODE_ACCEL) );
 }
 
 
@@ -615,10 +615,8 @@ bool QKeySequence::operator==( const QKeySequence& keysequence ) const
 */
 bool QKeySequence::operator!= ( const QKeySequence& keysequence ) const
 {
-    return !( d->key[0] == keysequence.d->key[0] &&
-	      d->key[1] == keysequence.d->key[1] &&
-	      d->key[2] == keysequence.d->key[2] &&
-	      d->key[3] == keysequence.d->key[3] );
+    QKeySequence *that = (QKeySequence*)this;
+    return !( (*that) == keysequence );
 }
 
 
