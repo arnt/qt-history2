@@ -596,15 +596,17 @@ void QCommonStyle::drawPrimitive( PrimitiveElement pe,
     case PE_RubberBandMask:
     case PE_RubberBand: {
 	QPen oldPen = p->pen();
-	if (pe == PE_RubberBandMask)
+	QBrush oldBrush = p->brush();
+	if (pe == PE_RubberBandMask) {
+	    p->setBrush(QBrush(color1));
 	    p->setPen(QPen(color1, 5));
-	else
+	} else {
+	    p->setBrush(QBrush(NoBrush));
 	    p->setPen(QPen(pal.foreground(), 5));
-	if(flags & Style_Rectangle)
-	    p->drawRect(r);
-	else
-	    p->fillRect(r, pal.foreground());
+	}
+	p->drawRect(r);
 	p->setPen(oldPen);
+	p->setBrush(oldBrush);
 	break; }
 
     case PE_TreeBranch: {
