@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#118 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#119 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -36,7 +36,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #include <unistd.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#118 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#119 $")
 
 
 /*****************************************************************************
@@ -473,9 +473,9 @@ GC qt_xget_temp_gc( bool monochrome )		// get use'n throw GC
 }
 
 
-// --------------------------------------------------------------------------
-// Platform specific QApplication members
-//
+/*****************************************************************************
+  Platform specific QApplication members
+ *****************************************************************************/
 
 /*----------------------------------------------------------------------------
   \fn QWidget *QApplication::mainWidget() const
@@ -547,15 +547,25 @@ QWidget *QApplication::desktop()
 }
 
 
+/*****************************************************************************
+  QApplication cursor stack
+ *****************************************************************************/
+
+typedef declare(QListM,QCursor) QCursorList;
+
+static QCursorList *cursorStack = 0;
+
 /*----------------------------------------------------------------------------
   \fn QCursor *QApplication::cursor()
-  Returns the application cursor.
+  Returns the active application cursor.
+
   This function returns 0 if no application cursor has been defined.
+
   \sa setCursor(), restoreCursor()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
-  Sets the application cursor to \e c.
+  Sets the application cursor to \e cursor.
 
   This cursor will be displayed in all application widgets until
   restoreCursor() or another setCursor() is called.
@@ -572,17 +582,22 @@ QWidget *QApplication::desktop()
   \sa cursor(), restoreCursor(), QWidget::setCursor()
  ----------------------------------------------------------------------------*/
 
-void QApplication::setCursor( const QCursor &c )
+void QApplication::setCursor( const QCursor &cursor )
 {
-    if ( app_cursor )
-	delete app_cursor;
-    app_cursor = new QCursor( c );
-    CHECK_PTR( app_cursor );
+    if ( !cursorStack ) {
+	cursorStack = new QCursorList;
+	CHECK_PTR( cursorStack );
+	cursorStack->setAutoDelete( TRUE );
+    }
+    QCursor *c = new QCursor( cursor );
+    CHECK_PTR( c );
+    cursorStack->append( c );
+    app_cursor = c;
     QWidgetIntDictIt it( *((QWidgetIntDict*)QWidget::mapper) );
     register QWidget *w;
     while ( (w=it.current()) ) {		// for all widgets that have
 	if ( w->testWFlags(WCursorSet) )	//   set a cursor
-	    XDefineCursor( w->display(), w->id(), app_cursor->handle() );
+	    XDefineCursor( w->display(), w->id(), c->handle() );
 	++it;
     }
     XFlush( appDpy );				// make X execute it NOW
@@ -596,20 +611,30 @@ void QApplication::setCursor( const QCursor &c )
 
 void QApplication::restoreCursor()
 {
-    if ( !app_cursor )				// there is no app cursor
+    if ( !cursorStack )				// no cursor stack
 	return;
+    cursorStack->removeLast();
+    QCursor *c = cursorStack->last();
     QWidgetIntDictIt it( *((QWidgetIntDict*)QWidget::mapper) );
     register QWidget *w;
     while ( (w=it.current()) ) {		// set back to original cursors
 	if ( w->testWFlags(WCursorSet) )
-	    XDefineCursor( w->display(), w->id(), w->cursor().handle() );
+	    XDefineCursor( w->display(), w->id(),
+			   c ? c->handle() : w->cursor().handle() );
 	++it;
     }
     XFlush( appDpy );
-    delete app_cursor;				// reset app_cursor
-    app_cursor = 0;
+    app_cursor = c;
+    if ( !c ) {
+	delete cursorStack;
+	cursorStack = 0;
+    }
 }
 
+
+/*****************************************************************************
+  Routines to find a Qt widget from a screen position
+ *****************************************************************************/
 
 static QWidget *findChildWidget( const QWidget *p, const QPoint &pos )
 {
