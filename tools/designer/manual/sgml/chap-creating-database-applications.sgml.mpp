@@ -10,7 +10,7 @@
 
 <para>
 This chapter shows you how to use Qt's data-aware widgets from within
-<emphasis>Qt Designer</>. If you wish to run the examples or
+\qd. If you wish to run the examples or
 create your own applications using these widgets you need access to
 a SQL database and a Qt database driver that can connect to the
 database. At the time of writing the drivers that Qt supports are QODBC
@@ -36,7 +36,7 @@ in-place record editing and setting up master-detail relationships
 between \class[QDataTable]s. It also explains how to drill down from a \class[QDataTable] to another
 widget, for example to a \class[QDataBrowser] or a \class[QDataView] and how to perform record
 editing in \class[QDataBrowser]s. A great deal of functionality is available from the
-classes directly in <emphasis>Qt Designer</> although subclassing is always available for
+classes directly in \qd although subclassing is always available for
 finer control.
 <figure><title>The Book Application</title>
 \img[book-book9]
@@ -71,13 +71,13 @@ a single field, in a combobox for example.
 
     <para>
     There are two aspects of database connections that we must consider.
-    Firstly the connection we wish to use within <emphasis>Qt Designer</> itself, and
+    Firstly the connection we wish to use within \qd itself, and
     secondly the connection we wish to use in the applications that we
     create.
     </para>
 
     <sect2 id="setting-up-qt-designers-connections">
-	<title>Setting Up <emphasis>Qt Designer</>'s Connections</>
+	<title>Setting Up \qd's Connections</>
 
 	<para>
 	<figure><title>Database Connections Dialog</title>
@@ -97,29 +97,29 @@ a single field, in a combobox for example.
 	<guibutton>Connect</>. If the connection is made the connection
 	name will appear in the list box on the left hand side of the
 	dialog. You can now close the dialog; the connection settings
-	will remain in force until you change or delete them or quit <emphasis>Qt Designer</>. 
+	will remain in force until you change or delete them or quit \qd. 
 	</para>
 
 	<para>
-	<emphasis>Qt Designer</> can remember database connection settings in
+	\qd can remember database connection settings in
 	<command>qmake</> project files. Create a new project, e.g.
 	click <guimenuitem>File|New Project</> and complete the Project
 	Settings dialog. (See <xref linkend="using-project-files">
-	"Using Project Files".) Next time you start <emphasis>Qt Designer</> instead of
+	"Using Project Files".) Next time you start \qd instead of
 	opening individual <literal>.ui</> files open the
-	<literal>.pro</> project file instead and <emphasis>Qt Designer</> will
+	<literal>.pro</> project file instead and \qd will
 	automatically reload the project's connection settings.  To
 	activate the connection click <guimenuitem>Edit|Database
 	Connections</>. The connections previously saved with the
 	project will be listed in the left hand list box. Click the
 	connection you wish to use and then click <guibutton>Connect</>.
 	This connection will be used from now on, e.g. for previewing
-	\class[QDataTable]s. Opening a project file also causes <emphasis>Qt Designer</> to load in the
+	\class[QDataTable]s. Opening a project file also causes \qd to load in the
 	list of forms associated with the project into the Form List
 	window. In most of the discussion that follows we will assume
 	that you use project files and have clicked <guibutton>Connect</>
 	so that there is always a connection available when you work in
-	<emphasis>Qt Designer</>.
+	\qd.
 	</para>
 
     </sect2>
@@ -242,7 +242,7 @@ bool createConnections()
 		    doesn't exist and to choose the table or view for
 		    the \class[QDataTable]. (See <xref
 		    linkend="setting-up-qt-designers-connections">
-		    "Setting Up <emphasis>Qt Designer</>'s Connections".)
+		    "Setting Up \qd's Connections".)
 		    </para>
 
 		    <para>
@@ -510,37 +510,40 @@ bool createConnections()
 		\item\p
 		Users can move to records by clicking the scrollbar and
 		clicking records with the mouse. They can also use the
-		keyboard's arrow keys, and Page Up and Page Down keys.
+		keyboard's navigation keys, e.g. the arrow keys, Page Up
+		and Page Down, Home and End.
 		\P\Item
 
 		\item\p
-		\ins is initiated by pressing the Ins (Insert) key.
-		The user moves between fields using Tab and
-		Shift+Tab. The \ins will take place if the user presses
-		Return or Tabs off the end of the last field. If
-		autoEdit is TRUE the insert will take place if the user
-		navigates to another record. \ins is cancelled by
-		pressing Esc (Escape). If autoEdit is FALSE navigating
-		to another record also cancels the \ins. Setting
-		confirmInsert to TRUE will require the user to confirm
-		each \ins via a message box.
+		\ins is initiated by right-clicking the record and
+		clicking Insert or by pressing the Ins (Insert) key. The
+		user moves between fields using Tab and Shift+Tab. The
+		\ins will take place if the user presses Return or Tabs
+		off the end of the last field. If autoEdit is TRUE the
+		insert will take place if the user navigates to another
+		record. \ins is cancelled by pressing Esc (Escape). If
+		autoEdit is FALSE navigating to another record also
+		cancels the \ins. Setting confirmInsert to TRUE will
+		require the user to confirm each \ins.
 		\P\Item
 
 		\item\p
-		\upd is initiated by pressing F2. The update will take
-		place if the user presses Return or Tabs off the end of
-		the last field. If autoEdit is TRUE the update will take
-		place if the user navigates to another record. \upd is
-		cancelled by pressing Esc (Escape). If autoEdit is FALSE
+		\upd is initiated right-clicking the record and clicking
+		Update or by pressing F2. The update will take place if
+		the user presses Return or Tabs off the end of the last
+		field. If autoEdit is TRUE the update will take place if
+		the user navigates to another record. \upd is cancelled
+		by pressing Esc (Escape). If autoEdit is FALSE
 		navigating to another record also cancels the \upd.
 		Setting confirmUpdate to TRUE will require the user to
-		confirm each \upd via a message box.
+		confirm each \upd.
 		\P\Item
 
 		\item\p
-		\del is achieved by pressing the Del (Delete) key.
+		\del is achieved by right-clicking the record and
+		clicking Delete or by pressing the Del (Delete) key.
 		Setting confirmDelete to TRUE will require the user to
-		confirm each \del via a message box.
+		confirm each \del.
 		\P\Item
 
 	    </itemizedlist>
@@ -566,7 +569,7 @@ bool createConnections()
 	</para>
 
 	<para>
-	Open the book project if it isn't already in <emphasis>Qt Designer</>. We will
+	Open the book project if it isn't already in \qd. We will
 	modify this project to show two \class[QDataTable]s that
 	relate the author table to the book_view view. 
 
@@ -671,7 +674,7 @@ bool createConnections()
 	\img[edit-table-dialog]
 	</figure>
 	\class[QDataTable]s are created and set up using the SQL Table Wizard. Like
-	any other <emphasis>Qt Designer</> widget their properties may be changed in the
+	any other \qd widget their properties may be changed in the
 	Properties window. Some of the column and row based properties
 	can also be be changed using the Edit Table dialog. This
 	dialog is invoked by right clicking the \class[QDataTable] and left
@@ -870,7 +873,7 @@ bool createConnections()
 		wizard page is used to set up a connection if one doesn't exist
 		and to choose the table or view for the \class[QDataBrowser]. (See <xref
 		linkend="setting-up-qt-designers-connections"> "Setting
-		Up <emphasis>Qt Designer</>'s Connections".)
+		Up \qd's Connections".)
 		</para>
 
 		<para>
@@ -995,7 +998,41 @@ bool createConnections()
 
 	<sidebar><title>\class[QDataBrowser] User Interface Interaction</>
 	<para>
-	The default user-interface behaviour for \class[QDataBrowser]s is as follows:
+	The user-interface behaviour for \class[QDataBrowser]s
+	is created by connecting slots and signals. The slots provided are:
+	    \list[*]
+		\item\p
+		\fn[insert], \fn[update] and \fn[del] for edits;
+		\P\Item
+
+		\item\p
+		\fn[first], \fn[next], \fn[prev], and \fn[last] for
+		navigation;
+		\P\Item
+
+		\item\p
+		\fn[refresh] to refresh the cursor from the database; 
+		\P\Item
+
+		\item\p
+		\fn[readFields] to read data from the cursor's edit
+		buffer and \fn[writeFields] to write the form's data to
+		the cursor's edit buffer;
+		\P\Item
+
+		\item\p
+		\fn[clearValues] to clear the form's values. 
+		\P\Item
+
+	    </itemizedlist>
+	</para>
+	
+	<para>	
+	If you use \qd's
+	\class[QDataBrowser] wizard you will be given the option of
+	creating a default set of buttons for navigation and editing.
+	The behaviour of these buttons is set up using the slots
+	described above to provide the following functionality:
 	    \list[*]
 		\item\p
 		\ins is initiated by pressing the Insert button. The
@@ -1009,7 +1046,7 @@ bool createConnections()
 		record. \ins is cancelled by pressing the Delete key. If
 		autoEdit is FALSE navigating to another record also
 		cancels the \ins. Setting confirmInsert to TRUE will
-		require the user to confirm each \ins via a message box.
+		require the user to confirm each \ins.
 		\P\Item
 
 		\item\p
@@ -1020,19 +1057,16 @@ bool createConnections()
 		record. \upd is cancelled by pressing the Delete button.
 		If autoEdit is FALSE navigating to another record also
 		cancels the \upd. Setting confirmUpdate to TRUE will
-		require the user to confirm each \upd via a message box.
+		require the user to confirm each \upd.
 		\P\Item
 
 		\item\p
 		\del is achieved by pressing the Delete button.
 		Setting confirmDelete to TRUE will require the user to
-		confirm each \del via a message box.
+		confirm each \del.
 		\P\Item
 
 	    </itemizedlist>
-
-	    You can change this default behaviour programmatically if
-	    required.
 	</para>
 	</sidebar>
 
@@ -1053,7 +1087,7 @@ bool createConnections()
 		<para> 
 		We need to make a new slot to connect the Edit Books'
 		button's <function>clicked()</> signal to. Click on the Book
-		form to make it <emphasis>Qt Designer</>'s active form. Invoke the Edit Slots
+		form to make it \qd's active form. Invoke the Edit Slots
 		dialog and create a new slot called 'editClicked()'. Now
 		click the <guibutton>Connect Signal/Slots</> toolbar button.
 		Click the Edit Books button and drag to the form; release
@@ -1071,9 +1105,21 @@ bool createConnections()
 		<function>editClicked</> function. We need to change it to
 		the following:
 <programlisting>
-\scan eg/book/book5/book.cpp /BookForm::editClicked/ /^}/
+\scan eg/book/book6/book.cpp /BookForm::editClicked/ /^}/
 </programlisting>
 		</para>
+
+		\p
+		We create our dialog as before. We also create
+		a cursor over the book table and set the dialog's
+		\class[QDataBrowser], BookDataBrowser, to this new
+		cursor. We set the \class[QDataBrowser]'s filter and
+		sort to those that applied to the main form's book_view
+		\class[QDataTable]. We refresh the \class[QDataBrowser]
+		and seek to the same record the user was viewing on the
+		main form. Finally we exec the dialog and delete it when
+		the user has finished with it.
+		\P
 	    </listitem> 
 
 	    <listitem>
@@ -1095,9 +1141,10 @@ bool createConnections()
 	Now when we navigate through the author and book records in the
 	BookForm we can click the Edit Books button to launch our Edit Books
 	dialog. Although the dialog supports \upd, \del and navigation over
-	the book table, we cannot edit the foreign keys nor perform inserts.
-	We will deal with insertion in the same way as we did with the \class[QDataTable],
-	then we will handle the foreign keys.
+	the book table, we cannot edit the foreign keys nor perform
+	inserts. We will deal with insertion in the same way as we did
+	with the \class[QDataTable], then we will handle the foreign
+	keys.
 	</para>
 
 	</sect3>
@@ -1153,7 +1200,10 @@ bool createConnections()
 
 	    <listitem>
 		<para>
-		Tidy up -- make the Close button work.
+		We will also tidy up the user interface slightly. Click
+		the Update button and set its default property to True.
+		Connect the Close button's \fn[clicked] signal to the
+		EditBookForm's \fn[accept] slot.
 		</para>
 	    </listitem> 
 
@@ -1168,6 +1218,33 @@ bool createConnections()
 
 	<para>
 	</para>
+
+	<para>
+	</para>
+
+<!--
+Rough notes on book7
+
+Explain that we are doing it the easy one-off way. For more power youcan
+create your own custom edit widgets, see 
+doc.trolltech.com/sql.html#Custom_Editor_Widgets particularly the
+StatusPicker example.
+
+click the databrowser & break layout
+drag the buttons down
+add a label 'Author' and a combo box
+call combobox ComboBoxAuthor and change the table to author_view
+make the combobox horiz size policy Expanding/Fixed
+click author lable + combo and Lay Out Horizontally
+click teh databrowser & Lay Out in a Grid
+
+USE BEGIN SIGNALS
+
+create a slot primeUpdateBook(QSqlRecord *)
+
+
+-->
+
 	</sect3>
 
     </sect2>
