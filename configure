@@ -2469,18 +2469,18 @@ if [ "$PLATFORM_X11" = "yes" ]; then
     # so *every* program/lib (including Qt) has to link against them
     if [ "$CFG_XINERAMA" = "yes" ]; then
 	QMAKE_CONFIG="$QMAKE_CONFIG xinerama"
-	QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_X11+=-lXinerama\""
+	QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_X11 = -lXinerama \$\$QMAKE_LIBS_X11\""
     fi
     if [ "$CFG_XRENDER" = "yes" ]; then
 	QMAKE_CONFIG="$QMAKE_CONFIG xrender"
-	QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_X11+=-lXrender\""
+	QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_X11 = -lXrender \$\$QMAKE_LIBS_X11\""
     fi
     if [ "$CFG_FREETYPE" = "yes" ]; then
 	QMAKE_CONFIG="$QMAKE_CONFIG xftfreetype"
 	# libXft uses libfreetype to do all the work, BUT libfreetype isn't picked
 	# up as a dependency if libXft isn't a shared library, so we have to add
 	# libfreetype as well as libXt to the program/lib link command
-	QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_X11+=-lXft -lfreetype\""
+	QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_X11 = -lXft -lfreetype \$\$QMAKE_LIBS_X11\""
     fi
     if [ "$CFG_FONTCONFIG" = "yes" ]; then
 	# the new Xft2 library has a dependency on libfontconfig, so we need to
@@ -2489,7 +2489,7 @@ if [ "$PLATFORM_X11" = "yes" ]; then
     fi
     if [ "$CFG_TABLET" = "yes" ]; then
 	QMAKE_CONFIG="$QMAKE_CONFIG tablet"
-	QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_X11+=-lXi\""
+	QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_X11 = -lXi \$\$QMAKE_LIBS_X11\""
     fi
     if [ "$CFG_XKB" = "yes" ]; then
         QMAKE_CONFIG="$QMAKE_CONFIG xkb"
