@@ -20,13 +20,19 @@ class DesignerStatusBarInterfaceImpl : public DesignerStatusBarInterface
 public:
     DesignerStatusBarInterfaceImpl( QStatusBar *sb, QUnknownInterface* parent );
 
-    bool requestSetProperty( const QCString &p, const QVariant &v );
+    void setMessage( const QString &, int ms = 3000 );
+
+private:
+    QStatusBar *statusBar;
 };
 
 class DesignerMainWindowInterfaceImpl : public DesignerMainWindowInterface
 {
 public:
     DesignerMainWindowInterfaceImpl( MainWindow *mw, QUnknownInterface* parent );
+
+private:
+    MainWindow *mainWindow;
 };
 
 class DesignerFormWindowInterfaceImpl : public DesignerFormWindowInterface
@@ -39,7 +45,13 @@ public:
     void undo() const;
     void redo() const;
 
-    QVariant requestProperty( const QCString &p );
+    QString fileName() const;
+    void setFileName( const QString & );
+
+    QPixmap icon() const;
+    void setIcon( const QPixmap & );
+
+    bool connect( const char *, QObject *, const char * );
 
 protected:
     QObject *component() const;
@@ -54,44 +66,12 @@ class DesignerActiveFormWindowInterfaceImpl : public DesignerFormWindowInterface
 {
 public:
     DesignerActiveFormWindowInterfaceImpl( FormList *fl, QUnknownInterface *parent );
-
     QString interfaceId() const { return createId( DesignerFormWindowInterface::interfaceId(), "DesignerActiveFormWindowInterface" ); }
 
     unsigned long addRef();
 
-    bool requestConnect( const char* signal, QObject* target, const char* slot );
-    bool requestConnect( QObject *sender, const char* signal, const char* slot );
-    bool requestEvents( QObject* o );
-
 private:
-    void reconnect();
-
-    struct ConnectSignal 
-    {
-	QCString signal, slot;
-	QGuardedPtr<QObject> target;
-#if defined(Q_FULL_TEMPLATE_INSTANTIATION)
-	bool operator==( const ConnectSignal& ) const { return FALSE; }
-#endif
-    };
-    
-    struct ConnectSlot
-    {
-	QGuardedPtr<QObject> sender;
-	QCString signal, slot;
-#if defined(Q_FULL_TEMPLATE_INSTANTIATION)
-	bool operator==( const ConnectSlot& ) const { return FALSE; }
-#endif
-    };
-    
-    QValueList<ConnectSignal> signalList;
-    QValueList<ConnectSlot> slotList;
-
-    QObjectList filterObjects;
-    
     QGuardedPtr<FormList> formList;
-    QGuardedPtr<FormWindow> lastForm;
-    bool inReconnect;
 };
 
 class DesignerFormListInterfaceImpl : public DesignerFormListInterface
@@ -117,7 +97,10 @@ public:
     bool saveAll() const;
     void closeAll() const;
 
+    bool connect( const char *, QObject *, const char * );
+
 private:
+    FormList *formList;
     QListViewItemIterator *listIterator;
 };
 
@@ -137,11 +120,12 @@ public:
     void selectAll() const;
     void removeAll() const;
 
-    FormWindow *formWindow() const;
+/*    FormWindow *formWindow() const;
     void setFormWindow( FormWindow* );
-
+*/
 private:
     QPtrDictIterator<QWidget> *dictIterator;
+    FormWindow *formWindow;
 };
 
 class DesignerWidgetInterfaceImpl : public DesignerWidgetInterface
@@ -153,6 +137,9 @@ public:
     bool selected() const;
 
     void remove();
+
+private:
+    QWidget *widget;
 };
 
 class DesignerActiveWidgetInterfaceImpl : public DesignerWidgetInterfaceImpl
@@ -173,18 +160,18 @@ private:
  * Application
  */
 
-class DesignerApplicationInterface : public QUnknownInterface
+class DesignerApplicationInterface : public QComponentInterface
 {
 public:
     DesignerApplicationInterface();
 
     QString interfaceId() const { return createId( QUnknownInterface::interfaceId(), "DesignerApplicationInterface" ); }
-/*
+
     QString name() const { return "Qt Designer"; }
     QString description() const { return "GUI Editor for the Qt Toolkit"; }
     QString version() const { return "1.1"; }
     QString author() const { return "Trolltech"; }
-*/
+
 };
 
 #endif
