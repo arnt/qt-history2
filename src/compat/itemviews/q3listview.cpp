@@ -6278,7 +6278,7 @@ void QCheckListItem::activate()
         return;
 
     QPoint pos;
-    int boxsize = lv->style().pixelMetric(QStyle::PM_CheckListButtonSize, lv);
+    int boxsize = lv->style().pixelMetric(QStyle::PM_CheckListButtonSize, 0, lv);
     if (activatedPos(pos)) {
         bool parentControl = false;
         if (parent() && parent()->rtti() == 1  &&
@@ -6487,7 +6487,7 @@ void QCheckListItem::setup()
     int h = height();
     Q3ListView *lv = listView();
     if (lv)
-        h = qMax(lv->style().pixelMetric(QStyle::PM_CheckListButtonSize, lv),
+        h = qMax(lv->style().pixelMetric(QStyle::PM_CheckListButtonSize, 0, lv),
                   h);
     h = qMax(h, QApplication::globalStrut().height());
     setHeight(h);
@@ -6505,7 +6505,7 @@ int QCheckListItem::width(const QFontMetrics& fm, const Q3ListView* lv, int colu
         if (myType == RadioButtonController && pixmap(0)) {
             //             r += 0;
         } else {
-            r +=  lv->style().pixelMetric(QStyle::PM_CheckListButtonSize, lv) + 4;
+            r +=  lv->style().pixelMetric(QStyle::PM_CheckListButtonSize, 0, lv) + 4;
         }
     }
     return qMax(r, QApplication::globalStrut().width());
@@ -6545,7 +6545,7 @@ void QCheckListItem::paintCell(QPainter * p, const QPalette & pal,
 
     QFontMetrics fm(lv->fontMetrics());
     int boxsize = lv->style().pixelMetric(myType == RadioButtonController ? QStyle::PM_CheckListControllerSize :
-                                           QStyle::PM_CheckListButtonSize, lv);
+                                           QStyle::PM_CheckListButtonSize, 0, lv);
     int marg = lv->itemMargin();
     int r = marg;
 
@@ -6628,7 +6628,7 @@ void QCheckListItem::paintFocus(QPainter *p, const QPalette & pal,
          (lv->rootIsDecorated() || myType == RadioButton ||
           (myType == CheckBox && parentControl))) {
         QRect rect;
-        int boxsize = lv->style().pixelMetric(QStyle::PM_CheckListButtonSize, lv);
+        int boxsize = lv->style().pixelMetric(QStyle::PM_CheckListButtonSize, 0, lv);
         if (lv->columnAlignment(0) == Qt::AlignCenter) {
             QFontMetrics fm(lv->font());
             int bx = (lv->columnWidth(0) - (boxsize + fm.width(text())))/2 + boxsize;

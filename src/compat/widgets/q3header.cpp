@@ -1519,8 +1519,8 @@ void Q3Header::paintSectionLabel(QPainter *p, int index, const QRect& fr)
     int dx = 0, dy = 0;
     QStyleOptionHeader opt = getStyleOption(this, section);
     if (index == handleIdx && (state == Pressed || state == Moving)) {
-        dx = style().pixelMetric(QStyle::PM_ButtonShiftHorizontal, this);
-        dy = style().pixelMetric(QStyle::PM_ButtonShiftVertical, this);
+        dx = style().pixelMetric(QStyle::PM_ButtonShiftHorizontal, &opt, this);
+        dy = style().pixelMetric(QStyle::PM_ButtonShiftVertical, &opt, this);
         opt.state |= QStyle::Style_Sunken;
     }
     if (isEnabled())

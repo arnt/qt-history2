@@ -1047,7 +1047,7 @@ QSize Q3DateEdit::sizeHint() const
 {
     ensurePolished();
     QFontMetrics fm(font());
-    int fw = style().pixelMetric(QStyle::PM_DefaultFrameWidth, this);
+    int fw = style().pixelMetric(QStyle::PM_DefaultFrameWidth, 0, this);
     int h = qMax(fm.lineSpacing(), 14) + 2;
     int w = 2 + fm.width('9') * 8 + fm.width(d->ed->separator()) * 2 + d->controls->upRect().width() + fw * 4;
 
@@ -2494,7 +2494,7 @@ QSize Q3TimeEdit::sizeHint() const
 {
     ensurePolished();
     QFontMetrics fm(font());
-    int fw = style().pixelMetric(QStyle::PM_DefaultFrameWidth, this);
+    int fw = style().pixelMetric(QStyle::PM_DefaultFrameWidth, 0, this);
     int h = fm.lineSpacing() + 2;
     int w = 2 + fm.width('9') * 6 + fm.width(d->ed->separator()) * 2 +
         d->controls->upRect().width() + fw * 4;

@@ -163,10 +163,22 @@ void Q3ToolBarSeparator::changeEvent(QEvent *ev)
     QWidget::changeEvent(ev);
 }
 
+static QStyleOption getStyleOption(const Q3ToolBarSeparator *tbs)
+{
+    QStyleOption opt(0);
+    opt.rect = tbs->rect();
+    opt.palette = tbs->palette();
+    if (tbs->orientation() == Qt::Horizontal)
+        opt.state = QStyle::Style_Horizontal;
+    else
+        opt.state = QStyle::Style_Default;
+    return opt;
+}
+
 QSize Q3ToolBarSeparator::sizeHint() const
 {
-    int extent = style().pixelMetric(QStyle::PM_DockWindowSeparatorExtent,
-                                      this);
+    QStyleOption opt = getStyleOption(this);
+    int extent = style().pixelMetric(QStyle::PM_DockWindowSeparatorExtent, &opt, this);
     if (orient == Qt::Horizontal)
         return QSize(extent, 0);
     else
@@ -176,14 +188,7 @@ QSize Q3ToolBarSeparator::sizeHint() const
 void Q3ToolBarSeparator::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
-    QStyleOption opt(0, QStyleOption::SO_Default);
-    opt.rect = rect();
-    opt.palette = palette();
-    if (orientation() == Qt::Horizontal)
-        opt.state = QStyle::Style_Horizontal;
-    else
-        opt.state = QStyle::Style_Default;
-
+    QStyleOption opt = getStyleOption(this);
     style().drawPrimitive(QStyle::PE_DockWindowSeparator, &opt, &p, this);
 }
 

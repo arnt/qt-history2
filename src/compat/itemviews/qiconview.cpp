@@ -5928,8 +5928,7 @@ QSize QIconView::sizeHint() const
     }
 
     d->dirty = true;
-    int extra = style().pixelMetric(QStyle::PM_ScrollBarExtent,
-                                    verticalScrollBar()) + 2*frameWidth();
+    int extra = style().pixelMetric(QStyle::PM_ScrollBarExtent, 0, verticalScrollBar()) + 2*frameWidth();
     QSize s(qMin(400, contentsWidth() + extra),
              qMin(400, contentsHeight() + extra));
     return s;
