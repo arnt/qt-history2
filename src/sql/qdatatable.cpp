@@ -127,7 +127,7 @@ void qt_debug_buffer( const QString& msg, QSqlRecord* cursor )
   <ul>
   <li> \c Data -- refresh the data
   <li> \c Column -- refresh the list of fields, e.g. the column headings
-  <li> \c All -- refresh both the data and the list of fields 
+  <li> \c All -- refresh both the data and the list of fields
   </ul>
 */
 
@@ -286,9 +286,8 @@ void QDataTable::removeColumn( uint col )
 }
 
 /*! Returns the current filter used on the displayed data.  If there
-  is no current cursor, QString::null is returned. The text of a filter
-  is the SQL for a WHERE clause but without the leading "WHERE" or
-  trailing semicolon, e.g. "price > 50".
+  is no current cursor, QString::null is returned. The text of the
+  filter corresponds to the SQL WHERE clause.
 
   \sa setFilter() setCursor()
 
@@ -300,9 +299,8 @@ QString QDataTable::filter() const
 }
 
 /*! Sets the filter to be used on the displayed data to \a filter.  To
-  display the filtered data, call refresh(). The text of a filter is the
-  SQL for a WHERE clause but without the leading "WHERE" or trailing
-  semicolon, e.g. "surname LIKE 'A%'".
+  display the filtered data, call refresh(). The text of the \a filter
+  corresponds to the SQL WHERE clause, e.g. "surname LIKE 'A%'".
 
   \sa refresh() filter()
 */
@@ -369,7 +367,7 @@ QStringList QDataTable::sort() const
     return d->cur.sort();
 }
 
-/*! Returns a pointer to the QSqlCursor used by the table.
+/*! Returns a pointer to the cursor used by the table.
 */
 
 QSqlCursor* QDataTable::sqlCursor() const
@@ -1863,7 +1861,7 @@ bool QDataTable::findBuffer( const QSqlIndex& idx, int atHint )
   update action is beginning on the table.  The \a buf parameter
   points to the edit buffer being updated. Connect to this signal in
   order to, for example, provide some visual feedback that the user is
-  in 'insert mode'. 
+  in 'insert mode'.
 */
 
 /*! \fn void QDataTable::primeDelete( QSqlRecord* buf ) This signal is
@@ -1891,7 +1889,7 @@ bool QDataTable::findBuffer( const QSqlIndex& idx, int atHint )
   This signal is emitted just before the currently selected record is
   deleted from the database. The \a buf parameter points to the edit
   buffer being deleted. Connect to this signal to, for example, copy
-  some of the fields for later use. 
+  some of the fields for later use.
 
 */
 
