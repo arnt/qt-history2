@@ -187,7 +187,7 @@ bool QPrinter::setup( QWidget *  )
 {
     if(!psession && PMCreateSession(&psession) != noErr)
         return FALSE;
-    if( ( qApp->style().inherits(QMAC_DEFAULT_STYLE) ) ) {
+    if( qApp->style().inherits(QMAC_DEFAULT_STYLE) || qApp->style().inherits("QMacStyle") ) {
         Boolean ret;
 
         //setup
