@@ -122,7 +122,8 @@ public:
 
     operator QList<T>() const {
         QList<T> list;
-        for (typename Q3ValueList<T>::const_iterator it = constBegin(); it != constEnd(); ++it)
+        for (typename Q3ValueList<T>::const_iterator it = QLinkedList<T>::constBegin();
+             it != QLinkedList<T>::constEnd(); ++it)
             list.append(*it);
         return list;
     }
