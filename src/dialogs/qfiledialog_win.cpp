@@ -58,6 +58,7 @@ static PtrSHGetPathFromIDList ptrSHGetPathFromIDList = 0;
 
 static void resolveLibs()
 {
+#ifndef Q_OS_TEMP
     QLibrary* lib = new QLibrary("shell32");
     lib->setAutoUnload( FALSE );
     static bool triedResolve = FALSE;
@@ -67,6 +68,7 @@ static void resolveLibs()
 	ptrSHGetPathFromIDList = (PtrSHGetPathFromIDList) lib->resolve( "SHGetPathFromIDListW" );
     }
     delete lib;
+#endif
 }
 
 // Returns the wildcard part of a filter.

@@ -176,8 +176,10 @@ void QFont::cleanup()
     Q_ASSERT( shared_dc_font == 0 );
     DeleteDC( shared_dc );
     shared_dc = 0;
+#ifndef Q_OS_TEMP
     delete mat;
     mat = 0;
+#endif
     last_font = 0;
 }
 

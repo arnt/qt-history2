@@ -35,6 +35,7 @@
 **
 **********************************************************************/
 
+#include "qglobal.h"			// needed to define Q_WS_WIN
 #ifdef Q_WS_WIN
 #include "qt_windows.h"			// needed for bsearch on some platforms
 #endif

@@ -45,6 +45,8 @@
 #include <initguid.h>
 
 
+#ifndef Q_OS_TEMP
+
 // ### Can including accctrl.h cause problems on non-NT Win platforms?
 #include <accctrl.h>
 
@@ -69,6 +71,8 @@ typedef DWORD (WINAPI *PtrGetEffectiveRightsFromAclA)(PACL, PTRUSTEE_A, OUT PACC
 static PtrGetEffectiveRightsFromAclA ptrGetEffectiveRightsFromAclA = 0;
 typedef DECLSPEC_IMPORT PVOID (WINAPI *PtrFreeSid)(PSID);
 static PtrFreeSid ptrFreeSid = 0;
+
+#endif
 
 
 static void resolveLibs()
@@ -151,7 +155,7 @@ bool QFileInfo::isSymLink() const
 
 QString QFileInfo::readLink() const
 {
-#ifndef Q_OS_TEMP // ### What's this about, does this need supporting on CE?
+#ifndef Q_OS_TEMP
     IShellLink *psl;                            // pointer to IShellLink i/f
     HRESULT hres;
     WIN32_FIND_DATA wfd;
@@ -189,6 +193,7 @@ QString QFileInfo::readLink() const
 
     return fileLinked;
 #else
+    // ### Does this need supporting on CE?
     return QString();
 #endif
 }
@@ -196,7 +201,7 @@ QString QFileInfo::readLink() const
 
 QString QFileInfo::owner() const
 {
-    // ### What about CE?
+#ifndef Q_OS_TEMP
     if ( qWinVersion() & Qt::WV_NT_based ) {
 
         PSID pOwner = 0;
@@ -247,6 +252,10 @@ QString QFileInfo::owner() const
     } else 
 
 	return QString::null;
+#else
+    // ### need to query this for CE
+    return QString();
+#endif
 }
 
 static const uint nobodyID = (uint) -2;
@@ -258,7 +267,7 @@ uint QFileInfo::ownerId() const
 
 QString QFileInfo::group() const
 {
-    // ### What about CE?
+#ifndef Q_OS_TEMP
     if ( qWinVersion() & Qt::WV_NT_based ) {
 
         PSID pGroup = 0;
@@ -309,6 +318,10 @@ QString QFileInfo::group() const
     } else 
 
 	return QString::null;
+#else
+    // ### need to query this for CE
+    return QString();
+#endif
 }
 
 uint QFileInfo::groupId() const
@@ -319,37 +332,7 @@ uint QFileInfo::groupId() const
 
 bool QFileInfo::permission( int p ) const
 {
-    // ###  What with CE version? Here is the previous function version:
-/*#ifndef Q_OS_TEMP
-    if ( qWinVersion() & Qt::WV_NT_based ) {
-#endif
-#if defined(UNICODE)
-	if ( p & ( WriteUser | WriteGroup | WriteOther ) ) {
-	    DWORD attr = GetFileAttributes( (TCHAR*)qt_winTchar( fn, TRUE ) );
-	    if ( attr & FILE_ATTRIBUTE_READONLY )
-		return FALSE;
-	}
-#else
 #ifndef Q_OS_TEMP
-	if ( p & ( WriteUser | WriteGroup | WriteOther ) ) {
-	    DWORD attr = GetFileAttributesA( fn.local8Bit() );
-	    if ( attr & FILE_ATTRIBUTE_READONLY )
-		return FALSE;
-	}
-#endif
-#endif
-#ifndef Q_OS_TEMP
-    } else { // only FAT anyway
-	if ( p & ( WriteUser | WriteGroup | WriteOther ) ) {
-	    DWORD attr = GetFileAttributesA( fn.local8Bit() );
-	    if ( attr & FILE_ATTRIBUTE_READONLY )
-		return FALSE;
-	}
-    }
-#endif
-    return TRUE;
-*/
-
     if ( qWinVersion() & Qt::WV_NT_based ) {
 
 	BOOL result = FALSE;
@@ -458,8 +441,9 @@ bool QFileInfo::permission( int p ) const
 
 	return result;
 
-    } else {
-
+    } else
+#endif // !Q_OS_TEMP
+    {
 	// for non-NT versions, just check if it's ReadOnly
 #if defined(UNICODE)
 	if ( p & ( WriteUser | WriteGroup | WriteOther ) ) {
