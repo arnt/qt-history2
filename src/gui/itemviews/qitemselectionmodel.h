@@ -114,7 +114,6 @@ public:
 
 public slots:
     void setCurrentIndex(const QModelIndex &index, SelectionFlags command);
-    void selectAll();
     virtual void select(const QModelIndex &index, SelectionFlags command);
     virtual void select(const QItemSelection &selection, SelectionFlags command);
     virtual void clear();

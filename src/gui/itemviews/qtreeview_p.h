@@ -66,6 +66,8 @@ public:
 
     int itemDecorationAt(const QPoint &pos) const;
 
+    void select(int start, int stop, QItemSelectionModel::SelectionFlags command);
+
     QHeaderView *header;
     int indent;
 

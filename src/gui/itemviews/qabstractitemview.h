@@ -113,6 +113,7 @@ public slots:
     virtual void setRoot(const QModelIndex &index);
     virtual void doItemsLayout();
     void edit(const QModelIndex &index);
+    virtual void selectAll();
     void clearSelection();
     void setCurrentIndex(const QModelIndex &index);
 

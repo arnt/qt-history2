@@ -630,47 +630,6 @@ void QItemSelectionModel::setCurrentIndex(const QModelIndex &index, SelectionFla
 }
 
 /*!
-  Selects all items in the model.
-
-  Note: Can be slow for deep trees.
-*/
-void QItemSelectionModel::selectAll()
-{
-    if (!model()->hasChildren(QModelIndex::Null))
-        return;
-
-    QItemSelection selection;
-    QModelIndex index;
-
-    do {
-        if (model()->hasChildren(index)) {
-            selection.append(QItemSelectionRange(index, 0, 0,
-                                                 model()->rowCount(index) - 1,
-                                                 model()->columnCount(index) - 1));
-            // go to first child
-            index = model()->index(0, 0, index);
-        } else if (index.isValid()) {
-            // go to sibling
-            QModelIndex parent = model()->parent(index);
-            int row = index.row() + (index.column() + 1) / model()->columnCount(parent);
-            int column = (index.column() + 1) % model()->columnCount(parent);
-            index = model()->sibling(row, column, index);
-
-            // go to parent sibling/grandparent sibling etc. if not sibling valid
-            while (!index.isValid() && parent.isValid()) {
-                QModelIndex grandParent = model()->parent(parent);
-                row = parent.row() + (parent.column() + 1) / model()->columnCount(grandParent);
-                column = (parent.column() + 1) % model()->columnCount(grandParent);
-                index = model()->sibling(row, column, parent);
-                parent = grandParent;
-            }
-        }
-    } while(index.isValid());
-    select(selection, ClearAndSelect);
-}
-
-
-/*!
   Returns the model item index for the current item, or an invalid index
   if there is no current item.
 */

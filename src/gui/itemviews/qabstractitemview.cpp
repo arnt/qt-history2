@@ -617,6 +617,18 @@ void QAbstractItemView::edit(const QModelIndex &index)
 }
 
 /*!
+  Selects all visible items.
+*/
+void QAbstractItemView::selectAll()
+{
+    QItemSelection selection;
+    selection.append(QItemSelectionRange(root(), 0, 0,
+                                         model()->rowCount(root()) - 1,
+                                         model()->columnCount(root()) - 1));
+    selectionModel()->select(selection, QItemSelectionModel::ClearAndSelect);
+}
+
+/*!
     Clears all selected items.
 */
 void QAbstractItemView::clearSelection()
@@ -1064,7 +1076,7 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
         break;
     case Qt::Key_A:
         if (e->state() & Qt::ControlButton) {
-            selectionModel()->selectAll();
+            selectAll();
             e->accept();
         }
         break;
