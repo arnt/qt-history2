@@ -188,11 +188,6 @@ bool QFontEngineFT::stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs
 
 void QFontEngineFT::draw(QPaintEngine *p, int x, int y, const QTextItemInt &si)
 {
-    if (p->hasFeature(QPaintEngine::QwsPaintEngine)) {
-        qWarning("QFontEngineFT::draw() QWSPaintEngine no longer supported");
-        return;
-    }
-
     //##### Q_ASSERT(p->d_func()->txop < QPainterPrivate::TxScale);
     if (1) { //####### p->d_func()->txop == QPainterPrivate::TxTranslate) {
         QPoint tmpPt(x, y);
@@ -859,10 +854,6 @@ bool QFontEngineQPF::stringToCMap(const QChar *str, int len, QGlyphLayout *glyph
 
 void QFontEngineQPF::draw(QPaintEngine *p, int x, int y, const QTextItemInt &si)
 {
-    if (p->hasFeature(QPaintEngine::QwsPaintEngine)) {
-        qWarning("QFontEngineQPF::draw() QWSPaintEngine no longer supported");
-        return;
-    }
 //###    Q_ASSERT(p->painterState()->txop < QPainterPrivate::TxScale);
     if (1) { //### p->painterState()->txop == QPainterPrivate::TxTranslate) {
         QPoint tmpPt(x, y);

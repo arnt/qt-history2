@@ -71,7 +71,6 @@ public:
         BrushStroke               = 0x00000800, // Can render brush based pens
         UsesFontEngine            = 0x10000000, // Internal use, QWidget and QPixmap
         PaintOutsidePaintEvent    = 0x20000000, // Engine is capable of painting outside paint events
-        QwsPaintEngine            = 0x40000000, // QWS hack ##### remove before RC1
         AllFeatures               = 0xffffffff  // For convenience
     };
     Q_DECLARE_FLAGS(PaintEngineFeatures, PaintEngineFeature)

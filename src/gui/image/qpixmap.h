@@ -194,8 +194,6 @@ private:
     friend class QX11PaintEngine;
     friend class QQuickDrawPaintEngine;
     friend class QCoreGraphicsPaintEngine;
-    friend class QWSPaintEngine;
-    friend class QwsPixmap;
     friend class QWidgetPrivate;
     friend class QRasterPaintEngine;
 };

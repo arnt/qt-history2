@@ -71,9 +71,6 @@ private:
 #if defined(Q_WS_X11)
     friend class QX11PaintEngine;
 #endif
-#if defined(Q_WS_QWS)
-    friend class QWSPaintEngine;
-#endif
     friend class QPainter;
     void detach(Qt::BrushStyle newStyle);
     void init(const QColor &color, Qt::BrushStyle bs);
