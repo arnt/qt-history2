@@ -933,11 +933,6 @@ HierarchyView::HierarchyView( QWidget *parent )
 
 HierarchyView::~HierarchyView()
 {
-    delete classBrowsers;
-    classBrowsers = 0;
-
-    delete classBrowserInterfaceManager;
-    classBrowserInterfaceManager = 0;
 }
 
 void HierarchyView::clear()

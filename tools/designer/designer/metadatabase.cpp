@@ -121,11 +121,6 @@ void MetaDataBase::clearDataBase()
     db = 0;
     delete cWidgets;
     cWidgets = 0;
-
-    delete eventInterfaceManager;
-    eventInterfaceManager = 0;
-    delete languageInterfaceManager;
-    languageInterfaceManager = 0;
 }
 
 void MetaDataBase::addEntry( QObject *o )

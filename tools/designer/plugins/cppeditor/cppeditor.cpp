@@ -47,7 +47,6 @@ CppEditor::CppEditor( const QString &fn, QWidget *parent, const char *name, Desi
 
 CppEditor::~CppEditor()
 {
-    delete completion;
     if ( dIface )
 	dIface->release();
 }
