@@ -305,7 +305,7 @@ void QsCodeParser::processOtherMetaCommand( const Doc& doc,
 
 ClassNode *QsCodeParser::tryClass( const QString& className )
 {
-    return (ClassNode *) cppTre->findNode( className, Node::Class );
+    return (ClassNode *) cppTre->findNode( QStringList(className), Node::Class );
 }
 
 FunctionNode *QsCodeParser::findKernelFunction( const QStringList& parentPath,
@@ -789,7 +789,7 @@ bool QsCodeParser::makeFunctionNode( const QString& synopsis,
     if ( !funcRegExp.exactMatch(synopsis) )
 	return FALSE;
 
-    ClassNode *classe = (ClassNode *) qsTre->findNode( funcRegExp.cap(1),
+    ClassNode *classe = (ClassNode *) qsTre->findNode( QStringList(funcRegExp.cap(1)),
 						       Node::Class );
     if ( classe == 0 )
 	return FALSE;

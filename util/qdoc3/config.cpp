@@ -660,7 +660,7 @@ QStringList Config::getFilesHere(const QString& dir, const QString& nameFilter)
     QStringList fileNames;
     QStringList::Iterator fn;
 
-    dirInfo.setNameFilters(nameFilter.split(' '));
+    dirInfo.setNameFilters(QStringList(nameFilter.split(' ')));
     dirInfo.setSorting( QDir::Name );
     dirInfo.setFilter( QDir::Files );
     fileNames = dirInfo.entryList();
@@ -670,7 +670,7 @@ QStringList Config::getFilesHere(const QString& dir, const QString& nameFilter)
 	++fn;
     }
 
-    dirInfo.setNameFilters("*");
+    dirInfo.setNameFilters(QStringList("*"));
     dirInfo.setFilter( QDir::Dirs );
     fileNames = dirInfo.entryList();
     fn = fileNames.begin();

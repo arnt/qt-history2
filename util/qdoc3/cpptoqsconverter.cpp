@@ -23,9 +23,9 @@ int CppToQsConverter::tabSize;
 ClassNode *CppToQsConverter::findClassNode( Tree *qsTree,
 					    const QString& qtName )
 {
-    ClassNode *classe = (ClassNode *) qsTree->findNode( qtName, Node::Class );
+    ClassNode *classe = (ClassNode *) qsTree->findNode( QStringList(qtName), Node::Class );
     if ( classe == 0 )
-	classe = (ClassNode *) qsTree->findNode( qtName.mid(1), Node::Class );
+	classe = (ClassNode *) qsTree->findNode( QStringList(qtName.mid(1)), Node::Class );
     return classe;
 }
 
@@ -62,7 +62,7 @@ QString CppToQsConverter::convertedDataType( Tree *qsTree,
 	    if ( leftType == "const char *" ) {
 		return "String";
 	    } else {
-		return "Number";	    
+		return "Number";
 	    }
 	}
 	break;
@@ -219,6 +219,8 @@ QString CppToQsConverter::convertCodeLine( Tree *qsTree,
 	QString funcName = funcPrototypeRegExp.cap( 3 );
 	QString params = funcPrototypeRegExp.cap( 4 ).trimmed();
 	bool toBeContinued = funcPrototypeRegExp.cap( 5 ).isEmpty();
+        // ### unused
+        Q_UNUSED(toBeContinued);
 
 	className.replace( "::", "." );
 
@@ -298,7 +300,7 @@ QString CppToQsConverter::convertCodeLine( Tree *qsTree,
 			QString("diouxXeEfFgGaAcsCSpn%\"").indexOf(fmt[i]) == -1 )
 		    i++;
 		if ( fmt[i] == '%' ) {
-		    result += fmt[i++];		
+		    result += fmt[i++];
 		} else if ( fmt[i] != '"' ) {
 		    if ( percent == 1 ) {
 			result.truncate( result.length() - 1 );

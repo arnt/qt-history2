@@ -6,6 +6,7 @@
 #include <qfile.h>
 #include <qfileinfo.h>
 #include <qhash.h>
+#include <qtextstream.h>
 
 #include <qregexp.h>
 

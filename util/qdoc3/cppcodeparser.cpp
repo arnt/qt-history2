@@ -272,9 +272,9 @@ void CppCodeParser::processOtherMetaCommand( const Doc& doc,
     } else if (command == COMMAND_RELATES) {
 	InnerNode *pseudoParent;
 	if (arg.startsWith("<") || arg.startsWith("\"")) {
-	    pseudoParent = static_cast<InnerNode *>(tre->findNode(arg, Node::Fake));
+	    pseudoParent = static_cast<InnerNode *>(tre->findNode(QStringList(arg), Node::Fake));
 	} else {
-	    pseudoParent = static_cast<InnerNode *>(tre->findNode(arg, Node::Class));
+	    pseudoParent = static_cast<InnerNode *>(tre->findNode(QStringList(arg), Node::Class));
         }
 	if (!pseudoParent) {
 	    doc.location().warning(tr("Cannot resolve '%1' in '\\%2'")
@@ -1002,7 +1002,7 @@ bool CppCodeParser::matchDocsAndStuff()
 			nodes.append( func );
 			docs.append( doc );
 		    }
-		    delete clone;		
+		    delete clone;
 		} else {
                     doc.location().warning(tr("Cannot tie this documentation to anything"));
                 }

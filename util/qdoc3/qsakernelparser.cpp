@@ -90,7 +90,7 @@ void QsaKernelParser::parseSourceFile( const Location& location,
 		    }
 
 		    ClassNode *classe =
-			    (ClassNode *) cppTre->findNode( className,
+			    (ClassNode *) cppTre->findNode( QStringList(className),
 							    Node::Class );
 		    if ( classe == 0 ) {
 			classe = new ClassNode( cppTre->root(), className );

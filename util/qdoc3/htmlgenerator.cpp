@@ -1270,7 +1270,7 @@ void HtmlGenerator::generateSectionList(const Section& section, const Node *rela
     }
 }
 
-void HtmlGenerator::generateLink(const Atom *atom, const Node *relative, CodeMarker *marker)
+void HtmlGenerator::generateLink(const Atom *atom, const Node * /* relative */, CodeMarker * /* marker */)
 {
     if (funcLeftParen.indexIn(atom->string()) != -1) {
 	int k = funcLeftParen.pos( 1 );

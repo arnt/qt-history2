@@ -121,7 +121,7 @@ QString Quoter::getLine()
 	return "";
 
     QString t = markedLines.first();
-    int n = t.contains( '\n' );
+    int n = t.indexOf( '\n' );
     for ( int i = 0; i < n; i++ )
 	codeLocation.advance( '\n' );
     plainLines.removeFirst();
