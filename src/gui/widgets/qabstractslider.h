@@ -85,6 +85,7 @@ public:
 
 public slots:
     void setValue(int);
+    void setOrientation(Qt::Orientation);
 
 signals:
     void valueChanged(int value);
@@ -96,8 +97,6 @@ signals:
     void rangeChanged(int min, int max);
 
     void actionTriggered(int action);
-
-    void setOrientation(Qt::Orientation);
 
 protected:
     void setRepeatAction(SliderAction action, int thresholdTime = 500, int repeatTime = 50);
