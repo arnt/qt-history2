@@ -321,11 +321,19 @@ void PixmapCollection::createCppFile()
 	out << "    DesignerMimeSourceFactory() {}" << endl;
 
 	out << "    const QMimeSource* data( const QString& abs_name ) const {" << endl;
-	out << "	QImage img = uic_findImage_" << project->fixedProjectName() << "( abs_name );" << endl;
-	out << "	QPixmap pix;" << endl;
-	out << "	pix.convertFromImage( img );" << endl;
-	out << "	QMimeSourceFactory::defaultFactory()->setPixmap( abs_name, pix );" << endl;
-	out << "	return QMimeSourceFactory::defaultFactory()->data( abs_name );" << endl;
+	out << "\tQImage img = uic_findImage_" << project->fixedProjectName() << "( abs_name );" << endl;
+	out << "\tif ( !img.isNull() ) {" << endl;
+	out << "\t    QPixmap pix;" << endl;
+	out << "\t    pix.convertFromImage( img );" << endl;
+	out << "\t    QMimeSourceFactory::defaultFactory()->setPixmap( abs_name, pix );" << endl;
+	out << "\t    return QMimeSourceFactory::defaultFactory()->data( abs_name );" << endl;
+	out << "\t} else {" << endl;
+	out << "\t    QMimeSourceFactory::removeFactory( (QMimeSourceFactory*)this );" << endl;
+	out << "\t    const QMimeSource *s = QMimeSourceFactory::defaultFactory()->data( abs_name );" << endl;
+	out << "\t    QMimeSourceFactory::addFactory( (QMimeSourceFactory*)this );" << endl;
+	out << "\t    return s;" << endl;
+	out << "\t}" << endl;
+	out << "\treturn 0;" << endl;
 	out << "    };" << endl;
 	out << "};" << endl;
 
