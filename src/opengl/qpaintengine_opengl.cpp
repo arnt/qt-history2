@@ -795,8 +795,8 @@ static void qt_fill_linear_gradient(const QRectF &rect, const QBrush &brush)
     QColor gcol1 = brush.color();
     QColor gcol2 = brush.gradientColor();
 
-    int dx = gstop.x() - gstart.x();
-    int dy = gstop.y() - gstart.y();
+    int dx = qRound(gstop.x() - gstart.x());
+    int dy = qRound(gstop.y() - gstart.y());
 
     float rw = rect.width();
     float rh = rect.height();
@@ -812,8 +812,8 @@ static void qt_fill_linear_gradient(const QRectF &rect, const QBrush &brush)
         // Note: This might be outside the target rect, but that is ok.
         int xtop1, xtop2, xbot1, xbot2;
         if (dy == 0) {
-            xtop1 = xbot1 = gstart.x();
-            xtop2 = xbot2 = gstop.x();
+            xtop1 = xbot1 = qRound(gstart.x());
+            xtop2 = xbot2 = qRound(gstop.x());
         } else {
             double gamma = double(dx) / double(-dy);
             xtop1 = qRound((-gstart.y() + gamma * gstart.x() ) / gamma);
@@ -868,8 +868,8 @@ static void qt_fill_linear_gradient(const QRectF &rect, const QBrush &brush)
         }
         int yleft1, yleft2, yright1, yright2;
         if (dx == 0) {
-            yleft1 = yright1 = gstart.y();
-            yleft2 = yright2 = gstop.y();
+            yleft1 = yright1 = qRound(gstart.y());
+            yleft2 = yright2 = qRound(gstop.y());
         } else {
             double gamma = double(dy) / double(-dx);
             yleft1 = qRound((-gstart.x() + gamma * gstart.y()) / gamma);
