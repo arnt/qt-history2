@@ -18,6 +18,7 @@
     qimageio.h
     qjpegio.h
     qt.h
+    allmoc.h
     qfeatures.h
     q1xcompatibility.h
     qt_mac.h
@@ -100,13 +101,14 @@ sub do_headers
     H: for $h ( @HEADERS ) {
 	open HEADER, "$DIR/$h";
 	$content = "" if $fix;
+	$found = 0;
 	while (<HEADER>) {
 	    $content .= $_ if $fix;
 	    if ( /$STARTMARK/ ) {
 		$incscan=1;
 	    } elsif ( /$ENDMARK/ ) {
 		$incscan=0;
-		next H;
+		$found++; # next H;
 	    } elsif ( /$include/ ) {
 		if ($incscan) {
 		    $inc=$2;
@@ -119,17 +121,19 @@ sub do_headers
 		}
 	    }
 	}
-	if ( $fix ) {
-	    #$include = '#include\s*["<][^\n]*?[">]';
-	    $content =~ s/(($include\s)+)/$STARTMARK\n$1$ENDMARK\n/s
-		|| $content =~ s/\n/\n$STARTMARK\n$ENDMARK\n/s;
-	    if ( ! -w "$DIR/$h" ) {
-		system("p4 edit $ENV{QTDIR}/src/*/$h");
+	if ( !$found ) {
+	    if ( $fix ) {
+		#$include = '#include\s*["<][^\n]*?[">]';
+		$content =~ s/(($include\s)+)/$STARTMARK\n$1$ENDMARK\n/s
+		    || $content =~ s/\n/\n$STARTMARK\n$ENDMARK\n/s;
+		if ( ! -w "$DIR/$h" ) {
+		    system("p4 edit $ENV{QTDIR}/src/*/$h");
+		}
+		open OUT, ">$DIR/$h";
+		print OUT $content;
+	    } else {
+		die "No QT_H segment in $h - rerun with --fix to fix ALL headers\n";
 	    }
-	    open OUT, ">$DIR/$h";
-	    print OUT $content;
-	} else {
-	    die "No QT_H segment in $h - rerun with --fix to fix ALL headers\n";
 	}
     }
     @FILE=sort keys %FILE;
@@ -144,6 +148,9 @@ sub do_headers
 	    for $j (0..$i) {
 		if ($DEP{"$FILE[$j] $FILE[$i]"}) {
 		    # j depends on i, swap
+		    if ( $i == $j ) {
+			die "Error: $FILE[$j] depends on itself";
+		    }
 		    $t=$FILE[$i];
 		    $FILE[$i]=$FILE[$j];
 		    $FILE[$j]=$t;
