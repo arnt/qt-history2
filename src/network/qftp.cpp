@@ -1085,6 +1085,7 @@ bool QFtpPI::startNextCmd()
 #endif
     state = Waiting;
     commandSocket.write(currentCmd.latin1(), currentCmd.length());
+    commandSocket.flush();
     return true;
 }
 
