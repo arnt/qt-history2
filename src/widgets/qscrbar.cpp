@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrbar.cpp#3 $
+** $Id: //depot/qt/main/src/widgets/qscrbar.cpp#4 $
 **
 ** Implementation of QScrollBar class
 **
@@ -16,7 +16,7 @@
 #include "qwxfmat.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qscrbar.cpp#3 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qscrbar.cpp#4 $";
 #endif
 
 
@@ -492,16 +492,15 @@ void QScrollBar_Private::drawControls( uint controls, uint activeControl,
 
 	    if ( controls & SUB_LINE ) {
 		QWXFMatrix m;
-		if ( VERTICAL ) {
-		    m.rotate( -90 );
-		    m.translate( 0, addB.height() - 1 );
-		} else {
-		    m.rotate( 180 );
-		    m.translate( addB.width() - 1, addB.height() - 1 );
-		}
 		m.translate( subB.x(), subB.y() );
+		if ( VERTICAL ) {
+		    m.translate( 0, addB.height() - 1 );
+		    m.rotate( -90 );
+		} else {
+		    m.translate( addB.width() - 1, addB.height() - 1 );
+		    m.rotate( 180 );
+		}
 		p.setWxfMatrix( m );
-		p.setWorldXForm( TRUE );
 
 		QColor cleft, ctop, cbot, cmid;
 
