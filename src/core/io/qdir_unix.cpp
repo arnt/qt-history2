@@ -154,7 +154,9 @@ void QDir::readDirEntries( const QString &nameFilter,
     fList.clear();
     fiList.clear();
 
+#ifndef QT_NO_REGEXP
     QList<QRegExp> filters = qt_makeFilterList( nameFilter );
+#endif
 
     bool doDirs	    = (filterSpec & Dirs)	!= 0;
     bool doFiles    = (filterSpec & Files)	!= 0;
@@ -185,8 +187,10 @@ void QDir::readDirEntries( const QString &nameFilter,
     {
 	QString fn = QFile::decodeName(QByteArray(file->d_name));
 	fi.setFile( *this, fn );
+#ifndef QT_NO_REGEXP
 	if ( !qt_matchFilterList(filters, fn) && !(allDirs && fi.isDir()) )
 	     continue;
+#endif
 	if  ( (doDirs && fi.isDir()) || (doFiles && fi.isFile()) ||
 	      (doSystem && (!fi.isFile() && !fi.isDir())) ) {
 	    if ( noSymLinks && fi.isSymLink() )

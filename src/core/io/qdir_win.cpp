@@ -329,7 +329,9 @@ void QDir::readDirEntries( const QString &nameFilter,
 {
     int i;
 
+#ifndef QT_NO_REGEXP
     QList<QRegExp> filters = qt_makeFilterList( nameFilter );
+#endif
 
     bool doDirs	    = (filterSpec & Dirs)	!= 0;
     bool doFiles    = (filterSpec & Files)	!= 0;
@@ -427,9 +429,10 @@ void QDir::readDirEntries( const QString &nameFilter,
 	    fname = QString::fromLocal8Bit( (const char*)finfo.cFileName );
 	} );
 
+#ifndef QT_NO_REGEXP
 	if ( !qt_matchFilterList(filters, fname) && !(allDirs && isDir) )
 	    continue;
-
+#endif
 	if  ( (doDirs && isDir) || (doFiles && isFile) ) {
 	    QString name = fname;
 	    slashify(name);

@@ -514,6 +514,7 @@ bool QDir::cdUp()
     Returns the string set by setNameFilter()
 */
 
+#ifndef QT_NO_REGEXP
 /*!
     Sets the name filter used by entryList() and entryInfoList() to \a
     nameFilter.
@@ -538,6 +539,7 @@ void QDir::setNameFilter( const QString &nameFilter )
 	nameFilt = QString::fromLatin1("*");
     dirty = TRUE;
 }
+#endif
 
 /*!
     \fn QDir::FilterSpec QDir::filter() const
@@ -1044,6 +1046,7 @@ QDir QDir::root()
     \sa home()
 */
 
+#ifndef QT_NO_REGEXP
 QList<QRegExp> qt_makeFilterList( const QString &filter )
 {
     QList<QRegExp> regExps;
@@ -1115,7 +1118,7 @@ bool QDir::match( const QString &filter, const QString &fileName )
 {
     return qt_matchFilterList( qt_makeFilterList(filter), fileName );
 }
-
+#endif
 
 /*!
     Removes all multiple directory separators "/" and resolves any

@@ -88,7 +88,9 @@ public:
     bool cdUp();
 
     QString	nameFilter() const;
+#ifndef QT_NO_REGEXP
     void setNameFilter( const QString &nameFilter );
+#endif
     FilterSpec filter() const;
     void setFilter( int filterSpec );
     SortSpec sorting() const;
@@ -146,8 +148,10 @@ public:
     static QString homeDirPath();
     static QString rootDirPath();
 
+#ifndef QT_NO_REGEXP
     static bool match( const QStringList &filters, const QString &fileName );
     static bool match( const QString &filter, const QString &fileName );
+#endif
     static QString cleanDirPath( const QString &dirPath );
     static bool isRelativePath( const QString &path );
     void refresh() const;
