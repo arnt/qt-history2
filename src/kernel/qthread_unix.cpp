@@ -25,7 +25,6 @@
 
 #include "qthread.h"
 #include <pthread.h>
-#include <stdio.h>
 #include <errno.h>
 #include <string.h>
 #include <qlist.h>
@@ -48,7 +47,7 @@ QMutexPrivate::QMutexPrivate()
 {
     int ret = pthread_mutex_init( &mymutex, 0 );
     if( ret ) {
-	printf( "Mutex init failure %s\n", strerror( ret ) );
+	qFatal( "Mutex init failure %s", strerror( ret ) );
     }
 }
 
@@ -56,7 +55,7 @@ QMutexPrivate::~QMutexPrivate()
 {
     int ret = pthread_mutex_destroy( &mymutex );
     if( ret ) {
-	printf( "Mutex destroy failure %s\n", strerror( ret ) );
+	qWarning( "Mutex destroy failure %s", strerror( ret ) );
     }
 }
 
@@ -74,7 +73,7 @@ void QMutex::lock()
 {
     int ret = pthread_mutex_lock( &( d->mymutex ) );
     if( ret ) {
-	printf( "Mutex lock failure %s\n", strerror( ret ) );
+	qFatal( "Mutex lock failure %s\n", strerror( ret ) );
     }
 }
 
@@ -82,7 +81,7 @@ void QMutex::unlock()
 {
     int ret = pthread_mutex_unlock( &( d->mymutex ) );
     if( ret ) {
-	printf( "Mutex unlock failure %s\n", strerror( ret ) );
+        qFatak( "Mutex unlock failure %s\n", strerror( ret ) );
     }
 }
 
