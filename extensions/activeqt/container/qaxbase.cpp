@@ -772,6 +772,15 @@ QAxBase::~QAxBase()
 }
 
 /*!
+    \internal
+*/
+void QAxBase::internalRelease()
+{
+    if (d->ptr)
+        d->ptr->Release();
+}
+
+/*!
     \property QAxBase::control
     \brief the name of the COM object wrapped by this QAxBase object.
 
@@ -1003,8 +1012,16 @@ bool QAxBase::initialize(IUnknown **ptr)
     else if (ctrl.contains("}&")) // running object
         res = initializeActive(ptr);
     
-    if (!res) // standard
-        res = S_OK == CoCreateInstance(QUuid(ctrl), 0, CLSCTX_SERVER, IID_IUnknown, (void**)ptr);
+    if (!res) { // standard
+        HRESULT hres = CoCreateInstance(QUuid(ctrl), 0, CLSCTX_SERVER, IID_IUnknown, (void**)ptr);
+        res = S_OK == hres;
+#ifndef QT_NO_DEBUG
+        if (!res) {
+            SetLastError(hres);
+            qSystemWarning("CoCreateInstance failure");
+        }
+#endif
+    }
     
     return *ptr != 0;
 }

@@ -106,6 +106,8 @@ protected:
     bool initializeRemote(IUnknown** ptr);
     bool initializeLicensed(IUnknown** ptr);
     bool initializeActive(IUnknown** ptr);
+
+    void internalRelease();
     
 private:
     bool initializeLicensedHelper(void *factory, const QString &key, IUnknown **ptr);
