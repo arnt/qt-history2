@@ -366,7 +366,7 @@ void QAbstractSpinBox::clear()
 QAbstractSpinBox::StepEnabled QAbstractSpinBox::stepEnabled() const
 {
     if (!style()->styleHint(QStyle::SH_SpinControls_DisableOnBounds))
-        return StepUpEnabled | StepDownEnabled;
+        return StepEnabled(StepUpEnabled) | StepDownEnabled;
     StepEnabled ret = StepNone;
     if (d->wrapping || d->value < d->maximum) {
         ret |= StepUpEnabled;
