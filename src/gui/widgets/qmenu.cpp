@@ -1494,9 +1494,9 @@ QList<QMenuAction*> Q4MenuBarPrivate::calcActionRects(int max_width) const
 
         //move
         if(separator != -1 && i >= separator) { //after the separator
-            int left = (max_width - separator_len) + (x - separator_start);
+            int left = (max_width - separator_len - hmargin) + (x - separator_start);
             if(left < separator_start) { //wrap
-                separator_start = x = 0;
+                separator_start = x = hmargin;
                 y += max_item_height;
             }
             item->rect.moveLeft(left);
