@@ -12,7 +12,9 @@
 **
 ****************************************************************************/
 
+#ifndef QT_CLEAN_NAMESPACE
 #define QT_CLEAN_NAMESPACE
+#endif
 
 #include "qsound.h"
 
