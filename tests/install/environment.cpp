@@ -31,7 +31,7 @@ QString QEnvironment::getEnv( QString varName, int envBlock )
 		RegQueryValueExW( env, (WCHAR*)qt_winTchar( varName, true ), 0, NULL, NULL, &size );
 		buffer.resize( size );
 		RegQueryValueExW( env, (WCHAR*)qt_winTchar( varName, true ), 0, NULL, (unsigned char*)buffer.data(), &size );
-		for( int i = 0; i < buffer.size(); i += 2 ) {
+		for( int i = 0; i < ( int )buffer.size(); i += 2 ) {
 		    QChar c( buffer[ i ], buffer[ i + 1 ] );
 		    if( !c.isNull() )
 			value += c;
@@ -181,7 +181,7 @@ QString QEnvironment::getRegistryString( QString keyName, QString valueName, int
 		    valueSize = ExpandEnvironmentStringsW( (WCHAR*)buffer.data(), NULL, 0 );
 		    expBuffer.resize( valueSize * 2 );
 		    ExpandEnvironmentStringsW( (WCHAR*)buffer.data(), (WCHAR*)expBuffer.data(), valueSize );
-		    for( int i = 0; i < expBuffer.size(); i += 2 ) {
+		    for( int i = 0; i < ( int )expBuffer.size(); i += 2 ) {
 			QChar c( expBuffer[ i ], expBuffer[ i + 1 ] );
 			if ( !c.isNull() )
 			    value += c;
@@ -219,7 +219,7 @@ QString QEnvironment::getTempPath()
 	tmpSize = GetTempPathW( 0, NULL );
 	tmp.resize( tmpSize * 2 );
 	GetTempPathW( tmpSize, (WCHAR*)tmp.data() );
-	for( int i = 0; i < tmp.size(); i += 2 ) {
+	for( int i = 0; i < ( int )tmp.size(); i += 2 ) {
 	    QChar c( tmp[ i ], tmp[ i + 1 ] );
 	    if( !c.isNull() )
 		tmpPath += c;
