@@ -52,6 +52,8 @@
 //
 //
 
+class QWidget;
+class QObject;
 
 extern bool qt_modal_state();
 extern void qt_enter_modal( QWidget* );
