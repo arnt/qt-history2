@@ -113,6 +113,8 @@ void QFontPrivate::load(QFont::Script script)
 
     QFontDef req = request;
     req.pixelSize = qt_mac_pixelsize(request, paintdevice);
+
+    // set the point size to 0 to get better caching
     req.pointSize = 0;
     QFontCache::Key key = QFontCache::Key(req, QFont::NoScript, screen);
 
@@ -124,6 +126,9 @@ void QFontPrivate::load(QFont::Script script)
     }
     if(engineData->engine) // already loaded
         return;
+
+    // set it to the actual pointsize, so QFontInfo will do the right thing
+    req.pointSize = qRound(pointSize(requested, paintdevice, screen));
 
 #if 0
     /* It is unclear why this method doesn't work (findFont) so rather than fight any longer I will

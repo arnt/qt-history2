@@ -315,6 +315,8 @@ void QFontPrivate::load(QFont::Script script)
 
     QFontDef req = request;
     req.pixelSize = qRound(pixelSize(req, paintdevice, screen));
+
+    // set the point size to 0 to get better caching
     req.pointSize = 0;
 
     if (! engineData) {
@@ -331,6 +333,9 @@ void QFontPrivate::load(QFont::Script script)
             ++engineData->ref;
         }
     }
+
+    // set it to the actual pointsize, so QFontInfo will do the right thing
+     req.pointSize = qRound(pointSize(request, paintdevice, screen));
 
     // the cached engineData could have already loaded the engine we want
     if (engineData->engines[script]) return;

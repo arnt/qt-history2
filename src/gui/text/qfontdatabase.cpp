@@ -918,8 +918,10 @@ QFontDatabase::findFont(QFont::Script script, const QFontPrivate *fp,
              request.weight, request.italic, request.stretch, request.pixelSize, pitch);
 
 #if !defined(QT_NO_DEBUG)
-    if (request.family == QLatin1String("__Qt__Box__Engine__"))
-        return new QTestFontEngine(request.pixelSize);
+    if (request.family == QLatin1String("__Qt__Box__Engine__")) {
+        fe = new QTestFontEngine(request.pixelSize);
+        fe->fontDef = request;
+    }
 #endif
 
     bool usesFontConfigFont = false;
