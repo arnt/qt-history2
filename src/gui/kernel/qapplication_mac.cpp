@@ -174,25 +174,26 @@ public:
     void setInputWidget(QWidget *w) { act = w; }
     QWidget *inputWidget() const { return act; }
 };
-static QHash<WId, QTSMDocumentWrapper *> qt_mac_tsm_hash;
+static QHash<WindowPtr, QTSMDocumentWrapper *> qt_mac_tsm_hash;
 void qt_mac_unicode_init(QWidget *w)
 {
     qt_mac_tsm_hash.ensure_constructed();
-    if(!qt_mac_tsm_hash.contains(w->winId()))
-        qt_mac_tsm_hash.insert(w->winId(), new QTSMDocumentWrapper());
+    WindowPtr window = qt_mac_window_for((HIViewRef)w->winId());
+    if(!qt_mac_tsm_hash.contains(window))
+        qt_mac_tsm_hash.insert(window, new QTSMDocumentWrapper());
 }
 void qt_mac_unicode_cleanup(QWidget *w)
 {
     if(w && w->isTopLevel()) {
         qt_mac_tsm_hash.ensure_constructed();
-        delete qt_mac_tsm_hash.take(w->winId());
+        delete qt_mac_tsm_hash.take(qt_mac_window_for((HIViewRef)w->winId()));
     }
 }
 static QTSMDocumentWrapper *qt_mac_get_document_id(QWidget *w)
 {
     if(!w)
         return 0;
-    return qt_mac_tsm_hash.value(w->winId());
+    return qt_mac_tsm_hash.value(qt_mac_window_for((HIViewRef)w->winId()));
 }
 void qt_mac_unicode_reset_input(QWidget *w)
 {
