@@ -7,7 +7,7 @@
 HttpWindow::HttpWindow(QWidget *parent)
     : QDialog(parent)
 {
-    urlLineEdit = new QLineEdit("http://www.trolltech.com/index.html",
+    urlLineEdit = new QLineEdit("http://www.ietf.org/iesg/1rfc_index.txt",
                                 this);
 
     urlLabel = new QLabel(tr("&URL:"), this);
@@ -121,7 +121,8 @@ void HttpWindow::httpRequestFinished(int requestId, bool error)
                                  tr("Download failed: %1.")
                                  .arg(http->errorString()));
     } else {
-        statusLabel->setText(tr("Download complete."));
+        QString fileName = QFileInfo(QUrl(urlLineEdit->text()).path()).fileName();
+        statusLabel->setText(tr("Downloaded %1 to current directory.").arg(fileName));
     }
 
     downloadButton->setEnabled(true);
