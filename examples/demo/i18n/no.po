@@ -50,7 +50,7 @@ msgstr "Skriv ut"
 
 #: none:0
 msgid "&Print..."
-msgstr "&Striv ut..."
+msgstr "&Skriv ut..."
 
 #: none:0
 msgid "&Close"
