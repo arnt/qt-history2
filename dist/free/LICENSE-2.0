@@ -1,4 +1,5 @@
-			     THE QT PUBLIC LICENSE
+			     THE Qt PUBLIC LICENSE
+				  version 1.0
 
 		   Copyright (C) 1998 Troll Tech AS, Norway.
 		       Everyone is permitted to copy and
@@ -6,15 +7,15 @@
 
 This license applies to any software containing a notice placed by the
 copyright holder saying it may be distributed under the terms of the Qt
-Public License.  Such software is herein referred to as the Software. 
-This license covers modification and distribution of the Software, use
-of third-party application programs based on the Software, and
-development of free software which uses the Software.  
+Public License version 1.0.  Such software is herein referred to as the
+Software.  This license covers modification and distribution of the
+Software, use of third-party application programs based on the
+Software, and development of free software which uses the Software.  
 
 			   Copyright and Restrictions
 
-You may copy and distribute the Software provided that the entire package is
-distributed, including this notice.
+You may copy and distribute the Software provided that you accept this
+license and that the entire package is distributed, including this notice.  
 
 You may use the Software to compile, link and run application programs legally
 developed by third parties.
@@ -36,9 +37,15 @@ be distributed in the form of patches, and the following restrictions
 apply to those patches: 
 
   1. The patches must not modify copyright notices in the Software.
-  2. The patches must include a copyright notice explicitly allowing
-      them to be used free of charge by any person in any way, such
-      as the copyright notice prominent in X11R6.
+
+  2. The patches must include the following copyright notice:
+
+        Permission is hereby granted, free of charge, to any person
+        obtaining a copy of this patch, to deal in the patch without
+        restriction, including without limitation the rights to use,
+        copy, modify, merge, publish, distribute, sublicense, and/or
+        sell copies of the patch.  
+
   3. The patches must include an accurate English-language description
       of the modification.
 
