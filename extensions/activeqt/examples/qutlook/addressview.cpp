@@ -218,7 +218,7 @@ AddressView::AddressView(QWidget *parent)
     model = new AddressBookModel(this);
     treeView->setModel(model);
 
-    connect(treeView, SIGNAL(clicked(QModelIndex)), this, SLOT(itemSelected(QModelIndex)));
+    connect(treeView->selectionModel(), SIGNAL(currentChanged(QModelIndex, QModelIndex)), this, SLOT(itemSelected(QModelIndex)));
 
     mainGrid->addWidget(treeView, 2, 0, 1, 5);
 }
@@ -247,14 +247,6 @@ void AddressView::changeEntry()
 
     if (current.isValid())
         model->changeItem(current, iFirstName->text(), iLastName->text(), iAddress->text(), iEMail->text());
-}
-
-void AddressView::selectionChanged()
-{
-    iFirstName->setText("");
-    iLastName->setText("");
-    iAddress->setText("");
-    iEMail->setText("");
 }
 
 void AddressView::itemSelected(const QModelIndex &index)

@@ -33,7 +33,6 @@ protected slots:
     void addEntry();
     void changeEntry();
     void itemSelected(const QModelIndex &index);
-    void selectionChanged();
 
     void updateOutlook();
 
