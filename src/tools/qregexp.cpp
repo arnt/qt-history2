@@ -82,14 +82,14 @@
   later.
 
   Now to the nitty-gritty of regular expression syntax:  You can use any of
-  these \e atoms to match a single character:
+  these atoms to match a single character:
 
   <ul plain>
   <li> <b><em>c</em></b> matches the normal character <tt><em>c</em></tt>
-  <li> <b>\\e c </b> matches the special character <tt><em>c</em></tt>, usually
-       one of <tt>$</tt> <tt>(</tt> <tt>)</tt> <tt>*</tt> <tt>+</tt> <tt>-</tt>
-       <tt>.</tt> <tt>?</tt> <tt>[</tt> <tt>\</tt> <tt>]</tt> <tt>^</tt>
-       <tt>{</tt> <tt>|</tt> <tt>}</tt>
+  <li> <b>\\e c </b> matches the special character <tt><em>c</em></tt>, one of
+       <tt>$</tt>, <tt>(</tt>. <tt>)</tt>, <tt>*</tt>, <tt>+</tt>, <tt>-</tt>,
+       <tt>.</tt>, <tt>?</tt>, <tt>[</tt>, <tt>&#92</tt>, <tt>]</tt>,
+       <tt>^</tt>, <tt>{</tt>, <tt>|</tt> and <tt>}</tt>
   <li> <b>\a</b> matches the ASCII bell character (BEL, 0x07)
   <li> <b>\f</b> matches the ASCII form feed character (FF, 0x0C)
   <li> <b>\n</b> matches the ASCII line feed character (LF, 0x0A), also known as
@@ -147,12 +147,12 @@
   \endcode
 
   Notice that <tt>511</tt> is found, even though it's part of a larger number
-  (<tt>1511</tt>).  We'll soon see how to avoid that.
+  (<tt>1511</tt>).  We will soon see how to avoid that.
 
   Another example:  You want to find lines in your text files that contain a
   trailing space.  Solution:  Use <b>\s\n</b>.
 
-  The following atoms are called \e anchors.  They make an assertion without
+  The following atoms are called anchors.  They make an assertion without
   consuming any input:
 
   <ul plain>
@@ -186,7 +186,7 @@
   using word-boundary anchors: <b>\bDonald\b(?!\sDuck\b)</b>.
 
   Sometimes, you might have to match many occurrences in a row of an atom
-  <b><em>A</em></b>.  The following \e quantifiers do just that:
+  <b><em>A</em></b>.  The following quantifiers do just that:
 
   <ul plain>
   <li> <b><em>A</em>*</b> matches 0 or more occurrences of <b><em>A</em></b>
@@ -229,12 +229,12 @@
   subexpression.  Use <b>(.)(.)\2\1</b> to match the palindromes of length 4
   (e.g., <tt>anna</tt>).  Back-references make many things possible, such as
   matching a Fibonacci number of <tt>a</tt>'s (e.g., <tt>aaaaaaaa</tt>).
-  <!-- If you don't believe it, write to Jasmin Blanchette
+  <!-- If you doubt this claim, write to Jasmin Blanchette
   (jasmin@trolltech.com). -->
 
   If <b><em>E</em></b> and <b><em>F</em></b> are two regular expressions, you
   can also write <b><em>E</em>|<em>F</em></b> to match either <b><em>E</em></b>
-  or <b><em>F</em></b>.  Thus, a mathematician might write
+  or <b><em>F</em></b>.  Thus, a mathematician <!-- or a lunatic --> might write
   <b>(min|max|opt)imum</b> to match <tt>minimum</tt>, <tt>maximum</tt> or
   <tt>optimum</tt>.
 
@@ -2940,8 +2940,9 @@ bool QRegExp::minimal() const
   Enables or disables minimal matching.  If \a minimal is FALSE, matching is
   maximal (the default).
 
-  For regular expression <b>\{.*\}</b> and input string <tt>a{b}c{d}e</tt>, the
-  minimal match is <tt>{b}</tt> and the maximal match is <tt>{b}c{d}</tt>.
+  For regular expression <b>\<.*\></b> and input string <tt>a\<b\>c\<d\>e</tt>,
+  the minimal match is <tt>\<b\></tt> and the maximal match is
+  <tt>\<b\>c\<d\></tt>.
 
   \sa minimal()
 */
@@ -2997,7 +2998,7 @@ bool QRegExp::match( const QString& str ) const
 
   If \a indexIsStart is TRUE (the default), the position \a index in the string
   will match the start-of-input primitive (^) in the regexp, if present.
-  Otherwise, position 0 in \e str will match.
+  Otherwise, position 0 in \a str will match.
 
   It's a good idea to use search() and matchedLength() instead of this function.
   If you really need the \a indexIsStart functionality, try this:
