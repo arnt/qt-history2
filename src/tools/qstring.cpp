@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#254 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#255 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -10535,7 +10535,7 @@ QString::QString( const QChar* unicode, uint length )
   const char* to QString preserves all the information.
   You can disable this constructor by
   defining QT_NO_CAST_ASCII when you compile your applications.
-  You can also make QString objects by using fromLatin1(), or
+  You can also make QString objects by using setLatin1()/fromLatin1(), or
   fromLocal8Bit(), fromUtf8(), or whatever encoding is appropriate for
   the 8-bit data you have.
 
@@ -10675,10 +10675,10 @@ void QString::truncate( uint newLen )
 }
 
 /*!
-  Ensures that at least \a len characters are allocated, and sets the
-  length to \a len. Will detach. New space is \e not defined.
+  Ensures that at least \a newLen characters are allocated, and sets the
+  length to \a newLen. Will detach. New space is \e not defined.
 
-  If \a len is 0, this string becomes empty, unless this string is null,
+  If \a newLen is 0, this string becomes empty, unless this string is null,
   in which case it remains null.
 
   \sa truncate(), isNull(), isEmpty()
@@ -12674,10 +12674,22 @@ void QString::subat( uint i )
 }
 
 
+/*!
+  Resizes the string to \a len unicode characters and copies \a unicode
+  into the string.  If \a unicode is null, nothing is copied, but the
+  string is resized to \a len anyway. If \a len is zero, the string
+  becomes a \link isNull() null\endlink string.
+
+  \sa setLatin1(), isNull()
+*/
+
 QString &QString::setUnicode( const QChar *unicode, uint len )
 {
-    if ( d->count != 1 || len > d->maxl || 	// detach, grow, or
-	 ( len*4 < d->maxl && d->maxl > 4 ) ) {	// shrink
+    if ( len == 0 ) {				// set to null string
+	deref();
+	d = shared_null ? shared_null : makeSharedNull();
+    } else if ( d->count != 1 || len > d->maxl ||
+	 ( len*4 < d->maxl && d->maxl > 4 ) ) {	// detach, grown or shrink
 	Q2HELPER(stat_copy_on_write++);
 	Q2HELPER(stat_copy_on_write_size+=d->len);
 	uint newMax = 4;
@@ -12698,14 +12710,33 @@ QString &QString::setUnicode( const QChar *unicode, uint len )
 }
 
 
+/*!
+  Sets this string to \a str, interpreted as a classic Latin 1 C string.
+  If the \a len argument is negative (default), it is set to strlen(str).
+
+  If \a str is 0 a null string is created.  If \a str is "" an empty
+  string is created.
+
+  \sa isNull(), isEmpty()
+*/
+
 QString &QString::setLatin1( const char *str, int len )
 {
+    if ( str == 0 )
+	return setUnicode(0,0);
     if ( len < 0 )
 	len = strlen(str);
-    setUnicode( 0, len );
-    QChar *p = d->unicode;
-    while ( len-- )
-	*p++ = *str++;
+    if ( len == 0 ) {				// won't make a null string
+	deref();
+	uint l;
+	QChar *uc = asciiToUnicode(str,&l);
+	d = new QStringData(uc,l,l);	
+    } else {
+	setUnicode( 0, len );			// resize but not copy
+	QChar *p = d->unicode;
+	while ( len-- )
+	    *p++ = *str++;
+    }
     return *this;
 }
 
