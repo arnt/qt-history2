@@ -495,6 +495,10 @@ QMenu::QMenu(QWidget *parent) : QWidget(*new QMenuPrivate, parent, WType_TopLeve
         d->scroll = new QMenuPrivate::QMenuScroller;
         d->scroll->scrollFlags = QMenuPrivate::QMenuScroller::ScrollNone;
     }
+#ifdef QT_COMPAT
+    QObject::connect(this, SIGNAL(activated(QAction*)), this, SLOT(compatActivated(QAction*)));
+    QObject::connect(this, SIGNAL(highlighted(QAction*)), this, SLOT(compatHighlighted(QAction*)));
+#endif
 }
 
 QMenu::~QMenu()
@@ -1385,4 +1389,13 @@ int QMenu::frameWidth() const
     return style().pixelMetric(QStyle::PM_MenuFrameWidth, this);
 }
 
+void QMenu::compatActivated(QAction *act)
+{
+    emit activated(act->id());
+}
+
+void QMenu::compatHighlighted(QAction *act)
+{
+    emit highlighted(act->id());
+}
 #endif

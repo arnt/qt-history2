@@ -271,6 +271,10 @@ QMenuBar::QMenuBar(QWidget *parent) : QWidget(*new QMenuBarPrivate, parent, 0)
             parent->installEventFilter(this); //handle resizes
     }
     setMouseTracking(style().styleHint(QStyle::SH_MenuBar_MouseTracking));
+#ifdef QT_COMPAT
+    QObject::connect(this, SIGNAL(activated(QAction*)), this, SLOT(compatActivated(QAction*)));
+    QObject::connect(this, SIGNAL(highlighted(QAction*)), this, SLOT(compatHighlighted(QAction*)));
+#endif
 }
 
 QMenuBar::~QMenuBar()
@@ -831,5 +835,15 @@ QAction *QMenuBar::findActionForId(int id) const
             return a;
     }
     return 0;
+}
+
+void QMenuBar::compatActivated(QAction *act)
+{
+    emit activated(act->id());
+}
+
+void QMenuBar::compatHighlighted(QAction *act)
+{
+    emit highlighted(act->id());
 }
 #endif

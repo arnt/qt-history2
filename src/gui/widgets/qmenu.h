@@ -211,6 +211,14 @@ protected:
         return actionGeometry(act).height();
     }
 
+signals:
+    QT_COMPAT void activated(int itemId);
+    QT_COMPAT void highlighted(int itemId);
+
+private slots:
+    void compatActivated(QAction *);
+    void compatHighlighted(QAction *);
+
 private:
     int insertAny(const QIconSet *icon, const QString *text, const QObject *receiver, const char *member,
                   const QKeySequence *accel, const QMenu *popup, int id, int index);

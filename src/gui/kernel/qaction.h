@@ -135,7 +135,9 @@ signals:
     void dataChanged();
     void triggered();
     void hovered();
-    void activated(); // QT_COMPAT
+#ifdef QT_COMPAT
+    QT_COMPAT void activated();
+#endif
 
 private slots:
     void sendAccelActivated();

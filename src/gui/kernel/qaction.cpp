@@ -371,10 +371,12 @@ void QAction::activate(ActionEvent event)
 {
     if(event == Trigger) {
         emit triggered();
+#ifdef QT_COMPAT
         emit activated();
-    }
-    else if(event == Hover)
+#endif
+    } else if(event == Hover) {
         emit hovered();
+    }
 }
 
 /*!

@@ -49,6 +49,38 @@ public:
     QRect actionGeometry(QAction *) const;
     QAction *actionAtPos(const QPoint &) const;
 
+#ifdef Q_WS_MAC
+    MenuRef macMenu();
+#endif
+
+signals:
+    void activated(QAction *action);
+    void highlighted(QAction *action);
+
+protected:
+    void contextMenuEvent(QContextMenuEvent *);
+    void changeEvent(QEvent *);
+    void keyPressEvent(QKeyEvent *);
+    void mouseReleaseEvent(QMouseEvent *);
+    void mousePressEvent(QMouseEvent *);
+    void mouseMoveEvent(QMouseEvent *);
+    void leaveEvent(QEvent *);
+    void paintEvent(QPaintEvent *);
+    void resizeEvent(QResizeEvent *);
+    void actionEvent(QActionEvent *);
+    void focusOutEvent(QFocusEvent *);
+    void focusInEvent(QFocusEvent *);
+    bool eventFilter(QObject *, QEvent *);
+    bool event(QEvent *);
+
+private slots:
+    void internalShortcutActivated(int);
+
+protected:
+    void setLeftWidget(QWidget *);
+    void setRightWidget(QWidget *);
+
+private:
 #ifdef QT_COMPAT
     //menudata
     inline QT_COMPAT uint count() const { return actions().count(); }
@@ -144,47 +176,24 @@ public:
 
     //frame
     QT_COMPAT int frameWidth() const;
-#endif
-
-#ifdef Q_WS_MAC
-    MenuRef macMenu();
-#endif
 
 signals:
-    void activated(QAction *action);
-    void highlighted(QAction *action);
-
-protected:
-    void contextMenuEvent(QContextMenuEvent *);
-    void changeEvent(QEvent *);
-    void keyPressEvent(QKeyEvent *);
-    void mouseReleaseEvent(QMouseEvent *);
-    void mousePressEvent(QMouseEvent *);
-    void mouseMoveEvent(QMouseEvent *);
-    void leaveEvent(QEvent *);
-    void paintEvent(QPaintEvent *);
-    void resizeEvent(QResizeEvent *);
-    void actionEvent(QActionEvent *);
-    void focusOutEvent(QFocusEvent *);
-    void focusInEvent(QFocusEvent *);
-    bool eventFilter(QObject *, QEvent *);
-    bool event(QEvent *);
+    QT_COMPAT void activated(int itemId);
+    QT_COMPAT void highlighted(int itemId);
 
 private slots:
-    void internalShortcutActivated(int);
-
-protected:
-    void setLeftWidget(QWidget *);
-    void setRightWidget(QWidget *);
+    void compatActivated(QAction *);
+    void compatHighlighted(QAction *);
 
 private:
-    friend class QMenu;
-    friend class QWorkspacePrivate;
-    friend class QMenuPrivate;
-
     QAction *findActionForId(int id) const;
     int insertAny(const QIconSet *icon, const QString *text, const QObject *receiver, const char *member,
                   const QKeySequence *accel, const QMenu *popup, int id, int index);
+#endif
+
+    friend class QMenu;
+    friend class QWorkspacePrivate;
+    friend class QMenuPrivate;
 
 #ifdef Q_WS_MAC
     friend class QApplication;
