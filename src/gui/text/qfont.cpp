@@ -2090,7 +2090,7 @@ void QFontCache::clear()
         while (it != end) {
             QFontEngineData *data = it.value();
             if (data->engine)
-                !--data->engine->ref;
+                data->engine->ref.deref();
             data->engine = 0;
             ++it;
         }
@@ -2229,7 +2229,7 @@ void QFontCache::cleanupPrinterFonts()
                 }
 #else
                 if (it.value()->engine) {
-                    --it.value()->engine->ref;
+                    it.value()->engine->ref.deref();
                     it.value()->engine = 0;
                 }
 #endif
