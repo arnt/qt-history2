@@ -6,13 +6,7 @@ TEMPLATE = lib
 
 QT += compat
 
-IDEDIR = ../../../..
-DESTDIR = ../../../../../../plugins/designer
-
-INCLUDEPATH += \
-    ../../../lib/sdk \
-    ../../../lib/extension \
-    $$IDEDIR/src/uilib
+include(../../plugins.pri)
 
 # Input
 SOURCES += plugin.cpp

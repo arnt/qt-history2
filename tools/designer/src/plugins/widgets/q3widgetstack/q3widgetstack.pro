@@ -6,13 +6,8 @@ TEMPLATE = lib
 
 QT += compat
 
-IDEDIR = ../../../..
-DESTDIR = ../../../../../../plugins/designer
+include(../../plugins.pri)
 
-INCLUDEPATH += \
-    ../../../lib/sdk \
-    ../../../lib/extension \
-    $$IDEDIR/src/uilib
 LIBS += -lQtDesigner
 
 # Input
