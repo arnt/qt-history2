@@ -598,6 +598,7 @@ void Resource::save(QIODevice *dev, QWidget *widget)
     ui->setElementWidget(ui_widget);
     ui->setElementConnections(saveConnections());
     ui->setElementCustomWidgets(saveCustomWidgets());
+    ui->setElementTabStops(saveTabStops());
     
     QDomDocument doc;
     doc.appendChild(ui->write(doc));
@@ -999,6 +1000,11 @@ void Resource::applyTabStops(QWidget *widget, DomTabStops *tabStops)
 }
 
 DomCustomWidgets *Resource::saveCustomWidgets()
+{
+    return 0;
+}
+
+DomTabStops *Resource::saveTabStops()
 {
     return 0;
 }

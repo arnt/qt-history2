@@ -76,6 +76,7 @@ protected:
     virtual DomSpacer *createDom(QSpacerItem *spacer, DomLayout *ui_layout, DomWidget *ui_parentWidget);
     virtual DomConnections *saveConnections();
     virtual DomCustomWidgets *saveCustomWidgets();
+    virtual DomTabStops *saveTabStops();
     virtual QList<DomProperty*> computeProperties(QObject *obj);
     virtual bool checkProperty(QObject *obj, const QString &prop) const;
     virtual DomProperty *createProperty(QObject *object, const QString &propertyName, const QVariant &value);

@@ -65,6 +65,7 @@ protected:
     
     DomConnections *saveConnections();
     DomCustomWidgets *saveCustomWidgets();
+    DomTabStops *saveTabStops();
 
     void layoutInfo(DomWidget *widget, QObject *parent, int *margin, int *spacing);
     

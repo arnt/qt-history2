@@ -347,6 +347,25 @@ void QDesignerResource::createConnections(DomConnections *connections, QWidget *
     m_formWindow->createConnections(connections, w);
 }
 
+DomTabStops *QDesignerResource::saveTabStops()
+{
+    AbstractMetaDataBaseItem *item = m_core->metaDataBase()->item(m_formWindow);
+    Q_ASSERT(item);
+    
+    QStringList tabStops;
+    foreach (QWidget *widget, item->tabOrder())
+        tabStops.append(widget->objectName());
+    
+    if (tabStops.count()) {
+        DomTabStops *dom = new DomTabStops;
+        dom->setElementTabStop(tabStops);
+        return dom;
+    }
+    
+    return 0;
+}
+
+
 DomWidget *QDesignerResource::saveWidget(QWidget *widget, IContainer *container, DomWidget *ui_parentWidget)
 {
     DomWidget *ui_widget = Resource::createDom(widget, ui_parentWidget, false);
