@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qdom.cpp#49 $
+** $Id: //depot/qt/main/src/xml/qdom.cpp#50 $
 **
 ** Implementation of QDomDocument and related classes.
 **
@@ -211,6 +211,7 @@ public:
     QDomNodePrivate* item( int index ) const;
     uint length() const;
     bool contains( const QString& name ) const;
+    bool containsNS( const QString& nsURI, const QString & localName ) const;
 
     /**
      * Remove all children from the map.
@@ -351,12 +352,17 @@ public:
     ~QDomElementPrivate();
 
     QString attribute( const QString& name,  const QString& defValue ) const;
+    QString attributeNS( const QString& nsURI, const QString& localName, const QString& defValue ) const;
     void setAttribute( const QString& name, const QString& value );
+    void setAttributeNS( const QString& nsURI, const QString& qName, const QString& newValue );
     void removeAttribute( const QString& name );
     QDomAttrPrivate* attributeNode( const QString& name);
+    QDomAttrPrivate* attributeNodeNS( const QString& nsURI, const QString& localName );
     QDomAttrPrivate* setAttributeNode( QDomAttrPrivate* newAttr );
+    QDomAttrPrivate* setAttributeNodeNS( QDomAttrPrivate* newAttr );
     QDomAttrPrivate* removeAttributeNode( QDomAttrPrivate* oldAttr );
     bool hasAttribute( const QString& name );
+    bool hasAttributeNS( const QString& nsURI, const QString& localName );
 
     QString text();
 
@@ -2448,6 +2454,11 @@ bool QDomNamedNodeMapPrivate::contains( const QString& name ) const
     return ( map[ name ] != 0 );
 }
 
+bool QDomNamedNodeMapPrivate::containsNS( const QString& nsURI, const QString & localName ) const
+{
+    return !namedItemNS( nsURI, localName );
+}
+
 /**************************************************************
  *
  * QDomNamedNodeMap
@@ -3624,17 +3635,48 @@ QString QDomElementPrivate::attribute( const QString& name_, const QString& defV
     return n->nodeValue();
 }
 
+QString QDomElementPrivate::attributeNS( const QString& nsURI, const QString& localName, const QString& defValue ) const
+{
+    QDomNodePrivate* n = m_attr->namedItemNS( nsURI, localName );
+    if ( !n )
+	return defValue;
+
+    return n->nodeValue();
+}
+
 void QDomElementPrivate::setAttribute( const QString& aname, const QString& newValue )
 {
-    removeAttribute( aname );
+    QDomNodePrivate* n = m_attr->namedItem( aname );
+    if ( !n ) {
+	n = new QDomAttrPrivate( ownerDocument(), this, aname );
+	n->setNodeValue( newValue );
 
-    QDomNodePrivate* n = new QDomAttrPrivate( ownerDocument(), this, aname );
-    n->setNodeValue( newValue );
+	// Referencing is done by the map, so we set the reference counter back
+	// to 0 here. This is ok since we created the QDomAttrPrivate.
+	n->deref();
+	m_attr->setNamedItem( n );
+    } else {
+	n->setNodeValue( newValue );
+    }
+}
 
-    // Referencing is done by the map, so we set the reference
-    // counter back to 0 here. This is ok since we created the QDomAttrPrivate.
-    n->deref();
-    m_attr->setNamedItem( n );
+void QDomElementPrivate::setAttributeNS( const QString& nsURI, const QString& qName, const QString& newValue )
+{
+    QString prefix, localName;
+    qt_split_namespace( prefix, localName, qName, TRUE );
+    QDomNodePrivate* n = m_attr->namedItemNS( nsURI, localName );
+    if ( !n ) {
+	n = new QDomAttrPrivate( ownerDocument(), this, nsURI, qName );
+	n->setNodeValue( newValue );
+
+	// Referencing is done by the map, so we set the reference counter back
+	// to 0 here. This is ok since we created the QDomAttrPrivate.
+	n->deref();
+	m_attr->setNamedItem( n );
+    } else {
+	n->setNodeValue( newValue );
+	n->prefix = prefix;
+    }
 }
 
 void QDomElementPrivate::removeAttribute( const QString& aname )
@@ -3649,9 +3691,26 @@ QDomAttrPrivate* QDomElementPrivate::attributeNode( const QString& aname )
     return (QDomAttrPrivate*)m_attr->namedItem( aname );
 }
 
+QDomAttrPrivate* QDomElementPrivate::attributeNodeNS( const QString& nsURI, const QString& localName )
+{
+    return (QDomAttrPrivate*)m_attr->namedItemNS( nsURI, localName );
+}
+
 QDomAttrPrivate* QDomElementPrivate::setAttributeNode( QDomAttrPrivate* newAttr )
 {
     QDomNodePrivate* n = m_attr->namedItem( newAttr->nodeName() );
+
+    // Referencing is done by the maps
+    m_attr->setNamedItem( newAttr );
+
+    return (QDomAttrPrivate*)n;
+}
+
+QDomAttrPrivate* QDomElementPrivate::setAttributeNodeNS( QDomAttrPrivate* newAttr )
+{
+    QDomNodePrivate* n;
+    if ( !newAttr->prefix.isNull() )
+	n = m_attr->namedItemNS( newAttr->namespaceURI, newAttr->name );
 
     // Referencing is done by the maps
     m_attr->setNamedItem( newAttr );
@@ -3667,6 +3726,11 @@ QDomAttrPrivate* QDomElementPrivate::removeAttributeNode( QDomAttrPrivate* oldAt
 bool QDomElementPrivate::hasAttribute( const QString& aname )
 {
     return m_attr->contains( aname );
+}
+
+bool QDomElementPrivate::hasAttributeNS( const QString& nsURI, const QString& localName )
+{
+    return m_attr->containsNS( nsURI, localName );
 }
 
 QString QDomElementPrivate::text()
@@ -3835,8 +3899,8 @@ QString QDomElement::attribute( const QString& name,  const QString& defValue ) 
 }
 
 /*!
-  Sets the attribute with the name \a name to the string \a value.  If the
-  attribute does not exist, a new one is created.
+  Adds an attribute with the name \a name to the string \a value. If an
+  attribute with the same name exists, its value is repaced by \a value.
 
   \sa attribute() setAttributeNode() setAttributeNS()
 */
@@ -3982,10 +4046,11 @@ bool QDomElement::hasAttribute( const QString& name ) const
 
   \sa setAttributeNS() attributeNodeNS() setAttributeNodeNS() attribute()
 */
-QString QDomElement::attributeNS( const QString /*nsURI*/, const QString& /*localName*/, const QString& /*defValue*/ ) const
+QString QDomElement::attributeNS( const QString nsURI, const QString& localName, const QString& defValue ) const
 {
-    // ### implementation!
-    return QString::null;
+    if ( !impl )
+	return defValue;
+    return IMPL->attributeNS( nsURI, localName, defValue );
 }
 
 /*!
@@ -3999,30 +4064,44 @@ QString QDomElement::attributeNS( const QString /*nsURI*/, const QString& /*loca
 
   \sa attributeNS() setAttributeNodeNS() setAttribute()
 */
-void QDomElement::setAttributeNS( const QString /*nsURI*/, const QString& /*qName*/, const QString& /*value*/ )
+void QDomElement::setAttributeNS( const QString nsURI, const QString& qName, const QString& value )
 {
-    // ### implementation!
+    if ( !impl )
+	return;
+    IMPL->setAttributeNS( nsURI, qName, value );
 }
 
 /*!  \overload
 */
-void QDomElement::setAttributeNS( const QString /*nsURI*/, const QString& /*qName*/, int /*value*/ )
+void QDomElement::setAttributeNS( const QString nsURI, const QString& qName, int value )
 {
-    // ### implementation!
+    if ( !impl )
+	return;
+    QString x;
+    x.setNum( value );
+    IMPL->setAttributeNS( nsURI, qName, x );
 }
 
 /*!  \overload
 */
-void QDomElement::setAttributeNS( const QString /*nsURI*/, const QString& /*qName*/, uint /*value*/ )
+void QDomElement::setAttributeNS( const QString nsURI, const QString& qName, uint value )
 {
-    // ### implementation!
+    if ( !impl )
+	return;
+    QString x;
+    x.setNum( value );
+    IMPL->setAttributeNS( nsURI, qName, x );
 }
 
 /*!  \overload
 */
-void QDomElement::setAttributeNS( const QString /*nsURI*/, const QString& /*qName*/, double /*value*/ )
+void QDomElement::setAttributeNS( const QString nsURI, const QString& qName, double value )
 {
-    // ### implementation!
+    if ( !impl )
+	return;
+    QString x;
+    x.setNum( value );
+    IMPL->setAttributeNS( nsURI, qName, x );
 }
 
 /*!
@@ -4031,9 +4110,14 @@ void QDomElement::setAttributeNS( const QString /*nsURI*/, const QString& /*qNam
 
   \sa setAttributeNS() attributeNS() removeAttribute()
 */
-void QDomElement::removeAttributeNS( const QString& /*nsURI*/, const QString& /*localName*/ )
+void QDomElement::removeAttributeNS( const QString& nsURI, const QString& localName )
 {
-    // ### implementation!
+    if ( !impl )
+	return;
+    QDomNodePrivate *n = IMPL->attributeNodeNS( nsURI, localName );
+    if ( !n )
+	return;
+    IMPL->removeAttribute( n->nodeName() );
 }
 
 /*!
@@ -4043,10 +4127,11 @@ void QDomElement::removeAttributeNS( const QString& /*nsURI*/, const QString& /*
 
   \sa setAttributeNode() attribute() setAttribute() attributeNodeNS()
 */
-QDomAttr QDomElement::attributeNodeNS( const QString& /*nsURI*/, const QString& /*localName*/ )
+QDomAttr QDomElement::attributeNodeNS( const QString& nsURI, const QString& localName )
 {
-    // ### implementation!
-    return QDomAttr();
+    if ( !impl )
+	return QDomAttr();
+    return QDomAttr( IMPL->attributeNodeNS( nsURI, localName ) );
 }
 
 /*!
@@ -4058,10 +4143,11 @@ QDomAttr QDomElement::attributeNodeNS( const QString& /*nsURI*/, const QString& 
 
   \sa attributeNodeNS() setAttributeNS() setAttributeNode()
 */
-QDomAttr QDomElement::setAttributeNodeNS( const QDomAttr& /*newAttr*/ )
+QDomAttr QDomElement::setAttributeNodeNS( const QDomAttr& newAttr )
 {
-    // ### implementation!
-    return QDomAttr();
+    if ( !impl )
+	return QDomAttr();
+    return QDomAttr( IMPL->setAttributeNodeNS( ((QDomAttrPrivate*)newAttr.impl) ) );
 }
 
 /*!
@@ -4081,10 +4167,11 @@ QDomNodeList QDomElement::elementsByTagNameNS( const QString& nsURI, const QStri
   Returns TRUE is this element has an attribute with the local name \a
   localName and the namespace URI \a nsURI, otherwise FALSE.
 */
-bool QDomElement::hasAttributeNS( const QString& /*nsURI*/, const QString& /*localName*/ ) const
+bool QDomElement::hasAttributeNS( const QString& nsURI, const QString& localName ) const
 {
-    // ### implementation!
-    return FALSE;
+    if ( !impl )
+	return FALSE;
+    return IMPL->hasAttributeNS( nsURI, localName );
 }
 
 /*!
