@@ -1277,6 +1277,14 @@ void QMenu::changeEvent(QEvent *e)
 /*!
   \reimp
 */
+void QMenu::contextMenuEvent(QContextMenuEvent *e)
+{
+    e->accept();
+}
+
+/*!
+  \reimp
+*/
 bool
 QMenu::event(QEvent *e)
 {
