@@ -2938,6 +2938,13 @@ static QImageHandler *get_image_handler( const char *format )
     return 0;					// no such handler
 }
 
+
+struct QImageIOData //### use instead of QImageIO::params in 3.0
+{
+    const char *params;
+    int quality;
+};
+
 /*!
   Defines a image IO handler for a specified image format.
   An image IO handler is responsible for reading and writing images.
@@ -2980,12 +2987,6 @@ static QImageHandler *get_image_handler( const char *format )
   For image formats supporting incremental display, such as sequences
   of animated frames, see the QImageFormatType class.
 */
-
-struct QImageIOData //### use instead of params in 3.0
-{
-    const char *params;
-    int quality;
-};
 
 void QImageIO::defineIOHandler( const char *format,
 				const char *header,
