@@ -409,7 +409,7 @@ void QWSPaintEngine::drawPoint(const QPointF &p)
     d->gfx->drawPoint(int(p.x()), int(p.y()));
 }
 
-void QWSPaintEngine::drawPoints(const QPolygon &p)
+void QWSPaintEngine::drawPoints(const QPolygonF &p)
 {
     if (state->pen.style() == Qt::NoPen)
         return;
@@ -461,7 +461,7 @@ void QWSPaintEngine::drawEllipse(const QRectF &r)
     }
 }
 
-void QWSPaintEngine::drawPolygon(const QPolygon &p, PolygonDrawMode mode)
+void QWSPaintEngine::drawPolygon(const QPolygonF &p, PolygonDrawMode mode)
 {
     QPointArray pa(p.toPointArray());
     if (mode == PolylineMode) {

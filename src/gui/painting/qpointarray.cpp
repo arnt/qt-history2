@@ -461,7 +461,7 @@ QPointArray QPointArray::cubicBezier() const
 	qWarning( "QPointArray::bezier: The array must have 4 control points" );
         return QPointArray();
     }
-    QPolygon polygon = QBezier(at(0), at(1), at(2), at(3)).toPolygon();
+    QPolygonF polygon = QBezier(at(0), at(1), at(2), at(3)).toPolygonF();
     return polygon.toPointArray();
 }
 #endif //QT_NO_BEZIER

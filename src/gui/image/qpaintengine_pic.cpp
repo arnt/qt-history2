@@ -242,7 +242,7 @@ void QPicturePaintEngine::drawEllipse(const QRectF &r)
     writeCmdLength(pos, r, true);
 }
 
-void QPicturePaintEngine::drawPolygon(const QPolygon &a, PolygonDrawMode mode)
+void QPicturePaintEngine::drawPolygon(const QPolygonF &a, PolygonDrawMode mode)
 {
     int pos;
     if (mode == PolylineMode) {

@@ -27,7 +27,7 @@
 
 #include <qpoint.h>
 
-class QPolygon;
+class QPolygonF;
 
 class QBezier
 {
@@ -38,7 +38,7 @@ public:
 
     inline QPointF pointAt(float t) const;
 
-    QPolygon toPolygon() const;
+    QPolygonF toPolygonF() const;
 
 private:
     void init();

@@ -356,7 +356,7 @@ QQuickDrawPaintEngine::drawPoint(const QPointF &pt)
 }
 
 void
-QQuickDrawPaintEngine::drawPoints(const QPolygon &p)
+QQuickDrawPaintEngine::drawPoints(const QPolygonF &p)
 {
     Q_ASSERT(isActive());
 
@@ -448,7 +448,7 @@ QQuickDrawPaintEngine::drawLines(const QList<QLineF> &lines)
 }
 
 void
-QQuickDrawPaintEngine::drawPolygon(const QPolygon &p, PolygonDrawMode mode)
+QQuickDrawPaintEngine::drawPolygon(const QPolygonF &p, PolygonDrawMode mode)
 {
     Q_ASSERT(isActive());
     if (mode == PolylineMode) {
@@ -1409,7 +1409,7 @@ QCoreGraphicsPaintEngine::drawPoint(const QPointF &p)
 }
 
 void
-QCoreGraphicsPaintEngine::drawPoints(const QPolygon &pa)
+QCoreGraphicsPaintEngine::drawPoints(const QPolygonF &pa)
 {
     Q_ASSERT(isActive());
 
@@ -1435,7 +1435,7 @@ QCoreGraphicsPaintEngine::drawEllipse(const QRectF &r)
 
     CGMutablePathRef path = CGPathCreateMutable();
     CGAffineTransform transform = CGAffineTransformMakeScale(r.width() / r.height(), 1);
-    CGPathAddArc(path, &transform,((r.x()+d->penOffset()) + (r.width() / 2)) / (r.width() / r.height()), 
+    CGPathAddArc(path, &transform,((r.x()+d->penOffset()) + (r.width() / 2)) / (r.width() / r.height()),
                  (r.y()+d->penOffset()) + (r.height() / 2), r.height() / 2, 0, (2 * M_PI), false);
     d->drawPath(QCoreGraphicsPaintEnginePrivate::CGFill | QCoreGraphicsPaintEnginePrivate::CGStroke,
                 path);
@@ -1446,7 +1446,7 @@ QCoreGraphicsPaintEngine::drawEllipse(const QRectF &r)
 }
 
 void
-QCoreGraphicsPaintEngine::drawPolygon(const QPolygon &a, PolygonDrawMode mode)
+QCoreGraphicsPaintEngine::drawPolygon(const QPolygonF &a, PolygonDrawMode mode)
 {
     Q_ASSERT(isActive());
 

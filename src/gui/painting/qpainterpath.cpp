@@ -787,7 +787,7 @@ void QPainterPath::addRect(const QRectF &r)
     subpath is closed, a new subpath is started at the polygons first
     point.
 */
-void QPainterPath::addPolygon(const QPolygon &polygon)
+void QPainterPath::addPolygon(const QPolygonF &polygon)
 {
     if (polygon.isEmpty())
         return;
@@ -1007,13 +1007,13 @@ QPainterPath QPainterPath::toReversed() const
     created for each subpath. The polygons are transformed using the
     transformation matrix \a matrix.
 */
-QList<QPolygon> QPainterPath::toSubpathPolygons(const QMatrix &matrix) const
+QList<QPolygonF> QPainterPath::toSubpathPolygons(const QMatrix &matrix) const
 {
-    QList<QPolygon> flatCurves;
+    QList<QPolygonF> flatCurves;
     if (isEmpty())
         return flatCurves;
 
-    QPolygon current;
+    QPolygonF current;
     for (int i=0; i<elementCount(); ++i) {
         const QPainterPath::Element &e = elements.at(i);
         switch (e.type) {
@@ -1032,7 +1032,7 @@ QList<QPolygon> QPainterPath::toSubpathPolygons(const QMatrix &matrix) const
             current += QBezier(QPointF(elements.at(i-1).x, elements.at(i-1).y) * matrix,
                                QPointF(e.x, e.y) * matrix,
                                QPointF(elements.at(i+1).x, elements.at(i+1).y) * matrix,
-                               QPointF(elements.at(i+2).x, elements.at(i+2).y) * matrix).toPolygon();
+                               QPointF(elements.at(i+2).x, elements.at(i+2).y) * matrix).toPolygonF();
             i+=2;
             break;
         case QPainterPath::CurveToDataElement:
@@ -1062,10 +1062,10 @@ QList<QPolygon> QPainterPath::toSubpathPolygons(const QMatrix &matrix) const
 
     \sa toSubpathPolygons(), toFillPolygons()
 */
-QPolygon QPainterPath::toFillPolygon(const QMatrix &matrix) const
+QPolygonF QPainterPath::toFillPolygon(const QMatrix &matrix) const
 {
-    QList<QPolygon> flats = toSubpathPolygons(matrix);
-    QPolygon polygon;
+    QList<QPolygonF> flats = toSubpathPolygons(matrix);
+    QPolygonF polygon;
     if (flats.isEmpty())
         return polygon;
     QPointF first = flats.first().first();
@@ -1093,11 +1093,11 @@ QPolygon QPainterPath::toFillPolygon(const QMatrix &matrix) const
 
     \sa toSubpathPolygons(), toFillPolygon()
 */
-QList<QPolygon> QPainterPath::toFillPolygons(const QMatrix &matrix) const
+QList<QPolygonF> QPainterPath::toFillPolygons(const QMatrix &matrix) const
 {
-    QList<QPolygon> polys;
+    QList<QPolygonF> polys;
 
-    QList<QPolygon> subpaths = toSubpathPolygons(matrix);
+    QList<QPolygonF> subpaths = toSubpathPolygons(matrix);
     int count = subpaths.size();
 
     if (count == 0)
@@ -1140,7 +1140,7 @@ QList<QPolygon> QPainterPath::toFillPolygons(const QMatrix &matrix) const
             QList<int> l = isects[i];
             if (l.first() == -1)
                 continue;
-            QPolygon buildUp = subpaths.at(i);
+            QPolygonF buildUp = subpaths.at(i);
             QPointF rewindPt = buildUp.first();
             // Close if not closed...
             if (!buildUp.isClosed())
@@ -1399,7 +1399,7 @@ void QPainterPathStrokerPrivate::strokeCurve(int elmi,
                    in.elementAt(elmi).x,   in.elementAt(elmi).y,
                    in.elementAt(elmi+1).x, in.elementAt(elmi+1).y,
                    in.elementAt(elmi+2).x, in.elementAt(elmi+2).y);
-    QPolygon segments = bezier.toPolygon();
+    QPolygonF segments = bezier.toPolygonF();
 
     strokeLine(QLineF(segments.at(0), segments.at(1)), path, NormalJoin);
     for (int i=2; i<segments.size(); ++i)
@@ -1428,9 +1428,9 @@ QPainterPathStroker::QPainterPathStroker()
 QPainterPathStroker::~QPainterPathStroker()
 { delete d_ptr; }
 
-QPolygon qt_reversed_polygon(const QPolygon &p)
+QPolygonF qt_reversed_polygon(const QPolygonF &p)
 {
-    QPolygon rev;
+    QPolygonF rev;
     rev.reserve(p.size());
     for (int i=p.size()-1; i>=0; --i)
         rev << p.at(i);

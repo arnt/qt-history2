@@ -206,7 +206,7 @@ public:
                      PathShape
     };
 
-    QPolygon draw_helper_xpolygon(const void *data, ShapeType type);
+    QPolygonF draw_helper_xpolygon(const void *data, ShapeType type);
     void draw_helper(const void *data, Qt::FillRule fillRule, ShapeType type,
                      DrawOperation operation, uint emulationSpecifier);
     void draw_helper(const void *data, Qt::FillRule fillRule, ShapeType type,

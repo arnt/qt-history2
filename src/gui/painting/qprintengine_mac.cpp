@@ -626,7 +626,7 @@ void QMacPrintEngine::drawPoint(const QPointF &p)
     d->paintEngine->drawPoint(p);
 }
 
-void QMacPrintEngine::drawPoints(const QPolygon &p)
+void QMacPrintEngine::drawPoints(const QPolygonF &p)
 {
     Q_ASSERT(d->state == QPrinter::Active);
     d->paintEngine->drawPoints(p);
@@ -644,7 +644,7 @@ void QMacPrintEngine::drawLines(const QList<QLineF> &lines)
     d->paintEngine->drawLines(lines);
 }
 
-void QMacPrintEngine::drawPolygon(const QPolygon &p, PolygonDrawMode mode)
+void QMacPrintEngine::drawPolygon(const QPolygonF &p, PolygonDrawMode mode)
 {
     Q_ASSERT(d->state == QPrinter::Active);
     d->paintEngine->drawPolygon(p, mode);

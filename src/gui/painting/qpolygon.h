@@ -21,21 +21,21 @@
 class QPointArray;
 class QRectF;
 
-class Q_GUI_EXPORT QPolygon : public QVector<QPointF>
+class Q_GUI_EXPORT QPolygonF : public QVector<QPointF>
 {
 public:
-    inline QPolygon() {}
-    inline ~QPolygon() {}
-    inline QPolygon(int size) : QVector<QPointF>(size) {}
-    inline QPolygon(const QPolygon &a) : QVector<QPointF>(a) {}
-    inline QPolygon(const QVector<QPointF> &v) : QVector<QPointF>(v) {}
-    QPolygon(const QRectF &r);
+    inline QPolygonF() {}
+    inline ~QPolygonF() {}
+    inline QPolygonF(int size) : QVector<QPointF>(size) {}
+    inline QPolygonF(const QPolygonF &a) : QVector<QPointF>(a) {}
+    inline QPolygonF(const QVector<QPointF> &v) : QVector<QPointF>(v) {}
+    QPolygonF(const QRectF &r);
 
     inline void translate(float dx, float dy);
     void translate(const QPointF &offset);
 
     QPointArray toPointArray() const;
-    static QPolygon fromPointArray(const QPointArray &a);
+    static QPolygonF fromPointArray(const QPointArray &a);
 
     bool isClosed() const { return !isEmpty() && first() == last(); }
 
@@ -43,18 +43,18 @@ public:
 };
 
 #ifndef QT_NO_DEBUG_OUTPUT
-Q_GUI_EXPORT QDebug operator<<(QDebug, const QPolygon &);
+Q_GUI_EXPORT QDebug operator<<(QDebug, const QPolygonF &);
 #endif
 
 /*****************************************************************************
-  QPolygon stream functions
+  QPolygonF stream functions
  *****************************************************************************/
 #ifndef QT_NO_DATASTREAM
-Q_GUI_EXPORT QDataStream &operator<<(QDataStream &stream, const QPolygon &array);
-Q_GUI_EXPORT QDataStream &operator>>(QDataStream &stream, QPolygon &array);
+Q_GUI_EXPORT QDataStream &operator<<(QDataStream &stream, const QPolygonF &array);
+Q_GUI_EXPORT QDataStream &operator>>(QDataStream &stream, QPolygonF &array);
 #endif
 
-inline void QPolygon::translate(float dx, float dy)
+inline void QPolygonF::translate(float dx, float dy)
 { translate(QPointF(dx, dy)); }
 
 #endif // QPOLYGONy_H

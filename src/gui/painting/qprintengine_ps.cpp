@@ -5897,7 +5897,7 @@ void QPSPrintEngine::drawLines(const QList<QLineF> &a)
     d->pageStream << "QS\n";
 }
 
-void QPSPrintEngine::drawPolygon(const QPolygon &a, PolygonDrawMode mode)
+void QPSPrintEngine::drawPolygon(const QPolygonF &a, PolygonDrawMode mode)
 {
 
     if (mode == WindingMode)

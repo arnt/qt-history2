@@ -448,7 +448,7 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
     QString     str;
     QPointF     p, p1, p2;
     QRectF      r;
-    QPolygon    a;
+    QPolygonF   a;
     QPointArray pa;
     QColor      color;
     QFont       font;

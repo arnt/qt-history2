@@ -29,7 +29,7 @@
 #include <qregion.h>
 #include <qpainterpath.h>
 
-class QPolygon;
+class QPolygonF;
 
 class QPainterPathPrivate
 {

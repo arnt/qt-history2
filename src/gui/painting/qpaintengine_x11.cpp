@@ -622,7 +622,7 @@ static void dump_trap(const XTrapezoid &t)
 #endif
 
 
-static void qt_tesselate_polygon(QVector<XTrapezoid> *traps, const QPolygon &pg,
+static void qt_tesselate_polygon(QVector<XTrapezoid> *traps, const QPolygonF &pg,
                                  bool winding, bool do_rounding)
 {
     QVector<QEdge> edges;
@@ -1374,9 +1374,9 @@ void QX11PaintEngine::drawEllipse(const QRectF &rect)
         XDrawArc(d->dpy, d->hd, d->gc, x, y, w, h, 0, 360*64);
 }
 
-void QX11PaintEngine::drawPolygon(const QPolygon &a, PolygonDrawMode mode)
+void QX11PaintEngine::drawPolygon(const QPolygonF &a, PolygonDrawMode mode)
 {
-    QPolygon pa = a;
+    QPolygonF pa = a;
     int npoints = a.size();
     if (mode != PolylineMode) {
         if (pa[0] != pa[npoints - 1]) {   // close open polygon

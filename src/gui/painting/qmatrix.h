@@ -52,7 +52,7 @@ public:
     QPoint map(const QPoint &p) const;
     QPointF map(const QPointF&p) const;
     QLineF map(const QLineF &l) const;
-    QPolygon map(const QPolygon &a) const;
+    QPolygonF map(const QPolygonF &a) const;
     QPointArray map(const QPointArray &a) const;
     QRegion map(const QRegion &r) const;
     QPainterPath map(const QPainterPath &p) const;
@@ -100,7 +100,7 @@ inline Q_GUI_EXPORT QLineF operator*(const QLineF &l, const QMatrix &m)
 { return m.map(l); }
 inline Q_GUI_EXPORT QPointArray operator *(const QPointArray &a, const QMatrix &m)
 { return m.map(a); }
-inline Q_GUI_EXPORT QPolygon operator *(const QPolygon &a, const QMatrix &m)
+inline Q_GUI_EXPORT QPolygonF operator *(const QPolygonF &a, const QMatrix &m)
 { return m.map(a); }
 inline Q_GUI_EXPORT QRegion operator *(const QRegion &r, const QMatrix &m)
 { return m.map(r); }

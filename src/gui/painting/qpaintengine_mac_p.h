@@ -59,9 +59,9 @@ public:
     void drawLines(const QList<QLineF> &lines);
     void drawRect(const QRectF &r);
     void drawPoint(const QPointF &p);
-    void drawPoints(const QPolygon &pa);
+    void drawPoints(const QPolygonF &pa);
     void drawEllipse(const QRectF &r);
-    void drawPolygon(const QPolygon &pa, PolygonDrawMode mode);
+    void drawPolygon(const QPolygonF &pa, PolygonDrawMode mode);
 
     void drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr, Qt::PixmapDrawingMode);
     void drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPointF &s, Qt::PixmapDrawingMode);
@@ -112,9 +112,9 @@ public:
     void drawPath(const QPainterPath &path);
     void drawRect(const QRectF &r);
     void drawPoint(const QPointF &pt);
-    void drawPoints(const QPolygon &pa);
+    void drawPoints(const QPolygonF &pa);
     void drawEllipse(const QRectF &r);
-    void drawPolygon(const QPolygon &pa, PolygonDrawMode mode);
+    void drawPolygon(const QPolygonF &pa, PolygonDrawMode mode);
     void drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr, Qt::PixmapDrawingMode mode);
     void drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPointF &s, Qt::PixmapDrawingMode mode);
 
@@ -204,7 +204,7 @@ public:
     {
         CGContextConcatCTM(hd, CGAffineTransformInvert(CGContextGetCTM(hd)));
         CGAffineTransform xform = orig_xform;
-        if(matrix) 
+        if(matrix)
             xform = CGAffineTransformConcat(CGAffineTransformMake(matrix->m11(), matrix->m12(),
                                                                   matrix->m21(), matrix->m22(),
                                                                   matrix->dx(),  matrix->dy()),

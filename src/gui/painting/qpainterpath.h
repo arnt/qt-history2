@@ -24,7 +24,7 @@
 class QFont;
 class QPainterPathPrivate;
 class QPainterPathStrokerPrivate;
-class QPolygon;
+class QPolygonF;
 class QRegion;
 
 class Q_GUI_EXPORT QPainterPath
@@ -73,7 +73,7 @@ public:
     inline void addRect(float x, float y, float w, float h);
     void addEllipse(const QRectF &rect);
     inline void addEllipse(float x, float y, float w, float h);
-    void addPolygon(const QPolygon &polygon);
+    void addPolygon(const QPolygonF &polygon);
     void addText(const QPointF &point, const QFont &f, const QString &text);
     inline void addText(float x, float y, const QFont &f, const QString &text);
     void addPath(const QPainterPath &path);
@@ -90,9 +90,9 @@ public:
     inline bool isEmpty() const;
 
     QPainterPath toReversed() const;
-    QList<QPolygon> toSubpathPolygons(const QMatrix &matrix = QMatrix()) const;
-    QList<QPolygon> toFillPolygons(const QMatrix &matrix = QMatrix()) const;
-    QPolygon toFillPolygon(const QMatrix &matrix = QMatrix()) const;
+    QList<QPolygonF> toSubpathPolygons(const QMatrix &matrix = QMatrix()) const;
+    QList<QPolygonF> toFillPolygons(const QMatrix &matrix = QMatrix()) const;
+    QPolygonF toFillPolygon(const QMatrix &matrix = QMatrix()) const;
 
     int elementCount() const { return elements.size(); }
     const QPainterPath::Element &elementAt(int i) const { return elements.at(i); }

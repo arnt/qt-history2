@@ -156,7 +156,7 @@
 */
 
 /*!
-    \fn void QPaintEngine::drawPolygon(const QPolygon &polygon,
+    \fn void QPaintEngine::drawPolygon(const QPolygonF &polygon,
     PolygonDrawMode mode)
 
     Reimplement this pure virtual function to draw \a polygon using
@@ -226,7 +226,7 @@
     Calls drawPoint() to draw every point in the polygon \a p.
 */
 
-void QPaintEngine::drawPoints(const QPolygon &p)
+void QPaintEngine::drawPoints(const QPolygonF &p)
 {
     for (int i=0; i<p.size(); ++i)
         drawPoint(p.at(i));
@@ -675,7 +675,7 @@ void QPaintEngine::drawPath(const QPainterPath &)
 */
 void QPaintEngine::drawLine(const QLineF &line)
 {
-    QPolygon polygon;
+    QPolygonF polygon;
     polygon.reserve(2);
     polygon << line.start() << line.end();
     drawPolygon(polygon, PolylineMode);

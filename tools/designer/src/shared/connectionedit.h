@@ -193,7 +193,7 @@ private:
     CEEndPointItem *m_ep1, *m_ep2;
     QPoint m_top, m_side1, m_side2, m_bottom;
     QPoint m_pos1, m_pos2;
-    QPolygon m_arrow_head;
+    QPolygonF m_arrow_head;
     QPoint m_exit_pos, m_enter_pos;
 };
 

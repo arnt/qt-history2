@@ -70,12 +70,12 @@ Q_DECLARE_TYPEINFO(QBezierLineSegment, Q_PRIMITIVE_TYPE); // actually MOVABLE, b
 /*!
   \internal
 */
-QPolygon QBezier::toPolygon() const
+QPolygonF QBezier::toPolygonF() const
 {
     QBezierLineSegment *lines = (QBezierLineSegment *) qMalloc(32 * sizeof(QBezierLineSegment));
     int pos = 0;
     int alloc = 32;
-    QPolygon polygon;
+    QPolygonF polygon;
     polygon.reserve(32);
 
     polygon << QPointF(x1, y1);

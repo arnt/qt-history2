@@ -59,9 +59,9 @@ public:
     void drawLine(const QLineF &line);
     void drawRect(const QRectF &r);
     void drawPoint(const QPointF &p);
-    void drawPoints(const QPolygon &pa);
+    void drawPoints(const QPolygonF &pa);
     void drawEllipse(const QRectF &r);
-    void drawPolygon(const QPolygon &pa, PolygonDrawMode mode);
+    void drawPolygon(const QPolygonF &pa, PolygonDrawMode mode);
 
     void drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr, Qt::PixmapDrawingMode mode);
 

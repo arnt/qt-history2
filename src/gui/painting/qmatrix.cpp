@@ -498,7 +498,7 @@ QPointArray QMatrix::map(const QPointArray &a) const
 {
     int size = a.size();
     int i;
-    QPolygon p(size);
+    QPolygonF p(size);
     const QPoint *da = a.constData();
     QPointF *dp = p.data();
     float xmin = (float)INT_MAX;
@@ -557,11 +557,11 @@ QPointArray QMatrix::map(const QPointArray &a) const
 
     Returns the point array \a a transformed by calling map for each point.
 */
-QPolygon QMatrix::map(const QPolygon &a) const
+QPolygonF QMatrix::map(const QPolygonF &a) const
 {
     int size = a.size();
     int i;
-    QPolygon p(size);
+    QPolygonF p(size);
     const QPointF *da = a.constData();
     QPointF *dp = p.data();
     for(i = 0; i < size; i++) {

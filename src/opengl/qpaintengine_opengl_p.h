@@ -40,7 +40,7 @@ public:
     void drawLines(const QList<QLineF> &lines);
     void drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr, Qt::PixmapDrawingMode mode);
     void drawPoint(const QPointF &p);
-    void drawPolygon(const QPolygon &pa, PolygonDrawMode mode);
+    void drawPolygon(const QPolygonF &pa, PolygonDrawMode mode);
     void drawRect(const QRectF &r);
     void drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPointF &s,
 			 Qt::PixmapDrawingMode mode);
@@ -56,7 +56,7 @@ public:
     inline Type type() const { return QPaintEngine::OpenGL; }
 
 private:
-    void drawPolyInternal(const QPolygon &pa, bool close = true);
+    void drawPolyInternal(const QPolygonF &pa, bool close = true);
     void drawTextureRect(int tx_width, int tx_height, const QRectF &r, const QRectF &sr);
     Q_DISABLE_COPY(QOpenGLPaintEngine)
 };

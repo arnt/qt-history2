@@ -186,15 +186,15 @@ public:
     void drawLines(const QList<QLineF> lines, int index = 0, int nlines = -1);
     void drawLineSegments(const QPointArray &, int index = 0, int nlines = -1);
 
-    void drawPolyline(const QPolygon &polyline, int index = 0, int npoints = -1);
+    void drawPolyline(const QPolygonF &polyline, int index = 0, int npoints = -1);
     void drawPolyline(const QPointArray &pa, int index = 0, int npoints = -1);
 
-    void drawPolygon(const QPolygon &polygon, Qt::FillRule fillRule = Qt::OddEvenFill,
+    void drawPolygon(const QPolygonF &polygon, Qt::FillRule fillRule = Qt::OddEvenFill,
                      int index = 0,int npoints = -1);
     void drawPolygon(const QPointArray &pa, Qt::FillRule fillRule = Qt::OddEvenFill,
                      int index = 0, int npoints = -1);
 
-    void drawConvexPolygon(const QPolygon &polygon, int index = 0, int npoints = -1);
+    void drawConvexPolygon(const QPolygonF &polygon, int index = 0, int npoints = -1);
     void drawConvexPolygon(const QPointArray &pa, int index = 0, int npoints = -1);
 
     void drawTiledPixmap(const QRectF &rect, const QPixmap &pm, const QPointF &offset = QPointF(),
@@ -305,7 +305,7 @@ public:
                                       int npoints = -1)
     { drawPolygon(pa, winding ? Qt::WindingFill : Qt::OddEvenFill, index, npoints); }
 
-    inline QT_COMPAT void drawPolygon(const QPolygon &polygon, bool winding, int index = 0,
+    inline QT_COMPAT void drawPolygon(const QPolygonF &polygon, bool winding, int index = 0,
                                       int npoints = -1)
     { drawPolygon(polygon, winding ? Qt::WindingFill : Qt::OddEvenFill, index, npoints); }
 

@@ -588,7 +588,7 @@ static void qgl_cleanup_tesselator()
     gluDeleteTess(qgl_tess);
 }
 
-static void qgl_draw_poly(const QPolygon &pa)
+static void qgl_draw_poly(const QPolygonF &pa)
 {
 #ifndef QT_GL_NO_CONCAVE_POLYGONS
     if (!qgl_tess) {
@@ -644,7 +644,7 @@ static void qgl_draw_poly(const QPolygon &pa)
 }
 
 
-void QOpenGLPaintEngine::drawPolygon(const QPolygon &pa, PolygonDrawMode mode)
+void QOpenGLPaintEngine::drawPolygon(const QPolygonF &pa, PolygonDrawMode mode)
 {
     if(pa.isEmpty())
         return;
@@ -824,7 +824,7 @@ static void qt_fill_linear_gradient(const QRectF &rect, const QBrush &brush)
 
 #ifndef QT_GRAD_NO_POLY
         // Fill the area to the left of the gradient
-        QPolygon leftFill;
+        QPolygonF leftFill;
 	if (xtop1 > 0)
 	    leftFill << QPointF(0, 0);
 	leftFill << QPointF(xtop1+1, 0)
@@ -835,7 +835,7 @@ static void qt_fill_linear_gradient(const QRectF &rect, const QBrush &brush)
 	qgl_draw_poly(leftFill);
 
         // Fill the area to the right of the gradient
-        QPolygon rightFill;
+        QPolygonF rightFill;
 	rightFill << QPointF(xtop2-1, 0);
 	if (xtop2 < rw)
 	    rightFill << QPointF(rw, 0);
@@ -879,7 +879,7 @@ static void qt_fill_linear_gradient(const QRectF &rect, const QBrush &brush)
         }
 
 #ifndef QT_GRAD_NO_POLY
-        QPolygon topFill;
+        QPolygonF topFill;
         topFill << QPointF(0, yleft1+1);
 	if (yleft1 > 0)
 	    topFill << QPointF(0, 0);
@@ -889,7 +889,7 @@ static void qt_fill_linear_gradient(const QRectF &rect, const QBrush &brush)
 	glColor4ub(gcol1.red(), gcol1.green(), gcol1.blue(), gcol1.alpha());
 	qgl_draw_poly(topFill);
 
-        QPolygon bottomFill;
+        QPolygonF bottomFill;
 	bottomFill << QPointF(0, yleft2-1);
 	if (yleft2 < rh)
 	    bottomFill << QPointF(0, rh);

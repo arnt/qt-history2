@@ -25,7 +25,7 @@ class QPaintEnginePrivate;
 class QPainterPath;
 class QPainterState;
 class QPointF;
-class QPolygon;
+class QPolygonF;
 class QRectF;
 struct QGlyphLayout;
 
@@ -123,8 +123,8 @@ public:
     virtual void drawLines(const QList<QLineF> &lines);
     virtual void drawPath(const QPainterPath &path);
     virtual void drawPoint(const QPointF &pf);
-    virtual void drawPoints(const QPolygon &pa);
-    virtual void drawPolygon(const QPolygon &pa, PolygonDrawMode mode) = 0;
+    virtual void drawPoints(const QPolygonF &pa);
+    virtual void drawPolygon(const QPolygonF &pa, PolygonDrawMode mode) = 0;
     virtual void drawRect(const QRectF &rf);
     virtual void drawRects(const QList<QRectF> &rects);
 

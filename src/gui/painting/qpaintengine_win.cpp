@@ -515,7 +515,7 @@ void QWin32PaintEngine::drawEllipse(const QRectF &r)
         DeleteObject(SelectObject(d->hdc, oldPen));
 }
 
-void QWin32PaintEngine::drawPolygon(const QPolygon &p, PolygonDrawMode mode)
+void QWin32PaintEngine::drawPolygon(const QPolygonF &p, PolygonDrawMode mode)
 {
 #ifdef QT_DEBUG_DRAW
     qDebug() << " -> QWin32PaintEngine::drawPolygon()" << p.size() << mode;
@@ -2413,7 +2413,7 @@ void QGdiplusPaintEngine::drawEllipse(const QRectF &r)
     }
 }
 
-void QGdiplusPaintEngine::drawPolygon(const QPolygon &p, PolygonDrawMode mode)
+void QGdiplusPaintEngine::drawPolygon(const QPolygonF &p, PolygonDrawMode mode)
 {
 //     if (d->usePen || d->brush) {
 //         Point *p = new Point[npoints];
