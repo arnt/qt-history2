@@ -3405,10 +3405,10 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	if ( event->xproperty.window == appRootWin ) { // root properties
 	    if ( event->xproperty.atom == qt_clipboard_sentinel ) {
 		if (qt_check_clipboard_sentinel( event ) )
-		    emit clipboard()->selectionChanged();
+		    emit clipboard()->dataChanged();
 	    } else if ( event->xproperty.atom == qt_selection_sentinel ) {
 		if (qt_check_selection_sentinel( event ) )
-		    emit clipboard()->dataChanged();
+		    emit clipboard()->selectionChanged();
 	    } else if ( event->xproperty.atom == qt_input_encoding ) {
 		qt_set_input_encoding();
 	    } else if ( event->xproperty.atom == qt_net_supported ) {
