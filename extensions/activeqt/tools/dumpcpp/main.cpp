@@ -855,7 +855,7 @@ int main(int argc, char **argv)
     // not a file - search registry
     if (!QFile::exists(typeLib)) {
         bool isObject = false;
-        QCoreSettings settings("HKEY_LOCAL_MACHINE\\Software\\Classes", Qt::NativeFormat);
+        QSettings settings("HKEY_LOCAL_MACHINE\\Software\\Classes", Qt::NativeFormat);
 
         // regular string and not a file - must be ProgID
         if (typeLib.at(0) != '{') {
