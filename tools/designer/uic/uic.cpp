@@ -402,7 +402,7 @@ void Uic::createFormDecl( const QDomElement &e )
 	    forwardDecl += s;
 	    if ( s.mid( 1 ) == "ListBox" || s.mid( 1 ) == "ListView" || s.mid( 1 ) == "IconView" )
 		forwardDecl += "Q" + s.mid( 1 ) + "Item";
-	    if ( s == "QSqlTable" ) { // other convenience classes which are used in QSqlTable signals, and thus should be forward-declared by uic for us
+	    if ( s == "QDataTable" ) { // other convenience classes which are used in QDataTable signals, and thus should be forward-declared by uic for us
 		forwardDecl += "QSqlRecord";
 	    }
 	}
@@ -484,7 +484,7 @@ void Uic::createFormDecl( const QDomElement &e )
 	needEventHandler = needEventHandler ||
 			   !DomTool::propertiesOfType( n, "font" ).isEmpty() ;
 	QString s = getClassName( n );
-	if ( s == "QSqlTable" || s == "QSqlDataForm" )
+	if ( s == "QDataTable" || s == "QDataBrowser" )
 	    needPolish = TRUE;
     }
 
@@ -952,7 +952,7 @@ void Uic::createFormImpl( const QDomElement &e )
     for ( i = 0; i < (int) nl.length(); i++ ) {
 	n = nl.item(i).toElement();
 	QString s = getClassName( n );
-	if ( s == "QSqlDataForm" || s == "QSqlDataView" ) {
+	if ( s == "QDataBrowser" || s == "QDataView" ) {
 	    QString objName = getObjectName( n );
 	    QString tab = getDatabaseInfo( n, "table" );
 	    QString con = getDatabaseInfo( n, "connection" );
@@ -1072,9 +1072,9 @@ void Uic::createFormImpl( const QDomElement &e )
 	if ( !DomTool::propertiesOfType( nl.item(i).toElement() , "font" ).isEmpty() )
 	    needFontEventHandler = TRUE;
 	QString s = getClassName( nl.item(i).toElement() );
-	if ( s == "QSqlTable" )
+	if ( s == "QDataTable" )
 	    needSqlTableEventHandler = TRUE;
-	if ( s == "QSqlDataForm" )
+	if ( s == "QDataBrowser" )
 	    needSqlDataFormEventHandler = TRUE;
 	if ( needFontEventHandler && needSqlTableEventHandler && needSqlDataFormEventHandler )
 	    break;
@@ -1113,7 +1113,7 @@ void Uic::createFormImpl( const QDomElement &e )
 	if ( needSqlTableEventHandler ) {
 	    for ( i = 0; i < (int) nl.length(); i++ ) {
 		QString s = getClassName( nl.item(i).toElement() );
-		if ( s == "QSqlTable" ) {
+		if ( s == "QDataTable" ) {
 		    n = nl.item(i).toElement();
 		    QString c = getObjectName( n );
 		    QString conn = getDatabaseInfo( n, "connection" );
@@ -1139,7 +1139,7 @@ void Uic::createFormImpl( const QDomElement &e )
 	    nl = e.elementsByTagName( "widget" );
 	    for ( i = 0; i < (int) nl.length(); i++ ) {
 		QString s = getClassName( nl.item(i).toElement() );
-		if ( s == "QSqlDataForm" ) {
+		if ( s == "QDataBrowser" ) {
 		    QString obj = getObjectName( nl.item(i).toElement() );
 		    QString tab = getDatabaseInfo( nl.item(i).toElement(), "table" );
 		    QString conn = getDatabaseInfo( nl.item(i).toElement(), "connection" );
@@ -1236,7 +1236,7 @@ QString Uic::getInclude( const QString& className )
 void Uic::createFormImpl( const QDomElement& e, const QString& form, const QString& connection, const QString& table )
 {
     if ( e.tagName() == "widget" &&
-	 e.attribute( "class" ) != "QSqlTable" ) {
+	 e.attribute( "class" ) != "QDataTable" ) {
 	QString field = getDatabaseInfo( e, "field" );
 	if ( !field.isEmpty() ) {
 	    if ( isWidgetInTable( e, connection, table ) )
@@ -1438,7 +1438,7 @@ QString Uic::createObjectImpl( const QDomElement &e, const QString& parentClass,
 		QString s = createListViewColumnImpl( n, objName );
 		if ( !s.isEmpty() )
 		    out << s;
-	    } else if ( objClass ==  "QTable" || objClass == "QSqlTable" ) {
+	    } else if ( objClass ==  "QTable" || objClass == "QDataTable" ) {
 		QString s = createTableRowColumnImpl( n, objName );
 		if ( !s.isEmpty() )
 		    out << s;
@@ -1755,7 +1755,7 @@ QString Uic::createTableRowColumnImpl( const QDomElement &e, const QString &pare
 
     // ### This generated code sucks! We have to set the number of
     // rows/cols before and then only do setLabel/()
-    // ### careful, though, since QSqlTable has an API which makes this code pretty good
+    // ### careful, though, since QDataTable has an API which makes this code pretty good
 
     QString s;
     if ( isRow ) {
@@ -1775,7 +1775,7 @@ QString Uic::createTableRowColumnImpl( const QDomElement &e, const QString &pare
 	    else
 		s += indent + parent + "->horizontalHeader()->setLabel( " + parent + "->numCols() - 1, "
 		     + pix + ", " + trmacro + "( " + fixString( txt ) + " ) );\n";
-	} else if ( objClass == "QSqlTable" ) {
+	} else if ( objClass == "QDataTable" ) {
 	    if ( !txt.isEmpty() && !field.isEmpty() ) {
 		if ( pix.isEmpty() )
 		    out << indent << parent << "->addColumn( " << fixString( field ) << ", " << fixString( txt ) << " );" << endl;

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Implementation of QSqlDataView class
+** Implementation of QDataView class
 **
 ** Created : 2000-11-03
 **
@@ -34,16 +34,16 @@
 **
 **********************************************************************/
 
-#include "qsqldataview.h"
+#include "qdataview.h"
 
 #ifndef QT_NO_SQL
 
 #include "qsqlform.h"
 
-class QSqlDataView::QSqlDataViewPrivate
+class QDataView::QDataViewPrivate
 {
 public:
-    QSqlDataViewPrivate() : frm(0), rcd(0) {}
+    QDataViewPrivate() : frm(0), rcd(0) {}
     QSqlForm* frm;
     QSqlRecord* rcd;
 };
@@ -51,7 +51,7 @@ public:
 
 /*!
 
-  \class QSqlDataView qsqldataview.h
+  \class QDataView qdataview.h
   \brief SQL form manipulation
 
   \module sql
@@ -64,17 +64,17 @@ public:
 
 */
 
-QSqlDataView::QSqlDataView( QWidget *parent, const char *name, WFlags fl )
+QDataView::QDataView( QWidget *parent, const char *name, WFlags fl )
     : QWidget( parent, name, fl )
 {
-    d = new QSqlDataViewPrivate();
+    d = new QDataViewPrivate();
 }
 
 /*! Destroys the object and frees any allocated resources.
 
 */
 
-QSqlDataView::~QSqlDataView()
+QDataView::~QDataView()
 {
     delete d;
 }
@@ -84,7 +84,7 @@ QSqlDataView::~QSqlDataView()
 
 */
 
-void QSqlDataView::clearFormValues()
+void QDataView::clearFormValues()
 {
     if ( form() )
 	form()->clearValues();
@@ -98,7 +98,7 @@ void QSqlDataView::clearFormValues()
 
 */
 
-void QSqlDataView::setForm( QSqlForm* form )
+void QDataView::setForm( QSqlForm* form )
 {
     d->frm = form;
     if ( d->rcd )
@@ -113,7 +113,7 @@ void QSqlDataView::setForm( QSqlForm* form )
 
 */
 
-QSqlForm* QSqlDataView::form()
+QSqlForm* QDataView::form()
 {
     return d->frm;
 }
@@ -127,7 +127,7 @@ QSqlForm* QSqlDataView::form()
 
 */
 
-void QSqlDataView::setRecord( QSqlRecord* record )
+void QDataView::setRecord( QSqlRecord* record )
 {
     d->rcd = record;
     if ( d->frm )
@@ -141,7 +141,7 @@ void QSqlDataView::setRecord( QSqlRecord* record )
   \sa setRecord()
 */
 
-QSqlRecord* QSqlDataView::record()
+QSqlRecord* QDataView::record()
 {
     return d->rcd;
 }
@@ -154,7 +154,7 @@ QSqlRecord* QSqlDataView::record()
 
 */
 
-void QSqlDataView::readFormFields()
+void QDataView::readFormFields()
 {
     if ( d->frm )
 	d->frm->readFields();
@@ -167,7 +167,7 @@ void QSqlDataView::readFormFields()
 
 */
 
-void QSqlDataView::writeFormFields()
+void QDataView::writeFormFields()
 {
     if ( d->frm )
 	d->frm->writeFields();

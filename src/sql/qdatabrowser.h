@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Definition of QSqlDataForm class
+** Definition of QDataBrowser class
 **
 ** Created : 2000-11-03
 **
@@ -34,8 +34,8 @@
 **
 **********************************************************************/
 
-#ifndef QSQLDATAFORM_H
-#define QSQLDATAFORM_H
+#ifndef QDATABROWSER_H
+#define QDATABROWSER_H
 
 #include "qfeatures.h"
 
@@ -48,7 +48,7 @@
 #include "qstringlist.h"
 #endif // QT_H
 
-class Q_EXPORT QSqlDataForm : public QWidget, public QSqlFormNavigator
+class Q_EXPORT QDataBrowser : public QWidget, public QSqlFormNavigator
 {
     Q_OBJECT
     Q_PROPERTY( bool boundryChecking READ boundryChecking WRITE setBoundryChecking )
@@ -56,7 +56,7 @@ class Q_EXPORT QSqlDataForm : public QWidget, public QSqlFormNavigator
     Q_PROPERTY( QStringList sort READ sort WRITE setSort )
 
 public:
-    QSqlDataForm( QWidget *parent = 0, const char *name = 0, WFlags fl = 0 );
+    QDataBrowser( QWidget *parent = 0, const char *name = 0, WFlags fl = 0 );
 
     void setBoundryChecking( bool active );
     bool boundryChecking() const;

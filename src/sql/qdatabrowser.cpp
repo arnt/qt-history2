@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Definition of QSqlDataView class
+** Implementation of QDataBrowser class
 **
 ** Created : 2000-11-03
 **
@@ -34,44 +34,51 @@
 **
 **********************************************************************/
 
-#ifndef QSQLDATAVIEW_H
-#define QSQLDATAVIEW_H
-
-#include "qfeatures.h"
+#include "qdatabrowser.h"
 
 #ifndef QT_NO_SQL
 
-#ifndef QT_H
-#include "qwidget.h"
-#endif // QT_H
+#include "qsqlform.h"
 
-class QSqlForm;
-class QSqlRecord;
+/*!
 
-class Q_EXPORT QSqlDataView : public QWidget
+  \class QDataBrowser qdatabrowser.h
+  \brief SQL cursor/form manipulation and navigation
+
+  \module sql
+
+  This class is used to manipulate and navigate data entry forms.  A
+  high-level API is provided to navigate through data records in a
+  cursor, insert, update and delete records, and refresh data in the
+  display.
+
+  Instances of this class cannot be created directly.  Derived classes
+  must reimplement certain functions (see
+  QSqlFormNavigator::defaultForm() and QSqlNavigator::defaultCursor())
+  which provide the form and cursor on which the navigator operates.
+
+  Convenient signals and slots are provided to navigate the cursor
+  (see firstRecord(), lastRecord(), prevRecord(), nextRecord()), to
+  update records (see insertRecord(), updateRecord(), deleteRecord()),
+  and to update the display according to the cursor's current position
+  (see firstRecordAvailable(), lastRecordAvailable(),
+  nextRecordAvailable(), prevRecordAvailable()).
+
+*/
+
+QDataBrowser::QDataBrowser( QWidget *parent, const char *name, WFlags fl )
+    : QWidget( parent, name, fl ), QSqlFormNavigator()
 {
-    Q_OBJECT
+}
 
-public:
-    QSqlDataView( QWidget *parent = 0, const char *name = 0, WFlags fl = 0 );
-    ~QSqlDataView();
+// implement forwarding funcs
+#define QT_SQLFORMNAV_CHILD QDataBrowser
+#include "qsqlnavigator_p.h"
 
-    virtual void setForm( QSqlForm* form );
-    QSqlForm* form();
-    virtual void setRecord( QSqlRecord* record );
-    QSqlRecord* record();
+void QDataBrowser::clearFormValues()
+{
+    if ( form() )
+	form()->clearValues();
+}
 
-public slots:
-    virtual void readFormFields();
-    virtual void writeFormFields();
-    virtual void clearFormValues();
-
-private:
-    class QSqlDataViewPrivate;
-    QSqlDataViewPrivate* d;
-
-};
-
-
-#endif
 #endif

@@ -20,12 +20,12 @@ sql {
 		    $$SQL_H/qsqlerror.h \
 		    $$SQL_H/qsqlresult.h \
 		    $$SQL_H/qsqlindex.h \
-		    $$SQL_H/qsqltable.h \
 		    $$SQL_H/qsqlpropertymap.h \
 		    $$SQL_H/qdatetimeedit.h \
 		    $$SQL_H/qsqlnavigator.h \
-		    $$SQL_H/qsqldataview.h \
-		    $$SQL_H/qsqldataform.h 
+		    $$SQL_H/qdatatable.h \
+		    $$SQL_H/qdataview.h \
+		    $$SQL_H/qdatabrowser.h 
 
 	SOURCES     += $$SQL_CPP/qsqlquery.cpp \
 		    $$SQL_CPP/qsqldatabase.cpp \
@@ -41,10 +41,10 @@ sql {
 		    $$SQL_CPP/qsqlindex.cpp \
 		    $$SQL_CPP/qdatetimeedit.cpp \
 		    $$SQL_CPP/qsqlpropertymap.cpp \
-		    $$SQL_CPP/qsqltable.cpp \
 		    $$SQL_CPP/qsqlnavigator.cpp \
-		    $$SQL_CPP/qsqldataform.cpp \
-		    $$SQL_CPP/qsqldataview.cpp 
+		    $$SQL_CPP/qdatatable.cpp \
+		    $$SQL_CPP/qdataview.cpp \
+		    $$SQL_CPP/qdatabrowser.cpp 
 
 	contains(sql-driver, all ) {
 		sql-driver += psql mysql odbc oci

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Definition of QSqlTable class
+** Definition of QDataTable class
 **
 ** Created : 2000-11-03
 **
@@ -34,8 +34,8 @@
 **
 **********************************************************************/
 
-#ifndef QSQLTABLE_H
-#define QSQLTABLE_H
+#ifndef QDATATABLE_H
+#define QDATATABLE_H
 
 #include "qfeatures.h"
 
@@ -55,9 +55,9 @@
 class QPainter;
 class QSqlField;
 class QSqlPropertyMap;
-class QSqlTablePrivate;
+class QDataTablePrivate;
 
-class Q_EXPORT QSqlTable : public QTable, public QSqlCursorNavigator
+class Q_EXPORT QDataTable : public QTable, public QSqlCursorNavigator
 {
     Q_OBJECT
 
@@ -75,9 +75,9 @@ class Q_EXPORT QSqlTable : public QTable, public QSqlCursorNavigator
     Q_PROPERTY( int numRows READ numRows )
 
 public:
-    QSqlTable ( QWidget * parent = 0, const char * name = 0 );
-    QSqlTable ( QSqlCursor* cursor, bool autoPopulate = FALSE, QWidget * parent = 0, const char * name = 0 );
-    ~QSqlTable();
+    QDataTable ( QWidget * parent = 0, const char * name = 0 );
+    QDataTable ( QSqlCursor* cursor, bool autoPopulate = FALSE, QWidget * parent = 0, const char * name = 0 );
+    ~QDataTable();
 
     virtual void addColumn( const QString& fieldName, const QString& label = QString::null, const QIconSet& iconset = QIconSet() );
     virtual void removeColumn( uint col );
@@ -154,7 +154,7 @@ protected slots:
     virtual void deleteCurrent();
 
 protected:
-    friend class QSqlTablePrivate;
+    friend class QDataTablePrivate;
     enum Mode {
 	None = -1,
 	Insert = 0,
@@ -167,8 +167,8 @@ protected:
 	Cancel = 2
     };
 
-    virtual Confirm confirmEdit( QSqlTable::Mode m );
-    virtual Confirm confirmCancel( QSqlTable::Mode m );
+    virtual Confirm confirmEdit( QDataTable::Mode m );
+    virtual Confirm confirmCancel( QDataTable::Mode m );
 
     virtual void handleError( const QSqlError& e );
 
@@ -210,7 +210,7 @@ private:
     void         updateRow( int row );
     void         endInsert();
     void         endUpdate();
-    QSqlTablePrivate* d;
+    QDataTablePrivate* d;
 };
 
 #endif
