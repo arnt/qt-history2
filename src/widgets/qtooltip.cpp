@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#70 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#71 $
 **
 ** Tool Tips (or Balloon Help) for any widget or rectangle
 **
@@ -772,8 +772,8 @@ void QToolTip::remove( QWidget * widget, const QRect & rect )
   implementation will be of the form:
 
   \code
-    if ( \<something\> ) {
-	tip( \<something\>, \<something\> );
+    if ( \\<something\\> ) {
+	tip( \\<something\\>, \\<something\\> );
     }
   \endcode
 
@@ -931,7 +931,7 @@ QToolTipGroup::~QToolTipGroup()
 ** QTipLabel meta object code from reading C++ file 'qtooltip.cpp'
 **
 ** Created: Sun Aug 23 21:50:26 1998
-**      by: The Qt Meta Object Compiler ($Revision: 2.65 $)
+**      by: The Qt Meta Object Compiler ($Revision: 2.66 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
