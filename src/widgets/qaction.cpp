@@ -123,6 +123,7 @@
   that the action is later added to.
 */
 
+static bool gStatusDelay = TRUE;
 
 class QActionPrivate
 {
@@ -144,7 +145,7 @@ public:
     uint toggleaction :1;
     uint on : 1;
 #ifndef QT_NO_TOOLTIP
-    QToolTipGroup* tipGroup;
+    QToolTipGroup tipGroup;
 #endif
 
     struct MenuItem {
@@ -173,6 +174,7 @@ public:
 };
 
 QActionPrivate::QActionPrivate()
+   : tipGroup( 0 )
 {
     iconset = 0;
 #ifndef QT_NO_ACCEL
@@ -186,7 +188,7 @@ QActionPrivate::QActionPrivate()
     menuitems.setAutoDelete( TRUE );
     comboitems.setAutoDelete( TRUE );
 #ifndef QT_NO_TOOLTIP
-    tipGroup = new QToolTipGroup( 0 );
+    tipGroup.setDelay( gStatusDelay );
 #endif
 }
 
@@ -213,9 +215,6 @@ QActionPrivate::~QActionPrivate()
     delete accel;
 #endif
     delete iconset;
-#ifndef QT_NO_TOOLTIP
-    delete tipGroup;
-#endif
 }
 
 void QActionPrivate::update( Update upd )
@@ -265,7 +264,7 @@ void QActionPrivate::update( Update upd )
 		btn->setTextLabel( text, FALSE );
 #ifndef QT_NO_TOOLTIP
 	    QToolTip::remove( btn );
-	    QToolTip::add( btn, toolTip(), tipGroup, statusTip() );
+	    QToolTip::add( btn, toolTip(), &tipGroup, statusTip() );
 #endif
 #ifndef QT_NO_WHATSTHIS
 	    QWhatsThis::remove( btn );
@@ -498,6 +497,19 @@ QString QAction::toolTip() const
 {
     return d->toolTip();
 }
+
+/*!
+  Set the delay for the status tip.  By default this is TRUE, meaning that the status tip is
+  shown at the same time as the tool tip.  If it is FALSE, then the status tip is fired at on
+  the mouse over.  This will effect all QActions created after this call, not previously-created ones.
+  \sa QToolTipGroup::setDelay() setStatusTip()
+*/
+
+void QAction::setStatusTipDelay( bool delay )
+{
+    gStatusDelay = delay;
+}
+
 
 /*! \property QAction::statusTip
   \brief the action's status tip
@@ -769,8 +781,8 @@ bool QAction::addTo( QWidget* w )
 	    connect( btn, SIGNAL( toggled(bool) ), this, SLOT( toolButtonToggled(bool) ) );
 	    connect( btn, SIGNAL( destroyed() ), this, SLOT( objectDestroyed() ) );
 #ifndef QT_NO_TOOLTIP
-	    connect( d->tipGroup, SIGNAL(showTip(const QString&)), this, SLOT(showStatusText(const QString&)) );
-	    connect( d->tipGroup, SIGNAL(removeTip()), this, SLOT(clearStatusText()) );
+	    connect( &(d->tipGroup), SIGNAL(showTip(const QString&)), this, SLOT(showStatusText(const QString&)) );
+	    connect( &(d->tipGroup), SIGNAL(removeTip()), this, SLOT(clearStatusText()) );
 #endif
 	}
     } else

@@ -51,6 +51,7 @@ class QActionPrivate;
 class QActionGroupPrivate;
 class QStatusBar;
 class QPopupMenu;
+class QToolTipGroup;
 
 class Q_EXPORT QAction : public QObject
 {
@@ -89,11 +90,13 @@ public:
     virtual void setAccel( const QKeySequence& key );
     QKeySequence accel() const;
     virtual void setToggleAction( bool );
+    
     bool isToggleAction() const;
     bool isOn() const;
     bool isEnabled() const;
     virtual bool addTo( QWidget* );
     virtual bool removeFrom( QWidget* );
+    static void setStatusTipDelay( bool delay );
 
 protected:
     virtual void addedTo( QWidget *actionWidget, QWidget *container );
