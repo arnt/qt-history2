@@ -1,8 +1,8 @@
 #!/usr/bin/perl -w
 
-# $Id: //depot/qt/main/util/scripts/make-public-thing#5 $
+# $Id: //depot/qt/main/util/scripts/make-public-thing#6 $
 
-$quiet=1;
+#$quiet=1;
 
 use File::Find;
 
@@ -25,6 +25,10 @@ sub copy {
 	    close O;
 	    chmod( (stat $_)[2], "$dir$_" );
 	    $v = $f;
+
+	    #
+	    # Outdate all branches
+	    #
 	    $f =~ s/;\s*\nlocks.*$/\n/s;
 	    $f =~ s/^.*\bsymbols\b\s*//s;
 	    $f =~ s/\s+/  /gs;
@@ -32,19 +36,26 @@ sub copy {
 		if ( $quiet ) {
 		    print SH "rcs -q -o${2}2.1: $dir$_\n";
 		} else {
-		    print "rcs -o${2}2.1: $dir$_\n";
+		    print SH "echo rcs -o${2}2.1: $dir$_\n";
 		    print SH "rcs -o${2}2.1: $dir$_\n";
 		}
 	    }
-	    $v =~ s/.*?\ncomment[^\n]*\n\s*//s;
+
+	    #
+	    # Outdate everything before $date (except the head (!))
+	    #
+	    $v =~ s/.*?head\s*(.*?);.*?\ncomment[^\n]*\n\s*//s;
+	    $head = $1;
 	    $v =~ s/\n\ndesc\n.*$//s;
 	    $v =~ s/\ndate\s+(\d+)\.(\d+)\.(\d+)\..*?\n\n/ $1$2$3\n/gs;
 	    foreach $f ( split( /\n/, $v ) ) {
-		if ( $f =~ /^(\S+)\s+(\d+)$/ && $2 < $date ) {
+		if ( $f =~ /^(\S+)\s+(\d+)$/ && $2 < $date
+		     && $1 ne $head )
+		{
 		    if ( $quiet ) {
 			print SH "rcs -q -o1.1:$1 $dir$_\n";
 		    } else {
-			print "rcs -o1.1:$1 $dir$_\n";
+			print SH "echo rcs -o1.1:$1 $dir$_\n";
 			print SH "rcs -o1.1:$1 $dir$_\n";
 		    }
 		    last;
@@ -59,7 +70,7 @@ die '$TMAKEDIR not set - need $TMAKEDIR/lib/linux-g++/tmake.conf'
 
 ($junk, $junk, $junk, $d, $m, $y, $junk, $junk, $junk) =
   localtime( time() - 30 * 86400 );
-$date = sprintf( "%2d%02d%02d", $y, 1+$m, $d );
+$date = sprintf( "%4d%02d%02d", $y, 1+$m, $d ); ##### Y2K - what does CVS do?
 
 $base = "/tmp/striptree-$$";
 mkdir( $base, 0755 );
@@ -72,6 +83,7 @@ open( SH, "| sh" );
 find( \&copy, "/local/lib/cvs/qt" );
 
 print SH "cd $base/cvs/qt
+PATH=\$QTDIR/bin:\$QTDIR/util/scripts:\$PATH
 mv dist/free/LICENSE,v .
 co -u LICENSE
 rm -f LICENSE,v
