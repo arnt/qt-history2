@@ -1,4 +1,5 @@
 #include "qdirmodel.h"
+#include <qfile.h>
 #include <qvector.h>
 #include <qobject.h>
 #include <qdragobject.h>
@@ -142,19 +143,36 @@ static const char * const link_file_xpm[]={
     ".ddddcaaahaac###",
     "ccccccccccccc###"};
 
-static void qt_copy_file(const QString &from, const QString &to)
+static bool qt_copy_file(const QString &from, const QString &to)
 {
-    qDebug("function not implemented: copy %s to %s", from.latin1(), to.latin1());
+    QFile src(from);
+    if (!src.open(IO_ReadOnly|IO_Raw))
+        return false;
+    QFile dst(to == from ? "copy_of_" + to : to);
+    if (dst.exists() || !dst.open(IO_WriteOnly|IO_Raw))
+        return false;
+    char buffer[4096];
+    Q_LONG len = 0;
+    while (!src.atEnd()) {
+        len = src.readBlock(buffer, 4096);
+        if (len < 0)
+            return false;
+        len = dst.writeBlock(buffer, len);
+    }
+    return true;
 }
 
-static void qt_link_file(const QString &from, const QString &to)
+static bool qt_link_file(const QString &from, const QString &to)
 {
     qDebug("function not implemented: link %s to %s", from.latin1(), to.latin1());
+    return false;
 }
 
-static void qt_move_file(const QString &from, const QString &to)
+static bool qt_move_file(const QString &from, const QString &to)
 {
-    qDebug("function not implemented: move %s to %s", from.latin1(), to.latin1());
+    if (!qt_copy_file(from, to))
+        return false;
+    return QFile::remove(from);
 }
 
 Q4FileIconProvider::Q4FileIconProvider()
@@ -628,31 +646,37 @@ bool QDirModel::canDecode(QMimeSource *src) const
 
 bool QDirModel::decode(QDropEvent *e, const QModelIndex &parent)
 {
+    // FIXME: what about directories ?
     QStringList files;
     if (!QUriDrag::decodeLocalFiles(e, files))
         return false;
-    QString to = path(parent);
+    emit contentsRemoved(parent, topLeft(parent), bottomRight(parent)); // FIXME
+    bool success = true;
+    QString to = path(parent) + QDir::separator();
     QStringList::const_iterator it = files.begin();
     switch (e->action()) {
     case QDropEvent::Copy:
         for (; it != files.end(); ++it)
-            qt_copy_file(*it, to);
+            success = qt_copy_file(*it, to + QFileInfo(*it).fileName()) && success;
         break;
     case QDropEvent::Link:
         for (; it != files.end(); ++it)
-            qt_link_file(*it, to);
+            success = qt_link_file(*it, to + QFileInfo(*it).fileName()) && success;
         break;
     case QDropEvent::Move:
         for (; it != files.end(); ++it)
-            qt_move_file(*it, to);
+            success = qt_move_file(*it, to + QFileInfo(*it).fileName()) && success;
         break;
-//    case default:
-//        return false;
+//     case default:
+//         return false;
     }
-
-    // update view
-    // emit signal
-    return true;
+    QDirModelPrivate::QDirNode *p = static_cast<QDirModelPrivate::QDirNode*>(parent.data());
+    if (p)
+        p->children = d->children(p);
+    else
+        d->tree = d->children(0);
+    emit contentsInserted(topLeft(parent), bottomRight(parent));
+    return success;
 }
 
 QDragObject *QDirModel::dragObject(const QModelIndexList &indices, QWidget *dragSource)

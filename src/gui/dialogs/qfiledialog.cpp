@@ -225,7 +225,7 @@ class QFileDialogPrivate : public QDialogPrivate
 public:
     QFileDialogPrivate()
         : QDialogPrivate(),
-          mode(QFileDialog::Detail) {}
+          viewMode(QFileDialog::Detail) {}
 
     void setup();
 
@@ -243,7 +243,8 @@ public:
     QDirModel *model;
     QGenericListView *lview;
     QGenericTreeView *tview;
-    QFileDialog::ViewMode mode;
+    QFileDialog::ViewMode viewMode;
+    QFileDialog::FileMode fileMode;
 
     QModelIndexList history;
 
@@ -329,12 +330,51 @@ QString QFileDialog::selectedFilter() const
 
 void QFileDialog::setViewMode(ViewMode mode)
 {
-    d->mode = mode;
+    d->viewMode = mode;
+    if (mode == Detail)
+        showDetail();
+    else
+        showList();
 }
 
 QFileDialog::ViewMode QFileDialog::viewMode() const
 {
-    return d->mode;
+    return d->viewMode;
+}
+
+void QFileDialog::setFileMode(FileMode mode)
+{
+    d->fileMode = mode;
+    
+    QDir::FilterSpec spec;
+    switch (mode) {
+    case Directory:
+    case DirectoryOnly:
+        spec = QDir::Dirs;
+        break;
+    case AnyFile:
+    case ExistingFile:
+    case ExistingFiles:
+    default:
+        spec = QDir::All;
+    }
+    
+    // Save path to current root, set the filter and then set the root back.
+    // This is because the models internal data structure is totally rebuilt, and
+    // so all QModelIndex objects are invalidated, including the root object.
+    QString path = d->model->path(d->root());
+    d->setRoot(QModelIndex());
+
+    d->model->setFilter(spec);
+
+    QModelIndex root = d->model->index(path);
+    d->setRoot(root);
+    d->setCurrent(d->model->topLeft(root));
+}
+
+QFileDialog::FileMode QFileDialog::fileMode() const
+{
+    return d->fileMode;
 }
 
 void QFileDialog::done(int result)

@@ -54,10 +54,13 @@ QByteArray QAbstractItemModelDrag::encodedData(const char *mime) const
     QDataStream stream(&encoded, IO_WriteOnly);
     QModelIndexList::ConstIterator it = indices.begin();
     for (; it != indices.end(); ++it) {
-        QMap<int, QVariant> roles = model->itemData((*it));
-        for (QMap<int, QVariant>::ConstIterator r = roles.begin(); r != roles.end(); ++r)
-            stream << r.key() << r.value();
-        stream << -1;
+        QMap<int, QVariant> data = model->itemData((*it));
+        stream << data.count();
+        QMap<int, QVariant>::ConstIterator it2 = data.begin();
+        for (; it2 != data.end(); ++it2) {
+            stream << it2.key();
+            stream << it2.value();
+        }
     }
     return encoded;
 }
@@ -67,39 +70,36 @@ bool QAbstractItemModelDrag::canDecode(QMimeSource *src)
     return src->provides(format());
 }
 
-bool QAbstractItemModelDrag::decode(QMimeSource *src, QAbstractItemModel *model,
+bool QAbstractItemModelDrag::decode(QMimeSource *src,
+                                    QAbstractItemModel *model,
                                     const QModelIndex &parent)
 {
     if (!canDecode(src))
         return false;
     return false;
-/*
+
     QByteArray encoded = src->encodedData(format());
     QDataStream stream(&encoded, IO_ReadOnly);
-    bool newItem = true;
-    int role;
-    QVariant variantData;
-    QModelIndex insertedItem;
+    int row = model->rowCount(parent);
+    int count, role;
+    QVariant data;
+    QModelIndex index;
     while (!stream.atEnd()) {
-        stream >> role;
-        if (role > -1) {
-//            if (newItem) {
-                //insertedItem = insertRow();
-                newItem = false;
-//            }
-            stream >> variantData;
-            model->setData(insertedItem, role, variantData);
-        } else {
-            newItem = true;
+        model->insertRow(row, parent); // append row
+        index = model->index(row, 0, parent); // only insert in col 0
+        stream >> count;
+        for (int i = 0; i < count; ++i) {
+            stream >> role;
+            stream >> data;
+            model->setData(index, role, data);
         }
     }
     return true;
-*/
 }
 
 const char *QAbstractItemModelDrag::format()
 {
-    return "application/x-qabstractodeldatalist";
+    return "application/x-qabstractitemmodeldatalist";
 }
 
 /*!

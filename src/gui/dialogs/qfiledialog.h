@@ -25,15 +25,17 @@ public:
 
     void addFilter(const QString &filter);
     QStringList filters() const;
+    
     void selectFilter(const QString &filter);
     QString selectedFilter() const;
 
-    enum ViewMode { Detail, List, Large };
+    enum ViewMode { Detail, List };
     void setViewMode(ViewMode mode);
     ViewMode viewMode() const;
 
-//    enum FileMode { AnyFile, ExistingFile, Directory }
     enum FileMode { AnyFile, ExistingFile, Directory, ExistingFiles, DirectoryOnly };
+    void setFileMode(FileMode mode);
+    FileMode fileMode() const;
 
     static QString getOpenFileName(const QString &initially = QString::null,
                                    const QString &filter = QString::null,

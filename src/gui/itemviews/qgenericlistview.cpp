@@ -553,7 +553,10 @@ QModelIndex QGenericListView::itemAt(int x, int y) const
         d->intersectingStaticSet(rect);
     else
         d->intersectingDynamicSet(rect);
-    return (d->intersectVector.empty() ? QModelIndex() : d->intersectVector.first());
+    QModelIndex index = d->intersectVector.count() > 0 ? d->intersectVector.first() :  QModelIndex();
+    if (index.isValid() && itemViewportRect(index).contains(QPoint(x, y)))
+        return index;
+    return QModelIndex();
 }
 
 int QGenericListView::horizontalOffset() const
