@@ -11,6 +11,4 @@ contains( QT_PRODUCT, qt-(enterprise|internal) ) {
 		  control \
 		  tools \
 		  examples
-
-#	shared:SUBDIRS += plugin
 }
