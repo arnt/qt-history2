@@ -578,7 +578,7 @@ static void *dlsymIntern(struct dlstatus *dls, const char *symbol, int canSetErr
 		dls = RTLD_SELF;
 	if ((RTLD_NEXT == dls) || (RTLD_SELF == dls))
 	{
-		if (dyld_NSIsSymbolNameDefinedInImage && dyld_NSLookupSymbolInImage && caller)
+		if (dyld_NSIsSymbolNameDefinedInImage && dyld_NSLookupSymbolInImage)
 		{
 			caller_mh = image_for_address(caller);
 			if (RTLD_SELF == dls)
