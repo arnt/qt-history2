@@ -21,5 +21,6 @@
    <file>items.cpp</file>
    <file>glpainter.cpp</file>
    <file>textoutline.cpp</file>
+   <file>tiger.cpp</file>
 </qresource>
 </RCC>

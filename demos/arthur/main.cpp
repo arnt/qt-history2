@@ -26,6 +26,7 @@
 #include "textoutline.h"
 #include "mandelbrotwidget.h"
 #include "items.h"
+#include "tiger.h"
 
 #include <qapplication.h>
 
@@ -46,6 +47,7 @@ int main(int argc, char **argv)
 #if !(defined(QT_NO_XFT) && defined(Q_WS_X11))
     viewer.addDemoWidget("Outline", new TextOutline, "textoutline.cpp");
 #endif
+    viewer.addDemoWidget("Tiger", new Tiger, "tiger.cpp");
 #ifndef QT_NO_OPENGL
     if (QGLFormat::hasOpenGL())
 	viewer.addDemoWidget("OpenGL Painter", new GLPainter, "glpainter.cpp");
