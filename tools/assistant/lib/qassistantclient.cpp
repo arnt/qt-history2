@@ -193,10 +193,10 @@ void QAssistantClient::openAssistant()
     }
 
     if ( !proc->launch( QString::null ) ) {
-	delete proc;
-	proc = 0;
 	emit error( tr( "Cannot start Qt Assistant '%1'" )
 		    .arg( proc->arguments().join( " " ) ) );
+	delete proc;
+	proc = 0;
 	return;
     }
     connect( proc, SIGNAL( readyReadStdout() ),
