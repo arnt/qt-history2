@@ -4,6 +4,7 @@
 #include <qpainter.h>
 #include <qdatetime.h>
 #include <qfontmetrics.h>
+#include <qpixmap.h>
 
 QString str1 = "&String &with &underline";
 QString str2 = "a\tb\tc\td\te";
@@ -141,28 +142,185 @@ public:
     bool opaque;
 };
 
+
+class MyWidget2: public QWidget
+{
+public:
+    MyWidget2() : scale( 1. ) {}
+    void paintEvent( QPaintEvent * )
+	{
+	    QPainter p( this );
+	    p.scale( scale, scale );
+
+	    QFont fnt;
+	    fnt.setPointSize( fnt.pointSize() /scale );
+	    p.setFont( fnt );
+
+	    QString str = "scale is %1, pointSize = %2";
+	    str = str.arg( scale ).arg( fnt.pointSize() );
+	    p.drawText((int)(50/scale), (int)(height()/2/scale), str );
+
+	}
+
+    void keyPressEvent( QKeyEvent *e ) {
+	switch( e->key() ) {
+	case Key_Plus:
+	    scale *= 2;
+	    break;
+	case Key_Minus:
+	    scale /= 2;
+	    break;
+	}
+
+	update();
+    }
+    double scale;
+};
+
+
+QString latinString =
+"KDE is a powerful Open Source graphical desktop environment for Unix workstations. It combines ease of use, contemporary functionality, and out";
+;
+
+QString i18nString = QString::fromUtf8(
+"ทำไมเขาถึงไม่พูด "
+"ܠܡܢܐܠܐܡܡܠܠܝܢܣܘܪܝܝܐ "
+"أوروبا, برمجيات الحاسوب "
+"תוכנה והאינטרנט "
+"रूस के राष्ट्रपति "
+"অাবার অাসিব ফিরে "
+"रूस के राष्ट्रपति "
+"לְמָה לָא יאםרוּן" );
+
+const int loops = 2000;
+
+static void timeSpeed()
+{
+    QFont fnt;
+    QFontMetrics fm( fnt );
+
+    QPixmap pm( 500,  500 );
+    QPainter p( &pm );
+
+    QTime t;
+
+    qDebug("\n\ntesting speed of drawing for %s", QT_VERSION_STR );
+
+    qDebug("------------------------------------------------------------------\n" );
+
+//     qDebug("string lengths are: latin=%d i18n=%d", latinString.length(), i18nString.length() );
+
+    for ( int test = 0; test < 1; test++ ) {
+	QString str;
+	if ( test == 0 ) {
+	    qDebug("\nTesting for Latin text:\n");
+	    str = latinString;
+	} else {
+	    qDebug("\nTesting for i18n text:\n");
+	    str = i18nString;
+	}
+// 	qDebug("string = '%s'",  str.utf8().data() );
+	fm.width( str );
+
+#if 0
+	qDebug("    Font Metrics:");
+	t.start();
+	int w = 0;
+	const QChar *qch = str.unicode();
+	for ( int i = 0; i < loops; i++ ) {
+	    const QChar *ch = qch + str.length();
+	    while ( ch-- > qch )
+		fm.width( *qch );
+	}
+	qDebug("        width, QChar\t\t\t%02.2f us/char",
+	       ((float)t.elapsed())/loops/str.length()*1000 );
+
+#if QT_VERSION >= 300
+	t.start();
+	for ( int i = 0; i < loops; i++ ) {
+	    const QChar *ch = qch + str.length();
+	    while ( ch-- > qch )
+		w += fm.charWidth( str, ch-qch );
+	}
+	qDebug("        charWidth\t\t\t%02.2f us/char",
+	       ((float)t.elapsed())/loops/str.length()*1000 );
+// 	qDebug("w = %d", w );
+#endif
+
+	t.start();
+	int w2 = 0;
+	for ( int i = 0; i < loops; i++ )
+	    w2 += fm.width( str );
+	qDebug("        width, QString\t\t\t%02.2f us/char",
+	       ((float)t.elapsed())/loops/str.length()*1000 );
+// 	qDebug("w2 = %d", w2 );
+#if QT_VERSION >= 300
+	Q_ASSERT( w2 == w );
+#endif
+
+	t.start();
+	for ( int i = 0; i < loops; i++ )
+	    fm.boundingRect( 0, 0, 500, 500, Qt::SingleLine, str );
+	qDebug("        boundingRect, Qt::SingleLine\t%02.2f us/char",
+	       ((float)t.elapsed())/loops/str.length()*1000 );
+
+	t.start();
+	for ( int i = 0; i < loops; i++ )
+	    fm.boundingRect( 0, 0, 500, 500, Qt::WordBreak, str );
+	qDebug("        boundingRect, Qt::WordBreak\t%02.2f us/char",
+	       ((float)t.elapsed())/loops/str.length()*1000 );
+#endif
+
+	qDebug("    QPainter drawText:");
+	t.start();
+	for ( int i = 0; i < loops; i++ )
+	    p.drawText( 0, 0, str );
+	qDebug("        simple\t\t\t\t%02.2f us/char",
+	       ((float)t.elapsed())/loops/str.length()*1000 );
+
+#if 0
+	t.start();
+	for ( int i = 0; i < loops; i++ )
+	    p.drawText( 0, 0, 500, 500, Qt::SingleLine, str );
+	qDebug("        Qt::SingleLine\t\t\t%02.2f us/char",
+	       ((float)t.elapsed())/loops/str.length()*1000 );
+	t.start();
+	for ( int i = 0; i < loops; i++ )
+	    p.drawText( 0, 0, 500, 500, Qt::WordBreak, str );
+	qDebug("        Qt::WordBreak\t\t\t%02.2f us/char",
+	       ((float)t.elapsed())/loops/str.length()*1000 );
+#endif
+    }
+}
+
+
 int main( int argc, char** argv )
 {
 
     QApplication app( argc, argv );
 
-    QFont fnt;
-    QFontMetrics fm( fnt );
 
-    QTime t;
-    t.start();
-    MyWidget w;
-//     QPainter p( &w );
-//     //QString str = "Some test string.Some test string.Some test string.";
-//     QString str = "אירופה, תוכנה והאינטרנט: ";
-//     for ( int i = 0; i < 10000; i++ ) {
-// 	p.drawText( 0, 0, 500, 100, Qt::WordBreak, str );
-//     }
+    int mode = 0;
+    if ( argc == 2 ) {
+	if ( strcmp( argv[1], "-big" ) == 0 )
+	    mode = 1;
+	else if ( strcmp( argv[1], "-draw" ) == 0 )
+	    mode = 0;
+	else if ( strcmp( argv[1], "-speed" ) == 0 )
+	    mode = 2;
+    }
 
-//     qDebug("t=%dms", t.elapsed() );
+    QWidget *w;
+    if ( mode == 0 )
+	w = new MyWidget;
+    else if ( mode == 1 )
+	w = new MyWidget2;
+    else if ( mode == 2 ) {
+	timeSpeed();
+	return 0;
+    }
 
-    w.resize( 800,  600 );
-    w.show();
+    w->resize( 800,  600 );
+    w->show();
     return app.exec();
-    return 0;
 }
