@@ -1612,8 +1612,8 @@ void QTextDocument::setRichTextInternal( const QString &text )
     bool hasNewPar = curpar->length() <= 1;
     QString lastClose;
     while ( pos < int( doc.length() ) ) {
-	if (hasPrefix(doc, pos, '<' ) ){
-	    if (!hasPrefix(doc, pos+1, QChar('/'))) {
+	if ( hasPrefix(doc, pos, '<' ) ){
+	    if ( !hasPrefix( doc, pos+1, QChar('/') ) ) {
 		// open tag
 		QMap<QString, QString> attr;
 		bool emptyTag = FALSE;
@@ -1621,6 +1621,18 @@ void QTextDocument::setRichTextInternal( const QString &text )
 		if ( tagname.isEmpty() )
 		    continue; // nothing we could do with this, probably parse error
 
+		if ( tagname == "title" ) {
+		    QString title;
+		    while ( TRUE ) {
+			if ( hasPrefix( doc, pos, '<' ) && hasPrefix( doc, pos+1, QChar('/') ) &&
+			     parseCloseTag( doc, pos ) == "title" )
+			    break;
+			title += doc[ pos ];
+			++pos;
+		    }
+		    attribs.replace( "title", title );
+		}
+		
 		const QStyleSheetItem* nstyle = sheet_->item(tagname);
 		if ( nstyle ) {
 		    if ( curtag.style->displayMode() == QStyleSheetItem::DisplayListItem )
