@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsignalmapper.cpp#3 $
+** $Id: //depot/qt/main/src/kernel/qsignalmapper.cpp#4 $
 **
 ** Implementation of QSignalMapper class
 **
@@ -129,3 +129,22 @@ QSignalMapperRec* QSignalMapper::getRec( const QObject* sender )
     }
     return rec;
 }
+
+/*!
+  \fn void QSignalMapper::mapped(int)
+
+  This signal is emitted when map() is signalled from an object which
+  has an integer mapping set.
+
+  \sa setMapping(int)
+*/
+
+/*!
+  \fn void QSignalMapper::mapped(const char*)
+
+
+  This signal is emitted when map() is signalled from an object which
+  has a string mapping set.
+
+  \sa setMapping(const char*)
+*/
