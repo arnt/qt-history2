@@ -20,8 +20,6 @@
 GameBoard::GameBoard( QWidget *parent, const char *name )
         : QWidget( parent, name )
 {
-    setMinimumSize( 500, 355 );
-
     QPushButton *quit = new QPushButton( "Quit", this, "quit" );
     quit->setFont( QFont( "Times", 18, QFont::Bold ) );
 
@@ -92,7 +90,6 @@ GameBoard::GameBoard( QWidget *parent, const char *name )
     topBox->addWidget( shotsLeftL );
     topBox->addStretch( 1 );
     topBox->addWidget( restart );
-
 
     newGame();
 }

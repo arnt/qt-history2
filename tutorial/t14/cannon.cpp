@@ -263,6 +263,11 @@ bool CannonField::barrelHit( const QPoint &p ) const
     return barrel_rect.contains( mtx.map(p) );
 }
 
+QSize CannonField::sizeHint() const
+{
+    return QSize( 400, 300 );
+}
+
 QSizePolicy CannonField::sizePolicy() const
 {
     return QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
