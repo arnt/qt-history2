@@ -1316,13 +1316,19 @@ MakefileGenerator::writeLibtoolFile(const QString &target)
       << QT_VERSION_STR << ") on: " << ctime(&now) << "\n";
 
     t << "# The name that we can dlopen(3).\n"
-      << "dlname='" << var("TARGET_x") << "'\n\n";
+      << "dlname='" << var(project->isActiveConfig("plugin") ? "TARGET" : "TARGET_x")
+      << "'\n\n";
 
     t << "# Names of this library.\n";
     t << "library_names='";
-    if (project->isEmpty("QMAKE_HPUX_SHLIB"))
-	t << var("TARGET_x.y.z") << " ";
-    t << var("TARGET_x") << " " << var("TARGET_") << "'\n\n";
+    if(project->isActiveConfig("plugin")) {
+	t << var("TARGET");
+    } else {
+    	if (project->isEmpty("QMAKE_HPUX_SHLIB"))
+	    t << var("TARGET_x.y.z") << " ";
+    	t << var("TARGET_x") << " " << var("TARGET_");
+    } 
+    t << "'\n\n";
 
     // ### t << "# The name of the static archive.\n";
 
