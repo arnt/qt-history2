@@ -38,52 +38,56 @@
 #include "qfocusdata.h"
 
 /*!
-  \class QFocusData qfocusdata.h
-  \ingroup misc
-  \brief The QFocusData class maintains the list of widgets in the focus
-  chain.
+    \class QFocusData qfocusdata.h
+    \brief The QFocusData class maintains the list of widgets in the focus
+    chain.
 
-  This read-only list always contains at least one widget (the
-  top-level widget).  It provides a simple cursor which can be reset to
-  the current focus widget using home(), or moved to its neighboring
-  widgets using next() and prev(). You can also retrieve the count() of
-  the number of widgets in the list. The list is a loop, so if you keep
-  iterating, for example using next(), you will never come to the end.
+    \ingroup misc
 
-  Some widgets in the list may not accept focus.  Widgets are added to
-  the list as necessary, but not removed from it.  This lets widgets
-  change focus policy dynamically without disrupting the focus chain the
-  user experiences. When a widget disables and re-enables tab focus, its
-  position in the focus chain does not change.
+    This read-only list always contains at least one widget (i.e. the
+    top-level widget). It provides a simple cursor which can be reset
+    to the current focus widget using home(), or moved to its
+    neighboring widgets using next() and prev(). You can also retrieve
+    the count() of the number of widgets in the list. The list is a
+    loop, so if you keep iterating, for example using next(), you will
+    never come to the end.
 
-  When reimplementing QWidget::focusNextPrevChild() to provide special
-  focus flow, you will usually call QWidget::focusData() to retrieve the
-  focus data stored at the top-level widget. A top-level widget's focus
-  data contains the focus list for its hierarchy of widgets.
+    Some widgets in the list may not accept focus. Widgets are added
+    to the list as necessary, but not removed from it. This lets
+    widgets change focus policy dynamically without disrupting the
+    focus chain the user experiences. When a widget disables and
+    re-enables tab focus, its position in the focus chain does not
+    change.
 
-  The cursor may change at any time. 
-  
-  This class is \e not thread-safe.
+    When reimplementing QWidget::focusNextPrevChild() to provide
+    special focus flow, you will usually call QWidget::focusData() to
+    retrieve the focus data stored at the top-level widget. A
+    top-level widget's focus data contains the focus list for its
+    hierarchy of widgets.
 
-  \sa QWidget::focusNextPrevChild() QWidget::setTabOrder()
-  QWidget::setFocusPolicy()
+    The cursor may change at any time.
+
+    This class is \e not thread-safe.
+
+    \sa QWidget::focusNextPrevChild() QWidget::setTabOrder()
+    QWidget::setFocusPolicy()
 */
 
 /*!
-  \fn QWidget* QFocusData::focusWidget() const
+    \fn QWidget* QFocusData::focusWidget() const
 
-  Returns the widgets in the hierarchy that are in the focus chain.
+    Returns the widgets in the hierarchy that are in the focus chain.
 */
 
 /*!
-  \fn int QFocusData::count() const
+    \fn int QFocusData::count() const
 
-  Returns the number of widgets in the focus chain.
+    Returns the number of widgets in the focus chain.
 */
 
 /*!
-  Moves the cursor to the focusWidget() and returns that widget.
-  You must call this before next() or prev() to iterate meaningfully.
+    Moves the cursor to the focusWidget() and returns that widget. You
+    must call this before next() or prev() to iterate meaningfully.
 */
 QWidget* QFocusData::home()
 {
@@ -92,8 +96,8 @@ QWidget* QFocusData::home()
 }
 
 /*!
-  Moves the cursor to the next widget in the focus chain. There is \e
-  always a next widget because the list is a loop.
+    Moves the cursor to the next widget in the focus chain. There is
+    \e always a next widget because the list is a loop.
 */
 QWidget* QFocusData::next()
 {
@@ -104,8 +108,8 @@ QWidget* QFocusData::next()
 }
 
 /*!
-  Moves the cursor to the previous widget in the focus chain. There is \e
-  always a previous widget because the list is a loop.
+    Moves the cursor to the previous widget in the focus chain. There
+    is \e always a previous widget because the list is a loop.
 */
 QWidget* QFocusData::prev()
 {

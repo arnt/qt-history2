@@ -31,37 +31,16 @@
 **********************************************************************/
 #if !defined(QT_NO_QWS_KEYBOARD) && defined(QT_QWS_YOPY)
 
-#include <qwidgetlist.h>
-#include <linux/kd.h>
-#include <linux/fb.h>
-#include <linux/yopy_button.h>
-extern "C" {
-    int getpgid(int);
-}
-
-class QWSyopyButtonsHandler : public QWSKeyboardHandler
-{
-    Q_OBJECT
-public:
-    QWSyopyButtonsHandler();
-    virtual ~QWSyopyButtonsHandler();
-
-    bool isOpen() { return buttonFD > 0; }
-
-private slots:
-    void readKeyboardData();
-
-private:
-    QString terminalName;
-    int buttonFD;
-    struct termios newT, oldT;
-    QSocketNotifier *notifier;
-};
+#include <qyopykeyboard_qws.h>
 
 /*
  * YOPY buttons driver
  * Contributed by Ron Victorelli (victorrj at icubed.com)
  */
+
+extern "C" {
+    int getpgid(int);
+}
 
 QWSyopyButtonsHandler::QWSyopyButtonsHandler() : QWSKeyboardHandler()
 {

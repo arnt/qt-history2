@@ -1083,7 +1083,7 @@ void QSocket::sn_read( bool force )
     if ( nbytes <= 0 ) {			// connection closed?
 	// On Windows this may happen when the connection is still open.
 	// This happens when the system is heavily loaded and we have
-	// read all the data on the socket before a new WSAsyncSelect
+	// read all the data on the socket before a new WSAAsyncSelect
 	// event is processed. A new read operation would then block.
 	// This code is also useful when QSocket is used without an
 	// event loop.

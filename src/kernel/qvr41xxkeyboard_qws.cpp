@@ -31,6 +31,8 @@
 **********************************************************************/
 #if !defined(QT_NO_QWS_KEYBOARD) && defined(QT_QWS_CASSIOPEIA)
 
+#include <qvr41xxkeyboard_qws.h>
+
 /*
  * vr41xx buttons driver
  */

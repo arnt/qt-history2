@@ -964,7 +964,7 @@ QDataStream &QDataStream::writeRawBytes( const char *s, uint len )
 {
     CHECK_STREAM_PRECOND
     if ( printable ) {				// write printable
-	register char *p = (char *)s;
+	register Q_INT8 *p = (Q_INT8*)s;
 	while ( len-- )
 	    *this << *p++;
     } else {					// write data char array

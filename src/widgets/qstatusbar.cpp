@@ -142,12 +142,14 @@ QStatusBar::QStatusBar( QWidget * parent, const char *name )
     d = new QStatusBarPrivate;
     d->items.setAutoDelete( TRUE );
     d->box = 0;
-#ifndef QT_NO_SIZEGRIP
-    d->resizer = 0;
-#endif
     d->timer = 0;
 
+#ifndef QT_NO_SIZEGRIP
+    d->resizer = 0;
     setSizeGripEnabled(TRUE); // causes reformat()
+#else
+    reformat();
+#endif
 }
 
 
@@ -450,15 +452,6 @@ void QStatusBar::paintEvent( QPaintEvent * )
 */
 void QStatusBar::resizeEvent( QResizeEvent * e )
 {
-#if 0
-    QStatusBarPrivate::SBItem* item;
-    for ( item = d->items.first(); item; item = d->items.next() )
-	item->w->setMinimumWidth( 30 );
-
-    int mw = d->box->totalMinimumSize().width() - 30;
-    for ( item = d->items.first(); item; item = d->items.next() )
-	item->w->setMaximumWidth( width() - mw );
-#endif
     QWidget::resizeEvent( e );
 }
 

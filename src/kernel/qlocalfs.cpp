@@ -99,7 +99,7 @@ void QLocalFs::operationListChildren( QNetworkOperation *op )
     dir.setNameFilter( url()->nameFilter() );
     dir.setMatchAllDirs( TRUE );
     if ( !dir.isReadable() ) {
-	QString msg = tr( "Could not read directory\n" + url()->path() );
+	QString msg = tr( "Could not read directory\n%1" ).arg( url()->path() );
 	op->setState( StFailed );
 	op->setProtocolDetail( msg );
 	op->setErrorCode( (int)ErrListChildren );
@@ -109,7 +109,7 @@ void QLocalFs::operationListChildren( QNetworkOperation *op )
 
     const QFileInfoList *filist = dir.entryInfoList( QDir::All | QDir::Hidden | QDir::System );
     if ( !filist ) {
-	QString msg = tr( "Could not read directory\n" + url()->path() );
+	QString msg = tr( "Could not read directory\n%1" ).arg( url()->path() );
 	op->setState( StFailed );
 	op->setProtocolDetail( msg );
 	op->setErrorCode( (int)ErrListChildren );
@@ -156,7 +156,7 @@ void QLocalFs::operationMkDir( QNetworkOperation *op )
 	emit createdDirectory( inf, op );
 	emit finished( op );
     } else {
-	QString msg = tr( "Could not create directory\n" + dirname );
+	QString msg = tr( "Could not create directory\n%1" ).arg( dirname );
 	op->setState( StFailed );
 	op->setProtocolDetail( msg );
 	op->setErrorCode( (int)ErrMkDir );
@@ -190,7 +190,7 @@ void QLocalFs::operationRemove( QNetworkOperation *op )
 	emit removed( op );
 	emit finished( op );
     } else {
-	QString msg = tr( "Could not remove file or directory\n" + name );
+	QString msg = tr( "Could not remove file or directory\n%1" ).arg( name );
 	op->setState( StFailed );
 	op->setProtocolDetail( msg );
 	op->setErrorCode( (int)ErrRemove );

@@ -539,7 +539,7 @@ bool QPainter::begin( const QPaintDevice *pd, bool unclipped )
 	else
 	    gfx->setClipping( FALSE );
     }
-    
+
     return TRUE;
 }
 

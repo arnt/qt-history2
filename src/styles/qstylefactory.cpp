@@ -99,9 +99,10 @@ QStyleFactoryPrivate::~QStyleFactoryPrivate()
   The styles are either built-in or dynamically loaded from a style
   plugin (see \l QStylePlugin).
 
-  QStyleFactory::keys() returns a list of valid keys. Qt currently
-  ships with "windows", "motif", "cde", "platinum", "sgi" and
-  "motifplus".
+  QStyleFactory::keys() returns a list of valid keys, typically
+  including "windows", "motif", "cde", "motifplus", "platinum", "sgi"
+  and "compact". Depending on the platform, "windowsxp", "aqua" or
+  "macintosh" may be available.
 
 */
 
@@ -112,10 +113,11 @@ QStyleFactoryPrivate::~QStyleFactoryPrivate()
 */
 QStyle *QStyleFactory::create( const QString& key )
 {
+    QStyle *ret = 0;
     QString style = key.lower();
 #ifndef QT_NO_STYLE_WINDOWS
     if ( style == "windows" )
-        return new QWindowsStyle;
+        ret = new QWindowsStyle;
     else
 #endif
 #ifndef QT_NO_STYLE_WINDOWSXP
@@ -125,37 +127,37 @@ QStyle *QStyleFactory::create( const QString& key )
 #endif
 #ifndef QT_NO_STYLE_MOTIF
     if ( style == "motif" )
-        return new QMotifStyle;
+        ret = new QMotifStyle;
     else
 #endif
 #ifndef QT_NO_STYLE_CDE
     if ( style == "cde" )
-        return new QCDEStyle;
+        ret = new QCDEStyle;
     else
 #endif
 #ifndef QT_NO_STYLE_MOTIFPLUS
     if ( style == "motifplus" )
-        return new QMotifPlusStyle;
+        ret = new QMotifPlusStyle;
     else
 #endif
 #ifndef QT_NO_STYLE_PLATINUM
     if ( style == "platinum" )
-        return new QPlatinumStyle;
+        ret = new QPlatinumStyle;
     else
 #endif
 #ifndef QT_NO_STYLE_SGI
     if ( style == "sgi")
-        return new QSGIStyle;
+        ret = new QSGIStyle;
     else
 #endif
 #ifndef QT_NO_STYLE_COMPACT
     if ( style == "compact" )
-        return new QCompactStyle;
+        ret = new QCompactStyle;
     else
 #endif
 #ifndef QT_NO_STYLE_AQUA
     if ( style == "aqua" )
-        return new QAquaStyle;
+        ret = new QAquaStyle;
 #endif
 #if !defined( QT_NO_STYLE_MAC ) && defined( Q_WS_MAC )
     if( style.left(9) == "macintosh" )
@@ -163,16 +165,20 @@ QStyle *QStyleFactory::create( const QString& key )
 #endif
 
 #ifndef QT_NO_COMPONENT
-    if ( !instance )
-	instance = new QStyleFactoryPrivate;
+    if(!ret) {
+	if ( !instance )
+	    instance = new QStyleFactoryPrivate;
 
-    QInterfacePtr<QStyleFactoryInterface> iface;
-    QStyleFactoryPrivate::manager->queryInterface( style, &iface );
+	QInterfacePtr<QStyleFactoryInterface> iface;
+	QStyleFactoryPrivate::manager->queryInterface( style, &iface );
 
-    if ( iface )
-	return iface->create( style );
+	if ( iface )
+	    ret = iface->create( style );
+    }
+    if(ret)
+	ret->setName(key);
 #endif
-    return 0;
+    return ret;
 }
 
 #ifndef QT_NO_STRINGLIST

@@ -67,7 +67,7 @@
     Key sequences can be constructed either from an integer key code,
     or from a human readable translatable string. A key sequence can
     be cast to a QString to obtain a human readable translated version
-    of the sequence. Translations are done in the "QAccel" scope.
+    of the sequence. Translations are done in the "QAccel" context.
 
     \sa QAccel
 */
@@ -136,7 +136,7 @@ QKeySequence::QKeySequence( int key )
     Creates a key sequence from the string \a key. For example
     "Ctrl+O" gives CTRL+UNICODE_ACCEL+'O'. The strings "Ctrl", "Shift"
     and "Alt" are recognized, as well as their translated equivalents
-    in the "QAccel" scope (using QObject::tr()).
+    in the "QAccel" context (using QObject::tr()).
 
     This contructor is typically used with \link QObject::tr() tr
     \endlink(), so that accelerator keys can be replaced in
@@ -254,7 +254,7 @@ QKeySequence::operator int () const
 /*!
     Creates an accelerator string for the key sequence. For example,
     CTRL+Key_O gives "Ctrl+O". The strings, "Ctrl", "Shift", etc. are
-    translated (using QObject::tr()) in the "QAccel" scope.
+    translated (using QObject::tr()) in the "QAccel" context.
 */
 QKeySequence::operator QString() const
 {
