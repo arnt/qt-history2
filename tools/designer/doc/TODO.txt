@@ -1,29 +1,14 @@
-Stuff with priority is marked with #
+tuff with priority is marked with #
 
 New functionality
 -----------------
-
-Editing of Slots (Reggie)
-    Should be possible to directly edit code for slots in the
-    designer, so that one doesn't need to subclass always just to
-    implement a slot. This is easy to do using QTextEdit.
 
 Add QWidgetStack support (Reggie)
     Use code of tabwidget support to make a general widget stack
     support and make tabwidget support a special case of that.
 
-Provide application interfaces for plugins (Reggie, Volker)
-    Use property system to enable access to the designer components. This will
-    be pretty much an action interface like in the test example.
-    - data interface for file handling and global stuff
-    - interfaces for propertyeditor, objecthierarchy and formlist
-    - interface for formwindow
-
 Extending existing functionality
 --------------------------------
-
-Custom Widgets (Volker) #
-    PlugIn support, see also Qt/Desktop todo for that
 
 ListView editor
     - Support for checkable items
@@ -37,8 +22,6 @@ Changing page-order in tabwidget using a special editor dialog
 Use QSettings for config ASA this is done
 
 Fake property stretchFactor for widgets in a layout (Reggie)
-
-Make it possible to also include additional include files in the generated .h files (Reggie)
 
 Support for namespaces
 
