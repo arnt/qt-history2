@@ -1484,7 +1484,7 @@ void QWidget::setEnabled( bool enable )
 	}
     } else {
 	if ( !testWState(WState_Disabled) ) {
-	    if ( focusWidget() == this ) {
+	    if ( focusWidget() == this && ( !parentWidget() || parentWidget()->isEnabled() ) ) {
 		if ( !focusNextPrevChild( TRUE ) )
 		    clearFocus();
 	    }
