@@ -144,8 +144,8 @@ void MainWindow::handleClose(AbstractFormWindow *fw, bool *accept)
         m_closeForm = *accept;
     }
 
-    //if (m_formWindowManager->formWindowCount() == 1 && m_closeForm)
-    //    QTimer::singleShot(200, this, SLOT(newForm()));  // Use timer in case we are quitting.
+    if (m_formWindowManager->formWindowCount() == 1 && m_closeForm)
+        QTimer::singleShot(200, this, SLOT(newForm()));  // Use timer in case we are quitting.
 }
 
 void MainWindow::setupWidgetBox()

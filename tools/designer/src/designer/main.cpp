@@ -11,6 +11,7 @@
 **
 ****************************************************************************/
 
+#include <QtCore/QSettings>
 #include "mainwindow.h"
 #include "designerapp.h"
 #include <qdebug.h>
@@ -82,9 +83,11 @@ int main(int argc, char *argv[])
         foreach(QString filename, filenames) {
             mw.readInForm(filename);
         }
-    }/* else {
-        mw.newForm();
-    }*/
+    } else {
+        QSettings settings;
+        if (settings.value("newFormDialog/ShowOnStartup", true).toBool())
+            mw.newForm();
+    }
 
     return app.exec();
 }
