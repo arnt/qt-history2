@@ -1106,47 +1106,52 @@ bool QUriDrag::decode( const QMimeSource* e, QStrList& l )
     return FALSE;
 }
 
-static
-uint htod(int h)
+static uint htod(int h)
 {
-    if (isdigit(h)) return h-'0';
-    return tolower(h)-'a'+10;
+    if ( isdigit(h) )
+	return h - '0';
+    return tolower( h ) - 'a' + 10;
 }
+
+/*!
+  \fn QUriDrag::setFilenames( const QStringList & )
+  \obsolete
+
+  Use setFileNames() instead (notice the N).
+*/
 
 /*!
   Sets the URIs to be the local-file URIs equivalent to \a fnames.
 
   \sa localFileToUri(), setUris()
 */
-void QUriDrag::setFilenames( QStringList fnames )
+void QUriDrag::setFileNames( const QStringList & fnames )
 {
     QStrList uris;
-    for (QStringList::Iterator i = fnames.begin();
+    for ( QStringList::ConstIterator i = fnames.begin();
 	    i != fnames.end(); ++i )
-	uris.append(localFileToUri(*i));
-    setUris(uris);
+	uris.append( localFileToUri(*i) );
+    setUris( uris );
 }
 
 /*!
-  Sets the URIs to be the
-  Unicode URIs (only useful for
-  displaying to humans) \a uuris.
+  Sets the URIs to be the Unicode URIs (only useful for displaying to
+  humans) \a uuris.
 
   \sa localFileToUri(), setUris()
 */
-void QUriDrag::setUnicodeUris( QStringList uuris )
+void QUriDrag::setUnicodeUris( const QStringList & uuris )
 {
     QStrList uris;
-    for (QStringList::Iterator i = uuris.begin();
+    for ( QStringList::ConstIterator i = uuris.begin();
 	    i != uuris.end(); ++i )
-	uris.append(unicodeUriToUri(*i));
-    setUris(uris);
+	uris.append( unicodeUriToUri(*i) );
+    setUris( uris );
 }
 
 /*!
   Returns the URI equivalent to the Unicode URI (only useful for
-  displaying to humans).
-  \a uuri.
+  displaying to humans) \a uuri.
 
   \sa uriToLocalFile()
 */
