@@ -1600,7 +1600,7 @@ for (QForeachContainer<__typeof__(container)> _container_(container); _container
     ++_container_.i) \
     for (variable = *_container_.i;;({break;}))
 
-#elif defined Q_CC_MSVC && _MSC_VER < 1300
+#elif (defined Q_CC_MSVC && _MSC_VER < 1300) || (defined Q_CC_XLC)
 
 template <typename T>
 class QForeachContainer  {
