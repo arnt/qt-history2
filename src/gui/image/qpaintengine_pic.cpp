@@ -136,7 +136,7 @@ void QPicturePaintEngine::updateFont(const QFont &font)
     if (fnt.pointSize() > 0)
         fnt.setPixelSize(fnt.pointSize());
     d->s << font;
-    writeCmdLength(pos, QRect(), false);
+    writeCmdLength(pos, QRectF(), false);
 }
 
 void QPicturePaintEngine::updateBackground(Qt::BGMode bgMode, const QBrush &bgBrush)
@@ -148,7 +148,7 @@ void QPicturePaintEngine::updateBackground(Qt::BGMode bgMode, const QBrush &bgBr
 
     SERIALIZE_CMD(PdcSetBkMode);
     d->s << (Q_INT8) bgMode;
-    writeCmdLength(pos, QRect(), false);
+    writeCmdLength(pos, QRectF(), false);
 }
 
 void QPicturePaintEngine::updateMatrix(const QMatrix &matrix)
@@ -156,7 +156,7 @@ void QPicturePaintEngine::updateMatrix(const QMatrix &matrix)
     int pos;
     SERIALIZE_CMD(PdcSetWMatrix);
     d->s << matrix << (Q_INT8) false;
-    writeCmdLength(pos, QRect(), false);
+    writeCmdLength(pos, QRectF(), false);
 }
 
 void QPicturePaintEngine::updateClipRegion(const QRegion &region, Qt::ClipOperation op)
@@ -165,11 +165,11 @@ void QPicturePaintEngine::updateClipRegion(const QRegion &region, Qt::ClipOperat
     int pos;
     SERIALIZE_CMD(PdcSetClipRegion);
     d->s << region << Q_INT8(0);
-    writeCmdLength(pos, QRect(), false);
+    writeCmdLength(pos, QRectF(), false);
 
     SERIALIZE_CMD(PdcSetClip);
     d->s << (Q_INT8) !region.isEmpty();
-    writeCmdLength(pos, QRect(), false);
+    writeCmdLength(pos, QRectF(), false);
 }
 
 void QPicturePaintEngine::writeCmdLength(int pos, const QRectF &r, bool corr)
@@ -231,7 +231,7 @@ void QPicturePaintEngine::drawPoint(const QPointF &p)
     int pos;
     SERIALIZE_CMD(PdcDrawPoint);
     d->s << p;
-    writeCmdLength(pos, QRectF(p,QSizeF(1, 1)), true);
+    writeCmdLength(pos, QRectF(p, QSizeF(1, 1)), true);
 }
 
 void QPicturePaintEngine::drawEllipse(const QRectF &r)
@@ -275,11 +275,10 @@ void QPicturePaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap
     writeCmdLength(pos, r, false);
 }
 
-// ### Implementation missing?
-void QPicturePaintEngine::drawTextItem(const QPointF &/* p */, const QTextItem &/* ti */, int /* textflags */)
+void QPicturePaintEngine::drawTextItem(const QPointF &p , const QTextItem &ti , int /*textflags*/)
 {
-//     int pos;
-//     SERIALIZE_CMD(PdcDrawText2);
-//     d->s << p << QString(ti.chars, ti.num_chars);
-//     writeCmdLength(pos, QRect(p, p), true);
+    int pos;
+    SERIALIZE_CMD(PdcDrawText2);
+    d->s << p << QString(ti.chars, ti.num_chars);
+    writeCmdLength(pos, QRectF(p, QSizeF(1,1)), true);
 }
