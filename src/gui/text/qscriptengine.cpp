@@ -321,11 +321,245 @@ static void basic_attributes( int /*script*/, const QString &text, int from, int
     }
 }
 
+
+
 // --------------------------------------------------------------------------------------------------------------------------------------------
 //
 // Middle eastern languages
 //
 // --------------------------------------------------------------------------------------------------------------------------------------------
+
+
+/*
+According to http://www.microsoft.com/middleeast/Arabicdev/IE6/KBase.asp
+
+1. Find the priority of the connecting opportunities in each word
+2. Add expansion at the highest priority connection opportunity
+3. If more than one connection opportunity have the same highest value,
+   use the opportunity closest to the end of the word.
+
+Following is a chart that provides the priority for connection
+opportunities and where expansion occurs. The character group names
+are those in table 6.6 of the UNICODE 2.0 book.
+
+
+PrioritY	Glyph                   Condition                                       Kashida Location
+
+Arabic_Kashida	User inserted Kashida   The user entered a Kashida in a position.       After the user
+		(Shift+j or Shift+Ê)    Thus, it is the highest priority to insert an   inserted kashida
+					automatic kashida.
+
+Arabic_Seen	Seen, Sad               Connecting to the next character.               After the character.
+					(Initial or medial form).
+
+Arabic_HaaDal	Teh Marbutah, Haa, Dal  Connecting to previous character.               Before the final form
+											of these characters.
+
+Arabic_Alef     Alef, Tah, Lam,         Connecting to previous character.               Before the final form
+		Kaf and Gaf                                                             of these characters.
+
+Arabic_BaRa     Ra, Ya, Alef Maqsurah   Connected to medial BAA                         Before preceding medial Baa
+
+Arabic_Waw	Waw, Ain, Qaf, Fa       Connecting to previous character.               Before the final form of
+											these characters.
+
+Arabic_Normal   Other connecting        Connecting to previous character.               Before the final form
+		characters                                                              of these characters.
+
+
+
+This seems to imply that we have at most one kashida point per arabic word.
+
+*/
+
+
+enum Joining {
+    JNone,
+    JCausing,
+    JDual,
+    JRight,
+    JTransparent
+};
+
+// these groups correspond to the groups defined in the Unicode standard.
+// ##### Should add in syriac as well.
+enum ArabicGroup {
+    // NonJoining
+    ArabicNone,
+    // Transparent
+    Transparent,
+    // Causing
+    Center,
+    Kashida,
+    // Dual
+    Beh,
+    Noon,
+    Yeh,
+    Hah,
+    Seen,
+    Sad,
+    Tah,
+    Ain,
+    Feh,
+    Qaf,
+    Meem,
+    Heh,
+    KnottedHeh,
+    HehGoal,
+    Kaf,
+    SwashKaf,
+    Gaf,
+    Lam,
+    // Right
+    Alef,
+    Waw,
+    Dal,
+    Reh,
+    TehMarbuta,
+    HamzaOnHehGoal,
+    YehWithTail,
+    YehBarre
+};
+
+static const Joining joining_for_group[] = {
+    // NonJoining
+    JNone,
+    // Transparent
+    JTransparent,
+    // Causing
+    JCausing,
+    JCausing,
+    // Dual
+    JDual,
+    JDual,
+    JDual,
+    JDual,
+    JDual,
+    JDual,
+    JDual,
+    JDual,
+    JDual,
+    JDual,
+    JDual,
+    JDual,
+    JDual,
+    JDual,
+    JDual,
+    JDual,
+    JDual,
+    JDual,
+    // Right
+    JRight,
+    JRight,
+    JRight,
+    JRight,
+    JRight,
+    JRight,
+    JRight,
+    JRight
+};
+
+static const unsigned char arabic_group[0x100] = {
+    ArabicNone, ArabicNone, ArabicNone, ArabicNone,
+    ArabicNone, ArabicNone, ArabicNone, ArabicNone,
+    ArabicNone, ArabicNone, ArabicNone, ArabicNone,
+    ArabicNone, ArabicNone, ArabicNone, ArabicNone,
+
+    Transparent, Transparent, Transparent, Transparent,
+    Transparent, Transparent, ArabicNone, ArabicNone,
+    ArabicNone, ArabicNone, ArabicNone, ArabicNone,
+    ArabicNone, ArabicNone, ArabicNone, ArabicNone,
+
+    ArabicNone, ArabicNone, Alef, Alef,
+    Waw, Alef, Yeh, Alef,
+    Beh, TehMarbuta, Beh, Beh,
+    Hah, Hah, Hah, Dal,
+
+    Dal, Reh, Reh, Seen,
+    Seen, Sad, Sad, Tah,
+    Tah, Ain, Ain, ArabicNone,
+    ArabicNone, ArabicNone, ArabicNone, ArabicNone,
+
+    // 0x640
+    Kashida, Feh, Qaf, Kaf,
+    Lam, Meem, Noon, Heh,
+    Waw, Yeh, Yeh, Transparent,
+    Transparent, Transparent, Transparent, Transparent,
+
+    Transparent, Transparent, Transparent, Transparent,
+    Transparent, Transparent, Transparent, Transparent,
+    Transparent, ArabicNone, ArabicNone, ArabicNone,
+    ArabicNone, ArabicNone, ArabicNone, ArabicNone,
+
+    ArabicNone, ArabicNone, ArabicNone, ArabicNone,
+    ArabicNone, ArabicNone, ArabicNone, ArabicNone,
+    ArabicNone, ArabicNone, ArabicNone, ArabicNone,
+    ArabicNone, ArabicNone, Beh, Qaf,
+
+    Transparent, Alef, Alef, Alef,
+    ArabicNone, Alef, Waw, Waw,
+    Yeh, Beh, Beh, Beh,
+    Beh, Beh, Beh, Beh,
+
+    // 0x680
+    Beh, Hah, Hah, Hah,
+    Hah, Hah, Hah, Hah,
+    Dal, Dal, Dal, Dal,
+    Dal, Dal, Dal, Dal,
+
+    Dal, Reh, Reh, Reh,
+    Reh, Reh, Reh, Reh,
+    Reh, Reh, Seen, Seen,
+    Seen, Sad, Sad, Tah,
+
+    Ain, Feh, Feh, Feh,
+    Feh, Feh, Feh, Qaf,
+    Qaf, Gaf, SwashKaf, Gaf,
+    Kaf, Kaf, Kaf, Gaf,
+
+    Gaf, Gaf, Gaf, Gaf,
+    Gaf, Lam, Lam, Lam,
+    Lam, Noon, Noon, Noon,
+    Noon, Noon, KnottedHeh, Hah,
+
+    // 0x6c0
+    TehMarbuta, HehGoal, HamzaOnHehGoal, HamzaOnHehGoal,
+    Waw, Waw, Waw, Waw,
+    Waw, Waw, Waw, Waw,
+    Yeh, YehWithTail, Yeh, Waw,
+
+    Yeh, Yeh, YehBarre, YehBarre,
+    ArabicNone, TehMarbuta, Transparent, Transparent,
+    Transparent, Transparent, Transparent, Transparent,
+    Transparent, ArabicNone, ArabicNone, Transparent,
+
+    Transparent, Transparent, Transparent, Transparent,
+    Transparent, ArabicNone, ArabicNone, Transparent,
+    Transparent, ArabicNone, Transparent, Transparent,
+    Transparent, Transparent, Dal, Reh,
+
+    ArabicNone, ArabicNone, ArabicNone, ArabicNone,
+    ArabicNone, ArabicNone, ArabicNone, ArabicNone,
+    ArabicNone, ArabicNone, Seen, Sad,
+    Ain, ArabicNone, ArabicNone, KnottedHeh,
+
+};
+
+static inline ArabicGroup arabicGroup(unsigned short uc)
+{
+    if ((uc & 0xff00) == 0x0600)
+	return (ArabicGroup) arabic_group[uc-0x600];
+    else if (uc == 0x200d)
+	return Center;
+    else
+	return ArabicNone;
+}
+
+struct ArabicProperties {
+    unsigned char shape;
+    unsigned char justification;
+};
+
 
 /*
    Arabic shaping obeys a number of rules according to the joining classes (see Unicode book, section on
@@ -357,97 +591,61 @@ static void basic_attributes( int /*script*/, const QString &text, int from, int
    L2 Any sequence of Alef(XRight) + Lam(XMedial) will form the ligature Alef.Lam(XLeft)
    L3 Any sequence of Alef(XRight) + Lam(XLeft) will form the ligature Alef.Lam(XIsolated)
 
-   The two functions defined in this class do shaping in visual and logical order. For logical order just replace right with
-   previous and left with next in the above rules ;-)
+   The state table below handles rules R1-R7.
 */
-
-/*
-  Two small helper functions for arabic shaping. They get the next shape causing character on either
-  side of the char in question. Implements rule R1.
-
-  leftChar() returns true if the char to the left is a left join-causing char
-  rightChar() returns true if the char to the right is a right join-causing char
-*/
-
 
 enum Shape {
-    XIsolated,
     XFinal,
     XMedial,
-    XInitial
+    XInitial,
+    XIsolated,
+    // intermediate state
+    XCausing
 };
 
-/*
-  Two small helper functions for arabic shaping. They get the next shape causing character on either
-  side of the char in question. Implements rule R1.
+struct JoiningPair {
+    Shape form1;
+    Shape form2;
+};
+Q_DECLARE_TYPEINFO(JoiningPair, Q_PRIMITIVE_TYPE);
 
-  leftChar() returns true if the char to the left is a left join-causing char
-  rightChar() returns true if the char to the right is a right join-causing char
-*/
-static inline const QChar prevChar( const QString &str, int pos )
+static const JoiningPair joining_table[5][4] =
+// None, Causing, Dual, Right
 {
-    //qDebug("leftChar: pos=%d", pos);
-    pos--;
-    const QChar *ch = str.unicode() + pos;
-    while( pos > -1 ) {
-	if( ::category( *ch ) != QChar::Mark_NonSpacing )
-	    return *ch;
-	pos--;
-	ch--;
+    { { XFinal, XIsolated }, { XFinal, XCausing }, { XFinal, XInitial }, { XFinal, XIsolated } }, // XFinal
+    { { XFinal, XIsolated }, { XMedial, XCausing }, { XMedial, XMedial }, { XMedial, XFinal } }, // XMedial
+    { { XIsolated, XIsolated }, { XInitial, XCausing }, { XInitial, XMedial }, { XInitial, XFinal } }, // XInitial
+    { { XIsolated, XIsolated }, { XIsolated, XCausing }, { XIsolated, XInitial }, { XIsolated, XIsolated } }, // XIsolated
+    { { XIsolated, XIsolated }, { XIsolated, XCausing }, { XIsolated, XMedial }, { XIsolated, XFinal } }, // XCausing
+};
+
+
+static void getArabicProperties(const unsigned short *chars, int len, ArabicProperties *properties)
+{
+//     qDebug("arabicSyriacOpenTypeShape: properties:");
+    int lastPos = 0;
+    ArabicGroup group = arabicGroup(chars[0]);
+    Joining j = joining_for_group[group];
+    Shape shape = joining_table[XIsolated][j].form2;
+    for (int i = 1; i < len; ++i) {
+	group = arabicGroup(chars[i]);
+	j = joining_for_group[group];
+// 	qDebug("    i=%d, shape=%d group=%d joining=%d", i, shape, group, j);
+	if (j == JTransparent) {
+	    properties[i].shape = XIsolated;
+	} else {
+	    properties[lastPos].shape = joining_table[shape][j].form1;
+	    shape = joining_table[shape][j].form2;
+// 	    qDebug("    lastPos=%d, shape=%d", lastPos, properties[lastPos].shape);
+	    lastPos = i;
+	}
     }
-    return QChar::replacement;
-}
-
-static inline const QChar nextChar( const QString &str, int pos)
-{
-    pos++;
-    int len = str.length();
-    const QChar *ch = str.unicode() + pos;
-    while( pos < len ) {
-	//qDebug("rightChar: %d isLetter=%d, joining=%d", pos, ch.isLetter(), ch.joining());
-	if( ::category( *ch ) != QChar::Mark_NonSpacing )
-	    return *ch;
-	// assume it's a transparent char, this might not be 100% correct
-	pos++;
-	ch++;
-    }
-    return QChar::replacement;
-}
-
-/* and the same thing for logical ordering :)
- */
-static inline bool prevLogicalCharJoins( const QString &str, int pos)
-{
-    return ( joining( nextChar( str, pos ) ) != QChar::OtherJoining );
-}
-
-static inline bool nextLogicalCharJoins( const QString &str, int pos)
-{
-    QChar::Joining join = joining( prevChar( str, pos ) );
-    return ( join == QChar::Dual || join == QChar::Center );
+    properties[lastPos].shape = joining_table[shape][XIsolated].form1;
 }
 
 
-static inline Shape glyphVariantLogical( const QString &str, int pos)
-{
-    QChar::Joining joining = ::joining( str.unicode()[pos] );
-    //qDebug("checking at %d: %x, joining=%d", pos, str[pos].unicode(), joining);
-    switch ( joining ) {
-	case QChar::OtherJoining:
-	case QChar::Center:
-	    // these don't change shape
-	    return XIsolated;
-	case QChar::Right:
-	    // only rule R2 applies
-	    return ( nextLogicalCharJoins( str, pos ) ) ? XFinal : XIsolated;
-	case QChar::Dual:
-	    bool right = nextLogicalCharJoins( str, pos );
-	    bool left = prevLogicalCharJoins( str, pos );
-	    //qDebug("dual: right=%d, left=%d", right, left);
-	    return ( right ) ? ( left ? XMedial : XFinal ) : ( left ? XInitial : XIsolated );
-    }
-    return XIsolated;
-}
+
+
 
 
 // The unicode to unicode shaping codec.
@@ -750,17 +948,45 @@ static const ushort arabicUnicodeLamAlefMapping[6][4] = {
 
 static inline int getShape( uchar cell, int shape )
 {
-#ifdef Q_OS_MAC
     // the arabicUnicodeMapping does not work for U+0649 ALEF MAKSURA, handle this here
     uint ch = ( cell != 0x49 )
 	      ? (shape ? arabicUnicodeMapping[cell][0] + shape : 0x600+cell)
 	      : alefMaksura[shape] ;
-#else
-    // the arabicUnicodeMapping does not work for U+0649 ALEF MAKSURA, handle this here
-    uint ch = ( cell != 0x49 ) ? arabicUnicodeMapping[cell][0] + shape
-	    		       : alefMaksura[shape] ;
-#endif
     return ch;
+}
+
+
+/*
+  Two small helper functions for arabic shaping.
+*/
+static inline const QChar prevChar( const QString &str, int pos )
+{
+    //qDebug("leftChar: pos=%d", pos);
+    pos--;
+    const QChar *ch = str.unicode() + pos;
+    while( pos > -1 ) {
+	if( ::category( *ch ) != QChar::Mark_NonSpacing )
+	    return *ch;
+	pos--;
+	ch--;
+    }
+    return QChar::replacement;
+}
+
+static inline const QChar nextChar( const QString &str, int pos)
+{
+    pos++;
+    int len = str.length();
+    const QChar *ch = str.unicode() + pos;
+    while( pos < len ) {
+	//qDebug("rightChar: %d isLetter=%d, joining=%d", pos, ch.isLetter(), ch.joining());
+	if( ::category( *ch ) != QChar::Mark_NonSpacing )
+	    return *ch;
+	// assume it's a transparent char, this might not be 100% correct
+	pos++;
+	ch++;
+    }
+    return QChar::replacement;
 }
 
 
@@ -773,6 +999,9 @@ static void shapedString(const QString& uc, int from, int len, QChar *shapeBuffe
 	*shapedLength = 0;
 	return;
     }
+
+    QVarLengthArray<ArabicProperties> properties(len);
+    getArabicProperties((const unsigned short *)(uc.unicode()+from), len, properties);
 
     const QChar *ch = uc.unicode() + from;
     QChar *data = shapeBuffer;
@@ -796,7 +1025,7 @@ static void shapedString(const QString& uc, int from, int len, QChar *shapeBuffe
 	} else {
 	    uchar c = ch->cell();
 	    int pos = i + from;
-	    int shape = glyphVariantLogical( uc, pos );
+	    int shape = properties[i].shape;
 //  	    qDebug("mapping U+%x to shape %d glyph=0x%x", ch->unicode(), shape, getShape(c, shape));
 	    // take care of lam-alef ligatures (lam right of alef)
 	    ushort map;
@@ -861,11 +1090,10 @@ static void arabicSyriacOpenTypeShape( int script, QOpenType *openType, const QS
     convertToCMap( string.unicode() + from, len, engine, si );
     heuristicSetGlyphAttributes( string, from, len, engine, si );
 
-    QVarLengthArray<char> glyphVariant(si->num_glyphs);
-    QVarLengthArray<bool> apply(si->num_glyphs);
+    QVarLengthArray<ArabicProperties> properties(si->num_glyphs);
+    getArabicProperties((const unsigned short *)(string.unicode()+from), len, properties);
 
-    for ( int i = 0; i < si->num_glyphs; i++ )
-	glyphVariant[i] = glyphVariantLogical( string, from + i );
+    QVarLengthArray<bool> apply(si->num_glyphs);
 
     QGlyphLayout *glyphs = engine->glyphs(si);
     unsigned short *logClusters = engine->logClusters(si);
@@ -877,7 +1105,7 @@ static void arabicSyriacOpenTypeShape( int script, QOpenType *openType, const QS
  	if (uc[i] == 0x200c || uc[i] == 0x200d)
  	    continue;
  	glyphs[j] = glyphs[i];
- 	glyphVariant[i] = glyphVariant[j];
+ 	properties[i] = properties[j];
  	logClusters[i] = logClusters[j];
  	++j;
     }
@@ -900,7 +1128,7 @@ static void arabicSyriacOpenTypeShape( int script, QOpenType *openType, const QS
 	};
 	for (int j = 0; j < 4; ++j) {
 	    for ( int i = 0; i < si->num_glyphs; i++ )
-		apply[i] = (glyphVariant[i] == features[j].shape);
+		apply[i] = (properties[i].shape == features[j].shape);
 	    openType->applyGSUBFeature(features[j].tag, apply);
 	}
     } else {
@@ -918,7 +1146,7 @@ static void arabicSyriacOpenTypeShape( int script, QOpenType *openType, const QS
 	};
 	for (int j = 0; j < 7; ++j) {
 	    for ( int i = 0; i < si->num_glyphs; i++ )
-		apply[i] = (glyphVariant[i] == features[j].shape);
+		apply[i] = (properties[i].shape == features[j].shape);
 	    openType->applyGSUBFeature(features[j].tag, apply);
 	}
     }

@@ -143,18 +143,17 @@ struct QGlyphLayout
 	// spacing, and last spacing between arabic words.
 	// NoJustification is for example set for arabic where no Kashida can be inserted or for diacritics.
 	enum Justification {
-	    NoJustification= 0,   // Justification can't be applied at this glyph
-	    Arabic_Space   = 1,   // This glyph represents a space in an Arabic item
+	    NoJustification= 0,   // Justification can't be applied after this glyph
+	    Arabic_Space   = 1,   // This glyph represents a space inside arabic text
 	    Character      = 2,   // Inter-character justification point follows this glyph
 	    Space          = 4,   // This glyph represents a blank outside an Arabic run
 	    Arabic_Normal  = 7,   // Normal Middle-Of-Word glyph that connects to the right (begin)
-	    Arabic_Kashida = 8,   // Kashida(U+640) in middle of word
-	    Arabic_Alef    = 9,   // Final form of Alef-like (U+627, U+625, U+623, U+632)
-	    Arabic_Ha      = 10,  // Final Form Of Ha (U+647)
-	    Arabic_Ra      = 11,  // Final Form Of Ra (U+631)
-	    Arabic_Ba      = 12,  // Middle-Of-Word Form Of Ba (U+628)
-	    Arabic_Bara    = 13,  // Ligature Of Alike (U+628,U+631)
-	    Arabic_Seen    = 14   // Highest Priority: Initial Shape Of Seen(U+633) (End)
+	    Arabic_Waw     = 8,    // Next character is final form of Waw/Ain/Qaf/Fa
+	    Arabic_BaRa    = 9,   // Next two chars are Ba + Ra/Ya/AlefMaksura
+	    Arabic_Alef    = 10,  // Next character is final form of Alef/Tah/Lam/Kaf/Gaf
+	    Arabic_HaaDal  = 11,  // Next character is final form of Haa/Dal/Taa Marbutah
+	    Arabic_Seen    = 12,  // Initial or Medial form Of Seen/Sad
+	    Arabic_Kashida = 13,  // Kashida(U+640) in middle of word
 	};
 	unsigned short justification   :4;  // Justification class
 	unsigned short clusterStart    :1;  // First glyph of representation of cluster
