@@ -20,7 +20,11 @@
 #include <qpixmap.h>
 #include <qpaintdevicemetrics.h>
 #include <qpainter.h>
-#include <qmetaobject.h>
+#include <qobject.h>
+#ifdef QAX_SERVER
+#include <qaxfactory.h>
+extern QAxFactoryInterface *qAxFactory();
+#endif
 
 extern IDispatch *create_object_wrapper( QObject *o );
 GUID IID_IAxServerBase = { 0xbd2ec165, 0xdfc9, 0x4319, { 0x8b, 0x9b, 0x60, 0xa5, 0x74, 0x78, 0xe9, 0xe3} };
@@ -1438,7 +1442,7 @@ bool QUObjectToVARIANT( QUObject *obj, VARIANT &arg, const QUParameter *param )
 		if ( ptrvalue )
 		    var.punkVal->AddRef();
 #ifdef QAX_SERVER
-	    } else if ( QMetaObject::metaObject( vartype ) ) {
+	    } else if (qAxFactory()->featureList().contains(vartype)) {
 		var.vt = VT_DISPATCH;
 		var.pdispVal = ptrvalue ? create_object_wrapper( (QObject*)ptrvalue ) : 0;
 #endif
