@@ -41,9 +41,9 @@ DatabaseConnectionsEditor::DatabaseConnectionsEditor( Project *pro, QWidget* par
     connectionWidget = new DatabaseConnectionWidget( grp );
     grpLayout->addWidget( connectionWidget, 0, 0 );
 #ifndef QT_NO_SQL
-    QPtrList<DatabaseConnection> lst = project->databaseConnections();
-    for ( DatabaseConnection *conn = lst.first(); conn; conn = lst.next() )
-	listConnections->insertItem( conn->name() );
+    QList<DatabaseConnection*> lst = project->databaseConnections();
+    for(QList<DatabaseConnection*>::Iterator it = lst.begin(); it != lst.end(); ++it)
+	listConnections->insertItem( (*it)->name() );
     connectionWidget->comboDriver->insertStringList( QSqlDatabase::drivers() );
 #endif
     connectionWidget->editName->setValidator( new AsciiValidator( connectionWidget->editName ) );

@@ -22,7 +22,6 @@
 #include <qpushbutton.h>
 #include <qlineedit.h>
 #include <qcombobox.h>
-#include <qstrlist.h>
 #include <qmessagebox.h>
 #include <qlayout.h>
 #include <qlabel.h>
@@ -138,7 +137,7 @@ void EditFunctions::okClicked()
     QList<FunctItem> invalidItems;
 
     if ( !functList.isEmpty() ) {
-	QStrList lst;
+	QList<QCString> lst;
 	QList<FunctItem>::Iterator it = functList.begin();
 	for ( ; it != functList.end(); ++it ) {
 	    MetaDataBase::Function function;
@@ -156,7 +155,7 @@ void EditFunctions::okClicked()
 	    bool noParens = s.count( '(' ) != 1 || s.count( ')' ) != 1;
 	    bool illegalSpace = s.find( ' ' ) != -1 && s.find( ' ' ) < s.find( '(' );
 
-	    if ( startNum || noParens || illegalSpace || lst.find( function.function ) != -1 ) {
+	    if ( startNum || noParens || illegalSpace || lst.findIndex( function.function ) != -1 ) {
 		invalidFunctions = TRUE;
 		invalidItems.append( (*it) );
 		continue;
