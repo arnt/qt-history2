@@ -84,6 +84,11 @@ QString QText::escape(const QString& plain)
 
     \ingroup text
 
+    A text document can be thought of as a list of strings and their
+    associated formats. A format can contain "references" to objects,
+    such as a QTextList, a QTextFrame, or a QTextTable, and these are
+    available using object().
+
     A QTextDocument can be edited programmatically using a
     \l{QTextCursor}.
 
@@ -318,7 +323,7 @@ void QTextDocument::setHtml(const QString &html)
 }
 
 /*!
-    \enum QTextDocument::FindFlags
+    \enum QTextDocument::FindFlag
 
     This enum describes the options available to QTextDocument's find function. The options
     can be OR-red together from the following list:
@@ -447,22 +452,17 @@ QTextFrame *QTextDocument::rootFrame() const
     return d->rootFrame();
 }
 
-// ### DOC: Give us a clue!
-
-// A document is basically a list of list of strings with associated
-// formats. Formats can contain "references" to objects. These
-// other formats are in the document associated with "text
-// objects". Depending on the format, this could be a QTextList, a
-// QTextFrame or a QTextTable. This method returns the associated
-// object for the objectIndex() of a format.
+/*!
+    Returns the text object associated with the given \a objectIndex.
+*/
 QTextObject *QTextDocument::object(int objectIndex) const
 {
     return d->objectForIndex(objectIndex);
 }
 
-// ### DOC: Give us a clue!
-// See above. This basically just takes the format \a f get's the
-// objectIndex() from it, and then does the same as the method above.
+/*!
+    Returns the text object associated with the format \a f.
+*/
 QTextObject *QTextDocument::objectForFormat(const QTextFormat &f) const
 {
     return d->objectForFormat(f);
@@ -494,14 +494,17 @@ QTextBlock QTextDocument::end() const
 }
 
 /*!
-    \fn QTextDocument::modificationChanged(bool m)
+    \fn QTextDocument::modificationChanged(bool changed)
 
-    This signal is emitted whenever the content of the document changes in a way that
-    affects the modification state.
+    This signal is emitted whenever the content of the document
+    changes in a way that affects the modification state. If \a
+    changed is true if the document has been modified; otherwise it is
+    false.
 
-    For example calling setModified(false) on a document and then inserting text causes 
-    the signal to get emitted. If you undo that operation, causing the document
-    to return to its original unmodified state, the signal will get emitted as well.
+    For example calling setModified(false) on a document and then
+    inserting text causes the signal to get emitted. If you undo that
+    operation, causing the document to return to its original
+    unmodified state, the signal will get emitted again.
 */
 
 /*!

@@ -334,6 +334,9 @@ QTextLayout::QTextLayout(const QString& string, const QFont& fnt)
     d = new QTextEngine((string.isNull() ? (const QString&)QString::fromLatin1("") : string), fnt.d);
 }
 
+/*!
+    Constructs a text layout to lay out the given \a block.
+*/
 QTextLayout::QTextLayout(const QTextBlock &block)
 {
     d = new QTextEngine();
@@ -858,13 +861,6 @@ void QTextLayout::draw(QPainter *p, const QPoint &pos, int cursorPos, const Sele
 */
 
 /*!
-    \enum QTextLine::BreakMode
-
-    \value BreakPixels
-    \value BreakGlyphs
-*/
-
-/*!
     \enum QTextLine::Edge
 
     \value Leading
@@ -872,10 +868,17 @@ void QTextLayout::draw(QPainter *p, const QPoint &pos, int cursorPos, const Sele
 */
 
 /*!
+    \enum QTextLine::LineWidthUnit
+
+    \value UnitIsPixels
+    \value UnitIsGlyphs
+*/
+
+/*!
     \enum QTextLine::CursorPosition
 
-    \value BetweenCharacters
-    \value OnCharacters
+    \value CursorBetweenCharacters
+    \value CursorOnCharacter
 */
 
 /*!

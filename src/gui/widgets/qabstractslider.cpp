@@ -164,6 +164,14 @@
     \sa triggerAction()
 */
 
+/*!
+    \enum QAbstractSlider::SliderChange
+
+    \value SliderRangeChange
+    \value SliderOrientationChange
+    \value SliderStepsChange
+    \value SliderValueChange
+*/
 
 QAbstractSliderPrivate::QAbstractSliderPrivate()
     : minimum(0), maximum(99), singleStep(1), pageStep(10),
@@ -217,7 +225,7 @@ QAbstractSlider::QAbstractSlider(QWidget *parent)
 {
 }
 
-/*\internal */
+/*! \internal */
 QAbstractSlider::QAbstractSlider(QAbstractSliderPrivate &dd, QWidget *parent)
     :QWidget(dd, parent, 0)
 {
@@ -391,11 +399,9 @@ bool QAbstractSlider::isSliderDown() const
 
 
 /*!
-    \property QAbstractSlider::sliderPosition
-    \brief the current position of the slider.
+    Sets the current slider position to the given \a position.
 
-    If \l tracking is enabled (the default), this is identical to \l
-    value.
+    \sa sliderPosition()
 */
 void QAbstractSlider::setSliderPosition(int position)
 {
@@ -410,6 +416,14 @@ void QAbstractSlider::setSliderPosition(int position)
         triggerAction(SliderMove);
 }
 
+/*!
+    Returns the slider position.
+
+    If \l tracking is enabled (the default), this is identical to \l
+    value.
+
+    \sa setSliderPosition()
+*/
 int QAbstractSlider::sliderPosition() const
 {
     return d->position;
@@ -562,11 +576,12 @@ void QAbstractSlider::timerEvent(QTimerEvent *e)
     }
 }
 
-/*!  
-  Reimplement this virtual function to track slider changes such as
-  \c SliderRangeChange, \c SliderOrientationChange,
-  \c SliderStepsChange, or \c SliderValueChange. The default
-  implementation only updates the display.
+/*!
+    Reimplement this virtual function to track slider changes such as
+    \c SliderRangeChange, \c SliderOrientationChange, \c
+    SliderStepsChange, or \c SliderValueChange. The default
+    implementation only updates the display and ignores the \a change
+    parameter.
  */
 void QAbstractSlider::sliderChange(SliderChange)
 {
@@ -603,6 +618,9 @@ void QAbstractSlider::wheelEvent(QWheelEvent * e)
 }
 
 
+/*!
+    \reimp
+*/
 void QAbstractSlider::keyPressEvent(QKeyEvent *ev)
 {
     SliderAction action = SliderNoAction;

@@ -464,6 +464,12 @@ static const int windowsRightBorder                = 12; // right border on wind
 
     \warning This style is only available on the Windows XP platform
     because it makes use of Windows XP's style engine.
+
+    Most of the functions are documented in the base classes
+    \l{QWindowsStyle}, \l{QCommonStyle}, and \l{QStyle}, but the
+    QWindowsXPStyle overloads of drawComplexControl(), drawControl(),
+    drawControlMask(), drawPrimitive(), querySubControlMetrics(), and
+    sizeFromContents(), are documented here.
 */
 
 /*!
@@ -475,7 +481,11 @@ QWindowsXPStyle::QWindowsXPStyle()
     d = new QWindowsXPStylePrivate;
 }
 
-/*! \reimp */
+/*!
+    \overload
+
+    Destroys the style.
+*/
 QWindowsXPStyle::~QWindowsXPStyle()
 {
     delete d;
@@ -627,7 +637,11 @@ void QWindowsXPStyle::unPolish(QWidget *widget)
     QWindowsStyle::unPolish(widget);
 }
 
-/*! \reimp */
+/*!
+    \internal
+
+    Updates the region occupied by the given \a widget.
+*/
 void QWindowsXPStyle::updateRegion(QWidget *widget)
 {
     if (!use_xp)
@@ -652,7 +666,14 @@ void QWindowsXPStyle::updateRegion(QWidget *widget)
     }
 }
 
-/*! \reimp */
+/*!
+    \overload
+
+    Draws the primitive element \a op on the painter \a p. The
+    confining rectangle is \a r and the palette to use is \a pal. The
+    drawing respects the flags in \a flags, and the style options in
+    \a opt.
+*/
 void QWindowsXPStyle::drawPrimitive(PrimitiveElement op,
                                     QPainter *p,
                                     const QRect &r,
@@ -1064,7 +1085,15 @@ void QWindowsXPStyle::drawPrimitive(PrimitiveElement op,
     theme.drawBackground();
 }
 
-/*! \reimp */
+/*!
+    \overload
+
+    Draws the control \a element on the painter \a p. The confining
+    rectangle is \a r and the palette to use is \a pal. The drawing
+    respects the flags in \a flags, and the style options in \a opt.
+    The \a widget may be given and may be useful for drawing the
+    control.
+*/
 void QWindowsXPStyle::drawControl(ControlElement element,
                                   QPainter *p,
                                   const QWidget *widget,
@@ -1416,7 +1445,13 @@ void QWindowsXPStyle::drawControl(ControlElement element,
     d->currentWidget = 0;
 }
 
-/*! \reimp */
+/*!
+    \overload
+
+    Draws the control \a element on the painter \a p. The confining
+    rectangle is \a r and the style option is \a option. The \a widget
+    may be given and may be useful for drawing the element.
+*/
 void QWindowsXPStyle::drawControlMask(ControlElement element,
                           QPainter *p,
                           const QWidget *widget,
@@ -1497,7 +1532,15 @@ static int qPositionFromValue(const QRangeControl * rc, int logical_val,
     // span <= 4096
 }
 
-/*! \reimp */
+/*!
+    \overload
+
+    Draws the complex \a control on the painter \a p. The confining
+    rectangle is \a r and the palette to use is \a pal. The drawing
+    respects the flags in \a flags, \a sub, and \a subActive, and the
+    style options in \a opt. The widget \a w may be given and may be
+    useful for drawing the control.
+*/
 void QWindowsXPStyle::drawComplexControl(ComplexControl control,
                                          QPainter* p,
                                          const QWidget* w,
@@ -2409,7 +2452,13 @@ int QWindowsXPStyle::pixelMetric(PixelMetric metric,
     return QWindowsStyle::pixelMetric(metric, widget);
 }
 
-/*! \reimp */
+/*!
+    \overload
+
+    Returns the rectangle needed by the sub-control \a sc in the given
+    \a control using the style \a option. The \a widget may contain a
+    widget that is useful for calculating the size.
+*/
 QRect QWindowsXPStyle::querySubControlMetrics(ComplexControl control,
                                               const QWidget *widget,
                                               SubControl sc,
@@ -2498,7 +2547,11 @@ QRect QWindowsXPStyle::querySubControlMetrics(ComplexControl control,
 }
 
 /*!
-  \reimp
+    \overload
+
+    Returns the size of the \a contents based on the \a contentsSize
+    and the style options in \a opt. The \a widget may
+    contain a widget that is useful for calculating the size.
 */
 QSize QWindowsXPStyle::sizeFromContents(ContentsType contents,
                                        const QWidget *widget,
@@ -2735,7 +2788,9 @@ bool QWindowsXPStyle::eventFilter(QObject *o, QEvent *e)
     return QWindowsStyle::eventFilter(o, e);
 }
 
-/*! \reimp */
+/*!
+    \overload
+*/
 void QWindowsXPStyle::activeTabChanged()
 {
     const QObject *s = sender();

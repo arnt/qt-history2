@@ -79,6 +79,14 @@ double operator/(const QCoreVariant &arg1, const QCoreVariant &arg2);
 */
 
 /*!
+    \enum QAbstractSpinBox::StepEnabledFlag
+
+    \value StepNone
+    \value StepUpEnabled
+    \value StepDownEnabled
+*/
+
+/*!
     Constructs an abstract spinbox.
 
     The \a parent arguments is sent to the QWidget constructor.
@@ -94,6 +102,9 @@ QAbstractSpinBox::QAbstractSpinBox(QWidget *parent)
     d->init();
 }
 
+/*!
+    \internal
+*/
 QAbstractSpinBox::QAbstractSpinBox(QAbstractSpinBoxPrivate &dd, QWidget *parent)
     : QWidget(dd, parent, 0)
 {
@@ -251,6 +262,11 @@ void QAbstractSpinBox::setWrapping(bool w)
     d->wrapping = w;
 }
 
+/*!
+    \property QAbstractSpinBox::slider
+    \brief whether the spin box's slider is pressed down
+*/
+
 bool QAbstractSpinBox::slider() const
 {
     return d->slider;
@@ -324,13 +340,13 @@ QAbstractSpinBox::StepEnabled QAbstractSpinBox::stepEnabled() const
 }
 
 /*!
-    Virtual function that is called when a step is whenever the user
-    triggers a step. This function takes an integer value to signify
-    how many steps were taken. E.g. Pressing Qt::Key_Down will trigger a
-    call to stepBy(-1), whereas pressing Qt::Key_Prior will trigger a call
-    to stepBy(10).
+    Virtual function that is called whenever the user triggers a step.
+    The \a steps parameter indicates how many steps were taken, e.g.
+    Pressing \c Qt::Key_Down will trigger a call to stepBy(-1),
+    whereas pressing \c Qt::Key_Prior will trigger a call to
+    stepBy(10).
 
-    If you subclass QAbstractSpinBox you will need to reimplement this
+    If you subclass QAbstractSpinBox you must reimplement this
     function. Note that this function is called even if the resulting
     value will be outside the bounds of minimum and maximum. It's this
     function's job to handle these situations.
@@ -371,8 +387,8 @@ void QAbstractSpinBox::interpretText()
     d->refresh(EmitIfChanged);
 }
 
-/*
-    !\reimp
+/*!
+    \reimp
 */
 
 void QAbstractSpinBox::showEvent(QShowEvent *)
@@ -384,8 +400,8 @@ void QAbstractSpinBox::showEvent(QShowEvent *)
     d->updateSpinBox();
 }
 
-/*
-    !\reimp
+/*!
+    \reimp
 */
 
 void QAbstractSpinBox::changeEvent(QEvent *e)
@@ -412,8 +428,8 @@ void QAbstractSpinBox::changeEvent(QEvent *e)
     QWidget::changeEvent(e);
 }
 
-/*
-    !\reimp
+/*!
+    \reimp
 */
 
 void QAbstractSpinBox::resizeEvent(QResizeEvent *e)
@@ -425,8 +441,8 @@ void QAbstractSpinBox::resizeEvent(QResizeEvent *e)
     QWidget::resizeEvent(e);
 }
 
-/*
-    !\reimp
+/*!
+    \reimp
 */
 
 QSize QAbstractSpinBox::sizeHint() const
@@ -434,8 +450,8 @@ QSize QAbstractSpinBox::sizeHint() const
     return d->sizeHint();
 }
 
-/*
-    !\reimp
+/*!
+    \reimp
 */
 
 QSize QAbstractSpinBox::minimumSizeHint() const
@@ -443,8 +459,8 @@ QSize QAbstractSpinBox::minimumSizeHint() const
     return d->minimumSizeHint();
 }
 
-/*
-    !\reimp
+/*!
+    \reimp
 */
 
 void QAbstractSpinBox::paintEvent(QPaintEvent *)
@@ -454,8 +470,8 @@ void QAbstractSpinBox::paintEvent(QPaintEvent *)
     style().drawComplexControl(QStyle::CC_SpinBox, &opt, &p, this);
 }
 
-/*
-    !\reimp
+/*!
+    \reimp
 
     This function handles keyboard input.
 
@@ -513,8 +529,8 @@ void QAbstractSpinBox::keyPressEvent(QKeyEvent *e)
     QWidget::keyPressEvent(e);
 }
 
-/*
-    !\reimp
+/*!
+    \reimp
 */
 
 void QAbstractSpinBox::keyReleaseEvent(QKeyEvent *e)
@@ -527,8 +543,8 @@ void QAbstractSpinBox::keyReleaseEvent(QKeyEvent *e)
     }
 }
 
-/*
-    !\reimp
+/*!
+    \reimp
 */
 
 void QAbstractSpinBox::wheelEvent(QWheelEvent *e)
@@ -540,8 +556,8 @@ void QAbstractSpinBox::wheelEvent(QWheelEvent *e)
     e->accept();
 }
 
-/*
-    !\reimp
+/*!
+    \reimp
 */
 
 void QAbstractSpinBox::focusOutEvent(QFocusEvent *e)
@@ -551,8 +567,8 @@ void QAbstractSpinBox::focusOutEvent(QFocusEvent *e)
     QWidget::focusOutEvent(e);
 }
 
-/*
-    !\reimp
+/*!
+    \reimp
 */
 
 void QAbstractSpinBox::timerEvent(QTimerEvent *e)
@@ -570,8 +586,8 @@ void QAbstractSpinBox::timerEvent(QTimerEvent *e)
     }
 }
 
-/*
-    !\reimp
+/*!
+    \reimp
 */
 
 void QAbstractSpinBox::contextMenuEvent(QContextMenuEvent *e)
@@ -610,8 +626,8 @@ void QAbstractSpinBox::contextMenuEvent(QContextMenuEvent *e)
 #endif
 }
 
-/*
-    !\reimp
+/*!
+    \reimp
 */
 
 void QAbstractSpinBox::mouseMoveEvent(QMouseEvent *e)
@@ -622,8 +638,8 @@ void QAbstractSpinBox::mouseMoveEvent(QMouseEvent *e)
     QWidget::mouseMoveEvent(e);
 }
 
-/*
-    !\reimp
+/*!
+    \reimp
 */
 
 void QAbstractSpinBox::mousePressEvent(QMouseEvent *e)
@@ -669,10 +685,9 @@ void QAbstractSpinBox::mousePressEvent(QMouseEvent *e)
     QWidget::mousePressEvent(e);
 }
 
-/*
-    !\reimp
+/*!
+    \reimp
 */
-
 void QAbstractSpinBox::mouseReleaseEvent(QMouseEvent *e)
 {
     d->dragging = d->sliderpressed = false;

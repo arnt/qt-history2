@@ -82,6 +82,13 @@ public:
     \link guibooks.html#fowler Fowler: Check Box \endlink
 */
 
+/*!
+    \enum QCheckBox::ToggleState
+
+    \value Off
+    \value NoChange
+    \value On
+*/
 
 /*!
     \fn void QCheckBox::stateChanged(int state)
@@ -166,6 +173,11 @@ bool QCheckBox::isTristate() const
 }
 
 
+/*!
+    Returns the check box's toggle state.
+
+    \sa setState() ToggleState
+*/
 QCheckBox::ToggleState QCheckBox::state() const
 {
     if (d->tristate &&  d->noChange)
@@ -173,6 +185,11 @@ QCheckBox::ToggleState QCheckBox::state() const
     return d->checked ? On : Off;
 }
 
+/*!
+    Sets the check box's toggle state to \a state.
+
+    \sa state() ToggleState
+*/
 void QCheckBox::setState(ToggleState state)
 {
     if (state == NoChange) {
@@ -202,7 +219,7 @@ QSize QCheckBox::sizeHint() const
 }
 
 /*!
-    Draws the checkbox bevel. Called from paintEvent().
+    Draws the checkbox bevel on painter \a paint. Called from paintEvent().
 
     \sa drawLabel()
 */
@@ -215,7 +232,7 @@ void QCheckBox::drawBevel(QPainter *paint)
 
 
 /*!
-    Draws the check box label. Called from paintEvent().
+    Draws the check box label on painter \a p. Called from paintEvent().
 
     \sa drawBevel()
 */
@@ -226,16 +243,19 @@ void QCheckBox::drawLabel(QPainter *p)
     style().drawControl(QStyle::CE_CheckBoxLabel, &opt, p, this);
 }
 
-/*
-  Paints the button, by first calling drawBevel() and then
-  drawLabel(). If you reimplement paintEvent() in order to draw a
-  different label only, you can call drawBevel() from your code.
+/*!
+    \fn void QCheckBox::paintEvent(QPaintEvent *event)
 
-  \code
-    QPainter p(this);
-    drawBevel(&p);
-    // ... your label drawing code
-  \endcode
+    Paints the button in response to the paint \a event, by first
+    calling drawBevel() and then drawLabel(). If you reimplement
+    paintEvent() in order to draw a different label only, you can call
+    drawBevel() from your own code.
+
+    \code
+        QPainter p(this);
+        drawBevel(&p);
+        // ... your label drawing code
+    \endcode
 */
 void QCheckBox::paintEvent(QPaintEvent *)
 {
