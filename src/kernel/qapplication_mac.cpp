@@ -298,7 +298,7 @@ void qt_event_request_updates(QWidget *w, QRegion &r)
     CreateEvent(NULL, kEventClassQt, kEventQtRequestPropagate, GetCurrentEventTime(),
 		kEventAttributeUserEvent, &upd);
     SetEventParameter(upd, kEventParamQWidget, typeQWidget, sizeof(w), &w);
-    PostEventToQueue( GetCurrentEventQueue(), upd, kEventPriorityStandard );
+    PostEventToQueue( GetMainEventQueue(), upd, kEventPriorityStandard );
 }
 static bool request_updates_pending = FALSE;
 void qt_event_request_updates()
@@ -310,7 +310,7 @@ void qt_event_request_updates()
     EventRef upd = NULL;
     CreateEvent(NULL, kEventClassQt, kEventQtRequestPropagate, GetCurrentEventTime(),
 		kEventAttributeUserEvent, &upd);
-    PostEventToQueue( GetCurrentEventQueue(), upd, kEventPriorityHigh );
+    PostEventToQueue( GetMainEventQueue(), upd, kEventPriorityHigh );
 }
 #ifndef QMAC_QMENUBAR_NO_NATIVE
 static bool request_menubarupdate_pending = FALSE;
@@ -323,7 +323,7 @@ void qt_event_request_menubarupdate()
     EventRef upd = NULL;
     CreateEvent(NULL, kEventClassQt, kEventQtRequestMenubarUpdate, GetCurrentEventTime(),
 		kEventAttributeUserEvent, &upd);
-    PostEventToQueue( GetCurrentEventQueue(), upd, kEventPriorityHigh );
+    PostEventToQueue( GetMainEventQueue(), upd, kEventPriorityHigh );
 }
 #endif
 
@@ -708,7 +708,7 @@ QMAC_PASCAL static void qt_activate_timers(EventLoopTimerRef, void *data)
     CreateEvent(NULL, kEventClassQt, kEventQtRequestTimer, GetCurrentEventTime(),
 		kEventAttributeUserEvent, &tmr_ev );
     SetEventParameter(tmr_ev, kEventParamTimer, typeTimerInfo, sizeof(tmr), &tmr);
-    PostEventToQueue( GetCurrentEventQueue(), tmr_ev, kEventPriorityStandard );
+    PostEventToQueue( GetMainEventQueue(), tmr_ev, kEventPriorityStandard );
 }
 
 //central cleanup
@@ -728,7 +728,7 @@ static bool killTimer(TimerInfo *t, bool remove=TRUE)
 	RemoveEventLoopTimer(t->mac_timer);
 	if(t->pending) {
 	    EventComparatorUPP fnc = NewEventComparatorUPP(find_timer_event);
-	    FlushSpecificEventsFromQueue(GetCurrentEventQueue(), fnc, (void *)t);
+	    FlushSpecificEventsFromQueue(GetMainEventQueue(), fnc, (void *)t);
 	    DisposeEventComparatorUPP(fnc);
 	}
     } else {
@@ -1062,7 +1062,7 @@ QApplication::qt_select_timer_callbk(EventLoopTimerRef, void *)
     EventRef sel = NULL;
     CreateEvent(NULL, kEventClassQt, kEventQtRequestSelect, GetCurrentEventTime(),
 		kEventAttributeUserEvent, &sel);
-    PostEventToQueue( GetCurrentEventQueue(), sel, kEventPriorityStandard );
+    PostEventToQueue( GetMainEventQueue(), sel, kEventPriorityStandard );
 }
 
 bool QApplication::processNextEvent( bool canWait )
@@ -1100,9 +1100,9 @@ bool QApplication::processNextEvent( bool canWait )
 	       (!qt_is_gui_used && SendEventToApplication(event)))
 		nevents++;
 	    ReleaseEvent(event);
-	} while(GetNumEventsInQueue(GetCurrentEventQueue()));
+	} while(GetNumEventsInQueue(GetMainEventQueue()));
 	sendPostedEvents();
-    } while(GetNumEventsInQueue(GetCurrentEventQueue()));
+    } while(GetNumEventsInQueue(GetMainEventQueue()));
 
     if( quit_now || app_exit_loop ) {
 #if defined(QT_THREAD_SUPPORT)
@@ -1519,7 +1519,7 @@ QApplication::qt_trap_context_mouse(EventLoopTimerRef r, void *d)
     CreateEvent(NULL, kEventClassQt, kEventQtRequestContext, GetCurrentEventTime(),
 		kEventAttributeUserEvent, &ctx );
     SetEventParameter(ctx, kEventParamQWidget, typeQWidget, sizeof(w), &w);
-    PostEventToQueue( GetCurrentEventQueue(), ctx, kEventPriorityStandard );
+    PostEventToQueue( GetMainEventQueue(), ctx, kEventPriorityStandard );
 }
 
 QMAC_PASCAL OSStatus
@@ -2219,7 +2219,7 @@ extern uint qGlobalPostedEventsCount();
 
 bool QApplication::hasPendingEvents()
 {
-    return qGlobalPostedEventsCount() || GetNumEventsInQueue(GetCurrentEventQueue());
+    return qGlobalPostedEventsCount() || GetNumEventsInQueue(GetMainEventQueue());
 }
 
 /*!
