@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#40 $
+** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#41 $
 **
 ** Implementation of QFontDialog
 **
@@ -701,7 +701,7 @@ void QFontDialog::setFont( const QFont &f )
 	    break;
 	}
 	if ( s.contains('-') ) {
-	    int i = s.find('-');
+	    i = s.find('-');
 	    if ( famNam == s.right( s.length() - i - 1 ) ) {
 		familyHighlighted( i );
 		i = -1;
