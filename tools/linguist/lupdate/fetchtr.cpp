@@ -50,9 +50,9 @@ static const char MagicComment[] = "TRANSLATOR ";
 */
 
 enum { Tok_Eof, Tok_class, Tok_tr, Tok_trUtf8, Tok_translate,
-       Tok_translateUtf8, Tok_Ident, Tok_Comment, Tok_String,
-       Tok_Gulbrandsen, Tok_RightBrace, Tok_LeftParen,
-       Tok_RightParen, Tok_Comma, Tok_Semicolon, Tok_TRUE, Tok_FALSE };
+       Tok_Ident, Tok_Comment, Tok_String, Tok_Gulbrandsen,
+       Tok_RightBrace, Tok_LeftParen, Tok_RightParen, Tok_Comma,
+       Tok_Semicolon, Tok_TRUE, Tok_FALSE };
 
 /*
   The tokenizer maintains the following global variables. The names
@@ -142,8 +142,12 @@ static int getToken()
 		    return Tok_translate;
 		break;
 	    case 'T':
-		if ( qstricmp(yyIdent + 1, "RUE") == 0 )
+		if ( qstricmp(yyIdent + 1, "R") == 0 ) {
+		    // TR() for when all else fails
+		    return Tok_tr;
+		} else if ( qstricmp(yyIdent + 1, "RUE") == 0 ) {
 		    return Tok_TRUE;
+		}
 		break;
 	    case 'c':
 		if ( qstrcmp(yyIdent + 1, "lass") == 0 )
