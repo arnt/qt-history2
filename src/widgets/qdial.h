@@ -43,18 +43,18 @@ public:
     QDial( int minValue, int maxValue, int pageStep, int value,
 	   QWidget *parent=0, const char *name=0 );
     ~QDial();
-qproperties:
+    
     virtual void setTracking( bool enable );
     bool tracking() const;
-public:
+    
     QSize sizeHint() const;
     QSizePolicy sizePolicy() const;
 
     virtual void setWrapping( bool on );
     bool wrapping() const;
-public:
+    
     int notchSize() const;
-qproperties:
+    
     virtual void setNotchTarget( double );
     double notchTarget() const;
 

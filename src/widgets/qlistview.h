@@ -174,10 +174,10 @@ class Q_EXPORT QListView: public QScrollView
 public:
     QListView( QWidget * parent = 0, const char *name = 0 );
     ~QListView();
-qproperties:
+
     int treeStepSize() const;
     virtual void setTreeStepSize( int );
-public:
+
     virtual void insertItem( QListViewItem * );
     virtual void takeItem( QListViewItem * );
     virtual void removeItem( QListViewItem * ); // obsolete, use takeItem instead
@@ -210,7 +210,7 @@ public:
     void ensureItemVisible( const QListViewItem * );
 
     void repaintItem( const QListViewItem * ) const;
-qproperties:
+
     virtual void setMultiSelection( bool enable );
     bool isMultiSelection() const;
 
@@ -218,7 +218,6 @@ qproperties:
     void setSelectionMode( SelectionMode mode );
     SelectionMode selectionMode() const;
 
-public:
     virtual void clearSelection();
     virtual void setSelected( QListViewItem *, bool );
     void invertSelection(); // ###### make virtual
@@ -233,7 +232,7 @@ public:
     QListViewItem * firstChild() const;
 
     int childCount() const;
-qproperties:
+
     virtual void setAllColumnsShowFocus( bool );
     bool allColumnsShowFocus() const;
 
@@ -242,7 +241,7 @@ qproperties:
 
     virtual void setRootIsDecorated( bool );
     bool rootIsDecorated() const;
-public:
+
     virtual void setSorting( int column, bool increasing = TRUE );
     void sort(); // #### make virtual in next major release
 
@@ -253,7 +252,7 @@ public:
 
     QSize sizeHint() const;
     QSize minimumSizeHint() const;
-qproperties:
+
     void setShowSortIndicator( bool show );
     bool showSortIndicator() const;
 

@@ -42,10 +42,10 @@ class Q_EXPORT QTextBrowser : public QTextView
 public:
     QTextBrowser( QWidget *parent=0, const char *name=0 );
     ~QTextBrowser();
-qproperties:
+
     virtual void setSource(const QString& name);
     QString source() const;
-public:
+
     void setText( const QString& contents, const QString& context=QString::null );
 
     void scrollToAnchor(const QString& name);

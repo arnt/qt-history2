@@ -38,8 +38,6 @@
 #define signals protected			// signals: in class
 #define emit					// emit signal
 
-#define qproperties public
-
 #ifdef QT_BUILDER
 
 /* tmake ignore Q_OBJECT */

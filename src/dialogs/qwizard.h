@@ -51,10 +51,8 @@ public:
 
     void show();
 
-qproperties:
     void setFont( const QFont & font );
 
-public:
     virtual void addPage( QWidget *, const QString & );
     virtual void removePage( QWidget * );
 

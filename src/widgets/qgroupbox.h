@@ -47,7 +47,7 @@ public:
     QGroupBox( int columns, Orientation o, const QString &title, QWidget *parent=0, const char* name=0 );
 
     virtual void setColumnLayout(int columns, Orientation o);
-qproperties:
+    
     QString title() const { return str; }
     virtual void setTitle( const QString &);
 

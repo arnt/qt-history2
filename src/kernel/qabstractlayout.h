@@ -160,24 +160,24 @@ public:
     QLayout( int space=-1, const char *name=0 );
 
     ~QLayout();
-qproperties:    
+    
     int spacing() const { return insideSpacing; }
     int margin() const { return outsideBorder; }
 
     virtual void setMargin( int );
     virtual void setSpacing( int );
-public:
+
     enum { unlimited = QWIDGETSIZE_MAX };
 #if 1 //OBSOLETE
     int defaultBorder() const { return insideSpacing; }
     void freeze( int w, int h );
     void freeze() { setResizeMode( Fixed ); }
 #endif
-qproperties:    
+
     enum ResizeMode { FreeResize, Minimum, Fixed };
     void setResizeMode( ResizeMode );
     ResizeMode resizeMode() const;
-public:
+
     virtual void  setMenuBar( QMenuBar *w );
 
     QWidget *mainWidget();

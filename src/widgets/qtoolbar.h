@@ -48,10 +48,10 @@ public:
     ~QToolBar();
 
     void addSeparator();
-    //qproperties:
+
     virtual void setOrientation( Orientation );
     Orientation orientation() const { return o; }
-public:
+
     void show();
 
     QMainWindow * mainWindow();

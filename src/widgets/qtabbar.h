@@ -58,13 +58,13 @@ class Q_EXPORT QTabBar: public QWidget
 public:
     QTabBar( QWidget * parent = 0, const char *name = 0 );
    ~QTabBar();
-qproperties:
+    
     enum Shape { RoundedAbove, RoundedBelow,
 		 TriangularAbove, TriangularBelow };
 
     Shape shape() const;
     virtual void setShape( Shape );
-public:
+    
     void show();
 
     virtual int addTab( QTab * );

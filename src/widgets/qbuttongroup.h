@@ -47,11 +47,12 @@ public:
     QButtonGroup( int columns, Orientation o, const QString &title,
 		  QWidget *parent=0, const char* name=0 );
    ~QButtonGroup();
-qproperties:
+
     bool	isExclusive() const;
     bool	isRadioButtonExclusive() const { return radio_excl; }
     virtual void setExclusive( bool );
     virtual void setRadioButtonExclusive( bool );
+    
 public:
     int		insert( QButton *, int id=-1 );
     void	remove( QButton * );

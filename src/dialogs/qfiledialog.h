@@ -261,9 +261,9 @@ public:
 public slots:
     void setDir( const QString& );
     void setFilter( const QString& );
+    void setFilters( const QString& );
     void setFilters( const char ** );
     void setFilters( const QStringList& );
-    void setFilters( const QString& );
 
 signals:
     void fileHighlighted( const QString& );

@@ -41,11 +41,9 @@ public:
     QCheckBox( QWidget *parent, const char *name=0 );
     QCheckBox( const QString &text, QWidget *parent, const char* name=0 );
 
-qproperties:
     bool    isChecked() const;
     void    setChecked( bool check );
-    
-public:
+
     void    setNoChange();
 
     void    setTristate(bool y=TRUE);

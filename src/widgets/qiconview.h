@@ -266,8 +266,8 @@ class Q_EXPORT QIconView : public QScrollView
     friend struct QIconViewPrivate;
 
     Q_OBJECT
-
-qproperties:
+    
+public:
     enum SelectionMode {
 	Single = 0,
 	Multi,
@@ -287,7 +287,6 @@ qproperties:
 	Right
     };
 
-public:
     QIconView( QWidget *parent = 0, const char *name = 0, WFlags f = 0 );
     virtual ~QIconView();
 
@@ -308,22 +307,19 @@ public:
 public:
     virtual void showEvent( QShowEvent * );
 
-qproperties:
     virtual void setSelectionMode( SelectionMode m );
     SelectionMode selectionMode() const;
 
-public:
     virtual void setSingleClickConfiguration( QFont *normalText, QColor *normalTextCol,
 					      QFont *highlightedText, QColor *highlightedTextCol,
 					      QCursor *highlightedCursor, int setCurrentInterval );
     void singleClickConfiguration( QFont *normalText, QColor *normalTextCol,
 				   QFont *highlightedText, QColor *highlightedTextCol,
 				   QCursor *highlightedCursor, int &setCurrentInterval ) const;
-qproperties:
+    
     virtual void setUseSingleClickMode( bool b );
     bool useSingleClickMode() const;
 
-public:
     QIconViewItem *findItem( const QPoint &pos ) const;
     QIconViewItem *findItem( const QString &text ) const;
     virtual void selectAll( bool select );
@@ -337,7 +333,6 @@ public:
 
     virtual void clear();
 
-qproperties:
     virtual void setGridX( int rx );
     virtual void setGridY( int ry );
     int gridX() const;
@@ -359,18 +354,15 @@ qproperties:
     void setAligning( bool b );
     bool aligning() const;
 
-public:
     void setSorting( bool sort, bool ascending = TRUE );
     bool sorting() const;
     bool sortDirection() const;
 
-qproperties:
     virtual void setEnableMoveItems( bool b );
     bool enableMoveItems() const;
     virtual void setWordWrapIconText( bool b );
     bool wordWrapIconText() const;
 
-public:
     virtual void setItemFont( const QFont &font );
     virtual void setItemColor( const QColor &color );
 

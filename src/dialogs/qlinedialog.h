@@ -31,6 +31,20 @@
 #include <qstring.h>
 #endif // QT_H
 
+
+//
+//  W A R N I N G
+//  -------------
+//
+//  It is very unlikely that this code will be available in the final
+//  Qt release.  It might be available soon after then, but a number
+//  of important API changes still need to be made.
+//
+//  Thus, it is important that you do NOT use this code in an application
+//  unless you are willing for your application to be dependent on a
+//  specific snapshot releases of Qt.
+//
+
 struct QLineDialogPrivate;
 
 class Q_EXPORT QLineDialog : public QDialog
@@ -39,10 +53,9 @@ class Q_EXPORT QLineDialog : public QDialog
 public:
     QLineDialog( const QString &label, QWidget* parent = 0, const char* name = 0, bool modal = TRUE );
     ~QLineDialog();
-qproperties:
+    
     QString text() const;
     virtual void setText( const QString &text );
-public:
     static QString getText( const QString &label, const QString &text = QString::null,
 			    bool *ok = 0, QWidget *parent = 0, const char *name = 0 );
 

@@ -49,13 +49,10 @@ public:
     QLineEdit( const QString &, QWidget *parent, const char *name=0 );
    ~QLineEdit();
 
-qproperties:
     QString text() const;
-    
-public:
+
     QString displayText() const;
 
-qproperties:
     int		maxLength()	const;
     virtual void setMaxLength( int );
 
@@ -66,7 +63,6 @@ qproperties:
     virtual void setEchoMode( EchoMode );
     EchoMode 	echoMode() const;
 
-public:
     virtual void setValidator( const QValidator * );
     const QValidator * validator() const;
 
@@ -74,30 +70,22 @@ public:
     QSize	minimumSizeHint() const;
     QSizePolicy sizePolicy() const;
 
-qproperties:
     virtual void setFont( const QFont & );
-    
-public:
     virtual void setPalette( const QPalette & );
-
     virtual void setSelection( int, int );
     
-qproperties:
     virtual void setCursorPosition( int );
     int		cursorPosition() const;
 
-public:
     bool	validateAndSet( const QString &, int, int, int );
 
     void	cut();
     void	copy() const;
     void	paste();
 
-qproperties:
     void setAlignment( int flag );
     int alignment() const;
 
-public:
     void	cursorLeft( bool mark, int steps = 1 );
     void	cursorRight( bool mark, int steps = 1 );
     void	cursorWordForward( bool mark );
@@ -107,18 +95,15 @@ public:
     void	home( bool mark );
     void	end( bool mark );
 
-qproperties:
     void	setEdited( bool );
     bool	edited() const;
 
-public:
     bool	hasMarkedText() const;
     QString	markedText() const;
 
-qproperties:
     virtual void setEnabled( bool );
     virtual void setText( const QString &);
-    
+
 public slots:
     void	selectAll();
     void	deselect();

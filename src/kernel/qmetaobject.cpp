@@ -68,10 +68,6 @@ public:
     QObjectFactory     objectFactory;
 };
 
-// Hack to go away with Qt 3.0
-#define DPTR ((QMetaObjectPrivate*)reservedForPropData)
-#define DPTR2( m ) ((QMetaObjectPrivate*)m->reservedForPropData)
-
 
 /*****************************************************************************
   Internal dictionary for fast access to class members
@@ -87,9 +83,9 @@ public:
     QMemberDict(int size=17,bool cs=TRUE,bool ck=TRUE) :
 	QAsciiDict<QMetaData>(size,cs,ck) {}
     QMemberDict( const QMemberDict &dict ) : QAsciiDict<QMetaData>(dict) {}
-   ~QMemberDict() { clear(); }
+    ~QMemberDict() { clear(); }
     QMemberDict &operator=(const QMemberDict &dict)
-	{ return (QMemberDict&)QAsciiDict<QMetaData>::operator=(dict); }
+    { return (QMemberDict&)QAsciiDict<QMetaData>::operator=(dict); }
 };
 
 /*
@@ -136,19 +132,19 @@ QMetaObject::QMetaObject( const char *class_name, const char *superclass_name,
 
     objectDict->insert( classname, this );	// insert into object dict
 
-    superclass =				// get super class meta object
-		 objectDict->find( superclassname );
+    superclass = objectDict->find( superclassname ); // get super class meta object
+						
 
-    reservedForPropData = new QMetaObjectPrivate;
-    reservedForPropDict = 0;
+    d = new QMetaObjectPrivate;
+    reserved = 0;
 
-    DPTR->enumData = 0;
-    DPTR->nEnumData = 0;
-    DPTR->propData = 0;
-    DPTR->nPropData = 0;
-    DPTR->metaPropData = 0;
-    DPTR->nMetaPropData = 0;
-    DPTR->objectFactory = 0;
+    d->enumData = 0;
+    d->nEnumData = 0;
+    d->propData = 0;
+    d->nPropData = 0;
+    d->metaPropData = 0;
+    d->nMetaPropData = 0;
+    d->objectFactory = 0;
 }
 
 QMetaObject::QMetaObject( const char *class_name, const char *superclass_name,
@@ -172,21 +168,21 @@ QMetaObject::QMetaObject( const char *class_name, const char *superclass_name,
     slotDict = init( slotData = slot_data, n_slots );
     signalDict = init( signalData = signal_data, n_signals );
 
-    reservedForPropData = new QMetaObjectPrivate;
-    reservedForPropDict = 0;
+    d = new QMetaObjectPrivate;
+    reserved = 0;
 
-    DPTR->propData = prop_data;
-    DPTR->nPropData = n_props;
-    DPTR->enumData = enum_data;
-    DPTR->nEnumData = n_enums;
-    DPTR->metaPropData = meta_prop_data;
-    DPTR->nMetaPropData = n_meta_props;
-    DPTR->objectFactory = 0;
+    d->propData = prop_data;
+    d->nPropData = n_props;
+    d->enumData = enum_data;
+    d->nEnumData = n_enums;
+    d->metaPropData = meta_prop_data;
+    d->nMetaPropData = n_meta_props;
+    d->objectFactory = 0;
 
     objectDict->insert( classname, this );	// insert into object dict
 
-    superclass =				// get super class meta object
-	objectDict->find( superclassname );
+    superclass = objectDict->find( superclassname ); // get super class meta object
+						
 }
 
 QMetaObject::~QMetaObject()
@@ -197,10 +193,8 @@ QMetaObject::~QMetaObject()
 	delete [] signalData;			//   initMetaObject()
     delete slotDict;				// delete dicts
     delete signalDict;
-    if ( reservedForPropDict )
-	delete reservedForPropDict;
-    if ( reservedForPropData )
-	delete reservedForPropData;
+    delete d;
+    delete reserved;
 }
 
 
@@ -235,12 +229,12 @@ int QMetaObject::nSignals( bool super ) const	// number of signals
 int QMetaObject::nProperties( bool super ) const	// number of properties
 {
     if ( !super )
-	return DPTR->nPropData;
+	return d->nPropData;
     int n = 0;
     register QMetaObject *meta = (QMetaObject *)this;
     while ( meta ) {				// for all super classes...
-      n += DPTR2(meta)->nPropData;
-      meta = meta->superclass;
+	n += meta->d->nPropData;
+	meta = meta->superclass;
     }
     return n;
 }
@@ -248,12 +242,12 @@ int QMetaObject::nProperties( bool super ) const	// number of properties
 int QMetaObject::nMetaProperties( bool super ) const	// number of meta properties
 {
     if ( !super )
-	return DPTR->nMetaPropData;
+	return d->nMetaPropData;
     int n = 0;
     register QMetaObject *meta = (QMetaObject *)this;
     while ( meta ) {				// for all super classes...
-      n += DPTR2(meta)->nMetaPropData;
-      meta = meta->superclass;
+	n += meta->d->nMetaPropData;
+	meta = meta->superclass;
     }
     return n;
 }
@@ -279,25 +273,25 @@ QMetaData *QMetaObject::signal( int index, bool super ) const
     return mdata( SIGNAL_CODE, index, super );	// get signal meta data
 }
 
-QMetaObject *QMetaObject::new_metaobject( const char *class_name,
-					  const char *superclass_name,
+QMetaObject *QMetaObject::new_metaobject( const char *classname,
+					  const char *superclassname,
 					  QMetaData *slot_data,	int n_slots,
 					  QMetaData *signal_data,int n_signals,
 					  QMetaProperty *prop_data, int n_props,
 					  QMetaEnum *enum_data, int n_enums,
 					  QMetaMetaProperty* meta_prop_data, int n_meta_props )
 {
-    return new QMetaObject( class_name, superclass_name, slot_data, n_slots,
+    return new QMetaObject( classname, superclassname, slot_data, n_slots,
 			    signal_data, n_signals, prop_data, n_props,
 			    enum_data, n_enums, meta_prop_data, n_meta_props );
 }
 
-QMetaObject *QMetaObject::new_metaobject( const char *class_name,
-					  const char *superclass_name,
+QMetaObject *QMetaObject::new_metaobject( const char *classname,
+					  const char *superclassname,
 					  QMetaData *slot_data,	int n_slots,
 					  QMetaData *signal_data,int n_signals)
 {
-    return new QMetaObject( class_name, superclass_name, slot_data, n_slots,
+    return new QMetaObject( classname, superclassname, slot_data, n_slots,
 			    signal_data, n_signals );
 }
 
@@ -327,9 +321,9 @@ QMetaData *QMetaObject::mdata( int code, const char *name, bool super ) const
     QMemberDict *dict;
     while ( TRUE ) {
 	switch ( code ) {			// find member
-	    case SLOT_CODE:   dict = meta->slotDict;   break;
-	    case SIGNAL_CODE: dict = meta->signalDict; break;
-	    default:	      return 0;		// should not happen
+	case SLOT_CODE:   dict = meta->slotDict;   break;
+	case SIGNAL_CODE: dict = meta->signalDict; break;
+	default:	      return 0;		// should not happen
 	}
 	
 	if ( dict ) {
@@ -354,9 +348,9 @@ QMetaData *QMetaObject::mdata( int code, int index, bool super ) const
     QMemberDict *dict;
     while ( TRUE ) {
 	switch ( code ) {			// find member
-	    case SLOT_CODE:   dict = meta->slotDict;   break;
-	    case SIGNAL_CODE: dict = meta->signalDict; break;
-	    default:	      return 0;		// should not happen
+	case SLOT_CODE:   dict = meta->slotDict;   break;
+	case SIGNAL_CODE: dict = meta->signalDict; break;
+	default:	      return 0;		// should not happen
 	}
 	int n = dict ? dict->count() : 0;
 	if ( super ) {
@@ -370,12 +364,12 @@ QMetaData *QMetaObject::mdata( int code, int index, bool super ) const
 	}
 	if ( index >= 0 && index < n ) {
 	    switch ( code ) {			// find member
-		case SLOT_CODE:	  d = meta->slotData;	break;
-		case SIGNAL_CODE: d = meta->signalData; break;
-		default:	  d = 0;	// eliminates compiler warning
+	    case SLOT_CODE:	  d = meta->slotData;	break;
+	    case SIGNAL_CODE: d = meta->signalData; break;
+	    default:	  d = 0;	// eliminates compiler warning
 	    }
 	    if ( d )
-	      return &(d[n-index-1]);
+		return &(d[n-index-1]);
 	} else {				// bad index
 	    return 0;
 	}
@@ -385,216 +379,187 @@ QMetaData *QMetaObject::mdata( int code, int index, bool super ) const
 #endif
 }
 
-void QMetaObject::fixProperty( QMetaProperty* prop, bool fix_enum_type )
+void QMetaObject::resolveProperty( QMetaProperty* prop )
 {
-  QMetaObject* super = superclass;
-  while( super )
-  {
-    QMetaProperty* p = super->property( prop->name );
-    if( p )
-    {
-      if ( prop->get == 0 )
-      {
-	if ( p->get )
-	{
-	  prop->get = p->get;
-	  prop->getSpec = p->getSpec;
+    QMetaObject* super = superclass;
+    while ( super ) {
+	QMetaProperty* p = super->property( prop->name );
+	if( p ) {
+	    if ( prop->get == 0 ) {
+		if ( p->get ) {
+		    prop->get = p->get;
+		    prop->gspec = p->gspec;
+		}
+	    }
+	    if ( prop->set == 0 ) {
+		if ( p->set ) {
+		    prop->set = p->set;
+		    prop->sspec = p->sspec;
+		}
+	    }
 	}
-      }
-      if ( prop->set == 0 )
-      {
-	if ( p->set )
-	{
-	  prop->set = p->set;
-	  prop->setSpec = p->setSpec;
+	if ( prop->testState( QMetaProperty::UnresolvedEnum ) ) {
+	    QMetaEnum* e = super->enumerator( prop->type );
+	    if ( e ) {
+		prop->enumType = e;
+		prop->clearState( QMetaProperty::UnresolvedEnum );
+	    }
 	}
-      }
+	super = super->superClass();
     }
-    if ( fix_enum_type && !prop->enumType )
-    {
-      QMetaEnum* e = super->enumerator( prop->type );
-      if ( e )
-	prop->enumType = e;
-    }
-    super = super->superClass();
-
-    if ( (prop->get != 0) && (prop->set != 0) && ( prop->enumType || !fix_enum_type ) )
-      return;
-  }
-
-  if ( prop->get == 0 )
-  {
-    qWarning("In class %s the property %s has no get function. The same applies for its super classes.",
-	  className(), prop->name );
-  }
-  if ( fix_enum_type && !prop->enumType )
-  {
-    qWarning("In class %s the property %s has the illegal type %s.",
-	  className(), prop->name, prop->type );
-  }
 }
 
-QMetaEnum* QMetaObject::enumerator( const char* _name, bool _super ) const
+QMetaEnum* QMetaObject::enumerator( const char* name, bool superclassname ) const
 {
-  for( int i = 0; i < DPTR->nEnumData; ++i )
-    if ( strcmp( DPTR->enumData[i].name, _name ) == 0 )
-      return &(DPTR->enumData[i]);
+    for( int i = 0; i < d->nEnumData; ++i )
+	if ( strcmp( d->enumData[i].name, name ) == 0 )
+	    return &(d->enumData[i]);
 
-  if ( !_super )
+    if ( !superclassname )
+	return 0;
+
+    QMetaObject* super = superclass;
+    while( super )
+	{
+	    QMetaEnum* e = super->enumerator( name, superclassname );
+	    if ( e )
+		return e;
+	    super = super->superClass();
+	}
+
     return 0;
-
-  QMetaObject* super = superclass;
-  while( super )
-  {
-    QMetaEnum* e = super->enumerator( _name, _super );
-    if ( e )
-      return e;
-    super = super->superClass();
-  }
-
-  return 0;
 }
 
 QMetaProperty* QMetaObject::property( int index ) const
 {
-    if ( index >= DPTR->nPropData || index < 0 )
+    if ( index >= d->nPropData || index < 0 )
 	return 0;
 
-    return &(DPTR->propData[ index ]);
+    return &(d->propData[ index ]);
 }
 
-QMetaProperty* QMetaObject::property( const char* _name, bool _super ) const
+QMetaProperty* QMetaObject::property( const char* name, bool super ) const
 {
-  for( int i = 0; i < DPTR->nPropData; ++i )
-    if ( strcmp( DPTR->propData[i].name, _name ) == 0 )
-      return &(DPTR->propData[i]);
+    for( int i = 0; i < d->nPropData; ++i )
+	if ( strcmp( d->propData[i].name, name ) == 0 )
+	    return &(d->propData[i]);
 
-  if ( !_super )
+    if ( !super )
+	return 0;
+
+    QMetaObject* meta = superclass;
+    while ( meta ) {
+	QMetaProperty* p = meta->property( name, super );
+	if ( p )
+	    return p;
+	meta = meta->superClass();
+    }
+
     return 0;
-
-  QMetaObject* super = superclass;
-  while( super )
-  {
-    QMetaProperty* p = super->property( _name, _super );
-    if ( p )
-      return p;
-    super = super->superClass();
-  }
-
-  return 0;
 }
 
 QObjectFactory QMetaObject::factory() const
 {
-    return DPTR->objectFactory;
+    return d->objectFactory;
 }
 
 void QMetaObject::setFactory( QObjectFactory f )
 {
-    DPTR->objectFactory = f;
+    d->objectFactory = f;
 }
 
-QStringList QMetaObject::propertyNames( bool _super ) const
+QStringList QMetaObject::propertyNames( bool super ) const
 {
-  QStringList l;
-  for( int i = 0; i < DPTR->nPropData; ++i )
-    l.append( DPTR->propData[i].name );
+    QStringList l;
+    for( int i = 0; i < d->nPropData; ++i )
+	l.append( d->propData[i].name );
 
-  if ( superclass && _super )
-  {
-    QStringList super = superclass->propertyNames( _super );
-    l += super;
-  }
+    if ( superclass && super )
+	l += superclass->propertyNames( super );
 
-  if ( l.count() < 2 )
-    return l;
+    if ( l.count() < 2 )
+	return l;
 
-  qBubbleSort( l );
+    qBubbleSort( l );
 
-  // Remove dups
-  QStringList::Iterator it = l.begin();
-  QString old = *(it++);
-  while( it != l.end() )
-  {
-    if ( old == *it )
-      it = l.remove( it );
-    else
-    {
-      old = *it;
-      ++it;
+    // Remove dups
+    QStringList::Iterator it = l.begin();
+    QString old = *(it++);
+    while( it != l.end() ) {
+	if ( old == *it ) {
+	    it = l.remove( it );
+	}
+	else {
+	    old = *it;
+	    ++it;
+	}
     }
-  }
-
-  return l;
+    return l;
 }
 
-bool QMetaObject::inherits( const char* _class ) const
+bool QMetaObject::inherits( const char* clname ) const
 {
-  if ( strcmp( _class, classname ) == 0 )
-    return TRUE;
-
-  if ( superClass() )
-    return superClass()->inherits( _class );
-
-  return 0;
+    const QMetaObject *meta = this;
+    while ( meta ) {
+	if ( strcmp(clname, meta->className()) == 0 )
+	    return TRUE;
+	meta = meta->superClass();
+    }
+    return FALSE;
 }
 
 QStringList QMetaEnum::enumeratorNames()
 {
-  QStringList l;
-  for( int i = 0; i < nEnumerators; ++i )
-    l.append( enumerators[i].name );
+    QStringList l;
+    for( int i = 0; i < nEnumerators; ++i )
+	l.append( enumerators[i].name );
 
-  return l;
+    return l;
 }
 
 QMetaMetaProperty* QMetaObject::metaProperty( int index ) const
 {
-    if ( index >= DPTR->nMetaPropData || index < 0 )
+    if ( index >= d->nMetaPropData || index < 0 )
 	return 0;
 
-    return &(DPTR->metaPropData[ index ]);
+    return &(d->metaPropData[ index ]);
 }
 
-const char* QMetaObject::metaProperty( const char* _name, bool _super ) const
+const char* QMetaObject::metaProperty( const char* name, bool super ) const
 {
-  for( int i = 0; i < DPTR->nMetaPropData; ++i )
-    if ( strcmp( DPTR->metaPropData[i].name, _name ) == 0 )
-      return DPTR->metaPropData[i].value;
+    for( int i = 0; i < d->nMetaPropData; ++i )
+	if ( strcmp( d->metaPropData[i].name, name ) == 0 )
+	    return d->metaPropData[i].value;
 
-  if ( !_super )
+    if ( !super )
+	return 0;
+
+    QMetaObject* meta = superclass;
+    while( meta ) {
+	const char* p = meta->metaProperty( name, super );
+	if ( p )
+	    return p;
+	meta = meta->superClass();
+    }
+
     return 0;
-
-  QMetaObject* super = superclass;
-  while( super )
-  {
-    const char* p = super->metaProperty( _name, _super );
-    if ( p )
-      return p;
-    super = super->superClass();
-  }
-
-  return 0;
 }
 
-QStringList QMetaObject::metaPropertyNames( bool _super ) const
+QStringList QMetaObject::metaPropertyNames( bool super ) const
 {
-  QStringList l;
-  for( int i = 0; i < DPTR->nMetaPropData; ++i )
-    l.append( DPTR->metaPropData[i].name );
+    QStringList l;
+    for( int i = 0; i < d->nMetaPropData; ++i )
+	l.append( d->metaPropData[i].name );
 
-  if ( superclass && _super )
-  {
-    QStringList super = superclass->metaPropertyNames( _super );
-    l += super;
-  }
+    if ( superclass && super )
+	l += superclass->metaPropertyNames( super );
 
-  if ( l.count() < 2 )
+    if ( l.count() < 2 )
+	return l;
+
+    qBubbleSort( l );
+
     return l;
-
-  qBubbleSort( l );
-
-  return l;
 }
 
 
@@ -660,7 +625,7 @@ int QMetaObjectInit::init()
 
     // Did we do init() already ?
     if ( functions_head == 0 )
-      return n_meta_list;
+	return n_meta_list;
 
     // Count the classes
     int i = 0;
@@ -673,12 +638,12 @@ int QMetaObjectInit::init()
 
     // Create all metaobjects
     i = 0;
-    for ( f = functions_head; f; f = f->next)
+    for ( f = functions_head; f; f = f->next) {
 	if ( f->f )       // This line is to disappear in Qt 3.0
 	    meta_list[i++] = (*(f->f))();
 	else              // This line is to disappear in Qt 3.0
 	    (*(f->f_old))();  // This line is to disappear in Qt 3.0
-
+    }
     n_meta_list = i;
 
     delete functions_head;
@@ -691,14 +656,14 @@ int QMetaObjectInit::init()
   Returns the meta object for a certain class or 0 if there is no
   QMetaObject registered for that class.
 */
-QMetaObject* QMetaObjectInit::metaObject( const char* _class_name )
+QMetaObject* QMetaObjectInit::metaObject( const char* classname )
 {
     // Perhaps someone did not call init
     init();
 
-    for( int i = 0; i < n_meta_list; ++i )
-      if ( strcmp( meta_list[i]->className(), _class_name ) == 0 )
-      return meta_list[i];
+    for( int i = 0; i < n_meta_list; ++i ) 
+	if ( strcmp( meta_list[i]->className(), classname ) == 0 )
+	    return meta_list[i];
 
     return 0;
 }
@@ -714,7 +679,7 @@ QMetaObject* QMetaObjectInit::metaObject( int index )
     init();
 
     if ( index > n_meta_list )
-      return 0;
+	return 0;
 
     return meta_list[ index ];
 }

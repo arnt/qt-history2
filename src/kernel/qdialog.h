@@ -57,8 +57,6 @@ public:
     void	resize( int w, int h );
     void	resize( const QSize & );
     void	setGeometry( int x, int y, int w, int h );
-
-qproperties:
     void	setGeometry( const QRect & );
 
 protected slots:

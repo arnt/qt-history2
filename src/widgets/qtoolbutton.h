@@ -66,7 +66,7 @@ public:
 
     void setPopup( QPopupMenu* popup );
     QPopupMenu* popup() const;
-qproperties:
+
     void setPopupDelay( int delay );
     int popupDelay() const;
 

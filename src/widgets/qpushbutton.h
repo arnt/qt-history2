@@ -50,8 +50,7 @@ public:
     void	resize( int w, int h );
     void	resize( const QSize & );
     virtual void setGeometry( int x, int y, int w, int h );
-    
-qproperties:
+
     virtual void setGeometry( const QRect & );
 
     virtual void setToggleButton( bool );

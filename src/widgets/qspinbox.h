@@ -53,14 +53,10 @@ public:
 
     QString 		text() const;
 
-qproperties:
     virtual QString 	prefix() const;
     virtual QString 	suffix() const;
-
-public:
     virtual QString 	cleanText() const;
 
-qproperties:
     virtual void	setSpecialValueText( const QString &text );
     QString 		specialValueText() const;
 
@@ -71,7 +67,6 @@ qproperties:
     void		setButtonSymbols( ButtonSymbols ); // 3.0: virtual
     ButtonSymbols	buttonSymbols() const;
 
-public:
     virtual void	setValidator( const QValidator* v );
     const QValidator * validator() const;
 
@@ -80,13 +75,10 @@ public:
 
 public slots:
     virtual void	setValue( int value );
-qproperties:
     virtual void	setPrefix( const QString &text );
     virtual void	setSuffix( const QString &text );
-public slots:
     virtual void	stepUp();
     virtual void	stepDown();
-qproperties:
     virtual void	setEnabled( bool );
 
 signals:

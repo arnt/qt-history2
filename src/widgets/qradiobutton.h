@@ -41,11 +41,9 @@ public:
     QRadioButton( QWidget *parent, const char *name=0 );
     QRadioButton( const QString &text, QWidget *parent, const char* name=0 );
 
-qproperties:
     bool    isChecked() const;
     virtual void    setChecked( bool check );
 
-public:
     QSize    sizeHint() const;
     QSizePolicy sizePolicy() const;
 

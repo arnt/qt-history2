@@ -71,21 +71,16 @@ public:
     bool	 isPopup()	const;
     bool	 isDesktop()	const;
 
-qproperties:
     bool	 isEnabled()	const;
-public:
     bool	 isEnabledTo(QWidget*) const;
     bool	 isEnabledToTLW() const;
-qproperties:
     virtual void setEnabled( bool );
 
     // Widget coordinates
 
 public:
     QRect	 frameGeometry() const;
-qproperties:
     const QRect &geometry()	const;
-public:
     int		 x()		const;
     int		 y()		const;
     QPoint	 pos()		const;
@@ -135,7 +130,6 @@ public:
 
     // Widget attribute functions
 
-qproperties:
     enum BackgroundMode { FixedColor, FixedPixmap, NoBackground,
 			  PaletteForeground, PaletteButton, PaletteLight,
 			  PaletteMidlight, PaletteDark, PaletteMid,
@@ -147,31 +141,23 @@ qproperties:
     virtual void	setBackgroundMode( BackgroundMode );
 
     const QColor &	backgroundColor() const;
-public:
     const QColor &	foregroundColor() const;
-qproperties:
     virtual void	setBackgroundColor( const QColor & );
 
     const QPixmap *	backgroundPixmap() const;
     virtual void	setBackgroundPixmap( const QPixmap & );
 
-public:
     const QColorGroup & colorGroup() const;
-qproperties:
     const QPalette &	palette()    const;
     virtual void	setPalette( const QPalette & );
-public:
     void setPalette( const QPalette &, bool fixed );
 
-qproperties:
     QFont		font() const;
     virtual void	setFont( const QFont & );
-public:
     void		setFont( const QFont &, bool fixed );
     QFontMetrics	fontMetrics() const;
     QFontInfo	 	fontInfo() const;
 
-qproperties:
     enum PropagationMode { NoChildren, AllChildren,
 			   SameFont, SamePalette = SameFont };
 
@@ -181,36 +167,29 @@ qproperties:
     PropagationMode	palettePropagation() const;
     virtual void	setPalettePropagation( PropagationMode );
 
-public:
-    // ##### Torben: Cursor a property ?
     const QCursor      &cursor() const;
     virtual void	setCursor( const QCursor & );
     virtual void	unsetCursor();
 
-qproperties:
     QString		caption() const;
     const QPixmap      *icon() const;
     QString		iconText() const;
     bool		hasMouseTracking() const;
 
-public:
     virtual void	setMask( const QBitmap & );
     virtual void	setMask( const QRegion & );
     void		clearMask();
 
-qproperties:
     virtual void	setCaption( const QString &);
     virtual void	setIcon( const QPixmap & );
     virtual void	setIconText( const QString &);
     virtual void	setMouseTracking( bool enable );
 
-public:
     // Keyboard input focus functions
 
     virtual void	setFocus();
     void		clearFocus();
 
-qproperties:
     enum FocusPolicy {
 	NoFocus = 0,
 	TabFocus = 0x1,
@@ -219,14 +198,12 @@ qproperties:
 	WheelFocus = 0x7
     };
 
-public:
     bool		isActiveWindow() const;
     virtual void	setActiveWindow();
     bool		isFocusEnabled() const;
-qproperties:
+
     FocusPolicy		focusPolicy() const;
     virtual void	setFocusPolicy( FocusPolicy );
-public:
     bool		hasFocus() const;
     static void		setTabOrder( QWidget *, QWidget * );
     virtual void	setFocusProxy( QWidget * );
@@ -277,10 +254,8 @@ public slots:
     virtual void	resize( int w, int h );
     void		resize( const QSize & );
     virtual void	setGeometry( int x, int y, int w, int h );
-qproperties:
     virtual void	setGeometry( const QRect & );
 
-public:
     virtual bool	close( bool alsoDelete );
     bool		isVisible()	const;
     bool		isVisibleTo(QWidget*) const;
@@ -323,18 +298,15 @@ public:
 
     // drag and drop
 
-qproperties:
     bool		acceptDrops() const;
     virtual void	setAcceptDrops( bool on );
 
     virtual void	setAutoMask(bool);
     bool		autoMask() const;
-public:
+    
     // whats this help
-
     virtual bool customWhatsThis() const;
 				
-public:
     QWidget *		parentWidget() const;
     bool		testWState( uint n ) const;
     bool		testWFlags( WFlags n ) const;

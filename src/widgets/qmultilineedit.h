@@ -54,10 +54,8 @@ public:
     QSize minimumSizeHint() const;
     QSizePolicy sizePolicy() const;
 
-qproperties:
     virtual void setFont( const QFont &font );
-    
-public:
+
     virtual void insertLine( const QString &s, int line = -1 );
     virtual void insertAt( const QString &s, int line, int col, bool mark = FALSE );
     virtual void removeLine( int line );
@@ -72,23 +70,18 @@ public:
 
     int maxLineWidth() const;
 
-qproperties:
     void setAlignment( int flags );
     int alignment() const;
 
-public:
     virtual void setValidator( const QValidator * );
     const QValidator * validator() const;
 
-qproperties:
     void setEdited( bool );
     bool edited() const;
 
-public:
     void cursorWordForward( bool mark );
     void cursorWordBackward( bool mark );
 
-qproperties:
     enum EchoMode { Normal, NoEcho, Password };
     virtual void setEchoMode( EchoMode );
     EchoMode echoMode() const;
@@ -101,11 +94,9 @@ qproperties:
     int maxLines() const;
     virtual void setHMargin(int);
     int hMargin() const;
-    
-public:
+
     virtual void setSelection( int row_from, int col_from, int row_to, int col_t );
 
-qproperties:
     // word wrap
     enum Wrapping {
 	NoWrap = 0,
@@ -130,14 +121,11 @@ qproperties:
 
     bool isReadOnly() const;
     bool isOverwriteMode() const;
-    
-qproperties:
+
     QString text() const;
-    
-public:
+
     int length() const;
 
-qproperties:
     virtual void       setText( const QString &);
     virtual void       setReadOnly( bool );
     virtual void       setOverwriteMode( bool );

@@ -41,11 +41,9 @@ public:
     QFrame( QWidget *parent=0, const char *name=0, WFlags f=0,
 	    bool = TRUE );
 
-qproperties:
     int		frameStyle()	const;
     virtual void setFrameStyle( int );
 
-public:
     int		frameWidth()	const;
     QRect	contentsRect()	const;
 
@@ -56,7 +54,6 @@ public:
     QSize	sizeHint() const;
     QSizePolicy sizePolicy() const;
 
-qproperties:
     enum Shape { NoFrame  = 0,				// no frame
 		 Box	  = 0x0001,			// rectangular box
 		 Panel    = 0x0002,			// rectangular panel

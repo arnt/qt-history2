@@ -76,7 +76,6 @@ extern void moc_warn( char *msg );
 <OUTSIDE>"template"		{ X;
 				  BEGIN QT_DEF;
 				  return TEMPLATE; }
-<QT_DEF>"qproperties"		{ X;return PROPERTIES; }
 <QT_DEF>"signals"		{ X;return SIGNALS; }
 <QT_DEF>"slots"			{ X;return SLOTS; }
 
@@ -90,7 +89,6 @@ extern void moc_warn( char *msg );
 <IN_CLASS>"private"		{ X;return PRIVATE; }
 <IN_CLASS>"signals"		{ X;return SIGNALS; }
 <IN_CLASS>"slots"		{ X;return SLOTS; }
-<IN_CLASS>"qproperties"		{ X;return PROPERTIES; }
 <IN_CLASS>"Q_OBJECT"		{ X;return Q_OBJECT; }
 <IN_CLASS>"Q_METAPROP"		{ X;return Q_METAPROP; }
 <IN_CLASS>"Q_COMPONENT"		{ X;return Q_COMPONENT; }

@@ -37,8 +37,6 @@ struct QMetaData				// member function meta data
     QMember ptr;				// - member pointer
 };
 
-#ifdef QT_BUILDER
-
 class QPixmap;
 // Takes a pointer to the parent as parameter
 typedef QObject* (*QObjectFactory)( QObject* );
@@ -60,14 +58,39 @@ struct QMetaEnum
 
 struct QMetaProperty
 {
+    QMetaProperty()
+	:name(0),set(0),get(0),type(0),enumType(0),
+	 sspec(Unspecified),gspec(Unspecified),state(0)
+    {
+    }
+    
     char        *name;
     QMember      set;
     QMember      get;
     char        *type;
     QMetaEnum   *enumType;
-    bool         readonly;
-    char         getSpec; // 'c' = class, 'r' = reference, 'p' = pointer, '!' = QObject::name exception
-    char         setSpec; // 'c' = class, 'r' = reference, '!' = QObject::setName exception
+    bool readOnly() { return get != 0 && set == 0; }
+    bool writeOnly() { return get == 0 && set != 0; }
+    bool readWrite() { return get != 0 && set != 0; }
+    bool isValid() { return !testState( UnresolvedEnum) ; }
+    
+    enum Specification  { Unspecified, Class, Reference, Pointer, ConstCharStar };
+    
+    Specification sspec;
+    Specification gspec;
+    
+    enum State  {
+	UnresolvedEnum = 0x00000001
+    };
+    
+    inline bool testState( State s ) const
+	{ return ((uint)state & s) == (uint)s; }
+    inline void setState( State s )
+	{ state |= s; }
+    inline void clearState( State s )
+	{ state &= ~s; }
+    
+    uint state;
 };
 
 struct QMetaMetaProperty
@@ -76,7 +99,8 @@ struct QMetaMetaProperty
     const char *value;
 };
 
-#endif // QT_BUILDER
+
+class QMetaObjectPrivate;
 
 class Q_EXPORT QMetaObject				// meta object class
 {
@@ -84,14 +108,12 @@ public:
     QMetaObject( const char *class_name, const char *superclass_name,
 		 QMetaData *slot_data,	int n_slots,
 		 QMetaData *signal_data, int n_signals );
-#ifdef QT_BUILDER
     QMetaObject( const char *class_name, const char *superclass_name,
 		 QMetaData *slot_data,	int n_slots,
 		 QMetaData *signal_data, int n_signals,
 		 QMetaProperty *prop_data, int n_props,
 		 QMetaEnum *enum_data, int n_enums,
 		 QMetaMetaProperty* meta_prop_data, int n_meta_props );
-#endif // QT_BUILDER
 
     virtual ~QMetaObject();
 
@@ -109,7 +131,7 @@ public:
     QMetaData	*slot( int index, bool=FALSE )	    const;
     QMetaData	*signal( int index, bool=FALSE )    const;
 
-    bool inherits( const char* _class ) const;
+    bool inherits( const char* clname ) const;
 
     int            nProperties( bool=FALSE ) const;
     QMetaProperty *property( int index ) const;
@@ -124,7 +146,7 @@ public:
 
     void setFactory( QObjectFactory f );
     QObjectFactory factory() const;
-    void fixProperty( QMetaProperty* prop, bool fix_enum_type = FALSE );
+    void resolveProperty( QMetaProperty* prop );
 
     static QMetaObject *new_metaobject( const char *, const char *,
 					QMetaData *, int,
@@ -146,8 +168,8 @@ private:
     char	*classname;			// class name
     char	*superclassname;		// super class name
     QMetaObject *superclass;			// super class meta object
-    void        *reservedForPropData;		// todo
-    void        *reservedForPropDict;		// todo
+    QMetaObjectPrivate   *d;
+    void        *reserved;
     QMetaData	*slotData;			// slot meta data
     QMemberDict *slotDict;			// slot dictionary
     QMetaData	*signalData;			// signal meta data
@@ -165,16 +187,12 @@ class Q_EXPORT QMetaObjectInit
 public:
     // ## To disappear in Qt 3.0
     QMetaObjectInit(void(*f)());
-#ifdef QT_BUILDER
     QMetaObjectInit(QMetaObject*(*f)());
-#endif // QT_BUILDER
 
     static int init();
-#ifdef QT_BUILDER
-    static QMetaObject* metaObject( const char* _class_name );
+    static QMetaObject* metaObject( const char* classname );
     static QMetaObject* metaObject( int index );
     static int          nMetaObjects();
-#endif // QT_BUILDER
 };
 
 #endif // QMETAOBJECT_H
