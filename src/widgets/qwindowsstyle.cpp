@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwindowsstyle.cpp#19 $
+** $Id: //depot/qt/main/src/widgets/qwindowsstyle.cpp#20 $
 **
 ** Implementation of Windows-like style class
 **
@@ -1157,7 +1157,7 @@ void QWindowsStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, 
     int checkcol	  =     maxpmw;
 
 
-    if ( mi->isSeparator() ) {			// draw separator
+    if ( mi && mi->isSeparator() ) {			// draw separator
 	p->setPen( g.dark() );
 	p->drawLine( x, y, x+w, y );
 	p->setPen( g.light() );
@@ -1169,6 +1169,8 @@ void QWindowsStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, 
 			    g.brush( QColorGroup::Button );
     p->fillRect( x, y, w, h, fill);
 
+    if ( !mi )
+	return;
 
     if ( mi->isChecked() ) {
 	if ( act && !dis ) {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmotifstyle.cpp#24 $
+** $Id: //depot/qt/main/src/widgets/qmotifstyle.cpp#25 $
 **
 ** Implementation of Motif-like style class
 **
@@ -260,7 +260,7 @@ QMotifStyle::drawArrow( QPainter *p, ArrowType type, bool down,
 
     if ( dim < 2 )				// too small arrow
 	return;
-    
+
     // adjust size and center (to fix rotation below)
     if ( w >  dim ) {
 	x += (w-dim)/2;
@@ -934,8 +934,7 @@ void QMotifStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, in
 	maxpmw = QMAX( maxpmw, motifCheckMarkSpace );
     int checkcol	  =     maxpmw;
 
-
-    if ( mi->isSeparator() ) {			// draw separator
+    if ( mi && mi->isSeparator() ) {			// draw separator
 	p->setPen( g.dark() );
 	p->drawLine( x, y, x+w, y );
 	p->setPen( g.light() );
@@ -956,6 +955,8 @@ void QMotifStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, in
     else				// incognito frame
 	p->fillRect(x, y, w, h, g.brush( QColorGroup::Button ));
 
+    if ( !mi )
+	return;
 
     if ( mi->isChecked() ) {
 	if ( mi->iconSet() ) {

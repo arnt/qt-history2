@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#269 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#270 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -870,6 +870,10 @@ void QPopupMenu::drawContents( QPainter* p )
 	++it;
 	int itemh = itemHeight( row );
 	if ( ncols > 1 && y + itemh > contentsRect().bottom() ) {
+	    if ( y < contentsRect().bottom() ) {
+		style().drawPopupMenuItem(p, checkable, maxPMWidth, tab, 0, palette(),
+					  FALSE, TRUE, x, y, itemw, contentsRect().bottom()-y);
+	    }
 	    y = contentsRect().y();
 	    x +=itemw;
 	}
@@ -877,6 +881,9 @@ void QPopupMenu::drawContents( QPainter* p )
 	y += itemh;
 	++row;
     }
+    if ( y < contentsRect().bottom() ) 
+	style().drawPopupMenuItem(p, checkable, maxPMWidth, tab, 0, palette(),
+				  FALSE, TRUE, x, y, itemw, contentsRect().bottom()-y);
 }
 
 

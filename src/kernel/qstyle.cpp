@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.cpp#49 $
+** $Id: //depot/qt/main/src/kernel/qstyle.cpp#50 $
 **
 ** Implementation of QStyle class
 **
@@ -648,6 +648,9 @@ Draws a checkmark suitable for checkboxes and checkable menu items.
  enabled define whether the item is active (i.e. highlighted) or
  enabled, respectively. Finally, \a x, \a y, \a w and \a h determine
  the geometry of the entire item.
+ 
+ Note that \a mi can be 0 in the case of multicolumn popup menus. In that case, 
+ drawPopupMenuItem() simply draws the appropriate item background.
 */
 
 
