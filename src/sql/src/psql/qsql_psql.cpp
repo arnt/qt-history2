@@ -452,7 +452,8 @@ bool QPSQLDriver::canEditBinaryFields() const
 bool QPSQLDriver::open( const QString & db,
 			const QString & user,
 			const QString & password,
-			const QString & host)
+			const QString & host,
+			int )
 {
     if ( isOpen() )
 	close();

@@ -52,7 +52,6 @@ class QSqlError;
 class QSqlDriver;
 class QSqlIndex;
 class QSqlRecord;
-class QSqlDatabasePrivate;
 
 class Q_EXPORT QSqlDatabase : public QObject
 {
@@ -61,6 +60,7 @@ class Q_EXPORT QSqlDatabase : public QObject
     Q_PROPERTY( QString userName  READ userName WRITE setUserName )
     Q_PROPERTY( QString password  READ password WRITE setPassword )
     Q_PROPERTY( QString hostName  READ hostName WRITE setHostName )
+    Q_PROPERTY( int port  READ port WRITE setPort )
 
 public:
     ~QSqlDatabase();
@@ -85,11 +85,13 @@ public:
     virtual void setUserName( const QString& name );
     virtual void setPassword( const QString& password );
     virtual void setHostName( const QString& host );
+    virtual void setPort( int p );
     QString	 databaseName() const;
     QString	 userName() const;
     QString	 password() const;
     QString	 hostName() const;
     QString      driverName() const;
+    int          port() const;
 
     QSqlDriver*  driver() const;
 
@@ -107,7 +109,8 @@ protected:
     QSqlDatabase( const QString& type, const QString& name, QObject * parent=0, const char * objname=0 );
 private:
     void	init( const QString& type, const QString& name );
-    QSqlDatabasePrivate* d;
+    class Private;
+    Private* d;
 };
 
 #endif // QT_NO_SQL

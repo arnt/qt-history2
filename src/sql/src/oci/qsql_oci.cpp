@@ -879,9 +879,10 @@ bool QOCIDriver::canEditBinaryFields() const
 }
 
 bool QOCIDriver::open( const QString & db,
-			const QString & user,
-			const QString & password,
-			const QString & )
+		       const QString & user,
+		       const QString & password,
+		       const QString & ,
+		       int )
 {
     if ( isOpen() )
 	close();

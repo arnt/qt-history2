@@ -95,14 +95,15 @@ public:
     bool                open( const QString & db,
 			      const QString & user = QString::null,
 			      const QString & password = QString::null,
-			      const QString & host = QString::null );
+			      const QString & host = QString::null,
+			      int port = -1 );
     void	        close();
     QSqlQuery	        createQuery() const;
     QStringList         tables( const QString& user ) const;
     QSqlRecord          record( const QString& tablename ) const;
     QSqlRecord          record( const QSqlQuery& query ) const;
     QSqlIndex           primaryIndex( const QString& tablename ) const;
-	QString				formatValue( const QSqlField* field, 
+	QString				formatValue( const QSqlField* field,
 									 bool trimStrings ) const;
     OCIEnv*             environment();
     OCISvcCtx*          serviceContext();

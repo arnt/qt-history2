@@ -81,9 +81,10 @@ public:
     bool                hasQuerySizeSupport() const;
     bool                canEditBinaryFields() const;
     bool	open( const QString & db,
-			const QString & user = QString::null,
-			const QString & password = QString::null,
-			const QString & host = QString::null );
+		      const QString & user = QString::null,
+		      const QString & password = QString::null,
+		      const QString & host = QString::null,
+		      int port = -1 );
     void		close();
     QSqlQuery		createQuery() const;
     QStringList         tables( const QString& user ) const;
@@ -93,7 +94,7 @@ public:
 
     Protocol            protocol() const { return pro; }
     PGconn*             connection();
-    QString 		formatValue( const QSqlField* field,
+    QString		formatValue( const QSqlField* field,
 				     bool trimStrings ) const;
 protected:
     bool		beginTransaction();

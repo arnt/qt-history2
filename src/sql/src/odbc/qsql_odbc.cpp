@@ -624,7 +624,8 @@ bool QODBCDriver::canEditBinaryFields() const
 bool QODBCDriver::open( const QString & db,
 			const QString & user,
 			const QString & password,
-			const QString & )
+			const QString &,
+			int )
 {
     if ( isOpen() )
 		close();

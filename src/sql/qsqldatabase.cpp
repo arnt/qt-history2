@@ -89,11 +89,12 @@ public:
     bool    hasQuerySizeSupport() const { return FALSE;} ;
     bool    canEditBinaryFields() const { return FALSE;} ;
     bool    open( const QString & ,
-			const QString & ,
-			const QString & ,
-			const QString &  ) {
-				return FALSE;
-			}
+		  const QString & ,
+		  const QString & ,
+		  const QString &,
+		  int ) {
+	return FALSE;
+    }
     void    close() {}
     QSqlQuery createQuery() const { return QSqlQuery( new QNullResult(this) ); }
 };
@@ -231,11 +232,11 @@ void QSqlDatabaseManager::removeDatabase( const QString& name )
     sqlConnection->dbDict.setAutoDelete( FALSE );
 }
 
-class QSqlDatabasePrivate
+class QSqlDatabase::Private
 {
 public:
-    QSqlDatabasePrivate(): driver(0), plugIns(0) {}
-    ~QSqlDatabasePrivate()
+    Private(): driver(0), plugIns(0), port(-1) {}
+    ~Private()
     {
     }
     QSqlDriver* driver;
@@ -245,6 +246,7 @@ public:
     QString pword;
     QString hname;
     QString drvName;
+    int port;
 };
 
 /*!
@@ -375,7 +377,7 @@ QSqlDatabase::QSqlDatabase( const QString& driver, const QString& name, QObject 
 void QSqlDatabase::init( const QString& type, const QString&  )
 {
 
-    d = new QSqlDatabasePrivate();
+    d = new Private();
     d->drvName = type;
 
     if ( !d->driver ) {
@@ -587,6 +589,15 @@ void QSqlDatabase::setHostName( const QString& host )
     d->hname = host;
 }
 
+/*! Sets the port used by the connection to \a p.
+
+*/
+
+void QSqlDatabase::setPort( int p )
+{
+    d->port = p;
+}
+
 /*! Returns the name of the database connection, or QString::null if a
  name has not been set.
 
@@ -632,6 +643,14 @@ QString QSqlDatabase::hostName() const
 QString QSqlDatabase::driverName() const
 {
     return d->drvName;
+}
+
+/*! Returns the port used by the database connection.
+
+*/
+int QSqlDatabase::port() const
+{
+    return d->port;
 }
 
 /*! Returns a pointer to the database driver used to access the database connection.

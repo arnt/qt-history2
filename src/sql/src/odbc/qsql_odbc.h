@@ -95,7 +95,8 @@ public:
     bool                open( const QString & db,
 			      const QString & user = QString::null,
 			      const QString & password = QString::null,
-			      const QString & host = QString::null );
+			      const QString & host = QString::null,
+			      int port = -1 );
     void	        close();
     QSqlQuery	        createQuery() const;
     QStringList         tables( const QString& user ) const;
@@ -105,9 +106,9 @@ public:
     SQLHANDLE           environment();
     SQLHANDLE           connection();
 
-    QString 		formatValue( const QSqlField* field,
+    QString		formatValue( const QSqlField* field,
 				     bool trimStrings ) const;
-    
+
 protected:
     bool                beginTransaction();
     bool                commitTransaction();

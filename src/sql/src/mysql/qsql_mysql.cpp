@@ -281,9 +281,10 @@ bool QMYSQLDriver::canEditBinaryFields() const
 }
 
 bool QMYSQLDriver::open( const QString & db,
-			const QString & user,
-			const QString & password,
-			const QString & host)
+			 const QString & user,
+			 const QString & password,
+			 const QString & host,
+			 int port  )
 {
     if ( isOpen() )
 	close();
@@ -293,7 +294,7 @@ bool QMYSQLDriver::open( const QString & db,
 				user,
 				password,
 				db,
-				0,
+				(port > -1) ? port : 0,
 				NULL,
 				0))
     {

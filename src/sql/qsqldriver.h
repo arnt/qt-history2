@@ -81,7 +81,8 @@ public:
     virtual bool          open( const QString & db,
 				const QString & user = QString::null,
 				const QString & password = QString::null,
-				const QString & host = QString::null ) = 0;
+				const QString & host = QString::null,
+				int port = -1 ) = 0;
     virtual void          close() = 0;
     virtual QSqlQuery     createQuery() const = 0;
 

@@ -84,9 +84,10 @@ public:
     bool                  hasQuerySizeSupport() const;
     bool                  canEditBinaryFields() const;
     bool		open( const QString & db,
-				const QString & user = QString::null,
-				const QString & password = QString::null,
-				const QString & host = QString::null );
+			      const QString & user = QString::null,
+			      const QString & password = QString::null,
+			      const QString & host = QString::null,
+			      int port = -1 );
     void		close();
     QSqlQuery		createQuery() const;
     QStringList         tables( const QString& user ) const;
