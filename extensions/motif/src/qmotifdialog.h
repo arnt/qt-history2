@@ -86,6 +86,10 @@ public slots:
 protected:
     bool event( QEvent * );
 
+#if !defined(Q_NO_USING_KEYWORD)
+    using QObject::insertChild;
+#endif
+
 private:
     QMotifDialogPrivate *d;
 
