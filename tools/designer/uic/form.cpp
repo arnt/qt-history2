@@ -995,11 +995,10 @@ void Uic::createFormImpl( const QDomElement &e )
 	    } else {
 		QString call;
 		if ( stdset ) {
-		    call = mkStdSet( prop ) + "( ";
+		    call = mkStdSet( prop ) + "( " + value + ");";;
 		} else {
-		    call = "setProperty( \"" + prop + "\", ";
+		    call = "setProperty( \"" + prop + "\", QVariant(" + value + "));";
 		}
-		call += value + " );";
 
 		if ( n2.tagName() == "string" ) {
 		    trout << indent << call << endl;
@@ -1023,7 +1022,7 @@ void Uic::createFormImpl( const QDomElement &e )
 		QString label = DomTool::readAttribute( n, "title", "", comment ).toString();
 		out << indent << "addPage( " << page << ", QString(\"\") );" << endl;
 		trout << indent << "setTitle( " << page << ", " << trcall( label, comment ) << " );" << endl;
-		QVariant def( FALSE, 0 );
+		QVariant def(false);
 		if ( DomTool::hasAttribute( n, "backEnabled" ) )
 		    out << indent << "setBackEnabled( " << page << ", " << mkBool( DomTool::readAttribute( n, "backEnabled", def).toBool() ) << endl;
 		if ( DomTool::hasAttribute( n, "nextEnabled" ) )

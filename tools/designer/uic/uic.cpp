@@ -234,7 +234,7 @@ bool Uic::isFrameworkCodeGenerated( const QDomElement& e )
 {
     QDomElement n = getObjectProperty( e, "frameworkCode" );
     if ( n.attribute("name") == "frameworkCode" &&
-	 !DomTool::elementToVariant( n.firstChild().toElement(), QVariant( TRUE, 0 ) ).toBool() )
+	 !DomTool::elementToVariant( n.firstChild().toElement(), QVariant(true) ).toBool() )
 	return FALSE;
     return TRUE;
 }
@@ -373,11 +373,10 @@ void Uic::createActionImpl( const QDomElement &n, const QString &parent )
 
 		QString call = objName + "->";
 		if ( stdset ) {
-		    call += mkStdSet( prop ) + "( ";
+		    call = mkStdSet( prop ) + "( " + value + ");";;
 		} else {
-		    call += "setProperty( \"" + prop + "\", ";
+		    call = "setProperty( \"" + prop + "\", QVariant(" + value + "));";
 		}
-		call += value + " );";
 
 		if ( n2.firstChild().toElement().tagName() == "string" ) {
 		    trout << indent << call << endl;

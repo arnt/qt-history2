@@ -184,15 +184,20 @@ QString Uic::createObjectImpl( const QDomElement &e, const QString& parentClass,
 		continue;
 
 	    QString call = objName + "->";
+	    bool wrapInVariant = false;
 	    if ( stdset ) {
 		call += mkStdSet( prop ) + "( ";
 	    } else {
 		call += "setProperty( \"" + prop + "\", ";
+		wrapInVariant = true;
 	    }
 	    if ( prop == "accel" )
 		call += "QKeySequence( " + value + " ) );";
-	    else
-		call += value + " );";
+	    else if (wrapInVariant) {
+		call += "QVariant(" + value + ") );";
+	    } else {
+		call += value + ");";
+	    }
 
 	    if ( n.firstChild().toElement().tagName() == "string" ||
 		 prop == "currentItem" ) {
@@ -360,7 +365,7 @@ void Uic::createExclusiveProperty( const QDomElement & e, const QString& exclusi
 	    if ( value.isEmpty() )
 		continue;
 	    // we assume the property isn't of type 'string'
-	    out << '\t' << objName << "->setProperty( \"" << prop << "\", " << value << " );" << endl;
+	    out << '\t' << objName << "->setProperty( \"" << prop << "\", QVariant(" << value << ") );" << endl;
 	}
     }
 }
