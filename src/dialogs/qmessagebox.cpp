@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#66 $
+** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#67 $
 **
 ** Implementation of QMessageBox class
 **
@@ -495,6 +495,8 @@ void QMessageBox::init( int button0, int button1, int button2 )
     }
     resizeButtons();
     reserved1 = reserved2 = 0;
+    setFontPropagation( SameFont );
+    setPalettePropagation( SamePalette );
 }
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#94 $
+** $Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#95 $
 **
 ** Implementation of QFileDialog class
 **
@@ -863,7 +863,7 @@ void QFileDialog::init()
     h->addWidget( cancelB );
 
     cwd.setMatchAllDirs( TRUE );
-    cwd.setSorting( cwd.sorting() | QDir::DirsFirst );
+    cwd.setSorting( cwd.sorting() );
 
     updateGeometry();
 
@@ -879,6 +879,9 @@ void QFileDialog::init()
     setTabOrder( okB, cancelB );
 
     nameEdit->setFocus();
+
+    setFontPropagation( SameFont );
+    setPalettePropagation( SamePalette );
 }
 
 /*!
@@ -1000,7 +1003,7 @@ void QFileDialog::setDir( const QDir &dir )
     cwd = dir;
     cwd.convertToAbs();
     cwd.setMatchAllDirs( TRUE );
-    cwd.setSorting( cwd.sorting() | QDir::DirsFirst );
+    cwd.setSorting( cwd.sorting() );
     rereadDir();
 }
 
@@ -1066,7 +1069,6 @@ void QFileDialog::rereadDir()
     d->moreFiles->clear();
     d->moreFiles->repaint();
 }
-
 
 
 /*!
@@ -1188,14 +1190,14 @@ QString QFileDialog::getOpenFileName( const char *startWith,
     ofn.Flags		= (OFN_CREATEPROMPT|OFN_NOCHANGEDIR);
 
     QString result;
-    
+
     // Need to workaround non-modality of GetOpenFileName, like MFC does it.
     QWidget dummy( parent, "QFileDialog dummy" );
     if ( !parent )
 	dummy.setGeometry( qApp->desktop()->width()/2 - 200,
 			   qApp->desktop()->height()/2 - 200, 200, 200 );
     ofn.hwndOwner = dummy.winId();
-    
+
     qt_enter_modal( &dummy );
     if ( GetOpenFileName(&ofn) ) {
 	result = file;
@@ -1328,7 +1330,7 @@ QString QFileDialog::getSaveFileName( const char *startWith,
 	dummy.setGeometry( qApp->desktop()->width()/2 - 200,
 			   qApp->desktop()->height()/2 - 200, 200, 200 );
     ofn.hwndOwner = dummy.winId();
-    
+
     qt_enter_modal( &dummy );
     if ( GetSaveFileName(&ofn) ) {
 	result = file;

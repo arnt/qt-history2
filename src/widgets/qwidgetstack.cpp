@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#5 $
+** $Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#6 $
 **
 ** Implementation of QWidgetStack class
 **
@@ -31,8 +31,11 @@ class QWidgetStackPrivate {
   stack at any time using the slot raiseWidget(), and add or remove
   widgets using addWidget() and removeWidget().
 
-  The default widget stack is frame-less, but you can use the usual
-  QFrame functions (like setFrameStyle()) to add a frame.
+  The default widget stack is frame-less and propagates its font and
+  palette to all its children, but you can use the usual QFrame
+  functions (like setFrameStyle()) to add a frame, and use
+  setFontPropagation() and setPalettePropagation() to change the
+  propagation style.
 
   \sa QTabDialog QTabBar QFrame
 */
@@ -47,6 +50,8 @@ QWidgetStack::QWidgetStack( QWidget * parent, const char * name )
     dict = new QIntDict<QWidget>;
     l = 0;
     topWidget = 0;
+    setFontPropagation( AllChildren );
+    setPalettePropagation( AllChildren );
 }
 
 
