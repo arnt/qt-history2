@@ -445,7 +445,7 @@ Record insertion into a relational database usually requires
 		specify the parameter name and perform the necessary
 		action:
 
-\quotefile book/book2/book.cpp
+\quotefile book/book2/book.ui.h
 \skipto ::primeInsertAuthor
 \printuntil }
 \printline }
@@ -731,7 +731,7 @@ To filter the book table's records we need to capture the author
 		    specify the parameter name and perform the necessary
 		    action:
 
-\quotefile book/book3/book.cpp
+\quotefile book/book3/book.ui.h
 \skipto ::newCurrentAuthor
 \printuntil }
 
@@ -1047,7 +1047,7 @@ We now have a working form for editing book records. We need to
 		the \Func editClicked function. We need to change it to
 		the following:
 
-\quotefile book/book6/book.cpp
+\quotefile book/book6/book.ui.h
 \skipto ::editClicked
 \printuntil }
 
@@ -1123,7 +1123,7 @@ We now have a working form for editing book records. We need to
 		\SignalOrSlot primeInsertBook slot. We need to change
 		it to the following:
 
-\quotefile book/book6/editbook.cpp
+\quotefile book/book6/editbook.ui.h
 \skipto ::primeInsertBook
 \printuntil }
 \printline }
@@ -1230,7 +1230,7 @@ Qt's SQL module provides two approaches to dealing with foreign
 	    the dialog is constructed and we will use it to populate the
 	    \Widget ComboBox with author names.
 
-\quotefile book/book7/editbook.cpp
+\quotefile book/book7/editbook.ui.h
 \skipto ::init
 \printuntil }
 
@@ -1242,7 +1242,7 @@ Qt's SQL module provides two approaches to dealing with foreign
 	    We next write the code which will be executed just before a
 	    record is updated (or inserted) in the database.
 
-\quotefile book/book7/editbook.cpp
+\quotefile book/book7/editbook.ui.h
 \skipto ::beforeUpdateBook
 \printuntil }
 
@@ -1294,7 +1294,7 @@ Qt's SQL module provides two approaches to dealing with foreign
 	    We now record the author id's in the \index init()
 \Func init() function.
 
-\quotefile book/book8/editbook.cpp
+\quotefile book/book8/editbook.ui.h
 \skipto ::init
 \printuntil }
 \printline }
@@ -1307,7 +1307,7 @@ Qt's SQL module provides two approaches to dealing with foreign
 	    Instead of looking up the author's id in the database we
 	    look it up in the \Class QMap.
 
-\quotefile book/book8/editbook.cpp
+\quotefile book/book8/editbook.ui.h
 \skipto ::beforeUpdateBook
 \printuntil }
 
@@ -1316,7 +1316,7 @@ Qt's SQL module provides two approaches to dealing with foreign
 	    We use a single function for storing author id's and
 	    returning them so that we can use a static data structure.
 
-\quotefile book/book8/editbook.cpp
+\quotefile book/book8/editbook.ui.h
 \skipto ::mapAuthor
 \printuntil }
 

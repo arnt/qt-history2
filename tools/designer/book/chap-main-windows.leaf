@@ -666,13 +666,16 @@ We've built the user interface through \QD and connected those slots
    	\section2 Implementing the Main Window's Functionality
 
 	When the user starts the richedit application we want the focus
-	to be in the textEdit widget so we'll add one line of code to
-	the \index init()
-\Func init() function to achieve this. (All the code snippets
-	are from \File qt/tools/designer/examples/richedit/richedit.ui.
-\code
-textEdit->setFocus();
-\endcode
+	to be in the textEdit widget so we need to create an
+	\index init()
+\Func init() function with one line of code to achieve this. (All the
+code snippets are from \File qt/tools/designer/examples/richedit/richedit.ui.h.)
+\quotefile richedit/richedit.ui.h
+\skipto ::init
+\printuntil setFocus() 
+\skipto }
+\printline }
+    We'll add more to this function later.
 
 	    \section3 New Files and Loading and Saving Existing Files
 
@@ -684,13 +687,13 @@ textEdit->setFocus();
 	    exit the application we perform the same check and offer
 	    them the same choices.
 
-\quotefile richedit/richedit.cpp
+\quotefile richedit/richedit.ui.h
 \skipto ::fileNew
 \printuntil }
 
 	    The \Func fileNew() function clears the text and the filename.
 
-\quotefile richedit/richedit.cpp
+\quotefile richedit/richedit.ui.h
 \skipto ::fileOpen
 \printuntil setText
 \printline }
@@ -705,7 +708,7 @@ textEdit->setFocus();
 	    it and read its contents directly into the text edit via a
 	    text stream.
 
-\quotefile richedit/richedit.cpp
+\quotefile richedit/richedit.ui.h
 \skipto ::fileSave(
 \printuntil setModified
 \printline }
@@ -720,7 +723,7 @@ textEdit->setFocus();
 	    file via a text stream. We also set the text edit's modified
 	    property to FALSE.
 
-\quotefile richedit/richedit.cpp
+\quotefile richedit/richedit.ui.h
 \skipto ::fileSaveAs
 \printuntil fileSave()
 \printline }
@@ -730,7 +733,7 @@ textEdit->setFocus();
 	    name and if they give a file name, saves the text to the
 	    file by calling \Func fileSave().
 
-\quotefile richedit/richedit.cpp
+\quotefile richedit/richedit.ui.h
 \skipto ::fileExit
 \printuntil }
 
@@ -739,7 +742,7 @@ textEdit->setFocus();
 	    functions, so we've included the \Func fileExit() function's
 	    code here.
 
-\quotefile richedit/richedit.cpp
+\quotefile richedit/richedit.ui.h
 \skipto ::saveAndContinue
 \printuntil return
 \printline }
@@ -749,7 +752,7 @@ textEdit->setFocus();
 
 	    \section3 Aligning Text
 
-\quotefile richedit/richedit.cpp
+\quotefile richedit/richedit.ui.h
 \skipto ::changeAlignment
 \printuntil }
 
@@ -767,7 +770,7 @@ textEdit->setFocus();
 	    call \index init()
 \Func init().
 
-\quotefile richedit/richedit.cpp
+\quotefile richedit/richedit.ui.h
 \skipto ::init
 \printuntil }
 \printline }
@@ -809,22 +812,14 @@ We referred to a member variable, \c {fileName},
 	Source tab, right click the Class Variables item, click New from
 	the pop up menu, then enter 'QString fileName;'.
 
-	\index Adding!Files to Projects
-\index Projects!Adding Files
-Create a \index main.cpp
-\File main.cpp file in a plain text editor. Ours looks
-	like this:
-
+\index Adding!Source Files to Project Files
+Right click 'Source Files' in the Files window, then
+click \Menu{Add new source file to project}. In the \Dialog{Save As}
+dialog that appears enter 'main.cpp', then click \Button Save.
+Enter the following code in the \File{main.cpp} C++ editor window:
 \quotefile richedit/main.cpp
 \skipto #include
 \printuntil }
-
-	In a plain text editor open the \index richedit.pro
-\File richedit.pro project file
-	and add the line \c {SOURCES += main.cpp} to the end of the file.
-	The file should look similar to this:
-
-\include richedit/richedit.pro
 
 	\index Makefiles
 All that's left to do is to generate the Makefile, compile and

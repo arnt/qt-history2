@@ -52,16 +52,16 @@ clipboard.
 \index Creating Projects!Projects
 \index Pixmaps!In Projects
 \index Pixmaps!Adding to Forms
-Whenever you create a new application we
-\e strongly recommend that you create a project file and open the
-project rather than individual \index .ui
-\File .ui files. Opening a project has
-the advantage that all the forms you create for the project are
-available via a single mouse click rather than having to be loaded
-individually through file open dialogs. An additional benefit of using
-project files is that they allow you to store all your images in a
-single file rather than duplicate them in each form in which they
-appear.
+Whenever you create a new application we \e strongly recommend that
+you create a project file and open the project rather than individual
+\index .ui \File .ui files. Opening a project has the advantage that
+all the forms you create for the project are available via a single
+mouse click rather than having to be loaded individually through file
+open dialogs. An additional benefit of using project files is that
+they allow you to store all your images in a single file rather than
+duplicate them in each form in which they appear. See \l{The Designer
+Approach} chapter's \l{Project management} section for detailed
+information on the benefits of using project files.
 
 \index Adding!Forms
 \index Forms!Adding
@@ -175,8 +175,9 @@ We'll start with the current clipping text box.
 	over a toolbar button its name will appear in
 	a tooltip.) We won't bother renaming the label since we'll never
 	refer to it in code; but we need to change its text, so change
-	its \Property text property to 'Current Clipping'. (See the \l {Using the Property Editor}
-	sidebar for an explanation of the property editor.)
+	its \Property text property to 'Current Clipping'. (See the 
+	\l{Using the Property Editor} sidebar for an explanation of the
+	property editor.)
 
 	Click the
 	\Toolbutton {Line Edit} toolbar button and
@@ -286,6 +287,7 @@ value editor double click the widget. (Alternatively right click the
 widget and a popup menu will appear; if the first menu item is 'Edit',
 you can click this to access the widget's value editor dialog.)
 Different widgets have different value editors.
+See the \l{Value Editors} chapter for more details.
 
 \endsidebar
 
@@ -543,12 +545,15 @@ We now have three groups as we had before, only this time with the
     the splitter.
 
     Expanding the list box half of the splitter would require us to add
-    the following code to the form's \index init()
-\Func init() function:
+    an \Func init() function with the following code:
+\index init()
 \code
-    QValueList< int > sizes;
-    sizes << 250 << 40;
-    Splitter->setSizes( sizes );
+    void MulticlipForm::init()
+    {
+	QValueList< int > sizes;
+	sizes << 250 << 40;
+	Splitter->setSizes( sizes );
+    }
 \endcode
 
     We won't add this code now since we'll deal with the code when we
@@ -605,12 +610,15 @@ In the original version of \QD if you wanted to provide code for a
     approach, but now provides an alternative: placing your code
     directly into forms. Writing code in \QD is not quite the same
     as subclassing, for example you cannot get direct access to the
-    form's constructor or destructor. Instead two functions
+    form's constructor or destructor. If you need code to be executed
+    by the constructor create a slot called 
     \index init()
-\Func init() (called after construction) and
+    \Func{void init()}; if it exists it will be called from the constructor.
+    Similarly, if you need to be executed before destruction create a
+    slot called
     \index destroy()
-\Func destroy() (called before destruction) are
-    created by default. You can also add your own class variables which
+\Func{void destroy()}.
+    You can also add your own class variables which
     will be put in the generated constructor's code, and you can add
     forward declarations and any includes you require. To add a variable
     or declaration right click the appropriate item, e.g. Class
@@ -809,14 +817,16 @@ Click the \Toolbutton {Connect Signals/Slots} toolbar
 
     \index Signals and Slots
 \index Subclassing
-In the first version of \QD you could create the signatures of your
-    custom slots and make the connections, but you could not implement
-    your slots directly. Instead you had to subclass the form and
-    code your slots in the subclass. The subclassing approach is
-    still available, and makes sense in some situations. But now you can
-    implement your slots directly in \QD, so for many
-    straightforward dialogs and windows subclassing is no longer
-    necessary.
+    In the first version of \QD you could create the signatures of
+    your custom slots and make the connections, but you could not
+    implement your slots directly. Instead you had to subclass the
+    form and code your slots in the subclass. The subclassing approach
+    is still available, and makes sense in some situations. But now
+    you can implement your slots directly in \QD, so for many
+    dialogs and windows subclassing is no longer
+    necessary. (\QD stores the slot implementations in a
+    \File{.ui.h} file; see \l{The ui.h extension approach} in \l{The
+    Designer Approach} chapter for more about these files.)
 
     The multiclip application requires four slots, one for each button,
     but only three need to be custom slots since we connected a signal
@@ -830,7 +840,7 @@ In the first version of \QD you could create the signatures of your
     application starts it will put the current clipboard text (if any)
     into the line edit. The code is written directly in \QD; the
     snippets are taken from the generated
-    \File qt/tools/designer/examples/multiclip/multiclip.cpp
+    \File qt/tools/designer/examples/multiclip/multiclip.ui.h
     file.
 
     \index Clipboard
@@ -839,11 +849,11 @@ We'll need Qt's global clipboard object throughout the
     \index QApplication::clipboard()
 \Func QApplication::clipboard() or
     \index qApp->clipboard()
-\c {qApp->clipboard()} in several places. Rather
+\c{qApp->clipboard()} in several places. Rather
     than perform all these function calls we'll keep
     a pointer to the clipboard in the form itself. Click the Source tab
     of the Object Explorer. (If the Object Explorer isn't visible click
-    \Menu {Window|Views|Object Explorer}.) The Source
+    \Menu{Window|Views|Object Explorer}.) The Source
     tab shows us the functions in our form, the class variables, the
     forward declarations and the names of the include files we've asked for.
 
@@ -864,10 +874,11 @@ Right click the Class Variables item, then click
     \Menu New on the popup menu. (If there had
     been any existing variables the popup menu would also have a Delete
     option.) Type in 'QClipboard *cb;' and press
-    \Key Enter. In the \index init()
+    \Key Enter. We will create an \index init()
 \Func init() function
-    we will assign this pointer to Qt's global clipboard object. We also
-    need to declare the clipboard header file. Right click Includes (in
+    in which we will assign this pointer to Qt's global clipboard
+    object. We also need to declare the clipboard header file. Right
+    click Includes (in
     Declaration), then click \Menu New. Type in
     '\<qclipboard.h\>' and press \Key Enter. Since we
     need to refer to the global application object,
@@ -882,15 +893,22 @@ Right click the Class Variables item, then click
     We will invoke \QD's code editor and write the code.
 
     \index Code Editing
-We'll look at the \index init()
-\Func init() function first. \QD
-    creates an empty \index init()
-\Func init() into which we can add
-    our own code. To invoke the code editor click a function, e.g. click
-    \index init()
-\Func init() in the Source tab of the Object Hierarchy.
+We'll create the \index init() \Func init() function first. One way of
+invoking the code editor is to click the Source tab, then click the
+name of the function you want to work on. If you have no functions or
+wish to create a new function you need to use the Source tab. Right
+click the 'protected' item in the Source tab's Functions list, then
+left click \Menu New to launch the \Dialog{Edit Slots} dialog. Change
+the slot's name from 'newSlot' to 'init()' then click \Button OK. You
+can then click inside the editor window that appears to enter your
+code. 
 
-\quotefile multiclip/multiclip.cpp
+Note that you are not forced to use \QD's code editor; so long as you
+add, delete and rename your slots all within \QD, you can edit the
+implementation code for your slots using a separate external editor
+and \QD will preserve the code you write.
+
+\quotefile multiclip/multiclip.ui.h
 \skipto ::init
 \printuntil }
 
@@ -918,7 +936,7 @@ We'll look at the \index init()
     starting with \index dataChanged()
 \SignalOrSlot dataChanged().
 
-\quotefile multiclip/multiclip.cpp
+\quotefile multiclip/multiclip.ui.h
 \skipto ::dataChanged
 \printuntil }
 
@@ -936,7 +954,7 @@ The \index selectionChanged()
     under the X Window System. Users of MS Windows can still include the
     code to ensure that the application works cross-platform.
 
-\quotefile multiclip/multiclip.cpp
+\quotefile multiclip/multiclip.ui.h
 \skipto ::selectionChanged
 \printuntil }
 
@@ -949,7 +967,7 @@ The \index selectionChanged()
 \SignalOrSlot dataChanged() slot we called another
     custom slot, \SignalOrSlot clippingChanged().
 
-\quotefile multiclip/multiclip.cpp
+\quotefile multiclip/multiclip.ui.h
 \skipto ::clippingChanged
 \printuntil }
 
@@ -976,7 +994,7 @@ The next slot we'll code will perform the Add Clipping function.
     Current Clipping line edit into the list box. We also update the
     length number.
 
-\quotefile multiclip/multiclip.cpp
+\quotefile multiclip/multiclip.ui.h
 \skipto ::addClipping
 \printuntil insertItem
 \printline }
@@ -1022,10 +1040,9 @@ Click the \Menu Edit|Slots menu item to invoke
 
     Implement the slot.
 
-\quotefile multiclip/multiclip.cpp
+\quotefile multiclip/multiclip.ui.h
 \skipto ::copyPrevious
-\printuntil setSelectionMode( FALSE )
-\printline }
+\printuntil }
 \printline }
 \printline }
 
@@ -1069,7 +1086,7 @@ Click \Menu Edit|Slots to invoke the \Dialog {Edit Slots}
     The Delete button must delete the current item in the list box and
     clear the line edit.
 
-\quotefile multiclip/multiclip.cpp
+\quotefile multiclip/multiclip.ui.h
 \skipto ::deleteClipping
 \printuntil }
 
@@ -1104,13 +1121,14 @@ So far we have written about 99% of a Qt application entirely
 in \QD. To make the application compile and run we must create a
 \index main.cpp
 \File main.cpp file from which we can call our form.
-We'll then need to update the project file accordingly and generate a
-Makefile. We can use the Makefile to generate the application. We will
-cover these matters briefly here, and in more detail in \l {Subclassing}.
 
-First we need to create a \index main.cpp
-\File main.cpp file.
+\index Adding!Source Files to Project Files
+The simplest way to add a new source file to a project is to use the
+Files window. Right click 'Source Files' in the Files window, then
+click \Menu{Add new source file to project}. In the \Dialog{Save As}
+dialog that appears enter 'main.cpp', then click \Button Save.
 
+Enter the following code in the \File{main.cpp} C++ editor window:
 \quotefile multiclip/main.cpp
 \skipto #include
 \printuntil }
@@ -1120,33 +1138,9 @@ instance of our MulticlipForm, sets the form to be the main widget and
 shows the form. The \Func app.exec() call starts off the
 event loop.
 
-\index Adding!Source Files to Project Files
-We need to add \index main.cpp
-\File main.cpp to the
-\index .pro
-\File .pro file. Open \index multiclip.pro
-\File multiclip.pro
-in a plain text editor (such as notepad, vim, xemacs, etc.). It will look
-similar to this:
-\code
-TEMPLATE    = app
-CONFIG     += qt warn_on release
-TARGET      = multiclip
-INTERFACES  = multiclip.ui
-IMAGEFILE   = images.cpp
-PROJECTNAME = multiclip
-LANGUAGE    = C++
-SOURCES    += images.cpp
-\endcode
-
-Add a new line at the end of the file:
-\code
-SOURCES += main.cpp
-\endcode
-
-Save the updated project file. Now start up a console (or xterm), change
-directory to the multiclip application and run \Cmd qmake. A Makefile
-compatible with your system will be generated:
+Now start up a console (or xterm), change directory to the multiclip
+application and run \Cmd qmake. A Makefile compatible with your system
+will be generated:
 \code
 qmake -o Makefile multiclip.pro
 \endcode
