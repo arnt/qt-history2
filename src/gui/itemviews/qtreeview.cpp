@@ -176,8 +176,6 @@ void QTreeView::setHeader(QHeaderView *header)
 
     d->header = header;
 
-//    setViewportMargins(0, d->header->sizeHint().height(), 0, 0);
-
     QObject::connect(d->header, SIGNAL(sectionSizeChanged(int,int,int)),
                      this, SLOT(columnWidthChanged(int,int,int)));
     QObject::connect(d->header, SIGNAL(sectionIndexChanged(int,int,int)),
@@ -186,8 +184,6 @@ void QTreeView::setHeader(QHeaderView *header)
                      this, SLOT(columnCountChanged(int,int)));
     QObject::connect(d->header, SIGNAL(sectionHandleDoubleClicked(int,Qt::ButtonState)),
                      this, SLOT(resizeColumnToContents(int)));
-
-//    updateGeometries();
 }
 
 /*!

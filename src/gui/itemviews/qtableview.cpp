@@ -510,12 +510,11 @@ QModelIndex QTableView::moveCursor(QAbstractItemView::CursorAction cursorAction,
         return model()->index(bottom, current.column(), root());
     case QAbstractItemView::MovePageUp: {
         int newRow = rowAt(itemViewportRect(current).top() - d->viewport->height());
-        return model()->index(newRow <= bottom ? newRow : 0, current.column(), root());
-    }
+        return model()->index(newRow <= bottom ? newRow : 0, current.column(), root());}
     case QAbstractItemView::MovePageDown: {
         int newRow = rowAt(itemViewportRect(current).bottom() + d->viewport->height());
-        return model()->index(newRow >= 0 ? newRow : bottom, current.column(), root());
-    }}
+        return model()->index(newRow >= 0 ? newRow : bottom, current.column(), root());}
+    }
     return QModelIndex::Null;
 }
 
