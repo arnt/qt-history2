@@ -2267,6 +2267,9 @@ void QApplication::installTranslator( QTranslator * mf )
 
     translators->insert( 0, mf );
 
+    if ( !mf->messages().count() )
+	return;
+
     // hook to set the layout direction of dialogs
     setReverseLayout( qt_detectRTLLanguage() );
 
@@ -2468,7 +2471,8 @@ void QApplication::postEvent( QObject *receiver, QEvent *event )
     if ( event->type() == QEvent::Paint ||
 	 event->type() == QEvent::LayoutHint ||
 	 event->type() == QEvent::Resize ||
-	 event->type() == QEvent::Move ) {
+	 event->type() == QEvent::Move ||
+	 event->type() == QEvent::LanguageChange ) {
 	l->first();
 	QPostEvent * cur = 0;
 	for ( ;; ) {
@@ -2497,6 +2501,9 @@ void QApplication::postEvent( QObject *receiver, QEvent *event )
 		    return;
 		} else if ( cur->event->type() == QEvent::Move ) {
 		    ((QMoveEvent *)(cur->event))->p = ((QMoveEvent *)event)->p;
+		    delete event;
+		    return;
+		} else if ( cur->event->type() == QEvent::LanguageChange ) {
 		    delete event;
 		    return;
 		}
