@@ -22,16 +22,14 @@ Qt Designer
 Qt Functions
 ========================================
 
-QSql
-----
+QSqlDriver
+----------
 
-- new function QSqlDriver::feature( QSqlDriver::DriverFeature ) const
-  which allows to query whether the driver supports features like
-  SQL transactions or Binary Large Object fields. The functions
-  hasQuerySizeSupport(), canEditBinaryFields() and hasTransactionSupport()
-  are therefore obsolete and have been removed.
-
-
+ - Add new function QSqlDriver::feature( QSqlDriver::DriverFeature ) const
+   which allows you to query whether the driver supports features like SQL
+   transactions or Binary Large Object fields. The functions
+   hasQuerySizeSupport(), canEditBinaryFields() and hasTransactionSupport()
+   are therefore obsolete and have been removed.
 
 New functions:
 	bool QSqlDriver::feature( QSqlDriver::DriverFeature ) const;
@@ -41,12 +39,11 @@ Removed functions:
 	bool QSqlDriver::canEditBinaryFields() const;
 	bool QSqlDriver::hasTransactionSupport() const;
 
-
 QTabWidget
 ----------
 
-Use the functions below to add tool tips to the individual tabs in a
-QTabWidget.
+ - Use the functions below to add tool tips to the individual tabs in a
+   QTabWidget.
 
 New functions:
     void removeTabToolTip( QWidget * w );
@@ -56,8 +53,8 @@ New functions:
 QTabBar
 -------
 
-Use the functions below to add tool tips to the individual tabs in a
-QTabBar.
+ - Use the functions below to add tool tips to the individual tabs in a
+   QTabBar.
 
 New functions:
     void 	removeToolTip( int id );
