@@ -658,14 +658,15 @@ static QChar sampleCharacter(QFont::Script script)
     case QFont::EnclosedAndSquare:         ch = 0x2460; break;
     case QFont::Braille:                   ch = 0x2800; break;
 
+    case QFont::Unicode:		   ch = 0xfffd; break;
+
     case QFont::LatinExtendedA_2:          ch = 0x0102; break;
     case QFont::LatinExtendedA_3:          ch = 0x0108; break;
     case QFont::LatinExtendedA_4:          ch = 0x0100; break;
     case QFont::LatinExtendedA_14:         ch = 0x0174; break;
     case QFont::LatinExtendedA_15:         ch = 0x0152; break;
 
-    default:
- 	ch = 0;
+    default:				   ch = 0x0000; break;
     }
 
     return QChar(ch);
@@ -694,7 +695,7 @@ static inline FontEngineIface *loadEngine( int styleStrategy, int styleHint,
 					   const QString &foundry,
 					   int weight, bool italic,
 					   bool oblique, int pixelSize,
-					   bool fixed, bool use_regular,
+					   char pitch, bool use_regular,
 					   const QCString &encoding,
 					   int x11Screen )
 {
@@ -747,7 +748,6 @@ static inline FontEngineIface *loadEngine( int styleStrategy, int styleHint,
 	    break;
 	case QFont::TypeWriter:
 	    generic_value = "mono";
-	    fixed = TRUE;
 	    break;
 	}
 
@@ -763,8 +763,9 @@ static inline FontEngineIface *loadEngine( int styleStrategy, int styleHint,
 	    XftPatternAddString( pattern, XFT_FAMILY, family.local8Bit().data() );
 	XftPatternAddString( pattern, XFT_FAMILY, generic_value );
 
-	if ( fixed )
-	    XftPatternAddInteger( pattern, XFT_SPACING, XFT_MONO );
+	XftPatternAddInteger( pattern, XFT_SPACING,
+			      ( pitch == 'c' ? XFT_CHARCELL :
+				( pitch == 'm' ? XFT_MONO : XFT_PROPORTIONAL ) ) );
 
 	XftPatternAddInteger( pattern, XFT_WEIGHT, weight );
 	XftPatternAddInteger( pattern, XFT_SLANT, slant_value );
@@ -818,8 +819,10 @@ static inline FontEngineIface *loadEngine( int styleStrategy, int styleHint,
     xlfd += QString::number( pixelSize ).latin1();
     xlfd += "-*-*-*-";
     // ### handle cell spaced fonts
-    xlfd += fixed ? "m" : "p";
+    xlfd += pitch;
     xlfd += "-*-" + encoding;
+
+    // qDebug( "xlfd: '%s'", xlfd.data() );
 
     XFontStruct *xfs;
     if (! (xfs = XLoadQueryFont(QPaintDevice::x11AppDisplay(), xlfd.data() ) ) )
@@ -889,7 +892,7 @@ void QFontPrivate::load( QFont::Script script, bool )
     // Look in fontCache for font
     fe = fontCache->find(k);
     if ( ! fe ) {
-	qDebug( "QFontPrivate::load: script %d", script );
+	// qDebug( "QFontPrivate::load: script %d", script );
 
 	// ### support CSS2 style family lists
 	QString fam, fnd;
@@ -905,9 +908,9 @@ void QFontPrivate::load( QFont::Script script, bool )
 	QStringList::ConstIterator it = familylist.begin(),
 				  end = familylist.end();
 	for ( ; !fe && it != end; ++it ) {
-	    qDebug( "using family '%s'", (*it).latin1() );
+	    // qDebug( "\n\nusing family '%s'", (*it).latin1() );
 
-	    uint which_script = 0;
+	    uint which_script = ( script == QFont::Unicode ? 1 : 0 );
 	    while ( !fe && which_script < 3 ) {
 		QFontDatabase::parseFontName( (*it).simplifyWhiteSpace(), fnd, fam );
 		int weight = request.weight;
@@ -915,29 +918,34 @@ void QFontPrivate::load( QFont::Script script, bool )
 		bool oblique = FALSE;
 		int px = (int) pixelSize( request, paintdevice, x11Screen );
 		bool use_regular = FALSE;
-		bool fixed = request.fixedPitch;
+		char pitch = request.fixedPitch ? 'm' : 'p';
 
 		if ( QFontDatabase::findFont( scriptlist[which_script],
 					      request.styleStrategy,
 					      fam, fnd, weight, italic, oblique, px,
-					      fixed, use_regular, encoding ) ) {
-		    qDebug( "found a font with script %d:", scriptlist[which_script] );
-		    qDebug( "    '%s' '%s' weight %d italic %d oblique %d size %d",
-			    fam.latin1(), fnd.latin1(), weight, italic, oblique, px );
+					      pitch, use_regular, encoding ) ) {
+		    // qDebug( "found a font with script %d encoding %s:",
+		    // scriptlist[which_script], encoding.data() );
+		    // qDebug( "    '%s' '%s' weight %d italic %d oblique %d size %d",
+		    // fam.latin1(), fnd.latin1(), weight, italic, oblique, px );
 
 		    fe = loadEngine( request.styleStrategy, request.styleHint,
 				     fam, fnd, weight, italic, oblique, px,
-				     fixed, use_regular, encoding, x11Screen );
+				     pitch, use_regular, encoding, x11Screen );
+
+		    // qDebug ("    engine %p", fe );
+
 		    if ( !canRender( fe, sample ) ) {
-			qDebug( "font doesn't have sample char, continuing" );
+			// qDebug( "font doesn't have sample char %04x, continuing",
+			// sample.unicode() );
 			delete fe;
 			fe = 0;
 		    }
 		} else {
-		    qDebug( "couldn't find font with script %d",
-			    scriptlist[which_script] );
-		    qDebug( "    '%s' '%s' weight %d italic %d oblique %d size %d",
-			    fam.latin1(), fnd.latin1(), weight, italic, oblique, px );
+		    // qDebug( "couldn't find font with script %d",
+		    // scriptlist[which_script] );
+		    // qDebug( "    '%s' '%s' weight %d italic %d oblique %d size %d",
+		    // fam.latin1(), fnd.latin1(), weight, italic, oblique, px );
 		}
 
 		++which_script;

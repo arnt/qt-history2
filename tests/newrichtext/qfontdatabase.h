@@ -115,7 +115,7 @@ public:
     static bool findFont( int script, int styleStrategy,
 			  QString &family, QString &foundry,
 			  int &weight, bool &italic, bool &oblique, int &pixelSize,
-			  bool &fixed, bool &xlfd_uses_regular, QCString &encoding );
+			  char &pitch, bool &xlfd_uses_regular, QCString &encoding );
 #endif // Q_WS_X11
 
 private:

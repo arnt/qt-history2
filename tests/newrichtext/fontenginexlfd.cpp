@@ -11,195 +11,7 @@
 
 // #define FONTENGINE_DEBUG
 
-#define ENC_GB18030_0 -114
-#define ENC_GB18030_2000_0 -113
-#define ENC_GBK_0 -113
-#define ENC_GB2312_1980_0 57
-#define ENC_JISX0208_1997_0 63
-#define ENC_JISX0208_1990_0 63
-#define ENC_JISX0208_1983_0 63
-#define ENC_KSC5601_1987_0 36
-#define ENC_BIG5HKSCS_0 -2101
-#define ENC_HKSCS_1 -2101
-#define ENC_BIG5___ -2026
-#define ENC_BIG5_0 -2026
-#define ENC_ISO8859_7 10
-#define ENC_ISO8859_5 8
-#define ENC_MICROSOFT_CP1251 2251
-#define ENC_ISO8859_8 85
-#define ENC_ISO8859_6 82
-#define ENC_TSCII__ 2028
-#define ENC_TIS620__0 2259
-#define ENC_ISO8859_11 2259
-#define ENC_ISO8859_2 5
-#define ENC_ISO8859_3 6
-#define ENC_ISO8859_4 7
-#define ENC_ISO8859_14 110
-#define ENC_ISO8859_15 111
-#define ENC_JISX0201__0 15
-#define ENC_MULELAO_1 -4242
-#define ENC_KOI8_RU 2084
-#define ENC_KOI8_U 2088
-#define ENC_KOI8_R 2084
-
-struct encodings {
-    const char *name;
-    int mib;
-};
-/* maximum key range = 94, duplicates = 0 */
-
-static inline unsigned int
-hash_encoding (register const char *str, register unsigned int len)
-{
-  static const unsigned char asso_values[] =
-    {
-      99, 99, 99, 99, 99, 99, 99, 99, 99, 99,
-      99, 99, 99, 99, 99, 99, 99, 99, 99, 99,
-      99, 99, 99, 99, 99, 99, 99, 99, 99, 99,
-      99, 99, 99, 99, 99, 99, 99, 99, 99, 99,
-      99, 99,  0, 99, 99,  0,  0, 99,  0,  0,
-      40,  5, 15, 20, 35, 10,  0,  0, 99, 99,
-      99, 99, 99, 99, 99, 99, 99, 99, 99, 99,
-      99, 99, 99, 99, 99, 99, 99, 99, 99, 99,
-      99, 99, 99, 99, 99, 99, 99, 99, 99, 99,
-      99, 99, 99, 99, 99, 99, 99,  0,  0,  0,
-      99,  0,  0,  0,  5,  0,  0,  0,  0,  0,
-      99,  0,  0, 99, 10,  0,  0,  0, 99, 99,
-       0, 99, 99, 99, 99, 99, 99, 99, 99, 99,
-      99, 99, 99, 99, 99, 99, 99, 99, 99, 99,
-      99, 99, 99, 99, 99, 99, 99, 99, 99, 99,
-      99, 99, 99, 99, 99, 99, 99, 99, 99, 99,
-      99, 99, 99, 99, 99, 99, 99, 99, 99, 99,
-      99, 99, 99, 99, 99, 99, 99, 99, 99, 99,
-      99, 99, 99, 99, 99, 99, 99, 99, 99, 99,
-      99, 99, 99, 99, 99, 99, 99, 99, 99, 99,
-      99, 99, 99, 99, 99, 99, 99, 99, 99, 99,
-      99, 99, 99, 99, 99, 99, 99, 99, 99, 99,
-      99, 99, 99, 99, 99, 99, 99, 99, 99, 99,
-      99, 99, 99, 99, 99, 99, 99, 99, 99, 99,
-      99, 99, 99, 99, 99, 99, 99, 99, 99, 99,
-      99, 99, 99, 99, 99, 99
-    };
-  register int hval = len;
-
-  switch (hval)
-    {
-      default:
-      case 16:
-        hval += asso_values[(unsigned char)str[15]];
-      case 15:
-        hval += asso_values[(unsigned char)str[14]];
-      case 14:
-        hval += asso_values[(unsigned char)str[13]];
-      case 13:
-        hval += asso_values[(unsigned char)str[12]];
-      case 12:
-        hval += asso_values[(unsigned char)str[11]];
-      case 11:
-        hval += asso_values[(unsigned char)str[10]];
-      case 10:
-        hval += asso_values[(unsigned char)str[9]];
-      case 9:
-        hval += asso_values[(unsigned char)str[8]];
-      case 8:
-        hval += asso_values[(unsigned char)str[7]];
-      case 7:
-        hval += asso_values[(unsigned char)str[6]];
-      case 6:
-        hval += asso_values[(unsigned char)str[5]];
-      case 5:
-        hval += asso_values[(unsigned char)str[4]];
-      case 4:
-        hval += asso_values[(unsigned char)str[3]];
-      case 3:
-        hval += asso_values[(unsigned char)str[2]];
-      case 2:
-        hval += asso_values[(unsigned char)str[1]];
-      case 1:
-        hval += asso_values[(unsigned char)str[0]];
-        break;
-    }
-  return hval;
-}
-
-static inline const struct encodings *
-findEncoding (register const char *str, register unsigned int len)
-{
-  enum
-    {
-      TOTAL_KEYWORDS = 30,
-      MIN_WORD_LENGTH = 5,
-      MAX_WORD_LENGTH = 16,
-      MIN_HASH_VALUE = 5,
-      MAX_HASH_VALUE = 98
-    };
-
-  static const struct encodings wordlist_encoding[] =
-    {
-      {"gbk-0", ENC_GBK_0},
-      {"koi8-u", ENC_KOI8_U},
-      {"tscii-*", ENC_TSCII__},
-      {"mulelao-1", ENC_MULELAO_1},
-      {"hkscs-1", ENC_HKSCS_1},
-      {"gb18030-0", ENC_GB18030_0},
-      {"koi8-r", ENC_KOI8_R},
-      {"koi8-ru", ENC_KOI8_RU},
-      {"big5-0", ENC_BIG5_0},
-      {"big5*-*", ENC_BIG5___},
-      {"iso8859-8", ENC_ISO8859_8},
-      {"iso8859-11", ENC_ISO8859_11},
-      {"iso8859-3", ENC_ISO8859_3},
-      {"big5hkscs-0", ENC_BIG5HKSCS_0},
-      {"iso8859-7", ENC_ISO8859_7},
-      {"iso8859-4", ENC_ISO8859_4},
-      {"iso8859-14", ENC_ISO8859_14},
-      {"iso8859-5", ENC_ISO8859_5},
-      {"iso8859-15", ENC_ISO8859_15},
-      {"jisx0201*-0", ENC_JISX0201__0},
-      {"jisx0208.1990-0", ENC_JISX0208_1990_0},
-      {"gb18030.2000-0", ENC_GB18030_2000_0},
-      {"jisx0208.1983-0", ENC_JISX0208_1983_0},
-      {"iso8859-6", ENC_ISO8859_6},
-      {"jisx0208.1997-0", ENC_JISX0208_1997_0},
-      {"iso8859-2", ENC_ISO8859_2},
-      {"ksc5601.1987-0", ENC_KSC5601_1987_0},
-      {"tis620*-0", ENC_TIS620__0},
-      {"microsoft-cp1251", ENC_MICROSOFT_CP1251},
-      {"gb2312.1980-0", ENC_GB2312_1980_0}
-    };
-
-  static const signed char lookup[] =
-    {
-      -1, -1, -1, -1, -1,  0,  1,  2, -1,  3, -1, -1,  4, -1,
-       5, -1,  6,  7, -1, -1, -1, -1, -1, -1, -1, -1,  8,  9,
-      -1, 10, 11, -1, -1, -1, 12, -1, 13, -1, -1, 14, -1, -1,
-      -1, -1, 15, 16, -1, -1, -1, 17, 18, 19, -1, -1, -1, 20,
-      -1, -1, -1, 21, 22, -1, -1, -1, 23, 24, -1, -1, -1, 25,
-      -1, -1, -1, -1, -1, -1, -1, -1, -1, 26, -1, -1, -1, -1,
-      27, -1, 28, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-      29
-    };
-
-  if (len <= MAX_WORD_LENGTH && len >= MIN_WORD_LENGTH)
-    {
-      register int key = hash_encoding (str, len);
-
-      if (key <= MAX_HASH_VALUE && key >= 0)
-        {
-          register int index = lookup[key];
-
-          if (index >= 0)
-            {
-              register const char *s = wordlist_encoding[index].name;
-
-              if (*str == *s && !strncmp (str + 1, s + 1, len - 1) && s[len] == '\0')
-                return &wordlist_encoding[index];
-            }
-        }
-    }
-  return 0;
-}
-
+extern int qt_mibForXlfd( const char * ); // defined in qfontdatabase_x11.cpp
 
 
 // returns TRUE if the character doesn't exist (ie. zero bounding box)
@@ -264,9 +76,8 @@ static inline XCharStruct *charStruct( XFontStruct *xfs, int ch )
 FontEngineXLFD::FontEngineXLFD( XFontStruct *fs, const char *name, const char *encoding, int cmap )
     : _fs( fs ), _name( name ), _codec( 0 ), _scale( 1. ), _cmap( cmap )
 {
-    const struct encodings *enc = findEncoding( encoding, strlen( encoding ) );
-    if ( enc )
-	_codec = QTextCodec::codecForMib( enc->mib );
+    int mib = qt_mibForXlfd( encoding );
+    if ( mib ) _codec = QTextCodec::codecForMib( mib );
 }
 
 FontEngineXLFD::~FontEngineXLFD()
@@ -477,7 +288,7 @@ bool FontEngineXLFD::canRender( const QChar *string,  int len )
 
     bool allExist = TRUE;
     for ( int i = 0; i < nglyphs; i++ ) {
-	if ( !charStruct( _fs, g[i] ) ) {
+	if ( !g[i] || !charStruct( _fs, g[i] ) ) {
 	    allExist = FALSE;
 	    break;
 	}

@@ -11,12 +11,11 @@
 #include "editwidget.h"
 
 // const char *family = "Arial Unicode Ms"; // generic
-const char *family = "Diwani Letter,Tahoma,Latha,Akaash,Serto Jerusalem,Mangal"; // Devanagari
+const char *family = "Diwani Letter,Verdana,Latha,Akaash,Serto Jerusalem,Mangal,Rama"; // Devanagari
 // const char *family = ""; // arabic
 // const char *family = ""; // syriac
 // const char *family = ""; // Bengali
 // const char *family = ""; // Tamil
-
 
 //const char *s = "some string";
 //const char * s = "אי U יו";
@@ -54,6 +53,7 @@ const char *s =
 "Devanagari: रूस के राष्ट्रपति "
 "Bengali: অাবার অাসিব ফিরে "
 ;
+
 // const char *s = "";
 
 int main( int argc, char **argv )
