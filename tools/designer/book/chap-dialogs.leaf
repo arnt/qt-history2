@@ -1,0 +1,1167 @@
+\chapter Creating a Qt Application
+
+\section1 Starting and Exiting \QD
+
+\index Starting Qt Designer
+\QD is controlled in the same way as any other modern
+desktop application.
+To start \QD under Windows click the \Menu Start
+button and click \Menu {Programs|Qt X.x.x|Designer}.
+(X.x.x is the Qt version number, e.g. 3.0.0.) If you're running a Unix
+or Linux operating system you can either double click the \QD icon or enter
+\c {designer &} in an xterm.
+
+\index Exiting Qt Designer
+\index Getting Help
+When you've finished using \QD click
+\Menu File|Exit; you will be prompted to save any
+unsaved changes. Help is available by pressing \Key F1 or
+from the \Menu Help menu.
+
+To get the most benefit from the tutorial chapters we recommend that you
+start \QD now and create the example applications as you read. Most of
+the work involves using \QD's menus, dialogs and editors, with only
+small amounts of code to type in.
+
+When you start \QD, by default, you will see a menu bar and various
+toolbars at the top.
+\index Widgets and Source window!Object Explorer
+\index Object Explorer
+\index Pixmaps
+On the left hand side are three windows, the first is the Files
+window, the second is the Widgets and Source window (the Object
+Explorer) and the third is the
+Properties window. The Files window lists the files and images
+associated with the project; to open any form single click it in the
+Files list. The Widgets and Source window lists the current form's
+widgets and slots. The Properties window is used to view and change the
+properties of forms and widgets. We will cover the use of \QD's windows,
+dialogs, menu options and toolbar buttons as we create example
+applications.
+
+In this chapter we will build an application called 'multiclip' which
+allows you to store and retrieve multiple text clippings to and from the
+clipboard.
+\img multiclip.png
+\caption The Multiclip Application
+
+\section1 Creating a New Project
+
+\index Projects
+\index Projects!Creating New
+\index Creating Projects!Projects
+\index Pixmaps!In Projects
+\index Pixmaps!Adding to Forms
+Whenever you create a new application we
+\e strongly recommend that you create a project file and open the
+project rather than individual \index .ui
+\File .ui files. Opening a project has
+the advantage that all the forms you create for the project are
+available via a single mouse click rather than having to be loaded
+individually through file open dialogs. An additional benefit of using
+project files is that they allow you to store all your images in a
+single file rather than duplicate them in each form in which they
+appear.
+
+\index Adding!Forms
+\index Forms!Adding
+Start \QD if you haven't already. Click \Menu {File|New Project} to invoke
+the \Dialog {Project Settings} dialog. Enter 'multiclip' as the project's name and
+'multiclip.pro' as the project's filename, then click \OK.  The name of
+the current project is shown in the
+\Button Files
+toolbar which is the top left toolbar by
+default. Once we have a project we can add forms and begin to build our
+application. (See \l {Customizing Qt Designer} for
+information on changing \QD's toolbars and windows to suit your
+preferences.)
+
+\section1 Creating a New Form
+
+\index Dialogs!Creating New
+\index Creating Forms!Dialogs
+\index Adding!Forms
+Click \Menu File|New to invoke the \Dialog {New Form} dialog.
+Several default forms are supplied but we will use the default Dialog
+form, so just click \OK. A new form called 'Form1' will appear. Note
+that the new form is listed in the Files list and the Properties window
+shows the form's default property settings.
+
+Click the Value beside the \Property name property and change the form's name to
+'MulticlipForm'.  Change the form's caption to 'Multiclip'. The
+properties are ordered in accordance with the inheritance hierarchy, and
+caption is roughly in the middle of the property editor. Save
+the form: click \Menu File|Save, enter the name
+'multiclip.ui', then click the \Button Save button.
+
+\sidebar Using the Property Editor
+
+\index Using the Property Editor
+\index Properties
+The Property Editor has two columns, the Property column which
+lists property names and the Value column which lists the values. Some
+property names have a plus sign '+' in a square to their left; this
+signifies that the property name is the collective name for a set of
+related properties. Click the form to make the Property Editor show the
+form's properties.
+Click the \Property sizePolicy property's plus sign; you will
+see two properties appear indented below sizePolicy, hSizeType and
+vSizeType. These properties are edited in the same way as any
+other properties.
+
+Some properties have simple values, for example, the \Property name property
+has a text value, the \Property width property (within \Property minimumSize
+for example) has a numeric value. To change a text value click the
+existing text and type in your new text. To change a numeric value click
+the value and either type in a new number, or use the spin buttons to
+increase or decrease the existing number until it reaches the value you
+want. Some properties have a fixed list of values, for example the
+\Property mouseTracking property is boolean and can take the values True or
+False. The \Property cursor property also has a fixed list of values. If
+you click the cursor property or the \Property mouseTracking property the
+value will be shown in a drop down combobox; click the down arrow to see
+what values are available. Some properties have complex sets of values;
+for example the \Property font property. If you click the font property an
+ellipsis button (\Button {...}) will appear; click this button and a
+\Dialog {Select Font} dialog will pop up which you can use to change any of the
+font settings. Other properties have ellipsis buttons which lead to
+different dialogs depending on what settings the property can have. For
+example, if you have a lot of text to enter for a \Property text property
+you could click the ellipsis button to invoke the multi-line text editor
+dialog.
+
+\index Properties!Reverting changes
+\index Properties!Initial values
+The names of properties which have changed are shown in bold. If
+you've changed a property but want to revert it to its default value
+click the property's value and then click the red 'X' button
+to the right of the value. Some properties have an
+\e initial value, e.g. 'TextEdit1', but no default
+value; if you revert a property that has an initial value but no default
+value (by clicking the red 'X') the value will become empty unless the
+property, e.g. name, is not allowed to be empty.
+
+\index Undo and Redo!Properties
+\index Properties!Undo and Redo!Undo and Redo
+\index Redo!Undo and Redo
+The property editor fully supports Undo and Redo
+(\Key Ctrl+Z and \Key Ctrl+Y, also available
+from the \Menu Edit menu).
+
+\endsidebar
+
+\section1 Adding Widgets
+
+\index Forms!Adding Widgets
+\index Adding!Widgets
+\index Cut and Paste (in Applications)
+The multiclip application consists of a text box to display the current
+clipboard text (if any), a list box showing the previous clippings, a
+length indicator, a checkbox and buttons. If you run the application and
+resize it all the widgets will scale properly.
+
+The \QD approach to laying out a form is to place the required
+widgets on the form in the approximate positions that they should
+occupy and then use the layout tools to size and position them
+correctly. We'll now add the multiclip form's widgets.
+    \list 1
+    \i
+
+	\index Tooltips
+We'll start with the current clipping text box.
+	Click the
+	\Toolbutton {Text Label} toolbar button and
+	click towards the top left of the form. (If you hover the mouse
+	over a toolbar button its name will appear in
+	a tooltip.) We won't bother renaming the label since we'll never
+	refer to it in code; but we need to change its text, so change
+	its \Property text property to 'Current Clipping'. (See the \l {Using the Property Editor}
+	sidebar for an explanation of the property editor.)
+
+	Click the
+	\Toolbutton {Line Edit} toolbar button and
+	click towards the top right of the form. Use the Property Editor
+	to change the widget's name to 'currentLineEdit'.
+
+    \i
+
+	Now we'll add another label and the list box. Click the
+	\Toolbutton {Text Label} toolbar button and click below the
+	Current Clipping label. Change the \Property text property to 'Previous
+	Clippings'. Don't worry
+	about positioning the widgets precisely, nor about the fact that
+	they are the wrong size; the layout tools (covered in the next
+	section) will take care of this.
+
+	\index Properties!Property Editors
+\index Deleting!ListBox Items
+\index Value Editors!List Box
+Click the
+	\Toolbutton {List Box} toolbar button and click
+	the form below the 'Previous Clippings' label. Change the list
+	box's name to 'clippingsListBox'. By default \QD creates list
+	boxes with a single initial value of 'New Item'. We don't want
+	this value (we'll be populating our list box in code later), so
+	we need to remove the value. Right click the list box then click
+	the \Menu Edit menu item on the popup menu
+	to invoke the listbox's value editor dialog. Click
+	\Button {Delete Item} to delete the default item,
+	then click \OK. (See the \l {Value
+	Editors} sidebar.)
+
+    \i
+
+	We want to know the length of the current clipping so we'll add
+	a label and an \Widget {LCD Number} widget.
+
+	\index Adding!Text Labels
+\index Adding!Labels
+Click the
+	\Toolbutton {Text Label} toolbar button and
+	\Widget {Line Edit}. Change its \Property text
+	property's value to 'Length'. Click the
+	\Toolbutton {LCD Number} toolbar button and click below
+	the length label. Change the LCD Number's
+	name to 'lengthLCDNumber'.
+
+    \i
+
+	Multiclip can be made to detect clipboard changes and
+	automatically add new clippings. We want the user to have
+	control over whether this should
+	happen or not so we will provide a check box which they can use
+	to indicate their preference.
+
+	Click the
+	\Toolbutton {Check Box} toolbar button and
+	click below the
+	\Widget {LCD Number}. Change the
+	checkbox's name to 'autoCheckBox' and its text to 'A\&uto Add
+	Clippings'. Note that the \Property accel property automatically changes
+	to \Key Alt+U because the ampersand in the text
+	signifies a keyboard shortcut.
+
+    \i
+
+	The last widgets we require are the buttons. One way to add the
+	same kind of widget multiple times is to add one, copy it, then
+	paste repeatedly. We will use another approach.
+
+	\index Adding!Duplicate Widgets
+\index Widgets!Repeatedly Adding
+\index Adding!Push Buttons
+\e Double click the
+	\Toolbutton {Push Button} toolbar button; now click below the
+	checkbox to place a button. Click below the button we've just
+	added to add a second button. Add a third and fourth button. Now
+	click the \Toolbutton Pointer toolbar button to switch off
+	automatically adding the same widget. Change the first button's
+	name to 'addPushButton' and its text to '\&Add Clipping'.
+	Change the second button's name to 'copyPushButton' and its text
+	to '\&Copy Previous'. Change the third button's name and text
+	properties to 'deletePushButton' and '\&Delete Clipping'
+	respectively. Similarly change the fourth button's name and text
+	to 'quitPushButton' and '\&Quit'.
+
+    \endlist
+All our widgets have been placed on the form with their properties
+changed to suit our application's needs. In the next section we will use
+\QD's layout tools to size and position the widgets correctly and in
+such a way that when the user resizes the form the widgets will scale
+properly.
+
+\sidebar Value Editors
+
+\index Value Editors
+\index Value Editors!Dialogs
+\index Dialogs!Value Editors
+Whilst the Property Editor is used to customize the generic properties
+of widgets, value editors are used to edit values held within instances
+of particular widgets. For example a
+\Class QLineEdit
+can only contain a single line of text, but a
+\Class QListBox can contain any number of items each of
+which may be a line of text, a pixmap, or both. To invoke a widget's
+value editor double click the widget. (Alternatively right click the
+widget and a popup menu will appear; if the first menu item is 'Edit',
+you can click this to access the widget's value editor dialog.)
+Different widgets have different value editors.
+
+\endsidebar
+
+\section1 Laying Out Widgets and Previewing
+
+    \section2 Introduction to Layouts
+
+    \index Layouts
+\index Layouts!Vertical
+\index Layouts!Horizontal
+\index Layouts!Grid
+Layouts work by grouping together widgets and groups of widgets,
+    horizontally, vertically or in a grid. Widgets that are laid out
+    together horizontally or vertically can be grouped either with a
+    Layout or with a \Layout Splitter; the only difference is that a user can
+    manipulate a Splitter themselves.
+
+    If we want to lay out some widgets side by side we would select them
+    and then click the
+    \Toolbutton {Lay Out Horizontally}
+    toolbar button. If we want our widgets to be lined up one above
+    the other we would use the \Toolbutton {Lay Out Vertically} toolbar
+    button.
+    Once we've grouped some widgets together we can then lay out the
+    groups in relation to each other, again using vertical, horizontal
+    or grid layouts. Once we have a collection of laid out groups we
+    then click on the form itself and lay out the groups within the form
+    using one of the layout buttons.
+
+    \index Layouts!Space filling
+\index Widgets!Push Button
+\index Widgets!Line Edit
+Some widgets will grow to fill the available space, vertically or
+    horizontally or both ways. Buttons and line edits will fill
+    horizontal space for example, whereas a \Widget ListView will fill
+    space in both directions. The easiest way to achieve the layout you
+    want is to use \QD's layout tools. When you apply a layout to some
+    widgets in some situations the widgets may not lay out the way you
+    want. If a widget does not fill up enough space try changing its
+    \Property sizePolicy to Expanding. If a widget takes up too much space one
+    approach is to change its \Property sizePolicy, and another approach is to use
+    a \e Spacer to consume excess space.
+
+    \Layout Spacers have no visual appearance on the running form and are used
+    purely to insert space between widgets or groups of widgets. Suppose
+    you have a widget that takes up too much space. You could break the
+    layout and resize the widget to make room for a spacer. Then you
+    would insert the spacer and layout the spacer with the widgets and
+    the spacer will consume the excess space. If the spacer doesn't take
+    up the right amount of space you can change its sizePolicy for finer
+    control.
+
+    \index Undo and Redo!Layouts
+\index Layouts!Undo and Redo!Undo and Redo
+\index Layouts!Spacers
+The best way to learn about layouts and spacers is to try
+    them out. Experimenting with layouts is easy. If you make any
+    changes that you aren't happy with you can easily undo them by
+    clicking \Menu Edit|Undo or by pressing
+    \Key Ctrl+Z. In the next section we'll lay out our
+    multiclip example step-by-step.
+
+    \section2 Laying Out Widgets
+
+    \index Layouts
+\index Scaling widgets and application windows
+\index Automatically scaling widgets and application windows
+\index Absolute positioning
+Layouts provide a means of grouping widgets and groups of widgets
+    together in horizontal and vertical pairs and in grids. If you use
+    layouts your forms and the widgets they contain will scale
+    automatically when the user resizes the window. This is better than
+    using absolute sizes and positions since you don't have to write any
+    code to achieve the scaling and your users can make the most of
+    their screen size whether they have a laptop or a very large screen
+    desktop machine. Layouts use standard sizes for margins and widget
+    spacing which helps give your applications a consistent and
+    proportional look without requiring any effort on your part. Layouts
+    are also easier and faster to use than absolute positioning; you can
+    just place your widgets on the form in approximate positions and
+    leave the layout tools to size and scale the widgets correctly.
+
+    \sidebar Selecting Widgets and Inserting Widgets
+
+    \index Object Explorer
+\index Selecting Widgets
+\index Rubber band, Selecting
+\index Selecting!Rubber band
+\index Grouping Widgets
+\index Widgets!Grouping
+To select an individual widget, either click the widget itself or
+    click its Name in the Object Explorer window. To select a group
+    either click a fraction outside its red outline or click its Name in
+    the Object Explorer window. To select multiple widgets or groups,
+    click the form to deselect any selected widgets, then \Key Ctrl+Click
+    one widget or group then drag the rubber band so that it touches the
+    other widgets or groups that you want to select. This technique is
+    particularly useful for selecting widgets that are
+    \e inside another widget. For example to select
+    the radio buttons in a button group but not the button group itself
+    you would click the form then \Key Ctrl+Click one of the radio buttons
+    and drag the rubber band to touch the other radio buttons.
+
+    \index Layouts!Break layout
+\index Break layout
+If we want to insert a widget into a gap between widgets
+    which are in a layout we can click the toolbar button for the new
+    widget and then click in the gap. \QD will ask us if we want to
+    break the layout and if we click \Button {Break Layout}
+    the layout will be broken and our widget inserted. We can then
+    select the widgets and groups we want to lay out and lay them out
+    again. The same effect can be achieved by clicking the group and
+    either clicking the \Toolbutton {Break Layout} toolbar
+    button or pressing \Key Ctrl+B.
+
+ \endsidebar
+
+    The layout we want to achieve is to have the current clipping label
+    and currentLineEdit side by side at the top of the form. We want the
+    previous clippings label and the clippingsListBox to occupy the left
+    hand side of the form with the remaining widgets in a column on the
+    right. We want to divide left and right with a splitter and make the
+    left hand side larger by default. We'll leave the sizing of the
+    widgets to \QD. The layout controls are in the \Toolbutton Layout
+    toolbar. (By default this is the fourth toolbar counting left to
+    right.) We'll now lay out the widgets we've placed on the form.
+    \list 1
+    \i
+
+    Click the current clipping label and \Key Shift+Click the
+    currentLineEdit \Widget {Line Edit}.
+    (\Key Shift+Click means hold down the shift key whilst
+    clicking; this will ensure that \QD performs multiple selections.)
+    Most of the layout toolbar buttons will now be available. Click the
+    \Toolbutton {Lay Out Horizontally} toolbar button. (If you hover
+    the mouse over a toolbar button a tooltip giving the button's name
+    will appear.) The two
+    widgets will be moved together with a thin red line surrounding
+    them. It doesn't matter that the widgets aren't the right size or in
+    exactly the right place; as we progress with the layout \QD will
+    size and place them correctly.
+
+    \i
+
+    Click the Previous Clippings label and \Key Shift+Click the
+    clippingsListBox. Click the \Toolbutton {Lay Out Vertically}
+    toolbar button.
+
+    \i
+
+    \index Selecting Widgets
+\index Rubber band, Selecting
+\index Selecting!Rubber band
+\index Grouping Widgets
+\index Widgets!Grouping
+We want the remaining widgets to be grouped together vertically. We
+    could \Key Shift+Click each one but instead click the
+    form above the Length label, then drag until the Length label, the
+    LCD Number, the check box and all the buttons are all touching the
+    rubber band (a black outline rectangle) that appears when you drag.
+    Release the mouse, and all the remaining widgets should be selected.
+    If you missed any \Key Shift+Click them. Now click the
+    \Toolbutton {Lay Out Vertically} toolbar button.
+
+    \endlist
+
+    We now have three groups of widgets which must be laid out in
+    relation to each other and then laid out in relation to the form
+    itself.
+    \list 1
+    \i
+
+    \index Layouts!Rubber band
+\index Grouping Widgets
+\index Widgets!Grouping
+\Key {Shift+Click}ing is used to select individual widgets. To select a
+    group we must click the form to deselect any selected widgets, then
+    \Key Ctrl+Click the group and drag so that the rubber band touches the
+    groups we want to lay out and then release. With the buttons and
+    other widgets already laid out and selected, \Key Ctrl+Click the list box
+    and drag the rubber band over the one of the buttons, then release. Both
+    groups should now be selected. Click the
+    \Toolbutton {Lay Out Horizontally (in Splitter)} toolbar button.
+
+    \i
+
+    We now have two groups, the top one with the Current Clipping label
+    and the line edit and the group we've just created with the list box,
+    buttons and other widgets. We now want to lay these out in relation
+    to the form. Click the form and click
+    the \Toolbutton {Lay Out Vertically} toolbar button. The widgets will
+    be resized to fill the entire form.
+
+    \endlist
+
+    \index Layouts!Spacers
+Unfortunately the Length label and the LCD Number take up far too
+    much space, so we will have to revise the layout. With experience
+    you will find that you do not need to rework layouts very often. We
+    will insert a spacer which will use the extra space.
+    \list 1
+    \i
+
+    First we must make some room for the spacer. Click the LCD Number to
+    select it. Now click the \Toolbutton {Break Layout} toolbar
+    button. Move the LCD Number up a little bit, there's no need to be
+    exact we just want to create some space below it.
+
+    \i
+
+    \index Layouts!Spacers
+Now we'll add the spacer.
+    Click the \Toolbutton Spacer toolbar button, then click the form
+    in the space you've created between the LCD Number and the check
+    box. A popup menu with two options, Horizontal and Vertical, will
+    appear; click Vertical. We choose vertical because we want the spacer
+    to consume excess vertical space.
+
+    \i
+
+    \index Layouts!Spacers
+We need to regroup the buttons and other widgets in a vertical
+    group. Drag the mouse from near the bottom right of the form so that
+    the rubber band includes or touches the buttons, the
+    check box, the spacer, the LCD Number and the Length label; then
+    release. If you selected any other widgets by mistake, click the
+    form and try the drag again. Click the
+    \Toolbutton {Lay Out Vertically} toolbar button.
+
+    \i
+
+    \index Layouts!Splitters
+\index Layouts!Horizontal
+\index Layouts!Spacers
+We now have three groups as we had before, only this time with the
+    small addition of the spacer. Select the list box and the buttons by
+    clicking the form, dragging and releasing once the rubber band
+    covers or touches both groups.
+    Click \Toolbutton {Lay Out Horizontally (in Splitter)} to regroup
+    them with the splitter.
+
+    \i
+
+    The last step is to lay out the form itself. Click the form and
+    click \Toolbutton {Lay Out Vertically}. The form should now
+    be laid out correctly.
+
+    \endlist
+    There are two small deficiencies in the layout that we have
+    achieved. Firstly the list box and buttons take up an equal width
+    whereas we'd rather have the list box take up about three quarters
+    of the width. Secondly the Length label, the check box and the
+    buttons extend right up to the splitter. They would look more
+    attractive if there was a little bit of space separating them from
+    the splitter.
+
+    Expanding the list box half of the splitter would require us to add
+    the following code to the form's \index init()
+\Func init() function:
+\code
+    QValueList< int > sizes;
+    sizes << 250 << 40;
+    Splitter->setSizes( sizes );
+\endcode
+
+    We won't add this code now since we'll deal with the code when we
+    come to implement the application's functionality later in the
+    chapter.
+
+    \index Layouts!Spacing
+\index Object Explorer
+\index Selecting Widgets
+We will create some space around the splitter by changing the
+    margins of the layout groups that it joins together. To click a
+    layout either click a fraction above the layout's top red line or
+    click the layout's name in the Object Explorer (the Widgets and
+    Source window). (See \l {The Object Explorer} sidebar for an
+    explanation of the Object Explorer window.) Click the layout that
+    contains the list box, and change the \Property layoutMargin property to 6,
+    then press \Key Enter. Click the layout that contains
+    the buttons and other widgets, and change
+    its \Property layoutMargin to the same value in the same way.
+
+    \sidebar The Object Explorer
+
+    \index Object Explorer
+View the Object Explorer (Widgets and Source) window by clicking
+    \Menu {Window|Views|Object Explorer}. The Object
+    Explorer has two tabs, the Widgets tab which shows the object
+    hierarchy, and the Source tab which shows the source code you have
+    added to the form. Clicking the name of a widget in the Widget tab
+    will select the widget and show its properties in the Property
+    Editor. It is easy to see and select widgets
+    in the Object Explorer which is especially useful for forms that
+    have many widgets or which use layouts.
+
+    \index Code Editing
+\index Subclassing
+\index Forward declarations
+\index Includes
+\index Adding!Code
+\index Adding!Forward declarations
+\index Adding!Includes
+\index Adding!Class variables
+\index Class variables
+\index Deleting!Forward declarations
+\index Deleting!Includes
+\index Deleting!Class variables
+\index Forms!Forward declarations
+\index Forms!Class variables
+\index Forms!Code editing
+\index Forms!destructor
+\index Forms!constructor
+In the original version of \QD if you wanted to provide code for a
+    form you had to subclass the form and put your code in the
+    subclass. This version fully supports the subclassing
+    approach, but now provides an alternative: placing your code
+    directly into forms. Writing code in \QD is not quite the same
+    as subclassing, for example you cannot get direct access to the
+    form's constructor or destructor. Instead two functions
+    \index init()
+\Func init() (called after construction) and
+    \index destroy()
+\Func destroy() (called before destruction) are
+    created by default. You can also add your own class variables which
+    will be put in the generated constructor's code, and you can add
+    forward declarations and any includes you require. To add a variable
+    or declaration right click the appropriate item, e.g. Class
+    Variables, then click New then enter your text, e.g.
+    \c {QString fileName}. If one or more items exist
+    right clicking will popup a two item menu with New and Delete as
+    options. To edit code just click the name of a function to invoke
+    the code editor. Code editing and creating slots are covered later.
+
+    \index Subclassing
+If you subclass the form you create your own
+    \index .cpp
+\File .cpp files which can contain your own
+    constructor, destructor, functions, slots, declarations and
+    variables as your requirements dictate. (See \l {Subclassing} for more information.)
+
+    \endsidebar
+
+    \index Absolute positioning
+In the example we used \QD's layout tools to lay
+    out our widgets. We will use the layout tools again in the examples
+    presented in later chapters. If you want to use absolute
+    positioning, i.e. to place and size your widgets with exact pixel
+    sizes you can easily do so. To place a widget click it and drag it
+    to the desired position. To resize it, click it, and drag one of the
+    sizing handles (these are small blue squares) until the size is
+    right. To stop the widget from resizing when the window is resized
+    change the \Property hSizeType and \Property vSizeType (these are
+    properties within the \Property sizePolicy property), to Fixed.
+
+    \section2 Previewing
+
+    \index Previewing
+\index Preview Mode!Previewing
+\index Cross-platform previewing
+Although \QD presents an accurate view of our forms we often want to
+    see what a form looks like when it is run. It is also useful to be
+    able to test out some aspects of the form, for example how the form
+    scales when resized or how the splitters work in practice. If we're
+    building cross-platform applications it is also useful to see how
+    the form will look in different environments.
+
+    To see a preview either click \Menu {Preview|Preview Form}
+    or press \Key Ctrl+T. To leave preview mode
+    close the window in the standard way for
+    your environment. To view previews which show how the application will
+    look on other platforms click the \Menu Preview
+    menu and click one of the menu items that drop down.
+
+    Preview the multiclip form and try out the splitter and try resizing
+    the form. In all probability you moved the splitter to the right to
+    reduce the size of the buttons to make the form more attractive. The
+    splitter seemed like a good idea but in practice we want the buttons
+    and the other widgets on the right hand side to take up a fixed
+    amount of space. \QD makes changing layouts very easy, so we'll fix
+    this straight away.
+
+    \index Layouts!Splitters
+\index Layouts!Rubber band
+Click the splitter then click the \Toolbutton {Break Layout}
+    toolbar button; the splitter will be removed. Now
+    click the form itself, near the bottom, and drag the rubber band so
+    that it touches both the list box and some of the buttons, then
+    release. The list box group and the buttons group are
+    selected; click the \Toolbutton {Lay Out Horizontally}
+    toolbar button. Click the form then click the
+    \Toolbutton {Lay Out Vertically}
+    toolbar button. The form is now laid out as
+    we require. Preview the form (press \Key {Ctrl+T}) and try
+    resizing it.
+
+    \index Undo and Redo!Layouts
+It would be useful if you experimented further with layouts since
+    they work visually and are best learnt through practice.
+    To remove a layout click the \Toolbutton {Break Layout}
+    toolbar button; to apply a layout select the
+    relevant widgets or groups and click a layout button. You can
+    preview as often as you like and you can always undo any changes
+    that you make.
+
+    \index Layouts!Grid
+\index Layouts!Break layout
+Let's try an experiment, to see how the grid layout works. Click
+    the list box, then press \Key Ctrl+B (break layout).
+    Click one of the buttons and press \Key Ctrl+B. Click
+    the form at the bottom and drag until all the widgets are touching
+    or within the rubber band, (but excluding the Current
+    Clipping label and the currentLineEdit line edit); then release.
+    Press \Key Ctrl+G (lay out in a grid). Click the form,
+    then click \Key Ctrl+L (lay out vertically). Our
+    original design is back -- but this time using a grid layout.
+
+    \section2 Changing the Tab Order
+
+    \index Tab Order
+\index Tab Order Mode!Tab Order
+Keyboard users press the \Key Tab key to move the focus
+    from widget to widget as they use a form. The order in which the
+    focus moves is called the tab order. Preview multiclip (press
+    \Key {Ctrl+T}) and try tabbing through the widgets. The
+    tab order may not be what we want so we'll go into tab order mode
+    and change it to the order we want.
+
+    \index Tab Order
+When you click the \Toolbutton {Tab Order} toolbar button a
+    number in a blue circle will appear next to every widget that can
+    accept keyboard focus. The numbers represent the each widget's tab
+    order, starting from 1. You change the tab order by clicking the
+    widgets in the order you want to be the new tab order. If you make
+    a mistake and need to start again, double click the widget you
+    want to be first, then click the other widgets in the required
+    order as before. When you've finished press \Key Esc to leave tab
+    order mode. If you made a mistake or preferred the previous tab
+    order you can undo your changes by leaving tab order and undoing
+    (press \Key Esc then \Key {Ctrl+Z}).
+
+    \index Tab Order
+Click the \Toolbutton {Tab Order} toolbar button, then
+    click the current clipping \Widget {Line Edit}
+    -- even if it is already number
+    one in the tab order. Next click the previous clipping \Widget ListBox,
+    then the auto add clippings \Widget CheckBox. Click each button in
+    turn from top (add clipping) to bottom (quit). Press \Key Esc to
+    finish tab order mode, then preview the form and try tabbing through
+    the widgets.
+
+    Note that you can stop clicking if the tab order numbers for all the
+    widgets is correct; just press \Key Esc to leave tab
+    order mode.
+
+\section1 Connecting Signals and Slots
+
+\index Signals and Slots
+\index Connecting!Signals and Slots
+Qt provides the signals and slots mechanism for communicating between
+widgets. Signals are emitted by widgets when particular events occur. We
+can connect signals to slots, either pre-defined slots or those we
+create ourselves. In older toolkits this communication would be achieved
+using callbacks. (For a full explanation of Qt's signals and slots mechanism
+see the on-line \link http://doc.trolltech.com/signalsandslots.html Signals and Slots \endlink
+documentation.)
+
+    \section2 Connecting Predefined Signals and Slots
+
+    \index Signals and Slots
+Some of an application's functionality can be obtained simply by
+    connecting pre-defined signals and slots. In multiclip there is only
+    one pre-defined connection that we can use, but in the richedit
+    application that we'll build in \l {Creating Main Windows with Actions, Toolbars and Menus} we will
+    use many pre-defined signals and slots to get a lot of the functionality
+    we need without having to write any code.
+
+    We will connect the Quit button's \index clicked()
+\SignalOrSlot clicked()
+    signal to the form's \index accept()
+\SignalOrSlot accept() slot. The
+    \index accept()
+\SignalOrSlot accept() slot notifies the dialog's caller that
+    the dialog is no longer required; since our dialog is our main
+    window this will close the application. Preview the form (press
+    \Key {Ctrl+T}); click the \Button Quit
+    button. The button works visually but does nothing. Press
+    \Key Esc or close the preview window to leave the
+    preview.
+
+    \index Signals and Slots
+\index Slots!Signals and Slots
+Click the \Toolbutton {Connect Signals/Slots} toolbar
+    button. Click the Quit button, drag to the form and release. The
+    \Dialog {Edit Connections} dialog will pop up. The top left hand list box
+    lists the Signals that the widget we've clicked can emit. At the top
+    right is a combobox which lists the form and its widgets; any of
+    these are candidates for receiving signals. Since we released on the
+    form rather than a widget the slots combobox shows the
+    form's name, 'MulticlipForm'. Beneath the combobox
+    is a list box which shows the slots available in the form or widget
+    shown in the combobox. Note that only those slots that can be
+    connected to the highlighted signal are shown. If you clicked a
+    different signal, for example the \index toggled()
+\SignalOrSlot toggled()
+    signal, the list of available slots would change. Click the
+    \index clicked()
+\SignalOrSlot clicked() signal, then click the
+    \index accept()
+\SignalOrSlot accept() slot. The connection will be shown in
+    the Connections list box. Click \OK.
+
+    We will make lots of signal/slot connections as we work through
+    the examples, including connections to our own custom slots.
+    Signal/slot connections (using pre-defined signals and slots) work
+    in preview mode. Press \Key Ctrl+T to preview the form;
+    click the form's \Button Quit button. The button now
+    works correctly.
+
+    \section2 Creating and Connecting Custom Slots
+
+    \index Signals and Slots
+\index Subclassing
+In the first version of \QD you could create the signatures of your
+    custom slots and make the connections, but you could not implement
+    your slots directly. Instead you had to subclass the form and
+    code your slots in the subclass. The subclassing approach is
+    still available, and makes sense in some situations. But now you can
+    implement your slots directly in \QD, so for many
+    straightforward dialogs and windows subclassing is no longer
+    necessary.
+
+    The multiclip application requires four slots, one for each button,
+    but only three need to be custom slots since we connected a signal
+    to a pre-defined slot to make the Quit button functional. We need a
+    slot for the Add Clipping button; this will add the current clipping
+    to the list box. The Copy Previous button requires a slot which will
+    copy the selected list box item to the current clipping line edit
+    (and to the clipboard). The Delete Clipping button needs a slot to
+    delete the current clipping and the current list box item. We will
+    also need to write some initialization code so that when the
+    application starts it will put the current clipboard text (if any)
+    into the line edit. The code is written directly in \QD; the
+    snippets are taken from the generated
+    \File qt/tools/designer/examples/multiclip/multiclip.cpp
+    file.
+
+    \index Clipboard
+We'll need Qt's global clipboard object throughout the
+    code which would mean calling
+    \index QApplication::clipboard()
+\Func QApplication::clipboard() or
+    \index qApp->clipboard()
+\c {qApp->clipboard()} in several places. Rather
+    than perform all these function calls we'll keep
+    a pointer to the clipboard in the form itself. Click the Source tab
+    of the Object Explorer. (If the Object Explorer isn't visible click
+    \Menu {Window|Views|Object Explorer}.) The Source
+    tab shows us the functions in our form, the class variables, the
+    forward declarations and the names of the include files we've asked for.
+
+    \index Forward declarations
+\index Includes
+\index Adding!Code
+\index Adding!Forward declarations
+\index Adding!Includes
+\index Adding!Class variables
+\index Deleting!Forward declarations
+\index Deleting!Includes
+\index Deleting!Class variables
+\index Class variables
+\index Forms!Forward declarations
+\index Forms!Class variables
+\index Forms!Code editing
+Right click the Class Variables item, then click
+    \Menu New on the popup menu. (If there had
+    been any existing variables the popup menu would also have a Delete
+    option.) Type in 'QClipboard *cb;' and press
+    \Key Enter. In the \index init()
+\Func init() function
+    we will assign this pointer to Qt's global clipboard object. We also
+    need to declare the clipboard header file. Right click Includes (in
+    Declaration), then click \Menu New. Type in
+    '\<qclipboard.h\>' and press \Key Enter. Since we
+    need to refer to the global application object,
+    \c {qApp}, we need to add another include declaration.
+    Right click Includes (in Implementation), then click
+    \Menu New. Type in '\<qapplication.h\>' and
+    press \Key Enter. The variable and declarations will be
+    included in the code generated from \QD's \index .ui
+\File .ui
+    file.
+
+    We will invoke \QD's code editor and write the code.
+
+    \index Code Editing
+We'll look at the \index init()
+\Func init() function first. \QD
+    creates an empty \index init()
+\Func init() into which we can add
+    our own code. To invoke the code editor click a function, e.g. click
+    \index init()
+\Func init() in the Source tab of the Object Hierarchy.
+
+\quotefile multiclip/multiclip.cpp
+\skipto ::init
+\printuntil }
+
+    The first couple of lines change the LCD
+    number's background color and make the form start with the focus in the
+    line edit. We take a pointer to Qt's global clipboard and keep it in our
+    class variable, cb. We connect the clipboard's
+    \index dataChanged()
+\SignalOrSlot dataChanged() signal to a slot called
+    \index dataChanged()
+\SignalOrSlot dataChanged(); we will create this slot ourselves
+    shortly. If the clipboard supports selection (under the X Window
+    system for example), we also connect the clipboard's
+    \index selectionChanged()
+\SignalOrSlot selectionChanged() signal to a slot of the same name that
+    we will create. Finally we call our \index dataChanged()
+\SignalOrSlot dataChanged()
+    slot to populate the line edit with the clipboard's text (if any) when
+    the application begins.
+
+    Since we've referred to the \index dataChanged()
+\SignalOrSlot dataChanged() and
+    \index selectionChanged()
+\SignalOrSlot selectionChanged() slots we'll code them next,
+    starting with \index dataChanged()
+\SignalOrSlot dataChanged().
+
+\quotefile multiclip/multiclip.cpp
+\skipto ::dataChanged
+\printuntil }
+
+    We take a copy of the clipboard's text and call our own
+    \SignalOrSlot clippingChanged() slot with the text we've
+    retrieved. If the user has checked the Auto Add Clippings checkbox
+    we call our \SignalOrSlot addClipping() slot to add the
+    clipping to the list box.
+
+    \index Clipboard!Cross-platform
+\index Cross-platform!Clipboard
+\index Windows, Microsoft
+The \index selectionChanged()
+\SignalOrSlot selectionChanged() slot is only applicable
+    under the X Window System. Users of MS Windows can still include the
+    code to ensure that the application works cross-platform.
+
+\quotefile multiclip/multiclip.cpp
+\skipto ::selectionChanged
+\printuntil }
+
+    We tell the clipboard to use selection mode, we call
+    our \index dataChanged()
+\SignalOrSlot dataChanged() slot to retrieve any selected
+    text, then set the clipboard back to its default mode.
+
+    In the \index dataChanged()
+\SignalOrSlot dataChanged() slot we called another
+    custom slot, \SignalOrSlot clippingChanged().
+
+\quotefile multiclip/multiclip.cpp
+\skipto ::clippingChanged
+\printuntil }
+
+    We set the line edit to whatever text is passed to the
+    \SignalOrSlot clippingChanged() slot and update the LCD
+    number with the length of the new text.
+
+    \index Signals and Slots
+The next slot we'll code will perform the Add Clipping function.
+    This slot is called by our code internally (see the
+    \index dataChanged()
+\SignalOrSlot dataChanged() slot above), and when the user
+    clicks the Add Clipping button.
+    Since we want \QD to be able to set up a connection to this slot
+    instead of just typing it in the editor window we'll let \QD
+    create its skeleton for us. Click \Menu Edit|Slots to
+    invoke the \Dialog {Edit Slots} dialog. Click \Button {New Slot}
+    and replace the default name of 'new_slot()' with 'addClipping()'.
+    There is no need to change the access specifier or return type. Now
+    that we've created our slot we can implement it in the code editor
+    where it has now appeared.
+
+    The Add Clipping button is used to copy the clipping from the
+    Current Clipping line edit into the list box. We also update the
+    length number.
+
+\quotefile multiclip/multiclip.cpp
+\skipto ::addClipping
+\printuntil insertItem
+\printline }
+\printline }
+
+    If there is some text we change the LCD's value to the length of the
+    text. We then iterate over all the items in the list box to see if
+    we have the same text already. If the text is not already in the
+    list box we insert it.
+
+    \index Signals and Slots
+To make the Add Clipping button functional we need to connect the
+    button's \index clicked()
+\SignalOrSlot clicked() signal to our
+    \SignalOrSlot addClipping() slot. Click the
+    \Toolbutton {Connect Signals/Slots} toolbar button. Click
+    the Add Clipping button, drag to the form and release. (Make sure
+    you drag to the form rather than another widget -- the form will
+    have a thin pink border during the drag. If you make a mistake
+    simply change the name in the Slots combobox.) The \Dialog {Edit Connections}
+    dialog will appear. Click the \index clicked()
+\SignalOrSlot clicked() signal
+    and our \SignalOrSlot addClipping() slot. Click \OK to
+    confirm the connection.
+
+    The Copy Previous button is used to copy the selected clipping from
+    the list box into the line edit. The clipping is also placed on the
+    clipboard. The procedure is the same as for the Add Clipping button:
+    first we create the slot, then we implement it and finally we connect to
+    it:
+    \list 1
+    \i
+
+    Create the slot.
+
+    \index Signals and Slots
+Click the \Menu Edit|Slots menu item to invoke
+    the \Dialog {Edit Slots} dialog. Click \Button {New Slot} and
+    replace the default 'new_slot()' name with 'copyPrevious()'. Click
+    \OK.
+
+    \i
+
+    Implement the slot.
+
+\quotefile multiclip/multiclip.cpp
+\skipto ::copyPrevious
+\printuntil setSelectionMode( FALSE )
+\printline }
+\printline }
+\printline }
+
+    The code for Copy Previous checks to see if there is a selected item
+    in the list box. If there is the item is copied to the line edit. If
+    we are using a system that supports selection we have to repeat the
+    copy, this time with selection mode set. We don't explicitly update
+    the clipboard. When the line edit's text is changed it emits a
+    \index dataChanged()
+\SignalOrSlot dataChanged() signal which our
+    \index dataChanged()
+\SignalOrSlot dataChanged() slot receives. Our
+    \index dataChanged()
+\SignalOrSlot dataChanged() slot updates the clipboard.
+
+    \i
+
+    \index Signals and Slots
+Connect to the slot.
+
+    Click the \Toolbutton {Connect Signals/Slots} toolbar
+    button. Click the Copy Previous button, drag to the form and
+    release. The \Dialog {Edit Connections} dialog will pop up. Click the
+    \index clicked()
+\SignalOrSlot clicked() signal and the
+    \SignalOrSlot copyPrevious() slot. Click \OK.
+
+    \endlist
+
+    We take the same approach to the Delete Clipping button.
+    \list 1
+    \i
+
+    \index Signals and Slots
+Click \Menu Edit|Slots to invoke the \Dialog {Edit Slots}
+    dialog. Click \Button {New Slot} and replace the
+    default name with 'deleteClipping()'. Click \OK.
+
+    \i
+
+    The Delete button must delete the current item in the list box and
+    clear the line edit.
+
+\quotefile multiclip/multiclip.cpp
+\skipto ::deleteClipping
+\printuntil }
+
+    We call our own \SignalOrSlot clippingChanged() slot with an
+    empty string and use the list box's
+    \Func removeItem() function to remove the current
+    item.
+
+    \i
+
+    \index Signals and Slots
+Connect the Delete Clipping button's \index clicked()
+\SignalOrSlot clicked()
+    signal to our \SignalOrSlot deleteClipping() slot.
+    (Press \Key F3 -- which is the same as clicking the
+    \Toolbutton {Connect Signals/Slots} toolbar button. Click the
+    Delete Clipping button and drag to the form; release. The
+    \Dialog {Edit Connections} dialog will appear. Click the
+    \index clicked()
+\SignalOrSlot clicked() signal and the
+    \SignalOrSlot deleteClipping() slot. Click \OK.)
+
+    \endlist
+
+\section1 Compiling and Building an Application
+
+\index Compiling and Building Applications
+\index Makefiles
+\index Adding!Files to Projects
+\index Projects!Adding Files
+So far we have written about 99% of a Qt application entirely
+in \QD. To make the application compile and run we must create a
+\index main.cpp
+\File main.cpp file from which we can call our form.
+We'll then need to update the project file accordingly and generate a
+Makefile. We can use the Makefile to generate the application. We will
+cover these matters briefly here, and in more detail in \l {Subclassing}.
+
+First we need to create a \index main.cpp
+\File main.cpp file.
+
+\quotefile multiclip/main.cpp
+\skipto #include
+\printuntil }
+
+The program creates a \Class QApplication object and an
+instance of our MulticlipForm, sets the form to be the main widget and
+shows the form. The \Func app.exec() call starts off the
+event loop.
+
+\index Adding!Source Files to Project Files
+We need to add \index main.cpp
+\File main.cpp to the
+\index .pro
+\File .pro file. Open \index multiclip.pro
+\File multiclip.pro
+in a plain text editor (such as notepad, vim, xemacs, etc.). It will look
+similar to this:
+\code
+TEMPLATE    = app
+CONFIG     += qt warn_on release
+TARGET      = multiclip
+INTERFACES  = multiclip.ui
+IMAGEFILE   = images.cpp
+PROJECTNAME = multiclip
+LANGUAGE    = C++
+SOURCES    += images.cpp
+\endcode
+
+Add a new line at the end of the file:
+\code
+SOURCES += main.cpp
+\endcode
+
+Save the updated project file. Now start up a console (or xterm), change
+directory to the multiclip application and run \Cmd qmake. A Makefile
+compatible with your system will be generated:
+\code
+qmake -o Makefile multiclip.pro
+\endcode
+
+You can now make the application, e.g. by running \Cmd make or
+\Cmd nmake. Try compililng and running multiclip. There are many
+improvement you could make and experimenting with both the layout and
+the code will help you learn more about Qt and \QD.
+
+This chapter has introduced you to creating cross-platform applications
+with \QD. We've created a form, populated it with widgets and laid the
+widgets out neatly and scalably. We've used Qt's signals and slots
+mechanism to make the application functional and generated the Makefile.
+These techniques for adding widgets to a form and laying them out with
+the layout tools; and for creating, coding and connecting slots will be
+used time and again as you create applications with \QD. The following
+chapters will present further examples and explore more techniques for
+using \QD.
