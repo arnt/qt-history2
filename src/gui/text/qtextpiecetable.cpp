@@ -224,7 +224,7 @@ void QTextPieceTable::insertBlock(int pos, int blockFormat, int charFormat)
 
     truncateUndoStack();
 
-    UndoCommand c = { UndoCommand::Inserted, true,
+    UndoCommand c = { UndoCommand::BlockInserted, true,
                       UndoCommand::MoveCursor, blockFormat, strPos, pos, { 1 } };
 
     appendUndoItem(c);
@@ -515,15 +515,28 @@ void QTextPieceTable::undoRedo(bool undo)
             --undoPosition;
         UndoCommand &c = undoStack[undoPosition];
 
-        if(c.command == UndoCommand::Inserted) {
+	switch(c.command) {
+        case UndoCommand::Inserted:
             remove(c.pos, c.length, (UndoCommand::Operation)c.operation);
             PMDEBUG("   erase: from %d, length %d", c.pos, c.length);
             c.command = UndoCommand::Removed;
-        } else if (c.command == UndoCommand::Removed) {
+	    break;
+        case UndoCommand::Removed:
             PMDEBUG("   insert: format %d (from %d, length %d, strpos=%d)", c.format, c.pos, c.length, c.strPos);
             insert_string(c.pos, c.strPos, c.length, c.format, (UndoCommand::Operation)c.operation);
             c.command = UndoCommand::Inserted;
-        } else if (c.command == UndoCommand::CharFormatChanged) {
+	    break;
+	case UndoCommand::BlockInserted:
+            remove(c.pos, c.length, (UndoCommand::Operation)c.operation);
+            PMDEBUG("   blockremove: from %d, length %d", c.pos, c.length);
+            c.command = UndoCommand::BlockRemoved;
+	    break;
+	case UndoCommand::BlockRemoved:
+            PMDEBUG("   blockinsert: format %d (from %d, length %d, strpos=%d)", c.format, c.pos, c.length, c.strPos);
+            insert_block(c.pos, c.strPos, c.length, c.format, (UndoCommand::Operation)c.operation);
+            c.command = UndoCommand::BlockInserted;
+	    break;
+	case UndoCommand::CharFormatChanged: {
             PMDEBUG("   charFormat: format %d (from %d, length %d)", c.format, c.pos, c.length);
             FragmentIterator it = find(c.pos);
             Q_ASSERT(!it.atEnd());
@@ -531,7 +544,9 @@ void QTextPieceTable::undoRedo(bool undo)
             int oldFormat = it.value()->format;
             setCharFormat(c.pos, c.length, formats->charFormat(c.format));
             c.format = oldFormat;
-        } else if (c.command == UndoCommand::BlockFormatChanged) {
+	    break;
+	}
+	case UndoCommand::BlockFormatChanged: {
             PMDEBUG("   blockformat: format %d pos %d", c.format, c.pos);
             QTextBlockIterator it = blocksFind(c.pos);
             Q_ASSERT(!it.atEnd());
@@ -540,17 +555,24 @@ void QTextPieceTable::undoRedo(bool undo)
             block(it)->format = c.format;
             c.format = oldFormat;
             // ########### emit doc changed signal
-        } else if (c.command == UndoCommand::GroupFormatChange) {
+	    break;
+	}
+	case UndoCommand::GroupFormatChange: {
             QTextFormatGroup *group = c.group;
             int oldFormat = group->d_func()->index;
             group->d_func()->index = c.format;
             c.format = oldFormat;
             // ########### emit doc changed signal
-        } else if (c.command == UndoCommand::Custom) {
+	    break;
+	}
+	case UndoCommand::Custom:
             if (undo)
                 c.custom->undo();
             else
                 c.custom->redo();
+	    break;
+	default:
+	    Q_ASSERT(false);
         }
         if (undo) {
             if (undoPosition == 0 || !undoStack[undoPosition-1].block)
