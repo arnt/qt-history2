@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qprogbar.cpp#12 $
+** $Id: //depot/qt/main/src/widgets/qprogbar.cpp#13 $
 **
 ** Implementation of QProgressBar class
 **
@@ -14,7 +14,7 @@
 #include "qdrawutl.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qprogbar.cpp#12 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qprogbar.cpp#13 $");
 
 
 /*!
@@ -186,6 +186,9 @@ bool QProgressBar::setIndicator( QString& indicator, int progress,
 
 /*!
   Handles paint events for the progress bar.
+  In WindowsStyle, \link QColorGroup::text() colorGroup().text()\endlink
+  and QApplication::winStyleHighlightColor() are used.  In MotifStyle,
+  \link QColorGroup::text() colorGroup().base()\endlink is also used.
 */
 
 void QProgressBar::drawContents( QPainter *p )
@@ -224,6 +227,7 @@ void QProgressBar::drawContents( QPainter *p )
 	qDrawShadePanel( p, r, colorGroup(), TRUE, 1 );
 
 	// ### This part changes every percentage change.
+	p->setPen( colorGroup().text() );
 	p->fillRect( r.x()+r.width(), bar.y(), textw, bar.height(),
 	    backgroundColor() );
 	p->drawText( r.x()+r.width(), bar.y(), textw, bar.height(),
@@ -239,6 +243,7 @@ void QProgressBar::drawContents( QPainter *p )
 	p->setPen( QApplication::winStyleHighlightColor() );
 	p->setClipRect( bar.x()+pw, bar.y(), bar.width()-pw, bar.height() );
 	p->fillRect( bar, colorGroup().base() );
+	p->setPen( colorGroup().text() );
 	p->drawText( bar, AlignCenter, progress_str );
     }
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#14 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#15 $
 **
 **  Table header
 **
@@ -542,7 +542,7 @@ void QHeader::mouseMoveEvent( QMouseEvent *m )
 		int oldPos = pPos( handleIdx );
 		int delta = s - oldPos;
 		sizes[mapToLogical(handleIdx - 1)] += delta;
-		repaint(); //###################################
+		repaint(oldPos-2, 0, width(), height()); //###################################
 		/*
 		int us, uw;
 		if ( oldPos < s ) {
