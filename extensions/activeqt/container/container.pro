@@ -18,11 +18,13 @@ contains( QT_PRODUCT, qt-(enterprise|internal) ) {
     HEADERS         = $$ACTIVEQT_H/qaxbase.h \
 		      $$ACTIVEQT_H/qaxwidget.h \
 		      $$ACTIVEQT_H/qaxobject.h \
+		      $$ACTIVEQT_H/qaxscript.h \
 		      ../shared/types.h
 
     SOURCES         = qaxbase.cpp \
 		      qaxwidget.cpp \
 		      qaxobject.cpp \
+		      qaxscript.cpp \
 		      ../shared/types.cpp
 
     FORMS           = qactivexselect.ui
