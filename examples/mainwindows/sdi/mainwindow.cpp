@@ -20,7 +20,6 @@ MainWindow::MainWindow()
             this, SLOT(documentWasModified()));
 
     setWindowTitle(tr("SDI"));
-    modified = false;
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -89,7 +88,6 @@ void MainWindow::about()
 void MainWindow::documentWasModified()
 {
     modLabel->setText(tr("MOD"));
-    modified = true;
 }
 
 void MainWindow::createActions()
@@ -216,7 +214,7 @@ void MainWindow::writeSettings()
 
 bool MainWindow::maybeSave()
 {
-    if (modified) {
+    if (textEdit->document()->isModified()) {
         int ret = QMessageBox::warning(this, tr("SDI"),
                      tr("The document has been modified.\n"
                         "Do you want to save your changes?"),
@@ -276,7 +274,7 @@ void MainWindow::setCurrentFile(const QString &fileName)
 {
     curFile = fileName;
     modLabel->clear();
-    modified = false;
+    textEdit->document()->setModified(false);
 
     if (curFile.isEmpty())
         setWindowTitle(tr("SDI"));

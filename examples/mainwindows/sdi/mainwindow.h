@@ -42,7 +42,6 @@ private:
     QTextEdit *textEdit;
     QLabel *modLabel;
     QString curFile;
-    bool modified;
 
     QMenu *fileMenu;
     QMenu *editMenu;
