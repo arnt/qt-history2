@@ -496,11 +496,7 @@ QString Uic::setObjectProperty( const QString& objClass, const QString& obj, con
 	v = "%1";
 	v = v.arg( e.firstChild().toText().data() );
     } else if ( e.tagName() == "bool" ) {
-	if ( stdset )
-	    v = "%1";
-	else
-	    v = "QVariant( %1, 0 )";
-	v = v.arg( mkBool( e.firstChild().toText().data() ) );
+	v = QString("%1").arg( mkBool( e.firstChild().toText().data() ) );
     } else if ( e.tagName() == "pixmap" ) {
 	v = e.firstChild().toText().data();
 	if ( !pixmapLoaderFunction.isEmpty() ) {
