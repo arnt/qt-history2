@@ -183,13 +183,13 @@ static void construct(QCoreVariant::Private *x, const void *copy)
             x->data.b = *static_cast<const bool *>(copy);
             break;
         case QCoreVariant::Double:
-            x->data.d = double(*static_cast<const double*>(copy));
+            x->data.d = *static_cast<const double*>(copy);
             break;
         case QCoreVariant::LongLong:
-            x->data.ll = Q_LONGLONG(*static_cast<const Q_LONGLONG *>(copy));
+            x->data.ll = *static_cast<const Q_LONGLONG *>(copy);
             break;
         case QCoreVariant::ULongLong:
-            x->data.ull = Q_ULONGLONG(*static_cast<const Q_ULONGLONG *>(copy));
+            x->data.ull = *static_cast<const Q_ULONGLONG *>(copy);
             break;
         case QCoreVariant::Invalid:
         case QCoreVariant::UserType:
