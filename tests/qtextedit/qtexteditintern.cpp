@@ -1633,14 +1633,20 @@ void QTextEditParag::paint( QPainter &painter, const QColorGroup &cg, QTextEditC
     // #### draw other selections too here!!!!!!!
     int selectionStarts[ doc->numSelections ];
     int selectionEnds[ doc->numSelections ];
-    for ( i = 0; i < doc->numSelections; ++i ) {
-	if ( !drawSelections || !hasSelection( i ) ) {
-	    selectionStarts[ i ] = -1;
-	    selectionEnds[ i ] = -1;
-	} else {
-	    selectionStarts[ i ] = selectionStart( i );
-	    selectionEnds[ i ] = selectionEnd( i );
+    if ( drawSelections ) {
+	bool hasASelection = FALSE;
+	for ( i = 0; i < doc->numSelections; ++i ) {
+	    if ( !hasSelection( i ) ) {
+		selectionStarts[ i ] = -1;
+		selectionEnds[ i ] = -1;
+	    } else {
+		hasASelection = TRUE;
+		selectionStarts[ i ] = selectionStart( i );
+		selectionEnds[ i ] = selectionEnd( i );
+	    }
 	}
+	if ( !hasASelection )
+	    drawSelections = FALSE;
     }
 	
     int line = -1;
@@ -1748,9 +1754,9 @@ void QTextEditParag::paint( QPainter &painter, const QColorGroup &cg, QTextEditC
 	painter.fillRect( QRect( curx, cury, 2, curh ), Qt::black );
 }
 
-void QTextEditParag::drawParagBuffer( QPainter &painter, const QString &buffer, int startX, 
+void QTextEditParag::drawParagBuffer( QPainter &painter, const QString &buffer, int startX,
 				      int lastY, int baseLine, int bw, int h, bool drawSelections,
-				      QTextEditFormat *lastFormat, int i, int *selectionStarts, 
+				      QTextEditFormat *lastFormat, int i, int *selectionStarts,
 				      int *selectionEnds, const QColorGroup &cg )
 {
     painter.setPen( QPen( lastFormat->color() ) );
