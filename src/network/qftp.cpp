@@ -1297,6 +1297,17 @@ int QFtp::cd( const QString &dir )
   read, the readyRead() signal is emitted. You can then read the data with the
   readBlock() or readAll() function.
 
+  If you don't read the data immediately when it is available, i.e. when the
+  readyRead() signal is emitted, it is still available until the next command
+  is started or (if the get() was the last pending command) until all slots
+  connected to the done() signal are finished.
+
+  E.g., if you want to present the data to the user as soon as there is
+  something available, connect to the readyRead() signal and read the data
+  immediately. On the other hand, if your program operates only on the complete
+  data, you can connect to the commandFinished() signal and read the data when
+  the get() command is finished.
+
   This function returns immediately; the command is scheduled and its execution
   is done asynchronous. In order to identify this command, the function returns
   a unique identifier.
@@ -1642,6 +1653,8 @@ void QFtp::startNextCommand()
     d->error = NoError;
     d->errorString = tr( "Unknown error" );
 
+    if ( bytesAvailable() )
+	readAll(); // clear the data
     emit commandStarted( c->id );
 
     if ( c->command == ConnectToHost ) {
@@ -1692,10 +1705,13 @@ void QFtp::piFinished( const QString& )
     emit commandFinished( c->id, FALSE );
 
     d->pending.removeFirst();
-    if ( d->pending.isEmpty() )
+    if ( d->pending.isEmpty() ) {
 	emit done( FALSE );
-    else
+	if ( bytesAvailable() )
+	    readAll(); // clear the data
+    } else {
 	startNextCommand();
+    }
 }
 
 void QFtp::piError( int errorCode, const QString &text )
@@ -1750,6 +1766,8 @@ void QFtp::piError( int errorCode, const QString &text )
 
     d->pending.clear();
     emit done( TRUE );
+    if ( bytesAvailable() )
+	readAll(); // clear the data
 
 }
 
