@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtmain_win.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qtmain_win.cpp#6 $
 **
 ** Implementation of Win32 startup routines.
 **
@@ -35,7 +35,7 @@
   initializes Qt.
 */
 
-extern void qWinMain( HANDLE, HANDLE, LPSTR, int, int &, QArray<pchar> & );
+extern void qWinMain(HINSTANCE, HINSTANCE, LPSTR, int, int &, QArray<pchar> &);
 
 #if defined(NEEDS_QMAIN)
 int qMain( int, char ** );
