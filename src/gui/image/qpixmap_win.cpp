@@ -109,7 +109,6 @@ QPixmap &QPixmap::operator=(const QPixmap &pixmap)
     pixmap.data->ref();                                // avoid 'x = x'
     deref();
     if (pixmap.paintingActive()) {                // make a deep copy
-        printf("fitte\n");
         *this = pixmap.copy();
     } else {
         data = pixmap.data;
@@ -117,11 +116,13 @@ QPixmap &QPixmap::operator=(const QPixmap &pixmap)
     }
     return *this;
 }
+
 QPixmap &QPixmap::operator=(const QImage &image)
 {
     (*this) = fromImage(image);
     return *this;
 }
+
 QPixmap::operator QVariant() const
 {
     extern bool qRegisterGuiVariant();
@@ -129,6 +130,7 @@ QPixmap::operator QVariant() const
     Q_UNUSED(b)
     return QVariant(QVariant::Pixmap, this);
 }
+
 bool QPixmap::isNull() const
 {
     return data->image.isNull();
