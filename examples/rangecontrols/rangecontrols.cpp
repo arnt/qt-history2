@@ -28,7 +28,7 @@ RangeControls::RangeControls( QWidget *parent, const char *name )
     QVBox *cell1 = new QVBox( row1 );
     cell1->setFrameStyle( QFrame::WinPanel | QFrame::Sunken );
     cell1->setMargin( 10 );
-    QDial *dial = new QDial( -5, 20, 1, 0, cell1 );
+    QDial *dial = new QDial( -5, 20, 5, 0, cell1 );
     QLCDNumber *lcd1 = new QLCDNumber( 3, cell1 );
     connect( dial, SIGNAL( valueChanged( int ) ), lcd1, SLOT( display( int ) ) );
 
