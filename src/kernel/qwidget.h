@@ -544,6 +544,7 @@ private:
     void	 createInputContext();
     void	 destroyInputContext();
     void	 focusInputContext();
+    void	 checkChildrenDnd();
 #elif defined(Q_WS_MAC)
     uint    own_id : 1; //owns the winid
     //mac event functions

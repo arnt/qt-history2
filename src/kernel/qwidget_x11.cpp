@@ -582,6 +582,7 @@ void QWidget::reparentSys( QWidget *parent, WFlags f, const QPoint &p, bool show
 	setAcceptDrops( FALSE ); // dnd unregister (we will register again below)
 
     QWidget* oldtlw = topLevelWidget();
+    QWidget *oldparent = parentWidget();
     WId old_winid = winid;
     if ( testWFlags(WType_Desktop) )
 	old_winid = 0;
@@ -661,10 +662,16 @@ void QWidget::reparentSys( QWidget *parent, WFlags f, const QPoint &p, bool show
     reparentFocusWidgets( oldtlw );
 
     // re-register dnd
+    if (oldparent)
+	oldparent->checkChildrenDnd();
+
     if ( accept_drops )
 	setAcceptDrops( TRUE );
-    else
+    else {
+	if (parent)
+	    parent->checkChildrenDnd();
 	qt_dnd_enable(this, (extra && extra->children_use_dnd));
+    }
 }
 
 
@@ -2132,6 +2139,45 @@ void QWidget::deleteTLSysExtra()
     destroyInputContext();
 }
 
+/*
+   examine the children of our parent up the tree and set the
+   children_use_dnd extra data appropriately... this is used to keep DND enabled
+   for widgets that are reparented and don't have DND enabled, BUT *DO* have
+   children (or children of children ...) with DND enabled...
+*/
+void QWidget::checkChildrenDnd()
+{
+    QWidget *widget = this;
+    const QObjectList *children;
+    const QObject *object;
+    const QWidget *child;
+    while (widget) {
+	// note: the desktop widget has no parent, so this will never be done
+	// for the desktop widget
+
+	bool children_use_dnd = FALSE;
+	children = widget->children();
+	if ( children ) {
+	    QObjectListIt it(*children);
+	    while ( (object = it.current()) ) {
+		++it;
+		if ( object->isWidgetType() ) {
+		    child = (const QWidget *) object;
+		    children_use_dnd = (children_use_dnd ||
+					child->acceptDrops() ||
+					(child->extra &&
+					 child->extra->children_use_dnd));
+		}
+	    }
+	}
+
+	widget->createExtra();
+	widget->extra->children_use_dnd = children_use_dnd;
+
+	widget = widget->parentWidget();
+    }
+}
+
 /*! \property QWidget::acceptDrops
     \brief whether drop events are enabled for this widget
 
@@ -2157,39 +2203,8 @@ void QWidget::setAcceptDrops( bool on )
 		clearWState( WState_DND );
 	}
 
-	// examine the children of our parent up the tree and set the
-	// children_use_dnd extra data appropriately... this is used to keep DND enabled
-	// for widgets that are reparented and don't have DND enabled, BUT *DO* have
-	// children (or children of children ...) with DND enabled...
-       	QWidget *parent = parentWidget();
-	const QObjectList *children;
-	QObject *object;
-	QWidget *child;
-	while (parent) {
-	    // note: the desktop widget has no parent, so this will never be done
-	    // for the desktop widget
-
-	    bool children_use_dnd = FALSE;
-	    children = parent->children();
-	    if ( children ) {
-		QObjectListIt it(*children);
-		while ( (object = it.current()) ) {
-		    ++it;
-		    if ( object->isWidgetType() ) {
-			child = (QWidget *) object;
-			children_use_dnd = (children_use_dnd ||
-					    child->acceptDrops() ||
-					    (child->extra &&
-					     child->extra->children_use_dnd));
-		    }
-		}
-	    }
-
-	    parent->createExtra();
-	    parent->extraData()->children_use_dnd = children_use_dnd;
-
-	    parent = parent->parentWidget();
-	}
+	if (parentWidget())
+	    parentWidget()->checkChildrenDnd();
     }
 }
 
