@@ -45,6 +45,8 @@
   \ingroup collection
   \ingroup tools
 
+  \important autoDelete setAutoDelete
+
   QPtrDict is implemented as a template class. Define a
   template instance QPtrDict\<X\> to create a dictionary that operates on
   pointers to X, or X*.

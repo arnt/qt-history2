@@ -45,6 +45,8 @@
   \ingroup collection
   \ingroup tools
 
+  \important autoDelete setAutoDelete
+
   QAsciiDict is implemented as a template class. Define a template instance
   QAsciiDict\<X\> to create a dictionary that operates on pointers to X, or X*.
 
@@ -77,7 +79,7 @@
 	dict.remove( "France" );
 
 	if ( !dict["France"] )
-	    printf( "France not defined\n" );
+	    printf( "France undefined\n" );
 
 	return 0;
     }
@@ -85,10 +87,10 @@
 
   Program output:
   \code
-	Oslo
-	Paris
-	Moscow
-	France not defined
+    Oslo
+    Paris
+    Moscow
+    France undefined
   \endcode
 
   The dictionary in our example maps \c char* keys to \c char* items.

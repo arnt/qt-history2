@@ -40,10 +40,14 @@
 
 /*!
   \class QDict qdict.h
-  \brief The QDict class is a template class that provides a dictionary based on \c QString keys.
+
+  \brief The QDict class is a template class that provides a
+  dictionary based on QString keys.
 
   \ingroup collection
   \ingroup tools
+
+  \important autoDelete setAutoDelete
 
   QDict is implemented as a template class. Define a template instance
   QDict\<X\> to create a dictionary that operates on pointers to X (X*).
@@ -51,7 +55,7 @@
   A dictionary is a collection of key-value pairs. The key is a QString
   used for insertion, removal and lookup. The value is a pointer.
   Dictionaries provide very fast insertion and lookup.
-  
+
   If you want to use non-Unicode, plain 8-bit \c char* keys, use the
   QAsciiDict template. A QDict has the same performance as a QAsciiDict.
   If you want to have a dictionary that maps QStrings to QStrings use
@@ -123,7 +127,7 @@
 		    letterDict.insert(styleAccel.mid( i, 1 ), (const int *)1);
 		    break;
 		}
-	    }   
+	    }
 	} else {
 	    styleAccel = "&" + styleAccel;
 	    letterDict.insert(styleAccel.left(1), (const int *)1);
@@ -135,8 +139,8 @@
     access to the keys, and we don't care what the values are. The example
     is used to generate a menu of QStyles, each with a unique
     accelerator key (or no accelerator if there are no unused letters
-    left). 
-    
+    left).
+
     We first obtain the list of available styles, then sort them so that
     the menu items will be ordered alphabetically. Next we create a
     dictionary of int pointers. The keys in the dictionary are each one
@@ -235,7 +239,7 @@
   Inserts the key \a key with value \a item into the dictionary.
 
   The key does not have to be unique. If multiple items are inserted
-  with the same key, only the last item will be visible. 
+  with the same key, only the last item will be visible.
 
   Null items are not allowed.
 
@@ -403,7 +407,7 @@
     // ...
     QStringList buttonList;
     QDictIterator<QWidget> it( widgets );
-    for ( ; it.current(); ++it ) 
+    for ( ; it.current(); ++it )
 	if ( it.current()->inherits( "QPushButton" ) )
 	    buttonList += it.currentKey();
   \endcode
@@ -429,14 +433,14 @@
 /*!
   \fn uint QDictIterator::count() const
   Returns the number of items in the dictionary over which the iterator
-  is operating. 
+  is operating.
   \sa isEmpty()
 */
 
 /*!
   \fn bool QDictIterator::isEmpty() const
   Returns TRUE if the dictionary is empty, i.e. count() == 0; otherwise
-  returns FALSE. 
+  returns FALSE.
   \sa count()
 */
 
@@ -446,7 +450,7 @@
   First in this context means first in the arbitrary traversal order.
   Returns a pointer to this item.
 
-  If the dictionary is empty it sets the current item to 0 and 
+  If the dictionary is empty it sets the current item to 0 and
   returns 0.
 */
 

@@ -45,6 +45,8 @@
   \ingroup collection
   \ingroup tools
 
+  \important autoDelete setAutoDelete
+
   QIntDict is implemented as a template class. Define a
   template instance QIntDict\<X\> to create a dictionary that operates on
   pointers to X, or X*.
