@@ -381,7 +381,7 @@ public:
                                    QEvent::Type &type, bool /*willRepeat*/=false,
                                    bool statefulTranslation=true);
     bool translateKeyEvent(const XEvent *, bool grab);
-    bool translatePaintEvent(const XEvent *);
+    void translatePaintEvent(const XEvent *);
     bool translateConfigEvent(const XEvent *);
     bool translateCloseEvent(const XEvent *);
     bool translateScrollDoneEvent(const XEvent *);
@@ -4835,7 +4835,7 @@ void QWidgetPrivate::removePendingPaintEvents()
 
 
 
-bool QETWidget::translatePaintEvent(const XEvent *event)
+void QETWidget::translatePaintEvent(const XEvent *event)
 {
     setWState(Qt::WState_Exposed);
     QRect  paintRect(event->xexpose.x,           event->xexpose.y,
@@ -4843,12 +4843,14 @@ bool QETWidget::translatePaintEvent(const XEvent *event)
     XEvent xevent;
     PaintEventInfo info;
     info.window = winId();
-    bool should_clip = translateBySips(this, paintRect);
+    translateBySips(this, paintRect);
     paintRect = d->mapFromWS(paintRect);
 
     QRegion paintRegion = d->invalidated_region;
     paintRegion |= paintRect;
     d->invalidated_region = QRegion();
+    QRect clipRect = d->clipRect();
+    paintRegion &= clipRect;
 
     // WARNING: this is O(number_of_events * number_of_matching_events)
     while (XCheckIfEvent(X11->display,&xevent,isPaintOrScrollDoneEvent,
@@ -4862,22 +4864,20 @@ bool QETWidget::translatePaintEvent(const XEvent *event)
                            xevent.xexpose.width,
                            xevent.xexpose.height);
             translateBySips(this, exposure);
-            should_clip = true;
             exposure = d->mapFromWS(exposure);
-            paintRegion = paintRegion.unite(exposure);
+            if (clipRect.contains(exposure)) {
+                paintRegion = paintRegion.unite(exposure);
+            } else if (!paintRegion.isEmpty()) {
+                repaint(paintRegion);
+                paintRegion = exposure;
+            }
         } else {
             translateScrollDoneEvent(&xevent);
         }
     }
 
-    if (should_clip) {
-        paintRegion = paintRegion.intersect(d->clipRect());
-        if (paintRegion.isEmpty())
-            return true;
-    }
-
-    repaint(paintRegion);
-    return true;
+    if (!paintRegion.isEmpty())
+        repaint(paintRegion);
 }
 
 //
