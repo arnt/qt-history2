@@ -1,6 +1,6 @@
 HEADERS       = blockingclient.h \
-                thread.h
+                fortunethread.h
 SOURCES       = blockingclient.cpp \
                 main.cpp \
-                thread.cpp
+                fortunethread.cpp
 QT           += network
