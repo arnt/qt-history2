@@ -143,9 +143,13 @@ void QBinTree<T>::init(const QRect &area, int depth, NodeType type, int index)
     QAbstractItemView class to allow it to display data provided by
     models derived from the QAbstractItemModel class.
 
-    \omit
-    Describe the listview/iconview concept.
-    \endomit
+    Items in a list view can be displayed using one of two view modes:
+    In \c ListMode, the items are displayed in the form of a simple list;
+    in \c IconMode, the list view takes the form of an \e{icon view} in
+    which the items are displayed with icons like files in a file manager.
+    By default, the list view is in \c ListMode. To change the view mode,
+    use the setViewMode() function, and to determine the current view mode,
+    use viewMode().
 
     Items in these views are laid out in the direction specified by the
     flow() of the list view. The items may be fixed in place, or allowed
