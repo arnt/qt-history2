@@ -400,35 +400,6 @@ bool QDesignerActions::saveFormAs(AbstractFormWindow *fw)
             tr("Designer UI files (*.ui)"));
     if (saveFile.isEmpty())
         return false;
-    bool breakLoop = false;
-    QFileInfo fi(saveFile);
-    while (fi.exists() && !breakLoop) {
-        QFileInfo fi2(fi.absoluteFilePath());
-        QMessageBox box(tr("File already exists"),
-                        tr("<b>%1 already exits.<br>Do you want to replace it?</b><br>"
-                                "A file with the same name already exists in %2."
-                                " Replacing it will overwrite its current contents.")
-                                .arg(fi.baseName()).arg(fi2.baseName()),
-                        QMessageBox::Information,
-                        QMessageBox::Yes, QMessageBox::No| QMessageBox::Default,
-                        QMessageBox::Cancel | QMessageBox::Escape, fw, Qt::Sheet);
-        box.setButtonText(QMessageBox::Yes, tr("Overwrite file"));
-        box.setButtonText(QMessageBox::No, tr("Choose another name"));
-        switch (box.exec()) {
-            default: break;
-            case QMessageBox::Cancel:
-                return false;
-            case QMessageBox::Yes:
-                breakLoop = true;
-                break;
-            case QMessageBox::No:
-                saveFile = QFileDialog::getSaveFileName(fw, tr("Save form as"),
-                        fileName,
-                        tr("Designer UI files (*.ui)"));
-                fi.setFile(saveFile);
-                break;
-        }
-    }
     fw->setFileName(saveFile);
     return writeOutForm(fw, saveFile);
 }
