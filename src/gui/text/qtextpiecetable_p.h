@@ -24,7 +24,6 @@
 
 class QTextFormatCollection;
 class QTextFormat;
-class QTextTableManager;
 class QTextBlockFormat;
 class QTextCursorPrivate;
 class QAbstractTextDocumentLayout;
@@ -135,7 +134,6 @@ public:
 
     inline QTextFormatCollection *formatCollection() { return formats; }
     inline const QTextFormatCollection *formatCollection() const { return formats; }
-    inline QTextTableManager *tableManager() const { return tables; }
     inline QAbstractTextDocumentLayout *layout() const { return lout; }
 
     inline FragmentIterator find(int pos) const { return fragments.find(pos); }
@@ -202,7 +200,6 @@ private:
     int docChangeLength;
 
     QTextFormatCollection *formats;
-    QTextTableManager *tables;
     QAbstractTextDocumentLayout *lout;
     FragmentMap fragments;
     BlockMap blocks;

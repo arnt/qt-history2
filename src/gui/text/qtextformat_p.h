@@ -104,6 +104,7 @@ public:
     mutable QAtomic ref;
 
     QTextPieceTable *pieceTable;
+    const QVector<QTextFormatGroup *> &formatGroups() const { return groups; }
 private:
 
     mutable QVector<QSharedDataPointer<QTextFormatPrivate> > formats;

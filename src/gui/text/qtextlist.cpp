@@ -1,9 +1,14 @@
 
 #include "qtextlist.h"
-#include "qtextlist_p.h"
+#include "qtextformat_p.h"
 #include "qtextcursor.h"
-#include <private/qtextformat_p.h>
+#include "qtextblockiterator.h"
 #include <qdebug.h>
+
+
+class QTextListPrivate : public QTextFormatGroupPrivate
+{
+};
 
 #define d d_func()
 
@@ -21,8 +26,8 @@
 
 /*! \internal
  */
-QTextList::QTextList()
-    : QTextFormatGroup(*(new QTextListPrivate))
+QTextList::QTextList(QObject *parent)
+    : QTextFormatGroup(*new QTextListPrivate, parent)
 {
 }
 

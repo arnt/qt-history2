@@ -31,7 +31,7 @@ public:
     QTextListFormat format() const { return commonFormat().toListFormat(); }
 
 private:
-    QTextList();
+    QTextList(QObject *parent);
     ~QTextList();
 
     friend class QTextFormatCollection;

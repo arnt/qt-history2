@@ -3,6 +3,7 @@
 #include "qtextpiecetable_p.h"
 #include <qtextblockiterator.h>
 #include <qtextlist.h>
+#include <qtexttable.h>
 
 #include <qstring.h>
 #include <qfontmetrics.h>
@@ -436,9 +437,11 @@ QTextFormatGroup *QTextFormatCollection::createGroup(int index)
 
     QTextFormatGroup *group;
     if (f.isListFormat())
-        group = new QTextList;
+        group = new QTextList(pieceTable);
+    else if (f.isTableFormat())
+        group = new QTextTable(pieceTable);
     else
-        group = new QTextFormatGroup;
+        group = new QTextFormatGroup(pieceTable);
     group->d_func()->collection = this;
     group->d_func()->index = index;
 
@@ -543,13 +546,13 @@ QTextFormat QTextFormatCollection::format(int idx) const
 #define q q_func()
 
 
-QTextFormatGroup::QTextFormatGroup()
-    : QObject(*new QTextFormatGroupPrivate, 0)
+QTextFormatGroup::QTextFormatGroup(QObject *parent)
+    : QObject(*new QTextFormatGroupPrivate, parent)
 {
 }
 
-QTextFormatGroup::QTextFormatGroup(QTextFormatGroupPrivate &p)
-    :QObject(p, 0)
+QTextFormatGroup::QTextFormatGroup(QTextFormatGroupPrivate &p, QObject *parent)
+    :QObject(p, parent)
 {
 }
 
@@ -584,7 +587,12 @@ void QTextFormatGroup::removeBlock(const QTextBlockIterator &block)
     d->blocks.remove(block);
 }
 
+void QTextFormatGroup::blockFormatChanged(const QTextBlockIterator &)
+{
+}
+
 QList<QTextBlockIterator> QTextFormatGroup::blockList() const
 {
     return d->blocks;
 }
+

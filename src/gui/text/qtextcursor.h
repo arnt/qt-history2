@@ -18,6 +18,7 @@ class QTextTableFormat;
 class QTextImageFormat;
 class QTextPieceTable;
 class QTextTable;
+class QTextBlockIterator;
 
 class Q_GUI_EXPORT QTextCursor
 {
@@ -25,6 +26,7 @@ class Q_GUI_EXPORT QTextCursor
 public:
     QTextCursor();
     QTextCursor(QTextDocument *document);
+    QTextCursor(const QTextBlockIterator &block);
     QTextCursor(const QTextPieceTable *pt, int pos);
     QTextCursor(const QTextCursor &cursor);
     QTextCursor &operator=(const QTextCursor &other);
@@ -82,6 +84,7 @@ public:
     int selectionStart() const;
     int selectionEnd() const;
 
+    QTextBlockIterator block() const;
     void setBlockFormat(const QTextBlockFormat &format);
     QTextBlockFormat blockFormat() const;
     void applyCharFormatModifier(const QTextCharFormat &modifier);

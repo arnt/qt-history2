@@ -1,7 +1,6 @@
 #include "qtextdocumentlayout_p.h"
 #include <private/qtextformat_p.h>
 #include "qtextpiecetable_p.h"
-#include "qtexttablemanager_p.h"
 #include "qtextimagehandler_p.h"
 #include "qtexttable.h"
 #include "qtextlist.h"
@@ -251,7 +250,8 @@ QTextBlockIterator QTextDocumentLayout::layoutTable(QTextBlockIterator it, QPoin
 
     QTextFormatGroup *group = it.blockFormat().group();
     Q_ASSERT(group && group->commonFormat().toTableFormat().isValid());
-    QTextTable *table = pieceTable()->tableManager()->table(group);
+    QTextTable *table = qt_cast<QTextTable *>(group);
+    Q_ASSERT(table);
 
     int rows = table->rows();
     int cols = table->cols();

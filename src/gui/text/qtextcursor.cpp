@@ -4,8 +4,8 @@
 #include "qtextdocumentfragment.h"
 #include "qtextdocumentfragment_p.h"
 #include "qtextlist.h"
-#include "qtexttablemanager_p.h"
 #include "qtexttable.h"
+#include "qtexttable_p.h"
 
 #include <qtextlayout.h>
 #include <qdebug.h>
@@ -148,11 +148,70 @@ void QTextCursorPrivate::insertBlock(const QTextBlockFormat &format)
     pieceTable->insertBlock(position, idx, pieceTable->formatCollection()->indexForFormat(QTextCharFormat()));
 }
 
+QTextTable *QTextCursorPrivate::createTable(int rows, int cols, const QTextTableFormat &tableFormat)
+{
+    QTextFormatCollection *collection = pieceTable->formatCollection();
+    QTextTable *table = qt_cast<QTextTable *>(collection->createGroup(tableFormat));
+    Q_ASSERT(table);
+
+    int pos = position;
+
+    QTextBlockFormat fmt = blockFormat();
+
+    pieceTable->beginEditBlock();
+
+//     qDebug("---> createTable: rows=%d, cols=%d at %d", rows, cols, pos);
+    // add block after table
+    fmt.setNonDeletable(true);
+    int idx = pieceTable->formatCollection()->indexForFormat(fmt);
+    pieceTable->insertBlock(pos, idx, pieceTable->formatCollection()->indexForFormat(QTextCharFormat()));
+//     qDebug("      addBlock at %d", pos);
+
+    // create table formats
+    fmt.setGroup(table);
+    int cellIdx = collection->indexForFormat(fmt);
+    fmt.setTableCellEndOfRow(true);
+    int eorIdx = collection->indexForFormat(fmt);
+
+    for (int i = 0; i < rows; ++i) {
+        for (int j = 0; j < cols; ++j) {
+            pieceTable->insertBlock(pos, cellIdx, pieceTable->formatCollection()->indexForFormat(QTextCharFormat()));
+// 	    qDebug("      addCell at %d", pos);
+            ++pos;
+        }
+        pieceTable->insertBlock(pos, eorIdx, pieceTable->formatCollection()->indexForFormat(QTextCharFormat()));
+// 	qDebug("      addEOR at %d", pos);
+        ++pos;
+    }
+
+    pieceTable->endEditBlock();
+
+    return table;
+}
+
+
+QTextTable *QTextCursorPrivate::tableAt(int position) const
+{
+    const QVector<QTextFormatGroup *> &groups = pieceTable->formatCollection()->formatGroups();
+    QTextTable *table = 0;
+    int tableStart = -1;
+    for (int i = 0; i < groups.size(); ++i) {
+	QTextTable *t = qt_cast<QTextTable *>(groups.at(i));
+	if (!t)
+	    continue;
+	int start = t->start().position();
+	if (start <= position && start > tableStart && t->end().position() > position)
+	    // inside table
+	    table = t;
+    }
+    return table;
+}
+
 
 void QTextCursorPrivate::adjustCursor(int dir)
 {
-    QTextTable *t_anchor_ = pieceTable->tableManager()->tableAt(anchor);
-    QTextTable *t_position_ = pieceTable->tableManager()->tableAt(position);
+    QTextTable *t_anchor_ = tableAt(anchor);
+    QTextTable *t_position_ = tableAt(position);
 
     QTextTablePrivate *t_anchor = 0;
     QTextTablePrivate *t_position = 0;
@@ -431,6 +490,14 @@ QTextCursor::QTextCursor(QTextDocument *document)
 {
 }
 
+
+QTextCursor::QTextCursor(const QTextBlockIterator &block)
+    : d(new QTextCursorPrivate(block.pieceTable()))
+{
+    d->position = block.position();
+}
+
+
 /*!
   \internal
  */
@@ -678,6 +745,11 @@ void QTextCursor::setBlockFormat(const QTextBlockFormat &format)
         return;
 
     QTextPieceTable::setBlockFormat(d->block(), format);
+}
+
+QTextBlockIterator QTextCursor::block() const
+{
+    return d->block();
 }
 
 /*!
@@ -941,7 +1013,7 @@ QTextTable *QTextCursor::insertTable(int rows, int cols, const QTextTableFormat 
         d->moveTo(NextBlock);
 
     int pos = d->position;
-    QTextTable *t = d->pieceTable->tableManager()->createTable(*this, rows, cols, format);
+    QTextTable *t = d->createTable(rows, cols, format);
     setPosition(pos);
     d->moveTo(NextBlock);
     return t;
@@ -958,7 +1030,7 @@ QTextTable *QTextCursor::currentTable() const
     if(!d)
         return 0;
 
-    return d->pieceTable->tableManager()->tableAt(d->position);
+    return d->tableAt(d->position);
 }
 
 

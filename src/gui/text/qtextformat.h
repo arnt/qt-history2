@@ -28,9 +28,9 @@ class QTextFormatGroup : public QObject
     Q_DECLARE_PRIVATE(QTextFormatGroup);
     Q_OBJECT
 protected:
-    QTextFormatGroup();
+    QTextFormatGroup(QObject *parent);
     ~QTextFormatGroup();
-    QTextFormatGroup(QTextFormatGroupPrivate &p);
+    QTextFormatGroup(QTextFormatGroupPrivate &p, QObject *parent);
 public:
     int commonFormatType() const;
     QTextFormat commonFormat() const;
@@ -41,6 +41,7 @@ public:
 protected:
     virtual void insertBlock(const QTextBlockIterator &block);
     virtual void removeBlock(const QTextBlockIterator &block);
+    virtual void blockFormatChanged(const QTextBlockIterator &block);
 
 private:
     friend class QTextFormatCollection;

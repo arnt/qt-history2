@@ -22,7 +22,6 @@ HEADERS += \
 	text/qtextdocumentlayout_p.h \
 	text/qtextcursor.h \
 	text/qtextcursor_p.h \
-	text/qtexttablemanager_p.h \
 	text/qtextdocumentfragment.h \
 	text/qtextdocumentfragment_p.h \
 	text/qtextimagehandler_p.h \
@@ -45,7 +44,6 @@ SOURCES += \
 	text/qabstracttextdocumentlayout.cpp \
 	text/qtextdocumentlayout.cpp \
 	text/qtextcursor.cpp \
-	text/qtexttablemanager.cpp \
 	text/qtextdocumentfragment.cpp \
 	text/qtextimagehandler.cpp \
 	text/qtexttable.cpp \

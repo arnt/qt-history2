@@ -5,7 +5,6 @@
 #include "qtextdocument.h"
 #include <qtextformat.h>
 #include <private/qtextformat_p.h>
-#include "qtexttablemanager_p.h"
 #include "qtextcursor.h"
 #include "qtextimagehandler_p.h"
 #include "qtextcursor_p.h"
@@ -67,7 +66,6 @@ QTextPieceTable::QTextPieceTable(QAbstractTextDocumentLayout *layout)
 
     formats = new QTextFormatCollection(this);
     ++formats->ref;
-    tables = new QTextTableManager(this);
     if (!layout)
         layout = new QTextDocumentLayout();
     lout = layout;

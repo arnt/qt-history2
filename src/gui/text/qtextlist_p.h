@@ -11,10 +11,6 @@
 
 class QTextList;
 
-class QTextListPrivate : public QTextFormatGroupPrivate
-{
-};
-
 template <class Manager>
 class QTextFormatGroupChangeCommand : public QAbstractUndoItem
 {

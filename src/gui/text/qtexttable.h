@@ -6,6 +6,7 @@
 #include <qshareddatapointer.h>
 #include <qobject.h>
 #include "qtextcursor.h"
+#include "qtextformat.h"
 #endif // QT_H
 
 class QTextTablePrivate;
@@ -44,7 +45,7 @@ private:
     int cSpan;
 };
 
-class Q_GUI_EXPORT QTextTable : public QObject
+class Q_GUI_EXPORT QTextTable : public QTextFormatGroup
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QTextTable);
@@ -69,16 +70,21 @@ public:
     QTextCursor start() const;
     QTextCursor end() const;
 
-    void setFormat(const QTextTableFormat &format);
-    QTextTableFormat format() const;
+    void setFormat(const QTextTableFormat &format) { setCommonFormat(format); }
+    QTextTableFormat format() const { return commonFormat().toTableFormat(); }
+
+protected:
+    void insertBlock(const QTextBlockIterator &block);
+    void removeBlock(const QTextBlockIterator &block);
+    void blockFormatChanged(const QTextBlockIterator &block);
 
 private:
+    QTextTable(QObject *parent);
+    ~QTextTable();
+
     friend class QTextCursor;
     friend class QTextCursorPrivate;
-    friend class QTextTableManager;
-
-    QTextTable(QTextPieceTable *pt, QObject *parent);
-    ~QTextTable();
+    friend class QTextFormatCollection;
 
 #if defined(Q_DISABLE_COPY)
     QTextTable(const QTextTable &o);
