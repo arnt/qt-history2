@@ -28,10 +28,12 @@ if [ "$relpath" != `pwd` ]; then
     mkdir -p $outpath/bin #make build dir
 
     #need a top level makefile, prefer gnu internally
-    if [ -f $relpath/GNUmakefile ]; then
-	rm -f $relpath/GNUmakefile $outpath/Makefile
+    if [ -f $relpath/GNUmakefile ]
+    then
+	rm -f $outpath/Makefile
 	ln -s $relpath/GNUmakefile $outpath/Makefile
-    elif [ -f $relpath/Makefile ]; then
+    elif [ -f $relpath/Makefile ]
+    then
 	rm -f $relpath/GNUmakefile $outpath/Makefile
 	ln -s $relpath/Makefile $outpath/Makefile
     else
