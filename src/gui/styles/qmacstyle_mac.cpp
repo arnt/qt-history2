@@ -2060,7 +2060,7 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
         break;
     case QStyle::CE_ToolBarButton:
         if (const QStyleOptionButton *btn = qt_cast<const QStyleOptionButton *>(opt)) {
-            const QRect cr = q->subRect(QStyle::SR_ToolBarButtonContents, btn, p->fontMetrics(), w);
+            const QRect cr = q->subRect(QStyle::SR_ToolBarButtonContents, btn, w);
             QIcon::Mode iconMode = (btn->state & QStyle::Style_Enabled) ? QIcon::Normal
                                                                         : QIcon::Disabled;
             if (btn->state & QStyle::Style_Down)
@@ -2080,7 +2080,7 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
             }
             if (btn->features & QStyleOptionButton::HasMenu) {
                 QStyleOption arrowOpt(0);
-                arrowOpt.rect = q->subRect(QStyle::SR_ToolBarButtonMenu, btn, p->fontMetrics(), w);
+                arrowOpt.rect = q->subRect(QStyle::SR_ToolBarButtonMenu, btn, w);
                 arrowOpt.rect.setY(arrowOpt.rect.y() + arrowOpt.rect.height() / 2);
                 arrowOpt.rect.setHeight(arrowOpt.rect.height() / 2);
                 arrowOpt.state = btn->state;
@@ -2259,11 +2259,11 @@ void QMacStylePrivate::HIThemeDrawComplexControl(QStyle::ComplexControl cc,
             QStyleOptionSpinBox newSB = *sb;
             if (sb->subControls & QStyle::SC_SpinBoxFrame) {
                 QStyleOptionFrame lineedit;
-                lineedit.rect = QStyle::visualRect(q->querySubControlMetrics(QStyle::CC_SpinBox,
+                lineedit.rect = QStyle::visualRect(opt->direction, opt->rect,
+                                                   q->querySubControlMetrics(QStyle::CC_SpinBox,
                                                                          sb,
                                                                          QStyle::SC_SpinBoxFrame,
-                                                                         widget),
-                                                   widget);
+                                                                         widget));
                 lineedit.palette = sb->palette;
                 lineedit.state = QStyle::Style_Sunken;
                 lineedit.lineWidth = 0;
@@ -2307,12 +2307,12 @@ void QMacStylePrivate::HIThemeDrawComplexControl(QStyle::ComplexControl cc,
                     bdi.adornment = kThemeAdornmentFocus;
                 else
                     bdi.adornment = kThemeAdornmentNone;
-                QRect updown = QStyle::visualRect(q->querySubControlMetrics(QStyle::CC_SpinBox, sb,
-                                                                    QStyle::SC_SpinBoxUp,
-                                                                    widget), widget);
-                updown |= QStyle::visualRect(q->querySubControlMetrics(QStyle::CC_SpinBox, sb,
-                                                               QStyle::SC_SpinBoxDown, widget),
-                                     widget);
+                QRect updown = QStyle::visualRect(opt->direction, opt->rect,
+                                                  q->querySubControlMetrics(QStyle::CC_SpinBox, sb,
+                                                                    QStyle::SC_SpinBoxUp, widget));
+                updown |= QStyle::visualRect(opt->direction, opt->rect,
+                                             q->querySubControlMetrics(QStyle::CC_SpinBox, sb,
+                                                               QStyle::SC_SpinBoxDown, widget));
                 if (widget) {
                     QPalette::ColorRole bgRole = widget->backgroundRole();
                     if (sb->palette.brush(bgRole).pixmap())
@@ -3270,7 +3270,7 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
 {
     ThemeDrawState tds = getDrawState(opt->state);
     switch (ce) {
-    case QStyle::CE_PushButton:
+    case QStyle::CE_PushButtonBevel:
         if (const QStyleOptionButton *btn = qt_cast<const QStyleOptionButton *>(opt)) {
             if (!(btn->state & (QStyle::Style_Raised | QStyle::Style_Down | QStyle::Style_On)))
                 break;
@@ -3613,8 +3613,7 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
         break;
     case QStyle::CE_ToolBarButton:
         if (const QStyleOptionButton *btn = qt_cast<const QStyleOptionButton *>(opt)) {
-            const QRect cr = q->subRect(QStyle::SR_ToolBarButtonContents, btn, p->fontMetrics(),
-                                        widget);
+            const QRect cr = q->subRect(QStyle::SR_ToolBarButtonContents, btn, widget);
             QIcon::Mode iconMode = (btn->state & QStyle::Style_Enabled) ? QIcon::Normal
                                                                         : QIcon::Disabled;
             if (btn->state & QStyle::Style_Down)
@@ -3634,8 +3633,7 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
             }
             if (btn->features & QStyleOptionButton::HasMenu) {
                 QStyleOption arrowOpt(0);
-                arrowOpt.rect = q->subRect(QStyle::SR_ToolBarButtonMenu, btn, p->fontMetrics(),
-                                           widget);
+                arrowOpt.rect = q->subRect(QStyle::SR_ToolBarButtonMenu, btn, widget);
                 arrowOpt.rect.setY(arrowOpt.rect.y() + arrowOpt.rect.height() / 2);
                 arrowOpt.rect.setHeight(arrowOpt.rect.height() / 2);
                 arrowOpt.state = btn->state;
@@ -3649,7 +3647,8 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
     }
 }
 
-QRect QMacStylePrivate::AppManSubRect(QStyle::SubRect sr, const QStyleOption *opt, const QWidget *widget) const
+QRect QMacStylePrivate::AppManSubRect(QStyle::SubRect sr, const QStyleOption *opt,
+                                      const QWidget *widget) const
 {
     QRect r = QRect();
     switch (sr) {
@@ -3812,12 +3811,14 @@ void QMacStylePrivate::AppManDrawComplexControl(QStyle::ComplexControl cc,
                 if (sb->state & QStyle::Style_HasFocus
                         && QMacStyle::focusRectPolicy(widget) != QMacStyle::FocusDisabled)
                     info.adornment |= kThemeAdornmentFocus;
-                QRect updown = q->visualRect(q->querySubControlMetrics(QStyle::CC_SpinBox, sb,
+                QRect updown = q->visualRect(opt->direction, opt->rect,
+                                             q->querySubControlMetrics(QStyle::CC_SpinBox, sb,
                                                                        QStyle::SC_SpinBoxUp,
-                                                                       widget), widget);
-                updown |= q->visualRect(q->querySubControlMetrics(QStyle::CC_SpinBox, sb,
+                                                                       widget));
+                updown |= q->visualRect(opt->direction, opt->rect,
+                                        q->querySubControlMetrics(QStyle::CC_SpinBox, sb,
                                                                   QStyle::SC_SpinBoxDown,
-                                                                  widget), widget);
+                                                                  widget));
                 if (widget) {
                     QPalette::ColorRole bgRole = widget->backgroundRole();
                     if (sb->palette.brush(bgRole).pixmap())
