@@ -268,7 +268,8 @@ struct QListViewPrivate
   directory aren't entered into the tree until they need to.
 */
 
-/*!  Constructs a new top-level list view item in the QListView \a parent.
+/*!  
+  Constructs a new top-level list view item in the QListView \a parent.
 */
 
 QListViewItem::QListViewItem( QListView * parent )
@@ -1648,7 +1649,7 @@ void QListViewPrivate::Root::setup()
   better with a white background.
 
   <img src=qlistview-m.png> <img src=qlistview-w.png>
-  
+
   \internal
 
   need to say stuff about the mouse and keyboard interface.
