@@ -2904,8 +2904,9 @@ void qt_format_text( const QFont& font, const QRect &_r,
     int left = r.width();
     int right = 0;
 
-    QTextLayout textLayout( text, painter ? painter->font() : font );
-    QFontMetrics fm( painter ? painter->font() : font );
+    QFont fnt(painter ? painter->font() : font);
+    QTextLayout textLayout( text, fnt );
+    QFontMetrics fm( fnt );
     int rb = QMAX( 0, -fm.minRightBearing() );
     int lb = QMAX( 0, -fm.minLeftBearing() );
 
@@ -3022,14 +3023,19 @@ void qt_format_text( const QFont& font, const QRect &_r,
 	}
 
 	int cUlChar = 0;
+	int _tf = 0;
+	if (fnt.underline()) _tf |= Qt::Underline;
+	if (fnt.overline()) _tf |= Qt::Overline;
+	if (fnt.strikeOut()) _tf |= Qt::StrikeOut;
+
 	for ( int i = 0; i < textLayout.numItems(); i++ ) {
 	    QTextItem ti = textLayout.itemAt( i );
 // 	    qDebug("Item %d: from=%d,  to=%d,  space=%d", i, ti.from(),  ti.length(), ti.isSpace() );
 	    if ( ti.isTab() || ti.isObject() )
 		continue;
-	    int textFlags = 0;
+	    int textFlags = _tf;
 	    if ( !noaccel && numUnderlines > cUlChar && ti.from() == underlinePositions[cUlChar] ) {
-		textFlags = Qt::Underline;
+		textFlags |= Qt::Underline;
 		cUlChar++;
 	    }
 #if defined(Q_WS_X11) || defined(Q_WS_QWS)
