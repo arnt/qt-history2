@@ -13,6 +13,77 @@
 #include "qguardedptr.h"
 #include "qlayout.h"
 #include "qlineedit.h"
+#include "qimage.h"
+
+
+class LightStyleFilter : public QObject
+{
+public:
+    QPixmap pixmap;
+
+    LightStyleFilter()
+	: QObject(0)
+    {
+    }
+
+    void constrainPixmap(const QPixmap &constraint, const QColor &color)
+    {
+	if (pixmap.width() >= constraint.width() &&
+	    pixmap.height() >= constraint.height())
+	    return;
+
+	QColor color2 = color.dark(115);
+	QImage image(QMAX(pixmap.width(), constraint.width()),
+		     QMAX(pixmap.height(), constraint.height()), 32);
+	image.setAlphaBuffer(TRUE);
+	int i;
+	uint *p;
+	for (i = 0, p = (uint *) image.scanLine(0); i < image.bytesPerLine(); i+=4)
+	    *p++ = qRgba(color.red(),
+			 color.green(),
+			 color.blue(),
+			 0xdd);
+	for (i = 0, p = (uint *) image.scanLine(1); i < image.bytesPerLine(); i+=4)
+	    *p++ = qRgba(color2.red(),
+			 color2.green(),
+			 color2.blue(),
+			 0xdd);
+	for (i = 2; i < image.height() - 1; i += 2)
+	    memcpy(image.scanLine(i), image.scanLine(0),
+		   image.bytesPerLine() * 2);
+	if (image.height() % 2)
+	    memcpy(image.scanLine(image.height() - 1), image.scanLine(0),
+		   image.bytesPerLine());
+
+	pixmap = image;
+    }
+
+    bool eventFilter(QObject *object, QEvent *event)
+    {
+	QPopupMenu *popup = (QPopupMenu *) object;
+	if (event->type() == QEvent::Show) {
+	    QPixmap pix =
+		QPixmap::grabWindow(qt_xrootwin(), popup->x(), popup->y(),
+				    popup->width(), popup->height());
+
+	    constrainPixmap(pix, popup->colorGroup().button());
+
+	    QPainter p(&pix);
+	    p.drawPixmap(0, 0, pixmap);
+	    p.end();
+
+	    popup->setBackgroundPixmap(pix);
+	} else if (event->type() == QEvent::Hide) {
+	    popup->move(-popup->x(), -popup->y());
+	    popup->setBackgroundPixmap(QPixmap());
+	    int count = 0;
+	    while (qApp->hasPendingEvents() && count++ < 5)
+		qApp->processEvents();
+	}
+
+	return FALSE;
+    }
+};
 
 
 class LightStylePrivate
@@ -21,6 +92,13 @@ public:
     LightStylePrivate()
 	: hoverWidget(0), ref(1), savePalette(0)
     {
+	filter = new LightStyleFilter;
+    }
+
+    ~LightStylePrivate()
+    {
+	delete filter;
+	filter = 0;
     }
 
     QGuardedPtr<QWidget> hoverWidget;
@@ -28,6 +106,7 @@ public:
     int ref;
     QPoint mousePos;
     QPalette *savePalette;
+    LightStyleFilter *filter;
 };
 
 
@@ -54,7 +133,7 @@ LightStyle::LightStyle()
 				 QColorGroup::Background).light(120);
 
 	QColorGroup active2(pal.color(QPalette::Active,
-				      QColorGroup::Foreground),      // foreground
+ 				      QColorGroup::Foreground),      // foreground
 			    prelight,                                // button
 			    prelight.light(),                        // light
 			    prelight.dark(),                         // dark
@@ -163,6 +242,9 @@ void LightStyle::unPolish(QWidget *widget)
     }
 #endif
 
+    if (widget->inherits("QPopupMenu"))
+	widget->removeEventFilter(singleton->filter);
+
     QWindowsStyle::unPolish(widget);
 }
 
@@ -268,6 +350,7 @@ void LightStyle::unPolish(QApplication *app)
 
 void LightStyle::polishPopupMenu(QPopupMenu *menu)
 {
+    menu->installEventFilter(singleton->filter);
     menu->setMouseTracking(TRUE);
 }
 
