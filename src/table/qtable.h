@@ -188,6 +188,8 @@ public:
     int rtti() const;
     static int RTTI;
 
+    QSize sizeHint() const;
+
 private:
     QComboBox *cb;
     QStringList entries;
@@ -210,6 +212,8 @@ public:
 
     int rtti() const;
     static int RTTI;
+
+    QSize sizeHint() const;
 
 private:
     QCheckBox *cb;

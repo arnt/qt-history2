@@ -1301,6 +1301,17 @@ int QComboTableItem::rtti() const
     return RTTI;
 }
 
+/*! \reimp */
+
+QSize QComboTableItem::sizeHint() const
+{
+    fakeCombo->insertItem( currentText() );
+    fakeCombo->setCurrentItem( fakeCombo->count() - 1 );
+    QSize sh = fakeCombo->sizeHint();
+    fakeCombo->removeItem( fakeCombo->count() - 1 );
+    return sh;
+}
+
 /*!
     \class QCheckTableItem qtable.h
     \brief The QCheckTableItem class provides checkboxes in QTables.
@@ -1458,6 +1469,17 @@ int QCheckTableItem::RTTI = 2;
 int QCheckTableItem::rtti() const
 {
     return RTTI;
+}
+
+/*! \reimp */
+
+QSize QCheckTableItem::sizeHint() const
+{
+    QSize sz = QSize( table()->style().pixelMetric( QStyle::PM_IndicatorWidth ),
+		      table()->style().pixelMetric( QStyle::PM_IndicatorHeight ) );
+    sz.setWidth( sz.width() + 6 );
+    QSize sh( QTableItem::sizeHint() );
+    return QSize( sh.width() + sz.width(), QMAX( sh.height(), sz.height() ) );
 }
 
 /*! \file table/small-table-demo/main.cpp */
