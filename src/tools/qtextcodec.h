@@ -72,7 +72,8 @@ public:
     static QTextCodec* codecForContent(const char* chars, int len);
     static QTextCodec* codecForIndex(int i);
     static QTextCodec* codecForLocale();
-
+    static void setCodecForLocale(QTextCodec *c);
+    
     static void deleteAllCodecs();
 
     static const char* locale();
