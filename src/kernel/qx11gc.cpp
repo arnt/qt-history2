@@ -651,12 +651,12 @@ bool QX11GC::begin(const QPaintDevice *pdev, QPainterState *ps, bool unclipped)
 //         d->rop = CopyROP;                          // default ROP
 //     }
 
-    QWidget *w = (QWidget *) d->pdev;
+    QWidget *w = static_cast<QWidget *>(d->pdev);
 //     if ( reinit ) {
 // 	QBrush defaultBrush;
 // 	ps->brush = defaultBrush;
 //     }
-    if (unclipped || w->testWFlags(WPaintUnclipped)) {  // paint direct on device
+    if (w && (unclipped/* || w->testWFlags(WPaintUnclipped)*/)) {  // paint direct on device
 	setf(NoCache);
 	setf(UsePrivateCx);
 	updatePen(ps);
@@ -671,22 +671,22 @@ bool QX11GC::begin(const QPaintDevice *pdev, QPainterState *ps, bool unclipped)
 	}
 #endif
     }
-//     else if ( dt == QInternal::Pixmap ) {             // device is a pixmap
-//         QPixmap *pm = (QPixmap*)pdev;
-//         if ( pm->isNull() ) {
-//             qWarning( "QPainter::begin: Cannot paint null pixmap" );
-//             end();
-//             return FALSE;
-//         }
-//         bool mono = pm->depth() == 1;           // monochrome bitmap
-//         if ( mono ) {
-//             setf( MonoDev );
-//             bg_brush = color0;
-//             cpen.setColor( color1 );
-//         }
+    else if ( d->pdev->devType() == QInternal::Pixmap ) {             // device is a pixmap
+        QPixmap *pm = (QPixmap *)(pdev);
+        if ( !pm || pm->isNull() ) {
+            qWarning( "QPainter::begin: Cannot paint null pixmap" );
+            end();
+            return FALSE;
+        }
+        bool mono = pm->depth() == 1;           // monochrome bitmap
+        if ( mono ) {
+            setf( MonoDev );
+            d->bg_brush = color0;
+            d->cpen.setColor( color1 );
+        }
 //         ww = vw = pm->width();                  // default view size
 //         wh = vh = pm->height();
-//     }
+    }
 
     d->clip_serial = gc_cache_clip_serial++;
     updateBrush(ps);
@@ -1013,7 +1013,7 @@ void QX11GC::updateBrush(QPainterState *state)
 	hor_pat, ver_pat, cross_pat, bdiag_pat, fdiag_pat, dcross_pat };
 
     int  bs = d->cbrush.style();
-    int x, y;
+    int x = 0, y = 0;
 //     map( d->bro.x(), d->bro.y(), &x, &y );
     bool cacheIt = !testf(ClipOn|MonoDev|NoCache) &&
                    (bs == NoBrush || bs == SolidPattern) &&

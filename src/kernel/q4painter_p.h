@@ -86,7 +86,7 @@ class QPainterPrivate
 {
 public:
     QPainterPrivate()
-	: device(0), gc(0)
+	: txop(0), txinv(0), device(0), gc(0)
     {
 	states.push_back(new QPainterState());
 	state = states.back();

@@ -35,13 +35,15 @@
 #include "qimage.h"
 #include "qwmatrix.h"
 #include "qapplication.h"
+#ifdef Q_Q4PAINTER
+#include "qx11gc.h"
+#define QPaintDevice QX11GC
+#endif
+
 #include "qt_x11_p.h"
 
 #include <stdlib.h>
 
-#ifdef Q_Q4PAINTER
-#include "qx11gc.h"
-#endif
 
 /*!
   \class QPixmap::QPixmapData
@@ -89,9 +91,14 @@ static void qt_cleanup_mitshm()
     shmctl( xshminfo.shmid, IPC_RMID, 0 );
 }
 
-
+#ifdef Q_Q4PAINTER
+#undef QPaintDevice
+#endif
 static bool qt_create_mitshm_buffer( const QPaintDevice* dev, int w, int h )
 {
+#ifdef Q_Q4PAINTER
+#define QPaintDevice
+#endif
     static int major, minor;
     static Bool pixmaps_ok;
     Display *dpy = dev->x11Display();
@@ -262,10 +269,19 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
 		  "is being used" );
     }
 
+#ifdef Q_Q4PAINTER
+    Q_ASSERT(!deviceGC);
+    deviceGC = new QX11GC(this);
+#endif
+
     static int serial = 0;
 
     if ( defaultScreen >= 0 && defaultScreen != x11Screen() ) {
+#ifdef Q_Q4PAINTER
+	QX11GCData* xd = static_cast<QX11GC *>(deviceGC)->getX11Data(true);
+#else
 	QPaintDeviceX11Data* xd = getX11Data( TRUE );
+#endif	
 	xd->x_screen = defaultScreen;
 	xd->x_depth = QPaintDevice::x11AppDepth( xd->x_screen );
 	xd->x_cells = QPaintDevice::x11AppCells( xd->x_screen );
@@ -273,7 +289,11 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
 	xd->x_defcolormap = QPaintDevice::x11AppDefaultColormap( xd->x_screen );
 	xd->x_visual = QPaintDevice::x11AppVisual( xd->x_screen );
 	xd->x_defvisual = QPaintDevice::x11AppDefaultVisual( xd->x_screen );
+#ifdef Q_Q4PAINTER
+	static_cast<QX11GC *>(deviceGC)->setX11Data(xd);
+#else
 	setX11Data( xd );
+#endif	
     }
 
     int dd = x11Depth();
@@ -319,10 +339,6 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
     }
 #endif // QT_NO_XFTFREETYPE
 
-#ifdef Q_Q4PAINTER
-    Q_ASSERT(!deviceGC);
-    deviceGC = new QX11GC(this);
-#endif
 }
 
 
@@ -359,9 +375,15 @@ void QPixmap::deref()
     This constructor is protected and used by the QBitmap class.
 */
 
+#ifdef Q_Q4PAINTER
+#undef QPaintDevice
+#endif
 QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap)
     : QPaintDevice( QInternal::Pixmap )
 {						// for bitmaps only
+#ifdef Q_Q4PAINTER
+#define QPaintDevice QX11GC
+#endif
     init( 0, 0, 0, FALSE, defOptim );
     if ( w <= 0 || h <= 0 )			// create null pixmap
 	return;

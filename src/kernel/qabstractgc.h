@@ -11,7 +11,7 @@ class QPainterState;
 class QPaintDevice;
 
 struct QAbstractGCPrivate {
-    QAbstractGCPrivate() : active(false) {}
+    QAbstractGCPrivate() : active(false), flags(0) {}
     bool active : 1;
     uint flags;
 };
