@@ -14789,6 +14789,9 @@ QString qt_winQString(void* tc)
 {
 #ifdef UNICODE
 
+    if ( !tc )
+	return QString::null;
+
     int len=0;
     while ( ((TCHAR*)tc)[len] )
 	len++;
