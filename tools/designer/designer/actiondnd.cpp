@@ -10,6 +10,7 @@
 #include "metadatabase.h"
 #include <qdragobject.h>
 #include <qbitmap.h>
+#include <qinputdialog.h>
 
 
 QDesignerToolBarSeparator::QDesignerToolBarSeparator(Orientation o , QToolBar *parent,
@@ -495,12 +496,20 @@ void QDesignerMenuBar::mousePressEvent( QMouseEvent *e )
 	if ( itm == -1 )
 	    return;
 	QPopupMenu menu( this );
-	menu.insertItem( tr( "Delete Item" ) );
-	if ( menu.exec( e->globalPos() ) != -1 ) {
+	menu.insertItem( tr( "Delete Item" ), 1 );
+	menu.insertItem( tr( "Rename Item..." ), 2 );
+	int res = menu.exec( e->globalPos() );
+	if ( res == 1 ) {
 	    removeItemAt( itm );
 	    // #### need to do a proper invalidate and re-layout
 	    parentWidget()->layout()->invalidate();
 	    parentWidget()->layout()->activate();
+	} else if ( res == 2 ) {
+	    bool ok;
+	    QString txt = QInputDialog::getText( tr( "Rename Menuitem" ), tr( "Menu Text" ), QLineEdit::Normal, text( idAt( itm ) ), &ok, 0 );
+	    if ( ok )
+		changeItem( idAt( itm ), txt );
+	
 	}
 	return;
     }
