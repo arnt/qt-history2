@@ -1,7 +1,7 @@
 /*! \page licenses.html
 \title Licenses for Code Used in Qt
 
-Qt contains a little code that is not under the \link license.html
+Qt contains a little code that is not under the \link qpl.html
 QPL\endlink, the \link gpl.html GPL\endlink, or the Qt Commercial
 License Agreement, but rather under specific highly permissive
 licenses from the original authors. This page lists the licenses used
