@@ -455,10 +455,11 @@ too large, it takes too long to process each chunk.  The QCanvas
 constructor picks a hopefully suitable size, but you can call retune()
 to change it at any time.  chunkSize() returns the current chunk size.
 
-The items always make sure they're in the right chunks; all you need
-to make sure is that the canvas has about the right chunk size.
-
-###SO, HOW TO KNOW THAT A CANVAS HAS A GOOD CHUNK SIZE?
+The items always make sure they're in the right chunks; all you need to
+ake sure is that the canvas has about the right chunk size.  A good rule
+of thumb is that the size should be a bit smaller than the average item
+size. If you have moving objects, it should be a bit smaller than the
+average size of the moving items.
 
 The foreground is normally nothing, but if you reimplement
 drawForeground(), you can draw things in front of all canvas items.
@@ -1424,7 +1425,7 @@ the item lives.
 
 An item, by default, has no speed, no size, is not animated and has no
 velocity. The subclasses provided in Qt do not change these defaults
-except where expressly noted. 
+except where expressly noted.
 
 Note that you cannot easily subclass QCanvasItem yourself - the API is
 too low-level.  It's usually much easier to subclass one of
@@ -2201,7 +2202,7 @@ QRect QCanvasItem::boundingRectAdvanced() const
   Note that for QCanvasPixmap objects created by a QCanvasSprite, the
   position of each QCanvasPixmap object is set so that the hot spot
   stays in the same position.
-  
+
   \sa QCanvasPixmapArray QCanvasItem QCanvasSprite
 */
 
@@ -3376,7 +3377,7 @@ QPointArray QCanvasLine::areaPoints() const
 
   This item paints a single rectangle which may have any pen() and
   brush(), but may not be tilted/rotated.
-  
+
   For rotated rectangles, use QCanvasPolygon.
 */
 
