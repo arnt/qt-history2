@@ -44,10 +44,10 @@ struct QShortcutEntry
     const QObject *monitor;
 };
 
+#ifndef QT_NO_DEBUG
 /*! \internal
     QDebug operator<< for easy debug output of the shortcut entries.
 */
-#ifndef QT_NO_DEBUG
 QDebug &operator<<(QDebug &dbg, const QShortcutEntry *se) {
     if (!se)
         return dbg << "QShortcutEntry(0x0)";
@@ -238,12 +238,26 @@ int QShortcutMap::changeMonitor(const QObject *monitor, const QKeySequence &key,
     {
         QShortcutEntry entry = d->sequences.at(i);
         if (entry.monitor == monitor) {
+#if 0
             if (entry.keyseq == key && entry.enabled == enabled) {
+                if (itemsModified != 0) {
+                    qDebug() << "Items removed:";                    
+                    for(int j = 0; j < newEntries.count(); ++j) {
+                        QShortcutEntry itm = newEntries.at(j);
+                        qDebug() << " --> " << &itm;
+                    }
+                    qDebug() << "Matching item:\n" << &entry;
+#ifdef Dump_QShortcutMap                
+                    qDebug() << "Current shortcut map";
+                    dumpMap();
+#endif                
+                }
                 Q_ASSERT_X(itemsModified == 0,
                            "QShortcutMap::changeMonitorKey",
                            "Invalid function end! Shortcuts removed, but not readded!");
                 return 0;
             }
+#endif
             entry.keyseq = key;
             entry.enabled = enabled;
             newEntries += entry;
