@@ -937,7 +937,7 @@ bool QSqlQuery::exec()
 		  it != d->sqlResult->extension()->values.end(); ++it ) {
 		QSqlField f( "", it.data().type() );
 		f.setValue( it.data() );
-		query = query.replace( QRegExp( it.key() ), driver()->formatValue( &f ) ); 
+		query = query.replace( it.key(), driver()->formatValue( &f ) ); 
 	    }
 	} else {
 	    QMap<int, QString>::Iterator it;
