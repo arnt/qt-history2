@@ -45,11 +45,11 @@
 class QDataBrowser::QDataBrowserPrivate
 {
 public:
-    QDataBrowserPrivate() : boundryCheck( TRUE ) {}
+    QDataBrowserPrivate() : boundaryCheck( TRUE ) {}
     QSqlCursorManager cur;
     QSqlFormManager frm;
     QDataManager dat;
-    bool boundryCheck;
+    bool boundaryCheck;
 };
 
 /*!
@@ -73,17 +73,17 @@ public:
 
 */
 
-/*! \enum QDataBrowser::Boundry
+/*! \enum QDataBrowser::Boundary
 
   This enum type describes where the navigator is currently positioned.
 
   The currently defined values are:
   <ul>
 
-  <li> \c Unknown - the boundry cannot be determined (usually because
+  <li> \c Unknown - the boundary cannot be determined (usually because
   there is no default cursor, or the default cursor is not active).
 
-  <li> \c None - the navigator is not positioned on a boundry.
+  <li> \c None - the navigator is not positioned on a boundary.
 
   <li> \c BeforeBeginning - the navigator is positioned before the
   beginning of the available records.
@@ -117,16 +117,16 @@ QDataBrowser::~QDataBrowser()
 }
 
 
-/*! Returns an enum indicating the boundry status of the browser.
+/*! Returns an enum indicating the boundary status of the browser.
   This is done by moving the default cursor and checking the position,
   however the current default form values will not be altered.  After
-  checking for the boundry, the cursor is moved back to its former
+  checking for the boundary, the cursor is moved back to its former
   position.
 
-  \sa Boundry
+  \sa Boundary
 */
 
-QDataBrowser::Boundry QDataBrowser::boundry()
+QDataBrowser::Boundary QDataBrowser::boundary()
 {
     QSqlCursor* cur = d->cur.cursor();
     if ( !cur || !cur->isActive() )
@@ -141,7 +141,7 @@ QDataBrowser::Boundry QDataBrowser::boundry()
     if ( cur->at() == 0 )
 	return Beginning;
     int currentAt = cur->at();
-    Boundry b = None;
+    Boundary b = None;
     if ( !cur->prev() )
 	b = Beginning;
     else
@@ -153,28 +153,28 @@ QDataBrowser::Boundry QDataBrowser::boundry()
 }
 
 
-/*! Sets boundry checking to \a active.  Without boundry checking,
+/*! Sets boundary checking to \a active.  Without boundary checking,
   signals are not emitted indicating the current position of the
   default cursor.
 
-  \sa boundryChecking()
+  \sa boundaryChecking()
 */
 
-void QDataBrowser::setBoundryChecking( bool active )
+void QDataBrowser::setBoundaryChecking( bool active )
 {
-    d->boundryCheck = active;
+    d->boundaryCheck = active;
 }
 
-/*! Returns TRUE if boundry checking is enabled (the default),
+/*! Returns TRUE if boundary checking is enabled (the default),
   otherwise FALSE is returned.
 
-  \sa setBoundryChecking()
+  \sa setBoundaryChecking()
 
 */
 
-bool QDataBrowser::boundryChecking() const
+bool QDataBrowser::boundaryChecking() const
 {
-    return d->boundryCheck;
+    return d->boundaryCheck;
 }
 
 /*! Sets the browser's sort to the index \a sort.  To apply the new
@@ -546,7 +546,7 @@ void QDataBrowser::first()
 	emit primeUpdate( buf );
 	d->frm.readFields();
     }
-    updateBoundry();
+    updateBoundary();
 }
 
 
@@ -570,7 +570,7 @@ void QDataBrowser::last()
 	emit primeUpdate( buf );
 	d->frm.readFields();
     }
-    updateBoundry();
+    updateBoundary();
 }
 
 
@@ -594,7 +594,7 @@ void QDataBrowser::next()
 	emit primeUpdate( buf );
 	d->frm.readFields();
     }
-    updateBoundry();
+    updateBoundary();
 }
 
 
@@ -618,7 +618,7 @@ void QDataBrowser::prev()
 	emit primeUpdate( buf );
 	d->frm.readFields();
     }
-    updateBoundry();
+    updateBoundary();
 }
 
 /*! Reads the fields from the default cursor edit buffer and displays
@@ -678,7 +678,7 @@ bool QDataBrowser::insertCurrent()
     else {
 	refresh();
 	d->cur.findBuffer( cur->primaryIndex() );
-	updateBoundry();
+	updateBoundary();
 	cursorChanged( QSqlCursor::Insert );
 	return TRUE;
     }
@@ -711,7 +711,7 @@ bool QDataBrowser::updateCurrent()
     else {
 	refresh();
 	d->cur.findBuffer( cur->primaryIndex() );
-	updateBoundry();
+	updateBoundary();
 	cur->editBuffer( TRUE );
 	cursorChanged( QSqlCursor::Update );
 	readFields();
@@ -742,7 +742,7 @@ bool QDataBrowser::deleteCurrent()
     int ar = cur->del();
     if ( ar ) {
 	refresh();
-	updateBoundry();
+	updateBoundary();
 	cursorChanged( QSqlCursor::Delete );
 	if ( !cur->seek( n ) )
 	    last();
@@ -769,15 +769,15 @@ bool QDataBrowser::currentEdited()
 }
 
 
-/*! If boundryChecking() is TRUE, checks the boundry of the current
+/*! If boundaryChecking() is TRUE, checks the boundary of the current
   default cursor and emits signals which indicate the position of the
   cursor.
 */
 
-void QDataBrowser::updateBoundry()
+void QDataBrowser::updateBoundary()
 {
-    if ( d->boundryCheck ) {
-	Boundry bound = boundry();
+    if ( d->boundaryCheck ) {
+	Boundary bound = boundary();
 	switch ( bound ) {
 	case Unknown:
 	case None:

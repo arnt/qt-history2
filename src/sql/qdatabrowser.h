@@ -56,7 +56,7 @@ class QSqlForm;
 class Q_EXPORT QDataBrowser : public QWidget, public QSqlNamespace
 {
     Q_OBJECT
-    Q_PROPERTY( bool boundryChecking READ boundryChecking WRITE setBoundryChecking )
+    Q_PROPERTY( bool boundaryChecking READ boundaryChecking WRITE setBoundaryChecking )
     Q_PROPERTY( QString filter READ filter WRITE setFilter )
     Q_PROPERTY( QStringList sort READ sort WRITE setSort )
     Q_PROPERTY( bool autoEdit READ autoEdit WRITE setAutoEdit )
@@ -65,7 +65,7 @@ public:
     QDataBrowser( QWidget *parent = 0, const char *name = 0, WFlags fl = 0 );
     ~QDataBrowser();
 
-    enum Boundry {
+    enum Boundary {
 	Unknown,
 	None,
 	BeforeBeginning,
@@ -74,9 +74,9 @@ public:
 	AfterEnd
     };
 
-    Boundry boundry();
-    void setBoundryChecking( bool active );
-    bool boundryChecking() const;
+    Boundary boundary();
+    void setBoundaryChecking( bool active );
+    bool boundaryChecking() const;
 
     void setSort( const QSqlIndex& sort );
     void setSort( const QStringList& sort );
@@ -129,7 +129,7 @@ protected:
     virtual void handleError( const QSqlError& error );
 
 private:
-    void updateBoundry();
+    void updateBoundary();
     class QDataBrowserPrivate;
     QDataBrowserPrivate* d;
 };
