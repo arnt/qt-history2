@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qt_xdnd.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qt_xdnd.cpp#2 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd/
 **
@@ -18,7 +18,7 @@
 #include <X11/Xlib.h> // for XEvent
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qt_xdnd.cpp#1 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qt_xdnd.cpp#2 $");
 
 // this stuff is copied from qapp_x11.cpp
 
@@ -189,9 +189,9 @@ void qt_handle_xdnd_drop( QWidget *w, const XEvent * xe )
     if ( XGetSelectionOwner(w->x11Display(), qt_xdnd_selection ) == None )
 	return;
 
-    extern Atom qt_selection_id; // from qapp_x11.cpp
+    extern Atom qt_selection_property; // from qapp_x11.cpp
     XConvertSelection( w->x11Display(), qt_xdnd_selection,
-		       42424242, qt_selection_id,
+		       42424242, qt_selection_property,
 		       w->winId(), CurrentTime );
 
     XFlush( w->x11Display() );
