@@ -12,7 +12,7 @@ void GotoLineDialog::destroy()
 void GotoLineDialog::gotoLine()
 {
     if ( editor )
-	editor->gotoLine( spinLine->value() );
+	editor->gotoLine( spinLine->value() - 1 );
     accept();
 }
 

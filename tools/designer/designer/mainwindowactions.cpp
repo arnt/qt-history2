@@ -1922,7 +1922,8 @@ void MainWindow::searchGotoLine()
     gotoLineDialog->raise();
     gotoLineDialog->setEditor( ( (SourceEditor*)qWorkspace()->activeWindow() )->editorInterface() );
     gotoLineDialog->spinLine->setFocus();
-    gotoLineDialog->spinLine->setMaxValue( ( (SourceEditor*)qWorkspace()->activeWindow() )->numLines() - 1 );
+    gotoLineDialog->spinLine->setMinValue( 1 );
+    gotoLineDialog->spinLine->setMaxValue( ( (SourceEditor*)qWorkspace()->activeWindow() )->numLines() );
     gotoLineDialog->spinLine->selectAll();
 }
 
