@@ -17,16 +17,13 @@
 
 \title Shared Classes
 
-\keyword explicit sharing
-\keyword explicitly shared
 \keyword implicit sharing
 \keyword implicitly shared
 \keyword reference counting
-\keyword shared explicitly
 \keyword shared implicitly
 
-Many C++ classes in Qt use \e explicit and \e implicit data sharing
-to maximize resource usage and minimize copying of data.
+Many C++ classes in Qt use implicit data sharing to maximize resource
+usage and minimize copying of data.
 
 \tableofcontents
 
@@ -52,56 +49,18 @@ can be expensive in terms of memory and CPU. Making a shallow copy is
 very fast, because it only involves setting a pointer and incrementing
 the reference count.
 
-Object assignment (with operator=()) for implicitly and explicitly
-shared objects is implemented using shallow copies. A deep copy can be
-made by calling a copy() function.
+Object assignment (with operator=()) for implicitly shared objects is
+implemented using shallow copies.
 
 The benefit of sharing is that a program does not need to duplicate
 data unnecessarily, which results in lower memory use and less copying
 of data. Objects can easily be assigned, sent as function arguments,
 and returned from functions.
 
-Now comes the distinction between \e explicit and \e implicit sharing.
-Explicit sharing means that the programmer must be aware of the fact
-that objects share common data. Implicit sharing means that the
-sharing mechanism takes place behind the scenes and the programmer
-does not need to worry about it.
+Implicit sharing takes place behind the scenes; the programmer does
+not need to worry about it.
 
-\section1 A QByteArray Example
-
-QByteArray is an example of a shared class that uses explicit sharing.
-Example:
-\code
-			  //Line    a=         b=         c=
-    QByteArray a(3),b(2)  // 1:     {?,?,?}    {?,?}
-    b[0] = 12; b[1] = 34; // 2:     {?,?,?}    {12,34}
-    a = b;                // 3:     {12,34}    {12,34}
-    a[1] = 56;            // 4:     {12,56}    {12,56}
-    QByteArray c = a;     // 5:     {12,56}    {12,56}    {12,56}
-    a.detach();           // 6:     {12,56}    {12,56}    {12,56}
-    a[1] = 78;            // 7:     {12,78}    {12,56}    {12,56}
-    b = a.copy();         // 8:     {12,78}    {12,78}    {12,56}
-    a[1] = 90;            // 9:     {12,90}    {12,78}    {12,56}
-\endcode
-
-The assignment \c {a = b} on line 3 throws away \c a's original shared
-block (the reference count becomes zero), sets \c a's shared block to
-point to \c b's shared block and increments the reference count.
-
-On line 4, the contents of \c a is modified. \c b is also modified,
-because \c a and \c b refer to the same data block. This is the
-difference between explicit and implicit sharing (explained below).
-
-The \c a object detaches from the common data on line 6. Detaching
-means that the shared data is copied to make sure that an object has
-its own private data. Therefore, modifying \c a on line 7 does not
-affect \c b or \c c.
-
-Finally, on line 8 we make a deep copy of \c a and assign it to \c b,
-so that when \c a is modified on line 9, \c b remains unchanged.
-
-
-\section1 Explicit vs. Implicit Sharing
+\section1 Implicit Sharing in Detail
 
 Implicit sharing automatically detaches the object from a shared block
 if the object is about to change and the reference count is greater
@@ -153,48 +112,36 @@ If we monitor changes in a QByteArray, the QByteArray class would
 become unacceptably slow.
 
 
-\section1 Explicitly Shared Classes
-
-All classes that are instances of the QMemArray template class are
-explicitly shared:
-
-\list
-\i \l QBitArray
-\i \l QPointArray
-\i \l QByteArray
-\i Any other instantiation of \c{QMemArray<type>}
-\endlist
-
-These classes have a detach() function that can be called if you want
-your object to get a private copy of the shared data. They also have a
-copy() function that returns a deep copy with a reference count of 1.
-
-The same is true for \l QImage, which does not inherit QMemArray. \l
-QMovie is also explicitly shared, but it does not support detach() or
-copy().
-
 \section1 Implicitly Shared Classes
 
 The Qt classes that are implicitly shared are:
 \list
+\i \l QBitArray
 \i \l QBitmap
 \i \l QBrush
+\i \l QByteArray
 \i \l QCursor
 \i \l QFont
 \i \l QFontInfo
 \i \l QFontMetrics
-\i \l QIconSet
+\i \l QHash
+\i \l QIcon
+\i \l QImage
+\i \l QLinkedList
 \i \l QList
 \i \l QMap
 \i \l QPalette
 \i \l QPen
 \i \l QPicture
 \i \l QPixmap
+\i \l QPointArray
+\i \l QQueue
 \i \l QRegExp
 \i \l QRegion
 \i \l QStack
 \i \l QString
 \i \l QStringList
+\i \l QVector
 \endlist
 
 These classes automatically detach from common data if an object is
@@ -216,12 +163,12 @@ Example:
     paint.end();
 \endcode
 
-In this example, \c p1 and \c p2 share data until QPainter::begin() is
-called for \c p2, because painting a pixmap will modify it. The same
-also happens if anything is \link ::bitBlt() bitBlt()\endlink'ed into
-\c p2.
+In this example, \c p1 and \c p2 share data until QPainter::begin()
+is called for \c p2, because painting a pixmap will modify it. The
+same also happens if anything is bitBlt()'ed into \c p2.
 
-\warning Do not copy an implicitly shared container (QMap,
-QVector, etc.) while you are iterating over it.
+\warning Do not copy an implicitly shared container (QMap, QVector,
+etc.) while you are iterating over it using an \l{STL-style
+iterator}.
 
 */
