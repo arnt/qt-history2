@@ -948,6 +948,14 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 
     if(isMove || isResize) {
 	if ( isVisible() ) {
+	    QRegion blt_optim;
+	    int px = 0, py = 0;
+	    if(parentWidget()) {
+		QPoint tp(posInWindow(parentWidget()));
+		px = tp.x();
+		py = tp.y();
+	    }
+
 	    if ( isMove ) {
 		QMoveEvent e( pos(), oldp );
 		QApplication::sendEvent( this, &e );
@@ -963,21 +971,15 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 		    RGBBackColor( &f );
 
 		    //calculate new and old rectangles
-		    int px = 0, py = 0;
-		    if(parentWidget()) {
-			QPoint tp(posInWindow(parentWidget()));
-			px = tp.x();
-			py = tp.y();
-		    }
 		    int nx = px + x, ny = py + y;
 		    Rect newr; SetRect(&newr,nx, ny, nx + ow, ny + oh);
 		    int ox = px + oldp.x(), oy = py + oldp.y();
 		    Rect oldr; SetRect(&oldr, ox, oy, ox+ow, oy+oh);
 
 		    //setup the old clipped region..
-		    int diffx =  pos().x() - oldp.x(), diffy = pos().y() - oldp.y();
-		    oldregion.translate(diffx, diffy);
-		    oldregion &= clippedRegion(FALSE);
+		    blt_optim = oldregion;
+		    blt_optim.translate(pos().x() - oldp.x(), pos().y() - oldp.y());
+		    blt_optim &= clippedRegion(FALSE);
 		    
 		    //create a temporary space
 		    GWorldPtr tmppix;
@@ -986,23 +988,17 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 		    LockPixels(GetGWorldPixMap(tmppix));
 
 		    //now do the blt
+		    SetPortWindowPort((WindowPtr)handle()); 
+		    SetClip((RgnHandle)blt_optim.handle());
 		    BitMap *scrn = (BitMap *)*GetPortPixMap(GetWindowPort((WindowPtr)handle()));
 		    BitMap *pixm = (BitMap *)*GetGWorldPixMap(tmppix);
-
-		    //actually blt
-		    SetPortWindowPort((WindowPtr)handle()); 
-		    SetClip((RgnHandle)oldregion.handle());
 		    CopyBits(scrn, pixm, &oldr, &tmpr, srcCopy, 0);
 		    CopyBits(pixm, scrn, &tmpr, &newr, srcCopy, 0);
 
 		    //cleanup
 		    UnlockPixels(GetGWorldPixMap(tmppix));
 		    DisposeGWorld(tmppix);
-
-		    oldregion.translate(-px, -py);
-		} else {
-		    oldregion = QRegion();
-		}
+		} 
 	    }
 	    if ( isResize ) {
 		QResizeEvent e( size(), olds );
@@ -1014,9 +1010,8 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 		    erase(newr);
 	    }
 
-	    QRegion upd = QRegion(oldp.x(), oldp.y(), olds.width(), olds.height()) + r;
-	    if(!oldregion.isEmpty())
-		upd ^= oldregion;
+	    QRegion upd = (oldregion + clippedRegion(FALSE)) - blt_optim;
+	    upd.translate(-px, -py);
 	    paint_children( parentWidget() ? parentWidget() : this, upd, TRUE);
 
 	} else {
