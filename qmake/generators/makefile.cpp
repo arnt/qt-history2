@@ -1036,10 +1036,11 @@ MakefileGenerator::init()
 	v["OBJMOC"] = createObjectList("_HDRMOC") + createObjectList("_UIMOC");
 
 	QStringList &l = v["SRCMOC"];
-	l = v["_HDRMOC"] + v["_SRCMOC"] + v["_UIMOC"];
-	for(QStringList::Iterator val_it = l.begin(); val_it != l.end(); ++val_it)
+	l = v["_HDRMOC"] + v["_UIMOC"] + v["_SRCMOC"];
+	for(QStringList::Iterator val_it = l.begin(); val_it != l.end(); ++val_it) {
 	    if(!(*val_it).isEmpty())
 		(*val_it) = Option::fixPathToTargetOS((*val_it), FALSE);
+	}
     }
 }
 
@@ -1328,34 +1329,21 @@ MakefileGenerator::writeUicSrc(QTextStream &t, const QString &ui)
 
 
 void
-MakefileGenerator::writeMocObj(QTextStream &t, const QString &obj)
+MakefileGenerator::writeMocObj(QTextStream &t, const QString &obj, const QString &src)
 {
-    QStringList &objl = project->variables()[obj];
-    QStringList::Iterator oit = objl.begin();
-    QString stringSrc("$src");
-    QString stringObj("$obj");
-
-    QString mocdir;
-    if(!project->isEmpty("MOC_DIR"))
-	mocdir = project->first("MOC_DIR");
-
-    for( ;oit != objl.end(); oit++) {
-	QFileInfo fi(Option::fixPathToLocalOS((*oit)));
-	QString dirName;
-	if( !mocdir.isEmpty() )
-	    dirName = mocdir;
-	else if(!fi.dirPath().isEmpty() && fi.dirPath() != "." && project->isEmpty("OBJECTS_DIR"))
-	    dirName = Option::fixPathToTargetOS(fi.dirPath(), FALSE) + Option::dir_sep;
-	QString src(dirName + fi.baseName(TRUE) + Option::cpp_ext.first() );
-
-	QString hdr = findMocSource(src);
-	t << (*oit) << ": " << src << " "
+    QStringList &objl = project->variables()[obj],
+		&srcl = project->variables()[src];
+    QStringList::Iterator oit = objl.begin(), sit = srcl.begin();
+    QString regexpSrc("$src"), regexpObj("$obj");
+    for( ;sit != srcl.end() && oit != objl.end(); oit++, sit++) {
+	QString hdr = findMocSource((*sit));
+	t << (*oit) << ": " << (*sit) << " "
 	  << hdr << " " << findDependencies(hdr).join(" \\\n\t\t");
 	if ( !project->isEmpty("OBJECTS_DIR") || !project->isEmpty("MOC_DIR") ||
 	     project->isEmpty("QMAKE_RUN_CXX_IMP")) {
 	    QString p = var("QMAKE_RUN_CXX");
-	    p.replace( stringSrc, src);
-	    p.replace( stringObj, (*oit));
+	    p.replace( regexpSrc, (*sit));
+	    p.replace( regexpObj, (*oit));
 	    t << "\n\t" << p;
 	}
 	t << endl << endl;
@@ -1475,8 +1463,7 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
 	}
 
 	bool do_default = TRUE;
-	QString target,
-	    dst="$(INSTALL_ROOT)" + Option::fixPathToTargetOS(project->variables()[pvar].first(), FALSE);
+	QString target, dst="$(INSTALL_ROOT)" + Option::fixPathToTargetOS(project->variables()[pvar].first(), FALSE);
 	if(dst.right(1) != Option::dir_sep)
 	    dst += Option::dir_sep;
  	QStringList tmp, &uninst = project->variables()[(*it) + ".uninstall"];
@@ -1499,11 +1486,11 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
 		if(QFile::exists(wild)) { //real file
 		    QFileInfo fi(wild);
 		    target += QString("\t-") + (fi.isDir() ? "$(COPY_DIR)" : "$(COPY_FILE)") +
-			      " \"" + Option::fixPathToTargetOS(fi.filePath(), FALSE) + "\" \"" + dst + "\"\n";
+			      " \"" + Option::fixPathToTargetOS(fileFixify(wild), FALSE) + "\" \"" + fileFixify(dst) + "\"\n";
 		    if(!project->isActiveConfig("debug") &&
 		       !fi.isDir() && fi.isExecutable() && !project->isEmpty("QMAKE_STRIP"))
-			target += QString("\t") + var("QMAKE_STRIP") + " \"" + dst + "\"\n";
-		    uninst.append(QString("-$(DEL_FILE) -r") + " \"" + dst + fi.fileName() + "\"");
+			target += QString("\t") + var("QMAKE_STRIP") + " \"" + fileFixify(dst + wild) + "\"\n";
+		    uninst.append(QString("-$(DEL_FILE) -r") + " \"" + fileFixify(dst + wild) + "\"");
 		    continue;
 		}
 		QString dirstr = QDir::currentDirPath(), f = wild; 		    //wild
@@ -1516,8 +1503,8 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
 		    dirstr += Option::dir_sep;
 		if(!uninst.isEmpty())
 		    uninst.append("\n\t");
-		uninst.append(QString("-$(DEL_FILE) -r") + " " + dst + f + "");
-
+		uninst.append(QString("-$(DEL_FILE) -r") + " " + fileFixify(dst + f) + "");
+		
 		QDir dir(dirstr, f);
 		for(uint x = 0; x < dir.count(); x++) {
 		    QString file = dir[x];
@@ -1525,10 +1512,11 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
 			continue;
 		    QFileInfo fi(file);
 		    target += QString("\t-") + (fi.isDir() ? "$(COPY_DIR)" : "$(COPY_FILE)") +
-			      " \"" + Option::fixPathToTargetOS(fi.filePath(), FALSE) + "\" \"" + dst + "\"\n";
+			      " \"" + Option::fixPathToTargetOS(fileFixify(dirstr + file), FALSE) + 
+			      "\" \"" + fileFixify(dst) + "\"\n";
 		    if(!project->isActiveConfig("debug") &&
 		       !fi.isDir() && fi.isExecutable() && !project->isEmpty("QMAKE_STRIP"))
-			target += QString("\t") + var("QMAKE_STRIP") + " \"" + dst + "\"\n";
+			target += QString("\t") + var("QMAKE_STRIP") + " \"" + fileFixify(dst + file) + "\"\n";
 		}
 	    }
  	}
@@ -1635,7 +1623,7 @@ MakefileGenerator::writeMakefile(QTextStream &t)
     writeObj(t, "OBJECTS", "SOURCES");
     writeUicSrc(t, "FORMS");
     writeObj(t, "UICOBJECTS", "UICIMPLS");
-    writeMocObj(t, "OBJMOC" );
+    writeMocObj(t, "OBJMOC", "SRCMOC" );
     writeMocSrc(t, "HEADERS");
     writeMocSrc(t, "SOURCES");
     writeMocSrc(t, "UICDECLS");
