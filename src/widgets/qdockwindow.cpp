@@ -1187,6 +1187,8 @@ void QDockWindow::updatePosition( const QPoint &globalPos )
 	if ( inherits( "QToolBar" ) )
 	    adjustSize();
 	show();
+	if ( parentWidget() && isTopLevel() )
+	    parentWidget()->setActiveWindow();
     }
 }
 
@@ -1562,6 +1564,8 @@ void QDockWindow::undock( QWidget *w )
 	resize( 1, 1 );
 	show();
     }
+    if ( parentWidget() && isTopLevel() )
+	parentWidget()->setActiveWindow();
     emit placeChanged( place() );
 }
 
