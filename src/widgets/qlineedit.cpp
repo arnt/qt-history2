@@ -65,7 +65,7 @@
 #define ACCEL_KEY(k) "\t" + QString("Ctrl+" #k)
 #endif
 
-#define innerMargin 2
+#define innerMargin 1
 
 struct QLineEditPrivate : public Qt
 {
@@ -321,7 +321,7 @@ struct QLineEditPrivate : public Qt
 */
 
 QLineEdit::QLineEdit( QWidget* parent, const char* name )
-    : QFrame( parent, name), d(new QLineEditPrivate( this ))
+    : QFrame( parent, name, WNoAutoErase ), d(new QLineEditPrivate( this ))
 {
     d->init( QString::null );
 }
@@ -339,7 +339,7 @@ QLineEdit::QLineEdit( QWidget* parent, const char* name )
 */
 
 QLineEdit::QLineEdit( const QString& text, QWidget* parent, const char* name )
-    : QFrame( parent, name), d(new QLineEditPrivate( this ))
+    : QFrame( parent, name, WNoAutoErase ), d(new QLineEditPrivate( this ))
 {
     d->init( text );
 }
@@ -357,7 +357,7 @@ QLineEdit::QLineEdit( const QString& text, QWidget* parent, const char* name )
   \sa setMask() text()
 */
 QLineEdit::QLineEdit( const QString& text, const QString &inputMask, QWidget* parent, const char* name )
-    : QFrame( parent, name), d(new QLineEditPrivate( this ))
+    : QFrame( parent, name, WNoAutoErase ), d(new QLineEditPrivate( this ))
 {
     d->parseInputMask( inputMask );
     if ( d->maskData ) {
@@ -576,11 +576,13 @@ void QLineEdit::setValidator( const QValidator *v )
 QSize QLineEdit::sizeHint() const
 {
     constPolish();
-    QFontMetrics fm = fontMetrics();
-    int h = fm.lineSpacing();
+    QFontMetrics fm( font() );
+    int h = fm.height() + QMAX( 2*innerMargin, fm.leading() );
     int w = fm.width( 'x' ) * 17; // "some"
-    return style().sizeFromContents(QStyle::CT_LineEdit, this,
-	    QSize(w + 2*innerMargin, QMAX( h, 14 ) + 2*innerMargin ).expandedTo(QApplication::globalStrut()));
+    int m = frameWidth() * 2;
+    return (style().sizeFromContents(QStyle::CT_LineEdit, this,
+				     QSize( w + m, QMAX( h, 14 ) + m).
+				     expandedTo(QApplication::globalStrut())));
 }
 
 
@@ -593,11 +595,11 @@ QSize QLineEdit::sizeHint() const
 QSize QLineEdit::minimumSizeHint() const
 {
     constPolish();
-    QFontMetrics fm( font() );
-    int h = fm.lineSpacing();
+    QFontMetrics fm = fontMetrics();
+    int h = fm.height() + QMAX( 2*innerMargin, fm.leading() );
     int w = fm.maxWidth();
-    int fw = 2 * ( innerMargin + 2  ); /* ### frameWidth() */
-    return QSize( w + fw, h + fw );
+    int m = frameWidth() * 2;
+    return QSize( w + m, h + m );
 }
 
 
@@ -1707,6 +1709,20 @@ void QLineEdit::drawContents( QPainter *p )
     QFontMetrics fm = fontMetrics();
     QRect lineRect( cr.x() + innerMargin, cr.y() + (cr.height() - fm.height() + 1) / 2,
 		    cr.width() - 2*innerMargin, fm.height() );
+    QBrush bg = QBrush( paletteBackgroundColor() );
+    if ( paletteBackgroundPixmap() )
+	bg = QBrush( cg.background(), *paletteBackgroundPixmap() );
+    else if ( !isEnabled() )
+	bg = cg.brush( QColorGroup::Background );
+    p->save();
+    p->setClipRegion( QRegion(cr) - lineRect );
+    p->fillRect( cr, bg );
+    p->restore();
+    QSharedDoubleBuffer buffer( p, lineRect.x(), lineRect.y(),
+ 				lineRect.width(), lineRect.height(),
+ 				hasFocus() ? QSharedDoubleBuffer::Force : 0 );
+    p = buffer.painter();
+    p->fillRect( lineRect, bg );
 
     // locate cursor position
     int cix = 0;
@@ -1753,12 +1769,14 @@ void QLineEdit::drawContents( QPainter *p )
 
 	// text and selection
 	if ( d->selstart < d->selend && (last >= d->selstart && first < d->selend ) ) {
-	    QRect highlight = QRect( QPoint( tix + ti.cursorToX( QMAX( d->selstart - first, 0 ) ), lineRect.top() ),
-			      QPoint( tix + ti.cursorToX( QMIN( d->selend - first, last - first + 1 ) ), lineRect.bottom() ) ).normalize();
+	    QRect highlight = QRect( QPoint( tix + ti.cursorToX( QMAX( d->selstart - first, 0 ) ),
+					     lineRect.top() ),
+				     QPoint( tix + ti.cursorToX( QMIN( d->selend - first, last - first + 1 ) ),
+					     lineRect.bottom() ) ).normalize();
 	    p->save();
- 	    p->setClipRegion( p->clipRegion() - highlight );
+  	    p->setClipRegion( QRegion( lineRect ) - highlight, QPainter::CoordPainter );
  	    p->drawTextItem( topLeft, ti );
- 	    p->setClipRect( lineRect & highlight );
+ 	    p->setClipRect( lineRect & highlight, QPainter::CoordPainter );
 	    p->fillRect( highlight, cg.highlight() );
  	    p->setPen( cg.highlightedText() );
 	    p->drawTextItem( topLeft, ti );
@@ -1772,7 +1790,7 @@ void QLineEdit::drawContents( QPainter *p )
 	    QRect highlight = QRect( QPoint( tix + ti.cursorToX( QMAX( d->imstart - first, 0 ) ), lineRect.top() ),
 			      QPoint( tix + ti.cursorToX( QMIN( d->imend - first, last - first + 1 ) ), lineRect.bottom() ) ).normalize();
 	    p->save();
- 	    p->setClipRect( lineRect & highlight );
+ 	    p->setClipRect( lineRect & highlight, QPainter::CoordPainter );
 
 	    int h1, s1, v1, h2, s2, v2;
 	    cg.color( QColorGroup::Base ).hsv( &h1, &s1, &v1 );
@@ -1789,7 +1807,7 @@ void QLineEdit::drawContents( QPainter *p )
 	    QRect highlight = QRect( QPoint( tix + ti.cursorToX( QMAX( d->imselstart - first, 0 ) ), lineRect.top() ),
 			      QPoint( tix + ti.cursorToX( QMIN( d->imselend - first, last - first + 1 ) ), lineRect.bottom() ) ).normalize();
 	    p->save();
-	    p->setClipRect( lineRect & highlight );
+	    p->setClipRect( lineRect & highlight, QPainter::CoordPainter );
 	    p->fillRect( highlight, cg.text() );
 	    p->setPen( paletteBackgroundColor() );
 	    p->drawTextItem( topLeft, ti );
@@ -1802,7 +1820,7 @@ void QLineEdit::drawContents( QPainter *p )
 	    QRect highlight = QRect( QPoint( tix + ti.cursorToX( QMAX( d->cursor - first, 0 ) ), lineRect.top() ),
 				     QPoint( tix + ti.cursorToX( QMIN( d->cursor + 1 - first, last - first + 1 ) ), lineRect.bottom() ) ).normalize();
 	    p->save();
-	    p->setClipRect( lineRect & highlight );
+	    p->setClipRect( lineRect & highlight, QPainter::CoordPainter );
 	    p->fillRect( highlight, cg.text() );
 	    p->setPen( paletteBackgroundColor() );
 	    p->drawTextItem( topLeft, ti );
@@ -1823,6 +1841,7 @@ void QLineEdit::drawContents( QPainter *p )
 	    p->drawLine( from, to );
 	}
     }
+    buffer.end();
 }
 
 
