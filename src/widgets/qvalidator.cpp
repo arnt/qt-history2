@@ -308,8 +308,9 @@ void QIntValidator::setRange( int bottom, int top )
     t = top;
 }
 
-/*!
-  Sets the validator to accept no integers less than \a bottom.
+
+/*! \property QIntValidator::bottom
+    \brief the validator's smallest acceptable value
 
   \sa setRange()
 */
@@ -318,8 +319,8 @@ void QIntValidator::setBottom( int bottom )
     setRange( bottom, top() );
 }
 
-/*!
-  Sets the validator to accept no integers greater than \a top.
+/*! \property QIntValidator::top
+    \brief the validator's largest acceptable value
 
   \sa setRange()
 */
@@ -328,22 +329,6 @@ void QIntValidator::setTop( int top )
     setRange( bottom(), top );
 }
 
-/*!
-  \fn int QIntValidator::bottom() const
-
-  Returns the lowest valid integer according to this validator.
-
-  \sa top() setRange()
-*/
-
-
-/*!
-  \fn int QIntValidator::top() const
-
-  Returns the highest valid integer according to this validator.
-
-  \sa bottom() setRange()
-*/
 
 
 /*!
@@ -463,10 +448,10 @@ void QDoubleValidator::setRange( double bottom, double top, int decimals )
     d = decimals;
 }
 
-/*!
-  Sets the validator to accept no numbers smaller than \a bottom.
-
-  \sa setRange()
+/*! \property QDoubleValidator::bottom
+    \brief the validator's smallest acceptable value
+    
+    \sa setRange()
 */
 
 void QDoubleValidator::setBottom( double bottom )
@@ -474,10 +459,11 @@ void QDoubleValidator::setBottom( double bottom )
     setRange( bottom, top(), decimals() );
 }
 
-/*!
-  Sets the validator to accept no numbers bigger than \a top.
 
-  \sa setRange()
+/*! \property QDoubleValidator::top
+    \brief the validator's biggest acceptable value
+    
+    \sa setRange()
 */
 
 void QDoubleValidator::setTop( double top )
@@ -485,41 +471,16 @@ void QDoubleValidator::setTop( double top )
     setRange( bottom(), top, decimals() );
 }
 
-/*!
-  Sets the maximum number of digits after the decimal point.
+/*! \property QDoubleValidator::decimals
+    \brief the validator's maximum number of digits after the decimal point
+    
+    \sa setRange()
 */
 
 void QDoubleValidator::setDecimals( int decimals )
 {
     setRange( bottom(), top(), decimals );
 }
-
-/*!
-  \fn double QDoubleValidator::bottom() const
-
-  Returns the lowest valid number according to this validator.
-
-  \sa top() decimals() setRange()
-*/
-
-
-/*!
-  \fn double QDoubleValidator::top() const
-
-  Returns the highest valid number according to this validator.
-
-  \sa bottom() decimals() setRange()
-*/
-
-
-/*!
-  \fn int QDoubleValidator::decimals() const
-
-  Returns the largest number of digits a valid number can have after
-  its decimal point.
-
-  \sa bottom() top() setRange()
-*/
 
 
 /*!
@@ -672,4 +633,5 @@ void QRegExpValidator::setRegExp( const QRegExp& rx )
 
   \sa setRegExp()
 */
+
 #endif

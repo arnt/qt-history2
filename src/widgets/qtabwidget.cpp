@@ -495,9 +495,9 @@ void QTabWidget::setTabLabel( QWidget * w, const QString &l )
     d->tabs->update();
 }
 
-/*!  Returns a pointer to the page currently being displayed by the
-tab dialog.  The tab dialog does its best to make sure that this value
-is never 0 (but if you try hard enough, it can be).
+/*! Returns a pointer to the page currently being displayed by the
+    tab dialog.  The tab dialog does its best to make sure that this value
+    is never 0 (but if you try hard enough, it can be).
 */
 
 QWidget * QTabWidget::currentPage() const
@@ -505,7 +505,9 @@ QWidget * QTabWidget::currentPage() const
     return d->stack->visibleWidget();
 }
 
-/*! Returns the ID of the current page.
+/*! \property QTabWidget::currentPage
+    \brief the id of the current tab page    
+  \sa QTabBar::currentPage()
 */
 
 int QTabWidget::currentPageIndex() const
@@ -513,8 +515,6 @@ int QTabWidget::currentPageIndex() const
     return d->tabs->indexOf( d->tabs->currentTab() );
 }
 
-/*! Sets the page with index \a index as current page.
-*/
 void QTabWidget::setCurrentPage( int index )
 {
     d->tabs->setCurrentTab( d->tabs->tabAt( index ) );
@@ -659,23 +659,17 @@ void QTabWidget::showEvent( QShowEvent * )
 }
 
 
-/*!
-  Returns the position of the tabs.
-
-  Possible values are QTabWidget::Top and QTabWidget::Bottom.
-  \sa setTabPosition()
+/*! \property QTabWidget::tabPosition
+    \brief the position of the tabs in this tab widget
+    
+  Possible values for this property are QTabWidget::Top and
+  QTabWidget::Bottom.
  */
 QTabWidget::TabPosition QTabWidget::tabPosition() const
 {
     return d->pos;
 }
 
-/*!
-  Sets the position of the tabs to \e pos.
-
-  Possible values are QTabWidget::Top and QTabWidget::Bottom.
-  \sa tabPosition()
- */
 void QTabWidget::setTabPosition( TabPosition pos)
 {
     if (d->pos == pos)
@@ -697,10 +691,11 @@ void QTabWidget::setTabPosition( TabPosition pos)
     setUpLayout();
 }
 
-/*!
-  Returns the shape of the tabs.
+/*! \property QTabWidget::tabShape
+    \brief the shape of the tabs in this tab widget
 
-  \sa setTabShape()
+    Possible values for this property are QTabWidget::Rounded (default) or
+    QTabWidget::Triangular.
 */
 
 QTabWidget::TabShape QTabWidget::tabShape() const
@@ -733,23 +728,18 @@ void QTabWidget::setTabShape( TabShape s )
 }
 
 
-/*!
-  Returns the width of the margin. The margin is the distance between
-  the innermost pixel of the frame and the outermost pixel of the
-  pages.
-
-  \sa setMargin()
+/*! \property QTabWidget::margin
+    \brief the margin in this tab widget
+    
+  The margin is the distance between the innermost pixel of the frame
+  and the outermost pixel of the pages.
 */
 int QTabWidget::margin() const
 {
     return d->stack->margin();
 }
 
-/*!
-  Sets the width of the margin to \e w.
-  \sa margin()
-*/
- void QTabWidget::setMargin( int w )
+void QTabWidget::setMargin( int w )
 {
     d->stack->setMargin( w );
     setUpLayout();

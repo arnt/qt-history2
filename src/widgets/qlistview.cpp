@@ -2356,11 +2356,13 @@ void QListView::init()
     viewport()->setBackgroundMode( PaletteBase );
 }
 
-/*!
-  If \a show is TRUE, draw an arrow in the header of the list view
-  to indicate the sort order of the list view contents. The arrow
-  will be drawn in the correct column and will point to the correct
-  direction. Set \a show to FALSE to disable this feature.
+/*! \property QListView::showSortIndicator
+    \brief whether the list view header should display a sort indicator or not
+    
+  If this property is TRUE, an arrow is drawn in the header of the
+  list view to indicate the sort order of the list view contents. The
+  arrow will be drawn in the correct column and will point up or down,
+  depending on the current sort direction.
 
   \sa QHeader::setSortIndicator()
 */
@@ -2377,22 +2379,14 @@ void QListView::setShowSortIndicator( bool show )
 	d->h->setSortIndicator( -1 );
 }
 
-/*!
-  Returns TRUE, if the sort order and column are indicated
-  in the header, otherwise FALSE.
-
-  \sa QListView::setSortIndicator()
-*/
-
 bool QListView::showSortIndicator() const
 {
     return d->sortIndicator;
 }
 
-/*! If \a b is TRUE, tooltips are shows for truncated column texts,
-  otherwise this is not the case.
-
-  \sa showToolTips()
+/*! \property QListView::showToolTips
+    \brief whether this list view should show tooltips for truncated column
+    texts or not
 */
 
 void QListView::setShowToolTips( bool b )
@@ -2400,20 +2394,19 @@ void QListView::setShowToolTips( bool b )
     d->toolTips = b;
 }
 
-/*! Returns whether tooltips are shown for truncated column texts.
-
-  \sa setShowToolTips()
-*/
-
 bool QListView::showToolTips() const
 {
     return d->toolTips;
 }
 
-/*! Specifies whether all, none or the last column should be resized
-  to fit the full width of the listview.
+/*! \property QListView::resizeMode
+    \brief whether all, none or the last column should be resized
+  
+  Specifies whether all, none or the last column should be resized to
+  fit the full width of the listview. The values for this property can
+  be one of the following: \c NoColumn, \c AllColumns or \c LastColumn.
 
-  \sa resizeMode(), QHeader, header()
+  \sa QHeader, header()
 */
 
 void QListView::setResizeMode( ResizeMode m )
@@ -2426,12 +2419,6 @@ void QListView::setResizeMode( ResizeMode m )
     else
 	header()->setStretchEnabled( TRUE, header()->count() - 1 );
 }
-
-/*! Returns whether and how the listview's header resizes to fit the
-whole with of the listview.
-
-  \sa setResizeMode()
-*/
 
 QListView::ResizeMode QListView::resizeMode() const
 {
@@ -2931,8 +2918,8 @@ int QListView::addColumn( const QIconSet& iconset, const QString &label, int wid
     return c;
 }
 
-/*!
-  Returns the number of columns of this list view.
+/*! \property QListView::columns
+    \brief the number of columns in this list view
 
   \sa addColumn(), removeColumn()
 */
@@ -4576,16 +4563,15 @@ int QListView::itemPos( const QListViewItem * item )
 }
 
 
-/*!
-  Sets the list view to multi selection mode if \a enable is TRUE,
-  and to single selection mode if \a enable is FALSE.
-
-  If you enable multi selection mode, it's possible to specify
+/*! \property QListView::multiSelection
+    \brief whether the list view is in multi-selection or single selection mode
+    
+  If you enable multi-selection mode, it is possible to specify
   whether or not this mode should be extended. Extended means that the
-  user can select multiple items only when pressing the Shift
-  or Control key at the same time.
+  user can select multiple items only when pressing the Shift or
+  Control key at the same time.
 
-  \sa isMultiSelection()
+  \sa selectionMode()
 */
 
 void QListView::setMultiSelection( bool enable )
@@ -4596,24 +4582,18 @@ void QListView::setMultiSelection( bool enable )
 	d->selectionMode = QListView::Multi;
 }
 
-
-
-/*!
-  Returns TRUE if this list view is in Multi selection mode and
-  FALSE if it is in Single selection mode.
-
-  \sa setMultiSelection()
-*/
-
 bool QListView::isMultiSelection() const
 {
     return d->selectionMode != QListView::Single;
 }
 
-/*! Sets the list view's selection mode to \a mode, which may be one of
-  \c Single (the default), \c Extended, \c Multi or \c NoSelection.
+/*! \property QListView::selectionMode
+    \brief the list view's multi-selection mode
+    
+    \a mode can be \c Single (the default), \c Extended, \c Multi or
+    \c NoSelection.
 
-  \sa selectionMode()
+  \sa multiSelection()
  */
 
 void QListView::setSelectionMode( SelectionMode mode )
@@ -4622,11 +4602,6 @@ void QListView::setSelectionMode( SelectionMode mode )
     d->selectionMode = mode;
 }
 
-/*!
-  Returns the selection mode of the list view.  The initial mode is \c Single.
-
-  \sa setSelectionMode(), isMultiSelection(), setMultiSelection()
- */
 QListView::SelectionMode QListView::selectionMode() const
 {
     return d->selectionMode;
@@ -4949,7 +4924,8 @@ void QListView::sort()
 	d->r->sort();
 }
 
-/*! Sets the advisory item margin that list items may use to \a m.
+/*! \property QListView::itemMargin
+    \brief the advisory item margin that list items may use
 
   The item margin defaults to one pixel and is the margin between the
   item's edges and the area where it draws its contents.
@@ -4969,11 +4945,6 @@ void QListView::setItemMargin( int m )
 	triggerUpdate();
     }
 }
-
-/*! Returns the advisory item margin that list items may use.
-
-  \sa QListViewItem::paintCell() setItemMargin()
-*/
 
 int QListView::itemMargin() const
 {
@@ -5092,13 +5063,15 @@ void QListView::widthChanged( const QListViewItem* item, int c )
     }
 }
 
-/*!  Sets this list view to assume that the items show focus and
-  selection state using all of their columns if \a enable is TRUE, or
-  that they show it just using column 0 if \a enable is FALSE.
+/*! \property QListView::allColumnsShowFocus
+    \brief whether items should show keyboard focus using all columns or not
+     
+  If this property is TRUE all columns will show focus and selection
+  states, otherwise only column 0 will show focus.
 
   The default is FALSE.
 
-  Setting this to TRUE if it isn't necessary can cause noticeable
+  Setting this to TRUE if it's not necessary can cause noticeable
   flicker.
 
   \sa allColumnsShowFocus()
@@ -5108,13 +5081,6 @@ void QListView::setAllColumnsShowFocus( bool enable )
 {
     d->allColumnsShowFocus = enable;
 }
-
-
-/*!  Returns TRUE if the items in this list view indicate focus and
-  selection state using all of their columns, otherwise FALSE.
-
-  \sa setAllColumnsShowFocus()
-*/
 
 bool QListView::allColumnsShowFocus() const
 {
@@ -5738,9 +5704,9 @@ bool QListView::isOpen( const QListViewItem * item ) const
 }
 
 
-/*!  Sets this list view to show open/close signs on root items if \a
-  enable is TRUE, and to not show such signs if \a enable is FALSE.
-
+/*! \property QListView::rootIsDecorated
+    \brief whether the list view show open/close signs on root items or not
+  
   Open/close signs is a little + or - in windows style, an arrow in
   Motif style.
 */
@@ -5753,11 +5719,6 @@ void QListView::setRootIsDecorated( bool enable )
 	    triggerUpdate();
     }
 }
-
-
-/*!  Returns TRUE if root items can be opened and closed by the user,
-  FALSE if not.
-*/
 
 bool QListView::rootIsDecorated() const
 {
@@ -5811,7 +5772,10 @@ QHeader * QListView::header() const
 }
 
 
-/*!  Returns the current number of parentless QListViewItem objects in
+/*! \property QListView::childCount
+    \brief the number of parentless QListViewItem objects in this QListView
+    
+  Represents the current number of parentless QListViewItem objects in
   this QListView, like QListViewItem::childCount() returns the number
   of child items for a QListViewItem.
 

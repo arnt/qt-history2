@@ -305,8 +305,8 @@ int QHeader::cellPos( int i ) const
 }
 
 
-/*!
-  Returns the number of sections in the header.
+/*! \property QHeader::count
+    \brief the number of sections in the header
 */
 
 int QHeader::count() const
@@ -315,33 +315,14 @@ int QHeader::count() const
 }
 
 
+/*! \property QHeader::tracking
+    \brief whether the sizeChange() signal is emitted continuously or not
 
-/*!
-  \fn Orientation QHeader::orientation() const
-
-  Returns \c Horizontal if the header is horizontal, \c Vertical if
-  the header is vertical.
-
-  */
-
-/*!
-  \fn void QHeader::setTracking( bool enable )
-
-  Sets tracking if \a enable is TRUE, otherwise turns off tracking.
   If tracking is on, the sizeChange() signal is emitted continuously
-  while the mouse is moved, otherwise it is only emitted when the
-  mouse button is released.
+  while the mouse is moved (when the header is resized), otherwise it is
+  only emitted when the mouse button is released.
+*/
 
-  \sa tracking()
-  */
-
-/*!
-  \fn bool QHeader::tracking() const
-
-  Returns TRUE if tracking is on, FALSE otherwise.
-
-  \sa setTracking()
-  */
 
 /*!
   Initializes with \a n columns.
@@ -366,13 +347,15 @@ void QHeader::init( int n )
     setSizePolicy( QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Fixed ) );
 }
 
-/*!
-  Sets the header orientation.  The \e orientation must be
-  QHeader::Vertical or QHeader::Horizontal.
+/*! \property QHeader::orientation
+    \brief the header's physical orientation
+    
+  The orientation can be either QHeader::Vertical or
+  QHeader::Horizontal.
 
-  When adding labels without the size parameter, setOrientation
+  When adding labels without the size parameter, setOrientation()
   should be called first, otherwise labels will be sized incorrectly.
-  \sa orientation()
+  
 */
 
 void QHeader::setOrientation( Orientation orientation )
@@ -982,21 +965,19 @@ QSize QHeader::sizeHint() const
     }
 }
 
+/*! \property QHeader::offset
+    \brief the header's leftmost (or uppermost) visible pixel
+    
+  Setting this property will scroll the header so that \e offset becomes
+  the leftmost (or uppermost for vertical headers) visible pixel.
+*/
 
-/*!
-  Returns the leftmost (or uppermost for vertical headers) visible pixel.
- */
 int QHeader::offset() const
 {
     if ( reverse() )
 	return d->lastPos - width() - offs;
     return offs;
 }
-
-/*!
-  Scrolls the header so that \a x becomes the leftmost (or uppermost
-  for vertical headers) visible pixel.
-*/
 
 void QHeader::setOffset( int x )
 {
@@ -1146,11 +1127,10 @@ void QHeader::setResizeEnabled( bool enable, int section )
 }
 
 
-/*!
-  Enable the user to exchange sections if \a enable is TRUE,
-  disable otherwise.
-
-  If you enable moving here, the indexChange() signal is emitted if
+/*! \property QHeader::moving
+    \brief whether the header sections can be moved
+   
+  If you set this property to TRUE, the indexChange() signal is emitted if
   the user moves a section.
 
   \sa setClickEnabled(), setResizeEnabled()
@@ -1624,10 +1604,17 @@ void QHeader::calculatePositions()
     d->calculatePositions();
 }
 
-/*! If you pass TRUE here, the section \a section of the header always
-  adjusts on resize events, so that the full width is covered by
-  sections of the header. If \a section is -1, all sections are
-  adjusted equally.
+
+/*! \property QHeader::stretching
+    \brief whether the header sections always cover the full width
+    (or height) of the header or not
+    
+  If you set this property to TRUE, the section \e section of the
+  header will adjust itself when resized, so that the sections always
+  cover the full width (or height, if it is a vertical header) of the
+  header.  If \e section is -1, all sections are adjusted equally.
+
+  \sa adjustHeaderSize()
 */
 
 void QHeader::setStretchEnabled( bool b, int section )

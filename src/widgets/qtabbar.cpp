@@ -609,15 +609,19 @@ void QTabBar::show()
 	emit selected( t->id );
 }
 
-/*!  If a page is currently visible, returns its id.  If no page is
-  currently visible, returns either -1 or the id of one of the pages.
+/*! \property QTabBar::currentTab
+    \brief the id of the currently visible tab in the tab bar
+  
+  If no tab page is currently visible, -1 will be the current value
+  for this property.
+  Even if the property value is not -1, you cannot assume either that
+  the user can see the relevant page, or that the tab is enabled.
+  When you need to display something the value of this property
+  represents the best page to display.
 
-  Even if the return value is not -1, you cannot assume either that
-  the user can see the relevant page or that the tab is enabled.
-
-  When you need to display something the return value from this
-  function represents the best page to display.  That's all.
-
+  When this property is set to \e id, it will raise the tab with the
+  id \e id and emit the selected() signal.
+  
   \sa selected() isTabEnabled()
 */
 
@@ -627,12 +631,6 @@ int QTabBar::currentTab() const
 
     return t ? t->id : -1;
 }
-
-
-/*! Raises the tab with id \a id and emits the selected() signal.
-
-  \sa currentTab() selected() tab()
-*/
 
 void QTabBar::setCurrentTab( int id )
 {
@@ -676,8 +674,13 @@ void QTabBar::setCurrentTab( QTab * tab )
 #endif
 }
 
-/*!  If this tab control has keyboard focus, returns the id of the
-  tab Space will select.  Otherwise it returns -1.
+/*! \property QTabBar::keyboardFocusTab
+    \brief the id of the tab that currently has the keyboard focus
+    
+  This property contains the id of the tab that currently has the
+  keyboard focus. If this tab bar does not have keyboard focus, the
+  value of this property will be -1.
+
 */
 
 int QTabBar::keyboardFocusTab() const
@@ -782,7 +785,8 @@ int QTabBar::indexOf( int id ) const
 }
 
 
-/*! Returns the number of tabs in the tab bar.
+/*! \property QTabBar::count
+    \brief the number of tabs in the tab bar
 
   \sa tab()
 */
@@ -801,8 +805,13 @@ QPtrList<QTab> * QTabBar::tabList()
 }
 
 
-/*!  Returns the shape of this tab bar. \sa setShape() */
-
+/*! \property QTabBar::shape
+    \brief the shape of this tab bar
+    
+    The value of this property can be one of the following: 
+    \c RoundedAbove (default), \c RoundedBelow, \c TriangularAbove or \c
+    TriangularBelow.
+*/
 QTabBar::Shape QTabBar::shape() const
 {
     return d ? d->s : RoundedAbove;
