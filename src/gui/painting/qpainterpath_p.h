@@ -77,15 +77,23 @@ class QPainterPathPrivate
 {
 public:
     QPainterPathPrivate() :
-        fillMode(QPainterPath::OddEven)
+        fillMode(QPainterPath::OddEven), bits(0)
     {
     }
 
-    /* Moves current path to the list of subpaths and creates a new current */
-    void beginSubpath_helper();
+    /* Flattens all the curves in the path to linear polygons */
+    void flatten();
+
+    /* Scanline converts the path to a bitmap */
+    QBitmap scanToBitmap(const QRect &clip, const QWMatrix &xform, QRect *boundingRect);
 
     QList<QPainterSubpath> subpaths;
     QPainterPath::FillMode fillMode;
+
+    QList<QPointArray> flatCurves;
+
+    uchar *bits;
+
 };
 
 

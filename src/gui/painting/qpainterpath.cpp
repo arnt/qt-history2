@@ -158,6 +158,108 @@ QPointArray QPainterSubpath::toPolygon() const
     return p;
 }
 
+/*!
+  \internal
+
+  Converts all the curves in the path to linear polylines.
+*/
+void QPainterPathPrivate::flatten()
+{
+    if (!flatCurves.isEmpty() || subpaths.isEmpty())
+        return;
+
+    for (int i=0; i<subpaths.size(); ++i)
+        if (subpaths.at(i).isClosed())
+            flatCurves.append(subpaths.at(i).toPolygon());
+}
+
+#define MAX_INTERSECTIONS 256
+
+/*!
+  Scans the path to a bitmap that can be used to define filling. The insides
+  of the bitmap will be filled with foreground color and the outsides
+  will be filled with background color.
+
+  The cliprectangle \a clip is used to clip the scan area down to the part that
+  is currently visible. The clip is specified in painter coordinates. The
+  matrix \a xform defines the world matrix. \pathPos
+*/
+QBitmap QPainterPathPrivate::scanToBitmap(const QRect &clipRect,
+                                          const QWMatrix &xform,
+                                          QRect *boundingRect)
+{
+    Q_ASSERT(!bits);
+
+    printf("QPainterPathPrivate::scanToBitmap()\n");
+
+    flatten();
+
+    QRect pathBounds;
+    for (int fc=0; fc<flatCurves.size(); ++fc)
+        pathBounds |= flatCurves.at(fc).boundingRect();
+
+     QRect scanRect = pathBounds;
+    if (clipRect.isValid())
+        scanRect &= clipRect;
+    *boundingRect = scanRect;
+    if (!scanRect.isValid())
+        return QBitmap();
+
+    qDebug() << " -> scanRect:" << scanRect;
+
+    QImage image(scanRect.width(), scanRect.height(), 1, 2, QImage::LittleEndian);
+    image.fill(QColor(Qt::color1).rgb());
+    int isects[MAX_INTERSECTIONS];
+    int numISects;
+    for (int y=0; y<scanRect.height(); ++y) {
+        int scanLineY = y + scanRect.y();
+        numISects = 0;
+        for (int c=0; c<flatCurves.size(); ++c) {
+            QPointArray curve = flatCurves.at(c);
+            if (!scanRect.intersect(curve.boundingRect()).isValid())
+                continue;
+            Q_ASSERT(curve.size()>=2);
+            for (int i=1; i<curve.size(); ++i) {
+                QPoint p1 = curve.at(i-1);
+                QPoint p2 = curve.at(i);
+
+                // Does the line cross the scan line?
+                if ((p1.y() <= scanLineY && p2.y() >= scanLineY)
+                    || (p1.y() >= scanLineY && p2.y() <= scanLineY)) {
+                    Q_ASSERT(numISects<MAX_INTERSECTIONS);
+
+                    // Find intersection and add to set of intersetions for this scanline
+                    if (p1.y() != p2.y()) {
+//                         isects[++numISects] = p1.x();
+//                         isects[++numISects] = p2.y();
+//                     } else {
+                        double idelta = (p2.x()-p1.x()) / double(p2.y()-p1.y());
+                        isects[++numISects] =
+                            (scanLineY - p1.y()) * idelta + p1.x();
+                    }
+                }
+            }
+        }
+
+        // Sort the intersection entries...
+        qHeapSort(&isects[0], &isects[numISects+1]);
+        if (numISects%2==1)
+            continue;
+        uchar *scanLine = image.scanLine(y);
+        for (int i=0; i<numISects; i+=2) {
+            int from = isects[i];
+            int to = isects[i+1];
+            printf("setting: %d -> %d\n", from, to);
+            memset(scanLine + from/8,
+                   QColor(Qt::color0).rgb(),
+                   (to-from)/8);
+        }
+    }
+    QBitmap bm;
+    bm.convertFromImage(image);
+    return bm;
+}
+
 #define d d_func()
 #define q q_func()
 
