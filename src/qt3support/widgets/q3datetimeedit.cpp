@@ -47,9 +47,9 @@ public:
     bool separator() const { return sep; }
     Q_DUMMY_COMPARISON_OPERATOR(QNumberSection)
 private:
-    int selstart :12;
-    int selend         :12;
-    int act         :7;
+    signed int selstart :12;
+    signed int selend         :12;
+    signed int act         :7;
     bool sep         :1;
 };
 
