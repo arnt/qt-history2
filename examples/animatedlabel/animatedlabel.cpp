@@ -42,24 +42,37 @@
 
 */
 
+AnimatedLabel::AnimatedLabel(QWidget* parent, const char* name) :
+    QWidget(parent,name)
+{
+    input = 0;
+    decoder = 0;
+    tid = 0;
+}
+
 AnimatedLabel::AnimatedLabel(const QString& animfile, QWidget* parent, const char* name) :
     QWidget(parent,name)
 {
-    input = new QFile(animfile);
-    input->open(IO_ReadOnly);
-    decoder = new QImageDecoder(this);
-    tid = startTimer(100);
-    loops = -1;
-    loop = 0;
-    playframe = 0;
-    gotframes = 0;
-    period = 0;
+    input = 0;
+    decoder = 0;
+    tid = 0;
+
+    start(animfile);
 }
 
 AnimatedLabel::~AnimatedLabel()
 {
     delete decoder;
     delete input;
+}
+
+bool AnimatedLabel::start(const QString& animfile)
+{
+    if ( input )
+	delete input;
+    input = new QFile(animfile);
+    restart();
+    return status() == IO_Ok;
 }
 
 /*
@@ -139,6 +152,11 @@ void AnimatedLabel::timerEvent(QTimerEvent* event)
 	showNextFrame();
 }
 
+bool AnimatedLabel::playing() const
+{
+    return tid;
+}
+
 // QImageConsumer interface
 void AnimatedLabel::end()
 {
@@ -154,7 +172,23 @@ void AnimatedLabel::end()
     if ( tid ) {
 	killTimer(tid);
 	tid = 0;
+	emit finished();
     }
+}
+
+void AnimatedLabel::restart()
+{
+    if ( input->isOpen() )
+	input->close();
+    decoder = new QImageDecoder(this);
+    input->open(IO_ReadOnly);
+    if ( tid ) killTimer(tid);
+    tid = startTimer(100);
+    loops = -1;
+    loop = 0;
+    playframe = 0;
+    gotframes = 0;
+    period = 0;
 }
 
 void AnimatedLabel::changed( const QRect& rect )

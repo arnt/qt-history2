@@ -23,15 +23,24 @@ class AnimatedLabel : public QWidget, QImageConsumer {
     Q_OBJECT
 
 public:
+    AnimatedLabel(QWidget* parent=0, const char* name=0);
     AnimatedLabel(const QString& animfile, QWidget* parent=0, const char* name=0);
     ~AnimatedLabel();
 
+    bool start(const QString& animfile);
+
     int status() const;
+
+    bool playing() const;
 
     QSize sizeHint() const;
 
+signals:
+    void finished();
+
 public slots:
     void pushUpdate();
+    void restart();
 
 protected:
     void timerEvent(QTimerEvent*);
