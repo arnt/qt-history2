@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#49 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#50 $
 **
 ** Implementation of QLabel widget class
 **
@@ -17,7 +17,7 @@
 #include "qkeycode.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlabel.cpp#49 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlabel.cpp#50 $");
 
 // ### clean up for 2.0
 #if QT_VERSION == 200
@@ -211,9 +211,11 @@ void QLabel::setText( const char *text )
     }
     QLabel_Private * d;
     if ( qlabel_extraStuff && (d=qlabel_extraStuff->find( (long)this )) ) {
-	const char * p = strchr( ltext, '&' );
 	d->accel->clear();
-	if ( p && isalpha(p[1]) ) {
+	const char * p = strchr( ltext, '&' );
+	while( p && *p && p[1] == '&' )
+	    p = strchr( p+2, '&' );
+	if ( p && *p && isalpha(p[1]) ) {
 	    d->accel->connectItem( d->accel->insertItem( ALT+toupper(p[1]) ),
 				   this, SLOT(acceleratorSlot()) );
 	}
@@ -575,14 +577,16 @@ void QLabel::setBuddy( QWidget * buddy )
 	that = new QLabel_Private;
 	that->buddy = buddy;
 	that->accel = new QAccel( this, "accel label accel" );
-	const char * p = strchr( ltext, '&' );
-	if ( p && isalpha(p[1]) ) {
-	    that->accel->connectItem( that->accel->insertItem(ALT+
-							      toupper(p[1])),
-				      this, SLOT(acceleratorSlot()) );
-	}
-	qlabel_extraStuff->insert( (long)this, that );
     }
+    const char * p = strchr( ltext, '&' );
+    while( p && *p && p[1] == '&' )
+	p = strchr( p+2, '&' );
+    if ( p && *p && isalpha(p[1]) ) {
+	that->accel->connectItem( that->accel->insertItem(ALT+
+							  toupper(p[1])),
+				  this, SLOT(acceleratorSlot()) );
+    }
+    qlabel_extraStuff->insert( (long)this, that );
 
     that->buddy = buddy;
     connect( buddy, SIGNAL(destroyed()), this, SLOT(buddyDied()) );
