@@ -2506,7 +2506,7 @@ fi
 # work around for broken system header files in IRIX 6.5.18 - 6.5.21
 case "$PLATFORM" in
 irix-cc*)
-    IRIX_VERSION=`uname -R | awk '{FS=".";print $4}' | sed s/m//g`
+    IRIX_VERSION=`uname -R | awk '{FS=".";print $4}' | sed s/\[m\|f\]//g`
     MIPSPRO_MINOR_VERSION=`CC -version 2>&1 | awk '{FS=".";print $2}'`
     if [ "$MIPSPRO_MINOR_VERSION" -gt "3" -a "$IRIX_VERSION" -ge "18" \
 	 -a "$IRIX_VERSION" -lt "21" ]; then
