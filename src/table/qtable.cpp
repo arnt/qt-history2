@@ -470,8 +470,10 @@ QSize QTableItem::sizeHint() const
 	s.setWidth( s.width() + 2 );
     }
 
-    s.setWidth( s.width() + table()->fontMetrics().width( text() ) + 10 );
-    return s;
+    if ( !wordwrap )
+	return QSize( s.width() + table()->fontMetrics().width( text() ) + 10, QMAX( s.height(), table()->fontMetrics().height() ) );
+    QRect r = table()->fontMetrics().boundingRect( 0, 0, table()->columnWidth( col() ), 0, wordwrap ? (alignment() | WordBreak) : alignment(), txt );
+    return QSize( s.width() + r.width(), QMAX( s.height(), r.height() ) );
 }
 
 /*!  Creates a multi-cell QTableItem covering \a rs rows and \a cs columns.
