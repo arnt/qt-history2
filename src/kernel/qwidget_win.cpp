@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#25 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#26 $
 **
 ** Implementation of QWidget and QWindow classes for Windows
 **
@@ -19,7 +19,7 @@
 #include "qobjcoll.h"
 #include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_win.cpp#25 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_win.cpp#26 $")
 
 
 const char *qt_reg_winclass( int type );	// defined in qapp_win.cpp
@@ -309,77 +309,61 @@ LRESULT CALLBACK qJournalRecordProc( int nCode, WPARAM wParam, LPARAM lParam )
 
 void QWidget::grabMouse()
 {
-    if ( !testWFlags(WState_MGrab) ) {
+    if ( !qt_nograb() ) {
 	if ( mouseGrb )
 	    mouseGrb->releaseMouse();
-	setWFlags( WState_MGrab );
-	if ( !qt_nograb() ) {
-	    journalRec = SetWindowsHookEx( WH_JOURNALRECORD,
-					   (HOOKPROC)qJournalRecordProc,
-					   GetModuleHandle(0), 0 );
-	    SetCapture( id() );
-	    mouseGrb = this;
-	}
+	journalRec = SetWindowsHookEx( WH_JOURNALRECORD,
+				       (HOOKPROC)qJournalRecordProc,
+				       GetModuleHandle(0), 0 );
+	SetCapture( id() );
+	mouseGrb = this;
     }
 }
 
 void QWidget::grabMouse( const QCursor &cursor )
 {
-    if ( !testWFlags(WState_MGrab) ) {
+    if ( !qt_nograb() ) {
 	if ( mouseGrb )
 	    mouseGrb->releaseMouse();
-	setWFlags( WState_MGrab );
-	if ( !qt_nograb() ) {
-	    journalRec = SetWindowsHookEx( WH_JOURNALRECORD,
-					   (HOOKPROC)qJournalRecordProc,
-					   GetModuleHandle(0), 0 );
-	    SetCapture( id() );
-	    mouseGrbCur = new QCursor( cursor );
-	    SetCursor( mouseGrbCur->handle() );
-	    mouseGrb = this;
-	}
+	journalRec = SetWindowsHookEx( WH_JOURNALRECORD,
+				       (HOOKPROC)qJournalRecordProc,
+				       GetModuleHandle(0), 0 );
+	SetCapture( id() );
+	mouseGrbCur = new QCursor( cursor );
+	SetCursor( mouseGrbCur->handle() );
+	mouseGrb = this;
     }
 }
 
 void QWidget::releaseMouse()
 {
-    if ( testWFlags(WState_MGrab) ) {
-	clearWFlags( WState_MGrab );
-	if ( !qt_nograb() ) {
-	    ReleaseCapture();
-	    if ( journalRec ) {
-		UnhookWindowsHookEx( journalRec );
-		journalRec = 0;
-	    }
-	    if ( mouseGrbCur ) {
-		delete mouseGrbCur;
-		mouseGrbCur = 0;
-	    }
-	    mouseGrb = 0;
+    if ( !qt_nograb() && mouseGrb == this ) {
+	ReleaseCapture();
+	if ( journalRec ) {
+	    UnhookWindowsHookEx( journalRec );
+	    journalRec = 0;
 	}
+	if ( mouseGrbCur ) {
+	    delete mouseGrbCur;
+	    mouseGrbCur = 0;
+	}
+	mouseGrb = 0;
     }
 }
 
 void QWidget::grabKeyboard()
 {
-    if ( !testWFlags(WState_KGrab) ) {
+    if ( !qt_nograb() ) {
 	if ( keyboardGrb )
 	    keyboardGrb->releaseKeyboard();
-	setWFlags( WState_KGrab );
-	if ( !qt_nograb() ) {
-	    keyboardGrb = this;
-	}
+	keyboardGrb = this;
     }
 }
-
+    
 void QWidget::releaseKeyboard()
 {
-    if ( testWFlags(WState_KGrab) ) {
-	clearWFlags( WState_KGrab );
-	if ( !qt_nograb() ) {
-	    keyboardGrb = 0;
-	}
-    }
+    if ( !qt_nograb() && keyboardGrb == this )
+	keyboardGrb = 0;
 }
 
 
@@ -448,18 +432,18 @@ bool QWidget::focusPrevChild()
 
 bool QWidget::enableUpdates( bool enable )
 {
-    bool last = !testWFlags( WNoUpdates );
+    bool last = !testWFlags( WState_NoUpdates );
     if ( enable )
-	clearWFlags( WNoUpdates );
+	clearWFlags( WState_NoUpdates );
     else
-	setWFlags( WNoUpdates );
+	setWFlags( WState_NoUpdates );
     return last;
 }
 
 
 void QWidget::update()
 {
-    if ( !testWFlags(WNoUpdates) )
+    if ( !testWFlags(WState_NoUpdates) )
 	InvalidateRect( id(), 0, TRUE );
 }
 
@@ -484,16 +468,16 @@ void QWidget::update( int x, int y, int w, int h )
 
 void QWidget::repaint( int x, int y, int w, int h, bool erase )
 {
-    if ( !isVisible() || testWFlags(WNoUpdates) ) // ignore repaint
-	return;
-    if ( w < 0 )
-	w = crect.width()  - x;
-    if ( h < 0 )
-	h = crect.height() - y;
-    QPaintEvent e( QRect(x,y,w,h) );		// send fake paint event
-    if ( erase )
-	this->erase( x, y, w, h );
-    QApplication::sendEvent( this, &e );
+    if ( !testWFlags(WNoUpdates) ) {
+	if ( w < 0 )
+	    w = crect.width()  - x;
+	if ( h < 0 )
+	    h = crect.height() - y;
+	QPaintEvent e( QRect(x,y,w,h) );
+	if ( erase )
+	    this->erase( x, y, w, h );
+	QApplication::sendEvent( this, &e );
+    }
 }
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#113 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#114 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#113 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#114 $")
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -494,18 +494,15 @@ static QWidget *keyboardGrb = 0;
 
 void QWidget::grabMouse()
 {
-    if ( !testWFlags(WState_MGrab) ) {
+    if ( !qt_nograb() ) {
 	if ( mouseGrb )
 	    mouseGrb->releaseMouse();
-	setWFlags( WState_MGrab );
-	if ( !qt_nograb() ) {
-	    XGrabPointer( dpy, ident, TRUE,
-			  ButtonPressMask | ButtonReleaseMask |
-			  ButtonMotionMask | EnterWindowMask | LeaveWindowMask,
-			  GrabModeAsync, GrabModeAsync,
-			  None, None, CurrentTime );
-	    mouseGrb = this;
-	}
+	XGrabPointer( dpy, ident, TRUE,
+		      ButtonPressMask | ButtonReleaseMask |
+		      ButtonMotionMask | EnterWindowMask | LeaveWindowMask,
+		      GrabModeAsync, GrabModeAsync,
+		      None, None, CurrentTime );
+	mouseGrb = this;
     }
 }
 
@@ -523,19 +520,16 @@ void QWidget::grabMouse()
 
 void QWidget::grabMouse( const QCursor &cursor )
 {
-    if ( !testWFlags(WState_MGrab) ) {
+    if ( !qt_nograb() ) {
 	if ( mouseGrb )
 	    mouseGrb->releaseMouse();
-	setWFlags( WState_MGrab );
-	if ( !qt_nograb() ) {
-	    XGrabPointer( dpy, ident, TRUE,
-			  ButtonPressMask | ButtonReleaseMask |
-			  ButtonMotionMask |
-			  EnterWindowMask | LeaveWindowMask,
-			  GrabModeAsync, GrabModeAsync,
-			  None, cursor.handle(), CurrentTime );
-	    mouseGrb = this;
-	}
+	XGrabPointer( dpy, ident, TRUE,
+		      ButtonPressMask | ButtonReleaseMask |
+		      ButtonMotionMask |
+		      EnterWindowMask | LeaveWindowMask,
+		      GrabModeAsync, GrabModeAsync,
+		      None, cursor.handle(), CurrentTime );
+	mouseGrb = this;
     }
 }
 
@@ -547,13 +541,10 @@ void QWidget::grabMouse( const QCursor &cursor )
 
 void QWidget::releaseMouse()
 {
-    if ( testWFlags(WState_MGrab) ) {
-	clearWFlags( WState_MGrab );
-	if ( !qt_nograb() ) {
-	    XUngrabPointer( dpy, CurrentTime );
-	    XFlush( dpy );
-	    mouseGrb = 0;
-	}
+    if ( !qt_nograb() && mouseGrb == this ) {
+	XUngrabPointer( dpy, CurrentTime );
+	XFlush( dpy );
+	mouseGrb = 0;
     }
 }
 
@@ -570,15 +561,12 @@ void QWidget::releaseMouse()
 
 void QWidget::grabKeyboard()
 {
-    if ( !testWFlags(WState_KGrab) ) {
+    if ( !qt_nograb() ) {
 	if ( keyboardGrb )
 	    keyboardGrb->releaseKeyboard();
-	setWFlags( WState_KGrab );
-	if ( !qt_nograb() ) {
-	    XGrabKeyboard( dpy, ident, TRUE, GrabModeAsync, GrabModeAsync,
-			   CurrentTime );
-	    keyboardGrb = this;
-	}
+	XGrabKeyboard( dpy, ident, TRUE, GrabModeAsync, GrabModeAsync,
+		       CurrentTime );
+	keyboardGrb = this;
     }
 }
 
@@ -590,12 +578,9 @@ void QWidget::grabKeyboard()
 
 void QWidget::releaseKeyboard()
 {
-    if ( testWFlags(WState_KGrab) ) {
-	clearWFlags( WState_KGrab );
-	if ( !qt_nograb() ) {
-	    XUngrabKeyboard( dpy, CurrentTime );
-	    keyboardGrb = 0;
-	}
+    if ( !qt_nograb() && keyboardGrb == this ) {
+	XUngrabKeyboard( dpy, CurrentTime );
+	keyboardGrb = 0;
     }
 }
 
@@ -743,11 +728,11 @@ bool QWidget::focusPrevChild()
 
 bool QWidget::enableUpdates( bool enable )
 {
-    bool last = !testWFlags( WNoUpdates );
+    bool last = !testWFlags( WState_NoUpdates );
     if ( enable )
-	clearWFlags( WNoUpdates );
+	clearWFlags( WState_NoUpdates );
     else
-	setWFlags( WNoUpdates );
+	setWFlags( WState_NoUpdates );
     return last;
 }
 
@@ -763,7 +748,7 @@ bool QWidget::enableUpdates( bool enable )
 
 void QWidget::update()
 {
-    if ( !testWFlags(WNoUpdates) )
+    if ( !testWFlags(WState_NoUpdates) )
 	XClearArea( dpy, ident, 0, 0, 0, 0, TRUE );
 }
 
@@ -782,7 +767,7 @@ void QWidget::update()
 
 void QWidget::update( int x, int y, int w, int h )
 {
-    if ( !testWFlags(WNoUpdates) ) {
+    if ( !testWFlags(WState_NoUpdates) ) {
 	if ( w < 0 )
 	    w = crect.width()  - x;
 	if ( h < 0 )
@@ -825,16 +810,16 @@ void QWidget::update( int x, int y, int w, int h )
 
 void QWidget::repaint( int x, int y, int w, int h, bool erase )
 {
-    if ( !isVisible() || testWFlags(WNoUpdates) ) // ignore repaint
-	return;
-    if ( w < 0 )
-	w = crect.width()  - x;
-    if ( h < 0 )
-	h = crect.height() - y;
-    QPaintEvent e( QRect(x,y,w,h) );		// send fake paint event
-    if ( erase && w != 0 && h != 0 )
-	XClearArea( dpy, ident, x, y, w, h, FALSE );
-    QApplication::sendEvent( this, &e );
+    if ( !testWFlags(WState_NoUpdates) ) {
+	if ( w < 0 )
+	    w = crect.width()  - x;
+	if ( h < 0 )
+	    h = crect.height() - y;
+	QPaintEvent e( QRect(x,y,w,h) );
+	if ( erase && w != 0 && h != 0 )
+	    XClearArea( dpy, ident, x, y, w, h, FALSE );
+	QApplication::sendEvent( this, &e );
+    }
 }
 
 /*----------------------------------------------------------------------------

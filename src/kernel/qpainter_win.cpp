@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#30 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#31 $
 **
 ** Implementation of QPainter class for Windows
 **
@@ -20,7 +20,7 @@
 #include <math.h>
 #include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_win.cpp#30 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_win.cpp#31 $")
 
 
 /*****************************************************************************
@@ -636,7 +636,7 @@ bool QPainter::begin( const QPaintDevice *pd )
 	bg_col	= w->backgroundColor();		// use widget bg color
 	ww = vw = w->width();			// default view size
 	wh = vh = w->height();
-	if ( w->testWFlags(WState_Paint) )	// during paint event
+	if ( w->testWFlags(WState_PaintEvent) )	// during paint event
 	    hdc = w->hdc;
 	else
 	    w->hdc = hdc = GetDC( w->id() );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#104 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#105 $
 **
 ** Implementation of QWidget class
 **
@@ -20,7 +20,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#104 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#105 $")
 
 
 /*----------------------------------------------------------------------------
@@ -144,6 +144,9 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
     extra = 0;					// no extra widget info
     focusChild = 0;				// no child has focus
     create();					// platform-dependent init
+    if ( (flags & (WType_Overlap | WType_Modal)) == WType_Overlap ) {
+	flags |= WDestructiveClose;
+    }
 }
 
 /*----------------------------------------------------------------------------
@@ -157,9 +160,9 @@ QWidget::~QWidget()
 {
     if ( QApplication::main_widget == this )	// reset main widget
 	QApplication::main_widget = 0;
-    if ( testWFlags(WFont_Metrics) )		// remove references to this
+    if ( testWFlags(WExportFontMetrics) )	// remove references to this
 	QFontMetrics::reset( this );
-    if ( testWFlags(WFont_Info) )		// remove references to this
+    if ( testWFlags(WExportFontInfo) )		// remove references to this
 	QFontInfo::reset( this );
     if ( childObjects ) {			// widget has children
 	register QObject *obj = childObjects->first();
@@ -1086,7 +1089,7 @@ bool QWidget::close( bool forceKill )
 	hide();
 	if ( qApp->mainWidget() == this )
 	    qApp->quit();
-	else
+	else if ( testWFlags(WDestructiveClose) )
 	    delete this;
     }
     return accept;
@@ -1155,13 +1158,11 @@ void QWidget::adjustSize()
   <dt>WState_Created <dd> Means that the widget has a valid id().
   <dt>WState_Disabled <dd> Mouse and keyboard events disabled.
   <dt>WState_Visible <dd> Visible (may be hidden by other windows).
-  <dt>WState_Active <dd> NOT USED!
-  <dt>WState_Paint <dd> Being painted.
-  <dt>WState_MGrab <dd> Currently grabbing the mouse pointer.
-  <dt>WState_KGrab <dd> Currently grabbing the keyboard input.
-  <dt>WState_Focus <dd> NOT USED!
-  <dt>WType_Overlap <dd> Overlapping/top level
-  <dt>WType_Modal <dd> Modal widget.
+  <dt>WState_PaintEvent <dd> Currently processing a paint event.
+  <dt>WState_ActiveFocus <dd> The widget has active keyboard focus.
+  <dt>WState_AcceptFocus <dd> The widget can take keyboard focus.
+  <dt>WType_Overlap <dd> Top level widget (not a child).
+  <dt>WType_Modal <dd> Modal widget, implies \c WType_Overlap.
   <dt>WType_Popup <dd> Popup widget.
   <dt>WType_Desktop <dd> Desktop widget (root window).
   <dt>WStyle_Title <dd> NOT USED!
