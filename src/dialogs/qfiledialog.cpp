@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#134 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#135 $
 **
 ** Implementation of QFileDialog class
 **
@@ -51,6 +51,11 @@
 #else
 #include <windows.h>
 #endif
+
+TCHAR* qt_winTchar(const QString& str, bool addnul);
+TCHAR* qt_winTchar_new(const QString& str);
+QString qt_winQString(TCHAR* tc);
+
 #endif
 
 static QFileIconProvider * fileIconProvider = 0;
@@ -1240,37 +1245,44 @@ QString QFileDialog::getOpenFileName( const QString & startWith,
 
     *workingDirectory = QDir::convertSeparators( *workingDirectory );
 
-    const int maxstrlen = 256;
-    char *file = new char[maxstrlen];
-    file[0] = '\0';
+    const int maxstrlen = 512;
+    QString file;
     if ( !initialSelection.isEmpty() )
-	qstrncpy( file, QDir::convertSeparators(initialSelection), 255 );
+	file = QDir::convertSeparators(initialSelection);
 
-    const char all_filter[] = "All Files\0*.*\0";
-    const int all_len = sizeof(all_filter); // 15
-    char* win_filter;
+    const char all_filter_name[] = "All Files";
+    const char all_filter[] = "*.*";
+    QString win_filter;
     int total_len = 0;
     if (!filter.isEmpty()) {
-	int fl = strlen(filter)+1; // Include nul
-	win_filter = new char[2*fl+all_len];
-	for (int i=0; i<2; i++) {
-	    memcpy(win_filter+total_len, filter, fl);
-	    total_len += fl;
-	}
-    } else {
-	win_filter = new char[all_len];
+	win_filter += filter;
+	win_filter += QChar::null;
+	win_filter += filter;
+	win_filter += QChar::null;
     }
-    memcpy(win_filter+total_len, all_filter, all_len);
+    win_filter += all_filter_name;
+    win_filter += QChar::null;
+    win_filter += all_filter;
+    win_filter += QChar::null;
+    win_filter += QChar::null;
+
+    TCHAR tcfile[maxstrlen];
+    int l = QMIN(maxstrlen-1,file.length());
+    memcpy(tcfile, qt_winTchar(file,FALSE),sizeof(TCHAR)*l);
+    tcfile[l] = 0;
+
+    TCHAR* filt = qt_winTchar_new(win_filter);
+    TCHAR* idir = qt_winTchar_new(*workingDirectory);
 
     OPENFILENAME ofn;
     memset( &ofn, 0, sizeof(OPENFILENAME) );
     ofn.lStructSize	= sizeof(OPENFILENAME);
     ofn.hwndOwner	= parent ? parent->topLevelWidget()->winId() : 0;
-    ofn.lpstrFilter	= win_filter;
-    ofn.lpstrFile	= file;
+    ofn.lpstrFilter	= filt;
+    ofn.lpstrFile	= tcfile;
     ofn.nMaxFile	= maxstrlen;
-    ofn.lpstrInitialDir = *workingDirectory;
-    ofn.lpstrTitle	= "Open";
+    ofn.lpstrInitialDir = idir;
+    ofn.lpstrTitle	= qt_winTchar("Open",TRUE);
     ofn.Flags		= (OFN_CREATEPROMPT|OFN_NOCHANGEDIR);
 
     QString result;
@@ -1289,8 +1301,9 @@ QString QFileDialog::getOpenFileName( const QString & startWith,
     }
     qt_leave_modal( &dummy );
 
-    delete [] win_filter;
-    delete [] file;
+    delete [] idir;
+    delete [] filt;
+
     return result;
 
 #else
@@ -1381,31 +1394,39 @@ QString QFileDialog::getSaveFileName( const QString & startWith,
     if ( !initialSelection.isEmpty() )
 	qstrncpy( file, QDir::convertSeparators(initialSelection), 255 );
 
-    const char all_filter[] = "All Files\0*.*\0";
-    const int all_len = sizeof(all_filter); // 15
-    char* win_filter;
+    const char all_filter_name[] = "All Files";
+    const char all_filter[] = "*.*";
+    QString win_filter;
     int total_len = 0;
     if (!filter.isEmpty()) {
-	int fl = filter.length()+1; // Include nul
-	win_filter = new char[2*fl+all_len];
-	for (int i=0; i<2; i++) {
-	    memcpy(win_filter+total_len, filter, fl);
-	    total_len += fl;
-	}
-    } else {
-	win_filter = new char[all_len];
+	win_filter += filter;
+	win_filter += QChar::null;
+	win_filter += filter;
+	win_filter += QChar::null;
     }
-    memcpy(win_filter+total_len, all_filter, all_len);
+    win_filter += all_filter_name;
+    win_filter += QChar::null;
+    win_filter += all_filter;
+    win_filter += QChar::null;
+    win_filter += QChar::null;
+
+    TCHAR tcfile[maxstrlen];
+    int l = QMIN(maxstrlen-1,win_filter.length());
+    memcpy(tcfile, qt_winTchar(win_filter,FALSE),sizeof(TCHAR)*l);
+    tcfile[l] = 0;
+
+    TCHAR* filt = qt_winTchar_new(win_filter);
+    TCHAR* idir = qt_winTchar_new(*workingDirectory);
 
     OPENFILENAME ofn;
     memset( &ofn, 0, sizeof(OPENFILENAME) );
     ofn.lStructSize	= sizeof(OPENFILENAME);
     ofn.hwndOwner	= parent ? parent->topLevelWidget()->winId() : 0;
-    ofn.lpstrFilter	= win_filter;
-    ofn.lpstrFile	= file;
+    ofn.lpstrFilter	= filt;
+    ofn.lpstrFile	= tcfile;
     ofn.nMaxFile	= maxstrlen;
-    ofn.lpstrInitialDir = *workingDirectory;
-    ofn.lpstrTitle	= "Save";
+    ofn.lpstrInitialDir = idir;
+    ofn.lpstrTitle	= qt_winTchar("Save",TRUE);
     ofn.Flags		= (OFN_CREATEPROMPT|OFN_NOCHANGEDIR);
 
     QString result;
@@ -1424,8 +1445,9 @@ QString QFileDialog::getSaveFileName( const QString & startWith,
     }
     qt_leave_modal( &dummy );
 
-    delete [] win_filter;
-    delete [] file;
+    delete [] idir;
+    delete [] filt;
+
     return result;
 
 #else

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#31 $
+** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#32 $
 **
 ** Implementation of OLE drag and drop for Qt.
 **
@@ -155,7 +155,7 @@ static QList<QWindowsRegisteredMimeType> mimetypes;
 static
 CLIPFORMAT registerMimeType(const char *mime)
 {
-    CLIPFORMAT f = RegisterClipboardFormat(mime);
+    CLIPFORMAT f = RegisterClipboardFormatA(mime);
     QWindowsRegisteredMimeType *mt = mimetypes.current();
     if ( !mt || mt->cf != f ) {
 	for ( mt = mimetypes.first(); mt && mt->cf!=f; mt = mimetypes.next() )

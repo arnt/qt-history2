@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#105 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#106 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -2065,22 +2065,9 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
     }
 
     if ( qt_winver == WV_NT ) {
-	const QChar* uc = str.unicode();
-	if ( sizeof(WCHAR)==sizeof(QChar) && *((WCHAR*)(&QChar(0,1))) == 0x0100 ) {
-	    // Same endianness of WCHAR
-	    TextOutW( hdc, x, y, (WCHAR*)uc, len );
-	} else if ( len < 256 ) {
-	    WCHAR buf[256];
-	    for ( int i=len; i--; )
-		buf[i] = uc[i].row << 8 | uc[i].cell;
-	    TextOutW( hdc, x, y, buf, len );
-	} else {
-	    WCHAR *buf = new WCHAR[len];
-	    for ( int i=len; i--; )
-		buf[i] = uc[i].row << 8 | uc[i].cell;
-	    TextOutW( hdc, x, y, buf, len );
-	    delete [] buf;
-	}
+	extern TCHAR* qt_winTchar(const QString& str, bool addnul);
+	TCHAR* tc = qt_winTchar(str,FALSE);
+	TextOutW( hdc, x, y, tc, len );
     } else {
 	TextOutA( hdc, x, y, str.ascii(), len );
     }

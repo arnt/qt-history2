@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#181 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#182 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -119,6 +119,77 @@ static int	translateKeyCode( int );
 void		qt_init_windows_mime();		// qdnd_win.cpp
 
 
+/*!
+  Returns a static Windows TCHAR* from a QString, possibly adding NUL.
+*/
+TCHAR* qt_winTchar(const QString& str, bool addnul)
+{
+#ifdef UNICODE
+    static uint buflen = 256;
+    static WCHAR *buf = new WCHAR[buflen];
+
+    const QChar* uc = str.unicode();
+
+#define EXTEND if (str.length() > buflen) { delete buf; buf = new WCHAR[buflen=str.length()+1]; }
+    if ( sizeof(WCHAR)==sizeof(QChar) && *((WCHAR*)(&QChar(0,1))) == 0x0100 ) {
+	// Same endianness of WCHAR
+	if ( addnul ) {
+	    EXTEND
+	    memcpy(buf,uc,sizeof(WCHAR)*str.length());
+	    buf[str.length()] = 0;
+	} else {
+	    return (WCHAR*)uc;
+	}
+    } else {
+	EXTEND
+	for ( int i=str.length(); i--; )
+	    buf[i] = uc[i].row << 8 | uc[i].cell;
+	if ( addnul )
+	    buf[str.length()] = 0;
+    }
+    return buf;
+#undef EXTEND
+#else
+    return str.ascii();
+#endif
+}
+
+/*!
+  Makes a new null terminated Windows TCHAR* from a QString.
+*/
+TCHAR* qt_winTchar_new(const QString& str)
+{
+    TCHAR* result = new TCHAR[str.length()+1];
+    memcpy(result, qt_winTchar(str,FALSE), sizeof(TCHAR)*str.length());
+    result[str.length()] = 0;
+    return result;
+}
+
+/*!
+  Makes a QString from a Windows TCHAR*.
+*/
+QString qt_winQString(TCHAR* tc)
+{
+#ifdef UNICODE
+    int len=0;
+    while ( tc[len] )
+	len++;
+    if ( sizeof(WCHAR)==sizeof(QChar) && *((WCHAR*)(&QChar(0,1))) == 0x0100 ) {
+	// Same endianness of WCHAR
+	return QString((QChar*)tc,len);
+    } else {
+	QString r;
+	for ( int i=0; i<len; i++ )
+	    r += QChar(tc[i]&0xff,tc[i]>>8);
+	return r;
+    }
+#undef EXTEND
+#else
+    return str.ascii();
+#endif
+}
+
+
 #if defined(_WS_WIN32_)
 #define __export
 #endif
@@ -136,7 +207,8 @@ public:
     bool	translateKeyEvent( const MSG &msg, bool grab );
     bool	translateWheelEvent( const MSG &msg );
     bool	sendKeyEvent( QEvent::Type type, int code, int ascii,
-			      int state, bool grab, bool autor=FALSE );
+			      int state, bool grab, const QString& text,
+			      bool autor=FALSE );
     bool	translatePaintEvent( const MSG &msg );
     bool	translateConfigEvent( const MSG &msg );
     bool	translateCloseEvent( const MSG &msg );
@@ -148,7 +220,7 @@ static void set_winapp_name()
     static bool already_set = FALSE;
     if ( !already_set ) {
 	already_set = TRUE;
-	GetModuleFileName( 0, appName, sizeof(appName) );
+	GetModuleFileNameA( 0, appName, sizeof(appName) );
 	char *p = strrchr( appName, '\\' );	// skip path
 	if ( p )
 	    memmove( appName, p+1, strlen(p) );
@@ -385,7 +457,7 @@ static void msgHandler( QtMsgType t, const char* str )
     int len = strlen(str);
     char *s = new char[len+2];
     strcpy(s+len,"\n");
-    OutputDebugString( s );
+    OutputDebugStringA( s );
     delete [] s;
     if ( t == QtFatalMsg )
 	ExitProcess( 1 );
@@ -439,18 +511,18 @@ bool qt_nograb()				// application no-grab option
 static bool widget_class_registered = FALSE;
 static bool popup_class_registered = FALSE;
 
-const char *qt_reg_winclass( int type )		// register window class
+TCHAR* qt_reg_winclass( int type )		// register window class
 {
-    const char *className;
+    TCHAR* className;
     uint style = 0;
     if ( type == 0 ) {
-	className = "QWidget";
+	className = qt_winTchar("QWidget",TRUE);
 	if ( !widget_class_registered ) {
 	    widget_class_registered = TRUE;
 	    style = CS_DBLCLKS;
 	}
     } else if ( type == 1 ) {
-	className = "QPopup";
+	className = qt_winTchar("QPopup",TRUE);
 	if ( !popup_class_registered ) {
 	    popup_class_registered = TRUE;
 	    style = CS_DBLCLKS | CS_SAVEBITS;
@@ -482,11 +554,11 @@ static void unregWinClasses()
 {
     if ( widget_class_registered ) {
 	widget_class_registered = FALSE;
-	UnregisterClass( "QWidget", qWinAppInst() );
+	UnregisterClass( qt_winTchar("QWidget",TRUE), qWinAppInst() );
     }
     if ( popup_class_registered ) {
 	popup_class_registered = FALSE;
-	UnregisterClass( "QPopup", qWinAppInst() );
+	UnregisterClass( qt_winTchar("QPopup",TRUE), qWinAppInst() );
     }
 }
 
@@ -920,7 +992,7 @@ static void sn_init()
     if ( sn_win )
 	return;
     qAddPostRoutine( sn_cleanup );
-    sn_msg = RegisterWindowMessage( "QtSNEvent" );
+    sn_msg = RegisterWindowMessageA( "QtSNEvent" );
     sn_win = qApp->mainWidget();		// use main widget, if any
     if ( !sn_win ) {				// create internal widget
 	sn_win = new QWidget(0,"QtSocketNotifier_Internal_Widget");
@@ -1276,6 +1348,8 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam,
 	case WM_KEYUP:
 	case WM_SYSKEYDOWN:
 	case WM_SYSKEYUP:
+	case WM_IME_CHAR:
+	case WM_IME_KEYDOWN:
 	case WM_CHAR: {
 	    QWidget *g = QWidget::keyboardGrabber();
 	    if ( g )
@@ -2113,9 +2187,10 @@ static int translateKeyCode( int key )		// get Qt::Key_... code
 }
 
 struct KeyRec {
-    KeyRec(int c, int a) : code(c), ascii(a) { }
+    KeyRec(int c, int a, const QString& t) : code(c), ascii(a), text(t) { }
     KeyRec() { }
     int code, ascii;
+    QString text;
 };
 
 static const int maxrecs=64; // User has LOTS of fingers...
@@ -2145,7 +2220,7 @@ static KeyRec* find_key_rec( int code, bool remove )
     return result;
 }
 
-static void store_key_rec( int code, int ascii )
+static void store_key_rec( int code, int ascii, const QString& text )
 {
     if ( nrecs == maxrecs ) {
 #if defined(CHECK_RANGE)
@@ -2154,7 +2229,7 @@ static void store_key_rec( int code, int ascii )
 	return;
     }
 
-    key_rec[nrecs++] = KeyRec(code,ascii);
+    key_rec[nrecs++] = KeyRec(code,ascii,text);
 }
 
 static int asciiToKeycode(char a, int state)
@@ -2182,42 +2257,69 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 	state |= QMouseEvent::AltButton;
 
     if ( msg.message == WM_CHAR ) {
-	// a multi-character key
-	k0 = sendKeyEvent( QEvent::KeyPress, 0, msg.wParam, state, grab );
-	k1 = sendKeyEvent( QEvent::KeyRelease, 0, msg.wParam, state, grab );
+	// a multi-character key not found by our look-ahead
+	QString text;
+	text += (char)msg.wParam;
+	k0 = sendKeyEvent( QEvent::KeyPress, 0, msg.wParam, state, grab, text );
+	k1 = sendKeyEvent( QEvent::KeyRelease, 0, msg.wParam, state, grab, text );
+    } else if ( msg.message == WM_IME_CHAR ) {
+debug("IME");
+	// input method characters not found by our look-ahead
+	QString text;
+	ushort uc = (ushort)msg.wParam;
+	text += QChar(uc&0xff,(uc>>8)&0xff);
+	k0 = sendKeyEvent( QEvent::KeyPress, 0, msg.wParam, state, grab, text );
+	k1 = sendKeyEvent( QEvent::KeyRelease, 0, msg.wParam, state, grab, text );
     } else {
 	int code = translateKeyCode( msg.wParam );
-        if ( msg.message == WM_KEYDOWN || msg.message == WM_SYSKEYDOWN ) {
+        if ( msg.message == WM_KEYDOWN ||
+	     msg.message == WM_IME_KEYDOWN ||
+	     msg.message == WM_SYSKEYDOWN )
+	{
 	    KeyRec* rec = find_key_rec( msg.wParam, FALSE );
-	    MSG wm_char;
-	    UINT charType = msg.message == WM_KEYDOWN ? WM_CHAR : WM_SYSCHAR;
-	    if ( !PeekMessage(&wm_char, 0, charType, charType, PM_REMOVE) ) {
+
+	    QChar uch;
+	    { // Find uch
+		MSG wm_char;
+		UINT charType =
+		    msg.message == WM_KEYDOWN ? WM_CHAR :
+				   WM_IME_KEYDOWN ? WM_IME_CHAR
+				   : WM_SYSCHAR;
+		bool foundtext = PeekMessage(&wm_char, 0, charType, charType, PM_REMOVE);
+		if ( foundtext && msg.message != WM_SYSKEYDOWN ) {
+		    uch = QChar(wm_char.wParam & 0xff, wm_char.wParam >> 8);
+debug("uch=0x%02x%02x",uch.row,uch.cell);
+		} // Syskeys have no CHARs
+	    }
+	    if ( uch != QChar::null ) {
+		if ( (msg.message == WM_SYSKEYDOWN) &&
+		     isalpha(msg.wParam) &&
+		     (msg.lParam & 0x20000000) ) //See doc of WM_SYSCHAR
+    		    uch = QChar(tolower(msg.wParam)); //Alt-letter
+		if ( !code && !uch.row )
+		    code = asciiToKeycode(uch.cell, state);
+	    } else {
 		if ( msg.wParam == VK_DELETE )
-		    wm_char.wParam = 0x7f; // Windows doesn't know this one.
-		else
-    		    wm_char.wParam = 0;
+		    uch = QChar(0x7f); // Windows doesn't know this one.
 		if ( !code )
 		    code = asciiToKeycode(msg.wParam, state);
-	    } else {
-		if ( isalpha(msg.wParam) &&
-		     (msg.message == WM_SYSKEYDOWN) && 
-		     (msg.lParam & 0x20000000) ) //See doc of WM_SYSCHAR
-    		    wm_char.wParam = tolower(msg.wParam); //Alt-letter
-		if ( !code )
-		    code = asciiToKeycode(wm_char.wParam, state);
 	    }
 	    if ( rec ) {
 		// it is already down (so it is auto-repeating)
 		if ( code < Key_Shift || code > Key_ScrollLock ) {
 		    k0 = sendKeyEvent( QEvent::KeyRelease, code, rec->ascii,
-				       state, grab, TRUE);
+				       state, grab, rec->text, TRUE);
 		    k1 = sendKeyEvent( QEvent::KeyPress, code, rec->ascii,
-				       state, grab, TRUE);
+				       state, grab, rec->text, TRUE);
 		}
 	    } else {
-		store_key_rec( msg.wParam, wm_char.wParam );
-		k0 = sendKeyEvent( QEvent::KeyPress, code, wm_char.wParam,
-				   state, grab );
+		QString text;
+		if ( uch != QChar::null )
+		    text += uch;
+		char a = uch.row ? 0 : uch.cell;
+		store_key_rec( msg.wParam, a, text );
+		k0 = sendKeyEvent( QEvent::KeyPress, code, a,
+				   state, grab, text );
 	    }
         } else {
 	    // KEYUP
@@ -2228,7 +2330,8 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 		if ( !code )
 		    code = asciiToKeycode(rec->ascii ? rec->ascii : msg.wParam,
 				state);
-		k0 = sendKeyEvent( QEvent::KeyRelease, code, rec->ascii, state, grab);
+		k0 = sendKeyEvent( QEvent::KeyRelease, code, rec->ascii,
+				    state, grab, rec->text);
 	    }
         }
     }
@@ -2278,10 +2381,11 @@ static bool isModifierKey(int code)
 }
 
 bool QETWidget::sendKeyEvent( QEvent::Type type, int code, int ascii,
-			      int state, bool grab, bool autor )
+			      int state, bool grab, const QString& text,
+			      bool autor )
 {
     if ( type == QEvent::KeyPress && !grab ) {	// send accel event to tlw
-	QKeyEvent a( QEvent::Accel, code, ascii, state, autor );
+	QKeyEvent a( QEvent::Accel, code, ascii, state, text, autor );
 	a.ignore();
 	QApplication::sendEvent( topLevelWidget(), &a );
 	if ( a.isAccepted() )
@@ -2289,7 +2393,7 @@ bool QETWidget::sendKeyEvent( QEvent::Type type, int code, int ascii,
     }
     if ( !isEnabled() )
 	return FALSE;
-    QKeyEvent e( type, code, ascii, state, autor );
+    QKeyEvent e( type, code, ascii, state, text, autor );
     QApplication::sendEvent( this, &e );
     if ( !isModifierKey(code) && state == QMouseEvent::AltButton
       && type == QEvent::KeyPress && !e.isAccepted() )
@@ -2326,7 +2430,6 @@ bool QETWidget::translatePaintEvent( const MSG & )
     return TRUE;
 }
 
-
 //
 // Window move and resize (configure) events
 //
@@ -2355,9 +2458,9 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
 		setWFlags( WState_Visible );
 #endif
 	    if ( IsIconic(winId()) && iconText() )
-		SetWindowText( winId(), iconText() );
+		SetWindowText( winId(), qt_winTchar(iconText(),TRUE) );
 	    else if ( !caption().isNull() )
-		SetWindowText( winId(), caption() );
+		SetWindowText( winId(), qt_winTchar(caption(),TRUE) );
 	}
 	if ( isVisible() ) {
 	    cancelResize();

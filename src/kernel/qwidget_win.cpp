@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#138 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#139 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -45,7 +45,7 @@
 #define WS_EX_TOOLWINDOW 0x00000080
 #endif
 
-const char* qt_reg_winclass( int type );	// defined in qapplication_win.cpp
+TCHAR*	    qt_reg_winclass( int type );	// defined in qapplication_win.cpp
 void	    qt_enter_modal( QWidget * );
 void	    qt_leave_modal( QWidget * );
 bool	    qt_modal_state();
@@ -54,6 +54,8 @@ QOleDropTarget* qt_olednd_register( QWidget* widget );
 
 
 extern bool qt_nograb();
+extern TCHAR* qt_winTchar(const QString& str, bool addnul);
+extern TCHAR* qt_winTchar_new(const QString& str);
 
 static QWidget *mouseGrb    = 0;
 static QCursor *mouseGrbCur = 0;
@@ -84,7 +86,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     bool   modal    = testWFlags(WType_Modal);
     bool   desktop  = testWFlags(WType_Desktop);
     HANDLE appinst  = qWinAppInst();
-    const char* wcln = qt_reg_winclass( tool ? 1 : 0 );
+    TCHAR* wcln = qt_reg_winclass( tool ? 1 : 0 );
     HANDLE parentw, destroyw = 0;
     WId	   id;
 
@@ -121,7 +123,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 
     parentw = topLevel ? 0 : parentWidget()->winId();
 
-    char *title = 0;
+    TCHAR *title = 0;
     int	 style = WS_CHILD;
     int	 exsty = 0;
 
@@ -166,7 +168,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	}
     }
     if ( testWFlags(WStyle_Title) )
-	title = qAppName();
+	title = qt_winTchar_new(qAppName());
 
 	// The WState_Creates flag is checked by translateConfigEvent()
         // in qapplication_win.cpp. We switch it off temporarily to avoid move
@@ -210,6 +212,8 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	SetWindowPos( id, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE );
 	setWinId( id );
     }
+
+    delete [] title;
 
     if ( desktop ) {
 	setWFlags( WState_Visible );
@@ -447,11 +451,11 @@ void QWidget::setCursor( const QCursor &cursor )
 void QWidget::setCaption( const QString &caption )
 {
     if ( caption && extra && extra->caption &&
-	 !strcmp( extra->caption, caption ) )
+	 extra->caption != caption )
 	return; // for less flicker
     createExtra();
     extra->caption = caption;
-    SetWindowText( winId(), extra->caption );
+    SetWindowText( winId(), qt_winTchar(extra->caption,TRUE) );
 }
 
 

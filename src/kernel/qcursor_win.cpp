@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor_win.cpp#29 $
+** $Id: //depot/qt/main/src/kernel/qcursor_win.cpp#30 $
 **
 ** Implementation of QCursor class for Win32
 **
@@ -257,7 +257,7 @@ void QCursor::update() const			// update/load cursor
     if ( data->hcurs )				// already loaded
 	return;
 
-    char const *sh;
+    TCHAR *sh;
     switch ( data->cshape ) {			// map to windows cursor
 	case ArrowCursor:
 	    sh = IDC_ARROW;

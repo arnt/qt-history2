@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#62 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#63 $
 **
 ** Implementation of QDir class
 **
@@ -42,6 +42,12 @@ extern Q_UINT32 DosQueryCurrentDisk(Q_UINT32*,Q_UINT32*);
 #endif
 
 #if defined(_OS_FATFS_) || defined(_OS_OS2EMX_)
+
+#if defined(_OS_WIN32_)
+extern QString qt_winQString(TCHAR*);
+extern TCHAR* qt_winTchar(const QString& str, bool addnul);
+#endif
+
 
 static void slashify( QString& n )
 {
@@ -1395,7 +1401,7 @@ bool QDir::readDirEntries( const QString &nameFilter,
 #define IS_ARCH	    FILE_ATTRIBUTE_ARCHIVE
 #define IS_HIDDEN   FILE_ATTRIBUTE_HIDDEN
 #define IS_SYSTEM   FILE_ATTRIBUTE_SYSTEM
-#define FF_GETFIRST FindFirstFile
+#define FF_GETFIRST(f,i) FindFirstFile(qt_winTchar(f,TRUE),i)
 #define FF_GETNEXT  FindNextFile
 #define FF_ERROR    INVALID_HANDLE_VALUE
 #else
@@ -1404,7 +1410,7 @@ bool QDir::readDirEntries( const QString &nameFilter,
 #define IS_ARCH	    _A_ARCH
 #define IS_HIDDEN   _A_HIDDEN
 #define IS_SYSTEM   _A_SYSTEM
-#define FF_GETFIRST _findfirst
+#define FF_GETFIRST(f,i) _findfirst(f.data(),i)
 #define FF_GETNEXT  _findnext
 #define FF_ERROR    -1
 #endif
@@ -1419,7 +1425,7 @@ bool QDir::readDirEntries( const QString &nameFilter,
 	p += '/';
     p += "*.*";
 
-    ff = FF_GETFIRST( p.data(), &finfo );
+    ff = FF_GETFIRST( p, &finfo );
     if ( ff == FF_ERROR ) {
 #if defined(DEBUG)
 	warning( "QDir::readDirEntries: Cannot read the directory: %s",
@@ -1456,7 +1462,7 @@ bool QDir::readDirEntries( const QString &nameFilter,
 	bool isSystem	= (attrib & IS_SYSTEM) != 0;
 
 #if defined(_OS_WIN32_)
-	QString fname = finfo.cFileName;
+	QString fname = qt_winQString(finfo.cFileName);
 #else
 	QString fname = finfo.name;
 #endif
