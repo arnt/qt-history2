@@ -4891,23 +4891,22 @@ void QListView::selectAll( bool select )
 	bool b = signalsBlocked();
 	blockSignals( TRUE );
 	bool anything = FALSE;
-	QListViewItem * i = firstChild();
+	QListViewItemIterator it( this );
 	QPtrStack<QListViewItem> s;
-	while ( i ) {
-	    if ( i->childItem )
-		s.push( i->childItem );
+	while ( it.current() ) {
+	    QListViewItem *i = it.current();
 	    if ( (bool)i->selected != select ) {
 		i->setSelected( select );
 		anything = TRUE;
-		repaintItem( i );
 	    }
-	    i = i->siblingItem;
-	    if ( !i )
-		i = s.pop();
+	    ++it;
 	}
 	blockSignals( b );
-	if ( anything )
+	if ( anything ) {
 	    emit selectionChanged();
+	    d->useDoubleBuffer = TRUE;
+	    triggerUpdate();
+	}
     } else if ( d->focusItem ) {
 	QListViewItem * i = d->focusItem;
 	setSelected( i, select );
@@ -6625,7 +6624,6 @@ void QListView::selectRange( QListViewItem *from, QListViewItem *to, bool invert
 	    if ( it.current()->selected ) {
 		it.current()->setSelected( FALSE );
 		changed = TRUE;
-		repaintItem( it.current() );
 	    }
 	}
 	it = QListViewItemIterator( to );
@@ -6633,7 +6631,6 @@ void QListView::selectRange( QListViewItem *from, QListViewItem *to, bool invert
 	    if ( it.current()->selected ) {
 		it.current()->setSelected( FALSE );
 		changed = TRUE;
-		repaintItem( it.current() );
 	    }
 	}
     }
@@ -6643,21 +6640,22 @@ void QListView::selectRange( QListViewItem *from, QListViewItem *to, bool invert
 	    if ( !i->selected && i->isSelectable() ) {
 		i->setSelected( TRUE );
 		changed = TRUE;
-		repaintItem( i );
 	    }
 	} else {
 	    bool sel = !i->selected;
 	    if ( (bool)i->selected != sel && sel && i->isSelectable() || !sel ) {
 		i->setSelected( sel );
 		changed = TRUE;
-		repaintItem( i );
 	    }
 	}
 	if ( i == to )
 	    break;
     }
-    if ( changed )
+    if ( changed ) {
+	d->useDoubleBuffer = TRUE;
+	triggerUpdate();
 	emit selectionChanged();
+    }
 }
 
 /*!
