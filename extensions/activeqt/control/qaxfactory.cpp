@@ -169,7 +169,8 @@
     \endcode
 
     Only one QAxFactory implementation may be instantiated and
-    exported by an ActiveX server application.
+    exported by an ActiveX server application. This instance is accessible
+    through the global qAxFactory() function.
 
     A factory can also reimplement the registerClass() and
     unregisterClass() functions to set additional flags for an ActiveX
