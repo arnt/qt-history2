@@ -33,6 +33,8 @@
 #include <qlibraryinfo.h>
 #include <qprinter.h>
 #include <qprintdialog.h>
+#include <qabstracttextdocumentlayout.h>
+#include <qtextdocument.h>
 
 QList<MainWindow*> MainWindow::windows;
 
@@ -339,10 +341,69 @@ void MainWindow::on_actionFilePrint_triggered()
     QPrinter printer(QPrinter::ScreenResolution);
     printer.setFullPage(true);
 
-    QPrintDialog *dlg = new QPrintDialog(&printer, this);
-    if (dlg->exec() == QDialog::Accepted)
-        tabs->currentBrowser()->document()->print(&printer);
-    delete dlg;
+    QPrintDialog *dlg = new QPrintDialog(&printer, this);    
+        
+    const int dpiy = printer.logicalDpiY();
+    const int margin = (int) ((2/2.54)*dpiy);
+    QRectF body(margin, margin, printer.width() - 2*margin, printer.height() - 2*margin);
+
+    QTextDocument *doc = tabs->currentBrowser()->document()->clone();
+    QAbstractTextDocumentLayout *layout = doc->documentLayout();
+    QFont font(doc->defaultFont());
+    font.setPointSize(10);
+    doc->setDefaultFont(font);
+    layout->setPaintDevice(&printer);
+    doc->setPageSize(body.size());
+
+    int maxPages = doc->pageCount();    
+    dlg->addEnabledOption(QPrintDialog::PrintPageRange);
+    dlg->setMinMax(1, maxPages);
+    dlg->setFromTo(1, maxPages);
+        
+    if (dlg->exec() == QDialog::Accepted) {
+        int from = 1;
+        int to = maxPages;        
+        if (dlg->printRange() & QPrintDialog::PageRange) {
+            from = dlg->fromPage();
+            to = dlg->toPage();
+        }
+        delete dlg;
+
+        QRectF view(0, 0, body.width(), body.height()*from);
+        QPainter p(&printer);
+        if (!p.device() || view.top() >= layout->documentSize().height()) {
+            delete doc;
+            return;
+        }
+                
+        p.translate(body.left(), body.top()-body.height()*(from-1));
+        
+        int page = from;
+        do {
+            QAbstractTextDocumentLayout::PaintContext ctx;
+            p.setClipRect(view);
+            ctx.clip = view.toRect();
+
+            layout->draw(&p, ctx);
+
+            p.setClipping(false);
+            p.setFont(font);
+            QString pageString = QString::number(page);
+            p.drawText(qRound(view.right() - p.fontMetrics().width(pageString)),
+                qRound(view.bottom() + p.fontMetrics().ascent() + 5*dpiy/72), pageString);
+
+            view.translate(0, body.height());
+            p.translate(0 , -body.height());
+
+            if (view.top() >= layout->documentSize().height())
+                break;
+
+            page++;
+            if (page <= to)
+                printer.newPage();
+        } while (page <= to);        
+    }
+    delete doc;    
 }
 
 void MainWindow::updateBookmarkMenu()
