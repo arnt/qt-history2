@@ -46,7 +46,7 @@ public:
 };
 
 template <class type>
-class QM_EXPORT_SQL QSqlDriverCreator: public QSqlDriverCreatorBase
+class QSqlDriverCreator: public QSqlDriverCreatorBase
 {
 public:
     QSqlDriver* createObject() const { return new type; }
