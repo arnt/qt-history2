@@ -55,6 +55,24 @@
 #include <windows.h>
 #endif
 
+static QWidget *real_page( QWidget *pg )
+{
+    QScrollView *sv = (QScrollView*)pg;
+    if ( !sv )
+	return 0;
+    if ( !sv->viewport()->children() )
+	return 0;
+    return (QWidget*)sv->viewport()->children()->getFirst();
+}
+
+static QWidget *internal_page( QWidget *pg, const QWidget *tb )
+{
+    QWidget *pp;
+    while ( pg && ( pp = pg->parentWidget() ) && pp != tb )
+	pg = pp;
+    return pg;
+}
+
 class QToolBoxButton : public QToolButton
 {
     Q_OBJECT
@@ -156,8 +174,13 @@ void QToolBoxPrivate::updatePageBackgroundMode()
 	return;
     QObjectList *l =
 	((QScrollView*)currentPage)->viewport()->queryList( "QWidget" );
-    for ( QObject *o = l->first(); o; o = l->next() )
-	((QWidget*)o)->setBackgroundMode( pageBackgroundMode );
+    for ( QObject *o = l->first(); o; o = l->next() ) {
+	QWidget *w = (QWidget*)o;
+	if ( w->backgroundMode() == pageBackgroundMode )
+	    continue;
+	w->setBackgroundMode( pageBackgroundMode );
+	w->update();
+    }
 }
 
 void QToolBoxPrivate::updateTabs( QToolBox *tb )
@@ -165,9 +188,10 @@ void QToolBoxPrivate::updateTabs( QToolBox *tb )
     bool after = FALSE;
     for ( QToolBoxPrivate::Page *c = pageList.first(); c;
 	  c = pageList.next() ) {
-	c->button->setBackgroundMode( (!after ||
-				       pageBackgroundMode == Qt::NoBackground) ?
-				      tb->backgroundMode() : pageBackgroundMode );
+	Qt::BackgroundMode bm = pageBackgroundMode == Qt::NoBackground ?
+				real_page( currentPage )->backgroundMode() :
+				pageBackgroundMode;
+	c->button->setBackgroundMode( after ? bm : tb->backgroundMode() );
 	c->button->update();
 	after = c->button == lastButton;
     }
@@ -250,24 +274,6 @@ void QToolBoxButton::drawButton( QPainter *p )
 
     if ( !txt.isEmpty() && hasFocus() )
 	style().drawPrimitive( QStyle::PE_FocusRect, p, tr, cg );
-}
-
-static QWidget *real_page( QWidget *pg )
-{
-    QScrollView *sv = (QScrollView*)pg;
-    if ( !sv )
-	return 0;
-    if ( !sv->viewport()->children() )
-	return 0;
-    return (QWidget*)sv->viewport()->children()->getFirst();
-}
-
-static QWidget *internal_page( QWidget *pg, const QWidget *tb )
-{
-    QWidget *pp;
-    while ( pg && ( pp = pg->parentWidget() ) && pp != tb )
-	pg = pp;
-    return pg;
 }
 
 /*!
@@ -355,6 +361,7 @@ QToolBox::~QToolBox()
 void QToolBox::insertPage( QWidget *page, const QIconSet &iconSet,
 			   const QString &label, int index )
 {
+    page->setBackgroundMode( PaletteButton );
     QToolBoxButton *button = new QToolBoxButton( this, label.latin1() );
     QToolBoxPrivate::Page *c = new QToolBoxPrivate::Page;
     c->button = button;
@@ -775,15 +782,19 @@ QString QToolBox::pageToolTip( QWidget *page ) const
 /*!
   \property QToolBox::pageBackgroundMode
   \brief The background mode in which the current page should be displayed.
+  If this pageBackgroundMode is set to something else than
+  NoBackground, the background mode is also set to all children of the
+  pages.
 */
 
 void QToolBox::setPageBackgroundMode( BackgroundMode bm )
 {
     if ( d->pageBackgroundMode == bm )
 	return;
-    d->pageBackgroundMode = bm;
+    d->pageBackgroundMode = (bm == NoBackground ? PaletteButton : bm);
     d->updatePageBackgroundMode();
     d->updateTabs( this );
+    d->pageBackgroundMode = bm;
 }
 
 Qt::BackgroundMode QToolBox::pageBackgroundMode() const

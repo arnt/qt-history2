@@ -1299,8 +1299,6 @@ void WidgetFactory::initChangedProperties( QObject *o )
 	MetaDataBase::setPropertyChanged( o, "pageLabel", TRUE );
 	MetaDataBase::setPropertyChanged( o, "pageIconSet", TRUE );
 	MetaDataBase::setPropertyChanged( o, "pageToolTip", TRUE );
-	MetaDataBase::setPropertyChanged( o, "pageBackgroundMode", TRUE );
-	((QToolBox*)o)->setPageBackgroundMode( PaletteDark );
 #ifndef QT_NO_TABLE
     } else if ( o->inherits( "QTable" ) && !o->inherits( "QDataTable" ) ) {
 	MetaDataBase::setPropertyChanged( o, "numRows", TRUE );
