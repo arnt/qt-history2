@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudta.cpp#7 $
+** $Id: //depot/qt/main/src/widgets/qmenudta.cpp#8 $
 **
 ** Implementation of QMenuData class
 **
@@ -15,7 +15,7 @@
 #include "qpopmenu.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenudta.cpp#7 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenudta.cpp#8 $";
 #endif
 
 
@@ -51,7 +51,7 @@ QMenuData::QMenuData()
     CHECK_PTR( mitems );
     mitems->setAutoDelete( TRUE );
     parentMenu = 0;				// assume top level
-    isPopup = isMenuBar = FALSE;
+    isPopup = isMenuBar = mouseBtDn = FALSE;
     badSize = TRUE;
 }
 

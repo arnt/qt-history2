@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudta.h#4 $
+** $Id: //depot/qt/main/src/widgets/qmenudta.h#5 $
 **
 ** Definition of QMenuData class
 **
@@ -114,6 +114,7 @@ protected:
     uint	   isPopup	: 1;
     uint	   isMenuBar	: 1;
     uint	   badSize	: 1;
+    uint	   mouseBtDn	: 1;
     QMenuItem     *findItem( int id ) const;
     virtual void   menuContentsChanged();
     virtual void   menuStateChanged();
