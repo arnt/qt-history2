@@ -521,7 +521,8 @@ void QDir::setNameFilter( const QString &nameFilter )
   \value  Drives  List disk drives (ignored under Unix).
   \value  NoSymLinks  Do not list symbolic links (ignored by operating
   systems that don't support symbolic links).
-  \value All List directories, files, drives and symlinks.
+  \value All List directories, files, drives and symlinks (this does not list
+  borken symlinks unless you specify System).
   \value TypeMask A mask for the the Dirs, Files, Drives and
   NoSymLinks flags.
   \value  Readable  List files for which the application has read access.
@@ -531,7 +532,7 @@ void QDir::setNameFilter( const QString &nameFilter )
   \value  Modified  Only list files that have been modified (ignored
   under Unix).
   \value  Hidden  List hidden files (on Unix, files starting with a .).
-  \value  System  List system files (on unix, FIFOs, sockets and device files)
+  \value  System  List system files (on Unix, FIFOs, sockets and device files)
   \value AccessMask A mask for the Readable, Writable, Executable Modified, Hidden and System flags
   \value DefaultFilter Internal flag.
 
