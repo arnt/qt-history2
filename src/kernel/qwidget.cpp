@@ -1026,6 +1026,7 @@ void QWidget::createTLExtra()
 	x->dnd = 0;
 	x->uspos = 0;
 	x->ussize = 0;
+	x->savedFlags = 0;
 #endif
 #if defined(Q_WS_QWS) && !defined(QT_NO_QWS_MANAGER)
 	x->decor_allocated_region = QRegion();
@@ -5626,6 +5627,7 @@ void QWidget::showFullScreen()
     }
     if ( topData()->normalGeometry.width() < 0 )
 	topData()->normalGeometry = QRect( pos(), size() );
+    topData()->savedFlags = getWFlags();
     reparent( 0, WType_TopLevel | WStyle_Customize | WStyle_NoBorder |
 	      // preserve some widget flags
 	      (getWFlags() & 0xffff0000),

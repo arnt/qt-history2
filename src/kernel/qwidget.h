@@ -926,6 +926,7 @@ struct Q_EXPORT QTLWExtra {
     uint     dnd : 1;				// DND properties installed
     uint     uspos : 1;				// User defined position
     uint     ussize : 1;			// User defined size
+    uint     savedFlags;			// Save widgetflags while showing fullscreen
     void    *xic;				// XIM Input Context
 #endif
 #if defined(Q_WS_MAC)

@@ -1655,7 +1655,8 @@ void QWidget::showNormal()
     if ( isTopLevel() ) {
 	if ( topData()->fullscreen ) {
 	    // when reparenting, preserve some widget flags
-	    reparent( 0, WType_TopLevel | (getWFlags() & 0xffff0000), QPoint(0,0) );
+	    reparent( 0, topData()->savedFlags, QPoint(0,0) );
+	    topData()->fullscreen = 0;
 	}
 	QRect r = topData()->normalGeometry;
 	if ( r.width() >= 0 ) {

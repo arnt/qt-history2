@@ -967,7 +967,8 @@ void QWidget::showNormal()
     if ( isTopLevel() ) {
 	if ( topData()->fullscreen ) {
 	    // when reparenting, preserve some widget flags
-	    reparent( 0, WType_TopLevel | (getWFlags() & 0xffff0000), topData()->normalGeometry.topLeft() );
+	    reparent( 0, topData()->savedFlags, topData()->normalGeometry.topLeft() );
+	    topData()->fullscreen = 0;
 	    QRect r = topData()->normalGeometry;
 	    if ( r.width() >= 0 ) {
 		// the widget has been maximized

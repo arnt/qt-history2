@@ -1363,7 +1363,7 @@ void QWidget::showNormal()
 	return;
     if(isTopLevel()) {
 	if(topData()->fullscreen) {
-	    reparent(0, WType_TopLevel, QPoint(0,0));
+	    reparent( 0, topData()->savedFlags, QPoint(0,0) );
 	    setGeometry(topData()->normalGeometry);
 	} else {
 	    Rect bounds;
