@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/emoc/moc.l#1 $
+** $Id: //depot/qt/main/src/emoc/moc.l#2 $
 **
 ** Lexical analyzer for meta object compiler
 **
@@ -94,8 +94,7 @@ extern void moc_warn( char *msg );
 <IN_CLASS>"Q_OBJECT"		{ X;return Q_OBJECT; }
 <IN_CLASS>"Q_INSPECTOR"		{ X;return Q_INSPECTOR; }
 <IN_CLASS>"Q_BUILDER"		{ X;return Q_BUILDER; }
-<IN_CLASS>"Q_CUSTOM_FACTORY"	{ X;return Q_FACTORY; }
-<IN_CLASS>"Q_FACTORY"		{ X;return Q_FACTORY; }
+<IN_CLASS>"Q_CUSTOM_FACTORY"	{ X;return Q_CUSTOM_FACTORY; }
 
 <IN_NAMESPACE>"{"		{ namespacePLevel++;Y; }
 <IN_NAMESPACE>"}"		{ namespacePLevel--;Y;if (namespacePLevel == 0)
@@ -116,8 +115,7 @@ extern void moc_warn( char *msg );
 <QT_DEF>"Q_OBJECT"		{ X;return Q_OBJECT; }
 <QT_DEF>"Q_BUILDER"		{ X;return Q_BUILDER; }
 <QT_DEF>"Q_INSPECTOR"		{ X;return Q_INSPECTOR; }
-<QT_DEF>"Q_CUSTOM_FACTORY"	{ X;return Q_FACTORY; }
-<QT_DEF>"Q_FACTORY"		{ X;return Q_FACTORY; }
+<QT_DEF>"Q_CUSTOM_FACTORY"	{ X;return Q_CUSTOM_FACTORY; }
 <IN_BUILDER>"("			{ X;return '('; }
 <IN_BUILDER>","			{ X;return ','; }
 <IN_BUILDER>")"			{ X; BEGIN QT_DEF; return ')'; }

@@ -24,8 +24,17 @@ static const char* TorbensHack[] = {
   "+", "QRadioButton", "", "", "",
   "+", "QWizard", "", "", "",
   "+", "QLineEdit", "", "", "",
+  "+", "QDialog", "", "", "",
+  "+", "QMainWindow", "", "", "",
+  "+", "QToolBar", "", "", "",
+  "+", "QToolButton", "", "", "",
+  "+", "QListView", "", "", "",
+  "+", "QGroupBox", "", "", "",
+  "+", "QMultiLineEdit", "", "", "",
 
   "+", "QGridLayout", "A grid layout", "", "",
+  "+", "QVBoxLayout", "", "", "",
+  "+", "QHBoxLayout", "", "", "",
 
   "+", "QLayout", "Basic layout", "", "",
   "void", "setMargin", "", "int", ")",
@@ -33,6 +42,7 @@ static const char* TorbensHack[] = {
   "void", "setSpacing", "", "int", ")",
   "int", "spacing", "const", ")",
 
+  "+", "DGridLayout", "A qbuilder grid layout", "", "",
   "+", "DFormWidget", "A qbuilder grid layout", "", "",
   "+", "DMenuListView", "", "", "",
   "+", "DSeparator", "", "", "",

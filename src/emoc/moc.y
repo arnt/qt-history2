@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/emoc/moc.y#7 $
+** $Id: //depot/qt/main/src/emoc/moc.y#8 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -138,7 +138,7 @@ bool	   Q_OBJECTdetected;			// TRUE if current class
 						// contains the Q_OBJECT macro
 bool	   Q_BUILDERdetected;			// TRUE if current class
 						// contains the Q_BUILDER macro
-bool	   Q_FACTORYdetected;			// TRUE if current class
+bool	   Q_CUSTOM_FACTORYdetected;			// TRUE if current class
 						// contains the Q_CUSTOM_FACTORY macro
 QCString   Q_BUILDERcomment;			// Comment to show in the builder ( maybe empty )
 QCString   Q_BUILDERpixmap;			// Pixmap to show in the builder ( maybe empty )
@@ -214,7 +214,7 @@ const int  formatRevision = 4;			// moc output format revision
 %token			Q_OBJECT
 %token			Q_BUILDER
 %token			Q_INSPECTOR
-%token			Q_FACTORY
+%token			Q_CUSTOM_FACTORY
 
 %type  <string>		class_name
 %type  <string>		template_class_name
@@ -649,12 +649,12 @@ obj_member_area:	  qt_access_specifier	{ BEGIN QT_DEF; }
 					"Q_OBJECT is a macro that resets"
 					" access permission to \"private\".");
 						  Q_OBJECTdetected = TRUE; }
-			| Q_FACTORY		{ if ( tmpAccessPerm )
-				moc_warn("Q_FACTORY is not in the private"
+			| Q_CUSTOM_FACTORY		{ if ( tmpAccessPerm )
+				moc_warn("Q_CUSTOM_FACTORY is not in the private"
 					" section of the class.\n"
-					"Q_FACTORY is a macro that resets"
+					"Q_CUSTOM_FACTORY is a macro that resets"
 					" access permission to \"private\".");
-						  Q_FACTORYdetected = TRUE; }
+						  Q_CUSTOM_FACTORYdetected = TRUE; }
 			| Q_BUILDER { BEGIN IN_BUILDER; }
 			  '(' STRING ',' STRING ')'
 				{ if ( tmpAccessPerm )
@@ -1268,7 +1268,7 @@ void initClass()				 // prepare for new class
     Q_OBJECTdetected = FALSE;
     skipClass	     = FALSE;
     templateClass    = FALSE;
-    Q_FACTORYdetected  = FALSE;
+    Q_CUSTOM_FACTORYdetected  = FALSE;
     Q_BUILDERdetected  = FALSE;
     Q_BUILDERcomment   = "";
     Q_BUILDERpixmap    = "";
@@ -1894,7 +1894,7 @@ void generateClass()		      // generate C++ source code for a class
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt Meta Object Compiler ($Revision: 1.7 $)\n**\n";
+		 "**      by: The Qt Meta Object Compiler ($Revision: 1.8 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
@@ -2045,8 +2045,14 @@ void generateClass()		      // generate C++ source code for a class
 //
 
     // This variable is part of Torbens hack
+    if ( className == "QToolBar" )
+    {
+      // Has its own custom factory
+      Q_CUSTOM_FACTORYdetected = TRUE;
+    }
     bool hasFactory = TRUE;
-    if ( ( Q_BUILDERdetected && !Q_FACTORYdetected ) || Q_INSPECTORdetected )
+
+    if ( ( Q_BUILDERdetected && !Q_CUSTOM_FACTORYdetected ) || Q_INSPECTORdetected )
     {
         // Torbens incrdible hack start here
         bool layout = FALSE;
@@ -2204,11 +2210,12 @@ void generateClass()		      // generate C++ source code for a class
            fprintf( out, "    metaObj->setComment( \"%s\" );\n", (const char*)Q_BUILDERcomment );
         if ( !Q_BUILDERpixmap.isEmpty() )
            fprintf( out, "    metaObj->setPixmap( pixmap_%s );\n", (const char*)className );
-        if ( hasFactory ) // This is one of Torbens hacks
+        // This is one of Torbens hacks
+        if ( Q_CUSTOM_FACTORYdetected )
+           fprintf( out, "    metaObj->setFactory( %s::factory );\n", (const char*)className );
+        else if ( hasFactory )
            fprintf( out, "    metaObj->setFactory( %s_factory );\n", (const char*)className );
     }
-    else if ( Q_FACTORYdetected )
-        fprintf( out, "    metaObj->setFactory( %s_factory );\n", (const char*)className );
     fprintf( out, "    return metaObj;\n}\n" );
 
 //
