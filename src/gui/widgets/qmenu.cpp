@@ -577,8 +577,24 @@ void QMenuPrivate::activateAction(QAction *action, QAction::ActionEvent action_e
     if(!action)
         return;
 
-    action->activate(action_e);
+    /* I have to save the caused stack here because it will be undone after popup execution (ie in the hide).
+       Then I iterate over the list to actually send the events. --Sam
+    */
+    QList<QPointer<QWidget> > causedStack;
     for(QWidget *widget = causedPopup; widget; ) {
+        causedStack.append(widget);
+        if(QMenu *qmenu = ::qt_cast<QMenu*>(widget)) 
+            widget = qmenu->d->causedPopup;
+        break;
+    }
+    if(action_e == QAction::Trigger)
+        hideUpToMenuBar();
+
+    action->activate(action_e);
+    for(int i = 0; i < causedStack.size(); ++i) {
+        QPointer<QWidget> widget = causedStack.at(i);
+        if(!widget)
+            continue;
         //fire
         if(QMenu *qmenu = ::qt_cast<QMenu*>(widget)) {
             widget = qmenu->d->causedPopup;
@@ -608,9 +624,6 @@ void QMenuPrivate::activateAction(QAction *action, QAction::ActionEvent action_e
             break; //nothing more..
         }
     }
-
-    if(action_e == QAction::Trigger)
-        hideUpToMenuBar();
 
     if(action_e == QAction::Hover) {
 #ifndef QT_NO_ACCESSIBILITY
