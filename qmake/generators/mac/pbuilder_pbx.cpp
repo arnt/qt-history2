@@ -263,7 +263,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	    }
 	    mkt << "\n";
 	    mkt << "preprocess: $(FORMS) $(MOCS) $(PARSERS) $(IMAGES)" << endl;
-	    mkt << "preprocess_clean: mocclean uiclean parser_clean" << endl << endl;
+	    mkt << "clean preprocess_clean: mocclean uiclean parser_clean" << endl << endl;
 	    mkt << "mocclean:" << "\n";
 	    if(!project->isEmpty("SRCMOC"))
 		mkt << "\t-rm -f $(MOCS)" << "\n";
