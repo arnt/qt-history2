@@ -34,7 +34,7 @@ if [ "$relpath" != `pwd` ]; then
 	ln -s $relpath/GNUmakefile $outpath/Makefile
     elif [ -f $relpath/Makefile ]
     then
-	rm -f $relpath/GNUmakefile $outpath/Makefile
+	rm -f $outpath/Makefile
 	ln -s $relpath/Makefile $outpath/Makefile
     else
 	echo "No top level Makefile."
