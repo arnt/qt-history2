@@ -1025,7 +1025,9 @@ void QTextEdit::imComposeEvent( QIMEvent *e )
     insert( e->text(), TRUE, FALSE );
     d->preeditLength = e->text().length();
     cursor->setIndex( d->preeditStart + e->cursorPos() );
+
     repaintChanged();
+
     e->accept();
 }
 
@@ -1034,11 +1036,12 @@ void QTextEdit::imEndEvent( QIMEvent *e )
 {
     if ( d->preeditLength > 0 && cursor->parag() )
 	cursor->parag()->remove( d->preeditStart, d->preeditLength );
-    d->preeditLength = e->text().length();
     cursor->setIndex( d->preeditStart );
     insert( e->text(), TRUE, FALSE );
     d->preeditStart = d->preeditLength = -1;
+
     repaintChanged();
+
     e->accept();
 }
 
@@ -2154,7 +2157,7 @@ void QTextEdit::removeParagraph( int para )
 void QTextEdit::undo()
 {
     // XXX FIXME The next line is here because there may be a command
-    // that needs to be 'flushed'.  The FIXME is because I am not 
+    // that needs to be 'flushed'.  The FIXME is because I am not
     // 100% certain this is the right call to do this.
     clearUndoRedo();
     if ( isReadOnly() || !doc->commands()->isUndoAvailable() || !undoEnabled )

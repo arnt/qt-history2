@@ -5409,10 +5409,9 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 	QWidget *tlw = topLevelWidget();
 	QInputContext *qic = (QInputContext *) tlw->topData()->xic;
 
-	// don't do this when we have a single multibyte character
-	if (qic && qic->composing && ! qic->lastcompose.isNull() && count != 2) {
-   	    // when in OnTheSpot mode, we eat this event because it is the keypress
-	    // that causes the QEvent::IMEnd event
+	if (qic && qic->composing && ! qic->lastcompose.isNull() &&
+	    qic->lastcompose == text) {
+	    // keyevent with same text as last compose, skip it
 	    return TRUE;
 	}
     }

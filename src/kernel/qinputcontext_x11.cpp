@@ -61,22 +61,13 @@ extern "C" {
 	    return 0;
 	}
 
-	qic->focusWidget = qApp->focusWidget();
-	if (! qic->focusWidget) {
-	    // qDebug("compose start: no focus widget");
-	    return 0;
-	}
-
 	qic->composing = TRUE;
 	qic->lastcompose = qic->text = QString::null;
+	qic->focusWidget = 0;
 
-	// qDebug("compose start: %p", qic->focusWidget);
-
-	QIMEvent event(QEvent::IMStart, qic->text, -1);
-	QApplication::sendEvent(qic->focusWidget, &event);
+	// qDebug("compose start");
 	return 0;
     }
-
 
     static int xic_draw_callback(XIC, XPointer client_data, XPointer call_data) {
 	QInputContext *qic = (QInputContext *) client_data;
@@ -97,7 +88,7 @@ extern "C" {
 
 	    if (qic->focusWidget) {
 		qic->composing = TRUE;
-		QIMEvent startevent(QEvent::IMStart, qic->text, -1);
+		QIMEvent startevent(QEvent::IMStart, QString::null, -1);
 		QApplication::sendEvent(qic->focusWidget, &startevent);
 	    }
 	}
@@ -142,11 +133,15 @@ extern "C" {
 	} else {
 	    qic->text.remove(drawstruct->chg_first, drawstruct->chg_length);
 
-	    // User pushed return key.
-	    if ( drawstruct->chg_length == 0 || ( qic->text.isEmpty() &&
-						  drawstruct->chg_length > 1 ) ) {
-		qic->text = QString::null;
+	    if (drawstruct->chg_length == 0 ||
+		(qic->text.isEmpty() && drawstruct->chg_length > 1)) {
+		// user pressed return, the keyEvent handler will receive
+		// the complete text in a keyevent, which we will detect and
+		// send an end/start pair
+		QIMEvent endevent(QEvent::IMEnd, qic->lastcompose, -1);
+		QApplication::sendEvent(qic->focusWidget, &endevent);
 		qic->focusWidget = 0;
+
 		return 0;
 	    }
 	}
@@ -156,13 +151,17 @@ extern "C" {
 	return 0;
     }
 
-
     static int xic_done_callback(XIC, XPointer client_data, XPointer) {
 	QInputContext *qic = (QInputContext *) client_data;
 	if (! qic)
 	    return 0;
 
-	// qDebug("compose done");
+	// qDebug("compose done: last %d text %d, composing %d focus %p",
+	// qic->lastcompose.length(),
+	// qic->text.length(),
+	// qic->composing,
+	// qic->focusWidget);
+
 	if (qic->composing && qic->focusWidget) {
        	    QIMEvent event(QEvent::IMEnd, qic->lastcompose, -1);
 	    QApplication::sendEvent(qic->focusWidget, &event);
@@ -174,7 +173,6 @@ extern "C" {
 
 	return 0;
     }
-
 
     static int xic_caret_callback(XIC, XPointer client_data, XPointer call_data) {
 	QInputContext *qic = (QInputContext *) client_data;
@@ -287,9 +285,11 @@ QInputContext::~QInputContext()
 #if !defined(QT_NO_XIM)
     if (ic)
 	XDestroyIC((XIC) ic);
+
     if ( (qt_xim_style & XIMPreeditPosition) && fontset )
 	XFreeFontSet( QPaintDevice::x11AppDisplay(), fontset );
 #endif // !QT_NO_XIM
+
     ic = 0;
     focusWidget = 0;
     composing = FALSE;
@@ -299,19 +299,13 @@ QInputContext::~QInputContext()
 void QInputContext::reset()
 {
 #if !defined(QT_NO_XIM)
-    if (focusWidget && composing) {
+    if (focusWidget && composing && ! text.isNull()) {
 	// qDebug("QInputContext::reset: composing - sending IMEnd");
 
-	QIMEvent event(QEvent::IMEnd, lastcompose, -1);
-	QApplication::sendEvent(focusWidget, &event);
-
-	focusWidget = 0;
-	composing = FALSE;
+	char *mb = XmbResetIC((XIC) ic);
+	if (mb)
+	    XFree(mb);
     }
-
-    char *mb = XmbResetIC((XIC) ic);
-    if (mb)
-	XFree(mb);
 #endif // !QT_NO_XIM
 }
 
