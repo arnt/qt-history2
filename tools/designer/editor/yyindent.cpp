@@ -918,21 +918,17 @@ static int indentForStandaloneLine()
 
 	    LinizerState hookState;
 
-	    if ( *yyBraceDepth == 0 ) {
-		while ( isContinuationLine() )
-		    readLine();
-		hookState = *yyLinizerState;
-
+	    while ( isContinuationLine() )
 		readLine();
-		if ( *yyBraceDepth == 0 ) {
-		    do {
-			if ( !matchBracelessControlStatement() )
-			    break;
-			hookState = *yyLinizerState;
-		    } while ( readLine() );
-		}
-	    } else {
-		hookState = *yyLinizerState;
+	    hookState = *yyLinizerState;
+
+	    readLine();
+	    if ( *yyBraceDepth <= 0 ) {
+		do {
+		    if ( !matchBracelessControlStatement() )
+			break;
+		    hookState = *yyLinizerState;
+		} while ( readLine() );
 	    }
 
 	    *yyLinizerState = hookState;
@@ -949,7 +945,7 @@ static int indentForStandaloneLine()
 	}
 
 	if ( !readLine() )
-	    break;
+	    return -*yyBraceDepth * ppIndentSize;
     }
     return 0;
 }
