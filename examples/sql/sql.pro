@@ -1,5 +1,5 @@
 TEMPLATE = subdirs
 QT += sql
 
-SUBDIRS = sqlmodel customsqlmodel
+SUBDIRS = sqlmodel customsqlmodel editablesqlmodel
 

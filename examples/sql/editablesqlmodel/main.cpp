@@ -10,13 +10,14 @@
  **
  ****************************************************************************/
 
-/* This examples demonstrates how to subclass QSqlModel to display
-   custom values. The QSQLITE driver is required for this example.
+/* This examples demonstrates how to subclass QSqlModel to allow
+   editing of database values.
  */
 
 #include <qapplication.h>
 #include <qgenerictableview.h>
 #include <qsqldatabase.h>
+#include <qsqldriver.h>
 #include <qsqlmodel.h>
 #include <qsqlquery.h>
 
@@ -39,20 +40,51 @@ static void createConnection()
     q.exec("insert into persons values(3, 'Peter', 'Arthurson')");
 }
 
-class CustomSqlModel: public QSqlModel
+class EditableSqlModel: public QSqlModel
 {
 public:
-    CustomSqlModel(QObject *parent = 0): QSqlModel(parent) {}
-    QVariant data(const QModelIndex &item, int role = QAbstractItemModel::Display) const;
+    EditableSqlModel(QObject *parent = 0): QSqlModel(parent) {}
+
+    bool isEditable(const QModelIndex &index) const;
+    bool setData(const QModelIndex &idx, int role, const QVariant &value);
+
+private:
+    bool editLastName(int pkey, const QString &newValue);
 };
 
-QVariant CustomSqlModel::data(const QModelIndex &item, int role) const
+bool EditableSqlModel::isEditable(const QModelIndex &index) const
 {
-    QVariant v = QSqlModel::data(item, role);
-    if (v.isValid() && item.column() == 0
-        && item.type() == QModelIndex::View && role == QAbstractItemModel::Display)
-        return v.toString().prepend("#");
-    return v;
+    if (index.type() != QModelIndex::View)
+        return QSqlModel::isEditable(index);
+    if (index.column() != 2)
+        return false;
+    return true;
+}
+
+bool EditableSqlModel::setData(const QModelIndex &idx, int role, const QVariant &value)
+{
+    if (idx.type() != QModelIndex::View)
+        return QSqlModel::setData(idx, role, value);
+    if (idx.column() != 2)
+        return false;
+
+    QModelIndex primaryKeyIndex = index(idx.row(), 0);
+    int id = data(primaryKeyIndex).toInt();
+
+    if (!editLastName(id, value.toString()))
+        return false;
+
+    setQuery("select * from persons");
+    return true;
+}
+
+bool EditableSqlModel::editLastName(int pkey, const QString &newValue)
+{
+    QSqlQuery q;
+    q.prepare("update table persons set lastname = ? where id = ?");
+    q.addBindValue(newValue);
+    q.addBindValue(pkey);
+    return q.exec();
 }
 
 int main(int argc, char *argv[])
@@ -60,7 +92,7 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
     createConnection();
 
-    CustomSqlModel *model = new CustomSqlModel(&app);
+    EditableSqlModel *model = new EditableSqlModel(&app);
     model->setQuery("select * from persons");
 
     QGenericTableView view(model, 0);
