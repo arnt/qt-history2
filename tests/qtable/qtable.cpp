@@ -617,7 +617,7 @@ void QTable::swapRows( int row1, int row2 )
     QVector<QWidget> tmpWidgets;
     tmpWidgets.resize( numCols() );
     int i;
-    
+
     contents.setAutoDelete( FALSE );
     widgets.setAutoDelete( FALSE );
     for ( i = 0; i < numCols(); ++i ) {
@@ -663,7 +663,7 @@ void QTable::swapColumns( int col1, int col2 )
     QVector<QWidget> tmpWidgets;
     tmpWidgets.resize( numRows() );
     int i;
-    
+
     contents.setAutoDelete( FALSE );
     widgets.setAutoDelete( FALSE );
     for ( i = 0; i < numRows(); ++i ) {
@@ -684,7 +684,7 @@ void QTable::swapColumns( int col1, int col2 )
     }
     contents.setAutoDelete( FALSE );
     widgets.setAutoDelete( TRUE );
-    
+
     columnWidthChanged( col1 );
     columnWidthChanged( col2 );
     if ( curCol == col1 )
@@ -1161,10 +1161,6 @@ void QTable::contentsMousePressEvent( QMouseEvent* e )
     int curCol = columnAt( e->pos().x() );
     fixRow( curRow, e->pos().y() );
     fixCol( curCol, e->pos().x() );
-
-    if ( currentSelection && currentSelection->active &&
-	 ( currentSelection->anchorCol != curCol || currentSelection->anchorRow != curRow ) )
-	setCurrentCell( currentSelection->anchorRow, currentSelection->anchorCol );
 
     if ( ( e->state() & ShiftButton ) == ShiftButton ) {
 	if ( !currentSelection ) {
@@ -2625,7 +2621,7 @@ void QTableHeader::mouseMoveEvent( QMouseEvent *e )
 {
     if ( !mousePressed || cursor().shape() != ArrowCursor ||
 	 ( ( e->state() & ControlButton ) == ControlButton && ( orientation() == Horizontal ?
-								table->columnMovingEnabled() : 
+								table->columnMovingEnabled() :
 								table->rowMovingEnabled() ) ) ) {
 	QHeader::mouseMoveEvent( e );
 	return;
@@ -2865,7 +2861,7 @@ void QTableHeader::swapSections( int oldIdx, int newIdx )
 	setLabel( oldIdx, *iconSet( newIdx ), label( newIdx ) );
     else
 	setLabel( oldIdx, label( newIdx ) );
-    
+
     if ( his )
 	setLabel( newIdx, is, l );
     else
@@ -2897,6 +2893,6 @@ void QTableHeader::indexChanged( int sec, int oldIdx, int newIdx )
 	}
     }
 
-    table->repaintContents( table->contentsX(), table->contentsY(), 
+    table->repaintContents( table->contentsX(), table->contentsY(),
 			    table->visibleWidth(), table->visibleHeight() );
 }
