@@ -16,26 +16,23 @@ namespace QMsNet
     public class Connect : Object, Extensibility.IDTExtensibility2, IDTCommandTarget
     {
 	// Variabels ------------------------------------------------
-	private _DTE applicationObject;
-	private AddIn addInInstance;
+	public static _DTE applicationObject = null;
+	public static AddIn addinInstance = null;
 
 	// Functions ------------------------------------------------
 	public Connect(){}
 	public void OnConnection( object application, 
 				  Extensibility.ext_ConnectMode connectMode, 
-				  object addInInst, 
+				  object addinInst, 
 				  ref System.Array custom )
 	{
 	    applicationObject = (_DTE)application;
-	    addInInstance = (AddIn)addInInst;
+	    addinInstance = (AddIn)addinInst;
 	
 	    // General startup code
 	    if ( ( ext_ConnectMode.ext_cm_AfterStartup == connectMode ) ||
 		( ext_ConnectMode.ext_cm_Startup      == connectMode ) ) {
-		if ( null == ExtLoader.applicationObject ) {
-		    ExtLoader.applicationObject = applicationObject;
-		    ExtLoader.startUp();
-		}
+		ExtLoader.startUp();
 	    }
 	    // ######################################################
 	    // # The following UISetup signal is only sent once, 
@@ -52,7 +49,7 @@ namespace QMsNet
 		// --> Tip from John Robbins
 		try {
     		    MessageBox.Show( "Setting up QMsNet..." );
-		    AddinInit aii = new AddinInit( applicationObject, addInInstance );
+		    AddinInit aii = new AddinInit( applicationObject, addinInstance );
 		    aii.removeCommands();
 		    aii.removeCommandBars();
 		    aii.registerCommandBars();
@@ -108,10 +105,10 @@ namespace QMsNet
 		if( executeOption == EnvDTE.vsCommandExecOption.vsCommandExecOptionDoDefault ) {
 		    if( commandName == Resource.LoadQtProjectFullCommand ) {
 			handled = true;
-			ExtLoader.LoadProject();
+			ExtLoader.loadProject();
 		    } else if ( commandName == Resource.SaveQtProjectFullCommand ) {
 			handled = true;
-			ExtLoader.SaveProject();
+			ExtLoader.saveProject();
 		    }
 		}
 	    }

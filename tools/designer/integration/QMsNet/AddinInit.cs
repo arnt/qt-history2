@@ -12,8 +12,6 @@ namespace QMsNet
     public class AddinInit
     {
 	// Variabels ------------------------------------------------------
-	private _DTE applicationObject;
-	private AddIn addinInstance;
 	private Commands cmds;
 	private _CommandBars cmdBars;
 	private CommandBar cmdBar;
@@ -21,10 +19,8 @@ namespace QMsNet
 	// Functions ------------------------------------------------------
 	public AddinInit( _DTE a, AddIn b )
 	{
-	    applicationObject = a;
-	    addinInstance = b;
-	    cmdBars = applicationObject.CommandBars;
-	    cmds    = applicationObject.Commands;
+	    cmdBars = a.CommandBars;
+	    cmds    = a.Commands;
 	    try {
 		cmdBar  = (CommandBar)cmdBars[ Resource.CommandBarName ];
 	    }
@@ -90,7 +86,7 @@ namespace QMsNet
 		Command cmd = null;
 
 		// Add Moc Step for current file command
-		cmd = cmds.AddNamedCommand( addinInstance,
+		cmd = cmds.AddNamedCommand( Connect.addinInstance,
 		    Resource.AddMocStep,
 		    Resource.AddMocStepButtonText,
 		    Resource.AddMocStepToolTip,
@@ -102,7 +98,7 @@ namespace QMsNet
 		cmd.AddControl( cmdBar, 1 );
 
 		// DLL Project command
-		cmd = cmds.AddNamedCommand( addinInstance,
+		cmd = cmds.AddNamedCommand( Connect.addinInstance,
 		    Resource.DLLQtProject,
 		    Resource.DLLQtProjectButtonText,
 		    Resource.DLLQtProjectToolTip,
@@ -114,7 +110,7 @@ namespace QMsNet
 		cmd.AddControl( cmdBar, 1 );
 
 		// Save Qt Project command
-		cmd = cmds.AddNamedCommand( addinInstance,
+		cmd = cmds.AddNamedCommand( Connect.addinInstance,
 		    Resource.SaveQtProject,
 		    Resource.SaveQtProjectButtonText,
 		    Resource.SaveQtProjectToolTip,
@@ -125,7 +121,7 @@ namespace QMsNet
 		cmd.AddControl( cmdBar, 1 );
 
 		// Load Qt Project command
-		cmd = cmds.AddNamedCommand( addinInstance,
+		cmd = cmds.AddNamedCommand( Connect.addinInstance,
 		    Resource.LoadQtProject,
 		    Resource.LoadQtProjectButtonText,
 		    Resource.LoadQtProjectToolTip,
@@ -137,7 +133,7 @@ namespace QMsNet
 		cmd.AddControl( cmdBar, 1 );
 
 		// Load Designer command
-		cmd = cmds.AddNamedCommand( addinInstance,
+		cmd = cmds.AddNamedCommand( Connect.addinInstance,
 		    Resource.LoadDesigner,
 		    Resource.LoadDesignerButtonText,
 		    Resource.LoadDesignerToolTip,
@@ -149,7 +145,7 @@ namespace QMsNet
 		cmd.AddControl( cmdBar, 1 );
 
 		// Make Qt Project command
-		cmd = cmds.AddNamedCommand( addinInstance,
+		cmd = cmds.AddNamedCommand( Connect.addinInstance,
 		    Resource.MakeQtProject,
 		    Resource.MakeQtProjectButtonText,
 		    Resource.MakeQtProjectToolTip,
@@ -161,7 +157,7 @@ namespace QMsNet
 		cmd.AddControl( cmdBar, 1 );
 
 		// New Qt Project command
-		cmd = cmds.AddNamedCommand( addinInstance,
+		cmd = cmds.AddNamedCommand( Connect.addinInstance,
 		    Resource.NewQtProject,
 		    Resource.NewQtProjectButtonText,
 		    Resource.NewQtProjectToolTip,
