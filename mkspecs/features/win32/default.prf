@@ -1,2 +1,3 @@
-CONFIG = uic resources rtti_off exceptions_off stl_off warn_on debug incremental_off thread_off windows $$CONFIG
+CONFIG = rtti_off exceptions_off stl_off incremental_off thread_off windows $$CONFIG
+load(default)
 
