@@ -119,6 +119,8 @@ public:
 
     bool isModified() const;
 
+    QString toHtml() const;
+
 signals:
     void contentsChanged();
     void undoAvailable(bool);

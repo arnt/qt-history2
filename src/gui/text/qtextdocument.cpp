@@ -640,6 +640,42 @@ void QTextDocument::setModified(bool m)
     docHandle()->setModified(m);
 }
 
+static void tableToHtml(QString &html, const QTextTable *table)
+{
+}
+
+static void blockToHtml(QString &html, const QTextBlock &block)
+{
+    html += QLatin1String("<p>");
+    for (QTextBlock::Iterator it = block.begin();
+         !it.atEnd(); ++it) {
+        QTextFragment fragment = it.fragment();
+
+        html += fragment.text();
+    }
+    html += QLatin1String("</p>");
+}
+
+static void frameToHtml(QString &html, const QTextFrame *frame)
+{
+    for (QTextFrame::Iterator it = frame->begin();
+         !it.atEnd(); ++it) {
+        if (QTextTable *table = qt_cast<QTextTable *>(it.currentFrame())) {
+            tableToHtml(html, table);
+        } else if (it.currentBlock().isValid()) {
+            blockToHtml(html, it.currentBlock());
+        }
+    }
+}
+
+QString QTextDocument::toHtml() const
+{
+    QString html(QLatin1String("<html><body>")); // ####
+    frameToHtml(html, rootFrame());
+    html += "</body></html>";
+    return html;
+}
+
 /*!
   \internal
 
