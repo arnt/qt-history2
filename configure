@@ -3142,11 +3142,7 @@ echo "STL support ......... $CFG_STL"
 echo "Thread support ...... $CFG_THREAD"
 echo "NIS support ......... $CFG_NIS"
 echo "CUPS support ........ $CFG_CUPS"
-if [ "$CFG_LARGEFILE" = "yes" ]; then
-    echo "Large File support .. partial"
-else
-    echo "Large File support .. $CFG_LARGEFILE"
-fi
+echo "Large File support .. $CFG_LARGEFILE"
 echo "GIF support ......... $CFG_GIF"
 if [ "$CFG_MNG" = "no" ]; then
     echo "MNG support ......... $CFG_MNG"
