@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#90 $
+** $Id: //depot/qt/main/src/moc/moc.y#91 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -37,7 +37,7 @@ void yyerror( char *msg );
 #include <stdio.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/moc/moc.y#90 $");
+RCSTAG("$Id: //depot/qt/main/src/moc/moc.y#91 $");
 
 static QString rmWS( const char * );
 
@@ -899,7 +899,7 @@ int main( int argc, char **argv )
 	if ( error )
 	    fprintf( stderr, "moc: %s\n", error );
 	fprintf( stderr, "Usage:  moc [options] <header-file>\n"
-		 "\t-D[macro] Define a macro (for #ifdef processing\n"
+		 "\t-D[macro] Define a macro (for #ifdef processing)\n"
 		 "\t-o file   Write output to file rather than stdout\n"
 		 "\t-i        Do not generate an #include statement\n"
 		 "\t-f[file]  Force #include, optional file name\n"
@@ -1266,7 +1266,7 @@ void generateClass()		      // generate C++ source code for a class
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt Meta Object Compiler ($Revision: 2.24 $)\n**\n";
+		 "**      by: The Qt Meta Object Compiler ($Revision: 2.25 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
