@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#46 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#47 $
 **
 ** Definition of QFileDialog class
 **
@@ -53,71 +53,77 @@ public:
 class QRenameEdit : public QLineEdit
 {
     Q_OBJECT
-    
+
 public:
     QRenameEdit( QWidget *parent )
         : QLineEdit( parent )
     {}
-    
+
 protected:
     void keyPressEvent( QKeyEvent *e );
     void focusOutEvent( QFocusEvent *e );
-    
+
 signals:
     void escapePressed();
-    
+
 };
-    
+
 class QFileListBox : public QListBox
 {
-    Q_OBJECT
+    friend class QFileDialog;
     
+    Q_OBJECT
+
 public:
     QFileListBox( QWidget *parent, QFileDialog *d );
 
     void clear();
-    
+    void startRename();
+
 protected:
     void viewportMousePressEvent( QMouseEvent *e );
     void keyPressEvent( QKeyEvent *e );
-    
+
 public slots:
     void rename();
-    void cancelRename();        
-    
+    void cancelRename();
+
 private:
     QRenameEdit *lined;
     QFileDialog *filedialog;
     bool renaming;
-    
+
 };
 
 class QFileListView : public QListView
 {
     Q_OBJECT
-    
+
 public:
     QFileListView( QWidget *parent, QFileDialog *d );
 
     void clear();
+    void startRename();
     
 protected:
     void viewportMousePressEvent( QMouseEvent *e );
     void keyPressEvent( QKeyEvent *e );
-    
+
 public slots:
     void rename();
-    void cancelRename();        
-    
+    void cancelRename();
+
 private:
     QRenameEdit *lined;
     QFileDialog *filedialog;
     bool renaming;
-    
+
 };
 
 class Q_EXPORT QFileDialog : public QDialog
 {
+    friend class QFileListBox;
+    
     Q_OBJECT
 public:
     QFileDialog( const QString& dirName, const QString& filter = QString::null,
@@ -184,6 +190,7 @@ private slots:
     void updateFileNameEdit( QListViewItem *);
     void selectDirectoryOrFile( QListViewItem * );
     void popupContextMenu( QListViewItem *, const QPoint &, int );
+    void popupContextMenu( QListBoxItem *, const QPoint & );
     void updateFileNameEdit( QListBoxItem *);
     void selectDirectoryOrFile( QListBoxItem * );
     void fileNameEditDone();
@@ -210,7 +217,9 @@ private slots:
 private:
     void init();
     bool trySetSelection( const QFileInfo&, bool );
-
+    void deleteFile( QListBoxItem *item );
+    void deleteFile( QListViewItem *item );
+    
     QDir cwd;
     QString fileName;
 
