@@ -573,7 +573,6 @@ MakefileGenerator::init()
 		    lexsrc.prepend(fi.dirPath() + Option::dir_sep);
 		if(v["LEXSOURCES"].findIndex(lexsrc) != -1) {
 		    QString trg = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::lex_mod + Option::cpp_ext;
-		    qDebug("found it %s %s %s", lexsrc.latin1(), impl.latin1(), trg.latin1());
 		    impldeps.append(trg);
 		    impldeps += findDependencies(lexsrc);
 		}
