@@ -192,10 +192,10 @@ elif [ -f $relpath/.LICENSE ]; then
 	case $keyTest in
 	3|5|7|9|B|D|F|H|b|d|f|h)
 	    # US
-	    cp -f $relpath/.LICENSE-US $relpath/LICENSE
+	    cp -f $relpath/.LICENSE-US $outpath/LICENSE
 	    ;;
 	*)
-	    cp -f $relpath/.LICENSE $relpath/LICENSE
+	    cp -f $relpath/.LICENSE $outpath/LICENSE
 	    ;;
 	esac
     else
