@@ -34,20 +34,20 @@ const tabSize = 4;
  * Purging filters that will be moved into files later
  */
 
-var depotRemove = [ new RegExp("^gif"),
-		    new RegExp("^tests"),
-		    new RegExp("^tmake"),
-		    new RegExp("^util"),
+var checkoutRemove = [ new RegExp("^gif"),
+		       new RegExp("^tests"),
+		       new RegExp("^tmake"),
+		       new RegExp("^util"),
 		    
-		    new RegExp("^tools/designer/manual"),
-		    new RegExp("^tools/designer/doc"),
-		    new RegExp("^tools/designer/plugins/designer_interface_roadmap"),
-		    new RegExp("^tools/designer/plugins/extrawidgets"),
-		    new RegExp("^tools/designer/plugins/p4"),
-		    new RegExp("^tools/designer/plugins/qvim"),
-		    new RegExp("^tools/designer/plugins/designer_interface_roadmap"),
-		    new RegExp("^tools/inspector") ];
-var depotKeep = [ /./ ];
+		       new RegExp("^tools/designer/manual"),
+		       new RegExp("^tools/designer/doc"),
+		       new RegExp("^tools/designer/plugins/designer_interface_roadmap"),
+		       new RegExp("^tools/designer/plugins/extrawidgets"),
+		       new RegExp("^tools/designer/plugins/p4"),
+		       new RegExp("^tools/designer/plugins/qvim"),
+		       new RegExp("^tools/designer/plugins/designer_interface_roadmap"),
+		       new RegExp("^tools/inspector") ];
+var checkoutKeep = [ /./ ];
 
 var platformRemove = new Array();
 var platformKeep = new Array();
@@ -72,8 +72,8 @@ print("Building qdoc...");
 buildQdoc();
 print("Checkout from P4...");
 checkout();
-print("Purging before packaging...");
-purgeFiles(checkoutDir, getFileList(checkoutDir), depotRemove, depotKeep);
+print("Purging checkout...");
+purgeFiles(checkoutDir, getFileList(checkoutDir), checkoutRemove, checkoutKeep);
 indentation+=tabSize;
 for (var p in validPlatforms) {
     for (var e in validEditions) {
@@ -84,7 +84,7 @@ for (var p in validPlatforms) {
   	    indentation+=tabSize;
 
   	    // copy checkoutDir to platDir
-  	    print("Copying depot...");
+  	    print("Copying checkout...");
   	    var platName = "qt-%1-%2-%3".arg(platform).arg(edition).arg(options["version"]);
   	    var platDir = distDir + "/" + platName;
   	    Process.execute(["cp", "-r", checkoutDir, platDir]);
@@ -112,8 +112,9 @@ for (var p in validPlatforms) {
   	}
     }
 }
-
-//cleanup();
+indentation-=tabSize;
+// print("Cleaning all temp files...");
+// cleanup();
 
 /************************************************************
  * Parses and checks the commandline options and puts them into options[key] = value
@@ -370,6 +371,10 @@ function compress(packageDir, platform, edition)
 	    var fileName = new String();
 	    var absFileName = new String();
 	    var zipFile = outputDir + "/" + packageName + ".zip";
+	    // delete any old zipFile
+	    if (File.exists(zipFile))
+		File.remove(zipFile);
+	    // generate list of binary and text files
 	    for (var i in files) {
 		fileName = files[i];
 		absFileName = packageDir + "/" + fileName;
@@ -380,8 +385,7 @@ function compress(packageDir, platform, edition)
 			textFiles.push(packageName + "/" + fileName);
 		}
 	    }
-
-	    // add binary and text files to the zip file in in two big goes
+	    // add the binary and text files to the zip file in in two big goes
 	    dir.setCurrent(); //  current dir is parent of packageDir
 	    if (binaryFiles.length > 0)
 		Process.execute(["zip", "-9q", zipFile, "-@"], binaryFiles.join("\n"));
@@ -390,16 +394,16 @@ function compress(packageDir, platform, edition)
 	}
     } else {
 	var tarFile = outputDir + "/" + packageName + ".tar";
-	Process.execute(["tar", "cf", tarFile, packageName]);
+	Process.execute(["tar", "-cf", tarFile, packageName]);
 	print(Process.stdout + Process.stderr);
 	if (!File.exists(tarFile))
 	    throw "Failed to produce %1.".arg(tarFile);
 	
  	if (options["bzip"]) {
- 	    Process.execute(["bzip2", "-z", "-k", tarFile]);
+ 	    Process.execute(["bzip2", "-zkf", tarFile]);
  	}
  	if (options["gzip"]) {
- 	    Process.execute(["gzip", tarFile]);
+ 	    Process.execute(["gzip", "-f", tarFile]);
  	}
 	// remove .tar
 	if (File.exists(tarFile))
@@ -458,7 +462,9 @@ function getFileList(rootDir)
 function cleanup()
 {
     // deletes distDir
-    var dir = new Dir(distDir);
+    var dir = new Dir(tmpDir);
+    dir.setCurrent();
+    dir = new Dir(distDir);
     if (dir.exists)
 	dir.rmdirs();
 }
