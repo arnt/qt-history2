@@ -35,7 +35,7 @@
 
 QAction *QMenuBarPrivate::actionAt(QPoint p) const
 {
-    Q_Q(QMenuBar);
+    Q_Q(const QMenuBar);
     QList<QAction*> items = q->actions();
     for(int i = 0; i < items.size(); ++i) {
         if(actionRect(items.at(i)).contains(p))
