@@ -56,23 +56,21 @@ public:
     QSqlField field(int i) const;
     QSqlField field(const QString &name) const;
 
+    bool isGenerated(int i) const;
+    bool isGenerated(const QString& name) const;
+    void setGenerated(const QString& name, bool generated);
+    void setGenerated(int i, bool generated);
+
 #ifdef QT_COMPAT
     QT_COMPAT const QSqlField* fieldPtr(int i) const;
     QT_COMPAT const QSqlField* fieldPtr(const QString& name) const;
-    QT_COMPAT bool isGenerated(int i) const;
-    QT_COMPAT bool isGenerated(const QString& name) const;
-    QT_COMPAT void setGenerated(const QString& name, bool generated);
-    QT_COMPAT void setGenerated(int i, bool generated);
+    inline QT_COMPAT int position(const QString& name) const { return indexOf(name); }
 #endif
 
     void append(const QSqlField& field);
     void replace(int pos, const QSqlField& field);
     void insert(int pos, const QSqlField& field);
     void remove(int pos);
-
-#ifdef QT_COMPAT
-    inline QT_COMPAT int position(const QString& name) const { return indexOf(name); }
-#endif
 
     bool isEmpty() const;
     bool contains(const QString& name) const;
