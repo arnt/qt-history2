@@ -70,7 +70,7 @@ int QGuiEventLoop::registerTimer(int interval, QObject *obj)
     if (!d->macTimerList)
 	d->macTimerList = new MacTimerList;
 
-    static int serial_id = 666;
+    static int serial_id = 777;
     MacTimerInfo t;
     t.obj = obj;
     t.mac_timer = 0;
@@ -83,15 +83,16 @@ int QGuiEventLoop::registerTimer(int interval, QObject *obj)
 	EventTimerInterval mint = (((EventTimerInterval)interval) / 1000);
 	d->macTimerList->append(t); //carbon timers go at the end..
 	if (InstallEventLoopTimer(GetMainEventLoop(), mint, mint,
-				 timerUPP, &(d->macTimerList->last()), &(t.mac_timer))) {
+				 timerUPP, &d->macTimerList->last(), &d->macTimerList->last().mac_timer)) {
 	    qFatal("This cannot really happen, can it!?!");
 	    return 0; //exceptional error
 	}
+	d->macTimerList->last().pending = false;
     } else {
 	d->zero_timer_count++;
 	d->macTimerList->prepend(t); //zero timers come first
+	d->macTimerList->first().pending = false;
     }
-    t.pending = false;
     return t.id;
 }
 
