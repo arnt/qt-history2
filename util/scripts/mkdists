@@ -351,11 +351,6 @@ for $platform ( "x11", "windows", "qws" ) {
 
 # X11 and QWS stuff.
 
-sub justunixfiles {
-    unlink $_ if ( ( /_[a-z]*.cpp$/ && !/_$platform.cpp$/ && !/_unix.cpp$/ ) ||
-		   ( /qt_[a-z]*.h$/ && !/^qt_$platform.h$/ ) );
-}
-
 for $platform ( "x11", "qws" ) {
     next if $notplatform{$platform};
 
@@ -366,7 +361,12 @@ for $platform ( "x11", "qws" ) {
     $ENV{ "TMAKEPATH" } = $ENV{"TMAKEDIR" } . "/lib/linux-g++";
     $ENV{ "QTDIR" } = $qtdir;
 
-    find( \&justunixfiles, $qtdir );
+    find(
+	sub {
+	    unlink $_ if ( ( /_[a-z]*.cpp$/ && !/_$platform.cpp$/ && !/_unix.cpp$/ ) ||
+		   ( /qt_[a-z]*.h$/ && !/^qt_$platform.h$/ ) );
+	}, $qtdir;
+    )
 
     # copy the dist things into a supplemental directory
     mkdir "$distdir/$platform-free/", 0777;
