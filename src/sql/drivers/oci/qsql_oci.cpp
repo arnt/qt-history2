@@ -610,7 +610,6 @@ public:
     bool isNull(int i);
     QVariant::Type type(int i);
     int fieldFromDefine(OCIDefine* d);
-    OCILobLocator* lobLocator(int i);
     int length(int i);
     QVariant value(int i);
 
@@ -618,7 +617,7 @@ public:
 
 private:
     char* create(int position, int size);
-    OCILobLocator** createLobLocator(int position, OCIEnv* env);
+    OCILobLocator ** createLobLocator(int position, OCIEnv* env);
 
     class OraFieldInf
     {
@@ -630,7 +629,7 @@ private:
         sb2 ind;
         QVariant::Type typ;
         OCIDefine *def;
-        OCILobLocator **lob;
+        OCILobLocator *lob;
     };
 
     QVector<OraFieldInf> fieldInf;
@@ -641,7 +640,7 @@ QOCIResultPrivate::OraFieldInf::~OraFieldInf()
 {
     delete [] data;
     if (lob) {
-        int r = OCIDescriptorFree((dvoid *)*lob, (ub4) OCI_DTYPE_LOB);
+        int r = OCIDescriptorFree(lob, (ub4) OCI_DTYPE_LOB);
         if (r != 0)
             qWarning("QOCIResultPrivate: Cannot free LOB descriptor");
     }
@@ -785,18 +784,19 @@ char* QOCIResultPrivate::create(int position, int size)
     return c;
 }
 
-OCILobLocator** QOCIResultPrivate::createLobLocator(int position, OCIEnv* env)
+OCILobLocator **QOCIResultPrivate::createLobLocator(int position, OCIEnv* env)
 {
-    OCILobLocator** lob = new OCILobLocator*;
+    OCILobLocator *& lob = fieldInf[position].lob;
     int r = OCIDescriptorAlloc((dvoid *)env,
-                                (dvoid **)lob,
+                                (dvoid **)&lob,
                                 (ub4)OCI_DTYPE_LOB,
                                 (size_t) 0,
                                 (dvoid **) 0);
-    if (r != 0)
+    if (r != 0) {
         qWarning("QOCIResultPrivate: Cannot create LOB locator");
-    fieldInf[position].lob = lob;
-    return lob;
+        lob = 0;
+    }
+    return &lob;
 }
 
 void QOCIResultPrivate::setCharset(OCIDefine* dfn)
@@ -899,7 +899,7 @@ int QOCIResultPrivate::readLOBs(QVector<QVariant> &values, int index)
     OCILobLocator* lob;
     ub4 amount;
     for (int i = 0; i < size(); ++i) {
-        lob = lobLocator(i);
+        lob = fieldInf.at(i).lob;
         if (!lob || isNull(i))
             continue;
         r = OCILobGetLength(d->svc, d->err, lob, &amount);
@@ -986,20 +986,13 @@ inline QVariant::Type QOCIResultPrivate::type(int i)
 {
     return fieldInf.at(i).typ;
 }
-inline int QOCIResultPrivate::fieldFromDefine(OCIDefine* d)
+int QOCIResultPrivate::fieldFromDefine(OCIDefine* d)
 {
     for (int i = 0; i < fieldInf.count(); ++i) {
         if (fieldInf.at(i).def == d)
             return i;
     }
     return -1;
-}
-OCILobLocator* QOCIResultPrivate::lobLocator(int i)
-{
-    OCILobLocator** lob = fieldInf.at(i).lob;
-    if (!lob)
-        return 0;
-    return *lob;
 }
 inline int QOCIResultPrivate::length(int i)
 {
@@ -1009,23 +1002,23 @@ QVariant QOCIResultPrivate::value(int i)
 {
     QVariant v;
     switch (type(i)) {
-        case QVariant::DateTime:
-            v = QVariant(qMakeDate(at(i)));
-            break;
-        case QVariant::String:
-        case QVariant::Double: // when converted to strings
-        case QVariant::Int:    // keep these as strings so that we do not lose precision
-            v = QVariant(QString::fromUtf16((const short unsigned int*)at(i)));
-            break;
-        case QVariant::ByteArray: {
-            int len = length(i);
-            if (len > 0)
-                return QByteArray(at(i), len);
-            return QVariant(QByteArray());
-        }
-        default:
-            qWarning("QOCIResultPrivate::value: unknown data type");
-            break;
+    case QVariant::DateTime:
+        v = QVariant(qMakeDate(at(i)));
+        break;
+    case QVariant::String:
+    case QVariant::Double: // when converted to strings
+    case QVariant::Int:    // keep these as strings so that we do not lose precision
+        v = QVariant(QString::fromUtf16((const short unsigned int*)at(i)));
+        break;
+    case QVariant::ByteArray: {
+        int len = length(i);
+        if (len > 0)
+            return QByteArray(at(i), len);
+        return QVariant(QVariant::ByteArray);
+    }
+    default:
+        qWarning("QOCIResultPrivate::value: unknown data type");
+        break;
     }
     return v;
 }
