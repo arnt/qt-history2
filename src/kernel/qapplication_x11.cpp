@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#275 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#276 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -85,7 +85,7 @@ static inline void bzero( void *s, int n )
 #endif
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#275 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#276 $");
 
 
 /*****************************************************************************
@@ -153,12 +153,11 @@ static void	initTimers();
 static void	cleanupTimers();
 static timeval	watchtime;			// watch if time is turned back
 
-#if (defined(_OS_OSF_) && (XlibSpecificationRelease < 6)) || defined(_OS_AIX_)
-// these have broken Xlibs, so we pretend they're X11R4
-#define X11R4
+#if defined(X11R4) || (defined(_OS_OSF_) && (XlibSpecificationRelease < 6)) || defined(_OS_AIX_)
+#define NO_XIM
 #endif
 
-#if !defined(X11R4)
+#if !defined(NO_XIM)
 static XIM	xim;
 #endif
 
@@ -416,7 +415,7 @@ static void qt_init_internal( int *argcptr, char **argv, Display *display )
 	QPalette pal( cg, dcg, cg );
 	QApplication::setPalette( pal );
     }
-#if !defined(X11R4)
+#if !defined(NO_XIM)
     setlocale( LC_ALL, "" );		// use correct char set mapping
     setlocale( LC_NUMERIC, "C" );	// make sprintf()/scanf() work
     if ( XSupportsLocale() &&
@@ -465,7 +464,7 @@ void qt_cleanup()
     QFont::cleanup();
     QColor::cleanup();
 
-#if !defined(X11R4)
+#if !defined(NO_XIM)
     if ( xim ) {
 	// Calling XCloseIM gives a Purify FMR error
 	// Instead we get a non-critical memory leak
@@ -2630,9 +2629,7 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 
     type = (event->type == KeyPress) ? Event_KeyPress : Event_KeyRelease;
 
-#if defined(X11R4) || (defined(_OS_OSF_) && (XlibSpecificationRelease < 6)) || defined(_OS_AIX_)
-    // Implementation for X11R4 not using XIM, and for OSF/1 with broken
-    // Xlib
+#if defined(NO_XIM)
 
     count = XLookupString( &((XEvent*)event)->xkey, ascii, 16, &key, 0 );
 
@@ -2688,7 +2685,7 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 	    delete s;
 	}
     }
-#endif // !X11R4
+#endif // !NO_XIM
 
     state = translateButtonState( event->xkey.state );
 
