@@ -36,6 +36,7 @@ class QMakeSourceFileInfo
 private:
     //quick project lookups
     SourceFiles *files;
+    bool files_changed;
     QList<QMakeLocalFileName> depdirs;
 
     //sleezy buffer code
@@ -48,13 +49,16 @@ private:
     bool findDeps(SourceFile *);
     void dependTreeWalker(SourceFile *, SourceDependChildren *);
 
+    //cache
+    QString cachefile;
+
 protected:
     virtual QMakeLocalFileName fixPathForFile(const QMakeLocalFileName &, bool forOpen=false);
     virtual QMakeLocalFileName findFileForDep(const QMakeLocalFileName &, const QMakeLocalFileName &);
     virtual QMakeLocalFileName findFileForMoc(const QMakeLocalFileName &);
 
 public:
-    QMakeSourceFileInfo();
+    QMakeSourceFileInfo(const QString &cachefile="");
     virtual ~QMakeSourceFileInfo();
 
     QList<QMakeLocalFileName> dependencyPaths() const { return depdirs; }
@@ -70,6 +74,12 @@ public:
     QString mocFile(const QString &file);
     QString mocSource(const QString &mocfile);
     bool mocable(const QString &file);
+
+    virtual QMap<QString, QStringList> getCacheVerification();
+    virtual bool verifyCache(const QMap<QString, QStringList> &);
+    void setCacheFile(const QString &cachefile); //auto caching
+    void loadCache(const QString &cf);
+    void saveCache(const QString &cf);
 };
 
 #endif /* __MAKEFILEDEPS_H__ */

@@ -61,12 +61,21 @@ class QMakeProject
         IncludeNoExist,
         IncludeParseFailure
     };
-    IncludeStatus doProjectInclude(QString file, bool feature, QMap<QString, QStringList> &place,
+    IncludeStatus doProjectInclude(QString file, bool feature, 
+                                   QMap<QString, QStringList> &place,
                                    const QString &seek_var=QString::null);
-    bool doProjectTest(const QString &func, const QString &params, QMap<QString, QStringList> &place);
-    bool doProjectTest(const QString &func, QStringList args, QMap<QString, QStringList> &place);
+    bool doProjectTest(const QString &str, QMap<QString, QStringList> &place);
+    bool doProjectTest(const QString &func, const QString &params, 
+                       QMap<QString, QStringList> &place);
+    bool doProjectTest(const QString &func, QStringList args, 
+                       QMap<QString, QStringList> &place);
+    QString doProjectExpand(const QString &func, const QString &params, 
+                            QMap<QString, QStringList> &place);
+    QString doProjectExpand(const QString &func, QStringList args, 
+                            QMap<QString, QStringList> &place);
+
     bool doProjectCheckReqs(const QStringList &deps, QMap<QString, QStringList> &place);
-    QString doVariableReplace(QString &str, const QMap<QString, QStringList> &place);
+    bool doVariableReplace(QString &str, QMap<QString, QStringList> &place);
     void init(QMakeProperty *, const QMap<QString, QStringList> *);
 
 public:
@@ -86,11 +95,15 @@ public:
     QString configFile();
     inline QMakeProperty *properities() { return prop; }
 
+    QString expand(const QString &v);
+    bool test(const QString &v);
+    bool isActiveConfig(const QString &x, bool regex=false, 
+                        QMap<QString, QStringList> *place=NULL);
+
     bool isEmpty(const QString &v);
     QStringList &values(const QString &v);
     QString first(const QString &v);
     QMap<QString, QStringList> &variables();
-    bool isActiveConfig(const QString &x, bool regex=false, QMap<QString, QStringList> *place=NULL);
 
 protected:
     friend class MakefileGenerator;

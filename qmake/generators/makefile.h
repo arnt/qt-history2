@@ -112,6 +112,9 @@ protected:
     virtual QString replaceExtraCompilerVariables(const QString &, const QString &, const QString &);
 
     QString filePrefixRoot(const QString &, const QString &);
+
+    friend struct FileFixifyCacheKey;
+    friend uint qHash(const FileFixifyCacheKey &f);
     enum FileFixifyType { FileFixifyAbsolute, FileFixifyRelative, FileFixifyDefault };
     QString fileFixify(const QString& file, const QString &out_dir=QString::null,
                        const QString &in_dir=QString::null, FileFixifyType fix=FileFixifyDefault, bool canon=true) const;
