@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.cpp#8 $
+** $Id: //depot/qt/main/src/kernel/qcolor.cpp#9 $
 **
 ** Implementation of QColor class
 **
@@ -14,7 +14,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qcolor.cpp#8 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qcolor.cpp#9 $";
 #endif
 
 
@@ -54,14 +54,16 @@ void QColor::setAutoAlloc( bool onOff )		// set auto-alloc flag
     aalloc = onOff;
 }
 
+
 #undef max
 #undef min
 
 //
-// Heavily optimized integer-based RGB<-->HSV conversion algorithms.
-// These algorithms are tuned for efficiency and accuracy, and might
-// not appear very readable!
+// Heavily optimized integer-based RGB<-->HSV conversion functions.
+// These algorithms are supposed to be efficient and accurate, and
+// might not be very readable!
 //
+
 void QColor::getHSV( int *h, int *s, int *v ) const
 {						// get HSV value
     int r = (int)(rgb & 0xff);
@@ -164,18 +166,19 @@ bool QColor::setRGB( ulong rgb )		// set RGB value directly
 // The trick with the light() and dark() functions is to transform the RGB
 // color into HSV, multiply/divide V by a factor, and then transform back.
 //
-QColor QColor::light( double factor ) const	// get light color
+
+QColor QColor::light( int factor ) const	// get light color
 {
-    if ( factor <= 0.0 )			// invalid lightness factor
+    if ( factor <= 0 )				// invalid lightness factor
 	return *this;
     else
-    if ( factor < 1.0 )				// makes color darker
-	return dark( 1.0/factor );
+    if ( factor < 100 )				// makes color darker
+	return dark( 100/factor );
     int h, s, v;
     getHSV( &h, &s, &v );
-    v = (int)(factor*v);
+    v = (int)(((long)factor*v)/100L);
     if ( v > 255 ) {				// overflow
-	s -= (int)(factor*106);			// adjust saturation
+	s -= (int)(((long)factor*106L)/100L);	// adjust saturation
 	if ( s < 0 )
 	    s = 0;
 	v = 255;
@@ -185,16 +188,16 @@ QColor QColor::light( double factor ) const	// get light color
     return c;
 }
 
-QColor QColor::dark( double factor ) const	// get dark color
+QColor QColor::dark( int factor ) const		// get dark color
 {
-    if ( factor <= 0.0 )			// invalid darkness factor
+    if ( factor <= 0 )				// invalid darkness factor
 	return *this;
     else
-    if ( factor < 1.0 )				// makes color lighter
-	return light( 1/factor );
+    if ( factor < 100 )				// makes color lighter
+	return light( 100/factor );
     int h, s, v;
     getHSV( &h, &s, &v );
-    v = (int)((double)v/factor);
+    v = (v*100)/factor;
     QColor c;
     c.setHSV( h, s, v );
     return c;
