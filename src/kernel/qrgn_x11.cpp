@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrgn_x11.cpp#10 $
+** $Id: //depot/qt/main/src/kernel/qrgn_x11.cpp#11 $
 **
 ** Implementation of QRegion class for X11
 **
@@ -19,7 +19,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qrgn_x11.cpp#10 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qrgn_x11.cpp#11 $";
 #endif
 
 
@@ -103,8 +103,7 @@ QRegion::QRegion( const QRegion &r )
 QRegion::~QRegion()
 {
     if ( data->deref() ) {
-	if ( data->rgn )
-	    XDestroyRegion( data->rgn );
+	XDestroyRegion( data->rgn );
 	delete data;
     }
 }
@@ -243,12 +242,6 @@ QRegion QRegion::xor( const QRegion &r ) const
 
 
 /*!
-  \fn bool QRegion::operator!=( const QRegion &r ) const
-  Returns TRUE if the region is different from \e r, or FALSE if the regions
-  are equal.
-*/
-
-/*!
   Returns TRUE if the region is equal to \e r, or FALSE if the regions are
   different.
 */
@@ -258,3 +251,9 @@ bool QRegion::operator==( const QRegion &r ) const
     return data == r.data ?
 	TRUE : XEqualRegion( data->rgn, r.data->rgn );
 }
+
+/*!
+  \fn bool QRegion::operator!=( const QRegion &r ) const
+  Returns TRUE if the region is different from \e r, or FALSE if the regions
+  are equal.
+*/
