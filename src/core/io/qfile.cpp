@@ -49,7 +49,7 @@ QFilePrivate::QFilePrivate() :
 #ifndef QT_NO_FILE_BUFFER
     buffer(read_cache_size),
 #endif
-    fileEngine(0), isOpen(false), error(QFile::NoError)
+    fileEngine(0), error(QFile::NoError)
 {
 }
 
@@ -62,7 +62,7 @@ QFilePrivate::~QFilePrivate()
 bool
 QFilePrivate::openExternalFile(int flags, int fd)
 {
-    Q_ASSERT(!fileEngine || !isOpen);
+    Q_ASSERT(!fileEngine || !q->isOpen());
 
     delete fileEngine;
     QFSFileEngine *fe = new QFSFileEngine;
@@ -801,10 +801,8 @@ QFile::open(OpenMode mode)
         qWarning("QIODevice::open: File access not specified");
         return false;
     }
-    if (fileEngine()->open(openMode())) {
-        d->isOpen = true;
+    if (fileEngine()->open(openMode())) 
         return true;
-    }
     QFile::Error err = fileEngine()->error();
     if(err == QFile::UnspecifiedError)
         err = QFile::OpenError;
@@ -850,7 +848,6 @@ QFile::open(OpenMode flags, int fd)
         return false;
     }
     if(d->openExternalFile(openMode(), fd)) {
-        d->isOpen = true;
         setOpenMode(flags);
         return true;
     }
@@ -879,14 +876,6 @@ QFile::handle() const
     if(engine->type() == QFileEngine::File)
         return static_cast<QFSFileEngine*>(engine)->handle();
     return -1;
-}
-
-/*!
-    \internal
-*/
-bool QFile::isOpen() const
-{
-    return d->isOpen;
 }
 
 /*!
@@ -1019,7 +1008,6 @@ QFile::close()
     if(!isOpen())
         return;
 
-    d->isOpen = false;
     unsetError();
 #ifndef QT_NO_FILE_BUFFER
     d->buffer.clear();

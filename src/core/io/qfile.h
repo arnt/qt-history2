@@ -126,8 +126,6 @@ public:
 
     int handle() const;
 
-    bool isOpen() const;
-
     virtual QFileEngine *fileEngine() const;
 
 #ifdef QT_COMPAT
@@ -151,22 +149,5 @@ private:
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QFile::Permissions)
-
-#ifdef QT_COMPAT
-// QFile::Error
-#  define IO_Ok QFile::NoError
-#  define IO_ReadError QFile::ReadError
-#  define IO_WriteError QFile::WriteError
-#  define IO_FatalError QFile::FatalError
-#  define IO_ResourceError QFile::ResourceError
-#  define IO_OpenError QFile::OpenError
-#  define IO_ConnectError QFile::ConnectError
-#  define IO_AbortError QFile::AbortError
-#  define IO_TimeOutError QFile::TimeOutError
-#  define IO_UnspecifiedError QFile::UnspecifiedError
-#  define IO_RemoveError QFile::RemoveError
-#  define IO_RenameError QFile::RenameError
-#  define IO_PositionError QFile::PositionError
-#endif
 
 #endif // QFILE_H
