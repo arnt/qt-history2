@@ -204,7 +204,8 @@ static OSStatus qt_mac_create_window(WindowClass wclass, WindowAttributes wattr,
 // window events
 static EventTypeSpec window_events[] = {
     { kEventClassWindow, kEventWindowGetRegion },
-    { kEventClassMouse, kEventMouseDown }
+    { kEventClassMouse, kEventMouseDown },
+    { kEventClassMouse, kEventMouseUp }
 };
 static EventHandlerUPP mac_win_eventUPP = 0;
 static void cleanup_win_eventUPP()
@@ -243,22 +244,7 @@ QMAC_PASCAL OSStatus QWidgetPrivate::qt_window_event(EventHandlerCallRef er, Eve
         }
         break;
     case kEventClassMouse:
-        if(ekind == kEventMouseDown) {
-            handled_event = false;
-            UInt32 count;
-            GetEventParameter(event, kEventParamClickCount, typeUInt32, 0,
-                              sizeof(count), 0, &count);
-            if(count == 1) {
-                Point where;
-                GetEventParameter(event, kEventParamMouseLocation, typeQDPoint, 0,
-                                  sizeof(where), 0, &where);
-                bool unhandled_widget;
-                if(!qApp->do_mouse_down(&where, &unhandled_widget) && !unhandled_widget)
-                    handled_event = true;
-            }
-        } else {
-            handled_event = false;
-        }
+        handled_event = (SendEventToApplication(event) == noErr);
         break;
     default:
         handled_event = false;

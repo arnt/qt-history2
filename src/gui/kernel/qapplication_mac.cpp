@@ -111,6 +111,7 @@ extern bool qt_resolve_symlinks; // from qapplication.cpp
 extern bool qt_tab_all_widgets; // from qapplication.cpp
 bool qt_mac_app_fullscreen = false;
 bool qt_scrollbar_jump_to_pos = false;
+static bool qt_mac_collapse_on_dblclick = true;
 QPointer<QWidget> qt_button_down;                // widget got last button-down
 extern bool qt_tryAccelEvent(QWidget*, QKeyEvent*); // def in qaccel.cpp
 static QPointer<QWidget> qt_mouseover;
@@ -317,6 +318,11 @@ void qt_mac_update_os_settings()
         /* I just reverse engineered this, I'm not so sure how well it will hold up but it works as of 10.2.3 */
         QString paging = qt_mac_get_global_setting("AppleScrollerPagingBehavior", "false");
         qt_scrollbar_jump_to_pos = (paging == "true");
+    }
+    { //collapse
+	/* I just reverse engineered this, I'm not so sure how well it will hold up but it works as of 10.3.3 */
+	QString collapse = qt_mac_get_global_setting("AppleMiniaturizeOnDoubleClick", "FALSE");
+	qt_mac_collapse_on_dblclick = (collapse == "TRUE");
     }
 
 #ifdef DEBUG_PLATFORM_SETTINGS
@@ -1742,12 +1748,33 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
             GlobalToLocal(&gp); //now map it to the window
             widget = qt_recursive_match(widget, gp.h, gp.v);
         } else {
-            if(ekind != kEventMouseDown && qt_button_down)
+            if(ekind != kEventMouseDown && qt_button_down) {
                 widget = qt_button_down;
-            else if(mac_mouse_grabber)
+            } else if(mac_mouse_grabber) {
                 widget = mac_mouse_grabber;
-            else
+            } else {
                 widget = QApplication::widgetAt(where.h, where.v);
+                if(ekind == kEventMouseUp) {
+                    short part = qt_mac_window_at(where.h, where.v);
+                    if(part == inDrag) {
+                        UInt32 count;
+                        GetEventParameter(event, kEventParamClickCount, typeUInt32, NULL,
+                                          sizeof(count), NULL, &count);
+                        if(count == 2 && qt_mac_collapse_on_dblclick) {
+                            mouse_button_state = 0;
+#ifdef DEBUG_MOUSE_MAPS
+                            qDebug("%s:%d Mouse_button_state = %d", __FILE__, __LINE__, mouse_button_state);
+#endif
+
+                            widget->setWindowState(widget->windowState() | WindowMinimized);
+                            //we send a hide to be like X11/Windows
+                            QEvent e(QEvent::Hide);
+                            QApplication::sendSpontaneousEvent(widget, &e);
+                            break;
+                        }
+                    }
+                }
+            }
         }
         if(!unhandled_dialogs.contains(FrontWindow())) { //set the cursor up
             QCursor cursor(Qt::ArrowCursor);
