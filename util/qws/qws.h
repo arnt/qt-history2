@@ -70,7 +70,7 @@ class QWSServer : private QServerSocket
     Q_OBJECT
 
 public:
-    QWSServer( int swidth=0, int sheight=0, bool simulate = FALSE,
+    QWSServer( int swidth=0, int sheight=0, int simulate_depth = 0,
 	       QObject *parent=0, const char *name=0 );
     ~QWSServer();
     void newConnection( int socket );
@@ -79,6 +79,7 @@ public:
 
     void sendKeyEvent(int unicode, int modifiers, bool isPress,
 		      bool autoRepeat);
+    void setMouse(const QPoint& pos,int bstate);
     void sendMouseEvent(const QPoint& pos, int state);
     void sendPropertyNotifyEvent( int property, int state );
     QWSPropertyManager *properties() {
@@ -142,7 +143,7 @@ private:
 
     QWSWindow *mouseGrabber;
     bool mouseGrabbing;
-    int swidth, sheight;
+    int swidth, sheight, sdepth;
     int mouseFD;
     int kbdFD;
     int mouseIdx;
@@ -183,8 +184,9 @@ class QWSClient : private QSocket
     Q_OBJECT
     //  friend class QWSServer;
 public:
-    QWSClient( QObject* parent, int socket, int shmid, int swidth, int sheight,
-	       int ramid, int fblen, int offscreen, int offscreenlen);
+    QWSClient( QObject* parent, int socket, int shmid,
+		int swidth, int sheight, int sdepth,
+	        int ramid, int fblen, int offscreen, int offscreenlen);
     ~QWSClient();
 
     int socket() const;

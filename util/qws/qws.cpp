@@ -51,7 +51,8 @@ static key_t semkey = 0;
  *
  *********************************************************************/
 //### shmid < 0 means use frame buffer
-QWSClient::QWSClient( QObject* parent, int socket, int shmid, int swidth, int sheight,
+QWSClient::QWSClient( QObject* parent, int socket, int shmid,
+		      int swidth, int sheight, int sdepth,
 		      int ramid, int fblen, int offscreen, int offscreenlen) :
     QSocket(parent),
     s(socket),
@@ -62,7 +63,7 @@ QWSClient::QWSClient( QObject* parent, int socket, int shmid, int swidth, int sh
     QWSHeader header;
     header.width = swidth;
     header.height = sheight;
-    header.depth = 32;
+    header.depth = sdepth;
     header.semkey = semkey;
     header.shmid = shmid;
     header.ramid = ramid;
@@ -257,7 +258,7 @@ struct QWSCommandStruct
   QWSServer maintains the invariant.
 */
 
-QWSServer::QWSServer( int sw, int sh, bool simulate,
+QWSServer::QWSServer( int sw, int sh, int simulate_depth,
 		      QObject *parent=0, const char *name=0 ) :
     QServerSocket(QTFB_PORT,16,parent,name),
     mouseBuf(0), pending_region_acks(0)
@@ -268,6 +269,7 @@ QWSServer::QWSServer( int sw, int sh, bool simulate,
     cursorPos = QPoint(-1,-1); //no software cursor
     swidth = sw;
     sheight = sh;
+    sdepth = simulate_depth;
 
     semkey = ftok("/dev/fb0",'q');
     semset = semget(semkey,2,IPC_CREAT|0777);
@@ -279,12 +281,12 @@ QWSServer::QWSServer( int sw, int sh, bool simulate,
     semctl(semset,0,SETVAL,arg);
     semctl(semset,1,SETVAL,arg);
     
-    if ( simulate ) {
+    if ( simulate_depth ) {
 	// Simulate card with 8 megs of memory or so
 	shmid = shmget(IPC_PRIVATE,/* swidth*sheight*sizeof(QRgb) */
 		       8000000,
 		       IPC_CREAT|IPC_EXCL|0666);
-	fblen=swidth*sheight*sizeof(QRgb);
+	fblen=swidth*sheight*simulate_depth/8;
 	offscreen=fblen+4;
 	offscreenlen=(8000000)-(fblen+4);
 	if ( shmid < 0 )
@@ -341,7 +343,7 @@ QWSServer::~QWSServer()
 void QWSServer::newConnection( int socket )
 {
     qDebug("New client...");
-    client[socket] = new QWSClient(this,socket,shmid,swidth,sheight,
+    client[socket] = new QWSClient(this,socket,shmid,swidth,sheight,sdepth,
 				   ramid,fblen,offscreen,offscreenlen);
 
     connect( client[socket]->asQObject(), SIGNAL(readyRead()),
@@ -985,3 +987,12 @@ void QWSServer::givePendingRegion()
     }
     paintBackground( exposed );
 }
+
+void QWSServer::setMouse(const QPoint& p,int bstate)
+{
+    mousePos.setX( QMIN( QMAX( p.x(), 0 ), swidth ) );
+    mousePos.setY( QMIN( QMAX( p.y(), 0 ), sheight ) );
+    sendMouseEvent( mousePos, bstate );
+}
+
+

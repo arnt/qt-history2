@@ -35,14 +35,27 @@ main(int argc, char** argv)
     QApplication app(argc, argv, useGUI);
 
     if ( useGUI ) {
-	int refresh_delay=500;
-	if ( argc > 1 ) {
-	    refresh_delay = atoi(argv[1]);
+	int depth=32;
+	int refresh_delay=50;
+	while ( argc > 1 && argv[1][0]=='-' ) {
+	    if ( argc > 2 ) {
+		switch ( argv[1][1] ) {
+		  case 'r':
+		    argc--; argv++;
+		    refresh_delay = atoi(argv[1]);
+		    break;
+		  case 'd':
+		    argc--; argv++;
+		    depth = atoi(argv[1]);
+		    break;
+		}
+		argc--; argv++;
+	    }
 	}
 	DebuggingGUI m;
 	app.setMainWidget(&m);
 	m.show();
-	m.serve(refresh_delay);
+	m.serve(depth,refresh_delay);
 	return app.exec();
     } else {
 	int w = 0;

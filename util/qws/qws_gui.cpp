@@ -26,10 +26,54 @@
 #include "qpainter.h"
 #include "qfiledialog.h"
 
+class ZoomBox : public QWidget {
+    static const int s=5;
+    const QImage& image;
+    QPoint dragpos;
+public:
+    ZoomBox(const QImage& i, QWidget* parent) :
+	QWidget(parent),
+	image(i)
+    {
+	resize(202,202);
+    }
+
+    void mousePressEvent(QMouseEvent* e)
+    {
+	dragpos = e->pos();
+    }
+
+    int zX() const { return (width()-2)*(s-1)/2/s; }
+    int zY() const { return (height()-2)*(s-1)/2/s; }
+
+    void mouseMoveEvent(QMouseEvent* e)
+    {
+	QPoint p = mapToParent(mapFromGlobal(e->globalPos()))-dragpos;
+	//if ( p.x()+zX() < 0 ) p.rx() = -zX();
+	//if ( p.y()+zY() < 0 ) p.ry() = -zY();
+	move(p);
+	repaint(FALSE);
+    }
+
+    void paintEvent(QPaintEvent*)
+    {
+	QRect area(x()+zX(),y()+zY(),(width()-2)/s,(height()-2)/s);
+	QPixmap pm;
+	pm.convertFromImage(image.copy(area));
+	QWMatrix scale; scale.scale(s,s);
+	pm = pm.xForm(scale);
+	QPainter p(this);
+	p.drawPixmap(1,1,pm);
+	p.setPen(blue);
+	p.drawRect(rect());
+    }
+};
+
 DummyFramebuffer::DummyFramebuffer( QWidget* parent ) :
     QWidget(parent),
     server( 0 )
 {
+    setBackgroundMode(NoBackground);
     setMouseTracking(TRUE);
     showregions = FALSE;
 }
@@ -45,16 +89,27 @@ QSizePolicy DummyFramebuffer::sizePolicy() const
 }
 
 
-void DummyFramebuffer::serve(int refresh_delay)
+void DummyFramebuffer::serve(int depth, int refresh_delay)
 {
     if ( !server ) {
 	setFixedSize(size()); // Allow -geometry to set it, but then freeze.
 	int swidth = width();
 	int sheight = height();
 	setFixedSize(swidth,sheight);
-	server = new QWSServer( swidth, sheight, TRUE, this );
+	server = new QWSServer( swidth, sheight, depth, this );
+	int nc=0;
+	if ( depth == 8 || depth == 1 )
+	    nc = 1<<depth;
 	img = QImage( server->frameBuffer(),
-		    swidth, sheight, 32, 0, 0, QImage::BigEndian );
+		    swidth, sheight, depth, 0, nc, QImage::BigEndian );
+	oldimg = QImage(swidth, sheight, depth, nc);
+	if ( nc ) {
+	    for (int i=0; i<nc; i++) {
+		qDebug("color %d: #%06x",i,qRgb(i*255/(nc-1),i*255/(nc-1),i*255/(nc-1)));
+		img.setColor(i,qRgb(i*255/(nc-1),i*255/(nc-1),i*255/(nc-1)));
+		oldimg.setColor(i,qRgb(i*255/(nc-1),i*255/(nc-1),i*255/(nc-1)));
+	    }
+	}
 	startTimer(refresh_delay);
     }
 }
@@ -65,9 +120,61 @@ void DummyFramebuffer::setRegionDisplay(bool y)
     repaint(FALSE);
 }
 
+void DummyFramebuffer::setZoomBox(bool y)
+{
+    if ( y )
+	(zoombox = new ZoomBox(oldimg,this))->show();
+    else
+	delete zoombox, zoombox=0;
+}
+
 void DummyFramebuffer::timerEvent(QTimerEvent*)
 {
-    repaint(FALSE);
+    if ( showregions ) {
+	repaint(FALSE);
+    } else {
+	int y;
+	for (y=0; y<img.height()-1; y++) {
+	    QRgb* n=(QRgb*)img.scanLine(y);
+	    QRgb* o=(QRgb*)oldimg.scanLine(y);
+	    for (int x=0; x<img.width(); x++)
+		if ( n[x] != o[x] ) goto topfound;
+	}
+topfound:
+	int miny=y;
+	for (y=img.height()-1; y>miny; y--) {
+	    QRgb* n=(QRgb*)img.scanLine(y);
+	    QRgb* o=(QRgb*)oldimg.scanLine(y);
+	    for (int x=0; x<img.width(); x++)
+		if ( n[x] != o[x] ) goto bottomfound;
+	}
+bottomfound:
+	int maxy=y;
+	int x;
+	for (x=0; x<img.width()-1; x++) {
+	    for (int y=miny; y<=maxy; y++) {
+		QRgb* n=(QRgb*)img.scanLine(y);
+		QRgb* o=(QRgb*)oldimg.scanLine(y);
+		if ( n[x] != o[x] ) goto leftfound;
+	    }
+	}
+leftfound:
+	int minx=x;
+	for (x=img.width()-1; x>minx; x--) {
+	    for (int y=miny; y<=maxy; y++) {
+		QRgb* n=(QRgb*)img.scanLine(y);
+		QRgb* o=(QRgb*)oldimg.scanLine(y);
+		if ( n[x] != o[x] ) goto rightfound;
+	    }
+	}
+rightfound:
+	int maxx=x;
+	QRect r; r.setCoords(minx,miny,maxx,maxy);
+	bitBlt(&oldimg,minx,miny,&img,minx,miny,maxx-minx+1,maxy-miny+1);
+	repaint(r);
+	if ( zoombox )
+	    zoombox->repaint(FALSE); // ### could optimize
+    }
 }
 
 void DummyFramebuffer::mousePressEvent(QMouseEvent* e)
@@ -85,6 +192,10 @@ void DummyFramebuffer::mouseMoveEvent(QMouseEvent* e)
 
 void DummyFramebuffer::sendMouseEvent(QMouseEvent* e)
 {
+    // The DummyFramebuffer should simulate a hardware cursor, since
+    // that's what it has... "virtually".
+    //server->setMouse(e->pos(), e->stateAfter());
+
     server->sendMouseEvent(e->pos(), e->stateAfter());
 }
 
@@ -136,7 +247,8 @@ DebuggingGUI::DebuggingGUI()
 
     show_client_regions_id = view->insertItem("Show client regions",
 				this, SLOT(toggleRegions()));
-    view->setItemChecked( show_client_regions_id, FALSE );
+    show_zoom_box_id = view->insertItem("Zoom box",
+				this, SLOT(toggleZoomBox()));
 
     menuBar()->insertItem("&View", view);
 
@@ -156,6 +268,12 @@ void DebuggingGUI::toggleRegions()
 {
     view->setItemChecked( show_client_regions_id, !showRegions() );
     fb->setRegionDisplay(showRegions());
+}
+
+void DebuggingGUI::toggleZoomBox()
+{
+    view->setItemChecked( show_zoom_box_id, !view->isItemChecked(show_zoom_box_id) );
+    fb->setZoomBox( view->isItemChecked(show_zoom_box_id) );
 }
 
 bool DebuggingGUI::showRegions() const

@@ -29,17 +29,20 @@ class QPopupMenu;
 
 class DummyFramebuffer : public QWidget {
     QImage img;
+    QImage oldimg;
     QWSServer *server;
     bool showregions;
+    QWidget* zoombox;
 
 public:
     DummyFramebuffer( QWidget* parent );
 
-    void serve(int refresh_delay);
+    void serve(int depth,int refresh_delay);
 
     const QImage& image() const { return img; }
 
     void setRegionDisplay(bool y);
+    void setZoomBox(bool y);
 
 protected:
     void timerEvent(QTimerEvent*);
@@ -58,16 +61,18 @@ class DebuggingGUI : public QMainWindow {
 public:
     DebuggingGUI();
 
-    void serve(int refresh_delay) { fb->serve(refresh_delay); }
+    void serve(int depth, int refresh_delay) { fb->serve(depth,refresh_delay); }
 
 private slots:
     void screendump();
     void toggleRegions();
+    void toggleZoomBox();
 
 private:
     DummyFramebuffer* fb;
     QPopupMenu* view;
     int show_client_regions_id;
+    int show_zoom_box_id;
 
     bool showRegions() const;
 };

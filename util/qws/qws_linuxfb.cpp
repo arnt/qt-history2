@@ -285,17 +285,14 @@ void QWSServer::handleMouseData()
 		dx *= accel;
 		dy *= accel;
 	    }
-	    int mx = mousePos.x() + dx;
-	    int my = mousePos.y() - dy; // swap coordinate system
+	    QPoint m = mousePos + QPoint(dx,-dy);
 	
-	    mousePos.setX( QMIN( QMAX( mx, 0 ), swidth ) );
-	    mousePos.setY( QMIN( QMAX( my, 0 ), sheight ) );
+	    setMouse(m,bstate);
 
 	    if(probed_card) {
 		probed_card->move_cursor(mousePos.x(),
 					 mousePos.y());
 	    }
-	    sendMouseEvent( mousePos, bstate );
 	}
 	idx += 3;
 
@@ -330,7 +327,6 @@ void QWSServer::handleMouseData()
       probe_bus(fb_vinfo.xres,fb_vinfo.yres,fb_vinfo.bits_per_pixel);
   }
 }
-
 
 //### should use QGfx
 void QWSServer::paintServerRegion()
