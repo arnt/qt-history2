@@ -36,12 +36,282 @@
  
 \title Qt SQL Module - Drivers
 
+\tableofcontents
+
+\target Introduction
+\section1 Introduction
+
 The <a href="sql.html">Qt SQL Module</a> uses driver <a
 href="component.html">plugins</a> in order to communicate with
 different database APIs.  Since the Qt SQL Module API is
 database-independent, all database-specific code is contained within
 these drivers.  Several drivers are supplied with Qt and other drivers
 can be added.
+
+To build a driver plugin you therefore need the client API that is
+shipped with every DBMS. Most installation programs also allow you
+to install "development libraries", this is what you need. These
+libraries are responsible for the low-level communication with the
+DBMS.
+
+The currently available drivers shipped with Qt are:
+\list
+\i QMYSQL3 - MySQL Driver
+\i QOCI8 - Oracle Call Interface Driver
+\i QODBC3 - ODBC (Open Database Connectivity) Driver
+\i QPSQL7 - PostgreSQL v6.x and v7.x Driver
+\i QTDS7 - Sybase Adaptive Server and Microsoft SQL Server Driver
+\endlist
+
+The Qt configure script automatically detects the available client
+libraries on your machine. Run "configure -help" to see what drivers
+may be built.
+
+Note that configure cannot detect the neccessary libraries and include
+files if they are not in the standard paths, so it may be necessary to
+specify these paths using the "-I" and "-L" switches. If your MySQL
+include files are installed in /usr/local/mysql (or in c:\\mysql\\include
+on Windows), then pass the following parameter to configure:
+"-I/usr/local/mysql" (or "-Ic:\mysql\include" for Windows).
+
+Note that the parameter -I doesn't allow spaces in filenames, so use
+the 8.3 name instead ("c:\\progra~1\\mysql" instead of "c:\\program files\\mysql").
+
+See the chapters below if you want to build the sql drivers manually.
+
+\target QMYSQL3
+\section1 QMYSQL3 - MySQL 3.x
+
+\section2 General informations
+
+MySQL 3.x doesn't support SQL transactions by default, there are some backends
+however which offer this functionality. Recent versions of the MySQL client
+libraries (>3.23.34) allow you to use transactions on those modified servers.
+
+If you have a recent client library and connect to a transaction-enabled MySQL
+server, a call to QSqlDriver::hasFeature( QSqlDriver::Transactions ) function
+returns TRUE and SQL transactions can be used.
+
+You can find information about MySQL on \l http://www.mysql.com
+
+\section2 How to build the plugin on Unix/Linux
+
+You need the MySQL header files and as well as the shared library
+"libmysqlclient.so". Depending on your Linux distribution you need
+a package called "MySQL-devel" or "mysql-devel". Install it.
+
+Tell qmake where to find the MySQL header files and shared libraries
+(here it is assumed that MySQL is installed in /usr/local) and run make:
+
+\code
+cd $QTDIR/plugins/src/sqldrivers/mysql
+qmake -o Makefile "INCLUDEPATH+=/usr/local/include" "LIBS+=-L/usr/local/lib -lmysqlclient" mysql.pro
+make
+\endcode
+
+\section2 How to build the plugin on Windows
+
+You need to get the MySQL installation files. Run SETUP.EXE and
+choose "Custom Install". Install the "Libs & Include Files" Module.
+Build the plugin as follows (here it is assumed that MySQL is
+installed in C:\\MYSQL):
+
+\code
+cd %QTDIR%\plugins\src\sqldrivers\mysql
+qmake -o Makefile "INCLUDEPATH+=C:\\MYSQL\\INCLUDE" "LIBS+=C:\\MYSQL\\LIB\\OPT\\LIBMYSQL.LIB" mysql.pro
+nmake
+\endcode
+
+If you are using a Borland compiler, replace "nmake" with "make" in the
+statement above.
+
+Note that the pre-compiled LIBMYSQL.LIB has been generated with Microsoft
+Visual C++ so other compilers cannot link against it. Either recompile the
+whole library yourself or use the apropriate tools to convert the lib
+(COFF2OMF.EXE for Borland C++).
+
+\target QOCI8
+\section1 QOCI8 - Oracle Call Interface
+
+\section2 How to build the plugin on Unix/Linux
+
+All files required to build driver should ship with the standard Oracle
+install. For Linux, it may be possible to copy headers from another
+platform's install.
+
+Oracle library files required to build driver:
+
+\list
+\i libclntsh.so
+\i libclntsh.so.8.0
+\i libwtc8.so
+\endlist
+
+Oracle header files required to build driver:
+
+\list
+\i nzerror.h
+\i nzt.h
+\i oci.h
+\i oci1.h
+\i oci8dp.h
+\i ociap.h
+\i ociapr.h
+\i ocidef.h
+\i ocidem.h
+\i ocidfn.h
+\i ociextp.h
+\i ocikp.h
+\i ocikpr.h
+\i odci.h
+\i oratypes.h
+\i ori.h
+\i orid.h
+\i orl.h
+\i oro.h
+\i ort.h
+\endlist
+
+Tell qmake where to find the Oracle header files and shared libraries
+(here it is assumed that Oracle is installed in /usr/local) and run make:
+
+\code
+cd $QTDIR/plugins/src/sqldrivers/oci
+qmake -o Makefile "INCLUDEPATH+=/usr/local/include" "LIBS+=-L/usr/local/lib -lclntsh -lwtc8" oci.pro
+make
+\endcode
+
+\section2 How to build the plugin on Windows
+
+Choosing the option "Programmer" in the Oracle Client Installer from
+the Oracle Client Installation CD is sufficient to build the plugin.
+
+Build the plugin as follows (here it is assumed that Oracle Client is
+installed in C:\oracle):
+
+\code
+cd %QTDIR%\plugins\src\sqldrivers\oci
+qmake -o Makefile "INCLUDEPATH+=C:\oracle\oci\include" oci.pro
+nmake
+\endcode
+
+If you are using a Borland compiler, replace "nmake" with "make" in the
+statement above.
+
+\target QODBC3
+\section1 QODBC3 - Open Database Connectivity
+
+\section2 How to build the plugin on Unix/Linux
+
+It is recommended that you use unixODBC. You can find the newest
+version and ODBC drivers at \l http://www.unixodbc.org.
+You need the unixODBC header files and shared libraries.
+
+Tell qmake where to find the unixODBC header files and shared libraries
+(here it is assumed that unixODBC is installed in /usr/local/unixODBC)
+and run make:
+
+\code
+cd $QTDIR/plugins/src/sqldrivers/odbc
+qmake "INCLUDEPATH+=/usr/local/unixODBC/include" "LIBS+=-L/usr/local/unixODBC/lib -lodbc"
+make
+\endcode
+
+\section2 How to build the plugin on Windows
+
+The ODBC header and include files should already be installed in the
+right directories. You just have to build the plugin as follows:
+
+\code
+cd %QTDIR%\plugins\src\sqldrivers\odbc
+qmake -o Makefile odbc.pro
+nmake
+\endcode
+
+If you are using a Borland compiler, replace "nmake" with "make" in the
+statement above.
+
+\target QPSQL7
+\section1 QPSQL7 - PostgreSQL version 6 and 7
+
+\section2 General information
+
+The QPSQL7 driver supports both version 6 and 7 of PostgreSQL. We recommend
+compiling the plugin with a recent version of the PostgreSQL Client API (libpq)
+because it is more stable and still downward compatible.
+
+If you want to link the plugin against the libpq shipped with version 6 we
+recomment a recent version like PostgreSQL 6.5.3, otherwise a connection to a
+version 7 server may not work.
+
+The driver auto-detects the server version of PostgreSQL after a connection was
+successful. If the server is too old or the version information cannot be determined
+a warning is issued.
+
+For more information about PostgreSQL visit \l http://www.postgresql.org.
+
+\section2 How to build the plugin on Unix/Linux
+
+Just installing "libpq.so" and the corresponding header files is
+unfortunately not sufficient. You have to get the whole source
+distribution and run the configure script once (there is no need
+to build it if you have already installed a binary distribution).
+
+Tell qmake where to find the PostgreSQL header files and shared
+libraries (here it is assumed that you extracted the PostgreSQL
+source code in /usr/src/psql and the shared library is installed
+in /usr/lib) and run make:
+
+\code
+cd $QTDIR/plugins/src/sqldrivers/psql
+qmake -o Makefile "INCLUDEPATH+=/usr/src/psql/src/include /usr/src/psql/src/interfaces/libpq" "LIBS+=-L/usr/lib -lpq" psql.pro
+make
+\endcode
+
+\target QTDS7
+\section1 QTDS7 - Sybase Adaptive Server and Microsoft SQL Server
+
+\section2 How to build the plugin on Unix/Linux
+
+Under Unix, two libraries are available which support the TDS protocol:
+
+- FreeTDS, a free implementation of the TDS protocol ( \l http://www.freetds.org ).
+  Note that FreeTDS is not yet stable, so some functionality may not work
+  as expected.
+
+- Sybase Open Client, available from \l http://www.sybase.com
+  Note for Linux users: Get the Open Client RPM from \l http://linux.sybase.com
+
+Regardless of which library you use, the shared object file "libsybdb.so" is needed.
+Set the SYBASE environment variable to point to the directory where you
+installed the client library and execute qmake:
+
+\code
+cd $QTDIR/plugins/src/sqldrivers/tds
+qmake -o Makefile "INCLUDEPATH=$SYBASE/include" "LIBS=-L$SYBASE/lib -lsybdb"
+make
+\endcode
+
+\section2 How to build the plugin on Windows
+
+You can either use the DB-Library supplied by Microsoft or the Sybase Open Client
+( \l http://www.sybase.com ). You have to include NTWDBLIB.LIB
+to build the plugin:
+
+\code
+cd %QTDIR%\\plugins\\src\\sqldrivers\\tds
+qmake -o Makefile "LIBS+=NTWDBLIB.LIB" tds.pro
+nmake
+\endcode
+
+By default the Microsoft library is used on Windows, if you want to force
+the use of the Sybase Open Client, you have to define
+Q_USE_SYBASE in %QTDIR%\\src\\sql\\drivers\\tds\\qsql_tds.cpp.
+
+
+
+\target development
+\section1 How to write your own database driver
 
 QSqlDatabase is responsible for loading and managing database driver
 plugins.  When a database is added (see QSqlDatabase::addDatabase()),
