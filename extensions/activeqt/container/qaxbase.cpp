@@ -3220,6 +3220,8 @@ int QAxBase::internalProperty(QMetaObject::Call call, int index, void **v)
             if (!prop.isEnumType())
                 type = prop.type();
             QVariantToVoidStar(VARIANTToQVariant(arg, proptype, type), *v, proptype, type);
+            if (arg.vt != VT_DISPATCH && arg.vt != VT_UNKNOWN)
+                clearVARIANT(&arg);
         }
         break;
 
