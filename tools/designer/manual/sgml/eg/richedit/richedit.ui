@@ -13,8 +13,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>658</width>
-            <height>470</height>
+            <width>710</width>
+            <height>468</height>
         </rect>
     </property>
     <property name="caption">
@@ -33,6 +33,12 @@
         <widget class="QTextEdit">
             <property name="name">
                 <cstring>textEdit</cstring>
+            </property>
+            <property name="sizePolicy">
+                <sizepolicy>
+                    <hsizetype>7</hsizetype>
+                    <vsizetype>7</vsizetype>
+                </sizepolicy>
             </property>
             <property name="textFormat">
                 <enum>RichText</enum>
@@ -334,6 +340,9 @@
         </property>
         <property name="menuText">
             <string>&amp;Bold</string>
+        </property>
+        <property name="accel">
+            <number>272629826</number>
         </property>
     </action>
     <action>
