@@ -28,12 +28,13 @@ QMakeLocalFileName::QMakeLocalFileName(const QString &name) : is_null(name.isNul
 struct SourceDependChildren;
 struct SourceFile {
     SourceFile() : deps(0), uifile(0), mocable(0), traversed(0), exists(1),
-                   moc_checked(0), dep_checked(0) { }
+                   moc_checked(0), dep_checked(0), included_count(0) { }
     QMakeLocalFileName file, mocfile;
     SourceDependChildren *deps;
     uint uifile : 1;
     uint mocable : 1, traversed : 1, exists : 1;
     uint moc_checked : 1,  dep_checked : 1;
+    uchar included_count;
 };
 struct SourceDependChildren {
     SourceFile **children;
@@ -176,6 +177,14 @@ QStringList QMakeSourceFileInfo::dependencies(const QString &file)
        }
     }
     return ret;
+}
+
+int
+QMakeSourceFileInfo::included(const QString &file)
+{
+    if(SourceFile *node = files->lookupFile(file))
+        return node->included_count;
+    return 0;
 }
 
 bool QMakeSourceFileInfo::mocable(const QString &file)
@@ -482,21 +491,23 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
             } else {
                 exists = QFile::exists(lfn.real());
             }
-
-            SourceFile *dep = files->lookupFile(lfn);
-            if(!dep) {
-                dep = new SourceFile;
-                dep->file = lfn;
-                dep->exists = exists;
-                files->addFile(dep);
-            } else if(dep->exists != exists) { //not really possible, but seems dangerous -Sam
-                warn_msg(WarnLogic, "%s is found to exist after not existing before!", 
-                         lfn.local().latin1());
-            }
-            if(dep->exists) {
-                debug_msg(5, "%s:%d Found dependency to %s", file->file.real().latin1(),
-                          line_count, dep->file.local().latin1());
-                file->deps->addChild(dep);
+            if(1 || !lfn.isNull()) {
+                SourceFile *dep = files->lookupFile(lfn);
+                if(!dep) {
+                    dep = new SourceFile;
+                    dep->file = lfn;
+                    dep->exists = exists;
+                    files->addFile(dep);
+                } else if(dep->exists != exists) {//not really possible, but seems dangerous -Sam
+                    warn_msg(WarnLogic, "%s is found to exist after not existing before!", 
+                             lfn.local().latin1());
+                }
+                dep->included_count++;
+                if(dep->exists) {
+                    debug_msg(5, "%s:%d Found dependency to %s", file->file.real().latin1(),
+                              line_count, dep->file.local().latin1());
+                    file->deps->addChild(dep);
+                }
             }
         }
         //read past new line now..
@@ -605,3 +616,5 @@ bool QMakeSourceFileInfo::findMocs(SourceFile *file)
 #undef DIS_LEN
     return true;
 }
+
+

@@ -468,17 +468,18 @@ MakefileGenerator::init()
     if(mocAware()) {
         if(!project->isEmpty("MOC_DIR"))
             project->variables()["INCLUDEPATH"].append(project->first("MOC_DIR"));
-
-        if(Option::h_moc_ext == Option::cpp_ext.first())
-            v["OBJMOC"] = createObjectList("_HDRMOC");
-
-        QStringList &l = v["SRCMOC"];
-        l = v["_HDRMOC"] + v["_SRCMOC"];
-        for(int val_it = 0; val_it < l.count(); val_it++) {
-            QString &val = l[val_it];
-            if(!val.isEmpty())
-                val = Option::fixPathToTargetOS(val, false);
+        QStringList &srcmoc = v["SRCMOC"], &hdrmoc = v["HDRMOC"];
+        const QStringList &mocables = v["MOCABLES"];
+        for(int i = 0; i < mocables.count(); i++) {
+            QString moc = Option::fixPathToTargetOS(createMocFileName(mocables[i]), false);
+            if(QMakeSourceFileInfo::included(moc))
+                srcmoc += moc;
+            else
+                hdrmoc += moc;
         }
+        if(Option::h_moc_ext == Option::cpp_ext.first())
+            v["OBJMOC"] = createObjectList("HDRMOC");
+        srcmoc = hdrmoc + srcmoc;
     }
 
     //fix up the target deps
@@ -1193,7 +1194,6 @@ MakefileGenerator::valList(const QStringList &varList)
     return valGlue(varList, "", " \\\n\t\t", "");
 }
 
-
 QStringList
 MakefileGenerator::createObjectList(const QString &var)
 {
@@ -1201,7 +1201,7 @@ MakefileGenerator::createObjectList(const QString &var)
     QString objdir, dir;
     if(!project->variables()["OBJECTS_DIR"].isEmpty())
         objdir = project->first("OBJECTS_DIR");
-    for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
+    for(QStringList::ConstIterator it = l.begin(); it != l.end(); ++it) {
         QFileInfo fi(Option::fixPathToLocalOS((*it)));
         if(objdir.isEmpty() && project->isActiveConfig("object_with_source")) {
             QString fName = Option::fixPathToTargetOS((*it), false);
@@ -1977,14 +1977,8 @@ MakefileGenerator::fixPathForFile(const QMakeLocalFileName &file)
 QMakeLocalFileName
 MakefileGenerator::findFileForMoc(const QMakeLocalFileName &file)
 {
-    QString ret = createMocFileName(file.local());
-    if(ret.endsWith(Option::cpp_moc_ext)) { //.moc
-        project->variables()["_SRCMOC"].append(ret);
-    } else {
-        checkMultipleDefinition(ret, "SOURCES");
-        project->variables()["_HDRMOC"].append(ret);
-    }
-    return QMakeLocalFileName(ret);
+    project->variables()["MOCABLES"].append(file.local());
+    return QMakeLocalFileName(createMocFileName(file.local()));
 }
 
 QMakeLocalFileName MakefileGenerator::findFileForDep(const QMakeLocalFileName &file)
@@ -2123,21 +2117,14 @@ QMakeLocalFileName MakefileGenerator::findFileForDep(const QMakeLocalFileName &f
             if(mocAware() &&                    //is it a moc file?
                (file.local().endsWith(Option::cpp_ext.first()) || file.local().endsWith(Option::cpp_moc_ext))
                || ((Option::cpp_ext.first() != Option::h_moc_ext) && file.local().endsWith(Option::h_moc_ext))) {
-                QString mocs[] = { QString("_HDRMOC"), QString("_SRCMOC"), QString::null };
-                for(int moc = 0; !mocs[moc].isNull(); moc++) {
-                    QStringList &l = project->variables()[mocs[moc]];
-                    for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
-                        QString fixed_it= Option::fixPathToTargetOS((*it));
-                        if(fixed_it.section(Option::dir_sep, -(file.local().count('/')+1)) == file.local()) {
-                            QString ret_name = (*it);
-                            if(!moc) { //Since it is include, no need to link it in as well
-                                project->variables()["_SRCMOC"].append((*it));
-                                l.erase(it);
-                            }
-                            ret_name = fileFixify(ret_name, QDir::currentPath(), Option::output_dir);
-                            ret = QMakeLocalFileName(ret_name);
-                            goto found_dep_from_heuristic;
-                        }
+                QStringList &l = project->variables()["MOCABLES"];
+                for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
+                    const QString moc = createMocFileName((*it));
+                    QString fixed_moc = Option::fixPathToTargetOS(moc);
+                    if(fixed_moc.section(Option::dir_sep, -(file.local().count('/')+1)) == file.local()) {
+                        QString ret_name = fileFixify(moc, QDir::currentPath(), Option::output_dir);
+                        ret = QMakeLocalFileName(ret_name);
+                        goto found_dep_from_heuristic;
                     }
                 }
             }
