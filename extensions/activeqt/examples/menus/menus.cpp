@@ -14,7 +14,7 @@
 #include <qaxfactory.h>
 #include <qmenubar.h>
 #include <qmessagebox.h>
-#include <qtextedit.h>
+#include <qt3compat/qtextedit.h>
 
 #include "menus.h"
 
@@ -39,6 +39,8 @@ QMenus::QMenus(QWidget *parent, const char *name)
     QMenu *edit = new QMenu(this);
 
     action = new QAction("&Normal", CTRL+Key_N, this);
+    action->setToolTip("Normal");
+    action->setStatusTip("Toggles Normal");
     action->setCheckable(true);
     connect(action, SIGNAL(activated()), this, SLOT(editNormal()));
     edit->addAction(action);
@@ -53,7 +55,18 @@ QMenus::QMenus(QWidget *parent, const char *name)
     connect(action, SIGNAL(activated()), this, SLOT(editUnderline()));
     edit->addAction(action);
 
-    edit->insertSeparator(action);
+    QMenu *advanced = new QMenu(this);
+    action = new QAction("&Font...", this);
+    connect(action, SIGNAL(activated()), this, SLOT(editAdvancedFont()));
+    advanced->addAction(action);
+
+    action = new QAction("&Style...", this);
+    connect(action, SIGNAL(activated()), this, SLOT(editAdvancedStyle()));
+    advanced->addAction(action);
+
+    edit->addMenu("&Advanced", advanced);
+
+    edit->addSeparator();
 
     action = new QAction("Una&vailable", CTRL+Key_V, this);
     action->setCheckable(true);
@@ -105,6 +118,16 @@ void QMenus::editBold()
 void QMenus::editUnderline()
 {
     editor->append("Edit Underline selected.");
+}
+
+void QMenus::editAdvancedFont()
+{
+    editor->append("Edit Advanced Font selected.");
+}
+
+void QMenus::editAdvancedStyle()
+{
+    editor->append("Edit Advanced Style selected.");
 }
 
 void QMenus::helpAbout()

@@ -32,6 +32,9 @@ public slots:
     void editBold();
     void editUnderline();
 
+    void editAdvancedFont();
+    void editAdvancedStyle();
+
     void helpAbout();
     void helpAboutQt();
 
