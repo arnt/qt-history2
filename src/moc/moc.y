@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#200 $
+** $Id: //depot/qt/main/src/moc/moc.y#201 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -311,7 +311,7 @@ int	   tmpYYStart;				// Used to store the lexers current mode
 int	   tmpYYStart2;				// Used to store the lexers current mode
 						// (if tmpYYStart is already used)
 
-const int  formatRevision = 10;			// moc output format revision
+const int  formatRevision = 11;			// moc output format revision
 
 %}
 
@@ -2456,7 +2456,7 @@ void generateClass()		      // generate C++ source code for a class
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#200 $)\n**\n";
+		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#201 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
