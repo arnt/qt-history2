@@ -1135,9 +1135,15 @@ QString QUrl::dirPath() const
 }
 
 /*!
-    Encodes the string \a url \e in-place.
+    Encodes the \a url in-place into UTF-8.  For example
 
-    \sa decode()
+    \code
+	QString url = http://www.trolltech.com/
+	QUrl::encode( url );
+	// url is now "http%3A//www%20trolltech%20com"
+    \endcode
+
+  \sa decode()
 */
 
 void QUrl::encode( QString& url )
@@ -1185,7 +1191,13 @@ static uchar hex_to_int( uchar c )
 }
 
 /*!
-    Decodes the string \a url \e in-place.
+    Decodes the \a url in-place into UTF-8.  For example
+
+    \code
+	QString url = "http%3A//www%20trolltech%20com"
+	QUrl::encode( url );
+	// url is now "http//www.trolltech.com"
+    \endcode
 
     \sa encode()
 */
