@@ -73,8 +73,9 @@ protected slots:
 protected:
     void contentsChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
     void contentsInserted(const QModelIndex &topLeft, const QModelIndex &bottomRight);
-    void contentsRemoved(const QModelIndex &topLeft, const QModelIndex &bottomRight);
-    void initializeSections(const QModelIndex &topLeft, const QModelIndex &bottomRight);
+    void contentsRemoved(const QModelIndex &parent,
+			 const QModelIndex &topLeft, const QModelIndex &bottomRight);
+    void initializeSections(int start, int end);
 
     void drawContents(QPainter *p, int cx, int cy, int cw, int ch);
 

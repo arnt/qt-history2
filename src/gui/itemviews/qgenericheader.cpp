@@ -74,11 +74,8 @@ QGenericHeader::QGenericHeader(QGenericItemModel *model, Orientation o, QWidget 
     viewport()->setFocusPolicy(NoFocus);
     setFocusPolicy(NoFocus);
 
-    QModelIndex topLeft = model->index(0, 0, root());
-    if (orientation() == Horizontal)
-	initializeSections(topLeft, model->index(model->rowCount(root()) - 1, 0, root()));
-    else
-	initializeSections(topLeft, model->index(0, model->columnCount(root()) - 1, root()));
+    // FIXME: this should also be called in setModel()
+    contentsInserted(model->topLeft(root()), model->bottomRight(root()));
 }
 
 QGenericHeader::~QGenericHeader()
@@ -282,20 +279,12 @@ int QGenericHeader::sectionPosition(int section) const
     return d->sections.at(index(section)).position;
 }
 
-void QGenericHeader::initializeSections(const QModelIndex &topLeft, const QModelIndex &)
+void QGenericHeader::initializeSections(int start, int end)
 {
-    QModelIndex parent = model()->parent(topLeft);
-    if (parent != root())
-	return;
-    
-    int start = orientation() == Vertical ? topLeft.row() : topLeft.column();
-    int end = orientation() == Vertical ? model()->rowCount(parent) : model()->columnCount(parent);
-    // FIXME: continue all the way to the end, or just to bottomRight ?
-    
-    if (start < 0)
-        start = 0;
-    d->sections.resize(end + 1); // strictly speaking only positions need + 1
-    if (start >= end) {
+    int oldCount = count();
+    end += 1; // one past the last item, so we get the end position of the last section
+    d->sections.resize(end + 1);
+    if (start > end) {
 	viewport()->update();
 	emit sectionCountChanged(start, end);
 	return;
@@ -307,7 +296,7 @@ void QGenericHeader::initializeSections(const QModelIndex &topLeft, const QModel
     int num = end - start + 1;
     int size = (orientation() == Horizontal ? 100 : 30); // default size
 
-// unroll loop - to initialize the arrays as fast as possible
+    // unroll loop - to initialize the arrays as fast as possible
     while (num >= 4) {
 
 	sections[0].hidden = false;
@@ -358,7 +347,7 @@ void QGenericHeader::initializeSections(const QModelIndex &topLeft, const QModel
 	    }
 	}
     }
-    emit sectionCountChanged(start, end);
+    emit sectionCountChanged(oldCount, count());
     viewport()->update();
 }
 
@@ -405,12 +394,20 @@ void QGenericHeader::contentsChanged(const QModelIndex &topLeft, const QModelInd
 
 void QGenericHeader::contentsInserted(const QModelIndex &topLeft, const QModelIndex &bottomRight)
 {
-    initializeSections(topLeft, bottomRight);
+    QModelIndex parent = model()->parent(topLeft);
+    if (orientation() == Horizontal)
+	initializeSections(topLeft.column(), bottomRight.column());
+    else
+	initializeSections(topLeft.row(), bottomRight.row());
 }
 
-void QGenericHeader::contentsRemoved(const QModelIndex &topLeft, const QModelIndex &bottomRight)
+void QGenericHeader::contentsRemoved(const QModelIndex &parent,
+				     const QModelIndex &topLeft, const QModelIndex &bottomRight)
 {
-    initializeSections(topLeft, bottomRight);
+    if (orientation() == Horizontal)
+	initializeSections(topLeft.column(), model()->columnCount(parent) - 1);
+    else
+	initializeSections(topLeft.row(), model()->rowCount(parent) - 1);
 }
 
 void QGenericHeader::resizeSections()
