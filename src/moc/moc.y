@@ -325,7 +325,6 @@ const int  formatRevision = 7;			// moc output format revision
 %type  <string>		ptr_operators
 %type  <string>		ptr_operators_opt
 %type  <string>		prop_access_function
-%type  <string>		string_or_identifier
 
 %%
 declaration_seq:	  /* empty */
@@ -743,8 +742,9 @@ obj_member_area:	  qt_access_specifier	{ BEGIN QT_DEF; }
 			      Q_OBJECTdetected = TRUE;
 			  }
 			| Q_PROPERTY { tmpYYStart = YY_START; BEGIN IN_PROPERTY; }
-			  '(' IDENTIFIER ',' string_or_identifier ',' prop_access_function ',' prop_access_function ')'
+			  '(' IDENTIFIER ',' STRING ',' prop_access_function ',' prop_access_function ')'
 				  {
+				      checkIdentifier( $6 );
 				      Q_PROPERTYdetected = TRUE;
 				      props.append( new Property( lineNo, $4,$6,$10,$8) );
 				      BEGIN tmpYYStart;
@@ -1036,10 +1036,6 @@ enumerator:		  IDENTIFIER { if ( tmpAccessPerm == _PUBLIC) tmpEnum->append( $1 )
 
 prop_access_function:	  IDENTIFIER 	{ $$ = $1; }
 			| '0'		{ $$ = ""; }
-			;
-
-string_or_identifier:	  STRING
-			| IDENTIFIER
 			;
 
 %%
@@ -2395,4 +2391,35 @@ void addMember( Member m )
     skipFunc = FALSE;
     tmpFunc  = new Function;
     tmpArgList = new ArgList;
+}
+
+/**
+ * Used to check property names. They must match
+ * the pattern [A-Za-z][A-Za-z0-9_]*
+ *
+ * @author Torben Weis <weis@troll.no>
+ */
+void checkIdentifier( const char* ident )
+{
+    const char* p = ident;
+    if ( p == 0 || *p == 0 )
+    {
+	moc_err( "A property name must not be of zero length");
+	return;
+    }
+    if ( !( *p >= 'A' && *p <= 'Z' ) && !( *p >= 'a' && *p <= 'z' )  )
+    {
+	moc_err( "'%s' is not a valid property name. It must match the pattern [A-Za-z][A-Za-z0-9_]*", ident );
+	return;
+    }
+
+    while( *p )
+    {
+    	if ( !( *p >= 'A' && *p <= 'Z' ) && !( *p >= 'a' && *p <= 'z' ) && !( *p >= '0' && *p <= '9' ) && *p != '_' )
+        {
+	    moc_err( "'%s' is not a valid property name. It must match the pattern [A-Za-z][A-Za-z0-9_]*", ident );
+            return;
+        }
+	++p;
+    }
 }
