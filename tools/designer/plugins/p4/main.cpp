@@ -1,9 +1,7 @@
-#include "../../designer/actioniface.h"
-#include "../../designer/designerappiface.h"
+#include "../designerinterface.h"
 #include "p4.h"
 
 #include <qcleanuphandler.h>
-#include <qapplicationinterface.h>
 #include <qaction.h>
 #include <qapplication.h>
 
@@ -55,10 +53,10 @@ bool P4Interface::connectNotify( QApplication* theApp )
     if ( !appInterface )
 	return FALSE;
 
-    DesignerMainWindowInterface *mwIface = 0;
-    DesignerFormWindowInterface *fwIface = 0;
-    if ( ( mwIface = (DesignerMainWindowInterface*)appInterface->queryInterface( "DesignerMainWindowInterface" ) ) &&
-	 ( fwIface = (DesignerFormWindowInterface*)mwIface->queryInterface( "DesignerFormWindowInterface" ) ) )
+    QComponentInterface *mwIface = 0;
+    QComponentInterface *fwIface = 0;
+    if ( ( mwIface = appInterface->queryInterface( "DesignerMainWindowInterface" ) ) &&
+	 ( fwIface = mwIface->queryInterface( "DesignerFormWindowInterface" ) ) )
 	fwIface->requestConnect( SIGNAL( modificationChanged( bool, const QString & ) ), 
 				 this, SLOT( p4MightEdit( bool, const QString & ) ) );
 
@@ -98,10 +96,10 @@ void P4Interface::p4Edit()
 {
     if ( !appInterface )
 	return;
-    DesignerMainWindowInterface *mwIface = 0;
-    DesignerFormWindowInterface *fwIface = 0;
-    if ( !( mwIface = (DesignerMainWindowInterface*)appInterface->queryInterface( "DesignerMainWindowInterface" ) ) ||
-	 !( fwIface = (DesignerFormWindowInterface*)mwIface->queryInterface( "DesignerFormWindowInterface" ) ) )
+    QComponentInterface *mwIface = 0;
+    QComponentInterface *fwIface = 0;
+    if ( !( mwIface = appInterface->queryInterface( "DesignerMainWindowInterface" ) ) ||
+	 !( fwIface = mwIface->queryInterface( "DesignerFormWindowInterface" ) ) )
 	return;
 
     P4Edit *edit = new P4Edit( fwIface->requestProperty( "fileName" ).toString().latin1(), mwIface, FALSE );
@@ -112,10 +110,10 @@ void P4Interface::p4Submit()
 {
     if ( !appInterface )
 	return;
-    DesignerMainWindowInterface *mwIface = 0;
-    DesignerFormWindowInterface *fwIface = 0;
-    if ( !( mwIface = (DesignerMainWindowInterface*)appInterface->queryInterface( "DesignerMainWindowInterface" ) ) ||
-	 !( fwIface = (DesignerFormWindowInterface*)mwIface->queryInterface( "DesignerFormWindowInterface" ) ) )
+    QComponentInterface *mwIface = 0;
+    QComponentInterface *fwIface = 0;
+    if ( !( mwIface = appInterface->queryInterface( "DesignerMainWindowInterface" ) ) ||
+	 !( fwIface = mwIface->queryInterface( "DesignerFormWindowInterface" ) ) )
 	return;
     qDebug( "P4Interface::p4Submit %s", fwIface->requestProperty( "dileName" ).toString().latin1() );
 }
@@ -124,8 +122,8 @@ void P4Interface::p4MightEdit( bool b, const QString &s )
 {
     if ( !b || !appInterface )
 	return;
-    DesignerMainWindowInterface *mwIface = 0;
-    if ( !( mwIface = (DesignerMainWindowInterface*)appInterface->queryInterface( "DesignerMainWindowInterface" ) ) )
+    QComponentInterface *mwIface = 0;
+    if ( !( mwIface = appInterface->queryInterface( "DesignerMainWindowInterface" ) ) )
 	return;
     P4Edit *edit = new P4Edit( s, mwIface, TRUE );
     edit->edit();
