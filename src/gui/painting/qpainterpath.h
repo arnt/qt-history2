@@ -92,6 +92,7 @@ public:
 
     bool contains(const QPointF &pt) const;
     bool contains(const QRectF &rect) const;
+    bool intersects(const QRectF &rect) const;
 
     QRectF boundingRect() const;
     QRectF controlPointRect() const;

@@ -1136,6 +1136,20 @@ bool QPainterPath::contains(const QRectF &rect) const
 }
 
 /*!
+    Returns true if any point in rect \a rect is inside the path; otherwise
+    returns false.
+*/
+bool QPainterPath::intersects(const QRectF &rect) const
+{
+    if (isEmpty())
+        return false;
+    if (d->containsCache.isEmpty()) {
+        d->containsCache = QRegion(toFillPolygon().toPolygon(), fillRule());
+    }
+    return !d->containsCache.intersect(rect.toRect()).isEmpty();
+}
+
+/*!
     Returns true if this painterpath is equal to \a path.
 
     Comparing paths may involve a pr element comparrison which
