@@ -29,7 +29,6 @@ public:
     int count;
     int maxCount;
     QMutex protect;
-    QWaitCondition dontBlock;
 };
 
 QSemaphore::QSemaphore( int maxcount )
@@ -78,7 +77,6 @@ int QSemaphore::operator--(int)
 	qSystemWarning( "Semaphore release failure" );
     } else {
 	c = ++d->count;
-	d->dontBlock.wakeAll();
     }
     d->protect.unlock();
 
@@ -101,7 +99,6 @@ int QSemaphore::operator -=(int s)
     if ( d->count > d->maxCount )
 	d->count = d->maxCount;
     c = d->count;
-    d->dontBlock.wakeAll();
     d->protect.unlock();
     return c;
 }
@@ -125,10 +122,6 @@ int QSemaphore::operator++(int)
 
 int QSemaphore::operator +=(int s)
 {
-    while ( d->count < s )
-	d->dontBlock.wait();
-
-    d->protect.lock();
     for ( int i = 0; i < s; i++ ) {
 	switch ( WaitForSingleObject( d->handle, INFINITE ) ) {
 	case WAIT_TIMEOUT:
@@ -138,12 +131,11 @@ int QSemaphore::operator +=(int s)
 	default:
 	    break;
 	}
+	d->protect.lock();
 	d->count--;
+	d->protect.unlock();
     }
-    int c = d->count;
-    d->protect.unlock();
-
-    return c;
+    return d->count;
 }
 
 bool QSemaphore::tryAccess( int n )
