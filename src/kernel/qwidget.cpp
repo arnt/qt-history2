@@ -5337,19 +5337,15 @@ void QWidget::updateGeometry()
 
 void QWidget::reparent(QWidget *parent, WFlags f)
 {
-    bool sameFont = parent && font() == parent->font();
-#ifndef QT_NO_PALETTE
-    bool samePalette = parent && palette() == parent->palette();
-#endif
     reparentSys( parent, f, QPoint(0,0), false);
     QEvent e( QEvent::Reparent );
     QApplication::sendEvent( this, &e );
-    if ( ! own_font && ! sameFont )
+    if (!own_font)
 	unsetFont();
     else
 	setFont( fnt.resolve( qt_naturalWidgetFont( this ) ) );
 #ifndef QT_NO_PALETTE
-    if ( !own_palette && !samePalette )
+    if (!own_palette)
 	unsetPalette();
 #endif
 }
