@@ -526,7 +526,9 @@ void QSpinBox::arrangeWidgets()
 
 void QSpinBox::setValue( int value )
 {
+    edited = FALSE; // we ignore anything entered and not yet interpreted
     QRangeControl::setValue( value );
+    updateDisplay();
 }
 
 int QSpinBox::value() const
