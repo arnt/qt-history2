@@ -34,6 +34,9 @@ static char ident[] = "$Id: examples.doc,v 2.29 1999/07/07 09:57:05 reggie Exp $
   has a menu bar, it has a tool bar, it has a status bar and works
   like a simple text editor.
 
+  There is a <a href="simple-application.html">walkthrough</a> of
+  this example.
+
   <hr>
 
   Header file:
