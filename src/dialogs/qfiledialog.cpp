@@ -3758,7 +3758,7 @@ void QFileDialog::updateFileNameEdit( QListViewItem * newItem )
 	    emit fileHighlighted( u.toString( FALSE, FALSE ) );
     } else if ( files->isSelected( newItem ) ) {
 	QFileDialogPrivate::File * i = (QFileDialogPrivate::File *)newItem;
-	if ( i->i && !i->i->isSelected() ) {
+	if ( i && i->i && !i->i->isSelected() ) {
 	    d->moreFiles->blockSignals( TRUE );
 	    d->moreFiles->setSelected( i->i, TRUE );
 	    d->moreFiles->blockSignals( FALSE );
@@ -3851,7 +3851,7 @@ void QFileDialog::updateFileNameEdit( QListBoxItem * newItem )
     if ( !newItem )
 	return;
     QFileDialogPrivate::MCItem * i = (QFileDialogPrivate::MCItem *)newItem;
-    if ( d->mode != ExistingFiles ) {
+    if ( d->mode != ExistingFiles && i->i ) {
 	i->i->listView()->setSelected( i->i, i->isSelected() );
 	updateFileNameEdit( i->i );
     }
@@ -3929,8 +3929,10 @@ void QFileDialog::selectDirectoryOrFile( QListBoxItem * newItem )
 	return;
 
     QFileDialogPrivate::MCItem * i = (QFileDialogPrivate::MCItem *)newItem;
-    i->i->listView()->setSelected( i->i, i->isSelected() );
-    selectDirectoryOrFile( i->i );
+    if ( i->i ) {
+	i->i->listView()->setSelected( i->i, i->isSelected() );
+	selectDirectoryOrFile( i->i );
+    }
 }
 
 
