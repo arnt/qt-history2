@@ -1087,7 +1087,7 @@ UnixMakefileGenerator::writeLibtoolFile()
     QFile ft(fname);
     if(!ft.open(IO_WriteOnly))
         return;
-    project->variables()["ALL_DEPS"].append(fname);
+    project->variables()["ALL_DEPS"].append(fileFixify(fname));
 
     QTextStream t(&ft);
     t << "# " << lname << " - a libtool library file\n";
@@ -1193,7 +1193,7 @@ UnixMakefileGenerator::writePkgConfigFile()     // ### does make sense only for 
     QFile ft(fname);
     if(!ft.open(IO_WriteOnly))
         return;
-    project->variables()["ALL_DEPS"].append(fname);
+    project->variables()["ALL_DEPS"].append(fileFixify(fname));
     QTextStream t(&ft);
 
     QString prefix = pkgConfigPrefix();
