@@ -1391,7 +1391,9 @@ void QWorkspace::activatePreviousWindow()
 /*!
   \fn void QWorkspace::windowActivated( QWidget* w )
 
-  This signal is emitted when the window widget \a w becomes active.
+  This signal is emitted when the window widget \a w becomes active. Note that 
+  \a w can be null, and that more than one signal may be fired for one activation
+  event.
 
   \sa activeWindow(), windowList()
 */
