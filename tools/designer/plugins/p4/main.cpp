@@ -606,6 +606,9 @@ void P4Interface::p4MightEdit( bool b )
     if ( !fwIface )
 	return;
 
+    if ( fwIface->fileName().isEmpty() )
+	return;
+
     P4Edit *edit = new P4Edit( fwIface->fileName(), FALSE );
     connect( edit, SIGNAL(finished(const QString&, P4Info*)), this, SLOT(p4Info(const QString&,P4Info*)) );
     connect( edit, SIGNAL( showStatusBarMessage( const QString & ) ), this, SLOT( statusMessage( const QString & ) ) );
