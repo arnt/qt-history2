@@ -160,8 +160,8 @@ void QIMPenWidget::timeout()
 */
 bool QIMPenWidget::selectSet( QPoint p )
 {
-    if ( p.x() < TITLE_WIDTH * (int)charSets.count() && p.y() < 12 ) {
-        int idx = p.x() / TITLE_WIDTH;
+    if ( p.x() > TITLE_WIDTH && p.x() < TITLE_WIDTH * (int)(charSets.count()+1) && p.y() < 12 ) {
+        int idx = p.x() / TITLE_WIDTH - 1;
         if ( charSets.at( idx ) != currCharSet ) {
             currCharSet = charSets.at( idx );
             update();
@@ -262,7 +262,7 @@ void QIMPenWidget::paintEvent( QPaintEvent * )
     QFont selFont( "helvetica", 8, QFont::Bold );
     QFont font( "helvetica", 8 );
     QListIterator<QIMPenCharSet> it( charSets );
-    int pos = 0;
+    int pos = TITLE_WIDTH;
     for ( ; it.current(); ++it ) {
         if ( currCharSet == it.current() ) {
             paint.setPen( Qt::black );

@@ -1,6 +1,7 @@
 #include <qapplication.h>
 #include <qlayout.h>
 #include <qpushbutton.h>
+#include <qtoolbutton.h>
 #include <qpopupmenu.h>
 #include <qlabel.h>
 #include <qimage.h>
@@ -195,11 +196,107 @@ private:
     QPopupMenu *launchMenu;
     QPushButton *launchButton;
     QPushButton *kbdButton;
+    QPushButton *kbdChoice;
     QWidget * keyboard;
     enum KeyMode { Pen, Key, Unicode } keyMode;
 };
 
 #include "launcher.moc"
+
+
+/* XPM */
+static const char * const tri_xpm[]={
+"9 9 2 1",
+"a c #000000",
+". c None",
+".........",
+".........",
+".........",
+"....a....",
+"...aaa...",
+"..aaaaa..",
+".aaaaaaa.",
+".........",
+"........."};
+
+
+
+/* XPM */
+static const char * const kb_xpm[]={
+"32 17 2 1",
+"# c #303030",
+"  c None",
+" ############################## ",
+" #   #   #   #   #   #   #    # ",
+" #   #   #   #   #   #   #    # ",
+" #   #   #   #   #   #   #    # ",
+" ############################## ",
+" #     #   #   #   #   #      # ",
+" #     #   #   #   #   #      # ",
+" #     #   #   #   #   #      # ",
+" ############################## ",
+" #      #   #   #   #   #     # ",
+" #      #   #   #   #   #     # ",
+" #      #   #   #   #   #     # ",
+" ############################## ",
+" #    #                  #    # ",
+" #    #                  #    # ",
+" #    #                  #    # ",
+" ############################## "};
+
+
+
+/* XPM */
+static const char * const pen_xpm[] = {
+"32 16 4 1",
+"       c None",
+".      c #000000",
+"+      c #FFFFFF",
+"@      c #808080",
+"                                ",
+"                                ",
+"                             .  ",
+"                            .+. ",
+"                           ..@@.",
+"                          .+@.. ",
+"        ....             .+@@.  ",
+"      .......           .+@@.   ",
+"     ..     ..         .+@@.    ",
+"    ..       ..       .@.@.     ",
+"    ..       ..       .@@.      ",
+"    ..       ..      ....       ",
+"   ..         .....  ..         ",
+"               .....            ",
+"                                ",
+"                                "};
+
+
+
+
+/* XPM */
+static const char * const uni_xpm[]={
+"32 16 2 1",
+"# c #000000",
+". c None",
+"................................",
+"...####.....#####.......####....",
+"...####.....######......####....",
+"...####.....#######.............",
+"...####.....########....####....",
+"...####.....#########...####....",
+"...####.....####.#####..####....",
+"...####.....####..#####.####....",
+"...####.....####...#########....",
+"...####.....####....########....",
+"...####.....####.....#######....",
+"...#####...#####......######....",
+"....###########........#####....",
+".....#########..........####....",
+".......######............###....",
+"................................"};
+
+
+
 
 TaskBar::TaskBar()
     	:QFrame( 0, 0, WStyle_Tool | WStyle_Customize | WStyle_StaysOnTop )
@@ -207,7 +304,7 @@ TaskBar::TaskBar()
     keyMode = Key;
     keyboard = 0;
     setFrameStyle( QFrame::StyledPanel | QFrame::Raised );
-    QHBoxLayout *hbox = new QHBoxLayout( this, 2 );
+    QHBoxLayout *hbox = new QHBoxLayout( this, 2, 0 );
     launchButton = new QPushButton( "Launch", this );
     hbox->addWidget( launchButton );
     connect( launchButton, SIGNAL(clicked()), this, SLOT(launch()) );
@@ -216,14 +313,22 @@ TaskBar::TaskBar()
     for (int i=0; command[i].label; i++) {
 	launchMenu->insertItem( command[i].label, i );
     }
+
+    hbox->addSpacing( 2 );
+    
     connect( launchMenu, SIGNAL(activated(int)), this, SLOT(execute(int)));
 
-    kbdButton = new QPushButton( "Kbd", this );
+    kbdButton = new QPushButton( this );
+    kbdButton->setPixmap( QPixmap( (const char **)kb_xpm ) );
     kbdButton->setToggleButton( TRUE );
+    kbdButton->setFixedHeight( launchButton->sizeHint().height() );
     hbox->addWidget( kbdButton );
     connect( kbdButton, SIGNAL(toggled(bool)), this, SLOT(showKbd(bool)) );
-
-    QPushButton *kbdChoice = new QPushButton( "^", this );
+    
+    kbdChoice = new QPushButton( this );
+    kbdChoice->setPixmap( QPixmap( (const char **)tri_xpm ) );
+    kbdChoice->setFixedHeight( launchButton->sizeHint().height() );
+    
     hbox->addWidget( kbdChoice );
     connect( kbdChoice, SIGNAL(clicked()), this, SLOT(chooseKbd()) );
     
@@ -264,8 +369,12 @@ void TaskBar::chooseKbd()
     pop.insertItem( "Keyboard", Key );
     pop.insertItem( "Unicode", Unicode );
     pop.setItemChecked( keyMode, TRUE );
-    int h = pop.sizeHint().height();
-    int i = pop.exec( mapToGlobal(QPoint(0,-h)));
+
+    QPoint pt = mapToGlobal(kbdChoice->geometry().topRight());
+    QSize s = pop.sizeHint();
+    pt.ry() -= s.height();
+    pt.rx() -= s.width();
+    int i = pop.exec( pt );
     if ( i == -1 )
 	return;
     if ( i != keyMode && keyboard && keyboard->isVisible() )
@@ -303,12 +412,13 @@ void TaskBar::showKbd( bool on )
 	    pi->setLineWidth( 1 );
 	    pi->addCharSet( "qimpen/asciilower.qpt" );
 	    pi->addCharSet( "qimpen/numeric.qpt" );
-	    pi->resize( pi->width(), pi->sizeHint().height() + 1 );
+	    pi->resize( qApp->desktop()->width(), pi->sizeHint().height() + 1 );
 	    int h = y();
 	    pi->move( 0,  h - pi->height() );
 	}
 	keyboard = pi;
 	pi->show();
+	kbdButton->setPixmap( QPixmap( (const char **)pen_xpm ) );
 
 #endif    
 	break;
@@ -324,6 +434,7 @@ void TaskBar::showKbd( bool on )
 	}
 	keyboard = kbd;
 	kbd->show();
+	kbdButton->setPixmap( QPixmap( (const char **)kb_xpm ));
 	break;
     case Unicode:
 	if ( !uni ) {
@@ -337,6 +448,7 @@ void TaskBar::showKbd( bool on )
 	    uni->move( 0,  h - uni->height() );
 	}
 	keyboard = uni;
+	kbdButton->setPixmap( QPixmap( (const char **)uni_xpm ));
 	uni->show();
 	break;
     }

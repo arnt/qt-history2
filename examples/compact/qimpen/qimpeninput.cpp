@@ -53,7 +53,7 @@ static const char * const pen_xpm[] = {
 "            ",
 "            "};
 
-
+#if 0
 /* XPM */
 static const char * const updown_xpm[] = {
 "12 16 4 1",
@@ -77,8 +77,9 @@ static const char * const updown_xpm[] = {
 "   .+@@.    ",
 "    .@.     ",
 "     .      "};
+#endif
 
-
+#if 0
 /* XPM */
 static const char * const hide_xpm[] = {
 "12 16 5 1",
@@ -130,6 +131,8 @@ static const char * const show_xpm[] = {
 "  .         ",
 "            "};
 
+#endif
+#if 0
 /*
   Simple widget that we can use to move the input window around.
 */
@@ -207,7 +210,7 @@ protected:
     int count;
     QPoint pos;
 };
-
+#endif
 /*!
   \class QIMPenInput qimpeninput.h
 
@@ -219,27 +222,30 @@ QIMPenInput::QIMPenInput( QWidget *parent, const char *name, WFlags f )
     strokes.setAutoDelete( TRUE );
     charSets.setAutoDelete( TRUE );
 
+#if 0
     hidden = FALSE;
     QGridLayout *gl = new QGridLayout( this, 3, 2, 1, 1 );
     gl->setColStretch( 1, 1 );
 
     moveWidget = (QWidget *)new GrabWidget( this );
     gl->addWidget( moveWidget, 0, 0 );
-
-    QPixmap pm( (const char **)pen_xpm );
-    setupBtn = new QPushButton( this );
-    setupBtn->setPixmap( pm );
-    connect( setupBtn, SIGNAL(clicked()), SLOT(setup()));
+#endif
+#if 0
     gl->addWidget( setupBtn, 1, 0 );
-
     QPixmap pm1( (const char **)hide_xpm );
     hideBtn = new QPushButton( this );
     hideBtn->setPixmap( pm1 );
     connect( hideBtn, SIGNAL(clicked()), SLOT(hide())); //was hideShow()
     gl->addWidget( hideBtn, 2, 0 );
-
+#endif
     pw = new QIMPenWidget( this );
-    gl->addMultiCellWidget( pw, 0, 2, 1, 1 );
+    QPixmap pm( (const char **)pen_xpm );
+    setupBtn = new QPushButton( pw );
+    setupBtn->setPixmap( pm );
+    setupBtn->resize( setupBtn->sizeHint() );
+    connect( setupBtn, SIGNAL(clicked()), SLOT(setup()));
+
+    //gl->addMultiCellWidget( pw, 0, 2, 1, 1 );
     connect( pw, SIGNAL(changeCharSet( QIMPenCharSet * )),
                  SLOT(selectCharSet( QIMPenCharSet * )) );
     connect( pw, SIGNAL(stroke( QIMPenStroke * )),
@@ -248,8 +254,8 @@ QIMPenInput::QIMPenInput( QWidget *parent, const char *name, WFlags f )
 
     charSets.setAutoDelete( TRUE );
 
-    pw->setMinimumHeight( pw->sizeHint().height() );
-    gl->activate();
+    //    pw->setMinimumHeight( pw->sizeHint().height() );
+    //    gl->activate();
 
     timer = new QTimer( this );
     connect( timer, SIGNAL(timeout()), SLOT(processMatches()) );
@@ -263,6 +269,21 @@ QIMPenInput::QIMPenInput( QWidget *parent, const char *name, WFlags f )
 QIMPenInput::~QIMPenInput()
 {
 }
+
+QSize QIMPenInput::sizeHint() const
+{
+    int d = frameWidth();
+    return pw->sizeHint() + QSize( 2*d, 2*d );
+}
+
+void QIMPenInput::resizeEvent( QResizeEvent * )
+{
+    int d = frameWidth();
+    pw->setGeometry( d, d, width()-2*d, height()-2*d );
+}
+
+
+
 
 /*!
   Add a character set from file \a fn.
@@ -455,3 +476,4 @@ void QIMPenInput::hideShow()
 }
 
 #endif
+

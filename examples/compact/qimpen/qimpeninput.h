@@ -36,12 +36,16 @@ public:
 
     enum MultiStrokeMode { Delay = 1, Backspace = 2 };
 
+    QSize sizeHint() const;
+    
 signals:
     void key( unsigned int unicode );
 
     //public slots:
     //    void hideShow();
-
+protected:
+    void resizeEvent( QResizeEvent * );
+    
 protected slots:
     void selectCharSet( QIMPenCharSet * );
     void beginStroke();
@@ -52,14 +56,13 @@ protected slots:
 protected:
     void keypress( unsigned int ch );
 
-protected:
-    bool hidden;
+    //bool hidden;
     QRect prefRect;
     QIMPenWidget *pw;
-    QWidget *moveWidget;
+    //    QWidget *moveWidget;
     QTimer *timer;
     QPushButton *setupBtn;
-    QPushButton *hideBtn;
+    //    QPushButton *hideBtn;
     QList<QIMPenStroke> strokes;
     QIMPenChar *matchChar;
     QIMPenChar testChar;
