@@ -91,9 +91,6 @@ bool QGuiEventLoop::processEvents(ProcessEventsFlags flags)
     bool retval = (nevents > 0);
     retval |= QEventLoop::processEvents(flags);
 
-    // color approx. optimization - only on X11
-    qt_reset_color_avail();
-
     // return true if we handled events, false otherwise
     return retval;
 }
