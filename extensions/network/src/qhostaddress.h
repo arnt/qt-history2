@@ -29,6 +29,10 @@ public:
 
     QHostAddress & operator=( const QHostAddress & );
 
+    void setAddress( Q_UINT32 ip4Addr );
+    void setAddress( Q_UINT8 *ip6Addr );
+    bool setAddress( const QString& address );
+
     bool	 isIp4Addr()	 const;
     Q_UINT32	 ip4Addr()	 const;
     QString	 toString() const;

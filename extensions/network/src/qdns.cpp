@@ -1520,7 +1520,12 @@ QValueList<QHostAddress> QDns::addresses() const
 	    result.append( QHostAddress( 0x7f000001 ) );
 	    return result;
 	}
-
+	QHostAddress tmp;
+	if ( tmp.setAddress(l) && tmp.isIp4Addr() ) {
+	    result.append( tmp );
+	    return result;
+	}
+#if 0
 	int maybeIP4 = 0;
 	int bytes = 0;
 	QString left = l.simplifyWhiteSpace();
@@ -1545,6 +1550,15 @@ QValueList<QHostAddress> QDns::addresses() const
 		    left = "";
 		}
 	    }
+	}
+#endif
+    }
+    if ( t == Aaaa ) {
+	QHostAddress tmp;
+	if ( tmp.setAddress(l) && !tmp.isIp4Addr() ) {
+//	if ( tmp.setAddress(l) && tmp.isIp6Addr() ) { // ### this would make also sense
+	    result.append( tmp );
+	    return result;
 	}
     }
 

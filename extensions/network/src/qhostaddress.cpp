@@ -23,6 +23,7 @@
 
 #include "qhostaddress.h"
 #include "qglobal.h"
+#include "qstringlist.h"
 
 class QHostAddressPrivate
 {
@@ -58,19 +59,19 @@ private:
     friend class QHostAddress;
 };
 
+
 /*!
   \class QHostAddress qhostaddress.h
   \brief QHostAddress provides an IP address.
 
   \ingroup kernel
 
-  This class contains an IP address in a platform- and
-  protocol-independent manner.  That is, it'll store the address in a
-  way you can access easily on any platform, and it'll store both IPv4
-  and IPv6 addresses.
+  This class contains an IP address in a platform- and protocol-independent
+  manner.  That is, it'll store the address in a way you can access easily on
+  any platform, and it'll store both IPv4 and IPv6 addresses.
 
-  QHostAddress is normally used with the classes QSocketDevice and
-  QSocket to set up a server or to connect to a host.
+  QHostAddress is normally used with the classes QSocketDevice and QSocket to
+  set up a server or to connect to a host.
 
   \sa QSocket, QSocketDevice
 */
@@ -79,7 +80,6 @@ private:
 /*!
   Creates a socket address object with the IP address 0.0.0.0.
 */
-
 QHostAddress::QHostAddress()
     : d( new QHostAddressPrivate )
 {
@@ -87,10 +87,8 @@ QHostAddress::QHostAddress()
 
 
 /*!
-  Creates a socket address object with a specified IPv4
-  address.
+  Creates a socket address object with a specified IPv4 address.
 */
-
 QHostAddress::QHostAddress( Q_UINT32 ip4Addr )
     : d( new QHostAddressPrivate( ip4Addr ) )
 {
@@ -98,13 +96,11 @@ QHostAddress::QHostAddress( Q_UINT32 ip4Addr )
 
 
 /*!
-  Creates a socket address object with a specified IPv6
-  address.
+  Creates a socket address object with a specified IPv6 address.
 
   \a ip6Addr must be a 16 byte array in network byte order (high-order byte
   first)
 */
-
 QHostAddress::QHostAddress( Q_UINT8 *ip6Addr )
     : d( new QHostAddressPrivate( ip6Addr ) )
 {
@@ -114,7 +110,6 @@ QHostAddress::QHostAddress( Q_UINT8 *ip6Addr )
 /*!
   Creates a copy of \a address.
 */
-
 QHostAddress::QHostAddress( const QHostAddress &address )
     : d( new QHostAddressPrivate )
 {
@@ -125,7 +120,6 @@ QHostAddress::QHostAddress( const QHostAddress &address )
 /*!
   Destructs the socket address object.
 */
-
 QHostAddress::~QHostAddress()
 {
     delete d;
@@ -136,7 +130,6 @@ QHostAddress::~QHostAddress()
   Assigns another socket address object \a address to this object and
   returns a referense to this object.
 */
-
 QHostAddress & QHostAddress::operator=( const QHostAddress & address )
 {
     *d = *(address.d);
@@ -145,9 +138,117 @@ QHostAddress & QHostAddress::operator=( const QHostAddress & address )
 
 
 /*!
+  Set a IPv4 address specified by \a ip4Addr.
+*/
+void QHostAddress::setAddress( Q_UINT32 ip4Addr )
+{
+    delete d;
+    d = new QHostAddressPrivate( ip4Addr );
+}
+
+
+/*!
+  Set a IPv6 address specified by \a ip6Addr.
+
+  \a ip6Addr must be a 16 byte array in network byte order (high-order byte
+  first)
+*/
+void QHostAddress::setAddress( Q_UINT8 *ip6Addr )
+{
+    delete d;
+    d = new QHostAddressPrivate( ip6Addr );
+}
+
+
+/*!
+  Sets the IPv4 or IPv6 address specified by the string representation
+  \a address (e.g. "127.0.0.1").
+
+  If this function is not able to parse the address it will return FALSE and
+  the address is not changed.
+*/
+bool QHostAddress::setAddress( const QString& address )
+{
+    QString a = address.simplifyWhiteSpace();
+
+    // try ipv4
+    QStringList ipv4 = QStringList::split( ".", a, FALSE );
+    if ( ipv4.count() == 4 ) {
+	Q_UINT32 maybe = 0;
+	for ( int i=0; i<4; i++ ) {
+	    bool ok = FALSE;
+	    uint byteValue = ipv4[i].toUInt( &ok );
+	    if ( ok && byteValue < 256 ) {
+		maybe = maybe * 256 + byteValue;
+		if ( i == 3 ) {
+		    setAddress( maybe );
+		    return TRUE;
+		}
+	    } else {
+		break;
+	    }
+	}
+    }
+
+#if 0
+    // ### add ipv6 support???
+    // try ipv6
+    QStringList ipv6 = QStringList::split( ":", a, TRUE );
+    int count = ipv6.count();
+    if ( count < 3 )
+	return FALSE; // there must be at least two ":"
+    if ( count > 8 )
+	return FALSE; // maximum of seven ":" exceeded
+    Q_UINT8 maybe[16];
+    int mc = 16;
+    bool colcolFound = FALSE;
+    for ( int i=count-1; i>=0; i-- ) {
+	if ( ipv6[i].isEmpty() ) {
+	    if ( i==count-1 ) {
+		// special case: ":" is last character
+		if ( !ipv6[i-1].isEmpty() )
+		    return FALSE;
+	    } else if ( i==0 ) {
+		// special case: ":" is first character
+		if ( !ipv6[i+1].isEmpty() )
+		    return FALSE;
+		maybe[--mc] = 0;
+		maybe[--mc] = 0;
+	    } else {
+		// special case: found a "::" somewhere
+		if ( colcolFound )
+		    return FALSE; // more then one "::"
+		colcolFound = TRUE;
+		// ### add the right numbers of zeros
+	    }
+	} else {
+	    bool ok = FALSE;
+	    uint byteValue = ipv6[i].toUInt( &ok, 16 );
+	    if ( ok && byteValue < 0xffff ) {
+		maybe[--mc] = byteValue / 256;
+		maybe[--mc] = byteValue % 256;
+	    } else {
+		if ( i == count-1 ) {
+		    // ### parse the ipv4 part of a mixed type
+		} else {
+		    break;
+		}
+	    }
+	}
+    }
+    if ( mc == 0 ) {
+	setAddress( maybe );
+	return TRUE;
+    }
+#endif
+
+    return FALSE;
+}
+
+
+/*!
   Return true if the host address represents a IPv4 address.
 */
-
 bool QHostAddress::isIp4Addr() const
 {
     return d->isIp4;
@@ -164,7 +265,6 @@ bool QHostAddress::isIp4Addr() const
 
   \sa toString()
 */
-
 Q_UINT32 QHostAddress::ip4Addr() const
 {
     return d->a;
@@ -179,7 +279,6 @@ Q_UINT32 QHostAddress::ip4Addr() const
 
   \sa ip4Addr()
 */
-
 QString QHostAddress::toString() const
 {
     if ( d->isIp4 ) {
@@ -207,7 +306,6 @@ QString QHostAddress::toString() const
   Returns TRUE if this socket address is identical to \a other, or FALSE
   if they are different.
 */
-
 bool QHostAddress::operator==( const QHostAddress & other ) const
 {
     return  d->a == other.d->a;
