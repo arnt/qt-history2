@@ -85,8 +85,8 @@ static int opaqueOldPos = -1; // this assumes that there's only one mouse
 
 static QPoint toggle( QWidget *w, QPoint pos )
 {
-    QSize ms = qSmartMinSize( w );
-    return -pos - QPoint( ms.width(), ms.height() );
+    QSize minS = qSmartMinSize( w );
+    return -pos - QPoint( minS.width(), minS.height() );
 }
 
 static bool inFirstQuadrant( QWidget *w )
@@ -112,8 +112,8 @@ static QPoint bottomRight( QWidget *w )
     }
 }
 
-QSplitterHandle::QSplitterHandle( Qt::Orientation o,
-				  QSplitter *parent, const char * name )
+QSplitterHandle::QSplitterHandle( Qt::Orientation o, QSplitter *parent,
+				  const char * name )
     : QWidget( parent, name )
 {
     s = parent;
@@ -587,7 +587,7 @@ void QSplitter::setGeo( QWidget *w, int p, int s, bool splitterMoved )
       Hide the child widget, but without calling hide() so that the
       splitter handle is still shown.
     */
-    if ( s <= 0 && pick(qSmartMinSize(w)) > 0 )
+    if ( !w->isHidden() && s <= 0 && pick(qSmartMinSize(w)) > 0 )
 	r.moveTopLeft( toggle(w, r.topLeft()) );
     w->setGeometry( r );
 }
@@ -832,16 +832,14 @@ void QSplitter::recalc( bool update )
     for ( int i = 0; i < n; i++ ) {
 	QSplitterLayoutStruct *s = data->list.at( i );
 	if ( !s->isSplitter ) {
-	    QSplitterLayoutStruct *p = ( i > 0 ) ? p = data->list.at( i - 1 )
-					: 0;
-	    if ( p && p->isSplitter ) {
-		// may trigger new recalc
-		if ( first || s->wid->isHidden() ) {
-		    p->wid->hide();
-		} else {
-		    p->wid->show();
-		}
-	    }
+	    QSplitterLayoutStruct *p = 0;
+	    if ( i > 0 )
+		p = data->list.at( i - 1 );
+
+	    // may trigger new recalc
+	    if ( p && p->isSplitter )
+		p->wid->setHidden( first || s->wid->isHidden() );
+
 	    if ( !s->wid->isHidden() )
 		first = FALSE;
 	}
@@ -1169,7 +1167,7 @@ void QSplitter::setSizes( QValueList<int> list )
     QSplitterLayoutStruct *s = data->list.first();
     while ( s && it != list.end() ) {
 	if ( !s->isSplitter ) {
-	    s->sizer = *it;
+	    s->sizer = QMAX( *it, 0 );
 	    ++it;
 	}
 	s = data->list.next();
