@@ -264,6 +264,7 @@ QIMPenInput::QIMPenInput( QWidget *parent, const char *name, WFlags f )
     currCharSet = 0;
     strokeMode = Backspace;
     lastKey = 0;
+    setupDlg = 0;
 }
 
 QIMPenInput::~QIMPenInput()
@@ -428,12 +429,17 @@ void QIMPenInput::keypress( unsigned int ch )
 */
 void QIMPenInput::setup()
 {
-    // ### we are working with our copy of the char sets here.
-    QIMPenSetup ps( &charSets, 0, 0, TRUE );
-    if ( ps.exec() ) {
-	QListIterator<QIMPenCharSet> it(charSets);
-	for ( ; it.current(); ++it )
-	    it.current()->save();
+    if ( !setupDlg ) {
+	// ### we are working with our copy of the char sets here.
+	setupDlg = new QIMPenSetup( &charSets, 0, 0, TRUE );
+	setupDlg->move( 0, 20 );
+	if ( setupDlg->exec() ) {
+	    QListIterator<QIMPenCharSet> it(charSets);
+	    for ( ; it.current(); ++it )
+		it.current()->save();
+	}
+	delete setupDlg;
+	setupDlg = 0;
     }
 }
 #if 0

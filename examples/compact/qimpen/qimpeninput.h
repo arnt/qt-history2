@@ -24,6 +24,7 @@
 
 class QPushButton;
 class QIMPenWidget;
+class QIMPenSetup;
 
 class QIMPenInput : public QFrame
 {
@@ -62,6 +63,7 @@ protected:
     //    QWidget *moveWidget;
     QTimer *timer;
     QPushButton *setupBtn;
+    QIMPenSetup *setupDlg;
     //    QPushButton *hideBtn;
     QList<QIMPenStroke> strokes;
     QIMPenChar *matchChar;

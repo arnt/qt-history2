@@ -436,8 +436,12 @@ void TaskBar::showKbd( bool on )
 				  );
 	    pi->setFrameStyle( QFrame::Box | QFrame::Plain );
 	    pi->setLineWidth( 1 );
-	    pi->addCharSet( "qimpen/asciilower.qpt" );
-	    pi->addCharSet( "qimpen/numeric.qpt" );
+	    QString baseDir( "/usr/local/qt-embedded/etc" );
+	    const char *qtdir = getenv( "QTDIR" );
+	    if ( qtdir )
+		baseDir = QString( qtdir ) + "/etc";
+	    pi->addCharSet( baseDir + "/qimpen/asciilower.qpt" );
+	    pi->addCharSet( baseDir + "/qimpen/numeric.qpt" );
 	    pi->resize( qApp->desktop()->width(), pi->sizeHint().height() + 1 );
 	    int h = y();
 	    pi->move( 0,  h - pi->height() );
