@@ -19,9 +19,6 @@
 #include "qbitarray.h"
 #include <private/qcolor_p.h>
 
-#if defined(QT_THREAD_SUPPORT)
-#  include "qmutex.h"
-#endif // QT_THREAD_SUPPORT
 #include "qapplication_p.h"
 
 #include "qguieventloop_p.h"
@@ -40,13 +37,9 @@ bool QGuiEventLoop::processEvents(ProcessEventsFlags flags)
     QApplication::sendPostedEvents();
 
     // Two loops so that posted events accumulate
-    while (XPending(QX11Info::appDisplay())) {
-        // also flushes output buffer
-        while (XPending(QX11Info::appDisplay())) {
-            if (d->shortcut) {
-                return false;
-            }
-
+    do {
+        while (!d->shortcut &&
+	       XEventsQueued(QX11Info::appDisplay(), QueuedAlready)) {
             // process events from the X server
             XEvent event;
             XNextEvent(QX11Info::appDisplay(), &event);
@@ -62,8 +55,7 @@ bool QGuiEventLoop::processEvents(ProcessEventsFlags flags)
                 case LeaveNotify:
                     continue;
 
-                case ClientMessage:
-                {
+                case ClientMessage: {
                     // only keep the wm_take_focus and
                     // qt_qt_scrolldone protocols, discard all
                     // other client messages
@@ -85,7 +77,10 @@ bool QGuiEventLoop::processEvents(ProcessEventsFlags flags)
             if (qApp->x11ProcessEvent(&event) == 1)
                 return true;
         }
-    }
+    } while (!d->shortcut && XEventsQueued(QX11Info::appDisplay(), QueuedAfterFlush));
+
+    if (d->shortcut)
+	return false;
 
     // 0x08 == ExcludeTimers for X11 only
     const uint exclude_all = ExcludeSocketNotifiers | 0x08 | WaitForMore;
