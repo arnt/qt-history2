@@ -111,7 +111,7 @@ QSqlQueryModel::QSqlQueryModel(QObject *parent)
 
 /*! \internal
  */
-QSqlQueryModel::QSqlQueryModel(QSqlQueryModelPrivate &dd, QObject *parent = 0)
+QSqlQueryModel::QSqlQueryModel(QSqlQueryModelPrivate &dd, QObject *parent)
     : QAbstractTableModel(dd, parent)
 {
 }
