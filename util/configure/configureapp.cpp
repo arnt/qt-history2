@@ -8,6 +8,22 @@
 #include <iostream.h>
 #include <windows.h>
 
+class MakeItem
+{
+public:
+    MakeItem( const QString &d, const QString &p, const QString &t, Configure::ProjectType qt )
+	: directory( d ),
+	  proFile( p ),
+	  target( t ),
+	  qmakeTemplate( qt )
+    { }
+
+    QString directory;
+    QString proFile;
+    QString target;
+    Configure::ProjectType qmakeTemplate;
+};
+
 Configure::Configure( int& argc, char** argv )
 {
     int i;
@@ -17,8 +33,11 @@ Configure::Configure( int& argc, char** argv )
     */
     dictionary[ "CONFIGCMD" ] = argv[ 0 ];
 
-    for( i = 1; i < argc; i++ )
+    for ( i = 1; i < argc; i++ )
 	configCmdLine += argv[ i ];
+
+    for ( i=0; i<3; i++ )
+	makeList[i].setAutoDelete( TRUE );
 
     dictionary[ "QCONFIG" ]	    = "full";
     dictionary[ "EMBEDDED" ]	    = "no";
@@ -151,7 +170,7 @@ void Configure::parseCmdLine()
 	    ++args;
 	    if (args==configCmdLine.end())
 		break;
- 	    dictionary[ "QCONFIG" ] = (*args);
+	    dictionary[ "QCONFIG" ] = (*args);
 	}
 
 	else if( (*args) == "-release" )
@@ -477,8 +496,8 @@ void Configure::parseCmdLine()
     }
 
     if( dictionary[ "QMAKESPEC" ].right( 5 ) == QString( "-msvc" ) ||
-    	dictionary[ "QMAKESPEC" ].right( 4 ) == QString( ".net" ) ||
-    	dictionary[ "QMAKESPEC" ].right( 4 ) == QString( "-icc" ) ) {
+	dictionary[ "QMAKESPEC" ].right( 4 ) == QString( ".net" ) ||
+	dictionary[ "QMAKESPEC" ].right( 4 ) == QString( "-icc" ) ) {
 	dictionary[ "MAKE" ] = "nmake";
 	dictionary[ "QMAKEMAKEFILE" ] = "Makefile";
     } else {
@@ -1011,7 +1030,7 @@ void Configure::generateConfigfiles()
 	outStream << "const char *qInstallPathPlugins() { return QT_INSTALL_PLUGINS + 11; }" << endl;
 	outStream << "const char *qInstallPathData()    { return QT_INSTALL_DATA    + 11;    }" << endl;
 
-    	outFile.close();
+	outFile.close();
     }
 }
 
@@ -1138,6 +1157,7 @@ void Configure::findProjects( const QString& dirName )
     QFileInfoListIterator it( *list );
     QFileInfo* fi;
     int makeListNumber;
+    ProjectType qmakeTemplate;
 
     if( dictionary[ "NOPROCESS" ] == "no" ) {
 	while( ( fi = it.current() ) ) {
@@ -1148,7 +1168,8 @@ void Configure::findProjects( const QString& dirName )
 		} else {
 		    if( fi->fileName().right( 4 ) == ".pro" ) {
 			if ( fi->fileName() != "qtmain.pro" && fi->fileName() != "qt.pro" ) {
-			    switch ( projectType( fi->absFilePath() ) ) {
+			    qmakeTemplate = projectType( fi->absFilePath() );
+			    switch ( qmakeTemplate ) {
 				case Lib:
 				case Subdirs:
 				    makeListNumber = 1;
@@ -1157,18 +1178,24 @@ void Configure::findProjects( const QString& dirName )
 				    makeListNumber = 2;
 				    break;
 			    }
-			    makeList[makeListNumber] += dirName;
-			    makeList[makeListNumber] += fi->fileName();
-			    makeList[makeListNumber] += "Makefile";
+			    makeList[makeListNumber].append( new MakeItem(
+					dirName,
+					fi->fileName(),
+					"Makefile",
+					qmakeTemplate ) );
 			    if( dictionary[ "DSPFILES" ] == "yes" ) {
-				makeList[makeListNumber] += dirName;
-				makeList[makeListNumber] += fi->fileName();
-				makeList[makeListNumber] += fi->fileName().left( fi->fileName().length() - 4 ) + ".dsp";
+				makeList[makeListNumber].append( new MakeItem(
+					    dirName,
+					    fi->fileName(),
+					    fi->fileName().left( fi->fileName().length() - 4 ) + ".dsp",
+					    qmakeTemplate ) );
 			    }
 			    if( dictionary[ "VCPROJFILES" ] == "yes" ) {
-				makeList[makeListNumber] += dirName;
-				makeList[makeListNumber] += fi->fileName();
-				makeList[makeListNumber] += fi->fileName().left( fi->fileName().length() - 4 ) + ".vcproj";
+				makeList[makeListNumber].append( new MakeItem(
+					    dirName,
+					    fi->fileName(),
+					    fi->fileName().left( fi->fileName().length() - 4 ) + ".vcproj",
+					    qmakeTemplate ) );
 			    }
 			}
 		    }
@@ -1190,50 +1217,54 @@ void Configure::generateMakefiles()
 	if( dictionary[ "QMAKESPEC" ] != "win32-msvc.net" )
 	    dictionary[ "VCPROJFILES" ] = "no";
 
-	makeList[0] += dictionary[ "QT_SOURCE_TREE" ] + "/src";
-	makeList[0] += "qt.pro";
-	makeList[0] += "Makefile";
+	makeList[0].append( new MakeItem(
+		    dictionary[ "QT_SOURCE_TREE" ] + "/src",
+		    "qt.pro",
+		    "Makefile",
+		    Lib ) );
 	if( dictionary[ "DSPFILES" ] == "yes" ) {
-	    makeList[0] += dictionary[ "QT_SOURCE_TREE" ] + "/src";
-	    makeList[0] += "qt.pro";
-	    makeList[0] += "qt.dsp";
+	    makeList[0].append( new MakeItem(
+			dictionary[ "QT_SOURCE_TREE" ] + "/src",
+			"qt.pro",
+			"qt.dsp",
+			Lib ) );
 	}
 	if( dictionary[ "VCPROJFILES" ] == "yes" ) {
-	    makeList[0] += dictionary[ "QT_SOURCE_TREE" ] + "/src";
-	    makeList[0] += "qt.pro";
-	    makeList[0] += "qt.vcproj";
+	    makeList[0].append( new MakeItem(
+			dictionary[ "QT_SOURCE_TREE" ] + "/src",
+			"qt.pro",
+			"qt.vcproj",
+			Lib ) );
 	}
-	makeList[0] += dictionary[ "QT_SOURCE_TREE" ] + "/src";
-	makeList[0] += "qtmain.pro";
-	makeList[0] += "Makefile.main";
+	makeList[0].append( new MakeItem(
+		    dictionary[ "QT_SOURCE_TREE" ] + "/src",
+		    "qtmain.pro",
+		    "Makefile.main",
+		    Lib ) );
 	if( dictionary[ "DSPFILES" ] == "yes" ) {
-	    makeList[0] += dictionary[ "QT_SOURCE_TREE" ] + "/src";
-	    makeList[0] += "qtmain.pro";
-	    makeList[0] += "qtmain.dsp";
+	    makeList[0].append( new MakeItem(
+			dictionary[ "QT_SOURCE_TREE" ] + "/src",
+			"qtmain.pro",
+			"qtmain.dsp",
+			Lib ) );
 	}
 	if( dictionary[ "VCPROJFILES" ] == "yes" ) {
-	    makeList[0] += dictionary[ "QT_SOURCE_TREE" ] + "/src";
-	    makeList[0] += "qtmain.pro";
-	    makeList[0] += "qtmain.vcproj";
+	    makeList[0].append( new MakeItem(
+			dictionary[ "QT_SOURCE_TREE" ] + "/src",
+			"qtmain.pro",
+			"qtmain.vcproj",
+			Lib ) );
 	}
 	if( dictionary[ "LEAN" ] == "no" )
 	    findProjects( dictionary[ "QT_SOURCE_TREE" ] );
 
 	QString pwd = QDir::currentDirPath();
 	for ( int i=0; i<3; i++ ) {
-	    makeListIterator = makeList[i].begin();
-	    while( makeListIterator != makeList[i].end() ) {
-		QString dirPath = *makeListIterator + "/";
-		QString qmakeTemplate;
-		dirPath = QDir::convertSeparators( dirPath );
-		++makeListIterator;
-		QString projectName = dirPath + (*makeListIterator);
-		++makeListIterator;
-		QString makefileName = dirPath + (*makeListIterator);
-		++makeListIterator;
+	    for ( MakeItem *it=makeList[i].first(); it; it=makeList[i].next() ) {
+		QString dirPath = QDir::convertSeparators( it->directory + "/" );
+		QString projectName = dirPath + it->proFile;
+		QString makefileName = dirPath + it->target;
 		QStringList args;
-		if ( projectType( projectName ) == Subdirs )
-		    qmakeTemplate = "subdirs";
 
 		args << QDir::convertSeparators( dictionary[ "QT_INSTALL_BINS" ] + "/qmake" );
 		args << projectName;
@@ -1255,7 +1286,7 @@ void Configure::generateMakefiles()
 		    cout << "For " << projectName.latin1() << endl;
 
 		QDir::setCurrent( QDir::convertSeparators( dirPath ) );
-		if ( !( qmakeTemplate == "subdirs" &&
+		if ( !( it->qmakeTemplate == Subdirs &&
 			    ( makefileName.right( 4 ) == ".dsp" || makefileName.right( 7 ) == ".vcproj") ) ) {
 		    if( int r = system( args.join( " " ).latin1() ) ) {
 			cout << "Qmake failed, return code " << r  << endl << endl;

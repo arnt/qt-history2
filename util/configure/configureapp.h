@@ -1,6 +1,9 @@
 #include <qmap.h>
 #include <qstring.h>
 #include <qstringlist.h>
+#include <qptrlist.h>
+
+class MakeItem;
 
 class Configure
 {
@@ -56,10 +59,9 @@ private:
     //  makeList[0] for qt and qtmain
     //  makeList[1] for subdirs and libs
     //  makeList[2] for the rest
-    QStringList makeList[3];
+    QPtrList<MakeItem> makeList[3];
     QStringList qmakeIncludes;
     QStringList qmakeLibs;
-    QStringList::Iterator makeListIterator;
 
     QMap<QString,QString> licenseInfo;
     QString outputLine;
