@@ -488,7 +488,6 @@ public:
 #if defined (QT_TABLET_SUPPORT)
     bool translateXinputEvent( const XEvent* );
 #endif
-
 };
 
 
@@ -5344,6 +5343,17 @@ bool translateBySips( QWidget* that, QRect& paintRect )
     return FALSE;
 }
 
+void QWidgetPrivate::removePendingPaintEvents()
+{
+    XEvent xevent;
+    while ( XCheckTypedWindowEvent(q->x11Display(), q->winId(), Expose, &xevent ) &&
+	    ! qt_x11EventFilter(&xevent)  &&
+	    ! q->x11Event(&xevent)) // send event through filter
+	;
+}
+
+
+
 bool QETWidget::translatePaintEvent( const XEvent *event )
 {
     setWState( WState_Exposed );
@@ -5409,17 +5419,14 @@ bool QETWidget::translateScrollDoneEvent( const XEvent *event )
     return FALSE;
 }
 
-
 //
 // ConfigureNotify (window move and resize) event translation
 
 bool QETWidget::translateConfigEvent( const XEvent *event )
 {
-    // config pending is only set on resize, see qwidget_x11.cpp, setGeometry_helper()
-    bool was_resize = testWState( WState_ConfigPending );
-
     clearWState(WState_ConfigPending);
 
+    bool was_resize = false;
     if ( isTopLevel() ) {
 	QPoint newCPos( geometry().topLeft() );
 	QSize  newSize( event->xconfigure.width, event->xconfigure.height );
@@ -5464,6 +5471,17 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
         }
 
 	QRect cr ( geometry() );
+	if ( newCPos != cr.topLeft() ) { // compare with cpos (exluding frame)
+	    QPoint oldPos = geometry().topLeft();
+	    cr.moveTopLeft( newCPos );
+	    crect = cr;
+	    if ( isVisible() ) {
+		QMoveEvent e( newCPos, oldPos ); // pos (including frame), not cpos
+		QApplication::sendSpontaneousEvent( this, &e );
+	    } else {
+		setAttribute(WA_PendingMoveEvent, true);
+	    }
+	}
 	if ( newSize != cr.size() ) { // size changed
 	    was_resize = TRUE;
 	    QSize oldSize = size();
@@ -5478,17 +5496,6 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 	    }
 	}
 
-	if ( newCPos != cr.topLeft() ) { // compare with cpos (exluding frame)
-	    QPoint oldPos = geometry().topLeft();
-	    cr.moveTopLeft( newCPos );
-	    crect = cr;
-	    if ( isVisible() ) {
-		QMoveEvent e( newCPos, oldPos ); // pos (including frame), not cpos
-		QApplication::sendSpontaneousEvent( this, &e );
-	    } else {
-		setAttribute(WA_PendingMoveEvent, true);
-	    }
-	}
     } else {
 	XEvent xevent;
 	while ( XCheckTypedWindowEvent(x11Display(),winId(), ConfigureNotify,&xevent) &&
@@ -5497,23 +5504,12 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 	    ;
     }
 
-    // we ignore NorthWestGravity at the moment for reversed layout
-    if (testWState(WState_Exposed) &&
-	(d->isTransparent()
-	 || (!testAttribute(WA_StaticContents) && was_resize)
-	 || QApplication::reverseLayout())) {
-	// remove unnecessary paint events from the queue
-	XEvent xevent;
-	while ( XCheckTypedWindowEvent( x11Display(), winId(), Expose, &xevent ) &&
-		! qt_x11EventFilter( &xevent )  &&
-		! x11Event( &xevent ) ) // send event through filter
-	    ;
-	repaint();
-    }
+    if (was_resize && isVisible())
+	if (!testAttribute(WA_StaticContents))
+	    testWState(WState_InPaintEvent)?update():repaint();
 
     return TRUE;
 }
-
 
 //
 // Close window event translation.

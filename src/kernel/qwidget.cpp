@@ -5252,6 +5252,9 @@ bool QWidget::isFullScreen() const
 
 void QWidget::repaint()
 {
+#if defined(Q_WS_X11)
+    d->removePendingPaintEvents();
+#endif
     repaint(d->clipRect());
 }
 

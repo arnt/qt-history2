@@ -162,6 +162,7 @@ public:
     void destroyInputContext();
     void focusInputContext();
     void checkChildrenDnd();
+    void removePendingPaintEvents();
 #endif
 
     QWExtra *extra;

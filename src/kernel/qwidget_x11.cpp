@@ -1231,8 +1231,10 @@ void QWidget::setActiveWindow()
 
 void QWidget::update()
 {
-    if ((widget_state & (WState_Visible|WState_BlockUpdates)) == WState_Visible )
+    if ((widget_state & (WState_Visible|WState_BlockUpdates)) == WState_Visible ) {
+	d->removePendingPaintEvents();
 	QApplication::postEvent(this, new QPaintEvent(clipRegion()));
+    }
 }
 
 void QWidget::update(const QRegion &rgn)
@@ -1255,6 +1257,9 @@ void QWidget::update(int x, int y, int w, int h)
 
 void QWidget::repaint(const QRegion& rgn)
 {
+    if (testWState(WState_InPaintEvent))
+	qWarning("QWidget::repaint: recursive repaint detected.");
+
     if ( (widget_state & (WState_Visible|WState_BlockUpdates)) != WState_Visible )
 	return;
     if (rgn.isEmpty())
@@ -1330,7 +1335,7 @@ void QWidget::repaint(const QRegion& rgn)
 	    for (;;) {
 		if (w->testAttribute(QWidget::WA_ContentsPropagated)) {
 		    QPainter::setRedirected(w, q, offset + dboff);
-		    QRect rr = clipRect();
+		    QRect rr = d->clipRect();
 		    rr.moveBy(offset);
 		    QPaintEvent e(rr);
 		    QApplication::sendEvent(w, &e);
@@ -1781,6 +1786,10 @@ void QWidget::setGeometry_helper( int x, int y, int w, int h, bool isMove )
 
 	    QResizeEvent e( size(), oldSize );
 	    QApplication::sendEvent( this, &e );
+	    // Process events immediately rather than in
+	    // translateConfigEvent to avoid message process delay.
+	    if (!testAttribute(WA_StaticContents))
+		testWState(WState_InPaintEvent)?update():repaint();
 	}
     } else {
 	if (isMove && pos() != oldPos)
@@ -1977,7 +1986,7 @@ void QWidget::scroll( int dx, int dy, const QRect& r )
 	return;
 
     // Don't let the server be bogged-down with repaint events
-    bool repaint_immediately = qt_sip_count( this ) < 3;
+    bool repaint_immediately = (qt_sip_count( this ) < 3 && !testWState(WState_InPaintEvent));
 
     if ( dx ) {
 	int x = x2 == sr.x() ? sr.x()+w : sr.x();

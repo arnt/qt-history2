@@ -3439,8 +3439,8 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
 	    if ( isVisible() ) {
 		QResizeEvent e( newSize, oldSize );
 		QApplication::sendSpontaneousEvent( this, &e );
-		if ( !testWFlags( WStaticContents ) )
-		    repaint();
+		if (!testAttribute(WA_StaticContents))
+		    testWState(WState_InPaintEvent)?update():repaint();
 	    } else {
 		QResizeEvent *e = new QResizeEvent( newSize, oldSize );
 		QApplication::postEvent( this, e );

@@ -770,6 +770,9 @@ void QWidget::update(int x, int y, int w, int h)
 
 void QWidget::repaint( const QRegion& rgn )
 {
+    if (testWState(WState_InPaintEvent))
+	qWarning("QWidget::repaint: recursive repaint detected.");
+
     if ( (widget_state & (WState_Visible|WState_BlockUpdates)) != WState_Visible )
 	return;
     if (rgn.isEmpty())
@@ -1212,8 +1215,8 @@ void QWidget::setGeometry_helper( int x, int y, int w, int h, bool isMove )
 	if ( isResize ) {
 	    QResizeEvent e( size(), oldSize );
 	    QApplication::sendEvent( this, &e );
-	    if (!testWFlags(WStaticContents))
-		repaint();
+	    if (!testAttribute(WA_StaticContents))
+		testWState(WState_InPaintEvent)?update():repaint();
 	}
     } else {
 	if (isMove && pos() != oldPos)

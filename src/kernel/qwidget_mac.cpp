@@ -1333,6 +1333,9 @@ void QWidget::update(const QRegion &rgn)
 
 void QWidget::repaint(const QRegion &rgn)
 {
+    if (testWState(WState_InPaintEvent))
+	qWarning("QWidget::repaint: recursive repaint detected.");
+
     if ( (widget_state & (WState_Visible|WState_BlockUpdates)) != WState_Visible )
 	return;
     if (rgn.isEmpty())
