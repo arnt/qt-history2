@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Definition of QDataView class
+** Definition of QSqlManager class
 **
 ** Created : 2000-11-03
 **
@@ -34,42 +34,77 @@
 **
 **********************************************************************/
 
-#ifndef QDATAVIEW_H
-#define QDATAVIEW_H
+#ifndef QSQLMANAGER_P_H
+#define QSQLMANAGER_P_H
+
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt API.  It exists for the convenience
+// of other Qt classes.  This header file may change from version to
+// version without notice, or even be removed.
+//
+// We mean it.
+//
+//
 
 #include "qfeatures.h"
 
 #ifndef QT_NO_SQL
 
 #ifndef QT_H
-#include "qwidget.h"
+#include "qglobal.h"
+#include "qstring.h"
+#include "qstringlist.h"
+#include "qsqlerror.h"
+#include "qsqlindex.h"
+#include "qsqlcursor.h"
 #endif // QT_H
 
+class QSqlCursor;
 class QSqlForm;
-class QSqlRecord;
 
-class Q_EXPORT QDataView : public QWidget
+class Q_EXPORT QSqlCursorManager
 {
-    Q_OBJECT
-
 public:
-    QDataView( QWidget *parent = 0, const char *name = 0, WFlags fl = 0 );
-    ~QDataView();
+    QSqlCursorManager();
+    virtual ~QSqlCursorManager();
+
+    virtual void setSort( const QSqlIndex& sort );
+    virtual void setSort( const QStringList& sort );
+    QStringList  sort() const;
+    virtual void setFilter( const QString& filter );
+    QString filter() const;
+    virtual void setCursor( QSqlCursor* cursor, bool autoDelete = FALSE );
+    QSqlCursor* cursor() const;
+
+    virtual void refresh();
+    virtual bool findBuffer( const QSqlIndex& idx, int atHint = 0 );
+
+private:
+    class QSqlCursorManagerPrivate;
+    QSqlCursorManagerPrivate* d;
+};
+
+class Q_EXPORT QSqlFormManager
+{
+public:
+    QSqlFormManager();
+    virtual ~QSqlFormManager();
 
     virtual void setForm( QSqlForm* form );
     QSqlForm* form();
     virtual void setRecord( QSqlRecord* record );
     QSqlRecord* record();
 
-public slots:
+    virtual void clearValues();
     virtual void readFields();
     virtual void writeFields();
-    virtual void clearValues();
 
 private:
-    class QDataViewPrivate;
-    QDataViewPrivate* d;
-
+    class QSqlFormManagerPrivate;
+    QSqlFormManagerPrivate* d;
 };
 
 

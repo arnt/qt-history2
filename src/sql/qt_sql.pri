@@ -23,6 +23,8 @@ sql {
 		    $$SQL_H/qsqlpropertymap.h \
 		    $$SQL_H/qdatetimeedit.h \
 		    $$SQL_H/qsqlnavigator.h \
+		    $$SQL_H/qsqlmanager_p.h \
+		    $$SQL_H/qdatahandler.h \
 		    $$SQL_H/qdatatable.h \
 		    $$SQL_H/qdataview.h \
 		    $$SQL_H/qdatabrowser.h 
@@ -42,6 +44,8 @@ sql {
 		    $$SQL_CPP/qdatetimeedit.cpp \
 		    $$SQL_CPP/qsqlpropertymap.cpp \
 		    $$SQL_CPP/qsqlnavigator.cpp \
+		    $$SQL_CPP/qsqlmanager_p.cpp \
+		    $$SQL_CPP/qdatahandler.cpp \
 		    $$SQL_CPP/qdatatable.cpp \
 		    $$SQL_CPP/qdataview.cpp \
 		    $$SQL_CPP/qdatabrowser.cpp 

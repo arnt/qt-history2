@@ -48,7 +48,7 @@ bool QDesignerDataBrowser::event( QEvent* e )
 	    setSqlCursor( defCursor() );
 	    setForm( defForm() );
 	    refresh();
-	    firstRecord();
+	    first();
 	    return TRUE;
 	}
     }

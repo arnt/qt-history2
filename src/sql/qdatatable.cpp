@@ -1011,7 +1011,9 @@ void QDataTable::deleteCurrent()
     switch ( conf ) {
 	case Yes:{
 	QApplication::setOverrideCursor( Qt::waitCursor );
-	emit beforeDelete( sqlCursor()->primeDelete() );
+	sqlCursor()->primeDelete();
+	emit primeDelete( sqlCursor()->editBuffer() );
+	emit beforeDelete( sqlCursor()->editBuffer() );
 	b = sqlCursor()->del();
 	QApplication::restoreOverrideCursor();
 	if ( !b )
@@ -1848,10 +1850,18 @@ bool QDataTable::findBuffer( const QSqlIndex& idx, int atHint )
   default data values.
 */
 
-/*! \fn void QDataTable::primeUpdate( QSqlRecord* buf )
-  This signal is emitted after the cursor is primed for update by the
-  table, when an update action is beginning on the table.  The \a buf
-  parameter points to the record buffer being updates.  Connect to this signal to ###?
+/*! \fn void QDataTable::primeUpdate( QSqlRecord* buf ) This signal is
+  emitted after the cursor is primed for update by the table, when an
+  update action is beginning on the table.  The \a buf parameter
+  points to the record buffer being updated.  Connect to this signal
+  to ###?
+*/
+
+/*! \fn void QDataTable::primeDelete( QSqlRecord* buf ) This signal is
+  emitted after the cursor is primed for delete by the table, when a
+  delete action is beginning on the table.  The \a buf parameter
+  points to the record buffer being deleted.  Connect to this signal
+  to ###?
 */
 
 /*! \fn void QDataTable::beforeInsert( QSqlRecord* buf )

@@ -42,22 +42,35 @@
 #ifndef QT_NO_SQL
 
 #ifndef QT_H
+#include "qdatahandler.h"
 #include "qwidget.h"
 #include "qsqlnavigator.h"
 #include "qstring.h"
 #include "qstringlist.h"
 #endif // QT_H
 
-class Q_EXPORT QDataBrowser : public QWidget, public QSqlFormNavigator
+class Q_EXPORT QDataBrowser : public QWidget, public QDataHandler
 {
     Q_OBJECT
     Q_PROPERTY( bool boundryChecking READ boundryChecking WRITE setBoundryChecking )
     Q_PROPERTY( QString filter READ filter WRITE setFilter )
     Q_PROPERTY( QStringList sort READ sort WRITE setSort )
+    Q_PROPERTY( bool autoEdit READ autoEdit WRITE setAutoEdit )
 
 public:
     QDataBrowser( QWidget *parent = 0, const char *name = 0, WFlags fl = 0 );
+    ~QDataBrowser();
 
+    enum Boundry {
+	Unknown,
+	None,
+	BeforeBeginning,
+	Beginning,
+	End,
+	AfterEnd
+    };
+
+    Boundry boundry();
     void setBoundryChecking( bool active );
     bool boundryChecking() const;
 
@@ -66,14 +79,14 @@ public:
     QStringList  sort() const;
     void setFilter( const QString& filter );
     QString filter() const;
+    virtual void setCursor( QSqlCursor* cursor, bool autoDelete = FALSE );
+    void setSqlCursor( QSqlCursor* cursor, bool autoDelete = FALSE );
+    QSqlCursor* sqlCursor() const;
+    virtual void setForm( QSqlForm* form );
+    QSqlForm* form();
 
-    void setCursor( QSqlCursor* cursor, bool autoDelete = FALSE )
-    { QSqlFormNavigator::setCursor( cursor, autoDelete ); }
-    void setCursor ( const QCursor & cursor ) { QWidget::setCursor( cursor ); }
-    const QCursor& cursor () const { return QWidget::cursor(); }
-    void setSqlCursor( QSqlCursor* cursor, bool autoDelete = FALSE )
-    { QSqlFormNavigator::setCursor( cursor, autoDelete ); }
-    QSqlCursor* sqlCursor() const { return QSqlFormNavigator::cursor(); }
+    void setAutoEdit( bool autoEdit );
+    bool autoEdit() const;
 
 signals:
     void firstRecordAvailable( bool available );
@@ -84,24 +97,35 @@ signals:
     void currentChanged( const QSqlRecord* record );
     void primeInsert( QSqlRecord* buf );
     void primeUpdate( QSqlRecord* buf );
-    void beforeInsert( QSqlRecord* buf );
-    void beforeUpdate( QSqlRecord* buf );
-    void beforeDelete( QSqlRecord* buf );
+    void primeDelete( QSqlRecord* buf );
     void cursorChanged( QSqlCursor::Mode mode );
 
 public slots:
-    virtual void insertRecord();
-    virtual void updateRecord();
-    virtual void deleteRecord();
-    virtual void firstRecord();
-    virtual void lastRecord();
-    virtual void nextRecord();
-    virtual void prevRecord();
+    virtual void refresh();
 
-    virtual void readFormFields();
-    virtual void writeFormFields();
-    virtual void clearFormValues();
+    virtual void insert();
+    virtual void update();
+    virtual void del();
 
+    virtual void first();
+    virtual void last();
+    virtual void next();
+    virtual void prev();
+
+    virtual void readFields();
+    virtual void writeFields();
+    virtual void clearValues();
+
+protected:
+    virtual bool insertCurrent();
+    virtual bool updateCurrent();
+    virtual bool deleteCurrent();
+    virtual bool currentEdited();
+
+private:
+    void updateBoundry();
+    class QDataBrowserPrivate;
+    QDataBrowserPrivate* d;
 };
 
 

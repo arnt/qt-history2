@@ -1155,10 +1155,8 @@ void Uic::createFormImpl( const QDomElement &e )
 			else
 			    out << indent << indent << indent << "QSqlCursor* cursor = new QSqlCursor( \"" << tab << "\", " << conn << "Connection );" << endl;
 			out << indent << indent << indent << obj << "->setCursor( cursor, TRUE );" << endl;
-			out << indent << indent << indent << "QSqlRecord* buf = cursor->editBuffer();" << endl;
-			out << indent << indent << indent << obj << "->form()->setRecord( buf );" << endl;
 			out << indent << indent << indent << obj << "->refresh();" << endl;
-			out << indent << indent << indent << obj << "->firstRecord();" << endl;
+			out << indent << indent << indent << obj << "->first();" << endl;
 			out << indent << indent << "}" << endl;
 			out << indent << "}" << endl;
 		    }

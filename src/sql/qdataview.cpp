@@ -38,14 +38,13 @@
 
 #ifndef QT_NO_SQL
 
-#include "qsqlform.h"
+#include "qsqlmanager_p.h"
 
 class QDataView::QDataViewPrivate
 {
 public:
-    QDataViewPrivate() : frm(0), rcd(0) {}
-    QSqlForm* frm;
-    QSqlRecord* rcd;
+    QDataViewPrivate() {}
+    QSqlFormManager frm;
 };
 
 
@@ -84,10 +83,9 @@ QDataView::~QDataView()
 
 */
 
-void QDataView::clearFormValues()
+void QDataView::clearValues()
 {
-    if ( form() )
-	form()->clearValues();
+    d->frm.clearValues();
 }
 
 /*! Sets the form used by the data view to \a form.  If a record has
@@ -100,9 +98,7 @@ void QDataView::clearFormValues()
 
 void QDataView::setForm( QSqlForm* form )
 {
-    d->frm = form;
-    if ( d->rcd )
-	d->frm->setRecord( d->rcd );
+    d->frm.setForm( form );
 }
 
 
@@ -115,7 +111,7 @@ void QDataView::setForm( QSqlForm* form )
 
 QSqlForm* QDataView::form()
 {
-    return d->frm;
+    return d->frm.form();
 }
 
 
@@ -129,9 +125,7 @@ QSqlForm* QDataView::form()
 
 void QDataView::setRecord( QSqlRecord* record )
 {
-    d->rcd = record;
-    if ( d->frm )
-	d->frm->setRecord( d->rcd );
+    d->frm.setRecord( record );
 }
 
 
@@ -143,7 +137,7 @@ void QDataView::setRecord( QSqlRecord* record )
 
 QSqlRecord* QDataView::record()
 {
-    return d->rcd;
+    return d->frm.record();
 }
 
 
@@ -154,10 +148,9 @@ QSqlRecord* QDataView::record()
 
 */
 
-void QDataView::readFormFields()
+void QDataView::readFields()
 {
-    if ( d->frm )
-	d->frm->readFields();
+    d->frm.readFields();
 }
 
 /*! Causes the default form to write its fields .  If there is no
@@ -167,10 +160,9 @@ void QDataView::readFormFields()
 
 */
 
-void QDataView::writeFormFields()
+void QDataView::writeFields()
 {
-    if ( d->frm )
-	d->frm->writeFields();
+    d->frm.writeFields();
 }
 
 #endif

@@ -224,7 +224,7 @@ void QSqlCursorNavigator::refresh()
    match the field values in \a idx.
 */
 
-bool q_index_matches( const QSqlRecord* buf, const QSqlIndex& idx )
+bool q_index_matchesEx( const QSqlRecord* buf, const QSqlIndex& idx )
 {
     bool indexEquals = FALSE;
     for ( uint i = 0; i < idx.count(); ++i ) {
@@ -244,7 +244,7 @@ bool q_index_matches( const QSqlRecord* buf, const QSqlIndex& idx )
  (currently only uses first field) ##
 */
 
-int q_compare( const QSqlRecord* buf1, const QSqlRecord* buf2, const QSqlIndex& idx )
+int q_compareEx( const QSqlRecord* buf1, const QSqlRecord* buf2, const QSqlIndex& idx )
 {
     int cmp = 0;
 
@@ -327,7 +327,7 @@ bool QSqlCursorNavigator::findBuffer( const QSqlIndex& idx, int atHint )
     bool indexEquals = FALSE;
     /* check the hint */
     if ( cur->seek( atHint ) )
-	indexEquals = q_index_matches( cur, idx );
+	indexEquals = q_index_matchesEx( cur, idx );
 
     if ( !indexEquals ) {
 	/* check current page */
@@ -336,7 +336,7 @@ bool QSqlCursorNavigator::findBuffer( const QSqlIndex& idx, int atHint )
 	int endIdx = atHint + pageSize;
 	for ( int j = startIdx; j <= endIdx; ++j ) {
 	    if ( cur->seek( j ) ) {
-		indexEquals = q_index_matches( cur, idx );
+		indexEquals = q_index_matchesEx( cur, idx );
 		if ( indexEquals )
 		    break;
 	    }
@@ -348,17 +348,17 @@ bool QSqlCursorNavigator::findBuffer( const QSqlIndex& idx, int atHint )
 	int lo = 0;
 	int hi = cur->size();
 	int mid;
-	if ( q_compare( buf, cur, cur->sort() ) >= 0 )
+	if ( q_compareEx( buf, cur, cur->sort() ) >= 0 )
 	    lo = cur->at();
 	while( lo != hi ) {
 	    mid = lo + (hi - lo) / 2;
 	    if ( !cur->seek( mid ) )
 		break;
-	    if ( q_index_matches( cur, idx ) ) {
+	    if ( q_index_matchesEx( cur, idx ) ) {
 		indexEquals = TRUE;
 		break;
 	    }
-	    int c = q_compare( buf, cur, cur->sort() );
+	    int c = q_compareEx( buf, cur, cur->sort() );
 	    if ( c < 0 )
 		hi = mid;
 	    else if ( c == 0 ) {
@@ -368,22 +368,22 @@ bool QSqlCursorNavigator::findBuffer( const QSqlIndex& idx, int atHint )
 		    mid--;
 		    if ( !cur->seek( mid ) )
 			break;
-		    if ( q_index_matches( cur, idx ) ) {
+		    if ( q_index_matchesEx( cur, idx ) ) {
 			indexEquals = TRUE;
 			break;
 		    }
-		} while ( q_compare( buf, cur, cur->sort() ) == 0 );
+		} while ( q_compareEx( buf, cur, cur->sort() ) == 0 );
 		if ( !indexEquals ) {
 		    mid = at;
 		    do {
 			mid++;
 			if ( !cur->seek( mid ) )
 			    break;
-			if ( q_index_matches( cur, idx ) ) {
+			if ( q_index_matchesEx( cur, idx ) ) {
 			    indexEquals = TRUE;
 			    break;
 			}
-		    } while ( q_compare( buf, cur, cur->sort() ) == 0 );
+		    } while ( q_compareEx( buf, cur, cur->sort() ) == 0 );
 		}
 		break;
 	    } else if ( c > 0 ) {
@@ -400,7 +400,7 @@ bool QSqlCursorNavigator::findBuffer( const QSqlIndex& idx, int atHint )
 	}
 	for ( ;; ) {
 	    indexEquals = FALSE;
-	    indexEquals = q_index_matches( cur, idx );
+	    indexEquals = q_index_matchesEx( cur, idx );
 	    if ( indexEquals )
 		break;
 	    if ( !cur->next() )
