@@ -70,14 +70,13 @@ static int hex_to_int( char *array )
 
 static int qws_read_uint( QSocket *socket )
 {
-    if ( !socket )
+    if ( !socket || socket->bytesAvailable()<sizeof(int) )
 	return -1;
 
-#warning "readBlock() may not read 8 bytes"
-    char i[ 8 ];
-    socket->readBlock( i, 8 );
+    int i;
+    socket->readBlock( (char*)&i, sizeof(i) );
 
-    return hex_to_int( i );
+    return i;
 }
 
 static void qws_write_uint( QSocket *socket, int i )
@@ -85,9 +84,7 @@ static void qws_write_uint( QSocket *socket, int i )
     if ( !socket )
 	return;
 
-    char *s = int_to_hex( i );
-    socket->writeBlock( s, 8 );
-    delete [] s;
+    socket->writeBlock( (char*)&i, sizeof(i) );
 }
 
 #endif

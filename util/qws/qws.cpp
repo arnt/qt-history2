@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/qws/qws.cpp#12 $
+** $Id: //depot/qt/main/util/qws/qws.cpp#13 $
 **
 ** Implementation of Qt/FB central server
 **
@@ -52,7 +52,8 @@ static int get_window_id()
 
 QWSClient::QWSClient( int socket, int shmid ) :
     QSocket(socket),
-    s(socket)
+    s(socket),
+    command(0)
 {
     QWSHeader header;
     header.width = SWIDTH;
@@ -87,8 +88,7 @@ void QWSClient::sendMouseEvent(const QPoint& pos, int state)
  *********************************************************************/
 
 QWSServer::QWSServer( QObject *parent=0, const char *name=0 ) :
-    QServerSocket(QTFB_PORT,parent,name),
-    command_type( -1 ), command( 0 )
+    QServerSocket(QTFB_PORT,parent,name)
 {
     shmid = shmget(IPC_PRIVATE, SWIDTH*SHEIGHT*sizeof(QRgb),
 			IPC_CREAT|IPC_EXCL|0666);
@@ -118,58 +118,75 @@ void QWSServer::newConnection( int socket )
 	     this, SLOT(doClient()) );
 }
 
-void QWSServer::doClient()
+QWSCommand* QWSClient::readMoreCommand()
 {
-    QWSClient* client = (QWSClient*)sender();
-
     // read next command
-    if ( command_type == -1 ) {
-	command = 0;
-#warning "What if <4 bytes available?"
-	command_type = qws_read_uint( client );
-    }
-
     if ( !command ) {
-	switch ( command_type ) {
-	case QWSCommand::Create:
-	    command = new QWSCreateCommand;
-	    break;
-	case QWSCommand::AddProperty:
-	    command = new QWSAddPropertyCommand;
-	    break;
-	case QWSCommand::SetProperty:
-	    command = new QWSSetPropertyCommand;
-	    break;
-	case QWSCommand::RemoveProperty:
-	    command = new QWSRemovePropertyCommand;
-	    break;
-	default:
-	    qDebug( "QWSServer::doClient() : Protocol error!" );
+	int command_type = qws_read_uint( this );
+
+	if ( command_type>=0 ) {
+	    switch ( command_type ) {
+	    case QWSCommand::Create:
+		command = new QWSCreateCommand;
+		break;
+	    case QWSCommand::Region:
+		command = new QWSRegionCommand;
+		break;
+	    case QWSCommand::AddProperty:
+		command = new QWSAddPropertyCommand;
+		break;
+	    case QWSCommand::SetProperty:
+		command = new QWSSetPropertyCommand;
+		break;
+	    case QWSCommand::RemoveProperty:
+		command = new QWSRemovePropertyCommand;
+		break;
+	    default:
+		qDebug( "QWSClient::readMoreCommand() : Protocol error - got %08x!", command_type );
+	    }
 	}
     }
 
     if ( command ) {
-	if ( command->read( client ) ) {
-
-	    switch ( command_type ) {
-	    case QWSCommand::Create:
-		invokeCreate( (QWSCreateCommand*)command, client );
-		break;
-	    case QWSCommand::AddProperty:
-		invokeAddProperty( (QWSAddPropertyCommand*)command );
-		break;
-	    case QWSCommand::SetProperty:
-		invokeSetProperty( (QWSSetPropertyCommand*)command );
-		break;
-	    case QWSCommand::RemoveProperty:
-		invokeRemoveProperty( (QWSRemovePropertyCommand*)command );
-		break;
-	    }
-	
-	    command_type = -1;
-	    delete command;
+	if ( command->read(this) ) {
+	    // Finished reading a whole command.
+	    QWSCommand* result = command;
 	    command = 0;
+	    return result;
 	}
+    }
+
+    // Not finished reading a whole command.
+    return 0;
+}
+
+void QWSServer::doClient()
+{
+    QWSClient* client = (QWSClient*)sender();
+    QWSCommand* command=client->readMoreCommand();
+    while ( command ) {
+	switch ( command->type ) {
+	case QWSCommand::Create:
+	    invokeCreate( (QWSCreateCommand*)command, client );
+	    break;
+	case QWSCommand::Region:
+	    invokeRegion( (QWSRegionCommand*)command, client );
+	    break;
+	case QWSCommand::AddProperty:
+	    invokeAddProperty( (QWSAddPropertyCommand*)command );
+	    break;
+	case QWSCommand::SetProperty:
+	    invokeSetProperty( (QWSSetPropertyCommand*)command );
+	    break;
+	case QWSCommand::RemoveProperty:
+	    invokeRemoveProperty( (QWSRemovePropertyCommand*)command );
+	    break;
+	}
+    
+	delete command;
+
+	// Try for some more...
+	command=client->readMoreCommand();
     }
 }
 
@@ -195,11 +212,22 @@ void QWSServer::invokeCreate( QWSCreateCommand *, QWSClient *client )
     client->writeBlock( (char*)&event, sizeof(event) );
 }
 
+void QWSServer::invokeRegion( QWSRegionCommand *, QWSClient *client )
+{
+    qDebug( "QWSServer::invokeRegion" );
+    /* XXX
+    QWSRegionEvent event;
+    event.type = QWSEvent::Region;
+    event.objectid = get_object_id();
+    client->writeBlock( (char*)&event, sizeof(event) );
+    */
+}
+
 void QWSServer::invokeAddProperty( QWSAddPropertyCommand *cmd )
 {
-    qDebug( "QWSServer::invokeAddProperty %d %d", cmd->simpleData.winId,
+    qDebug( "QWSServer::invokeAddProperty %d %d", cmd->simpleData.windowid,
 	    cmd->simpleData.property );
-    if ( properties()->addProperty( cmd->simpleData.winId, cmd->simpleData.property ) )
+    if ( properties()->addProperty( cmd->simpleData.windowid, cmd->simpleData.property ) )
  	qDebug( "add property successful" );
     else
  	qDebug( "adding property failed" );
@@ -208,11 +236,11 @@ void QWSServer::invokeAddProperty( QWSAddPropertyCommand *cmd )
 void QWSServer::invokeSetProperty( QWSSetPropertyCommand *cmd )
 {
     qDebug( "QWSServer::invokeSetProperty %d %d %d %s",
-	    cmd->simpleData.winId, cmd->simpleData.property,
+	    cmd->simpleData.windowid, cmd->simpleData.property,
 	    cmd->simpleData.mode, cmd->rawData );
     QCString ba( cmd->rawLen );
     ba = cmd->rawData;
-    if ( properties()->setProperty( cmd->simpleData.winId,
+    if ( properties()->setProperty( cmd->simpleData.windowid,
 				    cmd->simpleData.property,
 				    cmd->simpleData.mode,
 				    ba ) )
@@ -223,9 +251,9 @@ void QWSServer::invokeSetProperty( QWSSetPropertyCommand *cmd )
 
 void QWSServer::invokeRemoveProperty( QWSRemovePropertyCommand *cmd )
 {
-    qDebug( "QWSServer::invokeRemoveProperty %d %d", cmd->simpleData.winId,
+    qDebug( "QWSServer::invokeRemoveProperty %d %d", cmd->simpleData.windowid,
 	    cmd->simpleData.property );
-    if ( properties()->removeProperty( cmd->simpleData.winId, cmd->simpleData.property ) )
+    if ( properties()->removeProperty( cmd->simpleData.windowid, cmd->simpleData.property ) )
  	qDebug( "remove property successful" );
     else
  	qDebug( "removing property failed" );

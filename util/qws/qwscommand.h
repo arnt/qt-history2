@@ -133,13 +133,28 @@ struct QWSCreateCommand : public QWSCommand
 
 };
 
+struct QWSRegionCommand : public QWSCommand
+{
+    QWSRegionCommand() :
+	QWSCommand( QWSCommand::Region, sizeof( simpleData ), (char*)&simpleData ) {}
+
+    struct SimpleData {
+	int windowid;
+	int nrectangles;
+    } simpleData;
+
+    struct {
+        int x, y, width, height;
+    } *rectangles;
+};
+
 struct QWSAddPropertyCommand : public QWSCommand
 {
     QWSAddPropertyCommand() :
 	QWSCommand( QWSCommand::AddProperty, sizeof( simpleData ), (char*)&simpleData ) {}
 
     struct SimpleData {
-	int winId, property;
+	int windowid, property;
     } simpleData;
 
 };
@@ -150,7 +165,7 @@ struct QWSSetPropertyCommand : public QWSCommand
 	QWSCommand( QWSCommand::SetProperty, sizeof( simpleData ), (char*)&simpleData ) {}
 
     struct SimpleData {
-	int winId, property, mode;
+	int windowid, property, mode;
     } simpleData;
 
 };
@@ -161,7 +176,7 @@ struct QWSRemovePropertyCommand : public QWSCommand
 	QWSCommand( QWSCommand::RemoveProperty, sizeof( simpleData ), (char*)&simpleData ) {}
 
     struct SimpleData {
-	int winId, property;
+	int windowid, property;
     } simpleData;
 
 };
