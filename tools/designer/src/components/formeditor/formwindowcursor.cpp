@@ -41,6 +41,9 @@ AbstractFormWindow *FormWindowCursor::formWindow() const
 
 bool FormWindowCursor::movePosition(MoveOperation op, MoveMode mode)
 {
+    if (widgetCount() == 0)
+        return false;
+
     if (mode == MoveAnchor)
         m_formWindow->clearSelection(false);
 

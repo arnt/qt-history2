@@ -73,6 +73,30 @@ DropLine::DropLine(QWidget *parent)
     setPalette(p);
 }
 
+static void bfs(QWidget *widget, const QSet<QWidget*> &m_insertedWidgets, QList<QWidget*> &m_widgets)
+{
+    foreach (QObject *o, widget->children()) {
+        QWidget *childWidget = qobject_cast<QWidget*>(o);
+        if (childWidget && m_insertedWidgets.contains(childWidget))
+            m_widgets.append(childWidget);
+    }
+
+    foreach (QObject *o, widget->children()) {
+        QWidget *childWidget = qobject_cast<QWidget*>(o);
+        if (childWidget && m_insertedWidgets.contains(childWidget))
+            bfs(childWidget, m_insertedWidgets, m_widgets);
+    }
+}
+
+static void update_widgets(QWidget *m_mainContainer, const QSet<QWidget*> &m_insertedWidgets, QList<QWidget*> &m_widgets)
+{
+    if (!m_mainContainer)
+        return;
+
+    m_widgets.clear();
+    m_widgets.append(m_mainContainer);
+    bfs(m_mainContainer, m_insertedWidgets, m_widgets);
+}
 
 FormWindow::FormWindow(FormEditor *core, QWidget *parent, Qt::WindowFlags flags)
     : AbstractFormWindow(parent, flags),
@@ -292,6 +316,8 @@ void FormWindow::setMainContainer(QWidget *w)
     }
 
     m_mainContainer->setFocusPolicy(Qt::StrongFocus);
+
+    update_widgets(m_mainContainer, m_insertedWidgets, m_widgets);
 
     emit mainContainerChanged(m_mainContainer);
 }
@@ -1106,7 +1132,7 @@ void FormWindow::manageWidget(QWidget *w)
     core()->metaDataBase()->add(w);
 
     m_insertedWidgets.insert(w);
-    m_widgets.append(w);
+    update_widgets(m_mainContainer, m_insertedWidgets, m_widgets);
 
     setCursorToAll(Qt::ArrowCursor, w);
 
@@ -1130,7 +1156,7 @@ void FormWindow::unmanageWidget(QWidget *w)
     core()->metaDataBase()->remove(w);
 
     m_insertedWidgets.remove(w);
-    m_widgets.removeAt(m_widgets.indexOf(w));
+    update_widgets(m_mainContainer, m_insertedWidgets, m_widgets);
 
     emit changed();
     emit widgetUnmanaged(w);
