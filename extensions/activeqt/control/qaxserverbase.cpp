@@ -2491,15 +2491,18 @@ HRESULT WINAPI QAxServerBase::Load( IStream *pStm )
     int version;
     qtstream >> version;
     qtstream.setVersion(version);
+    int more = 0;
+    qtstream >> more;
 
     const QMetaObject *mo = qt.object->metaObject();
-    while ( !qtbuffer.atEnd() ) {
+    while ( !qtbuffer.atEnd() && more ) {
 	QCString propname;
 	QVariant value;
 	qtstream >> propname;
 	if (propname.isEmpty())
 	    break;
 	qtstream >> value;
+	qtstream >> more;
 
 	int idx = mo->findProperty(propname, TRUE);
 	const QMetaProperty *property = mo->property( idx, TRUE );
@@ -2526,10 +2529,13 @@ HRESULT WINAPI QAxServerBase::Save( IStream *pStm, BOOL clearDirty )
 	QCString property = mo->property( prop, TRUE )->name();
 	QVariant qvar = qt.object->property( property );
 	if ( qvar.isValid() ) {
+	    qtstream << int(1);
 	    qtstream << property;
 	    qtstream << qvar;
 	}
     }
+
+    qtstream << int(0);
 
     qtbuffer.close();
     QByteArray qtarray = qtbuffer.buffer();
