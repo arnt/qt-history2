@@ -140,7 +140,7 @@ BorlandMakefileGenerator::writeBorlandParts(QTextStream &t)
 	t << var("RES_FILE") << ": " << var("RC_FILE") << "\n\t"
 	  << var("QMAKE_RC") << " " << var("RC_FILE") << endl << endl;
     }
-    t << "moc: $(SRCMOC)" << endl << endl;
+    t << "mocables: $(SRCMOC)" << endl << endl;
 
     t << "qmake: " << "\n\t"
       << "qmake " << project->projectFile();
