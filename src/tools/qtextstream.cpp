@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#39 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#40 $
 **
 ** Implementation of QTextStream class
 **
@@ -16,7 +16,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qtextstream.cpp#39 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qtextstream.cpp#40 $");
 
 
 /*!
@@ -26,9 +26,32 @@ RCSTAG("$Id: //depot/qt/main/src/tools/qtextstream.cpp#39 $");
   \brief The QTextStream class provides basic functions for reading and
   writing text using a QIODevice.
 
-  The text stream class has a functional interface that is very similar to
-  that of the standard C++ iostream class.  The difference between
-  iostream and QTextStream is that our stream operates on a QIODevice.
+  \define endl
+  \define bin
+  \define oct
+  \define dec
+  \define hex
+  \define flush
+  \define ws
+  \define reset
+
+  The text stream class has a functional interface that is very
+  similar to that of the standard C++ iostream class.  The difference
+  between iostream and QTextStream is that our stream operates on a
+  QIODevice, which is easily subclassed, while iostream operates on
+  FILE * pointers, which can not be subclassed.
+
+  Qt provides several global functions similar to the ones in iostream:
+  <ul>
+  <li> \c bin sets the QTextStream to output binary numbers
+  <li> \c oct sets the QTextStream to output octal numbers
+  <li> \c dec sets the QTextStream to output decimal numbers
+  <li> \c hex sets the QTextStream to output hexadecimal numbers
+  <li> \c endl forces a line break
+  <li> \c flush forces the QIODevice to flush any buffered data
+  <li> \c ws eats any available white space (on input)
+  <li> \c reset resets the QTextStream to its default mode (see reset()).
+  </ul>
 
   The QTextStream class reads and writes ASCII text and it is not
   appropriate for dealing with binary data (but QDataStream is).
@@ -62,6 +85,27 @@ RCSTAG("$Id: //depot/qt/main/src/tools/qtextstream.cpp#39 $");
   QTextStream and an integer argument.
   When serializing a QTSManip into a QTextStream, the function
   is executed with the argument.
+*/
+
+/*! \fn QTSManip::QTSManip (QTSMFI m, int a)
+
+  Constructs a QTSManip object which will call \m (a member function
+  in QTextStream which accepts a single int) with argument \a a when
+  QTSManip::exec() is called.  Used internally in e.g. endl:
+
+  \code
+    s << "some text" << endl << "more text";
+  \endcode
+*/
+
+/*! \fn void QTSManip::exec (QTextStream& s)
+
+  Calls the member function specified in the constructor, for object
+  \a s.  Used internally in e.g. endl:
+
+  \code
+    s << "some text" << endl << "more text";
+  \endcode
 */
 
 
