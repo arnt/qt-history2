@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#143 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#144 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -23,7 +23,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#143 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#144 $");
 
 
 /*!
@@ -782,7 +782,7 @@ static bool convert_32_to_8( const QImage *src, QImage *dst, int conversion_flag
     if ( !dst->create(src->width(), src->height(), 8, 256) )
 	return FALSE;
 
-    const int tablesize = 4096; // need not be prime
+    const int tablesize = 997; // prime
     QRgbMap table[tablesize];
     int   pix=0;
 
