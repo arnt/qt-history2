@@ -1157,6 +1157,10 @@ void QSplitter::addContribution( int id, int *min, int *max,
     Returns a list of the size parameters of all the widgets in this
     splitter.
 
+    If the splitter's orientation is horizontal, the list is a list of
+    widget widths; if the orientation is vertical, the list is a list
+    of widget heights.
+
     Giving the values to another splitter's setSizes() function will
     produce a splitter with the same layout as this one.
 
@@ -1190,10 +1194,11 @@ QList<int> QSplitter::sizes() const
 }
 
 /*!
-    Sets the size parameters to the values given in \a list. If the
-    splitter is horizontal, the values set the sizes from left to
-    right. If it is vertical, the sizes are applied from top to
-    bottom. Extra values in \a list are ignored.
+    Sets the size parameters to the values given in the \a list. If
+    the splitter is horizontal, the values set the widths of each
+    widget going from left to right. If the splitter is vertical, the
+    values set the heights of each widget going from top to bottom.
+    Extra values in the \a list are ignored.
 
     If \a list contains too few values, the result is undefined but
     the program will still be well-behaved.

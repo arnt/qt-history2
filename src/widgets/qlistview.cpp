@@ -3928,7 +3928,8 @@ QListViewItem* QListViewItem::parent() const
 /*!
     \fn int QListViewItem::childCount () const
 
-    Returns how many children this item has.
+    Returns how many children this item has. The count only includes
+    the item's immediate children.
 */
 
 
