@@ -49,7 +49,7 @@ public:
     : hEnv(0), hDbc(0), hStmt(0)
     {}
 
-	SQLHANDLE hEnv;
+    SQLHANDLE hEnv;
     SQLHANDLE hDbc;
     SQLHANDLE hStmt;
 };
@@ -61,16 +61,16 @@ QString qWarnODBCHandle(int handleType, SQLHANDLE handle)
     SQLRETURN r = SQL_ERROR;
     SQLCHAR state_[SQL_SQLSTATE_SIZE+1];
     SQLCHAR description_[SQL_MAX_MESSAGE_LENGTH];
-	r = SQLGetDiagRec( handleType,
-				 handle,
-				 1,
-				 (SQLCHAR*)state_,
-				 &nativeCode_,
-				 (SQLCHAR*)description_,
-				 SQL_MAX_MESSAGE_LENGTH-1,
-				 &tmp);
-	if ( r == SQL_SUCCESS || r == SQL_SUCCESS_WITH_INFO )
-		return QString( (const char*)description_ );
+    r = SQLGetDiagRec( handleType,
+			 handle,
+			 1,
+			 (SQLCHAR*)state_,
+			 &nativeCode_,
+			 (SQLCHAR*)description_,
+			 SQL_MAX_MESSAGE_LENGTH-1,
+			 &tmp);
+    if ( r == SQL_SUCCESS || r == SQL_SUCCESS_WITH_INFO )
+	return QString( (const char*)description_ );
     return QString::null;
 }
 
@@ -160,7 +160,7 @@ QSqlField qMakeField( const QODBCPrivate* p, int i  )
     qColName = qstrdup((const char*)colName);
 #ifdef QT_CHECK_RANGE
     if ( r != SQL_SUCCESS )
-		qSqlWarning( QString("qMakeField: Unable to describe column %1").arg(i), p );
+	qSqlWarning( QString("qMakeField: Unable to describe column %1").arg(i), p );
 #endif
     QVariant::Type type = qDecodeODBCType( colType );
     return QSqlField( qColName, type );
@@ -258,9 +258,9 @@ QSqlField qMakeField( const QODBCPrivate* d, const QString& tablename, const QSt
 				  &hStmt );
     if ( r != SQL_SUCCESS ) {
 #ifdef QT_CHECK_RANGE
-		qSqlWarning( "qMakeField: Unable to alloc handle", d );
+        qSqlWarning( "qMakeField: Unable to alloc handle", d );
 #endif
-		return fi;
+	return fi;
     }
     r = SQLSetStmtAttr( hStmt,
 			SQL_ATTR_CURSOR_TYPE,
@@ -278,20 +278,20 @@ QSqlField qMakeField( const QODBCPrivate* d, const QString& tablename, const QSt
 
 #ifdef QT_CHECK_RANGE
     if ( r != SQL_SUCCESS )
-		qSqlWarning( "qMakeField: Unable to execute column list", d );
+	qSqlWarning( "qMakeField: Unable to execute column list", d );
 #endif
     r = SQLFetchScroll( hStmt,
 			SQL_FETCH_NEXT,
 			0);
     if ( r == SQL_SUCCESS ) {
-		bool isNull;
-		int type = qGetIntData( hStmt, 4, isNull ); // column type
-		QSqlField f( fieldname, qDecodeODBCType( type ) );
-		fi = f;
+	bool isNull;
+	int type = qGetIntData( hStmt, 4, isNull ); // column type
+	QSqlField f( fieldname, qDecodeODBCType( type ) );
+	fi = f;
     }
-	r = SQLFreeHandle( SQL_HANDLE_STMT, hStmt );
-	if ( r != SQL_SUCCESS )
-		qSqlWarning( "QODBCDriver: Unable to free statement handle" + QString::number(r), d );
+    r = SQLFreeHandle( SQL_HANDLE_STMT, hStmt );
+    if ( r != SQL_SUCCESS )
+        qSqlWarning( "QODBCDriver: Unable to free statement handle" + QString::number(r), d );
     return fi;
 }
 
@@ -800,15 +800,19 @@ QStringList QODBCDriver::tables( const QString& user ) const
 			SQL_ATTR_CURSOR_TYPE,
 			(SQLPOINTER)SQL_CURSOR_FORWARD_ONLY,
 			SQL_IS_UINTEGER );
+
+    // Prevent SQLTables to display all the system tables
+    QString tableType = "TABLE";
     r = SQLTables( hStmt,
 		   NULL,
 		   0,
-		   (SQLCHAR*)user.local8Bit().data(),
-		   user.length(),
 		   NULL,
 		   0,
 		   NULL,
-		   0);
+		   0,
+		   (SQLCHAR*)tableType.local8Bit().data(),
+		   tableType.length() );
+
 #ifdef QT_CHECK_RANGE
     if ( r != SQL_SUCCESS )
 	qSqlWarning( "QODBCDriver::tables Unable to execute table list", d );
@@ -833,6 +837,9 @@ QStringList QODBCDriver::tables( const QString& user ) const
 
 QSqlIndex QODBCDriver::primaryIndex( const QString& tablename ) const
 {
+    typedef QMap<QString,QString> FieldMap;
+    FieldMap fMap;
+
     QSqlIndex index( tablename );
     if ( !isOpen() )
 	return index;
@@ -864,26 +871,34 @@ QSqlIndex QODBCDriver::primaryIndex( const QString& tablename ) const
     r = SQLFetchScroll( hStmt,
 			SQL_FETCH_NEXT,
 			0);
+    // Store all fields in a StringList because some drivers can't detail fields in this FETCH loop
     while ( r == SQL_SUCCESS ) {
 	SQLINTEGER lengthIndicator = 0;
 	bool isNull;
-	QString fieldVal = qGetStringData( hStmt, 3, lengthIndicator, isNull ); // column name
-	QSqlField f = qMakeField( d, tablename, fieldVal );
-	index.append( f );
-	index.setName( qGetStringData( hStmt, 5, lengthIndicator, isNull ) ); // pk index name
+	QString cName = qGetStringData( hStmt, 3, lengthIndicator, isNull ); // column name
+	fMap[cName] = qGetStringData( hStmt, 5, lengthIndicator, isNull ); // pk index name
 	r = SQLFetchScroll( hStmt,
 			    SQL_FETCH_NEXT,
 			    0);
     }
-	r = SQLFreeHandle( SQL_HANDLE_STMT, hStmt );
-	if ( r!= SQL_SUCCESS )
-		qSqlWarning( "QODBCDriver: Unable to free statement handle" + QString::number(r), d );
+
+    FieldMap::Iterator i;
+    for (i = fMap.begin();  i != fMap.end(); i++) {
+    	QSqlField f = qMakeField( d, tablename, ( i.key() ) );
+	index.append( f );
+	index.setName( i.data() ); // pk index name
+    }
+
+    r = SQLFreeHandle( SQL_HANDLE_STMT, hStmt );
+    if ( r!= SQL_SUCCESS )
+	qSqlWarning( "QODBCDriver: Unable to free statement handle" + QString::number(r), d );
     return index;
 }
 
 QSqlRecord QODBCDriver::record( const QString& tablename ) const
 {
     QSqlRecord fil;
+    QStringList fList;
     if ( !isOpen() )
 	return fil;
     SQLHANDLE hStmt;
@@ -917,15 +932,21 @@ QSqlRecord QODBCDriver::record( const QString& tablename ) const
     r = SQLFetchScroll( hStmt,
 			SQL_FETCH_NEXT,
 			0);
+    // Store all fields in a StringList because some drivers can't detail fields in this FETCH loop
     while ( r == SQL_SUCCESS ) {
 	bool isNull;
 	SQLINTEGER lengthIndicator(0);
-	QString fieldname = qGetStringData( hStmt, 3, lengthIndicator, isNull );
-	QSqlField f = qMakeField( d, tablename, fieldname );
-	fil.append( f );
+	fList += qGetStringData( hStmt, 3, lengthIndicator, isNull );
+	
 	r = SQLFetchScroll( hStmt,
 			    SQL_FETCH_NEXT,
 			    0);
+    }
+
+    QStringList::Iterator i;
+    for (i = fList.begin();  i != fList.end(); i++) {
+	QSqlField f = qMakeField( d, tablename, ( *i ) );
+	fil.append( f );
     }
 
     r = SQLFreeHandle( SQL_HANDLE_STMT, hStmt );
