@@ -76,16 +76,21 @@ GLObjectWindow::GLObjectWindow( QWidget* parent )
 
     // Put the sliders on top of each other
     QVBoxLayout* vlayout = new QVBoxLayout;
+    vlayout->setMargin( 20 );
     vlayout->addWidget( x );
     vlayout->addWidget( y );
     vlayout->addWidget( z );
 
     // Put the GL widget inside the frame
     QHBoxLayout* flayout = new QHBoxLayout( f );
+    flayout->setMargin( 2 );
+    flayout->setSpacing( 2 );
     flayout->addWidget( c, 1 );
 
     // Top level layout, puts the sliders to the left of the frame/GL widget
     QHBoxLayout* hlayout = new QHBoxLayout( this );
+    hlayout->setMargin( 20 );
+    hlayout->setSpacing( 20 );
     hlayout->setMenuBar( m );
     hlayout->addLayout( vlayout );
     hlayout->addWidget( f, 1 );
