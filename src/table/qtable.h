@@ -456,6 +456,7 @@ private:
     void updateColWidgets( int col );
     bool isSelected( int row, int col, bool includeCurrent ) const;
     void setCurrentCell( int row, int col, bool updateSelections );
+    void fixCell( int &row, int &col, int key );
 
 private:
     QPtrVector<QTableItem> contents;

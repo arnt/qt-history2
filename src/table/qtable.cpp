@@ -3461,6 +3461,40 @@ bool QTable::eventFilter( QObject *o, QEvent *e )
     return QScrollView::eventFilter( o, e );
 }
 
+void QTable::fixCell( int &row, int &col, int key )
+{
+    if ( rowHeight( row ) > 0 && columnWidth( col ) > 0 )
+	return;
+    if ( rowHeight( row ) <= 0 ) {
+	if ( key == Key_Down ||
+	     key == Key_Next ||
+	     key == Key_End ) {
+	    while ( row < numRows() && rowHeight( row ) <= 0 )
+		row++;
+	    if ( rowHeight( row ) <= 0 )
+		row = curRow;
+	} else if ( key == Key_Up ||
+		    key == Key_Prior ||
+		    key == Key_Home )
+	    while ( row >= 0 && rowHeight( row ) <= 0 )
+		row--;
+	    if ( rowHeight( row ) <= 0 )
+		row = curRow;
+    } else if ( columnWidth( col ) <= 0 ) {
+	if ( key == Key_Left ) {
+	    while ( col >= 0 && columnWidth( col ) <= 0 )
+		col--;
+	    if ( columnWidth( col ) <= 0 )
+		col = curCol;
+	} else if ( key == Key_Right ) {
+	    while ( col < numCols() && columnWidth( col ) <= 0 )
+		col++;
+	    if ( columnWidth( col ) <= 0 )
+		col = curCol;
+	}
+    }
+}
+
 /*! \reimp
 */
 
@@ -3536,6 +3570,7 @@ void QTable::keyPressEvent( QKeyEvent* e )
     }
 
     if ( navigationKey ) {
+	fixCell( tmpRow, tmpCol, e->key() );
 	if ( ( e->state() & ShiftButton ) == ShiftButton &&
 	     selMode != NoSelection && selMode != SingleRow ) {
 	    bool justCreated = FALSE;
