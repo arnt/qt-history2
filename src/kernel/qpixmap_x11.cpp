@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#133 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#134 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -1406,7 +1406,7 @@ QPixmap QPixmap::grabWindow( WId window, int x, int y, int w, int h )
     QPixmap  pm( 8, 8 );
     QPainter p;
     QRect    r;				// text bounding rectangle
-    QPoint   bl;			// text baselink position
+    QPoint   bl;			// text baseline position
 
     p.begin( &pm );			// first get the bounding
     p.setFont( f );			//   text rectangle

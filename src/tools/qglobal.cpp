@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.cpp#60 $
+** $Id: //depot/qt/main/src/tools/qglobal.cpp#61 $
 **
 ** Global functions
 **
@@ -57,7 +57,7 @@ static bool si_bigEndian;
   The \e *bigEndian is set to TRUE if this is a big-endian machine,
   or to FALSE if this is a little-endian machine.
 
-  This function calls fatal() with a message if the computer is truely weird
+  This function calls fatal() with a message if the computer is truly weird
   (i.e. different endianness for 16 bit and 32 bit integers).
 */
 

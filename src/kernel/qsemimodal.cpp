@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsemimodal.cpp#7 $
+** $Id: //depot/qt/main/src/kernel/qsemimodal.cpp#8 $
 **
 ** Implementation of QSemiModal class
 **
@@ -47,7 +47,7 @@
 /*!
   Constructs a semi-modal dialog named \a name, which has a parent
   widget \a parent.  If \a modal is FALSE (the default), the only
-  behaviour different to a QWidget is automatic sizing and positioning.
+  behavior different to a QWidget is automatic sizing and positioning.
 */
 
 QSemiModal::QSemiModal( QWidget *parent, const char *name, bool modal, WFlags f )

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: tutorial.doc,v 2.15 1998/10/31 02:27:24 agulbra Exp $
+** $Id: tutorial.doc,v 2.16 1998/10/31 03:19:41 agulbra Exp $
 **
 ** Tutorial
 **
@@ -2215,7 +2215,7 @@ This function sets the label text.
 
 This event handler is similar to the one in the previous chapter, except
 that we also must make room for the label.  The number 41 in the lcd
-resize statment is the height of the scroll bar plus the height of the
+resize statement is the height of the scroll bar plus the height of the
 label plus the spacing between them (16+20+5).
 
 
@@ -2305,7 +2305,7 @@ use it as a random seed. See the documentation of \link QDate
 QDate\endlink, \link QTime QTime\endlink and \link QDateTime
 QDateTime\endlink for more information.
 
-Finally, we calculate the target's center point. We keep it withing
+Finally, we calculate the target's center point. We keep it within
 the rectangle (x=200,y=35,width=190,height=255), (i.e. the possible
 x and y values are x = 200..390 and y = 35..290) in a coordinate system
 where we put y position 0 at the bottom edge of the widget and let

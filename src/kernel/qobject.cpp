@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#174 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#175 $
 **
 ** Implementation of QObject class
 **
@@ -262,7 +262,7 @@ static void removeObjFromList( QObjectList *objList, const QObject *obj,
   Returns 0 if there is no such child.
 
   The CHILD macro (defined in qwindowdefs.h) does all this, and also
-  casts the returt type to \a type *.
+  casts the return type to \a type *.
 
   Examples:
   \code
@@ -716,7 +716,7 @@ void QObject::blockSignals( bool block )
     MyObject::MyObject( QObject *parent, const char *name )
 	: QObject( parent, name )
     {
-	startTimer( 50 );			// 50 millisec timer
+	startTimer( 50 );			// 50 millisecond timer
 	startTimer( 1000 );			// 1 second timer
 	startTimer( 60000 );			// 1 minute timer
     }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qcache.doc,v 2.10 1998/10/14 10:34:03 warwick Exp $
+** $Id: qcache.doc,v 2.11 1998/10/31 03:19:40 agulbra Exp $
 **
 ** QCache and QCacheIterator class documentation
 **
@@ -56,7 +56,7 @@
   cache statistics on \c stdout.
 
   There is also a QCacheIterator which may be used to traverse the
-  items in the cache in arbritrary order.
+  items in the cache in arbitrary order.
 
   \sa QCacheIterator, QIntCache,
       \link collection.html Collection Classes\endlink
@@ -256,7 +256,7 @@
 
   Multiple iterators are completely independent, even when they
   operate on the same QCache. QCache updates all iterators that refer
-  an item when that itam is removed.
+  an item when that item is removed.
 
   QCacheIterator provides an operator++(), and an operator+=() to
   traverse the cache, current() and currentKey() to access the current
@@ -449,7 +449,7 @@
   cache statistics on \c stdout.
 
   There is also a QIntCacheIterator which may be used to traverse the
-  items in the cache in arbritrary order.
+  items in the cache in arbitrary order.
 
   \sa QIntCacheIterator, QCache
       \link collection.html Collection Classes\endlink
@@ -648,7 +648,7 @@
 
   Multiple iterators are completely independent, even when they
   operate on the same QIntCache. QIntCache updates all iterators that refer
-  an item when that itam is removed.
+  an item when that item is removed.
 
   QIntCacheIterator provides an operator++(), and an operator+=() to
   traverse the cache, current() and currentKey() to access the current

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#66 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#67 $
 **
 ** Implementation of QTextStream class
 **
@@ -440,7 +440,7 @@ QTextStream::QTextStream( QByteArray a, int mode )
 
 /*!
   Constructs a text stream that operates on an existing file handle \e fh
-  throught an internal QFile device.
+  through an internal QFile device.
 
   Example:
   \code

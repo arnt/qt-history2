@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#110 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#111 $
 **
 ** Implementation of QScrollBar class
 **
@@ -282,7 +282,7 @@ void QScrollBar::setOrientation( Orientation orientation )
   If tracking is enabled (default), the scroll bar emits the
   valueChanged() signal whenever the slider is being dragged.  If
   tracking is disabled, the scroll bar emits the valueChanged() signal
-  when the user relases the mouse button (unless the value happens to
+  when the user releases the mouse button (unless the value happens to
   be the same as before).
 
   \sa tracking()

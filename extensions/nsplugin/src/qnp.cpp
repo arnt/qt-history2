@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/nsplugin/src/qnp.cpp#24 $
+** $Id: //depot/qt/main/extensions/nsplugin/src/qnp.cpp#25 $
 **
 ** Implementation of Qt extension classes for Netscape Plugin support.
 **
@@ -1168,7 +1168,7 @@ QNPWidget::QNPWidget() :
   when the window is no longer required.  The Web-browser will delete windows
   when they leave the page.  The bindings will change the QWidget::winId()
   of the window when the window is resized, but this should not affect
-  normal widget behaviour.
+  normal widget behavior.
 */
 QNPWidget::~QNPWidget()
 {
@@ -1402,7 +1402,7 @@ bool QNPInstance::newStreamCreated(QNPStream*, StreamMode&)
 /*!
   Called when a stream is delivered as a single file rather than
   as chunks.  This may be simpler for a plugin to deal with, but
-  precludes any incremental behaviour.
+  precludes any incremental behavior.
   \sa newStreamCreated(), newStream()
 
   Note that the AsFileOnly method is not supported by Netscape 2.0

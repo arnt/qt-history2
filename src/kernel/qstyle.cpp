@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.cpp#15 $
+** $Id: //depot/qt/main/src/kernel/qstyle.cpp#16 $
 **
 ** Implementation of QStyle class
 **
@@ -480,7 +480,7 @@ QStyle::drawSliderGrooveMask( QPainter *p,
   the original position when the mouse pointer is too far away while
   dragging.
 
-  This behaviour can be customized with this function. The default is -1
+  This behavior can be customized with this function. The default is -1
   (no jump back) while Windows requires 20 (weird jump back).
 */
 int QStyle::maximumSliderDragDistance() const

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#188 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#189 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -962,7 +962,7 @@ static void qWinProcessConfigRequests()		// perform requests in queue
   Socket notifier (type: 0=read, 1=write, 2=exception)
 
   The QSocketNotifier class (qsocketnotifier.h) provides installable callbacks
-  for select() throught the internal function qt_set_socket_handler().
+  for select() through the internal function qt_set_socket_handler().
  *****************************************************************************/
 
 struct QSockNot {
@@ -2409,7 +2409,7 @@ bool QETWidget::sendKeyEvent( QEvent::Type type, int code, int ascii,
     QApplication::sendEvent( this, &e );
     if ( !isModifierKey(code) && state == QMouseEvent::AltButton
       && type == QEvent::KeyPress && !e.isAccepted() )
-	QApplication::beep();  // emulate windows behaviour
+	QApplication::beep();  // emulate windows behavior
     return e.isAccepted();
 }
 

@@ -372,7 +372,7 @@ const char* Graph::styleName[] = { "Pie", "Bar", 0 };
 // plugin, distinctly from the plugin window.
 //
 // Grapher is also a GraphModel, because it loads graph data from
-// the net.  When Grapher creates a windoiw in newWindow(), it creates
+// the net.  When Grapher creates a window in newWindow(), it creates
 // a Graph widget to display the GraphModel that is the Grapher itself.
 //
 

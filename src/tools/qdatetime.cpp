@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetime.cpp#66 $
+** $Id: //depot/qt/main/src/tools/qdatetime.cpp#67 $
 **
 ** Implementation of date and time classes
 **
@@ -949,7 +949,7 @@ QDateTime QDateTime::addSecs( int nsecs ) const
 
 /*!
   Returns the number of days from this datetime to \a dt, which is
-  negaitive if \a dt is in the past.
+  negative if \a dt is in the past.
 
   \sa addDays() secsTo()
 */

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#267 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#268 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -2336,7 +2336,7 @@ static void fillTile(  QPixmap *tile, const QPixmap &pixmap )
   Draws a tiled \a pixmap in the specified rectangle.
 
   \arg \a (x,y,w,h) is the rectangle to be filled.
-  \arg \a (sx,sy) spefify an offset in the pixmap.
+  \arg \a (sx,sy) specify an offset in the pixmap.
 
   The pixmap is clipped if a \link QPixmap::setMask() mask\endlink has
   been set.

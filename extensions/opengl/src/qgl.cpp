@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#27 $
+** $Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#28 $
 **
 ** Implementation of OpenGL classes for Qt
 **
@@ -491,7 +491,7 @@ void QGLFormat::setDefaultFormat( const QGLFormat &f )
   The \a format specifies several display options for this context.
 
   The context will be \link isValid() invalid\endlink if the \a format
-  settings cannot be satified by the underlying OpenGL/Window system.
+  settings cannot be satisfied by the underlying OpenGL/Window system.
 
   \sa isValid()
 */
@@ -707,7 +707,7 @@ bool QGLContext::chooseContext( const QGLContext* shareContext )
 
 /*
   <strong>Win32 only</strong>: This virtual function chooses a pixel format
-  that matchesthe OpenGL \link setFormat() format\endlink. Reimplement this
+  that matches the OpenGL \link setFormat() format\endlink. Reimplement this
   function in a subclass if you need a custom context.
 
   \warning The \a pfd pointer is really a \c PIXELFORMATDESCRIPTOR*.

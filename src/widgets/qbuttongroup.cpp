@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#49 $
+** $Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#50 $
 **
 ** Implementation of QButtonGroup class
 **
@@ -144,7 +144,7 @@ bool QButtonGroup::isExclusive() const
   An exclusive button group switches off all other toggle buttons when
   one is switched on. This is ideal for groups of \link QRadioButton
   radio buttons\endlink A non-exclusive group allow many buttons to be
-  swithed on at the same time.
+  switched on at the same time.
 
   The default setting is FALSE. A button group automatically becomes an
   exclusive group when a QRadioButton is \link insert() inserted\endlink.

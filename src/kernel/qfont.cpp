@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#105 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#106 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -108,7 +108,7 @@
   fontmatch.html font matching algorithm: \endlink You can control
   what happens if a font's family isn't installed using
   insertSubstitution() and removeSubstitution(), ask what happens for
-  a single family uing substitute() and you can get a complete list of
+  a single family using substitute() and you can get a complete list of
   the fallback families using listSubstitutions().
 
   cacheStatistics() offers cache effectiveness information; this is
@@ -620,7 +620,7 @@ QFont::StyleHint QFont::styleHint() const
 	QApplication app( argc, argv );
 	QPushButton  push("Push me");
 
-	QFont font( "Bavaria", 18 );	    // preferrred family is Bavaria
+	QFont font( "Bavaria", 18 );	    // preferred family is Bavaria
 	font.setStyleHint( QFont::Serif );  // can also use any serif font
 
 	push.setFont( font );

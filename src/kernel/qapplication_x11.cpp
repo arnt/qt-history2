@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#370 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#371 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -1764,7 +1764,7 @@ QETWidget *qPRFindWidget( Window oldwin )
   Socket notifier (type: 0=read, 1=write, 2=exception)
 
   The QSocketNotifier class (qsocketnotifier.h) provides installable callbacks
-  for select() throught the internal function qt_set_socket_handler().
+  for select() through the internal function qt_set_socket_handler().
  *****************************************************************************/
 
 struct QSockNot {
@@ -3018,7 +3018,7 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 		
 		    // compress wheel events (the X Server will simply
 		    // send a button press for each single notch,
-		    // regardless wether the application can catch up
+		    // regardless whether the application can catch up
 		    // or not)
 		    int delta = 1;
 		    XEvent xevent;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatastream.cpp#41 $
+** $Id: //depot/qt/main/src/tools/qdatastream.cpp#42 $
 **
 ** Implementation of QDataStream class
 **
@@ -130,7 +130,7 @@ QDataStream::QDataStream( QIODevice *d )
 }
 
 /*!
-  Constructs a data stream that operates on a byte array throught an
+  Constructs a data stream that operates on a byte array through an
   internal QBuffer device.
 
   Example:

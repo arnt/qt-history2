@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion_x11.cpp#41 $
+** $Id: //depot/qt/main/src/kernel/qregion_x11.cpp#42 $
 **
 ** Implementation of QRegion class for X11
 **
@@ -296,7 +296,7 @@ QRegion QRegion::eor( const QRegion &r ) const
 
 
 /*!
-  Returns the bounding rectange of this region.
+  Returns the bounding rectangle of this region.
   An empty region gives a \link QRect::isNull() null\endlink
   rectangle.
 */

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#298 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#299 $
 **
 ** Implementation of QWidget class
 **
@@ -1139,7 +1139,7 @@ void QWidget::enabledChange( bool )
 
 /*!
   \fn QPoint QWidget::pos() const
-  Returns the postion of the widget in its parent widget, including
+  Returns the position of the widget in its parent widget, including
   the window frame.
   \sa frameGeometry(), x(), y()
 */
@@ -3181,7 +3181,7 @@ void QWidget::wheelEvent( QWheelEvent *e )
   QKeyEvent ignore()\endlink the press if you do not understand it, so
   that the widget's parent can interpret it.
 
-  The default implementation closes popup wigets if you hit
+  The default implementation closes popup widgets if you hit
   escape. Otherwise the event is ignored.
 
   As a special case to support applications not utilizing focus,
@@ -3683,7 +3683,7 @@ void QWidget::setAutoMask(bool b)
 }
 
 /*!
-  Returns wether or not a widget has the auto mask feature enabled.
+  Returns whether or not a widget has the auto mask feature enabled.
 
   \sa setAutoMask(), updateMask(), setMask(), clearMask()
 */

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#168 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#169 $
 **
 ** Implementation of QApplication class
 **
@@ -184,7 +184,7 @@ void process_cmdline( int* argcptr, char ** argv )
 }
 
 /*!
-  Initializes the window system and onstructs an application object
+  Initializes the window system and constructs an application object
   with the command line arguments \e argc and \e argv.
 
   The global \c qApp pointer refers to this application object. Only

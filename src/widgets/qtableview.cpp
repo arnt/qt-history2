@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtableview.cpp#90 $
+** $Id: //depot/qt/main/src/widgets/qtableview.cpp#91 $
 **
 ** Implementation of QTableView class
 **
@@ -652,7 +652,7 @@ void QTableView::setCellHeight( int cellHeight )
 /*!
   Returns the total width of the table in pixels.
 
-  This function is virtual and should be reimplmented by subclasses that
+  This function is virtual and should be reimplemented by subclasses that
   have variable cell widths and a non-trivial cellWidth() function, or a
   large number of columns in the table.
 
@@ -675,7 +675,7 @@ int QTableView::totalWidth()
 /*!
   Returns the total height of the table in pixels.
 
-  This function is virtual and should be reimplmented by subclasses that
+  This function is virtual and should be reimplemented by subclasses that
   have variable cell heights and a non-trivial cellHeight() function, or a
   large number of rows in the table.
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qptrdict.doc,v 2.2 1998/03/17 14:41:34 warwick Exp $
+** $Id: qptrdict.doc,v 2.3 1998/10/31 03:19:40 agulbra Exp $
 **
 ** QPtrDict and QPtrDictIterator class documentation
 **
@@ -275,7 +275,7 @@
   exist in the dictionary.
 
   All dictionary iterators that refer to the taken item will be set to
-  point to the next item in the dictionary travering order.
+  point to the next item in the dictionary traversing order.
 
   \sa remove(), clear(), setAutoDelete()
 */

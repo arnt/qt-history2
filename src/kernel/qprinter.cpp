@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter.cpp#40 $
+** $Id: //depot/qt/main/src/kernel/qprinter.cpp#41 $
 **
 ** Implementation of QPrinter class
 **
@@ -465,7 +465,7 @@ void QPrinter::setFromTo( int fromPage, int toPage )
 
   The min-page and max-page restrict the from-page and to-page settings.
   When the printer setup dialog comes up, the user cannot select
-  from and to that are outsize the range specified by min and max pages.
+  from and to that are outside the range specified by min and max pages.
 
   \sa minPage(), maxPage(), setFromTo(), setup()
 */

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: shclass.doc,v 2.6 1998/03/31 09:05:36 aavit Exp $
+** $Id: shclass.doc,v 2.7 1998/10/31 03:19:40 agulbra Exp $
 **
 ** Qt Shared Classes Documentation
 **
@@ -98,7 +98,7 @@ shared object is not detached, changing this object will change all other
 objects that refer the same data.
 
 Implicit sharing optimizes memory usage and copying of data without this
-side-effect.  Then, why didn't we implement implicite sharing for all
+side-effect.  Then, why didn't we implement implicit sharing for all
 shared classes?  The answer is that a class that allows direct access to
 its internal data (for efficiency reasons), like QString, cannot be
 implicitly shared, because it can be changed without letting QString know.

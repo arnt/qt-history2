@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfileinfo.cpp#41 $
+** $Id: //depot/qt/main/src/tools/qfileinfo.cpp#42 $
 **
 ** Implementation of QFileInfo class
 **
@@ -263,7 +263,7 @@ void QFileInfo::setFile( const QFile &file )
 }
 
 /*!
-  Sets the file to obains information about to \e fileName in the
+  Sets the file to obtains information about to \e fileName in the
   directory \e d.
 
   If the directory has a relative path, the QFileInfo will also have one.

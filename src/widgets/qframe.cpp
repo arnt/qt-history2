@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.cpp#69 $
+** $Id: //depot/qt/main/src/widgets/qframe.cpp#70 $
 **
 ** Implementation of QFrame widget class
 **
@@ -433,7 +433,7 @@ QSize QFrame::sizeHint() const
 /*!
   If this is a  line, it may stretch in the direction of the line, but it is 
   fixed in the other direction. If this is a normal frame, use QWidget's
-  default behaviour.
+  default behavior.
 */
 
 QSizePolicy QFrame::sizePolicy() const
@@ -641,7 +641,7 @@ void QFrame::updateMask()
   Virtual function that draws the mask of the frame's frame.
 
   If you reimplemented drawFrame(QPainter*) and your widget should
-  support transparency you probabaly have to re-implement this function as well.
+  support transparency you probably have to re-implement this function as well.
 
   The default implementation is empty.
 
@@ -707,7 +707,7 @@ void QFrame::drawFrameMask( QPainter* p )
   Virtual function that draws the mask of the frame's contents.
 
   If you reimplemented drawContents(QPainter*) and your widget should
-  support transparency you probabaly have to re-implement this function as well.
+  support transparency you probably have to re-implement this function as well.
 
   The default implementation is empty.
 

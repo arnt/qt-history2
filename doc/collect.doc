@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: collect.doc,v 2.6 1998/08/20 21:26:40 agulbra Exp $
+** $Id: collect.doc,v 2.7 1998/10/31 03:19:40 agulbra Exp $
 **
 ** Qt collection classes documentation
 **
@@ -243,7 +243,7 @@ Qt has the following predefined collection classes:
 <h2>Comparison with the STL</h2>
 
 We often get questions about why Qt does not use the STL, and why Qt's
-container templatess are provided at all.  Here are the major factors
+container templates are provided at all.  Here are the major factors
 why we use and provide these templates: <ul>
 
 <li>Qt's container templates add less space when instantiated than the

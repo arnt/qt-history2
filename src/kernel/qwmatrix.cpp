@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwmatrix.cpp#23 $
+** $Id: //depot/qt/main/src/kernel/qwmatrix.cpp#24 $
 **
 ** Implementation of QWMatrix class
 **
@@ -253,7 +253,7 @@ QPoint QWMatrix::map( const QPoint &p ) const
 }
 
 /*!
-  Returns the tranformed rectangle \e r.
+  Returns the transformed rectangle \e r.
 
   If rotation or shearing has been specified, then the bounding rectangle
   will be returned.

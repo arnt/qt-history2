@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#63 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#64 $
 **
 ** Implementation of QScrollView class
 **
@@ -510,7 +510,7 @@ QWidget* QScrollView::cornerWidget() const
   You may call setCornerWidget() with the same widget at different times.
 
   All widgets set here will be deleted by the QScrollView when it destructs
-  unless you seperately
+  unless you separately
   reparent the widget after setting some other corner widget (or 0).
 
   Any \e newly set widget should have no current parent.

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#63 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#64 $
 **
 ** Implementation of QHeader widget class (table header)
 **
@@ -329,13 +329,13 @@ int QHeader::cellAt( int c ) const
 
 
 /*!
-  Tries to find a line that is not a neighbour of  \c handleIdx.
+  Tries to find a line that is not a neighbor of  \c handleIdx.
  */
 int QHeader::findLine( int c )
 {
     int i = cellAt( c );
     if ( i == -1 )
-	return handleIdx; //####### frustrating, but safe behaviour.
+	return handleIdx; //####### frustrating, but safe behavior.
     if ( i == handleIdx )
 	return i;
     if ( i == handleIdx - 1 &&  pPos( handleIdx ) - c > MARKSIZE/2 )

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#74 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#75 $
 **
 ** Implementation of event classes
 **
@@ -119,7 +119,7 @@ void QEvent::peErrMsg()				// posted event error message
   also possible to manually send events through the QApplication class
   using QApplication::sendEvent() and QApplication::postEvent().
 
-  QObject recevied events by having its QObject::event() function
+  QObject received events by having its QObject::event() function
   called.  The default implementation simply calls
   QObject::timerEvent() for timer events and ignores all other events.
   QWidget reimplements \link QWidget::event() event() \endlink and
@@ -357,7 +357,7 @@ QMouseEvent::QMouseEvent( Type type, const QPoint &pos, int button, int state )
 
   Returns the distance that the wheel is rotated, expressed in
   multiples or divisions of WHEEL_DELTA, which is set at 120
-  currently.A positive value indicates that the whell was rotated
+  currently.A positive value indicates that the wheel was rotated
   forward, away from the user; a negative value indicates that the
   wheel was rotated backward, toward the user.
 
@@ -892,7 +892,7 @@ QMouseEvent::QMouseEvent( Type type, const QPoint &pos, int button, int state )
   \fn void   QDragMoveEvent::accept( const QRect & r )
 
   The same as accept() above, but also notifies that future moves will
-  also be acceptable if they remain withing the rectangle \a r on the
+  also be acceptable if they remain within the rectangle \a r on the
   widget - this can improve performance, but may also be ignored by
   the underlying system.
 */

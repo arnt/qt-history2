@@ -1,4 +1,4 @@
-// $Id: pictures.doc,v 2.1 1998/07/08 15:26:30 agulbra Exp $
+// $Id: pictures.doc,v 2.2 1998/10/31 03:19:40 agulbra Exp $
 
 /*! \page pictures.html
 
@@ -10,7 +10,7 @@
 
 <p>Most of these widgets are pictured in either Motif or Windows
 style.  They all support both, but for clarity we've chosen to cut
-down on the number of repeaded images.
+down on the number of repeated images.
 
 <h2><a href="qbuttongroup.html">QButtonGroup</a></h2>
 <img src=qbttngrp-m.gif align=top>&nbsp;Motif

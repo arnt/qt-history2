@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#166 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#167 $
 **
 ** Implementation of QListBox widget class
 **
@@ -809,7 +809,7 @@ void QListBox::changeItem( const QPixmap &pixmap, int index )
 
 
 /*!
-  Replaces the item at posistion \e index with \e lbi.	If \e
+  Replaces the item at position \e index with \e lbi.	If \e
   index is negative or too large, changeItem() does nothing.
 
   \sa insertItem(), removeItem()
@@ -1936,7 +1936,7 @@ void QListBox::setFixedVisibleLines( int lines )
 }
 
 /*!
-  Returns a size mased on maxItemWidth() and any value set by
+  Returns a size based on maxItemWidth() and any value set by
   setFixedVisibleLines().
 */
 QSize QListBox::sizeHint() const

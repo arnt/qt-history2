@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrect.cpp#44 $
+** $Id: //depot/qt/main/src/kernel/qrect.cpp#45 $
 **
 ** Implementation of QRect class
 **
@@ -39,7 +39,7 @@
   The minimum value of QCOORD is QCOORD_MIN (-32768) and the maximum
   value is  QCOORD_MAX (32767).
 
-  Note that the size (width and height) of a rectange might be
+  Note that the size (width and height) of a rectangle might be
   different from what you are used to. If the top left corner and the
   bottom right corner are the same, then the height and the width of
   the rectangle will both be 1.

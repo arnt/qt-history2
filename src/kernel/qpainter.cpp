@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#156 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#157 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -2308,7 +2308,7 @@ QRect QPainter::boundingRect( int x, int y, int w, int h, int tf,
   outlines.
 
   The pen width defines the line width. The default line width is 0,
-  which draws a 1-pixel line very fast, but with lower presicion than
+  which draws a 1-pixel line very fast, but with lower precision than
   with a line width of 1. Setting the line width to 1 or more draws
   lines that are precise, but drawing is slower.
 

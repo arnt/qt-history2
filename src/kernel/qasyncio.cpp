@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncio.cpp#13 $
+** $Id: //depot/qt/main/src/kernel/qasyncio.cpp#14 $
 **
 ** Implementation of asynchronous I/O classes
 **
@@ -31,7 +31,7 @@
   \brief Encapsulates I/O asynchronicity.
 
   The Qt classes for asynchronous input/output provide a simple
-  mechanism to allow large files or slow datasources to be processed
+  mechanism to allow large files or slow data sources to be processed
   without using large amounts of memory, or blocking the user interface.
 
   This facility is used in Qt to drive animated images.  See QImageConsumer
