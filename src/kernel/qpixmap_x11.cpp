@@ -270,7 +270,7 @@ static int defaultScreen = -1;
 void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
 {
     static int serial = 0;
-    
+
     if ( defaultScreen >= 0 && defaultScreen != x11Screen() ) {
 	QPaintDeviceX11Data* xd = getX11Data( TRUE );
 	xd->x_screen = defaultScreen;
@@ -279,7 +279,7 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
     }
 
     int dd = x11Depth();
-    
+
     if ( optim == DefaultOptim )		// use default optimization
 	optim = defOptim;
 
@@ -531,9 +531,8 @@ int QPixmap::metric( int m ) const
   has 8-bit depth.  If the pixmap has greater than 8-bit depth, the
   returned image has 32-bit depth.
 
-  \bug Does not support 2- or 4- bit display hardware.
-
-  \bug Alpha masks on monochrome images are ignored.
+  Note that for the moment, alpha masks on monochrome images are
+  ignored.
 
   \sa convertFromImage()
 */
@@ -887,8 +886,6 @@ QImage QPixmap::convertToImage() const
   converted to an image, the pixels painted with color0 will produce
   pixel index 0 in the image and those painted with color1 will produce
   pixel index 1.
-
-  \bug Does not support 2- or 4-bit display hardware.
 
   \sa convertToImage(), isQBitmap(), QImage::convertDepth(), defaultDepth(),
   QImage::hasAlphaBuffer()
@@ -1512,8 +1509,6 @@ QPixmap QPixmap::grabWindow( WId window, int x, int y, int w, int h )
     p.end();
   \endcode
 
-  \bug 2- and 4-bit pixmaps are not supported.
-
   \sa trueMatrix(), QWMatrix, QPainter::setWorldMatrix()
 */
 
@@ -1879,10 +1874,10 @@ void QPixmap::x11SetScreen( int screen )
 {
     if ( screen < 0 )
 	screen = x11AppScreen();
-    
+
     if ( screen == x11Screen() )
 	return; // nothing to do
-    
+
     if ( isNull() ) {
 	QPaintDeviceX11Data* xd = getX11Data( TRUE );
 	xd->x_screen = screen;
@@ -1890,14 +1885,14 @@ void QPixmap::x11SetScreen( int screen )
 	setX11Data( xd );
 	return;
     }
-#if 0    
+#if 0
     qDebug("QPixmap::x11SetScreen for %p from %d to %d. Size is %d/%d", data, x11Screen(), screen, width(), height() );
-#endif    
+#endif
 
     data->scrn = screen; // for the other copies, see "clever code" in qpixmap copy constructor and assignment operator
-    
+
     QImage img = convertToImage();
-    QBitmap msk; 
+    QBitmap msk;
     if ( mask() )
 	msk = *mask();
     resize(0,0);
