@@ -2987,9 +2987,11 @@ void QFileDialog::setDir( const QString & pathstr )
 	while( i < (int)dr.length() && dr[i] != '/' )
 	    i++;
 	QCString user;
-	if ( i == 1 )
+	if ( i == 1 ) {
 	    user = ::getlogin();
-	else
+	    if ( !user )
+		user = getenv( "LOGNAME" );
+	} else
 	    user = dr.mid( 1, i-1 ).local8Bit();
 	dr = dr.mid( i, dr.length() );
 	pw = ::getpwnam( user );
