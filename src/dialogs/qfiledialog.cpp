@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#170 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#171 $
 **
 ** Implementation of QFileDialog class
 **
@@ -790,7 +790,7 @@ void QFileDialog::setDir( const QString & pathstr )
 	while( i < (int)d.length() && d[i] != '/' )
 	    i++;
 	QCString user;
-	if ( i == 1 ) 
+	if ( i == 1 )
 	  user = ::getlogin();
 	else
 	  user = d.mid( 1, i-1 ).local8Bit();
@@ -1312,7 +1312,7 @@ void QFileDialog::updateFileNameEdit( QListBoxItem * newItem )
     if ( !newItem )
 	return;
     QFileDialogPrivate::MCItem * i = (QFileDialogPrivate::MCItem *)newItem;
-    i->i->setSelected( i->selected() );
+    i->i->listView()->setSelected( i->i, i->selected() );
     updateFileNameEdit( i->i );
 }
 
@@ -1365,7 +1365,7 @@ void QFileDialog::selectDirectoryOrFile( QListBoxItem * newItem )
     if ( !newItem )
 	return;
     QFileDialogPrivate::MCItem * i = (QFileDialogPrivate::MCItem *)newItem;
-    i->i->setSelected( i->selected() );
+    i->i->listView()->setSelected( i->i, i->selected() );
     selectDirectoryOrFile( i->i );
 }
 
@@ -1684,7 +1684,7 @@ bool QFileDialog::eventFilter( QObject * o, QEvent * e )
 	return TRUE;
     } else if ( o == files && e->type() == QEvent::FocusOut &&
 	 files->currentItem() && mode() != ExistingFiles ) {
-	files->setSelected( files->currentItem(), FALSE );
+      //files->setSelected( files->currentItem(), FALSE );
     } else if ( o == files && e->type() == QEvent::KeyPress ) {
 	QTimer::singleShot( 0, this, SLOT(fixupNameEdit()) );
     } else if ( o == nameEdit && e->type() == QEvent::KeyPress ) {
