@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#10 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#11 $
 **
 ** Definition of QFileDialog class
 **
@@ -12,14 +12,13 @@
 #ifndef QFILEDLG_H
 #define QFILEDLG_H
 
+struct QFileDialogPrivate;
+class QLineEdit;
+class QPushButton;
+class QListView;
+
 #include "qdir.h"
 #include "qdialog.h"
-
-class QListBox;
-class QLineEdit;
-class QComboBox;
-class QLabel;
-class QPushButton;
 
 
 class QFileDialog : public QDialog
@@ -31,56 +30,66 @@ public:
     QFileDialog( QWidget *parent=0, const char *name=0, bool modal=FALSE );
    ~QFileDialog();
 
-    QString	selectedFile()	const;
-
-    const char *dirPath() const;
-    void	setDir( const char * );
-    const QDir *dir() const;
-    void	setDir( const QDir & );
-
-    void	rereadDir();
+    // recommended static functions
 
     static QString getOpenFileName( const char *dir = 0, const char *filter= 0,
 				    QWidget *parent = 0, const char *name = 0);
     static QString getSaveFileName( const char *dir = 0, const char *filter= 0,
 				    QWidget *parent = 0, const char *name = 0);
 
+    // non-static function for special needs
+
+    QString selectedFile() const;
+
+    const char *dirPath() const;
+
+    void setDir( const char * );
+    void setDir( const QDir & );
+    const QDir *dir() const;
+
+    void rereadDir();
+
 signals:
-    void	fileHighlighted( const char * );
-    void	fileSelected( const char * );
-    void	dirEntered( const char * );
+    void fileHighlighted( const char * );
+    void fileSelected( const char * );
+    void dirEntered( const char * );
 
 private slots:
-    void	fileSelected( int );
-    void	fileHighlighted( int );
-    void	dirSelected( int );
-    void	pathSelected( int );
+    void fileSelected( int );
+    void fileHighlighted( int );
+    void dirSelected( int );
+    void pathSelected( int ); 
 
-    void	okClicked();
-    void	filterClicked();
-    void	cancelClicked();
+    void okClicked();
+    void filterClicked(); // not used
+    void cancelClicked();
 
 protected:
-    void	resizeEvent( QResizeEvent * );
+    void resizeEvent( QResizeEvent * );
+
+private slots:
+    void updateGeometry();
 
 private:
-    void	init();
-    void	updatePathBox( const char * );
+    void init();
+    void updatePathBox( const char * );
 
-    QDir	d;
-    QString	fileName;
 
-    QListBox   *files;
-    QListBox   *dirs;
-    QLineEdit  *filterEdit;
-    QLineEdit  *nameEdit;
-    QComboBox  *pathBox;
-    QLabel     *filterL;
-    QLabel     *nameL;
-    QLabel     *dirL;
-    QLabel     *fileL;
-    QPushButton *okB;
-    QPushButton *filterB;
+    QDir cwd;
+    QString fileName;
+
+    QFileDialogPrivate *d;
+    QListView  *files;
+
+    QLineEdit  *nameEdit; // also filter
+    void *unused1;
+    void *unused2;
+    void *unused3;
+    void *unused4;
+    void *unused5;
+    void *unused6;
+    void *unused7;
+    QPushButton *okB; 
     QPushButton *cancelB;
 
 private:	// Disabled copy constructor and operator=

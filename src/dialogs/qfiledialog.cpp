@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#44 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#45 $
 **
 ** Implementation of QFileDialog class
 **
@@ -10,25 +10,86 @@
 *****************************************************************************/
 
 #include "qfiledlg.h"
-#include "qlistbox.h"
 #include "qlined.h"
 #include "qcombo.h"
 #include "qlabel.h"
 #include "qpushbt.h"
 #include "qmsgbox.h"
+#include "qlistview.h"
 #include "qapp.h"
-#if defined(_WS_WIN_)
-#if defined(_CC_BOOL_DEF_)
-#undef	bool
-#include <windows.h>
-#define bool int
-#else
-#include <windows.h>
-#endif
-#endif
+#include "qlayout.h"
+#include "qlistview.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#44 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#45 $");
 
+
+struct QFileDialogPrivate {
+    bool geometryDirty;
+    QComboBox * paths;
+    QComboBox * types;
+    QLabel * pathL;
+    QLabel * fileL;
+    QLabel * typeL;
+
+    QVBoxLayout * topLevelLayout;
+
+    QPushButton * cdToParent;
+
+    struct File: public QListViewItem {
+	File( const QFileInfo * fi, QListViewItem * parent, int h )
+	    : info( *fi ), QListViewItem( parent, 0 ) { setHeight( h ); }
+	File( const QFileInfo * fi, QListView * parent, int h  )
+	    : info( *fi ), QListViewItem( parent, 0 ) { setHeight( h ); }
+
+	void paintCell( QPainter *, const QColorGroup & cg, int, int ) const;
+
+	QFileInfo info;
+    };
+};
+
+
+void QFileDialogPrivate::File::paintCell( QPainter * p,
+					  const QColorGroup & cg,
+					  int c, int w ) const
+{
+    QString s;
+    QRect r( 3, 2, w-6, height()-4 );
+
+    p->fillRect( 0, 0, w, height(), cg.base() );
+    p->setPen( cg.text() );
+
+    switch ( c ) {
+    case 0:
+	p->drawText( r, AlignLeft + AlignVCenter, info.fileName() );
+	break;
+    case 1:
+	if ( info.isFile() ) {
+	    s.sprintf( "%d", info.size() );
+	    p->drawText( r, AlignRight + AlignVCenter, s );
+	}
+	break;
+    case 2:
+	if ( info.isFile() )
+	    s = "File";
+	else if ( info.isDir() )
+	    s = "Directory";
+	else
+	    s = "Special File";
+
+	if ( info.isSymLink() )
+	    s.prepend( "Link to " );
+
+	p->drawText( r, AlignLeft + AlignVCenter, s );
+	break;
+    case 3:
+	p-> drawText( r, AlignLeft + AlignVCenter, 
+		      info.lastModified().toString() );
+	break;
+    case 4:
+	p->drawText( r, AlignLeft + AlignVCenter, info.fileName() );
+	break;
+    }
+}
 
 /*!
   \class QFileDialog qfiledlg.h
@@ -69,10 +130,10 @@ QFileDialog::QFileDialog( QWidget *parent, const char *name, bool modal )
     : QDialog( parent, name, modal )
 {
     init();
-    filterEdit->setText( "*" );
-    d.convertToAbs();
+    cwd.convertToAbs();
     rereadDir();
 }
+
 
 /*!
   Constructs a file dialog with a \e parent, \e name and \e modal flag.
@@ -86,13 +147,13 @@ QFileDialog::QFileDialog( const char *dirName, const char *filter,
 {
     init();
     if ( filter )
-	d.setNameFilter( filter );
-    filterEdit->setText( d.nameFilter() );
+	cwd.setNameFilter( filter );
     if ( dirName )
-	d.setPath( dirName );
-    d.convertToAbs();
+	cwd.setPath( dirName );
+    cwd.convertToAbs();
     rereadDir();
 }
+
 
 /*!
   \internal
@@ -101,48 +162,68 @@ QFileDialog::QFileDialog( const char *dirName, const char *filter,
 
 void QFileDialog::init()
 {
-    QFontMetrics fm = fontMetrics();
-    QWidget *desk = QApplication::desktop();
-    int w = QMIN(fm.width("x")*50, desk->width()-50);
-    int h = QMIN(fm.height()*23, desk->height()-50);
-    resize( w, h );
+    d = new QFileDialogPrivate();
 
-    filterEdit = new QLineEdit(		     this, "filterEdit"	  );
-    pathBox    = new QComboBox(		     this, "pathBox"	  );
-    dirs       = new QListBox(		     this, "dirList"	  );
-    files      = new QListBox(		     this, "fileList"	  );
-    nameEdit   = new QLineEdit(		     this, "nameEdit"	);
-    filterL    = new QLabel( "Filter:"	   , this, "filterLabel"  );
-    nameL      = new QLabel( "Name:"	   , this, "filterLabel"  );
-    dirL       = new QLabel( "Directories:", this, "dirLabel"	  );
-    fileL      = new QLabel( "Files:"	   , this, "fileLabel"	  );
-    okB	       = new QPushButton( "OK"	   , this, "okButton"	  );
-    filterB    = new QPushButton( "Filter" , this, "filterButton" );
-    cancelB    = new QPushButton( "Cancel" , this, "cancelButton" );
+    nameEdit = new QLineEdit( this, "name/filter editor" );
 
-    pathBox->setAutoResize( TRUE );
-    filterL->setAutoResize( TRUE );
-    nameL  ->setAutoResize( TRUE );
-    dirL   ->setAutoResize( TRUE );
-    fileL  ->setAutoResize( TRUE );
+    files = new QListView( this, "current directory listing" );
+    files->setColumn( "Name", 100 );
+    files->setColumn( "Size", 50 );
+    files->setColumn( "Type", 50 );
+    files->setColumn( "Date", 100 );
+    files->setColumn( "Attributes", 100 );
+    connect( files, SIGNAL(sizeChanged()), SLOT(updateGeometry()) );
 
-    okB	   ->resize( width()/6, height()/12 );
-    filterB->resize( width()/6, height()/12 );
-    cancelB->resize( width()/6, height()/12 );
+    okB = new QPushButton( "OK", this, "OK" );
+    okB->setAutoDefault( TRUE );
+    okB->setDefault( TRUE );
+    connect( okB, SIGNAL(clicked()), this, SLOT(okClicked()) );
+    cancelB = new QPushButton( "Cancel" , this, "Cancel" );
+    cancelB->setAutoDefault( TRUE );
+    connect( cancelB, SIGNAL(clicked()), this, SLOT(cancelClicked()) );
 
-    connect( files,	SIGNAL(selected(int)),	 SLOT(fileSelected(int)) );
-    connect( files,	SIGNAL(highlighted(int)),SLOT(fileHighlighted(int)) );
-    connect( dirs,	SIGNAL(selected(int)),	 SLOT(dirSelected(int)) );
-    connect( pathBox,	SIGNAL(activated(int)),	 SLOT(pathSelected(int)) );
-    connect( okB,	SIGNAL(clicked()),	 SLOT(okClicked()) );
-    connect( nameEdit,	SIGNAL(returnPressed()), SLOT(okClicked()) );
-    connect( filterEdit,SIGNAL(returnPressed()), SLOT(filterClicked()) );
-    connect( filterB,	SIGNAL(clicked()),	 SLOT(filterClicked()) );
-    connect( cancelB,	SIGNAL(clicked()),	 SLOT(cancelClicked()) );
-    d.setMatchAllDirs( TRUE );
-    d.setSorting( d.sorting() | QDir::DirsFirst );
+    d->paths = new QComboBox( TRUE, this, "directory history/editor" );
+    d->geometryDirty = TRUE;
+    d->types = new QComboBox( FALSE, this, "file types" ); // ### TRUE
 
-    nameEdit->setFocus();
+    d->pathL = new QLabel( d->paths, "Look &in", this );
+    d->fileL = new QLabel( nameEdit, "File &name", this );
+    d->typeL = new QLabel( d->types, "File &type", this );
+
+    d->cdToParent = new QPushButton( "cd ..", this, "cd to parent" ); // ## pm
+
+    d->topLevelLayout = new QVBoxLayout( this, 6 );
+
+    QHBoxLayout * h;
+
+    h = new QHBoxLayout();
+    d->topLevelLayout->addLayout( h );
+    h->addWidget( d->pathL );
+    h->addWidget( d->paths );
+    h->addWidget( d->cdToParent );
+
+    d->topLevelLayout->addWidget( files, 3 );
+
+    h = new QHBoxLayout();
+    d->topLevelLayout->addLayout( h );
+    h->addWidget( d->fileL );
+    h->addWidget( nameEdit );
+    h->addWidget( okB );
+
+    h = new QHBoxLayout();
+    d->topLevelLayout->addLayout( h );
+    h->addWidget( d->typeL );
+    h->addWidget( d->types );
+    h->addWidget( cancelB );
+
+    cwd.setMatchAllDirs( TRUE );
+    cwd.setSorting( cwd.sorting() | QDir::DirsFirst );
+
+    updateGeometry();
+
+    resize( 420, 300 );
+
+    nameEdit->setFocus(); // ### ?
 }
 
 /*!
@@ -151,27 +232,16 @@ void QFileDialog::init()
 
 QFileDialog::~QFileDialog()
 {
-    delete files;
-    delete dirs;
-    delete filterEdit;
-    delete nameEdit;
-    delete pathBox;
-    delete filterL;
-    delete nameL;
-    delete dirL;
-    delete fileL;
-    delete okB;
-    delete filterB;
-    delete cancelB;
+    // nothing
 }
 
 
 /*!
   Returns the selected file name.
 
-  If a file name was selected, the returned string will contain the absolute
-  path name.
-  The returned string will be a null string if no file name was selected.
+  If a file name was selected, the returned string contains the
+  absolute path name.  The returned string is a null string if no file
+  name was selected.
 
   \sa QString::isNull()
 */
@@ -180,7 +250,7 @@ QString QFileDialog::selectedFile() const
 {
     QString tmp;
     if ( nameEdit->text() && strcmp( nameEdit->text(), "" ) != 0 )
-	tmp = d.absFilePath( nameEdit->text() );
+	tmp = cwd.absFilePath( nameEdit->text() );
     return tmp;
 }
 
@@ -192,7 +262,7 @@ QString QFileDialog::selectedFile() const
 
 const char *QFileDialog::dirPath() const
 {
-    return d.path();
+    return cwd.path();
 }
 
 /*!
@@ -202,10 +272,10 @@ const char *QFileDialog::dirPath() const
 
 void QFileDialog::setDir( const char *pathstr )
 {
-    if ( strcmp(d.path(),pathstr) == 0 )
+    if ( strcmp(cwd.path(),pathstr) == 0 )
 	return;
-    d.setPath( pathstr );
-    d.convertToAbs();
+    cwd.setPath( pathstr );
+    cwd.convertToAbs();
     rereadDir();
 }
 
@@ -216,7 +286,7 @@ void QFileDialog::setDir( const char *pathstr )
 
 const QDir *QFileDialog::dir() const
 {
-    return &d;
+    return &cwd;
 }
 
 /*!
@@ -226,10 +296,10 @@ const QDir *QFileDialog::dir() const
 
 void QFileDialog::setDir( const QDir &dir )
 {
-    d = dir;
-    d.convertToAbs();
-    d.setMatchAllDirs( TRUE );
-    d.setSorting( d.sorting() | QDir::DirsFirst );
+    cwd = dir;
+    cwd.convertToAbs();
+    cwd.setMatchAllDirs( TRUE );
+    cwd.setSorting( cwd.sorting() | QDir::DirsFirst );
     rereadDir();
 }
 
@@ -244,35 +314,39 @@ void QFileDialog::setDir( const QDir &dir )
 
 void QFileDialog::rereadDir()
 {
-    qApp ->setOverrideCursor( waitCursor );
-    dirs ->setAutoUpdate( FALSE );
-    files->setAutoUpdate( FALSE );
-    dirs ->clear();
+    const QFileInfoList *filist = 0;
+
+    int itemHeight = fontMetrics().height() + 6;
+
+    while ( !filist ) {
+	filist = cwd.entryInfoList();
+	if ( !filist && 
+	     QMessageBox::warning( this, "Open File",
+				   QString( "Unable to read directory\n" ) +
+				   cwd.absPath() + "\n\n"
+				   "Please make sure that the directory\n"
+				   "in readable.\n",
+				   "Use Parent Directory",
+				   "Use Old Contents", 0 ) ) {
+	    return;
+	}
+	if ( !filist ) {
+	    // change to parent, reread
+	    // ...
+
+	    // but for now
+	    return;
+	}
+    }
+
     files->clear();
 
-    const QFileInfoList	 *filist = d.entryInfoList();
-    if ( filist ) {
-	QFileInfoListIterator it( *filist );
-	QFileInfo		 *fi = it.current();
-	while ( fi && fi->isDir() ) {
-	    dirs->insertItem( fi->fileName().data() );
-	    fi = ++it;
-	}
-	while ( fi ) {
-	    files->insertItem( fi->fileName().data() );
-	    fi = ++it;
-	}
-    } else {
-	qApp->restoreOverrideCursor();
-	QMessageBox::message( "Sorry", "Cannot open or read directory." );
-	qApp ->setOverrideCursor( waitCursor );
+    QFileInfoListIterator it( *filist );
+    QFileInfo *fi;
+    while ( (fi = it.current()) != 0 ) {
+	++it;
+	(void) new QFileDialogPrivate::File( fi, files, itemHeight );
     }
-    dirs ->setAutoUpdate( TRUE );
-    files->setAutoUpdate( TRUE );
-    dirs ->repaint();
-    files->repaint();
-    updatePathBox( d.path() );
-    qApp->restoreOverrideCursor();
 }
 
 
@@ -468,10 +542,10 @@ QString QFileDialog::getSaveFileName( const char *dirName, const char *filter,
   Activated when a file name in the file list has been selected.
 */
 
-void QFileDialog::fileSelected( int index )
+void QFileDialog::fileSelected( int  )
 {
-    nameEdit->setText( files->text(index) );
-    emit fileSelected( d.filePath( nameEdit->text() ) );
+    nameEdit->setText( "sex" );
+    emit fileSelected( cwd.filePath( nameEdit->text() ) );
     accept();
 }
 
@@ -480,10 +554,9 @@ void QFileDialog::fileSelected( int index )
   Activated when a file name in the file list has been highlighted.
 */
 
-void QFileDialog::fileHighlighted( int index )
+void QFileDialog::fileHighlighted( int )
 {
-    nameEdit->setText( files->text(index) );
-    emit fileHighlighted( d.filePath( files->text(index) ) );
+    // unused
 }
 
 /*!
@@ -491,33 +564,14 @@ void QFileDialog::fileHighlighted( int index )
   Activated when a directory name in the directory list has been selected.
 */
 
-void QFileDialog::dirSelected( int index )
+void QFileDialog::dirSelected( int )
 {
-    QDir tmp = d;
-    if ( d.cd( dirs->text(index) ) && d.isReadable() ) {
-	nameEdit->setText( "" );
-	emit dirEntered( d.path() );
-	rereadDir();
-    } else {
-	QMessageBox::message( "Sorry", "Cannot open or read directory." );
-	d = tmp;
-    }
+    // unused
 }
 
-void QFileDialog::pathSelected( int index )
+void QFileDialog::pathSelected( int )
 {
-    if ( index == 0 )				// current directory shown
-	return;
-    QString newPath;
-    QDir tmp = d;
-    for( int i = pathBox->count() - 1 ; i >= index ; i-- )
-	newPath += pathBox->text( i );
-    d.setPath( newPath );
-    if ( d.isReadable() ) {
-	rereadDir();
-    } else {
-	d = tmp;
-    }
+    // unused
 }
 
 
@@ -529,7 +583,7 @@ void QFileDialog::pathSelected( int index )
 void QFileDialog::okClicked()
 {
     if ( strcmp( nameEdit->text(), "") != 0 ) {
-	emit fileSelected( d.filePath( nameEdit->text() ) );
+	emit fileSelected( cwd.filePath( nameEdit->text() ) );
 	accept();
     }
 }
@@ -541,10 +595,7 @@ void QFileDialog::okClicked()
 
 void QFileDialog::filterClicked()
 {
-    if ( strcmp( filterEdit->text(), "" ) == 0 )
-	filterEdit->setText( "*" );
-    d.setNameFilter( filterEdit->text() );
-    rereadDir();
+    // unused
 }
 
 /*!
@@ -564,78 +615,78 @@ void QFileDialog::cancelClicked()
 
 void QFileDialog::resizeEvent( QResizeEvent * )
 {
-    int w = width();
-    int h = height();
-    int	  wTmp;
-    QRect rTmp;
-
-    filterL->move( 10, 10 );
-
-    wTmp = filterL->width();
-    filterEdit->setGeometry( wTmp + 15, 10, w - wTmp - 15 - 10,
-	filterEdit->sizeHint().height() );
-
-    rTmp = filterL->geometry();
-    wTmp = pathBox->width();
-    pathBox->move( (w - wTmp)/2, rTmp.bottom() + 12 );
-
-    rTmp = pathBox->geometry();
-    dirL->move( 10, rTmp.bottom() + 5 );
-
-    rTmp = dirL->geometry();
-    fileL->move( w / 2 + 5, rTmp.y() );
-
-    rTmp = okB->geometry();
-    rTmp.moveBottomRight( QPoint(rTmp.right(), h-7 ) ) ;
-    okB->move( 10, rTmp.y() );
-
-    wTmp = cancelB->width();
-    cancelB->move( w - 10 - wTmp, rTmp.y() );
-
-    wTmp = filterB->width();
-    filterB->move( (w - wTmp)/2, rTmp.y() );
-
-    int neh = nameEdit->sizeHint().height();
-    rTmp.moveBottomRight( QPoint( rTmp.right(), rTmp.y() - 5 ) );
-    wTmp = nameL->width();
-    nameEdit->setGeometry( wTmp + 15, rTmp.y(),
-			     w - wTmp - 15 - 10, neh );
-    int net = nameEdit->geometry().top();
-
-    nameL->move( 10, rTmp.y() );
-
-    rTmp = dirL->geometry();
-    dirs->setGeometry(10, rTmp.bottom() + 5,
-		      w/2 - 15, net - 9 - rTmp.bottom() - 5 );
-
-    rTmp = dirs->geometry();
-    files->setGeometry( rTmp.right() + 10, rTmp.y(),
-			rTmp.width(), rTmp.height() );
+    updateGeometry();
 }
 
-/*!
-  \internal
-  Updates the path box.	 Called from rereadDir().
-*/
-void QFileDialog::updatePathBox( const char *s )
-{
-    QStrList l;
-    QString tmp;
-    QString safe = s;
+/*! \internal 
 
-    l.insert( 0, "/" );
-    tmp = strtok( safe.data(), "/" );
-    while ( TRUE ) {
-	if ( tmp.isNull() )
-	    break;
-	l.insert( 0, tmp + "/" );
-	tmp = strtok( 0, "/" );
-    }
-    pathBox->setUpdatesEnabled( FALSE );
-    pathBox->clear();
-    pathBox->insertStrList( &l );
-    pathBox->setCurrentItem( 0 );
-    pathBox->move( (width() - pathBox->width()) / 2, pathBox->geometry().y() );
-    pathBox->setUpdatesEnabled( TRUE );
-    pathBox->repaint();
+  Obsolete.
+*/
+void QFileDialog::updatePathBox( const char * )
+{
+    // unused
+}
+
+
+/*!  Make sure the minimum and maximum sizes of everything are sane.
+*/
+
+void QFileDialog::updateGeometry()
+{
+    if ( !d || !d->geometryDirty )
+	return;
+
+    d->geometryDirty = FALSE;
+
+    QSize r, t;
+
+    // we really should have a QSize::unite()
+#define RM r.setWidth( QMAX(r.width(),t.width()) ); \
+    r.setHeight( QMAX(r.height(),t.height()) )
+
+    // labels first
+    r = d->pathL->sizeHint();
+    t = d->fileL->sizeHint();
+    RM;
+    t = d->typeL->sizeHint();
+    RM;
+    d->pathL->setFixedSize( r );
+    d->fileL->setFixedSize( r );
+    d->typeL->setFixedSize( r );
+
+    // single-line input areas
+    r = d->paths->sizeHint();
+    t = nameEdit->sizeHint();
+    RM;
+    t = d->types->sizeHint();
+    RM;
+    t.setWidth( QCOORD_MAX );
+    t.setHeight( r.height() );
+    d->paths->setMinimumSize( r );
+    d->paths->setMaximumSize( t );
+    nameEdit->setMinimumSize( r );
+    nameEdit->setMaximumSize( t );
+    d->types->setMinimumSize( r );
+    d->types->setMaximumSize( t );
+
+    // buttons on top row 
+    r = QSize( 0, d->paths->minimumSize().height() );
+    t = d->cdToParent->sizeHint();
+    RM;
+    // ...
+    d->cdToParent->setFixedSize( r );
+    // ...
+
+    // open/save, cancel
+    r = QSize( 80, 0 );
+    t = okB->sizeHint();
+    RM;
+    t = cancelB->sizeHint();
+    RM;
+    okB->setFixedSize( r );
+    cancelB->setFixedSize( r );
+
+    d->topLevelLayout->activate();
+
+#undef RM
 }
