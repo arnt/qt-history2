@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdropsite.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qdropsite.cpp#6 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -48,7 +48,9 @@
     };
   \endcode
 
-  \sa QDrag, QTextDrag, QImageDrag
+  For detailed information about drag-and-drop, see the QDragObject class.
+
+  \sa QDragObject, QTextDrag, QImageDrag
 */
 
 /*!

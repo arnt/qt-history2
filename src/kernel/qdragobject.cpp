@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#41 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#42 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -376,9 +376,84 @@ QWidget * QDragObject::source()
 }
 
 
+/*! \class QDragObject qdragobject.h
+
+  \brief The QDragObject encapsulates MIME-based drag-and-drop
+  interaction.
+
+  \ingroup kernel
+
+  Drag-and-drop in Qt uses the MIME open standard, to allow
+  independently developers applications to exchange information.
+
+  To start a drag, for example in a \link QWidget::mouseMoveEvent
+  mouse motion event\endlink, create an object of the
+  QDragObject subclass appropriate for your media, such as
+  QTextDrag for text and QImageDrag for images. Then call
+  the drag() method. This is all you need for simple dragging
+  of existing types.
+
+  To be able to receive media dropped on a widget, multiply-inherit
+  the QDropSite class and override the
+  \link QDropSite::dragEnterEvent() dragEnterEvent()\endlink,
+  \link QDropSite::dragMoveEvent() dragMoveEvent()\endlink,
+  \link QDropSite::dragLeaveEvent() dragLeaveEvent()\endlink, and
+  \link QDropSite::dropEvent() dropEvent()\endlink event handler methods.
+
+  Support for specific media types is provided by subclasses of
+  QDragObject.
+  For example, QTextDrag provides
+  support for the <tt>text/plain</tt> MIME type (ordinary unformated
+  text), QImageDrag provides for <tt>image/*</tt> where <tt>*</tt>
+  is all the \link QImageIO image formats that Qt supports\endlink
+  and the QUrlDrag subclass provides <tt>url/url</tt>,
+  a standard web-portable format for transfering a list of filenames.
+
+  To implement drag-and-drop of some type of media for which there
+  is no available QDragObject subclass, the
+  first and most important step is to look for existing formats
+  that are appropriate - the Internet Assigned Numbers Authority
+  (<a href=http://www.iana.org>IANA</a>) provides a
+  <a href=ftp://ftp.isi.edu/in-notes/iana/assignments/media-types/>
+  hierarchical list of MIME media types</a>
+  at the Information Sciences Institute
+  (<a href=http://www.isi.edu>ISI</a>).
+  This maximizes inter-operability of your software.
+
+  To support an additional media type, subclass either QDragObject
+  or QStoredDrag. Subclass QDragObject when you need to provide
+  support for multiple media types. Subclass the simpler QStoredDrag
+  when one type is sufficient.
+
+  Subclasses of QDragObject will override the format() and
+  encodedData() members, and provide a set-method to encode
+  the media data and static members canDecode()
+  and decode() to decode incoming data.  QImageDrag
+  is an example of such a class in Qt. Of course, you can
+  provide drag-only or drop-only support for a media type
+  by omitting some of these methods.
+
+  Subclasses of QStoredDrag provide a set-method to encode
+  the media data and static members canDecode()
+  and decode() to decode incoming data.  QTextDrag
+  in Qt 1.x is an example of such a class in Qt.
+
+  <h3>Inter-operating with existing applications</h3>
+  On X11, the public 
+  <a href=http://www.cco.caltech.edu/~jafl/xdnd2/>XDND protocol</a>
+  is used, while on Windows Qt uses the OLE standard.  On X11,
+  XDND uses MIME, so no translation is necessary.  On Windows, 
+  MIME-aware applications can communicate by using clipboard
+  format names that are MIME types. Internally, Qt has facilities
+  for translating all proprietary clipboard formats to and from
+  MIME.  This interface will be made public at some time, but
+  if you need to do such translations now, contact your Qt
+  Technical Support service.
+*/
+
 /*! \class QTextDrag qdragobject.h
 
-  \brief The QTextDrag provides a drag and drop object for
+  \brief The QTextDrag provides a drag-and-drop object for
   transferring plain text.
 
   \ingroup kernel
@@ -391,6 +466,8 @@ QWidget * QDragObject::source()
 
   Drag&Drop text does \e not have a NUL terminator when it
   is dropped onto the target.
+
+  For detailed information about drag-and-drop, see the QDragObject class.
 */
 
 
@@ -466,7 +543,7 @@ bool QTextDrag::decode( QDropEvent* e, QString& str )
 
 /*! \class QImageDrag qdragobject.h
 
-  \brief The QImageDrag provides a drag and drop object for
+  \brief The QImageDrag provides a drag-and-drop object for
   tranferring images.
 
   \ingroup kernel
@@ -474,6 +551,8 @@ bool QTextDrag::decode( QDropEvent* e, QString& str )
   Images are offered to the receiving application in multiple formats,
   determined by the \link QImage::outputFormats() output formats\endlink
   in Qt.
+
+  For detailed information about drag-and-drop, see the QDragObject class.
 */
 
 
@@ -615,6 +694,8 @@ bool QImageDrag::decode( QDropEvent* e, QPixmap& pm )
 
   When a block of data only has one representation, you can use
   a QStoredDrag to hold it.
+
+  For detailed information about drag-and-drop, see the QDragObject class.
 */
 
 /*!
@@ -675,6 +756,22 @@ QByteArray QStoredDrag::encodedData(const char* m) const
 }
 
 
+/*!
+  \class QUrlDrag qdragobject.h
+  \brief Provides for drag-and-drop of a list of file references.
+
+  URLs are a useful way to refer to files that may be distributed
+  across multiple machines.  Much of the time a URL will refer to
+  a file on a machine local to both the drag source and the
+  drop target, and so the URL will be equivalent to passing a
+  filename, but more extensible.
+*/
+
+/*!
+  Creates an object to drag the list of urls in \a urls.
+  The \a dragSource and \a name arguments are passed on to
+  QStoredDrag.
+*/
 QUrlDrag::QUrlDrag( QStrList urls,
 	    QWidget * dragSource, const char * name ) :
     QStoredDrag( "url/url", dragSource, name )
@@ -682,16 +779,25 @@ QUrlDrag::QUrlDrag( QStrList urls,
     setUrls(urls);
 }
 
+/*!
+  Creates a object to drag.  You will need to call
+  setUrls() before you start the drag().
+*/
 QUrlDrag::QUrlDrag( QWidget * dragSource, const char * name ) :
     QStoredDrag( "url/url", dragSource, name )
 {
 }
 
+/*!
+  Destroys the object.
+*/
 QUrlDrag::~QUrlDrag()
 {
 }
 
-
+/*!
+  Changes the list of \a urls to be dragged.
+*/
 void QUrlDrag::setUrls( QStrList urls )
 {
     QByteArray a;
@@ -707,6 +813,9 @@ void QUrlDrag::setUrls( QStrList urls )
 }
 
 
+/*!
+  Returns TRUE if decode() would be able to decode \a e.
+*/
 bool QUrlDrag::canDecode( QDragMoveEvent* e )
 {
     return e->provides( "url/url" );
