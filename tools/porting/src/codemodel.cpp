@@ -14,33 +14,31 @@
 #include <QList>
 #include <QByteArray>
 
-#include "codemodel2.h"
+#include "codemodel.h"
 
 //using namespace CodeModel;
 namespace CodeModel {
 
-static pool global_pool;
-
-BuiltinType *BuiltinType::Bool = new (global_pool.allocate(sizeof(BuiltinType))) BuiltinType("bool", 0, &global_pool);
-BuiltinType *BuiltinType::Void = new (global_pool.allocate(sizeof(BuiltinType))) BuiltinType("void", 0, &global_pool);
-BuiltinType *BuiltinType::Char = new (global_pool.allocate(sizeof(BuiltinType))) BuiltinType("char", 0, &global_pool);
-BuiltinType *BuiltinType::Short = new (global_pool.allocate(sizeof(BuiltinType))) BuiltinType("short", 0, &global_pool);
-BuiltinType *BuiltinType::Int = new (global_pool.allocate(sizeof(BuiltinType))) BuiltinType("int", 0, &global_pool);
-BuiltinType *BuiltinType::Long = new (global_pool.allocate(sizeof(BuiltinType))) BuiltinType("long", 0, &global_pool);
-BuiltinType *BuiltinType::Double = new (global_pool.allocate(sizeof(BuiltinType))) BuiltinType("double", 0, &global_pool);
-BuiltinType *BuiltinType::Float = new (global_pool.allocate(sizeof(BuiltinType))) BuiltinType("float", 0, &global_pool);
-BuiltinType *BuiltinType::Unsigned = new (global_pool.allocate(sizeof(BuiltinType))) BuiltinType("unsigned", 0, &global_pool);
-BuiltinType *BuiltinType::Signed = new (global_pool.allocate(sizeof(BuiltinType))) BuiltinType("signed", 0, &global_pool);
+BuiltinType BuiltinType::Bool("bool", 0 );
+BuiltinType BuiltinType::Void("void", 0 );
+BuiltinType BuiltinType::Char("char", 0 );
+BuiltinType BuiltinType::Short("short", 0 );
+BuiltinType BuiltinType::Int("int", 0 );
+BuiltinType BuiltinType::Long("long", 0 );
+BuiltinType BuiltinType::Double("double", 0 );
+BuiltinType BuiltinType::Float("float", 0 );
+BuiltinType BuiltinType::Unsigned("unsigned", 0 );
+BuiltinType BuiltinType::Signed("signed", 0 );
 
 int e;
 
-CodeModel::Scope::Scope(pool *p)
+CodeModel::Scope::Scope()
     : m_parent(0)
 {
-    m_scopes = new (global_pool.allocate(sizeof(ScopeCollectionBuilder))) ScopeCollectionBuilder(this, p);
-    m_types = new (global_pool.allocate(sizeof(TypeCollectionBuilder))) TypeCollectionBuilder(this, p);
-    m_members = new (global_pool.allocate(sizeof(MemberCollectionBuilder))) MemberCollectionBuilder(this, p);
-    m_nameUses = new (global_pool.allocate(sizeof(NameUseCollectionBuilder))) NameUseCollectionBuilder(this, p);
+    m_scopes = new ScopeCollectionBuilder(this);
+    m_types = new TypeCollectionBuilder(this);
+    m_members = new MemberCollectionBuilder(this);
+    m_nameUses = new NameUseCollectionBuilder(this);
 }
 
 ScopeCollection *Scope::scopes() const
@@ -226,13 +224,10 @@ NamespaceScope *NamespaceScope::findNamespace(const QByteArray name)
 
 }
 
-
-
 // == ClassScope =======================
-ClassScope::ClassScope(pool *p)
-    : Scope(p)
+ClassScope::ClassScope()
 {
-    m_baseClasses = new (global_pool.allocate(sizeof(TypeCollectionBuilder))) TypeCollectionBuilder(this, p);
+    m_baseClasses = new TypeCollectionBuilder(this);
 }
 
 TypeCollection *ClassScope::baseClasses() const
@@ -247,12 +242,12 @@ void ClassScope::addBaseClass(Type *baseClass)
 
 
 // == FunctionMember ===================
-FunctionMember::FunctionMember(pool *p)
+FunctionMember::FunctionMember()
     : m_returnType(0),
       m_signal(0), m_slot(0),
       m_virtual(0), m_abstract(0)
 {
-    m_argument = new (global_pool.allocate(sizeof(ArgumentCollectionBuilder))) ArgumentCollectionBuilder(this, p);
+    m_argument = new  ArgumentCollectionBuilder(this);
 }
 
 ArgumentCollection *FunctionMember::arguments() const

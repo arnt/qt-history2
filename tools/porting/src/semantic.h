@@ -35,7 +35,7 @@ public:
     virtual ~Semantic();
 
     CodeModel::SemanticInfo parseTranslationUnit( TranslationUnitAST *node,
-            TokenStreamAdapter::TokenStream *tokenStream, pool *storage);
+            TokenStreamAdapter::TokenStream *tokenStream, TypedPool<CodeModel::Item> *storage);
 signals:
     void error(const QByteArray &message);
     void warning(const QByteArray &message);
@@ -109,7 +109,7 @@ private:
     CodeModel::NameUse *findNameUse(AST *node);
 private:
     TokenStreamAdapter::TokenStream *m_tokenStream;
-    pool *m_storage;
+    TypedPool<CodeModel::Item> *m_storage;
 
     QList<QList<QByteArray> > m_imports;
     CodeModel::Member::Access m_currentAccess;

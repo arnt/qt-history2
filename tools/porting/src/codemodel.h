@@ -18,7 +18,6 @@
 #include <QList>
 #include <QMap>
 
-#include "list.h"
 #include "smallobject.h"
 #include <ast.h>
 
@@ -132,7 +131,7 @@ struct Type: public Item
 
 struct Scope: public Item
 {
-    Scope(pool *p);
+    Scope();
 
     void setParent(Scope *parent)
     { m_parent = parent; }
@@ -264,8 +263,7 @@ private:
 
 struct NamespaceScope: public Scope
 {
-    NamespaceScope(pool *p)
-        : Scope(p) {}
+    NamespaceScope() {}
 
     QByteArray name() const
     { return m_name; }
@@ -289,7 +287,7 @@ private:
 
 struct ClassScope: public Scope
 {
-    ClassScope(pool *p);
+    ClassScope();
 
     TypeCollection *baseClasses() const;
 
@@ -311,8 +309,7 @@ private:
 
 struct BlockScope: public Scope
 {
-    BlockScope(pool *p)
-        : Scope(p) {}
+    BlockScope() {}
 
     QByteArray name() const
     { return m_name; }
@@ -329,8 +326,7 @@ private:
 
 struct EnumType: public Type
 {
-    EnumType(pool *)
-        : m_parent(0) {}
+    EnumType() {}
 
     QByteArray name() const
     { return m_name; }
@@ -354,7 +350,7 @@ private:
 
 struct UnknownType: public Type
 {
-    UnknownType(pool *)
+    UnknownType()
         : m_parent(0) {}
 
     QByteArray name() const
@@ -379,7 +375,7 @@ private:
 
 struct ClassType: public Type
 {
-    ClassType(pool *)
+    ClassType()
         : m_scope(0) {}
 
     ClassScope *scope() const
@@ -409,7 +405,7 @@ private:
 struct BuiltinType: public Type
 {
 protected:
-    BuiltinType(const QByteArray &name, Scope *parent, pool *)
+    BuiltinType(const QByteArray &name, Scope *parent)
         : m_name(name), m_parent(parent) {}
 
 public:
@@ -422,16 +418,16 @@ public:
     virtual BuiltinType *toBuiltinType() const
     { return const_cast<BuiltinType*>(this); }
 
-    static BuiltinType *Bool;
-    static BuiltinType *Void;
-    static BuiltinType *Char;
-    static BuiltinType *Short;
-    static BuiltinType *Int;
-    static BuiltinType *Long;
-    static BuiltinType *Double;
-    static BuiltinType *Float;
-    static BuiltinType *Unsigned;
-    static BuiltinType *Signed;
+    static BuiltinType Bool;
+    static BuiltinType Void;
+    static BuiltinType Char;
+    static BuiltinType Short;
+    static BuiltinType Int;
+    static BuiltinType Long;
+    static BuiltinType Double;
+    static BuiltinType Float;
+    static BuiltinType Unsigned;
+    static BuiltinType Signed;
     // ### more
 
 private:
@@ -441,7 +437,7 @@ private:
 
 struct PointerType: public Type
 {
-    PointerType(pool *)
+    PointerType()
         : m_baseType(0) {}
 
     Type *baseType() const
@@ -469,7 +465,7 @@ private:
 
 struct ReferenceType: public Type
 {
-    ReferenceType(pool *)
+    ReferenceType()
         : m_parent(0), m_baseType(0) {}
 
     Type *baseType() const
@@ -503,7 +499,7 @@ struct GenericType: public Type // ### implement me
 
 struct AliasType: public Type // ### implement me
 {
-    AliasType (pool *)
+    AliasType ()
         :m_parent(0) {}
     virtual QByteArray name() const
     {  return m_name;  }
@@ -519,7 +515,7 @@ private:
 
 struct FunctionMember: public Member
 {
-    FunctionMember(pool *p);
+    FunctionMember();
 
     Type *returnType() const
     { return m_returnType; }
@@ -575,7 +571,7 @@ private:
 
 struct VariableMember: public Member
 {
-    VariableMember(pool *) {}
+    VariableMember() {}
 
     Type *type() const
     { return m_type; }
@@ -592,7 +588,7 @@ private:
 
 struct UsingDirectiveMember: public Member
 {
-    UsingDirectiveMember(pool *) {}
+    UsingDirectiveMember() {}
 
     virtual UsingDirectiveMember *toUsingDirectiveMember() const
     { return const_cast<UsingDirectiveMember*>(this); }
@@ -609,7 +605,7 @@ private:
 
 struct UsingDeclarationMember: public Member
 {
-    UsingDeclarationMember(pool *) {}
+    UsingDeclarationMember() {}
 
     virtual UsingDeclarationMember *toUsingDeclarationMember() const
     { return const_cast<UsingDeclarationMember*>(this); }
@@ -626,7 +622,7 @@ private:
 
 struct TypeMember: public Member
 {
-    TypeMember(pool *) {}
+    TypeMember() {}
 
      virtual TypeMember *toTypeMember() const
     { return const_cast<TypeMember*>(this); }
@@ -643,7 +639,7 @@ private:
 
 struct Argument: public Item
 {
-    Argument(pool *)
+    Argument()
         :  m_type(0) {}
 
     Type *type() const
@@ -673,8 +669,8 @@ private:
 
 struct NameUse: public Item
 {
-    NameUse(pool *)
-        :  m_declaration(0), m_parent(0) {}
+    NameUse()
+        :  m_declaration(0) {}
 
     QByteArray name() const
     { return m_name; }
@@ -702,9 +698,8 @@ private:
 
 struct ScopeCollection: public ItemCollection
 {
-    ScopeCollection(Scope *parent, pool *p)
-        : m_parent(parent),
-          m_scope(p) {}
+    ScopeCollection(Scope *parent)
+        : m_parent(parent) {}
 
     virtual Scope *parent() const
     { return m_parent; }
@@ -720,13 +715,13 @@ struct ScopeCollection: public ItemCollection
 
 protected:
     Scope *m_parent;
-    List<Scope*> m_scope;
+    QList<Scope*> m_scope;
 };
 
 struct ScopeCollectionBuilder: public ScopeCollection
 {
-    ScopeCollectionBuilder(Scope *parent, pool *p)
-        : ScopeCollection(parent, p) {}
+    ScopeCollectionBuilder(Scope *parent)
+        : ScopeCollection(parent) {}
 
     void add(Scope *scope)
     { m_scope.append(scope); }
@@ -734,9 +729,8 @@ struct ScopeCollectionBuilder: public ScopeCollection
 
 struct MemberCollection: public ItemCollection
 {
-    MemberCollection(Scope *parent, pool *p)
-        : m_parent(parent),
-          m_member(p) {}
+    MemberCollection(Scope *parent)
+        : m_parent(parent) {}
 
     virtual Scope *parent() const
     { return m_parent; }
@@ -752,13 +746,13 @@ struct MemberCollection: public ItemCollection
 
 protected:
     Scope *m_parent;
-    List<Member*> m_member;
+    QList<Member*> m_member;
 };
 
 struct MemberCollectionBuilder: public MemberCollection
 {
-    MemberCollectionBuilder(Scope *parent, pool *p)
-        : MemberCollection(parent, p) {}
+    MemberCollectionBuilder(Scope *parent)
+        : MemberCollection(parent) {}
 
     void add(Member *member)
     { m_member.append(member); }
@@ -766,9 +760,8 @@ struct MemberCollectionBuilder: public MemberCollection
 
 struct ArgumentCollection: public ItemCollection
 {
-    ArgumentCollection(FunctionMember *parent, pool *p)
-        : m_parent(parent),
-          m_argument(p) {}
+    ArgumentCollection(FunctionMember *parent)
+        : m_parent(parent) {}
 
     virtual FunctionMember *parent() const
     { return m_parent; }
@@ -784,13 +777,13 @@ struct ArgumentCollection: public ItemCollection
 
 protected:
     FunctionMember *m_parent;
-    List<Argument*> m_argument;
+    QList<Argument*> m_argument;
 };
 
 struct ArgumentCollectionBuilder: public ArgumentCollection
 {
-    ArgumentCollectionBuilder(FunctionMember *parent, pool *p)
-        : ArgumentCollection(parent, p) {}
+    ArgumentCollectionBuilder(FunctionMember *parent)
+        : ArgumentCollection(parent) {}
 
     void add(Argument *argument)
     { m_argument.append(argument); }
@@ -798,9 +791,8 @@ struct ArgumentCollectionBuilder: public ArgumentCollection
 
 struct TypeCollection: public ItemCollection
 {
-    TypeCollection(Scope *parent, pool *p)
-        : m_parent(parent),
-          m_type(p) {}
+    TypeCollection(Scope *parent)
+        : m_parent(parent) {}
 
     virtual Scope *parent() const
     { return m_parent; }
@@ -816,13 +808,13 @@ struct TypeCollection: public ItemCollection
 
 protected:
     Scope *m_parent;
-    List<Type*> m_type;
+    QList<Type*> m_type;
 };
 
 struct TypeCollectionBuilder: public TypeCollection
 {
-    TypeCollectionBuilder(Scope *parent, pool *p)
-        : TypeCollection(parent, p) {}
+    TypeCollectionBuilder(Scope *parent)
+        : TypeCollection(parent) {}
 
     void add(Type *type)
     { m_type.append(type); }
@@ -831,9 +823,8 @@ struct TypeCollectionBuilder: public TypeCollection
 
 struct NameUseCollection: public ItemCollection
 {
-    NameUseCollection(Scope *parent, pool *p)
-        : m_parent(parent),
-          m_nameUse(p) {}
+    NameUseCollection(Scope *parent)
+        : m_parent(parent) {}
 
     virtual Scope *parent() const
     { return m_parent; }
@@ -849,22 +840,22 @@ struct NameUseCollection: public ItemCollection
 
 protected:
     Scope *m_parent;
-    List<NameUse*> m_nameUse;
+    QList<NameUse*> m_nameUse;
 };
 
 struct NameUseCollectionBuilder: public NameUseCollection
 {
-    NameUseCollectionBuilder(Scope *parent, pool *p)
-        : NameUseCollection(parent, p) {}
+    NameUseCollectionBuilder(Scope *parent)
+        : NameUseCollection(parent) {}
 
     void add(NameUse *nameUse)
     { m_nameUse.append(nameUse); }
 };
 
 template <class T>
-T *Create(pool *p)
+T *Create(TypedPool<CodeModel::Item> *p)
 {
-    return new (p->allocate(sizeof(T))) T(p);
+    return new (p->allocate(sizeof(T))) T();
 }
 
 } // namespace CodeModel

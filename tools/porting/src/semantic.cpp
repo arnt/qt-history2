@@ -16,7 +16,6 @@
 #include <QRegExp>
 
 #include "semantic.h"
-#include "lexer.h"
 #include "smallobject.h"
 #include "tokenengine.h"
 
@@ -152,9 +151,13 @@ QList<CodeModel::Member *> Semantic::qualifiedNameLookup(CodeModel::Scope *baseS
 //looks up a name in a scope, includes base classes if scope is a class scope
 QList<CodeModel::Member *> Semantic::lookupNameInScope(CodeModel::Scope *scope, const NameAST* name)
 {
+    QList<CodeModel::Member *> entities;
+
+    if(!scope || !name)
+        return entities;
 
     QByteArray nameText = textOf(name->unqualifiedName()->name());
-    QList<CodeModel::Member *> entities;
+
 
     //look up name in members of current scope
     CodeModel::MemberCollection *members = scope->members();
@@ -266,8 +269,7 @@ FunctionMember *Semantic::functionLookup(CodeModel::Scope *baseScope,
 FunctionMember *Semantic::selectFunction(QList<CodeModel::Member*> candidatateList, const DeclaratorAST *functionDeclarator)
 {
     // get arguments for funciton we are looking for
-    pool localStorage;
-    FunctionMember testFunction(&localStorage);
+    FunctionMember testFunction;
     parseFunctionArguments(functionDeclarator, &testFunction);
     ArgumentCollection *testArgumentCollection = testFunction.arguments();
     if(!testArgumentCollection)
@@ -328,7 +330,7 @@ QByteArray Semantic::textOf(AST *node) const
 }
 
 CodeModel::SemanticInfo Semantic::parseTranslationUnit(TranslationUnitAST *node,
-            TokenStreamAdapter::TokenStream *tokenStream, pool *storage)
+            TokenStreamAdapter::TokenStream *tokenStream, TypedPool<CodeModel::Item> *storage)
 {
     m_storage = storage;
     m_tokenStream =tokenStream;
@@ -339,6 +341,7 @@ CodeModel::SemanticInfo Semantic::parseTranslationUnit(TranslationUnitAST *node,
     m_inTypedef = false;
     m_anon = 0;
     m_imports.clear();
+    m_nameUses.clear();
 
     NamespaceScope *globalScope = CodeModel::Create<NamespaceScope>(m_storage);
     globalScope->setName("::");
@@ -357,6 +360,8 @@ CodeModel::SemanticInfo Semantic::parseTranslationUnit(TranslationUnitAST *node,
 
 void Semantic::parseLinkageSpecification(LinkageSpecificationAST *ast)
 {
+    if(!ast)
+        return;
     int inStorageSpec = m_inStorageSpec;
     m_inStorageSpec = true;
     TreeWalker::parseLinkageSpecification(ast);
@@ -498,13 +503,18 @@ void Semantic::parseDeclaration(AST *funSpec, AST *storageSpec, TypeSpecifierAST
     if (m_inStorageSpec)
             return;
 
-    DeclaratorAST *d = decl->declarator();
+    if(!decl)
+        return;
 
+    DeclaratorAST *d = decl->declarator();
     if (!d)
         return;
 
     if (!d->subDeclarator() && d->parameterDeclarationClause())
         return parseFunctionDeclaration(funSpec, storageSpec, typeSpec, decl);
+
+    if(!typeSpec || !typeSpec->name())
+        return;
 
     DeclaratorAST *t = d;
     while (t && t->subDeclarator())
@@ -517,7 +527,6 @@ void Semantic::parseDeclaration(AST *funSpec, AST *storageSpec, TypeSpecifierAST
  //   printf("parseDeclaration: %s\n", id.latin1());
 
     if (!scopeOfDeclarator(d, QList<QByteArray>()).isEmpty()){
-        qDebug() << "skip declaration" << endl;
         return;
     }
 
@@ -529,6 +538,7 @@ void Semantic::parseDeclaration(AST *funSpec, AST *storageSpec, TypeSpecifierAST
     currentScope.top()->addMember(variableMember);
 
     //look up type of variableMember,
+
     TypeMember *typeMember = typeLookup(currentScope.top(), typeSpec->name());
     if(typeMember) {
         variableMember->setType(typeMember->type());
@@ -540,22 +550,9 @@ void Semantic::parseDeclaration(AST *funSpec, AST *storageSpec, TypeSpecifierAST
         variableMember->setType(type);
     }
 
-    parseNode(decl->initializer());
+    if (decl)
+        parseNode(decl->initializer());
 
-    bool isFriend = false;
-    //bool isVirtual = false;
-    bool isStatic = false;
-    //bool isInline = false;
-    //bool isInitialized = decl->initializer() != 0;
-
-    if (storageSpec){
-        List<AST*> l = *storageSpec->children();
-        foreach (AST *current, l) {
-            QByteArray text = textOf(current);
-            if (text == "friend") isFriend = true;
-            else if (text == "static") isStatic = true;
-        }
-    }
 }
 
 void Semantic::parseFunctionDeclaration(AST *funSpec, AST *storageSpec,
@@ -618,6 +615,10 @@ void Semantic::parseFunctionDeclaration(AST *funSpec, AST *storageSpec,
 
 void Semantic::parseBaseClause(BaseClauseAST * baseClause, CodeModel::ClassScope *klass)
 {
+    if(!baseClause)
+        return;
+    if(!klass)
+        return;
     List<BaseSpecifierAST*> l = *baseClause->baseSpecifierList();
     foreach (BaseSpecifierAST *baseSpecifier, l) {
         QByteArray baseName;
@@ -638,6 +639,9 @@ void Semantic::parseBaseClause(BaseClauseAST * baseClause, CodeModel::ClassScope
 }
 void Semantic::parseFunctionArguments(const DeclaratorAST *declarator, CodeModel::FunctionMember *method)
 {
+    if(!declarator || !method)
+        return;
+
     ParameterDeclarationClauseAST *clause = declarator->parameterDeclarationClause();
 
     if (clause && clause->parameterDeclarationList()){
@@ -722,6 +726,8 @@ QList<QByteArray> Semantic::scopeOfName(NameAST *id, const QList<QByteArray>& st
 
 QList<QByteArray> Semantic::scopeOfDeclarator(DeclaratorAST *d, const QList<QByteArray>& startScope)
 {
+    if(!d)
+        return QList<QByteArray>();
     return scopeOfName(d->declaratorId(), startScope);
 }
 
@@ -755,10 +761,10 @@ void Semantic::parseUsing(UsingAST *ast)
 
 void Semantic::parseUsingDirective(UsingDirectiveAST *ast)
 {
-    cout << "parse using directive" << endl;
+  //  cout << "parse using directive" << endl;
 
     QByteArray name = textOf(ast->name()->unqualifiedName());
-    cout << "I'm going to use: " << name.constData() << endl;
+ //   cout << "I'm going to use: " << name.constData() << endl;
 }
 
 
@@ -827,6 +833,8 @@ void Semantic::parseFunctionDefinition(FunctionDefinitionAST *ast)
 
 void Semantic::parseStatementList(StatementListAST *list)
 {
+    if(!list)
+        return;
     CodeModel::BlockScope *blockScope = CodeModel::Create<CodeModel::BlockScope>(m_storage);
     blockScope->setName("__QT_ANON_BLOCK_SCOPE");
     blockScope->setParent(currentScope.top());
@@ -839,6 +847,8 @@ void Semantic::parseStatementList(StatementListAST *list)
 
 void Semantic::parseExpression(AbstractExpressionAST* node)
 {
+    if(!node)
+        return;
     if(node->nodeType() == NodeType_ClassMemberAccess)
         parseClassMemberAccess(static_cast<ClassMemberAccessAST *>(node));
     else
@@ -854,8 +864,12 @@ void Semantic::parseExpression(AbstractExpressionAST* node)
 */
 void Semantic::parseClassMemberAccess(ClassMemberAccessAST *node)
 {
+    if(!node)
+        return;
     parseExpression(node->expression());
     NameUse *nameUse = findNameUse(node->expression());
+    if(!nameUse)
+        return;
     if(    nameUse
         && nameUse->declaration()
         && nameUse->declaration()->toVariableMember()
@@ -881,6 +895,8 @@ void Semantic::parseExpressionStatement(ExpressionStatementAST *node)
 */
 void Semantic::parseNameUse(NameAST* name)
 {
+    if(!name)
+        return;
     if(currentScope.isEmpty()) {
         emit error("Error in Semantic::parseUsing: no current Scope");
         return;
@@ -939,7 +955,7 @@ NameUse *Semantic::findNameUse(AST *node)
     }
 
     for (int t = node->startToken(); t < node->endToken(); ++t) {
-        cout << t <<" |" <<m_tokenStream->tokenText(t).constData() << "|" << endl;
+ //       cout << t <<" |" <<m_tokenStream->tokenText(t).constData() << "|" << endl;
         if (m_nameUses.contains(t))
             return m_nameUses.value(t);
     }
@@ -979,13 +995,14 @@ void Semantic::parseEnumSpecifier(EnumSpecifierAST *ast)
         attr->setAccess(m_currentAccess);
         attr->setStatic(true);
 
-        attr->setType(CodeModel::BuiltinType::Int);
+        attr->setType(&CodeModel::BuiltinType::Int);
         currentScope.top()->addMember(attr);
     }
 }
 
 void Semantic::parseTypedef(TypedefAST *ast)
 {
+
 #if 0
     DeclaratorAST *oldDeclarator = m_currentDeclarator;
 
