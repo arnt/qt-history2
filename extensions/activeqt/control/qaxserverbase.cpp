@@ -46,11 +46,7 @@
 GUID IID_IAxServerBase = { 0xbd2ec165, 0xdfc9, 0x4319, { 0x8b, 0x9b, 0x60, 0xa5, 0x74, 0x78, 0xe9, 0xe3} };
 extern ITypeLib *typeLibrary;
 
-/*!
-    \class QAxServerBase qaxserverbase.cpp
-    \internal
-*/
-class QAxServerBase : 
+class QAxServerBase :
     public QObject,
     public IAxServerBase,
     public IDispatch,
@@ -78,7 +74,7 @@ public:
 
 // Window creation
     HWND Create(HWND hWndParent, RECT& rcPos );
-    
+
     static LRESULT CALLBACK StartWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 // IUnknown
@@ -149,7 +145,7 @@ public:
     STDMETHOD(Update)();
 
 // IViewObject
-    STDMETHOD(Draw)( DWORD dwAspect, LONG lIndex, void *pvAspect, DVTARGETDEVICE *ptd, 
+    STDMETHOD(Draw)( DWORD dwAspect, LONG lIndex, void *pvAspect, DVTARGETDEVICE *ptd,
 		    HDC hicTargetDevice, HDC hdcDraw, LPCRECTL lprcBounds, LPCRECTL lprcWBounds,
 		    BOOL(__stdcall*pfnContinue)(DWORD), DWORD dwContinue );
     STDMETHOD(GetColorSet)( DWORD dwDrawAspect, LONG lindex, void *pvAspect, DVTARGETDEVICE *ptd,
@@ -194,7 +190,7 @@ public:
     STDMETHOD(FindConnectionPoint)(REFIID, IConnectionPoint**);
 
 // IPersist
-    STDMETHOD(GetClassID)(GUID*clsid) 
+    STDMETHOD(GetClassID)(GUID*clsid)
     {
 	*clsid = _Module.factory()->classID( class_name );
 	return S_OK;
@@ -240,7 +236,7 @@ public:
     bool eventFilter( QObject *o, QEvent *e );
 private:
     void update();
-    void updateGeometry();    
+    void updateGeometry();
     bool internalCreate();
     HRESULT internalActivate();
 
@@ -300,8 +296,8 @@ private:
 class QAxSignalVec : public IEnumConnectionPoints
 {
 public:
-    QAxSignalVec( const QAxServerBase::ConnectionPoints &points ) 
-	: cpoints( points ), ref(0) 
+    QAxSignalVec( const QAxServerBase::ConnectionPoints &points )
+	: cpoints( points ), ref(0)
     {
     }
     QAxSignalVec( const QAxSignalVec &old )
@@ -317,9 +313,9 @@ public:
 	for ( QAxServerBase::ConnectionPointsIterator i = cpoints.begin(); i != cpoints.end(); ++i )
 	    (*i)->Release();
     }
-    unsigned long __stdcall AddRef() 
-    { 
-	return ref++; 
+    unsigned long __stdcall AddRef()
+    {
+	return ref++;
     }
     unsigned long __stdcall Release()
     {
@@ -416,9 +412,9 @@ public:
 	}
     }
 
-    unsigned long __stdcall AddRef() 
-    { 
-	return ref++; 
+    unsigned long __stdcall AddRef()
+    {
+	return ref++;
     }
     unsigned long __stdcall Release()
     {
@@ -604,7 +600,7 @@ public:
 	    (void)new QApplication( argc, 0 );
 	    hhook = SetWindowsHookEx( WH_GETMESSAGE, FilterProc, 0, GetCurrentThreadId() );
 	}
-	
+
 	// Create the ActiveX wrapper
 	QAxServerBase *activeqt = new QAxServerBase( className );
 	return activeqt->QueryInterface( iid, ppObject );
@@ -642,13 +638,14 @@ HRESULT WINAPI GetClassObject( void *pv, REFIID iid, void **ppUnk )
 */
 
 /*!
-    Constructs a QAxServerBase object wrapping the QWidget \a classname into an ActiveX control.
+    Constructs a QAxServerBase object wrapping the QWidget \a
+    classname into an ActiveX control.
 
-    The constructor is called by the QClassFactory object provided by the COM server for the
-    respective CLSID.
+    The constructor is called by the QClassFactory object provided by
+    the COM server for the respective CLSID.
 */
 QAxServerBase::QAxServerBase( const QString &classname )
-: activeqt( 0 ), ref( 0 ), class_name( classname ), slotlist(0), signallist(0),proplist(0), 
+: activeqt( 0 ), ref( 0 ), class_name( classname ), slotlist(0), signallist(0),proplist(0),
   proplist2(0), propPageSite( 0 ), propPage( 0 ), m_hWnd(0), m_hWndCD( m_hWnd )
 {
     m_bWindowOnly	= TRUE;
@@ -681,7 +678,8 @@ QAxServerBase::QAxServerBase( const QString &classname )
 }
 
 /*!
-    Destroys the QAxServerBase object, releasing all allocated resources and interfaces.
+    Destroys the QAxServerBase object, releasing all allocated
+    resources and interfaces.
 */
 QAxServerBase::~QAxServerBase()
 {
@@ -715,43 +713,43 @@ HRESULT WINAPI QAxServerBase::QueryInterface( REFIID iid, void **iface )
 	    aqt->queryInterface( iid, iface );
 	}
     }
-    
+
     if ( *iface )
 	return S_OK;
 
-    if ( iid == IID_IUnknown) 
+    if ( iid == IID_IUnknown)
 	*iface = (IUnknown*)(IDispatch*)this;
-    else if ( iid == IID_IDispatch) 
+    else if ( iid == IID_IDispatch)
 	*iface = (IDispatch*)this;
-    else if ( iid == IID_IAxServerBase) 
+    else if ( iid == IID_IAxServerBase)
 	*iface = (IAxServerBase*)this;
-    else if ( iid == IID_IOleObject) 
+    else if ( iid == IID_IOleObject)
 	*iface = (IOleObject*)this;
-    else if ( iid == IID_IViewObject) 
+    else if ( iid == IID_IViewObject)
 	*iface = (IViewObject*)this;
-    else if ( iid == IID_IViewObject2) 
+    else if ( iid == IID_IViewObject2)
 	*iface = (IViewObject2*)this;
 #ifdef QAX_VIEWOBJECTEX
-    else if ( iid == IID_IViewObjectEx) 
+    else if ( iid == IID_IViewObjectEx)
 	*iface = (IViewObjectEx*)this;
 #endif
-    else if ( iid == IID_IOleControl) 
+    else if ( iid == IID_IOleControl)
 	*iface = (IOleControl*)this;
-    else if ( iid == IID_IOleWindow) 
+    else if ( iid == IID_IOleWindow)
 	*iface = (IOleWindow*)this;
-    else if ( iid == IID_IOleInPlaceObject) 
+    else if ( iid == IID_IOleInPlaceObject)
 	*iface = (IOleInPlaceObject*)this;
-    else if ( iid == IID_IConnectionPointContainer) 
+    else if ( iid == IID_IConnectionPointContainer)
 	*iface = (IConnectionPointContainer*)this;
-    else if ( iid == IID_IProvideClassInfo) 
+    else if ( iid == IID_IProvideClassInfo)
 	*iface = (IProvideClassInfo*)this;
-    else if ( iid == IID_IProvideClassInfo2) 
+    else if ( iid == IID_IProvideClassInfo2)
 	*iface = (IProvideClassInfo2*)this;
-    else if ( iid == IID_IPersistPropertyBag) 
+    else if ( iid == IID_IPersistPropertyBag)
 	*iface = (IPersistPropertyBag*)this;
-    else if ( iid == IID_ISpecifyPropertyPages) 
+    else if ( iid == IID_ISpecifyPropertyPages)
 	*iface = (ISpecifyPropertyPages*)this;
-    else if ( iid == IID_IPropertyPage) 
+    else if ( iid == IID_IPropertyPage)
 	*iface = (IPropertyPage*)this;
     else if ( iid == IID_IPropertyPage2)
 	*iface = (IPropertyPage2*)this;
@@ -823,8 +821,8 @@ static QPtrDict<QAxServerBase> *axServerMapper()
     return ax_ServerMapper;
 }
 
-/*!
-    Message handler. \a hWnd is always the ActiveX widget hosting the Qt widget. 
+/*
+    Message handler. \a hWnd is always the ActiveX widget hosting the Qt widget.
     \a uMsg is handled as follows
     \list
     \i WM_CREATE The ActiveX control is created
@@ -854,7 +852,7 @@ LRESULT CALLBACK QAxServerBase::StartWindowProc(HWND hWnd, UINT uMsg, WPARAM wPa
     if ( !that )
 	return ::DefWindowProc( hWnd, uMsg, wParam, lParam );
 
-    switch ( uMsg ) 
+    switch ( uMsg )
     {
     case WM_NCDESTROY:
 	that->m_hWnd = 0;
@@ -966,21 +964,21 @@ HWND QAxServerBase::Create(HWND hWndParent, RECT& rcPos )
     ::LeaveCriticalSection(&_Module.m_csWindowCreate);
     if ( !atom )
 	return 0;
-    
+
     ATLASSERT(m_hWnd == NULL);
 
     HWND hWnd = 0;
 #ifdef UNICODE
     if ( qWinVersion() & Qt::WV_NT_based )
 	hWnd = ::CreateWindowW( (TCHAR*)MAKELONG(atom, 0), 0,
-	    WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS, 
+	    WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
 	    rcPos.left, rcPos.top, rcPos.right - rcPos.left,
 	    rcPos.bottom - rcPos.top, hWndParent, 0,
 	    _Module.GetModuleInstance(), this );
     else
 #endif
 	hWnd = ::CreateWindowA( (char*)MAKELONG(atom, 0), 0,
-	    WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS, 
+	    WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
 	    rcPos.left, rcPos.top, rcPos.right - rcPos.left,
 	    rcPos.bottom - rcPos.top, hWndParent, 0,
 	    _Module.GetModuleInstance(), this );
@@ -1051,7 +1049,7 @@ void QAxServerBase::readMetaData()
 			    }
 			}
 			info->ReleaseTypeAttr( typeattr );
-		    }		
+		    }
 		}
 		if ( eventinfo ) {
 		    for ( int isignal = mo->numSignals( TRUE )-1; isignal >= 0; --isignal ) {
@@ -1136,7 +1134,7 @@ void QAxServerBase::updateGeometry()
 /*!
     Catches all signals emitted by the Qt widget and fires the respective COM event.
 
-    \a isignal is the Qt Meta Object index of the received signal, and \a _o the 
+    \a isignal is the Qt Meta Object index of the received signal, and \a _o the
     signal parameters.
 */
 bool QAxServerBase::qt_emit( int isignal, QUObject* _o )
@@ -1158,7 +1156,7 @@ bool QAxServerBase::qt_emit( int isignal, QUObject* _o )
 	case DISPID_KEYDOWN:
 	case DISPID_KEYUP:
 	    signalcount = 2;
-	    break;	
+	    break;
 	case DISPID_KEYPRESS:
 	    signalcount = 1;
 	    break;
@@ -1214,7 +1212,7 @@ bool QAxServerBase::qt_emit( int isignal, QUObject* _o )
 		    if ( c->pUnk ) {
 			CComPtr<IDispatch> disp;
 			c->pUnk->QueryInterface( IID_QAxEvents, (void**)&disp );
-			if ( disp ) 
+			if ( disp )
 			    disp->Invoke( eventId, IID_NULL, LOCALE_USER_DEFAULT, DISPATCH_METHOD, &dispParams, 0, 0, &argErr );
 			c->pUnk->Release(); // AddRef'ed by clist->Next implementation
 		    }
@@ -1270,7 +1268,7 @@ bool QAxServerBase::emitRequestPropertyChange( long dispId )
 }
 
 /*!
-    Call IPropertyNotifySink of connected clients. 
+    Call IPropertyNotifySink of connected clients.
     \a dispId specifies the ID of the property that changed.
 */
 void QAxServerBase::emitPropertyChanged( long dispId )
@@ -1324,7 +1322,7 @@ HRESULT QAxServerBase::GetGUID(DWORD dwGuidKind, GUID* pGUID)
 {
     if ( !pGUID )
 	return E_POINTER;
-    
+
     if ( dwGuidKind == GUIDKIND_DEFAULT_SOURCE_DISP_IID ) {
 	*pGUID = _Module.factory()->eventsID( class_name );
 	return S_OK;
@@ -1381,7 +1379,7 @@ HRESULT QAxServerBase::GetIDsOfNames(REFIID riid, LPOLESTR* rgszNames, UINT cNam
 	return DISP_E_UNKNOWNNAME;
 
     if ( !m_spTypeInfo )
-	typeLibrary->GetTypeInfoOfGuid( _Module.factory()->interfaceID( class_name ), &m_spTypeInfo );	
+	typeLibrary->GetTypeInfoOfGuid( _Module.factory()->interfaceID( class_name ), &m_spTypeInfo );
 
     return m_spTypeInfo->GetIDsOfNames( rgszNames, cNames, rgdispid );
 }
@@ -1453,7 +1451,7 @@ HRESULT QAxServerBase::Invoke( DISPID dispidMember, REFIID riid,
 		return DISP_E_MEMBERNOTFOUND;
 	    if ( !pDispParams->cArgs )
 		return DISP_E_PARAMNOTOPTIONAL;
-	    if ( pDispParams->cArgs != 1 || 
+	    if ( pDispParams->cArgs != 1 ||
 		 pDispParams->cNamedArgs != 1 ||
 		 *pDispParams->rgdispidNamedArgs != DISPID_PROPERTYPUT )
 		return DISP_E_BADPARAMCOUNT;
@@ -1483,7 +1481,7 @@ HRESULT QAxServerBase::Invoke( DISPID dispidMember, REFIID riid,
 		break;
 	    if ( !pvarResult )
 		return DISP_E_PARAMNOTOPTIONAL;
-	    if ( pDispParams->cArgs || 
+	    if ( pDispParams->cArgs ||
 		 pDispParams->cNamedArgs )
 		return DISP_E_BADPARAMCOUNT;
 
@@ -1645,10 +1643,10 @@ class HackPainter : public QPainter
     friend class QAxServerBase;
 };
 
-/*!
+/*
     Draws the widget into the provided device context.
 */
-HRESULT QAxServerBase::Draw( DWORD dwAspect, LONG lindex, void *pvAspect, DVTARGETDEVICE *ptd, 
+HRESULT QAxServerBase::Draw( DWORD dwAspect, LONG lindex, void *pvAspect, DVTARGETDEVICE *ptd,
 		HDC hicTargetDev, HDC hdcDraw, LPCRECTL lprcBounds, LPCRECTL lprcWBounds,
 		BOOL(__stdcall* /*pfnContinue*/)(DWORD), DWORD /*dwContinue*/ )
 {
@@ -1696,7 +1694,7 @@ HRESULT QAxServerBase::Draw( DWORD dwAspect, LONG lindex, void *pvAspect, DVTARG
 	((HackPainter*)&painter)->hdc = hdcDraw;
 
 	painter.drawText( rc.left, rc.top, "I don't know how to draw myself!" );
-	
+
 	((HackPainter*)&painter)->hdc = oldDC;
     }
 
@@ -1890,8 +1888,8 @@ HRESULT QAxServerBase::OnAmbientPropertyChange( DISPID dispID )
 	    else
 		break;
 	    QPalette pal = activeqt->palette();
-	    pal.setColor( dispID == DISPID_AMBIENT_BACKCOLOR ? QColorGroup::Background : QColorGroup::Foreground, 
-		OLEColorToQColor( rgb ) );		
+	    pal.setColor( dispID == DISPID_AMBIENT_BACKCOLOR ? QColorGroup::Background : QColorGroup::Foreground,
+		OLEColorToQColor( rgb ) );
 	    activeqt->setPalette( pal );
 	}
 	break;
@@ -1987,9 +1985,9 @@ HRESULT QAxServerBase::InPlaceDeactivate()
     if ( !m_bInPlaceActive )
 	return S_OK;
     UIDeactivate();
-    
+
     m_bInPlaceActive = FALSE;
-    
+
     // if we have a window, tell it to go away.
     //
     if (m_hWndCD) {
@@ -1997,7 +1995,7 @@ HRESULT QAxServerBase::InPlaceDeactivate()
 	    ::DestroyWindow(m_hWndCD);
 	m_hWndCD = 0;
     }
-    
+
     if (m_spInPlaceSite)
 	m_spInPlaceSite->OnInPlaceDeactivate();
 
@@ -2012,17 +2010,17 @@ HRESULT QAxServerBase::UIDeactivate()
     // if we're not UIActive, not much to do.
     if (!m_bUIActive)
 	return S_OK;
-    
+
     m_bUIActive = FALSE;
-    
+
     // notify frame windows, if appropriate, that we're no longer ui-active.
     CComPtr<IOleInPlaceFrame> spInPlaceFrame;
     CComPtr<IOleInPlaceUIWindow> spInPlaceUIWindow;
     OLEINPLACEFRAMEINFO frameInfo;
     frameInfo.cb = sizeof(OLEINPLACEFRAMEINFO);
     RECT rcPos, rcClip;
-    
-    HWND hwndParent; 
+
+    HWND hwndParent;
     // This call to GetWindow is a fix for Delphi
     if (m_spInPlaceSite->GetWindow(&hwndParent) == S_OK) {
 	m_spInPlaceSite->GetWindowContext(&spInPlaceFrame,
@@ -2035,7 +2033,7 @@ HRESULT QAxServerBase::UIDeactivate()
     // we don't need to explicitly release the focus here since somebody
     // else grabbing the focus is what is likely to cause us to get lose it
     m_spInPlaceSite->OnUIDeactivate(FALSE);
-    
+
     return S_OK;
 }
 
@@ -2046,7 +2044,7 @@ HRESULT QAxServerBase::SetObjectRects(LPCRECT prcPos, LPCRECT prcClip)
 {
     if ( prcPos == 0 || prcClip == 0 )
 	return E_POINTER;
-    
+
     m_rcPos = *prcPos;
     if (m_hWndCD) {
 	// the container wants us to clip, so figure out if we really need to
@@ -2057,13 +2055,13 @@ HRESULT QAxServerBase::SetObjectRects(LPCRECT prcPos, LPCRECT prcClip)
 	    OffsetRect(&rcIXect, -(prcPos->left), -(prcPos->top));
 	    tempRgn = CreateRectRgnIndirect(&rcIXect);
 	}
-	
+
 	::SetWindowRgn(m_hWndCD, tempRgn, TRUE);
 	::SetWindowPos(m_hWndCD, 0, prcPos->left,
-	    prcPos->top, prcPos->right - prcPos->left, prcPos->bottom - prcPos->top, 
+	    prcPos->top, prcPos->right - prcPos->left, prcPos->bottom - prcPos->top,
 	    SWP_NOZORDER | SWP_NOACTIVATE);
     }
-    
+
     return S_OK;
 }
 
@@ -2174,14 +2172,14 @@ HRESULT QAxServerBase::Close( DWORD dwSaveOption )
 HRESULT QAxServerBase::internalActivate()
 {
     HRESULT hr;
-    
+
     if ( !m_spClientSite )
 	return S_OK;
-    
+
     if (!m_bNegotiatedWnd) {
 	if (!m_bWindowOnly) // Try for windowless site
 	    hr = m_spClientSite->QueryInterface(IID_IOleInPlaceSiteWindowless, (void **)&m_spInPlaceSite);
-	
+
 	if (m_spInPlaceSite) {
 	    m_bInPlaceSiteEx = TRUE;
 	    // CanWindowlessActivate returns S_OK or S_FALSE
@@ -2199,12 +2197,12 @@ HRESULT QAxServerBase::internalActivate()
 		hr = m_spClientSite->QueryInterface(IID_IOleInPlaceSite, (void **)&m_spInPlaceSite);
 	}
     }
-    
+
     if (!m_spInPlaceSite)
 	return E_FAIL;
-    
+
     m_bNegotiatedWnd = TRUE;
-    
+
     if (!m_bInPlaceActive) {
 	BOOL bNoRedraw = FALSE;
 	if (m_bWndLess) {
@@ -2222,9 +2220,9 @@ HRESULT QAxServerBase::internalActivate()
 	    }
 	}
     }
-    
+
     m_bInPlaceActive = TRUE;
-    
+
     // get location in the parent window,
     // as well as some information about the parent
     OLEINPLACEFRAMEINFO frameInfo;
@@ -2236,7 +2234,7 @@ HRESULT QAxServerBase::internalActivate()
     if (m_spInPlaceSite->GetWindow(&hwndParent) == S_OK) {
 	m_spInPlaceSite->GetWindowContext(&spInPlaceFrame,
 	    &spInPlaceUIWindow, &rcPos, &rcClip, &frameInfo);
-	
+
 	if (!m_bWndLess) {
 	    if (m_hWndCD) {
 		::ShowWindow(m_hWndCD, SW_SHOW);
@@ -2246,17 +2244,17 @@ HRESULT QAxServerBase::internalActivate()
 		Create(hwndParent, rcPos);
 	    }
 	}
-	
+
 	SetObjectRects(&rcPos, &rcClip);
     }
-    
+
     // Gone active by now, take care of UIACTIVATE
     if (!m_bUIActive) {
 	m_bUIActive = TRUE;
 	hr = m_spInPlaceSite->OnUIActivate();
 	if (FAILED(hr))
 	    return hr;
-	
+
 	if ( m_bInPlaceActive ) {
 	    HWND hwnd = m_hWndCD;
 	    if ( !m_bUIActive )
@@ -2264,22 +2262,22 @@ HRESULT QAxServerBase::internalActivate()
 	    else if ( !::IsChild( hwnd, ::GetFocus() ) )
 		::SetFocus( hwnd );
 	}
-	
+
 	if (spInPlaceFrame)
 	    spInPlaceFrame->SetBorderSpace(0);
 	if (spInPlaceUIWindow)
 	    spInPlaceUIWindow->SetBorderSpace(0);
     }
-    
+
     m_spClientSite->ShowObject();
-    
+
     return S_OK;
 }
 
 /*!
     Executes the "verb" \a iVerb.
 */
-HRESULT QAxServerBase::DoVerb( LONG iVerb, LPMSG /*lpmsg*/, IOleClientSite* /*pActiveSite*/, LONG /*lindex*/, 
+HRESULT QAxServerBase::DoVerb( LONG iVerb, LPMSG /*lpmsg*/, IOleClientSite* /*pActiveSite*/, LONG /*lindex*/,
 			       HWND /*hwndParent*/, LPCRECT /*prcPosRect*/ )
 {
     HRESULT hr = E_NOTIMPL;
@@ -2440,7 +2438,7 @@ HRESULT QAxServerBase::SetExtent( DWORD dwDrawAspect, SIZEL* psizel )
 	return DV_E_DVASPECT;
     if ( !psizel )
 	return E_POINTER;
-    
+
     QSize minSizeHint = activeqt->minimumSizeHint();
     if ( minSizeHint.isValid() ) {
 	QPaintDeviceMetrics pmetric( activeqt );
@@ -2452,7 +2450,7 @@ HRESULT QAxServerBase::SetExtent( DWORD dwDrawAspect, SIZEL* psizel )
 	if ( minSize.cx > psizel->cx || minSize.cy > psizel->cy )
 	    return E_FAIL;
     }
-    
+
     BOOL bResized = FALSE;
     if ( psizel->cx != m_sizeExtent.cx || psizel->cy != m_sizeExtent.cy ) {
 	m_sizeExtent = *psizel;
@@ -2499,19 +2497,19 @@ HRESULT QAxServerBase::Update()
 
 //**** ISpecifyPropertyPages
 /*!
-    Returns information about a single property page. 
+    Returns information about a single property page.
     The page has the same ID as the object (CLSID).
 */
 HRESULT QAxServerBase::GetPages( CAUUID *pPages )
 {
     if ( !pPages )
 	return E_POINTER;
-    
+
     int pages = 1;
     pPages->cElems = pages;
     pPages->pElems = (GUID*)CoTaskMemAlloc( sizeof(GUID) * pages );
     *(pPages->pElems) = _Module.factory()->classID( class_name );
-    
+
     return S_OK;
 }
 
@@ -2541,23 +2539,23 @@ public:
 
 	QVBoxLayout *vbox = new QVBoxLayout( this );
 	QHBoxLayout *hbox = new QHBoxLayout( 0 );
-    
+
 	listProperties = new QListView( this );
 	listProperties->setAllColumnsShowFocus( TRUE );
 	listProperties->addColumn( tr("Property") );
 	listProperties->addColumn( tr("Value") );
 	listProperties->header()->setClickEnabled( FALSE );
-    
+
 	QLabel *valueLabel = new QLabel( "Property &Value: ", this );
 	editValue = new QLineEdit( this );
 	QPushButton *setButton = new QPushButton( "&Set Value", this );
 
 	valueLabel->setBuddy( editValue );
-    
+
 	hbox->addWidget( valueLabel );
 	hbox->addWidget( editValue );
 	hbox->addWidget( setButton );
-    
+
 	vbox->addWidget( listProperties );
 	vbox->addLayout( hbox );
 
@@ -2588,7 +2586,7 @@ public:
 	    for ( int i = propoff; i < numprops; ++i ) {
 		const QMetaProperty *property = mo->property( i, TRUE );
 		Q_ASSERT( property );
-		if ( !property || !property->writable() || !property->designable( activex ) || 
+		if ( !property || !property->writable() || !property->designable( activex ) ||
 		      property->testFlags( QMetaProperty::Override ) )
 		    continue;
 		QListViewItem *item = listProperties->findItem( property->name(), 0 );
@@ -2597,7 +2595,7 @@ public:
 		}
 		QVariant var = activex->property( property->name() );
 		QString valueText;
-		
+
 		switch ( var.type() ) {
 		case QVariant::Color:
 		    {
@@ -2611,7 +2609,7 @@ public:
 			valueText = fnt.toString();
 		    }
 		    break;
-		    
+
 		default:
 		    valueText = var.toString();
 		    break;
@@ -2625,7 +2623,7 @@ public:
 	}
 	listProperties->setCurrentItem( listProperties->firstChild() );
     }
-    
+
     void applyChanged()
     {
 	QListViewItemIterator itemit( listProperties );
@@ -2636,7 +2634,7 @@ public:
 	    QPtrListIterator<IAxServerBase> it( that->propObjects );
 	    IAxServerBase *ibase = it.current();
 	    QWidget *activex = ibase->widget();
-    
+
 	    QVariant var = activex->property( item->text( 0 ) );
 	    switch ( var.type() ) {
 	    case QVariant::Color:
@@ -2653,11 +2651,11 @@ public:
 		    QFont fnt;
 		    if ( !fnt.fromString( item->text(1) ) )
 			continue;
-		    
+
 		    var = fnt;
 		}
 		break;
-		
+
 	    default:
 		var = item->text(1);
 		break;
@@ -2681,7 +2679,7 @@ protected slots:
 	QListViewItem *current = listProperties->currentItem();
 	if ( !current )
 	    return;
-	
+
 	QVariant var = that->widget()->property( current->text( 0 ) );
 	switch( var.type() ) {
 	case QVariant::Color:
@@ -2710,7 +2708,7 @@ protected slots:
     {
 	if ( !current )
 	    return;
-	
+
 	editValue->setText( current->text( 1 ) );
     }
 
@@ -2743,7 +2741,7 @@ HRESULT QAxServerBase::SetPageSite( IPropertyPageSite *pPageSite )
 
     if ( propPageSite )
 	propPageSite->Release();
-    
+
     propPageSite = pPageSite;
     if ( propPageSite )
 	propPageSite->AddRef();
@@ -2789,7 +2787,7 @@ HRESULT QAxServerBase::GetPageInfo( PROPPAGEINFO *pPageInfo )
 {
     if ( !pPageInfo )
 	return E_POINTER;
-    
+
     pPageInfo->cb = sizeof(PROPPAGEINFO);
     pPageInfo->size.cx = 100;
     pPageInfo->size.cy = 100;
@@ -3023,7 +3021,7 @@ bool QAxServerBase::eventFilter( QObject *o, QEvent *e )
 	break;
     default:
 	break;
-    }    
+    }
 
     return QObject::eventFilter( o, e );
 }

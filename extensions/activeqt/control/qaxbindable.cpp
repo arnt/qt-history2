@@ -35,14 +35,16 @@
 
 /*!
     \class QAxBindable qaxbindable.h
-    \brief The QAxBindable class provides an interface between the Qt widget and the ActiveX control.
+    \brief The QAxBindable class provides an interface between a Qt widget and an ActiveX control.
+
     \module QAxServer
     \extension ActiveQt
 
-    The functions of this class allow the ActiveX control to communicate property changes to the
-    client application. Inherit your control class from both QWidget (directly or
-    indirectly) and this class to get access to the functions of this class. The meta object compiler 
-    requires you to inherit first from QWidget.
+    The functions provided by this class allow the ActiveX control to
+    communicate property changes to the client application. Inherit
+    your control class from both QWidget (directly or indirectly) and
+    this class to get access to this class's functions. The meta
+    object compiler requires you to inherit from QWidget \e first.
 
     \code
     class MyActiveX : public QWidget, public QAxBindable
@@ -58,14 +60,15 @@
     };
     \endcode
 
-    When implementing the property write function, use requestPropertyChange() to get
-    permission from the ActiveX client application to change this property. When the
-    property changes, call propertyChanged() to notify the ActiveX client application
+    When implementing the property write function, use
+    requestPropertyChange() to get permission from the ActiveX client
+    application to change this property. When the property changes,
+    call propertyChanged() to notify the ActiveX client application
     about the change.
 
-    To implement additional COM interfaces in your ActiveX control, reimplement 
-    queryInterface(). To make you ActiveX control a top level window, reimplement
-    stayTopLevel() and return TRUE.
+    To implement additional COM interfaces in your ActiveX control,
+    reimplement queryInterface(). To make your ActiveX control a top
+    level window, reimplement stayTopLevel() and return TRUE.
 */
 
 /*!
@@ -77,19 +80,20 @@ QAxBindable::QAxBindable()
 }
 
 /*!
-    Call this function to request permission the change the property \a property
-    from the client site hosting this ActiveX control. This function returns TRUE
-    when the client site allows the change, otherwise it returns FALSE.
+    Call this function to request permission to change the property
+    \a property from the client that is hosting this ActiveX control.
+    Returns TRUE if the client allows the change; otherwise returns
+    FALSE.
 
-    This function is usually called first in the write function for \a property, and
-    the writing is cancelled when the function returns FALSE.
+    This function is usually called first in the write function for \a
+    property, and writing is abandoned if the function returns FALSE.
 
     \code
     void MyActiveQt::setText( const QString &text )
     {
 	if ( !requestPropertyChange( "text" ) )
 	    return;
-	    
+
 	// update property
 
 	propertyChanged( "text" );
@@ -116,10 +120,11 @@ bool QAxBindable::requestPropertyChange( const char *property )
 }
 
 /*!
-    Call this function to notify the client site hosting this ActiveX control that
-    the property \a property has been changed.
+    Call this function to notify the client that is hosting this
+    ActiveX control that the property \a property has been changed.
 
-    This function is usually called last in the write function for \a property.
+    This function is usually called at the end of the property's write
+    function.
 
     \sa requestPropertyChange()
 */
@@ -141,12 +146,12 @@ void QAxBindable::propertyChanged( const char *property )
 }
 
 /*!
-    Reimplement this function if you want to support additional interfaces
-    in your ActiveX control. Set \a iface to point to the interface implementation
-    for interfaces of type \a iid.
+    Reimplement this function if you want to support additional
+    interfaces in your ActiveX control. Set \a iface to point to the
+    interface implementation for interfaces of type \a iid.
 
-    Make sure you add a reference to interfaces using the API provided by the
-    COM interface model.
+    Make sure you add a reference to interfaces using the API provided
+    by the COM interface model.
 
     \code
     QRESULT MyActiveX::queryInterface( const QUuid &iid, void **iface )
@@ -161,7 +166,7 @@ void QAxBindable::propertyChanged( const char *property )
 	return S_OK;
     }
     \endcode
-   
+
     Return the default COM results for QueryInterface (S_OK, E_NOINTERFACE).
 */
 QRESULT QAxBindable::queryInterface( const QUuid &iid, void **iface )
@@ -171,9 +176,9 @@ QRESULT QAxBindable::queryInterface( const QUuid &iid, void **iface )
 }
 
 /*!
-    Adds a reference to the ActiveX control.
-    When implementing additional interfaces in your ActiveX class, 
-    implement AddRef() to call this function.
+    Adds a reference to the ActiveX control. When implementing
+    additional interfaces in your ActiveX class, implement AddRef() to
+    call this function.
 
     \code
     long MyActiveX::AddRef()
@@ -190,9 +195,9 @@ long QAxBindable::addRef()
 }
 
 /*!
-    Removes a reference from the ActiveX control.
-    When implementing additional interfaces in your ActiveX class, 
-    implement Release() to call this function.
+    Removes a reference from the ActiveX control. When implementing
+    additional interfaces in your ActiveX class, implement Release()
+    to call this function.
 
     \code
     long MyActiveX::Release()
@@ -210,8 +215,8 @@ long QAxBindable::release()
 
 /*!
     Reimplement this function to return TRUE if the ActiveX control
-    should be a top level window, e.g. a dialog. The default implementation
-    returns FALSE.
+    should be a top level window, e.g. a dialog. The default
+    implementation returns FALSE.
 */
 bool QAxBindable::stayTopLevel() const
 {

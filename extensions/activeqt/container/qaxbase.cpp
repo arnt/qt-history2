@@ -45,7 +45,7 @@ void moduleLock()
 {
     if ( !moduleLockCount ) {
 	CoInitialize(0);
-	_Module.Init( 0, GetModuleHandle(0) );	
+	_Module.Init( 0, GetModuleHandle(0) );
     }
     ++moduleLockCount;
 }
@@ -91,18 +91,18 @@ class QAxEventSink : public IDispatch,
 {
 public:
     QAxEventSink( QAxBase *com ) : combase( com ), ref( 1 ) {}
-    virtual ~QAxEventSink() 
+    virtual ~QAxEventSink()
     {
 	Q_ASSERT( !connection.cpoint );
     }
 
     // add a connection
-    void advise( IConnectionPoint *cpoint, IID iid ) 
+    void advise( IConnectionPoint *cpoint, IID iid )
     {
 	connection = Connection( cpoint, iid, 0 );
 	cpoint->Advise( (IUnknown*)(IDispatch*)this, &connection.cookie );
     }
-    
+
     // disconnect from all connection points
     void unadvise()
     {
@@ -169,13 +169,13 @@ public:
     HRESULT __stdcall GetTypeInfo( UINT, LCID, ITypeInfo **info ) { return E_NOTIMPL; }
     HRESULT __stdcall GetIDsOfNames( const _GUID &, wchar_t **, unsigned int, unsigned long, long * ) { return E_NOTIMPL; }
 
-    HRESULT __stdcall Invoke( DISPID dispIdMember, 
-			      REFIID riid, 
-			      LCID lcid, 
-			      WORD wFlags, 
-			      DISPPARAMS *pDispParams, 
-			      VARIANT *pVarResult, 
-			      EXCEPINFO *pExcepInfo, 
+    HRESULT __stdcall Invoke( DISPID dispIdMember,
+			      REFIID riid,
+			      LCID lcid,
+			      WORD wFlags,
+			      DISPPARAMS *pDispParams,
+			      VARIANT *pVarResult,
+			      EXCEPINFO *pExcepInfo,
 			      UINT *puArgErr )
     {
 	// verify input
@@ -348,12 +348,12 @@ public:
 private:
     struct Connection
     {
-	Connection() 
+	Connection()
 	    : cpoint( 0 ), iid( IID_NULL ), cookie( 0 )
 	{
 	}
-	Connection( IConnectionPoint *point, IID i, ULONG c ) 
-	    : cpoint( point ), iid(i), cookie(c) 
+	Connection( IConnectionPoint *point, IID i, ULONG c )
+	    : cpoint( point ), iid(i), cookie(c)
 	{
 	    cpoint->AddRef();
 	}
@@ -553,75 +553,84 @@ public:
 /*!
     \class QAxBase qaxbase.h
 
-    \brief The QAxBase class is an abstract class that provides an API to initalize and access a COM object.
+    \brief The QAxBase class is an abstract class that provides an API
+    to initalize and access a COM object.
 
     \module QAxContainer
     \extension ActiveQt
 
-    QAxBase is an abstract class that cannot be used directly, and is instantiated through the subclasses 
-    QAxObject and QAxWidget. This class however provides the API to access the COM object directly through 
-    its IUnknown implementation. If the COM object implements the IDispatch interface, the properties and
-    methods of that object become available as Qt properties and slots.
+    QAxBase is an abstract class that cannot be used directly, and is
+    instantiated through the subclasses QAxObject and QAxWidget. This
+    class provides the API to access the COM object directly
+    through its IUnknown implementation. If the COM object implements
+    the IDispatch interface, the properties and methods of that object
+    become available as Qt properties and slots.
 
     \code
     connect( buttonBack, SIGNAL(clicked()), webBrowser, SLOT(GoBack()) );
     \endcode
 
-    Properties exposed by the object's IDispatch implementation can be read and written through the property
-    system provided by the Qt Object Model (both subclasses are QObjects, so you can use 
-    \link QObject::setProperty \endlink setProperty and \link QObject::property \endlink property as with
-    QObject).
+    Properties exposed by the object's IDispatch implementation can be
+    read and written through the property system provided by the Qt
+    Object Model (both subclasses are QObjects, so you can use \link
+    QObject::setProperty() setProperty() \endlink and \link
+    QObject::property() property() \endlink as with QObject).
 
     \code
     activeX->setProperty( "text", "some text" );
     int value = activeX->property( "value" );
     \endcode
 
-    Write-functions for properties and other methods exposed by the object's IDispatch implementation can be 
-    called directly using dynamicCall(), or indirectly as slots connected to a signal.
+    Write-functions for properties and other methods exposed by the
+    object's IDispatch implementation can be called directly using
+    dynamicCall(), or indirectly as slots connected to a signal.
 
     \code
     webBrowser->dynamicCall( "GoHome()" );
     \endcode
 
-    Outgoing events supported by the COM object are emitted as standard Qt signals.
+    Outgoing events supported by the COM object are emitted as
+    standard Qt signals.
 
     \code
-    connect( webBrowser, SIGNAL(TitleChanged(const QString&)), this, SLOT(setCaption(const QString&)) );
+    connect( webBrowser, SIGNAL(TitleChanged(const QString&)),
+	     this, SLOT(setCaption(const QString&)) );
     \endcode
 
-    QAxBase transparently converts between Qt data type and the equivalent COM data types. Some COM types,
-    for example the VARIANT type VT_CY, have no equivalent Qt data structure.
+    QAxBase transparently converts between Qt data type and the
+    equivalent COM data types. Some COM types, for example the VARIANT
+    type VT_CY, have no equivalent Qt data structure.
 
     Supported OLE datatypes are
     \list
+    \i bool
     \i char, unsigned char
+    \i const char*
+    \i float, double
     \i short, unsigned short
     \i int, unsigned int
     \i long, unsigned long
-    \i float, double
-    \i bool
-    \i const char*
     \i BSTR
     \i DATE
-    \i SCODE and 
-    \i VARIANT
-    \i OLE_COLOR
     \i IFont*
+    \i OLE_COLOR
+    \i SCODE and
+    \i VARIANT
     \endlist
 
     Unsupported OLE datatypes are
     \list
+    \i CY
+    \i IDispatch*
     \i IUnknown*
-    \i IDispatch* and
-    \i CY 
-    \endlist 
+    \endlist
 
-    Pointer types and references can additionally not be provided by the Qt property system, or 
-    passed as parameters to dynamicCall().
-   
-    If you need to access properties or pass parameters of unsupported datatypes you have to access the COM 
-    object directly through its IDispatch or other interfaces implemented. Those interface can be retrieved
+    Pointer types and references cannot be provided by the Qt property
+    system, and cannot be passed as parameters to dynamicCall().
+
+    If you need to access properties or pass parameters of unsupported
+    datatypes you must access the COM object directly through its
+    IDispatch or other interfaces. Those interfaces can be retrieved
     through queryInterface().
 
     \code
@@ -633,19 +642,21 @@ public:
     }
     \endcode
 
-    If you need to react on events that pass parameters of unsupported datatypes you can use the generic
-    signal that delivers the event data as provided by the COM event.
-*/
-
-/*! 
-    \enum QAxBase::PropertyBag
-
-    A QMap<QString,QVariant> that can store name - value pairs of properties.
+    If you need to react to events that pass parameters of unsupported
+    datatypes you can use the generic signal that delivers the event
+    data as provided by the COM event.
 */
 
 /*!
-    Creates a QAxBase object that wraps the COM object \a iface. If \a iface is null (the default),
-    use setControl() to instantiate a COM object.
+    \enum QAxBase::PropertyBag
+
+    A QMap<QString,QVariant> that can store properties as name:value pairs.
+*/
+
+/*!
+    Creates a QAxBase object that wraps the COM object \a iface. If \a
+    iface is 0 (the default), use setControl() to instantiate a COM
+    object.
 */
 QAxBase::QAxBase( IUnknown *iface )
 {
@@ -675,22 +686,26 @@ QAxBase::~QAxBase()
     \property QAxBase::control
     \brief the name of the COM object wrapped by this QAxBase object.
 
-    Setting this property initilializes the COM object. Any COM object previously set is shut down.
+    Setting this property initilializes the COM object. Any COM object
+    previously set is shut down.
 
-    The most efficient way to set this property is by using the UUID of the registered component, e.g.
+    The most efficient way to set this property is by using the
+    registered component's UUID, e.g.
     \code
     ctrl->setControl( "{8E27C92B-1264-101C-8A2F-040224009C02}" );
     \endcode
-    The second fastest way is to use the class name of the registered control (with or without version number), e.g.
+    The second fastest way is to use the registered control's class
+    name (with or without version number), e.g.
     \code
     ctrl->setControl( "MSCal.Calendar" );
     \endcode
-    The slowest, but easiest way to use is to use the full name of the control, e.g.
+    The slowest, but easiest way to use is to use the control's full
+    name, e.g.
     \code
     ctrl->setControl( "Calendar Control 9.0" );
     \endcode
-    
-    The read function of the control always returns the UUID of the control.
+
+    The control's read function always returns the control's UUID.
 */
 bool QAxBase::setControl( const QString &c )
 {
@@ -738,15 +753,17 @@ QString QAxBase::control() const
 
 /*!
     Disables the event sink implementation for this ActiveX container.
-    If you don't intend to listen to events of the ActiveX control use this
-    function to speed up the meta object generation.
+    If you don't intend to listen to the ActiveX control's events use
+    this function to speed up the meta object generation.
 
-    Some ActiveX controls might run unstable when connected with an event sink. 
-    To get OLE events you will have to use standard COM methods to register your 
-    own event sink. Use queryInterface to get access to the raw COM object.
+    Some ActiveX controls might be unstable when connected to an event
+    sink. To get OLE events you must use standard COM methods to
+    register your own event sink. Use queryInterface() to get access
+    to the raw COM object.
 
-    Note that this function should be called immediately after construction of the object (without
-    passing an object identifier), before calling QAxWidget->setControl().
+    Note that this function should be called immediately after
+    construction of the object (without passing an object identifier),
+    and before calling QAxWidget->setControl().
 */
 void QAxBase::disableEventSink()
 {
@@ -754,16 +771,18 @@ void QAxBase::disableEventSink()
 }
 
 /*!
-    Disables the meta object generation for this ActiveX container. This also disables the
-    event sink and class info generation. If you don't intend to use the Qt meta object 
-    implementation call this function to speed up the meta object generation.
+    Disables the meta object generation for this ActiveX container.
+    This also disables the event sink and class info generation. If
+    you don't intend to use the Qt meta object implementation call
+    this function to speed up the meta object generation.
 
-    Some ActiveX controls might run unstable when used with OLE automation. 
-    Use standard COM methods to use those controls through the COM interfaces provided by 
-    queryInterface.
+    Some ActiveX controls might be unstable when used with OLE
+    automation. Use standard COM methods to use those controls through
+    the COM interfaces provided by queryInterface().
 
-    Note that this function has to be called immediately after construction of the object (without
-    passing an object identifier), before calling QAxWidget->setControl().
+    Note that this function must be called immediately after
+    construction of the object (without passing an object identifier),
+    and before calling QAxWidget->setControl().
 */
 void QAxBase::disableMetaObject()
 {
@@ -773,12 +792,13 @@ void QAxBase::disableMetaObject()
 }
 
 /*!
-    Disables the class info generation for this ActiveX container. If you don't require any
-    class information about the ActiveX control use this function to speed up the meta object
-    generation.
+    Disables the class info generation for this ActiveX container. If
+    you don't require any class information about the ActiveX control
+    use this function to speed up the meta object generation.
 
-    Note that this function has to be called immediately after construction of the object (without
-    passing an object identifier), before calling QAxWidget->setControl().
+    Note that this function must be called immediately after
+    construction of the object (without passing an object identifier),
+    and before calling QAxWidget->setControl().
 */
 void QAxBase::disableClassInfo()
 {
@@ -788,8 +808,8 @@ void QAxBase::disableClassInfo()
 /*!
     Disconnects and destroys the COM object.
 
-    If you reimplement this function you will also have to reimplement
-    the destructor to call clear(), and call this implementation at the
+    If you reimplement this function you must also reimplement the
+    destructor to call clear(), and call this implementation at the
     end of your clear() function.
 */
 void QAxBase::clear()
@@ -823,20 +843,23 @@ void QAxBase::clear()
 /*!
     \fn bool QAxBase::initialize( IUnknown **ptr )
 
-    This virtual function is called by setControl. Reimplement this function to return
-    the IUnknown pointer of the COM object in \a ptr, and return TRUE if the object
-    initialization succeeded. Otherwise, return FALSE.
+    This virtual function is called by setControl(). Reimplement this
+    function to return the COM object's IUnknown pointer in \a ptr,
+    and return TRUE if the object initialization succeeded; otherwise
+    return FALSE.
 
-    The interface returned in \a ptr should be referenced exactly once when this function
-    returns. The interface provided by e.g. CoCreateInstance is already referenced, and
-    there is no need to reference it again.
+    The interface returned in \a ptr should be referenced exactly once
+    when this function returns. The interface provided by e.g.
+    CoCreateInstance is already referenced, and there is no need to
+    reference it again.
 */
 
 
 /*!
-    Requests the interface \a uuid from the COM object and sets the value of \a iface to the
-    provided interface, or to null if the requested interface could not be provided.
-    
+    Requests the interface \a uuid from the COM object and sets the
+    value of \a iface to the provided interface, or to 0 if the
+    requested interface could not be provided.
+
     Returns the result of the QueryInterface implementation of the COM object.
 
     \sa control
@@ -846,7 +869,7 @@ long QAxBase::queryInterface( const QUuid &uuid, void **iface ) const
     *iface = 0;
     if ( d->ptr && !uuid.isNull() )
 	return d->ptr->QueryInterface( uuid, iface );
-    
+
     return E_NOTIMPL;
 }
 
@@ -884,7 +907,7 @@ static inline QString usertypeToQString( const TYPEDESC &tdesc, ITypeInfo *info,
 		userTypeName = guessTypes( typeattr->tdescAlias, info, enumlist, function );
 
 	    usertypeinfo->ReleaseTypeAttr( typeattr );
-	    return userTypeName;	    
+	    return userTypeName;
 	}
     }
     return QString::null;
@@ -958,12 +981,12 @@ static QString guessTypes( const TYPEDESC &tdesc, ITypeInfo *info, const QDict<Q
 	break;
     case VT_PTR:
 	str = guessTypes( *tdesc.lptdesc, info, enumlist, function );
-	if ( !str.isEmpty() && str != "QFont" ) 
+	if ( !str.isEmpty() && str != "QFont" )
 	    str += "*";
 	break;
     case VT_SAFEARRAY:
 	str = guessTypes( tdesc.lpadesc->tdescElem, info, enumlist, function );
-	if ( !str.isEmpty() ) 
+	if ( !str.isEmpty() )
 	    str = str + "[" + QString::number( tdesc.lpadesc->cDims ) + "]";
 	break;
     case VT_USERDEFINED:
@@ -994,7 +1017,7 @@ static inline QString constRefify( const QString& type )
 	crtype = "const QColor&";
     else if ( type == "QFont" )
 	crtype = "const QFont&";
-    else 
+    else
 	crtype = type;
 
     return crtype;
@@ -1040,11 +1063,13 @@ static inline void QStringToQUType( const QString& type, QUParameter *param, con
 /*!
     \reimp
 
-    This is where all the magic happens.
-    The metaobject is generated on the fly from the information provided by the 
-    IDispatch and ITypeInfo interface implementations in the COM object.
+    \omit This is where all the magic happens.\endomit
 
-    Yes, this is spaghetti code...
+    The metaobject is generated on the fly from the information
+    provided by the IDispatch and ITypeInfo interface implementations
+    in the COM object.
+
+    \omit Yes, this is spaghetti code...\endomit
 */
 QMetaObject *QAxBase::metaObject() const
 {
@@ -1174,7 +1199,7 @@ QMetaObject *QAxBase::metaObject() const
 		    typelib->GetTypeInfo( i, &enuminfo );
 		    if ( !enuminfo )
 			continue;
-		    
+
 		    // Get the name of the enumeration
 		    BSTR enumname;
 		    QString enumName;
@@ -1184,7 +1209,7 @@ QMetaObject *QAxBase::metaObject() const
 		    } else {
 			enumName = QString( "enum%1" ).arg( enumlist.count() );
 		    }
-		    
+
 		    // Get the attributes of the enum type
 		    TYPEATTR *typeattr = 0;
 		    enuminfo->GetTypeAttr( &typeattr );
@@ -1196,7 +1221,7 @@ QMetaObject *QAxBase::metaObject() const
 			metaEnum->items = typeattr->cVars ? new QMetaEnum::Item[typeattr->cVars] : 0;
 			metaEnum->count = typeattr->cVars;
 			metaEnum->set = FALSE;
-			
+
 			// Get all values of the enumeration
 			for ( UINT vd = 0; vd < typeattr->cVars; ++vd ) {
 			    VARDESC *vardesc = 0;
@@ -1230,7 +1255,7 @@ QMetaObject *QAxBase::metaObject() const
 		}
 	    }
 	}
-        
+
 	// setup enum data array
 	index = 0;
 	enum_data = enumlist.count() ? new QMetaEnum[enumlist.count()] : 0;
@@ -1344,7 +1369,7 @@ QMetaObject *QAxBase::metaObject() const
 		QMetaProperty *prop = 0;
 
 		// get type of function
-		if ( !(funcdesc->wFuncFlags & FUNCFLAG_FHIDDEN) ) switch( funcdesc->invkind ) {			
+		if ( !(funcdesc->wFuncFlags & FUNCFLAG_FHIDDEN) ) switch( funcdesc->invkind ) {
 		case INVOKE_PROPERTYGET: // property
 		case INVOKE_PROPERTYPUT:
 		    {
@@ -1532,7 +1557,7 @@ QMetaObject *QAxBase::metaObject() const
 #endif
 		info->ReleaseFuncDesc( funcdesc );
 	    }
-	    
+
 	    // get information about all variables
 	    if ( interesting ) for ( ushort vd = 0; vd < nVars; ++vd ) {
 		VARDESC *vardesc;
@@ -1782,7 +1807,7 @@ QMetaObject *QAxBase::metaObject() const
 
 			    // parameter
 			    bool optional = p > funcdesc->cParams - funcdesc->cParamsOpt;
-			    
+
 			    TYPEDESC tdesc = funcdesc->lprgelemdescParam[p - ( (funcdesc->invkind == INVOKE_FUNC) ? 1 : 0 ) ].tdesc;
 			    QString ptype = guessTypes( tdesc, eventinfo, enumDict, function );
 
@@ -1935,8 +1960,8 @@ QMetaObject *QAxBase::metaObject() const
 #endif
 
     // put the metaobject together
-    d->metaobj->metaObject = QMetaObject::new_metaobject( 
-	className(), parentObject, 
+    d->metaobj->metaObject = QMetaObject::new_metaobject(
+	className(), parentObject,
 	slot_data, slotlist.count(),
 	signal_data, signallist.count()+2,
 	prop_data, proplist.count()+1,
@@ -2055,7 +2080,7 @@ bool QAxBase::qt_invoke( int _id, QUObject* _o )
     if ( fakedslot && slotcount == 1 ) {
 	hres = disp->Invoke( dispid, IID_NULL, LOCALE_USER_DEFAULT, DISPATCH_PROPERTYPUT, &params, pret, 0, &argerr );
     } else {
-	hres = disp->Invoke( dispid, IID_NULL, LOCALE_USER_DEFAULT, DISPATCH_METHOD, &params, pret, 0, &argerr );	    
+	hres = disp->Invoke( dispid, IID_NULL, LOCALE_USER_DEFAULT, DISPATCH_METHOD, &params, pret, 0, &argerr );
     }
 
     // get return value
@@ -2121,7 +2146,7 @@ bool QAxBase::qt_property( int _id, int _f, QVariant* _v )
 		arg.vt = VT_ERROR;
 		arg.scode = DISP_E_TYPEMISMATCH;
 
-		// map QVariant to VARIANTARG. ### Maybe it would be better 
+		// map QVariant to VARIANTARG. ### Maybe it would be better
 		// to convert the QVariant to what the VARIANT is supposed to be,
 		// but we don't know that from the QMetaProperty of course.
 		if ( qstrcmp( prop->type(), _v->typeName() ) ) {
@@ -2154,7 +2179,7 @@ bool QAxBase::qt_property( int _id, int _f, QVariant* _v )
 			arg.pdispVal->Release();
 		    break;
 		}
-		
+
 		return checkHRESULT( hres );
 	    }
 	case 1: // Get
@@ -2270,7 +2295,7 @@ bool QAxBase::internalInvoke( const QCString &name, void *inout, const QVariant 
     if ( dispid == DISPID_UNKNOWN ) {
 #ifdef QT_CHECK_STATE
 	const char *coclass = metaObject()->classInfo( "CoClass" );
-	qWarning( "QAxBase::internalInvoke: %s: No such method or property in %s [%s]", (const char*)name, control().latin1(), 
+	qWarning( "QAxBase::internalInvoke: %s: No such method or property in %s [%s]", (const char*)name, control().latin1(),
 	    coclass ? coclass: "unknown" );
 #endif
 	return FALSE;
@@ -2299,10 +2324,13 @@ bool QAxBase::internalInvoke( const QCString &name, void *inout, const QVariant 
 
 
 /*!
-    Calls the function \a function of the COM object passing the parameters \a var1 ... \a var8, 
-    and returns the value, or an invalid QVariant if the function does not return a value.
+    Calls the COM object's function \a function, passing the
+    parameters \a var1, \a var1, \a var2, \a var3, \a var4, \a var5,
+    \a var6, \a var7 and \a var8, and returns the value, or an
+    invalid QVariant if the function does not return a value.
 
-    \a function has to be provided as the full prototype, like e.g. in QObject::connect().
+    \a function must be provided as the full prototype, for example as
+    it would be written in a QObject::connect() call.
     \code
     activeX->dynamicCall( "Navigate(const QString&)", "www.trolltech.com" );
     \endcode
@@ -2312,13 +2340,16 @@ bool QAxBase::internalInvoke( const QCString &name, void *inout, const QVariant 
     activeX->dynamicCall( "Value", 5 );
     QString text = activeX->dynamicCall( "Text" ).toString();
     \endcode
-    Using QObject::setProperty and QObject::property however is faster.
+    Note that it is faster to get and set properties using
+    QObject::property() and QObject::setProperty().
 
-    It is only possible to call functions through dynamicCall that have parameters or return
-    values of datatypes supported in QVariant. See the QAxBase class documentation for a list of 
-    supported and unsupported datatypes. If you want to call functions that have
-    unsupported datatypes in the parameter list, use queryInterface to retrieve the appropriate 
-    COM interface, and use the function directly.
+    It is only possible to call functions through dynamicCall() that
+    have parameters or return values of datatypes supported by
+    QVariant. See the QAxBase class documentation for a list of
+    supported and unsupported datatypes. If you want to call functions
+    that have unsupported datatypes in the parameter list, use
+    queryInterface() to retrieve the appropriate COM interface, and
+    use the function directly.
 
     \code
     IWebBrowser2 *webBrowser = 0;
@@ -2331,13 +2362,13 @@ bool QAxBase::internalInvoke( const QCString &name, void *inout, const QVariant 
 
     This is also more efficient.
 */
-QVariant QAxBase::dynamicCall( const QCString &function, const QVariant &var1, 
-							 const QVariant &var2, 
-							 const QVariant &var3, 
-							 const QVariant &var4, 
-							 const QVariant &var5, 
-							 const QVariant &var6, 
-							 const QVariant &var7, 
+QVariant QAxBase::dynamicCall( const QCString &function, const QVariant &var1,
+							 const QVariant &var2,
+							 const QVariant &var3,
+							 const QVariant &var4,
+							 const QVariant &var5,
+							 const QVariant &var6,
+							 const QVariant &var7,
 							 const QVariant &var8 )
 {
     bool ok = FALSE;
@@ -2432,23 +2463,26 @@ QVariant QAxBase::dynamicCall( const QCString &function, const QVariant &var1,
 }
 
 /*!
-    Returns a pointer to a QAxObject wrapping the COM object provided by the method or 
-    property \a name, passing \a var as an optional parameter. If \a name is provided by
-    a method the string has to include the full function prototype.
+    Returns a pointer to a QAxObject wrapping the COM object provided
+    by the method or property \a name, passing \a var as an optional
+    parameter. If \a name is provided by a method the string must
+    include the full function prototype.
 
-    The returned object is a child of this object (which is either of type QAxObject or
-    QAxWidget), and is deleted when this object is being  deleted. It is however safe to 
-    delete the returned object.
+    The returned object is a child of this object (which is either of
+    type QAxObject or QAxWidget), and is deleted when this object is
+    deleted. It is safe to delete the returned object yourself.
 
-    COM enabled applications usually have an object model publishing certain elements of
-    the application as dispatch interfaces. Use this method to navigate the hierarchy of
-    the object model, e.g.
+    COM enabled applications usually have an object model publishing
+    certain elements of the application as dispatch interfaces. Use
+    this method to navigate the hierarchy of the object model, e.g.
 
     \code
     QAxWidget outlook( "Outlook.Application" );
     QAxObject *session = outlook.querySubObject( "Session" );
     if ( session ) {
-	QAxObject *defFolder = session->querySubObject( "GetDefaultFolder(OlDefaultFolders)", "olFolderContacts" );
+	QAxObject *defFolder = session->querySubObject(
+				"GetDefaultFolder(OlDefaultFolders)",
+				"olFolderContacts" );
 	//...
     }
     \endcode
@@ -2513,7 +2547,7 @@ public:
 	return S_OK;
     }
     unsigned long __stdcall AddRef() { return ++ref; }
-    unsigned long __stdcall Release() 
+    unsigned long __stdcall Release()
     {
 	if ( !--ref ) {
 	    delete this;
@@ -2550,15 +2584,16 @@ private:
 };
 
 /*!
-    Returns the values of all properties exposed by the COM object.
-    
-    This is more efficient than getting multiple properties individually if the COM object
-    supports property bags. 
-    
-    \warning
-    It is not guaranteed that the property bag implementation of the COM object returns all 
-    properties, or that the properties returned are the same as available through the 
-    IDispatch interface.
+    Returns a name:value map of all the properties exposed by the COM
+    object.
+
+    This is more efficient than getting multiple properties
+    individually if the COM object supports property bags.
+
+    \warning It is not guaranteed that the property bag implementation
+    of the COM object returns all properties, or that the properties
+    returned are the same as those available through the IDispatch
+    interface.
 */
 QAxBase::PropertyBag QAxBase::propertyBag() const
 {
@@ -2586,13 +2621,14 @@ QAxBase::PropertyBag QAxBase::propertyBag() const
 }
 
 /*!
-    Sets the properties of the COM object to the matching values in \a bag.
+    Sets the properties of the COM object to the corresponding values
+    in \a bag.
 
     \warning
-    You should only set property bags that have been returned before by the
-    propertyBag function, as it cannot be guaranteed that the property bag
-    implementation of the COM object supports the same properties as available 
-    through the IDispatch interface.
+    You should only set property bags that have been returned by the
+    propertyBag function, as it cannot be guaranteed that the property
+    bag implementation of the COM object supports the same properties
+    that are available through the IDispatch interface.
 
     \sa propertyBag()
 */
@@ -2618,13 +2654,12 @@ void QAxBase::setPropertyBag( const PropertyBag &bag )
 }
 
 /*!
-    Returns TRUE if the property \a prop is allowed to change,
-    otherwise returns FALSE.
-    By default, all properties are allowed to change. 
-    
+    Returns TRUE if the property \a prop is writable; otherwise
+    returns FALSE. By default, all properties are writable.
+
     \warning
-    Depending on the control implementation this setting might be ignored
-    for some properties.
+    Depending on the control implementation this setting might be
+    ignored for some properties.
 
     \sa setPropertyWritable(), propertyChanged()
 */
@@ -2640,13 +2675,13 @@ bool QAxBase::propertyWritable( const char *prop ) const
 }
 
 /*!
-    Sets the property \a prop to writable if \a ok is TRUE,
-    otherwise sets \a prop to be read-only.
-    By default, all properties are allowed to change. 
-    
+    Sets the property \a prop to writable if \a ok is TRUE, otherwise
+    sets \a prop to be read-only. By default, all properties are
+    writable.
+
     \warning
-    Depending on the control implementation this setting might be ignored
-    for some properties.
+    Depending on the control implementation this setting might be
+    ignored for some properties.
 
     \sa propertyWritable(), propertyChanged()
 */
@@ -2659,19 +2694,20 @@ void QAxBase::setPropertyWritable( const char *prop, bool ok )
 }
 
 /*!
-    Returns TRUE if there is no COM object loaded by this wrapper, otherwise return FALSE.
+    Returns TRUE if there is no COM object loaded by this wrapper;
+    otherwise return FALSE.
 
     \sa control
 */
 bool QAxBase::isNull() const
-{ 
-    return !d->ptr; 
+{
+    return !d->ptr;
 }
 
 
 /*!
     \fn bool QAxBase::qt_emit( int, QUObject* );
-    \internal 
+    \internal
 */
 
 /*!
@@ -2687,17 +2723,18 @@ bool QAxBase::isNull() const
 /*!
     \fn void QAxBase::signal( const QString &name, int argc, void *argv )
 
-    This generic signal gets emitted when the COM object issues the event \a name. \a argc
-    is the number of parameters provided by the event (DISPPARAMS.cArgs), and \a argv is 
-    the pointer to the parameter values (DISPPARAMS.rgvarg).
-    
-    Use this signal if the event has parameters of unsupported data types. Otherwise, connect
-    directly to the signal \a name.
+    This generic signal gets emitted when the COM object issues the
+    event \a name. \a argc is the number of parameters provided by the
+    event (DISPPARAMS.cArgs), and \a argv is the pointer to the
+    parameter values (DISPPARAMS.rgvarg).
+
+    Use this signal if the event has parameters of unsupported data
+    types. Otherwise, connect directly to the signal \a name.
 */
 
 /*!
     \fn void QAxBase::propertyChanged( const QString &name )
 
-    If the COM object supports property notification, this signal gets emitted when the property
-    \a name is changed.
+    If the COM object supports property notification, this signal gets
+    emitted when the property called \a name is changed.
 */

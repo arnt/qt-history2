@@ -105,7 +105,7 @@ LRESULT CALLBACK FilterProc( int nCode, WPARAM wParam, LPARAM lParam )
 	MSG *msg = (MSG*)lParam;
 	const uint message = msg->message;
 	bool mouse = message >= WM_MOUSEFIRST && message <= WM_MOUSELAST;
-	bool key = message == WM_CHAR || 
+	bool key = message == WM_CHAR ||
 		   message == WM_KEYDOWN ||
 		   message == WM_KEYUP ||
 		   message == WM_SYSKEYDOWN ||
@@ -169,24 +169,28 @@ LRESULT CALLBACK FilterProc( int nCode, WPARAM wParam, LPARAM lParam )
     \extension ActiveQt
     \module QAxContainer
 
-    A QAxWidget can be instantiated as an empty object, with the name of the ActiveX control
-    it should wrap or with an existing interface pointer to the ActiveX control. 
-    The properties, methods and events of the ActiveX control become available as Qt properties, 
-    slots and signals as long as only supported data types are used (see the \link QAxBase QAxBase class
-    documentation \endlink for a list of supported and unsupported data types). The baseclass QAxBase provides 
-    an API to access the ActiveX directly through the IUnknown pointer.
+    A QAxWidget can be instantiated as an empty object, with the name
+    of the ActiveX control it should wrap, or with an existing
+    interface pointer to the ActiveX control. The ActiveX control's
+    properties, methods and events which only use \link QAxBase
+    supported data types\endlink, become available as Qt properties,
+    slots and signals. The base class QAxBase provides an API to
+    access the ActiveX directly through the IUnknown pointer.
 
-    QAxWidget is a QWidget and can be used as such, e.g. it can be organized in a widget hierarchy, receive events 
-    or act as an event filter. Standard widget properties, e.g. \link QWidget::enabled \endlink enabled are supported,
-    but it depends on the ActiveX control to implement support for ambient properties like e.g. palette or font. 
-    QAxWidget tries to provide the necessary hints.
+    QAxWidget is a QWidget and can be used as such, e.g. it can be
+    organized in a widget hierarchy, receive events or act as an event
+    filter. Standard widget properties, e.g. \link QWidget::enabled
+    enabled \endlink are supported, but it depends on the ActiveX
+    control to implement support for ambient properties like e.g.
+    palette or font. QAxWidget tries to provide the necessary hints.
 
     \important dynamicCall() querySubObject()
 */
 
 /*!
-    Creates an empty QAxWidget widget and propagates \a parent, \a name and \a f to the QWidget constructor. 
-    To initialize a control, call \link QAxBase::setControl() setControl \endlink.
+    Creates an empty QAxWidget widget and propagates \a parent, \a
+    name and \a f to the QWidget constructor. To initialize a control,
+    call \link QAxBase::setControl() setControl \endlink.
 */
 QAxWidget::QAxWidget( QWidget *parent, const char *name, WFlags f )
 : QWidget( parent, name, f ), clientsite( 0 ), host( 0 )
@@ -222,11 +226,11 @@ void QAxWidget::initContainer()
 {
     container = new QWidget( this );
     container->resize( size() );
-    container->show();    
+    container->show();
 }
 
 /*!
-    Shuts down the ActiveX control and destroys the QAxWidget widget, 
+    Shuts down the ActiveX control and destroys the QAxWidget widget,
     cleaning up all allocated resources.
 
     \sa clear()
@@ -284,7 +288,7 @@ bool QAxWidget::initialize( IUnknown **ptr )
     IStream *pStream = 0;
     IID iidSink = IID_NULL;
     IUnknown *punkSink = 0;
-    
+
     current = this;
     CComPolyObject<QAxHostWindow> *axhost = new CComPolyObject<QAxHostWindow>( 0 );
     current = 0;
@@ -292,12 +296,12 @@ bool QAxWidget::initialize( IUnknown **ptr )
     axhost->InternalFinalConstructAddRef();
     hr = axhost->FinalConstruct();
     axhost->InternalFinalConstructRelease();
-    
+
     if ( hr == S_OK )
 	hr = axhost->QueryInterface(IID_IUnknown, (void**)&spUnkContainer);
     if ( hr != S_OK )
 	delete axhost;
-    
+
     if (SUCCEEDED(hr)) {
 	CComPtr<IAxWinHostWindow> pAxWindow;
 	spUnkContainer->QueryInterface(IID_IAxWinHostWindow, (void**)&pAxWindow);

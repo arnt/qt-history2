@@ -32,16 +32,20 @@
 /*!
     \class QAxFactoryInterface qactiveqt.h
     \brief The QAxFactoryInterface class is an interface for the creation of ActiveX components.
+
     \internal
+
     \module QAxServer
     \extension ActiveQt
 
-    Implement this interface once in your ActiveX server to provide information about the components
-    this server can create. The interface inherits the QFeatureListInterface and works key-based. A
-    key in this interface is the class name of the ActiveX object.
+    Implement this interface once in your ActiveX server to provide
+    information about the components the server can create. The
+    interface inherits the QFeatureListInterface and is key-based.
+    A key in this interface is the class name of the ActiveX object.
 
-    To instantiate and export your implementation of the factory interface, use the Q_EXPORT_COMPONENT
-    and Q_CREATE_INSTANCE macros:
+    To instantiate and export your implementation of the factory
+    interface, use the \c Q_EXPORT_COMPONENT and \c Q_CREATE_INSTANCE
+    macros:
 
     \code
     class MyFactory : public QAxFactoryInterface
@@ -55,7 +59,8 @@
     }
     \endcode
 
-    The QAxFactory class provide a convenient implementation of this interface.
+    The QAxFactory class provides a convenient implementation of this
+    interface.
 */
 
 /*!
@@ -67,11 +72,13 @@
     \keyword QAXFACTORY_DEFAULT
     \keyword QAXFACTORY_EXPORT
 
-    Implement this factory once in your ActiveX server to provide information about the components
-    this server can create. If your server supports only a single ActiveX control, you can use the 
-    default factory implementation instead of implementing the factory on your own. Use the 
-    \c QAXFACTORY_DEFAULT macro in any implementation file (e.g. main.cpp) to instantiate and export 
-    the default factory:
+    Implement this factory once in your ActiveX server to provide
+    information about the components the server can create. If your
+    server supports just a single ActiveX control, you can use the
+    default factory implementation instead of implementing the factory
+    yourself. Use the \c QAXFACTORY_DEFAULT macro in any
+    implementation file (e.g. main.cpp) to instantiate and export the
+    default factory:
 
     \code
     #include <qapplication.h>
@@ -79,17 +86,20 @@
 
     #include "theactivex.h"
 
-    QAXFACTORY_DEFAULT( TheActiveX,				  // widget class
-                        "{01234567-89AB-CDEF-0123-456789ABCDEF}", // class ID
-			"{01234567-89AB-CDEF-0123-456789ABCDEF}", // interface ID
-			"{01234567-89AB-CDEF-0123-456789ABCDEF}", // event interface ID
-			"{01234567-89AB-CDEF-0123-456789ABCDEF}", // type library ID
-			"{01234567-89AB-CDEF-0123-456789ABCDEF}"  // application ID
-		      )
+    QAXFACTORY_DEFAULT(
+	TheActiveX,				  // widget class
+        "{01234567-89AB-CDEF-0123-456789ABCDEF}", // class ID
+	"{01234567-89AB-CDEF-0123-456789ABCDEF}", // interface ID
+	"{01234567-89AB-CDEF-0123-456789ABCDEF}", // event interface ID
+	"{01234567-89AB-CDEF-0123-456789ABCDEF}", // type library ID
+	"{01234567-89AB-CDEF-0123-456789ABCDEF}"  // application ID
+	)
     \endcode
 
-    If you implement your own factory reimplement the pure virtual functions to provide the unique identifiers
-    for the ActiveX controls, and use the QAXFACTORY_EXPORT macro to instantiate and export it: 
+    If you implement your own factory reimplement the pure virtual
+    functions to provide the unique identifiers for the ActiveX
+    controls, and use the \c QAXFACTORY_EXPORT macro to instantiate
+    and export it:
 
     \code
     QStringList ActiveQtFactory::featureList() const
@@ -110,7 +120,7 @@
 	...
 	return 0;
     }
-    
+
     QMetaObject *ActiveQtFactory::metaObject( const QString &key ) const
     {
         if ( key == "ActiveX1" )
@@ -143,18 +153,20 @@
 	return QUuid();
     }
 
-    QAXFACTORY_EXPORT( MyFactory,			         // factory class
-		       "{01234567-89AB-CDEF-0123-456789ABCDEF}", // type library ID
-		       "{01234567-89AB-CDEF-0123-456789ABCDEF}"  // application ID
-		     )
+    QAXFACTORY_EXPORT(
+	MyFactory,			          // factory class
+	"{01234567-89AB-CDEF-0123-456789ABCDEF}", // type library ID
+	"{01234567-89AB-CDEF-0123-456789ABCDEF}"  // application ID
+	)
     \endcode
 
-    Every ActiveX server application can only instantiate and export a single QAxFactory
-    implementation.
+    Only one QAxFactory implementation may be instantiated and
+    exported by an ActiveX server application.
 
-    A factory can additionally reimplement the registerClass() and unregisterClass()
-    functions to set additional flags for an ActiveX control in the registry. To limit
-    the number of methods or properties a widget class exposes from its parent classes
+    A factory can also reimplement the registerClass() and
+    unregisterClass() functions to set additional flags for an ActiveX
+    control in the registry. To limit the number of methods or
+    properties a widget class exposes from its parent classes
     reimplement exposeParentClass().
 */
 
@@ -189,7 +201,8 @@ QRESULT QAxFactory::queryInterface( const QUuid &iid, QUnknownInterface **iface 
 /*!
     \fn QUuid QAxFactory::typeLibID() const
 
-    Reimplement this function to return the type library identifier for this ActiveX server.
+    Reimplement this function to return the ActiveX server's type
+    library identifier.
 */
 QUuid QAxFactory::typeLibID() const
 {
@@ -199,7 +212,8 @@ QUuid QAxFactory::typeLibID() const
 /*!
     \fn QUuid QAxFactory::appID() const
 
-    Reimplement this function to return the application identifier for this ActiveX server.
+    Reimplement this function to return the ActiveX server's
+    application identifier.
 */
 QUuid QAxFactory::appID() const
 {
@@ -209,58 +223,70 @@ QUuid QAxFactory::appID() const
 /*!
     \fn QStringList QAxFactory::featureList() const
 
-    Reimplement this function to return a list of class names of the widgets supported by this factory.
+    Reimplement this function to return a list of the widgets (class
+    names) supported by this factory.
 */
 
 /*!
     \fn QWidget *QAxFactory::create( const QString &key, QWidget *parent = 0, const char *name = 0 )
 
-    Reimplement this function to return a new widget for each \a key returned by the featureList implementation. 
-    Propagate \a parent and \a name to the QWidget constructor. 
-    Return 0 if this factory doesn't support the value of \a key.
+    Reimplement this function to return a new widget for each \a key
+    returned by the featureList() implementation. Propagate \a parent
+    and \a name to the QWidget constructor. Return 0 if this factory
+    doesn't support the value of \a key.
 */
 
 /*!
     \fn QMetaObject *QAxFactory::metaObject( const QString &key ) const
 
-    Reimplement this function to return the QMetaObject for each \a key returned by the featureList implementation. 
-    Use the QObject::staticMetaObject() function to get the QMetaObject for a class. The class implementing the 
-    ActiveX control has to use the Q_OBJECT macro to generate meta object information.
-    Return 0 if this factory doesn't support the value of \a key.
+    Reimplement this function to return the QMetaObject for each \a
+    key returned by the featureList() implementation. Use the
+    QObject::staticMetaObject() function to get the QMetaObject for a
+    class. The class implementing the ActiveX control must use the
+    \c Q_OBJECT macro to generate meta object information. Return 0 if
+    this factory doesn't support the value of \a key.
 */
 
 /*!
     \fn QUuid QAxFactory::classID( const QString &key ) const
 
-    Reimplement this function to return the class identifier for each \a key returned by the featureList implementation, 
-    or an empty QUuid if this factory doesn't support the value of \a key.
+    Reimplement this function to return the class identifier for each
+    \a key returned by the featureList() implementation, or an empty
+    QUuid if this factory doesn't support the value of \a key.
 */
 
 /*!
     \fn QUuid QAxFactory::interfaceID( const QString &key ) const
 
-    Reimplement this function to return the interface identifier for each \a key returned by the featureList implementation, 
-    or an empty QUuid if this factory doesn't support the value of \a key.
+    Reimplement this function to return the interface identifier for
+    each \a key returned by the featureList() implementation, or an
+    empty QUuid if this factory doesn't support the value of \a key.
 */
 
 /*!
     \fn QUuid QAxFactory::eventsID( const QString &key ) const
 
-    Reimplement this function to return the identifier of the event interface for each \a key returned by the featureList 
-    implementation, or an empty QUuid if this factory doesn't support the value of \a key.
+    Reimplement this function to return the identifier of the event
+    interface for each \a key returned by the featureList()
+    implementation, or an empty QUuid if this factory doesn't support
+    the value of \a key.
 */
 
 /*!
-    Registers additional values for the class \a key in the system registry using the \a settings
-    object. The standard values have already been registed by the framework, but additional values,
-    e.g. implemented categories, can be added in an implementation of this function.
+    Registers additional values for the class \a key in the system
+    registry using the \a settings object. The standard values have
+    already been registed by the framework, but additional values,
+    e.g. implemented categories, can be added in an implementation of
+    this function.
 
     \code
     settings->writeEntry( "/CLSID/" + classID(key) + "/Implemented Categories/{00000000-0000-0000-000000000000}/.", QString::null );
     \endcode
 
-    If you reimplement this function you will also have to reimplement 
-    unregisterClass to remove the additional registry values.
+    If you reimplement this function you must also reimplement
+    unregisterClass() to remove the additional registry values.
+
+    \sa QSettings
 */
 void QAxFactory::registerClass( const QString &key, QSettings *settings ) const
 {
@@ -269,14 +295,14 @@ void QAxFactory::registerClass( const QString &key, QSettings *settings ) const
 }
 
 /*!
-    Unregisters additional values for the class \a key from the system registry using the 
-    \a settings object.
+    Unregisters any additional values for the class \a key from the
+    system registry using the \a settings object.
 
     \code
     settings->removeEntry( "/CLSID/" + classID(key) + "/Implemented Categories/{00000000-0000-0000-000000000000}/." );
     \endcode
 
-    \sa registerClass()
+    \sa registerClass() QSettings
 */
 void QAxFactory::unregisterClass( const QString &key, QSettings *settings ) const
 {
@@ -285,14 +311,16 @@ void QAxFactory::unregisterClass( const QString &key, QSettings *settings ) cons
 }
 
 /*!
-    Reimplement this function to return the name of the super class of \a key up to 
-    which methods and properties should be exposed by the ActiveX control.
+    Reimplement this function to return the name of the super class of
+    \a key up to which methods and properties should be exposed by the
+    ActiveX control.
 
-    The default implementation returns "QWidget". All methods and properties of all super classes
-    including QWidget will be exposed.
+    The default implementation returns "QWidget" which means that all
+    the functions and properties of all the super classes including
+    QWidget will be exposed.
 
-    To expose only methods and properties of the class itself, reimplement this function to return
-    \a key.
+    To only expose the functions and properties of the class itself,
+    reimplement this function to return \a key.
 */
 QString QAxFactory::exposeToSuperClass( const QString &key ) const
 {
@@ -302,11 +330,11 @@ QString QAxFactory::exposeToSuperClass( const QString &key ) const
 extern bool is_server;
 
 /*!
-    Returns TRUE if the application has been started as an ActiveX server,
+    Returns TRUE if the application has been started as an ActiveX server;
     otherwise returns FALSE.
 
     \code
-    int main( int argc, char**argv ) 
+    int main( int argc, char**argv )
     {
 	QApplication app( argc, argv );
 
