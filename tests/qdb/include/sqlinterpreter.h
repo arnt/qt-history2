@@ -213,11 +213,12 @@ private:
     QVariant exprType( const QVariant& expr );
     void emitExpr( const QVariant& expr, int trueLab = 0, int falseLab = 0 );
     void emitWhere( QVariant *cond, QValueList<QVariant> *constants,
+		    int resultId = -1,
 		    const QValueList<QVariant>& selectColumns =
 		    QValueList<QVariant>(),
 		    const QStringList& selectColumnNames = QStringList() );
     void emitWhereLoop( const QVariant& cond,
-			const QValueList<QVariant>& constants,
+			const QValueList<QVariant>& constants, int resultId,
 			const QValueList<QVariant>& selectColumns,
 			const QStringList& selectColumnNames, int level = 0 );
     void emitExprList( const QValueList<QVariant>& exprs );

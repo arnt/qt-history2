@@ -129,6 +129,9 @@ enum { Node_Abs, Node_Add, Node_And, Node_Avg, Node_Ceil, Node_Count,
 */
 static QPoint NullRep( 0, 0 );
 
+static int ResultId = 0;
+static int AuxResultId = 1;
+
 /*
   Returns (Node_ResolvedField tableId fieldName).
 */
@@ -974,7 +977,7 @@ void Parser::emitExpr( const QVariant& expr, int trueLab, int falseLab )
 	switch ( node ) {
 	case Node_Avg:
 	    resultColumn = (*++v).toList()[1].toInt();
-	    yyProg->append( new PushGroupAvg(0, resultColumn) );
+	    yyProg->append( new PushGroupAvg(AuxResultId, resultColumn) );
 	    break;
 	case Node_And:
 	    nextCond = yyNextLabel--;
@@ -984,7 +987,7 @@ void Parser::emitExpr( const QVariant& expr, int trueLab, int falseLab )
 	    break;
 	case Node_Count:
 	    resultColumn = (*++v).toList()[1].toInt();
-	    yyProg->append( new PushGroupCount(0, resultColumn) );
+	    yyProg->append( new PushGroupCount(AuxResultId, resultColumn) );
 	    break;
 	case Node_In:
 	    emitExpr( *++v );
@@ -997,11 +1000,11 @@ void Parser::emitExpr( const QVariant& expr, int trueLab, int falseLab )
 	    break;
 	case Node_Max:
 	    resultColumn = (*++v).toList()[1].toInt();
-	    yyProg->append( new PushGroupMax(0, resultColumn) );
+	    yyProg->append( new PushGroupMax(AuxResultId, resultColumn) );
 	    break;
 	case Node_Min:
 	    resultColumn = (*++v).toList()[1].toInt();
-	    yyProg->append( new PushGroupMin(0, resultColumn) );
+	    yyProg->append( new PushGroupMin(AuxResultId, resultColumn) );
 	    break;
 	case Node_Not:
 	    emitExpr( *++v, falseLab, trueLab );
@@ -1027,11 +1030,11 @@ void Parser::emitExpr( const QVariant& expr, int trueLab, int falseLab )
 	    break;
 	case Node_ResultColumnNo:
 	    fieldNo = (*++v).toInt();
-	    yyProg->append( new PushGroupValue(0, fieldNo) );
+	    yyProg->append( new PushGroupValue(AuxResultId, fieldNo) );
 	    break;
 	case Node_Sum:
 	    resultColumn = (*++v).toList()[1].toInt();
-	    yyProg->append( new PushGroupSum(0, resultColumn) );
+	    yyProg->append( new PushGroupSum(AuxResultId, resultColumn) );
 	    break;
 	default:
 	    ++v;
@@ -1121,7 +1124,7 @@ void Parser::emitExpr( const QVariant& expr, int trueLab, int falseLab )
   (not saving), these two lists should be empty.
 */
 void Parser::emitWhere( QVariant *cond, QValueList<QVariant> *constants,
-			const QValueList<QVariant>& selectColumns,
+			int resultId, const QValueList<QVariant>& selectColumns,
 			const QStringList& selectColumnNames )
 {
     QValueList<QVariant> optimizableConstants;
@@ -1140,7 +1143,7 @@ void Parser::emitWhere( QVariant *cond, QValueList<QVariant> *constants,
 	++c;
     }
     pourConstantsIntoCondition( cond, &unoptimizableConstants );
-    emitWhereLoop( *cond, optimizableConstants, selectColumns,
+    emitWhereLoop( *cond, optimizableConstants, resultId, selectColumns,
 		   selectColumnNames );
 }
 
@@ -1152,6 +1155,7 @@ void Parser::emitWhere( QVariant *cond, QValueList<QVariant> *constants,
 */
 void Parser::emitWhereLoop( const QVariant& cond,
 			    const QValueList<QVariant>& constants,
+			    int resultId,
 			    const QValueList<QVariant>& selectColumns,
 			    const QStringList& selectColumnNames, int level )
 {
@@ -1193,7 +1197,7 @@ void Parser::emitWhereLoop( const QVariant& cond,
     }
 
     if ( saving && level == 0 )
-	emitCreateResult( 0, selectColumnNames, selectColumns );
+	emitCreateResult( resultId, selectColumnNames, selectColumns );
 
     if ( needLoop && constantsForLevel.isEmpty() ) {
 	yyProg->append( new MarkAll(tableId) );
@@ -1210,7 +1214,7 @@ void Parser::emitWhereLoop( const QVariant& cond,
 	    }
 	    yyProg->append( new MakeList );
 	    yyProg->append( new MakeList );
-	    yyProg->append( new RangeSave(tableId, 0) );
+	    yyProg->append( new RangeSave(tableId, resultId) );
 	} else {
 	    emitConstants( constantsForLevel );
 	    yyProg->append( new RangeMark(tableId) );
@@ -1232,7 +1236,7 @@ void Parser::emitWhereLoop( const QVariant& cond,
 		    yyProg->appendLabel( save );
 		}
 		emitExprList( selectColumns );
-		yyProg->append( new SaveResult(0) );
+		yyProg->append( new SaveResult(resultId) );
 	    } else {
 		int unmark = yyNextLabel--;
 		if ( cond.isValid() ) {
@@ -1244,8 +1248,8 @@ void Parser::emitWhereLoop( const QVariant& cond,
 		yyProg->append( new Unmark(tableId) );
 	    }
 	} else {
-	    emitWhereLoop( cond, constants, selectColumns, selectColumnNames,
-			   level + 1 );
+	    emitWhereLoop( cond, constants, resultId, selectColumns,
+			   selectColumnNames, level + 1 );
 	}
 	yyProg->append( new Goto(next) );
 	yyProg->appendLabel( end );
@@ -2480,9 +2484,10 @@ void Parser::matchSelectStatement()
 	  This is the common, easy case where one pass is enough. We
 	  read from the tables and generate a result.
 	*/
-	emitWhere( &whereCond, &whereConstants, selectColumns,
+
+	emitWhere( &whereCond, &whereConstants, ResultId, selectColumns,
 		   selectColumnNames );
-	matchOptOrderByClause( 0, selectColumnNames );
+	matchOptOrderByClause( ResultId, selectColumnNames );
     } else {
 	/*
 	  This is the general case where two passes are needed. The
@@ -2521,7 +2526,7 @@ void Parser::matchSelectStatement()
 		    usedDynamicFields.insert( f.key(), *g );
 		} else {
 		    resultColumnNos[*g].insert( f.key(), n );
-		    auxColumns.append( resolvedField(0, *g) );
+		    auxColumns.append( resolvedField(ResultId, *g) );
 		    auxColumnNames.append( *g );
 		    n++;
 		}
@@ -2556,7 +2561,8 @@ void Parser::matchSelectStatement()
 	/*
 	  Do the select.
 	*/
-	emitWhere( &whereCond, &whereConstants, auxColumns, auxColumnNames );
+	emitWhere( &whereCond, &whereConstants, AuxResultId, auxColumns,
+		   auxColumnNames );
 
 	/*
 	  Second pass.
@@ -2565,7 +2571,7 @@ void Parser::matchSelectStatement()
 	int save = yyNextLabel--;
 	int end = yyNextLabel--;
 
-	emitCreateResult( 1, selectColumnNames, selectColumns );
+	emitCreateResult( ResultId, selectColumnNames, selectColumns );
 
 	yyProg->append( new PushSeparator );
 	QValueList<QVariant>::Iterator c = groupByColumns.begin();
@@ -2574,9 +2580,9 @@ void Parser::matchSelectStatement()
 	    ++c;
 	}
 	yyProg->append( new MakeList );
-	yyProg->append( new MakeGroupSet(0) );
+	yyProg->append( new MakeGroupSet(AuxResultId) );
 	yyProg->appendLabel( next );
-	yyProg->append( new NextGroupSet(0, end) );
+	yyProg->append( new NextGroupSet(AuxResultId, end) );
 
 	resolveResultColumnNos( &havingCond, resultColumnNos );
 	if ( havingCond.isValid() ) {
@@ -2586,12 +2592,12 @@ void Parser::matchSelectStatement()
 
 	resolveResultColumnNos( &selectColumns, resultColumnNos );
 	emitExprList( selectColumns );
-	yyProg->append( new SaveResult(1) );
+	yyProg->append( new SaveResult(ResultId) );
 
 	yyProg->append( new Goto(next) );
 	yyProg->appendLabel( end );
 
-	matchOptOrderByClause( 1, selectColumnNames );
+	matchOptOrderByClause( ResultId, selectColumnNames );
     }
 }
 
