@@ -282,7 +282,18 @@ class QGfxVga16 : public QGfxRasterBase , private QPolygonScanner
 
 	QGfxVga16(unsigned char *,int w,int h);
 	virtual ~QGfxVga16();
-	
+
+        void useBrush() {
+            pixel=gfx_screen->alloc(cbrush.color().red(),
+                                    cbrush.color().green(),
+                                    cbrush.color().blue());
+        }
+        void usePen() {
+            pixel=gfx_screen->alloc(cpen.color().red(),
+                                    cpen.color().green(),
+                                    cpen.color().blue());
+        }
+
 	virtual void drawPoint( int,int );
 	virtual void drawPoints( const QPointArray &,int,int );
 	virtual void drawLine( int,int,int,int );
