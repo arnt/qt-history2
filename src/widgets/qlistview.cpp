@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#35 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#36 $
 **
 ** Implementation of QListView widget class
 **
@@ -23,7 +23,7 @@
 #include <stdarg.h> // va_list
 #include <stdlib.h> // qsort
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#35 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#36 $");
 
 
 const int Unsorted = 32767;
@@ -2030,4 +2030,20 @@ void QListView::setAllColumnsShowFocus( bool enable )
 bool QListView::allColumnsShowFocus() const
 {
     return d->allColumnsShowFocus;
+}
+
+
+/*!  Returns the first item in this QListView.  You can use its \link
+  QListViewItem::firstChild() firstChild() \endlink and \link
+  QListViewItem::nextSibling() nextSibling() \endlink functions to
+  traverse the entire tree of items.
+  
+  Returns 0 if there is no first item.
+  
+  \sa itemAt() itemBelow() itemAbove()
+*/
+
+const QListViewItem * QListView::firstChild() const
+{
+    return d->r->childItem;
 }

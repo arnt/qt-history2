@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.h#15 $
+** $Id: //depot/qt/main/src/widgets/qlistview.h#16 $
 **
 ** Definition of QListView widget class
 **
@@ -129,6 +129,8 @@ public:
     virtual void setCurrentItem( QListViewItem * );
     QListViewItem * currentItem() const;
 
+    const QListViewItem * firstChild() const;
+
     virtual void setAllColumnsShowFocus( bool );
     bool allColumnsShowFocus() const;
 
@@ -138,7 +140,9 @@ public:
     void setFont( const QFont & );
     void setPalette( const QPalette & );
 
-public slots:
+    bool eventFilter( QObject * o, QEvent * );
+
+ public slots:
     void triggerUpdate();
 
 signals:
@@ -153,8 +157,6 @@ signals:
     void rightButtonClicked( QListViewItem *, const QPoint&, int );
 
 protected:
-    bool eventFilter( QObject * o, QEvent * );
-
     void mousePressEvent( QMouseEvent * e );
     void mouseReleaseEvent( QMouseEvent * e );
     void mouseMoveEvent( QMouseEvent * e );
