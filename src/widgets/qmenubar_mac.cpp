@@ -265,8 +265,11 @@ void QMenuBar::macCreateNativeMenubar()
 }
 void QMenuBar::macRemoveNativeMenubar()
 {
-    if(menubars)
-	menubars->remove((int)topLevelWidget());
+    if(mac_eaten_menubar && menubars) {
+	QMenuBar *mb = menubars->find((int)topLevelWidget());
+	if(mb == this) 
+	    menubars->remove((int)topLevelWidget());
+    }
 }
 
 void QMenuBar::cleanup()
