@@ -148,8 +148,8 @@ struct XPThemeData
 	    htheme = handleMap->operator[]( name );
 
         if ( !htheme ) {
-	    static unsigned short nm[256];
-	    wcscpy( nm, (unsigned short*)name.unicode() );
+	    static wchar_t nm[256];
+	    wcscpy( nm, (wchar_t*)name.unicode() );
 	    nm[name.length()] = 0;
             htheme = OpenThemeData( QWindowsXPStylePrivate::winId( widget ), nm );
 	    if ( htheme ) {
