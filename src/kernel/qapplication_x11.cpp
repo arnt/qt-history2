@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#311 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#312 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -187,6 +187,7 @@ extern void qt_handle_xdnd_leave( QWidget *, const XEvent * );
 extern void qt_handle_xdnd_drop( QWidget *, const XEvent * );
 extern void qt_handle_xdnd_finished( QWidget *, const XEvent * );
 extern void qt_xdnd_handle_selection_request( const XSelectionRequestEvent * );
+extern void qt_xdnd_handle_destroy_notify( const XDestroyWindowEvent * );
 // client message atoms
 extern Atom qt_xdnd_enter;
 extern Atom qt_xdnd_position;
@@ -1835,13 +1836,13 @@ int QApplication::x11ProcessEvent( XEvent* event )
     if ( wPRmapper ) {				// just did a widget recreate?
 	if ( widget == 0 ) {			// not in std widget mapper
 	    switch ( event->type ) {		// only for mouse/key events
-		case ButtonPress:
-		case ButtonRelease:
-		case MotionNotify:
-		case KeyPress:
-		case KeyRelease:
-		    widget = qPRFindWidget( event->xany.window );
-		    break;
+	    case ButtonPress:
+	    case ButtonRelease:
+	    case MotionNotify:
+	    case KeyPress:
+	    case KeyRelease:
+		widget = qPRFindWidget( event->xany.window );
+		break;
 	    }
 	}
 	else if ( widget->testWFlags(WRecreated) )
@@ -1855,20 +1856,20 @@ int QApplication::x11ProcessEvent( XEvent* event )
 
     if ( !widget ) {				// don't know this window
 	if ( (widget=(QETWidget*)QApplication::activePopupWidget()) )
-	{
-	    // Danger - make sure we don't lock the server
-	    switch ( event->type ) {
-	      case ButtonPress:
-	      case ButtonRelease:
-	      case KeyPress:
-	      case KeyRelease:
-		widget->hide();
-		return 1;
+	    {
+		// Danger - make sure we don't lock the server
+		switch ( event->type ) {
+		case ButtonPress:
+		case ButtonRelease:
+		case KeyPress:
+		case KeyRelease:
+		    widget->hide();
+		    return 1;
+		}
+	    } else {
+		void qt_np_process_foreign_event(XEvent*); // in qnpsupport.cpp
+		qt_np_process_foreign_event( event );
 	    }
-	} else {
-	    void qt_np_process_foreign_event(XEvent*); // in qnpsupport.cpp
-	    qt_np_process_foreign_event( event );
-	}
 	return -1;
     }
 
@@ -1878,15 +1879,15 @@ int QApplication::x11ProcessEvent( XEvent* event )
 
     if ( popupWidgets ) {			// in popup mode
 	switch ( event->type ) {
-		// Mouse and keyboard events are handled by the
-		// translate routines
-	    case FocusIn:
-	    case FocusOut:
-	    case EnterNotify:
-	    case LeaveNotify:
-		if ( popupFilter(widget) )
-		    return 1;
-		break;
+	    // Mouse and keyboard events are handled by the
+	    // translate routines
+	case FocusIn:
+	case FocusOut:
+	case EnterNotify:
+	case LeaveNotify:
+	    if ( popupFilter(widget) )
+		return 1;
+	    break;
 	}
     }
 
@@ -1895,121 +1896,127 @@ int QApplication::x11ProcessEvent( XEvent* event )
 
     switch ( event->type ) {
 
-	case ButtonPress:			// mouse event
-	case ButtonRelease:
-	case MotionNotify:
-	    qt_x_clipboardtime = (event->type == MotionNotify) ?
-		event->xmotion.time : event->xbutton.time;
-	    if ( widget->isEnabled() &&
-		 event->type == ButtonPress &&
-		 event->xbutton.button == Button1 &&
-		 (widget->focusPolicy() & QWidget::ClickFocus) )
-		widget->setFocus();
-	    widget->translateMouseEvent( event );
-	    break;
+    case ButtonPress:			// mouse event
+    case ButtonRelease:
+    case MotionNotify:
+	qt_x_clipboardtime = (event->type == MotionNotify) ?
+			     event->xmotion.time : event->xbutton.time;
+	if ( widget->isEnabled() &&
+	     event->type == ButtonPress &&
+	     event->xbutton.button == Button1 &&
+	     (widget->focusPolicy() & QWidget::ClickFocus) )
+	    widget->setFocus();
+	widget->translateMouseEvent( event );
+	break;
 
-	case KeyPress:				// keyboard event
-	case KeyRelease: {
-	    qt_x_clipboardtime = event->xkey.time;
-	    QWidget *g = QWidget::keyboardGrabber();
-	    if ( g )
-		widget = (QETWidget*)g;
-	    else if ( focus_widget )
-		widget = (QETWidget*)focus_widget;
-	    else
-		widget = (QETWidget*)widget->topLevelWidget();
-	    if ( widget->isEnabled() )
-		widget->translateKeyEvent( event, g != 0 );
-	    }
-	    break;
+    case KeyPress:				// keyboard event
+    case KeyRelease: {
+	qt_x_clipboardtime = event->xkey.time;
+	QWidget *g = QWidget::keyboardGrabber();
+	if ( g )
+	    widget = (QETWidget*)g;
+	else if ( focus_widget )
+	    widget = (QETWidget*)focus_widget;
+	else
+	    widget = (QETWidget*)widget->topLevelWidget();
+	if ( widget->isEnabled() )
+	    widget->translateKeyEvent( event, g != 0 );
+    }
+    break;
 
-	case GraphicsExpose:
-	case Expose:				// paint event
-	    if ( widget->testWFlags( WState_DoHide ) ) {
-		 widget->setWFlags( WState_Visible );
-		 widget->hide();
-	    } else {
-		widget->translatePaintEvent( event );
-	    }
-	    break;
+    case GraphicsExpose:
+    case Expose:				// paint event
+	if ( widget->testWFlags( WState_DoHide ) ) {
+	    widget->setWFlags( WState_Visible );
+	    widget->hide();
+	} else {
+	    widget->translatePaintEvent( event );
+	}
+	break;
 
-	case ConfigureNotify:			// window move/resize event
-	    widget->translateConfigEvent( event );
-	    break;
+    case ConfigureNotify:			// window move/resize event
+	widget->translateConfigEvent( event );
+	break;
 
-	case FocusIn: {				// got focus
-	    QWidget *w = widget->focusWidget();
-	    if ( w && (w->isFocusEnabled() || w->isTopLevel()) ) {
-		qApp->focus_widget = w;
-		QFocusEvent in( Event_FocusIn );
-		QApplication::sendEvent( w, &in );
-	    } else {
-		// set focus to some arbitrary widget with WTabToFocus
-		widget->topLevelWidget()->focusNextPrevChild( TRUE );
-		focus_widget = widget->focusWidget();
-	    }
-	    }
-	    break;
+    case FocusIn: {				// got focus
+	QWidget *w = widget->focusWidget();
+	if ( w && (w->isFocusEnabled() || w->isTopLevel()) ) {
+	    qApp->focus_widget = w;
+	    QFocusEvent in( Event_FocusIn );
+	    QApplication::sendEvent( w, &in );
+	} else {
+	    // set focus to some arbitrary widget with WTabToFocus
+	    widget->topLevelWidget()->focusNextPrevChild( TRUE );
+	    focus_widget = widget->focusWidget();
+	}
+    }
+    break;
 
-	case FocusOut:				// lost focus
-	    if ( focus_widget ) {
-		QFocusEvent out( Event_FocusOut );
-		QWidget *w = focus_widget;
-		focus_widget = 0;
-		QApplication::sendEvent( w, &out );
-	    }
-	    break;
+    case FocusOut:				// lost focus
+	if ( focus_widget ) {
+	    QFocusEvent out( Event_FocusOut );
+	    QWidget *w = focus_widget;
+	    focus_widget = 0;
+	    QApplication::sendEvent( w, &out );
+	}
+	break;
 
-	case EnterNotify:			// enter window
-	case LeaveNotify: {			// leave window
-	    QEvent e( event->type == EnterNotify ? Event_Enter : Event_Leave );
+    case EnterNotify:			// enter window
+    case LeaveNotify: {			// leave window
+	QEvent e( event->type == EnterNotify ? Event_Enter : Event_Leave );
+	QApplication::sendEvent( widget, &e );
+    }
+    break;
+
+    case DestroyNotify: {
+	qt_xdnd_handle_destroy_notify( (XDestroyWindowEvent *)event );
+	// others?
+    }
+    break;
+
+    case UnmapNotify:			// window hidden
+	if ( widget->testWFlags( WState_Visible ) ) {
+	    widget->clearWFlags( WState_Visible );
+	    QHideEvent e(TRUE);
 	    QApplication::sendEvent( widget, &e );
-	    }
-	    break;
+	}
+	break;
+	    
+    case MapNotify:				// window shown
+	if ( !widget->testWFlags( WState_Visible ) ) {
+	    widget->setWFlags( WState_Visible );
+	    QShowEvent e(TRUE);
+	    QApplication::sendEvent( widget, &e );
+	}
+	break;
 
-	case UnmapNotify:			// window hidden
-	    if ( widget->testWFlags( WState_Visible ) ) {
-		widget->clearWFlags( WState_Visible );
-		QHideEvent e(TRUE);
-		QApplication::sendEvent( widget, &e );
+    case ClientMessage:			// client message
+	if ( event->xclient.format == 32 && event->xclient.message_type ) {
+	    if ( event->xclient.message_type == qt_wm_protocols ) {
+		long *l = event->xclient.data.l;
+		if ( *l == (long)qt_wm_delete_window )
+		    widget->translateCloseEvent(event);
+	    } else if ( event->xclient.message_type == qt_qt_scrolldone ) {
+		widget->translateScrollDoneEvent(event);
+	    } else if ( event->xclient.message_type == qt_xdnd_position ) {
+		qt_handle_xdnd_position( widget, event );
+	    } else if ( event->xclient.message_type == qt_xdnd_enter ) {
+		qt_handle_xdnd_enter( widget, event );
+	    } else if ( event->xclient.message_type == qt_xdnd_status ) {
+		qt_handle_xdnd_status( widget, event );
+	    } else if ( event->xclient.message_type == qt_xdnd_leave ) {
+		qt_handle_xdnd_leave( widget, event );
+	    } else if ( event->xclient.message_type == qt_xdnd_drop ) {
+		qt_handle_xdnd_drop( widget, event );
+	    } else if ( event->xclient.message_type == qt_xdnd_finished ) {
+		qt_handle_xdnd_finished( widget, event );
 	    }
-	    break;
+	}
+	break;
 
-	case MapNotify:				// window shown
-	    if ( !widget->testWFlags( WState_Visible ) ) {
-		widget->setWFlags( WState_Visible );
-		QShowEvent e(TRUE);
-		QApplication::sendEvent( widget, &e );
-	    }
-	    break;
-
-	case ClientMessage:			// client message
-	    if ( event->xclient.format == 32 && event->xclient.message_type ) {
-		if ( event->xclient.message_type == qt_wm_protocols ) {
-		    long *l = event->xclient.data.l;
-		    if ( *l == (long)qt_wm_delete_window )
-			widget->translateCloseEvent(event);
-		} else if ( event->xclient.message_type == qt_qt_scrolldone ) {
-		    widget->translateScrollDoneEvent(event);
-		} else if ( event->xclient.message_type == qt_xdnd_position ) {
-		    qt_handle_xdnd_position( widget, event );
-		} else if ( event->xclient.message_type == qt_xdnd_enter ) {
-		    qt_handle_xdnd_enter( widget, event );
-		} else if ( event->xclient.message_type == qt_xdnd_status ) {
-		    qt_handle_xdnd_status( widget, event );
-		} else if ( event->xclient.message_type == qt_xdnd_leave ) {
-		    qt_handle_xdnd_leave( widget, event );
-		} else if ( event->xclient.message_type == qt_xdnd_drop ) {
-		    qt_handle_xdnd_drop( widget, event );
-		} else if ( event->xclient.message_type == qt_xdnd_finished ) {
-		    qt_handle_xdnd_finished( widget, event );
-		}
-	    }
-	    break;
-
-	case ReparentNotify:			// window manager reparents
-	    if ( event->xreparent.parent != appRootWin
-	      && !QWidget::find((WId)event->xreparent.parent) )
+    case ReparentNotify:			// window manager reparents
+	if ( event->xreparent.parent != appRootWin
+	     && !QWidget::find((WId)event->xreparent.parent) )
 	    {
 		XWindowAttributes a1, a2;
 		while ( XCheckTypedWindowEvent( widget->x11Display(),
@@ -2035,27 +2042,27 @@ int QApplication::x11ProcessEvent( XEvent* event )
 				      QPoint(r->right()	 + a->x,
 					     r->bottom() + a->x) );
 	    }
-	    break;
+	break;
 
-	case SelectionRequest:
-	    if ( qt_xdnd_selection ) {
-		XSelectionRequestEvent *req = &event->xselectionrequest;
-		if ( req && req->selection == qt_xdnd_selection ) {
-		    qt_xdnd_handle_selection_request( req );
-		    break;
-		}
+    case SelectionRequest:
+	if ( qt_xdnd_selection ) {
+	    XSelectionRequestEvent *req = &event->xselectionrequest;
+	    if ( req && req->selection == qt_xdnd_selection ) {
+		qt_xdnd_handle_selection_request( req );
+		break;
 	    }
-	    // FALL THROUGH
-	case SelectionClear:
-	case SelectionNotify:
-	    if ( qt_clipboard ) {
-		QCustomEvent e( Event_Clipboard, event );
-		QApplication::sendEvent( qt_clipboard, &e );
-	    }
-	    break;
+	}
+	// FALL THROUGH
+    case SelectionClear:
+    case SelectionNotify:
+	if ( qt_clipboard ) {
+	    QCustomEvent e( Event_Clipboard, event );
+	    QApplication::sendEvent( qt_clipboard, &e );
+	}
+	break;
 
-	default:
-	    break;
+    default:
+	break;
     }
 
     return 0;
