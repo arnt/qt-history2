@@ -741,6 +741,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 		     data->mask->xForm(matrix);
 		 pm.setMask( bm );
 	     }
+	     pm.data->hasAlpha = data->hasAlpha;
 	     return pm;
 	 }
     } else {					// rotation or shearing
@@ -828,6 +829,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 	else
 	    pm.setMask( data->mask->xForm(matrix) );
     }
+    pm.data->hasAlpha = data->hasAlpha;
 
     return pm;
 }
