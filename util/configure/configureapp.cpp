@@ -1754,18 +1754,19 @@ void Configure::readLicense()
             return;
         }
 
+        // Prompt the license content to the user (25 lines at a time)
         QStringList licenseContent = QString(file.readAll()).split('\n');
         for (int i = 0; i<licenseContent.size(); ++i) {
             cout << licenseContent.at(i) << endl;
             char c;
             if (i % 25 == 24)
                 cin.get(c);
-
         }
+
         char accept = 'n';
         cout << endl << "Do you accept the license? (y/n)" << endl;
         cin >> accept;
-        if (accept == 'n') {
+        if (accept != 'y') {
             cout << "Configuration aborted since license was not accepted";
             dictionary["DONE"] = "error";
             return;
