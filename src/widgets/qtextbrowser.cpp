@@ -310,11 +310,11 @@ void QTextBrowser::setSource(const QString& name)
     The \a link will be the absolute location of the document, based on the
     value of the anchor's href tag and the current context of the document.
 
-    \sa anchorClicked()
+    \sa anchorClicked(), context()
 */
 
 /*!
-    \fn void QTextBrowser::anchorClicked( const QString& link, const QString &name)
+    \fn void QTextBrowser::anchorClicked( const QString& name, const QString &link)
 
     This signal is emitted when the user clicks a an anchor. The \a link is
     the value of the \c href i.e. the name of the target document.  The \a name

@@ -3180,6 +3180,11 @@ QString QTextDocument::focusHref() const
     return focusIndicator.href;
 }
 
+QString QTextDocument::focusName() const
+{
+    return focusIndicator.name;
+}
+
 bool QTextDocument::focusNextPrevChild( bool next )
 {
     if ( !focusIndicator.parag ) {
@@ -3196,6 +3201,7 @@ bool QTextDocument::focusNextPrevChild( bool next )
 	focusIndicator.parag->setChanged( TRUE );
     }
     focusIndicator.href = QString::null;
+    focusIndicator.name = QString::null;
 
     if ( next ) {
 	QTextParag *p = focusIndicator.parag;
@@ -3208,6 +3214,7 @@ bool QTextDocument::focusNextPrevChild( bool next )
 		    focusIndicator.start = i;
 		    focusIndicator.len = 0;
 		    focusIndicator.href = p->at( i )->anchorHref();
+		    focusIndicator.name = p->at( i )->anchorName();
 		    while ( i < p->length() ) {
 			if ( !p->at( i )->isAnchor() )
 			    return TRUE;
@@ -3230,6 +3237,7 @@ bool QTextDocument::focusNextPrevChild( bool next )
 				    focusIndicator.start = i;
 				    focusIndicator.len = 0;
 				    focusIndicator.href = c->richText()->focusHref();
+				    focusIndicator.name = c->richText()->focusName();
 				    return TRUE;
 				} else {
 				    resetCells = FALSE;
@@ -3248,6 +3256,7 @@ bool QTextDocument::focusNextPrevChild( bool next )
 				focusIndicator.start = i;
 				focusIndicator.len = 0;
 				focusIndicator.href = c->richText()->focusHref();
+				focusIndicator.name = c->richText()->focusName();
 				return TRUE;
 			    }
 			}
@@ -3271,6 +3280,7 @@ bool QTextDocument::focusNextPrevChild( bool next )
 		    focusIndicator.start = i;
 		    focusIndicator.len = 0;
 		    focusIndicator.href = p->at( i )->anchorHref();
+		    focusIndicator.name = p->at( i )->anchorName();
 		    while ( i >= -1 ) {
 			if ( i < 0 || !p->at( i )->isAnchor() ) {
 			    focusIndicator.start++;
@@ -3298,6 +3308,7 @@ bool QTextDocument::focusNextPrevChild( bool next )
 				    focusIndicator.start = i;
 				    focusIndicator.len = 0;
 				    focusIndicator.href = c->richText()->focusHref();
+				    focusIndicator.name = c->richText()->focusName();
 				    return TRUE;
 				} else {
 				    resetCells = FALSE;
@@ -3318,6 +3329,7 @@ bool QTextDocument::focusNextPrevChild( bool next )
 				focusIndicator.start = i;
 				focusIndicator.len = 0;
 				focusIndicator.href = c->richText()->focusHref();
+				focusIndicator.name = c->richText()->focusName();
 				return TRUE;
 			    }
 			    if ( cells.at() == 0 )

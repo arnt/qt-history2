@@ -3971,9 +3971,26 @@ bool QTextEdit::handleReadOnlyKeyEvent( QKeyEvent *e )
     case Key_Return:
     case Key_Enter:
     case Key_Space: {
-	if (!doc->focusIndicator.href.isEmpty()) {
-	    QUrl u( doc->context(), doc->focusIndicator.href, TRUE );
-	    emitLinkClicked( u.toString( FALSE, FALSE ) );
+	if (!doc->focusIndicator.href.isEmpty() 
+		|| !doc->focusIndicator.name.isEmpty()) {
+	    if (!doc->focusIndicator.href.isEmpty()) {
+		QUrl u( doc->context(), doc->focusIndicator.href, TRUE );
+		emitLinkClicked( u.toString( FALSE, FALSE ) );
+	    }
+	    if (!doc->focusIndicator.name.isEmpty()) {
+		if (inherits("QTextBrowser")) { // change for 4.0
+		    QConnectionList *clist = receivers( 
+			    "anchorClicked(const QString&,const QString&)");
+		    if (!signalsBlocked() && clist) {
+			QUObject o[3];
+			static_QUType_QString.set(o+1, 
+				doc->focusIndicator.name);
+			static_QUType_QString.set(o+2, 
+				doc->focusIndicator.href);
+			activate_signal( clist, o);
+		    }
+		}
+	    }
 #ifndef QT_NO_CURSOR
 	    viewport()->setCursor( isReadOnly() ? arrowCursor : ibeamCursor );
 #endif

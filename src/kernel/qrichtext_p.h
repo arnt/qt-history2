@@ -894,6 +894,7 @@ public:
 
     bool hasFocusParagraph() const;
     QString focusHref() const;
+    QString focusName() const;
 
     void invalidateOriginalText() { oTextValid = FALSE; oText = ""; }
 
@@ -924,6 +925,7 @@ private:
 	QTextParag *parag;
 	int start, len;
 	QString href;
+	QString name;
     };
 
     int cx, cy, cw, vw;
