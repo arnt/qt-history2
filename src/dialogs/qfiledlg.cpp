@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#40 $
+** $Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#41 $
 **
 ** Implementation of QFileDialog class
 **
@@ -28,7 +28,7 @@
 #endif
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#40 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#41 $");
 
 
 /*!
@@ -393,7 +393,7 @@ QString QFileDialog::getOpenFileName( const char *dirName, const char *filter,
   Example:
   \code
     // start at the current working directory and with *.cpp as filter
-    QString f = QFileDialog::getSaveFileDialog( 0, "*.cpp", this );
+    QString f = QFileDialog::getSaveFileName( 0, "*.cpp", this );
     if ( !f.isEmpty() ) {
         // the user gave a file name
     } else {
