@@ -13,18 +13,21 @@ static inline void positionCluster( ShapedItem *shaped, int gfrom,  int glast )
     }
 
     FontEngineIface *f = shaped->d->fontEngine;
-    QGlyphInfo base = f->boundingBox( shaped->d->glyphs[gfrom] );
-    QRect baseRect( base.x, base.y, base.width, base.height );
+    QGlyphInfo baseInfo = f->boundingBox( shaped->d->glyphs[gfrom] );
+    QRect baseRect( baseInfo.x, baseInfo.y, baseInfo.width, baseInfo.height );
 
-    qDebug("---> positionCluster: cluster from %d to %d", gfrom, glast );
-    qDebug( "base char: bounding rect at %d/%d (%d/%d)", baseRect.x(), baseRect.y(), baseRect.width(), baseRect.height() );
+//     qDebug("---> positionCluster: cluster from %d to %d", gfrom, glast );
+//     qDebug( "baseInfo: %d/%d (%d/%d) off=%d/%d", baseInfo.x, baseInfo.y, baseInfo.width, baseInfo.height, baseInfo.xoff, baseInfo.yoff );
+
     int offset = f->ascent() / 10 + 1;
-    qDebug("offset = %d", offset );
+//     qDebug("offset = %d", offset );
 
     int i;
     unsigned char lastCmb = 0;
     QRect attachmentRect;
-    for( i = 0; i < nmarks; i++ ) {
+    QPoint penpos = QPoint( baseInfo.xoff, baseInfo.yoff );
+
+    for( i = 1; i <= nmarks; i++ ) {
 	GlyphIndex mark = shaped->d->glyphs[gfrom+i];
 	unsigned char cmb = shaped->d->glyphAttributes[gfrom+i].combiningClass;
 	if ( cmb < 200 ) {
@@ -65,6 +68,7 @@ static inline void positionCluster( ShapedItem *shaped, int gfrom,  int glast )
 	QPoint p;
 	QGlyphInfo markInfo = f->boundingBox( mark );
 	QRect markRect( markInfo.x, markInfo.y, markInfo.width, markInfo.height );
+// 	qDebug( "markRect: %d/%d (%d/%d) offset=%d/%d", markRect.x(), markRect.y(), markRect.width(), markRect.height(), markInfo.xoff, markInfo.yoff );
 	switch( cmb ) {
 	case QChar::Combining_DoubleBelow:
 		// ### wrong in rtl context!
@@ -115,14 +119,20 @@ static inline void positionCluster( ShapedItem *shaped, int gfrom,  int glast )
 	    default:
 		break;
 	}
-	qDebug( "char=%x combiningClass = %d offset=%d/%d", mark, cmb, p.x(), p.y() );
+// 	qDebug( "char=%x combiningClass = %d offset=%d/%d", mark, cmb, p.x(), p.y() );
 	markRect.moveBy( p.x(), p.y() );
-	p += QPoint( -base.xoff + base.x, -base.yoff + base.y );
-	p -= QPoint( -markInfo.xoff + markInfo.x, -markInfo.yoff + markInfo.y );
 	attachmentRect |= markRect;
 	lastCmb = cmb;
-	shaped->d->offsets[gfrom+i].x = p.x();
-	shaped->d->offsets[gfrom+i].y = p.y();
+	shaped->d->offsets[gfrom+i].x = -penpos.x() + p.x();
+	shaped->d->offsets[gfrom+i].y = -penpos.y() + p.y();
+	penpos += QPoint( shaped->d->offsets[gfrom+i].x, shaped->d->offsets[gfrom+i].y );
+	penpos += QPoint( markInfo.xoff, markInfo.yoff );
+// 	qDebug("positionCluster penpos=%d/%d", penpos.x(), penpos.y() );
+    }
+    if ( glast < shaped->d->num_glyphs-1 ) {
+// 	qDebug("positionCluster:end penpos=%d/%d", penpos.x(), penpos.y() );
+	shaped->d->offsets[glast+1].x = -penpos.x() + baseInfo.xoff;
+	shaped->d->offsets[glast+1].y = -penpos.y() + baseInfo.yoff;
     }
 }
 
@@ -182,7 +192,7 @@ void ScriptEngine::heuristicSetGlyphAttributes( ShapedItem *shaped )
 		d->glyphAttributes[gpos].mark = TRUE;
 		d->glyphAttributes[gpos].combiningClass = combiningClass( uc[cpos] );
 		d->glyphAttributes[gpos].clusterStart = FALSE;
-		qDebug("found a mark at position %d", cpos );
+// 		qDebug("found a mark at position %d", cpos );
 		d->logClusters[cpos] = cpos;
 		hasMark = TRUE;
 	    } else {
@@ -243,7 +253,7 @@ void ScriptEngine::heuristicSetGlyphAttributes( ShapedItem *shaped )
 		d->glyphAttributes[pos].mark = TRUE;
 		d->glyphAttributes[pos].clusterStart = FALSE;
 		d->glyphAttributes[pos].combiningClass = combiningClass( uc[pos] );
-		qDebug("found a mark at position %d", pos );
+// 		qDebug("found a mark at position %d", pos );
 		d->logClusters[pos] = cStart;
 	    } else {
 		d->glyphAttributes[pos].mark = FALSE;
@@ -272,7 +282,6 @@ void ScriptEngineBasic::charAttributes( const QString &text, int from, int len, 
 
 void ScriptEngineBasic::shape( ShapedItem *result )
 {
-    qDebug("ScriptEngineBasic::shape");
     const QString &text = result->d->string;
     int from = result->d->from;
     int len = result->d->length;
@@ -298,7 +307,6 @@ void ScriptEngineBasic::shape( ShapedItem *result )
 
 void ScriptEngineBasic::position( ShapedItem *shaped )
 {
-    qDebug("ScriptEngineBasic::position");
     heuristicPositionMarks( shaped );
 }
 

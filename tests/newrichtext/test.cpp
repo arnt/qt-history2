@@ -48,8 +48,8 @@ void MyWidget::paintEvent( QPaintEvent * )
 //const char *s = "ทำไมเขาถึงไม่พูด � าษาไทย";
 
 // Vietnamese
-const char *s = "Tại sao họ không thể chỉ nói tiếng.";
-//const char *s = "Tại";
+const char *s = "Tại sao họ không thể chỉ nói tiệ̣̣́ng.";
+// const char *s = "ại";
 
 
 int main( int argc, char **argv )

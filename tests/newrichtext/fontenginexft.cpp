@@ -10,7 +10,7 @@
 
 #include <stdlib.h>
 
-// #define DEBUG
+// #define FONTENGINE_DEBUG
 
 class HackPaintDevice : public QPaintDevice
 {
@@ -96,25 +96,51 @@ void FontEngineXft::draw( QPainter *p, int x, int y, const GlyphIndex *glyphs, c
     col.color.blue = pen.blue () | pen.blue() << 8;
     col.color.alpha = 0xffff;
     col.pixel = pen.pixel();
-#if DEBUG
+#ifdef FONTENGINE_DEBUG
     p->save();
     p->setBrush( Qt::white );
     QGlyphInfo ci = boundingBox( glyphs, offsets, numGlyphs );
     p->drawRect( x + ci.x, y + ci.y, ci.width, ci.height );
-    qDebug("bounding rect=%d %d (%d/%d)", ci.x, ci.y, ci.width, ci.height );
+    p->drawRect( x + ci.x, y + 50 + ci.y, ci.width, ci.height );
+//     qDebug("bounding rect=%d %d (%d/%d)", ci.x, ci.y, ci.width, ci.height );
     p->restore();
+    int xp = x;
+    int yp = y;
 #endif
-    XftDrawString16 (draw, &col, _font, x, y, (XftChar16 *) glyphs, numGlyphs);
-#if DEBUG
+    int start = 0;
+    int i = 1;
+    while ( i < numGlyphs ) {
+	if ( offsets[i].x || offsets[i].y ) {
+// 	    qDebug("drawing from %d to %d at (%d/%d)", start, i-1, x+offsets[start].x, y+offsets[start].y );
+	    XftDrawString16 (draw, &col, _font, x+offsets[start].x, y+offsets[start].y,
+			     (XftChar16 *) (glyphs+start), i-start);
+	    Offset adv = advance( glyphs+start, offsets+start, i-start );
+// 	    qDebug("advance = %d/%d", adv.x, adv.y );
+	    x += adv.x;
+	    y += adv.y;
+	    start = i;
+	}
+	i++;
+    }
+    if ( start < numGlyphs ) {
+// 	qDebug("drawing from %d to %d at (%d/%d)", start, i-1, x+offsets[start].x, y+offsets[start].y );
+	XftDrawString16 (draw, &col, _font, x+offsets[start].x, y+offsets[start].y,
+			 (XftChar16 *) (glyphs+start), numGlyphs - start );
+    }
+#ifdef FONTENGINE_DEBUG
+    x = xp;
+    y = yp;
     p->save();
     p->setPen( Qt::red );
     for ( int i = 0; i < numGlyphs; i++ ) {
 	QGlyphInfo ci = boundingBox( glyphs[i] );
-	p->drawRect( x + ci.x, y + ci.y, ci.width, ci.height );
+	x += offsets[i].x;
+	y += offsets[i].y;
+	p->drawRect( x + ci.x, y + 50 + ci.y, ci.width, ci.height );
 	qDebug("bounding ci[%d]=%d %d (%d/%d) / %d %d   offset=(%d/%d)", i, ci.x, ci.y, ci.width, ci.height,
 	       ci.xoff, ci.yoff, offsets[i].x, offsets[i].y );
-	x += ci.xoff + offsets[i].x;
-	y += ci.yoff + offsets[i].y;
+	x += ci.xoff;
+	y += ci.yoff;
     }
     p->restore();
 #endif
@@ -126,15 +152,15 @@ Offset FontEngineXft::advance( const GlyphIndex *glyphs, const Offset *offsets, 
 
     XGlyphInfo xgi;
 
-    for (int i = 0; i < numGlyphs; i++) {
+    for ( int i = 0; i < numGlyphs; i++ ) {
+	advance.x += offsets[i].x;
+	advance.y += offsets[i].y;
 	if ( getGlyphInfo( &xgi, _font, glyphs[i] ) ) {
 	    advance.x += xgi.xOff;
 	    advance.y += xgi.yOff;
 	} else {
 	    advance.x += ascent();
 	}
-	advance.x += offsets[i].x;
-	advance.y += offsets[i].y;
     }
 
     return advance;
