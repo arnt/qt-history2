@@ -56,7 +56,7 @@ void QColormap::cleanup()
     screenMap = 0;
 }
 
-QColormap QColormap::instance(int screen)
+QColormap QColormap::instance(int /*screen*/)
 {
     return QColormap();
 }
@@ -143,7 +143,7 @@ const QColor QColormap::colorAt(uint pixel) const
                       (pixel & green_mask) >> green_shift,
                       (pixel & blue_mask));
     }
-    Q_ASSERT_X(pixel < qt_screen->numCols(), "QColormap::colorAt", "pixel out of bounds of palette");
+    Q_ASSERT_X(int(pixel) < qt_screen->numCols(), "QColormap::colorAt", "pixel out of bounds of palette");
     return QColor(qt_screen->clut()[pixel]);
 }
 

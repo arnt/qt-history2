@@ -145,7 +145,7 @@ private:
                     return;
                 if (qstrncmp(d,"WAVE",4) != 0) {
                     // skip
-                    if (chunk.size > 1000000000 || !dev->seek(dev->at()+chunk.size-4))
+                    if (chunk.size > 1000000000 || !dev->seek(dev->pos()+chunk.size-4))
                         return;
                 }
             } else if (qstrncmp(chunk.id,"fmt ",4) == 0) {
@@ -158,7 +158,7 @@ private:
                 }
             } else {
                 // ignored chunk
-                if (chunk.size > 1000000000 || !dev->seek(dev->at()+chunk.size))
+                if (chunk.size > 1000000000 || !dev->seek(dev->pos()+chunk.size))
                     return;
             }
         }

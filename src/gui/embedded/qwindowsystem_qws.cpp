@@ -423,6 +423,7 @@ void QWSClient::closeHandler()
 
 void QWSClient::errorHandler(int err)
 {
+    Q_UNUSED(err);
     //qDebug("Client %p error %d %s", this, err, csocket ? csocket->errorString().latin1() : "(no socket)");
     isClosed = true;
 //####Do we need to clean out the pipes?
@@ -2000,7 +2001,7 @@ void QWSServer::invokeSelectCursor(QWSSelectCursorCommand *cmd, QWSClient *clien
     }
 }
 
-void QWSServer::invokePositionCursor(QWSPositionCursorCommand *cmd, QWSClient *client)
+void QWSServer::invokePositionCursor(QWSPositionCursorCommand *cmd, QWSClient *)
 {
     QPoint newPos(cmd->simpleData.newX, cmd->simpleData.newY);
     if (newPos != mousePosition)

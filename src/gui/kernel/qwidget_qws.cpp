@@ -274,7 +274,7 @@ void QWidget::create(WId window, bool initializeWindow, bool /*destroyOldWindow*
         } else if (d->topData()->qwsManager) {
             delete d->topData()->qwsManager;
             d->topData()->qwsManager = 0;
-            data->crect.moveBy(-d->extra->topextra->fleft, -d->extra->topextra->ftop);
+            data->crect.translate(-d->extra->topextra->fleft, -d->extra->topextra->ftop);
             d->extra->topextra->fleft = d->extra->topextra->ftop =
                 d->extra->topextra->fright = d->extra->topextra->fbottom = 0;
         }
@@ -530,12 +530,12 @@ void QWidgetPrivate::setWindowIcon_sys(const QPixmap &unscaledPixmap)
     QBitmap mask;
     if (unscaledPixmap.isNull()) {
     } else {
-        QImage unscaledIcon = unscaledPixmap.convertToImage();
+        QImage unscaledIcon = unscaledPixmap.toImage();
         QPixmap pixmap;
 #ifndef QT_NO_IMAGE_SMOOTHSCALE
-        pixmap.convertFromImage(unscaledIcon.smoothScale(16, 16));
+        pixmap.fromImage(unscaledIcon.scale(16, 16, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
 #else
-        pixmap.convertFromImage(unscaledIcon);
+        pixmap.fromImage(unscaledIcon);
 #endif
         x->icon = new QPixmap(pixmap);
         mask = pixmap.mask() ? *pixmap.mask() : pixmap.createHeuristicMask();
@@ -808,7 +808,7 @@ void QWidget::repaint(const QRegion& rgn)
                     else
                         QPainter::setRedirected(w, this, offset);
                     QRect rr = rect();
-                    rr.moveBy(offset);
+                    rr.translate(offset);
                     QPaintEvent e(rr);
                     bool was_in_paint_event = w->testWState(Qt::WState_InPaintEvent);
                     w->setWState(Qt::WState_InPaintEvent);

@@ -85,10 +85,10 @@ static void initializeDb()
 
     QDir dir(QString::fromLatin1(qInstallPath())+"/lib/fonts/","*.qpf");
     for (int i=0; i<(int)dir.count(); i++) {
-        int u0 = dir[i].find('_');
-        int u1 = dir[i].find('_',u0+1);
-        int u2 = dir[i].find('_',u1+1);
-        int u3 = dir[i].find('.',u1+1);
+        int u0 = dir[i].indexOf('_');
+        int u1 = dir[i].indexOf('_',u0+1);
+        int u2 = dir[i].indexOf('_',u1+1);
+        int u3 = dir[i].indexOf('.',u1+1);
         if (u2 < 0) u2 = u3;
 
 #if 1
@@ -183,8 +183,7 @@ QFontEngine *loadEngine(QFont::Script script, const QFontPrivate *fp,
                          QtFontStyle *style, QtFontSize *size)
 {
     Q_UNUSED(script);
-    //Q_UNUSED(family);
-//    Q_UNUSED(style);
+    Q_UNUSED(fp);
 
     Q_ASSERT(size);
 

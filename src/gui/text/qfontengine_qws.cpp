@@ -187,11 +187,12 @@ bool QFontEngineFT::stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs
 void QFontEngineFT::draw(QPaintEngine *p, int x, int y, const QTextItem &si, int textFlags)
 {
     Q_ASSERT(p->painterState()->txop < QPainterPrivate::TxScale);
-
-    if (p->painterState()->txop == QPainterPrivate::TxTranslate)
-        p->painterState()->painter->map(x, y, &x, &y);
-
-
+    if (p->painterState()->txop == QPainterPrivate::TxTranslate) {
+        QPoint tmpPt(x, y);
+        tmpPt = tmpPt * p->painterState()->matrix;
+        x = tmpPt.x();
+        y = tmpPt.y();
+    }
     QWSPaintEngine *qpe = static_cast<QWSPaintEngine*>(p);
 
     if (textFlags) {
@@ -942,11 +943,12 @@ bool QFontEngineQPF::stringToCMap(const QChar *str, int len, QGlyphLayout *glyph
 void QFontEngineQPF::draw(QPaintEngine *p, int x, int y, const QTextItem &si, int textFlags)
 {
     Q_ASSERT(p->painterState()->txop < QPainterPrivate::TxScale);
-
-    if (p->painterState()->txop == QPainterPrivate::TxTranslate)
-        p->painterState()->painter->map(x, y, &x, &y);
-
-
+    if (p->painterState()->txop == QPainterPrivate::TxTranslate) {
+        QPoint tmpPt(x, y);
+        tmpPt = tmpPt * p->painterState()->matrix;
+        x = tmpPt.x();
+        y = tmpPt.y();
+    }
     QWSPaintEngine *qpe = static_cast<QWSPaintEngine*>(p);
 
     if (textFlags) {

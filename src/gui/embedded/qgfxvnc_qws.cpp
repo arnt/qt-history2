@@ -1036,7 +1036,7 @@ void QVNCServer::sendRaw()
     client->write((char *)&count, 2);
 
     if (rgn.rects().count()) {
-        for (unsigned int idx = 0; idx < rgn.rects().count(); idx++) {
+        for (int idx = 0; idx < rgn.rects().count(); idx++) {
             QRfbRect rect;
             rect.x = rgn.rects()[idx].x();
             rect.y = rgn.rects()[idx].y();
@@ -1164,7 +1164,7 @@ void QGfxVNC<depth,type>::drawPoints(const QPointArray &pa,int x,int y)
 {
     QWSDisplay::grab(true);
     QRect r = pa.boundingRect();
-    r.moveBy(xoffs, yoffs);
+    r.translate(xoffs, yoffs);
     qvnc_screen->setDirty(r & clipbounds);
     QGfxRaster<depth,type>::drawPoints(pa, x, y);
     QWSDisplay::ungrab();
@@ -1196,7 +1196,7 @@ void QGfxVNC<depth,type>::drawPolyline(const QPointArray &pa,int x,int y)
 {
     QWSDisplay::grab(true);
     QRect r = pa.boundingRect();
-    r.moveBy(xoffs, yoffs);
+    r.translate(xoffs, yoffs);
     qvnc_screen->setDirty(r & clipbounds);
     QGfxRaster<depth,type>::drawPolyline(pa, x, y);
     QWSDisplay::ungrab();
@@ -1207,7 +1207,7 @@ void QGfxVNC<depth,type>::drawPolygon(const QPointArray &pa,bool w,int x,int y)
 {
     QWSDisplay::grab(true);
     QRect r = pa.boundingRect();
-    r.moveBy(xoffs, yoffs);
+    r.translate(xoffs, yoffs);
     qvnc_screen->setDirty(r & clipbounds);
     QGfxRaster<depth,type>::drawPolygon(pa, w, x, y);
     QWSDisplay::ungrab();

@@ -157,7 +157,7 @@ void QwsPixmap::mapPixmaps(bool from)
                 QwsPixmap p;
                 QPixmapData *tmp = p.data;
                 p.data = d;
-                QImage *img = new QImage(p.convertToImage());
+                QImage *img = new QImage(p.toImage());
                 images->insert(d, img);
                 p.data = tmp;
             } else {
@@ -168,7 +168,7 @@ void QwsPixmap::mapPixmaps(bool from)
                     if (memorymanager)
                         memorymanager->deletePixmap(d->id);
                     QwsPixmap p;
-                    p.convertFromImage(*img);
+                    p.fromImage(*img);
                     int cnt = d->count-1;
                     p.data->mask = d->mask;
                     *d = *p.data;
@@ -302,7 +302,7 @@ QPixmap::QPixmap(int w, int h, const uchar *bits, bool isXbitmap)
     if (qt_screen->isTransformed()) {
         int bpl = isXbitmap ? (w+7)/8 : ((w+31)/32)*4;
         QImage img((uchar *)bits, w, h, 1, bpl, 0, 0, QImage::LittleEndian);
-        convertFromImage(img, Qt::MonoOnly);
+        fromImage(img, Qt::MonoOnly);
         if (flipped_bits)
             delete [] flipped_bits;
         return;
@@ -465,7 +465,7 @@ QImage QPixmap::toImage() const
         for (int i = 0; i < numCols(); i++)
             image.setColor(i, clut()[i]);
         if (mask()) {                                // which pixels are used?
-            QImage alpha = mask()->convertToImage();
+            QImage alpha = mask()->toImage();
             alpha = qt_screen->mapToDevice(alpha);
             bool ale = alpha.bitOrder() == QImage::LittleEndian;
             register uchar *p;
@@ -516,7 +516,7 @@ QImage QPixmap::toImage() const
             image.setAlphaBuffer(true);
         }
     } else if (d == 32 && mask()) {
-        QImage alpha = mask()->convertToImage();
+        QImage alpha = mask()->toImage();
         bool ale = alpha.bitOrder() == QImage::LittleEndian;
         for (int i=0; i<h; i++) {
             uchar* asrc = alpha.scanLine(i);
@@ -740,7 +740,7 @@ QPixmap QPixmap::transform(const QMatrix &matrix, Qt::TransformationMode mode) c
              if (data->mask) {
                  QBitmap bm =
                      data->selfmask ? *((QBitmap*)(&pm)) :
-                     data->mask->xForm(matrix);
+                     data->mask->transform(matrix);
                  pm.setMask(bm);
              }
              pm.data->hasAlpha = data->hasAlpha;
@@ -767,7 +767,7 @@ QPixmap QPixmap::transform(const QMatrix &matrix, Qt::TransformationMode mode) c
 
     QImage srcImg;
     if (qt_screen->isTransformed()) {
-        srcImg = convertToImage();
+        srcImg = toImage();
         sptr=srcImg.scanLine(0);
         sbpl=srcImg.bytesPerLine();
     } else {
@@ -797,7 +797,7 @@ QPixmap QPixmap::transform(const QMatrix &matrix, Qt::TransformationMode mode) c
     if (depth1)
         memset(dptr, 0x00, dbytes);
     else if (bpp == 8)
-        memset(dptr, QColor(Qt::white).pixel(), dbytes);
+        memset(dptr, QColormap::instance().pixel(QColor(Qt::white)), dbytes);
     else if (bpp == 32) {
         if (qt_screen->isTransformed())
             destImg.fill(0x00FFFFFF);
@@ -822,14 +822,14 @@ QPixmap QPixmap::transform(const QMatrix &matrix, Qt::TransformationMode mode) c
     }
 
     if (qt_screen->isTransformed()) {
-        pm.convertFromImage(destImg);
+        pm.fromImage(destImg);
     }
 
     if (data->mask) {
         if (depth1 && data->selfmask)               // pixmap == mask
             pm.setMask(*((QBitmap*)(&pm)));
         else
-            pm.setMask(data->mask->xForm(matrix));
+            pm.setMask(data->mask->transform(matrix));
     }
     pm.data->hasAlpha = data->hasAlpha;
 

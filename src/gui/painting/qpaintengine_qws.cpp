@@ -507,6 +507,9 @@ void draw_pixmap_helper(QGfx *gfx,
     int sw = int(sr.width());
     int sh = int(sr.height());
 
+    if ((w != sw || h != sh) && (sx != 0 || sy != 0))
+        qDebug("QWSPaintEngine::drawPixmap offset stretch not implemented");
+
     gfx->setSource(&pixmap);
     if(mode == Qt::ComposePixmap && pixmap.mask()) {
         QBitmap * mymask=((QBitmap *)pixmap.mask());
@@ -531,23 +534,10 @@ void draw_pixmap_helper(QGfx *gfx,
 void QWSPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const QRectF &sr,
                                 Qt::PixmapDrawingMode mode)
 {
-    int x = int(r.x());
-    int y = int(r.y());
-    int w = int(r.width());
-    int h = int(r.height());
-
-    int sx = int(sr.x());
-    int sy = int(sr.y());
-    int sw = int(sr.width());
-    int sh = int(sr.height());
-
-    if ((w != sw || h != sh) && (sx != 0) && (sy != 0))
-        qDebug("QWSPaintEngine::drawPixmap offset stretch not implemented");
-
     // convert the mask to alpha 0
     if (state->txop > QPainterPrivate::TxTranslate
         && pixmap.data->hasAlpha && pixmap.mask()) {
-        QImage img = pixmap;
+        QImage img = pixmap.toImage();
         QPixmap no_mask = img;
 
         draw_pixmap_helper(d->gfx, r, no_mask, sr, mode, no_mask.data->hasAlpha);

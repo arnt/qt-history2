@@ -20,7 +20,7 @@
 #include "qbitmap.h"
 #include "qcursor.h"
 #include "qevent.h"
-
+#include "qpainter.h"
 #include "qdnd_p.h"
 
 static QPixmap *defaultPm = 0;
@@ -71,7 +71,8 @@ public:
 
     void paintEvent(QPaintEvent*)
     {
-        bitBlt(this,0,0,&pixmap);
+        QPainter p(this);
+        p.drawPixmap(0,0,pixmap);
     }
 };
 
@@ -106,18 +107,6 @@ void QDragManager::timerEvent(QTimerEvent *) { }
 
 void QDragManager::move(const QPoint &) { }
 
-void myOverrideCursor(QCursor cursor, bool replace) {
-#ifndef QT_NO_CURSOR
-    QApplication::setOverrideCursor(cursor, replace);
-#endif
-}
-
-void myRestoreOverrideCursor() {
-#ifndef QT_NO_CURSOR
-    QApplication::restoreOverrideCursor();
-#endif
-}
-
 void QDragManager::updateCursor()
 {
 #ifndef QT_NO_CURSOR
@@ -130,9 +119,9 @@ void QDragManager::updateCursor()
             cursorIndex = 2; // link_cursor
         if (qt_qws_dnd_deco)
             qt_qws_dnd_deco->show();
-        myOverrideCursor(QCursor(pm_cursor[cursorIndex], 0, 0), true);
+        QApplication::changeOverrideCursor(QCursor(pm_cursor[cursorIndex], 0, 0));
     } else {
-        myOverrideCursor(QCursor(Qt::ForbiddenCursor), true);
+        QApplication::changeOverrideCursor(QCursor(Qt::ForbiddenCursor));
         if (qt_qws_dnd_deco)
             qt_qws_dnd_deco->hide();
     }
@@ -167,7 +156,7 @@ bool QDragManager::eventFilter(QObject *o, QEvent *e)
             if (!object)
                 return true; //####
             QMouseEvent *me = (QMouseEvent *)e;
-            if (me->state() & (Qt::LeftButton | Qt::MidButton | Qt::RightButton)) {
+            if (me->buttons()) {
 
                 QWidget *cw = QApplication::widgetAt(me->globalPos());
 
@@ -209,7 +198,7 @@ bool QDragManager::eventFilter(QObject *o, QEvent *e)
             qt_qws_dnd_deco = 0;
             if (restoreCursor) {
                 willDrop = false;
-                myRestoreOverrideCursor();
+                QApplication::restoreOverrideCursor();
                 restoreCursor = false;
             }
             if (object && object->target()) {
@@ -283,7 +272,7 @@ void QDragManager::cancel(bool deleteSource)
 
 #ifndef QT_NO_CURSOR
     if (restoreCursor) {
-        myRestoreOverrideCursor();
+        QApplication::restoreOverrideCursor();
         restoreCursor = false;
     }
 #endif
@@ -312,7 +301,7 @@ void QDragManager::drop()
 
 #ifndef QT_NO_CURSOR
     if (restoreCursor) {
-        myRestoreOverrideCursor();
+        QApplication::restoreOverrideCursor();
         restoreCursor = false;
     }
 #endif
@@ -337,6 +326,7 @@ QStringList QDropData::formats() const
 {
     if (drag_object)
         return drag_object->mimeData()->formats();
+    return QStringList();
 }
 
 
