@@ -1332,6 +1332,8 @@ void QWidget::update( int x, int y, int w, int h )
 void QWidget::repaint( int x, int y, int w, int h, bool erase )
 {
     if ( (widget_state & (WState_Visible|WState_BlockUpdates)) == WState_Visible ) {
+	if ( x > crect.width() || y > crect.height() )
+	    return;
 	if ( w < 0 )
 	    w = crect.width()  - x;
 	if ( h < 0 )
