@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#196 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#197 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#196 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#197 $");
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -1405,7 +1405,7 @@ void QWidget::erase( int x, int y, int w, int h )
 
 void QWidget::scroll( int dx, int dy )
 {
-    scroll( dx, dy, TRUE, FALSE, FALSE );
+    scroll( dx, dy, FALSE, FALSE );
 }
 
 /*!
