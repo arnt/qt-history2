@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/demo/display.cpp#5 $
+** $Id: //depot/qt/main/examples/demo/display.cpp#6 $
 **
 ** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
@@ -29,13 +29,8 @@ Screen::Screen(  QWidget *parent, const char *name )
     setFrameStyle( Panel | Sunken );
     setBackgroundMode( PaletteBase );
     setFixedSize( MaxSamples+2*FrameWidth, Range+2*FrameWidth );
-    QPalette pal = palette();
-    QColorGroup grp = pal.active();
-    grp.setColor( QColorGroup::Foreground, QColor( blue ));
-    grp.setColor( QColorGroup::Base, QColor( black ));
-    pal.setActive( grp );
-    pal.setInactive( grp );
-    setPalette( pal );
+    setBackgroundColor(black);
+    setForegroundColor(blue);
 
     memset( yval, 0, sizeof( yval ));
     pos0 = 0;
@@ -105,14 +100,8 @@ Curve::Curve( QWidget *parent, const char *name )
     setLineWidth( FrameWidth );
     setFrameStyle( Panel | Sunken );
     setBackgroundMode( PaletteBase );
-    QPalette pal = palette();
-    QColorGroup grp = pal.active();
-    grp.setColor( QColorGroup::Foreground, QColor( red ));
-    grp.setColor( QColorGroup::Base, QColor( black ));
-    pal.setActive( grp );
-    pal.setInactive( grp );
-    setPalette( pal );
-
+    setBackgroundColor(black);
+    setForegroundColor(red);
     setFixedSize( 2*(Radius+FrameWidth), 2*(Radius+FrameWidth) );
 
     shift = 0;
