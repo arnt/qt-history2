@@ -152,8 +152,8 @@ public:
 	QPopupMenu* popup;
 	int id;
     };
-    // ComboItem is only necessary for actions that are 
-    // in dropdown/exclusive actiongroups. The actiongroup 
+    // ComboItem is only necessary for actions that are
+    // in dropdown/exclusive actiongroups. The actiongroup
     // will clean this up
     struct ComboItem {
 	ComboItem():combo(0), id(0) {}
@@ -1413,7 +1413,7 @@ bool QActionGroup::addTo( QWidget* w )
 		}
 		return TRUE;
 	    } else {
-		QComboBox *box = new QComboBox( w );
+		QComboBox *box = new QComboBox( FALSE, w );
 		addedTo( box, w );
 		connect( box, SIGNAL(destroyed()), SLOT(objectDestroyed()) );
 		d->comboboxes.append( box );
@@ -1663,7 +1663,7 @@ void QActionGroup::childEvent( QChildEvent *e )
   \printuntil SLOT
 
   (This code including the implementation of the
-  \link actiongroup.html#setFontColor() setFontColor() \endlink 
+  \link actiongroup.html#setFontColor() setFontColor() \endlink
   slot can be found in the \link actiongroup.html QActionGroup Walkthrough. \endlink)
 
   \sa setExclusive(), isOn()
