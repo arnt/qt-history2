@@ -2946,7 +2946,7 @@ void QPSPrinter::clippingSetup( QPainter *paint )
 	for( i = 0 ; i < (int)rects.size() ; i++ ) {
 	    putRect( stream, rects[i] );
 	    stream << "ACR\n";		// add clip rect
-	    if ( pageCount == 1 )
+	    if ( pageCount == 1 && !d->boundingBox.isValid() )
 		d->boundingBox = d->boundingBox.unite( rects[i] );
 	}
 	stream << "CLEND\n";		// end clipping
