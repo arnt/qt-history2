@@ -36,7 +36,7 @@ public:
 #define QTPLUGINEXPORT
 #endif
 
-#define QtExportInterface(INTERFACE, IMPLEMENTATION) \
+#define Q_EXPORT_INTERFACE(INTERFACE, IMPLEMENTATION) \
     extern "C" QTPLUGINEXPORT INTERFACE *loadInterface() { return new IMPLEMENTATION(); }
 
 #endif
