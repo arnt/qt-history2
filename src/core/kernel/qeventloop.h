@@ -100,9 +100,7 @@ public:
 signals:
     void awake();
     void aboutToBlock();
-#ifdef Q_OS_UNIX
     void unixSignal(int);
-#endif
 
 protected:
     virtual void appStartingUp();
