@@ -890,7 +890,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
         }
 #ifdef DEBUG_WINDOW_CREATE
         if(WindowGroupRef grpf = GetWindowGroup(window)) {
-            QCFStringHelper cfname;
+            QCFString cfname;
             CopyWindowGroupName(grpf, &cfname);
             SInt32 lvl;
             GetWindowGroupLevel(grpf, &lvl);
@@ -1172,7 +1172,7 @@ void QWidget::setWindowTitle(const QString &cap)
     d->createTLExtra();
     d->topData()->caption = cap;
     if(isTopLevel())
-        SetWindowTitleWithCFString(qt_mac_window_for((HIViewRef)winId()), QCFStringHelper(cap));
+        SetWindowTitleWithCFString(qt_mac_window_for((HIViewRef)winId()), QCFString(cap));
     QEvent e(QEvent::WindowTitleChange);
     QApplication::sendEvent(this, &e);
 }
@@ -1209,7 +1209,7 @@ void QWidget::setWindowIconText(const QString &iconText)
     d->createTLExtra();
     d->topData()->iconText = iconText;
     if(isTopLevel() && !iconText.isEmpty())
-        SetWindowAlternateTitle(qt_mac_window_for((HIViewRef)winId()), QCFStringHelper(iconText));
+        SetWindowAlternateTitle(qt_mac_window_for((HIViewRef)winId()), QCFString(iconText));
     QEvent e(QEvent::IconTextChange);
     QApplication::sendEvent(this, &e);
 }

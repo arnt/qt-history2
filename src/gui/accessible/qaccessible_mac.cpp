@@ -522,7 +522,7 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
             } else if(ekind == kEventAccessibleGetNamedAttribute) {
                 QAccessibleInterface *iface;
                 if(QAccessible::queryAccessibleInterface(object, &iface)) {
-                    QCFStringHelper str;
+                    QCFString str;
                     GetEventParameter(event, kEventParamAccessibleAttributeName, typeCFStringRef, NULL,
                                       sizeof(str), NULL, &str);
                     if(CFStringCompare(str, kAXChildrenAttribute, 0) == kCFCompareEqualTo) {
@@ -662,7 +662,7 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
                             if(iface->role(0) == (QAccessible::Role)text_bindings[r][0].qt) {
                                 for(int a = 1; text_bindings[r][a].qt != -1; a++) {
                                     if(CFStringCompare(str, text_bindings[r][a].mac, 0) == kCFCompareEqualTo) {
-                                        QCFStringHelper str2(iface->text((QAccessible::Text)text_bindings[r][a].qt, 0));
+                                        QCFString str2(iface->text((QAccessible::Text)text_bindings[r][a].qt, 0));
                                         SetEventParameter(event, kEventParamAccessibleAttributeValue, typeCFStringRef,
                                                           sizeof(str2), &str2);
                                         found = true;
@@ -681,7 +681,7 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
             } else if(ekind == kEventAccessibleSetNamedAttribute) {
                 QAccessibleInterface *iface;
                 if(QAccessible::queryAccessibleInterface(object, &iface)) {
-                    QCFStringHelper str;
+                    QCFString str;
                     GetEventParameter(event, kEventParamAccessibleAttributeName, typeCFStringRef, NULL,
                                       sizeof(str), NULL, &str);
 #if 0
@@ -701,7 +701,7 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
                             if(iface->role(0) == (QAccessible::Role)text_bindings[r][0].qt) {
                                 for(int a = 1; text_bindings[r][a].qt != -1; a++) {
                                     if(CFStringCompare(str, text_bindings[r][a].mac, 0) == kCFCompareEqualTo) {
-                                        QCFStringHelper val;
+                                        QCFString val;
                                         if(GetEventParameter(event, kEventParamAccessibleAttributeValue, typeCFStringRef, NULL,
                                                              sizeof(val), NULL, &val) == noErr)
                                             iface->setText((QAccessible::Text)text_bindings[r][a].qt,
@@ -722,7 +722,7 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
             } else if(ekind == kEventAccessibleIsNamedAttributeSettable) {
                 QAccessibleInterface *iface;
                 if(QAccessible::queryAccessibleInterface(object, &iface)) {
-                    QCFStringHelper str;
+                    QCFString str;
                     GetEventParameter(event, kEventParamAccessibleAttributeName, typeCFStringRef, NULL,
                                       sizeof(str), NULL, &str);
                     Boolean settable = false;
@@ -740,9 +740,9 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
                     CFStringRef *arr = (CFStringRef *)malloc(sizeof(AXUIElementRef) * actCount);
                     for(int i = 0; i < actCount; i++) {
                         QString actName = iface->actionText(i, Name, 0);
-                        arr[i] = QCFStringHelper::qstring2cfstring(actName);
+                        arr[i] = QCFString::qstring2cfstring(actName);
                     }
-                    QCFHelper<CFArrayRef> cfList 
+                    QCFType<CFArrayRef> cfList
                                         = CFArrayCreate(NULL, (const void **)arr, actCount, NULL);
                     SetEventParameter(event, kEventParamAccessibleActionNames, typeCFTypeRef,
                                       sizeof(cfList), &cfList);
@@ -751,7 +751,7 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
             } else if(ekind == kEventAccessiblePerformNamedAction) {
                 QAccessibleInterface *iface;
                 if(QAccessible::queryAccessibleInterface(object, &iface)) {
-                    QCFStringHelper act;
+                    QCFString act;
                     GetEventParameter(event, kEventParamAccessibleActionName, typeCFStringRef, NULL,
                                       sizeof(act), NULL, &act);
                     if(CFStringCompare(act, kAXPressAction, 0) == kCFCompareEqualTo) {
@@ -785,7 +785,7 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
             } else if(ekind == kEventAccessibleGetNamedActionDescription) {
                 QAccessibleInterface *iface;
                 if(QAccessible::queryAccessibleInterface(object, &iface)) {
-                    QCFStringHelper act;
+                    QCFString act;
                     GetEventParameter(event, kEventParamAccessibleActionName, typeCFStringRef, NULL,
                                       sizeof(act), NULL, &act);
                     QString actDesc;
@@ -816,7 +816,7 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
                                      static_cast<QString>(act).latin1());
                     }
                     if(!actDesc.isNull()) {
-                        QCFStringHelper cfActDesc = actDesc;
+                        QCFString cfActDesc = actDesc;
                         SetEventParameter(event, kEventParamAccessibleActionDescription, typeCFStringRef,
                                           sizeof(cfActDesc), &cfActDesc);
                     }

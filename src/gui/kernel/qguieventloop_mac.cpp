@@ -245,7 +245,7 @@ static void qt_mac_select_read_callbk(CFReadStreamRef stream, CFStreamEventType 
         CFReadStreamSetClient(stream, kCFStreamEventHasBytesAvailable, qt_mac_select_read_callbk, &ctx);
     }
     int in_sock;
-    QCFHelper<CFDataRef> data = static_cast<CFDataRef>(CFReadStreamCopyProperty(stream,
+    QCFType<CFDataRef> data = static_cast<CFDataRef>(CFReadStreamCopyProperty(stream,
                                                             kCFStreamPropertySocketNativeHandle));
     CFDataGetBytes(data, CFRangeMake(0, sizeof(in_sock)), (UInt8 *)&in_sock);
     qt_mac_internal_select_callbk(in_sock, QSocketNotifier::Read, (QGuiEventLoop*)me);
@@ -259,7 +259,7 @@ static void qt_mac_select_write_callbk(CFWriteStreamRef stream, CFStreamEventTyp
         CFWriteStreamSetClient(stream, kCFStreamEventCanAcceptBytes, qt_mac_select_write_callbk, &ctx);
     }
     int in_sock;
-    QCFHelper<CFDataRef> data = static_cast<CFDataRef>(CFWriteStreamCopyProperty(stream,
+    QCFType<CFDataRef> data = static_cast<CFDataRef>(CFWriteStreamCopyProperty(stream,
                                                             kCFStreamPropertySocketNativeHandle));
     CFDataGetBytes(data, CFRangeMake(0, sizeof(in_sock)), (UInt8 *)&in_sock);
     qt_mac_internal_select_callbk(in_sock, QSocketNotifier::Write, (QGuiEventLoop*)me);

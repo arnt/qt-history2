@@ -230,15 +230,15 @@ QPrinter::prepare(PMPrintSettings *s)
     PMSetColorMode(*s, colorMode() == GrayScale ? kPMGray : kPMColor);
     PMSetCopies(*s, numCopies(), true);
     if(outputToFile()) {
-        QCFStringHelper cfstring(outputFileName());
-        QCFHelper<CFURLRef> outFile = CFURLCreateWithFileSystemPath(kCFAllocatorSystemDefault,
+        QCFString cfstring(outputFileName());
+        QCFType<CFURLRef> outFile = CFURLCreateWithFileSystemPath(kCFAllocatorSystemDefault,
                                                                     cfstring, kCFURLPOSIXPathStyle,
                                                                     false);
         PMSessionSetDestination(psession, *s, kPMDestinationFile, kPMDocumentFormatPDF, outFile);
     }
     QString printName = printerName();
     if (!printName.isEmpty())
-        PMSessionSetCurrentPrinter(psession, QCFStringHelper(printName));
+        PMSessionSetCurrentPrinter(psession, QCFString(printName));
     return true;
 }
 
@@ -325,13 +325,13 @@ void QPrinter::interpret(PMPrintSettings *s)
     // Get the current Printer Name
     CFIndex currPrinterIndex;
     PMPrinter currPrinter;
-    QCFHelper<CFArrayRef> printerArray;
+    QCFType<CFArrayRef> printerArray;
     OSStatus err = PMSessionCreatePrinterList(psession, &printerArray,
                                               &currPrinterIndex, &currPrinter);
     if (err != noErr)
         qWarning("Qt: QPrinter::interpret problem creating printer list %ld", err);
-    
-    setPrinterName(QCFStringHelper(static_cast<CFStringRef>(CFArrayGetValueAtIndex(printerArray,
+
+    setPrinterName(QCFString(static_cast<CFStringRef>(CFArrayGetValueAtIndex(printerArray,
                                                                                currPrinterIndex))));
 
 }

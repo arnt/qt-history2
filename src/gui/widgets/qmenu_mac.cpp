@@ -60,12 +60,12 @@ extern bool qt_modal_state(); //qapplication_mac.cpp
 /*****************************************************************************
   QMenu utility functions
  *****************************************************************************/
-inline static QCFStringHelper qt_mac_no_ampersands(QString str) {
+inline static QCFString qt_mac_no_ampersands(QString str) {
     for(int w = -1; (w=str.indexOf('&', w+1)) != -1;) {
         if(w < (int)str.length()-1)
             str.remove(w, 1);
     }
-    return QCFStringHelper(str);
+    return QCFString(str);
 }
 
 //lookup a QMacMenuAction in a menu
@@ -662,7 +662,7 @@ QMenuBarPrivate::QMacMenuBarPrivate::addAction(QMacMenuAction *action, QMacMenuA
         AppendMenuItemTextWithCFString(menu, 0, 0, 0, &index);
 
         // set it up
-        SetMenuTitleWithCFString(apple_menu, QCFStringHelper(QString(QChar(0x14))));
+        SetMenuTitleWithCFString(apple_menu, QCFString(QString(QChar(0x14))));
         SetMenuItemHierarchicalMenu(menu, index, apple_menu);
         SetMenuItemProperty(apple_menu, 0, kMenuCreatorQt, kMenuPropertyQWidget, sizeof(widget),
                             &widget);

@@ -289,6 +289,8 @@ private:
     friend class QMenuBar;
     friend class QMenuBarPrivate;
     friend class QTornOffMenu;
+    friend class MyMenu;
+    friend class MyMenuPrivate;
 
 #ifdef Q_WS_MAC
     friend OSStatus qt_mac_menu_event(EventHandlerCallRef, EventRef, void *);

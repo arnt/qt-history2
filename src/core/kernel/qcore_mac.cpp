@@ -15,7 +15,7 @@
 #include "qcore_mac.h"
 #include "qvarlengtharray.h"
 
-QString QCFStringHelper::cfstring2qstring(CFStringRef str)
+QString QCFString::cfstring2qstring(CFStringRef str)
 {
     CFIndex length = CFStringGetLength(str);
     const UniChar *chars = CFStringGetCharactersPtr(str);
@@ -24,25 +24,25 @@ QString QCFStringHelper::cfstring2qstring(CFStringRef str)
 
     QVarLengthArray<UniChar> buffer(length);
     CFStringGetCharacters(str, CFRangeMake(0, length), buffer);
-    return QString(reinterpret_cast<const QChar *>(buffer.constData()), length);    
+    return QString(reinterpret_cast<const QChar *>(buffer.constData()), length);
 }
 
-QCFStringHelper::operator QString() const
+QCFString::operator QString() const
 {
     if (string.isEmpty() && type)
-        const_cast<QCFStringHelper *>(this)->string = cfstring2qstring(type);
+        const_cast<QCFString*>(this)->string = cfstring2qstring(type);
     return string;
 }
 
-CFStringRef QCFStringHelper::qstring2cfstring(const QString &string)
+CFStringRef QCFString::qstring2cfstring(const QString &string)
 {
     return CFStringCreateWithCharacters(0, reinterpret_cast<const UniChar *>(string.unicode()),
                                         string.length());
 }
 
-QCFStringHelper::operator CFStringRef() const
+QCFString::operator CFStringRef() const
 {
     if (!type)
-        const_cast<QCFStringHelper *>(this)->type = qstring2cfstring(string);
+        const_cast<QCFString*>(this)->type = qstring2cfstring(string);
     return type;
 }

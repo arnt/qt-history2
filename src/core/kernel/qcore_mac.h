@@ -48,14 +48,14 @@
 #endif
 
 template <typename T>
-class QCFHelper
+class QCFType
 {
 public:
-    inline QCFHelper(const T &t = 0) : type(t) {}
-    inline QCFHelper(const QCFHelper &helper) : type(helper.type) { if (type) CFRetain(type); }
-    inline ~QCFHelper() { if (type) CFRelease(type); }
+    inline QCFType(const T &t = 0) : type(t) {}
+    inline QCFType(const QCFType &helper) : type(helper.type) { if (type) CFRetain(type); }
+    inline ~QCFType() { if (type) CFRelease(type); }
     inline operator T() { return type; }
-    inline QCFHelper operator =(const QCFHelper &helper)
+    inline QCFType operator =(const QCFType &helper)
     {
 	if (helper.type)
 	    CFRetain(helper.type);
@@ -70,11 +70,11 @@ protected:
     T type;
 };
 
-class Q_CORE_EXPORT QCFStringHelper : public QCFHelper<CFStringRef>
+class Q_CORE_EXPORT QCFString : public QCFType<CFStringRef>
 {
 public:
-    inline QCFStringHelper(const QString &str) : QCFHelper<CFStringRef>(0), string(str) {}
-    inline QCFStringHelper(const CFStringRef cfstr = 0) : QCFHelper<CFStringRef>(cfstr) {}
+    inline QCFString(const QString &str) : QCFType<CFStringRef>(0), string(str) {}
+    inline QCFString(const CFStringRef cfstr = 0) : QCFType<CFStringRef>(cfstr) {}
     operator QString() const;
     operator CFStringRef() const;
     static QString cfstring2qstring(CFStringRef cfstr);

@@ -53,7 +53,7 @@ static void initializeDb()
             DisposeTextToUnicodeInfo(&uni_info);
 
             //sanity check the font, and see if we can use it at all! --Sam
-            if(!ATSFontFindFromName(QCFStringHelper(fam_name), kATSOptionFlagsDefault))
+            if(!ATSFontFindFromName(QCFString(fam_name), kATSOptionFlagsDefault))
                 continue;
 
             QtFontFamily *family = db->family(fam_name, true);
@@ -129,9 +129,9 @@ QFontEngine *loadEngine(QFont::Script, const QFontPrivate *, const QFontDef &req
         }
         family_list << QApplication::font().defaultFamily();         // add defaultFamily (compatibility)
         for(QStringList::ConstIterator it = family_list.begin(); it !=  family_list.end(); ++it) {
-            if(ATSFontRef fontref = ATSFontFindFromName(QCFStringHelper(*it),
+            if(ATSFontRef fontref = ATSFontFindFromName(QCFString(*it),
                                                         kATSOptionFlagsDefault)) {
-                QCFStringHelper actualName;
+                QCFString actualName;
                 if(ATSFontGetName(fontref, kATSOptionFlagsDefault, &actualName) == noErr) {
                     if(static_cast<QString>(actualName) == *it) {
                         engine->fontref = fontref;
@@ -144,7 +144,7 @@ QFontEngine *loadEngine(QFont::Script, const QFontPrivate *, const QFontDef &req
         }
     }
     if(engine->fontref) { //fill in actual name
-        QCFStringHelper actualName;
+        QCFString actualName;
         if(ATSFontGetName(engine->fontref, kATSOptionFlagsDefault, &actualName) == noErr)
             engine->fontDef.family = actualName;
     }

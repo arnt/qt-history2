@@ -197,7 +197,7 @@ uint Q3MenuBar::isCommand(Q3MenuItem *it, bool just_check)
                 if(ret == kHICommandAbout && text.toLower() == tr("About").toLower())
                     text += " " + QString(qAppName());
                 InsertMenuItemTextWithCFString(activeMenuBar->mac_d->apple_menu,
-                                               QCFStringHelper(qt_mac_no_ampersands(text)),
+                                               QCFString(qt_mac_no_ampersands(text)),
                                                activeMenuBar->mac_d->in_apple++,
                                                kMenuItemAttrAutoRepeat, ret);
             }
@@ -284,7 +284,7 @@ bool Q3MenuBar::syncPopups(MenuRef ret, Q3PopupMenu *d)
             else if(!accel.isEmpty())
                 accel_key = QKeySequence(accel);
 
-            InsertMenuItemTextWithCFString(ret, QCFStringHelper(qt_mac_no_ampersands(text)),
+            InsertMenuItemTextWithCFString(ret, QCFString(qt_mac_no_ampersands(text)),
                                            id, attr, item->id());
             if(item->isSeparator()) {
                 ChangeMenuItemAttributes(ret, id, kMenuItemAttrSeparator, 0);
@@ -403,7 +403,7 @@ bool Q3MenuBar::updateMenuBar()
     if(mac_d)
         mac_d->clear();
     if(!CreateNewMenu(0, 0, &mac_d->apple_menu)) {
-        SetMenuTitleWithCFString(mac_d->apple_menu, QCFStringHelper(QString(QChar(0x14))));
+        SetMenuTitleWithCFString(mac_d->apple_menu, QCFString(QString(QChar(0x14))));
         InsertMenu(mac_d->apple_menu, 0);
     }
 
@@ -412,7 +412,7 @@ bool Q3MenuBar::updateMenuBar()
         if (item->isSeparator() || !item->isVisible()) //mac doesn't support these
             continue;
         if(MenuRef mp = createMacPopup(item->popup(), item->id(), true)) {
-            SetMenuTitleWithCFString(mp, QCFStringHelper(qt_mac_no_ampersands(item->text())));
+            SetMenuTitleWithCFString(mp, QCFString(qt_mac_no_ampersands(item->text())));
             InsertMenu(mp, 0);
             if(item->isEnabled())
                 EnableMenuItem(mp, 0);

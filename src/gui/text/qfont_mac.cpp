@@ -188,9 +188,8 @@ void QFontPrivate::load(QFont::Script script)
         // previous versions
         family_list << QApplication::font().defaultFamily();
         for(QStringList::ConstIterator it = family_list.begin(); it !=  family_list.end(); ++it) {
-            QCFStringHelper cfstr(*it);
-            if(ATSFontRef fontref = ATSFontFindFromName(cfstr, kATSOptionFlagsDefault)) {
-                QCFStringHelper actualName;
+            if(ATSFontRef fontref = ATSFontFindFromName(QCFString(*it), kATSOptionFlagsDefault)) {
+                QCFString actualName;
                 if(ATSFontGetName(fontref, kATSOptionFlagsDefault,
                                   &actualName) == noErr) {
                     if(static_cast<QString>(actualName) == (*it)) {
@@ -210,7 +209,7 @@ void QFontPrivate::load(QFont::Script script)
         else
             engine->fontDef.pixelSize = qt_mac_pixelsize(engine->fontDef, paintdevice);
         {
-            QCFStringHelper actualName;
+            QCFString actualName;
             Q_ASSERT(engine->type() == QFontEngine::Mac);
             if (ATSFontGetName(engine->fontref, kATSOptionFlagsDefault, &actualName)
                 == noErr) {

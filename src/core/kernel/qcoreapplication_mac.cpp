@@ -29,7 +29,7 @@ const char *qAppName()                                // get application name
     if(!appName) {
         ProcessSerialNumber psn;
         if(GetCurrentProcess(&psn) == noErr) {
-            QCFStringHelper cfstr;
+            QCFString cfstr;
             CopyProcessName(&psn, &cfstr);
             appName = strdup(static_cast<QString>(cfstr).latin1());
         } else if(QCoreApplication *app = QCoreApplication::instance()) {
@@ -43,8 +43,8 @@ const char *qAppName()                                // get application name
 const char *qAppFileName()
 {
     if(!appFileName) {
-        QCFHelper<CFURLRef> bundleURL(CFBundleCopyExecutableURL(CFBundleGetMainBundle()));
-        QCFStringHelper cfPath(CFURLCopyFileSystemPath(bundleURL, kCFURLPOSIXPathStyle));
+        QCFType<CFURLRef> bundleURL(CFBundleCopyExecutableURL(CFBundleGetMainBundle()));
+        QCFString cfPath(CFURLCopyFileSystemPath(bundleURL, kCFURLPOSIXPathStyle));
         appFileName = strdup(static_cast<QString>(cfPath).latin1());
     }
     return appFileName;

@@ -872,10 +872,9 @@ void qt_init(QApplicationPrivate *priv, QApplication::Type)
                      "executable.", argv[0]);
         //special hack to change working directory (for an app bundle) when running from finder
         if(!passed_psn.isNull() && QDir::currentDirPath() == "/") {
-            QString qbundlePath;
-            QCFHelper<CFURLRef> bundleURL(CFBundleCopyBundleURL(CFBundleGetMainBundle()));
-            QCFStringHelper cfPath(CFURLCopyFileSystemPath(bundleURL, kCFURLPOSIXPathStyle));
-            qbundlePath = cfPath;
+            QCFType<CFURLRef> bundleURL(CFBundleCopyBundleURL(CFBundleGetMainBundle()));
+            QString qbundlePath = QCFString(CFURLCopyFileSystemPath(bundleURL,
+                                            kCFURLPOSIXPathStyle));
             if(qbundlePath.endsWith(".app"))
                 QDir::setCurrent(qbundlePath.section('/', 0, -2));
         }
