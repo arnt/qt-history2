@@ -65,14 +65,27 @@ QDesignerServer *QDesigner::server() const
 void QDesigner::initialize()
 {
     // initialize the sub components
-    m_server = new QDesignerServer();
+    int arg = 1;
+
+    for (int i = 1; i < argc(); ++i)
+    {
+        if (QString::fromLocal8Bit(argv()[i]) == "-server")
+        {
+            m_server = new QDesignerServer();
+            printf("%d\n", m_server->serverPort());
+            fflush(stdout);
+            arg = i + 1; //rest is files
+            break;
+        }
+    }
+
     m_session = new QDesignerSession();
     m_workbench = new QDesignerWorkbench();
 
     emit initialized();
 
-    for (int i = 1; i < argc(); ++i)
-        m_workbench->readInForm(QString::fromLocal8Bit(argv()[i]));
+    for ( ; arg < argc(); ++arg)
+        m_workbench->readInForm(QString::fromLocal8Bit(argv()[arg]));
 }
 
 bool QDesigner::event(QEvent *ev)

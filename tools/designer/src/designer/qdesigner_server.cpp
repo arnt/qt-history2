@@ -73,7 +73,7 @@ void QDesignerServer::readFromClient()
     {
         file = file.replace(QLatin1String("\n"), QLatin1String(""));
         file = file.replace(QLatin1String("\r"), QLatin1String(""));
-        qDesigner->postEvent(parent(), new QFileOpenEvent(file));
+        qDesigner->postEvent(qDesigner, new QFileOpenEvent(file));
     }
 }
 
