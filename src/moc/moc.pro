@@ -31,6 +31,7 @@ SOURCES	+= ../core/tools/qbytearray.cpp	\
 		  ../core/tools/qbytearraymatcher.cpp \
 		  ../core/tools/qdatetime.cpp	\
 		  ../core/io/qfile.cpp		\
+		  ../core/io/qtemporaryfile.cpp \
                   ../core/io/qfileengine.cpp  \
                   ../core/io/qioengine.cpp  \
 		  ../core/io/qdir.cpp		\

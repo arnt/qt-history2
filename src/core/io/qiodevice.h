@@ -71,7 +71,10 @@ public:
         UnspecifiedError = 9,
         RemoveError = 10,
         RenameError = 11,
-        PositionError = 12
+        PositionError = 12,
+        ResizeError = 13,
+        PermissionsError = 14,
+        CopyError = 15
     };
 
     QIODevice();
@@ -143,8 +146,6 @@ private:
     QIODevice &operator=(const QIODevice &);
 #endif
 };
-
-// Compatibility defines
 
 #define IO_Direct QIODevice::Direct
 #define IO_Sequential QIODevice::Sequential

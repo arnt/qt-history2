@@ -17,6 +17,7 @@
 #include <private/qiodevice_p.h>
 #include <qfileengine.h>
 #include <qfileinfo.h>
+#include <qtemporaryfile.h>
 #include <qlist.h>
 
 #include <errno.h>
@@ -454,6 +455,77 @@ QFile::rename(const QString &oldName, const QString &newName)
     return QFile(oldName).rename(newName);
 }
 
+
+/*!
+    Copies the file currently specified by fileName() to \a newName.
+    Returns true if successful; otherwise returns false.
+
+    The file is closed before it is copied.
+
+    \sa setFileName()
+*/
+
+bool 
+QFile::copy(const QString &newName)
+{
+    if (d->fileName.isEmpty()) {
+        qWarning("QFile::copy: Empty or null file name");
+        return false;
+    }
+    close();
+    if(status() == QIODevice::Ok) {
+        bool error = false;
+        if(!open(QFile::ReadOnly)) {
+            error = true;
+            setStatus(QIODevice::CopyError, QString("Cannot open %1 for input").arg(d->fileName));
+        } else {
+            QTemporaryFile out;
+            if(!out.open()) {
+                close();
+                error = true;
+                setStatus(QIODevice::CopyError, "Cannot open for output");
+            } else {
+                char block[1024];
+                while(!atEnd()) {
+                    Q_LONG in = readBlock(block, 1024);
+                    if(in == -1)
+                        break;
+                    if(in != out.writeBlock(block, in)) {
+                        setStatus(QIODevice::CopyError, "Failure to write block");
+                        error = true;
+                        break;
+                    }
+                }
+                if(!error && !QFile::rename(out.fileName(), newName)) {
+                    error = true;
+                    setStatus(QIODevice::CopyError, QString("Cannot create %1 for output").arg(newName));
+                }
+            }
+        }
+        if(!error) {
+            QFile::setPermissions(newName, permissions());
+            resetStatus();
+            return true;
+        }
+    }
+    return false;
+}
+
+/*!
+    \overload
+
+    Copies the file \a fileName to \a newName. Returns true if successful;
+    otherwise returns false.
+
+    \sa rename()
+*/
+
+bool 
+QFile::copy(const QString &fileName, const QString &newName)
+{
+    return QFile(fileName).copy(newName);
+}
+
 /*!
     \overload
 
@@ -620,13 +692,18 @@ QIOEngine
     currently is the new bytes will be set to 0, if \a sz is smaller the
     file is simply truncated.
 
-    \sa QFile::size()
+    \sa QFile::size(), setFileName()
 */
 
 bool 
 QFile::resize(QIODevice::Offset sz)
 {
-    return d->getFileEngine()->setSize(sz);
+    if(d->getFileEngine()->setSize(sz)) {
+        resetStatus();
+        return true;
+    }
+    setStatus(QIODevice::ResizeError, errno);
+    return false;
 }
 
 /*!
@@ -650,7 +727,7 @@ QFile::resize(const QString &fileName, QIODevice::Offset sz)
     Returns the complete OR-ed together combination of
     QFile::PermissionSpec for the file.
 
-    \sa QFile::setPermissions, QFile::PermissionSpec
+    \sa QFile::setPermissions, QFile::PermissionSpec, setFileName()
 */
 
 uint 
@@ -679,13 +756,18 @@ QFile::permissions(const QString &fileName)
     permissionSpec argument can be several flags of type \c
     QFile::PermissionSpec OR-ed together to set the file to.
 
-    \sa permissions(), QFile::PermissionSpec
+    \sa permissions(), QFile::PermissionSpec, setFileName()
 */
 
 bool 
 QFile::setPermissions(uint permissionSpec)
 {
-    return d->getFileEngine()->chmod(permissionSpec);
+    if(d->getFileEngine()->chmod(permissionSpec)) {
+        resetStatus();
+        return true;
+    }
+    setStatus(QIODevice::PermissionsError, errno);
+    return false;
 }
 
 /*!

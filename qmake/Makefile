@@ -54,6 +54,7 @@ QTOBJS= \
 	qdatetime.obj \
 	qdir.obj \
 	qfile.obj \
+	qtemporaryfile.obj \
 	qioengine.obj \
 	qfileengine.obj \
 	qfileengine_win.obj \
@@ -143,6 +144,9 @@ qlinkedlist.obj: ..\src\core\tools\qlinkedlist.cpp
 
 qfile.obj: ..\src\core\io\qfile.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\io\qfile.cpp
+
+qtemporaryfile.obj: ..\src\core\io\qtemporaryfile.cpp
+	$(CXX) $(CXXFLAGS) ..\src\core\io\qtemporaryfile.cpp
 
 qfileengine_win.obj: ..\src\core\io\qfileengine_win.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\io\qfileengine_win.cpp

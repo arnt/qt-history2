@@ -32,6 +32,7 @@ QTOBJS= \
 	qfsdirengine_win.o \
 	qfsdirengine.o \
 	qfile.o \
+	qtemporaryfile.o \
 	qfsfileengine_win.o \
 	qfsfileengine.o \
 	qfileinfo.o \
@@ -113,6 +114,9 @@ qlinkedlist.o: ..\src\core\tools\qlinkedlist.cpp
 
 qfile.o: ..\src\core\io\qfile.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\io\qfile.cpp
+
+qtemporaryfile.o: ..\src\core\io\qtemporaryfile.cpp
+	$(CXX) $(CXXFLAGS) ..\src\core\io\qtemporaryfile.cpp
 
 qfile_win.o: ..\src\core\io\qfile_win.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\io\qfile_win.cpp
