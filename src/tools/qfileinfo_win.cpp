@@ -256,8 +256,8 @@ QString QFileInfo::owner() const
 		    name = qt_winQString(owner);
 		}
 		LocalFree( pSD );
-		delete owner;
-		delete domain;
+		delete [] owner;
+		delete [] domain;
 	    }
 	}
 #else
@@ -274,8 +274,8 @@ QString QFileInfo::owner() const
 		    name = owner;
 		}
 		LocalFree( pSD );
-		delete owner;
-		delete domain;
+		delete [] owner;
+		delete [] domain;
 	    }
 	}
 #endif
@@ -321,8 +321,8 @@ QString QFileInfo::group() const
 		    name = qt_winQString(group);
 		}
 		LocalFree( pSD );
-		delete group;
-		delete domain;
+		delete [] group;
+		delete [] domain;
 	    }
 	}
 #else
@@ -339,8 +339,8 @@ QString QFileInfo::group() const
 		    name = group;
 		}
 		LocalFree( pSD );
-		delete group;
-		delete domain;
+		delete [] group;
+		delete [] domain;
 	    }
 	}
 #endif
