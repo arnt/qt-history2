@@ -1434,9 +1434,11 @@ static void ins_text_bitmap( const QString &key, QBitmap *bm )
 
 void QPainter::drawText( int x, int y, const QString &str, int len )
 {
-    if(memorymanager->fontAscent(cfont.handle())==0)
+    if(memorymanager->fontAscent(cfont.handle())==0) {
+	qDebug("No ascent");
 	return;
-    
+    }
+
     if ( !isActive() )
 	return;
     if ( len < 0 )
@@ -1612,6 +1614,7 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
     param[1].str = &newstr;
     pdev->cmd(QPaintDevice::PdcDrawText2,this,param);
     */
+
     QString newstr = str.left(len);
     gfx->drawText(x,y,newstr);
 
