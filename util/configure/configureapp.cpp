@@ -13,6 +13,9 @@ Configure::Configure( int& argc, char** argv )
     int i;
     installDir = QDir::currentDirPath();
 
+    // ### REMOVE ME 3.1
+    // this is provided solely for compatibility... this configure should
+    // take a -prefix argument as the location for installation
     const char *qtdirenv = getenv( "QTDIR" );
     if ( qtdirenv ) {
 	installDir = QString( qtdirenv );
