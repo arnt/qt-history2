@@ -194,6 +194,9 @@ QStringList QMakeSourceFileInfo::dependencies(const QString &file)
 int
 QMakeSourceFileInfo::included(const QString &file)
 {
+    if (files == 0)
+        return 0;
+
     if(SourceFile *node = files->lookupFile(file))
         return node->included_count;
     return 0;
