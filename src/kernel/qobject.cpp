@@ -2279,6 +2279,8 @@ bool QObject::connect( const QObject *receiver )
 	d = new QObjectPrivate;
     if ( !d->receivers )
 	d->receivers = new QObjectList;
+    if ( d->receivers->findRef( receiver ) != -1 )
+	return FALSE;
     d->receivers->append( receiver );
     connect( receiver, SIGNAL( destroyed() ), this, SLOT( receiverDestroyed() ) );
     return TRUE;
