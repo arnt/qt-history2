@@ -39,9 +39,9 @@
 class QToolBarPrivate
 {
 public:
-    QToolBarPrivate() : moving( FALSE ), stretchable( FALSE ) {}
+    QToolBarPrivate() : moving( FALSE ) { stretchable[ 0 ] = FALSE; stretchable[ 1 ] = FALSE; }
     bool moving;
-    bool stretchable;
+    bool stretchable[ 2 ];
 };
 
 
@@ -340,8 +340,8 @@ void QToolBar::setStretchableWidget( QWidget * w )
     sw = w;
     b->setStretchFactor( w, 1 );
 
-    if ( !isStretchable() )
-	setStretchable( TRUE );
+    if ( !isStretchable( Horizontal ) && !isStretchable( Vertical ) )
+	setStretchable( TRUE, orientation() );
 }
 
 
@@ -433,9 +433,10 @@ void QToolBar::endMoving( QToolBar *tb )
 
 /*!
   Sets the toolbar to be stretchable if \a stretchable is TRUE, or
-  non-stretchable otherwise.
+  non-stretchable otherwise, if the toolbar is in the orientation \a o.
 
-  A stretchable toolbar fills the available width in a toolbar dock. A
+  A stretchable toolbar fills the available width or height 
+  (depending on the orientation) in a toolbar dock. A
   non-stretchable toolbar usually gets just the space it needs.
 
   The default is FALSE.
@@ -443,28 +444,35 @@ void QToolBar::endMoving( QToolBar *tb )
   \sa QMainWindow::setRightJustification(), isStretchable()
 */
 
-void QToolBar::setStretchable( bool b )
+void QToolBar::setStretchable( bool b, Orientation o )
 {
-
-    if ( d->stretchable != b ) {
-	d->stretchable = b;
+    int i = 0;
+    if ( o == Vertical )
+	i = 1;
+    if ( d->stretchable[ i ] != b ) {
+	d->stretchable[ i ] = b;
 	if ( mw )
 	    mw->triggerLayout( FALSE );
     }
 }
 
 /*!
-  Returns whether the toolbar is stretchable or not.
+  Returns whether the toolbar is stretchable or not in the orientation
+  \a o.
 
-  A stretchable toolbar fills all available width in a toolbar dock. A
+  A stretchable toolbar fills all available width or height 
+  (depending on the orientation) in a toolbar dock. A
   non-stretchable toolbar usually gets just the space it needs.
 
   \sa setStretchable()
 */
 
-bool QToolBar::isStretchable() const
+bool QToolBar::isStretchable( Orientation o ) const
 {
-    return d->stretchable;
+    int i = 0;
+    if ( o == Vertical )
+	i = 1;
+    return d->stretchable[ i ];
 }
 
 

@@ -60,8 +60,8 @@ public:
     QMainWindow * mainWindow();
 
     virtual void setStretchableWidget( QWidget * );
-    void setStretchable( bool b );
-    bool isStretchable() const;
+    void setStretchable( bool b, Orientation o = Vertical );
+    bool isStretchable( Orientation o ) const;
 
     bool event( QEvent * e );
     bool eventFilter( QObject *, QEvent * );

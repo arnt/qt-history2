@@ -128,8 +128,8 @@ public:
 	ToolBar( QToolBar * tb, bool n=FALSE )
 	    : t(tb), nl(n), oldDock( QMainWindow::Top ), oldIndex( 0 ), extraOffset( -1 )  {}
 	QToolBar * t;
-	bool isStretchable() const
-	    { return t->isStretchable(); }
+	bool isStretchable( Qt::Orientation o ) const
+	    { return t->isStretchable( o ); }
 	bool nl;
 	QValueList<int> disabledDocks;
 	QMainWindow::ToolBarDock oldDock;
@@ -199,7 +199,7 @@ public:
 
     ToolBarDock * top, * left, * right, * bottom, * tornOff, * unmanaged, *hidden;
     QToolLayout *lLeft, *lRight;
-    
+
     QMenuBar * mb;
     QStatusBar * sb;
     QToolTipGroup * ttg;
@@ -401,7 +401,7 @@ int QToolLayout::layoutItems( const QRect &r, bool testonly )
 	    nx = QMAX( e, rect_extend( r, o ) - size_extend( sh, o ) );
 	if ( !t || t->nl || nx + size_extend( sh, o ) > rect_extend( r, o ) ) {
 	    QValueList<QRect> rects;
-	    int s = stretchs > 0 ? ( rect_extend( r, o ) - e ) / stretchs : 0;
+	    int s = stretchs > 0 ? ( rect_extend( r, o ) - e + rect_pos( r, o ) ) / stretchs : 0;
 	    int p = rect_pos( r, o );
 	    QMainWindowPrivate::ToolBar *tmp = 0;
 	    for ( t2 = row.first(); t2; t2= row.next() ) {
@@ -416,20 +416,29 @@ int QToolLayout::layoutItems( const QRect &r, bool testonly )
 		    int ext = t2->t->sizeHint().width();
 		    if ( p + ext > r.width() && p == t2->extraOffset )
 			p = QMAX( p - space, r.width() - ext );
-		    if ( p > oldPos && tmp && ( tmp->t->isStretchable() || fill ) ) {
+		    if ( p > oldPos && tmp && ( tmp->t->isStretchable( Qt::Horizontal ) || fill ) ) {
 			QRect r = rects.last();
 			int d = p - ( r.x() + r.width() );
 			rects.last().setWidth( r.width() + d );
 		    }
-		    if ( t2->t->isStretchable() || fill )
-			ext += QMAX( 0, ( t2->t->isStretchable() || fill ? s : 0 ) );
-		    if ( p + ext > r.width() && ( t2->t->isStretchable() || fill ) )
+		    if ( t2->t->isStretchable( Qt::Horizontal ) || fill )
+			ext += QMAX( 0, ( t2->t->isStretchable( Qt::Horizontal ) || fill ? s : 0 ) );
+		    if ( p + ext > r.width() && ( t2->t->isStretchable( Qt::Horizontal ) || fill ) )
 			ext = r.width() - p;
 		    g = QRect( p, pos, ext , lineExtend );
 		} else {
 		    int ext = t2->t->sizeHint().height();
-		    if ( p + ext > r.height() && p == t2->extraOffset )
-			p = QMAX( p - space, r.height() - ext );
+		    if ( p + ext > r.y() + r.height() && p == t2->extraOffset )
+			p = QMAX( p - space, ( r.y() + r.height() ) - ext );
+		    if ( p > oldPos && tmp && ( tmp->t->isStretchable( Qt::Vertical ) || fill ) ) {
+			QRect r = rects.last();
+			int d = p - ( r.y() + r.height() );
+			rects.last().setHeight( r.height() + d );
+		    }
+		    if ( t2->t->isStretchable( Qt::Vertical ) || fill )
+			ext += QMAX( 0, ( t2->t->isStretchable( Qt::Vertical ) || fill ? s : 0 ) );
+		    if ( p + ext > r.y() + r.height() && ( t2->t->isStretchable( Qt::Vertical ) || fill ) )
+			ext = ( r.y() + r.height() ) - p;
 		    g = QRect( pos, p, lineExtend, ext );
 		}
 		rects.append( g );
@@ -458,7 +467,7 @@ int QToolLayout::layoutItems( const QRect &r, bool testonly )
 	e = nx + size_extend( sh, o );
 	lineExtend = QMAX( lineExtend, size_extend( sh, o, TRUE ) );
 	row.append( t );
-	if ( t->t->isStretchable() || fill )
+	if ( t->t->isStretchable( o ) || fill )
 	    ++stretchs;
 	t = dock->next();
     }
@@ -542,7 +551,7 @@ public:
     QLayoutIterator iterator();
     QSizePolicy::ExpandData expanding() const { return QSizePolicy::NoDirection; }
     void invalidate() {}
-    
+
 protected:
     void setGeometry( const QRect &r ) {
 	QLayout::setGeometry( r );
@@ -555,47 +564,47 @@ private:
     int cached_wfh;
     QToolLayout *left, *right;
     QWidget *central;
-    
+
 };
 
-QSize QMainWindowLayout::sizeHint() const 
-{ 
-    // #### TODO
-    return QSize( 0, 0 ); 
-}
-
-QSize QMainWindowLayout::minimumSize() const 
+QSize QMainWindowLayout::sizeHint() const
 {
     // #### TODO
-    return QSize( 0, 0 ); 
+    return QSize( 0, 0 );
+}
+
+QSize QMainWindowLayout::minimumSize() const
+{
+    // #### TODO
+    return QSize( 0, 0 );
 }
 
 QMainWindowLayout::QMainWindowLayout( QLayout* parent )
     : QLayout( parent ), left( 0 ), right( 0 ), central( 0 )
 {
-    cached_height = -1; cached_wfh = -1; 
+    cached_height = -1; cached_wfh = -1;
 }
 
-void QMainWindowLayout::setLeftDock( QToolLayout *l ) 
+void QMainWindowLayout::setLeftDock( QToolLayout *l )
 {
-    left = l; 
+    left = l;
 }
 
-void QMainWindowLayout::setRightDock( QToolLayout *r ) 
+void QMainWindowLayout::setRightDock( QToolLayout *r )
 {
-    right = r; 
+    right = r;
 }
 
-void QMainWindowLayout::setCentralWidget( QWidget *w ) 
+void QMainWindowLayout::setCentralWidget( QWidget *w )
 {
-    central = w; 
+    central = w;
 }
 
 int QMainWindowLayout::layoutItems( const QRect &r, bool testonly )
 {
     if ( !left && !central && !right )
 	return 0;
-    
+
     int wl = 0, wr = 0;
     if ( left )
 	wl = left->widthForHeight( r.height() );
@@ -604,7 +613,7 @@ int QMainWindowLayout::layoutItems( const QRect &r, bool testonly )
     int w = r.width() - wr - wl;
     if ( w < 0 )
 	w = 0;
-    
+
     if ( !testonly ) {
 	QRect g( geometry() );
 	if ( left )
@@ -614,7 +623,7 @@ int QMainWindowLayout::layoutItems( const QRect &r, bool testonly )
 	if ( central )
 	    central->setGeometry( g.x() + wl, g.y(), w, r.height() );
     }
-    
+
     w = wl + wr;
     if ( central )
 	w += central->minimumSize().width();
@@ -1832,7 +1841,7 @@ void QMainWindow::setUpLayout()
     d->tll->setStretchFactor( mwl, 100 );
     d->lLeft = new QToolLayout( mwl, d->left, QBoxLayout::LeftToRight, d->justify );
     mwl->setLeftDock( d->lLeft );
-        
+
     if ( centralWidget() &&
 	 !centralWidget()->testWState(Qt::WState_ForceHide) )
 	mwl->setCentralWidget( centralWidget() );
