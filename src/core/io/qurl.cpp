@@ -358,41 +358,40 @@ static bool QT_FASTCALL _h16(char **ptr, QByteArray *c)
 //             / "25" %x30-35          ; 250-255
 static bool QT_FASTCALL _decOctet(char **ptr, QByteArray *octet)
 {
-    char *ptrBackup = *ptr;
-    char c1 = *((*ptr)++);
-    if (c1 < '0' || c1 > '9') {
-        *ptr = ptrBackup;
-        return false;
-    }
-
+    char c1 = **ptr;
+    
+    if (c1 < '0' || c1 > '9')
+	return false;
+    
     *octet += c1;
-
+    
+    ++(*ptr);
+    
     if (c1 == '0')
         return true;
-
-    char c2 = *((*ptr)++);
-    if (c2 < '0' || c2 > '9') {
-        *ptr = ptrBackup;
+    
+    char c2 = **ptr;
+    
+    if (c2 < '0' || c2 > '9')
         return true;
-    }
-
+    
     *octet += c2;
-
-    char c3 = *((*ptr)++);
-    if (c3 < '0' || c3 > '9') {
-        *ptr = ptrBackup;
+    
+    ++(*ptr);
+    
+    char c3 = **ptr;
+    if (c3 < '0' || c3 > '9')
         return true;
-    }
-
+    
     *octet += c3;
-
+    
     // If there is a three digit number larger than 255, reject the
     // whole token.
-    if (c1 > '2' || c2 > '5' || c3 > '5') {
-        *ptr = ptrBackup;
+    if (c1 >= '2' && c2 >= '5' && c3 > '5')
         return false;
-    }
-
+    
+    ++(*ptr);
+    
     return true;
 }
 
@@ -405,27 +404,23 @@ static bool QT_FASTCALL _IPv4Address(char **ptr, QByteArray *c)
     if (!_decOctet(ptr, &tmp1))
         return false;
 
-    *c += tmp1;
-
     for (int i = 0; i < 3; ++i) {
         if (*((*ptr)++) != '.') {
             *ptr = ptrBackup;
             return false;
         }
 
-        *c += '.';
+        tmp1 += '.';
 
-        tmp1.truncate(0);
         if (!_decOctet(ptr, &tmp1))
             return false;
-
-        *c += tmp1;
     }
+
+    *c += tmp1;
 
     return true;
 }
 
-#if 0
 // ls32        = ( h16 ":" h16 ) / IPv4address
 //             ; least-significant 32 bits of address
 static bool QT_FASTCALL _ls32(char **ptr, QByteArray *c)
@@ -434,7 +429,7 @@ static bool QT_FASTCALL _ls32(char **ptr, QByteArray *c)
     QByteArray tmp1;
     QByteArray tmp2;
     if (_h16(ptr, &tmp1) && _char(ptr, ':') && _h16(ptr, &tmp2)) {
-        *c = tmp1;
+        *c += tmp1;
         *c += ':';
         *c += tmp2;
         return true;
@@ -443,43 +438,124 @@ static bool QT_FASTCALL _ls32(char **ptr, QByteArray *c)
     *ptr = ptrBackup;
     return _IPv4Address(ptr, c);
 }
-#endif
 
-// IPv6address =                            6( h16 ":" ) ls32
-//             /                       "::" 5( h16 ":" ) ls32
-//             / [               h16 ] "::" 4( h16 ":" ) ls32
-//             / [ *1( h16 ":" ) h16 ] "::" 3( h16 ":" ) ls32
-//             / [ *2( h16 ":" ) h16 ] "::" 2( h16 ":" ) ls32
-//             / [ *3( h16 ":" ) h16 ] "::"    h16 ":"   ls32
-//             / [ *4( h16 ":" ) h16 ] "::"              ls32
-//             / [ *5( h16 ":" ) h16 ] "::"              h16
-//             / [ *6( h16 ":" ) h16 ] "::"
+// IPv6address =                            6( h16 ":" ) ls32 // case 1
+//             /                       "::" 5( h16 ":" ) ls32 // case 2
+//             / [               h16 ] "::" 4( h16 ":" ) ls32 // case 3
+//             / [ *1( h16 ":" ) h16 ] "::" 3( h16 ":" ) ls32 // case 4
+//             / [ *2( h16 ":" ) h16 ] "::" 2( h16 ":" ) ls32 // case 5
+//             / [ *3( h16 ":" ) h16 ] "::"    h16 ":"   ls32 // case 6
+//             / [ *4( h16 ":" ) h16 ] "::"              ls32 // case 7
+//             / [ *5( h16 ":" ) h16 ] "::"              h16  // case 8
+//             / [ *6( h16 ":" ) h16 ] "::"                   // case 9
 static bool QT_FASTCALL _IPv6Address(char **ptr, QByteArray *host)
 {
-    (void)host;
-
     char *ptrBackup = *ptr;
 
-    QByteArray tmp1;
-    if (_h16(ptr, &tmp1)) {
-        // 6( h16 ":" ) ls32
-        // [ h16 ] "::" 4( h16 ":" ) ls32
-        // [ *1( h16 ":" ) h16 ] "::" 3( h16 ":" ) ls32
-        // [ *2( h16 ":" ) h16 ] "::" 2( h16 ":" ) ls32
-        // [ *3( h16 ":" ) h16 ] "::"    h16 ":"   ls32
-        // [ *4( h16 ":" ) h16 ] "::"              ls32
-        // [ *5( h16 ":" ) h16 ] "::"              h16
-        // [ *6( h16 ":" ) h16 ] "::"
-    } else {
-        // "::" 5( h16 ":" ) ls32
-        if (!(_char(ptr, ':') && _char(ptr, ':'))) {
-            *ptr = ptrBackup;
-            return false;
-        }
+    QByteArray tmp;
+    
+    // count of (h16 ":") to the left of and including ::
+    int leftHexColons = 0;
+    // count of (h16 ":") to the right of ::
+    int rightHexColons = 0;
 
+    // first count the number of (h16 ":") on the left of ::
+    while (_h16(ptr, &tmp)) {
+
+	// an h16 not followed by a colon is considered an
+	// error.
+        if (!_char(ptr, ':')) {
+	    *ptr = ptrBackup;
+	    return false;
+	}
+	tmp += ':';
+	++leftHexColons;
+	
+	// check for case 1, the only time when there can be no ::
+	if (leftHexColons == 6 && _ls32(ptr, &tmp)) { 
+	    *host += tmp;
+	    return true;
+	}
     }
 
-    return false;
+    // check for case 2 where the address starts with a :
+    if (leftHexColons == 0 && _char(ptr, ':'))
+	tmp += ':';
+
+
+    // check for the second colon in ::
+    if (!_char(ptr, ':')) {
+	*ptr = ptrBackup;
+	return false;
+    }
+    tmp += ':';
+
+    int canBeCase = -1;
+    bool ls32WasRead = false;
+ 
+    QByteArray tmp2; 
+    char *tmpBackup = *ptr;
+
+    // count the number of (h16 ":") on the right of ::
+    for (;;) {
+	tmpBackup = *ptr;
+        if (!_h16(ptr, &tmp2)) {
+	    if (!_ls32(ptr, &tmp)) {
+		if (rightHexColons != 0) {
+		    *ptr = ptrBackup;
+		    return false;
+		}
+
+		// the address ended with :: (case 9)
+		// only valid if 1 <= leftHexColons <= 7 
+		canBeCase = 9;
+	    } else {
+		ls32WasRead = true;
+	    }
+	    break;
+	}
+	++rightHexColons;
+	if (!_char(ptr, ':')) {
+	    // no colon could mean that what was read as an h16
+	    // was in fact the first part of an ls32. we backtrack
+	    // and retry.
+	    char *pb = *ptr;
+	    *ptr = tmpBackup;
+	    if (_ls32(ptr, &tmp)) {
+		ls32WasRead = true;
+		--rightHexColons;
+	    } else {
+		*ptr = pb;
+		// address ends with only 1 h16 after :: (case 8)
+		if (rightHexColons == 1)
+		    canBeCase = 8;
+		tmp += tmp2;
+	    }
+	    break;
+	}
+	tmp += tmp2 + ':';
+	tmp2.truncate(0);
+    }
+
+    // determine which case it is based on the number of rightHexColons
+    if (canBeCase == -1) {
+	
+	// check if a ls32 was read. If it wasn't and rightHexColons >= 2 then the
+	// last 2 HexColons are in fact a ls32
+	if (!ls32WasRead && rightHexColons >= 2)
+	    rightHexColons -= 2;
+
+	canBeCase = 7 - rightHexColons;
+    }
+
+    // based on the case we need to check that the number of leftHexColons is valid
+    if (leftHexColons > (canBeCase - 2)) {
+	*ptr = ptrBackup;
+	return false;
+    }
+
+    *host += tmp;
+    return true;
 }
 
 // IP-literal = "[" ( IPv6address / IPvFuture  ) "]"
