@@ -714,7 +714,7 @@ static int indentForContinuationLine()
 				      int y = 0 );
 
 		  These constructs are caracterized by a ',' at the
-		  end of the unfinished lines or by non-balanced
+		  end of the unfinished lines or by unbalanced
 		  parentheses.
 		*/
 		if ( j == 0 || QString("!=<>").find((*yyLine)[j - 1]) == -1 ) {
@@ -738,7 +738,7 @@ static int indentForContinuationLine()
 		  int x = ( 11 +
 			    2 );
 
-	      If there is no such token, put a continuation indent:
+	      If there is no such token, we use a continuation indent:
 
 		  static QRegExp foo( QString(
 			  "foo foo foo foo foo foo foo foo foo") );
@@ -808,7 +808,7 @@ static int indentForContinuationLine()
   Returns the recommended indent for the bottom line of yyProgram if
   that line is standalone (or should be indented likewise).
 
-  Indenting a standalone is tricky, mostly because of braceless
+  Indenting a standalone line is tricky, mostly because of braceless
   control statements. Grossly, we are looking backwards for a special
   line, a "hook line", that we can use as a starting point to indent,
   and then modify the indentation level according to the braces met
@@ -851,7 +851,7 @@ static int indentForContinuationLine()
 	  }
 	  d;
 
-  Still, we're striving to go as little back as possible to accomodate
+  Still, we're striving to go back as little as possible to accomodate
   people with irregular indentation schemes. A hook line near at hand
   is much more reliable than a remote one.
 */
