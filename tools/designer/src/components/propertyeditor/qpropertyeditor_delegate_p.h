@@ -50,7 +50,11 @@ public:
     virtual void setModelData(QWidget *editor,
                               QAbstractItemModel *model,
                               const QModelIndex &index) const;
-                              
+
+    virtual void updateEditorGeometry(QWidget *editor,
+                                      const QStyleOptionViewItem &option,
+                                      const QModelIndex &index) const;
+
 public slots:
     void sync();
 

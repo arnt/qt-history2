@@ -59,7 +59,10 @@ EditorWithReset::EditorWithReset(const QString &prop_name, QWidget *parent)
     m_layout->setSpacing(0);
 
     QToolButton *button = new QToolButton(this);
+    button->setToolButtonStyle(Qt::ToolButtonIconOnly);
     button->setIcon(createIconSet(QLatin1String("resetproperty.png")));
+    button->setFixedWidth(20);
+    button->setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding));
     m_layout->addWidget(button);
     connect(button, SIGNAL(clicked()), this, SLOT(emitResetProperty()));
 }
@@ -154,7 +157,9 @@ QSize Delegate::sizeHint(const QStyleOptionViewItem &opt,
 
     option.state &= ~(QStyle::State_Selected | QStyle::State_HasFocus);
 
-    return QItemDelegate::sizeHint(option, index) + QSize(4,4);
+    QSize sz = QItemDelegate::sizeHint(option, index) + QSize(4, 4); // ####
+//    sz.setHeight(sz.height() + sz.height() % 2);
+    return sz;
 }
 
 
@@ -244,5 +249,12 @@ void Delegate::sync()
         return;
     emit commitData(w);
 }
+
+void Delegate::updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &index) const
+{
+    QItemDelegate::updateEditorGeometry(editor, option, index);
+    editor->setGeometry(editor->geometry().adjusted(0, 0, -1, -1));
+}
+
 
 #include "qpropertyeditor_delegate.moc"
