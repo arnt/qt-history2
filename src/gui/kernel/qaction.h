@@ -145,6 +145,7 @@ signals:
     void hovered();
 #ifdef QT_COMPAT
     QT_MOC_COMPAT void activated();
+    QT_MOC_COMPAT void toggled(bool);
 #endif
 
 private:

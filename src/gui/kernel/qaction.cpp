@@ -615,6 +615,10 @@ void QAction::setChecked(bool b)
 {
     d->checked = b;
     d->sendDataChanged();
+#ifdef QT_COMPAT
+    if(isCheckable())
+        emit toggled(b);
+#endif
 }
 
 bool QAction::isChecked() const
@@ -707,6 +711,8 @@ QAction::eventFilter(QObject *, QEvent *e)
 void QAction::activate(ActionEvent event)
 {
     if(event == Trigger) {
+        if(isCheckable())
+            setChecked(!isChecked());
         emit triggered();
 #ifdef QT_COMPAT
         emit activated();
