@@ -15,6 +15,7 @@
 #include "qapplication.h"
 #include "qdesktopwidget.h"
 #include "qguieventloop.h"
+#include "qfile.h"
 #include <private/qeventloop_p.h>
 #include "qwidget.h"
 #include "qevent.h"
@@ -30,7 +31,6 @@
 #include "qcursor.h"
 #include "qstyle.h"
 #include "qstylefactory.h"
-#include "qfile.h"
 #include "qmessagebox.h"
 #include "qdir.h"
 #include "qfileinfo.h"

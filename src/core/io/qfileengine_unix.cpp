@@ -11,11 +11,11 @@
 **
 ****************************************************************************/
 
-#include <qplatformdefs.h>
 #include <qfileengine.h>
 #include "qfileengine_p.h"
 #include <qfile.h>
 #include <qdir.h>
+#include <qplatformdefs.h>
 #ifndef QT_NO_REGEXP
 # include <qregexp.h>
 #endif

@@ -16,6 +16,10 @@
 
 #include <qfileengine.h>
 
+#ifdef open
+#error qresourceengine_p.h must be included before any system header that defines open
+#endif
+
 class QResourceFileEnginePrivate;
 class QResourceFileEngine : public QFileEngine
 {

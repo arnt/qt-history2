@@ -22,6 +22,10 @@
 #  include "qobject.h"
 #endif
 
+#ifdef open
+#error qfile.h must be included before any system header that defines open
+#endif
+
 class QFileEngine;
 class QFilePrivate;
 class Q_CORE_EXPORT QFile :

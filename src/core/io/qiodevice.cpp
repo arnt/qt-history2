@@ -11,10 +11,10 @@
 **
 ****************************************************************************/
 
+#include "qiodevice.h"
 #include "qplatformdefs.h"
 
 #include "qbytearray.h"
-#include "qiodevice.h"
 #include "qiodevice_p.h"
 
 #define d d_func()

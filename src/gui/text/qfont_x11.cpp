@@ -15,6 +15,7 @@
 
 // REVISED: brad
 
+#include "qiodevice.h"
 #include "qplatformdefs.h"
 
 #include "qfont.h"

@@ -11,11 +11,11 @@
 **
 ****************************************************************************/
 
-#include <qplatformdefs.h>
 #include "qdir.h"
+#include <qfileengine.h>
+#include <qplatformdefs.h>
 #include <qdatetime.h>
 #include <qstring.h>
-#include <qfileengine.h>
 #include <qregexp.h>
 
 #define d d_func()

@@ -11,6 +11,7 @@
 **
 ****************************************************************************/
 
+#include "qfile.h"
 #include "qplatformdefs.h"
 
 // POSIX Large File Support redefines open -> open64
@@ -25,16 +26,6 @@ static inline int qt_open(const char *pathname, int flags, mode_t mode)
 // <X11/Xlib.h> redefines Status -> int
 #if defined(Status)
 # undef Status
-#endif
-
-// POSIX Large File Support redefines open -> open64
-#if defined(open)
-# undef open
-#endif
-
-// POSIX Large File Support redefines truncate -> truncate64
-#if defined(truncate)
-# undef truncate
 #endif
 
 #ifndef QT_NO_PRINTER
@@ -52,7 +43,6 @@ static inline int qt_open(const char *pathname, int flags, mode_t mode)
 #include "qbytearray.h"
 #include "qhash.h"
 #include "qbuffer.h"
-#include "qfile.h"
 #include "qtextcodec.h"
 #include "qsettings.h"
 #include "qmap.h"
@@ -81,6 +71,16 @@ static inline int qt_open(const char *pathname, int flags, mode_t mode)
 
 #ifdef Q_WS_X11
 #include <qx11info_x11.h>
+#endif
+
+// POSIX Large File Support redefines open -> open64
+#if defined(open)
+# undef open
+#endif
+
+// POSIX Large File Support redefines truncate -> truncate64
+#if defined(truncate)
+# undef truncate
 #endif
 
 static bool qt_gen_epsf = false;

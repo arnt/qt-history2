@@ -20,6 +20,7 @@
 #define _BSD_SOURCE
 #endif
 
+#include <qstring.h>
 #include "qplatformdefs.h"
 #include <qapplication.h>
 

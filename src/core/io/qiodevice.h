@@ -17,6 +17,10 @@
 #include "qstring.h"
 #include "qobjectdefs.h"
 
+#ifdef open
+#error qiodevice.h must be included before any system header that defines open
+#endif
+
 class QByteArray;
 class QIODevicePrivate;
 

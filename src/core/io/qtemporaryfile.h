@@ -17,6 +17,10 @@
 #include <qiodevice.h>
 #include <qfile.h>
 
+#ifdef open
+#error qtemporaryfile.h must be included before any system header that defines open
+#endif
+
 class QTemporaryFilePrivate;
 class Q_CORE_EXPORT QTemporaryFile : public QFile
 {

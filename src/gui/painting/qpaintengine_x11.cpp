@@ -11,6 +11,7 @@
 **
 ****************************************************************************/
 
+#include "qiodevice.h"
 #include "qplatformdefs.h"
 #include "qpaintengine_x11.h"
 

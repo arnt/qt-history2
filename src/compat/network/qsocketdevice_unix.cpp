@@ -11,6 +11,7 @@
 **
 ****************************************************************************/
 
+#include "qiodevice.h"
 #include "qplatformdefs.h"
 
 // Almost always the same. If not, specify in qplatformdefs.h.

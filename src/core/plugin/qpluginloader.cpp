@@ -11,10 +11,10 @@
 **
 ****************************************************************************/
 
-#include "qplatformdefs.h"
 #include "qpluginloader.h"
 #include <qfileinfo.h>
 #include "qlibrary_p.h"
+#include "qplatformdefs.h"
 
 /*!
     \class QPluginLoader

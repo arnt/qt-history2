@@ -11,10 +11,12 @@
 **
 ****************************************************************************/
 
+#include "qiodevice.h"
+
 #include "qplatformdefs.h"
 
-#include "qdatetime.h"
 #include "qdatastream.h"
+#include "qdatetime.h"
 #include "qregexp.h"
 #include "qdebug.h"
 

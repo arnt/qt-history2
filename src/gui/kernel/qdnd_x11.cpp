@@ -11,6 +11,7 @@
 **
 ****************************************************************************/
 
+#include "qiodevice.h"
 #include "qplatformdefs.h"
 
 #include "qapplication.h"

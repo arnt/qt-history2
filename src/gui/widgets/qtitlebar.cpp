@@ -11,6 +11,7 @@
 **
 ****************************************************************************/
 
+#include "qiodevice.h"
 #include "qplatformdefs.h"
 
 #ifndef QT_NO_TITLEBAR

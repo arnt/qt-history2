@@ -16,6 +16,10 @@
 
 #include "qdir.h"
 
+#ifdef open
+#error qfileengine.h must be included before any system header that defines open
+#endif
+
 class QFileEnginePrivate;
 class Q_CORE_EXPORT QFileEngine
 {

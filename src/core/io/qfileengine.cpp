@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#include <qplatformdefs.h>
 #include "qfileengine.h"
+#include <qplatformdefs.h>
 #include "qfileengine_p.h"
 #include <qdatetime.h>
 

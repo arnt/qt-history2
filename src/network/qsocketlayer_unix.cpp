@@ -12,6 +12,7 @@
 **
 ****************************************************************************/
 
+#include "qiodevice.h"
 #include "qplatformdefs.h"
 #include "qsocketlayer_p.h"
 #include "qhostaddress.h"

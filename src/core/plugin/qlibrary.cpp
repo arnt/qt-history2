@@ -11,11 +11,11 @@
 **
 ****************************************************************************/
 
+#include <qfile.h>
 #include "qplatformdefs.h"
 #include "qlibrary.h"
 #include "qlibrary_p.h"
 #include <qstringlist.h>
-#include <qfile.h>
 #include <qfileinfo.h>
 #include <qmutex.h>
 #include <qmap.h>
@@ -33,6 +33,10 @@
 #  define QLIBRARY_AS_DEBUG false
 #else
 #  define QLIBRARY_AS_DEBUG true
+#endif
+
+#ifdef open
+#undef open
 #endif
 
 /*!

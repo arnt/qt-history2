@@ -13,10 +13,10 @@
 
 #include "qfileinfo.h"
 #include <qdatetime.h>
+#include <qfileengine.h>
 #include <qplatformdefs.h>
 #include <qglobal.h>
 #include <qatomic.h>
-#include <qfileengine.h>
 #include "qdir.h"
 
 #define d d_func()

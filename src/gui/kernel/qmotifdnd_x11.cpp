@@ -39,6 +39,7 @@ in doc/dnd.doc, where the documentation system can see it. */
 /* Further adaptions by : Trolltech AS */
 /***********************************************************/
 
+#include "qiodevice.h"
 #include "qplatformdefs.h"
 
 #include "qapplication.h"
