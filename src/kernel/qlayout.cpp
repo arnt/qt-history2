@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#17 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#18 $
 **
 ** Implementation of layout classes
 **
@@ -12,7 +12,7 @@
 #include "qlayout.h"
 #include "qmenubar.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qlayout.cpp#17 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qlayout.cpp#18 $");
 
 
 /*!
@@ -508,8 +508,6 @@ void QBoxLayout::addMaxStrut( int size)
   <li> \c AlignRight aligns to the right border of the box.
   </ul>
 
-  Alignment 0 is "do what I mean" alignment.
-
   Alignment only has effect if the size of the box is greater than the
   widget's maximum size.
 
@@ -535,26 +533,7 @@ void QBoxLayout::addWidget( QWidget *widget, int stretch, int align )
 
     const int first = AlignLeft | AlignTop;
     const int last  = AlignRight | AlignBottom;
-    bool noMinSize = ( widget->minimumSize().isNull() );
-    if ( noMinSize ) {
-	QSize hint = widget->sizeHint();
-	if ( !hint.isEmpty() ) {
-	    QGManager::Direction dir = (QGManager::Direction)direction();
-	    if ( stretch == 0 ) {
-		if ( horz( dir ) )
-		    widget->setFixedWidth( hint.width() );
-		else
-		    widget->setFixedHeight( hint.height() );
-	    }
-	    if ( align != 0 ) {
-		if ( horz( dir ) )
-		    widget->setFixedHeight( hint.height() );
-		else
-		    widget->setFixedWidth( hint.width() );
 
-	    }
-	}
-    }
     if ( !pristine && defaultBorder() )
 	basicManager()->addSpacing( serChain, defaultBorder(), 0,
 				    defaultBorder() );
@@ -564,11 +543,11 @@ void QBoxLayout::addWidget( QWidget *widget, int stretch, int align )
     } else {
 	QGManager::Direction d = perp( dir );
 	QChain *sc = basicManager()->newSerChain( d );
-	if ( align & last || align & AlignCenter || !align ) {
+	if ( align & last || align & AlignCenter ) {
 	    basicManager()->addSpacing(sc, 0);
 	}
 	basicManager()->addWidget( sc, widget, 1 );
-	if ( align & AlignCenter || align & first || !align) {
+	if ( align & AlignCenter || align & first ) {
 	    basicManager()->addSpacing(sc, 0);
 	}
 	basicManager()->add( parChain, sc );
@@ -594,6 +573,130 @@ void QBoxLayout::addWidget( QWidget *widget, int stretch, int align )
 
 
 /*!
+  Creates a new top-level horizontal box.
+ */
+QHBoxLayout::QHBoxLayout( QWidget *parent, int border,
+		int autoBorder, const char *name )
+    :QBoxLayout( parent, LeftToRight, border, autoBorder, name )
+{
+    
+}
+
+/*!
+  Creates a new horizontal box. You have to add it to another 
+  layout before using it.
+ */
+QHBoxLayout::QHBoxLayout( int autoBorder, const char *name )
+    :QBoxLayout( LeftToRight, autoBorder, name )
+{
+}
+
+QHBoxLayout::~QHBoxLayout()
+{
+}
+
+/*!
+  Adds the widget \a w to the hbox, with horizontal stretch factor \a
+  stretch. The vertical alignment is given by \a alignment.
+
+  If \a w does not have a QWidget::minimumSize(), it will
+  will be set.....
+ */
+void QHBoxLayout::add( QWidget *w, int stretch, 
+			     int alignment )
+{
+    bool noMinSize = ( w->minimumSize().isNull() );
+    if ( noMinSize ) {
+	QSize hint = w->sizeHint();
+	if ( !hint.isEmpty() ) {
+	    if ( stretch == 0 ) {
+		w->setFixedWidth( hint.width() );
+	    }
+	    if ( alignment != 0 ) {
+		w->setFixedHeight( hint.height() );
+	    }
+	}
+    }
+    if ( !alignment )
+	alignment = AlignCenter;
+    QBoxLayout::addWidget( w, stretch, alignment );
+}
+
+/*!
+  Adds the layout  \a layout inside this layout with horizontal
+  stretch factor \a stretch.
+ */
+void QHBoxLayout::add( QLayout *layout, int stretch )
+{
+    QBoxLayout::addLayout( layout, stretch );
+}
+
+///////////////////////////////////////////////
+///////////////////////////////////////////////
+/*!
+  Creates a new top-level vertical box.
+ */
+QVBoxLayout::QVBoxLayout( QWidget *parent, int border,
+		int autoBorder, const char *name )
+    :QBoxLayout( parent, TopToBottom, border, autoBorder, name )
+{
+    
+}
+
+/*!
+  Creates a new vertical box. You have to add it to another 
+  layout before using it.
+ */
+QVBoxLayout::QVBoxLayout( int autoBorder, const char *name )
+    :QBoxLayout( TopToBottom, autoBorder, name )
+{
+}
+
+QVBoxLayout::~QVBoxLayout()
+{
+}
+
+/*!
+  Adds the widget \a w to the hbox, with vertical stretch factor \a
+  stretch. The vertical alignment is given by \a alignment.
+
+  If \a w does not have a QWidget::minimumSize(), it will
+  will be set by
+ */
+void QVBoxLayout::add( QWidget *w, int stretch, 
+			     int alignment )
+{
+    bool noMinSize = ( w->minimumSize().isNull() );
+    if ( noMinSize ) {
+	QSize hint = w->sizeHint();
+	if ( !hint.isEmpty() ) {
+	    if ( stretch == 0 ) {
+		w->setFixedHeight( hint.height() );
+	    }
+	    if ( alignment != 0 ) {
+		w->setFixedWidth( hint.width() );
+	    }
+	}
+    }
+    if ( !alignment )
+	alignment = AlignCenter;
+    QBoxLayout::addWidget( w, stretch, alignment );
+}
+
+/*!
+  Adds the layout  \a layout inside this layout with vertical
+  stretch factor \a stretch.
+ */
+void QVBoxLayout::add( QLayout *layout, int stretch )
+{
+    QBoxLayout::addLayout( layout, stretch );
+}
+
+
+
+
+
+/*!
   \class QGridLayout qlayout.h
 
   \brief The QGridLayout class specifies child widget geometry.
@@ -605,6 +708,7 @@ void QBoxLayout::addWidget( QWidget *widget, int stretch, int align )
   If you need to remove widgets that are under geometry management, you have to
   delete the layout manager first.
 */
+
 
 /*!
   Constructs a new QGridLayout with \a nRows, \a nCols columns

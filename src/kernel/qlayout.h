@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.h#9 $
+** $Id: //depot/qt/main/src/kernel/qlayout.h#10 $
 **
 ** Definition of layout classes
 **
@@ -77,7 +77,7 @@ public:
 		const char *name=0 );
 
     ~QBoxLayout();
-    void addWidget( QWidget *, int stretch = 0, int alignment = 0 );
+    void addWidget( QWidget *, int stretch = 0, int alignment = AlignCenter );
     void addSpacing( int size );
     void addStretch( int stretch = 0 );
     void addLayout( QLayout *layout, int stretch = 0 );
@@ -102,6 +102,35 @@ private:	// Disabled copy constructor and operator=
     QBoxLayout( const QBoxLayout & ) : QLayout(0) {}
     QBoxLayout &operator=( const QBoxLayout & ) { return *this; }
 
+};
+
+
+class QHBoxLayout : public QBoxLayout
+{
+public:
+    QHBoxLayout( QWidget *parent, int border=0,
+		int autoBorder = -1, const char *name=0 );
+
+    QHBoxLayout( int autoBorder = -1, const char *name=0 );
+
+    ~QHBoxLayout();
+    void add( QWidget *, int stretch = 0, int alignment = 0 );
+    void add( QLayout *layout, int stretch = 0 );
+};
+
+
+
+class QVBoxLayout : public QBoxLayout
+{
+public:
+    QVBoxLayout( QWidget *parent, int border=0,
+		int autoBorder = -1, const char *name=0 );
+
+    QVBoxLayout( int autoBorder = -1, const char *name=0 );
+
+    ~QVBoxLayout();
+    void add( QWidget *, int stretch = 0, int alignment = 0 );
+    void add( QLayout *layout, int stretch = 0 );
 };
 
 
