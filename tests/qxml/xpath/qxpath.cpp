@@ -92,8 +92,8 @@ public:
 	FunctionCall
     };
 
-    QXPathAtom( Type t, QXPathAtom *p ) :
-	type(t), parent(p)
+    QXPathAtom( Type t ) :
+	type(t), parent(0)
     {
 	children.setAutoDelete( TRUE );
     }
@@ -101,6 +101,12 @@ public:
     ~QXPathAtom()
     {
 	children.clear();
+    }
+
+    void addChild( QXPathAtom* child )
+    {
+	children.append( child );
+	child->parent = this;
     }
 
     Type type;
