@@ -1306,8 +1306,10 @@ static bool qt_query_property(const QMetaObject*const*mobj,const int *idx, uint 
     Returns true if this property is designable for object \a obj;
     otherwise returns false.
 
-    If no object \a obj is given, the function returns a static
-    approximation.
+    If no object \a obj is given, the function returns false if the
+    Q_PROPERTY's DESIGNABLE attribute is false; otherwise, (i.e. if
+    the attribute is true or is a function or expression), returns
+    true.
  */
 bool QMetaProperty::isDesignable(const QObject *obj) const
 {
@@ -1322,8 +1324,10 @@ bool QMetaProperty::isDesignable(const QObject *obj) const
     Returns true if the property is scriptable for object \a obj;
     otherwise returns false.
 
-    If no object \a obj is given, the function returns a static
-    approximation.
+    If no object \a obj is given, the function returns false if the
+    Q_PROPERTY's DESIGNABLE attribute is false; otherwise, (i.e. if
+    the attribute is true or is a function or expression), returns
+    true.
  */
 bool QMetaProperty::isScriptable(const QObject *obj) const
 {
@@ -1336,8 +1340,10 @@ bool QMetaProperty::isScriptable(const QObject *obj) const
     Returns true if the property is stored for object \a obj;
     otherwise returns false.
 
-    If no object \a obj is given, the function returns a static
-    approximation.
+    If no object \a obj is given, the function returns false if the
+    Q_PROPERTY's DESIGNABLE attribute is false; otherwise, (i.e. if
+    the attribute is true or is a function or expression), returns
+    true.
  */
 bool QMetaProperty::isStored(const QObject *obj) const
 {
@@ -1350,8 +1356,10 @@ bool QMetaProperty::isStored(const QObject *obj) const
     Returns true if the property is editable for object \a obj;
     otherwise returns false.
 
-    If no object \a obj is given, the function returns a static
-    approximation.
+    If no object \a obj is given, the function returns false if the
+    Q_PROPERTY's DESIGNABLE attribute is false; otherwise, (i.e. if
+    the attribute is true or is a function or expression), returns
+    true.
  */
 bool QMetaProperty::isEditable(const QObject *obj) const
 {
