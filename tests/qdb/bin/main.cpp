@@ -27,7 +27,6 @@ void usage( const QString& message = QString::null )
     qWarning( " -v             Verbose" );
     qWarning( "\n Diagnostic Options:" );
     qWarning( " -i <table>     Dump table index information to stdout and exit" );
-    qWarning( " -n <table>     Check table index integrity" );
     qWarning( " -r <table>     Rebuild indexes for table" );
     qWarning( " -t <table>     Dump table description to stdout and exit" );
     qWarning( "\nExit status is 0 if command(s) successful, 1 if trouble." );
@@ -47,6 +46,7 @@ int main( int argc, char** argv )
     if ( app.argc() == 1 )
 	die();
 
+    QString sep = "|";
     QString outfilename;
     QString infilename;
     QString commands;
@@ -57,7 +57,6 @@ int main( int argc, char** argv )
     QString tablename;
     bool index = FALSE;
     bool rebuildindexes = FALSE;
-    bool checkindexintegrity = FALSE;
 
     /* process all command line options, die if problem */
     for ( int i = 1; i < app.argc(); ++i ) {
@@ -82,12 +81,6 @@ int main( int argc, char** argv )
 	    index = TRUE;
 	    if ( i+1 > app.argc()-1 )
 		die( "-i requires table name" );
-	    tablename = app.argv()[++i];
-	} else if ( arg == "-n" ) {
-	    index = TRUE;
-	    checkindexintegrity = TRUE;
-	    if ( i+1 > app.argc()-1 )
-		die( "-n requires table name" );
 	    tablename = app.argv()[++i];
 	} else if ( arg == "-o" ) {
 	    if ( i+1 > app.argc()-1 )
@@ -165,13 +158,6 @@ int main( int argc, char** argv )
 		else
 		    output = "...done";
 	    }
-	    if ( checkindexintegrity ) {
-		qDebug( "checking index integrity " + output );
-//		if ( idx.CheckIndexIntegrity(0) != XB_NO_ERROR )
-//		    output = "...FAILED";
-//		else
-		    output = "...done";
-	    }
 	    qDebug( output );
 	    idx.CloseIndex();
 	}
@@ -180,13 +166,27 @@ int main( int argc, char** argv )
 
     /* table description */
     if ( tablename.length() ) {
-	xbShort rc;
-	xbXBase x;
-	xbDbf file( &x );
-	if( ( rc =  file.OpenDatabase( tablename ) ) != 0 )
-	    die( "could not open table " + tablename );
-	//	file.DumpHeader( 3 );
-	file.CloseDatabase();
+	QDb env;
+	env.addFileDriver( 0, tablename );
+	qdb::FileDriver* driver = env.fileDriver( 0 );
+	if ( !driver->open() )
+	    die( "unable to open table:" + tablename );
+	outstream << "Table \"" << tablename << "\"" << endl;
+	outstream << sep << "   Attribute   " << sep << "     Type      " << sep
+		  << "    Size       " << sep << endl;
+	outstream << sep << "---------------" << sep << "---------------" << sep
+		  << "---------------" << sep << endl;
+	for ( uint i = 0; i < driver->fieldCount(); ++i ) {
+	    QVariant v;
+	    if ( !driver->fieldDescription( i, v ) )
+		die( "unable to find field:" + QString::number( i ) );
+	    qdb::List l = v.toList();
+	    QString name( l[0].toString() );
+	    v.cast( (QVariant::Type)l[1].toInt() );
+	    outstream << sep << " " << name.leftJustify( 14 ) << sep
+		      << " " << QString( v.typeName() ).leftJustify( 14 ) << sep
+		      << " " << QString::number( l[2].toInt() ).leftJustify( 14 ) << sep <<  endl;
+	}
 	return 0;
     }
 
@@ -227,7 +227,6 @@ int main( int argc, char** argv )
     if ( rs->size() ) {
 	uint fieldcount = rs->count();
 	uint i = 0;
-	QString sep = "|";
 	QString line = " ";
 	QStringList cols = rs->columns();
 	for ( i = 0; i < fieldcount; ++i )
