@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#31 $
+** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#32 $
 **
 ** Implementation of QWhatsThis class
 **
@@ -766,9 +766,9 @@ void QWhatsThis::enterWhatsThisMode()
 /*!
     Enters What's This? question mode and returns immediately.
 
-    This is the same as enterWhatsThisMode(), but as a slot of an
-    instance of an QWhatsThis object. This way it can be easily used
-    for popup menus as in the code fragment:
+    This is the same as enterWhatsThisMode(), but as a slot of of a
+    QWhatsThis object. This way it can be easily used for popup menus
+    as in the code fragment:
 
   \code
     QPopupMenu * help = new QPopupMenu();
