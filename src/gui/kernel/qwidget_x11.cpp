@@ -37,11 +37,15 @@ extern void qt_clear_paintevent_clipping();
 
 #include <stdlib.h>
 
-// NOT REVISED
-
 // defined in qapplication_x11.cpp
 bool qt_wstate_iconified(WId);
 void qt_updated_rootinfo();
+
+// from qpaintengine_x11.cpp
+extern void qt_erase_background(Qt::HANDLE, int screen,
+                                int x, int y, int width, int height,
+                                const QBrush &brush, int offx, int offy);
+
 
 #ifndef QT_NO_XIM
 #include "qinputcontext_p.h"
@@ -979,15 +983,27 @@ void QWidgetPrivate::setFont_syshelper(QFont *)
 void QWidgetPrivate::updateSystemBackground()
 {
     QBrush brush = q->palette().brush(q->backgroundRole());
-    if (brush.style() == Qt::NoBrush || q->testAttribute(QWidget::WA_NoSystemBackground))
+    if (brush.style() == Qt::NoBrush || q->testAttribute(QWidget::WA_NoSystemBackground)) {
         XSetWindowBackgroundPixmap(xinfo->display(), q->winId(), XNone);
-    else if (brush.pixmap())
+    } else if (brush.pixmap()) {
+        QPixmap pix = *brush.pixmap();
+        if (data.wrect.isValid() && !pix.isNull() && !isBackgroundInherited()) {
+            int xoff = data.wrect.x() % pix.width();
+            int yoff = data.wrect.y() % pix.height();
+            if (xoff || yoff) {
+                QPixmap newPix(pix.size(), pix.depth());
+                qt_erase_background(newPix.handle(), newPix.x11Info()->screen(), 0,0,pix.width(), pix.height(),
+                                    pix, xoff, yoff);
+                pix = newPix;
+            }
+        }
         XSetWindowBackgroundPixmap(xinfo->display(), q->winId(),
                                    isBackgroundInherited()
                                    ? ParentRelative
-                                   : brush.pixmap()->handle());
-    else
+                                   : pix.handle());
+    } else {
         XSetWindowBackground(xinfo->display(), q->winId(), brush.color().pixel(xinfo->screen()));
+    }
 }
 
 void QWidget::setCursor(const QCursor &cursor)
@@ -1542,9 +1558,6 @@ void QWidget::repaint(const QRegion& rgn)
         }
 
         if (double_buffer) {
-            extern void qt_erase_background(Qt::HANDLE, int screen,
-                                            int x, int y, int width, int height,
-                                            const QBrush &brush, int offx, int offy);
             qt_erase_background(q->hd, q->d->xinfo->screen(),
                                 br.x() - redirectionOffset.x(), br.y() - redirectionOffset.y(),
                                 br.width(), br.height(), data->pal.brush(w->d->bg_role),
@@ -2030,7 +2043,6 @@ void QWidgetPrivate::setWSGeometry()
 
     }
 
-
     // unmap if we are outside the valid window system coord system
     bool outsideRange = !xrect.isValid();
     bool mapWindow = false;
@@ -2047,9 +2059,12 @@ void QWidgetPrivate::setWSGeometry()
     if (outsideRange)
         return;
 
+    bool jump = (data.wrect != wrect);
+    data.wrect = wrect;
+
 
     // and now recursively for all children...
-    data.wrect = wrect;
+    // ### can be optimized
     for (int i = 0; i < children.size(); ++i) {
         QObject *object = children.at(i);
         if (object->isWidgetType()) {
@@ -2062,12 +2077,17 @@ void QWidgetPrivate::setWSGeometry()
     // move ourselves to the new position and map (if necessary) after
     // the movement. Rationale: moving unmapped windows is much faster
     // than moving mapped windows
+    if (jump) //avoid flicker when jumping
+        XSetWindowBackgroundPixmap(dpy, data.winid, XNone);
     XMoveResizeWindow(dpy, data.winid, xrect.x(), xrect.y(), xrect.width(), xrect.height());
+    if  (jump) {
+        updateSystemBackground();
+        XClearArea(dpy, data.winid, 0, 0, wrect.width(), wrect.height(), True);
+    }
     if (mapWindow) {
             q->setAttribute(QWidget::WA_Mapped);
             XMapWindow(dpy, data.winid);
     }
-
 }
 
 void QWidget::setGeometry_helper(int x, int y, int w, int h, bool isMove)
