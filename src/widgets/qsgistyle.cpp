@@ -72,7 +72,7 @@ static QPoint mousePos(-1,-1);
   highlighting, which is a simple inversion between the base and the
   text color.
 
-  /sa QMotifStyle::useHighlightColors()
+  \sa QMotifStyle::useHighlightColors()
 */
 QSGIStyle::QSGIStyle( bool useHighlightCols ) : QMotifStyle( useHighlightCols ), isApplicationStyle( 0 )
 {
@@ -415,7 +415,7 @@ QSGIStyle::indicatorSize() const
     Draws a interface element showing the state of choice,
     used by a checkbox.
 
-  /sa drawCheckMark()
+  \sa drawCheckMark()
 */
 void
 QSGIStyle::drawIndicator( QPainter* p, int x, int y, int w, int h,
@@ -474,7 +474,7 @@ QSGIStyle::drawCheckMark( QPainter* p, int x, int y, int /*w*/, int /*h*/,
 /*!
     Draws a mask for an indicator in state /e s.
 
-  /sa drawIndicator()
+  \sa drawIndicator()
 */
 void
 QSGIStyle::drawIndicatorMask( QPainter* p, int x, int y, int w, int h, int s )

@@ -3598,7 +3598,7 @@ int QMultiLineEdit::wrapColumnOrWidth() const
 
    The default is \c AtWhiteSpace.
 
-  /sa setWordWrap(), wrapPolicy()
+  \sa setWordWrap(), wrapPolicy()
  */
 void QMultiLineEdit::setWrapPolicy( WrapPolicy policy )
 {
