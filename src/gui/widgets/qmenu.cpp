@@ -81,16 +81,14 @@ QList<QMenuAction*> QMenuPrivate::calcActionRects() const
     const int hmargin = q->style().pixelMetric(QStyle::PM_MenuVMargin, q),
               vmargin = q->style().pixelMetric(QStyle::PM_MenuVMargin, q);
 
-    //for compatability now - will have to refactor this away..
-    QMenuPrivate *that = const_cast<QMenuPrivate *>(this);
-    that->tabWidth = that->maxIconWidth = 0;
+    tabWidth = maxIconWidth = 0;
     for(int i = 0; i < items.count(); i++) {
         QAction *action = items.at(i);
         if(!action->isVisible())
             continue;
         QIconSet is = action->icon();
         if(!is.isNull())
-            that->maxIconWidth = qMax(maxIconWidth, (uint)is.pixmap(QIconSet::Small, QIconSet::Normal).width() + 4);
+            maxIconWidth = qMax(maxIconWidth, (uint)is.pixmap(QIconSet::Small, QIconSet::Normal).width() + 4);
     }
 
     //calculate size
@@ -107,11 +105,9 @@ QList<QMenuAction*> QMenuPrivate::calcActionRects() const
             sz = QSize(2, 2);
         } else {
             QString s = action->menuText();
-            int t = s.indexOf('\t');
-            if(t != -1) {
-                that->tabWidth = qMax((int)tabWidth, fm.width(s.mid(t+1)));
-                s = s.left(t);
-            }
+            QKeySequence seq = action->shortcut();
+            if (!seq.isEmpty())
+                tabWidth = qMax((int)tabWidth, fm.width(seq));
             int w = fm.width(s);
             w -= s.count('&') * fm.width('&');
             w += s.count("&&") * fm.width('&');

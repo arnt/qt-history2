@@ -2020,9 +2020,9 @@ QSize QWindowsStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt, 
             if (checkable || maxpmw > 0)
                 w += windowsCheckMarkWidth;
             if (use2000style)
-                w += 10;
+                w += 20;
             else
-                w += windowsRightBorder / 2;
+                w += windowsRightBorder;
             sz.setWidth(w);
         }
         break;
