@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#31 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#32 $
 **
 ** Tool Tips (or Balloon Help) for any widget or rectangle
 **
@@ -15,7 +15,7 @@
 #include "qpoint.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtooltip.cpp#31 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtooltip.cpp#32 $");
 
 
 // Magic value meaning an entire widget - if someone tries to insert a
@@ -74,6 +74,7 @@ private:
     QPoint  pos;
     QWidget *widget;
     QTipManager::Tip *currentTip;
+    bool isApplicationFilter;
 };
 
 
@@ -83,7 +84,7 @@ private:
 ** QTipManager meta object code from reading C++ file 'qtooltip.cpp'
 **
 ** Created: Mon Mar 17 12:39:34 1997
-**      by: The Qt Meta Object Compiler ($Revision: 2.26 $)
+**      by: The Qt Meta Object Compiler ($Revision: 2.27 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
@@ -155,6 +156,7 @@ QTipManager::QTipManager()
     tips = new QIntDict<QTipManager::Tip>( 313 );
     currentTip = 0;
     label = 0;
+    isApplicationFilter = FALSE;
 
     connect( &wakeUp, SIGNAL(timeout()), SLOT(showTip()) );
     connect( &fallAsleep, SIGNAL(timeout()), SLOT(hideTip()) );
@@ -192,9 +194,11 @@ void QTipManager::add( QWidget * w, const QRect & r, const char * s,
     QTipManager::Tip * t = new QTipManager::Tip;
     if ( h ) {
 	tips->take( (long)w );
+#if !defined(HAAVARD_ER_FLINK_OG_SNILL_OG_SMART_OG_KUL)
     } else {
 	w->setMouseTracking( TRUE );
 	w->installEventFilter( tipManager );
+#endif
     }
     t->next = h;
 
@@ -214,6 +218,13 @@ void QTipManager::add( QWidget * w, const QRect & r, const char * s,
 	    tips->insert( (long)w, t->next );
 	t->next = 0;
     }
+#if defined(HAAVARD_ER_FLINK_OG_SNILL_OG_SMART_OG_KUL)
+    if ( !isApplicationFilter && qApp ) {
+	isApplicationFilter = TRUE;
+	qApp->installEventFilter( tipManager );
+	qApp->setMouseTracking( TRUE );
+    }
+#endif
 }
 
 
@@ -323,7 +334,12 @@ bool QTipManager::eventFilter( QObject * o, QEvent * e )
 	return FALSE;
     QWidget * w = (QWidget *)o;
 
-    QTipManager::Tip * t = (*tips)[ (long int)w ];
+    QTipManager::Tip * t = 0;
+    while( w && !t ) {
+	t = (*tips)[ (long int)w ];
+	if ( !t )
+	    w = w->parentWidget();
+    }
     if ( !t )
 	return FALSE;
 
