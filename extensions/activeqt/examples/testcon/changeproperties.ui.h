@@ -239,12 +239,7 @@ void ChangeProperties::updateProperties()
 		break;
 	    case QVariant::Int:
 		if ( property->isEnumType() ) {
-		    const QMetaEnum *enumData = property->enumData;
-		    int val = var.toInt();
-		    for ( uint j = 0; j < enumData->count; ++j ) {
-			if ( enumData->items[j].value == val )
-			    item->setText( 2, enumData->items[j].key );
-		    }
+		    item->setText( 2, property->valueToKey( var.toInt() ) );
 		    break;
 		}
 		//FALLTHROUGH

@@ -284,21 +284,6 @@ bool QVariantToVARIANT( const QVariant &var, VARIANT &arg, const char *type )
     return TRUE;
 }
 
-static inline bool enumValue( const QString &string, const QUEnum *uEnum, int &value )
-{
-    bool isInt = FALSE;
-    value = string.toInt( &isInt );
-    if ( isInt )
-	return TRUE;
-    else for ( uint eItem = 0; eItem<uEnum->count; ++eItem ) {
-	if ( uEnum->items[eItem].key == string ) {
-	    value = uEnum->items[eItem].value;
-	    return TRUE;
-	}
-    }
-    return FALSE;
-}
-
 /*!
     God knows why VariantChangeType can't do that...
     Probably because VariantClear does not delete the stuff?
@@ -343,18 +328,10 @@ static inline void makeReference( VARIANT &arg )
 	arg.pdate = new DATE(arg.date);
 	break;
     case VT_DISPATCH:
-	{
-	    IDispatch *olddisp = arg.pdispVal;
-	    arg.ppdispVal = new IDispatch*;
-	    *arg.ppdispVal = olddisp;
-	}
+	arg.ppdispVal = new IDispatch*(arg.pdispVal);
 	break;
     case VT_ARRAY|VT_VARIANT:
-	{
-	    SAFEARRAY *oldarray = arg.parray;
-	    arg.pparray = new SAFEARRAY*;
-	    *arg.pparray = oldarray;
-	}
+	arg.pparray = new SAFEARRAY*(arg.parray);
 	break;
     }
     arg.vt |= VT_BYREF;
@@ -852,6 +829,21 @@ QVariant VARIANTToQVariant( const VARIANT &arg, const char *hint )
 	    var.cast( proptype );
     }
     return var;
+}
+
+static inline bool enumValue( const QString &string, const QUEnum *uEnum, int &value )
+{
+    bool isInt = FALSE;
+    value = string.toInt( &isInt );
+    if ( isInt )
+	return TRUE;
+    else for ( uint eItem = 0; eItem<uEnum->count; ++eItem ) {
+	if ( uEnum->items[eItem].key == string ) {
+	    value = uEnum->items[eItem].value;
+	    return TRUE;
+	}
+    }
+    return FALSE;
 }
 
 /*!
