@@ -458,6 +458,7 @@ QAxHostWindow::~QAxHostWindow()
 void QAxHostWindow::releaseAll()
 {
     if ( m_spOleObject ) {
+	m_spOleObject->SetClientSite(0);
 	m_spOleObject->Unadvise( m_dwOleObject );
 	m_spOleObject->Release();
     }
