@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#20 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#21 $
 **
 **  Splitter widget
 **
@@ -177,9 +177,18 @@ void QInternalSplitter::paintEvent( QPaintEvent * )
   A splitter lets the user control the size of child widgets by
   dragging the boundary between the children.
 
-  The current implementation is limited to two children.
-  The two widgets to be managed are the first two children added.
-
+  The current implementation is limited to two children.  The two
+  widgets to be managed are the first two children added. 
+  
+  To show a QListBox and a QMultiLineEdit side by side:
+  
+  \code
+    QSplitter *split = new QSplitter( parent );
+    QListBox *lb = new QListBox( split );
+    QMultiLineEdit *lb = new QMultiLineEdit( split );
+  \endcode
+  
+  
   In QSplitter the boundary can be either horizontal or vertical.  The
   default is horizontal (the children are side by side) and you
   can use setOrientation( QSplitter::Vertical ) to set it to vertical.
@@ -241,9 +250,9 @@ void QSplitter::init()
 
 /*!
   \fn void QSplitter::refresh()
-  
+
   Updates the splitter state. You should not need to call this
-  function during normal operations.  
+  function during normal operations.
 */
 
 
