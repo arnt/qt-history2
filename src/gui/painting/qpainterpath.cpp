@@ -49,6 +49,7 @@
 
 //#define QPP_DEBUG
 //#define QPP_STROKE_DEBUG
+//#define QPP_FILLPOLYGONS_DEBUG
 
 #define d d_func()
 #define q q_func()
@@ -790,6 +791,16 @@ QList<QPolygon> QPainterPath::toFillPolygons() const
     }
 
 
+#if QPP_FILLPOLYGONS_DEBUG
+    for (int i = 0; i < count; ++i) {
+        printf("%d: ", i);
+        for (int j = 0; j < isects[i].size(); ++j) {
+            printf("%d ", isects[i][j]);
+        }
+        printf("\n");
+    }
+#endif
+
     for (int i=0; i<count; ++i) {
         if (isects[i].isEmpty()) {
             polys += subpaths.at(i);
@@ -811,7 +822,7 @@ QList<QPolygon> QPainterPath::toFillPolygons() const
 
                 // Insert only unique new polys
                 for (int ai=0; ai<currentISects.size(); ++ai)
-                    if (!l.contains(currentISects.at(ai)))
+                    if (!l.contains(currentISects.at(ai)) && currentISects.at(ai) != -1)
                         l.append(currentISects.at(ai));
 
                 // They are added to current so skip for later.
