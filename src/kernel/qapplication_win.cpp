@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#298 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#299 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -447,22 +447,7 @@ void qt_init( int *argcptr, char **argv )
 #define VER_PLATFORM_WIN32_NT	    2
 #endif
 
-    OSVERSIONINFOA osver;
-    osver.dwOSVersionInfoSize = sizeof(osver);
-    GetVersionExA( &osver );
-    switch ( osver.dwPlatformId ) {
-	case VER_PLATFORM_WIN32s:
-	    qt_winver = Qt::WV_32s;
-	    break;
-	case VER_PLATFORM_WIN32_WINDOWS:
-	    if ( osver.dwMinorVersion == 10 )
-		qt_winver = Qt::WV_98;
-	    else
-		qt_winver = Qt::WV_95;
-	    break;
-	default:
-	    qt_winver = Qt::WV_NT;
-    }
+    (void)QApplication::winVersion();
     // Tell tools/ modules.
     qt_winunicode = qt_winver == Qt::WV_NT;
 
@@ -502,7 +487,31 @@ void qt_init( int *argcptr, char **argv )
 	(TIMERPROC)qt_simple_timer_func : 0 );
 #endif
     // QFont::locale_init();  ### Uncomment when it does something on Windows
-    QApplication::setFont( QFont( "MS Sans Serif", 8 ) );   // default font
+
+    // default font
+    {
+	HFONT hfont = (HFONT)GetStockObject( DEFAULT_GUI_FONT );
+	QString name;
+	int size=0;
+	if ( qt_winver == Qt::WV_NT ) {
+	    LOGFONT lf;
+	    if ( GetObject( hfont, sizeof(lf), &lf ) ) {
+		name = qt_winQString(lf.lfFaceName);
+		size = abs(lf.lfHeight);
+	    }
+	} else {
+	    LOGFONTA lf;
+	    if ( GetObjectA( hfont, sizeof(lf), &lf ) ) {
+		name = QString::fromLocal8Bit(lf.lfFaceName);
+		size = abs(lf.lfHeight);
+	    }
+	}
+	if ( name.isNull() )
+	    name = "MS Sans Serif";
+	if ( size < 3 )
+	    size = 8;
+	QApplication::setFont( name, size );
+    }
 }
 
 /*****************************************************************************
@@ -690,6 +699,26 @@ void QApplication::setMainWidget( QWidget *mainWidget )
 
 Qt::WindowsVersion QApplication::winVersion()
 {
+    static int t=0;
+    if ( !t ) {
+	t=1;
+	OSVERSIONINFOA osver;
+	osver.dwOSVersionInfoSize = sizeof(osver);
+	GetVersionExA( &osver );
+	switch ( osver.dwPlatformId ) {
+	    case VER_PLATFORM_WIN32s:
+		qt_winver = Qt::WV_32s;
+		break;
+	    case VER_PLATFORM_WIN32_WINDOWS:
+		if ( osver.dwMinorVersion == 10 )
+		    qt_winver = Qt::WV_98;
+		else
+		    qt_winver = Qt::WV_95;
+		break;
+	    default:
+		qt_winver = Qt::WV_NT;
+	}
+    }
     return qt_winver;
 }
 
