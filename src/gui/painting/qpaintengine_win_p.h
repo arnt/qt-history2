@@ -101,7 +101,8 @@ public:
         forceGdiplus(false),
         penAlphaColor(false),
         brushAlphaColor(false),
-        pStyle(Qt::SolidLine),
+        penStyle(Qt::SolidLine),
+        brushStyle(Qt::SolidPattern),
         pWidth(0),
         pColor(0),
         bColor(0),
@@ -134,7 +135,8 @@ public:
     uint penAlphaColor:1;       // Set if pen has alpha color
     uint brushAlphaColor:1;     // Set if brush has alpha color
 
-    Qt::PenStyle pStyle;
+    Qt::PenStyle penStyle;
+    Qt::BrushStyle brushStyle;
     int pWidth;
     COLORREF pColor;
     COLORREF bColor;

@@ -22,13 +22,16 @@
  */
 struct QPainterPathElement
 {
-    enum ElementType { Line };
+    enum ElementType { Line, Bezier, Arc };
 
     QPoint firstPoint() const;
 
     ElementType type;
+
     union {
 	struct { int x1, y1, x2, y2; } lineData;
+        struct { int x1, y1, x2, y2, x3, y3, x4, y4; } bezierData;
+        struct { int x, y, w, h, start, length, fpx, fpy, lpx, lpy; } arcData;
     };
 };
 
@@ -57,11 +60,14 @@ struct QPainterSubpath
 	return elements.size() > 0 && elements.at(0).firstPoint() == lastPoint;
     }
 
+    QPoint firstPoint() const { return elements.at(0).firstPoint(); }
 
     /*! Converts the path to a polygon */
     QPointArray toPolygon() const;
 
     void addLine(const QPoint &p1, const QPoint &p2);
+    void addBezier(const QPoint &p1, const QPoint &p2, const QPoint &p3, const QPoint &p4);
+    void addArc(const QRect &rect, int startAngle, int arcLength);
 
     QList<QPainterPathElement> elements;
     QPoint lastPoint;

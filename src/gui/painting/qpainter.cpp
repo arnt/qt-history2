@@ -1107,7 +1107,14 @@ void QPainter::drawPath(const QPainterPath &path)
 
     d->engine->updateState(d->state);
 
-    QPainterPathPrivate *pd = path.d;
+    if (d->engine->hasFeature(QPaintEngine::PainterPaths)) {
+        if (!(d->state->VxF || d->state->WxF) || d->engine->hasFeature(QPaintEngine::CoordTransform)) {
+            d->engine->drawPath(path);
+            return;
+        }
+    }
+
+    QPainterPathPrivate *pd = path.d_ptr;
     QList<QPointArray> polygons;
     for (int i=0; i<pd->subpaths.size(); ++i) {
 	polygons.append(pd->subpaths.at(i).toPolygon());
@@ -1116,19 +1123,29 @@ void QPainter::drawPath(const QPainterPath &path)
     if (polygons.isEmpty())
         return;
 
+    // Fill the path...
     if (d->state->brush.style() != NoBrush) {
 	save();
 	setPen(NoPen);
-        QPointArray combined;
-        for (int i=0; i<polygons.size(); ++i)
-            combined += polygons.at(i);
-        drawPolygon(combined, path.fillMode() == QPainterPath::Winding);
+        if (path.fillMode() == QPainterPath::Winding) {
+            for (int i=0; i<polygons.size(); ++i)
+                drawPolygon(polygons.at(i), true);
+        } else {
+
+        }
 	restore();
     }
 
+    // Draw the outline of the path...
     if (d->state->pen.style() != NoPen) {
+        if (pd->subpaths.size() > 0) {
+            save();
+            setBrush(NoBrush);
+        }
 	for (int i=0; i<polygons.size(); ++i)
 	    drawPolyline(polygons.at(i));
+        if (pd->subpaths.size() > 0)
+            restore();
     }
 }
 

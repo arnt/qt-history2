@@ -17,12 +17,12 @@
 
 #include "qpaintengine.h"
 
-class QWin32PaintEnginePrivate;
-class QPainterState;
 class QPaintDevice;
-
-class QTextLayout;
+class QPainterPath;
+class QPainterState;
 class QTextEngine;
+class QTextLayout;
+class QWin32PaintEnginePrivate;
 
 // ### Remove EXPORT once Q4Printer is integrated into main
 class Q_GUI_EXPORT QWin32PaintEngine : public QPaintEngine
@@ -62,6 +62,7 @@ public:
     void drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, bool imask);
     void drawTextItem(const QPoint &p, const QTextItem &ti, int textflags);
     void drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s, bool optim);
+    void drawPath(const QPainterPath &path);
 
     HDC handle() const; // ### Still not liking this...
     inline Type type() const { return QPaintEngine::Windows; }

@@ -20,11 +20,12 @@
 #include "qpainter.h"
 #include "qpointarray.h"
 
-class QPainterState;
-class QPaintDevice;
-struct QGlyphLayout;
 class QFontEngine;
+class QPaintDevice;
 class QPaintEnginePrivate;
+class QPainterPath;
+class QPainterState;
+struct QGlyphLayout;
 
 class QTextItem {
 public:
@@ -57,6 +58,7 @@ public:
         PixmapScale             = 0x0020,               // Can scale (w/o XForm) in drawPixmap
         DrawRects               = 0x0040,               // Can draw rectangles
 	SolidAlphaFill          = 0x0080,               // Can fill with alpha.
+        PainterPaths            = 0x0100,               // Can fill, outline and clip paths
         UsesFontEngine          = 0x10000000            // Internal use, QWidget and QPixmap
     };
     Q_DECLARE_FLAGS(PaintEngineFeatures, Features);
@@ -88,6 +90,7 @@ public:
     virtual void updateXForm(const QWMatrix &matrix) = 0;
     virtual void updateClipRegion(const QRegion &region, bool enabled) = 0;
 
+    virtual void drawPath(const QPainterPath &path);
     virtual void drawLine(const QPoint &p1, const QPoint &p2) = 0;
     virtual void drawRect(const QRect &r) = 0;
     virtual void drawRects(const QList<QRect> &rects);

@@ -104,6 +104,13 @@ void QPaintEngine::updateInternal(QPainterState *s, bool updateGC)
     state = s;
 }
 
+/*! Default implementation does nothing...
+ */
+void QPaintEngine::drawPath(const QPainterPath &path)
+{
+
+}
+
 void QPaintEngine::drawTextItem(const QPoint &p, const QTextItem &ti, int textFlags)
 {
     bool useFontEngine = true;
