@@ -206,6 +206,9 @@ QStringList QUnknownInterface::interfaceList( bool rec ) const
 
     list << interfaceID();
 
+    if ( !children )
+	return list;
+
     QListIterator<QUnknownInterface> it( *children );
     while ( it.current() ) {
 	if ( rec ) {
@@ -215,6 +218,7 @@ QStringList QUnknownInterface::interfaceList( bool rec ) const
 	} else {
 	    list << it.current()->interfaceID();
 	}
+	++it;
     }
 
     return list;
