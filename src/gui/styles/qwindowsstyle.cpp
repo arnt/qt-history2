@@ -274,9 +274,6 @@ int QWindowsStyle::pixelMetric(PixelMetric pm, const QStyleOption *opt, const QW
         ret = 0;
         break;
 
-    case PM_MenuBarItemSpacing:
-        ret = 0;
-        break;
 
 #if defined(Q_WS_WIN)
     case PM_TitleBarHeight:

@@ -655,8 +655,8 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value CE_MenuTearoff  A menu item representing the tear off section of
         a QMenu
     \value CE_MenuEmptyArea  The area in a menu without menu items
-    \value CE_MenuVMargin  The vertical extra space on the top/bottom of a menu
     \value CE_MenuHMargin  The horizontal extra space on the left/right of a menu
+    \value CE_MenuVMargin  The vertical extra space on the top/bottom of a menu
 
     \value CE_DockWindowEmptyArea  The empty area of a QDockWindow
 
@@ -1073,8 +1073,8 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
 
     \value PM_MenuBarPanelWidth  Frame width of a menubar
     \value PM_MenuBarItemSpacing  Spacing between menubar items
-    \value PM_MenuBarHMargin  Spacing between menubar items and top/bottom of bar
-    \value PM_MenuBarVMargin  Spacing between menubar items and left/right of bar
+    \value PM_MenuBarHMargin  Spacing between menubar items and left/right of bar
+    \value PM_MenuBarVMargin  Spacing between menubar items and top/bottom of bar
 
     \value PM_ToolBarFrameWidth  Width of the frame around toolbars
     \value PM_ToolBarHandleExtent Width of a toolbar handle in a
@@ -1142,8 +1142,8 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value PM_SmallIconSize Default small icon size
     \value PM_LargeIconSize Default large icon size
 
-    \value PM_FocusFrameVMargin Horizontal margin that the focus frame will outset the widget by.
-    \value PM_FocusFrameHMargin Vertical margin that the focus frame will outset the widget by.
+    \value PM_FocusFrameHMargin Horizontal margin that the focus frame will outset the widget by.
+    \value PM_FocusFrameVMargin Vertical margin that the focus frame will outset the widget by.
 
     \sa pixelMetric()
 */

@@ -2670,7 +2670,7 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const QWid
         break;
 
     case PM_MenuBarItemSpacing:
-        ret = 8;
+        ret = 0;
         break;
 
     case PM_ToolBarFrameWidth:

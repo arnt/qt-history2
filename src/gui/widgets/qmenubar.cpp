@@ -196,7 +196,7 @@ void QMenuBarPrivate::calcActionRects(int max_width, int start, QMap<QAction*, Q
     actionRects.clear();
     actionList.clear();
     const int itemSpacing = q->style()->pixelMetric(QStyle::PM_MenuBarItemSpacing, 0, q);
-    int max_item_height = 0, separator = -1, separator_start = 0, separator_len = itemSpacing;
+    int max_item_height = 0, separator = -1, separator_start = 0, separator_len = 0;
     QList<QAction*> items = q->actions();
 
     //calculate size
@@ -255,14 +255,14 @@ void QMenuBarPrivate::calcActionRects(int max_width, int start, QMap<QAction*, Q
 
         //move
         if(separator != -1 && i >= separator) { //after the separator
-            int left = (max_width - separator_len - hmargin) + (x - separator_start);
+            int left = (max_width - separator_len - hmargin - itemSpacing) + (x - separator_start - hmargin);
             if(left < separator_start) { //wrap
                 separator_start = x = hmargin;
                 y += max_item_height;
             }
             rect.moveLeft(left);
         } else {
-            if(x+rect.width() >= max_width-hmargin) { //wrap
+            if(x+rect.width() >= max_width - hmargin - itemSpacing) { //wrap
                 y += max_item_height;
                 separator_start -= x;
                 x = hmargin;

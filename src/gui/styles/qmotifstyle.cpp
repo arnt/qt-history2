@@ -1550,6 +1550,10 @@ int QMotifStyle::pixelMetric(PixelMetric pm, const QStyleOption *opt,
         ret = 13;
         break;
 
+    case PM_MenuBarHMargin:
+        ret = 2; // really ugly, but Motif
+        break;
+
     default:
         ret =  QCommonStyle::pixelMetric(pm, opt, widget);
         break;
@@ -1692,7 +1696,7 @@ QMotifStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
 
     case CT_MenuBarItem: {
         if(!sz.isEmpty())
-            sz += QSize(2*motifItemHMargin, 2*motifItemVMargin + motifItemFrame);
+            sz += QSize(5*motifItemHMargin+1, 2*motifItemVMargin + motifItemFrame);
         break; }
 
     case CT_MenuItem:
