@@ -59,9 +59,6 @@ protected slots:
     void timeout();
 
 protected:
-    void initLock();
-    void lock();
-    void unlock();
     QImage getBuffer( const QRect &r, int &leading ) const;
     void drawScreen();
     void sendMouseData( const QPoint &pos, int buttons );

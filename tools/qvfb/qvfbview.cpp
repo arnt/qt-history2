@@ -33,6 +33,7 @@
 #include <qpainter.h>
 #include "qanimationwriter.h"
 #include <qevent.h>
+#include <qfile.h>
 
 #include <unistd.h>
 #include <sys/ipc.h>
@@ -45,6 +46,69 @@
 #include <math.h>
 
 //#define QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
+
+#ifndef Q_WS_QWS
+// Get the name of the directory where Qt/Embedded temporary data should
+// live.
+static QString qws_dataDir()
+{
+    QString username = "unknown";
+    const char *logname = getenv("LOGNAME");
+    if ( logname )
+        username = logname;
+
+    QString dataDir = "/tmp/qtembedded-" + username;
+    if ( mkdir( dataDir.latin1(), 0700 ) ) {
+        if ( errno != EEXIST ) {
+            qFatal( QString("Cannot create Qt/Embedded data directory: %1")
+                    .arg( dataDir ) );
+        }
+    }
+
+    struct stat buf;
+    if ( lstat( dataDir.latin1(), &buf ) )
+        qFatal( QString( "stat failed for Qt/Embedded data directory: %1" )
+                .arg( dataDir ) );
+
+    if ( !S_ISDIR( buf.st_mode ) )
+        qFatal( QString( "%1 is not a directory" ).arg( dataDir ) );
+
+    if ( buf.st_uid != getuid() )
+        qFatal( QString( "Qt/Embedded data directory is not owned by user %1" )
+                .arg( getuid() ) );
+
+    if ( (buf.st_mode & 0677) != 0600 )
+        qFatal( QString( "Qt/Embedded data directory has incorrect permissions: %1" )
+                .arg( dataDir ) );
+
+    dataDir += "/";
+
+    return dataDir;
+}
+#endif
+
+static QString displayPipe;
+static QString displayPiped;
+class DisplayLock
+{
+public:
+    DisplayLock() : qlock(0) {
+        if (QFile::exists(displayPiped)) {
+            qlock = new QLock(displayPipe, 'd', false);
+            qlock->lock(QLock::Read);
+        }
+    }
+    ~DisplayLock() {
+        if (qlock) {
+            qlock->unlock();
+            delete qlock;
+            qlock = 0;
+        }
+    }
+private:
+    QLock *qlock;
+};
+
 
 QVFbView::QVFbView( int display_id, int w, int h, int d, QWidget *parent,
                     Qt::WFlags flags )
@@ -132,6 +196,8 @@ QVFbView::QVFbView( int display_id, int w, int h, int d, QWidget *parent,
     setGamma(1.0,1.0,1.0);
     setRate( 30 );
     resize(contentsWidth, contentsHeight);
+    displayPipe = qws_dataDir() + QString( QTE_PIPE ).arg( displayid );
+    displayPiped = displayPipe + 'd';
 }
 
 QVFbView::~QVFbView()
@@ -251,69 +317,6 @@ void QVFbView::setRate( int r )
     timer->start( 1000/r );
 }
 
-#ifndef Q_WS_QWS
-// Get the name of the directory where Qt/Embedded temporary data should
-// live.
-static QString qws_dataDir()
-{
-    QString username = "unknown";
-    const char *logname = getenv("LOGNAME");
-    if ( logname )
-        username = logname;
-
-    QString dataDir = "/tmp/qtembedded-" + username;
-    if ( mkdir( dataDir.latin1(), 0700 ) ) {
-        if ( errno != EEXIST ) {
-            qFatal( QString("Cannot create Qt/Embedded data directory: %1")
-                    .arg( dataDir ) );
-        }
-    }
-
-    struct stat buf;
-    if ( lstat( dataDir.latin1(), &buf ) )
-        qFatal( QString( "stat failed for Qt/Embedded data directory: %1" )
-                .arg( dataDir ) );
-
-    if ( !S_ISDIR( buf.st_mode ) )
-        qFatal( QString( "%1 is not a directory" ).arg( dataDir ) );
-
-    if ( buf.st_uid != getuid() )
-        qFatal( QString( "Qt/Embedded data directory is not owned by user %1" )
-                .arg( getuid() ) );
-
-    if ( (buf.st_mode & 0677) != 0600 )
-        qFatal( QString( "Qt/Embedded data directory has incorrect permissions: %1" )
-                .arg( dataDir ) );
-
-    dataDir += "/";
-
-    return dataDir;
-}
-#endif
-
-void QVFbView::initLock()
-{
-    QString username = "unknown";
-    const char *logname = getenv("LOGNAME");
-    if ( logname )
-        username = logname;
-    qwslock = new QLock(qws_dataDir() + QString( QTE_PIPE ).arg( displayid ),
-                        'd', TRUE);
-}
-
-void QVFbView::lock()
-{
-    if ( !qwslock )
-        initLock();
-    qwslock->lock(QLock::Read);
-}
-
-void QVFbView::unlock()
-{
-    if ( qwslock )
-        qwslock->unlock();
-}
-
 void QVFbView::sendMouseData( const QPoint &pos, int buttons )
 {
     write( mouseFd, &pos, sizeof( QPoint ) );
@@ -334,7 +337,7 @@ void QVFbView::sendKeyboardData( int unicode, int keycode, int modifiers,
 
 void QVFbView::timeout()
 {
-    lock();
+    DisplayLock(); // Autolock display;
     if ( animation ) {
             QRect r( hdr->update );
             r = r.intersect( QRect(0, 0, hdr->width, hdr->height ) );
@@ -348,13 +351,11 @@ void QVFbView::timeout()
     }
 
     if ( hdr->dirty ) {
-            QRect r(hdr->update);
-            r = QRect(int(r.x()*zm),int(r.y()*zm),
-            int(r.width()*zm)+1,int(r.height()*zm)+1);
-            repaint(r);
+        QRect r(hdr->update);
+        r = QRect(int(r.x()*zm),int(r.y()*zm),
+                  int(r.width()*zm)+1,int(r.height()*zm)+1);
+        repaint(r);
     }
-
-    unlock();
 }
 
 QImage QVFbView::getBuffer( const QRect &r, int &leading ) const
@@ -466,7 +467,7 @@ QImage QVFbView::getBuffer( const QRect &r, int &leading ) const
 void QVFbView::drawScreen()
 {
     QPainter p(this);
-    lock();
+    DisplayLock(); // Autolock display;
     QRect r( hdr->update );
     hdr->dirty = FALSE;
     hdr->update = QRect();
@@ -494,13 +495,10 @@ void QVFbView::drawScreen()
         } else {
             pm.convertFromImage( img.smoothScale(int(img.width()*zm),int(img.height()*zm)) );
         }
-        unlock();
         p.setPen( Qt::black );
         p.setBrush( Qt::white );
         p.drawPixmap( int(r.x()*zm), int(r.y()*zm), pm,
                       int(leading*zm), 0, pm.width()-int(leading*zm), pm.height() );
-    } else {
-        unlock();
     }
 }
 
@@ -516,10 +514,9 @@ void QVFbView::paintEvent( QPaintEvent *pe )
 
 void QVFbView::setDirty( const QRect& r )
 {
-    lock();
+    DisplayLock(); // Autolock display;
     hdr->update |= r;
     hdr->dirty = TRUE;
-    unlock();
 }
 
 void QVFbView::mousePressEvent( QMouseEvent *e )
@@ -562,10 +559,9 @@ void QVFbView::keyReleaseEvent( QKeyEvent *e )
 
 QImage QVFbView::image() const
 {
-    ((QVFbView*)this)->lock();
     int l;
+    DisplayLock(); // Autolock display;
     QImage r = getBuffer( QRect(0, 0, hdr->width, hdr->height), l ).copy();
-    ((QVFbView*)this)->unlock();
     return r;
 }
 
