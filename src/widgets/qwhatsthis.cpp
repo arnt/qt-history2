@@ -51,6 +51,12 @@
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 #include "qaccessible.h"
 #endif
+#if defined(Q_WS_WIN)
+#include "qt_windows.h"
+#ifndef SPI_GETDROPSHADOW
+#define SPI_GETDROPSHADOW                   0x1024
+#endif
+#endif
 
 /*!
   \class QWhatsThis qwhatsthis.h
@@ -220,7 +226,8 @@ private slots:
 // static, but static the less-typing way
 static QWhatsThisPrivate * wt = 0;
 
-const int shadowWidth = 6;   // also used as '5' and '6' and even '8' below
+// shadowWidth not const, for XP drop-shadow-fu turns it to 0
+int shadowWidth = 6;   // also used as '5' and '6' and even '8' below
 const int vMargin = 8;
 const int hMargin = 12;
 
@@ -261,6 +268,13 @@ QWhatsThat::QWhatsThat( QWidget* w, const QString& txt, QWidget* parent, const c
 					AlignAuto + AlignTop + WordBreak + ExpandTabs,
 					text );
     }
+#if defined(Q_WS_WIN)
+    if ( qWinVersion() == WV_XP ) {
+	BOOL shadow;
+	SystemParametersInfo( SPI_GETDROPSHADOW, 0, &shadow, 0 );
+	shadowWidth = shadow ? 0 : 6;
+    }
+#endif
     resize( r.width() + 2*hMargin + shadowWidth, r.height() + 2*vMargin + shadowWidth );
 }
 
@@ -339,10 +353,20 @@ void QWhatsThat::keyPressEvent( QKeyEvent* )
 
 
 
-void QWhatsThat::paintEvent( QPaintEvent* ) {
+void QWhatsThat::paintEvent( QPaintEvent* ) 
+{
+    bool drawShadow = TRUE;
+#if defined(Q_WS_WIN)
+    if ( qWinVersion() == WV_XP ) {
+	BOOL shadow;
+	SystemParametersInfo( SPI_GETDROPSHADOW, 0, &shadow, 0 );
+	drawShadow = !shadow;
+    }
+#endif
 
     QRect r = rect();
-    r.addCoords( 0, 0, -shadowWidth, -shadowWidth );
+    if ( drawShadow )
+	r.addCoords( 0, 0, -shadowWidth, -shadowWidth );
     QPainter p( this);
     p.setPen( colorGroup().foreground() );
     p.drawRect( r );
@@ -351,17 +375,19 @@ void QWhatsThat::paintEvent( QPaintEvent* ) {
     int w = r.width();
     int h = r.height();
     p.drawRect( 1, 1, w-2, h-2 );
-    p.setPen( colorGroup().shadow() );
-    p.drawPoint( w + 5, 6 );
-    p.drawLine( w + 3, 6, w + 5, 8 );
-    p.drawLine( w + 1, 6, w + 5, 10 );
-    int i;
-    for( i=7; i < h; i += 2 )
-	p.drawLine( w, i, w + 5, i + 5 );
-    for( i = w - i + h; i > 6; i -= 2 )
-	p.drawLine( i, h, i + 5, h + 5 );
-    for( ; i > 0 ; i -= 2 )
-	p.drawLine( 6, h + 6 - i, i + 5, h + 5 );
+    if ( drawShadow ) {
+	p.setPen( colorGroup().shadow() );
+	p.drawPoint( w + 5, 6 );
+	p.drawLine( w + 3, 6, w + 5, 8 );
+	p.drawLine( w + 1, 6, w + 5, 10 );
+	int i;
+	for( i=7; i < h; i += 2 )
+	    p.drawLine( w, i, w + 5, i + 5 );
+	for( i = w - i + h; i > 6; i -= 2 )
+	    p.drawLine( i, h, i + 5, h + 5 );
+	for( ; i > 0 ; i -= 2 )
+	    p.drawLine( 6, h + 6 - i, i + 5, h + 5 );
+    }
     p.setPen( colorGroup().foreground() );
     r.addCoords( hMargin, vMargin, -hMargin, -vMargin );
 
