@@ -32,7 +32,7 @@
 // #define QFONTDATABASE_DEBUG
 
 // see the Unicode subset bitfields in the MSDN docs
-static int requiredUnicodeBits[QFont::Unicode][2] = {
+static int requiredUnicodeBits[QFont::NScripts][2] = {
     //Latin,
     { 0, 1 },
     //Greek,
@@ -138,6 +138,18 @@ static int requiredUnicodeBits[QFont::Unicode][2] = {
     //Braille,
     { 82, 127 },
 
+    //Unicode,
+    { 126, 126 },
+
+    // some scripts added in Unicode 3.2
+    //Tagalog,
+    { 84, 127 },
+    //Hanunoo,
+    { 84, 127 },
+    //Buhid,
+    { 84, 127 },
+    //Tagbanwa,
+    { 84, 127 }
 };
 
 
@@ -229,7 +241,7 @@ storeFont( ENUMLOGFONTEX* f, NEWTEXTMETRICEX *textmetric, int type, LPARAM /*p*/
 		int bit = requiredUnicodeBits[i][0];
 		int index = bit/32;
 		int flag =  1 << (bit&31);
-		if ( signature.fsUsb[index] & flag ) {
+		if ( bit != 126 && signature.fsUsb[index] & flag ) {
 		    bit = requiredUnicodeBits[i][1];
 		    index = bit/32;
 		    flag =  1 << (bit&31);
