@@ -1,5 +1,44 @@
 \chapter GUI Applications
 
+Qt provides all the classes and functions necessary to create modern
+GUI applications. Qt can be used to create both 'main window' style
+applications with a menu bar, tool bars and status bar surrounding a
+central area, and dialog style applications that use buttons and
+possibly tabs to present options and information. Qt can be used to
+create both SDI (single document interface) applications, and MDI
+(multiple document interface) applications.
+
+Tool bars can be moved around within the tool bar area (called the
+'dock area'), dragged to other dock areas, or floated as tool
+palettes. This functionality is built-in and requires no additional
+code, although programmers can apply constraints to tool bar behavior
+if they wish.
+
+Qt simplifies programming, for example, if a menu option, a tool bar
+button and a keyboard accelerator all perform the same action, the
+action need only be coded once.
+
+Qt also provides message boxes and a full set of standard dialogs to
+make it easy for applications to ask the user questions, and to get
+the user to choose files, folders, fonts and colors. In practice, a
+one line statement using one of Qt's static convenience functions, is
+all that is necessary to present a message box or a standard dialog.
+
+Qt can platform-independently store application settings, e.g. user
+preferences, most recently used files, window and tool bar positions
+and sizes, etc.
+
+Building GUI applications with Qt is fast, simple and flexible.
+
+\omit
+Whatever library you use, the code, compile, link and run cycle can be
+time consuming, especially when designing user interfaces. Qt's
+classes and functions are designed to be comfortable and easy to hand
+code, so the cycle time mostly depends on the compiler and linker. But
+to quickly develop and experiment with user interface designs, it is
+probably fastest to use \l{Qt Designer}, Qt's visual design tool. 
+\endomit
+
 \section1 Main Window Classes
 
 \section2 The Main Window
@@ -7,9 +46,8 @@
   \index GUI applications
   \index main window
 
-Qt provides the widgets needed by most modern GUI applications. The
-\Class QMainWindow class pulls together a set of related widgets to
-provide a framework for typical application main windows.
+The \Class QMainWindow class pulls together a set of related widgets
+to provide a framework for typical application main windows.
 
   \index size grip
   \img main-window.png An application main window
@@ -269,6 +307,8 @@ convenience functions for the most common tasks. Many aspects of the
 dialogs can be configured, for example the buttons and texts in a
 \Class QMessageBox. On Windows, the native dialogs can be used.
 
+Screenshots of some of Qt's standard dialogs are shown below.
+
   \index about boxes
   \index errors
   \index fatal errors
@@ -276,13 +316,15 @@ dialogs can be configured, for example the buttons and texts in a
   \index message box
   \index warnings
 
+  \img qmessagebox.png QMessageBox
+
 \Class QMessageBox is used to provide the user with information or to
 present the user with simple choices (e.g. 'Yes' or 'No').
 
-  \img qmessagebox.png QMessageBox
-
   \index file dialog
   \index directories
+
+  \img qfiledialog.png QFileDialog
 
 \Class QFileDialog is a sophisticated file selection dialog. It can
 be used to select single or multiple files, and includes
@@ -291,43 +333,41 @@ creation. Like most Qt dialogs, \Class QFileDialog is resizable,
 which makes it far easier to view long file names and large
 directories.
 
-  \img qfiledialog.png QFileDialog
-
   \index progress bars
 
-\Class QProgressDialog displays a progress bar and a 'Cancel' button.
-
   \img qprogressdialog.png QProgressDialog
+
+\Class QProgressDialog displays a progress bar and a 'Cancel' button.
 
   \index notebooks
   \index property boxes
   \index tab widgets
 
-\Class QTabDialog provides a framework for settings dialogs.
-
   \img qtabdialog.png QTabDialog
+
+\Class QTabDialog provides a framework for settings dialogs.
 
   \index assistants
   \index druids
   \index wizards
 
-\Class QWizard provides a framework for wizard dialogs.
-
   \img qwizard.png QWizard
+
+\Class QWizard provides a framework for wizard dialogs.
 
   \index color dialog
   \index font dialog
 
+  \img qfontdialog-etc.png QFontDialog and QColorDialog
+
 \Class QFontDialog and \Class QColorDialog are sophisticated dialogs
 to select a font and a color.
 
-  \img qfontdialog-etc.png QFontDialog and QColorDialog
-
   \index print dialog
 
-\Class QPrintDialog allows the user to select printing options.
-
   \img qprintdialog.png QPrintDialog
+
+\Class QPrintDialog allows the user to select printing options.
 
   \index modal dialogs
   \index semi-modal dialogs

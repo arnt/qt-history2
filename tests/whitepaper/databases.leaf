@@ -11,11 +11,33 @@
   \index TDS
 
 The Qt SQL module provides a cross-platform API (application
-programmer interface) for accessing SQL databases. Qt 3.0 includes
-native drivers for Oracle, PostgreSQL, Microsoft SQL Server, Sybase
-Adaptive Server, MySQL and ODBC. The drivers work on all supported
+programmer interface) for accessing SQL databases. Qt includes native
+drivers for Oracle, Microsoft SQL Server, Sybase Adaptive Server,
+PostgreSQL, MySQL and ODBC. The drivers work on all supported
 platforms and programs can access multiple databases using multiple
 drivers simultaneously.
+
+Programmers can easily execute any arbitrary SQL statements. Qt also
+provides a high-level C++ interface that programmers can use which
+generates the appropriate SQL statements automatically.
+
+Any Qt widget, including custom widgets, can be made data-aware. Qt
+also includes some database-specific convenience widgets, to simplify
+the creation of dialogs and windows that present records as forms or
+in tables. Data-aware widgets automatically support browsing, updating
+and deleting records. Most database designs require that new records
+have a unique key which cannot be guessed by Qt, so insertion usually
+needs a small amount of code to be written. The programmer can
+easily force the user to confirm actions, e.g. deletions.
+
+The Qt SQL module is fully integrated into \l{Qt Designer} which
+provides templates and wizards to make the creation of database forms
+as quick and easy as possible. The wizards can create forms with
+navigation buttons, and with update, insert and delete buttons.
+
+The Qt SQL module allows programmers to execute SQL statements and to
+create GUI applications that use foreign key lookups, present
+master-detail relationships, and have drill-down.
 
 \section1 Executing SQL Commands
 
@@ -28,7 +50,7 @@ The \Class QSqlQuery class can be used to directly execute SQL DDL and
 DML statements. The \Class QSqlQuery class is also used to navigate
 the result sets produced by \c SELECT statements.
 
-In the example below a query is executed, and the result set navigated
+In the example below, a query is executed, and the result set navigated
 using the \Func QSqlQuery::next() function:
 \code
     QSqlQuery query( "SELECT id, surname FROM staff" );
@@ -47,11 +69,12 @@ and seek() navigation functions.
   \index INSERT
   \index UPDATE
 
-\c INSERT, \c UPDATE and \c DELETE are equally straightforward:
+\c INSERT, \c UPDATE and \c DELETE are equally simple. Below is an \c
+UPDATE example:
 \code
     QSqlQuery query( "UPDATE staff SET salary = salary * 1.10"
 		     " WHERE id > 1155 AND id < 8155" );
-    if ( query.isActive ) {
+    if ( query.isActive() ) {
 	cout << "Pay rise given to " 
 	     << query.numRowsAffected() 
 	     << " staff" << endl;
@@ -149,3 +172,5 @@ invoked with the current record's key as a parameter.
 Qt's SQL module is fully integrated with \l {Qt Designer}. \l {Qt
 Designer} can preview database forms and tables using live data if
 desired, allowing programmers to browse, delete and update records.
+\l{Qt Designer} has templates and wizards to make creating database
+forms fast and simple.
