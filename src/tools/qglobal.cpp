@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.cpp#45 $
+** $Id: //depot/qt/main/src/tools/qglobal.cpp#46 $
 **
 ** Global functions
 **
@@ -16,7 +16,7 @@
 #include <stdarg.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qglobal.cpp#45 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qglobal.cpp#46 $");
 
 
 #define QT_VERSION "1.2"
@@ -277,7 +277,7 @@ void fatal( const char *msg, ... )
 
     int divide( int a, int b )
     {
-	ASSERT( b == 0 );			// this is line 9
+	ASSERT( b != 0 );			// this is line 9
 	return a/b;
     }
   \endcode
