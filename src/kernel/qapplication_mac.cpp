@@ -621,7 +621,7 @@ QMAC_PASCAL static void qt_activate_timers(EventLoopTimerRef, void *data)
     CreateEvent(NULL, kEventClassQt, kEventQtRequestTimer, GetCurrentEventTime(),
 		kEventAttributeUserEvent, &tmr );
     SetEventParameter(tmr, kEventParamTimer, typeInteger, sizeof(t), &t);
-    PostEventToQueue( GetCurrentEventQueue(), tmr, kEventPriorityHigh );
+    PostEventToQueue( GetCurrentEventQueue(), tmr, kEventPriorityLow );
 }
 
 //
@@ -663,7 +663,8 @@ static int activateNullTimers()
 	return 0;
 
     int ret = 0;
-    for(register TimerInfo *t = timerList->first(); ret != zero_timer_count && t; t = timerList->next()) {
+    for(register TimerInfo *t = timerList->first(); 
+	ret != zero_timer_count && t; t = timerList->next()) {
 	if(t->type == TimerInfo::TIMER_ZERO) {
 	    ret++;
 	    QTimerEvent e( t->id );
