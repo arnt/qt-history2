@@ -8,6 +8,9 @@ SHELL=/bin/sh
 init: FORCE
 	@$(MAKE) QTDIR=`pwd` all
 
+install: FORCE
+	@$(MAKE) QTDIR=`pwd` qt.install
+
 all: symlinks src-qmake src-moc sub-src sub-tools sub-tutorial sub-examples
 	@echo
 	@echo "The Qt library is now built in ./lib"
@@ -20,7 +23,7 @@ all: symlinks src-qmake src-moc sub-src sub-tools sub-tutorial sub-examples
 	@echo "Enjoy!   - the Trolltech team"
 	@echo
 
-install: init moc-install src-install tools-install
+qt.install: all moc-install src-install tools-install
 
 moc-install: src-moc
 	cd src/moc; $(MAKE) install
