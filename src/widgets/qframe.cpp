@@ -725,8 +725,6 @@ void QFrame::updateMask()
   If you reimplemented drawFrame(QPainter*) and your widget should
   support transparency you probably have to re-implement this function as well.
 
-  The default implementation is empty.
-
   \sa drawFrame(), updateMask(), QWidget::setAutoMask(), QPainter::setClipRect()
 */
 void QFrame::drawFrameMask( QPainter* p )
@@ -797,6 +795,9 @@ void QFrame::drawFrameMask( QPainter* p )
 */
 void QFrame::drawContentsMask( QPainter* p)
 {
+    int type  = fstyle & MShape;
+    if ( type == HLine || type == VLine )
+	return; 
     QBrush oldBrush = p->brush();
 
     p->fillRect( contentsRect(), QBrush( color1 ) );
