@@ -118,7 +118,8 @@ QPaintDevice::QPaintDevice( uint devflags )
     }
     devFlags = devflags;
     painters = 0;
-    hd	= 0;
+    hd = 0;
+    rendhd = 0;
     x11Data = 0;
 }
 
@@ -251,6 +252,19 @@ Qt::HANDLE QPaintDevice::handle() const
 {
     return hd;
 }
+
+
+/*!
+  Returns the window system handle of the paint device for XRender support.
+  Use of this function is not portable.  This function can return zero
+  if XRender support is not compiled into Qt, if the XRender extension is
+  not supported on the X11 display, or if the handle could not be created.
+*/
+Qt::HANDLE QPaintDevice::x11RenderHandle() const
+{
+    return rendhd;
+}
+
 
 /*!
   \fn virtual HDC QPaintDevice::handle() const

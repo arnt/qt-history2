@@ -289,7 +289,7 @@ void QFontPrivate::load()
 
     QString k = key();
     QFontStruct *qfs = fontCache->find( k );
-    
+
     if ( !qfs ) {			// font was never loaded
 	qfs = new QFontStruct( k );
 	Q_CHECK_PTR( qfs );
@@ -463,7 +463,7 @@ HFONT QFontPrivate::create( bool *stockFont, HDC hdc, bool VxF )
 	qual = PROOF_QUALITY;
 
     lf.lfQuality	= qual;
-    
+
     lf.lfClipPrecision  = CLIP_DEFAULT_PRECIS;
     lf.lfPitchAndFamily = DEFAULT_PITCH | hint;
     HFONT hfont;
@@ -525,7 +525,7 @@ int QFontPrivate::textWidth( const QString &str, int pos, int len )
     if ( (qt_winver & Qt::WV_NT_based) == 0 )
 	width -= TMX->tmOverhang;
     return width;
-	
+
 }
 
 int QFontPrivate::textWidth( HDC hdc, const QString &str, int pos, int len, QFontPrivate::TextRun *cache )
@@ -548,7 +548,7 @@ int QFontPrivate::textWidth( HDC hdc, const QString &str, int pos, int len, QFon
     const QChar *uc = str.unicode() + pos;
     for ( i = 0; i < len; i++ ) {
 	if ( uc->combiningClass() != 0 && !nmarks && pos + i > 0 ) {
-	    cache->setParams( width, 0, str.unicode() + lasts, i - lasts );
+	    cache->setParams( width, 0, 0, str.unicode() + lasts, i - lasts );
 	    BOOL res = GetTextExtentPoint32( currHDC, tc + lasts, i - lasts, &s );
 #ifndef Q_NO_DEBUG
 	    if ( !res )
@@ -562,7 +562,7 @@ int QFontPrivate::textWidth( HDC hdc, const QString &str, int pos, int len, QFon
 	    nmarks = pa.size();
 	} else if ( nmarks ) {
 	    QPoint p = pa[(int)(pa.size() - nmarks)];
-	    cache->setParams( width + p.x(), p.y(), str.unicode() + lasts, i - lasts );
+	    cache->setParams( width + p.x(), p.y(), 0, str.unicode() + lasts, i - lasts );
 	    cache->next = new QFontPrivate::TextRun();
 	    cache = cache->next;
 	    nmarks--;
@@ -570,12 +570,12 @@ int QFontPrivate::textWidth( HDC hdc, const QString &str, int pos, int len, QFon
 	}
 	uc++;
     }
-    
+
     if ( nmarks ) {
 	QPoint p = pa[(int)(pa.size() - nmarks)];
-	cache->setParams( width + p.x(), p.y(), str.unicode() + lasts, i - lasts );
+	cache->setParams( width + p.x(), p.y(), 0, str.unicode() + lasts, i - lasts );
     } else {
-	cache->setParams( width, 0, str.unicode() + lasts, i - lasts );
+	cache->setParams( width, 0, 0, str.unicode() + lasts, i - lasts );
 	BOOL res = GetTextExtentPoint32( currHDC, tc + lasts, i - lasts, &s );
 #ifndef Q_NO_DEBUG
 	if ( !res )
@@ -583,7 +583,7 @@ int QFontPrivate::textWidth( HDC hdc, const QString &str, int pos, int len, QFon
 #endif
 	width += s.cx;
     }
-			    
+
     if ( (qt_winver & Qt::WV_NT_based) == 0 )
 	    width -= TMX->tmOverhang;
     return width;
@@ -592,11 +592,11 @@ int QFontPrivate::textWidth( HDC hdc, const QString &str, int pos, int len, QFon
 void QFontPrivate::drawText( HDC hdc, int x, int y, QFontPrivate::TextRun *cache )
 {
     while ( cache ) {
-//		qDebug( "drawing '%s' at (%d/%d)", 
+//		qDebug( "drawing '%s' at (%d/%d)",
 //			QConstString( (QChar *)cache->string, cache->length).string().latin1(),
 //			x + cache->xoff, y + cache->yoff);
 	//### cache->length may not exceed 8192 on Win9x
-	const TCHAR *tc = (const TCHAR*)qt_winTchar(QConstString( (QChar *)cache->string, cache->length).string(),FALSE); 
+	const TCHAR *tc = (const TCHAR*)qt_winTchar(QConstString( (QChar *)cache->string, cache->length).string(),FALSE);
 	TextOut( hdc, x + cache->xoff, y + cache->yoff, tc, cache->length );
 	cache = cache->next;
     }
@@ -774,7 +774,7 @@ static ushort char_table[] = {
 	12386,
 	0
 };
-	
+
 
 static int get_min_left_bearing( const QFontMetrics *f )
 {

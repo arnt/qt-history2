@@ -255,7 +255,6 @@ public:
     QString lastResortFamily() const;
     QString lastResortFont() const;
     QString key() const;
-    // int lineWidth()  const;
 
     static int getFontWeight(const QCString &, bool = FALSE);
     QRect boundingRect( const QChar &ch );
@@ -265,6 +264,7 @@ public:
 	{
 	    xoff = 0;
 	    yoff = 0;
+	    x2off = 0;
 	    script = QFont::NoScript;
 	    string = 0;
 	    length = 0;
@@ -277,16 +277,18 @@ public:
 		delete next;
 	}
 
-	void setParams( int x, int y, const QChar *s, int len,
+	void setParams( int x, int y, int x2, const QChar *s, int len,
 			QFont::Script sc = QFont::NoScript ) {
 	    xoff = x;
 	    yoff = y;
+	    x2off = x2;
 	    string = s;
 	    length = len;
 	    script = sc;
 	}
 	int xoff;
 	int yoff;
+	int x2off;
 	QFont::Script script;
 	const QChar *string;
 	int length;
@@ -296,17 +298,13 @@ public:
 #endif
     };
 
-    /*
-      some replacement functions for native calls. This is needed, because shaping and
-      non spacing marks can change the extents of a string to draw. At the same time
-      drawing needs to take care to correctly position non spacing marks.
-    */
+    // some replacement functions for native calls. This is needed, because shaping and
+    // non spacing marks can change the extents of a string to draw. At the same time
+    // drawing needs to take care to correctly position non spacing marks.
     int textWidth( const QString &str, int pos, int len );
 
-    /*
-     * returns the script a certain character is in. Needed to separate the string into runs of
-     * different scripts as required for X11 and opentype.
-     */
+    // returns the script a certain character is in. Needed to separate the string
+    // into runs of different scripts as required for X11 and opentype.
     QFont::Script scriptForChar(const QChar &c);
 
 #ifdef Q_WS_X11
@@ -373,7 +371,9 @@ public:
 
     int textWidth( const QString &str, int pos, int len, TextRun *cache );
     void textExtents( const QString &str, int pos, int len, XCharStruct *overall );
-    void drawText( Display *dpy, WId hd, GC gc, int x, int y, const TextRun *cache );
+    void drawText( Display *dpy, int screen, Qt::HANDLE hd, Qt::HANDLE rendhd,
+		   GC gc, const QColor &pen, Qt::BGMode, const QColor &bgcolor,
+		   int x, int y, const TextRun *cache );
     bool inFont( const QChar &ch );
 
     class QFontX11Data {

@@ -258,6 +258,8 @@ static void build_scale_table( uint **table, uint nBits )
 
 static int defaultScreen = -1;
 
+extern bool qt_use_xrender; // defined in qapplication_x11.cpp
+
 /*****************************************************************************
   QPixmap member functions
  *****************************************************************************/
@@ -300,6 +302,7 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
 	data->d = dd;
     if ( make_null || w < 0 || h < 0 || data->d == 0 ) {
 	hd = 0;
+	rendhd = 0;
 #if defined(QT_CHECK_RANGE)
 	if ( !make_null )
 	    qWarning( "QPixmap: Invalid pixmap parameters" );
@@ -310,6 +313,29 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
     data->h = h;
     hd = (HANDLE)XCreatePixmap( x11Display(), RootWindow(x11Display(), x11Screen() ),
 				w, h, data->d );
+
+#ifndef QT_NO_XRENDER
+    if (qt_use_xrender) {
+	XRenderPictFormat *format;
+	if (data->d == 1) {
+	    XRenderPictFormat req;
+
+	    req.type = PictTypeDirect;
+	    req.depth = 1;
+	    req.direct.alpha = 0;
+	    req.direct.alphaMask = 1;
+	    format = XRenderFindFormat(x11Display(),
+				       (PictFormatType | PictFormatDepth |
+					PictFormatAlpha | PictFormatAlphaMask),
+				       &req, 0);
+	} else
+	    format = XRenderFindVisualFormat(x11Display(), (Visual *) x11Visual());
+
+	if (format)
+	    rendhd = XRenderCreatePicture(x11Display(), hd, format, 0, 0);
+    }
+#endif // QT_NO_XRENDER
+
 }
 
 
@@ -323,6 +349,14 @@ void QPixmap::deref()
 	if ( data->maskgc )
 	    XFreeGC( x11Display(), (GC)data->maskgc );
 	if ( hd && qApp ) {
+
+#ifndef QT_NO_XRENDER
+	    if (rendhd) {
+		XRenderFreePicture(x11Display(), rendhd);
+		rendhd = 0;
+	    }
+#endif // QT_NO_XRENDER
+
 	    XFreePixmap( x11Display(), hd );
 	    hd = 0;
 	}
@@ -357,6 +391,25 @@ QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap)
     hd = (HANDLE)XCreateBitmapFromData( x11Display(),
 					RootWindow(x11Display(), x11Screen() ),
 					(char *)bits, w, h );
+
+#ifndef QT_NO_XRENDER
+    if (qt_use_xrender) {
+	XRenderPictFormat *format;
+	XRenderPictFormat req;
+
+	req.type = PictTypeDirect;
+	req.depth = 1;
+	req.direct.alpha = 0;
+	req.direct.alphaMask = 1;
+	format = XRenderFindFormat(x11Display(),
+				   (PictFormatType | PictFormatDepth |
+				    PictFormatAlpha | PictFormatAlphaMask),
+				   &req, 0);
+	if (format)
+	    rendhd = (HANDLE) XRenderCreatePicture(x11Display(), hd, format, 0, 0);
+    }
+#endif // QT_NO_XRENDER
+
     if ( flipped_bits )				// Avoid purify complaint
 	delete [] flipped_bits;
 }
@@ -906,6 +959,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
     int	 dd  = defaultDepth();
     bool force_mono = (dd == 1 || isQBitmap() ||
 		       (conversion_flags & ColorMode_Mask)==MonoOnly );
+    bool recreate_rendhd = (rendhd != 0);
 
     if ( data->mask ) {				// get rid of the mask
 	delete data->mask;
@@ -921,7 +975,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	if ( d > 8 && dd <= 8 ) {		// convert to 8 bit
 	    if ( (conversion_flags & DitherMode_Mask) == AutoDither )
 		conversion_flags = (conversion_flags & ~DitherMode_Mask)
-					| PreferDither;
+				   | PreferDither;
 	    conv8 = TRUE;
 	} else if ( (conversion_flags & ColorMode_Mask) == ColorOnly ) {
 	    conv8 = d == 1;			// native depth wanted
@@ -942,8 +996,18 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
     }
 
     if ( d == 1 ) {				// 1 bit pixmap (bitmap)
-	if ( hd )				// delete old X pixmap
+	if ( hd ) {				// delete old X pixmap
+
+#ifndef QT_NO_XRENDER
+	    if (rendhd) {
+		XRenderFreePicture(x11Display(), rendhd);
+		rendhd = 0;
+	    }
+#endif // QT_NO_XRENDER
+
 	    XFreePixmap( x11Display(), hd );
+	}
+
 	char  *bits;
 	uchar *tmp_bits;
 	int    bpl = (w+7)/8;
@@ -978,6 +1042,25 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	hd = (HANDLE)XCreateBitmapFromData( x11Display(),
 					    RootWindow(x11Display(), x11Screen() ),
 					    bits, w, h );
+
+#ifndef QT_NO_XRENDER
+	if (qt_use_xrender && recreate_rendhd) {
+	    XRenderPictFormat *format;
+	    XRenderPictFormat req;
+
+	    req.type = PictTypeDirect;
+	    req.depth = 1;
+	    req.direct.alpha = 0;
+	    req.direct.alphaMask = 1;
+	    format = XRenderFindFormat(x11Display(),
+				       (PictFormatType | PictFormatDepth |
+					PictFormatAlpha | PictFormatAlphaMask),
+				       &req, 0);
+	    if (format)
+		rendhd = (HANDLE) XRenderCreatePicture(x11Display(), hd, format, 0, 0);
+	}
+#endif // QT_NO_XRENDER
+
 	if ( tmp_bits )				// Avoid purify complaint
 	    delete [] tmp_bits;
 	data->w = w;  data->h = h;  data->d = 1;
@@ -1037,29 +1120,29 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	    bppc++;
 
 	bool contig_bits = n_bits(red_mask) == rbits &&
-			   n_bits(green_mask) == gbits &&
-			   n_bits(blue_mask) == bbits;
+      n_bits(green_mask) == gbits &&
+       n_bits(blue_mask) == bbits;
 	bool dither_tc =
-		// Want it
-		(conversion_flags & DitherMode_Mask) != AvoidDither &&
-		// Need it
-		bppc < 24 && !d8 &&
-		// Contiguous bits?
-		contig_bits;
+	    // Want it
+	    (conversion_flags & DitherMode_Mask) != AvoidDither &&
+	    // Need it
+	    bppc < 24 && !d8 &&
+	    // Contiguous bits?
+	    contig_bits;
 
 	static bool init=FALSE;
 	static int D[16][16];
 	if ( dither_tc && !init ) {
 	    // I also contributed this code to XV - WWA.
 	    /*
-	    The dither matrix, D, is obtained with this formula:
+	      The dither matrix, D, is obtained with this formula:
 
-	    D2 = [ 0 2 ]
-		 [ 3 1 ]
+	      D2 = [ 0 2 ]
+	      [ 3 1 ]
 
 
-	    D2*n = [ 4*Dn       4*Dn+2*Un ]
-		   [ 4*Dn+3*Un  4*Dn+1*Un ]
+	      D2*n = [ 4*Dn       4*Dn+2*Un ]
+	      [ 4*Dn+3*Un  4*Dn+1*Un ]
 	    */
 	    int n,i,j;
 	    init=1;
@@ -1133,81 +1216,81 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	    int x;
 	    if ( dither_tc ) {
 		switch ( bppc ) {
-		    case 16:			// 16 bit MSB
-			for ( x=0; x<w; x++ ) {
-			    GET_PIXEL_DITHER_TC
+		case 16:			// 16 bit MSB
+		    for ( x=0; x<w; x++ ) {
+			GET_PIXEL_DITHER_TC
 			    *dst++ = (pixel >> 8);
+			*dst++ = pixel;
+		    }
+		    break;
+		case 17:			// 16 bit LSB
+		    for ( x=0; x<w; x++ ) {
+			GET_PIXEL_DITHER_TC
 			    *dst++ = pixel;
-			}
-			break;
-		    case 17:			// 16 bit LSB
-			for ( x=0; x<w; x++ ) {
-			    GET_PIXEL_DITHER_TC
-			    *dst++ = pixel;
-			    *dst++ = pixel >> 8;
-			}
-			break;
-		    default:
-			qFatal("Logic error");
+			*dst++ = pixel >> 8;
+		    }
+		    break;
+		default:
+		    qFatal("Logic error");
 		}
 	    } else {
 		switch ( bppc ) {
-		    case 8:			// 8 bit
-			for ( x=0; x<w; x++ ) {
-			    pixel = pix[*src++];
-			    *dst++ = pixel;
-			}
-			break;
-		    case 16:			// 16 bit MSB
-			for ( x=0; x<w; x++ ) {
-			    GET_PIXEL
+		case 8:			// 8 bit
+		    for ( x=0; x<w; x++ ) {
+			pixel = pix[*src++];
+			*dst++ = pixel;
+		    }
+		    break;
+		case 16:			// 16 bit MSB
+		    for ( x=0; x<w; x++ ) {
+			GET_PIXEL
 			    *dst++ = (pixel >> 8);
+			*dst++ = pixel;
+		    }
+		    break;
+		case 17:			// 16 bit LSB
+		    for ( x=0; x<w; x++ ) {
+			GET_PIXEL
 			    *dst++ = pixel;
-			}
-			break;
-		    case 17:			// 16 bit LSB
-			for ( x=0; x<w; x++ ) {
-			    GET_PIXEL
-			    *dst++ = pixel;
-			    *dst++ = pixel >> 8;
-			}
-			break;
-		    case 24:			// 24 bit MSB
-			for ( x=0; x<w; x++ ) {
-			    GET_PIXEL
+			*dst++ = pixel >> 8;
+		    }
+		    break;
+		case 24:			// 24 bit MSB
+		    for ( x=0; x<w; x++ ) {
+			GET_PIXEL
 			    *dst++ = pixel >> 16;
-			    *dst++ = pixel >> 8;
+			*dst++ = pixel >> 8;
+			*dst++ = pixel;
+		    }
+		    break;
+		case 25:			// 24 bit LSB
+		    for ( x=0; x<w; x++ ) {
+			GET_PIXEL
 			    *dst++ = pixel;
-			}
-			break;
-		    case 25:			// 24 bit LSB
-			for ( x=0; x<w; x++ ) {
-			    GET_PIXEL
-			    *dst++ = pixel;
-			    *dst++ = pixel >> 8;
-			    *dst++ = pixel >> 16;
-			}
-			break;
-		    case 32:			// 32 bit MSB
-			for ( x=0; x<w; x++ ) {
-			    GET_PIXEL
+			*dst++ = pixel >> 8;
+			*dst++ = pixel >> 16;
+		    }
+		    break;
+		case 32:			// 32 bit MSB
+		    for ( x=0; x<w; x++ ) {
+			GET_PIXEL
 			    *dst++ = pixel >> 24;
-			    *dst++ = pixel >> 16;
-			    *dst++ = pixel >> 8;
+			*dst++ = pixel >> 16;
+			*dst++ = pixel >> 8;
+			*dst++ = pixel;
+		    }
+		    break;
+		case 33:			// 32 bit LSB
+		    for ( x=0; x<w; x++ ) {
+			GET_PIXEL
 			    *dst++ = pixel;
-			}
-			break;
-		    case 33:			// 32 bit LSB
-			for ( x=0; x<w; x++ ) {
-			    GET_PIXEL
-			    *dst++ = pixel;
-			    *dst++ = pixel >> 8;
-			    *dst++ = pixel >> 16;
-			    *dst++ = pixel >> 24;
-			}
-			break;
-		    default:
-			qFatal("Logic error 2");
+			*dst++ = pixel >> 8;
+			*dst++ = pixel >> 16;
+			*dst++ = pixel >> 24;
+		    }
+		    break;
+		default:
+		    qFatal("Logic error 2");
 		}
 	    }
 	}
@@ -1231,10 +1314,10 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	p = newbits;
 	memcpy( p, image.bits(), nbytes );	// copy image data into newbits
 
-/*
- * The code below picks the most important colors. It is based on the
- * diversity algorithm, implemented in XV 3.10. XV is (C) by John Bradley.
- */
+	/*
+	 * The code below picks the most important colors. It is based on the
+	 * diversity algorithm, implemented in XV 3.10. XV is (C) by John Bradley.
+	 */
 
 	struct PIX {				// pixel sort element
 	    uchar r,g,b,n;			// color + pad
@@ -1355,13 +1438,21 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	} else if ( xi->bits_per_pixel != 8 ) {
 #if defined(QT_CHECK_RANGE)
 	    qWarning( "QPixmap::convertFromImage: Display not supported "
-		     "(bpp=%d)", xi->bits_per_pixel );
+		      "(bpp=%d)", xi->bits_per_pixel );
 #endif
 	}
 	xi->data = (char *)newbits;
     }
 
     if ( hd && (width() != w || height() != h || this->depth() != dd) ) {
+
+#ifndef QT_NO_XRENDER
+	if (rendhd) {
+	    XRenderFreePicture(x11Display(), rendhd);
+	    rendhd = 0;
+	}
+#endif // QT_NO_XRENDER
+
 	XFreePixmap( dpy, hd );			// don't reuse old pixmap
 	hd = 0;
     }
@@ -1369,6 +1460,29 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	hd = (HANDLE)XCreatePixmap( x11Display(),
 				    RootWindow(x11Display(), x11Screen() ),
 				    w, h, dd );
+
+#ifndef QT_NO_XRENDER
+	if (qt_use_xrender && recreate_rendhd) {
+	    XRenderPictFormat *format;
+	    if (data->d == 1) {
+		XRenderPictFormat req;
+
+		req.type = PictTypeDirect;
+		req.depth = 1;
+		req.direct.alpha = 0;
+		req.direct.alphaMask = 1;
+		format = XRenderFindFormat(x11Display(),
+					   (PictFormatType | PictFormatDepth |
+					    PictFormatAlpha | PictFormatAlphaMask),
+					   &req, 0);
+	    } else
+		format = XRenderFindVisualFormat(x11Display(), (Visual *) x11Visual());
+
+	    if (format)
+		rendhd = (HANDLE) XRenderCreatePicture(x11Display(), hd, format, 0, 0);
+	}
+#endif // QT_NO_XRENDER
+
     }
 
     XPutImage( dpy, hd, qt_xget_readonly_gc( x11Screen(), FALSE  ), xi, 0, 0, 0, 0, w, h );

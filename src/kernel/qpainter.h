@@ -238,13 +238,13 @@ public:
 	RTL,
 	LTR
     };
-    
+
     void	drawText( int x, int y, const QString &, int len = -1, TextDirection dir = Auto );
     void	drawText( const QPoint &, const QString &, int len = -1, TextDirection dir = Auto );
-    
+
     void     drawText( int x, int y, const QString &, int pos, int len, TextDirection dir = Auto );
     void     drawText( const QPoint &p, const QString &, int pos, int len, TextDirection dir = Auto );
-    
+
     void	drawText( int x, int y, int w, int h, int flags,
 			  const QString&, int len = -1, QRect *br=0,
 			  QTextParag **intern=0 );
@@ -366,15 +366,16 @@ protected:
     QT_WIN_PAINTER_MEMBERS
 #elif defined(Q_WS_X11)
     Display    *dpy;				// current display
-    int 	   scrn;				// current screen
-    WId		hd;				// handle to drawable
+    int		scrn;				// current screen
+    Qt::HANDLE	hd;				// handle to drawable
+    Qt::HANDLE  rendhd;				// handle to Render Picture
     GC		gc;				// graphics context (standard)
     GC		gc_brush;			// graphics contect for brush
     QPoint	curPt;				// current point
 #elif defined(Q_WS_MAC)
     QRegion clippedreg;
     QMacSavedPortInfo *saved;
-    
+
     void initPaintDevice(bool force=FALSE);
 
     int offx, offy;

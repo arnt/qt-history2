@@ -323,6 +323,7 @@ QPixmap::QPixmap( const QPixmap &pixmap )
 	hdc = pixmap.hdc;			// copy Windows device context
 #elif defined(Q_WS_X11)
 	hd = pixmap.hd;				// copy X11 drawable
+	rendhd = pixmap.rendhd;
 	copyX11Data( &pixmap );			// copy x11Data
 #elif defined(Q_WS_MAC)
 	hd = pixmap.hd;
@@ -403,6 +404,7 @@ QPixmap &QPixmap::operator=( const QPixmap &pixmap )
 	hdc = pixmap.hdc;
 #elif defined(Q_WS_X11)
 	hd = pixmap.hd;				// copy QPaintDevice drawable
+	rendhd = pixmap.rendhd;
 	copyX11Data( &pixmap );			// copy x11Data
 #elif defined(Q_WS_MACX) || defined(Q_OS_MAC9)
 	hd = pixmap.hd;

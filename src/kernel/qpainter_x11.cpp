@@ -621,10 +621,6 @@ void QPainter::updateFont()
     setf(NoCache);
     if ( penRef )
 	updatePen();				// force a non-cached GC
-    HANDLE h = cfont.handle();
-    if ( h ) {
-	XSetFont( dpy, gc, cfont.handle() );
-    }
 }
 
 
@@ -1002,6 +998,7 @@ bool QPainter::begin( const QPaintDevice *pd, bool unclipped )
     dpy = pdev->x11Display();			// get display variable
     scrn = pdev->x11Screen();		// get screen variable
     hd	= pdev->handle();			// get handle to drawable
+    rendhd = pdev->x11RenderHandle();
 
     if ( testf(ExtDev) ) {			// external device
 	if ( !pdev->cmd( QPaintDevice::PdcBegin, this, 0 ) ) {
@@ -1138,7 +1135,7 @@ bool QPainter::end()				// end painting
 
     //#### This should not be necessary:
     if ( pdev->devType() == QInternal::Widget  &&	// #####
-	 ((QWidget*)pdev)->testWFlags(WPaintUnclipped) ) { 
+	 ((QWidget*)pdev)->testWFlags(WPaintUnclipped) ) {
 	if ( gc )
 	    XSetSubwindowMode( dpy, gc, ClipByChildren );
 	if ( gc_brush )
@@ -1381,13 +1378,34 @@ void QPainter::setClipping( bool enable )
 	if ( brushRef )
 	    updateBrush();
 	XSetRegion( dpy, gc_brush, rgn.handle() );
+
+#ifndef QT_NO_XRENDER
+	if (rendhd)
+	    XRenderSetPictureClipRegion(dpy, rendhd, rgn.handle());
+#endif // QT_NO_XRENDER
+
     } else {
 	if ( pdev == paintEventDevice ) {
 	    XSetRegion( dpy, gc, paintEventClipRegion->handle() );
 	    XSetRegion( dpy, gc_brush, paintEventClipRegion->handle() );
+
+#ifndef QT_NO_XRENDER
+	    if (rendhd)
+		XRenderSetPictureClipRegion(dpy, rendhd, paintEventClipRegion->handle());
+#endif // QT_NO_XRENDER
+
 	} else {
 	    XSetClipMask( dpy, gc, None );
 	    XSetClipMask( dpy, gc_brush, None );
+
+#ifndef QT_NO_XRENDER
+	    if (rendhd) {
+		XRenderPictureAttributes pattr;
+		pattr.clip_mask = None;
+		XRenderChangePicture(dpy, rendhd, CPClipMask, &pattr);
+	    }
+#endif // QT_NO_XRENDER
+
 	}
     }
 }
@@ -2873,28 +2891,13 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 	    map( x, y, &x, &y );
     }
 
-    // we are going to to this:
-    //
-    // 1. allocate an array of script/pixeloffset/stringoffset truples as long as
-    //    the string
-    // 2. (a.) find all encoding boundaries,
-    //    (b.) calc all string widths and
-    //    (c.) put them into the allocated array
-    // 3. find the first language/offset pair and set the GC's font
-    // 4. if no language/offset pair is found, stop
-    // 5. step through the array and draw all text in current language (zero'ing the
-    //    pairs after drawing)
-    // 6. goto step 3;
-    // 7. delete array from step 1
-
-    // step 1
-
     QString shaped = QComplexText::shapedString( str,  pos, len, dir );
     len = shaped.length();
 
     QFontPrivate::TextRun *cache = new QFontPrivate::TextRun();
     int width = cfont.d->textWidth( shaped, 0, len, cache );
-    cfont.d->drawText( dpy, hd, gc, x, y, cache );
+    cfont.d->drawText( dpy, scrn, hd, rendhd, gc, cpen.color(), (Qt::BGMode) bg_mode,
+		       bg_col, x, y, cache );
 
     delete cache;
 

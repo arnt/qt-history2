@@ -89,6 +89,20 @@ extern "C" {
 }
 #endif // QT_NO_XINERAMA
 
+// #define QT_NO_XRENDER
+#ifndef QT_NO_XRENDER
+#  include <X11/extensions/Xrender.h>
+// #define QT_NO_XFTFREETYPE
+#  ifndef QT_NO_XFTFREETYPE
+#    include <X11/Xft/XftFreetype.h>
+#  endif // QT_NO_XFTFREETYPE
+#else
+// make sure QT_NO_XFTTREETYPE is defined if QT_NO_XRENDER is defined
+#  ifndef QT_NO_XFTFREETYPE
+#    define QT_NO_XFTFREETYPE
+#  endif
+#endif // QT_NO_XRENDER
+
 #if !defined(XlibSpecificationRelease)
 #define X11R4
 typedef char *XPointer;

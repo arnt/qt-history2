@@ -328,6 +328,10 @@ Atom		*qt_net_supported_list	= 0;
 // list of virtual root windows
 Window		*qt_net_virtual_root_list	= 0;
 
+// TRUE if Qt is compiled w/ XRender support and XRender exists on the connected
+// Display
+bool	qt_use_xrender	= FALSE;
+
 static Window	mouseActWindow	     = 0;	// window where mouse is
 static int	mouseButtonPressed   = 0;	// last mouse button pressed
 static int	mouseButtonState     = 0;	// mouse button state
@@ -1952,6 +1956,18 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 	// initialize NET lists
 	qt_get_net_supported();
 	qt_get_net_virtual_roots();
+
+#ifndef QT_NO_XRENDER
+	// See if XRender is supported on the connected display
+	int xrender_eventbase, xrender_errorbase;
+	if (XRenderQueryExtension(appDpy, &xrender_eventbase, &xrender_errorbase)) {
+	    // XRender is supported, let's see if we have a PictFormat for the
+	    // default visual
+	    qt_use_xrender =
+		(XRenderFindVisualFormat(appDpy,
+					 (Visual *) QPaintDevice::x_appvisual) != 0);
+	}
+#endif // QT_NO_XRENDER
 
 	// Misc. initialization
 

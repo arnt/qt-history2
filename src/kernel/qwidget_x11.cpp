@@ -71,6 +71,8 @@ static QWidget *mouseGrb    = 0;
 static QWidget *keyboardGrb = 0;
 
 extern Time qt_x_time; // defined in qapplication_x11.cpp
+extern bool qt_use_xrender; // defined in qapplication_x11.cpp
+
 int qt_x11_create_desktop_on_screen = -1;
 
 /*****************************************************************************
@@ -141,7 +143,6 @@ Window qt_XCreateSimpleWindow( const QWidget *creator,
 			       ulong border, ulong background );
 void qt_XDestroyWindow( const QWidget *destroyer,
 			Display *display, Window window );
-
 
 
 /*!
@@ -265,8 +266,22 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 					CWBackPixel|CWBorderPixel|CWColormap,
 					&wsa );
 	}
+
 	setWinId( id );				// set widget id/handle + hd
     }
+
+#ifndef QT_NO_XRENDER
+    if (rendhd) {
+	XRenderFreePicture(dpy, rendhd);
+	rendhd = 0;
+    }
+
+    if (qt_use_xrender) {
+	XRenderPictFormat *format = XRenderFindVisualFormat(dpy, (Visual *) x11Visual());
+	if (format)
+	    rendhd = XRenderCreatePicture(dpy, id, format, 0, 0);
+    }
+#endif // QT_NO_XRENDER
 
     // NET window types
     long net_wintypes[4] = { 0, 0, 0, 0 };
@@ -410,8 +425,8 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 
 	// set _NET_WM_WINDOW_TYPE
 	if (curr_wintype > 0)
-	XChangeProperty(dpy, id, qt_net_wm_window_type, XA_ATOM, 32, PropModeReplace,
-			(unsigned char *) net_wintypes, curr_wintype);
+	    XChangeProperty(dpy, id, qt_net_wm_window_type, XA_ATOM, 32, PropModeReplace,
+			    (unsigned char *) net_wintypes, curr_wintype);
 
 	// set _NET_WM_WINDOW_STATE
 	if (curr_winstate > 0)
@@ -517,6 +532,14 @@ void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
 	    qt_leave_modal( this );
 	else if ( testWFlags(WType_Popup) )
 	    qApp->closePopup( this );
+
+#ifndef QT_NO_XRENDER
+	if (rendhd) {
+	    XRenderFreePicture(x11Display(), rendhd);
+	    rendhd = 0;
+	}
+#endif // QT_NO_XRENDER
+
 	if ( testWFlags(WType_Desktop) ) {
 	    if ( acceptDrops() )
 		qt_dnd_enable( this, FALSE );
@@ -581,7 +604,6 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
     WId old_winid = winid;
     if ( testWFlags(WType_Desktop) )
 	old_winid = 0;
-
     setWinId( 0 );
     if ( isTopLevel() )
 	topData()->parentWinId = 0;
@@ -645,10 +667,8 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 	show();
     if ( old_winid )
 	qt_XDestroyWindow( this, dpy, old_winid );
-
-    if ( setcurs ) {
+    if ( setcurs )
 	setCursor(oldcurs);
-    }
 
     reparentFocusWidgets( oldtlw );
 
@@ -2416,7 +2436,7 @@ void QWidget::updateFrameStrut() const
 	    XFree(c);
 
 	if (! p) {
-	    qDebug("QWidget::updateFrameStrut(): ERROR - no parent");
+	    qWarning("QWidget::updateFrameStrut(): ERROR - no parent");
 	    return;
 	}
 
