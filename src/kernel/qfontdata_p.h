@@ -171,7 +171,7 @@ public:
 
 #if defined( Q_WS_MAC )
 
-#ifdef Q_WS_MACX
+#if defined( Q_WS_MACX ) && !defined( MACOSX_102 )
 # define QMAC_FONT_ATSUI
 #endif
 #include "qt_mac.h"
