@@ -2914,8 +2914,8 @@ __RCSID("$NetBSD: strtod.c,v 1.26 1998/02/03 18:44:21 perry Exp $");
 
 #if defined(__m68k__)    || defined(__sparc__) || defined(__i386__) || \
      defined(__mips__)    || defined(__ns32k__) || defined(__alpha__) || \
-     defined(__powerpc__) || defined(Q_OS_WIN) || defined(Q_OS_DARWIN) || \
-     defined(Q_OS_MACX) || defined(Q_OS_AIX) || defined(mips)
+     defined(__powerpc__) || defined(Q_OS_WIN) || defined(Q_OS_DARWIN) || defined(Q_OS_MACX) || \
+     defined(mips) || defined(Q_OS_AIX)
 #   	define IEEE_BIG_OR_LITTLE_ENDIAN 1
 #endif
 
