@@ -223,16 +223,13 @@ void QGridView::paintEmptyArea( QPainter *p, int cx ,int cy, int cw, int ch)
     contentsToViewport( cx, cy, cx, cy );
     QRegion reg( QRect( cx, cy, cw, ch ) );
     // Subtract the table from it
-    qDebug("grid: %d %d", gridSize().width(), gridSize().height() );
     reg = reg.subtract( QRect( contentsToViewport( QPoint( 0, 0 ) ), gridSize() ) );
 
     // And draw the rectangles (transformed as needed)
     QMemArray<QRect> r = reg.rects();
     QBrush brush = backgroundBrush();
-    for ( int i = 0; i < (int)r.count(); ++i) {
-	qDebug("fill rect %d %d %d %d", r[i].x(), r[i].y(), r[i].width(), r[i].height() );
+    for ( int i = 0; i < (int)r.count(); ++i)
 	p->fillRect( r[ i ], brush );
-    }
 }
 
 /*!\reimp
