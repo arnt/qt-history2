@@ -17,6 +17,37 @@
 #include <qapplication.h>
 #include <qfiledialog.h>
 
+
+TeamPicker::TeamPicker( QWidget * parent = 0, const char * name = 0 )
+    : QComboBox( parent, name )
+{
+    //    setFocusPolicy( StrongFocus );
+    QSqlCursor team( "team" );
+    team.select( team.index("name") );
+    int idx = 0;
+    while( team.next() ) {
+	insertItem( team.value("name").toString(), idx );
+	index2Id[idx] = team.value("id").toInt();
+	idx++;
+    }
+}
+
+int TeamPicker::teamId() const
+{
+    return index2Id[ currentItem() ];
+}
+
+void TeamPicker::setTeamId( int id )
+{
+    QMap<int,int>::Iterator it;
+    for( it = index2Id.begin(); it != index2Id.end(); ++it ) {
+	if ( it.data() == id ) {
+	    setCurrentItem( it.key() );
+	    break;
+	}
+    }
+}
+
 MatchCursor::MatchCursor()
     : QSqlCursor( "match" )
 {
@@ -29,13 +60,13 @@ MatchCursor::MatchCursor()
     field("wins")->setDisplayLabel( "Wins" );
     field("date")->setDisplayLabel( "Date" );
     field("sets")->setDisplayLabel( "Sets" );
-    
+
     // add lookup field
 
     QSqlField loser("loser", QVariant::String );
     loser.setDisplayLabel("Loser");
     loser.setCalculated( TRUE );
-    prepend( loser );    
+    prepend( loser );
 
     QSqlField winner("winner", QVariant::String );
     winner.setDisplayLabel("Winner");
@@ -44,10 +75,10 @@ MatchCursor::MatchCursor()
 }
 
 QVariant MatchCursor::calculateField( uint fieldNumber )
-{    
-    qDebug("here? %s, %s", (const char *)field(0)->value().toString(), 
+{
+    qDebug("here? %s, %s", (const char *)field(0)->value().toString(),
        (const char *)field(1)->value().toString());
-    
+
     if( field( fieldNumber )->name() == "winner" ){ // Winner team
 	teamCr->setValue( "id", field("winnerid")->value() );
     } else if( field( fieldNumber )->name() == "loser" ){ // Looser team
@@ -68,7 +99,7 @@ PingPongApp::PingPongApp( QWidget * parent, const char * name )
 
 void PingPongApp::init()
 {
-    setCaption( "PingPong Statistics" );
+    setCaption( "Trolltech PingPong Statistics" );
 
     // Setup menus
     QPopupMenu * menu = new QPopupMenu( this );
@@ -133,6 +164,7 @@ void PingPongApp::init()
     matchTable->setConfirmEdits( TRUE );
     matchTable->setConfirmCancels( TRUE );
     matchTable->setCursor( &matchCr );
+    matchTable->setReadOnly( TRUE );    
 }
 
 void PingPongApp::insertMatch()
