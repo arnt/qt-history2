@@ -205,7 +205,6 @@ void QGLContext::fixBufferRect()
 	QRegion clp = w->clippedRegion();
 	SetClip((RgnHandle)clp.handle());
 	if(clp.isEmpty() || clp.isNull()) {
-	    qDebug("using..");
 	    GLint offs[4] = { 0, 0, 0, 0 };
 	    aglSetInteger((AGLContext)cx, AGL_BUFFER_RECT, offs);
 	} else {
