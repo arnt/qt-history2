@@ -1,6 +1,62 @@
 #include "qtextcodecplugin.h"
 #include "qtextcodecinterface_p.h"
 
+/*!   \class QTextCodecPlugin qtextcodecplugin.h
+  \brief The QTextCodecPlugin class provides an abstract base for custom QTextCodec plugins
+  \ingroup plugins
+  \mainclass
+
+  The style plugin is a simple plugin interface that makes it easy to
+  create custom text codecs that can be loaded dynamically into
+  applications.
+  
+  Writing a text codec plugin is achieved by subclassing this
+  baseclass, reimplementing the pure virtual functions names(),
+  createForName(), mibEnums() and createForMib() , and exporting the
+  class with the Q_EXPORT_PLUGIN macro.  See the \link plugins.html Qt
+  Plugins documentation \endlink for details.
+
+  See the \link ftp://ftp.isi.edu/in-notes/iana/assignments/character-sets IANA
+  character-sets encoding file\endlink for more information on mime
+  names and mib enums.
+
+*/
+
+/*! \fn QStringList QTextCodecPlugin::names() const
+  
+  Returns the list of mime names this plugin supports. 
+  
+  
+  \sa createForName()
+*/
+
+/*! \fn QTextCodec *QTextCodecPlugin::createForName( const QString &name );
+  
+  Creates a QTextCodec object for \a name.
+  
+  \sa names()
+*/
+
+
+/*! \fn QValueList<int> QTextCodecPlugin::mibEnums() const
+  
+  Returns the list of mib enums this plugin supports.
+  
+  
+  \sa createForMib()
+*/
+
+/*! \fn QTextCodec *QTextCodecPlugin::createForMib( int mib );
+  
+  Creates a QTextCodec object for the mib enum \a mib.
+  (see \link ftp://ftp.isi.edu/in-notes/iana/assignments/character-sets
+  the IANA character-sets encoding file\endlink for more information)
+  
+  \sa mibEnums()
+*/
+  
+
+
 class QTextCodecPluginPrivate : public QTextCodecFactoryInterface
 {
 public:
@@ -15,7 +71,7 @@ public:
 
     QStringList featureList() const;
     QTextCodec *createForMib( int mib );
-    QTextCodec *createForName( const QString &key );
+    QTextCodec *createForName( const QString &name );
 
 private:
     QTextCodecPlugin *plugin;
@@ -45,7 +101,11 @@ QRESULT QTextCodecPluginPrivate::queryInterface( const QUuid &iid, QUnknownInter
 
 QStringList QTextCodecPluginPrivate::featureList() const
 {
-    return plugin->keys();
+    QStringList keys = plugin->names();
+    QValueList<int> mibs = plugin->mibEnums();
+    for ( QValueList<int>::Iterator it = mibs.begin(); it != mibs.end(); ++it )
+	keys += QString("MIB-%1").arg( *it );
+    return keys;
 }
 
 QTextCodec *QTextCodecPluginPrivate::createForMib( int mib )
@@ -59,12 +119,23 @@ QTextCodec *QTextCodecPluginPrivate::createForName( const QString &name )
 }
 
 
+/*!  
+  Constructs a text codec plugin. This is invoked automatically by
+  the Q_EXPORT_PLUGIN macro.
+ */
 QTextCodecPlugin::QTextCodecPlugin()
 {
     d = new QTextCodecPluginPrivate( this );
     _iface = d;
 }
 
+/*!
+  Destroys the text codec plugin.
+  
+  You never have to call this explicitely. Qt destroys a plugin
+  automatically when it is no longer used.
+  
+*/
 QTextCodecPlugin::~QTextCodecPlugin()
 {
 }

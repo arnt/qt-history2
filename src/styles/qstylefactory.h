@@ -13,10 +13,10 @@ class QStyle;
 class Q_EXPORT QStyleFactory
 {
 public:
-    static QStyle *create( const QString& );
 #ifndef QT_NO_STRINGLIST
-    static QStringList styles();
+    static QStringList keys();
 #endif
+    static QStyle *create( const QString& );
 };
 
 #endif //QT_NO_STYLE

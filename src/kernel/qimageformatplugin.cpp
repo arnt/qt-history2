@@ -2,6 +2,38 @@
 #include "qimageformatinterface_p.h"
 #include "qimage.h"
 
+/*!   \class QImageFormatPlugin qimageformatplugin.h
+  \brief The QImageFormatPlugin class provides an abstract base for custom QImageFormat plugins
+  \ingroup plugins
+  \mainclass
+
+  The image format  plugin is a simple plugin interface that makes it easy to
+  create custom image formats  that can be loaded dynamically into
+  applications.
+  
+  Writing an image format plugin is achieved by subclassing this
+  baseclass, reimplementing the pure virtual functions keys() and
+  installIOHandler(), and exporting the class with the Q_EXPORT_PLUGIN
+  macro.  See the \link plugins.html Plugins \endlink documentation
+  for details.
+*/
+
+/*! \fn QStringList QImageFormatPlugin::keys() const
+  
+  Returns the list of image formats this plugin supports.
+  
+  \sa installIOHandler()
+*/
+
+
+/*! \fn  bool QImageFormatPlugin::installIOHandler( const QString &format )
+  
+  Installs a QImageIO image I/O handler for the image format \a
+  format.
+  
+  \sa keys()
+*/
+
 class QImageFormatPluginPrivate : public QImageFormatInterface
 {
 public:
@@ -67,17 +99,30 @@ QRESULT QImageFormatPluginPrivate::installIOHandler( const QString &format )
     return plugin->installIOHandler( format ) ? QS_FALSE : QS_OK;
 }
 
-
+/*!
+  Constructs an image format plugin. This is invoked automatically by
+  the Q_EXPORT_PLUGIN macro.
+*/
 QImageFormatPlugin::QImageFormatPlugin()
 {
     d = new QImageFormatPluginPrivate( this );
     _iface = d;
 }
 
+/*!
+  Destroys the image format plugin.
+  
+  You never have to call this explicitely. Qt destroys a plugin
+  automatically when it is no longer used.
+  
+*/
 QImageFormatPlugin::~QImageFormatPlugin()
 {
 }
 
+
+/*!\internal
+ */
 bool QImageFormatPlugin::loadImage( const QString &format, const QString &filename, QImage *image )
 {
     Q_UNUSED( format )
@@ -86,6 +131,8 @@ bool QImageFormatPlugin::loadImage( const QString &format, const QString &filena
     return FALSE;
 }
 
+/*! \internal
+ */
 bool QImageFormatPlugin::saveImage( const QString &format, const QString &filename, const QImage &image )
 {
     Q_UNUSED( format )

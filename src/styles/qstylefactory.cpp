@@ -90,18 +90,27 @@ QStyleFactoryPrivate::~QStyleFactoryPrivate()
 /*!
   \class QStyleFactory qstylefactory.h
   \brief The QStyleFactory class creates QStyle objects.
-  \internal
+  
+  The style factory creates a QStyle object for a given key with
+  QStyleFactory::create(key).
+  
+  The styles are either built-in or dynamically loaded from a style
+  plugin (see \l QStylePlugin).
+  
+  QStyleFactory::keys() returns a list of valid keys. Qt currently
+  ships with "windows", "motif", "cde", "platinum", "sgi" and
+  "motifplus".
+  
 */
 
-/*!
-  Creates a QStyle object that matches \a s. This is either a built-in style,
-  or a style from a style plugin.
+/*!  Creates a QStyle object that matches \a key. This is either a
+  built-in style, or a style from a style plugin.
 
-  \sa styles()
+  \sa keys()
 */
-QStyle *QStyleFactory::create( const QString& s )
+QStyle *QStyleFactory::create( const QString& key )
 {
-    QString style = s.lower();
+    QString style = key.lower();
 #ifndef QT_NO_STYLE_WINDOWS
     if ( style == "windows" )
         return new QWindowsStyle;
@@ -164,12 +173,13 @@ QStyle *QStyleFactory::create( const QString& s )
 }
 
 #ifndef QT_NO_STRINGLIST
-/*!
-  Returns a list of all styles this factory can generate.
+/*!  
+  Returns the list of keys  this factory can create
+  styles for.
 
   \sa create()
 */
-QStringList QStyleFactory::styles()
+QStringList QStyleFactory::keys()
 {
 #ifndef QT_NO_COMPONENT
     if ( !instance )
