@@ -2439,6 +2439,29 @@ void QTextStream::setCodec(QTextCodec *codec)
 }
 
 /*!
+    Sets the codec for this stream to the QTextCodec for the encoding
+    specified by \a codecName. Common values for \c codecName include
+    "ISO 8859-1", "UTF-8", and "UTF-16". If the encoding isn't
+    recognized, nothing happens.
+
+    Example:
+
+    \code
+        QTextStream out(&file);
+        out.setCodec("UTF-8");
+    \endcode
+
+    \sa QTextCodec::codecForName()
+*/
+void QTextStream::setCodec(const char *codecName)
+{
+    Q_D(QTextStream);
+    QTextCodec *codec = QTextCodec::codecForName(codecName);
+    if (codec)
+        d->codec = codec;
+}
+
+/*!
     Returns the codec that is current assigned to the stream.
 
     \sa setCodec(), setAutoDetectUnicode()
