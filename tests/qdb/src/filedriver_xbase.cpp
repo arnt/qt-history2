@@ -47,7 +47,7 @@ public:
     QVector<xbNdx> indexes;
 };
 
-FileDriver::FileDriver( Interpreter::Environment* environment, const QString& name = QString::null )
+FileDriver::FileDriver( qdb::Environment* environment, const QString& name = QString::null )
     : nm( name ), env( environment )
 {
     d = new Private();
@@ -60,7 +60,7 @@ FileDriver::~FileDriver()
 }
 
 FileDriver::FileDriver( const FileDriver& other )
-    : Interpreter::FileDriver(), nm( other.nm ), env( other.env )
+    : qdb::FileDriver(), nm( other.nm ), env( other.env )
 {
     *d = *other.d;
     setIsOpen( FALSE );

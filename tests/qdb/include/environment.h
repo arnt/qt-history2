@@ -13,7 +13,7 @@ typedef QValueList<QVariant> Record;
 typedef QValueList<Record> Data;
 typedef QMap< QVariant, QValueList<int> > ColumnKey;
 
-namespace Interpreter {
+namespace qdb {
 
     struct Parser {
 	//## todo
