@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsignal.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qsignal.cpp#3 $
 **
 ** Implementation of QSignal class
 **
@@ -15,7 +15,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qsignal.cpp#2 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qsignal.cpp#3 $";
 #endif
 
 
@@ -64,13 +64,12 @@ void QSignal::initMetaObject()			// initialize meta object
 	return;
     if ( !QObject::metaObject() )
 	QObject::initMetaObject();
-    typedef void (QSignal::*m3_t0)();
-    m3_t0 v3_0 = &QSignal::dummy;
+    typedef void (QSignal::*m2_t0)();
+    m2_t0 v2_0 = &QSignal::dummy;
     QMetaData *signal_tbl = new QMetaData[1];
     signal_tbl[0].name = "x()";			// fake signal x in meta object
-    signal_tbl[0].ptr = *((QMember*)&v3_0);
+    signal_tbl[0].ptr = *((QMember*)&v2_0);
     metaObj = new QMetaObject( "QSignal", "QObject",
-	0, 0,
 	0, 0,
 	signal_tbl, 1 );
 }
