@@ -6,8 +6,8 @@
 class Config : public QDialog, public Ui::Config
 {
 public:
-    Config(QWidget *parent = 0)
-        : QDialog(parent)
+    Config(QWidget *parent = 0, Qt::WFlags flags = 0)
+        : QDialog(parent, flags)
     {
         setupUi(this);
     }

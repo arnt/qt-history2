@@ -304,7 +304,7 @@ void QVFb::aboutQt()
 
 void QVFb::configure()
 {
-    config = new Config(this,0,TRUE);
+    config = new Config(this, Qt::WShowModal);
 
     int w = view->displayWidth();
     int h = view->displayHeight();
