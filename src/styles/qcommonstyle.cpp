@@ -754,19 +754,27 @@ QRect QCommonStyle::subRect(SubRect r, const QWidget *widget) const
 	    dx1 += pixelMetric(PM_ButtonDefaultIndicator, widget);
 	dx2 = dx1 * 2;
 
-	rect.setRect(wrect.left()   + dx1,
-		     wrect.top()    + dx1,
-		     wrect.right()  - dx2 + 1,
-		     wrect.bottom() - dx2 + 1);
+	rect.setRect(wrect.x()      + dx1,
+		     wrect.y()      + dx1,
+		     wrect.width()  - dx2,
+		     wrect.height() - dx2);
 	break; }
 
     case SR_PushButtonFocusRect: {
+	QPushButton *button = (QPushButton *) widget;
+	int dbw1 = 0, dbw2 = 0;
+	if (button->isDefault() || button->autoDefault()) {
+	    dbw1 = pixelMetric(PM_ButtonDefaultIndicator, widget);
+	    dbw2 = dbw1 * 2;
+	}
+
 	int dfw1 = pixelMetric(PM_DefaultFrameWidth, widget) * 2,
 	    dfw2 = dfw1 * 2;
-	rect.setRect(wrect.left()   + dfw1,
-		     wrect.top()    + dfw1,
-		     wrect.right()  - dfw2 + 1,
-		     wrect.bottom() - dfw2 + 1);
+
+	rect.setRect(wrect.x()      + dfw1 + dbw1,
+		     wrect.y()      + dfw1 + dbw1,
+		     wrect.width()  - dfw2 - dbw2,
+		     wrect.height() - dfw2 - dbw2);
 	break; }
 
     case SR_CheckBoxIndicator:
@@ -1732,6 +1740,8 @@ QSize QCommonStyle::sizeFromContents(ContentsType contents,
 	    w += dbw;
 	    h += dbw;
 	}
+
+	w += h;
 
 	sz = QSize(w, h);
 	break; }

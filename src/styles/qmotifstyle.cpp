@@ -103,26 +103,6 @@ QMotifStyle::~QMotifStyle()
 {
 }
 
-/*!\reimp
-*/
-int QMotifStyle::buttonDefaultIndicatorWidth() const
-{
-#define Q_NICE_MOTIF_DEFAULT_BUTTON
-#ifdef Q_NICE_MOTIF_DEFAULT_BUTTON
-    return 3;
-#endif
-}
-
-/*!\reimp
-*/
-int QMotifStyle::sliderThickness() const
-{
-#define Q_NICE_MOTIF_SLIDER_THICKNESS
-#ifdef Q_NICE_MOTIF_SLIDER_THICKNESS
-    return 24;
-#endif
-}
-
 /*!
   If the argument is FALSE, the style will polish the
   application's color palette to emulate the
@@ -820,14 +800,11 @@ void QMotifStyle::drawControl( ControlElement element,
 	    QCommonStyle::drawControl( element, p, widget, r, cg, how, data );
 	}
 	break; }
-	
+
     case CE_ProgressBar: {
 	QProgressBar *progressbar = (QProgressBar *) widget;
 
 	qDrawShadePanel(p, r, cg, TRUE, 2);
-// 	p->fillRect( r.x() + 2, r.y() + 2, r.width() - 4, r.height() - 4, 
-// 		     cg.base() );
-	
 
 	if ( !progressbar->totalSteps() ) {
 	    // draw busy indicator
@@ -859,14 +836,14 @@ void QMotifStyle::drawControl( ControlElement element,
 	    // with a percentage text display at the end.
 	    int x = 0;
 	    for (int i=0; i<nu; i++) {
-		p->fillRect(r.x() + x + 2, r.y() + 2, unit_width - 2, 
+		p->fillRect(r.x() + x + 2, r.y() + 2, unit_width - 2,
 			    r.height() - 4, cg.brush(QColorGroup::Highlight));
 		x += unit_width;
 	    }
 	}
 
 	break; }
-    
+
     case CE_ProgressBarLabel: {
 	QProgressBar * pb = (QProgressBar *) widget;
 	const int unit_width = pixelMetric( PM_ProgressBarChunkWidth, pb );
@@ -887,11 +864,11 @@ void QMotifStyle::drawControl( ControlElement element,
 	    if ( pb->progress() != pb->totalSteps() ) {
 		p->setClipRect( r.x() + x, r.y(), r.width() - x, r.height() );
 		p->setPen( cg.highlight() );
-		p->drawText( r, AlignCenter | SingleLine, pb->progressString() );	
+		p->drawText( r, AlignCenter | SingleLine, pb->progressString() );
 	    }
 	}
 	break; }
-    
+
 #ifndef QT_NO_POPUPMENU
     case CE_PopupMenuItem: {
 	if (! widget || ! data)
@@ -1364,7 +1341,7 @@ int QMotifStyle::pixelMetric( PixelMetric metric, const QWidget *widget ) const
     case PM_DockWindowHandleExtent:
 	ret = 9;
 	break;
-	
+
     case PM_ProgressBarChunkWidth:
 	ret = 1;
 	break;
@@ -1573,11 +1550,60 @@ QRect QMotifStyle::querySubControlMetrics( ComplexControl control,
 }
 
 QSize QMotifStyle::sizeFromContents( ContentsType contents,
-				     const QWidget *w,
+				     const QWidget *widget,
 				     const QSize &contentsSize,
 				     void **data ) const
 {
-    return QCommonStyle::sizeFromContents( contents, w, contentsSize, data );
+    QSize sz(contentsSize);
+
+    switch(contents) {
+    case CT_PushButton:
+	sz = QCommonStyle::sizeFromContents(contents, widget, contentsSize, data);
+	if (sz.width() < 80)
+	    sz.setWidth(80);
+	break;
+
+    case CT_PopupMenuItem: {
+	if (! widget || ! data)
+	    break;
+
+	QPopupMenu *popup = (QPopupMenu *) widget;
+	bool checkable = popup->isCheckable();
+	QMenuItem *mi = (QMenuItem *) data[0];
+	int maxpmw = *((int *) data[1]);
+	int w = sz.width(), h = sz.height() + 2*motifItemVMargin + 2*motifItemFrame;
+
+	if ( mi->isSeparator() ) {
+	    w = 10;
+	    h = motifSepHeight;
+	    break;
+	}
+
+	if ( !mi->text().isNull() ) {
+	    if ( mi->text().find('\t') >= 0 )       // string contains tab
+		w += motifTabSpacing;
+	}
+
+	// a little bit of border can never harm
+	w += 2*motifItemHMargin + 2*motifItemFrame;
+	if ( checkable && maxpmw < motifCheckMarkSpace)
+	    maxpmw = motifCheckMarkSpace;
+	w += maxpmw;
+
+	// if we have a check-column ( iconsets or checkmarks), add space
+	// to separate the columns
+	if ( maxpmw > 0 || checkable )
+	    w += motifCheckMarkHMargin;
+
+	sz = QSize(w, h);
+	break; }
+
+    default:
+	sz = QCommonStyle::sizeFromContents( contents, widget, contentsSize, data );
+	break;
+    }
+
+    return sz;
 }
 
 QRect QMotifStyle::subRect( SubRect r, const QWidget *widget ) const
@@ -1614,15 +1640,15 @@ QRect QMotifStyle::subRect( SubRect r, const QWidget *widget ) const
 		rect.setRect(0, 2, widget->width() - 15, widget->height() - 2);
 	}
 	break; }
-    
+
     case SR_ProgressBarContents: {
 	rect = widget->rect();
 	break; }
-    
+
     case SR_ProgressBarLabel: {
 	rect = widget->rect();
 	break; }
-	
+
     default:
 	rect = QCommonStyle::subRect( r, widget );
     }
@@ -1639,56 +1665,6 @@ void QMotifStyle::polishPopupMenu( QPopupMenu* p)
     if ( !p->testWState( WState_Polished ) )
         p->setCheckable( FALSE );
     p->setLineWidth( 2 );
-}
-
-/*! \reimp
-*/
-int QMotifStyle::extraPopupMenuItemWidth( bool checkable, int maxpmw,
-                                          QMenuItem* mi,
-                                          const QFontMetrics&/* fm */) const
-{
-    int w = 2*motifItemHMargin + 2*motifItemFrame; // a little bit of border can never harm
-
-    if ( mi->isSeparator() )
-        return 10; // arbitrary
-    else if ( mi->pixmap() )
-        w += mi->pixmap()->width();     // pixmap only
-
-    if ( !mi->text().isNull() ) {
-        if ( mi->text().find('\t') >= 0 )       // string contains tab
-            w += motifTabSpacing;
-    }
-
-    if ( checkable )
-        maxpmw = QMAX( maxpmw, motifCheckMarkSpace );
-    w += maxpmw;
-
-    if ( maxpmw > 0 || checkable ) // we have a check-column ( iconsets or checkmarks)
-        w += motifCheckMarkHMargin; // add space to separate the columns
-
-    return w;
-}
-
-/*! \reimp
-*/
-int QMotifStyle::popupMenuItemHeight( bool /* checkable*/, QMenuItem* mi,
-                                      const QFontMetrics& fm ) const
-{
-    int h = 0;
-    if ( mi->isSeparator() ) {                  // separator height
-        h = motifSepHeight;
-    } else if ( mi->pixmap() ) {                // pixmap height
-        h = mi->pixmap()->height() + 2*motifItemFrame;
-    } else {                                    // text height
-        h = fm.height() + 2*motifItemVMargin + 2*motifItemFrame;
-    }
-    if ( !mi->isSeparator() && mi->iconSet() != 0 ) {
-        h = QMAX( h, mi->iconSet()->pixmap( QIconSet::Small, QIconSet::Normal ).height() + 2*motifItemFrame );
-        h += 2;                         // Room for check rectangle
-    }
-    if ( mi->custom() )
-        h = QMAX( h, mi->custom()->sizeHint().height() + 2*motifItemVMargin + 2*motifItemFrame );
-    return h;
 }
 
 /*!
@@ -1889,27 +1865,26 @@ static const char * const qt_unshade_xpm[] = {
 /*!
  \reimp
  */
-QPixmap QMotifStyle::titleBarPixmap( const QTitleBar *, SubControl ctrl) const
+QPixmap QMotifStyle::stylePixmap(StylePixmap sp, const QWidget *, void **) const
 {
-    switch(ctrl) {
-    case SC_TitleBarShadeButton:
+    switch (sp) {
+    case SP_TitleBarShadeButton:
 	return QPixmap((const char **)qt_shade_xpm);
-    case SC_TitleBarUnshadeButton:
+    case SP_TitleBarUnshadeButton:
 	return QPixmap((const char **)qt_unshade_xpm);
-    case SC_TitleBarNormalButton:
+    case SP_TitleBarNormalButton:
 	return QPixmap((const char **)qt_normalizeup_xpm);
-    case SC_TitleBarMinButton:
+    case SP_TitleBarMinButton:
 	return QPixmap((const char **)qt_minimize_xpm);
-    case SC_TitleBarMaxButton:
+    case SP_TitleBarMaxButton:
 	return QPixmap((const char **)qt_maximize_xpm);
-    case SC_TitleBarCloseButton:
+    case SP_TitleBarCloseButton:
 	return QPixmap((const char **)qt_close_xpm);
     default:
 	break;
     }
     return QPixmap();
 }
-
 
 
 #endif

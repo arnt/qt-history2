@@ -67,6 +67,8 @@ public:
     void polish( QWidget* );
     void polish( QApplication* );
 
+    void polishPopupMenu( QPopupMenu* );
+
     // new style API
     void drawPrimitive( PrimitiveOperation op,
 			QPainter *p,
@@ -111,23 +113,13 @@ public:
     int pixelMetric( PixelMetric metric, const QWidget *widget = 0 ) const;
 
     QSize sizeFromContents( ContentsType contents,
-			   const QWidget *w,
+			   const QWidget *widget,
 			   const QSize &contentsSize,
 			   void **data ) const;
 
     QRect subRect( SubRect r, const QWidget *widget ) const;
 
-    void polishPopupMenu( QPopupMenu* );
-    int extraPopupMenuItemWidth( bool checkable, int maxpmw, QMenuItem* mi,
-                                 const QFontMetrics& fm ) const;
-    int popupMenuItemHeight( bool checkable, QMenuItem* mi,
-                             const QFontMetrics& fm ) const;
-
-    int buttonDefaultIndicatorWidth() const;
-    int sliderThickness() const;
-
-    // title bar
-    QPixmap titleBarPixmap( const QTitleBar *, SubControl ) const;
+    QPixmap stylePixmap(StylePixmap, const QWidget * = 0, void **data = 0) const;
 
     // listview item
     void drawListViewItemBranch( QPainter *, int, int, int, const QColorGroup & cg, QListViewItem * );
