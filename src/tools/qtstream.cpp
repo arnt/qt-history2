@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtstream.cpp#8 $
+** $Id: //depot/qt/main/src/tools/qtstream.cpp#9 $
 **
 ** Implementation of QTextStream class
 **
@@ -18,7 +18,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qtstream.cpp#8 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qtstream.cpp#9 $";
 #endif
 
 
@@ -36,6 +36,15 @@ appropriate for dealing with binary data (but QDataStream is).
 
 \sa QDataStream.
 */
+
+/*! \class QTSManip
+
+  \brief The QTSManip stream is used for manipuating QTextStream in
+  much the same way as iomanip manipulates iostream.
+
+  This class is not yet documented.  Our <a
+  href=http://www.troll.no/>home page</a> contains a pointer to the
+  current version of Qt. */
 
 
 // --------------------------------------------------------------------------
