@@ -104,10 +104,7 @@ QUuid VcprojGenerator::getProjectUUID()
     // If none, create one based on the MD5 of absolute project path
     if (uuid.isNull()) {
 	QString abspath = project->first("QMAKE_MAKEFILE");
-	QByteArray buffer;
-	buffer.setRawData((const char*)abspath.unicode(), abspath.length() * sizeof(QChar));
-	qtMD5(buffer, (unsigned char*)(&uuid));
-	buffer.resetRawData((const char*)abspath.unicode(), abspath.length() * sizeof(QChar));
+	qtMD5(abspath.utf8(), (unsigned char*)(&uuid));
 	validUUID = !uuid.isNull();
 	uuid.data4[0] = (uuid.data4[0] & 0x3F) | 0x80; // UV_DCE variant
 	uuid.data3 = (uuid.data3 & 0x0FFF) | (Qt::UV_Name<<12);
