@@ -23,15 +23,16 @@
 #define d d_func()
 #define q q_func()
 
-class QSqlDriverPrivate: public QObjectPrivate
+class QSqlDriverPrivate : public QObjectPrivate
 {
 public:
     QSqlDriverPrivate();
     virtual ~QSqlDriverPrivate();
+
 public:
     QSqlDriver *q;
-    uint isOpen: 1;
-    uint isOpenError: 1;
+    uint isOpen : 1;
+    uint isOpenError : 1;
     QSqlError error;
 };
 
@@ -56,7 +57,8 @@ QSqlDriverPrivate::~QSqlDriverPrivate()
 
     If you want to create your own SQL drivers, you can subclass this
     class and reimplement its pure virtual functions and those
-    virtual functions that you need.
+    virtual functions that you need. See \l{How to Write Your Own
+    Database Driver} for more information.
 
     \sa QSqlDatabase, QSqlResult
 */
@@ -65,7 +67,7 @@ QSqlDriverPrivate::~QSqlDriverPrivate()
     Constructs a new driver with the given \a parent.
 */
 
-QSqlDriver::QSqlDriver(QObject * parent)
+QSqlDriver::QSqlDriver(QObject *parent)
     : QObject(*new QSqlDriverPrivate, parent)
 {
 }
@@ -79,14 +81,15 @@ QSqlDriver::~QSqlDriver()
 }
 
 /*!
-    \fn bool QSqlDriver::open(const QString& db, const QString& user, const QString& password, const QString& host, int port, const QString& connOpts)
+    \fn bool QSqlDriver::open(const QString &db, const QString &user, const QString& password,
+                              const QString &host, int port, const QString &options)
 
-    Derived classes must reimplement this pure virtual function in
-    order to open a database connection on database \a db, using user
-    name \a user, password \a password, host \a host, port \a port and
-    connection options \a connOpts.
+    Derived classes must reimplement this pure virtual function to
+    open a database connection on database \a db, using user name \a
+    user, password \a password, host \a host, port \a port and
+    connection options \a options.
 
-    The function \e must return true on success and false on failure.
+    The function must return true on success and false on failure.
 
     \sa setOpen()
 */
@@ -98,7 +101,7 @@ QSqlDriver::~QSqlDriver()
     order to close the database connection. Return true on success,
     false on failure.
 
-    \sa open() setOpen()
+    \sa open(), setOpen()
 */
 
 /*!
@@ -135,20 +138,20 @@ bool QSqlDriver::isOpenError() const
     This enum contains a list of features a driver might support. Use
     hasFeature() to query whether a feature is supported or not.
 
-    \value Transactions  whether the driver supports SQL transactions
-    \value QuerySize  whether the database is capable of reporting the size
+    \value Transactions  Whether the driver supports SQL transactions.
+    \value QuerySize  Whether the database is capable of reporting the size
     of a query. Note that some databases do not support returning the size
     (i.e. number of rows returned) of a query, in which case
-    QSqlQuery::size() will return -1
-    \value BLOB  whether the driver supports Binary Large Object fields
-    \value Unicode  whether the driver supports Unicode strings if the
-    database server does
-    \value PreparedQueries  whether the driver supports prepared query execution
-    \value NamedPlaceholders  whether the driver supports the use of named placeholders
-    \value PositionalPlaceholders  whether the driver supports the use of positional placeholders
+    QSqlQuery::size() will return -1.
+    \value BLOB  Whether the driver supports Binary Large Object fields.
+    \value Unicode  Whether the driver supports Unicode strings if the
+    database server does.
+    \value PreparedQueries  Whether the driver supports prepared query execution.
+    \value NamedPlaceholders  Whether the driver supports the use of named placeholders.
+    \value PositionalPlaceholders  Whether the driver supports the use of positional placeholders.
 
     More information about supported features can be found in the
-    \link sql-driver.html Qt SQL driver\endlink documentation.
+    \l{sql-driver.html}{Qt SQL driver} documentation.
 
     \sa hasFeature()
 */
@@ -156,22 +159,22 @@ bool QSqlDriver::isOpenError() const
 /*!
     \enum QSqlDriver::StatementType
 
-    This enum contains a list of SQL statement types the driver can create.
+    This enum contains a list of SQL statement (or clause) types the
+    driver can create.
 
-    \value WhereStatement  a SQL WHERE statement, for example \c{WHERE f = 5}
-    \value SelectStatement a SQL SELECT statement, for example \c{SELECT f FROM t}
-    \value UpdateStatement a SQL UPDATE statement, for example \c{UPDATE TABLE t set f = 1}
-    \value InsertStatement a SQL INSERT statement, for example \c{INSERT INTO t (f) values (1)}
-    \value DeleteStatement a SQL DELETE statement, for example \c{DELETE FROM t}
+    \value WhereStatement  An SQL \c WHERE statement (e.g., \c{WHERE f = 5}).
+    \value SelectStatement An SQL \c SELECT statement (e.g., \c{SELECT f FROM t}).
+    \value UpdateStatement An SQL \c UPDATE statement (e.g., \c{UPDATE TABLE t set f = 1}).
+    \value InsertStatement An SQL \c INSERT statement (e.g., \c{INSERT INTO t (f) values (1)}).
+    \value DeleteStatement An SQL \c DELETE statement (e.g., \c{DELETE FROM t}).
 
     \sa sqlStatement()
 */
 
-
 /*!
-    \fn bool QSqlDriver::hasFeature(DriverFeature f) const
+    \fn bool QSqlDriver::hasFeature(DriverFeature feature) const
 
-    Returns true if the driver supports feature \a f; otherwise
+    Returns true if the driver supports feature \a feature; otherwise
     returns false.
 
     Note that some databases need to be open() before this can be
@@ -181,30 +184,31 @@ bool QSqlDriver::isOpenError() const
 */
 
 /*!
-    This function sets the open state of the database to \a o. Derived
-    classes can use this function to report the status of open().
+    This function sets the open state of the database to \a open.
+    Derived classes can use this function to report the status of
+    open().
 
     \sa open(), setOpenError()
 */
 
-void QSqlDriver::setOpen(bool o)
+void QSqlDriver::setOpen(bool open)
 {
-    d->isOpen = o;
+    d->isOpen = open;
 }
 
 /*!
-    This function sets the open error state of the database to \a e.
-    Derived classes can use this function to report the status of
-    open(). Note that if \a e is true the open state of the database
-    is set to closed (i.e. isOpen() returns false).
+    This function sets the open error state of the database to \a
+    error. Derived classes can use this function to report the status
+    of open(). Note that if \a error is true the open state of the
+    database is set to closed (i.e., isOpen() returns false).
 
     \sa open(), setOpenError()
 */
 
-void QSqlDriver::setOpenError(bool e)
+void QSqlDriver::setOpenError(bool error)
 {
-    d->isOpenError = e;
-    if (e)
+    d->isOpenError = error;
+    if (error)
         d->isOpen = false;
 }
 
@@ -248,15 +252,15 @@ bool QSqlDriver::rollbackTransaction()
 }
 
 /*!
-    This function is used to set the value of the last error, \a e,
+    This function is used to set the value of the last error, \a error,
     that occurred on the database.
 
     \sa lastError()
 */
 
-void QSqlDriver::setLastError(const QSqlError& e)
+void QSqlDriver::setLastError(const QSqlError &error)
 {
-    d->error = e;
+    d->error = error;
 }
 
 /*!
@@ -278,8 +282,6 @@ QSqlError QSqlDriver::lastError() const
     contains the value of the enum QSql::TableTypes as text.
     An empty string should be treated as QSql::Tables for
     backward compatibility.
-
-    \sa QSql::TableType
 */
 
 QStringList QSqlDriver::tables(QSql::TableType) const
@@ -305,7 +307,7 @@ QSqlIndex QSqlDriver::primaryIndex(const QString&) const
     returned. The default implementation returns an empty record.
 */
 
-QSqlRecord QSqlDriver::record(const QString& ) const
+QSqlRecord QSqlDriver::record(const QString & /* tableName */) const
 {
     return QSqlRecord();
 }
@@ -434,7 +436,7 @@ QString QSqlDriver::sqlStatement(StatementType type, const QString &tableName,
 
     \i If \a field is date/time data, the value is formatted in ISO
     format and enclosed in single quotation marks. If the date/time
-    data is invalid, NULL is returned.
+    data is invalid, "NULL" is returned.
 
     \i If \a field is \link QByteArray bytearray\endlink data, and the
     driver can edit binary fields, the value is formatted as a
@@ -555,5 +557,4 @@ QString QSqlDriver::formatValue(const QSqlField &field, bool trimStrings) const
     \fn QString QSqlDriver::formatValue(const QSqlField *field, bool trimStrings) const
 
     Use the other formatValue() overload instead.
-
 */
