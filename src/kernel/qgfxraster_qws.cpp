@@ -271,6 +271,8 @@ void QScreenCursor::set(const QImage &image, int hotx, int hoty)
     data->width = image.width();
     data->height = image.height();
     memcpy(data->cursor, image.bits(), image.numBytes());
+    for ( int r = 0; r < image.height(); r++ )
+	memcpy(data->cursor+data->width*r, image.scanLine(r), data->width);
     data->colors = image.numColors();
     int depth = qt_screen->depth();
     if ( depth <= 8 ) {
