@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#45 $
+** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#46 $
 **
 ** Implementation of QLCDNumber class
 **
@@ -14,7 +14,7 @@
 #include "qpainter.h"
 #include <stdio.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#45 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#46 $");
 
 
 /*!
@@ -782,9 +782,9 @@ void QLCDNumber::drawSegment( const QPoint &pos, char segmentNo, QPainter &p,
     QColorGroup g = colorGroup();
     QColor lightColor,darkColor,fgColor;
     if ( erase ){
-	lightColor = g.background();
-	darkColor  = g.background();
-	fgColor    = g.background();
+	lightColor = backgroundColor();
+	darkColor  = lightColor;
+	fgColor    = lightColor;
     } else {
 	lightColor = g.light();
 	darkColor  = g.dark();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#41 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#42 $
 **
 ** Implementation of QDir class
 **
@@ -25,7 +25,7 @@
 #endif
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qdir.cpp#41 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qdir.cpp#42 $");
 
 
 #if defined(_OS_FATFS_) || defined(_OS_OS2EMX_)
@@ -534,6 +534,9 @@ void QDir::setNameFilter( const char *nameFilter )
   <dt>Dirs<dd> List directories only.
   <dt>Files<dd> List files only.
   <dt>Drives<dd> List drives.
+
+  Setting none of the three flags above is equivalent to setting all of them.
+
   <dt>NoSymLinks<dd> Do not list symbolic links.
 
   <dt>Readable<dd> List files with read permission.
@@ -556,6 +559,8 @@ void QDir::setFilter( int filterSpec )
 {
     if ( filtS == (FilterSpec) filterSpec )
 	return;
+    if ( (filterSpec & TypeMask) == 0)
+	filterSpec |= All;
     filtS = (FilterSpec) filterSpec;
     dirty = TRUE;
 }
@@ -1302,7 +1307,6 @@ static void dirInSort( QStrList *fl, QFileInfoList *fil, const char *fileName,
     fl ->insert( pos, fileName );
     fil->insert( pos, newFi );
 }
-
 
 /*!
   \internal
