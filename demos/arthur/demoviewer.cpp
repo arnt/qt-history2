@@ -258,6 +258,16 @@ void DemoViewer::openSource(bool on)
         contents.replace('<', "&lt;");
         contents.replace('>', "&gt;");
 
+        // add some pretty unsofisticated syntax highlighting
+        QList<QString> keywords;
+        keywords << "for " << "if " << "switch " << " int " << "#include " << "const"
+                 << "void " << "uint " << "case " << "double " << "#define " << "static"
+                 << "#ifndef" << "#else" << "#endif" << "#ifdef";
+        for (int i = 0; i < keywords.size(); ++i)
+            contents.replace(keywords.at(i), QLatin1String("<font color=blue><b>")
+                             + keywords.at(i) + QLatin1String("</b></font>"));
+        contents.replace("(int ", "(<font color=blue><b>int </b></font>");
+
         QString html = "<pre>" + contents + "</pre>";
 
         sourceViewer->setHtml(html);
