@@ -173,11 +173,11 @@ QPainterPath::~QPainterPath()
 
 
 /*!
- * Begins a new subpath. A path is already begun when the path
- * is started. If a path is begun and no elements are added to
- * it, the function does nothing.
- * The current subpath is not automatically closed when a new
- * subpath is begun.
+    Begins a new subpath in the existing path. If the path has no
+    elements this function does nothing. If a subpath is already in
+    progress this function does not automatically close it.
+
+    \sa closeSubpath()
  */
 void QPainterPath::beginSubpath()
 {
@@ -188,9 +188,11 @@ void QPainterPath::beginSubpath()
 
 
 /*!
- * Closes the current subpath. If the sub path does not contain
- * any elements, the function does nothing. A new subpath is
- * automatically begun when the current is closed.
+    Closes the current subpath. If the subpath does not contain
+    any elements, the function does nothing. A new subpath is
+    automatically begun when the current subpath is closed.
+
+    \sa beginSubpath()
  */
 void QPainterPath::closeSubpath()
 {
@@ -202,8 +204,8 @@ void QPainterPath::closeSubpath()
 
 
 /*!
- * Adds the line defined by the starting point \a p1 and endpoint
- * \a p2 to the path.
+    Adds a straight line defined by the start point \a p1 and the end
+    point \a p2 to the path.
  */
 void QPainterPath::addLine(const QPoint &p1, const QPoint &p2)
 {
@@ -211,7 +213,9 @@ void QPainterPath::addLine(const QPoint &p1, const QPoint &p2)
 }
 
 /*!
- * Adds a line from the last point to p
+    \overload
+
+    Adds a straight line from the last point to point \a p.
  */
 void QPainterPath::addLine(const QPoint &p)
 {
@@ -219,8 +223,8 @@ void QPainterPath::addLine(const QPoint &p)
 }
 
 /*!
- * Adds the rect to the path. Each rect is closed and is not
- * considered part of the current subpath.
+    Adds the given \a rect to the path. The \a rect is closed and is
+    not considered to be part of the current subpath.
  */
 void QPainterPath::addRect(const QRect &rect)
 {
@@ -232,17 +236,21 @@ void QPainterPath::addRect(const QRect &rect)
 }
 
 /*!
- * Adds a Bezier curve to the path.
- */
+    Adds a Bezier curve with control points \a p1, \a p2, \a p3, and
+    \a p4, to the path.
+*/
 void QPainterPath::addBezier(const QPoint &p1, const QPoint &p2, const QPoint &p3, const QPoint &p4)
 {
     d->subpaths.last().addBezier(p1, p2, p3, p4);
 }
 
 /*!
- * Adds the Bezier curve specified by \pa to the path. The point array MUST contain
- * exactly four elements or the function will give a warning and do nothing.
- */
+    \overload
+
+    Adds the Bezier curve specified by the point array \a pa to the
+    path. The point array <b>must</b> contain exactly four points or
+    the function will give a warning and do nothing.
+*/
 void QPainterPath::addBezier(const QPointArray &pa)
 {
     if (pa.size() != 4) {

@@ -42,15 +42,15 @@
     "DLL"). A QLibrary provides access to the functionality in the
     library in a platform independent way. You can either pass a file
     name in the constructor, or set it explicitly with setFileName().
-    When loading the library, QLibrary searches in all system-specific
-    library locations (e.g. \c LD_LIBRARY_PATH on Unix), unless the
-    file name has an absolute file path. If the file cannot be found,
-    QLibrary tries the name with different platform-specific file
-    suffixes, like ".so" on Unix, ".dylib" on the Mac, or ".dll" on
-    Microsoft Windows. This makes it possible to specify shared
-    libraries that are only identified by their basename (i.e. without
-    their suffix), so the same code will work on different operating
-    systems.
+    When loading the library, QLibrary searches in all the
+    system-specific library locations (e.g. \c LD_LIBRARY_PATH on
+    Unix), unless the file name has an absolute path. If the file
+    cannot be found, QLibrary tries the name with different
+    platform-specific file suffixes, like ".so" on Unix, ".dylib" on
+    the Mac, or ".dll" on Windows. This makes it possible to specify
+    shared libraries that are only identified by their basename (i.e.
+    without their suffix), so the same code will work on different
+    operating systems.
 
     The most important functions are load() to dynamically load the
     library file, isLoaded() to check whether loading was successful,
@@ -58,10 +58,10 @@
     function implicitly tries to load the library if it has not been
     loaded yet. Multiple instances of QLibrary can be used to access
     the same physical library. Once loaded, libraries remain in memory
-    until the application terminates. You can programmatically unload
-    a library using unload(), unless other instances of QLibrary make
-    use of the same library. In that case, unloading will be blocked
-    until unload() was called on all instances.
+    until the application terminates. You can attempt to unload a
+    library using unload(), but if other instances of QLibrary are
+    using the same library, the call will \e block, and unloading will
+    only happen when every instance has called unload().
 
     A typical use of QLibrary is to resolve an exported symbol in a
     library, and to call the C-function that this symbol represents.
@@ -76,7 +76,7 @@
     called.
 
     \code
-    QLibrary myLib("mylib"); // mylib.dll or mylib.so or mylib.dylib
+    QLibrary myLib("mylib"); // mylib.dll or mylib.so or mylib.dylib etc
     typedef void (*MyPrototype)();
     MyPrototype myFunction = (MyPrototype) myLib.resolve("mysymbol");
     if (myFunction) {
@@ -87,11 +87,11 @@
     The symbol must be exported as a C-function from the library for
     resolve() to work. This means that the function must be wrapped in
     an \c{extern "C"} block if the library is compiled with a C++
-    compiler. On Microsoft Windows, this also requires the use of a \c
-    dllexport macro. See resolve() for the details of how this is
-    done. For convenience, there is a static resolve() function which
-    you can use if you just want to call a function in a library
-    without explicitly loading the library first:
+    compiler. On Windows, this also requires the use of a \c dllexport
+    macro; see resolve() for the details of how this is done. For
+    convenience, there is a static resolve() function which you can
+    use if you just want to call a function in a library without
+    explicitly loading the library first:
 
     \code
     typedef void (*MyPrototype)();
@@ -540,9 +540,9 @@ bool QLibrary::load()
     This happens automatically on application termination, so you
     shouldn't normally need to call this function.
 
-    If other instances of QLibrary make use of the same library,
-    unloading will be blocked until unload() was called on all
-    instances.
+    If other instances of QLibrary are using the same library, the
+    call will \e block, and unloading will only happen when every
+    instance has called unload().
 
     \sa resolve(), load()
 */
@@ -596,8 +596,8 @@ QLibrary::QLibrary(const QString& fileName, QObject *parent)
 /*!
     Destroys the QLibrary object.
 
-    Unless unload() was called explicitly, the shared object file
-    stays in memory until the application terminates.
+    Unless unload() was called explicitly, the library stays in memory
+    until the application terminates.
 
     \sa isLoaded(), unload()
 */
@@ -673,7 +673,7 @@ QString QLibrary::fileName() const
     \c{__declspec(dllexport)} compiler directive, for example:
 
     \code
-    extern "C" MY_EXPORT_MACRO int avg(int a, int b)
+    extern "C" MY_EXPORT int avg(int a, int b)
     {
         return (a + b) / 2;
     }
