@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#102 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#103 $
 #
 # this is a massive hack, written very quickly
 #
@@ -680,7 +680,8 @@ sub manglefn {
     local($type, $class, $name, $sig, $const, $home) = @_;
     local($url, $d, $mc);
 
-    $mc = 
+# what did I want to do?
+#    $mc =
 
     $type =~ s/\s+/-/g;
     $type =~ s/^-*(.*?)-*$/$1/;
@@ -749,7 +750,7 @@ sub storeclass {
 
     $def =~ s/\s+/ /g;
     $def =~ s/Q_OBJECT//;
-    $def =~ s/(\)\s*(?:const\s*)?)\{.*?\}/$1;/gs;
+    $def =~ s/(\)\s*(?:const\s*)?)(?::[^;:\}\{]*)?\{.*?\}/$1;/gs;
     $def =~ s/struct[^\;\{]*\{.*?\}\s*\w*\s*\;\s*//gs;
     $def =~ s/;\s*$//s;
 
@@ -762,6 +763,30 @@ sub storeclass {
 
     $def =~ s/\)\s*\{.*?\}\s*/\);\n/gs;
     $members{$url} = $def;
+
+    # minor hack: set $virtual{$url} for all urls representing a virtual
+    # function
+    foreach (split(/;/, $def)) {
+	s/^(?:[\w\s]+:(?!:))*\s*//s;
+	if (/^((?:[^\(\~]*[\s\&\*]+)?)(?=[\w~]) (?# prelude
+						 )
+	    ((?:(?:operator(?:(?:\(\s*\))|(?:[^\s\(]{1,3})))
+	      |(?:\~?\w+)))                        (?# name
+						    )
+	    \s*\((.*?)\)\s*(const)?\s*(?:=\s*0\s*)?$/x) {
+	    my ($u,$t,$mt,$f,$a,$ma,$c);
+	    $t = $1;
+	    $f = $2;
+	    $a = $3;
+	    $c = $4;
+
+	    $a =~ s/^\s+//s;
+	    $a =~ s/\s+$//s;
+
+	    $u = &manglefn($t, $name, $f, $a, $c);
+	    $virtual{$u} = $u if ( $t =~ /^virtual\b/s );
+	}
+    }
 }
 
 
@@ -1194,7 +1219,7 @@ sub readc {
 }
 
 sub makenames {
-    local($_, $dum, %total);
+    local($_, $dum, $ferdig, $anchor, %total);
 
     foreach ( sort keys %name ) {
 	$anchor{$name{$_}} = $_ unless 
@@ -1217,24 +1242,31 @@ sub makenames {
 	    }
 	}
     } # and members
-    $dum = 1;
-    while ($dum) {
-	my ($url, $class, $member);
-	$dum = 0;
-	foreach ( keys %anchor ) {
-	    next unless (($type{$anchor{$_}} eq "fn") || 
-			 ($type{$anchor{$_}} eq "enum"));
-	    $url = $anchor{$_};
-	    $class = $_;
-	    $member = $_;
+    $ferdig = 0;
+    while ($ferdig == 0) {
+	my ($url, $class, $member, $possible);
+	$ferdig = 1;
+	foreach $url ( keys %urls ) {
+	    next unless (($type{$urls{$url}} eq "fn") || 
+			 ($type{$urls{$url}} eq "enum"));
+	    $member = $class = $url;
 	    $class =~ s/::.*//;
 	    $member =~ s/.*:://;
-	    next if (($member eq $class) || (("~" . $class) eq $member));
+	    $member =~ s/\(.*//;
+	    next if (($member eq $class) || ($member eq "~".$class));
 	    foreach ( split( /\s+/, $subclasses{$class} ) ) {
+		$possible = $url;
+		$possible =~ s/^$class:/$_:/;
+		$possible =~ s/~$class\b/~$_\b/
+		    if (("~" . $class) eq $member);
+		if ( defined( $virtual{$urls{$url}} ) &&
+		    !defined( $virtual{$urls{$possible}} ) ) {
+		    $virtual{$urls{$possible}} = $virtual{$urls{$url}};
+		    $ferdig = 0;
+		}
 		unless (defined($anchor{$_ . "::" . $member})) {
-		    $dum = 1;
-		    $anchor{$_ . "::" . $member} = $url;
-#print $_, " inherited ", $member, " from ", $class, "\n";
+;		    $urls{$possible} = $urls{$url};
+		    $anchor{$_ . "::" . $member} = $urls{$url};
 		}
 	    }
 	}
@@ -1254,6 +1286,12 @@ sub makenames {
 
 #   foreach ( sort keys %anchor ) { print $_, ": ", $anchor{$_}, "\n"; }
 }
+
+
+
+
+
+
 
 #
 # add links and escapes to a string
@@ -1425,7 +1463,7 @@ sub printclass {
     $documented{$url}++;
 
     $fnheader = "<hr><h2>Member Function Documentation</h2>\n";
-    $tail = "<hr><p>\nThis file is part of the <a href=qt.html>Qt toolkit</a>,\n<a href=license.html>copyright &copy;</a> 1995\n<a href=troll.html>Troll Tech</a>, all rights reserved.\n";
+    $tail = "<hr><p>\nThis file is part of the <a href=qt.html>Qt toolkit</a>,\n<a href=license.html>copyright &copy;</a> 1995-96\n<a href=troll.html>Troll Tech</a>, all rights reserved.\n";
     if (defined ($cfiles{$includefile{$url}})) {
 	my(%files);
 	$files{$includefile{$url}}++;
@@ -1590,6 +1628,8 @@ sub printclass {
 		$a =~ s/\s+$//s;
 
 		$u = &manglefn($t, $name{$url}, $f, $a, $c);
+		$t =~ s/^(?:virtual\s*)?/virtual /
+		    if ( defined($virtual{$u}) );
 		&fixdefvalues($u, $a) if ($type{$u} eq "fn");
 		if ($type{$u} eq "fn") {
 		    # only for templates: promote the .cpp variable names
@@ -1676,13 +1716,15 @@ sub printclass {
 	$class =~ s/\#.*//;
 	$class = $name{$class} . "::";
 	$protection = lc $fndocs{$url};
-	$protection =~ s/s$//;
 	$protection =~ s/\s*public\s*//;
-	if ($protection ne "") {
-	    $protection = " <code>[" . $protection . "]</code>";
-	}
+	$protection = "virtual " . $protection
+	    if ( defined($virtual{$url}) );
+	$protection =~ s/s?\s*$//;
+	$protection = " <code>[" . $protection . "]</code>"
+	    if ($protection ne "");
 	$_ = $def{$url};
 	if ( /$class/ ) {
+	    my( $p, $r );
 	    $name = $url;
 	    $name =~ s/^[^\#]*\#//;
 	    print O $fnheader;
@@ -1691,27 +1733,48 @@ sub printclass {
 	    s;([^\(]*\s)\b(\S+);$1<a name=$name>$2</a>;s;
 	    print O "<h3>", $_, $protection, "</h3>\n<p>", $doc{$url};
 
-	    $name = $name{$url};
-	    $class = $name;
-	    $name =~ s/.*:://;
-	    $class =~ s/::.*//;
-	    $reimp = "";
-	    foreach $class ( sort split(/\s+/, $subclasses{$class})) {
-		$_ = join("::", $class, $name);
-		$reimp .= ", <a href=" . $anchor{$_} . ">" . $class . "</a>"
-		    if (defined($anchor{$_}) &&
-			$anchor{$_} ne $anchor{$name{$url}});
-	    }
-	    if ($reimp ne "") {
-		$reimp =~ s/^\,\s*/<p>Reimplemented in /;
-		$reimp =~ s/\,([^,]+)$/ and$1/;
-		print O $reimp, ".\n";
+	    $p = "<p>";
+	    
+	    if ( defined($virtual{$url}) ) {
+		if ( $virtual{$url} ne $url ) {
+		    $name = $name{$virtual{$url}};
+		    $class = $name;
+		    $class =~ s/::.*//;
+		    print O $p, "Reimplemented from <a href="
+			, $virtual{$url}, ">", $class, ".</a>  ";
+		    $p = "";
+		}
+		if ( defined($reimplementations{$url}) ) {
+		    print O $p, $reimplementations{$url}, ".\n";
+		}
 	    }
 	}
     }
 
     print O $fntail, $tail;
     close(O);
+}
+
+
+
+sub reimplementations {
+    my ($r, $n, $c);
+
+    foreach $r ( keys %virtual ) {
+	if ($r ne $virtual{$r} &&
+	    $type{$r} eq "fn" &&
+	    $doc{$r} =~ /\S/ ) {
+	    $n = $name{$r};
+	    $n =~ s/::.*//;
+	    $reimplementations{$virtual{$r}} .= 
+		", <a href=" . $r . ">" . $n . "</a>";
+	}
+    }
+
+    foreach $r ( keys %reimplementations ) {
+	$reimplementations{$r} =~ s/^\,\s*/Reimplemented in /;
+	$reimplementations{$r} =~ s/\,([^,]+)$/ and$1/;
+    }
 }
 
 
@@ -1921,7 +1984,7 @@ Qt toolkit - ", $_, " member list
 
 umask 0111;
 $cfile = "VOLD";
-$maxerr = 20;
+$maxerr = 200;
 #$debug = 1;
 if ($0 =~ /gendoc/) {
     $internal = 1;
@@ -1933,7 +1996,7 @@ if ($0 =~ /gendoc/) {
 }
 
 ($j, $min, $hour, $mday, $mon, $year) = localtime(time);
-$address = sprintf("<hr><address>\nGenerated at %02d:%02d, %4d/%02d/%02d by the <a href=mailto:www\@troll.no>webmaster</a> at <a href=http://www.troll.no/>Troll Tech</a>\n</address>\n</body></html>\n", $hour, $min, 1900+$year, 1+$mon, $mday );
+$address = sprintf("<hr><address>\nGenerated at %02d:%02d, %4d/%02d/%02d for Qt version 0.96 by the <a href=mailto:www\@troll.no>webmaster</a> at <a href=http://www.troll.no/>Troll Tech</a>\n</address>\n</body></html>\n", $hour, $min, 1900+$year, 1+$mon, $mday );
 $doctype = "<!doctype HTML public \"-//IETF//DTD HTML 2.0 Level 2//EN\">\n";
 
 if ($#ARGV > -1) {
@@ -1948,7 +2011,7 @@ if ($#ARGV > -1) {
     $hdir = $ENV{"QTDIR"} . "/include";
     foreach $dirs ( "tools", "kernel", "widgets", "dialogs", "doc" ) {
 	chdir( $dirs ) || die "can't cd to $dirs";
-	open(F, "make showsources |") || die "can't make showsources";
+	open(F, "make -s showsources |") || die "can't make showsources";
 	$sources = <F>;
 	close F;
 	foreach $d ( split(/\s+/, $sources) ) {
@@ -1967,6 +2030,7 @@ if ($#ARGV > -1) {
 &processdocs();
 &writepages();
 &readfiles();
+&reimplementations();
 
 foreach $c ( sort keys %doc ) {
     if ($type{$c} eq "class") {
