@@ -822,8 +822,10 @@ inline bool QWidget::close()
 inline bool QWidget::isVisible() const
 { return testWState(WState_Visible); }
 
+#ifndef QT_NO_COMPAT
 inline bool QWidget::isVisibleToTLW() const // obsolete
 { return isVisible(); }
+#endif
 
 inline bool QWidget::isHidden() const
 { return testWState(WState_Hidden); }
