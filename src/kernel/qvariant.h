@@ -249,10 +249,10 @@ public:
     QPalette& asPalette();
     QColorGroup& asColorGroup();
     QIconSet& asIconSet();
-    QPointArray asPointArray();
-    QBitmap asBitmap();
-    QRegion asRegion();
-    QCursor asCursor();
+    QPointArray& asPointArray();
+    QBitmap& asBitmap();
+    QRegion& asRegion();
+    QCursor& asCursor();
     int& asInt();
     uint& asUInt();
     bool& asBool();
@@ -408,5 +408,6 @@ Q_EXPORT QDataStream& operator<< ( QDataStream& s, const QVariant::Type p );
 #if defined(Q_FULL_TEMPLATE_INSTANTIATION)
 bool operator== ( const QVariant&, const QVariant& );
 #endif
+
 
 #endif

@@ -1711,8 +1711,7 @@ const QValueList<QVariant> QVariant::toList() const
 {
     if ( typ == List )
 	return *((QValueList<QVariant>*)value.ptr);
-    if ( typ == StringList )
-    {
+    if ( typ == StringList ) {
 	QValueList<QVariant> lst;
 	/*
 	QStringList::ConstIterator it = toStringList().begin();
@@ -1756,6 +1755,10 @@ void* QVariant::toCustom( const QVariantTypeBase* type ) const
     return type->castFrom( *this );
 }
 
+/*!  
+  Returns the variant's custom value as void pointer or 0, if the
+  variant is no custom type.
+ */
 const void* QVariant::asCustom() const
 {
     if ( typ != Custom )
@@ -1763,6 +1766,10 @@ const void* QVariant::asCustom() const
     return value.ptr;
 }
 
+/*!  
+  Returns the variant's custom value as void pointer or 0, if the
+  variant is no custom type.
+ */
 void* QVariant::asCustom()
 {
     if ( typ != Custom )
@@ -1770,174 +1777,12 @@ void* QVariant::asCustom()
     return value.ptr;
 }
 
-QString& QVariant::asString()
-{
-    if ( typ != String )
-	setValue( toString() );
-    return *((QString*)value.ptr);
-}
+/*!  
+  Returns the variant's custom value converted to the custom
+  variant type \a type or 0, if a cast was not possible.
 
-QCString& QVariant::asCString()
-{
-    if ( typ != CString )
-	setValue( toCString() );
-    return *((QCString*)value.ptr);
-}
-
-QStringList& QVariant::asStringList()
-{
-    if ( typ != StringList )
-	setValue( toStringList() );
-    return *((QStringList*)value.ptr);
-}
-
-QFont& QVariant::asFont()
-{
-    if ( typ != Font )
-	setValue( toFont() );
-    return *((QFont*)value.ptr);
-}
-
-QPixmap& QVariant::asPixmap()
-{
-    if ( typ != Pixmap )
-	setValue( toPixmap() );
-    return *((QPixmap*)value.ptr);
-}
-
-QImage& QVariant::asImage()
-{
-    if ( typ != Image )
-	setValue( toImage() );
-    return *((QImage*)value.ptr);
-}
-
-QBrush& QVariant::asBrush()
-{
-    if ( typ != Brush )
-	setValue( toBrush() );
-    return *((QBrush*)value.ptr);
-}
-
-QPoint& QVariant::asPoint()
-{
-    if ( typ != Point )
-	setValue( toPoint() );
-    return *((QPoint*)value.ptr);
-}
-
-QRect& QVariant::asRect()
-{
-    if ( typ != Rect )
-	setValue( toRect() );
-    return *((QRect*)value.ptr);
-}
-
-QSize& QVariant::asSize()
-{
-    if ( typ != Size )
-	setValue( toSize() );
-    return *((QSize*)value.ptr);
-}
-
-QColor& QVariant::asColor()
-{
-    if ( typ != Color )
-	setValue( toColor() );
-    return *((QColor*)value.ptr);
-}
-
-QPalette& QVariant::asPalette()
-{
-    if ( typ != Palette )
-	setValue( toPalette() );
-    return *((QPalette*)value.ptr);
-}
-
-QColorGroup& QVariant::asColorGroup()
-{
-    if ( typ != ColorGroup )
-	setValue( toColorGroup() );
-    return *((QColorGroup*)value.ptr);
-}
-
-QIconSet& QVariant::asIconSet()
-{
-    if ( typ != IconSet )
-	setValue( toIconSet() );
-    return *((QIconSet*)value.ptr);
-}
-
-QPointArray QVariant::asPointArray()
-{
-    if ( typ != PointArray )
-	setValue( toPointArray() );
-    return *((QPointArray*)value.ptr);
-}
-
-QBitmap QVariant::asBitmap()
-{
-    if ( typ != Bitmap )
-	setValue( toBitmap() );
-    return *((QBitmap*)value.ptr);
-}
-
-QRegion QVariant::asRegion()
-{
-    if ( typ != Region )
-	setValue( toRegion() );
-    return *((QRegion*)value.ptr);
-}
-
-QCursor QVariant::asCursor()
-{
-    if ( typ != Cursor )
-	setValue( toCursor() );
-    return *((QCursor*)value.ptr);
-}
-
-int& QVariant::asInt()
-{
-    if ( typ != Int )
-	setValue( toInt() );
-    return value.i;
-}
-
-uint& QVariant::asUInt()
-{
-    if ( typ != UInt )
-	setValue( toUInt() );
-    return value.u;
-}
-
-bool& QVariant::asBool()
-{
-    if ( typ != Bool )
-	setBoolValue( toBool() );
-    return value.b;
-}
-
-double& QVariant::asDouble()
-{
-    if ( typ != Double )
-	setValue( toDouble() );
-    return value.d;
-}
-
-QValueList<QVariant>& QVariant::asList()
-{
-    if ( typ != List )
-	setValue( toList() );
-    return *((QValueList<QVariant>*)value.ptr);
-}
-
-QMap<QString,QVariant>& QVariant::asMap()
-{
-    if ( typ != Map )
-	setValue( toMap() );
-    return *((QMap<QString,QVariant>*)value.ptr);
-}
-
+  \sa canCast()
+ */
 void* QVariant::asCustom( const QVariantTypeBase* type )
 {
     if ( type == 0 )
@@ -1948,11 +1793,9 @@ void* QVariant::asCustom( const QVariantTypeBase* type )
 	return value.ptr;
 
     // Both custom types, but different ones ?
-    if ( typ == Custom )
-    {
+    if ( typ == Custom ) {
 	// Can the passes type do the conversion
-	if ( type->canCastFrom( custom_type ) )
-        {
+	if ( type->canCastFrom( custom_type ) ) {
 	    void* ptr = type->castFrom( *this );
 	    if ( !ptr )
 		return 0;
@@ -1962,8 +1805,7 @@ void* QVariant::asCustom( const QVariantTypeBase* type )
 	    return ptr;
 	}
 	// Can our type do the conversion ?
-	if ( custom_type->canCastTo( type ) )
-        {
+	if ( custom_type->canCastTo( type ) ) {
 	    void* ptr = custom_type->castTo( value.ptr, type );
 	    if ( !ptr )
 		return 0;
@@ -1986,12 +1828,169 @@ void* QVariant::asCustom( const QVariantTypeBase* type )
     return ptr;
 }
 
+#define Q_VARIANT_AS( f ) Q##f& QVariant::as##f() { \
+   if ( typ != ##f ) setValue( to##f() ); return *((Q##f*)value.ptr);}
+
+Q_VARIANT_AS(String)
+Q_VARIANT_AS(CString)
+Q_VARIANT_AS(StringList)
+Q_VARIANT_AS(Font)
+Q_VARIANT_AS(Pixmap)
+Q_VARIANT_AS(Image)
+Q_VARIANT_AS(Brush)
+Q_VARIANT_AS(Point)
+Q_VARIANT_AS(Rect)
+Q_VARIANT_AS(Size)
+Q_VARIANT_AS(Color)
+Q_VARIANT_AS(Palette)
+Q_VARIANT_AS(ColorGroup)
+Q_VARIANT_AS(IconSet)
+Q_VARIANT_AS(PointArray)
+Q_VARIANT_AS(Bitmap)
+Q_VARIANT_AS(Region)
+Q_VARIANT_AS(Cursor)
+
+/*! \fn QString& QVariant::asString() 
+  
+  Returns the variant's value as string reference.
+ */
+/*! \fn QCString& QVariant::asCString() 
+  
+  Returns the variant's value as cstring reference.
+ */
+/*! \fn QStringList& QVariant::asStringList() 
+  
+  Returns the variant's value as stringlist  reference.
+ */
+/*! \fn QFont& QVariant::asFont() 
+  
+  Returns the variant's value as font  reference.
+ */
+/*! \fn QPixmap& QVariant::asPixmap() 
+  
+  Returns the variant's value as pixmap  reference.
+ */
+/*! \fn QImage& QVariant::asImage() 
+  
+  Returns the variant's value as image  reference.
+ */
+/*! \fn QBrush& QVariant::asBrush() 
+  
+  Returns the variant's value as brush reference.
+ */
+/*! \fn QPoint& QVariant::asPoint() 
+  
+  Returns the variant's value as point  reference.
+ */
+/*! \fn QRect& QVariant::asRect() 
+  
+  Returns the variant's value as rect  reference.
+ */
+/*! \fn QSize& QVariant::asSize() 
+  
+  Returns the variant's value as size  reference.
+ */
+/*! \fn QColor& QVariant::asColor() 
+  
+  Returns the variant's value as color  reference.
+ */
+/*! \fn QPalette& QVariant::asPalette() 
+  
+  Returns the variant's value as palette  reference.
+ */
+/*! \fn QColorGroup& QVariant::asColorGroup() 
+  
+  Returns the variant's value as colorgroup  reference.
+ */
+/*! \fn QIconSet& QVariant::asIconSet() 
+  
+  Returns the variant's value as iconset  reference.
+ */
+/*! \fn QPointArray& QVariant::asPointArray() 
+  
+  Returns the variant's value as  pointarray  reference.
+ */
+/*! \fn QBitmap& QVariant::asBitmap() 
+  
+  Returns the variant's value as bitmap  reference.
+ */
+/*! \fn QRegion& QVariant::asRegion() 
+  
+  Returns the variant's value as region  reference.
+ */
+/*! \fn QCursor& QVariant::asCursor() 
+  
+  Returns the variant's value as cursor  reference.
+ */
+
+/*!
+  Returns the variant's value as int reference.
+ */
+int& QVariant::asInt()
+{
+    if ( typ != Int )
+	setValue( toInt() );
+    return value.i;
+}
+
+/*!
+  Returns the variant's value as unsigned int reference.
+ */
+uint& QVariant::asUInt()
+{
+    if ( typ != UInt )
+	setValue( toUInt() );
+    return value.u;
+}
+
+/*!
+  Returns the variant's value as bool reference.
+ */
+bool& QVariant::asBool()
+{
+    if ( typ != Bool )
+	setBoolValue( toBool() );
+    return value.b;
+}
+
+/*!
+  Returns the variant's value as double reference.
+ */
+double& QVariant::asDouble()
+{
+    if ( typ != Double )
+	setValue( toDouble() );
+    return value.d;
+}
+
+/*!
+  Returns the variant's value as variant list reference.
+ */
+QValueList<QVariant>& QVariant::asList()
+{
+    if ( typ != List )
+	setValue( toList() );
+    return *((QValueList<QVariant>*)value.ptr);
+}
+
+/*!
+  Returns the variant's value as variant map reference.
+ */
+QMap<QString,QVariant>& QVariant::asMap()
+{
+    if ( typ != Map )
+	setValue( toMap() );
+    return *((QMap<QString,QVariant>*)value.ptr);
+}
+
+/*!
+  Returns the variant's value as string list reference.
+ */
 const QStringList& QVariant::asStringList() const
 {
     static QStringList* ptr = 0;
 
-    if ( typ != StringList )
-    {
+    if ( typ != StringList )  {
 	qDebug("WARNING: in \"const QStringList& QVariant::asStringList() const\"" );
 	qDebug("         The variant contains the data type %s instead of QStringList.", typeName() );
 	if ( !ptr ) ptr = new QStringList;
@@ -2001,12 +2000,14 @@ const QStringList& QVariant::asStringList() const
     return *((QStringList*)value.ptr);
 }
 
+/*!
+  Returns the variant's value as variant list reference.
+ */
 const QValueList<QVariant>& QVariant::asList() const
 {
     static QValueList<QVariant>* ptr = 0;
 
-    if ( typ != List )
-    {
+    if ( typ != List ) {
 	qDebug("WARNING: in \"const QValueList<QVariant>& QVariant::asList() const\"" );
 	qDebug("         The variant contains the data type %s instead of QValueList<QVariant>.", typeName() );
 	if ( !ptr ) ptr = new QValueList<QVariant>;
@@ -2016,12 +2017,14 @@ const QValueList<QVariant>& QVariant::asList() const
     return *((QValueList<QVariant>*)value.ptr);
 }
 
+/*!
+  Returns the variant's value as variant map reference.
+ */
 const QMap<QString,QVariant>& QVariant::asMap() const
 {
     static QMap<QString,QVariant>* ptr = 0;
 
-    if ( typ != List )
-    {
+    if ( typ != List ) {
 	qDebug("WARNING: in \"const QMap<QString,QVariant>& QVariant::asMap() const\"" );
 	qDebug("         The variant contains the data type %s instead of QMap<QString,QVariant>.", typeName() );
 	if ( !ptr ) ptr = new QMap<QString,QVariant>;
@@ -2067,15 +2070,13 @@ bool QVariant::canCast( Type t ) const
 	return TRUE;
     if ( t == List && typ == StringList )
 	return TRUE;
-    if ( t == StringList && typ == List )
-    {
+    if ( t == StringList && typ == List )   {
 	/* QValueList<QVariant>::ConstIterator it = toList().begin();
 	   QValueList<QVariant>::ConstIterator end = toList().end(); */
 	QValueList<QVariant> vl = toList();
 	QValueList<QVariant>::ConstIterator it = vl.begin();
 	QValueList<QVariant>::ConstIterator end = vl.end();
-	for( ; it != end; ++it )
-        {
+	for( ; it != end; ++it ) {
 	    qDebug("Testing '%s'", (*it).typeName() );
 	    if ( !(*it).canCast( String ) )
 		return FALSE;
@@ -2088,13 +2089,16 @@ bool QVariant::canCast( Type t ) const
     return FALSE;
 }
 
+/*!
+  Returns TRUE if the current type of the variant can be casted to
+  the requested custom QVariantType type.
+*/
 bool QVariant::canCast( const QVariantTypeBase* type ) const
 {
     if ( type == 0 )
 	return FALSE;
 
-    if ( typ == Custom )
-    {
+    if ( typ == Custom ) {
 	if ( type == custom_type )
 	    return TRUE;
 	if ( type->canCastFrom( custom_type ) )
@@ -2107,6 +2111,11 @@ bool QVariant::canCast( const QVariantTypeBase* type ) const
     return type->canCastFrom( typ );
 }
 
+/*!
+  Returns the variant's custom type or 0, if the variant is no custom type.
+  
+  \sa type()
+ */
 const QVariantTypeBase* QVariant::customType() const
 {
     if ( typ == Custom )
