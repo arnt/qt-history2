@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qvalidator.cpp#19 $
+** $Id: //depot/qt/main/src/widgets/qvalidator.cpp#20 $
 **
 ** Implementation of validator classes.
 **
@@ -11,6 +11,7 @@
 
 #include "qvalidator.h"
 #include "qwidget.h"
+#include "qregexp.h"
 
 #include <limits.h> // *_MIN, *_MAX
 #include <ctype.h> // isdigit
@@ -161,7 +162,8 @@ QIntValidator::~QIntValidator()
 
 QValidator::State QIntValidator::validate( QString & input, int & )
 {
-    if ( input.isEmpty() )
+    QRegExp empty( "^ *-? *$" );
+    if ( empty.match( input ) >= 0 )
 	return QValidator::Valid;
     bool ok;
     long int tmp = input.toLong( &ok );
@@ -273,13 +275,14 @@ QDoubleValidator::~QDoubleValidator()
 
 QValidator::State QDoubleValidator::validate( QString & input, int & )
 {
-    if ( input.isEmpty() )
+    QRegExp empty( "^ *-? *$" );
+    if ( empty.match( input ) >= 0 )
 	return QValidator::Valid;
     bool ok = TRUE;
     double tmp = input.toDouble( &ok );
     if ( !ok )
 	return QValidator::Invalid;
-    
+
     int i = input.find( '.' );
     if ( i >= 0 ) {
 	// has decimal point, now count digits after that
