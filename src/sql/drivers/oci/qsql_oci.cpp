@@ -26,6 +26,8 @@
 #include <stdlib.h>
 
 #define QOCI_DYNAMIC_CHUNK_SIZE  255
+#define QOCI_PREFETCH_MEM  10240
+
 static const ub1 CSID_NCHAR = SQLCS_NCHAR;
 static const ub2 qOraCharset = OCI_UCS2ID;
 
@@ -62,7 +64,8 @@ public:
 };
 
 QOCIPrivate::QOCIPrivate(): q(0), env(0), err(0),
-        svc(0), sql(0), transaction(false), serverVersion(-1), prefetchRows(-1), prefetchMem(-1)
+        svc(0), sql(0), transaction(false), serverVersion(-1), prefetchRows(-1),
+        prefetchMem(QOCI_PREFETCH_MEM)
 {
 }
 
