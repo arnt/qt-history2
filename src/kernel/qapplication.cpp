@@ -1781,15 +1781,14 @@ bool QApplication::event( QEvent *e )
 	if(ce->isAccepted())
 	    return TRUE;
     } else if(e->type() == QEvent::LanguageChange) {
-	if(loopLevel()) {
 #ifndef QT_NO_TRANSLATION
-	    setReverseLayout( qt_detectRTLLanguage() );
+	setReverseLayout( qt_detectRTLLanguage() );
 #endif
-	    QWidgetList list = topLevelWidgets();
-	    for (int i = 0; i < list.size(); ++i) {
-		QWidget *w = list.at(i);
+	QWidgetList list = topLevelWidgets();
+	for (int i = 0; i < list.size(); ++i) {
+	    QWidget *w = list.at(i);
+	    if (!w->isDesktop())
 		postEvent( w, new QEvent( QEvent::LanguageChange ) );
-	    }
 	}
     } else if (e->type() == QEvent::Timer) {
 	QTimerEvent *te = static_cast<QTimerEvent*>(e);
