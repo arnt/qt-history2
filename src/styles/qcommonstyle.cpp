@@ -66,6 +66,9 @@
 
 */
 
+// the active painter, if any... this is used as an optimzation to
+// avoid creating a painter if we have an active one (since
+// QStyle::itemRect() needs a painter to operate correctly
 static QPainter *activePainter = 0;
 
 /*!
@@ -653,7 +656,7 @@ void QCommonStyle::drawControl( ControlElement element,
 		QPixmap pixmap = button->iconSet()->pixmap( QIconSet::Small, mode, state );
 		int pixw = pixmap.width();
 		int pixh = pixmap.height();
-		
+
 		//Center the icon if there is neither text nor pixmap
 		if ( button->text().isEmpty() && !button->pixmap() )
 		    p->drawPixmap( ir.x() + ir.width() / 2 - pixw / 2, ir.y() + ir.height() / 2 - pixh / 2, pixmap );
