@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter.h#5 $
+** $Id: //depot/qt/main/src/kernel/qprinter.h#6 $
 **
 ** Definition of QPrinter class
 **
@@ -40,10 +40,10 @@ public:
     const char *creator()	const;
     void	setCreator( const char * );
 
-    PageSize	pageSize()	const;
-    void	setPageSize( PageSize );
     Orientation orientation()	const;
     void	setOrientation( Orientation );
+    PageSize	pageSize()	const;
+    void	setPageSize( PageSize );
 
     int		fromPage()	const;
     int		toPage()	const;
@@ -74,8 +74,8 @@ private:
     QString	print_prog;
     QString	doc_name;
     QString	creator_name;
-    PageSize	page_size;
     Orientation	orient;
+    PageSize	page_size;
     short	from_pg, to_pg;
     short	min_pg,  max_pg;
     short	ncopies;
