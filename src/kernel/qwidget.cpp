@@ -3512,8 +3512,14 @@ void QWidget::show()
     }
 
 
-    if( isTopLevel() || !parentWidget() || !parentWidget()->in_show )
+    if ( sendLayoutHint )
+	QApplication::postEvent( parentWidget(),
+				 new QEvent( QEvent::LayoutHint) );
+
+    if( isTopLevel() ) 
 	QApplication::sendPostedEvents(0, QEvent::LayoutHint);
+    else if ( sendLayoutHint && parentWidget() && !parentWidget()->in_show )
+	QApplication::sendPostedEvents(parentWidget(), QEvent::LayoutHint);
 
     if ( !isTopLevel() && !parentWidget()->isVisible() ) {
 	// we should become visible, but somehow our parent is not
@@ -3546,9 +3552,6 @@ void QWidget::show()
 	    qApp->openPopup( this );
     }
 
-    if ( sendLayoutHint )
-	QApplication::postEvent( parentWidget(),
-				 new QEvent( QEvent::LayoutHint) );
 
 #if defined(QT_ACCESSIBILITY_SUPPORT)
     QAccessible::updateAccessibility( this, 0, QAccessible::ObjectShow );
