@@ -3490,7 +3490,7 @@ void QFileDialog::okClicked()
     
     inf.setFile( d->url.path() + fn );
     
-    if ( !inf.isReadable() ) {
+    if ( !inf.isReadable() || ( inf.isDir() && !inf.isExecutable() ) ) {
 	QMessageBox::critical( this, tr( "Error" ), 
 	    inf.filePath() + tr( " is not accessible" ) + 
 	    "\n\n" + tr( "Access is denied" ) );
@@ -3932,7 +3932,7 @@ void QFileDialog::selectDirectoryOrFile( QListViewItem * newItem )
 	return;
 
     QFileInfo fi( d->url.path() + newItem->text(0) );
-    if ( !fi.isReadable() ) {
+    if ( !fi.isReadable() || ( fi.isDir() && !fi.isExecutable() ) ) {
 	QMessageBox::critical( this, tr( "Error" ), 
 	    QString( d->url.path() + newItem->text(0) ) + tr( " is not accessible" ) + 
 	    "\n\n" + tr( "Access is denied" ) );
