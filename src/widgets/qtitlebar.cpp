@@ -74,45 +74,49 @@ public:
 	QSize controlSize =
 	    t->style().querySubControlMetrics(QStyle::CC_TitleBar, t, control).size();
 
-	switch(control) {
-	case QStyle::SC_None:
-	default:
-	    break;
-
-	case QStyle::SC_TitleBarSysMenu:
-	    tipstring = t->tr("System Menu");
-	    break;
-
-	case QStyle::SC_TitleBarShadeButton:
-	    tipstring = t->tr("Shade");
-	    break;
-
-	case QStyle::SC_TitleBarUnshadeButton:
-	    tipstring = t->tr("Unshade");
-	    break;
-
-	case QStyle::SC_TitleBarNormalButton:
-	case QStyle::SC_TitleBarMinButton:
-	    if(t->window->isMinimized())
-		tipstring = t->tr("Normalize");
-	    else
-		tipstring = t->tr("Minimize");
-	    break;
-
-	case QStyle::SC_TitleBarMaxButton:
-	    tipstring = t->tr("Maximize");
-	    break;
-
-	case QStyle::SC_TitleBarCloseButton:
-	    tipstring = t->tr("Close");
-	    break;
-
-	case QStyle::SC_TitleBarLabel:
-	    if(t->cuttext != t->text)
+	if ( !t->window ) {
+	    if( t->cuttext != t->text )
 		tipstring = t->text;
-	    break;
-	}
+	} else {
+	    switch(control) {
+	    case QStyle::SC_None:
+	    default:
+		break;
 
+	    case QStyle::SC_TitleBarSysMenu:
+		tipstring = t->tr("System Menu");
+		break;
+
+	    case QStyle::SC_TitleBarShadeButton:
+		tipstring = t->tr("Shade");
+		break;
+
+	    case QStyle::SC_TitleBarUnshadeButton:
+		tipstring = t->tr("Unshade");
+		break;
+
+	    case QStyle::SC_TitleBarNormalButton:
+	    case QStyle::SC_TitleBarMinButton:
+		if(t->window->isMinimized())
+		    tipstring = t->tr("Normalize");
+		else
+		    tipstring = t->tr("Minimize");
+		break;
+
+	    case QStyle::SC_TitleBarMaxButton:
+		tipstring = t->tr("Maximize");
+		break;
+
+	    case QStyle::SC_TitleBarCloseButton:
+		tipstring = t->tr("Close");
+		break;
+
+	    case QStyle::SC_TitleBarLabel:
+		if(t->cuttext != t->text)
+		    tipstring = t->text;
+		break;
+	    }
+	}
 	if(!tipstring.isEmpty())
 	    tip( QRect(pos, controlSize), tipstring );
     }
@@ -414,6 +418,8 @@ void QTitleBar::cutText()
 
     int maxw = style().querySubControlMetrics(QStyle::CC_TitleBar, this,
 					      QStyle::SC_TitleBarLabel).width();
+    if ( !window )
+	maxw = width() - 20;
     cuttext = text;
     if ( fm.width( text+"m" ) > maxw ) {
 	int i = text.length();
