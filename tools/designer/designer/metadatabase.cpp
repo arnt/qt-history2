@@ -60,6 +60,7 @@ public:
     QMap<QString, QString> columnFields;
     QMap<QString, QStringList> eventFunctions;
     QMap<QString, QString> functionBodies;
+    QMap<QString, QString> functionComments;
     QValueList<int> breakPoints;
     QString exportMacro;
 };
@@ -1260,6 +1261,34 @@ static QString make_pretty( const QString &s )
     res.replace( QRegExp( "," ), ", " );
     res = res.simplifyWhiteSpace();
     return res;
+}
+
+void MetaDataBase::setFunctionComments( QObject *o, const QString &func, const QString &comments )
+{
+    if ( !o )
+	return;
+    setupDataBase();
+    MetaDataBaseRecord *r = db->find( (void*)o );
+    if ( !r ) {
+	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
+		  o, o->name(), o->className() );
+	return;
+    }
+    r->functionComments.replace( func, comments );
+}
+
+QString MetaDataBase::functionComments( QObject *o, const QString &func )
+{
+    if ( !o )
+	return QString::null;
+    setupDataBase();
+    MetaDataBaseRecord *r = db->find( (void*)o );
+    if ( !r ) {
+	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
+		  o, o->name(), o->className() );
+	return QString::null;
+    }
+    return *r->functionComments.find( func );
 }
 
 void MetaDataBase::setFunctionBodies( QObject *o, const QMap<QString, QString> &bodies, const QString &lang, const QString &returnType )

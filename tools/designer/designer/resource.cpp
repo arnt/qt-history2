@@ -2424,6 +2424,7 @@ void Resource::saveFunctions( QTextStream &ts, int indent )
 	    LanguageInterface::Function func;
 	    func.name = it.key().simplifyWhiteSpace();
 	    func.body = *it;
+	    func.comments = MetaDataBase::functionComments( formwindow, func.name );
 	    // ###### return type
 	    funcs.append( func );
 	}
@@ -2504,6 +2505,7 @@ void Resource::loadExtraSource()
     for ( QValueList<LanguageInterface::Function>::Iterator fit = functions.begin();
 	  fit != functions.end(); ++fit ) {
 	MetaDataBase::addSlot( formwindow, (*fit).name.latin1(), "public", lang, (*fit).returnType );
+	MetaDataBase::setFunctionComments( formwindow, (*fit).name, (*fit).comments );
 	bodies.insert( MetaDataBase::normalizeSlot( (*fit).name ), (*fit).body );
     }
     MetaDataBase::setFunctionBodies( formwindow, bodies, QString::null, QString::null );

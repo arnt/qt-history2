@@ -92,7 +92,12 @@ QString SourceEditor::sourceOfObject( QObject *fw, const QString &lang, EditorIn
 	    if ( (*it).language != lang )
 		continue;
 	    QString sl( (*it).slot );
-	    txt += lIface->createFunctionStart( fw->name(), sl, ( (*it).returnType.isEmpty() ? QString( "void" ) : (*it).returnType ) );
+	    QString comments = MetaDataBase::functionComments( fw, sl );
+	    if ( !comments.isEmpty() )
+		txt += comments + "\n";
+	    txt += lIface->createFunctionStart( fw->name(), sl, ( (*it).returnType.isEmpty() ?
+								  QString( "void" ) :
+								  (*it).returnType ) );
 	    QMap<QString, QString>::Iterator bit = bodies.find( MetaDataBase::normalizeSlot( (*it).slot ) );
 	    if ( bit != bodies.end() )
 		txt += "\n" + *bit + "\n\n";
@@ -126,7 +131,8 @@ void SourceEditor::save()
 	oldSlots = MetaDataBase::slotList( formWindow );
 	lIface->functions( iFace->text(), &functions );
 	QMap<QString, QString> funcs;
-	for ( QValueList<LanguageInterface::Function>::Iterator it = functions.begin(); it != functions.end(); ++it ) {
+	for ( QValueList<LanguageInterface::Function>::Iterator it = functions.begin();
+	      it != functions.end(); ++it ) {
 	    bool found = FALSE;
 	    for ( QValueList<MetaDataBase::Slot>::Iterator sit = oldSlots.begin(); sit != oldSlots.end(); ++sit ) {
 		QString s( (*sit).slot );
@@ -152,6 +158,7 @@ void SourceEditor::save()
 		newSlots << slot;
 		funcs.insert( (*it).name, (*it).body );
 	    }
+	    MetaDataBase::setFunctionComments( formWindow, (*it).name, (*it).comments );
 	}
 
 	MetaDataBase::setSlotList( formWindow, newSlots );

@@ -51,6 +51,7 @@ struct LanguageInterface : public QUnknownInterface
 	QString name;
 	QString body;
 	QString returnType;
+	QString comments;
     };
 
     struct Connection

@@ -210,7 +210,9 @@ public:
     static bool hasEventFunctions( QObject *o );
     static QMap<QString, QStringList> eventFunctions( QObject *o );
     static void setFunctionBodies( QObject *o, const QMap<QString, QString> &bodies, const QString &lang, const QString &returnType );
+    static void setFunctionComments( QObject *o, const QString &func, const QString &comments );
     static QMap<QString, QString> functionBodies( QObject *o );
+    static QString functionComments( QObject *o, const QString &func );
 
     static void setupInterfaceManagers();
     static QStringList languages();
