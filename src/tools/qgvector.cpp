@@ -179,6 +179,10 @@ QGVector::QGVector( const QGVector &a )		// make copy of other vector
 {
     len = a.len;
     numItems = a.numItems;
+    if ( len == 0 ) {
+	vec = 0;
+	return;
+    }
     vec = NEW(Item,len);
     Q_CHECK_PTR( vec );
     for ( uint i=0; i<len; i++ ) {
@@ -206,6 +210,10 @@ QGVector& QGVector::operator=( const QGVector &v )
     clear();					// first delete old vector
     len = v.len;
     numItems = v.numItems;
+    if ( len == 0 ) {
+	vec = 0;
+	return;
+    }
     vec = NEW(Item,len);				// create new vector
     Q_CHECK_PTR( vec );
     for ( uint i=0; i<len; i++ ) {		// copy elements
@@ -346,6 +354,11 @@ bool QGVector::resize( uint newsize )		// resize array
 	    return TRUE;
 	}
 #if defined(DONT_USE_REALLOC)
+	if ( newsize == 0 ) {
+	    DELETE(vec);
+	    vec = 0;
+	    return;
+	}	
 	Item *newvec = NEW(Item,newsize);		// manual realloc
 	memcpy( newvec, vec, (len < newsize ? len : newsize)*sizeof(Item) );
 	DELETE(vec);
@@ -354,7 +367,7 @@ bool QGVector::resize( uint newsize )		// resize array
 	vec = (Item*)realloc( (char *)vec, newsize*sizeof(Item) );
 #endif
     } else {					// create new vector
-	vec = NEW(Item,newsize);
+ 	vec = NEW(Item,newsize);
 	len = numItems = 0;
     }
     Q_CHECK_PTR( vec );
