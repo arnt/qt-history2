@@ -115,6 +115,7 @@ Resource::Resource()
     pasting = FALSE;
     hadGeometry = FALSE;
     langIface = 0;
+    hasFunctions = FALSE;
 }
 
 Resource::Resource( MainWindow* mw )
@@ -126,6 +127,7 @@ Resource::Resource( MainWindow* mw )
     pasting = FALSE;
     hadGeometry = FALSE;
     langIface = 0;
+    hasFunctions = FALSE;
 }
 
 Resource::~Resource()
@@ -2582,6 +2584,22 @@ void Resource::saveFormCode()
 }
 
  // compatibility with early 3.0 betas
+
+static QString make_function_pretty( const QString &s )
+{
+    QString res = s;
+    if ( res.find( ")" ) - res.find( "(" ) == 1 )
+	return res;
+    res.replace( QRegExp( "[(]" ), "( " );
+    res.replace( QRegExp( "[)]" ), " )" );
+    res.replace( QRegExp( "&" ), " &" );
+    res.replace( QRegExp( "[*]" ), " *" );
+    res.replace( QRegExp( "," ), ", " );
+    res.replace( QRegExp( ":" ), " : " );
+    res = res.simplifyWhiteSpace();
+    return res;
+}
+
 void Resource::loadFunctions( const QDomElement &e )
 {
     QDomElement n = e.firstChild().toElement();
@@ -2595,15 +2613,43 @@ void Resource::loadFunctions( const QDomElement &e )
 	n = n.nextSibling().toElement();
     }
     MetaDataBase::setFunctionBodies( formwindow, bodies, QString::null, QString::null );
+    if ( !bodies.isEmpty() ) {
+	LanguageInterface *iface = langIface;
+	if ( !iface )
+	    return;
+	QString code;
+	QValueList<MetaDataBase::Slot> slotList = MetaDataBase::slotList( formwindow );
+	for ( QValueList<MetaDataBase::Slot>::Iterator it = slotList.begin(); it != slotList.end(); ++it ) {
+	    if ( (*it).language != formwindow->project()->language() )
+		continue;
+	    QString sl( (*it).slot );
+	    QString comments = MetaDataBase::functionComments( formwindow, sl );
+	    if ( !comments.isEmpty() )
+		code += comments + "\n";
+	    code += iface->createFunctionStart( formwindow->name(), make_function_pretty( sl ),
+					       ( (*it).returnType.isEmpty() ?
+						 QString( "void" ) :
+						 (*it).returnType ) );
+	    QMap<QString, QString>::Iterator bit = bodies.find( MetaDataBase::normalizeSlot( (*it).slot ) );
+	    if ( bit != bodies.end() )
+		code += "\n" + *bit + "\n\n";
+	    else
+		code += "\n" + iface->createEmptyFunction() + "\n\n";
+	}
+	if ( !code.isEmpty() ) {
+	    formwindow->formFile()->setCode( code );
+	    hasFunctions = TRUE;
+	}
+    }
+	
 }
 
 void Resource::loadExtraSource()
 {
     QString lang = MainWindow::self->currProject()->language();
     LanguageInterface *iface = langIface;
-    if ( !iface )
+    if ( hasFunctions || !iface )
 	return;
-
     QValueList<LanguageInterface::Function> functions;
     QStringList forwards;
     QStringList includesImpl;

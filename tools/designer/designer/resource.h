@@ -143,6 +143,7 @@ private:
     QMap<QString, QValueList<MetaDataBase::Connection> > langConnections;
     QString currFileName;
     LanguageInterface *langIface;
+    bool hasFunctions;
 
 };
 
