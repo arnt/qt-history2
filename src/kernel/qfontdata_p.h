@@ -162,6 +162,7 @@ public:
     HFONT	hfont;
     uint	stockFont:1;
     uint	paintDevice:1;
+    uint        useTextOutA:1;
     union {
 	TEXTMETRICW	w;
 	TEXTMETRICA	a;

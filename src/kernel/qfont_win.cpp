@@ -93,7 +93,7 @@ void QFont::setPixelSizeFloat( float pixelSize )
  *****************************************************************************/
 
 QFontStruct::QFontStruct( const QString &key )
-    : QShared(), k(key), hdc(0), hfont(0), stockFont( 0 ), paintDevice( 0 )
+    : QShared(), k(key), hdc(0), hfont(0), stockFont( 0 ), paintDevice( 0 ), useTextOutA( 0 )
 {
     cache_cost = 1;
 }
@@ -390,6 +390,13 @@ void QFontPrivate::load()
 	if ( paintdevice )
 	    cost *= 10;
 	fin->cache_cost = cost;
+
+	// TextOutW doesn't work for symbol fonts on Windows 95!
+	if ( qt_winver == Qt::WV_95 &&
+	     ( request.family == "Marlett" || request.family == "Symbol" ||
+	     request.family == "Webdings" || request.family == "Wingdings" ) )
+		fin->useTextOutA = TRUE;
+
 	fontCache->insert( k, fin, cost );
     }
     initFontInfo();
@@ -719,10 +726,16 @@ void QFontPrivate::buildCache( HDC hdc, const QString &str, int pos, int len, QF
 void QFontPrivate::drawText( HDC hdc, int x, int y, QFontPrivate::TextRun *cache )
 {
     while ( cache ) {
-	if ( cache->script != QFont::Hebrew )
-	    TextOutW( hdc, x + cache->xoff, y + cache->yoff, (wchar_t *)cache->string, cache->length );
-	else
-	{
+	if ( cache->script != QFont::Hebrew ) {
+	    // hack to get symbol fonts working on Win95. See also QFontPrivate::load()
+	    if ( fin->useTextOutA ) {
+		QConstString str( cache->string, cache->length );
+		QCString cstr = str.string().local8Bit();
+		TextOutA( hdc, x + cache->xoff, y + cache->yoff, cstr.data(), cstr.length() );
+	    } else {
+    		TextOutW( hdc, x + cache->xoff, y + cache->yoff, (wchar_t *)cache->string, cache->length );
+	    }
+	} else {
 	    // we need to print every character by itself to keep the bidi
 	    // algorithm of uniscribe from reordering things once again.
 	    int l = 0;
