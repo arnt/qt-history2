@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#29 $
+** $Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#30 $
 **
 ** Implementation of QPrinter class for X11
 **
@@ -23,7 +23,7 @@
 #include <process.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#29 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#30 $");
 
 
 /*****************************************************************************
@@ -74,7 +74,7 @@ QPrinter::~QPrinter()
 bool QPrinter::newPage()
 {
     if ( state == PST_ACTIVE && pdrv )
-	((QPSPrinter*)pdrv)->cmd( PDC_PRT_NEWPAGE, 0, 0 );
+	return ((QPSPrinter*)pdrv)->cmd( PDC_PRT_NEWPAGE, 0, 0 );
     return FALSE;
 }
 
