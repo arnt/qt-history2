@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#56 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#57 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QString classes
@@ -19,7 +19,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qstring.cpp#56 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qstring.cpp#57 $")
 
 
 /*****************************************************************************
@@ -572,7 +572,7 @@ int QString::find( char c, int index, bool cs ) const
 	return -1;
     register char *d;
     if ( cs )					// case sensitive
-	d = strchr( data()+index, c );
+	d = strchr( (const char *)data()+index, c );
     else {
 	d = data()+index;
 	c = tolower( c );
@@ -600,13 +600,13 @@ int QString::find( const char *str, int index, bool cs ) const
 	return -1;
     register char *d;
     if ( cs )					// case sensitive
-	d = strstr( data()+index, str );
+	d = strstr( (const char *)data()+index, str );
     else {					// case insensitive
 	d = data()+index;
 	int len = strlen( str );
 	while ( *d ) {
-	    if ( tolower(*d) == tolower(*str) && strnicmp( d, str, len ) == 0 )
-		 break;
+	    if ( tolower(*d) == tolower(*str) && strnicmp(d, str, len) == 0 )
+		break;
 	    d++;
 	}
 	if ( !*d )				// not found
