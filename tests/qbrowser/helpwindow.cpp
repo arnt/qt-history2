@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/qbrowser/helpwindow.cpp#1 $
+** $Id: //depot/qt/main/tests/qbrowser/helpwindow.cpp#2 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -253,7 +253,7 @@ void HelpWindow::pathSelected( const QString &_path )
 	    mHistory[ hist->insertItem( _path ) ] = _path;
     } else {
 	url = QUrlOperator( _path );
-	url.get( "" );
+	url.get();
 	pageData = "";
     }
 }
