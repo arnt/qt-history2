@@ -55,9 +55,17 @@ extern uint qGlobalPostedEventsCount(); //qapplication.cpp
  *****************************************************************************/
 //promise keeper
 static DragSendDataUPP qt_mac_send_handlerUPP = 0;
-static OSErr qt_mac_send_handler(FlavorType flav, void *data, DragItemRef, DragRef dragRef)
+
+/*!
+  \internal
+*/
+OSErr QDragManager::qt_mac_send_handler(FlavorType flav, void *data, DragItemRef, DragRef dragRef)
 {
     QDragPrivate *o = (QDragPrivate *)data;
+    QDragManager *manager = QDragManager::self();
+    if(!manager || !manager->object || manager->object->d != o || manager->beingCancelled)
+        return cantGetFlavorErr;
+
     QMacMime::QMacMimeType qmt = QMacMime::MIME_DND;
     {
         ItemReference ref = 0;
@@ -99,7 +107,7 @@ static const DragSendDataUPP make_sendUPP()
     if(qt_mac_send_handlerUPP)
         return qt_mac_send_handlerUPP;
     qAddPostRoutine(cleanup_dnd_sendUPP);
-    return qt_mac_send_handlerUPP = NewDragSendDataUPP(qt_mac_send_handler);
+    return qt_mac_send_handlerUPP = NewDragSendDataUPP(QDragManager::qt_mac_send_handler);
 }
 
 //default pixmap

@@ -265,4 +265,8 @@ inline QMacSavedPortInfo::~QMacSavedPortInfo()
     DisposeRgn(clip);
 }
 
+#ifdef check
+# undef check
+#endif
+
 #endif // QT_MAC_P_H

@@ -32,6 +32,9 @@
 #include "qdrag.h"
 #include "qpixmap.h"
 #include "qpoint.h"
+#ifdef Q_WS_MAC
+# include "private/qt_mac_p.h"
+#endif
 
 class QEventLoop;
 
@@ -109,11 +112,16 @@ public:
     QPixmap dragCursor(Qt::DropAction action) const;
 
     bool hasCustomDragCursors() const;
-    
+
     QDropData *dropData;
 
     void emitActionChanged(Qt::DropAction newAction) { if (object) emit object->actionChanged(newAction); }
     void emitTargetChanged(QWidget *newTarget) { if (object) emit object->targetChanged(newTarget); }
+
+#ifdef Q_WS_MAC
+    static OSErr qt_mac_send_handler(FlavorType, void *, DragItemRef, DragRef); //qdnd_mac.cpp
+#endif
+
 private:
     QPixmap *pm_cursor;
     int n_cursor;
