@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QFont/QFontMetrics class for mac
 **
 ** Created : 001019
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -27,7 +27,6 @@
 **
 **********************************************************************/
 
-#include <stdlib.h>
 #include "qstring.h"
 #include "qfont.h"
 #include "qfontdata_p.h"
@@ -49,6 +48,7 @@
 #  include <ApplicationServices/ApplicationServices.h>
 # endif
 #endif
+#include <stdlib.h>
 
 /*****************************************************************************
   QFont debug facilities

@@ -5,7 +5,7 @@
 **
 ** Created : 970521
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -28,6 +28,7 @@
 **********************************************************************/
 
 #include "qt_mac.h"
+#include <stdlib.h>
 
 static
 void add_style( QtFontFamily *family, const QString& styleName,
@@ -155,4 +156,3 @@ void QFontDatabase::createDatabase()
 	FMDisposeFontFamilyIterator(&it);
     }
 }
-

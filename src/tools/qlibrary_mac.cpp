@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QLibraryPrivate class
 **
 ** Created : 2000-01-01
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -28,6 +28,7 @@
 **********************************************************************/
 
 #include "private/qlibrary_p.h"
+#include <stdlib.h>
 
 /*
   The platform dependent implementations of

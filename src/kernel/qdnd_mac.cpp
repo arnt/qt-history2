@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** DND implementation for mac.
 **
 ** Created : 001019
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -27,7 +27,6 @@
 **
 **********************************************************************/
 
-#include <stdlib.h>
 #include "qapplication.h"
 
 #ifndef QT_NO_DRAGANDDROP
@@ -41,6 +40,7 @@
 #include "qt_mac.h"
 #include "qpainter.h"
 #include "qcursor.h"
+#include <stdlib.h>
 
 struct QMacDndExtra {
     QWidget *widget;

@@ -5,7 +5,7 @@
 **
 ** Created: 2001.11.30
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -39,6 +39,7 @@
 #include <qptrlist.h>
 #include <qwindowdefs.h>
 #include <CoreFoundation/CoreFoundation.h>
+#include <stdlib.h>
 
 /*****************************************************************************
   QSettings debug facilities

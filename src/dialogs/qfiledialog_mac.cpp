@@ -5,7 +5,7 @@
 **
 ** Created : 001018
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -38,6 +38,7 @@
 #include "qbuffer.h"
 #include "qstringlist.h"
 #include "qtextcodec.h"
+#include <stdlib.h>
 
 static UInt8 *str_buffer = NULL;
 static void cleanup_str_buffer()

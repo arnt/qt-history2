@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QDir class
 **
 ** Created : 950628
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -27,8 +27,6 @@
 **
 **********************************************************************/
 
-#include "qglobal.h"
-
 #include "qdir.h"
 #ifndef QT_NO_DIR
 
@@ -39,9 +37,9 @@
 #include "qfiledefs_p.h"
 #include "qregexp.h"
 #include "qstringlist.h"
+#include "qt_mac.h"
 #include <stdlib.h>
 #include <ctype.h>
-#include "qt_mac.h"
 
 static QString qt_cwd = "";
 const unsigned char * p_str(const char * c, int len=-1); //qglobal_mac.cpp
