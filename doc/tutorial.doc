@@ -219,7 +219,7 @@ We still pass 0 as the parent, since the button is a top-level window.
 \line resize
 
 We've chosen another size for the button since the text is a bit
-shorter than "Hello World!".  We could also have used \l QFontMetrics
+shorter than "Hello world!".  We could also have used \l QFontMetrics
 to set right size.
 
 \line setFont
