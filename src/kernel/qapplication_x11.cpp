@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#74 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#75 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -32,7 +32,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#74 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#75 $";
 #endif
 
 
@@ -258,7 +258,7 @@ void qt_init( int *argcptr, char **argv )
 	QPalette pal( cg, cg, cg );
 	QApplication::setPalette( pal );
     }
-    (void) setlocale(LC_ALL, "ISO-8859-1")); 	// ### move to qapp.cpp?
+    (void) setlocale(LC_ALL, "ISO-8859-1"); 	// ### move to qapp.cpp?
 }
 
 
