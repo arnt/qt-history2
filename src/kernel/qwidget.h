@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#79 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#80 $
 **
 ** Definition of QWidget class
 **
@@ -68,19 +68,18 @@ public:
     QRect	 rect()		const;
     QRect	 childrenRect() const;
 
+
 #if defined(OBSOLETE)
-    void	 setMinimumSize( int w, int h );
-    void	 setMaximumSize( int w, int h );
     bool	 minimumSize( int *w, int *h )	 const;
     bool	 maximumSize( int *w, int *h )	 const;
     bool	 sizeIncrement( int *w, int *h ) const;
 #endif
-    QSize	 minSize()	const;
-    QSize	 maxSize()	const;
-    void	 setMinSize( const QSize & );
-    void	 setMinSize( int w, int h );
-    void	 setMaxSize( const QSize & );
-    void	 setMaxSize( int w, int h );
+    QSize	 minimumSize()	const;
+    QSize	 maximumSize()	const;
+    void	 setMinimumSize( const QSize & );
+    void	 setMinimumSize( int w, int h );
+    void	 setMaximumSize( const QSize & );
+    void	 setMaximumSize( int w, int h );
 
     QSize	 sizeIncrement() const;
     void	 setSizeIncrement( const QSize & );
@@ -341,31 +340,21 @@ inline int QWidget::height() const
 inline QRect QWidget::rect() const
 { return QRect(0,0,crect.width(),crect.height()); }
 
-inline void QWidget::setMinSize( const QSize &s )
-{ setMinSize(s.width(),s.height()); }
-
-inline void QWidget::setMaxSize( const QSize &s )
-{ setMaxSize(s.width(),s.height()); }
-
 inline void QWidget::setSizeIncrement( const QSize &s )
 { setSizeIncrement(s.width(),s.height()); }
 
+
+inline void QWidget::setMinimumSize( const QSize &s )
+{ setMinimumSize(s.width(),s.height()); }
+
+inline void QWidget::setMaximumSize( const QSize &s )
+{ setMaximumSize(s.width(),s.height()); }
+
+
 #if defined(OBSOLETE)
-inline void QWidget::setMinimumSize( int w, int h )
-{
-    qObsolete( "QWidget", "setMinimumSize", "setMinSize" );
-    setMinSize( w, h );
-}
-
-inline void QWidget::setMaximumSize( int w, int h )
-{
-    qObsolete( "QWidget", "setMaximumSize", "setMaxSize" );
-    setMaxSize( w, h );
-}
-
 inline bool QWidget::minimumSize( int *w, int *h ) const
 {
-    qObsolete( "QWidget", "minimumSize", "minSize" );
+    qObsolete( "QWidget", "minimumSize(int*,int*)", "minimumSize()" );
     if ( extra && extra->minw >= 0 && w && h) {
 	*w = extra->minw;
 	*h = extra->minh;
@@ -376,7 +365,7 @@ inline bool QWidget::minimumSize( int *w, int *h ) const
 
 inline bool QWidget::maximumSize( int *w, int *h ) const
 {
-    qObsolete( "QWidget", "maximumSize", "maxSize" );
+    qObsolete( "QWidget", "maximumSize(int*,int*)", "maximumSize()" );
     if ( extra && extra->maxw >= 0 && w && h ) {
 	*w = extra->maxw;
 	*h = extra->maxh;
@@ -387,7 +376,8 @@ inline bool QWidget::maximumSize( int *w, int *h ) const
 
 inline bool QWidget::sizeIncrement( int *w, int *h ) const
 {
-    qObsolete( "QWidget", "sizeIncrement", "QSize sizeIncrement()" );
+    qObsolete( "QWidget", "sizeIncrement(int*,int*)", 
+	       "sizeIncrement()" );
     if ( extra && extra->incw >= 0 && w && h ) {
 	*w = extra->incw;
 	*h = extra->inch;

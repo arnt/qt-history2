@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#113 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#114 $
 **
 ** Implementation of QWidget class
 **
@@ -20,7 +20,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#113 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#114 $")
 
 
 /*----------------------------------------------------------------------------
@@ -583,10 +583,10 @@ QRect QWidget::childrenRect() const
   The widget cannot be resized to a smaller size than the minimum widget
   size.
 
-  \sa setMinSize(), maxSize(), sizeIncrement()
+  \sa setMinimumSize(), maximumSize(), sizeIncrement()
  ----------------------------------------------------------------------------*/
 
-QSize QWidget::minSize() const
+QSize QWidget::minimumSize() const
 {
     return extra ? QSize(extra->minw,extra->minh) : QSize(0,0);
 }
@@ -597,10 +597,10 @@ QSize QWidget::minSize() const
   The widget cannot be resized to a larger size than the maximum widget
   size.
 
-  \sa setMaxSize(), minSize(), sizeIncrement()
+  \sa setMaximumSize(), minimumSize(), sizeIncrement()
  ----------------------------------------------------------------------------*/
 
-QSize QWidget::maxSize() const
+QSize QWidget::maximumSize() const
 {
     return extra ? QSize(extra->maxw,extra->maxh) : QSize(0,0);
 }
@@ -608,7 +608,7 @@ QSize QWidget::maxSize() const
 /*----------------------------------------------------------------------------
   Returns the widget size increment.
 
-  \sa setSizeIncrement(), minSize(), maxSize()
+  \sa setSizeIncrement(), minimumSize(), maximumSize()
  ----------------------------------------------------------------------------*/
 
 QSize QWidget::sizeIncrement() const

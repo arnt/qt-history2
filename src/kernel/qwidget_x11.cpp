@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#129 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#130 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#129 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#130 $")
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -1075,7 +1075,7 @@ void QWidget::setGeometry( int x, int y, int w, int h )
 
 
 /*----------------------------------------------------------------------------
-  \overload void QWidget::setMinSize( const QSize &size )
+  \overload void QWidget::setMinimumSize( const QSize &size )
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
@@ -1086,14 +1086,14 @@ void QWidget::setGeometry( int x, int y, int w, int h )
   Note that while you can set the minimum size for all widgets, it has
   no effect except for top-level widgets.
 
-  \sa minSize(), setMaxSize(), setSizeIncrement(), size()
+  \sa minimumSize(), setMaximumSize(), setSizeIncrement(), size()
  ----------------------------------------------------------------------------*/
 
-void QWidget::setMinSize( int w, int h )
+void QWidget::setMinimumSize( int w, int h )
 {
 #if defined(CHECK_RANGE)
     if ( w < 0 || h < 0 )
-	warning( "QWidget::setMinSize: The smallest allowed size is (0,0)" );
+	warning( "QWidget::setMinimumSize: The smallest allowed size is (0,0)" );
 #endif
     createExtra();
     extra->minw = w;
@@ -1106,7 +1106,7 @@ void QWidget::setMinSize( int w, int h )
 }
 
 /*----------------------------------------------------------------------------
-  \overload void QWidget::setMaxSize( const QSize &size )
+  \overload void QWidget::setMaximumSize( const QSize &size )
  ----------------------------------------------------------------------------*/
 /*----------------------------------------------------------------------------
   Sets the maximum size of the widget to \e w by \e h pixels.
@@ -1116,14 +1116,14 @@ void QWidget::setMinSize( int w, int h )
   Note that while you can set the maximum size for all widgets, it has
   no effect except for top-level widgets.
 
-  \sa maxSize(), setMinSize(), setSizeIncrement(), size()
+  \sa maximumSize(), setMinimumSize(), setSizeIncrement(), size()
  ----------------------------------------------------------------------------*/
 
-void QWidget::setMaxSize( int w, int h )
+void QWidget::setMaximumSize( int w, int h )
 {
 #if defined(CHECK_RANGE)
     if ( w > QCOORD_MAX || h > QCOORD_MAX )
-	warning( "QWidget::setMaxSize: The largest allowed size is (%d,%d)",
+	warning( "QWidget::setMaximumSize: The largest allowed size is (%d,%d)",
 		 QCOORD_MAX, QCOORD_MAX );
 #endif
     createExtra();
@@ -1146,7 +1146,7 @@ void QWidget::setMaxSize( int w, int h )
 
   \warning The size increment has no effect under Windows.
 
-  \sa sizeIncrement(), setMinSize(), setMaxSize(), size()
+  \sa sizeIncrement(), setMinimumSize(), setMaximumSize(), size()
  ----------------------------------------------------------------------------*/
 
 void QWidget::setSizeIncrement( int w, int h )
