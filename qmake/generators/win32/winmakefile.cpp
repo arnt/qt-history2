@@ -425,3 +425,21 @@ Win32MakefileGenerator::processPrlFiles()
 	    break;
     }
 }
+
+void Win32MakefileGenerator::processLibsVar()
+{
+    project->variables()["QMAKE_LIBS"] += project->variables()["LIBS"];
+    QStringList &libList = project->variables()["QMAKE_LIBS"];
+    for (QStringList::Iterator stIt = libList.begin(); stIt != libList.end() ;) {
+	QString s = *stIt;
+	if (s.startsWith("-l")) {
+	    stIt = libList.erase(stIt);
+	    stIt = libList.insert(stIt, s.mid(2) + ".lib");
+        } else if (s.startsWith("-L")) {
+	    stIt = libList.erase(stIt);
+	    project->variables()["QMAKE_LIBDIR"].append(QDir::convertSeparators(s.mid(2)));
+	} else {
+	    stIt++;
+	}
+    }
+}

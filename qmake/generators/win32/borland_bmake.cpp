@@ -373,21 +373,8 @@ BorlandMakefileGenerator::init()
     if ( project->isActiveConfig("moc") ) {
 	setMocAware(TRUE);
     }
-    project->variables()["QMAKE_LIBS"] += project->variables()["LIBS"];
-    // Update -lname to name.lib, and -Ldir to
-    QStringList &libList = project->variables()["QMAKE_LIBS"];
-    for( QStringList::Iterator stIt = libList.begin(); stIt != libList.end(); ) {
-	QString s = *stIt;
-	if( s.startsWith( "-l" ) ) {
-	    stIt = libList.erase( stIt );
-	    stIt = libList.insert( stIt, s.mid( 2 ) + ".lib" );
-        } else if( s.startsWith( "-L" ) ) {
-	    stIt = libList.erase( stIt );
-	    project->variables()["QMAKE_LIBDIR"].append(QDir::convertSeparators(s.mid( 2 )));
-	} else {
-	    stIt++;
-	}
-    }
+
+    processLibsVar();
 
     char *filetags[] = { "HEADERS", "SOURCES", "DEF_FILE", "RC_FILE", "TARGET", "QMAKE_LIBS", "DESTDIR", "DLLDESTDIR", "INCLUDEPATH", NULL };
     for(int i = 0; filetags[i]; i++) {

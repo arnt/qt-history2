@@ -34,6 +34,7 @@ protected:
     QString findDependency(const QString &);
     virtual bool findLibraries();
     virtual void processPrlFiles();
+    virtual void processLibsVar();
 
 public:
     Win32MakefileGenerator(QMakeProject *p);

@@ -471,17 +471,7 @@ NmakeMakefileGenerator::init()
 	setMocAware(TRUE);
     project->variables()["QMAKE_LIBS"] += project->variables()["LIBS"];
 
-    QStringList &libs = project->variables()["QMAKE_LIBS"];
-    for(QStringList::Iterator libit = libs.begin(); libit != libs.end(); ++libit) {
-	if( (*libit).startsWith("-l")) {
-	    (*libit) = (*libit).mid(2) + ".lib";
-	} else if((*libit).startsWith("-L")) {
-	    project->variables()["QMAKE_LIBDIR"] += (*libit).mid(2);
-	    libit = libs.erase(libit);
-	    if(libit == libs.end())
-		break;
-	}
-    }
+    processLibsVar();
 
     char *filetags[] = { "HEADERS", "SOURCES", "DEF_FILE", "RC_FILE", "TARGET", "QMAKE_LIBS", "DESTDIR", "DLLDESTDIR", "INCLUDEPATH", NULL };
     for(int i = 0; filetags[i]; i++) {

@@ -585,16 +585,7 @@ MingwMakefileGenerator::init()
     if(project->isActiveConfig("moc"))
 	setMocAware(TRUE);
     
-    // add -L libs to libdir
-    QStringList &libs = project->variables()["QMAKE_LIBS"];
-    for (QStringList::Iterator libit = libs.begin(); libit != libs.end(); ) {
-	if((*libit).startsWith("-L")) {
-	    project->variables()["QMAKE_LIBDIR"] += (*libit).mid(2);
-	    libit = libs.erase(libit);
-	} else {
-	    ++libit;
-	}
-    }
+    processLibsVar();
 
     char *filetags[] = { "HEADERS", "SOURCES", "DEF_FILE", "RC_FILE", "TARGET", "QMAKE_LIBS", "DESTDIR", "DLLDESTDIR", "INCLUDEPATH", NULL };
     for(int i = 0; filetags[i]; i++) {
@@ -694,4 +685,17 @@ MingwMakefileGenerator::writeSubDirs(QTextStream &t)
 	pos += (rx.cap(1).length()+qsMatch.length());
     }
     t << qs ;
+}
+
+void MingwMakefileGenerator::processLibsVar()
+{
+    QStringList &libs = project->variables()["QMAKE_LIBS"];
+    for (QStringList::Iterator libit = libs.begin(); libit != libs.end(); ) {
+	if((*libit).startsWith("-L")) {
+	    project->variables()["QMAKE_LIBDIR"] += (*libit).mid(2);
+	    libit = libs.erase(libit);
+	} else {
+	    ++libit;
+	}
+    }
 }

@@ -717,16 +717,7 @@ DspMakefileGenerator::init()
 
     processPrlFiles();
 
-     // Update -lname to name.lib,
-    QStringList &libs2 = project->variables()["QMAKE_LIBS"];
-    for(QStringList::Iterator libit2 = libs2.begin(); libit2 != libs2.end(); ++libit2) {
-	if( (*libit2).startsWith("-l")) {
-	    (*libit2) = (*libit2).mid(2) + ".lib";
-	} else if((*libit2).startsWith("-L")) {
-	    project->variables()["QMAKE_LIBDIR"] += (*libit2).mid(2);
-	    libit2 = libs2.erase(libit2);
-	}
-    }
+    processLibsVar();
 
     project->variables()["MSVCDSP_LFLAGS" ] += project->variables()["QMAKE_LFLAGS"];
     if(!project->variables()["QMAKE_LIBDIR"].isEmpty())

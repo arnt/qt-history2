@@ -27,6 +27,7 @@ class MingwMakefileGenerator : public Win32MakefileGenerator
     void init();
     
     virtual bool findLibraries();
+    void processLibsVar();
 
 public:
     MingwMakefileGenerator(QMakeProject *p);
