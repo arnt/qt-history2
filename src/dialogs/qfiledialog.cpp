@@ -1233,8 +1233,7 @@ void QFileListBox::viewportMousePressEvent( QMouseEvent *e )
     }
 
      if ( !firstMousePressEvent && !didRename && i == currentItem() && currentItem() != -1 &&
-	 wasSelected && filedialog->mode() != QFileDialog::ExistingFiles &&
-	 QUrlInfo( filedialog->d->url, "." ).isWritable() && item( currentItem() )->text() != ".." ) {
+	  wasSelected && QUrlInfo( filedialog->d->url, "." ).isWritable() && item( currentItem() )->text() != ".." ) {
 	renameTimer->start( QApplication::doubleClickInterval(), TRUE );
 	renameItem = item( i );
     }
@@ -1647,7 +1646,6 @@ void QFileDialogQFileListView::viewportMousePressEvent( QMouseEvent *e )
     }
 
     if ( !firstMousePressEvent && !didRename && i == currentItem() && currentItem() &&
-	 filedialog->mode() != QFileDialog::ExistingFiles &&
 	 QUrlInfo( filedialog->d->url, "." ).isWritable() && currentItem()->text( 0 ) != ".." ) {
 	renameTimer->start( QApplication::doubleClickInterval(), TRUE );
 	renameItem = currentItem();
@@ -3952,8 +3950,9 @@ void QFileDialog::detailViewSelectionChanged()
     d->moreFiles->blockSignals( TRUE );
     while( i ) {
 	if ( d->moreFiles && isVisible() ) {
-	    if ( ( (QFileDialogPrivate::File *)i )->i->isSelected() != i->isSelected() )
-		d->moreFiles->setSelected( ( (QFileDialogPrivate::File *)i )->i, i->isSelected() );
+	    QFileDialogPrivate::File *f = (QFileDialogPrivate::File *)i;
+	    if ( f->i && f->i->isSelected() != i->isSelected() )
+		d->moreFiles->setSelected( f->i, i->isSelected() );
 	}
 	if ( i->isSelected() && !( (QFileDialogPrivate::File *)i )->info.isDir() )
 	    str += QString( "\"%1\" " ).arg( i->text( 0 ) );
@@ -4033,7 +4032,7 @@ void QFileDialog::updateFileNameEdit( QListBoxItem * newItem )
     if ( !newItem )
 	return;
     QFileDialogPrivate::MCItem * i = (QFileDialogPrivate::MCItem *)newItem;
-    if ( d->mode != ExistingFiles && i->i ) {
+    if ( i->i ) {
 	i->i->listView()->setSelected( i->i, i->isSelected() );
 	updateFileNameEdit( i->i );
     }
@@ -4127,8 +4126,6 @@ void QFileDialog::selectDirectoryOrFile( QListBoxItem * newItem )
 void QFileDialog::popupContextMenu( QListViewItem *item, const QPoint &p,
 				    int )
 {
-    if ( item && d->mode == ExistingFiles )
-	return;
     if ( item ) {
 	files->setCurrentItem( item );
 	files->setSelected( item, TRUE );
@@ -4170,9 +4167,6 @@ void QFileDialog::popupContextMenu( QListViewItem *item, const QPoint &p,
 
 void QFileDialog::popupContextMenu( QListBoxItem *item, const QPoint & p )
 {
-    if ( item && d->mode == ExistingFiles )
-	return;
-
     PopupAction action;
     popupContextMenu( item ? item->text() : QString::null, FALSE, action, p );
 
@@ -4239,9 +4233,6 @@ void QFileDialog::popupContextMenu( const QString &filename, bool,
 	    m.setItemEnabled( rename, FALSE );
 	    m.setItemEnabled( del, FALSE );
 	}
-
-	if ( mode() == QFileDialog::ExistingFiles )
-	    m.setItemEnabled( rename, FALSE );
 
 	m.move( p );
 	int res = m.exec();
@@ -5264,8 +5255,7 @@ bool QFileDialog::eventFilter( QObject * o, QEvent * e )
     } else if ( e->type() == QEvent::KeyPress && ( (QKeyEvent*)e )->key() == Key_F2 &&
 		( o == files || o == files->viewport() ) ) {
 	if ( files->isVisible() && files->currentItem() ) {
-	    if ( mode() != QFileDialog::ExistingFiles &&
-		 QUrlInfo( d->url, "." ).isWritable() && files->currentItem()->text( 0 ) != ".." ) {
+	    if ( QUrlInfo( d->url, "." ).isWritable() && files->currentItem()->text( 0 ) != ".." ) {
 		files->renameItem = files->currentItem();
 		files->startRename( TRUE );
 	    }
@@ -5275,8 +5265,7 @@ bool QFileDialog::eventFilter( QObject * o, QEvent * e )
     } else if ( e->type() == QEvent::KeyPress && ( (QKeyEvent*)e )->key() == Key_F2 &&
 		( o == d->moreFiles || o == d->moreFiles->viewport() ) ) {
 	if ( d->moreFiles->isVisible() && d->moreFiles->currentItem() != -1 ) {
-	    if ( mode() != QFileDialog::ExistingFiles &&
-		 QUrlInfo( d->url, "." ).isWritable() &&
+	    if ( QUrlInfo( d->url, "." ).isWritable() &&
 		 d->moreFiles->item( d->moreFiles->currentItem() )->text() != ".." ) {
 		d->moreFiles->renameItem = d->moreFiles->item( d->moreFiles->currentItem() );
 		d->moreFiles->startRename( TRUE );
@@ -5320,8 +5309,7 @@ bool QFileDialog::eventFilter( QObject * o, QEvent * e )
 	    deleteFile( d->moreFiles->item( c )->text() );
 	((QKeyEvent *)e)->accept();
 	return TRUE;
-    } else if ( o == files && e->type() == QEvent::FocusOut &&
-		files->currentItem() && mode() != ExistingFiles ) {
+    } else if ( o == files && e->type() == QEvent::FocusOut && files->currentItem() ) { 
     } else if ( o == files && e->type() == QEvent::KeyPress ) {
 	QTimer::singleShot( 0, this, SLOT(fixupNameEdit()) );
     } else if ( o == nameEdit && e->type() == QEvent::KeyPress ) {
@@ -5604,7 +5592,7 @@ QStringList QFileDialog::getOpenFileNames( const QString & filter,
 
 void QFileDialog::fixupNameEdit()
 {
-    if ( files->currentItem() && d->mode != ExistingFiles ) {
+    if ( files->currentItem() ) {
 	if ( ( (QFileDialogPrivate::File*)files->currentItem() )->info.isFile() )
 	    nameEdit->setText( files->currentItem()->text( 0 ) );
     }
