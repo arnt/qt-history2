@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#74 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#75 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -19,7 +19,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#74 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#75 $");
 
 
 /*!
@@ -1361,7 +1361,7 @@ const char *QImageIO::imageFormat( QIODevice *d )
     int pos   = d->at();			// save position
     int rdlen = d->readBlock( buf, buflen );	// read a few bytes
     for ( int n = 0; n<rdlen; n++ )
-	if ( buf[n] = '\0' )
+	if ( buf[n] == '\0' )
 	    buf[n] = '\001';
     buf[rdlen] = '\0';
     const char *format = 0;
