@@ -490,6 +490,31 @@ MakefileGenerator::init()
 	v["OBJECTS"] += (v["UICOBJECTS"] = createObjectList("UICDECLS"));
     }
 
+    //Image files
+    {
+	if(project->isEmpty("QMAKE_IMAGE_FILE"))
+	    v["QMAKE_IMAGE_FILE"].append("images.cpp");
+	QString imgfile = project->first("QMAKE_IMAGE_FILE");
+	Option::fixPathToTargetOS(imgfile);
+	if(!project->isEmpty("UI_DIR")) {
+	    if(imgfile.find(Option::dir_sep) != -1)
+		imgfile = imgfile.right(imgfile.findRev(Option::dir_sep) + 1);
+	    imgfile.prepend(project->first("UI_DIR"));
+	}
+	logicWarn(imgfile, "SOURCES");
+	QStringList &l = v["IMAGES"];
+	for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
+	    QString f = (*it);
+	    fileFixify(f);
+	    if(!QFile::exists(f)) {
+		warn_msg(WarnLogic, "Failure to open: %s", f.latin1());
+		continue;
+	    }
+	    depends[imgfile].append(f);
+	}
+	v["OBJECTS"] += (v["IMAGEOBJECTS"] = createObjectList("QMAKE_IMAGE_FILE"));
+    }
+
     //lex files
     {
 	QStringList &impls = v["LEXIMPLS"];
@@ -775,6 +800,48 @@ MakefileGenerator::writeLexSrc(QTextStream &t, const QString &src)
 }
 
 void
+MakefileGenerator::writeImageObj(QTextStream &t, const QString &obj)
+{
+    QStringList &objl = project->variables()[obj];
+    QRegExp regexpSrc("\\$src");
+    QRegExp regexpObj("\\$obj");
+
+    QString uidir;
+    if(!project->variables()["UI_DIR"].isEmpty())
+	uidir = project->first("UI_DIR");
+    for(QStringList::Iterator oit = objl.begin(); oit != objl.end(); oit++) {
+	QFileInfo fi(Option::fixPathToLocalOS((*oit)));
+	QString dirName;
+	if( !uidir.isEmpty() )
+	    dirName = uidir;
+	else if(!fi.dirPath().isEmpty() && fi.dirPath() != ".")
+	    dirName = Option::fixPathToTargetOS(fi.dirPath(), FALSE) + Option::dir_sep;
+	QString src(dirName + fi.baseName() + Option::cpp_ext );
+	t << (*oit) << ": " << src;
+	if ( !project->variables()["OBJECTS_DIR"].isEmpty() ||
+	     !project->variables()["UI_DIR"].isEmpty() ||
+	     project->variables()["QMAKE_RUN_CXX_IMP"].isEmpty()) {
+	    QString p = var("QMAKE_RUN_CXX");
+	    p.replace( regexpSrc, src);
+	    p.replace( regexpObj, (*oit));
+	    t << "\n\t" << p;
+	}
+	t << endl << endl;
+    }
+}
+
+
+void
+MakefileGenerator::writeImageSrc(QTextStream &t, const QString &src)
+{
+    QStringList &l = project->variables()[src];
+    for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
+	t << (*it) << ": " << depends[(*it)].join(" \\\n\t\t") << "\n\t"
+	  << "$(UIC) " << " -imagefile " << depends[(*it)].join(" ") << " -o " << (*it) << endl << endl;
+    }
+}
+
+void
 MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
 {
     QString all_installs;
@@ -906,6 +973,8 @@ MakefileGenerator::writeMakefile(QTextStream &t)
     writeMocSrc(t, "UICDECLS");
     writeYaccSrc(t, "YACCSOURCES");
     writeLexSrc(t, "LEXSOURCES");
+    writeImageObj(t, "IMAGEOBJECTS");
+    writeImageSrc(t, "QMAKE_IMAGE_FILE");
 
     t << "####### Install" << endl << endl;
     writeInstalls(t, "INSTALLS");

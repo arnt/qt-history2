@@ -54,6 +54,8 @@ class MakefileGenerator
     void writeLexSrc(QTextStream &, const QString &lex);
     void writeYaccSrc(QTextStream &, const QString &yac);
     void writeInstalls(QTextStream &t, const QString &installs);
+    void writeImageObj(QTextStream &t, const QString &obj);
+    void writeImageSrc(QTextStream &t, const QString &images);
     QMap<QString, QString> mocablesToMOC, mocablesFromMOC;
 
 protected:
