@@ -754,187 +754,44 @@ bool QApplication::x11_apply_settings()
 	/*
 	  Qt settings.  This is now they are written into the datastream.
 
-	  /qt/palette               - QPalette
-	  /qt/font                  - QFont
-	  /qt/librarypath           - QStringList
-	  /qt/style                 - QString
-	  /qt/doubleclicktime       - int
-	  /qt/cursorflashtime       - int
-	  /qt/wheelscrolllines      - int
-	  /qt/colorspec             - QString
-	  /qt/defaultcodec          - QString
-	  /qt/globalstrut           - QSize
-	  /qt/guieffects            - QStringList
-	  /qt/fontSubstitutions/ *  - QStringList
-	  /qt/fontSubstitutions/... - QStringList
+	  /qt/Palette/ *             - QPalette
+	  /qt/font                   - QFont
+	  /qt/libraryPath            - QStringList
+	  /qt/style                  - QString
+	  /qt/doubleClickInterval    - int
+	  /qt/cursorFlashTime        - int
+	  /qt/wheelScrollLines       - int
+	  /qt/colorSpec              - QString
+	  /qt/defaultCodec           - QString
+	  /qt/globalStrut            - QSize
+	  /qt/GUIEffects             - QStringList
+	  /qt/Font Substitutions/ *  - QStringList
+	  /qt/Font Substitutions/... - QStringList
 	*/
 
 	QString str;
-	int num;
+	QStringList strlist;
+	int i, num;
 	QPalette pal(QApplication::palette());
 
-	// read new colors
-	str = QApplication::settings()->readEntry("/qt/Palette/activeForeground");
-	if (! str.isNull() && ! str.isEmpty())
-	    pal.setColor(QPalette::Active,
-			 QColorGroup::Foreground,
-			 QColor(str));
-
-	str = QApplication::settings()->readEntry("/qt/Palette/activeButton");
-	if (! str.isNull() && ! str.isEmpty())
-	    pal.setColor(QPalette::Active,
-			 QColorGroup::Button,
-			 QColor(str));
-
-	str = QApplication::settings()->readEntry("/qt/Palette/activeText");
-	if (! str.isNull() && ! str.isEmpty())
-	    pal.setColor(QPalette::Active,
-			 QColorGroup::Text,
-			 QColor(str));
-
-	str = QApplication::settings()->readEntry("/qt/Palette/activeBrightText");
-	if (! str.isNull() && ! str.isEmpty())
-	    pal.setColor(QPalette::Active,
-			 QColorGroup::BrightText,
-			 QColor(str));
-
-	str = QApplication::settings()->readEntry("/qt/Palette/activeButtonText");
-	if (! str.isNull() && ! str.isEmpty())
-	    pal.setColor(QPalette::Active,
-			 QColorGroup::ButtonText,
-			 QColor(str));
-
-	str = QApplication::settings()->readEntry("/qt/Palette/activeBase");
-	if (! str.isNull() && ! str.isEmpty())
-	    pal.setColor(QPalette::Active,
-			 QColorGroup::Base,
-			 QColor(str));
-
-	str = QApplication::settings()->readEntry("/qt/Palette/activeBackground");
-	if (! str.isNull() && ! str.isEmpty())
-	    pal.setColor(QPalette::Active,
-			 QColorGroup::Background,
-			 QColor(str));
-
-	str = QApplication::settings()->readEntry("/qt/Palette/activeHighlight");
-	if (! str.isNull() && ! str.isEmpty())
-	    pal.setColor(QPalette::Active,
-			 QColorGroup::Highlight,
-			 QColor(str));
-
-	str = QApplication::settings()->readEntry("/qt/Palette/activeHighlightedText");
-	if (! str.isNull() && ! str.isEmpty())
-	    pal.setColor(QPalette::Active,
-			 QColorGroup::HighlightedText,
-			 QColor(str));
-
-	str = QApplication::settings()->readEntry("/qt/Palette/inactiveForeground");
-	if (! str.isNull() && ! str.isEmpty())
-	    pal.setColor(QPalette::Inactive,
-			 QColorGroup::Foreground,
-			 QColor(str));
-
-	str = QApplication::settings()->readEntry("/qt/Palette/inactiveButton");
-	if (! str.isNull() && ! str.isEmpty())
-	    pal.setColor(QPalette::Inactive,
-			 QColorGroup::Button,
-			 QColor(str));
-
-	str = QApplication::settings()->readEntry("/qt/Palette/inactiveText");
-	if (! str.isNull() && ! str.isEmpty())
-	    pal.setColor(QPalette::Inactive,
-			 QColorGroup::Text,
-			 QColor(str));
-
-	str = QApplication::settings()->readEntry("/qt/Palette/inactiveBrightText");
-	if (! str.isNull() && ! str.isEmpty())
-	    pal.setColor(QPalette::Inactive,
-			 QColorGroup::BrightText,
-			 QColor(str));
-
-	str = QApplication::settings()->readEntry("/qt/Palette/inactiveButtonText");
-	if (! str.isNull() && ! str.isEmpty())
-	    pal.setColor(QPalette::Inactive,
-			 QColorGroup::ButtonText,
-			 QColor(str));
-
-	str = QApplication::settings()->readEntry("/qt/Palette/inactiveBase");
-	if (! str.isNull() && ! str.isEmpty())
-	    pal.setColor(QPalette::Inactive,
-			 QColorGroup::Base,
-			 QColor(str));
-
-	str = QApplication::settings()->readEntry("/qt/Palette/inactiveBackground");
-	if (! str.isNull() && ! str.isEmpty())
-	    pal.setColor(QPalette::Inactive,
-			 QColorGroup::Background,
-			 QColor(str));
-
-	str = QApplication::settings()->readEntry("/qt/Palette/inactiveHighlight");
-	if (! str.isNull() && ! str.isEmpty())
-	    pal.setColor(QPalette::Inactive,
-			 QColorGroup::Highlight,
-			 QColor(str));
-
-	str = QApplication::settings()->readEntry("/qt/Palette/inactiveHighlightedText");
-	if (! str.isNull() && ! str.isEmpty())
-	    pal.setColor(QPalette::Inactive,
-			 QColorGroup::HighlightedText,
-			 QColor(str));
-
-	str = QApplication::settings()->readEntry("/qt/Palette/disabledForeground");
-	if (! str.isNull() && ! str.isEmpty())
-	    pal.setColor(QPalette::Disabled,
-			 QColorGroup::Foreground,
-			 QColor(str));
-
-	str = QApplication::settings()->readEntry("/qt/Palette/disabledButton");
-	if (! str.isNull() && ! str.isEmpty())
-	    pal.setColor(QPalette::Disabled,
-			 QColorGroup::Button,
-			 QColor(str));
-
-	str = QApplication::settings()->readEntry("/qt/Palette/disabledText");
-	if (! str.isNull() && ! str.isEmpty())
-	    pal.setColor(QPalette::Disabled,
-			 QColorGroup::Text,
-			 QColor(str));
-
-	str = QApplication::settings()->readEntry("/qt/Palette/disabledBrightText");
-	if (! str.isNull() && ! str.isEmpty())
-	    pal.setColor(QPalette::Disabled,
-			 QColorGroup::BrightText,
-			 QColor(str));
-
-	str = QApplication::settings()->readEntry("/qt/Palette/disabledButtonText");
-	if (! str.isNull() && ! str.isEmpty())
-	    pal.setColor(QPalette::Disabled,
-			 QColorGroup::ButtonText,
-			 QColor(str));
-
-	str = QApplication::settings()->readEntry("/qt/Palette/disabledBase");
-	if (! str.isNull() && ! str.isEmpty())
-	    pal.setColor(QPalette::Disabled,
-			 QColorGroup::Base,
-			 QColor(str));
-
-	str = QApplication::settings()->readEntry("/qt/Palette/disabledBackground");
-	if (! str.isNull() && ! str.isEmpty())
-	    pal.setColor(QPalette::Disabled,
-			 QColorGroup::Background,
-			 QColor(str));
-
-	str = QApplication::settings()->readEntry("/qt/Palette/disabledHighlight");
-	if (! str.isNull() && ! str.isEmpty())
-	    pal.setColor(QPalette::Disabled,
-			 QColorGroup::Highlight,
-			 QColor(str));
-
-	str = QApplication::settings()->readEntry("/qt/Palette/disabledHighlightedText");
-	if (! str.isNull() && ! str.isEmpty())
-	    pal.setColor(QPalette::Disabled,
-			 QColorGroup::HighlightedText,
-			 QColor(str));
+	strlist = QApplication::settings()->readListEntry("/qt/Palette/active");
+	if (strlist.count() == QColorGroup::NColorRoles) {
+	    for (i = 0; i < QColorGroup::NColorRoles; i++)
+		pal.setColor(QPalette::Active, (QColorGroup::ColorRole) i,
+			     QColor(strlist[i]));
+	}
+	strlist = QApplication::settings()->readListEntry("/qt/Palette/inactive");
+	if (strlist.count() == QColorGroup::NColorRoles) {
+	    for (i = 0; i < QColorGroup::NColorRoles; i++)
+		pal.setColor(QPalette::Inactive, (QColorGroup::ColorRole) i,
+			     QColor(strlist[i]));
+	}
+	strlist = QApplication::settings()->readListEntry("/qt/Palette/disabled");
+	if (strlist.count() == QColorGroup::NColorRoles) {
+	    for (i = 0; i < QColorGroup::NColorRoles; i++)
+		pal.setColor(QPalette::Disabled, (QColorGroup::ColorRole) i,
+			     QColor(strlist[i]));
+	}
 
 	if (pal != *qt_std_pal && pal != QApplication::palette()) {
 	    QApplication::setPalette(pal, TRUE);
@@ -953,7 +810,7 @@ bool QApplication::x11_apply_settings()
 
 	// read library (ie. plugin) path list
 	QStringList pathlist =
-	    QApplication::settings()->readEntry("/qt/libraryPath", ":");
+	    QApplication::settings()->readListEntry("/qt/libraryPath", ':');
 	if (! pathlist.isEmpty()) {
 	    QStringList::ConstIterator it = pathlist.begin();
 	    while (it != pathlist.end())
@@ -972,7 +829,7 @@ bool QApplication::x11_apply_settings()
 	    stylename = "default";
 
 	num =
-	    QApplication::settings()->readNumEntry("/qt/doubleClickTime",
+	    QApplication::settings()->readNumEntry("/qt/doubleClickInterval",
 						   QApplication::doubleClickInterval());
 	QApplication::setDoubleClickInterval(num);
 
@@ -1005,7 +862,7 @@ bool QApplication::x11_apply_settings()
 		qApp->setDefaultCodec(codec);
 	}
 
-	QStringList strut = QApplication::settings()->readEntry("/qt/globalStrut");
+	QStringList strut = QApplication::settings()->readListEntry("/qt/globalStrut");
 	if (! strut.isEmpty()) {
 	    if (strut.count() == 2) {
 		QSize sz(strut[0].toUInt(), strut[1].toUInt());
@@ -1016,9 +873,11 @@ bool QApplication::x11_apply_settings()
 	}
 
 	QStringList effects =
-	    QApplication::settings()->readListEntry("/qt/GUIEffects", ',');
+	    QApplication::settings()->readListEntry("/qt/GUIEffects");
 
 	if (! effects.isEmpty()) {
+	    if ( effects.contains("none") )
+		QApplication::setEffectEnabled( Qt::UI_General, FALSE);
 	    if ( effects.contains("general") )
 		QApplication::setEffectEnabled( Qt::UI_General, TRUE );
 	    if ( effects.contains("animatemenu") )
@@ -1031,17 +890,18 @@ bool QApplication::x11_apply_settings()
 		QApplication::setEffectEnabled( Qt::UI_AnimateTooltip, TRUE );
 	    if ( effects.contains("fadetooltip") )
 		QApplication::setEffectEnabled( Qt::UI_FadeTooltip, TRUE );
-	}
+	} else
+	    QApplication::setEffectEnabled( Qt::UI_General, FALSE);
 
 	QStringList fontsubs =
-	    QApplication::settings()->entryList("/qt/fontSubstitutions");
+	    QApplication::settings()->entryList("/qt/Font Substitutions");
 	if (!fontsubs.isEmpty()) {
 	    QStringList subs;
 	    QString fam, skey;
 	    QStringList::Iterator it = fontsubs.begin();
 	    while (it != fontsubs.end()) {
 		fam = (*it++).latin1();
-		skey = "/qt/fontSubstitutions/" + fam;
+		skey = "/qt/Font Substitutions/" + fam;
 		subs = QApplication::settings()->readListEntry(skey, ',');
 		QFont::insertSubstitutions(fam, subs);
 	    }
@@ -3524,6 +3384,8 @@ int QApplication::x11ProcessEvent( XEvent* event )
 		    qt_set_x11_resources();
 		else if ( event->xproperty.atom == qt_desktop_properties )
 		    qt_set_desktop_properties();
+		else if ( event->xproperty.atom == qt_settings_cache )
+		    QApplication::x11_apply_settings();
 	    }
 	} else if ( widget) {
 	    if (event->xproperty.window == widget->winId()) { // widget properties

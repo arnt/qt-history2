@@ -1,0 +1,304 @@
+<!DOCTYPE UI><UI version="3.0" stdsetdef="1">
+<class>PreviewWidgetBase</class>
+<widget class="QWidget">
+    <property name="name">
+        <cstring>PreviewWidgetBase</cstring>
+    </property>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>394</width>
+            <height>260</height>
+        </rect>
+    </property>
+    <property name="sizePolicy">
+        <sizepolicy>
+            <hsizetype>1</hsizetype>
+            <vsizetype>1</vsizetype>
+        </sizepolicy>
+    </property>
+    <property name="minimumSize">
+        <size>
+            <width>394</width>
+            <height>260</height>
+        </size>
+    </property>
+    <property name="maximumSize">
+        <size>
+            <width>394</width>
+            <height>260</height>
+        </size>
+    </property>
+    <property name="caption">
+        <string>Preview Window</string>
+    </property>
+    <vbox>
+        <property name="name">
+            <cstring>unnamed</cstring>
+        </property>
+        <property name="margin">
+            <number>0</number>
+        </property>
+        <property name="spacing">
+            <number>0</number>
+        </property>
+        <widget class="QLabel">
+            <property name="name">
+                <cstring>PixmapLabel1</cstring>
+            </property>
+            <property name="sizePolicy">
+                <sizepolicy>
+                    <hsizetype>0</hsizetype>
+                    <vsizetype>0</vsizetype>
+                </sizepolicy>
+            </property>
+            <property name="pixmap">
+                <pixmap>image0</pixmap>
+            </property>
+            <property name="scaledContents">
+                <bool>true</bool>
+            </property>
+        </widget>
+        <widget class="QLayoutWidget">
+            <property name="name">
+                <cstring>Layout5</cstring>
+            </property>
+            <vbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <property name="margin">
+                    <number>6</number>
+                </property>
+                <property name="spacing">
+                    <number>6</number>
+                </property>
+                <widget class="QLayoutWidget">
+                    <property name="name">
+                        <cstring>Layout20</cstring>
+                    </property>
+                    <hbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <property name="margin">
+                            <number>0</number>
+                        </property>
+                        <property name="spacing">
+                            <number>6</number>
+                        </property>
+                        <widget class="QLayoutWidget">
+                            <property name="name">
+                                <cstring>Layout17</cstring>
+                            </property>
+                            <vbox>
+                                <property name="name">
+                                    <cstring>unnamed</cstring>
+                                </property>
+                                <property name="margin">
+                                    <number>0</number>
+                                </property>
+                                <property name="spacing">
+                                    <number>6</number>
+                                </property>
+                                <widget class="QButtonGroup">
+                                    <property name="name">
+                                        <cstring>ButtonGroup1</cstring>
+                                    </property>
+                                    <property name="title">
+                                        <string>ButtonGroup</string>
+                                    </property>
+                                    <vbox>
+                                        <property name="name">
+                                            <cstring>unnamed</cstring>
+                                        </property>
+                                        <property name="margin">
+                                            <number>11</number>
+                                        </property>
+                                        <property name="spacing">
+                                            <number>6</number>
+                                        </property>
+                                        <widget class="QRadioButton">
+                                            <property name="name">
+                                                <cstring>RadioButton1</cstring>
+                                            </property>
+                                            <property name="text">
+                                                <string>RadioButton1</string>
+                                            </property>
+                                        </widget>
+                                        <widget class="QRadioButton">
+                                            <property name="name">
+                                                <cstring>RadioButton2</cstring>
+                                            </property>
+                                            <property name="text">
+                                                <string>RadioButton2</string>
+                                            </property>
+                                        </widget>
+                                        <widget class="QRadioButton">
+                                            <property name="name">
+                                                <cstring>RadioButton3</cstring>
+                                            </property>
+                                            <property name="text">
+                                                <string>RadioButton3</string>
+                                            </property>
+                                        </widget>
+                                    </vbox>
+                                </widget>
+                                <widget class="QButtonGroup">
+                                    <property name="name">
+                                        <cstring>ButtonGroup2</cstring>
+                                    </property>
+                                    <property name="title">
+                                        <string>ButtonGroup2</string>
+                                    </property>
+                                    <vbox>
+                                        <property name="name">
+                                            <cstring>unnamed</cstring>
+                                        </property>
+                                        <property name="margin">
+                                            <number>11</number>
+                                        </property>
+                                        <property name="spacing">
+                                            <number>6</number>
+                                        </property>
+                                        <widget class="QCheckBox">
+                                            <property name="name">
+                                                <cstring>CheckBox1</cstring>
+                                            </property>
+                                            <property name="text">
+                                                <string>CheckBox1</string>
+                                            </property>
+                                        </widget>
+                                        <widget class="QCheckBox">
+                                            <property name="name">
+                                                <cstring>CheckBox2</cstring>
+                                            </property>
+                                            <property name="text">
+                                                <string>CheckBox2</string>
+                                            </property>
+                                        </widget>
+                                    </vbox>
+                                </widget>
+                                <widget class="QProgressBar">
+                                    <property name="name">
+                                        <cstring>ProgressBar1</cstring>
+                                    </property>
+                                    <property name="progress">
+                                        <number>50</number>
+                                    </property>
+                                </widget>
+                            </vbox>
+                        </widget>
+                        <widget class="QLayoutWidget">
+                            <property name="name">
+                                <cstring>Layout15</cstring>
+                            </property>
+                            <vbox>
+                                <property name="name">
+                                    <cstring>unnamed</cstring>
+                                </property>
+                                <property name="margin">
+                                    <number>5</number>
+                                </property>
+                                <property name="spacing">
+                                    <number>12</number>
+                                </property>
+                                <widget class="QLineEdit">
+                                    <property name="name">
+                                        <cstring>LineEdit1</cstring>
+                                    </property>
+                                    <property name="text">
+                                        <string>LineEdit</string>
+                                    </property>
+                                </widget>
+                                <widget class="QComboBox">
+                                    <item>
+                                        <property name="text">
+                                            <string>ComboBox</string>
+                                        </property>
+                                    </item>
+                                    <property name="name">
+                                        <cstring>ComboBox1</cstring>
+                                    </property>
+                                </widget>
+                                <widget class="QLayoutWidget">
+                                    <property name="name">
+                                        <cstring>Layout13</cstring>
+                                    </property>
+                                    <hbox>
+                                        <property name="name">
+                                            <cstring>unnamed</cstring>
+                                        </property>
+                                        <property name="margin">
+                                            <number>0</number>
+                                        </property>
+                                        <property name="spacing">
+                                            <number>6</number>
+                                        </property>
+                                        <widget class="QSpinBox">
+                                            <property name="name">
+                                                <cstring>SpinBox1</cstring>
+                                            </property>
+                                        </widget>
+                                        <widget class="QPushButton">
+                                            <property name="name">
+                                                <cstring>PushButton1</cstring>
+                                            </property>
+                                            <property name="text">
+                                                <string>PushButton</string>
+                                            </property>
+                                        </widget>
+                                    </hbox>
+                                </widget>
+                                <widget class="QScrollBar">
+                                    <property name="name">
+                                        <cstring>ScrollBar1</cstring>
+                                    </property>
+                                    <property name="orientation">
+                                        <enum>Horizontal</enum>
+                                    </property>
+                                </widget>
+                                <widget class="QSlider">
+                                    <property name="name">
+                                        <cstring>Slider1</cstring>
+                                    </property>
+                                    <property name="orientation">
+                                        <enum>Horizontal</enum>
+                                    </property>
+                                </widget>
+                            </vbox>
+                        </widget>
+                    </hbox>
+                </widget>
+                <spacer>
+                    <property name="name">
+                        <cstring>Spacer1</cstring>
+                    </property>
+                    <property name="orientation">
+                        <enum>Vertical</enum>
+                    </property>
+                    <property name="sizeType">
+                        <enum>Expanding</enum>
+                    </property>
+                    <property name="sizeHint">
+                        <size>
+                            <width>20</width>
+                            <height>20</height>
+                        </size>
+                    </property>
+                </spacer>
+            </vbox>
+        </widget>
+    </vbox>
+</widget>
+<images>
+    <image name="image0">
+        <data format="XPM.GZ" length="7250">789ced984b6fe2301080effc8a086e68d592070f6bb587fe8095f6b8d26a0f89ed146a07caab2dacf6bf6f66c64e9c9402aab40a0a78e4d49f27e901cfd709bdef7b3f7f7cf7faf79df526deccb8c7a7f1caeb8b6d96ed7efdfef6a7d30d59e4f9632f609edffdd2e96a8f7bbd010e4069719c00a61627880f80c1c0e7846f84c18071c035220b388b005f00433f34d927441672c247c0c80f798c37af10e3884731606691b2af80c320477c96138e7dfa558945ba7989983f9b200ac2f190b253c051301a527687185b9c19648900dc038ec391205c004ec2894ff86c9123ce1193c990700bc83863841bc038624c0c0163402121007b807224a41c01de11ca805001a63830dbbbc565049e64c26f7111816e70718b8b087243a6f2713a837892326dba425a15ca1dba4af5ac71239569365fcc9fe78b657e304d5748ab42397d61a5ab54cf1a37d69b6d192f8dd7539b42c57745e4a751a17ad6b8b17485c9e04c7175e0a43fd83353a972df5d5f719c76430369c78dcc3d8d5738d3fca3c579cee9ab723a71e6d36d8f436e68d70dad75bea3f57137702aaaf8a2f269e5e444dd0db3abcc5d66ff7a4d51f071d3b06ee4cb8a1b38ce7143e14c0e5fad0dc5ce07f7e5d7eb3585aa1f0fc3b881e0f68d924ff40de38252a51b9471dc28f69d55657de56e98eab77d433b2e08eb8abe3be906aff403a870eb007757897dd075e3bd318d57693361abdff68de2ef56e14669ced1be212aef4aefba4759efd6a2aa0f35631aafd2e6dc30ef4d87dfa9d013ea2ae7b801b58f6b6e5d31aba217e04fbab3f4c15c939b1b27be6fe01b96ebc6db6e3fdddbf9d0783db5293ef15dbcf10a6a6fa895337495ead9dbff70ff77e823a39ee5ddbf5f3bff000d0b255c</data>
+    </image>
+</images>
+<connections>
+    <slot access="protected" language="C++" returnType="void">init()</slot>
+    <slot access="protected" language="C++" returnType="void">destroy()</slot>
+</connections>
+</UI>
