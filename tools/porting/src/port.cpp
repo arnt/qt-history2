@@ -172,7 +172,7 @@ int main(int argc, char**argv)
     else
         retval = fileMode(in);
 
-    QStringList report = Logger::instance()->cronologicalReport();
+    QStringList report = Logger::instance()->fullReport();
     QString logFileName =  "portinglog.txt";
     cout << "Writing log to " << logFileName.toLocal8Bit().constData() << endl;
     QByteArray logContents;

@@ -56,7 +56,7 @@ void FilePorter::port(QString inBasePath, QString inFilePath, QString outBasePat
     sym->contents = noPreprocess(fullInFileName);
     sym->tokenStream = lexer.tokenize(sym);
 
-    Logger::instance()->setFileState(inFilePath);
+    Logger::instance()->globalState["currentFileName"] = inFilePath;
 /*
     TextReplacements textReplacements;
     textReplacements += getTokenTextReplacements(sym, tokenReplacementRules);
@@ -170,15 +170,17 @@ QByteArray FilePorter::includeAnalyse(QByteArray fileContents, FileType /*fileTy
         QByteArray logText;
 
         insertText+="\n//Added by the Qt porting tool:\n";
-        logText += "Added the following include directives: ";
-
+        logText += "In file ";
+        logText += Logger::instance()->globalState.value("currentFileName");
+        logText += ": Added the following include directives:\n";
         foreach(QString headerName, headersToInsert) {
             insertText = insertText + headerName.toLatin1() + "\n";
-            logText = logText + headerName.toLatin1() + " ";
+            logText +="\t";
+            logText += headerName.toLatin1() + " ";
         }
         insertText+="\n";
         fileContents.insert(insertPos, insertText);
-        Logger::instance()->addEntry("AddHeader", logText, QString(), 0, 0); //TODO get line/column here
+        Logger::instance()->addEntry(new PlainLogEntry("Info", "Porting", logText));
     }
 
     return fileContents;

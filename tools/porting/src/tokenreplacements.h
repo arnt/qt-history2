@@ -30,7 +30,7 @@ public:
     virtual QByteArray getReplaceKey(){return QByteArray();};
     virtual ~TokenReplacement(){};
 protected:
-    void makeLogEntry(QString group, QString text, TokenStream *tokenStream);
+    void makeLogEntry(QString text, TokenStream *tokenStream);
 };
 
 /*

@@ -17,60 +17,69 @@
 #include <QString>
 #include <QStringList>
 #include <QList>
-
-struct LogEntry
+#include <QMap>
+/*
+    Base class for logger entries;
+    description() should return a text for this entry,
+*/
+class LogEntry
 {
-    QString group;
-    QString text;
+public:
+    LogEntry(QString type, QString location);
+    virtual QString description() const =0;
+    virtual ~LogEntry(){};
+protected:
+    QString type; // Error, Warning, Info, etc
+    QString location;// preprocessor, c++parser, porting, etc
+};
+
+class PlainLogEntry: public LogEntry
+{
+public:
+     PlainLogEntry(QString type, QString lcation, QString text);
+     QString description() const {return text;};
+protected:
+     QString text;
+};
+
+/*
+    A log entry that stores a source point: file, line and column.
+*/
+class SourcePointLogEntry : public LogEntry
+{
+public:
+    SourcePointLogEntry(QString type, QString location, QString file, int line, int column, QString text);
+    QString description() const;
+protected:
     QString file;
     int line;
     int column;
+    QString text;
 };
 
-struct MetaLogEntry
-{
-    QString group;
-    QString description;
-};
 
 class Logger
 {
 public:
+    Logger(){};
+    virtual ~Logger() {};
     static Logger *instance();
     static void deleteInstance();
-    ~Logger();
-    /*
-        State setting
-    */
-    void setFileState(QString file);
+
+    void addEntry(LogEntry *entry);
+    QStringList fullReport();
 
     /*
-        Data adding funcitons
+        glabalState can be used for storage of application state
+        together with the logger. This can be useful in some cases,
+        for example the current filename is stored here when processing
+        files.
     */
-    void addEntry(QString group, QString text, QString File=QString(), int line=0, int column=0);
-    void addMetaEntry(QString group, QString description);
-
-    /*
-        Report generating functions
-    */
-    QStringList cronologicalReport();
-    /*
-    QString byFileReport();
-    QString byGroupReport();
-    */
-
-    /*
-        Report output:
-    */
-    void print(QStringList report);
-    void writeToFile(QString fileName, QStringList report);
+    QMap<QString, QString> globalState;
 private:
-    Logger(){};
     static Logger *theInstance;
-    QString fileState;
-    QList<LogEntry> logEntries;
-    QList<MetaLogEntry> metaLogEntries;
-
+    QList<LogEntry*> logEntries;
 };
+
 
 #endif

@@ -85,7 +85,7 @@ void ProjectPorter::portProject(QString basePath, QString proFileName)
     if (!uidoth.isEmpty())
         portFiles(basePath, uidoth, FilePorter::Source);
 
-    Logger::instance()->setFileState(fullInFileName);
+    Logger::instance()->globalState["currentFileName"] = proFileName;
     QString portedProFile = portProFile(proFileContents, proFileMap);
     FileWriter::instance()->writeFileVerbously(fullInFileName , portedProFile.toLocal8Bit().constData());
 }
@@ -139,15 +139,21 @@ QString ProjectPorter::portProFile(QString contents, QMap<QString, QString> tagM
         contents += "\n#The following line was inserted by the Qt porting tool\n";
         QString insertText = "QT += " + QTTagAdd.join(" ");
         contents += insertText;
-        QString logText = "Added entry to .pro file: " + insertText;
-        logger->addEntry("profile", logText,  QString() , -2, -1); //TODO get line/column here
+         QString logText = "In file "
+                        + logger->globalState.value("currentFileName")
+                        + ": Added entry "
+                        + insertText;
+        logger->addEntry(new PlainLogEntry("Info", "Porting", logText));
     }
     if (!tagMap["FORMS"].isEmpty() || !tagMap["INTERFACES"].isEmpty()) {
         contents += "\n#The following line was inserted by the Qt porting tool\n";
         QString insertText = "CONFIG += uic3\n";
         contents += insertText;
-        QString logText = "Added entry to .pro file: " + insertText;
-        logger->addEntry("profile", logText,  QString() , -2, -1); //TODO get line/column here
+        QString logText = "In file "
+                        + logger->globalState.value("currentFileName")
+                        + ": Added entry "
+                        + insertText;
+        logger->addEntry(new PlainLogEntry("Info", "Porting", logText));
     }
 
     //comment out any REQUIRES tag
@@ -157,7 +163,10 @@ QString ProjectPorter::portProFile(QString contents, QMap<QString, QString> tagM
         int j=0;
         while ((j = contents.indexOf("REQUIRES", j)) != -1) {
             QString insertText("#The following line was commented out by the Qt Porting tool\n#");
-            logger->addEntry("profile", "Commented out REQUIRES in .pro file",  QString(), -2, -1); //TODO get line/column here
+            QString logText = "In file "
+                            + logger->globalState.value("currentFileName")
+                            + ": Commented out REQUIRES section";
+            logger->addEntry(new PlainLogEntry("Info", "Porting", logText));
             contents.insert(j, insertText);
             j+=insertText.size() + 1;
         }

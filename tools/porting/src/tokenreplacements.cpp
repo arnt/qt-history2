@@ -20,13 +20,17 @@ using std::cout;
 using std::endl;
 
 
-void TokenReplacement::makeLogEntry(QString group, QString text, TokenStream *tokenStream)
+void TokenReplacement::makeLogEntry(QString text, TokenStream *tokenStream)
 {
-    Logger *logger =  Logger::instance();
+    Logger *logger = Logger::instance();
     int line;
     int col;
     tokenStream->positionAtAux(tokenStream->token().position, &line, &col);
-    logger->addEntry(group, text, QString(), line, col);
+    SourcePointLogEntry *logEntry =
+                new SourcePointLogEntry("Info", "Porting",
+                                        logger->globalState.value("currentFileName"),
+                                        line, col, text);
+    logger->addEntry(logEntry);
 }
 
 
@@ -45,7 +49,7 @@ bool IncludeTokenReplacement::doReplace(TokenStream *tokenStream, TextReplacemen
         if(pos!=-1) {
     //      printf("a match was made\n");
             Token token = tokenStream->token();
-            makeLogEntry("IncludeReplace", tokenText + " -> " + toFile, tokenStream);
+            makeLogEntry(tokenText + " -> " + toFile, tokenStream);
             textReplacements.insert(toFile, token.position+pos, fromFile.size());
             return true;
         }
@@ -70,7 +74,7 @@ bool GenericTokenReplacement::doReplace(TokenStream *tokenStream, TextReplacemen
     QByteArray tokenText=tokenStream->currentTokenText();
     if(tokenText==oldToken){
         Token token = tokenStream->token();
-        makeLogEntry("GenericReplace", tokenText + " -> " + newToken, tokenStream);
+        makeLogEntry(tokenText + " -> " + newToken, tokenStream);
         textReplacements.insert(newToken, token.position, tokenText.size());
         return true;
     }
@@ -130,19 +134,19 @@ bool ScopedTokenReplacement::doReplace(TokenStream *tokenStream, TextReplacement
                         //the old and new scopes are equal, replace name part only
                         if (tokenText == newTokenName) //names are equal, no need to do anything
                             return true;
-                        makeLogEntry("ScopedReplace", tokenText + " -> " + newTokenName, tokenStream);
+                        makeLogEntry(tokenText + " -> " + newTokenName, tokenStream);
                         textReplacements.insert(newTokenName, token.position, tokenText.size());
                         return true;
                     } else {
                         //replace scope and name
-                        makeLogEntry("ScopedReplace", tokenText + " -> " + newToken, tokenStream);
+                        makeLogEntry(tokenText + " -> " + newToken, tokenStream);
                         Token scopeToken = tokenStream->tokenAt(scopeTokenIndex);
                         textReplacements.insert(newTokenScope, scopeToken.position, scopeText.size());
                         textReplacements.insert(newTokenName, token.position, tokenText.size());
                         return true;
                     }
                 } else {
-                    makeLogEntry("ScopedReplace", scopeText + "::" + tokenText + " -> " + newToken, tokenStream);
+                    makeLogEntry(scopeText + "::" + tokenText + " -> " + newToken, tokenStream);
                     Token scopeToken = tokenStream->tokenAt(scopeTokenIndex);
                     textReplacements.insert(newToken, scopeToken.position, token.position + tokenText.size() - scopeToken.position);
                 }
@@ -159,7 +163,7 @@ bool ScopedTokenReplacement::doReplace(TokenStream *tokenStream, TextReplacement
                 // token in the tokenStream is not qualified
                 // relplace token with qualified new token
                 Token token = tokenStream->token();
-                makeLogEntry("ScopedReplace", tokenText + " -> " + newToken, tokenStream);
+                makeLogEntry(tokenText + " -> " + newToken, tokenStream);
                 textReplacements.insert(newToken, token.position, tokenText.size());
                 return true;
             }
