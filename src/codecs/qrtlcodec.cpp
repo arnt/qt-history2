@@ -129,18 +129,22 @@ static bool to8bit(const QChar ch, QCString *rstr)
     return converted;
 }
 
+#if 0
 static QString run(const QString &input, unsigned int from, unsigned int to, QChar::Direction runDir)
 {
+    if ( to <= from )
+	return QString::null;
+
     QString out;
     if ( runDir == QChar::DirR ) {
-	const QChar *ch = input.unicode() + to;
-	int len = to - from + 1;
+	const QChar *ch = input.unicode() + to - 1;
+	int len = to - from;
 	while (len--) {
 	    out += *ch;
 	    ch--;
 	}
     } else {
-	out = input.mid(from, to - from + 1 );
+	out = input.mid(from, to - from );
     }
     return out;
 }
@@ -153,6 +157,11 @@ static QString reverseLine(const QString &str, unsigned int from, unsigned int t
 {
     QString out;
 
+    if ( to <= from ) {
+	out += str.at(from);
+	return out;
+    }
+    
     // since we don't have embedding marks, we get around with bidi levels up to 2.
 
     // simple case: dir = RTL:
@@ -192,6 +201,7 @@ static QString reverseLine(const QString &str, unsigned int from, unsigned int t
 	    }
 	    pos--;
 	}
+	out += run( str, pos, from, runDir );
     } else {
 	// basicDir == DirL. A bit more complicated, as we might need to reverse two times for numbers.
 	unsigned int pos = from;
@@ -202,9 +212,10 @@ static QString reverseLine(const QString &str, unsigned int from, unsigned int t
 	    QChar::Direction d = str.at(pos).direction();
 	    switch ( d ) {
 		case QChar::DirL:
-		    if ( runDir != QChar::DirL ) {
+		    if ( runDir != QChar::DirL && runDir != QChar::DirON ) {
 			out += run( str, from, pos, runDir );
-			from = pos + 1;
+			qDebug( "out = %s", out.latin1() );
+			from = pos;
 		    }
 		    runDir = QChar::DirL;
 		    break;
@@ -217,9 +228,10 @@ static QString reverseLine(const QString &str, unsigned int from, unsigned int t
 		case QChar::DirR:
 		case QChar::DirAN:
 		case QChar::DirEN:
-		    if ( runDir != QChar::DirR ) {
+		    if ( runDir != QChar::DirR && runDir != QChar::DirON ) {
 			out += run( str, from, pos, runDir );
-			from = pos + 1;
+			qDebug( "out = %s", out.latin1() );
+			from = pos;
 		    }
 		    runDir = QChar::DirR;
 		default:
@@ -227,30 +239,35 @@ static QString reverseLine(const QString &str, unsigned int from, unsigned int t
 	    }
 	    pos++;
 	}
+	out += run( str, from, pos, runDir );
+	qDebug( "out = %s", out.latin1() );
 	// second reversing for numbers
 	QString in = out;
 	out = "";
 	pos = 0;
 	from = 0;
 	to = in.length() - 1;
+	runDir = QChar::DirON;
 	while ( pos < to ) {
 	    QChar::Direction d = str.at(pos).direction();
 	    switch ( d ) {
 		case QChar::DirL:
 		case QChar::DirON:
 		case QChar::DirR:
-		    if ( runDir == QChar::DirEN ) {
+		    if ( runDir == QChar::DirEN && runDir != QChar::DirON ) {
 			out += run( in, from, pos, QChar::DirR ); //DirR ensures reversing
+			qDebug( "out = %s", out.latin1() );
 			runDir = QChar::DirR;
-			from = pos+1;
+			from = pos;
 		    }
 		    runDir = QChar::DirL;
 		    break;
 		case QChar::DirAN:
 		case QChar::DirEN:
-		    if ( runDir != QChar::DirEN ) {
+		    if ( runDir != QChar::DirEN && runDir != QChar::DirON ) {
 			out += in.mid(from, pos-from+1);
-			from = pos + 1;
+			qDebug( "out = %s", out.latin1() );
+			from = pos;
 		    }
 		    runDir = QChar::DirEN;
 		default:
@@ -258,10 +275,12 @@ static QString reverseLine(const QString &str, unsigned int from, unsigned int t
 	    }
 	    pos++;
 	}
+	out += run( str, from, pos, runDir );
 
     }
     return out;
 }
+#endif
 
 /* this function assuems the QString is still visually ordered.
  * Finding the basic direction of the text is not easy in this case, since
@@ -441,6 +460,9 @@ QString QHebrewCodec::toUnicode(const char* chars, int len ) const
     if( basicDir == QChar::DirON )
 	basicDir = findBasicDirection(r);
 
+    return QComplexText::bidiReorderString(r);
+#if 0    
+    
     QString out;
     int lineStart = 0;
     while( lineStart < len ) {
@@ -453,6 +475,7 @@ QString QHebrewCodec::toUnicode(const char* chars, int len ) const
 	lineStart = lineEnd + 1;
     }
     return out;
+#endif
 }
 
 /*!

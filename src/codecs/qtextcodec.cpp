@@ -298,7 +298,7 @@ QString QTextStatelessDecoder::toUnicode(const char* chars, int len)
    int mibEnum() const
    \endcode
    Return the MIB enum for the encoding if it is listed in the
-      \link ftp://ftp.isi.edu/in-notes/iana/assignments/character-sets
+      \link http://www.iana.org/assignments/character-sets
       IANA character-sets encoding file\endlink.
 
   If the encoding is multi-byte then it will have "state"; that is,
