@@ -482,7 +482,7 @@ QImage &QImage::operator=( const QImage &image )
 }
 
 /*!
-  Sets the image bits to the \e pixmap contents and returns a reference to
+  Sets the image bits to the \a pixmap contents and returns a reference to
   the image.
 
   If the image shares data with other images, it will first dereference
@@ -2395,16 +2395,38 @@ void pnmscale(const QImage& src, QImage& dst)
 #undef HALFSCALE
 }
 #endif
-/*!
-  \fn QImage QImage::smoothScale(int width, int height) const
 
-  Returns a copy of the image smoothly scaled to \a width by \a height
-  pixels.  For 32-bpp images and 1-bpp/8-bpp color images the result
-  will be 32-bpp, whereas
-  \link allGray() all-gray \endlink images (including black-and-white 1-bpp)
-  will produce 8-bit
-  \link isGrayscale() grayscale \endlink images with the palette spanning
-  256 grays from black to white.
+/*! \enum QImage::ScaleMode
+ 
+  The functions scale() and smoothScale() use different modes for scaling the
+  image. The purpose of those modes is to retain the ratio of the image if
+  wanted.
+ 
+  \value ScaleFree the image is scaled freely: the resulting image fits exactly
+    into the specified size.
+  \value ScaleMin the ratio of the image is preserved and the resulting image
+    is guaranteed to fit into the specified size (it is as big as possible
+    within these constraints) - the image might be smaller than the wished
+    size.
+  \value ScaleMax the ratio of the image is preserved and the resulting image
+    fills the whole specified rectangle (it is as small as possible within
+    these constraints) - the image might be biger than the wished size.
+*/
+
+#ifndef QT_NO_IMAGE_SMOOTHSCALE
+/*!
+  Returns smoothly scaled a copy of the image. The returned image has a size
+  of \a w by \a h pixels if \a mode is ScaleFree. The modes ScaleMin and
+  ScaleMax preserve the ratio of the image: if \a mode is ScaleMin, the
+  returned image is guaranteed to fit into the rectangle specified by \a w and
+  \a h (it is a big as possible within the constraints); if \a mode is
+  ScaleMax, the returned image fits at least into the specified rectangle (it
+  is a small as possible within the constraints).
+  
+  For 32-bpp images and 1-bpp/8-bpp color images the result will be 32-bpp,
+  whereas \link allGray() all-gray \endlink images (including black-and-white
+  1-bpp) will produce 8-bit \link isGrayscale() grayscale \endlink images with
+  the palette spanning 256 grays from black to white.
 
   This function uses code based on pnmscale.c by Jef Poskanzer.
 
@@ -2421,18 +2443,18 @@ void pnmscale(const QImage& src, QImage& dst)
   documentation.  This software is provided "as is" without express or
   implied warranty.
 
-  \sa mirror()
+  \sa scale() mirror()
 */
-#ifndef QT_NO_IMAGE_SMOOTHSCALE
 QImage QImage::smoothScale( int w, int h, ScaleMode mode=ScaleFree ) const
 {
     return smoothScale( QSize( w, h ), mode );
 }
 #endif
 
-/*! \overload
-*/
 #ifndef QT_NO_IMAGE_SMOOTHSCALE
+/*! \overload
+  The wished size of the image is \a s.
+*/
 QImage QImage::smoothScale( const QSize& s, ScaleMode mode=ScaleFree ) const
 {
     if ( isNull() ) {
@@ -2462,9 +2484,16 @@ QImage QImage::smoothScale( const QSize& s, ScaleMode mode=ScaleFree ) const
 #endif
 
 /*!
-  Returns a pixmap that is a scaled version of this pixmap with width \w and
-  height \a h. This function uses a quite simple algorithm for doing this task;
-  if you need a better quality, use smoothScale() instead.
+  Returns scaled a copy of the image. The returned image has a size
+  of \a w by \a h pixels if \a mode is ScaleFree. The modes ScaleMin and
+  ScaleMax preserve the ratio of the image: if \a mode is ScaleMin, the
+  returned image is guaranteed to fit into the rectangle specified by \a w and
+  \a h (it is a big as possible within the constraints); if \a mode is
+  ScaleMax, the returned image fits at least into the specified rectangle (it
+  is a small as possible within the constraints).
+
+  This function uses a quite simple algorithm for doing this task; if you need
+  a better quality, use smoothScale() instead.
  
   \sa smoothScale()
 */
@@ -2474,6 +2503,7 @@ QImage QImage::scale( int w, int h, ScaleMode mode=ScaleFree ) const
 }
 
 /*! \overload
+  The wished size of the image is \a s.
 */
 QImage QImage::scale( const QSize& s, ScaleMode mode=ScaleFree ) const
 {
@@ -2488,7 +2518,7 @@ QImage QImage::scale( const QSize& s, ScaleMode mode=ScaleFree ) const
     if ( ss == size() )
 	return *this; // nothing to do
 
-    // ### change this to something meaningful
+    // ### change this to something nice
     QPixmap p;
     p.convertFromImage( *this );
     QWMatrix wm;
@@ -2980,7 +3010,7 @@ bool QImage::save( const QString &fileName, const char* format, int quality ) co
 #ifndef QT_NO_DATASTREAM
 /*!
   \relates QImage
-  Writes an image to the stream as a PNG image.
+  Writes the image \a image to the stream \a s as a PNG image.
   \sa QImage::save()
   \link datastreamformat.html Format of the QDataStream operators \endlink
 */
@@ -3001,7 +3031,7 @@ QDataStream &operator<<( QDataStream &s, const QImage &image )
 
 /*!
   \relates QImage
-  Reads an image from the stream.
+  Reads an image from the stream \a s and stores it in image.
   \sa QImage::load()
   \link datastreamformat.html Format of the QDataStream operators \endlink
 */
@@ -5476,7 +5506,7 @@ QString QImage::text(const char* key, const char* lang) const
     return misc().text_lang[x];
 }
 
-/*!
+/*! \overload
     Returns the string recorded for the keyword and language \a kl.
 */
 QString QImage::text(const QImageTextKeyLang& kl) const
