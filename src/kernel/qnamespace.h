@@ -97,7 +97,7 @@ public:
 	AlignLeft	= 0x0001,
 	AlignRight	= 0x0002,
 	AlignHCenter	= 0x0004,
-	AlignJustify              = 0x0008
+	AlignJustify              = 0x0008,
 	AlignTop	= 0x0010,
 	AlignBottom	= 0x0020,
 	AlignVCenter	= 0x0040,
