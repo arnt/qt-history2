@@ -222,7 +222,7 @@ Option::parseCommandLine(int argc, char **argv)
 	//try REALLY hard to do it for them, lazy..
 	if(!Option::mkfile::project_files.count()) {
 	    QString proj = QDir::currentDirPath();
-	    proj = proj.right(proj.length() - (proj.findRev(QDir::separator()) + 1)) + ".pro";
+	    proj = proj.right(proj.length() - (proj.findRev('/') + 1)) + ".pro";
 	    if(QFile::exists(proj)) {
 		Option::qmake_mode = default_mode(argv[0]);
 		Option::mkfile::project_files.append(proj);
