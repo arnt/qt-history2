@@ -312,8 +312,7 @@ void setupPainter()
 }
 
 
-bool pause = FALSE;
-
+static bool pause_at_end = FALSE;
 void run_main( int argc, char **argv )
 {
     bool dirtyPainter = TRUE;
@@ -334,7 +333,7 @@ void run_main( int argc, char **argv )
 	    } else if ( strcmp(a,"if") == 0 ) {	// set image format
 		image_format = argv[i++];
 	    } else if ( strcmp(a,"p") == 0 ) {	// pause
-		pause = !pause;
+		pause_at_end = !pause_at_end;
 	    } else if ( strcmp(a,"po") == 0 ) {	// set pixmap optimization
 		a = argv[i++];
 		if ( strcmp(a,"no") == 0 ) {
@@ -426,7 +425,7 @@ int main( int argc, char **argv )
     a.exec();
     qDebug("****** Total running time (msec): %d", total_time.elapsed());
 
-    if ( pause ) {
+    if ( pause_at_end ) {
 	output("Press a key to continue...");
 #if defined(Q_OS_WIN32)
 	getch();

@@ -24,7 +24,7 @@ void output( const char *, ... );
   This pseudo-random routine is far from perfect in giving random-like
   numbers, but it is pretty fast, which is more important for our tests.
 */
-#if defined(Q_CC_MSVC)
+#if defined(Q_CC_MSVC) || defined(Q_OS_MAC)
 static				// Can't inline, compiler bug
 #else
 inline
