@@ -101,13 +101,13 @@ class Q_GUI_EXPORT QPainterPathStroker
 {
     Q_DECLARE_PRIVATE(QPainterPathStroker)
 public:
-    QPainterPathStroker(const QPainterPath *path);
+    QPainterPathStroker();
 
-    void setPenWidth(float width);
-    float penWidth() const;
+    void setWidth(float width);
+    float width() const;
 
-    void setPenStyle(Qt::PenStyle style);
-    Qt::PenStyle penStyle() const;
+    void setStyle(Qt::PenStyle style);
+    Qt::PenStyle style() const;
 
     void setCapStyle(Qt::PenCapStyle style);
     Qt::PenCapStyle capStyle() const;
@@ -115,7 +115,7 @@ public:
     void setJoinStyle(Qt::PenJoinStyle style);
     Qt::PenJoinStyle joinStyle() const;
 
-    QPainterPath createStroke() const;
+    QPainterPath createStroke(const QPainterPath &path) const;
 
 private:
     QPainterPathStrokerPrivate *d_ptr;

@@ -70,7 +70,7 @@ void qt_find_ellipse_coords(const QRectF &r, float angle, float length,
     }
 }
 
-#ifdef QPP_DEBUG
+#if defined (QPP_DEBUG) || defined (QPP_STROKE_DEBUG)
 static void qt_debug_path(const QPainterPath &path)
 {
     const char *names[] = {
@@ -87,8 +87,6 @@ static void qt_debug_path(const QPainterPath &path)
         printf(" - %s, (%.2f, %.2f)\n", names[e.type], e.x, e.y);
     }
 }
-#else
-# define qt_debug_path(x)
 #endif
 
 #if 0
@@ -751,10 +749,10 @@ class QPainterPathStrokerPrivate
 {
     Q_DECLARE_PUBLIC(QPainterPathStroker)
 public:
-    QPainterPathStrokerPrivate(const QPainterPath *p) :
-        path(p),
-        penWidth(1),
-        penStyle(Qt::SolidLine),
+    QPainterPathStrokerPrivate() :
+        width(1),
+        offset(0.5),
+        style(Qt::SolidLine),
         joinStyle(Qt::BevelJoin),
         capStyle(Qt::FlatCap)
     {
@@ -763,10 +761,9 @@ public:
     void strokeLine(int elmi, const QPolygon &polygon, QPainterPath *path) const;
     void joinPoints(const QLineF &nextLine, QPainterPath *path) const;
 
-    const QPainterPath *path;
-    float penWidth;
     float width;
-    Qt::PenStyle penStyle;
+    float offset;
+    Qt::PenStyle style;
     Qt::PenJoinStyle joinStyle;
     Qt::PenCapStyle capStyle;
     QPainterPathStroker *q_ptr;
@@ -837,7 +834,7 @@ void QPainterPathStrokerPrivate::strokeLine(int elmi, const QPolygon &polygon, Q
     QLineF normal = line.normalVector();
     if (normal.isNull())
         return;
-    normal.setLength(width);
+    normal.setLength(offset);
     QLineF ml(line);
     ml.moveBy(normal);
 
@@ -849,10 +846,23 @@ void QPainterPathStrokerPrivate::strokeLine(int elmi, const QPolygon &polygon, Q
     path->lineTo(ml.end());
 }
 
-QPainterPathStroker::QPainterPathStroker(const QPainterPath *path)
-    : d_ptr(new QPainterPathStrokerPrivate(path))
-{
+/*!
+  \breif The QPainterPathStroker class is used to process the stroke
+  of a QPainterPath into a path that can be used for filling.
 
+  The function createStroke is used to create a stroke from a given
+  path. The same stroker object can be used to create a stroke for a
+  number of paths.
+
+  Note, not all operations are supported in Tech Preview 2. These will
+  come later. Supported operations include width, Qt::SolidLine and the
+  various Qt::PenJoinStyle's. The outline may also have some overlapping
+  regions.
+*/
+
+QPainterPathStroker::QPainterPathStroker()
+    : d_ptr(new QPainterPathStrokerPrivate)
+{
 }
 
 QPolygon qt_reversed_polygon(const QPolygon &p)
@@ -864,17 +874,18 @@ QPolygon qt_reversed_polygon(const QPolygon &p)
     return rev;
 }
 
-QPainterPath QPainterPathStroker::createStroke() const
+/*!
+  Creates a new stroke from the path \a input.
+*/
+QPainterPath QPainterPathStroker::createStroke(const QPainterPath &input) const
 {
 #ifdef QPP_STROKE_DEBUG
     printf("QPainterPathPrivate::createStroke()\n");
 #endif
 
-    PM_INIT;
-
     QPainterPath stroke;
 
-    QList<QPolygon> flatCurves = d->path->toSubpathPolygons();
+    QList<QPolygon> flatCurves = input.toSubpathPolygons();
 #ifdef QPP_STROKE_DEBUG
     printf(" -> subpaths: %d, totalElements: %d\n", flatCurves.size(), d->path->elementCount());
 #endif
@@ -898,16 +909,6 @@ QPainterPath QPainterPathStroker::createStroke() const
             d->strokeLine(elmi, reverse, &dsegs);
         }
 
-        qt_debug_path(dsegs);
-        qt_debug_path(usegs);
-
-        PM_MEASURE("iteration");
-
-//         usegs.removeBrokenSegments();
-//         dsegs.removeBrokenSegments();
-
-        PM_MEASURE("removal");
-
         if (!poly.isClosed()) {
             // Cap styles...
             usegs.lineTo(QPointF(dsegs.elements.first().x, dsegs.elements.first().y));
@@ -925,35 +926,31 @@ QPainterPath QPainterPathStroker::createStroke() const
             stroke.elements += dsegs.elements;
         }
     }
-    PM_MEASURE("all done");
 
-    PM_DISPLAY;
     stroke.setFillMode(QPainterPath::Winding);
-
-    qt_debug_path(stroke);
 
     return stroke;
 }
 
-void QPainterPathStroker::setPenWidth(float width)
+void QPainterPathStroker::setWidth(float width)
 {
-    d->penWidth = width;
-    d->width = width / 2;
+    d->width = width;
+    d->offset = width / 2;
 }
 
-float QPainterPathStroker::penWidth() const
+float QPainterPathStroker::width() const
 {
-    return d->penWidth;
+    return d->width;
 }
 
-void QPainterPathStroker::setPenStyle(Qt::PenStyle style)
+void QPainterPathStroker::setStyle(Qt::PenStyle style)
 {
-    d->penStyle = style;
+    d->style = style;
 }
 
-Qt::PenStyle QPainterPathStroker::penStyle() const
+Qt::PenStyle QPainterPathStroker::style() const
 {
-    return d->penStyle;
+    return d->style;
 }
 
 void QPainterPathStroker::setCapStyle(Qt::PenCapStyle style)

@@ -1179,12 +1179,12 @@ void QPainter::draw_helper(const void *data, bool winding, ShapeType shape, Draw
                 path.addPolygon(*reinterpret_cast<const QPolygon*>(data));
                 break;
             }
-            QPainterPathStroker stroker(&path);
-            stroker.setPenWidth(d->state->pen.width());
-            stroker.setPenStyle(d->state->pen.style());
+            QPainterPathStroker stroker;
+            stroker.setWidth(d->state->pen.width());
+            stroker.setStyle(d->state->pen.style());
             stroker.setCapStyle(d->state->pen.capStyle());
             stroker.setJoinStyle(d->state->pen.joinStyle());
-            fillPath(stroker.createStroke(), QBrush(d->state->pen.color()));
+            fillPath(stroker.createStroke(path), QBrush(d->state->pen.color()));
         }
     } // end of stroking
 }
