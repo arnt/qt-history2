@@ -24,7 +24,8 @@
 #include "qvbox.h"
 #include "qaccel.h"
 #include "qcursor.h"
-#include "q3popupmenu.h"
+#include "qmenubar.h"
+#include "qpopupmenu.h"
 #include "q3menubar.h"
 #include "qguardedptr.h"
 #include "qiconset.h"
@@ -195,8 +196,8 @@ public:
     int py;
     QWidget *becomeActive;
     QGuardedPtr<QLabel> maxtools;
-    Q3PopupMenu* popup;
-    Q3PopupMenu* toolPopup;
+    QPopupMenu* popup;
+    QPopupMenu* toolPopup;
     int menuId;
     int controlId;
     QString topTitle;
@@ -240,11 +241,11 @@ QWorkspace::init()
     d->py = 0;
     d->becomeActive = 0;
 #if defined(Q_WS_WIN)
-    d->popup = new Q3PopupMenu(this, "qt_internal_mdi_popup");
-    d->toolPopup = new Q3PopupMenu(this, "qt_internal_mdi_popup");
+    d->popup = new QPopupMenu(this, "qt_internal_mdi_popup");
+    d->toolPopup = new QPopupMenu(this, "qt_internal_mdi_popup");
 #else
-    d->popup = new Q3PopupMenu(parentWidget(), "qt_internal_mdi_popup");
-    d->toolPopup = new Q3PopupMenu(parentWidget(), "qt_internal_mdi_popup");
+    d->popup = new QPopupMenu(parentWidget(), "qt_internal_mdi_popup");
+    d->toolPopup = new QPopupMenu(parentWidget(), "qt_internal_mdi_popup");
 #endif
 
     d->menuId = -1;
@@ -954,7 +955,7 @@ bool QWorkspace::eventFilter(QObject *o, QEvent * e)
         switch (e->type()) {
         case QEvent::MouseButtonPress:
             {
-                Q3MenuBar* b = (Q3MenuBar*)o->parent();
+                QMenuBar* b = (QMenuBar*)o->parent();
                 if (!t)
                     t = new QTime;
                 if (tc != this || t->elapsed() > QApplication::doubleClickInterval()) {
@@ -1253,7 +1254,7 @@ void QWorkspace::showOperationMenu()
         return;
     Q_ASSERT(d->active->windowWidget()->testWFlags(WStyle_SysMenu));
     QPoint p;
-    Q3PopupMenu *popup = d->active->windowWidget()->testWFlags(WStyle_Tool) ? d->toolPopup : d->popup;
+    QPopupMenu *popup = d->active->windowWidget()->testWFlags(WStyle_Tool) ? d->toolPopup : d->popup;
     if (QApplication::reverseLayout()) {
         p = QPoint(d->active->windowWidget()->mapToGlobal(QPoint(d->active->windowWidget()->width(),0)));
         p.rx() -= popup->sizeHint().width();
