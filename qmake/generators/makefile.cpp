@@ -899,9 +899,9 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
 			fileFixify(file);
 			QFileInfo fi(file);
 			target += QString(fi.isDir() ? "$(COPY_DIR)" : "$(COPY_FILE)") +
-				  " " + fi.filePath() + " " + dst + "\n\t";
+				  " \"" + fi.filePath() + "\" \"" + dst + "\"\n\t";
 			if(fi.isExecutable() && !project->isEmpty("QMAKE_STRIP"))
-			    target += var("QMAKE_STRIP") + " " + dst + "\n\t";
+			    target += var("QMAKE_STRIP") + " \"" + dst + "\"\n\t";
 		    }
 		}
  	    }
