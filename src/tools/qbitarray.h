@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbitarray.h#11 $
+** $Id: //depot/qt/main/src/tools/qbitarray.h#12 $
 **
 ** Definition of QBitArray class
 **
@@ -46,36 +46,36 @@ public:
     QBitArray( uint size );
     QBitArray( const QBitArray &a ) : QByteArray( a ) {}
 
-    QBitArray &operator=( const QBitArray &a )	// shallow copy
-	{ return (QBitArray&)assign( a ); }
+    QBitArray &operator=( const QBitArray &a )
+		{ return (QBitArray&)assign( a ); }
 
     uint    size() const { return ((bitarr_data*)sharedBlock())->nbits; }
-    bool    resize( uint size );		// resize bit array
+    bool    resize( uint size );
 
-    bool    fill( bool v, int size = -1 );	// fill bit array with value
+    bool    fill( bool v, int size = -1 );
 
-    void    detach();				// detach bit array
-    QBitArray copy() const;			// get deep copy
+    void    detach();
+    QBitArray copy() const;
 
-    bool    testBit( uint i ) const;		// test if bit set
-    void    setBit( uint i );			// set bit
-    void    setBit( uint i, bool v )		// set bit to value
+    bool    testBit( uint i ) const;
+    void    setBit( uint i );
+    void    setBit( uint i, bool v )
 		{ if ( v ) setBit(i); else clearBit(i); }
-    void    clearBit( uint i );			// clear bit
-    bool    toggleBit( uint i );		// toggle/invert bit
+    void    clearBit( uint i );
+    bool    toggleBit( uint i );
 
-    bool    at( uint i ) const			// access bit
+    bool    at( uint i ) const
 		{ return testBit(i); }
-    QBitVal operator[]( int i )			// get/set bit
+    QBitVal operator[]( int i )
 		{ return QBitVal( (QBitArray*)this, i ); }
 
-    QBitArray &operator&=( const QBitArray & ); // AND bits
-    QBitArray &operator|=( const QBitArray & ); // OR  bits
-    QBitArray &operator^=( const QBitArray & ); // XOR bits
-    QBitArray  operator~() const;		// NOT bits
+    QBitArray &operator&=( const QBitArray & );
+    QBitArray &operator|=( const QBitArray & );
+    QBitArray &operator^=( const QBitArray & );
+    QBitArray  operator~() const;
 
 protected:
-    struct bitarr_data : QGArray::array_data {	// shared bit array
+    struct bitarr_data : QGArray::array_data {
 	uint   nbits;
     };
     array_data *newData()		    { return new bitarr_data; }
