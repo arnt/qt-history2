@@ -292,16 +292,13 @@ bool QPlugIn::load()
 
   \sa load
 */
-bool QPlugIn::unload( bool /*force*/ )
+bool QPlugIn::unload( bool force )
 {
     if ( pHnd ) {
 	if ( info ) {
-/*	    if ( !ifc->disconnectNotify() && !force )
+	    if ( !info->disconnectNotify() && !force )
 		return FALSE;
 
-	    delete ifc;
-	    ifc = 0;
-*/
 	    delete info;
 	    info = 0;
 	}
@@ -396,7 +393,7 @@ bool QPlugIn::loadInterface()
     if ( !info )
 	return FALSE;
 
-    return TRUE;
+    return info->connectNotify( appInterface );
 }
 
 /*!
