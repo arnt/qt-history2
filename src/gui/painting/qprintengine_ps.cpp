@@ -2609,7 +2609,7 @@ static QString fontFile(const QStringList &fontpath, const QByteArray &xname)
 {
     QByteArray searchname = xname.toLower();
     QString fontfilename;
-    for (QStringList::Iterator it = fontpath.begin(); it != fontpath.end(); ++it) {
+    for (QStringList::ConstIterator it = fontpath.constBegin(); it != fontpath.constEnd(); ++it) {
         if ((*it).left(1) != "/")
             continue; // not a path name, a font server
         QString fontmapname;
@@ -2637,7 +2637,7 @@ static QString fontFile(const QStringList &fontpath, const QByteArray &xname)
                 // remove the most common bitmap formats
                 if(ffn.contains(".pcf") || ffn.contains(".bdf") || ffn.contains(".spd") || ffn.contains(".phont"))
                     continue;
-                fontfilename = QString::fromLocal8Bit((*it) + QString("/") + ffn);
+                fontfilename = (*it) + QString("/") + ffn;
                 if (QFile::exists(fontfilename)) {
                     // ############ check if scalable
                     goto end;
