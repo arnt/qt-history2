@@ -21,18 +21,12 @@
 
 #ifndef QT_NO_WORKSPACE
 
-#if !defined( QT_MODULE_WORKSPACE ) || defined( QT_INTERNAL_WORKSPACE )
-#define QM_EXPORT_WORKSPACE
-#else
-#define QM_EXPORT_WORKSPACE Q_GUI_EXPORT
-#endif
-
 class QWorkspaceChild;
 class QShowEvent;
 class QWorkspacePrivate;
 class QPopupMenu;
 
-class QM_EXPORT_WORKSPACE QWorkspace : public QWidget
+class Q_GUI_EXPORT QWorkspace : public QWidget
 {
     Q_OBJECT
     Q_PROPERTY( bool scrollBarsEnabled READ scrollBarsEnabled WRITE setScrollBarsEnabled )
