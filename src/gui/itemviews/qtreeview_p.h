@@ -54,9 +54,9 @@ public:
     inline int height(int item) const {
         if (uniformRowHeights) return itemHeight;
         if (viewItems.at(item).height == 0)
-            viewItems[item].height = q_func()->rowSizeHint(viewItems.at(item).index);
+            viewItems[item].height = q_func()->indexRowSizeHint(viewItems.at(item).index);
         return viewItems.at(item).height;
-    }       
+    }
 
     int indentation(int item) const;
     int coordinate(int item) const;

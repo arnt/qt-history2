@@ -112,7 +112,7 @@ protected:
     void updateGeometries();
 
     int columnSizeHint(int column) const;
-    int rowSizeHint(const QModelIndex &left) const;
+    int indexRowSizeHint(const QModelIndex &left) const;
 
     bool isIndexHidden(const QModelIndex &index) const;
 

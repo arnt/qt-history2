@@ -1115,7 +1115,7 @@ int QTreeView::columnSizeHint(int column) const
 
   \sa QWidget::sizeHint
 */
-int QTreeView::rowSizeHint(const QModelIndex &left) const
+int QTreeView::indexRowSizeHint(const QModelIndex &left) const
 {
     if (d->viewItems.count() <= 0)
         return 0;
