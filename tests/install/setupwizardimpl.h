@@ -1,4 +1,5 @@
 #include "setupwizard.h"
+#include "installthread.h"
 
 class SetupWizardImpl : public SetupWizard
 {
@@ -11,7 +12,8 @@ public:
 
 public slots:
     virtual void changedPage( const QString& );
-
 private:
     int sysID;
+
+    InstallThread installer;
 };

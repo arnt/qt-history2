@@ -181,7 +181,7 @@ void buildInstaller( QString distname )
 
     args += QString( getenv( "QTDIR" ) ) + "\\bin\\qmake";
     args += "CONFIG+=windows release";
-    args += QString( "DEFINES+=DISTVER=\\\"" ) + distname + "\\\"";
+    args += QString( "DEFINES+=DISTVER=\\\\\\\"" ) + distname + "\\\\\\\"";
     args += QString( getenv( "QTDIR" ) ) + "\\tests\\install\\setup.pro";
     args += QString( "-o" );
     args += QString( getenv( "QTDIR" ) ) + "\\tests\\install\\Makefile";
