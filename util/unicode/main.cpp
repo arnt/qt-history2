@@ -542,7 +542,11 @@ static void readCompositionExclusion()
     for (int i = 0; i < 0x110000; ++i) {
         UnicodeData data = unicodeData.value(i, UnicodeData(i));
         if (!data.excludedComposition
-            && data.decompositionType == QChar::Canonical && data.decomposition.size() > 1) {
+            && data.decompositionType == QChar::Canonical
+            // this doesn't catch three tibetan codepoints listed in CompositionExclusions.txt,
+            // but I think this is a bug in the file.
+            && data.p.combiningClass == 0
+            && data.decomposition.size() > 1) {
             Q_ASSERT(data.decomposition.size() == 2);
 
             ++numLigatures;
@@ -832,69 +836,7 @@ static QByteArray createPropertyInfo()
     }
     out += "};\n\n"
 
-           "#define GET_PROP(ucs4) (uc_properties + GET_PROP_INDEX(ucs4))\n\n"
-
-           "QChar::Category QUnicodeTables::category(uint ucs4)\n"
-           "{\n"
-           "    return (QChar::Category) GET_PROP(ucs4)->category;\n"
-           "}\n\n"
-
-           "unsigned char QUnicodeTables::combiningClass(uint ucs4)\n"
-           "{\n"
-           "    return (unsigned char) GET_PROP(ucs4)->combiningClass;\n"
-           "}\n\n"
-
-           "QChar::Direction QUnicodeTables::direction(uint ucs4)\n"
-           "{\n"
-           "    return (QChar::Direction) GET_PROP(ucs4)->direction;\n"
-           "}\n\n"
-
-           "QChar::Joining QUnicodeTables::joining(uint ucs4)\n"
-           "{\n"
-           "    return (QChar::Joining) GET_PROP(ucs4)->joining;\n"
-           "}\n\n"
-
-           "QChar::UnicodeVersion QUnicodeTables::unicodeVersion(uint ucs4)\n"
-           "{\n"
-           "    return (QChar::UnicodeVersion) GET_PROP(ucs4)->unicode_version;\n"
-           "}\n\n"
-
-           "int QUnicodeTables::digitValue(uint ucs4)\n"
-           "{\n"
-           "    int val = GET_PROP(ucs4)->digit_value;\n"
-           "    return val == 0xf ? -1 : val;\n"
-           "}\n\n"
-
-           "bool QUnicodeTables::mirrored(uint ucs4)\n"
-           "{\n"
-           "    return GET_PROP(ucs4)->mirrorDiff != 0;\n"
-           "}\n\n"
-
-           "int QUnicodeTables::mirroredChar(uint ucs4)\n"
-           "{\n"
-           "    return ucs4 + GET_PROP(ucs4)->mirrorDiff;\n"
-           "}\n\n"
-
-           "QUnicodeTables::LineBreakClass QUnicodeTables::lineBreakClass(uint ucs4)\n"
-           "{\n"
-           "    return (QUnicodeTables::LineBreakClass) GET_PROP(ucs4)->line_break_class;\n"
-           "}\n\n"
-
-           "int QUnicodeTables::upper(uint ucs4)\n"
-           "{\n"
-           "    const UC_Properties *p = GET_PROP(ucs4);\n"
-           "    if (p->category == QChar::Letter_Lowercase)\n"
-           "        return ucs4 + p->caseDiff;\n"
-           "    return ucs4;\n"
-           "}\n\n"
-
-           "int QUnicodeTables::lower(uint ucs4)\n"
-           "{\n"
-           "    const UC_Properties *p = GET_PROP(ucs4);\n"
-           "    if (p->category == QChar::Letter_Uppercase || p->category == QChar::Letter_Titlecase)\n"
-           "        return ucs4 + p->caseDiff;\n"
-           "    return ucs4;\n"
-           "}\n\n";
+           "#define GET_PROP(ucs4) (uc_properties + GET_PROP_INDEX(ucs4))\n\n";
 
 
     return out;
@@ -1089,37 +1031,14 @@ static QByteArray createCompositionInfo()
         out += ", ";
     }
 
-    out += "\n};\n\n"
-
-           "QString QUnicodeTables::decomposition(uint ucs4)\n"
-           "{\n"
-           "    const unsigned short index = GET_DECOMPOSITION_INDEX(ucs4);\n"
-           "    if (index == 0xffff)\n"
-           "        return QString();\n"
-           "    const unsigned short *decomposition = uc_decomposition_map+index;\n"
-           "    uint length = (*decomposition) >> 8;\n"
-           "    QString str;\n"
-           "    str.resize(length);\n"
-           "    QChar *c = str.data();\n"
-           "    for (uint i = 0; i < length; ++i)\n"
-           "        *(c++) = *(++decomposition);\n"
-           "    return str;\n"
-           "}\n\n"
-
-           "QChar::Decomposition QUnicodeTables::decompositionTag(uint ucs4)\n"
-           "{\n"
-           "    const unsigned short index = GET_DECOMPOSITION_INDEX(ucs4);\n"
-           "    if (index == 0xffff)\n"
-           "        return QChar::NoDecomposition;\n"
-           "    return (QChar::Decomposition)(uc_decomposition_map[index] & 0xff);\n"
-           "}\n\n";
+    out += "\n};\n\n";
 
     return out;
 }
 
 static QByteArray createLigatureInfo()
 {
-    qDebug("createCompositionInfo:");
+    qDebug("createLigatureInfo: numLigatures=%d", numLigatures);
 
     QList<DecompositionBlock> blocks;
     QList<int> blockMap;
@@ -1171,7 +1090,8 @@ static QByteArray createLigatureInfo()
     qDebug("    %d unique blocks in BMP.",blocks.size());
     qDebug("        block data uses: %d bytes", bmp_block_data);
     qDebug("        trie data uses : %d bytes", bmp_trie);
-    qDebug("        memory usage: %d bytes", bmp_mem);
+    qDebug("        ligature data uses : %d bytes", ligatures.size()*2);
+    qDebug("        memory usage: %d bytes", bmp_mem + ligatures.size() * 2);
 
     QByteArray out;
 
@@ -1218,22 +1138,7 @@ static QByteArray createLigatureInfo()
         out += ", ";
     }
 
-    out += "\n};\n\n"
-
-           "ushort QUnicodeTables::ligature(ushort u1, ushort u2)\n"
-           "{\n"
-           "    const unsigned short index = GET_LIGATURE_INDEX(u2);\n"
-           "    if (index == 0xffff)\n"
-           "        return 0;\n"
-           "    const unsigned short *ligatures = uc_ligature_map+index;\n"
-           "    ushort length = *ligatures;\n"
-           "    ++ligatures;\n"
-           "    // ### use bsearch\n"
-           "    for (uint i = 0; i < length; ++i)\n"
-           "        if (ligatures[2*i] == u1)\n"
-           "            return ligatures[2*i+1];\n"
-           "    return 0;\n"
-           "}\n\n";
+    out += "\n};\n\n";
 
     return out;
 }
@@ -1256,7 +1161,7 @@ int main(int, char **)
     QByteArray compositions = createCompositionInfo();
     QByteArray ligatures = createLigatureInfo();
 
-    QFile f("qunicodetables.cpp");
+    QFile f("../../src/core/tools/qunicodedata.cpp");
     f.open(IO_WriteOnly|IO_Truncate);
 
     QByteArray header =
@@ -1272,9 +1177,7 @@ int main(int, char **)
         "**\n"
         "****************************************************************************/\n\n"
 
-        "/* This file is autogenerated from the Unicode 4.0.1 database. Do not edit */\n\n"
-
-        "#include \"qunicodetables_p.h\"\n\n";
+        "/* This file is autogenerated from the Unicode 4.0.1 database. Do not edit */\n\n";
 
     f.writeBlock(header.data(), header.length());
     f.writeBlock(properties.data(), properties.length());
