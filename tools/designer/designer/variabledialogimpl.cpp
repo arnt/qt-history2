@@ -28,6 +28,7 @@
 #include "formwindow.h"
 #include "mainwindow.h"
 #include "hierarchyview.h"
+#include "command.h"
 #include "variabledialogimpl.h"
 
 
@@ -103,8 +104,9 @@ void VariableDialog::okClicked()
 	    return;
 	}
     }
-    MetaDataBase::setVariables( formWindow, lst );
-    formWindow->mainWindow()->objectHierarchy()->updateFormDefinitionView();
+    Command *cmd = new SetVariablesCommand( "Edit variables", formWindow, lst );
+    formWindow->commandHistory()->addCommand( cmd );
+    cmd->execute();
     accept();
 }
 

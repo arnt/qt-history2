@@ -48,6 +48,7 @@ class QDesignerToolBar;
 class QMainWindow;
 class QDesignerPopupMenu;
 class QDesignerMenuBar;
+class LanguageInterface;
 
 class Command : public Qt
 {
@@ -99,7 +100,11 @@ public:
 	AddToolBar,
 	RemoveToolBar,
 	AddFunction,
-	RemoveFunction
+	RemoveFunction,
+	AddVariable,
+	SetVariables,
+	RemoveVariable,
+	EditDefinitions
     };
 
     QString name() const;
@@ -591,6 +596,58 @@ private:
     QString returnType;
 };
 
+class AddVariableCommand : public Command
+{
+public:
+    AddVariableCommand( const QString &name, FormWindow *fw, const QString &vn, const QString &a );
+    void execute();
+    void unexecute();
+    Type type() const { return AddVariable; }
+
+private:
+    QString varName;
+    QString access;
+};
+
+class SetVariablesCommand : public Command
+{
+public:
+    SetVariablesCommand( const QString &name, FormWindow *fw, QValueList<MetaDataBase::Variable> lst );
+    void execute();
+    void unexecute();
+    Type type() const { return SetVariables; }
+
+private:
+    QValueList<MetaDataBase::Variable> oldList, newList;
+};
+
+class RemoveVariableCommand : public Command
+{
+public:
+    RemoveVariableCommand( const QString &name, FormWindow *fw, const QString &vn );
+    void execute();
+    void unexecute();
+    Type type() const { return RemoveVariable; }
+
+private:
+    QString varName;
+    QString access;
+};
+
+class EditDefinitionsCommand : public Command
+{
+public:
+    EditDefinitionsCommand( const QString &name, FormWindow *fw, LanguageInterface *lf,
+			    const QString &n, const QStringList &l );
+    void execute();
+    void unexecute();
+    Type type() const { return EditDefinitions; }
+
+private:
+    QStringList oldList, newList;
+    QString defName;
+    LanguageInterface *lIface;
+};
 
 class LowerCommand : public Command
 {

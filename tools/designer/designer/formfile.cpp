@@ -550,7 +550,7 @@ void FormFile::parseCode( const QString &txt, bool allowModify )
 
     if ( allowModify && oldFunctions.count() > 0 )
 	setFormWindowModified( TRUE );
-	
+
     MetaDataBase::setFunctionList( formWindow(), newFunctions );
 }
 
@@ -624,6 +624,55 @@ void FormFile::addFunctionCode( MetaDataBase::Function function )
 	if ( codeEdited ) {
 	    setModified( TRUE );
 	    emit somethingChanged( this );
+	}
+    }
+}
+
+void FormFile::removeFunctionCode( MetaDataBase::Function function )
+{
+    if ( pro->isCpp() && !hasFormCode() && !codeEdited )
+	return;
+
+    LanguageInterface *iface = MetaDataBase::languageInterface( pro->language() );
+    if ( !iface )
+	return;
+
+    checkTimeStamp();
+    QString sourceCode = code();
+    if ( sourceCode.isEmpty() )
+	return;
+    QValueList<LanguageInterface::Function> functions;
+    iface->functions( sourceCode, &functions );
+    QString fu = MetaDataBase::normalizeFunction( function.function );
+    for ( QValueList<LanguageInterface::Function>::Iterator fit = functions.begin(); fit != functions.end(); ++fit ) {
+	if ( MetaDataBase::normalizeFunction( (*fit).name ) == fu ) {
+	    int line = 0;
+	    int start = 0;
+	    while ( line < (*fit).start - 1 ) {
+		start = sourceCode.find( '\n', start );
+		if ( start == -1 )
+		    return;
+		start++;
+		line++;
+	    }
+	    if ( start == -1 )
+	        return;
+	    int end = start;
+	    while ( line < (*fit).end + 1 ) {
+		end = sourceCode.find( '\n', end );
+		if ( end == -1 ) {
+		    if ( line <= (*fit).end )
+			end = sourceCode.length() - 1;
+		    else
+		        return;
+		}
+		end++;
+		line++;
+	    }
+	    if ( end < start )
+		return;
+	    sourceCode.remove( start, end - start );
+	    setCode( sourceCode );
 	}
     }
 }

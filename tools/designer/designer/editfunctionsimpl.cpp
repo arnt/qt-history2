@@ -195,9 +195,6 @@ void EditFunctions::okClicked()
 	return;
     }
 
-    for ( QStringList::Iterator rsit = removedFunctions.begin(); rsit != removedFunctions.end(); ++rsit )
-	removeFunctionFromCode( *rsit, formWindow );
-
     if ( rmFunc || addFunc ) {
 	QPtrList<Command> commands;
 	if ( rmFunc )
@@ -414,51 +411,6 @@ void EditFunctions::changeItem( QListViewItem *item, Attribute a, const QString 
 		    (*it).type = nV;
 		    break;
 	    }
-	}
-    }
-}
-
-void EditFunctions::removeFunctionFromCode( const QString &function, FormWindow *formWindow )
-{
-    formWindow->formFile()->checkTimeStamp();
-    QString code = formWindow->formFile()->code();
-    if ( code.isEmpty() || !formWindow->formFile()->hasFormCode() )
-	return;
-    LanguageInterface *iface = MetaDataBase::languageInterface( formWindow->project()->language() );
-    if ( !iface )
-	return;
-    QValueList<LanguageInterface::Function> functions;
-    iface->functions( code, &functions );
-    QString fu = MetaDataBase::normalizeFunction( function );
-    for ( QValueList<LanguageInterface::Function>::Iterator fit = functions.begin(); fit != functions.end(); ++fit ) {
-	if ( MetaDataBase::normalizeFunction( (*fit).name ) == fu ) {
-	    int line = 0;
-	    int start = 0;
-	    while ( line < (*fit).start - 1 ) {
-		start = code.find( '\n', start );
-		if ( start == -1 )
-		    return;
-		start++;
-		line++;
-	    }
-	    if ( start == -1 )
-		return;
-	    int end = start;
-	    while ( line < (*fit).end + 1 ) {
-		end = code.find( '\n', end );
-		if ( end == -1 ) {
-		    if ( line <= (*fit).end )
-			end = code.length() - 1;
-		    else
-			return;
-		}
-		end++;
-		line++;
-	    }
-	    if ( end < start )
-		return;
-	    code.remove( start, end - start );
-	    formWindow->formFile()->setCode( code );
 	}
     }
 }

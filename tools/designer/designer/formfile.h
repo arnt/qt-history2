@@ -73,6 +73,7 @@ public:
     void syncCode();
     void checkTimeStamp();
     void addFunctionCode( MetaDataBase::Function function );
+    void removeFunctionCode( MetaDataBase::Function function );
     void functionNameChanged( const QString &oldName, const QString &newName );
     void functionRetTypeChanged( const QString &fuName, const QString &oldType, const QString &newType );
 

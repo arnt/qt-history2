@@ -728,11 +728,11 @@ void FormDefinitionView::setupVariables()
     itemVar->setPixmap( 0, *folderPixmap );
     itemVar->setOpen( TRUE );
 
-    itemVarPriv = new HierarchyItem( HierarchyItem::VarPrivate, itemVar, tr( "Private" ),
+    itemVarPriv = new HierarchyItem( HierarchyItem::VarPrivate, itemVar, tr( "private" ),
 				     QString::null, QString::null );
-    itemVarProt = new HierarchyItem( HierarchyItem::VarProtected, itemVar, tr( "Protected" ),
+    itemVarProt = new HierarchyItem( HierarchyItem::VarProtected, itemVar, tr( "protected" ),
 				     QString::null, QString::null );
-    itemVarPubl = new HierarchyItem( HierarchyItem::VarPublic, itemVar, tr( "Public" ),
+    itemVarPubl = new HierarchyItem( HierarchyItem::VarPublic, itemVar, tr( "public" ),
 				     QString::null, QString::null );
 
     QValueList<MetaDataBase::Variable> varList = MetaDataBase::variables( formWindow );
@@ -1056,9 +1056,10 @@ void FormDefinitionView::showRMBMenu( QListViewItem *i, const QPoint &pos )
 	    QStringList entries = lIface->definitionEntries( i->text( 0 ), MainWindow::self->designerInterface() );
 	    dia.setList( entries );
 	    dia.exec();
-	    lIface->setDefinitionEntries( i->text( 0 ), dia.items(), MainWindow::self->designerInterface() );
-	    refresh();
-	    formWindow->commandHistory()->setModified( TRUE );
+	    Command *cmd = new EditDefinitionsCommand( tr( "Edit " ) + i->text( 0 ), formWindow,
+						       lIface, i->text( 0 ), dia.items() );
+	    formWindow->commandHistory()->addCommand( cmd );
+	    cmd->execute();
 	}
     } else if ( res == NEW ) {
 	HierarchyItem::Type t = getChildType( i->rtti() );
@@ -1088,15 +1089,19 @@ void FormDefinitionView::showRMBMenu( QListViewItem *i, const QPoint &pos )
 	}
     } else if ( res == DELETE ) {
 	if ( i->rtti() == HierarchyItem::Slot || i->rtti() == HierarchyItem::Function ) {
-	    MetaDataBase::removeFunction( formWindow, i->text( 0 ) );
-	    EditFunctions::removeFunctionFromCode( i->text( 0 ), formWindow );
+
+	    QCString funct( MetaDataBase::normalizeFunction( i->text( 0 ) ).latin1() );
+	    Command *cmd = new RemoveFunctionCommand( tr( "Remove function" ), formWindow, funct,
+						     QString::null, QString::null, QString::null,
+						     QString::null, formWindow->project()->language() );
+	    formWindow->commandHistory()->addCommand( cmd );
+	    cmd->execute();
 	    formWindow->mainWindow()->objectHierarchy()->updateFormDefinitionView();
-	    formWindow->commandHistory()->setModified( TRUE );
-	    MainWindow::self->functionsChanged();
 	} else if ( i->rtti() == HierarchyItem::Variable ) {
-	    MetaDataBase::removeVariable( formWindow, i->text( 0 ) );
-	    formWindow->mainWindow()->objectHierarchy()->updateFormDefinitionView();
-	    formWindow->commandHistory()->setModified( TRUE );
+	    Command *cmd = new RemoveVariableCommand( tr( "Remove variable" ), formWindow,
+						      i->text( 0 ) );
+	    formWindow->commandHistory()->addCommand( cmd );
+	    cmd->execute();
 	} else {
 	    QListViewItem *p = i->parent();
 	    delete i;
@@ -1145,11 +1150,11 @@ void FormDefinitionView::save( QListViewItem *p, QListViewItem *i )
 				      tr( "This variable has already been declared!" ) );
 	} else {
 	    if ( p->rtti() == HierarchyItem::VarPublic )
-		MetaDataBase::addVariable( formWindow, varName, "public" );
+		addVariable( varName, "public" );
 	    else if ( p->rtti() == HierarchyItem::VarProtected )
-		MetaDataBase::addVariable( formWindow, varName, "protected" );
+		addVariable( varName, "protected" );
 	    else if ( p->rtti() == HierarchyItem::VarPrivate )
-		MetaDataBase::addVariable( formWindow, varName, "private" );
+		addVariable( varName, "private" );
 	}
     } else {
 	LanguageInterface *lIface = MetaDataBase::languageInterface( formWindow->project()->language() );
@@ -1161,11 +1166,19 @@ void FormDefinitionView::save( QListViewItem *p, QListViewItem *i )
 	    lst << i->text( 0 );
 	    i = i->nextSibling();
 	}
-	lIface->setDefinitionEntries( p->text( 0 ), lst, formWindow->mainWindow()->designerInterface() );
-	lIface->release();
+	Command *cmd = new EditDefinitionsCommand( tr( "Edit " ) + p->text( 0 ), formWindow,
+						   lIface, p->text( 0 ), lst );
+	formWindow->commandHistory()->addCommand( cmd );
+	cmd->execute();
     }
-    setup();
-    formWindow->commandHistory()->setModified( TRUE );
+}
+
+void FormDefinitionView::addVariable( const QString &varName, const QString &access )
+{
+    Command *cmd = new AddVariableCommand( tr( "Add variable" ), formWindow,
+					      varName, access );
+    formWindow->commandHistory()->addCommand( cmd );
+    cmd->execute();
 }
 
 // ------------------------------------------------------------

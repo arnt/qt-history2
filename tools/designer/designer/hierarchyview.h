@@ -157,6 +157,7 @@ protected:
 private:
     void save( QListViewItem *p, QListViewItem *i );
     void execFunctionDialog( const QString &access, const QString &type );
+    void addVariable( const QString &varName, const QString &access );
 
 private slots:
     void objectClicked( QListViewItem *i );

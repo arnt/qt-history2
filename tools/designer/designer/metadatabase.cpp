@@ -717,6 +717,7 @@ void MetaDataBase::removeFunction( QObject *o, const QCString &function, const Q
 	     (*it).type == type &&
 	     ( language.isEmpty() || (*it).language == language ) &&
 	       ( returnType.isEmpty() || (*it).returnType == returnType ) ) {
+	    ( (FormWindow*)o )->formFile()->removeFunctionCode( *it );
 	    r->functionList.remove( it );
 	    break;
 	}
@@ -734,6 +735,7 @@ void MetaDataBase::removeFunction( QObject *o, const QString &function )
     }
     for ( QValueList<Function>::Iterator it = r->functionList.begin(); it != r->functionList.end(); ++it ) {
 	if ( normalizeFunction( (*it).function ) == normalizeFunction( function ) ) {
+	    ( (FormWindow*)o )->formFile()->removeFunctionCode( *it );
 	    r->functionList.remove( it );
 	    break;
 	}
@@ -870,14 +872,10 @@ QString MetaDataBase::languageOfFunction( QObject *o, const QCString &function )
 	return QString::null;
     }
 
-    QString fu = function;
-    fu = normalizeFunction( fu );
+    QString fu = normalizeFunction( function );
     for ( QValueList<Function>::Iterator it = r->functionList.begin(); it != r->functionList.end(); ++it ) {
-	Function f = *it;
-	QString fu2 = f.function;
-	fu2 = normalizeFunction( fu2 );
-	if ( fu == fu2 )
-	    return f.language;
+	if ( fu == normalizeFunction( (*it).function ) )
+	    return (*it).language;
     }
     return QString::null;
 }

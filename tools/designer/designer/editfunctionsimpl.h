@@ -17,7 +17,6 @@ public:
     EditFunctions( QWidget *parent, FormWindow *fw, bool showOnlySlots = FALSE );
 
     void setCurrentFunction( const QString &function );
-    static void removeFunctionFromCode( const QString &function, FormWindow *fw );
     void functionAdd( const QString &access = QString::null, 
 		      const QString &type = QString::null  );
     void functionAdd() { functionAdd( "public", "function" ); }

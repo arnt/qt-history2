@@ -29,6 +29,7 @@
 #include "actioneditorimpl.h"
 #include "actiondnd.h"
 #include "formfile.h"
+#include "../interfaces/languageinterface.h"
 
 #include <qfeatures.h>
 #include <qwidget.h>
@@ -1128,6 +1129,20 @@ RemoveFunctionCommand::RemoveFunctionCommand( const QString &name, FormWindow *f
     : Command( name, fw ), function( f ), specifier( spec ), access( a ), functionType( t ), language( l ),
       returnType( rt )
 {
+    if ( spec.isNull() ) {
+	QValueList<MetaDataBase::Function> lst = MetaDataBase::functionList( fw );
+	for ( QValueList<MetaDataBase::Function>::Iterator it = lst.begin(); it != lst.end(); ++it ) {
+	    if ( MetaDataBase::normalizeFunction( (*it).function ) ==
+		 MetaDataBase::normalizeFunction( function ) ) {
+		specifier = (*it).specifier;
+		access = (*it).access;
+		functionType = (*it).type;
+		returnType = (*it).returnType;
+		language = (*it).language;
+		break;
+	    }
+	}
+    }
 }
 
 void RemoveFunctionCommand::execute()
@@ -1140,8 +1155,115 @@ void RemoveFunctionCommand::execute()
 
 void RemoveFunctionCommand::unexecute()
 {
+    if ( MetaDataBase::hasFunction( formWindow(), function ) )
+	return;
     MetaDataBase::addFunction( formWindow(), function, specifier, access, functionType, language, returnType );
     formWindow()->mainWindow()->functionsChanged();
+    if ( formWindow()->formFile() )
+	formWindow()->formFile()->setModified( TRUE );
+}
+
+// ------------------------------------------------------------
+
+AddVariableCommand::AddVariableCommand( const QString &name, FormWindow *fw, const QString &vn, const QString &a )
+    : Command( name, fw ), varName( vn ), access( a )
+{
+}
+
+void AddVariableCommand::execute()
+{
+    MetaDataBase::addVariable( formWindow(), varName, access );
+    formWindow()->mainWindow()->objectHierarchy()->updateFormDefinitionView();
+    if ( formWindow()->formFile() )
+	formWindow()->formFile()->setModified( TRUE );
+}
+
+void AddVariableCommand::unexecute()
+{
+    MetaDataBase::removeVariable( formWindow(), varName );
+    formWindow()->mainWindow()->objectHierarchy()->updateFormDefinitionView();
+    if ( formWindow()->formFile() )
+	formWindow()->formFile()->setModified( TRUE );
+}
+
+// ------------------------------------------------------------
+
+SetVariablesCommand::SetVariablesCommand( const QString &name, FormWindow *fw,
+    QValueList<MetaDataBase::Variable> lst )
+    : Command( name, fw ), newList( lst )
+{
+    oldList = MetaDataBase::variables( formWindow() );
+}
+
+void SetVariablesCommand::execute()
+{
+    MetaDataBase::setVariables( formWindow(), newList );
+    formWindow()->mainWindow()->objectHierarchy()->updateFormDefinitionView();
+    if ( formWindow()->formFile() )
+	formWindow()->formFile()->setModified( TRUE );
+}
+
+void SetVariablesCommand::unexecute()
+{
+    MetaDataBase::setVariables( formWindow(), oldList );
+    formWindow()->mainWindow()->objectHierarchy()->updateFormDefinitionView();
+    if ( formWindow()->formFile() )
+	formWindow()->formFile()->setModified( TRUE );
+}
+
+// ------------------------------------------------------------
+
+RemoveVariableCommand::RemoveVariableCommand( const QString &name, FormWindow *fw, const QString &vn )
+    : Command( name, fw ), varName( vn )
+{
+    QValueList<MetaDataBase::Variable> lst = MetaDataBase::variables( fw );
+    for ( QValueList<MetaDataBase::Variable>::Iterator it = lst.begin(); it != lst.end(); ++it ) {
+	if ( (*it).varName == varName ) {
+	    access = (*it).varAccess;
+	    break;
+	}
+    }
+}
+
+void RemoveVariableCommand::execute()
+{
+    MetaDataBase::removeVariable( formWindow(), varName );
+    formWindow()->mainWindow()->objectHierarchy()->updateFormDefinitionView();
+    if ( formWindow()->formFile() )
+	formWindow()->formFile()->setModified( TRUE );
+}
+
+void RemoveVariableCommand::unexecute()
+{
+    MetaDataBase::addVariable( formWindow(), varName, access );
+    formWindow()->mainWindow()->objectHierarchy()->updateFormDefinitionView();
+    if ( formWindow()->formFile() )
+	formWindow()->formFile()->setModified( TRUE );
+}
+
+// ------------------------------------------------------------
+
+EditDefinitionsCommand::EditDefinitionsCommand( const QString &name, FormWindow *fw, LanguageInterface *lf,
+						const QString &n, const QStringList &nl )
+    : Command( name, fw ), lIface( lf ), defName( n ), newList( nl )
+{
+    oldList = lIface->definitionEntries( defName, formWindow()->mainWindow()->designerInterface() );
+}
+
+void EditDefinitionsCommand::execute()
+{
+    lIface->setDefinitionEntries( defName, newList, formWindow()->mainWindow()->designerInterface() );
+    lIface->release();
+    formWindow()->mainWindow()->objectHierarchy()->updateFormDefinitionView();
+    if ( formWindow()->formFile() )
+	formWindow()->formFile()->setModified( TRUE );
+}
+
+void EditDefinitionsCommand::unexecute()
+{
+    lIface->setDefinitionEntries( defName, oldList, formWindow()->mainWindow()->designerInterface() );
+    lIface->release();
+    formWindow()->mainWindow()->objectHierarchy()->updateFormDefinitionView();
     if ( formWindow()->formFile() )
 	formWindow()->formFile()->setModified( TRUE );
 }
