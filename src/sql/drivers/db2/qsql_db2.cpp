@@ -1117,7 +1117,7 @@ QDB2Driver::QDB2Driver( QObject* parent, const char* name )
     d = new QDB2DriverPrivate;
 }
 
-QDB2Driver::QDB2Driver( HANDLE env, HANDLE con, QObject* parent, const char* name )
+QDB2Driver::QDB2Driver( Qt::HANDLE env, Qt::HANDLE con, QObject* parent, const char* name )
     : QSqlDriver( parent, name )
 {
     qSqlOpenExtDict()->insert( this, new QDB2OpenExtension(this) );
@@ -1580,12 +1580,12 @@ QString QDB2Driver::formatValue( const QSqlField* field, bool trimStrings ) cons
     }
 }
 
-HANDLE QDB2Driver::environment()
+Qt::HANDLE QDB2Driver::environment()
 {
-    return (HANDLE)d->hEnv;
+    return (Qt::HANDLE)d->hEnv;
 }
 
-HANDLE QDB2Driver::connection()
+Qt::HANDLE QDB2Driver::connection()
 {
-    return (HANDLE)d->hDbc;
+    return (Qt::HANDLE)d->hDbc;
 }
