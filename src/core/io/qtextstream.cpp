@@ -1527,7 +1527,7 @@ QString QTextStream::readLine()
     uint l;
     while(1) {
         QTextStreamPrivate::GetBufEnd end = d->ts_getbuf(buf, buf_size, TS_MOD_CONSUME|TS_EOL, &l);
-        if(end != QTextStreamPrivate::TS_END_OF_INPUT)
+        if(l || end != QTextStreamPrivate::TS_END_OF_INPUT)
             result.append(QString(buf, l));
         if(end != QTextStreamPrivate::TS_END_OF_OUTPUT)
             break;
