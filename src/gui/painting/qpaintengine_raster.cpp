@@ -66,11 +66,6 @@ static void qt_initialize_ft()
     qt_ft_standard_raster.raster_reset(qt_black_raster, poolBase, poolSize);
 }
 
-static void qt_finalize_ft()
-{
-
-}
-
 #ifdef Q_WS_WIN
 void qt_draw_text_item(const QPointF &point, const QTextItemInt &ti, HDC hdc,
                        QRasterPaintEnginePrivate *d);
@@ -1012,6 +1007,186 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
 #endif // Q_WS_WIN
 }
 
+enum LineDrawMode {
+    LineDrawClipped,
+    LineDrawNormal,
+    LineDrawIncludeLastPixel
+};
+
+static LineDrawMode clipLine(QLineF &line, const QRect &rect)
+{
+    LineDrawMode mode = LineDrawNormal;
+
+    qreal x1 = line.x1();
+    qreal x2 = line.x2();
+    qreal y1 = line.y1();
+    qreal y2 = line.y2();
+
+    enum { left, right, top, bottom };
+    // clip the lines, after cohen-sutherland, see e.g. http://www.nondot.org/~sabre/graphpro/line6.html
+    int p1 = ((x1 < rect.left()) << left)
+             | ((x1 >= rect.right()) << right)
+             | ((y1 < rect.top()) << top)
+             | ((y1 >= rect.bottom()) << bottom);
+    int p2 = ((x2 < rect.top()) << left)
+             | ((x2 >= rect.bottom()) << right)
+             | ((y2 < rect.top()) << top)
+             | ((y2 >= rect.bottom()) << bottom);
+
+    if (p1 & p2)
+        // completely outside
+        return LineDrawClipped;
+
+    if (p1 | p2) {
+        qreal dx = x2 - x1;
+        qreal dy = y2 - y1;
+
+        // clip x coordinates
+        if (x1 < rect.left()) {
+            y1 += dy/dx * (rect.left() - x1);
+            x1 = rect.left();
+        } else if (x1 > rect.right()) {
+            y1 -= dy/dx * (x1 - rect.right());
+            x1 = rect.right();
+        }
+        if (x2 < rect.left()) {
+            y2 += dy/dx * (rect.left() - x2);
+            x2 = rect.left();
+            mode = LineDrawIncludeLastPixel;
+        } else if (x2 > rect.right()) {
+            y2 -= dy/dx * (x2 - rect.right());
+            x2 = rect.right();
+            mode = LineDrawIncludeLastPixel;
+        }
+        p1 = ((y1 < rect.top()) << top)
+             | ((y1 >= rect.bottom()) << bottom);
+        p2 = ((y2 < rect.top()) << top)
+             | ((y2 >= rect.bottom()) << bottom);
+        if (p1 & p2)
+            return LineDrawClipped;
+        // clip y coordinates
+        if (y1 < rect.left()) {
+            x1 += dx/dy * (rect.left() - y1);
+            y1 = rect.left();
+        } else if (y1 > rect.bottom()) {
+            x1 -= dx/dy * (y1 - rect.bottom());
+            y1 = rect.bottom();
+        }
+        if (y2 < rect.left()) {
+            x2 += dx/dy * (rect.left() - y2);
+            y2 = rect.left();
+            mode = LineDrawIncludeLastPixel;
+        } else if (y2 > rect.bottom()) {
+            x2 -= dx/dy * (y2 - rect.bottom());
+            y2 = rect.bottom();
+            mode = LineDrawIncludeLastPixel;
+        }
+        line = QLineF(QPointF(x1, y1), QPointF(x2, y2));
+    }
+    return mode;
+}
+
+// Bresenham algorithm from Graphics Gems
+static void drawLine_bresenham(const QLineF &line, qt_span_func span_func, void *data, LineDrawMode style)
+{
+#ifdef QT_DEBUG_DRAW
+    qDebug("drawLine_bresenham, x1=%.2f, y1=%.2f, x2=%.2f, y2=%.2f",
+           line.x1(), line.y1(), line.x2(), line.y2());
+#endif
+
+    qreal x1 = line.x1();
+    qreal x2 = line.x2();
+    qreal y1 = line.y1();
+    qreal y2 = line.y2();
+
+    int ax = int(qAbs(x2-x1)*256);
+    int ay = int(qAbs(y2-y1)*256);
+    int sx = x2 > x1 ? 1 : -1;
+    int sy = y2 > y1 ? 1 : -1;
+    int x = int(x1*256.);
+    int dx = x & 0xff;
+    x  = x >> 8;
+    int y = int(y1*256.);
+    int dy = y & 0xff;
+    y = y >> 8;
+    int xe = int(x2 + 0.5);
+    int ye = int(y2 + 0.5);
+    QT_FT_Span span;
+    span.coverage = 255;
+    span.len = 1;
+
+    int d = (sy*ax*dy + sx*ay*dx) >> 8;
+    if(ax > ay) {
+        d += ay - (ax >> 1);
+        if (dy >= 0x80) {
+            ++y;
+            d -= sy*ax;
+        }
+        if (dx >= 0x80)
+            ++x;
+        span.x = x;
+        if (sx > 0) {
+            while(x != xe) {
+                if(d >= 0) {
+                    span.len = x - span.x + 1;
+                    span_func(y, 1, &span, data);
+                    span.x = x + 1;
+                    y += sy;
+                    d -= ax;
+                }
+                ++x;
+                d += ay;
+            }
+            span.len = x - span.x;
+            if (style == LineDrawIncludeLastPixel)
+                ++span.len;
+            span_func(y, 1, &span, data);
+        } else {
+            while(x != xe) {
+                if(d >= 0) {
+                    span.len = span.x - x + 1;
+                    span.x = x;
+                    span_func(y, 1, &span, data);
+                    span.x = x - 1;
+                    y += sy;
+                    d -= ax;
+                }
+                --x;
+                d += ay;
+            }
+            span.len = span.x - x;
+            span.x = x;
+            if (style != LineDrawIncludeLastPixel)
+                ++span.x;
+            else
+                ++span.len;
+            span_func(y, 1, &span, data);
+        }
+    } else {
+        d += (ax - (ay >> 1));
+        if (dx >= 0x80) {
+            ++x;
+            d -= sx*ay;
+        }
+        if (dy >= 0x80)
+            ++y;
+        while(y != ye) {
+            // y is dominant so we can't optimise the spans
+            span.x = x;
+            span_func(y, 1, &span, data);
+            if(d > 0) {
+                x += sx;
+                d -= ay;
+            }
+            y += sy;
+            d += ax;
+        }
+        if (style == LineDrawIncludeLastPixel) {
+            span.x = x;
+            span_func(y, 1, &span, data);
+        }
+    }
+}
 
 void QRasterPaintEngine::drawLine(const QLineF &l)
 {
@@ -1019,77 +1194,28 @@ void QRasterPaintEngine::drawLine(const QLineF &l)
     qDebug(" - QRasterPaintEngine::drawLine(), x1=%.2f, y1=%.2f, x2=%.2f, y2=%.2f",
            l.x1(), l.y1(), l.x2(), l.y2());
 #endif
-#if 0
+
     Q_D(QRasterPaintEngine);
     // Specalized vertical && horizontal line drawing...
     if (0 && !d->antialiased
         && d->pen.style() == Qt::SolidLine
-        && (d->pen.widthF() == 0 || d->pen.widthF() == 1)
-        && d->txop <= QPainterPrivate::TxTranslate
-        && (l.dx() == 0 || l.dy() == 0)) {
+        && (d->pen.widthF() == 0
+            || (d->pen.widthF() <= 1 && d->txop <= QPainterPrivate::TxTranslate))) {
 
-        QLineF line(l);
-        line.translate(d->matrix.dx(), d->matrix.dy());
+        QLineF line = d->matrix.map(l);
+        LineDrawMode mode = clipLine(line, d->deviceRect);
+        if (mode == LineDrawClipped)
+            return;
 
-        int x1 = qRound(line.x1());
-        int x2 = qRound(line.y1());
-        int y1 = qRound(line.x2());
-        int y2 = qRound(line.y2());
+        if (mode == LineDrawNormal && d->pen.capStyle() != Qt::FlatCap)
+            mode = LineDrawIncludeLastPixel;
+        FillData fillData = { d->rasterBuffer, 0, 0 };
+        d->fillForBrush(QBrush(d->pen.brush()), &fillData, 0); // ############# will crash for gradients
 
-        int rbw = d->rasterBuffer->width();
-        int rbh = d->rasterBuffer->height();
-
-        qt_solid_fill_data.rasterBuffer = d->rasterBuffer;
-        qt_solid_fill_data.color = d->pen.color();
-        FillData clipData = { d->rasterBuffer, qt_span_solidfill, &qt_solid_fill_data };
-        void *data = d->clipEnabled ? (void *)&clipData : (void *) &qt_solid_fill_data;
-        qt_span_func func = d->clipEnabled ? qt_span_fill_clipped : qt_span_solidfill;
-
-        if (line.vy() == 0) { // Horizontal line
-
-            if (y1 < 0 || y2 >= rbh)
-                return;
-
-            if (x2 < x1)
-                qt_swap(x1, x2);
-
-            x1 = qMax(0, x1);
-            x2 = qMin(rbw - 1, x2);
-
-            QT_FT_Span span;
-            span.x = x1;
-            span.len = x2 - x1 + 1;
-            span.coverage = 255;
-
-            if (span.len <= 0)
-                return;
-
-            func(line.y1(), 1, &span, data);
-
-        } else { // Vertical lines
-            if (x1 < 0 || x2 >= rbw - 1)
-                return;
-
-            if (y2 < y1)
-                qt_swap(y1, y2);
-
-            y1 = qMax(0, y1);
-            y2 = qMin(rbh - 1, y2 + 1);
-
-            QT_FT_Span span;
-            span.x = x1;
-            span.len = 1;
-            span.coverage = 255;
-
-            for (int y=y1; y<y2; ++y) {
-                func(y, 1, &span, data);
-            }
-        }
-    } else
-#endif
-        {
-        QPaintEngine::drawLine(l);
+        drawLine_bresenham(line, d->clipEnabled ? qt_span_fill_clipped : fillData.callback , &fillData, mode);
+        return;
     }
+    QPaintEngine::drawLine(l);
 }
 
 
