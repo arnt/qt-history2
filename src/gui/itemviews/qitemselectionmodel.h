@@ -121,7 +121,7 @@ public slots:
 
 signals:
     void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
-    void currentChanged(const QModelIndex &newItem, const QModelIndex &oldItem);
+    void currentChanged(const QModelIndex &current, const QModelIndex &previous);
 
 protected:
     QItemSelectionModel(QItemSelectionModelPrivate &dd, QAbstractItemModel *model,

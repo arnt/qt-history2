@@ -146,6 +146,8 @@ signals:
     void doubleClicked(QTableWidgetItem *item, int button);
     void returnPressed(QTableWidgetItem *item);
     void spacePressed(QTableWidgetItem *item);
+    void currentChanged(QTableWidgetItem *current, QTableWidgetItem *previous);
+    void selectionChanged();
 
 protected:
     void removeItem(QTableWidgetItem *item);
@@ -156,6 +158,7 @@ private:
     Q_PRIVATE_SLOT(d, void emitDoubleClicked(const QModelIndex &index, int button));
     Q_PRIVATE_SLOT(d, void emitReturnPressed(const QModelIndex &index));
     Q_PRIVATE_SLOT(d, void emitSpacePressed(const QModelIndex &index));
+    Q_PRIVATE_SLOT(d, void emitCurrentChanged(const QModelIndex &previous, const QModelIndex &current));
 };
 
 #endif

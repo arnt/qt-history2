@@ -592,9 +592,9 @@ void QItemSelectionModel::clear()
     d->ranges.clear();
     d->currentSelection.clear();
     emit selectionChanged(QItemSelection(), selection);
-    QModelIndex old = d->currentIndex;
+    QModelIndex previous = d->currentIndex;
     d->currentIndex = QPersistentModelIndex();
-    emit currentChanged(old, d->currentIndex);
+    emit currentChanged(d->currentIndex, previous);
 }
 
 /*!
@@ -624,9 +624,9 @@ void QItemSelectionModel::setCurrentIndex(const QModelIndex &index, SelectionFla
         select(index, command); // select item
     if (index == d->currentIndex)
         return;
-    QModelIndex old = d->currentIndex;
+    QModelIndex previous = d->currentIndex;
     d->currentIndex = QPersistentModelIndex(index, d->model); // set current
-    emit currentChanged(old, index);
+    emit currentChanged(index, previous);
 }
 
 /*!

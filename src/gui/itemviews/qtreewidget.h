@@ -142,6 +142,8 @@ signals:
     void spacePressed(QTreeWidgetItem *item, int column);
     void expanded(QTreeWidgetItem *item);
     void collapsed(QTreeWidgetItem *item);
+    void currentChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous);
+    void selectionChanged();
 
 protected:
     void appendItem(QTreeWidgetItem *item);
@@ -155,6 +157,7 @@ private:
     Q_PRIVATE_SLOT(d, void emitSpacePressed(const QModelIndex &index));
     Q_PRIVATE_SLOT(d, void emitExpanded(const QModelIndex &index));
     Q_PRIVATE_SLOT(d, void emitCollapsed(const QModelIndex &index));
+    Q_PRIVATE_SLOT(d, void emitCurrentChanged(const QModelIndex &previous, const QModelIndex &current));
 };
 
 #endif

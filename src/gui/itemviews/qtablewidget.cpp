@@ -459,7 +459,8 @@ public:
     void emitClicked(const QModelIndex &index, int button);
     void emitDoubleClicked(const QModelIndex &index, int button);
     void emitReturnPressed(const QModelIndex &index);
-    void emitSpacePressed(const QModelIndex &index);    
+    void emitSpacePressed(const QModelIndex &index);
+    void emitCurrentChanged(const QModelIndex &previous, const QModelIndex &current);
 };
 
 void QTableWidgetPrivate::emitClicked(const QModelIndex &index, int button)
@@ -481,6 +482,12 @@ void QTableWidgetPrivate::emitSpacePressed(const QModelIndex &index)
 {
     emit q->spacePressed(model()->item(index));
 }
+
+void QTableWidgetPrivate::emitCurrentChanged(const QModelIndex &current, const QModelIndex &previous)
+{
+    emit q->currentChanged(model()->item(current), model()->item(previous));
+}
+
 
 /*!
     \fn void QTableWidget::clicked(QTableWidgetItem *item, int button)
@@ -516,6 +523,12 @@ QTableWidget::QTableWidget(QWidget *parent)
             SLOT(emitReturnPressed(const QModelIndex&)));
     connect(this, SIGNAL(spacePressed(const QModelIndex&)),
             SLOT(emitSpacePressed(const QModelIndex&)));
+    connect(selectionModel(),
+            SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)),
+            this, SLOT(emitCurrentChanged(const QModelIndex&, const QModelIndex&)));
+    connect(selectionModel(),
+            SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)),
+            this, SIGNAL(selectionChanged()));
 }
 
 /*!

@@ -1501,14 +1501,14 @@ void QAbstractItemView::selectionChanged(const QItemSelection &selected,
     If you want to know about changes to items see the
     dataChanged() signal.
 */
-void QAbstractItemView::currentChanged(const QModelIndex &old, const QModelIndex &current)
+void QAbstractItemView::currentChanged(const QModelIndex &current, const QModelIndex &previous)
 {
-    if (old.isValid()) {
-        QModelIndex buddy = model()->buddy(old);
+    if (previous.isValid()) {
+        QModelIndex buddy = model()->buddy(previous);
         bool accept = d->beginEditActions & CurrentChanged; // FIXME: is this assumption correct ?
-        endEdit(buddy.isValid() ? buddy : old, accept);
+        endEdit(buddy.isValid() ? buddy : previous, accept);
         int behavior = selectionBehavior();
-        QRect rect = itemViewportRect(old);
+        QRect rect = itemViewportRect(previous);
         if (behavior & SelectRows) {
             rect.setLeft(0);
             rect.setRight(d->viewport->width());

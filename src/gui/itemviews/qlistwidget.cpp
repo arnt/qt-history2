@@ -468,7 +468,7 @@ public:
     void emitDoubleClicked(const QModelIndex &index, int button);
     void emitReturnPressed(const QModelIndex &index);
     void emitSpacePressed(const QModelIndex &index);
-    void emitCurrentChanged(const QModelIndex &oldItem, const QModelIndex &newItem);
+    void emitCurrentChanged(const QModelIndex &previous, const QModelIndex &current);
 };
 
 void QListWidgetPrivate::emitClicked(const QModelIndex &index, int button)
@@ -491,11 +491,10 @@ void QListWidgetPrivate::emitSpacePressed(const QModelIndex &index)
     emit q->spacePressed(model()->at(index.row()));
 }
 
-void QListWidgetPrivate::emitCurrentChanged(const QModelIndex &oldItem, const QModelIndex &newItem)
+void QListWidgetPrivate::emitCurrentChanged(const QModelIndex &current, const QModelIndex &previous)
 {
-    emit q->currentChanged(model()->at(newItem.row()), model()->at(oldItem.row()));
+    emit q->currentChanged(model()->at(current.row()), model()->at(previous.row()));
 }
-
 
 #ifdef QT_COMPAT
 /*!
@@ -505,19 +504,7 @@ QListWidget::QListWidget(QWidget *parent, const char* name)
     : QListView(*new QListWidgetPrivate(), parent)
 {
     setObjectName(name);
-    setModel(new QListModel(this));
-    connect(this, SIGNAL(clicked(const QModelIndex&, int)),
-            SLOT(emitClicked(const QModelIndex&, int)));
-    connect(this, SIGNAL(doubleClicked(const QModelIndex&, int)),
-            SLOT(emitDoubleClicked(const QModelIndex&, int)));
-    connect(this, SIGNAL(returnPressed(const QModelIndex&)),
-            SLOT(emitReturnPressed(const QModelIndex&)));
-    connect(this, SIGNAL(spacePressed(const QModelIndex&)),
-            SLOT(emitSpacePressed(const QModelIndex&)));
-    connect(selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
-            this, SLOT(selectionChanged()));
-    connect(selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)),
-            this, SLOT(emitCurrentChanged(QModelIndex,QModelIndex)));
+    setup();
 }
 #endif
 
@@ -566,10 +553,7 @@ QListWidget::QListWidget(QWidget *parent)
     : QListView(*new QListWidgetPrivate(), parent)
 {
     setModel(new QListModel(this));
-    connect(this, SIGNAL(clicked(const QModelIndex&, int)),
-            SLOT(emitClicked(const QModelIndex&, int)));
-    connect(this, SIGNAL(doubleClicked(const QModelIndex&, int)),
-            SLOT(emitDoubleClicked(const QModelIndex&, int)));
+    setup();
 }
 
 /*!
@@ -713,6 +697,25 @@ void QListWidget::removeItem(QListWidgetItem *item)
 void QListWidget::setModel(QAbstractItemModel *model)
 {
     QListView::setModel(model);
+}
+
+void QListWidget::setup()
+{
+    setModel(new QListModel(this));
+    connect(this, SIGNAL(clicked(const QModelIndex&, int)),
+            SLOT(emitClicked(const QModelIndex&, int)));
+    connect(this, SIGNAL(doubleClicked(const QModelIndex&, int)),
+            SLOT(emitDoubleClicked(const QModelIndex&, int)));
+    connect(this, SIGNAL(returnPressed(const QModelIndex&)),
+            SLOT(emitReturnPressed(const QModelIndex&)));
+    connect(this, SIGNAL(spacePressed(const QModelIndex&)),
+            SLOT(emitSpacePressed(const QModelIndex&)));
+    connect(selectionModel(),
+            SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)),
+            this, SLOT(emitCurrentChanged(const QModelIndex&, const QModelIndex&)));
+    connect(selectionModel(),
+            SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)),
+            this, SIGNAL(selectionChanged()));
 }
 
 #include "moc_qlistwidget.cpp"

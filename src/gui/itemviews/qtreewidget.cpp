@@ -702,6 +702,7 @@ public:
     void emitSpacePressed(const QModelIndex &index);
     void emitExpanded(const QModelIndex &index);
     void emitCollapsed(const QModelIndex &index);
+    void emitCurrentChanged(const QModelIndex &previous, const QModelIndex &current);
 };
 
 void QTreeWidgetPrivate::emitClicked(const QModelIndex &index, int button)
@@ -732,6 +733,11 @@ void QTreeWidgetPrivate::emitExpanded(const QModelIndex &index)
 void QTreeWidgetPrivate::emitCollapsed(const QModelIndex &index)
 {
     emit q->collapsed(model()->item(index));
+}
+
+void QTreeWidgetPrivate::emitCurrentChanged(const QModelIndex &current, const QModelIndex &previous)
+{
+    emit q->currentChanged(model()->item(current), model()->item(previous));
 }
 
 /*!
@@ -807,6 +813,12 @@ QTreeWidget::QTreeWidget(QWidget *parent)
             SLOT(emitExpanded(const QModelIndex&)));
     connect(this, SIGNAL(collapsed(const QModelIndex&)),
             SLOT(emitCollapsed(const QModelIndex&)));
+    connect(selectionModel(),
+            SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)),
+            this, SLOT(emitCurrentChanged(const QModelIndex&, const QModelIndex&)));
+    connect(selectionModel(),
+            SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)),
+            this, SIGNAL(selectionChanged()));
 }
 
 /*!
@@ -877,14 +889,14 @@ void QTreeWidgetItem::setSelected(bool select)
 void QTreeWidget::openPersistentEditor(QTreeWidgetItem *item, int column)
 {
     Q_ASSERT(item);
-    QModelIndex index = d->model()->index(item);
+    QModelIndex index = d->model()->index(item, column);
     QAbstractItemView::openPersistentEditor(index);
 }
 
 void QTreeWidget::closePersistentEditor(QTreeWidgetItem *item, int column)
 {
     Q_ASSERT(item);
-    QModelIndex index = d->model()->index(item);
+    QModelIndex index = d->model()->index(item, column);
     QAbstractItemView::closePersistentEditor(index);
 }
 

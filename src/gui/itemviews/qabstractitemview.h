@@ -116,7 +116,7 @@ protected slots:
     virtual void rowsInserted(const QModelIndex &parent, int start, int end);
     virtual void rowsRemoved(const QModelIndex &parent, int start, int end);
     virtual void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
-    virtual void currentChanged(const QModelIndex &old, const QModelIndex &current);
+    virtual void currentChanged(const QModelIndex &current, const QModelIndex &previous);
     virtual void updateEditorData();
     virtual void updateEditorGeometries();
     virtual void updateGeometries();
