@@ -2965,7 +2965,7 @@ int QFontMetrics::descent() const
 #ifndef QT_NO_XFTFREETYPE
     XftFontStruct *xftfs = (XftFontStruct *) qfs->xfthandle;
     if (xftfs)
-	return xftfs->descent;
+	return xftfs->descent - 1;
 #endif // QT_NO_XFTFREETYPE
 
     XFontStruct *f = (XFontStruct *) qfs->handle;
