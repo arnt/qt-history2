@@ -86,7 +86,7 @@ void PictureDisplay::paintEvent( QPaintEvent * )
     if ( pict )
     	paint.drawPicture( 0, 0, *pict );		// draw picture
     else
-	paint.drawText( rect(), AlignCenter, name );
+	paint.drawText( rect(), Qt::AlignCenter, name );
 }
 
 void PictureDisplay::keyPressEvent( QKeyEvent *k )
