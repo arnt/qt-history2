@@ -1233,7 +1233,7 @@ int QAbstractItemView::horizontalFactor() const
 }
 
 /*!
-    Sets the vertical scrollbar's stepping factor to \a factor.
+    Sets the vertical scrollbar's stepping \a factor.
 
     \sa verticalFactor() setHorizontalFactor()
 */
@@ -1342,9 +1342,10 @@ int QAbstractItemView::columnSizeHint(int column) const
 }
 
 /*!
-    Sets the editor created by the delegate as a persistent
-    editor for the item at the given \a index. (The \a enable argument
-    should not be used.)
+    Sets \a editor as the persistent editor for the item at the given
+    \a index. If \a editor is 0 and no previous persistent editor has
+    been set for the \a index, the editor will be created by the
+    delegate.
 */
 void QAbstractItemView::setPersistentEditor(const QModelIndex &index, bool enable)
 {
@@ -1434,7 +1435,7 @@ void QAbstractItemView::rowsRemoved(const QModelIndex &, int, int)
 }
 
 /*!
-    This slot  is called when the selection is changed. The previous
+    This slot is called when the selection is changed. The previous
     selection (which may be empty), is specified by \a deselected, and the
     new selection by \a selected.
 */
@@ -1510,8 +1511,9 @@ bool QAbstractItemView::isDragEnabled(const QModelIndex &) const
 }
 
 /*!
-    Returns QStyleOptionViewItem structure populated with the view's palette and whether or
-    not the view is in the \c Editing state.
+    Returns QStyleOptionViewItem structure populated with the view's palette.
+    The structure contains information about whether the view is in the
+    \c Editing state.
 */
 QStyleOptionViewItem QAbstractItemView::viewOptions() const
 {
@@ -1538,7 +1540,7 @@ QAbstractItemView::State QAbstractItemView::state() const
 }
 
 /*!
-    Sets the item view's state to \a state
+    Sets the item view's state to the given \a state
 
     \sa state()
 */
