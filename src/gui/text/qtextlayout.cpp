@@ -1474,10 +1474,10 @@ void QTextLine::draw(QPainter *p, const QPointF &pos, const QTextLayout::FormatR
         }
 
 
-        if (eng->block.docHandle()) {
-            QTextFormat fmt = eng->format(&si);
-            Q_ASSERT(fmt.isCharFormat());
-            QTextCharFormat chf = fmt.toCharFormat();
+        if (eng->block.docHandle() || selection) {
+            QTextCharFormat chf;
+            if (eng->block.docHandle())
+                chf = eng->format(&si).toCharFormat();
             if (selection)
                 chf.merge(selection->format);
 
