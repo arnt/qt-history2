@@ -55,7 +55,6 @@ public:
     void init(const QString &labelText, const QString &cancelText, int min, int max);
     void layout();
 
-    QWidget         *creator;
     QLabel         *label;
     QPushButton         *cancel;
     QProgressBar *bar;
@@ -311,10 +310,6 @@ QProgressDialog::QProgressDialog(const QString &labelText,
 
 QProgressDialog::~QProgressDialog()
 {
-#ifndef QT_NO_CURSOR
-    if (d->creator)
-        d->creator->setCursor(d->parentCursor);
-#endif
 }
 
 /*!
@@ -576,12 +571,6 @@ void QProgressDialog::setValue(int progress)
             qApp->processEvents();
     } else {
         if (progress == 0) {
-#ifndef QT_NO_CURSOR
-            if (d->creator) {
-                d->parentCursor = d->creator->cursor();
-                d->creator->setCursor(Qt::WaitCursor);
-            }
-#endif
             d->starttime.start();
             d->forceTimer->start(d->showTime);
             return;
