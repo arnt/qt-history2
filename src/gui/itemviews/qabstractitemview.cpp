@@ -92,16 +92,18 @@ void QAbstractItemViewPrivate::init()
 /*!
     \class QAbstractItemView qabstractitemview.h
 
-    \brief The QAbstractItemView class is the base class for every
-    view that uses a QAbstractItemModel.
+    \brief The QAbstractItemView class provides the basic functionality for
+    item view classes.
 
     \ingroup model-view
 
-    This class is a QViewport subclass that provides all the
-    functionality common to all views, such as keyboard and mouse
-    support for editing items, scrolling, and selection control; (but
-    note that selections are handled separately by the
-    QItemSelectionModel class).
+    QAbstractItemView class is the base class for every standard view that
+    uses a QAbstractItemModel. It provides a standard interface for
+    interoperating with models through the signals and slots mechanism,
+    enabling subclasses to be kept up-to-date with changes to their models.
+    This class provides standard support for keyboard and mouse navigation,
+    viewport scrolling, item editing, and can interact with selection models
+    selection handling.
 
     The view classes that inherit QAbstractItemView only need
     to implement their own view-specific functionality, such as
@@ -270,8 +272,9 @@ void QAbstractItemViewPrivate::init()
 /*!
     \fn void QAbstractItemView::spacePressed(const QModelIndex &index)
 
-    This signal is emitted when Space is pressed. The item to be acted on
-    by the key press is specified by \a index.
+    This signal is emitted when the space bar is pressed. The item to be
+    acted on by the key press is specified by \a index.
+
 */
 
 /*!
@@ -404,7 +407,7 @@ QAbstractItemModel *QAbstractItemView::model() const
 }
 
 /*!
-    Sets the current selection to be \a selectionModel.
+    Sets the current selection to the given \a selectionModel.
 
     \sa selectionModel() clearSelections()
 */
@@ -567,7 +570,7 @@ void QAbstractItemView::reset()
 }
 
 /*!
-    Sets the ``root'' item to the item at \a index.
+    Sets the root item to the item at \a index.
 
     \sa root()
 */
@@ -581,7 +584,7 @@ void QAbstractItemView::setRoot(const QModelIndex &index)
 }
 
 /*!
-    Returns the model index of the model's ``root'' item.
+    Returns the model index of the model's root item.
 
     \sa setRoot()
 */
@@ -649,7 +652,7 @@ QAbstractItemDelegate::BeginEditActions QAbstractItemView::beginEditActions() co
     QAbstractItemView automatically scrolls the contents of the view
     if the user drags within 16 pixels of the viewport edge. This only works if
     the viewport accepts drops. Autoscroll is switched off by setting
-    the property to false.
+    this property to false.
 */
 void QAbstractItemView::setAutoScroll(bool b)
 {
@@ -1096,11 +1099,10 @@ bool QAbstractItemView::beginEdit(const QModelIndex &index,
 }
 
 /*!
-    If the end \a action is \c Accepted the edit of the item at \a
-    index is accepted and the model is updated with the editor's
-    value. If the \a action is \c Cancelled, the edited value is
-    ignored. In both cases, if there was an editor widget it is
-    released.
+    If \a accept is true the edit of the item at \a index is accepted
+    and the model is updated with the editor's value. If \a accept is
+    false, the edited value is ignored. In both cases, if there was an
+    editor widget it is released.
 
     \sa beginEdit() QAbstractItemDelegate::releaseEditor()
 */
@@ -1192,7 +1194,15 @@ void QAbstractItemView::selectionModelDestroyed()
 }
 
 /*!
-  \internal
+  If the \a object is the current editor: if the \a event is an Esc
+  key press the current edit is cancelled and ended, or if the \a
+  event is an Enter or Return key press the current edit is accepted
+  and ended. If editing is ended the event filter returns true to
+  signify that it has handled the event; in all other cases it does
+  nothing and returns false to signify that the event hasn't been
+  handled.
+
+  \sa endEdit()
 */
 void QAbstractItemView::doneEditing(QWidget *editor, QAbstractItemDelegate::EndEditAction action)
 {
@@ -1538,7 +1548,7 @@ void QAbstractItemView::setState(State state)
 }
 
 /*!
-  internal
+  \internal
 */
 void QAbstractItemView::startAutoScroll()
 {
@@ -1549,7 +1559,7 @@ void QAbstractItemView::startAutoScroll()
 }
 
 /*!
-  internal
+  \internal
 */
 void QAbstractItemView::stopAutoScroll()
 {
