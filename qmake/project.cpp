@@ -901,7 +901,25 @@ QMakeProject::doProjectTest(const QString& func, QStringList args, QMap<QString,
 		}
 	    }
 	}
+	if(QDir::isRelativePath(file)) {
+	    QStringList include_roots;
+	    include_roots << Option::output_dir;
+	    QString pfilewd = QFileInfo(parser.file).dirPath();
+	    if(pfilewd.isEmpty())
+		include_roots << pfilewd;
+	    if(Option::output_dir != QDir::currentDirPath())
+		include_roots << QDir::currentDirPath();
+	    for(QStringList::Iterator it = include_roots.begin(); it != include_roots.end(); ++it) {
+		if(QFile::exists((*it) + QDir::separator() + file)) {
+		    file = (*it) + QDir::separator() + file;
+		    break;
+		}
+	    }
+	}
 
+	if(Option::mkfile::do_preprocess) //nice to see this first..
+	    fprintf(stderr, "#switching file %s(%s) - %s:%d\n", func.latin1(), file.latin1(),
+		    parser.file.latin1(), parser.line_no);
 	debug_msg(1, "Project Parser: %s'ing file %s.", func.latin1(), file.latin1());
 	parser_info pi = parser;
 	int sb = scope_block;
