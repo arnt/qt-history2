@@ -82,7 +82,7 @@ class QMacCursorWidget : public QWidget
     QBitmap bitmap;
 public:
     QMacCursorWidget(const QBitmap *b, const QBitmap *m) :
-	QWidget(0, "fake_cursor", WType_Dialog | WStyle_Customize | WStyle_NoBorder)
+	QWidget(0, "fake_cursor", WType_Dialog | WStyle_Customize | WStyle_NoBorder | WStyle_StaysOnTop)
 	{
 	    setAcceptDrops(TRUE); //bleh
 	    hide();
