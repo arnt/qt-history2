@@ -2001,11 +2001,10 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
             break;
 
         case WM_CANCELMODE:
-            if (qApp->focusWidget()) {
-                QFocusEvent::setReason(QFocusEvent::ActiveWindow);
-                QFocusEvent e(QEvent::FocusOut);
-                QApplication::sendEvent(qApp->focusWidget(), &e);
-                QFocusEvent::resetReason();
+            {
+                // this goes through QMenuBar's event filter
+                QEvent e(QEvent::ActivationChange);
+                QApplication::sendEvent(qApp, &e);
             }
             break;
 
