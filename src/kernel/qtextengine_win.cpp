@@ -478,7 +478,6 @@ static void uspAppendItems(QTextEngine *engine, int &start, int &stop, BidiContr
     }
     items.resize( items.size() + numItems );
     int i;
-    qDebug("num items=%d", numItems );
     if ( control.singleLine ) {
 	for( i = 0; i < numItems; i++ ) {
 	    QScriptItem item;

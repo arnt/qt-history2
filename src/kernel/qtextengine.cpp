@@ -911,8 +911,6 @@ void QTextEngine::itemize( int mode )
     }
     if ( (mode & WidthOnly) == WidthOnly )
 	widthOnly = TRUE;
-
-    qDebug("itemization done");
 }
 
 glyph_metrics_t QTextEngine::boundingBox( int from,  int len ) const
