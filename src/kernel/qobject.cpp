@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#91 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#92 $
 **
 ** Implementation of QObject class
 **
@@ -15,7 +15,7 @@
 #include "qregexp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#91 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#92 $")
 
 
 /*----------------------------------------------------------------------------
@@ -163,35 +163,6 @@ static QString rmWS( const char *src )
     }
     result.truncate( (int)(d - result.data()) );
     return result;
-}
-
-//
-// Checks whether two functions have compatible arguments.
-// Returns TRUE if the arguments are compatible, otherwise FALSE.
-// Internal for QObject::connect()
-//
-// TRUE:	"signal(<anything>)",	"member()"
-// TRUE:	"signal(a,b,c)",	"member(a,b,c)"
-// TRUE:	"signal(a,b,c)",	"member(a,b)", "member(a)" etc.
-// FALSE:	"signal(const a)",	"member(a)"
-// FALSE:	"signal(a)",		"member(const a)"
-// FALSE:	"signal(a)",		"member(b)"
-// FALSE:	"signal(a)",		"member(a,b)"
-//
-
-static bool checkCompatArgs( const char *signal, const char *member )
-{
-    const char *s1 = signal;
-    const char *s2 = member;
-    while ( *s1++ != '(' ) ;			// scan to first '('
-    while ( *s2++ != '(' ) ;
-    if ( *s2 == ')' || strcmp(s1,s2) == 0 )	// member has no args or
-	return TRUE;				//   exact match
-    int s1len = strlen(s1);
-    int s2len = strlen(s2);
-    if ( s2len < s1len && strncmp(s1,s2,s2len-1)==0 && s1[s2len-1]==',' )
-	return TRUE;				// member has less args
-    return FALSE;
 }
 
 
@@ -1011,6 +982,17 @@ static void err_member_notfound( int code, const QObject *object,
 
 
 /*----------------------------------------------------------------------------
+  \fn QObject *QObject::sender()
+  Returns a pointer to the object that sent the last signal received by
+  this object.
+
+  \warning
+  This function violates the object-oriented principle of modularity,
+  However, getting access to the sender might be practical when many
+  signals are connected to a single slot.
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
   \fn void QObject::connectNotify( const char *signal )
 
   This virtual function is called when something has been connected to
@@ -1047,6 +1029,40 @@ void QObject::disconnectNotify( const char * )
 
 
 /*----------------------------------------------------------------------------
+  Returns TRUE if the \e signal and the \e member arguments are compatible,
+  otherwise FALSE.
+
+  \warning
+  We recommend that you do not reimplement this function but use the default
+  implementation.
+
+  \internal
+  TRUE:	 "signal(<anything>)",	"member()"
+  TRUE:	 "signal(a,b,c)",	"member(a,b,c)"
+  TRUE:	 "signal(a,b,c)",	"member(a,b)", "member(a)" etc.
+  FALSE: "signal(const a)",	"member(a)"
+  FALSE: "signal(a)",		"member(const a)"
+  FALSE: "signal(a)",		"member(b)"
+  FALSE: "signal(a)",		"member(a,b)"
+ ----------------------------------------------------------------------------*/
+
+bool QObject::checkConnectArgs( const char *signal, const char *member )
+{
+    const char *s1 = signal;
+    const char *s2 = member;
+    while ( *s1++ != '(' ) ;			// scan to first '('
+    while ( *s2++ != '(' ) ;
+    if ( *s2 == ')' || strcmp(s1,s2) == 0 )	// member has no args or
+	return TRUE;				//   exact match
+    int s1len = strlen(s1);
+    int s2len = strlen(s2);
+    if ( s2len < s1len && strncmp(s1,s2,s2len-1)==0 && s1[s2len-1]==',' )
+	return TRUE;				// member has less args
+    return FALSE;
+}
+
+
+/*----------------------------------------------------------------------------
   \overload bool QObject::connect( const QObject *sender, const char *signal, const char *member ) const
 
   Connects \e signal from the \e sender object to \e member in this object.
@@ -1054,17 +1070,6 @@ void QObject::disconnectNotify( const char * )
   Equivalent to: <code>QObject::connect(sender, signal, this, member)</code>.
 
   \sa disconnect()
- ----------------------------------------------------------------------------*/
-
-/*----------------------------------------------------------------------------
-  \fn QObject *QObject::sender()
-  Returns a pointer to the object that sent the last signal received by
-  this object.
-
-  \warning
-  This function violates the object-oriented principle of modularity,
-  However, getting access to the sender might be practical when many
-  signals are connected to a single slot.
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
@@ -1184,7 +1189,7 @@ bool QObject::connect( const QObject *sender,	const char *signal,
 	return FALSE;
     }
 #if defined(CHECK_RANGE)
-    if ( !checkCompatArgs(signal,member) )
+    if ( !s->checkConnectArgs(signal,member) )
 	warning( "QObject::connect: Incompatible sender/receiver arguments"
 		 "\n\t%s::%s --> %s::%s",
 		 s->className(), signal,
