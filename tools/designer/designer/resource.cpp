@@ -1211,8 +1211,10 @@ void Resource::saveChildrenOf( QObject* obj, QTextStream &ts, int indent )
 
     }
 
-    for ( QPtrListIterator<QObject> it ( *l ); it.current(); ++it )
-	saveObject( it.current(), grid, ts, indent );
+    QObject *o = 0;
+    for ( QPtrListIterator<QObject> it ( *l ); ( o = it.current() ); ++it )
+	if ( !QString( o->name() ).startsWith( "qt_dead_widget_" ) )
+	    saveObject( o, grid, ts, indent );
     if ( !closeTag.isEmpty() ) {
 	indent--;
 	ts << closeTag << endl;
