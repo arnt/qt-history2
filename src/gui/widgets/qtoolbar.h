@@ -35,7 +35,7 @@ class Q_GUI_EXPORT QToolBar : public QWidget
                DESIGNABLE (qt_cast<QMainWindow *>(parentWidget()) == 0))
 
 public:
-    QToolBar(QWidget *parent);
+    QToolBar(QWidget *parent = 0);
     ~QToolBar();
 
     void setMovable(bool movable = true);
