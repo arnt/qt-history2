@@ -1033,7 +1033,7 @@ void QStyleSheet::init()
 
     style = new QStyleSheetItem( this, QString::fromLatin1("p") );
     style->setDisplayMode(QStyleSheetItem::DisplayBlock);
-    style-> setMargin(QStyleSheetItem::MarginVertical, 4);
+    style-> setMargin(QStyleSheetItem::MarginVertical, 8);
     style->setSelfNesting( FALSE );
 
     style = new QStyleSheetItem( this, QString::fromLatin1("center") );
@@ -1077,6 +1077,7 @@ void QStyleSheet::init()
     style->setFontFamily( QString::fromLatin1("courier") );
     style->setDisplayMode(QStyleSheetItem::DisplayBlock);
     style->setWhiteSpaceMode(QStyleSheetItem::WhiteSpacePre);
+    
     style = new QStyleSheetItem( this, QString::fromLatin1("blockquote") );
     style->setDisplayMode(QStyleSheetItem::DisplayBlock);
     style->setMargin(QStyleSheetItem::MarginHorizontal, 40 );

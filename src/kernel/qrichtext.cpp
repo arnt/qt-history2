@@ -1453,14 +1453,14 @@ struct Q_EXPORT Tag {
 #endif
 };
 
-#define NEWPAR       if ( !curpar || ( curtag.name != "table" && curtag.name != "li" ) || curpar->length() > 1 ) { if ( !hasNewPar ) curpar = createParag( this, curpar ); if ( !breakable ) curpar->setBreakable( FALSE ); \
+#define NEWPAR       if ( !curpar || ( curtag.name != "table" && curtag.name != "li" ) || curpar->length() > 1 ) { if ( !hasNewPar ) curpar = createParag( this, curpar );  if ( curtag.style->whiteSpaceMode() != QStyleSheetItem::WhiteSpaceNormal ) curpar->setBreakable( FALSE ); \
 		    hasNewPar = TRUE;  \
 		    QPtrVector<QStyleSheetItem> vec( tags.count() ); \
 		    int i = 0; \
 		    for ( QValueStack<Tag>::Iterator it = tags.begin(); it != tags.end(); ++it ) \
-			vec.insert( i++, (*it).style );	\
+			vec.insert( i++, (*it).style ); \
 		    curpar->setStyleSheetItems( vec ); }while(FALSE)
-#define NEWPAROPEN(nstyle)       if ( !curpar || ( curtag.name != "table" && curtag.name != "li" ) || curpar->length() > 1 )  { if ( !hasNewPar ) curpar = createParag( this, curpar ); if ( !breakable ) curpar->setBreakable( FALSE ); \
+#define NEWPAROPEN(nstyle)       if ( !curpar || ( curtag.name != "table" && curtag.name != "li" ) || curpar->length() > 1 )  { if ( !hasNewPar ) curpar = createParag( this, curpar ); curpar->setBreakable( nstyle->whiteSpaceMode() == QStyleSheetItem::WhiteSpaceNormal);\
 		    hasNewPar = TRUE;  \
 		    QPtrVector<QStyleSheetItem> vec( tags.count()+1 ); \
 		    int i = 0; \
@@ -1518,7 +1518,6 @@ void QTextDocument::setRichTextInternal( const QString &text )
     Tag curtag( "", sheet_->item("") );
     curtag.format = *formatCollection()->defaultFormat();
     bool space = FALSE;
-    bool breakable = TRUE;
 
     QString doc = text;
     int depth = 0;
@@ -1534,15 +1533,6 @@ void QTextDocument::setRichTextInternal( const QString &text )
 		QString tagname = parseOpenTag(doc, pos, attr, emptyTag);
 		if ( tagname.isEmpty() )
 		    continue; // nothing we could do with this, probably parse error
-		if ( tagname == "pre" || tagname == "nobr" ) {
-		    breakable = FALSE;
-		    if ( lastClose == "pre" || lastClose == "nobr" )
-			lastClose = "";
-		} else if ( lastClose == "pre" || lastClose == "nobr" ) {
-		    hasNewPar = FALSE;
-		    NEWPAR;
-		    lastClose = "";
-		}
 		const QStyleSheetItem* nstyle = sheet_->item(tagname);
 		if ( nstyle ) {
 		    // we might have to close some 'forgotten' tags
@@ -1574,10 +1564,6 @@ void QTextDocument::setRichTextInternal( const QString &text )
 		    emptyTag = TRUE;
 		    custom = sheet_->tag( tagname, attr, contxt, *factory_ , emptyTag, this );
 		    NEWPAR;
-		}  else if ( tagname == "pre" ) {
-		    NEWPAR;
-		}  else if ( tagname == "nobr" ) {
-		    NEWPAR;
 		} else if ( tagname == "table" ) {
 		    QTextFormat format = curtag.format.makeTextFormat(  nstyle, attr );
 		    custom = parseTable( attr, format, doc, pos, curpar );
@@ -1602,8 +1588,8 @@ void QTextDocument::setRichTextInternal( const QString &text )
 		    registerCustomItem( custom, curpar );
 		    hasNewPar = FALSE;
 		} else if ( !emptyTag ) {
-		    tags += curtag;
-		    listStyles += curListStyle;
+		    tags.push( curtag );
+		    listStyles.push( curListStyle );
 		    if ( nstyle ) {
 			// ignore whitespace for inline elements if there was already one
 			if ( nstyle->whiteSpaceMode() == QStyleSheetItem::WhiteSpaceNormal
@@ -1641,6 +1627,7 @@ void QTextDocument::setRichTextInternal( const QString &text )
 			curtag.style = nstyle;
 			curtag.wsm = nstyle->whiteSpaceMode();
 			curtag.format = curtag.format.makeTextFormat( nstyle, attr );
+			
 			if ( nstyle->displayMode() != QStyleSheetItem::DisplayInline )
 			    curpar->setFormat( &curtag.format );
 			if ( nstyle->name() == "li" ) {
@@ -1682,8 +1669,6 @@ void QTextDocument::setRichTextInternal( const QString &text )
 		// close tag
  		bool fakeHasNewPar = FALSE;
 		QString tagname = parseCloseTag( doc, pos );
-		if ( tagname == "pre" || tagname == "nobr" )
-		    breakable = TRUE;
 		lastClose = tagname;
  		if ( tagname == "p" )
  		    fakeHasNewPar = TRUE;
@@ -1707,6 +1692,7 @@ void QTextDocument::setRichTextInternal( const QString &text )
 		    if ( tags.isEmpty() )
 			break;
 		    curtag = tags.pop();
+		    
 		    curListStyle = listStyles.pop();
 		    depth--;
 		}
@@ -1737,11 +1723,6 @@ void QTextDocument::setRichTextInternal( const QString &text )
 		curListStyle = listStyles.pop();
 	    }
 	} else {
-	    if ( lastClose == "pre" || lastClose == "nobr" ) {
-		hasNewPar = FALSE;
-		NEWPAR;
-		lastClose = "";
-	    }
 	    // normal contents
 	    QString s;
 	    QChar c;
@@ -1750,11 +1731,9 @@ void QTextDocument::setRichTextInternal( const QString &text )
 		c = parseChar( doc, pos, curtag.wsm );
 		space = c.isSpace();
 		hadNonSpace = hadNonSpace || !space;
-		if ( c == '\n' ) { // happens in WhiteSpacePre mode
- 		    if ( curtag.wsm == QStyleSheetItem::WhiteSpacePre )
-			hasNewPar = FALSE;
+		if ( c == '\n' ) // happens in WhiteSpacePre mode
 		    break;
-		}
+		
 		if ( !hadNonSpace && space && curtag.wsm == QStyleSheetItem::WhiteSpaceNormal )
 		    continue;
 		if ( c == '\r' )
@@ -1769,9 +1748,12 @@ void QTextDocument::setRichTextInternal( const QString &text )
 		curpar->append( s );
 		curpar->setFormat( index, s.length(), &curtag.format );
 	    }
-	    if ( c == '\n' )
+	    if ( c == '\n' ) { // happens in WhiteSpacePre mode
+		hasNewPar = FALSE;
+		tags.push( curtag );
 		NEWPAR;
-
+		tags.pop();
+	    }
 	}
     }
 }
@@ -4380,7 +4362,7 @@ int QTextParag::topMargin() const
 	( (QTextParag*)this )->tm = 0;
 	return 0;
     }
-
+    
     int m = 0;
     if ( item->margin( QStyleSheetItem::MarginTop ) != QStyleSheetItem::Undefined )
 	m = item->margin( QStyleSheetItem::MarginTop );
@@ -4411,10 +4393,10 @@ int QTextParag::bottomMargin() const
 	( (QTextParag*)this )->bm = 0;
 	return 0;
     }
-
+    
     int m = 0;
     if ( item->margin( QStyleSheetItem::MarginBottom ) != QStyleSheetItem::Undefined )
-	m = item->margin( QStyleSheetItem::MarginBottom );
+	m = item->margin( QStyleSheetItem::MarginBottom );	
     QStyleSheetItem *it = 0;
     QStyleSheetItem *n = next() ? next()->style() : 0;
     for ( int i =(int)styleSheetItemsVec.size() - 2 ; i >= 0; --i ) {
