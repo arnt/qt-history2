@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#209 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#210 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -10,8 +10,10 @@
 *****************************************************************************/
 
 #define select		_qt_hide_select
-#define bzero		_qt_hide_bzero
 #define gettimeofday	_qt_hide_gettimeofday
+#if !defined(_AIX)
+#define bzero		_qt_hide_bzero
+#endif
 #include "qglobal.h"
 #if defined(_OS_WIN32_)
 #include <windows.h>
@@ -58,10 +60,14 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #endif // _OS_WIN32 etc.
 #undef select
 extern "C" int select( int, void *, void *, void *, struct timeval * );
+#if defined(_AIX)
+#include <bzero.h>
+#else
 #undef bzero
 extern "C" void bzero(void *, size_t len);
+#endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#209 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#210 $");
 
 #if !defined(XlibSpecificationRelease)
 typedef char *XPointer;				// X11R4
@@ -2456,7 +2462,27 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 
 
 //
-// Close window event translation
+// No visible top level window (except the desktop)
+//
+
+static bool noVisibleTLW()
+{
+    QWidgetList *list   = qApp->topLevelWidgets();
+    QWidget     *widget = list->first();
+    while ( widget ) {
+	if ( widget->isVisible() && !widget->isDesktop() )
+	    break;
+	widget = list->next();
+    }
+    delete list;
+    return widget == 0;
+}
+
+//
+// Close window event translation.
+//
+// This class is a friend of QApplication because it needs to emit the
+// lastWindowClosed() signal when the last top level widget is closed.
 //
 
 bool QETWidget::translateCloseEvent( const XEvent * )
@@ -2466,27 +2492,16 @@ bool QETWidget::translateCloseEvent( const XEvent * )
     QCloseEvent e;
     bool accept = QApplication::sendEvent( this, &e );
     if ( !QWidget::find(id) ) {			// widget was deleted
+	if ( qApp->receivers(SIGNAL(lastWindowClosed())) && noVisibleTLW() )
+	    emit qApp->lastWindowClosed();
 	if ( isMain )
 	    qApp->quit();
 	return FALSE;
     }
     if ( accept ) {
 	hide();
-	    // This class is a friend of QApplication because it needs
-	    // to emit the lastWindowClosed() signal when the last top
-	    // level widget is closed.
-	if ( qApp->receivers(SIGNAL(lastWindowClosed())) ) {
-	    QWidgetList *list   = qApp->topLevelWidgets();
-	    QWidget     *widget = list->first();
-	    while ( widget ) {
-		if ( widget->isVisible() )
-		    break;
-		widget = list->next();
-	    }
-	    delete list;
-	    if ( widget == 0 )
-		emit qApp->lastWindowClosed();
-	}
+	if ( qApp->receivers(SIGNAL(lastWindowClosed())) && noVisibleTLW() )
+	    emit qApp->lastWindowClosed();
 	if ( isMain )
 	    qApp->quit();
 	else if ( testWFlags(WDestructiveClose) )

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#84 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#85 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -26,7 +26,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#84 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#85 $");
 
 
 /*****************************************************************************
@@ -1786,7 +1786,27 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
 
 
 //
-// Close window event translation
+// No visible top level window (except the desktop)
+//
+
+static bool noVisibleTLW()
+{
+    QWidgetList *list   = qApp->topLevelWidgets();
+    QWidget     *widget = list->first();
+    while ( widget ) {
+	if ( widget->isVisible() && !widget->isDesktop() )
+	    break;
+	widget = list->next();
+    }
+    delete list;
+    return widget == 0;
+}
+
+//
+// Close window event translation.
+//
+// This class is a friend of QApplication because it needs to emit the
+// lastWindowClosed() signal when the last top level widget is closed.
 //
 
 bool QETWidget::translateCloseEvent( const MSG & )
@@ -1796,27 +1816,16 @@ bool QETWidget::translateCloseEvent( const MSG & )
     QCloseEvent e;
     bool accept = QApplication::sendEvent( this, &e );
     if ( !QWidget::find(id) ) {			// widget was deleted
+	if ( qApp->receivers(SIGNAL(lastWindowClosed())) && noVisibleTLW() )
+	    emit qApp->lastWindowClosed();
 	if ( isMain )
 	    qApp->quit();
 	return FALSE;
     }
     if ( accept ) {
 	hide();
-	    // This class is a friend of QApplication because it needs
-	    // to emit the lastWindowClosed() signal when the last top
-	    // level widget is closed.
-	if ( qApp->receivers(SIGNAL(lastWindowClosed())) ) {
-	    QWidgetList *list	= qApp->topLevelWidgets();
-	    QWidget	*widget = list->first();
-	    while ( widget ) {
-		if ( widget->isVisible() )
-		    break;
-		widget = list->next();
-	    }
-	    delete list;
-	    if ( widget == 0 )
-		emit qApp->lastWindowClosed();
-	}
+	if ( qApp->receivers(SIGNAL(lastWindowClosed())) && noVisibleTLW() )
+	    emit qApp->lastWindowClosed();
 	if ( isMain )
 	    qApp->quit();
 	else if ( testWFlags(WDestructiveClose) )
