@@ -132,13 +132,7 @@ static const char * const ps_header[] = {
 
 "/nS 0 d",                              // number of saved painter states
 
-"/LArr[",                                       // Pen styles:
-"    []              []",                       //   solid line
-"    [ 10 3 ]        [ 3 10 ]",                 //   dash line
-"    [ 3 3 ]         [ 3 3 ]",                  //   dot line
-"    [ 5 3 3 3 ]             [ 3 5 3 3 ]",      //   dash dot line
-"    [ 5 3 3 3 3 3 ]  [ 3 5 3 3 3 3 ]",         //   dash dot dot line
-"] d",
+// LArr for the Pen styles is defined in emitHeader because of scaling
 
 // Returns the line pattern (from pen style PSt).
 //
@@ -5874,12 +5868,28 @@ void QPSPrinterPrivate::emitHeader( bool finished )
         makeFixedStrings();
 
     outStream << "%%BeginProlog\n";
-    const char * const prologLicense = "% Prolog copyright 1994-2000 Trolltech. "
+    const char * const prologLicense = "% Prolog copyright 1994-2001 Trolltech. "
                                  "You may copy this prolog in any way\n"
                                  "% that is directly related to this "
                                  "document. For other use of this prolog,\n"
                                  "% see your licensing agreement for Qt.\n";
     outStream << prologLicense << *fixed_ps_header << "\n";
+
+    // we have to do this here, as scaling can affect this.
+    QString lineStyles = "/LArr["                                       // Pen styles:
+			 " [] []"                       //   solid line
+			 " [ w s ] [ s w ]"                 //   dash line
+			 " [ s s ] [ s s ]"                  //   dot line
+			 " [ m s s s ] [ s m s s ]"      //   dash dot line
+			 " [ m s s s s ] [ s m s s s s ]"         //   dash dot dot line
+			 " ] d\n";
+    lineStyles.replace( QRegExp( "w" ), QString::number( 10./scale ) );
+    lineStyles.replace( QRegExp( "m" ), QString::number( 5./scale ) );
+    lineStyles.replace( QRegExp( "s" ), QString::number( 3./scale ) );
+    
+    outStream << lineStyles;
+    
+    
     outStream << "/pageinit {\n";
     if ( !printer->fullPage() ) {
         if ( printer->orientation() == QPrinter::Portrait )
