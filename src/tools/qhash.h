@@ -6,6 +6,7 @@
 #include "qatomic.h"
 #endif // QT_H
 
+template<class T> class QList;
 class QByteArray;
 class QString;
 
@@ -150,11 +151,15 @@ public:
 
     const T value(const Key &key) const;
     const T value(const Key &key, const T &defaultValue) const;
+    QList<T> values(const Key &key) const;
     T &operator[](const Key &key);
     const T operator[](const Key &key) const;
     void insert(const Key &key, const T &value);
+    void insertMulti(const Key &key, const T &value);
     bool remove(const Key &key);
+
     T take(const Key &key);
+    // ### Iterator take(const Iterator &) ?
     void reserve(int size);
     inline int capacity() const { return d->numBuckets; }
     inline void detach() { if (d->ref != 1) detach_helper(); }
@@ -259,7 +264,7 @@ QHashData::Node *QHash<Key, T>::node_duplicate(QHashData::Node *node)
 
 template <class Key, class T>
 inline typename QHash<Key, T>::Node *QHash<Key, T>::node_create(uint h, const Key &key,
-							const T &value)
+								const T &value)
 {
     d->grow();
     Node *node = new Node(key, value);
@@ -341,6 +346,20 @@ inline const T QHash<Key, T>::value(const Key &key,
 }
 
 template <class Key, class T>
+QList<T> QHash<Key, T>::values(const Key &key) const
+{
+    QList<T> list;
+    Node *node = node_find(key);
+    if (node != e) {
+	do {
+	    list.append(node->value);
+	    node = node->next;
+	} while (node != e && node->key == key);
+    }
+    return list;
+}
+
+template <class Key, class T>
 inline const T QHash<Key, T>::operator[](const Key &key) const
 {
     return value(key);
@@ -371,6 +390,23 @@ inline void QHash<Key, T>::insert(const Key &key, const T &value)
 	if (d->autoDelete==this && node->value != value)
 	    qDelete(node->value);
 	node->value = value;
+    }
+}
+
+template <class Key, class T>
+inline void QHash<Key, T>::insertMulti(const Key &key, const T &value)
+{
+    detach();
+
+    uint h;
+    Node *firstNode = node_find(key, &h);
+    if (firstNode == e) {
+	node_create(h, key, value);
+    } else {
+	Node *secondNode = node_create(h, key, firstNode->value);
+	firstNode->value = value;
+	secondNode->next = firstNode->next;
+	firstNode->next = secondNode;
     }
 }
 
@@ -471,7 +507,7 @@ inline bool QHash<Key, T>::contains(const Key &key) const
 
 template <class Key, class T>
 typename QHash<Key, T>::Node * &QHash<Key, T>::node_find(const Key &key,
-						 uint *hp) const
+							 uint *hp) const
 {
     Node **node;
     uint h = qHash(key);
