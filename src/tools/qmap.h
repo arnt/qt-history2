@@ -605,6 +605,7 @@ public:
     typedef size_t      size_type;
     typedef QMapIterator<Key,T> iterator;
     typedef QMapConstIterator<Key,T> const_iterator;
+    typedef QPair<iterator,bool> insertPair;
 
     /**
      * API
@@ -755,7 +756,7 @@ Q_INLINE_TEMPLATES QMap<Key,T>& QMap<Key,T>::operator= ( const QMap<Key,T>& m )
 }
 
 template<class Key, class T>
-Q_INLINE_TEMPLATES QPair<QMap<Key,T>::iterator,bool> QMap<Key,T>::insert( const QMap<Key,T>::value_type& x )
+Q_INLINE_TEMPLATES QMap<Key,T>::insertPair QMap<Key,T>::insert( const QMap<Key,T>::value_type& x )
 {
     detach();
     size_type n = size();
