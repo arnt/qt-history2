@@ -9,7 +9,7 @@ public:
     QODBCDriverInterface(){}
 
     QSqlDriver* create( const QString &name );
-    QStringList featureList();
+    QStringList featureList() const;
 };
 
 QSqlDriver* QODBCDriverInterface::create( const QString &name )
@@ -20,7 +20,7 @@ QSqlDriver* QODBCDriverInterface::create( const QString &name )
     return 0;
 }
 
-QStringList QODBCDriverInterface::featureList()
+QStringList QODBCDriverInterface::featureList() const
 {
     QStringList l;
     l.append("QODBC");
@@ -30,11 +30,11 @@ QStringList QODBCDriverInterface::featureList()
 class QODBCDriverPlugIn : public QPlugInInterface
 {
 public:
-    QStringList interfaceList();
+    QStringList interfaceList() const;
     QUnknownInterface* queryInterface( const QString& request );
 };
 
-QStringList QODBCDriverPlugIn::interfaceList()
+QStringList QODBCDriverPlugIn::interfaceList() const
 {
     QStringList list;
 

@@ -8,7 +8,7 @@ public:
     QPSQLDriverInterface(){}
 
     QSqlDriver* create( const QString &name );
-    QStringList featureList();
+    QStringList featureList() const;
 };
 
 QSqlDriver* QPSQLDriverInterface::create( const QString &name )
@@ -18,7 +18,7 @@ QSqlDriver* QPSQLDriverInterface::create( const QString &name )
     return 0;
 }
 
-QStringList QPSQLDriverInterface::featureList()
+QStringList QPSQLDriverInterface::featureList() const
 {
     QStringList l;
     l.append("QPSQL");
@@ -28,11 +28,11 @@ QStringList QPSQLDriverInterface::featureList()
 class QPSQLDriverPlugIn : public QPlugInInterface
 {
 public:
-    QStringList interfaceList();
+    QStringList interfaceList() const;
     QUnknownInterface* queryInterface( const QString& request );
 };
 
-QStringList QPSQLDriverPlugIn::interfaceList()
+QStringList QPSQLDriverPlugIn::interfaceList() const
 {
     QStringList list;
 

@@ -8,7 +8,7 @@ public:
     QMySQLDriverInterface(){}
 
     QSqlDriver* create( const QString &name );
-    QStringList featureList();    
+    QStringList featureList() const;    
 };
 
 QSqlDriver* QMySQLDriverInterface::create( const QString &name )
@@ -18,7 +18,7 @@ QSqlDriver* QMySQLDriverInterface::create( const QString &name )
     return 0;
 }
 
-QStringList QMySQLDriverInterface::featureList()
+QStringList QMySQLDriverInterface::featureList() const
 {
     QStringList l;
     l.append("QMYSQL");
@@ -28,11 +28,11 @@ QStringList QMySQLDriverInterface::featureList()
 class QMySQLDriverPlugIn : public QPlugInInterface
 {
 public:
-    QStringList interfaceList();
+    QStringList interfaceList() const;
     QUnknownInterface* queryInterface( const QString& request );
 };
 
-QStringList QMySQLDriverPlugIn::interfaceList()
+QStringList QMySQLDriverPlugIn::interfaceList() const
 {
     QStringList list;
 

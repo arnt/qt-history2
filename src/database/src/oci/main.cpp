@@ -8,7 +8,7 @@ public:
     QOCIDriverInterface(){}
 
     QSqlDriver* create( const QString &name );
-    QStringList featureList();
+    QStringList featureList() const;
 };
 
 QSqlDriver* QOCIDriverInterface::create( const QString &name )
@@ -21,7 +21,7 @@ QSqlDriver* QOCIDriverInterface::create( const QString &name )
     return 0;
 }
 
-QStringList QOCIDriverInterface::featureList()
+QStringList QOCIDriverInterface::featureList() const
 {
     QStringList l;
     l.append("QOCI");
@@ -32,11 +32,11 @@ QStringList QOCIDriverInterface::featureList()
 class QOCIDriverPlugIn : public QPlugInInterface
 {
 public:
-    QStringList interfaceList();
+    QStringList interfaceList() const;
     QUnknownInterface* queryInterface( const QString& request );
 };
 
-QStringList QOCIDriverPlugIn::interfaceList()
+QStringList QOCIDriverPlugIn::interfaceList() const
 {
     QStringList list;
 
