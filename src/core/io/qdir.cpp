@@ -1441,6 +1441,24 @@ QDir::homePath()
 }
 
 /*!
+    \fn QDir QDir::temp() 
+
+    Returns the temporary directory.
+
+    \sa tempPath() drives()
+*/
+
+/*! 
+  ### document
+*/
+
+QString
+QDir::tempPath()
+{
+    return QFSFileEngine::tempPath();
+}
+
+/*!
     \fn QDir QDir::root() 
 
     Returns the root directory.
