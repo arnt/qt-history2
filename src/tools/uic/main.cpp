@@ -81,7 +81,7 @@ int main(int argc, char *argv[])
     QTextStream *out = 0;
     QFile f;
     if (driver.option().outputFile.size()) {
-        f.setName(driver.option().outputFile);
+        f.setFileName(driver.option().outputFile);
         if (!f.open(IO_WriteOnly)) {
             fprintf(stderr, "Could not create output file\n");
             return 1;

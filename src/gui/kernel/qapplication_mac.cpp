@@ -864,7 +864,7 @@ void qt_init(QApplicationPrivate *priv, QApplication::Type)
                      "require applications to be run with the *full* path to the "
                      "executable.", argv[0]);
         //special hack to change working directory (for an app bundle) when running from finder
-        if(!passed_psn.isNull() && QDir::currentDirPath() == "/") {
+        if(!passed_psn.isNull() && QDir::currentPath() == "/") {
             QCFType<CFURLRef> bundleURL(CFBundleCopyBundleURL(CFBundleGetMainBundle()));
             QString qbundlePath = QCFString(CFURLCopyFileSystemPath(bundleURL,
                                             kCFURLPOSIXPathStyle));

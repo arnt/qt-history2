@@ -334,7 +334,7 @@ QFileDialog::~QFileDialog()
 
 void QFileDialog::setDirectory(const QDir &directory)
 {
-    QModelIndex index = d->model->index(directory.absPath());
+    QModelIndex index = d->model->index(directory.absolutePath());
     if (index.isValid()) {
         d->setRoot(index);
         d->updateButtons(index);
@@ -851,7 +851,7 @@ void QFileDialogPrivate::setup()
     lookIn->setInsertionPolicy(QComboBox::NoInsertion);
     lookIn->setDuplicatesEnabled(false);
     lookIn->setEditable(true);
-    lookIn->insertItem(QDir::root().absPath());
+    lookIn->insertItem(QDir::root().absolutePath());
     QObject::connect(lookIn, SIGNAL(activated(const QString&)),
                      q, SLOT(setCurrentDir(const QString&)));
     grid->addWidget(d->lookIn, 0, 1, 1, 3);
@@ -1107,13 +1107,13 @@ static void qt_get_dir_and_selection(const QString &path, QString *cwd, QString 
                  if (cwd) *cwd = path;
                  if (sel) *sel = QString::null;
              } else {
-                 if (cwd) *cwd = info.dirPath(true);
+                 if (cwd) *cwd = info.absolutePath();
                  if (sel) *sel = info.fileName();
              }
              return;
          }
     }
-    if (cwd) *cwd = QDir::currentDirPath();
+    if (cwd) *cwd = QDir::currentPath();
     if (sel) *sel = QString::null;
 }
 
@@ -1199,7 +1199,7 @@ QString QFileDialog::getOpenFileName(QWidget *parent,
             result = selected.first();
 //         if (selectedFilter)
 //             *selectedFilter = dlg->selectedFilter();
-        qt_working_dir = dlg->directory().absPath();
+        qt_working_dir = dlg->directory().absolutePath();
     }
     delete dlg;
 
@@ -1283,7 +1283,7 @@ QString QFileDialog::getSaveFileName(QWidget *parent,
             result = selected.first();
 //         if (selectedFilter)
 //             *selectedFilter = dlg->selectedFilter();
-        qt_working_dir = dlg->directory().absPath();
+        qt_working_dir = dlg->directory().absolutePath();
     }
     delete dlg;
 
@@ -1452,7 +1452,7 @@ QStringList QFileDialog::getOpenFileNames(QWidget *parent,
 //        lst = dlg->selectedFiles();
 //         if (selectedFilter)
 //             *selectedFilter = dlg->selectedFilter();
-        qt_working_dir = dlg->directory().absPath();
+        qt_working_dir = dlg->directory().absolutePath();
     }
     delete dlg;
 

@@ -765,7 +765,7 @@ bool QProcess::start(QStringList *env)
             ::dup2(STDOUT_FILENO, STDERR_FILENO);
         }
 #ifndef QT_NO_DIR
-        ::chdir(workingDir.absPath().latin1());
+        ::chdir(workingDir.absolutePath().latin1());
 #endif
         if (fd[0])
             ::close(fd[0]);
@@ -783,7 +783,7 @@ bool QProcess::start(QStringList *env)
                     exec = command.mid(lslash+1);
                 QFileInfo fileInfo(command + mac_bundle_suffix + exec);
                 if (fileInfo.isExecutable())
-                    command = fileInfo.absFilePath().local8Bit();
+                    command = fileInfo.absoluteFilePath().local8Bit();
             }
 #endif
 #ifdef Q_OS_QNX4
@@ -835,7 +835,7 @@ bool QProcess::start(QStringList *env)
 #endif
                         if (fileInfo.isExecutable()) {
 #if defined(Q_OS_DARWIN)
-                            arglistQ[0] = fileInfo.absFilePath().local8Bit();
+                            arglistQ[0] = fileInfo.absoluteFilePath().local8Bit();
 #else
                             arglistQ[0] = fileInfo.filePath().local8Bit();
 #endif
@@ -856,7 +856,7 @@ bool QProcess::start(QStringList *env)
                         exec = command.mid(lslash+1);
                     QFileInfo fileInfo(command + mac_bundle_suffix + exec);
                     if (fileInfo.isExecutable()) {
-                        arglistQ[0] = fileInfo.absFilePath().local8Bit();
+                        arglistQ[0] = fileInfo.absoluteFilePath().local8Bit();
                         arglist[0] = arglistQ[0];
                     }
                 }

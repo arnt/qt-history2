@@ -398,7 +398,7 @@ bool QPicture::play(QPainter *painter)
     d->pictb.open(IO_ReadOnly);                // open buffer device
     QDataStream s;
     s.setDevice(&d->pictb);                        // attach data stream to buffer
-    s.device()->at(10);                        // go directly to the data
+    s.device()->seek(10);                        // go directly to the data
     s.setVersion(d->formatMajor == 4 ? 3 : d->formatMajor);
 
     Q_UINT8  c, clen;
@@ -675,7 +675,7 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
             default:
                 qWarning("QPicture::play: Invalid command %d", c);
                 if (len)                        // skip unknown command
-                    s.device()->at(s.device()->at()+len);
+                    s.device()->seek(s.device()->at()+len);
         }
 #if defined(QT_DEBUG)
         //qDebug("device->at(): %i, strm_pos: %i len: %i", s.device()->at(), strm_pos, len);
@@ -1820,7 +1820,7 @@ QByteArray QPictureIO::pictureFormat(QIODevice *d)
             }
         }
     }
-    d->at(pos);                                // restore position
+    d->seek(pos);                                // restore position
     return format;
 }
 
@@ -1900,7 +1900,7 @@ bool QPictureIO::read()
     if (d->iodev) {                                // read from io device
         // ok, already open
     } else if (!d->fname.isEmpty()) {                // read from file
-        file.setName(d->fname);
+        file.setFileName(d->fname);
         if (!file.open(IO_ReadOnly))
             return false;                        // cannot open file
         d->iodev = &file;
@@ -1981,7 +1981,7 @@ bool QPictureIO::write()
     }
     QFile file;
     if (!d->iodev && !d->fname.isEmpty()) {
-        file.setName(d->fname);
+        file.setFileName(d->fname);
         bool translate = h->text_mode==QPictureHandler::TranslateInOut;
         int fmode = translate ? IO_WriteOnly|IO_Translate : IO_WriteOnly;
         if (!file.open(fmode))                // couldn't create file

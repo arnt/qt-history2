@@ -4188,7 +4188,7 @@ QByteArray QImageIO::imageFormat(QIODevice *d)
             }
         }
     }
-    d->at(pos);                                // restore position
+    d->seek(pos);                                // restore position
 #ifndef QT_NO_ASYNC_IMAGE_IO
     if (format.isEmpty())
         format = QImageDecoder::formatName((uchar*)buf2, rdlen);
@@ -4284,7 +4284,7 @@ bool QImageIO::read()
     if (iodev) {                                // read from io device
         // ok, already open
     } else if (!fname.isEmpty()) {                // read from file
-        file.setName(fname);
+        file.setFileName(fname);
         if (!file.open(IO_ReadOnly))
             return false;                        // cannot open file
         iodev = &file;
@@ -4314,7 +4314,7 @@ bool QImageIO::read()
         }
         else
 #endif
-            file.at(0);                        // position to start
+            file.seek(0);                        // position to start
     }
     iostat = 1;                                        // assume error
 
@@ -4373,7 +4373,7 @@ bool QImageIO::write()
     }
     QFile file;
     if (!iodev && !fname.isEmpty()) {
-        file.setName(fname);
+        file.setFileName(fname);
         bool translate = h->text_mode==QImageHandler::TranslateInOut;
         int fmode = translate ? IO_WriteOnly|IO_Translate : IO_WriteOnly;
         if (!file.open(fmode))                // couldn't create file
@@ -4560,7 +4560,7 @@ bool read_dib(QDataStream& s, int offset, int startpos, QImage& image)
     image.setDotsPerMeterX(bi.biXPelsPerMeter);
     image.setDotsPerMeterY(bi.biYPelsPerMeter);
 
-    d->at(startpos + BMP_FILEHDR_SIZE + bi.biSize); // goto start of colormap
+    d->seek(startpos + BMP_FILEHDR_SIZE + bi.biSize); // goto start of colormap
 
     if (ncols > 0) {                                // read color table
         uchar rgb[4];
@@ -4598,7 +4598,7 @@ bool read_dib(QDataStream& s, int offset, int startpos, QImage& image)
 
     // offset can be bogus, be careful
     if (offset>=0 && startpos + offset > (Q_LONG)d->at())
-        d->at(startpos + offset);                // start of image data
+        d->seek(startpos + offset);                // start of image data
 
     int             bpl = image.bytesPerLine();
 #ifdef Q_WS_QWS
@@ -4619,7 +4619,7 @@ bool read_dib(QDataStream& s, int offset, int startpos, QImage& image)
                 break;
 #ifdef Q_WS_QWS
             if (pad > 0)
-                d->at(d->at()+pad);
+                d->seek(d->at()+pad);
 #endif
         }
         if (ncols == 2 && qGray(image.color(0)) < qGray(image.color(1)))
@@ -4752,7 +4752,7 @@ bool read_dib(QDataStream& s, int offset, int startpos, QImage& image)
                     break;
 #ifdef Q_WS_QWS
                 if (pad > 0)
-                    d->at(d->at()+pad);
+                    d->seek(d->at()+pad);
 #endif
             }
         }
@@ -5322,7 +5322,7 @@ static void read_async_image(QImageIO *iio)
         if (consumer->framecount) {
             // Stopped after first frame
             if (d->isDirectAccess())
-                d->at(startAt + totLen);
+                d->seek(startAt + totLen);
             else {
                 // ### We have (probably) read too much from the stream into
                 // the buffer, and there is no way to put it back!

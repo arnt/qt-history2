@@ -257,7 +257,7 @@ bool openMimeRegistry(bool global, int mode, QFile &file)
     QString dir = "/Library/Qt";
     if(!global)
         dir.prepend(QDir::homePath());
-    file.setName(dir + "/.mime_types");
+    file.setFileName(dir + "/.mime_types");
     if(mode != IO_ReadOnly) {
         if(!QFile::exists(dir)) {
             // Do it with a system call as I don't see much worth in
@@ -271,7 +271,7 @@ bool openMimeRegistry(bool global, int mode, QFile &file)
         }
         if (!file.exists()) {
             // Create the file and chmod it so that everyone can write to it.
-            int fd = ::open(file.name().local8Bit(), O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR);
+            int fd = ::open(file.fileName().local8Bit(), O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR);
             bool success = fd != -1;
             if (success)
                 success = ::fchmod(fd, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH) == 0;
@@ -305,7 +305,7 @@ bool QMacMimeAnyMime::loadMimeRegistry()
                 global.close();
             }
             if(!openMimeRegistry(false, IO_ReadWrite, library_file)) {
-                qWarning("Failure to open mime resources %s -- %s", library_file.name().latin1(),
+                qWarning("Failure to open mime resources %s -- %s", library_file.fileName().latin1(),
                          library_file.errorString().latin1());
                 return FALSE;
             }
@@ -330,7 +330,7 @@ int QMacMimeAnyMime::registerMimeType(const char *mime)
         if(!mime_registry.contains(mime)) {
             if(!library_file.isOpen()) {
                 if(!library_file.open(IO_WriteOnly)) {
-                    qWarning("Failure to open %s -- %s", library_file.name().latin1(),
+                    qWarning("Failure to open %s -- %s", library_file.fileName().latin1(),
                              library_file.errorString().latin1());
                     return false;
                 }
