@@ -1090,7 +1090,7 @@ void Q3DnsManager::transmitQuery(int i)
         qDebug("DNS Manager: giving up on query 0x%04x", q->id);
 #endif
         delete q;
-        QTimer::singleShot(1000*10, Q3DnsManager::manager(), SLOT(cleanCache()));
+        QTimer::singleShot(0, Q3DnsManager::manager(), SLOT(cleanCache()));
         // and don't process anything more
         return;
     }
@@ -1180,7 +1180,7 @@ void Q3DnsManager::transmitQuery(int i)
         qDebug("DNS Manager: no DNS server found on query 0x%04x", q->id);
 #endif
         delete q;
-        QTimer::singleShot(1000*10, Q3DnsManager::manager(), SLOT(cleanCache()));
+        QTimer::singleShot(0, Q3DnsManager::manager(), SLOT(cleanCache()));
         // and don't process anything more
         return;
     }
