@@ -403,12 +403,12 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 
     setFontSys();
 #if defined (QT_WINTAB_SUPPORT)
-	if ( initializeWindow ) {
-		// open the tablet for this widget
-		hTab = WTOpen( id, &lcMine, TRUE );
-		if ( hTab == NULL )
-			qWarning( "FAILED to open the tablet for %d", id );
-	}
+    if ( initializeWindow ) {
+	// open the tablet for this widget
+	hTab = WTOpen( id, &lcMine, TRUE );
+	if ( hTab == NULL )
+	    qWarning( "FAILED to open the tablet for %d", id );
+    }
 #endif
 }
 
@@ -416,7 +416,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
 {
 #if defined(QT_WINTAB_SUPPORT)
-	WTClose( hTab );
+    WTClose( hTab );
 #endif
 	deactivateWidgetCleanup();
     if ( testWState(WState_Created) ) {

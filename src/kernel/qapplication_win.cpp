@@ -732,53 +732,53 @@ void qt_init( int *argcptr, char **argv, QApplication::Type )
 #define FIX_DOUBLE(x) ( double(INT(x)) + double(FRAC(x) / 0x10000 ) )
 #define PI 3.14159265359
 
- 	int max_pressure;
-	struct tagAXIS tpOri[3];
-	struct tagAXIS pressureAxis;
-	double tpvar,
- 		   aziFactor = 1,
- 		   altFactor = 1,
- 		   altAdjust = 1;
- 	// make sure we have WinTab
- 	if (!WTInfo( 0, 0, NULL )) {
- 		qWarning( "Wintab services not available" );
- 		return;
- 	}
+    int max_pressure;
+    struct tagAXIS tpOri[3];
+    struct tagAXIS pressureAxis;
+    double tpvar,
+ 	   aziFactor = 1,
+ 	   altFactor = 1,
+ 	   altAdjust = 1;
+    // make sure we have WinTab
+    if (!WTInfo( 0, 0, NULL )) {
+	qWarning( "Wintab services not available" );
+	return;
+    }
 
- 	// some tablets don't support tilt, check if its possible,
- 	tilt_support = WTInfo( WTI_DEVICES, DVC_ORIENTATION, &tpOri );
+    // some tablets don't support tilt, check if its possible,
+    tilt_support = WTInfo( WTI_DEVICES, DVC_ORIENTATION, &tpOri );
 
- 	if ( tilt_support ) {
- 		// check for azimuth and altitude
- 		if ( tpOri[0].axResolution && tpOri[1].axResolution ) {
- 			tpvar = FIX_DOUBLE( tpOri[0].axResolution );
- 			aziFactor = tpvar/(2 * PI);
- 			tpvar = FIX_DOUBLE( tpOri[1].axResolution);
- 			altFactor = tpvar / 1000;
- 			altAdjust = double(tpOri[1].axMax) / altFactor;
- 		} else {
- 			tilt_support = FALSE;
- 		}
- 	}
- 	max_pressure = WTInfo( WTI_DEVICES, DVC_NPRESSURE, &pressureAxis );
- 	if ( max_pressure ) {
- 		//get the maximum pressure then
- 		max_pressure = pressureAxis.axMax;
+    if ( tilt_support ) {
+	// check for azimuth and altitude
+	if ( tpOri[0].axResolution && tpOri[1].axResolution ) {
+	    tpvar = FIX_DOUBLE( tpOri[0].axResolution );
+	    aziFactor = tpvar/(2 * PI);
+	    tpvar = FIX_DOUBLE( tpOri[1].axResolution);
+	    altFactor = tpvar / 1000;
+	    altAdjust = double(tpOri[1].axMax) / altFactor;
  	} else {
- 		max_pressure = 0;
+	    tilt_support = FALSE;
  	}
- 	// build our context from the default context
- 	WTInfo( WTI_DEFSYSCTX, 0, &lcMine );
-	lcMine.lcOptions |= CXO_MESSAGES;
- 	lcMine.lcPktData = PACKETDATA;
- 	lcMine.lcPktMode = PACKETMODE;
- 	lcMine.lcMoveMask = PACKETDATA;
+    }
+    max_pressure = WTInfo( WTI_DEVICES, DVC_NPRESSURE, &pressureAxis );
+    if ( max_pressure ) {
+	//get the maximum pressure then
+	max_pressure = pressureAxis.axMax;
+    } else {
+	max_pressure = 0;
+    }
+    // build our context from the default context
+    WTInfo( WTI_DEFSYSCTX, 0, &lcMine );
+    lcMine.lcOptions |= CXO_MESSAGES;
+    lcMine.lcPktData = PACKETDATA;
+    lcMine.lcPktMode = PACKETMODE;
+    lcMine.lcMoveMask = PACKETDATA;
 
- 	// these are done in the syspress example, I don't know if we need them
- 	lcMine.lcOutOrgX = 0;
- 	lcMine.lcOutExtX = GetSystemMetrics( SM_CXSCREEN );
- 	lcMine.lcOutOrgY = 0;
- 	lcMine.lcOutExtY = -GetSystemMetrics( SM_CXSCREEN );
+    // these are done in the syspress example, I don't know if we need them
+    lcMine.lcOutOrgX = 0;
+    lcMine.lcOutExtX = GetSystemMetrics( SM_CXSCREEN );
+    lcMine.lcOutOrgY = 0;
+    lcMine.lcOutExtY = -GetSystemMetrics( SM_CXSCREEN );
 #endif
 }
 
@@ -3548,7 +3548,7 @@ bool QETWidget::translateTabletEvent( const MSG &msg, PACKET *localPacketBuf,
     static POINT ptOrg, ptOld, ptNew;
     static DWORD btnOld, btnNew;
     static UINT prsOld, prsNew;
-    static ORIENTATION ortNew;
+    static ORIENTATION ort;
     int i;
     int dev;
     int tiltX, tiltY;
@@ -3561,7 +3561,7 @@ bool QETWidget::translateTabletEvent( const MSG &msg, PACKET *localPacketBuf,
 	} else if ( localPacketBuf[i].pkCursor == 1 ){
 	    dev = QTabletEvent::Stylus;
 	} else {
-	    dev = QTabletEvent::None;
+	    dev = QTabletEvent::NoDevice;
 	}
 
 	btnOld = btnNew;
@@ -3591,14 +3591,15 @@ bool QETWidget::translateTabletEvent( const MSG &msg, PACKET *localPacketBuf,
 	if ( !tilt_support )
 	    tiltX = tiltY = 0;
 	else {
-	    ortNew = localPacketBuf[i].pkOrientation;
+	    ort = localPacketBuf[i].pkOrientation;
 	    // convert from azimuth and altitude to x tilt and y tilt
-	    double radAzim = (ortNew.orAzimuth / 10) * ( PI / 180 );
-	    double radAlt = abs(ortNew.orAltitude / 10) * ( PI / 180 );
-	    double tmpX = cos(radAzim) * sin(radAlt);
+	    double radAzim = (ort.orAzimuth / 10) * ( PI / 180 );
+	    double radAlt = abs(ort.orAltitude / 10) * ( PI / 180 );
+	    double tmpZ = sin( radAlt );
+	    double tmpX = cos(radAzim) * tmpZ;
 	    double tmpY = cos(radAzim) * cos(radAlt);
 
-	    double tmpZ = sin( radAlt );
+	    
 
 	    double degX = (radAlt - (PI / 2)) * sin(radAzim);
 	    double degY = atan( tmpY / tmpZ );
