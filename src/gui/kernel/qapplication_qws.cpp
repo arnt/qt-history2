@@ -257,9 +257,7 @@ public:
     bool translateMouseEvent(const QWSMouseEvent *, int oldstate);
     bool translateKeyEvent(const QWSKeyEvent *, bool grab);
     bool translateRegionModifiedEvent(const QWSRegionModifiedEvent *);
-#ifndef QT_NO_WHEELEVENT
-    bool translateWheelEvent(int global_x, int global_y, int delta, int state);
-#endif
+    bool translateWheelEvent(const QWSMouseEvent *me);
     void repaintHierarchy(QRegion r, bool post);
     void repaintDecoration(QRegion r, bool post);
     void updateRegion();
@@ -2207,6 +2205,10 @@ int QApplication::qwsProcessEvent(QWSEvent* event)
         if ((mouse.state&Qt::MouseButtonMask) != (oldstate&Qt::MouseButtonMask)) {
             widget->translateMouseEvent(me, oldstate);
         }
+
+        if (mouse.delta != 0)
+            widget->translateWheelEvent(me);
+
         if (qt_button_down && (mouse_state & Qt::MouseButtonMask) == 0)
             qt_button_down = 0;
 
@@ -2597,6 +2599,43 @@ void QApplication::closePopup(QWidget *popup)
 
 static const int AnyButton = (Qt::LeftButton | Qt::MidButton | Qt::RightButton);
 
+//
+// Wheel event translation
+//
+bool QETWidget::translateWheelEvent(const QWSMouseEvent *me)
+{
+    const QWSMouseEvent::SimpleData &mouse = me->simpleData;
+
+    // Figure out wheeling direction:
+    //    Horizontal wheel w/o Alt
+    // OR Vertical wheel   w/  Alt  ==> Horizontal wheeling
+    //    ..all other permutations  ==> Vertical wheeling
+    int axis = mouse.delta / 120; // WHEEL_DELTA?
+    Qt::Orientation orient = ((axis == 2 || axis == -2) && (mouse.state & Qt::AltModifier == 0))
+                             ||((axis == 1 || axis == -1) && mouse.state & Qt::AltModifier)
+                             ? Qt::Horizontal : Qt::Vertical;
+
+    QPoint mousePoint = QPoint(mouse.x_root, mouse.y_root);
+
+    // send the event to the widget or its ancestors
+    QWidget* popup = qApp->activePopupWidget();
+    if (popup && topLevelWidget() != popup)
+        popup->close();
+    QWheelEvent we(mapFromGlobal(mousePoint), mousePoint, mouse.delta, mouse.state, orient);
+    if (QApplication::sendSpontaneousEvent(this, &we))
+        return true;
+
+    // send the event to the widget that has the focus or its ancestors, if different
+    QWidget *w = this;
+    if (w != qApp->focusWidget() && (w = qApp->focusWidget())) {
+        QWidget* popup = qApp->activePopupWidget();
+        if (popup && w != popup)
+            popup->hide();
+        if (QApplication::sendSpontaneousEvent(w, &we))
+            return true;
+    }
+    return false;
+}
 
 bool QETWidget::translateMouseEvent(const QWSMouseEvent *event, int oldstate)
 {
@@ -3030,15 +3069,14 @@ int QApplication::doubleClickInterval()
 }
 
 #ifndef QT_NO_WHEELEVENT
-// Need to add some sort of implementation here?
-
-void QApplication::setWheelScrollLines(int)
+void QApplication::setWheelScrollLines(int lines)
 {
+    QApplicationPrivate::wheel_scroll_lines = lines;
 }
 
 int QApplication::wheelScrollLines()
 {
-    return 0;
+    return QApplicationPrivate::wheel_scroll_lines;
 }
 #endif
 
