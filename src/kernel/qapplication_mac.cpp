@@ -1047,16 +1047,18 @@ bool QApplication::processNextEvent( bool canWait )
   if(qt_is_gui_used) {
     sendPostedEvents();
     EventRecord event;    
-    do {
-      if(app_exit_loop)
-	return FALSE;
+    while(EventAvail(everyEvent, &event)) {
+      while(EventAvail(everyEvent, &event)) {
+	if(app_exit_loop)
+	  return FALSE;
 
-      WaitNextEvent(everyEvent, &event, 15L, nil);
-      nevents++;
+	GetNextEvent(everyEvent, &event);
+	nevents++;
 
-      if(macProcessEvent( (MSG *)(&event) ) == 1)
-	return TRUE;
-    } while(event.what == nullEvent);
+	if(macProcessEvent( (MSG *)(&event) ) == 1)
+	  return TRUE;
+      } 
+    }
     sendPostedEvents(); //let them accumulate
   } 
 
@@ -1295,7 +1297,11 @@ int QApplication::macProcessEvent(MSG * m)
       twidget->crect.setWidth( metricWidth - 1 );
       twidget->crect.setHeight( metricHeight - 1 );
       ignorecliprgn = false;
+
+      BeginUpdate((WindowPtr)twidget->handle());
       twidget->propagateUpdates( 0, 0, twidget->width(), twidget->height() );
+      EndUpdate((WindowPtr)twidget->handle());
+
       ignorecliprgn = true;
     }
   } else if( er->what == mouseDown ) {

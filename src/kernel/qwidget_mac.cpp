@@ -356,18 +356,19 @@ void show_children( QWidget * w, int show )
 
 void redraw_children(QWidget * w)
 {
-    //FIXME this erase blanks the window when it is resized smaller
-    w->erase( 0, 0, w->width(), w->height());
-    const QObjectList *child = w->children();
-    if ( child ) {
-	QObjectListIt it( *child );
-	QObject *sibling = it.toLast();
-	do {
-	    if ( sibling->inherits( "QWidget" ))
-		redraw_children( (QWidget *)sibling );
-	    sibling = --it;
-	} while ( sibling !=0 );
-    }
+
+  //FIXME this erase blanks the window when it is resized smaller
+  w->erase( 0, 0, w->width(), w->height()); 
+  const QObjectList *child = w->children();
+  if ( child ) {
+    QObjectListIt it( *child );
+    QObject *sibling = it.toLast();
+    do {
+      if ( sibling->inherits( "QWidget" ))
+	redraw_children( (QWidget *)sibling );
+      sibling = --it;
+    } while ( sibling !=0 );
+  }
 }
 
 /*!
@@ -599,9 +600,9 @@ void QWidget::setActiveWindow()
     // FIXME: This is likely to flicker
     if ( widget && !widget->isPopup() )
         widget = 0;
-    if ( !parentWidget() ) {
+    if ( isTopLevel() ) {
 	SelectWindow( (WindowPtr)winid );  // FIXME: Also brings to front - naughty?
-	erase( 0, 0, width(), height() );
+	update();
 	myactive = winid;
     }
     if ( !isPopup() && widget )
@@ -652,17 +653,21 @@ void QWidget::update()
 
 void QWidget::update( int x, int y, int w, int h )
 {
-    qDebug( "QWidget::update" );
-    if ( testWFlags( WState_Created ) ) {
-	if ( !isVisible() )
-	    return;
-	erase( x, y, w, h );
-	Rect r;
-	QPoint p = mapToGlobal(QPoint(x, y));
-	SetRect( &r, p.x(), p.y(), p.x()+w, p.y()+h );
-        qDebug( "QWidget::update( %d %d %d %d )", p.x(), p.y(), w, h );
-	InvalWindowRect( (WindowRef)winId(), &r );
+  qDebug( "QLCD QWidget::update" );
+
+  if ( testWFlags( WState_Created ) ) {
+    if ( !isVisible() )
+      return;
+    Rect r;
+
+    for(QWidget *widg = this; widg && widg->parentWidget(); widg = widg->parentWidget()) {
+      x += widg->x();
+      y += widg->y();
     }
+    SetRect( &r, x, y, x+w, y+h );
+    qDebug( "QWidget::update( %d %d %d %d )", x, y, w, h );
+    InvalWindowRect( (WindowRef)winId(), &r );
+  }
 }
 
 /*!
@@ -704,18 +709,18 @@ void QWidget::update( int x, int y, int w, int h )
 
 void QWidget::repaint( int x, int y, int w, int h, bool erase )
 {
-    qDebug( "QWidget::repaint" );
-    if ( (widget_state & (WState_Visible|WState_BlockUpdates)) 
-	 == WState_Visible ) {
-	if ( w < 0 )
-	    w = crect.width()  - x;
-	if ( h < 0 )
-	    h = crect.height() - y;
-	QPaintEvent e( QRect(x, y, w, h ), erase );
-	if ( erase && w != 0 && h != 0 )
-	    this->erase( x, y, w, h );
-	QApplication::sendEvent( this, &e );
-    }
+  qDebug( "QLCD  is to be repainted%d %d %d %d %d", x, y, w, h, erase);
+  if ( (widget_state & (WState_Visible|WState_BlockUpdates)) 
+       == WState_Visible ) {
+    if ( w < 0 )
+      w = crect.width()  - x;
+    if ( h < 0 )
+      h = crect.height() - y;
+    QPaintEvent e( QRect(x, y, w, h ), erase );
+    if ( 1 && erase && w != 0 && h != 0 )
+      this->erase( x, y, w, h );
+    QApplication::sendEvent( this, &e );
+  }
 }
 
 /*!
@@ -759,13 +764,11 @@ void QWidget::showWindow()
     clearWState( WState_ForceHide );
     QShowEvent e( FALSE );
     QApplication::sendEvent( this, &e );
-    if ( !parentWidget() )
+    if ( isTopLevel() ) {
 	ShowHide( (WindowPtr)winid, 1 );
-    setActiveWindow();
-    //QApplication::postEvent( this, new QPaintEvent( rect() ) );
-    if ( parentWidget() )
-      parentWidget()->update();
-    erase( 0, 0, width(), height() );
+	setActiveWindow();
+    }
+    update();
     show_children( this, 1 );
 }
 
@@ -899,73 +902,60 @@ void QWidget::stackUnder( QWidget*)
 
 void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 {
-    qDebug( QString( "QWidget::internalSetGeometry %5 %6 x=%1 y=%2 w=%3 h=%4" ).arg( x ).arg( y ).arg( w ).arg( h ).arg(name()) . arg(className()) );
-    if ( testWFlags(WType_Desktop) ) {
-	return;
+  if ( testWFlags(WType_Desktop) )
+    return;
+
+  if ( w < 1 )                                // invalid size
+    w = 1;
+  if ( h < 1 )
+    h = 1;
+  QPoint oldp = pos();
+  QSize  olds = size();
+  // Deal with size increment
+  if ( extra ) {
+    if ( extra->topextra ) {
+      if ( extra->topextra->incw ) {
+	w = w/extra->topextra->incw;
+	w = w*extra->topextra->incw;
+      }
+      if ( extra->topextra->inch ) {
+	h = h/extra->topextra->inch;
+	h = h*extra->topextra->inch;
+      }
+    }
+  }
+  QRect  r( x, y, w, h );
+  if ( r.size() == olds && oldp == r.topLeft() && (isTopLevel() == FALSE ) ) { 
+    return;
+  }
+
+  setCRect( r );
+
+  if ( isTopLevel() && isMove && winid )
+    MoveWindow((WindowPtr)winid,x,y,1);
+
+  bool isResize = olds != r.size();
+  if ( isTopLevel() && winid )
+    SizeWindow((WindowPtr)winid,w,h,1);
+
+  if ( isVisible() ) {
+    if ( isMove ) {
+      QMoveEvent e( r.topLeft(), oldp );
+      QApplication::sendEvent( this, &e );
+      QApplication::postEvent( this, new QPaintEvent(r, TRUE) );
+    }
+    if ( isResize ) {
+      QResizeEvent e( r.size(), olds );
+      QApplication::sendEvent( this, &e );
+      QApplication::postEvent( this, new QPaintEvent(r, !testWFlags(QWidget::WResizeNoErase)) );
     }
 
-    //width/height
-    if ( w < 1 )                                // invalid size
-        w = 1;
-    if ( h < 1 )
-        h = 1;
-    QPoint oldp = pos();
-    QSize  olds = size();
-    // Deal with size increment
-    if ( extra ) {
-	if ( extra->topextra ) {
-	    if ( extra->topextra->incw ) {
-		w = w/extra->topextra->incw;
-		w = w*extra->topextra->incw;
-	    }
-	    if ( extra->topextra->inch ) {
-		h = h/extra->topextra->inch;
-		h = h*extra->topextra->inch;
-	    }
-	}
-    }
-    QRect  r( x, y, w, h );
-    if ( r.size() == olds && oldp == r.topLeft() && (isTopLevel() == FALSE ) ) { 
-        return;
-    }
-
-    setCRect( r );
-
-    if ( !parentWidget() && isMove && winid )
-        MoveWindow((WindowPtr)winid,x,y,1);
-
-    bool isResize = olds != r.size();
-    if ( !parentWidget() && winid )
-        SizeWindow((WindowPtr)winid,w,h,1);
-
-    if ( isVisible() ) {
-        if ( isMove ) {
-            QMoveEvent e( r.topLeft(), oldp );
-            QApplication::sendEvent( this, &e );
-            repaint(TRUE);
-        }
-        if ( isResize ) {
-            QResizeEvent e( r.size(), olds );
-            QApplication::sendEvent( this, &e );
-            if ( !testWFlags( WResizeNoErase ) )
-                repaint( TRUE );
-        }
-    } else {
-        if ( isMove )
-            QApplication::postEvent( this,
-                                     new QMoveEvent( r.topLeft(), oldp ) );
-        if ( isResize )
-            QApplication::postEvent( this,
-                                     new QResizeEvent( r.size(), olds ) );
-    }
-
-    /* FIXME - this was erasing the window when I resized it to be smaller.
-    if(parentWidget()) {
-	redraw_children(parentWidget());
-    } else {
-        redraw_children(this);
-    }
-    */
+  } else {
+    if ( isMove )
+      QApplication::postEvent( this,new QMoveEvent( r.topLeft(), oldp ) );
+    if ( isResize )
+      QApplication::postEvent( this,new QResizeEvent( r.size(), olds ) );
+  }
 }
 
 /*!
@@ -1078,9 +1068,8 @@ void QWidget::setBaseSize( int, int )
 
 void QWidget::erase( int x, int y, int w, int h )
 {
-  qDebug( QString( "QWidget::erase %1 %2 %3 %4" ).arg( x ).arg( y ).arg( w ).arg( h ) );
+  qDebug( "QLCD  is to be erased %d %d %d %d %d", x, y, w, h, back_type);
   if ( back_type == 1 ) {
-    qDebug("it is a solid background: %s %s", name(), className());
     // solid background
     Rect r;
     RGBColor rc;
@@ -1113,7 +1102,6 @@ void QWidget::erase( int x, int y, int w, int h )
       p.end();
     }
   } else {
-    qDebug("foooooooo");
     // nothing
   }
 }
@@ -1343,16 +1331,19 @@ void QWidget::setName( const char * )
 //FIXME: untested
 void QWidget::propagateUpdates(int x, int y, int w, int h)
 {
-  qDebug( "QWidget::propagateUpdates %d %d %dx%d %s %s %d", x, y, w, h, name(), className(), isVisible());
+  qDebug( "QLCD propup %d %d %dx%d %s %s %d", x, y, w, h, name(), className(), isVisible());
 
   lockPort();
-  erase( 0, 0, w, h );
   QRect paintRect( 0, 0, w, h );
-  QRegion paintRegion( paintRect );
-  QPaintEvent e( paintRegion );
+
+  if(!testWFlags(WRepaintNoErase))
+    erase(0, 0, w, h);
+
   setWState( WState_InPaintEvent );
+  QPaintEvent e( paintRect );
   QApplication::sendEvent( this, &e );
   clearWState( WState_InPaintEvent );
+    
   unlockPort();
 
   QWidget *childWidget;
@@ -1372,29 +1363,43 @@ void QWidget::propagateUpdates(int x, int y, int w, int h)
 //FIXME: Basically in ensures that I widget doesn't draw over
 //FIXME: The top of child widgets
 //FIXME: Maybe we should use Qt/Embedded code for doing this.
+
+static QList<QPoint> lstack; //FIXME, this is just a test
+
 void QWidget::lockPort()
 {
     if ( !hd )
 	return;
+    SetPortWindowPort( (WindowPtr)hd );
 
+    //origin
     int x = 0;
     int y = 0;
-    qDebug("lockport: %s %s", name(), className());
-    qDebug("lockport: %d %d", x, y);
     for(QWidget *p = this; p && p->parentWidget(); p = p->parentWidget()) {
       x += p->x();
       y += p->y();
     }
-    qDebug("lockport: finally %d %d", x, y);
-    SetPortWindowPort( (WindowPtr)hd );
+    lstack.setAutoDelete(TRUE);
+    lstack.append(new QPoint(-x, -y));
+    //qDebug("QLCD lock.. setting origin to %d %d", -x, -y);
     SetOrigin( -x, -y );
     
-    return; //FIXME: NO CLIPPING
+    //FIXME: NO CLIPPING
 }
 
 void QWidget::unlockPort() 
 { 
-  SetOrigin(0, 0);
+  lstack.removeFirst();
+  if(lstack.count()) {
+    QPoint *p = lstack.getFirst();
+    //qDebug("QLCD unlock.. setting origin to %d %d", p->x(), p->y());
+    SetOrigin(p->x(), p->y());
+  } else {
+    //    qDebug("QLCD unlock.. (special) setting origin to 0 0");
+    SetOrigin(0,0);
+  }
+
+  //FIXME: UNCLIP
 } 
 
 BitMap
