@@ -21,6 +21,7 @@ if ( $#ARGV != 0 ) {
 open( P4, "$P4 describe -s $change |") || die "$0: Couldn't exec $P4: $!\n";
 @changeDescription = <P4>;
 close( P4 );
+pop @changeDescription;
 
 # This is pretty evil; essentially it picks out the "affected files" lines and
 # pushes the filename of each onto @branchFiles.
