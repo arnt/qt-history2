@@ -206,6 +206,7 @@ HelpMainWindow::HelpMainWindow()
     setUsesTextLabel( TRUE );
 
     navigation->setViewMode( HelpNavigation::Index );
+    viewer->setSource( docDir + "/index.html" );
 }
 
 void HelpMainWindow::slotFilePrint()
@@ -287,10 +288,12 @@ void HelpMainWindow::slotViewBookmarks()
 
 void HelpMainWindow::slotGoBack()
 {
+    viewer->backward();
 }
 
 void HelpMainWindow::slotGoForward()
 {
+    viewer->forward();
 }
 
 void HelpMainWindow::slotGoHome()
