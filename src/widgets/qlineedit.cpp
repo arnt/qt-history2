@@ -1061,12 +1061,11 @@ void QLineEdit::mouseMoveEvent( QMouseEvent *e )
     }
 #endif
 
-    if ( !(e->state() & LeftButton) )
-	return;
-
-    d->dragTimer.stop();
-    d->lastMovePos = e->pos();
-    dragSlot();
+    if ( d->mousePressed ) {
+	d->dragTimer.stop();
+	d->lastMovePos = e->pos();
+	dragSlot();
+    }
 }
 
 void QLineEdit::dragSlot()
