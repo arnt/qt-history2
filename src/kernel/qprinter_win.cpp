@@ -1060,6 +1060,7 @@ bool QPrinter::setup( QWidget *parent )
 
     bool result = FALSE;
 
+    qt_enter_modal( parent );
     QT_WA( {
         PRINTDLG pd;
         memset( &pd, 0, sizeof(PRINTDLG) );
@@ -1196,6 +1197,7 @@ bool QPrinter::setup( QWidget *parent )
                 readPdlgA( &pd );
         }
     } );
+    qt_leave_modal(parent);
     setPrinterMapping( hdc, res );
 
     return result;
