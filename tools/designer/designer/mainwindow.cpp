@@ -85,7 +85,9 @@
 #include <stdlib.h>
 #include "qcategorywidget.h"
 #include "widgetaction.h"
+#ifndef Q_OS_WIN32
 #include "assistproc.h"
+#endif
 #include "propertyobject.h"
 
 static bool mblockNewForms = FALSE;
@@ -244,7 +246,10 @@ MainWindow::MainWindow( bool asClient, bool single )
     setAppropriate( (QDockWindow*)actionEditor->parentWidget(), FALSE );
     actionEditor->parentWidget()->hide();
 
+#ifndef Q_OS_WIN32
     assistant = new AssistProc( this, "Internal Assistant", assistantPath() );
+#endif
+
     statusBar()->setSizeGripEnabled( TRUE );
     set_splash_status( "Initialization Done." );
     QTimer::singleShot( 0, this, SLOT( showStartDialog() ));
@@ -956,18 +961,34 @@ void MainWindow::helpContents()
 	source = QString( WidgetFactory::classNameOf( propertyEditor->widget() ) ).lower() + ".html#details";
     }
 
+#ifdef Q_OS_WIN32
+    if ( !source.isEmpty() ) {
+	QStringList lst;
+	lst << assistantPath() << QString( "d:" + source );
+	QProcess proc( lst );
+	proc.start();
+    }
+#else
     if ( !source.isEmpty() ) {
 	if ( assistant ) {
 	    QString path = QString( getenv( "QTDIR" )) + "/doc/html/";   
 	    assistant->sendRequest( path+source+'\n' );
 	}
     }
+#endif
 }
 
 void MainWindow::helpManual()
 {
+#ifdef Q_OS_WIN32
+    QStringList lst;
+    lst << assistantPath() << "d:designer-manual.html";
+    QProcess proc( lst );
+    proc.start();
+#else
     if ( assistant ) 
 	assistant->sendRequest( QString( getenv( "QTDIR" )) + "/doc/html/designer-manual.html\n" );
+#endif
 }
 
 void MainWindow::helpAbout()
@@ -2818,7 +2839,15 @@ void MainWindow::showDialogHelp()
 	return;
     }
 
-    if ( assistant ) assistant->sendRequest( link+'\n');
+#ifdef Q_OS_WIN32
+    QStringList lst;
+    lst << assistantPath() << (QString( "d:" ) + link);
+    QProcess proc( lst );
+    proc.start();
+#else
+    if ( assistant )
+	assistant->sendRequest( link+'\n');
+#endif
 }
 
 void MainWindow::setupActionManager()

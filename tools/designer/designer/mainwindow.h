@@ -67,7 +67,9 @@ class ReplaceDialog;
 class GotoLineDialog;
 class SourceFile;
 class FormFile;
+#ifndef Q_OS_WIN32
 class AssistProc;
+#endif
 
 #if defined(Q_FULL_TEMPLATE_INSTANTIATION)
 #include <qtoolbar.h>
@@ -467,7 +469,9 @@ private:
     QCategoryWidget *toolBox;
     int toolsMenuId, toolsMenuIndex;
     bool guiStuffVisible;
+#ifndef Q_OS_WIN32
     AssistProc *assistant;
+#endif
 
 public:
     QString lastSaveFilter;
