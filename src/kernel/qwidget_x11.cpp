@@ -144,7 +144,6 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     if ( testWState(WState_Created) && window == 0 )
 	return;
     setWState( WState_Created );			// set created flag
-    setX11Data( 0 );
 
     if ( !parentWidget() )
 	setWFlags( WType_TopLevel );		// top-level widget
@@ -365,14 +364,14 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	    clearWState( WState_Visible );
 	else
 	    setWState( WState_Visible );
-	if ( a.depth != x11AppDepth() )	{	// multi-depth system
-	    // #Handling of various X11 factors can be added here
-	    QPaintDeviceX11Data* xd = getX11Data( TRUE );
-	    xd->x_depth = a.depth;
-	    //### also set visual!
-	    setX11Data( xd );
-	    delete xd;
-	}
+	QPaintDeviceX11Data* xd = getX11Data( TRUE );
+	xd->x_depth = a.depth;
+	xd->x_visual = a.visual;
+	xd->x_defvisual = ( XVisualIDFromVisual( a.visual ) ==
+			    XVisualIDFromVisual( (Visual*)x11AppVisual() ) );
+	xd->x_colormap = a.colormap;
+	setX11Data( xd );
+	delete xd;
     }
 
     if ( topLevel ) {
