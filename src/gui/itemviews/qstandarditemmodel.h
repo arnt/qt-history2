@@ -45,6 +45,7 @@ public:
 
 private:
     Q_DECLARE_PRIVATE(QStandardItemModel)
+    Q_DISABLE_COPY(QStandardItemModel)
 };
 
 #endif //QSTANDARDITEMMODEL_H

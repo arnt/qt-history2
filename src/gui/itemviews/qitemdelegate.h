@@ -73,6 +73,7 @@ protected:
 
 private:
     Q_DECLARE_PRIVATE(QItemDelegate)
+    Q_DISABLE_COPY(QItemDelegate)
 };
 
 #endif

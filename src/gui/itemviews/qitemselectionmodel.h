@@ -125,6 +125,9 @@ protected:
     QItemSelectionModel(QItemSelectionModelPrivate &dd,
                         const QAbstractItemModel *model, QObject *parent = 0);
     void emitSelectionChanged(const QItemSelection &newSelection, const QItemSelection &oldSelection);
+
+private:
+    Q_DISABLE_COPY(QItemSelectionModel)
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QItemSelectionModel::SelectionFlags);

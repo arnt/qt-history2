@@ -64,7 +64,7 @@ public:
     bool hasChildren(const QModelIndex &index) const;
     QAbstractItemModel::ItemFlags flags(const QModelIndex &index) const;
     bool isEditable(const QModelIndex &index) const; // specific for this model
-    
+
     bool isSortable() const;
     void sort(int column, const QModelIndex &parent, Qt::SortOrder order);
 
@@ -110,6 +110,7 @@ protected:
 
 private:
     Q_DECLARE_PRIVATE(QDirModel)
+    Q_DISABLE_COPY(QDirModel)
 };
 
 #endif //QDIRMODEL_H

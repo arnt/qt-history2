@@ -250,6 +250,7 @@ protected:
 
 private:
     Q_DECLARE_PRIVATE(QAbstractItemModel)
+    Q_DISABLE_COPY(QAbstractItemModel)
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QAbstractItemModel::MatchFlags);
@@ -297,6 +298,7 @@ protected:
     QAbstractTableModel(QAbstractItemModelPrivate &dd, QObject *parent);
 
 private:
+    Q_DISABLE_COPY(QAbstractTableModel)
     QModelIndex parent(const QModelIndex &child) const;
 
     int rowCount(const QModelIndex &parent) const;
@@ -320,6 +322,7 @@ protected:
     QAbstractListModel(QAbstractItemModelPrivate &dd, QObject *parent);
 
 private:
+    Q_DISABLE_COPY(QAbstractListModel)
     QModelIndex parent(const QModelIndex &child) const;
 
     int rowCount(const QModelIndex &parent) const;

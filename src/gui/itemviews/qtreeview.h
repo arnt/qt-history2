@@ -118,6 +118,7 @@ protected:
 
 private:
     Q_DECLARE_PRIVATE(QTreeView)
+    Q_DISABLE_COPY(QTreeView)
 };
 
 #endif

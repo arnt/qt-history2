@@ -212,6 +212,7 @@ protected:
 
 private:
     Q_DECLARE_PRIVATE(QTableWidget)
+    Q_DISABLE_COPY(QTableWidget)
     Q_PRIVATE_SLOT(d, void emitPressed(const QModelIndex &index, Qt::MouseButton button, Qt::KeyboardModifiers modifiers))
     Q_PRIVATE_SLOT(d, void emitClicked(const QModelIndex &index, Qt::MouseButton button, Qt::KeyboardModifiers modifiers))
     Q_PRIVATE_SLOT(d, void emitDoubleClicked(const QModelIndex &index, Qt::MouseButton button, Qt::KeyboardModifiers modifiers))

@@ -149,6 +149,7 @@ protected:
 
 private:
     Q_DECLARE_PRIVATE(QHeaderView)
+    Q_DISABLE_COPY(QHeaderView)
 };
 
 #endif

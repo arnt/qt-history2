@@ -202,6 +202,7 @@ protected:
 
 private:
     Q_DECLARE_PRIVATE(QTreeWidget)
+    Q_DISABLE_COPY(QTreeWidget)
     Q_PRIVATE_SLOT(d, void emitPressed(const QModelIndex &index, Qt::MouseButton button, Qt::KeyboardModifiers modifiers))
     Q_PRIVATE_SLOT(d, void emitClicked(const QModelIndex &index, Qt::MouseButton button, Qt::KeyboardModifiers modifiers))
     Q_PRIVATE_SLOT(d, void emitDoubleClicked(const QModelIndex &index, Qt::MouseButton button, Qt::KeyboardModifiers modifiers))

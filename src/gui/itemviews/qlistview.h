@@ -129,6 +129,7 @@ protected:
 
 private:
     Q_DECLARE_PRIVATE(QListView)
+    Q_DISABLE_COPY(QListView)
 };
 
 #endif

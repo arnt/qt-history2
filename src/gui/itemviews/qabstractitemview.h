@@ -229,6 +229,7 @@ protected:
 
 private:
     Q_DECLARE_PRIVATE(QAbstractItemView)
+    Q_DISABLE_COPY(QAbstractItemView)
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QAbstractItemView::EditTriggers);

@@ -129,6 +129,7 @@ protected:
 
 private:
     Q_DECLARE_PRIVATE(QHeaderWidget)
+    Q_DISABLE_COPY(QHeaderWidget)
     Q_PRIVATE_SLOT(d, void emitClicked(int section, Qt::MouseButton button, Qt::KeyboardModifiers modifiers))
     Q_PRIVATE_SLOT(d, void emitItemChanged(Qt::Orientation orientation, int first, int last))
 };

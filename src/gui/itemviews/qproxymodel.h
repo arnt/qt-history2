@@ -76,6 +76,7 @@ protected:
 
 private:
     Q_DECLARE_PRIVATE(QProxyModel)
+    Q_DISABLE_COPY(QProxyModel)
 };
 
 #endif

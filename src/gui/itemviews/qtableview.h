@@ -106,6 +106,7 @@ protected:
 
 private:
     Q_DECLARE_PRIVATE(QTableView)
+    Q_DISABLE_COPY(QTableView)
 };
 
 #endif
