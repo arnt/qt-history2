@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#28 $
+** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#29 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -10,7 +10,7 @@
 **
 *****************************************************************************/
 
-#define  INCLUDE_MENUITEM_DEF
+#define	 INCLUDE_MENUITEM_DEF
 #include "qpopmenu.h"
 #include "qmenubar.h"
 #include "qaccel.h"
@@ -19,7 +19,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#28 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#29 $";
 #endif
 
 
@@ -73,21 +73,34 @@ static const motifTabSpacing	= 12;		// space between text and tab
 +-----------------------------
 |      PopupFrame
 |   +-------------------------
-|   |      ItemFrame
-|   |   +---------------------
-|   |   |
-|   |   |			   \
-|   |   |   ^   T E X T	  ^	    | ItemVMargin
-|   |   |   |		  |	   /
+|   |	   ItemFrame
+|   |	+---------------------
+|   |	|
+|   |	|			   \
+|   |	|   ^	T E X T	  ^	    | ItemVMargin
+|   |	|   |		  |	   /
 |   |	      ItemHMargin
 |
 
 */
 
 
+/*!
+\class QPopupMenu qpopmenu.h
+\brief The QPopupMenu class provides a popup menu widget.
+
+This popup widget is different from other widgets in the way it relates to
+the parent widget.
+*/
+
+
 // ---------------------------------------------------------------------------
 // QPopupMenu member functions
 //
+
+/*!
+Constructs a popup menu with a parent and a widget name.
+*/
 
 QPopupMenu::QPopupMenu( QWidget *parent, const char *name )
 	: QTableWidget( 0, name, WType_Popup )
@@ -98,12 +111,16 @@ QPopupMenu::QPopupMenu( QWidget *parent, const char *name )
     setNumRows( 0 );				// set number of table rows
     clearTableFlags( Tbl_clipCellPainting );	// don't clip when painting tbl
     setMargins( motifPopupFrame, motifPopupFrame,
-                motifPopupFrame, motifPopupFrame ); // reserve space for frame
-    autoaccel     = 0;
+		motifPopupFrame, motifPopupFrame ); // reserve space for frame
+    autoaccel	  = 0;
     accelDisabled = FALSE;
-    popupActive   = -1;
-    tabMark       = 0;
+    popupActive	  = -1;
+    tabMark	  = 0;
 }
+
+/*!
+Destroys the popup menu.
+*/
 
 QPopupMenu::~QPopupMenu()
 {
@@ -121,7 +138,7 @@ void QPopupMenu::updateItem( int id )		// update popup menu item
 void QPopupMenu::menuContentsChanged()
 {
     badSize = TRUE;				// might change the size
-    updateAccel( 0 );      // Yuck ###
+    updateAccel( 0 );
     if ( isVisible() ) {
 	updateSize();
 	repaint();
@@ -152,8 +169,13 @@ void QPopupMenu::menuDelPopup( QPopupMenu *popup )
 }
 
 
+/*!
+Opens the popup menu so that the item number \e indexAtPoint
+will be at the specified global position \e pos.
+*/
+
 void QPopupMenu::popup( const QPoint &pos, int indexAtPoint )
-{						      // open popup menu at pos
+{
     if ( mitems->count() == 0 )			// oops, empty
 	insertSeparator();			// Save Our Souls
     if ( badSize )
@@ -163,8 +185,8 @@ void QPopupMenu::popup( const QPoint &pos, int indexAtPoint )
     int sh = desktop->height();			// screen height
     int x  = pos.x();
     int y  = pos.y();
-    if ( indexAtPoint > 0 )                     // don't subtract when < 0
-        y -= itemPos( indexAtPoint );           // (would subtract 2 pixels!)
+    if ( indexAtPoint > 0 )			// don't subtract when < 0
+	y -= itemPos( indexAtPoint );		// (would subtract 2 pixels!)
     int w  = width();
     int h  = height();
     if ( x+w > sw )				// the complete widget must
@@ -296,16 +318,16 @@ int QPopupMenu::itemAtPos( const QPoint &pos )	// get item at pos (x,y)
 int QPopupMenu::itemPos( int index )		// get y coord for item
 {
     int y;
-    if ( rowYPos( index, &y ) )		        // ask table for position
-        return y;
+    if ( rowYPos( index, &y ) )			// ask table for position
+	return y;
     else
-        return 0;				// return 0 if not visible 
+	return 0;				// return 0 if not visible 
 }
 
 
 void QPopupMenu::updateSize()			// update popup size params
 {
-    int height    = 0;
+    int height	  = 0;
     int max_width = 10;
     QFontMetrics fm = fontMetrics();
     QMenuItemListIt it( *mitems );
@@ -468,14 +490,20 @@ static QString key_str( long k )		// get key string
     return s;
 }
 
+
+//
+// TODO: Update accelerator when a key has been changed.
+//	 Maybe we should have createAccel and updateAccel???
+//
+
 void QPopupMenu::updateAccel( QWidget *parent )	// update accelerator
 {
     QMenuItemListIt it(*mitems);
     register QMenuItem *mi;
     if ( !parent && !autoaccel )
-        return;
-//    if ( autoaccel )              yuck todo ###
-//	autoaccel->clear();
+	return;
+    if ( autoaccel )
+	autoaccel->clear();
     while ( (mi=it.current()) ) {
 	++it;
 	if ( mi->key() ) {
@@ -570,7 +598,7 @@ int QPopupMenu::cellHeight( long row )
     else if ( mi->pixmap() )			// pixmap height
 	h = mi->pixmap()->height() + 2*motifItemFrame;
     else {					// text height
-        QFontMetrics fm = fontMetrics();
+	QFontMetrics fm = fontMetrics();
 	h = fm.height() + 2*motifItemVMargin + 2*motifItemFrame;
     }
     return h;
@@ -586,15 +614,14 @@ void QPopupMenu::paintCell( QPainter *p, long row, long col )
 {
     QColorGroup g = colorGroup();
     QMenuItem *mi = mitems->at( row );		// get menu item
-    int cellh 	  = cellHeight( row );
-    int cellw 	  = cellWidth( col );
-    int gs 	  = style();
+    int cellh	  = cellHeight( row );
+    int cellw	  = cellWidth( col );
+    int gs	  = style();
 
     if ( mi->isSeparator() ) {			// draw separator
-	QPen pen( g.dark() );	
-	p->setPen( pen );
+	p->setPen( g.dark() );
 	p->drawLine( 0, 0, cellw, 0 );
-	pen.setColor( g.light() );
+	p->pen().setColor( g.light() );
 	p->drawLine( 0, 1, cellw, 1 );
 	return;
     }
@@ -658,7 +685,7 @@ void QPopupMenu::paintCell( QPainter *p, long row, long col )
 
 void QPopupMenu::paintEvent( QPaintEvent *e )	// paint popup menu
 {
-    QPainter    paint;
+    QPainter	paint;
     QColorGroup g = colorGroup();
     QRect	r = rect();
     paint.begin( this );			// draw the popup frame
@@ -670,8 +697,8 @@ void QPopupMenu::paintEvent( QPaintEvent *e )	// paint popup menu
 	case MotifStyle:
 	    paint.drawShadePanel( r, g.light(), g.dark(), motifPopupFrame );
 	    break;
-        default:
-            break;
+	default:
+	    break;
     }
     paint.end();
     QTableWidget::paintEvent( e );		// will draw the menu items
@@ -745,7 +772,7 @@ void QPopupMenu::mouseReleaseEvent( QMouseEvent *e )
 
 void QPopupMenu::mouseMoveEvent( QMouseEvent *e )
 {
-    int  item = itemAtPos( e->pos() );
+    int	 item = itemAtPos( e->pos() );
     if ( item == -1 ) {				// no valid item
 	if ( popupActive == -1 ) {		// no active popup sub menu
 	    int lastActItem = actItem;
