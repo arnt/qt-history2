@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#31 $
+** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#32 $
 **
 ** Implementation of QTabDialog class
 **
@@ -15,7 +15,7 @@
 #include "qpainter.h"
 #include "qpixmap.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#31 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#32 $");
 
 
 /*!
@@ -378,6 +378,23 @@ void QTabDialog::addTab( QWidget * child, const char * label )
 }
 
 
+/*!  Ensures that \a w is shown.  This is useful mainly for accelerators.
+
+  If you use this function, take care not to surprise or confuse the
+  user.
+
+  \sa QTabBar::setCurrentTab()
+*/
+
+void QTabDialog::showPage( QWidget * w )
+{
+    int i;
+    for( i=0; i<(int)d->children.size(); i++ )
+	if ( d->children[i] == w )
+	    d->tabs->setCurrentTab( i );
+}
+
+
 /*!
   Returns TRUE if the page with object name \a name is enabled, and
   false if it is disabled.
@@ -694,3 +711,20 @@ void QTabDialog::setOKButton( const char * text )
     setSizes();
     d->ok->show();
 }
+
+
+/*!  Returns the text in the tab for page \a w.
+*/
+
+const char * QTabDialog::tabLabel( QWidget * w )
+{
+    int i;
+    for( i=0; i<(int)d->children.size(); i++ ) {
+	if ( d->children[i] == w ) {
+	    QTab * t = d->tabs->tab(i);
+	    if ( t )
+		return t->label;
+	}
+    }
+    return 0;
+}	    
