@@ -53,7 +53,7 @@ void Table::initTable()
     QString srcdir( "../../../src/" );
     while ( dirs[ i ] ) {
 	QDir dir( srcdir + dirs[ i ] );
-	QStringList lst = dir.entryList( "*.cpp; *.h" );
+	QStringList lst = dir.entryList( QString::fromLatin1("*.cpp; *.h") );
 	for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it ) {
 	    if ( ( *it ).contains( "moc" ) )
 		continue;
