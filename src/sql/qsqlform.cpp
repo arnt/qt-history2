@@ -314,7 +314,7 @@ QSqlForm::QSqlForm( QWidget * parent, const char * name )
   automatically creates a form, spread across \a columns
   number of columns.
 */
-QSqlForm::QSqlForm( QSqlView * view, uint columns = 1, QWidget * parent,
+QSqlForm::QSqlForm( QSqlView * view, uint columns, QWidget * parent,
 		    const char * name )
     : QWidget( parent, name ),
       readOnly( FALSE ),
