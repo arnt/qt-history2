@@ -235,7 +235,7 @@ void QLabel::init()
   The text will be interpreted either as a plain text or as a rich text,
   depending on the text format setting; see setTextFormat(). The default
   setting is \c AutoText, i.e., QLabel will try to auto-detect the format
-  of \a text.
+  of the text set.
 
   If the text is interpreted as a plain text and a buddy has been set, the
   buddy accelerator key is updated from the new text.

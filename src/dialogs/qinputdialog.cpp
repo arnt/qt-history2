@@ -63,7 +63,7 @@ public:
 
 /*!
   \class QInputDialog qinputdialog.h
-  \brief The QInputDialog class provides a simple convenience dialog to get a single value from the user
+  \brief The QInputDialog class provides a simple convenience dialog to get a single value from the user.
   \ingroup dialogs
 
   The QInputDialog is a simple dialog which can be used if you need to

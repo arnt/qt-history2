@@ -252,7 +252,7 @@ static const char * const qtlogo_xpm[] = {
 // BEING REVISED: paul
 /*!
 \class QMessageBox qmessagebox.h
-\brief Displays a brief message, an icon, and some buttons.
+\brief The QMessageBox class provides a simple convenience dialog with a brief message, an icon, and some buttons.
 \ingroup dialogs
 
 A message box is a modal dialog that displays an icon, a text and up to
@@ -781,7 +781,7 @@ void QMessageBox::resizeButtons()
   The property value will be interpreted either as a plain text or as a rich
   text, depending on the text format setting (\l textFormat). The
   default setting is \c AutoText, i.e., the message box will try to
-  auto-detect the format of \a text.
+  auto-detect the format of the text.
 
   The initial value of the property is QString::null.
 

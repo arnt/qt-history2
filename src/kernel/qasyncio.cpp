@@ -44,7 +44,7 @@
 /*!
   \class QAsyncIO qasyncio.h
   \obsolete
-  \brief Encapsulates I/O asynchronicity.
+  \brief The QAsyncIO class encapsulates I/O asynchronicity.
 
   The Qt classes for asynchronous input/output provide a simple
   mechanism to allow large files or slow data sources to be processed
@@ -292,7 +292,7 @@ void QIODeviceSource::rewind()
 /*!
   \class QDataPump qasyncio.h
   \obsolete
-  \brief Moves data from a QDataSource to a QDataSink during event processing.
+  \brief The QDataPump class moves data from a QDataSource to a QDataSink during event processing.
 
   For a QDataSource to provide data to a QDataSink, a controller must exist
   to examine the QDataSource::readyToSend() and QDataSink::readyToReceive()

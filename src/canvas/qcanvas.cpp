@@ -3795,7 +3795,7 @@ QPointArray QCanvasLine::areaPoints() const
 
 /*!
   \class QCanvasRectangle qcanvas.h
-  \brief The QCanvasRectangle class provides a movable rectangle in a canvas
+  \brief The QCanvasRectangle class provides a movable rectangle in a canvas.
   \module canvas
 
   This item paints a single rectangle which may have any pen() and

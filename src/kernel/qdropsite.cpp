@@ -43,7 +43,7 @@
 // NOT REVISED
 /*!
   \class QDropSite qdropsite.h
-  \brief Provides nothing and does nothing.
+  \brief The QDropSite class provides nothing and does nothing.
 
   This class exists only so that old code will not break.  It does
   nothing.  If your code uses it, you can safely delete it.

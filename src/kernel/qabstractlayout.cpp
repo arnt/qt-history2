@@ -44,7 +44,7 @@
 // NOT REVISED
 /*!
   \class QLayoutItem qabstractlayout.h
-  \brief The abstract items that a QLayout manipulates.
+  \brief The QLayoutItem class provides an abstract item that a QLayout manipulates.
 
   For custom layouts.
 
@@ -53,7 +53,7 @@
 
 /*!
   \class QSpacerItem qabstractlayout.h
-  \brief The QLayoutItem class that represents blank space.
+  \brief The QSpacerItem class provides a blank space in a layout.
 
   For custom layouts.
 
@@ -62,7 +62,7 @@
 
 /*!
   \class QWidgetItem qabstractlayout.h
-  \brief A QLayoutItem that represents widget.
+  \brief The QWidgetItem class is a layout item that represents a widget.
 
   For custom layouts.
 
@@ -1333,7 +1333,7 @@ bool QLayout::activate()
 
 /*!
   \class QSizePolicy qsizepolicy.h
-  \brief A layout attribute describing horizontal and vertical resizing.
+  \brief The QSizePolicy class is a layout attribute describing horizontal and vertical resizing.
 
   The size policy of a widget is an expression of its willingness to
   be resized in various ways.
@@ -1503,7 +1503,7 @@ Sets the hasHeightForWidth() flag to \a b.
 
 /*!
   \class QGLayoutIterator qabstractlayout.h
-  \brief The abstract base class of internal layout iterators.
+  \brief The QGLayoutIterator class is an abstract base class of internal layout iterators.
 
   To be subclassed by custom layout implementors. The functions that
   need to be implemented are next(), current(), and takeCurrent().

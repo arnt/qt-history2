@@ -494,14 +494,6 @@ int QDockAreaLayout::widthForHeight( int h ) const
   Returns the handlePosition of the dock area.
  */
 
-/*! \fn void QDockArea::rightButtonPressed( const QPoint &globalPos )
-
-  This signal is emitted if the user pressed the right mouse
-  button within the area. This can be used to invoke right mouse button
-  menus. \a globalPos is the global position of the mouse when the
-  event occurred.
- */
-
 /*!
   \enum QDockArea::HandlePosition
 

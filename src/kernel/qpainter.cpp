@@ -2119,17 +2119,14 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 */
 
 /*!
-  \overload void QPainter::drawText( const QPoint &p, const QString&, int len )
+  \overload QPainter::drawText( int x, int y, const QString &, int len = -1, TextDirection dir = Auto )
 */
 
 /*!
-  \overload void QPainter::drawText( const QRect &r, int tf, const QString&, int len, QRect *br, char **i )
+  \overload void QPainter::drawText( int x, int y, int w, int h, int flags,
+			  const QString&, int len = -1, QRect *br=0,
+			  QTextParag **intern=0 )
 */
-
-/*!
-  \overload QRect QPainter::boundingRect( const QRect &r, int tf, const QString&, int len, char **i )
-*/
-
 
 static inline void fix_neg_rect( int *x, int *y, int *w, int *h )
 {

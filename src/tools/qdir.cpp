@@ -51,8 +51,7 @@
 // NOT REVISED
 /*!
   \class QDir qdir.h
-  \brief Traverses directory structures and contents in a
-	    platform-independent way.
+  \brief The QDir class traverses directory structures and contents in a platform-independent way.
 
   \ingroup io
 
