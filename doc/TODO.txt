@@ -304,6 +304,10 @@ QApplication
 QString
   Have a constructor that takes a char
 
+QListViewItem::setColor()
+  Be able to set the color of the listviewitem(such as the text etc), though
+  I think making everyone reimplement paintCell() is better.
+
 New functionality
 -----------------
 
