@@ -36,9 +36,9 @@ class Q_GUI_EXPORT QTextEdit : public QViewport
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QTextEdit)
-    Q_FLAGS(AutoFormattingFlag)
+    Q_FLAGS(AutoFormatting)
     Q_ENUMS(WordWrap)
-    Q_PROPERTY(AutoFormattingFlag autoFormatting READ autoFormatting WRITE setAutoFormatting)
+    Q_PROPERTY(AutoFormatting autoFormatting READ autoFormatting WRITE setAutoFormatting)
     Q_PROPERTY(bool tabChangesFocus READ tabChangesFocus WRITE setTabChangesFocus)
     Q_PROPERTY(QString documentTitle READ documentTitle)
     Q_PROPERTY(bool undoRedoEnabled READ isUndoRedoEnabled WRITE setUndoRedoEnabled)

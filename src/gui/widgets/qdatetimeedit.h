@@ -22,7 +22,8 @@ class Q_GUI_EXPORT QDateTimeEdit : public QAbstractSpinBox
 {
     Q_OBJECT
 
-    Q_ENUMS(Sections)
+    Q_ENUMS(Section)
+    Q_FLAGS(Sections)
     Q_PROPERTY(QDateTime dateTime READ dateTime WRITE setDateTime)
     Q_PROPERTY(QDate date READ date WRITE setDate)
     Q_PROPERTY(QTime time READ time WRITE setTime)

@@ -27,7 +27,7 @@ class Q_GUI_EXPORT QDockWindow : public QFrame
     Q_DECLARE_PRIVATE(QDockWindow)
     Q_OBJECT
 
-    Q_FLAGS(DockWindowFeature)
+    Q_FLAGS(DockWindowFeatures)
     Q_PROPERTY(DockWindowFeatures features READ features WRITE setFeatures)
     Q_PROPERTY(Qt::DockWindowAreas allowedAreas READ allowedAreas WRITE setAllowedAreas)
     Q_PROPERTY(Qt::DockWindowArea area READ area WRITE setArea)
