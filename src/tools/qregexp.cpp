@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qregexp.cpp#71 $
+** $Id: //depot/qt/main/src/tools/qregexp.cpp#72 $
 **
 ** Implementation of QRegExp class
 **
@@ -306,73 +306,6 @@ void QRegExp::setCaseSensitive( bool enable )
 */
 
 
-/*!
-  Attempts to match in \e str, starting from position \e index.
-  Returns the position of the match, or -1 if there was no match.
-
-  If \e len is not a null pointer, the length of the match is stored in
-  \e *len.
-
-  If \e indexIsStart is TRUE (the default), the position \e index in
-  the string will match the start-of-input primitive (^) in the
-  regexp, if present. Otherwise, position 0 in \e str will match.
-
-  Example:
-  \code
-    QRegExp r("[0-9]*\\.[0-9]+");		// matches floating point
-    int len;
-    r.match("pi = 3.1416", 0, &len);		// returns 5, len == 6
-  \endcode
-*/
-
-int QRegExp::match( const QString &str, int index, int *len,
-		    bool indexIsStart ) const
-{
-    if ( !isValid() || isEmpty() )
-	return -1;
-    if ( str.length() < (uint)index )
-	return -1;
-    const QChar *start = str.unicode();
-    const QChar *p = start + index;
-    uint pl = str.length() - index;
-    uint *d  = rxdata;
-    const QChar *ep = 0;
-
-    if ( *d == BOL ) {				// match from beginning of line
-	ep = matchstr( d, p, pl, indexIsStart ? p : start );
-    } else {
-	if ( *d & CHR ) {
-	    QChar c( *d );
-	    if ( !cs && !c.row() ) {		// case sensitive, # only 8bit
-		while ( pl && ( p->row() || tolower(p->cell()) != c.cell() ) ) {
-		    p++;
-		    pl--;
-		}
-	    } else {				// case insensitive
-		while ( pl && *p != c ) {
-		    p++;
-		    pl--;
-		}
-	    }
-	}
-	while ( pl ) {				// regular match
-	    if ( (ep=matchstr(d,p,pl, indexIsStart ? start+index : start )) )
-		break;
-	    p++;
-	    pl--;
-	}
-    }
-    if ( ep ) {					// match
-	if ( len )
-	    *len = ep - p;
-	return (int)(p - start);		// return index
-    } else {					// no match
-	if ( len )
-	    *len = 0;
-	return -1;
-    }
-}
-
 static inline bool iswordchar( int x )
 {
     return isalnum(x) || x == '_';	//# Only 8-bit support
@@ -384,7 +317,7 @@ static inline bool iswordchar( int x )
   Match character class
 */
 
-bool matchcharclass( uint *rxd, QChar c )
+static bool matchcharclass( uint *rxd, QChar c )
 {
     uint *d = rxd;
     uint clcode = *d & MCD;
@@ -422,10 +355,18 @@ bool matchcharclass( uint *rxd, QChar c )
   Recursively match string.
 */
 
-const QChar *QRegExp::matchstr( uint *rxd, const QChar *str, uint strlength,
-				const QChar *bol ) const
+
+
+/*!
+  \internal
+  Recursively match string.
+*/
+
+static int matchstring( uint *rxd, const QChar *str, uint strlength,
+			const QChar *bol, bool cs )
 {
     const QChar *p = str;
+    const QChar *start = p;
     uint pl = strlength;
     uint *d = rxd;
 
@@ -433,16 +374,16 @@ const QChar *QRegExp::matchstr( uint *rxd, const QChar *str, uint strlength,
     while ( *d ) {
 	if ( *d & CHR ) {			// match char
 	    if ( !pl )
-		return 0;
+		return -1;
 	    QChar c( *d );
 	    if ( !cs && !c.row() ) {		// case insensitive, #Only 8bit
 		if ( p->row() || tolower(p->cell()) != c.cell() )
-		    return 0;
+		    return -1;
 		p++;
 		pl--;
 	    } else {				// case insensitive
 		if ( *p != c )
-		    return 0;
+		    return -1;
 		p++;
 		pl--;
 	    }
@@ -450,9 +391,9 @@ const QChar *QRegExp::matchstr( uint *rxd, const QChar *str, uint strlength,
 	}
 	else if ( *d & MCC ) {			// match char class
 	    if ( !pl )
-		return 0;
+		return -1;
 	    if ( !matchcharclass( d, *p ) )
-		return 0;
+		return -1;
 	    p++;
 	    pl--;
 	    d += (*d & MVL) + 1;
@@ -460,37 +401,37 @@ const QChar *QRegExp::matchstr( uint *rxd, const QChar *str, uint strlength,
 	else switch ( *d++ ) {
 	    case PWS:				// match whitespace
 		if ( !pl || !p->isSpace() )
-		    return 0;
+		    return -1;
 		p++;
 		pl--;
 		break;
 	    case PDG:				// match digits
 		if ( !pl || !p->isDigit() )
-		    return 0;
+		    return -1;
 		p++;
 		pl--;
 		break;
 	    case ANY:				// match anything
 		if ( !pl )
-		    return 0;
+		    return -1;
 		p++;
 		pl--;
 		break;
 	    case BOL:				// match beginning of line
 		if ( p != bol )
-		    return 0;
+		    return -1;
 		break;
 	    case EOL:				// match end of line
 		if ( pl )
-		    return 0;
+		    return -1;
 		break;
 	    case BOW:				// match beginning of word
 		if ( !iswordchar(*p) || (p > bol && iswordchar(*(p-1)) ) )
-		    return 0;
+		    return -1;
 		break;
 	    case EOW:				// match end of word
 		if ( iswordchar(*p) || p == bol || !iswordchar(*(p-1)) )
-		    return 0;
+		    return -1;
 		break;
 	    case CLO:				// Kleene closure
 		{
@@ -538,18 +479,20 @@ const QChar *QRegExp::matchstr( uint *rxd, const QChar *str, uint strlength,
 		    d++;
 		}
 		else {
-		    return 0;			// error
+		    return -1;			// error
 		}
 		d++;				// skip CLO's END
-		const QChar *end;
 		while ( p >= first_p ) {	// go backwards
-		    if ( (end = matchstr(d,p,pl,bol)) )
-			return end;
+		    int end = matchstring( d, p, pl, bol, cs );
+		    if ( end >= 0 )
+			return ( p - start ) + end;
+		    if ( !p )
+			return -1;
 		    --p;
 		    ++pl;
 		}
 		}
-		return 0;
+		return -1;
 	    case OPT:				// optional closure
 		{
 		const QChar *first_p = p;
@@ -598,24 +541,105 @@ const QChar *QRegExp::matchstr( uint *rxd, const QChar *str, uint strlength,
 		    d++;
 		}
 		else {
-		    return 0;			// error
+		    return -1;			// error
 		}
 		d++;				// skip OPT's END
-		const QChar *end;
 		while ( p >= first_p ) {	// go backwards
-		    if ( (end = matchstr(d,p,pl,bol)) )
-			return end;
+		    int end = matchstring( d, p, pl, bol, cs );
+		    if ( end >= 0 )
+			return ( p - start ) + end;
+		    if ( !p )
+			return -1;
 		    --p;
 		    ++pl;
 		}
 		}
-		return 0;
+		return -1;
 
 	    default:				// error
-		return 0;
+		return -1;
 	}
     }
-    return p;
+    return p - start;
+}
+
+
+// This is obsolete now, but since it is protected (not private), it
+// is still implemented on the off-chance that somebody has made a
+// class derived from QRegExp and calls this directly.
+// Qt 3.0: Remove this?
+
+const QChar *QRegExp::matchstr( uint *rxd, const QChar *str, uint strlength,
+				const QChar *bol ) const
+{
+    int len = matchstring( rxd, str, strlength, bol, cs );
+    if ( len < 0 )
+	return 0;
+    return str + len;
+}
+
+/*!
+  Attempts to match in \e str, starting from position \e index.
+  Returns the position of the match, or -1 if there was no match.
+
+  If \e len is not a null pointer, the length of the match is stored in
+  \e *len.
+
+  If \e indexIsStart is TRUE (the default), the position \e index in
+  the string will match the start-of-input primitive (^) in the
+  regexp, if present. Otherwise, position 0 in \e str will match.
+
+  Example:
+  \code
+    QRegExp r("[0-9]*\\.[0-9]+");		// matches floating point
+    int len;
+    r.match("pi = 3.1416", 0, &len);		// returns 5, len == 6
+  \endcode
+*/
+
+int QRegExp::match( const QString &str, int index, int *len,
+		    bool indexIsStart ) const
+{
+    if ( !isValid() || isEmpty() )
+	return -1;
+    if ( str.length() < (uint)index )
+	return -1;
+    const QChar *start = str.unicode();
+    const QChar *p = start + index;
+    uint pl = str.length() - index;
+    uint *d  = rxdata;
+    int ep = -1;
+
+    if ( *d == BOL ) {				// match from beginning of line
+	ep = matchstring( d, p, pl, indexIsStart ? p : start, cs );
+    } else {
+	if ( *d & CHR ) {
+	    QChar c( *d );
+	    if ( !cs && !c.row() ) {		// case sensitive, # only 8bit
+		while ( pl && ( p->row() || tolower(p->cell()) != c.cell() ) ) {
+		    p++;
+		    pl--;
+		}
+	    } else {				// case insensitive
+		while ( pl && *p != c ) {
+		    p++;
+		    pl--;
+		}
+	    }
+	}
+	while( 1 ) {				// regular match
+	    ep = matchstring( d, p, pl, indexIsStart ? start+index : start, cs );
+	    if ( ep >= 0 )
+		break;
+	    if ( !pl )
+		break;
+	    p++;
+	    pl--;
+	}
+    }
+    if ( len )
+	*len = ep >= 0 ? ep : 0;      // No match -> 0, for historical reasons
+    return ep >= 0 ? (int)(p - start) : -1;		// return index;
 }
 
 

@@ -35,10 +35,26 @@ int res = 0;
 #else
 #endif
 
-
-main()
+void spectest()
 {
+    QRegExp wc("*", TRUE, TRUE);
+    TEST( wc.isValid(), TRUE );
+    //TEST( wc.match(s), FALSE );
+    TEST( wc.match(QString((QChar *)0,0)), 0 );
+}
+
+void spectest2()
+{
+    QString a("Heisan Hoppsan");
+    QRegExp r14( "He?", FALSE );
     
+    TEST( a.find(r14), 0 );
+}
+
+int main()
+{
+    spectest();
+
 #ifndef EMPTYRXWORKS
     qWarning("Not testing Empty regexp; in 1.x it crashes.");
 #endif
@@ -68,7 +84,7 @@ main()
     TEST( s.find(r0), -1 );
     TEST( s.findRev(r0), -1 );
     TEST( s.contains(r0), 0 );
-    
+
     s = "en streng";
     TEST( s.find(r0), -1 );
     TEST( s.findRev(r0), -1 );
@@ -80,7 +96,7 @@ main()
     TEST( s0.findRev(r0), -1 );
     TEST( s0.contains(r0), 0 );
     TEST( r0.match( s0 ), -1 );
-    
+
     s0 = "";
     TEST( s0.isNull(), FALSE );
     TEST( s0.isEmpty(), TRUE );
@@ -100,7 +116,46 @@ main()
     QString f("dill  og dall");
     QString g(" Heeei og Hooooopp");
     QString h(" hEeEi og Heeei og hEEEi");
+    QString ns;
+    QString es( "" );
     QRegExp r;
+
+    QRegExp r19( ".*a" );
+    r = r19;
+    TEST( r.match( ns ), -1 );
+    TEST( r.match( es ), -1 );
+
+    QRegExp r18( ".*" );
+    r = r18;
+    TEST( a.find(r), 0 );
+    TEST( a.findRev(r), 13 );
+    TEST( a.contains(r), 14 );
+    TEST( r.match( ns ), 0 );
+    TEST( r.match( es ), 0 );
+
+    QRegExp r17( "^.*$" );
+    r = r17;
+    TEST( a.find(r), 0 );
+    TEST( a.findRev(r), 13 );		// Should be 0? (IndexIsStart)
+    TEST( a.contains(r), 14 );		// Should be 14? (IndexIsStart)
+    TEST( r.match( ns ), 0 );
+    TEST( r.match( es ), 0 );
+
+    QRegExp r16( "^$" );
+    r = r16;
+    TEST( a.find(r), -1 );
+    TEST( a.findRev(r), -1 );
+    TEST( a.contains(r), 0 );
+    TEST( r.match( ns ), 0 );
+    TEST( r.match( es ), 0 );
+
+    QRegExp r15( "$" );
+    r = r15;
+    TEST( a.find(r), 14 );
+    //TEST( a.findRev(r), 14 );  // Should this work?
+    TEST( a.contains(r), 1 );
+    TEST( r.match( ns ), 0 );
+    TEST( r.match( es ), 0 );
 
     QRegExp r14( "He?", FALSE );
     r = r14;
@@ -363,7 +418,7 @@ main()
     
 
 
-
     printf("\n%d error%s\n",err,"s"+(err==1));
 
+    return 0;
 }
