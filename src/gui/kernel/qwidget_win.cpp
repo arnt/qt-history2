@@ -666,7 +666,7 @@ void QWidgetPrivate::setWindowIcon_sys(const QPixmap &pixmap)
         if (pixmap.mask()) {
             pm.fill(Qt::black);                        // make masked area black
             QPainter maskPainter(&mask);
-            maskPainter.drawPixmap(0, 0, *mask.mask());
+            maskPainter.drawPixmap(0, 0, *pixmap.mask());
         } else {
             mask.fill(Qt::color1);
         }
