@@ -356,7 +356,7 @@ nextfile:
     }
     t << _slnProjConfEnd;
     t << _slnExtSections;
-    t << _slnlGlobalEnd;
+    t << _slnGlobalEnd;
 
 
     while (!solution_cleanup.isEmpty())
