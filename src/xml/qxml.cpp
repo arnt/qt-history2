@@ -1622,8 +1622,11 @@ QString QXmlInputSource::fromRawData( const QByteArray &data, bool beginning )
     \a name, the public identifier in \a publicId and the system
     identifier in \a systemId.
 
-    If the public identifier and the system identifier are missing,
-    the reader sets \a publicId and \a systemId to QString::null.
+    If the public identifier is missing, \a publicId is set to
+    QString::null. If the system identifier is missing, \a systemId is
+    set to QString::null. Note that it is not valid XML to have a
+    public identifier but no system identifier; in such cases a parse
+    error will occur.
 
     All declarations reported through QXmlDTDHandler or
     QXmlDeclHandler appear between the startDTD() and endDTD() calls.
