@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#263 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#264 $
 **
 ** Implementation of QFileDialog class
 **
@@ -2007,9 +2007,11 @@ void QFileDialog::setDir( const QString & pathstr )
     }
 #endif
 
-    QDir tmp( dr );
-    tmp.setFilter( cwd.filter() );
-    setDir( tmp );
+    cwd.cd( dr );
+    QFileInfo i( cwd, nameEdit->text() );
+    trySetSelection( i, FALSE );
+    rereadDir();
+    emit dirEntered( cwd.canonicalPath() );
 }
 
 /*!
