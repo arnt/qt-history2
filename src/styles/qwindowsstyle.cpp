@@ -1291,7 +1291,7 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	break;
 
     case CC_ComboBox:
-	if ( sub != SC_None ) {
+	if ( sub != SC_All ) {
 	    drawSubControl( sub, p, w, r, cg, flags, subActive, data );
 	} else {
 	    drawSubControl( SC_ComboBoxArrow, p, w, r, cg, flags,
@@ -1302,9 +1302,6 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	break;
 
     case CC_Slider:
-	if ( sub == SC_None )
-	    sub = SC_SliderGroove | SC_SliderTickmarks | SC_SliderHandle;
-
 	if ( sub & SC_SliderGroove )
 	    drawSubControl( SC_SliderGroove, p, w, r, cg, flags, subActive,
 			    data );

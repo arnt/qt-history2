@@ -285,15 +285,17 @@ public:
 	SC_TitleBarSysMenu =		0x00000001,
 	SC_TitleBarMinButton =		0x00000002,
 	SC_TitleBarMaxButton =		0x00000004,
-	SC_TitleBarCloseButton =       	0x00000008,
+	SC_TitleBarCloseButton =	0x00000008,
 	SC_TitleBarLabel =		0x00000010,
 	SC_TitleBarNormalButton =	0x00000020,
-	SC_TitleBarShadeButton =       	0x00000040,
+	SC_TitleBarShadeButton =	0x00000040,
 	SC_TitleBarUnshadeButton =	0x00000080,
 
-	SC_ListView              =      0x00000001,
-	SC_ListViewBranch        =      0x00000002,
-	SC_ListViewExpand        =      0x00000004
+	SC_ListView =			0x00000001,
+	SC_ListViewBranch =		0x00000002,
+	SC_ListViewExpand =		0x00000004,
+
+	SC_All =			0xffffffff
     };
     typedef uint SCFlags;
 
@@ -304,7 +306,7 @@ public:
 				     const QRect &r,
 				     const QColorGroup &cg,
 				     CFlags flags = CStyle_Default,
-				     SCFlags sub = SC_None,
+				     SCFlags sub = SC_All,
 				     SCFlags subActive = SC_None,
 				     void **data = 0 ) const = 0;
     virtual void drawComplexControlMask( ComplexControl control,

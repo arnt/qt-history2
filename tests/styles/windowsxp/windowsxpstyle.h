@@ -48,7 +48,7 @@ public:
 			     const QRect& r,
 			     const QColorGroup& cg,
 			     CFlags flags = CStyle_Default,
-			     SCFlags sub = SC_None,
+			     SCFlags sub = SC_All,
 			     SCFlags subActive = SC_None,
 			     void **data = 0 ) const;
 

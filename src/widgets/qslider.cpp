@@ -382,7 +382,7 @@ void QSlider::paintEvent( QPaintEvent * )
     style().drawComplexControl( QStyle::CC_Slider, &p, this, rect(),
 				colorGroup(),
 				QStyle::CStyle_Default,
-				QStyle::SC_None,
+				QStyle::SC_All,
 				QStyle::SC_None,
 				data );
 }

@@ -1144,7 +1144,7 @@ void QComboBox::paintEvent( QPaintEvent * )
 	if ( d->arrowDown )
 	    flags |= QStyle::PStyle_Sunken;
 	style().drawComplexControl( QStyle::CC_ComboBox, &p, this, rect(), g,
-				    QStyle::CStyle_Default, QStyle::SC_None,
+				    QStyle::CStyle_Default, QStyle::SC_All,
 				    flags );
 
 	if ( !d->ed ) {
@@ -1176,7 +1176,7 @@ void QComboBox::paintEvent( QPaintEvent * )
 	if ( d->arrowDown )
 	    flags |= QStyle::PStyle_Sunken;
 	style().drawComplexControl( QStyle::CC_ComboBox, &p, this, rect(), g,
-				    QStyle::CStyle_Default, QStyle::SC_None,
+				    QStyle::CStyle_Default, QStyle::SC_All,
 				    flags );
 
 	QRect re = QStyle::visualRect( style().querySubControlMetrics( QStyle::CC_ComboBox, this,

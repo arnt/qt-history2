@@ -1067,9 +1067,6 @@ void QMotifStyle::drawComplexControl( ComplexControl control,
 {
     switch ( control ) {
     case CC_SpinWidget:
-	if ( sub == SC_None )
-	    sub = SC_SpinWidgetUp | SC_SpinWidgetDown | SC_SpinWidgetFrame;
-
 	if ( sub & SC_SpinWidgetUp || sub & SC_SpinWidgetDown )
 	    QCommonStyle::drawComplexControl( control, p, widget, r, cg, flags,
 					      sub, subActive, data );
@@ -1079,9 +1076,6 @@ void QMotifStyle::drawComplexControl( ComplexControl control,
 	break;
 
     case CC_Slider:
-	if ( sub == SC_None )
-	    sub = SC_SliderGroove | SC_SliderTickmarks | SC_SliderHandle;
-
 	if ( sub & SC_SliderGroove )
 	    drawSubControl( SC_SliderGroove, p, widget, r, cg, flags, subActive,
 			    data );
@@ -1095,8 +1089,6 @@ void QMotifStyle::drawComplexControl( ComplexControl control,
 	break;
 
     case CC_ComboBox:
-	if ( sub == SC_None )
-	    sub = SC_ComboBoxArrow | SC_ComboBoxEditField;
 	if ( sub & SC_ComboBoxArrow )
 	    drawSubControl( SC_ComboBoxArrow, p, widget, r, cg, flags, subActive,
 			    data );
