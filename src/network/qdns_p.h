@@ -14,6 +14,7 @@
 #ifndef QDNS_P_H
 #define QDNS_P_H
 
+#include <qcoreapplication.h>
 #include "qdns.h"
 #include <qmutex.h>
 #include <qobject.h>
@@ -42,7 +43,10 @@ class QDnsAgent : public QDnsAgentBase
 {
     Q_OBJECT
 public:
-    inline QDnsAgent() {}
+    inline QDnsAgent()
+    {
+        connect(QCoreApplication::instance(), SIGNAL(aboutToQuit()), this, SLOT(cleanup()));
+    }
 
     void run();
     static QDnsHostInfo getHostByName(const QString &hostName);
@@ -52,6 +56,16 @@ public:
     {
         QMutexLocker locker(&mutex);
         queries << QDnsQuery(name, receiver, member);
+    }
+
+public slots:
+    inline void cleanup()
+    {
+        {
+            QMutexLocker locker(&mutex);
+            queries.clear();
+        }
+        wait();
     }
 
 signals:
