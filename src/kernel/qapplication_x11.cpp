@@ -936,7 +936,7 @@ bool QApplication::x11_apply_settings()
 	    qApp->setDefaultCodec(codec);
     }
 
-    QStringList strut = settings.readListEntry("/qt/globalStrut", ';');
+    QStringList strut = settings.readListEntry("/qt/globalStrut");
     if (! strut.isEmpty()) {
 	if (strut.count() == 2) {
 	    QSize sz(strut[0].toUInt(), strut[1].toUInt());
