@@ -97,7 +97,7 @@ int QAccessibleViewport::state(int child) const
     return scrollview->state(child);
 }
 
-bool QAccessibleViewport::setSelected(int child, bool on, bool extend)
+bool QAccessibleViewport::setSelected(int /*child*/, bool /*on*/, bool /*extend*/)
 {
 //###    return scrollview->setSelected(child, on, extend);
     return 0;
