@@ -3104,6 +3104,8 @@ void QIconView::takeItem( QIconViewItem *item )
 	repaintContents( r.x(), r.y(), r.width(), r.height(), TRUE );
 
     item->view = 0;
+    item->prev = 0;
+    item->next = 0;
     d->count--;
 
     blockSignals( block );
