@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qnetwork.h#7 $
+** $Id: //depot/qt/main/src/network/qnetwork.h#8 $
 **
 ** Definition of qInitNetworkProtocols function.
 **
@@ -38,17 +38,21 @@
 #ifndef QNETWORK_H
 #define QNETWORK_H
 
+#ifndef QT_H
+#include <qglobal.h>
+#include <qfeatures.h>
+#endif // QT_H
+
 #if !defined( QT_MODULE_NETWORK ) || defined( QT_LICENSE_PROFESSIONAL )
 #define QM_EXPORT_NETWORK
 #else
 #define QM_EXPORT_NETWORK Q_EXPORT
 #endif
 
-#ifndef QT_H
-#include <qglobal.h>
-#include <qfeatures.h>
-#endif // QT_H
 #ifndef QT_NO_NETWORK
+
 QM_EXPORT_NETWORK void qInitNetworkProtocols();
+
 #endif
+
 #endif
