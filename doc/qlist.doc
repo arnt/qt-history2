@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qlist.doc,v 1.13 1995/12/18 19:14:12 hanord Exp $
+** $Id: qlist.doc,v 1.14 1995/12/20 22:32:42 hanord Exp $
 **
 ** QList and QListIterator class documentation
 **
@@ -109,7 +109,7 @@
   a good example of a list that reimplements newItem(), deleteItem() and
   compareItems()
 
-  \sa QListIterator, \link collection.html collection classes\endlink
+  \sa QListIterator, \link collection.html Collection Classes\endlink
  ----------------------------------------------------------------------------*/
 
 

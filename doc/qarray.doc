@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qarray.doc,v 1.7 1995/12/18 19:10:18 hanord Exp $
+** $Id: qarray.doc,v 1.8 1995/12/20 22:24:46 hanord Exp $
 **
 ** QArray class documentation
 **
@@ -116,7 +116,7 @@
   QArrayT refers to the QArray template and QArrayM refers to the QArray macro.
   QArray defaults to QArrayT if templates are supported, QArrayM otherwise.
 
-  \sa \link sharedclasses.html shared classes\endlink
+  \sa \link shclass.html Shared Classes\endlink
  ----------------------------------------------------------------------------*/
 
 
