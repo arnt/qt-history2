@@ -88,8 +88,8 @@ void MainWindow::setupShapes()
     truck.lineTo(55, 40);
     truck.lineTo(37, 40);
     truck.lineTo(17, 60);
-    truck.addEllipse(20, 75, 25, 25);
-    truck.addEllipse(60, 75, 25, 25);
+    truck.addEllipse(17, 75, 25, 25);
+    truck.addEllipse(63, 75, 25, 25);
 
     QPainterPath clock;
     clock.addEllipse(-50, -50, 100, 100);
