@@ -98,44 +98,36 @@ void QPainterSubpath::arcTo(const QRectF &rect, float startAngle, float sweepLen
 
     int iterations = int((sweepLength + 89) / 90);
     float clength = sweepLength / iterations;
+    float cosangle1, sinangle1, cosangle2, sinangle2;
     for (int i=0; i<iterations; ++i) {
         float cangle = startAngle + i * sweepLength / iterations;
 
-//         printf(" -> segment: %f -> %f\n", cangle, clength);
+        cosangle1 = cos(ANGLE(cangle));
+        sinangle1 = sin(ANGLE(cangle));
+        cosangle2 = cos(ANGLE(cangle + clength));
+        sinangle2 = sin(ANGLE(cangle + clength));
 
-        QPointF startPoint = rect.center() + QPointF(a * cos(ANGLE(cangle)),
-                                                     -b * sin(ANGLE(cangle)));
-        QLineF vStart(rect.center(), startPoint);
-//         printf(" ---> vStart: (%.2f, %.2f), (%.2f, %.2f) - (%.2f, %.2f)\n",
-//                vStart.startX(), vStart.startY(), vStart.endX(), vStart.endY(),
-//                vStart.vx(), vStart.vy());
-        QLineF nStart = vStart.normalVector();
-        nStart.moveBy(vStart);
-//         printf(" ---> nStart: (%.2f, %.2f), (%.2f, %.2f) - (%.2f, %.2f)\n",
-//                nStart.startX(), nStart.startY(), nStart.endX(), nStart.endY(),
-//                nStart.vx(), nStart.vy());
-        nStart.setLength(nStart.length() * KAPPA);
-        QPointF controlPt1 = nStart.end();
+        // Find the start and end point of the curve.
+        QPointF startPoint = rect.center() + QPointF(a * cosangle1, -b * sinangle1);
+        QPointF endPoint = rect.center() + QPointF(a * cosangle2, -b * sinangle2);
 
-        QPointF endPoint = rect.center() + QPointF(a * cos(ANGLE(cangle + clength)),
-                                                   -b * sin(ANGLE(cangle + clength)));
-        QLineF vEnd(rect.center(), endPoint);
-        QLineF nEnd = vEnd.normalVector();
-//         printf(" ---> vEnd: (%.2f, %.2f), (%.2f, %.2f) - (%.2f, %.2f)\n",
-//                vEnd.startX(), vEnd.startY(), vEnd.endX(), vEnd.endY(),
-//                vEnd.vx(), vEnd.vy());
-        nEnd.moveBy(vEnd);
-        nEnd = QLineF(endPoint, endPoint + QPointF(-nEnd.vx(), -nEnd.vy()));
-//         printf(" ---> nEnd: (%.2f, %.2f), (%.2f, %.2f) - (%.2f, %.2f)\n",
-//                nEnd.startX(), nEnd.startY(), nEnd.endX(), nEnd.endY(),
-//                nEnd.vx(), nEnd.vy());
+        // The derived at the start and end point.
+        float sdx = -a * sinangle1;
+        float sdy = -b * cosangle1;
+        float edx = -a * sinangle2;
+        float edy = -b * cosangle2;
 
-        nEnd.setLength(nEnd.length() * KAPPA);
-        QPointF controlPt2 = nEnd.end();
+        // Creating the tangent lines.
+        QLineF controlLine1(startPoint, startPoint + QPointF(sdx, sdy));
+        QLineF controlLine2(endPoint, endPoint - QPointF(edx, edy));
+
+        // Adjust their length to fit the magic KAPPA length.
+        controlLine1.setLength(controlLine1.length() * KAPPA);
+        controlLine2.setLength(controlLine2.length() * KAPPA);
 
         if (startPoint != currentPoint)
             lineTo(startPoint);
-        curveTo(controlPt1, controlPt2, endPoint);
+        curveTo(controlLine1.end(), controlLine2.end(), endPoint);
     }
 }
 
