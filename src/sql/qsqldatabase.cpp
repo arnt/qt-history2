@@ -149,7 +149,7 @@ QSqlDatabaseManager* QSqlDatabaseManager::instance()
 {
     if ( !sqlConnection ) {
 	if( qApp == 0 ){
-	    qWarning( "QSqlDatabaseManager: A QApplication object have to be "
+	    qWarning( "QSqlDatabaseManager: A QApplication object has to be "
 		      "instantiated in order to use the SQL module." );
 	    return 0;
 	}
