@@ -206,6 +206,25 @@ QGenericComboBox::QGenericComboBox(bool rw, QWidget *parent) :
     setEditable(rw);
 }
 
+#ifdef QT_COMPAT
+QGenericComboBox::QGenericComboBox(QWidget *parent, const char *name) :
+    QWidget(*new QGenericComboBoxPrivate(), parent, 0)
+{
+    d->model = new ComboModel();
+    d->init();
+    setObjectName(name);
+}
+
+QGenericComboBox::QGenericComboBox(bool rw, QWidget *parent, const char *name) :
+    QWidget(*new QGenericComboBoxPrivate(), parent, 0)
+{
+    d->model = new ComboModel();
+    d->init();
+    setEditable(rw);
+    setObjectName(name);
+}
+#endif //QT_COMPAT
+
 /*!
     Constructs a non-editable combobox widget with parent \a parent
     using the item model \a model.

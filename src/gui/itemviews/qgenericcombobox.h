@@ -101,6 +101,8 @@ public:
     virtual void popup();
 
 #ifdef QT_COMPAT
+    QT_COMPAT_CONSTRUCTOR QGenericComboBox(QWidget *parent, const char *name);
+    QT_COMPAT_CONSTRUCTOR QGenericComboBox(bool rw, QWidget *parent, const char *name);
     QT_COMPAT bool editable() const { return isEditable(); }
     QT_COMPAT void changeItem(const QString &text, int row) { setItemText(text, row); }
     QT_COMPAT void changeItem(const QIconSet &icon, int row) { setItemIcon(icon, row); }
