@@ -58,7 +58,8 @@ public:
                                       const QModelIndex &index) const;
 
     // events for non-widget editors
-    virtual bool editorEvent(QEvent *e, QAbstractItemModel* model, const QModelIndex &index);
+    virtual bool editorEvent(QEvent *e, const QStyleOptionViewItem &option,
+                             QAbstractItemModel* model, const QModelIndex &index);
 
 signals:
     void commitData(QWidget *editor);

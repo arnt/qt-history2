@@ -34,7 +34,7 @@ public:
     bool shouldAutoScroll(const QPoint &pos);
     void doDelayedItemsLayout();
 
-    QWidget *editor(const QModelIndex &index);
+    QWidget *editor(const QModelIndex &index, const QStyleOptionViewItem &options);
 
     mutable QAbstractItemModel *model;
     mutable QAbstractItemDelegate *delegate;

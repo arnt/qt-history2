@@ -192,12 +192,13 @@ void QAbstractItemDelegate::updateEditorGeometry(QWidget *,
 
 /*!
     Whenever an event occurs, this function is called with the \a e
-    and the model \a index in the \a model.
+    \a option and the model \a index in the \a model.
 
     The base implementation returns false (indicating that it has not
     handled the event).
 */
-bool QAbstractItemDelegate::editorEvent(QEvent *, QAbstractItemModel *, const QModelIndex &)
+bool QAbstractItemDelegate::editorEvent(QEvent *, const QStyleOptionViewItem &,
+                                        QAbstractItemModel *, const QModelIndex &)
 {
     // do nothing
     return false;
