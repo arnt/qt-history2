@@ -53,5 +53,4 @@ IMAGES	= images/appicon.png \
 	images/zoomout.png
 TEMPLATE	=app
 CONFIG	+= qt warn_off release
-DEFINES	+= QT_INTERNAL_NETWORK QT_INTERNAL_XML
 LANGUAGE	= C++
