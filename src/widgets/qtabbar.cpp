@@ -45,6 +45,9 @@
 #include "qiconset.h"
 #include "qcursor.h"
 #include "../kernel/qinternal_p.h"
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+#include "qaccessible.h"
+#endif
 
 
 /*!
@@ -850,6 +853,10 @@ void QTabBar::setCurrentTab( QTab * tab )
 	}
 	makeVisible( tab );
 	emit selected( tab->id );
+
+#ifdef QT_ACCESSIBILITY_SUPPORT
+	QAccessible::updateAccessibility( this, indexOf(tab->id)+1, QAccessible::Focus );
+#endif
     }
 }
 
@@ -1278,6 +1285,10 @@ void QTab::setText( const QString& text )
 #endif
 	tb->layoutTabs();
 	tb->repaint();
+
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+	QAccessible::updateAccessibility( tb, tb->indexOf(id)+1, QAccessible::NameChanged );
+#endif
     }
 }
 
