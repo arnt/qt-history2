@@ -17,6 +17,7 @@
 
 #ifndef QT_H
 #  include <qglobal.h>
+#include <stdio.h>
 #endif // QT_H
 
 #if defined(Q_CC_GNU) || (defined(Q_OS_UNIX) && defined(Q_CC_INTEL))
@@ -48,7 +49,7 @@ inline int q_atomic_increment(volatile int *ptr)
 		 : "=m" (*ptr), "=qm" (ret)
 		 : "m" (*ptr)
 		 : "memory");
-    return ret != 0;
+    return ret == 0;
 }
 
 inline int q_atomic_decrement(volatile int *ptr)
