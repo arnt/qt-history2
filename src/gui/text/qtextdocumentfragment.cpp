@@ -461,6 +461,8 @@ void QTextHTMLImporter::import()
             hasBlock = false;
             continue;
         } else if (node->id == Html_tr) {
+            Q_ASSERT(!tables.isEmpty());
+            tables[tables.size() - 1].currentRow++;
             continue;
         } else if (node->isTableCell) {
             Q_ASSERT(!tables.isEmpty());
@@ -585,7 +587,9 @@ bool QTextHTMLImporter::closeTag(int i)
             QTextCharFormat charFmt;
             charFmt.setObjectIndex(t.tableIndex);
 
-            while (t.currentColumnCount < t.columns) {
+            const int rowSpanCells = t.rowSpanCellsPerRow.value(t.currentRow, 0);
+
+            while (t.currentColumnCount < t.columns - rowSpanCells) {
                 appendBlock(QTextBlockFormat(), charFmt, QTextBeginningOfFrame);
                 ++t.currentColumnCount;
             }
@@ -618,13 +622,13 @@ bool QTextHTMLImporter::closeTag(int i)
 
 void QTextHTMLImporter::scanTable(int tableNodeIdx, Table *table)
 {
-    // ### spans
     table->columns = 0;
 
     QList<int> constraintTypes;
     QList<int> constraintValues;
 
     bool inFirstRow = true;
+    int effectiveRow = 0;
     foreach (int row, at(tableNodeIdx).children) {
         if (at(row).tag == QLatin1String("tr")) {
             int colsInRow = 0;
@@ -633,6 +637,13 @@ void QTextHTMLImporter::scanTable(int tableNodeIdx, Table *table)
                 if (at(cell).isTableCell) {
                     const QTextHtmlParserNode &c = at(cell);
                     colsInRow += c.tableCellColSpan;
+
+                    if (c.tableCellRowSpan > 1) {
+                        table->rowSpanCellsPerRow.resize(effectiveRow + c.tableCellRowSpan + 1);
+
+                        for (int r = effectiveRow + 1; r < c.tableCellRowSpan; ++r)
+                            table->rowSpanCellsPerRow[r]++;
+                    }
 
                     if (inFirstRow || colsInRow > constraintTypes.count()) {
                         Q_ASSERT(colsInRow == constraintTypes.count() + c.tableCellColSpan);
@@ -646,6 +657,8 @@ void QTextHTMLImporter::scanTable(int tableNodeIdx, Table *table)
 
             table->columns = qMax(table->columns, colsInRow);
             inFirstRow = false;
+
+            ++effectiveRow;
         }
     }
 

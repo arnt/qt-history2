@@ -131,12 +131,14 @@ private:
 
     struct Table
     {
-        Table() : tableIndex(-1), currentColumnCount(0) {}
+        Table() : tableIndex(-1), currentColumnCount(0), currentRow(-1) {}
         int tableIndex; // objectIndex
         int currentColumnCount;
         int columns;
+        QVector<int> rowSpanCellsPerRow;
+        int currentRow;
     };
-    QVarLengthArray<Table> tables;
+    QVector<Table> tables;
 };
 
 #endif // QTEXTDOCUMENTFRAGMENT_P_H
