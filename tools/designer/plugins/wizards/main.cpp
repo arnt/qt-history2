@@ -86,11 +86,11 @@ void StandardTemplateWizardInterface::setup( const QString &templ, QWidget *widg
 
 QRESULT StandardTemplateWizardInterface::queryInterface( const QUuid& uuid, QUnknownInterface** iface )
 {
-    if ( uuid == IID_QUnknownInterface )
+    if ( uuid == IID_QUnknown )
 	*iface = (QUnknownInterface*)this;
-    else if ( uuid == IID_QFeatureListInterface )
+    else if ( uuid == IID_QFeatureList )
 	*iface = (QFeatureListInterface*)this;
-    else if ( uuid == IID_TemplateWizardInterface )
+    else if ( uuid == IID_TemplateWizard )
 	*iface = (TemplateWizardInterface*)this;
 
     if ( *iface )

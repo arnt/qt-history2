@@ -1077,7 +1077,7 @@ void MainWindow::fileOpen( const QString &filter, const QString &extension )
 {
     statusBar()->message( tr( "Select a file...") );
 
-    QPluginManager<ImportFilterInterface> manager( IID_ImportFilterInterface, pluginDir );
+    QPluginManager<ImportFilterInterface> manager( IID_ImportFilter, pluginDir );
     QStringList paths(QApplication::libraryPaths());
     QStringList::Iterator it = paths.begin();
     while (it != paths.end()) {

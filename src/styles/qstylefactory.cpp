@@ -61,16 +61,16 @@ public:
     QStyleFactoryPrivate();
     ~QStyleFactoryPrivate();
 
-    static QPluginManager<QStyleInterface> *manager;
+    static QPluginManager<QStyleFactoryInterface> *manager;
 };
 
 static QStyleFactoryPrivate *instance = 0;
-QPluginManager<QStyleInterface> *QStyleFactoryPrivate::manager = 0;
+QPluginManager<QStyleFactoryInterface> *QStyleFactoryPrivate::manager = 0;
 
 QStyleFactoryPrivate::QStyleFactoryPrivate()
 : QObject( qApp )
 {
-    manager = new QPluginManager<QStyleInterface>( IID_QStyleInterface, QString::null, QLibrary::Delayed, FALSE );
+    manager = new QPluginManager<QStyleFactoryInterface>( IID_QStyleFactory, QString::null, QLibrary::Delayed, FALSE );
 
     QString defpath(getenv("QTDIR"));
     if (! defpath.isNull() && ! defpath.isEmpty()) {
@@ -140,7 +140,7 @@ QStyle *QStyleFactory::create( const QString& s )
     if ( !instance )
 	instance = new QStyleFactoryPrivate;
 
-    QStyleInterface *iface = 0;
+    QStyleFactoryInterface *iface = 0;
     QStyleFactoryPrivate::manager->queryInterface( style, (QUnknownInterface**) &iface );
 
     if ( iface ) {

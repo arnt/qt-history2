@@ -53,19 +53,19 @@ public:
     QTextCodecFactoryPrivate();
     ~QTextCodecFactoryPrivate();
 
-    static QPluginManager<QTextCodecInterface> *manager;
+    static QPluginManager<QTextCodecFactoryInterface> *manager;
 };
 
 
 static QTextCodecFactoryPrivate *instance = 0;
-QPluginManager<QTextCodecInterface> *QTextCodecFactoryPrivate::manager = 0;
+QPluginManager<QTextCodecFactoryInterface> *QTextCodecFactoryPrivate::manager = 0;
 
 
 QTextCodecFactoryPrivate::QTextCodecFactoryPrivate()
     : QObject(qApp)
 {
     manager =
-	new QPluginManager<QTextCodecInterface>(IID_QTextCodecInterface,
+	new QPluginManager<QTextCodecFactoryInterface>(IID_QTextCodecFactory,
 						   QString::null,
 						   QLibrary::Delayed, FALSE);
 
@@ -104,7 +104,7 @@ QTextCodec *QTextCodecFactory::createForName(const QString &name)
     if (! instance)
 	instance = new QTextCodecFactoryPrivate;
 
-    QTextCodecInterface *iface = 0;
+    QTextCodecFactoryInterface *iface = 0;
     QTextCodecFactoryPrivate::manager->queryInterface(name, (QUnknownInterface**)&iface );
 
     if (iface) {
@@ -127,7 +127,7 @@ QTextCodec *QTextCodecFactory::createForMib(int mib)
     if (! instance)
 	instance = new QTextCodecFactoryPrivate;
 
-    QTextCodecInterface *iface = 0;
+    QTextCodecFactoryInterface *iface = 0;
     QTextCodecFactoryPrivate::manager->queryInterface("MIB-" + QString::number(mib), (QUnknownInterface**)&iface );
 
     if (iface) {

@@ -30,9 +30,9 @@ LanguageInterfaceImpl::LanguageInterfaceImpl()
 
 QRESULT LanguageInterfaceImpl::queryInterface( const QUuid &uuid, QUnknownInterface** iface )
 {
-    if ( uuid == IID_QUnknownInterface )
+    if ( uuid == IID_QUnknown )
 	*iface = (QUnknownInterface*)this;
-    else if ( uuid == IID_LanguageInterface )
+    else if ( uuid == IID_Language )
 	*iface = (LanguageInterface*)this;
 
     if ( *iface )
@@ -89,7 +89,7 @@ QStringList LanguageInterfaceImpl::definitions() const
 QStringList LanguageInterfaceImpl::definitionEntries( const QString &definition, QUnknownInterface *designerIface ) const
 {
     DesignerInterface *iface = 0;
-    designerIface->queryInterface( IID_DesignerInterface, (QUnknownInterface**) &iface );
+    designerIface->queryInterface( IID_Designer, (QUnknownInterface**) &iface );
     if ( !iface )
 	return QStringList();
     DesignerFormWindow *fw = iface->currentForm();
@@ -112,7 +112,7 @@ QStringList LanguageInterfaceImpl::definitionEntries( const QString &definition,
 void LanguageInterfaceImpl::setDefinitionEntries( const QString &definition, const QStringList &entries, QUnknownInterface *designerIface )
 {
     DesignerInterface *iface = 0;
-    designerIface->queryInterface( IID_DesignerInterface, (QUnknownInterface**) &iface );
+    designerIface->queryInterface( IID_Designer, (QUnknownInterface**) &iface );
     if ( !iface )
 	return;
     DesignerFormWindow *fw = iface->currentForm();

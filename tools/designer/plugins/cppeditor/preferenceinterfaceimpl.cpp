@@ -34,9 +34,9 @@ PreferenceInterfaceImpl::~PreferenceInterfaceImpl()
 
 QRESULT PreferenceInterfaceImpl::queryInterface( const QUuid &uuid, QUnknownInterface** iface )
 {
-    if ( uuid == IID_QUnknownInterface )
+    if ( uuid == IID_QUnknown )
 	*iface = (QUnknownInterface*)this;
-    else if ( uuid == IID_PreferenceInterface )
+    else if ( uuid == IID_Preference )
 	*iface = (PreferenceInterface*)this;
 
     if ( *iface )

@@ -100,17 +100,17 @@ QRESULT TestComponent::queryInterface( const QUuid &uuid, QUnknownInterface **if
 {
     *iface = 0;
 
-    if ( uuid == IID_QUnknownInterface )
+    if ( uuid == IID_QUnknown )
 	*iface = (QUnknownInterface*)(ActionInterface*)this;
-    else if ( uuid == IID_QFeatureListInterface )
+    else if ( uuid == IID_QFeatureList )
 	*iface = (QFeatureListInterface*)this;
-    else if ( uuid == IID_ActionInterface )
+    else if ( uuid == IID_Action )
 	*iface = (ActionInterface*)this;
-    else if ( uuid == IID_QLibraryInterface )
+    else if ( uuid == IID_QLibrary )
 	*iface = (QLibraryInterface*)this;
-    else if ( uuid == IID_QComponentServerInterface )
+    else if ( uuid == IID_QComponentServer )
 	*iface = (QComponentServerInterface*)this;
-    else if ( uuid == IID_QComponentFactoryInterface )
+    else if ( uuid == IID_QComponentFactory )
 	*iface = (QComponentFactoryInterface*)this;
     
     if ( *iface )

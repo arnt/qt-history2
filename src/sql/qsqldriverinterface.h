@@ -49,13 +49,13 @@
 #ifndef QT_NO_COMPONENT
 
 // {EDDD5AD5-DF3C-400c-A711-163B72FE5F61}
-#ifndef IID_QSqlDriverInterface 
-#define IID_QSqlDriverInterface QUuid(0xeddd5ad5, 0xdf3c, 0x400c, 0xa7, 0x11, 0x16, 0x3b, 0x72, 0xfe, 0x5f, 0x61)
+#ifndef IID_QSqlDriverFactory
+#define IID_QSqlDriverFactory QUuid(0xeddd5ad5, 0xdf3c, 0x400c, 0xa7, 0x11, 0x16, 0x3b, 0x72, 0xfe, 0x5f, 0x61)
 #endif
 
 class QSqlDriver;
 
-struct Q_EXPORT QSqlDriverInterface : public QFeatureListInterface
+struct Q_EXPORT QSqlDriverFactoryInterface : public QFeatureListInterface
 {
     virtual QSqlDriver* create( const QString& name ) = 0;
 };

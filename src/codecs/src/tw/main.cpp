@@ -6,7 +6,7 @@
 #include "../../qfontcodecs_p.h"
 
 
-class TWTextCodecs : public QTextCodecInterface
+class TWTextCodecs : public QTextCodecFactoryInterface
 {
 public:
     TWTextCodecs();
@@ -45,12 +45,12 @@ TWTextCodecs::~TWTextCodecs()
 
 void TWTextCodecs::queryInterface(const QUuid &uuid, QUnknownInterface **iface)
 {
-    if (uuid == IID_QUnknownInterface)
+    if (uuid == IID_QUnknown )
 	*iface = (QUnknownInterface *) this;
-    else if (uuid == IID_QFeatureListInterface)
+    else if (uuid == IID_QFeatureList )
 	*iface = (QFeatureListInterface *) this;
-    else if (uuid == IID_QTextCodecInterface)
-	*iface = (QTextCodecInterface*) this;
+    else if (uuid == IID_QTextCodecFactory )
+	*iface = (QTextCodecFactoryInterface*) this;
 
     if (*iface)
 	(*iface)->addRef();

@@ -804,7 +804,7 @@ QPluginManager<WidgetInterface> *widgetManager()
     if ( !widgetPluginManager ) {
 	QString dir = getenv( "QTDIR" );
 	dir += "/plugins/designer";
-	widgetPluginManager = new QPluginManager<WidgetInterface>( IID_WidgetInterface, dir );
+	widgetPluginManager = new QPluginManager<WidgetInterface>( IID_Widget, dir );
 	QStringList paths(QApplication::libraryPaths());
 	QStringList::Iterator it = paths.begin();
 	while (it != paths.end()) {

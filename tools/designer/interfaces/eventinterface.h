@@ -31,15 +31,15 @@
 //
 //
 
-#ifndef EVENTINTERFACED_H
-#define EVENTINTERFACED_H
+#ifndef EVENTINTERFACE_H
+#define EVENTINTERFACE_H
 
 #include <qcom.h>
 #include <qobject.h>
 
 // {9958cfbc-64f9-44ce-a65e-2c6c11969a7b}
-#ifndef IID_EventInterface
-#define IID_EventInterface QUuid( 0x9958cfbc, 0x64f9, 0x44ce, 0xa6, 0x5e, 0x2c, 0x6c, 0x11, 0x96, 0x9a, 0x7b )
+#ifndef IID_Event
+#define IID_Event QUuid( 0x9958cfbc, 0x64f9, 0x44ce, 0xa6, 0x5e, 0x2c, 0x6c, 0x11, 0x96, 0x9a, 0x7b )
 #endif
 
 class EventInterface : public QUnknownInterface

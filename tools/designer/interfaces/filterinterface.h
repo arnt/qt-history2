@@ -24,8 +24,8 @@
 #include <qcom.h>
 
 // {EA8CB381-59B5-44a8-BAE5-9BEA8295762A}
-#ifndef IID_ImportFilterInterface
-#define IID_ImportFilterInterface QUuid( 0xea8cb381, 0x59b5, 0x44a8, 0xba, 0xe5, 0x9b, 0xea, 0x82, 0x95, 0x76, 0x2a )
+#ifndef IID_ImportFilter
+#define IID_ImportFilter QUuid( 0xea8cb381, 0x59b5, 0x44a8, 0xba, 0xe5, 0x9b, 0xea, 0x82, 0x95, 0x76, 0x2a )
 #endif
 
 /*! If you write a filter plugin to import dialogs or other user

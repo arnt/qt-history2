@@ -39,8 +39,8 @@
 #include <qcstring.h>
 
 // {d332785d-17fb-4894-84fe-50dbd0ad9512}
-#ifndef IID_ProjectSettingsInterface
-#define IID_ProjectSettingsInterface QUuid( 0xd332785d, 0x17fb, 0x4894, 0x84, 0xfe, 0x50, 0xdb, 0xd0, 0xad, 0x95, 0x12 )
+#ifndef IID_ProjectSettings
+#define IID_ProjectSettings QUuid( 0xd332785d, 0x17fb, 0x4894, 0x84, 0xfe, 0x50, 0xdb, 0xd0, 0xad, 0x95, 0x12 )
 #endif
 
 struct ProjectSettingsInterface : public QUnknownInterface

@@ -2,7 +2,7 @@
 #include <qcompactstyle.h>
 #include <qcleanuphandler.h>
 
-class CompactStyle : public QStyleInterface, public QLibraryInterface
+class CompactStyle : public QStyleFactoryInterface, public QLibraryInterface
 {
 public:
     CompactStyle();
@@ -33,13 +33,13 @@ QRESULT CompactStyle::queryInterface( const QUuid &uuid, QUnknownInterface **ifa
 {
     *iface = 0;
 
-    if ( uuid == IID_QUnknownInterface )
-	*iface = (QUnknownInterface*)(QStyleInterface*)this;
-    else if ( uuid == IID_QFeatureListInterface )
+    if ( uuid == IID_QUnknown )
+	*iface = (QUnknownInterface*)(QStyleFactoryInterface*)this;
+    else if ( uuid == IID_QFeatureList )
 	*iface = (QFeatureListInterface*)this;
-    else if ( uuid == IID_QStyleInterface )
-	*iface = (QStyleInterface*)this;
-    else if ( uuid == IID_QLibraryInterface )
+    else if ( uuid == IID_QStyleFactory )
+	*iface = (QStyleFactoryInterface*)this;
+    else if ( uuid == IID_QLibrary )
 	*iface = (QLibraryInterface*)this;
 
     if ( *iface )

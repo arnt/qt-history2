@@ -355,7 +355,7 @@ void P4Interface::connectTo( QUnknownInterface *ai )
     if ( !appInterface && ai ) {
 	QUnknownInterface *temp = appInterface;
 
-	ai->queryInterface( IID_DesignerInterface, &temp );
+	ai->queryInterface( IID_Designer, &temp );
 	appInterface = (DesignerInterface*)temp;
 	if ( !appInterface )
 	    return;
@@ -764,13 +764,13 @@ QRESULT P4Interface::queryInterface( const QUuid &uuid, QUnknownInterface **ifac
 {
     *iface = 0;
 
-    if ( uuid == IID_QUnknownInterface )
+    if ( uuid == IID_QUnknown )
 	*iface = (QUnknownInterface*)(ActionInterface*)this;
-    else if ( uuid == IID_QFeatureListInterface )
+    else if ( uuid == IID_QFeatureList )
 	*iface = (QFeatureListInterface*)this;
-    else if ( uuid == IID_ActionInterface )
+    else if ( uuid == IID_Action )
 	*iface = (ActionInterface*)this;
-    else if ( uuid == IID_QLibraryInterface )
+    else if ( uuid == IID_QLibrary )
 	*iface = (QLibraryInterface*)this;
 
     if ( *iface )

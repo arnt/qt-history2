@@ -2,12 +2,12 @@
 #include <qwindowsstyle.h>
 #include <qcleanuphandler.h>
 
-class WindowsStyle : public QStyleInterface, public QLibraryInterface
+class WindowsStyle : public QStyleFactoryInterface, public QLibraryInterface
 {
 public:
     WindowsStyle();
 
-    QUnknownInterface *queryInterface( const QUuid& );
+    QRESULT queryInterface( const QUuid&, QUnknownInterface ** );
     unsigned long addRef();
     unsigned long release();
 
@@ -29,21 +29,22 @@ WindowsStyle::WindowsStyle()
 {
 }
 
-QUnknownInterface *WindowsStyle::queryInterface( const QUuid &uuid )
+QRESULT WindowsStyle::queryInterface( const QUuid &uuid, QUnknownInterface **iface )
 {
-    QUnknownInterface *iface = 0;
-    if ( uuid == IID_QUnknownInterface )
-	iface = (QUnknownInterface*)(QStyleInterface*)this;
-    else if ( uuid == IID_QFeatureListInterface )
-	iface = (QFeatureListInterface*)this;
-    else if ( uuid == IID_QStyleInterface )
-	iface = (QStyleInterface*)this;
-    else if ( uuid == IID_QLibraryInterface )
-	iface = (QLibraryInterface*)this;
+    if ( uuid == IID_QUnknown )
+	*iface = (QUnknownInterface*)(QStyleFactoryInterface*)this;
+    else if ( uuid == IID_QFeatureList )
+	*iface = (QFeatureListInterface*)this;
+    else if ( uuid == IID_QStyleFactory )
+	*iface = (QStyleFactoryInterface*)this;
+    else if ( uuid == IID_QLibrary )
+	*iface = (QLibraryInterface*)this;
+    else
+	*iface = 0;
 
-    if ( iface )
-	iface->addRef();
-    return iface;
+    if ( *iface )
+	(*iface)->addRef();
+    return;
 }
 
 unsigned long WindowsStyle::addRef()

@@ -27,8 +27,8 @@ class QAction;
 class QObject;
 
 // {BB206E09-84E5-4777-9FCE-706BABFAB931}
-#ifndef IID_ActionInterface
-#define IID_ActionInterface QUuid( 0xbb206e09, 0x84e5, 0x4777, 0x9f, 0xce, 0x70, 0x6b, 0xab, 0xfa, 0xb9, 0x31 )
+#ifndef IID_Action
+#define IID_Action QUuid( 0xbb206e09, 0x84e5, 0x4777, 0x9f, 0xce, 0x70, 0x6b, 0xab, 0xfa, 0xb9, 0x31 )
 #endif
 
 /*! To add actions to the Qt Designer menubars and toolbars, implement

@@ -43,11 +43,11 @@ DesignerInterfaceImpl::DesignerInterfaceImpl( MainWindow *mw )
 
 QRESULT DesignerInterfaceImpl::queryInterface( const QUuid &uuid, QUnknownInterface** iface )
 {
-    if ( uuid == IID_QUnknownInterface )
+    if ( uuid == IID_QUnknown )
 	*iface = (QUnknownInterface*)this;
-    else if ( uuid == IID_QComponentInterface )
+    else if ( uuid == IID_QComponent )
 	*iface = (QUnknownInterface*)this;
-    else if ( uuid == IID_DesignerInterface )
+    else if ( uuid == IID_Designer )
 	*iface = (QUnknownInterface*)this;
 
     if ( *iface )

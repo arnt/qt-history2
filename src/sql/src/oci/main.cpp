@@ -37,7 +37,7 @@
 #include "../../qsqldriverinterface.h"
 #include "qsql_oci.h"
 
-class QOCIDriverPlugin : public QSqlDriverInterface
+class QOCIDriverPlugin : public QSqlDriverFactoryInterface
 {
 public:
     QOCIDriverPlugin();
@@ -60,12 +60,12 @@ QOCIDriverPlugin::QOCIDriverPlugin()
 
 QRESULT QOCIDriverPlugin::queryInterface( const QUuid& uuid, QUnknownInterface** iface )
 {
-    if ( uuid == IID_QUnknownInterface )
+    if ( uuid == IID_QUnknown )
 	*iface = (QUnknownInterface*)this;
-    else if ( uuid == IID_QFeatureListInterface )
+    else if ( uuid == IID_QFeatureList )
 	*iface = (QFeatureListInterface*)this;
-    else if ( uuid == IID_QSqlDriverInterface )
-	*iface = (QSqlDriverInterface*)this;
+    else if ( uuid == IID_QSqlDriverFactory )
+	*iface = (QSqlDriverFactoryInterface*)this;
 
     if ( *iface )
 	(*iface)->addRef();

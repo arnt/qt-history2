@@ -65,15 +65,15 @@ CommonInterface::~CommonInterface()
 
 QRESULT CommonInterface::queryInterface( const QUuid &uuid, QUnknownInterface** iface )
 {
-    if ( uuid == IID_QUnknownInterface )
+    if ( uuid == IID_QUnknown )
 	*iface = (QUnknownInterface*)this;
-    if ( uuid == IID_QComponentInterface )
+    if ( uuid == IID_QComponent )
 	*iface = (QComponentInterface*)this;
-    else if ( uuid == IID_EditorInterface )
+    else if ( uuid == IID_Editor )
 	*iface = editorIface;
-    else if ( uuid == IID_LanguageInterface )
+    else if ( uuid == IID_Language )
 	*iface = langIface;
-    else if ( uuid == IID_PreferenceInterface )
+    else if ( uuid == IID_Preference )
 	*iface = prefIface;
 
     if ( *iface )

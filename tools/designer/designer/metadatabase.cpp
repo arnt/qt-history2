@@ -1305,7 +1305,7 @@ void MetaDataBase::setupInterfaceManagers()
     QString dir = getenv( "QTDIR" );
     dir += "/plugins/designer";
     if ( !eventInterfaceManager ) {
-	eventInterfaceManager = new QPluginManager<EventInterface>( IID_EventInterface, dir );
+	eventInterfaceManager = new QPluginManager<EventInterface>( IID_Event, dir );
 
 	QStringList paths(QApplication::libraryPaths());
 	QStringList::Iterator it = paths.begin();
@@ -1316,7 +1316,7 @@ void MetaDataBase::setupInterfaceManagers()
 
     }
     if ( !languageInterfaceManager ) {
-	languageInterfaceManager = new QPluginManager<LanguageInterface>( IID_LanguageInterface, dir );
+	languageInterfaceManager = new QPluginManager<LanguageInterface>( IID_Language, dir );
 	QStringList paths(QApplication::libraryPaths());
 	QStringList::Iterator it = paths.begin();
 	while (it != paths.end()) {

@@ -2,12 +2,12 @@
 #include <qcdestyle.h>
 #include <qcleanuphandler.h>
 
-class CDEStyle : public QStyleInterface, public QLibraryInterface
+class CDEStyle : public QStyleFactoryInterface, public QLibraryInterface
 {
 public:
     CDEStyle();
 
-    QUnknownInterface *queryInterface( const QUuid& );
+    QRESULT queryInterface( const QUuid&, QUnknownInterface ** );
     unsigned long addRef();
     unsigned long release();
 
@@ -29,21 +29,21 @@ CDEStyle::CDEStyle()
 {
 }
 
-QUnknownInterface *CDEStyle::queryInterface( const QUuid &uuid )
+QRESULT CDEStyle::queryInterface( const QUuid &uuid, QUnknownInterface **iface )
 {
-    QUnknownInterface *iface = 0;
-    if ( uuid == IID_QUnknownInterface )
-	iface = (QUnknownInterface*)(QStyleInterface*)this;
-    else if ( uuid == IID_QFeatureListInterface )
-	iface = (QFeatureListInterface*)this;
-    else if ( uuid == IID_QStyleInterface )
-	iface = (QStyleInterface*)this;
-    else if ( uuid == IID_QLibraryInterface )
-	iface = (QLibraryInterface*)this;
+    if ( uuid == IID_QUnknown )
+	*iface = (QUnknownInterface*)(QStyleFactoryInterface*)this;
+    else if ( uuid == IID_QFeatureList )
+	*iface = (QFeatureListInterface*)this;
+    else if ( uuid == IID_QStyleFactory )
+	*iface = (QStyleFactoryInterface*)this;
+    else if ( uuid == IID_QLibrary )
+	*iface = (QLibraryInterface*)this;
+    else
+	*iface = 0;
 
-    if ( iface )
-	iface->addRef();
-    return iface;
+    if ( *iface )
+	(*iface)->addRef();
 }
 
 unsigned long CDEStyle::addRef()
