@@ -30,7 +30,7 @@
 #ifndef QT_WINDOWS_H
 #define QT_WINDOWS_H
 
-#if defined(_CC_BOR_)
+#if defined(Q_CC_BOR)
 // Borland's windows.h does not set these correctly, resulting in
 // unusable WinSDK standard dialogs
 #ifndef WINVER
