@@ -277,7 +277,11 @@ void QGfxMatrox<depth,type>::fillRect(int rx,int ry,int w,int h)
     QScreen * tmp2=qt_screen;
     qt_screen=gfx_screen;
 #endif
-    matrox_regw(FCOL,get_color(tmp.alloc()));
+    unsigned int tmpcol=tmp.alloc();
+    if(((QLinuxFb_Shared *)shared_data)->forecol!=tmpcol) {
+      matrox_regw(FCOL,get_color(tmpcol));
+      ((QLinuxFb_Shared *)shared_data)->forecol=tmpcol;
+    }
 #ifndef QT_NO_QWS_REPEATER
     qt_screen=tmp2;
 #endif
@@ -342,13 +346,6 @@ void QGfxMatrox<depth,type>::drawLine(int x1,int y1,int x2,int y2)
 
   GFX_START(QRect(x1, y1 < y2 ? y1 : y2, dx+1, QABS(dy)+1))
 
-    QColor tmp=cpen.color();
-
-  QScreen * tmpscreen=qt_screen;
-  qt_screen=gfx_screen;
-  unsigned int tmp2=tmp.alloc();
-  qt_screen=tmpscreen;
-
   int loopc;
 
   int b=dy<dx ? dy : dx;   // min
@@ -367,7 +364,17 @@ void QGfxMatrox<depth,type>::drawLine(int x1,int y1,int x2,int y2)
 
   for(loopc=0;loopc<ncliprect;loopc++) {
     do_scissors(cliprect[loopc]);
-    matrox_regw(FCOL,tmp2);
+    QColor tmp=cpen.color();
+    QScreen * tmpscreen=qt_screen;
+    qt_screen=gfx_screen;
+    unsigned int tmp2=tmp.alloc();
+    qt_screen=tmpscreen;
+
+    if(((QLinuxFb_Shared *)shared_data)->forecol!=tmp2) {
+      matrox_regw(FCOL,tmp2);
+      ((QLinuxFb_Shared *)shared_data)->forecol=tmp2;
+    }
+
     matrox_regw(DWGCTL,DWG_LINE_CLOSE | DWG_REPLACE |
 		DWG_SOLID | DWG_SHIFTZERO | DWG_BFCOL);
     matrox_regw(AR0,b*2);
