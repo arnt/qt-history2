@@ -183,12 +183,14 @@ bool QFtpPI::sendCommands( const QStringList &cmds )
 {
     if ( !pendingCommands.isEmpty() )
 	return FALSE;
-    pendingCommands = cmds;
 
-    // ### What if we are not in state Idle; should we rather return FALSE.
-    // Might the actual implementation result in a deadlock?
-    if ( state == Idle )
-	startNextCmd();
+    if ( !commandSocket.isOpen() || state!=Idle ) {
+	emit finished( Error, tr( "Not connected" ) );
+	return TRUE; // there are no pending commands
+    }
+
+    pendingCommands = cmds;
+    startNextCmd();
     return TRUE;
 }
 
@@ -204,7 +206,6 @@ void QFtpPI::connected()
 //    qDebug( "QFtpPI state: %d [connected()]", state );
 #endif
     emit connectState( QFtp::CsConnected );
-    emit finished( Ok, tr( "Connected to host %1" ).arg( commandSocket.peerName() ) );
 }
 
 void QFtpPI::connectionClosed()
@@ -296,6 +297,7 @@ void QFtpPI::processReply()
 		return;
 	    } else if ( replyType == 2 ) {
 		state = Idle;
+		emit finished( Ok, tr( "Connected to host %1" ).arg( commandSocket.peerName() ) );
 		break;
 	    }
 	    // ### error handling
