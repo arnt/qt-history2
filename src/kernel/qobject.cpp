@@ -268,14 +268,14 @@ void *qt_find_obj_child( QObject *parent, const char *type, const char *name )
 
 
 
-#ifndef QT_NO_PRELIMINARY_SIGNAL_INTERCEPTOR
+#ifndef QT_NO_PRELIMINARY_SIGNAL_SPY
 /*
-  Preliminary signal interceptor
+  Preliminary signal spy
  */
-Q_EXPORT QObject* qt_preliminary_signal_interceptor = 0;
-static QObject* qt_intercept_signal_sender = 0;
+Q_EXPORT QObject* qt_preliminary_signal_spy = 0;
+static QObject* qt_spy_signal_sender = 0;
 
-static void qt_intercept_signal( QObject* sender, int signal, QUObject* o )
+static void qt_spy_signal( QObject* sender, int signal, QUObject* o )
 {
     QMetaObject* mo = sender->metaObject();
     while ( mo && signal - mo->signalOffset() < 0 )
@@ -289,19 +289,19 @@ static void qt_intercept_signal( QObject* sender, int signal, QUObject* o )
     mo = sender->metaObject();
     while ( mo ) {
 	s.sprintf( "%s_%s", mo->className(), sigData->name );
-	int slot = qt_preliminary_signal_interceptor->metaObject()->findSlot( s, TRUE );
+	int slot = qt_preliminary_signal_spy->metaObject()->findSlot( s, TRUE );
 	if ( slot >= 0 ) {
 #ifdef QT_THREAD_SUPPORT
-	    // protect access to qt_intercept_signal_sender
-	    void * const address = &qt_intercept_signal_sender;
+	    // protect access to qt_spy_signal_sender
+	    void * const address = &qt_spy_signal_sender;
 	    QMutexLocker locker( qt_global_mutexpool ?
 				 qt_global_mutexpool->get( address ) : 0 );
 #endif // QT_THREAD_SUPPORT
 
-	    QObject* old_sender = qt_intercept_signal_sender;
-	    qt_intercept_signal_sender = sender;
-	    qt_preliminary_signal_interceptor->qt_invoke( slot, o );
-	    qt_intercept_signal_sender = old_sender;
+	    QObject* old_sender = qt_spy_signal_sender;
+	    qt_spy_signal_sender = sender;
+	    qt_preliminary_signal_spy->qt_invoke( slot, o );
+	    qt_spy_signal_sender = old_sender;
 	    break;
 	}
 	mo = mo->superClass();
@@ -309,9 +309,9 @@ static void qt_intercept_signal( QObject* sender, int signal, QUObject* o )
 }
 
 /*
-  End Preliminary signal interceptor
+  End Preliminary signal spy
  */
-#endif // QT_NO_PRELIMINARY_SIGNAL_INTERCEPTOR
+#endif // QT_NO_PRELIMINARY_SIGNAL_SPY
 
 static QObjectList* object_trees = 0;
 
@@ -1193,8 +1193,8 @@ QConnectionList *QObject::receivers( const char* signal ) const
 
 QConnectionList *QObject::receivers( int signal ) const
 {
-#ifndef QT_NO_PRELIMINARY_SIGNAL_INTERCEPTOR
-    if ( qt_preliminary_signal_interceptor && signal >= 0 ) {
+#ifndef QT_NO_PRELIMINARY_SIGNAL_SPY
+    if ( qt_preliminary_signal_spy && signal >= 0 ) {
 	if ( !connections ) {
 	    QObject* that = (QObject*) this;
 	    that->connections = new QSignalVec( signal+1 );
@@ -1503,15 +1503,15 @@ static void err_info_about_candidates( int code,
 
 const QObject *QObject::sender()
 {
-#ifndef QT_NO_PRELIMINARY_SIGNAL_INTERCEPTOR
-    if ( this == qt_preliminary_signal_interceptor ) {
+#ifndef QT_NO_PRELIMINARY_SIGNAL_SPY
+    if ( this == qt_preliminary_signal_spy ) {
 #  ifdef QT_THREAD_SUPPORT
-	// protect access to qt_intercept_signal_sender
-	void * const address = &qt_intercept_signal_sender;
+	// protect access to qt_spy_signal_sender
+	void * const address = &qt_spy_signal_sender;
 	QMutexLocker locker( qt_global_mutexpool ?
 			     qt_global_mutexpool->get( address ) : 0 );
 #  endif // QT_THREAD_SUPPORT
-	return qt_intercept_signal_sender;
+	return qt_spy_signal_sender;
     }
 #endif
     if ( senderObjects &&
@@ -2261,12 +2261,12 @@ QMetaObject* QObject::staticQtMetaObject()
   */
 void QObject::activate_signal( int signal )
 {
-#ifndef QT_NO_PRELIMINARY_SIGNAL_INTERCEPTOR
-    if ( qt_preliminary_signal_interceptor ) {
+#ifndef QT_NO_PRELIMINARY_SIGNAL_SPY
+    if ( qt_preliminary_signal_spy ) {
 	if ( !signalsBlocked() && signal >= 0 &&
 	     ( !connections || !connections->at( signal ) ) ) {
 	    QUObject o[1];
-	    qt_intercept_signal( this, signal, o );
+	    qt_spy_signal( this, signal, o );
 	    return;
 	}
     }
@@ -2288,9 +2288,9 @@ void QObject::activate_signal( QConnectionList *clist, QUObject *o )
     if ( !clist )
 	return;
 
-#ifndef QT_NO_PRELIMINARY_SIGNAL_INTERCEPTOR
-    if ( qt_preliminary_signal_interceptor )
-	qt_intercept_signal( this, connections->findRef( clist), o );
+#ifndef QT_NO_PRELIMINARY_SIGNAL_SPY
+    if ( qt_preliminary_signal_spy )
+	qt_spy_signal( this, connections->findRef( clist), o );
 #endif
 
     QObject *object;
@@ -2363,16 +2363,16 @@ void QObject::activate_signal( QConnectionList *clist, QUObject *o )
   only a typedef it cannot be a simple overload.
 */
 
-#ifndef QT_NO_PRELIMINARY_SIGNAL_INTERCEPTOR
+#ifndef QT_NO_PRELIMINARY_SIGNAL_SPY
 #define ACTIVATE_SIGNAL_WITH_PARAM(FNAME,TYPE)				      \
 void QObject::FNAME( int signal, TYPE param )				      \
 {									      \
-    if ( qt_preliminary_signal_interceptor ) { \
+    if ( qt_preliminary_signal_spy ) { \
 	if ( !signalsBlocked() && signal >= 0 && \
 	     ( !connections || !connections->at( signal ) ) ) { \
 	    QUObject o[2];							      \
 	    static_QUType_##TYPE.set( o+1, param );					      \
-	    qt_intercept_signal( this, signal, o ); \
+	    qt_spy_signal( this, signal, o ); \
 	    return; \
 	} \
     } \
