@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: porting.doc,v 1.25 1999/02/17 16:03:29 warwick Exp $
+** $Id: porting.doc,v 1.26 1999/02/17 21:33:08 warwick Exp $
 **
 ** Help with porting from Qt 1.x to Qt 2.0
 **
@@ -220,19 +220,19 @@ Many signal/slots have changed from const char* to QString.  You will
 <dd>
 In qt/src/tools/qstring.cpp there is a Q2HELPER - define it for some
  extra debugging/optimizing features (don't leave it it - it kills performance).
-<dt><b>QString::detach() is obsolete</b></dt>
+<dt><b>QString::detach() is obsolete and removed</b></dt>
 <dd>
-QString is always shared.  It is now a no-op.
-<dt><b>QString::resize(size) is obsolete</b></dt>
+QString is always shared.  Remove callses to QString::detach().
+<dt><b>QString::resize(size) is obsolete and removed</b></dt>
 <dd>
 Code using this to truncate a string should use truncate(size-1).
 Code using qstr.resize(0) should use qstr = QString::null.
 Code calling resize(n) prior to using operator[] up to n just remove
 the resize(n) completely.
-<dt><b>QString::size() is obsolete</b></dt>
+<dt><b>QString::size() is obsolete and removed</b></dt>
 <dd>
 must be replaced by length()+1.
-<dt><b>QString::setStr(const char*)</b></dt>
+<dt><b>QString::setStr(const char*) is removed</b></dt>
 <dd>Understand why you were using this.  If you just meant assignment, use that.  Otherwise,
 you are probably using QString as an array of bytes, in which case use QByteArray or
 QCString instead.
