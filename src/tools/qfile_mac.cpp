@@ -236,11 +236,12 @@ bool QFile::open( int m, FILE *f )
 #if defined(QT_LARGE_FILE_SUPPORT)
     struct stat64 st;
     ::fstat64( fileno(fh), &st );
+    ioIndex = (Offset)ftello64( fh );
 #else
     struct stat st;
     ::fstat( fileno(fh), &st );
-#endif
     ioIndex = (Offset)ftell( fh );
+#endif
     if ( (st.st_mode & S_IFMT) != S_IFREG || f == stdin ) { //stdin is non seekable
 	// non-seekable
 	setType( IO_Sequential );
@@ -348,7 +349,7 @@ bool QFile::at( Offset pos )
 	ok = (long int) pos != -1;		// ### fix this bad hack!
     } else {					// buffered file
 #if defined(QT_LARGE_FILE_SUPPORT)
-	ok = ::fseek64(fh, pos, SEEK_SET) == 0;
+	ok = ::fseeko64(fh, pos, SEEK_SET) == 0;
 #else
 	ok = ::fseek(fh, pos, SEEK_SET) == 0;
 #endif
@@ -445,7 +446,7 @@ Q_LONG QFile::writeBlock( const char *p, Q_ULONG len )
 #endif
 	else
 #if defined(QT_LARGE_FILE_SUPPORT)
-	    ioIndex = ::fseek64( fh, 0, SEEK_CUR );
+	    ioIndex = ::fseeko64( fh, 0, SEEK_CUR );
 #else
 	    ioIndex = ::fseek( fh, 0, SEEK_CUR );
 #endif
