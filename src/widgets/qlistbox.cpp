@@ -3776,7 +3776,7 @@ void QListBox::clearInputString()
 
 QListBoxItem *QListBox::findItem( const QString &text, ComparisonFlags compare ) const
 {
-    if (text.isNull() || text.isEmpty())
+    if ( text.isEmpty() )
 	return 0;
 
     if ( compare == CaseSensitive )
