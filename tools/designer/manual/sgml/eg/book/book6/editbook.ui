@@ -10,8 +10,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>556</width>
-            <height>295</height>
+            <width>552</width>
+            <height>293</height>
         </rect>
     </property>
     <property name="caption">
@@ -298,11 +298,11 @@
     <slot access="public" language="C++">primeInsertBook( QSqlRecord *buffer )</slot>
 </connections>
 <functions>
-    <function name="destroy()" >{
-    
-}</function>
     <function name="init()" >{
 	 
+}</function>
+    <function name="destroy()" >{
+    
 }</function>
     <function name="primeInsertBook(QSqlRecord*)" >{
     QSqlQuery query( "SELECT nextval('book_seq');" ); 

@@ -11,8 +11,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>502</width>
-            <height>510</height>
+            <width>498</width>
+            <height>508</height>
         </rect>
     </property>
     <property name="caption">
@@ -187,6 +187,9 @@
     <slot access="public" language="C++">primeInsertAuthor( QSqlRecord *buffer )</slot>
 </connections>
 <functions>
+    <function name="init()" >{
+    
+}</function>
     <function name="destroy()" >{
     
 }</function>
@@ -199,13 +202,10 @@
     dialog-&gt;BookDataBrowser-&gt;setSort(QSqlIndex::fromStringList( 
     	BookDataTable-&gt;sort(), &amp;cur ) );
     dialog-&gt;BookDataBrowser-&gt;refresh();
-    dialog-&gt;BookDataBrowser-&gt;seek( BookDataTable-&gt;sqlCursor()-&gt;at() );
+    dialog-&gt;BookDataBrowser-&gt;seek( BookDataTable-&gt;currentRow() );
     dialog-&gt;exec();
     delete dialog;
     BookDataTable-&gt;refresh();
-}</function>
-    <function name="init()" >{
-    
 }</function>
     <function name="newCurrentAuthor(QSqlRecord*)" >{
     BookDataTable-&gt;setFilter( "authorid=" + author-&gt;value( "id" ).toString() );  

@@ -1,12 +1,12 @@
 /****************************************************************************
-** Form implementation generated from reading ui file 'book.ui'
+** Form implementation generated from reading ui file '/home/mark/p4/qt/tools/designer/manual/sgml/eg/book/book6/book.ui'
 **
-** Created: Wed Jan 24 12:07:17 2001
+** Created: Thu Jan 25 12:06:26 2001
 **      by:  The User Interface Compiler (uic)
 **
 ** WARNING! All changes made in this file will be lost!
 ****************************************************************************/
-#include "./book.h"
+#include "/home/mark/p4/qt/tools/designer/manual/sgml/eg/book/book6/book.h"
 
 #include <qvariant.h>   // first for gcc 2.7.2
 #include <qdatatable.h>
@@ -30,7 +30,7 @@ BookForm::BookForm( QWidget* parent,  const char* name, bool modal, WFlags fl )
 {
     if ( !name )
 	setName( "BookForm" );
-    resize( 510, 514 ); 
+    resize( 506, 512 ); 
     setCaption( tr( "Book" ) );
     BookFormLayout = new QVBoxLayout( this ); 
     BookFormLayout->setSpacing( 6 );
@@ -132,7 +132,7 @@ void BookForm::editClicked()
     dialog->BookDataBrowser->setSort(QSqlIndex::fromStringList( 
     	BookDataTable->sort(), &cur ) );
     dialog->BookDataBrowser->refresh();
-    dialog->BookDataBrowser->seek( BookDataTable->sqlCursor()->at() );
+    dialog->BookDataBrowser->seek( BookDataTable->currentRow() );
     dialog->exec();
     delete dialog;
     BookDataTable->refresh();

@@ -1,12 +1,12 @@
 /****************************************************************************
-** Form implementation generated from reading ui file 'editbook.ui'
+** Form implementation generated from reading ui file '/home/mark/p4/qt/tools/designer/manual/sgml/eg/book/book6/editbook.ui'
 **
-** Created: Wed Jan 24 12:07:23 2001
+** Created: Thu Jan 25 12:06:32 2001
 **      by:  The User Interface Compiler (uic)
 **
 ** WARNING! All changes made in this file will be lost!
 ****************************************************************************/
-#include "./editbook.h"
+#include "/home/mark/p4/qt/tools/designer/manual/sgml/eg/book/book6/editbook.h"
 
 #include <qvariant.h>   // first for gcc 2.7.2
 #include <qdatabrowser.h>
@@ -33,7 +33,7 @@ EditBookForm::EditBookForm( QWidget* parent,  const char* name, bool modal, WFla
 {
     if ( !name )
 	setName( "EditBookForm" );
-    resize( 556, 295 ); 
+    resize( 552, 293 ); 
     setCaption( tr( "Edit Books" ) );
     EditBookFormLayout = new QVBoxLayout( this ); 
     EditBookFormLayout->setSpacing( 6 );
