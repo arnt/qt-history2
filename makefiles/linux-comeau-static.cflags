@@ -1,0 +1,6 @@
+CC="como"
+CFLAGS="--display_error_number --diag_suppress 450,11 --no_alternative_tokens -DNeedFunctionPrototypes"
+LFLAGS="-lqt -L/usr/X11R6/lib -lX11"
+SHELL="/bin/sh"
+LIBCFLAGS=""
+YACCCFLAGS="--diag_suppress 111,177"
