@@ -51,7 +51,8 @@
     \printuntil /^\};/
 
     Apart from the constructor, the class contains two private slots that
-    are named according to the auto-connection convention used by \c uic.
+    are named according to the auto-connection naming convention required
+    by \c uic.
     The private \c ui member variable refers to the form, and is used to
     access the contents of the user interface.
 
