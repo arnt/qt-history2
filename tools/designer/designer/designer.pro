@@ -91,7 +91,6 @@ SOURCES	= command.cpp \
 		  dbconnectionsimpl.cpp \
 		  tableeditorimpl.cpp \
 		  sourceeditor.cpp \
-		  ../shared/guid.cpp \
 		  database.cpp
 
 TARGET	= designer

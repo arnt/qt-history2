@@ -1,5 +1,3 @@
-#define Q_INITGUID
-
 #include "qwidgetfactory.h"
 #include <widgetdatabase.h>
 #include <widgetinterface.h>

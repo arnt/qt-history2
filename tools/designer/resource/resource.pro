@@ -8,7 +8,8 @@ SOURCES		= qwidgetfactory.cpp \
 		  ../integration/kdevelop/kdewidgets.cpp \
 		  ../designer/config.cpp \
 		  ../designer/database.cpp \
-		  ../designer/pixmapchooser.cpp
+		  ../designer/pixmapchooser.cpp \
+		  ../shared/guid.cpp
 HEADERS		= qwidgetfactory.h \
 		  ../shared/widgetdatabase.h \
 		  ../shared/domtool.h \
