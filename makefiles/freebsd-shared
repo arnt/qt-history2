@@ -31,7 +31,7 @@ diff -ur template/library/Makefile freebsd-shared/library/Makefile
 @@ -89,9 +100,10 @@
  
  library: $(OBJECTS) $(METAOBJ)
- 	-rm -f ../../lib/libqt.so.${VERSION}
+ 	-rm -f ../../../lib/libqt.so.${VERSION}
 -	$(CC) -shared -Wl,-soname,libqt.so.0 \
 +	ld -Bshareable \
  		-o ../../../lib/libqt.so.${VERSION} \
