@@ -1245,7 +1245,9 @@ public:
   The partial specialization to catch all pointers.
 */
 template <typename T> inline void qInit(T *&t) { t = 0; }
+#ifndef Q_CC_SUN // Sun CC sees an ambiguity here
 template <typename T> inline void qInit(const T *&t) { t = 0; }
+#endif
 
 template <typename T>
 class QTypeInfo<T*>

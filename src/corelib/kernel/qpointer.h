@@ -49,9 +49,11 @@ template <class T>
 inline bool operator==(const T *o, const QPointer<T> &p)
 { return o == p.operator->(); }
 
+#ifndef Q_CC_SUN // ambiguity between const T * and T *
 template<class T>
 inline bool operator==(const QPointer<T> &p, const T *o)
 { return p.operator->() == o; }
+#endif
 
 template <class T>
 inline bool operator==(T *o, const QPointer<T> &p)
@@ -70,9 +72,11 @@ template <class T>
 inline bool operator!=(const T *o, const QPointer<T> &p)
 { return o != p.operator->(); }
 
+#ifndef Q_CC_SUN // ambiguity between const T * and T *
 template<class T>
 inline bool operator!= (const QPointer<T> &p, const T *o)
 { return p.operator->() != o; }
+#endif
 
 template <class T>
 inline bool operator!=(T *o, const QPointer<T> &p)
