@@ -12,3 +12,8 @@
 #define QT_MODULE_OPENGL
 #define QT_MODULE_SQL
 #define QT_MODULE_STYLES
+
+// Compile time features
+#ifndef QT_NO_STL
+#define QT_NO_STL
+#endif
