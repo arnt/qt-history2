@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#156 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#157 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -2021,7 +2021,7 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 	    if ( !PeekMessage(&wm_char, 0, WM_CHAR, WM_CHAR, PM_REMOVE) ) {
 		if ( msg.wParam == VK_DELETE )
 		    wm_char.wParam = 0x7f; // Windows doesn't know this one.
-		else if ( isalpha(msg.wParam) ) // Alt-letter
+		else if ( isalpha(msg.wParam) && msg.message == WM_SYSKEYDOWN ) // Alt-letter
     		    wm_char.wParam = tolower(msg.wParam);
 		else
     		    wm_char.wParam = 0;
