@@ -36,7 +36,12 @@
 **********************************************************************/
 
 #include "qplatformdefs.h"
-#include <resolv.h>
+#include "qbytearray.h"
+#ifdef Q_OS_WIN32
+# include "qt_windows.h"
+#else
+# include <resolv.h>
+#endif
 
 // POSIX Large File Support redefines open -> open64
 #if defined(open)
@@ -2331,7 +2336,7 @@ static bool getDnsParamsFromRegistry( const QString &path,
 			  0, KEY_READ, &k );
     } , {
 	r = RegOpenKeyExA( HKEY_LOCAL_MACHINE,
-			   path,
+			   path.latin1(),
 			   0, KEY_READ, &k );
     } );
 
@@ -2447,7 +2452,7 @@ void Q3Dns::doResInit()
 	last = searchList.find( separator, first );
 	if ( last < 0 )
 	    last = searchList.length();
-	domains->append( qstrdup( searchList.mid( first, last-first ) ) );
+	domains->append( qstrdup( searchList.mid( first, last-first ).latin1() ) );
 	first = last+1;
     } while( first < (int)searchList.length() );
 }

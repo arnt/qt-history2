@@ -667,7 +667,7 @@ Q_LONG Q3SocketDevice::waitForMore( int msecs, bool *timeout ) const
 }
 
 
-Q_LONG Q3SocketDevice::readBlock( char *data, Q_ULONG maxlen )
+Q_LONGLONG Q3SocketDevice::readData( char *data, Q_LONGLONG maxlen )
 {
 #if defined(QT_CHECK_NULL)
     if ( data == 0 && maxlen != 0 ) {
@@ -769,7 +769,7 @@ Q_LONG Q3SocketDevice::readBlock( char *data, Q_ULONG maxlen )
 }
 
 
-Q_LONG Q3SocketDevice::writeBlock( const char *data, Q_ULONG len )
+Q_LONGLONG Q3SocketDevice::writeData( const char *data, Q_LONGLONG len )
 {
     if ( data == 0 && len != 0 ) {
 #if defined(QT_CHECK_NULL) || defined(QSOCKETDEVICE_DEBUG)
