@@ -51,7 +51,7 @@
 #include "src/oci/qsql_oci.h"
 #endif
 
-#include "qcleanuphandler.h"
+#include "qapplication.h"
 #include "qsqlresult.h"
 #include "qsqldriver.h"
 #include "qsqldriverinterface.h"
@@ -98,9 +98,10 @@ public:
     QSqlQuery createQuery() const { return QSqlQuery( new QNullResult(this) ); }
 };
 
-class QSqlDatabaseManager
+class QSqlDatabaseManager : public QObject
 {
 public:
+    QSqlDatabaseManager( QObject * parent = 0, const char * name = 0 );
     ~QSqlDatabaseManager();
     static QSqlDatabase* database( const QString& name, bool open );
     static QSqlDatabase* addDatabase( QSqlDatabase* db, const QString & name );
@@ -117,8 +118,9 @@ protected:
 
 */
 
-QSqlDatabaseManager::QSqlDatabaseManager()
-    : dbDict( 1 )
+QSqlDatabaseManager::QSqlDatabaseManager( QObject * parent, const char * name )
+    : QObject( parent, name ),
+      dbDict( 1 )
 {
 }
 
@@ -135,11 +137,10 @@ QSqlDatabaseManager::~QSqlDatabaseManager()
 	it.current()->close();
 	++it;
     }
-	dbDict.setAutoDelete( TRUE );
+    dbDict.setAutoDelete( TRUE );
 }
 
 static QSqlDatabaseManager * sqlConnection = 0;
-static QCleanupHandler< QSqlDatabaseManager > qsql_cleanup_database_manager;
 
 /*!
   \internal
@@ -148,8 +149,12 @@ static QCleanupHandler< QSqlDatabaseManager > qsql_cleanup_database_manager;
 QSqlDatabaseManager* QSqlDatabaseManager::instance()
 {
     if ( !sqlConnection ) {
-	sqlConnection = new QSqlDatabaseManager();
-	qsql_cleanup_database_manager.add( sqlConnection );
+	if( qApp == 0 ){
+	    qWarning( "QSqlDatabaseManager: A QApplication object have to be "
+		      "instantiated in order to use the SQL module." );
+	    return 0;
+	}
+        sqlConnection = new QSqlDatabaseManager( qApp, "database manager" );
     }
     return sqlConnection;
 }
@@ -205,6 +210,8 @@ bool QSqlDatabaseManager::contains( const QString& name )
 QSqlDatabase* QSqlDatabaseManager::addDatabase( QSqlDatabase* db, const QString & name )
 {
     QSqlDatabaseManager* sqlConnection = instance();
+    if( sqlConnection == 0 ) 
+	return 0;
     sqlConnection->removeDatabase( name );
     sqlConnection->dbDict.insert( name, db );
     return db;
@@ -399,23 +406,22 @@ void QSqlDatabase::init( const QString& type, const QString&  )
 
 #ifndef QT_NO_COMPONENT
     if ( !d->driver ) {
-	d->plugIns = new QInterfaceManager<QSqlDriverInterface>( IID_QSqlDriverInterface, QString((char*)getenv( "QTDIR" )) + "/plugins" ); // ###
-	QSqlDriverInterface *iface = d->plugIns->queryInterface( type );
-	d->driver = iface ? iface->create( type ) : 0;
+        d->plugIns = new QInterfaceManager<QSqlDriverInterface>( IID_QSqlDriverInterface, QString((char*)getenv( "QTDIR" )) + "/plugins" );
+        QSqlDriverInterface *iface = d->plugIns->queryInterface( type );
+	if( iface ){
+	    d->driver = iface->create( type );
+	    iface->release();
+	}
     }
 #endif
 
     if ( !d->driver ) {
-
 #ifdef QT_CHECK_RANGE
 	qWarning("QSqlDatabase warning: %s driver not loaded", type.data());
 #endif
-
-	d->driver = new QNullDriver();
-	d->driver->setLastError( QSqlError( "Driver not loaded", "Driver not loaded" ) );
-
+        d->driver = new QNullDriver();
+        d->driver->setLastError( QSqlError( "Driver not loaded", "Driver not loaded" ) );
     }
-
 }
 
 /*! Destroys the object and frees any allocated resources.
