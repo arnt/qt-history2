@@ -2078,7 +2078,6 @@ QString QTextDocument::richText( QTextParag *p ) const
 	QPtrVector<QStyleSheetItem> lastItems, items;
 	while ( p ) {
 	    items = p->styleSheetItems();
-	    qDebug("another paragraph with %d items ", items.size() );
 	    if ( items.size() ) {
 		QStyleSheetItem *item = items[ items.size() - 1 ];
 		items.resize( items.size() - 1 );
