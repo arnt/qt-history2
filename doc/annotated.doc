@@ -1,0 +1,25 @@
+/****************************************************************************
+** $Id: annotated.doc,v 1.1 1997/06/25 14:33:22 warwick Exp $
+**
+** Documentation for class overview
+**
+** Copyright (C) 1997 by Troll Tech AS.  All rights reserved.
+**
+*****************************************************************************/
+
+#if defined(DEBUG)
+static char ident[] = "$Id: annotated.doc,v 1.1 1997/06/25 14:33:22 warwick Exp $";
+#endif
+
+
+/*!
+\page annotated2.html
+
+<title>Qt Documentation</title>
+</head><body bgcolor="#ffffff">
+
+<h1 align=center>Annotated Qt Class Index</h1>
+<p>Here are the classes in Qt, with brief descriptions:
+
+\annotatedclasslist
+*/
