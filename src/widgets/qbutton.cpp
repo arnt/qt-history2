@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#85 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#86 $
 **
 ** Implementation of QButton widget class
 **
@@ -19,7 +19,7 @@
 #include "qpmcache.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#85 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#86 $");
 
 
 static const int autoRepeatDelay  = 300;
@@ -705,7 +705,7 @@ void QButton::paintEvent( QPaintEvent *event )
 {
     QPainter paint;
     
-    if ( width() <= drawingPixWidth && height() <= drawingPixHeight  ) {
+    if ( event && width() <= drawingPixWidth && height() <= drawingPixHeight ) {
 	QPixmap *pm = getDrawingPixmap();
 	ASSERT( pm );
 
@@ -723,7 +723,11 @@ void QButton::paintEvent( QPaintEvent *event )
 	if ( event && !event->rect().contains(rect()) )
 	    paint.setClipRect( event->rect() );
 
-	erase( event->rect() );
+	if ( event )
+	    erase( event->rect() );
+	else
+	    erase();
+
 	drawButton( &paint );
 	paint.end();
     }
