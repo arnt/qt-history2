@@ -29,6 +29,12 @@ int main( int argc, char **argv )
     QApplication app( argc, argv );			
 
     QTable table( numRows, numCols );
+
+    QHeader *header = table.horizontalHeader();
+    header->setLabel( 0, "Tiny", 40 );
+    header->setLabel( 1, "Checkboxes" );
+    header->setLabel( 5, "Combos" );
+
     QImage img( qtlogo_xpm );
     QPixmap pix = img.scaleHeight( table.rowHeight(3) );
     table.setPixmap( 3, 2, pix );
