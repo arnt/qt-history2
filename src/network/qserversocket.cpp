@@ -80,6 +80,10 @@ public:
 
   The \a parent and \a name arguments are passed on as usual
   to the QObject constructor.
+
+  \warning On Tru64 Unix systems a value of 0 for \a backlog means that you
+  don't accept any connections at all; you should specify a value larger than
+  0.
 */
 
 QServerSocket::QServerSocket( Q_UINT16 port, int backlog,
@@ -98,6 +102,10 @@ QServerSocket::QServerSocket( Q_UINT16 port, int backlog,
 
   The \a parent and \a name arguments are passed on as usual
   to the QObject constructor.
+
+  \warning On Tru64 Unix systems a value of 0 for \a backlog means that you
+  don't accept any connections at all; you should specify a value larger than
+  0.
 */
 
 QServerSocket::QServerSocket( const QHostAddress & address, Q_UINT16 port,

@@ -25,7 +25,7 @@ class HttpDaemon : public QServerSocket
     Q_OBJECT
 public:
     HttpDaemon( QObject* parent=0 ) :
-	QServerSocket(8080,0,parent)
+	QServerSocket(8080,1,parent)
     {
 	if ( !ok() ) {
 	    qWarning("Failed to bind to port 8080");

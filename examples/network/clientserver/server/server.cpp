@@ -72,7 +72,7 @@ class SimpleServer : public QServerSocket
     Q_OBJECT
 public:
     SimpleServer( QObject* parent=0 ) :
-	QServerSocket( 4242, 0, parent )
+	QServerSocket( 4242, 1, parent )
     {
 	if ( !ok() ) {
 	    qWarning("Failed to bind to port 4242");
