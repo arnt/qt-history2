@@ -47,23 +47,25 @@ layouts and which generates the C++ layout code for you.
 \section1 Layout Widgets
 
 The easiest way to give your widgets a good layout is to use the
-layout widgets: \l QHBox, \l QVBox and \l QGrid. A layout widget
-automatically lays out its child widgets in the order they are
-constructed. To create more complex layouts, you can nest layout
-widgets inside each other. (Note that \l QWidget does not have a
+layout widgets: \l QHBoxWidget, \l QVBoxWidget and \l QGridWidget.
+A layout widget automatically lays out its child widgets in the order
+they are constructed. To create more complex layouts, you can nest
+layout widgets inside each other. (Note that \l QWidget does not have a
 layout by default, you must add one if you want to lay out widgets
 inside a \l QWidget.)
 
 \list
-\i A \l QHBox lays out its child widgets in a horizontal row, left to right.
+\i A \l QHBoxWidget lays out its child widgets in a horizontal row,
+   left to right.
 
    \img qhbox-m.png Horizontal box with five child widgets
 
-\i A \l QVBox lays out its child widgets in a vertical column, top to bottom.
+\i A \l QVBoxWidget lays out its child widgets in a vertical column,
+   top to bottom.
 
    \img qvbox-m.png Vertical box with five child widgets
 
-\i A \l QGrid lays out its child widgets in a two dimensional grid.
+\i A \l QGridWidget lays out its child widgets in a two dimensional grid.
 You can specify how many columns the grid has, and it is populated left to
 right, beginning a new row when the previous row is full. The grid is
 fixed; the child widgets will not flow to other rows as the widget is
@@ -74,12 +76,12 @@ resized.
 
 The grid shown above can be produced by the following code:
 \code
-    QGrid *mainGrid = new QGrid( 2 ); // a 2 x n grid
-    new QLabel( "One", mainGrid );
-    new QLabel( "Two", mainGrid );
-    new QLabel( "Three", mainGrid );
-    new QLabel( "Four", mainGrid );
-    new QLabel( "Five", mainGrid );
+    QGridWidget *mainGrid = new QGridWidget(2); // a 2 x n grid
+    new QLabel("One", mainGrid);
+    new QLabel("Two", mainGrid);
+    new QLabel("Three", mainGrid);
+    new QLabel("Four", mainGrid);
+    new QLabel("Five", mainGrid);
 \endcode
 
 You can adjust the layout to some extent by calling
@@ -118,7 +120,7 @@ accordance with their QWidget::sizePolicy() or their minimum size hint
 whichever is the greater. Stretch factors are used to change how much
 space widgets are given in proportion to one another.
 
-If we have three widgets laid out using a QHBox with no stretch
+If we have three widgets laid out using a QHBoxWidget with no stretch
 factors set we will get a layout like this:
 
 \img layout1.png 3 widgets in a row
