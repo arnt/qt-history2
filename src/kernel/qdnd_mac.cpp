@@ -169,7 +169,6 @@ const char* QDropEvent::format( int i ) const
     }
 
     if ( info == 'TEXT' ) {
-	qDebug( "special case!" );
 	return "text/plain";
     }
 
