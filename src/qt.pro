@@ -6,7 +6,7 @@ CONFIG		+= png zlib
 
 # Uncomment the next line for builder development
 # Also define QT_BUILDER in qglobal.h
-CONFIG		+= builder
+# CONFIG		+= builder
 
 # Uncomment the next line if you want to use the standard png/zlib libs
 # unix:LIBS	+= -lpng -lz
