@@ -168,6 +168,8 @@ int qWinVersion()
 	OSVERSIONINFOA osver;
 	osver.dwOSVersionInfoSize = sizeof(osver);
 	GetVersionExA( &osver );
+	qDebug( "dwPlatformId = %d", osver.dwPlatformId );
+	qDebug( "dwMinorVersion = %d", osver.dwMinorVersion );
 	switch ( osver.dwPlatformId ) {
 	case VER_PLATFORM_WIN32s:
 	    winver = Qt::WV_32s;
@@ -175,6 +177,8 @@ int qWinVersion()
 	case VER_PLATFORM_WIN32_WINDOWS:
 	    if ( osver.dwMinorVersion == 10 )
 		winver = Qt::WV_98;
+	    else if ( osver.dwMinorVersion == 90 )
+		winver = Qt::WV_Me;
 	    else
 		winver = Qt::WV_95;
 	    break;

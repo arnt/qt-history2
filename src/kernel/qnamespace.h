@@ -593,6 +593,7 @@ public:
 	WV_32s 		= 0x0001,
 	WV_95 		= 0x0002,
 	WV_98		= 0x0003,
+	WV_Me		= 0x0004,
 	WV_DOS_based	= 0x000f,
 
 	WV_NT 		= 0x0010,
