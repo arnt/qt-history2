@@ -1,4 +1,4 @@
-REQUIRES    = shared
+REQUIRES    = shared workspace
 TEMPLATE    = app
 CONFIG	    += qt warn_off
 
