@@ -14,6 +14,7 @@
 
 class QXMLTag;
 class QResource;
+class DFormEditor;
 
 class DRange
 {
@@ -55,7 +56,7 @@ class DFormEditor;
 class DGridLayout : public QGridLayout
 {
   Q_OBJECT
-  Q_BUILDER( "", "", DefaultInspector )
+  Q_BUILDER( "", "" )
 
 public:
   struct Cell
@@ -112,7 +113,7 @@ public:
   Insert insertTest( const QPoint& _p, int *_row, int *_col );
   QRect insertRect( Insert _ins, uint _row, uint _col );
 
-  QXMLTag* save() const;
+  QXMLTag* save( DFormEditor* ) const;
 
   bool configure( const QResource& _resource );
  

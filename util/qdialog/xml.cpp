@@ -1,4 +1,5 @@
 #include "xml.h"
+#include "formeditor.h"
 
 #include <qobject.h>
 #include <qxmlparser.h>
@@ -23,9 +24,14 @@ void qPropertyToXML( QXMLTag* tag, const QProperty& prop, const QString& _name )
 	if ( prop.stringValue().isEmpty() )
 	  return;
 
-	QXMLTag* t = new QXMLTag( _name );
-	t->insert( new QXMLTag( prop.stringValue(), TRUE ) );
-	tag->insert( tag->end(), t );
+	if ( _name == "name" )
+	  tag->insertAttrib( "name", prop.stringValue() );
+	else
+	{
+	  QXMLTag* t = new QXMLTag( _name );
+	  t->insert( new QXMLTag( prop.stringValue(), TRUE ) );
+	  tag->insert( tag->end(), t );
+	}
       }
       break;
     case QProperty::StringListType:
@@ -192,6 +198,46 @@ QXMLTag* qObjectToXML( QObject* o, bool _layouted )
   }
 
   // TODO embedded DFormWidgets
+
+  return t;
+}
+
+QXMLTag* qObjectToXML( DObjectInfo* o, bool _layouted )
+{
+  QXMLTag *t = qObjectToXML( o->widget(), _layouted );
+
+  QValueList<DObjectInfo::Connection>::Iterator it = o->connectionsBegin();
+  QValueList<DObjectInfo::Connection>::Iterator end = o->connectionsEnd();
+  for( ; it != end; ++it )
+  {
+    QXMLTag* c = new QXMLTag( "Connection" );
+    c->insertAttrib( "sender", it->senderName );
+    c->insertAttrib( "signal", it->signal );
+    c->insertAttrib( "receiver", it->receiverName );
+    if ( it->slotIsSignal )
+      c->insertAttrib( "transmitter", it->slot );
+    else
+      c->insertAttrib( "slot", it->slot );
+    t->insert( c );
+  }
+
+  QStringList::ConstIterator sit = o->customSignals().begin();
+  QStringList::ConstIterator send = o->customSignals().end();
+  for( ; sit != send; ++sit )
+  {
+    QXMLTag* c = new QXMLTag( "CustomSignal" );
+    c->insertAttrib( "signature", *sit );
+    t->insert( c );
+  }
+
+  sit = o->customSlots().begin();
+  send = o->customSlots().end();
+  for( ; sit != send; ++sit )
+  {
+    QXMLTag* c = new QXMLTag( "CustomSlot" );
+    c->insertAttrib( "signature", *sit );
+    t->insert( c );
+  }
 
   return t;
 }

@@ -2,6 +2,7 @@
 #include "widgetsbar.h"
 #include "formeditor.h"
 #include "inspector.h"
+#include "createdlg.h"
 
 #include <qsplitter.h>
 #include <qlayout.h>
@@ -15,6 +16,11 @@
 
 void manipulateXML( QXMLIterator it, bool _root = TRUE );
 
+/**********************************************************
+ *
+ * DMainWindow
+ *
+ **********************************************************/
 
 /*!
   \class DMainWindow mainwindow.h
@@ -56,12 +62,16 @@ DMainWindow::DMainWindow()
   QMenuBar* menu = menuBar();
 
   QPopupMenu* popup = new QPopupMenu;
-  popup->insertItem( tr("&New"), this, SLOT( slotNew() ) );
+  popup->insertItem( tr("&New project"), this, SLOT( slotNew() ) );
   popup->insertItem( tr("&Open ..."), this, SLOT( slotOpen() ) );
   popup->insertItem( tr("Save &as ..."), this, SLOT( slotSaveAs() ) );
   popup->insertSeparator();
   popup->insertItem( tr("E&xit"), qApp, SLOT( quit() ) );
   menu->insertItem( tr("&File"), popup );
+
+  popup = new QPopupMenu;
+  popup->insertItem( tr("&New resource ..."), this, SLOT( slotNewResource() ) );
+  menu->insertItem( tr("&Edit"), popup );
 
   popup = new QPopupMenu;
   popup->insertItem( tr("&Preview"), this, SLOT( slotPreview() ) );
@@ -101,7 +111,7 @@ void DMainWindow::slotVArrange()
   if ( !e )
     return;
 
-  e->slotAutoArrange();
+  e->slotVArrange();
 }
 
 void DMainWindow::slotHArrange()
@@ -110,7 +120,7 @@ void DMainWindow::slotHArrange()
   if ( !e )
     return;
 
-  e->slotAutoArrange();
+  e->slotHArrange();
 }
 
 void DMainWindow::slotOpen()
@@ -243,6 +253,16 @@ void DMainWindow::slotPreview()
     m_dctPreviewWidgets.insert( m_editorContainer->currentEditor(), w );
     w->show();
   }
+}
+
+void DMainWindow::slotNewResource()
+{
+  // ### HACK correct path here
+  QResource resource( "wizard.qdl" );
+  // ### HACK search with name of child
+  QResource wizard = resource.firstChild();
+  DCreateWizard dlg( this, wizard );
+  dlg.exec();
 }
 
 DMainWindow::~DMainWindow()

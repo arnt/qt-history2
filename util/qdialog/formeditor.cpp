@@ -1379,7 +1379,10 @@ QXMLTag* DFormWidget::save()
 	    QXMLTag* t = new QXMLTag( "Widget" );
 	    w->insert( t );
 	    // FALSE means that we write geometry information, too
-	    t->insert( qObjectToXML( it.current(), FALSE ) );
+	    // t->insert( qObjectToXML( it.current(), FALSE ) );
+	    DObjectInfo* info = m_editor->findInfo( it.current() );
+	    if ( info )
+	      t->insert( qObjectToXML( info, FALSE ) );
 	  }
 	}
       }
@@ -1424,7 +1427,9 @@ QXMLTag* DFormWidget::save()
 	  {
 	    QXMLTag* t = new QXMLTag( "Widget" );
 	    l->insert( t );
-	    t->insert( qObjectToXML( it.current(), FALSE ) );
+	    DObjectInfo* info = m_editor->findInfo( it.current() );
+	    if ( info )
+	      t->insert( qObjectToXML( info, FALSE ) );
 	  }
 	}
       }
@@ -1443,7 +1448,7 @@ QXMLTag* DFormWidget::save()
       }
       else
 	res = l = new QXMLTag( "Layout" );
-      l->insert( m_gridLayout->save() );
+      l->insert( m_gridLayout->save( m_editor ) );
 
       return res;
     }

@@ -1,5 +1,6 @@
 #include "connectdlg.h"
 #include "formeditor.h"
+#include "linedlg.h"
 
 #include <qpushbutton.h>
 #include <qlayout.h>
@@ -21,7 +22,7 @@ DConnectDlg::DConnectDlg( DFormEditor* editor, DObjectInfo* sender, DObjectInfo*
   {
     QListViewItem *item = new QListViewItem( m_senderList, tr("Custom signals") );
     m_lstGroups.append( item );
-    (void)new QListViewItem( item, tr("(Create new signal)") );
+    m_newSenderSignal = new QListViewItem( item, tr("(Create new signal)") );
 
     QStringList::ConstIterator it = sender->customSignals().begin();
     QStringList::ConstIterator end = sender->customSignals().end();
@@ -48,21 +49,22 @@ DConnectDlg::DConnectDlg( DFormEditor* editor, DObjectInfo* sender, DObjectInfo*
   QListViewItem* slot = new QListViewItem( m_receiverList, tr("Slots") );
   m_lstGroups.append( signal );
   m_lstGroups.append( slot );
-  
+  m_receiverSignals = signal;
+
   if ( editor->isTopLevelWidget( receiver->widget() ) )
   {
     QListViewItem* item = new QListViewItem( m_receiverList, tr("Custom signals") );
     m_lstGroups.append( item );
-    (void)new QListViewItem( item, tr("(Create new signal)") );
-    item = new QListViewItem( m_receiverList, tr("Custom slots") );
+    m_newReceiverSignal = new QListViewItem( item, tr("(Create new signal)") );
 
     QStringList::ConstIterator it = sender->customSignals().begin();
     QStringList::ConstIterator end = sender->customSignals().end();
     for( ; it != end; ++it )
       (void)new QListViewItem( item, *it );
 
+    item = new QListViewItem( m_receiverList, tr("Custom slots") );
     m_lstGroups.append( item );
-    (void)new QListViewItem( item, tr("(Create new slot)") );
+    m_newReceiverSlot = new QListViewItem( item, tr("(Create new slot)") );
 
     it = sender->customSlots().begin();
     end = sender->customSlots().end();
@@ -129,11 +131,63 @@ void DConnectDlg::slotConnect()
     return;
   }
 
+  // TODO: check for dupes!
   DObjectInfo::Connection con;
-  con.slot = to->text( 0 );
-  con.signal = from->text( 0 );
-  con.receiverName = m_pReceiver->widget()->name();
+  if ( from == m_newSenderSignal )
+  {
+    DLineDlg dlg( tr("Name of new signal:") );
+    dlg.setText( "name()" );
+    if ( to != m_newReceiverSlot && to != m_newReceiverSignal )
+    {
+      QString tmp = to->text( 0 );
+      int i = tmp.find( "(" );
+      if ( i != -1 )
+	dlg.setText( tmp.mid( i ).prepend( "name" ) );
+    }
+    if ( !dlg.exec() )
+      return;
+    con.signal = dlg.text();
+    m_pSender->addCustomSignal( dlg.text() );
+  }
+  else
+    con.signal = from->text( 0 );
   con.senderName = m_pSender->widget()->name();
+
+  if ( to == m_newReceiverSignal )
+  {
+    DLineDlg dlg( tr("Name of new signal:") );
+    dlg.setText( "name()" );
+    int i = con.signal.find( "(" );
+    if ( i != -1 )
+      dlg.setText( con.signal.mid( i ).prepend( "name" ) );
+    if ( !dlg.exec() )
+      return;
+    con.slot = dlg.text();
+    con.slotIsSignal = true;
+    m_pReceiver->addCustomSignal( dlg.text() );
+  }
+  else if ( to == m_newReceiverSlot )
+  {
+    DLineDlg dlg( tr("Name of new slot:") );
+    dlg.setText( "name()" );
+    int i = con.signal.find( "(" );
+    if ( i != -1 )
+      dlg.setText( con.signal.mid( i ).prepend( "name" ) );
+    if ( !dlg.exec() )
+      return;
+    con.slot = dlg.text();
+    con.slotIsSignal = false;
+    m_pReceiver->addCustomSlot( dlg.text() );
+  }
+  else
+  {
+    if ( to->parent() == m_receiverSignals )
+      con.slotIsSignal = true;
+    else
+      con.slotIsSignal = false;
+    con.slot = to->text( 0 );
+  }
+  con.receiverName = m_pReceiver->widget()->name();
 
   // Check wether sender and receiver have a name
   if ( con.receiverName == "unnamed" || con.receiverName.isEmpty() )

@@ -27,8 +27,8 @@ public:
     QString receiverName;
     QString slot;
     QString signal;
-
-    bool operator== ( const Connection& _c ) const { return ( senderName == _c.senderName && slot == _c.slot && signal == _c.signal && receiverName == _c.receiverName ); }
+    bool slotIsSignal;
+    bool operator== ( const Connection& _c ) const { return ( senderName == _c.senderName && slot == _c.slot && signal == _c.signal && receiverName == _c.receiverName && slotIsSignal == _c.slotIsSignal ); }
   };
 
   DObjectInfo( QWidget* _widget );
@@ -105,7 +105,7 @@ class DFormEditor;
 class DFormWidget : public QWidget
 {
   Q_OBJECT
-  Q_BUILDER( "", "", DefaultInspector )
+  Q_BUILDER( "", "" )
 
 public:
   enum Layout { NoLayout, VBoxLayout, HBoxLayout, GridLayout };

@@ -11,7 +11,10 @@ HEADERS		= mainwindow.h \
 		  qtable.h \
 		  xml.h \
 		  connectdlg.h \
-		  windowmanager.h
+		  windowmanager.h \
+		  linedlg.h \
+		  createdlg.h \
+		  wizard_skel.h
 SOURCES		= mainwindow.cpp \
 		  inspector.cpp \
 		  widgetsbar.cpp \
@@ -23,6 +26,9 @@ SOURCES		= mainwindow.cpp \
 		  dlayout.cpp \
 		  xml.cpp \
 		  connectdlg.cpp \
-		  windowmanager.cpp
+		  windowmanager.cpp \
+		  linedlg.cpp \
+		  createdlg.cpp \
+		  wizard_skel.cpp
 TARGET		= qdialog
 TMAKE_CXXFLAGS   += -DQT_FATAL_ASSERT

@@ -40,6 +40,11 @@ private:
 
     QListView* m_senderList;
     QListView* m_receiverList;
+
+    QListViewItem* m_newSenderSignal;
+    QListViewItem* m_newReceiverSignal;
+    QListViewItem* m_newReceiverSlot;
+    QListViewItem* m_receiverSignals;
 };
 
 #endif

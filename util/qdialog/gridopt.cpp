@@ -516,7 +516,7 @@ QRect DGridLayout::insertRect( DGridLayout::Insert ins, uint r, uint c )
   return QRect();
 }
 
-QXMLTag* DGridLayout::save() const
+QXMLTag* DGridLayout::save( DFormEditor* _editor ) const
 {
   QXMLTag* t = new QXMLTag( "QGridLayout" );
 
@@ -547,7 +547,9 @@ QXMLTag* DGridLayout::save() const
       {
 	QXMLTag* w = new QXMLTag( "Widget" );
 	c->insert( w );
-	w->insert( qObjectToXML( cell.w, TRUE ) );
+	DObjectInfo* info = _editor->findInfo( cell.w );
+	if ( info )
+	  w->insert( qObjectToXML( info, TRUE ) );
       }
     }
   }
@@ -593,9 +595,17 @@ bool DGridLayout::configure( const QResource& _resource )
 	  int align = 0;
 	  int x,y;
 	  if ( stringToAlign( t->attrib( "valign" ), &y ) )
+	  {
+	    if ( y == Qt::AlignCenter )
+	      y = Qt::AlignVCenter;
 	    align |= y & ( Qt::AlignVCenter | Qt::AlignBottom | Qt::AlignTop );
+	  }
 	  if ( stringToAlign( t->attrib( "halign" ), &x ) )
-	    align |= x & ~Qt::AlignVCenter;
+	  {
+	    if ( x == Qt::AlignCenter )
+	      x = Qt::AlignHCenter;
+	    align |= x & ( Qt::AlignHCenter | Qt::AlignLeft | Qt::AlignRight );
+	  }
 
 	  QResource cell = icol.firstChild();
 	  QWidget *w = 0;
@@ -614,13 +624,6 @@ bool DGridLayout::configure( const QResource& _resource )
 	    // This should never happen since we replace that construct
 	    // with a "Widget" tag in the parse tree.
 	    ASSERT( 0 );
-	    /* QResource r( cell.firstChild() );
-	    if ( !r.isValid() )
-	      return FALSE;
-	    w = new DFormWidget( DFormWidget::Container, DFormEditor::loadingInstance(), mainWidget() );
-	    if ( !r.createLayout( w ) )
-	      return FALSE;
-	      DFormEditor::loadingInstance()->addWidget( w ); */
 	  }
 	  // Unknown tag ?
 	  else if ( cell.isValid() )

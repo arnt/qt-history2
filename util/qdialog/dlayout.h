@@ -8,7 +8,7 @@ class QResource;
 class DStretch : public QWidget
 {
   Q_OBJECT
-  Q_BUILDER( "A stretch", "dstretch.xpm", DefaultInspector )
+  Q_BUILDER( "A stretch", "dstretch.xpm" )
 public:
   DStretch( QWidget* _parent = 0, const char* _name = 0 );
   DStretch( QWidget* _parent, const QResource& _resource );
@@ -32,7 +32,7 @@ private:
 class DSpacing : public QWidget
 {
   Q_OBJECT
-  Q_BUILDER( "A spacing", "dspacing.xpm", DefaultInspector )
+  Q_BUILDER( "A spacing", "dspacing.xpm" )
 public:
   DSpacing( QWidget* _parent = 0, const char* _name = 0 );
   DSpacing( QWidget* _parent, const QResource& _resource );

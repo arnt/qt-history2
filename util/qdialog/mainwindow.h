@@ -28,6 +28,8 @@ public slots:
   void slotSaveAs();
   void slotNew();
 
+  void slotNewResource();
+
   void slotPreview();
 
   void slotGridArrange();
