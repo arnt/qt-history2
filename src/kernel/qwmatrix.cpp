@@ -54,8 +54,8 @@ double qsincos( double, bool calcCos );		// defined in qpainter_x11.cpp
   \ingroup drawing
 
   The standard coordinate system of a \link QPaintDevice paint
-  device\endlink has the origin located at the top left position. X
-  values increase to the right, and Y values increase downwards.
+  device\endlink has the origin located at the top-left position. X
+  values increase to the right; Y values increase downward.
 
   This coordinate system is default for the QPainter, which renders
   graphics in a paint device. A user-defined coordinate system can be
@@ -76,7 +76,7 @@ double qsincos( double, bool calcCos );		// defined in qpainter_x11.cpp
   \endcode
 
   A matrix specifies how to translate, scale, shear or rotate the
-  graphics, and the actual transformation is performed by the drawing
+  graphics; the actual transformation is performed by the drawing
   routines in QPainter and by QPixmap::xForm().
 
   The QWMatrix class contains a 3*3 matrix of the form:
@@ -98,12 +98,12 @@ double qsincos( double, bool calcCos );		// defined in qpainter_x11.cpp
   inverted matrix\endlink.
 
   The elements \e dx and \e dy specify horizontal and vertical
-  translation.	The elements \e m11 and \e m22 specify horizontal and
-  vertical scaling.  The elements \e m12 and \e m21 specify horizontal
-  and vertical shearing.
+  translation. The elements \e m11 and \e m22 specify horizontal and
+  vertical scaling.  The elements \e m12 and \e m21 specify horizontal and
+  vertical shearing.
 
-  The identity matrix has \e m11 and \e m22 set to 1, all others set
-  to 0.	 This matrix maps a point to itself.
+  The identity matrix has \e m11 and \e m22 set to 1; all others are set
+  to 0. This matrix maps a point to itself.
 
   Translation is the simplest transformation. Setting \e dx and \e dy
   will move the coordinate system \e dx units along the X axis and \e
@@ -128,7 +128,7 @@ double qsincos( double, bool calcCos );		// defined in qpainter_x11.cpp
     m.scale(1.2, 0.7);				// finally scale it
   \endcode
 
-  The same example, but using basic matrix operations:
+  Here's the same example using basic matrix operations:
   \code
     double a    = pi/180 * 25;			// convert 25 to radians
     double sina = sin(a);
@@ -141,13 +141,11 @@ double qsincos( double, bool calcCos );		// defined in qpainter_x11.cpp
     m = m3 * m2 * m1;				// combine all transformations
   \endcode
 
-  \link QPainter QPainter\endlink has functions that \link
-  QPainter::translate() translate\endlink, \link QPainter::scale()
-  scale\endlink, \link QPainter::shear() shear\endlink and \link
-  QPainter::rotate() rotate\endlink the coordinate system without using a
-  QWMatrix.  These functions are very convenient, however, if you want to
-  perform more than a single transform operation, it is more efficient to
-  build a QWMatrix and call QPainter::setWorldMatrix().
+  \l QPainter has functions to translate, scale, shear and rotate the
+  coordinate system without using a QWMatrix.  Although these
+  functions are very convenient, it can be more efficient to build a
+  QWMatrix and call QPainter::setWorldMatrix() if you want to perform
+  more than a single transform operation.
 
   \sa QPainter::setWorldMatrix(), QPixmap::xForm()
 */
@@ -158,8 +156,8 @@ double qsincos( double, bool calcCos );		// defined in qpainter_x11.cpp
  *****************************************************************************/
 
 /*!
-  Constructs an identity matrix.  All elements are set to zero,
-  except \e m11 and \e m22 (scaling) which are set to 1.
+  Constructs an identity matrix.  All elements are set to zero
+  except \e m11 and \e m22 (scaling), which are set to 1.
 */
 
 QWMatrix::QWMatrix()
@@ -226,7 +224,7 @@ void QWMatrix::setMatrix( double m11, double m12, double m21, double m22,
 
 
 /*!
-  Transforms \e (x,y) to \e (*tx,*ty), using the formulae:
+  Transforms \e (x,y) to \e (*tx,*ty) using the following formulae:
 
   \code
     *tx = m11*x + m21*y + dx
@@ -272,8 +270,7 @@ QPoint QWMatrix::map( const QPoint &p ) const
 /*!
   Returns the transformed rectangle \e r.
 
-  If rotation or shearing has been specified, then the bounding rectangle
-  will be returned.
+  The bounding rectangle is returned if rotation or shearing has been specified.
 */
 
 QRect QWMatrix::map( const QRect &r ) const
@@ -392,11 +389,12 @@ QWMatrix &QWMatrix::rotate( double a )
 /*!
   Returns the inverted matrix.
 
-  If the matrix is singular (not invertible), then the identity matrix is
+  If the matrix is singular (not invertible), the identity matrix is
   returned.
 
-  If \e *invertible is not null, then the value of \e *invertible will
-  be set to TRUE or FALSE to tell if the matrix is invertible or not.
+  If \e *invertible is not null, the value of \e *invertible is set
+  either to TRUE or FALSE to tell whether or not the matrix is
+  invertible.
 */
 
 QWMatrix QWMatrix::invert( bool *invertible ) const

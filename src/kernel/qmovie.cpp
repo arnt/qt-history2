@@ -65,11 +65,11 @@
   \ingroup images
   \ingroup drawing
 
-  A QMovie provides a QPixmap as the framePixmap(), and connections can
+  A QMovie provides a QPixmap as the framePixmap(); connections can
   be made via connectResize() and connectUpdate() to receive notification
   of size and pixmap changes.  All decoding is driven by
-  the normal event processing mechanisms.  The simplest way to display
-  a QMovie, is to use a QLabel and QLabel::setMovie().
+  the normal event-processing mechanisms.  The simplest way to display
+  a QMovie is to use a QLabel and QLabel::setMovie().
 
   The movie begins playing as soon as the QMovie is created (actually,
   once control returns to the event loop).  When the last frame in the
@@ -82,7 +82,7 @@
   they must be constructed separately.
 
   The set of data formats supported by QMovie is determined by the decoder
-  factories which have been installed, and the format of the input is
+  factories that have been installed; the format of the input is
   determined as the input is decoded.
 
   The supported formats are MNG (if Qt is built with MNG support enabled)
@@ -93,14 +93,14 @@
   Archives of animated GIFs and tools for building them can be found at
   <a href="http://dir.yahoo.com/Arts/Visual_Arts/Animation/Computer_Animation/Animated_GIFs/">Yahoo</a>.
 
-  We are required to state: The Graphics Interchange Format(c) is the
+  We are required to state the following: The Graphics Interchange Format(c) is the
   Copyright property of CompuServe Incorporated. GIF(sm) is a Service
   Mark property of CompuServe Incorporated.
 
   \warning Unisys has changed its position regarding GIF.  If you are
-  in a country where Unisys holds a patent on LZW compression and/or
+  in a country in which Unisys holds a patent on LZW compression and/or
   decompression and you want to use GIF, Unisys may require you to
-  license that technology.  These countries include Canada, Japan, the
+  license that technology.  Such countries include Canada, Japan, the
   USA, France, Germany, Italy and the UK.
 
   GIF support may be removed completely in a future version of Qt.  We
@@ -645,16 +645,16 @@ void QMovie::setDisplayWidget(QWidget * w)
 #endif
 
 /*!
-  Constructs a QMovie which reads an image sequence from the given
+  Constructs a QMovie that reads an image sequence from the given
   QDataSource.  The source must be allocated dynamically,
-  as it becomes owned by the QMovie, and will be destroyed
+  because it becomes owned by the QMovie and will be destroyed
   when the movie is destroyed.
   The movie starts playing as soon as event processing continues.
 
   The \a bufsize argument sets the maximum amount of data the movie
   will transfer from the data source per event loop.  The lower this
   value, the better interleaved the movie playback will be with other
-  event processing, but the slower the overall processing.
+  event processing, but the slower the overall processing will be.
 */
 QMovie::QMovie(QDataSource* src, int bufsize)
 {
@@ -662,7 +662,7 @@ QMovie::QMovie(QDataSource* src, int bufsize)
 }
 
 /*!
-  Constructs a QMovie which reads an image sequence from the named file.
+  Constructs a QMovie that reads an image sequence from the named file.
 */
 QMovie::QMovie(const QString &fileName, int bufsize)
 {
@@ -672,7 +672,7 @@ QMovie::QMovie(const QString &fileName, int bufsize)
 }
 
 /*!
-  Constructs a QMovie which reads an image sequence from given data.
+  Constructs a QMovie that reads an image sequence from given data.
 */
 QMovie::QMovie(QByteArray data, int bufsize)
 {
@@ -684,7 +684,7 @@ QMovie::QMovie(QByteArray data, int bufsize)
 /*!
   Constructs a movie that uses the same data as another movie.
   QMovies use explicit sharing, so operations on the copy will
-  effect the same operations on the original.
+  affect both.
 */
 QMovie::QMovie(const QMovie& movie)
 {
@@ -694,7 +694,7 @@ QMovie::QMovie(const QMovie& movie)
 
 /*!
   Destroys the QMovie.  If this is the last reference to the data of the
-  movie, that will also be destroyed.
+  movie, the data are deallocated.
 */
 QMovie::~QMovie()
 {
@@ -723,8 +723,8 @@ QMovie& QMovie::operator=(const QMovie& movie)
 
 
 /*!
-  Set the background color of the pixmap.  If the background color
-  isValid(), the pixmap will never have a mask, as the background
+  Sets the background color of the pixmap.  If the background color
+  isValid(), the pixmap will never have a mask because the background
   color will be used in transparent regions of the image.
 
   \sa backgroundColor()
@@ -776,9 +776,9 @@ const QImage& QMovie::frameImage() const
     return d->decoder->image();
 }
 
-/*!
-  Returns the number of steps remaining after a call to step(), 0 if paused,
-  or a negative value if the movie is running normally or is finished.
+/*!  Returns the number of steps remaining after a call to step(). If
+  the movie is paised, steps() returns 0. If it's running normally or
+  is finished, steps() returns a negative number.
 */
 int QMovie::steps() const
 {
@@ -788,7 +788,7 @@ int QMovie::steps() const
 /*!
   Returns the number of times EndOfFrame has been emitted since the
   start of the current loop of the movie.  Thus, before
-  any EndOfFrame has been emitted, the value will be 0,
+  any EndOfFrame has been emitted the value will be 0;
   within slots processing the first signal, frameNumber() will be 1, and
   so on.
 */
@@ -807,7 +807,7 @@ bool QMovie::paused() const
 
 /*!
   Returns TRUE if the image is no longer playing - this happens when all
-  loops of all frames is complete.
+  loops of all frames are complete.
 */
 bool QMovie::finished() const
 {
@@ -849,7 +849,7 @@ void QMovie::unpause()
 }
 
 /*!
-  Steps forward, showing the given number of frames, then pauses.
+  Steps forward, showing the given number of frames, and then pauses.
 */
 void QMovie::step(int steps)
 {
@@ -861,7 +861,7 @@ void QMovie::step(int steps)
 }
 
 /*!
-  Steps forward 1 frame, then pauses.
+  Steps forward 1 frame and then pauses.
 */
 void QMovie::step()
 {
@@ -916,11 +916,11 @@ void QMovie::setSpeed(int percent)
 }
 
 /*!
-  Connects the given member, of type \code void member(const QSize&) \endcode
-  such that it is signalled when the movie changes size.
+  Connects the given member of type \code void member(const QSize&) \endcode
+  so it is signalled when the movie changes size.
 
   Note that due to the explicit sharing of QMovie objects, these connections
-  persist until they are explicitly disconnected with disconnectResize(), or
+  persist until they are explicitly disconnected with disconnectResize() or
   until \e every shared copy of the movie is deleted.
 */
 void QMovie::connectResize(QObject* receiver, const char *member)
@@ -929,9 +929,8 @@ void QMovie::connectResize(QObject* receiver, const char *member)
 }
 
 /*!
-  Disconnects the given member, or all members if member is zero,
-  previously connected by
-  connectResize().
+  Disconnects the given member (or all members if member is zero)
+  that were previously connected by connectResize().
 */
 void QMovie::disconnectResize(QObject* receiver, const char *member)
 {
@@ -939,12 +938,12 @@ void QMovie::disconnectResize(QObject* receiver, const char *member)
 }
 
 /*!
-  Connects the given member, of type \code void member(const QRect&) \endcode
-  such that it is signalled when an area of the framePixmap() has
+  Connects the given member of type \code void member(const QRect&) \endcode
+  so it is signalled when an area of the framePixmap() has
   changed since the previous frame.
 
   Note that due to the explicit sharing of QMovie objects, these connections
-  persist until they are explicitly disconnected with disconnectUpdate(), or
+  persist until they are explicitly disconnected with disconnectUpdate() or
   until \e every shared copy of the movie is deleted.
 */
 void QMovie::connectUpdate(QObject* receiver, const char *member)
@@ -953,9 +952,8 @@ void QMovie::connectUpdate(QObject* receiver, const char *member)
 }
 
 /*!
-  Disconnects the given member, or all members if member is zero,
-  previously connected by
-  connectUpdate().
+  Disconnects the given member (or all members if member is zero)
+  that were previously connected by connectUpdate().
 */
 void QMovie::disconnectUpdate(QObject* receiver, const char *member)
 {
@@ -963,28 +961,28 @@ void QMovie::disconnectUpdate(QObject* receiver, const char *member)
 }
 
 /*!
-  Connects the given member, of type \code void member(int) \endcode
-  such that it is signalled when the movie changes status.  The status
+  Connects the given member of type \code void member(int) \endcode
+  so it is signalled when the movie changes status.  The status
   code are negative for errors and positive for information, and they
   are currently:
 
   <ul>
    <li> \c QMovie::SourceEmpty - signalled if the input cannot be read.
    <li> \c QMovie::UnrecognizedFormat - signalled if the input data is unrecognized.
-   <li> \c QMovie::Paused - signalled when the movie is paused by a call to paused(),
+   <li> \c QMovie::Paused - signalled when the movie is paused by a call to paused()
 			or by after \link step() stepping \endlink pauses.
-   <li> \c QMovie::EndOfFrame - signalled at end-of-frame, after any update and Paused signals.
+   <li> \c QMovie::EndOfFrame - signalled at end-of-frame after any update and Paused signals.
    <li> \c QMovie::EndOfLoop - signalled at end-of-loop, after any update signals,
-				EndOfFrame, but before EndOfMovie.
+				EndOfFrame - but before EndOfMovie.
    <li> \c QMovie::EndOfMovie - signalled when the movie completes and is not about
 				 to loop.
   </ul>
 
   More status messages may be added in the future, so a general test for
-  error would test for negative.
+  errors would test for negative.
 
   Note that due to the explicit sharing of QMovie objects, these connections
-  persist until they are explicitly disconnected with disconnectStatus(), or
+  persist until they are explicitly disconnected with disconnectStatus() or
   until \e every shared copy of the movie is deleted.
 */
 void QMovie::connectStatus(QObject* receiver, const char *member)
@@ -993,9 +991,8 @@ void QMovie::connectStatus(QObject* receiver, const char *member)
 }
 
 /*!
-  Disconnects the given member, or all members if member is zero,
-  previously connected by
-  connectStatus().
+  Disconnects the given member (or all members if member is zero)
+  that were previously connected by connectStatus().
 */
 void QMovie::disconnectStatus(QObject* receiver, const char *member)
 {

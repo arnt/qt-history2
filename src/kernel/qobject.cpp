@@ -62,10 +62,10 @@
   \ingroup misc
 
   Normally, you can ignore this class.  QObject and a few other
-  classes inherit it, so that all the identifiers in the Qt namespace
+  classes inherit it, so all the identifiers in the Qt namespace
   are visible to you without qualification.
 
-  However, occasionally you may need to say \c Qt::black instead just
+  However, you may occasionally need to say \c Qt::black instead of just
   \c black, particularly in static utility functions (such as many
   class factories).
 
@@ -86,21 +86,21 @@
 
   QObject is the heart of the \link object.html Qt object model.
   \endlink The central feature in this model is a very powerful
-  mechanism for seamless object commuinication dubbed \link
+  mechanism for seamless object communication dubbed \link
   signalsandslots.html signals and slots \endlink. With connect(), you
-  can connect a signal to a slot and destroy the connection again with
-  disconnect(). To avoid never-ending notification loops, you can
+  can connect a signal to a slot and destroy the connection with
+  disconnect(). To avoid neverending notification loops you can
   temporarily block signals with blockSignals(). The protected
   functions connectNotify() and disconnectNotify() make it possible to
   track connections.
 
-  QObjects organize themselves in object trees. When you create a
-  QObject with another object as parent, it will automatically do an
-  insertChild() on the parent and thus show up in the parent's
-  children() list. The parent receives object ownership, i.e. it will
-  automatically delete its children in its destructor. You can look
-  for an object by name and optionally type using child() or
-  queryList(), and get the list of tree roots using objectTrees().
+  QObjects organize themselves in object trees. When you create a QObject
+  with another object as parent, it will automatically do an insertChild()
+  on the parent and thus show up in the parent's children() list. The
+  parent receives object ownership, i.e., it will automatically delete its
+  children in its destructor. You can look for an object by name and
+  optionally type using child() or queryList(), and get the list of tree
+  roots using objectTrees().
 
   Every object has an object name() and can report its className() and
   whether it inherits() another class in the QObject inheritance
@@ -115,16 +115,15 @@
   details. A convenience handler childEvent() can be reimplemented to
   catch child events.
 
-  Last but not least, QObject provides the basic timer support in Qt,
+  Last but not least, QObject provides the basic timer support in Qt;
   see QTimer for high-level support for timers.
 
   Notice that the \c Q_OBJECT macro is mandatory for any object that
-  implement signals, slots or properties.  You also need to run the
-  \link moc.html moc program (Meta Object Compiler) \endlink on the
-  source file. We strongly recommend to use the macro in \e all
-  subclasses of QObject regardless whether they actually use signals,
-  slots and properties or not. Otherwise certain functions can show
-  undefined behaviour.
+  implements signals, slots or properties.  You also need to run the \link
+  moc.html moc program (Meta Object Compiler) \endlink on the source file.
+  We strongly recommend to use the macro in \e all subclasses of QObject
+  regardless whether or not they actually use signals, slots and
+  properties. Otherwise certain functions can show undefined behaviour.
 
   All Qt widgets inherit QObject. The convenience function
   isWidgetType() returns whether an object is actually a widget.  It
@@ -355,7 +354,7 @@ QObject::QObject( QObject *parent, const char *name )
   All signals to and from the object are automatically disconnected.
 
   \warning \e All child objects are deleted.  If any of these objects are
-  on the stack or global, your program will sooner or later crash.  We do
+  on the stack or global, sooner or later your program will crash.  We do
   not recommend holding pointers to child objects from outside the parent.
   If you still do, the QObject::destroyed() signal gives you an
   opportunity to detect when an object is destroyed.
@@ -510,7 +509,7 @@ bool QObject::inherits( const char *clname ) const
   \fn const char *QObject::name() const
 
   Returns the name of this object. If the object does not have a name,
-  it will return "unnamed", so that printf() (used in qDebug()) will
+  it will return "unnamed", so printf() (used in qDebug()) will
   not be asked to output a null pointer.  If you want a null pointer
   to be returned for unnamed objects, you can call name( 0 ).
 
@@ -606,10 +605,10 @@ QObject* QObject::child( const char *objName, const char *inheritsClass, bool re
 
 /*!
   \fn bool QObject::highPriority() const
-  Returns TRUE if the object is a high priority object, or FALSE if it is a
-  standard priority object.
+  Returns TRUE if the object is a high-priority object, or FALSE if it is a
+  standard-priority object.
 
-  High priority objects are placed first in list of children,
+  High-priority objects are placed first in QObject's list of children
   on the assumption that they will be referenced very often.
 */
 
@@ -670,7 +669,7 @@ void QObject::timerEvent( QTimerEvent * )
   Child events are sent to objects when children are inserted or removed.
 
   Note that events with QEvent::type() \c QEvent::ChildInserted are
-  \e posted (with QApplication::postEvent()), to make sure that the
+  \e posted (with QApplication::postEvent()) to make sure that the
   child's construction is completed before this function is called.
 
   If you change state based on \c ChildInserted events, call
@@ -799,9 +798,9 @@ void QObject::blockSignals( bool block )
 
   There is practically no upper limit for the interval value (more than
   one year).  The accuracy depends on the underlying operating system.
-  Windows 95 has 55 millisecond (18.2 times per second) accuracy; other
-  systems that we have tested (UNIX X11, Windows NT and OS/2) can
-  handle 1 millisecond intervals.
+  Windows 95 has 55-millisecond (18.2 times per second) accuracy; other
+  systems that we have tested (UNIX X11, Windows NT, and OS/2) can
+  handle 1-millisecond intervals.
 
   The QTimer class provides a high-level programming interface with
   one-shot timers and timer signals instead of events.
@@ -835,7 +834,7 @@ void QObject::killTimer( int id )
   Note that using this function can cause hard-to-find bugs: It kills
   timers started by sub- and superclasses as well as those started by
   you, which is often not what you want.  Therefore, we recommend
-  using a QTimer, or perhaps killTimer().
+  using a QTimer or perhaps killTimer().
 
   \sa timerEvent(), startTimer(), killTimer()
 */
@@ -906,8 +905,7 @@ static void objSearch( QObjectList *result,
 
 
 /*!
-  Returns a pointer to the list of all object trees (respectively
-  their root objects), or 0 if there are no objects.
+  Returns a pointer to the list of all object trees (their root objects respectively), or 0 if there are no objects.
 
   The QObjectList class is defined in the qobjcoll.h header file.
 
@@ -1171,7 +1169,7 @@ void QObject::installEventFilter( const QObject *obj )
   object is destroyed.
 
   It is always safe to remove an event filter, even during event filter
-  activation (i.e. from the eventFilter() function).
+  activation (i.e., from the eventFilter() function).
 
   \sa installEventFilter(), eventFilter(), event()
 */
@@ -1600,7 +1598,7 @@ bool QObject::connect( const QObject *sender,	const char *signal,
   \code
     myObject->disconnect( SIGNAL(mySignal()) );
   \endcode
-  <li> Disconnect a specific receiver.
+  <li> Disconnect a specific receiver:
   \code
     disconnect( myObject, 0, myReceiver, 0 );
   \endcode
@@ -1611,7 +1609,7 @@ bool QObject::connect( const QObject *sender,	const char *signal,
   </ol>
 
   0 may be used as a wildcard, meaning "any signal", "any receiving
-  object" or "any slot in the receiving object" respectively.
+  object", or "any slot in the receiving object", respectively.
 
   The \e sender may never be 0.  (You cannot disconnect signals from
   more than one object.)
@@ -2064,7 +2062,7 @@ static void dumpRecursive( int level, QObject *object )
   Dumps a tree of children to the debug output.
 
   This function is useful for debugging. This function does nothing if
-  the library has been compiled in release mode (i.e without debugging
+  the library has been compiled in release mode (i.e., without debugging
   information).
 
 */
@@ -2075,11 +2073,11 @@ void QObject::dumpObjectTree()
 }
 
 /*!
-  Dumps information about signal connections etc. for this object to the
+  Dumps information about signal connections, etc. for this object to the
   debug output.
 
   This function is useful for debugging. This function does nothing if
-  the library has been compiled in release mode (i.e without debugging
+  the library has been compiled in release mode (i.e., without debugging
   information).
 */
 
@@ -2129,9 +2127,9 @@ void QObject::dumpObjectInfo()
 /*!
   Sets the object's property \a name to \a value.
 
-  Returne TRUE is the operation was successful, FALSE otherwise.
+  Returns TRUE if the operation was successful, FALSE otherwise.
 
-  Information about all available properties are provided through the
+  Information about all available properties is provided through the
   metaObject().
 
   \sa property(), metaObject(), QMetaObject::propertyNames(), QMetaObject::property()

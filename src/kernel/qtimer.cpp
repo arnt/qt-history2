@@ -48,9 +48,9 @@
   \ingroup event
 
   It uses \link QTimerEvent timer events\endlink internally to provide a
-  more versatile timer.	 QTimer is very easy to use, create a QTimer, call
-  start() to start it and connect its timeout() to the appropriate slots,
-  then when the time is up it will emit timeout().
+  more versatile timer.	 QTimer is very easy to use: create a QTimer, call
+  start() to start it and connect its timeout() to the appropriate slots.
+  When the time is up it will emit timeout().
 
   Note that a QTimer object is destroyed automatically when its parent
   object is destroyed.
@@ -75,10 +75,10 @@
 
   myObject->processOneThing() will be called repeatedly and should
   return quickly (typically after processing one data item) so that Qt
-  can deliver events to widgets, and stop the timer as soon as it has
+  can deliver events to widgets and stop the timer as soon as it has
   done all its work.  This is the traditional way of implementing heavy
   work in GUI applications; multi-threading is now becoming available
-  on more and more platforms and we expect that null events will
+  on more and more platforms, and we expect that null events will
   eventually be replaced by threading.
 
   Note that QTimer's accuracy depends on the underlying operating
@@ -88,7 +88,7 @@
 
   An alternative to using QTimer is to call QObject::startTimer() for
   your object and reimplement the QObject::timerEvent() event handler
-  in your class (which must of course inherit QObject).  The
+  in your class (which must, of course, inherit QObject).  The
   disadvantage is that timerEvent() does not support such high-level
   features as single-shot timers or signals.
 */
@@ -128,15 +128,15 @@ QTimer::~QTimer()
 
 /*!
   \fn bool QTimer::isActive() const
-  Returns TRUE if the timer is running (pending), or FALSE is the timer is
+  Returns TRUE if the timer is running (pending) or FALSE if the timer is
   idle.
 */
 
 
 /*!
-  Starts the timer with a \e msecs milliseconds timeout.
+  Starts the timer with an \e msecs milliseconds timeout.
 
-  If \e sshot is TRUE, the timer will be activated only once,
+  If \e sshot is TRUE, the timer will be activated only once;
   otherwise it will continue until it is stopped.
 
   Any pending timer will be stopped.
@@ -158,7 +158,7 @@ int QTimer::start( int msec, bool sshot )
 /*!
   Changes the timeout interval to \e msec milliseconds.
 
-  If the timer signal is pending, it will be stopped and restarted,
+  If the timer signal is pending, it will be stopped and restarted;
   otherwise it will be started.
 
   \sa start(), isActive()
@@ -281,7 +281,7 @@ bool QSingleShotTimer::event( QEvent * )
     }
   \endcode
 
-  This sample program automatically terminates after 10 minutes (i.e.
+  This sample program automatically terminates after 10 minutes (i.e.,
   600000 milliseconds).
 */
 

@@ -40,7 +40,6 @@
 #include <ctype.h>
 #include "qregexp.h"
 
-// NOT REVISED
 /*!
   \class QSignal qsignal.h
   \brief The QSignal class can be used to send signals without parameters.
@@ -57,7 +56,7 @@
   In general, we recommend inheriting QObject instead.	QObject provides
   much more functionality.
 
-  Note that QObject is a \e private base class of QSignal, i.e. you cannot
+  Note that QObject is a \e private base class of QSignal, i.e., you cannot
   call any QObject member functions from a QSignal object.
 
   Example:
@@ -187,7 +186,7 @@ void  QSignal::activate()
   \fn void  QSignal::activate()
   \obsolete
 
-  Sets the signal's parameter to \a value
+  Sets the signal's parameter to \a value.
 */
 
 /*!

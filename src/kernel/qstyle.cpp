@@ -55,26 +55,25 @@ public:
 };
 
 
-// NOT REVISED
 /*!
   \class QStyle qstyle.h
-  \brief Encapsulates common Look and Feel of a GUI.
+  \brief The QStyle class specifies the look and feel of a GUI.
 
   \ingroup appearance
 
-  While it is not possible to fully enumerate the look of graphic elements
+  Although it is not possible to fully enumerate the look of graphic elements
   and the feel of widgets in a GUI, a large number of elements are common
   to many widgets.  The QStyle class allows the look of these elements to
-  be modified across all widgets that use the QStyle methods.  It also
-  provides two feel options - Motif and Windows.
+  be modified across all widgets that use the QStyle functions.  It also
+  provides two feel options: Motif and Windows.
 
-  In previous versions of Qt, the look and feel option for widgets
-  was specified by a single value - the GUIStyle.  Starting with
-  Qt 2.0, this notion has been expanded to allow the look to be
-  specified by virtual drawing functions.
+  In Qt 1.x the look and feel option for widgets was specified by a
+  single value - the GUIStyle.  Starting with Qt 2.0, this notion has
+  been expanded to allow the look to be specified by virtual drawing
+  functions.
 
   Derived classes may reimplement some or all of the drawing functions
-  to modify the look of all widgets which utilize those functions.
+  to modify the look of all widgets that use those functions.
 
   Languages written from right to left (as hebrew and arabic) usually
   also mirror the whole layout of widgets. If you design a style, you should
@@ -85,7 +84,7 @@ public:
 */
 
 /*! \enum QStyle::ScrollControl
-  This enum type defines :<ul>
+  This enum type defines<ul>
   <li> \c AddLine - control to scroll one line down, usually an arrow button
   <li> \c SubLine - control to scroll one line up, usually an arrow button
   <li> \c AddPage - control to scroll one page down
@@ -142,17 +141,17 @@ QStyle::~QStyle()
 /*!
   Initializes the appearance of a widget.
 
-  This function is called for every widget, after it has been fully
-  created just \e before it is shown the very first time.
+  This function is called for every widget at some point after it has
+  been fully created but just \e before it is shown the very first
+  time.
 
-  Reasonable actions in this function might be to set the
-  \link QWidget::backgroundMode()\endlink of the widget
-  and the background pixmap, for example.  Unreasonable use
-  would be setting the geometry!
+  Reasonable actions in this function might be to call
+  QWidget::setBackgroundMode for the widget. An example of highly
+  unreasonable use would be setting the geometry!
 
   The QWidget::inherits() function may provide enough information to
   allow class-specific customizations.  But be careful not to hard-code
-  things too much, as new QStyle sub-classes will be expected to work
+  things too much because new QStyle subclasses will be expected to work
   reasonably with all current \e and \e future widgets.
 
   \sa unPolish(QWidget*)
@@ -164,9 +163,9 @@ void QStyle::polish( QWidget*)
 /*!
   Undoes the initialization of a widget's appearance.
 
-  This function is the counterpart to polish. Is is called for every
+  This function is the counterpart to polish. It is called for every
   polished widget when the style is dynamically changed. The former
-  style has to un-polish its settings before the new style can polish
+  style has to unpolish its settings before the new style can polish
   them again.
 
   \sa polish(QWidget*)
@@ -186,7 +185,7 @@ void QStyle::polish( QApplication*)
 }
 
 /*!
-  Redo the application polish
+  Undoes the application polish.
 
   \sa polish(QApplication*)
  */
@@ -218,7 +217,7 @@ QRect QStyle::itemRect( QPainter *p, int x, int y, int w, int h,
 }
 
 /*!
-  Draw text or a pixmap in an area.
+  Draws text or a pixmap in an area.
 */
 void QStyle::drawItem( QPainter *p, int x, int y, int w, int h,
 		       int flags, const QColorGroup &g, bool enabled,
@@ -263,7 +262,7 @@ void QStyle::drawRectStrong( QPainter *p, int x, int y, int w, int h,
 /*!
   \fn void QStyle::drawButton( QPainter *, int , int , int , int ,
 			     const QColorGroup &, bool, const QBrush* )
-  Draws a press-sensitive shape in the style of a full featured  push button
+  Draws a press-sensitive shape in the style of a full-featured push button
 
   \sa buttonRect()
 */
@@ -293,9 +292,9 @@ QRect QStyle::bevelButtonRect( int x, int y, int w, int h) const
 
 
 /*!
-  Draws a press-sensitive shape in the style of a toolbar button
+  Draws a press-sensitive shape in the style of a tool bar button
 
-  The default implementation calls drawBevelButton()
+  The default implementation calls drawBevelButton().
   \sa drawBevelButton()
 */
 void QStyle::drawToolButton( QPainter *p, int x, int y, int w, int h,
@@ -310,7 +309,7 @@ void QStyle::drawToolButton( QPainter *p, int x, int y, int w, int h,
   button. Usually this is the entire rectangle minus the border, but
   it may also be smaller when you think about rounded buttons.
 
-  The default implementation returns bevelButtonRect()
+  The default implementation returns bevelButtonRect().
 
   \sa drawToolButton()
 */
@@ -334,7 +333,7 @@ QRect QStyle::buttonRect( int x, int y, int w, int h) const
 }
 
 /*!
-  Draw the mask of a pushbutton. Useful if a rounded pushbuttons needs
+  Draws the mask of a push button. Useful if a rounded push button needs
   to be transparent because the style uses a fancy background pixmap.
 
   \sa drawButtonMask()
@@ -356,7 +355,7 @@ void QStyle::drawButtonMask( QPainter * p, int x, int y, int w, int h )
 			      bool editable ,
 			      bool enabled ,
 			      const QBrush *fill )
-  Draws a press-sensitive shape in the style of a combo box or menu button
+  Draws a press-sensitive shape in the style of a combo box or menu button.
 */
 void QStyle::drawComboButton( QPainter *p, int x, int y, int w, int h,
 				  const QColorGroup &g, bool sunken,
@@ -406,8 +405,8 @@ void QStyle::drawComboButtonMask( QPainter *p, int x, int y, int w, int h)
 /*!
   \overload void QStyle::drawToolButton( QToolButton*, QPainter *)
 
-  Draws a toolbutton. This function will normally call drawToolButton()
-  with arguments according to the current state of the toolbutton.
+  Draws a tool button. This function will normally call drawToolButton()
+  with arguments according to the current state of the tool button.
 
   \sa QToolButton::drawButton()
 */
@@ -415,8 +414,8 @@ void QStyle::drawComboButtonMask( QPainter *p, int x, int y, int w, int h)
 /*!
   \fn void QStyle::drawPushButton( QPushButton*, QPainter *)
 
-  Draws a pushbutton. This function will normally call drawButton()
-  with arguments according to the current state of the pushbutton.
+  Draws a push button. This function will normally call drawButton()
+  with arguments according to the current state of the push button.
 
   \sa drawPushButtonLabel(), QPushButton::drawButton()
 */
@@ -424,9 +423,9 @@ void QStyle::drawComboButtonMask( QPainter *p, int x, int y, int w, int h)
 /*!
   \fn void QStyle::drawPushButtonLabel( QPushButton*, QPainter *)
 
-  Draws the label of a pushbutton. This function will normally call
+  Draws the label of a push button. This function will normally call
   drawItem() with arguments according to the current state of the
-  pushbutton.
+  push button.
 
   In reimplementations of this function, you will find
   pushButtonContentsRect() useful.
@@ -537,7 +536,7 @@ void QStyle::drawPopupPanel( QPainter *p, int x, int y, int w, int h,
 
 /*!
   \fn void QStyle::drawArrow( QPainter *p, Qt::ArrowType type, bool down, int x, int y, int w, int h, const QColorGroup &g, bool enabled, const QBrush *fill)
-  Draws an arrow to indicate direction. Used for example in scrollbars and spin-boxes.
+  Draws an arrow to indicate direction. Used, for example, in scroll bars and spin-boxes.
 */
 
 /*!
@@ -587,28 +586,28 @@ QStyle::drawIndicatorMask( QPainter *p, int x, int y, int w, int h, int /*state*
   \fn void QStyle::drawFocusRect( QPainter* p,
 		const QRect& r, const QColorGroup &g , const QColor*, bool atBorder)
 
-  Draws a mark indicating keyboard focus is on \a r. \a atBorder
+  Draws a mark indicating that keyboard focus is on \a r. \a atBorder
   indicates whether the focus rectangle is at the border of an item
-  (for example an item in a listbox). Certain styles (Motif style as
-  the most prominent example) might have to shrink the rectangle a bit
-  in that case to ensure that the focus rectangle is visible at all.
+  (for example, an item in a list box). Certain styles (Motif style is
+  the most prominent example) might then have to shrink the rectangle a bit
+  to ensure that the focus rectangle is visible.
 */
 
 
 /* \fn void QStyle::tabbarMetrics( const QTabBar* t, int& hframe, int& vframe, int& overlap)
 
-  TODO
+  TO DO.
  */
 
 /* \fn void QStyle::drawTab( QPainter* p,  const  QTabBar* tb, QTab* t , bool selected )
 
-   TODO
+   TO DO.
 
 */
 
 /* \fn void QStyle::drawTabMask( QPainter* p,  const  QTabBar* tb , QTab* t, bool selected )
 
-TODO
+TO DO.
 
 */
 
@@ -616,15 +615,15 @@ TODO
 
   \fn void QStyle::scrollBarMetrics( const QScrollBar*, int &, int &, int &, int& ) const
 
-  Returns the metrics of the passed scrollbar: sliderMin, sliderMax,
-  sliderLength and buttonDim.
+  Returns the metrics of the passed scroll bar: sliderMin, sliderMax,
+  sliderLength, and buttonDim.
 
 */
 
 
 /*! \fn QStyle::ScrollControl QStyle::scrollBarPointOver( const QScrollBar* sb, int sliderStart, const QPoint& p)
 
-  Returns the scrollbar control under the passed point.
+  Returns the scroll bar control under the passed point.
  */
 
 /*!
@@ -632,12 +631,12 @@ TODO
   \fn  void QStyle::drawScrollBarControls( QPainter*,  const QScrollBar*, int sliderStart, uint controls,
   uint activeControl )
 
-  Draws the given scrollbar.  Used internally by QScrollbar.
+  Draws the given scroll bar.  Used internally by QScrollbar.
 
   The controls are either ADD_LINE, SUB_LINE, ADD_PAGE, SUB_PAGE,
-  FIRST, LAST, SLIDER or NONE
+  FIRST, LAST, SLIDER or NONE.
 
-  Controls is a combination of these, activeControl is the control
+  Controls is a combination of these; activeControl is the control
   currently pressed down.
  */
 
@@ -671,7 +670,7 @@ void QStyle::drawSliderMask( QPainter *p,
   \fn  void QStyle::drawSliderGroove( QPainter *p,  int x, int y, int w, int h,
 				   const QColorGroup& g, QCOORD c, Orientation )
 
-  Draws a slider groove
+  Draws a slider groove.
 
 */
 
@@ -691,12 +690,12 @@ QStyle::drawSliderGrooveMask( QPainter *p,
 }
 
 /*!
-  Some feels require the scrollbar or other sliders to jump back to
+  Some styles require the scroll bar (or other slider) to jump back to
   the original position when the mouse pointer is too far away while
   dragging.
 
   This behavior can be customized with this function. The default is -1
-  (no jump back) while Windows requires 20 (weird jump back).
+  (no jump back); Windows requires 20 (weird jump back).
 */
 int QStyle::maximumSliderDragDistance() const
 {
@@ -718,8 +717,8 @@ int QStyle::maximumSliderDragDistance() const
 			     const QColorGroup &g,
 			     Orientation orient)
 
-  Draws a splitter handle in the rectangle described by \a x, \a y,
-  \a w, \a h using painter \a p and color group \a g. The orientation
+  Using painter \a p and color group \a g, draws a splitter handle in
+  the rectangle described by \a x, \a y, \a w, \a h. The orientation
   is \a orient.
 
   \sa splitterWidth()
@@ -730,25 +729,26 @@ int QStyle::maximumSliderDragDistance() const
 				const QColorGroup &g,
 				bool act, bool dis )
 
-Draws a checkmark suitable for checkboxes and checkable menu items.
+Draws a check mark suitable for check boxes and checkable menu items.
 
 */
 /*!  \fn void QStyle::polishPopupMenu( QPopupMenu* p)
 
-    Polishes the popup menu \a p according to the GUI style. This is usually means
-    setting the mouse tracking ( QPopupMenu::setMouseTracking() ) and whether
-    the menu is checkable by default ( QPopupMenu::setCheckable() ).
- */
+  Polishes the popup menu \a p according to the GUI style. This
+  usually means setting the mouse tracking (see
+  QPopupMenu::setMouseTracking()) and whether the menu is checkable by
+  default (see QPopupMenu::setCheckable()).
+*/
 
 
 /*! \fn int QStyle::extraPopupMenuItemWidth( bool checkable, int maxpmw, QMenuItem* mi, const QFontMetrics& fm ) const
 
-  Returns the extra width of a menu item \a mi, that means all extra
-  pixels besides the space the menu item text requires. \a checkable
-  defines, whether the menu has a check column. \a maxpmw is the
-  maximum width of all iconsets within a check column and \a fm
+  Returns the extra width of a menu item \a mi, which means all the extra
+  pixels besides the space that the menu item text requires. \a checkable
+  defines whether the menu has a check column. \a maxpmw is the
+  maximium width of all iconsets within a check column and \a fm
   defines the font metrics used to draw the label. This is
-  particularly useful to calculate a suitable size for a submenu
+  particulary useful for calculating a suitable size for a submenu
   indicator or the column separation, including the tab column used to
   indicate item accelerators.
  */
@@ -766,46 +766,48 @@ int QStyle::popupSubmenuIndicatorWidth( const QFontMetrics& fm  ) const
 
 /*! \fn int QStyle::popupMenuItemHeight( bool checkable, QMenuItem* mi, const QFontMetrics& fm ) const
 
-  Returns the height of the menu item \a mi. \a checkable defines,
-  whether the menu has a check column, \a fm defines the font metrics
+  Returns the height of the menu item \a mi. \a checkable defines
+  whether the menu has a check column; \a fm defines the font metrics
   used to draw the label.
  */
 
-/*! \fn void QStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, int tab, QMenuItem* mi,
-				    const QPalette& pal,
-				    bool act, bool enabled, int x, int y, int w, int h);
+/*! \fn void QStyle::drawPopupMenuItem( QPainter* p, bool checkable,
+                                    int maxpmw, int tab, QMenuItem* mi,
+				    const QPalette& pal, bool act, 
+				    bool enabled,
+				    int x, int y, int w, int h);
 
- Draws the menu item \a mi using the painter \a p. The painter is
- preset to the right font. \a maxpmw is the
- maximum width of all iconsets within a check column. \a tab
- specifies the minimum number of pixels necessary to draw all labels
- of the menu without their accelerators (which are separated by a tab
- character in the label text). \a pal is the palette, \a act and \a
- enabled define whether the item is active (i.e. highlighted) or
- enabled, respectively. Finally, \a x, \a y, \a w and \a h determine
- the geometry of the entire item.
+ Draws the menu item \a mi using the painter \a p. The painter is preset
+ to the right font. \a maxpmw is the maximium width of all iconsets within
+ a check column. \a tab specifies the minimum number of pixels necessary
+ to draw all labels of the menu without their accelerators (which are
+ separated by a tab character in the label text). \a pal is the palette;
+ \a act and \a enabled define whether the item is active (i.e.,
+ highlighted) or enabled respectively. Finally, \a x, \a y, \a w and \a h
+ determine the geometry of the entire item.
 
- Note that \a mi can be 0 in the case of multicolumn popup menus. In that case,
- drawPopupMenuItem() simply draws the appropriate item background.
+ Note that \a mi can be 0 when a multi-column popup menu ins being
+ drawn. In that case, drawPopupMenuItem() simply draws the appropriate
+ item background.
 */
 
 
 /*!
-  Returns a QSize containing the width of a vertical scrollbar and
-  the height of a horizontal scrollbar in this style.
+  Returns a QSize containing the width of a vertical scroll bar and
+  the height of a horizontal scroll bar in this style.
 
-  In this version of the Qt library, subclasses must call
-  setScrollBarExtent() to change the extent of scrollbars. In a future
-  version of Qt, this function will become virtual.
+  In this version of the Qt library subclasses must call
+  setScrollBarExtent() to change the extent of scroll bars. In a future
+  version of Qt this function will become virtual.
 */
 QSize QStyle::scrollBarExtent() const
 {
     return QSize( 16, 16 ).expandedTo( QApplication::globalStrut() );
 }
 
-/*!
-  Returns the extent (height or width depending on the orientation) which a toolbar
-  handle has.
+/*! Returns the extent of a tool bar handle.
+
+  (The extent of a horizontal tool bar's handle is the handle's height.)
 */
 
 int QStyle::toolBarHandleExtent() const
@@ -816,10 +818,11 @@ int QStyle::toolBarHandleExtent() const
 }
 
 /*!
-  Draws the handle for the toolbar using the painter \a p with the handle coordinates
-  \a r. \a orientation gives the orientation of the toolbar, and the handle is drawn
-  \a highlighted if \a highlight is TRUE, else not. \a cg is the QColorGroup of the toolbar and
-  if \a drawBorder is TRUE a border around the handle may be drawn.
+  Draws the handle for the tool bar using the painter \a p with the handle
+  coordinates \a r. \a orientation gives the orientation of the tool bar;
+  the handle is drawn \a highlighted if \a highlight is TRUE, otherwise
+  not. \a cg is the QColorGroup of the tool bar; and if \a drawBorder is
+  TRUE a border around the handle may be drawn.
 */
 void QStyle::drawToolBarHandle( QPainter *p, const QRect &r, Qt::Orientation orientation,
 				bool highlight, const QColorGroup &cg,
@@ -848,11 +851,11 @@ void QStyle::drawToolBarHandle( QPainter *p, const QRect &r, Qt::Orientation ori
 
 
 /*!
-  Returns the width of the default-button indicator frame.
+  Returns the width of the indicator frame for a default button.
 
   In this version of the Qt library, subclasses must call
   setButtonDefaultIndicatorWidth() to change the frame width. In a
-  future version of Qt, this function will become virtual.
+  future version of Qt this function will become virtual.
 */
 int QStyle::buttonDefaultIndicatorWidth() const
 {
@@ -862,14 +865,12 @@ int QStyle::buttonDefaultIndicatorWidth() const
 /*!
   \fn QRect QStyle::pushButtonContentsRect( QPushButton* btn ) const
 
-  Auxiliary function to return the contents rectangle of a push button
-  \a btn. The contents rectangle is the space available for the button
-  label.
+  Returns the contents rectangle of a push button \a btn. The contents
+  rectangle is the space available for the button label.
 
-  The result depends on the look (buttonRect()), whether the
-  button needs space for a default indicator
-  (buttonDefaultIndicatorWidth()) and whether it is pushed down and
-  needs to be shifted (getButtonShift()).
+  The result depends on the look (buttonRect()), whether the button needs
+  space for a default indicator (buttonDefaultIndicatorWidth()), and
+  whether it is pushed down and needs to be shifted (getButtonShift()).
  */
 
 
@@ -888,11 +889,11 @@ int QStyle::menuButtonIndicatorWidth( int h ) const
 				    bool enabled, bool )
 				
   Draws the menu item \a mi using the painter \a p and the ButtonText
-  color of \g. The painter is preset to the right font. \a x, \a y,
-  \a w and \a h determine the geometry of the entire item.
+  color of \a g. The painter is preset to the right font. \a x, \a y, \a w
+  and \a h determine the geometry of the entire item.
 
-  In a future version of the Qt library, this function will become
-  and subclasses will be able to reimplement drawMenuBarItem()
+  In a future version of the Qt library this function will become
+  obsolete, and subclasses will be able to reimplement drawMenuBarItem().
 
   \sa drawPopupMenuItem()
 */

@@ -67,50 +67,48 @@ struct QNetworkProtocolPrivate
 /*!
   \class QNetworkProtocol qnetworkprotocol.h
 
-  \brief This is the base class for network protocols which provides
+  \brief This is the base class for network protocols that provide
   a common API for network protocols.
 
   \ingroup io
 
-  This is a baseclass which should be used for implementations
-  of network protocols which can then be used in Qt (e.g.
+  This is a base class which should be used for implementations
+  of network protocols that can then be used in Qt (e.g.,
   in the filedialog) together with the QUrlOperator.
 
-  The easiest way to implement a new network protocol is, to
+  The easiest way to implement a new network protocol is to
   reimplement the operation[something]( QNetworkOperation * )
-  methods. Of course only the ones, which are supported, should
+  methods. Of course only the ones that are supported should
   be reimplemented. To specify which operations are supported,
   also reimplement supportedOperations() and return an int there,
-  which is ore'd together using the supported operations from
+  that is OR'd together using the supported operations from
   the QNetworkProtocol::Operation enum.
 
   When you implement a network protocol this way, be careful
-  that you always emit the correct signals. Also, always emit
+  always to emit the correct signals. Also, always emit
   the finished() signal when an operation is done (on failure or
   success!). The Qt Network Architecture relies on correctly emitted
   finished() signals.
 
-  For a detailed description about the Qt Network Architecture, and
-  also how to implement and use network protocols in Qt, look
-  at the <a href="network.html">Qt Network Documentation</a>.
+  For a detailed description of the Qt Network Architecture and
+  also how to implement and use network protocols in Qt, see the <a href="network.html">Qt Network Documentation</a>.
 */
 
 /*!
   \fn void QNetworkProtocol::newChildren( const QValueList<QUrlInfo> &i, QNetworkOperation *op )
 
   This signal is emitted after listChildren() was called and
-  new children (e.g. files) have been read from list of files. \a i
+  new children (files) have been read from the list of files. \a i
   holds the information about the new children.
-  \a op is the pointer to the operation object, which contains all infos
-  of the operation, including the state and so on.
+  \a op is the pointer to the operation object which contains all infos
+  of the operation, including the state, etc.
 
   When a protocol emits this signal, QNetworkProtocol is smart enough
   to let the QUrlOperator, which is used by the network protocol, emit
   its corresponding signal.
 
-  When implementing an own network protocol and reading children in most
-  cases you don't read one child at once, but a list of them. That's why this signal
-  takes a list of QUrlInfo objects. But if you read only one child at once, you can
+  When implementing your own network protocol and reading children, you usually don't read one child at once, but rather a list of them. That's why this signal
+  takes a list of QUrlInfo objects. But if you read only one child at once you can
   use the convenience signal newChild(), which takes only a single QUrlInfo object.
 */
 
@@ -118,23 +116,22 @@ struct QNetworkProtocolPrivate
   \fn void QNetworkProtocol::newChild( const QUrlInfo &i, QNetworkOperation *op )
 
   This signal is emitted if a new child has been read. QNetworkProtocol
-  automatically connects that to a slot which creates a list of QUrlInfo objects
-  (with just the one QUrlInfo \a i) and emits then newChildren() signal with this
+  automatically connects it to a slot which creates a list of QUrlInfo objects
+  (with just the one QUrlInfo \a i) and emits the newChildren() signal with this
   created list.
 
-  So this is just a convenience signal when implementing an own network protocol. In all
-  other cases just care about the newChildren() signal with the list of QUrlInfo objects.
+  This is just a convenience signal when implementing your own network protocol. In all
+  other cases worry only about the newChildren() signal with the list of QUrlInfo objects.
 */
 
 /*!
   \fn void QNetworkProtocol::finished( QNetworkOperation *op )
 
-  This signal is emitted when an operation of some sort finished.
-  This signal is emitted always, this means on success and on failure.
-  \a op is the pointer to the operation object, which contains all infos
-  of the operation which has been finished, including the state and so on.
-  To check if the operation was successful or not, check the state and
-  error code of the operation object.
+  This signal is emitted when an operation of some sort finishes.
+  This signal is always emitted, whether success or failure.
+  \a op is the pointer to the operation object which contains all infos
+  of the operation that has finished, including the state, etc.
+  Check the state and error code of the operation object to determine whether or not the operation was successful.
 
   When a protocol emits this signal, QNetworkProtocol is smart enough
   to let the QUrlOperator, which is used by the network protocol, emit
@@ -144,10 +141,10 @@ struct QNetworkProtocolPrivate
 /*!
   \fn void QNetworkProtocol::start( QNetworkOperation *op )
 
-  Some operations (like listChildren()) emit this signal
+  Some operations (such as listChildren()) emit this signal
   when they start processing the operation.
-  \a op is the pointer to the operation object, which contains all infos
-  of the operation, including the state and so on.
+  \a op is the pointer to the operation object which contains all infos
+  of the operation, including the state, etc.
 
   When a protocol emits this signal, QNetworkProtocol is smart enough
   to let the QUrlOperator, which is used by the network protocol, emit
@@ -160,9 +157,9 @@ struct QNetworkProtocolPrivate
   This signal is emitted when mkdir() has been succesful
   and the directory has been created. \a i holds the information
   about the new directory.
-  \a op is the pointer to the operation object, which contains all infos
-  of the operation, including the state and so on and using op->arg( 0 )
-  you also get the filename of the new directory.
+  \a op is the pointer to the operation object which contains all infos
+  of the operation, including the state, etc. Using op->arg( 0 ),
+  you also get the file name of the new directory.
 
   When a protocol emits this signal, QNetworkProtocol is smart enough
   to let the QUrlOperator, which is used by the network protocol, emit
@@ -173,8 +170,8 @@ struct QNetworkProtocolPrivate
   \fn void QNetworkProtocol::removed( QNetworkOperation *op )
 
   This signal is emitted when remove() has been succesful
-  and the file has been removed. \a op holds the filename
-  of the removed file in the first argument, you get it
+  and the file has been removed. \a op holds the file name
+  of the removed file in the first argument; you get it
   with op->arg( 0 ).
 
   \a op is the pointer to the operation object, which contains all infos
@@ -188,9 +185,9 @@ struct QNetworkProtocolPrivate
 /*!
   \fn void QNetworkProtocol::itemChanged( QNetworkOperation *op )
 
-  This signal is emitted whenever a file, which is a child of this URL,
-  has been changed e.g. by successfully calling rename(). \a op holds
-  the original and the new filenames in the first and second arguments.
+  This signal is emitted whenever a file which is a child of this URL
+  has been changed, e.g., by successfully calling rename(). \a op holds
+  the original and the new file names in the first and second arguments.
   You get them with op->arg( 0 ) and op->arg( 1 ).
 
   \a op is the pointer to the operation object, which contains all infos
@@ -204,23 +201,23 @@ struct QNetworkProtocolPrivate
 /*!
   \fn void QNetworkProtocol::data( const QByteArray &data, QNetworkOperation *op )
 
-  This signal is emitted when new \a data has been received
-  after e.g. calling get() or put(). \a op holds the name of the file which data
-  is retrieved in the first argument and the data in the second argument (raw).
-  You get them with op->arg( 0 ) and op->rawArg( 1 ).
+  This signal is emitted when new \a data has been received after calling
+  get() or put(). \a op holds the name of the file in which data is
+  retrieved its first argument, and the (raw) data in its second argument.
+  You can fetch them with op->arg( 0 ) and op->rawArg( 1 ).
 
-  \a op is the pointer to the operation object, which contains all infos
-  of the operation, including the state and so on.
+  Note that \a op contains all information about the operation, including
+  the state.
 
-  When a protocol emits this signal, QNetworkProtocol is smart enough
-  to let the QUrlOperator, which is used by the network protocol, emit
-  its corresponding signal.
+  When a protocol emits this signal, QNetworkProtocol is smart enough to
+  let the QUrlOperator (which is used by the network protocol) emit its
+  corresponding signal.
 */
 
 /*!
   \fn void QNetworkProtocol::dataTransferProgress( int bytesDone, int bytesTotal, QNetworkOperation *op )
 
-  When transferring data (using put() or get()) this signal is emitted during the progress.
+  This signal is emitted during the progress when transferring data (using put() or get()).
   \a bytesDone tells how many bytes of \a bytesTotal are transferred. More information
   about the operation is stored in the \a op, the pointer to the network operation
   which is processed. \a bytesTotal may be -1, which means that the number of total
@@ -238,90 +235,119 @@ struct QNetworkProtocolPrivate
   the network protocol is changed. \a state describes the new state,
   which is one of
   	ConHostFound,
-	ConConnected,
-	ConClosed
+	ConConnected and
+	ConClosed.
   \a data is a message text.
 */
 
 /*!
   \enum QNetworkProtocol::State
 
-  This enum contains the state which a QNetworkOperation
+  This enum contains the state that a QNetworkOperation
   can have:
 
   <ul>
-  <li> \c StWaiting - The operation is in the queue of the QNetworkProtocol
-  and is waiting for being prcessed
-  <li> \c StInProgress - The operation is just processed
-  <li> \c StDone - The operation has been processed succesfully
-  <li> \c StFailed - The operation has been processed but an error occurred
-  <li> \c StStopped - The operation has been processed but has been stopped before it finished
+
+  <li> \c StWaiting - The operation is in the queue of the
+  QNetworkProtocol and is waiting for being prcessed.
+
+  <li> \c StInProgress - The operation is being processed.
+
+  <li> \c StDone - The operation has been processed succesfully.
+
+  <li> \c StFailed - The operation has been processed but an error occured.
+
+  <li> \c StStopped - The operation has been processed but has been
+  stopped before it finished, and is waiting for being prcessed.
+
   </ul>
 */
 
 /*!
   \enum QNetworkProtocol::Operation
 
-  This enum lists all possible operations which a network protocol
-  can support. supportedOperations() returns an int which is or'd
-  together of these values, also the type() or a QNetworkOperation
+  This enum lists all possible operations that a network protocol
+  can support. supportedOperations() returns an int that is OR'd
+  together. Also, the type() or a QNetworkOperation
   is always one of these values.
 
   <ul>
-  <li> \c OpListChildren - Listing the children of a URL, e.g. of a directory
-  <li> \c OpMkdir - Create a directory
-  <li> \c OpRemove - remove a child (e.g. file)
-  <li> \c OpRename - rename a child (e.g. file )
-  <li> \c OpGet - get data from a location
-  <li> \c OpPut - put data to a location
+  <li> \c OpListChildren - List the children of a URL, e.g., of a directory.
+  <li> \c OpMkdir - Create a directory.
+  <li> \c OpRemove - Remove a child (e.g., file).
+  <li> \c OpRename - Rename a child (e.g., file).
+  <li> \c OpGet - Get data from a location.
+  <li> \c OpPut - Put data to a location.
   </ul>
 */
 
 /*!
   \enum QNetworkProtocol::ConnectionState
 
-  When the connection state of a network protocol changes, it emits
+  When the connection state of a network protocol changes it emits
   the signal connectionStateChanged(). The first argument is one
-  of following values:
+  of the following values:
 
   <ul>
-  <li> \c ConHostFound - Host has been found
-  <li> \c ConConnected - Connection to the host has been established
-  <li> \c ConClosed - connection has been closed
+  <li> \c ConHostFound - Host has been found.
+  <li> \c ConConnected - Connection to the host has been established.
+  <li> \c ConClosed - Connection has been closed.
   </ul>
 */
 
 /*!
   \enum QNetworkProtocol::Error
 
-  When an operation failed (finished without success) the QNetworkOperation
-  of the operation returns an error code, which is one of following values:
+  When an operation fails (finishes without success), the QNetworkOperation
+  of the operation returns an error code which is one of the following values:
 
   <ul>
-  <li>\c NoError - No error occurred
-  <li>\c ErrValid - The URL you are operating on is not valid
-  <li>\c ErrUnknownProtocol - There is no protocol implementation available for the protocol of the URL you are operating on (e.g. if the protocol is http and no http implementation has been registered)
-  <li>\c ErrUnsupported - The operation is not supported by the protocol
-  <li>\c ErrParse - Parse error of the URL
-  <li>\c ErrLoginIncorrect - You needed to login but the username and or password are wrong
-  <li>\c ErrHostNotFound - The specified host (in the URL) couldn´t be found
-  <li>\c ErrListChlidren - An error occurred while listing the children
-  <li>\c ErrMkdir - An error occurred when creating a directory
-  <li>\c ErrRemove - An error occurred while removing a child
-  <li>\c ErrRename  - An error occurred while renaming a child
-  <li>\c ErrGet - An error occurred while getting (retrieving) data
-  <li>\c ErrPut - An error occurred while putting (uploading) data
-  <li>\c ErrFileNotExisting - A file which is needed by the operation doesn't exist
-  <li>\c ErrPermissionDenied - The permission for doing the operation has been denied
+  <li>\c NoError - No error occured.
+
+  <li>\c ErrValid - The URL you are operating on is not valid.
+
+  <li>\c ErrUnknownProtocol - There is no protocol implementation
+  available for the protocol of the URL you are operating on (e.g., if the
+  protocol is http and no http implementation has been registered).
+
+  <li>\c ErrUnsupported - The operation is not supported by the protocol.
+
+  <li>\c ErrParse - Parse error of the URL.
+
+  <li>\c ErrLoginIncorrect - You needed to login but the username and/or
+  password are wrong.
+
+  <li>\c ErrHostNotFound - The specified host (in the URL) couldn't be
+  found.
+
+  <li>\c ErrListChlidren - An error occured while listing the children.
+
+  <li>\c ErrMkdir - An error occured when creating a directory.
+
+  <li>\c ErrRemove - An error occured while removing a child.
+
+  <li>\c ErrRename  - An error occured while renaming a child.
+
+  <li>\c ErrGet - An error occured while getting (retrieving) data.
+
+  <li>\c ErrPut - An error occured while putting (uploading) data.
+
+  <li>\c ErrFileNotExisting - A file which is needed by the operation
+  doesn't exist.
+
+  <li>\c ErrPermissionDenied - The permission for doing the operation has
+  been denied.
+
   </ul>
 
-  When implementing custom network protocols, you should also use these
-  values of error codes. If this is not possible, you can define your own ones
-  by using an integer value which doesn't conflict with one of these vales.
+  You should also use these values of error codes when implementing custom
+  network protocols. If this is not possible, you can define your own ones
+  by using an integer value that doesn't conflict with one of these
+  values.
 */
 
 /*!
-  Constructor of the network protocol baseclass. Does some initialization
+  Constructor of the network protocol base class. Does some initialization
   and connecting of signals and slots.
 */
 
@@ -462,18 +488,18 @@ void QNetworkProtocol::setUrl( QUrlOperator *u )
 }
 
 /*!
-  For processing operations the newtork protocol baseclass calls this
+  For processing operations the network protocol base class calls this
   method quite often. This should be reimplemented by new
-  network protocols. It should return TRUE, if the connection
-  is ok (open), else FALSE. If the connection is not open, the protocol
+  network protocols. It should return TRUE if the connection
+  is OK (open), otherwise FALSE. If the connection is not open the protocol
   should open it.
 
-  If the connection can't be opened (e.g. because you already tried it,
-  but the host couldn't be found or something like that), set the state
+  If the connection can't be opened (e.g., because you already tried it
+  but the host couldn't be found), set the state
   of \a op to QNetworkProtocol::StFailed and emit the finished() signal with
   this QNetworkOperation as argument.
 
-  \a op is the operation which needs an open connection.
+  \a op is the operation that needs an open connection.
 */
 
 bool QNetworkProtocol::checkConnection( QNetworkOperation * )
@@ -482,7 +508,7 @@ bool QNetworkProtocol::checkConnection( QNetworkOperation * )
 }
 
 /*!
-  Returns an int, which is or'd together using the enum values
+  Returns an int that is OR'd together using the enum values
   of \c QNetworkProtocol::Operation, which describes which operations
   are supported by the network protocol. Should be reimplemented by new
   network protocols.
@@ -494,7 +520,7 @@ int QNetworkProtocol::supportedOperations() const
 }
 
 /*!
-  Adds the operation \a op the operation queue. The operation
+  Adds the operation \a op to the operation queue. The operation
   will be processed as soon as possible. This method returns
   immediately.
 */
@@ -510,13 +536,13 @@ void QNetworkProtocol::addOperation( QNetworkOperation *op )
 }
 
 /*!
-  Static method to register a network protocol for Qt. E.g. if you have
-  a implementation of NNTP (called Nntp), which is derived from
+  Static method to register a network protocol for Qt. For example, if you have
+  an implementation of NNTP (called Nntp) which is derived from
   QNetworkProtocol, call
 
   QNetworkProtocol::registerNetworkProtocol( "nntp", new QNetworkProtocolFactory<Nntp> );
 
-  After that, this implementation is registered for nntp operations.
+  This implementation is thereafter registered for nntp operations.
 */
 
 void QNetworkProtocol::registerNetworkProtocol( const QString &protocol,
@@ -531,18 +557,18 @@ void QNetworkProtocol::registerNetworkProtocol( const QString &protocol,
 }
 
 /*!
-  Static method to get a new instance of a network protocol. E.g. if
-  you need to do some FTP operations, do
+  Static method to get a new instance of a network protocol. For example, if
+  you need to do some FTP operations, do the following:
 
   QFtp *ftp = QNetworkProtocol::getNetworkProtocol( "ftp" );
 
-  This returns now either NULL, if no protocol for ftp was registered,
+  This returns null if no protocol for ftp was registered
   or a pointer to a new instance of an FTP implementation. The ownership
-  of the pointer is transferred to you, so you have to delete it, if you
-  don´t need it anymore.
+  of the pointer is transferred to you, so you have to delete it if you
+  don't need it anymore.
 
   Normally you should not work directly with network protocols, so
-  you will not need to call this method yourself. Rather use the
+  you will not need to call this method yourself. Instead, use the
   QUrlOperator, which makes working with network protocols
   much more convenient.
 
@@ -567,8 +593,8 @@ QNetworkProtocol *QNetworkProtocol::getNetworkProtocol( const QString &protocol 
 }
 
 /*!
-  Returns TRUE, if only a protocol for working on the local filesystem is
-  registered, or FALSE if also other network protocols are registered.
+  Returns TRUE if only a protocol for working on the local filesystem is
+  registered, or FALSE if other network protocols are also registered.
 */
 
 bool QNetworkProtocol::hasOnlyLocalFileSystem()
@@ -631,16 +657,15 @@ void QNetworkProtocol::processOperation( QNetworkOperation *op )
 }
 
 /*!
-  When implemeting a new newtork protocol this method should
-  be reimplemented, if the protocol supports listing children, and
-  this method should then process this QNetworkOperation.
+  When implementing a new network protocol, this method should
+  be reimplemented if the protocol supports listing children; this method should then process this QNetworkOperation.
 
-  When you reimplement this method, it's very important that
-  you emit the correct signals at the correct time (esp. the
-  finished() signal after processing an operation). So have
-  a look at the <a href="network.html">Qt Network Documentation</a>,
-  there it is described in detail how to reimplement this method. Also
-  you may look at the example implementation of
+  When you reimplement this method it's very important that
+  you emit the correct signals at the correct time (especially the
+  finished() signal after processing an operation). Take
+  a look at the <a href="network.html">Qt Network Documentation</a>.
+  It describes in detail how to reimplement this method.
+  You may also look at the example implementation of
   qt/extenstions/network/examples/networkprotocol/nntp.cpp.
 */
 
@@ -649,16 +674,16 @@ void QNetworkProtocol::operationListChildren( QNetworkOperation * )
 }
 
 /*!
-  When implemeting a new newtork protocol this method should
-  be reimplemented, if the protocol supports making directories, and
+  When implementing a new network protocol, this method should
+  be reimplemented if the protocol supports making directories;
   this method should then process this QNetworkOperation.
 
-  When you reimplement this method, it's very important that
-  you emit the correct signals at the correct time (esp. the
-  finished() signal after processing an operation). So have
-  a look at the <a href="network.html">Qt Network Documentation</a>,
-  there it is described in detail how to reimplement this method. Also
-  you may look at the example implementation of
+  When you reimplement this method it's very important that
+  you emit the correct signals at the correct time (especially the
+  finished() signal after processing an operation). Take
+  a look at the <a href="network.html">Qt Network Documentation</a>.
+  It describes in detail how to reimplement this method.
+  You may also look at the example implementation of
   qt/extenstions/network/examples/networkprotocol/nntp.cpp.
 */
 
@@ -667,16 +692,15 @@ void QNetworkProtocol::operationMkDir( QNetworkOperation * )
 }
 
 /*!
-  When implemeting a new newtork protocol this method should
-  be reimplemented, if the protocol supports removing children, and
-  this method should then process this QNetworkOperation.
+  When implementing a new network protocol, this method should
+  be reimplemented if the protocol supports removing children; this method should then process this QNetworkOperation.
 
-  When you reimplement this method, it's very important that
-  you emit the correct signals at the correct time (esp. the
-  finished() signal after processing an operation). So have
-  a look at the <a href="network.html">Qt Network Documentation</a>,
-  there it is described in detail how to reimplement this method. Also
-  you may look at the example implementation of
+  When you reimplement this method it's very important that
+  you emit the correct signals at the correct time (especially the
+  finished() signal after processing an operation). Take
+  a look at the <a href="network.html">Qt Network Documentation</a>.
+  It is describes in detail how to reimplement this method.
+  You may also look at the example implementation of
   qt/extenstions/network/examples/networkprotocol/nntp.cpp.
 */
 
@@ -685,16 +709,15 @@ void QNetworkProtocol::operationRemove( QNetworkOperation * )
 }
 
 /*!
-  When implemeting a new newtork protocol this method should
-  be reimplemented, if the protocol supports renaming children, and
-  this method should then process this QNetworkOperation.
+  When implementing a new newtork protocol, this method should
+  be reimplemented if the protocol supports renaming children; this method should then process this QNetworkOperation.
 
-  When you reimplement this method, it's very important that
-  you emit the correct signals at the correct time (esp. the
-  finished() signal after processing an operation). So have
-  a look at the <a href="network.html">Qt Network Documentation</a>,
-  there it is described in detail how to reimplement this method. Also
-  you may look at the example implementation of
+  When you reimplement this method it's very important that
+  you emit the correct signals at the correct time (especially the
+  finished() signal after processing an operation). Take
+  a look at the <a href="network.html">Qt Network Documentation</a>.
+  It describes in detail how to reimplement this method.
+  You may also look at the example implementation of
   qt/extenstions/network/examples/networkprotocol/nntp.cpp.
 */
 
@@ -703,16 +726,16 @@ void QNetworkProtocol::operationRename( QNetworkOperation * )
 }
 
 /*!
-  When implemeting a new newtork protocol this method should
-  be reimplemented, if the protocol supports getting data, and
-  process this QNetworkOperation.
+  When implementing a new network protocol, this method should
+  be reimplemented if the protocol supports getting data; this method should then
+  process the QNetworkOperation.
 
-  When you reimplement this method, it's very important that
-  you emit the correct signals at the correct time (esp. the
-  finished() signal after processing an operation). So have
-  a look at the <a href="network.html">Qt Network Documentation</a>,
-  there it is described in detail how to reimplement this method. Also
-  you may look at the example implementation of
+  When you reimplement this method it's very important that
+  you emit the correct signals at the correct time (especially the
+  finished() signal after processing an operation). Take
+  a look at the <a href="network.html">Qt Network Documentation</a>.
+  It describes in detail how to reimplement this method.
+  You may also look at the example implementation of
   qt/extenstions/network/examples/networkprotocol/nntp.cpp.
 */
 
@@ -721,16 +744,15 @@ void QNetworkProtocol::operationGet( QNetworkOperation * )
 }
 
 /*!
-  When implemeting a new newtork protocol this method should
-  be reimplemented, if the protocol supports putting data, and
-  this method should then process this QNetworkOperation.
+  When implementing a new network protocol, this method should
+  be reimplemented if the protocol supports putting data; this method should then process the QNetworkOperation.
 
-  When you reimplement this method, it's very important that
-  you emit the correct signals at the correct time (esp. the
-  finished() signal after processing an operation). So have
-  a look at the <a href="network.html">Qt Network Documentation</a>,
-  there it is described in detail how to reimplement this method. Also
-  you may look at the example implementation of
+  When you reimplement this method it's very important that
+  you emit the correct signals at the correct time (especially the
+  finished() signal after processing an operation). Take
+  a look at the <a href="network.html">Qt Network Documentation</a>.
+  It describes in detail how to reimplement this method.
+  You may also look at the example implementation of
   qt/extenstions/network/examples/networkprotocol/nntp.cpp.
 */
 
@@ -817,7 +839,7 @@ void QNetworkProtocol::clearOperationQueue()
 }
 
 /*!
-  Stops the current operation which is just processed and clears
+  Stops the current operation that was just processed and clears
   all waiting operations.
 */
 
@@ -834,15 +856,14 @@ void QNetworkProtocol::stop()
     }
 }
 
-/*!
-  Because it's sometimes hard to care about removing network protocol
-  instances, QNetworkProtocol provides an autodelete mechanism. If
-  you set \a b to TRUE, this network protocol instance gets removed
-  after it has been \a i milliseconds inactive (this means \a i ms after
-  the last operation has been processed).
-  If you set \a b to FALSE, the autodelete mechanism is switched off.
+/*!  Because it's sometimes hard to take care of removing network protocol
+  instances, QNetworkProtocol provides an auto-delete mechanism. If you
+  set \a b to TRUE, the network protocol instance is removed after it has
+  been \a i milliseconds inactive (\a i ms after the last operation has
+  been processed).  If you set \a b to FALSE the auto-delete mechanism is
+  switched off.
 
-  NOTE: If you switch on autodeleting, the QNetworkProtocol also
+  Note that if you switch on auto-delete, the QNetworkProtocol also
   deletes its QUrlOperator!
 */
 
@@ -853,7 +874,7 @@ void QNetworkProtocol::setAutoDelete( bool b, int i )
 }
 
 /*!
-  Returns TRUE, of autodeleting is enabled, else FALSE.
+  Returns TRUE if auto-deleting is enabled, otherwise FALSE.
 
   \sa QNetworkProtocol::setAutoDelete()
 */
@@ -900,24 +921,23 @@ struct QNetworkOperationPrivate
   \class QNetworkOperation qnetworkprotocol.h
 
   \brief This class is used to define operations for network
-  protocols and return the state, arguments, etc.
+  protocols and to return the state, arguments, etc.
 
   \ingroup io
 
-  For each operation, which a network protocol should process
-  such an object is created to describe the operation and the current
-  state.
+  An object is created to describe the operation and the current
+  state for each operation that a network protocol should process.
 
-  For a detailed description about the Qt Network Architecture, and
-  also how to implement and use network protocols in Qt, look
-  at the <a href="network.html">Qt Network Documentation</a>.
+  For a detailed description of the Qt Network Architecture and
+  how to implement and use network protocols in Qt, see
+  the <a href="network.html">Qt Network Documentation</a>.
 
   \sa QNetworkProtocol
 */
 
 /*!
   Constructs a network operation object. \a operation is the type
-  of the operation, \a arg0, \a arg1 and  \a arg2 are the
+  of the operation, and \a arg0, \a arg1 and  \a arg2 are the
   first three arguments of the operation.
   The state is initialized to QNetworkProtocol::StWaiting.
 */
@@ -944,7 +964,7 @@ QNetworkOperation::QNetworkOperation( QNetworkProtocol::Operation operation,
 
 /*!
   Constructs a network operation object. \a operation is the type
-  of the operation, \a arg0, \a arg1 and  \a arg2 are the first three
+  of the operation, and \a arg0, \a arg1 and  \a arg2 are the first three
   raw data arguments of the operation.
   The state is initialized to QNetworkProtocol::StWaiting.
 */
@@ -981,8 +1001,8 @@ QNetworkOperation::~QNetworkOperation()
 
 /*!
   Sets the \a state of the operation object. This should be done
-  by the network protocol during processing it, and at the end
-  it should be set to QNetworkProtocol::StDone or QNetworkProtocol::StFailed
+  by the network protocol during processing; at the end
+  it should be set to QNetworkProtocol::StDone or QNetworkProtocol::StFailed,
   depending on success or failure.
 */
 
@@ -996,7 +1016,7 @@ void QNetworkOperation::setState( QNetworkProtocol::State state )
 }
 
 /*!
-  If the operation failed a \a detailed error message can be set
+  If the operation failed, the error message can be specified as \a detail.
 */
 
 void QNetworkOperation::setProtocolDetail( const QString &detail )
@@ -1010,8 +1030,10 @@ void QNetworkOperation::setProtocolDetail( const QString &detail )
 
 /*!
   If the operation failed, the protocol should set an error code
-  to describe the error more detailed. Preferable one of the
+  to describe the error in more detail. If possible, one of the
   error codes defined in QNetworkProtocol should be used.
+  
+  \sa setProtocolDetail()
 */
 
 void QNetworkOperation::setErrorCode( int ec )
@@ -1063,9 +1085,8 @@ QNetworkProtocol::Operation QNetworkOperation::operation() const
 }
 
 /*!
-  Returns the state of the operation. Using that you
-  can find out if an operation is still waiting to get processed,
-  if it is in process or if has been done successfully or if it failed.
+  Returns the state of the operation. You can determine whether an operation is still waiting to be processed,
+  is in process, has been done successfully, or it failed.
 */
 
 QNetworkProtocol::State QNetworkOperation::state() const
@@ -1105,9 +1126,8 @@ QByteArray QNetworkOperation::rawArg( int num ) const
     return d->rawArgs[ num ];
 }
 
-/*!
-  If the operation failed, using this method you may
-  get a more detailed error message.
+/*!  Returns a detailed error message for the last error. This must
+  have been set using setProtocolDetail().
 */
 
 QString QNetworkOperation::protocolDetail() const
@@ -1119,9 +1139,7 @@ QString QNetworkOperation::protocolDetail() const
     return d->protocolDetail;
 }
 
-/*!
-  If an operation failed, you get the error code using
-  this methode.
+/*! Returns the error code for the last error that occured.
 */
 
 int QNetworkOperation::errorCode() const
@@ -1147,13 +1165,12 @@ QByteArray& QNetworkOperation::raw( int num ) const
 }
 
 /*!
-  If this method is called the QNetworkOperation deletes itself after it
-  has been 1 second unused, which means for 1 second no method of the
-  QNetworkOperation has been accessed.
+  Sets this object to delete itself when it hasn't been used for one second.
 
-  Because QNetworkOperation pointers are passed around a lot the QNetworkProtocol
-  can't delete these at the correct time. So, if a QNetworkProtocol doesn't need an operation
-  anymore and calls this method, so that it gets deleted correctly.
+  Because QNetworkOperation pointers are passed around a lot the
+  QNetworkProtocol generally does not have enough knowledge to delete
+  these at the correct time. If a QNetworkProtocol doesn't need an
+  operation anymore it will call this function instead.
 
   You should never need to call the method yourself!
 */
@@ -1165,7 +1182,7 @@ void QNetworkOperation::free()
 
 /*!
   \internal
-  Internal slot for autodeletion.
+  Internal slot for auto-deletion.
 */
 
 void QNetworkOperation::deleteMe()

@@ -73,24 +73,23 @@ static QWidget* qt_sizegrip_workspace( QWidget* w )
 }
 
 
-// NOT REVISED
 /*! \class QSizeGrip qsizegrip.h
 
-  \brief The QSizeGrip class provides corner-grip for resizing a top level
+  \brief The QSizeGrip class provides corner-grip for resizing a top-level
 	    window.
 
   \ingroup application
   \ingroup basic
 
   This widget works like the standard Windows resize handle.  In the
-  X11 version this resize handle generally works differently than the
+  X11 version this resize handle generally works differently from the
   one provided by the system; we hope to reduce this difference in the
   future.
 
   Put this widget anywhere in a tree and the user can use it to resize
-  the top-level window.  Generally this should be in the lower right-hand
+  the top-level window.  Generally, this should be in the lower right-hand
   corner.  Note that QStatusBar already uses this widget, so if you have
-  a status bar (eg. you are using QMainWindow), then you don't need to
+  a status bar (e.g., you are using QMainWindow), then you don't need to
   use this widget explicitly.
 
   <img src=qsizegrip-m.png> <img src=qsizegrip-w.png>
@@ -100,7 +99,7 @@ static QWidget* qt_sizegrip_workspace( QWidget* w )
 
 
 /*!
-  Construct a resize corner as a child widget of \a parent.
+  Constructs a resize corner as a child widget of \a parent.
 */
 QSizeGrip::QSizeGrip( QWidget * parent, const char* name )
     : QWidget( parent, name )
@@ -143,9 +142,8 @@ QSize QSizeGrip::sizeHint() const
     return QSize( 13, 13 ).expandedTo( QApplication::globalStrut() );
 }
 
-/*!
-  Paints the resize grip - small diagonal textured lines in the
-  lower right-hand corner.
+/*!  Paints the resize grip - small diagonal textured lines in the
+  lower-right corner.
 */
 void QSizeGrip::paintEvent( QPaintEvent *e )
 {

@@ -68,7 +68,7 @@ public:
   \brief The QSignalMapper class bundles signals from identifiable senders.
 
   Collects a set of parameterless signals, re-emitting them with an
-  integer or string parameters corresponding to the object which sent the
+  integer or string parameters corresponding to the object that sent the
   signal.
 */
 
@@ -91,7 +91,7 @@ QSignalMapper::~QSignalMapper()
 }
 
 /*!
-  Adds a mapping such that when map() is signalled from the given
+  Adds a mapping so that when map() is signaled from the given
   sender, the signal mapped(identifier) is emitted.
 
   There may be at most one integer identifier for each object.
@@ -104,7 +104,7 @@ void QSignalMapper::setMapping( const QObject* sender, int identifier )
 }
 
 /*!
-  Adds a mapping such that when map() is signalled from the given
+  Adds a mapping so that when map() is signaled from the given
   sender, the signal mapper(identifier) is emitted.
 
   There may be at most one string identifier for each object, and
@@ -160,7 +160,7 @@ QSignalMapperRec* QSignalMapper::getRec( const QObject* sender )
 /*!
   \fn void QSignalMapper::mapped(int)
 
-  This signal is emitted when map() is signalled from an object which
+  This signal is emitted when map() is signaled from an object that
   has an integer mapping set.
 
   \sa setMapping(int)
@@ -170,7 +170,7 @@ QSignalMapperRec* QSignalMapper::getRec( const QObject* sender )
   \fn void QSignalMapper::mapped(const QString&)
 
 
-  This signal is emitted when map() is signalled from an object which
+  This signal is emitted when map() is signaled from an object that
   has a string mapping set.
 
   \sa setMapping(QString)

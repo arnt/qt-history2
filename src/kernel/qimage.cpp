@@ -61,7 +61,6 @@
 #endif
 
 
-// BEING REVISED: jo (QImageIO)
 /*!
   \class QImage qimage.h
   \brief The QImage class provides a hardware-independent pixmap
@@ -72,9 +71,9 @@
 
   It is one of the two classes Qt provides for dealing with images,
   the other being QPixmap.  QImage is designed and optimized for I/O
-  and for direct pixel access/manipulation, QPixmap is designed and
+  and for direct pixel access/manipulation. QPixmap is designed and
   optimized for drawing.  There are (slow) functions to convert
-  between QImage and QPixmap; QPixmap::convertToImage() and
+  between QImage and QPixmap: QPixmap::convertToImage() and
   QPixmap::convertFromImage().
 
   An image has the parameters \link width() width\endlink, \link height()
@@ -92,9 +91,9 @@
   components, and qRgb to make an RGB triplet (see the QColor class
   documentation).
 
-  1-bpp (monochrome) images have a color table with maximum 2 colors.
-  There are two different formats; big endian (MSB first) or little endian
-  (LSB first) bit order. To access a single bit, you will have to do some
+  1-bpp (monochrome) images have a color table with maximum two colors.
+  There are two different formats: big endian (MSB first) or little endian
+  (LSB first) bit order. To access a single bit you will have to do some
   bitshifts:
 
   \code
@@ -120,8 +119,8 @@
     *(image.scanLine(y) + x) = 19;
   \endcode
 
-  32-bpp images ignore the color table, instead each pixel contains the
-  RGB triplet. 24 bits contain the RGB value and the most significant
+  32-bpp images ignore the color table; instead, each pixel contains the
+  RGB triplet. 24 bits contain the RGB value; the most significant
   byte is reserved for the alpha buffer.
 
   \code
@@ -147,10 +146,10 @@
 
   The current values are: <ul>
 
-  <li> \c IgnoreEndian - does not matter.  Useful for some operations
-  that are independent of endianness
+  <li> \c IgnoreEndian - Does not matter.  Useful for some operations
+  that are independent of endianness.
 
-  <li> \c BigEndian - network byte order, like on SPARC and Motorola CPUs.
+  <li> \c BigEndian - Network byte order, as on SPARC and Motorola CPUs.
 
   <li> \c LittleEndian - PC/Alpha byte order.
 
@@ -318,7 +317,7 @@ static void read_xpm_image_or_array( QImageIO *, const char **, QImage & );
   \endcode
 
   The extra \c const makes the entire definition read-only, which is
-  slightly more efficient e.g. when the code is in a shared library,
+  slightly more efficient (e.g., when the code is in a shared library)
   and ROMable when the application is to be stored in ROM.
 
   In order to use that sort of declaration, you must cast the variable
@@ -545,7 +544,7 @@ QImage QImage::copy() const
   Returns a
   \link shclass.html deep copy\endlink of a sub-area of the image.
 
-  The returned image is always \a w by \a h pixels is size. If the
+  The returned image is always \a w by \a h pixels in size. If the
   area is beyond this image, the pixels are filled with pixel 0.
 
   \sa bitBlt()
@@ -619,8 +618,8 @@ QImage QImage::copy(int x, int y, int w, int h, int conversion_flags) const
   \fn int QImage::numColors() const
   Returns the size of the color table for the image.
 
-  Notice that numColors() returns 0 for 16-bpp and 32-bpp images,
-  since these images do not use color tables, but instead encode pixel
+  Notice that numColors() returns 0 for 16-bpp and 32-bpp images
+  because these images do not use color tables, but instead encode pixel
   values as RGB triplets.
 */
 
@@ -690,7 +689,7 @@ QImage QImage::copy(int x, int y, int w, int h, int conversion_flags) const
   The scanline data is aligned on a 32-bit boundary.
 
   \warning If you are accessing 32-bpp image data, cast the returned
-  pointer to \c QRgb* (QRgb has a 32 bit size) and use it to read/write
+  pointer to \c QRgb* (QRgb has a 32-bit size) and use it to read/write
   the pixel value. You cannot use the \c uchar* pointer directly, because
   the pixel format depends on the byte order on the underlying
   platform. Hint: use \link ::qRed() qRed()\endlink and friends (qcolor.h)
@@ -740,8 +739,8 @@ void QImage::reset()
   Fills the entire image with the pixel value \a pixel.
 
   If the \link depth() depth\endlink of this image is 1, only
-  the lowest bit is used. If you say fill(0), fill(2) etc., the image
-  is filled with 0s. If you say fill(1), fill(3) etc., the image
+  the lowest bit is used. If you say fill(0), fill(2), etc., the image
+  is filled with 0s. If you say fill(1), fill(3), etc., the image
   is filled with 1s. If the depth is 8, the lowest 8 bits are used.
 
   If the depth is 32 and the image has no alpha buffer, the \a pixel
@@ -809,8 +808,8 @@ void QImage::fill( uint pixel )
   Inverts all pixel values in the image.
 
   For 32 bit (24 RGB + alpha buffer) images, set \a invertAlpha to
-  FALSE if you want the alpha bits to be unchanged, otherwise they are
-  inverted too.
+  FALSE if you want the alpha bits to be unchanged; otherwise they are
+  inverted, too.
 */
 
 void QImage::invertPixels( bool invertAlpha )
@@ -926,12 +925,12 @@ void QImage::setNumColors( int numColors )
   Enables alpha buffer mode if \a enable is TRUE, otherwise disables it.
   The default setting is disabled.
 
-  An 8-bpp image has 8 bit pixels. A pixel is an index into the \link
+  An 8-bpp image has 8-bit pixels. A pixel is an index into the \link
   color() color table\endlink, which contains 32-bit color values.
-  In a 32-bpp image, the 32 bit pixels are the color values.
+  In a 32-bpp image, the 32-bit pixels are the color values.
 
-  This 32 bit value is encoded as follows: The lower 24 bits are used for
-  the red, green and blue components. The upper 8 bits contain the alpha
+  This 32-bit value is encoded as follows: The lower 24 bits are used for
+  the red, green, and blue components. The upper 8 bits contain the alpha
   component.
 
   The alpha component specifies the transparency of a pixel. 0 means
@@ -951,13 +950,13 @@ void QImage::setAlphaBuffer( bool enable )
 
 
 /*!
-  Sets the image width, height, depth, number of colors and bit order.
+  Sets the image width, height, depth, number of colors, and bit order.
   Returns TRUE if successful, or FALSE if the parameters are incorrect or
   if memory cannot be allocated.
 
-  The \e width and \e height is limited to 32767. \e depth must be 1, 8 or
-  32. If \e depth is 1, then \e bitOrder must be set to either
-  QImage::LittleEndian or QImage::BigEndian.  For other depths, \e
+  The \e width and \e height is limited to 32767. \e depth must be 1, 8, or
+  32. If \e depth is 1, \e bitOrder must be set to either
+  QImage::LittleEndian or QImage::BigEndian.  For other depths \e
   bitOrder must be QImage::IgnoreEndian.
 
   This function allocates a color table and a buffer for the image data.
@@ -2091,7 +2090,7 @@ bool isGray(QRgb c)
 
 /*!
   Returns TRUE if all the colors in the image are shades of
-  gray, that is their R, G, and B components are equal.
+  gray (i.e., their R, G and B components are equal).
   This function is slow for large 16-bit and 32-bit images.
 */
 bool QImage::allGray() const
@@ -2402,8 +2401,8 @@ void pnmscale(const QImage& src, QImage& dst)
   \fn QImage QImage::smoothScale(int width, int height) const
 
   Returns a copy of the image smoothly scaled to \a width by \a height
-  pixels.  For 32-bpp images, and 1-bpp/8-bpp color images, the result
-  will be 32-bpp, while
+  pixels.  For 32-bpp images and 1-bpp/8-bpp color images the result
+  will be 32-bpp, whereas
   \link allGray() all-gray \endlink images (including black-and-white 1-bpp)
   will produce 8-bit
   \link isGrayscale() grayscale \endlink images with the palette spanning
@@ -2494,11 +2493,11 @@ QImage QImage::createAlphaMask( int conversion_flags ) const
 /*!
   Creates and returns a 1-bpp heuristic mask for this image. It works by
   selecting a color from one of the corners, then chipping away pixels of
-  that color, starting at all the edges.
+  that color starting at all the edges.
 
-  The four corners vote over which color is to be masked away. In
+  The four corners vote which color is to be masked away. In
   case of a draw (this generally means that this function is not
-  applicable to the image) the voting results are undocumented.
+  applicable to the image), the result is arbitrary.
 
   The returned image has little-endian bit order, which you can
   convert to big-endianness using convertBitOrder().
@@ -2711,8 +2710,8 @@ QImage QImage::mirror() const
 
 
 /*!
-  Returns a QImage where the values of the red and blue components of
-  all pixels have been swapped, effectively converting a RGB image to
+  Returns a QImage in which the values of the red and blue components of
+  all pixels have been swapped, effectively converting an RGB image to
   a BGR image. The original QImage is left unchanged.
 */
 
@@ -2773,7 +2772,7 @@ const char* QImage::imageFormat( const QString &fileName )
 }
 
 /*!
-  Returns a list of image formats which are supported for image input.
+  Returns a list of image formats that are supported for image input.
 
   \sa inputFormatList()
 */
@@ -2783,7 +2782,7 @@ QStrList QImage::inputFormats()
 }
 #ifndef QT_NO_STRINGLIST
 /*!
-  Returns a list of image formats which are supported for image input.
+  Returns a list of image formats that are supported for image input.
 */
 QStringList QImage::inputFormatList()
 {
@@ -2792,7 +2791,7 @@ QStringList QImage::inputFormatList()
 
 
 /*!
-  Returns a list of image formats which are supported for image output.
+  Returns a list of image formats that are supported for image output.
 */
 QStringList QImage::outputFormatList()
 {
@@ -2801,7 +2800,7 @@ QStringList QImage::outputFormatList()
 #endif //QT_NO_STRINGLIST
 
 /*!
-  Returns a list of image formats which are supported for image output.
+  Returns a list of image formats that are supported for image output.
 
   \sa QImage::outputFormatList()
 */
@@ -2874,11 +2873,12 @@ bool QImage::loadFromData( QByteArray buf, const char *format )
 }
 
 /*!
-  Saves the image to the file \e fileName, using the image file format
-  \e format and a quality factor \e quality.  \e quality must be in the
-  range [0,100] or -1.  Specify 0 to obtain small compressed files, 100
-  for large uncompressed files and -1 to use the default settings.
-  Returns TRUE if successful, or FALSE if the image could not be saved.
+  Saves the image to the file \e fileName, using the image file format \e
+  format and a quality factor \e quality.  \e quality must be in the range
+  [0,100] or -1.  Specify 0 to obtain small compressed files, 100 for
+  large uncompressed files, and -1 (the default) to use the default
+  settings.  Returns TRUE if successful or FALSE if the image could not be
+  saved.
 
   \sa load(), loadFromData(), imageFormat(), QPixmap::save(), QImageIO
 */
@@ -3036,12 +3036,12 @@ static void swapPixel01( QImage *image )	// 1-bpp: swap 0 and 1 pixels
   Qt currently supports the following image file formats: PNG, BMP,
   XBM, XPM and PNM.  It may also support JPEG, MNG and GIF, if specially
   configured during compilation.  The different PNM formats are: PBM
-  (P1 or P4), PGM (P2 or P5), PPM (P3 or P6).
+  (P1 or P4), PGM (P2 or P5), and PPM (P3 or P6).
 
-  You will normally not need to use this class, QPixmap::load(),
-  QPixmap::save() and QImage contain most of the needed functionality.
+  You will normally not need to use this class; QPixmap::load(),
+  QPixmap::save(), and QImage contain most of the needed functionality.
 
-  For image files which contain sequences of images, only the first is
+  For image files that contain sequences of images, only the first is
   read.  See the QMovie for loading multiple images.
 
   PBM, PGM, and PPM format \e output is always in the more condensed
@@ -3049,7 +3049,7 @@ static void swapPixel01( QImage *image )	// 1-bpp: swap 0 and 1 pixels
   are scaled down when reading.
 
   \warning Unisys has changed its position regarding GIF.  If you are
-  in a country where Unisys holds a patent on LZW compression and/or
+  in a country in which Unisys holds a patent on LZW compression and/or
   decompression and you want to use GIF, Unisys may require you to
   license that technology.  These countries include Canada, Japan, the
   USA, France, Germany, Italy and the UK.
@@ -3221,7 +3221,7 @@ static QImageHandler *get_image_handler( const char *format )
 
   \arg \e format is the name of the format.
   \arg \e header is a regular expression that recognizes the image header.
-  \arg \e flags is "T" for text formats like PBM; generally you will
+  \arg \e flags is "T" for text formats such as PBM; generally you will
 	  want to use 0.
   \arg \e read_image is a function to read an image of this format.
   \arg \e write_image is a function to write an image of this format.
@@ -3250,11 +3250,11 @@ static QImageHandler *get_image_handler( const char *format )
 			       writeGIF );
   \endcode
 
-  Prior to comparison with the regular expression, the file header is
+  Prior to comparison with the regular expression the file header is
   converted to change all 0 bytes into 1 bytes. This is done because 0
-  is such a common header byte yet regular expressions cannot match it.
+  is such a common header byte, yet regular expressions cannot match it.
 
-  For image formats supporting incremental display, such as sequences
+  For image formats supporting incremental display such as sequences
   of animated frames, see the QImageFormatType class.
 */
 
@@ -3285,14 +3285,14 @@ void QImageIO::defineIOHandler( const char *format,
 
 /*!
   \fn int QImageIO::status() const
-  Returns the image IO status.	A non-zero value indicates an error, while 0
+  Returns the image IO status. A non-zero value indicates an error, whereas 0
   means that the IO operation was successful.
   \sa setStatus()
 */
 
 /*!
   \fn const char *QImageIO::format() const
-  Returns the image format string, or 0 if no format has been explicitly set.
+  Returns the image format string or 0 if no format has been explicitly set.
 */
 
 /*!
@@ -3325,7 +3325,7 @@ void QImageIO::setImage( const QImage &image )
 }
 
 /*!
-  Sets the image IO status.  A non-zero value indicates an error, while 0 means
+  Sets the image IO status.  A non-zero value indicates an error, whereas 0 means
   that the IO operation was successful.
   \sa status()
 */
@@ -3341,8 +3341,8 @@ void QImageIO::setStatus( int status )
   It is necessary to specify a format before writing an image.
 
   It is not necessary to specify a format before reading an image.
-  If not format has been set, Qt guesses the image format before reading
-  it.  If a format is set, but the image has another (valid) format,
+  If no format has been set, Qt guesses the image format before reading
+  it.  If a format is set but the image has another (valid) format,
   the image will not be read.
 
   \sa read(), write(), format()
@@ -3435,7 +3435,7 @@ void QImageIO::setParameters( const char *parameters )
   Sets the image description string for image handlers that support image
   descriptions.
 
-  Currently, no image format supported by Qt use the description string.
+  Currently, no image format supported by Qt uses the description string.
 */
 
 void QImageIO::setDescription( const QString &description )
@@ -3503,7 +3503,7 @@ const char *QImageIO::imageFormat( QIODevice *d )
 }
 
 /*!
-  Returns a sorted list of image formats which are supported for image input.
+  Returns a sorted list of image formats that are supported for image input.
 */
 QStrList QImageIO::inputFormats()
 {
@@ -3531,7 +3531,7 @@ QStrList QImageIO::inputFormats()
 }
 
 /*!
-  Returns a sorted list of image formats which are supported for image output.
+  Returns a sorted list of image formats that are supported for image output.
 */
 QStrList QImageIO::outputFormats()
 {
@@ -3562,8 +3562,8 @@ QStrList QImageIO::outputFormats()
   Reads an image into memory and returns TRUE if the image was successfully
   read.
 
-  Before reading an image, you must set an IO device or a file name.
-  If both an IO device and a file name has been set, then the IO device will
+  Before reading an image you must set an IO device or a file name.
+  If both an IO device and a file name have been set, the IO device will
   be used.
 
   Setting the image file format string is optional.
@@ -3651,8 +3651,8 @@ bool QImageIO::read()
   Writes an image to an IO device and returns TRUE if the image was
   successfully written.
 
-  Before writing an image, you must set an IO device or a file name.
-  If both an IO device and a file name has been set, then the IO
+  Before writing an image you must set an IO device or a file name.
+  If both an IO device and a file name have been set, the IO
   device will be used.
 
   The image will be written using the specified image format.
@@ -5079,9 +5079,9 @@ static void write_xpm_image( QImageIO * iio )
 /*!
   Note:  currently no closest-color search is made.  If colors are found that
   are not in the palette, the palette may not be used at all.  This result
-  should not be considered valid, as it may change in future implementations.
+  should not be considered valid because it may change in future implementations.
 
-  Currently inefficient for non 32-bit images.
+  Currently inefficient for non-32-bit images.
 */
 #ifndef QT_NO_IMAGE_TRUECOLOR
 QImage QImage::convertDepthWithPalette( int d, QRgb* palette, int palette_count, int conversion_flags ) const
@@ -5275,9 +5275,10 @@ void bitBlt( QImage* dst, int dx, int dy, const QImage* src,
 }
 
 
-/*!  Returns TRUE if this image and \a i have the same contents, and
+/*!  Returns TRUE if this image and \a i have the same contents and
   FALSE if they differ.  This can be slow.  Of course, this function
-  returns quickly if e.g. the two images' widths are different.
+  returns quickly if the two images' widths are different, or there is
+  some other obvious difference.
 
   \sa operator=()
 */
@@ -5302,10 +5303,10 @@ bool QImage::operator==( const QImage & i ) const
 }
 
 
-/*!  Returns TRUE if this image and \a i have different contents, and
+/*!  Returns TRUE if this image and \a i have different contents and
   FALSE if they they have the same.  This can be slow.  Of course,
-  this function returns quickly if e.g. the two images' widths are
-  different.
+  this function returns quickly if the two images' widths are
+  different, or there is some other obvious difference.
 
   \sa operator=()
 */
@@ -5357,7 +5358,7 @@ void QImage::setDotsPerMeterY(int y)
 /*!
     \fn QPoint QImage::offset() const
 
-    Returns the number of pixels by which the image is intended to by
+    Returns the number of pixels by which the image is intended to be
     offset by when positioning relative to other images.
 */
 
@@ -5426,8 +5427,8 @@ QStringList QImage::textKeys() const
 }
 
 /*!
-    Returns a list of QImageTextKeyLang objects which enumerate
-    all the texts key/languaage pairs set by setText() for this image.
+    Returns a list of QImageTextKeyLang objects that enumerate
+    all the texts key/language pairs set by setText() for this image.
 */
 QValueList<QImageTextKeyLang> QImage::textList() const
 {

@@ -45,8 +45,8 @@
 
   \ingroup drawing
 
-  Sometimes it is necessary to obtain information about the physical
-  characteristics of a paint device when drawing graphics.  This class
+  Sometimes when drawing graphics it is necessary to obtain information about the physical
+  characteristics of a paint device.  This class
   provides just that.  For example, to compute the aspect ratio of a
   paint device:
 
@@ -60,11 +60,10 @@
   the device supports, the number of bit planes, and finally the
   resolution of the device.
 
-  Note that it is not always possible for QPaintDeviceMetrics to
-  compute the values you ask for, particularly for external devices.
-  The ultimate example is asking for the resolution of a QPrinter
-  that is set to "print to file" - who knows what printer that file
-  will end up?
+  Note that it is not always possible for QPaintDeviceMetrics to compute
+  the values you ask for, particularly for external devices.  The ultimate
+  example is asking for the resolution of of a QPrinter that is set to
+  "print to file": who knows what printer that file will end up on?
 
 */
 
@@ -80,15 +79,15 @@ QPaintDeviceMetrics::QPaintDeviceMetrics( const QPaintDevice *pd )
 /*!
   \fn int QPaintDeviceMetrics::width() const
 
-  Returns the width of the paint device, in default coordinate system
-  units (e.g. pixels for QPixmap and QWidget).
+  Returns the width of the paint device in default coordinate system
+  units (e.g., pixels for QPixmap and QWidget).
 */
 
 /*!
   \fn int QPaintDeviceMetrics::height() const
 
-  Returns the height of the paint device, in default coordinate system
-  units (e.g. pixels for QPixmap and QWidget).
+  Returns the height of the paint device in default coordinate system
+  units (e.g., pixels for QPixmap and QWidget).
 */
 
 /*!
@@ -114,17 +113,17 @@ QPaintDeviceMetrics::QPaintDeviceMetrics( const QPaintDevice *pd )
 /*!
   \fn int QPaintDeviceMetrics::logicalDpiX() const
 
-  Returns the horizontal resolution of the device, in dots per inch, that is
+  Returns the horizontal resolution of the device in dots per inch, which is
   used when computing font sizes.
-  For X this is usually the same as could be computed
-  from widthMM(), but on Windows this varies.
+  For X, this is usually the same as could be computed
+  from widthMM(), but it varies on Windows.
 */
 
 /*!
   \fn int QPaintDeviceMetrics::logicalDpiY() const
 
-  Returns the vertical resolution of the device, in dots per inch, that is
+  Returns the vertical resolution of the device in dots per inch, which is
   used when computing font sizes.
-  For X this is usually the same as could be computed
-  from heightMM(), but on Windows this varies.
+  For X, this is usually the same as could be computed
+  from heightMM(), but it varies on Windows.
 */

@@ -55,7 +55,6 @@
 typedef QStack<QWMatrix> QWMatrixStack;
 #endif
 
-// REVISED: arnt
 /*!
   \class QPainter qpainter.h
   \brief The QPainter class does low-level painting e.g. on widgets.
@@ -258,57 +257,56 @@ typedef QStack<QWMatrix> QWMatrixStack;
 
 /*! \enum Qt::AlignmentFlags
 
-  This enum type is used to describe alignment.  It contains four sets
-  of flags: Horizontal, vertical and modifying flags.  The horizontal
+  This enum type is used to describe alignment.  It contains horizontal, vertical, and modifying flags.  The horizontal
   flags are: <ul>
 
-  <li> \c AlignAuto - Align according to the language. Left for most, right for hebrew and arabic.
-  <li> \c AlignLeft - Align with the left edge.
-  <li> \c AlignRight - Align with the right edge.
-  <li> \c AlignHCenter - Center horizontally in the available space.
-  <li> \c AlignJustify - Justify the text in the available space. Does not work for
-  everything and might be interpreted as AlignAuto in some cases.
+  <li> \c AlignAuto - Aligns according to the language. Left for most, right for hebrew and arabic.
+  <li> \c AlignLeft - Aligns with the left edge.
+  <li> \c AlignRight - Aligns with the right edge.
+  <li> \c AlignHCenter - Centers horizontally in the available space.
+  <li> \c AlignJustify - Justifies the text in the available space. Does not work for
+  everything and may be interpreted as AlignAuto in some cases.
 
   </ul> The vertical flags are: <ul>
 
-  <li> \c AlignTop - Align with the top.
-  <li> \c AlignBottom - Align with the bottom.
-  <li> \c AlignVCenter - Center vertically in the available space.
+  <li> \c AlignTop - Aligns with the top.
+  <li> \c AlignBottom - Aligns with the bottom.
+  <li> \c AlignVCenter - Centers vertically in the available space.
 
-  </ul> You can only use one of the horizontal flags at a time.  There
+  </ul> You can use only one of the horizontal flags at a time.  There
   is one two-dimensional flag: <ul>
 
-  <li> \c AlignCenter - Center in both dimensions.
+  <li> \c AlignCenter - Centers in both dimensions.
 
-  </ul> This counts both as a horizontal and vertical flag: It cannot
+  </ul> This counts both as a horizontal and a vertical flag; it cannot
   be combined with any other horizontal or vertical flags.
 
   There are also some modifier flags.  All of them apply only to
   printing: <ul>
 
-  <li> \c SingleLine - Treat all white-space as space and print just
+  <li> \c SingleLine - Treats all whitespace as space and prints just
   one line.
 
   <li> \c DontClip - If it's impossible to stay within the given
-  bounds, print outside.
+  bounds, it prints outside.
 
-  <li> \c ExpandTabs - Make the U+0009 (ascii tab) character move to
+  <li> \c ExpandTabs - Makes the U+0009 (ASCII tab) character move to
   the next tab stop.
 
-  <li> \c ShowPrefix - Display the string "\&P" as an underlined P
-  (see QButton for an example).  To get an ampersand, use "\&\&".
+  <li> \c ShowPrefix - Displays the string "\&P" as an underlined P
+  (see QButton for an example).  For an ampersand, use "\&\&".
 
-  <li> \c WordBreak - Do line breaking at at appropriate points.
+  <li> \c WordBreak - Breaks lines at appropriate points.
 
   </ul>
 
-  You can only use one of the horizontal flags at a time, and one of
-  the vertical flags.  \c AlignCenter counts as both horizontal and
-  vertical.  You can use as many modifier flags as you want, except
-  that \c SingleLine and \c WordBreak cannot be combined.
+  You can use at most one horizontal and one vertical flags at a time.  \c
+  AlignCenter counts as both horizontal and vertical.  You can use as many
+  modifier flags as you want, except that \c SingleLine and \c WordBreak
+  cannot be combined.
 
-  Flags that are inappropriate for a given use (e.g. ShowPrefix to
-  QGridLayout::addWidget()) are ignored.
+  Flags that are inappropriate for a given use (e.g., ShowPrefix to
+  QGridLayout::addWidget()) are generally ignored.
 
   Conflicting combinations of flags have undefined meanings.
 */
@@ -316,8 +314,8 @@ typedef QStack<QWMatrix> QWMatrixStack;
 
 /*! \enum Qt::PenStyle
 
-  This enum type defines the pen styles supported by Qt; ie. what
-  sorts of lines that can be drawn using QPainter. The current styles
+  This enum type defines the pen styles supported by Qt, i.e., the
+  lines that can be drawn using QPainter. The current styles
   are: <ul>
 
   <li> \c NoPen - no line at all.  For example, QPainter::drawRect()
@@ -325,11 +323,11 @@ typedef QStack<QWMatrix> QWMatrixStack;
 
   <li> \c SolidLine - a simple line.
 
-  <li> \c DashLine - dashes, separated by a few pixels.
+  <li> \c DashLine - dashes separated by a few pixels.
 
-  <li> \c DotLine - dots, separated by a few pixels.
+  <li> \c DotLine - dots separated by a few pixels.
 
-  <li> \c DashDotLine - alternately dots and dashes.
+  <li> \c DashDotLine - alternate dots and dashes.
 
   <li> \c DashDotDotLine - one dash, two dots, one dash, two dots...
 
@@ -338,25 +336,25 @@ typedef QStack<QWMatrix> QWMatrixStack;
 
 /*! \enum Qt::PenCapStyle
 
-  This enum type defines the pen cap styles supported by Qt; ie. what
-  sorts of line end caps that can be drawn using QPainter. The
+  This enum type defines the pen cap styles supported by Qt, i.e., the
+  line end caps that can be drawn using QPainter. The
   available styles are: <ul>
 
-  <li> \c FlatCap - A square line end that does not cover the end
+  <li> \c FlatCap - a square line end that does not cover the end
   point of the line.
 
-  <li> \c SquareCap - A square line end that covers the end point and
+  <li> \c SquareCap - a square line end that covers the end point and
   extends beyond it with half the line width.
 
-  <li> \c RoundCap - A rounded line end.
+  <li> \c RoundCap - a rounded line end.
 
   </ul>
 */
 
 /*! \enum Qt::PenJoinStyle
 
-  This enum type defines the pen join styles supported by Qt; ie. what
-  sorts of joins between two connected lines that can be drawn using
+  This enum type defines the pen join styles supported by Qt, i.e., which
+  joins between two connected lines can be drawn using
   QPainter. The available styles are: <ul>
 
   <li> \c MiterJoin - The outer edges of the lines are extended to
@@ -2443,12 +2441,12 @@ QRect QPainter::boundingRect( const QRect &r, int tf,
   color is black.  The QColor documentation lists predefined colors.
 
   The cap style defines how the end points of lines are drawn. The
-  join style defines how the joins between two lines drawn when
-  multiple, connected lines are drawn (QPainter::drawPolyLine() etc.).
-  The cap and join styles apply only to wide lines, i.e. when the
+  join style defines how the joins between two lines are drawn when
+  multiple connected lines are drawn (QPainter::drawPolyLine() etc.).
+  The cap and join styles apply only to wide lines, i.e., when the
   width is 1 or greater.
 
-  Use the QBrush class for specifying fill styles.
+  Use the QBrush class to specify fill styles.
 
   Example:
   \code
@@ -2464,13 +2462,12 @@ QRect QPainter::boundingRect( const QRect &r, int tf,
 
   See the setStyle() function for a complete list of pen styles.
 
-  About the end point of lines: For wide (non-0-width) pens, it
-  depends on the cap style whether the end point is drawn or not. For
-  0-width pens, QPainter will try to make sure that the end point is
-  drawn, but this cannot be absolutely guaranteed, since the underlying
-  drawing engine is free to use any (typically accellerated) algorithm
+  With reference to end point of lines, for wide (non-0-width) pens it
+  depends on the cap style whether the end point is drawn or not. QPainter will try to make sure that the end point
+  is drawn for 0-width pens, but this cannot be absolutely guaranteed because the underlying
+  drawing engine is free to use any (typically accelerated) algorithm
   for drawing 0-width lines. On all tested systems, however, the
-  endpoint of at least all non-diagonal lines are drawn.
+  end point of at least all non-diagonal lines are drawn.
 
   \sa QPainter, QPainter::setPen()
 */
@@ -2532,7 +2529,7 @@ QPen::QPen( const QColor &cl, uint w, PenStyle s, PenCapStyle c,
 }
 
 /*!
-  Constructs a pen which is a copy of \a p.
+  Constructs a pen that is a copy of \a p.
 */
 
 QPen::QPen( const QPen &p )
@@ -2873,7 +2870,7 @@ QBrush::QBrush( const QColor &color, BrushStyle style )
 /*!
   Constructs a brush with a specified color and a custom pattern.
 
-  The color will only have an effect for monochrome pixmaps, i.e.
+  The color will only have an effect for monochrome pixmaps, i.e.,
   QPixmap::depth() == 1.
 
   \sa setColor(), setPixmap()
@@ -2886,7 +2883,7 @@ QBrush::QBrush( const QColor &color, const QPixmap &pixmap )
 }
 
 /*!
-  Constructs a brush which is a
+  Constructs a brush that is a
   \link shclass.html shallow copy\endlink of \a b.
 */
 
@@ -3058,7 +3055,7 @@ void QBrush::setPixmap( const QPixmap &pixmap )
 
 /*!
   \fn bool QBrush::operator!=( const QBrush &b ) const
-  Returns TRUE if the brush is different from \a b, or FALSE if the brushes are
+  Returns TRUE if the brush is different from \a b or FALSE if the brushes are
   equal.
 
   Two brushes are different if they have different styles, colors or pixmaps.

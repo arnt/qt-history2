@@ -44,7 +44,6 @@
   QColorGroup member functions
  *****************************************************************************/
 
-// REVISED - arnt
 /*!
   \class QColorGroup qpalette.h
   \brief The QColorGroup class contains a group of widget colors.
@@ -53,8 +52,8 @@
   \ingroup drawing
 
   A color group contains a group of colors used by widgets for drawing
-  themselves.  Widgets should not use colors like "red" and "turqoise"
-  but rather "foreground" and "base", where possible.  The color roles
+  themselves.  Widgets should not use colors such as "red" and "turqoise";
+  they should instead use "foreground" and "base" wherever possible.  The color roles
   are enumerated and defined in the ColorRole documentation.
 
   The most common usage of QColorGroup is like this:
@@ -68,25 +67,25 @@
 
   See the \l ColorRole documentation below for more details on roles.
 
-  It's also possible to modify color groups or create them from scratch.
+  It is also possible to modify color groups or create them from scratch.
 
   The color group class can be created using three different
-  constructors, or by modifying one supplied by the system.  The
+  constructors or by modifying one supplied by the system.  The
   default constructor creates an all-black color group, which can then
   be modified using set functions.  There are two functions that take
   long lists of arguments (slightly different lists - beware!).  And
   there is the copy constructor.
 
-  We strongly recommend using a system-supplied color group, and
+  We strongly recommend using a system-supplied color group and
   modifying that as necessary.
 
   You modify a color group by calling the access functions setColor()
-  and setBrush(), depending on whether you want a pure color or e.g. a
-  pixmap pattern.
+  and setBrush(), depending on whether you want a pure color or a
+  pixmap pattern, for example.
 
   There are also corresponding color() and brush() getters, and a
   commonly used convenience function to get each ColorRole:
-  background(), foreground(), base() and so on.
+  background(), foreground(), base(), etc.
 
   \sa QColor QPalette QWidget::colorGroup()
 */
@@ -94,21 +93,21 @@
 /*! \enum QColorGroup::ColorRole
 
   The ColorRole enum defines the different symbolic color roles used
-  in current GUIs.  The central roles are:
+  in current GUIs.  The central roles are as follow:
 
   <ul>
   <li> \c Background - general background color.
 
   <li> \c Foreground - general foreground color.
 
-  <li> \c Base - used as background color for e.g. text entry widgets,
+  <li> \c Base - used as background color for text entry widgets, for example;
   usually white or another light color.
 
   <li> \c Text - the foreground color used with \c Base. Usually this
-  is the same as the \c Foreground, in what case it must provide good
-  contrast both with \c Background and \c Base.
+  is the same as the \c Foreground, in which case it must provide good
+  contrast with \c Background and \c Base.
 
-  <li> \c Button - general button background color, where buttons need a
+  <li> \c Button - general button background color in which buttons need a
   background different from \c Background, as in the Macintosh style.
 
   <li> \c ButtonText - a foreground color used with the \c Button color.
@@ -126,7 +125,7 @@
 
   <li> \c Shadow - a very dark color.
 
-  </ul> All of these are normally derived from \c Background, and used
+  </ul> All of these are normally derived from \c Background and used
   in ways that depend on that relationship.  For example, buttons
   depend on it to make the bevels look good, and Motif scroll bars
   depend on \c Mid to be slightly different from \c Background.
@@ -146,7 +145,7 @@
 
   </ul>
 
-  Note that text colors can be used for other things than just words:
+  Note that text colors can be used for things other than just words;
   text colors are \e usually used for text, but it's quite common to
   have lines, icons and so on that belong with a text color logically.
 
@@ -444,9 +443,9 @@ bool QColorGroup::operator==( const QColorGroup &g ) const
   \ingroup shared
   \ingroup drawing
 
-  A palette consists of three color groups: a \e active, a \e disabled
-  and an \e inactive color group.  All widgets contain a palette, and
-  all the widgets in Qt use their palette to draw themselves.  This
+  A palette consists of three color groups: \e active, \e disabled,
+  and \e inactive.  All widgets contain a palette, and
+  all widgets in Qt use their palette to draw themselves.  This
   makes the user interface consistent and easily configurable.
 
   If you make a new widget you are strongly advised to use the colors in
@@ -465,8 +464,9 @@ bool QColorGroup::operator==( const QColorGroup &g ) const
   Windows 2000 style and Macintosh Platinum style, the two styles look
   slightly different.
 
-  There are setActive(), setInactive() and setDisabled() functions to
-  modify the palette. 
+  There are setActive(), setInactive(), and setDisabled() functions to
+  modify the palette.  Qt also supports a normal() group; this is an
+  obsolete alias for active(), supported for backward compatibility.
 
   \sa QApplication::setPalette(), QWidget::setPalette(), QColorGroup, QColor
 */ // ### should mention the constructors, copy stuff and isCopyOf()
@@ -674,8 +674,8 @@ void QPalette::setBrush( QColorGroup::ColorRole r, const QBrush &b )
 }
 
 
-/*! Return a deep copy of this palette.  This is slower than the copy
-constructor and assignment operator and offers no advantages any more.
+/*! Returns a deep copy of this palette.  This is slower than the copy
+constructor and assignment operator and no longer offers any advantages.
 */
 
 QPalette QPalette::copy() const

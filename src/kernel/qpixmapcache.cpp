@@ -52,18 +52,18 @@
   \ingroup drawing
 
   This class is a tool for optimized drawing with QPixmap.  You can
-  use it to store temporary pixmaps that are expensive to generate,
+  use it to store temporary pixmaps that are expensive to generate
   without using more storage space than cacheLimit(). Use insert() to
   insert pixmaps, find() to find them and clear() to empty the cache.
 
-  Here follows an example. QRadioButton has a non-trivial visual
+  Here is an example. QRadioButton has a non-trivial visual
   representation. In the function QRadioButton::drawButton(), we do
   not draw the radio button directly. Instead, we first check the
   global pixmap cache for a pixmap with the key "$qt_radio_nnn_",
   where \c nnn is a numerical value that specifies the the radio
   button state.  If a pixmap is found, we bitBlt() it onto the widget
   and return. Otherwise, we create a new pixmap, draw the radio button
-  in the pixmap and finally insert the pixmap in the global pixmap
+  in the pixmap, and finally insert the pixmap in the global pixmap
   cache, using the key above.  The bitBlt() is 10 times faster than
   drawing the radio button.  All radio buttons in the program share
   the cached pixmap since QPixmapCache is application-global.
@@ -157,9 +157,8 @@ static QCleanupHandler<QPMCache> qpm_cleanup_cache;
   is no such pixmap.
 
   <strong>
-    NOTE: if valid, you should copy the pixmap immediately (this is quick
-    since QPixmaps are \link shclass.html implicitly shared\endlink), because
-    subsequent insertions into the cache could cause the pointer to become
+    Note: If valid, you should copy the pixmap immediately (this is quick).
+    Subsequent insertions into the cache could cause the pointer to become
     invalid.  For this reason, we recommend you use
     find(const QString&, QPixmap&) instead.
   </strong>
@@ -215,14 +214,14 @@ bool QPixmapCache::find( const QString &key, QPixmap& pm )
   Returns TRUE if successful, or FALSE if the pixmap is too big for the cache.
 
   <strong>
-    NOTE: \a pm must be allocated on the heap (using \c new).
+    Note: \a pm must be allocated on the heap (using \c new).
 
     If this function returns FALSE, you must delete \a pm yourself.
 
     If this function returns TRUE, do not use \a pm afterwards or
-    keep references to it, as any other insertions into the cache,
-    from anywhere in the application, or within Qt itself, could cause
-    the pixmap to be discarded from the cache, and the pointer to
+    keep references to it because any other insertions into the cache,
+    whether from anywhere in the application or within Qt itself, could cause
+    the pixmap to be discarded from the cache and the pointer to
     become invalid.
 
     Due to these dangers, we strongly recommend that you use

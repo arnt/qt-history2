@@ -46,19 +46,18 @@
 #include "qobjectlist.h"
 #include "qapplication.h"
 
-// NOT REVISED
 /*!
   \class QPixmap qpixmap.h
-  \brief The QPixmap class is an off-screen pixel-based paint device.
+  \brief The QPixmap class is an off-screen, pixel-based paint device.
 
   \ingroup drawing
   \ingroup shared
 
-  It is one of the two classes Qt provides for dealing with images,
-  the other being QImage.  QPixmap is designed and optimized for
+  It is one of the two classes Qt provides for dealing with images;
+  the other is QImage.  QPixmap is designed and optimized for
   drawing; QImage is designed and optimized for I/O and for direct
   pixel access/manipulation.  There are (slow) functions to convert
-  between QImage and QPixmap; convertToImage() and convertFromImage().
+  between QImage and QPixmap: convertToImage() and convertFromImage().
 
   One common use of the QPixmap class is to enable smooth updating of
   widgets.  Whenever something complex needs to be drawn, you can use
@@ -71,19 +70,19 @@
   <li> bitBlt() the pixmap contents onto the widget.
   </ol>
 
-  Pixel data in a pixmap is internal and managed by the underlying
-  window system.  Pixels can only be accessed through QPainter
+  Pixel data in a pixmap is internal and is managed by the underlying
+  window system.  Pixels can be accessed only through QPainter
   functions, through bitBlt(), and by converting the QPixmap to a
   QImage.
 
   You can display a QPixmap on the screen easily using
-  e.g. QLabel::setPixmap(), and all the QButton subclasses support
+  QLabel::setPixmap(), for example; all the QButton subclasses support
   pixmap use.
 
-  The QPixmap class uses lazy copying, so it is practical to pass pass
+  The QPixmap class uses lazy copying, so it is practical to pass
   QPixmap objects as arguments.
 
-  Note about Windows 95 and 98: On Windows 9x, the system crashes if
+  Note about Windows 95 and 98: On Windows 9x the system crashes if
   you create more than approximately 1000 pixmaps, independent of the
   size of the pixmaps or installed RAM.  Windows NT does not have this
   limitation.
@@ -91,11 +90,11 @@
   Qt tries to work around the resource limitation.  If you set the
   pixmap optimization to \c QPixmap::MemoryOptim and the width of your
   pixmap is less than or equal to 128 pixels, Qt stores the pixmap in
-  a way which is very memory-efficient when there are many pixmaps.
+  a way that is very memory-efficient when there are many pixmaps.
 
-  If your application uses dozens or hundreds of pixmaps, e.g. on tool
-  bar buttons, in popup menus, and you plan to run it on Windows 95 or
-  Windows 98, then we recommend using code like this:
+  If your application uses dozens or hundreds of pixmaps (for example on tool
+  bar buttons and in popup menus), and you plan to run it on Windows 95 or
+  Windows 98, we recommend using code like this:
 
   \code
     QPixmap::setDefaultOptimization( QPixmap::MemoryOptim );
@@ -123,9 +122,9 @@
 /*! \enum QPixmap::Optimization
 
   QPixmap has the choice of optimizing for speed or memory in a few
-  places, and the best choice varies from pixmap to pixmap, but can
+  places; the best choice varies from pixmap to pixmap but can
   generally be derived heuristically.  This enum type defines a number
-  of optimization modes you can set for any pixmap, to tweak the
+  of optimization modes you can set for any pixmap to tweak the
   speed/memory tradeoffs:
 
   <ul>
@@ -140,7 +139,7 @@
   <li> \c MemoryOptim - optimize for minimal memory use.
 
   <li> \c NormalOptim - optimize for typical usage.  Often uses more
-  memory than \c MemoryOptim, and often faster.
+  memory than \c MemoryOptim, and is often faster.
 
   <li> \c BestOptim - optimize for pixmaps that are drawn very often
   and where performance is critical.  Generally uses more memory than
@@ -148,7 +147,7 @@
 
   </ul>
 
-  We recommend sticking with \c DefaultOptim
+  We recommend sticking with \c DefaultOptim.
 */
 
 
@@ -180,7 +179,7 @@ QPixmap::QPixmap()
 }
 
 /*!
-  Constructs a pixmap with \e w width, \e h height and of \e depth bits per
+  Constructs a pixmap with \e w width, \e h height and \e depth bits per
   pixels.
 
   The contents of the pixmap is uninitialized.
@@ -213,7 +212,7 @@ QPixmap::QPixmap( const QSize &size, int depth, Optimization optimization )
 
 /*!
   Constructs a pixmap from the file \e fileName. If the file does not
-  exist, or is of an unknown format, the pixmap becomes a null pixmap.
+  exist or is of an unknown format, the pixmap becomes a null pixmap.
 
   The parameters are passed on to load().
 
@@ -230,7 +229,7 @@ QPixmap::QPixmap( const QString& fileName, const char *format,
 
 /*!
   Constructs a pixmap from the file \e fileName. If the file does not
-  exist, or is of an unknown format, the pixmap becomes a null pixmap.
+  exist or is of an unknown format, the pixmap becomes a null pixmap.
 
   The parameters are passed on to load().
 
@@ -247,7 +246,7 @@ QPixmap::QPixmap( const QString& fileName, const char *format, ColorMode mode )
 /*!
   Constructs a pixmap from \a xpm, which must be a valid XPM image.
 
-  Error are silently ignored.
+  Errors are silently ignored.
 
   Note that it's possible to squeeze the XPM variable a little bit by
   using an unusual declaration:
@@ -260,10 +259,10 @@ QPixmap::QPixmap( const QString& fileName, const char *format, ColorMode mode )
   \endcode
 
   The extra \c const makes the entire definition read-only, which is
-  slightly more efficient e.g. when the code is in a shared library,
+  slightly more efficient (for example, when the code is in a shared library)
   and ROMable when the application is to be stored in ROM.
 
-  In order to use that sort of declaration, you must cast the variable
+  In order to use that sort of declaration you must cast the variable
   back to <nobr><code>const char **</code></nobr> when you create the
   QPixmap.
 */
@@ -293,7 +292,7 @@ QPixmap::QPixmap( const QByteArray & img_data )
 
 
 /*!
-  Constructs a pixmap which is a copy of \e pixmap.
+  Constructs a pixmap that is a copy of \e pixmap.
 */
 
 QPixmap::QPixmap( const QPixmap &pixmap )
@@ -500,8 +499,8 @@ QPixmap &QPixmap::operator=( const QImage &image )
   The \e ofs point is an offset in the widget.
 
   The point \a ofs is a point in the widget's coordinate system. The
-  pixmap's top left pixel will be mapped to the point \a ofs in the
-  widget. This is significant if the widget has a background pixmap,
+  pixmap's top-left pixel will be mapped to the point \a ofs in the
+  widget. This is significant if the widget has a background pixmap;
   otherwise the pixmap will simply be filled with the background color of
   the widget.
 
@@ -674,11 +673,11 @@ void QPixmap::setMask( const QBitmap &newmask )
 
 /*!
   Creates and returns a heuristic mask for this pixmap. It works by
-  selecting a color from one of the corners, then chipping away pixels of
+  selecting a color from one of the corners and then chipping away pixels of
   that color, starting at all the edges.
 
-  The mask may not be perfect but should be reasonable, so you can do
-  things like:
+  The mask may not be perfect but it should be reasonable, so you can do
+  things such as the following:
   \code
     pm->setMask( pm->createHeuristicMask() );
   \endcode
@@ -853,10 +852,10 @@ bool QPixmap::loadFromData( const QByteArray &buf, const char *format,
 
 
 /*!
-  Saves the pixmap to the file \e fileName, using the image file format
+  Saves the pixmap to the file \e fileName using the image file format
   \e format and a quality factor \e quality.  \e quality must be in the
   range [0,100] or -1.  Specify 0 to obtain small compressed files, 100
-  for large uncompressed files and -1 to use the default settings.
+  for large uncompressed files, and -1 to use the default settings.
   Returns TRUE if successful, or FALSE if the pixmap could not be saved.
 
   \sa load(), loadFromData(), imageFormat(), QImage::save(), QImageIO
@@ -890,7 +889,7 @@ bool QPixmap::save( const QString &fileName, const char *format, int quality ) c
   Returns a number that uniquely identifies the contents of this QPixmap object.
   This means that multiple QPixmaps objects can have the same serial number
   as long as they refer to the same contents.
-  The serial number is for example very useful for caching.
+  The serial number is very useful for caching,for example.
 
   \sa QPixmapCache
 */
@@ -963,7 +962,7 @@ static QPixmap grabChildWidgets( QWidget * w )
 
 /*!  Creates a pixmap and paints \a widget in it.
 
-  If \a widget has children, they are painted too, appropriately located.
+  If \a widget has children they are painted, too, appropriately located.
 
   If you specify \a x, \a y, \a w or \a h, only the rectangle you
   specify is painted.  The defaults are 0, 0 (top-left corner) and
@@ -981,12 +980,12 @@ static QPixmap grabChildWidgets( QWidget * w )
   children to paint themselves).  QPixmap::grabWindow() grabs pixels
   off the screen, which is a bit faster and picks up \e exactly what's
   on-screen.  This function works by calling paintEvent() with painter
-  redirection turned on, which gets the result of paintEvent(),
-  without e.g. overlying windows.
+  redirection turned on. If there are overlying windows, grabWindow()
+  will see them, but not this function.
 
   If there is overlap, it returns a pixmap of the size you want,
   containing a rendering of \a widget.  If the rectangle you ask for
-  is a superset of \a widget, the area outside \a widget are covered
+  is a superset of \a widget, the areas outside \a widget are covered
   with the widget's background.
 
   \sa grabWindow() QPainter::redirect() QWidget::paintEvent()

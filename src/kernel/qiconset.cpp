@@ -83,13 +83,13 @@ struct QIconSetPrivate: public QShared
   \ingroup misc
   \ingroup shared
 
-  Once a QIconSet is fed some pixmaps,
-  it can generate smaller, larger, active and disabled pixmaps.
+  Once a QIconSet is fed some pixmaps
+  it can generate smaller, larger, active, and disabled pixmaps.
   Such pixmaps are used by
   QToolButton, QHeader, QPopupMenu, etc. to show an icon representing
   a piece of functionality.
 
-  The simplest usage of QIconSet is to create one from a QPixmap then
+  The simplest usage of QIconSet is to create one from a QPixmap and then
   use it, allowing Qt to work out all the required icon sizes. For example:
 
   \code
@@ -97,24 +97,24 @@ struct QIconSetPrivate: public QShared
   \endcode
 
   Using whichever pixmaps you specify as a base,
-  QIconSet provides a set of six icons each with
+  QIconSet provides a set of six icons, each with
     a \link QIconSet::Size Size\endlink and
     a \link QIconSet::Mode Mode\endlink:
   <ul>
-  <li> <i>Small Normal</i> - can only be calculated from Large Normal.
+  <li> <i>Small Normal</i> - can be calculated only from Large Normal.
   <li> <i>Small Disabled</i> - calculated from Large Disabled or Small Normal.
   <li> <i>Small Active</i> - same as Small Normal unless you set it.
-  <li> <i>Large Normal</i> - can only be calculated from Small Normal.
+  <li> <i>Large Normal</i> - can be calculated only from Small Normal.
   <li> <i>Large Disabled</i> - calculated from Small Disabled or Large Normal.
   <li> <i>Large Active</i> - same as Large Normal unless you set it.
   </ul>
 
-  You can set any of the icons using setPixmap() and when you retrieve
+  You can set any of the icons using setPixmap(). When you retrieve
   one using pixmap(Size,Mode), QIconSet will compute it from the
   closest other icon and cache it for later.
 
   The \c Disabled appearance is computed using a "shadow" algorithm
-  which produces results very similar to that used in Microsoft
+  that produces results very similar to those used in Microsoft
   Windows 95.
 
   The \c Active appearance is identical to the \c Normal appearance
@@ -123,16 +123,16 @@ struct QIconSetPrivate: public QShared
   When scaling icons, QIconSet uses \link QImage::smoothScale
   smooth scaling\endlink, which can partially blend the color component
   of pixmaps.  If the results look poor, the best solution
-  is to supply both large and small sizes of pixmap.
+  is to supply both large and small sizes of pixmaps.
 
   QIconSet provides a function, isGenerated(), that indicates whether
   an icon was set by the application programmer or computed by
   QIconSet itself.
 
-  <h3>Making classes that use QIconSet</h3>
+  <h3>Making Classes that use QIconSet</h3>
 
   If you write your own widgets that have an option to set a small pixmap,
-  you should consider instead, or additionally, allowing a QIconSet to be
+  you should consider (instead, or additionally) allowing a QIconSet to be
   set for that pixmap.  The Qt class QToolButton is an example of such
   a widget.
 
@@ -170,10 +170,10 @@ struct QIconSetPrivate: public QShared
     <li> \c Automatic - the size of the pixmap is determined from its
 		    pixel size. This is a useful default.
     <li> \c Small - the pixmap is the smaller of two.
-    <li> \c Large - the pixmap is the larger of two
+    <li> \c Large - the pixmap is the larger of two.
   </ul>
 
-  If a Small pixmap is not set by QIconSet::setPixmap(), then the
+  If a Small pixmap is not set by QIconSet::setPixmap(), the
   Large pixmap may be automatically scaled to two-thirds of its size to
   generate the Small pixmap.  Conversely, a Small pixmap will be
   automatically scaled up by 50% to create a Large pixmap if needed.
@@ -192,7 +192,7 @@ struct QIconSetPrivate: public QShared
   <ul>
     <li> \c Normal
 	- the pixmap to be displayed when the user is
-	not interacting with the icon, but when the
+	not interacting with the icon, but the
 	functionality represented by the icon is available.
     <li> \c Disabled
 	- the pixmap to be displayed when the
@@ -223,7 +223,7 @@ QIconSet::QIconSet()
   \a pixmap, which is assumed to be the given \a size.
 
   The default for \a size is \c Automatic, which means that
-  QIconSet will determine if the pixmap is Small or Large
+  QIconSet will determine whether the pixmap is Small or Large
   from its pixel size.
   Pixmaps less than 23 pixels wide are considered to be Small.
 
@@ -589,7 +589,7 @@ QPixmap QIconSet::pixmap( Size s, Mode m ) const
 
 
 /*!
-  Returns a pixmap with size \a s, and Mode either Normal or Disabled,
+  Returns a pixmap with size \a s and Mode either Normal or Disabled,
   depending on the value of \a enabled.
 */
 QPixmap QIconSet::pixmap( Size s, bool enabled ) const
@@ -600,7 +600,7 @@ QPixmap QIconSet::pixmap( Size s, bool enabled ) const
 
 /*!
   Returns TRUE if the variant with size \a s and mode \a m was
-  automatically generated, and FALSE if it was not. This mainly
+  automatically generated, and FALSE if it was not. This is mainly
   useful for development purposes.
 */
 bool QIconSet::isGenerated( Size s, Mode m ) const

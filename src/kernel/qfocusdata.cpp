@@ -40,10 +40,10 @@
 // NOT REVISED
 /*!
   \class QFocusData qfocusdata.h
-  \brief Maintains the list of widgets which can take focus.
+  \brief Maintains the list of widgets that can take focus.
 
   This read-only list always contains at least one widget (the
-  top-level widget, actually).  It provides a simple cursor, which can
+  top-level widget, actually).  It provides a simple cursor which can
   be reset to the current focus widget using home(), or moved to its
   neighboring widgets using next() and prev(), and a count() of
   widgets in the list.
@@ -51,7 +51,7 @@
   Note that some widgets in the list may not accept focus.  Widgets
   are added to the list as necessary, but not removed from it.  This
   lets widgets change focus policy dynamically without disrupting the
-  focus chain the user sees: When a widget disables and re-enables tab
+  focus chain the user sees. When a widget disables and re-enables tab
   focus, its position in the focus chain does not change.
 
   When reimplementing QWidget::focusNextPrevChild() to provide special
@@ -68,13 +68,13 @@
 /*!
   \fn QWidget* QFocusData::focusWidget() const
 
-  Returns the widgets in the hierarchy which currently has focus.
+  Returns the widgets in the hierarchy that currently has focus.
 */
 
 /*!
   \fn int QFocusData::count() const
 
-  Returns a count of the number of widgets in the hierarchy which accept focus.
+  Returns a count of the number of widgets in the hierarchy that accepts focus.
 */
 
 /*!
@@ -90,7 +90,7 @@ QWidget* QFocusData::home()
 /*!
   Moves the cursor to the right.  Note that the focus widgets
   are a \e loop of widgets.  If you keep calling next(), it will
-  loop, without ever returning 0.
+  loop without ever returning 0.
 */
 QWidget* QFocusData::next()
 {
@@ -103,7 +103,7 @@ QWidget* QFocusData::next()
 /*!
   Moves the cursor to the left.  Note that the focus widgets
   are a \e loop of widgets.  If you keep calling prev(), it will
-  loop, without ever returning 0.
+  loop without ever returning 0.
 */
 QWidget* QFocusData::prev()
 {

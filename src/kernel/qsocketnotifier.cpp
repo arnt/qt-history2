@@ -42,37 +42,35 @@
 extern bool qt_set_socket_handler( int, int, QObject *, bool );
 
 
-// NOT REVISED
 /*!
   \class QSocketNotifier qsocketnotifier.h
   \brief The QSocketNotifer class provides support for socket callbacks.
 
   \ingroup io
 
-  This class makes it possible to write e.g. asynchronous TCP/IP
-  socket-based code in Qt.  Using synchronous socket operations blocks
-  the program, which is clearly not acceptable for an event-based GUI
-  program.
+  This class makes it possible to write asynchronous socket-based code
+  in Qt.  Using synchronous socket operations blocks the program,
+  which is clearly not acceptable for an event-based GUI program.
 
-  Once you have opened a non-blocking socket (either for TCP, UDP, a
-  unix-domain socket, or any other protocol family your operating
+  Once you have opened a non-blocking socket (whether for TCP, UDP, a
+  UNIX-domain socket, or any other protocol family your operating
   system supports), you can create a socket notifier to monitor the
-  socket.  Then connect the activated() signal to the slot you want to
+  socket.  Then you connect the activated() signal to the slot you want to
   be called when a socket event occurs.
 
-  There are three types of socket notifiers (read, write and exception)
-  and you must specify one of these in the constructor.
+  There are three types of socket notifiers (read, write and exception);
+  you must specify one of these in the constructor.
 
   The type specifies when the activated() signal is to be emitted:
   <ol>
-  <li> \c QSocketNotifier::Read: There is data to be read (socket read event).
-  <li> \c QSocketNotifier::Write: Data can be written (socket write event).
-  <li> \c QSocketNofifier::Exception: An exception has occurred (socket
+  <li> \c QSocketNotifier::Read - There is data to be read (socket read event).
+  <li> \c QSocketNotifier::Write - Data can be written (socket write event).
+  <li> \c QSocketNofifier::Exception - An exception has occurred (socket
   exception event).  We recommend against using this.
   </ol>
 
   For example, if you need to monitor both reads and writes for the same
-  socket, you must create two socket notifiers.
+  socket you must create two socket notifiers.
 
   Example:
   \code
@@ -92,42 +90,40 @@ extern bool qt_set_socket_handler( int, int, QObject *, bool );
   child of some widget and therefore be automatically destroyed when the
   widget is destroyed.
 
-  For read notifiers, it makes little sense to connect the activated()
-  signal to more than one slot, because the data can be read from the
+  For read notifiers it makes little sense to connect the activated()
+  signal to more than one slot because the data can be read from the
   socket only once.
 
   Also observe that if you do not read all the available data when the
   read notifier fires, it fires again and again.
 
-  If you disable the read notifier, your program may deadlock.	Avoid
-  it if you do not know what you are doing.  (The same applies to
-  exception notifiers if you have to use that, for instance if you \e
-  have to use TCP urgent data.)
+  If you disable the read notifier your program may deadlock. (The
+  same applies to exception notifiers if you have to use them, for
+  instance if you \e have to use TCP urgent data.)
 
-  For write notifiers, after the activated() signal has been received
-  and you have sent the data to be written on the socket, immediately
-  disable the notifier. When you have more data to be written, enable
+  For write notifiers, immediately disable the notifier after the activated() signal has been received
+  and you have sent the data to be written on the socket. When you have more data to be written, enable
   it again to get a new activated() signal. The exception is if the
   socket data writing operation (send() or equivalent) fails with a
-  "Would block" error, meaning that some buffer is full and you must
-  wait before sending more data. In this case, you do not need to
-  disable and re-enable the write notifier, it will fire again as soon
-  as the system allows more data may be sent.
+  "would block" error, which means that some buffer is full and you must
+  wait before sending more data. In that case you do not need to
+  disable and re-enable the write notifier; it will fire again as soon
+  as the system allows more data to be sent.
 
-  The behaviour of a write notifier that is left in enabled state
+  The behavior of a write notifier that is left in enabled state
   after having emitting the first activated() signal (and no "would
-  block" error has occurred) is undefined. Depending on the operating
-  system, it may fire on every pass of the event loop, or not at all.
+  block" error has occured) is undefined. Depending on the operating
+  system, it may fire on every pass of the event loop or not at all.
 
-  If you need a time-out for your sockets, you can use either
+  If you need a time-out for your sockets you can use either
   \link QObject::startTimer() timer events\endlink or the QTimer class.
 
   Socket action is detected in the \link QApplication::exec() main event
-  loop\endlink of Qt.  The X11 version of Qt has has a single UNIX
-  select() call which incorporates all socket notifiers and the X socket.
+  loop\endlink of Qt.  The X11 version of Qt has a single UNIX
+  select() call that incorporates all socket notifiers and the X socket.
 
-  Note that on XFree86 for OS/2, select() only works in the thread in
-  which main() is running, therefore you should use that thread for GUI
+  Note that on XFree86 for OS/2, select() works only in the thread in
+  which main() is running; you should therefore use that thread for GUI
   operations.
 
   \sa QSocket, QServerSocket, QSocketDevice
@@ -139,7 +135,7 @@ extern bool qt_set_socket_handler( int, int, QObject *, bool );
 
   \arg \e socket is the socket to be monitored.
   \arg \e type specifies the socket operation to be detected;
-    \c QSocketNotifier::Read, \c QSocketNotifier::Write or
+    \c QSocketNotifier::Read, \c QSocketNotifier::Write, or
     \c QSocketNotifier::Exception.
 
   The \e parent and \e name arguments are sent to the QObject constructor.
@@ -177,12 +173,12 @@ QSocketNotifier::~QSocketNotifier()
 /*!
   \fn void QSocketNotifier::activated( int socket )
 
-  This signal is emitted under certain conditions, specified by the
-  notifier \link type() type\endlink:
+  This signal is emitted under certain conditions specified by the
+  notifier type():
   <ol>
-  <li> \c QSocketNotifier::Read: There is data to be read (socket read event).
-  <li> \c QSocketNotifier::Write: Data can be written (socket write event).
-  <li> \c QSocketNofifier::Exception: An exception has occurred (socket
+  <li> \c QSocketNotifier::Read - There is data to be read (socket read event).
+  <li> \c QSocketNotifier::Write - Data can be written (socket write event).
+  <li> \c QSocketNofifier::Exception - An exception has occurred (socket
   exception event).
   </ol>
 
@@ -200,8 +196,8 @@ QSocketNotifier::~QSocketNotifier()
 
 /*!
   \fn Type QSocketNotifier::type() const
-  Returns the socket event type specified to the constructor;
-  \c QSocketNotifier::Read, \c QSocketNotifier::Write or
+  Returns the socket event type specified to the constructor:
+  \c QSocketNotifier::Read, \c QSocketNotifier::Write, or
   \c QSocketNotifier::Exception.
   \sa socket()
 */
@@ -209,12 +205,12 @@ QSocketNotifier::~QSocketNotifier()
 
 /*!
   \fn bool QSocketNotifier::isEnabled() const
-  Returns TRUE if the notifier is enabled, or FALSE if it is disabled.
+  Returns TRUE if the notifier is enabled or FALSE if it is disabled.
   \sa setEnabled()
 */
 
 /*!
-  Enables the notifier if \e enable is TRUE, or disables it if \e enable is
+  Enables the notifier if \e enable is TRUE or disables it if \e enable is
   FALSE.
 
   The notifier is by default enabled.

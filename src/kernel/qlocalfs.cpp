@@ -51,16 +51,16 @@
 
 /*!
   \class QLocalFs qlocalfs.h
-  \brief Implementation of a QNetworkProtocol which works
-  on the local filesystem.
+  \brief Implementation of a QNetworkProtocol that works
+  on the local file system.
 
   \ingroup io
 
   This class is a subclass of QNetworkProtocol and works
-  on the local filesystem. If you want to write a network
+  on the local file system. If you want to write a network
   transparent application using QNetworkProtocol,
-  QUrlOperator, etc. this class is used for accessing
-  the local filesystem by QUrlOperator.
+  QUrlOperator, etc., this class is used for accessing
+  the local file system by QUrlOperator.
 
   \sa QUrlOperator, QNetworkProtocol
 */

@@ -44,7 +44,6 @@
 const double Q_PI = 3.14159265358979323846;   // pi // one more useful comment
 
 
-// REVISED: arnt
 /*!
   \class QPointArray qpointarray.h
   \brief The QPointArray class provides an array of points.
@@ -65,12 +64,25 @@ const double Q_PI = 3.14159265358979323846;   // pi // one more useful comment
   also a QWMatrix::map() function for more general transformation of
   QPointArrays.
 
-  QPointArray is used by QPainter::drawLineSegments(),
+  Among others, QPointArray is used by QPainter::drawLineSegments(),
   QPainter::drawPolyline(), QPainter::drawPolygon() and
-  QPainter::drawCubicBezier(), among other things.
+  QPainter::drawCubicBezier().
 
-  Note that since this class is a QArray, it is explicitly shared and
-  works with shallow copies by default.
+  Note that because this class is a QArray, copying an array and modifying
+  the copy modifies the original as well - the copy is shallow, not deep.
+  You \e must detach() the array in code like this:
+
+  \code
+    void drawGiraffe( const QPointArray & r, QPainter * p )
+    {
+	QPointArray tmp = r;
+        tmp.detach();
+        // some code that modifies tmp
+        p->drawPoints( tmp );
+    }
+  \endcovide
+
+  If you forget the tmp.detach(), the const array will be modified.
 
   \sa QPainter QWMatrix QArray
 */
@@ -152,7 +164,7 @@ QPointArray::QPointArray( int nPoints, const QCOORD *points )
   Assigns a shallow copy of \a a to this point array and returns a
   reference to this point array.
 
-  Equivalent to assign( a ).
+  Equivalent to assign(a).
 
   \sa copy()
 */
@@ -282,8 +294,7 @@ bool QPointArray::setPoints( int nPoints, int firstx, int firsty, ... )
     return TRUE;
 }
 
-/*! \overload
-*/
+/*! \overload */
 
 bool QPointArray::putPoints( int index, int nPoints, const QCOORD *points )
 {
@@ -429,13 +440,13 @@ static inline int fix_angle( int a )
 /*!
   Sets the points of the array to those describing an arc of an
   ellipse with size \a w by \a h and position (\a x, \a y ), starting
-  from angle \a a1, spanning \a a2.  The resulting array has sufficient
+  from angle \a a1 and spanning \a a2.  The resulting array has sufficient
   resolution for pixel accuracy (see the overloaded function which
   takes an additional QWMatrix parameter).
 
-  Angles are specified in 16ths of a degree, i.e. a full circle equals
-  5760 (16*360).  Positive values mean counter-clockwise while
-  negative values mean clockwise direction.  Zero degrees is at the 3
+  Angles are specified in 16ths of a degree, i.e., a full circle equals
+  5760 (16*360).  Positive values mean counter-clockwise, whereas
+  negative values mean a clockwise direction.  Zero degrees is at the 3
   o'clock position.
 */
 
@@ -529,12 +540,12 @@ qtr_elips(QPointArray& a, int& offset, double dxP, double dyP, double dxQ, doubl
 /*!
   Sets the points of the array to those describing an arc of an
   ellipse with size \a w by \a h and position (\a x, \a y ), starting
-  from angle \a a1, spanning \a a2, transformed by the matrix \a xf.
+  from angle \a a1, spanning \a a2 and transformed by the matrix \a xf.
   The resulting array has sufficient resolution for pixel accuracy.
 
-  Angles are specified in 16ths of a degree, i.e. a full circle equals
-  5760 (16*360). Positive values mean counter-clockwise while negative
-  values mean clockwise direction.  Zero degrees is at the 3 o'clock
+  Angles are specified in 16ths of a degree, i.e., a full circle equals
+  5760 (16*360). Positive values mean counter-clockwise, whereas negative
+  values mean a clockwise direction.  Zero degrees is at the 3 o'clock
   position.
 */
 void QPointArray::makeArc( int x, int y, int w, int h,

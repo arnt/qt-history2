@@ -52,8 +52,8 @@
   The minimum value of \c QCOORD is \c QCOORD_MIN (-2147483648) and the maximum
   value is  \c QCOORD_MAX (2147483647).
 
-  The coordinates are accessed by the functions x() and y(), they can
-  be set by setX() and setY(), or by the reference functions rx() and ry().
+  The coordinates are accessed by the functions x() and y(); they can
+  be set by setX() and setY() or by the reference functions rx() and ry().
   
   Given a point \e p, the following statements are all equivalent:
   \code
@@ -188,7 +188,7 @@
 
 /*!
   \fn QPoint &QPoint::operator*=( int c )
-  Multiplies both x and y with \a c, and return a reference to this point.
+  Multiplies both x and y with \a c, and returns a reference to this point.
 
   Example:
   \code
@@ -279,7 +279,7 @@
 /*!
   \fn QPoint &QPoint::operator/=( int c )
 
-  Divides both x and y by \a c, and return a reference to this point.
+  Divides both x and y by \a c, and returns a reference to this point.
 
   Example:
   \code
@@ -291,7 +291,7 @@
 /*!
   \fn QPoint &QPoint::operator/=( double c )
 
-  Divides both x and y by \a c, and return a reference to this point.
+  Divides both x and y by \a c, and returns a reference to this point.
 
   Example:
   \code
@@ -373,14 +373,15 @@ QDataStream &operator>>( QDataStream &s, QPoint &p )
 /*!
   Returns the sum of the absolute values of x() and y(), traditionally
   known as the "Manhattan length" of the vector from the origin to the
-  point. The tradition arises since such distances apply
+  point. The tradition arises because such distances apply
   to travelers who can only travel on a rectangular grid, like the streets
   of Manhattan.
 
-  This is a useful approximation to the true length,
+  This is a useful approximation to the true length:
   sqrt(pow(x(),2)+pow(y(),2)).
 */
 int QPoint::manhattanLength() const
 {
     return QABS(x())+QABS(y());
 }
+                                                    

@@ -105,7 +105,7 @@ public:
 /*!
   \class QSound qsound.h
   \brief Access to the platform audio facilities.
-  
+
   \ingroup sound
 
   Qt provides the most commonly required audio operation in
@@ -115,8 +115,8 @@ public:
     QSound::play("mysounds/bells.wav");
   \endcode
 
-  A second API is provided, where a QSound object is created
-  from a sound file and is later be played:
+  A second API is provided in which a QSound object is created
+  from a sound file and is later played:
   \code
     QSound bells("mysounds/bells.wav");
 
@@ -127,25 +127,22 @@ public:
   more immediately than sounds played using the first model, depending
   on the underlying platform audio facilities.
 
-  On Microsoft Windows, the underlying multimedia system is used and
-  hence WAVE format sound files are supported.
-
-  On X11, the
-  <a href=ftp://ftp.x.org/contrib/audio/nas/>Network Audio System</a>
-  is used if available, otherwise all
-  operations work silently. NAS supports WAVE and AU files.
+  On Microsoft Windows the underlying multimedia system is used; only WAVE
+  format sound files are supported. On X11 the 
+  <a href="ftp://ftp.x.org/contrib/audio/nas/">Network Audio System</a>
+  is used if available, otherwise all operations work silently. NAS
+  supports WAVE and AU files.
 
   On Qt/Embedded, a built-in mixing sound server is used, which accesses
-  <tt>/dev/dsp</tt> directly. Only a single WAVE format is supported,
-  though that support can be configured when building Qt. The default is
-  11.025 kHz 8-bit mono PCM.
+  \c /dev/dsp directly. Only a single WAVE format is supported, though
+  that support can be configured when building Qt. The default is 11.025
+  kHz 8-bit mono PCM.
 
-  The availability of sound can be
-  tested with QSound::available().
+  The availability of sound can be tested with QSound::available().
 */
 
 /*!
-  Play the sound in file named \a filename.
+  Plays the sound in a file named \a filename.
 */
 void QSound::play(const QString& filename)
 {
@@ -153,7 +150,7 @@ void QSound::play(const QString& filename)
 }
 
 /*!
-  Constructs a sound which can quickly play the sound in file
+  Constructs a QSound that can quickly play the sound in a file
   named \a filename.
 
   This can use more memory than the static \c play function.
@@ -190,11 +187,11 @@ void QSound::play()
 
 /*!
   Returns TRUE if sound facilities exist on the platform. An
-  application may choose to notify the user if sound is crucial
-  the the application, or operate silently without bothering
+  application may choose either to notify the user if sound is crucial
+  to the application or to operate silently without bothering
   the user.
 
-  If no sound is available, QSound operation all work silently
+  If no sound is available, all QSound operations work silently
   and quickly.
 */
 bool QSound::available()

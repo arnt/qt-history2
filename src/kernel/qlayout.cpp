@@ -798,20 +798,20 @@ private:
   the mainWidget()), divides it up into rows and columns, and puts
   each of the widgets it manages into the correct cell(s).
 
-  Columns and rows behave identically; we will discuss columns but
+  Columns and rows behave identically; we will discuss columns, but
   there are equivalent functions for rows.
 
   Each column has a minimum width and a stretch factor.  The minimum
   width is the greatest of that set using addColSpacing() and the
   minimum width of each widget in that column.  The stretch factor is
   set using setColStretch() and determines how much of the available
-  space the column will get, over and above its necessary minimum.
+  space the column will get over and above its necessary minimum.
 
   Normally, each managed widget or layout is put into a cell of its
   own using addWidget(), addLayout(), or by the \link QLayout::setAutoAdd()
-  auto-add facility\endlink, but you can also put widget
+  auto-add facility\endlink; but you can also put widget
   into multiple cells using addMultiCellWidget().  If you do that,
-  QGridLayout will make a guess at how to distribute the size over the
+  QGridLayout will guess how to distribute the size over the
   columns/rows (based on the stretch factors). You can adjust the
   minimum width of each column/row using addColSpacing()/addRowSpacing().
 
@@ -821,11 +821,11 @@ private:
   <img src="gridlayout.png" width="425" height="150">
 
   Columns 0, 2 and 4 in this dialog fragment are made up of a QLabel,
-  a QLineEdit and a QListBox.  Columns 1 and 2 are placeholders, made
-  with addColSpacing().	 Row 0 consists of three QLabel objects, row 1
+  a QLineEdit, and a QListBox.  Columns 1 and 2 are placeholders made
+  with setColSpacing(). Row 0 consists of three QLabel objects, row 1
   of three QLineEdit objects and row 2 of three QListBox objects.
 
-  Since we did not want any space between the rows, we had to use
+  Because we did not want any space between the rows, we had to use
   placeholder columns to get the right amount of space between the
   columns.
 
@@ -834,25 +834,24 @@ private:
   minimum widths and stretch factors to be the same yourself.  You do
   this using addColSpacing() and setStretch().
 
-  If the QGridLayout is not the top-level layout (ie. is not managing
+  If the QGridLayout is not the top-level layout (i.e., does not manage
   all of the widget's area and children), you must add it to its
-  parent layout when you have created it, but before you can do
+  parent layout when you create it - but before you do
   anything with it.  The normal way to add a layout is by calling
   parentLayout->addLayout().
 
-  Once you have done that, you can start putting widgets and other
-  layouts in the cells of your grid layout using addWidget(),
-  addLayout() and addMultiCellWidget().
+  Once you have done that you can start putting widgets and other
+  layouts into the cells of your grid layout using addWidget(),
+  addLayout(), and addMultiCellWidget().
 
-  QGridLayout also includes two margin widths: The border width and
-  the inter-box width.	The border width is the width of the reserved
+  QGridLayout also includes two margin widths: the border width and
+  the inter-box width. The border width is the width of the reserved
   space along each of the QGridLayout's four sides.  The intra-widget
   width is the width of the automatically allocated spacing between
-  neighbouring boxes.
+  neighboring boxes.
 
-  The border width defaults to 0, and the intra-widget width defaults
-  to the same as the border width.  Both are set using arguments to
-  the constructor.
+  The border width defaults to 0; the intra-widget width defaults
+  to the same.  Both are set using arguments to the constructor.
 
   See also the \link layout.html Layout Overview \endlink documentation.
 */
@@ -900,9 +899,8 @@ RwbV+8hNqf4Hob4MkPD3BvwAAAAASUVORK5CYII=
    and main widget \a  parent.	\a parent may not be 0.
 
   \a border is the number of pixels between the edge of the widget and
-  the managed children.	 \a space is the default number of pixels
-  between cells.  If \a space is -1 the value
-  of \a border is used.
+  the managed children. \a space is the default number of pixels
+  between cells.  If \a space is -1, the value of \a border is used.
 
   \a name is the internal object name.
 */
@@ -917,12 +915,12 @@ QGridLayout::QGridLayout( QWidget *parent, int nRows, int nCols, int border ,
 
 
 /*!
-  Constructs a new grid that is placed inside \a parentLayout,
-  with \a nRows rows and \a  nCols columns,
-  If \a space is -1, this QGridLayout will inherits its parent's
-  spacing(), otherwise \a space is used.
+  Constructs a new grid that is placed inside \a parentLayout
+  with \a nRows rows and \a  nCols columns.
+  If \a space is -1, this QGridLayout inherits its parent's
+  spacing(); otherwise \a space is used.
 
-  This grid is placed according to  \a parentLayout's default placement
+  This grid is placed according to \a parentLayout's default placement
   rules.
 */
 
@@ -935,9 +933,9 @@ QGridLayout::QGridLayout( QLayout *parentLayout, int nRows, int nCols,
 
 
 /*!
-  Constructs a new grid with \a nRows rows and \a  nCols columns,
-  If \a space is -1, this QGridLayout will inherits its parent's
-  spacing(), otherwise \a space is used.
+  Constructs a new grid with \a nRows rows and \a nCols columns.
+  If \a space is -1, this QGridLayout inherits its parent's
+  spacing(); otherwise \a space is used.
 
   You have to insert this grid into another layout. You can insert
   widgets and layouts in this layout at any time, but layout will not
@@ -1070,12 +1068,12 @@ void QGridLayout::setGeometry( const QRect &r )
 
 
 /*!
-  Returns the geometry of the cell with row \a row, and column
+  Returns the geometry of the cell with row \a row and column
   \a col in the grid. Returns an invalid rectangle if \a row or
   \a col is outside the grid.
 
-  \warning in the current version of Qt, this function does not return
-  valid results until setGeometry() has been called, ie. after the
+  \warning in the current version of Qt this function does not return
+  valid results until setGeometry() has been called, i.e., after the
   mainWidget() is visible.
 
 */
@@ -1088,7 +1086,7 @@ QRect QGridLayout::cellGeometry( int row, int col ) const
 
 /*!
   Expands this grid so that it will have \a nRows rows and \a nCols columns.
-  Will not shrink the grid. You should not need to call this function, as
+  Will not shrink the grid. You should not need to call this function because
   QGridLayout expands automatically as new items are inserted.
  */
 void QGridLayout::expand( int nRows, int nCols )
@@ -1146,7 +1144,7 @@ void QGridLayout::add( QLayoutItem *item, int row, int col )
 /*!
   Adds the \a item to the cell grid, spanning multiple rows/columns.
 
-  Alignment is specified by \a alignment which is a bitwise OR of
+  Alignment is specified by \a alignment, which is a bitwise OR of
   Qt::AlignmentFlags values.
   The default alignment is 0, which means
   that the widget fills the entire cell.
@@ -1192,9 +1190,9 @@ static bool checkWidget( QLayout *l, QWidget *w )
 
 /*!
   Adds the widget \a w to the cell grid at \a row, \a col.
-  The top left position is (0,0)
+  The top-left position is (0,0).
 
-  Alignment is specified by \a alignment which is a bitwise OR of
+  Alignment is specified by \a alignment, which is a bitwise OR of
   Qt::AlignmentFlags values.
   The default alignment is 0, which means
   that the widget fills the entire cell.
@@ -1230,13 +1228,12 @@ void QGridLayout::addWidget( QWidget *w, int row, int col, int alignment )
 /*!
   Adds the widget \a w to the cell grid, spanning multiple rows/columns.
 
-  Alignment is specified by \a alignment which is a bitwise OR of
+  Alignment is specified by \a alignment, which is a bitwise OR of
   Qt::AlignmentFlags values.
-  The default alignment is 0, which means
-  that the widget fills the entire cell.
+  The default alignment is 0, which means that the widget fills the entire cell.
 
   A non-zero alignment indicates that the widget should not grow to
-  fill the available space, but should be sized according to
+  fill the available space but should be sized according to
   sizeHint().
 
 */
@@ -1252,7 +1249,7 @@ void QGridLayout::addMultiCellWidget( QWidget *w, int fromRow, int toRow,
 
 /*!
   Places another layout at position (\a row, \a col) in the grid.
-  The top left position is (0,0)
+  The top-left position is (0,0).
 */
 
 void QGridLayout::addLayout( QLayout *layout, int row, int col)
@@ -1265,13 +1262,12 @@ void QGridLayout::addLayout( QLayout *layout, int row, int col)
 /*!
   Adds the layout \a w to the cell grid, spanning multiple rows/columns.
 
-  Alignment is specified by \a alignment which is a bitwise OR of
+  Alignment is specified by \a alignment, which is a bitwise OR of
   Qt::AlignmentFlags values.
-  The default alignment is 0, which means
-  that the widget fills the entire cell.
+  The default alignment is 0, which means that the widget fills the entire cell.
 
   A non-zero alignment indicates that the layout should not grow to
-  fill the available space, but should be sized according to
+  fill the available space but should be sized according to
   sizeHint().
 
 */
@@ -1290,7 +1286,7 @@ void QGridLayout::addMultiCellLayout( QLayout *layout, int fromRow, int toRow,
   Sets the stretch factor of row \a row to \a stretch.
   The first row is number 0.
 
-  The stretch factor  is relative to the other rows in this grid.
+  The stretch factor is relative to the other rows in this grid.
   Rows with higher stretch factor take more of the available space.
 
   The default stretch factor is 0.
@@ -1496,12 +1492,12 @@ private:
   \ingroup geomanagement
 
   QBoxLayout takes the space it gets (from its parent layout or from
-  the mainWidget()), divides it up into a row of boxes and makes each
+  the mainWidget()), divides it up into a row of boxes, and makes each
   managed widget fill one box.
 
-  If the QBoxLayout is \c Horizontal, the boxes are beside each other,
+  If the QBoxLayout is \c Horizontal the boxes are beside each other,
   with suitable sizes.	Each widget (or other box) will get at least
-  its minimum sizes and at most its maximum size, and any excess space
+  its minimum sizes and at most its maximum size. Any excess space
   is shared according to the stretch factors (more about that below).
 
   If the QBoxLayout is \c Vertical, the boxes are above and below each
@@ -1513,7 +1509,7 @@ private:
   constructor directly, specifying its direction as \c LeftToRight, \c
   Down, \c RightToLeft or \c Up.
 
-  If the QBoxLayout is not the top-level layout (ie. is not managing
+  If the QBoxLayout is not the top-level layout (i.e., it is not managing
   all of the widget's area and children), you must add it to its
   parent layout before you can do anything with it.  The normal way to
   add a layout is by calling parentLayout->addLayout().
@@ -1545,18 +1541,18 @@ private:
   of the reserved space along each of the QBoxLayout's four sides.
 
   <li> setSpacing() sets the inter-box width. This is the width of the
-  automatically allocated spacing between neighbouring boxes.  (You
-  can use addSpacing() to get more space at a .)
+  automatically allocated spacing between neighboring boxes.  (You
+  can use addSpacing() to get more space at a.)
 
   </ul>
 
-  The outer border width defaults to 0, and the intra-widget width defaults
-  to the same as the border width for a top-level layout, or to the
-  same as the parent layout otherwise.  Both can be set using
+  The outer border width defaults to 0; the intra-widget width defaults
+  to the same as the border width for a top-level layout, or otherwise to the
+  same as the parent layout.  Both can be set using
   arguments to the constructor.
 
   You will almost always want to use the convenience classes for
-  QBoxLayout: QVBoxLayout and QHBoxLayout, because of their simpler
+  QBoxLayout - QVBoxLayout and QHBoxLayout - because of their simpler
   constructors.
 
   See also the \link layout.html Layout overview documentation \endlink.
@@ -1568,7 +1564,7 @@ private:
 /*! \enum QBoxLayout::Direction
 
   This type is used to determine the direction of
-  a box layout. The possible values are:
+  a box layout. The possible values are the following:
 
   <ul>
   <li>\c LeftToRight - Horizontal, from left to right
@@ -1593,7 +1589,7 @@ static inline bool horz( QBoxLayout::Direction dir )
 
   \a border is the number of pixels between the edge of the widget and
   the managed children.	 \a space is the default number of pixels
-  between neighbouring children.  If \a space is -1 the value
+  between neighboring children.  If \a space is -1 the value
   of \a border is used.
 
   \a name is the internal object name
@@ -1631,7 +1627,7 @@ QBoxLayout::QBoxLayout( QLayout *parentLayout, Direction d, int space,
 
 /*!
   If \a space is -1, this QBoxLayout will inherit its parent's
-  spacing(), otherwise \a space is used.
+  spacing(); otherwise \a space is used.
 
   You have to insert this box into another layout.
 */
@@ -1857,8 +1853,8 @@ void QBoxLayout::insertItem( int index, QLayoutItem *item )
 
 
 /*!
-  Inserts a non-stretchable space at index \a index with size \a size.
-  If \a index is negative, the space is added at the end.
+  Inserts a non-stretchable space at index \a index, with size \a size.
+  If \a index is negative the space is added at the end.
 
   QBoxLayout gives default border and spacing. This function adds
   additional space.
@@ -1888,8 +1884,8 @@ void QBoxLayout::insertSpacing( int index, int size )
 
 
 /*!
-  Inserts a stretchable space at index \a index with zero minimum size
-  and stretch factor \a stretch. If \a index is negative, the space
+  Inserts a stretchable space at index \a index, with zero minimum size
+  and stretch factor \a stretch. If \a index is negative the space
   is added at the end.
 
   \sa insertSpacing()
@@ -1949,10 +1945,9 @@ void QBoxLayout::insertLayout( int index, QLayout *layout, int stretch )
   stretch factor greater than zero, the space is distributed according
   to the QWidget:sizePolicy() of each widget that's involved.
 
-  Alignment is specified by \a alignment which is a bitwise OR of
+  Alignment is specified by \a alignment, which is a bitwise OR of
   Qt::AlignmentFlags values.
-  The default alignment is 0, which means
-  that the widget fills the entire cell.
+  The default alignment is 0, which means that the widget fills the entire cell.
 
   Note: The alignment parameter is interpreted more aggressively
   than in previous versions of Qt.  A non-default alignment now
@@ -2048,7 +2043,7 @@ void QBoxLayout::addLayout( QLayout *layout, int stretch )
 
 
 /*!
-  Limits the perpendicular dimension of the box (e.g. height if the
+  Limits the perpendicular dimension of the box (e.g., height if the
   box is LeftToRight) to a minimum of \a size. Other constraints may
   increase the limit.
 */
@@ -2320,8 +2315,8 @@ int QBoxLayout::calcHfw( int w )
   Returns the (serial) direction of the box. addWidget() and addSpacing()
   work in this direction; the stretch stretches in this direction.
 
-  The directions are \c LeftToRight, \c RightToLeft, \c TopToBottom
-  and \c BottomToTop. For the last two, the shorter aliases \c Down and
+  The directions are \c LeftToRight, \c RightToLeft, \c TopToBottom,
+  and \c BottomToTop. For the last two the shorter aliases \c Down and
   \c Up are also available.
 
   \sa addWidget(), addSpacing()
@@ -2341,7 +2336,7 @@ int QBoxLayout::calcHfw( int w )
   This class provides an easier way to construct horizontal box layout
   objects.  See \l QBoxLayout for more details.
 
-  The simplest ways to use this class are:
+  The simplest ways to use this class are
 
   \code
      QBoxLayout * l = new QHBoxLayout( widget );
@@ -2417,7 +2412,7 @@ QHBoxLayout::~QHBoxLayout()
   This class provides an easier way to construct vertical box layout
   objects.  See \l QBoxLayout for more details.
 
-  The simplest way to use this class is:
+  The simplest way to use this class is
 
   \code
      QBoxLayout * l = new QVBoxLayout( widget );

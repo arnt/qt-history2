@@ -89,7 +89,7 @@
 
   In general, you will not have to use this class directly in any
   application program. Most of the class members and functions are
-  internal, <strong> do not use them </strong>.
+  internal; <strong> do not use them </strong>.
 
   Some functions, however, are marked as public API and may make sense
   for certain "meta" applications such as scripting engines or GUI
@@ -99,10 +99,10 @@
   <li> superClassName() to get the name of the superclass.
   <li> inherits(), the function called by QObject::inherits().
   <li> superClass() to access the meta object of the superclass.
-  <li> numSlots(), numSignals(), slotNames() and  signalNames() to get
-      information about a classes signals and slots.
+  <li> numSlots(), numSignals(), slotNames(), and  signalNames() to get
+      information about a class's signals and slots.
   <li> property() and propertyNames() to receive information about a
-      classes properties.
+      class's properties.
   <li> classInfo() and numClassInfo() to access additional class information.
   </ul>
 
@@ -242,15 +242,15 @@ QMetaObject::~QMetaObject()
 
 /*! \fn const char *QMetaObject::superClassName() const
 
-  Returns the class name of the super class, or 0 if there is no super
-  class in the QObject hierarchy.
+  Returns the class name of the superclass or 0 if there is no superclass
+  in the QObject hierachy.
 
   \sa className()
 */
 
 /*! \fn QMetaObject *QMetaObject::superClass() const
 
-  Returns the meta object of the super class or 0, if there is no such
+  Returns the meta object of the super class or 0 if there is no such
   object.
  */
 
@@ -678,13 +678,13 @@ bool QMetaObject::inherits( const char* clname ) const
   \brief The QMetaProperty class stores meta data about a property.
   \ingroup objectmodel
 
-  Property meta data mainly consists of a type(), a name() and the
-  fact, whether a property is writable(), designable() or stored().
+  Property meta data includes type(), name(), and whether a property is
+  writeable(), designable() or stored().
 
   The functions isSetType(), isEnumType() and enumKeys() provide
   further information about a property's type. The conversion
   functions keyToValue(), valueToKey(), keysToValue() and
-  valueToKeys() allow to convert between the integer representation of
+  valueToKeys() allow conversion between the integer representation of
   an enumeration or set value and its literal representation.
 
   Actual property values are set and received through QObject's set
@@ -846,7 +846,7 @@ QMetaProperty::~QMetaProperty()
 /*! \fn bool QMetaProperty::isSetType() const
 
   Returns whether the property's type is an enumeration value that is
-  used as set, i.e. the enumeration values can be or'ed together.  A
+  used as set, i.e., whether the enumeration values can be OR'ed together.  A
   set type is implicitely also an enum type.
 
   \sa isEnumType(), enumKeys()

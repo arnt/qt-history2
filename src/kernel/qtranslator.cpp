@@ -202,11 +202,11 @@ public:
   An object of this class contains a set of QTranslatorMessage
   objects, each of which specifies a translation from a source
   language to a target language.  QTranslator provides functions to
-  look up such translations, add new ones, remove, load and save them,
+  look up such translations, add new ones, remove them, load and save them,
   etc.
 
   The most common use of QTranslator is expected to be loading a
-  translator file, installing it using
+  translator file made using the Qt Linguist, installing it using
   QApplication::installTranslator(), and using it via QObject::tr(),
   like this:
 
@@ -233,48 +233,48 @@ public:
 
   It is possible to do lookup using findMessage() (as tr() and
   QApplication::translate() do) and contains(), insert a new
-  translation message using insert() and removing them using remove().
+  translation message using insert(), and remove it using remove().
 
-  Since end-user programs and translation tools have rather different
+  Because end-user programs and translation tools have rather different
   requirements, QTranslator can use stripped translator files in a way
   that uses a minimum of memory and provides very little functionality
   other than findMessage().
 
   Thus, load() may not load enough information to make anything more
   than findMessage() work.  save() has an argument indicating whether
-  to save just this minimum of information, or everything.
+  to save just this minimum of information or to save everything.
 
-  Everything means that for each translation item the following information
+  "Everything" means that for each translation item the following information
   is kept: <ul>
   <li> The \e translated \e text - the return value from tr().
   <li> The input key: <ul>
-    <li> The \e source \e text - the argument to tr(), normally.
+    <li> The \e source \e text - usually the argument to tr().
     <li> The \e context - usually the class name for the tr() caller.
-    <li> The \e comment - a comment which helps disambiguate different uses
+    <li> The \e comment - a comment that helps disambiguate different uses
     of the same text in the same context.
   </ul>
   </ul>
 
-  The minimum is, for each item, just the information that is
-  necessary for findMessage() to return the right text.  This may
-  include the source, context and comment, but usually is just a
-  hash value and the translated text.
+  The minimum for each item is just the information necessary for
+  findMessage() to return the right text.  This may include the source,
+  context and comment, but usually it is just a hash value and the
+  translated text.
 
   For example, the "Cancel" in a dialog might have "Anuluj" when the
-  program runs in Polish, in which case the source text would be
-  "Cancel", the context would (normally) be the dialog's class name,
+  program runs in Polish (in this case the source text would be
+  "Cancel"). The context would (normally) be the dialog's class name;
   there would normally be no comment, and the translated text would be
   "Anuluj".
 
-  But it's not always so simple: The Spanish version of a printer
+  But it's not always so simple. The Spanish version of a printer
   dialog with settings for two-sided printing and binding would
   probably require both "Activado" and "Activada" as translations for
-  "Enabled".  In this case, the source text would be "Enabled" in both
+  "Enabled".  In this case the source text would be "Enabled" in both
   cases and the context would be the dialog's class name, but the two
   items would have disambiguating comments such as "two-sided
   printing" for one and "binding" for the other.  The comment enables
   the translator to choose the appropriate gender for the Spanish
-  version, and Qt to distinguish between translations.
+  version, and enables Qt to distinguish between translations.
 
   Note that when QTranslator loads a stripped file, most functions do
   not work.  The functions that do work with stripped files are
@@ -298,7 +298,7 @@ public:
   explicitly documented as such.
 */
 
-/*!  Constructs an empty message file, not connected to any file.
+/*!  Constructs an empty message file not connected to any file.
 */
 
 QTranslator::QTranslator( QObject * parent, const char * name )
@@ -321,15 +321,15 @@ QTranslator::~QTranslator()
 
 
 /*!  Loads \a filename, which may be an absolute file name or relative
-  to \a directory.  If the full filename does not exist, other filenames
+  to \a directory.  If the full file name does not exist, other file names
   are tried in the following order:
 
   <ol>
-   <li>Filename with \a suffix appended (".qm" if suffix is QString::null)
-   <li>Filename with text after a character in \a search_delimiters stripped
-       ("_." is the default for \a search_delimiters if it is QString::null)
-   <li>Filename stripped and \a suffix appended.
-   <li>Filename stripped further, etc.
+   <li>File name with \a suffix appended (".qm" if suffix is QString::null).
+   <li>File name with text after a character in \a search_delimiters stripped
+       ("_." is the default for \a search_delimiters if it is QString::null).
+   <li>File name stripped and \a suffix appended.
+   <li>File name stripped further, etc.
   </ol>
 
   For example, an application running in the fr_CA locale
@@ -761,7 +761,7 @@ void QTranslator::unsqueeze()
 
 
 /*!  Returns TRUE if this message file contains a message with the key
-  ( \a context, \a sourceText, \a comment ), and FALSE if it does not.
+  ( \a context, \a sourceText, \a comment ) and FALSE if it does not.
 
   This function works with stripped translator files.
 
@@ -824,10 +824,10 @@ void QTranslator::remove( const QTranslatorMessage& message )
   \fn QString QTranslator::find( const char*, const char*, const char* ) const
   \obsolete
 
-  Returns the translation for the key ( \a context, \a sourceText,
-  \a comment ), or QString::null if there is none in this translator.
-
   Please use findMessage() instead.
+
+  Returns the translation for the key ( \a context, \a sourceText,
+  \a comment ) or QString::null if there is none in this translator.
 */
 
 /*!  Returns the QTranslatorMessage for the key
@@ -931,7 +931,7 @@ QTranslatorMessage QTranslator::findMessage( const char* context,
 
 
 /*!  Returns a list of the messages in the translator.  This function is
-  somewhat slow; since it's seldom called it's optimized for simplicity and
+  somewhat slow; because it is seldom called, it's optimized for simplicity and
   small size, not speed.
 */
 
@@ -952,6 +952,9 @@ QValueList<QTranslatorMessage> QTranslator::messages() const
   properties.
 
   \ingroup environment
+
+  THIS CLASS MAY CHANGE A BIT.  PLEASE DO NOT DO COPY EDITING HERE
+  WITHOUT TALKING TO ARNT.
 
   This class is of no interest to most applications, just for
   translation tools, e.g.

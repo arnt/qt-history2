@@ -45,7 +45,6 @@
 #include "qapplication.h" // ### for now
 #include "qclipboard.h" // ### for now
 
-// NOT REVISED
 /*!
   \class QMimeSource qmime.h
   \brief An abstract piece of formatted data.
@@ -60,7 +59,7 @@
 
 
 /*!
-  Provided to ensure subclasses destruct correctly.
+  Provided to ensure that subclasses destruct correctly.
 */
 QMimeSource::~QMimeSource()
 {
@@ -81,7 +80,7 @@ QMimeSource::~QMimeSource()
 /*!
   \fn QByteArray QMimeSource::encodedData(const char*) const
 
-  Returns the encoded payload of this object, in the specified
+  Returns the encoded payload of this object in the specified
   MIME format.
 
   Subclasses must reimplement this function.
@@ -94,7 +93,7 @@ QMimeSource::~QMimeSource()
   in format \a mimeType.  The default implementation
   iterates over format().
 
-  Note that it is often better to use the more-abstract
+  Note that it is often better to use the more abstract
   canDecode() functions such as QTextDrag::canDecode()
   and QImageDrag::canDecode().
 */
@@ -143,16 +142,16 @@ public:
 
 /*!
   \class QMimeSourceFactory qmime.h
-  \brief An extensible supply of MIME-typed data.
+  \brief The QMimeSourceFactory is an extensible supply of mime-typed data.
   \ingroup environment
 
   A QMimeSourceFactory provides an abstract interface to a collection of
   information.  Each piece of information is represented by a QMimeSource
-  object, which can be examined and converted to concrete data types by
-  functions like QImageDrag::canDecode() and QImageDrag::decode().
+  object which can be examined and converted to concrete data types by
+  functions such as QImageDrag::canDecode() and QImageDrag::decode().
 
   The base QMimeSourceFactory can be used in two ways: as an abstraction of
-  a collection of files, or as specifically stored data.  For it to access
+  a collection of files or as specifically stored data.  For it to access
   files, call setFilePath() before accessing data.  For stored data, call
   setData() for each item (there are also convenience functions setText(),
   setImage(), and setPixmap() that simply call setData() with massaged
@@ -163,13 +162,13 @@ public:
   within rich text documents. They either access the default factory (
   see defaultFactory() ) or their own ( see
   QTextView::setMimeSourceFactory() ). Other classes that are capable
-  of displaying rich text like QLabel, QWhatsThis or QMessageBox
+  of displaying rich text (such as QLabel, QWhatsThis or QMessageBox)
   always use the default factory.
 
   As mentioned earlier, a factory can also be used as container to
   store data associated with a name. This technique is useful whenever
   rich text contains images that are stored in the program itself, not
-  loaded from the hard disk. Your program may for example define some
+  loaded from the hard disk. Your program may, for example, define some
   image data as
 
   \code
@@ -198,7 +197,7 @@ public:
 
 
 /*!
-  Constructs a QMimeSourceFactory which has no file path and no stored
+  Constructs a QMimeSourceFactory that has no file path and no stored
   content.
 */
 QMimeSourceFactory::QMimeSourceFactory() :
@@ -249,19 +248,17 @@ static QMimeSource* data_internal(const QString& abs_name,
 }
 
 
-/*!
-  Returns a reference to the data associated with \a abs_name.  The return
-  value only remains valid until a subsequent call to this function for
-  the same object, and only if setData() is not called to modify the data,
-  so you should immediately decode the result.
+/*!  Returns a reference to the data associated with \a abs_name.  The
+  return value remains valid only until the next data() or setData()
+  call, so you should immediately decode the result.
 
   If there is no data associated with \a abs_name in the factory's
   store, the factory tries to access the local filesystem. If \a
-  abs_name isn't an absolute filename, the factory will search for it
+  abs_name isn't an absolute file name, the factory will search for it
   on all defined paths ( see setFilePath() ).
 
   The factory understands all image formats supported by
-  QImageIO. Any other mime types are determined by the filename
+  QImageIO. Any other mime types are determined by the file name
   extension. The default settings are
   \code
   setExtensionType("html", "text/html;charset=iso8859-1");
@@ -269,25 +266,26 @@ static QMimeSource* data_internal(const QString& abs_name,
   setExtensionType("txt", "text/plain");
   setExtensionType("xml", "text/xml;charset=UTF-8");
   \endcode
-  The effect of these is that filenames ending in "html" or "htm" will
+  The effect of these is that file names ending in "html" or "htm" will
   be treated as text encoded in the iso8859-1 encoding, those ending in "txt"
   will be treated as text encoded in the local encoding; those ending in "xml"
   will be treated as text encoded in UTF8 encoding.  The text subtype ("html",
   "plain", or "xml") does not affect the factory, but users of the factory
-  may behave differently. We recommend creating "xml" files where practical
-  as such files can be viewed regardless of the run-time encoding, and can
+  may behave differently. We recommend creating "xml" files where practical.
+  These files can be viewed regardless of the runtime encoding and can
   encode any Unicode characters without resorting to encoding definitions
   inside the file.
 
   Any file data that is not recognized will be retrieved as a QMimeSource
-  providing the "application/octet-stream" MIME type, which is just
+  providing the "application/octet-stream" mime type, meaning
   uninterpreted binary data.
+
   You can add further extensions or change existing ones with
   subsequent calls to setExtensionType(). If the extension mechanism
-  is not sufficient for you problem domain, you may inherit
+  is not sufficient for your problem domain, you may inherit
   QMimeSourceFactory and reimplement this function to perform some
-  more clever mime type detection. The same applies if you want to use
-  the mime source factory for accessing URL referenced data over a
+  more clever mime-type detection. The same applies if you want to use
+  the mime source factory to access URL referenced data over a
   network.
 */
 const QMimeSource* QMimeSourceFactory::data(const QString& abs_name) const
@@ -321,7 +319,7 @@ const QMimeSource* QMimeSourceFactory::data(const QString& abs_name) const
 }
 
 /*!
-  Sets a list of directories which will be searched when named data
+  Sets a list of directories that will be searched when named data
   is requested.
 
   \sa filePath()
@@ -350,8 +348,8 @@ void QMimeSourceFactory::addFilePath( const QString& p )
 }
 
 /*!
-  Sets the MIME-type to be associated with a filename extension.  This
-  determines the MIME-type for files found via a path set by setFilePath().
+  Sets the mime-type to be associated with a file name extension.  This
+  determines the mime-type for files found via a path set by setFilePath().
 */
 void QMimeSourceFactory::setExtensionType( const QString& ext, const char* mimetype )
 {
@@ -446,7 +444,7 @@ void qt_cleanup_defaultfactory()
 /*!
   Returns the application-wide default mime source factory. This
   factory is used by rich text rendering classes such as
-  QSimpleRichText, QWhatsThis and also QMessageBox to resolve named
+  QSimpleRichText, QWhatsThis and QMessageBox to resolve named
   references within rich text documents. It serves also as initial
   factory for the more complex render widgets QTextView and
   QTextBrowser.

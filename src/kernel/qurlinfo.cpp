@@ -67,8 +67,8 @@ struct QUrlInfoPrivate
 
   \ingroup misc
 
-  This class is just a container for storing information about a
-  URLs. That's why all informations have to be passed in the
+  This class is just a container for storing information about
+  URLs, which is why all informations has to be passed in the
   constructor.
 */
 
@@ -88,7 +88,7 @@ QUrlInfo::QUrlInfo()
 
 /*!
   Constructs a QUrlInfo object with information about the file \a file
-  in the \a path. This constructor tries to find the infos about
+  in the \a path. This constructor tries to find the info about
   \a file, which should be stored in the QUrlOperator \a path.
   If this is not the case, an empty QUrlInfo object is created.
 */
@@ -164,89 +164,88 @@ QUrlInfo::QUrlInfo( const QUrl &url, int permissions, const QString &owner,
     d->isExecutable = isExecutable;
 }
 
-/*!
-  Sets the filename or the URL.
-*/
+
+/*!  Sets the name of the URL to \a name. The name is the full text, for
+example, "http://www.acc.umu.se/~balp/porno/". */
 
 void QUrlInfo::setName( const QString &name )
 {
     d->name = name;
 }
 
-/*!
-  Specifies if the URL is a directory.
-*/
+
+/*! Specifies that the URL refers to a directory if \a b is TRUE and that
+it does not if \a b is FALSE. (Note that a URL can refer both a file and a
+directory even though most file systems do not support this duality.) */
 
 void QUrlInfo::setDir( bool b )
 {
     d->isDir = b;
 }
 
-/*!
-  Specifies if the URL is a file.
-*/
+
+/*! Specifies that the URL refers to a file if \a b is TRUE and that it
+does not if \a b is FALSE. (Note that a URL can refer both a file and a
+directory even though most file systems do not support this duality.) */
 
 void QUrlInfo::setFile( bool b )
 {
     d->isFile = b;
 }
 
-/*!
-  Specifies if the URL is a symbolic link.
-*/
+
+/*! Specifies that the URL refers to a symbolic link if \a b is TRUE and
+that it does not if \a b is FALSE.  */
 
 void QUrlInfo::setSymLink( bool b )
 {
     d->isSymLink = b;
 }
 
-/*!
-  Specifies if the URL is writable.
-*/
+
+/*! Specifies that the URL is writable if \a b is TRUE and not writable if
+\a b is FALSE.  */
 
 void QUrlInfo::setWritable( bool b )
 {
     d->isWritable = b;
 }
 
-/*!
-  Specifies if the URL is readable.
-*/
+
+/*! Specifies that the URL is readable if \a b is TRUE and not readable if
+\a b is FALSE.  */
 
 void QUrlInfo::setReadable( bool b )
 {
     d->isReadable = b;
 }
 
-/*!
-  Sets the owner of the URL to \a s.
-*/
+/*! Specifies that the owner of the URL is called \a s. */
 
 void QUrlInfo::setOwner( const QString &s )
 {
     d->owner = s;
 }
 
-/*!
-  Sets the group if the URL to \a s.
-*/
+/*! Specifies that the owning group of the URL is called \a s. */
 
 void QUrlInfo::setGroup( const QString &s )
 {
     d->group = s;
 }
 
-/*!
-  Sets the size of the URL to \a s.
-*/
+/*! Specifies that the URL has size \a s. */
 
 void QUrlInfo::setSize( uint s )
 {
     d->size = s;
 }
 
-/*!
-  Sets the permissions of the URL to \a p.
+
+// ### reggie - what's the permission type? As in Unix?
+
+/*! Specifies that the URL has access permision \a p. 
+
 */
 
 void QUrlInfo::setPermissions( int p )
@@ -254,8 +253,7 @@ void QUrlInfo::setPermissions( int p )
     d->permissions = p;
 }
 
-/*!
-  Sets the last modification date of the URL to \a dt.
+/*! Specifies that the object the URL refers to was last modified at \a dt.
 */
 
 void QUrlInfo::setLastModified( const QDateTime &dt )
@@ -263,9 +261,8 @@ void QUrlInfo::setLastModified( const QDateTime &dt )
     d->lastModified = dt;
 }
 
-/*!
-  Destructor.
-*/
+/*! Destructs the URL object. Does not touch the object to which this URL
+referred, of course */
 
 QUrlInfo::~QUrlInfo()
 {
@@ -273,7 +270,7 @@ QUrlInfo::~QUrlInfo()
 }
 
 /*!
-  Assings the values of \a ui to this QUrlInfo object.
+  Assigns the values of \a ui to this QUrlInfo object.
 */
 
 QUrlInfo &QUrlInfo::operator=( const QUrlInfo &ui )
@@ -283,7 +280,7 @@ QUrlInfo &QUrlInfo::operator=( const QUrlInfo &ui )
 }
 
 /*!
-  Returns the filename of the URL.
+  Returns the file name of the URL.
 */
 
 QString QUrlInfo::name() const
@@ -337,7 +334,7 @@ QDateTime QUrlInfo::lastModified() const
 }
 
 /*!
-  Returns the date at which the URL was read the last time.
+  Returns the date when the URL was read the last time.
 */
 
 QDateTime QUrlInfo::lastRead() const
@@ -346,7 +343,7 @@ QDateTime QUrlInfo::lastRead() const
 }
 
 /*!
-  Returns TRUE, if the URL is a directory, else FALSE.
+  Returns TRUE if the URL is a directory, otherwise FALSE.
 */
 
 bool QUrlInfo::isDir() const
@@ -355,7 +352,7 @@ bool QUrlInfo::isDir() const
 }
 
 /*!
-  Returns TRUE, if the URL is a file, else FALSE.
+  Returns TRUE if the URL is a file, otherwise FALSE.
 */
 
 bool QUrlInfo::isFile() const
@@ -364,7 +361,7 @@ bool QUrlInfo::isFile() const
 }
 
 /*!
-  Returns TRUE, if the URL is a symbolic link, else FALSE.
+  Returns TRUE if the URL is a symbolic link, otherwise FALSE.
 */
 
 bool QUrlInfo::isSymLink() const
@@ -373,7 +370,7 @@ bool QUrlInfo::isSymLink() const
 }
 
 /*!
-  Returns TRUE, if the URL is writable, else FALSE.
+  Returns TRUE if the URL is writable, otherwise FALSE.
 */
 
 bool QUrlInfo::isWritable() const
@@ -382,7 +379,7 @@ bool QUrlInfo::isWritable() const
 }
 
 /*!
-  Returns TRUE, if the URL is readable , else FALSE.
+  Returns TRUE if the URL is readable, otherwise FALSE.
 */
 
 bool QUrlInfo::isReadable() const
@@ -391,7 +388,7 @@ bool QUrlInfo::isReadable() const
 }
 
 /*!
-  Returns TRUE, if the URL is executable, else FALSE.
+  Returns TRUE if the URL is executable, otherwise FALSE.
 */
 
 bool QUrlInfo::isExecutable() const
@@ -400,9 +397,9 @@ bool QUrlInfo::isExecutable() const
 }
 
 /*!
-  Returns TRUE if \a u1 is greater than \a u2, else FALSE. The objects
+  Returns TRUE if \a u1 is greater than \a u2, otherwise FALSE. The objects
   are compared by the value, which is specified by \a sortBy. This has
-  to be one of QDir::Name, QDir::Time and QDir::Size.
+  to be one of QDir::Name, QDir::Time or QDir::Size.
 */
 
 bool QUrlInfo::greaterThan( const QUrlInfo &i1, const QUrlInfo &i2,
@@ -421,9 +418,9 @@ bool QUrlInfo::greaterThan( const QUrlInfo &i1, const QUrlInfo &i2,
 }
 
 /*!
-  Returns TRUE if \a u1 is less than \a u2, else FALSE. The objects
+  Returns TRUE if \a u1 is less than \a u2, otherwise FALSE. The objects
   are compared by the value, which is specified by \a sortBy. This has
-  to be one of QDir::Name, QDir::Time and QDir::Size.
+  to be one of QDir::Name, QDir::Time or QDir::Size.
 */
 
 bool QUrlInfo::lessThan( const QUrlInfo &i1, const QUrlInfo &i2,
@@ -433,9 +430,9 @@ bool QUrlInfo::lessThan( const QUrlInfo &i1, const QUrlInfo &i2,
 }
 
 /*!
-  Returns TRUE if \a u1 is equal \a u2, else FALSE. The objects
+  Returns TRUE if \a u1 equals to \a u2, otherwise FALSE. The objects
   are compared by the value, which is specified by \a sortBy. This has
-  to be one of QDir::Name, QDir::Time and QDir::Size.
+  to be one of QDir::Name, QDir::Time or QDir::Size.
 */
 
 bool QUrlInfo::equal( const QUrlInfo &i1, const QUrlInfo &i2,
@@ -455,7 +452,7 @@ bool QUrlInfo::equal( const QUrlInfo &i1, const QUrlInfo &i2,
 
 /*!
   Compares this QUrlInfo with \a i and returns TRUE if they
-  are equal, else FALSE.
+  are equal, otherwise FALSE.
 */
 
 bool QUrlInfo::operator==( const QUrlInfo &i ) const

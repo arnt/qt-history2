@@ -37,18 +37,16 @@
 
 #include "qguardedptr.h"
 
-// REVISED: warwick
-    
 /*!
   \class QGuardedPtr qguardedptr.h
-  \brief The QGuardedPtr class is a template class that provides guarded pointers to QObjects
+  \brief The QGuardedPtr class is a template class that provides guarded pointers to QObjects.
 
   \ingroup objectmodel
 
   A guarded pointer, QGuardedPtr\<<em>X</em>\>,
   behaves like a normal C++ pointer \e X*, except that
-  it is automatically set to null when the referenced object is destroyed,
-  unlike normal C++ pointers which become "dangling pointers" in that case.
+  it is automatically set to null when the referenced object is destroyed
+  (unlike normal C++ pointers, which become "dangling pointers" in that case).
   \e X must be a subclass of QObject.
 
   Guarded pointers are useful whenever you need to store a pointer to a
@@ -65,7 +63,7 @@
 
       if ( label)
 	  label->show();
-      else 
+      else
 	  qDebug("The label has been destroyed");
   \endcode
 
@@ -77,24 +75,24 @@
 
   The functions and operators available with a QGuardedPtr are the same
   as those available with a normal unguarded pointer, except the pointer
-  arithmetic operators, ++, --, -, and +, which are normally only used with
+  arithmetic operators (++, --, -, and +), which are normally used only with
   arrays of objects. Use them like normal pointers and you will not need
   to read this class documentation.
-  
+
   For creating guarded pointers, you can construct or assign to them
   from an X* or from another guarded pointer of the same type. You can
   compare them with each other for equality (==) and inequality (!=),
   or test for null with isNull().  Finally, you can dereference
   them using either the \c *x or the \c x->member notation.
 
-  A guarded pointer will automatically cast to an X* so you can freely
+  A guarded pointer will automatically cast to an X*, so you can freely
   mix guarded and unguarded pointers. This means that if you have a
-  QGuardedPtr<QWidget>, then you can pass it to a function that
+  QGuardedPtr<QWidget>, you can pass it to a function that
   requires a QWidget*.  For this reason, it is of little value to declare
   functions to take a QGuardedPtr as a parameter - just use normal pointers.
   Use a QGuardedPtr when you are storing a pointer over time.
 
-  Note again that class \e X must inherit QObject or a compilation or link
+  Note again that class \e X must inherit QObject, or a compilation or link
   error will result.
 */
 
@@ -137,15 +135,15 @@
 
 /*!
   \fn QGuardedPtr<T> & QGuardedPtr::operator=(T* p)
- 
+
   Assignment operator.  This guarded pointer then points to same object as is
   pointed to by \a p.
 */
 
 /*!
-  \fn bool QGuardedPtr::operator==( const QGuardedPtr<T> &p ) const 
+  \fn bool QGuardedPtr::operator==( const QGuardedPtr<T> &p ) const
 
-  Equality operator, implements traditional pointer semantics: returns
+  Equality operator; implements traditional pointer semantics. Returns
   TRUE if both \a p and this are null, or if both \a p and this point
   to the same object.
 
@@ -153,14 +151,14 @@
 */
 
 /*!
-  \fn bool QGuardedPtr::operator!= ( const QGuardedPtr<T>& p ) const 
+  \fn bool QGuardedPtr::operator!= ( const QGuardedPtr<T>& p ) const
 
-  Unequality operator, implements pointer semantics, the negation
-  of operator==().
+  Inequality operator; implements pointer semantics, the negation
+  of operator==.
 */
 
 /*!
-  \fn bool QGuardedPtr::isNull() const 
+  \fn bool QGuardedPtr::isNull() const
 
   Returns \c TRUE if the referenced object has been destroyed or if there is
   no referenced object.
@@ -169,25 +167,24 @@
 /*!
   \fn T* QGuardedPtr::operator->() const
 
-  Overloaded arrow operator, implements pointer semantics. Just use this
+  Overloaded arrow operator; implements pointer semantics. Just use this
   operator as you would with a normal C++ pointer.
 */
 
 /*!
-  \fn T& QGuardedPtr::operator*() const 
+  \fn T& QGuardedPtr::operator*() const
 
-  Dereference operator, implements pointer semantics. Just use this
+  Dereference operator; implements pointer semantics. Just use this
   operator as you would with a normal C++ pointer.
 */
 
 /*!
   \fn QGuardedPtr::operator T*() const
 
-  Cast operator, implements pointer semantics. Because of this function,
+  Cast operator; implements pointer semantics. Because of this function
   you can pass a QGuardedPtr<X> to a function where an X* is
   required.
 */
-
 
 
 /* Internal classes */

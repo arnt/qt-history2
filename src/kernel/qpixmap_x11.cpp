@@ -333,7 +333,7 @@ void QPixmap::deref()
 
 
 /*!
-  Constructs a monochrome pixmap which is initialized with the data in \e bits.
+  Constructs a monochrome pixmap that is initialized with the data in \e bits.
   This constructor is protected and used by the QBitmap class.
 */
 
@@ -368,13 +368,13 @@ QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap)
 
   A pixmap is automatically detached by Qt whenever its contents is about
   to change.  This is done in all QPixmap member functions that modify the
-  pixmap (fill(), resize(), convertFromImage(), load() etc.), in bitBlt()
+  pixmap (fill(), resize(), convertFromImage(), load(), etc.), in bitBlt()
   for the destination pixmap and in QPainter::begin() on a pixmap.
 
   It is possible to modify a pixmap without letting Qt know.
-  You can first obtain the \link handle() system-dependent handle\endlink
-  and then call system-specific functions (for instance BitBlt under Windows)
-  that modifies the pixmap contents.  In this case, you can call detach()
+  You can first obtain the system-dependent handle()
+  and then call system-specific functions (for instance, BitBlt under Windows)
+  that modify the pixmap contents.  In this case, you can call detach()
   to cut the pixmap loose from other pixmaps that share data with this one.
 
   detach() returns immediately if there is just a single reference or if
@@ -400,7 +400,7 @@ void QPixmap::detach()
 
 
 /*!
-  Returns the default pixmap depth, i.e. the depth a pixmap gets
+  Returns the default pixmap depth, i.e., the depth a pixmap gets
   if -1 is specified.
   \sa depth()
 */
@@ -526,12 +526,12 @@ int QPixmap::metric( int m ) const
   Converts the pixmap to an image. Returns a null image if the operation
   failed.
 
-  If the pixmap has 1 bit depth, the returned image will also be 1
-  bits deep.  If the pixmap has 2-8 bit depth, the returned image
-  has 8 bit depth.  If the pixmap has greater than 8 bit depth, the
-  returned image has 32 bit depth.
+  If the pixmap has 1-bit depth, the returned image will also be 1
+  bit deep.  If the pixmap has 2- to 8-bit depth, the returned image
+  has 8-bit depth.  If the pixmap has greater than 8-bit depth, the
+  returned image has 32-bit depth.
 
-  \bug Does not support 2 or 4 bit display hardware.
+  \bug Does not support 2- or 4- bit display hardware.
 
   \bug Alpha masks on monochrome images are ignored.
 
@@ -837,42 +837,42 @@ QImage QPixmap::convertToImage() const
   list is included (they are zero):
 
   <dl>
-   <dt>Color/Mono preference (ignored for QBitmap)
+   <dt>Color/Mono preference (ignored for QBitmap):
    <dd>
     <ul>
      <li> \c AutoColor (default) - If the \e image has \link
 	       QImage::depth() depth\endlink 1 and contains only
-	       black and white pixels, then the pixmap becomes monochrome.
+	       black and white pixels, the pixmap becomes monochrome.
      <li> \c ColorOnly - The pixmap is dithered/converted to the
 	       \link defaultDepth() native display depth\endlink.
      <li> \c MonoOnly - The pixmap becomes monochrome.  If necessary,
 	       it is dithered using the chosen dithering algorithm.
     </ul>
-   <dt>Dithering mode preference, for RGB channels
+   <dt>Dithering mode preference for RGB channels:
    <dd>
     <ul>
-     <li> \c DiffuseDither (default) - a high quality dither
-     <li> \c OrderedDither - a faster more ordered dither
-     <li> \c ThresholdDither - no dithering, closest color is used
+     <li> \c DiffuseDither (default) - a high-quality dither.
+     <li> \c OrderedDither - a faster, more ordered dither.
+     <li> \c ThresholdDither - no dithering; closest color is used.
     </ul>
-   <dt>Dithering mode preference, for alpha channel
+   <dt>Dithering mode preference for alpha channel:
    <dd>
     <ul>
-     <li> \c DiffuseAlphaDither - a high quality dither
-     <li> \c OrderedAlphaDither - a faster more ordered dither
-     <li> \c ThresholdAlphaDither (default) - no dithering
+     <li> \c DiffuseAlphaDither - a high-quality dither.
+     <li> \c OrderedAlphaDither - a faster, more ordered dither.
+     <li> \c ThresholdAlphaDither (default) - no dithering.
     </ul>
-   <dt>Color matching versus dithering preference
+   <dt>Color matching versus dithering preference:
    <dd>
     <ul>
      <li> \c PreferDither - always dither 32-bit images when
 		the image
-		is being converted to 8-bits.
+		is being converted to 8 bits.
 		This is the default when converting to a pixmap.
-     <li> \c AvoidDither - only dither 32-bit images if
+     <li> \c AvoidDither - dither 32-bit images only if
 		the image
 		has more than 256 colors and it
-		is being converted to 8-bits.
+		is being converted to 8 bits.
 		This is the default when an image is converted
 		for the purpose of saving to a file.
     </ul>
@@ -888,7 +888,7 @@ QImage QPixmap::convertToImage() const
   pixel index 0 in the image and those painted with color1 will produce
   pixel index 1.
 
-  \bug Does not support 2 or 4 bit display hardware.
+  \bug Does not support 2- or 4-bit display hardware.
 
   \sa convertToImage(), isQBitmap(), QImage::convertDepth(), defaultDepth(),
   QImage::hasAlphaBuffer()
@@ -1401,7 +1401,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
   Grabs the contents of a window and makes a pixmap out of it.
   Returns the pixmap.
 
-  The arguments \e (x,y) specify the offset in the window, while
+  The arguments \e (x,y) specify the offset in the window, whereas
   \e (w,h) specify the width and height of the area to be copied.
 
   If \e w is negative, the function copies everything to the right
@@ -1409,9 +1409,9 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
   everything to the bottom of the window.
 
   Note that grabWindows() grabs pixels from the screen, not from the
-  window.  This means that If there is another window partially or
+  window. If there is another window partially or
   entirely over the one you grab, you get pixels from the overlying
-  window too.
+  window, too.
 
   Note also that the mouse cursor is generally not grabbed.
 
@@ -1497,7 +1497,7 @@ QPixmap QPixmap::grabWindow( WId window, int x, int y, int w, int h )
 
   If you want to draw rotated text, you do not have to implement all the
   code above. The code below does exactly the same thing as the example
-  above, except that it uses a QPainter.
+  above, except that it uses a QPainter:
 
   \code
     char    *str = "Trolls R Qt";	// text to be drawn
@@ -1512,7 +1512,7 @@ QPixmap QPixmap::grabWindow( WId window, int x, int y, int w, int h )
     p.end();
   \endcode
 
-  \bug 2 and 4 bits pixmaps are not supported.
+  \bug 2- and 4-bit pixmaps are not supported.
 
   \sa trueMatrix(), QWMatrix, QPainter::setWorldMatrix()
 */
@@ -1832,7 +1832,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 
   When transforming a pixmap with xForm(), the transformation matrix
   is internally adjusted to compensate for unwanted translation,
-  i.e. xForm() returns the smallest pixmap containing all transformed
+  i.e., xForm() returns the smallest pixmap containing all transformed
   points of the original pixmap.
 
   This function returns the modified matrix, which maps points

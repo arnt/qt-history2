@@ -54,23 +54,22 @@ public:
 
   \ingroup drawing
 
-  This class encapsulates simple richt text usage where a string is
-  interpreted as richt text and can be drawn.  This is in particular
-  useful if you want to display some rich text in a custom widget.
-  A QStyleSheet is needed to actually understand and format rich text.
-  Qt provides a default HTML-like style sheet but you may define custom
-  style sheets.
+  This class encapsulates simple rich text usage in which a string is
+  interpreted as rich text and can be drawn.  This is particularly useful
+  if you want to display some rich text in a custom widget.  A QStyleSheet
+  is needed actually to understand and format rich text.  Qt provides a
+  default HTML-like style sheet, but you may define custom style sheets.
 
   Once created, the rich text object can be queried for its width(),
-  height() and the actual width used (see widthUsed()).  Most
+  height(), and the actual width used (see widthUsed()).  Most
   importantly, it can be drawn on any given QPainter with draw().
   QSimpleRichText can also be used to implement hypertext or active
   text facilities by using anchorAt().  A hit test through inText()
   makes it possible to use simple rich text for text objects in
   editable drawing canvases.
 
-  Once constructed from a string, the contents cannot be changed, only
-  resized.  If the contents should change, just throw the rich text
+  Once constructed from a string the contents cannot be changed, only
+  resized.  If the contents change, just throw the rich text
   object away and make a new one with the new contents.
 
   For large documents, see QTextView or QTextBrowser.
@@ -80,9 +79,9 @@ public:
   Constructs a QSimpleRichText from the rich text string \a text
   and the font \a fnt.
 
-  The font is used as basis for the text rendering. When using rich
-  text rendering on a certain widget \e w, you would regularly
-  specify the widget's font as shown in the following code example:
+  The font is used as a basis for the text rendering. When using rich text
+  rendering on a widget \e w, you would normally specify the widget's font
+  as shown in the following code example:
 
   \code
   QSimpleRichText myrichtext( contents, mywidget->font() );
@@ -96,7 +95,7 @@ public:
   the absolute path. See QMimeSourceFactory::makeAbsolute() for
   details.
 
-  Finally \a s is an optional style sheet. If it is 0, the default
+  Finally, \a s is an optional style sheet. If it is 0, the default
   style sheet will be used (see QStyleSheet::defaultSheet() ).
 
 */
@@ -114,7 +113,8 @@ QSimpleRichText::QSimpleRichText( const QString& text, const QFont& fnt,
     d->doc->setText( text, context );
 }
 
-/*!  Another, more complex constructor for QSimpleRichText that takes
+
+/*!  A more complex constructor for QSimpleRichText that takes
   an additional mime source factory \a factory, a vertical break
   parameter \a verticalBreak, a link color \a linkColor and a bool \a
   linkUnderline.
@@ -173,7 +173,7 @@ void QSimpleRichText::setWidth( int w )
   as if it were to be drawn with \a p.
 
   Passing a painter is useful when you intend to draw on devices other
-  than the screen, like for example a QPrinter.
+  than the screen, for example a QPrinter.
 
   \sa height(), adjustSize()
 */
@@ -187,7 +187,7 @@ void QSimpleRichText::setWidth( QPainter *p, int w )
 }
 
 /*!
-  Returns the set width of the document, in pixels.
+  Returns the set width of the document in pixels.
 
   \sa widthUsed()
 */
@@ -215,7 +215,7 @@ int QSimpleRichText::widthUsed() const
 }
 
 /*!
-  Returns the height of the document, in pixels.
+  Returns the height of the document in pixels.
   \sa setWidth()
 */
 

@@ -1408,8 +1408,8 @@ static const QString getCharSet( QFont::CharSet set)
 
 
 /*!
-  Returns a string which gives a quite detailed description of the \a charSetName
-  which can be used e.g. for displaying in a dialog for the user.
+  Returns a string that gives a quite detailed description of the \a
+  charSetName (e.g. for displaying in a dialog for the user).
  */
 QString QFontDatabase::verboseCharSetName( const QString &charSetName )
 {
@@ -1537,7 +1537,7 @@ QString QFontDatabase::verboseCharSetName( const QString &charSetName )
 
 
 /*!
-  Returns some sample characters which are in the charset \a charSetName.
+  Returns some sample characters that are in the charset \a charSetName.
 */
 QString QFontDatabase::charSetSample( const QString &charSetName )
 {
@@ -1553,7 +1553,7 @@ QString QFontDatabase::charSetSample( const QString &charSetName )
 
 
 /*!
-  Returns a string with describes the style of the font \a f. This is Something like
+  Returns a string that describes the style of the font \a f. This is something like
   "Bold Italic".
 */
 QString QFontDatabase::styleString( const QFont &f )
@@ -1666,8 +1666,8 @@ QFontDatabase::QFontDatabase()
 /*!
   Returns a list of names of all available font families.
   
-  If a family exists in several foundries, the returned name will be
-  "foundry-family".
+  If a family exists in several foundries, the returned name for that font
+  is "foundry-family".
 */
 QStringList QFontDatabase::families() const
 {
@@ -1676,7 +1676,7 @@ QStringList QFontDatabase::families() const
 
 
 /*!
-  Retruns all available styles of the font \a family.
+  Returns all available styles of the font \a family.
 */
 QStringList QFontDatabase::styles( const QString &family) const
 {
@@ -1689,11 +1689,11 @@ QStringList QFontDatabase::styles( const QString &family) const
 
 
 /*!
-  Returns whether the font which matches \a family and \a style is
-  a scalable bitmap font. Scaling a bitmap font produces a bad, often
-  hardly readable result, as the pixels of the font are scaled. It's
-  better to scale such a font only to the available fixed sizes (which
-  you can get with smoothSizes()).
+  Returns whether the font that matches \a family and \a style is a
+  scalable bitmap font. Scaling a bitmap font produces a bad, often hardly
+  readable, result because the pixels of the font are scaled. It's better
+  to scale such a font only to the available fixed sizes (which you can
+  get with smoothSizes()).
 
   \sa isScalable(), isSmoothlyScalable()
 */
@@ -1714,9 +1714,9 @@ bool  QFontDatabase::isBitmapScalable( const QString &family,
 
 
 /*!
-  Returns whether the font which matches \a family and \a style is
-  a smoothly scaleable. If this function returns TRUE, it's save to
-  scale this font to every size as the result will always look good.
+  Returns whether the font that matches \a family and \a style is smoothly
+  scalable. If this function returns TRUE, it's safe to scale this font to
+  every size. The result will always look decent.
 
   \sa isScalable(), isBitmapScalable()
 */
@@ -1737,9 +1737,9 @@ bool  QFontDatabase::isSmoothlyScalable( const QString &family,
 
 
 /*!
-  Returns TRUE if the font which matches the settings \a family and \a style
+  Returns TRUE if the font that matches the settings \a family and \a style
   is scalable.
-  
+
   \sa isBitmapScalable(), isSmoothlyScalable()
 */
 bool  QFontDatabase::isScalable( const QString &family,
@@ -1789,9 +1789,9 @@ QValueList<int> QFontDatabase::pointSizes( const QString &family,
 
 
 /*!
-  Returns a QFont object which matches the settings of \a family, \a style
-  and \a pointsize. If no matching font could be created, the default font
-  is returned.
+  Returns a QFont object that matches the settings of \a family, \a style
+  and \a pointsize. If no matching font could be created, an empty QFont
+  object is returned.
 */
 QFont QFontDatabase::font( const QString &family, const QString &style,
                            int pointSize)
@@ -1811,10 +1811,10 @@ QFont QFontDatabase::font( const QString &family, const QString &style,
 
 
 /*!
-  Returns the point sizes of a font which matches \a family and \a style,
+  Returns the point sizes of a font that matches \a family and \a style
   that is guaranteed to look good. For non-scalable fonts and smoothly
-  scalable fonts this function is equivalent to pointSizes().
-  
+  scalable fonts, this function is equivalent to pointSizes().
+
   \sa pointSizes(), standardSizes()
 */
 QValueList<int> QFontDatabase::smoothSizes( const QString &family,
@@ -1826,7 +1826,7 @@ QValueList<int> QFontDatabase::smoothSizes( const QString &family,
 
 
 /*!
-  Returns a list of standard fontsizes.
+  Returns a list of standard font sizes.
 
   \sa smoothSizes(), pointSizes()
 */
@@ -1837,8 +1837,8 @@ QValueList<int> QFontDatabase::standardSizes()
 
 
 /*!
-  Returns if the font which matches the settings \a family and \a style
-  is italic or not.
+  Returns if the font that matches the settings \a family and \a style is
+  italic or not.
 
   \sa weight(), bold()
 */
@@ -1850,9 +1850,8 @@ bool QFontDatabase::italic( const QString &family,
 }
 
 
-/*!
-  Returns if the font which matches the settings \a family and \a style
-  is bold or not.
+/*!  Returns whether the font that matches the settings \a family and \a
+  style is bold or not.
 
   \sa italic(), weight()
 */
@@ -1865,8 +1864,9 @@ bool QFontDatabase::bold( const QString &family,
 
 
 /*!
-  Returns the weight of the font which matches the settings \a family and \a style.
-  
+  Returns the weight of the font that matches the settings \a family and
+  \a style.
+
   \sa italic(), bold()
 */
 int QFontDatabase::weight( const QString &family,
@@ -1876,12 +1876,11 @@ int QFontDatabase::weight( const QString &family,
     return sty ? sty->weight() : -1;
 }
 
-
 /*! \obsolete
   In Qt 3.0 and higher, this returns a QStringList containing only "Unicode".
   
-  Previous versions returned a list of all char sets in which the font \a family
-  is available.
+  Previous versions returned a list of all character sets in which the
+  font \a family was available.
 */
 QStringList QFontDatabase::charSets( const QString & ) const
 {
