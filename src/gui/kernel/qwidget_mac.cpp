@@ -1822,11 +1822,16 @@ void QWidget::setGeometry_sys(int x, int y, int w, int h, bool isMove)
         HIViewSetFrame((HIViewRef)winId(), &bounds);
         qt_event_request_window_change();
 
+#if 0
         WindowPtr window = qt_mac_window_for(this);
         if(isMove)
             MoveWindow(window, x, y, false);
         if(isResize)
             SizeWindow(window, w, h, true);
+#else
+        Rect r; SetRect(&r, x, y, x+w, y+h);
+        SetWindowBounds(qt_mac_window_for(this), kWindowContentRgn, &r);
+#endif
     } else {
         d->setWSGeometry();
     }
