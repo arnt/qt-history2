@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#40 $
+** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#41 $
 **
 ** Implementation of QToolBar class
 **
@@ -90,6 +90,7 @@ QToolBar::QToolBar( const QString &label,
 	? Vertical : Horizontal;
     parent->addToolBar( this, label, dock, newLine );
     setBackgroundMode( PaletteButton);
+    setFocusPolicy( NoFocus );
 }
 
 
@@ -114,6 +115,7 @@ QToolBar::QToolBar( const QString &label, QMainWindow * mainWindow,
     o = Horizontal;
     mainWindow->addToolBar( this, label, QMainWindow::Unmanaged, newLine );
     setBackgroundMode( PaletteButton);
+    setFocusPolicy( NoFocus );
 }
 
 
@@ -131,6 +133,7 @@ QToolBar::QToolBar( QMainWindow * parent, const char * name )
     mw = parent;
     parent->addToolBar( this, QString::null, QMainWindow::Top );
     setBackgroundMode( PaletteButton);
+    setFocusPolicy( NoFocus );
 }
 
 
@@ -234,8 +237,7 @@ void QToolBar::setUpGM()
 	}
     }
     b->activate();
-    QEvent * layoutHint = new QEvent( QEvent::LayoutHint );
-    QApplication::postEvent( mainWindow(), layoutHint );
+    QApplication::postEvent( mainWindow(), new QEvent( QEvent::LayoutHint ) );
 }
 
 
@@ -345,8 +347,7 @@ bool QToolBar::eventFilter( QObject * o, QEvent * e )
 	 ((QWidget *)o)->parentWidget() == this &&
 	 ( e->type() == QEvent::Show ||
 	   e->type() == QEvent::Hide ) ) {
-	QEvent * layoutHint = new QEvent( QEvent::LayoutHint );
-	QApplication::postEvent( this, layoutHint );
+	QApplication::postEvent( this, new QEvent( QEvent::LayoutHint ) );
     }
     return QWidget::eventFilter( o, e );
 }
@@ -374,3 +375,50 @@ QString QToolBar::label() const
 {
     return l;
 }
+
+
+/* from chaunsee:
+  
+1.  Toolbars should contain only high-frequency functions.  Avoid putting 
+things like About and Exit on a toolbar unless they are frequent functions. 
+
+2.  All toolbar buttons must have some keyboard access method (it can be a 
+menu or shortcut key or a function in a dialog box that can be accessed 
+through the keyboard).
+
+3.  Make toolbar functions as efficient as possible (the common example is to 
+Print in Microsoft applications, it doesn't bring up the Print dialog box, it 
+prints immediately to the default printer).  
+
+4.  Avoid turning toolbars into graphical menu bars.  To me, a toolbar should 
+be efficient. Once you make almost all the items in a toolbar into graphical 
+pull-down menus, you start to loose efficiency.
+
+5.  Make sure that adjacent icons are distinctive. There are some toolbars 
+where you see a group of 4-5 icons that represent related functions, but they 
+are so similar that you can't differentiate among them.  These toolbars are 
+often a poor attempt at a "common visual language".
+
+6.  Use any de facto standard icons of your platform (for windows use the 
+cut, copy, and paste icons provided in dev kits rather than designing your 
+own).
+
+7.  Avoid putting a highly destructive toolbar button (delete database) by a 
+safe, high-frequency button (Find) -- this will yield 1-0ff errors).
+
+8.  Tooltips in many Microsoft products simply reiterate the menu text even 
+when that is not explanatory.  Consider making your tooltips slightly more 
+verbose and explanatory than the corresponding menu item.  
+
+9.  Keep the toolbar as stable as possible when you click on different 
+objects. Consider disabling toolbar buttons if they are used in most, but not 
+all contexts. 
+
+10.  If you have multiple toolbars (like the Microsoft MMC snap-ins have), 
+put the most stable toolbar to at the left with less stable ones to the 
+right. This arrangement (stable to less stable) makes the toolbar somewhat 
+more predictable.
+
+11.  Keep a single toolbar to fewer than 20 items divided into 4-7 groups of 
+items.
+*/

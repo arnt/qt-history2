@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#53 $
+** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#54 $
 **
 ** Implementation of QToolButton class
 **
@@ -67,7 +67,6 @@ QToolButton::QToolButton( QWidget * parent, const char *name )
 {
     init();
     setUsesBigPixmap( FALSE );
-    setFocusPolicy( NoFocus );
 }
 
 
@@ -86,6 +85,7 @@ void QToolButton::init()
     son = 0;
 
     setBackgroundMode( PaletteButton);
+    setFocusPolicy( NoFocus );
 }
 
 
@@ -494,10 +494,10 @@ void QToolButton::setTextLabel( const QString &newLabel , bool tipToo )
 
 /*!  Sets this tool button to display the icons in \a set.
   (setPixmap() is effectively a wrapper for this function.)
-  
+
   For toggle buttons it is possible to set an extra icon set with \a
   on equals TRUE, which will be used exclusively for the on-state.
-  
+
   QToolButton makes a copy of \a set, so you must delete \a set
   yourself.
 
@@ -523,7 +523,7 @@ void QToolButton::setIconSet( const QIconSet & set, bool on )
 
   If the button doesn't have a pixmap either, iconSet()'s return value
   is meaningless.
-  
+
   If \a on equals TRUE, the special icon set for the on-state of the
   button is returned.
 
@@ -533,7 +533,7 @@ void QToolButton::setIconSet( const QIconSet & set, bool on )
 QIconSet QToolButton::iconSet( bool on ) const
 {
     QToolButton * that = (QToolButton *)this;
-    
+
     if ( on && that->son )
 	return *that->son;
 
