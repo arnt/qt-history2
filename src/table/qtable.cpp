@@ -764,16 +764,21 @@ QSize QTableItem::sizeHint() const
     return QSize( s.width() + r.width(), QMAX( s.height(), r.height() ) );
 }
 
-/*!
-    Changes the extent of the QTableItem so that it spans multiple cells
-    covering \a rs rows and \a cs columns. The top left cell is the
-    original cell.
+/*!  Changes the extent of the QTableItem so that it spans multiple
+    cells covering \a rs rows and \a cs columns. The top left cell is
+    the original cell.
+
+  \warning This function only works, if the item has already been
+  inserted into the table using e.g. QTable::setItem().
 
   \sa rowSpan() colSpan()
 */
 
 void QTableItem::setSpan( int rs, int cs )
 {
+    if ( rw == -1 || cl == -1 )
+	return;
+
     int rrow = rw;
     int rcol = cl;
     if ( rowspan > 1 || colspan > 1 ) {
