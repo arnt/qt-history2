@@ -4,14 +4,14 @@
 #include "qplugininterface.h"
 #include <qstringlist.h>
 
-class QDefaultInterface : public QPlugInInterface
+class QWidgetInterface : public QWidgetInterface
 {
 public:
     virtual QStringList widgets() = 0;
     virtual QWidget* create( const QString&, QWidget* parent = 0, const char* name = 0 ) = 0;
 };
 
-class QCustomWidgetInterface : public QDefaultInterface
+class QCustomWidgetInterface : public QWidgetInterface
 {
 public:
     virtual QString iconSet( const QString& ) = 0;
