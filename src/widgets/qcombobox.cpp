@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#211 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#212 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -165,18 +165,19 @@
 struct QComboData
 {
     QComboData( QListBox *l )   { lBox = l; usingLBox = TRUE;  }
-    QComboData( QPopupMenu *p ) { pop  = p; usingLBox = FALSE; }
-
+    QComboData( QPopupMenu *popmenu ) { pop  = popmenu; usingLBox = FALSE; }
+    ~QComboData()
+    {
+	delete pop;
+	delete lBox;
+    }
 
     bool usingListBox()  { return usingLBox; }
     QListBox * listBox() { ASSERT(usingLBox); return lBox; }
     QPopupMenu * popup() { ASSERT(!usingLBox); return pop; }
-    void clearPointer() { if ( usingLBox )
-	                      lBox = 0;
-                          else
-	                      pop  = 0;
-                        }
+
     void setListBox( QListBox *l ) { lBox = l ; usingLBox = TRUE; }
+    void setPopupMenu( QPopupMenu * p ) { pop = p; usingLBox = FALSE; }
 
     int		current;
     int		maxCount;
@@ -196,10 +197,8 @@ struct QComboData
     QLineEdit * ed;  // /bin/ed rules!
 private:
     bool	usingLBox;
-    union {
-	QPopupMenu *pop;
-	QListBox   *lBox;
-    };
+    QPopupMenu *pop;
+    QListBox   *lBox;
 };
 
 
@@ -268,7 +267,8 @@ QComboBox::QComboBox( QWidget *parent, const char *name )
     : QWidget( parent, name, WResizeNoErase )
 {
     if ( style() == WindowsStyle ) {
-	d = new QComboData( new QListBox( 0, 0, WType_Popup ) );
+	d = new QComboData;
+	d->setListBox( new QListBox( 0, "in-combo", WType_Popup ) );
 	d->listBox()->setAutoScrollBar( FALSE );
 	d->listBox()->setBottomScrollBar( FALSE );
 	d->listBox()->setAutoBottomScrollBar( FALSE );
@@ -281,7 +281,8 @@ QComboBox::QComboBox( QWidget *parent, const char *name )
 	connect( d->listBox(), SIGNAL(highlighted(int)),
 		             SLOT(internalHighlight(int)));
     } else {
-	d = new QComboData( new QPopupMenu );
+	d = new QComboData();
+	d->setPopupMenu( new QPopupMenu );
 	connect( d->popup(), SIGNAL(activated(int)),
 		             SLOT(internalActivate(int)) );
 	connect( d->popup(), SIGNAL(highlighted(int)),
@@ -317,7 +318,8 @@ QComboBox::QComboBox( QWidget *parent, const char *name )
 QComboBox::QComboBox( bool rw, QWidget *parent, const char *name )
     : QWidget( parent, name, WResizeNoErase )
 {
-    d = new QComboData( new QListBox( 0, 0, WType_Popup ) );
+    d = new QComboData;
+    d->setListBox( new QListBox( 0, "in-combo", WType_Popup ) );
     d->listBox()->setAutoScrollBar( FALSE );
     d->listBox()->setBottomScrollBar( FALSE );
     d->listBox()->setAutoBottomScrollBar( FALSE );
@@ -369,14 +371,6 @@ QComboBox::QComboBox( bool rw, QWidget *parent, const char *name )
 
 QComboBox::~QComboBox()
 {
-    if ( !QApplication::closingDown() ) {
-	if ( d->usingListBox() )
-	    delete d->listBox();
-	else
-	    delete d->popup();
-    } else {
-	d->clearPointer();
-    }
     delete d;
 }
 
@@ -651,6 +645,7 @@ void QComboBox::clear()
 	d->listBox()->clear();
     else
 	d->popup()->clear();
+
     d->current = 0;
     if ( d->ed )
 	d->ed->setText( QString::fromLatin1("") );
@@ -1279,7 +1274,7 @@ void QComboBox::focusInEvent( QFocusEvent * )
 static int listHeight( QListBox *l, int sl )
 {
     if ( l->count() > 0 )
-        return QMIN( l->count(), (uint)sl) * l->item( 0 )->height();
+        return QMIN( l->count(), (uint)sl) * l->item( 0 )->height(l);
     else
         return l->sizeHint().height();
 }

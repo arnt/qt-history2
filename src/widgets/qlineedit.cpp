@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#219 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#220 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -529,8 +529,7 @@ void QLineEdit::paintEvent( QPaintEvent *e )
 	QString marked = display.mid( markBegin, markEnd - markBegin );
 	QString after = display.mid( markEnd, display.length() );
 
-    int h = height() - ( frame() ? 4 : 0 ); 
-	int y = h - fm.descent() - 1 - ( h - fm.height() ) / 2;
+	int y = d->pm->height()/2 + fm.height()/2 - fm.descent() - 1 ;
 
 	int x = offset + 2;
 	int w;
@@ -1455,7 +1454,7 @@ void QLineEdit::cursorWordBackward( bool mark )
 void QLineEdit::updateOffset()
 {
     if ( !isVisible() )
-        return;
+	return;
 
     makePixmap();
     const QFontMetrics & fm = fontMetrics();
