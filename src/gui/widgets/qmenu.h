@@ -24,7 +24,7 @@ class QMenuPrivate;
 class Q4MenuBarPrivate;
 
 #ifndef QT_USE_NEW_MENU_SYSTEM
-# define QT_USE_NEW_MENU_SYSTEM
+//# define QT_USE_NEW_MENU_SYSTEM
 #endif
 
 class Q_GUI_EXPORT QMenu : public QWidget
