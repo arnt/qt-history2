@@ -10,8 +10,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>677</width>
-            <height>537</height>
+            <width>673</width>
+            <height>535</height>
         </rect>
     </property>
     <property name="caption">
@@ -323,7 +323,7 @@
 <customwidgets>
     <customwidget>
         <class>MyOrientation</class>
-        <header location="local">/usr/home/twschulz/projects/qt-main/tests/tablet/tabletstats.h</header>
+        <header location="local">tabletstats.h</header>
         <sizehint>
             <width>-1</width>
             <height>-1</height>
@@ -338,10 +338,14 @@
         <slot access="public" specifier="">newOrient( int, int )</slot>
         <slot access="public" specifier="">newOrient( int, int )</slot>
         <slot access="public" specifier="">newOrient( int, int )</slot>
+        <slot access="public" specifier="">newOrient( int, int )</slot>
+        <slot access="public" specifier="">newOrient( int, int )</slot>
+        <slot access="public" specifier="">newOrient( int, int )</slot>
+        <slot access="public" specifier="">newOrient( int, int )</slot>
     </customwidget>
     <customwidget>
         <class>StatsCanvas</class>
-        <header location="local">/usr/home/twschulz/projects/qt-main/tests/tablet/tabletstats.h</header>
+        <header location="local">tabletstats.h</header>
         <sizehint>
             <width>-1</width>
             <height>-1</height>
