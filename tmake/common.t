@@ -7,7 +7,7 @@ SYSCONF_CXXFLAGS_X11	= #$ ExpandGlue('TMAKE_INCDIR_X11', '-I', ' -I', '');
 SYSCONF_CXXFLAGS_QT	= #$ ExpandGlue('TMAKE_INCDIR_QT', '-I', ' -I', '');
 SYSCONF_CXXFLAGS_OPENGL	= #$ ExpandGlue('TMAKE_INCDIR_OPENGL', '-I', ' -I', '');
 
-# Compiline YACC output
+# Compiling YACC output
 SYSCONF_CXXFLAGS_YACC     = #$ Expand('TMAKE_CXXFLAGS_YACC');
 
 # Linking with support libraries
@@ -29,7 +29,7 @@ SYSCONF_LINK		= #$ Expand('TMAKE_LINK');
 SYSCONF_LFLAGS		= #$ Expand('TMAKE_LFLAGS');
 SYSCONF_LIBS		= #$ Expand('TMAKE_LIBS');
 
-# Link flags shared objects
+# Link flags for shared objects
 SYSCONF_LFLAGS_SHOBJ	= #$ Expand('TMAKE_LFLAGS_SHLIB');
 
 # Meta-object compiler
