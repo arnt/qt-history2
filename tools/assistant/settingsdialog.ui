@@ -58,7 +58,7 @@
                     <cstring>tab</cstring>
                 </property>
                 <attribute name="title">
-                    <string>General</string>
+                    <string>&amp;General</string>
                 </attribute>
                 <vbox>
                     <property name="name">
@@ -186,7 +186,7 @@
                     <cstring>tab</cstring>
                 </property>
                 <attribute name="title">
-                    <string>Web</string>
+                    <string>&amp;Web</string>
                 </attribute>
                 <grid>
                     <property name="name">
@@ -214,7 +214,7 @@
                             <cstring>TextLabel1_3</cstring>
                         </property>
                         <property name="text">
-                            <string>&amp;Web Browser Application:</string>
+                            <string>Web &amp;Browser Application:</string>
                         </property>
                         <property name="buddy" stdset="0">
                             <cstring>browserApp</cstring>
@@ -284,7 +284,7 @@
                     <cstring>pdfTab</cstring>
                 </property>
                 <attribute name="title">
-                    <string>PDF</string>
+                    <string>&amp;PDF</string>
                 </attribute>
                 <grid>
                     <property name="name">
@@ -295,7 +295,7 @@
                             <cstring>TextLabel1_3_2</cstring>
                         </property>
                         <property name="text">
-                            <string>&amp;PDF Application</string>
+                            <string>PDF &amp;Application</string>
                         </property>
                         <property name="buddy" stdset="0">
                             <cstring>pdfApp</cstring>
@@ -348,7 +348,7 @@
                     <cstring>tab</cstring>
                 </property>
                 <attribute name="title">
-                    <string>Profiles</string>
+                    <string>Pro&amp;files</string>
                 </attribute>
                 <hbox>
                     <property name="name">
