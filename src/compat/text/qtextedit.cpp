@@ -2934,7 +2934,7 @@ void QTextEdit::insert(const QString &text, bool indent,
     RedoIndentation is set, the paragraph is re-indented. If \c
     CheckNewLines is set, newline characters in \a text result in hard
     line breaks (i.e. new paragraphs). If \c checkNewLine is not set,
-    the behaviour of the editor is undefined if the \a text contains
+    the behavior of the editor is undefined if the \a text contains
     newlines. (It is not possible to change QTextEdit's newline handling
     behavior, but you can use QString::replace() to preprocess text
     before inserting it.) If \c RemoveSelected is set, any selected
@@ -3637,7 +3637,7 @@ void QTextEdit::setFamily(const QString &fontFamily)
 /*!
     Sets the point size of the current format to \a s.
 
-    Note that if \a s is zero or negative, the behaviour of this
+    Note that if \a s is zero or negative, the behavior of this
     function is not defined.
 
     \sa pointSize() setCurrentFont() setFamily()

@@ -1160,7 +1160,7 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
     \enum QStyle::ComplexControl
 
     This enum represents a ComplexControl. ComplexControls have
-    different behaviour depending upon where the user clicks on them
+    different behavior depending upon where the user clicks on them
     or which keys are pressed.
 
     \value CC_SpinWidget

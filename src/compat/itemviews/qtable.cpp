@@ -445,7 +445,7 @@ int QTableSelection::numCols() const
 
     Note, that if you have a table item that is not currently in a table
     then anything you do to that item other than insert it into a table
-    will result in undefined behaviour.
+    will result in undefined behavior.
 
     \img qtableitems.png Table Items
 
@@ -5300,9 +5300,9 @@ QRect QTable::rangeGeometry(int topRow, int leftCol,
     This function is called to activate the next cell if in-place
     editing was finished by pressing the Enter key.
 
-    The default behaviour is to move from top to bottom, i.e. move to
+    The default behavior is to move from top to bottom, i.e. move to
     the cell beneath the cell being edited. Reimplement this function
-    if you want different behaviour, e.g. moving from left to right.
+    if you want different behavior, e.g. moving from left to right.
 */
 
 void QTable::activateNextCell()

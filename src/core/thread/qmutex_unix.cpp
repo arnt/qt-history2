@@ -251,7 +251,7 @@ bool QMutex::tryLock()
 /*!
     Unlocks the mutex. Attempting to unlock a mutex in a different
     thread to the one that locked it results in an error. Unlocking a
-    mutex that is not locked results in undefined behaviour (varies
+    mutex that is not locked results in undefined behavior (varies
     between different Operating Systems' thread implementations).
 
     \sa lock()

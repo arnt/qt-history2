@@ -89,7 +89,7 @@
 
     \a widget is the widget to be closed.
 
-    The default behaviour is to close the widget.
+    The default behavior is to close the widget.
 */
 void QWSDecoration::close(QWidget *widget)
 {
@@ -134,7 +134,7 @@ public:
 
     \a widget is the widget to be minimized.
 
-    The default behaviour is to ignore this action.
+    The default behavior is to ignore this action.
 */
 void QWSDecoration::minimize(QWidget * /* widget */)
 {
@@ -149,7 +149,7 @@ void QWSDecoration::minimize(QWidget * /* widget */)
 
     \a widget is the widget to be maximized.
 
-    The default behaviour is to resize the widget to be full-screen.
+    The default behavior is to resize the widget to be full-screen.
     This method can be overridden e.g. to allow room for launch
     panels.
 */

@@ -1193,7 +1193,7 @@ QString QSocket::readLine()
     This function has can usually only be entered once (i.e. no
     recursive calls). If the argument \a force is true, the function
     is executed, but no readyRead() signals are emitted. This
-    behaviour is useful for the waitForMore() function, so that it is
+    behavior is useful for the waitForMore() function, so that it is
     possible to call waitForMore() in a slot connected to the
     readyRead() signal.
 */

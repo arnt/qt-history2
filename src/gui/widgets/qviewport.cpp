@@ -56,7 +56,7 @@
 
     In order to track scroll bar movements, reimplement the virtual
     function scrollContentsBy(). In order to fine-tune scrolling
-    behaviour, connect to a scroll bar's
+    behavior, connect to a scroll bar's
     QAbstractSlider::actionTriggered() signal and adjust the \l
     QAbstractSlider::sliderPosition as you wish.
 

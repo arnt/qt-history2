@@ -344,7 +344,7 @@ QAction::~QAction()
   added to the group's list of actions.
 
   A QActionGroup will provide mutual exclusivity as well group
-  behaviour of all contained actions.
+  behavior of all contained actions.
 
   \sa QActionGroup, QAction::actionGroup()
 */

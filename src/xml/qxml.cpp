@@ -2406,7 +2406,7 @@ private:
 
     Since the handler classes only describe interfaces you must
     implement all the functions. We provide the QXmlDefaultHandler
-    class to make this easier: it implements a default behaviour (do
+    class to make this easier: it implements a default behavior (do
     nothing) for all functions, so you can subclass it and just
     implement the functions you are interested in.
 
