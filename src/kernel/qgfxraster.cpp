@@ -35,11 +35,28 @@
 #include <fcntl.h>
 #include <errno.h>
 
+#ifdef _CC_EDG_
+//####### hacky workaround for KCC/linux include files
+typedef __signed__ char __s8;
+typedef unsigned char __u8;
+
+typedef __signed__ short __s16;
+typedef unsigned short __u16;
+
+typedef __signed__ int __s32;
+typedef unsigned int __u32;
+#endif
+
 #include <linux/fb.h>
 
 #ifdef __i386__
 #include <asm/mtrr.h>
 #endif
+
+#ifdef QWS_VGA_16
+#include <sys/io.h>
+#endif
+
 
 #ifdef __MIPSEL__
 #define QWS_NO_WRITE_PACKING
@@ -1008,7 +1025,7 @@ void QGfxRasterBase::paintCursor(const QImage& image, int hotx, int hoty, QPoint
     }
 }
 
-
+#ifdef QWS_VGA_16
 static inline void qgfx_vga_io_w_fast(unsigned short port, unsigned char reg,
                                  unsigned char val)
 {
@@ -1058,6 +1075,7 @@ qgfx_vga16_set_write_planes(int mask)
 {
     qgfx_vga_io_w_fast( 0x3C4, 2, mask );
 }
+#endif
 
 template<const int depth,const int type>
 inline void QGfxRaster<depth,type>::useBrush()
@@ -2015,7 +2033,7 @@ inline unsigned int QGfxRaster<depth,type>::get_value(int destdepth,
 	    qWarning("Eek,8bpp->1bpp");
 	    ret=0;
 	} else if(sdepth==1) {
-	    if(monobitcount=0) {
+	    if(monobitcount==0) {
 		monobitval=*((*srcdata)++);
 	    }
 	    if(src_little_endian) {

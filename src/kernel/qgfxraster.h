@@ -31,7 +31,6 @@
 #include "qpointarray.h"
 #include "qpolygonscanner.h"
 #include "qapplication.h"
-#include "sys/io.h"
 #include "qregion.h"
 #endif // QT_H
 
