@@ -139,30 +139,30 @@ class Q_GUI_EXPORT QVariant : public QCoreVariant
 
 #ifdef QT_COMPAT
     QIcon toIconSet() const;
-    inline QT_COMPAT QFont& asFont() { return *static_cast<QFont *>(castOrDetach(Font)); }
-    inline QT_COMPAT QImage& asImage() { return *static_cast<QImage *>(castOrDetach(Image)); }
-    inline QT_COMPAT QBrush& asBrush() { return *static_cast<QBrush *>(castOrDetach(Brush)); }
-    inline QT_COMPAT QColor& asColor() { return *static_cast<QColor *>(castOrDetach(Color)); }
+    inline QT_COMPAT QFont& asFont() { return *reinterpret_cast<QFont *>(castOrDetach(Font)); }
+    inline QT_COMPAT QImage& asImage() { return *reinterpret_cast<QImage *>(castOrDetach(Image)); }
+    inline QT_COMPAT QBrush& asBrush() { return *reinterpret_cast<QBrush *>(castOrDetach(Brush)); }
+    inline QT_COMPAT QColor& asColor() { return *reinterpret_cast<QColor *>(castOrDetach(Color)); }
 #ifndef QT_NO_PALETTE
-    inline QT_COMPAT QPalette& asPalette() { return *static_cast<QPalette *>(castOrDetach(Palette)); }
-    inline QT_COMPAT QColorGroup& asColorGroup() { return *static_cast<QColorGroup *>(castOrDetach(ColorGroup)); }
+    inline QT_COMPAT QPalette& asPalette() { return *reinterpret_cast<QPalette *>(castOrDetach(Palette)); }
+    inline QT_COMPAT QColorGroup& asColorGroup() { return *reinterpret_cast<QColorGroup *>(castOrDetach(ColorGroup)); }
 #endif // QT_NO_PALETTE
 #ifndef QT_NO_ICON
-    inline QT_COMPAT QIcon &asIconSet() { return *static_cast<QIcon *>(castOrDetach(IconSet)); }
+    inline QT_COMPAT QIcon &asIconSet() { return *reinterpret_cast<QIcon *>(castOrDetach(IconSet)); }
 #endif
-    inline QT_COMPAT QPointArray& asPointArray() { return *static_cast<QPointArray *>(castOrDetach(PointArray)); }
-    inline QT_COMPAT QBitmap& asBitmap() { return *static_cast<QBitmap *>(castOrDetach(Bitmap)); }
-    inline QT_COMPAT QRegion& asRegion() { return *static_cast<QRegion *>(castOrDetach(Region)); }
+    inline QT_COMPAT QPointArray& asPointArray() { return *reinterpret_cast<QPointArray *>(castOrDetach(PointArray)); }
+    inline QT_COMPAT QBitmap& asBitmap() { return *reinterpret_cast<QBitmap *>(castOrDetach(Bitmap)); }
+    inline QT_COMPAT QRegion& asRegion() { return *reinterpret_cast<QRegion *>(castOrDetach(Region)); }
 #ifndef QT_NO_CURSOR
-    inline QT_COMPAT QCursor& asCursor() { return *static_cast<QCursor *>(castOrDetach(Cursor)); }
+    inline QT_COMPAT QCursor& asCursor() { return *reinterpret_cast<QCursor *>(castOrDetach(Cursor)); }
 #endif
 #ifndef QT_NO_ACCEL
-    inline QT_COMPAT QKeySequence& asKeySequence() { return *static_cast<QKeySequence *>(castOrDetach(KeySequence)); }
+    inline QT_COMPAT QKeySequence& asKeySequence() { return *reinterpret_cast<QKeySequence *>(castOrDetach(KeySequence)); }
 #endif
-    inline QT_COMPAT QPen& asPen() { return *static_cast<QPen *>(castOrDetach(Pen)); }
+    inline QT_COMPAT QPen& asPen() { return *reinterpret_cast<QPen *>(castOrDetach(Pen)); }
     inline QT_COMPAT QSizePolicy& asSizePolicy()
-        { return *static_cast<QSizePolicy *>(castOrDetach(SizePolicy)); }
-    inline QT_COMPAT QPixmap& asPixmap() { return *static_cast<QPixmap *>(castOrDetach(Pixmap)); }
+        { return *reinterpret_cast<QSizePolicy *>(castOrDetach(SizePolicy)); }
+    inline QT_COMPAT QPixmap& asPixmap() { return *reinterpret_cast<QPixmap *>(castOrDetach(Pixmap)); }
 #endif //QT_COMPAT
 
 protected:

@@ -201,7 +201,7 @@ class Q_CORE_EXPORT QCoreVariant
 #ifdef QT_COMPAT
     QT_COMPAT_CONSTRUCTOR QCoreVariant(bool, int);
     inline QT_COMPAT const QByteArray toCString() const { return toByteArray(); }
-    inline QT_COMPAT QByteArray &asCString() { return *static_cast<QByteArray *>(castOrDetach(ByteArray)); }
+    inline QT_COMPAT QByteArray &asCString() { return *reinterpret_cast<QByteArray *>(castOrDetach(ByteArray)); }
 #endif
 
     void *data();
@@ -283,7 +283,7 @@ bool qVariantGet(const QCoreVariant &v, T &t, const char *typeName)
 {
     if (qstrcmp(v.typeName(), typeName) != 0)
         return false;
-    t = *static_cast<const T *>(v.constData());
+    t = *reinterpret_cast<const T *>(v.constData());
     return true;
 }
 
@@ -295,43 +295,43 @@ inline bool QCoreVariant::isValid() const { return d.type != Invalid; }
 
 #ifdef QT_COMPAT
 inline int &QCoreVariant::asInt()
-{ return *static_cast<int *>(castOrDetach(Int)); }
+{ return *reinterpret_cast<int *>(castOrDetach(Int)); }
 inline uint &QCoreVariant::asUInt()
-{ return *static_cast<uint *>(castOrDetach(UInt)); }
+{ return *reinterpret_cast<uint *>(castOrDetach(UInt)); }
 inline Q_LONGLONG &QCoreVariant::asLongLong()
-{ return *static_cast<Q_LONGLONG *>(castOrDetach(LongLong)); }
+{ return *reinterpret_cast<Q_LONGLONG *>(castOrDetach(LongLong)); }
 inline Q_ULONGLONG &QCoreVariant::asULongLong()
-{ return *static_cast<Q_ULONGLONG *>(castOrDetach(ULongLong)); }
+{ return *reinterpret_cast<Q_ULONGLONG *>(castOrDetach(ULongLong)); }
 inline bool &QCoreVariant::asBool()
-{ return *static_cast<bool *>(castOrDetach(Bool)); }
+{ return *reinterpret_cast<bool *>(castOrDetach(Bool)); }
 inline double &QCoreVariant::asDouble()
-{ return *static_cast<double *>(castOrDetach(Double)); }
+{ return *reinterpret_cast<double *>(castOrDetach(Double)); }
 inline QByteArray& QCoreVariant::asByteArray()
-{ return *static_cast<QByteArray *>(castOrDetach(ByteArray)); }
+{ return *reinterpret_cast<QByteArray *>(castOrDetach(ByteArray)); }
 inline QBitArray& QCoreVariant::asBitArray()
-{ return *static_cast<QBitArray *>(castOrDetach(BitArray)); }
+{ return *reinterpret_cast<QBitArray *>(castOrDetach(BitArray)); }
 inline QString& QCoreVariant::asString()
-{ return *static_cast<QString *>(castOrDetach(String)); }
+{ return *reinterpret_cast<QString *>(castOrDetach(String)); }
 inline QStringList& QCoreVariant::asStringList()
-{ return *static_cast<QStringList *>(castOrDetach(StringList)); }
+{ return *reinterpret_cast<QStringList *>(castOrDetach(StringList)); }
 inline QDate& QCoreVariant::asDate()
-{ return *static_cast<QDate *>(castOrDetach(Date)); }
+{ return *reinterpret_cast<QDate *>(castOrDetach(Date)); }
 inline QTime& QCoreVariant::asTime()
-{ return *static_cast<QTime *>(castOrDetach(Time)); }
+{ return *reinterpret_cast<QTime *>(castOrDetach(Time)); }
 inline QDateTime& QCoreVariant::asDateTime()
-{ return *static_cast<QDateTime *>(castOrDetach(DateTime)); }
+{ return *reinterpret_cast<QDateTime *>(castOrDetach(DateTime)); }
 #ifndef QT_NO_TEMPLATE_VARIANT
 inline QList<QCoreVariant>& QCoreVariant::asList()
-{ return *static_cast<QList<QCoreVariant> *>(castOrDetach(List)); }
+{ return *reinterpret_cast<QList<QCoreVariant> *>(castOrDetach(List)); }
 inline QMap<QString, QCoreVariant>& QCoreVariant::asMap()
-{ return *static_cast<QMap<QString, QCoreVariant> *>(castOrDetach(Map)); }
+{ return *reinterpret_cast<QMap<QString, QCoreVariant> *>(castOrDetach(Map)); }
 #endif
 inline QPoint &QCoreVariant::asPoint()
-{ return *static_cast<QPoint *>(castOrDetach(Point)); }
+{ return *reinterpret_cast<QPoint *>(castOrDetach(Point)); }
 inline QRect &QCoreVariant::asRect()
-{ return *static_cast<QRect *>(castOrDetach(Rect)); }
+{ return *reinterpret_cast<QRect *>(castOrDetach(Rect)); }
 inline QSize &QCoreVariant::asSize()
-{ return *static_cast<QSize *>(castOrDetach(Size)); }
+{ return *reinterpret_cast<QSize *>(castOrDetach(Size)); }
 #endif //QT_COMPAT
 
 #ifndef QT_NO_DATASTREAM
