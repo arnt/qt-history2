@@ -474,24 +474,6 @@ void show_children( QWidget * w, int show )
     }
 }
 
-
-
-void redraw_children(QWidget * w)
-{
-  //FIXME this erase blanks the window when it is resized smaller
-  w->erase( 0, 0, w->width(), w->height()); 
-  const QObjectList *child = w->children();
-  if ( child ) {
-    QObjectListIt it( *child );
-    QObject *sibling = it.toLast();
-    do {
-      if ( sibling->isWidgetType())
-	redraw_children( (QWidget *)sibling );
-      sibling = --it;
-    } while ( sibling !=0 );
-  }
-}
-
 /*!
   Sets the window-system background of the widget to nothing.
 

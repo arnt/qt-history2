@@ -229,6 +229,11 @@ void qt_init( int* /* argcptr */, char **argv, QApplication::Type )
     if ( qt_is_gui_used ) {
         qApp->setName( appName );   
     }
+
+    //my desktop hacks, trying to figure out how to get a desktop, this doesn't work
+    //but I'm going to leave it for now so I can test some more FIXME!!!
+    WindowRef foo = GetFrontWindowOfClass(kDesktopWindowClass, TRUE);
+    qDebug("Found something: %d", foo);
 }
 
 
@@ -505,7 +510,7 @@ static QWidget *recursive_match(QWidget *widg, int x, int y)
 {
     // Keep looking until we find ourselves in a widget with no kiddies
     // where the x,y is
-    if(!widg)
+    if(!widg) 
 	return 0;
 
     const QObjectList *objl=widg->children();
@@ -1317,10 +1322,12 @@ int QApplication::macProcessEvent(MSG * m)
 	short part = FindWindow( er->where, &wp );
 	if( part == inContent ) {
 	    if( mac_mouse_grabber ) {
-		widget = mac_mouse_grabber;
+		SetPortWindowPort((WindowPtr)mac_mouse_grabber->handle());
+		Point p = er->where;
+		GlobalToLocal( &p ); //now map it to the window
+		widget = recursive_match(mac_mouse_grabber, p.h, p.v);
 	    } else {
-		Point pp2 = er->where;
-		widget = QApplication::widgetAt( pp2.h, pp2.v, true );
+		widget = QApplication::widgetAt( er->where.h, er->where.v, true );
 	    }
 	    qt_button_down = widget;
 	    if ( widget ) {
@@ -1338,6 +1345,7 @@ int QApplication::macProcessEvent(MSG * m)
 		mouse_button_state = QMouseEvent::LeftButton; //FIXME
 		QMouseEvent qme( QEvent::MouseButtonPress, plocal, p, mouse_button_state, 0);
 		QApplication::sendEvent( widget, &qme );
+//		qDebug("Would send event to %s %s", widget->name(), widget->className());
 	    }
 	}
 	else do_mouse_down( er ); //do resize/move stuff
@@ -1345,10 +1353,12 @@ int QApplication::macProcessEvent(MSG * m)
 	short part = FindWindow( er->where, &wp );
 	if( part == inContent ) {
 	    if( mac_mouse_grabber ) {
-		widget = mac_mouse_grabber;
+		SetPortWindowPort((WindowPtr)mac_mouse_grabber->handle());
+		Point p = er->where;
+		GlobalToLocal( &p ); //now map it to the window
+		widget = recursive_match(mac_mouse_grabber, p.h, p.v);
 	    } else {
-		Point pp2 = er->where;
-		widget = QApplication::widgetAt( pp2.h, pp2.v, true );
+		widget = QApplication::widgetAt( er->where.h, er->where.v, true );
 	    }
 	    qt_button_down = NULL;
 	    if ( widget ) {
@@ -1398,7 +1408,10 @@ int QApplication::macProcessEvent(MSG * m)
 		if(qt_button_down) {
 		    widget = qt_button_down;
 		} else if( mac_mouse_grabber ) {
-		    widget = mac_mouse_grabber;
+		    SetPortWindowPort((WindowPtr)mac_mouse_grabber->handle());
+		    Point p = er->where;
+		    GlobalToLocal( &p ); //now map it to the window
+		    widget = recursive_match(mac_mouse_grabber, p.h, p.v);
 		} else {
 		    Point pp2 = er->where;
 		    widget = QApplication::widgetAt( pp2.h, pp2.v, true );
@@ -1520,7 +1533,7 @@ void QApplication::openPopup( QWidget *popup )
 	(*activeBeforePopup) = active_window;
     }
     popupWidgets->append( popup );		// add to end of list
-    if ( popupWidgets->count() == 1 ){ // grab mouse/keyboard
+    if (popupWidgets->count() == 1 ){ // grab mouse/keyboard
 	popup->topLevelWidget()->grabMouse();
 	popupGrabOk = TRUE;
 	// XXX grab keyboard
