@@ -1,7 +1,5 @@
 #
-# $Id: tmake.conf,v 1.15 1999/07/28 15:21:51 hanord Exp $
-#
-# tmake configuration for netbsd-g++
+# qmake configuration for netbsd-g++
 #
 
 MAKEFILE_GENERATOR      = UNIX

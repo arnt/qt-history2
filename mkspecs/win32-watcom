@@ -1,7 +1,5 @@
 #
-# $Id: tmake.conf,v 1.17 1999/07/28 15:22:10 hanord Exp $
-#
-# tmake configuration for Win32/Watcom C++
+# qmake configuration for Win32/Watcom C++
 #
 
 TEMPLATE		= app
@@ -50,7 +48,7 @@ QMAKE_LIBS_QT_DLL	= %QTDIR%\lib\qtmain.lib
 
 QMAKE_LIBS_OPENGL	= opengl32.lib
 
-QMAKE_MOC		= moc
+QMAKE_MOC		= $(QTDIR)/bin/moc
 
 QMAKE_LIB		= wlib -b -c -n -q -p=512
 QMAKE_RC		= rc

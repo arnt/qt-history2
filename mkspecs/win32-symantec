@@ -1,7 +1,5 @@
 #
-# $Id: tmake.conf,v 1.19 1999/07/28 15:22:08 hanord Exp $
-#
-# tmake configuration for Win32/Symantec C++
+# qmake configuration for Win32/Symantec C++
 #
 
 TEMPLATE		= app
@@ -52,7 +50,7 @@ QMAKE_LIBS_QT_DLL	= $(QTDIR)\lib\qtmain.lib
 
 QMAKE_LIBS_OPENGL	= opengl32.lib
 
-QMAKE_MOC		= moc
+QMAKE_MOC		= $(QTDIR)/bin/moc
 
 QMAKE_LIB		= lib /C /N /NOI /P:32
 QMAKE_RC		= rc

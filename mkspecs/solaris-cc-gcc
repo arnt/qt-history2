@@ -1,7 +1,5 @@
 #
-# $Id: tmake.conf,v 1.6 1999/09/22 13:11:07 hanord Exp $
-#
-# tmake configuration for solaris-cc-gcc
+# qmake configuration for solaris-cc-gcc
 # (Using SunPro CC for C++ code and gcc for C code.)
 #
 

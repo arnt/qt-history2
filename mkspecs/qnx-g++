@@ -1,7 +1,5 @@
 #
-# $Id: tmake.conf,v 1.7 1999/07/28 15:21:54 hanord Exp $
-#
-# tmake configuration for qnx-g++
+# qmake configuration for qnx-g++
 #
 
 MAKEFILE_GENERATOR      = UNIX

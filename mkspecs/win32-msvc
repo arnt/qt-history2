@@ -1,7 +1,5 @@
 #
-# $Id: tmake.conf,v 1.31 1999/11/24 15:30:39 hanord Exp $
-#
-# tmake configuration for Win32/Microsoft C++
+# qmake configuration for Win32/Microsoft C++
 #
 
 MAKEFILE_GENERATOR      = MSVC

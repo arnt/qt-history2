@@ -28,9 +28,9 @@ internal {
 ##########################################################
 
 # mac hac fu
-macfu {
+macx {
      #we always use these
-     CONFIG += macx tools kernel widgets dialogs iconview workspace \
+     CONFIG += tools kernel widgets dialogs iconview workspace \
                network canvas table xml zlib png
      #never
      CONFIG -= nas mng jpeg x11 x11sm

@@ -128,7 +128,7 @@ kernel {
 			  $$KERNEL_CPP/qwidgetcreate_x11.cpp
 	}
 
-        unix:macx {
+        macx {
 	      SOURCES += $$KERNEL_CPP/qapplication_mac.cpp \
 		          $$KERNEL_CPP/qclipboard_mac.cpp \
 			  $$KERNEL_CPP/qcolor_mac.cpp \

@@ -1,7 +1,5 @@
 #
-# $Id: tmake.conf,v 1.15 1999/07/28 15:21:59 hanord Exp $
-#
-# tmake configuration for sunos-g++
+# qmake configuration for sunos-g++
 #
 
 MAKEFILE_GENERATOR      = UNIX

@@ -1,7 +1,5 @@
 #
-# $Id: tmake.conf,v 1.17 1999/07/28 15:22:05 hanord Exp $
-#
-# tmake configuration for Win32/g++ (Cygnus gnu-win32)
+# qmake configuration for Win32/g++ (Cygnus gnu-win32)
 #
 
 MAKEFILE_GENERATOR      = UNIX
@@ -53,7 +51,7 @@ QMAKE_LIBS_QT_DLL	= -lqtmain
 
 QMAKE_LIBS_OPENGL	= -lopengl32
 
-QMAKE_MOC		= moc
+QMAKE_MOC		= $(QTDIR)/bin/moc
 
 QMAKE_AR		= ar cqs
 QMAKE_RANLIB		=

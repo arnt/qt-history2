@@ -1,7 +1,5 @@
 #
-# $Id: tmake.conf,v 1.20 1999/07/28 15:21:58 hanord Exp $
-#
-# tmake configuration for solaris-g++
+# qmake configuration for solaris-g++
 #
 
 MAKEFILE_GENERATOR      = UNIX

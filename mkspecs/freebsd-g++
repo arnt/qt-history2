@@ -1,7 +1,5 @@
 #
-# $Id: tmake.conf,v 1.17 1999/07/28 15:21:38 hanord Exp $
-#
-# tmake configuration for freebsd-g++
+# qmake configuration for freebsd-g++
 #
 
 MAKEFILE_GENERATOR      = UNIX

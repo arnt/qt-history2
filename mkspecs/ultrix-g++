@@ -1,7 +1,5 @@
 #
-# $Id: tmake.conf,v 1.14 1999/07/28 15:22:00 hanord Exp $
-#
-# tmake configuration for ultrix-g++
+# qmake configuration for ultrix-g++
 #
 
 MAKEFILE_GENERATOR      = UNIX

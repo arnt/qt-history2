@@ -1,7 +1,5 @@
 #
-# $Id: tmake.conf,v 1.18 1999/07/28 15:21:45 hanord Exp $
-#
-# tmake configuration for irix-dcc
+# qmake configuration for irix-dcc
 #
 
 MAKEFILE_GENERATOR      = UNIX

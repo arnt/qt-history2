@@ -1,7 +1,5 @@
 #
-# $Id: tmake.conf,v 1.16 1999/07/28 15:21:46 hanord Exp $
-#
-# tmake configuration for irix-g++
+# qmake configuration for irix-g++
 #
 
 MAKEFILE_GENERATOR      = UNIX
