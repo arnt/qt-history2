@@ -587,15 +587,16 @@ void QDialog::show()
 /*! \reimp */
 void QDialog::hide()
 {
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+    if ( isVisible() )
+	emit accessibilityChanged( QAccessible::DialogEnd );
+#endif
     // Reimplemented to exit a modal when the dialog is hidden.
     QWidget::hide();
     if ( in_loop ) {
 	in_loop = FALSE;
 	qApp->exit_loop();
     }
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-    emit accessibilityChanged( QAccessible::DialogEnd );
-#endif
 }
 
 
