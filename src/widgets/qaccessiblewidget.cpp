@@ -178,11 +178,9 @@ QAccessibleInterface *QAccessibleWidget::child( int who ) const
 */
 QAccessibleInterface *QAccessibleWidget::parent() const
 {
-    QObject *o = object()->parent();
-
-    if ( !o )
-	o = QApplication::desktop();
-    return QAccessible::accessibleInterface( o );
+    QWidget *w = (QWidget*)object();
+    w = w->parentWidget();
+    return QAccessible::accessibleInterface( w );
 }
 
 /*!
@@ -319,7 +317,7 @@ QAccessible::State	QAccessibleWidget::state( int who ) const
     QWidget *widget = (QWidget*)object();
     if ( widget->isHidden() )
 	state |= Invisible;
-    if ( widget->focusPolicy() != QWidget::NoFocus )
+    if ( widget->focusPolicy() != QWidget::NoFocus && widget->isActiveWindow() )
 	state |= Focusable;
     if ( widget->hasFocus() )
 	state |= Focused;
@@ -538,6 +536,24 @@ QString QAccessibleText::value( int who ) const
     }
 
     return v;
+}
+
+QAccessible::State QAccessibleText::state( int who ) const
+{
+    int state = QAccessibleWidget::state( who );
+    
+    if ( object()->inherits( "QLineEdit" ) ) {
+	QLineEdit *l = (QLineEdit*)object();
+	if ( l->isReadOnly() )
+	    state |= ReadOnly;
+	if ( l->echoMode() == QLineEdit::Password )
+	    state |= Protected;
+	state |= Selectable;
+	if ( l->hasSelectedText() )
+	    state |= Selected;
+    }
+
+    return (State)state;
 }
 
 /*!

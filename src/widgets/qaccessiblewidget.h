@@ -77,6 +77,7 @@ public:
 	QString defAction = QString::null, QString accelerator = QString::null );
 
     QString value( int who ) const;
+    State state( int who ) const;
 };
 
 class Q_EXPORT QAccessibleDisplay : public QAccessibleWidget
