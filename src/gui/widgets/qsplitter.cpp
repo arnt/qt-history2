@@ -46,8 +46,7 @@ class QSplitterHandle : public QWidget
 {
     Q_OBJECT
 public:
-    QSplitterHandle(Orientation o,
-                     QSplitter *parent, const char* name=0);
+    QSplitterHandle(Orientation o, QSplitter *parent, const char* name=0);
     void setOrientation(Orientation o);
     Orientation orientation() const { return orient; }
 
@@ -157,12 +156,9 @@ public:
     uint isHandle : 1;
     uint collapsed : 1;
     uint collapsible : 2;
-    uint resizeMode : 2;
     QWidget *wid;
 
-    QSplitterLayoutStruct()
-        : sizer(-1), isHandle(false), collapsed(false), collapsible(Default),
-          resizeMode(QSplitter::Auto) { }
+    QSplitterLayoutStruct() : sizer(-1), isHandle(false), collapsed(false), collapsible(Default) {}
     QCOORD getSizer(Orientation orient);
     QCOORD pick(const QSize &size, Orientation orient)
     { return (orient == Horizontal) ? size.width() : size.height(); }
@@ -180,9 +176,9 @@ QCOORD QSplitterLayoutStruct::getSizer(Orientation orient)
             sizer = presizer;
         }
         QSizePolicy p = wid->sizePolicy();
-        int sizePolicyStretch = (orient == Horizontal) ? p.horStretch() : p.verStretch();
-        if (sizePolicyStretch > 1)
-            sizer *= sizePolicyStretch;
+        int sf = (orient == Horizontal) ? p.horStretch() : p.verStretch();
+        if (sf > 1)
+            sizer *= sf;
     }
     return sizer;
 }
@@ -384,6 +380,62 @@ QSplitterLayoutStruct *QSplitter::findWidget(QWidget *w)
     return addWidget(w);
 }
 
+#ifdef QT_COMPAT
+static void setStretch(QWidget *w, int sf)
+{
+    QSizePolicy sp = w->sizePolicy();
+    sp.setHorStretch(sf);
+    sp.setVerStretch(sf);
+    w->setSizePolicy(sp);
+}
+
+static int getStretch(const QWidget *w)
+{
+    QSizePolicy sp = w->sizePolicy();
+    return qMax(sp.horStretch(), sp.verStretch());
+}
+
+/*
+    This function tries to simulate the Qt 3.x ResizeMode behavior using
+    QSizePolicy stretch factors. This isn't so easy, because the default
+    ResizeMode was Stretch, not KeepSize, whereas the default stetch factor is
+    0.
+
+    So what we do is this: When the user calls setResizeMode() the first time,
+    we iterate through all the child widgets and set their stretch factors to
+    1. Later on, if children are added (using addWidget()), their stretch
+    factors are also set to 1.
+
+    There is just one problem left: Often, setResizeMode() is called *before*
+    addWidget(), because addWidget() is called from the event loop. In that
+    case, we use a special value, 243, instead of 0 to prevent 0 from being
+    overwritten with 1 in addWidget(). This is a evil hack, but fortunately it
+    only occurs as a result of calling a QT_COMPAT function.
+*/
+void QSplitter::setResizeMode(QWidget *w, ResizeMode mode)
+{
+    bool metWidget = false;
+    if (!d->compatMode) {
+        d->compatMode = true;
+        for (int i = 0; i < d->list.size(); ++i) {
+            QSplitterLayoutStruct *s = d->list.at(i);
+            if (s->isHandle)
+                continue;
+            if (s->wid == w)
+                metWidget = true;
+            if (getStretch(s->wid) == 0)
+                setStretch(s->wid, 1);
+        }
+    }
+    int sf;
+    if (mode == KeepSize)
+        sf = metWidget ? 0 : 243;
+    else
+        sf = 1;
+    setStretch(w, sf);
+}
+#endif
+
 /*
     Inserts the widget \a w at the end (or at the beginning if \a
     prepend is true) of the splitter's list of widgets.
@@ -399,7 +451,6 @@ QSplitterLayoutStruct *QSplitter::addWidget(QWidget *w, bool prepend)
     QSplitterHandle *newHandle = 0;
     if (d->list.count() > 0) {
         s = new QSplitterLayoutStruct;
-        s->resizeMode = KeepSize;
         QString tmp = QLatin1String("qt_splithandle_");
         tmp += w->objectName();
         newHandle = new QSplitterHandle(orientation(), this);
@@ -414,7 +465,6 @@ QSplitterLayoutStruct *QSplitter::addWidget(QWidget *w, bool prepend)
             d->list.append(s);
     }
     s = new QSplitterLayoutStruct;
-    s->resizeMode = DefaultResizeMode;
     s->wid = w;
     s->isHandle = false;
     if (prepend)
@@ -423,6 +473,16 @@ QSplitterLayoutStruct *QSplitter::addWidget(QWidget *w, bool prepend)
         d->list.append(s);
     if (newHandle && isVisible())
         newHandle->show(); // will trigger sending of post events
+
+#ifdef QT_COMPAT
+    if (d->compatMode) {
+        int sf = getStretch(s->wid);
+        if (sf == 243)
+            setStretch(s->wid, 0);
+        else if (sf == 0)
+            setStretch(s->wid, 1);
+    }
+#endif
     return s;
 }
 
@@ -791,62 +851,30 @@ void QSplitter::doResize()
     QRect r = contentsRect();
     int n = d->list.count();
     QVector<QLayoutStruct> a(n);
-    int numAutoWithStretch = 0;
-    int numAutoWithoutStretch = 0;
     int i;
 
-    for (int pass = 0; pass < 2; pass++) {
-        for (i = 0; i < n; ++i) {
-            a[i].init();
-            QSplitterLayoutStruct *s = d->list.at(i);
-            if (s->wid->isHidden() || s->collapsed) {
-                a[i].maximumSize = 0;
-            } else if (s->isHandle) {
-                a[i].sizeHint = a[i].minimumSize = a[i].maximumSize = s->sizer;
-                a[i].empty = false;
+    for (i = 0; i < n; ++i) {
+        a[i].init();
+        QSplitterLayoutStruct *s = d->list.at(i);
+        if (s->wid->isHidden() || s->collapsed) {
+            a[i].maximumSize = 0;
+        } else if (s->isHandle) {
+            a[i].sizeHint = a[i].minimumSize = a[i].maximumSize = s->sizer;
+            a[i].empty = false;
+        } else {
+            a[i].minimumSize = d->pick(verySmartMinSize(s->wid));
+            a[i].maximumSize = d->pick(s->wid->maximumSize());
+            a[i].empty = false;
+
+            QSizePolicy p = s->wid->sizePolicy();
+            int sf = d->orient == Horizontal ? p.horStretch() : p.verStretch();
+            if (sf > 0) {
+                a[i].stretch = s->getSizer(d->orient);
+                a[i].sizeHint = a[i].minimumSize;
             } else {
-                int mode = s->resizeMode;
-
-                if (mode == DefaultResizeMode) {
-                    QSizePolicy p = s->wid->sizePolicy();
-                    int sizePolicyStretch =
-                            d->pick(QSize(p.horStretch(), p.verStretch()));
-                    if (sizePolicyStretch > 0) {
-                        mode = Stretch;
-                        ++numAutoWithStretch;
-                    } else {
-                        /*
-                          Do things differently on the second pass,
-                          if there's one. A second pass is necessary
-                          if it was found out during the first pass
-                          that all DefaultResizeMode items are
-                          KeepSize items. In that case, we make them
-                          all Stretch items instead, for a more Qt
-                          3.0-compatible behavior.
-                        */
-                        mode = (pass == 0) ? KeepSize : Stretch;
-                        ++numAutoWithoutStretch;
-                    }
-                }
-
-                a[i].minimumSize = d->pick(verySmartMinSize(s->wid));
-                a[i].maximumSize = d->pick(s->wid->maximumSize());
-                a[i].empty = false;
-
-                if (mode == Stretch) {
-                    a[i].stretch = s->getSizer(d->orient);
-                    a[i].sizeHint = a[i].minimumSize;
-                } else if (mode == KeepSize) {
-                    a[i].sizeHint = s->getSizer(d->orient);
-                } else { // mode == FollowSizeHint
-                    a[i].sizeHint = d->pick(s->wid->sizeHint());
-                }
+                a[i].sizeHint = s->getSizer(d->orient);
             }
         }
-
-        // a second pass would yield the same results
-        if (numAutoWithStretch > 0 || numAutoWithoutStretch == 0)
-            break;
     }
 
     Q_LLONG total = 0;
@@ -946,35 +974,6 @@ void QSplitter::recalc(bool update)
         doResize();
     else
         d->firstShow = true;
-}
-
-/*!
-    \enum QSplitter::ResizeMode
-
-    This enum type describes how QSplitter will resize each of its
-    child widgets.
-
-    \value Auto  The widget will be resized according to the stretch
-    factors set in its sizePolicy().
-
-    \value Stretch  The widget will be resized when the splitter
-    itself is resized.
-
-    \value KeepSize  QSplitter will try to keep the widget's size
-    unchanged.
-
-    \value FollowSizeHint  QSplitter will resize the widget when the
-    widget's size hint changes.
-*/
-
-/*!
-    Sets resize mode of widget \a w to \a mode. (The default is \c
-    Auto.)
-*/
-
-void QSplitter::setResizeMode(QWidget *w, ResizeMode mode)
-{
-    findWidget(w)->resizeMode = mode;
 }
 
 

@@ -424,3 +424,11 @@ of replacing the existing one.
 
 QSqlRecord::isGenerated() and QSqlRecord::setGenerated() are obsolete now, just set an empty
 invalid QVariant as value if you don't want to modify the column in the database.
+
+\section1 QSplitter
+
+The function setResizeMode() has been moved into compat. Set the stretch factor
+in the widget's size policy to get equivalent functionality.
+
+The obsolete function drawSplitter() has been removed. Use
+QStyle::drawPrimitive() to acheive similar functionality.

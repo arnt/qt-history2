@@ -8,7 +8,7 @@ class QSplitterPrivate : public QFramePrivate
     Q_DECLARE_PUBLIC(QSplitter)
 public:
     QSplitterPrivate() : rubber(0), opaque(false), firstShow(true),
-                         childrenCollapsible(true), handleWidth(0) { }
+                         childrenCollapsible(true), compatMode(false), handleWidth(0) {}
 
     QPointer<QRubberBand> rubber;
     mutable QList<QSplitterLayoutStruct *> list;
@@ -16,6 +16,7 @@ public:
     bool opaque : 8;
     bool firstShow : 8;
     bool childrenCollapsible : 8;
+    bool compatMode : 8;
     int handleWidth;
 
     inline QCOORD pick(const QPoint &p) const

@@ -17,6 +17,7 @@
 
 #ifndef QT_H
 #include "qframe.h"
+#include "qsizepolicy.h"
 #endif // QT_H
 
 #ifndef QT_NO_SPLITTER
@@ -37,24 +38,18 @@ class Q_GUI_EXPORT QSplitter : public QFrame
     Q_PROPERTY(bool childrenCollapsible READ childrenCollapsible WRITE setChildrenCollapsible)
 
 public:
-    // ### Qt 4.0: remove Auto from public API
-    enum ResizeMode { Stretch, KeepSize, FollowSizeHint, Auto };
-
     QSplitter(QWidget* parent = 0, const char* name = 0);
     QSplitter(Orientation, QWidget* parent = 0, const char* name = 0);
     ~QSplitter();
 
-    virtual void setOrientation(Orientation);
+    void setOrientation(Orientation);
     Orientation orientation() const;
-
-    // ### Qt 4.0: make setChildrenCollapsible() and setCollapsible() virtual
 
     void setChildrenCollapsible(bool);
     bool childrenCollapsible() const;
 
     void setCollapsible(QWidget *w, bool);
-    virtual void setResizeMode(QWidget *w, ResizeMode);
-    virtual void setOpaqueResize(bool = true);
+    void setOpaqueResize(bool = true);
     bool opaqueResize() const;
 
     void moveToFirst(QWidget *);
@@ -69,6 +64,11 @@ public:
 
     int handleWidth() const;
     void setHandleWidth(int);
+
+#ifdef QT_COMPAT
+    enum ResizeMode { Stretch, KeepSize, FollowSizeHint, Auto };
+    QT_COMPAT void setResizeMode(QWidget *w, ResizeMode mode);
+#endif
 
 protected:
     void childEvent(QChildEvent *);
@@ -85,8 +85,6 @@ protected:
     void getRange(int id, int *, int *);
 
 private:
-    enum { DefaultResizeMode = 3 };
-
     void init();
     void recalc(bool update = false);
     void doResize();
