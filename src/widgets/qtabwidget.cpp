@@ -670,9 +670,19 @@ void QTabWidget::setUpLayout( bool onlyCheck )
 	return; // we'll do it later
     }
 
-    QSize t( d->tabs->sizeHint() );
-    int lcw = ( d->leftCornerWidget && d->leftCornerWidget->isVisible() ? t.height() : 0 );
-    int rcw = ( d->rightCornerWidget && d->rightCornerWidget->isVisible() ? t.height() : 0 );
+    QSize t = d->tabs->sizeHint();
+    int lcw = 0;
+    if ( d->leftCornerWidget && d->leftCornerWidget->isVisible()  ) {
+	lcw = d->leftCornerWidget->width();
+	if ( t.height() > lcw )
+	    lcw = t.height();
+     }
+    int rcw = 0;
+    if ( d->rightCornerWidget && d->rightCornerWidget->isVisible() ) {
+	rcw = d->rightCornerWidget->width();
+	if ( t.height() > rcw )
+	    rcw = t.height();
+    }
     int tw = width() - lcw - rcw;
     if ( t.width() > tw )
 	t.setWidth( tw );
@@ -723,15 +733,16 @@ void QTabWidget::setUpLayout( bool onlyCheck )
     if ( autoMask() )
 	updateMask();
 
+    // move cornerwidgets
     if ( d->leftCornerWidget ) {
 	int y = ( t.height() / 2 ) - ( d->leftCornerWidget->height() / 2 );
-	int x = ( reverse ?  width() - t.height() + y : y );
-         d->leftCornerWidget->move( x, y );
+	int x = ( reverse ? width() - lcw + y : y );
+	d->leftCornerWidget->move( x, y + taby );
     }
     if ( d->rightCornerWidget ) {
 	int y = ( t.height() / 2 ) - ( d->rightCornerWidget->height() / 2 );
-	int x = ( reverse ? y : width() - t.height() + y );
-	d->rightCornerWidget->move( x, y );
+	int x = ( reverse ? y : width() - rcw + y );
+	d->rightCornerWidget->move( x, y + taby );
     }
 }
 
