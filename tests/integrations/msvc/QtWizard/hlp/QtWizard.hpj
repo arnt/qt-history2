@@ -1,0 +1,13 @@
+[OPTIONS]
+TITLE=QTWIZARD AppWizard Help
+COMPRESS=true
+WARNING=2
+HLP=QtWizard.HLP
+ERRORLOG=QtWizard.LOG
+
+[FILES]
+QtWizard.rtf
+
+[MAP]
+#include <C:\Program Files\Microsoft Visual Studio\VC98\MFC\include\afxhelp.hm>
+#include <QtWizard.hm>
