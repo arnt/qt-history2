@@ -42,6 +42,7 @@
 
 #include <qwsdisplay_qws.h>
 #include <qwsproperty_qws.h>
+#include <qwsevent_qws.h>
 
 
 /*****************************************************************************
@@ -219,7 +220,15 @@ void QClipboard::connectNotify( const char * )
 
 bool QClipboard::event( QEvent *e )
 {
-    return QObject::event( e );
+    if ( e->type() != QEvent::Clipboard )
+	return QObject::event( e );
+
+    QWSPropertyNotifyEvent *event = (QWSPropertyNotifyEvent *)(((QCustomEvent *)e)->data());
+    if ( event->simpleData.state == QWSPropertyNotifyEvent::PropertyNewValue ) {
+	emit dataChanged();
+    }
+
+    return TRUE;
 }
 
 #ifndef QT_NO_MIMECLIPBOARD

@@ -765,6 +765,7 @@ void QWSDisplay::Data::waitForConnection()
 	    csocket->waitForMore(2000);
 	}
 	usleep( 50000 );
+	fillQueue();
     }
 #else
     if ( connected_event )
@@ -1909,7 +1910,13 @@ int QApplication::qwsProcessEvent( QWSEvent* event )
 	return 1;
 #ifndef QT_NO_QWS_PROPERTIES
     if ( event->type == QWSEvent::PropertyNotify ) {
-	//QWSPropertyNotifyEvent *e = (QWSPropertyNotifyEvent*)event;
+	QWSPropertyNotifyEvent *e = (QWSPropertyNotifyEvent*)event;
+	if ( e->simpleData.property == 424242 ) {       // Clipboard
+	    if ( qt_clipboard ) {
+		QCustomEvent e( QEvent::Clipboard, event );
+		QApplication::sendEvent( qt_clipboard, &e );
+	    }
+	}
     } else if ( event->type == QWSEvent::PropertyReply ) {
 	QWSPropertyReplyEvent *e = (QWSPropertyReplyEvent*)event;
 	int len = e->simpleData.len;
