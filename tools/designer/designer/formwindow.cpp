@@ -2285,8 +2285,9 @@ bool FormWindow::isDatabaseAware() const
     if ( QString(mContainer->className()) == "QDesignerDataBrowser" || QString(mContainer->className()) == "QDesignerDataView" )
 	return TRUE;
     return isDatabaseWidgetUsed();
-#endif
+#else
     return FALSE;
+#endif
 }
 
 void FormWindow::visibilityChanged()
