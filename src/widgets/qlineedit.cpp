@@ -1450,6 +1450,7 @@ void QLineEdit::home( bool mark )
 	d->selectionStart = d->cursor->index();
     }
     setMicroFocusHint( d->cursor->x() - d->offset, d->cursor->y(), 0, d->cursor->paragraph()->rect().height(), TRUE );
+    updateOffset();
     update();
 }
 
