@@ -69,7 +69,9 @@ SOURCES	+= command.cpp \
 		syntaxhighlighter_html.cpp \
 		connectionitems.cpp \
 		editfunctionsimpl.cpp \
-		variabledialogimpl.cpp
+		variabledialogimpl.cpp \
+		listviewdnd.cpp \
+		listviewitemdrag.cpp
 HEADERS	+= command.h \
 		defs.h \
 		formwindow.h \
@@ -128,7 +130,9 @@ HEADERS	+= command.h \
 		syntaxhighlighter_html.h \
 		connectionitems.h \
 		editfunctionsimpl.h \
-		variabledialogimpl.h
+		variabledialogimpl.h \
+		listviewdnd.h \
+		listviewitemdrag.h
 
 FORMS		+= listboxeditor.ui \
 		editfunctions.ui \
