@@ -748,31 +748,56 @@ void QFontDialog::sizeHighlighted( const QString &s )
 
 void QFontDialog::setFont( const QFont &f )
 {
+    enum match_t { MATCH_NONE=0, MATCH_LAST_RESORT=1, MATCH_DEFAULT=2, MATCH_FAMILY=3 };
     QString foundryName1, familyName1, foundryName2, familyName2;
     int bestFamilyMatch = -1;
+    match_t bestFamilyType = MATCH_NONE;
 
     QFontDatabase::parseFontName(f.family(), foundryName1, familyName1);
 
     QStringList::Iterator it;
     it = d->familyNames.begin();
     int i = 0;
-    for( ; it != d->familyNames.end() ; ++it ) {
+    for( ; it != d->familyNames.end() ; ++it, ++i ) {
 
 	QFontDatabase::parseFontName(*it, foundryName2, familyName2);
 
-	if (foundryName1 == foundryName2) {
-	    if (familyName1 == familyName2) {
-		d->familyList->setCurrentItem(i);
-		i = -1;
+	//try to match..
+	if (foundryName1 == foundryName2 && familyName1 == familyName2) {
+	    d->familyList->setCurrentItem(i);
+	    i = -1;
+	    break;
+	} 
+
+	//and try some fall backs
+	match_t type = MATCH_NONE;
+	switch(bestFamilyType) {
+	case MATCH_NONE:
+	    if(familyName2 == f.lastResortFamily()) {
+		type = MATCH_LAST_RESORT;
 		break;
 	    }
-	} else if (bestFamilyMatch == -1 && familyName1 == familyName2)
+	case MATCH_LAST_RESORT:
+	    if(familyName2 == f.defaultFamily()) {
+		type = MATCH_DEFAULT;
+		break;
+	    }
+	case MATCH_DEFAULT:
+	    if(familyName2 == familyName1) {
+		type = MATCH_FAMILY;
+		break;
+	    }
+	case MATCH_FAMILY: //already got the best
+	    break;
+	}
+	if(type != MATCH_NONE)
+	{
+	    bestFamilyType = type;
 	    bestFamilyMatch = i;
-
-	i++;
+	}
     }
 
-    if (i != -1 && bestFamilyMatch != -1)
+    if (i != -1 && bestFamilyType != MATCH_NONE)
 	d->familyList->setCurrentItem(bestFamilyMatch);
 
     QString styleString = d->fdb.styleString( f );

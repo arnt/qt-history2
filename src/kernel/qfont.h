@@ -252,6 +252,9 @@ public:
 	LastPrivateScript
     };
 
+    QString defaultFamily() const;
+    QString lastResortFamily() const;
+    QString lastResortFont() const;
 
 #ifndef QT_NO_COMPAT
 
@@ -264,10 +267,6 @@ public:
 protected:
     // why protected?
     bool dirty() const;
-
-    QString defaultFamily() const;
-    QString lastResortFamily() const;
-    QString lastResortFont() const;
     int deciPointSize() const;
 
 

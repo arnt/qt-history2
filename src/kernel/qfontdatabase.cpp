@@ -1263,6 +1263,8 @@ void QFontDatabase::createDatabase()
 	    static Str255 n;
 	    if(FMGetFontFamilyName(fam, n))
 		qDebug("Whoa! %s %d", __FILE__, __LINE__);
+	    if(!n[0] || n[1] == '.') //throw out ones starting with a .
+		continue;
 
 	    TextEncoding encoding;
 	    FMGetFontFamilyTextEncoding( fam, &encoding);
@@ -1276,9 +1278,9 @@ void QFontDatabase::createDatabase()
 	    for(unsigned long x = 0; x < len; x+=2)
 		fam_name += QChar(buff[x+1], buff[x]);
 
-	    QtFontFamily *family = foundry->familyDict.find( fam_name );
+	    QtFontFamily *family = foundry->familyDict.find( fam_name.lower() );
 	    if ( !family ) {
-		family = new QtFontFamily( foundry, fam_name );
+		family = new QtFontFamily( foundry, fam_name.lower() );
 		Q_CHECK_PTR(family);
 		foundry->addFamily( family );
 	    }
