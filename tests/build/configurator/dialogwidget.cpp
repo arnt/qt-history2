@@ -25,6 +25,7 @@ CDialogWidget::CDialogWidget( QWidget* pParent, const char* pName, WFlags f ) :
     QHBoxLayout* pTopLevelLayout;
     QVBox* pProjectSettingsBox;
     QHBox* pButtonBox;
+	QVBox* pProjectSettings2Box;
 
     QButtonGroup* pThreadGroup;
     QButtonGroup* pLibGroup;
@@ -44,38 +45,40 @@ CDialogWidget::CDialogWidget( QWidget* pParent, const char* pName, WFlags f ) :
 /*
 ** Create widgets and layouts
 */
-    pTopLevelLayout = new QHBoxLayout( this );
-    pConfigGroup = new QGroupBox( 1, Qt::Horizontal, "Available configurations", this );
-    m_pConfigView = new CConfigView( pConfigGroup );
-    pProjectSettingsBox = new QVBox( this);
-    pThreadGroup = new QButtonGroup( 1, Qt::Horizontal, "Threading options", pProjectSettingsBox );
-    pNonThreaded = new QRadioButton( "Non-threaded", pThreadGroup );
-    pThreaded = new QRadioButton( "Threaded", pThreadGroup );
-    pThreadGroup->insert( pNonThreaded, 0 );
-    pThreadGroup->insert( pThreaded, 1 );
-    pLibGroup = new QButtonGroup( 1, Qt::Horizontal, "Linkage options", pProjectSettingsBox );
-    pStaticLib = new QRadioButton( "Static library", pLibGroup );
-    pSharedLib = new QRadioButton( "Shared library", pLibGroup );
-    pLibGroup->insert( pStaticLib, 0 );
-    pLibGroup->insert( pSharedLib, 1 );
-    pOutputGroup = new QGroupBox( 2, Qt::Horizontal, "Output options", pProjectSettingsBox );
-    pOutNameLabel = new QLabel( "Output filename", pOutputGroup );
-    m_pOutNameEdit = new QLineEdit( "Makefile", pOutputGroup );
-    pPlatformLabel = new QLabel( "Platform", pOutputGroup );
-    m_pPlatform = new QComboBox( false, pOutputGroup );
-    FillPlatforms();
-    pCompilerLabel = new QLabel( "Compiler", pOutputGroup );
-    m_pCompiler = new QComboBox( false, pOutputGroup );
-    FillCompilers( m_pPlatform->currentText() );
-    pOptionsLabel = new QLabel( "Extra options", pOutputGroup );
-    m_pOptions = new QLineEdit( pOutputGroup );
-    pButtonBox = new QHBox( pProjectSettingsBox );
-    pGenerateButton = new QPushButton( "Generate", pButtonBox );
-    pCloseButton = new QPushButton( "Close", pButtonBox );
+	pTopLevelLayout = new QHBoxLayout( this );
+	pConfigGroup = new QGroupBox( 1, Qt::Horizontal, "Available configurations", this );
+	m_pConfigView = new CConfigView( pConfigGroup );
+	pProjectSettingsBox = new QVBox( this);
+	pProjectSettings2Box = new QVBox( this );
+	pThreadGroup = new QButtonGroup( 1, Qt::Horizontal, "Threading options", pProjectSettingsBox );
+	pNonThreaded = new QRadioButton( "Non-threaded", pThreadGroup );
+	pThreaded = new QRadioButton( "Threaded", pThreadGroup );
+	pThreadGroup->insert( pNonThreaded, 0 );
+	pThreadGroup->insert( pThreaded, 1 );
+	pLibGroup = new QButtonGroup( 1, Qt::Horizontal, "Linkage options", pProjectSettingsBox );
+	pStaticLib = new QRadioButton( "Static library", pLibGroup );
+	pSharedLib = new QRadioButton( "Shared library", pLibGroup );
+	pLibGroup->insert( pStaticLib, 0 );
+	pLibGroup->insert( pSharedLib, 1 );
+	pOutputGroup = new QGroupBox( 2, Qt::Horizontal, "Output options", pProjectSettingsBox );
+	pOutNameLabel = new QLabel( "Output filename", pOutputGroup );
+	m_pOutNameEdit = new QLineEdit( "Makefile", pOutputGroup );
+	pPlatformLabel = new QLabel( "Platform", pOutputGroup );
+	m_pPlatform = new QComboBox( false, pOutputGroup );
+	FillPlatforms();
+	pCompilerLabel = new QLabel( "Compiler", pOutputGroup );
+	m_pCompiler = new QComboBox( false, pOutputGroup );
+	FillCompilers( m_pPlatform->currentText() );
+	pOptionsLabel = new QLabel( "Extra options", pOutputGroup );
+	m_pOptions = new QLineEdit( pOutputGroup );
+	pButtonBox = new QHBox( pProjectSettingsBox );
+	pGenerateButton = new QPushButton( "Generate", pButtonBox );
+	pCloseButton = new QPushButton( "Close", pButtonBox );
 
-    pTopLevelLayout->setSpacing( 3 );
-    pTopLevelLayout->addWidget( pConfigGroup );
-    pTopLevelLayout->addWidget( pProjectSettingsBox );
+	pTopLevelLayout->setSpacing( 3 );
+	pTopLevelLayout->addWidget( pConfigGroup );
+	pTopLevelLayout->addWidget( pProjectSettingsBox );
+	pTopLevelLayout->addWidget( pProjectSettings2Box );
 	
 /*
 ** Set the initial default state
