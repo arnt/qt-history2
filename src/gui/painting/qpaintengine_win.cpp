@@ -1978,13 +1978,15 @@ static QPaintEngine::PaintEngineFeatures qt_decide_paintengine_features()
 #ifndef QT_NO_NATIVE_PATH
         | QPaintEngine::PainterPaths
 #endif
-
-#ifndef QT_NO_NATIVE_GRADIENT
-        | QPaintEngine::LinearGradients
-#endif
         ;
 
     int shadeCaps = GetDeviceCaps(qt_display_dc(), SHADEBLENDCAPS);
+
+#ifndef QT_NO_NATIVE_GRADIENT
+    if (shadeCaps & SB_GRAD_TRI)
+        commonFeatures |= QPaintEngine::LinearGradients;
+#endif
+
 #ifndef QT_NO_NATIVE_ALPHA
     if ((shadeCaps & SB_CONST_ALPHA) || qt_gdiplus_support)
         commonFeatures |= QPaintEngine::AlphaFill;
