@@ -5,7 +5,7 @@
 **
 ** Created : 940515
 **
-** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2003 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -478,10 +478,9 @@ QString QFont::rawName() const
     Description) form only. You can pass an XLFD as \a name to this
     function.
 
-    In Qt 2.0 and later, a font set with setRawName() is still a
-    full-featured QFont. It can be queried (for example with italic())
-    or modified (for example with setItalic()) and is therefore also
-    suitable for rendering rich text.
+    A font set with setRawName() is still a full-featured QFont. It can
+    be queried (for example with italic()) or modified (for example with
+    setItalic()) and is therefore also suitable for rendering rich text.
 
     If Qt's internal font database cannot resolve the raw name, the
     font becomes a raw font with \a name as its family.
