@@ -3909,7 +3909,8 @@ void QListBox::paintCell( QPainter * p, int row, int col )
     p->save();
     if ( i->s ) {
 	if ( i->custom_highlight ) {
-	    p->fillRect( 0, 0, cw, ch, backgroundBrush() );
+	    p->fillRect( 0, 0, cw, ch,
+			 g.brush( QPalette::backgroundRoleFromMode( viewport()->backgroundMode() ) ) );
 	    p->setPen( g.highlightedText() );
 	    p->setBackgroundColor( g.highlight() );
 	}
@@ -3920,12 +3921,14 @@ void QListBox::paintCell( QPainter * p, int row, int col )
 	} else {
 	    int iw = i->width( this );
 	    p->fillRect( 0, 0, iw, ch, g.brush( QColorGroup::Highlight ) );
-	    p->fillRect( iw, 0, cw - iw + 1, ch, backgroundBrush() );
+	    p->fillRect( iw, 0, cw - iw + 1, ch,
+			 g.brush( QPalette::backgroundRoleFromMode( viewport()->backgroundMode() ) ) );
 	    p->setPen( g.highlightedText() );
 	    p->setBackgroundColor( g.highlight() );
 	}
     } else {
-	p->fillRect( 0, 0, cw, ch, backgroundBrush() );
+	p->fillRect( 0, 0, cw, ch,
+		     g.brush( QPalette::backgroundRoleFromMode( viewport()->backgroundMode() ) ) );
     }
 
     i->paint( p );
