@@ -21,6 +21,7 @@
 #include <qmime.h>
 #include <qstrlist.h>
 #include <qstringlist.h>
+#include <qapplication.h>
 
 static const char* folder_closed_xpm[]={
     "16 16 9 1",
@@ -483,7 +484,7 @@ void DirectoryView::contentsMousePressEvent( QMouseEvent* e )
 
 void DirectoryView::contentsMouseMoveEvent( QMouseEvent* e )
 {
-    if ( mousePressed && (e->pos() - presspos).manhattanLength() > 4 ) {
+    if ( mousePressed && ( presspos - e->pos() ).manhattanLength() > QApplication::startDragDistance() ) {
 	mousePressed = FALSE;
         QListViewItem *item = itemAt( contentsToViewport(presspos) );
         if ( item ) {
