@@ -37,7 +37,7 @@ void QTableItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
 {
     QStyleOptionViewItem opt = option;
     // enabled
-    if (model->flags(index) & QAbstractItemModel::ItemIsEnabled == 0)
+    if ((model->flags(index) & QAbstractItemModel::ItemIsEnabled) == 0)
         opt.state &= ~QStyle::Style_Enabled;
     // set font
     QVariant value = model->data(index, QAbstractItemModel::FontRole);
@@ -502,7 +502,7 @@ QTableWidgetItem *QTableWidget::item(int row, int column) const
     \sa item()
 */
 void QTableWidget::setItem(int row, int column, QTableWidgetItem *item)
-{    
+{
     Q_ASSERT(item);
     item->view = this;
     d->model()->setItem(row, column, item);

@@ -1784,7 +1784,7 @@ bool QAbstractItemViewPrivate::shouldEdit(QAbstractItemView::BeginEditAction act
 {
     if (!index.isValid())
         return false;
-    if (model->flags(index) & QAbstractItemModel::ItemIsEditable == 0)
+    if ((model->flags(index) & QAbstractItemModel::ItemIsEditable) == 0)
         return false;
     if (state == QAbstractItemView::Editing)
         return false;

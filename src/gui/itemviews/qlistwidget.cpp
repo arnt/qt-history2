@@ -34,7 +34,7 @@ void QListItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt
 {
     QStyleOptionViewItem opt = option;
     // enabled
-    if (model->flags(index) & QAbstractItemModel::ItemIsEnabled == 0)
+    if ((model->flags(index) & QAbstractItemModel::ItemIsEnabled) == 0)
         opt.state &= ~QStyle::Style_Enabled;
     // set font
     QVariant value = model->data(index, QAbstractItemModel::FontRole);

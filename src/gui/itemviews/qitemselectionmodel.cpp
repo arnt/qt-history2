@@ -230,7 +230,7 @@ QModelIndexList QItemSelectionRange::items(const QAbstractItemModel *model) cons
   item in the selection. Generally, an instance of this class will contain
   a list of non-overlapping selection ranges.
 
-  Use merge() to merge two item selections, split() to 
+  Use merge() to merge two item selections, split() to
    that include merging (), splitting (split()) (select())
 
   \sa \link model-view-programming.html Model/View Programming\endlink QItemSelectionModel
@@ -643,7 +643,7 @@ QModelIndex QItemSelectionModel::currentItem() const
 */
 bool QItemSelectionModel::isSelected(const QModelIndex &index) const
 {
-    if (model()->flags(index) & QAbstractItemModel::ItemIsSelectable == 0)
+    if ((model()->flags(index) & QAbstractItemModel::ItemIsSelectable) == 0)
         return false;
     bool selected = false;
     QList<QItemSelectionRange>::const_iterator it = d->ranges.begin();
