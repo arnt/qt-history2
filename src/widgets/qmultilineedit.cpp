@@ -1896,28 +1896,19 @@ void QMultiLineEdit::mousePressEvent( QMouseEvent *e )
     stopAutoScroll();
 
     if ( e->button() == RightButton ) {
-        int id;
-	bool enable;
-        id = d->id[ 0 ];
-	enable = !d->undoList.isEmpty();
-	d->popup->setItemEnabled( id, enable );
-        id = d->id[ 1 ];
-	enable = !d->redoList.isEmpty();
-	d->popup->setItemEnabled( id, enable );
-        id = d->id[ 2 ];
-	enable = !isReadOnly() && hasMarkedText();
-	d->popup->setItemEnabled( id, enable );
-        id = d->id[ 3 ];
-	enable = hasMarkedText();
-	d->popup->setItemEnabled( id, enable );
-        id = d->id[ 4 ];
-	enable = !isReadOnly() && (bool)QApplication::clipboard()->text().length();
-	d->popup->setItemEnabled( id, enable );
-        id = d->id[ 5 ];
-	enable = !isReadOnly() && (bool)text().length();
-	d->popup->setItemEnabled( id, enable );
+	d->popup->setItemEnabled( this->d->id[ 0 ],
+				  !this->d->undoList.isEmpty() );
+	d->popup->setItemEnabled( this->d->id[ 1 ],
+				  !this->d->redoList.isEmpty() );
+	d->popup->setItemEnabled( this->d->id[ 2 ],
+			          !isReadOnly() && hasMarkedText() );
+	d->popup->setItemEnabled( this->d->id[ 3 ], hasMarkedText() );
+	d->popup->setItemEnabled( this->d->id[ 4 ],
+	    !isReadOnly() && (bool)QApplication::clipboard()->text().length() );
+	d->popup->setItemEnabled( this->d->id[ 5 ],
+				  !isReadOnly() && (bool)text().length() );
 
-	id = d->popup->exec( e->globalPos() );
+	int id = d->popup->exec( e->globalPos() );
 	if ( id == d->id[ 0 ] )
 	    undo();
 	else if ( id == d->id[ 1 ] )

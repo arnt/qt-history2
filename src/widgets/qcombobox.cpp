@@ -28,7 +28,6 @@
 #include "qlistbox.h"
 #include "qpainter.h"
 #include "qdrawutil.h"
-#include "qscrollbar.h"   // we need the qDrawArrow function
 #include "qstrlist.h"
 #include "qpixmap.h"
 #include "qtimer.h"
@@ -1169,7 +1168,7 @@ void QComboBox::paintEvent( QPaintEvent * )
 	qDrawShadePanel( &p, xPos, (height() - buttonH)/2,
 			 buttonW, buttonH, g, FALSE, style().defaultFrameWidth() );
 	QRect clip( 4, 2, xPos - 2 - 4 - 5, height() - 4 );
-	QString str = d->popup()->text( this->d->current ); // this->gccsucks
+	QString str = d->popup()->text( this->d->current );
 	if ( !str.isNull() ) {
 	    p.drawText( clip, AlignCenter | SingleLine, str );
 	} else {
