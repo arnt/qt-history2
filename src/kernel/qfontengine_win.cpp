@@ -25,7 +25,7 @@
 #include <qbitmap.h>
 
 #include "qpainter_p.h"
-#include "qabstractgc.h"
+#include "qpaintengine.h"
 #include "qstackarray.h"
 
 #ifndef M_PI

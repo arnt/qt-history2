@@ -50,8 +50,6 @@
 extern double qt_pointSize(double pixelSize, QPaintDevice *paintdevice, int screen);
 extern double qt_pixelSize(double pointSize, QPaintDevice *paintdevice, int screen);
 
-#include "qgc_x11.h"
-
 static inline void capitalize ( char *s )
 {
     bool space = TRUE;

@@ -12,7 +12,7 @@
 **
 ****************************************************************************/
 
-#include "qabstractgc.h"
+#include "qpaintengine.h"
 #include "qpainter_p.h"
 
 QPaintEngine::QPaintEngine(GCCaps caps)

@@ -28,7 +28,7 @@
 #include <qstyle.h>
 #include <stdlib.h>
 #include "qprinter_p.h"
-#include "qabstractgc.h"
+#include "qpaintengine.h"
 
 // NOT REVISED
 

@@ -15,7 +15,7 @@
 #ifndef QWIN32PAINTENGINE_H
 #define QWIN32PAINTENGINE_H
 
-#include "qabstractgc.h"
+#include "qpaintengine.h"
 
 class QWin32PaintEnginePrivate;
 class QPainterState;

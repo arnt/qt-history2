@@ -27,7 +27,7 @@
 #include <limits.h>
 
 #include "qmemorymanager_qws.h"
-#include "qgc_qws.h"
+#include "qpaintengine_qws.h"
 
 /*****************************************************************************
   Internal functions

@@ -16,6 +16,7 @@
 #define QX11PAINTENGINE_P_H
 
 #include "qregion.h"
+#include "qpen.h"
 #include "qx11info_x11.h"
 #include <X11/Xlib.h>
 

@@ -32,6 +32,7 @@ class QMultiCellPixmap;
 #endif
 #if defined(Q_WS_X11)
 class QX11Info;
+class QX11PaintEngine;
 #endif
 
 class Q_GUI_EXPORT QPixmap : public QPaintDevice, public Qt

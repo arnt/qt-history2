@@ -19,7 +19,7 @@
 #include "qbitmap.h"
 #include "qapplication.h"
 #include "qt_mac.h"
-#include "qgc_mac.h"
+#include "qpaintengine_mac.h"
 
 QPaintDevice *g_cur_paintdev = 0;
 

@@ -15,7 +15,7 @@
 #ifndef QWSPAINTENGINE_QWS_H
 #define QWSPAINTENGINE_QWS_H
 
-#include "qabstractgc.h"
+#include "qpaintengine.h"
 #include "qshared.h"
 
 

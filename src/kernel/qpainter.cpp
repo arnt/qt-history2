@@ -14,12 +14,12 @@
 #include "qpaintdevice.h"
 #include "qpainter.h"
 #include "qpainter_p.h"
-#include "qabstractgc.h"
+#include "qpaintengine.h"
 #include "qbitmap.h"
 #include "qimage.h"
 #include "qwidget.h"
 #ifdef Q_WS_WIN
-#include "qgc_win.h"
+#include "qpaintengine_win.h"
 #endif
 #include "qpaintdevicemetrics.h"
 #include "qtextlayout_p.h"

@@ -31,7 +31,7 @@
 extern void qt_set_paintevent_clipping( QPaintDevice* dev, const QRegion& region);
 extern void qt_clear_paintevent_clipping();
 
-#include "qgc_x11.h"
+#include "qpaintengine_x11.h"
 #include "qt_x11_p.h"
 #include "qx11info_x11.h"
 

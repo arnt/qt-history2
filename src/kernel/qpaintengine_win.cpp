@@ -25,8 +25,8 @@
 #include "qtextengine_p.h"
 #include "qtextlayout_p.h"
 #include "qwidget.h"
-#include "qgc_win.h"
-#include "qgc_win_p.h"
+#include "qpaintengine_win.h"
+#include "qpaintengine_win_p.h"
 
 #include <math.h>
 

@@ -76,7 +76,7 @@
 #endif
 #endif
 
-#include "qgc_qws.h"
+#include "qpaintengine_qws.h"
 
 #include <stdlib.h>
 #include <string.h>

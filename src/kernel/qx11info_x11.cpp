@@ -1,7 +1,6 @@
 #include "qwidget.h"
 #include "qpixmap.h"
-#include "qgc_x11.h"
-#include "qgc_x11_p.h"
+#include "qpaintengine_x11_p.h"
 #include "qx11info_x11.h"
 
 Display *QX11Info::x_appdisplay;

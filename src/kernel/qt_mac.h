@@ -48,7 +48,7 @@ public:
 #include "qpaintdevice.h"
 extern QPaintDevice *qt_mac_safe_pdev; //qapplication_mac.cpp
 class QPaintEngine;
-extern QPaintEngine *qt_mac_current_gc; //qgc_mac.cpp
+extern QPaintEngine *qt_mac_current_gc; //qpaintengine_mac.cpp
 class QMacSavedPortInfo
 {
     RgnHandle clip;

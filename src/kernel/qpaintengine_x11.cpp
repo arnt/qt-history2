@@ -14,7 +14,7 @@
 
 #include "qplatformdefs.h"
 
-#include "qgc_x11.h"
+#include "qpaintengine_x11.h"
 
 #include "qfont.h"
 #include "qwidget.h"
@@ -39,7 +39,7 @@
 
 #include "qmath_p.h"
 
-#include "qgc_x11_p.h"
+#include "qpaintengine_x11_p.h"
 
 // paintevent magic to provide Windows semantics on X11
 static QRegion* paintEventClipRegion = 0;

@@ -14,7 +14,7 @@
 #ifndef QX11PAINTENGINE_H
 #define QX11PAINTENGINE_H
 
-#include "qabstractgc.h"
+#include "qpaintengine.h"
 
 class QX11PaintEnginePrivate;
 class QPainterState;

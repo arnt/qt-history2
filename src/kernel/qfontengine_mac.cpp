@@ -16,7 +16,7 @@
 #include <private/qpainter_p.h>
 #include <private/qtextengine_p.h>
 #include <qbitmap.h>
-#include <qgc_mac.h>
+#include <qpaintengine_mac.h>
 #include <qglobal.h>
 #include <qpaintdevicemetrics.h>
 #include <qpixmap.h>

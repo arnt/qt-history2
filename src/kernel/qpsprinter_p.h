@@ -31,7 +31,7 @@
 
 
 #ifndef QT_H
-#include "qabstractgc.h"
+#include "qpaintengine.h"
 #endif // QT_H
 
 #ifndef QT_NO_PRINTER

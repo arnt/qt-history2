@@ -21,7 +21,7 @@
 #include "qt_windows.h"
 #include <limits.h>
 
-#include "qgc_win.h"
+#include "qpaintengine_win.h"
 
 extern const uchar *qt_get_bitflip_array();		// defined in qimage.cpp
 

@@ -3,7 +3,7 @@
 kernel {
 	KERNEL_P	= kernel
 	HEADERS += \
-		  $$KERNEL_H/qabstractgc.h \
+		  $$KERNEL_H/qpaintengine.h \
 		  $$KERNEL_H/qabstractlayout.h \
 		  $$KERNEL_H/qaccel.h \
 		  $$KERNEL_H/qapplication.h \
@@ -75,8 +75,8 @@ kernel {
 
 	win32 {
 		HEADERS    += \
-		  $$KERNEL_H/qgc_win.h \
- 		  $$KERNEL_H/qgc_win_p.h
+		  $$KERNEL_H/qpaintengine_win.h \
+ 		  $$KERNEL_H/qpaintengine_win_p.h
 
  		SOURCES += \
 		  $$KERNEL_CPP/qapplication_win.cpp \
@@ -86,7 +86,7 @@ kernel {
 		  $$KERNEL_CPP/qdesktopwidget_win.cpp \
 		  $$KERNEL_CPP/qdnd_win.cpp \
 		  $$KERNEL_CPP/qfont_win.cpp \
-		  $$KERNEL_CPP/qgc_win.cpp \
+		  $$KERNEL_CPP/qpaintengine_win.cpp \
 		  $$KERNEL_CPP/qinputcontext_win.cpp \
 		  $$KERNEL_CPP/qmime_win.cpp \
 		  $$KERNEL_CPP/qpixmap_win.cpp \
@@ -109,8 +109,8 @@ kernel {
 
 
 	unix:x11 {
-	      HEADERS +=  $$KERNEL_H/qgc_x11.h \
-			  $$KERNEL_H/qgc_x11_p.h \
+	      HEADERS +=  $$KERNEL_H/qpaintengine_x11.h \
+			  $$KERNEL_H/qpaintengine_x11_p.h \
 			  $$KERNEL_H/qx11info_x11.h
 	      SOURCES += $$KERNEL_CPP/qapplication_x11.cpp \
 		          $$KERNEL_CPP/qclipboard_x11.cpp \
@@ -119,7 +119,7 @@ kernel {
 			  $$KERNEL_CPP/qdnd_x11.cpp \
 			  $$KERNEL_CPP/qdesktopwidget_x11.cpp \
 			  $$KERNEL_CPP/qguieventloop_x11.cpp \
-			  $$KERNEL_CPP/qgc_x11.cpp \
+			  $$KERNEL_CPP/qpaintengine_x11.cpp \
 			  $$KERNEL_CPP/qfont_x11.cpp \
 			  $$KERNEL_CPP/qinputcontext_x11.cpp \
 			  $$KERNEL_CPP/qmotifdnd_x11.cpp \
@@ -138,8 +138,8 @@ kernel {
 	}
         !embedded:!x11:mac {
 	      HEADERS += \
-			  $$KERNEL_H/qgc_mac.h \
-			  $$KERNEL_H/qgc_mac_p.h
+			  $$KERNEL_H/qpaintengine_mac.h \
+			  $$KERNEL_H/qpaintengine_mac_p.h
 
 	      SOURCES += $$KERNEL_CPP/qapplication_mac.cpp \
 		          $$KERNEL_CPP/qclipboard_mac.cpp \
@@ -151,7 +151,7 @@ kernel {
 			  $$KERNEL_CPP/qpixmap_mac.cpp \
 			  $$KERNEL_CPP/qprinter_mac.cpp \
 			  $$KERNEL_CPP/qpaintdevice_mac.cpp \
-			  $$KERNEL_CPP/qgc_mac.cpp \
+			  $$KERNEL_CPP/qpaintengine_mac.cpp \
 			  $$KERNEL_CPP/qwidget_mac.cpp \
 			  $$KERNEL_CPP/qguieventloop_mac.cpp \
 			  $$KERNEL_CPP/qfont_mac.cpp \
@@ -165,7 +165,7 @@ kernel {
 
 	SOURCES += \
 		  $$KERNEL_CPP/qabstractlayout.cpp \
-		  $$KERNEL_CPP/qabstractgc.cpp \
+		  $$KERNEL_CPP/qpaintengine.cpp \
 		  $$KERNEL_CPP/qasyncimageio.cpp \
 		  $$KERNEL_CPP/qaccel.cpp \
 		  $$KERNEL_CPP/qapplication.cpp \
@@ -226,12 +226,12 @@ kernel {
 
 	embedded {
 		HEADERS += \
-			$$KERNEL_H/qgc_qws.h \
-			$$KERNEL_P/qgc_qws_p.h
+			$$KERNEL_H/qpaintengine_qws.h \
+			$$KERNEL_P/qpaintengine_qws_p.h
 
 		SOURCES += \
 			$$KERNEL_CPP/qfontengine_qws.cpp \
-			$$KERNEL_CPP/qgc_qws.cpp
+			$$KERNEL_CPP/qpaintengine_qws.cpp
 	}
 
 	wince-* {

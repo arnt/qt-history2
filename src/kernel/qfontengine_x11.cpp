@@ -23,8 +23,8 @@
 #include "qpainter.h"
 #include "qstackarray.h"
 
-#include "qgc_x11.h"
-#include "qgc_x11_p.h"
+#include "qpaintengine_x11.h"
+#include "qpaintengine_x11_p.h"
 #include "qpainter_p.h"
 
 #include "qt_x11_p.h"

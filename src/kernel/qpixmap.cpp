@@ -28,7 +28,6 @@
 #include "qfile.h"
 
 #if defined(Q_WS_X11)
-#include "qgc_x11.h"
 #include "qx11info_x11.h"
 #endif
 

@@ -16,7 +16,6 @@
 #include "qapplication.h"
 #include "qt_x11_p.h"
 #include "qx11info_x11.h"
-#include "qgc_x11.h"
 
 // defined in qwidget_x11.cpp
 extern int qt_x11_create_desktop_on_screen;

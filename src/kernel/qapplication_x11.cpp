@@ -60,7 +60,7 @@
 #include <private/qunicodetables_p.h>
 #include <private/qcrashhandler_p.h>
 
-#include "qgc_x11.h"
+#include "qpaintengine_x11.h"
 
 // Input method stuff - UNFINISHED
 #include "qinputcontext_p.h"

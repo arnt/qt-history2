@@ -12,7 +12,7 @@
 **
 ****************************************************************************/
 
-#include "qgc_mac.h"
+#include "qpaintengine_mac.h"
 #include "qwidget.h"
 #include "qbitmap.h"
 #include "qpixmapcache.h"
@@ -24,7 +24,7 @@
 #include <qtextcodec.h>
 #include <qstack.h>
 #include <qprinter.h>
-#include <private/qgc_mac_p.h>
+#include <private/qpaintengine_mac_p.h>
 #include <private/qpainter_p.h>
 #include <private/qfontengine_p.h>
 #include <private/qtextlayout_p.h>

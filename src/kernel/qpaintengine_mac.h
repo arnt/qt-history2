@@ -14,7 +14,7 @@
 
 #ifndef QPAINTENGINE_MAC_H
 #define QPAINTENGINE_MAC_H
-#include "qabstractgc.h"
+#include "qpaintengine.h"
 #include "qshared.h"
 #ifdef Q_WS_MAC //just for now (to get the coregraphics switch) ###
 # include "qt_mac.h"

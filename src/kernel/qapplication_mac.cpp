@@ -23,7 +23,7 @@
 #include "private/qcolor_p.h"
 #include "qwidget.h"
 #include "qbitarray.h"
-#include "qgc_mac.h"
+#include "qpaintengine_mac.h"
 #include "qpixmapcache.h"
 #include "qdatetime.h"
 #include "qtextcodec.h"

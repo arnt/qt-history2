@@ -35,7 +35,7 @@
 
 #include "qwidget_p.h"
 
-#include "qgc_qws.h"
+#include "qpaintengine_qws.h"
 
 enum WMStyle {
     Default_WMStyle = 1, /* Starting at zero stuffs up menus */
