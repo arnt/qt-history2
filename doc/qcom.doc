@@ -11,12 +11,12 @@
 
   All ### interfaces are derived from the QUnknownInterface. This interface provides
   control of the object's lifetime and the ability to navigate a component implementing
-  multple interfaces.
+  multiple interfaces.
   The object's lifetime is controlled using a reference count that is increased and
   decreased using the functions addRef and release, respectively.
   The queryInterface functions determines whether the component supports a specific interface.
   For every interface a Unique Universal Identifier (UUID) is provided to identify requests
-  for an interfaces. In Qt, this identifier is wrapped in the \link QUuid QUuid \endlink class
+  for the interface. In Qt, this identifier is wrapped in the \link QUuid QUuid \endlink class
   that provides convenience operators for comparison and copying.
 */
 
@@ -51,9 +51,9 @@
   <li>Static set of interfaces
   The number of interfaces for which queryInterface returns a valid pointer must not change.
   <li>Reflexive
-  If a client holding a pointer to one interface and queries for that interface, the call must succeed.
+  If a client holding a pointer to one interface queries for that interface, the call must succeed.
   <li>Symmetric
-  If a client holding a pointer to one interface and queries for another, a query through the obtained
+  If a client holding a pointer to one interface queries for another, a query through the obtained
   interface for the first interface must succeed.
   <li>Transitive
   If a client holding a pointer to one interface queries successfully for a second, and queries that
