@@ -174,6 +174,7 @@ bool IteratorBlock::exec(QMakeProject *p, QMap<QString, QStringList> &place)
         it = list.begin();
     int iterate_count = 0;
     //save state
+    IteratorBlock *saved_iterator = p->iterator;
     p->iterator = this;
 
     //do the loop
@@ -217,8 +218,7 @@ bool IteratorBlock::exec(QMakeProject *p, QMap<QString, QStringList> &place)
     }
 
     //restore state
-    p->iterator = 0;
-    p->function = 0;
+    p->iterator = saved_iterator;
     return ret;
 }
 
