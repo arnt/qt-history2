@@ -90,15 +90,19 @@ public:
     };
 
     QPainterPathPrivate() :
-        fillMode(QPainterPath::Winding)
+        fillMode(QPainterPath::OddEven)
     {
     }
 
     /* Flattens all the curves in the path to linear polygons */
     QList<QPointArray> flatten(const QMatrix &matrix, FlattenInclusion include = AllSubpaths);
 
+#if 0
     /* Scanline converts the path to a bitmap */
     QBitmap scanToBitmap(const QRect &clip, const QMatrix &xform, QRect *boundingRect);
+#endif
+
+    QPointArray toFillPolygon(const QMatrix &xform);
 
     /* Creates a path containing the outline of this path of width \a penwidth */
     QPainterPath createStroke(const QPen &pen);

@@ -1271,10 +1271,9 @@ void QPainter::setClipPath(const QPainterPath &path)
         return;
 
     if (d->engine->hasFeature(QPaintEngine::ClipTransform)) {
-        d->state->clipPathRegion = path.d_ptr->scanToBitmap(d->state->clipRegion.boundingRect(), QMatrix(), 0);
+        d->state->clipPathRegion = path.d_ptr->toFillPolygon(QMatrix());
     } else {
-        d->state->clipPathRegion = path.d_ptr->scanToBitmap(d->state->clipRegion.boundingRect(),
-                                                     d->state->matrix, 0);
+        d->state->clipPathRegion = path.d_ptr->toFillPolygon(d->state->matrix);
     }
 }
 
@@ -1336,24 +1335,11 @@ void QPainter::drawPath(const QPainterPath &path)
 
     // Fill the path...
     if (d->state->brush.style() != Qt::NoBrush) {
-        QRect outBounds;
-        QRect pathBounds = d->state->clipRegion.boundingRect();
-        QBitmap scanlines = pd->scanToBitmap(pathBounds, worldMatrix, &outBounds);
-	if ((d->state->brush.color().alpha() != 255 ) // ### should be: && !d->engine->hasFeature(QPaintEngine::SolidAlphaFill))
-	    || (d->state->brush.style() == Qt::LinearGradientPattern
-		&& !d->engine->hasFeature(QPaintEngine::LinearGradients))) {
-	    save();
-	    setPen(Qt::NoPen);
-	    translate(outBounds.left(), outBounds.top());
-	    setClipRegion(scanlines);
-	    drawRect(0, 0, outBounds.width(), outBounds.height());
-	    restore();
-	} else {
-	    QPen oldPen = d->state->pen;
-	    setPen(d->state->brush.color());
-	    drawPixmap(outBounds.topLeft(), scanlines);
-	    setPen(oldPen);
-	}
+        QPointArray fillPoly = pd->toFillPolygon(worldMatrix);
+        QPen oldPen = d->state->pen;
+        setPen(Qt::NoPen);
+        drawPolygon(fillPoly, path.fillMode() == QPainterPath::Winding);
+        setPen(oldPen);
     }
 
     // Draw the outline of the path...
@@ -1987,7 +1973,7 @@ void QPainter::drawArc(const QRect &r, int a, int alen)
     QPainterPath path;
     path.moveTo(startPoint);
     path.arcTo(rect, a/16.0, alen/16.0);
-    drawPath(path);
+    strokePath(path, d->state->pen);
 }
 
 
@@ -2247,7 +2233,7 @@ void QPainter::drawCubicBezier(const QPointArray &a, int index)
     QPainterPath path;
     path.moveTo(a.at(index));
     path.curveTo(a.at(index+1), a.at(index+2), a.at(index+3));
-    drawPath(path);
+    strokePath(path, d->state->pen);
 }
 
 /*!

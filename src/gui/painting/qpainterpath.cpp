@@ -181,6 +181,28 @@ QList<QPointArray> QPainterPathPrivate::flatten(const QMatrix &matrix, FlattenIn
     return flatCurves;
 }
 
+/*!
+    \internal
+
+    Converts the flattened path to a polygon that can be used for filling
+*/
+
+QPointArray QPainterPathPrivate::toFillPolygon(const QMatrix &matrix)
+{
+    QPointArray fillPoly;
+    QList<QPointArray> polygons = flatten(matrix, AllSubpaths);
+    for (int i=0; i<polygons.size(); ++i) {
+        if (polygons.at(i).isEmpty())
+            continue;
+        fillPoly += polygons.at(i);
+        if (polygons.at(i).first() != polygons.at(i).last())
+            fillPoly += polygons.at(i).first();
+        if (!polygons.at(0).isEmpty())
+            fillPoly += polygons.at(0).at(0);
+    }
+    return fillPoly;
+}
+
 #define MAX_INTERSECTIONS 256
 
 /*!
@@ -216,6 +238,7 @@ static inline void qt_painterpath_setbits(int from, int to, uchar *scanLine, uin
 
 }
 
+#if 0
 /*!
   \internal
 
@@ -334,6 +357,7 @@ QBitmap QPainterPathPrivate::scanToBitmap(const QRect &clipRect,
     bm.convertFromImage(image);
     return bm;
 }
+#endif
 
 #ifdef QPP_DEBUG
 static void qt_path_debug_subpath(const QPainterSubpath &sp)
