@@ -28,7 +28,6 @@
 #include <private/qfontengine_p.h>
 #include <private/qpaintengine_mac_p.h>
 #include <private/qpainter_p.h>
-#include <private/qtextlayout_p.h>
 #include <private/qwidget_p.h>
 
 #include <string.h>
