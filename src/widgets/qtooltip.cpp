@@ -1073,7 +1073,7 @@ void QToolTipGroup::setDelay( bool enable )
     \fn static bool QToolTip::enabled()
 
     \obsolete
-
+*/
 /*!
   \property QToolTipGroup::enabled
   \brief whether tool tips in the group are enabled.
