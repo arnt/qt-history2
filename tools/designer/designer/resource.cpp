@@ -18,58 +18,59 @@
 **
 **********************************************************************/
 
-#include <qmenudata.h>
-#include "resource.h"
-#include "defs.h"
-#include "metadatabase.h"
-#include "formwindow.h"
-#include "mainwindow.h"
-#include "qdom.h"
-#include <widgetdatabase.h>
-#include "widgetfactory.h"
-#include "layout.h"
-#include <domtool.h>
 #include "command.h"
+#include "defs.h"
+#include "formwindow.h"
+#include "layout.h"
+#include "mainwindow.h"
+#include "metadatabase.h"
+#include "resource.h"
+#include "widgetfactory.h"
+#include <domtool.h>
+#include <widgetdatabase.h>
 #ifndef QT_NO_SQL
 #include "database.h"
 #endif
 #include "actiondnd.h"
-#include "project.h"
-#include "pixmapcollection.h"
 #include "formfile.h"
-#include "popupmenueditor.h"
 #include "menubareditor.h"
+#include "pixmapcollection.h"
+#include "popupmenueditor.h"
+#include "project.h"
 
-#include <qfeatures.h>
-#include <qfile.h>
-#include <qtextstream.h>
-#include <qobject.h>
-#include <qwidget.h>
-#include <qobjectlist.h>
-#include <qmetaobject.h>
-#include <qworkspace.h>
-#include <qtabwidget.h>
 #include <qapplication.h>
 #include <qbuffer.h>
-#include <qlayout.h>
-#include <qtooltip.h>
-#include <qwhatsthis.h>
-#include <qtabwidget.h>
-#include <qlistbox.h>
 #include <qcombobox.h>
-#include <qwidgetstack.h>
-#include <qtabbar.h>
+#include <qdatetime.h>
+#include <qdom.h>
+#include <qfeatures.h>
+#include <qfile.h>
 #include <qheader.h>
-#include <qlistview.h>
 #include <qiconview.h>
 #include <qlabel.h>
-#include <qwizard.h>
-#include <qtextcodec.h>
-#include <qdatetime.h>
+#include <qlayout.h>
+#include <qlistbox.h>
+#include <qlistview.h>
+#include <qmenudata.h>
+#include <qmessagebox.h>
+#include <qmetaobject.h>
+#include <qobject.h>
+#include <qobjectlist.h>
+#include <qtabbar.h>
 #ifndef QT_NO_TABLE
 #include <qtable.h>
 #endif
-#include <qmessagebox.h>
+#include <qtabwidget.h>
+#include <qtextcodec.h>
+#include <qtextstream.h>
+#include <qtooltip.h>
+#include <qwhatsthis.h>
+#include <qwidget.h>
+#include <qwidgetstack.h>
+#include <qwizard.h>
+#include <qworkspace.h>
+#include <private/qucom_p.h>
+
 
 static QString makeIndent( int indent )
 {
@@ -678,15 +679,13 @@ void Resource::saveObject( QObject *obj, QDesignerGridLayout* grid, QTextStream 
 	return;
     QString closeTag;
     const char* className = WidgetFactory::classNameOf( obj );
+    int classID = WidgetDatabase::idFromClassName( className );
+    bool isPlugin = WidgetDatabase::isCustomPluginWidget( classID );
     if ( obj->isWidgetType() ) {
-	if ( obj->isA( "CustomWidget" ) )
+	if ( obj->isA("CustomWidget") || isPlugin ) {
 	    usedCustomWidgets << QString( className );
-	if ( WidgetDatabase::
-	     isCustomWidget( WidgetDatabase::idFromClassName( className ) ) ||
-	    WidgetDatabase::
-	     isCustomPluginWidget( WidgetDatabase::idFromClassName( className ) ) )
-	    includeHints
-		<< WidgetDatabase::includeFile( WidgetDatabase::idFromClassName( className ) );
+	    includeHints << WidgetDatabase::includeFile( classID );
+	}
 
 	if ( obj != formwindow && !formwindow->widgets()->find( (QWidget*)obj ) )
 	    return; // we don't know anything about this thing
@@ -711,7 +710,7 @@ void Resource::saveObject( QObject *obj, QDesignerGridLayout* grid, QTextStream 
 	    ts << makeIndent( indent ) << "<widget class=\"" << className << "\"" << attributes << ">" << endl;
 	    ++indent;
 	}
-	if ( WidgetFactory::hasItems( WidgetDatabase::idFromClassName( WidgetFactory::classNameOf( obj ) ) ) )
+	if ( WidgetFactory::hasItems(classID) )
 	    saveItems( obj, ts, indent );
 	saveObjectProperties( obj, ts, indent );
     } else {
@@ -731,7 +730,7 @@ void Resource::saveObject( QObject *obj, QDesignerGridLayout* grid, QTextStream 
 	    QWidget *w = ws->widget( t->identifier() );
 	    if ( !w )
 		continue;
-	    if ( WidgetDatabase::idFromClassName( WidgetFactory::classNameOf( w ) ) == -1 )
+	    if ( WidgetDatabase::idFromClassName( WidgetFactory::classNameOf(w) ) == -1 )
 		continue; // we don't know this widget
 	    ts << makeIndent( indent ) << "<widget class=\"QWidget\">" << endl;
 	    ++indent;
@@ -757,7 +756,7 @@ void Resource::saveObject( QObject *obj, QDesignerGridLayout* grid, QTextStream 
 	    QWidget *w = ws->page( i );
 	    if ( !w )
 		continue;
-	    if ( WidgetDatabase::idFromClassName( WidgetFactory::classNameOf( w ) ) == -1 )
+	    if ( WidgetDatabase::idFromClassName(WidgetFactory::classNameOf(w)) == -1 )
 		continue; // we don't know this widget
 	    ts << makeIndent( indent ) << "<widget class=\"QWidget\">" << endl;
 	    ++indent;
@@ -781,7 +780,7 @@ void Resource::saveObject( QObject *obj, QDesignerGridLayout* grid, QTextStream 
 	    QWidget *w = wiz->page( i );
 	    if ( !w )
 		continue;
-	    if ( WidgetDatabase::idFromClassName( WidgetFactory::classNameOf( w ) ) == -1 )
+	    if ( WidgetDatabase::idFromClassName(WidgetFactory::classNameOf(w)) == -1 )
 		continue; // we don't know this widget
 	    ts << makeIndent( indent ) << "<widget class=\"QWidget\">" << endl;
 	    ++indent;
@@ -804,7 +803,7 @@ void Resource::saveObject( QObject *obj, QDesignerGridLayout* grid, QTextStream 
 	saveChildrenOf( ( (QMainWindow*)obj )->centralWidget(), ts, indent );
     } else {
 	bool saved = FALSE;
-	if ( WidgetDatabase::isCustomPluginWidget( WidgetDatabase::idFromClassName( className ) ) ) {
+	if ( isPlugin ) {
 	    WidgetInterface *iface = 0;
 	    widgetManager()->queryInterface( className, &iface );
 	    if ( iface ) {
@@ -845,23 +844,82 @@ void Resource::saveObject( QObject *obj, QDesignerGridLayout* grid, QTextStream 
 		    } else {
 			saved = TRUE;
 			QWidget *w = iface2->containerOfWidget( className, (QWidget*)obj );
-			ts << makeIndent( indent ) << "<widget class=\""
-			   << WidgetFactory::classNameOf( w )
-			   << "\">" << endl;
-			++indent;
-			ts << makeIndent( indent ) << "<property name=\"name\">" << endl;
-			indent++;
-			ts << makeIndent( indent ) << "<cstring>" << entitize( w->name() )
-			   << "</cstring>" << endl;
-			indent--;
-			ts << makeIndent( indent ) << "</property>" << endl;
-			saveChildrenOf( w, ts, indent );
-			--indent;
-			ts << makeIndent( indent ) << "</widget>" << endl;
+			if ( obj != w ) {
+			    ts << makeIndent( indent ) << "<widget class=\""
+			       << WidgetFactory::classNameOf( w )
+			       << "\">" << endl;
+			    ++indent;
+			    ts << makeIndent( indent ) << "<property name=\"name\">" << endl;
+			    indent++;
+			    ts << makeIndent( indent ) << "<cstring>" << entitize( w->name() )
+			       << "</cstring>" << endl;
+			    indent--;
+			    ts << makeIndent( indent ) << "</property>" << endl;
+			    saveChildrenOf( w, ts, indent );
+			    --indent;
+			    ts << makeIndent( indent ) << "</widget>" << endl;
+			}
 		    }
 		    iface2->release();
 		}
 		iface->release();
+		// Create a custom widget and then store it in the database
+		// so we can save the custom widgets.
+		MetaDataBase::CustomWidget *cw = new MetaDataBase::CustomWidget;
+		cw->className = className;
+		cw->includeFile =  WidgetDatabase::includeFile( classID );
+		QStrList lst = w->metaObject()->signalNames( TRUE );
+		for ( QPtrListIterator<char> it(lst); it.current(); ++it )
+		    cw->lstSignals.append(it.current());
+
+		int i;
+		int total = w->metaObject()->numProperties( TRUE );
+		for ( i = 0; i < total; i++ ) {
+		    const QMetaProperty *p = w->metaObject()->property( i, TRUE );
+		    if ( p->designable(w) ) {
+			MetaDataBase::Property prop;
+			prop.property = p->name();
+			QString pType = p->type();
+			// *sigh* designer types are not normal types
+			// Handle most cases, the ones it misses are
+			// probably too difficult to deal with anyway...
+			if ( pType.startsWith("Q") ) {
+			    pType = pType.right( pType.length() - 1 );
+			} else {
+			    pType[0] = pType[0].upper();
+			}
+			prop.type = pType;
+			cw->lstProperties.append( prop );
+		    }
+		}
+
+		total = w->metaObject()->numSlots( TRUE );
+		for ( i = 0; i < total; i++ ) {
+		    const QMetaData *md = w->metaObject()->slot( i, TRUE );
+		    MetaDataBase::Function funky;
+		    // Find out if we have a return type.
+		    if ( md->method->count > 0 ) {
+			const QUParameter p = md->method->parameters[0];
+			if ( p.inOut == QUParameter::InOut )
+			    funky.returnType = p.type->desc();
+		    }
+
+		    funky.function = md->name;
+		    funky.language = "C++";
+		    switch ( md->access ) {
+		    case QMetaData::Public:
+			funky.access = "public";
+			break;
+		    case QMetaData::Protected:
+			funky.access = "protected";
+			break;
+		    case QMetaData::Private:
+			funky.access = "private";
+			break;
+		    }
+		    cw->lstSlots.append( funky );
+		}
+		MetaDataBase::addCustomWidget( cw );
 	    }
 	}
 	if ( !saved )
@@ -1061,7 +1119,9 @@ QPixmap Resource::loadPixmap( const QDomElement &e, const QString &/*tagname*/ )
     return pix;
 }
 
-void Resource::saveItem( const QStringList &text, const QPtrList<QPixmap> &pixmaps, QTextStream &ts, int indent )
+void Resource::saveItem( const QStringList &text,
+			 const QPtrList<QPixmap> &pixmaps, QTextStream &ts,
+			 int indent )
 {
     QStringList::ConstIterator it = text.begin();
     for ( ; it != text.end(); ++it ) {
@@ -1209,7 +1269,7 @@ void Resource::saveObjectProperties( QObject *w, QTextStream &ts, int indent )
 	for ( QMap<QString, QVariant>::Iterator fake = fakeProperties->begin();
 	      fake != fakeProperties->end(); ++fake ) {
 	    if ( MetaDataBase::isPropertyChanged( w, fake.key() ) ) {
-		if ( w->inherits( "CustomWidget" ) ) {
+		if ( w->inherits("CustomWidget") ) {
 		    MetaDataBase::CustomWidget *cw = ( (CustomWidget*)w )->customWidget();
 		    if ( cw && !cw->hasProperty( fake.key().latin1() ) && fake.key() != "toolTip" && fake.key() != "whatsThis" )
 			continue;
@@ -1577,7 +1637,7 @@ QObject *Resource::createObject( const QDomElement &e, QWidget *parent, QLayout*
 	    obj = layout;
 	    n = n.firstChild().toElement();
 	    continue;
-	} else if ( n.tagName() == "property" && obj ) {	    
+	} else if ( n.tagName() == "property" && obj ) {
 	    if ( n.attribute( "name" ) == "sizePolicy" ) {
 		// ### Evil hack ### Delay setting sizePolicy so it won't be overridden by other properties.
 		sizePolicyElement = n;
