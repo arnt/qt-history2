@@ -185,7 +185,7 @@ void QRadioButton::drawButton( QPainter *paint )
     QFontMetrics fm = fontMetrics();
     QSize lsz = fm.size(ShowPrefix, text());
     QSize sz = style().exclusiveIndicatorSize();
-    x = 0;
+    x = text().isEmpty() ? 1 : 0;
     if( QApplication::reverseLayout() )
 	x = width() - sz.width();
     y = (height() - lsz.height() + fm.height() - sz.height())/2;
@@ -288,7 +288,15 @@ void QRadioButton::drawButtonLabel( QPainter *p )
 	br.setBottom( br.bottom()+2);
 	br = br.intersect( QRect(0,0,width(),height()) );
 
-	style().drawFocusRect(p, br, colorGroup());
+	if ( !text().isEmpty() )
+	    style().drawFocusRect( p, br, colorGroup() );
+	else {
+	    br.setRight( br.left()-1 );
+	    br.setLeft( br.left()-16 );
+	    br.setTop( br.top() );
+	    br.setBottom( br.bottom() );
+	    style().drawFocusRect( p, br, colorGroup() );
+	}
     }
 }
 
@@ -368,7 +376,16 @@ void QRadioButton::updateMask()
 	    br.setBottom( br.bottom()+2);
 	    br = br.intersect( QRect(0,0,width(),height()) );
 
-	    style().drawFocusRect( &p, br, cg );
+	    if ( !text().isEmpty() )
+		style().drawFocusRect( &p, br, cg );
+	    else {
+		br.setRight( br.left()-1 );
+		br.setLeft( br.left()-16 );
+		br.setTop( br.top() );
+		br.setBottom( br.bottom() );
+		style().drawFocusRect( &p, br, cg );
+	    }
+
 	}
     }
     setMask(bm);
