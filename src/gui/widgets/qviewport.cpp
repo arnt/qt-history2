@@ -620,7 +620,8 @@ void QViewportPrivate::showOrHideScrollBars()
 }
 
 /*!
-    Returns the viewport's minimum size hint.
+    \reimp
+
 */
 QSize QViewport::minimumSizeHint() const
 {
@@ -629,6 +630,14 @@ QSize QViewport::minimumSizeHint() const
         h = 10;
     int f = 2 * d->frameWidth;
     return QSize((6 * h) + f, (4 * h) + f);
+}
+
+/*!
+    \reimp
+*/
+QSize QViewport::sizeHint() const
+{
+    return QSize(256, 192);
 }
 
 #include "moc_qviewport.cpp"

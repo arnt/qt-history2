@@ -46,6 +46,8 @@ public:
 
     QSize minimumSizeHint() const;
 
+    QSize sizeHint() const;
+
 protected:
     QViewport(QViewportPrivate &dd, QWidget *parent);
     void setViewportMargins(int left, int top, int right, int bottom);
