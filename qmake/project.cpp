@@ -1897,6 +1897,26 @@ QMakeProject::doProjectTest(QString func, QStringList args, QMap<QString, QStrin
 
     if(func == "requires") {
         return doProjectCheckReqs(args, place);
+    } else if(func == "greaterThan" || func == "lessThan") {
+        if(args.count() != 2) {
+            fprintf(stderr, "%s:%d: %s(variable, value) requires two arguments.\n", parser.file.toLatin1().constData(),
+                    parser.line_no, func.toLatin1().constData());
+            return false;
+        }
+        QString rhs(args[1]), lhs(place[args[0]].join(QString(Option::field_sep)));
+        bool ok;
+        int rhs_int = rhs.toInt(&ok);
+        if(ok) { // do integer compare
+            int lhs_int = lhs.toInt(&ok);
+            if(ok) {
+                if(func == "greaterThan")
+                    return lhs_int > rhs_int;
+                return lhs_int < rhs_int;
+            }
+        }
+        if(func == "greaterThan")
+            return lhs > rhs;
+        return lhs < rhs;
     } else if(func == "equals" || func == "isEqual") {
         if(args.count() != 2) {
             fprintf(stderr, "%s:%d: %s(variable, value) requires two arguments.\n", parser.file.toLatin1().constData(),
