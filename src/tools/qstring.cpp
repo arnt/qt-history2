@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#55 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#56 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QString classes
@@ -19,7 +19,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qstring.cpp#55 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qstring.cpp#56 $")
 
 
 /*****************************************************************************
@@ -528,11 +528,7 @@ QString &QString::sprintf( const char *format, ... )
     va_start( ap, format );
     if ( size() < 256 )
 	QByteArray::resize( 256 );		// make string big enough
-#if defined(HAS_VSNPRINTF)
-    vsnprintf( data(), size()-1, format, ap );
-#else
     vsprintf( data(), format, ap );
-#endif
     resize( strlen(data()) + 1 );		// truncate
     va_end( ap );
     return *this;

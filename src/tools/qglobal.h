@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#23 $ 
+** $Id: //depot/qt/main/src/tools/qglobal.h#24 $ 
 **
 ** Global type declarations and definitions
 **
@@ -48,7 +48,6 @@
 #define _OS_ULTRIX_
 #elif defined(linux)
 #define _OS_LINUX_
-#define HAS_VSNPRINTF
 #else
 #error "Qt has not been ported to this OS - talk to qt-bugs@troll.no"
 #endif
