@@ -48,7 +48,7 @@
   \brief The QPaintDevice class is the base class of objects that can be
   painted.
 
-  \ingroup drawing
+  \ingroup graphics images
 
   A paint device is an abstraction of a two-dimensional space that can be
   drawn using a QPainter.

@@ -1962,7 +1962,6 @@ static QStringList makeFiltersList( const QString &filter )
     return QStringList::split( sep, filter );
 }
 
-// NOT REVISED
 /*!
   \class QFileDialog qfiledialog.h
   \brief The QFileDialog class provides dialogs that allow users to select files or directories.
@@ -5879,6 +5878,7 @@ void QFileDialog::goBack()
 
 /*!
   \class QFilePreview qfiledialog.h
+  \ingroup misc
   \brief The QFilePreview class provides file previewing in QFileDialog.
 
   This class is an abstract base class which is used to implement

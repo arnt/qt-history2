@@ -44,7 +44,7 @@
   \class QSize qsize.h
   \brief The QSize class defines the size of a two-dimensional object.
 
-  \ingroup drawing
+  \ingroup images graphics
 
   A size is specified by a width and a height.
 

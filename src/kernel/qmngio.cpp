@@ -197,7 +197,7 @@ class QMNGFormatType : public QImageFormatType
   \class QMNGFormat qmngio.h
   \brief Incremental image decoder for MNG image format.
 
-  \ingroup images
+  \ingroup images graphics
 
   This subclass of QImageFormat decodes MNG format images,
   including animated MNGs.
@@ -228,7 +228,7 @@ TODO: decide on this point.  gIFg gives disposal types, so it can be done.
   \class QMNGFormatType qasyncimageio.h
   \brief Incremental image decoder for MNG image format.
 
-  \ingroup images
+  \ingroup images graphics
   \ingroup io
 
   This subclass of QImageFormatType recognizes MNG

@@ -37,6 +37,7 @@
 
 /*!
   \class QGLColormap qglcolormap.h
+  \ingroup graphics images
   \brief The QGLColormap class is used for installing custom colormaps into
   QGLWidgets.
   

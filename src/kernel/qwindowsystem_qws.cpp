@@ -111,6 +111,7 @@ static int get_object_id()
 
 /*!
   \class QWSWindow qwindowsystem_qws.h
+  \ingroup qws
   \brief The QWSWindow class provides Server-specific functionality in Qt/Embedded.
 
   When you run a Qt/Embedded application, it either runs as a server
@@ -769,6 +770,7 @@ static void ignoreSignal( int )
 
 /*!
   \class QWSServer qwindowsystem_qws.h
+  \ingroup qws
   \brief The QWSServer class provides server-specific functionality in Qt/Embedded.
 
   When you run a Qt/Embedded application, it either runs as a server

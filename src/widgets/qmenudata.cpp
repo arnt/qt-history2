@@ -1304,6 +1304,7 @@ QString QMenuData::whatsThis( int id ) const
 // NOT REVISED
 /*!
   \class QCustomMenuItem qmenudata.h
+  \ingroup misc
   \brief The QCustomMenuItem class is an abstract base class for custom menu items in
   popup menus.
 

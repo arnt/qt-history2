@@ -50,6 +50,7 @@ public:
 };
 
 /*! \class QSqlResult qsqlresult.h
+    \ingroup sql
 
   \brief The QSqlResult class provides an abstract interface for
   accessing data from SQL databases.

@@ -77,6 +77,7 @@ QHostAddressPrivate::QHostAddressPrivate( Q_UINT8 *a_ ) : a(0), isIp4(FALSE)
 
 /*!
   \class QHostAddress qhostaddress.h
+    \ingroup io
   \brief The QHostAddress class provides an IP address.
 
   \module network

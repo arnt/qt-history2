@@ -44,6 +44,7 @@
 // NOT REVISED
 /*!
   \class QBitVal qbitarray.h
+  \ingroup collection
   \brief The QBitVal class is an internal class, used with QBitArray.
 
   The QBitVal is required by the indexing [] operator on bit arrays.
@@ -79,6 +80,7 @@
 
 /*!
   \class QBitArray qbitarray.h
+  \ingroup collection
   \brief The QBitArray class provides an array of bits.
 
   \ingroup tools

@@ -34,6 +34,7 @@
 **********************************************************************/
 
 /*! \class QGbkCodec qgbkcodec.h
+    \ingroup i18n
 
   \brief The QGbkCodec class provides conversion to and from the Chinese
   GBK encoding.

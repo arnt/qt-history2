@@ -48,7 +48,7 @@
   \class QClipboard qclipboard.h
   \brief The QClipboard class provides access to the window system clipboard.
 
-  \ingroup environment
+  \ingroup io environment
 
   The clipboard offers a simple mechanism to copy and paste data between
   applications.

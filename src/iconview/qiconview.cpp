@@ -414,6 +414,7 @@ void QIconViewItemLineEdit::focusOutEvent( QFocusEvent *e )
 
 /*!
   \class QIconDragItem qiconview.h
+  \ingroup draganddrop 
 
   \brief The QIconDragItem class encapsulates a drag item.
 
@@ -707,6 +708,7 @@ void QIconDragData::setTextRect( const QRect &r )
 
 /*!
   \class QIconViewItem qiconview.h
+  \ingroup advanced
   \brief The QIconViewItem class provides a single item in a QIconView.
   \module iconview
 

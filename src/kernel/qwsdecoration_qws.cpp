@@ -42,6 +42,7 @@
 
 /*!
   \class QWSDecoration qwsdecoration_qws.h
+  \ingroup qws
   \brief The QWSDecoration class allows the appearance of the Qt/Embedded Window
   Manager to be customized.
 

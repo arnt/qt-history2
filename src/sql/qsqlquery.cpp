@@ -54,6 +54,7 @@ QSqlResultShared::~QSqlResultShared()
 }
 
 /*! \class QSqlQuery qsqlquery.h
+    \ingroup sql
 
     \brief The QSqlQuery class provides a means of executing and
     manipulating SQL statements.

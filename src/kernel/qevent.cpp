@@ -45,7 +45,7 @@
   \brief The QEvent class is the base class of all
   event classes. Event objects contain event parameters.
 
-  \ingroup environment
+  \ingroup events environment
 
   The main event loop of Qt (QApplication::exec()) fetches
   native window system events from the event queue, translates them
@@ -187,6 +187,7 @@
 
 /*!
   \class QTimerEvent qevent.h
+  \ingroup events
   \brief The QTimerEvent class contains parameters that describe a
   timer event.
 
@@ -217,6 +218,7 @@
 
 /*!
   \class QMouseEvent qevent.h
+  \ingroup events
 
   \brief The QMouseEvent class contains parameters that describe a mouse event.
 
@@ -425,6 +427,7 @@ Qt::ButtonState QMouseEvent::stateAfter() const
 
 /*!
   \class QWheelEvent qevent.h
+  \ingroup events
   \brief The QWheelEvent class contains parameters that describe a wheel event.
 
   Wheel events occur when a mouse wheel is turned while the widget has
@@ -596,6 +599,7 @@ QWheelEvent::QWheelEvent( const QPoint &pos, int delta, int state, Orientation o
 
 /*!
   \class QKeyEvent qevent.h
+  \ingroup events
   \brief The QKeyEvent class contains describes a key event.
 
   Key events occur when a key is pressed or released when a widget has
@@ -749,6 +753,7 @@ Qt::ButtonState QKeyEvent::stateAfter() const
 
 /*!
   \class QFocusEvent qevent.h
+  \ingroup events
   \brief The QFocusEvent class contains event parameters for widget focus
   events.
 
@@ -843,6 +848,7 @@ void QFocusEvent::resetReason()
 
 /*!
   \class QPaintEvent qevent.h
+  \ingroup events
   \brief The QPaintEvent class contains event parameters for paint events.
 
   Paint events are sent to widgets that need to update themselves, for
@@ -904,6 +910,7 @@ void QFocusEvent::resetReason()
 
 /*!
   \class QMoveEvent qevent.h
+  \ingroup events
   \brief The QMoveEvent class contains event parameters for move events.
 
   Move events are sent to widgets that have been moved to a new position
@@ -934,6 +941,7 @@ void QFocusEvent::resetReason()
 
 /*!
   \class QResizeEvent qevent.h
+  \ingroup events
   \brief The QResizeEvent class contains event parameters for resize events.
 
   Resize events are sent to widgets that have been resized.
@@ -963,6 +971,7 @@ void QFocusEvent::resetReason()
 
 /*!
   \class QCloseEvent qevent.h
+  \ingroup events
   \brief The QCloseEvent class contains parameters that describe a close event.
 
   Close events are sent to widgets that the user wants to close, usually
@@ -1056,6 +1065,7 @@ void QFocusEvent::resetReason()
 
 /*!
   \class QContextMenuEvent qevent.h
+  \ingroup events
   \brief The QContextMenuEvent class contains parameters that describe a context menu event.
 
   Context events are sent to widgets when a user triggers a menu. What
@@ -1226,6 +1236,7 @@ QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int stat
 
 /*!
   \class QIMEvent qevent.h
+  \ingroup events
   \brief The QIMEvent class provides parameters for input method events.
 
   Input method events are send to widgets, when an input method is
@@ -1339,6 +1350,7 @@ QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int stat
 
 /*!
   \class QChildEvent qevent.h
+  \ingroup events
   \brief The QChildEvent class contains event parameters for child object
   events.
 
@@ -1380,6 +1392,7 @@ QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int stat
 
 /*!
   \class QCustomEvent qevent.h
+  \ingroup events
   \brief The QCustomEvent class provides support for custom events.
 
   QCustomEvent is a generic event class for user-defined events. User
@@ -1633,6 +1646,7 @@ QCustomEvent::QCustomEvent( int type )
 
 /*!
   \class QDragEnterEvent qevent.h
+  \ingroup events draganddrop
   \brief The QDragEnterEvent class provides an event which is sent to the widget when a drag and drop first drags onto the widget.
 
   This event is always immediately followed by a QDragMoveEvent, so you only
@@ -1653,6 +1667,7 @@ QCustomEvent::QCustomEvent( int type )
 
 /*!
   \class QDragLeaveEvent qevent.h
+  \ingroup events draganddrop
   \brief The QDragLeaveEvent class provides an event which is sent to the widget when a drag and drop leaves the widget.
 
   This event is always preceded by a QDragEnterEvent and a series
@@ -1671,6 +1686,7 @@ QCustomEvent::QCustomEvent( int type )
 
 /*!
   \class QHideEvent qevent.h
+  \ingroup events
   \brief The QHideEvent class provides an event which is sent after a widget is hidden.
 
   This event is sent just before QWidget::hide() returns, and also when
@@ -1695,6 +1711,7 @@ QCustomEvent::QCustomEvent( int type )
 
 /*!
   \class QShowEvent qevent.h
+  \ingroup events
   \brief The QShowEvent class provides an event which is sent when a widget is shown.
 
   There are two kinds of show events: spontaneous show events by the

@@ -43,6 +43,7 @@
 
 /*!
   \class QLayoutItem
+  \ingroup appearance geomanagement
   \brief The QLayoutItem class provides an abstract item that a
   QLayout manipulates.
 
@@ -53,6 +54,7 @@
 
 /*!
   \class QSpacerItem qabstractlayout.h
+  \ingroup appearance geomanagement
   \brief The QSpacerItem class provides blank space in a layout.
 
   This is used by custom layouts.
@@ -62,6 +64,7 @@
 
 /*!
   \class QWidgetItem
+  \ingroup appearance geomanagement
   \brief The QWidgetItem class is a layout item that represents a widget.
 
   This is used by custom layouts.
@@ -521,7 +524,7 @@ bool QWidgetItem::isEmpty() const
   \class QLayout qabstractlayout.h
   \brief The QLayout class is the base class of geometry managers.
 
-  \ingroup geomanagement
+  \ingroup appearance geomanagement
 
   This is an abstract base class inherited by the concrete classes,
   QBoxLayout and QGridLayout.
@@ -1192,6 +1195,7 @@ bool QLayout::activate()
 
 /*!
   \class QSizePolicy
+  \ingroup appearance geomanagement
   \brief The QSizePolicy class is a layout attribute describing horizontal
   and vertical resizing.
 
@@ -1243,6 +1247,10 @@ QWidget policy).
 \value Expanding  the sizeHint() is a sensible size, but the
 widget can be shrunk and still be useful. The widget can
 make use of extra space, so it should get as much space as
+possible (e.g. the horizontal direction of a slider).
+
+\value MinimumExpanding the sizeHint() is minimal, and sufficient. The
+widget can make use of extra space, so it should get as much space as
 possible (e.g. the horizontal direction of a slider).
 
 In any case, QLayout never shrinks a widget below the
@@ -1360,6 +1368,7 @@ Sets the hasHeightForWidth() flag to \a b.
 
 /*!
   \class QGLayoutIterator qabstractlayout.h
+  \ingroup appearance geomanagement
   \brief The QGLayoutIterator class is an abstract base class of internal layout iterators.
 
   (This class is \e not OpenGL related, it just happens to start with
@@ -1402,6 +1411,7 @@ QGLayoutIterator::~QGLayoutIterator()
 
 /*!
   \class QLayoutIterator qabstractlayout.h
+  \ingroup appearance geomanagement
   \brief The QLayoutIterator class provides iterators over QLayoutItem.
 
   Use QLayoutItem::iterator() to create an iterator over a layout.

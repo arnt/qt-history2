@@ -266,6 +266,7 @@ public:
 
 /*!
     \class QSqlDatabase qsqldatabase.h
+    \ingroup sql
 
     \brief The QSqlDatabase class is used to create SQL database
     connections and provide transaction handling.

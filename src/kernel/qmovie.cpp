@@ -64,7 +64,7 @@
   \brief The QMovie class provides incremental loading of animations or images, signalling as it progresses.
 
   \ingroup images
-  \ingroup drawing
+  \ingroup graphics multimedia
 
   A QMovie provides a QPixmap as the framePixmap(); connections can
   be made via connectResize() and connectUpdate() to receive notification

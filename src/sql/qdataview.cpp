@@ -51,6 +51,7 @@ public:
 /*!
 
   \class QDataView qdataview.h
+    \ingroup sql
 
   \brief The QDataView class provides read-only SQL forms.
 

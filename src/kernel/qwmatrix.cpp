@@ -49,10 +49,9 @@ double qsincos( double, bool calcCos );		// defined in qpainter_x11.cpp
 // NOT REVISED
 /*!
   \class QWMatrix qwmatrix.h
+  \ingroup graphics images
   \brief The QWMatrix class specifies 2D transformations of a
   coordinate system.
-
-  \ingroup drawing
 
   The standard coordinate system of a \link QPaintDevice paint
   device\endlink has the origin located at the top-left position. X

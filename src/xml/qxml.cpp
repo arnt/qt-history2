@@ -225,6 +225,7 @@ bool operator==( const QMap<QString, QString>, const QMap<QString, QString> )
 
 /*!
   \class QXmlParseException qxml.h
+  \ingroup xml
   \brief The QXmlParseException class is used to report errors with the
   QXmlErrorHandler interface.
 
@@ -282,6 +283,7 @@ QString QXmlParseException::systemId() const
 
 /*!
   \class QXmlLocator qxml.h
+  \ingroup xml
   \brief The QXmlLocator class provides the XML handler classes with
   information about the actual parsing position.
 
@@ -372,6 +374,7 @@ public:
 
 /*!
   \class QXmlNamespaceSupport qxml.h
+  \ingroup xml
   \brief The QXmlNamespaceSupport class is a helper class for XML readers which
   want to include namespace support.
 
@@ -601,6 +604,7 @@ void QXmlNamespaceSupport::reset()
 
 /*!
   \class QXmlAttributes qxml.h
+  \ingroup xml
   \brief The QXmlAttributes class provides XML attributes.
 
   \module XML
@@ -811,6 +815,7 @@ void QXmlAttributes::append( const QString &qName, const QString &uri, const QSt
 
 /*!
   \class QXmlInputSource qxml.h
+  \ingroup xml
   \brief The QXmlInputSource class provides the input data for the QXmlReader
   subclasses.
 
@@ -1124,6 +1129,7 @@ QString QXmlInputSource::fromRawData( const QByteArray &data, bool beginning )
 
 /*!
   \class QXmlContentHandler qxml.h
+  \ingroup xml
   \brief The QXmlContentHandler class provides an interface to report logical
   content of XML data.
 
@@ -1337,6 +1343,7 @@ QString QXmlInputSource::fromRawData( const QByteArray &data, bool beginning )
 
 /*!
   \class QXmlErrorHandler qxml.h
+  \ingroup xml
   \brief The QXmlErrorHandler class provides an interface to report errors in
   XML data.
 
@@ -1396,6 +1403,7 @@ QString QXmlInputSource::fromRawData( const QByteArray &data, bool beginning )
 
 /*!
   \class QXmlDTDHandler qxml.h
+  \ingroup xml
   \brief The QXmlDTDHandler class provides an interface to report DTD content
   of XML data.
 
@@ -1449,6 +1457,7 @@ QString QXmlInputSource::fromRawData( const QByteArray &data, bool beginning )
 
 /*!
   \class QXmlEntityResolver qxml.h
+  \ingroup xml
   \brief The QXmlEntityResolver class provides an interface to resolve extern
   entities contained in XML data.
 
@@ -1494,6 +1503,7 @@ QString QXmlInputSource::fromRawData( const QByteArray &data, bool beginning )
 
 /*!
   \class QXmlLexicalHandler qxml.h
+  \ingroup xml
   \brief The QXmlLexicalHandler class provides an interface to report lexical
   content of XML data.
 
@@ -1623,6 +1633,7 @@ QString QXmlInputSource::fromRawData( const QByteArray &data, bool beginning )
 
 /*!
   \class QXmlDeclHandler qxml.h
+  \ingroup xml
   \brief The QXmlDeclHandler class provides an interface to report declaration
   content of XML data.
 
@@ -1693,6 +1704,7 @@ QString QXmlInputSource::fromRawData( const QByteArray &data, bool beginning )
 
 /*!
   \class QXmlDefaultHandler qxml.h
+  \ingroup xml
   \brief The QXmlDefaultHandler class provides a default implementation of all
   XML handler classes.
 
@@ -2072,6 +2084,7 @@ private:
 
 /*!
   \class QXmlReader qxml.h
+  \ingroup xml
   \brief The QXmlReader class provides an interface for XML readers (i.e.
   parsers).
 
@@ -2260,6 +2273,7 @@ private:
 
 /*!
   \class QXmlSimpleReader qxml.h
+  \ingroup xml
   \brief The QXmlSimpleReader class provides an implementation of a simple XML
   reader (i.e. parser).
 

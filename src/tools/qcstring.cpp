@@ -300,6 +300,7 @@ Q_UINT16 qChecksum( const char *data, uint len )
 
 /*!
   \class QByteArray
+  \ingroup collection
   \brief The QByteArray class provides an array of bytes.
 
   \ingroup tools
@@ -375,6 +376,7 @@ QDataStream &operator>>( QDataStream &s, QByteArray &a )
 
 /*!
   \class QCString qcstring.h
+  \ingroup text collection
 
   \brief The QCString class provides an abstraction of the classic C
   zero-terminated char array (char *).

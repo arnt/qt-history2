@@ -54,7 +54,7 @@
   \brief The QPicture class is a paint device that records and replays QPainter
   commands.
 
-  \ingroup drawing
+  \ingroup graphics images
   \ingroup shared
 
   A picture serializes painter commands to an IO device in a

@@ -1433,7 +1433,7 @@ void QDnsSocket::answer()
 
 
 /*! \class QDns qdns.h
-
+    \ingroup io
   \brief The QDns class provides asynchronous DNS lookups.
 
   \module network
@@ -1813,6 +1813,7 @@ QValueList<QHostAddress> QDns::addresses() const
 
 /*!
   \class QDns::MailServer
+    \ingroup io
 
   \brief The QDns::MailServer class is  described in QDns::mailServers().
 
@@ -1852,6 +1853,7 @@ QValueList<QDns::MailServer> QDns::mailServers() const
 
 /*!
   \class QDns::Server
+    \ingroup io
 
   \brief The QDns::Server class is described in QDns::servers().
 

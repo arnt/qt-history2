@@ -44,7 +44,7 @@
   \class QRect qrect.h
   \brief The QRect class defines a rectangle in the plane.
 
-  \ingroup drawing
+  \ingroup images graphics
 
   A rectangle is internally represented as an upper-left corner and a
   bottom-right corner, but it is normally expressed as an upper-left

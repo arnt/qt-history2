@@ -47,6 +47,7 @@
 
 /*!
   \class QSqlDriver qsqldriver.h
+    \ingroup sql
 
   \brief The QSqlDriver class is an abstract base class for accessing
   SQL databases.

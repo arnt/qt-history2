@@ -4,7 +4,7 @@ $Id$
 
 /*! \page actiongroup.html
 
-\ingroup walkthroughs
+\ingroup step-by-step-examples
 
 \title Walkthrough: A Tiny Editor Illustrating QActionGroup
 

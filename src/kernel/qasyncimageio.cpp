@@ -52,7 +52,7 @@ extern void qt_init_image_plugins();
   \class QImageConsumer qasyncimageio.h
   \brief The QImageConsumer class is an abstraction used by QImageDecoder.
 
-  \ingroup images
+  \ingroup images graphics multimedia
 
   The QMovie class, or QLabel::setMovie(), are easy to use and
   for most situations do what you want with regards animated
@@ -156,7 +156,7 @@ extern void qt_init_image_plugins();
   \class QImageDecoder qasyncimageio.h
   \brief The QImageDecoder class is an incremental image decoder for all supported image formats.
 
-  \ingroup images
+  \ingroup images graphics multimedia
 
   New formats are installed by creating objects of class
   QImageFormatType; the QMovie class can be used for
@@ -517,7 +517,7 @@ void QImageDecoder::unregisterDecoderFactory(QImageFormatType* f)
   \class QImageFormat qasyncimageio.h
   \brief The QImageFormat class is an incremental image decoder for a specific image format.
 
-  \ingroup images
+  \ingroup images graphics multimedia
 
   By making a derived class of QImageFormatType, which in turn
   creates objects that are a subclass of QImageFormat, you can add
@@ -567,7 +567,7 @@ QImageFormat::~QImageFormat()
   \class QImageFormatType qasyncimageio.h
   \brief The QImageFormatType class is a factory that makes QImageFormat objects.
 
-  \ingroup images
+  \ingroup images graphics multimedia
 
   Whereas the QImageIO class allows for \e complete loading of images,
   QImageFormatType allows for \e incremental loading of images.
@@ -642,7 +642,7 @@ bool qt_builtin_gif_reader()
   \class QGIFFormat qasyncimageio.h
   \brief Incremental image decoder for GIF image format.
 
-  \ingroup images
+  \ingroup images graphics 
 
   This subclass of QImageFormat decodes GIF format images,
   including animated GIFs.  Internally in
@@ -680,7 +680,7 @@ QGIFFormat::~QGIFFormat()
   \class QGIFFormatType qasyncimageio.h
   \brief Incremental image decoder for GIF image format.
 
-  \ingroup images
+  \ingroup images graphics 
 
   This subclass of QImageFormatType recognizes GIF
   format images, creating a QGIFFormat when required.  An instance

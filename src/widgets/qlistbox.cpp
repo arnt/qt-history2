@@ -148,6 +148,7 @@ QListBoxPrivate::~QListBoxPrivate()
 
 /*!
   \class QListBoxItem qlistbox.h
+  \ingroup advanced
 
   \brief The QListBoxItem class is the base class of all list box items.
 
@@ -331,6 +332,7 @@ bool QListBoxItem::isSelectable() const
 
 /*!
   \class QListBoxText qlistbox.h
+  \ingroup advanced
   \brief The QListBoxText class provides list box items with text.
 
   The text is drawn in the widget's current font. If you need several
@@ -426,6 +428,7 @@ int QListBoxText::rtti() const
 
 /*!
   \class QListBoxPixmap qlistbox.h
+  \ingroup advanced
   \brief The QListBoxPixmap class provides list box items with a pixmap
   and an optional text.
 

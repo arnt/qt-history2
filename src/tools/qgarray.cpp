@@ -60,6 +60,7 @@
 
 /*!
   \class QShared qshared.h
+  \ingroup shared
   \brief The QShared class is used internally for implementing shared classes.
 
   \internal
@@ -75,6 +76,7 @@
 
 /*!
   \class QGArray qgarray.h
+  \ingroup shared collection
   \brief The QGArray class is an internal class for implementing the QArray class.
 
   \internal

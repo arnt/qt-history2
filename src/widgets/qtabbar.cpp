@@ -46,6 +46,7 @@
 // NOT REVISED
 /*!
   \class QTab qtabbar.h
+  \ingroup advanced
   \brief The QTab class provides the structures in a QTabBar.
 
 

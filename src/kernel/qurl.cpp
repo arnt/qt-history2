@@ -95,7 +95,7 @@ static void slashify( QString& s, bool allowMultiple = TRUE )
 
   \brief The QUrl class provides a URL parser and simplifies working with URLs.
 
-  \ingroup misc
+  \ingroup io misc
 
   The QUrl class is provided for simple work with URLs.
   It does all parsing, decoding, encoding, and so on.

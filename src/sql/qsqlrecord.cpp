@@ -123,6 +123,7 @@ QSqlRecordShared::~QSqlRecordShared()
 
 /*!
     \class QSqlRecord qsqlfield.h
+    \ingroup sql
 
     \brief The QSqlRecord class encapsulates a database record, i.e. a
     set of database fields.

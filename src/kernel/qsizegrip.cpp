@@ -79,7 +79,7 @@ static QWidget* qt_sizegrip_workspace( QWidget* w )
 	    window.
 
   \ingroup application
-  \ingroup basic
+  \ingroup basic appearance
 
   This widget works like the standard Windows resize handle.  In the
   X11 version this resize handle generally works differently from the

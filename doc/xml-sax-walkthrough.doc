@@ -35,7 +35,7 @@
 
 /*! \page xml-sax-walkthrough.html
 
-\ingroup walkthroughs
+\ingroup step-by-step-examples
 
 \title Walkthrough: How to use the Qt SAX2 classes
 

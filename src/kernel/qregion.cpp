@@ -45,7 +45,7 @@
   \class QRegion qregion.h
   \brief The QRegion class specifies a clip region for a painter.
 
-  \ingroup drawing
+  \ingroup images graphics
 
   QRegion is used with QPainter::setClipRegion() to limit the paint area to what
   needs to be painted. There is also a QWidget::repaint() that takes a QRegion parameter.

@@ -41,7 +41,7 @@
   \class QGrid qgrid.h
   \brief The QGrid widget provides simple geometry management of its children.
 
-  \ingroup geomanagement
+  \ingroup geomanagement appearance
 
     The grid places its widgets either in a single column or in a single
     row. If you want a multi-column, multi-row grid use \l{QGridLayout}.

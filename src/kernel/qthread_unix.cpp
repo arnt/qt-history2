@@ -54,7 +54,7 @@
   \class QMutex qthread.h
   \brief The QMutex class provides access serialization between threads.
 
-  \ingroup environment
+  \ingroup thread environment
 
   The purpose of a QMutex is to protect an object, data structure
   or section of code so that only one thread can access it at a time
@@ -265,7 +265,7 @@ static QThreadPostEventPrivate * qthreadposteventprivate = 0;
   \class QThread qthread.h
   \brief The QThread class provides platform-independent threads.
 
-  \ingroup environment
+  \ingroup thread environment
 
   A QThread represents a separate thread of control within the program;
   it shares all data with other threads within the process but
@@ -513,7 +513,7 @@ bool QThread::running() const
   \class QWaitCondition qthread.h
   \brief The QWaitCondition class allows waiting/waking for conditions between threads.
 
-  \ingroup environment
+  \ingroup thread environment
 
   QWaitConditions allow a thread to tell other threads that some sort of
   condition has been met; one or many threads can block waiting for a
@@ -692,7 +692,7 @@ void QWaitCondition::wakeAll()
   \class QSemaphore qthread.h
   \brief The QSemaphore class provides a robust integer semaphore.
 
-  \ingroup environment
+  \ingroup thread environment
 
   QSemaphore can be used to serialize thread execution, similar to a
   QMutex.  A semaphore differs from a mutex, in that a semaphore can be

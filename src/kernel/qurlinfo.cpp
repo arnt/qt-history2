@@ -66,7 +66,7 @@ public:
   \class QUrlInfo qurlinfo.h
   \brief The QUrlInfo class stores information about URLs.
 
-  \ingroup misc
+  \ingroup io misc
 
   This class is just a container for storing information about
   URLs, which is why all informations has to be passed in the

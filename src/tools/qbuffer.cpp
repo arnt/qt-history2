@@ -41,6 +41,7 @@
 // REVISED: paul
 /*!
   \class QBuffer qbuffer.h
+  \ingroup io collection
   \brief The QBuffer class is an I/O device that operates on a QByteArray.
 
   \ingroup io

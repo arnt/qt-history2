@@ -593,6 +593,7 @@ void write_png_image(QImageIO* iio)
 // NOT REVISED
 /*!
   \class QPNGImagePacker qpngio.h
+  \ingroup images graphics
   \brief The QPNGImagePacker class creates well-compressed PNG animations.
 
   By using transparency, QPNGImagePacker allows you to build a PNG image
@@ -804,7 +805,7 @@ class QPNGFormatType : public QImageFormatType
   \brief The QPNGFormat class provides an incremental image decoder for PNG
   image format.
 
-  \ingroup images
+  \ingroup images graphics
 
   This subclass of QImageFormat decodes PNG format images,
   including animated PNGs.
@@ -836,7 +837,7 @@ TODO: decide on this point.  gIFg gives disposal types, so it can be done.
   \brief The QPNGFormatType class provides an incremental image decoder
   for PNG image format.
 
-  \ingroup images
+  \ingroup images graphics
   \ingroup io
 
   This subclass of QImageFormatType recognizes PNG format images, creating

@@ -45,7 +45,7 @@
   \brief The QTimer class provides timer signals and single-shot timers.
 
   \ingroup time
-  \ingroup event
+  \ingroup events
 
   It uses \link QTimerEvent timer events\endlink internally to provide a
   more versatile timer.	 QTimer is very easy to use: create a QTimer, call

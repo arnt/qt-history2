@@ -96,7 +96,7 @@ public:
 
   \brief The QIconSet class provides a set of icons with different styles and sizes.
 
-  \ingroup misc
+  \ingroup graphics images
   \ingroup shared
 
   A QIconSet can generate smaller, larger, active, and disabled pixmaps
@@ -116,14 +116,14 @@ public:
   QIconSet provides a set of six icons, each with
     a \link QIconSet::Size Size\endlink and
     a \link QIconSet::Mode Mode\endlink:
-  <ul>
-  <li> <i>Small Normal</i> - can only be calculated from Large Normal.
-  <li> <i>Small Disabled</i> - calculated from Large Disabled or Small Normal.
-  <li> <i>Small Active</i> - same as Small Normal unless you set it.
-  <li> <i>Large Normal</i> - can only be calculated from Small Normal.
-  <li> <i>Large Disabled</i> - calculated from Small Disabled or Large Normal.
-  <li> <i>Large Active</i> - same as Large Normal unless you set it.
-  </ul>
+  \list
+  \i <i>Small Normal</i> - can only be calculated from Large Normal.
+  \i <i>Small Disabled</i> - calculated from Large Disabled or Small Normal.
+  \i <i>Small Active</i> - same as Small Normal unless you set it.
+  \i <i>Large Normal</i> - can only be calculated from Small Normal.
+  \i <i>Large Disabled</i> - calculated from Small Disabled or Large Normal.
+  \i <i>Large Active</i> - same as Large Normal unless you set it.
+  \endlist
 
   An additional set of six icons can be provided for widgets that have
   an "On" or "Off" state, like checkable menu items or toggleable

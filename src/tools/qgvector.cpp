@@ -58,6 +58,7 @@
 
 /*!
   \class QGVector
+  \ingroup collection
 
   \brief The QGVector class is an internal class for implementing Qt
   collection classes.

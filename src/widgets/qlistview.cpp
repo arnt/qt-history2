@@ -263,6 +263,7 @@ static QPoint activatedP;
 // NOT REVISED
 /*!
   \class QListViewItem
+  \ingroup advanced
   \brief The QListViewItem class implements a list view item.
 
   A list view item is a multi-column object capable of displaying
@@ -5143,6 +5144,7 @@ void QListView::repaintItem( const QListViewItem * item ) const
 
 /*!
   \class QCheckListItem
+  \ingroup advanced
   \brief The QCheckListItem class provides checkable list view items.
 
   There are three types of check list items: checkboxes, radio buttons
@@ -6051,6 +6053,7 @@ QListView::RenameAction QListView::defaultRenameAction() const
 
 
 /*! \class QListViewItemIterator
+  \ingroup advanced
 
   \brief The QListViewItemIterator class provides an iterator for collections of QListViewItems.
 

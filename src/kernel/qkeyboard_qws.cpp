@@ -75,6 +75,7 @@ static int  kbdFD = -1;
 
 /*!
   \class QWSKeyboardHandler qkeyboard_qws.h
+  \ingroup qws
   \brief The QWSKeyboardHandler class implements the keyboard
   driver/handler for Qt/Embedded.
 

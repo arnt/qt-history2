@@ -49,7 +49,7 @@
   pixmaps.
 
   \ingroup environment
-  \ingroup drawing
+  \ingroup graphics images
 
   This class is a tool for optimized drawing with QPixmap.  You can
   use it to store temporary pixmaps that are expensive to generate

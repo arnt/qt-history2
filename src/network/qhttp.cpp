@@ -226,6 +226,7 @@ QTextStream& operator<<( QTextStream&, const QHttpReplyHeader& );
 
 /*
   \class QHttpHeader qhttp.h
+    \ingroup io
   \brief The QHttpHeader class contains header information for HTTP.
 
   \module network
@@ -602,6 +603,7 @@ void QHttpHeader::setConnection( QHttpHeader::Connection con )
 
 /*
   \class QHttpReplyHeader qhttp.h
+    \ingroup io
   \brief The QHttpReplyHeader class contains reply header information for HTTP.
 
   \module network
@@ -778,6 +780,7 @@ bool QHttpReplyHeader::hasAutoContentLength() const
 
 /*
   \class QHttpRequestHeader qhttp.h
+    \ingroup io
   \brief The QHttpRequestHeader class contains request header information for
   HTTP.
 
@@ -939,6 +942,7 @@ QTextStream& operator<<( QTextStream& stream, const QHttpRequestHeader& header )
 
 /*
   \class QHttpClient qhttp.h
+    \ingroup io
   \brief The QHttpClient class provides the client side of HTTP.
 
   \module network
@@ -1508,6 +1512,7 @@ QIODevice* QHttpClient::device() const
  ****************************************************/
 /*!
   \class QHttp qhttp.h
+    \ingroup io
   \brief The QHttp class provides an implementation of the HTTP protocol.
 
   \module network

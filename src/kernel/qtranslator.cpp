@@ -211,7 +211,7 @@ public:
   \brief The QTranslator class provides internationalization support for text
   output.
 
-  \ingroup environment
+  \ingroup i18n environment
 
   An object of this class contains a set of QTranslatorMessage
   objects, each of which specifies a translation from a source
@@ -973,7 +973,7 @@ QValueList<QTranslatorMessage> QTranslator::messages() const
   \brief The QTranslatorMessage class contains a translator message and its
   properties.
 
-  \ingroup environment
+  \ingroup i18n environment
 
   This class is of no interest to most applications, just for
   translation tools such as

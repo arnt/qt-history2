@@ -194,6 +194,7 @@ static volatile int * lastop=0;
 
 /*!
   \class QScreenCursor qgfx_qws.h
+  \ingroup qws
   \brief The QScreenCursor class manages the onscreen mouse cursor in
   Qt/Embedded.
 
@@ -788,6 +789,7 @@ void QScreenCursor::drawCursor()
 
 /*!
   \class QGfxRasterBase qgfxraster_qws.h
+  \ingroup qws
   \brief The QGfxRasterBase class is the base class of the
   QGfxRaster<depth> template and contains the non-depth-dependent code.
 
@@ -2101,6 +2103,7 @@ GFX_INLINE unsigned int QGfxRasterBase::get_value_1(
 
 /*!
  \class QGfxRaster qgfxraster_qws.h
+  \ingroup qws
  \brief The QGfxRaster class is QGfxRasterBase specialized for a particular bit
  depth, specified by the depth parameter of the template. The type field
  is currently not used. In future versions, it may be used to specify the
@@ -4919,6 +4922,7 @@ void QGfxRaster<depth,type>::tiledBlt( int rx,int ry,int w,int h )
 
 /*!
   \class QScreen qgfx_qws.h
+  \ingroup qws
   \brief Descendants of QScreen manage the framebuffer and palette and act as 
   factories for the screen cursor and QGfx's. QLinuxFbScreen manages
   a Linux framebuffer; accelerated drivers subclass QLinuxFbScreen.

@@ -39,6 +39,7 @@
 
 /*!
   \class QFocusData qfocusdata.h
+  \ingroup misc
   \brief The QFocusData class maintains the list of widgets in the focus
   chain.
 

@@ -59,7 +59,7 @@
 
   \brief The QFont class specifies a font used for drawing text.
 
-  \ingroup drawing
+  \ingroup graphics
   \ingroup appearance
   \ingroup shared
 
@@ -1508,7 +1508,7 @@ void QFontMetrics::reset( const QPainter *painter )
 /*! \class QFontMetrics qfontmetrics.h
   \brief The QFontMetrics class provides font metrics information. 
 
-  \ingroup environment
+  \ingroup graphics
   \ingroup shared
 
   QFontMetrics functions calculate size of characters and strings for
@@ -1864,7 +1864,7 @@ void QFontInfo::reset( const QPainter *painter )
 
   \brief The QFontInfo class provides general information about fonts.
 
-  \ingroup environment
+  \ingroup graphics
   \ingroup shared
 
   The QFontInfo class provides the same access functions as QFont, e.g.

@@ -542,7 +542,7 @@ public:
 
 /*!
   \class QDateEdit qdatetimeedit.h
-
+    \ingroup advanced time
   \brief The QDateEdit class provides a date editor.
 
   QDateEdit allows the user to edit dates by using the keyboard or the
@@ -1335,6 +1335,7 @@ public:
 
 /*!
   \class QTimeEdit qdatetimeedit.h
+    \ingroup advanced time
 
   \brief The QTimeEdit class provides a time editor.
 
@@ -1924,6 +1925,7 @@ public:
 /*!
 
   \class QDateTimeEdit qdatetimeedit.h
+    \ingroup advanced time
 
   \brief The QDateTimeEdit class combines a QDateEdit and QTimeEdit
   widget into a single widget for editing datetimes.

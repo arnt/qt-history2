@@ -52,6 +52,7 @@ static int dummy_lastop = 0;
 
 /*!
   \class QLinuxFbScreen
+  \ingroup qws
   \brief The QLinuxFbScreen class manages the Linux framebuffer.
 
   \internal (for now)

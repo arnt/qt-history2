@@ -138,7 +138,7 @@ struct QTableHeaderPrivate
 
 
 /*! \class QTableSelection qtable.h
-
+    \ingroup advanced
   \brief The QTableSelection class provides access to a selected area in a
   QTable.
 
@@ -281,6 +281,7 @@ bool QTableSelection::operator==( const QTableSelection &s ) const
 
 
 /*! \class QTableItem qtable.h
+    \ingroup advanced
 
   \brief The QTableItem class provides the cell content for QTable cells.
 
@@ -880,6 +881,7 @@ bool QTableItem::isEnabled() const
 }
 
 /*! \class QComboTableItem qtable.h
+    \ingroup advanced
 
   \brief The QComboTableItem class provides a means of using comboboxes
   in QTables.
@@ -1121,6 +1123,7 @@ int QComboTableItem::rtti() const
 }
 
 /*! \class QCheckTableItem qtable.h
+    \ingroup advanced
 
   \brief The QCheckTableItem class provides checkboxes in QTables.
 
@@ -1265,6 +1268,7 @@ int QCheckTableItem::rtti() const
 /*! \file statistics/statistics.cpp */
 
 /*! \class QTable qtable.h
+    \ingroup advanced
   \module table
 
   \brief The QTable class provides a flexible editable table widget.
@@ -4891,6 +4895,7 @@ void QTable::setEnabled( bool b )
 
 
 /* \class QTableHeader qtable.h
+    \ingroup advanced
   module table
 
   \brief The QTableHeader class allows for creation and manipulation of

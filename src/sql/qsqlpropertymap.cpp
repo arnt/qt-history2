@@ -52,6 +52,7 @@ public:
 
 /*!
   \class QSqlPropertyMap qsqlpropertymap.h
+    \ingroup sql
   \module sql
   \brief The QSqlPropertyMap class is used to map widgets to SQL fields.
 

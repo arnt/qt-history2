@@ -66,7 +66,7 @@
   \brief The QApplication class manages the GUI application's control
   flow and main settings.
 
-  \ingroup environment
+  \ingroup application
 
   It contains the main event loop, where all events from the window
   system and other sources are processed and dispatched.  It also
@@ -3143,7 +3143,7 @@ bool QApplication::reverseLayout()
   \class QSessionManager qsessionmanager.h
   \brief The QSessionManager class provides access to the session manager.
 
-  \ingroup environment
+  \ingroup application environment
 
   The session manager is responsible for session management, most
   importantly for interruption and resumption.

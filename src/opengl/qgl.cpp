@@ -49,6 +49,7 @@ static QCleanupHandler<QGLFormat> qgl_cleanup_format;
 
 
 /*! \class QGL qgl.h
+    \ingroup graphics images
   \brief The QGL class is a namespace for miscellaneous identifiers
   in the Qt OpenGL module.
 
@@ -73,24 +74,25 @@ static QCleanupHandler<QGLFormat> qgl_cleanup_format;
 
 /*!
   \class QGLFormat qgl.h
+    \ingroup graphics images
   \brief The QGLFormat class specifies the display format of an OpenGL
   rendering context.
 
   \module OpenGL
 
   A display format has several characteristics:
-  <ul>
-  <li> \link setDoubleBuffer() Double or single buffering.\endlink
-  <li> \link setDepth() Depth buffer.\endlink
-  <li> \link setRgba() RGBA or color index mode.\endlink
-  <li> \link setAlpha() Alpha channel.\endlink
-  <li> \link setAccum() Accumulation buffer.\endlink
-  <li> \link setStencil() Stencil buffer.\endlink
-  <li> \link setStereo() Stereo buffers.\endlink
-  <li> \link setDirectRendering() Direct rendering.\endlink
-  <li> \link setOverlay() Presence of an overlay.\endlink
-  <li> \link setPlane() The plane of an overlay format.\endlink
-  </ul>
+  \list
+  \i \link setDoubleBuffer() Double or single buffering.\endlink
+  \i \link setDepth() Depth buffer.\endlink
+  \i \link setRgba() RGBA or color index mode.\endlink
+  \i \link setAlpha() Alpha channel.\endlink
+  \i \link setAccum() Accumulation buffer.\endlink
+  \i \link setStencil() Stencil buffer.\endlink
+  \i \link setStereo() Stereo buffers.\endlink
+  \i \link setDirectRendering() Direct rendering.\endlink
+  \i \link setOverlay() Presence of an overlay.\endlink
+  \i \link setPlane() The plane of an overlay format.\endlink
+  \endlist
 
   You create and tell a QGLFormat object what rendering options
   you want from an OpenGL rendering context.
@@ -141,18 +143,18 @@ static QCleanupHandler<QGLFormat> qgl_cleanup_format;
 
 /*!
   Constructs a QGLFormat object with the factory default settings:
-  <ul>
-  <li> \link setDoubleBuffer() Double buffer:\endlink Enabled.
-  <li> \link setDepth() Depth buffer:\endlink Enabled.
-  <li> \link setRgba() RGBA:\endlink Enabled (i.e., color index disabled).
-  <li> \link setAlpha() Alpha channel:\endlink Disabled.
-  <li> \link setAccum() Accumulator buffer:\endlink Disabled.
-  <li> \link setStencil() Stencil buffer:\endlink Disabled.
-  <li> \link setStereo() Stereo:\endlink Disabled.
-  <li> \link setDirectRendering() Direct rendering:\endlink Enabled.
-  <li> \link setOverlay() Overlay:\endlink Disabled.
-  <li> \link setPlane() Plane:\endlink 0 (i.e., normal plane).
-  </ul>
+  \list
+  \i \link setDoubleBuffer() Double buffer:\endlink Enabled.
+  \i \link setDepth() Depth buffer:\endlink Enabled.
+  \i \link setRgba() RGBA:\endlink Enabled (i.e., color index disabled).
+  \i \link setAlpha() Alpha channel:\endlink Disabled.
+  \i \link setAccum() Accumulator buffer:\endlink Disabled.
+  \i \link setStencil() Stencil buffer:\endlink Disabled.
+  \i \link setStereo() Stereo:\endlink Disabled.
+  \i \link setDirectRendering() Direct rendering:\endlink Enabled.
+  \i \link setOverlay() Overlay:\endlink Disabled.
+  \i \link setPlane() Plane:\endlink 0 (i.e., normal plane).
+  \endlist
 */
 
 QGLFormat::QGLFormat()
@@ -576,18 +578,18 @@ void QGLFormat::setDefaultFormat( const QGLFormat &f )
   Returns the default QGLFormat for overlay contexts.
 
   The factory default overlay format is:
-  <ul>
-  <li> \link setDoubleBuffer() Double buffer:\endlink Disabled.
-  <li> \link setDepth() Depth buffer:\endlink Disabled.
-  <li> \link setRgba() RGBA:\endlink Disabled (i.e., color index enabled).
-  <li> \link setAlpha() Alpha channel:\endlink Disabled.
-  <li> \link setAccum() Accumulator buffer:\endlink Disabled.
-  <li> \link setStencil() Stencil buffer:\endlink Disabled.
-  <li> \link setStereo() Stereo:\endlink Disabled.
-  <li> \link setDirectRendering() Direct rendering:\endlink Enabled.
-  <li> \link setOverlay() Overlay:\endlink Disabled.
-  <li> \link setPlane() Plane:\endlink 1 (i.e., first overlay plane).
-  </ul>
+  \list
+  \i \link setDoubleBuffer() Double buffer:\endlink Disabled.
+  \i \link setDepth() Depth buffer:\endlink Disabled.
+  \i \link setRgba() RGBA:\endlink Disabled (i.e., color index enabled).
+  \i \link setAlpha() Alpha channel:\endlink Disabled.
+  \i \link setAccum() Accumulator buffer:\endlink Disabled.
+  \i \link setStencil() Stencil buffer:\endlink Disabled.
+  \i \link setStereo() Stereo:\endlink Disabled.
+  \i \link setDirectRendering() Direct rendering:\endlink Enabled.
+  \i \link setOverlay() Overlay:\endlink Disabled.
+  \i \link setPlane() Plane:\endlink 1 (i.e., first overlay plane).
+  \endlist
 
   \sa setDefaultFormat()
 */
@@ -682,6 +684,7 @@ QGLContext* QGLContext::currentCtx = 0;
 
 /*!
   \class QGLContext qgl.h
+    \ingroup graphics images
   \brief The QGLContext class encapsulates an OpenGL rendering context.
 
   \module OpenGL
@@ -1013,6 +1016,7 @@ bool QGLContext::create( const QGLContext* shareContext )
 
 /*!
   \class QGLWidget qgl.h
+    \ingroup graphics images
   \brief The QGLWidget class is a widget for rendering OpenGL graphics.
 
   \module OpenGL
@@ -1923,15 +1927,15 @@ again.
 <h2>The QGL Classes</h2>
 
 The OpenGL support classes in Qt are:
-<ul>
-<li> \link QGLWidget QGLWidget\endlink: An easy-to-use Qt
+\list
+\i \link QGLWidget QGLWidget\endlink: An easy-to-use Qt
   widget for rendering OpenGL scenes.
-<li> \link QGLContext QGLContext\endlink: Encapsulates an OpenGL rendering context.
-<li> \link QGLFormat QGLFormat\endlink: Specifies the
+\i \link QGLContext QGLContext\endlink: Encapsulates an OpenGL rendering context.
+\i \link QGLFormat QGLFormat\endlink: Specifies the
 display format of a rendering context.
-<li> \link QGLColormap QGLColormap\endlink: Handles indexed
+\i \link QGLColormap QGLColormap\endlink: Handles indexed
 colormaps in GL-index mode.
-</ul>
+\endlist
 
 Many applications only need the high-level QGLWidget class. The other QGL
 classes provide advanced features. 

@@ -10,6 +10,7 @@
 
 /*!
   \class QAccessible qaccessible.h
+  \ingroup misc
   \brief The QAccessible class is provide a set of enums and static functions.
   \preliminary
 */
@@ -213,6 +214,7 @@
 
 /*!
   \class QAccessibleInterface qaccessible.h
+  \ingroup misc
   \brief The QAccessibleInterface class is an interface that exposes information about accessible objects.
   \preliminary
 */
@@ -449,6 +451,7 @@ QRESULT QAccessible::queryAccessibleInterface( QObject *object, QAccessibleInter
 
 /*!
   \class QAccessibleObject qaccessible.h
+  \ingroup misc
   \brief The QAccessibleObject class implements parts of the QAccessibleInterface for QObjects.
   \preliminary
 

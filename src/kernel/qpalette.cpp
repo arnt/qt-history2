@@ -50,7 +50,7 @@
   \brief The QColorGroup class contains a group of widget colors.
 
   \ingroup appearance
-  \ingroup drawing
+  \ingroup graphics images
 
   A color group contains a group of colors used by widgets for drawing
   themselves. We recommend that widgets use color group roles such as
@@ -466,7 +466,7 @@ bool QColorGroup::operator==( const QColorGroup &g ) const
 
   \ingroup appearance
   \ingroup shared
-  \ingroup drawing
+  \ingroup graphics images
 
   A palette consists of three color groups: \e active, \e disabled,
   and \e inactive.  All widgets contain a palette, and

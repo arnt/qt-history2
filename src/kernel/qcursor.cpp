@@ -50,7 +50,7 @@
 
   \brief The QCursor class provides a mouse cursor with an arbitrary shape.
 
-  \ingroup environment
+  \ingroup appearance
   \ingroup shared
 
   This class is mainly used to create mouse cursors that are associated

@@ -49,6 +49,7 @@
   \brief The QTabWidget class provides a stack of tabbed widgets.
 
   \ingroup organizers
+  \ingroup advanced
 
   A tabbed widget is one in which several "pages" are available and
   the user selects which page to see and use by clicking on its tab

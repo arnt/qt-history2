@@ -1399,6 +1399,7 @@ void QColorDialogPrivate::addCustom()
 
 /*!
   \class QColorDialog qcolordialog.h
+  \ingroup dialogs graphics
   \brief The QColorDialog class provides a dialog widget for specifying colors.
   \ingroup dialogs
 

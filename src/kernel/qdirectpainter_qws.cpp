@@ -70,7 +70,7 @@ public:
   \class QDirectPainter qdirectpainter_qws.h
   \brief Direct access to the video hardware.
 
-  \ingroup drawing
+  \ingroup graphics
 
   Only available in Qt/Embedded.
 

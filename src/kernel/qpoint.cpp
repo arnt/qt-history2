@@ -44,7 +44,7 @@
   \class QPoint qpoint.h
   \brief The QPoint class defines a point in the plane.
 
-  \ingroup drawing
+  \ingroup images graphics
 
   A point is specified by an x coordinate and a y coordinate.
 

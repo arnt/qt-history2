@@ -54,7 +54,7 @@
   \brief The QProcess class is used to start external programs and to
   communicate with them.
 
-  \ingroup misc
+  \ingroup io misc
 
   You can write to standard input of the started program. You can read the
   output of the program on standard output and standard error. You are notified

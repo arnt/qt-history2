@@ -72,6 +72,7 @@ QFontManager * qt_fontmanager=0;
 
 /*!
   \class QFontManager qfontmanager_qws.h
+  \ingroup qws
   \brief The QFontManager class implements font management in Qt/Embedded.
 
   There is one and only one QFontManager per Qt/Embedded
@@ -101,6 +102,7 @@ void QFontManager::cleanup()
 
 /*!
   \class QRenderedFont qfontmanager_qws.h
+  \ingroup qws
   \brief The QRenderedFont class is the rendered version of a particular
   font.
 

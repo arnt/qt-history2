@@ -39,13 +39,11 @@
 #include "qimage.h"
 
 
-// REVISED: paul
 /*!
   \class QBitmap qbitmap.h
   \brief The QBitmap class provides monochrome (1-bit depth) pixmaps.
 
-  \ingroup drawing
-  \ingroup shared
+  \ingroup graphics images shared
 
   The QBitmap class is a monochrome off-screen paint device used
   mainly for creating custom QCursor and QBrush objects, in

@@ -52,7 +52,6 @@
 #endif
 
 
-// REVISED: arnt
 /*!
   \class QDialog qdialog.h
   \brief The QDialog class is the base class of dialog windows.

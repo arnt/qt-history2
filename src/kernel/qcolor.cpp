@@ -46,8 +46,8 @@
   \class QColor qcolor.h
   \brief The QColor class provides colors based on RGB.
 
-  \ingroup color
-  \ingroup drawing
+  \ingroup images
+  \ingroup graphics
   \ingroup appearance
 
   A color is normally specified in terms of RGB (red, green and blue)

@@ -50,7 +50,7 @@
   \class QPixmap qpixmap.h
   \brief The QPixmap class is an off-screen, pixel-based paint device.
 
-  \ingroup drawing
+  \ingroup graphics images
   \ingroup shared
 
   It is one of the two classes Qt provides for dealing with images;

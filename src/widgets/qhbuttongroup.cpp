@@ -45,8 +45,7 @@
   \brief The QHButtonGroup widget organizes QButton widgets in a group
   with one horizontal row.
 
-  \ingroup geomanagement
-  \ingroup organizers
+  \ingroup organizers geomanagement appearance
 
   QHButtonGroup is a convenience class that offers a thin layer on top of
   QButtonGroup. Think of it as a QHBox that offers a frame with a title

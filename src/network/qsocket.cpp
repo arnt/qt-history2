@@ -112,6 +112,7 @@ void QSocketPrivate::close()
 
 /*!
   \class QSocket qsocket.h
+    \ingroup io
   \brief The QSocket class provides a buffered TCP connection.
 
   \module network

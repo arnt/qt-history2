@@ -169,6 +169,7 @@ QString QTextStatelessDecoder::toUnicode(const char* chars, int len)
 // NOT REVISED
 /*!
   \class QTextCodec qtextcodec.h
+    \ingroup i18n
   \brief The QTextCodec class provides conversion between text encodings.
 
   By making objects of subclasses of QTextCodec, support for
@@ -977,6 +978,7 @@ bool QTextCodec::canEncode( const QString& s ) const
 
 /*!
   \class QTextEncoder qtextcodec.h
+    \ingroup i18n
   \brief The QTextEncoder class provides a state-based encoder.
 
   The encoder converts Unicode into another format, remembering any state
@@ -1006,6 +1008,7 @@ QTextEncoder::~QTextEncoder()
 
 /*!
   \class QTextDecoder qtextcodec.h
+    \ingroup i18n
   \brief The QTextDecoder class provides a state-based decoder.
 
   The decoder converts a text format into Unicode, remembering any state

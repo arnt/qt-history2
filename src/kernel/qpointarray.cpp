@@ -48,7 +48,7 @@ const double Q_PI = 3.14159265358979323846;   // pi // one more useful comment
   \class QPointArray qpointarray.h
   \brief The QPointArray class provides an array of points.
 
-  \ingroup drawing
+  \ingroup images graphics
   \ingroup shared
 
   The QPointArray is an array of QPoint objects. In addition to the
