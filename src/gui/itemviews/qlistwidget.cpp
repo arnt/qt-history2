@@ -932,6 +932,8 @@ void QListWidget::insertItems(int row, const QStringList &labels)
 
 QListWidgetItem *QListWidget::takeItem(int row)
 {
+    if (row < 0 || row >= d->model()->rowCount())
+        return 0;
     return d->model()->take(row);
 }
 
