@@ -793,7 +793,7 @@ void QDoubleSpinBox::setPrecision(int precision)
 /*!
     This virtual function is used by the spin box whenever it needs to
     display value \a v. The default implementation returns a string
-    containing \a v printed using QString::number(v, 'f',
+    containing \a v printed using QString::number(v, QLatin1Char('f'),
     precision()). Reimplementations may return anything.
 
     Note that Qt does not call this function for specialValueText()
@@ -809,7 +809,7 @@ void QDoubleSpinBox::setPrecision(int precision)
 
 QString QDoubleSpinBox::mapValueToText(double v) const
 {
-    return QString::number(v, 'f', d->precision);
+    return QString::number(v, QLatin1Char('f'), d->precision);
 }
 
 /*!
