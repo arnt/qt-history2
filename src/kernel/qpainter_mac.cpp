@@ -758,7 +758,7 @@ void QPainter::drawPolyInternal( const QPointArray &a, bool close )
 		drawTiledPixmap(r.x(), r.y(), r.width(), r.height(), *pm, 
 				r.x() - bro.x(), r.y() - bro.y());
 	    if(brush_style_pix) 
-		drawTiledPixmap(r.x(), r.y(), r.width(), r.height(), *brush_style_pix, 0, 0;
+		drawTiledPixmap(r.x(), r.y(), r.width(), r.height(), *brush_style_pix, 0, 0 );
 
 	    //restore translation flags
 	    flags = save_flags;
@@ -1726,7 +1726,8 @@ void QPainter::drawText( int x, int y, const QString &str, int len, QPainter::Te
 	    mat2.map( tfx, tfy, &dx, &dy );     // compute position of bitmap
 	    x = qRound(nfx-dx);
 	    y = qRound(nfy-dy);
-	    unclippedBitBlt(pdev, x, y, wx_bm, 0, 0, aw, ah, CopyROP, FALSE );
+	    unclippedBitBlt(pdev, x, y, wx_bm, 0, 0, wx_bm->width(), 
+			    wx_bm->height(), CopyROP, FALSE );
 	    if(create_new_bm)
 		ins_text_bitmap( bm_key, wx_bm );
 	    return;
