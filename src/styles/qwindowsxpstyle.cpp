@@ -1006,13 +1006,11 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 		theme.rec = querySubControlMetrics( CC_ComboBox, w, SC_ComboBoxArrow, opt );
 		partId = CP_DROPDOWNBUTTON;
 		QComboBox *cb = (QComboBox*)w;
-		if ( cb->listBox() && cb->listBox()->isVisible() )
-		    subActive = SC_ComboBoxArrow;
 
 		if ( !(flags & Style_Enabled) )
 		    stateId = CBXS_DISABLED;
 		else if ( subActive == SC_ComboBoxArrow )
-		    stateId = CBXS_PRESSED;
+                    stateId = CBXS_PRESSED;
 		else if ( flags & Style_MouseOver && theme.rec.contains( d->hotSpot ) )
 		    stateId = CBXS_HOT;
 		else
