@@ -990,7 +990,7 @@ void QAbstractItemView::contextMenuEvent(QContextMenuEvent *e)
     QMenu contextMenu(this);
     emit aboutToShowContextMenu(&contextMenu, index);
     if (contextMenu.actions().count() > 0)
-        contextMenu.exec(mapToGlobal(position));
+        contextMenu.exec(e->globalPos());
 }
 
 /*!
