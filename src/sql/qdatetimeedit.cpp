@@ -623,7 +623,7 @@ public:
   \value MDY month-day-year
   \value DMY day-month-year
   \value YMD year-month-day (the default)
-  \value YDM year-day-month
+  \value YDM year-day-month (a very bad idea)
 */
 
 /*! Constructs an empty date editor which is a child of \a parent and the
