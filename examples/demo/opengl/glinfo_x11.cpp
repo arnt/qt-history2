@@ -8,6 +8,8 @@
 **
 *****************************************************************************/
 
+#define QT_CLEAN_NAMESPACE // avoid clashes with Xmd.h
+
 #include <qstringlist.h>
 #include <qgl.h>
 #include "glinfo.h"
@@ -66,27 +68,27 @@ static void screenInfo( Display *dpy, int scrnum, QString &infotext )
     infotext.sprintf( "%sServer GLX extensions:\n", infotext.ascii() );
 
     infotext += QString( serverExtensions ).replace( ' ', '\n' ) + "\n\n";
-    
+
     infotext.sprintf( "%sClient GLX vendor string: %s\n", infotext.ascii(), clientVendor );
     infotext.sprintf( "%sClient GLX version string: %s\n", infotext.ascii(), clientVersion );
     infotext.sprintf( "%sClient GLX extensions:\n", infotext.ascii() );
-    
+
     infotext += QString( clientExtensions ).replace( ' ', '\n' ) + "\n\n";
-    
+
     infotext.sprintf( "%sGLX extensions:\n", infotext.ascii() );
-    
+
     infotext += QString( glxExtensions ).replace( ' ', '\n' ) + "\n\n";
-    
+
     infotext.sprintf( "%sOpenGL vendor string: %s\n", infotext.ascii(), glVendor );
     infotext.sprintf( "%sOpenGL renderer string: %s\n", infotext.ascii(), glRenderer );
     infotext.sprintf( "%sOpenGL version string: %s\n", infotext.ascii(), glVersion );
     infotext.sprintf( "%sOpenGL extensions:\n", infotext.ascii() );
-    
+
     infotext += QString( glExtensions ).replace( ' ', '\n' ) + "\n\n";
-    
+
     infotext.sprintf( "%sGLU version: %s\n", infotext.ascii(), gluVersion );
     infotext.sprintf( "%sGLU extensions:\n", infotext.ascii() );
-    
+
     infotext += QString( gluExtensions ).replace( ' ', '\n' ) + "\n\n";
 }
 
@@ -127,9 +129,9 @@ static const char * caveatString( int caveat )
 }
 
 static void visualAttribs( Display * dpy, XVisualInfo * vi, VisualAttribs * attribs )
-{ 
+{
     memset( attribs, 0, sizeof( VisualAttribs ) );
- 
+
     attribs->id = vi->visualid;
     attribs->c_class = vi->c_class;
     attribs->depth = vi->depth;
@@ -138,7 +140,7 @@ static void visualAttribs( Display * dpy, XVisualInfo * vi, VisualAttribs * attr
     attribs->blueMask = vi->blue_mask;
     attribs->colormapSize = vi->colormap_size;
     attribs->bitsPerRGB = vi->bits_per_rgb;
- 
+
     if ( glXGetConfig( dpy, vi, GLX_USE_GL, &attribs->supportsGL ) != 0 )
         return;
     attribs->accumAlphaSize = 0;
@@ -158,11 +160,11 @@ static void visualAttribs( Display * dpy, XVisualInfo * vi, VisualAttribs * attr
     glXGetConfig( dpy, vi, GLX_ACCUM_GREEN_SIZE, &attribs->accumGreenSize );
     glXGetConfig( dpy, vi, GLX_ACCUM_BLUE_SIZE, &attribs->accumBlueSize );
     glXGetConfig( dpy, vi, GLX_ACCUM_ALPHA_SIZE, &attribs->accumAlphaSize );
-    
+
     attribs->transparent = 0; // transparent pixel missing
     attribs->numSamples = 0; // multisample tests missing
     attribs->numMultisample = 0;
- 
+
 #if defined(GLX_EXT_visual_rating)
     const char *ext = glXQueryExtensionsString( dpy, vi->screen );
     if ( ext && strstr( ext, "GLX_EXT_visual_rating" ) )
@@ -181,12 +183,12 @@ static void visualInfo( Display *dpy, int scrnum, QString &configs )
     int numVisuals;
     long mask;
     int i;
- 
+
     /* get list of all visuals on this screen */
     temp.screen = scrnum;
     mask = VisualScreenMask;
     visuals = XGetVisualInfo( dpy, mask, &temp, &numVisuals );
- 
+
     VisualAttribs attribs;
     configs.append( "Vis  Vis   Visual Trans  buff lev render DB ste  r   g   b   a  aux dep ste  accum buffers  MS   MS\n"
 		    " ID Depth   Type  parent size el   type     reo sz  sz  sz  sz  buf th  ncl  r   g   b   a  num bufs Caveat\n"
@@ -204,24 +206,24 @@ static void visualInfo( Display *dpy, int scrnum, QString &configs )
 		     attribs.rgba ? "rgba" : "ci",
 		     attribs.doubleBuffer,
 		     attribs.stereo,
-		     attribs.redSize, 
+		     attribs.redSize,
 		     attribs.greenSize,
 		     attribs.blueSize,
 		     attribs.alphaSize,
 		     attribs.auxBuffers,
 		     attribs.depthSize,
 		     attribs.stencilSize,
-		     attribs.accumRedSize, 
+		     attribs.accumRedSize,
 		     attribs.accumGreenSize,
-		     attribs.accumBlueSize, 
+		     attribs.accumBlueSize,
 		     attribs.accumAlphaSize,
-		     attribs.numSamples, 
+		     attribs.numSamples,
 		     attribs.numMultisample,
 		     caveatString( attribs.visualCaveat ) );
 	configs.append( str );
     }
 
- 
+
     XFree( visuals );
 }
 
@@ -232,22 +234,22 @@ GLInfo::GLInfo()
     Display *dpy;
     char *displayName = 0;
     int numScreens, scrNum;
-     
+
     dpy = gl.x11Display();
     if ( !dpy ) {
         qWarning( "Error: unable to open display %s\n", displayName );
     }
- 
+
     numScreens = ScreenCount( dpy );
-    infotext.sprintf( "Display name: %s\nDirect rendering: %s\n", DisplayString( dpy ), 
+    infotext.sprintf( "Display name: %s\nDirect rendering: %s\n", DisplayString( dpy ),
  		       gl.format().directRendering() ? "Yes" : "No" );
-    
+
     for ( scrNum = 0; scrNum < numScreens; scrNum++ ) {
 	screenInfo( dpy, scrNum, infotext );
 	visualInfo( dpy, scrNum, infotext );
 	if ( scrNum + 1 < numScreens )
 	    infotext.append( "\n\n" );
-    }    
+    }
 }
 
 QString GLInfo::info()
