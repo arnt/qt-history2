@@ -35,6 +35,9 @@ public:
     inline int right() const { return br.column(); }
     inline int width() const { return br.column() - tl.column() + 1; }
     inline int height() const { return br.row() - tl.row() + 1; }
+
+    inline QModelIndex topLeft() const { return tl; }
+    inline QModelIndex bottomRight() const { return br; }
     inline QModelIndex parent() const
         { return tl.model() ? tl.model()->parent(tl) : QModelIndex(); }
     inline const QAbstractItemModel *model() const { return tl.model(); }

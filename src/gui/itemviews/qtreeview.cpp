@@ -864,22 +864,26 @@ QRect QTreeView::selectionViewportRect(const QItemSelection &selection) const
         return QRect();
 
     int top = d->viewItems.count();
+    int left = d->header->count();
     int bottom = 0;
+    int right = 0;
     QItemSelectionRange r;
-    QModelIndex topIndex, bottomIndex;
+
     for (int i = 0; i < selection.count(); ++i) {
         r = selection.at(i);
-        topIndex = model()->index(r.top(), r.left(), r.parent());
-        top = qMin(d->viewIndex(topIndex), top);
-        bottomIndex = model()->index(r.bottom(), r.left(), r.parent());
-        bottom = qMax(d->viewIndex(bottomIndex), bottom);
+        top = qMin(d->viewIndex(r.topLeft()), top);
+        bottom = qMax(d->viewIndex(r.bottomRight()), bottom);
+        left = qMin(r.left(), left);
+        right = qMax(r.right(), right);
     }
 
-    if (!(topIndex.isValid() && bottomIndex.isValid()))
+    QModelIndex tl = d->modelIndex(top);
+    QModelIndex br = d->modelIndex(bottom);
+    if (!(tl.isValid() && br.isValid()))
         return QRect();
 
     QStyleOptionViewItem option = viewOptions();
-    int bottomHeight = itemDelegate()->sizeHint(option, bottomIndex).height();
+    int bottomHeight = d->height(bottom);
     int bottomPos = d->coordinate(bottom) + bottomHeight;
     int topPos = d->coordinate(top);
 
