@@ -571,7 +571,7 @@ void QAction::setAccel( const QKeySequence& key )
     d->accel = 0;
 #endif
 
-    if ( !key ) {
+    if ( !(int)key ) {
 	d->update();
 	return;
     }
