@@ -5763,13 +5763,17 @@ void QTableHeader::paintEvent( QPaintEvent *e )
 		     ? e->rect().left()
 		     : e->rect().top();
     int id = mapToIndex( sectionAt( pos + offset() ) );
-    if ( id < 0 )
+    if ( id < 0 ) {
 	if ( pos > 0 )
 	    return;
 	else
 	    id = 0;
+    }
+
+    QRegion reg = e->region();
     for ( int i = id; i < count(); i++ ) {
 	QRect r = sRect( i );
+	reg -= r;
 	p.save();
 	if ( !( orientation() == Horizontal && isRowSelection( table->selectionMode() ) ) &&
 	     ( sectionState( i ) == Bold || sectionState( i ) == Selected ) ) {
@@ -5783,6 +5787,8 @@ void QTableHeader::paintEvent( QPaintEvent *e )
 	     orientation() == Vertical && r. bottom() >= e->rect().bottom() )
 	    return;
     }
+    if ( !reg.isEmpty() )
+	erase( reg );
 }
 
 /*! \reimp
