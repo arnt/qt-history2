@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#55 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#56 $
 **
 ** Implementation of QScrollView class
 **
@@ -37,8 +37,7 @@ const int sbDim = 16;
 struct ChildRec {
     ChildRec(QWidget* c, int xx, int yy) :
 	child(c),
-	x(xx), y(yy),
-	wantshown(TRUE)
+	x(xx), y(yy)
     {
     }
 
@@ -48,7 +47,7 @@ struct ChildRec {
     }
     void moveTo(QScrollView* sv, int xx, int yy)
     {
-	if ( x != xx || y != yy || wantshown ) {
+	if ( x != xx || y != yy ) {
 	    x = xx;
 	    y = yy;
 	    hideOrShow(sv);
@@ -56,24 +55,19 @@ struct ChildRec {
     }
     void hideOrShow(QScrollView* sv)
     {
-	if ( wantshown ) {
-	    if ( x-sv->contentsX() < -child->width()
-	      || x-sv->contentsX() > sv->viewport()->width()
-	      || y-sv->contentsY() < -child->height()
-	      || y-sv->contentsY() > sv->viewport()->height() )
-	    {
-		child->hide();
-	    } else {
-		child->move(x-sv->contentsX(), y-sv->contentsY());
-		child->show();
-	    }
+	if ( x-sv->contentsX() < -child->width()
+	  || x-sv->contentsX() > sv->viewport()->width()
+	  || y-sv->contentsY() < -child->height()
+	  || y-sv->contentsY() > sv->viewport()->height() )
+	{
+	    child->move(sv->viewport()->width()+10000,
+			sv->viewport()->height()+10000);
 	} else {
-	    child->hide();
+	    child->move(x-sv->contentsX(), y-sv->contentsY());
 	}
     }
     QWidget* child;
     int x, y;
-    bool wantshown;
 };
 
 struct QScrollViewData {
@@ -140,7 +134,7 @@ struct QScrollViewData {
     bool anyVisibleChildren()
     {
 	for (ChildRec *r = children.first(); r; r=children.next()) {
-	    if (r->wantshown) return TRUE;
+	    if (r->child->isVisible()) return TRUE;
 	}
 	return FALSE;
     }
@@ -604,8 +598,9 @@ void QScrollView::addChild(QWidget* child, int x, int y)
 	ChildRec *r = d->rec(child);
 	if (r) {
 	    r->moveTo(this,x,y);
-	    if ( d->policy > Manual )
+	    if ( d->policy > Manual ) {
 		d->autoResize(this); // #### better to just deal with this one widget!
+	    }
 	    return;
 	}
     }
@@ -619,11 +614,11 @@ void QScrollView::addChild(QWidget* child, int x, int y)
     if ( child->parentWidget() != &d->viewport ) {
 	child->reparent( &d->viewport, 0, QPoint(0,0), FALSE );
     }
-    child->hide();
     d->addChildRec(child,x,y)->hideOrShow(this);
 
-    if ( d->policy > Manual )
+    if ( d->policy > Manual ) {
 	d->autoResize(this); // #### better to just deal with this one widget!
+    }
 }
 
 /*!
@@ -653,23 +648,29 @@ int QScrollView::childY(QWidget* child)
     return d->rec(child)->y;
 }
 
-/*! Returns TRUE if \a child is visible.  Use this rather than
-  QWidget::isVisible() for widgets added to the view.
+/*! 
+  \obsoltete
+
+  Returns TRUE if \a child is visible.  This is equivalent
+  to child->isVisible().
 */
 bool QScrollView::childIsVisible(QWidget* child)
 {
-    return d->rec(child)->wantshown;
+    return child->isVisible();
 }
 
 /*!
-  Sets the visibility of \a child.  Use this rather than
-  QWidget::show() or QWidget::hide() for widgets added to the view.
+  \obsolete
+
+  Sets the visibility of \a child. Equivalent to
+  QWidget::show() or QWidget::hide().
 */
 void QScrollView::showChild(QWidget* child, bool y)
 {
-    ChildRec* r = d->rec(child);
-    r->wantshown = y;
-    r->hideOrShow(this);
+    if ( y )
+	child->show();
+    else
+	child->hide();
 }
 
 
@@ -1196,13 +1197,9 @@ bool QScrollView::focusNextPrevChild( bool next )
 
     // then scan for a possible focus widget candidate
     while( !candidate && w != startingPoint ) {
-	r = d->ancestorRec( w );
 	if ( w != startingPoint && w->testWFlags( WState_TabToFocus ) &&
 	     w->isEnabledToTLW() &&!w->focusProxy() &&
-	     ( r
-	       ? ( r->wantshown && ( r->child == w ||
-				     w->isVisibleTo( r->child ) ) )
-	       : w->isVisibleToTLW() ) )
+	     ( w->isVisibleToTLW() ) )
 	    candidate = w;
 	w = next ? f->next() : f->prev();
     }
