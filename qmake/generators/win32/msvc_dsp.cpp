@@ -169,14 +169,18 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 	    else if(variable == "MSVCDSP_FORMSOURCES" || variable == "MSVCDSP_FORMHEADERS") {
 		if(project->variables()["FORMS"].isEmpty())
 		    continue;
-
+		QString uiDir;
+		if(!project->variables()["UI_DIR"].isEmpty())
+		    uiDir = project->first("UI_DIR");
+		else
+		    uiDir = "";
 		QStringList &list = project->variables()["FORMS"];
 		QString ext = variable == "MSVCDSP_FORMSOURCES" ? ".cpp" : ".h";
 		for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
 		    QString base = (*it);
 		    int dot = base.findRev(".");
 		    base.replace( dot, base.length() - dot, ext );
-		    t << "# Begin Source File\n\nSOURCE=" << base << "\n# End Source File" << endl;
+		    t << "# Begin Source File\n\nSOURCE=" << uiDir << base << "\n# End Source File" << endl;
 		}
 	    }
 	    else if(variable == "MSVCDSP_TRANSLATIONS" ) {
@@ -335,6 +339,12 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		    else
 			mocFile = fpath;
 
+		    QString uiDir;
+		    if(!project->variables()["UI_DIR"].isEmpty())
+			uiDir = project->first("UI_DIR");
+		    else
+			uiDir = fpath;
+
 		    QString imagesBuild;
 		    if ( !project->variables()["IMAGES"].isEmpty() && !imagesBuildDone ) {
 			QStringList &list = project->variables()["IMAGES"];
@@ -347,18 +357,18 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 
 		    QString build = "\n\n# Begin Custom Build - Uic'ing " + base + "...\n"
 			"InputPath=.\\" + base + "\n\n" "BuildCmds= \\\n\t" + uicpath + base +
-			" -o " + fpath + fname + ".h \\\n" "\t" + uicpath  + base +
-			" -i " + fname + ".h -o " + fpath + fname + ".cpp \\\n"
-			"\t" + mocpath + fpath + fname + ".h -o " + mocFile + "moc_" + fname + ".cpp \\\n";
+			" -o " + uiDir + fname + ".h \\\n" "\t" + uicpath  + base +
+			" -i " + fname + ".h -o " + uiDir + fname + ".cpp \\\n"
+			"\t" + mocpath + uiDir + fname + ".h -o " + mocFile + "moc_" + fname + ".cpp \\\n";
 		    
 		    if ( !project->variables()["IMAGES"].isEmpty() && !imagesBuildDone ) {
 			build.append("\t" + uicpath + "-embed " + project->first("QMAKE_ORIG_TARGET") + imagesBuild + " -o "
 			    + project->first("QMAKE_IMAGE_COLLECTION") + " \\\n"); 
 		    } 
 		    
-		    build.append("\n\"" + fpath + fname + ".h\" : \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\""  "\n"
+		    build.append("\n\"" + uiDir + fname + ".h\" : \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\""  "\n"
 			"\t$(BuildCmds)\n\n"
-			"\"" + fpath + fname + ".cpp\" : \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\"" "\n"
+			"\"" + uiDir + fname + ".cpp\" : \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\"" "\n"
 			"\t$(BuildCmds)\n\n"
 			"\"" + mocFile + "moc_" + fname + ".cpp\" : \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\"" "\n"
 			"\t$(BuildCmds)\n\n");
