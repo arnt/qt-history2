@@ -860,7 +860,7 @@ void MainWindow::setupWindowActions()
     actionWindowTile->addTo( windowMenu );
     actionWindowCascade->addTo( windowMenu );
     windowMenu->insertSeparator();
-    windowMenu->insertItem( tr( "&Views" ), createDockWindowMenu( NoToolBars ) );
+    windowMenu->insertItem( tr( "Vie&ws" ), createDockWindowMenu( NoToolBars ) );
     windowMenu->insertItem( tr( "&Toolbars" ), createDockWindowMenu( OnlyToolBars ) );
     QWidgetList windows = workspace->windowList();
     if ( windows.count() && formWindow() )
