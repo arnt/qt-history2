@@ -697,10 +697,10 @@ static bool block_set_alignment = false;
 
   An anchor has one or more of the following attributes:
 
-  \value Qt::AnchorName the name attribute of the anchor. This attribute is
+  \value AnchorName the name attribute of the anchor. This attribute is
   used when scrolling to an anchor in the document.
 
-  \value Qt::AnchorHref the href attribute of the anchor. This attribute is
+  \value AnchorHref the href attribute of the anchor. This attribute is
   used when a link is clicked to determine what content to load.
 */
 

@@ -433,18 +433,6 @@ const QString::Null QString::null = QString::Null();
     \sa fromRawData(), QChar, QLatin1String, QByteArray
 */
 
-/*! \enum QString::CaseSensitivity
-
-    This enum type is used to specify whether upper-case and
-    lower-case letters should compare equal when performing string
-    comparisons.
-
-    \value Qt::CaseInsensitive The upper-case and lower-case versions of the same letter compare equal.
-    \value Qt::CaseSensitive The upper-case and lower-case versions of the same letter are treated as different characters.
-
-    \sa QChar::toLower(), QChar::toUpper()
-*/
-
 QString::Data QString::shared_null = { Q_ATOMIC_INIT(1), 0, 0, 0, shared_null.array, 0, 0, 0, 0, 0, 0, {0} };
 QString::Data QString::shared_empty = { Q_ATOMIC_INIT(1), 0, 0, 0, shared_empty.array, 0, 0, 0, 0, 0, 0, {0} };
 

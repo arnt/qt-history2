@@ -65,10 +65,10 @@
     \value Bottom - allows the bottom of the window to be resized.
     \value Left - allows the left edge of the window to be resized.
     \value Right - allows the right edge of the window to be resized.
-    \value Qt::TopLeft - allows the top-left of the window to be resized.
-    \value Qt::TopRight - allows the top-right of the window to be resized.
-    \value Qt::BottomLeft - allows the bottom-left of the window to be resized.
-    \value Qt::BottomRight - allows the bottom-right of the window to be resized.
+    \value TopLeft - allows the top-left of the window to be resized.
+    \value TopRight - allows the top-right of the window to be resized.
+    \value BottomLeft - allows the bottom-left of the window to be resized.
+    \value BottomRight - allows the bottom-right of the window to be resized.
     \value Close - clicking in this region closes the window.
     \value Minimize - clicking in this region minimizes the window.
     \value Maximize - clicking in this region maximizes the window.

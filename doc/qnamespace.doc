@@ -177,12 +177,11 @@
     which can be the OR of these values. (A flag value of 0 signifies
     a case-insensitive match anywhere in the string.)
 
-    \value CaseSensitive The strings are compared case-sensitively.
+    \value IgnoreCase The strings are compared case-insensitively.
     \value ExactMatch The strings must be the same apart from case, or
     exactly the same if CaseSensitive is also used.
     \value BeginsWith The target string starts with the given string.
     \value EndsWith The target string ends with the given string.
-    \value Contains The target string contains the given string.
 
 */
 

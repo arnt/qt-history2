@@ -268,7 +268,7 @@
     \value Square
     \value Sub
     \value Super
-    \value Qt::Vertical
+    \value Vertical
     \value Wide
 
 */

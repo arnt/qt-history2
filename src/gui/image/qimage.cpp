@@ -177,39 +177,39 @@
     list are included (since the defaults are zero):
 
     Color/Mono preference (ignored for QBitmap)
-    \value Qt::AutoColor (default) - If the image has \link
+    \value AutoColor (default) - If the image has \link
            QImage::depth() depth\endlink 1 and contains only
            black and white pixels, the pixmap becomes monochrome.
-    \value Qt::ColorOnly The pixmap is dithered/converted to the
+    \value ColorOnly The pixmap is dithered/converted to the
            \link QPixmap::defaultDepth() native display depth\endlink.
-    \value Qt::MonoOnly The pixmap becomes monochrome. If necessary,
+    \value MonoOnly The pixmap becomes monochrome. If necessary,
            it is dithered using the chosen dithering algorithm.
 
     Dithering mode preference for RGB channels
-    \value Qt::DiffuseDither (default) - A high-quality dither.
-    \value Qt::OrderedDither A faster, more ordered dither.
-    \value Qt::ThresholdDither No dithering; closest color is used.
+    \value DiffuseDither (default) - A high-quality dither.
+    \value OrderedDither A faster, more ordered dither.
+    \value ThresholdDither No dithering; closest color is used.
 
     Dithering mode preference for alpha channel
-    \value Qt::ThresholdAlphaDither (default) - No dithering.
-    \value Qt::OrderedAlphaDither A faster, more ordered dither.
-    \value Qt::DiffuseAlphaDither A high-quality dither.
-    \value Qt::NoAlpha Not supported.
+    \value ThresholdAlphaDither (default) - No dithering.
+    \value OrderedAlphaDither A faster, more ordered dither.
+    \value DiffuseAlphaDither A high-quality dither.
+    \value NoAlpha Not supported.
 
     Color matching versus dithering preference
-    \value Qt::PreferDither (default when converting to a pixmap) - Always dither
+    \value PreferDither (default when converting to a pixmap) - Always dither
            32-bit images when the image is converted to 8 bits.
-    \value Qt::AvoidDither (default when converting for the purpose of saving to
+    \value AvoidDither (default when converting for the purpose of saving to
            file) - Dither 32-bit images only if the image has more than 256
            colors and it is being converted to 8 bits.
-    \value Qt::AutoDither Not supported.
+    \value AutoDither Not supported.
 
     The following are not values that are used directly, but masks for
     the above classes:
-    \value Qt::ColorMode_Mask  Mask for the color mode.
-    \value Qt::Dither_Mask  Mask for the dithering mode for RGB channels.
-    \value Qt::AlphaDither_Mask  Mask for the dithering mode for the alpha channel.
-    \value Qt::DitherMode_Mask  Mask for the mode that determines the preference of
+    \value ColorMode_Mask  Mask for the color mode.
+    \value Dither_Mask  Mask for the dithering mode for RGB channels.
+    \value AlphaDither_Mask  Mask for the dithering mode for the alpha channel.
+    \value DitherMode_Mask  Mask for the mode that determines the preference of
            color matching versus dithering.
 
     Using 0 as the conversion flag sets all the default options.

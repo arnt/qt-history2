@@ -53,10 +53,10 @@
 /*!
     \enum Qt::ArrowType
 
-    \value Qt::UpArrow
-    \value Qt::DownArrow
-    \value Qt::LeftArrow
-    \value Qt::RightArrow
+    \value UpArrow
+    \value DownArrow
+    \value LeftArrow
+    \value RightArrow
 
 */
 
@@ -235,7 +235,7 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe,
 
 /*!
     Draws the primitive element \a pe, with style options \a opt, on
-    painter \a p, with parent widget \a w.
+    painter \a p, with the given parent \a widget.
 */
 void QCommonStyle::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt, QPainter *p,
                                  const QWidget *widget) const

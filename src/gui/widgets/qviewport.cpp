@@ -82,13 +82,13 @@
     This enum type describes the various modes of QViewport's scroll
     bars.
 
-    \value Qt::ScrollBarAsNeeded QViewport shows a scroll bar when the
+    \value ScrollBarAsNeeded QViewport shows a scroll bar when the
     content is too large to fit and not otherwise. This is the
     default.
 
-    \value Qt::ScrollBarAlwaysOff QViewport never shows a scroll bar.
+    \value ScrollBarAlwaysOff QViewport never shows a scroll bar.
 
-    \value Qt::ScrollBarAlwaysOn  QViewport always shows a scroll bar.
+    \value ScrollBarAlwaysOn  QViewport always shows a scroll bar.
 
     (The modes for the horizontal and vertical scroll bars are
     independent.)

@@ -515,104 +515,104 @@ static QPalette qt_naturalWidgetPalette(QWidget* w) {
 
     The main types are
 
-    \value Qt::WType_TopLevel  indicates that this widget is a top-level
+    \value WType_TopLevel  indicates that this widget is a top-level
     widget, usually with a window-system frame and so on.
 
-    \value Qt::WType_Dialog  indicates that this widget is a top-level
+    \value WType_Dialog  indicates that this widget is a top-level
     window that should be decorated as a dialog (i.e. typically no
     maximize or minimize buttons in the title bar). If you want to use
     it as a modal dialog it should be launched from another window, or
-    have a parent and this flag should be combined with \c Qt::WShowModal.
+    have a parent and this flag should be combined with \c WShowModal.
     If you make it modal, the dialog will prevent other top-level
-    windows in the application from getting any input. \c Qt::WType_Dialog
-    implies \c Qt::WType_TopLevel. We refer to a top-level window that has
-    a parent as a \e secondary window. (See also \c Qt::WGroupLeader.)
+    windows in the application from getting any input. \c WType_Dialog
+    implies \c WType_TopLevel. We refer to a top-level window that has
+    a parent as a \e secondary window. (See also \c WGroupLeader.)
 
-    \value Qt::WType_Popup  indicates that this widget is a popup
+    \value WType_Popup  indicates that this widget is a popup
     top-level window, i.e. that it is modal, but has a window system
-    frame appropriate for popup menus. \c Qt::WType_Popup implies
-    Qt::WType_TopLevel.
+    frame appropriate for popup menus. \c WType_Popup implies
+    WType_TopLevel.
 
-    \value Qt::WType_Desktop  indicates that this widget is the desktop.
-    See also \c Qt::WPaintDesktop below. \c Qt::WType_Desktop implies \c
-    Qt::WType_TopLevel.
+    \value WType_Desktop  indicates that this widget is the desktop.
+    See also \c WPaintDesktop below. \c WType_Desktop implies \c
+    WType_TopLevel.
 
     There are also a number of flags which you can use to customize
     the appearance of top-level windows. These have no effect on other
     windows:
 
-    \value Qt::WStyle_Customize  indicates that the \c WStyle_* flags
+    \value WStyle_Customize  indicates that the \c WStyle_* flags
     should be used to build the window instead of the default flags.
 
-    \value Qt::WStyle_NormalBorder  gives the window a normal border.
-    This cannot be combined with \c Qt::WStyle_DialogBorder or \c
-    Qt::WStyle_NoBorder.
+    \value WStyle_NormalBorder  gives the window a normal border.
+    This cannot be combined with \c WStyle_DialogBorder or \c
+    WStyle_NoBorder.
 
-    \value Qt::WStyle_DialogBorder  gives the window a thin dialog border.
-    This cannot be combined with \c Qt::WStyle_NormalBorder or \c
-    Qt::WStyle_NoBorder.
+    \value WStyle_DialogBorder  gives the window a thin dialog border.
+    This cannot be combined with \c WStyle_NormalBorder or \c
+    WStyle_NoBorder.
 
-    \value Qt::WStyle_NoBorder  produces a borderless window. Note that
+    \value WStyle_NoBorder  produces a borderless window. Note that
     the user cannot move or resize a borderless window via the window
-    system. This cannot be combined with \c Qt::WStyle_NormalBorder or \c
-    Qt::WStyle_DialogBorder. On Windows, the flag works fine. On X11, the
+    system. This cannot be combined with \c WStyle_NormalBorder or \c
+    WStyle_DialogBorder. On Windows, the flag works fine. On X11, the
     result of the flag is dependent on the window manager and its
     ability to understand MOTIF and/or NETWM hints: most existing
-    modern window managers can handle this. With \c Qt::WX11BypassWM, you
+    modern window managers can handle this. With \c WX11BypassWM, you
     can bypass the window manager completely. This results in a
     borderless window that is not managed at all (i.e. no keyboard
     input unless you call setActiveWindow() manually).
 
-    \value Qt::WStyle_Title  gives the window a title bar.
+    \value WStyle_Title  gives the window a title bar.
 
-    \value Qt::WStyle_SysMenu  adds a window system menu.
+    \value WStyle_SysMenu  adds a window system menu.
 
-    \value Qt::WStyle_Minimize  adds a minimize button. Note that on
-    Windows this has to be combined with \c Qt::WStyle_SysMenu for it to
+    \value WStyle_Minimize  adds a minimize button. Note that on
+    Windows this has to be combined with \c WStyle_SysMenu for it to
     work.
 
-    \value Qt::WStyle_Maximize  adds a maximize button. Note that on
-    Windows this has to be combined with \c Qt::WStyle_SysMenu for it to work.
+    \value WStyle_Maximize  adds a maximize button. Note that on
+    Windows this has to be combined with \c WStyle_SysMenu for it to work.
 
-    \value Qt::WStyle_MinMax  is equal to \c
-    Qt::WStyle_Minimize|Qt::WStyle_Maximize. Note that on Windows this has to
-    be combined with \c Qt::WStyle_SysMenu to work.
+    \value WStyle_MinMax  is equal to \c
+    WStyle_Minimize|WStyle_Maximize. Note that on Windows this has to
+    be combined with \c WStyle_SysMenu to work.
 
-    \value Qt::WStyle_ContextHelp  adds a context help button to dialogs.
+    \value WStyle_ContextHelp  adds a context help button to dialogs.
 
-    \value Qt::WStyle_Tool  makes the window a tool window. A tool window
+    \value WStyle_Tool  makes the window a tool window. A tool window
     is often a small window with a smaller than usual title bar and
     decoration, typically used for collections of tool buttons. It
     there is a parent, the tool window will always be kept on top of
     it. If there isn't a parent, you may consider passing \c
-    Qt::WStyle_StaysOnTop as well. If the window system supports it, a
+    WStyle_StaysOnTop as well. If the window system supports it, a
     tool window can be decorated with a somewhat lighter frame. It can
-    also be combined with \c Qt::WStyle_NoBorder.
+    also be combined with \c WStyle_NoBorder.
 
-    \value Qt::WStyle_StaysOnTop  informs the window system that the
+    \value WStyle_StaysOnTop  informs the window system that the
     window should stay on top of all other windows. Note that on some
-    window managers on X11 you also have to pass \c Qt::WX11BypassWM for
+    window managers on X11 you also have to pass \c WX11BypassWM for
     this flag to work correctly.
 
-    \value Qt::WStyle_Splash  indicates that the window is a splash screen.
+    \value WStyle_Splash  indicates that the window is a splash screen.
     On X11, we try to follow NETWM standard for a splash screen window if the
-    window manager supports is otherwise it is equivalent to \c Qt::WX11BypassWM. On
-    other platforms, it is equivalent to \c Qt::WStyle_NoBorder \c | \c Qt::WMacSheet \c |
-    \c Qt::WStyle_Tool \c | \c Qt::WWinOwnDC
+    window manager supports is otherwise it is equivalent to \c WX11BypassWM. On
+    other platforms, it is equivalent to \c WStyle_NoBorder \c | \c WMacSheet \c |
+    \c WStyle_Tool \c | \c WWinOwnDC
 
-    Qt::Modifier flags:
+    Modifier flags:
 
-    \value Qt::WDestructiveClose  makes Qt delete this widget when the
+    \value WDestructiveClose  makes Qt delete this widget when the
     widget has accepted closeEvent(), or when the widget tried to
     ignore closeEvent() but could not.
 
-    \value Qt::WPaintDesktop  gives this widget paint events for the
+    \value WPaintDesktop  gives this widget paint events for the
     desktop.
 
-    \value Qt::WMouseNoMask  indicates that even if the widget has a mask,
+    \value WMouseNoMask  indicates that even if the widget has a mask,
     it wants mouse events for its entire rectangle.
 
-    \value Qt::WGroupLeader  makes this window a group leader. A group
+    \value WGroupLeader  makes this window a group leader. A group
     leader should \e not have a parent (i.e. it should be a top-level
     window). Any decendant windows (direct or indirect) of a group
     leader are in its group; other windows are not. If you show a
@@ -623,20 +623,20 @@ static QPalette qt_naturalWidgetPalette(QWidget* w) {
 
     Miscellaneous flags
 
-    \value Qt::WShowModal see Qt::WType_Dialog
+    \value WShowModal see WType_Dialog
 
     Internal flags.
 
-    \value Qt::WNoMousePropagation
-    \value Qt::WStyle_Reserved
-    \value Qt::WSubWindow
-    \value Qt::WWinOwnDC
-    \value Qt::WX11BypassWM
-    \value Qt::WMacSheet
-    \value Qt::WMacDrawer
-    \value Qt::WMacMetal
-    \value Qt::WStyle_Mask
-    \value Qt::WType_Mask
+    \value WNoMousePropagation
+    \value WStyle_Reserved
+    \value WSubWindow
+    \value WWinOwnDC
+    \value WX11BypassWM
+    \value WMacSheet
+    \value WMacDrawer
+    \value WMacMetal
+    \value WStyle_Mask
+    \value WType_Mask
 
 */
 
@@ -645,30 +645,30 @@ static QPalette qt_naturalWidgetPalette(QWidget* w) {
 
     Internal flags.
 
-    \value Qt::WState_AutoMask
-    \value Qt::WState_BlockUpdates
-    \value Qt::WState_CompressKeys
-    \value Qt::WState_ConfigPending
-    \value Qt::WState_Created
-    \value Qt::WState_DND
-    \value Qt::WState_ExplicitShowHide
-    \value Qt::WState_Exposed
-    \value Qt::WState_FullScreen
-    \value Qt::WState_Hidden
-    \value Qt::WState_InPaintEvent
-    \value Qt::WState_Maximized
-    \value Qt::WState_Minimized
-    \value Qt::WState_OwnSizePolicy
-    \value Qt::WState_Polished
-    \value Qt::WState_Reparented
-    \value Qt::WState_Reserved0 \e internal
-    \value Qt::WState_Reserved2 \e internal
-    \value Qt::WState_Reserved3 \e internal
-    \value Qt::WState_Reserved4 \e internal
-    \value Qt::WState_Reserve5 \e internal
-    \value Qt::WState_Reserve6 \e internal
-    \value Qt::WState_Reserved7 \e internal
-    \value Qt::WState_Visible
+    \value WState_AutoMask
+    \value WState_BlockUpdates
+    \value WState_CompressKeys
+    \value WState_ConfigPending
+    \value WState_Created
+    \value WState_DND
+    \value WState_ExplicitShowHide
+    \value WState_Exposed
+    \value WState_FullScreen
+    \value WState_Hidden
+    \value WState_InPaintEvent
+    \value WState_Maximized
+    \value WState_Minimized
+    \value WState_OwnSizePolicy
+    \value WState_Polished
+    \value WState_Reparented
+    \value WState_Reserved0 \e internal
+    \value WState_Reserved2 \e internal
+    \value WState_Reserved3 \e internal
+    \value WState_Reserved4 \e internal
+    \value WState_Reserve5 \e internal
+    \value WState_Reserve6 \e internal
+    \value WState_Reserved7 \e internal
+    \value WState_Visible
 */
 
 
@@ -682,11 +682,11 @@ static QPalette qt_naturalWidgetPalette(QWidget* w) {
 
     The states are
 
-    \value Qt::WindowNoState   The window has no state set (in normal state).
-    \value Qt::WindowMinimized The window is minimized (i.e. iconified).
-    \value Qt::WindowMaximized The window is maximized with a frame around it.
-    \value Qt::WindowFullScreen The window fills the entire screen without any frame around it.
-    \value Qt::WindowActive The window is the active window, i.e. it has keyboard focus.
+    \value WindowNoState   The window has no state set (in normal state).
+    \value WindowMinimized The window is minimized (i.e. iconified).
+    \value WindowMaximized The window is maximized with a frame around it.
+    \value WindowFullScreen The window fills the entire screen without any frame around it.
+    \value WindowActive The window is the active window, i.e. it has keyboard focus.
 
 */
 
@@ -3541,15 +3541,15 @@ QSize QWidget::contentsMarginSize() const
     This enum type defines the various policies a widget can have with
     respect to acquiring keyboard focus.
 
-    \value Qt::TabFocus  the widget accepts focus by tabbing.
-    \value Qt::ClickFocus  the widget accepts focus by clicking.
-    \value Qt::StrongFocus  the widget accepts focus by both tabbing
+    \value TabFocus  the widget accepts focus by tabbing.
+    \value ClickFocus  the widget accepts focus by clicking.
+    \value StrongFocus  the widget accepts focus by both tabbing
                         and clicking. On Mac OS X this will also
                         be indicate that the widget accepts tab focus
                         when in 'Text/List focus mode'.
-    \value Qt::WheelFocus  like Qt::StrongFocus plus the widget accepts
+    \value WheelFocus  like StrongFocus plus the widget accepts
                         focus by using the mouse wheel.
-    \value Qt::NoFocus  the widget does not accept focus.
+    \value NoFocus  the widget does not accept focus.
 
 */
 

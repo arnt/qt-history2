@@ -5468,11 +5468,11 @@ void Q3ListView::setSorting(int column, bool ascending)
 
     This enum describes how the items in a widget are sorted.
 
-    \value Qt::AscendingOrder The items are sorted ascending e.g. starts with
-    'AAA' ends with 'ZZZ' in Latin1 locales
+    \value AscendingOrder The items are sorted ascending e.g. starts with
+    'AAA' ends with 'ZZZ' in Latin-1 locales
 
-    \value Qt::DescendingOrder The items are sorted descending e.g. starts with
-    'ZZZ' ends with 'AAA' in Latin1 locales
+    \value DescendingOrder The items are sorted descending e.g. starts with
+    'ZZZ' ends with 'AAA' in Latin-1 locales
 */
 
 /*!

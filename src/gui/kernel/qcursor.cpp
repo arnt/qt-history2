@@ -94,26 +94,26 @@
 
     This enum type defines the various cursors that can be used.
 
-    \value Qt::ArrowCursor  standard arrow cursor
-    \value Qt::UpArrowCursor  upwards arrow
-    \value Qt::CrossCursor  crosshair
-    \value Qt::WaitCursor  hourglass/watch
-    \value Qt::BusyCursor  standard arrow with hourglass/watch
-    \value Qt::IbeamCursor  ibeam/text entry
-    \value Qt::SizeVerCursor  vertical resize
-    \value Qt::SizeHorCursor  horizontal resize
-    \value Qt::SizeFDiagCursor  diagonal resize (\)
-    \value Qt::SizeBDiagCursor  diagonal resize (/)
-    \value Qt::SizeAllCursor  all directions resize
-    \value Qt::BlankCursor  blank/invisible cursor
-    \value Qt::SplitVCursor  vertical splitting
-    \value Qt::SplitHCursor  horizontal splitting
-    \value Qt::PointingHandCursor  a pointing hand
-    \value Qt::ForbiddenCursor  a slashed circle
-    \value Qt::WhatsThisCursor  an arrow with a question mark
-    \value Qt::BitmapCursor
+    \value ArrowCursor  standard arrow cursor
+    \value UpArrowCursor  upwards arrow
+    \value CrossCursor  crosshair
+    \value WaitCursor  hourglass/watch
+    \value BusyCursor  standard arrow with hourglass/watch
+    \value IbeamCursor  ibeam/text entry
+    \value SizeVerCursor  vertical resize
+    \value SizeHorCursor  horizontal resize
+    \value SizeFDiagCursor  diagonal resize (\)
+    \value SizeBDiagCursor  diagonal resize (/)
+    \value SizeAllCursor  all directions resize
+    \value BlankCursor  blank/invisible cursor
+    \value SplitVCursor  vertical splitting
+    \value SplitHCursor  horizontal splitting
+    \value PointingHandCursor  a pointing hand
+    \value ForbiddenCursor  a slashed circle
+    \value WhatsThisCursor  an arrow with a question mark
+    \value BitmapCursor
 
-    Qt::ArrowCursor is the default for widgets in a normal state.
+    ArrowCursor is the default for widgets in a normal state.
 
     \img cursors.png Cursor Shapes
 */

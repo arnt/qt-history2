@@ -1405,17 +1405,17 @@ QString QStyleSheet::escape(const QString& plain)
     done by passing one of the enum values to a setTextFormat()
     function.
 
-    \value Qt::PlainText  The text string is interpreted as a plain text
+    \value PlainText  The text string is interpreted as a plain text
         string.
 
-    \value Qt::RichText The text string is interpreted as a rich text
+    \value RichText The text string is interpreted as a rich text
         string using the current QStyleSheet::defaultSheet().
 
-    \value Qt::AutoText The text string is interpreted as for \c Qt::RichText
+    \value AutoText The text string is interpreted as for \c RichText
         if QStyleSheet::mightBeRichText() returns true, otherwise as
-        \c Qt::PlainText.
+        \c PlainText.
 
-    \value Qt::LogText A special, limited text format which is only used
+    \value LogText A special, limited text format which is only used
     by QTextEdit in an optimized mode.
 */
 
