@@ -144,11 +144,11 @@ kernel {
 		          $$KERNEL_CPP/qfontengine_x11.cpp
 	}
 
-	mac {
+	!x11:mac {
 	    exists($$KERNEL_CPP/qsound_mac.cpp):SOURCES += $$KERNEL_CPP/qsound_mac.cpp
 	    else:SOURCES += $$KERNEL_CPP/qsound_qws.cpp
 	}
-        !embedded:mac {
+        !embedded:!x11:mac {
 	      SOURCES += $$KERNEL_CPP/qapplication_mac.cpp \
 		          $$KERNEL_CPP/qclipboard_mac.cpp \
 			  $$KERNEL_CPP/qcolor_mac.cpp \

@@ -14,7 +14,7 @@ styles {
 		styles += mac cde motifplus sgi platinum compact interlace windows motif
 	}
 
-	embedded|!macx-*:styles -= mac
+	x11|embedded|!macx-*:styles -= mac
 	contains( styles, mac ) {
 		HEADERS +=$$STYLES_H/qmacstyle_mac.h
 		SOURCES +=$$STYLES_CPP/qmacstyle_mac.cpp

@@ -50,6 +50,7 @@
 
      MACX	- Mac OS X
      MAC9	- Mac OS 9
+     DARWIN     - Darwin OS (Without Mac OS X)
      MSDOS	- MS-DOS and Windows
      OS2	- OS/2
      OS2EMX	- XFree86 on OS/2 (not PM)
@@ -79,7 +80,9 @@
      UNIX	- Any UNIX BSD/SYSV system
 */
 
-#if defined(__APPLE__) && defined(__GNUC__)
+#if defined(__DARWIN_X11__)
+#  define Q_OS_DARWIN
+#elif defined(__APPLE__) && defined(__GNUC__)
 #  define Q_OS_MACX
 #elif defined(__MACOSX__)
 #  define Q_OS_MACX

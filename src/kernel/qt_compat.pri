@@ -9,7 +9,7 @@
 ##########################################################
 
 # mac hac fu
-!embedded:mac {
+!embedded:!x11:mac {
      #never
      CONFIG -= nas x11 x11sm
      #CONFIG += sqlcrap

@@ -40,13 +40,6 @@
 #endif
 #include <Carbon/Carbon.h>
 #include <QuickTime/Movies.h>
-#ifdef Q_OS_MACX
-# define ENUM_DYLD_BOOL
- enum DYLD_BOOL { DYLD_FALSE, DYLD_TRUE };
- extern "C" {
-# include "mach-o/dyld.h"
- }
-#endif
 #include "qglobal.h"
 
 #ifdef Q_OS_MAC9

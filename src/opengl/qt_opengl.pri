@@ -5,9 +5,9 @@ opengl {
 		   $$OPENGL_H/qglcolormap.h
 	SOURCES	+= $$OPENGL_CPP/qgl.cpp \
 		   $$OPENGL_CPP/qglcolormap.cpp
-	mac:SOURCES += $$OPENGL_CPP/qgl_mac.cpp
 	x11:SOURCES += $$OPENGL_CPP/qgl_x11.cpp
-	win32:SOURCES += $$OPENGL_CPP/qgl_win.cpp
+	else:mac:SOURCES += $$OPENGL_CPP/qgl_mac.cpp
+	else:win32:SOURCES += $$OPENGL_CPP/qgl_win.cpp
 }
 
 

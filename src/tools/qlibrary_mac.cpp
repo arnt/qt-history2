@@ -43,9 +43,16 @@
 
   It's not too hard to guess what the functions do.
 */
-#if defined(Q_OS_MACX)
+#if defined(Q_OS_MACX) || defined(Q_OS_DARWIN)
 
-#include "qt_mac.h"
+#if defined(Q_OS_MACX)
+#  include "qt_mac.h"
+#endif
+# define ENUM_DYLD_BOOL
+ enum DYLD_BOOL { DYLD_FALSE, DYLD_TRUE };
+ extern "C" {
+# include "mach-o/dyld.h"
+ }
 #include "qdict.h"
 #include "qdir.h"
 #include "qstringlist.h"

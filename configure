@@ -49,7 +49,7 @@ PLATFORM_MAC=no
 PLATFORM_QWS=no
 PLATFORM_QNX=no
 
-if [ -f $relpath/src/tools/qdir_mac.cpp ] && [ -d /System/Library/Frameworks/Carbon.framework ]; then
+if [ -f $relpath/src/kernel/qapplication_mac.cpp ] && [ -d /System/Library/Frameworks/Carbon.framework ]; then
     # Qt/Mac
     # ~ the Carbon SDK exists
     # ~ src/kernel/qapplication_mac.cpp is present
@@ -76,7 +76,7 @@ fi
 # Free edition - may only be used under the terms of the QPL or GPL.
 # Qt/X11, Qt/Embedded
 if [ -f $relpath/LICENSE.QPL -o -f $relpath/LICENSE.GPL ]; then
-    [ "$PLATFORM_MAC" = "maybe" ] && PLATFORM_X11=yes
+    [ "$PLATFORM_MAC" = "maybe" ] && PLATFORM_MAC=yes
     [ "$PLATFORM_QWS" = "maybe" ] && PLATFORM_QWS=yes
     Edition="free"
     Licensee="Free"
@@ -488,6 +488,18 @@ while [ "$#" -gt 0 ]; do
 		QMAKE_PROJECTS="$QMAKE_PROJECTS `find $relpath/. -name '*.pro' -print`"
 	    fi
 	fi
+	;;
+    x11)
+        if [ "$Edition" = "troll" ] && [ "$VAL" = "yes" ]; then
+	    if [ "$PLATFORM_MAC" = "yes" ]; then
+		PLATFORM_MAC=no
+	    elif [ "$PLATFORM_QWS" = "yes" ]; then
+		PLATFORM_QWS=no
+	    fi
+	    PLATFORM_X11=yes
+	else
+	    UNKNOWN_OPT=yes
+        fi
 	;;
     profile)
 	if [ "$VAL" = "yes" ]; then
@@ -1230,11 +1242,11 @@ if [ -z "$PLATFORM" ]; then
     PLATFORM_NOTES=
     case "$UNAME_SYSTEM:$UNAME_RELEASE" in
      Darwin:*)
-	if [ "$PLATFORM_MAC" != "yes" ]; then
-	PLATFORM=darwin-g++
-	else
-	PLATFORM=macx-g++
+	if [ "$PLATFORM_MAC" = "yes" ]; then
+	  PLATFORM=macx-g++
 	# PLATFORM=macx-pbuilder
+	else
+	  PLATFORM=darwin-g++
 	fi
 	;;
      AIX:*)
