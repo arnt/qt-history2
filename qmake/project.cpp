@@ -1218,7 +1218,22 @@ QMakeProject::doProjectTest(const QString& func, QStringList args, QMap<QString,
 		    parser.line_no);
 	    return FALSE;
 	}
-	return system(args.first().latin1()) == 0;
+#ifdef Q_OS_UNIX
+	for(QMap<QString, QStringList>::ConstIterator it = place.begin(); 
+	    it != place.end(); ++it) {
+	    if(!it.key().startsWith(".")) 
+		setenv(Option::sysenv_mod + it.key(), it.data().join(" "), 1);
+	}
+#endif
+	bool ret = system(args.first().latin1()) == 0;
+#ifdef Q_OS_UNIX
+	for(QMap<QString, QStringList>::ConstIterator it = place.begin(); 
+	    it != place.end(); ++it) {
+	    if(!it.key().startsWith(".")) 
+		unsetenv(Option::sysenv_mod + it.key());
+	}
+#endif
+	return ret;
     } else if(func == "break") {
 	if(!iterator)
 	    fprintf(stderr, "%s:%d unexpected break()",parser.file.latin1(), parser.line_no);
@@ -1638,6 +1653,13 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 		    fprintf(stderr, "%s:%d system(execut) requires one argument\n",
 			    parser.file.latin1(), parser.line_no);
 		} else {
+#ifdef Q_OS_UNIX
+		    for(QMap<QString, QStringList>::ConstIterator it = place.begin(); 
+			it != place.end(); ++it) {
+			if(!it.key().startsWith(".")) 
+			    setenv(Option::sysenv_mod + it.key(), it.data().join(" "), 1);
+		    }
+#endif
 		    char buff[256];
 		    FILE *proc = QT_POPEN(arg_list.join(" ").latin1(), "r");
 		    while(proc && !feof(proc)) {
@@ -1651,7 +1673,19 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 			buff[read_in] = '\0';
 			replacement += buff;
 		    }
+#ifdef Q_OS_UNIX
+		    for(QMap<QString, QStringList>::ConstIterator it = place.begin(); 
+			it != place.end(); ++it) {
+			if(!it.key().startsWith(".")) 
+			    unsetenv(Option::sysenv_mod + it.key());
+		    }
+#endif
 		}
+	    } else if(val.lower() == "quote") {
+		replacement = arg_list.join(" ");
+		replacement = replacement.replace("[^\\]\\n", "\n");
+		replacement = replacement.replace("[^\\]\\t", "\t");
+		replacement = replacement.replace("[^\\]\\r", "\r");
 	    } else if(val.lower() == "files") {
 		if(arg_list.count() != 1) {
 		    fprintf(stderr, "%s:%d files(pattern) requires one argument\n",

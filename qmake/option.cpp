@@ -36,6 +36,7 @@ QString Option::h_moc_mod;
 QString Option::cpp_moc_mod;
 QString Option::yacc_mod;
 QString Option::lex_mod;
+QString Option::sysenv_mod;
 
 //mode
 Option::QMAKE_MODE Option::qmake_mode = Option::QMAKE_GENERATE_NOTHING;
@@ -298,6 +299,7 @@ Option::parseCommandLine(int argc, char **argv)
     Option::cpp_ext << ".cpp" << ".cc" << ".cxx" << ".C";
     Option::lex_ext = ".l";
     Option::yacc_ext = ".y";
+    Option::sysenv_mod = "QMAKE_ENV_";
 
     if(Option::qmake_mode == Option::QMAKE_GENERATE_NOTHING)
 	Option::qmake_mode = default_mode(argv[0]);
@@ -423,6 +425,8 @@ bool Option::postProcessProject(QMakeProject *project)
 	Option::yacc_mod = project->first("QMAKE_MOD_YACC");
     if(!project->isEmpty("QMAKE_DIR_SEP"))
 	Option::dir_sep = project->first("QMAKE_DIR_SEP");
+    if(!project->isEmpty("QMAKE_MOD_SYSTEM_ENV"))
+	Option::sysenv_mod = project->first("QMAKE_MOD_SYSTEM_ENV");
     return TRUE;
 }
 

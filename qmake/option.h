@@ -55,6 +55,7 @@ struct Option
     static QString lex_mod;
     static QString yacc_mod;
     static QString dir_sep;
+    static QString sysenv_mod;
     //both of these must be called..
     static bool parseCommandLine(int argc, char **argv); //parse cmdline
     static bool postProcessProject(QMakeProject *); 
