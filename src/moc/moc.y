@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#103 $
+** $Id: //depot/qt/main/src/moc/moc.y#104 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -1262,7 +1262,7 @@ void generateClass()		      // generate C++ source code for a class
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt Meta Object Compiler ($Revision: 2.37 $)\n**\n";
+		 "**      by: The Qt Meta Object Compiler ($Revision: 2.38 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
@@ -1311,6 +1311,7 @@ void generateClass()		      // generate C++ source code for a class
 	if ( !noInclude )
 	    fprintf( out, "#include \"%s\"\n", (const char*)includeFile );
 	fprintf( out, "#include <%sqmetaobject.h>\n", (const char*)qtPath );
+	fprintf( out, "#include <%sqapplication.h>\n", (const char*)qtPath );
 	fprintf( out, "\n\n" );
     } else {
 	fprintf( out, "\n\n" );
@@ -1349,6 +1350,12 @@ void generateClass()		      // generate C++ source code for a class
     fprintf( out, "\n#if QT_VERSION >= 200\n" );
     fprintf( out, "    staticMetaObject();\n");
     fprintf( out, "}\n\n");
+
+//
+// Generate tr member function
+//
+    fprintf( out, "QString %s::tr(const char* s)\n{\n", (const char*)className );
+    fprintf( out, "    return qApp->translate(\"%s\",s);\n}\n\n", (const char*)className );
 
 //
 // Generate staticMetaObject member function

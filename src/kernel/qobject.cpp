@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#173 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#174 $
 **
 ** Implementation of QObject class
 **
@@ -1633,6 +1633,23 @@ QMetaObject *QObject::queryMetaObject() const
 }
 
 /*!
+  Returns a translated version of \a text, or \a text if there is
+  no appropriate translated version.  All QObject subclasses which use the
+  \link metaobjects.html Q_OBJECT macro\endlink have an overridden
+  version of this.
+
+  \sa QApplication::translate()
+*/
+
+QString QObject::tr( const char *text )
+{
+    if ( qApp )
+	return qApp->translate( "QObject", text );
+    else
+	return text;
+}
+
+/*!
   Initializes the \link metaObject() meta object\endlink of this
   object. This method is automatically executed on demand from the
   QObject constructor.
@@ -1843,18 +1860,4 @@ void QObject::dumpObjectInfo()
     if ( n == 0 )
 	debug( "\t<None>" );
 #endif
-}
-
-
-
-/*!  Returns a translated version of \a text, or \a text if there is
-  no appropriate translated version.
-*/
-
-QString QObject::tr( const char *text ) const
-{
-    if ( qApp )
-	return qApp->translate( className(), text );
-    else
-	return text;
 }
