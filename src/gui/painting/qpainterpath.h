@@ -85,6 +85,7 @@ public:
     bool contains(const QRectF &rect) const;
 
     QRectF boundingRect() const;
+    QRectF controlPointRect() const;
 
     Qt::FillRule fillRule() const;
     void setFillRule(Qt::FillRule fillRule);

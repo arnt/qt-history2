@@ -833,6 +833,9 @@ void QPainterPath::addEllipse(const QRectF &boundingRect)
         moveTo(boundingRect.x() + boundingRect.width(), boundingRect.y() + boundingRect.height() / 2);
     else
         lineTo(boundingRect.x() + boundingRect.width(), boundingRect.y() + boundingRect.height() / 2);
+
+
+
     arcTo(boundingRect, 0, -360);
 }
 
@@ -962,11 +965,45 @@ void QPainterPath::setFillRule(Qt::FillRule fillRule)
 /*!
     Returns the bounding rectangle of this painter path as a rectangle with
     floating point precision.
+
+    This function is costly. You may consider using controlPointRect instead.
+
+    \sa controlPointRect()
 */
 QRectF QPainterPath::boundingRect() const
 {
+    // ### QBezier::boundingRect
     return toFillPolygon().boundingRect();
 }
+
+/*!
+
+    Returns the rectangle containing the all the points and control
+    points in this path. This rectangle is always at least as large
+    as and will always include the boundingRect().
+
+    This function is significantly faster to compute than the exact
+    boundingRect();
+
+    \sa boundingRect()
+*/
+QRectF QPainterPath::controlPointRect() const
+{
+    if (isEmpty())
+        return QRect();
+    qReal minx, maxx, miny, maxy;
+    minx = maxx = elements.at(0).x;
+    miny = maxy = elements.at(0).y;
+    for (int i=1; i<elements.size(); ++i) {
+        const Element &e = elements.at(i);
+        if (e.x > maxx) maxx = e.x;
+        else if (e.x < minx) minx = e.x;
+        if (e.y > maxy) maxy = e.y;
+        else if (e.y < miny) miny = e.y;
+    }
+    return QRectF(minx, miny, maxx - minx, maxy - miny);
+}
+
 
 /*!
   \fn bool QPainterPath::isEmpty() const
