@@ -3559,6 +3559,7 @@ void QWidget::show_helper()
 	// stacking might be wrong
 	qt_enter_modal( this );
 
+    setAttribute(WA_Mapped);
     showWindow();
 
 #if !defined(Q_WS_WIN)
@@ -3617,6 +3618,7 @@ void QWidget::hide_helper()
 	parentWidget()->setActiveWindow();	// Activate parent
 #endif
 
+    setAttribute(WA_Mapped, false);
     hideWindow();
 
     bool wasVisible = testWState(WState_Visible);
@@ -3673,6 +3675,7 @@ void QWidget::showChildren(bool spontaneous)
 	if (widget->isTopLevel() || widget->testWState(WState_Hidden))
 	    continue;
 	if (spontaneous) {
+	    widget->setAttribute(WA_Mapped);
 	    widget->showChildren(true);
 	    QShowEvent e;
 	    QApplication::sendSpontaneousEvent(widget, &e);
@@ -3694,7 +3697,9 @@ void QWidget::hideChildren(bool spontaneous)
 	QWidget *widget = static_cast<QWidget*>(object);
 	if (widget->isTopLevel() || widget->testWState(WState_Hidden))
 	    continue;
-	if (!spontaneous)
+	if (spontaneous)
+	    widget->setAttribute(WA_Mapped, false);
+	else
 	    widget->clearWState(WState_Visible);
 	widget->hideChildren(spontaneous);
 	QHideEvent e;
@@ -5330,7 +5335,7 @@ void QWidget::setParent(QWidget *parent, WFlags f)
 void QWidget::repaint()
 {
 #if defined(Q_WS_X11)
-    d->removePendingPaintEvents();
+//     d->removePendingPaintEvents(); // ### this is far too slow to go in
 #endif
     repaint(d->clipRect());
 }
@@ -5583,6 +5588,9 @@ void QWidget::drawText(const QPoint &p, const QString &str)
     QWidget::adjustSize() first. The attribute is used by widgets like
     QMenu that automatically change their size depending on the
     contents. \i Set by widget author, cleared by Qt kernel.
+
+    \row \i WA_Mapped \i Indicates that the widget is mapped on screen.
+    \i Qt kernel.
 
     \endtable
 */

@@ -444,6 +444,9 @@ public:
 	WA_ForegroundInherited,
 	WA_BackgroundInherited,
 	WA_Layouted,
+	WA_PaintOnScreen,
+	WA_NoSystemBackground,
+	WA_Mapped,
 
 	WA_ForceDisabled = 32,
 	WA_KeyCompression,
@@ -454,12 +457,10 @@ public:
 	WA_SetCursor,
 	WA_SetForegroundRole,
 	WA_SetBackgroundRole,
-	WA_PaintOnScreen,
 	WA_WindowModified,
 	WA_Resized,
 	WA_Moved,
-	WA_InvalidSize,
-	WA_NoSystemBackground
+	WA_InvalidSize
     };
     void setAttribute(WidgetAttribute, bool = true);
     inline bool testAttribute(WidgetAttribute) const;

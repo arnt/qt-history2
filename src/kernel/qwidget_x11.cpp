@@ -1379,7 +1379,7 @@ void QWidget::setActiveWindow()
 void QWidget::update()
 {
     if ((widget_state & (WState_Visible|WState_BlockUpdates)) == WState_Visible ) {
-	d->removePendingPaintEvents();
+// 	d->removePendingPaintEvents(); // ### this is far too slow to go in
 	d->invalidated_region = d->clipRect();
 	QApplication::postEvent(this, new QEvent(QEvent::UpdateRequest));
     }
@@ -1485,11 +1485,19 @@ void QWidget::repaint(const QRegion& r)
     if (testWState(WState_InPaintEvent))
 	qWarning("QWidget::repaint: recursive repaint detected.");
 
-    if ( (widget_state & (WState_Visible|WState_BlockUpdates)) != WState_Visible )
+    if ( (widget_state & (WState_Visible|WState_BlockUpdates)) != WState_Visible 
+	 || !testAttribute(WA_Mapped) )
 	return;
 
-    QRegion rgn(r.intersect(d->clipRect()));
-    if (rgn.isEmpty())
+    QRegion rclipped;
+    const QRegion *rgn = &r;
+    
+    if (crect.height() > 1<<12) {
+	rclipped = r.intersect(d->clipRect());
+	rgn = &rclipped;
+    }
+    
+    if (rgn->isEmpty())
 	return;
 
     if (!d->invalidated_region.isEmpty())
@@ -1497,7 +1505,8 @@ void QWidget::repaint(const QRegion& r)
 
     setWState(WState_InPaintEvent);
 
-    QRect br = rgn.boundingRect();
+    QRect br = rgn->boundingRect();
+    bool do_clipping = (br != rect());
 
     QPoint dboff;
     bool double_buffer = (!testAttribute(WA_PaintOnScreen)
@@ -1513,11 +1522,13 @@ void QWidget::repaint(const QRegion& r)
 	dboff = br.topLeft();
 	QPainter::setRedirected(this, this, dboff);
 
-	QRegion region_in_pm(rgn);
+	QRegion region_in_pm(*rgn);
 	region_in_pm.translate(-dboff);
-	qt_set_paintevent_clipping(this, region_in_pm);
+	if (do_clipping)
+	    qt_set_paintevent_clipping(this, region_in_pm);
     } else {
-	qt_set_paintevent_clipping(this, rgn);
+	if (do_clipping)
+	    qt_set_paintevent_clipping(this, *rgn);
     }
 
     if (testAttribute(WA_NoSystemBackground)) {
@@ -1545,7 +1556,7 @@ void QWidget::repaint(const QRegion& r)
 				br.width(), br.height(), q->pal.brush(w->d->bg_role),
 				br.x() + offset.x(), br.y() + offset.y());
 	} else {
-	    QVector<QRect> rects = rgn.rects();
+	    QVector<QRect> rects = rgn->rects();
 	    for (int i = 0; i < rects.size(); ++i) {
 		const QRect &rr = rects[i];
 		XClearArea( q->x11Display(), q->winId(),
@@ -1576,16 +1587,17 @@ void QWidget::repaint(const QRegion& r)
 	}
     }
 
-    QPaintEvent e(rgn);
+    QPaintEvent e(*rgn);
     QApplication::sendSpontaneousEvent( this, &e );
 
-    qt_clear_paintevent_clipping();
+    if (do_clipping)
+	qt_clear_paintevent_clipping();
 
     if (double_buffer) {
 	QPainter::restoreRedirected(this);
 
 	GC gc = qt_xget_temp_gc(x11Screen(), false);
-	QVector<QRect> rects = rgn.rects();
+	QVector<QRect> rects = rgn->rects();
 	for (int i = 0; i < rects.size(); ++i) {
 	    const QRect &rr = rects[i];
 	    XCopyArea(x11Display(), hd, winId(), gc,

@@ -3352,6 +3352,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	break;
 
     case UnmapNotify:				// window hidden
+	widget->setAttribute(QWidget::WA_Mapped, false);
 	if ( widget->isTopLevel() && widget->isShown() ) {
 	    widget->d->topData()->spont_unmapped = 1;
 	    QHideEvent e;
@@ -3361,6 +3362,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	break;
 
     case MapNotify:				// window shown
+	widget->setAttribute(QWidget::WA_Mapped);
 	if ( widget->isTopLevel() &&
 	     widget->d->topData()->spont_unmapped ) {
 	    widget->d->topData()->spont_unmapped = 0;
