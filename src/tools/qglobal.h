@@ -531,7 +531,7 @@ const bool TRUE = !0;
 
 inline int qRound( double d )
 {
-    return d >= 0.0 ? int(d + 0.5) : -int( -d + 0.5 );
+    return d >= 0.0 ? int(d + 0.5) : int( d - ((int)d-1) + 0.5 ) + ((int)d-1);
 }
 
 //
