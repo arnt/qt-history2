@@ -352,7 +352,7 @@ fi
 TYPE="-${TYPE}"
 VERSION_STR=${REL_VERSION}${TYPE} && [ "$TYPE" = "-snapshot" ] && VERSION_STR=`date "+${VERSION_STR}-%Y%m%d"`
 sed -e "s,\(\#define *QT_VERSION  *\)[0-9]*,\1${BRANCH_DIGITS},g" \
-    -e "s,\(\#define *QT_VERSION_STR  *\"\)\(.*\),\1${VERSION_STR}\",g" $qglobal #>${TMP_FILE}
+    -e "s,\(\#define *QT_VERSION_STR  *\"\)\(.*\),\1${VERSION_STR}\",g" $qglobal >${TMP_FILE}
 mv ${TMP_FILE} $qglobal
 if [ "$TYPE" != "-snapshot" ] && ! myexpr "$TYPE" : "^-beta[0-9]*$"; then
     die "The qt version is ${REL_VERSION}${TYPE}, which confuses me terribly";
