@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/qtranslator/qtpreferences.cpp#1 $
+** $Id: //depot/qt/main/util/qtranslator/qtpreferences.cpp#2 $
 **
 ** This is a utility program for translating Qt applications
 **
@@ -39,19 +39,10 @@ QTPreferences::QTPreferences()
     : sources(), projectFile( QString::null),
       projectConfig( 0L )
 {
-    QString currDir( qApp->argv()[ 0 ] );
-    QFileInfo finf( currDir );
-    currDir = finf.dirPath( TRUE );
-
-    if ( !QFileInfo( currDir + "/qtranslator.inf" ).exists() )
-        createGlobalConfigFile( currDir + "/qtranslator.inf" );
-
-    globalConfig = new QTConfig( currDir + "/qtranslator.inf" );
 }
 
 QTPreferences::~QTPreferences()
 {
-    delete globalConfig;
     if ( projectConfig )
         delete projectConfig;
 }
@@ -97,23 +88,6 @@ void QTPreferences::readProjectConfig()
     translation.folders = projectConfig->readBoolEntry( "Folders" );
 
     getLanguages();
-}
-
-void QTPreferences::createGlobalConfigFile( const QString &filename )
-{
-    QFile f( filename );
-    if ( !f.open( IO_WriteOnly ) ) {
-        qWarning( "could not open for writing `%s'", filename.latin1() );
-        return;
-    }
-
-    QTextStream s( &f );
-    QString qtdir = getenv( "QTDIR" );
-    s << "[General]\n";
-    s << "findtr = " << qtdir << "/bin/findtr\n";
-
-    f.close();
-
 }
 
 void QTPreferences::getLanguages()

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/qtranslator/qtmainwindow.h#1 $
+** $Id: //depot/qt/main/util/qtranslator/qtmainwindow.h#2 $
 **
 ** This is a utility program for translating Qt applications
 **
@@ -62,11 +62,12 @@ protected slots:
     void toolsPOT();
     void toolsMsgMgr();
     void toolsQM();
-    
+
     void fillMessageList( QListViewItem * );
     void addNewLanguage( const QString &lang );
     void setupMessageList();
-    
+    bool configsOk();
+
 };
 
 #endif

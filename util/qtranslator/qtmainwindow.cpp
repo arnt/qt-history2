@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/qtranslator/qtmainwindow.cpp#2 $
+** $Id: //depot/qt/main/util/qtranslator/qtmainwindow.cpp#3 $
 **
 ** This is a utility program for translating Qt applications
 **
@@ -48,7 +48,9 @@ QTMainWindow::~QTMainWindow()
 {
     if ( messages->firstChild() )
         saveScope();
-    if ( !preferences->projectFile.isEmpty() )
+    if ( preferences->sources.directories.count() > 0 ||
+         preferences->sources.extensions.count() > 0 ||
+         !preferences->translation.directory.isEmpty() )
         fileSave();
     delete preferences;
 }
@@ -359,10 +361,8 @@ void QTMainWindow::editPreferences()
 
 void QTMainWindow::toolsPOT()
 {
-    if ( FALSE /*configs not ok*/ ) {
-        //Error message
+    if ( !configsOk() )
         return;
-    }
 
     QString findtr = "findtr";
     QString cmd = findtr + " ";
@@ -390,10 +390,8 @@ void QTMainWindow::toolsPOT()
 
 void QTMainWindow::toolsMsgMgr()
 {
-    if ( FALSE /*configs not ok*/ ) {
-        //Error message
+    if ( !configsOk() )
         return;
-    }
 
     QString newname = preferences->translation.directory + "/" +
                       preferences->translation.prefix + "orig.pot";
@@ -420,10 +418,8 @@ void QTMainWindow::toolsMsgMgr()
 
 void QTMainWindow::toolsQM()
 {
-    if ( FALSE /*configs not ok*/ ) {
-        //Error message
+    if ( !configsOk() )
         return;
-    }
 
     if ( messages->firstChild() )
         saveScope();
@@ -487,6 +483,9 @@ void QTMainWindow::fillMessageList( QListViewItem *item )
         for ( ; lit.current(); ++lit )
             lit.current()->setText( col, *( map.find( lit.current()->text( 0 ) ) ) );
     }
+
+    messages->setCurrentItem( messages->firstChild() );
+    messages->setSelected( messages->firstChild(), TRUE );
 }
 
 void QTMainWindow::addNewLanguage( const QString &lang )
@@ -499,10 +498,8 @@ void QTMainWindow::addNewLanguage( const QString &lang )
     }
 
 
-    if ( FALSE /*configs not ok*/ ) {
-        //Error message
+    if ( !configsOk() )
         return;
-    }
 
     QString filename = preferences->translation.directory + "/" +
                        preferences->translation.prefix + "orig.pot";
@@ -552,4 +549,45 @@ void QTMainWindow::setupMessageList()
     for ( ; it != preferences->languages.end(); ++it )
         if ( lst.find( *it ) == lst.end() )
             messages->addColumn( *it );
+}
+
+bool QTMainWindow::configsOk()
+{
+    bool src = FALSE, ext = FALSE, tdir = FALSE;
+    
+    if ( preferences->sources.directories.count() > 0 ) {
+        src = TRUE;
+        QStringList::Iterator it = preferences->sources.directories.begin();
+        for ( ; it != preferences->sources.directories.end() && src ; ++it )
+            if ( !QFileInfo( *it ).exists() )
+                src = FALSE;
+    }
+    if ( preferences->sources.extensions.count() > 0 )
+        ext = TRUE;
+    if ( QFileInfo( preferences->translation.directory ).exists() )
+        tdir = TRUE;
+    
+    bool ok = src && ext && tdir;
+    bool openPrefs = FALSE;
+    
+    if ( !src )
+        openPrefs = QMessageBox::warning( this, tr( "Error"), 
+                                          tr( "You have specified no Source Directories or one\n"
+                                              "or some of them doesn't exist. Do you want to correct\n"
+                                              "this now?" ), tr( "&Yes" ), tr( "&No" ) ) == 0;
+    else if ( !ext )
+        openPrefs = QMessageBox::warning( this, tr( "Error"), 
+                                          tr( "You have not specified Extensions of Source files which\n"
+                                              "should get translated. Do you want to correct this now?" ), 
+                                          tr( "&Yes" ), tr( "&No" ) ) == 0;
+    else if ( !tdir )
+        openPrefs = QMessageBox::warning( this, tr( "Error"), 
+                                          tr( "You have specified the directory in which the Translations\n"
+                                              "should be stored.. Do you want to correct this now?" ), 
+                                          tr( "&Yes" ), tr( "&No" ) ) == 0;
+
+    if ( openPrefs )
+        editPreferences();
+    
+    return ok;
 }
