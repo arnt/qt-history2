@@ -1,11 +1,12 @@
 #ifndef TABLEEDITOR_H
 #define TABLEEDITOR_H
 
-#include <QWidget>
+#include <QDialog>
 
+class QPushButton;
 class QSqlTableModel;
 
-class TableEditor : public QWidget
+class TableEditor : public QDialog
 {
     Q_OBJECT
 
@@ -16,6 +17,9 @@ private slots:
     void submit();
 
 private:
+    QPushButton *submitButton;
+    QPushButton *revertButton;
+    QPushButton *quitButton;
     QSqlTableModel *model;
 };
 

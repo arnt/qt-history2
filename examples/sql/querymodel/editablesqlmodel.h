@@ -8,11 +8,11 @@ class EditableSqlModel: public QSqlQueryModel
 public:
     EditableSqlModel(QObject *parent = 0);
 
-    bool isEditable(const QModelIndex &index) const;
+    ItemFlags flags(const QModelIndex &index) const;
     bool setData(const QModelIndex &index, int role, const QVariant &value);
 
 private:
-    bool editLastName(int primaryKey, const QString &newValue);
+    bool setLastName(int personId, const QString &lastName);
 };
 
 #endif

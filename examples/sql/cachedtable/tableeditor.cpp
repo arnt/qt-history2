@@ -4,7 +4,7 @@
 #include "tableeditor.h"
 
 TableEditor::TableEditor(const QString &tableName, QWidget *parent)
-    : QWidget(parent)
+    : QDialog(parent)
 {
     model = new QSqlTableModel(this);
     model->setTable(tableName);
@@ -14,16 +14,20 @@ TableEditor::TableEditor(const QString &tableName, QWidget *parent)
     QTableView *view = new QTableView(this);
     view->setModel(model);
 
-    QPushButton *submitButton = new QPushButton(tr("Submit"), this);
-    QPushButton *revertButton = new QPushButton(tr("Revert"), this);
+    submitButton = new QPushButton(tr("Submit"), this);
+    submitButton->setDefault(true);
+    revertButton = new QPushButton(tr("&Revert"), this);
+    quitButton = new QPushButton(tr("Quit"), this);
 
     connect(submitButton, SIGNAL(clicked()), this, SLOT(submit()));
     connect(revertButton, SIGNAL(clicked()), model, SLOT(cancelChanges()));
+    connect(quitButton, SIGNAL(clicked()), this, SLOT(close()));
 
     QHBoxLayout *buttonLayout = new QHBoxLayout;
     buttonLayout->addStretch(1);
     buttonLayout->addWidget(submitButton);
     buttonLayout->addWidget(revertButton);
+    buttonLayout->addWidget(quitButton);
 
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
     mainLayout->addWidget(view);

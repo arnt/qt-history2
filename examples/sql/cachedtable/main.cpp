@@ -6,8 +6,10 @@
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
-    createConnection();
-    TableEditor editor("persons");
+    if (!createConnection())
+        return 1;
+
+    TableEditor editor("person");
     app.setMainWidget(&editor);
     editor.show();
     return app.exec();

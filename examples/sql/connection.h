@@ -13,13 +13,14 @@
     below. All the examples in this directory use this function to
     connect to a database.
 */
-static void createConnection()
+static bool createConnection()
 {
     QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
     db.setDatabaseName(":memory:");
     if (!db.open()) {
-        qWarning("Cannot open database: %s", db.lastError().text().ascii());
-        return;
+        qSystemWarning("Cannot open database: %s",
+                       db.lastError().text().ascii());
+        return false;
     }
 
     QSqlQuery query;
@@ -28,6 +29,7 @@ static void createConnection()
     query.exec("insert into person values(1, 'Danny', 'Young')");
     query.exec("insert into person values(2, 'Peter', 'Holand')");
     query.exec("insert into person values(3, 'Chris', 'Dangerous')");
+    return true;
 }
 
 #endif

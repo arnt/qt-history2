@@ -8,7 +8,7 @@
 
 void createView(const QString &title, QSqlQueryModel *model)
 {
-    model->setQuery("select * from persons");
+    model->setQuery("select * from person");
 
     QTableView *view = new QTableView;
     view->setModel(model);
@@ -19,7 +19,8 @@ void createView(const QString &title, QSqlQueryModel *model)
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
-    createConnection();
+    if (!createConnection())
+        return 1;
 
     QSqlQueryModel plainModel;
     EditableSqlModel editableModel;

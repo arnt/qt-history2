@@ -14,10 +14,11 @@ void createView(const QString &title, QSqlTableModel *model)
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
-    createConnection();
+    if (!createConnection())
+        return 1;
 
     QSqlTableModel model;
-    model.setTable("persons");
+    model.setTable("person");
     model.setEditStrategy(QSqlTableModel::OnManualSubmit);
     model.select();
 
