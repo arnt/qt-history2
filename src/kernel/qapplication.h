@@ -196,10 +196,10 @@ public:
     static void	     setGlobalStrut( const QSize & );
     static QSize     globalStrut();
 
-    static void      setPluginPaths(const QStringList &);
-    static QStringList pluginPaths();
-    static void      addPluginPath(const QString &);
-    static void      removePluginPath(const QString &);
+    static void      setLibraryPaths(const QStringList &);
+    static QStringList libraryPaths();
+    static void      addLibraryPath(const QString &);
+    static void      removeLibraryPath(const QString &);
 
     static void setStartDragTime( int ms );
     static int startDragTime();
@@ -328,7 +328,7 @@ private:
 
     static QSize     app_strut;
 
-    static QStringList app_pluginpaths;
+    static QStringList app_libpaths;
 
     static QAsciiDict<QPalette> *app_palettes;
     static QAsciiDict<QFont>    *app_fonts;
@@ -418,9 +418,9 @@ inline QSize QApplication::globalStrut()
     return app_strut;
 }
 
-inline QStringList QApplication::pluginPaths()
+inline QStringList QApplication::libraryPaths()
 {
-    return app_pluginpaths;
+    return app_libpaths;
 }
 
 inline bool QApplication::sendEvent( QObject *receiver, QEvent *event )

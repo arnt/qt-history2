@@ -283,7 +283,7 @@ bool	  QApplication::fade_menu	= FALSE;
 bool	  QApplication::animate_combo	= FALSE;
 bool	  QApplication::animate_tooltip	= FALSE;
 bool	  QApplication::fade_tooltip	= FALSE;
-QStringList QApplication::app_pluginpaths;
+QStringList QApplication::app_libpaths;
 
 
 void qt_setMaxWindowRect(const QRect& r)
@@ -1112,57 +1112,57 @@ void QApplication::setGlobalStrut( const QSize& strut )
 }
 
 /*!
-  \fn QStringList QApplication::pluginPaths()
+  \fn QStringList QApplication::libraryPaths()
 
-  Returns a list of paths where the application will search when loading
-  plugins.
+  Returns a list of paths where the application will search when dynamically
+  loading libraries.
 
-  \sa setPluginPaths(), addPluginPath(), removePluginPath(), QLibrary
+  \sa setLibraryPaths(), addLibraryPath(), removeLibraryPath(), QLibrary
 */
 
 /*!
-  Sets the list of directories to search when loading plugins to \a paths.
+  Sets the list of directories to search when loading libraries to \a paths.
   If \a paths is empty, the path list is unchanged, otherwise all previous
   paths will be replaced by this call.
 
-  \sa pluginPaths(), addPluginPath(), removePluginPath(), QLibrary
+  \sa libraryPaths(), addLibraryPath(), removeLibraryPath(), QLibrary
  */
-void QApplication::setPluginPaths(const QStringList &paths)
+void QApplication::setLibraryPaths(const QStringList &paths)
 {
-    app_pluginpaths = paths;
+    app_libpaths = paths;
 }
 
 /*!
-  Add \a path to the end of the plugin path list.  If \a path is null or
+  Add \a path to the end of the library path list.  If \a path is null or
   already in the path list, the path list is unchanged.
 
-  \sa removePluginPath(), pluginPaths(), setPluginPaths()
+  \sa removeLibraryPath(), libraryPaths(), setLibraryPaths()
  */
-void QApplication::addPluginPath(const QString &path)
+void QApplication::addLibraryPath(const QString &path)
 {
     if (path.isNull()) {
 	return;
     }
 
-    if (! app_pluginpaths.contains(path)) {
-	app_pluginpaths.append(path);
+    if (! app_libpaths.contains(path)) {
+	app_libpaths.append(path);
     }
 }
 
 /*!
-  Removes \a path from the plugin path list.  If \a path is null or not
+  Removes \a path from the library path list.  If \a path is null or not
   in the path list, the list is unchanged.
 
-  \sa addPluginPath(), pluginPaths(), setPluginPaths()
+  \sa addLibraryPath(), libraryPaths(), setLibraryPaths()
 */
-void QApplication::removePluginPath(const QString &path)
+void QApplication::removeLibraryPath(const QString &path)
 {
     if (path.isNull()) {
 	return;
     }
 
-    if (! app_pluginpaths.contains(path)) {
-	app_pluginpaths.remove(path);
+    if (! app_libpaths.contains(path)) {
+	app_libpaths.remove(path);
     }
 }
 

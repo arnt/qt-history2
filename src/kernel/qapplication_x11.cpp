@@ -751,7 +751,7 @@ static bool qt_set_desktop_properties()
 	  /qt/colorspec        - QString
 	  /qt/defaultcodec     - QString
 	  /qt/globalstrut      - QSize
-	  /qt/pluginpath       - QString
+	  /qt/librarypath       - QString
 
 	*/
 
@@ -875,15 +875,15 @@ static bool qt_set_desktop_properties()
 		QApplication::setEffectEnabled( Qt::UI_FadeTooltip, TRUE );
 	}
 
-	QString pluginpath;
-	v = s.readEntry("/qt/pluginpath");
+	QString libpath;
+	v = s.readEntry("/qt/librarypath");
 	if (v.isValid() && v.type() == QVariant::String) {
-	    pluginpath = v.toString();
-	    QStringList pathlist(QStringList::split(":", pluginpath));
+	    libpath = v.toString();
+	    QStringList pathlist(QStringList::split(":", libpath));
 
 	    QStringList::ConstIterator it = pathlist.begin();
 	    while (it != pathlist.end()) {
-		QApplication::addPluginPath(*it);
+		QApplication::addLibraryPath(*it);
 		it++;
 	    }
 	}
@@ -901,7 +901,7 @@ static bool qt_set_desktop_properties()
 	      << defaultcodec
 	      << QApplication::globalStrut()
 	      << effects
-	      << pluginpath;
+	      << libpath;
 
 	    XChangeProperty(appDpy, appRootWin, qt_desktop_properties,
 			    qt_desktop_properties, 8, PropModeReplace,
@@ -1029,13 +1029,13 @@ static bool qt_set_desktop_properties()
 	}
 
 	if (! d.atEnd()) {
-	    QString pluginpath;
-	    d >> pluginpath;
-	    QStringList pathlist(QStringList::split(":", pluginpath));
+	    QString libpath;
+	    d >> libpath;
+	    QStringList pathlist(QStringList::split(":", libpath));
 
 	    QStringList::ConstIterator it = pathlist.begin();
 	    while (it != pathlist.end()) {
-		QApplication::addPluginPath(*it);
+		QApplication::addLibraryPath(*it);
 		it++;
 	    }
 	}
