@@ -175,7 +175,6 @@
 #include "qregexp.h"
 #include <qclipboard.h>
 #include <qremotefactory.h>
-#include <qremoteplugin.h>
 #include <qrtlcodec.h>
 #include <qlistbox.h>
 #include <qgridview.h>
@@ -261,6 +260,7 @@
 #include <qthread.h>
 #include <qwhatsthis.h>
 #include <qapplication.h>
+#include <qeventloop.h>
 #include <qwidgetintdict.h>
 #include <qfocusdata.h>
 #include <qwidgetplugin.h>
@@ -304,6 +304,7 @@
 #include <private/qwidgetinterface_p.h>
 #include <private/qwidgetresizehandler_p.h>
 #include <private/qlibrary_p.h>
+#include <private/qtestcontrol_p.h>
 #endif // Private headers
 
 
