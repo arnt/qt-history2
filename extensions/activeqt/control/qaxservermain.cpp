@@ -245,8 +245,10 @@ HRESULT WINAPI UpdateRegistry(BOOL bRegister)
     settings.insertSearchPath( QSettings::Windows, "/Classes" );
 
     if ( bRegister ) {
-	settings.writeEntry( "/AppID/" + appId + "/.", module );
-	settings.writeEntry( "/AppID/" + module + ".EXE/AppID", appId );
+	if ( file.right( 3 ).lower() == "exe" ) {
+	    settings.writeEntry( "/AppID/" + appId + "/.", module );
+	    settings.writeEntry( "/AppID/" + module + ".EXE/AppID", appId );
+	}
 
 	settings.writeEntry( "/TypeLib/" + libId + "/1.0/0/win32/.", file );
 	settings.writeEntry( "/TypeLib/" + libId + "/1.0/FLAGS/.", "0" );
@@ -269,7 +271,9 @@ HRESULT WINAPI UpdateRegistry(BOOL bRegister)
 	    settings.writeEntry( "/" + module + "." + className + "/CurVer/.", module + "." + className + ".1" );
 	    
 	    settings.writeEntry( "/CLSID/" + classId + "/.", className + " Class" );
-	    settings.writeEntry( "/CLSID/" + classId + "/AppID", appId );
+	    if ( file.right( 3 ).lower() == "exe" )
+		settings.writeEntry( "/CLSID/" + classId + "/AppID", appId );
+
 	    settings.writeEntry( "/CLSID/" + classId + "/Control/.", QString::null );
 	    settings.writeEntry( "/CLSID/" + classId + "/Insertable/.", QString::null );
 	    if ( file.right( 3 ).lower() == "dll" )
@@ -298,7 +302,6 @@ HRESULT WINAPI UpdateRegistry(BOOL bRegister)
 	    settings.writeEntry( "/Interface/" + eventId + "/TypeLib/Version", "1.0" );
 	    
 	    _Module.factory()->registerClass( *key, &settings );
-
 	}
     } else {
 	QStringList keys = _Module.factory()->featureList();
