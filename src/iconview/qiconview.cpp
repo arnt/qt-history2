@@ -280,6 +280,63 @@ public:
 	QIconViewItem *item;
     };
 
+public:
+
+    /* finds the containers that intersect with \a searchRect in the direction \a dir relative to \a relativeTo */
+    QPtrList<QIconViewPrivate::ItemContainer>* findContainers(
+	QIconView:: Direction dir,
+	const QPoint &relativeTo,
+	const QRect &searchRect ) const
+	{
+
+	    QPtrList<QIconViewPrivate::ItemContainer>* list =
+		new QPtrList<QIconViewPrivate::ItemContainer>();
+
+	    if ( arrangement == QIconView::LeftToRight ) {
+		if ( dir == QIconView::Left || dir == QIconView::RRight ) {
+		    ItemContainer *c = firstContainer;
+		    for ( ; c; c = c->n )
+			if ( c->rect.intersects( searchRect ) )
+			    list->append( c );
+		} else {
+		    if ( dir == QIconView::Down ) {
+			ItemContainer *c = firstContainer;
+			for ( ; c; c = c->n )
+			    if ( c->rect.intersects( searchRect ) &&
+				 c->rect.bottom() >= relativeTo.y() )
+				list->append( c );
+		    } else {
+			ItemContainer *c = lastContainer;
+			for ( ; c; c = c->p )
+			    if ( c->rect.intersects( searchRect ) &&
+				 c->rect.top() <= relativeTo.y() )
+				list->append( c );
+		    }
+		}
+	    } else {
+		if ( dir == QIconView::Up || dir == QIconView::Down ) {
+		    ItemContainer *c = firstContainer;
+		    for ( ; c; c = c->n )
+			if ( c->rect.intersects( searchRect ) )
+			    list->append( c );
+		} else {
+		    if ( dir == QIconView::RRight ) {
+			ItemContainer *c = firstContainer;
+			for ( ; c; c = c->n )
+			    if ( c->rect.intersects( searchRect ) &&
+				 c->rect.right() >= relativeTo.x() )
+				list->append( c );
+		    } else {
+			ItemContainer *c = lastContainer;
+			for ( ; c; c = c->p )
+			    if ( c->rect.intersects( searchRect ) &&
+				 c->rect.left() <= relativeTo.x() )
+				list->append( c );
+		    }
+		}
+	    }
+	    return list;
+	}
     //    friend int cmpIconViewItems( const void *n1, const void *n2 );
 };
 
@@ -4817,10 +4874,38 @@ void QIconView::keyPressEvent( QKeyEvent *e )
 
 	selectCurrent = FALSE;
 
-	QIconViewItem *item = d->currentItem;
-	setCurrentItem( d->firstItem );
+	QIconViewItem *item = 0;
+	QIconViewPrivate::ItemContainer *c = d->firstContainer;
+	while ( !item && c ) {
+	    QPtrList<QIconViewItem> &list = c->items;
+	    QIconViewItem *i = list.first();
+	    while ( i ) {
+		if ( !item ) {
+		    item = i;
+		} else {
+		    if ( d->arrangement == LeftToRight ) {
+			// find topmost, leftmost item
+			if ( i->pixmapRect( FALSE ).y() < item->pixmapRect( FALSE ).y() ||
+			     ( i->pixmapRect( FALSE ).y() == item->pixmapRect( FALSE ).y() &&
+			       i->pixmapRect( FALSE ).x() < item->pixmapRect( FALSE ).x() ) )
+			    item = i;
+		    } else {
+			// find leftmost, topmost item
+			if ( i->pixmapRect( FALSE ).x() < item->pixmapRect( FALSE ).x() ||
+			     ( i->pixmapRect( FALSE ).x() == item->pixmapRect( FALSE ).x() &&
+			       i->pixmapRect( FALSE ).y() < item->pixmapRect( FALSE ).y() ) )
+			    item = i;
+		    }
+		}
+		i = list.next();
+	    }
+	    c = c->n;
+	}
 
-	handleItemChange( item, e->state() & ShiftButton, e->state() & ControlButton );
+	if ( item ) {
+	    setCurrentItem( item );
+	    handleItemChange( item, e->state() & ShiftButton, e->state() & ControlButton );
+	}
     } break;
     case Key_End: {
 	d->currInputString = QString::null;
@@ -4829,74 +4914,78 @@ void QIconView::keyPressEvent( QKeyEvent *e )
 
 	selectCurrent = FALSE;
 
-	QIconViewItem *item = d->currentItem;
-	setCurrentItem( d->lastItem );
+	QIconViewItem *item = 0;
+	QIconViewPrivate::ItemContainer *c = d->lastContainer;
+	while ( !item && c ) {
+	    QPtrList<QIconViewItem> &list = c->items;
+	    QIconViewItem *i = list.first();
+	    while ( i ) {
+		if ( !item ) {
+		    item = i;
+		} else {
+		    if ( d->arrangement == LeftToRight ) {
+			// find bottommost, rightmost item
+			if ( i->pixmapRect( FALSE ).bottom() > item->pixmapRect( FALSE ).bottom() ||
+			     ( i->pixmapRect( FALSE ).bottom() == item->pixmapRect( FALSE ).bottom() &&
+			       i->pixmapRect( FALSE ).right() > item->pixmapRect( FALSE ).right() ) )
+			    item = i;
+		    } else {
+			// find rightmost, bottommost item
+			if ( i->pixmapRect( FALSE ).right() > item->pixmapRect( FALSE ).right() ||
+			     ( i->pixmapRect( FALSE ).right() == item->pixmapRect( FALSE ).right() &&
+			       i->pixmapRect( FALSE ).bottom() > item->pixmapRect( FALSE ).bottom() ) )
+			    item = i;
+		    }
+		}
+		i = list.next();
+	    }
+	    c = c->p;
+	}
 
-	handleItemChange( item, e->state() & ShiftButton, e->state() & ControlButton );
+	if ( item) {
+	    setCurrentItem( item );
+	    handleItemChange( item, e->state() & ShiftButton, e->state() & ControlButton );
+	}
     } break;
     case Key_Right: {
 	d->currInputString = QString::null;
 	QIconViewItem *item;
 	selectCurrent = FALSE;
-	if ( d->arrangement == LeftToRight ) {
-	    if ( !d->currentItem->next )
-		break;
+	Direction dir = RRight;
 
-	    item = d->currentItem;
-	    setCurrentItem( d->currentItem->next );
+	QRect r( 0, d->currentItem->y(), contentsWidth(), d->currentItem->height() );
+	item = findItem( dir, d->currentItem->rect().center(), r );
 
-	    handleItemChange( item, e->state() & ShiftButton, e->state() & ControlButton );
-	} else {
-	    item = d->firstItem;
-	    QRect r( 0, d->currentItem->y(), contentsWidth(), d->currentItem->height() );
-	    for ( ; item; item = item->next ) {
-		if ( item->x() > d->currentItem->x() && r.intersects( item->rect() ) ) {
-		    QRect ir = r.intersect( item->rect() );
-		    if ( item->next && r.intersects( item->next->rect() ) ) {
-			QRect irn = r.intersect( item->next->rect() );
-			if ( irn.height() > ir.height() )
-			    item = item->next;
-		    }
-		    QIconViewItem *i = d->currentItem;
-		    setCurrentItem( item );
-		    item = i;
-		    handleItemChange( item, e->state() & ShiftButton, e->state() & ControlButton );
-		    break;
-		}
-	    }
+	// search the row below from the right
+	while ( !item && r.y() < contentsHeight() ) {
+	    r.moveBy(0, d->currentItem->height() );
+	    item = findItem( dir, QPoint( 0, r.center().y() ), r );
 	}
+
+	QIconViewItem *i = d->currentItem;
+	setCurrentItem( item );
+	item = i;
+	handleItemChange( item, e->state() & ShiftButton, e->state() & ControlButton );
     } break;
     case Key_Left: {
 	d->currInputString = QString::null;
 	QIconViewItem *item;
 	selectCurrent = FALSE;
-	if ( d->arrangement == LeftToRight ) {
-	    if ( !d->currentItem->prev )
-		break;
+	Direction dir = Left;
 
-	    item = d->currentItem;
-	    setCurrentItem( d->currentItem->prev );
+	QRect r( 0, d->currentItem->y(), contentsWidth(), d->currentItem->height() );
+	item = findItem( dir, d->currentItem->rect().center(), r );
 
-	    handleItemChange( item, e->state() & ShiftButton, e->state() & ControlButton );
-	} else {
-	    item = d->lastItem;
-	    QRect r( 0, d->currentItem->y(), contentsWidth(), d->currentItem->height() );
-	    for ( ; item; item = item->prev ) {
-		if ( item->x() < d->currentItem->x() && r.intersects( item->rect() ) ) {
-		    QRect ir = r.intersect( item->rect() );
-		    if ( item->prev && r.intersects( item->prev->rect() ) ) {
-			QRect irn = r.intersect( item->prev->rect() );
-			if ( irn.height() > ir.height() )
-			    item = item->prev;
-		    }
-		    QIconViewItem *i = d->currentItem;
-		    setCurrentItem( item );
-		    item = i;
-		    handleItemChange( item, e->state() & ShiftButton, e->state() & ControlButton );
-		    break;
-		}
-	    }
+	// search the row above from the left
+	while ( !item && r.y() >= 0 ) {
+	    r.moveBy(0, - d->currentItem->height() );
+	    item = findItem( dir, QPoint( contentsWidth(), r.center().y() ), r );
 	}
+
+	QIconViewItem *i = d->currentItem;
+	setCurrentItem( item );
+	item = i;
+	handleItemChange( item, e->state() & ShiftButton, e->state() & ControlButton );
     } break;
     case Key_Space: {
 	d->currInputString = QString::null;
@@ -4913,67 +5002,42 @@ void QIconView::keyPressEvent( QKeyEvent *e )
 	d->currInputString = QString::null;
 	QIconViewItem *item;
 	selectCurrent = FALSE;
+	Direction dir = Down;
 
-	if ( d->arrangement == LeftToRight ) {
-	    item = d->firstItem;
-	    QRect r( d->currentItem->x(), 0, d->currentItem->width(), contentsHeight() );
-	    for ( ; item; item = item->next ) {
-		if ( item->y() > d->currentItem->y() && r.intersects( item->rect() ) ) {
-		    QRect ir = r.intersect( item->rect() );
-		    if ( item->next && r.intersects( item->next->rect() ) && item->next->y() < item->rect().bottom() ) {
-			QRect irn = r.intersect( item->next->rect() );
-			if ( irn.width() > ir.width() )
-			    item = item->next;
-		    }
-		    QIconViewItem *i = d->currentItem;
-		    setCurrentItem( item );
-		    item = i;
-		    handleItemChange( item, e->state() & ShiftButton, e->state() & ControlButton );
-		    break;
-		}
-	    }
-	} else {
-	    if ( !d->currentItem->next )
-		break;
+	QRect r( d->currentItem->x(), 0, d->currentItem->width(), contentsHeight() );
+	item = findItem( dir, d->currentItem->rect().center(), r );
 
-	    item = d->currentItem;
-	    setCurrentItem( d->currentItem->next );
-
-	    handleItemChange( item, e->state() & ShiftButton, e->state() & ControlButton );
+	// finding the closest item below and to the right
+	while ( !item && r.x() < contentsWidth() ) {
+	    r.moveBy( r.width() , 0 );
+	    item = findItem( dir, QPoint( r.center().x(), 0 ), r );
 	}
+
+
+	QIconViewItem *i = d->currentItem;
+	setCurrentItem( item );
+	item = i;
+	handleItemChange( item, e->state() & ShiftButton, e->state() & ControlButton );
     } break;
     case Key_Up: {
 	d->currInputString = QString::null;
 	QIconViewItem *item;
 	selectCurrent = FALSE;
+	Direction dir = Up;
 
-	if ( d->arrangement == LeftToRight ) {
-	    item = d->lastItem;
-	    QRect r( d->currentItem->x(), 0, d->currentItem->width(), contentsHeight() );
-	    for ( ; item; item = item->prev ) {
-		if ( item->y() < d->currentItem->y() && r.intersects( item->rect() ) ) {
-		    QRect ir = r.intersect( item->rect() );
-		    if ( item->prev && r.intersects( item->prev->rect() ) && item->prev->rect().bottom() > item->y()) {
-			QRect irn = r.intersect( item->prev->rect() );
-			if ( irn.width() > ir.width() )
-			    item = item->prev;
-		    }
-		    QIconViewItem *i = d->currentItem;
-		    setCurrentItem( item );
-		    item = i;
-		    handleItemChange( item, e->state() & ShiftButton, e->state() & ControlButton );
-		    break;
-		}
-	    }
-	} else {
-	    if ( !d->currentItem->prev )
-		break;
+	QRect r( d->currentItem->x(), 0, d->currentItem->width(), contentsHeight() );
+	item = findItem( dir, d->currentItem->rect().center(), r );
 
-	    item = d->currentItem;
-	    setCurrentItem( d->currentItem->prev );
-
-	    handleItemChange( item, e->state() & ShiftButton, e->state() & ControlButton );
+	// finding the closest item above and to the left
+	while ( !item && r.x() >= 0 ) {
+	    r.moveBy(- r.width(), 0 );
+	    item = findItem( dir, QPoint(r.center().x(), contentsHeight() ), r );
 	}
+
+	QIconViewItem *i = d->currentItem;
+	setCurrentItem( item );
+	item = i;
+	handleItemChange( item, e->state() & ShiftButton, e->state() & ControlButton );
     } break;
     case Key_Next: {
 	d->currInputString = QString::null;
@@ -5085,7 +5149,80 @@ void QIconView::keyPressEvent( QKeyEvent *e )
 	ensureItemVisible( d->currentItem );
 }
 
+/*
+  Finds the closest item in the Direction \a dir relative from the point \a relativeTo
+  which intersects with the searchRect.
 
+  The function choses the closest item with its center in the searchRect.
+*/
+QIconViewItem* QIconView::findItem( Direction dir,
+				    const QPoint &relativeTo,
+				    const QRect &searchRect ) const
+{
+    QIconViewItem *item;
+    QIconViewItem *centerMatch = 0;
+    int centerMatchML = 0;
+
+    // gets list of containers with potential items
+    QPtrList<QIconViewPrivate::ItemContainer>* cList =
+	d->findContainers( dir, relativeTo, searchRect);
+
+    cList->first();
+    while ( cList->current() && !centerMatch ) {
+	QPtrList<QIconViewItem> &list = (cList->current())->items;
+	for ( item = list.first(); item; item = list.next() ) {
+	    if ( neighbourItem( dir, relativeTo, item ) &&
+		 searchRect.contains( item->rect().center() ) &&
+		 item != currentItem() ) {
+ 		int ml = (relativeTo - item->rect().center()).manhattanLength();
+		if ( centerMatch ) {
+		    if ( ml < centerMatchML ) {
+			centerMatch = item;
+			centerMatchML = ml;
+		    }
+		} else {
+		    centerMatch = item;
+		    centerMatchML = ml;
+		}
+	    }
+	}
+	cList->next();
+    }
+    return centerMatch;
+}
+
+
+/*
+  Returns TRUE if the items orientation compared to
+  the point \a relativeTo is correct.
+*/
+bool QIconView::neighbourItem( Direction dir,
+			       const QPoint &relativeTo,
+			       const QIconViewItem *item ) const
+{
+    switch ( dir ) {
+    case Up:
+	if ( item->rect().center().y() < relativeTo.y() )
+	    return TRUE;
+	break;
+    case Down:
+	if ( item->rect().center().y() > relativeTo.y() )
+	    return TRUE;
+	break;
+    case Left:
+	if ( item->rect().center().x() < relativeTo.x() )
+	    return TRUE;
+	break;
+    case RRight:
+	if ( item->rect().center().x() > relativeTo.x() )
+	    return TRUE;
+	break;
+    default:
+	// nothing
+	break;
+    }
+    return FALSE;
+}
 
 /*!
     \reimp
@@ -6020,48 +6157,88 @@ void QIconView::handleItemChange( QIconViewItem *old, bool shift, bool control )
 		QIconViewItem *from = d->selectAnchor, *to = d->currentItem;
 		if ( !from || !to )
 		    return;
-		QIconViewItem *i = 0;
-		int index =0;
-		int f_idx = -1, t_idx = -1;
-		for ( i = d->firstItem; i; i = i->next, index++ ) {
-		    if ( i == from )
-			f_idx = index;
-		    if ( i == to )
-			t_idx = index;
-		    if ( f_idx != -1 && t_idx != -1 )
-			break;
-		}
-		if ( f_idx > t_idx ) {
-		    i = from;
-		    from = to;
-		    to = i;
+
+		// checking if it's downwards and if we span rows
+		bool downwards = FALSE;
+		bool spanning = FALSE;
+		if ( d->arrangement == LeftToRight) {
+		    if ( from->rect().center().y() < to->rect().center().y() )
+			downwards = TRUE;
+		} else {
+		    if ( from->rect().center().x() < to->rect().center().x() )
+			downwards = TRUE;
 		}
 
+ 		QRect fr = from->rect();
+		QRect tr = to->rect();
+ 		if ( d->arrangement == LeftToRight ) {
+		    fr.moveTopLeft( QPoint( tr.x(), fr.y() ) );
+ 		    if ( !tr.intersects( fr ) )
+ 			spanning = TRUE;
+ 		} else {
+		    fr.moveTopLeft( QPoint( fr.x(), tr.y() ) );
+ 		    if ( !tr.intersects( fr ) )
+ 			spanning = TRUE;
+ 		}
+
+
+		// finding the rectangles
+		QRect topRect, bottomRect, midRect;
+		if ( !spanning ) {
+		    midRect = from->rect().unite( to->rect() );
+		} else {
+		    if ( downwards ) {
+			topRect = from->rect();
+			bottomRect = to->rect();
+		    } else {
+			topRect = to->rect();
+			bottomRect = from->rect();
+		    }
+		    if ( d->arrangement == LeftToRight ) {
+			topRect.setRight( contentsWidth() );
+			bottomRect.setLeft( 0 );
+			midRect.setRect( 0, topRect.bottom(),
+					 contentsWidth(),
+					 bottomRect.top() - topRect.bottom() );
+		    } else {
+			topRect.setBottom( contentsHeight() );
+			bottomRect.setTop( 0 );
+			midRect.setRect( topRect.right(),
+					 0,
+					 bottomRect.left() - topRect.right(),
+					 contentsHeight() );
+		    }
+		}
+
+		// finding contained items and selecting them
+		QIconViewItem *item = 0;
 		bool changed = FALSE;
-		for ( i = d->firstItem; i && i != from; i = i->next ) {
-			if ( i->selected ) {
-			    i->selected = FALSE;
+		bool midValid = midRect.isValid();
+		bool topValid = topRect.isValid();
+		bool bottomValid = bottomRect.isValid();
+		for ( item = d->firstItem; item; item = item->next ) {
+		    bool contained = FALSE;
+		    QPoint itemCenter = item->rect().center();
+		    if ( midValid && midRect.contains( itemCenter ) )
+			contained = TRUE;
+		    if ( !contained && topValid && topRect.contains( itemCenter ) )
+			contained = TRUE;
+		    if ( !contained && bottomValid && bottomRect.contains( itemCenter ) )
+			contained = TRUE;
+
+		    if ( contained ) {
+			if ( !item->selected && item->isSelectable() ) {
 			    changed = TRUE;
-			    repaintItem( i );
+			    item->selected = TRUE;
+			    repaintItem( item );
 			}
-		    }
-		for ( i = to->next; i; i = i->next ) {
-		    if ( i->selected ) {
-			i->selected = FALSE;
+		    } else if ( item->selected ) {
+			item->selected = FALSE;
 			changed = TRUE;
-			repaintItem( i );
+			repaintItem( item );
 		    }
 		}
 
-		for ( i = from; i; i = i->next ) {
-		    if ( !i->selected && i->isSelectable() ) {
-			i->selected = TRUE;
-			changed = TRUE;
-			repaintItem( i );
-		    }
-		    if ( i == to )
-			break;
-		}
 		if ( changed )
 		    emit selectionChanged();
 	    }

@@ -482,6 +482,18 @@ private:
     void updateItemContainer( QIconViewItem *item );
     void appendItemContainer();
     void rebuildContainers();
+    enum Direction {
+	Up = 0,
+	Down,
+	Left,
+	RRight
+    };
+    QIconViewItem* findItem( Direction dir,
+			     const QPoint &relativeTo,
+			     const QRect &searchRect ) const;
+    bool neighbourItem( Direction dir,
+			const QPoint &relativeTo,
+			const QIconViewItem *item ) const;
     QBitmap mask( QPixmap *pix ) const;
 
     QIconViewPrivate *d;
