@@ -62,7 +62,6 @@ protected:
 private:
     QOCIPrivate*	d;
     QOCIResultPrivate*  cols;
-    bool                cached;
     bool                cacheNext();
 };
 

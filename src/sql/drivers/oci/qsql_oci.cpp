@@ -41,6 +41,7 @@ class QOCIPrivate
 {
 public:
     QOCIPrivate();
+    ~QOCIPrivate();
 
     OCIEnv *env;
     OCIError *err;
@@ -52,10 +53,11 @@ public:
     bool nutf8; // national charset
     bool utf16bind;
     QString user;
-    
-    typedef QPtrVector<QSqlField> RowCache;
-    typedef QPtrVector<RowCache> RowsetCache;
+
+    typedef QVector<QVariant> RowCache;
+    typedef QVector<RowCache*> RowsetCache;
     RowsetCache rowCache;
+    void clearCache();
     
     text* oraText( const QString& str ) const;    
     sb4 oraTextLength( const QString& str ) const;    
@@ -68,7 +70,18 @@ public:
 QOCIPrivate::QOCIPrivate(): env(0), err(0), svc(0), sql(0), transaction( FALSE ), serverVersion(-1),
     utf8( FALSE ), nutf8( FALSE ), utf16bind( FALSE )
 {
-    rowCache.setAutoDelete(TRUE);
+}
+
+QOCIPrivate::~QOCIPrivate()
+{
+    clearCache();
+}
+
+void QOCIPrivate::clearCache()
+{
+    for (int i = 0; i < rowCache.count(); ++i)
+	delete rowCache.at(i);
+    rowCache.clear();
 }
 
 text* QOCIPrivate::oraText( const QString& str ) const
@@ -132,6 +145,7 @@ int QOCIPrivate::bindValues( QVector<QVariant>& values, QList<QVirtualDestructor
     int i;
     for ( i = 0; i < values.count(); ++i ) {
 	QVariant val( values.at( i ) );
+	//qDebug( "binding values: %d, %s", i, values.at(i).toString().ascii() );
 	OCIBind * hbnd = 0; // Oracle handles these automatically
 	sb2 * indPtr = new sb2(0);
 	tmpStorage.append( qAutoDeleter(indPtr) );
@@ -187,6 +201,8 @@ int QOCIPrivate::bindValues( QVector<QVariant>& values, QList<QVirtualDestructor
 		setCharset( hbnd );
 		break; }
 	}
+	if (r != OCI_SUCCESS)
+	    qOraWarning( "QOCIPrivate::bindValues:", this);
     }
     return r;
 }
@@ -779,28 +795,34 @@ OCILobLocator** QOCIResultPrivate::createLobLocator( int position, OCIEnv* env )
 
 void QOCIResultPrivate::setCharset( OCIDefine* dfn )
 {
-    return; // ######
     int r = 0;
     
-    if ( d->serverVersion > 8 ) {
+#ifdef QOCI_USES_VERSION_9
+    if ( d->serverVersion > 8 && !CSID_UTF16 ) {
+	
 	r = OCIAttrSet( (void*)dfn,
 			OCI_HTYPE_DEFINE,
-			(void*)&CSID_NCHAR,
-			(ub4)0,
-			(ub4)OCI_ATTR_CHARSET_FORM,
+			(void*) &CSID_NCHAR,
+			(ub4) 0,
+			(ub4) OCI_ATTR_CHARSET_FORM,
+			d->err );
+	
+	if ( r != 0 )
+	    qOraWarning( "QOCIResultPrivate::setCharset: Couldn't set OCI_ATTR_CHARSET_FORM: ", d );
+    }
+#endif //QOCI_USES_VERSION_9
+    
+    if (d->serverVersion > 8) {
+	const ub2* csid = d->utf16bind ? &CSID_UTF16 : &CSID_UTF8;
+	r = OCIAttrSet( (void*)dfn,
+			OCI_HTYPE_DEFINE,
+			(void*) &csid,
+			(ub4) 0,
+			(ub4) OCI_ATTR_CHARSET_ID,
 			d->err );
 	if ( r != 0 )
-	    qOraWarning( "QOCIResultPrivate::setCharset: cannot switch to NCHAR: ", d );
+	    qOraWarning( "QOCIResultPrivate::setCharset: Couldn't set OCI_ATTR_CHARSET_ID: ", d );
     }
-    
-    r = OCIAttrSet( (void*)dfn,
-		    OCI_HTYPE_DEFINE,
-		    (void*)&CSID_UTF8,
-		    (ub4)0,
-		    (ub4)OCI_ATTR_CHARSET_ID,
-		    d->err );
-    if ( r != 0 )
-	qOraWarning( "QOCIResultPrivate::setCharset: cannot switch to UTF8: ", d );
 }
 
 int QOCIResultPrivate::readPiecewise( QSqlRecord& res )
@@ -1044,8 +1066,7 @@ QVariant QOCIResultPrivate::value( int i )
 
 QOCIResult::QOCIResult( const QOCIDriver * db, QOCIPrivate* p )
 : QSqlResult(db),
-  cols(0),
-  cached(FALSE)
+  cols(0)
 {
     d = new QOCIPrivate();
     (*d) = (*p);
@@ -1076,12 +1097,12 @@ bool QOCIResult::reset ( const QString& query )
 
 bool QOCIResult::cacheNext()
 {
-    if ( cached )
+    if ( at() == QSql::AfterLast )
 	return FALSE;
     cols->fs.clearValues();
     int currentRecord = at() + 1;
     int r = 0;
-    r = OCIStmtFetch (  d->sql, d->err, 1, OCI_FETCH_NEXT, OCI_DEFAULT );
+    r = OCIStmtFetch (d->sql, d->err, 1, OCI_FETCH_NEXT, OCI_DEFAULT);
 
     if ( r == OCI_SUCCESS_WITH_INFO ) {
 	qOraWarning( "QOCIResult::cacheNext: ", d );
@@ -1104,28 +1125,35 @@ bool QOCIResult::cacheNext()
 	r = cols->readLOBs( cols->fs );
     }
     if ( r == 0 ) {
+	QOCIPrivate::RowCache* cache = 0;
+	if (!isForwardOnly()) {
+	    //resize the cache if necessary
+	    if (d->rowCache.capacity() <= currentRecord) {
+		if ( d->rowCache.isEmpty())
+		    d->rowCache.reserve(QOCI_DYNAMIC_CHUNK_SIZE);
+		else
+		    d->rowCache.reserve(d->rowCache.capacity() << 1);
+	    }
+	    cache = new QOCIPrivate::RowCache(cols->size());
+//	    qDebug("Appending record %d to cache %d, count %d", cache->size(), d->rowCache.size(), d->rowCache.count());
+	}
+
 	for ( int i = 0; i < cols->size(); ++i ) {
 	    if ( cols->fs.isNull( i ) && !cols->isNull( i ) ) {
 		QVariant v = QVariant( cols->value( i ) );
 		cols->fs.setValue( i, v );
 	    }
-	    if ( cols->isNull( i ) ) {
+	    if ( cols->isNull( i ) )
 		cols->fs.setNull( i );
+	    if (!isForwardOnly() && cache) {
+//		qDebug("adding to cache%p, %d, '%s'", cache, i, cols->fs.value(i).toString().ascii());
+		(*cache)[i] = cols->fs.value(i);
 	    }
-	    if ( !isForwardOnly() ) {
-		if ( (int) d->rowCache.size() < currentRecord + 1 ) {
-		    d->rowCache.resize( currentRecord + 1 );
-		    d->rowCache.insert( currentRecord, new QOCIPrivate::RowCache );
-		    d->rowCache[currentRecord]->setAutoDelete( TRUE );
-		}
-		if ( (int) d->rowCache[currentRecord]->size() < cols->size() ) {
-		    d->rowCache[currentRecord]->resize( cols->size() );
-		}
-		d->rowCache[currentRecord]->insert( i, new QSqlField( *(cols->fs.field( i ) )) );
-	    }
+	    //qDebug( "got Value %d: '%s'", i, cols->fs.value(i).toString().ascii() );
 	}
+	if (!isForwardOnly() && cache)
+	    d->rowCache.append(cache);
     } else {
-	cached = TRUE;
 	setAt( QSql::AfterLast );
     }
     return r == 0;
@@ -1133,7 +1161,8 @@ bool QOCIResult::cacheNext()
 
 bool QOCIResult::fetchNext()
 {
-    if ( !isForwardOnly() && ((int)(d->rowCache.count()-1) >=  at() + 1) ) {
+//    qDebug( "fetchNext: count %d, at %d", d->rowCache.count(), at() );
+    if ( !isForwardOnly() && (d->rowCache.count() - 1 >= at() + 1) ) {
 	setAt( at() + 1 );
 	return TRUE;
     }
@@ -1146,13 +1175,13 @@ bool QOCIResult::fetchNext()
 
 bool QOCIResult::fetch( int i )
 {
-    if ( !isForwardOnly() && ((int)(d->rowCache.count()-1) >= i) ) {
+    if ( !isForwardOnly() && (d->rowCache.count() - 1 >= i) ) {
 	setAt( i );
 	return TRUE;
     }
     if ( isForwardOnly() && at() > i )
 	return FALSE;
-    setAt( d->rowCache.size() - 1 );
+    setAt( d->rowCache.count() - 1 );
     while ( at() < i ) {
 	if ( !cacheNext() )
 	    return FALSE;
@@ -1166,6 +1195,7 @@ bool QOCIResult::fetch( int i )
 
 bool QOCIResult::fetchFirst()
 {
+//    qDebug("fetchFirst at %d count %d forwardOnly %d", at(), d->rowCache.count(), isForwardOnly());
     if ( isForwardOnly() && at() != QSql::BeforeFirst )
 	return FALSE;
     if ( !isForwardOnly() && (d->rowCache.count() > 0) ) {
@@ -1200,20 +1230,29 @@ bool QOCIResult::fetchLast()
 
 QVariant QOCIResult::data( int field )
 {
-    if ( isForwardOnly() && field < (int) cols->fs.count() )
-	return cols->fs.value( field );
-    else if ( (int) d->rowCache.count() > at() && field < (int) d->rowCache[at()]->count() )
-	return d->rowCache[at()]->at(field)->value();
-    qWarning( "QOCIResult::data: column %d out of range", field );
+//   qDebug("data: count %d, size %d, at %d, field %d", d->rowCache.count(), d->rowCache.size(), at(), field);
+    if (field >= cols->fs.count()) {
+	qWarning( "QOCIResult::data: column %d out of range", field );
+	return QVariant();
+    }
+    if (isForwardOnly())
+	return cols->fs.value(field);
+    if (d->rowCache.count() > at())
+	return d->rowCache.at(at())->at(field);
     return QVariant();
 }
 
 bool QOCIResult::isNull( int field )
 {
+    if (field >= cols->fs.count()) {
+	qWarning( "QOCIResult::isNull: column %d out of range", field );
+	return TRUE;
+    }
     if ( isForwardOnly() )
-	return cols->fs.field( field )->isNull();
-    else
-	return d->rowCache[at()]->at(field)->isNull();
+	return cols->fs.isNull(field);
+    if (d->rowCache.count() > at())
+	return d->rowCache.at(at())->at(field).isNull();
+    return TRUE;
 }
 
 int QOCIResult::size()
@@ -1240,13 +1279,12 @@ bool QOCIResult::prepare( const QString& query )
     delete cols;
     cols = 0;
 
-    d->rowCache.clear();
+    d->clearCache();
     if ( d->sql ) {
 	r = OCIHandleFree( d->sql, OCI_HTYPE_STMT );
 	if ( r != 0 )
 	    qOraWarning( "QOCIResult::prepare: unable to free statement handle:", d );
     }
-    cached = FALSE;
     if ( query.isEmpty() )
 	return FALSE;
     r = OCIHandleAlloc( (dvoid *) d->env,
@@ -1280,6 +1318,7 @@ bool QOCIResult::exec()
     ub2 stmtType;
     QList<QVirtualDestructor*> tmpStorage;
     tmpStorage.setAutoDelete( TRUE );
+    d->clearCache();
     
     // bind placeholders
     if ( boundValueCount() > 0
@@ -1598,6 +1637,7 @@ bool QOCI9Result::exec()
     ub2 stmtType;
     QList<QVirtualDestructor*> tmpStorage;
     tmpStorage.setAutoDelete( TRUE );
+    d->clearCache();
     
 //    qDebug( "QOCI9Result::exec: %s", executedQuery().ascii() );
     
@@ -1636,9 +1676,8 @@ bool QOCI9Result::exec()
 	}
 	ub4 parmCount = 0;
 	int r = OCIAttrGet( d->sql, OCI_HTYPE_STMT, (dvoid*)&parmCount, NULL, OCI_ATTR_PARAM_COUNT, d->err );
-	if ( r == 0 && !cols ) {
+	if ( r == 0 && !cols )
 	    cols = new QOCIResultPrivate( parmCount, d );
-	}
 	OCIParam* param = 0;
 	sb4 parmStatus = 0;
 	ub4 count = 1;
@@ -2044,13 +2083,13 @@ QSqlRecord QOCIDriver::record( const QSqlQuery& query ) const
 #ifdef QOCI_USES_VERSION_9
 	if ( d->serverVersion >= 9 ) {
 	    QOCI9Result* result = (QOCI9Result*)query.result();
-	    if ( result )
+	    if ( result && result->cols )
 		fil = result->cols->fs;
 	    return fil;
 	}
 #endif
 	QOCIResult* result = (QOCIResult*)query.result();
-	if ( result )
+	if ( result && result->cols )
 	    fil = result->cols->fs;
     }
     return fil;
@@ -2161,7 +2200,7 @@ QSqlIndex QOCIDriver::primaryIndex( const QString& tablename ) const
     if ( !t.next() ) {
 	stmt += " and a.table_name=(select tname from sys.synonyms "
                 "where sname='" + table + "' and creator=a.owner)";
-        t.setForwardOnly( TRUE );
+	t.setForwardOnly( TRUE );
 	t.exec( stmt );
 	if ( t.next() ) {
 	    owner = t.value(3).toString();
@@ -2172,6 +2211,7 @@ QSqlIndex QOCIDriver::primaryIndex( const QString& tablename ) const
     }
     if ( buildIndex ) {	
 	QSqlQuery tt = createQuery();
+	tt.setForwardOnly( TRUE );
 	idx.setName( t.value(1).toString() );
 	do {
 	    tt.exec( "select data_type from all_tab_columns where table_name='" + 
