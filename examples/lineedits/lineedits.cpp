@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/lineedits/lineedits.cpp#2 $
+** $Id: //depot/qt/main/examples/lineedits/lineedits.cpp#3 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -33,7 +33,7 @@ LineEdits::LineEdits( QWidget *parent, const char *name )
     row1->setMargin( 5 );
 
     // Create a Label
-    QLabel *l1 = new QLabel( "Echo Mode: ", row1 );
+    (void)new QLabel( "Echo Mode: ", row1 );
 
     // Create a Combobox with three items...
     combo1 = new QComboBox( FALSE, row1 );
@@ -52,7 +52,7 @@ LineEdits::LineEdits( QWidget *parent, const char *name )
     row2->setMargin( 5 );
 
     // and the second label
-    QLabel *l2 = new QLabel( "Validator: ", row2 );
+    (void)new QLabel( "Validator: ", row2 );
 
     // A second Combobox with again three items...
     combo2 = new QComboBox( FALSE, row2 );
@@ -63,14 +63,14 @@ LineEdits::LineEdits( QWidget *parent, const char *name )
     connect( combo2, SIGNAL( activated( int ) ), this, SLOT( slotValidatorChanged( int ) ) );
 
     // and the second LineEdit
-    lined3 = new QLineEdit( this );
+    lined2 = new QLineEdit( this );
 
     // yet another widget which is used for layouting
     QHBox *row3 = new QHBox( this );
     row3->setMargin( 5 );
 
     // we need a label for this too
-    QLabel *l3 = new QLabel( "Alignment: ", row3 );
+    (void)new QLabel( "Alignment: ", row3 );
 
     // A combo box for setting alignment
     combo3 = new QComboBox( FALSE, row3 );
@@ -132,7 +132,7 @@ void LineEdits::slotValidatorChanged( int i )
 	lined2->setValidator( new QIntValidator( lined2 ) );
         break;
     case 2:
-	lined2->setValidator( new QDoubleValidator( -999.0, 999.0, 2, 
+	lined2->setValidator( new QDoubleValidator( -999.0, 999.0, 2,
 						    lined2 ) );
         break;
     }
