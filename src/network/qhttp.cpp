@@ -25,7 +25,7 @@
 #include "qbuffer.h"
 #include "qtimer.h"
 #include "private/qinternal_p.h"
-#include "qevent.h"
+#include "qcoreevent.h"
 
 //#define QHTTP_DEBUG
 

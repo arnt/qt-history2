@@ -24,7 +24,6 @@
 #include <private/qunicodetables_p.h>
 #include <qapplication.h>
 #include "qfontdatabase.h"
-#include <qdict.h>
 #include <qpainter.h>
 #include "qtextengine_p.h"
 #include <stdlib.h>

@@ -55,7 +55,7 @@ static inline int qt_socket_socket(int domain, int type, int protocol)
 #endif
 
 #include "qsocketdevice.h"
-#include "qwindowdefs.h"
+#include "qglobal.h"
 
 #include <errno.h>
 #include <sys/types.h>

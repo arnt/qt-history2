@@ -34,7 +34,6 @@
 #include <qsize.h>
 #include <qsizegrip.h>
 #include <qslider.h>
-#include <qtextedit.h>
 #include <qtoolbutton.h>
 
 #include <qmacstyle_mac.h>
@@ -423,7 +422,7 @@ bool QAquaAnimate::focusable(const QWidget *w) const
             (::qt_cast<QSpinWidget *>(w) || ::qt_cast<QDateTimeEdit *>(w)
              || ::qt_cast<QComboBox *>(w)|| ::qt_cast<QListBox *>(w) || ::qt_cast<QListView *>(w)
              || (::qt_cast<QLineEdit *>(w) && ::qt_cast<QSpinWidget *>(w->parentWidget()))
-             || (::qt_cast<QTextEdit *>(w) && static_cast<const QTextEdit *>(w)->isReadOnly())
+//           || (w->inherits("QTextEdit") && wstatic_cast<const QTextEdit *>(w)->isReadOnly())
              || (::qt_cast<QFrame *>(w) && ::qt_cast<QLineEdit *>(w)
                  && (static_cast<const QFrame *>(w)->frameStyle() != QFrame::NoFrame
                      || ::qt_cast<QComboBox *>(w->parentWidget())))));

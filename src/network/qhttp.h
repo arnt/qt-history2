@@ -17,7 +17,6 @@
 
 #ifndef QT_H
 #include "qobject.h"
-#include "qnetworkprotocol.h"
 #include "qstringlist.h"
 #include "qmap.h"
 #endif // QT_H

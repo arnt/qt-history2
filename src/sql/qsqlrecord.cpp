@@ -18,7 +18,6 @@
 
 #include "qregexp.h"
 #include "qvector.h"
-#include "qshared.h"
 #include "qnamespace.h"
 #include "qatomic.h"
 #include "qdebug.h"

@@ -34,7 +34,6 @@
 #include "qstyle.h"
 #include "qstylefactory.h"
 #include "qtextcodec.h"
-#include "qvaluelist.h"
 #include "qvariant.h"
 #include "qwidget.h"
 #include "qmenubar.h"

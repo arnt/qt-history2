@@ -18,7 +18,7 @@
 #ifndef QT_H
 #include "qstring.h" // char*->QString conversion
 #include "qurlinfo.h"
-#include "qnetworkprotocol.h"
+#include "qobject.h"
 #endif // QT_H
 
 #if defined(QT_LICENSE_PROFESSIONAL)

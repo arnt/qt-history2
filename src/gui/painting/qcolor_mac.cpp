@@ -19,20 +19,6 @@
 #include "qapplication.h"
 #include "private/qapplication_p.h"
 
-// NOT REVISED
-
-#include "qintdict.h"
-
-
-/*
-  This function is called from the event loop. It resets the colors_avail
-  flag so that the application can retry to allocate read-only colors
-  that other applications may have deallocated lately.
-
-  The g_our_alloc and g_carr are global arrays that optimize color
-  approximation when there are no more colors left to allocate.
-*/
-
 void qt_reset_color_avail()
 {
 }

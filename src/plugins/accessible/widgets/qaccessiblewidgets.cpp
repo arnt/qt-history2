@@ -4,7 +4,6 @@
 #include <qgroupbox.h>
 #include <qscrollview.h>
 #include <qlistbox.h>
-#include <qwidgetstack.h>
 
 /*!
   \class QAccessibleViewport qaccessiblewidget.h

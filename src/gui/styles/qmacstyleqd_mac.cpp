@@ -23,6 +23,7 @@
 #include "qpaintengine_mac.h"
 #include "qgroupbox.h"
 #include "qmap.h"
+#include "qheader.h"
 #include "qt_mac.h"
 #include "qrubberband.h"
 #include "qstyleoption.h"
@@ -74,7 +75,6 @@ void QMacStyleQDPainter::setport()
 #include <qslider.h>
 #include <qspinbox.h>
 #include <qsplitter.h>
-#include <qtable.h>
 #include <qtabbar.h>
 #include <qtoolbar.h>
 #include <qtoolbutton.h>

@@ -29,7 +29,6 @@
 # include <sys/fcntl.h>
 #endif
 
-#include "qstrlist.h"
 #include "qimage.h"
 #include "qpixmap.h"
 #include "qdatastream.h"
