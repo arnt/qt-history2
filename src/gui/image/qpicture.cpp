@@ -422,39 +422,40 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
 #if defined(QT_DEBUG)
     int                strm_pos;
 #endif
-    Q_UINT8        c;                                // command id
-    Q_UINT8        tiny_len;                        // 8-bit length descriptor
-    Q_INT32        len, i1_32, i2_32;                // 32-bit length descriptor
-    Q_INT16        i_16, i1_16, i2_16;                // parameters...
-    Q_INT8        i_8;
-    Q_UINT32        ul;
-    QByteArray        str1;
-    QString        str;
-    QPoint        p, p1, p2;
-    QRect        r;
-    QPointArray a;
-    QColor        color;
-    QFont        font;
+    Q_UINT8     c;                      // command id
+    Q_UINT8     tiny_len;               // 8-bit length descriptor
+    Q_INT32     len, i1_32, i2_32;      // 32-bit length descriptor
+    Q_INT16     i_16, i1_16, i2_16;     // parameters...
+    Q_INT8      i_8;
+    Q_UINT32    ul;
+    QByteArray  str1;
+    QString     str;
+    QPointF     p, p1, p2;
+    QRectF      r;
+    QPolygon    a;
+    QPointArray pa;
+    QColor      color;
+    QFont       font;
     QPen        pen;
-    QBrush        brush;
-    QRegion        rgn;
+    QBrush      brush;
+    QRegion     rgn;
 #ifndef QT_NO_TRANSFORMATIONS
-    QMatrix        matrix;
+    QMatrix     matrix;
 #endif
 
     QMatrix worldMatrix = painter->matrix();
 
     while (nrecords-- && !s.atEnd()) {
-        s >> c;                                        // read cmd
-        s >> tiny_len;                                // read param length
-        if (tiny_len == 255)                        // longer than 254 bytes
+        s >> c;                 // read cmd
+        s >> tiny_len;          // read param length
+        if (tiny_len == 255)    // longer than 254 bytes
             s >> len;
         else
             len = tiny_len;
 #if defined(QT_DEBUG)
         strm_pos = s.device()->at();
 #endif
-        switch (c) {                                // exec cmd
+        switch (c) {            // exec cmd
             case PdcNOP:
                 break;
             case PdcDrawPoint:
@@ -462,8 +463,9 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
                 painter->drawPoint(p);
                 break;
             case PdcDrawPoints:
-                s >> a >> i1_32 >> i2_32;
-                painter->drawPoints(a.mid(i1_32, i2_32));
+// ## implement me in the picture paint engine
+//                 s >> a >> i1_32 >> i2_32;
+//                 painter->drawPoints(a.mid(i1_32, i2_32));
                 break;
             case PdcDrawLine:
                 s >> p1 >> p2;
@@ -494,8 +496,8 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
                 painter->drawChord(r, i1_16, i2_16);
                 break;
             case PdcDrawLineSegments:
-                s >> a;
-                painter->drawLineSegments(a);
+                s >> pa;
+                painter->drawLineSegments(pa);
                 break;
             case PdcDrawPolyline:
                 s >> a;
@@ -537,7 +539,7 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
                     painter->drawPixmap(p, pixmap);
                 } else {
                     s >> r >> pixmap;
-                    painter->drawPixmap(r, pixmap);
+                    painter->drawPixmap(r, pixmap, QRectF(0, 0, r.width(), r.height()));
                 }
             }
                 break;
@@ -554,7 +556,7 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
                     painter->drawPixmap(p, QPixmap(image));
                 } else {
                     s >> r >> image;
-                    painter->drawPixmap(r, QPixmap(image));
+                    painter->drawPixmap(r, QPixmap(image), QRectF(0, 0, r.width(), r.height()));
                 }
             }
                 break;
@@ -628,13 +630,13 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
             case PdcSetWindow:
                 s >> r;
 #ifndef QT_NO_TRANSFORMATIONS
-                painter->setWindow(r);
+                painter->setWindow(r.toRect());
 #endif
                 break;
             case PdcSetViewport:
                 s >> r;
 #ifndef QT_NO_TRANSFORMATIONS
-                painter->setViewport(r);
+                painter->setViewport(r.toRect());
 #endif
                 break;
             case PdcSetWXform:

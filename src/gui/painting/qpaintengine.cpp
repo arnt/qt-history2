@@ -182,7 +182,7 @@
 */
 
 /*!
-    Calls drawPoint() to draw every point in the point array \a pa.
+    Calls drawPoint() to draw every point in the polygon \a p.
 */
 
 void QPaintEngine::drawPoints(const QPolygon &p)
