@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.cpp#34 $
+** $Id: //depot/qt/main/src/kernel/qaccel.cpp#35 $
 **
 ** Implementation of QAccel class
 **
@@ -16,7 +16,7 @@
 #include "qlist.h"
 #include "qsignal.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qaccel.cpp#34 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qaccel.cpp#35 $");
 
 
 /*!
@@ -121,6 +121,30 @@ QAccel::~QAccel()
     delete aitems;
 }
 
+
+/*!  Make sure that the accelerator is watching the correct event
+  filter.  Used by QWidget::recreate().
+*/
+
+void QAccel::fixupEventFilter()
+{
+    QWidget * ntlw = 0;
+
+    if ( parent() && parent()->isWidgetType() )
+	ntlw = ((QWidget*)parent())->topLevelWidget();
+
+    if ( tlw != ntlw ) {
+	if ( tlw ) {
+	    tlw->removeEventFilter( this );
+	    disconnect( tlw, SIGNAL(destroyed()), this, SLOT(tlwDestroyed()) );
+	}
+	tlw = ntlw;
+	if ( tlw ) {
+	    tlw->installEventFilter( this );
+	    connect( tlw, SIGNAL(destroyed()), this, SLOT(tlwDestroyed()) );
+	}
+    }
+}
 
 
 /*!
@@ -308,7 +332,9 @@ bool QAccel::disconnectItem( int id, const QObject *receiver,
 
 bool QAccel::eventFilter( QObject *, QEvent *e )
 {
-    if ( enabled && e->type() == Event_Accel ) {
+    if ( enabled && e->type() == Event_Accel &&
+	 parent() && parent()->isWidgetType() &&
+	 ((QWidget *)parent())->isVisibleToTLW() ) {
 	QKeyEvent *k = (QKeyEvent *)e;
 	int key = k->key();
 	if ( k->state() & ShiftButton )

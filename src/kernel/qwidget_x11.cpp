@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#190 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#191 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -16,12 +16,13 @@
 #include "qpixmap.h"
 #include "qwidcoll.h"
 #include "qobjcoll.h"
+#include "qaccel.h"
 #define	 GC GC_QQQ
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#190 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#191 $");
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -444,6 +445,15 @@ void QWidget::recreate( QWidget *parent, WFlags f, const QPoint &p,
 	show();
     if ( old_winid )
 	qt_XDestroyWindow( this, dpy, old_winid );
+
+    QObjectList	*accelerators = queryList( "QAccel" );
+    QObjectListIt it( *accelerators );
+    QObject * o;
+    while ( (o=it.current()) != 0 ) {
+	++it;
+	((QAccel*)o)->fixupEventFilter();
+    }
+    delete accelerators;
 }
 
 
