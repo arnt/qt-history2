@@ -36,7 +36,6 @@ HEADERS	= command.h \
 		  ../shared/widgetdatabase.h \
 		  ../shared/domtool.h \
 		  ../integration/kdevelop/kdewidgets.h \
-		  qmodules.h \
 		  splashloader.h \
 		  ../shared/widgetinterface.h \
 		  designerapp.h \

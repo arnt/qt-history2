@@ -4,12 +4,10 @@ SOURCES		= qwidgetfactory.cpp \
 		  ../shared/widgetdatabase.cpp \
 		  ../shared/domtool.cpp \
 		  ../integration/kdevelop/kdewidgets.cpp \
-		  ../shared/widgetplugin.cpp
 HEADERS		= qwidgetfactory.h \
 		  ../shared/widgetdatabase.h \
 		  ../shared/domtool.h \
-		  ../integration/kdevelop/kdewidgets.h \
-		  ../shared/widgetplugin.h
+		  ../integration/kdevelop/kdewidgets.h
 TARGET		= qresource
 INCLUDEPATH	= ../shared ../util ../../../src/3rdparty/zlib/
 DESTDIR		= $(QTDIR)/lib
