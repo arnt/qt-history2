@@ -23,14 +23,14 @@ const double Q_PI = 3.14159265358979323846;
 
 /*!
     \class QPointArray qpointarray.h
-    \brief The QPointArray class provides an array of points.
+    \brief The QPointArray class provides a vector of points.
     \reentrant
 
     \ingroup images
     \ingroup graphics
     \ingroup shared
 
-    A QPointArray is an array of QPoint objects. In addition to the
+    A QPointArray is a QVector<QPoint> vector. In addition to the
     functions provided by QVector, QPointArray provides some
     point-specific functions.
 
@@ -59,7 +59,7 @@ const double Q_PI = 3.14159265358979323846;
 
     Constructs a null point array.
 
-    \sa isNull()
+    \sa QVector::isEmpty()
 */
 
 /*!
@@ -68,15 +68,13 @@ const double Q_PI = 3.14159265358979323846;
     Constructs a point array with room for \a size points. Makes a
     null array if \a size == 0.
 
-    \sa resize(), isNull()
+    \sa QVector::isEmpty()
 */
 
 /*!
     \fn QPointArray::QPointArray( const QPointArray &a )
 
-    Constructs a shallow copy of the point array \a a.
-
-    \sa copy() detach()
+    Constructs a copy of the point array \a a.
 */
 
 /*!
@@ -279,8 +277,6 @@ void QPointArray::putPoints(int index, int nPoints, const QCOORD *points)
 
     The points are given as a sequence of integers, starting with \a
     firstx then \a firsty, and so on.
-
-    \sa resize()
 */
 
 void QPointArray::putPoints(int index, int nPoints, int firstx, int firsty, ...)

@@ -282,7 +282,7 @@ QStringList QStringList::split(const QRegExp &sep, const QString &str,
     // list == ["Bill Gates", "Bill Clinton"]
     \endcode
 
-    \sa QString::find()
+    \sa QString::indexOf()
 */
 
 QStringList QStringList::grep(const QString &str, QString::CaseSensitivity cs) const
@@ -301,7 +301,7 @@ QStringList QStringList::grep(const QString &str, QString::CaseSensitivity cs) c
     Returns a list of all the strings that match the regular
     expression \a rx.
 
-    \sa QString::find()
+    \sa QString::indexOf()
 */
 
 QStringList QStringList::grep(const QRegExp &rx) const

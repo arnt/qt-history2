@@ -307,6 +307,12 @@ void QBrush::setColor(const QColor &c)
     d->color = c;
 }
 
+/*!
+    \fn void QBrush::setColor(Qt::GlobalColor c)
+
+    \overload
+*/
+
 
 /*!
     \fn QPixmap *QBrush::pixmap() const

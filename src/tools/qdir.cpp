@@ -1086,7 +1086,7 @@ bool qt_matchFilterList( const QList<QRegExp>& filters,
 
     (See \link qregexp.html#wildcard-matching QRegExp wildcard
     matching.\endlink)
-    \sa QRegExp::match()
+    \sa QRegExp::search()
 */
 
 bool QDir::match( const QStringList &filters, const QString &fileName )
@@ -1108,7 +1108,7 @@ bool QDir::match( const QStringList &filters, const QString &fileName )
 
     (See \link qregexp.html#wildcard-matching QRegExp wildcard
     matching.\endlink)
-    \sa QRegExp::match()
+    \sa QRegExp::search()
 */
 
 bool QDir::match( const QString &filter, const QString &fileName )

@@ -257,13 +257,6 @@ QEvent::~QEvent()
 */
 
 /*!
-    \fn bool QChildEvent::inserted() const
-
-    Returns TRUE if the widget received a new child; otherwise returns
-    FALSE.
-*/
-
-/*!
     \fn bool QChildEvent::removed() const
 
     Returns TRUE if the object lost a child; otherwise returns FALSE.

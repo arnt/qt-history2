@@ -608,7 +608,7 @@ QRegExpValidator::~QRegExpValidator()
     is, word-character, digit, digit) then "A57" is \c Acceptable,
     "E5" is \c Intermediate and "+9" is \c Invalid.
 
-    \sa QRegExp::match() QRegExp::search()
+    \sa QRegExp::exactMatch() QRegExp::search()
 */
 
 QValidator::State QRegExpValidator::validate( QString& input, int& pos ) const
