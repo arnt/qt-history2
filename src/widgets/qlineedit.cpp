@@ -1899,7 +1899,11 @@ void QLineEdit::setFont( const QFont & f )
 
 void QLineEdit::clear()
 {
-    setText( QString::fromLatin1("") );
+    d->selectionStart = 0;
+    d->cursor->gotoEnd();
+    updateSelection();
+    del();
+    update();
 }
 
 
