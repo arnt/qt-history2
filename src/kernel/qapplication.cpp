@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#20 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#21 $
 **
 ** Implementation of QApplication class
 **
@@ -17,7 +17,7 @@
 #include "qpalette.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication.cpp#20 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication.cpp#21 $";
 #endif
 
 
@@ -50,6 +50,11 @@ int main( int argc, char **argv )
 
 Notice that the QApplication object must be created before the widget is
 defined!
+
+
+\header qkeycode.h
+\header qwindefs.h
+\header qglobal.h
 */
 
 
