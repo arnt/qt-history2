@@ -1024,6 +1024,10 @@ const char* WidgetFactory::classNameOf( QObject* o )
 	return "QRadioButton";
     else if ( o->inherits( "QDesignerCheckBox" ) )
 	return "QCheckBox";
+    else if ( o->inherits( "QDesignerMenuBar" ) )
+	return "QMenuBar";
+    else if ( o->inherits( "QDesignerToolBar" ) )
+	return "QToolBar";
 #ifndef QT_NO_SQL
     else if ( o->inherits( "QDesignerDataBrowser" ) )
 	return "QDataBrowser";
