@@ -1018,6 +1018,8 @@ QTextEncoder* QTextCodec::makeEncoder() const
 */
 QString QTextCodec::toUnicode(const char* chars, int len) const
 {
+    if ( chars == 0 )
+	return QString::null;
     QTextDecoder* i = makeDecoder();
     QString result = i->toUnicode(chars,len);
     delete i;
@@ -2492,7 +2494,7 @@ QLatin1Codec::~QLatin1Codec()
 
 QString QLatin1Codec::toUnicode(const char* chars, int len) const
 {
-    if(len <= 0)
+    if ( chars == 0 )
 	return QString::null;
 
     return QString::fromLatin1(chars, len);
