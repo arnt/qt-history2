@@ -794,6 +794,7 @@ static void addPoint( QPointArray &a, const QPoint &p )
 void QLCDNumber::drawSegment( const QPoint &pos, char segmentNo, QPainter &p,
                               int segLen, bool erase )
 {
+    QPoint ppt;
     QPoint pt = pos;
     int width = segLen/5;
 
@@ -814,14 +815,13 @@ void QLCDNumber::drawSegment( const QPoint &pos, char segmentNo, QPainter &p,
 #define LIGHT
 #define DARK
 
-#ifndef Q_Q4PAINTER
     if ( fill ) {
         QPointArray a(0);
         //The following is an exact copy of the switch below.
         //don't make any changes here
         switch ( segmentNo ) {
         case 0 :
-            p.moveTo(pt);
+            ppt = pt;
             LIGHT;
             LINETO(segLen - 1,0);
             DARK;
@@ -831,7 +831,7 @@ void QLCDNumber::drawSegment( const QPoint &pos, char segmentNo, QPainter &p,
             break;
         case 1 :
             pt += QPoint(0 , 1);
-            p.moveTo(pt);
+            ppt = pt;
             LIGHT;
             LINETO(width,width);
             DARK;
@@ -842,7 +842,7 @@ void QLCDNumber::drawSegment( const QPoint &pos, char segmentNo, QPainter &p,
             break;
         case 2 :
             pt += QPoint(segLen - 1 , 1);
-            p.moveTo(pt);
+            ppt = pt;
             DARK;
             LINETO(0,segLen - 2);
             LINETO(-width,segLen - width/2 - 2);
@@ -852,7 +852,7 @@ void QLCDNumber::drawSegment( const QPoint &pos, char segmentNo, QPainter &p,
             break;
         case 3 :
             pt += QPoint(0 , segLen);
-            p.moveTo(pt);
+            ppt = pt;
             LIGHT;
             LINETO(width,-width/2);
             LINETO(segLen - width - 1,-width/2);
@@ -869,7 +869,7 @@ void QLCDNumber::drawSegment( const QPoint &pos, char segmentNo, QPainter &p,
             break;
         case 4 :
             pt += QPoint(0 , segLen + 1);
-            p.moveTo(pt);
+            ppt = pt;
             LIGHT;
             LINETO(width,width/2);
             DARK;
@@ -880,7 +880,7 @@ void QLCDNumber::drawSegment( const QPoint &pos, char segmentNo, QPainter &p,
             break;
         case 5 :
             pt += QPoint(segLen - 1 , segLen + 1);
-            p.moveTo(pt);
+            ppt = pt;
             DARK;
             LINETO(0,segLen - 2);
             LINETO(-width,segLen - width - 2);
@@ -890,7 +890,7 @@ void QLCDNumber::drawSegment( const QPoint &pos, char segmentNo, QPainter &p,
             break;
         case 6 :
             pt += QPoint(0 , segLen*2);
-            p.moveTo(pt);
+            ppt = pt;
             LIGHT;
             LINETO(width,-width);
             LINETO(segLen - width - 1,-width);
@@ -903,7 +903,7 @@ void QLCDNumber::drawSegment( const QPoint &pos, char segmentNo, QPainter &p,
                 pt += QPoint(segLen + width/2 , segLen*2);
             else
                 pt += QPoint(segLen/2 , segLen*2);
-            p.moveTo(pt);
+            ppt = pt;
             DARK;
             LINETO(width,0);
             LINETO(width,-width);
@@ -913,7 +913,7 @@ void QLCDNumber::drawSegment( const QPoint &pos, char segmentNo, QPainter &p,
             break;
         case 8 :
             pt += QPoint(segLen/2 - width/2 + 1 , segLen/2 + width);
-            p.moveTo(pt);
+            ppt = pt;
             DARK;
             LINETO(width,0);
             LINETO(width,-width);
@@ -923,7 +923,7 @@ void QLCDNumber::drawSegment( const QPoint &pos, char segmentNo, QPainter &p,
             break;
         case 9 :
             pt += QPoint(segLen/2 - width/2 + 1 , 3*segLen/2 + width);
-            p.moveTo(pt);
+            ppt = pt;
             DARK;
             LINETO(width,0);
             LINETO(width,-width);
@@ -948,13 +948,14 @@ void QLCDNumber::drawSegment( const QPoint &pos, char segmentNo, QPainter &p,
 #undef LIGHT
 #undef DARK
 
-#define LINETO(X,Y) p.lineTo(QPoint(pt.x() + (X),pt.y() + (Y)))
+#define LINETO(X,Y) p.drawLine(ppt.x(), ppt.y(), pt.x()+(X), pt.y()+(Y)); \
+                    ppt = QPoint(pt.x()+(X), pt.y()+(Y))
 #define LIGHT p.setPen(lightColor)
 #define DARK  p.setPen(darkColor)
     if ( shadow )
         switch ( segmentNo ) {
         case 0 :
-            p.moveTo(pt);
+            ppt = pt;
             LIGHT;
             LINETO(segLen - 1,0);
             DARK;
@@ -964,7 +965,7 @@ void QLCDNumber::drawSegment( const QPoint &pos, char segmentNo, QPainter &p,
             break;
         case 1 :
             pt += QPoint(0,1);
-            p.moveTo(pt);
+            ppt = pt;
             LIGHT;
             LINETO(width,width);
             DARK;
@@ -975,7 +976,7 @@ void QLCDNumber::drawSegment( const QPoint &pos, char segmentNo, QPainter &p,
             break;
         case 2 :
             pt += QPoint(segLen - 1 , 1);
-            p.moveTo(pt);
+            ppt = pt;
             DARK;
             LINETO(0,segLen - 2);
             LINETO(-width,segLen - width/2 - 2);
@@ -985,7 +986,7 @@ void QLCDNumber::drawSegment( const QPoint &pos, char segmentNo, QPainter &p,
             break;
         case 3 :
             pt += QPoint(0 , segLen);
-            p.moveTo(pt);
+            ppt = pt;
             LIGHT;
             LINETO(width,-width/2);
             LINETO(segLen - width - 1,-width/2);
@@ -1002,7 +1003,7 @@ void QLCDNumber::drawSegment( const QPoint &pos, char segmentNo, QPainter &p,
             break;
         case 4 :
             pt += QPoint(0 , segLen + 1);
-            p.moveTo(pt);
+            ppt = pt;
             LIGHT;
             LINETO(width,width/2);
             DARK;
@@ -1013,7 +1014,7 @@ void QLCDNumber::drawSegment( const QPoint &pos, char segmentNo, QPainter &p,
             break;
         case 5 :
             pt += QPoint(segLen - 1 , segLen + 1);
-            p.moveTo(pt);
+            ppt = pt;
             DARK;
             LINETO(0,segLen - 2);
             LINETO(-width,segLen - width - 2);
@@ -1023,7 +1024,7 @@ void QLCDNumber::drawSegment( const QPoint &pos, char segmentNo, QPainter &p,
             break;
         case 6 :
             pt += QPoint(0 , segLen*2);
-            p.moveTo(pt);
+            ppt = pt;
             LIGHT;
             LINETO(width,-width);
             LINETO(segLen - width - 1,-width);
@@ -1036,7 +1037,7 @@ void QLCDNumber::drawSegment( const QPoint &pos, char segmentNo, QPainter &p,
                 pt += QPoint(segLen + width/2 , segLen*2);
             else
                 pt += QPoint(segLen/2 , segLen*2);
-            p.moveTo(pt);
+            ppt = pt;
             DARK;
             LINETO(width,0);
             LINETO(width,-width);
@@ -1046,7 +1047,7 @@ void QLCDNumber::drawSegment( const QPoint &pos, char segmentNo, QPainter &p,
             break;
         case 8 :
             pt += QPoint(segLen/2 - width/2 + 1 , segLen/2 + width);
-            p.moveTo(pt);
+            ppt = pt;
             DARK;
             LINETO(width,0);
             LINETO(width,-width);
@@ -1056,7 +1057,7 @@ void QLCDNumber::drawSegment( const QPoint &pos, char segmentNo, QPainter &p,
             break;
         case 9 :
             pt += QPoint(segLen/2 - width/2 + 1 , 3*segLen/2 + width);
-            p.moveTo(pt);
+            ppt = pt;
             DARK;
             LINETO(width,0);
             LINETO(width,-width);
@@ -1069,7 +1070,6 @@ void QLCDNumber::drawSegment( const QPoint &pos, char segmentNo, QPainter &p,
                      "  Illegal segment id: %d\n",
                      name( "unnamed" ), segmentNo );
         }
-#endif
 
 #undef LINETO
 #undef LIGHT
