@@ -12400,7 +12400,7 @@ QString &QString::sprintf( const char* cformat, ... )
 		  case 2: ::sprintf( out, in, width, decimals, value ); break;
 		}
 	      } break;
-	      case 'e': case 'E': case 'f': case 'g': {
+	      case 'e': case 'E': case 'f': case 'g': case 'G': {
 		double value = va_arg(ap, double);
 		switch (params) {
 		  case 0: ::sprintf( out, in, value ); break;
