@@ -232,6 +232,10 @@ public:
     inline int count() const { return d->size; }
     iterator find(const Key &key);
     const_iterator find(const Key &key) const;
+    iterator lowerBound(const Key &key);
+    const_iterator lowerBound(const Key &key) const;
+    iterator upperBound(const Key &key);
+    const_iterator upperBound(const Key &key) const;
     iterator insert(const Key &key, const T &value);
 #ifdef QT_COMPAT
     QT_COMPAT iterator insert(const Key &key, const T &value, bool overwrite);
@@ -252,7 +256,7 @@ private:
     void detach_helper();
     void freeData(QMapData *d);
     QMapData::Node *findNode(const Key &key) const;
-    QMapData::Node *mutableFindNode(QMapData::Node *update[], const Key &key);
+    QMapData::Node *mutableFindNode(QMapData::Node *update[], const Key &key) const;
     QMapData::Node *node_create(QMapData *d, QMapData::Node *update[], const Key &key,
                                 const T &value);
 
@@ -576,7 +580,7 @@ Q_OUTOFLINE_TEMPLATE void QMap<Key, T>::detach_helper()
 
 template <class Key, class T>
 Q_OUTOFLINE_TEMPLATE QMapData::Node *QMap<Key, T>::mutableFindNode(QMapData::Node *update[],
-                                                                   const Key &key)
+                                                                   const Key &key) const
 {
     QMapData::Node *cur = e;
     QMapData::Node *next = e;
@@ -642,6 +646,41 @@ Q_OUTOFLINE_TEMPLATE QList<T> QMap<Key, T>::values(const Key &key) const
         } while (node != e && !(key < concrete(node)->key));
     }
     return res;
+}
+
+template <class Key, class T>
+Q_INLINE_TEMPLATE typename QMap<Key, T>::const_iterator
+QMap<Key, T>::lowerBound(const Key &key) const
+{
+    QMapData::Node *update[QMapData::LastLevel + 1];
+    mutableFindNode(update, key);
+    return const_iterator(update[0]->forward[0]);
+}
+
+template <class Key, class T>
+Q_INLINE_TEMPLATE typename QMap<Key, T>::iterator QMap<Key, T>::lowerBound(const Key &key)
+{
+    detach();
+    return static_cast<QMapData::Node *>(const_cast<const QMap *>(this)->lowerBound(key));
+}
+
+template <class Key, class T>
+Q_INLINE_TEMPLATE typename QMap<Key, T>::const_iterator
+QMap<Key, T>::upperBound(const Key &key) const
+{
+    QMapData::Node *update[QMapData::LastLevel + 1];
+    mutableFindNode(update, key);
+    QMapData::Node *node = update[0]->forward[0];
+    while (node != e && !(key < concrete(node)->key))
+        node = node->forward[0];
+    return const_iterator(node);
+}
+
+template <class Key, class T>
+Q_INLINE_TEMPLATE typename QMap<Key, T>::iterator QMap<Key, T>::upperBound(const Key &key)
+{
+    detach();
+    return static_cast<QMapData::Node *>(const_cast<const QMap *>(this)->upperBound(key));
 }
 
 template <class Key, class T>

@@ -683,10 +683,85 @@ void QMapData::dump()
         }
     \endcode
 
-    \sa value(), values()
+    \sa value(), values(), lowerBound(), upperBound()
 */
 
 /*! \fn QMap::const_iterator QMap::find(const Key &key) const
+
+    \overload
+*/
+
+/*! \fn QMap::iterator QMap::lowerBound(const Key &key)
+
+    Returns an iterator pointing to the first item with key \a key in
+    the map. If the map contains no item with key \a key, the
+    function returns an iterator to the nearest item with a greater
+    key.
+
+    Example:
+    \code
+        QMap<int, QString> map;
+        map.insert(1, "one");
+        map.insert(5, "five");
+        map.insert(10, "ten");
+
+        map.lowerBound(0);      // returns iterator to (1, "one")
+        map.lowerBound(1);      // returns iterator to (1, "one")
+        map.lowerBound(2);      // returns iterator to (5, "five")
+        map.lowerBound(10);     // returns iterator to (10, "ten")
+        map.lowerBound(999);    // returns end()
+    \endcode
+
+    If the map contains multiple items with key \a key, this
+    function returns an iterator that points to the most recently
+    inserted value. The other values are accessible by incrementing
+    the iterator. For example, here's some code that iterates over all
+    the items with the same key:
+
+    \code
+        QMap<QString, int> map;
+        ...
+        QMap<QString, int>::const_iterator i = map.lowerBound("HDR");
+        QMap<QString, int>::const_iterator upperBound = map.upperBound("HDR");
+        while (i != upperBound) {
+            cout << i.value() << endl;
+            ++i;
+        }
+    \endcode
+
+    \sa qLowerBound(), upperBound(), find()
+*/
+
+/*! \fn QMap::const_iterator QMap::lowerBound(const Key &key) const
+
+    \overload
+*/
+
+/*! \fn QMap::iterator QMap::upperBound(const Key &key)
+
+    Returns an iterator pointing to the item that immediately follows
+    the last item with key \a key in the map. If the map contains no
+    item with key \a key, the function returns an iterator to the
+    nearest item with a greater key.
+
+    Example:
+    \code
+        QMap<int, QString> map;
+        map.insert(1, "one");
+        map.insert(5, "five");
+        map.insert(10, "ten");
+
+        map.upperBound(0);      // returns iterator to (1, "one")
+        map.upperBound(1);      // returns iterator to (5, "five")
+        map.upperBound(2);      // returns iterator to (5, "five")
+        map.upperBound(10);     // returns end()
+        map.upperBound(999);    // returns end()
+    \endcode
+
+    \sa qUpperBound(), lowerBound(), find()
+*/
+
+/*! \fn QMap::const_iterator QMap::upperBound(const Key &key) const
 
     \overload
 */
