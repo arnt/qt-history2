@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>465</width>
-            <height>331</height>
+            <width>461</width>
+            <height>329</height>
         </rect>
     </property>
     <property name="caption">
@@ -98,6 +98,9 @@
                         </property>
                         <property name="text">
                             <string>I reject the license</string>
+                        </property>
+                        <property name="checked">
+                            <bool>true</bool>
                         </property>
                         <property name="buttonGroupId">
                             <number>1</number>
@@ -391,169 +394,198 @@
                 <property name="title">
                     <string>Folders and paths</string>
                 </property>
-                <grid>
-                    <property name="margin">
-                        <number>11</number>
+                <widget class="QLabel">
+                    <property name="name">
+                        <cstring>folderLabel</cstring>
                     </property>
-                    <property name="spacing">
-                        <number>6</number>
+                    <property name="geometry">
+                        <rect>
+                            <x>11</x>
+                            <y>17</y>
+                            <width>71</width>
+                            <height>24</height>
+                        </rect>
                     </property>
-                    <widget class="QLabel" row="0" column="0">
+                    <property name="text">
+                        <string>Program folder</string>
+                    </property>
+                </widget>
+                <widget class="QLayoutWidget">
+                    <property name="name">
+                        <cstring>Layout2</cstring>
+                    </property>
+                    <property name="geometry">
+                        <rect>
+                            <x>88</x>
+                            <y>17</y>
+                            <width>222</width>
+                            <height>24</height>
+                        </rect>
+                    </property>
+                    <hbox>
                         <property name="name">
-                            <cstring>folderLabel</cstring>
+                            <cstring>unnamed</cstring>
                         </property>
-                        <property name="text">
-                            <string>Program folder</string>
+                        <property name="margin">
+                            <number>0</number>
                         </property>
-                    </widget>
-                    <widget class="QLayoutWidget" row="0" column="1">
-                        <property name="name">
-                            <cstring>Layout2</cstring>
+                        <property name="spacing">
+                            <number>6</number>
                         </property>
-                        <hbox>
+                        <widget class="QLineEdit">
                             <property name="name">
-                                <cstring>unnamed</cstring>
+                                <cstring>folderPath</cstring>
                             </property>
-                            <property name="margin">
-                                <number>0</number>
-                            </property>
-                            <property name="spacing">
-                                <number>6</number>
-                            </property>
-                            <widget class="QLineEdit">
-                                <property name="name">
-                                    <cstring>folderPath</cstring>
-                                </property>
-                            </widget>
-                            <widget class="QPushButton">
-                                <property name="name">
-                                    <cstring>folderPathButton</cstring>
-                                </property>
-                                <property name="text">
-                                    <string></string>
-                                </property>
-                                <property name="pixmap">
-                                    <pixmap>image2</pixmap>
-                                </property>
-                            </widget>
-                        </hbox>
-                    </widget>
-                    <widget class="QLabel" row="1" column="0">
-                        <property name="name">
-                            <cstring>qtDirLabel</cstring>
-                        </property>
-                        <property name="text">
-                            <string>Set QTDIR</string>
-                        </property>
-                    </widget>
-                    <widget class="QLabel" row="2" column="0">
-                        <property name="name">
-                            <cstring>devSysLabel</cstring>
-                        </property>
-                        <property name="text">
-                            <string>path</string>
-                        </property>
-                    </widget>
-                    <widget class="QLayoutWidget" row="2" column="1">
-                        <property name="name">
-                            <cstring>Layout3</cstring>
-                        </property>
-                        <hbox>
+                        </widget>
+                        <widget class="QPushButton">
                             <property name="name">
-                                <cstring>unnamed</cstring>
+                                <cstring>folderPathButton</cstring>
                             </property>
-                            <property name="margin">
-                                <number>0</number>
+                            <property name="text">
+                                <string></string>
                             </property>
-                            <property name="spacing">
-                                <number>6</number>
+                            <property name="pixmap">
+                                <pixmap>image2</pixmap>
                             </property>
-                            <widget class="QLineEdit">
-                                <property name="name">
-                                    <cstring>devSysPath</cstring>
-                                </property>
-                            </widget>
-                            <widget class="QPushButton">
-                                <property name="name">
-                                    <cstring>devSysPathButton</cstring>
-                                </property>
-                                <property name="text">
-                                    <string></string>
-                                </property>
-                                <property name="pixmap">
-                                    <pixmap>image2</pixmap>
-                                </property>
-                            </widget>
-                        </hbox>
-                    </widget>
-                    <widget class="QLayoutWidget" row="3" column="1">
+                        </widget>
+                    </hbox>
+                </widget>
+                <widget class="QLabel">
+                    <property name="name">
+                        <cstring>qtDirLabel</cstring>
+                    </property>
+                    <property name="geometry">
+                        <rect>
+                            <x>11</x>
+                            <y>47</y>
+                            <width>71</width>
+                            <height>17</height>
+                        </rect>
+                    </property>
+                    <property name="text">
+                        <string>Set QTDIR</string>
+                    </property>
+                </widget>
+                <widget class="QLabel">
+                    <property name="name">
+                        <cstring>devSysLabel</cstring>
+                    </property>
+                    <property name="geometry">
+                        <rect>
+                            <x>11</x>
+                            <y>70</y>
+                            <width>71</width>
+                            <height>24</height>
+                        </rect>
+                    </property>
+                    <property name="text">
+                        <string>path</string>
+                    </property>
+                </widget>
+                <widget class="QLayoutWidget">
+                    <property name="name">
+                        <cstring>Layout3</cstring>
+                    </property>
+                    <property name="geometry">
+                        <rect>
+                            <x>88</x>
+                            <y>70</y>
+                            <width>222</width>
+                            <height>24</height>
+                        </rect>
+                    </property>
+                    <hbox>
                         <property name="name">
-                            <cstring>Layout4</cstring>
+                            <cstring>unnamed</cstring>
                         </property>
-                        <hbox>
+                        <property name="margin">
+                            <number>0</number>
+                        </property>
+                        <property name="spacing">
+                            <number>6</number>
+                        </property>
+                        <widget class="QLineEdit">
                             <property name="name">
-                                <cstring>unnamed</cstring>
+                                <cstring>devSysPath</cstring>
                             </property>
-                            <property name="margin">
-                                <number>0</number>
+                        </widget>
+                        <widget class="QPushButton">
+                            <property name="name">
+                                <cstring>devSysPathButton</cstring>
                             </property>
-                            <property name="spacing">
-                                <number>6</number>
+                            <property name="text">
+                                <string></string>
                             </property>
-                            <widget class="QComboBox">
-                                <item>
-                                    <property name="text">
-                                        <string>Current user</string>
-                                    </property>
-                                </item>
-                                <item>
-                                    <property name="text">
-                                        <string>All users</string>
-                                    </property>
-                                </item>
-                                <property name="name">
-                                    <cstring>folderGroups</cstring>
-                                </property>
-                            </widget>
-                            <spacer>
-                                <property name="name" stdset="0">
-                                    <cstring>Spacer1_2</cstring>
-                                </property>
-                                <property name="orientation">
-                                    <enum>Horizontal</enum>
-                                </property>
-                                <property name="sizeType">
-                                    <enum>Expanding</enum>
-                                </property>
-                                <property name="sizeHint">
-                                    <size>
-                                        <width>20</width>
-                                        <height>20</height>
-                                    </size>
-                                </property>
-                            </spacer>
-                        </hbox>
-                    </widget>
-                    <widget class="QCheckBox" row="1" column="1">
-                        <property name="name">
-                            <cstring>qtDirCheck</cstring>
-                        </property>
+                            <property name="pixmap">
+                                <pixmap>image2</pixmap>
+                            </property>
+                        </widget>
+                    </hbox>
+                </widget>
+                <widget class="QCheckBox">
+                    <property name="name">
+                        <cstring>qtDirCheck</cstring>
+                    </property>
+                    <property name="geometry">
+                        <rect>
+                            <x>88</x>
+                            <y>47</y>
+                            <width>222</width>
+                            <height>17</height>
+                        </rect>
+                    </property>
+                    <property name="text">
+                        <string></string>
+                    </property>
+                    <property name="checked">
+                        <bool>true</bool>
+                    </property>
+                </widget>
+                <widget class="QLabel">
+                    <property name="name">
+                        <cstring>groupLabel</cstring>
+                    </property>
+                    <property name="geometry">
+                        <rect>
+                            <x>11</x>
+                            <y>100</y>
+                            <width>71</width>
+                            <height>24</height>
+                        </rect>
+                    </property>
+                    <property name="text">
+                        <string>Folder group</string>
+                    </property>
+                </widget>
+                <widget class="QComboBox">
+                    <item>
                         <property name="text">
-                            <string></string>
+                            <string>Anyone who uses this computer (all users)</string>
                         </property>
-                        <property name="checked">
-                            <bool>true</bool>
-                        </property>
-                    </widget>
-                    <widget class="QLabel" row="3" column="0">
-                        <property name="name">
-                            <cstring>groupLabel</cstring>
-                        </property>
+                    </item>
+                    <item>
                         <property name="text">
-                            <string>Folder group</string>
+                            <string>Only for me</string>
                         </property>
-                    </widget>
-                </grid>
+                    </item>
+                    <property name="name">
+                        <cstring>folderGroups</cstring>
+                    </property>
+                    <property name="geometry">
+                        <rect>
+                            <x>89</x>
+                            <y>101</y>
+                            <width>220</width>
+                            <height>22</height>
+                        </rect>
+                    </property>
+                    <property name="sizePolicy">
+                        <sizepolicy>
+                            <hsizetype>7</hsizetype>
+                            <vsizetype>0</vsizetype>
+                        </sizepolicy>
+                    </property>
+                </widget>
             </widget>
         </grid>
     </widget>
