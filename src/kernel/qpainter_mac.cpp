@@ -1817,7 +1817,7 @@ void QPainter::drawText( int x, int y, const QString &str, int len, QPainter::Te
 		QPainter paint(&bm);		// draw text in bitmap
 		paint.setPen( color1 );
 		paint.setFont( dfont );
-		paint.drawText( tx, ty, str, len );
+		paint.drawText( tx, ty, str, len, dir );
 		paint.end();
 
 		wx_bm = new QBitmap( bm.xForm(mat2) ); // transform bitmap

@@ -2985,26 +2985,20 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
             QWMatrix mat1( m11(), m12(), m21(), m22(), dx(),  dy() );
             QFont dfont( cfont );
             QWMatrix mat2;
-            if ( txop == TxScale ) {
-                double newSize = m22() * cfont.pointSizeFloat();
-                newSize = QMAX( 6.0, QMIN( newSize, 72.0 ) ); // empirical values
-                dfont.setPointSizeFloat( newSize );
-                QFontMetrics fm2( dfont );
-                QRect abbox = fm2.boundingRect( str, len );
-                aw = abbox.width();
-                ah = abbox.height();
-                tx = -abbox.x();
-                ty = -abbox.y();        // text position - off-by-one?
-                if ( aw == 0 || ah == 0 )
-                    return;
-                double rx = mat1.m11() * (double)w / (double)aw;
-                double ry = mat1.m22() * (double)h / (double)ah;
-                mat2 = QWMatrix( rx, 0, 0, ry, 0, 0 );
-            } else {
-                mat2 = QPixmap::trueMatrix( mat1, w, h );
-                aw = w;
-                ah = h;
-            }
+	    double newSize = sqrt( QABS(m11()*m22() - m12()*m21()) ) * cfont.pointSizeFloat();
+	    newSize = QMAX( 6.0, QMIN( newSize, 72.0 ) ); // empirical values
+	    dfont.setPointSizeFloat( newSize );
+	    QFontMetrics fm2( dfont );
+	    QRect abbox = fm2.boundingRect( str, len );
+	    aw = abbox.width();
+	    ah = abbox.height();
+	    tx = -abbox.x();
+	    ty = -abbox.y();        // text position - off-by-one?
+	    if ( aw == 0 || ah == 0 )
+		return;
+	    double rx = (double)w / (double)aw;
+	    double ry = (double)h / (double)ah;
+	    mat2 = QPixmap::trueMatrix( QWMatrix( rx, 0, 0, ry, 0, 0 )*mat1 , aw, ah );
             bool empty = aw == 0 || ah == 0;
             QString bm_key = gen_text_bitmap_key( mat2, dfont, str, len );
             QBitmap *wx_bm = get_text_bitmap( bm_key );
@@ -3014,7 +3008,7 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
                 QPainter paint;
                 paint.begin( &bm );             // draw text in bitmap
                 paint.setFont( dfont );
-                paint.drawText( tx, ty, str, pos, len );
+                paint.drawText( tx, ty, str, pos, len, dir );
                 paint.end();
                 wx_bm = new QBitmap( bm.xForm(mat2) ); // transform bitmap
                 if ( wx_bm->isNull() ) {
