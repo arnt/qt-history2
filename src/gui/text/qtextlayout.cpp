@@ -748,14 +748,14 @@ void QTextLayout::draw(QPainter *p, const QPoint &pos, int cursorPos, const Sele
     d->selections = selections;
     d->nSelections = nSelections;
 
+    QPoint position = pos + d->position;
+
     int clipy = INT_MIN;
     int clipe = INT_MAX;
     if (cr.isValid()) {
-        clipy = cr.y() - pos.y();
+        clipy = cr.y() - position.y();
         clipe = clipy + cr.height();
     }
-
-    QPoint position = pos + d->position;
 
     for (int i = 0; i < d->lines.size(); i++) {
         QTextLine l(i, d);
