@@ -2205,7 +2205,16 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 			geom.setX( gp.x() );
 			geom.setY( gp.y() );
 		    }
-		    dispatch = !geom.contains( QCursor::pos() );
+		    QPoint cpos = QCursor::pos();
+		    dispatch = !geom.contains( cpos );
+		    if ( !dispatch ) {
+			HRGN hrgn = CreateRectRgn(0,0,0,0);
+			if ( GetWindowRgn( curWin, hrgn ) != ERROR ) {
+			    QPoint lcpos = widget->mapFromGlobal( cpos );
+			    dispatch = !PtInRegion( hrgn, lcpos.x(), lcpos.y() );
+			}
+			DeleteObject(hrgn);
+		    }
 		}
 		if ( dispatch ) {
 		    qt_dispatchEnterLeave( 0, QWidget::find( (WId)curWin ) );
