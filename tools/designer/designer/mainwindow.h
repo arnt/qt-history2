@@ -271,6 +271,8 @@ private:
     void setupActionManager();
     void setupPluginManagers();
 
+    void enableAll( bool enable );
+
     QWidget* previewFormInternal( QStyle* style = 0, QPalette* pal = 0 );
 
     FormWindow *insertFormWindow( int type );

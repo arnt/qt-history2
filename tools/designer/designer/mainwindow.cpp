@@ -2282,6 +2282,9 @@ QObjectList *MainWindow::runProject()
     inDebugMode = TRUE;
 
     debuggingForms = *l;
+
+    enableAll( FALSE );
+
     return l;
 }
 
@@ -4559,6 +4562,19 @@ void MainWindow::finishedRun()
 {
     inDebugMode = FALSE;
     debuggingForms.clear();
+    enableAll( TRUE );
+}
+
+void MainWindow::enableAll( bool enable )
+{
+    menuBar()->setEnabled( enable );
+    QObjectList *l = queryList( "QDockWindow" );
+    for ( QObject *o = l->first(); o; o = l->next() ) {
+	if ( o == formList->parentWidget() || o == oWindow->parentWidget() || o == hierarchyView->parentWidget() )
+	    continue;
+	( (QWidget*)o )->setEnabled( enable );
+    }
+    delete l;
 }
 
 void MainWindow::showSourceLine( QObject *o, int line, bool error )
