@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#104 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#105 $
 **
 ** Implementation of QLabel widget class
 **
@@ -34,6 +34,7 @@
 #include "qimage.h"
 #include "qbitmap.h"
 #include "qapplication.h"
+#include "qml.h"
 
 
 class QLabelPrivate
@@ -186,31 +187,41 @@ void QLabel::init()
     align = AlignLeft | AlignVCenter | ExpandTabs;
     extraMargin= -1;
     autoresize = FALSE;
+    isqml = FALSE;
+    qmlDoc = 0;
     d = 0;
 }
 
 /*!
   \fn QString QLabel::text() const
-  Returns the label text.
-  \sa setText()
+  
+  Returns the label text. This may be either plain text or a QML
+  document.
+  
+  \sa setText(), setQML()
 */
 
 /*!
   Sets the label contents to \e text, updates the optional
   accelerator and redraws the contents.
 
-  The label resizes itself if auto-resizing is enabled.	 Nothing
+  The label resizes itself if auto-resizing is enabled.  Nothing
   happens if \e text is the same as the current label.
 
-  \sa text(), setPixmap(), setAutoResize()
+  \sa text(), setQML(), setPixmap(), setAutoResize()
 */
 
 void QLabel::setText( const QString &text )
 {
     unsetMovie();
-    if ( ltext == text )
+    if ( !isqml && ltext == text )
 	return;
     ltext = text;
+    isqml = FALSE;
+    if (qmlDoc ) {
+	delete qmlDoc;
+	qmlDoc = 0;
+    }
     if ( lpixmap ) {
 	delete lpixmap;
 	lpixmap = 0;
@@ -261,7 +272,7 @@ void QLabel::clear()
   The label resizes itself if auto-resizing is enabled.	 Nothing
   happens if \e pixmap is the same as the current label.
 
-  \sa pixmap(), setText(), setAutoResize()
+  \sa pixmap(), setText(), setQML(), setAutoResize()
 */
 
 void QLabel::setPixmap( const QPixmap &pixmap )
@@ -466,7 +477,34 @@ QSize QLabel::sizeHint() const
     } else if ( mov ) {
 	br = QRect( 0, 0, mov->framePixmap().width(),
 		mov->framePixmap().height() );
-    } else {
+    } else if (isqml ){
+	if ( qmlDoc ) {
+	    QRect cr = contentsRect();
+	    int m = margin();
+	    if ( m < 0 ) {
+		if ( frameWidth() > 0 )
+		    m = p.fontMetrics().width("x")/2;
+		else
+		    m = 0;
+	    }
+	    if ( m > 0 ) {
+		if ( align & AlignLeft )
+		    cr.setLeft( cr.left() + m );
+		if ( align & AlignRight )
+		    cr.setRight( cr.right() - m );
+		if ( align & AlignTop )
+		    cr.setTop( cr.top() + m );
+		if ( align & AlignBottom )
+		    cr.setBottom( cr.bottom() - m );
+	    }
+	    if ( qmlDoc->width() != cr.width() ) {
+		QPainter p( this );
+		qmlDoc->setWidth( &p, cr.width() );
+	    }
+	    br = QRect( 0, 0, qmlDoc->width(), qmlDoc->height() );
+	}
+    }
+    else {
 	br = p.boundingRect( 0,0, 1000,1000, alignment(), text() );
 	// adjust so "Yes" and "yes" will have the same height
 	int h = fontMetrics().lineSpacing();
@@ -531,13 +569,18 @@ void QLabel::drawContents( QPainter *p )
  			align, isEnabled(), &(mov->framePixmap()), ltext );
 	// ### could resize movie frame at this point
 	p->drawPixmap(r.x(), r.y(), mov->framePixmap() );
-	return;
     }
-
-    // Not a movie
-    qDrawItem( p, style(), cr.x(), cr.y(), cr.width(), cr.height(),
-	       align, colorGroup(), isEnabled(),
-	       lpixmap, ltext );
+    else if ( isqml ) {
+	if (qmlDoc) {
+	    qmlDoc->setWidth(p, cr.width() );
+	    qmlDoc->draw(p, cr.x(), cr.y(), cr, colorGroup(), 0);
+	}
+    } else {
+	// ordinary text label
+	qDrawItem( p, style(), cr.x(), cr.y(), cr.width(), cr.height(),
+		   align, colorGroup(), isEnabled(),
+		   lpixmap, ltext );
+    }
 }
 
 
@@ -779,4 +822,71 @@ void QLabel::unsetMovie()
 QMovie* QLabel::movie() const
 {
     return lmovie;
+}
+
+/*!
+  Reimplemented for QML labels
+*/
+int QLabel::heightForWidth(int w) const
+{
+    if (isqml && qmlDoc ) {
+	QPainter p( this );
+	QRect cr = contentsRect();
+	int m = margin();
+	if ( m < 0 ) {
+	    if ( frameWidth() > 0 )
+		m = p.fontMetrics().width("x")/2;
+	    else
+		m = 0;
+	}
+	if ( m > 0 ) {
+	    if ( align & AlignLeft )
+		cr.setLeft( cr.left() + m );
+	    if ( align & AlignRight )
+		cr.setRight( cr.right() - m );
+	    if ( align & AlignTop )
+		cr.setTop( cr.top() + m );
+	    if ( align & AlignBottom )
+		cr.setBottom( cr.bottom() - m );
+	}
+	qmlDoc->setWidth(&p, cr.width());
+	return qmlDoc->height() + 2*frameWidth() + m;
+    }
+    return QWidget::heightForWidth(w);
+}
+
+
+/*!
+  Sets the label contents to QML document \e qml and
+  redraws the contents.
+
+  The label resizes itself if auto-resizing is enabled. Nothing
+  happens if \e qml is the same as the current label.
+
+  \sa text(), setText(), setPixmap(), setAutoResize()
+*/
+void QLabel::setQML( const QString & qml )
+{
+    unsetMovie();
+    if ( qml && ltext == qml )
+	return;
+    ltext = qml;
+    isqml = TRUE;
+    if ( lpixmap ) {
+	delete lpixmap;
+	lpixmap = 0;
+    }
+    delete qmlDoc;
+    qmlDoc = new QMLSimpleDocument( ltext, this );
+    if ( accel )
+	accel->clear();
+    if ( autoresize ) {
+	QSize s = sizeHint();
+	if ( s.isValid() && s != size() )
+	    resize( s );
+	else
+	    repaint();
+    } else {
+	updateLabel();
+    }
 }

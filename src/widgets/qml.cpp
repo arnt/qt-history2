@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qml.cpp#1 $
+** $Id: //depot/qt/main/src/widgets/qml.cpp#2 $
 **
 ** Implementation of QML classes
 **
@@ -331,7 +331,7 @@ void QMLStyle::setAnchor(bool anc)
 
 /*!
   Returns  the separation of subparagraphs in pixel
-  
+
   \sa setParagraphSeparation()
  */
 int QMLStyle::paragraphSeparation() const
@@ -342,7 +342,7 @@ int QMLStyle::paragraphSeparation() const
 
 /*!
   Sets the separation of subparagraphs in pixel
-  
+
   \sa setParagraphSeparation()
  */
 void QMLStyle::setParagraphSeparation(int v)
@@ -3619,7 +3619,11 @@ QMLSimpleDocument::~QMLSimpleDocument()
 void QMLSimpleDocument::setWidth( QPainter* p, int w)
 {
     d->doc->setWidth( p, w );
+}
 
+int QMLSimpleDocument::width() const
+{
+    return d->doc->width;
 }
 
 int QMLSimpleDocument::height() const

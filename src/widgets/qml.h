@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qml.h#1 $
+** $Id: //depot/qt/main/src/widgets/qml.h#2 $
 **
 ** Definition of QML classes
 **
@@ -153,6 +153,7 @@ public:
     ~QMLSimpleDocument();
 
     void setWidth( QPainter*, int );
+    int width() const;
     int height() const;
 
     void draw( QPainter*,  int x, int y, const QRegion& clipRegion,
