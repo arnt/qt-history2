@@ -560,7 +560,7 @@ static QString prototype(const QStringList &ptypes, const QStringList &pnames, b
 	} else if (ptype.endsWith("**")) {
 	    out = true;
 	    ptype.truncate(ptype.length() - 1);
-	} else if (ptype.endsWith("*")) {
+	} else if (ptype.endsWith("*") && (!subtypes || !subtypes->contains(ptype))) {
 	    ptype.truncate(ptype.length() - 1);
 	}
 	if (ptype.isEmpty()) {
