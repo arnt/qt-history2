@@ -101,7 +101,7 @@ libraries.
 
 \keyword QMYSQL3
 
-\section3 General informations
+\section3 General information
 
 MySQL 3.x doesn't support SQL transactions by default. There are some backends
 which offer this functionality. Recent versions of the MySQL client
@@ -219,7 +219,7 @@ statement above.
 
 \keyword QODBC3
 
-\section3 General informations
+\section3 General information
 
 ODBC (Open Database Connectivity) is a general interface that allows you
 to connect to multiple DBMS using a common interface. The QODBC3 driver
@@ -292,6 +292,18 @@ successful. If the server is too old or the version information cannot be determ
 a warning is issued.
 
 For more information about PostgreSQL visit \l http://www.postgresql.org.
+
+\section 3 Unicode support
+
+The QPSQL7 driver automatically detects whether PostgreSQL supports unicode and
+uses it if available. Note that the driver only supports Utf8. If your database
+uses any other encoding, the server has to be compiled with unicode conversion
+support.
+
+Unicode support has been introduced in PostgreSQL version 7.1 and only works
+if both the server and the client library have been compiled with multibyte support.
+More information about how to set up a multibyte enabled PostgreSQL server can be
+found in the PostgreSQL Administrator Guide, Chapter 5.
 
 \section3 How to build the plugin on Unix/Linux
 
