@@ -327,6 +327,7 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
     QPaintDevice *device = 0;
     QWidget *widget = 0;
     if(p) {
+        pState = p->painterState();
         device = p->painter()->device();
         if(device->devType() == QInternal::Widget)
             widget = static_cast<QWidget *>(device);
