@@ -32,10 +32,7 @@ struct QAxFactoryInterface : public QFeatureListInterface
 {
 public:
 #ifndef Q_QDOC
-    //### merge create and createObject to one function returning a QObject*
-    //### problem might be parent parameter, but that is always null anyway.
-    virtual QWidget *create(const QString &key, QWidget *parent = 0, const char *name = 0) = 0;
-    virtual QObject *createObject(const QString &key, QObject *parent = 0, const char *name = 0) = 0;
+    virtual QObject *createObject(const QString &key) = 0;
     virtual const QMetaObject *metaObject(const QString &key) const = 0;
     virtual bool createObjectWrapper(QObject *object, IDispatch **wrapper) = 0;
     
@@ -71,9 +68,8 @@ public:
 #ifdef Q_QDOC
     virtual QStringList featureList() const = 0;
 #endif
-    virtual QWidget *create(const QString &key, QWidget *parent = 0, const char *name = 0);
-    virtual QObject *createObject(const QString &key, QObject *parent = 0, const char *name = 0);
-    virtual const QMetaObject *metaObject(const QString &key) const;
+    virtual QObject *createObject(const QString &key) = 0;
+    virtual const QMetaObject *metaObject(const QString &key) const = 0;
     virtual bool createObjectWrapper(QObject *object, IDispatch **wrapper);
     
     virtual QUuid classID(const QString &key) const;
@@ -137,43 +133,45 @@ inline bool QAxFactory::stopServer()
     { \
     public: \
         QAxDefaultFactory(const QUuid &app, const QUuid &lib) \
-        : QAxFactory(app, lib) {} \
+        : QAxFactory(app, lib), className(Class) {} \
         QStringList featureList() const \
-    { \
-        QStringList list; \
-        list << #Class; \
-        return list; \
-    } \
+        { \
+            QStringList list; \
+            list << className; \
+            return list; \
+        } \
         const QMetaObject *metaObject(const QString &key) const \
-    { \
-        if (key == #Class) \
-        return &Class::staticMetaObject; \
-        return 0; \
-    } \
-        QWidget *create(const QString &key, QWidget *parent, const char *name) \
-    { \
-        if (key == #Class) \
-        return new Class(parent, name); \
-        return 0; \
-    } \
+        { \
+            if (key == className) \
+            return &Class::staticMetaObject; \
+            return 0; \
+        } \
+        QObject *createObject(const QString &key) \
+        { \
+            if (key == className) \
+                return new Class(parent, name); \
+            return 0; \
+        } \
         QUuid classID(const QString &key) const \
-    { \
-        if (key == #Class) \
-        return QUuid(IIDClass); \
-        return QUuid(); \
-    } \
+        { \
+            if (key == className) \
+                return QUuid(IIDClass); \
+            return QUuid(); \
+        } \
         QUuid interfaceID(const QString &key) const \
-    { \
-        if (key == #Class) \
-        return QUuid(IIDInterface); \
-        return QUuid(); \
-    } \
+        { \
+            if (key == className) \
+                return QUuid(IIDInterface); \
+            return QUuid(); \
+        } \
         QUuid eventsID(const QString &key) const \
-    { \
-        if (key == #Class) \
-        return QUuid(IIDEvents); \
-        return QUuid(); \
-    } \
+        { \
+            if (key == className) \
+                return QUuid(IIDEvents); \
+            return QUuid(); \
+        } \
+    private: \
+        QString className; \
     }; \
     QAXFACTORY_EXPORT(QAxDefaultFactory, IIDTypeLib, IIDApp) \
 
@@ -187,12 +185,14 @@ public:
     
     const QMetaObject *metaObject(const QString &key) const { return &T::staticMetaObject; }
     QStringList featureList() const { return QString(T::staticMetaObject.className()); }
-    QWidget *create(const QString &key, QWidget *parent, const char *name)
+    QObject *createObject(const QString &key)
     {
-        if (key != QString(T::staticMetaObject.className())) return 0;
-        if (!qstrcmp(T::staticMetaObject.classInfo(T::staticMetaObject.indexOfClassInfo("Creatable")).value(), "no"))
+        const QMetaObject &mo = T::staticMetaObject;
+        if (key != QLatin1String(mo.className()))
             return 0;
-        return new T(parent, name);
+        if (!qstrcmp(mo.classInfo(mo.indexOfClassInfo("Creatable")).value(), "no"))
+            return 0;
+        return new T(0);
     }
 };
 
@@ -236,42 +236,42 @@ public:
             QAxFactoryInterface *f = factories[key]; \
             return f ? f->metaObject(key) : 0; \
         } \
-        QWidget *create(const QString &key, QWidget *parent, const char *name) { \
+        QObject *createObject(const QString &key) { \
             if (!creatable.value(key)) \
                 return 0; \
             QAxFactoryInterface *f = factories[key]; \
-            return f ? f->create(key, parent, name) : 0; \
+            return f ? f->createObject(key) : 0; \
         } \
         QUuid classID(const QString &key) { \
-            QAxFactoryInterface *f = factories[key]; \
+            QAxFactoryInterface *f = factories.value(key); \
             return f ? f->classID(key) : QUuid(); \
         } \
         QUuid interfaceID(const QString &key) { \
-            QAxFactoryInterface *f = factories[key]; \
+            QAxFactoryInterface *f = factories.value(key); \
             return f ? f->interfaceID(key) : QUuid(); \
         } \
         QUuid eventsID(const QString &key) { \
-            QAxFactoryInterface *f = factories[key]; \
+            QAxFactoryInterface *f = factories.value(key); \
             return f ? f->eventsID(key) : QUuid(); \
         } \
         void registerClass(const QString &key, QSettings *s) const { \
-            QAxFactoryInterface *f = factories[key]; \
+            QAxFactoryInterface *f = factories.value(key); \
             if (f) f->registerClass(key, s); \
         } \
         void unregisterClass(const QString &key, QSettings *s) const { \
-            QAxFactoryInterface *f = factories[key]; \
+            QAxFactoryInterface *f = factories.value(key); \
             if (f) f->unregisterClass(key, s); \
         } \
         QString exposeToSuperClass(const QString &key) const { \
-            QAxFactoryInterface *f = factories[key]; \
+            QAxFactoryInterface *f = factories.value(key); \
             return f ? f->exposeToSuperClass(key) : QString(); \
         } \
         bool stayTopLevel(const QString &key) const { \
-            QAxFactoryInterface *f = factories[key]; \
+            QAxFactoryInterface *f = factories.value(key); \
             return f ? f->stayTopLevel(key) : false; \
         } \
         bool hasStockEvents(const QString &key) const { \
-            QAxFactoryInterface *f = factories[key]; \
+            QAxFactoryInterface *f = factories.value(key); \
             return f ? f->hasStockEvents(key) : false; \
         } \
     }; \

@@ -245,54 +245,22 @@ QUuid QAxFactory::appID() const
 */
 
 /*!
-    Reimplement this function to return a new widget for \a key.
-    Propagate \a parent and \a name to the QWidget constructor. Return 
-    0 if this factory doesn't support the value of \a key.
+    \fn QObject *QAxFactory::createObject(const QString &key);
 
-    The returned widget will be exposed as an ActiveX control, e.g.
-    a COM object that can be embedded as a control into applications.
-
-    The default implementation returns 0.
-*/
-QWidget *QAxFactory::create(const QString &key, QWidget *parent, const char *name)
-{
-    Q_UNUSED(key)
-        Q_UNUSED(parent)
-        Q_UNUSED(name)
-        return 0;
-}
-
-/*!
-    Reimplement this function to return a new object for \a key.
-    Propagate \a parent and \a name to the QWidget constructor. Return 
-    0 if this factory doesn't support the value of \a key.
+    Reimplement this function to return a new object for \a key, or 0 if 
+    this factory doesn't support the value of \a key.
 
     If the object returned is a QWidget it will be exposed as an ActiveX
-    control, otherwise the returned object will be exposed as a COM object.
-
-    The default implementation returns the result QAxFactory::create() if 
-    \a parent is 0 or a widget, otherwise returns 0.
+    control, otherwise the returned object will be exposed as a simple COM 
+    object.
 */
-QObject *QAxFactory::createObject(const QString &key, QObject *parent, const char *name)
-{
-    if (!parent || parent->isWidgetType())
-        return create(key, (QWidget*)parent, name);
-    
-    return 0;
-}
 
 /*!
+    \fn const QMetaObject *QAxFactory::metaObject(const QString &key) const
+
     Reimplement this function to return the QMetaObject corresponding to
     \a key, or 0 if this factory doesn't support the value of \a key.
-
-    The default implementation returns 0.
-
-    \a key.
 */
-const QMetaObject *QAxFactory::metaObject(const QString &key) const
-{
-    return 0;
-}
 
 /*!
     \fn bool QAxFactory::createObjectWrapper(QObject *object, IDispatch **wrapper)
