@@ -129,7 +129,7 @@ private:
 struct QTablePrivate
 {
     QTablePrivate() : hasRowSpan( FALSE ), hasColSpan( FALSE ),
-	redirectMouseEvent( FALSE ), inMenuMode( FALSE )
+		      inMenuMode( FALSE ), redirectMouseEvent( FALSE )
     {
 	hiddenRows.setAutoDelete( TRUE );
 	hiddenCols.setAutoDelete( TRUE );
