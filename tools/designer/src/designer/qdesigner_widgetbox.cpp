@@ -19,6 +19,8 @@
 
 #include <abstractformeditor.h>
 
+#include <QtCore/qdebug.h>
+
 QDesignerWidgetBox::QDesignerWidgetBox(QDesignerWorkbench *workbench)
     : QDesignerToolWindow(workbench)
 {

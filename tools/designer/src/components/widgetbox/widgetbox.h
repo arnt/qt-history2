@@ -30,7 +30,7 @@ class QAction;
 class QActionGroup;
 class WidgetCollectionModel;
 class Scratchpad;
-class WidgetBoxContainer;
+class WidgetBoxTreeView;
 class DomWidget;
 
 class QT_WIDGETBOX_EXPORT WidgetBox : public AbstractWidgetBox
@@ -59,8 +59,7 @@ private slots:
 
 private:
     AbstractFormEditor *m_core;
-    WidgetCollectionModel *m_model;
-    WidgetBoxContainer *m_view;
+    WidgetBoxTreeView *m_view;
 };
 
 #endif // WIDGETBOX_H

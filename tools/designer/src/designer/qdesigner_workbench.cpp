@@ -56,6 +56,8 @@ QDesignerWorkbench::QDesignerWorkbench()
 
 QDesignerWorkbench::~QDesignerWorkbench()
 {
+    while (!m_toolWindows.isEmpty())
+        delete m_toolWindows.takeLast();
 }
 
 QDesignerWorkbench::UIMode QDesignerWorkbench::mode() const

@@ -14,6 +14,7 @@
 #ifndef ABSTRACTWIDGETBOX_H
 #define ABSTRACTWIDGETBOX_H
 
+#include <QtCore/QMetaType>
 #include <QtGui/QWidget>
 #include <QtGui/QIcon>
 
@@ -52,7 +53,7 @@ public:
 
         QString name() const { return m_name; }
         void setName(const QString &name) { m_name = name; }
-        int widgetCount() { return m_widget_list.size(); }
+        int widgetCount() const { return m_widget_list.size(); }
         Widget widget(int idx) const { return m_widget_list.at(idx); }
         void removeWidget(int idx) { m_widget_list.removeAt(idx); }
         void addWidget(const Widget &widget) { m_widget_list.append(widget); }
@@ -83,5 +84,7 @@ public:
 public slots:
     virtual void reload();
 };
+
+Q_DECLARE_METATYPE(AbstractWidgetBox::Widget)
 
 #endif // ABSTRACTWIDGETBOX_H
