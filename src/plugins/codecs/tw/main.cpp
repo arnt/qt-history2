@@ -17,58 +17,82 @@
 
 #include "qbig5codec.h"
 
-
 class TWTextCodecs : public QTextCodecPlugin
 {
 public:
     TWTextCodecs() {}
 
-    QStringList names() const { return QStringList() << "Big5"
-#ifdef Q_WS_X11
-                                                     << "big5*-0"
-                                                     << "big5hkscs-0"
-#endif
-            ;
-    }
-    QList<int> mibEnums() const { return QList<int>() << 2026
-#ifdef Q_WS_X11
-                                                      << -2026
-                                                      << -2101
-#endif
-            ;
-    }
+    QList<QByteArray> names() const;
+    QList<QByteArray> aliases() const;
+    QList<int> mibEnums() const;
+
     QTextCodec *createForMib(int);
-    QTextCodec *createForName(const QString &);
+    QTextCodec *createForName(const QByteArray &);
 };
+
+QList<QByteArray> TWTextCodecs::names() const
+{
+    QList<QByteArray> list;
+    list += QBig5Codec::_name();
+    list += QBig5hkscsCodec::_name();
+#ifdef Q_WS_X11
+    list += QFontBig5Codec::_name();
+    list += QFontBig5hkscsCodec::_name();
+#endif
+    return list;
+}
+
+QList<QByteArray> TWTextCodecs::aliases() const
+{
+    QList<QByteArray> list;
+    list += QBig5Codec::_aliases();
+    list += QBig5hkscsCodec::_aliases();
+#ifdef Q_WS_X11
+    list += QFontBig5Codec::_aliases();
+    list += QFontBig5hkscsCodec::_aliases();
+#endif
+    return list;
+}
+
+QList<int> TWTextCodecs::mibEnums() const
+{
+    QList<int> list;
+    list += QBig5Codec::_mibEnum();
+    list += QBig5hkscsCodec::_mibEnum();
+#ifdef Q_WS_X11
+    list += QFontBig5Codec::_mibEnum();
+    list += QFontBig5hkscsCodec::_mibEnum();
+#endif
+    return list;
+}
 
 QTextCodec *TWTextCodecs::createForMib(int mib)
 {
-    switch (mib) {
-#ifdef Q_WS_X11
-    case -2026:
-        return new QFontBig5Codec;
-    case -2101:
-        return new QFontBig5hkscsCodec;
-#endif
-    case 2026:
+    if (mib == QBig5Codec::_mibEnum())
         return new QBig5Codec;
-    default:
-        ;
-    }
-
+    if (mib == QBig5hkscsCodec::_mibEnum())
+        return new QBig5hkscsCodec;
+#ifdef Q_WS_X11
+    if (mib == QFontBig5hkscsCodec::_mibEnum())
+        return new QFontBig5hkscsCodec;
+    if (mib == QFontBig5Codec::_mibEnum())
+        return new QFontBig5Codec;
+#endif
     return 0;
 }
 
 
-QTextCodec *TWTextCodecs::createForName(const QString &name)
+QTextCodec *TWTextCodecs::createForName(const QByteArray &name)
 {
-    if (name == "Big5")
+    if (name == QBig5Codec::_name() || QBig5Codec::_aliases().contains(name))
         return new QBig5Codec;
+    if (name == QBig5hkscsCodec::_name() || QBig5hkscsCodec::_aliases().contains(name))
+        return new QBig5hkscsCodec;
 #ifdef Q_WS_X11
-    if (name == "big5*-0")
-        return new QFontBig5Codec;
-    if (name ==  "big5hkscs-0")
+    if (name == QFontBig5hkscsCodec::_name() || QFontBig5hkscsCodec::_aliases().contains(name))
         return new QFontBig5hkscsCodec;
+    if (name == QFontBig5Codec::_name() || QFontBig5Codec::_aliases().contains(name))
+        return new QFontBig5Codec;
 #endif
     return 0;
 }

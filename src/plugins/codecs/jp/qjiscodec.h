@@ -45,12 +45,17 @@
 
 #include "qtextcodec.h"
 #include "qjpunicode.h"
+#include <qlist.h>
 
 class QJisCodec : public QTextCodec {
 public:
-    QByteArray name() const;
-    QList<QByteArray> aliases() const;
-    int mibEnum() const;
+    static QByteArray _name();
+    static QList<QByteArray> _aliases();
+    static int _mibEnum();
+
+    QByteArray name() const { return _name(); }
+    QList<QByteArray> aliases() const { return _aliases(); }
+    int mibEnum() const { return _mibEnum(); }
 
     QString convertToUnicode(const char *, int, ConverterState *) const;
     QByteArray convertFromUnicode(const QChar *, int, ConverterState *) const;

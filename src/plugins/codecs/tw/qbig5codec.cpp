@@ -86,12 +86,12 @@ static int qt_UnicodeToBig5hkscs(uint wc, uchar *r);
 #define        QValidChar(u)        ((u) ? QChar((ushort)(u)) : QChar(QChar::ReplacementCharacter))
 
 
-int QBig5Codec::mibEnum() const
+int QBig5Codec::_mibEnum()
 {
     return 2026;
 }
 
-QByteArray QBig5Codec::name() const
+QByteArray QBig5Codec::_name()
 {
     return "Big5";
 }
@@ -270,13 +270,13 @@ QByteArray QBig5Codec::convertFromUnicode(const QChar *uc, int len, ConverterSta
 */
 
 
-int QBig5hkscsCodec::mibEnum() const
+int QBig5hkscsCodec::_mibEnum()
 {
     return 2101;
 }
 
 
-QByteArray QBig5hkscsCodec::name() const
+QByteArray QBig5hkscsCodec::_name()
 {
     return "Big5-HKSCS";
 }
@@ -392,14 +392,14 @@ QFontBig5Codec::QFontBig5Codec()
 }
 
 
-QByteArray QFontBig5Codec::name() const
+QByteArray QFontBig5Codec::_name()
 {
     //qDebug("QFontBig5Codec::name() = \"big5-0\"");
     return "big5-0";
 }
 
 
-int QFontBig5Codec::mibEnum() const
+int QFontBig5Codec::_mibEnum()
 {
     //qDebug("QFontBig5Codec::mibEnum() = -2026");
     return -2026;
@@ -451,14 +451,14 @@ QFontBig5hkscsCodec::QFontBig5hkscsCodec()
 }
 
 
-QByteArray QFontBig5hkscsCodec::name() const
+QByteArray QFontBig5hkscsCodec::_name()
 {
     //qDebug("QFontBig5hkscsCodec::name() = \"big5hkscs-0\"");
     return "big5hkscs-0";
 }
 
 
-int QFontBig5hkscsCodec::mibEnum() const
+int QFontBig5hkscsCodec::_mibEnum()
 {
     //qDebug("QFontBig5hkscsCodec::mibEnum() = -2101");
     return -2101;

@@ -13,7 +13,7 @@
 
 #include <qtextcodecplugin.h>
 #include <qtextcodec.h>
-#include <qstringlist.h>
+#include <qlist.h>
 
 #include "qgb18030codec.h"
 
@@ -23,68 +23,84 @@ class CNTextCodecs : public QTextCodecPlugin
 public:
     CNTextCodecs() {}
 
-    QStringList names() const  {
-        return QStringList() << "GB18030" << "GBK" << "GB2312"
-#ifdef Q_WS_X11
-                             << "gb2312.1980-0"
-                             << "gbk-0"
-                             << "gb18030-0"
-#endif
-        ;
-    }
-    QList<int> mibEnums() const {
-        return QList<int>() << 114 << 113 << 2025
-#ifdef Q_WS_X11
-                            << 57 << -113
-                            << -114
-#endif
-            ;
-    }
+    QList<QByteArray> names() const;
+    QList<QByteArray> aliases() const;
+    QList<int> mibEnums() const;
 
     QTextCodec *createForMib(int);
-    QTextCodec *createForName(const QString &);
+    QTextCodec *createForName(const QByteArray &);
 };
+
+QList<QByteArray> CNTextCodecs::names() const
+{
+    QList<QByteArray> list;
+    list += QGb18030Codec::_name();
+    list += QGbkCodec::_name();
+    list += QGb2312Codec::_name();
+#ifdef Q_WS_X11
+    list += QFontGb2312Codec::_name();
+    list += QFontGbkCodec::_name();
+#endif
+    return list;
+}
+
+QList<QByteArray> CNTextCodecs::aliases() const
+{
+    QList<QByteArray> list;
+    list += QGb18030Codec::_aliases();
+    list += QGbkCodec::_aliases();
+    list += QGb2312Codec::_aliases();
+#ifdef Q_WS_X11
+    list += QFontGb2312Codec::_aliases();
+    list += QFontGbkCodec::_aliases();
+#endif
+    return list;
+}
+
+QList<int> CNTextCodecs::mibEnums() const
+{
+    QList<int> list;
+    list += QGb18030Codec::_mibEnum();
+    list += QGbkCodec::_mibEnum();
+    list += QGb2312Codec::_mibEnum();
+#ifdef Q_WS_X11
+    list += QFontGb2312Codec::_mibEnum();
+    list += QFontGbkCodec::_mibEnum();
+#endif
+    return list;
+}
 
 QTextCodec *CNTextCodecs::createForMib(int mib)
 {
-    switch (mib) {
-    case 2025:
-        return new QGb2312Codec;
-    case 113:
-        return new QGbkCodec;
-    case -2025:
+    if (mib == QGb18030Codec::_mibEnum())
         return new QGb18030Codec;
+    if (mib == QGbkCodec::_mibEnum())
+        return new QGbkCodec;
+    if (mib == QGb2312Codec::_mibEnum())
+        return new QGb2312Codec;
 #ifdef Q_WS_X11
-    case 57:
-        return new QFontGb2312Codec;
-    case -113:
+    if (mib == QFontGbkCodec::_mibEnum())
         return new QFontGbkCodec;
-    case -114:
-        return new QFontGb18030_0Codec;
+    if (mib == QFontGb2312Codec::_mibEnum())
+        return new QFontGb2312Codec;
 #endif
-    default:
-        ;
-    }
-
     return 0;
 }
 
 
-QTextCodec *CNTextCodecs::createForName(const QString &name)
+QTextCodec *CNTextCodecs::createForName(const QByteArray &name)
 {
-    if (name == "GB18030")
+    if (name == QGb18030Codec::_name() || QGb18030Codec::_aliases().contains(name))
         return new QGb18030Codec;
-    if (name == "GBK" || name == "gbk-0")
+    if (name == QGbkCodec::_name() || QGbkCodec::_aliases().contains(name))
         return new QGbkCodec;
-    if (name == "gb2312.1980-0")
+    if (name == QGb2312Codec::_name() || QGb2312Codec::_aliases().contains(name))
         return new QGb2312Codec;
 #ifdef Q_WS_X11
-    if (name == "gb2312.1980-0")
-        return new QFontGb2312Codec;
-    if (name == "gbk-0")
+    if (name == QFontGbkCodec::_name() || QFontGbkCodec::_aliases().contains(name))
         return new QFontGbkCodec;
-    if (name == "gb18030-0")
-        return new QFontGb18030_0Codec;
+    if (name == QFontGb2312Codec::_name() || QFontGb2312Codec::_aliases().contains(name))
+        return new QFontGb2312Codec;
 #endif
     return 0;
 }

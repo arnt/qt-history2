@@ -23,46 +23,54 @@ class KRTextCodecs : public QTextCodecPlugin
 public:
     KRTextCodecs() {}
 
-    QStringList names() const { return QStringList() << "eucKR"
-#ifdef Q_WS_X11
-                                                     << "ksc5601.1987-0"
-#endif
-            ; }
-    QList<int> mibEnums() const { return QList<int>() << 38
-#ifdef Q_WS_X11
-                                                      << 36
-#endif
-            ; }
+    QList<QByteArray> names() const;
+    QList<QByteArray> aliases() const;
+    QList<int> mibEnums() const;
+
     QTextCodec *createForMib(int);
-    QTextCodec *createForName(const QString &);
+    QTextCodec *createForName(const QByteArray &);
 };
 
+QList<QByteArray> KRTextCodecs::names() const
+{
+    QList<QByteArray> list;
+    list += QEucKrCodec::_name();
+    list += QFontKsc5601Codec::_name();
+    return list;
+}
+
+QList<QByteArray> KRTextCodecs::aliases() const
+{
+    QList<QByteArray> list;
+    list += QEucKrCodec::_aliases();
+    list += QFontKsc5601Codec::_aliases();
+    return list;
+}
+
+QList<int> KRTextCodecs::mibEnums() const
+{
+    QList<int> list;
+    list += QEucKrCodec::_mibEnum();
+    list += QFontKsc5601Codec::_mibEnum();
+    return list;
+}
 
 QTextCodec *KRTextCodecs::createForMib(int mib)
 {
-    switch (mib) {
-#ifdef Q_WS_X11
-    case 36:
-        return new QFontKsc5601Codec;
-#endif
-    case 38:
+    if (mib == QEucKrCodec::_mibEnum())
         return new QEucKrCodec;
-    default:
-        ;
-    }
-
+    if (mib == QFontKsc5601Codec::_mibEnum())
+        return new QFontKsc5601Codec;
     return 0;
 }
 
 
-QTextCodec *KRTextCodecs::createForName(const QString &name)
+QTextCodec *KRTextCodecs::createForName(const QByteArray &name)
 {
-    if (name == "eucKR")
+    if (name == QEucKrCodec::_name() || QEucKrCodec::_aliases().contains(name))
         return new QEucKrCodec;
-#ifdef Q_WS_X11
-    if (name == "ksc5601.1987-0")
+    if (name == QFontKsc5601Codec::_name() || QFontKsc5601Codec::_aliases().contains(name))
         return new QFontKsc5601Codec;
-#endif
     return 0;
 }
 

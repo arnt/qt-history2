@@ -22,12 +22,12 @@ QFontJis0201Codec::QFontJis0201Codec()
 {
 }
 
-const char *QFontJis0201Codec::name() const
+const char *QFontJis0201Codec::_name()
 {
     return "jisx0201*-0";
 }
 
-int QFontJis0201Codec::mibEnum() const
+int QFontJis0201Codec::_mibEnum()
 {
     return 15;
 }
@@ -71,13 +71,13 @@ QFontJis0208Codec::~QFontJis0208Codec()
 }
 
 
-QByteArray QFontJis0208Codec::name() const
+QByteArray QFontJis0208Codec::_name()
 {
     return "jisx0208*-0";
 }
 
 
-int QFontJis0208Codec::mibEnum() const
+int QFontJis0208Codec::_mibEnum()
 {
     return 63;
 }

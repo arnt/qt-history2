@@ -90,7 +90,11 @@ QTextCodecPlugin::~QTextCodecPlugin()
 
 QStringList QTextCodecPlugin::keys() const
 {
-    QStringList keys = names();
+    QStringList keys;
+    QList<QByteArray> list = names();
+    list += aliases();
+    for (int i = 0; i < list.size(); ++i)
+        keys += QString::fromLatin1(list.at(i));
     QList<int> mibs = mibEnums();
     for (int i = 0; i < mibs.count(); ++i)
         keys += QLatin1String("MIB: ") + QString::number(mibs.at(i));
@@ -101,5 +105,5 @@ QTextCodec *QTextCodecPlugin::create(const QString &name)
 {
     if (name.startsWith(QLatin1String("MIB: ")))
         return createForMib(name.mid(4).toInt());
-    return createForName(name);
+    return createForName(name.toLatin1());
 }

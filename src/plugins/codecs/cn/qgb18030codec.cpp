@@ -92,7 +92,6 @@
 */
 
 #include "qgb18030codec.h"
-#include "qlist.h"
 
 #define InRange(c, lower, upper)  (((c) >= (lower)) && ((c) <= (upper)))
 #define IsLatin(c)        ((c) <= 0x7F)
@@ -126,16 +125,6 @@ int qt_UnicodeToGbk(uint unicode, uchar *gbchar);
 
 QGb18030Codec::QGb18030Codec()
 {
-}
-
-QByteArray QGb18030Codec::name() const
-{
-    return "GB18030";
-}
-
-int QGb18030Codec::mibEnum() const
-{
-    return 114;
 }
 
 /*! \reimp */
@@ -336,17 +325,17 @@ QGbkCodec::QGbkCodec()
 {
 }
 
-int QGbkCodec::mibEnum() const
+int QGbkCodec::_mibEnum()
 {
     return 113;
 }
 
-QByteArray QGbkCodec::name() const
+QByteArray QGbkCodec::_name()
 {
     return "GBK";
 }
 
-QList<QByteArray> QGbkCodec::aliases() const
+QList<QByteArray> QGbkCodec::_aliases()
 {
     QList<QByteArray> list;
     list << "CP936"
@@ -485,13 +474,13 @@ QGb2312Codec::QGb2312Codec()
 }
 
 /*! \reimp */
-int QGb2312Codec::mibEnum() const
+int QGb2312Codec::_mibEnum()
 {
     return 2025;
 }
 
 /*! \reimp */
-QByteArray QGb2312Codec::name() const
+QByteArray QGb2312Codec::_name()
 {
     return "GB2312";
 }
@@ -611,13 +600,13 @@ QFontGb2312Codec::QFontGb2312Codec()
 }
 
 
-QByteArray QFontGb2312Codec::name() const
+QByteArray QFontGb2312Codec::_name()
 {
     return "gb2312.1980-0";
 }
 
 
-int QFontGb2312Codec::mibEnum() const
+int QFontGb2312Codec::_mibEnum()
 {
     return 57;
 }
@@ -659,13 +648,13 @@ QFontGbkCodec::QFontGbkCodec()
 }
 
 
-QByteArray QFontGbkCodec::name() const
+QByteArray QFontGbkCodec::_name()
 {
     return "gbk-0";
 }
 
 
-int QFontGbkCodec::mibEnum() const
+int QFontGbkCodec::_mibEnum()
 {
     return -113;
 }
@@ -708,14 +697,14 @@ QFontGb18030_0Codec::QFontGb18030_0Codec()
 }
 
 
-QByteArray QFontGb18030_0Codec::name() const
+QByteArray QFontGb18030_0Codec::_name()
 {
     //qDebug("QFontGb18030_0Codec::name() = \"gb18030-0\"");
     return "gb18030-0";
 }
 
 
-int QFontGb18030_0Codec::mibEnum() const
+int QFontGb18030_0Codec::_mibEnum()
 {
     //qDebug("QFontGb18030_0Codec::mibEnum() = -114");
     return -114;

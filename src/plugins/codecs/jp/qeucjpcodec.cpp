@@ -258,12 +258,12 @@ QString QEucJpCodec::convertToUnicode(const char* chars, int len, ConverterState
     return result;
 }
 
-int QEucJpCodec::mibEnum() const
+int QEucJpCodec::_mibEnum()
 {
     return 18;
 }
 
-QByteArray QEucJpCodec::name() const
+QByteArray QEucJpCodec::_name()
 {
     return "EUC-JP";
 }

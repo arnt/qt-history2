@@ -201,12 +201,12 @@ QString QSjisCodec::convertToUnicode(const char* chars, int len, ConverterState 
 }
 
 
-int QSjisCodec::mibEnum() const
+int QSjisCodec::_mibEnum()
 {
     return 17;
 }
 
-QByteArray QSjisCodec::name() const
+QByteArray QSjisCodec::_name()
 {
     return "Shift_JIS";
 }
@@ -214,7 +214,7 @@ QByteArray QSjisCodec::name() const
 /*!
     Returns the codec's mime name.
 */
-QList<QByteArray> QSjisCodec::aliases() const
+QList<QByteArray> QSjisCodec::_aliases()
 {
     QList<QByteArray> list;
     list << "SJIS" // Qt 3 compat

@@ -170,12 +170,12 @@ QString QEucKrCodec::convertToUnicode(const char* chars, int len, ConverterState
     return result;
 }
 
-int QEucKrCodec::mibEnum() const
+int QEucKrCodec::_mibEnum()
 {
   return 38;
 }
 
-QByteArray QEucKrCodec::name() const
+QByteArray QEucKrCodec::_name()
 {
   return "EUC-KR";
 }
@@ -187,13 +187,13 @@ QFontKsc5601Codec::QFontKsc5601Codec()
 }
 
 
-QByteArray QFontKsc5601Codec::name() const
+QByteArray QFontKsc5601Codec::_name()
 {
     return "ksc5601.1987-0";
 }
 
 
-int QFontKsc5601Codec::mibEnum() const
+int QFontKsc5601Codec::_mibEnum()
 {
     return 36;
 }

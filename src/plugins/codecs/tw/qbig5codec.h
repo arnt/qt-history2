@@ -19,11 +19,17 @@
 #define QBIG5CODEC_P_H
 
 #include "qtextcodec.h"
+#include <qlist.h>
 
 class QBig5Codec : public QTextCodec {
 public:
-    QByteArray name() const;
-    int mibEnum() const;
+    static QByteArray _name();
+    static QList<QByteArray> _aliases() { return QList<QByteArray>(); }
+    static int _mibEnum();
+
+    QByteArray name() const { return _name(); }
+    QList<QByteArray> aliases() const { return _aliases(); }
+    int mibEnum() const { return _mibEnum(); }
 
     QString convertToUnicode(const char *, int, ConverterState *) const;
     QByteArray convertFromUnicode(const QChar *, int, ConverterState *) const;
@@ -31,8 +37,13 @@ public:
 
 class QBig5hkscsCodec : public QTextCodec {
 public:
-    QByteArray name() const;
-    int mibEnum() const;
+    static QByteArray _name();
+    static QList<QByteArray> _aliases() { return QList<QByteArray>(); }
+    static int _mibEnum();
+
+    QByteArray name() const { return _name(); }
+    QList<QByteArray> aliases() const { return _aliases(); }
+    int mibEnum() const { return _mibEnum(); }
 
     QString convertToUnicode(const char *, int, ConverterState *) const;
     QByteArray convertFromUnicode(const QChar *, int, ConverterState *) const;
@@ -46,8 +57,13 @@ class Q_CORE_EXPORT QFontBig5Codec : public QTextCodec
 public:
     QFontBig5Codec();
 
-    QByteArray name() const;
-    int mibEnum() const;
+    static QByteArray _name();
+    static QList<QByteArray> _aliases() { return QList<QByteArray>(); }
+    static int _mibEnum();
+
+    QByteArray name() const { return _name(); }
+    QList<QByteArray> aliases() const { return _aliases(); }
+    int mibEnum() const { return _mibEnum(); }
 
     QString convertToUnicode(const char *, int, ConverterState *) const;
     QByteArray convertFromUnicode(const QChar *, int, ConverterState *) const;
@@ -58,8 +74,13 @@ class Q_CORE_EXPORT QFontBig5hkscsCodec : public QTextCodec
 public:
     QFontBig5hkscsCodec();
 
-    QByteArray name() const;
-    int mibEnum() const;
+    static QByteArray _name();
+    static QList<QByteArray> _aliases() { return QList<QByteArray>(); }
+    static int _mibEnum();
+
+    QByteArray name() const { return _name(); }
+    QList<QByteArray> aliases() const { return _aliases(); }
+    int mibEnum() const { return _mibEnum(); }
 
     QString convertToUnicode(const char *, int, ConverterState *) const;
     QByteArray convertFromUnicode(const QChar *, int, ConverterState *) const;

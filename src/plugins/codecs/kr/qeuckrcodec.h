@@ -40,12 +40,17 @@
 #define QEUCKRCODEC_P_H
 
 #include "qtextcodec.h"
+#include <qlist.h>
 
 class QEucKrCodec : public QTextCodec {
 public:
-    QByteArray name() const;
-    QList<QByteArray> aliases() const;
-    int mibEnum() const;
+    static QByteArray _name();
+    static QList<QByteArray> _aliases() { return QList<QByteArray>(); }
+    static int _mibEnum();
+
+    QByteArray name() const { return _name(); }
+    QList<QByteArray> aliases() const { return _aliases(); }
+    int mibEnum() const { return _mibEnum(); }
 
     QString convertToUnicode(const char *, int, ConverterState *) const;
     QByteArray convertFromUnicode(const QChar *, int, ConverterState *) const;
@@ -58,8 +63,13 @@ class QFontKsc5601Codec : public QTextCodec
 public:
     QFontKsc5601Codec();
 
-    QByteArray name() const;
-    int mibEnum() const;
+    static QByteArray _name();
+    static QList<QByteArray> _aliases() { return QList<QByteArray>(); }
+    static int _mibEnum();
+
+    QByteArray name() const { return _name(); }
+    QList<QByteArray> aliases() const { return _aliases(); }
+    int mibEnum() const { return _mibEnum(); }
 
     QString convertToUnicode(const char *, int, ConverterState *) const;
     QByteArray convertFromUnicode(const QChar *, int, ConverterState *) const;

@@ -17,7 +17,8 @@
 #include "qplugin.h"
 #include "qfactoryinterface.h"
 
-#include <qstringlist.h>
+#include <qlist.h>
+#include <qbytearray.h>
 
 class QTextCodec;
 
@@ -36,8 +37,9 @@ public:
     QTextCodecPlugin(QObject *parent = 0);
     ~QTextCodecPlugin();
 
-    virtual QStringList names() const = 0;
-    virtual QTextCodec *createForName(const QString &name) = 0;
+    virtual QList<QByteArray> names() const = 0;
+    virtual QList<QByteArray> aliases() const = 0;
+    virtual QTextCodec *createForName(const QByteArray &name) = 0;
 
     virtual QList<int> mibEnums() const = 0;
     virtual QTextCodec *createForMib(int mib) = 0;

@@ -395,13 +395,13 @@ QString QJisCodec::convertToUnicode(const char* chars, int len, ConverterState *
 
 
 /*! \internal */
-int QJisCodec::mibEnum() const
+int QJisCodec::_mibEnum()
 {
     return 39;
 }
 
 /*! \internal */
-QByteArray QJisCodec::name() const
+QByteArray QJisCodec::_name()
 {
     return "ISO-2022-JP";
 }
@@ -409,9 +409,10 @@ QByteArray QJisCodec::name() const
 /*!
     Returns the codec's mime name.
 */
-QList<QByteArray> QJisCodec::aliases() const
+QList<QByteArray> QJisCodec::_aliases()
 {
     QList<QByteArray> list;
     list << "JIS7"; // Qt 3 compat
+    return list;
 }
 
