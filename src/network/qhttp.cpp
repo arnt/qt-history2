@@ -1811,8 +1811,8 @@ void QHttp::sendRequest()
     // Do we need to setup a new connection or can we reuse an
     // existing one ?
     if ( d->socket.peerName() != d->hostname || d->socket.state() != QSocket::Connection ) {
-	d->socket.connectToHost( d->hostname, d->port );
 	setState( QHttp::Connecting );
+	d->socket.connectToHost( d->hostname, d->port );
     } else {
         slotConnected();
     }
@@ -2169,6 +2169,9 @@ void QHttp::killIdleTimer()
 
 void QHttp::setState( int s )
 {
+#if defined(QHTTP_DEBUG)
+    qDebug( "QHttp state changed %d -> %d", d->state, s );
+#endif
     d->state = (State)s;
     emit stateChanged( s );
 }
