@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcur_x11.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qcur_x11.cpp#6 $
 **
 ** Implementation of QCursor class for X11
 **
@@ -13,6 +13,7 @@
 #include "qcursor.h"
 #include "qapp.h"
 #include "qbitmap.h"
+#include "qdstream.h"
 #include "qmemchk.h"
 #define	 GC GC_QQQ
 #include <X11/Xlib.h>
@@ -21,7 +22,7 @@
 #include <X11/cursorfont.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qcur_x11.cpp#5 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qcur_x11.cpp#6 $";
 #endif
 
 
@@ -150,16 +151,19 @@ QCursor::QCursor( int shape )			// cursor with shape
     data = c->data;
 }
 
-QCursor::QCursor( QBitMap *bitmap, QBitMap *mask, int hotX, int hotY )
+QCursor::QCursor( const QBitMap &bitmap, const QBitMap &mask,
+		  int hotX, int hotY )
 {						// define own cursor
     data = new QCursorData;
     CHECK_PTR( data );
-    data->bm = bitmap;
-    data->bmm = mask;
+    data->bm  = new QBitMap;
+    data->bmm = new QBitMap;
+    *(data->bm)  = bitmap;
+    *(data->bmm) = mask;
     data->hcurs = 0;
     data->cshape = BitMapCursor;
-    data->hx = hotX >= 0 ? hotX : bitmap->size().width()/2;
-    data->hy = hotY >= 0 ? hotY : bitmap->size().height()/2;
+    data->hx = hotX >= 0 ? hotX : bitmap.width()/2;
+    data->hy = hotY >= 0 ? hotY : bitmap.height()/2;
 }
 
 QCursor::QCursor( const QCursor &c )
@@ -327,4 +331,48 @@ Cursor QCursor::handle() const
     if ( !data->hcurs )
 	update();
     return data->hcurs;
+}
+
+
+// --------------------------------------------------------------------------
+// QCursor stream functions
+//
+
+QDataStream &operator<<( QDataStream &s, const QCursor &c )
+{
+    s << (INT16)c.data->cshape;			// write shape id to stream
+    if ( c.data->cshape == BitMapCursor ) {
+	s << *(c.data->bm) << *(c.data->bmm);
+	s << (INT16)c.data->hx << (INT16)c.data->hy;
+    }
+    return s;
+}
+
+QDataStream &operator>>( QDataStream &s, QCursor &c )
+{
+    INT16 shape;
+    s >> shape;					// read shape id from stream
+    if ( shape == BitMapCursor ) {		// read bitmap cursor
+	if ( c.data->deref() )
+	    delete c.data;
+	c.data = new QCursorData;
+	CHECK_PTR( c.data );
+	QBitMap bm, bmm;
+	INT16   hx, hy;
+	s >> bm >> bmm;
+	s >> hx >> hy;
+	c.data->bm  = new QBitMap;
+	c.data->bmm = new QBitMap;
+	CHECK_PTR( c.data->bm && c.data->bmm );
+	*(c.data->bm)  = bm;
+	*(c.data->bmm) = bm;
+	c.data->hcurs  = 0;
+	c.data->cshape = BitMapCursor;
+	c.data->hx = hx;
+	c.data->hy = hy;
+	c.update();
+    }
+    else
+	c.setShape( (int)shape );		// create cursor with shape
+    return s;
 }

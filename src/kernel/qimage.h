@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.h#4 $
+** $Id: //depot/qt/main/src/kernel/qimage.h#5 $
 **
 ** Definition of QImage class
 **
@@ -28,9 +28,10 @@ public:
     QImage();
     QImage( int w, int h, int depth=-1 );
     QImage( const QPixMap & );
+    QImage( QPixMap * );
     QImage( const QImage & );
-    QImage( const QImageData * );
-   ~QImage();
+    QImage( QImageData * );
+    virtual ~QImage();
     QImage     &operator=( const QPixMap & );
     QImage     &operator=( const QImage & );
 
@@ -50,7 +51,7 @@ public:
 
     uchar      *bits()		const;
 
-    void	createImage( const QImageData * );
+    void	createImage( QImageData * );
 
     void	resize( int width, int height );
     void	resize( const QSize & );
@@ -72,7 +73,17 @@ public:
     friend QDataStream &operator<<( QDataStream &, const QImage & );
     friend QDataStream &operator>>( QDataStream &, QImage & );
 
-private:
+    virtual bool isBitMap() const;
+
+#if defined(_WS_WIN_)
+    HDC	     handle() const;
+#elif defined(_WS_PM_)
+    HPS	     handle() const;
+#elif defined(_WS_X11_)
+    WId	     handle() const;
+#endif
+
+protected:
     struct QImagePix : QShared {		// image pixel data
 	QPixMap *pm;
     } *data;

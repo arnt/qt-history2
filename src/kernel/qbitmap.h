@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbitmap.h#6 $
+** $Id: //depot/qt/main/src/kernel/qbitmap.h#7 $
 **
 ** Definition of QBitMap class
 **
@@ -13,29 +13,21 @@
 #ifndef QBITMAP_H
 #define QBITMAP_H
 
-#include "qpixmap.h"
+#include "qimage.h"
 
 
-class QBitMap : public QPixMap			// bitmap class
+class QBitMap : public QImage			// bitmap class
 {
 public:
-    QBitMap( int w, int h ) : QPixMap( w, h, 1 ) {}
-    QBitMap( int w, int h, const char *data, bool isXbitmap=FALSE )
-	: QPixMap( w, h, data, isXbitmap ) {}
-   ~QBitMap() {}
-
-    bool   testBit( int x, int y ) const;	// test if bit set
-    void   setBit( int x, int y );		// set bit
-    void   setBit( int x, int y, bool v )	// set bit to value
-		{ if ( v ) setBit(x,y); else clearBit(x,y); }
-    void   clearBit( int x, int y );		// clear bit
-    bool   toggleBit( int x, int y );		// toggle/invert bit
-
-    QBitMap *xForm( const QWorldMatrix & );	// transform bitmap
-    static QWorldMatrix trueMatrix( const QWorldMatrix &, int w, int h );
-
+    QBitMap()					{}
+    QBitMap( int w, int h ) : QImage( w, h, 1 )	{}
+    QBitMap( int w, int h, const char *data, bool isXbitmap=FALSE );
+    QBitMap( const QPixMap &pm ) : QImage( pm )	{}
+    QBitMap( QPixMap *pm ) : QImage( pm )	{}
+    QBitMap( const QImage &i ) : QImage( i )	{}
+    QBitMap( QImageData *i ) : QImage( i )	{}
 protected:
-    char  *data;
+    bool  isBitMap() const;
 };
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#58 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#59 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -23,7 +23,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#58 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#59 $";
 #endif
 
 
@@ -160,10 +160,11 @@ QBrush::QBrush( const QColor &color, BrushStyle style )
     init( color, style );
 }
 
-QBrush::QBrush( const QColor &color, QBitMap *bitmap )
+QBrush::QBrush( const QColor &color, const QBitMap &bitmap )
 {
     init( color, CustomPattern );
-    data->bitmap = bitmap;
+    data->bitmap = new QBitMap;
+    *(data->bitmap) = bitmap;
 }
 
 QBrush::QBrush( const QBrush &p )
@@ -209,6 +210,16 @@ void QBrush::setColor( const QColor &c )	// set brush color
     data->color = c;
     if ( pixel != c.pixel() )
 	QPainter::changedBrush( this, CHANGE_COLOR );
+}
+
+void QBrush::setBitMap( const QBitMap &bitmap )	// set brush bitmap
+{
+    data->style = CustomPattern;
+    if ( data->bitmap )
+	delete data->bitmap;
+    data->bitmap = new QBitMap;
+    *(data->bitmap) = bitmap;
+    QPainter::changedBrush( this, CHANGE_ALL );
 }
 
 
@@ -431,6 +442,12 @@ void QPainter::setPen( const QPen &pen )	// set current pen
     }
 }
 
+void QPainter::setPen( PenStyle style )		// set solid pen with color
+{
+    QPen pen( style );
+    setPen( pen );
+}
+
 void QPainter::setPen( const QColor &color )	// set solid pen with color
 {
     QPen pen( color );
@@ -449,6 +466,12 @@ void QPainter::setBrush( const QBrush &brush )	// set current brush
 	cbrush = brush;
 	cbrush.data->dpy = dpy;			// give brush a display pointer
     }
+}
+
+void QPainter::setBrush( BrushStyle style )	// set brush
+{
+    QBrush brush( style );
+    setBrush( brush );
 }
 
 void QPainter::setBrush( const QColor &color )	// set solid brush width color
@@ -668,7 +691,7 @@ static char *pat_tbl[] = {
 	if ( bro.x() != 0 || bro.y() != 0 )
 	    XSetTSOrigin( dpy, gc_brush, bro.x(), bro.y() );
     }
-    if ( cbrush.data->pixmap && !custom ) {
+    if ( cbrush.data->pixmap ) {		// delete old pixmap
 	XFreePixmap( cbrush.data->dpy, cbrush.data->pixmap );
 	cbrush.data->pixmap = 0;
     }
@@ -677,7 +700,7 @@ static char *pat_tbl[] = {
     XSetBackground( dpy, gc_brush, bg_col.pixel() );
     if ( custom || pat ) {
 	if ( custom )
-	    cbrush.data->pixmap = cbrush.data->bitmap->hd;
+	    cbrush.data->pixmap = cbrush.data->bitmap->handle();
 	else
 	    cbrush.data->pixmap = XCreateBitmapFromData( dpy, hd, pat, sz, sz);
 	XSetStipple( dpy, gc_brush, cbrush.data->pixmap );
@@ -792,7 +815,7 @@ bool QPainter::end()				// end painting
 	    XSetClipMask( dpy, gc_brush, None );
 	if ( rop != CopyROP )
 	    XSetFunction( dpy, gc_brush, GXcopy );
-	free_painter_gc( dpy, gc_brush );	
+	free_painter_gc( dpy, gc_brush );
     }
     if ( gc ) {					// restore pen gc
 	if ( testf(ClipOn) )
@@ -2049,20 +2072,20 @@ static QString gen_xbm_key(  const QWorldMatrix &m, const QFont &f,
 }
 
 
-static QBitMap *get_text_bitmap( const QWorldMatrix &m, const QFont &f,
+static QPixMap *get_text_bitmap( const QWorldMatrix &m, const QFont &f,
 				 const char *str, int len )
 {
     QString k = gen_xbm_key( m, f, str, len );
-    return (QBitMap*)QPixMap::find( k );
+    return QPixMap::find( k );
 }
 
 
 static void ins_text_bitmap( const QWorldMatrix &m, const QFont &f,
-			     const char *str, int len, QBitMap *bm )
+			     const char *str, int len, QPixMap *pm )
 {
     QString k = gen_xbm_key( m, f, str, len );
-    if ( !QPixMap::insert(k,bm) )		// cannot insert pixmap
-	delete bm;
+    if ( !QPixMap::insert(k,pm) )		// cannot insert pixmap
+	delete pm;
 }
 
 
@@ -2102,12 +2125,12 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 	    QWorldMatrix eff_mat( wm11/65536.0, wm12/65536.0,
 				  wm21/65536.0, wm22/65536.0,
 				  wdx/65536.0,  wdy/65536.0 );
-	    QBitMap *wx_bm = get_text_bitmap( eff_mat, cfont, str, len );
+	    QPixMap *wx_bm = get_text_bitmap( eff_mat, cfont, str, len );
 	    bool create_new_bm = wx_bm == 0;
 	    QWorldMatrix mat( 1, 0, 0, 1, -eff_mat.dx(), -eff_mat.dy() );
 	    mat = eff_mat * mat;
 	    if ( create_new_bm ) {		// no such cached bitmap
-		QBitMap bm( w, h );		// create bitmap
+		QPixMap bm( w, h, 1 );		// create bitmap
 		bm.fill( color0 );
 		QPainter paint;
 		paint.begin( &bm );		// draw text in bitmap
@@ -2116,7 +2139,7 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 		paint.end();
 		wx_bm = bm.xForm( mat );	// transform bitmap
 	    }
-	    mat = QBitMap::trueMatrix( mat, w, h );
+	    mat = QPixMap::trueMatrix( mat, w, h );
 #if 1
 	    WXFORM_P( x, y );
 	    int dx, dy;
@@ -2145,11 +2168,11 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 		setBrush( oldBrush );
 	    }
 	    bool do_clip = hasClipping();
-	    QBitMap *draw_bm;
+	    QPixMap *draw_bm;
 	    if ( do_clip ) {			// clipping enabled
 		int ww = wx_bm->size().width();
 		int hh = wx_bm->size().height();
-		draw_bm = new QBitMap( ww, hh );
+		draw_bm = new QPixMap( ww, hh, 1 );
 		draw_bm->fill( color0 );
 		QPainter paint;
 		paint.begin( draw_bm );
@@ -2518,7 +2541,7 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 				      cpen.color() );
 		    else
 			fillRect( x+xp+xcpos, y+yp+fm.underlinePos(),
-				  CWIDTH( *cp&0xff ), fm.lineWidth(), 
+				  CWIDTH( *cp&0xff ), fm.lineWidth(),
 				  cpen.color());
 		}
 		p[k++] = (char)*cp++;

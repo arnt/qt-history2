@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbitmap.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qbitmap.cpp#2 $
 **
 ** Implementation of QBitMap class
 **
@@ -13,13 +13,13 @@
 #include "qbitmap.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qbitmap.cpp#1 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qbitmap.cpp#2 $";
 #endif
 
 
-QBitMap::QBitMap( int w, int h, char *data, bool isXbitmap )
+QBitMap::QBitMap( int w, int h, const char *bits, bool isXbitmap )
 {
-    data->pm = new QPixMap( w, h, data, isXbitmap );
+    data->pm = new QPixMap( w, h, bits, isXbitmap );
 }
 
 

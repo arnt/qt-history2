@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor.h#7 $
+** $Id: //depot/qt/main/src/kernel/qcursor.h#8 $
 **
 ** Definition of QCursor class
 **
@@ -25,7 +25,8 @@ class QCursor					// cursor class
 public:
     QCursor();					// create default arrow cursor
     QCursor( int shape );			// create cursor with shape
-    QCursor( QBitMap *bitmap, QBitMap *mask, int hotX=-1, int hotY=-1 );
+    QCursor( const QBitMap &bitmap, const QBitMap &mask,
+	     int hotX=-1, int hotY=-1 );
     QCursor( const QCursor & );
    ~QCursor();
     QCursor &operator=( const QCursor & );
@@ -49,6 +50,9 @@ public:
 #elif defined(_WS_X11_)
     Cursor	  handle() const;
 #endif
+
+    friend QDataStream &operator<<( QDataStream &, const QCursor & );
+    friend QDataStream &operator>>( QDataStream &, QCursor & );
 
 private:
     void	  update() const;

@@ -18,32 +18,32 @@ CC		= gcc
 
 HEADERS		= qapp.h	qbitmap.h	qbrush.h	qcolor.h      \
 		  qconnect.h	qcursor.h	qevent.h	qfont.h	      \
-		  qfontdta.h	qfontinf.h	qfontmet.h	qkeycode.h    \
-		  qmetaobj.h    qobjcoll.h	qobjdefs.h	qobject.h     \
-		  qpaintd.h	qpaintdc.h	qpainter.h	qpdevmet.h    \
-		  qpen.h	qpicture.h	qpixmap.h	qpntarry.h    \
-		  qpoint.h	qprinter.h	qprtdrv.h	qprtstrm.h    \
-		  qrect.h	qregion.h	qsignal.h	qsize.h       \
-		  qtimer.h	qview.h		qwidcoll.h	qwidget.h     \
-		  qwindefs.h	qwmatrix.h	qimage.h
-SOURCES		= qapp.cpp	qapp_x11.cpp	qcol_x11.cpp	qcolor.cpp    \
-		  qconnect.cpp	qcur_x11.cpp	qcursor.cpp	qevent.cpp    \
-		  qfnt_x11.cpp	qfont.cpp	qmetaobj.cpp	qobject.cpp   \
-		  qpainter.cpp	qpdevmet.cpp	qpic_x11.cpp	qpicture.cpp  \
-		  qpmp_x11.cpp	qpntarry.cpp	qpoint.cpp	qprinter.cpp  \
-		  qprtstrm.cpp	qptd_x11.cpp	qptr_x11.cpp	qrect.cpp     \
-		  qrgn_x11.cpp	qsignal.cpp	qsize.cpp	qtimer.cpp    \
-		  qview.cpp	qwid_x11.cpp	qwidget.cpp	qwmatrix.cpp  \
-		  qimage.cpp	qpixmap.cpp
-OBJECTS		= qapp.o	qapp_x11.o	qcol_x11.o	qcolor.o      \
-		  qconnect.o	qcur_x11.o	qcursor.o	qevent.o      \
-		  qfnt_x11.o	qfont.o		qmetaobj.o	qobject.o     \
-		  qpainter.o	qpdevmet.o	qpic_x11.o	qpicture.o    \
-		  qpmp_x11.o	qpntarry.o	qpoint.o	qprinter.o    \
-		  qprtstrm.o	qptd_x11.o	qptr_x11.o	qrect.o	      \
-		  qrgn_x11.o	qsignal.o	qsize.o		qtimer.o      \
-		  qview.o	qwid_x11.o	qwidget.o	qwmatrix.o    \
-		  qimage.o	qpixmap.o
+		  qfontdta.h	qfontinf.h	qfontmet.h	qimage.h      \
+		  qkeycode.h	qmetaobj.h	qobjcoll.h	qobjdefs.h    \
+		  qobject.h	qpaintd.h	qpaintdc.h	qpainter.h    \
+		  qpdevmet.h	qpen.h		qpicture.h	qpixmap.h     \
+		  qpntarry.h	qpoint.h	qprinter.h	qprtdrv.h     \
+		  qprtstrm.h	qrect.h		qregion.h	qsignal.h     \
+		  qsize.h	qtimer.h	qview.h		qwidcoll.h    \
+		  qwidget.h	qwindefs.h	qwmatrix.h
+SOURCES		= qapp.cpp	qapp_x11.cpp	qbitmap.cpp	qcol_x11.cpp  \
+		  qcolor.cpp	qconnect.cpp	qcur_x11.cpp	qcursor.cpp   \
+		  qevent.cpp	qfnt_x11.cpp	qfont.cpp	qimage.cpp    \
+		  qmetaobj.cpp	qobject.cpp	qpainter.cpp	qpdevmet.cpp  \
+		  qpic_x11.cpp	qpicture.cpp	qpixmap.cpp	qpmp_x11.cpp  \
+		  qpntarry.cpp	qpoint.cpp	qprinter.cpp	qprtstrm.cpp  \
+		  qptd_x11.cpp	qptr_x11.cpp	qrect.cpp	qrgn_x11.cpp  \
+		  qsignal.cpp	qsize.cpp	qtimer.cpp	qview.cpp     \
+		  qwid_x11.cpp	qwidget.cpp	qwmatrix.cpp
+OBJECTS		= qapp.o	qapp_x11.o	qbitmap.o	qcol_x11.o    \
+		  qcolor.o	qconnect.o	qcur_x11.o	qcursor.o     \
+		  qevent.o	qfnt_x11.o	qfont.o		qimage.o      \
+		  qmetaobj.o	qobject.o	qpainter.o	qpdevmet.o    \
+		  qpic_x11.o	qpicture.o	qpixmap.o	qpmp_x11.o    \
+		  qpntarry.o	qpoint.o	qprinter.o	qprtstrm.o    \
+		  qptd_x11.o	qptr_x11.o	qrect.o		qrgn_x11.o    \
+		  qsignal.o	qsize.o		qtimer.o	qview.o	      \
+		  qwid_x11.o	qwidget.o	qwmatrix.o
 SRCMETA		= mtimer.cpp	mview.cpp	mwidget.cpp
 OBJMETA		= mtimer.o	mview.o		mwidget.o
 TARGET		= $(LIBDIR)/libqkernel.a
