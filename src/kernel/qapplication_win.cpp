@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#24 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#25 $
 **
 ** Implementation of Windows startup routines and event handling
 **
@@ -11,14 +11,14 @@
 *****************************************************************************/
 
 #include "qapp.h"
-#include "qwindow.h"
+#include "qwidget.h"
 #include "qwidcoll.h"
 #include "qpainter.h"
 #include "qpmcache.h"
 #include <ctype.h>
 #include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#24 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#25 $")
 
 
 // --------------------------------------------------------------------------
@@ -1491,15 +1491,14 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
 	setCRect( r );
 	QResizeEvent e( newSize, oldSize );
 	QApplication::sendEvent( this, &e );
-	if ( inherits("QWindow") ) {		// update caption/icon text
-	    QWindow *w = (QWindow *)this;
-	    if ( IsIconic(w->id()) && w->iconText() )
-		SetWindowText( w->id(), w->iconText() );
+	QWExtra *xtra = extraData();
+	if ( xtra ) {				// update caption/icon text
+	    if ( IsIconic(id()) && iconText() )
+		SetWindowText( id(), iconText() );
 	    else
-		SetWindowText( w->id(), w->caption() );
+		SetWindowText( id(), caption() );
 	}
-	else
-	if ( !testWFlags(WType_Overlap) )	// manual redraw
+	else if ( !testWFlags(WType_Overlap) )	// manual redraw
 	    update();
     }
     else if ( msg.message == WM_MOVE ) {	// move event
