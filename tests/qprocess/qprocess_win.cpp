@@ -111,17 +111,25 @@ bool QProcess::start()
 	if ( !socketpair( SOCK_STREAM, socketStderr ) ) {
 	    return FALSE;
 	}
+#if 1
 	// ### test my socketpair function
 	char grmpf[] = "Wet wet wet...";
-	DWORD written;
-	if ( !WriteFile( (HANDLE)(&(socketStdin[1])), grmpf, 5, &written, 0 ) ) {
+	char hmpfl[10];
+	DWORD written, read;
+	OVERLAPPED ov = { 0, 0, 0, 0, 0 };
+	OVERLAPPED *ovp = &ov;//0;
+	if ( !WriteFile( (HANDLE)(socketStdin[1]), grmpf, 5, &written, ovp ) ) {
 	    LPVOID lpMsgBuf;
 	    FormatMessage(     FORMAT_MESSAGE_ALLOCATE_BUFFER | 
 		    FORMAT_MESSAGE_FROM_SYSTEM |     FORMAT_MESSAGE_IGNORE_INSERTS,    NULL,
 		    GetLastError(),
 		    MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
 		    (LPTSTR) &lpMsgBuf,    0,    NULL );
+	} else {
+	    // try to read
+	    ReadFile( (HANDLE)(socketStdin[0]), hmpfl, 5, &read, ovp );
 	}
+#endif
 
 	// construct the arguments for CreateProcess()
 	QString args;
@@ -352,6 +360,7 @@ QByteArray QProcess::readStdout()
 	if ( i > 0 ) {
 	    ReadFile( pipeStdout[0], readBuffer.data(), i, &r, 0 );
 	}
+        return readBuffer;
     } else {
 	// get the number of bytes that are waiting to be read
 	char dummy;
@@ -362,7 +371,7 @@ QByteArray QProcess::readStdout()
 	if ( i > 0 ) {
 	    ReadFile( pipeStdout[0], readBuffer.data(), i, &r, 0 );
 	}
+	return readBuffer;
     }
-    return readBuffer;
 #endif
 }
