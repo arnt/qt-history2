@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.h#72 $
+** $Id: //depot/qt/main/src/kernel/qapplication.h#73 $
 **
 ** Definition of QApplication class
 **
@@ -102,7 +102,9 @@ public:
 
     static void      setWinStyleHighlightColor( const QColor & );
     static const QColor&   winStyleHighlightColor();
- 
+
+    static void	    setDoubleClickInterval( int );
+    static int      doubleClickInterval();
 
 
 #if defined(_WS_MAC_)

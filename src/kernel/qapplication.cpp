@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#116 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#117 $
 **
 ** Implementation of QApplication class
 **
@@ -15,7 +15,7 @@
 #include "qwidcoll.h"
 #include "qpalette.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication.cpp#116 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication.cpp#117 $");
 
 
 /*!
@@ -93,6 +93,7 @@ int	 QApplication::app_cspec = QApplication::NormalColor;
 
 static QPalette *stdPalette = 0;
 static QColor winHighlightColor = darkBlue;
+static int mouseDoubleClickInterval = 400;
 
 
 static void create_palettes()			// creates default palettes
@@ -820,4 +821,32 @@ void QApplication::setWinStyleHighlightColor( const QColor &c )
 const QColor& QApplication::winStyleHighlightColor()
 {
     return winHighlightColor;
+}
+
+
+/*!
+  Sets the time limit that distinguishes a double click from two
+  consecutive mouse clicks to \a ms milliseconds. This value is
+  ignored under Windows (the control panel value is used.)
+
+  The default value is 400 milliseconds.
+
+  \sa doubleClickInterval()
+*/
+
+void QApplication::setDoubleClickInterval( int ms )
+{
+    mouseDoubleClickInterval = ms;
+}
+
+
+/*!
+  Returns the maximum duration for a double click.
+
+  \sa setDoubleClickInterval()
+*/
+
+int QApplication::doubleClickInterval()
+{
+    return mouseDoubleClickInterval;
 }
