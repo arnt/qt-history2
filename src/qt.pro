@@ -206,6 +206,7 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$WIDGETS_H/qcdestyle.h \
 		  $$WIDGETS_H/qcombobox.h \
 		  $$WIDGETS_H/qcommonstyle.h \
+		  $$WIDGETS_H/qdial.h \
 		  $$WIDGETS_H/qframe.h \
 		  $$WIDGETS_H/qgrid.h \
 		  $$WIDGETS_H/qgroupbox.h \
@@ -396,6 +397,7 @@ SOURCES	       += tools/qbig5codec.cpp \
 		  widgets/qcheckbox.cpp \
 		  widgets/qcombobox.cpp \
 		  widgets/qcommonstyle.cpp \
+		  widgets/qdial.cpp \
 		  widgets/qframe.cpp \
 		  widgets/qgrid.cpp \
 		  widgets/qgroupbox.cpp \
