@@ -14,9 +14,9 @@ divided into the following sections:
 \chapter Introduction to the Qt Reference Documentation
 
 The documentation for the Qt library is written in-line in the \File
-.cpp files by the developers themselves. The documentation team revise
-the documentation to ensure that it is accurate and usable, and to
-provide quality control. The documentation team also writes the
+.cpp files by the developers themselves. The documentation team
+revises the documentation to ensure that it is accurate and usable,
+and to provide quality control. The documentation team also writes the
 larger texts, such as the class descriptions that introduce a class
 along with the concepts the class uses as well as introducing the
 functions and properties that the class provides. 
@@ -84,7 +84,7 @@ present the relevant page. You can bookmark pages of particular
 interest and you can click the \Toolbutton Previous and \Toolbutton
 Next toolbar buttons to navigate within the pages you've visited. 
 
-Although can used \QA just like a web browser to navigate through the
+Although \QA can used just like a web browser to navigate through the
 Qt documentation set, \QA offers a powerful means of navigation that
 web browsers don't provide. \QA uses an intelligent algorithm to index
 all the pages in the documentation sets that it presents so that you
@@ -92,7 +92,7 @@ can search for particular words and phrases.
 
 To perform a search, click the \Toolbutton Index tab on the Sidebar
 (or click \Key Ctrl+I). In the 'Look For' line edit enter a word, e.g.
-'homedirpath'. As you type words are found and highlighted in a list
+'homedirpath'. As you type, words are found and highlighted in a list
 beneath the line edit. If the highlighted text matches what you're
 looking for, double click it, (or press \Key Enter) and the
 documentation window will display the relevant page. You rarely have
@@ -100,7 +100,7 @@ to type in the whole word before \QA finds a match.
 
 For some words there may be more than one possible page that is
 relevant. For example, enter 'setenabled' in the 'Look For' line edit.
-As you type words are found and highlighted in the list beneath the
+As you type, words are found and highlighted in the list beneath the
 line edit, as before. Once the highlighted text matches what you're
 looking for, double click it, (or press \Key Enter). In the case of
 setEnabled, it is a function name which occurs in several classes, so

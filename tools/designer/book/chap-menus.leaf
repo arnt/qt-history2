@@ -6,8 +6,8 @@
 create applications. Most menu options have additional options such as
 dialog boxes that provide more specific functionality. In addition,
 many menu options also have corresponding toolbar buttons. This
-section of the reference manual will define each menu option and it's
-use. For each menu option that invokes dialog boxes or corresponding
+chapter of the reference manual will define each menu option and it's
+use. For each menu option that invokes dialog boxes or has corresponding
 toolbar buttons, click the link to go to the appropriate section
 within the reference manual which will explain the dialogs and buttons
 in detail.
@@ -21,43 +21,42 @@ This menu is invoked with \Key Alt+F, and provides the following
 options:
 \list
 
-\i \Menu File|New Click this menu option (or press \Key Ctrl+N) to
+*\i \Menu File|New Click this menu option (or press \Key Ctrl+N) to
 create a new project, form or file. This option invokes the
-\l{The New Form Dialog}.
+\l{The New File Dialog}.
 
 *\i \Menu File|Open Click this menu option (or press\Key Ctrl+O) to
 open existing projects, forms or files. The \l{Open Dialog} appears and
-the file name and type
-must be selected.
+the file name and type must be selected.
 
 \i \Menu File|Close Click this menu option to close the project that
 is currently open. If changes are made to the project and it has not
-been saved previously or if the project name begins with the word
-'unnamed', the \l{Save Form Dialog} appears.
+been saved previously, the \l{Save Form Dialog} appears.
 
 \i \Menu File|Save  Click this menu option (or press \Key Ctrl+S) to
-save the project. The \l{Save As Dialog} appears for any forms or
-files that have file names that begin with the word 'unnamed'. ##If
-the project has already been given a name, then 'Save' will save it to
-that name without invoking a Dialog. 
+save the project, forms, and files. For a new project with no forms or
+files added to it, click 'Save' to save the project before exiting.
+For new forms, click 'Save' and the \l{Save As Dialog} appears. For
+forms that have been saved previously click 'Save'. For new files or
+for files that have been changed, click 'Save'.  
 
 *\i \Menu {File|Save As} Click this menu option to save and name the project.
 This option invokes the \l{Save As Dialog}.
 
 \i \Menu {File|Save All} Click this menu option to save every open
-file in every open project.
+file and form in every open project.
 
 *\i \Menu {File|Create Template} Click this menu option to create a
 form template. This option invokes the \l{Create Template}
 dialog.
 
-\i \Menu {File|Recently Opened Files} Click this menu option to list the most
-recently opened files. Click one of the files listed to open it. Note
-that we recommend that you open projects rather than files. You can
-open a file by clicking the file's name in the project's \l{File Overview Window}.
+\i \Menu {File|Recently Opened Files} Click this menu option to list the most recently opened files. Click one of the files listed to open it. Note that we recommend that you open projects rather than files. You can
+open a file by clicking the file's name in the project's \l{File
+Overview Window}.
 
-\i \Menu {File|Recently Opened Projects}  Click this menu option to list the most
-recently opened projects. Click one of the projects listed to open it. 
+\i \Menu {File|Recently Opened Projects}  Click this menu option to
+list the most recently opened projects. Click one of the projects
+listed to open it. 
 
 \i \Menu File|Exit Click this menu option to exit \QD. If any open
 files have unsaved changes, the \l{Save Form} message box will appear
@@ -75,15 +74,15 @@ options:
 
 \i \Menu Edit|Undo Click this menu option (or press \Key Ctrl+Z) to
 undo an action. The name of the last action that was performed appears
-after the word 'Undo' in this menu option. 
+after the word 'Undo'. 
 
 \i \Menu Edit|Redo Click this menu option (or press \Key Ctrl+Y) to
 redo an action.The name of the last action that was performed appears
-after the word 'Redo' in this menu option.
+after the word 'Redo'.
 
-\i \Menu Edit|Cut Click
-this menu option (or press \Key Ctrl+X) to delete the selected item
-from the current form or file and copy it to the clipboard.
+\i \Menu Edit|Cut Click this menu option (or press \Key Ctrl+X) to
+delete the selected item from the current form or file and copy it to
+the clipboard.
 
 \i \Menu Edit|Copy Click this menu option (or press \Key Ctrl+C) to copy the selected
 item from the current form or file to the clipboard.
@@ -102,20 +101,17 @@ the widgets on the current form or all the text in the current file.
 once.If an accelerator is used more than once, a message box
 appears with the statement 'The accelerator 'x' is used 'y' times',
 where 'X' is the accelerator and 'y' is the number of times it is
-used. Click 'Select' to highlightthe widgets with the same
+used. Click 'Select' to highlight the widgets with the same
 accelerator, or click 'Cancel' to exit the message box without any
 action. 
 
-*\i \Menu Edit|Slots Click this menu option to edit or create slots which
-are used in conjunction with signals to provide communication between
-two objects. This option invokes the \l{Edit Slots Dialog}.
+*\i \Menu Edit|Slots Click this menu option to edit or create slots.This option invokes the \l{Edit Slots Dialog}.
 
 *\i \Menu Edit|Connections Click this menu option to invoke the \l{View
 Connections Dialog}. 
 
 \i \Menu {Edit|Form Settings}  Click this menu option to invoke the \l{Form
-Settings Dialog} ###which allows you to change the settings, pixmap,
-and layout properties of the form.
+Settings Dialog}.
 
 *\i \Menu Edit|Preferences Click this menu option to invoke the
 \l{Preferences Dialog}.
@@ -131,23 +127,16 @@ option to toggle between projects if there is more than one project
 open.
 
 *\i \Menu{Project|Add File} Click this menu option 
- to invoke the \l{Add Dialog} which allows you to
-add files from any location and insert them into the project you are
-working on.
-
-*\i \Menu {Project|Project Settings}  Click this menu option to change
-the project settings by invoking the \l{Project Settings
-Dialog}.
+ to invoke the \l{Add Dialog}
+ 
+*\i \Menu {Project|Project Settings}  Click this menu option to invoke
+the \l{Project Settings Dialog}.
 
 *\i \Menu {Project|Image Collection}  Click this menu option to invoke
-the \l{Edit Image Collection Dialog}, which allows you to add or
-edit images imported from any location and use them in the current
-project.
+the \l{Edit Image Collection Dialog}.
 
 *\i \Menu {Project|Database Connections}  Click this menu option to
-invoke the \l{Edit Database Connections Dialog} which allows you
-to connect your project to a database or to edit the current
-connection.
+invoke the \l{Edit Database Connections Dialog}.
 
 \section5 The Search Menu
 
@@ -155,9 +144,8 @@ This menu is invoked with \Key Alt+S, and provides the following
 options:
 \list
 
-*\i \Menu Search|Find Click this menu option (or press \Key Ctrl+F) to invoke the \l{Find
-Text} Dialog which is used to locate specific words or characters
-in the files. 
+*\i \Menu Search|Find Click this menu option (or press \Key Ctrl+F) to
+invoke the \l{Find Text Dialog}. 
 
 \i \Menu {Search|Find Incremental} Click this menu option (or press
 \Key Alt+I) to place the cursor in the text box located next to the
@@ -167,8 +155,8 @@ finds in the file. Press the \Key Enter key to go to the next
 occurrence of the text.
 
 *\i \Menu Search|Replace Click this menu option (or press \Key Ctrl+R)
-to invoke the \l{Replace Text} Dialog to replace specific
-words or characters.
+to invoke the \l{Replace Text} Dialog to replace specific words or
+characters.
 
 *\i \Menu{Search|Goto line} Click this menu option (or press \Key
 Alt+G) to invoke the \l{Goto Line Dialog} to go to a specific line
@@ -182,14 +170,14 @@ options:
 
 \i \Menu Tools|Pointer Click this menu option (or press \Key F2) to
 deselect any selected widget toolbar button. The pointer is also used
-to stop inserting new widgets if you double clicked a widget toolbar
-button.
+to stop inserting new widgets on the form if you double clicked a
+widget toolbar button.
 
-\i \Menu{Tools|Connect Signals and Slots} Click this menu option (or
-press \Key F3) to connect signals and slots. Choose this option and
-click on a widget and drag the pink rubber band to the widget (or form) that
-you want to connect to; then release the mouse button and the \l{Edit Connections Dialog}
-will appear.
+\i \Menu{Tools|Connect Signals and Slots} Click this toolbar button
+(or press \Key F3) to connect signals and slots and click on a widget
+and drag the pink rubber band to the widget (or form) that you want to
+connect to; then release the mouse button and the \l{Edit Connections
+Dialog} will appear.
 
 \i \Menu {Tools|Tab Order} Click this menu option (or press \F4) to
 set the tab order for all the widgets on the form that can accept
@@ -200,128 +188,133 @@ the tab order, and continue until all the widgets have the tab order
 numbers you want. If you make a mistake, double click the first widget
 and start again.  
 
-\i \Menu {Tools|Buttons|PushButton} Choose this option and click
-the form to place a Pushbutton on the form.
+\i \Menu {Tools|Buttons|PushButton} Click this option and click
+the form to place the Pushbutton widget on the form.
 
-\i \Menu {Tools|Buttons|ToolButton} Choose this option and click
-the form to place the Toolbutton on the form.
+\i \Menu {Tools|Buttons|ToolButton} Click this option and click
+the form to place the Toolbutton widget on the form.
 
-\i \Menu {Tools|Buttons|RadioButton} Choose this option and
-click the form to place the button on the form. 
+\i \Menu {Tools|Buttons|RadioButton} Click this option and
+click the form to place the Radiobutton widget on the form. 
 
-\i \Menu {Tools|Buttons|CheckBox} Choose CheckBox and
-click the form to place the CheckBox on the form.
+\i \Menu {Tools|Buttons|CheckBox} Click this option and 
+click the form to place the CheckBox widget on the form.
 
-\i \Menu {Tools|Containers|GroupBox} Choose this option and 
-click the form to place it on the form.
+\i \Menu {Tools|Containers|GroupBox} Click this option and 
+click the form to place the Groupbox widget on the form.
 
-\i \Menu {Tools|Containers|ButtonGroup} Choose ButtonGroup and
-click the form to place the ButtonGroup on the form.
+\i \Menu {Tools|Containers|ButtonGroup} Click this option and
+click the form to place the ButtonGroup widget on the form.
 
-\i \Menu {Tools|Containers|Frame} Choose this option and
-click the form to place the Frame on the form.
+\i \Menu {Tools|Containers|Frame} Click this option and
+click the form to place the Frame widget on the form.
 
-\i \Menu {Tools|Containers|TabWidget} Choose this option and
-click the form to place the TabWidget on the form.
+\i \Menu {Tools|Containers|TabWidget} Click this option and
+click the form to place the TabWidget widget on the form.
 
-\i \Menu {Tools|Views|ListBox} Choose this option and
-click the form to place the ListBox on the form.
+\i \Menu {Tools|Views|ListBox} Click this option and
+click the form to place the ListBox widget on the form.
 
-\i \Menu {Tools|Views|ListView} Choose this option and
-click the form to place the ListView on the form.
+\i \Menu {Tools|Views|ListView} Click this option and
+click the form to place the ListView widget on the form.
 
-\i \Menu {Tools|Views|Icon View} Choose this option and
-click the form to place the Icon on the form.
+\i \Menu {Tools|Views|Icon View} Click this option and
+click the form to place the Icon widget on the form.
 
-\i \Menu {Tools|Views|Table} Choose this option and click the form to
-place the Table on the form.
+\i \Menu {Tools|Views|Table} Click this option and click the form to
+place the Table widget on the form.
 
-\i \Menu {Tools|Database|DataTable} Choose this option and 
-click the form to place the DataTable on the form.
+\i \Menu {Tools|Database|DataTable} Click this option and 
+click the form to place the DataTable widget on the form.
 
-\i \Menu {Tools|Database|DataBrowser} Choose this option and 
-click the form to place the DataBrowser on the form.
+\i \Menu {Tools|Database|DataBrowser} Click this option and 
+click the form to place the DataBrowser widget on the form.
 
-\i \Menu {Tools|Database|DataView} Choose this option and click the
-form to place the DataView on the form.
+\i \Menu {Tools|Database|DataView} Click this option and click the
+form to place the DataView widget on the form.
 
-\i \Menu {Tools|Input|LineEdit} Choose this option and click the form
-to place the LineEdit on the form.
+\i \Menu {Tools|Input|LineEdit} Click this option and click the form
+to place the LineEdit widget on the form.
 
-\i \Menu {Tools|Input|SpinBox} Choose this option and 
-click the form to place the SpinBox on the form.
+\i \Menu {Tools|Input|SpinBox} Click this option and 
+click the form to place the SpinBox widget on the form.
 
-\i \Menu {Tools|Input|DateEdit} Choose this option and 
-click the form to place the DateEdit on the form.
+\i \Menu {Tools|Input|DateEdit} Click this option and 
+click the form to place the DateEdit widget on the form.
 
-\i \Menu {Tools|Input|TimeEdit} Choose this option and 
-click the form to place the TimeEdit on the form.
+\i \Menu {Tools|Input|TimeEdit} Click this option and 
+click the form to place the TimeEdit widget on the form.
 
-\i \Menu {Tools|Input|DateTimeEdit} Choose this option and 
-click the form to place the DateTimeEdit on the form.
+\i \Menu {Tools|Input|DateTimeEdit} Click this option and 
+click the form to place the DateTimeEdit widget on the form.
 
-\i \Menu {Tools|Input|TextEdit} Choose this option and 
-click the form to place the TextEdit on the form.
+\i \Menu {Tools|Input|TextEdit} Click this option and 
+click the form to place the TextEdit widget on the form.
 
-\i \Menu {Tools|Input|ComboBox} Choose this option and 
-click the form to place the ComboBox on the form.
+\i \Menu {Tools|Input|ComboBox} Click this option and 
+click the form to place the ComboBox widget on the form.
 
-\i \Menu {Tools|Input|Slider} Choose this option and 
-click the form to place the Slider on the form.
+\i \Menu {Tools|Input|Slider} Click this option and 
+click the form to place the Slider widget on the form.
 
-\i \Menu {Tools|Input|ScrollBar} Choose this option and 
-click the form to place the Scrollbar on the form.
+\i \Menu {Tools|Input|ScrollBar} Click this option and 
+click the form to place the Scrollbar widget on the form.
 
-\i \Menu {Tools|Input|Dial} Choose this option and 
-click the form to place the Dial on the form.
+\i \Menu {Tools|Input|Dial} Click this option and 
+click the form to place the Dial widget on the form.
 
-\i \Menu {Tools|Display|TextLabel} Choose this option  and 
-click the form to place it on the form.
+\i \Menu {Tools|Display|TextLabel} Click this option  and 
+click the form to place the TextLabel widget on the form.
 
-\i \Menu {Tools|Display|PixmapLabel} Choose this option and 
-click the form to place the PixmapLabel on the form.
+\i \Menu {Tools|Display|PixmapLabel} Click this option and 
+click the form to place the PixmapLabel widget on the form.
 
-\i \Menu {Tools|Display|LCDNumber} Choose this option and 
-click the form to place the LCDNumber on the form.
+\i \Menu {Tools|Display|LCDNumber} Click this option and 
+click the form to place the LCDNumber widget on the form.
 
-\i \Menu {Tools|Display|Line} Choose this option and 
-click the form to place the Line on the form.
+\i \Menu {Tools|Display|Line} Click this option and 
+click the form to place the Line widget on the form.
 
-\i \Menu {Tools|Display|ProgressBar} Choose this option and 
-click the form to place the ProgressBar on the form.
+\i \Menu {Tools|Display|ProgressBar} Click this option and 
+click the form to place the ProgressBar widget on the form.
 
-\i \Menu {Tools|Display|TextBrowser} Choose this option and 
-click the form to place the TextBrowser on the form.
+\i \Menu {Tools|Display|TextBrowser} Click this option and 
+click the form to place the TextBrowser widget on the form.
 
 *\i \Menu {Tools|Custom|Edit Custom Widgets} Click this menu option
 to invoke the \l{Edit Custom Widget Dialog}. The \Menu{Tools|Custom}
 menu also lists the names of any custom widgets that have been added
 to \QD; to add one of these widgets click its name.
 
-\section7 The Layout Menu \Key Alt+L
+\i \Menu {Tools|Custom|My Custom Widget} Click this option and click
+the form to place the Custom Widget on the form. Note:This menu option
+appears if you have created a widget using Tools|Custom|Edit Custom Widgets.
+
+\section7 The Layout Menu 
 
 This menu is invoked with \Key Alt+L, and provides the following
 options:
 \list 
 
 \i \Menu {Layout|Adjust Size} Click this menu option (or press \Key
-Ctrl+J) to adjust the size of the form or widget.## 
+Ctrl+J) to adjust the size of the widget to it's recommended size. 
 
 \i \Menu {Layout|Lay Out Horizontally} Click this menu option (or
 press \Key Ctrl+H) to lay out the selected widgets or layouts side by
 side. Use \Key Shift+Click to select each widget or layout, and then
-choose this menu option to group them horizontally.Note that for
+choose this menu option to group them horizontally. Note that for
 complex widgets it is sometimes easiest to select widgets and layouts
-by clicking them in the Widgets tab of the \l{Object Explorer}.
+by clicking them in the Widgets tab of the \l{Object Explorer} window.
 
 \i \Menu {Layout|Lay Out Vertically} Click this menu option (or press
 \Key Ctrl+L) to lay out the selected widgets one above the other. Use
 \Key Shift+Click to select each widget or layout, and then choose this
 menu option to group them vertically. Note that for complex widgets it
 is sometimes easiest to select widgets and layouts by clicking them in
-the Widgets tab of the \l{Object Explorer}.
+the Widgets tab of the \l{Object Explorer} window.
 
-\i \Menu {Layout|Lay out in a Grid} Click this menu option (or press \Key Ctrl+G)
+\i \Menu {Layout|Lay Out in a Grid} Click this menu option (or press
+\Key Ctrl+G)
 
 \i \Menu {Layout|Lay Out Horizontally (in Splitter)} Click this menu
 option to lay out the selected widgets or layouts side by
@@ -329,23 +322,20 @@ side with a splitter between each widget. Use \Key Shift+Click to
 select each widget or layout, and then choose this menu option to group
 them horizontally. Note that for complex widgets it is sometimes
 easiest to select widgets and layouts by clicking them in the Widgets
-tab of the \l{Object Explorer}.
-
+tab of the \l{Object Explorer} window.
 
 \i \Menu {Layout|Lay Out Vertically (in Splitter)} Click this menu
 option to lay out the selected widgets or layouts one above the other
-with a splitter between each widget or layout. Use \KeyShift+Click to select
-each widget or layout, and then choose this menu option to group them
-vertically. Note that for complex widgets it is sometimes easiest to
-select widgets and layouts by clicking them in the Widgets tab of the
-\l{Object Explorer}.
-
+with a splitter between each widget or layout. Use \KeyShift+Click to
+select each widget or layout, and then choose this menu option to
+group them vertically. Note that for complex widgets it is sometimes
+easiest to select widgets and layouts by clicking them in the Widgets
+tab of the \l{Object Explorer} window.
 
 \i \Menu {Layout|Break Layout} Click this menu option (or press \Key Ctrl+B) to break apart layouts that have been created. Click on the layout and select this option; the layouts are then seperated. 
 
 \i \Menu {Layout|Add Spacer} Click this menu option to add a spacer
-to widgets that take up too much space on the form. The spacer consumes extra
-space in the layout.
+to widgets that take up too much space on the form. The spacer consumes extra space in the layout.
 
 \section8 The Preview Menu \Key Alt+P
 
@@ -359,15 +349,20 @@ Ctrl+T) to preview the form within designer.
 \i \Menu{Preview|...in Windows Style} Click this menu option to
 preview the form in Windows style. 
 
-\i \Menu{Preview|...in Motif Style} Click this menu option 
+\i \Menu{Preview|...in Motif Style} Click this menu option to preview
+the form in Motif style.
 
-\i \Menu{Preview|...in CDE Style} Click this menu option 
+\i \Menu{Preview|...in CDE Style} Click this menu option to preview
+the form in CDE style.
 
-\i \Menu{Preview|...in MotifPlus Style} Click this menu option 
+\i \Menu{Preview|...in MotifPlus Style} Click this menu option to
+preview the form in MotifPlus style. 
 
-\i \Menu{Preview|...in Platinum Style} Click this menu option 
+\i \Menu{Preview|...in Platinum Style} Click this menu option to
+preview the form in Platinum style. 
 
-\i \Menu{Preview|...in SGI Style} Click this menu option 
+\i \Menu{Preview|...in SGI Style} Click this menu option to preview the
+form in SGI style.
 
 \section9 The Window Menu
 
@@ -376,85 +371,116 @@ options:
 \list 
 
 \i \Menu{Window|Close} Click this menu option (or press \Key
-Ctrl+F4) to close the window that the cursor is currently pointing to.
+Ctrl+F4) to close the window that is currently active.
 
-\i \Menu{Window|Close All} Click this menu option to close all of the
-windows. ##
+\i \Menu{Window|Close All} Click this menu option to close all the
+windows that are currently open.
 
 \i \Menu{Window|Next} Click this menu option (or press \Key Ctrl+F6) to
-view each window in order, continuing to the next window that was 
-opened. #####
+view each window in the order in which they were opened, continuing on
+to the next window that was opened.
 
 \i \Menu{Window|Previous} Click this menu option (or press \Key
-Ctrl+Shift+F6) to view each window in reverse order from last window that you opened. ####
+Ctrl+Shift+F6) to view each window in reverse order from last window that you opened. 
 
+\i \Menu{Window|Tile} Click this menu option to arrange allthe open
+files and forms side by side so that each window is visible. This
+option provides a way to organize the windows so that each open window
+is equally visible and easier to view.
 
-\i \Menu{Window|Tile} Click this menu option to arrange the windows side by
-side so that each window is fully visible, instead of hiding under
-another window as it does normally. ####
-
-\i \Menu{Window|Cascade} Click this menu option to arrange the windows in a
-way in which each window is displayed beneath the previous window. ####
+\i \Menu{Window|Cascade} Click this menu option to stack all the
+open file and forms, one on top of the other. This option provides an
+easier way to organize and view all the windows that are opened.
 
 \i \Menu{Window|Views|Output Window} Click this menu option to invoke
-the Output Window, which provides debuggin information.
+the \l{Output Window}, which provides features used for debugging
+code.
 
 \i \Menu{Window|Views|File Overview} Click this menu option to make
-the File Overview window visible or to hide the window if you do not
+the \l{File Overview} window visible or to hide the window if you do not
 want it to be visible. 
 
-\i \Menu{Window|Views|Property Editors/Signal Handlers} Click this menu option to make
-the Property Editors/Signal Handlers window visible or to hide the window if you do not
-want it to be visible. 
+\i \Menu{Window|Views|Property Editors/Signal Handlers} Click this
+menu option to make the \l{Property Editors/Signal Handlers} window
+visible or to hide the window if you do not want it to be visible. 
 
 \i \Menu{Window|Views|Object Explorer} Click this menu option to make
-the Object Explorer window visible or to hide the window if you do not
-want it to be visible. 
+the \l{Object Explorer} window visible or to hide the window if you do not want it to be visible. 
 
-\i \Menu{Window|Views|Line Up}####
+\i \Menu{Window|Views|Line Up} Click this menu option to eliminate
+extra space between toolbars and line them up next to each other all
+at once, rather than moving each individual toolbar into place.
 
 \i \Menu{Window|Toolbars|File} Click this menu option to make the File
-icons either visible or not visible on the toolbar.
+toolbar buttons visible or to hide the toolbar buttons if you do not
+want them to be visible. If the toolbar buttons are currently visible,
+a check mark will appear next to the name in the menu. 
 
 \i \Menu{Window|Toolbars|Edit} Click this menu option to make the Edit
-icons either visible or not visible on the toolbar.
+toolbar buttons visible or to hide the toolbar buttons if you do not want them to be visible. If the toolbar buttons are currently visible, a check mark will appear next to the name in the menu. 
 
 \i \Menu{Window|Toolbars|Search} Click this menu option to make the
-Search icons either visible or not visible on the toolbar.
+Search toolbar buttons visible or to hide the toolbar buttons if you
+do not want them to be visible. If the toolbar buttons are currently
+visible, a check mark will appear next to the name in the menu. 
 
-\i \Menu{Window|Toolbars|Layout} Click this menu option to make the
-Layout icons either visible or not visible on the toolbar.
+\i \Menu{Window|Toolbars|Layout}Click this menu option to make the
+Layout toolbar buttons visible or to hide the toolbar buttons if you do not
+want them to be visible. If the toolbar buttons are currently visible,
+a check mark will appear next to the name in the menu. 
 
-\i \Menu{Window|Toolbars|Tools} Click this menu option to make the
-Tool icons either visible or not visible on the toolbar.
+\i \Menu{Window|Toolbars|Tools}Click this menu option to make the
+Tools toolbar buttons visible or to hide the toolbar buttons if you do not
+want them to be visible. If the toolbar buttons are currently visible,
+a check mark will appear next to the name in the menu. 
 
-\i \Menu{Window|Toolbars|Buttons} Click this menu option to make the
-Button icons either visible or not visible on the toolbar.
+\i \Menu{Window|Toolbars|Buttons}Click this menu option to make the
+Buttons toolbar buttons visible or to hide the toolbar buttons if you do not
+want them to be visible. If the toolbar buttons are currently visible,
+a check mark will appear next to the name in the menu. 
 
-\i \Menu{Window|Toolbars|Containers} Click this menu option to make the
-Container icons either visible or not visible on the toolbar.
+\i \Menu{Window|Toolbars|Containers}Click this menu option to make the
+Containers toolbar buttons visible or to hide the toolbar buttons if you do not
+want them to be visible. If the toolbar buttons are currently visible,
+a check mark will appear next to the name in the menu. 
 
-\i \Menu{Window|Toolbars|Views} Click this menu option to make the View
-icons either visible or not visible on the toolbar.
+\i \Menu{Window|Toolbars|Views}Click this menu option to make the
+Views toolbar buttons visible or to hide the toolbar buttons if you do not
+want them to be visible. If the toolbar buttons are currently visible,
+a check mark will appear next to the name in the menu. 
 
-\i \Menu{Window|Toolbars|Database} Click this menu option to make the
-Database icons either visible or not visible on the toolbar.
+\i \Menu{Window|Toolbars|Database}Click this menu option to make the
+Database toolbar buttons visible or to hide the toolbar buttons if you do not
+want them to be visible. If the toolbar buttons are currently visible,
+a check mark will appear next to the name in the menu. 
 
-\i \Menu{Window|Toolbars|Input} Click this menu option to make the
-Input icons either visible or not visible on the toolbar.
+\i \Menu{Window|Toolbars|Input}Click this menu option to make the
+Input toolbar buttons visible or to hide the toolbar buttons if you do not
+want them to be visible. If the toolbar buttons are currently visible,
+a check mark will appear next to the name in the menu. 
 
-\i \Menu{Window|Toolbars|Display} Click this menu option to make the
-Display icons either visible or not visible on the toolbar.
+\i \Menu{Window|Toolbars|Display}Click this menu option to make the
+Display toolbar buttons visible or to hide the toolbar buttons if you do not
+want them to be visible. If the toolbar buttons are currently visible,
+a check mark will appear next to the name in the menu. 
 
-\i \Menu{Window|Toolbars|Custom} Click this menu option to make the
-Custom icons either visible or not visible on the toolbar.
+\i \Menu{Window|Toolbars|Custom}Click this menu option to make the
+Custom toolbar buttons visible or to hide the toolbar buttons if you do not
+want them to be visible. If the toolbar buttons are currently visible,
+a check mark will appear next to the name in the menu. 
 
-\i \Menu{Window|Toolbars|Help} Click this menu option to make the Help
-icons either visible or not visible on the toolbar.
+\i \Menu{Window|Toolbars|Help}Click this menu option to make the Help
+toolbar buttons visible or to hide the toolbar buttons if you do not
+want them to be visible. If the toolbar buttons are currently visible,
+a check mark will appear next to the name in the menu. 
 
-\i \Menu{Window|Toolbars|Line Up} Click this menu option to ###
+\i \Menu{Window|Toolbars|Line Up} Click this menu option to eliminate
+extra space between toolbars and line them up next to each other all
+at once, rather than moving each individual toolbar into place.
 
-\i \Menu{Window|\<file name>\} Click this menu option to 
+\i \Menu{Window|\<file name>\} Click this menu option to toggle
+between forms or files that are currently open. Select the name of the
+form or file from the list.
 
 \section10 The Help Menu
 
@@ -463,16 +489,17 @@ options:
 \list 
 
 \i \Menu{Help|Contents} Click this menu option (or press F1) to invoke
-the \l{Qt Assistant by Trolltech Dialog}.  
+the \l{Qt Assistant by Trolltech Dialog} which provides online help.
 
 \i \Menu{Help|Manual} Click this menu option (or press Ctrl+M) to
-invoke the \l{Qt Assistant by Trolltech Dialog}. 
+invoke the \l{Qt Assistant by Trolltech Dialog} which provides online
+help.
 
-\i \Menu{Help|About...} Click this menu option to invoke the Qt Designer
-dialog, with information about \QD.
+*\i \Menu{Help|About...} Click this menu option to invoke the Qt Designer
+dialog, which provides information about \QD.
 
-\i \Menu{Help|About Qt...} Click this menu option to invoke the Qt
-Designer dialog with information about Qt.
+*\i \Menu{Help|About Qt...} Click this menu option to invoke the Qt
+Designer dialog which provides information about Qt.
 
 \i \Menu{Help|What's This?} Click this menu option to invoke a small
 question mark that is linked to the pointer. Click the pointer on a
