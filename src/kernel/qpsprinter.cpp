@@ -5736,6 +5736,8 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	// turn these off - they confuse the 'avoid font change' logic
 	d->currentSet.setUnderline( FALSE );
 	d->currentSet.setStrikeOut( FALSE );
+	// ### FIXME: should not be needed!
+	*(d->fm) = paint->fontMetrics();
 	break;
     case PdcSetPen:
 	if ( d->cpen != *(p[0].pen) ) {
