@@ -1956,12 +1956,13 @@ QString QTextDocument::richText( QTextParag *p ) const
 		    s += end;
 		}
 		lastItems = items;
-		if ( item->name() == "li" && p->listValue() != -1 )
+		if ( item->name() == "li" && p->listValue() != -1 ) {
 		    s += "<li value=\"" + QString::number( p->listValue() ) + "\">";
-		else
+		} else if ( !item->name().isEmpty() ) {
 		    s += "<" + item->name() + align_to_string( item->name(), p->alignment() )
 			 + direction_to_string( item->name(), p->direction() )  + ">" +
-		     p->richText() + "</" + item->name() + ">\n";
+			 p->richText() + "</" + item->name() + ">\n";
+		}
 	    } else {
 		QString end;
 		for ( int i = 0; i < (int)lastItems.size(); ++i ) {
@@ -4557,7 +4558,7 @@ QString QTextParag::richText() const
 {
     QString s;
     QTextFormat *lastFormat = 0;
-    for ( int i = 0; i < length(); ++i ) {
+    for ( int i = 0; i < length()-1; ++i ) {
 	QTextStringChar *c = &str->at( i );
 	if ( !lastFormat || ( lastFormat->key() != c->format()->key() && c->c != ' ' ) ) {
 	    s += c->format()->makeFormatChangeTags( lastFormat );
@@ -4575,6 +4576,8 @@ QString QTextParag::richText() const
 	    s += c->c;
 	}
     }
+    if ( lastFormat )
+	s += lastFormat->makeFormatEndTags();
     return s;
 }
 
@@ -5852,10 +5855,11 @@ QString QTextFormat::makeFormatChangeTags( QTextFormat *f ) const
     QString tag;
 
     if ( f ) {
-	if ( f->font() != defaultFormat->font() ||
-	     f->color().rgb() != defaultFormat->color().rgb() )
-	    tag += "</font>";
 	if ( f->font() != defaultFormat->font() ) {
+	    if ( font().family() != defaultFormat->font().family() 
+		 || font().pointSize() != defaultFormat->font().pointSize()
+		 || color().rgb() != defaultFormat->color().rgb() )
+		tag += "</font>";
 	    if ( f->font().underline() && f->font().underline() != defaultFormat->font().underline() )
 		tag += "</u>";
 	    if ( f->font().italic() && f->font().italic() != defaultFormat->font().italic() )
@@ -5882,18 +5886,19 @@ QString QTextFormat::makeFormatChangeTags( QTextFormat *f ) const
 	if ( font().underline() && font().underline() != defaultFormat->font().underline() )
 	    tag += "<u>";
     }
-    if ( font() != defaultFormat->font() ||
-	 color().rgb() != defaultFormat->color().rgb() ) {
-	tag += "<font ";
+    if ( font() != defaultFormat->font() 
+	 || color().rgb() != defaultFormat->color().rgb() ) {
+	QString f;
 	if ( font().family() != defaultFormat->font().family() )
-	    tag +="face=\"" + fn.family() + "\" ";
+	    f +=" face=\"" + fn.family() + "\"";
 	if ( font().pointSize() != defaultFormat->font().pointSize() ) {
-	    tag +="size=\"" + QString::number( makeLogicFontSize( fn.pointSize() ) ) + "\" ";
-	    tag +="style=\"font-size:" + QString::number( fn.pointSize() ) + "pt\" ";
+	    f +=" size=\"" + QString::number( makeLogicFontSize( fn.pointSize() ) ) + "\"";
+	    tag +=" style=\"font-size:" + QString::number( fn.pointSize() ) + "pt\"";
 	}
 	if ( color().rgb() != defaultFormat->color().rgb() )
-	    tag +="color=\"" + col.name() + "\" ";
-	tag += ">";
+	    f +=" color=\"" + col.name() + "\"";
+	if ( !f.isEmpty() )
+	    tag += "<font" + f + ">";
     }
 
     return tag;
@@ -5906,10 +5911,11 @@ QString QTextFormat::makeFormatEndTags() const
 					     QApplication::palette().color( QPalette::Active, QColorGroup::Text ) );
 
     QString tag;
-    if ( font() != defaultFormat->font() ||
-	 color().rgb() != defaultFormat->color().rgb() )
-	tag += "</font>";
     if ( font() != defaultFormat->font() ) {
+	if ( font().family() != defaultFormat->font().family() 
+	     || font().pointSize() != defaultFormat->font().pointSize()
+	     || color().rgb() != defaultFormat->color().rgb() )
+	    tag += "</font>";
 	if ( font().underline() && font().underline() != defaultFormat->font().underline() )
 	    tag += "</u>";
 	if ( font().italic() && font().italic() != defaultFormat->font().italic() )
