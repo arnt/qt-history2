@@ -49,6 +49,7 @@
 
 #include <qvariant.h>
 extern const QCoreVariant::Handler qt_gui_variant_handler;
+extern void qt_call_post_routines();
 
 #include "qapplication_p.h"
 #include "qwidget_p.h"
@@ -862,6 +863,8 @@ QWidget *QApplication::activeModalWidget()
 
 QApplication::~QApplication()
 {
+    qt_call_post_routines();
+
 #ifndef QT_NO_CLIPBOARD
     // flush clipboard contents
     if (qt_clipboard) {

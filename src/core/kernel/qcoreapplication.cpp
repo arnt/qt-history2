@@ -68,6 +68,20 @@ void qRemovePostRoutine(QtCleanUpFunction p)
     }
 }
 
+void qt_call_post_routines()
+{
+    if (postRList) {
+        QVFuncList::Iterator it = postRList->begin();
+        while (it != postRList->end()) {        // call post routines
+            (**it)();
+            postRList->erase(it);
+            it = postRList->begin();
+        }
+        delete postRList;
+        postRList = 0;
+    }
+}
+
 typedef QThreadStorage<QPostEventList *> PerThreadPostEventList;
 Q_GLOBAL_STATIC(PerThreadPostEventList, postEventLists);
 
@@ -272,16 +286,7 @@ void QCoreApplication::init()
 */
 QCoreApplication::~QCoreApplication()
 {
-    if (postRList) {
-        QVFuncList::Iterator it = postRList->begin();
-        while (it != postRList->end()) {        // call post routines
-            (**it)();
-            postRList->erase(it);
-            it = postRList->begin();
-        }
-        delete postRList;
-        postRList = 0;
-    }
+    qt_call_post_routines();
 
 #ifndef QT_NO_COMPONENT
     delete d->app_libpaths;
