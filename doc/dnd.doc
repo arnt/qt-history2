@@ -37,9 +37,11 @@
 
 \title Drag and Drop
 
-  Drag-and-drop is a direct-manipulation model for allowing the user to
-  transfer information between and within applications. It is similar
-  in function to the cut-and-paste clipboard model.
+    Drag and drop provides a simple visual mechanism which users can use
+    to transfer information between and within applications. (In the
+    literature this is referred to as a "direct manipulation model".)
+    Drag and drop is similar in function to the clipboard's
+    cut-and-paste mechanism.
 
   <h3>Dragging</h3>
 
@@ -52,7 +54,7 @@
 
   For example, to start dragging some text from a widget:
   \code
-  void MyWidget::startDragging()
+  void MyWidget::startDrag()
   {
     QDragObject *d = new QTextDrag( myHighlightedText(), this );
     d->dragCopy();
@@ -72,12 +74,14 @@
 
   To be able to receive media dropped on a widget, call
   \link QWidget::setAcceptDrops() setAcceptDrops(TRUE)\endlink
-  for the widget (eg. in its constructor), and override the
+  for the widget (e.g. in its constructor), and override the
   event handler methods
-  \link QWidget::dragEnterEvent() dragEnterEvent()\endlink,
-  \link QWidget::dragMoveEvent() dragMoveEvent()\endlink,
-  \link QWidget::dragLeaveEvent() dragLeaveEvent()\endlink, and
+  \link QWidget::dragEnterEvent() dragEnterEvent()\endlink and
   \link QWidget::dropEvent() dropEvent()\endlink.
+  For more sophisticated applications overriding
+  \link QWidget::dragMoveEvent() dragMoveEvent()\endlink and
+  \link QWidget::dragLeaveEvent() dragLeaveEvent()\endlink will also be
+  necessary.
 
   For example, to accept text and image drops:
   \code
@@ -108,6 +112,10 @@
     }
   }
   \endcode
+
+  For drag and drop examples see (in increasing order of
+  sophistication): examples/iconview/simple_dd, examples/dragdrop and
+  examples/fileiconview.
 
   <h3>The Clipboard</h3>
 
