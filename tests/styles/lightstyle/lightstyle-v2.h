@@ -46,12 +46,12 @@ public:
 
     void polishPopupMenu( QPopupMenu * );
 
-    void drawPrimitive(PrimitiveElement, QPainter *, const QRect &, const QColorGroup &,
+    void drawPrimitive(PrimitiveElement, QPainter *, const QRect &, const QPalette &,
 		       SFlags = Style_Default,
 		       const QStyleOption & = QStyleOption::Default ) const;
 
     void drawControl(ControlElement, QPainter *, const QWidget *, const QRect &,
-		     const QColorGroup &, SFlags = Style_Default,
+		     const QPalette &, SFlags = Style_Default,
 		     const QStyleOption & = QStyleOption::Default ) const;
     void drawControlMask(ControlElement, QPainter *, const QWidget *, const QRect &,
 			 const QStyleOption & = QStyleOption::Default) const;
@@ -59,7 +59,7 @@ public:
     QRect subRect(SubRect, const QWidget *) const;
 
     void drawComplexControl(ComplexControl, QPainter *, const QWidget *, const QRect &,
-			    const QColorGroup &, SFlags = Style_Default,
+			    const QPalette &, SFlags = Style_Default,
 			    SCFlags = SC_All, SCFlags = SC_None,
 			    const QStyleOption & = QStyleOption::Default ) const;
 
