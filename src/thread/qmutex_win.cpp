@@ -19,19 +19,20 @@
 #include "qmutex_p.h"
 
 #if defined(Q_CC_BOR)
-static bool compare_and_set(long * volatile pointer, long expected, long newval)
+static bool compare_and_set(unsigned long * volatile pointer, long expected, long newval)
 #else
-inline bool compare_and_set(long * volatile pointer, long expected, long newval)
+inline bool compare_and_set(unsigned long * volatile pointer, long expected, long newval)
 #endif
 {
+    unsigned char result;
     __asm {
 	mov EBX,pointer
 	mov EAX,expected
 	mov EDX,newval
 	lock cmpxchg dword ptr[EBX],ECX
-	sete newval
+	sete result
     }
-    return (newval != 0);
+    return (result != 0);
 }
 
 QMutex::QMutex(bool recursive)
