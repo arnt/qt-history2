@@ -1356,7 +1356,11 @@ sepath=`echo $relpath | sed -e 's/\\./\\\\./g'`
 PROCS=1
 PIPE=""
 EXEC=""
-for a in `echo $QMAKE_PROJECTS | sort | uniq`; do
+
+# Work around a segfaulting uniq(1)
+echo $QMAKE_PROJECTS | sort > .sorted.projects
+
+for a in `uniq .sorted.projects`; do
     case $a in
     *-kde.pro|*qtmain.pro) continue ;;
     *-pro.pro)
@@ -1420,6 +1424,8 @@ then
 	fi
     fi
 fi
+
+rm -f .sorted.projects
 
 #finally put the executed command to another script..
 [ -f $outpath/config.status ] && rm -f $outpath/config.status
