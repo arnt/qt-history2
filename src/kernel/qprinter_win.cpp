@@ -609,7 +609,28 @@ static void setDefaultPrinter(const QString &printerName, HANDLE *hmode, HANDLE 
     // There are drivers with no pDevMode structure!
     if ( pinf2->pDevMode ) {
         // Allocate a global HANDLE for a DEVMODE Structure
-        size_t szDEVMODE = sizeof(DEVMODE) + pinf2->pDevMode->dmDriverExtra;
+        size_t szDEVMODE = pinf2->pDevMode->dmSize;
+	if ( szDEVMODE == 0 ) {
+#if defined(UNICODE)
+	    if ( qWinVersion() & Qt::WV_NT_based ) {
+		szDEVMODE = sizeof( DEVMODE );
+	    } else
+#endif
+	    {
+		szDEVMODE = sizeof( DEVMODEA );
+	    }
+	}
+	szDEVMODE += pinf2->pDevMode->dmDriverExtra;
+
+	// the lines below are rather ugly, but necessary for some drivers, that
+	// don't initialize the dmSize member correctly (as sizeof(DEVMODE) is dependent on
+	// on the winversion the driver was built with.
+	// below we assure we don't get out of bound reads that might lead to a crash
+	if ( ((char *)pinf2) < ((char *)pinf2->pDevMode) && 
+	    ((char *)pinf2)+nbytes > ((char *)pinf2->pDevMode) &&
+	    ((char *)pinf2) + nbytes - ((char *)pinf2->pDevMode) < (int)szDEVMODE )
+	    szDEVMODE = (size_t)(((char *)pinf2) + nbytes - ((char *)pinf2->pDevMode));
+
         if ( hdevmode ) {
             GlobalFree( hdevmode );
             hdevmode = 0;
