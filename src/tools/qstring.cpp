@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#278 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#279 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -9580,7 +9580,7 @@ int ucstrnicmp( const QChar *a, const QChar *b, int l )
 /*! \class QCharRef qstring.h
   \brief QCharRef is a helper class for QString.
 
-  It provides the ability to edit characters in a string in a natural
+  It provides the ability to work on characters in a QString in a natural
   fashion.
 
   When you get an object of type QCharRef, you can assign to it, which
@@ -9588,7 +9588,10 @@ int ucstrnicmp( const QChar *a, const QChar *b, int l )
   purpose in life.  It becomes invalid once further modifications are
   made to the string: If you want to keep it, copy it into a QChar.
 
-  \sa QString::operator[] QString::at()
+  Most of the QChar member functions also exist in QCharRef.  However,
+  they are not explicitly documented here.
+
+  \sa QString::operator[] QString::at() QChar
 */
 
 /*! \class QChar qstring.h
@@ -12797,13 +12800,6 @@ QString &QString::operator+=( char c )
 
   Returns a latin-1 copy of this character, if this character is in
   the latin-1 character set.  If not, this function returns 0.
-*/
-
-
-/*! \fn ushort QChar::unicode() const
-
-  Returns the unicode position of this character, as an unsigned short
-  int.
 */
 
 
