@@ -250,7 +250,6 @@ private:
                            PopupAction &action, const QPoint &p);
     void updatePreviews(const Q3Url &u);
 
-    QDir reserved; // was cwd
     QString fileName;
 
     friend class Q3FileDialogQFileListView;
