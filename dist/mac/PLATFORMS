@@ -5,7 +5,7 @@ system and compiler you are using.
 
 Supported platforms and compilers:
 
-  macx-g++ mac9-mwerks
+  macx-g++
 
 Compilation problems:
 
@@ -21,7 +21,6 @@ Example:
 Customization:
 
   You can create your own custom configuration by adding new files to
-  the configs directory. The configuration solaris-cc-gcc is included
-  as an example. It uses SunPRO CC as a C++ compiler and GNU gcc as a
-  C compiler.
+  the mkspecs directory. The configuration macx-g++ is included
+  as an example. It uses GNU g++ as a C/C++ compiler.
 
