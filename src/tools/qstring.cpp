@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#193 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#194 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -9143,18 +9143,18 @@ bool QChar::mirrored() const
   */
 QString QChar::decomposition() const
 {
-  const Q_UINT16 *r = decomp_info[row];
-  if(!r) return QString::null;
+    const Q_UINT16 *r = decomp_info[row];
+    if(!r) return QString::null;
 
-  Q_UINT16 pos = r[cell];
-  if(!pos) return QString::null;
-  pos+=2;
+    Q_UINT16 pos = r[cell];
+    if(!pos) return QString::null;
+    pos+=2;
 
-  QString s;
-  QChar c;
-  while((c = decomp_map[pos++]) != 0) s += c;
+    QString s;
+    QChar c;
+    while((c = decomp_map[pos++]) != (char)0) s += c;
 
-  return s;
+    return s;
 }
 
 /*!
@@ -9278,7 +9278,7 @@ int QLigature::match(QString & str, unsigned int index)
     Q_UINT16 ch;
 
     while ((i < str.length()) && (ch = decomp_map[lig])) {
-	if (str[i] != QChar(ch))
+	if (str[(int)i] != QChar(ch))
 	    return 0;
 	i++; lig++;
     }
@@ -9302,13 +9302,13 @@ static inline QChar::Decomposition format(QChar ch, QString & str,
     switch (ch.joining()) {
     case QChar::Dual:
 	left = ((l < str.length()) &&
-		((str[l].joining() == QChar::Dual) ||
-		 (str[l].joining() == QChar::Right)));
+		((str[(int)l].joining() == QChar::Dual) ||
+		 (str[(int)l].joining() == QChar::Right)));
 	// fall through
     case QChar::Right:
 	if (r > 0) {
 	    r--;
-	    right = (str[r].joining() == QChar::Dual);
+	    right = (str[(int)r].joining() == QChar::Dual);
 	}
 	break;
     default:
@@ -9475,8 +9475,8 @@ QString & QString::visual(int index, int len)
     if ((uint)index > l)
 	return *(new QString());
 
-    level = new (unsigned char)[l];
-    dir   = new (QChar::Direction)[l];
+    level = new uchar[l];
+    dir   = new QChar::Direction[l];
 
     // find base direction
     unsigned int pos = 0;
@@ -9663,8 +9663,9 @@ QString & QString::visual(int index, int len)
 	
 
     QChar *chars = new QChar[len];
-	
-    for (int i=0, pos = index; pos < (index+len); i++, pos++)
+
+    int i;
+    for ( i=0, pos = index; pos < (index+len); i++, pos++)
 	chars[i] = at(pos);
 
     reverse(chars, level, index, index+len);
