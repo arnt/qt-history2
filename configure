@@ -3098,19 +3098,18 @@ EOF
 
     rm -f .projects.all
     for p in `echo $QMAKE_PROJECTS`; do
-  echo $p >> .projects.all
+       echo $p >> .projects.all
     done
 
     # if you get errors about the length of the command line to awk, change the -l arg
     # to split below
     split -l 100 .projects.all .projects.all.
     for p in .projects.all.*; do
-  $AWK -f projects.awk `cat $p`
-  [ -f .projects.1.tmp ] && cat .projects.1.tmp >> .projects.1
-  [ -f .projects.2.tmp ] && cat .projects.2.tmp >> .projects.2
-  [ -f .projects.3.tmp ] && cat .projects.3.tmp >> .projects.3
-  rm -f .projects.1.tmp .projects.2.tmp .projects.3.tmp
-  rm -f $p
+       $AWK -f projects.awk `cat $p`
+       [ -f .projects.1.tmp ] && cat .projects.1.tmp >> .projects.1
+       [ -f .projects.2.tmp ] && cat .projects.2.tmp >> .projects.2
+       [ -f .projects.3.tmp ] && cat .projects.3.tmp >> .projects.3
+       rm -f .projects.1.tmp .projects.2.tmp .projects.3.tmp $p
     done
     rm -f .projects.all* projects.awk
 
@@ -3118,8 +3117,8 @@ EOF
     [ -f .projects.2 ] && cat .projects.2 >>.projects
     rm -f .projects.1 .projects.2
     if [ -f .projects.3 ] && [ "$OPT_FAST" = "no" ]; then
-  cat .projects.3 >>.projects
-  rm -f .projects.3
+       cat .projects.3 >>.projects
+       rm -f .projects.3
     fi
 fi
 # don't sort Qt and MOC in with the other project files
@@ -3127,11 +3126,9 @@ fi
 if [ -f .sorted.projects.2 ]; then
     sort .sorted.projects.2 > .sorted.projects.2.new
     mv -f .sorted.projects.2.new .sorted.projects.2
-    uniq .sorted.projects.2 > .sorted.projects.2.new
-    mv -f .sorted.projects.2.new .sorted.projects.2
-    [ -f .sorted.projects.2 ] && cat .sorted.projects.2 >> .sorted.projects.1
+    cat .sorted.projects.2 >> .sorted.projects.1
 fi
-[ -f .sorted.projects.1 ] && sort .sorted.projects.1 | uniq >> .sorted.projects
+[ -f .sorted.projects.1 ] && sort .sorted.projects.1 >> .sorted.projects
 rm -f .sorted.projects.2 .sorted.projects.1
 for p in `echo $QMAKE_IGNORE_PROJECTS`; do
     if [ -f .projects ]; then
@@ -3146,8 +3143,16 @@ done
 
 NORM_PROJECTS=0
 FAST_PROJECTS=0
-[ -f .projects ] && NORM_PROJECTS=`cat .projects | wc -l | sed -e "s, ,,g"`
-[ -f .projects.3 ] && FAST_PROJECTS=`cat .projects.3 | wc -l | sed -e "s, ,,g"`
+if [ -f .projects ]; then
+   uniq .projects >.tmp
+   mv -f .tmp .projects
+   NORM_PROJECTS=`cat .projects | wc -l | sed -e "s, ,,g"`
+fi
+if [ -f .projects.3 ]; then
+   uniq .projects.3 >.tmp
+   mv -f .tmp .projects.3
+   FAST_PROJECTS=`cat .projects.3 | wc -l | sed -e "s, ,,g"`
+fi
 echo "  `expr $NORM_PROJECTS + $FAST_PROJECTS` projects found."
 echo
 
