@@ -1527,7 +1527,7 @@ void TrWindow::setupMenuBar()
 				   QString::null, QAccel::stringToKey(tr("Ctrl+N")) );
     openPhraseBookAct = new Action( phrasep, tr("&Open Phrase Book..."),
 				    this, SLOT(openPhraseBook()),
-				    "book.xpm", QAccel::stringToKey(tr("Ctrl+H")) );
+				    "book.png", QAccel::stringToKey(tr("Ctrl+H")) );
     closePhraseBookId = phrasep->insertItem( tr("&Close Phrase Book"),
 					     closePhraseBookp );
     phrasep->insertSeparator();

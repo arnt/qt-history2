@@ -17,7 +17,20 @@ INSTALLS += target
 
 PROJECTNAME	= Assistant
 FORMS	= mainwindow.ui topicchooser.ui finddialog.ui helpdialog.ui settingsdialog.ui 
-IMAGES	= images/icon.png images/copy.xpm images/designer.xpm images/find.xpm images/home.xpm images/linguist.xpm images/next.xpm images/previous.xpm images/print.xpm images/qt.xpm images/whatsthis.xpm images/zoomin.xpm images/zoomout.xpm images/book.xpm
+IMAGES	= images/icon.png \
+	  images/editcopy.png \
+	  images/designer.xpm \
+	  images/find.png \
+	  images/home.png \
+	  images/linguist.xpm \
+	  images/next.png \
+	  images/previous.png \
+	  images/print.png \
+	  images/qt.xpm \
+	  images/whatsthis.xpm \
+	  images/zoomin.xpm \
+	  images/zoomout.xpm \
+	  images/book.xpm
 
 TRANSLATIONS	= assistant_de.ts \
 		  assistant_fr.ts

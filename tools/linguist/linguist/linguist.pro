@@ -23,11 +23,12 @@ SOURCES		= finddialog.cpp \
 FORMS		= about.ui
 
 IMAGES		+= images/accel.xpm \
-		   images/book.xpm \
+		   images/book.png \
 		   images/check_danger.xpm \
 		   images/check_obs.xpm \
 		   images/check_off.xpm \
 		   images/check_on.xpm \
+		   images/d_book.png \
 		   images/d_doneandnext.png \
 		   images/d_editcopy.png \
 		   images/d_editcut.png \

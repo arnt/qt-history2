@@ -105,7 +105,7 @@
             <cstring>actionFilePrint</cstring>
         </property>
         <property name="iconSet">
-            <iconset>print.xpm</iconset>
+            <iconset>print.png</iconset>
         </property>
         <property name="text">
             <string>Print</string>
@@ -139,7 +139,7 @@
             <cstring>actionEditCopy</cstring>
         </property>
         <property name="iconSet">
-            <iconset>copy.xpm</iconset>
+            <iconset>editcopy.png</iconset>
         </property>
         <property name="text">
             <string>Copy</string>
@@ -159,7 +159,7 @@
             <cstring>actionEditFind</cstring>
         </property>
         <property name="iconSet">
-            <iconset>find.xpm</iconset>
+            <iconset>find.png</iconset>
         </property>
         <property name="text">
             <string>Find in Text</string>
@@ -179,7 +179,7 @@
             <cstring>actionGoHome</cstring>
         </property>
         <property name="iconSet">
-            <iconset>home.xpm</iconset>
+            <iconset>home.png</iconset>
         </property>
         <property name="text">
             <string>Home</string>
@@ -199,7 +199,7 @@
             <cstring>actionGoPrevious</cstring>
         </property>
         <property name="iconSet">
-            <iconset>previous.xpm</iconset>
+            <iconset>previous.png</iconset>
         </property>
         <property name="text">
             <string>Previous</string>
@@ -219,7 +219,7 @@
             <cstring>actionGoNext</cstring>
         </property>
         <property name="iconSet">
-            <iconset>next.xpm</iconset>
+            <iconset>next.png</iconset>
         </property>
         <property name="text">
             <string>Next</string>
