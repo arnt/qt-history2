@@ -53,6 +53,13 @@
 #include <stdlib.h>
 #include <limits.h>
 
+static QString stripAmpersand( const QString &str )
+{
+    QString s( str );
+    s = s.replace( '&', "" );
+    return s;
+}
+
 struct IndexKeyword {
     IndexKeyword( const QString &kw, const QString &l )
 	: keyword( kw ), link( l ) {}
@@ -239,13 +246,13 @@ void HelpDialog::generateNewDocu()
 	fullTextIndex = 0;
     }
     setupTitleMap();
-    if ( tabWidget->tabLabel( tabWidget->currentPage() ).contains( tr( "Con&tents" ) ) ) {
+    if ( stripAmpersand( tabWidget->tabLabel( tabWidget->currentPage() ) ).contains( tr( "Contents" ) ) ) {
 	QTimer::singleShot( 0, this, SLOT( insertContents() ) );
     }
-    else if ( tabWidget->tabLabel( tabWidget->currentPage() ).contains( tr( "&Index" ) ) ) {
+    else if ( stripAmpersand( tabWidget->tabLabel( tabWidget->currentPage() ) ).contains( tr( "Index" ) ) ) {
 	QTimer::singleShot( 0, this, SLOT( loadIndexFile() ) );
     }
-    else if ( tabWidget->tabLabel( tabWidget->currentPage() ).contains( tr( "&Search" ) ) ) {
+    else if ( stripAmpersand( tabWidget->tabLabel( tabWidget->currentPage() ) ).contains( tr( "Search" ) ) ) {
 	QTimer::singleShot( 0, this, SLOT( setupFullTextIndex() ) );
     }
 }
@@ -517,13 +524,13 @@ void HelpDialog::buildContentDict()
 
 void HelpDialog::currentTabChanged( const QString &s )
 {
-    if ( s.contains( tr( "&Index" ) ) )
+    if ( stripAmpersand( s ).contains( tr( "Index" ) ) )
 	QTimer::singleShot( 0, this, SLOT( loadIndexFile() ) );
-    else if ( s.contains( tr( "&Bookmarks" ) ) )
+    else if ( stripAmpersand( s ).contains( tr( "Bookmarks" ) ) )
 	insertBookmarks();
-    else if ( s.contains( tr( "Con&tents" ) ) )
+    else if ( stripAmpersand( s ).contains( tr( "Contents" ) ) )
 	QTimer::singleShot( 0, this, SLOT( insertContents() ) );
-    else if ( s.contains( tr( "&Search" ) ) )
+    else if ( stripAmpersand( s ).contains( tr( "Search" ) ) )
 	QTimer::singleShot( 0, this, SLOT( setupFullTextIndex() ) );
 }
 
@@ -541,11 +548,11 @@ void HelpDialog::currentIndexChanged( QListBoxItem * )
 
 void HelpDialog::showTopic()
 {
-    if ( tabWidget->tabLabel( tabWidget->currentPage() ).contains( tr( "Index" ) ) )
+    if ( stripAmpersand( tabWidget->tabLabel( tabWidget->currentPage() ) ).contains( tr( "Index" ) ) )
 	showIndexTopic();
-    else if ( tabWidget->tabLabel( tabWidget->currentPage() ).contains( tr( "Bookmarks" ) ) )
+    else if ( stripAmpersand( tabWidget->tabLabel( tabWidget->currentPage() ) ).contains( tr( "Bookmarks" ) ) )
 	showBookmarkTopic();
-    else if ( tabWidget->tabLabel( tabWidget->currentPage() ).contains( tr( "Con&tents" ) ) )
+    else if ( stripAmpersand( tabWidget->tabLabel( tabWidget->currentPage() ) ).contains( tr( "Contents" ) ) )
 	showContentsTopic();
 }
 
