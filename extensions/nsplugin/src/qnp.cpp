@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/nsplugin/src/qnp.cpp#34 $
+** $Id: //depot/qt/main/extensions/nsplugin/src/qnp.cpp#35 $
 **
 ** Implementation of Qt extension classes for Netscape Plugin support.
 **
@@ -1137,6 +1137,17 @@ public:
   The default implementation is an empty window.
 */
 
+/*! \enum QNPWidget::InstanceMode
+
+  This enum type provides C++-friendly names for three #defines in
+  npapi.h: <ul>
+
+  <li> \c Embed - corresponds to NP_EMBED
+  <li> \c Full - corresponds to NP_FULL
+  <li> \c Background - corresponds to NP_BACKGROUND
+
+  </ul>
+*/
 /*!
   Creates a QNPWidget.
 */

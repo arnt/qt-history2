@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#142 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#143 $
 **
 ** Implementation of QScrollBar class
 **
@@ -42,13 +42,13 @@
   program-definable range, and to give the user visible indication of
   the current value of a \link QRangeControl range control \endlink.
 
-  Scroll bars include four separate controls, in order: <ul> <li> The
-  \e line-up control is a little triangle with which the user can move
-  one line up.  The meaning of line is configurable. In e.g. editors
-  and list boxes means one line of text.  <li> The \e slider is the
-  handle that indicates the current value of the scroll bar, and which
-  the user can drag to change the value.  <li> The \a page-up/down
-  control is the area on which the slider slides (the scroll bar's
+  Scroll bars include four separate controls: <ul> <li> The \e line-up
+  control is a little triangle with which the user can move one line
+  up.  The meaning of line is configurable. In e.g. editors and list
+  boxes it means one line of text.  <li> The \e slider is the handle
+  that indicates the current value of the scroll bar, and which the
+  user can drag to change the value.  <li> The \a page-up/down control
+  is the area on which the slider slides (the scroll bar's
   background).  Clicking here moves the scroll bar up or down one
   page.  The meaning of page too is configurable - in editors and list
   boxes it means as many lines as there is space for in the widget.
@@ -351,7 +351,8 @@ void QScrollBar::valueChange()
     int tmp = sliderPos;
     positionSliderFromValue();
     if ( tmp != sliderPos )
-	drawControls( QStyle::AddPage | QStyle::Slider | QStyle::SubPage , pressedControl );
+	drawControls( QStyle::AddPage | QStyle::Slider | QStyle::SubPage,
+		      pressedControl );
     emit valueChanged(value());
 }
 
@@ -500,8 +501,9 @@ void QScrollBar::resizeEvent( QResizeEvent * )
 void QScrollBar::paintEvent( QPaintEvent * )
 {
     QPainter p( this );
-    drawControls( QStyle::AddLine | QStyle::SubLine | QStyle::AddPage | QStyle::SubPage | QStyle::Slider,
-			pressedControl, &p );
+    drawControls( QStyle::AddLine | QStyle::SubLine | QStyle::AddPage |
+		  QStyle::SubPage | QStyle::Slider,
+		  pressedControl, &p );
 }
 
 static QCOORD sliderStartPos = 0;
@@ -627,7 +629,8 @@ void QScrollBar::mouseMoveEvent( QMouseEvent *e )
 	}
 	slidePrevVal = newVal;
 	sliderPos = (QCOORD)newSliderPos;
-	drawControls( QStyle::AddPage | QStyle::Slider | QStyle::SubPage, pressedControl );
+	drawControls( QStyle::AddPage | QStyle::Slider | QStyle::SubPage,
+		      pressedControl );
     }
     else if ( style() == WindowsStyle ) {
 	// stop scrolling when the mouse pointer leaves a control
@@ -739,8 +742,7 @@ void QScrollBar::action( QStyle::ScrollControl control )
 	    break;
 	default:
 #if defined(CHECK_RANGE)
-	    qWarning( "QScrollBar::action: (%s) internal error",
-		     name( "unnamed" ) );
+	    qWarning( "QScrollBar::action: (%s) internal error", name() );
 #else
 	    ;
 #endif
@@ -759,7 +761,8 @@ void QScrollBar::drawControls( uint controls, uint activeControl,
 			       QPainter *p ) const
 {
 
-    style().drawScrollBarControls(p, this, sliderStart(), controls, activeControl);
+    style().drawScrollBarControls( p, this, sliderStart(), controls,
+				   activeControl);
     return;
 
 }

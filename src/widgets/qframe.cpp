@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.cpp#93 $
+** $Id: //depot/qt/main/src/widgets/qframe.cpp#94 $
 **
 ** Implementation of QFrame widget class
 **
@@ -63,9 +63,8 @@
     emptyFrame->setLineWidth( 2 );
   \endcode
 
-  A frame widget has three attributes: \link setFrameStyle() frame
-  style\endlink, a \link setLineWidth() line width\endlink and a \link
-  setMidLineWidth() mid-line width\endlink.
+  A frame widget has three attributes: frameStyle(), lineWidth() and a
+  midLineWidth().
 
   The frame style is specified by a frame shape and a shadow style.
   The frame shapes are \c NoFrame, \c Box, \c Panel, \c StyledPanel \c
@@ -94,6 +93,65 @@
   \c Raised|Panel and lineWidth() 1.
 */
 
+
+/*! \enum QFrame::Shape 
+
+  This enum type defines the shapes of a QFrame's frame.  The
+  currently defined shapes are: <ul>
+  
+  <li> \c NoFrame - QFrame draws nothing
+
+  <li> \c Box - QFrame draws a box around its contents
+
+  <li> \c Panel - QFrame draws a panel such that the contents appear raised or sunken
+  
+  <li> \c WinPanel - like \c Panel, but QFrame draws the 3D effects
+  the way Microsoft Windows 95 (etc) does
+
+  <li> \c HLine - QFrame draws a horizontal line that frames nothing
+  (useful as separator)
+
+  <li> \c VLine - QFrame draws a vertical line that frames nothing
+  (useful as separator)
+
+  <li> \c StyledPanel - QFrame calls QStyle::drawPanel()
+
+  <li> \c PopupPanel - QFrame calls QStyle::drawPopupPanel()
+
+  </ul>
+
+  When it does not call style(), Shape interacts with QFrame::Shadow,
+  the lineWidth() and the midLineWidth() to create the total result.
+  The <a href="#picture">picture of the frames</a> in the class
+  documentation may illustrate this better than words.
+
+  \sa QFrame::Shadow QFrame::style() QStyle::drawPanel()
+  QStyle::drawPopupPanel()
+*/
+
+
+/*! \enum QFrame::Shadow
+
+  This enum typde defines the 3D effect used for QFrame's frame.  The
+  currently defined effects are: <ul>
+  
+  <li> \c Plain - the frame appears level with its surroundings
+  <li> \c Raised - the frame (and perhaps the contents) appear raised
+  <li> \c Sunken - the frame (and perhaps the contents) appear sunken
+
+  </ul>
+  
+  Shadow interacts with QFrame::Shape, the lineWidth() and the
+  midLineWidth().  The <a href="#picture">picture of the frames</a> in
+  the class documentation may illustrate this better than words.
+
+  \sa QFrame::Shape lineWidth() midLineWidth()
+*/
+
+
+#if (QT_VERSION > 298)
+#error "get rid of allowLines for good"
+#endif
 
 /*!
   Constructs a frame widget with frame style \c NoFrame and a 1 pixel frame
