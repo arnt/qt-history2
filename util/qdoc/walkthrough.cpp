@@ -118,10 +118,17 @@ void Walkthrough::addANames( QString *text, const LinkMap& exampleLinkMap )
 	    k = text->find( QChar('\n'), k ) + 1;
 	    lineNo++;
 	}
-	StringSet::ConstIterator link = (*links).begin();
-	while ( link != (*links).end() ) {
-	    text->insert( k, QString("<a name=\"%1\">").arg(*link) );
-	    ++link;
+
+	/*
+	  This condition should always be met, in theory. If not, the
+	  results are desastrous.
+	*/
+	if ( k < (int) text->length() && (*text)[k] != QChar('\n') ) {
+	    StringSet::ConstIterator link = (*links).begin();
+	    while ( link != (*links).end() ) {
+		text->insert( k, QString("<a name=\"%1\">").arg(*link) );
+		++link;
+	    }
 	}
 	++links;
     }
