@@ -1214,7 +1214,7 @@ void QFont::insertSubstitution(const QString &familyName,
                                 const QString &substituteName)
 {
     initFontSubst();
-    
+
     QStringList *list = fontSubst->find(familyName);
     if (list) {
 	list->remove(substituteName);
@@ -1222,7 +1222,7 @@ void QFont::insertSubstitution(const QString &familyName,
 	list = new QStringList;
 	fontSubst->insert(familyName, list);
     }
-    
+
     list->prepend(substituteName);
 }
 
@@ -1555,20 +1555,23 @@ QFontMetrics::QFontMetrics( const QFont &font )
     d = font.d;
     d->ref();
 
-    // make sure the font is sufficiently loaded
-    // if (! d->x11data.fontstruct[QFontPrivate::defaultScript])
     d->load(QFontPrivate::defaultScript);
-    for (int i = 0; i < QFontPrivate::NScripts - 1; i++) {
-	if (d->x11data.fontstruct[i]) {
-	    d->load((QFontPrivate::Script) i);
-	}
-    }
 
+    /*
+      for (int i = 0; i < QFontPrivate::NScripts - 1; i++) {
+      if (d->x11data.fontstruct[i]) {
+      d->load((QFontPrivate::Script) i);
+      }
+      }
+    */
+    
     painter = 0;
     flags = 0;
 
-    if (font.underline()) setUnderlineFlag();
-    if (font.strikeOut()) setStrikeOutFlag();
+    if (font.underline())
+	setUnderlineFlag();
+    if (font.strikeOut())
+	setStrikeOutFlag();
 }
 
 
@@ -1591,12 +1594,15 @@ QFontMetrics::QFontMetrics( const QPainter *p )
     d->ref();
 
     d->load(QFontPrivate::defaultScript);
-    for (int i = 0; i < QFontPrivate::NScripts - 1; i++) {
-	if (d->x11data.fontstruct[i]) {
-	    d->load((QFontPrivate::Script) i);
-	}
-    }
 
+    /*
+      for (int i = 0; i < QFontPrivate::NScripts - 1; i++) {
+      if (d->x11data.fontstruct[i]) {
+      d->load((QFontPrivate::Script) i);
+      }
+      }
+    */
+    
     flags = 0;
 
     insertFontMetrics( this );
@@ -1745,9 +1751,6 @@ QRect QFontMetrics::boundingRect( int x, int y, int w, int h, int flgs,
     qt_format_text( QFont( d, FALSE ), r, flgs, str, len, &rb,
                     tabstops, tabarray, tabarraylen, intern, 0 );
 
-    // qDebug("QFontMetrics::boundingRect: %d %d %d %d",
-    // rb.x(), rb.y(), rb.width(), rb.height());
-
     return rb;
 }
 
@@ -1895,20 +1898,20 @@ void QFontInfo::reset( const QPainter *painter )
 */
 QFontInfo::QFontInfo( const QFont &font )
 {
-    qDebug("QFontInfo::QFontInfo(QFont: sorry, function not implemented");
+    d = font.d;
+    d->ref();
 
-    /*
-      font.handle();
-      priv = font.d->priv;
-      painter = 0;
-      flags = 0;
-      if ( font.underline() )
-      setUnderlineFlag();
-      if ( font.strikeOut() )
-      setStrikeOutFlag();
-      if ( font.exactMatch() )
-      setExactMatchFlag();
-    */
+    d->load(QFontPrivate::defaultScript);
+	
+    painter = 0;
+    flags = 0;
+	
+    if ( font.underline() )
+	setUnderlineFlag();
+    if ( font.strikeOut() )
+	setStrikeOutFlag();
+    if ( font.exactMatch() )
+	setExactMatchFlag();
 }
 
 
@@ -1918,54 +1921,63 @@ QFontInfo::QFontInfo( const QFont &font )
 */
 QFontInfo::QFontInfo( const QPainter *p )
 {
-    qDebug("QFontInfo::QFontInfo(QPainter): sorry, function not implemented");
+    painter = (QPainter *) p;
+    
+#if defined(CHECK_STATE)
+    if ( !painter->isActive() )
+	qWarning( "QFontInfo: Get font info between QPainter::begin() "
+		  "and QPainter::end()" );
+#endif
 
-    /*
-      painter = (QPainter *)p;
-      #if defined(CHECK_STATE)
-      if ( !painter->isActive() )
-      qWarning( "QFontInfo: Get font info between QPainter::begin() "
-      "and QPainter::end()" );
-      #endif
+    painter->setf( QPainter::FontInf );
+    d = painter->cfont.d;
+    d->ref();
 
-      painter->setf( QPainter::FontInf );
-      priv = painter->cfont.d->priv;
-      flags = 0;
-      insertFontInfo( this );
-    */
+    d->load(QFontPrivate::defaultScript);
+    
+    flags = 0;
+    
+    insertFontInfo( this );
 }
+
 
 /*!
   Constructs a copy of \e fi.
 */
-
 QFontInfo::QFontInfo( const QFontInfo &fi )
-    : priv(fi.priv), painter(fi.painter), flags(fi.flags)
+    : d(fi.d), painter(fi.painter), flags(fi.flags)
 {
+    d->ref();
     if ( painter )
         insertFontInfo( this );
 }
 
+
 /*!
   Destructs the font info object.
 */
-
 QFontInfo::~QFontInfo()
 {
     if ( painter )
         removeFontInfo( this );
+    if (d->deref())
+	delete d;
 }
 
 
 /*!
   Font info assignment.
 */
-
 QFontInfo &QFontInfo::operator=( const QFontInfo &fi )
 {
     if ( painter )
         removeFontInfo( this );
-    priv = fi.priv;
+    if (d != fi.d) {
+	if (d->deref())
+	    delete d;
+	d = fi.d;
+	d->ref();
+    }
     painter = fi.painter;
     flags = fi.flags;
     if ( painter )
@@ -1978,50 +1990,42 @@ QFontInfo &QFontInfo::operator=( const QFontInfo &fi )
   Returns the family name of the matched window system font.
   \sa QFont::family()
 */
-
 QString QFontInfo::family() const
 {
-    qDebug("QFontInfo::family: sorry, function not implemented");
-    // return spec()->family;
-    return QString::null;
+    return d->actual.family;
 }
+
 
 /*!
   Returns the point size of the matched window system font.
   \sa QFont::pointSize()
 */
-
 int QFontInfo::pointSize() const
 {
-    qDebug("QFontInfo::pointSize: sorry, function not implemented");
-    // return spec()->pointSize / 10;
-    return 0;
+    return d->actual.pointSize / 10;
 }
+
 
 /*!
   Returns the italic value of the matched window system font.
   \sa QFont::italic()
 */
-
 bool QFontInfo::italic() const
 {
-    qDebug("QFontInfo::italic: sorry, function not implemented");
-    // return spec()->italic;
-    return FALSE;
+    return d->actual.italic;
 }
+
 
 /*!
   Returns the weight of the matched window system font.
 
   \sa QFont::weight(), bold()
 */
-
 int QFontInfo::weight() const
 {
-    qDebug("QFontInfo::weight: sorry, function not implemented");
-    // return (int)spec()->weight;
-    return 0;
+    return d->actual.weight;
 }
+
 
 /*!
   \fn bool QFontInfo::bold() const
@@ -2041,11 +2045,11 @@ int QFontInfo::weight() const
   Here we read the underline flag directly from the QFont.
   This is OK for X11 and for Windows because we always get what we want.
 */
-
 bool QFontInfo::underline() const
 {
     return painter ? painter->font().underline() : underlineFlag();
 }
+
 
 /*!
   Returns the strike out value of the matched window system font.
@@ -2054,24 +2058,22 @@ bool QFontInfo::underline() const
   \internal Here we read the strikeOut flag directly from the QFont.
   This is OK for X11 and for Windows because we always get what we want.
 */
-
 bool QFontInfo::strikeOut() const
 {
     return painter ? painter->font().strikeOut() : strikeOutFlag();
 }
+
 
 /*!
   Returns the fixed pitch value of the matched window system font.
   A fixed pitch font is a font that has constant character pixel width.
   \sa QFont::fixedPitch()
 */
-
 bool QFontInfo::fixedPitch() const
 {
-    qDebug("QFontInfo::fixedPitch: sorry, function not implemented");
-    // return spec()->fixedPitch;
-    return FALSE;
+    return d->actual.fixedPitch;
 }
+
 
 /*!
   Returns the style of the matched window system font.
@@ -2079,13 +2081,11 @@ bool QFontInfo::fixedPitch() const
   Currently only returns the hint set in QFont.
   \sa QFont::styleHint()
 */
-
 QFont::StyleHint QFontInfo::styleHint() const
 {
-    qDebug("QFontInfo::styleHint: sorry, function not implemented");
-    // return (QFont::StyleHint)spec()->styleHint;
-    return (QFont::StyleHint) 0;
+    return (QFont::StyleHint) d->actual.styleHint;
 }
+
 
 /*!
   Returns the character set of the matched window system font.
@@ -2098,6 +2098,7 @@ QFont::StyleHint QFontInfo::styleHint() const
   }
 */
 
+
 /*!
   Returns TRUE if the font is a raw mode font.
 
@@ -2106,13 +2107,11 @@ QFont::StyleHint QFontInfo::styleHint() const
 
   \sa QFont::rawMode()
 */
-
 bool QFontInfo::rawMode() const
 {
-    qDebug("QFontInfo::rawMode: sorry, function not implemented");
-    // return spec()->rawMode;
-    return FALSE;
+    return d->actual.rawMode;
 }
+
 
 /*!
   Returns TRUE if the matched window system font is exactly the one specified
@@ -2120,7 +2119,6 @@ bool QFontInfo::rawMode() const
 
   \sa QFont::exactMatch()
 */
-
 bool QFontInfo::exactMatch() const
 {
     return painter ? painter->font().exactMatch() : exactMatchFlag();
@@ -2368,7 +2366,7 @@ QString QFontPrivate::key() const
 
 #ifndef QT_NO_COMPAT
 #warning "TODO: re-add CharSet for source compatibility"
-    *p = 0xbeef; // charsetcompat;
+    *p = 0xff; // charsetcompat;
 #else
     *p = 0;
 #endif

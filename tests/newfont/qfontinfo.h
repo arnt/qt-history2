@@ -49,7 +49,7 @@ public:
     QFontInfo( const QFont & );
     QFontInfo( const QFontInfo & );
    ~QFontInfo();
-    
+
     QFontInfo	       &operator=( const QFontInfo & );
 
     QString   	        family()	const;
@@ -74,10 +74,10 @@ private:
     static void reset( const QPainter * );
     // const QFontDef *spec() const;
 
-    QFontPrivate *priv;
+    QFontPrivate *d;
     QPainter *painter;
     int flags;
-    
+
     bool    underlineFlag()  const { return (flags & 0x1) != 0; }
     bool    strikeOutFlag()  const { return (flags & 0x2) != 0; }
     bool    exactMatchFlag() const { return (flags & 0x4) != 0; }
