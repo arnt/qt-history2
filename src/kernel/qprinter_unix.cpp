@@ -359,8 +359,10 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
                     closeAllOpenFds();
 
                     if ( print_prog ) {
-                        pr.prepend( option_string ? option_string :
-                                    QString::fromLatin1( "-P" ) );
+		        if ( option_string )
+                            pr.prepend( option_string );
+			else
+                            pr.prepend( QString::fromLatin1( "-P" ) );
                         (void)execlp( print_prog.ascii(), print_prog.ascii(),
                                       pr.ascii(), 0 );
                     } else {
