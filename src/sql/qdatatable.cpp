@@ -738,6 +738,7 @@ bool QDataTable::eventFilter( QObject *o, QEvent *e )
 	    setCurrentCell( r, c );
 	    d->cancelInsert = TRUE;
 	}
+	d->continuousEdit = FALSE;
 	break;
     }
     case QEvent::FocusIn:
@@ -746,8 +747,7 @@ bool QDataTable::eventFilter( QObject *o, QEvent *e )
     default:
 	break;
     }
-    bool b = QTable::eventFilter( o, e );
-    return b;
+    return QTable::eventFilter( o, e );
 }
 
 /*! \reimp */
@@ -800,7 +800,6 @@ void QDataTable::contentsContextMenuEvent( QContextMenuEvent* e )
 	else if ( r == id[ IdDelete ] )
 	    deleteCurrent();
 	e->accept();
-	return;
     }
 }
 
@@ -808,8 +807,6 @@ void QDataTable::contentsContextMenuEvent( QContextMenuEvent* e )
 void QDataTable::contentsMousePressEvent( QMouseEvent* e )
 {
     QTable::contentsMousePressEvent( e );
-    if ( isEditing() && d->dat.mode() != QSql::None )
-	endEdit( d->editRow, d->editCol, autoEdit(), FALSE );
 }
 
 /*! \reimp */
