@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsizepolicy.h#2 $
+** $Id: //depot/qt/main/src/kernel/qsizepolicy.h#3 $
 **
 ** Definition of QSizePolicy class
 **
@@ -72,10 +72,10 @@ public:
 	data = hor | (ver<<HSize); }
     QSizePolicy( QSizeData hor, QSizeData ver ) {
 	data = hor.data | (ver.data<<HSize); }
-    QSizeData horData() { return QSizeData( data & HMask ); }
-    QSizeData verData() { return QSizeData(( data & VMask ) >> HSize); }
+    QSizeData horData() const { return QSizeData( data & HMask ); }
+    QSizeData verData() const { return QSizeData(( data & VMask ) >> HSize); }
 
-    Expansiveness expansive() {
+    Expansiveness expansive() const {
 	int r = (horData().preferGrow() ? Horizontal : 0)
 		|(verData().preferGrow() ? Vertical : 0);
 	return (Expansiveness)r;
