@@ -1724,7 +1724,7 @@ void QScrollView::viewportDropEvent( QDropEvent* e )
 #ifndef QT_NO_WHEELEVENT
 void QScrollView::viewportWheelEvent( QWheelEvent* e )
 {
-    /* 
+    /*
        Different than standard mouse events, because wheel events might
        be sent to the focus widget if the widget-under-mouse doesn't want
        the event itself.
@@ -1958,7 +1958,7 @@ void QScrollView::moveContents(int x, int y)
     d->hideOrShowAll(this, TRUE );
 }
 
-#if (QT_VERSION-0 >= 400)
+#if (QT_VERSION-0 >= 0x040000)
 #if defined(Q_CC_GNU)
 #warning "Should rename contents{X,Y,Width,Height} to viewport{...}"
 #endif

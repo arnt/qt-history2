@@ -110,12 +110,11 @@
   SUCH DAMAGE.
 */
 
-#if (QT_VERSION-0 >= 400)
+#include "qgb18030codec.h"
+
+#if (QT_VERSION-0 >= 0x040000)
 #error "move obsolete header <qgbkcodec.h> into the src/compat directory"
 #endif
-
-
-#include "qgb18030codec.h"
 
 #ifndef QT_NO_BIG_CODECS
 
