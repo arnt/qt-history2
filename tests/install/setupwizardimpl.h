@@ -54,11 +54,11 @@ protected slots:
 
 private:
 #if defined (USE_ARCHIVES)
-    void readArchive( QString arcname, QString installPath );
+    void readArchive( const QString& arcname, const QString& installPath );
 #else
-    void copyFiles( QString& sourcePath, QString& destPath, bool topLevel = false );
+    void copyFiles( const QString& sourcePath, const QString& destPath, bool topLevel = false );
 #endif
-    bool createDir( QString fullPath );
+    bool createDir( const QString& fullPath );
     int totalRead;
 
     bool filesCopied;
@@ -70,15 +70,15 @@ private:
 
     void updateOutputDisplay( QProcess* proc );
     void updateErrorDisplay( QProcess* proc );
-    void installIcons( QString iconFolder, QString dirName, bool common );
+    void installIcons( const QString& iconFolder, const QString& dirName, bool common );
 
     enum {
 	MSVC = 0,
 	Borland = 1,
 	GCC = 2
     };
-    void logFiles( QString entry, bool close = false );
-    void logOutput( QString entry, bool close = false );
+    void logFiles( const QString& entry, bool close = false );
+    void logOutput( const QString& entry, bool close = false );
 
     QFile fileLog;
     QFile outputLog;

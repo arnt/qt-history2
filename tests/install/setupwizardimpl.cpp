@@ -183,7 +183,7 @@ void SetupWizardImpl::updateErrorDisplay( QProcess* proc )
     }
 }
 
-void SetupWizardImpl::installIcons( QString iconFolder, QString dirName, bool common )
+void SetupWizardImpl::installIcons( const QString& iconFolder, const QString& dirName, bool common )
 {
     QDir dir( dirName );
 
@@ -619,7 +619,7 @@ void SetupWizardImpl::showPage( QWidget* newPage )
     }
 }
 
-bool SetupWizardImpl::createDir( QString fullPath )
+bool SetupWizardImpl::createDir( const QString& fullPath )
 {
     QStringList hierarchy = QStringList::split( QString( "\\" ), fullPath );
     QString pathComponent, tmpPath;
@@ -635,7 +635,7 @@ bool SetupWizardImpl::createDir( QString fullPath )
 }
 
 #if defined (USE_ARCHIVES)
-void SetupWizardImpl::readArchive( QString arcname, QString installPath )
+void SetupWizardImpl::readArchive( const QString& arcname, const QString& installPath )
 {
     QDataStream inStream, outStream;
     QFile inFile, outFile;
@@ -748,7 +748,7 @@ void SetupWizardImpl::readArchive( QString arcname, QString installPath )
 }
 #endif
 
-void SetupWizardImpl::logFiles( QString entry, bool close )
+void SetupWizardImpl::logFiles( const QString& entry, bool close )
 {
     if( !fileLog.isOpen() ) {
 	fileLog.setName( installPath->text() + "\\install.log" );
@@ -765,7 +765,7 @@ void SetupWizardImpl::logFiles( QString entry, bool close )
 	fileLog.close();
 }
 
-void SetupWizardImpl::logOutput( QString entry, bool close )
+void SetupWizardImpl::logOutput( const QString& entry, bool close )
 {
     QTextStream outstream;
     if( !outputLog.isOpen() ) {
@@ -783,7 +783,7 @@ void SetupWizardImpl::logOutput( QString entry, bool close )
 }
 
 #if !defined( USE_ARCHIVES )
-void SetupWizardImpl::copyFiles( QString& sourcePath, QString& destPath, bool topLevel )
+void SetupWizardImpl::copyFiles( const QString& sourcePath, const QString& destPath, bool topLevel )
 {
     QDir dir( sourcePath );
     const QFileInfoList* list = dir.entryInfoList();
@@ -842,4 +842,3 @@ void SetupWizardImpl::copyFiles( QString& sourcePath, QString& destPath, bool to
     }
 }
 #endif
-
