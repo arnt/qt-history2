@@ -29,6 +29,7 @@
 #include <qstackedwidget.h>
 #include <qtextedit.h>
 #include <qvboxwidget.h>
+#include <qpixmapcache.h>
 
 #include <qdebug.h>
 
@@ -93,6 +94,7 @@ DemoViewer::DemoViewer(QWidget *parent)
     : QWidget(parent),
       attributes(new Attributes)
 {
+    QPixmapCache::setCacheLimit(32*1024);
     setWindowTitle(tr("Qt Paint Engine Demo"));
     QBoxLayout *layout = new QBoxLayout(QBoxLayout::LeftToRight, this);
     layout->setMargin(0);
@@ -271,7 +273,7 @@ void DemoViewer::openSource(bool on)
                  << "#ifndef" << "#else" << "#endif" << "#ifdef" << "break" << "default"
                  << "return";
         for (int i = 0; i < keywords.size(); ++i)
-            contents.replace(QRegExp("(\\s)" + keywords.at(i) + "(\\s)"), 
+            contents.replace(QRegExp("(\\s)" + keywords.at(i) + "(\\s)"),
                              QLatin1String("\\1<font color=blue><b>")
                              + keywords.at(i) + QLatin1String("</b></font>\\2"));
         contents.replace("(int ", "(<font color=blue><b>int </b></font>");
