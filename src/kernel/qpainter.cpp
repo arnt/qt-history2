@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#43 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#44 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -22,7 +22,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#43 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#44 $";
 #endif
 
 
@@ -125,7 +125,8 @@ void QPainter::save()				// save/push painter state
 {
     if ( testf(ExtDev) ) {
 	pdev->cmd( PDC_SAVE, 0 );
-	return;
+	if ( !handle() )
+	    return;
     }
     QPStateStack *pss = (QPStateStack *)ps_stack;
     if ( pss == 0 ) {
@@ -165,7 +166,8 @@ void QPainter::restore()			// restore/pop painter state
 {
     if ( testf(ExtDev) ) {
 	pdev->cmd( PDC_RESTORE, 0 );
-	return;
+	if ( !handle() )
+	    return;
     }
     QPStateStack *pss = (QPStateStack *)ps_stack;
     if ( pss == 0 || pss->isEmpty() ) {
@@ -335,7 +337,8 @@ void QPainter::setWindow( int x, int y, int w, int h )
 	QPDevCmdParam param[1];
 	param[0].rect = (QRect*)&r;
 	pdev->cmd( PDC_SETWINDOW, param );
-	return;
+	if ( !handle() )
+	    return;
     }
     if ( testf(VxF) )
 	updateXForm();
@@ -374,7 +377,8 @@ void QPainter::setViewport( int x, int y, int w, int h )
 	QPDevCmdParam param[1];
 	param[0].rect = (QRect*)&r;
 	pdev->cmd( PDC_SETVIEWPORT, param );
-	return;
+	if ( !handle() )
+	    return;
     }
     if ( testf(VxF) )
 	updateXForm();
@@ -432,7 +436,8 @@ void QPainter::setWorldMatrix( const QWMatrix &m, bool combine )
 	param[0].matrix = &wxmat;
 	param[1].ival = combine;
 	pdev->cmd( PDC_SETWMATRIX, param );
-	return;
+	if ( !handle() )
+	    return;
     }
     if ( !testf(WxF) )
 	setWorldXForm( TRUE );
@@ -797,9 +802,8 @@ void QPainter::drawChord( const QRect &r, int a, int alen )
     drawChord( r.x(), r.y(), r.width(), r.height(), a, alen );
 }
 
-// overloaded because of agulbraterminalstupidity
-
-/*! \overload void QPainter::drawPixmap( const QPoint &p, const QPixmap &pm, const QRect &sr )
+/*!
+  \overload void QPainter::drawPixmap( const QPoint &p, const QPixmap &pm, const QRect &sr )
 
   Overloaded drawPixmap; takes a QPoint instead of \e (x,y).
 */
