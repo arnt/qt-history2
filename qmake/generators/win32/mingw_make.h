@@ -21,7 +21,8 @@ class MingwMakefileGenerator : public Win32MakefileGenerator
 {
     bool init_flag;
     void writeMingwParts(QTextStream &);
-    void writeSubDirs(QTextStream &t) ;
+    void writeSubDirs(QTextStream &t);
+    void writeStandardParts(QTextStream &t);
 
     bool writeMakefile(QTextStream &);
     void init();

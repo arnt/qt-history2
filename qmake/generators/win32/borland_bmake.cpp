@@ -52,73 +52,8 @@ BorlandMakefileGenerator::writeBorlandParts(QTextStream &t)
     t << "!if !$d(BCB)" << endl;
     t << "BCB = $(MAKEDIR)\\.." << endl;
     t << "!endif" << endl << endl;
-    t << "####### Compiler, tools and options" << endl << endl;
-    t << "CC	=	" << var("QMAKE_CC") << endl;
-    t << "CXX	=	" << var("QMAKE_CXX") << endl;
-    t << "LEX     = " << var("QMAKE_LEX") << endl;
-    t << "YACC    = " << var("QMAKE_YACC") << endl;
-    t << "CFLAGS	=	" << var("QMAKE_CFLAGS") << " "
-      << varGlue("PRL_EXPORT_DEFINES","-D"," -D","") << " "
-      <<  varGlue("DEFINES","-D"," -D","") << endl;
-    t << "CXXFLAGS=	" << var("QMAKE_CXXFLAGS") << " "
-      << varGlue("PRL_EXPORT_DEFINES","-D"," -D","") << " "
-      << varGlue("DEFINES","-D"," -D","") << endl;
-    t << "LEXFLAGS=" << var("QMAKE_LEXFLAGS") << endl;
-    t << "YACCFLAGS=" << var("QMAKE_YACCFLAGS") << endl;
 
-    t << "INCPATH	=	";
-    QStringList &incs = project->variables()["INCLUDEPATH"];
-    for(QStringList::Iterator incit = incs.begin(); incit != incs.end(); ++incit) {
-	QString inc = (*incit);
-	inc.replace(QRegExp("\\\\*$"), "");
-	inc.replace("\"", "");
-	t << " -I\"" << inc << "\"";
-    }
-    t << " -I\"" << specdir() << "\""
-      << endl;
-
-    if(!project->variables()["QMAKE_APP_OR_DLL"].isEmpty()) {
-	t << "LINK	=	" << var("QMAKE_LINK") << endl;
-	t << "LFLAGS	=	";
-	if ( !project->variables()["QMAKE_LIBDIR"].isEmpty() )
-	    t << varGlue("QMAKE_LIBDIR","-L",";","") << " ";
-	t << var("QMAKE_LFLAGS") << endl;
-	t << "LIBS	=	" << var("QMAKE_LIBS") << endl;
-    }
-    else {
-	t << "LIB	=	" << var("QMAKE_LIB") << endl;
-    }
-    t << "MOC	=	" << (project->isEmpty("QMAKE_MOC") ? QString("moc") :
-			      Option::fixPathToTargetOS(var("QMAKE_MOC"), FALSE)) << endl;
-    t << "UIC	=	" << (project->isEmpty("QMAKE_UIC") ? QString("uic") :
-			      Option::fixPathToTargetOS(var("QMAKE_UIC"), FALSE)) << endl;
-    t << "QMAKE =       " << (project->isEmpty("QMAKE_QMAKE") ? QString("qmake") :
-			      Option::fixPathToTargetOS(var("QMAKE_QMAKE"), FALSE)) << endl;
-    t << "IDC		=	" << (project->isEmpty("QMAKE_IDC") ? QString("idc") :
-			      Option::fixPathToTargetOS(var("QMAKE_IDC"), FALSE)) << endl;
-    t << "IDL		=	" << (project->isEmpty("QMAKE_IDL") ? QString("midl") :
-			      Option::fixPathToTargetOS(var("QMAKE_IDL"), FALSE)) << endl;
-    t << "ZIP	=	" << var("QMAKE_ZIP") << endl;
-    t << "DEF_FILE =	" << varList("DEF_FILE") << endl;
-    t << "RES_FILE =	" << varList("RES_FILE") << endl;
-    t << "COPY_FILE  =       " << var("QMAKE_COPY") << endl;
-    t << "COPY_DIR  =       " << var("QMAKE_COPY") << endl;
-    t << "DEL_FILE   =       " << var("QMAKE_DEL_FILE") << endl;
-    t << "DEL_DIR    =       " << var("QMAKE_DEL_DIR") << endl;
-    t << "MOVE  =       " << var("QMAKE_MOVE") << endl;
-    t << "CHK_DIR_EXISTS =	" << var("QMAKE_CHK_DIR_EXISTS") << endl;
-    t << "MKDIR		=	" << var("QMAKE_MKDIR") << endl;
-    t << endl;
-
-    t << "####### Files" << endl << endl;
-    t << "HEADERS =	" << varList("HEADERS") << endl;
-    t << "SOURCES =	" << varList("SOURCES") << endl;
-    t << "OBJECTS =	" << varList("OBJECTS") << endl;
-    t << "FORMS =	" << varList("FORMS") << endl;
-    t << "UICDECLS =	" << varList("UICDECLS") << endl;
-    t << "UICIMPLS =	" << varList("UICIMPLS") << endl;
-    t << "SRCMOC	=	" << varList("SRCMOC") << endl;
-    t << "OBJMOC	=	" << varList("OBJMOC") << endl;
+    writeStandardParts(t);
 
     QString extraCompilerDeps;
     if(!project->isEmpty("QMAKE_EXTRA_COMPILERS")) {
@@ -206,36 +141,9 @@ BorlandMakefileGenerator::writeBorlandParts(QTextStream &t)
       << "$(ZIP) " << var("QMAKE_ORIG_TARGET") << ".zip " << "$(SOURCES) $(HEADERS) $(DIST) $(FORMS) "
       << dist_files.join(" ") << " " << var("TRANSLATIONS") << " " << var("IMAGES") << endl << endl;
 
-    t << "uiclean:";
-    QString uiclean = varGlue("UICDECLS" ,"\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","") + varGlue("UICIMPLS" ,"\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","");
-    if ( uiclean.isEmpty() ) {
-	// Borland make does not like an empty command section
-	uiclean = "\n\t@cd .";
-    }
-    t << uiclean << endl;
-
-    t << "mocclean:";
-    QString mocclean = varGlue("SRCMOC" ,"\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","") + varGlue("OBJMOC" ,"\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","");
-    if ( mocclean.isEmpty() ) {
-	// Borland make does not like an empty command section
-	mocclean = "\n\t@cd .";
-    }
-    t << mocclean << endl;
-
-    t << "clean: uiclean mocclean"
-      << varGlue("OBJECTS","\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","")
-      << varGlue("QMAKE_CLEAN","\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","")
-      << varGlue("CLEAN_FILES","\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","");
-    if(!project->isEmpty("IMAGES"))
-	t << varGlue("QMAKE_IMAGE_COLLECTION", "\n\t-$(DEL_FILE) ", "\n\t-$(DEL_FILE) ", "");
-    t << endl;
-
+    writeCleanParts(t);
     writeExtraTargetParts(t);   
     writeExtraCompilerParts(t);
-
-    t << "distclean: clean"
-      << "\n\t-$(DEL_FILE) $(TARGET)"
-      << endl << endl;
 }
 
 void
