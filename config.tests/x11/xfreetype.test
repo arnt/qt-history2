@@ -84,8 +84,8 @@ fi
 
 # detect major version of Xft
 if [ "$XFT" = "yes" ]; then
-    XFT_MAJOR=`grep XFT_MAJOR $XFT_H | head -1 | awk '{ print \$3 }'`
-    XFT_MINOR=`grep XFT_MINOR $XFT_H | head -1 | awk '{ print \$3 }'`
+    XFT_MAJOR=`grep XFT_MAJOR $XFT_H | head -n 1 | awk '{ print \$3 }'`
+    XFT_MINOR=`grep XFT_MINOR $XFT_H | head -n 1 | awk '{ print \$3 }'`
     [ "$VERBOSE" = "yes" ] && echo "  Found Xft version $XFT_MAJOR.$XFT_MINOR"
     if [ "$XFT_MAJOR" = "2" ]; then
         XFT2=yes
