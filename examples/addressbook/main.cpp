@@ -11,7 +11,7 @@
 #include <qapplication.h>
 #include <qplatinumstyle.h>
 
-#include "ab_mainwindow.h"
+#include "mainwindow.h"
 
 int main( int argc, char ** argv )
 {

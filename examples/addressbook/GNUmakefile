@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/examples/addressbook/GNUmakefile#1 $
+# $Id: //depot/qt/main/examples/addressbook/GNUmakefile#2 $
 #
 # Unix Makefile, requires GNU make (gmake).
 #
@@ -7,6 +7,6 @@
 #
 #############################################################################
 
-PROJECT = addressbook
+PROJECT = addressbook.pro
 
 include $(QTDIR)/GNUmakefile.inc

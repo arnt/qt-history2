@@ -8,8 +8,8 @@
 **
 *****************************************************************************/
 
-#include "ab_mainwindow.h"
-#include "ab_centralwidget.h"
+#include "mainwindow.h"
+#include "centralwidget.h"
 
 #include <qtoolbar.h>
 #include <qtoolbutton.h>

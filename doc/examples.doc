@@ -911,25 +911,25 @@ static char ident[] = "$Id: examples.doc,v 2.29 1999/07/07 09:57:05 reggie Exp $
 
   Header file of the mainwindow:
 
-  \include addressbook/ab_mainwindow.h
+  \include addressbook/mainwindow.h
 
   <hr>
 
   Implementation of the mainwindow:
 
-  \include addressbook/ab_mainwindow.cpp
+  \include addressbook/mainwindow.cpp
 
   <hr>
 
   Header file of the centralwidget:
 
-  \include addressbook/ab_centralwidget.h
+  \include addressbook/centralwidget.h
 
   <hr>
 
   Implementation of the centralwidget:
 
-  \include addressbook/ab_centralwidget.cpp
+  \include addressbook/centralwidget.cpp
 
   <hr>
 

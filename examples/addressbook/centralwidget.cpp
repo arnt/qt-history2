@@ -8,7 +8,7 @@
 **
 *****************************************************************************/
 
-#include "ab_centralwidget.h"
+#include "centralwidget.h"
 
 #include <qtabwidget.h>
 #include <qlistview.h>
