@@ -17,9 +17,9 @@ struct Q_EXPORT QBidiStatus {
 	lastStrong = QChar::DirON;
 	last = QChar:: DirON;
     }
-    QChar::Direction eor 		: 5;
-    QChar::Direction lastStrong 	: 5;
-    QChar::Direction last		: 5;
+    QChar::Direction eor;
+    QChar::Direction lastStrong;
+    QChar::Direction last;
 };
 
 struct Q_EXPORT QBidiContext : public QShared {
@@ -56,10 +56,10 @@ struct Q_EXPORT QTextRun {
 class Q_EXPORT QComplexText {
 public:
     enum Shape {
-        XIsolated,
-        XFinal,
-        XInitial,
-        XMedial
+	XIsolated,
+	XFinal,
+	XInitial,
+	XMedial
     };
     static Shape glyphVariant( const QString &str, int pos);
     static Shape glyphVariantLogical( const QString &str, int pos);
