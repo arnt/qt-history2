@@ -244,7 +244,6 @@ QStringList QFileDialog::macGetOpenFileNames( const QString &filter, QString *,
 					      bool directory )
 {
     OSErr err;
-    QString tmpstr;
     QStringList retstrl;
 
     NavDialogCreationOptions options;
@@ -376,9 +375,10 @@ QStringList QFileDialog::macGetOpenFileNames( const QString &filter, QString *,
 #ifdef Q_WS_MAC9
 	if(delete_file) 
 	    FSpDelete(&spec);
+	retstrl.append(QString::fromUtf8((const char *)str_buffer));
+#else
+	retstrl.append((const char *)str_buffer);
 #endif
-	tmpstr = QString::fromUtf8((const char *)str_buffer);
-	retstrl.append(tmpstr);
     }
     NavDisposeReply(&ret);
     return retstrl;
@@ -488,8 +488,10 @@ QString QFileDialog::macGetSaveFileName( const QString &initialSelection, const 
 #ifdef Q_WS_MAC9
 	if(delete_file) 
 	    FSpDelete(&spec);
-#endif
 	retstr = QString::fromUtf8((const char *)str_buffer);
+#else
+	retstr = (const char *)str_buffer;
+#endif
 	//now filename
 	CFStringGetCString(ret.saveFileName, (char *)str_buffer, 1024, kCFStringEncodingUTF8);
 	retstr += "/" + QString::fromUtf8((const char *)str_buffer);
