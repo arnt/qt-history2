@@ -483,8 +483,24 @@ void QTextHTMLImporter::import()
                 charFmt = d->formatCollection.charFormat(d->fragments.last().charFormat);
             }
 
-            block.setTopMargin(topMargin(i));
-            block.setBottomMargin(bottomMargin(i));
+            // collapse
+            block.setTopMargin(qMax(block.topMargin(), topMargin(i)));
+
+            int bottomMargin = this->bottomMargin(i);
+
+            // for list items we may want to collapse with the bottom margin of the 
+            // list.
+            if (node->isListItem) {
+                if (node->parent && at(node->parent).isListStart) {
+                    const int listId = node->parent;
+                    const QTextHtmlParserNode *list = &at(listId);
+                    if (list->children.last() == i /* == index of node */)
+                        bottomMargin = qMax(bottomMargin, this->bottomMargin(listId));
+                }
+            }
+
+            block.setBottomMargin(bottomMargin);
+
             block.setLeftMargin(leftMargin(i));
             block.setRightMargin(rightMargin(i));
             block.setFirstLineMargin(firstLineMargin(i));

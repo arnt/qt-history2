@@ -552,17 +552,21 @@ int QTextHtmlParser::topMargin(int i) const
             return 0;
         m = qMax(m, node->margin[MarginTop]);
 
-        // get previous block
-        while (i-1 && !at(i-1).isBlock)
-            --i;
-
-        if (i - 1 && node->parent == at(i - 1).parent)
-            break;
-
-        // don't collapse margins across table cell borders
+        // collapsing margins across table cells makes no sense
         if (node->isTableCell)
             break;
 
+        // don't collapse margins across list items
+        // (the top margin of the list is merged as part of the block
+        // merging in documentfragment.cpp)
+        if (node->isListItem)
+            break;
+
+        // get previous block
+        while (i-1 && !at(i-1).isBlock)
+            --i;
+        if (i && node->parent == at(i).parent)
+            break;
         i = node->parent;
     }
     return m;
@@ -578,17 +582,19 @@ int QTextHtmlParser::bottomMargin(int i) const
             return 0;
         m = qMax(m, node->margin[MarginBottom]);
 
-        // get next block
-        while (i+1 < count() && !at(i+1).isBlock)
-            ++i;
-
-        if (i + 1 < count() && node->parent == at(i + 1).parent)
-            break;
-
-        // don't collapse margins across table cell borders
+        // collapsing margins across table cells makes no sense
         if (node->isTableCell)
             break;
 
+        // don't collapse margins across list items
+        if (node->isListItem)
+            break;
+
+        // get next block
+        while (i+1 < count() && !at(i+1).isBlock)
+            ++i;
+        if (i && node->parent == at(i).parent)
+            break;
         i = node->parent;
     }
     return m;
