@@ -37,12 +37,15 @@ public:
     void         setColumn( uint col, const QSqlField& field );
     void         addColumns( const QSqlFieldList& fieldList );
 
-    void         setQuery( const QString& query, const QString& databaseName = QSqlConnection::defaultDatabase, bool autoPopulate = TRUE );
-    void         setQuery( const QSql& query, bool autoPopulate = TRUE );
-    void         setRowset( const QString& name, const QString& databaseName = QSqlConnection::defaultDatabase, bool autoPopulate = TRUE );
-    void         setRowset( const QSqlRowset& rowset, bool autoPopulate = TRUE );
-    void         setView( const QString& name, const QString& databaseName = QSqlConnection::defaultDatabase, bool autoPopulate = TRUE );
-    void         setView( const QSqlView& view, bool autoPopulate = TRUE );
+    void         setQuery( QSql* query, bool autoPopulate = TRUE );
+    
+//     void         setQuery( const QString& query, const QString& databaseName = QSqlConnection::defaultDatabase, bool autoPopulate = TRUE );
+//     void         setQuery( const QSql& query, bool autoPopulate = TRUE );
+//     void         setRowset( const QString& name, const QString& databaseName = QSqlConnection::defaultDatabase, bool autoPopulate = TRUE );
+//     void         setRowset( const QSqlRowset& rowset, bool autoPopulate = TRUE );
+//     void         setView( const QString& name, const QString& databaseName = QSqlConnection::defaultDatabase, bool autoPopulate = TRUE );
+//     void         setView( const QSqlView& view, bool autoPopulate = TRUE );
+    
     void         sortColumn ( int col, bool ascending = TRUE,
 			      bool wholeRows = FALSE );
     QString      text ( int row, int col ) const;
@@ -55,7 +58,7 @@ signals:
     void         currentChanged( const QSqlFieldList* fields );
 
 public slots:
-    void 	 findString( const QString & str, bool caseSensitive,
+    void 	 find( const QString & str, bool caseSensitive,
 			     bool backwards );
 
 protected:

@@ -10,9 +10,11 @@
 class QSqlTablePrivate : public QSqlPrivate
 {
 public:
+    QSqlTablePrivate() : QSqlPrivate(), data(0) {}
     QSqlEditorFactory* editorFactory;
     QString trueTxt;
     QString falseTxt;
+    QSql* data;
 };
 
 
@@ -185,7 +187,7 @@ void QSqlTable::setCellContentFromEditor( int row, int col )
  found, it will be marked as the current cell.
  */
 
-void QSqlTable::findString( const QString & str, bool caseSensitive,
+void QSqlTable::find( const QString & str, bool caseSensitive,
 			    bool backwards )
 {
     // ### Searching backwards is not implemented yet.
@@ -250,6 +252,7 @@ void QSqlTable::reset()
     verticalScrollBar()->setValue(0);
     setNumRows(0);
     setNumCols(0);
+    d->data = 0;
     d->haveAllRows = FALSE;
     d->colIndex.clear();
     if ( sorting() ) {
@@ -503,7 +506,7 @@ void QSqlTable::paintCell( QPainter * p, int row, int col, const QRect & cr,
 {
     // ###
     QTable::paintCell(p,row,col,cr,selected);
-    QSql* sql = d->sql();
+    QSql* sql = d->data;
     if ( !sql )
 	return;
     if ( sql->seek( row ) ) {
@@ -511,9 +514,9 @@ void QSqlTable::paintCell( QPainter * p, int row, int col, const QRect & cr,
 	if ( sql->isNull( indexOf(col) ) )
 	    text = nullText();
 	else {
-	    QVariant val = sql->value( indexOf(col) );	    
+	    QVariant val = sql->value( indexOf(col) );
 	    text = val.toString();
-	    if ( val.type() == QVariant::Bool ) 
+	    if ( val.type() == QVariant::Bool )
 		text = val.toBool() ? d->trueTxt : d->falseTxt;
 	}
 	p->drawText( 0,0, cr.width(), cr.height(), AlignLeft + AlignVCenter,
@@ -557,17 +560,37 @@ void QSqlTable::setSize( const QSql* sql )
 /*!
 
   Displays the SQL \a query in the table.  By default, SQL queries
+  cannot be sorted.  If autopoulate is TRUE, columns are automatically
+  created based upon the fields in the \a query.
+
+*/
+
+void QSqlTable::setQuery( QSql* query, bool autoPopulate )
+{
+    setUpdatesEnabled( FALSE );
+    setSorting( FALSE );
+    reset();    
+    d->data = query;    
+    if ( autoPopulate )
+	addColumns( d->data->fields() );
+    setSize( d->data );
+    setUpdatesEnabled( TRUE );
+}
+
+/*!
+
+  Displays the SQL \a query in the table.  By default, SQL queries
   cannot be sorted.  If a \a databaseName is not specified, the
   default database connection is used.  If autopoulate is TRUE,
   columns are automatically created based upon the fields in the \a query.
 
 */
 
-void QSqlTable::setQuery( const QString& query, const QString& databaseName, bool autoPopulate )
-{
-    QSql s( query, databaseName );
-    setQuery( s, autoPopulate );
-}
+// void QSqlTable::setQuery( const QString& query, const QString& databaseName, bool autoPopulate )
+// {
+//     QSql s( query, databaseName );
+//     setQuery( s, autoPopulate );
+// }
 
 /*
 
@@ -575,19 +598,19 @@ void QSqlTable::setQuery( const QString& query, const QString& databaseName, boo
 
 */
 
-void QSqlTable::setQuery( const QSql& query, bool autoPopulate )
-{
-    setUpdatesEnabled( FALSE );
-    setSorting( FALSE );
-    reset();
-    d->resetMode( QSqlPrivate::Sql );
-    QSql* sql = d->sql();
-    (*sql) = query;
-    if ( autoPopulate )
-	addColumns( sql->fields() );
-    setSize( sql );
-    setUpdatesEnabled( TRUE );
-}
+// void QSqlTable::setQuery( const QSql& query, bool autoPopulate )
+// {
+//     setUpdatesEnabled( FALSE );
+//     setSorting( FALSE );
+//     reset();
+//     d->resetMode( QSqlPrivate::Sql );
+//     QSql* sql = d->sql();
+//     (*sql) = query;
+//     if ( autoPopulate )
+// 	addColumns( sql->fields() );
+//     setSize( sql );
+//     setUpdatesEnabled( TRUE );
+// }
 /*!
 
   Displays the rowset \a name in the table.  By default, the rowset
@@ -597,11 +620,11 @@ void QSqlTable::setQuery( const QSql& query, bool autoPopulate )
 
 */
 
-void QSqlTable::setRowset( const QString& name, const QString& databaseName, bool autoPopulate )
-{
-    QSqlRowset r( name, databaseName );
-    setRowset( r, autoPopulate );
-}
+// void QSqlTable::setRowset( const QString& name, const QString& databaseName, bool autoPopulate )
+// {
+//     QSqlRowset r( name, databaseName );
+//     setRowset( r, autoPopulate );
+// }
 
 /*
 
@@ -609,20 +632,20 @@ void QSqlTable::setRowset( const QString& name, const QString& databaseName, boo
 
 */
 
-void QSqlTable::setRowset( const QSqlRowset& rowset, bool autoPopulate )
-{
-    setUpdatesEnabled( FALSE );
-    reset();
-    setSorting( TRUE );
-    d->resetMode( QSqlPrivate::Rowset );
-    QSqlRowset* rset = d->rowset();
-    (*rset) = rowset;
-    rset->select( rowset.sort(), rowset.filter() );
-    if ( autoPopulate )
-	addColumns( (*rset) );
-    setSize( rset );
-    setUpdatesEnabled( TRUE );
-}
+// void QSqlTable::setRowset( const QSqlRowset& rowset, bool autoPopulate )
+// {
+//     setUpdatesEnabled( FALSE );
+//     reset();
+//     setSorting( TRUE );
+//     d->resetMode( QSqlPrivate::Rowset );
+//     QSqlRowset* rset = d->rowset();
+//     (*rset) = rowset;
+//     rset->select( rowset.sort(), rowset.filter() );
+//     if ( autoPopulate )
+// 	addColumns( (*rset) );
+//     setSize( rset );
+//     setUpdatesEnabled( TRUE );
+// }
 
 /*!
 
@@ -633,26 +656,26 @@ void QSqlTable::setRowset( const QSqlRowset& rowset, bool autoPopulate )
 
 */
 
-void QSqlTable::setView( const QString& name, const QString& databaseName, bool autoPopulate )
-{
-    QSqlView v( name, databaseName );
-    setView( v, autoPopulate );
-}
+// void QSqlTable::setView( const QString& name, const QString& databaseName, bool autoPopulate )
+// {
+//     QSqlView v( name, databaseName );
+//     setView( v, autoPopulate );
+// }
 
-void QSqlTable::setView( const QSqlView& view, bool autoPopulate )
-{
-    setUpdatesEnabled( FALSE );
-    reset();
-    setSorting( TRUE );
-    d->resetMode( QSqlPrivate::View );
-    QSqlView* vw = d->view();
-    (*vw) = view;
-    vw->select( view.filter(), view.sort() );
-    if ( autoPopulate )
-	addColumns( (*vw) );
-    setSize( vw );
-    setUpdatesEnabled( TRUE );
-}
+// void QSqlTable::setView( const QSqlView& view, bool autoPopulate )
+// {
+//     setUpdatesEnabled( FALSE );
+//     reset();
+//     setSorting( TRUE );
+//     d->resetMode( QSqlPrivate::View );
+//     QSqlView* vw = d->view();
+//     (*vw) = view;
+//     vw->select( view.filter(), view.sort() );
+//     if ( autoPopulate )
+// 	addColumns( (*vw) );
+//     setSize( vw );
+//     setUpdatesEnabled( TRUE );
+// }
 
 /*!
 
