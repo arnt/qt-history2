@@ -459,14 +459,14 @@
     Used by qHeapSort().
 */
 
-/*! \fn void qHeapSortHelper(BiIterator b, BiIterator e, T, LessThan lessThan)
+/*! \fn void qHeapSortHelper(BiIterator b, BiIterator e, const T &, LessThan lessThan)
     \relates <QtAlgorithms>
 
     \internal
     Used by qHeapSort().
 */
 
-/*! \fn void qHeapSortHelper(BiIterator b, BiIterator e, T dummy)
+/*! \fn void qHeapSortHelper(BiIterator b, BiIterator e, const T &dummy)
     \relates <QtAlgorithms>
 
     \internal
