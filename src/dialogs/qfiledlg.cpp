@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#3 $
+** $Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#4 $
 **
 ** Implementation of QFileDialog class
 **
@@ -20,7 +20,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#3 $";
+static char ident[] = "$Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#4 $";
 #endif
 
 
@@ -49,7 +49,7 @@ QFileDialog::QFileDialog( QWidget *parent, const char *name, bool modal )
 {
     init();
     filterEdit->setText( "*" );
-    d.convertToAbsolute();
+    d.convertToAbs();
     rereadDir();
     resize( 300, 300 );
 }
@@ -70,7 +70,7 @@ QFileDialog::QFileDialog( const char *dirName, const char *filter,
     filterEdit->setText( d.nameFilter() );
     if ( dirName )
 	d.setPath( dirName );
-    d.convertToAbsolute();
+    d.convertToAbs();
     rereadDir();
     resize( 300, 300 );
 }
@@ -147,7 +147,7 @@ QFileDialog::~QFileDialog()
 /*----------------------------------------------------------------------------
   Returns the selected file name.
 
-  If a file name was selected, the returned string will contain the full
+  If a file name was selected, the returned string will contain the absolute
   path name.
   The returned string will be a null string if no file name was selected.
 
@@ -158,7 +158,7 @@ QString QFileDialog::selectedFile() const
 {
     QString tmp;
     if ( nameEdit->text() && strcmp( nameEdit->text(), "" ) != 0 )
-	tmp = d.fullPathName( nameEdit->text() );
+	tmp = d.absFilePath( nameEdit->text() );
     return tmp;
 }
 
@@ -183,7 +183,7 @@ void QFileDialog::setDir( const char *pathstr )
     if ( strcmp(d.path(),pathstr) == 0 )
 	return;
     d.setPath( pathstr );
-    d.convertToAbsolute();
+    d.convertToAbs();
     rereadDir();
 }
 
@@ -205,7 +205,7 @@ const QDir *QFileDialog::dir() const
 void QFileDialog::setDir( const QDir &dir )
 {
     d = dir;
-    d.convertToAbsolute();
+    d.convertToAbs();
     d.setMatchAllDirs( TRUE );
     d.setSorting( d.sorting() | QDir::DirsFirst );
     rereadDir();
@@ -296,7 +296,7 @@ QString QFileDialog::getSaveFileName( const char *dirName, const char *filter,
 void QFileDialog::fileSelected( int index )
 {
     nameEdit->setText( files->string( index ) );
-    emit fileSelected( d.pathName( nameEdit->text() ) );
+    emit fileSelected( d.filePath( nameEdit->text() ) );
     accept();
 }
 
@@ -308,7 +308,7 @@ void QFileDialog::fileSelected( int index )
 void QFileDialog::fileHighlighted( int index )
 {
     nameEdit->setText( files->string( index ) );
-    emit fileHighlighted( d.pathName( files->string( index ) ) );
+    emit fileHighlighted( d.filePath( files->string( index ) ) );
 }
 
 /*----------------------------------------------------------------------------
@@ -354,7 +354,7 @@ void QFileDialog::pathSelected( int index )
 void QFileDialog::okClicked()
 {
     if ( strcmp( nameEdit->text(), "") != 0 ) {
-	emit fileSelected( d.pathName( nameEdit->text() ) );
+	emit fileSelected( d.filePath( nameEdit->text() ) );
 	accept();
     }
 }
