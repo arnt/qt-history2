@@ -52,6 +52,7 @@ class QIconSet;
 
 class QListView;
 struct QListViewPrivate;
+struct QCheckListItemPrivate;
 class QListViewItemIterator;
 
 
@@ -409,7 +410,7 @@ private:
     bool on;
     QCheckListItem *exclusive;
 
-    void *reserved;
+    QCheckListItemPrivate *reserved;
 };
 
 class Q_EXPORT QListViewItemIterator

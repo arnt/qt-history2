@@ -4532,7 +4532,7 @@ void QCheckListItem::init()
 {
     on = FALSE;
     reserved = new QCheckListItemPrivate;
-    ( (QCheckListItemPrivate*)reserved )->enabled = TRUE;
+    reserved->enabled = TRUE;
     if ( !defaultIcon )
 	defaultIcon = new QPixmap( (const char **)def_item_xpm );
     if ( myType == Controller ) {
@@ -4606,7 +4606,7 @@ void QCheckListItem::activate()
 
 void QCheckListItem::setEnabled( bool b )
 {
-    ( (QCheckListItemPrivate*)reserved )->enabled = b;
+    reserved->enabled = b;
 }
 
 /*!  Retuns whether the item is enabled or disabled.
@@ -4616,7 +4616,7 @@ void QCheckListItem::setEnabled( bool b )
 
 bool QCheckListItem::isEnabled() const
 {
-    return ( (QCheckListItemPrivate*)reserved )->enabled;
+    return reserved->enabled;
 }
 
 /*!
