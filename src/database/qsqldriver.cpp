@@ -1,0 +1,242 @@
+#include "qsqldriver.h"
+
+
+// database states
+#define DBState_Open	    	0x0001
+#define DBState_OpenError   	0x0002
+
+/*!
+  \class QSqlDriver qsql_base.h
+  \brief Class used for accessing databases
+
+  \module database
+
+  This is an abstract base class which defines an interface for accessing SQL databases.  This
+  class should not be used directly.  Use QSqlDatabase instead.
+
+*/
+
+/*!  Default constructor.
+
+*/
+
+QSqlDriver::QSqlDriver( QObject * parent, const char * name )
+: QObject(parent, name),
+  dbState(0),
+  error()
+{
+}
+
+/*! Destroys the object and frees any allocated resources.
+
+*/
+
+QSqlDriver::~QSqlDriver()
+{
+}
+
+/*! \fn virtual bool QSqlDriver::open() = 0;
+    Derived classes must override this abstract virtual method in order to open the database.
+    Return TRUE on success, FALSE on failure.
+
+    \sa setOpen()
+
+*/
+
+/*! \fn virtual bool QSqlDriver::close() = 0;
+    Derived classes must override this abstract virtual method in order to close the database.
+    Return TRUE on success, FALSE on failure.
+
+    \sa setOpen()
+
+*/
+
+/*! Executes the SQL query \a sqlquery (i.e., a SELECT statement) on the database, and returns
+    the result to the caller.
+
+    \sa exec(), createResult()
+
+*/
+
+QSql QSqlDriver::query( const QString & sqlquery ) const
+{
+    QSql r = createResult();
+    r << sqlquery;
+    return r;
+}
+
+/*! \fn virtual QSql QSqlDriver::createResult() = 0;
+    Creates an empty SQL result on the database.  Derived classes must override this method
+    and return a QSql object to the caller.
+
+*/
+
+//void QSqlDriver::destroyResult( QSqlResult* r ) const
+//{
+//    if ( r )
+//    	delete r;
+//}
+
+/*!  Returns TRUE if the database state is open, FALSE otherwise.
+
+*/
+
+bool QSqlDriver::isOpen() const
+{
+    return ((dbState & DBState_Open) == DBState_Open);
+}
+
+/*!  Returns TRUE if the there was an error opening the database, FALSE otherwise.
+
+*/
+
+bool QSqlDriver::isOpenError() const
+{
+    return ((dbState & DBState_OpenError) == DBState_OpenError);
+}
+
+/*! Returns TRUE if the database supports transactions, FALSE otherwise.
+    Note that some databases need to be open() before this can be determined.
+    The default implementation returns FALSE.
+
+    \sa setTransactionSupport()
+
+*/
+
+bool QSqlDriver::hasTransactionSupport() const
+{
+    return hasTrans;
+}
+
+/*! Protected method which sets the open state of the database to \a o.
+    Derived classes can use this method to report the status of open().
+
+    \sa open(), setOpenError()
+
+*/
+
+void QSqlDriver::setOpen( bool o )
+{
+    if ( o )
+	dbState |= DBState_Open;
+    else
+	dbState &= ~DBState_Open;
+}
+
+/*! Protected method which sets the open error state of the database to \a e.
+    Derived classes can use this method to report the status of open().
+    Note that if \a e is TRUE the open state of the database is set to closed
+    (i.e., isOpen() returns FALSE).
+
+    \sa open(), setOpenError()
+
+*/
+
+void QSqlDriver::setOpenError( bool e )
+{
+    if ( e ) {
+	dbState |= DBState_OpenError;
+	dbState &= ~DBState_Open;
+    }
+    else
+	dbState &= ~DBState_OpenError;
+}
+
+/*! Protected method which allows derived classed to set the transaction support of
+    the database to \a t.
+
+    \sa transaction(), commit(), rollback()
+
+*/
+
+void QSqlDriver::setTransactionSupport( bool t )
+{
+    hasTrans = t;
+}
+
+/*! Protected method which derived classes can override to begin a transaction.
+    If successful, return TRUE, otherwise return FALSE.  The default implementation returns FALSE.
+
+    \sa setTransactionSupport(), transaction(), commit(), rollback()
+
+*/
+
+bool QSqlDriver::beginTransaction()
+{
+    return FALSE;
+}
+
+/*! Protected method which derived classes can override to commit a transaction.
+    If successful, return TRUE, otherwise return FALSE. The default implementation returns FALSE.
+
+    \sa setTransactionSupport(), transaction(), commit(), rollback()
+
+*/
+
+bool QSqlDriver::commitTransaction()
+{
+    return FALSE;
+}
+
+/*! Protected method which derived classes can override to rollback a transaction.
+    If successful, return TRUE, otherwise return FALSE.  The default implementation returns FALSE.
+
+    \sa setTransactionSupport(), transaction(), commit(), rollback()
+
+*/
+
+bool QSqlDriver::rollbackTransaction()
+{
+    return FALSE;
+}
+
+/*! Protected method which allows derived classes to set the value of the last error that occurred
+    on the database.
+
+    \sa lastError()
+
+*/
+
+void QSqlDriver::setLastError( const QSqlError& e )
+{
+    error = e;
+}
+
+/*! Returns a QSqlError object which contains information about the last error that occurred on the
+    database.
+
+*/
+
+QSqlError QSqlDriver::lastError() const
+{
+    return error;
+}
+
+/*! Returns a list of field information about the SQL statement \a sql.  This must be a SELECT
+    statement.  The default implementation creates a query() and returns field information from it.
+
+*/
+
+QSqlFieldInfoList QSqlDriver::view( const QString& sql ) const
+{
+    QSqlFieldInfoList fieldList;
+    QSql r = query( sql );
+#ifdef CHECK_RANGE
+    if ( !r.isActive() )
+	qWarning("QSqlDriver::view Error:" + r.lastError().driverText() + " - " + r.lastError().databaseText() );
+#endif
+    const QSqlResultInfo* i = r.info();
+    if ( i )
+	fieldList = i->fields();
+    return fieldList;
+}
+
+/*! Returns a list of field information about the table \a name.  The table must exist in the database.
+    The default implementation queries the table for all of its fields.
+
+*/
+
+QSqlFieldInfoList QSqlDriver::table( const QString& name ) const
+{
+    return view( "select * from " + name + " where 0=1;" );
+}

@@ -1,0 +1,79 @@
+Roadmap for Qt Database module
+
+Basic Database Support
+----------------------
+Complete basic API. [partially done]
+	 QSqlDatabase - interface to connect to SQL backends
+	 QSql - interface to execute SQL queries (wraps QSqlResult)
+	 QSqlError - for error reporting
+	 QSqlResultInfo - SQL query result info
+
+	 QSqlViewBase - abstract base
+	 QSqlView - info about SQL views
+	 QSqlTable - into about SQL tables
+
+	 QSqlDriver - abstract base for drivers (loaded by QSqlDatabase)
+	 QSqlResult - abstract base for drivers (created by QSqlDriver)
+	
+Document basic API/abstraction. [partially done]
+
+Decide on list of supported backends.  Options: [* = my current choices]
+	Berkeley DB
+	DB2
+	DiamondBase
+	Empress
+	Informix
+	Ingres
+	Interbase (Borland)
+	Mimer
+	MiniSQL (unix only?)
+	MS SQL Server (windows only?)
+	*MySQL
+	*ODBC
+	Oracle
+	*PostgreSQL
+	SOLID SQL Server
+	Sybase 
+	XML? (this would require our own SQL parser)
+	Others...?
+
+Decide on level of distribution 
+	include database client libraries?
+	load driver modules at runtime?
+
+Make QVariant more SQL friendly 
+
+Implement drivers: [partially done]
+	Implement client-side cursors for drivers that need it (e.g., OCI, certain ODBC drivers)?
+	Transactions?
+	
+Configure databases for testing 
+	(this may be expensive/time-consuming)
+
+Implement test programs/benchmarks/etc. This should include tests for:
+	Proper result set scrolling
+	Proper inserts/updates/deletes
+	Proper data type conversions (including date/time and binary)
+	
+
+Extended Database Support
+-------------------------
+Design more database abstractions: Some ideas:
+	QSqlTransaction - SLQ transactions 
+	QSqlField - field info + the actual data
+	QSqlRecord - manipulate an entire row of SQL fields
+	QSqlTable - map directly to a SQL table for inserts/updates/deletes, autonumbering primary keys?
+	QSqlView - query a bunch of QSqlTables, syncronize them for updates, generate ANSI SQL automatically.
+	QSqlCatalog - extended database information (tables, indexes, fields, etc)
+
+Design 'data aware' widgets.  Some ideas:
+	QSqlDataGrid - a QTable driven by a SQL query
+	QSqlComboBox - a QComboBox driven by a SQL query
+	QSqlForm - a QDialog with database update capability (use QSqlTable?) (link easily to QDataGrid?)
+	QSqlListBox - read-only SQL lookups
+	QSqlListView - SQL browse/tree
+
+Implement the above
+
+Add Qt Designer support for the above
+
