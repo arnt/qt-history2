@@ -203,6 +203,7 @@ public:
         PE_SpinBoxDown,
         PE_SpinBoxPlus,
         PE_SpinBoxMinus,
+        PE_SpinBoxSlider,
 
         PE_Indicator,
         PE_IndicatorMask,
@@ -406,6 +407,7 @@ public:
         SC_SpinBoxFrame =                0x00000004,
         SC_SpinBoxEditField =        0x00000008,
         SC_SpinBoxButtonField =        0x00000010,
+        SC_SpinBoxSlider =        0x00000020,
 
         SC_ComboBoxFrame =                0x00000001,
         SC_ComboBoxEditField =                0x00000002,
@@ -537,6 +539,7 @@ public:
         PM_TabBarScrollButtonWidth,
 
         PM_ToolBarItemSpacing,
+        PM_SpinBoxSliderHeight,
 
         // do not add any values below/greater than this
         PM_CustomBase =                0xf0000000

@@ -127,6 +127,8 @@ struct Q4StyleOptionSpinBox : public Q4StyleOptionComplex {
     enum { Type = SpinBox };
     QAbstractSpinBox::ButtonSymbols buttonSymbols;
     QAbstractSpinBox::StepEnabled stepEnabled;
+    double percentage;
+    bool slider;
     Q4StyleOptionSpinBox(int version) : Q4StyleOptionComplex(version, SpinBox) {}
 };
 

@@ -143,76 +143,6 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe,
 
     switch (pe) {
 
-    case PE_SpinBoxPlus:
-    case PE_SpinBoxMinus: {
-        p->save();
-        int fw = pixelMetric(PM_DefaultFrameWidth, 0);
-        QRect br;
-        br.setRect(r.x() + fw, r.y() + fw, r.width() - fw*2,
-                    r.height() - fw*2);
-
-        p->fillRect(br, pal.brush(QPalette::Button));
-        p->setPen(pal.buttonText());
-        p->setBrush(pal.buttonText());
-
-        int length;
-        int x = r.x(), y = r.y(), w = r.width(), h = r.height();
-        if (w <= 8 || h <= 6)
-            length = qMin(w-2, h-2);
-        else
-            length = qMin(2*w / 3, 2*h / 3);
-
-        if (!(length & 1))
-            length -=1;
-        int xmarg = (w - length) / 2;
-        int ymarg = (h - length) / 2;
-
-        p->drawLine(x + xmarg, (y + h / 2 - 1),
-                     x + xmarg + length - 1, (y + h / 2 - 1));
-        if (pe == PE_SpinBoxPlus)
-            p->drawLine((x+w / 2) - 1, y + ymarg,
-                         (x+w / 2) - 1, y + ymarg + length - 1);
-        p->restore();
-        break; }
-
-    case PE_SpinBoxUp:
-    case PE_SpinBoxDown: {
-        int fw = pixelMetric(PM_DefaultFrameWidth, 0);
-        QRect br;
-        br.setRect(r.x() + fw, r.y() + fw, r.width() - fw*2,
-                    r.height() - fw*2);
-        p->fillRect(br, pal.brush(QPalette::Button));
-        int x = r.x(), y = r.y(), w = r.width(), h = r.height();
-        int sw = w-4;
-        if (sw < 3)
-            break;
-        else if (!(sw & 1))
-            sw--;
-        sw -= (sw / 7) * 2;        // Empty border
-        int sh = sw/2 + 2;      // Must have empty row at foot of arrow
-
-        int sx = x + w / 2 - sw / 2 - 1;
-        int sy = y + h / 2 - sh / 2 - 1;
-
-        QPointArray a;
-        if (pe == PE_SpinBoxDown)
-            a.setPoints(3,  0, 1,  sw-1, 1,  sh-2, sh-1);
-        else
-            a.setPoints(3,  0, sh-1,  sw-1, sh-1,  sh-2, 1);
-        int bsx = 0;
-        int bsy = 0;
-        if (flags & Style_Sunken) {
-            bsx = pixelMetric(PM_ButtonShiftHorizontal);
-            bsy = pixelMetric(PM_ButtonShiftVertical);
-        }
-        p->save();
-        p->translate(sx + bsx, sy + bsy);
-        p->setPen(pal.buttonText());
-        p->setBrush(pal.buttonText());
-        p->drawPolygon(a);
-        p->restore();
-        break; }
-
     case PE_DockWindowSeparator: {
         QPoint p1, p2;
         if (flags & Style_Horizontal) {
@@ -296,7 +226,7 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt, 
             }
             if (opt->state & Style_FocusAtBorder)
                 p->drawRect(QRect(opt->rect.x() + 1, opt->rect.y() + 1, opt->rect.width() - 2,
-                            opt->rect.height() - 2));
+                                  opt->rect.height() - 2));
             else
                 p->drawRect(opt->rect);
             p->setPen(oldPen);
@@ -374,41 +304,41 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt, 
             static const QCOORD pts4[] = {                // white lines
                 2,10, 3,10, 4,11, 7,11, 8,10, 9,10, 10,9, 10,8, 11,7,
                 11,4, 10,3, 10,2 };
-                // static const QCOORD pts5[] = {                // inner fill
-                //    4,2, 7,2, 9,4, 9,7, 7,9, 4,9, 2,7, 2,4 };
-                //QPointArray a;
+            // static const QCOORD pts5[] = {                // inner fill
+            //    4,2, 7,2, 9,4, 9,7, 7,9, 4,9, 2,7, 2,4 };
+            //QPointArray a;
 
-                if (lv->state & Style_Enabled)
-                    p->setPen(lv->palette.text());
-                else
-                    p->setPen(QPen(lv->viewportPalette.color(QPalette::Disabled, QPalette::Text)));
-                QPointArray a(QCOORDARRLEN(pts1), pts1);
-                a.translate(x, y);
-                //p->setPen(pal.dark());
-                p->drawPolyline(a);
-                a.setPoints(QCOORDARRLEN(pts2), pts2);
-                a.translate(x, y);
-                p->drawPolyline(a);
-                a.setPoints(QCOORDARRLEN(pts3), pts3);
-                a.translate(x, y);
-                //                p->setPen(black);
-                p->drawPolyline(a);
-                a.setPoints(QCOORDARRLEN(pts4), pts4);
-                a.translate(x, y);
-                //                        p->setPen(blue);
-                p->drawPolyline(a);
-                //                a.setPoints(QCOORDARRLEN(pts5), pts5);
-                //                a.translate(x, y);
-                //        QColor fillColor = isDown() ? g.background() : g.base();
-                //        p->setPen(fillColor);
-                //        p->setBrush(fillColor);
-                //        p->drawPolygon(a);
-                if (opt->state & Style_On) {
-                    p->setPen(Qt::NoPen);
-                    p->setBrush(opt->palette.text());
-                    p->drawRect(x + 5, y + 4, 2, 4);
-                    p->drawRect(x + 4, y + 5, 4, 2);
-                }
+            if (lv->state & Style_Enabled)
+                p->setPen(lv->palette.text());
+            else
+                p->setPen(QPen(lv->viewportPalette.color(QPalette::Disabled, QPalette::Text)));
+            QPointArray a(QCOORDARRLEN(pts1), pts1);
+            a.translate(x, y);
+            //p->setPen(pal.dark());
+            p->drawPolyline(a);
+            a.setPoints(QCOORDARRLEN(pts2), pts2);
+            a.translate(x, y);
+            p->drawPolyline(a);
+            a.setPoints(QCOORDARRLEN(pts3), pts3);
+            a.translate(x, y);
+            //                p->setPen(black);
+            p->drawPolyline(a);
+            a.setPoints(QCOORDARRLEN(pts4), pts4);
+            a.translate(x, y);
+            //                        p->setPen(blue);
+            p->drawPolyline(a);
+            //                a.setPoints(QCOORDARRLEN(pts5), pts5);
+            //                a.translate(x, y);
+            //        QColor fillColor = isDown() ? g.background() : g.base();
+            //        p->setPen(fillColor);
+            //        p->setBrush(fillColor);
+            //        p->drawPolygon(a);
+            if (opt->state & Style_On) {
+                p->setPen(Qt::NoPen);
+                p->setBrush(opt->palette.text());
+                p->drawRect(x + 5, y + 4, 2, 4);
+                p->drawRect(x + 4, y + 5, 4, 2);
+            }
 #undef QCOORDARRLEN
         }
         break;
@@ -421,14 +351,14 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt, 
                 y = lv->rect.y(),
                 w = lv->rect.width(),
                 h = lv->rect.width(),
-                marg = lv->itemMargin;
+             marg = lv->itemMargin;
 
             if (lv->state & Style_Enabled)
                 p->setPen(QPen(lv->palette.text(), 2));
             else
                 p->setPen(QPen(lv->viewportPalette.color(QPalette::Disabled, QPalette::Text), 2));
             if (opt->state & Style_Selected && !lv->rootIsDecorated
-                    && !(item.extras & Q4StyleOptionListViewItem::ParentControl)) {
+                && !(item.extras & Q4StyleOptionListViewItem::ParentControl)) {
                 p->fillRect(0, 0, x + marg + w + 4, item.height,
                             lv->palette.brush(QPalette::Highlight));
                 if (item.state & Style_Enabled)
@@ -439,28 +369,28 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt, 
                 p->setBrush(lv->palette.brush(QPalette::Button));
             p->drawRect(x + marg, y + 2, w - 4, h - 4);
             /////////////////////
-            ++x;
-            ++y;
-            if (lv->state & Style_On || lv->state & Style_NoChange) {
-                QPointArray a(7 * 2);
-                int i,
-                    xx = x + 1 + marg,
-                    yy = y + 5;
-                for (i = 0; i < 3; ++i) {
-                    a.setPoint(2 * i,   xx, yy);
-                    a.setPoint(2 * i + 1, xx, yy + 2);
-                    ++xx;
-                    ++yy;
+                ++x;
+                ++y;
+                if (lv->state & Style_On || lv->state & Style_NoChange) {
+                    QPointArray a(7 * 2);
+                    int i,
+                        xx = x + 1 + marg,
+                        yy = y + 5;
+                    for (i = 0; i < 3; ++i) {
+                        a.setPoint(2 * i,   xx, yy);
+                        a.setPoint(2 * i + 1, xx, yy + 2);
+                        ++xx;
+                        ++yy;
+                    }
+                    yy -= 2;
+                    for (i = 3; i < 7; ++i) {
+                        a.setPoint(2 * i,   xx, yy);
+                        a.setPoint(2 * i + 1, xx, yy + 2);
+                        ++xx;
+                        --yy;
+                    }
+                    p->drawLineSegments(a);
                 }
-                yy -= 2;
-                for (i = 3; i < 7; ++i) {
-                    a.setPoint(2 * i,   xx, yy);
-                    a.setPoint(2 * i + 1, xx, yy + 2);
-                    ++xx;
-                    --yy;
-                }
-                p->drawLineSegments(a);
-            }
         }
         break;
     case PE_RubberBandMask:
@@ -593,7 +523,7 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt, 
     case PE_GroupBoxFrame:
         if (const Q4StyleOptionFrame *frame = qt_cast<const Q4StyleOptionFrame *>(opt)) {
             int lwidth = frame->lineWidth,
-                mlwidth = frame->midLineWidth;
+               mlwidth = frame->midLineWidth;
             if (opt->state & (Style_Sunken | Style_Raised))
                 qDrawShadeRect(p, frame->rect.x(), frame->rect.y(), frame->rect.width(),
                                frame->rect.height(), frame->palette, frame->state & Style_Sunken,
@@ -638,6 +568,93 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt, 
             p->restore();
         }
         break;
+    case PE_SpinBoxPlus:
+    case PE_SpinBoxMinus:
+        if (const Q4StyleOptionSpinBox *sb = qt_cast<const Q4StyleOptionSpinBox *>(opt)) {
+            p->save();
+            QRect r = sb->rect;
+            int fw = pixelMetric(PM_DefaultFrameWidth, widget);
+            QRect br;
+            br.setRect(r.x() + fw, r.y() + fw, r.width() - fw*2,
+                       r.height() - fw*2);
+
+            p->fillRect(br, sb->palette.brush(QPalette::Button));
+            QPen pen(sb->palette.buttonText());
+            if (sb->rect.height() > 30)
+                pen.setWidth((int)(sb->rect.height() / 20));
+
+            p->setPen(pen);
+            p->setBrush(sb->palette.buttonText());
+
+            int length;
+            int x = r.x(), y = r.y(), w = r.width(), h = r.height();
+            if (w <= 8 || h <= 6)
+                length = qMin(w-2, h-2);
+            else
+                length = qMin(2*w / 3, 2*h / 3);
+
+            if (!(length & 1))
+                length -=1;
+            int xmarg = (w - length) / 2;
+            int ymarg = (h - length) / 2;
+
+            p->drawLine(x + xmarg, (y + h / 2 - 1),
+                        x + xmarg + length - 1, (y + h / 2 - 1));
+            if (pe == PE_SpinBoxPlus)
+                p->drawLine((x+w / 2) - 1, y + ymarg,
+                            (x+w / 2) - 1, y + ymarg + length - 1);
+            p->restore();
+            break;
+        }
+
+    case PE_SpinBoxUp:
+    case PE_SpinBoxDown:
+        if (const Q4StyleOptionSpinBox *sb = qt_cast<const Q4StyleOptionSpinBox *>(opt)) {
+            QRect r = sb->rect;
+            int fw = pixelMetric(PM_DefaultFrameWidth, widget);
+            QRect br;
+            br.setRect(r.x() + fw, r.y() + fw, r.width() - fw*2,
+                       r.height() - fw*2);
+            p->fillRect(br, sb->palette.brush(QPalette::Button));
+            int x = r.x(), y = r.y(), w = r.width(), h = r.height();
+            int sw = w-4;
+            if (sw < 3)
+                break;
+            else if (!(sw & 1))
+                sw--;
+            sw -= (sw / 7) * 2;        // Empty border
+            int sh = sw/2 + 2;      // Must have empty row at foot of arrow
+
+            int sx = x + w / 2 - sw / 2 - 1;
+            int sy = y + h / 2 - sh / 2 - 1;
+
+            QPointArray a;
+            if (pe == PE_SpinBoxDown)
+                a.setPoints(3,  0, 1,  sw-1, 1,  sh-2, sh-1);
+            else
+                a.setPoints(3,  0, sh-1,  sw-1, sh-1,  sh-2, 1);
+            int bsx = 0;
+            int bsy = 0;
+            if (sb->state & Style_Sunken) {
+                bsx = pixelMetric(PM_ButtonShiftHorizontal);
+                bsy = pixelMetric(PM_ButtonShiftVertical);
+            }
+            p->save();
+            p->translate(sx + bsx, sy + bsy);
+            p->setPen(sb->palette.buttonText());
+            p->setBrush(sb->palette.buttonText());
+            p->drawPolygon(a);
+            p->restore();
+            break;
+        }
+    case PE_SpinBoxSlider:
+        if (const Q4StyleOptionSpinBox *sb = qt_cast<const Q4StyleOptionSpinBox *>(opt)) {
+            QRect re = sb->rect;
+            re.setWidth((int)((double)re.width() * sb->percentage));
+            p->fillRect(re, sb->palette.brush(QPalette::Highlight));
+            break;
+        }
+
     default:
         qWarning("QCommonStyle::drawPrimitive not handled %d", pe);
     }
@@ -1938,47 +1955,64 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const Q4StyleOptionComp
         break;
     case CC_SpinBox:
         if (const Q4StyleOptionSpinBox *sb = qt_cast<const Q4StyleOptionSpinBox *>(opt)) {
-            SFlags flags;
+            Q4StyleOptionSpinBox copy = *sb;
             PrimitiveElement pe;
 
             if (sb->parts & SC_SpinBoxFrame)
                 qDrawWinPanel(p, sb->rect, sb->palette, true); //cstyle == Sunken);
 
             if (sb->parts & SC_SpinBoxUp) {
-                flags = Style_Default | Style_Enabled;
+                copy.parts = SC_SpinBoxUp;
+                copy.state = Style_Default | Style_Enabled;
+                QPalette pal2 = sb->palette;
+                if (!(sb->stepEnabled & QAbstractSpinBox::StepUpEnabled))
+                    pal2.setCurrentColorGroup(QPalette::Disabled);
+                copy.palette = pal2;
+
                 if (sb->activeParts == SC_SpinBoxUp) {
-                    flags |= Style_On;
-                    flags |= Style_Sunken;
+                    copy.state |= Style_On;
+                    copy.state |= Style_Sunken;
                 } else {
-                    flags |= Style_Raised;
+                    copy.state |= Style_Raised;
                 }
                 pe = (sb->buttonSymbols == QAbstractSpinBox::PlusMinus ? PE_SpinBoxPlus : PE_SpinBoxUp);
 
-                QRect re = querySubControlMetrics(CC_SpinBox, widget, SC_SpinBoxUp);
-                QPalette pal2 = sb->palette;
-                if (!(sb->stepEnabled & QAbstractSpinBox::StepUpEnabled))
-                    pal2.setCurrentColorGroup(QPalette::Disabled);
-                drawPrimitive(PE_ButtonBevel, p, re, pal2, flags);
-                drawPrimitive(pe, p, re, pal2, flags);
+                copy.rect = querySubControlMetrics(CC_SpinBox, &copy, widget);
+                drawPrimitive(PE_ButtonBevel, &copy, p, widget);
+                drawPrimitive(pe, &copy, p, widget);
             }
 
             if (sb->parts & SC_SpinBoxDown) {
-                flags = Style_Default | Style_Enabled;
+                copy.parts = SC_SpinBoxDown;
+                copy.state = Style_Default | Style_Enabled;
+                QPalette pal2 = sb->palette;
+                if (!(sb->stepEnabled & QAbstractSpinBox::StepDownEnabled))
+                    pal2.setCurrentColorGroup(QPalette::Disabled);
+                copy.palette = pal2;
+
                 if (sb->activeParts == SC_SpinBoxDown) {
-                    flags |= Style_On;
-                    flags |= Style_Sunken;
+                    copy.state |= Style_On;
+                    copy.state |= Style_Sunken;
                 } else {
-                    flags |= Style_Raised;
+                    copy.state |= Style_Raised;
                 }
                 pe = (sb->buttonSymbols == QAbstractSpinBox::PlusMinus ? PE_SpinBoxMinus : PE_SpinBoxDown);
 
-                QRect re = querySubControlMetrics(CC_SpinBox, widget, SC_SpinBoxDown);
-                QPalette pal2 = sb->palette;
-                if (!(sb->stepEnabled & QAbstractSpinBox::StepUpEnabled))
-                    pal2.setCurrentColorGroup(QPalette::Disabled);
-                drawPrimitive(PE_ButtonBevel, p, re, pal2, flags);
-                drawPrimitive(pe, p, re, pal2, flags);
+                copy.rect = sb->rect;
+                copy.rect = querySubControlMetrics(CC_SpinBox, &copy, widget);
+                drawPrimitive(PE_ButtonBevel, &copy, p, widget);
+                drawPrimitive(pe, &copy, p, widget);
             }
+
+            if (sb->parts & PE_SpinBoxSlider) {
+                copy.state = Style_Default | Style_Enabled;
+                pe = PE_SpinBoxSlider;
+                copy.parts = SC_SpinBoxSlider;
+                copy.rect = sb->rect;
+                copy.rect = querySubControlMetrics(CC_SpinBox, &copy, widget);
+                drawPrimitive(pe, &copy, p, widget);
+            }
+
         }
         break;
 
@@ -2075,7 +2109,7 @@ QRect QCommonStyle::querySubControlMetrics(ComplexControl cc, const Q4StyleOptio
                 sliderPos = positionFromValue(slider->minimum, slider->maximum,
                                               slider->sliderPosition,
                                               (horizontal ? slider->rect.width()
-                                                          : slider->rect.height()) - len,
+                                               : slider->rect.height()) - len,
                                               slider->useRightToLeft);
                 if (horizontal)
                     ret.setRect(sliderPos, tickOffset, len, thickness);
@@ -2097,7 +2131,7 @@ QRect QCommonStyle::querySubControlMetrics(ComplexControl cc, const Q4StyleOptio
         if (const Q4StyleOptionSlider *scrollbar = qt_cast<const Q4StyleOptionSlider *>(opt)) {
             int sbextent = pixelMetric(PM_ScrollBarExtent, widget);
             int maxlen = ((scrollbar->orientation == Qt::Horizontal) ?
-                    scrollbar->rect.width() : scrollbar->rect.height()) - (sbextent * 2);
+                          scrollbar->rect.width() : scrollbar->rect.height()) - (sbextent * 2);
             int sliderlen;
 
             // calculate slider length
@@ -2146,18 +2180,18 @@ QRect QCommonStyle::querySubControlMetrics(ComplexControl cc, const Q4StyleOptio
             case SC_ScrollBarAddPage:            // between bottom/right button and slider
                 if (scrollbar->orientation == Qt::Horizontal)
                     ret.setRect(sliderstart + sliderlen, 0,
-                            maxlen - sliderstart - sliderlen + sbextent, sbextent);
+                                maxlen - sliderstart - sliderlen + sbextent, sbextent);
                 else
                     ret.setRect(0, sliderstart + sliderlen, sbextent,
-                            maxlen - sliderstart - sliderlen + sbextent);
+                                maxlen - sliderstart - sliderlen + sbextent);
                 break;
             case SC_ScrollBarGroove:
                 if (scrollbar->orientation == Qt::Horizontal)
                     ret.setRect(sbextent, 0, scrollbar->rect.width() - sbextent * 2,
-                            scrollbar->rect.height());
+                                scrollbar->rect.height());
                 else
                     ret.setRect(0, sbextent, scrollbar->rect.width(),
-                            scrollbar->rect.height() - sbextent * 2);
+                                scrollbar->rect.height() - sbextent * 2);
                 break;
             case SC_ScrollBarSlider:
                 if (scrollbar->orientation == Qt::Horizontal)
@@ -2168,6 +2202,40 @@ QRect QCommonStyle::querySubControlMetrics(ComplexControl cc, const Q4StyleOptio
             }
         }
         break;
+    case CC_SpinBox:
+        if (const Q4StyleOptionSpinBox *spinbox = qt_cast<const Q4StyleOptionSpinBox *>(opt)) {
+
+            int fw = pixelMetric(PM_SpinBoxFrameWidth, widget);
+            int slider = spinbox->slider ? qMax((int)(spinbox->rect.height() / 20),
+                                                pixelMetric(PM_SpinBoxSliderHeight, widget)) : 0;
+            QSize bs;
+
+            bs.setHeight(qMax(8, spinbox->rect.height()/2 - fw));
+            bs.setWidth(qMin(bs.height() * 8 / 5, spinbox->rect.width() / 4)); // 1.6 -approximate golden mean
+            bs = bs.expandedTo(QApplication::globalStrut());
+            int y = fw;
+            int x, lx, rx;
+            x = (QApplication::reverseLayout() ? fw : spinbox->rect.width() - y - bs.width());
+            lx = (QApplication::reverseLayout() ? bs.width() + fw : fw);
+            rx = x - fw;
+            switch (opt->parts) {
+            case SC_SpinBoxUp:
+                ret = QRect(x, y, bs.width(), bs.height()); break;
+            case SC_SpinBoxDown:
+                ret = QRect(x, y + bs.height(), bs.width(), bs.height()); break;
+            case SC_SpinBoxButtonField:
+                ret = QRect(x, y, bs.width(), spinbox->rect.height() - 2*fw); break;
+            case SC_SpinBoxEditField:
+                ret = QRect(lx, fw, rx, spinbox->rect.height() - 2*fw - slider); break;
+            case SC_SpinBoxSlider:
+                ret = (slider > 0 ? QRect(lx, spinbox->rect.height() - fw - slider, rx, slider) : QRect()); break;
+            case SC_SpinBoxFrame:
+                ret = spinbox->rect;
+            default:
+                break;
+            }
+            break; }
+
     default:
         qWarning("QCommonStyle::querySubControlMetrics case not handled %d", cc);
     }
@@ -2539,35 +2607,6 @@ QRect QCommonStyle::querySubControlMetrics(ComplexControl control,
     }
 
     switch (control) {
-    case CC_SpinBox: {
-        int fw = pixelMetric(PM_SpinBoxFrameWidth, widget);
-        QSize bs;
-        bs.setHeight(widget->height()/2 - fw);
-        if (bs.height() < 8)
-            bs.setHeight(8);
-        bs.setWidth(qMin(bs.height() * 8 / 5, widget->width() / 4)); // 1.6 -approximate golden mean
-        bs = bs.expandedTo(QApplication::globalStrut());
-        int y = fw;
-        int x, lx, rx;
-        x = (QApplication::reverseLayout() ? fw : widget->width() - y - bs.width());
-        lx = (QApplication::reverseLayout() ? bs.width() + fw : fw);
-        rx = x - fw;
-        switch (sc) {
-        case SC_SpinBoxUp:
-            return QRect(x, y, bs.width(), bs.height());
-        case SC_SpinBoxDown:
-            return QRect(x, y + bs.height(), bs.width(), bs.height());
-        case SC_SpinBoxButtonField:
-            return QRect(x, y, bs.width(), widget->height() - 2*fw);
-        case SC_SpinBoxEditField:
-            return QRect(lx, fw, rx, widget->height() - 2*fw);
-        case SC_SpinBoxFrame:
-            return widget->rect();
-        default:
-            break;
-        }
-        break; }
-
     case CC_ComboBox: {
         int x = 0, y = 0, wi = widget->width(), he = widget->height();
         int xpos = x;
@@ -2994,6 +3033,7 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QWidget *widget) const
         ret = 1;
         break;
 
+    case PM_SpinBoxSliderHeight:
     case PM_MenuBarFrameWidth:
         ret = 2;
         break;
