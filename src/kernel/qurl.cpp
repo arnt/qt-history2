@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurl.cpp#61 $
+** $Id: //depot/qt/main/src/kernel/qurl.cpp#62 $
 **
 ** Implementation of QUrl class
 **
@@ -41,6 +41,14 @@ struct QUrlPrivate
     int port;
     bool cleanPathDirty;
 };
+
+static void slashify( QString& s )
+{
+    for ( int i = 0; i < (int)s.length(); i++ ) {
+	if ( s[ i ] == '\\' )
+	    s[ i ] = '/';
+    }
+}
 
 // NOT REVISED
 /*!
@@ -134,7 +142,8 @@ QUrl::QUrl( const QUrl& url, const QString& relUrl_ )
 {
     d = new QUrlPrivate;
     QString relUrl = relUrl_.stripWhiteSpace();
-
+    slashify( relUrl );
+    
     if ( !isRelativeUrl( relUrl ) ) {
 	if ( relUrl[ 0 ] == QChar( '/' ) ) {
 	    *this = url;
@@ -300,6 +309,7 @@ void QUrl::setPort( int port )
 void QUrl::setPath( const QString& path )
 {
     d->path = path;
+    slashify( d->path );
     d->cleanPathDirty = TRUE;
 }
 
@@ -394,7 +404,10 @@ void QUrl::reset()
 
 bool QUrl::parse( const QString& url )
 {
-    if ( url.isEmpty() ) {
+    QString url_( url );
+    slashify( url_ );
+    
+    if ( url_.isEmpty() ) {
 	d->isValid = FALSE;
 	return FALSE;
     }
@@ -444,18 +457,15 @@ bool QUrl::parse( const QString& url )
 
     bool relPath = FALSE;
 
-    // HACKS for windows (drives)
-    relPath = url.contains( ":\\" );
+    relPath = FALSE;
     bool forceRel = FALSE;
 
-    if ( !relPath ) {
-	// if :/ is at pos 1, we have only one letter
-	// before that separator => that's a drive letter!
-	if ( url.find( ":/" ) == 1 )
-	    relPath = forceRel = TRUE;
-    }
+    // if :/ is at pos 1, we have only one letter
+    // before that separator => that's a drive letter!
+    if ( url_.find( ":/" ) == 1 )
+	relPath = forceRel = TRUE;
 
-    int cs = url.find( ":/" );
+    int cs = url_.find( ":/" );
     table[ 4 ][ 1 ] = User;
     if ( cs == -1 || forceRel ) { // we have a relative file (no path, host, protocol, etc.)
 	table[ 0 ][ 1 ] = Path;
@@ -466,12 +476,12 @@ bool QUrl::parse( const QString& url )
 	// find the part between the protocol and the path as the meaning
 	// of that part is dependend on some chars
 	++cs;
-	while ( url[ cs ] == '/' )
+	while ( url_[ cs ] == '/' )
 	    ++cs;
-	int slash = url.find( "/", cs );
+	int slash = url_.find( "/", cs );
 	if ( slash == -1 )
-	    slash = url.length() - 1;
-	QString tmp = url.mid( cs, slash - cs + 1 );
+	    slash = url_.length() - 1;
+	QString tmp = url_.mid( cs, slash - cs + 1 );
 	
 	if ( !tmp.isEmpty() ) { // if this part exists
 	
@@ -483,7 +493,7 @@ bool QUrl::parse( const QString& url )
 	    // host[:port], so directly after the protocol the host starts,
 	    // or if the protocol is file, it´s the path
 	    if ( at == -1 ) {
-		if ( url.left( 4 ) == "file" )
+		if ( url_.left( 4 ) == "file" )
 		    table[ 4 ][ 1 ] = Path;
 		else
 		    table[ 4 ][ 1 ] = Host;
@@ -494,7 +504,7 @@ bool QUrl::parse( const QString& url )
     int state = Init; // parse state
     int input; // input token
 
-    QChar c = url[ 0 ];
+    QChar c = url_[ 0 ];
     int i = 0;
     QString port;
 
@@ -557,9 +567,9 @@ bool QUrl::parse( const QString& url )
 	}
 	
 	++i;
-	if ( i > (int)url.length() - 1 || state == Done || state == 0 )
+	if ( i > (int)url_.length() - 1 || state == Done || state == 0 )
 	    break;
-	c = url[ i ];
+	c = url_[ i ];
 	
     }
 
@@ -569,7 +579,7 @@ bool QUrl::parse( const QString& url )
     }
 
     // error
-    if ( i < (int)url.length() - 1 ) {
+    if ( i < (int)url_.length() - 1 ) {
 	d->isValid = FALSE;
 	return FALSE;
     }
@@ -580,6 +590,10 @@ bool QUrl::parse( const QString& url )
 
     if ( d->path.isEmpty() )
 	d->path = "/";
+    
+    // hack for windows
+    if ( d->path.length() == 2 && d->path[ 1 ] == ':' )
+	d->path += "/";
 
     // #### do some corrections, should be done nicer too
     if ( !d->pass.isEmpty() && d->pass[ 0 ] == ':' )
@@ -685,8 +699,9 @@ bool QUrl::operator==( const QString& url ) const
 
 void QUrl::setFileName( const QString& name )
 {
-    QString fn = name;
-
+    QString fn( name );
+    slashify( fn );
+    
     while ( fn[ 0 ] == '/' )
 	fn.remove( 0, 1 );
 
@@ -811,14 +826,17 @@ QString QUrl::fileName() const
 }
 
 /*!
-  Adds the path \a p to the path or the URL.
+  Adds the path \a pa to the path or the URL.
 */
 
-void QUrl::addPath( const QString& p )
+void QUrl::addPath( const QString& pa )
 {
-    if ( p.isEmpty() )
+    if ( pa.isEmpty() )
 	return;
 
+    QString p( pa );
+    slashify( p );
+    
     d->cleanPathDirty = TRUE;
     if ( d->path.isEmpty() ) {
 	if ( p[ 0 ] != QChar( '/' ) )

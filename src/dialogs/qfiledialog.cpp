@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#361 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#362 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1410,8 +1410,10 @@ QString QFileDialogPrivate::File::text( int column ) const
 	char a[256];
 	time_t t1 = epoch.secsTo( info.lastModified() );
 	struct tm * t2 = ::localtime( &t1 );
+#if !defined(_WS_WIN_)
 	if ( t2->tm_hour != info.lastModified().time().hour() )
 	    t2->tm_hour = info.lastModified().time().hour();
+#endif
 	// use a static const char here, so that egcs will not see
 	// the formatting string and give an incorrect warning.
 	if ( t2 && strftime( a, 255, egcsWorkaround, t2 ) > 0 )
@@ -3958,7 +3960,7 @@ void QFileDialog::itemChanged( QNetworkOperation *op )
 {
     if ( !op )
 	return;
-    
+
     QUrlInfo *i = 0;
     QListViewItemIterator it( files );
     bool ok1 = FALSE, ok2 = FALSE;
