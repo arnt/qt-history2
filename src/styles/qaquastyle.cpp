@@ -535,11 +535,11 @@ void QAquaStyle::drawPrimitive( PrimitiveElement pe,
 	    else
 		qAquaPixmap("chk_act_f", px);
 	}
-	p->drawPixmap( r.x(), r.y(), px );
+	p->drawPixmap( r.x(), r.y(), px, 0, 2 ); //2
 	break; }
 
     case PE_IndicatorMask: {
-	p->fillRect(r.x(), r.y()+2, r.width(), r.height(), color1);
+	p->fillRect(r.x(), r.y()+1, r.width(), r.height()-2, color1);
 	break; }
 
     case PE_ExclusiveIndicator: {
@@ -562,14 +562,14 @@ void QAquaStyle::drawPrimitive( PrimitiveElement pe,
 	    else
 		qAquaPixmap("radio_f", px);
 	}
-	p->drawPixmap( r.x(), r.y(), px );
+	p->drawPixmap( r.x(), r.y(), px, 0, 1 );
 	break; }
 
     case PE_ExclusiveIndicatorMask: {
 	QBitmap radio_mask( aqua_radio_mask_xbm_width,
 			    aqua_radio_mask_xbm_height,
 			    (const uchar *) aqua_radio_mask_xbm_bits, TRUE );
-	p->drawPixmap( r.x(), r.y()+3, radio_mask );
+	p->drawPixmap( r.x(), r.y()+1, radio_mask, 0, 1 );
 	break; }
 
 #ifndef QT_NO_SCROLLBAR
