@@ -1,7 +1,7 @@
 NYE KLASSER
 -----------
 
-- en fin Interator-klasse som alle de andre interatorene arver
+- en fin Iterator-klasse som alle de andre iteratorene arver
 
 
 DESIGNENDRINGER
@@ -31,6 +31,6 @@ ENDRINGER UTSATT PGA BINAERKOMPATIBILITET
 
 QPaintDevice::x__Display() -> x11Display()
 QLineEdit QLineEdit QLineEdit QLineEdit QLineEdit
-QComboBox endres for ny lineedit
+Alle set*() virtual, slik at subklasser kan sørge for sine invarianter
 
 
