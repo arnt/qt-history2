@@ -1909,7 +1909,7 @@ QPtrList<QToolBar> QMainWindow::toolBars( Dock dock ) const
     Returns a list of all the dock windows which are in the \a dock
     dock area, regardless of their state.
 
-    For example, the \c TornOff dock area may contain closed dock
+    For example, the \c DockTornOff dock area may contain closed dock
     windows but these are returned along with the visible dock
     windows.
 */
