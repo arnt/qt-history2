@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtextview.h#1 $
+** $Id: //depot/qt/main/src/widgets/qtextview.h#2 $
 **
 ** Definition of the QTextView class
 **
@@ -45,8 +45,8 @@ public:
     QTextView( const QString& doc, QWidget *parent=0, const char *name=0);
     ~QTextView();
 
-    virtual void setContents( const QString& contents);
-    virtual QString contents() const;
+    virtual void setText( const QString& contents);
+    virtual QString text() const;
 
     QStyleSheet* styleSheet() const;
     void setStyleSheet( QStyleSheet* styleSheet );
@@ -69,6 +69,7 @@ public:
 protected:
     void drawContentsOffset(QPainter*, int ox, int oy,
 			    int cx, int cy, int cw, int ch);
+    void resizeEvent(QResizeEvent*);
     void viewportResizeEvent(QResizeEvent*);
     void viewportMousePressEvent( QMouseEvent* );
     void viewportMouseReleaseEvent( QMouseEvent* );
@@ -98,8 +99,8 @@ public:
     QTextEdit(QWidget *parent=0, const char *name=0);
     ~QTextEdit();
 
-    void setContents( const QString& contents );
-    QString contents();
+    void setText( const QString& contents );
+    QString text();
 
 protected:
     void drawContentsOffset(QPainter*, int ox, int oy,

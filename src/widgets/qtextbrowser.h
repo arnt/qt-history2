@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtextbrowser.h#1 $
+** $Id: //depot/qt/main/src/widgets/qtextbrowser.h#2 $
 **
 ** Definition of the QTextBrowser class
 **
@@ -44,7 +44,7 @@ public:
 
     virtual void setDocument(const QString& name);
 
-    void setContents( const QString& contents );
+    void setText( const QString& contents );
 
     void scrollToAnchor(const QString& name);
 
@@ -58,7 +58,7 @@ signals:
     void backwardAvailable( bool );
     void forwardAvailable( bool );
     void highlighted( const QString& );
-    void contentsChanged();
+    void textChanged();
 
 protected:
     void viewportMousePressEvent( QMouseEvent* );

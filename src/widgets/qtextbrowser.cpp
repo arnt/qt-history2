@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtextbrowser.cpp#2 $
+** $Id: //depot/qt/main/src/widgets/qtextbrowser.cpp#3 $
 **
 ** Implementation of the QTextView class
 **
@@ -143,7 +143,7 @@ void QTextBrowser::setDocument(const QString& name)
 	    }
 	}
 	d->curmain = main;
-	setContents( doc );
+	setText( doc );
     }
 
     if ( d->stack.isEmpty() || *d->stack.top() != url) {
@@ -164,13 +164,13 @@ void QTextBrowser::setDocument(const QString& name)
 }
 
 /*!
-  Sets the contents of the browser to \a contents, and emits the
-  contentsChanged() signal.
+  Sets the contents of the browser to \a text, and emits the
+  textChanged() signal.
 */
-void QTextBrowser::setContents( const QString& contents )
+void QTextBrowser::setText( const QString& text )
 {
-    QTextView::setContents( contents );
-    emit contentsChanged();
+    QTextView::setText( text );
+    emit textChanged();
 }
 
 /*!
@@ -196,8 +196,8 @@ void QTextBrowser::setContents( const QString& contents )
 */
 
 /*!
-  \fn void QTextBrowser::contentsChanged()
-  This signal is emitted whenever the setContents() changes the
+  \fn void QTextBrowser::textChanged()
+  This signal is emitted whenever the setText() changes the
   contents (eg. because the user clicked on a link).
 */
 

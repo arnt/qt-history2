@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtextview.cpp#2 $
+** $Id: //depot/qt/main/src/widgets/qtextview.cpp#3 $
 **
 ** Implementation of the QTextView class
 **
@@ -97,7 +97,8 @@ void QTextView::init()
 
     setKeyCompression( TRUE );
     setVScrollBarMode( QScrollView::Auto );
-    setHScrollBarMode( AlwaysOff );
+    setHScrollBarMode( QScrollView::Auto );
+//     setHScrollBarMode( AlwaysOff );
 
     d->doc_ = 0;
     d->sheet_ = 0;
@@ -122,7 +123,7 @@ QTextView::~QTextView()
 
   \sa contents()
 */
-void QTextView::setContents( const QString& doc)
+void QTextView::setText( const QString& doc)
 {
     delete d->doc_;
     d->doc_ = 0;
@@ -142,7 +143,7 @@ void QTextView::setContents( const QString& doc)
 	     currentDocument().width + /*###*/ 16 /*###*/ > vs.width() )
 	    currentDocument().setWidth( p, vs.width()-16 );
 	delete p;
-	resizeContents( currentDocument().width, currentDocument().height );
+	resizeContents( QMAX( currentDocument().realWidth, currentDocument().width), currentDocument().height );
 	viewport()->update();
 	viewport()->setCursor( arrowCursor );
     }
@@ -154,7 +155,7 @@ void QTextView::setContents( const QString& doc)
 
   \sa setContents()
 */
-QString QTextView::contents() const
+QString QTextView::text() const
 {
     return d->txt;
 }
@@ -340,13 +341,23 @@ void QTextView::drawContentsOffset(QPainter* p, int ox, int oy,
 */
 void QTextView::viewportResizeEvent(QResizeEvent* )
 {
+}
+
+
+/*!
+  \reimp
+*/
+void QTextView::resizeEvent( QResizeEvent* e )
+{
+    QSize vw = viewportSize( QMAX( currentDocument().realWidth, currentDocument().width), currentDocument().height );
     {
 	QPainter p( this );
-	currentDocument().setWidth(&p, viewport()->width());
+	currentDocument().setWidth( &p, vw.width() );
     }
-    resizeContents(currentDocument().width, currentDocument().height);
-    viewport()->update();
+    resizeContents( QMAX( currentDocument().realWidth, currentDocument().width), currentDocument().height );
+    QScrollView::resizeEvent( e );
 }
+
 
 /*!
   \reimp
@@ -436,7 +447,7 @@ QTextEdit::~QTextEdit()
 /*!
   reimplemented for internal purposes
  */
-void QTextEdit::setContents( const QString& contents)
+void QTextEdit::setText( const QString& contents)
 {
     QTextView::setContents( contents );
     delete cursor;
@@ -446,7 +457,7 @@ void QTextEdit::setContents( const QString& contents)
 /*!
   Make a tree dump
  */
-QString QTextEdit::contents()
+QString QTextEdit::text()
 {
     debug("not yet implemented");
     return "not yet implemented";
@@ -722,7 +733,7 @@ void QTextEdit::updateScreen()
 	    p.fillRect(0, 0, viewport()->width(), viewport()->height(), paper());
     }
     showCursor();
-    resizeContents(currentDocument().width, currentDocument().height);
+    resizeContents( QMAX( currentDocument().realWidth, currentDocument().width(), currentDocument().height );
     ensureVisible(cursor->x, cursor->y);
 }
 
