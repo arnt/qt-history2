@@ -3496,12 +3496,14 @@ void QListView::keyPressEvent( QKeyEvent * e )
     if ( !i )
 	return;
 
-    if ( i->isSelectable() &&
-	 ((e->state() & ShiftButton) || !isMultiSelection()) )
-	setSelected( i, d->currentSelected
-		     ? d->currentSelected->isSelected()
-		     : TRUE );
-
+    if ( i->isSelectable() && d->selectionMode != NoSelection ) {
+	if ( d->selectionMode == Single ) {
+	    clearSelection();
+	    setSelected( i, TRUE );
+	} else  if ( e->state() & ShiftButton ) {
+	    setSelected( i, !i->isSelected() );
+	}
+    }
     setCurrentItem( i );
     if ( singleStep )
 	d->visibleTimer->start( 1, TRUE );
@@ -3747,7 +3749,7 @@ QListViewItem * QListView::selectedItem() const
 
 void QListView::setCurrentItem( QListViewItem * i )
 {
-    if ( !i && firstChild() && firstChild() && 
+    if ( !i && firstChild() && firstChild() &&
 	 ( firstChild()->firstChild() || firstChild()->nextSibling() ) )
 	return;
 
