@@ -244,7 +244,6 @@ public:
 
 	// End
 	NScripts,
-	AnyScript = NScripts,
 	UnknownScript = NScripts,
 
 	NoScript
