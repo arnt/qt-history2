@@ -588,7 +588,7 @@ QRect QTableView::selectionViewportRect(const QItemSelection &selection) const
     int topPos = rowViewportPosition(topRow);
     int rightPos = columnViewportPosition(rightCol) + columnWidth(rightCol);
     int bottomPos = rowViewportPosition(bottomRow) + rowHeight(bottomRow);
-    
+
     QRect rect(leftPos, topPos, rightPos - leftPos, bottomPos - topPos);
     return rect.normalize();
 }
@@ -993,8 +993,9 @@ void QTableView::selectRow(int row, Qt::ButtonState state)
             selectionModel()->setCurrentIndex(index, QItemSelectionModel::NoUpdate);
             if ((command & QItemSelectionModel::Current) == 0)
                 d->rowSectionAnchor = row;
-            QModelIndex tl = model()->index(d->rowSectionAnchor, 0, root());
-            QModelIndex br = model()->index(row, model()->columnCount(root()) - 1, root());
+            QModelIndex tl = model()->index(qMin(d->rowSectionAnchor, row), 0, root());
+            QModelIndex br = model()->index(qMax(d->rowSectionAnchor, row),
+                                            model()->columnCount(root()) - 1, root());
             selectionModel()->select(QItemSelection(tl, br, model()), command);
         }
     }
@@ -1018,8 +1019,9 @@ void QTableView::selectColumn(int column, Qt::ButtonState state)
             selectionModel()->setCurrentIndex(index, QItemSelectionModel::NoUpdate);
             if ((command & QItemSelectionModel::Current) == 0)
                 d->columnSectionAnchor = column;
-            QModelIndex tl = model()->index(0, d->columnSectionAnchor, root());
-            QModelIndex br = model()->index(model()->rowCount(root()) - 1, column, root());
+            QModelIndex tl = model()->index(0, qMin(d->columnSectionAnchor, column), root());
+            QModelIndex br = model()->index(model()->rowCount(root()) - 1,
+                                            qMax(d->columnSectionAnchor, column), root());
             selectionModel()->select(QItemSelection(tl, br, model()), command);
         }
     }
