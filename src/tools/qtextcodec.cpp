@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#28 $
+** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#29 $
 **
 ** Implementation of QTextCodec class
 **
@@ -952,7 +952,7 @@ private:
 };
 
 
-static char * iso88599mustbelast = "ISO 8859-9";
+static const char * iso88599mustbelast = "ISO 8859-9";
 
 static struct {
     const char * cs;
