@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#95 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#96 $
 **
 ** Definition of QPainter class
 **
@@ -113,9 +113,11 @@ public:
     QPoint	xForm( const QPoint & ) const;	// map virtual -> device
     QRect	xForm( const QRect & )	const;
     QPointArray xForm( const QPointArray & ) const;
+    QPointArray xForm( const QPointArray &, int index, int npoints ) const;
     QPoint	xFormDev( const QPoint & ) const; // map device -> virtual
     QRect	xFormDev( const QRect & )  const;
     QPointArray xFormDev( const QPointArray & ) const;
+    QPointArray xFormDev( const QPointArray &, int index, int npoints ) const;
 
   // Clipping
 
