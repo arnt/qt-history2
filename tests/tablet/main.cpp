@@ -9,22 +9,29 @@
 *****************************************************************************/
 
 #include "scribble.h"
+#include "tabletstats.h"
 #include <qapplication.h>
+#include <qtabwidget.h>
 
 
 int main( int argc, char **argv )
 {
     QApplication a( argc, argv );
+	QTabWidget tab;
+    Scribble scribble(&tab, "scribble");
+	TabletStats tabStats( &tab, "tablet stats" );
+	
 
-    Scribble scribble;
-
-    scribble.resize( 500, 350 );
+    scribble.setMinimumSize( 500, 350 );
+	tabStats.setMinimumSize( 500, 350 );
+	tab.addTab(&scribble, "Scribble" );
+	tab.addTab(&tabStats, "Tablet Stats" );
     
-    a.setMainWidget( &scribble );
+    a.setMainWidget( &tab );
     if ( QApplication::desktop()->width() > 550
 	 && QApplication::desktop()->height() > 366 )
-	scribble.show();
+	tab.show();
     else
-	scribble.showMaximized();
+	tab.showMaximized();
     return a.exec();
 }
