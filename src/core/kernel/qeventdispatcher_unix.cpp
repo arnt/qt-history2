@@ -313,14 +313,14 @@ void QEventDispatcherUNIXPrivate::timerRepair(const timeval &time)
 */
 bool QEventDispatcherUNIXPrivate::timerWait(timeval &tm)
 {
-    if (!timerList || timerList->isEmpty())
-        return false;
-
     timeval currentTime;
     getTime(currentTime);
     if (currentTime < watchtime)        // clock was turned back
         timerRepair(currentTime);
     watchtime = currentTime;
+
+    if (!timerList || timerList->isEmpty())
+        return false;
 
     QTimerInfo *t = timerList->first();        // first waiting timer
     if (currentTime < t->timeout) {
@@ -348,7 +348,27 @@ QEventDispatcherUNIX::~QEventDispatcherUNIX()
 
 int QEventDispatcherUNIX::select(int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds,
                                  timeval *timeout)
-{ return ::select(nfds, readfds, writefds, exceptfds, timeout); }
+{
+    Q_D(QEventDispatcherUNIX);
+    if (timeout) {
+        // handle the case where select returns with a timeout, too
+        // soon.
+        timeval tvStart = d->watchtime;
+        timeval tvCurrent = tvStart;
+        timeval originalTimeout = *timeout;
+
+        int nsel;
+        do {
+            timeval tvRest = originalTimeout + tvStart - tvCurrent;
+            nsel = ::select(nfds, readfds, writefds, exceptfds, &tvRest);
+            getTime(tvCurrent);
+        } while (nsel == 0 && (tvCurrent - tvStart) < originalTimeout);
+
+        return nsel;
+    }
+
+    return ::select(nfds, readfds, writefds, exceptfds, timeout);
+}
 
 /*!
     \internal
