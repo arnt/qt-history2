@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#320 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#321 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -398,7 +398,6 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
     if ( testWFlags(WType_Desktop) )
 	old_winid = 0;
     setWinId( 0 );
-
     reparentFocusWidgets( parent );		// fix focus chains
 
     if ( parentObj ) {				// remove from parent
@@ -411,6 +410,7 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 	qApp->noteTopLevel(this);
     }
     bool     enable = isEnabled();		// remember status
+    FocusPolicy fp = focusPolicy();
     QSize    s	    = size();
     QPixmap *bgp    = (QPixmap *)backgroundPixmap();
     QColor   bgc    = bg_col;			// save colors
@@ -438,6 +438,7 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 	XSetWindowBackground( dpy, winid, bgc.pixel() );
     setGeometry( p.x(), p.y(), s.width(), s.height() );
     setEnabled( enable );
+    setFocusPolicy( fp );
     if ( !capt.isNull() ) {
 	extra->topextra->caption = QString::null;
 	setCaption( capt );

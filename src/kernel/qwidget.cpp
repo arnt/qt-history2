@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#338 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#339 $
 **
 ** Implementation of QWidget class
 **
@@ -2047,13 +2047,14 @@ void QWidget::setFocusProxy( QWidget * w )
 
     createExtra();
 
-    if ( extra->focus_proxy )
+    if ( extra->focus_proxy ) {
 	disconnect( extra->focus_proxy, SIGNAL(destroyed()),
 		    this, SLOT(focusProxyDestroyed()) );
+	extra->focus_proxy = 0;
+    }
 
     if ( w ) {
 	w->setFocusPolicy( focusPolicy() );
-	extra->focus_proxy = 0;
 	setFocusPolicy( NoFocus );
 	extra->focus_proxy = w;
 	connect( extra->focus_proxy, SIGNAL(destroyed()),
@@ -2101,7 +2102,10 @@ void QWidget::focusProxyDestroyed()
 
 bool QWidget::hasFocus() const
 {
-    return qApp->focusWidget() == (focusProxy() ? focusProxy() : this);
+    const QWidget* w = this;
+    while ( w->focusProxy() )
+	w = w->focusProxy();
+    return qApp->focusWidget() == w;
 }
 
 /*!
@@ -2131,8 +2135,11 @@ void QWidget::setFocus()
     if ( !isEnabled() )
 	return;
 
-    if ( focusProxy() ) {
-	focusProxy()->setFocus();
+    QWidget* w = focusProxy();
+    if (w) {
+	while ( w->focusProxy() )
+	    w = w->focusProxy();
+	w->setFocus();
 	return;
     }
 
@@ -2194,10 +2201,14 @@ void QWidget::setFocus()
 
 void QWidget::clearFocus()
 {
-    if ( focusProxy() ) {
-	focusProxy()->clearFocus();
+    QWidget* w = focusProxy();
+    while ( w && w->focusProxy() )
+	w = w->focusProxy();
+    if ( w ) {
+	w->clearFocus();
+	return;
     } else {
-	QWidget * w = qApp->focusWidget();
+	w = qApp->focusWidget();
 	if ( w && w->focusWidget() == this ) {
 	    // clear active focus
 	    qApp->focus_widget = 0;
