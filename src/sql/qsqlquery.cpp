@@ -495,7 +495,7 @@ bool QSqlQuery::seek( int i, bool relative )
 	afterSeek();
 	return FALSE;
     }
-    if ( actualIdx == ( at() + 1 ) ) {
+    if ( actualIdx == ( at() + 1 ) && at() != QSql::BeforeFirst ) {
 	if ( !d->sqlResult->fetchNext() ) {
 	    d->sqlResult->setAt( QSql::AfterLast );
 	    afterSeek();
