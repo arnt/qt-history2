@@ -18,6 +18,7 @@
 #include <qregexp.h>
 #include <qstring.h>
 #include <qtextstream.h>
+#include <qvaluestack.h>
 
 #include <ctype.h>
 #include <errno.h>
@@ -44,7 +45,7 @@ static QMap<QCString, int> lacks_Q_OBJECT;
 	  return 0;
       }
 
-  is broken down into the following tokens:
+  is broken down into the following tokens (Tok_ omitted):
 
       Ident Ident LeftParen RightParen
       LeftBrace
@@ -52,7 +53,7 @@ static QMap<QCString, int> lacks_Q_OBJECT;
 	  return Semicolon
       RightBrace.
 
-  Notice that the 0 doesn't produce any token.
+  The 0 doesn't produce any token.
 */
 
 enum { Tok_Eof, Tok_class, Tok_namespace, Tok_return, Tok_tr,
@@ -73,6 +74,7 @@ static char yyComment[65536];
 static size_t yyCommentLen;
 static char yyString[16384];
 static size_t yyStringLen;
+static QValueStack<int> yySavedBraceDepth;
 static int yyBraceDepth;
 static int yyParenDepth;
 static int yyLineNo;
@@ -111,6 +113,7 @@ static void startTokenizer( const char *fileName, int (*getCharFunc)() )
 
     yyFileName = fileName;
     yyCh = getChar();
+    yySavedBraceDepth.clear();
     yyBraceDepth = 0;
     yyParenDepth = 0;
     yyCurLineNo = 1;
@@ -169,16 +172,65 @@ static int getToken()
 		    return Tok_class;
 		break;
 	    case 't':
-		if ( strcmp(yyIdent + 1, "r") == 0 )
+		if ( strcmp(yyIdent + 1, "r") == 0 ) {
 		    return Tok_tr;
-		else if ( qstrcmp(yyIdent + 1, "rUtf8") == 0 )
+		} else if ( qstrcmp(yyIdent + 1, "rUtf8") == 0 ) {
 		    return Tok_trUtf8;
-		else if ( qstrcmp(yyIdent + 1, "ranslate") == 0 )
+		} else if ( qstrcmp(yyIdent + 1, "ranslate") == 0 ) {
 		    return Tok_translate;
+		}
 	    }
 	    return Tok_Ident;
 	} else {
 	    switch ( yyCh ) {
+	    case '#':
+		/*
+		  Early versions of lupdate complained about
+		  unbalanced braces in the following code:
+
+		      #ifdef ALPHA
+			  while ( beta ) {
+		      #else
+			  while ( gamma ) {
+		      #endif
+			      delta;
+			  }
+
+		  The code contains, indeed, two opening braces for
+		  one closing brace; yet there's no reason to panic.
+
+		  The solution is to remember yyBraceDepth as it was
+		  when #if, #ifdef or #ifndef was met, and to set
+		  yyBraceDepth to that value when meeting #elif or
+		  #else.
+		*/
+		do {
+		    yyCh = getChar();
+		} while ( isspace(yyCh) && yyCh != '\n' );
+
+		switch ( yyCh ) {
+		case 'i':
+		    yyCh = getChar();
+		    if ( yyCh == 'f' ) {
+			// if, ifdef, ifndef
+			yySavedBraceDepth.push( yyBraceDepth );
+		    }
+		    break;
+		case 'e':
+		    yyCh = getChar();
+		    if ( yyCh == 'l' ) {
+			// elif, else
+			if ( !yySavedBraceDepth.isEmpty() )
+			    yyBraceDepth = yySavedBraceDepth.top();
+		    } else if ( yyCh == 'n' ) {
+			// endif
+			if ( !yySavedBraceDepth.isEmpty() )
+			    yySavedBraceDepth.pop();
+		    }
+		}
+		while ( isalnum(yyCh) || yyCh == '_' )
+		    yyCh = getChar();
+		break;
 	    case '/':
 		yyCh = getChar();
 		if ( yyCh == '/' ) {
@@ -576,7 +628,7 @@ void fetchtr_cpp( const char *fileName, MetaTranslator *tor,
     if ( yyInFile == 0 ) {
 	if ( mustExist )
 	    fprintf( stderr,
-		     "lupdate error: cannot open C++ source file '%s': %s\n",
+		     "lupdate error: Cannot open C++ source file '%s': %s\n",
 		     fileName, strerror(errno) );
 	return;
     }
