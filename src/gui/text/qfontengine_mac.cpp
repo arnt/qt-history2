@@ -470,36 +470,34 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
             q_ctx = QMacCGContext(pixmap);
         }
         ctx = static_cast<CGContextRef>(q_ctx);
-    } else {
+    } else if(p && p->type() == QPaintEngine::QuickDraw) {
         QRegion rgn;
-        if(p && p->type() == QPaintEngine::QuickDraw) {
-            QPoint pt;
-            static_cast<QQuickDrawPaintEngine *>(p)->setupQDPort(false, &pt, &rgn);
-            x += pt.x();
-            y += pt.y();
-            ATSUFontID fond;
-            ATSUFONDtoFontID(fontref, 0, &fond);
-            TextFont(fond);
+        QPoint pt;
+        static_cast<QQuickDrawPaintEngine *>(p)->setupQDPort(false, &pt, &rgn);
+        x += pt.x();
+        y += pt.y();
+        ATSUFontID fond;
+        ATSUFONDtoFontID(fontref, 0, &fond);
+        TextFont(fond);
 
-            GetGWorld(&ctx_port, 0);
-            if(OSStatus err = QDBeginCGContext(ctx_port, &ctx)) {
-                qWarning("Qt: internal: WH0A, QDBeginCGContext(%ld) failed. %s:%d", err, __FILE__, __LINE__);
-                return 0;
-            }
-            if(task & DRAW) {
-                Rect clipr;
-                GetPortBounds(ctx_port, &clipr);
-                ClipCGContextToRegion(ctx, &clipr, rgn.handle(true));
-            }
-        } else {
-            Q_ASSERT(!(task & DRAW));
-            static QPixmap *pixmap = 0;
-            if(!pixmap)
-                pixmap = new QPixmap(1, 1, 32);
-            QMacSavedPortInfo::setPaintDevice(pixmap);
-            q_ctx = QMacCGContext(pixmap);
-            ctx = static_cast<CGContextRef>(q_ctx);
+        GetGWorld(&ctx_port, 0);
+        if(OSStatus err = QDBeginCGContext(ctx_port, &ctx)) {
+            qWarning("Qt: internal: WH0A, QDBeginCGContext(%ld) failed. %s:%d", err, __FILE__, __LINE__);
+            return 0;
         }
+        if(task & DRAW) {
+            Rect clipr;
+            GetPortBounds(ctx_port, &clipr);
+            ClipCGContextToRegion(ctx, &clipr, rgn.handle(true));
+        }
+    } else {
+        Q_ASSERT(!(task & DRAW));
+        static QPixmap *pixmap = 0;
+        if(!pixmap)
+            pixmap = new QPixmap(1, 1, 32);
+        QMacSavedPortInfo::setPaintDevice(pixmap);
+        q_ctx = QMacCGContext(pixmap);
+        ctx = static_cast<CGContextRef>(q_ctx);
     }
     valueSizes[arr] = sizeof(ctx);
     values[arr] = &ctx;
