@@ -12,6 +12,9 @@
 ****************************************************************************/
 
 #include "listwidget_taskmenu.h"
+
+#include <abstractformwindow.h>
+
 #include <QListWidget>
 #include <QAction>
 
@@ -25,7 +28,7 @@ public:
 ListWidgetEditor::ListWidgetEditor(QListWidget *listWidget)
     : QListWidget(listWidget)
 {
-    setParent(listWidget, (Qt::WType_Dialog | Qt::WStyle_Tool) & ~Qt::WStyle_MinMax);
+    setParent(listWidget, Qt::WStyle_Tool | Qt::WType_TopLevel);
 
     setDragEnabled(true);
     setAcceptDrops(false);
@@ -45,7 +48,7 @@ ListWidgetEditor::ListWidgetEditor(QListWidget *listWidget)
     item->setFlags(item->flags() | QAbstractItemModel::ItemIsDragEnabled);
 
     item = new QListWidgetItem(tr("Item with an icon"), this);
-    item->setIcon(QIcon(":/trolltech/logo.png"));
+    item->setIcon(QIcon(":/trolltech/formeditor/images/qtlogo.png"));
     item->setFlags(item->flags() | QAbstractItemModel::ItemIsDragEnabled);
 }
 
@@ -78,13 +81,16 @@ QList<QAction*> ListWidgetTaskMenu::taskActions() const
 
 void ListWidgetTaskMenu::editItems()
 {
-    if (!m_editor) {
-        m_editor = new ListWidgetEditor(listWidget());
-    }
+    Q_ASSERT(m_editor == 0);
 
-    return m_editor->show();
+    if (AbstractFormWindow *formWindow = AbstractFormWindow::findFormWindow(listWidget())) {
+        m_editor = new ListWidgetEditor(listWidget());
+        connect(formWindow, SIGNAL(selectionChanged()), m_editor, SLOT(deleteLater()));
+        m_editor->show();
+    }
 }
 
+// ---- ListWidgetTaskMenuFactory ----
 ListWidgetTaskMenuFactory::ListWidgetTaskMenuFactory(QExtensionManager *extensionManager)
     : DefaultExtensionFactory(extensionManager)
 {
@@ -101,7 +107,6 @@ QObject *ListWidgetTaskMenuFactory::createExtension(QObject *object, const QStri
 
     return 0;
 }
-
 
 
 #include "listwidget_taskmenu.moc"
