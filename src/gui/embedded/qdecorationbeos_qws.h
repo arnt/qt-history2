@@ -14,9 +14,7 @@
 #ifndef QDECORATIONBEOS_QWS_H
 #define QDECORATIONBEOS_QWS_H
 
-#ifndef QT_H
 #include "qdecorationdefault_qws.h"
-#endif // QT_H
 
 #if !defined(QT_NO_QWS_DECORATION_BEOS) || defined(QT_PLUGIN)
 

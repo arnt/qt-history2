@@ -14,10 +14,8 @@
 #ifndef QSIGNAL_H
 #define QSIGNAL_H
 
-#ifndef QT_H
 #include "qobject.h"
 #include "qmetaobject.h"
-#endif // QT_H
 
 
 // internal helper class for QSignal

@@ -14,8 +14,6 @@
 #ifndef QGFXMACH64DEFS_QWS_H
 #define QGFXMACH64DEFS_QWS_H
 
-#ifndef QT_H
-#endif // QT_H
 
 #define GEN_TEST_CNTL 0x00d0
 #define FIFO_STAT 0x0310

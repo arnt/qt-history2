@@ -14,12 +14,10 @@
 #ifndef QFONTENGINE_P_H
 #define QFONTENGINE_P_H
 
-#ifndef QT_H
 #include "qatomic.h"
 #include "qglobal.h"
 #include "qtextengine_p.h"
 #include "qfontdata_p.h"
-#endif // QT_H
 
 #ifdef Q_WS_WIN
 #include "qt_windows.h"

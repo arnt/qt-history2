@@ -14,9 +14,7 @@
 #ifndef QTABLEVIEW_H
 #define QTABLEVIEW_H
 
-#ifndef QT_H
 #include <qabstractitemview.h>
-#endif
 
 class QHeaderView;
 class QTableViewPrivate;

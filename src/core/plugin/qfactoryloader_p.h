@@ -14,12 +14,10 @@
 #ifndef QFACTORYLOADER_P_H
 #define QFACTORYLOADER_P_H
 
-#ifndef QT_H
 #include <qobject.h>
 #include <qmap.h>
 #include <qstringlist.h>
 #include "qlibrary_p.h"
-#endif // QT_H
 class QFactoryLoaderPrivate;
 
 class Q_CORE_EXPORT QFactoryLoader : public QObject

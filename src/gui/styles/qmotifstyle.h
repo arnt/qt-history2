@@ -14,9 +14,7 @@
 #ifndef QMOTIFSTYLE_H
 #define QMOTIFSTYLE_H
 
-#ifndef QT_H
 #include "qcommonstyle.h"
-#endif // QT_H
 
 #if !defined(QT_NO_STYLE_MOTIF) || defined(QT_PLUGIN)
 

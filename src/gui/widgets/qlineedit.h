@@ -17,10 +17,8 @@
 class QValidator;
 class QMenu;
 
-#ifndef QT_H
 #include "qframe.h"
 #include "qstring.h"
-#endif // QT_H
 
 #ifndef QT_NO_LINEEDIT
 

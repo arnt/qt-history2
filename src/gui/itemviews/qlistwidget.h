@@ -14,9 +14,7 @@
 #ifndef QLISTWIDGET_H
 #define QLISTWIDGET_H
 
-#ifndef QT_H
 #include <qlistview.h>
-#endif
 
 class QListWidget;
 

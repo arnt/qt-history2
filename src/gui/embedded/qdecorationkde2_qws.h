@@ -14,9 +14,7 @@
 #ifndef QDECORATIONKDE2_QWS_H
 #define QDECORATIONKDE2_QWS_H
 
-#ifndef QT_H
 #include "qdecorationdefault_qws.h"
-#endif // QT_H
 
 #if !defined(QT_NO_QWS_DECORATION_KDE2) || defined(QT_PLUGIN)
 

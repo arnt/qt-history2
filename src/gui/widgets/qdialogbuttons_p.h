@@ -14,9 +14,7 @@
 #ifndef QDIALOGBUTTONS_P_H
 #define QDIALOGBUTTONS_P_H
 
-#ifndef QT_H
 #include "qwidget.h"
-#endif // QT_H
 
 #ifndef QT_NO_DIALOGBUTTONS
 struct QDialogButtonsPrivate;

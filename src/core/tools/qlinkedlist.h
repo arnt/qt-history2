@@ -14,11 +14,9 @@
 #ifndef QLINKEDLIST_H
 #define QLINKEDLIST_H
 
-#ifndef QT_H
 #include "qglobal.h"
 #include "qiterator.h"
 #include "qatomic.h"
-#endif // QT_H
 
 struct Q_CORE_EXPORT QLinkedListData
 {

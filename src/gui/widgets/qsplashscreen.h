@@ -14,10 +14,8 @@
 #ifndef QSPLASHSCREEN_H
 #define QSPLASHSCREEN_H
 
-#ifndef QT_H
 #include "qpixmap.h"
 #include "qwidget.h"
-#endif // QT_H
 
 #ifndef QT_NO_SPLASHSCREEN
 class QSplashScreenPrivate;

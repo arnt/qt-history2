@@ -14,9 +14,7 @@
 #ifndef QTOOLBUTTON_H
 #define QTOOLBUTTON_H
 
-#ifndef QT_H
 #include "qabstractbutton.h"
-#endif // QT_H
 
 #ifndef QT_NO_TOOLBUTTON
 

@@ -14,9 +14,7 @@
 #ifndef QDECORATION_QWS_H
 #define QDECORATION_QWS_H
 
-#ifndef QT_H
 #include "qregion.h"
-#endif // QT_H
 
 class QPopupMenu;
 

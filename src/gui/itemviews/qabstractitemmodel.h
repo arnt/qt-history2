@@ -14,10 +14,8 @@
 #ifndef QABSTRACTITEMMODEL_H
 #define QABSTRACTITEMMODEL_H
 
-#ifndef QT_H
 #include <qobject.h>
 #include <qvariant.h>
-#endif
 
 class QAbstractItemModel;
 

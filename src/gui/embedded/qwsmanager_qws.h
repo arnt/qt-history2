@@ -14,12 +14,10 @@
 #ifndef QWSMANAGER_QWS_H
 #define QWSMANAGER_QWS_H
 
-#ifndef QT_H
 #include "qpixmap.h"
 #include "qobject.h"
 #include "qdecoration_qws.h"
 #include "qevent.h"
-#endif // QT_H
 
 #ifndef QT_NO_QWS_MANAGER
 

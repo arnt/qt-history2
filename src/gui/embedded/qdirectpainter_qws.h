@@ -14,9 +14,7 @@
 #ifndef QDIRECTPAINTER_QWS_H
 #define QDIRECTPAINTER_QWS_H
 
-#ifndef QT_H
 #include "qpainter.h"
-#endif // QT_H
 
 #ifdef Q_WS_QWS
 

@@ -14,9 +14,7 @@
 #ifndef QBUTTONGROUP_H
 #define QBUTTONGROUP_H
 
-#ifndef QT_H
 #include "qobject.h"
-#endif
 
 class QAbstractButton;
 class QAbstractButtonPrivate;

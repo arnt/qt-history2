@@ -32,11 +32,9 @@
 #endif
 
 
-#ifndef QT_H
 #include "qlibrary.h"
 #include "qpointer.h"
 #include "qstringlist.h"
-#endif // QT_H
 
 class QLibraryPrivate
 {

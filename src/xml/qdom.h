@@ -14,9 +14,7 @@
 #ifndef QDOM_H
 #define QDOM_H
 
-#ifndef QT_H
 #include "qstring.h"
-#endif // QT_H
 
 #if defined(QT_LICENSE_PROFESSIONAL)
 #define QM_EXPORT_DOM

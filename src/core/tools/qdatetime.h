@@ -14,10 +14,8 @@
 #ifndef QDATETIME_H
 #define QDATETIME_H
 
-#ifndef QT_H
 #include "qstring.h"
 #include "qnamespace.h"
-#endif // QT_H
 
 class Q_CORE_EXPORT QDate
 {

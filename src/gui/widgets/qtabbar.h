@@ -14,9 +14,7 @@
 #ifndef QTABBAR_H
 #define QTABBAR_H
 
-#ifndef QT_H
 #include "qwidget.h"
-#endif // QT_H
 
 class QIconSet;
 class QTabBarPrivate;

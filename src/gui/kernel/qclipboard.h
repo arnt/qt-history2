@@ -14,10 +14,8 @@
 #ifndef QCLIPBOARD_H
 #define QCLIPBOARD_H
 
-#ifndef QT_H
 #include "qwindowdefs.h"
 #include "qobject.h"
-#endif // QT_H
 
 #ifndef QT_NO_CLIPBOARD
 

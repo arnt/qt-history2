@@ -14,7 +14,6 @@
 #ifndef QABSTRACTITEMVIEW_H
 #define QABSTRACTITEMVIEW_H
 
-#ifndef QT_H
 #include <qviewport.h>
 #include <qabstractitemmodel.h>
 #include <qitemselectionmodel.h>
@@ -22,7 +21,6 @@
 #include <qdragobject.h>
 #include <qevent.h>
 #include <qdatetime.h>
-#endif
 
 class QMenu;
 class QAbstractItemViewPrivate;

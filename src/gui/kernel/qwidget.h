@@ -14,7 +14,6 @@
 #ifndef QWIDGET_H
 #define QWIDGET_H
 
-#ifndef QT_H
 #include "qwindowdefs.h"
 #include "qobject.h"
 #include "qpaintdevice.h"
@@ -27,7 +26,6 @@
 #include "qbrush.h"
 #include "qcursor.h"
 #include "qkeysequence.h"
-#endif // QT_H
 
 #ifdef QT_INCLUDE_COMPAT
 #include "qevent.h"

@@ -39,9 +39,7 @@
 #ifndef QEUCKRCODEC_P_H
 #define QEUCKRCODEC_P_H
 
-#ifndef QT_H
 #include "qtextcodec.h"
-#endif // QT_H
 
 #ifndef QT_NO_BIG_CODECS
 

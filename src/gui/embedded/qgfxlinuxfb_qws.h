@@ -14,9 +14,7 @@
 #ifndef QGFXLINUXFB_QWS_H
 #define QGFXLINUXFB_QWS_H
 
-#ifndef QT_H
 #include "qscreen_qws.h"
-#endif // QT_H
 
 #ifndef QT_NO_QWS_LINUXFB
 

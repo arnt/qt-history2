@@ -14,9 +14,7 @@
 #ifndef POWERPC_QATOMIC_H
 #define POWERPC_QATOMIC_H
 
-#ifndef QT_H
 #  include <qglobal.h>
-#endif // QT_H
 
 #define Q_HAVE_ATOMIC_SET
 #define Q_HAVE_ATOMIC_INCDEC

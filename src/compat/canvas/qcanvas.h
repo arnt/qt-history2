@@ -14,7 +14,6 @@
 #ifndef QCANVAS_H
 #define QCANVAS_H
 
-#ifndef QT_H
 #include "qscrollview.h"
 #include "qpixmap.h"
 #include "qbrush.h"
@@ -23,7 +22,6 @@
 #include "qlinkedlist.h"
 #include "qpointarray.h"
 #include "qwmatrix.h"
-#endif // QT_H
 
 #ifndef QT_NO_CANVAS
 

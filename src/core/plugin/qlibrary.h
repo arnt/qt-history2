@@ -14,9 +14,7 @@
 #ifndef QLIBRARY_H
 #define QLIBRARY_H
 
-#ifndef QT_H
 #include "qobject.h"
-#endif // QT_H
 
 class QLibraryPrivate;
 

@@ -14,12 +14,10 @@
 #ifndef QTEXTSTREAM_H
 #define QTEXTSTREAM_H
 
-#ifndef QT_H
 #include "qiodevice.h"
 #include "qstring.h"
 #include "qchar.h"
 #include <stdio.h>
-#endif // QT_H
 
 #ifndef QT_NO_TEXTSTREAM
 class QTextCodec;

@@ -14,11 +14,9 @@
 #ifndef QCOMBOBOX_H
 #define QCOMBOBOX_H
 
-#ifndef QT_H
 #include <qwidget.h>
 #include <qabstractitemmodel.h>
 #include <qabstractitemdelegate.h>
-#endif
 
 class QListView;
 class QLineEdit;

@@ -14,11 +14,9 @@
 #ifndef QPROGRESSDIALOG_H
 #define QPROGRESSDIALOG_H
 
-#ifndef QT_H
 #include "qdialog.h"
 #include "qlabel.h"       // ### remove or keep for users' convenience?
 #include "qprogressbar.h" // ### remove or keep for users' convenience?
-#endif // QT_H
 
 #ifndef QT_NO_PROGRESSDIALOG
 

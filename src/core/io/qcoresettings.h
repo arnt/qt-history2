@@ -1,13 +1,11 @@
 #ifndef QCORESETTINGS_H
 #define QCORESETTINGS_H
 
-#ifndef QT_H
 #include "qcorevariant.h"
 #include "qstring.h"
 #ifdef QT_COMPAT
 #include "qstringlist.h"
 #endif
-#endif // QT_H
 
 #include <ctype.h>
 

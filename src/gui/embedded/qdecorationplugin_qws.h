@@ -14,10 +14,8 @@
 #ifndef QDECORATIONPLUGIN_H
 #define QDECORATIONPLUGIN_H
 
-#ifndef QT_H
 #include "qplugin.h"
 #include "qfactoryinterface.h"
-#endif // QT_H
 
 class QDecoration;
 

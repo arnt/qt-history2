@@ -14,9 +14,7 @@
 #ifndef QKBD_QWS_H
 #define QKBD_QWS_H
 
-#ifndef QT_H
 #include "qapplication.h"
-#endif // QT_H
 
 #ifndef QT_NO_QWS_KEYBOARD
 

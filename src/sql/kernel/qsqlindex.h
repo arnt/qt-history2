@@ -14,11 +14,9 @@
 #ifndef QSQLINDEX_H
 #define QSQLINDEX_H
 
-#ifndef QT_H
 #include "qstring.h"
 #include "qsqlrecord.h"
 #include "qlist.h"
-#endif // QT_H
 
 #if defined(QT_LICENSE_PROFESSIONAL)
 #define QM_EXPORT_SQL

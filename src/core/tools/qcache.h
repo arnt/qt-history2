@@ -14,9 +14,7 @@
 #ifndef QCACHE_H
 #define QCACHE_H
 
-#ifndef QT_H
 #include "qhash.h"
-#endif // QT_H
 
 template <class Key, class T>
 class QCache

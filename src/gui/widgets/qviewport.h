@@ -14,9 +14,7 @@
 #ifndef QVIEWPORT_H
 #define QVIEWPORT_H
 
-#ifndef QT_H
 #include "qframe.h"
-#endif // QT_H
 
 class QScrollBar;
 class QViewportPrivate;

@@ -14,11 +14,9 @@
 #ifndef Q3WHATSTHIS_H
 #define Q3WHATSTHIS_H
 
-#ifndef QT_H
 #include "qwhatsthis.h"
 #include "qobject.h"
 #include "qcursor.h"
-#endif // QT_H
 
 class QToolButton;
 

@@ -1,10 +1,8 @@
 #ifndef QSETTINGS_H
 #define QSETTINGS_H
 
-#ifndef QT_H
 #include "qcoresettings.h"
 #include "qvariant.h"
-#endif
 
 class Q_GUI_EXPORT QSettings : public QCoreSettings
 {

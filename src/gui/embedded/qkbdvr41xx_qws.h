@@ -14,9 +14,7 @@
 #ifndef QKBDVR41XX_QWS_H
 #define QKBDVR41XX_QWS_H
 
-#ifndef QT_H
 #include "qkbd_qws.h"
-#endif // QT_H
 
 #ifndef QT_NO_QWS_KBD_VR41XX
 

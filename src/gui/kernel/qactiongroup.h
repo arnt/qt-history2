@@ -13,9 +13,7 @@
 
 #ifndef QACTIONGROUP_H
 #define QACTIONGROUP_H
-#ifndef QT_H
 #include "qaction.h"
-#endif
 
 class QActionGroupPrivate;
 

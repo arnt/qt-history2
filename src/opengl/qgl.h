@@ -14,11 +14,9 @@
 #ifndef QGL_H
 #define QGL_H
 
-#ifndef QT_H
 #include "qwidget.h"
 #include "qglcolormap.h"
 #include "qmap.h"
-#endif // QT_H
 
 #if defined(QT_LICENSE_PROFESSIONAL)
 #define QM_EXPORT_OPENGL

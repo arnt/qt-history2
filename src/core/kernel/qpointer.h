@@ -14,9 +14,8 @@
 #ifndef QPOINTER_H
 #define QPOINTER_H
 
-#ifndef QT_H
 #include "qobject.h"
-#endif
+
 template <class T>
 class QPointer
 {

@@ -14,7 +14,6 @@
 #ifndef QTABLE_H
 #define QTABLE_H
 
-#ifndef QT_H
 #include "qscrollview.h"
 #include "qpixmap.h"
 #include "q3header.h"
@@ -24,7 +23,6 @@
 #include "qstringlist.h"
 #include "qvector.h"
 #include "qintdict.h"
-#endif // QT_H
 
 #ifndef QT_NO_TABLE
 

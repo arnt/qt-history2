@@ -14,9 +14,7 @@
 #ifndef QKEYBOARD_QWS_H
 #define QKEYBOARD_QWS_H
 
-#ifndef QT_H
 #include "qobject.h"
-#endif // QT_H
 
 #ifndef QT_NO_QWS_KEYBOARD
 class QWSKeyboardHandler : public QObject {

@@ -13,11 +13,9 @@
 
 #ifndef QDEBUG_H
 #define QDEBUG_H
-#ifndef QT_H
 #include "qlist.h"
 #include "qtextstream.h"
 #include "qstring.h"
-#endif
 
 #ifndef QT_NO_DEBUG
 

@@ -14,9 +14,7 @@
 #ifndef QREGEXP_H
 #define QREGEXP_H
 
-#ifndef QT_H
 #include "qstring.h"
-#endif // QT_H
 
 struct QRegExpPrivate;
 class QStringList;

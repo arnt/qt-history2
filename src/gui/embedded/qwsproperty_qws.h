@@ -14,9 +14,7 @@
 #ifndef QWSPROPERTY_QWS_H
 #define QWSPROPERTY_QWS_H
 
-#ifndef QT_H
 #include "qwscommand_qws.h"
-#endif // QT_H
 
 /*********************************************************************
  *

@@ -14,10 +14,8 @@
 #ifndef QBYTEARRAY_H
 #define QBYTEARRAY_H
 
-#ifndef QT_H
 #include "qglobal.h"
 #include "qatomic.h"
-#endif // QT_H
 
 #include <string.h>
 

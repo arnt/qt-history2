@@ -14,10 +14,8 @@
 #ifndef QCOREAPPLICATION_H
 #define QCOREAPPLICATION_H
 
-#ifndef QT_H
 #include <qobject.h>
 #include <qcoreevent.h>
-#endif // QT_H
 
 #ifdef QT_INCLUDE_COMPAT
 #include <qstringlist.h>

@@ -14,13 +14,11 @@
 #ifndef QOBJECT_H
 #define QOBJECT_H
 
-#ifndef QT_H
 #include "qobjectdefs.h"
 #include "qnamespace.h"
 #include "qstring.h"
 #include "qbytearray.h"
 #include "qlist.h"
-#endif // QT_H
 
 #ifdef QT_INCLUDE_COMPAT
 #include "qcoreevent.h"

@@ -14,9 +14,7 @@
 #ifndef QSTACK_H
 #define QSTACK_H
 
-#ifndef QT_H
 #include "qvector.h"
-#endif // QT_H
 
 template<class T>
 class QStack : public QVector<T>

@@ -14,12 +14,10 @@
 #ifndef QTEXTIMAGEHANDLER_P_H
 #define QTEXTIMAGEHANDLER_P_H
 
-#ifndef QT_H
 #include <qobject.h>
 #include <qabstracttextdocumentlayout.h>
 
 #include "qtextdocument_p.h"
-#endif // QT_H
 
 class QTextImageFormat;
 

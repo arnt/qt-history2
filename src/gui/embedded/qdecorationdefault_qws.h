@@ -14,9 +14,7 @@
 #ifndef QDECORATIONDEFAULT_QWS_H
 #define QDECORATIONDEFAULT_QWS_H
 
-#ifndef QT_H
 #include "qwsmanager_qws.h"
-#endif // QT_H
 
 #ifndef QT_NO_QWS_MANAGER
 #if !defined(QT_NO_QWS_DECORATION_DEFAULT) || defined(QT_PLUGIN)

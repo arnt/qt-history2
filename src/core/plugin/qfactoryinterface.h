@@ -14,9 +14,7 @@
 #ifndef QFACTORYINTERFACE_H
 #define QFACTORYINTERFACE_H
 
-#ifndef QT_H
 #include "qobject.h"
-#endif
 
 struct QFactoryInterface
 {

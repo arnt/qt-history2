@@ -14,9 +14,7 @@
 #ifndef QGVECTOR_H
 #define QGVECTOR_H
 
-#ifndef QT_H
 #include "qptrcollection.h"
-#endif // QT_H
 
 
 class Q_COMPAT_EXPORT QGVector : public QPtrCollection        // generic vector

@@ -14,11 +14,9 @@
 #ifndef QPICTURE_H
 #define QPICTURE_H
 
-#ifndef QT_H
 #include "private/qpicture_p.h"
 #include "qpaintdevice.h"
 #include "qstringlist.h"
-#endif // QT_H
 
 #ifndef QT_NO_PICTURE
 

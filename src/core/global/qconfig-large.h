@@ -11,8 +11,6 @@
 **
 ****************************************************************************/
 
-#ifndef QT_H
-#endif /* QT_H */
 #ifndef QT_NO_CODECS
 #define QT_NO_CODECS
 #endif

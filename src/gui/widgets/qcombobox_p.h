@@ -14,7 +14,6 @@
 #ifndef QCOMBOBOX_P_H
 #define QCOMBOBOX_P_H
 
-#ifndef QT_H
 #include <qlistview.h>
 #include <qlineedit.h>
 #include <qcombobox.h>
@@ -27,7 +26,6 @@
 #include <qapplication.h>
 #include <private/qwidget_p.h>
 #include <limits.h>
-#endif // QT_H
 
 class Scroller : public QWidget
 {

@@ -14,9 +14,7 @@
 #ifndef QTOOLTIP_H
 #define QTOOLTIP_H
 
-#ifndef QT_H
 #include "qwidget.h"
-#endif // QT_H
 
 class Q_GUI_EXPORT QToolTip
 {

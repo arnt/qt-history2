@@ -14,9 +14,7 @@
 #ifndef QSIZE_H
 #define QSIZE_H
 
-#ifndef QT_H
 #include "qwindowdefs.h"
-#endif // QT_H
 
 class Q_GUI_EXPORT QSize
 {

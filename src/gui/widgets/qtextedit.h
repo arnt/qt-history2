@@ -14,10 +14,8 @@
 #ifndef QTEXTEDIT_H
 #define QTEXTEDIT_H
 
-#ifndef QT_H
 #include <qviewport.h>
 #include <qtextdocument.h>
-#endif // QT_H
 
 #ifdef QT_COMPAT
 #include <qtextcursor.h>

@@ -14,10 +14,8 @@
 #ifndef QEDITORFACTORY_H
 #define QEDITORFACTORY_H
 
-#ifndef QT_H
 #include "qobject.h"
 #include "qvariant.h"
-#endif // QT_H
 
 #ifndef QT_NO_SQL_EDIT_WIDGETS
 

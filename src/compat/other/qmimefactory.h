@@ -14,13 +14,11 @@
 #ifndef QMIMEFACTORY_H
 #define QMIMEFACTORY_H
 
-#ifndef QT_H
 #include "qwindowdefs.h"
 #include "qstring.h"
 #include "qmap.h"
 #include "qpixmap.h"
 #include "qpixmap.h"
-#endif // QT_H
 
 #ifndef QT_NO_MIMEFACTORY
 

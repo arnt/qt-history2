@@ -14,11 +14,9 @@
 #ifndef QFTP_H
 #define QFTP_H
 
-#ifndef QT_H
 #include "qstring.h" // char*->QString conversion
 #include "qurlinfo.h"
 #include "qobject.h"
-#endif // QT_H
 
 #if defined(QT_LICENSE_PROFESSIONAL)
 #define QM_EXPORT_FTP

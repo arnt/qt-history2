@@ -14,9 +14,7 @@
 #ifndef QPOINT_H
 #define QPOINT_H
 
-#ifndef QT_H
 #include "qwindowdefs.h"
-#endif // QT_H
 
 
 class Q_GUI_EXPORT QPoint

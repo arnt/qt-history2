@@ -14,10 +14,8 @@
 #ifndef QACCESSIBLEBRIDGE_H
 #define QACCESSIBLEBRIDGE_H
 
-#ifndef QT_H
 #include "qplugin.h"
 #include "qfactoryinterface.h"
-#endif // QT_H
 
 #ifndef QT_NO_ACCESSIBILITY
 

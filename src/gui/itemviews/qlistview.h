@@ -14,9 +14,7 @@
 #ifndef QLISTVIEW_H
 #define QLISTVIEW_H
 
-#ifndef QT_H
 #include <qabstractitemview.h>
-#endif
 
 class QListViewPrivate;
 

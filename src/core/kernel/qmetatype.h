@@ -14,9 +14,7 @@
 #ifndef QMETATYPE_H
 #define QMETATYPE_H
 
-#ifndef QT_H
 #include "qglobal.h"
-#endif // QT_H
 
 #ifdef Bool // ### we seem to pick up a macro Bool --> int somewhere
 #undef Bool

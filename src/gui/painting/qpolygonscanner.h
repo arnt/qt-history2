@@ -14,9 +14,7 @@
 #ifndef QPOLYGONSCANNER_H
 #define QPOLYGONSCANNER_H
 
-#ifndef QT_H
 #include "qglobal.h"
-#endif // QT_H
 
 class QPointArray;
 class QPoint;

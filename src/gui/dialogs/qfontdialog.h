@@ -28,10 +28,8 @@
 //  to be available in the future.
 //
 
-#ifndef QT_H
 #include "qdialog.h"
 #include "qfont.h"
-#endif // QT_H
 
 class QFontDialogPrivate;
 

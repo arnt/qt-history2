@@ -14,11 +14,9 @@
 #ifndef QALGORITHMS_H
 #define QALGORITHMS_H
 
-#ifndef QT_H
 #include "qglobal.h"
 #include "qstring.h"
 #include "qtextstream.h"
-#endif // QT_H
 
 template <typename InputIterator, typename OutputIterator>
 inline OutputIterator qCopy(InputIterator begin, InputIterator end, OutputIterator dest)

@@ -14,11 +14,9 @@
 #ifndef QPROCESS_H
 #define QPROCESS_H
 
-#ifndef QT_H
 #include "qobject.h"
 #include "qstringlist.h"
 #include "qdir.h"
-#endif // QT_H
 
 #ifndef QT_NO_PROCESS
 

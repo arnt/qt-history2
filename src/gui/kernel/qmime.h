@@ -14,9 +14,7 @@
 #ifndef QMIME_H
 #define QMIME_H
 
-#ifndef QT_H
 #include "qwindowdefs.h"
-#endif // QT_H
 
 #ifndef QT_NO_MIME
 

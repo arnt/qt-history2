@@ -14,9 +14,7 @@
 #ifndef QWIDGETSTACK_H
 #define QWIDGETSTACK_H
 
-#ifndef QT_H
 #include "qframe.h"
-#endif // QT_H
 
 #ifndef QT_NO_WIDGETSTACK
 

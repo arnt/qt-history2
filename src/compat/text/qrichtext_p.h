@@ -26,7 +26,6 @@
 //
 //
 
-#ifndef QT_H
 #include "qapplication.h"
 #include "qcolor.h"
 #include "qhash.h"
@@ -47,7 +46,6 @@
 #include "qstylesheet.h"
 #include "qmimefactory.h"
 #include "qstack.h"
-#endif // QT_H
 
 #ifndef QT_NO_RICHTEXT
 

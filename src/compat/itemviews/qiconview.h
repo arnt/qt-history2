@@ -14,7 +14,6 @@
 #ifndef QICONVIEW_H
 #define QICONVIEW_H
 
-#ifndef QT_H
 #include "qscrollview.h"
 #include "qstring.h"
 #include "qrect.h"
@@ -25,7 +24,6 @@
 #include "qbitmap.h"
 #include "qpicture.h"
 #include "qvaluelist.h"
-#endif // QT_H
 
 #ifndef QT_NO_ICONVIEW
 

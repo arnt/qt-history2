@@ -14,9 +14,7 @@
 #ifndef QPROGRESSBAR_H
 #define QPROGRESSBAR_H
 
-#ifndef QT_H
 #include "qframe.h"
-#endif // QT_H
 
 #ifndef QT_NO_PROGRESSBAR
 

@@ -14,12 +14,10 @@
 #ifndef QSOCKET_H
 #define QSOCKET_H
 
-#ifndef QT_H
 #include "qobject.h"
 #include "qiodevice.h"
 #include "qdns.h"
 #include "qhostaddress.h" // int->QHostAddress conversion
-#endif // QT_H
 
 #if defined(QT_LICENSE_PROFESSIONAL)
 #define QM_EXPORT_NETWORK

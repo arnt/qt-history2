@@ -14,10 +14,8 @@
 #ifndef QLCDNUMBER_H
 #define QLCDNUMBER_H
 
-#ifndef QT_H
 #include "qframe.h"
 #include "qbitarray.h"
-#endif // QT_H
 
 #ifndef QT_NO_LCDNUMBER
 

@@ -14,11 +14,9 @@
 #ifndef QFILEDIALOG_H
 #define QFILEDIALOG_H
 
-#ifndef QT_H
 #include <qdir.h>
 #include <qstring.h>
 #include <qdialog.h>
-#endif
 
 class QMenu;
 class QModelIndex;

@@ -14,9 +14,7 @@
 #ifndef QTEXTBROWSER_H
 #define QTEXTBROWSER_H
 
-#ifndef QT_H
 #include "qtextedit.h"
-#endif // QT_H
 
 class QTextBrowserPrivate;
 

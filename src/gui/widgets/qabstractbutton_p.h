@@ -14,10 +14,8 @@
 #ifndef QABSTRACTBUTTON_P_H
 #define QABSTRACTBUTTON_P_H
 
-#ifndef QT_H
 #include <private/qwidget_p.h>
 #include "qbasictimer.h"
-#endif
 
 class QAbstractButtonPrivate : public QWidgetPrivate
 {

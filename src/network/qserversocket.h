@@ -14,11 +14,9 @@
 #ifndef QSERVERSOCKET_H
 #define QSERVERSOCKET_H
 
-#ifndef QT_H
 #include "qobject.h"
 #include "qhostaddress.h"
 #include "qsocketdevice.h" // ### remove or keep for users' convenience?
-#endif // QT_H
 
 #if defined(QT_LICENSE_PROFESSIONAL)
 #define QM_EXPORT_NETWORK

@@ -14,10 +14,8 @@
 #ifndef QSTYLEPLUGIN_H
 #define QSTYLEPLUGIN_H
 
-#ifndef QT_H
 #include "qplugin.h"
 #include "qfactoryinterface.h"
-#endif // QT_H
 
 class QStyle;
 

@@ -14,9 +14,7 @@
 #ifndef QISCIICODEC_P_H
 #define QISCIICODEC_P_H
 
-#ifndef QT_H
 #include "qtextcodec.h"
-#endif // QT_H
 
 #ifndef QT_NO_CODECS
 

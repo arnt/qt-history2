@@ -14,9 +14,7 @@
 #ifndef Q3GROUPBOX_H
 #define Q3GROUPBOX_H
 
-#ifndef QT_H
 #include "q3frame.h"
-#endif // QT_H
 
 class Q3GroupBoxPrivate;
 

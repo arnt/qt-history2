@@ -14,7 +14,6 @@
 #ifndef QDATABROWSER_H
 #define QDATABROWSER_H
 
-#ifndef QT_H
 #include "qwidget.h"
 #include "qstring.h"
 #include "qstringlist.h"
@@ -22,7 +21,6 @@
 #include "qsqlindex.h"
 #include "qsqlcursor.h"
 #include "qsqlerror.h"
-#endif // QT_H
 
 #ifndef QT_NO_SQL_VIEW_WIDGETS
 

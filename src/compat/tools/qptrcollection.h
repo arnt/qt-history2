@@ -14,9 +14,7 @@
 #ifndef QPTRCOLLECTION_H
 #define QPTRCOLLECTION_H
 
-#ifndef QT_H
 #include "qglobal.h"
-#endif // QT_H
 
 
 class QGVector;

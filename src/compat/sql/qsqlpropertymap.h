@@ -14,10 +14,8 @@
 #ifndef QSQLPROPERTYMAP_H
 #define QSQLPROPERTYMAP_H
 
-#ifndef QT_H
 #include "qvariant.h"
 #include "qstring.h"
-#endif // QT_H
 
 #ifndef QT_NO_SQL_FORM
 

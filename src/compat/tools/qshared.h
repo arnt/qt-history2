@@ -14,9 +14,7 @@
 #ifndef QSHARED_H
 #define QSHARED_H
 
-#ifndef QT_H
 #include "qglobal.h"
-#endif // QT_H
 
 
 struct Q_COMPAT_EXPORT QShared

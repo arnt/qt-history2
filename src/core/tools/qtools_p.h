@@ -12,8 +12,6 @@
 ****************************************************************************/
 
 inline int qAllocMore(int alloc, int extra)
-#ifndef QT_H
-#endif // QT_H
 {
     const int page = 1<<12;
     int nalloc;

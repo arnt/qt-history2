@@ -14,10 +14,8 @@
 #ifndef QSCROLLBAR_H
 #define QSCROLLBAR_H
 
-#ifndef QT_H
 #include "qwidget.h"
 #include "qabstractslider.h"
-#endif // QT_H
 
 class QScrollBarPrivate;
 

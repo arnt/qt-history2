@@ -14,9 +14,7 @@
 #ifndef QPEN_H
 #define QPEN_H
 
-#ifndef QT_H
 #include "qcolor.h"
-#endif // QT_H
 
 
 class Q_GUI_EXPORT QPen

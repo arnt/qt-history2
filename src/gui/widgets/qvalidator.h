@@ -14,11 +14,9 @@
 #ifndef QVALIDATOR_H
 #define QVALIDATOR_H
 
-#ifndef QT_H
 #include "qobject.h"
 #include "qstring.h" // char*->QString conversion
 #include "qregexp.h" // QString->QRegExp conversion
-#endif // QT_H
 
 #ifndef QT_NO_VALIDATOR
 

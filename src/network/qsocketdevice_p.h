@@ -26,12 +26,10 @@
 //
 //
 
-#ifndef QT_H
 #include "qglobal.h"
 #include "qstring.h"
 #include "qobjectdefs.h"
 #include "private/qiodevice_p.h"
-#endif // QT_H
 
 class QSocketDevicePrivate : public QIODevicePrivate
 {

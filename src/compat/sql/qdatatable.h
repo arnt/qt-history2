@@ -14,7 +14,6 @@
 #ifndef QDATATABLE_H
 #define QDATATABLE_H
 
-#ifndef QT_H
 #include "qstring.h"
 #include "qvariant.h"
 #include "qtable.h"
@@ -23,7 +22,6 @@
 #include "qsqlindex.h"
 #include "qsqleditorfactory.h"
 #include "qiconset.h"
-#endif // QT_H
 
 #ifndef QT_NO_SQL_VIEW_WIDGETS
 

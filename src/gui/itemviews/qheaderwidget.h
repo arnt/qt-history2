@@ -14,9 +14,7 @@
 #ifndef QHEADERWIDGET_H
 #define QHEADERWIDGET_H
 
-#ifndef QT_H
 #include <qheaderview.h>
-#endif
 
 class QHeaderWidget;
 

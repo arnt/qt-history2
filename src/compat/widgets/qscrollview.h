@@ -13,10 +13,8 @@
 #ifndef QSCROLLVIEW_H
 #define QSCROLLVIEW_H
 
-#ifndef QT_H
 #include "qframe.h"
 #include "qscrollbar.h"
-#endif // QT_H
 
 #ifndef QT_NO_SCROLLVIEW
 

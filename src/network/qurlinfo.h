@@ -14,11 +14,9 @@
 #ifndef QURLINFO_H
 #define QURLINFO_H
 
-#ifndef QT_H
 #include "qdatetime.h"
 #include "qstring.h"
 #include "qiodevice.h"
-#endif // QT_H
 
 class QUrl;
 class QUrlInfoPrivate;

@@ -14,10 +14,8 @@
 #ifndef QTIMER_H
 #define QTIMER_H
 
-#ifndef QT_H
 #include "qbasictimer.h" // conceptual inheritance
 #include "qobject.h"
-#endif // QT_H
 
 
 class Q_CORE_EXPORT QTimer : public QObject

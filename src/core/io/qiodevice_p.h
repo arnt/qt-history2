@@ -26,11 +26,9 @@
 //
 //
 
-#ifndef QT_H
 #include "qglobal.h"
 #include "qstring.h"
 #include "qobjectdefs.h"
-#endif // QT_H
 
 class Q_CORE_EXPORT QIODevicePrivate
 {

@@ -14,11 +14,9 @@
 #ifndef QVECTOR_H
 #define QVECTOR_H
 
-#ifndef QT_H
 #include "qiterator.h"
 #include "qatomic.h"
 #include "qalgorithms.h"
-#endif // QT_H
 
 struct Q_CORE_EXPORT QVectorData
 {

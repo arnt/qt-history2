@@ -14,9 +14,7 @@
 #ifndef QPTRSTACK_H
 #define QPTRSTACK_H
 
-#ifndef QT_H
 #include "qglist.h"
-#endif // QT_H
 
 template<class type>
 class QPtrStack : protected QGList

@@ -14,9 +14,7 @@
 #ifndef QGFXMATROXDEFS_QWS_H
 #define QGFXMATROXDEFS_QWS_H
 
-#ifndef QT_H
 #include "qglobal.h"
-#endif // QT_H
 
 #define CXLEFT 0x1ca0
 #define CXRIGHT 0x1ca4

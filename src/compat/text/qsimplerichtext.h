@@ -14,12 +14,10 @@
 #ifndef QSIMPLERICHTEXT_H
 #define QSIMPLERICHTEXT_H
 
-#ifndef QT_H
 #include "qnamespace.h"
 #include "qstring.h"
 #include "qregion.h"
 #include "qcolor.h"
-#endif // QT_H
 
 #ifndef QT_NO_RICHTEXT
 

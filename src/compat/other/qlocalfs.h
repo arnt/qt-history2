@@ -14,10 +14,8 @@
 #ifndef QLOCALFS_H
 #define QLOCALFS_H
 
-#ifndef QT_H
 #include "qnetworkprotocol.h"
 #include "qdir.h"
-#endif // QT_H
 
 #ifndef QT_NO_NETWORKPROTOCOL
 

@@ -14,9 +14,7 @@
 #ifndef QMULTILINEEDIT_H
 #define QMULTILINEEDIT_H
 
-#ifndef QT_H
 #include "q3textedit.h"
-#endif // QT_H
 
 #ifndef QT_NO_MULTILINEEDIT
 

@@ -14,10 +14,8 @@
 #ifndef QFONT_H
 #define QFONT_H
 
-#ifndef QT_H
 #include "qwindowdefs.h"
 #include "qstring.h"
-#endif // QT_H
 
 
 class QFontPrivate;                                     /* don't touch */

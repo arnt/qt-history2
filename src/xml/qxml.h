@@ -14,13 +14,11 @@
 #ifndef QXML_H
 #define QXML_H
 
-#ifndef QT_H
 #include "qtextstream.h"
 #include "qfile.h"
 #include "qstring.h"
 #include "qstringlist.h"
 #include "qlist.h"
-#endif // QT_H
 
 #if defined(QT_LICENSE_PROFESSIONAL)
 #define QM_EXPORT_XML

@@ -14,10 +14,8 @@
 #ifndef QTABDIALOG_H
 #define QTABDIALOG_H
 
-#ifndef QT_H
 #include "qdialog.h"
 #include "qiconset.h"
-#endif // QT_H
 
 #ifndef QT_NO_TABDIALOG
 

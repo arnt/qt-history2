@@ -14,12 +14,10 @@
 #ifndef QSTRING_H
 #define QSTRING_H
 
-#ifndef QT_H
 #include "qchar.h"
 #include "qbytearray.h"
 #include "qatomic.h"
 #include "qnamespace.h"
-#endif // QT_H
 
 #ifndef QT_NO_STL
 #if defined (Q_CC_MSVC_NET) && _MSV_VER < 1310 // Avoids nasty warning for xlocale, line 450

@@ -14,9 +14,7 @@
 #ifndef QGARRAY_H
 #define QGARRAY_H
 
-#ifndef QT_H
 #include "qshared.h"
-#endif // QT_H
 
 
 class Q_COMPAT_EXPORT QGArray                                        // generic array

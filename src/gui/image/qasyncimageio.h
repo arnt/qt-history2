@@ -14,9 +14,7 @@
 #ifndef QASYNCIMAGEIO_H
 #define QASYNCIMAGEIO_H
 
-#ifndef QT_H
 #include "qimage.h"
-#endif // QT_H
 
 #ifndef QT_NO_ASYNC_IMAGE_IO
 

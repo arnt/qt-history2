@@ -14,9 +14,7 @@
 #ifndef QDESKTOPWIDGET_H
 #define QDESKTOPWIDGET_H
 
-#ifndef QT_H
 #include "qwidget.h"
-#endif // QT_H
 
 class QApplication;
 class QDesktopWidgetPrivate; /* Don't touch! */

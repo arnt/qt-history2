@@ -14,12 +14,10 @@
 #ifndef QFONTMETRICS_H
 #define QFONTMETRICS_H
 
-#ifndef QT_H
 #include "qfont.h"
 #ifndef QT_INCLUDE_COMPAT
 #include "qrect.h"
 #endif
-#endif // QT_H
 
 #ifdef Q_WS_QWS
 class QFontEngine;

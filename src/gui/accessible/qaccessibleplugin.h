@@ -14,10 +14,8 @@
 #ifndef QACCESSIBLEPLUGIN_H
 #define QACCESSIBLEPLUGIN_H
 
-#ifndef QT_H
 #include "qaccessible.h"
 #include "qfactoryinterface.h"
-#endif // QT_H
 
 #ifndef QT_NO_ACCESSIBILITY
 

@@ -14,7 +14,6 @@
 #ifndef QGFXRASTER_QWS_H
 #define QGFXRASTER_QWS_H
 
-#ifndef QT_H
 #include "qgfx_qws.h"
 #include "qscreen_qws.h"
 #include "qpen.h"
@@ -26,7 +25,6 @@
 #include "qpolygonscanner.h"
 #include "qapplication.h"
 #include "qregion.h"
-#endif // QT_H
 
 //===========================================================================
 // Utility macros and functions

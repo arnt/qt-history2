@@ -26,9 +26,7 @@
 //
 //
 
-#ifndef QT_H
 #include "qmutex.h"
-#endif // QT_H
 
 #ifndef QT_NO_THREAD
 

@@ -14,9 +14,7 @@
 #ifndef QITERATOR_H
 #define QITERATOR_H
 
-#ifndef QT_H
 #include "qglobal.h"
-#endif // QT_H
 
 namespace std { struct bidirectional_iterator_tag; struct random_access_iterator_tag; }
 

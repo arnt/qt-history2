@@ -14,10 +14,8 @@
 #ifndef QPAINTDEVICE_H
 #define QPAINTDEVICE_H
 
-#ifndef QT_H
 #include "qwindowdefs.h"
 #include "qrect.h"
-#endif // QT_H
 
 #if defined(Q_WS_QWS)
 class QWSDisplay;

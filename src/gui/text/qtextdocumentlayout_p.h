@@ -14,9 +14,7 @@
 #ifndef QTEXTDOCUMENTLAYOUT_P_H
 #define QTEXTDOCUMENTLAYOUT_P_H
 
-#ifndef QT_H
 #include <qabstracttextdocumentlayout.h>
-#endif // QT_H
 
 class QTextListFormat;
 

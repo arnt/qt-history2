@@ -14,8 +14,6 @@
 #ifndef QATOMIC_H
 #define QATOMIC_H
 
-#ifndef QT_H
-#endif // QT_H
 
 extern "C" {
     int q_atomic_test_and_set_int(volatile int *ptr, int expected, int newval);

@@ -14,9 +14,7 @@
 #ifndef QUUID_H
 #define QUUID_H
 
-#ifndef QT_H
 #include "qstring.h"
-#endif // QT_H
 
 #include <string.h>
 

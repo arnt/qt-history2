@@ -14,10 +14,8 @@
 #ifndef QABSTRACTSLIDER_P_H
 #define QABSTRACTSLIDER_P_H
 
-#ifndef QT_H
 #include <private/qwidget_p.h>
 #include "qbasictimer.h"
-#endif // QT_H
 
 class QAbstractSliderPrivate : public QWidgetPrivate
 {

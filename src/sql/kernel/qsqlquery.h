@@ -14,11 +14,9 @@
 #ifndef QSQLQUERY_H
 #define QSQLQUERY_H
 
-#ifndef QT_H
 #include "qsql.h"
 #include "qsqldatabase.h"
 #include "qstring.h"
-#endif // QT_H
 
 #ifndef QT_NO_SQL
 

@@ -14,9 +14,7 @@
 #ifndef QINTDICT_H
 #define QINTDICT_H
 
-#ifndef QT_H
 #include "qgdict.h"
-#endif // QT_H
 
 template<class type>
 class QIntDict

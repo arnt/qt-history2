@@ -16,8 +16,6 @@
 
 #ifdef Q_OS_TEMP
 
-#ifndef QT_H
-#endif // QT_H
 
 #include <stdio.h>
 #include <stdlib.h>

@@ -14,9 +14,7 @@
 #ifndef QDATASTREAM_H
 #define QDATASTREAM_H
 
-#ifndef QT_H
 #include <qiodevice.h>
-#endif // QT_H
 
 template<typename T> class QList;
 template<typename T> class QLinkedList;

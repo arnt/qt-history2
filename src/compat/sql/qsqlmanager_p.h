@@ -26,7 +26,6 @@
 //
 //
 
-#ifndef QT_H
 #include "qcorevariant.h"
 #include "qglobal.h"
 #include "qstring.h"
@@ -35,7 +34,6 @@
 #include "qsqlerror.h"
 #include "qsqlindex.h"
 #include "qsqlcursor.h"
-#endif // QT_H
 
 #ifndef QT_NO_SQL
 

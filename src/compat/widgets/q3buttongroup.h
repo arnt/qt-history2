@@ -14,11 +14,9 @@
 #ifndef Q3BUTTONGROUP_H
 #define Q3BUTTONGROUP_H
 
-#ifndef QT_H
 #include "qbuttongroup.h"
 #include "q3groupbox.h"
 #include "qmap.h"
-#endif // QT_H
 
 
 class QAbstractButton;

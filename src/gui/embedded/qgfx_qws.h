@@ -14,13 +14,11 @@
 #ifndef QGFX_QWS_H
 #define QGFX_QWS_H
 
-#ifndef QT_H
 #include "qwidget.h"
 #include "qnamespace.h"
 #include "qimage.h"
 #include "qmemorymanager_qws.h"
 #include "qpoint.h"
-#endif // QT_H
 
 #include <private/qtextengine_p.h>
 

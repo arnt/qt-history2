@@ -14,9 +14,7 @@
 #ifndef QHOSTADDRESS_H
 #define QHOSTADDRESS_H
 
-#ifndef QT_H
 #include "qstring.h"
-#endif // QT_H
 
 #if defined(QT_LICENSE_PROFESSIONAL)
 #define QM_EXPORT_NETWORK

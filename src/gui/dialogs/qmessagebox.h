@@ -14,9 +14,7 @@
 #ifndef QMESSAGEBOX_H
 #define QMESSAGEBOX_H
 
-#ifndef QT_H
 #include "qdialog.h"
-#endif // QT_H
 
 #ifndef QT_NO_MESSAGEBOX
 

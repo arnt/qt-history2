@@ -14,11 +14,9 @@
 #ifndef QCOLOR_H
 #define QCOLOR_H
 
-#ifndef QT_H
 #  include "qstringlist.h"
 #  include "qnamespace.h"
 #  include "qrgb.h"
-#endif // QT_H
 
 class QColor;
 class QColormap;

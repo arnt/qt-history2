@@ -18,10 +18,8 @@
   This header is provided for source compatibility only.
 */
 
-#ifndef QT_H
 #ifdef QT_COMPAT
 #include "qlayout.h"
 #endif
-#endif // QT_H
 
 #endif

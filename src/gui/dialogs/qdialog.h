@@ -14,9 +14,7 @@
 #ifndef QDIALOG_H
 #define QDIALOG_H
 
-#ifndef QT_H
 #include "qwidget.h"
-#endif // QT_H
 #ifndef QT_NO_DIALOG
 #if 0
 Q_OBJECT

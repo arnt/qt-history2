@@ -14,14 +14,12 @@
 #ifndef QSQLCURSOR_H
 #define QSQLCURSOR_H
 
-#ifndef QT_H
 #include "qcorevariant.h"
 #include "qsqldatabase.h"
 #include "qsqlrecord.h"
 #include "qstringlist.h"
 #include "qsqlquery.h"
 #include "qsqlindex.h"
-#endif // QT_H
 
 #ifndef QT_NO_SQL
 

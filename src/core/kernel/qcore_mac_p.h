@@ -42,9 +42,7 @@
 #endif
 #undef OLD_DEBUG
 
-#ifndef QT_H
 #include "qstring.h"
-#endif
 
 template <typename T>
 class QCFType

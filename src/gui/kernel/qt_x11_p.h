@@ -26,10 +26,8 @@
 //
 
 
-#ifndef QT_H
 #include "qwindowdefs.h"
 #include "qlist.h"
-#endif // QT_H
 
 // the following is necessary to work around breakage in many versions
 // of XFree86's Xlib.h still in use

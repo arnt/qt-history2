@@ -14,10 +14,8 @@
 #ifndef QRANGECONTROL_H
 #define QRANGECONTROL_H
 
-#ifndef QT_H
 #include "qglobal.h"
 #include "qwidget.h"
-#endif // QT_H
 
 #ifndef QT_NO_RANGECONTROL
 

@@ -14,9 +14,7 @@
 #ifndef QTEXTCODECFACTORY_H
 #define QTEXTCODECFACTORY_H
 
-#ifndef QT_H
 #include "qstringlist.h"
-#endif // QT_H
 
 class QTextCodec;
 

@@ -14,10 +14,8 @@
 #ifndef QOBJECTDICT_H
 #define QOBJECTDICT_H
 
-#ifndef QT_H
 #include "qmetaobject.h"
 #include "qasciidict.h"
-#endif // QT_H
 
 
 //

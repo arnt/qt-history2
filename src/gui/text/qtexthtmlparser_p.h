@@ -14,7 +14,6 @@
 #ifndef QTEXTHTMLPARSER_P_H
 #define QTEXTHTMLPARSER_P_H
 
-#ifndef QT_H
 #include <qvector.h>
 #include <qcolor.h>
 #include <qfont.h>
@@ -23,7 +22,6 @@
 
 #include "qtextdocument.h"
 #include "qtextcursor.h"
-#endif // QT_H
 
 enum QTextHTMLElements {
     Html_qt,

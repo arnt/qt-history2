@@ -14,9 +14,7 @@
 #ifndef QSQLEDITORFACTORY_H
 #define QSQLEDITORFACTORY_H
 
-#ifndef QT_H
 #include "qeditorfactory.h"
-#endif // QT_H
 
 #ifndef QT_NO_SQL_EDIT_WIDGETS
 

@@ -14,9 +14,7 @@
 #ifndef QCOMPACTSTYLE_H
 #define QCOMPACTSTYLE_H
 
-#ifndef QT_H
 #include "qwindowsstyle.h"
-#endif // QT_H
 
 #if !defined(QT_NO_STYLE_COMPACT) || defined(QT_PLUGIN)
 

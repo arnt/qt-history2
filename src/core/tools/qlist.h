@@ -14,11 +14,9 @@
 #ifndef QLIST_H
 #define QLIST_H
 
-#ifndef QT_H
 #include "qiterator.h"
 #include "qatomic.h"
 #include "qvector.h"
-#endif // QT_H
 
 struct Q_CORE_EXPORT QListData {
     struct DataHeader {

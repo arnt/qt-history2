@@ -14,9 +14,7 @@
 #ifndef QPUSHBUTTON_H
 #define QPUSHBUTTON_H
 
-#ifndef QT_H
 #include "qabstractbutton.h"
-#endif // QT_H
 
 class QPushButtonPrivate;
 class QMenu;

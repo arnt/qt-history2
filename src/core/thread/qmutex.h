@@ -14,9 +14,7 @@
 #ifndef QMUTEX_H
 #define QMUTEX_H
 
-#ifndef QT_H
 #include "qglobal.h"
-#endif // QT_H
 
 typedef void *QStaticMutex;
 

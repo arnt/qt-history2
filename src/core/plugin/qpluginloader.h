@@ -14,9 +14,7 @@
 #ifndef QPLUGINLOADER_H
 #define QPLUGINLOADER_H
 
-#ifndef QT_H
 #include "qobject.h"
-#endif // QT_H
 
 
 class QLibraryPrivate;

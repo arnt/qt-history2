@@ -14,9 +14,7 @@
 #ifndef QSLIDER_H
 #define QSLIDER_H
 
-#ifndef QT_H
 #include <qabstractslider.h>
-#endif // QT_H
 
 #ifndef QT_NO_SLIDER
 

@@ -14,9 +14,7 @@
 #ifndef QFILEINFO_H
 #define QFILEINFO_H
 
-#ifndef QT_H
 #include "qfile.h"
-#endif // QT_H
 
 class QDir;
 class QDateTime;

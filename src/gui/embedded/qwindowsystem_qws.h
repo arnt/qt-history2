@@ -14,7 +14,6 @@
 #ifndef QWINDOWSYSTEM_QWS_H
 #define QWINDOWSYSTEM_QWS_H
 
-#ifndef QT_H
 #include "qwssocket_qws.h"
 #include "qbytearray.h"
 #include "qmap.h"
@@ -25,7 +24,6 @@
 #include "qwsproperty_qws.h"
 #include "qwsevent_qws.h"
 #include "qregion.h"
-#endif // QT_H
 
 #include "qkbd_qws.h"
 

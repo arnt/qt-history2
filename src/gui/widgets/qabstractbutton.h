@@ -14,11 +14,9 @@
 #ifndef QABSTRACTBUTTON_H
 #define QABSTRACTBUTTON_H
 
-#ifndef QT_H
 #include "qwidget.h"
 #include "qiconset.h"
 #include "qkeysequence.h"
-#endif // QT_H
 
 
 class QButtonGroup;

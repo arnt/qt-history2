@@ -14,11 +14,9 @@
 #ifndef QGCACHE_H
 #define QGCACHE_H
 
-#ifndef QT_H
 #include "qptrcollection.h"
 #include "qglist.h"
 #include "qgdict.h"
-#endif // QT_H
 
 
 class QCList;                                        // internal classes

@@ -14,10 +14,8 @@
 #ifndef QLISTBOX_H
 #define QLISTBOX_H
 
-#ifndef QT_H
 #include "qscrollview.h"
 #include "qpixmap.h"
-#endif // QT_H
 
 #ifndef QT_NO_LISTBOX
 

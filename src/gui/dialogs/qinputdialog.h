@@ -14,11 +14,9 @@
 #ifndef QINPUTDIALOG_H
 #define QINPUTDIALOG_H
 
-#ifndef QT_H
 #include "qdialog.h"
 #include "qstring.h"
 #include "qlineedit.h"
-#endif // QT_H
 
 #ifndef QT_NO_INPUTDIALOG
 

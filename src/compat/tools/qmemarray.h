@@ -14,9 +14,7 @@
 #ifndef QMEMARRAY_H
 #define QMEMARRAY_H
 
-#ifndef QT_H
 #include "qgarray.h"
-#endif // QT_H
 
 
 template<class type>

@@ -26,11 +26,9 @@
 //
 //
 
-#ifndef QT_H
 #include "qpaintdevice.h"
 #include "qrect.h"
 #include "qdom.h"
-#endif // QT_H
 
 #if defined(QT_LICENSE_PROFESSIONAL)
 #define QM_EXPORT_SVG

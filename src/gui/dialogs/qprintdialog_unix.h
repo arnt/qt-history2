@@ -14,9 +14,7 @@
 #ifndef QPRINTDIALOG_UNIX_H
 #define QPRINTDIALOG_UNIX_H
 
-#ifndef QT_H
 #include "qabstractprintdialog.h"
-#endif // QT_H
 
 #ifndef QT_NO_PRINTDIALOG
 

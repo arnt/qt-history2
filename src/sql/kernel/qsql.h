@@ -14,9 +14,7 @@
 #ifndef QSQL_H
 #define QSQL_H
 
-#ifndef QT_H
 #include "qglobal.h"
-#endif // QT_H
 
 #if defined(QT_LICENSE_PROFESSIONAL)
 #define QM_EXPORT_SQL

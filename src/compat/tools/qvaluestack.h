@@ -14,9 +14,7 @@
 #ifndef QVALUESTACK_H
 #define QVALUESTACK_H
 
-#ifndef QT_H
 #include "qvaluelist.h"
-#endif // QT_H
 
 #ifdef QT_COMPAT
 template<class T>

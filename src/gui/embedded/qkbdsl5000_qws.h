@@ -14,9 +14,7 @@
 #ifndef QKBDSL5000_QWS_H
 #define QKBDSL5000_QWS_H
 
-#ifndef QT_H
 #include "qkbdtty_qws.h"
-#endif // QT_H
 
 #ifndef QT_NO_QWS_KBD_SL5000
 

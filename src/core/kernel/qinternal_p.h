@@ -25,12 +25,10 @@
 // We mean it.
 //
 //
-#ifndef QT_H
 #include "qnamespace.h"
 #include "qlist.h"
 #include "qiodevice.h"
 #include "qbytearray.h"
-#endif // QT_H
 
 class QWidget;
 class QPainter;

@@ -15,9 +15,7 @@
 #define QDICT_H
 
 #ifdef QT_COMPAT
-#ifndef QT_H
 #include "qgdict.h"
-#endif // QT_H
 
 template<class type>
 class QDict

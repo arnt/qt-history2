@@ -14,11 +14,9 @@
 #ifndef QFILE_H
 #define QFILE_H
 
-#ifndef QT_H
 #include "qiodevice.h"
 #include "qstring.h"
 #include <stdio.h>
-#endif // QT_H
 
 class QFileEngine;
 class QFilePrivate;

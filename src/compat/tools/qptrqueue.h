@@ -14,9 +14,7 @@
 #ifndef QPTRQUEUE_H
 #define QPTRQUEUE_H
 
-#ifndef QT_H
 #include "qglist.h"
-#endif // QT_H
 
 template<class type>
 class QPtrQueue : protected QGList

@@ -14,10 +14,8 @@
 #ifndef QTREEWIDGET_H
 #define QTREEWIDGET_H
 
-#ifndef QT_H
 #include <qtreeview.h>
 #include <qlist.h>
-#endif
 
 class QTreeModel;
 class QTreeWidgetPrivate;

@@ -14,9 +14,7 @@
 #ifndef QWIZARD_H
 #define QWIZARD_H
 
-#ifndef QT_H
 #include "qdialog.h"
-#endif // QT_H
 
 #ifndef QT_NO_WIZARD
 

@@ -14,10 +14,8 @@
 #ifndef QREGION_H
 #define QREGION_H
 
-#ifndef QT_H
 #include "qatomic.h"
 #include "qrect.h"
-#endif // QT_H
 
 template <class T> class QVector;
 

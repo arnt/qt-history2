@@ -14,10 +14,8 @@
 #ifndef QPOINTARRAY_H
 #define QPOINTARRAY_H
 
-#ifndef QT_H
 #include "qvector.h"
 #include "qpoint.h"
-#endif // QT_H
 
 class QMatrix;
 

@@ -14,11 +14,9 @@
 #ifndef Q3DATETIMEEDIT_H
 #define Q3DATETIMEEDIT_H
 
-#ifndef QT_H
 #include "qwidget.h"
 #include "qstring.h"
 #include "qdatetime.h"
-#endif // QT_H
 
 #ifndef QT_NO_DATETIMEEDIT
 

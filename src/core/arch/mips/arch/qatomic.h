@@ -14,7 +14,6 @@
 #ifndef MIPS_QATOMIC_H
 #define MIPS_QATOMIC_H
 
-#ifndef QT_H
 #  include <qglobal.h>
 #endif
 

@@ -32,9 +32,7 @@
 //
 
 
-#ifndef QT_H
 #include "qabstractlayout.h"
-#endif // QT_H
 
 #ifndef QT_NO_LAYOUT
 

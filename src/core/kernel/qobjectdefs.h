@@ -14,9 +14,7 @@
 #ifndef QOBJECTDEFS_H
 #define QOBJECTDEFS_H
 
-#ifndef QT_H
 #include "qglobal.h"
-#endif // QT_H
 
 class QString;
 

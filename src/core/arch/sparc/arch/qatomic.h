@@ -14,7 +14,6 @@
 #ifndef SPARC_QATOMIC_H
 #define SPARC_QATOMIC_H
 
-#ifndef QT_H
 #  include <qglobal.h>
 #endif
 

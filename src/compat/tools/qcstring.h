@@ -14,9 +14,7 @@
 #ifndef QCSTRING_H
 #define QCSTRING_H
 
-#ifndef QT_H
 #include "qbytearray.h"
-#endif // QT_H
 
 /*****************************************************************************
   QCString class

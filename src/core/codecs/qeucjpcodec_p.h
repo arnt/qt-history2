@@ -43,10 +43,8 @@
 #ifndef QEUCJPCODEC_P_H
 #define QEUCJPCODEC_P_H
 
-#ifndef QT_H
 #include "qtextcodec.h"
 #include "qjpunicode.h"
-#endif // QT_H
 
 #ifndef QT_NO_BIG_CODECS
 

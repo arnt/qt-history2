@@ -14,9 +14,7 @@
 #ifndef QWIDGETVIEW_H
 #define QWIDGETVIEW_H
 
-#ifndef QT_H
 #include "qviewport.h"
-#endif // QT_H
 
 class QWidgetViewPrivate;
 

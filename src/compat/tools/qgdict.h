@@ -14,10 +14,8 @@
 #ifndef QGDICT_H
 #define QGDICT_H
 
-#ifndef QT_H
 #include "qptrcollection.h"
 #include "qstring.h"
-#endif // QT_H
 
 class QGDictIterator;
 class QGDItList;

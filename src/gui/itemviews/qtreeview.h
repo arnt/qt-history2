@@ -14,9 +14,7 @@
 #ifndef QTREEVIEW_H
 #define QTREEVIEW_H
 
-#ifndef QT_H
 #include <qabstractitemview.h>
-#endif
 
 class QTreeViewPrivate;
 class QHeaderView;

@@ -14,11 +14,7 @@
 #ifndef QDROPSITE_H
 #define QDROPSITE_H
 
-#ifndef QT_H
-#ifndef QT_H
 #include "qglobal.h"
-#endif // QT_H
-#endif
 
 
 class QWidget;

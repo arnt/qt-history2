@@ -14,7 +14,6 @@
 #ifndef QTEXTDOCUMENT_P_H
 #define QTEXTDOCUMENT_P_H
 
-#ifndef QT_H
 #include "qglobal.h"
 #include <qstring.h>
 #include <qvector.h>
@@ -27,7 +26,6 @@
 #include "qtextobject.h"
 #include <qmap.h>
 
-#endif // QT_H
 // #define QT_QMAP_DEBUG
 
 #ifdef QT_QMAP_DEBUG

@@ -26,9 +26,7 @@
 //
 //
 
-#ifndef QT_H
 #include "qstring.h"
-#endif // QT_H
 
 class QLockData;
 

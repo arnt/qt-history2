@@ -14,10 +14,8 @@
 #ifndef QMOUSE_QWS_H
 #define QMOUSE_QWS_H
 
-#ifndef QT_H
 #include "qobject.h"
 #include "qpointarray.h"
-#endif // QT_H
 
 class QWSPointerCalibrationData
 {

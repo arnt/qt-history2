@@ -14,9 +14,7 @@
 #ifndef QCHECKBOX_H
 #define QCHECKBOX_H
 
-#ifndef QT_H
 #include "qabstractbutton.h"
-#endif // QT_H
 
 #ifndef QT_NO_CHECKBOX
 

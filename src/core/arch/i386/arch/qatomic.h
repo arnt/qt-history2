@@ -14,9 +14,7 @@
 #ifndef I386_QATOMIC_H
 #define I386_QATOMIC_H
 
-#ifndef QT_H
 #  include <qglobal.h>
-#endif // QT_H
 
 extern "C" {
 

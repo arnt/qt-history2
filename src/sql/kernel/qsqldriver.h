@@ -14,11 +14,9 @@
 #ifndef QSQLDRIVER_H
 #define QSQLDRIVER_H
 
-#ifndef QT_H
 #include "qobject.h"
 #include "qstring.h"
 #include "qsqlquery.h"
-#endif // QT_H
 
 #if  defined(QT_LICENSE_PROFESSIONAL)
 #define QM_EXPORT_SQL

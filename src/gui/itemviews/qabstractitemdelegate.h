@@ -14,10 +14,8 @@
 #ifndef QABSTRACTITEMDELEGATE_H
 #define QABSTRACTITEMDELEGATE_H
 
-#ifndef QT_H
 #include <qobject.h>
 #include <qstyleoption.h>
-#endif
 
 class QPainter;
 class QModelIndex;

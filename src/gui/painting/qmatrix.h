@@ -14,13 +14,11 @@
 #ifndef QMATRIX_H
 #define QMATRIX_H
 
-#ifndef QT_H
 #include "qwindowdefs.h"
 #include "qpointarray.h"
 #include "qrect.h"
 #include "qpoint.h"
 #include "qregion.h"
-#endif // QT_H
 
 #ifndef QT_NO_MATRIX
 

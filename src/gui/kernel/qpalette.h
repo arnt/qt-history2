@@ -14,11 +14,9 @@
 #ifndef QPALETTE_H
 #define QPALETTE_H
 
-#ifndef QT_H
 #include "qwindowdefs.h"
 #include "qcolor.h"
 #include "qbrush.h" // QColor->QBrush conversion
-#endif // QT_H
 
 #ifndef QT_NO_PALETTE
 

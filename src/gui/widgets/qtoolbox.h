@@ -14,10 +14,8 @@
 #ifndef QTOOLBOX_H
 #define QTOOLBOX_H
 
-#ifndef QT_H
 #include <qframe.h>
 #include <qiconset.h>
-#endif // QT_H
 
 #ifndef QT_NO_TOOLBOX
 

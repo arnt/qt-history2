@@ -14,9 +14,7 @@
 #ifndef QSCRIPTENGINE_P_H
 #define QSCRIPTENGINE_P_H
 
-#ifndef QT_H
 #include "qtextengine_p.h"
-#endif // QT_H
 
 class QString;
 struct QGlyphLayout;

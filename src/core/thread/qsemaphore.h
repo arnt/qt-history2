@@ -14,9 +14,7 @@
 #ifndef QSEMAPHORE_H
 #define QSEMAPHORE_H
 
-#ifndef QT_H
 #include "qglobal.h"
-#endif // QT_H
 
 class QSemaphorePrivate;
 

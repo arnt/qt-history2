@@ -848,9 +848,7 @@ class QDataStream;
 #  define QT_NO_COP
 #endif
 
-#ifndef QT_H
 #  include "qfeatures.h"
-#endif /* QT_H */
 
 #ifndef Q_DECL_EXPORT
 #  ifdef Q_OS_WIN

@@ -14,13 +14,11 @@
 #ifndef QTEXTCURSOR_P_H
 #define QTEXTCURSOR_P_H
 
-#ifndef QT_H
 #include "qtextcursor.h"
 #include "qtextdocument.h"
 #include "qtextdocument_p.h"
 #include <private/qtextformat_p.h>
 #include "qtextobject.h"
-#endif // QT_H
 
 
 class QTextCursorPrivate : public QSharedData

@@ -18,9 +18,7 @@
 #ifndef QBIG5CODEC_P_H
 #define QBIG5CODEC_P_H
 
-#ifndef QT_H
 #include "qtextcodec.h"
-#endif // QT_H
 
 #ifndef QT_NO_BIG_CODECS
 

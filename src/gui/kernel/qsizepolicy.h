@@ -14,9 +14,7 @@
 #ifndef QSIZEPOLICY_H
 #define QSIZEPOLICY_H
 
-#ifndef QT_H
 #include "qglobal.h"
-#endif // QT_H
 
 // Documentation is in qabstractlayout.cpp.
 

@@ -14,7 +14,6 @@
 #ifndef QFONTDATABASE_H
 #define QFONTDATABASE_H
 
-#ifndef QT_H
 #include "qwindowdefs.h"
 #include "qstring.h"
 #include "qfont.h"
@@ -22,7 +21,6 @@
 #include "qstringlist.h"
 #include "qlist.h"
 #endif
-#endif // QT_H
 
 
 #ifndef QT_NO_FONTDATABASE

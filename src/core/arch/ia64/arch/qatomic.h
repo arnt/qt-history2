@@ -14,9 +14,7 @@
 #ifndef IA64_QATOMIC_H
 #define IA64_QATOMIC_H
 
-#ifndef QT_H
 #  include <qglobal.h>
-#endif // QT_H
 
 extern "C" {
 

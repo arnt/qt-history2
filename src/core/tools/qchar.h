@@ -14,9 +14,7 @@
 #ifndef QCHAR_H
 #define QCHAR_H
 
-#ifndef QT_H
 #include "qglobal.h"
-#endif // QT_H
 
 class QString;
 

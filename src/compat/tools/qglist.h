@@ -14,9 +14,7 @@
 #ifndef QGLIST_H
 #define QGLIST_H
 
-#ifndef QT_H
 #include "qptrcollection.h"
-#endif // QT_H
 
 class Q_COMPAT_EXPORT QLNode
 {

@@ -14,7 +14,6 @@
 #ifndef QSTYLESHEET_H
 #define QSTYLESHEET_H
 
-#ifndef QT_H
 #include "qstring.h"
 #include "qlist.h"
 #include "qhash.h"
@@ -23,7 +22,6 @@
 #include "qfont.h"
 //#include "qmime.h"
 //#include "qmimefactory.h"
-#endif // QT_H
 
 #ifndef QT_NO_RICHTEXT
 

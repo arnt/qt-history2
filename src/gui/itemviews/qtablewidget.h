@@ -14,9 +14,7 @@
 #ifndef QTABLEWIDGET_H
 #define QTABLEWIDGET_H
 
-#ifndef QT_H
 #include <qtableview.h>
-#endif
 
 class QTableWidget;
 

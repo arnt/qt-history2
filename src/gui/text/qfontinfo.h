@@ -14,9 +14,7 @@
 #ifndef QFONTINFO_H
 #define QFONTINFO_H
 
-#ifndef QT_H
 #include "qfont.h"
-#endif // QT_H
 
 
 class Q_GUI_EXPORT QFontInfo

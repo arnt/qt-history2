@@ -14,9 +14,7 @@
 #ifndef QGFXDRIVERFACTORY_QWS_H
 #define QGFXDRIVERFACTORY_QWS_H
 
-#ifndef QT_H
 #include "qstringlist.h"
-#endif // QT_H
 
 class QString;
 class QScreen;

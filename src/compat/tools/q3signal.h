@@ -14,10 +14,8 @@
 #ifndef Q3SIGNAL_H
 #define Q3SIGNAL_H
 
-#ifndef QT_H
 #include "qcorevariant.h"
 #include "qobject.h"
-#endif // QT_H
 
 
 class Q_COMPAT_EXPORT Q3Signal : public QObject

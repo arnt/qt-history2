@@ -14,9 +14,7 @@
 #ifndef QDEEPCOPY_H
 #define QDEEPCOPY_H
 
-#ifndef QT_H
 #  include "qglobal.h"
-#endif // QT_H
 
 #ifdef QT_COMPAT
 template <class T>

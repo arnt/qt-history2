@@ -12,8 +12,6 @@
 ****************************************************************************/
 
 #define NO_CHECK
-#ifndef QT_H
-#endif /* QT_H */
 
 #define QT_NO_ACTION
 #ifndef QT_NO_TEXTCODEC /* moc? */

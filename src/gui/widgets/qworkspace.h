@@ -14,9 +14,7 @@
 #ifndef QWORKSPACE_H
 #define QWORKSPACE_H
 
-#ifndef QT_H
 #include "qwidget.h"
-#endif // QT_H
 
 #ifndef QT_NO_WORKSPACE
 

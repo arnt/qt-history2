@@ -25,9 +25,7 @@
 // We mean it.
 //
 //
-#ifndef QT_H
 #include <private/qobject_p.h>
-#endif // QT_H
 
 #include <qrect.h>
 #include <qregion.h>

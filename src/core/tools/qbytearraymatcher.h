@@ -14,9 +14,7 @@
 #ifndef QBYTEARRAYMATCHER_H
 #define QBYTEARRAYMATCHER_H
 
-#ifndef QT_H
 #include "qbytearray.h"
-#endif // QT_H
 
 class QByteArrayMatcherPrivate;
 

@@ -14,9 +14,7 @@
 #ifndef QVARLENGTHARRAY_H
 #define QVARLENGTHARRAY_H
 
-#ifndef QT_H
 #include <qglobal.h>
-#endif // QT_H
 
 template<class T, int Prealloc = 256>
 class QVarLengthArray

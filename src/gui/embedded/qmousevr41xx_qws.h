@@ -14,9 +14,7 @@
 #ifndef QMOUSEVR41XX_QWS_H
 #define QMOUSEVR41XX_QWS_H
 
-#ifndef QT_H
 #include "qmouse_qws.h"
-#endif // QT_H
 
 #ifndef QT_NO_QWS_MOUSE_VR41XX
 

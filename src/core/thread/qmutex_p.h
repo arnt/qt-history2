@@ -25,8 +25,6 @@
 // We mean it.
 //
 
-#ifndef QT_H
-#endif // QT_H
 
 #ifdef Q_OS_UNIX
 struct QMutexPrivate

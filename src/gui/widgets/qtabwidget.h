@@ -14,10 +14,8 @@
 #ifndef QTABWIDGET_H
 #define QTABWIDGET_H
 
-#ifndef QT_H
 #include "qwidget.h"
 #include "qiconset.h"
-#endif // QT_H
 
 #ifndef QT_NO_TABWIDGET
 

@@ -14,10 +14,8 @@
 #ifndef QTEXTTABLE_P_H
 #define QTEXTTABLE_P_H
 
-#ifndef QT_H
 #include "qtextobject_p.h"
 #include "qtextdocument_p.h"
-#endif
 
 class QTextTablePrivate : public QTextFramePrivate
 {

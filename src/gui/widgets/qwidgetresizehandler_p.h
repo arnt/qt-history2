@@ -26,10 +26,8 @@
 //
 //
 
-#ifndef QT_H
 #include "qobject.h"
 #include "qpoint.h"
-#endif // QT_H
 #ifndef QT_NO_RESIZEHANDLER
 class QMouseEvent;
 class QKeyEvent;

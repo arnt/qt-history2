@@ -14,9 +14,7 @@
 #ifndef QCOMMONSTYLE_H
 #define QCOMMONSTYLE_H
 
-#ifndef QT_H
 #include "qstyle.h"
-#endif // QT_H
 
 #ifndef QT_NO_STYLE
 

@@ -14,10 +14,8 @@
 #ifndef QCURSOR_H
 #define QCURSOR_H
 
-#ifndef QT_H
 #include <qpoint.h>
 #include <qatomic.h>
-#endif // QT_H
 
 /*
   ### The fake cursor has to go first with old qdoc.

@@ -20,7 +20,6 @@ class QDragObjectPrivate;
 class QStoredDragPrivate;
 class QImageDragPrivate;
 
-#ifndef QT_H
 #include "qobject.h"
 #include "qcolor.h"
 #include "qmime.h"
@@ -28,7 +27,6 @@ class QImageDragPrivate;
 #  include "qimage.h"
 #  include "qlist.h"
 # endif
-#endif // QT_H
 
 class QImage;
 template <class T> class QList;

@@ -14,10 +14,8 @@
 #ifndef QWSSOCKET_QWS_H
 #define QWSSOCKET_QWS_H
 
-#ifndef QT_H
 #include "qsocket.h"
 #include "qserversocket.h"
-#endif // QT_H
 
 #ifndef QT_NO_QWS_MULTIPROCESS
 

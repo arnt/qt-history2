@@ -14,9 +14,7 @@
 #ifndef QGFXMACH64_QWS_H
 #define QGFXMACH64_QWS_H
 
-#ifndef QT_H
 #include "qgfxlinuxfb_qws.h"
-#endif // QT_H
 
 #ifndef QT_NO_QWS_MACH64
 

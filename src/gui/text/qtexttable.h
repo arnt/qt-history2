@@ -14,12 +14,10 @@
 #ifndef QTEXTTABLE_H
 #define QTEXTTABLE_H
 
-#ifndef QT_H
 #include <qglobal.h>
 #include <qshareddata.h>
 #include <qobject.h>
 #include "qtextobject.h"
-#endif // QT_H
 
 class QTextCursor;
 class QTextTable;

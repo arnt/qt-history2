@@ -14,10 +14,8 @@
 #ifndef QWINDOWDEFS_H
 #define QWINDOWDEFS_H
 
-#ifndef QT_H
 #include "qobjectdefs.h"
 #include "qnamespace.h"
-#endif // QT_H
 
 // Class forward definitions
 

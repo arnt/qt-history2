@@ -14,7 +14,6 @@
 #ifndef QAPPLICATION_H
 #define QAPPLICATION_H
 
-#ifndef QT_H
 #include "qcoreapplication.h"
 #include "qpoint.h"
 #include "qsize.h"
@@ -28,7 +27,6 @@
 #ifdef Q_WS_QWS
 # include "qrgb.h"
 #endif
-#endif // QT_H
 
 class QSessionManager;
 class QDesktopWidget;

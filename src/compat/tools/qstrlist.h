@@ -14,12 +14,10 @@
 #ifndef QSTRLIST_H
 #define QSTRLIST_H
 
-#ifndef QT_H
 #include "qstring.h"
 #include "qstringlist.h"
 #include "qptrlist.h"
 #include "qdatastream.h"
-#endif // QT_H
 
 #if defined(qdoc)
 class QStrListIterator : public QPtrListIterator<char>

@@ -14,11 +14,9 @@
 #ifndef QHTTP_H
 #define QHTTP_H
 
-#ifndef QT_H
 #include "qobject.h"
 #include "qstringlist.h"
 #include "qmap.h"
-#endif // QT_H
 
 #if defined(QT_LICENSE_PROFESSIONAL)
 #define QM_EXPORT_HTTP

@@ -14,9 +14,7 @@
 #ifndef QTEXTVIEW_H
 #define QTEXTVIEW_H
 
-#ifndef QT_H
 #include "q3textedit.h"
-#endif // QT_H
 
 #ifndef QT_NO_TEXTVIEW
 

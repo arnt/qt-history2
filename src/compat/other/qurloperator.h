@@ -14,13 +14,11 @@
 #ifndef QURLOPERATOR_H
 #define QURLOPERATOR_H
 
-#ifndef QT_H
 #include "qobject.h"
 #include "q3url.h"
 #include "qptrlist.h"
 #include "qnetworkprotocol.h"
 #include "qstringlist.h" // QString->QStringList conversion
-#endif // QT_H
 
 #ifndef QT_NO_NETWORKPROTOCOL
 

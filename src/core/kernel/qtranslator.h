@@ -14,10 +14,8 @@
 #ifndef QTRANSLATOR_H
 #define QTRANSLATOR_H
 
-#ifndef QT_H
 #include "qobject.h"
 #include "qbytearray.h"
-#endif // QT_H
 
 #ifndef QT_NO_TRANSLATION
 

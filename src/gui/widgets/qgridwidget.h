@@ -14,9 +14,7 @@
 #ifndef QGRIDWIDGET_H
 #define QGRIDWIDGET_H
 
-#ifndef QT_H
 #include "qframe.h"
-#endif // QT_H
 
 #ifndef QT_NO_GRIDWIDGET
 

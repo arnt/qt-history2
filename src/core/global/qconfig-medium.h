@@ -11,8 +11,6 @@
 **
 ****************************************************************************/
 
-#ifndef QT_H
-#endif /* QT_H */
 #ifndef QT_NO_TEXTCODEC /* moc? */
 #define QT_NO_TEXTCODEC
 #endif

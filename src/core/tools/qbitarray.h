@@ -14,9 +14,7 @@
 #ifndef QBITARRAY_H
 #define QBITARRAY_H
 
-#ifndef QT_H
 #include "qbytearray.h"
-#endif // QT_H
 
 class QBitRef;
 class Q_CORE_EXPORT QBitArray

@@ -14,9 +14,7 @@
 #ifndef QGRIDVIEW_H
 #define QGRIDVIEW_H
 
-#ifndef QT_H
 #include "qscrollview.h"
-#endif // QT_H
 
 #ifndef QT_NO_GRIDVIEW
 

@@ -14,9 +14,7 @@
 #ifndef QEVENTLOOP_H
 #define QEVENTLOOP_H
 
-#ifndef QT_H
 #include "qobject.h"
-#endif // QT_H
 
 class QApplication;
 class QCoreApplication;

@@ -23,9 +23,7 @@
 // We mean it.
 //
 //
-#ifndef QT_H
 #include <private/qobject_p.h>
-#endif // QT_H
 
 class Q_GUI_EXPORT QLayoutPrivate : public QObjectPrivate
 {

@@ -14,10 +14,8 @@
 #ifndef QKBDDRIVERPLUGIN_QWS_H
 #define QKBDDRIVERPLUGIN_QWS_H
 
-#ifndef QT_H
 #include "qplugin.h"
 #include "qfactoryinterface.h"
-#endif // QT_H
 
 #ifndef QT_NO_COMPONENT
 

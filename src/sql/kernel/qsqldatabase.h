@@ -14,13 +14,11 @@
 #ifndef QSQLDATABASE_H
 #define QSQLDATABASE_H
 
-#ifndef QT_H
 #include "qstring.h"
 #include "qsql.h"
 #ifdef QT_COMPAT
 #include "qsqlrecord.h"
 #endif
-#endif // QT_H
 
 #if defined(QT_LICENSE_PROFESSIONAL)
 #define QM_EXPORT_SQL

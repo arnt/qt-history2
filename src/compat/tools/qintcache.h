@@ -14,9 +14,7 @@
 #ifndef QINTCACHE_H
 #define QINTCACHE_H
 
-#ifndef QT_H
 #include "qgcache.h"
-#endif // QT_H
 
 
 template<class type>

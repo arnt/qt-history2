@@ -14,12 +14,10 @@
 #ifndef QACTION_H
 #define QACTION_H
 
-#ifndef QT_H
 #include "qwidget.h"
 #include "qiconset.h"
 #include "qstring.h"
 #include "qkeysequence.h"
-#endif // QT_H
 
 class QMenu;
 class QActionGroup;

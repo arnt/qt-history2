@@ -14,9 +14,7 @@
 #ifndef QPTRVECTOR_H
 #define QPTRVECTOR_H
 
-#ifndef QT_H
 #include "qgvector.h"
-#endif // QT_H
 
 template<class type>
 class QPtrVector

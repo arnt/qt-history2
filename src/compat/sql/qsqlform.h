@@ -14,10 +14,8 @@
 #ifndef QSQLFORM_H
 #define QSQLFORM_H
 
-#ifndef QT_H
 #include "qobject.h"
 #include "qmap.h"
-#endif // QT_H
 
 #ifndef QT_NO_SQL_FORM
 

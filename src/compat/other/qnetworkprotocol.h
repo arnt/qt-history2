@@ -14,11 +14,9 @@
 #ifndef QNETWORKPROTOCOL_H
 #define QNETWORKPROTOCOL_H
 
-#ifndef QT_H
 #include "qurlinfo.h"
 #include "qstring.h"
 #include "qobject.h"
-#endif // QT_H
 
 #ifndef QT_NO_NETWORKPROTOCOL
 

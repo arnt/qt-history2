@@ -14,10 +14,8 @@
 #ifndef QBRUSH_H
 #define QBRUSH_H
 
-#ifndef QT_H
 #include "qcolor.h"
 #include "qpoint.h"
-#endif // QT_H
 
 struct QBrushData;
 struct QTexturedBrushData;

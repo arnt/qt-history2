@@ -14,9 +14,7 @@
 #ifndef QVBOXWIDGET_H
 #define QVBOXWIDGET_H
 
-#ifndef QT_H
 #include "qhboxwidget.h"
-#endif // QT_H
 
 #ifndef QT_NO_VBOXWIDGET
 

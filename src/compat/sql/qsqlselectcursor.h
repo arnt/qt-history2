@@ -14,9 +14,7 @@
 #ifndef QSQLSELECTCURSOR_H
 #define QSQLSELECTCURSOR_H
 
-#ifndef QT_H
 #include "qsqlcursor.h"
-#endif // QT_H
 
 #ifndef QT_NO_SQL
 

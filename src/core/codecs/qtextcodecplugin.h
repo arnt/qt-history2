@@ -14,10 +14,8 @@
 #ifndef QTEXTCODECPLUGIN_H
 #define QTEXTCODECPLUGIN_H
 
-#ifndef QT_H
 #include "qplugin.h"
 #include "qfactoryinterface.h"
-#endif // QT_H
 
 class QTextCodec;
 

@@ -14,9 +14,7 @@
 #ifndef QVALUEVECTOR_H
 #define QVALUEVECTOR_H
 
-#ifndef QT_H
 #include "qvector.h"
-#endif // QT_H
 
 #ifndef QT_NO_STL
 #include <vector>

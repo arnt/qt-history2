@@ -14,9 +14,7 @@
 #ifndef QTEXTDOCUMENT_H
 #define QTEXTDOCUMENT_H
 
-#ifndef QT_H
 #include <qobject.h>
-#endif // QT_H
 
 class QTextFormatCollection;
 class QTextListFormat;

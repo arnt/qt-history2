@@ -14,9 +14,7 @@
 #ifndef QGFXVGA16_QWS_H
 #define QGFXVGA16_QWS_H
 
-#ifndef QT_H
 #include "qgfxlinuxfb_qws.h"
-#endif // QT_H
 
 // VGA16 code does not compile on sparc
 #if defined(__sparc__) && !defined(QT_NO_QWS_VGA_16)

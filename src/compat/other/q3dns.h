@@ -14,12 +14,10 @@
 #ifndef Q3DNS_H
 #define Q3DNS_H
 
-#ifndef QT_H
 #include "qobject.h"
 #include "qhostaddress.h"
 #include "qsocketnotifier.h"
 #include "qstringlist.h"
-#endif // QT_H
 
 #if defined(QT_LICENSE_PROFESSIONAL)
 #define QM_EXPORT_DNS

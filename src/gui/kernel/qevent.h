@@ -14,7 +14,6 @@
 #ifndef QEVENT_H
 #define QEVENT_H
 
-#ifndef QT_H
 #include "qwindowdefs.h"
 #include "qobject.h"
 #include "qregion.h"
@@ -24,7 +23,6 @@
 #include "qstring.h"
 #include "qkeysequence.h"
 #include "qcoreevent.h"
-#endif // QT_H
 
 class QAction;
 

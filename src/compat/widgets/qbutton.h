@@ -14,9 +14,7 @@
 #ifndef QBUTTON_H
 #define QBUTTON_H
 
-#ifndef QT_H
 #include "qabstractbutton.h"
-#endif // QT_H
 
 class QButton : public QAbstractButton
 {

@@ -14,11 +14,9 @@
 #ifndef Q3TEXTBROWSER_H
 #define Q3TEXTBROWSER_H
 
-#ifndef QT_H
 #include "qpixmap.h"
 #include "qcolor.h"
 #include "q3textedit.h"
-#endif // QT_H
 
 #ifndef QT_NO_TEXTBROWSER
 

@@ -14,9 +14,7 @@
 #ifndef QACCEL_H
 #define QACCEL_H
 
-#ifndef QT_H
 #include "qobject.h"
-#endif // QT_H
 
 #include "qkeysequence.h"
 

@@ -28,10 +28,8 @@
 //
 
 
-#ifndef QT_H
 #include "qpaintengine.h"
 #include "qprintengine.h"
-#endif // QT_H
 
 #ifndef QT_NO_PRINTER
 

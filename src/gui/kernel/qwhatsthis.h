@@ -14,11 +14,9 @@
 #ifndef QWHATSTHIS_H
 #define QWHATSTHIS_H
 
-#ifndef QT_H
 #include "qobject.h"
 #include "qcursor.h"
 #include "qaction.h"
-#endif // QT_H
 
 #ifndef QT_NO_WHATSTHIS
 

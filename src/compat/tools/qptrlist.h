@@ -14,10 +14,8 @@
 #ifndef QPTRLIST_H
 #define QPTRLIST_H
 
-#ifndef QT_H
 #include "qglist.h"
 #include "qlist.h"
-#endif // QT_H
 
 template<class type>
 class QPtrListStdIterator : public QGListStdIterator

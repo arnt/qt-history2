@@ -14,12 +14,10 @@
 #ifndef QWIDGETPLUGIN_H
 #define QWIDGETPLUGIN_H
 
-#ifndef QT_H
 #include "qwindowdefs.h"
 #include "qfactoryinterface.h"
 #include "qstringlist.h"
 #include "qiconset.h"
-#endif // QT_H
 
 struct QWidgetFactoryInterface : public QFactoryInterface
 {

@@ -14,10 +14,8 @@
 #ifndef QSHAREDDATA_H
 #define QSHAREDDATA_H
 
-#ifndef QT_H
 #include <qatomic.h>
 #include <qglobal.h>
-#endif
 
 template <class T> class QSharedDataPointer;
 

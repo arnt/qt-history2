@@ -14,9 +14,7 @@
 #ifndef QWAITCONDITION_H
 #define QWAITCONDITION_H
 
-#ifndef QT_H
 #include "qglobal.h"
-#endif // QT_H
 
 #include <limits.h>
 

@@ -14,9 +14,7 @@
 #ifndef QTEXTCODEC_H
 #define QTEXTCODEC_H
 
-#ifndef QT_H
 #include "qstring.h"
-#endif // QT_H
 
 #ifndef QT_NO_TEXTCODEC
 

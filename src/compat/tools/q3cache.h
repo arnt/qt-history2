@@ -14,9 +14,7 @@
 #ifndef Q3CACHE_H
 #define Q3CACHE_H
 
-#ifndef QT_H
 #include "qgcache.h"
-#endif // QT_H
 
 template<class type>
 class Q3Cache

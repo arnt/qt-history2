@@ -14,14 +14,12 @@
 #ifndef QSTRINGLIST_H
 #define QSTRINGLIST_H
 
-#ifndef QT_H
 #include "qalgorithms.h"
 #include "qdatastream.h"
 #include "qlist.h"
 #include "qregexp.h"
 #include "qstring.h"
 #include "qstringmatcher.h"
-#endif // QT_H
 
 #ifdef QT_INCLUDE_COMPAT
 #include <qvaluelist.h>

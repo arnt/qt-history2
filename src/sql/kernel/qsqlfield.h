@@ -14,10 +14,8 @@
 #ifndef QSQLFIELD_H
 #define QSQLFIELD_H
 
-#ifndef QT_H
 #include "qcorevariant.h"
 #include "qstring.h"
-#endif // QT_H
 
 #if defined(QT_LICENSE_PROFESSIONAL)
 #define QM_EXPORT_SQL

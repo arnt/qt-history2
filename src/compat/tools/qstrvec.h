@@ -14,11 +14,9 @@
 #ifndef QSTRVEC_H
 #define QSTRVEC_H
 
-#ifndef QT_H
 #include "qstring.h"
 #include "qptrvector.h"
 #include "qdatastream.h"
-#endif // QT_H
 
 class Q_COMPAT_EXPORT QStrVec : public QPtrVector<char>
 {

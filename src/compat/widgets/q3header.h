@@ -14,11 +14,9 @@
 #ifndef Q3HEADER_H
 #define Q3HEADER_H
 
-#ifndef QT_H
 #include "qwidget.h"
 #include "qstring.h"
 #include "qiconset.h" // conversion QPixmap->QIconset
-#endif // QT_H
 
 #ifndef QT_NO_HEADER
 

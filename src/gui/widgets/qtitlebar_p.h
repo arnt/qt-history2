@@ -28,10 +28,8 @@
 //
 
 
-#ifndef QT_H
 #include "qwidget.h"
 #include "qstyleoption.h"
-#endif // QT_H
 
 #if !defined(QT_NO_TITLEBAR)
 

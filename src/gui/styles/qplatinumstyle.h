@@ -14,9 +14,7 @@
 #ifndef QPLATINUMSTYLE_H
 #define QPLATINUMSTYLE_H
 
-#ifndef QT_H
 #include "qwindowsstyle.h"
-#endif // QT_H
 
 #if !defined(QT_NO_STYLE_PLATINUM) || defined(QT_PLUGIN)
 

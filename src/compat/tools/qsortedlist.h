@@ -14,9 +14,7 @@
 #ifndef QSORTEDLIST_H
 #define QSORTEDLIST_H
 
-#ifndef QT_H
 #include "qptrlist.h"
-#endif // QT_H
 
 
 template<class type>

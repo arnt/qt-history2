@@ -24,11 +24,10 @@
 // We mean it.
 //
 //
-#ifndef QT_H
 #include <qatomic.h>
 # if defined (Q_WS_MAC)
 #  include <private/qt_mac_p.h>
-#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
+#  if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
 #    define QMAC_USE_BIG_CURSOR_API
 #  endif
 #  ifndef QMAC_NO_FAKECURSOR
@@ -39,7 +38,6 @@
 #  include <private/qt_x11_p.h>
 # elif defined(Q_WS_WIN)
 #  include <qt_windows.h>
-# endif
 #endif
 
 class QBitmap;
