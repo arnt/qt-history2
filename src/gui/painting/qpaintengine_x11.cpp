@@ -1548,15 +1548,15 @@ void QX11PaintEngine::updateClipRegion(const QRegion &clipRegion, Qt::ClipOperat
     }
 
     switch (op) {
+    case Qt::IntersectClip:
+        if (testf(ClipOn)) {
+            d->crgn &= clipRegion;
+            break;
+        }
+        // fall through
     case Qt::ReplaceClip:
         if (!sysClip.isEmpty())
             d->crgn = clipRegion.intersect(sysClip);
-        else
-            d->crgn = clipRegion;
-        break;
-    case Qt::IntersectClip:
-        if (testf(ClipOn))
-            d->crgn &= clipRegion;
         else
             d->crgn = clipRegion;
         break;
