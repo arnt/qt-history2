@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qarray.h#7 $
+** $Id: //depot/qt/main/src/tools/qarray.h#8 $
 **
 ** Definition of QArray template/macro class
 **
@@ -52,6 +52,7 @@ public:									      \
     bool  truncate( uint pos )	{ return QGArray::resize(pos*sizeof(type)); } \
     bool  fill( const type &d, int size=-1 )				      \
 	{ return QGArray::fill((char*)&d,size,sizeof(type) ); }		      \
+    void  detach()		{ QGArray::detach(); }			      \
     QArrayM(type)   copy() const					      \
 	{ QArrayM(type) tmp; return tmp.duplicate(*this); }		      \
     QArrayM(type)& assign( const QArrayM(type)& a )			      \
@@ -105,6 +106,7 @@ public:
     bool  truncate( uint pos )	{ return QGArray::resize(pos*sizeof(type)); }
     bool  fill( const type &d, int size=-1 )
 	{ return QGArray::fill((char*)&d,size,sizeof(type) ); }
+    void  detach()		{ QGArray::detach(); }
     QArrayT<type>   copy() const
 	{ QArrayT<type> tmp; return tmp.duplicate(*this); }
     QArrayT<type>& assign( const QArrayT<type>& a )
