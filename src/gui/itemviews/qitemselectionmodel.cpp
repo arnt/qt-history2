@@ -652,16 +652,17 @@ void QItemSelectionModel::selectAll()
         } else if (index.isValid()) {
             // go to sibling
             QModelIndex parent = model()->parent(index);
-            int row = (index.row() + 1) % model()->rowCount(parent);
-            int column = index.column() + (index.row() + 1) / model()->rowCount(parent);
+            int row = index.row() + (index.column() + 1) / model()->columnCount(parent);
+            int column = (index.column() + 1) % model()->columnCount(parent);
             index = model()->sibling(row, column, index);
 
             // go to parent sibling/grandparent sibling etc. if not sibling valid
             while (!index.isValid() && parent.isValid()) {
-                parent = model()->parent(parent);
-                row = (index.row() + 1) % model()->rowCount(parent);
-                column = index.column() + (index.row() + 1) / model()->rowCount(parent);
-                index = model()->sibling(row, column, index);
+                QModelIndex grandParent = model()->parent(parent);
+                row = parent.row() + (parent.column() + 1) / model()->columnCount(grandParent);
+                column = (parent.column() + 1) % model()->columnCount(grandParent);
+                index = model()->sibling(row, column, parent);
+                parent = grandParent;
             }
         }
     } while(index.isValid());
