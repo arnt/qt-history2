@@ -1231,16 +1231,28 @@ QObjectList QObject::queryList(const char *inheritsClass,
     \sa findChildren()
 */
 
-/*! \fn QList<T> QObject::findChildren(const QString &name) const
-    Returns the children of this object that can be casted into type T
-    and that are called \a name, or an empty list if there are no such objects.
+/*! 
+    \fn QList<T> QObject::findChildren(const QString &name) const
+    Returns the children of this object with the given \a name that can be
+    cast to type T, or an empty list if there are no such objects.
     A null string matches all object names.
     The search is performed recursively.
+
+    The following examples show how to find a list of child \l{QWidget}s of
+    the specified \c{parentWidget}:
+
+    \code
+    QList<QWidget*> widgets = parentWidget.findChildren<QWidget *>("widgetname");
+    QList<QWidget*> allWidgets = parentWidget.findChildren<QWidget *>("");
+    \endcode
+
+    The second example obtains all QWidget children of the \c{parentWidget}.
 
     \sa findChild()
 */
 
-/*! \fn QList<T> QObject::findChildren(const QRegExp &re) const
+/*! 
+    \fn QList<T> QObject::findChildren(const QRegExp &re) const
     \overload
 
     Returns the children of this object that can be casted to type T
