@@ -999,7 +999,7 @@ QTextDocument::QTextDocument( QTextDocument *p )
     lParag = fParag = new QTextParag( this, 0, 0 );
     tmpCursor = 0;
 
-    cx = 4;
+    cx = 0;
     cy = 2;
     if ( p )
 	cx = cy = 0;
@@ -2854,7 +2854,8 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 	}
 
 	//if something (format, etc.) changed, draw what we have so far
-	if ( lastDirection != chr->rightToLeft || chr->rightToLeft ||
+	if ( ( align & Qt::AlignJustify ) == Qt::AlignJustify ||
+	     lastDirection != chr->rightToLeft || chr->rightToLeft ||
 	     lastY != cy || chr->format() != lastFormat || buffer == "\t" || chr->c == '\t' ||
 	     selectionChange || chr->isCustom ) {
 	    drawParagBuffer( painter, buffer, startX, lastY, lastBaseLine, bw, h, drawSelections,
@@ -2922,7 +2923,7 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 	    painter.save();
 	}
     }
-	    
+	
 }
 
 void QTextParag::drawParagBuffer( QPainter &painter, const QString &buffer, int startX,
@@ -3187,7 +3188,7 @@ QTextParag::LineStart *QTextFormatter::formatLine( QTextString *string, QTextPar
 	    string->at( j ).x += toAdd;
 	}
     }	
-        
+
     return new QTextParag::LineStart();
 }
 
@@ -3719,7 +3720,7 @@ QTextParag::LineStart *QTextFormatter::bidiReorderLine( QTextString *text, QText
 
     // now construct the reordered string out of the runs...
 
-    int x = 0;
+    int x = 4;
     int numSpaces = 0;
     // set the correct alignment. This is a bit messy....
     if( align == Qt::AlignAuto ) {
@@ -3730,7 +3731,7 @@ QTextParag::LineStart *QTextFormatter::bidiReorderLine( QTextString *text, QText
 
     if ( align & Qt::AlignHCenter )
 	x += space/2;
-    else if ( align & Qt::AlignRight ) 
+    else if ( align & Qt::AlignRight )
 	x += space;
     else if ( align & Qt::AlignJustify ) {
 	for ( int j = start; j < last; ++j ) {
@@ -3740,7 +3741,7 @@ QTextParag::LineStart *QTextFormatter::bidiReorderLine( QTextString *text, QText
 	}
     }
     int toAdd = 0;
-        
+
     // in rtl text the leftmost character is usually a space
     // this space should not take up visible space on the left side, to get alignment right.
     // the following bool is used for that purpose
@@ -3829,9 +3830,9 @@ int QTextFormatterBreakInWords::format( QTextParag *parag, int start, const QMap
 {
     QTextString::Char *c = 0;
     QTextString::Char *firstChar = 0;
-    int left = parag->leftMargin();
+    int left = parag->leftMargin() + 4;
     int x = left;
-    int dw = doc->width();
+    int dw = doc->width() - 8;
     int y = 0;
     int h = 0;
     int len = parag->length();
@@ -3932,10 +3933,10 @@ int QTextFormatterBreakWords::format( QTextParag *parag, int start, const QMap<i
     QTextString::Char *c = 0;
     QTextString::Char *firstChar = 0;
     QTextString *string = parag->string();
-    int left = parag->leftMargin();
+    int left = parag->leftMargin() + 4;
     int x = left;
     int curLeft = left;
-    int dw = doc->width();
+    int dw = doc->width() - 8;
     int y = 0;
     int h = 0;
     int len = parag->length();
@@ -3964,7 +3965,7 @@ int QTextFormatterBreakWords::format( QTextParag *parag, int start, const QMap<i
 
     int align = parag->alignment();
 
-    
+
     for ( ; i < len; ++i ) {
 	c = &string->at( i );
 	if ( i > 0 && x > curLeft || lastWasNonInlineCustom ) {
