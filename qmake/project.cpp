@@ -119,7 +119,7 @@ QMakeProject::parse(QString file, QString t, QMap<QString, QStringList> &place)
 	else if ( *d == ')' )
 	    --parens;
 
-	if(*d == ':' || *d == '{' || ( *d == ')' && !parens )) {
+	if(!parens && (*d == ':' || *d == '{' || *d == ')')) {
 	    scope_count++;
 	    scope = var.stripWhiteSpace();
 	    if ( *d == ')' )
