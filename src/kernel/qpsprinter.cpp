@@ -2828,7 +2828,7 @@ QPSPrinterFontTTF::QPSPrinterFontTTF(const QFont &f, QByteArray& d)
       return;
   }
   numGlyphs = getUSHORT( maxp + 4 );
-  qDebug("number of glyphs is %d", numGlyphs);
+//  qDebug("number of glyphs is %d", numGlyphs);
   replacementList = makePSFontNameList( f, psname );
   uni2glyphSetup();
 }
@@ -6016,7 +6016,7 @@ void QPSPrinterPrivate::flushPage( bool last )
 //           ( pagesInBuffer > 4 && buffer->size() > 262144 ) ) )
          last || buffer->size() > 2000000 )
     {
-        qDebug("emiting header at page %d", pageCount );
+//        qDebug("emiting header at page %d", pageCount );
         emitHeader( last );
     }
     outStream << "%%Page: "
