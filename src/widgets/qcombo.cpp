@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombo.cpp#76 $
+** $Id: //depot/qt/main/src/widgets/qcombo.cpp#77 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -23,7 +23,7 @@
 #include "qlined.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#76 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#77 $");
 
 
 /*!
@@ -354,25 +354,22 @@ void QComboBox::insertStrList( const QStrList *list, int index )
     const char *tmp;
     if ( index < 0 )
 	index = count();
-    bool updcur = d->current == 0 && index == 0;
     while ( (tmp=it.current()) ) {
 	++it;
 	if ( d->usingListBox )
-	    d->listBox->insertItem( tmp, index++ );
+	    d->listBox->insertItem( tmp, index );
 	else
-	    d->popup->insertItem( tmp, index++ );
+	    d->popup->insertItem( tmp, index );
+	if ( index++ == d->current ) {
+	    if ( d->ed )
+		d->ed->setText( text( d->current ) );
+	    else
+		repaint();
+	    currentChanged();
+	}
     }
     if ( index != count() )
 	reIndex();
-    if ( index <= d->current ) {
-	if ( d->ed )
-	    d->ed->setText( text( d->current ) );
-	else
-	    repaint();
-    }
-	
-    if ( updcur )
-	currentChanged();
 }
 
 /*!
@@ -399,25 +396,23 @@ void QComboBox::insertStrList( const char **strings, int numStrings, int index)
     }
     if ( index < 0 )
 	index = count();
-    bool updcur = d->current == 0 && index == 0;
     int i = 0;
     while ( (numStrings<0 && strings[i]!=0) || i<numStrings ) {
 	if ( d->usingListBox )
-	    d->listBox->insertItem( strings[i], index++ );
+	    d->listBox->insertItem( strings[i], index );
 	else
-	    d->popup->insertItem( strings[i], index++ );
+	    d->popup->insertItem( strings[i], index );
 	i++;
+	if ( index++ == d->current ) {
+	    if ( d->ed )
+		d->ed->setText( text( d->current ) );
+	    else
+		repaint();
+	    currentChanged();
+	}
     }
     if ( index != count() )
 	reIndex();
-    if ( index <= d->current ) {
-	if ( d->ed )
-	    d->ed->setText( text( d->current ) );
-	else
-	    repaint();
-    }
-    if ( updcur )
-	currentChanged();
 }
 
 
