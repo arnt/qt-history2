@@ -128,6 +128,7 @@ static EventLoopTimerUPP mac_context_timerUPP = 0;
 static DMExtendedNotificationUPP mac_display_changeUPP = 0;
 static EventHandlerRef app_proc_handler = 0;
 static EventHandlerUPP app_proc_handlerUPP = 0;
+static AEEventHandlerUPP app_proc_ae_handlerUPP = NULL;
 //popup variables
 static QWidget     *popupButtonFocus = 0;
 static QWidget     *popupOfPopupButtonFocus = 0;
@@ -978,6 +979,11 @@ void qt_init(QApplicationPrivate *priv, QApplication::Type)
 	    qt_init_app_proc_handler();
 	}
 
+	if(!app_proc_ae_handlerUPP) {
+	    app_proc_ae_handlerUPP = AEEventHandlerUPP(QApplication::globalAppleEventProcessor);
+	    AEInstallEventHandler(typeWildCard, typeWildCard, app_proc_ae_handlerUPP, (long)qApp, true);
+	}
+
 	if(QApplication::app_style) {
 	    QEvent ev(QEvent::Style);
 	    qt_sendSpontaneousEvent(QApplication::app_style, &ev);
@@ -996,6 +1002,11 @@ void qt_cleanup()
     if(app_proc_handlerUPP) {
 	DisposeEventHandlerUPP(app_proc_handlerUPP);
 	app_proc_handlerUPP = 0;
+    }
+    if(app_proc_ae_handlerUPP) {
+	AERemoveEventHandler(typeWildCard, typeWildCard, app_proc_ae_handlerUPP, true);
+	DisposeAEEventHandlerUPP(app_proc_ae_handlerUPP);
+	app_proc_ae_handlerUPP = NULL;
     }
     QPixmapCache::clear();
     if(qt_is_gui_used) {
@@ -2618,39 +2629,13 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
     case kEventClassAppleEvent:
 	handled_event = FALSE;
 	if(ekind == kEventAppleEvent) {
-	    OSType aeID, aeClass;
-	    GetEventParameter(event, kEventParamAEEventClass, typeType,
-			      0, sizeof(aeClass), 0, &aeClass);
-	    GetEventParameter(event, kEventParamAEEventID, typeType,
-			      0, sizeof(aeID), 0, &aeID);
-#ifdef DEBUG_EVENTS
-	    qDebug("Qt: internal: Apple event! %c%c%c%c %c%c%c%c", 
-		   char(aeID >> 24), char((aeID >> 16) & 255), char((aeID >> 8) & 255),char(aeID & 255),
-		   char(aeClass >> 24), char((aeClass >> 16) & 255), char((aeClass >> 8) & 255),char(aeClass & 255));
-#endif
-	    if(aeClass == kCoreEventClass) {
-		switch(aeID) {
-		case kAEQuitApplication: {
-		    if(!qt_modal_state() || IsMenuCommandEnabled(0, kHICommandQuit)) {
-			QCloseEvent ev;
-			QApplication::sendSpontaneousEvent(app, &ev);
-			if(ev.isAccepted()) {
-			    handled_event = TRUE;
-			    app->quit();
-			}
-		    }
-		    break; }
-		default:
-		    break;
-		}
-	    }
-	    if(!handled_event) {
-		EventRecord erec;
-		if(!ConvertEventRefToEventRecord(event, &erec))
-		    qDebug("Qt: internal: WH0A, unexpected condition reached. %s:%d", __FILE__, __LINE__);
-		else if(AEProcessAppleEvent(&erec) == noErr)
-		    handled_event = TRUE;
-	    }
+	    EventRecord erec;
+	    if(!ConvertEventRefToEventRecord(event, &erec))
+		qDebug("Qt: internal: WH0A, unexpected condition reached. %s:%d", __FILE__, __LINE__);
+	    else if(AEProcessAppleEvent(&erec) == noErr)
+		handled_event = TRUE;
+	} else {
+	    handled_event = FALSE;
 	}
 	break;
     case kEventClassCommand:
@@ -2714,6 +2699,64 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
     qDebug("%shandled event %c%c%c%c %d", handled_event ? "(*) " : "",
 	   char(eclass >> 24), char((eclass >> 16) & 255), char((eclass >> 8) & 255),
 	   char(eclass & 255), (int)ekind);
+#endif
+    if(!handled_event) //let the event go through
+	return eventNotHandledErr;
+#ifdef QMAC_USE_APPLICATION_EVENT_LOOP
+    QuitApplicationEventLoop();
+#endif
+    return noErr; //we eat the event
+}
+
+OSStatus QApplication::globalAppleEventProcessor(const AppleEvent *ae, AppleEvent *, long handlerRefcon)
+{
+    QApplication *app = (QApplication *)handlerRefcon;
+    bool handled_event=FALSE;
+    OSType aeID=typeWildCard, aeClass=typeWildCard;
+    AEGetAttributePtr(ae, keyEventClassAttr, typeType, 0, &aeClass, sizeof(aeClass), 0);
+    AEGetAttributePtr(ae, keyEventIDAttr, typeType, 0, &aeID, sizeof(aeID), 0);
+    if(aeClass == kCoreEventClass) {
+	switch(aeID) {
+	case kAEQuitApplication: {
+	    if(!qt_modal_state() || IsMenuCommandEnabled(NULL, kHICommandQuit)) {
+		QCloseEvent ev;
+		QApplication::sendSpontaneousEvent(app, &ev);
+		if(ev.isAccepted()) {
+		    handled_event = TRUE;
+		    app->quit();
+		}
+	    }
+	    break; }
+	case kAEOpenDocuments: {
+#if 0
+	    AEDescList docs;
+	    if(AEGetParamDesc(ae, keyDirectObject, typeAEList, &docs) == noErr) {
+		long cnt = 0;
+		AECountItems(&docs, &cnt);
+		UInt8 *str_buffer = NULL;
+		for(int i = 0; i < cnt; i++) {
+		    FSRef ref;
+		    if(AEGetNthPtr(&docs, i+1, typeFSRef, 0, 0, &ref, sizeof(ref), 0) != noErr)
+			continue;
+		    if(!str_buffer) 
+			str_buffer = (UInt8 *)malloc(1024);
+		    FSRefMakePath(&ref, str_buffer, 1024);
+		    QString file = QString::fromUtf8((const char *)str_buffer);
+		    qDebug("asked to open %s", file.latin1());
+		}
+		if(str_buffer)
+		    free(str_buffer);
+	    }
+#endif	    
+	    break; }
+	default:
+	    break;
+	}
+    }
+#ifdef DEBUG_EVENTS
+    qDebug("Qt: internal: %shandled Apple event! %c%c%c%c %c%c%c%c", handled_event ? "(*)" : "",
+	   char(aeID >> 24), char((aeID >> 16) & 255), char((aeID >> 8) & 255),char(aeID & 255),
+	   char(aeClass >> 24), char((aeClass >> 16) & 255), char((aeClass >> 8) & 255),char(aeClass & 255));
 #endif
     if(!handled_event) //let the event go through
 	return eventNotHandledErr;

@@ -319,14 +319,9 @@ QStringList QFileDialog::macGetOpenFileNames(const QString &filter, QString *pwd
 	return retstrl;
     }
 
-    AEKeyword	keyword;
-    DescType    type;
-    Size        size;
-    FSRef ref;
-
     for(long index = 1; index <= count; index++) {
-	err = AEGetNthPtr(&(ret.selection), index, typeFSRef, &keyword,
-			  &type,&ref, sizeof(ref), &size);
+	FSRef ref;
+	err = AEGetNthPtr(&(ret.selection), index, typeFSRef, 0, 0, &ref, sizeof(ref), 0);
 	if(err != noErr)
 	    break;
 

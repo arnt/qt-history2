@@ -95,6 +95,7 @@ typedef struct BitMap BitMap;
 typedef struct EventRecord EventRecord;
 typedef void * MSG;
 typedef int WId;
+typedef struct AEDesc AppleEvent;
 #endif // Q_WS_MAC
 
 #if defined(Q_WS_WIN)
