@@ -963,7 +963,7 @@ void MainWindow::fileNewDialog()
     static int forms = 0;
     QString n = "Dialog" + QString::number( ++forms );
     FormWindow *fw = 0;
-    FormFile *ff = new FormFile( n, FALSE, currentProject );
+    FormFile *ff = new FormFile( n + ".ui", FALSE, currentProject );
     fw = new FormWindow( ff, MainWindow::self, MainWindow::self->qWorkspace(), n );
     fw->setProject( currentProject );
     MetaDataBase::addEntry( fw );
