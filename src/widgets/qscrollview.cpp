@@ -465,7 +465,7 @@ void QScrollViewData::viewportResized( int w, int h )
     as you would subclass other widgets, but rather than
     reimplementing mousePressEvent(), reimplement
     contentsMousePressEvent() instead. The contents specific event
-    handers provide translated events in the coordinate system of the
+    handlers provide translated events in the coordinate system of the
     scrollview. If you reimplement mousePressEvent(), you'll get
     called only when part of the QScrollView is clicked: and the only
     such part is the "corner" (if you don't set a cornerWidget()) and
