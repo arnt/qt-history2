@@ -135,6 +135,7 @@ QSqlDatabaseManager::~QSqlDatabaseManager()
         it.current()->close();
         ++it;
     }
+	dbDict.setAutoDelete( TRUE );
 }
 
 static QSqlDatabaseManager * sqlConnection = 0;
