@@ -97,46 +97,38 @@ QFontEngineMac::draw(QPaintEngine *p, int req_x, int req_y, const QTextItem &si)
 {
     if(p->type() == QPaintEngine::MacPrinter)
         p = static_cast<QMacPrintEngine*>(p)->paintEngine();
+    QPainterState *pState = p->painterState();
     int x = req_x, y = req_y;
 
-    QPainterState *pState = p->painterState();
-    int txop = pState->txop;
-
-    if(!p->hasFeature(QPaintEngine::CoordTransform)) {
-        if(txop >= QPainterPrivate::TxScale) {
-            float aw = si.width, ah = si.ascent + si.descent + 1;
-            if(aw == 0 || ah == 0)
-                return;
-            QBitmap bm(qRound(aw), qRound(ah), true);        // create bitmap
-            {
-                QPainter paint(&bm);  // draw text in bitmap
-                paint.setPen(Qt::color1);
-                paint.drawTextItem(QPoint(0, qRound(si.ascent)), si);
-                paint.end();
-            }
-
-            QPixmap pm(bm.size());
-            if(pState->painter->backgroundMode() == Qt::OpaqueMode) {
-                pm = bm;
-                bm.fill(Qt::color1);
-                pm.setMask(bm);
-            } else {
-                QPainter paint(&pm);
-                paint.fillRect(0, 0, pm.width(), pm.height(), pState->painter->pen().color());
-                paint.end();
-                pm.setMask(bm);
-            }
-
-            pState->painter->drawPixmap(x, y - qRound(si.ascent), pm);
+#if 1
+    if(!p->hasFeature(QPaintEngine::CoordTransform) && pState->txop) {
+        float aw = si.width, ah = si.ascent + si.descent + 1;
+        if(aw == 0 || ah == 0)
             return;
+        QBitmap bm(qRound(aw), qRound(ah), true);        // create bitmap
+        {
+            QPainter paint(&bm);  // draw text in bitmap
+            paint.setPen(Qt::color1);
+            paint.drawTextItem(QPoint(0, qRound(si.ascent)), si);
+            paint.end();
         }
-        if(txop == QPainterPrivate::TxTranslate) {
-            QPoint tmpPt(x, y);
-            tmpPt = tmpPt * pState->painter->matrix();
-            x = tmpPt.x();
-            y = tmpPt.y();
+
+        QPixmap pm(bm.size());
+        if(pState->painter->backgroundMode() == Qt::OpaqueMode) {
+            pm = bm;
+            bm.fill(Qt::color1);
+            pm.setMask(bm);
+        } else {
+            QPainter paint(&pm);
+            paint.fillRect(0, 0, pm.width(), pm.height(), pState->painter->pen().color());
+            paint.end();
+            pm.setMask(bm);
         }
+
+        pState->painter->drawPixmap(x, y - qRound(si.ascent), pm);
+        return;
     }
+#endif
     if(p->type() == QPaintEngine::QuickDraw) {
         QQuickDrawPaintEngine *mgc = static_cast<QQuickDrawPaintEngine *>(p);
         mgc->syncState();
@@ -370,14 +362,17 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
     { //transformations
         CGAffineTransform tf = CGAffineTransformIdentity;
         if((task & DRAW) && p && p->type() == QPaintEngine::CoreGraphics) { //flip text
+#if 0
             int height = 0;
             if(widget)
                 height = widget->topLevelWidget()->height();
             else
                 height = device->metric(QPaintDevice::PdmHeight);
             tf = CGAffineTransformTranslate(tf, 0, height);
+#endif
             tf = CGAffineTransformScale(tf, 1, -1);
         }
+
         if(fontDef.stretch != 100)
             tf = CGAffineTransformScale(tf, fontDef.stretch/100, 1);
         if(fontDef.italic)   //we cannot do italic since ATSUI just skews the matrix
@@ -539,28 +534,52 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
             widthCache[s->unicode()] = ret ? ret : -777; //mark so that 0 is cached..
     }
     if(task & DRAW) {
-        int drawy = y;
+        bool transform = false;
+        CGAffineTransform oldMatrix = CGContextGetCTM(ctx), newMatrix;
+#if 0
+        if(p->type() == QPaintEngine::QuickDraw && pState) {
+            CGAffineTransform xf = CGAffineTransformMake(pState->matrix.m11(), pState->matrix.m12(),
+                                                         pState->matrix.m21(), pState->matrix.m22(),
+                                                         pState->matrix.dx(),  pState->matrix.dy());
+            newMatrix = CGAffineTransformConcat(xf, oldMatrix);
+            transform = true;
+        } else 
+#endif
+        {
+            newMatrix = oldMatrix;
+        }
         if(ctx_port) {
             int height = 0;
             if(widget)
                 height = widget->topLevelWidget()->height();
             else
                 height = device->metric(QPaintDevice::PdmHeight);
-            drawy = height-drawy;
+#if 0
+            newMatrix = CGAffineTransformTranslate(newMatrix, 0, height);
+            transform = true;
+#else
+            y = height - y;
+#endif
         }
-        // check whether x or y is outside our 16bit limits. If it is, need to do some transforms.
-        if (qAbs(x) > SHRT_MAX || qAbs(drawy) > SHRT_MAX) {
-            CGContextSaveGState(ctx);
-            CGAffineTransform myMatrix = CGContextGetCTM(ctx);
-            float tx = myMatrix.tx;
-            float ty = myMatrix.ty;
-            CGContextTranslateCTM(ctx, -tx, ty);
-            ATSUDrawText(mTextLayout, kATSUFromTextBeginning, kATSUToTextEnd,
-                         FixRatio(qRound(x + tx), 1), FixRatio(qRound(drawy - ty), 1));
-            CGContextRestoreGState(ctx);
+        if (qAbs(x) > SHRT_MAX || qAbs(y) > SHRT_MAX) { //bound to 16bit
+            const float tx = newMatrix.tx, ty = newMatrix.ty;
+            newMatrix = CGAffineTransformTranslate(newMatrix, tx, ty);
+            x -= qRound(tx);
+            y -= qRound(ty);
+            transform = true;
+        }
+        if(transform) {
+            CGContextConcatCTM(ctx, CGAffineTransformInvert(oldMatrix));
+            CGContextConcatCTM(ctx, newMatrix);
+            CGContextSetTextMatrix(ctx, newMatrix);
+            ATSUDrawText(mTextLayout, kATSUFromTextBeginning, kATSUToTextEnd, 
+                         IntToFixed(x), IntToFixed(y));
+            CGContextConcatCTM(ctx, CGAffineTransformInvert(CGContextGetCTM(ctx)));
+            CGContextConcatCTM(ctx, oldMatrix);
+            CGContextSetTextMatrix(ctx, oldMatrix);
         } else {
-            ATSUDrawText(mTextLayout, kATSUFromTextBeginning, kATSUToTextEnd, FixRatio(x, 1),
-                         FixRatio(drawy, 1));
+            ATSUDrawText(mTextLayout, kATSUFromTextBeginning, kATSUToTextEnd, 
+                         IntToFixed(x), IntToFixed(y));
         }
     }
     if(ctx_port)
