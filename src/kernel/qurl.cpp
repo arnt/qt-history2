@@ -295,6 +295,7 @@ QUrl::QUrl( const QUrl& url, const QString& relUrl, bool checkSlash )
 	} else {
 	    decode( rel );
 	    *this = url;
+	    setRef( QString::null );
 	    if ( !checkSlash || d->cleanPath[ (int)path().length() - 1 ] == '/' ) {
 		QString p = url.path();
 		if ( p.isEmpty() )
