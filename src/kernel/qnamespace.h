@@ -190,24 +190,24 @@ public:
 #if defined(Q_WS_X11)
 	WX11BypassWM		= 0x01000000,
 	WWinOwnDC		= 0x00000000,
-	WMacNotSheet            = 0x00000000,
+	WMacNoSheet             = 0x00000000,
         WMacDrawer              = 0x00000000,
 #elif defined(Q_WS_MAC)
 	WX11BypassWM		= 0x00000000,
 	WWinOwnDC		= 0x00000000,
-	WMacNotSheet            = 0x01000000,
+	WMacNoSheet             = 0x01000000,
         WMacDrawer              = 0x20000000,
 #else
 	WX11BypassWM		= 0x00000000,
 	WWinOwnDC		= 0x01000000,
-	WMacNotSheet            = 0x00000000,
+	WMacNoSheet             = 0x00000000,
         WMacDrawer              = 0x00000000,
 #endif
 	WGroupLeader 		= 0x02000000,
 	WShowModal 	       	= 0x04000000,
 	WNoMousePropagation	= 0x08000000,
 	WSubWindow              = 0x10000000,
-	WStyle_Splash           = WStyle_NoBorder | WStyle_StaysOnTop | WMacNotSheet |
+	WStyle_Splash           = WStyle_NoBorder | WStyle_StaysOnTop | WMacNoSheet |
 	                          WStyle_Tool | WX11BypassWM | WWinOwnDC
 #ifndef QT_NO_COMPAT
 	,
