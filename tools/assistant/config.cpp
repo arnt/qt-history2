@@ -34,7 +34,7 @@ static inline QString getVersionString()
 }
 
 Config::Config()
-    : hideSidebar( FALSE ), profil( 0 ), maximized(FALSE)
+    : hideSidebar( FALSE ), profil( 0 ), fontSiz(-1), maximized(FALSE)
 {
     if( !static_configuration ) {
 	static_configuration = this;
@@ -98,19 +98,19 @@ void Config::load()
     webBrows = settings.readEntry( key + "Webbrowser" );
     home = settings.readEntry( profkey + "Homepage" );
     pdfApp = settings.readEntry( key + "PDFApplication" );
-    fontFam = settings.readEntry( key + "Family", qApp->font().family() );
-
-    fontFix = settings.readEntry( key + "FixedFamily", "courier" );
-    fontSiz = settings.readNumEntry( key + "Size", -1 );
-    if ( fontSiz == -1 ) {
-	QFontInfo fi( qApp->font() );
-	fontSiz = fi.pointSize();
-    }
     linkUnder = settings.readBoolEntry( key + "LinkUnderline", TRUE );
     linkCol = settings.readEntry( key + "LinkColor", "#0000FF" );
     src = settings.readListEntry( profkey + "Source" );
     sideBar = settings.readNumEntry( key + "SideBarPage" );
     if (qApp->type() != QApplication::Tty) {
+	fontFam = settings.readEntry( key + "Family", qApp->font().family() );
+
+	fontFix = settings.readEntry( key + "FixedFamily", "courier" );
+	fontSiz = settings.readNumEntry( key + "Size", -1 );
+	if ( fontSiz == -1 ) {
+	    QFontInfo fi( qApp->font() );
+	    fontSiz = fi.pointSize();
+	}
 	geom.setRect( settings.readNumEntry( key + "GeometryX", QApplication::desktop()->availableGeometry().x() ),
 		      settings.readNumEntry( key + "GeometryY", QApplication::desktop()->availableGeometry().y() ),
 		      settings.readNumEntry( key + "GeometryWidth", 800 ),
@@ -140,9 +140,6 @@ void Config::saveSettings()
     settings.writeEntry( key + "Webbrowser", webBrows );
     settings.writeEntry( profkey + "Homepage", home );
     settings.writeEntry( key + "PDFApplication", pdfApp );
-    settings.writeEntry( key + "Family",  fontFam );
-    settings.writeEntry( key + "Size",  fontSiz );
-    settings.writeEntry( key + "FixedFamily", fontFix );
     settings.writeEntry( key + "LinkUnderline", linkUnder );
     settings.writeEntry( key + "LinkColor", linkCol );
     settings.writeEntry( profkey + "Source", src );
@@ -153,6 +150,9 @@ void Config::saveSettings()
 	settings.writeEntry( key + "GeometryWidth", geom.width() );
 	settings.writeEntry( key + "GeometryHeight", geom.height() );
 	settings.writeEntry( key + "GeometryMaximized", maximized );
+	settings.writeEntry( key + "Family",  fontFam );
+	settings.writeEntry( key + "Size",  fontSiz );
+	settings.writeEntry( key + "FixedFamily", fontFix );
     }
     if ( !hideSidebar )
 	settings.writeEntry( key + "MainwindowLayout", mainWinLayout );
