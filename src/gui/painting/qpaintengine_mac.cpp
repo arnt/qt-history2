@@ -982,8 +982,8 @@ static void qt_mac_clip_cg_reset(CGContextRef hd)
 
     //do the clip reset
     QRect qrect = QRect(0, 0, 99999, 999999);
-    Rect qdr; SetRect(&qdr, qrect.left(), qrect.top(), qrect.right()+QRect::rectangleMode(),
-                      qrect.bottom()+QRect::rectangleMode());
+    Rect qdr; SetRect(&qdr, qrect.left(), qrect.top(), qrect.right() + 1,
+                      qrect.bottom() + 1);
     ClipCGContextToRegion(hd, &qdr, QRegion(qrect).handle(true));
 
     //reset xforms
@@ -1009,8 +1009,7 @@ static void qt_mac_clip_cg(CGContextRef hd, const QRegion &rgn, const QPoint *pt
         const int count = rects.size();
         for(int i = 0; i < count; i++) {
             const QRect &r = rects[i];
-            CGRect mac_r = CGRectMake(r.x(), r.y(), r.width()-(!QRect::rectangleMode()),
-                                      r.height()-(!QRect::rectangleMode()));
+            CGRect mac_r = CGRectMake(r.x(), r.y(), r.width(), r.height());
             if(pt) {
                 mac_r.origin.x -= pt->x();
                 mac_r.origin.y -= pt->y();

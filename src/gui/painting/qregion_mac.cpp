@@ -117,8 +117,8 @@ RgnHandle QRegion::handle(bool require_rgn) const
             for(int i = 0; i < d->qt_rgn->numRects; ++i) {
                 const QRect &qt_r = d->qt_rgn->rects[i];
                 SetRectRgn(tmp_rgn, qMax(SHRT_MIN, qt_r.x()), qMax(SHRT_MIN, qt_r.y()),
-                           qMin(SHRT_MAX, qt_r.right() + QRect::rectangleMode()), 
-                           qMin(SHRT_MAX, qt_r.bottom() + QRect::rectangleMode()));
+                           qMin(SHRT_MAX, qt_r.right() + 1),
+                           qMin(SHRT_MAX, qt_r.bottom() + 1));
                 UnionRgn(d->rgn, tmp_rgn, d->rgn);
             }
             qt_mac_dispose_rgn(tmp_rgn);

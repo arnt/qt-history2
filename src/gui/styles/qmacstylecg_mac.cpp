@@ -62,10 +62,7 @@ static inline HIRect qt_hirectForQRect(const QRect &convertRect, QPainter *p = 0
     int x, y;
     int offset = 0;
     if (useOffset) {
-        if(QRect::rectangleMode() == QRect::InclusiveRectangles)
-            offset = 1;
-        else
-            offset = 2;
+        offset = 1;
     }
     if (p) {
         p->map(convertRect.x(), convertRect.y(), &x, &y);
@@ -537,7 +534,7 @@ int QMacStyleCG::styleHint(StyleHint sh, const QWidget *widget, const Q3StyleOpt
         if (widget
             && (widget->isTopLevel() || !widget->parentWidget()
                 || widget->parentWidget()->isTopLevel())
-            && (qt_cast<QViewport *>(widget)
+            && (qt_cast<const QViewport *>(widget)
 #ifdef QT_COMPAT
                 || widget->inherits("QScrollView")
 #endif
@@ -1026,7 +1023,7 @@ void QMacStyleCG::drawControl(ControlElement ce, const QStyleOption *opt, QPaint
                     break;
             }
             int x, y, w, h;
-            mi->rect.rect(&x, &y, &w, &h);
+            mi->rect.getRect(&x, &y, &w, &h);
             int xpos = x + 18;
             int checkcol = maxpmw;
             int xm = macItemFrame + maxpmw + macItemHMargin;

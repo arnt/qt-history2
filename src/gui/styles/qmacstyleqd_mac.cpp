@@ -123,10 +123,7 @@ static inline const Rect *qt_glb_mac_rect(const QRect &qr, const QPaintDevice *p
         tl += rect.topLeft();
     int offset = 0;
     if(useOffset) {
-        if(QRect::rectangleMode() == QRect::InclusiveRectangles)
-            offset = 1;
-        else
-            offset = 2;
+        offset = 1;
     }
     SetRect(&r, tl.x(), tl.y(), (tl.x() + qr.width()) - offset, (tl.y() + qr.height()) - offset);
     if(use_rect) {
@@ -507,7 +504,7 @@ int QMacStyleQD::pixelMetric(PixelMetric metric, const QWidget *widget) const
         if(widget && (widget->isTopLevel() || !widget->parentWidget()
                 || (qt_cast<QMainWindow*>(widget->parentWidget())
                    && static_cast<QMainWindow *>(widget->parentWidget())->centerWidget() == widget))
-                && (qt_cast<QViewport *>(widget)
+                && (qt_cast<const QViewport *>(widget)
 #ifdef QT_COMPAT
                     || widget->inherits("QScrollView")
 #endif
@@ -706,7 +703,7 @@ int QMacStyleQD::styleHint(StyleHint sh, const QWidget *w,
         break;
     case SH_ScrollView_FrameOnlyAroundContents:
         if(w && (w->isTopLevel() || !w->parentWidget() || w->parentWidget()->isTopLevel())
-            && (qt_cast<QViewport *>(w)
+            && (qt_cast<const QViewport *>(w)
 #ifdef QT_COMPAT
                 || w->inherits("QScrollView")
 #endif
@@ -1224,7 +1221,7 @@ void QMacStyleQD::drawControl(ControlElement ce, const QStyleOption *opt, QPaint
             }
 
             int x, y, w, h;
-            mi->rect.rect(&x, &y, &w, &h);
+            mi->rect.getRect(&x, &y, &w, &h);
             int checkcol = maxpmw;
             bool reverse = QApplication::reverseLayout();
             int xpos = x + 18;

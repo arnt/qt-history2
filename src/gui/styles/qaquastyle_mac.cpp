@@ -394,12 +394,12 @@ bool QAquaAnimate::focusable(const QWidget *w) const
     else if(fp == QMacStyle::FocusDisabled)
         return false;
     return (w && !w->isTopLevel() && w->parentWidget() &&
-            (qt_cast<QAbstractSpinBox *>(w) || qt_cast<QComboBox *>(w)
+            (qt_cast<const QAbstractSpinBox *>(w) || qt_cast<const QComboBox *>(w)
 #ifdef QT_COMPAT
               || w->inherits("QListBox") || w->inherits("QListView") 
 #endif
 //           || (w->inherits("QTextEdit") && static_cast<const QTextEdit *>(w)->isReadOnly())
-             || (qt_cast<QFrame *>(w) && qt_cast<QLineEdit *>(w)
+             || (qt_cast<const QFrame *>(w) && qt_cast<const QLineEdit *>(w)
                  && (static_cast<const QFrame *>(w)->frameStyle() != QFrame::NoFrame
                      || qt_cast<QComboBox *>(w->parentWidget())))));
 }
@@ -506,27 +506,27 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
         return ret;
 
     if(ct == QStyle::CT_CustomBase && widg) {
-        if(qt_cast<QPushButton *>(widg))
+        if(qt_cast<const QPushButton *>(widg))
             ct = QStyle::CT_PushButton;
-        else if(qt_cast<QRadioButton *>(widg))
+        else if(qt_cast<const QRadioButton *>(widg))
             ct = QStyle::CT_RadioButton;
-        else if(qt_cast<QCheckBox *>(widg))
+        else if(qt_cast<const QCheckBox *>(widg))
             ct = QStyle::CT_CheckBox;
-        else if(qt_cast<QComboBox *>(widg))
+        else if(qt_cast<const QComboBox *>(widg))
             ct = QStyle::CT_ComboBox;
-        else if(qt_cast<QComboBox *>(widg))
+        else if(qt_cast<const QComboBox *>(widg))
             ct = QStyle::CT_ToolButton;
-        else if(qt_cast<QSlider *>(widg))
+        else if(qt_cast<const QSlider *>(widg))
             ct = QStyle::CT_Slider;
-        else if(qt_cast<QProgressBar *>(widg))
+        else if(qt_cast<const QProgressBar *>(widg))
             ct = QStyle::CT_ProgressBar;
-        else if(qt_cast<QLineEdit *>(widg))
+        else if(qt_cast<const QLineEdit *>(widg))
             ct = QStyle::CT_LineEdit;
         else if(widg->inherits("QHeader"))
             ct = QStyle::CT_Header;
-        else if(qt_cast<QMenuBar *>(widg) || widg->inherits("Q3MenuBar"))
+        else if(qt_cast<const QMenuBar *>(widg) || widg->inherits("Q3MenuBar"))
             ct = QStyle::CT_MenuBar;
-        else if(qt_cast<QSizeGrip *>(widg))
+        else if(qt_cast<const QSizeGrip *>(widg))
             ct = QStyle::CT_SizeGrip;
         else
             return ret;
@@ -678,7 +678,7 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
                 ret = QSize(-1, 19);
         }
     } else if(ct == QStyle::CT_Header) {
-	if(sz == QAquaSizeLarge && (widg && (qt_cast<QTreeView *>(widg) || widg->parentWidget()->inherits("Q3ListView"))))
+	if(sz == QAquaSizeLarge && (widg && (qt_cast<const QTreeView *>(widg) || widg->parentWidget()->inherits("Q3ListView"))))
            ret = QSize(-1, qt_mac_aqua_get_metric(kThemeMetricListHeaderHeight));
     } else if(ct == QStyle::CT_MenuBar) {
         if(sz == QAquaSizeLarge) {
