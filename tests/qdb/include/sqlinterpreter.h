@@ -177,7 +177,10 @@ private:
     bool yyOK;
 
     void emitExpr( const QVariant& expr, int trueLab = 0, int falseLab = 0 );
-    int appendLabel();
+    int emitConjunctiveClause( const QVariant& expr );
+    bool isName( const QVariant& expr );
+    bool isInNameEqualValueForm( const QVariant& expr );
+    bool isInConjunctiveForm( const QVariant& expr );
 
     void matchOrInsert( int target, const QString& targetStr );
     void matchOrSkip( int target, const QString& targetStr );
@@ -194,7 +197,7 @@ private:
     QVariant matchPrimarySearchCondition();
     QVariant matchAndSearchCondition();
     QVariant matchSearchCondition();
-    void matchOptWhereClause();
+    void matchOptWhereClause( int driver = -1 );
     void matchCommitStatement();
     void matchDataType();
     QStringList matchColumnList();

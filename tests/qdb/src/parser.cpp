@@ -591,37 +591,55 @@ void Parser::emitExpr( const QVariant& expr, int trueLab, int falseLab )
     }
 }
 
-#if 0
-QStringList Parser::conjunctiveForm( const QVariant& expr )
+int Parser::emitConjunctiveClause( const QVariant& expr )
 {
-#if notyet
+    QValueList<QVariant>::ConstIterator v = expr.listBegin();
+    int tok = (*v).toInt();
+    if ( tok == Tok_and ) {
+	return emitConjunctiveClause( *++v ) + emitConjunctiveClause( *++v );
+    } else {
+	emitExpr( *++v );
+	emitExpr( *++v );
+	yyProg->append( new MakeList(2) );
+	return 1;
+    }
+}
+
+bool Parser::isName( const QVariant& expr )
+{
+    return expr.type() == QVariant::List &&
+	   (*expr.listBegin()).toInt() == Tok_Name;
+}
+
+bool Parser::isInNameEqualValueForm( const QVariant& expr )
+{
+    if ( expr.type() == QVariant::List ) {
+	QValueList<QVariant>::ConstIterator v = expr.listBegin();
+	if ( (*v).toInt() != Tok_Equal )
+	    return FALSE;
+	v++;
+	if ( !isName(*v) )
+	    return FALSE;
+	v++;
+	return (*v).type() != QVariant::List;
+    } else {
+	return FALSE;
+    }
+}
+
+bool Parser::isInConjunctiveForm( const QVariant& expr )
+{
     if ( expr.type() != QVariant::List )
-	return QStringList();
+	return FALSE;
 
     QValueList<QVariant>::ConstIterator v = expr.listBegin();
     int tok = (*v).toInt();
-
-    switch ( tok ) {
-    case Tok_and:
-	return isInConjunctiveForm( *++v ) && isInConjunctiveForm( *++v );
-    case Tok_Equal:
-	++v;
-	if ( (*v).type() != QVariant::List ||
-	     (*(*v).listBegin()).toInt() != Tok_Name )
-	    return QStringList();
-
-	++v;
-	if ( (*v).type() == QVariant::List )
-	    return QStringList();
-    default:
-	return QStringList();
-    }
-#else
-    Q_UNUSED( expr );
-    return QStringList();
-#endif
+    if ( tok == Tok_and )
+	return tok == Tok_and && isInConjunctiveForm( *++v ) &&
+	       isInConjunctiveForm( *++v );
+    else
+	return isInNameEqualValueForm( expr );
 }
-#endif
 
 void Parser::matchOrInsert( int target, const QString& targetStr )
 {
@@ -974,7 +992,7 @@ QVariant Parser::matchSearchCondition()
     return left;
 }
 
-void Parser::matchOptWhereClause()
+void Parser::matchOptWhereClause( int driver )
 {
     QVariant clause;
 
@@ -983,8 +1001,9 @@ void Parser::matchOptWhereClause()
 	clause = matchSearchCondition();
     }
 
-    if ( /* isInConjunctiveForm(clause) */ 0 ) {
-	///
+    if ( driver >= 0 && isInConjunctiveForm(clause) ) {
+	yyProg->append( new MakeList(emitConjunctiveClause(clause)) );
+	yyProg->append( new RangeMark(driver) );
     } else {
 	int nextRecord = yyNextLabel--;
 	int markRecord = yyNextLabel--;
@@ -1346,7 +1365,7 @@ void Parser::matchUpdateStatement()
 	yyTok = getToken();
     }
 
-    matchOptWhereClause();
+    matchOptWhereClause( 0 );
 
     int nextMarkedRecord = yyNextLabel--;
     int endRecords = yyNextLabel--;
