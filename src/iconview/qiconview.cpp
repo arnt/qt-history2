@@ -1006,11 +1006,11 @@ void QIconViewItem::init( QIconViewItem *after
 
 QIconViewItem::~QIconViewItem()
 {
-    if ( view && !view->d->clearing )
-	view->takeItem( this );
 #ifndef QT_NO_TEXTEDIT
     removeRenameBox();
 #endif
+    if ( view && !view->d->clearing )
+	view->takeItem( this );
     view = 0;
     if ( itemIcon && itemIcon->serialNumber() != unknown_icon->serialNumber() )
 	delete itemIcon;
