@@ -70,7 +70,7 @@ private:
 };
 
 
-Q_EXPORT QTextStream &operator<<( QTextStream&, const Element& );
-Q_EXPORT QTextStream &operator>>( QTextStream&, Element& );
+QTextStream &operator<<( QTextStream&, const Element& );
+QTextStream &operator>>( QTextStream&, Element& );
 
 #endif
