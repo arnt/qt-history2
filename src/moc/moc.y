@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#7 $
+** $Id: //depot/qt/main/src/moc/moc.y#8 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -12,14 +12,14 @@
 ** This file contains the parser and code generator for the meta object
 ** compiler (moc) of the Quasar application framework.
 **
-** This compiler reads a C++ header file with class definitions and dumps
-** meta data to an output C++ file. The meta data includes public methods
+** This compiler reads a C++ header file with class definitions and ouputs
+** C++ code to build a meta class. The meta data includes public methods
 ** (not constructors, destructors or operator functions), signals and slot
 ** definitions. The output file should be compiled and linked into the
 ** target Quasar application.
 **
 ** C++ header files are assumed to have correct syntax, and we are therefore
-** doing less checking that C++ compilers.
+** doing less strict checking that C++ compilers.
 **
 ** The C++ grammar has been adopted from the "The Annotated C++ Reference
 ** Manual" (ARM), by Ellis and Stroustrup (Addison Wesley, 1992).
@@ -30,7 +30,6 @@
 **
 ** TODO:
 **    Better grammer. int as def. return value.
-**    Specify output file. Default name on UNIX: file.m.C ?
 **    Clean up memory.
 *****************************************************************************/
 
@@ -40,6 +39,10 @@
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
+
+#if defined(DEBUG)
+static char ident[] = "$Id: //depot/qt/main/src/moc/moc.y#8 $";
+#endif
 
 
 enum AccessPerm { _PRIVATE, _PROTECTED, _PUBLIC };
