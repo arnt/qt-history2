@@ -33,16 +33,15 @@ public:
     void setVisible( bool enable );
     bool isVisible();
 
-    void setSeparator( bool enable );
-    bool isSeparator();
-
     void setRemovable( bool enable );
     bool isRemovable();
 
     void setAutoDelete( bool enable );
     bool isAutoDelete();
-    
+
+     bool isSeparator();
 protected:
+    void setSeparator( bool enable );
     
 private:
     MenuBarEditor * menuBar;
@@ -68,7 +67,8 @@ public:
 
     FormWindow * formWindow();
 
-    MenuBarEditorItem * createItem();
+    MenuBarEditorItem * createItem( int index = -1 );
+    MenuBarEditorItem * createSeparator( int index = -1 );
     //int insertItem( QString name, PopupMenuEditor * menu, int id = -1, int index = -1 ); //FIXME: change funcs to return id
     void insertItem( MenuBarEditorItem * item, int index = -1 );
     void insertItem( QString text, PopupMenuEditor * menu, int id = -1, int index = -1 );
@@ -149,6 +149,7 @@ private:
     int separatorWidth;
     int borderSize;
     bool hideWhenEmpty;
+    bool hasSeparator;
     
     enum ClipboardOperation {
 	None = 0,

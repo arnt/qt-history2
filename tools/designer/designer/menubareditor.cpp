@@ -3,6 +3,7 @@
 #include <qaction.h>
 #include <qlineedit.h>
 #include <qapplication.h>
+#include <qmainwindow.h>
 #include "popupmenueditor.h"
 #include "menubareditor.h"
 #include "command.h"
@@ -143,16 +144,6 @@ bool MenuBarEditorItem::isVisible()
     return visible;
 }
 
-void MenuBarEditorItem::setSeparator( bool enable )
-{
-    separator = enable;
-}
-
-bool MenuBarEditorItem::isSeparator()
-{
-    return separator;
-}
-
 void MenuBarEditorItem::setRemovable( bool enable )
 {
     removable = enable;
@@ -173,6 +164,16 @@ bool MenuBarEditorItem::isAutoDelete()
     return autodelete;
 }
 
+bool MenuBarEditorItem::isSeparator()
+{
+    return separator;
+}
+
+void MenuBarEditorItem::setSeparator( bool enable )
+{
+    separator = enable;
+}
+
 // MenuBarEditor --------------------------------------------------------
 
 int MenuBarEditor::clipboardOperation = 0;
@@ -186,14 +187,11 @@ MenuBarEditor::MenuBarEditor( FormWindow * fw, QWidget * parent, const char * na
       itemHeight( 0 ),
       separatorWidth( 32 ),
       borderSize( 4 ),
-      hideWhenEmpty( TRUE )
+      hideWhenEmpty( TRUE ),
+      hasSeparator( FALSE )
 {
     setAcceptDrops( TRUE );
     setFocusPolicy( StrongFocus );
-
-    if ( parent ) {
-	move( 0, 0 );
-    }
 
     addItem.setMenuText( "new menu" );
     addSeparator.setMenuText( "new separator" );
@@ -207,7 +205,7 @@ MenuBarEditor::MenuBarEditor( FormWindow * fw, QWidget * parent, const char * na
     dropLine->setBackgroundColor( Qt::black );
     dropLine->hide();
 
-    hide();
+    setMinimumHeight( fontMetrics().height() + 2 * borderSize );
 }
 
 MenuBarEditor::~MenuBarEditor()
@@ -220,23 +218,33 @@ FormWindow * MenuBarEditor::formWindow()
     return formWnd;
 }
 
-MenuBarEditorItem * MenuBarEditor::createItem()
+MenuBarEditorItem * MenuBarEditor::createItem( int index )
 {
     MenuBarEditorItem * i =
-	new MenuBarEditorItem( new PopupMenuEditor( formWnd, ( QWidget * ) parent() ),
-			       this );
-    AddMenuCommand * cmd = new AddMenuCommand( "Add Menu", formWnd, this, i );
+	new MenuBarEditorItem(
+	    new PopupMenuEditor( formWnd, ( QWidget * ) parent() ), this );
+    AddMenuCommand * cmd = new AddMenuCommand( "Add Menu", formWnd, this, i, index );
     formWnd->commandHistory()->addCommand( cmd );
     cmd->execute();
     return i;
-    // do not put rename on cmd stack
-    // RenameMenuCommand rename( "Rename Menu", formWnd, this, lineEdit->text(), i );
-    // rename.execute();
+}
+
+MenuBarEditorItem * MenuBarEditor::createSeparator( int index )
+{
+    if ( hasSeparator ) {
+	return 0;
+    }
+    MenuBarEditorItem * i = createItem( index );
+    i->setSeparator( TRUE );
+    i->setMenuText( "separator" );
+    hasSeparator = TRUE;
+    return i;
 }
 
 void MenuBarEditor::insertItem( MenuBarEditorItem * item, int index )
 {
     item->menu()->parentMenu = this;
+
     if ( index != -1 ) {
 	itemList.insert( index, item );
     } else {
@@ -267,23 +275,28 @@ void MenuBarEditor::insertItem( QString text, QActionGroup * group, int id, int 
 
 void MenuBarEditor::removeItemAt( int index )
 {
-    if ( item( index )->isRemovable() ) {
-	itemList.remove( index );
-    }
-    if ( hideWhenEmpty && itemList.count() == 0 ) {
-	hide();
-    } else {
-	resizeInternals();
-    }
-    uint n = count() + 1;
-    if ( currentIndex >=  n ) {
-	currentIndex = n;
-    }
+    removeItem( item( index ) );
 }
 
 void MenuBarEditor::removeItem( MenuBarEditorItem * item )
 {
-    itemList.removeRef( item ); // FIXME: check retval
+    if ( item &&
+	 item->isRemovable() &&
+	 itemList.removeRef( item ) &&
+	 item->isSeparator() ) {
+	hasSeparator = FALSE;
+
+	if ( hideWhenEmpty && itemList.count() == 0 ) {
+	    hide();
+	} else {
+	    resizeInternals();
+	}
+	
+	uint n = count() + 1;
+	if ( currentIndex >=  n ) {
+	    currentIndex = n;
+	}
+    }
 }
 
 void MenuBarEditor::removeItem( int id )
@@ -518,7 +531,7 @@ void MenuBarEditor::deleteItem( int index )
 {
     if ( index == -1 ) {
 	index = currentIndex;
-    }
+   }
     if ( (uint)index < itemList.count() ) {
 	RemoveMenuCommand * cmd = new RemoveMenuCommand( "Delete Menu",
 							 formWnd,
@@ -553,14 +566,17 @@ int MenuBarEditor::heightForWidth( int max_width ) const
 
     that->addItemSizeToCoords( p, & that->addItem, x, y, max_width );
     that->addItemSizeToCoords( p, & that->addSeparator, x, y, max_width );
-    
+
     return y + itemHeight;
 }
 
 void MenuBarEditor::show()
 {
+    QWidget::show();
     resizeInternals();
-    QMenuBar::show();
+   
+    QResizeEvent e( parentWidget()->size(), parentWidget()->size() );
+    QApplication::sendEvent( parentWidget(), &e );
 }
 
 void MenuBarEditor::paintEvent( QPaintEvent * )
@@ -585,9 +601,7 @@ void MenuBarEditor::mouseDoubleClickEvent( QMouseEvent * )
 {
     currentIndex = findItem( mousePressPos );
     if ( currentIndex > itemList.count() ) {
-	MenuBarEditorItem * i = createItem();
-	i->setSeparator( TRUE );
-	i->setMenuText( "separator" );
+	(void)createSeparator();
 	update();
     } else {
 	showLineEdit();
@@ -601,10 +615,11 @@ void MenuBarEditor::mouseMoveEvent( QMouseEvent * e )
 	    draggedItem = item( findItem( mousePressPos ) );
 	    if ( draggedItem == &addItem ) {
 		draggedItem = createItem();		
-	    } else if ( draggedItem == &addSeparator ) {
+	    } else if ( draggedItem == &addSeparator && !hasSeparator ) {
 		draggedItem = createItem();		
 		draggedItem->setSeparator( TRUE );
 		draggedItem->setMenuText( "separator" );
+		hasSeparator = TRUE;
 	    }
 	    MenuBarEditorItemPtrDrag * d =
 		new MenuBarEditorItemPtrDrag( draggedItem, this );
@@ -741,8 +756,7 @@ void MenuBarEditor::keyPressEvent( QKeyEvent * e )
 	case Qt::Key_Return:
 	case Qt::Key_F2:
 	    if ( currentIndex > itemList.count() ) {
-		MenuBarEditorItem * i = createItem();
-		i->setSeparator( TRUE );
+		(void)createSeparator();
 	    } else {
 		showLineEdit();
 	    }
@@ -782,9 +796,15 @@ void MenuBarEditor::keyPressEvent( QKeyEvent * e )
 	    }
 
 	default:
-	    showLineEdit();
-	    QApplication::sendEvent( lineEdit, e );
-	    e->accept();
+	    if ( e->ascii() >= 32 || e->ascii() == 0 ) {
+		qDebug( "accept" );
+		showLineEdit();
+		QApplication::sendEvent( lineEdit, e );
+		e->accept();
+	    } else {
+		qDebug( "ignore" );
+		e->ignore();
+	    }
 	    return;
 	}
     } else { // In edit mode
@@ -834,7 +854,6 @@ void MenuBarEditor::resizeInternals()
 {
     dropLine->resize( 2, itemHeight );
     updateGeometry();
-    //showItem();
 }
 
 void MenuBarEditor::drawItems( QPainter & p )
@@ -854,8 +873,10 @@ void MenuBarEditor::drawItems( QPainter & p )
     }
     
     p.setPen( "darkgray" );
-    drawItem( p, &addItem, x, y, c ); 
-    drawItem( p, &addSeparator, x, y, c ); 
+    drawItem( p, &addItem, x, y, c );
+    if ( !hasSeparator ) {
+	drawItem( p, &addSeparator, x, y, c );
+    }
 }
 
 void MenuBarEditor::drawItem( QPainter & p,
@@ -1049,7 +1070,10 @@ void MenuBarEditor::safeDec()
 void MenuBarEditor::safeInc()
 {
     //FIXME
-    uint max = itemList.count() + 1;
+    uint max = itemList.count();
+    if ( !hasSeparator ) {
+	max += 1;
+    }
     if ( currentIndex < max ) {
 	do  {
 	    currentIndex++;

@@ -2801,19 +2801,23 @@ void Resource::saveMenuBar( QMainWindow *mw, QTextStream &ts, int indent )
 	MenuBarEditorItem *m = mb->item( i );
 	if ( !m )
 	    continue;
-	ts << makeIndent( indent ) << "<item text=\"" << entitize( m->menuText() )
-	   << "\" name=\"" << entitize( m->menu()->name() ) << "\">" << endl;
-	indent++;
-	QPtrList<QAction> actionList;
-	( (PopupMenuEditor*)m->menu() )->insertedActions( actionList );
-	for ( QAction *a = actionList.first(); a; a = actionList.next() ) {
-	    if ( a->inherits( "QSeparatorAction" ) )
-		ts <<  makeIndent( indent ) << "<separator/>" << endl;
-	    else
-		ts <<  makeIndent( indent ) << "<action name=\"" << a->name() << "\"/>" << endl;
+	if ( m->isSeparator() ) {
+	    ts << makeIndent( indent ) << "<separator/>" << endl;
+	} else {
+	    ts << makeIndent( indent ) << "<item text=\"" << entitize( m->menuText() )
+	       << "\" name=\"" << entitize( m->menu()->name() ) << "\">" << endl;
+	    indent++;
+	    QPtrList<QAction> actionList;
+	    ( (PopupMenuEditor*)m->menu() )->insertedActions( actionList );
+	    for ( QAction *a = actionList.first(); a; a = actionList.next() ) {
+		if ( a->inherits( "QSeparatorAction" ) )
+		    ts <<  makeIndent( indent ) << "<separator/>" << endl;
+		else
+		    ts <<  makeIndent( indent ) << "<action name=\"" << a->name() << "\"/>" << endl;
+	    }
+	    indent--;
+	    ts << makeIndent( indent ) << "</item>" << endl;
 	}
-	indent--;
-	ts << makeIndent( indent ) << "</item>" << endl;
     }
     indent--;
     ts << makeIndent( indent ) << "</menubar>" << endl;
@@ -2883,7 +2887,8 @@ void Resource::loadMenuBar( const QDomElement &e )
 	    mb->insertItem( n.attribute( "text" ), popup );
 	} else if ( n.tagName() == "property" ) {
 	    setObjectProperty( mb, n.attribute( "name" ), n.firstChild().toElement() );
-	    //MetaDataBase::setPropertyChanged( mb, "name", TRUE ); // FIXME: remove
+	} else if ( n.tagName() == "separator" ) {
+	    (void)mb->createSeparator();
 	}
 	n = n.nextSibling().toElement();
     }
