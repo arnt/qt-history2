@@ -29,6 +29,7 @@ QMAKE_SWITCHES=
 QMAKE_VARS=
 QMAKE_CONFIG=
 
+SUPPORTED=
 
 #-------------------------------------------------------------------------------
 # operating system detection
@@ -220,7 +221,7 @@ fi
 MODULES="styles tools kernel widgets dialogs iconview workspace compat"
 [ "$PLATFORM_QWS" = "yes" ] && [ "$Products" = "qt-professional" ] && MODULES="$MODULES network"
 [ "$Products" != "qt-professional" ] && MODULES="$MODULES network canvas table xml opengl sql"
-AVAIL_MODULES=$MODULES
+CFG_MODULES_AVAILABLE=$MODULES
 QMAKE_VARS="$QMAKE_VARS \"QT_PRODUCT=$Products\""
 QMAKE_VARS="$QMAKE_VARS \"styles += windows motif mac platinum sgi cde motifplus\""
 QMAKE_VARS="$QMAKE_VARS \"kbd-drivers += tty\" \"mouse-drivers += pc\""
@@ -379,7 +380,7 @@ while [ "$#" -gt 0 ]; do
 	VAR=fatal_error
 	VAL=no
 	;;
-    -embedded) 	
+    -embedded)
 	VAR=embedded
 	# this option may or may not be followed by an argument
 	if [ -z $2 ] || echo $2 | grep '^-' >/dev/null 2>&1; then
@@ -554,7 +555,7 @@ while [ "$#" -gt 0 ]; do
 	;;
     version-script)
 	if [ "$VAL" = "yes" ]; then
-	    QMAKE_CONFIG="$QMAKE_CONFIG version_script"	
+	    QMAKE_CONFIG="$QMAKE_CONFIG version_script"
 	fi
 	;;
     platform)
@@ -1874,7 +1875,7 @@ Installation options:
                           (default PREFIX/plugins)
     -datadir dir ....... Data used by Qt programs will be installed to dir
                           (default PREFIX)
-    -translationdir dir  Translations used by Qt programs will be installed to dir
+    -translationdir dir  Translations of Qt programs will be installed to dir
                           (default PREFIX/translations)
     -sysconfdir dir ...  Settings used by Qt programs will be looked for in dir
                           (default PREFIX/etc/settings)
@@ -1925,49 +1926,50 @@ Configure options:
 			 See the PLATFORMS file for a list of supported
 			 operating systems and compilers.
 
-
     -Dstring ........... Add an explicit define to the preprocessor.
     -Istring ........... Add an explicit include path.
     -Lstring ........... Add an explicit library path.
     -Rstring ........... Add an explicit dynamic library runtime search path.
     -lstring ........... Add an explicit library.
 
+    -disable-<module> ..... Disable <module> where module is one of:
+                            [ $CFG_MODULES_AVAILABLE ]
 
-    -disable-<module> ......... Disables a module where module is one of:
-				$AVAIL_MODULES
+    -qt-sql-<driver> ...... Enable a SQL <driver> in the Qt Library, by default
+                            none are turned on.
+    -plugin-sql-<driver> .. Enable SQL <driver> as a plugin to be linked to
+                            at run time.
+    -no-sql-<driver> ...... Disable SQL <driver> entirely.
 
-    -qt-sql-<driver> .......... Enable a SQL <driver> in the Qt Library, by
-                                default none are turned on.
-    -plugin-sql-<driver> ...... Enable SQL <driver> as a plugin to be linked
-                                to at run time.
-    -no-sql-<driver> .......... Disable SQL <driver> entirely.
+                            Possible values for <driver>:
+                            [ $CFG_SQL_AVAILABLE ]
 
-                                Possible values for <driver>: 
-				[ $CFG_SQL_AVAILABLE ]
+                            Auto-Detected on this system:
+                            [ $CFG_SQL_AUTODETECTED ]
 
-                                Auto-Detected on this system:
-				[ $CFG_SQL_AUTODETECTED ]
+                            By default none of the SQL drivers are built,
+			    even if they are auto-detected.
 
-    By default none of the SQL drivers are built, even if they are
-    auto-detected.
+    -qt-style-<style> ..... Enable a GUI <style> in the Qt Library, by default
+                            all available styles are on.
+    -plugin-style-<style> . Enable GUI <style> as a plugin to be linked to
+                            at run time.
+    -no-style-<style> ..... Disable GUI <style> entirely.
 
-    -qt-style-<style> ......... Enable a GUI <style> in the Qt Library, by
-                                default all available are on.
-    -plugin-style-<style> ..... Enable GUI <style> as a plugin to be linked
-                                to at run time.
-    -no-style-<style> ......... Disable GUI <style> entirely.
+                            Possible values for <style>:
+                            [ $CFG_STYLE_AVAILABLE ]
 
- $THN  -no-thread ......... Do not compile threading support.
- $THY  -thread ............ Compile threading support.
+ $THN  -no-thread ............ Do not compile threading support.
+ $THY  -thread ............... Compile threading support.
 
- $NSN  -no-nis ............ Do not compile NIS support.
- $NSY  -nis ............... Compile NIS support.
+ $NSN  -no-nis ............... Do not compile NIS support.
+ $NSY  -nis .................. Compile NIS support.
 
- $CUN  -no-cups............ Do not compile CUPS support.
- $CUY  -cups .............. Compile CUPS support.
+ $CUN  -no-cups............... Do not compile CUPS support.
+ $CUY  -cups ................. Compile CUPS support.
 
- $SHN  -no-stl ............ Do not compile STL support.
- $SHY  -stl ............... Compile STL support.
+ $SHN  -no-stl ............... Do not compile STL support.
+ $SHY  -stl .................. Compile STL support.
 
     -verbose .............. Print verbose information about each step of the
     -v .................... configure process.
@@ -1979,14 +1981,14 @@ Configure options:
 
 Image Formats:
 
-    -plugin-imgfmt-<format> Enable format (png, jpeg, or mng) to
-                            be linked to at runtime. Uses specified
-			    lib<format>.
-    -qt-imgfmt-<format> ... Enable format (png, jpeg, or mng) to
-                            be linked into Qt. Uses specified
-			    lib<format>.
-    -no-imgfmt-<format> ... Fully disable format (png, jpeg, or mng)
-                            from Qt.
+    -plugin-imgfmt-<format> Enable <format> to be linked to at runtime.
+                            Uses specified lib<format>.
+    -qt-imgfmt-<format> ... Enable <format> to be linked into Qt.
+                            Uses specified lib<format>.
+    -no-imgfmt-<format> ... Fully disable <format> from Qt.
+
+                            Possible values for <format>:
+                            [ png jpeg mng ]
 
 Third Party Image Loading Libraries:
 
@@ -2134,8 +2136,8 @@ Qt/Embedded only:
 
                          Possible values for <driver>: [ sl5000 tty usb yopy vr41xx ]
 
-    -qt-mouse-<driver> ... Enable a mouse <driver> in the Qt Library.
-    -no-mouse-<driver> ... Disable mouse <driver> entirely.
+    -qt-mouse-<driver> . Enable a mouse <driver> in the Qt Library.
+    -no-mouse-<driver> . Disable mouse <driver> entirely.
 
                          Possible values for <driver>: [ pc bus linuxtp yopy vr41xx ]
 
@@ -2410,7 +2412,7 @@ if true; then ###[ '!' -f "$outpath/bin/qmake" ];
 	    -e "s,@QT_INSTALL_BINS@,\$(INSTALL_ROOT)$QMAKE_BIN_DIR,g" \
 	    -e "s,@QT_INSTALL_DATA@,\$(INSTALL_ROOT)$QMAKE_DATA_DIR,g" \
 	    -e "s,@QMAKE_QTOBJS@,$EXTRA_SOURCES,g" -e "s,@QMAKESPEC@,$QMAKESPEC,g" $in_mkfile >>$mkfile
-	 
+
 	if [ "$Edition" = "troll" ] &&
 	    $WHICH makedepend >/dev/null 2>&1 && grep 'depend:' "$mkfile" >/dev/null 2>&1; then
 	    (cd $outpath/qmake && $MAKE -f $mkfile depend) >/dev/null 2>&1
@@ -2988,7 +2990,7 @@ if [ "$VSTYLE" = "yes" ]; then
     	else
 		if [ "$STRIPPED" = "-=" ]; then
 			VNO=yes
-		else 
+		else
 			VSTYLE=no
 		fi
 	fi
@@ -3105,7 +3107,7 @@ cc*)
     irix-cc*)
 	if [ "$CFG_EXCEPTION_SUPPORT" != "no" ]; then
 	    cat <<EOF
-	
+
 	This target is using the MIPSpro C++ compiler ($PLATFORM).
 
 	You may choose to re-run `basename $0` with the -no-exceptions
@@ -3428,7 +3430,7 @@ EOF
 		fi
 	    fi
 	    echo
-	
+
 	    [ -f "${OUTDIR}/Makefile" ] && chmod +w ${OUTDIR}/Makefile
 	    if [ "$OPT_CONCURRENT" = "0" ] || [ "$OPT_CONCURRENT" = "1" ]; then
 		/bin/sh -c "$EXEC"
@@ -3446,6 +3448,37 @@ EOF
     done
 done
 rm -f .projects .projects.3
+
+
+#-------------------------------------------------------------------------------
+# check for platforms that won't be supported in 3.3->
+#-------------------------------------------------------------------------------
+case "$PLATFORM" in
+solaris-cc*)
+  if $unixtests/suncc.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath; then
+    SUPPORTED=no
+  fi
+  ;;
+irix-cc-o32)
+  SUPPORTED=no
+  ;;
+esac
+
+if [ "$SUPPORTED" = "no" ]; then
+    echo
+    echo "WARNING:"
+    echo "The following compilers will not be supported in future"
+    echo "versions of Qt (3.3->):"
+    echo
+    echo "- Sun Workshop 5.0"
+    echo "- SGI MIPSpro CC in o32 mode"
+    echo
+    echo "Although Qt 3.2 will work with these compilers if you use"
+    echo "the script found in (location), we strongly suggest you"
+    echo "upgrade if you intend to use future Qt versions using any"
+    echo "of them."
+    echo
+fi
 
 
 #-------------------------------------------------------------------------------

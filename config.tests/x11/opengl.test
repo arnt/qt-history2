@@ -61,6 +61,7 @@ for L in $LIBS; do
 	   echo
 	   echo "WARNING: $FOUND_LIB is threaded!"
 	   echo "The Qt OpenGL module requires Qt to be configured with -thread."
+	   echo
 	else
 	   [ "$VERBOSE" = "yes" ] && echo "  Could not find $L lib anywhere in $LIBDIRS"
 	fi
