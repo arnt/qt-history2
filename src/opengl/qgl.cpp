@@ -703,9 +703,11 @@ QGLContext* QGLContext::currentCtx = 0;
 */
 
 QGLContext::QGLContext( const QGLFormat &format, QPaintDevice *device )
-    : glFormat(format), reqFormat(format), paintDevice(device)
+    : glFormat(format), reqFormat(format)
 {
-    valid = FALSE;
+    d = new QGLContextPrivate;
+    d->paintDevice = device;
+    d->valid = FALSE;
 #if defined(Q_WS_X11)
     gpm = 0;
 #endif
@@ -715,17 +717,17 @@ QGLContext::QGLContext( const QGLFormat &format, QPaintDevice *device )
     pixelFormatId = 0;
     cmap = 0;
 #endif
-    crWin = FALSE;
-    initDone = FALSE;
-    sharing = FALSE;
-    if ( paintDevice == 0 ) {
+    d->crWin = FALSE;
+    d->initDone = FALSE;
+    d->sharing = FALSE;
+    if ( d->paintDevice == 0 ) {
 #if defined(QT_CHECK_NULL)
 	qWarning( "QGLContext: Paint device cannot be null" );
 	return;
 #endif
     }
-    if ( paintDevice->devType() != QInternal::Widget &&
-	 paintDevice->devType() != QInternal::Pixmap ) {
+    if ( d->paintDevice->devType() != QInternal::Widget &&
+	 d->paintDevice->devType() != QInternal::Pixmap ) {
 #if defined(QT_CHECK_RANGE)
 	qWarning( "QGLContext: Unsupported paint device type" );
 #endif
@@ -908,8 +910,8 @@ void QGLContext::setFormat( const QGLFormat &format )
 bool QGLContext::create( const QGLContext* shareContext )
 {
     reset();
-    valid = chooseContext( shareContext );
-    return valid;
+    d->valid = chooseContext( shareContext );
+    return d->valid;
 }
 
 

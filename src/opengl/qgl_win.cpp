@@ -467,10 +467,10 @@ bool QGLContext::chooseContext( const QGLContext* shareContext )
 	if ( glFormat.plane() )
 	    return FALSE;		// Pixmaps can't have overlay
 	win = 0;
-	myDc = paintDevice->handle();
+	myDc = d->paintDevice->handle();
     }
     else {
-	win = ((QWidget*)paintDevice)->winId();
+	win = ((QWidget*)d->paintDevice)->winId();
 	myDc = GetDC( win );
     }
 
@@ -484,7 +484,7 @@ bool QGLContext::chooseContext( const QGLContext* shareContext )
     }
 
     if ( glFormat.plane() ) {
-	pixelFormatId = ((QGLWidget*)paintDevice)->context()->pixelFormatId;
+	pixelFormatId = ((QGLWidget*)d->paintDevice)->context()->pixelFormatId;
 	if ( !pixelFormatId ) {		// I.e. the glwidget is invalid
 #if defined(QT_CHECK_STATE)
 	    qWarning( "QGLContext::chooseContext(): Cannot create overlay context for invalid widget" );
@@ -516,17 +516,17 @@ bool QGLContext::chooseContext( const QGLContext* shareContext )
 
 	if ( glFormat.rgba() ) {
 	    if ( lpfd.dwFlags & LPD_TRANSPARENT )
-		transpColor = QColor( lpfd.crTransparent & 0xff,
+		d->transpColor = QColor( lpfd.crTransparent & 0xff,
 				      (lpfd.crTransparent >> 8) & 0xff, 
 				      (lpfd.crTransparent >> 16) & 0xff );
 	    else
-		transpColor = QColor( 0, 0, 0 );
+		d->transpColor = QColor( 0, 0, 0 );
 	}
 	else {
 	    if ( lpfd.dwFlags & LPD_TRANSPARENT )
-		transpColor = QColor( qRgb( 1, 2, 3 ), lpfd.crTransparent );
+		d->transpColor = QColor( qRgb( 1, 2, 3 ), lpfd.crTransparent );
 	    else
-		transpColor = QColor( qRgb( 1, 2, 3 ), 0 );
+		d->transpColor = QColor( qRgb( 1, 2, 3 ), 0 );
 
 	    cmap = new QGLColorMap( 1 << lpfd.cColorBits );
 	    cmap->setEntry( lpfd.crTransparent, qRgb( 1, 2, 3 ),
@@ -534,7 +534,7 @@ bool QGLContext::chooseContext( const QGLContext* shareContext )
 	}
 
         if ( shareContext && shareContext->isValid() )
-	    sharing = ( wglShareLists( shareContext->rc, rc ) != 0 );
+	    d->sharing = ( wglShareLists( shareContext->rc, rc ) != 0 );
 
 	if ( win )
 	    ReleaseDC( win, myDc );
@@ -564,7 +564,7 @@ bool QGLContext::chooseContext( const QGLContext* shareContext )
     }
 
     if ( deviceIsPixmap() && 
-	 (((QPixmap*)paintDevice)->depth() != realPfd.cColorBits ) ) {
+	 (((QPixmap*)d->paintDevice)->depth() != realPfd.cColorBits ) ) {
 #if defined(QT_CHECK_NULL)
 	qWarning( "QGLContext::chooseContext(): Failed to get pixmap rendering context of suitable depth." );
 #endif
@@ -586,7 +586,7 @@ bool QGLContext::chooseContext( const QGLContext* shareContext )
     }
 
     if ( shareContext && shareContext->isValid() )
-	sharing = ( wglShareLists( shareContext->rc, rc ) != 0 );
+	d->sharing = ( wglShareLists( shareContext->rc, rc ) != 0 );
 
     if ( win )
 	ReleaseDC( win, myDc );
@@ -620,7 +620,7 @@ fmt. Reimplement this function in a subclass if you need a custom context.
 
 int QGLContext::choosePixelFormat( void* dummyPfd, HDC pdc )
 {
-    int pmDepth = deviceIsPixmap() ? ((QPixmap*)paintDevice)->depth() : 0;
+    int pmDepth = deviceIsPixmap() ? ((QPixmap*)d->paintDevice)->depth() : 0;
     PIXELFORMATDESCRIPTOR* p = (PIXELFORMATDESCRIPTOR*)dummyPfd;
     memset( p, 0, sizeof(PIXELFORMATDESCRIPTOR) );
     p->nSize = sizeof(PIXELFORMATDESCRIPTOR);
@@ -736,7 +736,7 @@ int QGLContext::choosePixelFormat( void* dummyPfd, HDC pdc )
 
 void QGLContext::reset()
 {
-    if ( !valid )
+    if ( !d->valid )
 	return;
     doneCurrent();
     if ( rc )
@@ -747,12 +747,12 @@ void QGLContext::reset()
     dc  = 0;
     win = 0;
     pixelFormatId = 0;
-    sharing = FALSE;
-    valid = FALSE;
-    transpColor = QColor();
+    d->sharing = FALSE;
+    d->valid = FALSE;
+    d->transpColor = QColor();
     delete cmap;
     cmap = 0;
-    initDone = FALSE;
+    d->initDone = FALSE;
 }
 
 
@@ -775,7 +775,7 @@ void QGLContext::makeCurrent()
     if ( win )
 	dc = GetDC( win );
     else
-	dc = paintDevice->handle();
+	dc = d->paintDevice->handle();
     if ( QColor::hPal() ) {
 	SelectPalette( dc, QColor::hPal(), FALSE );
 	RealizePalette( dc );
@@ -822,7 +822,7 @@ void QGLContext::swapBuffers() const
 
 QColor QGLContext::overlayTransparentColor() const
 {
-    return transpColor;
+    return d->transpColor;
 }
 
 

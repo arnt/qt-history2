@@ -153,6 +153,16 @@ private:
 Q_EXPORT bool operator==( const QGLFormat&, const QGLFormat& );
 Q_EXPORT bool operator!=( const QGLFormat&, const QGLFormat& );
 
+class QGLContext;
+class QGLContextPrivate {
+public:
+    bool		valid;
+    bool		sharing;
+    bool		initDone;
+    bool		crWin;
+    QPaintDevice*	paintDevice;
+    QColor		transpColor;
+};
 
 class Q_EXPORT QGLContext : public QGL
 {
@@ -219,12 +229,7 @@ protected:
     QGLFormat		reqFormat;
 
 private:
-    bool		valid;
-    bool		sharing;
-    bool		initDone;
-    bool		crWin;
-    QPaintDevice*	paintDevice;
-    QColor		transpColor;
+    QGLContextPrivate*  d;
     static QGLContext*	currentCtx;
 
     friend class QGLWidget;
@@ -393,12 +398,12 @@ inline bool QGLFormat::hasOverlay() const
 
 inline bool QGLContext::isValid() const
 {
-    return valid;
+    return d->valid;
 }
 
 inline bool QGLContext::isSharing() const
 {
-    return sharing;
+    return d->sharing;
 }
 
 inline QGLFormat QGLContext::format() const
@@ -413,34 +418,34 @@ inline QGLFormat QGLContext::requestedFormat() const
 
 inline QPaintDevice* QGLContext::device() const
 {
-    return paintDevice;
+    return d->paintDevice;
 }
 
 inline bool QGLContext::deviceIsPixmap() const
 {
-    return paintDevice->devType() == QInternal::Pixmap;
+    return d->paintDevice->devType() == QInternal::Pixmap;
 }
 
 
 inline bool QGLContext::windowCreated() const
 {
-    return crWin;
+    return d->crWin;
 }
 
 
 inline void QGLContext::setWindowCreated( bool on )
 {
-    crWin = on;
+    d->crWin = on;
 }
 
 inline bool QGLContext::initialized() const
 {
-    return initDone;
+    return d->initDone;
 }
 
 inline void QGLContext::setInitialized( bool on )
 {
-    initDone = on;
+    d->initDone = on;
 }
 
 inline const QGLContext* QGLContext::currentContext()

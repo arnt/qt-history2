@@ -106,9 +106,9 @@ bool QGLContext::chooseContext( const QGLContext* shareContext )
     AGLContext ctx = aglCreateContext(fmt, (AGLContext) (shareContext ? shareContext->cx : NULL));
     if((cx = (void *)ctx)) {
 	if(deviceIsPixmap()) 
-	    aglSetDrawable(ctx, (GWorldPtr)paintDevice->handle());
+	    aglSetDrawable(ctx, (GWorldPtr)d->paintDevice->handle());
 	else 
-	    aglSetDrawable(ctx, GetWindowPort((WindowPtr)paintDevice->handle()));
+	    aglSetDrawable(ctx, GetWindowPort((WindowPtr)d->paintDevice->handle()));
 	return TRUE;
     }
     return FALSE;
@@ -149,7 +149,7 @@ void *QGLContext::chooseMacVisual(GDHandle device)
     if ( glFormat.rgba() ) {
 	attribs[cnt++] = AGL_RGBA;
 	attribs[cnt++] = AGL_DEPTH_SIZE;
-	attribs[cnt++] = deviceIsPixmap() ? ((QPixmap*)paintDevice)->depth() : 32;
+	attribs[cnt++] = deviceIsPixmap() ? ((QPixmap*)d->paintDevice)->depth() : 32;
     } else {
 	attribs[cnt++] = AGL_PIXEL_SIZE;
 	attribs[cnt++] = 8;
@@ -192,7 +192,7 @@ void *QGLContext::chooseMacVisual(GDHandle device)
 
 void QGLContext::reset()
 {
-    if ( !valid )
+    if ( !d->valid )
 	return;
     if(cx)
 	aglDestroyContext( (AGLContext)cx );
@@ -200,23 +200,23 @@ void QGLContext::reset()
     if ( vi )
 	aglDestroyPixelFormat((AGLPixelFormat)vi);
     vi = 0;
-    crWin = FALSE;
-    sharing = FALSE;
-    valid = FALSE;
-    transpColor = QColor();
-    initDone = FALSE;
+    d->crWin = FALSE;
+    d->sharing = FALSE;
+    d->valid = FALSE;
+    d->transpColor = QColor();
+    d->initDone = FALSE;
 }
 
 void QGLContext::makeCurrent()
 {
-    if ( !valid ) {
+    if ( !d->valid ) {
 #if defined(QT_CHECK_STATE)
 	qWarning("QGLContext::makeCurrent(): Cannot make invalid context current.");
 #endif
 	return;
     }
 
-    QMacSavedPortInfo::setPaintDevice(paintDevice);
+    QMacSavedPortInfo::setPaintDevice(d->paintDevice);
     aglSetCurrentContext((AGLContext)cx);
     fixBufferRect();
     aglUpdateContext((AGLContext)cx);
@@ -226,11 +226,11 @@ void QGLContext::makeCurrent()
 void QGLContext::fixBufferRect() 
 {
 #if 1
-    if(paintDevice->devType() == QInternal::Widget) {
+    if(d->paintDevice->devType() == QInternal::Widget) {
 	if(!aglIsEnabled((AGLContext)cx, AGL_BUFFER_RECT))
 	   aglEnable((AGLContext)cx, AGL_BUFFER_RECT);
 
-	QWidget *w = (QWidget *)paintDevice;
+	QWidget *w = (QWidget *)d->paintDevice;
 	QRegion clp = w->clippedRegion();
 	if(clp.isEmpty() || clp.isNull()) {
 	    GLint offs[4] = { 0, 0, 0, 0 };
@@ -251,14 +251,14 @@ void QGLContext::doneCurrent()
     if ( currentCtx != this )
 	return;
     currentCtx = 0;
-    QMacSavedPortInfo::setPaintDevice(paintDevice);
+    QMacSavedPortInfo::setPaintDevice(d->paintDevice);
     aglSetCurrentContext(NULL);
 }
 
 
 void QGLContext::swapBuffers() const
 {
-    if ( !valid )
+    if ( !d->valid )
 	return;
     aglSwapBuffers((AGLContext)cx);
 }
