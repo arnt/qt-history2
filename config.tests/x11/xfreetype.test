@@ -115,7 +115,6 @@ then
     grep XftNameUnparse $XFT_H >/dev/null || XFREETYPE=no
     if [ "$XFREETYPE" = "no" ]
     then
-	echo "adding config to build xftnameunparse"
 	echo "xftnameunparse" > $x11tests/xfreetype.cfg
     fi
 
