@@ -372,16 +372,18 @@ void FormWindow::insertWidget()
     const QObjectList *l = insertParent->children();
     QObjectListIt it( *l );
     QWidgetList lst;
-    for ( ; it.current(); ) {
-	QObject *o = it.current();
-	++it;
-	if ( o->isWidgetType() &&
-	     ( (QWidget*)o )->isVisibleTo( this ) &&
-	     insertedWidgets.find( (QWidget*)o ) && o != w ) {
-	    QRect r2( ( (QWidget*)o )->pos(),
-		      ( (QWidget*)o )->size() );
-	    if ( r.contains( r2 ) )
-		lst.append( (QWidget*)o );
+    if ( WidgetDatabase::isContainer( WidgetDatabase::idFromClassName( WidgetFactory::classNameOf( w ) ) ) ) {
+	for ( ; it.current(); ) {
+	    QObject *o = it.current();
+	    ++it;
+	    if ( o->isWidgetType() &&
+		 ( (QWidget*)o )->isVisibleTo( this ) &&
+		 insertedWidgets.find( (QWidget*)o ) && o != w ) {
+		QRect r2( ( (QWidget*)o )->pos(),
+			  ( (QWidget*)o )->size() );
+		if ( r.contains( r2 ) )
+		    lst.append( (QWidget*)o );
+	    }
 	}
     }
 
