@@ -65,11 +65,6 @@ public:
 
     QString documentTitle() const;
 
-    void setPageSize(const QSize &s);
-    QSize pageSize() const;
-
-    int numPages() const;
-
     void setHtml(const QString &html);
 
     QString anchorAt(const QPoint& pos) const;

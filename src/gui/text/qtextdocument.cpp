@@ -212,36 +212,6 @@ QString QTextDocument::documentTitle() const
 }
 
 /*!
-    Sets the page size for the current documentLayout() to \a s.
-
-    \sa pageSize()
-*/
-void QTextDocument::setPageSize(const QSize &s)
-{
-    d->layout()->setPageSize(s);
-}
-
-/*!
-    Returns the page size for the current documentLayout().
-
-    \sa setPageSize() numPages()
-*/
-QSize QTextDocument::pageSize() const
-{
-    return d->layout()->pageSize();
-}
-
-/*!
-    Returns the number of pages that the document occupies using the
-    current documentLayout() and pageSize().
-*/
-int QTextDocument::numPages() const
-{
-    return d->layout()->numPages();
-}
-
-
-/*!
     Clears the text and replaces it with the arbitrary piece of HTML
     formatted text in the \a html string.
 
