@@ -65,51 +65,58 @@ void QBufferPrivate::emitSignals()
 
     \ingroup io
 
-    QBuffer is a wrapper for QByteArray which allows you to access an
-    array using the QIODevice interface. The QByteArray is treated as
-    a FIFO queue (First In, First Out), so the first data you write to
-    the buffer is the first data you will read. Example:
+    QBuffer allows you to access a QByteArray using the QIODevice
+    interface. The QByteArray is treated as a FIFO queue (First In,
+    First Out), so the first data you write to the buffer is the
+    first data you will read. For example:
 
-    \code
-    QBuffer buffer;
-
-    if (buffer.open(QBuffer::ReadWrite)) {
-        buffer.write("Qt rocks!");
-        char c;
-        buffer.getChar(&c); // 'Q'
-        buffer.getChar(&c); // 't'
-        buffer.getChar(&c); // ' '
-        buffer.getChar(&c); // 'r'
-    }
-    \endcode
+    \quotefromfile snippets/buffer/buffer.cpp
+    \skipto fifo_snippet
+    \skipto QBuffer buffer
+    \printto /^\}$/
 
     By default, an internal QByteArray buffer is created for you when
-    you construct a QBuffer. You can access this buffer directly by
+    you create a QBuffer. You can access this buffer directly by
     calling buffer(). You can also use QBuffer with an existing
     QByteArray by calling setBuffer(), or by passing your array to
     QBuffer's constructor.
 
-    Call open() to open the buffer. Then call \l write() or \l
-    putChar() to write to the buffer, and \l read(), \l readLine(), \l
-    readAll() or \l getChar() to read from it. size() returns the
+    Call open() to open the buffer. Then call write() or
+    putChar() to write to the buffer, and read(), readLine(),
+    readAll(), or getChar() to read from it. size() returns the
     current size of the buffer, and you can seek to arbitrary
     positions in the buffer by calling seek(). When you are done with
     accessing the buffer, call close().
 
-    QBuffer emits \l readyRead() when new data has arrived in the
-    buffer. By connecting to this signal, you can use QBuffer to store
-    temporary data before processing it. For example, you can pass the
-    buffer to QFtp when downloading a file from an FTP server.
-    Whenever a new payload of data has been downloaded, your slot
-    connected to \l readyRead() will be called. QBuffer also emits
-    \l bytesWritten() every time new data has been written to the buffer.
+    The following code snippet shows how to write data to a
+    QByteArray using QDataStream and QBuffer:
 
-    QBuffer can be used with QTextStream and QDataStream's stream
-    operators (operator<<() and operator>>()).
+    \skipto write_datastream_snippet
+    \skipto QByteArray
+    \printto /^\}$/
+
+    Effectively, we convert the application's QPalette into a byte
+    array. Here's how to read the data from the QByteArray:
+
+    \skipto read_datastream_snippet
+    \skipto QPalette
+    \printto /^\}$/
+
+    QTextStream and QDataStream also provide convenience constructors
+    that take a QByteArray and that create a QBuffer behind the
+    scenes.
+
+    QBuffer emits readyRead() when new data has arrived in the
+    buffer. By connecting to this signal, you can use QBuffer to
+    store temporary data before processing it. For example, you can
+    pass the buffer to QFtp when downloading a file from an FTP
+    server. Whenever a new payload of data has been downloaded,
+    readyRead() is emitted, and you can process the data that just
+    arrived. QBuffer also emits bytesWritten() every time new data
+    has been written to the buffer.
 
     \sa QFile, QDataStream, QTextStream, QByteArray, \link shclass.html Shared Classes\endlink
 */
-
 
 #ifdef QT_NO_QOBJECT
 QBuffer::QBuffer()
@@ -125,9 +132,6 @@ QBuffer::QBuffer(QByteArray *a)
     d->buf = a;
 }
 #else
-/*!
-    Constructs an empty buffer.
-*/
 QBuffer::QBuffer()
     : QIODevice(*new QBufferPrivate, 0)
 {
@@ -135,35 +139,19 @@ QBuffer::QBuffer()
     d->buf = &d->defaultBuf;
 }
 
-/*!
-    Constructs a buffer that operates on QByteArray \a a.
-
-    If you open the buffer in write mode (\c QIODevice::WriteOnly or
-    \c QIODevice::ReadWrite) and write something into the buffer, the byte
-    array, \a a will be modified.
-
-    Example:
-    \code
-        QCString str = "abc";
-        QBuffer b(str);
-        b.open(QIODevice::WriteOnly);
-        b.at(3); // position at the 4th character (the terminating \0)
-        b.writeBlock("def", 4); // write "def" including the terminating \0
-        b.close();
-        // Now, str == "abcdef" with a terminating \0
-    \endcode
-
-    \sa setBuffer()
-*/
-QBuffer::QBuffer(QByteArray *a)
+QBuffer::QBuffer(QByteArray *byteArray)
     : QIODevice(*new QBufferPrivate, 0)
 {
     Q_D(QBuffer);
-    d->buf = a;
+    d->buf = byteArray;
 }
 
 /*!
-    Constructs an empty buffer with the parent \a parent.
+    Constructs an empty buffer with the given \a parent. You can call
+    setData() to fill the buffer with data, or you can open it in
+    write mode and use write().
+
+    \sa open()
 */
 QBuffer::QBuffer(QObject *parent)
     : QIODevice(*new QBufferPrivate, parent)
@@ -173,14 +161,30 @@ QBuffer::QBuffer(QObject *parent)
 }
 
 /*!
-    Constructs a buffer that operates on QByteArray \a a, with the
-    parent \a parent.
+    Constructs a QBuffer that uses the QByteArray pointed to by \a
+    byteArray as its internal buffer, and with the given \a parent.
+    The caller is responsible for ensuring that \a byteArray remains
+    valid until the QBuffer is destroyed, or until setBuffer() is
+    called to change the buffer. QBuffer doesn't take ownership of
+    the QByteArray.
+
+    If you open the buffer in write-only mode or read-write mode and
+    write something into the QBuffer, \a byteArray will be modified.
+
+    Example:
+
+    \quotefromfile snippets/buffer/buffer.cpp
+    \skipto bytearray_ptr_ctor_snippet
+    \skipto QByteArray
+    \printto /^\}/
+
+    \sa open(), setBuffer(), setData()
 */
-QBuffer::QBuffer(QByteArray *a, QObject *parent)
+QBuffer::QBuffer(QByteArray *byteArray, QObject *parent)
     : QIODevice(*new QBufferPrivate, parent)
 {
     Q_D(QBuffer);
-    d->buf = a;
+    d->buf = byteArray;
 }
 #endif
 
@@ -193,30 +197,39 @@ QBuffer::~QBuffer()
 }
 
 /*!
-    Replaces the buffer's contents with \a a.
+    Makes QBuffer uses the QByteArray pointed to by \a
+    byteArray as its internal buffer. The caller is responsible for
+    ensuring that \a byteArray remains valid until the QBuffer is
+    destroyed, or until setBuffer() is called to change the buffer.
+    QBuffer doesn't take ownership of the QByteArray.
 
     Does nothing if isOpen() is true.
 
-    Note that if you open the buffer in write mode (\c QIODevice::WriteOnly or
-    QIODevice::ReadWrite) and write something into the buffer, and \a a is not
-    0, \a a is modified because QByteArray is an explicitly shared
-    class.
+    If you open the buffer in write-only mode or read-write mode and
+    write something into the QBuffer, \a byteArray will be modified.
 
-    If \a a is 0, the buffer creates its own (initially empty)
-    internal QByteArray to work on.
+    Example:
 
-    \sa buffer(), open(), close()
+    \quotefromfile snippets/buffer/buffer.cpp
+    \skipto setBuffer_snippet
+    \skipto QByteArray
+    \printto /^\}/
+
+    If \a byteArray is 0, the buffer creates its own internal
+    QByteArray to work on. This byte array is initially empty.
+
+    \sa buffer(), setData(), open()
 */
 
-void QBuffer::setBuffer(QByteArray *a)
+void QBuffer::setBuffer(QByteArray *byteArray)
 {
     Q_D(QBuffer);
     if (isOpen()) {
         qWarning("QBuffer::setBuffer: Buffer is open");
         return;
     }
-    if (a) {
-        d->buf = a;
+    if (byteArray) {
+        d->buf = byteArray;
     } else {
         d->buf = &d->defaultBuf;
     }
@@ -224,9 +237,10 @@ void QBuffer::setBuffer(QByteArray *a)
 }
 
 /*!
-    Returns this buffer's byte array.
+    Returns a reference to the QBuffer's internal buffer. You can use
+    it to modify the QByteArray behind the QBuffer's back.
 
-    \sa setBuffer()
+    \sa setBuffer(), data()
 */
 
 QByteArray &QBuffer::buffer()
@@ -236,9 +250,7 @@ QByteArray &QBuffer::buffer()
 }
 
 /*!
-    Returns this buffer's byte array.
-
-    \sa setBuffer()
+    \overload
 */
 
 const QByteArray &QBuffer::buffer() const
@@ -247,18 +259,13 @@ const QByteArray &QBuffer::buffer() const
     return *d->buf;
 }
 
-/*!
-    \fn void QBuffer::setData(const char *data, int len)
-
-    \overload
-
-    Sets the data to be the first \a len bytes of the \a data string.
-*/
 
 /*!
-    Returns this buffer's byte array.
+    Returns the data contained in the buffer.
 
-    \sa setData()
+    This is the same as buffer().
+
+    \sa setData(), setBuffer()
 */
 
 const QByteArray &QBuffer::data() const
@@ -268,10 +275,12 @@ const QByteArray &QBuffer::data() const
 }
 
 /*!
-    Sets the byte array for the buffer to be \a data.
+    Sets the contents of the internal buffer to be \a data. This is
+    the same as assigning \a data to buffer().
 
-    Does nothing if isOpen() is true. Since \a data is const the buffer
-    can only be used to read from it.
+    Does nothing if isOpen() is true.
+
+    \sa setBuffer()
 */
 void QBuffer::setData(const QByteArray &data)
 {
@@ -282,6 +291,15 @@ void QBuffer::setData(const QByteArray &data)
     }
     *d->buf = data;
 }
+
+/*!
+    \fn void QBuffer::setData(const char *data, int size)
+
+    \overload
+
+    Sets the contents of the internal buffer to be the first \a size
+    bytes of \a data.
+*/
 
 /*!
    \reimp
@@ -309,9 +327,8 @@ bool QBuffer::open(OpenMode flags)
 }
 
 /*!
-  \reimp
+    \reimp
 */
-
 void QBuffer::close()
 {
     Q_D(QBuffer);
@@ -325,9 +342,8 @@ void QBuffer::close()
 }
 
 /*!
-  \reimp
+    \reimp
 */
-
 Q_LONGLONG QBuffer::pos() const
 {
     Q_D(const QBuffer);
@@ -337,9 +353,8 @@ Q_LONGLONG QBuffer::pos() const
 }
 
 /*!
-  \reimp
+    \reimp
 */
-
 Q_LONGLONG QBuffer::size() const
 {
     Q_D(const QBuffer);
@@ -347,9 +362,8 @@ Q_LONGLONG QBuffer::size() const
 }
 
 /*!
-  \reimp
+    \reimp
 */
-
 bool QBuffer::seek(Q_LONGLONG pos)
 {
     Q_D(QBuffer);
@@ -367,9 +381,8 @@ bool QBuffer::seek(Q_LONGLONG pos)
     return true;
 }
 
-
 /*!
-  \reimp
+    \reimp
 */
 bool QBuffer::atEnd() const
 {
@@ -383,9 +396,8 @@ bool QBuffer::atEnd() const
 }
 
 /*!
-  \reimp
+    \reimp
 */
-
 Q_LONGLONG QBuffer::readData(char *data, Q_LONGLONG len)
 {
     Q_D(QBuffer);
@@ -402,7 +414,7 @@ Q_LONGLONG QBuffer::readData(char *data, Q_LONGLONG len)
 }
 
 /*!
-  \reimp
+    \reimp
 */
 Q_LONGLONG QBuffer::writeData(const char *data, Q_LONGLONG len)
 {
