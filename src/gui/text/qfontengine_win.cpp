@@ -33,6 +33,11 @@
 #define M_PI 3.14159265358979
 #endif
 
+//### mingw needed define
+#ifndef TT_PRIM_CSPLINE
+#define TT_PRIM_CSPLINE 3
+#endif
+
 // defined in qtextengine_win.cpp
 typedef void *SCRIPT_CACHE;
 #if 0 // ##### Uniscribe is disabled for now

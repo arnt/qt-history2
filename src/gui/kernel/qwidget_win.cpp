@@ -1011,7 +1011,7 @@ void QWidget::repaint(const QRegion& rgn)
     if (double_buffer) {
         QVector<QRect> rects = rgn.rects();
         for (int i=0; i<rects.size(); ++i) {
-            QRect &rr = d->mapToWS(rects.at(i));
+            QRect rr = d->mapToWS(rects.at(i));
             BitBlt(old_dc,
                    rr.x(), rr.y(),
                    rr.width(), rr.height(),

@@ -40,6 +40,11 @@
 #define M_PI 3.14159265358979
 #endif
 
+//## this is only defined if winver > 5 on mingw
+#ifndef GRADIENT_FILL_TRIANGLE
+#define GRADIENT_FILL_TRIANGLE 0x02
+#endif
+
 #define QT_NO_NATIVE_XFORM
 // #define QT_NO_NATIVE_GRADIENT
 // #define QT_NO_NATIVE_PATH
@@ -2227,30 +2232,30 @@ static void qt_resolve_gdiplus()
 
 // Based on enums in GdiPlusEnums.h
 static const int qt_penstyle_map[] = {
-    { -1 },     // Qt::NoPen
-    { 0 },      // Qt::SolidLine
-    { 1 },      // Qt::DashLine
-    { 2 },      // Qt::DotLine
-    { 3 },      // Qt::DashDotLine
-    { 4 }       // Qt::DashDotDotLine
+    -1 ,      // Qt::NoPen
+     0 ,      // Qt::SolidLine
+     1 ,      // Qt::DashLine
+     2 ,      // Qt::DotLine
+     3 ,      // Qt::DashDotLine
+     4        // Qt::DashDotDotLine
 };
 
 static const int qt_hatchstyle_map[] = {
-    { -1 },     // Qt::NoBrush
-    { -1 },     // Qt::SolidPattern
-    { 17 },     // Qt::Dense1Pattern, hatch 90
-    { 15 },     // Qt::Dense2Pattern, hatch 75
-    { 13 },     // Qt::Dense3Pattern, hatch 60
-    { 12 },     // Qt::Dense4Pattern, hatch 50
-    { 10 },     // Qt::Dense5Pattern, hatch 30
-    { 8 },      // Qt::Dense6Pattern, hatch 20
-    { 6 },      // Qt::Dense7Pattern, hatch 05
-    { 0 },      // Qt::HorPattern
-    { 1 },      // Qt::VerPattern
-    { 4 },      // Qt::CrossPattern
-    { 3 },      // Qt::BDiagPattern
-    { 2 },      // Qt::FDiagPattern
-    { 5 }       // Qt::DiagCrossPattern
+     -1 ,     // Qt::NoBrush
+     -1 ,     // Qt::SolidPattern
+     17 ,     // Qt::Dense1Pattern, hatch 90
+     15 ,     // Qt::Dense2Pattern, hatch 75
+     13 ,     // Qt::Dense3Pattern, hatch 60
+     12 ,     // Qt::Dense4Pattern, hatch 50
+     10 ,     // Qt::Dense5Pattern, hatch 30
+      8 ,      // Qt::Dense6Pattern, hatch 20
+      6 ,      // Qt::Dense7Pattern, hatch 05
+      0 ,      // Qt::HorPattern
+      1 ,      // Qt::VerPattern
+      4 ,      // Qt::CrossPattern
+      3 ,      // Qt::BDiagPattern
+      2 ,      // Qt::FDiagPattern
+      5        // Qt::DiagCrossPattern
 };
 
 static QtGpBitmap *qt_convert_to_gdipbitmap(const QPixmap *pixmap, QImage *ref = 0);

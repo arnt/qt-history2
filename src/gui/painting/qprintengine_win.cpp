@@ -243,9 +243,9 @@ bool QWin32PrintEngine::begin(QPaintDevice *dev)
 	DOCINFO di;
 	memset(&di, 0, sizeof(DOCINFO));
 	di.cbSize = sizeof(DOCINFO);
-	di.lpszDocName = d->docName.utf16();
+	di.lpszDocName = reinterpret_cast<const wchar_t *>(d->docName.utf16());
 	if (d->printToFile && !d->fileName.isEmpty())
-	    di.lpszOutput = d->fileName.utf16();
+	    di.lpszOutput = reinterpret_cast<const wchar_t *>(d->fileName.utf16());
 	if (ok && StartDoc(d->hdc, &di) == SP_ERROR) {
 	    qErrnoWarning("QWin32PrintEngine::begin: StartDoc failed");
 	    ok = false;
@@ -688,7 +688,9 @@ void QWin32PrintEnginePrivate::queryDefault()
     QString output;
     QT_WA({
 	ushort buffer[256];
-	GetProfileStringW(L"windows", L"device", noPrinters.utf16(), buffer, 256);
+	GetProfileStringW(L"windows", L"device",
+	                  reinterpret_cast<const wchar_t *>(noPrinters.utf16()),
+			  reinterpret_cast<wchar_t *>(buffer), 256);
 	output = QString::fromUtf16(buffer);
 	if (output == noPrinters) { // no printers
 	    qWarning("System has no default printer, are any printers installed?");
@@ -735,7 +737,8 @@ void QWin32PrintEnginePrivate::initialize()
 
     devMode = pInfo->pDevMode;
 
-    hdc = CreateDC(program.utf16(), name.utf16(), 0, devMode);
+    hdc = CreateDC(reinterpret_cast<const wchar_t *>(program.utf16()),
+		   reinterpret_cast<const wchar_t *>(name.utf16()), 0, devMode);
 
     switch(mode) {
     case QPrinter::ScreenResolution:
@@ -775,9 +778,13 @@ QList<int> QWin32PrintEnginePrivate::queryResolutions() const
     DWORD errRes;
 
     QT_WA({
-	numRes = DeviceCapabilities(name.utf16(), port.utf16(), DC_ENUMRESOLUTIONS, 0, 0);
+	numRes = DeviceCapabilities(reinterpret_cast<const wchar_t *>(name.utf16()),
+	                            reinterpret_cast<const wchar_t *>(port.utf16()),
+				    DC_ENUMRESOLUTIONS, 0, 0);
 	enumRes = (LONG*)malloc(numRes * 2 * sizeof(LONG));
-        errRes = DeviceCapabilities(name.utf16(), port.utf16(), DC_ENUMRESOLUTIONS, (LPWSTR)enumRes, 0);
+        errRes = DeviceCapabilities(reinterpret_cast<const wchar_t *>(name.utf16()),
+	                            reinterpret_cast<const wchar_t *>(port.utf16()),
+				    DC_ENUMRESOLUTIONS, (LPWSTR)enumRes, 0);
     }, {
 	numRes = DeviceCapabilitiesA(name.local8Bit(), port.local8Bit(), DC_ENUMRESOLUTIONS, 0, 0);
 	enumRes = (LONG*)malloc(numRes * 2 * sizeof(LONG));
@@ -1102,7 +1109,8 @@ void QWin32PrintEnginePrivate::readDevmode(HGLOBAL globalDevmode)
         release();
         globalDevMode = globalDevmode;
         devMode = dm;
-        hdc = CreateDC(program.utf16(), name.utf16(), 0, dm);
+        hdc = CreateDC(reinterpret_cast<const wchar_t *>(program.utf16()),
+		       reinterpret_cast<const wchar_t *>(name.utf16()), 0, dm);
         setupPrinterMapping();
     }
 }
