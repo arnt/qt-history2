@@ -52,8 +52,8 @@
 #ifdef Q_OS_MAC9
 # define QMAC_DEFAULT_STYLE "QPlatinumStyle" //Default style
 # include "qt_mac9.h"
-#elif defined( Q_OS_MACX )
-# define QMAC_DEFAULT_STYLE "QAquaStyle" //DefaultStyle
+#elif defined(Q_OS_MACX)
+# define QMAC_DEFAULT_STYLE "QMacStyle" //DefaultStyle
 #endif
 
 #if !defined(Q_WS_MACX) || !defined(MACOSX_102)
@@ -163,9 +163,9 @@ inline bool
 QMacSavedPortInfo::flush(QPaintDevice *pdev) 
 {
 #ifdef Q_WS_MACX
-    if ( pdev->devType() == QInternal::Widget ) {
+    if(pdev->devType() == QInternal::Widget) {
 	QWidget *w = (QWidget *)pdev;
-	if ( !w->isHidden() && QDIsPortBuffered(GetWindowPort((WindowPtr)w->handle()))) {
+	if(!w->isHidden() && QDIsPortBuffered(GetWindowPort((WindowPtr)w->handle()))) {
 	    QDFlushPortBuffer(GetWindowPort((WindowPtr)w->handle()), NULL);
 	    return TRUE;
 	}
@@ -180,10 +180,10 @@ inline bool
 QMacSavedPortInfo::flush(QPaintDevice *pdev, QRegion r, bool force) 
 {
 #ifdef Q_WS_MACX
-    if ( pdev->devType() == QInternal::Widget ) {
+    if(pdev->devType() == QInternal::Widget) {
 	QWidget *w = (QWidget *)pdev;
 	r.translate(w->topLevelWidget()->geometry().x(), w->topLevelWidget()->geometry().y());
-	if ( !w->isHidden() || QDIsPortBuffered(GetWindowPort((WindowPtr)w->handle()))) {
+	if(!w->isHidden() || QDIsPortBuffered(GetWindowPort((WindowPtr)w->handle()))) {
 	    QDFlushPortBuffer(GetWindowPort((WindowPtr)w->handle()), r.handle(force));
 	    return TRUE;
 	}
