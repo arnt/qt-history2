@@ -22,7 +22,7 @@ HelpDemo::HelpDemo( QWidget *parent, const char *name )
 
     menu = new QPopupMenu( this );
 
-    QAction *helpAction = new QAction( "Show Help", QKeySequence( tr("F1" ) ), menu );
+    QAction *helpAction = new QAction( "Show Help", QKeySequence( tr("F1" ) ), this );
     helpAction->addTo( menu );
 
     connect( assistant, SIGNAL( error( const QString& ) ),
