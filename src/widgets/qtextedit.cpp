@@ -3531,7 +3531,7 @@ void QTextEdit::pasteSpecial( const QPoint& pt )
 QCString QTextEdit::pickSpecial( QMimeSource* ms, bool always_ask, const QPoint& pt )
 {
     if ( ms )  {
-	QPopupMenu popup( this );
+	QPopupMenu popup( this, "qt_pickspecial_menu" );
 	QString fmt;
 	int n = 0;
 	QDict<void> done;
@@ -3855,7 +3855,7 @@ bool QTextEdit::getParagraphFormat( int para, QFont *font, QColor *color,
 
 QPopupMenu *QTextEdit::createPopupMenu()
 {
-    QPopupMenu *popup = new QPopupMenu( this );
+    QPopupMenu *popup = new QPopupMenu( this, "qt_edit_menu" );
     d->id[ IdUndo ] = popup->insertItem( tr( "Undo" ) );
     d->id[ IdRedo ] = popup->insertItem( tr( "Redo" ) );
     popup->insertSeparator();

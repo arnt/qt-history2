@@ -1,4 +1,8 @@
 // Everything
-// from configure
-#define QT_PRODUCT_LICENSEE "Trolltech"
-#define QT_PRODUCT_LICENSE "qt-internal"
+
+#if defined( QT_MAKEDLL ) && !defined( QT_DLL )
+#define QT_DLL
+#endif
+
+#define QT_PRODUCT_LICENSEE ""
+#define QT_PRODUCT_LICENSE "qt-enterprise"

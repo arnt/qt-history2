@@ -65,17 +65,11 @@ class Q_EXPORT QSlider : public QWidget, public QRangeControl
 public:
     enum TickSetting { NoMarks = 0, Above = 1, Left = Above,
 		       Below = 2, Right = Below, Both = 3 };
-#if defined (QT_STRICT_NAMES)
-    QSlider( QWidget *parent, const char *name );
-    QSlider( Orientation, QWidget *parent, const char *name );
+
+    QSlider( QWidget *parent, const char* Q_NAME );
+    QSlider( Orientation, QWidget *parent, const char* Q_NAME );
     QSlider( int minValue, int maxValue, int pageStep, int value, Orientation,
-	     QWidget *parent, const char *name );
-#else
-    QSlider( QWidget *parent, const char *name=0 );
-    QSlider( Orientation, QWidget *parent, const char *name=0 );
-    QSlider( int minValue, int maxValue, int pageStep, int value, Orientation,
-	     QWidget *parent, const char *name=0 );
-#endif // QT_STRICT_NAMES
+	     QWidget *parent, const char* Q_NAME );
 
     virtual void	setOrientation( Orientation );
     Orientation orientation() const;

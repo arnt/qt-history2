@@ -93,11 +93,7 @@ class Q_EXPORT QTabBar: public QWidget
     Q_PROPERTY( int keyboardFocusTab READ keyboardFocusTab )
 
 public:
-#if defined (QT_STRICT_NAMES)
-    QTabBar( QWidget *parent, const char *name );
-#else
-    QTabBar( QWidget *parent = 0, const char *name = 0 );
-#endif // QT_STRICT_NAMES
+    QTabBar( QWidget* Q_PARENT, const char* Q_NAME );
     ~QTabBar();
 
     enum Shape { RoundedAbove, RoundedBelow,

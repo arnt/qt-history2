@@ -48,13 +48,8 @@ class Q_EXPORT QVButtonGroup : public QButtonGroup
 {
     Q_OBJECT
 public:
-#if defined (QT_STRICT_NAMES)
-    QVButtonGroup( QWidget *parent, const char *name );
-    QVButtonGroup( const QString &title, QWidget *parent, const char* name );
-#else
-    QVButtonGroup( QWidget *parent=0, const char *name=0 );
-    QVButtonGroup( const QString &title, QWidget *parent=0, const char* name=0 );
-#endif // QT_STRICT_NAMES
+    QVButtonGroup( QWidget* Q_PARENT, const char* Q_NAME );
+    QVButtonGroup( const QString &title, QWidget* Q_PARENT, const char* Q_NAME );
 
     ~QVButtonGroup();
 

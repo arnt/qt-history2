@@ -1273,7 +1273,7 @@ bool QActionGroup::addTo( QWidget* w )
 
 		QAction *defAction = it.current();
 
-		QToolButton* btn = new QToolButton( (QToolBar*) w );
+		QToolButton* btn = new QToolButton( (QToolBar*) w, "qt_actiongroup_btn" );
 		addedTo( btn, w );
 		connect( btn, SIGNAL(destroyed()), SLOT(objectDestroyed()) );
 		d->menubuttons.append( btn );
@@ -1299,7 +1299,7 @@ bool QActionGroup::addTo( QWidget* w )
 		connect( btn, SIGNAL( toggled(bool) ), defAction, SLOT( toolButtonToggled(bool) ) );
 		connect( btn, SIGNAL( destroyed() ), defAction, SLOT( objectDestroyed() ) );
 
-		QPopupMenu *menu = new QPopupMenu( btn );
+		QPopupMenu *menu = new QPopupMenu( btn, "qt_actiongroup_menu" );
 		btn->setPopupDelay( 0 );
 		btn->setPopup( menu );
 
@@ -1309,7 +1309,7 @@ bool QActionGroup::addTo( QWidget* w )
 		}
 		return TRUE;
 	    } else {
-		QComboBox *box = new QComboBox( FALSE, w );
+		QComboBox *box = new QComboBox( FALSE, w, "qt_actiongroup_combo" );
 		addedTo( box, w );
 		connect( box, SIGNAL(destroyed()), SLOT(objectDestroyed()) );
 		d->comboboxes.append( box );
@@ -1329,7 +1329,7 @@ bool QActionGroup::addTo( QWidget* w )
 	QPopupMenu *popup;
 	if ( d->dropdown ) {
 	    QPopupMenu *menu = (QPopupMenu*)w;
-	    popup = new QPopupMenu( w );
+	    popup = new QPopupMenu( w, "qt_actiongroup_menu" );
 	    d->popupmenus.append( popup );
 	    connect( popup, SIGNAL(destroyed()), SLOT(objectDestroyed()) );
 

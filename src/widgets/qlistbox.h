@@ -75,11 +75,7 @@ class Q_EXPORT QListBox : public QScrollView
     Q_PROPERTY( bool variableHeight READ variableHeight WRITE setVariableHeight )
 
 public:
-#if defined (QT_STRICT_NAMES)
-    QListBox( QWidget *parent, const char *name, WFlags f=0  );
-#else
-    QListBox( QWidget *parent=0, const char *name=0, WFlags f=0  );
-#endif // QT_STRICT_NAMES
+    QListBox( QWidget* Q_PARENT, const char* Q_NAME, WFlags f=0  );
     ~QListBox();
 
     virtual void setFont( const QFont & );

@@ -486,7 +486,7 @@ void QDockWindowHandle::resizeEvent( QResizeEvent * )
 void QDockWindowHandle::updateGui()
 {
     if ( !closeButton ) {
-	closeButton = new QToolButton( this );
+	closeButton = new QToolButton( this, "qt_close_button1" );
 	closeButton->setPixmap( style().stylePixmap( QStyle::SP_DockWindowCloseButton, closeButton, 0 ) );
 	closeButton->setFixedSize( 12, 12 );
 	connect( closeButton, SIGNAL( clicked() ),
@@ -622,7 +622,7 @@ void QDockWindowTitleBar::resizeEvent( QResizeEvent *e )
 void QDockWindowTitleBar::updateGui()
 {
     if ( !closeButton ) {
-	closeButton = new QToolButton( this );
+	closeButton = new QToolButton( this, "qt_close_button2" );
 	closeButton->setPixmap( style().stylePixmap( QStyle::SP_DockWindowCloseButton, closeButton, 0) );
 	closeButton->setFixedSize( 12, 12 );
 	connect( closeButton, SIGNAL( clicked() ),

@@ -115,7 +115,7 @@ QErrorMessage::QErrorMessage( QWidget * parent, const char * name )
     : QDialog( parent, name )
 {
     QGridLayout * grid = new QGridLayout( this, 3, 2, 7 );
-    icon = new QLabel( this );
+    icon = new QLabel( this, "qt_icon_lbl" );
     icon->setPixmap( QMessageBox::standardIcon( QMessageBox::Information,
 						style() ) );
     grid->addWidget( icon, 0, 0, AlignTop );

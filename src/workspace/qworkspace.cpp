@@ -922,7 +922,7 @@ void QWorkspace::showMaximizeControls()
 
     if ( !d->maxcontrols ) {
 	d->maxmenubar = b;
-	d->maxcontrols = new QFrame( topLevelWidget() );
+	d->maxcontrols = new QFrame( topLevelWidget(), "qt_maxcontrols" );
 	QHBoxLayout* l = new QHBoxLayout( d->maxcontrols,
 					  d->maxcontrols->frameWidth(), 0 );
 	QToolButton* iconB = new QToolButton( d->maxcontrols, "iconify" );
@@ -962,7 +962,7 @@ void QWorkspace::showMaximizeControls()
     }
     if ( d->active && ( d->menuId == -1 || b->indexOf( d->menuId ) == -1 ) ) {
 	if ( !d->maxtools ) {
-	    d->maxtools = new QLabel( topLevelWidget() );
+	    d->maxtools = new QLabel( topLevelWidget(), "qt_maxtools" );
 	    d->maxtools->installEventFilter( this );
 	}
 	if ( d->active->windowWidget() && d->active->windowWidget()->icon() ) {
@@ -1780,7 +1780,7 @@ QWidget* QWorkspaceChild::iconWidget() const
 {
     if ( !iconw ) {
 	QWorkspaceChild* that = (QWorkspaceChild*) this;
-	QVBox* vbox = new QVBox;
+	QVBox* vbox = new QVBox(0, "qt_vbox" );
 	vbox->setFrameStyle( QFrame::WinPanel | QFrame::Raised );
 	vbox->resize( 196+2*vbox->frameWidth(), 20 + 2*vbox->frameWidth() );
 	that->iconw = new QTitleBar( windowWidget(), vbox, "_workspacechild_icon_");
@@ -1955,7 +1955,7 @@ void QWorkspace::setScrollBarsEnabled( bool enable )
 	connect( d->vbar, SIGNAL( valueChanged(int) ), this, SLOT( scrollBarChanged() ) );
 	d->hbar = new QScrollBar( Horizontal, this, "horizontal scrollbar" );
 	connect( d->hbar, SIGNAL( valueChanged(int) ), this, SLOT( scrollBarChanged() ) );
-	d->corner = new QWidget( this );
+	d->corner = new QWidget( this, "qt_corner" );
 	updateWorkspace();
     } else {
 	delete d->vbar;

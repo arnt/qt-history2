@@ -233,15 +233,9 @@ class Q_EXPORT QTable : public QScrollView
     friend class QCheckTableItem;
 
 public:
-#if defined (QT_STRICT_NAMES)
-    QTable( QWidget *parent, const char *name );
+    QTable( QWidget* Q_PARENT, const char* Q_NAME );
     QTable( int numRows, int numCols,
-            QWidget *parent, const char *name );
-#else
-    QTable( QWidget *parent = 0, const char *name = 0 );
-    QTable( int numRows, int numCols,
-            QWidget *parent = 0, const char *name = 0 );
-#endif // QT_STRICT_NAMES
+            QWidget* Q_PARENT, const char* Q_NAME );
     ~QTable();
 
     QHeader *horizontalHeader() const;

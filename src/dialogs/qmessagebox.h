@@ -60,19 +60,11 @@ class Q_EXPORT QMessageBox : public QDialog
 public:
     enum Icon { NoIcon = 0, Information = 1, Warning = 2, Critical = 3 };
 
-#if defined (QT_STRICT_NAMES)
-    QMessageBox( QWidget *parent, const char *name );
+    QMessageBox( QWidget* Q_PARENT, const char* Q_NAME );
     QMessageBox( const QString& caption, const QString &text, Icon icon,
 		 int button0, int button1, int button2,
-		 QWidget *parent, const char *name, bool modal=TRUE,
+		 QWidget* Q_PARENT, const char* Q_NAME, bool modal=TRUE,
 		 WFlags f=WStyle_DialogBorder  );
-#else
-    QMessageBox( QWidget *parent=0, const char *name=0 );
-    QMessageBox( const QString& caption, const QString &text, Icon icon,
-		 int button0, int button1, int button2,
-		 QWidget *parent=0, const char *name=0, bool modal=TRUE,
-		 WFlags f=WStyle_DialogBorder  );
-#endif // QT_STRICT_NAMES
     ~QMessageBox();
 
     enum { NoButton = 0, Ok = 1, Cancel = 2, Yes = 3, No = 4, Abort = 5,

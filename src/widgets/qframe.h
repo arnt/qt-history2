@@ -58,11 +58,7 @@ class Q_EXPORT QFrame : public QWidget
     Q_PROPERTY( QRect frameRect READ frameRect WRITE setFrameRect DESIGNABLE false )
 
 public:
-#if defined (QT_STRICT_NAMES)
-    QFrame( QWidget *parent, const char *name, WFlags f=0 );
-#else
-    QFrame( QWidget *parent=0, const char *name=0, WFlags f=0 );
-#endif // QT_STRICT_NAMES
+    QFrame( QWidget* Q_PARENT, const char* Q_NAME, WFlags f=0 );
 
     int         frameStyle()    const;
     virtual void setFrameStyle( int );

@@ -2014,7 +2014,7 @@ void QLineEdit::redo()
 
 QPopupMenu *QLineEdit::createPopupMenu()
 {
-    QPopupMenu *popup = new QPopupMenu( this );
+    QPopupMenu *popup = new QPopupMenu( this, "qt_edit_menu" );
     d->id[ IdUndo ] = popup->insertItem( tr( "Undo" ) );
     d->id[ IdRedo ] = popup->insertItem( tr( "Redo" ) );
     popup->insertSeparator();

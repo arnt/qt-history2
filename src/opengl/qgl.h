@@ -257,17 +257,10 @@ class QM_EXPORT_OPENGL QGLWidget : public QWidget, public QGL
 {
     Q_OBJECT
 public:
-#if defined (QT_STRICT_NAMES)
-    QGLWidget( QWidget* parent, const char* name,
+    QGLWidget( QWidget* Q_PARENT, const char* Q_NAME,
 	       const QGLWidget* shareWidget = 0, WFlags f=0 );
-    QGLWidget( const QGLFormat& format, QWidget* parent, const char* name,
+    QGLWidget( const QGLFormat& format, QWidget* Q_PARENT, const char* Q_NAME,
 	       const QGLWidget* shareWidget = 0, WFlags f=0 );
-#else
-    QGLWidget( QWidget* parent=0, const char* name=0,
-	       const QGLWidget* shareWidget = 0, WFlags f=0 );
-    QGLWidget( const QGLFormat& format, QWidget* parent=0, const char* name=0,
-	       const QGLWidget* shareWidget = 0, WFlags f=0 );
-#endif // QT_STRICT_NAMES
     ~QGLWidget();
 
     void		qglColor( const QColor& c ) const;

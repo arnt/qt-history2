@@ -66,25 +66,13 @@ class Q_EXPORT QFontDialog: public QDialog
     Q_OBJECT
 
 public:
-#if defined (QT_STRICT_NAMES)
     static QFont getFont( bool *ok, const QFont &def,
-			  QWidget *parent, const char* name);
-    static QFont getFont( bool *ok, QWidget *parent, const char* name);
-#else
-    static QFont getFont( bool *ok, const QFont &def,
-			  QWidget *parent = 0, const char* name = 0);
-    static QFont getFont( bool *ok, QWidget *parent = 0, const char* name = 0);
-#endif // QT_STRICT_NAMES
+			  QWidget* Q_PARENT, const char* Q_NAME);
+    static QFont getFont( bool *ok, QWidget* Q_PARENT, const char* Q_NAME);
 
 private:
-#if defined (QT_STRICT_NAMES)
-    QFontDialog( QWidget *parent, const char *name, bool modal=FALSE,
+    QFontDialog( QWidget* Q_PARENT, const char* Q_NAME, bool modal=FALSE,
 		 WFlags f=0 );
-#else
-    QFontDialog( QWidget *parent=0, const char *name=0, bool modal=FALSE,
-		 WFlags f=0 );
-#endif // QT_STRICT_NAMES
-
     ~QFontDialog();
 
     QFont font() const;

@@ -56,11 +56,7 @@ class Q_EXPORT QTextBrowser : public QTextView
     Q_PROPERTY( QString source READ source WRITE setSource )
 
 public:
-#if defined (QT_STRICT_NAMES)
-    QTextBrowser( QWidget *parent, const char *name );
-#else
-    QTextBrowser( QWidget *parent=0, const char *name=0 );
-#endif // QT_STRICT_NAMES
+    QTextBrowser( QWidget* Q_PARENT, const char* Q_NAME );
     ~QTextBrowser();
 
     QString source() const;

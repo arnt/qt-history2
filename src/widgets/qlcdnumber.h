@@ -60,13 +60,8 @@ class Q_EXPORT QLCDNumber : public QFrame		// LCD number widget
     Q_PROPERTY( int intValue READ intValue WRITE display )
 
 public:
-#if defined (QT_STRICT_NAMES)
-    QLCDNumber( QWidget *parent, const char *name );
-    QLCDNumber( uint numDigits, QWidget *parent, const char *name );
-#else
-    QLCDNumber( QWidget *parent=0, const char *name=0 );
-    QLCDNumber( uint numDigits, QWidget *parent=0, const char *name=0 );
-#endif // QT_STRICT_NAMES
+    QLCDNumber( QWidget* Q_PARENT, const char* Q_NAME );
+    QLCDNumber( uint numDigits, QWidget* Q_PARENT, const char* Q_NAME );
     ~QLCDNumber();
 
     enum Mode { Hex, HEX=Hex, Dec, DEC=Dec, Oct, OCT=Oct, Bin, BIN=Bin };

@@ -54,12 +54,7 @@ template<class type> class QDict;
 class QErrorMessage: public QDialog {
     Q_OBJECT
 public:
-#if defined (QT_STRICT_NAMES)
-    QErrorMessage( QWidget * parent, const char * name );
-#else
-    QErrorMessage( QWidget * parent, const char * name = 0 );
-#endif // QT_STRICT_NAMES
-
+    QErrorMessage( QWidget* parent, const char* Q_NAME );
     ~QErrorMessage();
 
     static QErrorMessage * qtHandler();

@@ -56,13 +56,8 @@ friend class QPushButton;
     Q_PROPERTY( bool sizeGripEnabled READ isSizeGripEnabled WRITE setSizeGripEnabled )
 
 public:
-#if defined (QT_STRICT_NAMES)
-    QDialog( QWidget *parent, const char *name, bool modal=FALSE,
+    QDialog( QWidget* Q_PARENT, const char* Q_NAME, bool modal=FALSE,
 	     WFlags f=0 );
-#else
-    QDialog( QWidget *parent=0, const char *name=0, bool modal=FALSE,
-	     WFlags f=0 );
-#endif // QT_STRICT_NAMES
     ~QDialog();
 
     enum DialogCode { Rejected, Accepted };

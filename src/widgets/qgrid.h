@@ -46,15 +46,10 @@ class Q_EXPORT QGrid : public QFrame
 {
     Q_OBJECT
 public:
-#if defined (QT_STRICT_NAMES)
-    QGrid( int n, QWidget *parent, const char *name, WFlags f = 0 );
-    QGrid( int n, Orientation orient, QWidget *parent, const char *name,
+    QGrid( int n, QWidget* Q_PARENT, const char* Q_NAME, WFlags f = 0 );
+    QGrid( int n, Orientation orient, QWidget* Q_PARENT, const char* Q_NAME,
 	   WFlags f = 0 );
-#else
-    QGrid( int n, QWidget *parent = 0, const char *name = 0, WFlags f = 0 );
-    QGrid( int n, Orientation orient, QWidget *parent = 0, const char *name = 0,
-	   WFlags f = 0 );
-#endif // QT_STRICT_NAMES
+
     void setSpacing( int );
     QSize sizeHint() const;
 

@@ -594,7 +594,7 @@ void QTableItem::paint( QPainter *p, const QColorGroup &cg,
 
 QWidget *QTableItem::createEditor() const
 {
-    QLineEdit *e = new QLineEdit( table()->viewport() );
+    QLineEdit *e = new QLineEdit( table()->viewport(), "qt_tableeditor" );
     e->setFrame( FALSE );
     e->setText( text() );
     QObject::connect( e, SIGNAL( returnPressed() ), table(), SLOT( doValueChanged() ) );
@@ -987,7 +987,7 @@ void QComboTableItem::setStringList( const QStringList &l )
 QWidget *QComboTableItem::createEditor() const
 {
     // create an editor - a combobox in our case
-    ( (QComboTableItem*)this )->cb = new QComboBox( edit, table()->viewport() );
+    ( (QComboTableItem*)this )->cb = new QComboBox( edit, table()->viewport(), "qt_editor_cb" );
     cb->insertStringList( entries );
     cb->setCurrentItem( current );
     QObject::connect( cb, SIGNAL( activated( int ) ), table(), SLOT( doValueChanged() ) );
@@ -1193,7 +1193,7 @@ QCheckTableItem::QCheckTableItem( QTable *table, const QString &txt )
 QWidget *QCheckTableItem::createEditor() const
 {
     // create an editor - a combobox in our case
-    ( (QCheckTableItem*)this )->cb = new QCheckBox( table()->viewport() );
+    ( (QCheckTableItem*)this )->cb = new QCheckBox( table()->viewport(), "qt_editor_checkbox" );
     cb->setChecked( checked );
     cb->setText( text() );
     cb->setBackgroundColor( table()->viewport()->backgroundColor() );
@@ -1661,7 +1661,7 @@ void QTable::init( int rows, int cols )
     topHeader->setOrientation( Horizontal );
     topHeader->setTracking( TRUE );
     topHeader->setMovingEnabled( TRUE );
-    topLeftCorner = new QWidget( this );
+    topLeftCorner = new QWidget( this, "qt_topleft_corner" );
     setMargins( 30, fontMetrics().height() + 4, 0, 0 );
 
     topHeader->setUpdatesEnabled( FALSE );
@@ -4097,7 +4097,7 @@ QWidget *QTable::createEditor( int row, int col, bool initFromCell ) const
 
     // no contents in the cell yet, so open the default editor
     if ( !e ) {
-	e = new QLineEdit( viewport() );
+	e = new QLineEdit( viewport(), "qt_lineeditor" );
 	( (QLineEdit*)e )->setFrame( FALSE );
     }
 
@@ -5243,11 +5243,11 @@ QTableHeader::QTableHeader( int i, QTable *t,
     autoScrollTimer = new QTimer( this );
     connect( autoScrollTimer, SIGNAL( timeout() ),
 	     this, SLOT( doAutoScroll() ) );
-    line1 = new QWidget( table->viewport() );
+    line1 = new QWidget( table->viewport(), "qt_line1" );
     line1->hide();
     line1->setBackgroundMode( PaletteText );
     table->addChild( line1 );
-    line2 = new QWidget( table->viewport() );
+    line2 = new QWidget( table->viewport(), "qt_line2" );
     line2->hide();
     line2->setBackgroundMode( PaletteText );
     table->addChild( line2 );

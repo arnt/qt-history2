@@ -126,11 +126,7 @@ class Q_EXPORT QWidget : public QObject, public QPaintDevice
     Q_PROPERTY( bool customWhatsThis READ customWhatsThis )
 
 public:
-#if defined (QT_STRICT_NAMES)
-    QWidget( QWidget *parent, const char *name, WFlags f=0 );
-#else
-    QWidget( QWidget *parent=0, const char *name=0, WFlags f=0 );
-#endif // QT_STRICT_NAMES
+    QWidget( QWidget* Q_PARENT, const char* Q_NAME, WFlags f=0 );
     ~QWidget();
 
     WId		 winId() const;

@@ -68,13 +68,8 @@ class Q_EXPORT QLineEdit : public QFrame
     Q_PROPERTY( bool readOnly READ isReadOnly WRITE setReadOnly )
 
 public:
-#if defined (QT_STRICT_NAMES)
-    QLineEdit( QWidget *parent, const char *name );
-    QLineEdit( const QString &, QWidget *parent, const char *name );
-#else
-    QLineEdit( QWidget *parent, const char *name=0 );
-    QLineEdit( const QString &, QWidget *parent, const char *name=0 );
-#endif // QT_STRICT_NAMES
+    QLineEdit( QWidget* parent, const char* Q_NAME );
+    QLineEdit( const QString &, QWidget* parent, const char* Q_NAME );
     ~QLineEdit();
 
     QString text() const;

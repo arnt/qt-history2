@@ -235,10 +235,10 @@ QTabBar::QTabBar( QWidget * parent, const char *name )
     d->a = new QAccel( this, "tab accelerators" );
     d->s = RoundedAbove;
     d->scrolls = FALSE;
-    d->leftB = new QToolButton( LeftArrow, this );
+    d->leftB = new QToolButton( LeftArrow, this, "qt_left_btn" );
     connect( d->leftB, SIGNAL( clicked() ), this, SLOT( scrollTabs() ) );
     d->leftB->hide();
-    d->rightB = new QToolButton( RightArrow, this );
+    d->rightB = new QToolButton( RightArrow, this, "qt_right_btn" );
     connect( d->rightB, SIGNAL( clicked() ), this, SLOT( scrollTabs() ) );
     d->rightB->hide();
     l = new QPtrList<QTab>;

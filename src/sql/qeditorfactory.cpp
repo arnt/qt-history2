@@ -134,33 +134,33 @@ QWidget * QEditorFactory::createEditor( QWidget * parent, const QVariant & v )
 	    w = 0;
 	    break;
 	case QVariant::Bool:
-	    w = new QComboBox( parent );
+	    w = new QComboBox( parent, "qt_editor_bool" );
 	    ((QComboBox *) w)->insertItem( "False" );
 	    ((QComboBox *) w)->insertItem( "True" );
 	    break;
 	case QVariant::UInt:
-	    w = new QSpinBox( 0, 999999, 1, parent );
+	    w = new QSpinBox( 0, 999999, 1, parent, "qt_editor_spinbox" );
 	    break;
 	case QVariant::Int:
-	    w = new QSpinBox( -999999, 999999, 1, parent );
+	    w = new QSpinBox( -999999, 999999, 1, parent, "qt_editor_int" );
 	    break;
 	case QVariant::String:
 	case QVariant::CString:
 	case QVariant::Double:
-	    w = new QLineEdit( parent );
+	    w = new QLineEdit( parent, "qt_editor_double" );
 	    ((QLineEdit*)w)->setFrame( FALSE );
 	    break;
 	case QVariant::Date:
-	    w = new QDateEdit( parent );
+	    w = new QDateEdit( parent, "qt_editor_date" );
 	    break;
 	case QVariant::Time:
-	    w = new QTimeEdit( parent );
+	    w = new QTimeEdit( parent, "qt_editor_time" );
 	    break;
 	case QVariant::DateTime:
-	    w = new QDateTimeEdit( parent );
+	    w = new QDateTimeEdit( parent, "qt_editor_datetime" );
 	    break;
 	case QVariant::Pixmap:
-	    w = new QLabel( parent );
+	    w = new QLabel( parent, "qt_editor_pixmap" );
 	    break;
 	case QVariant::Palette:
 	case QVariant::ColorGroup:
@@ -180,7 +180,7 @@ QWidget * QEditorFactory::createEditor( QWidget * parent, const QVariant & v )
 	case QVariant::SizePolicy:
 	case QVariant::ByteArray:
 	default:
-	    w = new QWidget( parent );
+	    w = new QWidget( parent, "qt_editor_default" );
 	    break;
     }
     return w;

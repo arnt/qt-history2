@@ -85,6 +85,11 @@ void QAuServerWindows::play(QSound* s)
     play(s->fileName());
 }
 
+void QAuServerWindows::stop(QSound* s)
+{
+    // something needs to be done here...
+}
+
 bool QAuServerWindows::okay()
 {
     return TRUE;

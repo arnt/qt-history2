@@ -196,7 +196,7 @@ qDebug("%s with quality %x",familyName.latin1(),f->elfLogFont.lfQuality);
 static
 void populate_database(const QString& fam)
 {
-    QWidget dummy;
+    QWidget dummy( 0, "qt_dummy_popdb");
     QPainter p( &dummy );
 
 #if defined(UNICODE)

@@ -51,13 +51,8 @@ class Q_EXPORT QCheckBox : public QButton
     Q_PROPERTY( bool tristate READ isTristate WRITE setTristate )
 
 public:
-#if defined (QT_STRICT_NAMES)
-    QCheckBox( QWidget *parent, const char *name );
-    QCheckBox( const QString &text, QWidget *parent, const char* name );
-#else
-    QCheckBox( QWidget *parent, const char *name=0 );
-    QCheckBox( const QString &text, QWidget *parent, const char* name=0 );
-#endif // QT_STRICT_NAMES
+    QCheckBox( QWidget *parent, const char* Q_NAME );
+    QCheckBox( const QString &text, QWidget *parent, const char* Q_NAME );
 
     bool    isChecked() const;
 

@@ -101,14 +101,14 @@ class Q_EXPORT QFileDialog : public QDialog
 
 public:
 #if defined (QT_STRICT_NAMES)
+    // unfortunately no default value possible for 'filter'
     QFileDialog( const QString& dirName, const QString& filter,
-		 QWidget *parent, const char *name, bool modal = FALSE );
-    QFileDialog( QWidget *parent, const char *name, bool modal = FALSE );
+		 QWidget* Q_PARENT, const char* Q_NAME, bool modal = FALSE );
 #else
     QFileDialog( const QString& dirName, const QString& filter = QString::null,
-		 QWidget *parent=0, const char *name = 0, bool modal = FALSE );
-    QFileDialog( QWidget *parent=0, const char *name = 0, bool modal = FALSE );
-#endif // QT_STRICT_NAMES
+		 QWidget* Q_PARENT, const char* Q_NAME, bool modal = FALSE );
+#endif
+    QFileDialog( QWidget* Q_PARENT, const char* Q_NAME, bool modal = FALSE );
     ~QFileDialog();
 
     // recommended static functions

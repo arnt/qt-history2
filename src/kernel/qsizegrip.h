@@ -48,11 +48,7 @@ class Q_EXPORT QSizeGrip: public QWidget
 {
     Q_OBJECT
 public:
-#if defined (QT_STRICT_NAMES)
-    QSizeGrip( QWidget *parent, const char* name );
-#else
-    QSizeGrip( QWidget *parent, const char* name=0 );
-#endif // QT_STRICT_NAMES
+    QSizeGrip( QWidget* parent, const char* Q_NAME );
     ~QSizeGrip();
 
     QSize sizeHint() const;

@@ -350,13 +350,9 @@ class QM_EXPORT_CANVAS QCanvasView : public QScrollView
 {
     Q_OBJECT
 public:
-#if defined (QT_STRICT_NAMES)
-    QCanvasView(QWidget* parent, const char* name, WFlags f=0);
-    QCanvasView(QCanvas* viewing, QWidget* parent, const char* name, WFlags f=0);
-#else
-    QCanvasView(QWidget* parent=0, const char* name=0, WFlags f=0);
-    QCanvasView(QCanvas* viewing, QWidget* parent=0, const char* name=0, WFlags f=0);
-#endif // QT_STRICT_NAMES
+
+    QCanvasView(QWidget* Q_PARENT, const char* Q_NAME, WFlags f=0);
+    QCanvasView(QCanvas* viewing, QWidget* Q_PARENT, const char* Q_NAME, WFlags f=0);
     ~QCanvasView();
 
     QCanvas* canvas() const

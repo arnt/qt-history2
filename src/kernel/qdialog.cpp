@@ -418,7 +418,7 @@ void QDialog::contextMenuEvent( QContextMenuEvent *e )
 #ifndef QT_NO_WHATSTHIS
     QString s = QWhatsThis::textFor( w, e->pos(), TRUE );
     if ( !s.isEmpty() ) {
-	QPopupMenu p;
+	QPopupMenu p(0,"qt_whats_this_menu");
 	p.insertItem( tr("What's This?"), 42 );
 	if ( p.exec( e->globalPos() ) >= 42 )
 	    QWhatsThis::display( s, w->mapToGlobal( w->rect().center() ) );

@@ -132,14 +132,14 @@ public:
     };
 
 #if defined (QT_STRICT_NAMES)
+    // unfortunately no default possible for 'context'
     QTextEdit( const QString& text, const QString& context,
-	       QWidget *parent, const char *name );
-    QTextEdit( QWidget *parent, const char *name );
+	       QWidget* Q_PARENT, const char* Q_NAME);
 #else
     QTextEdit( const QString& text, const QString& context = QString::null,
-	       QWidget *parent=0, const char *name=0);
-    QTextEdit( QWidget *parent = 0, const char *name = 0 );
-#endif // QT_STRICT_NAMES
+	       QWidget* Q_PARENT, const char* Q_NAME);
+#endif
+    QTextEdit( QWidget* Q_PARENT, const char* Q_NAME );
     virtual ~QTextEdit();
     void setPalette( const QPalette & );
 

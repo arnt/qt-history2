@@ -965,7 +965,7 @@ class QColorShowLabel : public QFrame
     Q_OBJECT
 
 public:
-    QColorShowLabel( QWidget *parent ) :QFrame( parent ) {
+    QColorShowLabel( QWidget *parent ) : QFrame( parent, "qt_colorshow_lbl" ) {
 	setFrameStyle( QFrame::Panel|QFrame::Sunken );
 	setBackgroundMode( PaletteBackground );
 	setAcceptDrops( TRUE );
@@ -1086,49 +1086,49 @@ QColorShower::QColorShower( QWidget *parent, const char *name )
 
     hEd = new QColNumLineEdit( this );
     hEd->setValidator( val360 );
-    QLabel *l = new QLabel( hEd, QColorDialog::tr("Hu&e:"), this );
+    QLabel *l = new QLabel( hEd, QColorDialog::tr("Hu&e:"), this, "qt_hue_lbl" );
     l->setAlignment( AlignRight|AlignVCenter );
     gl->addWidget( l, 0, 1 );
     gl->addWidget( hEd, 0, 2 );
 
     sEd = new QColNumLineEdit( this );
     sEd->setValidator( val256 );
-    l = new QLabel( sEd, QColorDialog::tr("&Sat:"), this );
+    l = new QLabel( sEd, QColorDialog::tr("&Sat:"), this, "qt_sat_lbl" );
     l->setAlignment( AlignRight|AlignVCenter );
     gl->addWidget( l, 1, 1 );
     gl->addWidget( sEd, 1, 2 );
 
     vEd = new QColNumLineEdit( this );
     vEd->setValidator( val256 );
-    l = new QLabel( vEd, QColorDialog::tr("&Val:"), this );
+    l = new QLabel( vEd, QColorDialog::tr("&Val:"), this, "qt_val_lbl" );
     l->setAlignment( AlignRight|AlignVCenter );
     gl->addWidget( l, 2, 1 );
     gl->addWidget( vEd, 2, 2 );
 
     rEd = new QColNumLineEdit( this );
     rEd->setValidator( val256 );
-    l = new QLabel( rEd, QColorDialog::tr("&Red:"), this );
+    l = new QLabel( rEd, QColorDialog::tr("&Red:"), this, "qt_red_lbl" );
     l->setAlignment( AlignRight|AlignVCenter );
     gl->addWidget( l, 0, 3 );
     gl->addWidget( rEd, 0, 4 );
 
     gEd = new QColNumLineEdit( this );
     gEd->setValidator( val256 );
-    l = new QLabel( gEd, QColorDialog::tr("&Green:"), this );
+    l = new QLabel( gEd, QColorDialog::tr("&Green:"), this, "qt_grn_lbl" );
     l->setAlignment( AlignRight|AlignVCenter );
     gl->addWidget( l, 1, 3 );
     gl->addWidget( gEd, 1, 4 );
 
     bEd = new QColNumLineEdit( this );
     bEd->setValidator( val256 );
-    l = new QLabel( bEd, QColorDialog::tr("Bl&ue:"), this );
+    l = new QLabel( bEd, QColorDialog::tr("Bl&ue:"), this, "qt_blue_lbl" );
     l->setAlignment( AlignRight|AlignVCenter );
     gl->addWidget( l, 2, 3 );
     gl->addWidget( bEd, 2, 4 );
 
     alphaEd = new QColNumLineEdit( this );
     alphaEd->setValidator( val256 );
-    alphaLab = new QLabel( alphaEd, QColorDialog::tr("A&lpha channel:"), this );
+    alphaLab = new QLabel( alphaEd, QColorDialog::tr("A&lpha channel:"), this, "qt_alpha_lbl" );
     alphaLab->setAlignment( AlignRight|AlignVCenter );
     gl->addMultiCellWidget( alphaLab, 3, 3, 1, 3 );
     gl->addWidget( alphaEd, 3, 4 );
@@ -1311,7 +1311,7 @@ QColorDialogPrivate::QColorDialogPrivate( QColorDialog *dialog ) :
 	standard->setCellWidth( 28 );
 	standard->setCellHeight( 24 );
 	QLabel * lab = new QLabel( standard,
-				QColorDialog::tr( "&Basic colors"), dialog );
+				QColorDialog::tr( "&Basic colors"), dialog, "qt_basiccolors_lbl" );
 	connect( standard, SIGNAL(selected(int,int)), SLOT(newStandard(int,int)));
 	leftLay->addWidget( lab );
 	leftLay->addWidget( standard );
@@ -1325,13 +1325,13 @@ QColorDialogPrivate::QColorDialogPrivate( QColorDialog *dialog ) :
 	custom->setAcceptDrops( TRUE );
 
 	connect( custom, SIGNAL(selected(int,int)), SLOT(newCustom(int,int)));
-	lab = new QLabel( custom, QColorDialog::tr( "&Custom colors") , dialog );
+	lab = new QLabel( custom, QColorDialog::tr( "&Custom colors") , dialog, "qt_custcolors_lbl" );
 	leftLay->addWidget( lab );
 	leftLay->addWidget( custom );
 
 	QPushButton *custbut =
 	    new QPushButton( QColorDialog::tr("&Define Custom Colors >>"),
-						dialog );
+						dialog, "qt_def_custcolors_lbl" );
 	custbut->setEnabled( FALSE );
 	leftLay->addWidget( custbut );
     } else {
@@ -1372,10 +1372,10 @@ QColorDialogPrivate::QColorDialogPrivate( QColorDialog *dialog ) :
 	buttons = new QHBoxLayout( leftLay );
 
     QPushButton *ok, *cancel;
-    ok = new QPushButton( QColorDialog::tr("OK"), dialog );
+    ok = new QPushButton( QColorDialog::tr("OK"), dialog, "qt_ok_btn" );
     connect( ok, SIGNAL(clicked()), dialog, SLOT(accept()) );
     ok->setDefault(TRUE);
-    cancel = new QPushButton( QColorDialog::tr("Cancel"), dialog );
+    cancel = new QPushButton( QColorDialog::tr("Cancel"), dialog, "qt_cancel_btn" );
     connect( cancel, SIGNAL(clicked()), dialog, SLOT(reject()) );
     buttons->addWidget( ok );
     buttons->addWidget( cancel );
@@ -1384,7 +1384,7 @@ QColorDialogPrivate::QColorDialogPrivate( QColorDialog *dialog ) :
     if ( !compact ) {
 	QPushButton *addCusBt = new QPushButton(
 					QColorDialog::tr("&Add To Custom Colors"),
-						 dialog );
+						 dialog, "qt_add_btn" );
 	rightLay->addWidget( addCusBt );
 	connect( addCusBt, SIGNAL(clicked()), this, SLOT(addCustom()) );
     }

@@ -53,14 +53,14 @@ class Q_EXPORT QTextView : public QTextEdit
 
 public:
 #if defined (QT_STRICT_NAMES)
+    // unfortunately no default value possible for 'context'
     QTextView( const QString& text, const QString& context,
-	       QWidget *parent, const char *name );
-    QTextView( QWidget *parent, const char *name );
+	       QWidget* Q_PARENT, const char* Q_NAME);
 #else
     QTextView( const QString& text, const QString& context = QString::null,
-	       QWidget *parent=0, const char *name=0);
-    QTextView( QWidget *parent = 0, const char *name = 0 );
-#endif // QT_STRICT_NAMES
+	       QWidget* Q_PARENT, const char* Q_NAME);
+#endif
+    QTextView( QWidget* Q_PARENT, const char* Q_NAME );
 
     virtual ~QTextView();
 

@@ -1998,7 +1998,7 @@ QPopupMenu *QMainWindow::createDockWindowMenu( DockWindows dockWindows ) const
 
     delete l;
 
-    QPopupMenu *menu = new QPopupMenu( (QMainWindow*)this );
+    QPopupMenu *menu = new QPopupMenu( (QMainWindow*)this, "qt_customize_menu" );
     menu->setCheckable( TRUE );
     d->dockWindowModes.replace( menu, dockWindows );
     connect( menu, SIGNAL( aboutToShow() ), this, SLOT( menuAboutToShow() ) );

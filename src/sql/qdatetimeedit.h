@@ -57,13 +57,8 @@ class QDateTimeEditBase : public QWidget
 {
     Q_OBJECT
 public:
-#if defined (QT_STRICT_NAMES)
-    QDateTimeEditBase( QWidget * parent, const char * name )
+    QDateTimeEditBase( QWidget* Q_PARENT, const char* Q_NAME )
 	: QWidget( parent, name ) {}
-#else
-    QDateTimeEditBase( QWidget * parent = 0, const char * name = 0 )
-	: QWidget( parent, name ) {}
-#endif // QT_STRICT_NAMES
     
     virtual bool setFocusSection( int sec ) = 0;
     virtual QString sectionFormattedText( int sec ) = 0;
@@ -88,13 +83,8 @@ class QM_EXPORT_SQL QDateEdit : public QDateTimeEditBase
     Q_PROPERTY( QDate minValue READ minValue WRITE setMinValue )
 
 public:
-#if defined (QT_STRICT_NAMES)
-    QDateEdit( QWidget * parent,  const char * name );
-    QDateEdit( const QDate& date, QWidget * parent,  const char * name );
-#else
-    QDateEdit( QWidget * parent = 0,  const char * name = 0 );
-    QDateEdit( const QDate& date, QWidget * parent = 0,  const char * name = 0 );
-#endif // QT_STRICT_NAMES
+    QDateEdit( QWidget* Q_PARENT,  const char* Q_NAME );
+    QDateEdit( const QDate& date, QWidget* Q_PARENT,  const char* Q_NAME );
     ~QDateEdit();
 
     enum Order {
@@ -160,13 +150,8 @@ class QM_EXPORT_SQL QTimeEdit : public QDateTimeEditBase
     Q_PROPERTY( QTime minValue READ minValue WRITE setMinValue )
 
 public:
-#if defined (QT_STRICT_NAMES)
-    QTimeEdit( QWidget * parent,  const char * name );
-    QTimeEdit( const QTime& time, QWidget * parent,  const char * name );
-#else
-    QTimeEdit( QWidget * parent = 0,  const char * name = 0 );
-    QTimeEdit( const QTime& time, QWidget * parent = 0,  const char * name = 0 );
-#endif // QT_STRICT_NAMES
+    QTimeEdit( QWidget* Q_PARENT,  const char* Q_NAME );
+    QTimeEdit( const QTime& time, QWidget* Q_PARENT,  const char* Q_NAME );
     ~QTimeEdit();
 
     QSize sizeHint() const;
@@ -217,16 +202,11 @@ class QM_EXPORT_SQL QDateTimeEdit : public QWidget
     Q_PROPERTY( QDateTime dateTime READ dateTime WRITE setDateTime )
 
 public:
-#if defined (QT_STRICT_NAMES)
-    QDateTimeEdit( QWidget * parent, const char * name );
-    QDateTimeEdit( const QDateTime& datetime, QWidget * parent,
-		   const char * name );
-#else
-    QDateTimeEdit( QWidget * parent = 0, const char * name = 0 );
-    QDateTimeEdit( const QDateTime& datetime, QWidget * parent = 0,
-		   const char * name = 0 );
-#endif // QT_STRICT_NAMES
+    QDateTimeEdit( QWidget* Q_PARENT, const char* Q_NAME );
+    QDateTimeEdit( const QDateTime& datetime, QWidget* Q_PARENT,
+		   const char* Q_NAME );
     ~QDateTimeEdit();
+
     QSize sizeHint() const;
     virtual void  setDateTime( const QDateTime & dt );
     QDateTime dateTime() const;

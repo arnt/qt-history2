@@ -4581,7 +4581,7 @@ QRect QCanvasText::boundingRect() const { return brect; }
 void QCanvasText::setRect()
 {
     static QWidget *w=0;
-    if (!w) w = new QWidget;
+    if (!w) w = new QWidget(0, "qt_canvastext" );
     QPainter p(w);
     p.setFont(fnt);
     brect = p.boundingRect(QRect(int(x()),int(y()),0,0), flags, txt);

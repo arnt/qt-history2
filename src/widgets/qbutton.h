@@ -66,11 +66,7 @@ class Q_EXPORT QButton : public QWidget
     Q_PROPERTY( bool exclusiveToggle READ isExclusiveToggle )
 
 public:
-#if defined (QT_STRICT_NAMES)
-    QButton( QWidget *parent, const char *name, WFlags f=0 );
-#else
-    QButton( QWidget *parent=0, const char *name=0, WFlags f=0 );
-#endif // QT_STRICT_NAMES
+    QButton( QWidget* Q_PARENT, const char* Q_NAME, WFlags f=0 );
     ~QButton();
 
     QString text() const;

@@ -149,7 +149,7 @@ QWizard::QWizard( QWidget *parent, const char *name, bool modal,
 {
     d = new QWizardPrivate();
     d->current = 0; // not quite true, but...
-    d->ws = new QWidgetStack( this );
+    d->ws = new QWidgetStack( this, "qt_widgetstack" );
     d->title = new QLabel( this, "title label" );
 
     // create in nice tab order

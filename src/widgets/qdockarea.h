@@ -120,10 +120,11 @@ public:
     enum HandlePosition { Normal, Reverse };
 
 #if defined (QT_STRICT_NAMES)
-    QDockArea( Orientation o, HandlePosition h, QWidget *parent, const char *name );
+    // unfortunately no default value for "HandlePosition h" possible
+    QDockArea( Orientation o, HandlePosition h, QWidget* Q_PARENT, const char* Q_NAME );
 #else
-    QDockArea( Orientation o, HandlePosition h = Normal, QWidget *parent = 0, const char *name = 0 );
-#endif // QT_STRICT_NAMES
+    QDockArea( Orientation o, HandlePosition h = Normal, QWidget* Q_PARENT, const char* Q_NAME );
+#endif
     ~QDockArea();
 
     void moveDockWindow( QDockWindow *w, const QPoint &globalPos, const QRect &rect, bool swap );

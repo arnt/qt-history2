@@ -56,23 +56,13 @@ class Q_EXPORT QButtonGroup : public QGroupBox
     Q_PROPERTY( bool radioButtonExclusive READ isRadioButtonExclusive WRITE setRadioButtonExclusive )
 	
 public:
-#if defined (QT_STRICT_NAMES)
-    QButtonGroup( QWidget *parent, const char *name );
+    QButtonGroup( QWidget* Q_PARENT, const char* Q_NAME );
     QButtonGroup( const QString &title,
-		  QWidget *parent, const char* name );
+		  QWidget* Q_PARENT, const char* Q_NAME );
     QButtonGroup( int columns, Orientation o,
-		  QWidget *parent, const char *name );
+		  QWidget* Q_PARENT, const char* Q_NAME );
     QButtonGroup( int columns, Orientation o, const QString &title,
-		  QWidget *parent, const char* name );
-#else
-    QButtonGroup( QWidget *parent=0, const char *name=0 );
-    QButtonGroup( const QString &title,
-		  QWidget *parent=0, const char* name=0 );
-    QButtonGroup( int columns, Orientation o,
-		  QWidget *parent=0, const char *name=0 );
-    QButtonGroup( int columns, Orientation o, const QString &title,
-		  QWidget *parent=0, const char* name=0 );
-#endif // QT_STRICT_NAMES
+		  QWidget* Q_PARENT, const char* Q_NAME );
     ~QButtonGroup();
 
     bool	isExclusive() const;

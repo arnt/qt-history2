@@ -49,7 +49,7 @@ public:
     class Invisible: public QWidget
     {
     public:
-	Invisible( QWidgetStack * parent ): QWidget( parent )
+	Invisible( QWidgetStack * parent ): QWidget( parent, "qt_invisible_widgetstack" )
 	{
 	    setBackgroundMode( NoBackground );
 	}

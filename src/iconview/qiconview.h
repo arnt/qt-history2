@@ -294,11 +294,7 @@ public:
 	Right
     };
 
-#if defined (QT_STRICT_NAMES)
-    QIconView( QWidget *parent, const char *name, WFlags f = 0 );
-#else
-    QIconView( QWidget *parent = 0, const char *name = 0, WFlags f = 0 );
-#endif // QT_STRICT_NAMES
+    QIconView( QWidget* Q_PARENT, const char* Q_NAME, WFlags f = 0 );
     virtual ~QIconView();
 
     virtual void insertItem( QIconViewItem *item, QIconViewItem *after = 0L );

@@ -142,7 +142,7 @@ private:
 QToolBarExtensionWidget::QToolBarExtensionWidget( QWidget *w )
     : QWidget( w, "qt_dockwidget_internal" )
 {
-    tb = new QToolButton( this );
+    tb = new QToolButton( this, "qt_toolbar_ext_button" );
     tb->setAutoRaise( TRUE );
     setOrientation( Horizontal );
 }

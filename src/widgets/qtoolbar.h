@@ -58,18 +58,17 @@ public:
 #if defined (QT_STRICT_NAMES)
     QToolBar( const QString &label,
 	      QMainWindow *, ToolBarDock,
-	      bool newLine, const char * name );
+	      bool newLine, const char* Q_NAME );
     QToolBar( const QString &label, QMainWindow *, QWidget *,
-	      bool newLine, const char * name, WFlags f = 0 );
-    QToolBar( QMainWindow * parent, const char * name );
+	      bool newLine, const char* Q_NAME, WFlags f = 0 );
 #else
     QToolBar( const QString &label,
 	      QMainWindow *, ToolBarDock = Top,
-	      bool newLine = FALSE, const char * name = 0 );
+	      bool newLine = FALSE, const char* Q_NAME );
     QToolBar( const QString &label, QMainWindow *, QWidget *,
-	      bool newLine = FALSE, const char * name = 0, WFlags f = 0 );
-    QToolBar( QMainWindow * parent = 0, const char * name = 0 );
-#endif // QT_STRICT_NAMES
+	      bool newLine = FALSE, const char* Q_NAME, WFlags f = 0 );
+#endif
+    QToolBar( QMainWindow* Q_PARENT, const char* Q_NAME );
     ~QToolBar();
 
     void addSeparator();
