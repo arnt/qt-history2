@@ -1494,12 +1494,12 @@ void QComboBox::popup()
 	    for(unsigned int i = 0; i < d->listBox()->count(); i++) {
 		QListBoxItem *item = d->listBox()->item(i);
 		if(item->rtti() == QListBoxText::RTTI) {
-		    d->popup()->insertItem(item->text());
+		    d->popup()->insertItem(item->text(), i, i);
 		} else if(item->rtti() == QListBoxPixmap::RTTI) {
 		    if(item->pixmap())
-			d->popup()->insertItem(QIconSet(*item->pixmap()), item->text());
+			d->popup()->insertItem(QIconSet(*item->pixmap()), item->text(), i, i);
 		    else
-			d->popup()->insertItem(item->text());
+			d->popup()->insertItem(item->text(), i, i);
 		} else {
 		    d->popup()->insertItem(new QComboBoxPopupItem(item), i, i);
 		}
