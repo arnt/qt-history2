@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion_x11.cpp#12 $
+** $Id: //depot/qt/main/src/kernel/qregion_x11.cpp#13 $
 **
 ** Implementation of QRegion class for X11
 **
@@ -19,7 +19,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qregion_x11.cpp#12 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qregion_x11.cpp#13 $";
 #endif
 
 
@@ -134,9 +134,9 @@ QRegion &QRegion::operator=( const QRegion &r )
 }
 
 
-/*!
-  Returns a deep copy of the region.
-*/
+/*!  Returns a deep copy of the region.
+
+  This may disappear in 0.93. */
 
 QRegion QRegion::copy() const
 {
@@ -147,18 +147,15 @@ QRegion QRegion::copy() const
 }
 
 
-/*!
-  Returns TRUE if the region is a null region.
-*/
+/*!  Returns TRUE if the region is a null region. \sa isEmpty() */
 
 bool QRegion::isNull() const
 {
     return data->bop.isNull();
 }
 
-/*!
-  Returns TRUE if the region is empty, or FALSE if it is non-empty.
-*/
+/*!  Returns TRUE if the region is empty, or FALSE if it is
+  non-empty. \sa isNull() */
 
 bool QRegion::isEmpty() const
 {

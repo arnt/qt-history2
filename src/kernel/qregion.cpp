@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion.cpp#3 $
+** $Id: //depot/qt/main/src/kernel/qregion.cpp#4 $
 **
 ** Implementation of QRegion class
 **
@@ -16,16 +16,16 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qregion.cpp#3 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qregion.cpp#4 $";
 #endif
 
 
 /*!
   \class QRegion qregion.h
-  \brief The QRegion class specified a clip region for the painter.
+  \brief The QRegion class specifies a clip region for a painter.
 
-  A region defines a clip region for a QPainter. A region can be
-  a rectangle, an ellipse, a polygon or a combination of these.
+  A region can be a rectangle, an ellipse, a polygon or a combination
+  of these.
 
   Regions are combined by creating a new region which is a
   union, intersection or difference between any two regions.
@@ -51,8 +51,7 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qregion.cpp#3 $";
     }
   \endcode
 
-  \sa QPainter::setClipRegion(), QPainter::setClipRect()
-*/
+  \sa QPainter::setClipRegion(), QPainter::setClipRect() */
 
 
 // --------------------------------------------------------------------------
