@@ -1616,6 +1616,8 @@ public:
 #endif
     bool canEncode( QChar ch ) const;
 
+    void fromUnicode( const QChar *in, unsigned short *out, int length );
+
 private:
     void buildReverseMap();
 
@@ -2285,6 +2287,24 @@ QCString QSimpleTextCodec::fromUnicode(const QString& uc, int& len ) const
     return r;
 }
 
+void QSimpleTextCodec::fromUnicode( const QChar *in, unsigned short *out, int length )
+{
+#ifdef Q_WS_QWS
+    if ( this != reverseOwner )
+#else
+    if ( !reverseMap )
+#endif
+	((QSimpleTextCodec *)this)->buildReverseMap();
+
+    unsigned char* rmp = reverseMap->data();
+    int rmsize = (int) reverseMap->size();
+    while ( length-- ) {
+	unsigned short u = in->unicode();
+	*out = u < 128 ? u : (( u < rmsize ) ? (*(rmp+u)) : 0 );
+	++in;
+	++out;
+    }
+}
 
 unsigned short QSimpleTextCodec::characterFromUnicode(const QString &str, int pos) const
 {
@@ -2803,6 +2823,51 @@ static void realSetup()
 	setupLocaleMapper();
 }
 
+
+void QTextCodec::fromUnicode( const QChar *in, unsigned short *out, int length )
+{
+#ifndef QT_NO_CODECS
+    switch( mibEnum() ) {
+    case 2084:
+    case 2088:
+    case 5:
+    case 6:
+    case 7:
+    case 8:
+    case 82:
+    case 10:
+    case 85:
+    case 12:
+    case 13:
+    case 109:
+    case 110:
+    case 2009:
+    case 2086:
+    case 2250:
+    case 2251:
+    case 2252:
+    case 2253:
+    case 2254:
+    case 2255:
+    case 2256:
+    case 2257:
+    case 2258:
+    case 2259:
+	((QSimpleTextCodec *)this)->fromUnicode( in,  out, length );
+	return;
+    default: {
+#endif
+	QConstString string( in,  length );
+	QString str = string.string();
+	for ( int i = 0; i < length; i++ )
+	    out[i] = characterFromUnicode( str, i );
+#ifndef QT_NO_CODECS
+    }
+    }
+#endif
+}
+
+
 /*! \fn QTextCodec* QTextCodec::codecForTr()
 
 Returns the codec used by QObject::tr() on its argument. If this
@@ -2870,5 +2935,6 @@ function returns 0 (the default), tr() assumes Latin-1.
 
 QTextCodec *QTextCodec::cftr = 0;
 QTextCodec *QTextCodec::cfcs = 0;
+
 
 #endif // QT_NO_TEXTCODEC

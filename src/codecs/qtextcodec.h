@@ -114,9 +114,12 @@ protected:
     static int simpleHeuristicNameMatch(const char* name, const char* hint);
 
 private:
+    friend class QFont;
+    friend class FontEngineXLFD;
+    void fromUnicode( const QChar *in, unsigned short *out,  int length );
+
     static QTextCodec *cftr;
     static QTextCodec *cfcs;
-    friend class QFont;
 };
 
 inline QTextCodec* QTextCodec::codecForTr() { return cftr; }
