@@ -563,7 +563,7 @@ MakefileGenerator::writeMocSrc(QTextStream &t, const QString &src)
     for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
 	QString &m = mocablesToMOC[(*it)];
 	if ( !m.isEmpty())
-	    t << m << ": $(MOC) " << (*it) << "\n\t"
+	    t << m << ": " << (*it) << "\n\t"
 	      << "$(MOC) " << (*it) << " -o " << m << endl << endl;
     }
 }
