@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/demo/main.cpp#32 $
+** $Id: //depot/qt/main/examples/demo/main.cpp#33 $
 **
 ** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
@@ -66,6 +66,7 @@ int main( int argc, char **argv )
     QTabWidget *tab = new QTabWidget();
     QWidget *w = new WidgetsBase( tab );
     tab->addTab( w, "Widget" );
+    tab->addTab( new DnDDemo, "Drag and Drop" );
     frame.addCategory( tab, widgetpix, widgetpix_sel, "Widgets" );
 
 #if defined(QT_MODULE_SQL)
@@ -104,12 +105,6 @@ int main( int argc, char **argv )
     w = new HelpWindow( home, ".", 0, "helpviewer" );
     tab->addTab( w, "Help Browser" );
     frame.addCategory( tab, textpix, textpix_sel, "Text Drawing/Editing" );
-
-    // example 5
-    tab = new QTabWidget();
-    w = new DnDDemo( tab );
-    tab->addTab( w, "Drag and Drop" );
-    frame.addCategory( tab, textpix, textpix_sel, "Drag and Drop" );
 
     tab = new QTabWidget();
     w = new I18nDemo(tab);
