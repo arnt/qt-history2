@@ -462,6 +462,8 @@ void QWin32PrintEngine::drawPixmap(const QRectF &targetRect,
     QPixmap pixmap = originalPixmap;
     if (sr.x()!=0 || sr.y() != 0 || sr.size() != originalPixmap.size()) {
         QPixmap newPixmap(sr.size().toSize());
+        if (pixmap.mask())
+            newPixmap.fill(QColor(0, 0, 0, 0));
         QPainter p(&newPixmap);
         p.drawPixmap(QPointF(0, 0), originalPixmap, sr, Qt::CopyPixmap);
         p.end();
