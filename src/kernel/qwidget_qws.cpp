@@ -83,7 +83,7 @@ static void paint_children(QWidget * p,const QRegion& r, bool update)
 		    QRegion wr( QRegion(w->geometry()) & r );
 		    if ( !wr.isEmpty() ) {
 			wr.translate(-w->x(),-w->y());
-			if ( update )
+			if ( update || w->testWState(Qt::WState_InPaintEvent))
 			    w->update(wr);
 			else
 			    w->repaint(wr);
@@ -628,7 +628,7 @@ void QWidget::repaint( const QRegion& rgn )
 
     setWState(WState_InPaintEvent);
 
-    if (!testAttribute(WA_NoBackground)) {
+    if (!testAttribute(WA_NoBackground) && !testAttribute(WA_NoSystemBackground)) {
 	QPoint offset;
 	QStack<QWidget*> parents;
 	QWidget *w = q;
@@ -652,29 +652,29 @@ void QWidget::repaint( const QRegion& rgn )
 	else
 	    p.fillRect(rr, bg.color());
 
-	if (!parents)
-	    return;
-
-	w = parents.pop();
-	for (;;) {
-	    if (w->testAttribute(QWidget::WA_ContentsPropagated)) {
-		QPainter::setRedirected(w, q, offset);
-		QRect rr = q->rect();
-		rr.moveBy(offset);
-		QPaintEvent e(rr);
-		QApplication::sendEvent(w, &e);
-		QPainter::restoreRedirected(w);
-	    }
-	    if (!parents)
-		break;
+	if (!!parents) {
 	    w = parents.pop();
-	    offset -= w->pos();
+	    for (;;) {
+		if (w->testAttribute(QWidget::WA_ContentsPropagated)) {
+		    QPainter::setRedirected(w, q, offset);
+		    QRect rr = q->rect();
+		    rr.moveBy(offset);
+		    QPaintEvent e(rr);
+		    QApplication::sendEvent(w, &e);
+		    QPainter::restoreRedirected(w);
+		}
+		if (!parents)
+		    break;
+		w = parents.pop();
+		offset -= w->pos();
+	    }
 	}
     }
     QPaintEvent e( rgn );
     qt_set_paintevent_clipping( this, rgn );
     QApplication::sendSpontaneousEvent( this, &e );
     qt_clear_paintevent_clipping();
+    clearWState(WState_InPaintEvent);
 }
 
 void QWidget::showWindow()
