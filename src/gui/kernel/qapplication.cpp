@@ -1135,7 +1135,7 @@ QStyle& QApplication::style()
 
   Example usage:
   \code
-    QApplication::setStyle(new QWindowStyle);
+    QApplication::setStyle(new QWindowsStyle);
   \endcode
 
   When switching application styles, the color palette is set back to
