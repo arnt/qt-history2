@@ -513,7 +513,7 @@ void Main::loadFeatures(const QString& filename)
     // ##### QListView default sort order is reverse of insertion order
     for (QStringList::Iterator se = sections.fromLast(); se != sections.end(); --se) {
 	sectionitem[*se] = new QListViewItem(lv,*se);
-    }  
+    }
     for (QStringList::Iterator ch = choices.begin(); ch != choices.end(); ++ch) {
 	createItem(*ch);
     }
@@ -576,7 +576,7 @@ void Main::loadConfig(const QString& filename)
 
 void Main::updateAvailability(QListViewItem* i)
 {
-    if ( !i->parent() ) {
+    if ( !i || !i->parent() ) {
         // section. do nothing for now
     } else {
         ChoiceItem* choice = (ChoiceItem*)i;
