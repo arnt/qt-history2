@@ -401,10 +401,14 @@ void QThread::postEvent( QObject * receiver, QEvent * event )
 */
 void QThread::sleep( unsigned long secs )
 {
+#ifdef Q_WS_MACX
+    sleep(secs);
+#else
     struct timespec ts;
     ts.tv_nsec = 0;
     ts.tv_sec  = secs;
     (void) ::nanosleep(&ts, NULL);
+#endif
 }
 
 
@@ -424,10 +428,14 @@ void QThread::msleep( unsigned long msecs )
 */
 void QThread::usleep( unsigned long usecs )
 {
+#ifdef Q_WS_MACX
+    usleep(usecs);
+#else
     struct timespec ts;
     ts.tv_nsec = (usecs % 1000000) * 1000;
     ts.tv_sec  = usecs / 1000000;
     (void) ::nanosleep(&ts, NULL);
+#endif
 }
 
 
@@ -464,7 +472,7 @@ void QThread::exit()
 {
     dictMutex->lock();
 
-    QThread *there = thrDict->find((int)QThread::currentThread());
+    QThread *there = thrDict->find(QThread::currentThread());
     if (there) {
 	there->d->running = FALSE;
 	there->d->finished = TRUE;

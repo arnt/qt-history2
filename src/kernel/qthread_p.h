@@ -53,7 +53,7 @@
 
 
 #ifndef QT_H
-#ifdef QWS
+#if defined( QWS ) || defined( Q_WS_MACX )
 #include "qptrdict.h"
 #else
 #include "qintdict.h"
@@ -65,7 +65,7 @@
 
 
 static QMutex *dictMutex = 0;
-#ifdef QWS
+#if defined( QWS ) || defined( Q_WS_MACX )
 static QPtrDict<QThread> *thrDict = 0;
 #else
 static QIntDict<QThread> *thrDict = 0;
@@ -312,7 +312,7 @@ public:
 	if (! dictMutex)
 	    dictMutex = new QMutex;
 	if (! thrDict)
-#ifdef QWS
+#if defined( QWS ) || defined( Q_WS_MACX )
 	    thrDict = new QPtrDict<QThread>;
 #else
 	thrDict = new QIntDict<QThread>;
