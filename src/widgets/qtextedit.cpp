@@ -1392,17 +1392,20 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
 		    cursor->remove();
 		QString t = e->text();
 #ifdef Q_WS_X11
-		// the X11 keyboard layout is broken and does not reverse
-		// braces correctly. This is a hack to get halfway correct
-		// behaviour
-		QTextParagraph *p = cursor->paragraph();
-		if ( p && p->string() && p->string()->isRightToLeft() ) {
-		    QChar *c = (QChar *)t.unicode();
-		    int l = t.length();
-		    while( l-- ) {
-			if ( c->mirrored() )
-			    *c = c->mirroredChar();
-			c++;
+		extern bool qt_hebrew_keyboard_hack;
+		if ( qt_hebrew_keyboard_hack ) {
+		    // the X11 keyboard layout is broken and does not reverse
+		    // braces correctly. This is a hack to get halfway correct
+		    // behaviour
+		    QTextParagraph *p = cursor->paragraph();
+		    if ( p && p->string() && p->string()->isRightToLeft() ) {
+			QChar *c = (QChar *)t.unicode();
+			int l = t.length();
+			while( l-- ) {
+			    if ( c->mirrored() )
+				*c = c->mirroredChar();
+			    c++;
+			}
 		    }
 		}
 #endif
@@ -6382,7 +6385,7 @@ void QTextEdit::optimInsert(const QString& text, int line, int index)
 	}
 	d->od->lines[LOGOFFSET(x - 1)] += right;
     }
-    // recalculate the pixel width of the longest injected line - 
+    // recalculate the pixel width of the longest injected line -
     QFontMetrics fm( QScrollView::font() );
     int lWidth = 0;
     for (x = line; x < line + numNewLines; x++) {
