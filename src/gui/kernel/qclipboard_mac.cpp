@@ -126,7 +126,7 @@ QClipboardWatcher::QClipboardWatcher()
 
 const char* QClipboardWatcher::format(int n) const
 {
-    const char* mime = NULL;
+    QString mime;
     if(n >= 0) {
         UInt32 cnt = 0;
         if(GetScrapFlavorCount(scrap, &cnt) || !cnt)
@@ -147,20 +147,28 @@ const char* QClipboardWatcher::format(int n) const
             for(int i = 0; i < (int)cnt; i++) {
                 if(infos[i].flavorType == kScrapFlavorTypeText) {
                     sawSBText = true;
-                } else if(const char *m = QMacMime::flavorToMime(qmt, infos[i].flavorType)) {
-                    if(!n) {
-                        mime = m;
-                        break;
+                } else { 
+                    QString m = QMacMime::flavorToMime(qmt, infos[i].flavorType);
+                    if(!m.isNull()) {
+                        if(!n) {
+                            mime = m;
+                            break;
+                        }
+                        n--;
                     }
-                    n--;
                 }
             }
-            if(!mime && sawSBText && !n)
+            if(mime.isNull() && sawSBText && !n)
                 mime = QMacMime::flavorToMime(qmt, kScrapFlavorTypeText);
             free(infos);
         }
     }
-    return n ? NULL : mime;
+    if(!n && !mime.isNull()) { 
+        static QString ret; //yuck yuck yuck just to keep things working
+        ret = mime;
+        return ret.latin1();
+    } 
+    return 0;
 }
 
 QByteArray QClipboardWatcher::encodedData(const char* mime) const

@@ -116,17 +116,17 @@ public:
     static void initialize();
 
     static QList<QMacMime*> all(QMacMimeType);
-    static QMacMime* convertor(QMacMimeType, const char* mime, int flav);
-    static const char* flavorToMime(QMacMimeType, int flav);
+    static QMacMime *convertor(QMacMimeType, const QString &mime, int flav);
+    static QString flavorToMime(QMacMimeType, int flav);
 
-    virtual const char* convertorName()=0;
+    virtual QString convertorName()=0;
     virtual int countFlavors()=0;
     virtual int flavor(int index)=0;
-    virtual bool canConvert(const char* mime, int flav)=0;
-    virtual const char* mimeFor(int flav)=0;
-    virtual int flavorFor(const char*)=0;
-    virtual QByteArray convertToMime(QList<QByteArray> data, const char* mime, int flav)=0;
-    virtual QList<QByteArray> convertFromMime(QByteArray data, const char* mime, int flav)=0;
+    virtual bool canConvert(const QString &mime, int flav)=0;
+    virtual QString mimeFor(int flav)=0;
+    virtual int flavorFor(const QString &mime)=0;
+    virtual QByteArray convertToMime(QList<QByteArray> data, const QString &mime, int flav)=0;
+    virtual QList<QByteArray> convertFromMime(QByteArray data, const QString &mime, int flav)=0;
 };
 
 #endif // Q_WS_MAC

@@ -18,12 +18,17 @@
 #include "qdatetime.h"
 #include "qdragobject.h"
 #include "qbitmap.h"
-#include <private/qt_mac_p.h>
 #include "qpainter.h"
 #include "qcursor.h"
 #include "qevent.h"
 #include <stdlib.h>
 #include <string.h>
+#ifndef QT_NO_ACCESSIBILITY
+# include "qaccessible.h"
+#endif
+
+#include <private/qdnd_p.h>
+#include <private/qt_mac_p.h>
 
 #define d d_func()
 #define q q_func()
@@ -37,14 +42,10 @@
   QDnD globals
  *****************************************************************************/
 bool qt_mac_in_drag = false;
-static bool drag_received = false;
-static QDragObject::DragMode set_drag_mode; //passed in drag mode
-static QDropEvent::Action current_drag_action; //current active drag action
-static QDragObject *global_src = 0;
+static QDrag::DragOperation current_drag_operation; //current active drag action
+static QDragPrivate *global_src = 0;
 static DragReference current_dropobj = 0;
-static bool acceptfmt = false;
-static bool acceptact = false;
-
+static QDrag::DragOperations accept_operations; 
 
 /*****************************************************************************
   Externals
@@ -59,7 +60,7 @@ extern uint qGlobalPostedEventsCount(); //qapplication.cpp
 static DragSendDataUPP qt_mac_send_handlerUPP = NULL;
 static OSErr qt_mac_send_handler(FlavorType flav, void *handlerRefCon, DragItemRef, DragRef theDrag)
 {
-    QDragObject *o = (QDragObject*)handlerRefCon;
+    QDragPrivate *o = (QDragPrivate *)handlerRefCon;
     QMacMime::QMacMimeType qmt = QMacMime::MIME_DND;
     {
         ItemReference ref = 0;
@@ -74,8 +75,9 @@ static OSErr qt_mac_send_handler(FlavorType flav, void *handlerRefCon, DragItemR
         QList<QMacMime*> all = QMacMime::all(qmt);
         for(QList<QMacMime *>::Iterator it = all.begin(); it != all.end(); ++it) {
             QMacMime *c = (*it);
-            if(const char *mime = c->mimeFor(flav)) {
-                QList<QByteArray> md = c->convertFromMime(o->encodedData(mime), mime, flav);
+            QString mime = c->mimeFor(flav);
+            if(!mime.isNull()) {
+                QList<QByteArray> md = c->convertFromMime(o->data->data(mime), mime, flav);
                 int item_ref = 1;
                 for(QList<QByteArray>::Iterator it = md.begin(); it != md.end(); ++it)
                     SetDragItemFlavorData(theDrag, (ItemReference)item_ref++, flav, (*it).data(), (*it).size(), 0);
@@ -124,38 +126,23 @@ static const char* default_pm[] = {
 
 //used to set the dag state
 void updateDragMode(DragReference drag) {
-    if(set_drag_mode == QDragObject::DragDefault) {
-        SInt16 mod;
-        GetDragModifiers(drag, &mod, NULL, NULL);
-        if((mod & (optionKey|cmdKey)) == (optionKey|cmdKey)) 
-            current_drag_action = QDropEvent::Link;
-        else if((mod & optionKey) || (mod & rightOptionKey))
-            current_drag_action = QDropEvent::Copy;
-        else 
-            current_drag_action = QDropEvent::Move;
-    } else {
-        if(set_drag_mode == QDragObject::DragMove)
-            current_drag_action = QDropEvent::Move;
-        else if(set_drag_mode == QDragObject::DragLink)
-            current_drag_action = QDropEvent::Link;
-        else if(set_drag_mode == QDragObject::DragCopy)
-            current_drag_action = QDropEvent::Copy;
-        else
-            qWarning("Qt: internal: not sure how to handle..");
-    }
+    SInt16 mod;
+    GetDragModifiers(drag, &mod, NULL, NULL);
+    QDrag::DragOperation op = QDrag::NoDrag;
+    if((mod & (optionKey|cmdKey)) == (optionKey|cmdKey)) 
+        op = QDrag::LinkDrag;
+    else if((mod & optionKey) || (mod & rightOptionKey))
+        op = QDrag::CopyDrag;
+    else 
+        op = QDrag::MoveDrag;
+    if(!(accept_operations & op))
+        current_drag_operation = op;
 }
-
-struct QMacDndExtra {
-    QWidget *widget;
-    bool acceptfmt;
-    bool acceptact;
-    int ref;
-};
 
 /*****************************************************************************
   DnD functions
  *****************************************************************************/
-bool QDropEvent::provides(const char *mime) const
+bool QDropData::hasFormat(const QString &mime) const
 {
     ItemReference ref = 0;
     if(GetDragItemReferenceNumber(current_dropobj, 1, &ref))
@@ -180,7 +167,7 @@ bool QDropEvent::provides(const char *mime) const
     return false;
 }
 
-QByteArray QDropEvent::encodedData(const char *mime) const
+QByteArray QDropData::data(const QString &mime) const
 {
     Size flavorsize=0;
     QMacMime::QMacMimeType qmt = QMacMime::MIME_DND;
@@ -220,46 +207,34 @@ QByteArray QDropEvent::encodedData(const char *mime) const
     return QByteArray();
 }
 
-const char* QDropEvent::format(int n) const
+QStringList QDropData::formats() const
 {
-    const char* mime = NULL;
-    if(n >= 0) {
-        ItemReference ref = 0;
-        if(GetDragItemReferenceNumber(current_dropobj, 1, &ref)) 
-            return 0;
+    QStringList ret;
 
-        UInt16 cnt = 0;
-        if(CountDragItemFlavors(current_dropobj, ref, &cnt))
-            return 0;
-        if(n >= cnt) 
-            return 0;
+    ItemReference ref = 0;
+    if(GetDragItemReferenceNumber(current_dropobj, 1, &ref)) 
+        return ret;
 
-        FlavorType flav;
-        bool sawSBText = false;
-        QMacMime::QMacMimeType qmt = QMacMime::MIME_DND;
-        {
-            Size sz;
-            extern ScrapFlavorType qt_mac_mime_type; //qmime_mac.cpp
-            if(GetFlavorDataSize(current_dropobj, ref, qt_mac_mime_type, &sz) == noErr)
-                qmt = QMacMime::MIME_QT_CONVERTOR;
-        }
-        for(int x = 1; x <= (int)cnt; x++) {
-            if(GetFlavorType(current_dropobj, ref, x, &flav) == noErr) {
-                if(flav == kScrapFlavorTypeText) {
-                    sawSBText = true;
-                } else if(const char *m = QMacMime::flavorToMime(qmt, flav)) {
-                    if(!n) {
-                        mime = m;
-                        break;
-                    }
-                    n--;
-                }
-            }
-            if(!mime && sawSBText && !n)
-                mime = QMacMime::flavorToMime(qmt, kScrapFlavorTypeText);
+    UInt16 cnt = 0;
+    if(CountDragItemFlavors(current_dropobj, ref, &cnt))
+        return ret;
+
+    FlavorType flav;
+    QMacMime::QMacMimeType qmt = QMacMime::MIME_DND;
+    {
+        Size sz;
+        extern ScrapFlavorType qt_mac_mime_type; //qmime_mac.cpp
+        if(GetFlavorDataSize(current_dropobj, ref, qt_mac_mime_type, &sz) == noErr)
+            qmt = QMacMime::MIME_QT_CONVERTOR;
+    }
+    for(int x = 1; x <= (int)cnt; x++) {
+        if(GetFlavorType(current_dropobj, ref, x, &flav) == noErr) {
+            QString mime = QMacMime::flavorToMime(qmt, flav);
+            if(!mime.isNull()) 
+                ret.append(mime);
         }
     }
-    return n ? NULL : mime;
+    return ret;
 }
 
 void QDragManager::timerEvent(QTimerEvent*)
@@ -285,6 +260,9 @@ void QDragManager::cancel(bool)
         beingCancelled = true;
         object = 0;
     }
+#ifndef QT_NO_ACCESSIBILITY
+    QAccessible::updateAccessibility(this, 0, QAccessible::DragDropEnd);
+#endif
 }
 
 void QDragManager::move(const QPoint &)
@@ -306,7 +284,6 @@ bool QWidgetPrivate::qt_mac_dnd_event(uint kind, DragRef dragRef)
     if(!mouse.h && !mouse.v)
         GetGlobalMouse(&mouse);
 
-
     if(qt_modal_state()) {
         for(QWidget *modal = q; modal; modal = modal->parentWidget()) {
             if(modal->isTopLevel()) {
@@ -318,25 +295,41 @@ bool QWidgetPrivate::qt_mac_dnd_event(uint kind, DragRef dragRef)
     }
 
     //Dispatch events
+    QDropEvent::Action event_action = QDropEvent::Copy;
+    if(current_drag_operation == QDrag::CopyDrag)
+        event_action = QDropEvent::Copy;
+    else if(current_drag_operation == QDrag::LinkDrag)
+        event_action = QDropEvent::Link;
+    else if(current_drag_operation == QDrag::MoveDrag)
+        event_action = QDropEvent::Move;
     bool ret = true;
     if(kind == kEventControlDragWithin) {
-        QDragMoveEvent de(q->mapFromGlobal(QPoint(mouse.h, mouse.v)));
-        de.setAction(current_drag_action);
+        QDragMoveEvent de(q->mapFromGlobal(QPoint(mouse.h, mouse.v)), 
+                          QDragManager::self()->dropData);
+        de.setAction(event_action);
+        de.accept(true);
+        de.acceptAction(true);
         QApplication::sendEvent(q, &de);
     } else if(kind == kEventControlDragEnter) {
-        QDragEnterEvent de(q->mapFromGlobal(QPoint(mouse.h, mouse.v)));
-        de.setAction(current_drag_action);
+        QDragEnterEvent de(q->mapFromGlobal(QPoint(mouse.h, mouse.v)), 
+                           QDragManager::self()->dropData);
+        de.setAction(event_action);
         QApplication::sendEvent(q, &de);
+        de.accept(true);
+        de.acceptAction(true);
         if(!de.isAccepted())
             ret = false;
     } else if(kind == kEventControlDragLeave) {
         QDragLeaveEvent de;
         QApplication::sendEvent(q, &de);
     } else if(kind == kEventControlDragReceive) {
-        QDropEvent de(q->mapFromGlobal(QPoint(mouse.h, mouse.v)));
-        de.setAction(current_drag_action);
+        QDropEvent de(q->mapFromGlobal(QPoint(mouse.h, mouse.v)), 
+                      QDragManager::self()->dropData);
+        de.accept(true);
+        de.acceptAction(true);
+        de.setAction(event_action);
         if(global_src)
-            global_src->setTarget(q);
+            global_src->target = q;
         QApplication::sendEvent(q, &de);
         if(!de.isAccepted())
             ret = false;
@@ -365,13 +358,13 @@ bool QWidgetPrivate::qt_mac_dnd_event(uint kind, DragRef dragRef)
     bool found_cursor = false;
     if(kind == kEventControlDragWithin || kind == kEventControlDragEnter) {
         if(ret) {
-            if(current_drag_action == QDropEvent::Move) {
+            if(current_drag_operation == QDrag::MoveDrag) {
                 found_cursor = true;
                 SetThemeCursor(kThemeArrowCursor);
-            } else if(current_drag_action == QDropEvent::Copy) {
+            } else if(current_drag_operation == QDrag::CopyDrag) {
                 found_cursor = true;
                 SetThemeCursor(kThemeCopyArrowCursor);
-            } else if(current_drag_action == QDropEvent::Link) {
+            } else if(current_drag_operation == QDrag::LinkDrag) {
                 found_cursor = true;
                 SetThemeCursor(kThemeAliasArrowCursor);
             }
@@ -405,57 +398,55 @@ bool QWidgetPrivate::qt_mac_dnd_event(uint kind, DragRef dragRef)
     return ret;
 }
 
-bool QDragManager::drag(QDragObject *o, QDragObject::DragMode mode)
+QDrag::DragOperation QDragManager::drag(QDragPrivate *o, QDrag::DragOperations mode)
 {
     if(qt_mac_in_drag) {     //just make sure..
         qWarning("Qt: internal: WH0A, unexpected condition reached.");
-        return false;
+        return QDrag::NoDrag;
     }
     if(object == o)
-        return false;
+        return QDrag::NoDrag;
     /* At the moment it seems clear that Mac OS X does not want to drag with a non-left button
        so we just bail early to prevent it */
     if(!(GetCurrentEventButtonState() & kEventMouseButtonPrimary))
-        return false;
+        return QDrag::NoDrag;
 
     if(object) {
+        o->source->removeEventFilter(this);
         cancel();
-        if(dragSource)
-            dragSource->removeEventFilter(this);
         beingCancelled = false;
     }
 
-
     object = o;
-    dragSource = (QWidget *)(object->parent());
     global_src = o;
-    global_src->setTarget(0);
+    o->target = 0;
+
+#ifndef QT_NO_ACCESSIBILITY
+    QAccessible::updateAccessibility(this, 0, QAccessible::DragDropStart);
+#endif
 
     OSErr result;
-    DragReference theDrag;
-    QByteArray ar;
-
-    if((result = NewDrag(&theDrag))) {
-        dragSource = 0;
-        return(!result);
-    }
+    DragRef theDrag;
+    if((result = NewDrag(&theDrag))) 
+        return QDrag::NoDrag;
     SetDragSendProc(theDrag, make_sendUPP(), o); //fullfills the promise!
 
-    const char* mime;
+    //encode the data
     QList<QMacMime*> all = QMacMime::all(QMacMime::MIME_DND);
-    for (int i = 0; (mime = o->format(i)); i++) {
+    QStringList fmts = o->data->formats();
+    for(int i = 0; i < fmts.size(); ++i) {
         for(QList<QMacMime *>::Iterator it = all.begin(); it != all.end(); ++it) {
             QMacMime *c = (*it);
-            if(c->flavorFor(mime)) {
+            if(c->flavorFor(fmts.at(i))) {
                 for (int j = 0; j < c->countFlavors(); j++) {
                     uint flav = c->flavor(j);
-                    if(c->canConvert(mime, flav))
+                    if(c->canConvert(fmts.at(i), flav))
                         AddDragItemFlavor(theDrag, 1, flav, NULL, 0, 0); //promised for later
                 }
             }
         }
     }
-    {
+    { //mark it with the Qt stamp
         char t = 123;
         extern ScrapFlavorType qt_mac_mime_type; //qmime_mac.cpp
         AddDragItemFlavor(theDrag, 1, qt_mac_mime_type, &t, 1, 0);
@@ -471,15 +462,12 @@ bool QDragManager::drag(QDragObject *o, QDragObject::DragMode mode)
     if(GetCurrentEventButtonState() & 2)
         fakeEvent.modifiers |= controlKey;
 
-    Rect boundsRect;
-    Point boundsPoint;
     QPoint hotspot;
-    QPixmap pix = o->pixmap();
+    QPixmap pix = o->pixmap;
     if(pix.isNull()) {
-        if(QTextDrag::canDecode(o)) {
+        if(!o->data->text().isNull()) {
             //get the string
-            QString s;
-            QTextDrag::decode(o, s);
+            QString s = o->data->text();
             if(s.length() > 13)
                 s = s.left(13) + "...";
             if(!s.isEmpty()) {
@@ -504,47 +492,39 @@ bool QDragManager::drag(QDragObject *o, QDragObject::DragMode mode)
             hotspot = QPoint(default_pm_hotx, default_pm_hoty);
         }
     } else {
-        hotspot = QPoint(o->pixmapHotSpot().x(), o->pixmapHotSpot().y());
+        hotspot = o->hotspot;
     }
 
+    //find the hotspot in relation to the pixmap
+    Point boundsPoint;
     boundsPoint.h = fakeEvent.where.h - hotspot.x();
     boundsPoint.v = fakeEvent.where.v - hotspot.y();
+    Rect boundsRect;
     SetRect(&boundsRect, boundsPoint.h, boundsPoint.v, boundsPoint.h + pix.width(), boundsPoint.v + pix.height());
-    SetDragItemBounds(theDrag, (ItemReference)1 , &boundsRect);
 
+    //set the drag image
+    SetDragItemBounds(theDrag, (ItemReference)1 , &boundsRect);
     QRegion dragRegion(boundsPoint.h, boundsPoint.v, pix.width(), pix.height()), pixRegion;
     if(!pix.isNull()) {
         pixRegion = QRegion(0, 0, pix.width(), pix.height());
         SetDragImage(theDrag, GetGWorldPixMap((GWorldPtr)pix.handle()), pixRegion.handle(true), boundsPoint, 0);
     }
 
-    QWidget *widget = QApplication::widgetAt(fakeEvent.where.h, fakeEvent.where.v);
-    if(!widget) {
-        dragSource = 0;
-        return false;
-    }
-    acceptfmt = false;
-    acceptact = false;
-    drag_received = false;
-    qt_mac_in_drag = true;
-    set_drag_mode = mode;
-    updateDragMode(theDrag);
-    {
+    //initialize
+    accept_operations = mode;
+    { //do the drag
+        qt_mac_in_drag = true;
         QMacBlockingFunction block;
+        updateDragMode(theDrag);
         result = TrackDrag(theDrag, &fakeEvent, dragRegion.handle(true));
+        qt_mac_in_drag = false;
     }
-    DisposeDrag(theDrag);
-    qt_mac_in_drag = false;
-    dragSource = 0;
-
-    return ((result == noErr) && (current_drag_action == QDropEvent::Move) &&
-            !acceptact);
+    DisposeDrag(theDrag); //cleanup
+    return current_drag_operation;
 }
 
 void QDragManager::updatePixmap()
 {
 }
-
-
 
 #endif // QT_NO_DRAGANDDROP
