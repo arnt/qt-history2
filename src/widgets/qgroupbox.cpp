@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#42 $
+** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#43 $
 **
 ** Implementation of QGroupBox widget class
 **
@@ -74,15 +74,12 @@ QGroupBox::QGroupBox( const QString &title, QWidget *parent, const char *name )
 void QGroupBox::init()
 {
     int fs;
-    switch ( style() ) {
-	case WindowsStyle:
-	case MotifStyle:
-	    align = AlignLeft;
-	    fs = QFrame::Box | QFrame::Sunken;
-	    break;
-	default:
-	    align = AlignHCenter;
-	    fs = QFrame::Box | QFrame::Plain;
+    if ( style() == WindowsStyle ) {
+	align = AlignLeft;
+	fs = QFrame::Box | QFrame::Sunken;
+    } else {
+	align = AlignHCenter;
+	fs = QFrame::Box | QFrame::Plain;
     }
     setFrameStyle( fs );
 }

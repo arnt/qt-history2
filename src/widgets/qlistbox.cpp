@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#172 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#173 $
 **
 ** Implementation of QListBox widget class
 **
@@ -417,16 +417,8 @@ QListBox::QListBox( QWidget *parent, const char *name, WFlags f )
     setNumCols( 1 );
     setTableFlags( Tbl_autoVScrollBar|Tbl_autoHScrollBar | //Tbl_snapToVGrid |
 		   Tbl_smoothVScrolling | Tbl_clipCellPainting  );
-    switch ( style() ) {
-	case WindowsStyle:
-	case MotifStyle:
-	    setFrameStyle( QFrame::WinPanel | QFrame::Sunken );
-	    setBackgroundMode( PaletteBase );
-	    break;
-	default:
-	    setFrameStyle( QFrame::Panel | QFrame::Plain );
-	    setLineWidth( 1 );
-    }
+    setFrameStyle( QFrame::WinPanel | QFrame::Sunken );
+    setBackgroundMode( PaletteBase );
     setFocusPolicy( StrongFocus );
 }
 
