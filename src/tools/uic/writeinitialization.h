@@ -14,6 +14,7 @@
 #define WRITEINITIALIZATION_H
 
 #include "treewalker.h"
+#include "databaseinfo.h"
 
 #include <qpair.h>
 #include <qhash.h>
@@ -90,6 +91,7 @@ private:
 
 private:
     Driver *driver;
+    DatabaseInfo databaseInfo;
     QTextStream &output;
     const Option &option;
 

@@ -19,13 +19,15 @@
 #include <qdebug.h>
 
 WriteInitialization::WriteInitialization(Driver *drv)
-    : driver(drv), output(drv->output()), option(drv->option()),
+    : driver(drv), databaseInfo(drv), output(drv->output()), option(drv->option()),
       m_defaultMargin(0), m_defaultSpacing(0), m_externPixmap(true)
 {
 }
 
 void WriteInitialization::accept(DomUI *node)
 {
+    databaseInfo.accept(node);
+
     m_actionGroupChain.push(0);
     m_widgetChain.push(0);
     m_layoutChain.push(0);
