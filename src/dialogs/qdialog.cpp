@@ -614,7 +614,7 @@ void QDialog::adjustPositionInternal( QWidget*w, bool useRelPos)
 	scrn =  QApplication::desktop()->screenNumber( w ? w : qApp->mainWidget() );
     else
 	scrn = QApplication::desktop()->screenNumber( QCursor::pos() );
-    desk = QApplication::desktop()->screenGeometry( scrn );
+    desk = QApplication::desktop()->availableGeometry( scrn );
 
     QWidgetList  *list = QApplication::topLevelWidgets();
     QWidgetListIt it( *list );
