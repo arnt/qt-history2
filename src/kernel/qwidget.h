@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#78 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#79 $
 **
 ** Definition of QWidget class
 **
@@ -354,16 +354,16 @@ inline void QWidget::setSizeIncrement( const QSize &s )
 inline void QWidget::setMinimumSize( int w, int h )
 {
     qObsolete( "QWidget", "setMinimumSize", "setMinSize" );
-    setMinSize( s.width(), s.height() );
+    setMinSize( w, h );
 }
 
 inline void QWidget::setMaximumSize( int w, int h )
 {
     qObsolete( "QWidget", "setMaximumSize", "setMaxSize" );
-    setMaximumSize( s.width(), s.height() );
+    setMaxSize( w, h );
 }
 
-inline bool QWidget::minimumSize( int *w, int *h )
+inline bool QWidget::minimumSize( int *w, int *h ) const
 {
     qObsolete( "QWidget", "minimumSize", "minSize" );
     if ( extra && extra->minw >= 0 && w && h) {
@@ -374,7 +374,7 @@ inline bool QWidget::minimumSize( int *w, int *h )
     return FALSE;
 }
 
-inline bool QWidget::maximumSize( int *w, int *h )
+inline bool QWidget::maximumSize( int *w, int *h ) const
 {
     qObsolete( "QWidget", "maximumSize", "maxSize" );
     if ( extra && extra->maxw >= 0 && w && h ) {
