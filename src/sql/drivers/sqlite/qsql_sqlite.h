@@ -20,14 +20,10 @@
 #include <qsqlindex.h>
 #include <qsqlcachedresult.h>
 
-#if defined (Q_OS_WIN32)
-# include <qt_windows.h>
-#endif
-
 class QSQLiteDriverPrivate;
 class QSQLiteResultPrivate;
 class QSQLiteDriver;
-struct sqlite;
+struct sqlite3;
 
 class QSQLiteResult : public QSqlCachedResult
 {
@@ -53,7 +49,7 @@ class QSQLiteDriver : public QSqlDriver
     friend class QSQLiteResult;
 public:
     QSQLiteDriver(QObject *parent = 0);
-    QSQLiteDriver(sqlite *connection, QObject *parent = 0);
+    QSQLiteDriver(sqlite3 *connection, QObject *parent = 0);
     ~QSQLiteDriver();
     bool hasFeature(DriverFeature f) const;
     bool open(const QString & db,

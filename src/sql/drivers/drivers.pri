@@ -113,36 +113,23 @@ contains(sql-drivers, ibase) {
 contains(sql-drivers, sqlite) {
         !contains( LIBS, .*sqlite.* ) {
                 INCLUDEPATH +=  ../3rdparty/sqlite/
-                DEFINES +=      SQLITE_UTF8
-
-                HEADERS +=      ../3rdparty/sqlite/btree.h \
-                                ../3rdparty/sqlite/config.h \
-                                ../3rdparty/sqlite/hash.h \
-                                ../3rdparty/sqlite/opcodes.h \
-                                ../3rdparty/sqlite/os.h \
-                                ../3rdparty/sqlite/pager.h \
-                                ../3rdparty/sqlite/parse.h \
-                                ../3rdparty/sqlite/sqlite.h \
-                                ../3rdparty/sqlite/sqliteInt.h \
-                                ../3rdparty/sqlite/vdbe.h \
-                                ../3rdparty/sqlite/vdbeInt.h
 
                 SOURCES +=      ../3rdparty/sqlite/attach.c \
                                 ../3rdparty/sqlite/auth.c \
                                 ../3rdparty/sqlite/btree.c \
-                                ../3rdparty/sqlite/btree_rb.c \
                                 ../3rdparty/sqlite/build.c \
-                                ../3rdparty/sqlite/copy.c \
-                		../3rdparty/sqlite/date.c \
+                                ../3rdparty/sqlite/date.c \
                                 ../3rdparty/sqlite/delete.c \
-                                ../3rdparty/sqlite/encode.c \
                                 ../3rdparty/sqlite/expr.c \
                                 ../3rdparty/sqlite/func.c \
                                 ../3rdparty/sqlite/hash.c \
                                 ../3rdparty/sqlite/insert.c \
+                                ../3rdparty/sqlite/legacy.c \
                                 ../3rdparty/sqlite/main.c \
                                 ../3rdparty/sqlite/opcodes.c \
-                                ../3rdparty/sqlite/os.c \
+                                ../3rdparty/sqlite/os_mac.c \
+                                ../3rdparty/sqlite/os_unix.c \
+                                ../3rdparty/sqlite/os_win.c \
                                 ../3rdparty/sqlite/pager.c \
                                 ../3rdparty/sqlite/parse.c \
                                 ../3rdparty/sqlite/pragma.c \
@@ -153,10 +140,13 @@ contains(sql-drivers, sqlite) {
                                 ../3rdparty/sqlite/tokenize.c \
                                 ../3rdparty/sqlite/trigger.c \
                                 ../3rdparty/sqlite/update.c \
+                                ../3rdparty/sqlite/utf.c \
                                 ../3rdparty/sqlite/util.c \
                                 ../3rdparty/sqlite/vacuum.c \
+                                ../3rdparty/sqlite/vdbeapi.c \
+                                ../3rdparty/sqlite/vdbeaux.c \
                                 ../3rdparty/sqlite/vdbe.c \
-        	        	../3rdparty/sqlite/vdbeaux.c \
+                                ../3rdparty/sqlite/vdbemem.c \
                                 ../3rdparty/sqlite/where.c
         }
  
