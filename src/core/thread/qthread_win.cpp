@@ -107,8 +107,9 @@ void QThreadPrivate::finish(void *arg, bool lockAnyway)
 
     if (data->eventDispatcher) {
         data->eventDispatcher->closingDown();
-        delete data->eventDispatcher;
+        QAbstractEventDispatcher *eventDispatcher = data->eventDispatcher;
         data->eventDispatcher = 0;
+        delete eventDispatcher;
     }
 
     QThreadStorageData::finish(data->tls);

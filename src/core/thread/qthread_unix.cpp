@@ -108,8 +108,9 @@ void QThreadPrivate::finish(void *arg)
     emit thr->finished();
 
     data->eventDispatcher->closingDown();
-    delete data->eventDispatcher;
+    QAbstractEventDispatcher *eventDispatcher = data->eventDispatcher;
     data->eventDispatcher = 0;
+    delete eventDispatcher;
 
     QThreadStorageData::finish(data->tls);
     data->tls = 0;
