@@ -1682,7 +1682,9 @@ void QWSServer::sendKeyEventUnfiltered(int unicode, int keycode, int modifiers, 
 void QWSServer::beginDisplayReconfigure()
 {
     qwsServer->enablePainting( FALSE );
+#ifndef QT_NO_QWS_CURSOR
     qt_screencursor->hide();
+#endif
     QWSDisplay::grab( TRUE );
     qt_screen->disconnect();
 }
@@ -1699,7 +1701,9 @@ void QWSServer::endDisplayReconfigure()
     qwsServer->screenRegion = QRegion( 0, 0, qwsServer->swidth, qwsServer->sheight );
     qwsServer->gfx = qt_screen->screenGfx();
     QWSDisplay::ungrab();
+#ifndef QT_NO_QWS_CURSOR
     qt_screencursor->show();
+#endif
     qt_setMaxWindowRect( QRect(0, 0, qt_screen->deviceWidth(), qt_screen->deviceHeight()) );
     QSize olds = qApp->desktop()->size();
     qApp->desktop()->resize( qt_screen->width(), qt_screen->height() );
@@ -1711,8 +1715,10 @@ void QWSServer::endDisplayReconfigure()
 
 void QWSServer::resetGfx()
 {
+#ifndef QT_NO_QWS_CURSOR
     qt_screencursor->hide();
     qt_screencursor->show();
+#endif
     delete qwsServer->gfx;
     qwsServer->gfx = qt_screen->screenGfx();
 }
@@ -3184,12 +3190,6 @@ void QWSInputMethod::setFont( const QFont& )
     Returns the keyboard mapping table used to convert keyboard
     scancodes to Qt keycodes and Unicode values. It's used by the
     keyboard driver in \c qkeyboard_qws.cpp.
-*/
-
-/*!
-    \fn static void QWSServer::setOverrideKeys( const KeyOverride* )
-
-    \internal
 */
 
 /*!

@@ -387,6 +387,8 @@ void QSqlDatabase::removeDatabase( const QString& connectionName )
 }
 
 /*!
+    \overload
+
     Removes the database connection \a db from the list of database
     connections. The QSqlDatabase object is destroyed when it is removed
     from the list.

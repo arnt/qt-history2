@@ -131,10 +131,10 @@
   \target escapekey
   \section1 Escape Key
 
-  If the user presses the Escape key in a dialog, QDialog::reject()
-  will be called. This will cause the window to close, and note that
-  the \link QCloseEvent closeEvent \endlink can not be 
-  \link QCloseEvent::ignore ignored \endlink.
+  If the user presses the Esc key in a dialog, QDialog::reject() will
+  be called. This will cause the window to close: the \link
+  QCloseEvent closeEvent \endlink cannot be \link
+  QCloseEvent::ignore() ignored \endlink.
 
   \target extensibility
   \section1 Extensibility
@@ -142,15 +142,14 @@
   Extensibility is the ability to show the dialog in two ways: a
   partial dialog that shows the most commonly used options, and a full
   dialog that shows all the options. Typically an extensible dialog
-  will initially appear as a partial dialog, but with a "More" button.
-  If the user clicks the "More" button, the full dialog will appear.
-  The extension widget will be resized to its sizeHint(). If
-  orientation is \c Horizontal the extension widget's height() will be
-  expanded to the height() of the dialog. If the orientation is \c
+  will initially appear as a partial dialog, but with a "More" toggle
+  button. If the user presses the "More" button down, the full dialog
+  will appear. The extension widget will be resized to its sizeHint().
+  If orientation is \c Horizontal the extension widget's height() will
+  be expanded to the height() of the dialog. If the orientation is \c
   Vertical the extension widget's width() will be expanded to the
-  width() of the dialog.
-  Extensibility is controlled with setExtension(),
-  setOrientation() and showExtension().
+  width() of the dialog. Extensibility is controlled with
+  setExtension(), setOrientation() and showExtension().
 
   \target return
   \section1 Return value (modal dialogs)
