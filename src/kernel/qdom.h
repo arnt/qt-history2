@@ -55,7 +55,7 @@ class QDomNotation;
 class QDomCharacterData;
 class QDomMimeSourceFactory;
 
-class QDomImplementation
+class Q_EXPORT QDomImplementation
 {
 public:
     QDomImplementation();
@@ -75,7 +75,7 @@ private:
     friend class QDomDocument;
 };
 
-class QDomNode // Ok
+class Q_EXPORT QDomNode // Ok
 {
 public:
     enum NodeType {
@@ -172,7 +172,7 @@ private:
     friend class QDomNamedNodeMap;
 };
 
-class QDomNodeList // Ok
+class Q_EXPORT QDomNodeList // Ok
 {
 public:
     QDomNodeList();
@@ -193,7 +193,7 @@ protected:
     QDOM_NodeListPrivate* impl;
 };
 
-class QDomDocumentType : public QDomNode
+class Q_EXPORT QDomDocumentType : public QDomNode
 {
 public:
     QDomDocumentType();
@@ -217,7 +217,7 @@ private:
     friend class QDomNode;
 };
 
-class QDomDocument : public QDomNode
+class Q_EXPORT QDomDocument : public QDomNode
 {
 public:
     QDomDocument();
@@ -265,7 +265,7 @@ private:
     friend class QDomNode;
 };
 
-class QDomNamedNodeMap
+class Q_EXPORT QDomNamedNodeMap
 {
 public:
     QDomNamedNodeMap();
@@ -292,7 +292,7 @@ private:
     QDOM_NamedNodeMapPrivate* impl;
 };
 
-class QDomDocumentFragment : public QDomNode
+class Q_EXPORT QDomDocumentFragment : public QDomNode
 {
 public:
     QDomDocumentFragment();
@@ -312,7 +312,7 @@ private:
     friend class QDomNode;
 };
 
-class QDomCharacterData : public QDomNode
+class Q_EXPORT QDomCharacterData : public QDomNode
 {
 public:
     QDomCharacterData();
@@ -344,7 +344,7 @@ private:
     friend class QDomNode;
 };
 
-class QDomAttr : public QDomNode
+class Q_EXPORT QDomAttr : public QDomNode
 {
 public:
     QDomAttr();
@@ -370,7 +370,7 @@ private:
     friend class QDomNode;
 };
 
-class QDomElement : public QDomNode
+class Q_EXPORT QDomElement : public QDomNode
 {
 public:
     QDomElement();
@@ -421,7 +421,7 @@ private:
     friend class QDomNode;
 };
 
-class QDomText : public QDomCharacterData
+class Q_EXPORT QDomText : public QDomCharacterData
 {
 public:
     QDomText();
@@ -444,7 +444,7 @@ private:
     friend class QDomNode;
 };
 
-class QDomComment : public QDomCharacterData
+class Q_EXPORT QDomComment : public QDomCharacterData
 {
 public:
     QDomComment();
@@ -464,7 +464,7 @@ private:
     friend class QDomNode;
 };
 
-class QDomCDATASection : public QDomText
+class Q_EXPORT QDomCDATASection : public QDomText
 {
 public:
     QDomCDATASection();
@@ -484,7 +484,7 @@ private:
     friend class QDomNode;
 };
 
-class QDomNotation : public QDomNode
+class Q_EXPORT QDomNotation : public QDomNode
 {
 public:
     QDomNotation();
@@ -507,7 +507,7 @@ private:
     friend class QDomNode;
 };
 
-class QDomEntity : public QDomNode
+class Q_EXPORT QDomEntity : public QDomNode
 {
 public:
     QDomEntity();
@@ -530,7 +530,7 @@ private:
     friend class QDomNode;
 };
 
-class QDomEntityReference : public QDomNode
+class Q_EXPORT QDomEntityReference : public QDomNode
 {
 public:
     QDomEntityReference();
@@ -550,7 +550,7 @@ private:
     friend class QDomNode;
 };
 
-class QDomProcessingInstruction : public QDomNode
+class Q_EXPORT QDomProcessingInstruction : public QDomNode
 {
 public:
     QDomProcessingInstruction();
@@ -576,7 +576,7 @@ private:
 
 class QDOM_MimeSourceFactoryPrivate;
 
-class QDomMimeSourceFactory : public QMimeSourceFactory
+class Q_EXPORT QDomMimeSourceFactory : public QMimeSourceFactory
 {
 public:
     QDomMimeSourceFactory();
@@ -592,6 +592,8 @@ private:
     QDOM_MimeSourceFactoryPrivate* d;
 };
 		       
-QTextStream& operator<<( QTextStream&, const QDomNode& );
 
-#endif
+Q_EXPORT QTextStream& operator<<( QTextStream&, const QDomNode& );
+
+
+#endif // QDOM_H
