@@ -161,7 +161,7 @@ public:
     GLuint bindTexture(const QString &fname);
     void deleteTexture(GLuint tx_id);
 
-    void setMaxTextureCacheSize(int kb);
+    void setMaxTextureCacheSize(int size);
     int maxTextureCacheSize();
 
     void *getProcAddress(const QString &proc) const;
