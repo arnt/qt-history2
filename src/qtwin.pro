@@ -1,5 +1,6 @@
 TEMPLATE    =	lib
 CONFIG      =	qt warn_on release
+MOC_DIR     =	tmp
 HEADERS     =	../include/qfiledlg.h \
 		../include/qmsgbox.h \
 		../include/qprogdlg.h \
