@@ -239,7 +239,8 @@ QStringList qt_mac_get_open_file_names(const QFileDialogArgs &args, QString *pwd
     options.location.h = options.location.v = -1;
     if (parent && parent->isVisible()) {
         Qt::WindowType wt = parent->window()->windowType();
-        if (wt != Qt::Desktop && wt != Qt::Sheet && wt != Qt::Drawer) {
+        if (!(args.options & QFileDialog::DontUseSheet)
+             && (wt != Qt::Desktop && wt != Qt::Sheet && wt != Qt::Drawer)) {
             options.modality = kWindowModalityWindowModal;
             options.parentWindow = qt_mac_window_for(parent);
         } else {
@@ -370,7 +371,8 @@ QString qt_mac_get_save_file_name(const QFileDialogArgs &args, QString *pwd,
         options.windowTitle = QCFString::toCFStringRef(args.caption);
     if (parent && parent->isVisible()) {
         Qt::WindowType wt = parent->window()->windowType();
-        if (wt != Qt::Desktop && wt != Qt::Sheet && wt != Qt::Drawer) {
+        if (!(args.options & QFileDialog::DontUseSheet)
+             && (wt != Qt::Desktop && wt != Qt::Sheet && wt != Qt::Drawer)) {
             options.modality = kWindowModalityWindowModal;
             options.parentWindow = qt_mac_window_for(parent);
         } else {

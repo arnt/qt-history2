@@ -308,6 +308,8 @@ void QFileDialogLineEdit::keyPressEvent(QKeyEvent *e)
     \value ShowDirsOnly
     \value DontResolveSymlinks
     \value DontConfirmOverwrite
+    \value DontUseSheet Don't make the native file dialog a sheet. By default on Mac OS X, the
+    native file dialog is made a sheet if it has a parent that can take a sheet.
 */
 
 /*!
