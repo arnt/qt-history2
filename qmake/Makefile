@@ -210,8 +210,8 @@ msvc_vcproj.obj: generators/win32/msvc_vcproj.cpp
 msvc_objectmodel.obj: generators/win32/msvc_objectmodel.cpp
 	$(CXX) $(CXXFLAGS) generators/win32/msvc_objectmodel.cpp
 
-qtmd5.obj: generators/win32/qtmd5.cpp
-	$(CXX) $(CXXFLAGS) generators/win32/qtmd5.cpp
+qtmd5.obj: qtmd5.cpp
+	$(CXX) $(CXXFLAGS) qtmd5.cpp
 
 project.obj: project.cpp project.h option.h
 	$(CXX) $(CXXFLAGS) project.cpp
