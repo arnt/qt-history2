@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#2 $
 **
 ** Implementation of QApplication class
 **
@@ -15,12 +15,23 @@
 #include "qwidget.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication.cpp#1 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication.cpp#2 $";
 #endif
 
 
 QApplication *qApp = 0;				// global application object
 QWidget *QApplication::main_widget = 0;		// main application widget
+
+#if defined(_WS_MAC_)
+GUIStyle QApplication::appStyle = MacStyle;	// default style for Mac
+#elif defined(_WS_WIN_)
+GUIStyle QApplication::appStyle = WindowsStyle;	// default style for Windows
+#elif defined(_WS_PM_)
+GUIStyle QApplication::appStyle = PMStyle;	// default style for OS/2 PM
+#elif defined(_WS_X11_)
+GUIStyle QApplication::appStyle = MotifStyle;	// default style for X Windows
+#endif
+
 
 QApplication::QApplication()
 {
@@ -37,6 +48,12 @@ QApplication::QApplication()
 QApplication::~QApplication()
 {
     qApp = 0;
+}
+
+
+void QApplication::setStyle( GUIStyle s )	// set application GUI style
+{
+    appStyle = s;
 }
 
 

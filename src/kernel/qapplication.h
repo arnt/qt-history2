@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.h#2 $
+** $Id: //depot/qt/main/src/kernel/qapplication.h#3 $
 **
 ** Definition of QApplication class
 **
@@ -26,6 +26,9 @@ public:
     QApplication();
     virtual ~QApplication();
 
+    static GUIStyle style()	{ return appStyle; }
+    static void	    setStyle( GUIStyle );
+
     int	     exec( QWidget *mainWidget );	// start event handing
     static void quit( int retcode = 0 );	// quit application
 
@@ -41,6 +44,7 @@ protected:
 private:
     bool     quit_now;				// quit flags
     int	     quit_code;
+    static GUIStyle appStyle;			// application GUI style
 
 public:
 #if defined(_WS_MAC_)
