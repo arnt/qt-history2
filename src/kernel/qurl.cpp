@@ -275,29 +275,33 @@ QUrl::QUrl( const QUrl& url, const QString& relUrl, bool checkSlash )
     QString rel = relUrl;
     slashify( rel );
 
+    QUrl urlTmp( url );
+    if ( !urlTmp.isValid() ) {
+	urlTmp.reset();
+    }
     if ( !isRelativeUrl( rel ) ) {
 	if ( rel[ 0 ] == QChar( '/' ) ) {
-	    *this = url;
+	    *this = urlTmp;
 	    setEncodedPathAndQuery( rel );
 	} else {
 	    *this = rel;
 	}
     } else {
 	if ( rel[ 0 ] == '#' ) {
-	    *this = url;
+	    *this = urlTmp;
 	    rel.remove( 0, 1 );
 	    decode( rel );
 	    setRef( rel );
 	} else if ( rel[ 0 ] == '?' ) {
-	    *this = url;
+	    *this = urlTmp;
 	    rel.remove( 0, 1 );
 	    setQuery( rel );
 	} else {
 	    decode( rel );
-	    *this = url;
+	    *this = urlTmp;
 	    setRef( QString::null );
 	    if ( !checkSlash || d->cleanPath[ (int)path().length() - 1 ] == '/' ) {
-		QString p = url.path();
+		QString p = urlTmp.path();
 		if ( p.isEmpty() )
 		    p = "/";
 		if ( p.right( 1 ) != "/" )
