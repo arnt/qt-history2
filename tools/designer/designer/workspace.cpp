@@ -275,10 +275,12 @@ Workspace::Workspace( QWidget *parent, MainWindow *mw )
     header()->hide();
     setSorting( 0 );
     setResizePolicy( QScrollView::Manual );
+#ifndef Q_WS_MAC
     QPalette p( palette() );
     p.setColor( QColorGroup::Base, QColor( *backColor2 ) );
     (void)*selectedBack; // hack
     setPalette( p );
+#endif
     addColumn( tr( "Files" ) );
     setAllColumnsShowFocus( TRUE );
     connect( this, SIGNAL( mouseButtonClicked( int, QListViewItem *, const QPoint &, int ) ),
