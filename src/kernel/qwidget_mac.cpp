@@ -1196,7 +1196,7 @@ void QWidget::setCursor(const QCursor &cursor)
     setWState( WState_OwnCursor );
 
     if(qApp && qApp->activeWindow() &&
-       QApplication::widgetAt(QCursor::pos()) == this) {
+       QApplication::widgetAt(QCursor::pos(), TRUE) == this) {
 	Point mouse_pos;
 	QPoint qmp(QCursor::pos());
 	mouse_pos.h = qmp.x();
@@ -1220,7 +1220,7 @@ void QWidget::unsetCursor()
     }
 
     if(qApp && qApp->activeWindow() &&
-       QApplication::widgetAt(QCursor::pos()) == this) {
+       QApplication::widgetAt(QCursor::pos(), TRUE) == this) {
 	Point mouse_pos;
 	QPoint qmp(QCursor::pos());
 	mouse_pos.h = qmp.x();
@@ -1239,7 +1239,7 @@ void QWidget::unsetCursor()
 	}
 	if(!n)
 	    n = &arrowCursor; //I give up..
-	qt_mac_set_cursor(extra->curs, &mouse_pos);
+	qt_mac_set_cursor(n, &mouse_pos);
     }
 }
 
