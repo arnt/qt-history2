@@ -1,6 +1,6 @@
 #include <qstyleinterface.h>
 #include <qcdestyle.h>
-#include <qcleanuphandler.h>
+#include <qobjectcleanuphandler.h>
 
 class CDEStyle : public QStyleFactoryInterface, public QLibraryInterface
 {
@@ -19,7 +19,7 @@ public:
     bool canUnload() const;
 
 private:
-    QGuardedCleanupHandler<QStyle> styles;
+    QObjectCleanupHandler styles;
 
     unsigned long ref;
 };

@@ -1,7 +1,7 @@
 #include <actioninterface.h>
 #include <qaction.h>
 #include <qapplication.h>
-#include <qcleanuphandler.h>
+#include <qobjectcleanuphandler.h>
 #include <qstylefactory.h>
 #include <qsignalmapper.h>
 
@@ -49,7 +49,7 @@ private slots:
     void setStyle( const QString& );
 
 private:
-    QGuardedCleanupHandler<QAction> actions;
+    QObjectCleanupHandler actions;
     QActionGroup *styleGroup;
     QSignalMapper *styleMapper;
 

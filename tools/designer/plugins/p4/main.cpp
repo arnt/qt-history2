@@ -3,7 +3,8 @@
 
 #include "p4.h"
 
-#include <qcleanuphandler.h>
+#include <qobjectcleanuphandler.h>
+#include <qguardedptr.h>
 #include <qaction.h>
 #include <qdict.h>
 #include <qpainter.h>
@@ -325,7 +326,7 @@ private:
 
     QGuardedPtr<QWidget> outputPage;
     QTextView *outputView;
-    QGuardedCleanupHandler<QAction> actions;
+    QObjectCleanupHandler actions;
     DesignerInterface *appInterface;
 
     unsigned long ref;

@@ -1,6 +1,6 @@
 #include <qstyleinterface.h>
 #include <qplatinumstyle.h>
-#include <qcleanuphandler.h>
+#include <qobjectcleanuphandler.h>
 
 class PlatinumStyle : public QStyleFactoryInterface, public QLibraryInterface
 {
@@ -19,7 +19,7 @@ public:
     bool canUnload() const;
 
 private:
-    QGuardedCleanupHandler<QStyle> styles;
+    QObjectCleanupHandler styles;
 
     unsigned long ref;
 };
