@@ -51,7 +51,7 @@ static void printHtmlShortMembers( HtmlWriter& out,
 
     QMap<QString, Decl *>::ConstIterator m = members.begin();
     while ( m != members.end() ) {
-	if ( !config->isInternal() && (*m)->internal() ) {
+	if ( !config->isInternal() && (*m)->isInternal() ) {
 	    ++m;
 	    continue;
 	}
@@ -64,9 +64,9 @@ static void printHtmlShortMembers( HtmlWriter& out,
 
 	out.putsMeta( "<li><div class=fn>" );
 	(*m)->printHtmlShort( out );
-	if ( (*m)->internal() && (*m)->access() != Decl::Private )
+	if ( (*m)->isInternal() && (*m)->access() != Decl::Private )
 	    out.putsMeta( " &nbsp;<em>(internal)</em>" );
-	else if ( (*m)->obsolete() )
+	else if ( (*m)->isObsolete() )
 	    out.putsMeta( " &nbsp;<em>(obsolete)</em>" );
 	out.putsMeta( "</div></li>\n" );
 	++m;
@@ -78,7 +78,7 @@ static void printHtmlShortMembers( HtmlWriter& out,
 static QString htmlShortName( const Decl *decl )
 {
     QString html = htmlProtect( decl->name() );
-    if ( !decl->obsolete() )
+    if ( !decl->isObsolete() )
 	html = QString( "<b>" ) + html + QString( "</b>" );
 
     if ( decl->doc() == 0 ) {
@@ -91,8 +91,8 @@ static QString htmlShortName( const Decl *decl )
 	else
 	    warning( 3, decl->location(), "Undocumented member '%s'",
 		     decl->fullName().latin1() );
-    } else if ( !decl->obsolete() &&
-		(config->isInternal() || !decl->internal()) ) {
+    } else if ( !decl->isObsolete() &&
+		(config->isInternal() || !decl->isInternal()) ) {
 	html = QString( "<a href=\"#%1\">%2</a>" ).arg( decl->ref() )
 	       .arg( html );
     }
@@ -112,7 +112,7 @@ static void printHtmlLongMembers( HtmlWriter& out,
 
     QMap<QString, Decl *>::ConstIterator m = members.begin();
     while ( m != members.end() ) {
-	if ( !config->isInternal() && (*m)->internal() ) {
+	if ( !config->isInternal() && (*m)->isInternal() ) {
 	    ++m;
 	    continue;
 	}
@@ -128,8 +128,8 @@ static void printHtmlLongMembers( HtmlWriter& out,
 	(*m)->doc()->printHtml( out );
 
 	if ( (*m)->reimplements() != 0 && (*m)->reimplements()->doc() != 0 &&
-	     !(*m)->reimplements()->doc()->internal() &&
-	     !(*m)->reimplements()->context()->internal() ) {
+	     !(*m)->reimplements()->doc()->isInternal() &&
+	     !(*m)->reimplements()->context()->isInternal() ) {
 	    QString className = (*m)->reimplements()->context()->name();
 	    out.printfMeta( "<p>Reimplemented from <a href=\"%s#%s\">%s</a>.\n",
 			    config->classRefHref(className).latin1(),
@@ -148,8 +148,8 @@ static void printHtmlLongMembers( HtmlWriter& out,
 	    while ( r != by.end() ) {
 		Decl *d = *r;
 		++r;
-		if ( d->doc() == 0 || d->internal() ||
-		     d->context()->internal() )
+		if ( d->doc() == 0 || d->isInternal() ||
+		     d->context()->isInternal() )
 		    by.remove( d );
 	    }
 	}
@@ -284,7 +284,7 @@ static void fillInImportantChildren( ClassDecl *classDecl,
 		importantMet.insert( (*ch)->name() );
 		importantSignatures.insert( (*ch)->mangledName() );
 		if ( c != classDecl && (*ch)->doc() != 0 &&
-		     !(*ch)->internal() && !(*ch)->obsolete() )
+		     !(*ch)->isInternal() && !(*ch)->isObsolete() )
 		    importantChildren->append( *ch );
 	    }
 	    ++ch;
@@ -369,7 +369,7 @@ void Decl::buildPlainSymbolTables( bool omitUndocumented )
 	while ( child != children().end() ) {
 	    if ( !omitUndocumented ||
 		 ((*child)->doc() != 0 && (config->isInternal() ||
-					  !(*child)->internal())) ) {
+					  !(*child)->isInternal())) ) {
 		QString name = (*child)->name();
 		if ( (*child)->kind() == Function )
 		    name += parenParen;
@@ -383,7 +383,7 @@ void Decl::buildPlainSymbolTables( bool omitUndocumented )
     while ( child != children().end() ) {
 	if ( !omitUndocumented ||
 	     ((*child)->doc() != 0 && (config->isInternal() ||
-				      !(*child)->internal())) )
+				      !(*child)->isInternal())) )
 	    (*child)->buildPlainSymbolTables( omitUndocumented );
 	++child;
     }
@@ -432,9 +432,9 @@ void Decl::fillInDocs()
     }
 }
 
-bool Decl::internal() const
+bool Decl::isInternal() const
 {
-    return access() == Private || ( doc() != 0 && doc()->internal() );
+    return access() == Private || ( doc() != 0 && doc()->isInternal() );
 }
 
 void Decl::setImportantChildren( const QValueList<Decl *>& important )
@@ -623,7 +623,7 @@ void ClassDecl::buildPlainSymbolTables( bool omitUndocumented )
 		documented = ( (*ch)->doc() != 0 );
 
 	    bool omit = ( omitUndocumented && !documented ) ||
-			( !config->isInternal() && (*ch)->internal() );
+			( !config->isInternal() && (*ch)->isInternal() );
 
 	    if ( (*ch)->kind() == Decl::Function ) {
 		FunctionDecl *funcDecl = (FunctionDecl *) *ch;
@@ -691,11 +691,11 @@ void ClassDecl::printHtmlLong( HtmlWriter& out ) const
 	out.setSubHeading( QString("[<a href=\"%1.html\">%2 module</a>]")
 			   .arg(classDoc()->module().lower())
 			   .arg(classDoc()->module()) );
-    else if ( obsolete() )
+    else if ( isObsolete() )
 	out.setSubHeading( QString("[obsolete]") );
 
     if ( classDoc() != 0 ) {
-	if ( classDoc()->preliminary() )
+	if ( classDoc()->isPreliminary() )
 	    out.putsMeta( "<p><center><font color=\"red\"><b>The API for this"
 			  " class is under development and is subject to"
 			  " change.</b><br>\n"
@@ -910,7 +910,7 @@ static void checkParams( const FunctionDecl *funcDecl,
     if ( fn == 0 )
 	return;
 
-    if ( funcDecl->internal() || funcDecl->obsolete() )
+    if ( funcDecl->isInternal() || funcDecl->isObsolete() )
 	return;
 
     StringSet diff;
@@ -1014,7 +1014,7 @@ void ClassDecl::fillInDocsForThis()
 		    Doc *doc = new FnDoc( (*q)->location(), html, QString::null,
 					  QString::null, documentedParams,
 					  FALSE );
-		    doc->setObsolete( (*q)->obsolete() );
+		    doc->setObsolete( (*q)->isObsolete() );
 		    func->setDoc( doc );
 		    func->setRelatedProperty( *q );
 		}
@@ -1068,7 +1068,7 @@ void ClassDecl::fillInDocsForThis()
 	    }
 
 	    // a great place to do something unrelated
-	    if ( !internal() )
+	    if ( !isInternal() )
 		checkParams( *g, (*g)->parameterNames() );
 	    ++g;
 	}
@@ -1134,9 +1134,9 @@ void ClassDecl::fillInDocsForThis()
 		if ( (*g)->fnDoc()->overloads() ) {
 		    if ( scapeGoat == 0 )
 			scapeGoat = (*g)->fnDoc();
-		} else if ( (*g)->internal() ) {
+		} else if ( (*g)->isInternal() ) {
 		    candidates[2].append( *g );
-		} else if ( (*g)->obsolete() ) {
+		} else if ( (*g)->isObsolete() ) {
 		    candidates[1].append( *g );
 		} else if ( (*g)->doc() != 0 ) {
 		    candidates[0].append( *g );
@@ -1209,9 +1209,9 @@ void ClassDecl::fillInDocsForThis()
 		(*g)->setOverloadNumber( overloadNo++ );
 
 	    if ( canonical != 0 && (*g)->fnDoc() != 0 ) {
-		if ( canonical->internal() )
+		if ( canonical->isInternal() )
 		    (*g)->fnDoc()->setInternal( TRUE );
-		if ( canonical->obsolete() )
+		if ( canonical->isObsolete() )
 		    (*g)->fnDoc()->setObsolete( TRUE );
 	    }
 

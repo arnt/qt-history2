@@ -40,8 +40,8 @@ public:
     Kind kind() const { return k; }
     Access access() const { return a; }
     Doc *doc() const { return d; }
-    bool internal() const;
-    bool obsolete() const { return d != 0 && d->obsolete(); }
+    bool isInternal() const;
+    bool isObsolete() const { return d != 0 && d->isObsolete(); }
     const QString& name() const { return n; }
     QString fullName() const;
     virtual QString mangledName() const;

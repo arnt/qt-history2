@@ -113,9 +113,9 @@ public:
     const QString& name() const { return nam; }
     const QString& whatsThis() const { return whats; }
     const QString& fileName() const { return fnam; }
-    bool internal() const { return inter; }
-    bool obsolete() const { return obs; }
-    bool preliminary() const { return prel; }
+    bool isInternal() const { return inter; }
+    bool isObsolete() const { return obs; }
+    bool isPreliminary() const { return prel; }
     QString htmlSeeAlso() const;
     const StringSet& groups() const { return gr; }
     const StringSet& dependsOn() const { return deps; }

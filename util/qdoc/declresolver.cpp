@@ -100,7 +100,7 @@ QString DeclResolver::relatedProperty( const QString& name ) const
 QString DeclResolver::resolved( const Decl *decl ) const
 {
     if ( decl->kind() == Decl::Function ) {
-	while ( decl != 0 && decl->internal() )
+	while ( decl != 0 && decl->isInternal() )
 	    decl = decl->reimplements();
     }
 

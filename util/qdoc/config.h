@@ -54,7 +54,7 @@ public:
     bool autoHrefs() const { return autoh; }
     bool supervisor() const { return super; }
     bool lint() const { return lin; }
-    bool friendly() const { return frend; }
+    bool isFriendly() const { return frend; }
 
     bool needImage( const Location& loc, const QString& fileName,
 		    int *width = 0, int *height = 0 );

@@ -48,7 +48,7 @@
 static void setLink( DocEmitter *emitter, Doc *doc, const QString& link,
 		     const QString& text )
 {
-    if ( !doc->internal() && !doc->obsolete() )
+    if ( !doc->isInternal() && !doc->isObsolete() )
 	emitter->addLink( link, text );
     doc->setLink( link, text );
 }
@@ -845,7 +845,7 @@ static void matchDocsAndStuff( DocEmitter *emitter )
 		    decl->setDoc( pd );
 		    deleteDoc = FALSE;
 
-		    if ( pd->obsolete() && propDecl->designable() )
+		    if ( pd->isObsolete() && propDecl->designable() )
 			warning( 1, doc->location(),
 				 "Obsolete property '%s' should not be"
 				 " designable",

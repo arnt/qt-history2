@@ -810,7 +810,7 @@ Analyzer::Analyzer( const QString& filePath )
 
 int Analyzer::granularity() const
 {
-    return config->friendly() ? 0 : granul;
+    return config->isFriendly() ? 0 : granul;
 }
 
 Section *Analyzer::resolveSection( const QString& heading ) const
@@ -1009,7 +1009,7 @@ HtmlSynthetizer::HtmlSynthetizer( const QString& filePath,
     w.push( new HtmlWriter(location(), outFileBase() + QString(".html")) );
     w.top()->setTitle( analyzer->title() );
     w.top()->setHeading( analyzer->title() );
-    if ( config->friendly() )
+    if ( config->isFriendly() )
 	w.top()->putsMeta( "<!-- friendly -->\n" );
 
     /*
@@ -1021,7 +1021,7 @@ HtmlSynthetizer::HtmlSynthetizer( const QString& filePath,
     htmlPageSequence.append( (Section *) 0 );
 
     delta = 2;
-    if ( config->friendly() ) {
+    if ( config->isFriendly() ) {
 	/*
 	  Help qdoc2latex by using '<h1>' rather than '<h2>' for
 	  section1.

@@ -219,7 +219,7 @@ void DocEmitter::addGroup( DefgroupDoc *doc )
 
 void DocEmitter::addGroupie( Doc *groupie )
 {
-    if ( config->isInternal() || !groupie->internal() ) {
+    if ( config->isInternal() || !groupie->isInternal() ) {
 	StringSet::ConstIterator group = groupie->groups().begin();
 	while ( group != groupie->groups().end() ) {
 	    groupiemap[*group].insert( QString("<a href=\"%1\">%2</a>")
@@ -276,7 +276,7 @@ void DocEmitter::nailDownDocs()
     QValueList<Decl *>::ConstIterator child = root.children().begin();
     while ( child != root.children().end() ) {
 	if ( (*child)->kind() == Decl::Class && (*child)->doc() != 0 &&
-	     (config->isInternal() || !(*child)->internal()) ) {
+	     (config->isInternal() || !(*child)->isInternal()) ) {
 	    ClassDecl *classDecl = (ClassDecl *) *child;
 
 	    /*
@@ -308,7 +308,7 @@ void DocEmitter::nailDownDocs()
 		 !classDecl->classDoc()->headers().isEmpty() )
 		hlist = reunion( hlist, classDecl->classDoc()->headers() );
 
-	    if ( !classDecl->obsolete() && classDecl->classDoc() != 0 ) {
+	    if ( !classDecl->isObsolete() && classDecl->classDoc() != 0 ) {
 		clist.insert( classDecl->name(), classDecl->whatsThis() );
 		if ( classDecl->classDoc()->mainClass() )
 		    mainclist.insert( classDecl->name(),
@@ -338,7 +338,9 @@ void DocEmitter::nailDownDocs()
 		if ( (*grandChild)->kind() == Decl::Function ) {
 		    FunctionDecl *funcDecl = (FunctionDecl *) *grandChild;
 		    if ( !funcDecl->isConstructor() &&
-			 !funcDecl->isDestructor() )
+			 !funcDecl->isDestructor() &&
+			 !funcDecl->isInternal() &&
+			 !funcDecl->isObsolete() )
 			findex[funcDecl->name()].insert( classDecl->name() );
 		}
 		++grandChild;
@@ -423,7 +425,7 @@ void DocEmitter::emitHtml() const
 	    htmlFileName = config->classRefHref( classDecl->name() );
 
 	    if ( config->generateFile(htmlFileName) &&
-		 (config->isInternal() || !classDecl->internal()) ) {
+		 (config->isInternal() || !classDecl->isInternal()) ) {
 		res->setCurrentClass( classDecl );
 		HtmlWriter out( (*child)->doc()->location(), htmlFileName );
 		classDecl->printHtmlLong( out );
