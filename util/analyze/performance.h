@@ -207,6 +207,7 @@
     const char* PM_str_wrn4    = "             before your '#include \"%s\"'";
     I64 perf_ms    = PM_MSEC;
     I64 perf_delta = PM_DELTA;
+    int PM_max_data = PM_MAX_DATA;
 
     void PM_Debug( const char *msg, ... )
     {
@@ -250,6 +251,7 @@
     extern const char* PM_str_wrn4;
     extern I64 perf_ms;
     extern I64 perf_delta;
+    extern int PM_max_data;
     extern void PM_Debug( const char *msg, ... );
 #endif // EXTERN_PERFORMANCE_DATA
 
@@ -410,7 +412,7 @@ inline
 void PM::init()
 {
     // Erase all previous tracks
-    memset( perf_meas, 0, PM_MAX_DATA * sizeof(PDS) );
+    memset( perf_meas, 0, PM_max_data * sizeof(PDS) );
 
     active = true;
     perf_count = 0;
@@ -421,15 +423,15 @@ void PM::init()
 inline
 void PM::measure( const char* label )
 {
-    if ( perf_count > PM_MAX_DATA - 6 ) {
-        if ( perf_count > PM_MAX_DATA - 1 ) {
-            PM_Debug( PM_str_crt1, PM_MAX_DATA );
+    if ( perf_count > PM_max_data - 6 ) {
+        if ( perf_count > PM_max_data - 1 ) {
+            PM_Debug( PM_str_crt1, PM_max_data );
             PM_Debug( PM_str_crt2 );
             return;
         } else {
             PM_Debug( PM_str_wrn1 );
         }
-        PM_Debug( PM_str_wrn2, perf_count, PM_MAX_DATA );
+        PM_Debug( PM_str_wrn2, perf_count, PM_max_data );
         PM_Debug( PM_str_wrn3 );
         PM_Debug( PM_str_wrn4, __FILE__ );
     }
