@@ -636,7 +636,7 @@ QMakeProject::read(uchar cmd)
     if(cmd & ReadFeatures) {
 	QStringList &configs = vars["CONFIG"];
 	debug_msg(1, "Processing CONFIG features");
-	for(QStringList::Iterator it = configs.begin(); it != configs.end(); ++it) 
+	for(QStringList::Iterator it = configs.begin(); it != configs.end(); ++it)
 	    doProjectInclude((*it), TRUE, vars);
 	doProjectInclude("feature_default", TRUE, vars); //final to do the last setup
     }
@@ -763,7 +763,7 @@ QMakeProject::doProjectTest(const QString& func, const QString &params, QMap<QSt
    2) mkspecs/features
 */
 bool
-QMakeProject::doProjectInclude(QString file, bool feature, QMap<QString, QStringList> &place, 
+QMakeProject::doProjectInclude(QString file, bool feature, QMap<QString, QStringList> &place,
 			       const QString &seek_var)
 {
 
@@ -774,7 +774,7 @@ QMakeProject::doProjectInclude(QString file, bool feature, QMap<QString, QString
 	    bool found = FALSE;
 	    QStringList concat;
 	    {
-		const QString base_concat = QDir::separator() + QString("mkspecs") + 
+		const QString base_concat = QDir::separator() + QString("mkspecs") +
 					    QDir::separator() + QString("features");
 		switch(Option::target_mode) {
 		case Option::TARG_MACX_MODE: 		    //also a unix
@@ -784,10 +784,10 @@ QMakeProject::doProjectInclude(QString file, bool feature, QMap<QString, QString
 		case Option::TARG_UNIX_MODE:
 		    concat << base_concat + QDir::separator() + "unix";
 		    break;
-		case Option::TARG_WIN_MODE: 
+		case Option::TARG_WIN_MODE:
 		    concat << base_concat + QDir::separator() + "win32";
 		    break;
-		case Option::TARG_MAC9_MODE: 
+		case Option::TARG_MAC9_MODE:
 		    concat << base_concat + QDir::separator() + "mac9";
 		    break;
 		case Option::TARG_QNX6_MODE: //also a unix
@@ -813,44 +813,44 @@ QMakeProject::doProjectInclude(QString file, bool feature, QMap<QString, QString
 		for(QStringList::Iterator it = lst.begin(); it != lst.end(); ++it) {
 		    QStringList lst2 = QStringList::split(':', (*it));
 		    for(QStringList::Iterator it2 = lst2.begin(); it2 != lst2.end(); ++it2) {
-			for(QStringList::Iterator concat_it = concat.begin(); 
-			    concat_it != concat.end(); ++concat_it) 
+			for(QStringList::Iterator concat_it = concat.begin();
+			    concat_it != concat.end(); ++concat_it)
 			    feature_roots << ((*it2) + (*concat_it));
 		    }
 		}
 #else
 		QStringList lst = QStringList::split(':', qmakepath);
 		for(QStringList::Iterator it = lst.begin(); it != lst.end(); ++it) {
-		    for(QStringList::Iterator concat_it = concat.begin(); 
-			concat_it != concat.end(); ++concat_it) 
+		    for(QStringList::Iterator concat_it = concat.begin();
+			concat_it != concat.end(); ++concat_it)
 			feature_roots << ((*it) + (*concat_it));
-#endif
 		}
+#endif
 	    }
 	    feature_roots << Option::mkfile::qmakespec + QDir::separator() + "features";
 	    if(const char *qtdir = getenv("QTDIR")) {
-		for(QStringList::Iterator concat_it = concat.begin(); 
-		    concat_it != concat.end(); ++concat_it) 
+		for(QStringList::Iterator concat_it = concat.begin();
+		    concat_it != concat.end(); ++concat_it)
 		    feature_roots << (qtdir + (*concat_it));
 	    }
 #ifdef QT_INSTALL_PREFIX
-	    for(QStringList::Iterator concat_it = concat.begin(); 
-		concat_it != concat.end(); ++concat_it) 
+	    for(QStringList::Iterator concat_it = concat.begin();
+		concat_it != concat.end(); ++concat_it)
 		feature_roots << (QT_INSTALL_PREFIX + (*concat_it));
 #endif
 #if defined(HAVE_QCONFIG_CPP)
-	    for(QStringList::Iterator concat_it = concat.begin(); 
-		concat_it != concat.end(); ++concat_it) 
+	    for(QStringList::Iterator concat_it = concat.begin();
+		concat_it != concat.end(); ++concat_it)
 		feature_roots << (qInstallPath() + (*concat_it));
 #endif
 #ifdef QT_INSTALL_DATA
-	    for(QStringList::Iterator concat_it = concat.begin(); 
-		concat_it != concat.end(); ++concat_it) 
+	    for(QStringList::Iterator concat_it = concat.begin();
+		concat_it != concat.end(); ++concat_it)
 		feature_roots << (QT_INSTALL_DATA + (*concat_it));
 #endif
 #if defined(HAVE_QCONFIG_CPP)
-	    for(QStringList::Iterator concat_it = concat.begin(); 
-		concat_it != concat.end(); ++concat_it) 
+	    for(QStringList::Iterator concat_it = concat.begin();
+		concat_it != concat.end(); ++concat_it)
 		feature_roots << (qInstallPathData() + (*concat_it));
 #endif
 	    for(QStringList::Iterator it = feature_roots.begin(); it != feature_roots.end(); ++it) {
@@ -861,12 +861,12 @@ QMakeProject::doProjectInclude(QString file, bool feature, QMap<QString, QString
 		    break;
 		}
 	    }
-	    if(!found) 
+	    if(!found)
 		return FALSE;
 	    if(vars["QMAKE_INTERNAL_INCLUDED_FEATURES"].findIndex(file) != -1)
 		return TRUE;
 	    vars["QMAKE_INTERNAL_INCLUDED_FEATURES"].append(file);
-	    
+
 	}
     }
     if(QDir::isRelativePath(file)) {
@@ -914,7 +914,7 @@ QMakeProject::doProjectInclude(QString file, bool feature, QMap<QString, QString
     } else {
 	r = read(file.latin1(), place);
     }
-    if(r) 
+    if(r)
 	vars["QMAKE_INTERNAL_INCLUDED_FILES"].append(orig_file);
     else
 	warn_msg(WarnParser, "%s:%d: Failure to include file %s.",
@@ -1245,7 +1245,7 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 		replacement = "$";
 	    else if(val == "LITERAL_HASH")
 		replacement = "#";
-	    else if(val == "PWD") 
+	    else if(val == "PWD")
 		replacement = QDir::currentDirPath();
 	    else
 		replacement = place[varMap(val)].join(" ");
@@ -1286,7 +1286,7 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 		    file.replace("\"", "");
 
 		    QMap<QString, QStringList> tmp;
-		    if(doProjectInclude(file, FALSE, tmp, seek_var)) 
+		    if(doProjectInclude(file, FALSE, tmp, seek_var))
 			replacement = tmp[seek_var].join(" "); //should I use " "?
 		}
 	    } else if(val.lower() == "eval") {
