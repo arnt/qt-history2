@@ -1037,8 +1037,17 @@ void QCanvas::drawViewArea( QCanvasView* view, QPainter* p, const QRect& vr, boo
     QRect all(0,0,width(),height());
 
     if ( !all.contains(ivr) ) {
-	// need to clip with edge of canvas
-	QPointArray a( all );
+	// Need to clip with edge of canvas.
+
+	// For translation-only transformation, it is safe to include the right
+	// and bottom edges, but otherwise, these must be excluded since they
+	// are not precisely defined (different bresenham paths).
+	QPointArray a;
+	if ( wm.m12()==0.0 && wm.m21()==0.0 && wm.m11() == 1.0 && wm.m22() == 1.0 )
+	    a = QPointArray( QRect(all.x(),all.y(),all.width()+1,all.height()+1) );
+	else
+	    a = QPointArray( all );
+
 	QWMatrix ttwm;
 	ttwm.translate(tl.x(),tl.y());
 	a = (wm*ttwm).map(a);
