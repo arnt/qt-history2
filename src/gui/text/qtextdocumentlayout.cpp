@@ -197,7 +197,7 @@ public:
 
     void relayoutDocument();
 
-    void layoutCell(QTextTable *t, const QTextTableCell &cell, LayoutStruct *layoutStruct);
+    LayoutStruct layoutCell(QTextTable *t, const QTextTableCell &cell, int width);
     void setCellPosition(QTextTableData *td, const QTextTableCell &cell, const QPoint &pos);
     void layoutTable(QTextTable *t, int layoutFrom, int layoutTo);
 
@@ -611,13 +611,17 @@ static bool isFrameInCell(const QTextTableCell &cell, QTextFrame *frame)
            && cellEnd >= frameStart && cellEnd >= frameEnd;
 }
 
-void QTextDocumentLayoutPrivate::layoutCell(QTextTable *t, const QTextTableCell &cell, LayoutStruct *layoutStruct)
+LayoutStruct QTextDocumentLayoutPrivate::layoutCell(QTextTable *t, const QTextTableCell &cell, int width)
 {
     QTextTableData *td = static_cast<QTextTableData *>(data(t));
 
-    layoutStruct->minimumWidth = 0;
+    LayoutStruct layoutStruct;
+    layoutStruct.frame = t;
+    layoutStruct.minimumWidth = 0;
+    layoutStruct.y = 0;
+    layoutStruct.x_left = 0;
+    layoutStruct.x_right = width;
 
-    const int width = layoutStruct->x_right - layoutStruct->x_left;
     // ### speed up
     // layout out child frames in that cell first
     foreach (QTextFrame *frame, t->childFrames())
@@ -627,10 +631,11 @@ void QTextDocumentLayoutPrivate::layoutCell(QTextTable *t, const QTextTableCell 
             cd->dirty = true;
             layoutFrame(frame, frame->firstPosition(), frame->lastPosition(), width, -1);
             td->layoutedFrames.removeAll(frame);
-            layoutStruct->minimumWidth = qMax(layoutStruct->minimumWidth, cd->boundingRect.width());
+            layoutStruct.minimumWidth = qMax(layoutStruct.minimumWidth, cd->boundingRect.width());
         }
 
-    layoutFlow(cell.begin(), layoutStruct);
+    layoutFlow(cell.begin(), &layoutStruct);
+    return layoutStruct;
 }
 
 void QTextDocumentLayoutPrivate::setCellPosition(QTextTableData *td, const QTextTableCell &cell, const QPoint &pos)
@@ -714,12 +719,7 @@ void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int /*layoutFrom
                     if (cspan > 1 && i != cell.column())
                         continue;
 
-                    LayoutStruct layoutStruct;
-                    layoutStruct.frame = table;
-                    layoutStruct.y = layoutStruct.x_left = 0;
-                    layoutStruct.x_right = sharedWidth - 2 * td->padding;
-
-                    layoutCell(table, cell, &layoutStruct);
+                    LayoutStruct layoutStruct = layoutCell(table, cell, sharedWidth - 2 * td->padding);
 
                     int widthToDistribute = layoutStruct.minimumWidth;
                     for (int n = 0; n < cspan; ++n) {
@@ -748,9 +748,6 @@ void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int /*layoutFrom
     for (int i = 1; i < columns; ++i)
         td->columnPositions[i] = td->columnPositions.at(i-1) + td->widths.at(i-1) + td->border;
 
-    LayoutStruct layoutStruct;
-    layoutStruct.frame = table;
-
     td->heights.resize(rows);
     td->heights.fill(0);
 
@@ -759,6 +756,12 @@ void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int /*layoutFrom
 
     bool haveRowSpannedCells = false;
 
+    // now that we have the column widths we can lay out all cells with the right
+    // width, to calculate the row heights. we have to use two passes though, cells
+    // which span more than onw row have to be processed later to avoid them enlarging
+    // other calls too much
+    //
+    // ### this could be made faster by iterating over the cells array of QTextTable
     for (int r = 0; r < rows; ++r) {
         if (r > 0)
             td->rowPositions[r] = td->rowPositions.at(r-1) + td->heights.at(r-1) + td->border;
@@ -776,11 +779,8 @@ void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int /*layoutFrom
                 continue;
             }
 
-            layoutStruct.y = 0;
-            layoutStruct.x_left = 0;
-            layoutStruct.x_right = td->columnPositions.at(c + cspan - 1) + td->widths.at(c + cspan - 1)
-                                   - td->columnPositions.at(c) - 2 * td->padding;
-            layoutCell(table, cell, &layoutStruct);
+            LayoutStruct layoutStruct = layoutCell(table, cell, td->columnPositions.at(c + cspan - 1) + td->widths.at(c + cspan - 1)
+                                                                - td->columnPositions.at(c) - 2 * td->padding);
 
             td->heights[r] = qMax(td->heights.at(r), layoutStruct.y + 2*td->padding);
         }
@@ -805,11 +805,8 @@ void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int /*layoutFrom
                 if (cell.row() != r)
                     continue;
 
-                layoutStruct.y = 0;
-                layoutStruct.x_left = 0;
-                layoutStruct.x_right = td->columnPositions.at(c + cspan - 1) + td->widths.at(c + cspan - 1)
-                                       - td->columnPositions.at(c) - 2 * td->padding;
-                layoutCell(table, cell, &layoutStruct);
+                LayoutStruct layoutStruct = layoutCell(table, cell, td->columnPositions.at(c + cspan - 1) + td->widths.at(c + cspan - 1)
+                                                                    - td->columnPositions.at(c) - 2 * td->padding);
 
                 int heightToDistribute = layoutStruct.y + 2*td->padding;
                 for (int n = 0; n < rspan; ++n) {
@@ -825,6 +822,7 @@ void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int /*layoutFrom
         }
     }
 
+    // finally position all cells
     for (int r = 0; r < rows; ++r) {
         const int y = td->rowPositions.at(r) + td->padding;
         for (int c = 0; c < columns; ++c) {
@@ -1077,13 +1075,13 @@ void QTextDocumentLayoutPrivate::layoutBlock(QTextBlock bl, LayoutStruct *layout
     tl->clearLines();
 
     layoutStruct->y += blockFormat.topMargin();
-    int cy = layoutStruct->y;
+    const int cy = layoutStruct->y;
 
     //QTextFrameData *fd = data(layoutStruct->frame);
 
     const int indent = this->indent(bl);
-    int l = layoutStruct->x_left + blockFormat.leftMargin() + indent;
-    int r = layoutStruct->x_right - blockFormat.rightMargin();
+    const int l = layoutStruct->x_left + blockFormat.leftMargin() + indent;
+    const int r = layoutStruct->x_right - blockFormat.rightMargin();
 
     tl->setPosition(QPoint(layoutStruct->x_left, cy));
 
