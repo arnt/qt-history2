@@ -267,7 +267,7 @@ QTextCursor *QTextFormatCommand::execute( QTextCursor *c )
     start.setIndex( startIndex );
     QTextCursor end( doc );
     end.setParag( ep );
-    end.setIndex( endId );
+    end.setIndex( endIndex );
 
     doc->setSelectionStart( QTextDocument::Temp, &start );
     doc->setSelectionEnd( QTextDocument::Temp, &end );
