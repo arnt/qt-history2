@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#25 $
+** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#26 $
 **
 ** Implementation of QWhatsThis class
 **
@@ -55,7 +55,9 @@
   ways to make QWhatsThis pop up: Click a "What's This?" button and
   then click on some other widget to get help for that other widget,
   or press Shift-F1 to get help for the widget that has keyboard
-  focus.
+  focus. But you can also connect a "what's this" entry of a help menu
+  (with Shift-F1 as accelerator) to the whatsThis() slot, then the
+  focus widget does not have a special meaning.
 
   QWhatsThis provides functions to add() and remove() What's This help
   for a widget, and it provides a function to create a What's This
@@ -337,8 +339,7 @@ bool QWhatsThisPrivate::eventFilter( QObject * o, QEvent * e )
 	} else if ( e->type() == QEvent::MouseButtonPress ||
 		    e->type() == QEvent::MouseMove ) {
 	    return TRUE;
-	} else if ( e->type() == QEvent::FocusOut ||
-		    e->type() == QEvent::FocusIn ||
+	} else if ( 
 		    e->type() == QEvent::Accel ||
 		    e->type() == QEvent::KeyPress ) {
 	    QPtrDictIterator<Button> it( *(wt->buttons) );
@@ -353,21 +354,22 @@ bool QWhatsThisPrivate::eventFilter( QObject * o, QEvent * e )
 	}
 	break;
     case Inactive:
-	if ( e->type() == QEvent::Accel &&
-	     ((QKeyEvent *)e)->key() == Key_F1 &&
-	     !o->parent() &&
-	     o->isWidgetType() &&
-	     ((QKeyEvent *)e)->state() == ShiftButton ) {
-	    ((QKeyEvent *)e)->accept();
-	    QWidget * w = ((QWidget *)o)->focusWidget();
-	    QWhatsThisPrivate::Item * i = 0;
-	    if ( w && (i=dict->find( w )) != 0 && !i->s.isNull() ) {
-		say( w, i->s );
-		state = Displaying;
-		qApp->installEventFilter( this );
-	    }
-	    return TRUE;
-	}
+ 	if ( e->type() == QEvent::Accel &&
+ 	     ((QKeyEvent *)e)->key() == Key_F1 &&
+ 	     !o->parent() &&
+ 	     o->isWidgetType() &&
+ 	     ((QKeyEvent *)e)->state() == ShiftButton ) {
+ 	    QWidget * w = ((QWidget *)o)->focusWidget();
+ 	    QWhatsThisPrivate::Item * i = 0;
+ 	    if ( w && (i=dict->find( w )) != 0 && !i->s.isNull() ) {
+ 		say( w, i->s );
+ 		state = Displaying;
+ 		qApp->installEventFilter( this );
+		((QKeyEvent *)e)->accept();
+		return TRUE;
+ 	    }
+ 	    return FALSE;
+ 	}
 	break;
     }
     return FALSE;
@@ -738,6 +740,8 @@ QWhatsThis::~QWhatsThis()
   switch out of What's This mode.  Finally, What's This removes its
   cursor and help window and restores ordinary event processing.  At
   this point the left mouse button is not pressed.
+  
+  \sa whatsThis()
 */
 
 void QWhatsThis::enterWhatsThisMode()
@@ -748,4 +752,26 @@ void QWhatsThis::enterWhatsThisMode()
 	wt->state = QWhatsThisPrivate::Waiting;
 	qApp->installEventFilter( wt );
     }
+}
+
+
+
+/*!
+    Enters What's This? question mode and returns immediately.
+    
+    This is the same as enterWhatsThisMode(), but as a slot of an
+    instance of an QWhatsThis object. This way it can be easily used
+    for popup menus as in the code fragment:
+    
+  \code
+    QPopupMenu * help = new QPopupMenu();
+    help->insertItem( "What's &This", new QWhatsThis(this), SLOT(whatsThis()), SHIFT+Key_F1);
+    
+    \sa enterWhatsThisMode()
+  \endcode
+
+ */
+void QWhatsThis::whatsThis() 
+{
+    enterWhatsThisMode();
 }

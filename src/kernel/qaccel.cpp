@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.cpp#55 $
+** $Id: //depot/qt/main/src/kernel/qaccel.cpp#56 $
 **
 ** Implementation of QAccel class
 **
@@ -373,7 +373,8 @@ void QAccel::repairEventFilter()
 
 bool QAccel::eventFilter( QObject *, QEvent *e )
 {
-    if ( d->enabled && e->type() == QEvent::Accel &&
+    if ( d->enabled && 
+	 ( e->type() == QEvent::Accel || e->type() == QEvent::AccelAvailable) &&
 	 parent() && parent()->isWidgetType() &&
 	 ((QWidget *)parent())->isVisibleToTLW() ) {
 	QKeyEvent *k = (QKeyEvent *)e;
@@ -386,10 +387,12 @@ bool QAccel::eventFilter( QObject *, QEvent *e )
 	    key |= ALT;
 	QAccelItem *item = find_key( d->aitems, key, k->ascii() );
 	if ( item && item->enabled ) {
-	    if ( item->signal )
-		item->signal->activate();
-	    else
-		emit activated( item->id );
+	    if (e->type() == QEvent::Accel) {
+		if ( item->signal )
+		    item->signal->activate();
+		else
+		    emit activated( item->id );
+	    }
 	    k->accept();
 	    return TRUE;
 	}
@@ -411,7 +414,7 @@ void QAccel::tlwDestroyed()
 
 
 /* \page shortcuts.html
-   
+
 <title>Standard Accelerators</title>
 \postheader
 

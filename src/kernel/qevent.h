@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.h#71 $
+** $Id: //depot/qt/main/src/kernel/qevent.h#72 $
 **
 ** Definition of event classes
 **
@@ -58,6 +58,7 @@ public:
 	Quit = 20,				// request to quit application
 	Accel = 30,				// accelerator event
 	Wheel = 31,				// wheel event
+	AccelAvailable = 32,			// accelerator available event
 	Clipboard = 40,				// internal clipboard event
 	SockAct = 50,				// socket activation
 	DragEnter = 60,				// drag moves into widget

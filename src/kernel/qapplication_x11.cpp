@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#387 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#388 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -258,6 +258,7 @@ public:
     void setWFlags( WFlags f )		{ QWidget::setWFlags(f); }
     void clearWFlags( WFlags f )	{ QWidget::clearWFlags(f); }
     bool translateMouseEvent( const XEvent * );
+    bool translateKeyEventInternal( const XEvent *, int& count, QString& text, int& state, char& ascii, int &code );
     bool translateKeyEvent( const XEvent *, bool grab );
     bool translatePaintEvent( const XEvent * );
     bool translateConfigEvent( const XEvent * );
@@ -3303,14 +3304,10 @@ static void deleteKeyDicts()
 }
 
 
-bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
+
+bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count, QString& text, int& state, char& ascii, int &code )
 {
-    QEvent::Type type;
-    int	   code = -1;
     QCString chars(64);
-    int	   count = 0;
-    int	   state;
-    bool   autor = FALSE;
     KeySym key = 0;
 
     if ( !keyDict ) {
@@ -3321,7 +3318,7 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 	qAddPostRoutine( deleteKeyDicts );
     }
 
-    type = (event->type == XKeyPress) ? QEvent::KeyPress : QEvent::KeyRelease;
+    QEvent::Type type = (event->type == XKeyPress) ? QEvent::KeyPress : QEvent::KeyRelease;
 
 #if defined(NO_XIM)
 
@@ -3336,7 +3333,6 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 
     static int composingKeycode;
     int	       keycode = event->xkey.keycode;
-    char       ascii = 0;
     Status     status;
 
     // Perhaps we should filer ALL events.
@@ -3437,12 +3433,30 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
     }
 
     // convert chars (8bit) to text (unicode).
-    QString text;
     if ( input_mapper )
         text = input_mapper->toUnicode(chars,count);
     else
         text = chars;
 
+    return TRUE;
+}
+
+
+bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
+{
+    int	   code = -1;
+    int	   count = 0;
+    int	   state;
+    bool   autor = FALSE;
+    char       ascii = 0;
+    
+    QEvent::Type type = (event->type == XKeyPress) ? QEvent::KeyPress : QEvent::KeyRelease;
+    
+    QString text; 
+    
+    (void) translateKeyEventInternal( event, count, text, state, ascii, code);
+    
+    
     // was this the last auto-repeater?
     static uint curr_autorep = 0;
     if ( event->type == XKeyPress ) {
@@ -3743,6 +3757,9 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 	    QApplication::sendEvent( this, &e );
 	} else {
 	    deferResize( oldSize );
+	}
+ 	if ( !testWFlags(WResizeNoErase) ) {
+ 	    repaint( TRUE );
 	}
     }
     if ( newPos != geometry().topLeft() ) {

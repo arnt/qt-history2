@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#291 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#292 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -276,7 +276,8 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	XSetWMProtocols( dpy, id, protocols, 1 );
     }
 
-    if ( testWFlags(WResizeNoErase) && initializeWindow ) {
+    if ( initializeWindow ) {
+	//    if ( testWFlags(WResizeNoErase) && initializeWindow ) {
 	wsa.bit_gravity = NorthWestGravity;	// don't erase when resizing
 	XChangeWindowAttributes( dpy, id, CWBitGravity, &wsa );
     }
@@ -1379,6 +1380,9 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h )
 	do_size_hints( dpy, winid, extra, &size_hints );
     }
     XMoveResizeWindow( dpy, winid, x, y, w, h );
+    if ( !testWFlags(WResizeNoErase) ) {
+	repaint( TRUE );
+    }
 }
 
 
