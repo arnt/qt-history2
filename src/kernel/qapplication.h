@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.h#62 $
+** $Id: //depot/qt/main/src/kernel/qapplication.h#63 $
 **
 ** Definition of QApplication class
 **
@@ -51,6 +51,9 @@ public:
     static QCursor  *overrideCursor();
     static void	     setOverrideCursor( const QCursor &, bool replace=FALSE );
     static void	     restoreOverrideCursor();
+
+    static bool	     hasGlobalMouseTracking();
+    static void	     setGlobalMouseTracking( bool enable );
 
     static QPalette *palette();
     static void	     setPalette( const QPalette &,bool updateAllWidgets=FALSE);
@@ -120,9 +123,10 @@ private:
     int		     quit_code;
     static GUIStyle  app_style;
     static int	     app_cspec;
-    static QPalette  *app_pal;
+    static QPalette *app_pal;
     static QFont    *app_font;
     static QCursor  *app_cursor;
+    static int	     app_tracking;
     static bool	     is_app_running;
     static bool	     is_app_closing;
     static int	     loop_level;
@@ -156,6 +160,11 @@ inline GUIStyle QApplication::style()
 inline QCursor *QApplication::overrideCursor()
 {
     return app_cursor;
+}
+
+inline bool QApplication::hasGlobalMouseTracking()
+{
+    return app_tracking > 0;
 }
 
 inline QFont *QApplication::font()

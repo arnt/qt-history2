@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#175 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#176 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#175 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#176 $");
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -600,16 +600,14 @@ void QWidget::setIconText( const char *iconText )
 
 void QWidget::setMouseTracking( bool enable )
 {
-    if ( enable == testWFlags(WState_TrackMouse) )
+    bool gmt = QApplication::hasGlobalMouseTracking();
+    if ( enable == testWFlags(WState_TrackMouse) && !gmt )
 	return;
-    uint m;
-    if ( enable ) {
-	m = PointerMotionMask;
+    uint m = (enable || gmt) ? PointerMotionMask : 0;
+    if ( enable )
 	setWFlags( WState_TrackMouse );
-    } else {
-	m = 0;
+    else
 	clearWFlags( WState_TrackMouse );
-    }
     if ( testWFlags(WType_Desktop) ) {		// desktop widget?
 	if ( testWFlags(WPaintDesktop) )	// get desktop paint events
 	    XSelectInput( dpy, winid, ExposureMask );

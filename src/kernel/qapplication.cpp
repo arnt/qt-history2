@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#96 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#97 $
 **
 ** Implementation of QApplication class
 **
@@ -15,7 +15,7 @@
 #include "qwidcoll.h"
 #include "qpalette.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication.cpp#96 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication.cpp#97 $");
 
 
 /*!
@@ -71,6 +71,7 @@ QApplication *qApp = 0;				// global application object
 QPalette *QApplication::app_pal	       = 0;	// default application palette
 QFont	 *QApplication::app_font       = 0;	// default application font
 QCursor	 *QApplication::app_cursor     = 0;	// default application cursor
+int	  QApplication::app_tracking   = 0	// global mouse tracking
 bool	  QApplication::is_app_running = FALSE;	// app starting up if FALSE
 bool	  QApplication::is_app_closing = FALSE;	// app closing down if TRUE
 int	  QApplication::loop_level     = 0;	// event loop level

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#214 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#215 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -67,7 +67,7 @@ extern "C" int select( int, void *, void *, void *, struct timeval * );
 extern "C" void bzero(void *, size_t len);
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#214 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#215 $");
 
 #if !defined(XlibSpecificationRelease)
 typedef char *XPointer;				// X11R4
@@ -746,13 +746,69 @@ void QApplication::restoreOverrideCursor()
 	if ( w->testWFlags(WCursorSet) )
 	    XDefineCursor( w->x11Display(), w->winId(),
 			   app_cursor ? app_cursor->handle()
-				      : w->cursor().handle() );
+			   : w->cursor().handle() );
 	++it;
     }
     XFlush( appDpy );
     if ( !app_cursor ) {
 	delete cursorStack;
 	cursorStack = 0;
+    }
+}
+
+
+/*!
+  \fn bool QApplication::hasGlobalMouseTracking()
+  Returns TRUE if global mouse tracking is enabled, otherwise FALSE.
+
+  \sa setGlobalMouseTracking()
+*/
+
+/*!
+  Enables global mouse tracking if \a enable is TRUE or disables it
+  if \a enable is FALSE.
+
+  Enabling global mouse tracking makes it possible for widget event
+  filters or application event filters to get all mouse move events, even
+  when no button is depressed.  This is useful for special GUI elements,
+  e.g. tool tips.
+
+  Global mouse tracking does not affect widgets and their
+  mouesMoveEvent().  For a widget to get mouse move events when no button
+  is depressed, it must do QWidget::setMouseTracking(TRUE).
+
+  This function has an internal counter.  Each
+  setGlobalMouseTracking(TRUE) must have a corresponding
+  setGlobalMouseTracking(FALSE).
+
+  \sa hasGlobalMouseTracking(), QWidget::hasMouseTracking()
+*/
+
+void QApplication::setGlobalMouseTracking( bool enable )
+{
+    bool tellAllWidgets;
+    if ( enable ) {
+	tellAllWidgets = (++app_tracking == 1);
+    } else {
+	tellAllWidgets = (--app_tracking == 0);
+    }
+    if ( tellAllWidgets ) {
+	QWidgetIntDictIt it( *((QWidgetIntDict*)QWidget::mapper) );
+	register QWidget *w;
+	while ( (w=it.current()) ) {
+	    if ( app_tracking > 0 ) {		// switch on
+		if ( !w->testWFlags(WState_TrackMouse) ) {
+		    w->setMouseTracking( TRUE );
+		    w->clearWFlags(WState_TrackMouse);
+		}
+	    } else {				// switch off
+		if ( !w->testWFlags(WState_TrackMouse) ) {
+		    w->setWFlags(WState_TrackMouse);
+		    w->setMouseTracking( FALSE );
+		}
+	    }
+	    ++it;
+	}
     }
 }
 
