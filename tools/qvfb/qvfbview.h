@@ -46,6 +46,7 @@ public:
 
     double zoom() const { return zm; }
 
+    QSize sizeHint() const;
 public slots:
     void setTouchscreenEmulation( bool );
 

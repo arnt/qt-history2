@@ -30,8 +30,6 @@ public:
     void enableCursor( bool e );
     void popupMenu();
 
-    QSize sizeHint() const;
-
 protected slots:
     void saveImage();
     void toggleAnimation();

@@ -145,6 +145,12 @@ QVFbView::~QVFbView()
     unlink( keyboardPipe );
 }
 
+QSize QVFbView::sizeHint() const
+{
+    int f = 2 * frameWidth();
+    return QSize( contentsWidth() + f, contentsHeight() + f );
+}
+
 void QVFbView::setGamma(double gr, double gg, double gb)
 {
     if ( viewdepth < 12 )

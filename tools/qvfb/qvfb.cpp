@@ -49,6 +49,7 @@ QVFb::QVFb( int display_id, int w, int h, int d, const QString &skin, QWidget *p
     view = 0;
     init( display_id, w, h, d, skin );
     createMenu( menuBar() );
+    adjustSize();
 }
 
 QVFb::~QVFb()
@@ -92,7 +93,7 @@ void QVFb::init( int display_id, int w, int h, int d, const QString &skin_name )
 	view->setMargin( 0 );
 	view->setFrameStyle( QFrame::NoFrame );
 	setCentralWidget( view );
-	resize(w,menuBar()->height()+h+2);
+	resize( sizeHint() );
 	view->show();
     }
 
@@ -364,10 +365,4 @@ void QVFb::updateGammaLabels()
     config->rlabel->setText(QString::number(view->gammaRed(),'g',2));
     config->glabel->setText(QString::number(view->gammaGreen(),'g',2));
     config->blabel->setText(QString::number(view->gammaBlue(),'g',2));
-}
-
-QSize QVFb::sizeHint() const
-{
-    return QSize((int)(view->displayWidth()*view->zoom()),
-	    (int)(menuBar()->height()+view->displayHeight()*view->zoom()));
 }
