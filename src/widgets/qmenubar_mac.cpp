@@ -680,13 +680,14 @@ void QMenuBar::macCreateNativeMenubar()
 void QMenuBar::macRemoveNativeMenubar()
 {
     if (mac_eaten_menubar && menubars) {
+	QList<QWidget*> removes;
 	for (QHash<QWidget *, QMenuBar *>::Iterator it = menubars->begin();
 		it != menubars->end(); ++it) {
-	    if (it.value() == this) {
-		menubars->remove(it.key());
-		it = menubars->begin();
-	    }
+	    if (it.value() == this) 
+		removes.append(it.key());
 	}
+	for(QList<QWidget*>::Iterator it = removes.begin(); it != removes.end(); ++it)
+	    menubars->remove((*it));
     }
     mac_eaten_menubar = false;
     if (this == activeMenuBar) {
