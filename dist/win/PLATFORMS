@@ -1,0 +1,33 @@
+Before you build the Qt library and example programs, you must run the
+"configure" program to set the platform information and other build
+settings.  You can use the -platform option, or set the QMAKESPEC
+environment variable to specify the operating system and compiler you
+are using.  
+
+Supported platforms and compilers:
+
+  win32-msvc
+  win32-msvc.net 
+  win32-borland
+
+Compilation problems:
+
+  Qt 3.x has problems compiling on some combinations of operating
+  system versions and compiler versions.  Information about such
+  problems will be posted on http://www.trolltech.com/platforms/
+  as we become aware of them.
+
+Example:
+
+  configure -platform win32-msvc.net -shared -debug
+
+Customization:
+
+  You can create your own custom configuration by adding new files
+  to the mkspecs directory.  Use existing similar configurations
+  as a starting point.
+
+  NOTE:
+  Custom configuration will disable the generation of MSVC specific
+  project files, nmake and borland makefiles.  General makefiles will
+  be generated instead.
