@@ -1101,8 +1101,10 @@ void QWidgetFactory::loadConnections( const QDomElement &e, QObject *connector )
 	    QStrList slotList = receiver->metaObject()->slotNames( TRUE );
 
 	    // if this is a connection to a custom slot and we have a connector, try this as receiver
-	    if ( slotList.find( conn.slot ) == -1 && receiver == toplevel && connector )
+	    if ( slotList.find( conn.slot ) == -1 && receiver == toplevel && connector ) {
 		slotList = connector->metaObject()->slotNames( TRUE );
+		receiver = connector;
+	    }
 
 	    // avoid warnings
 	    if ( signalList.find( conn.signal ) == -1 ||
