@@ -11,13 +11,14 @@ class QAbstractButtonPrivate : public QWidgetPrivate
     Q_DECLARE_PUBLIC(QAbstractButton);
 public:
     QAbstractButtonPrivate()
-        :checkable(false),checked(false),autoRepeat(false),autoExclusive(false),down(false),
-         mlbDown(false), blockRefresh(false), group(0)
+        :shortcutId(0), checkable(false), checked(false), autoRepeat(false), autoExclusive(false),
+         down(false), mlbDown(false), blockRefresh(false), group(0)
         {}
 
     QString text;
     QIconSet icon;
     QKeySequence shortcut;
+    int shortcutId;
     uint checkable :1;
     uint checked :1;
     uint autoRepeat :1;

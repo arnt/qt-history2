@@ -82,20 +82,21 @@ signals:
 protected:
     QAbstractButton(QAbstractButtonPrivate &, QWidget* parent);
 
-    virtual void paintEvent(QPaintEvent *) = 0;
+    virtual void paintEvent(QPaintEvent *e) = 0;
     virtual bool hitButton(const QPoint &pos) const;
     virtual void checkStateSet();
     virtual void nextCheckState();
 
-    void keyPressEvent(QKeyEvent *);
-    void keyReleaseEvent(QKeyEvent *);
-    void mousePressEvent(QMouseEvent *);
-    void mouseReleaseEvent(QMouseEvent *);
-    void mouseMoveEvent(QMouseEvent *);
-    void focusInEvent(QFocusEvent *);
-    void focusOutEvent(QFocusEvent *);
-    void changeEvent(QEvent *);
-    void timerEvent(QTimerEvent *);
+    bool event(QEvent *e);
+    void keyPressEvent(QKeyEvent *e);
+    void keyReleaseEvent(QKeyEvent *e);
+    void mousePressEvent(QMouseEvent *e);
+    void mouseReleaseEvent(QMouseEvent *e);
+    void mouseMoveEvent(QMouseEvent *e);
+    void focusInEvent(QFocusEvent *e);
+    void focusOutEvent(QFocusEvent *e);
+    void changeEvent(QEvent *e);
+    void timerEvent(QTimerEvent *e);
 
 public:
 #ifdef QT_COMPAT

@@ -138,7 +138,7 @@ class Q4ButtonGroupPrivate: public QObjectPrivate
 
 public:
     Q4ButtonGroupPrivate():exclusive(true){}
-    QList<QAbstractButton*> buttonList;
+    QList<QAbstractButton *> buttonList;
     QPointer<QAbstractButton> checkedButton;
     void notifyChecked(QAbstractButton *button);
     bool exclusive;
@@ -199,7 +199,7 @@ int Q4ButtonGroup::count() const
     return d->buttonList.count();
 }
 
-QAbstractButton * Q4ButtonGroup::checkedButton() const
+QAbstractButton *Q4ButtonGroup::checkedButton() const
 {
     return d->checkedButton;
 }
@@ -209,7 +209,7 @@ QList<QAbstractButton *>QAbstractButtonPrivate::queryButtonList() const
     if (group)
         return group->d->buttonList;
     if (q->parentWidget() && autoExclusive)
-        return qFindChildren<QAbstractButton*>(q->parentWidget());
+        return qFindChildren<QAbstractButton *>(q->parentWidget());
     return QList<QAbstractButton *>();
 }
 
@@ -226,7 +226,7 @@ QAbstractButton *QAbstractButtonPrivate::queryCheckedButton() const
         if (b->d->checked && b != q)
             return b;
     }
-    return checked  ? const_cast<QAbstractButton*>(q) : 0;
+    return checked  ? const_cast<QAbstractButton *>(q) : 0;
 }
 
 void QAbstractButtonPrivate::notifyChecked()
@@ -243,7 +243,6 @@ void QAbstractButtonPrivate::notifyChecked()
         }
 }
 
-
 void QAbstractButtonPrivate::moveFocus(int key)
 {
     QList<QAbstractButton *> buttonList = queryButtonList();;
@@ -253,7 +252,7 @@ void QAbstractButtonPrivate::moveFocus(int key)
     if (!fb || !buttonList.contains(fb))
         return;
 
-    QAbstractButton * candidate = 0;
+    QAbstractButton *candidate = 0;
     int bestScore = -1;
     QRect fGeometry = f->geometry();
 
@@ -380,7 +379,7 @@ void QAbstractButtonPrivate::click()
 /*!
     Constructs an abstract button with a \a parent.
 */
-QAbstractButton::QAbstractButton(QWidget* parent)
+QAbstractButton::QAbstractButton(QWidget *parent)
     :QWidget(*new QAbstractButtonPrivate, parent, 0)
 {
     d->init();
@@ -398,12 +397,11 @@ QAbstractButton::QAbstractButton(QWidget* parent)
 
 /*! \internal
  */
-QAbstractButton::QAbstractButton(QAbstractButtonPrivate &dd, QWidget* parent)
+QAbstractButton::QAbstractButton(QAbstractButtonPrivate &dd, QWidget *parent)
     :QWidget(dd, parent, 0)
 {
     d->init();
 }
-
 
 /*!
   \property QAbstractButtonPrivate::text
@@ -462,9 +460,14 @@ QIconSet QAbstractButton::icon() const
   \brief the mnemonic key associated with the button
 */
 
-void QAbstractButton::setShortcut(const QKeySequence & key)
+void QAbstractButton::setShortcut(const QKeySequence &key)
 {
+    if (d->shortcutId != 0)
+        releaseShortcut(d->shortcutId);
+    d->shortcutId = 0;
     d->shortcut = key;
+    if (!key.isEmpty())
+        d->shortcutId = grabShortcut(key);
 }
 
 QKeySequence QAbstractButton::shortcut() const
@@ -520,7 +523,6 @@ void QAbstractButton::setChecked(bool checked)
         d->notifyChecked();
     emit toggled(checked);
 }
-
 
 bool QAbstractButton::isChecked() const
 {
@@ -673,7 +675,6 @@ void QAbstractButton::toggle()
     setChecked(!d->checked);
 }
 
-
 /*! This virtual handler is called then setChecked() was called,
   unless it was called from within nextCheckState(). It allows
   subclasses to reset their intermediate button states.
@@ -683,7 +684,6 @@ void QAbstractButton::toggle()
 void QAbstractButton::checkStateSet()
 {
 }
-
 
 /*! This virtual handler is called when a checkable button was
   clicked. The default implementation calls
@@ -709,6 +709,21 @@ bool QAbstractButton::hitButton(const QPoint &pos) const
     return rect().contains(pos);
 }
 
+/*! \reimp */
+bool QAbstractButton::event(QEvent *e)
+{
+    if (e->type() == QEvent::Shortcut) {
+        QShortcutEvent *se = static_cast<QShortcutEvent *>(e);
+        if (d->shortcutId != se->shortcutId())
+            return false;
+        if (se->isAmbiguous())
+            setFocus();
+        else
+            animateClick();
+        return true;
+    }
+    return false;
+}
 
 /*! \reimp */
 void QAbstractButton::mousePressEvent(QMouseEvent *e)
@@ -767,7 +782,6 @@ void QAbstractButton::mouseMoveEvent(QMouseEvent *e)
     }
 }
 
-
 /*! \reimp */
 void QAbstractButton::keyPressEvent(QKeyEvent *e)
 {
@@ -812,7 +826,7 @@ void QAbstractButton::keyPressEvent(QKeyEvent *e)
 }
 
 /*! \reimp */
-void QAbstractButton::keyReleaseEvent(QKeyEvent * e)
+void QAbstractButton::keyReleaseEvent(QKeyEvent *e)
 {
     switch (e->key()) {
     case Key_Space:
@@ -842,14 +856,14 @@ void QAbstractButton::timerEvent(QTimerEvent *e)
 }
 
 /*! \reimp */
-void QAbstractButton::focusInEvent(QFocusEvent * e)
+void QAbstractButton::focusInEvent(QFocusEvent *e)
 {
     d->fixFocusPolicy();
     QWidget::focusInEvent(e);
 }
 
 /*! \reimp */
-void QAbstractButton::focusOutEvent(QFocusEvent * e)
+void QAbstractButton::focusOutEvent(QFocusEvent *e)
 {
     d->down = false;
     QWidget::focusOutEvent(e);
@@ -875,7 +889,7 @@ void QAbstractButton::changeEvent(QEvent *e)
 QIconSet *QAbstractButton::iconSet() const
 {
     if (!d->icon.isNull())
-        return const_cast<QIconSet*>(&d->icon);
+        return const_cast<QIconSet *>(&d->icon);
     return 0;
 }
 
