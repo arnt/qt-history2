@@ -41,22 +41,22 @@ void Config::load()
     settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
 
     selCat = settings.readListEntry( key + "CategoriesSelected" );
-    webBrows = settings.readEntry( key + "Webbrowser", "" );
-    home = settings.readEntry( key + "Homepage", "" );
+    webBrows = settings.readEntry( key + "Webbrowser" );
+    home = settings.readEntry( key + "Homepage", "index.html" );
     pdfApp = settings.readEntry( key + "PDFApplication" );
-    fontFam = settings.readEntry( key + "Family" );
+    fontFam = settings.readEntry( key + "Family", "sansserif,helvetica" );
 
-    fontFix = settings.readEntry( key + "FixedFamily" );
-    fontSiz = settings.readNumEntry( key + "Size" );
-    linkUnder = settings.readBoolEntry( key + "LinkUnderline" );
-    linkCol = settings.readEntry( key + "LinkColor" );
+    fontFix = settings.readEntry( key + "FixedFamily", "courier" );
+    fontSiz = settings.readNumEntry( key + "Size", 10 );
+    linkUnder = settings.readBoolEntry( key + "LinkUnderline", TRUE );
+    linkCol = settings.readEntry( key + "LinkColor", "#0000FF" );
     src = settings.readEntry( key + "Source" );
     sideBar = settings.readNumEntry( key + "SideBarPage" );
-    geom.setRect( settings.readNumEntry( key + "GeometryX" ),
-		  settings.readNumEntry( key + "GeometryY" ),
-		  settings.readNumEntry( key + "GeometryWidth" ),
-		  settings.readNumEntry( key + "GeometryHeight" ) );
-    maximized = settings.readBoolEntry( key + "GeometryMaximized" );
+    geom.setRect( settings.readNumEntry( key + "GeometryX", 0 ),
+		  settings.readNumEntry( key + "GeometryY", 0 ),
+		  settings.readNumEntry( key + "GeometryWidth", -1 ),
+		  settings.readNumEntry( key + "GeometryHeight", -1 ) );
+    maximized = settings.readBoolEntry( key + "GeometryMaximized", FALSE );
     mainWinLayout = settings.readEntry( key + "MainwindowLayout" );
 }
 
