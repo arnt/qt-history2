@@ -72,8 +72,8 @@ public:
     virtual void clear();
 
     // prepared query support
-    bool exec();
-    bool prepare(const QString& query);
+    virtual bool exec();
+    virtual bool prepare(const QString& query);
     void bindValue(const QString& placeholder, const QCoreVariant& val,
                    QSql::ParamType type = QSql::In);
     void bindValue(int pos, const QCoreVariant& val, QSql::ParamType type = QSql::In);
