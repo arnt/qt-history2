@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.h#50 $
+** $Id: //depot/qt/main/src/widgets/qlistview.h#51 $
 **
 ** Definition of QListView widget class
 **
@@ -178,7 +178,7 @@ public:
     virtual void setAllColumnsShowFocus( bool );
     bool allColumnsShowFocus() const;
 
-    void setItemMargin( int );
+    virtual void setItemMargin( int );
     int itemMargin() const;
 
     virtual void setRootIsDecorated( bool );
