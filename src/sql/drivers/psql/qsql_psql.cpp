@@ -267,9 +267,17 @@ QVariant QPSQLResult::data( int i )
     case QVariant::Double:
 	return QVariant( val );
     case QVariant::Date:
-	return QVariant( QDate::fromString( val, Qt::ISODate ) );
+	if ( val.isEmpty() ) {
+	    return QVariant( QDate() );
+	} else {
+	    return QVariant( QDate::fromString( val, Qt::ISODate ) );
+	}
     case QVariant::Time:
-	return QVariant( QTime::fromString( val, Qt::ISODate ) );
+	if ( val.isEmpty() ) {
+	    return QVariant( QTime() );
+	} else {
+	    return QVariant( QTime::fromString( val, Qt::ISODate ) );
+	}
     case QVariant::DateTime:
 	if ( val.length() < 10 )
 	    return QVariant( QDateTime() );
@@ -280,7 +288,11 @@ QVariant QPSQLResult::data( int i )
 	// (12 instead of 120)
 	if ( val.find( ".", val.length() - 3 ) >= 0 )
 	    val += "0";
-	return QVariant( QDateTime::fromString( val, Qt::ISODate ) );
+	if ( val.isEmpty() ) {
+	    return QVariant( QDateTime() );
+	} else {
+	    return QVariant( QDateTime::fromString( val, Qt::ISODate ) );
+	}
     case QVariant::Point:
 	return QVariant( pointFromString( val ) );
     case QVariant::Rect: // format '(x,y),(x',y')'

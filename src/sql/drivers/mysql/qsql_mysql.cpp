@@ -179,15 +179,27 @@ QVariant QMYSQLResult::data( int field )
     case QVariant::Double:
 	return QVariant( val );
     case QVariant::Date:
-	return QVariant( QDate::fromString( val, Qt::ISODate )  );
+	if ( val.isEmpty() ) {
+	    return QVariant( QDate() );
+	} else {
+	    return QVariant( QDate::fromString( val, Qt::ISODate )  );
+	}
     case QVariant::Time:
-	return QVariant( QTime::fromString( val, Qt::ISODate ) );
+	if ( val.isEmpty() ) {
+	    return QVariant( QTime() );
+	} else {
+	    return QVariant( QTime::fromString( val, Qt::ISODate ) );
+	}
     case QVariant::DateTime:
 	if ( d->fieldTypes[ field ] == FIELD_TYPE_TIMESTAMP ) {
 	    // TIMESTAMPS have the format yyyyMMddhhmmss
 	    val.insert(4, "-").insert(7, "-").insert(10, 'T').insert(13, ':').insert(16, ':');
 	}
-        return QVariant( QDateTime::fromString( val, Qt::ISODate ) );
+	if ( val.isEmpty() ) {
+	    return QVariant( QDateTime() );
+	} else {
+	    return QVariant( QDateTime::fromString( val, Qt::ISODate ) );
+	}
     case QVariant::ByteArray: {
 	MYSQL_FIELD* f = mysql_fetch_field_direct( d->result, field );
 	if ( ! ( f->flags & BLOB_FLAG ) )
