@@ -9,12 +9,14 @@
 **
 *****************************************************************************/
 
+#include <qinputdialog.h>
+#include <qlabel.h>
+#include <qobjectlist.h>
+#include "docuwindow.h"
+
 #include <qt_windows.h>
 #include <oaidl.h>
 #include "../../shared/types.h"
-#include "docuwindow.h"
-#include <qinputdialog.h>
-#include <qlabel.h>
 
 void MainWindow::changeProperties()
 {
@@ -312,13 +314,16 @@ void MainWindow::runMacro()
     if (!script)
 	return;
 
+    bool ok = FALSE;
     QStringList macroList = script->functions();
-    QString macro = QInputDialog::getItem("Select Macro", "Macro:", macroList, 0, FALSE, 0, this);
+    QString macro = QInputDialog::getItem("Select Macro", "Macro:", macroList, 0, FALSE, &ok, this);
 
-    if (macro.isEmpty())
+    if (!ok)
 	return;
 
-    script->call(macro);
+    QVariant result = script->call(macro);
+    if (result.isValid())
+	logMacro->append(QString("Return value of %1: %2").arg(macro).arg(result.asString()));
 }
 
 void MainWindow::loadScript()
@@ -354,5 +359,5 @@ void MainWindow::loadScript()
 
 void MainWindow::macroError( int code, const QString &description, int sourcePosition, const QString &sourceText )
 {
-    logMacro->append(QString("Error: %1 '%2' at %3 ('%4')").arg(code).arg(description).arg(sourcePosition).arg(sourceText));
+    logMacro->append(QString("Error: %1 '%2' at line %3 '%4'").arg(code).arg(description).arg(sourcePosition).arg(sourceText));
 }
