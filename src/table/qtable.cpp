@@ -1756,7 +1756,7 @@ QSize QCheckTableItem::sizeHint() const
     is very important to reimplement resizeData() to have no
     functionality, to prevent QTable from attempting to create a huge
     array. You will also need to reimplement item(), setItem(),
-    clearCell(), and insertWidget(), cellWidget() and
+    takeItem(), clearCell(), and insertWidget(), cellWidget() and
     clearCellWidget(). In almost every circumstance (for sorting,
     removing and inserting columns and rows, etc.), you also need
     to reimplement swapRows(), swapCells() and swapColumns(), including
