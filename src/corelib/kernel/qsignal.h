@@ -17,8 +17,6 @@
 #ifndef QT_NO_QOBJECT
 
 #include "QtCore/qobject.h"
-#include "QtCore/qmetaobject.h"
-
 
 // internal helper class for QSignal
 class Q_CORE_EXPORT QSignalEmitter : public QObject

@@ -23,8 +23,6 @@
 #include "qdesktopwidget.h"
 #include "qapplication.h"
 #include "qapplication_p.h"
-#include <private/qcolor_p.h>
-#include <private/qcursor_p.h>
 #include "qcursor.h"
 #include "qwidget.h"
 #include "qbitarray.h"
@@ -47,6 +45,8 @@
 #include "qdebug.h"
 #include <private/qunicodetables_p.h>
 #include <private/qcrashhandler_p.h>
+#include <private/qcolor_p.h>
+#include <private/qcursor_p.h>
 
 #include "qeventdispatcher_x11_p.h"
 #include <private/qpaintengine_x11_p.h>

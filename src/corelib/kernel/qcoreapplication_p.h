@@ -28,7 +28,6 @@
 #include "qobject_p.h"
 #include "qcoreapplication.h"
 #include "qtranslator.h"
-#include "qmetaobject.h"
 
 class Q_CORE_EXPORT QTranslatorList : private QList<QTranslator*>
 {
