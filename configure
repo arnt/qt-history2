@@ -1639,6 +1639,7 @@ if echo $MODULES | grep sql >/dev/null; then
     ODBC_REQ="-lodbc sql.h sqlext.h"
     TDS_REQ="-lsybdb sybfront.h sybdb.h"
     DB2_REQ="-ldb2 sqlcli.h sqlcli1.h"
+    IBASE_REQ="-lgds ibase.h"
     for _SQLDR in $CFG_SQL_AVAILABLE; do
 	case $_SQLDR in
 	mysql)
@@ -1658,6 +1659,14 @@ if echo $MODULES | grep sql >/dev/null; then
 	    ;;
 	db2)
 	    $unixtests/checkavail "DB2" $OPT_VERBOSE $DB2_REQ $L_FLAGS $I_FLAGS && CFG_SQL_AUTODETECTED="$CFG_SQL_AUTODETECTED db2"
+	    ;;
+	ibase)
+	    $unixtests/checkavail "IBASE" $OPT_VERBOSE $IBASE_REQ $L_FLAGS $I_FLAGS && CFG_SQL_AUTODETECTED="$CFG_SQL_AUTODETECTED ibase"
+	    ;;
+	sqlite)
+	    if [ -f $relpath/src/3rdparty/sqlite/sqlite.h ]; then
+		CFG_SQL_AUTODETECTED="$CFG_SQL_AUTODETECTED sqlite"
+	    fi
 	    ;;
 	*)
 	    if [ "$OPT_VERBOSE" = "yes" ]; then
@@ -2056,7 +2065,7 @@ fi
                             [ $CFG_SQL_AVAILABLE ]
 
                             Auto-Detected on this system:
-                            [ $CFG_SQL_AUTODETECTED ]
+                            [$CFG_SQL_AUTODETECTED ]
 
                             By default none of the SQL drivers are built,
 			    even if they are auto-detected.
