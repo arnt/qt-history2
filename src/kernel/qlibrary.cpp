@@ -38,6 +38,7 @@
 #include "qcomponentinterface.h"
 #ifndef QT_NO_COMPONENT
 #include "qlibrary.h"
+#define QT_DEBUG_COMPONENT
 
 #ifndef QT_H
 #include "qstring.h" // char*->QString conversion
@@ -110,21 +111,43 @@ static void* qt_resolve_symbol( const QString& symbol, void* handle )
 }
 
 #elif defined(Q_OS_MACX)
+
+//is this gross or what!?! God I love the preprocessor..
+#define OLD_T TRUE
+#define OLD_F FALSE
+#undef TRUE
+#define TRUE DYLD_TRUE
+#undef FALSE
+#define FALSE DYLD_FALSE
+#define ENUM_DYLD_BOOL
+enum DYLD_BOOL { DYLD_TRUE=1, DYLD_FALSE=0 };
+#include "mach-o/dyld.h"
+#undef bool
+#undef TRUE
+#define TRUE OLD_T
+#undef FALSE
+#define FALSE OLD_F
+
 // Mac
-static void* qt_load_library( const QString& )
+static void* qt_load_library( const QString &file )
 {
-    qWarning( "Tell vohi@trolltech.com what dl-loader implementation to use!" );
-    return 0;
+    NSObjectFileImage img;
+    if( NSCreateObjectFileImageFromFile(file, &img)  != NSObjectFileImageSuccess )
+	return NULL;
+    return NSLinkModule(img, file, TRUE);
 }
 
-static bool qt_free_library( void* )
+static bool qt_free_library( void *handle )
 {
-    return FALSE;
+    NSUnLinkModule(handle, FALSE);
+    return TRUE;
 }
 
-static void* qt_resolve_symbol( void* , const char*)
+static void* qt_resolve_symbol( void *, const char *symbol)
 {
-    return 0;
+    QCString symn2;
+    symn2.sprintf("_%s", symbol);
+    return NSAddressOfSymbol(NSLookupAndBindSymbol(symn2));
 }
 
 #else
