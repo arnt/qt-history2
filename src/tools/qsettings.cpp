@@ -563,6 +563,8 @@ QSettingsGroup QSettingsPrivate::readGroup()
     QSettingsHeading::Iterator grpit = hd.find(group);
     if (grpit == hd.end()) {
 	QStringList::Iterator it = searchPaths.begin();
+	if ( !globalScope )
+	    it++;
 	while (it != searchPaths.end()) {
 	    QString filebase = heading.lower().replace(QRegExp("\\s+"), "_");
 	    QString fn((*it++) + "/" + filebase + "rc");
@@ -597,6 +599,8 @@ void QSettingsPrivate::removeGroup(const QString &key)
     QSettingsHeading::Iterator grpit = hd.find(group);
     if (grpit == hd.end()) {
 	QStringList::Iterator it = searchPaths.begin();
+	if ( !globalScope )
+	    it++;
 	while (it != searchPaths.end()) {
 	    QString filebase = heading.lower().replace(QRegExp("\\s+"), "_");
 	    QString fn((*it++) + "/" + filebase + "rc");
@@ -648,6 +652,8 @@ void QSettingsPrivate::writeGroup(const QString &key, const QString &value)
     QSettingsHeading::Iterator grpit = hd.find(group);
     if (grpit == hd.end()) {
 	QStringList::Iterator it = searchPaths.begin();
+	if ( !globalScope )
+	    it++;
 	while (it != searchPaths.end()) {
 	    QString filebase = heading.lower().replace(QRegExp("\\s+"), "_");
 	    QString fn((*it++) + "/" + filebase + "rc");
@@ -682,6 +688,8 @@ QDateTime QSettingsPrivate::modificationTime()
     QDateTime datetime;
 
     QStringList::Iterator it = searchPaths.begin();
+    if ( !globalScope )
+	it++;
     while (it != searchPaths.end()) {
 	QFileInfo fi((*it++) + "/" + heading + "rc");
 	if (fi.exists() && fi.lastModified() > datetime)
@@ -944,6 +952,8 @@ bool QSettings::sync()
 	QFile file;
 
 	QStringList::Iterator pit = d->searchPaths.begin();
+	if ( !d->globalScope )
+	    pit++;
 	while (pit != d->searchPaths.end()) {
 	    QString filebase = it.key().lower().replace(QRegExp("\\s+"), "_");
 	    QFileInfo di(*pit);
