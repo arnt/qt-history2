@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#63 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#64 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -23,7 +23,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#63 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#64 $";
 #endif
 
 
@@ -1370,6 +1370,7 @@ static void fix_neg_rect( int *x, int *y, int *w, int *h )
     }
 }
 
+
 void QPainter::drawRect( int x, int y, int w, int h )
 {						// draw rectangle
     if ( !isActive() )
@@ -2232,8 +2233,27 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 }
 
 
+//
+// The drawText function takes two special parameters; 'internal' and 'brect'.
+//
+// The 'internal' parameter contains a pointer to an array of encoded
+// information that keeps internal geometry data.
+// If the drawText function is called repeatedly to display the same text,
+// it makes sense to calculate text width and linebreaks the first time,
+// and use these parameters later to print the text because we save a lot of
+// CPU time.
+// The 'internal' parameter will not be used if it is a null pointer.
+// The 'internal' parameter will be generated if it is not null, but points
+// to a null pointer, i.e. internal != 0 && *internal == 0.
+// The 'internal' parameter will be used if it contains a non-null pointer.
+//
+// If the 'brect parameter is a non-null pointer, then the bounding rectangle
+// of the text will be returned in 'brect'.
+//
+
 void QPainter::drawText( int x, int y, int w, int h, int tf,
-			 const char *str, int len )
+			 const char *str, int len, QRect *brect,
+			 char **internal )
 {
     if ( !isActive() )
 	return;
@@ -2251,7 +2271,7 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
     if ( testf(DirtyPen|ExtDev) ) {
 	if ( testf(DirtyPen) )
 	    updatePen();
-	if ( testf(ExtDev) ) {
+	if ( testf(ExtDev) && (tf & DontPrint) == 0 ) {
 	    QPDevCmdParam param[3];
 	    QRect r( x, y, w, h );
 	    QString newstr = str;
@@ -2272,15 +2292,28 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 
     QFontMetrics fm( cfont );			// get font metrics
 
+    struct text_info {				// internal text info
+	char  tag[4];				// contains "qptr"
+	int   w;				// width
+	int   h;				// height
+	int   tf;				// flags (alignment etc.)
+	int   len;				// text length
+	int   maxwidth;				// max text width
+	int   nlines;				// number of lines
+	int   codelen;				// length of encoding
+    };
+
     ushort codearray[200];
     int	   codelen    = 200;
     bool   code_alloc = FALSE;
     ushort *codes     = codearray;
     ushort cc 	      = 0;			// character code
+    bool   decode     = internal && *internal;	// decode from internal data
+    bool   encode     = internal && !*internal; // build internal data
 
-    if ( len > 150 ) {				// need to alloc code array
+    if ( len > 150 && !decode ) {		// need to alloc code array
 	codelen = len + len/2;
-	codes = (ushort *)malloc( sizeof(ushort)*codelen );
+	codes   = new ushort[codelen];
 	code_alloc = TRUE;
     }
 
@@ -2322,6 +2355,9 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
     index  = 1;					// first index contains BEGLINE
     begline = breakindex = breakwidth = maxwidth = bcwidth = tabindex = 0;
     k = tw = 0;
+
+    if ( decode )				// skip encoding
+	k = len;
 
     while ( k < len ) {				// convert string to codes
 
@@ -2433,18 +2469,74 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 	p++;
     }
 
-    codes[begline] = BEGLINE | MIN(tw,MAXWIDTH);
-    maxwidth = MAX(maxwidth,tw);
-    nlines++;
-    codes[index++] = 0;
-    codelen = index;
+    if ( decode ) {				// decode from internal data
+	char      *data = *internal;
+	text_info *ti   = (text_info*)data;
+	if ( strncmp(ti->tag,"qptr",4)!=0 || ti->w != w || ti->h != h ||
+	     ti->tf != tf || ti->len != len ) {
+#if defined(CHECK_STATE)
+	    warning( "QPainter::drawText: Internal text info is invalid" );
+#endif
+	    return;
+	}
+	maxwidth = ti->maxwidth;		// get internal values
+	nlines   = ti->nlines;
+	codelen  = ti->codelen;
+	codes	 = (ushort *)(data + sizeof(text_info));
+    }
+    else {
+	codes[begline] = BEGLINE | MIN(tw,MAXWIDTH);
+	maxwidth = MAX(maxwidth,tw);
+	nlines++;
+	codes[index++] = 0;
+	codelen = index;
+    }
+
+    if ( encode ) {				// build internal data
+	char      *data = new char[sizeof(text_info)+codelen*sizeof(ushort)];
+	text_info *ti   = (text_info*)data;
+	strncpy( ti->tag, "qptr", 4 );		// set tag
+	ti->w	     = w;			// save parameters
+	ti->h	     = h;
+	ti->tf	     = tf;
+	ti->len	     = len;
+	ti->maxwidth = maxwidth;
+	ti->nlines   = nlines;
+	ti->codelen  = codelen;
+	memcpy( data+sizeof(text_info), codes, codelen*sizeof(ushort) );
+	*internal = data;
+    }
 
     int     fascent  = fm.ascent();		// get font measurements
     int     fheight  = fm.height();
     QRegion save_rgn = crgn;			// save the current region
+    bool    clip_on  = testf(ClipOn);
     int     xp, yp;
     char    p_array[200];
     bool    p_alloc;
+
+    if ( (tf & AlignVCenter) == AlignVCenter )	// vertically centered text
+	yp = h/2 - nlines*fheight/2;
+    else if ( (tf & AlignBottom) == AlignBottom)// bottom aligned
+	yp = h - nlines*fheight;
+    else					// top aligned
+	yp = 0;
+    if ( (tf & AlignRight) == AlignRight )
+	xp = w - maxwidth;			// right aligned
+    else if ( (tf & AlignCenter) == AlignCenter )
+	xp = w/2 - maxwidth/2;			// centered text
+    else
+	xp = 0;					// left aligned
+
+    QRect br( x+xp, y+yp, maxwidth, nlines*fheight );
+    if ( brect )				// set bounding rect
+	*brect = br;
+
+    if ( (tf & DontPrint) != 0 ) {		// don't print any text
+	if ( code_alloc )
+	    delete codes;
+	return;
+    }
 
     if ( len > 200 ) {
 	p = new char[len];			// buffer for printable string
@@ -2456,36 +2548,24 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 	p_alloc = FALSE;
     }
 
-    if ( nlines == 1 && maxwidth < w && h > fheight )
+    if ( br.x() >= x && br.y() >= y && br.width() < w && br.height() < h )
 	tf |= DontClip;				// no need to clip
 
     if ( (tf & DontClip) == 0 )	{		// clip text
+	QRegion new_rgn;
 	QRect r( x, y, w, h );
 	if ( testf(WxF) ) {			// world xform active
 	    QPointArray a( r );			// complex region
 	    a = xForm( a );
-	    QRegion new_rgn( a );
-	    if ( testf(ClipOn) )		// add to existing region
-		new_rgn = new_rgn.intersect( crgn );
-	    setClipRegion( new_rgn );
+	    new_rgn = QRegion( a );
 	}
-	else {					// simple region
+	else {
 	    r = xForm( r );
-	    XRectangle xr;
-	    xr.x = r.x();
-	    xr.y = r.y();
-	    xr.width = r.width();
-	    xr.height = r.height();
-	    if ( testf(ClipOn) ) {		// clipping active
-		Region rgn = XCreateRegion();
-		XUnionRectWithRegion( &xr, rgn, rgn );
-		XIntersectRegion( rgn, crgn.handle(), rgn );
-		XSetRegion( dpy, gc, rgn );
-		XDestroyRegion( rgn );		// no longer needed
-	    }
-	    else				// slightly faster
-		XSetClipRectangles( dpy, gc, 0, 0, &xr, 1, YXBanded );
+	    new_rgn = QRegion( r );
 	}
+	if ( clip_on )				// add to existing region
+	    new_rgn = new_rgn.intersect( crgn );
+	setClipRegion( new_rgn );
     }
 
     QPixMap  *pm;
@@ -2509,12 +2589,6 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 	pp = 0;
     }
 
-    if ( (tf & AlignVCenter) == AlignVCenter )	// vertically centered text
-	yp = h/2 - nlines*fheight/2;
-    else if ( (tf & AlignBottom) == AlignBottom)// bottom aligned
-	yp = h - nlines*fheight;
-    else					// top aligned
-	yp = 0;
     yp += fascent;
 
     register ushort *cp = codes;
@@ -2553,7 +2627,7 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 		    else
 			fillRect( x+xp+xcpos, y+yp+fm.underlinePos(),
 				  CWIDTH( *cp&0xff ), fm.lineWidth(),
-				  cpen.color());
+				  cpen.color() );
 		}
 		p[k++] = (char)*cp++;
 		index++;
@@ -2583,47 +2657,27 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
     }
 
     if ( (tf & DontClip) == 0 ) {		// restore clipping
-	if ( testf(ClipOn) )			// set original region
-	    XSetRegion( dpy, gc, crgn.handle() );
-	else
+	if ( clip_on )				// set original region
+	    setClipRegion( crgn );
+	else {					// clipping was off
+	    crgn = save_rgn;
 	    XSetClipMask( dpy, gc, None );
-	if ( save_rgn.handle() != crgn.handle() )
-	    setClipRegion( save_rgn );
+	    if ( gc_brush )
+		XSetClipMask( dpy, gc_brush, None );
+	}
     }
 
     if ( p_alloc )
 	delete p;
     if ( code_alloc )
-	free( (void *)codes );
+	delete codes;
 }
 
 
-QRect QPainter::calcRect( int x, int y, int w, int h, int tf,
-			  const char *str, int len )
+QRect QPainter::boundingRect( int x, int y, int w, int h, int tf,
+			      const char *str, int len, char **internal )
 {
-    if ( len < 0 )
-	len = strlen( str );
-    QFontMetrics fm( cfont );
-    int fheight = fm.height();
-    if ( tf & SingleLine ) {
-	w = fm.width( str );
-	h = fheight;
-    }
-    else {
-	register char *p;
-	int n = len;
-	w = 0;
-	h = 0;
-	do {
-	    p = (char *)str;
-	    while ( n-- && *p && *p != '\n' )
-		p++;
-	    int tw = fm.width( str, (int)p-(int)str );
-	    if ( tw > w )
-		w = tw;
-	    h += fheight;
-	    str = p+1;
-	} while ( n && *p );
-    }
-    return QRect( x, y, w, h );
+    QRect brect;
+    drawText( x, y, w, h, tf, str, len, &brect, internal );
+    return brect;
 }
