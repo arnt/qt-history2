@@ -58,7 +58,7 @@ QAxFactory *qAxFactory()
         QStringList keys(qax_factory->featureList());
         for (int i = 0; i < keys.count(); ++i) {
             QString key(keys.at(i));
-            qRegisterMetaType((key + "*").latin1(), (void**)0);
+            qRegisterMetaType((key + "*").toLatin1(), (void**)0);
         }
     }
     return qax_factory;
@@ -444,7 +444,7 @@ static QByteArray renameOverloads(const QByteArray &name)
     int n = mapping.value(name);
     if (mapping.contains(name)) {
         int n = mapping.value(name);
-        newName = name + "_" + QString::number(n);
+        newName = name + "_" + QByteArray::number(n);
         mapping.insert(name, n+1);
     } else {
         mapping.insert(name, 1);
@@ -565,7 +565,7 @@ static QByteArray prototype(const QList<QByteArray> &parameterTypes, const QList
             ok = false;
             break;
         }
-        type = convertTypes(type, ok);
+        type = convertTypes(type, ok).toLatin1();
         if (!out)
             prototype += "[in] " + type + " ";
         else
@@ -1040,8 +1040,8 @@ extern "C" HRESULT __stdcall DumpIDL(const QString &outfile, const QString &ver)
             QObject *o = qAxFactory()->createObject(className);
             subtypes.append(className);
             subtypes.append(className + "*");
-            qRegisterMetaType(className, (void**)0);
-            qRegisterMetaType(className + "*", (void**)0);
+            qRegisterMetaType(className.toLatin1(), (void**)0);
+            qRegisterMetaType(className.toLatin1() + "*", (void**)0);
             delete o;
         }
     }

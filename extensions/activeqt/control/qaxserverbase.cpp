@@ -1612,7 +1612,7 @@ HMENU QAxServerBase::createPopup(QMenu *popup, HMENU oldMenu)
         QT_WA({
             AppendMenuW(popupMenu, flags, itemId, (TCHAR*)action->text().utf16());
         }, {
-            AppendMenuA(popupMenu, flags, itemId, action->text().local8Bit());
+            AppendMenuA(popupMenu, flags, itemId, action->text().toLocal8Bit());
         });
     }
     if (oldMenu)
@@ -1660,7 +1660,7 @@ void QAxServerBase::createMenu(QMenuBar *menuBar)
 	QT_WA({
 	    AppendMenuW(hmenuShared, flags, itemId, (TCHAR*)action->text().utf16());
 	} , {
-	    AppendMenuA(hmenuShared, flags, itemId, action->text().local8Bit());
+	    AppendMenuA(hmenuShared, flags, itemId, action->text().toLocal8Bit());
 	});
     }
 
@@ -2266,7 +2266,7 @@ HRESULT WINAPI QAxServerBase::Invoke(DISPID dispidMember, REFIID riid,
 	if (!cname)
 	    return res;
 
-	name = BSTRToQString(bname).latin1();
+	name = BSTRToQString(bname).toLatin1();
 	SysFreeString(bname);
     }
 
@@ -2652,7 +2652,7 @@ HRESULT WINAPI QAxServerBase::Load(IStream *pStm)
     }
 
     QBuffer qtbuffer(&qtarray);
-    qtbuffer.open(QIODevice::ReadOnly | QIODevice::Translate);
+    qtbuffer.open(QIODevice::ReadOnly | QIODevice::Text);
     QDataStream qtstream(&qtbuffer);
     int version;
     qtstream >> version;
@@ -2670,10 +2670,10 @@ HRESULT WINAPI QAxServerBase::Load(IStream *pStm)
 	qtstream >> value;
 	qtstream >> more;
 
-	int idx = mo->indexOfProperty(propname.latin1());
+	int idx = mo->indexOfProperty(propname.toLatin1());
 	QMetaProperty property = mo->property(idx);
 	if (property.isWritable())
-	    qt.object->setProperty(propname.latin1(), value);
+	    qt.object->setProperty(propname.toLatin1(), value);
     }
     return S_OK;
 }
@@ -2681,7 +2681,7 @@ HRESULT WINAPI QAxServerBase::Load(IStream *pStm)
 HRESULT WINAPI QAxServerBase::Save(IStream *pStm, BOOL clearDirty)
 {
     QBuffer qtbuffer;
-    qtbuffer.open(QIODevice::WriteOnly | QIODevice::Translate);
+    qtbuffer.open(QIODevice::WriteOnly | QIODevice::Text);
     QDataStream qtstream(&qtbuffer);
     qtstream << qtstream.version();
 

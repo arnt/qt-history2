@@ -14,25 +14,26 @@ DEPENDPATH      = ../../../../include .
 SOURCES         = main.cpp
 
 SOURCES		+= ../../../../src/core/global/qglobal.cpp \
-		   ../../../../src/core/tools/qbytearray.cpp \
-                   ../../../../src/core/tools/qbytearraymatcher.cpp \
-		   ../../../../src/core/tools/qchar.cpp \
-                   ../../../../src/core/tools/qdatetime.cpp \
-		   ../../../../src/core/tools/qlist.cpp \
-		   ../../../../src/core/tools/qlocale.cpp \
-                   ../../../../src/core/tools/qstring.cpp \
-		   ../../../../src/core/tools/qstringlist.cpp \
-		   ../../../../src/core/tools/qstringmatcher.cpp \
-		   ../../../../src/core/tools/qunicodetables.cpp \
-                   ../../../../src/core/tools/qvector.cpp \
-                   ../../../../src/core/kernel/qinternal.cpp \
+               ../../../../src/core/tools/qbytearray.cpp \
+               ../../../../src/core/tools/qbytearraymatcher.cpp \
+               ../../../../src/core/tools/qchar.cpp \
+               ../../../../src/core/tools/qdatetime.cpp \
+               ../../../../src/core/tools/qlist.cpp \
+               ../../../../src/core/tools/qlocale.cpp \
+               ../../../../src/core/tools/qstring.cpp \
+               ../../../../src/core/tools/qstringlist.cpp \
+               ../../../../src/core/tools/qstringmatcher.cpp \
+               ../../../../src/core/tools/qunicodetables.cpp \
+               ../../../../src/core/tools/qvector.cpp \
+               ../../../../src/core/tools/qvsnprintf.cpp \
+               ../../../../src/core/kernel/qinternal.cpp
 
 SOURCES		+= ../../../../src/core/io/qdir.cpp \
-                   ../../../../src/core/io/qfile.cpp \
-                   ../../../../src/core/io/qfileinfo.cpp \
-                   ../../../../src/core/io/qfileengine.cpp \
-                   ../../../../src/core/io/qiodevice.cpp \
-                   ../../../../src/core/io/qtemporaryfile.cpp
+               ../../../../src/core/io/qfile.cpp \
+               ../../../../src/core/io/qfileinfo.cpp \
+               ../../../../src/core/io/qfileengine.cpp \
+               ../../../../src/core/io/qiodevice.cpp \
+               ../../../../src/core/io/qtemporaryfile.cpp
 
 win32:SOURCES   += ../../../../src/core/io/qfileengine_win.cpp
 

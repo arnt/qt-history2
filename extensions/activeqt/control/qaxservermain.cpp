@@ -222,7 +222,7 @@ EXTERN_C int WINAPI WinMain(HINSTANCE hInstance,
 
         // Use malloc/free for eval package compability
         cmdp = (char*) malloc((cmdLine.length() + 1) * sizeof(char));
-        qstrcpy(cmdp, cmdLine.latin1());
+        qstrcpy(cmdp, cmdLine.toLatin1());
         
         HRESULT hRes = CoInitialize(0);
         

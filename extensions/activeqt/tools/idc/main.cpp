@@ -42,7 +42,7 @@ static bool attachTypeLibrary(const QString &applicationName, int resource, cons
         }
     }, {
         char *resourceName = MAKEINTRESOURCEA(resource);
-        hExe = BeginUpdateResourceA(applicationName.local8Bit(), false);
+        hExe = BeginUpdateResourceA(applicationName.toLocal8Bit(), false);
         if (hExe == 0) {
             if (errorMessage)
                 *errorMessage = QString("Failed to attach type library to binary %1 - could not open file.").arg(applicationName);
@@ -71,22 +71,22 @@ static bool registerServer(const QString &input)
 {
     bool ok = false;    
     if (input.endsWith(".exe")) {
-        ok = system((quotePath(input) + " -regserver").local8Bit()) == 0;
+        ok = system((quotePath(input) + " -regserver").toLocal8Bit()) == 0;
     } else {
         HMODULE hdll = 0;
         QT_WA({
             hdll = LoadLibraryW((TCHAR*)input.utf16());
         }, {
-            hdll = LoadLibraryA(input.local8Bit());
+            hdll = LoadLibraryA(input.toLocal8Bit());
         });
         if (!hdll) {
-            fprintf(stderr, "Couldn't load library file %s\n", (const char*)input.local8Bit());
+            fprintf(stderr, "Couldn't load library file %s\n", (const char*)input.toLocal8Bit().data());
             return false;
         }
         typedef HRESULT(__stdcall* RegServerProc)();
         RegServerProc DllRegisterServer = (RegServerProc)GetProcAddress(hdll, "DllRegisterServer");
         if (!DllRegisterServer) {
-            fprintf(stderr, "Library file %s doesn't appear to be a COM library\n", (const char*)input.local8Bit());
+            fprintf(stderr, "Library file %s doesn't appear to be a COM library\n", (const char*)input.toLocal8Bit().data());
             return false;
         }
         ok = DllRegisterServer() == S_OK;
@@ -98,22 +98,22 @@ static bool unregisterServer(const QString &input)
 {
     bool ok = false;
     if (input.endsWith(".exe")) {        
-        ok = system((quotePath(input) + " -unregserver").local8Bit()) == 0;
+        ok = system((quotePath(input) + " -unregserver").toLocal8Bit()) == 0;
     } else {
         HMODULE hdll = 0;
         QT_WA({
             hdll = LoadLibraryW((TCHAR*)input.utf16());
         }, {
-            hdll = LoadLibraryA(input.local8Bit());
+            hdll = LoadLibraryA(input.toLocal8Bit());
         });
         if (!hdll) {
-            fprintf(stderr, "Couldn't load library file %s\n", (const char*)input.local8Bit());
+            fprintf(stderr, "Couldn't load library file %s\n", (const char*)input.toLocal8Bit().data());
             return false;
         }
         typedef HRESULT(__stdcall* RegServerProc)();
         RegServerProc DllUnregisterServer = (RegServerProc)GetProcAddress(hdll, "DllUnregisterServer");
         if (!DllUnregisterServer) {
-            fprintf(stderr, "Library file %s doesn't appear to be a COM library\n", (const char*)input.local8Bit());
+            fprintf(stderr, "Library file %s doesn't appear to be a COM library\n", (const char*)input.toLocal8Bit().data());
             return false;
         }
         ok = DllUnregisterServer() == S_OK;
@@ -126,7 +126,7 @@ static HRESULT dumpIdl(const QString &input, const QString &idlfile, const QStri
     HRESULT res = E_FAIL;
     
     if (input.endsWith(".exe")) {
-        int ec = system((quotePath(input) + " -dumpidl " + idlfile + " -version " + version).local8Bit());
+        int ec = system((quotePath(input) + " -dumpidl " + idlfile + " -version " + version).toLocal8Bit());
         if (ec == 0)
             res = S_OK;
     } else {
@@ -134,16 +134,16 @@ static HRESULT dumpIdl(const QString &input, const QString &idlfile, const QStri
         QT_WA({
             hdll = LoadLibraryW((TCHAR*)input.utf16());
         }, {
-            hdll = LoadLibraryA(input.local8Bit());
+            hdll = LoadLibraryA(input.toLocal8Bit());
         });
         if (!hdll) {
-            fprintf(stderr, "Couldn't load library file %s\n", (const char*)input.local8Bit());
+            fprintf(stderr, "Couldn't load library file %s\n", (const char*)input.toLocal8Bit().data());
             return 3;
         }
         typedef HRESULT(__stdcall* DumpIDLProc)(const QString&, const QString&);
         DumpIDLProc DumpIDL = (DumpIDLProc)GetProcAddress(hdll, "DumpIDL");
         if (!DumpIDL) {
-            fprintf(stderr, "Couldn't resolve 'DumpIDL' symbol in %s\n", (const char*)input.local8Bit());
+            fprintf(stderr, "Couldn't resolve 'DumpIDL' symbol in %s\n", (const char*)input.toLocal8Bit().data());
             return 3;
         }
         res = DumpIDL(idlfile, version);
@@ -230,7 +230,7 @@ int main(int argc, char **argv)
         i++;
     }
     if (!error.isEmpty()) {
-        fprintf(stderr, error.latin1());
+        fprintf(stderr, "%s", error.toLatin1().data());
         fprintf(stderr, "\n");
         return 5;
     }
@@ -251,19 +251,19 @@ int main(int argc, char **argv)
         slashify(tlbfile);
         QFile file(tlbfile);
         if (!file.open(QIODevice::ReadOnly)) {
-            fprintf(stderr, "Couldn't open %s for read\n", (const char*)tlbfile.local8Bit());
+            fprintf(stderr, "Couldn't open %s for read\n", (const char*)tlbfile.toLocal8Bit().data());
             return 4;
         }
         QByteArray data = file.readAll();
         QString error;
         bool ok = attachTypeLibrary(input, 1, data, &error);
-        fprintf(stderr, error.latin1());
+        fprintf(stderr, "%s", error.toLatin1().data());
         fprintf(stderr, "\n");
         return ok ? 0 : 4;
     } else if (!idlfile.isEmpty()) {
         slashify(idlfile);
         idlfile = quotePath(idlfile);
-        fprintf(stderr, "\n\n%s\n\n", (const char*)idlfile.local8Bit());
+        fprintf(stderr, "\n\n%s\n\n", (const char*)idlfile.toLocal8Bit().data());
         quotePath(input);
         HRESULT res = dumpIdl(input, idlfile, version);
         
@@ -271,29 +271,29 @@ int main(int argc, char **argv)
         case S_OK:
             break;
         case -1:
-            fprintf(stderr, "Couldn't open %s for writing!\n", (const char*)idlfile.local8Bit());
+            fprintf(stderr, "Couldn't open %s for writing!\n", (const char*)idlfile.toLocal8Bit().data());
             return res;
         case 1:
-            fprintf(stderr, "Malformed appID value in %s!\n", (const char*)input.local8Bit());
+            fprintf(stderr, "Malformed appID value in %s!\n", (const char*)input.toLocal8Bit().data());
             return res;
         case 2:
-            fprintf(stderr, "Malformed typeLibID value in %s!\n", (const char*)input.local8Bit());
+            fprintf(stderr, "Malformed typeLibID value in %s!\n", (const char*)input.toLocal8Bit().data());
             return res;
         case 3:
-            fprintf(stderr, "Class has no metaobject information (error in %s)!\n", (const char*)input.local8Bit());
+            fprintf(stderr, "Class has no metaobject information (error in %s)!\n", (const char*)input.toLocal8Bit().data());
             return res;
         case 4:
-            fprintf(stderr, "Malformed classID value in %s!\n", (const char*)input.local8Bit());
+            fprintf(stderr, "Malformed classID value in %s!\n", (const char*)input.toLocal8Bit().data());
             return res;
         case 5:
-            fprintf(stderr, "Malformed interfaceID value in %s!\n", (const char*)input.local8Bit());
+            fprintf(stderr, "Malformed interfaceID value in %s!\n", (const char*)input.toLocal8Bit().data());
             return res;
         case 6:
-            fprintf(stderr, "Malformed eventsID value in %s!\n", (const char*)input.local8Bit());
+            fprintf(stderr, "Malformed eventsID value in %s!\n", (const char*)input.toLocal8Bit().data());
             return res;
             
         default:
-            fprintf(stderr, "Unknown error writing IDL from %s\n", (const char*)input.local8Bit());
+            fprintf(stderr, "Unknown error writing IDL from %s\n", (const char*)input.toLocal8Bit().data());
             return 7;
         }
     }
