@@ -39,6 +39,7 @@ HEADERS += \
     qdesigner_stackedbox.h \
     qdesigner_tabwidget.h \
     qdesigner_toolbox.h \
+    qdesigner_dnditem.h \
     widgetfactory.h \
     widgetdatabase.h \
     promotetocustomwidgetdialog.h \
@@ -57,6 +58,7 @@ SOURCES += \
     qdesigner_widget.cpp \
     qdesigner_propertysheet.cpp \
     qdesigner_integration.cpp \
+    qdesigner_dnditem.cpp \
     invisible_widget.cpp \
     tree_widget.cpp \
     sheet_delegate.cpp \
