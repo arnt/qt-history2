@@ -2548,6 +2548,8 @@ int QTextDocument::length() const
 
 int QTextFormat::width( const QChar &c ) const
 {
+    if ( c.unicode() == 0xad ) // soft hyphen
+	return 0;
     if ( !painter || !painter->isActive() ) {
 	if ( c == '\t' )
 	    return fm.width( 'x' ) * 8;
@@ -2581,6 +2583,8 @@ int QTextFormat::width( const QChar &c ) const
 int QTextFormat::width( const QString &str, int pos ) const
 {
     int w;
+    if ( str[ pos ].unicode() == 0xad )
+	return 0;
     if ( !painter || !painter->isActive() ) {
 	if ( ha == AlignNormal ) {
 	    w = fm.charWidth( str, pos );
@@ -2833,10 +2837,12 @@ void QTextStringChar::setCustomItem( QTextCustomItem *i )
     d.custom->custom = i;
 }
 
-int QTextString::width(int idx) const
+int QTextString::width( int idx ) const
 {
      int w = 0;
      QTextStringChar *c = &at( idx );
+     if ( c->c.unicode() == 0xad )
+	 return 0;
      if( c->isCustom() ) {
 	 if( c->customItem()->placement() == QTextCustomItem::PlaceInline )
 	     w = c->customItem()->width;
@@ -3383,6 +3389,8 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 	cw = string()->width( i );
 	if ( chr->c == '\t' && i < length() - 1 )
 	    cw = at( i + 1 )->x - chr->x + 1;
+	if ( chr->c.unicode() == 0xad && i < length() - 1 )
+	    cw = 0;
 
 	// init a new line
 	if ( chr->lineStart ) {
@@ -3438,7 +3446,8 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 	       lastDirection != (bool)chr->rightToLeft ||
 	       chr->startOfRun ||
 	       lastY != cy || chr->format() != lastFormat ||
-	       (paintEnd != -1 && at(paintEnd)->c =='\t') || chr->c == '\t' ||
+	       ( paintEnd != -1 && at( paintEnd )->c =='\t' ) || chr->c == '\t' ||
+	       ( paintEnd != -1 && at( paintEnd )->c.unicode() == 0xad ) || chr->c.unicode() == 0xad ||
 	       selectionChange || chr->isCustom() ) ) {
 	    if ( paintStart <= paintEnd ) {
 		// ### temporary hack until I get the new placement/shaping stuff working
@@ -3551,11 +3560,14 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
     }
 }
 
-void QTextParag::drawParagString( QPainter &painter, const QString &str, int start, int len, int startX,
+void QTextParag::drawParagString( QPainter &painter, const QString &s, int start, int len, int startX,
 				      int lastY, int baseLine, int bw, int h, bool drawSelections,
 				      QTextFormat *lastFormat, int i, const QArray<int> &selectionStarts,
 				      const QArray<int> &selectionEnds, const QColorGroup &cg, bool rightToLeft )
 {
+    QString str( s );
+    if ( str[ (int)str.length() - 1 ].unicode() == 0xad )
+	str.remove( str.length() - 1, 1 );
     painter.setPen( QPen( lastFormat->color() ) );
     painter.setFont( lastFormat->font() );
 
@@ -3584,7 +3596,7 @@ void QTextParag::drawParagString( QPainter &painter, const QString &str, int sta
     QPainter::TextDirection dir = QPainter::LTR;
     if ( rightToLeft )
 	dir = QPainter::RTL;
-    if ( str[start] != '\t' ) {
+    if ( str[ start ] != '\t' && str[ start ].unicode() != 0xad ) {
 	if ( lastFormat->vAlign() == QTextFormat::AlignNormal ) {
 	    painter.drawText( startX, lastY + baseLine, str, start, len, dir );
 	} else if ( lastFormat->vAlign() == QTextFormat::AlignSuperScript ) {
@@ -4254,6 +4266,8 @@ bool QTextFormatter::isBreakable( QTextString *string, int pos ) const
     const QChar &c = string->at( pos ).c;
     char ch = c.latin1();
     if ( c.isSpace() && ch != '\n' )
+	return TRUE;
+    if ( c.unicode() == 0xad ) // soft hyphen
 	return TRUE;
     if ( !ch ) {
 	// not latin1, need to do more sophisticated checks for other scripts
@@ -5579,6 +5593,7 @@ static QMap<QCString, QChar> *htmlMap()
   	html_map->insert( "sol", '/' );
   	html_map->insert( "bsol", '\\');
   	html_map->insert( "lowbar", '_');
+  	html_map->insert( "shy", '\xad');
     }
     return html_map;
 }
