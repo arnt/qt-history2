@@ -14,7 +14,7 @@ unix {
 win32 {
 	OBJECTS_DIR = obj
         
-        !contains(LIBS, .*mysql,*) {
+        !contains(LIBS, .*mysql.*) {
 	    LIBS    *= libmysql.lib
         }
 #	win32-msvc: {
