@@ -307,10 +307,10 @@ public:
 	    if (!var.isValid())
 		return S_OK;
 
-	    void *argv = var.data();
+	    void *argv[] = {0, var.data()};
 
 	    // emit the "changed" signal
-	    combase->qt_metacall(QMetaObject::EmitSignal, index, &argv);
+	    combase->qt_metacall(QMetaObject::EmitSignal, index, argv);
 	}
 	return S_OK;
     }
@@ -2616,23 +2616,28 @@ int QAxBase::internalProperty(QMetaObject::Call call, int index, void **v)
 	break;
 
     case QMetaObject::WriteProperty:
-	params.cArgs = 1;
-	params.cNamedArgs = 1;
-	params.rgdispidNamedArgs = &dispidNamed;
-	params.rgvarg = &arg;
-
-	arg.vt = VT_ERROR;
-	arg.scode = DISP_E_TYPEMISMATCH;
-
-	// map void* to VARIANTARG.
-	QVariantToVARIANT(QCoreVariant(QCoreVariant::nameToType(prop.type()), v[0]), arg, prop.type());
-	if ( arg.vt == VT_EMPTY ) {
+	{
+	    params.cArgs = 1;
+	    params.cNamedArgs = 1;
+	    params.rgdispidNamedArgs = &dispidNamed;
+	    params.rgvarg = &arg;
+	    
+	    arg.vt = VT_ERROR;
+	    arg.scode = DISP_E_TYPEMISMATCH;
+	    
+	    // map void* to VARIANTARG.
+	    if (!prop.isEnumType()) {
+		QVariantToVARIANT(QCoreVariant(QCoreVariant::nameToType(prop.type()), v[0]), arg, prop.type());
+	    } else {
+		QVariantToVARIANT(QVariant(QVariant::Int, v[0]), arg, prop.type());
+	    }
+	    if ( arg.vt == VT_EMPTY ) {
 #ifndef QT_NO_DEBUG
-	    qWarning( "QAxBase::setProperty(): Unhandled property type" );
+		qWarning( "QAxBase::setProperty(): Unhandled property type" );
 #endif
-	    break;
+		break;
+	    }
 	}
-
 	hres = disp->Invoke( dispid, IID_NULL, LOCALE_USER_DEFAULT, DISPATCH_PROPERTYPUT, &params, 0, &excepinfo, &argerr );
 	break;
 
