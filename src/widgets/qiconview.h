@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.h#71 $
+** $Id: //depot/qt/main/src/widgets/qiconview.h#72 $
 **
 ** Definition of QIconView widget class
 **
@@ -378,6 +378,7 @@ public slots:
     virtual void alignItemsInGrid( const QSize &grid, bool update = TRUE );
     virtual void alignItemsInGrid( bool update = TRUE );
     virtual void setContentsPos( int x, int y );
+    virtual void updateContents();
 
 signals:
     void selectionChanged();
@@ -414,8 +415,7 @@ protected slots:
     virtual void adjustItems();
     virtual void slotUpdate();
     virtual void selectHighlightedItem();
-    virtual void updateContents();
-    
+
 private slots:
     void clearInputString();
 
