@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/etc/trial/qapp_trial.cpp#5 $
+** $Id: //depot/qt/main/etc/trial/qapp_trial.cpp#6 $
 **
 **		     ***   STRICTLY CONFIDENTIAL   ***
 **
@@ -476,14 +476,14 @@ static void extract_trial_info()
     if ( strncmp(trial_data,"2502200483trial",15)== 0 ) {
 #if defined(_OS_WIN32_)
 	MessageBox( 0,
-		    "The registration data is uninitialized.\n"
+		    "Incomplete trial registration data.\n"
 		    "Please report to qt-bugs@troll.no.",
 		    "Qt Internal Error",
 		    MB_OK | MB_ICONERROR );
 	ExitProcess( 1 );
 #else
 	fprintf( stderr, "Qt Internal Error:\n  "
-		 "The registration data is uninitialized. "
+		 "Incomplete trial registration data. "
 		 "Please report to qt-bugs@troll.no.\n" );
 	exit( 1 );
 #endif
@@ -520,14 +520,14 @@ static void extract_trial_info()
     if ( !ok ) {
 #if defined(_OS_WIN32_)
 	MessageBox( 0,
-		    "The registration data is invalid.\n"
+		    "The trial registration data is invalid.\n"
 		    "Please report to qt-bugs@troll.no.",
 		    "Qt Internal Error",
 		    MB_OK | MB_ICONERROR );
 	ExitProcess( 1 );
 #else
 	fprintf( stderr, "Qt Internal Error:\n  "
-		 "The registration data is invalid. "
+		 "The trial registration data is invalid. "
 		 "Please report to qt-bugs@troll.no.\n" );
 	exit( 1 );
 #endif
@@ -539,16 +539,22 @@ static void extract_trial_info()
     int ndays = today_date.daysTo( trial_date );
     if ( ndays < 0 ) {
 #if defined(_OS_WIN32_)
-	MessageBox( 0,
-		    "The 30 day trial period has ended, please contact\n"
-		    "sales@troll.no for pricing and purchasing information.",
-		    "Qt Trial Ended",
-		    MB_OK | MB_ICONERROR );
+	MessageBox(
+	  0,
+	  "This software is using the trial version of the Qt GUI toolkit.\n"
+	  "The 30 day trial period has expired.  If you need more time to\n"
+	  "evaluate Qt, or if you have any questions about Qt, contact us\n"
+	  "at sales@troll.no.",
+	  "Qt Trial Expired",
+	  MB_OK | MB_ICONERROR );
 	ExitProcess( 1 );
 #else
-	fprintf( stderr, "Qt Trial Ended:\n  "
-		    "The 30 day trial period has ended, please contact\n  "
-		    "sales@troll.no for pricing and purchasing information." );
+	fprintf( stderr,
+	  "Qt Trial Expired:\n  "
+	  "This software is using the trial version of the Qt GUI toolkit.\n"
+	  "The 30 day trial period has expired.  If you need more time to\n"
+	  "evaluate Qt, or if you have any questions about Qt, contact us\n"
+	  "at sales@troll.no." );,
 	exit( 1 );
 #endif
     }
