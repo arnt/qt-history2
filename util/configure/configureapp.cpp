@@ -466,8 +466,10 @@ bool Configure::displayHelp()
 
 	cout << "-plugin-imgfmt-<format> Enable format (PNG, JPEG, or MNG) to" << endl;
 	cout << "                        be linked to at runtime." << endl;
-	cout << "-qt-imgfmt-<format>     Enable fomrat (PNG, JPEG, or MNG) to" << endl;
+	cout << "-qt-imgfmt-<format>     Enable format (PNG, JPEG, or MNG) to" << endl;
+	cout << "                        be linked into Qt." << endl;
 	cout << "-no-imgfmt-<format>     Fully disable format (PNG, JPEG, or MNG)" << endl << endl;
+	cout << "                        from Qt." << endl;
 
 	cout << "-qt-png            * Compile in PNG support." << endl;
 	cout << "-system-png          Use existing libPNG in system." << endl  << endl;
