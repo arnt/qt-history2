@@ -15,19 +15,6 @@
 #include <qt_windows.h>
 #endif
 
-/*
-    The numeric values of these enums define their search order. For example,
-    F_User | F_Organization is searched before F_Global |
-    F_Application, because their values are respectively 1 and 2.
-*/
-enum {
-    F_Application = 0x0,
-    F_Organization = 0x1,
-    F_User = 0x0,
-    F_Global = 0x2,
-    NumConfFiles = 4
-};
-
 class QSettingsKey : public QString
 {
 public:
@@ -177,6 +164,18 @@ protected:
 class QConfFileSettingsPrivate : public QSettingsPrivate
 {
 public:
+    /*
+    The numeric values of these enums define their search order. For example,
+    F_User | F_Organization is searched before F_Global |
+    F_Application, because their values are respectively 1 and 2.
+    */
+    enum {
+       F_Application = 0x0,
+       F_Organization = 0x1,
+       F_User = 0x0,
+       F_Global = 0x2,
+       NumConfFiles = 4
+    };
     QConfFileSettingsPrivate(Qt::SettingsFormat format, Qt::SettingsScope scope,
                              const QString &organization, const QString &application);
     QConfFileSettingsPrivate(const QString &fileName, Qt::SettingsFormat format);
