@@ -164,16 +164,6 @@ void QXtWidget::init(const char* name, WidgetClass widget_class,
     } else {
 	Q_ASSERT(!managed);
 
-	ArgList realargs = new Arg[num_args + 3];
-	Cardinal nargs = num_args;
-	memcpy(realargs, args, sizeof(Arg) * nargs);
-
-	if (qparent) {
-	    // make sure the shell is created on the same screen as its QWidget parent
-	    XtSetArg(realargs[nargs++], XtNscreen,
-		     ScreenOfDisplay(qparent->x11Display(), qparent->x11Screen()));
-	}
-
 	String n, c;
 	XtGetApplicationNameAndClass(qt_xdisplay(), &n, &c);
 	xtw = XtAppCreateShell(n, c, widget_class, qt_xdisplay(),

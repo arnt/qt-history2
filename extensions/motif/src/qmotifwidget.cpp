@@ -219,7 +219,7 @@ QMotifWidget::QMotifWidget( QWidget *parent, WidgetClass widgetclass,
 
     if ( ! motifparent || ( widgetclass == applicationShellWidgetClass ||
 			    widgetclass == topLevelShellWidgetClass ) ) {
-	ArgList realargs = new Arg[argcount + 4];
+	ArgList realargs = new Arg[argcount + 3];
 	Cardinal nargs = argcount;
 	memcpy( realargs, args, sizeof( Arg ) * argcount );
 
@@ -232,12 +232,6 @@ QMotifWidget::QMotifWidget( QWidget *parent, WidgetClass widgetclass,
 		      QPaintDevice::x11AppColormap() );
 	    XtSetArg( realargs[ nargs++ ], XtNdepth,
 		      QPaintDevice::x11AppDepth() );
-	}
-
-	if (parent) {
-	    // make sure the shell is created on the same screen as its QWidget parent
-	    XtSetArg(realargs[nargs++], XtNscreen,
-		     ScreenOfDisplay(parent->x11Display(), parent->x11Screen()));
 	}
 
 	d->shell = XtAppCreateShell( name, name, qmotifWidgetShellWidgetClass,
