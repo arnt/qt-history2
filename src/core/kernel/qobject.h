@@ -170,7 +170,7 @@ public slots:
     void deleteLater();
 
 protected:
-    QObject *sender();
+    QObject *sender() const;
     int receivers(const char* signal) const;
 
     virtual bool event(QEvent *);

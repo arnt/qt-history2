@@ -114,13 +114,15 @@ enum ProperyFlags  {
     ResolveEditable = 0x00080000
 };
 
-enum FunctionFlags  {
+enum MethodFlags  {
     AccessPrivate = 0x01,
     AccessPublic = 0x02,
     AccessProtected = 0x04,
     AccessMask = 0x07, //mask
     Compatability = QMetaMember::Compatability,
-    Cloned = QMetaMember::Cloned
+    Cloned = QMetaMember::Cloned,
+    MethodScriptable = QMetaMember::Scriptable,
+    NoConnect = QMetaMember::NoConnect
 };
 
 struct QMetaObjectPrivate

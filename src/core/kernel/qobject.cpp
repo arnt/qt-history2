@@ -1753,7 +1753,7 @@ void QObjectPrivate::resetActive(Connections *connections, bool was_active)
      undefined if the slot is called as a normal C++ function.
 */
 
-QObject *QObject::sender()
+QObject *QObject::sender() const
 {
     if (d->senders) return d->senders->current;
     return 0;
@@ -1938,13 +1938,20 @@ bool QObject::connect(const QObject *sender, const char *signal,
             member_index = rmeta->indexOfSignal(member);
             break;
         }
-        if (member_index < 0) {
+    }
+
+    // filter NoSlot slots from Q_SCRIPTABLE
+    if (membcode == QSLOT_CODE
+        && member_index >= 0
+        && (rmeta->slot(member_index).attributes() & QMetaMember::NoConnect))
+        member_index = -1;
+
+    if (member_index < 0) {
 #ifndef QT_NO_DEBUG
-            err_member_notfound(membcode, receiver, member, "connect");
-            err_info_about_objects("connect", sender, receiver);
+        err_member_notfound(membcode, receiver, member, "connect");
+        err_info_about_objects("connect", sender, receiver);
 #endif
-            return false;
-        }
+        return false;
     }
 #ifndef QT_NO_DEBUG
     if (!QMetaObject::checkConnectArgs(signal, member)) {

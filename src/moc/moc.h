@@ -34,7 +34,7 @@ struct ArgumentDef
 
 struct FunctionDef
 {
-    FunctionDef(): access(Private), isConst(false), inlineCode(false), wasCloned(false), isCompat(false) {}
+    FunctionDef(): access(Private), isConst(false), inlineCode(false), wasCloned(false), isCompat(false), isScriptable(false), noConnect(false) {}
     QByteArray type, normalizedType;
     QByteArray tag;
     QByteArray name;
@@ -49,6 +49,8 @@ struct FunctionDef
 
     QByteArray inPrivateClass;
     bool isCompat;
+    bool isScriptable;
+    bool noConnect;
 };
 
 struct PropertyDef
@@ -83,7 +85,7 @@ struct ClassDef {
 
     bool hasQObject;
 
-    QList<FunctionDef> signalList, slotList, candidateList;
+    QList<FunctionDef> signalList, slotList, publicList;
     QList<PropertyDef> propertyList;
     QList<ClassInfoDef> classInfoList;
     QMap<QByteArray, bool> enumDeclarations;
@@ -130,6 +132,7 @@ public:
     QByteArray lexemUntil(Token);
     inline void prev() {--index;}
     Token lookup(int k = 1);
+    inline const Symbol &symbol_lookup(int k = 1) { return symbols.at(index-1+k);}
     inline Token token() { return symbols.at(index-1).token;}
     inline QByteArray lexem() { return symbols.at(index-1).lexem();}
     inline const Symbol &symbol() { return symbols.at(index-1);}
@@ -156,7 +159,7 @@ public:
     bool parseEnum(EnumDef *def);
 
     void parseFunction(FunctionDef *def, bool inMacro = false);
-    bool parsePropertyCandidate(FunctionDef *def);
+    bool parsePublicFunction(FunctionDef *def);
 
     void parseSlots(ClassDef *def, FunctionDef::Access access);
     void parseSignals(ClassDef *def);

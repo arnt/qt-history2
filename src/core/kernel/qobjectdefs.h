@@ -46,6 +46,7 @@ class QByteArray;
 #define Q_FLAGS(x)
 #ifdef QT_COMPAT
 # define Q_SETS(x)
+#define Q_SCRIPTABLE
 #endif
 
 #ifndef QT_NO_TRANSLATION

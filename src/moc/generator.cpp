@@ -36,12 +36,14 @@ enum ProperyFlags  {
     Editable = 0x00040000,
     ResolveEditable = 0x00080000
 };
-enum FunctionFlags {
+enum MethodFlags {
     AccessPrivate = 0x01,
     AccessPublic = 0x02,
     AccessProtected = 0x04,
     Compatability = 0x08,
-    Cloned = 0x10
+    Cloned = 0x10,
+    MethodScriptable = 0x20,
+    NoConnect = 0x40
 };
 
 /*
@@ -361,16 +363,20 @@ void Generator::generateFunctions(QList<FunctionDef>& list, const char *functype
         sig += ')';
 
         char flags = 0;
-        if(f.access == FunctionDef::Private)
+        if (f.access == FunctionDef::Private)
             flags |= AccessPrivate;
-        else if(f.access == FunctionDef::Public)
+        else if (f.access == FunctionDef::Public)
             flags |= AccessPublic;
-        else if(f.access == FunctionDef::Protected)
+        else if (f.access == FunctionDef::Protected)
             flags |= AccessProtected;
-        if(f.isCompat)
+        if (f.isCompat)
             flags |= Compatability;
-        if(f.wasCloned)
+        if (f.wasCloned)
             flags |= Cloned;
+        if (f.isScriptable)
+            flags |= MethodScriptable;
+        if (f.noConnect)
+            flags |= NoConnect;
         fprintf(out, "    %4d, %4d, %4d, %4d, 0x%02x,\n", strreg(sig),
                 strreg(arguments), strreg(f.normalizedType), strreg(f.tag), flags);
     }
@@ -386,8 +392,8 @@ void Generator::generateProperties()
         PropertyDef &p = cdef->propertyList[i];
         if (p.read.isEmpty())
             continue;
-        for (int j = 0; j < cdef->candidateList.count(); ++j) {
-            const FunctionDef &f = cdef->candidateList.at(j);
+        for (int j = 0; j < cdef->publicList.count(); ++j) {
+            const FunctionDef &f = cdef->publicList.at(j);
             if (f.name != p.read)
                 continue;
             if (!f.isConst) // get  functions must be const
@@ -514,7 +520,7 @@ void Generator::generateMetacall()
     fprintf(out, "    ");
 
     bool needElse = false;
-    if(cdef->slotList.size()) {
+    if (cdef->slotList.size()) {
         needElse = true;
         fprintf(out, "if (_c == QMetaObject::InvokeSlot) {\n");
         fprintf(out, "        switch (_id) {\n");
@@ -544,7 +550,7 @@ void Generator::generateMetacall()
                  "        _id -= %d;\n"
                  "    }", cdef->slotList.count());
     }
-    if(cdef->signalList.size()) {
+    if (cdef->signalList.size()) {
         if (needElse)
             fprintf(out, " else ");
         needElse = true;

@@ -371,20 +371,28 @@ void Moc::parseFunction(FunctionDef *def, bool inMacro)
     default:
         ;
     }
-    if(test(QT_MOC_COMPAT_TOKEN))
-        def->isCompat = true;
+
     def->type = parseType();
+    if (def->type.isEmpty())
+        return;
     if (test(LPAREN)) {
         def->name = def->type;
         def->type = "int";
     } else {
-        next(IDENTIFIER);
-        do {
-            if (!def->tag.isEmpty())
-                def->tag += ' ';
-            def->tag += def->name;
-            def->name = lexem();
-        } while (test(IDENTIFIER));
+        def->name = parseType();
+        while (lookup() == IDENTIFIER) {
+            if (def->type == "QT_MOC_COMPAT" || def->type == "QT_COMPAT")
+                def->isCompat = true;
+            else if (def->type == "Q_SCRIPTABLE")
+                def->isScriptable = true;
+            else {
+                if (!def->tag.isEmpty())
+                    def->tag += ' ';
+                def->tag += def->type;
+            }
+            def->type = def->name;
+            def->name = parseType();
+        }
         next(LPAREN, "Variable as signal or slot");
     }
 
@@ -411,7 +419,7 @@ void Moc::parseFunction(FunctionDef *def, bool inMacro)
 }
 
 // like parseFunction, but never aborts with an error
-bool Moc::parsePropertyCandidate(FunctionDef *def)
+bool Moc::parsePublicFunction(FunctionDef *def)
 {
     def->type = parseType();
     if (def->type.isEmpty())
@@ -420,14 +428,20 @@ bool Moc::parsePropertyCandidate(FunctionDef *def)
         def->name = def->type;
         def->type = "int";
     } else {
-        if (!test(IDENTIFIER))
-            return false;
-        do {
-            if (!def->tag.isEmpty())
-                def->tag += ' ';
-            def->tag += def->name;
-            def->name = lexem();
-        } while (test(IDENTIFIER));
+        def->name = parseType();
+        while (lookup() == IDENTIFIER) {
+            if (def->type == "QT_MOC_COMPAT" || def->type == "QT_COMPAT")
+                def->isCompat = true;
+            else if (def->type == "Q_SCRIPTABLE")
+                def->isScriptable = true;
+            else {
+                if (!def->tag.isEmpty())
+                    def->tag += ' ';
+                def->tag += def->type;
+            }
+            def->type = def->name;
+            def->name = parseType();
+        }
         if (!test(LPAREN))
             return false;
     }
@@ -549,11 +563,15 @@ void Moc::parse()
                 default:
                     if (access == FunctionDef::Public) {
                         FunctionDef funcDef;
+                        funcDef.noConnect = true;
                         int rewind = index;
-                        if (parsePropertyCandidate(&funcDef))
-                            def.candidateList += funcDef;
-                        else
+                        if (parsePublicFunction(&funcDef)) {
+                            def.publicList += funcDef;
+                            if (funcDef.isScriptable)
+                                def.slotList += funcDef;
+                        } else {
                             index = rewind;
+                        }
                     }
                 }
             }
