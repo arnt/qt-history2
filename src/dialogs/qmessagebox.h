@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmessagebox.h#22 $
+** $Id: //depot/qt/main/src/dialogs/qmessagebox.h#23 $
 **
 ** Definition of QMessageBox class
 **
@@ -23,10 +23,18 @@ class QMessageBox : public QDialog
 {
     Q_OBJECT
 public:
+    enum Icon { NoIcon = 0, Information = 1, Warning = 2, Critical = 3 };
+
+    QMessageBox( QWidget *parent=0, const char *name=0 );
+    QMessageBox( const char *caption, const char *text, Icon icon,
+		 int button1, int button2, int button3,
+		 QWidget *parent=0, const char *name=0, bool modal=TRUE,
+		 WFlags f=0 );
+   ~QMessageBox();
+
     enum { OK = 1, Cancel = 2, Yes = 3, No = 4, Abort = 5, Retry = 6,
 	   Ignore = 7, ButtonMask = 0x07,
 	   Default = 0x100, Escape = 0x200, FlagMask = 0x300 };
-    enum Icon { NoIcon = 0, Information = 1, Warning = 2, Critical = 3 };
 
     static int information( QWidget *parent, const char *caption,
 			    const char *text,
@@ -38,6 +46,9 @@ public:
 			 const char *text,
 			 int button1, int button2, int button3=0 );
 
+    static void about( QWidget *parent, const char *caption,
+		       const char *text );
+
 #if 1 /* OBSOLETE */
     static int message( const char *caption,
 			const char *text,  const char *buttonText=0,
@@ -48,13 +59,6 @@ public:
 		       const char *noButtonText=0,
 		       QWidget *parent=0, const char *name=0 );
 #endif
-
-    QMessageBox( QWidget *parent=0, const char *name=0 );
-    QMessageBox( const char *caption, const char *text, Icon icon,
-		 int button1, int button2, int button3,
-		 QWidget *parent=0, const char *name=0, bool modal=TRUE,
-		 WFlags f=0 );
-   ~QMessageBox();
 
     void	show();
 

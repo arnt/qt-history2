@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#36 $
+** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#37 $
 **
 ** Implementation of QMessageBox class
 **
@@ -16,7 +16,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#36 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#37 $");
 
 // Message box icons, from page 210 of the Windows style guide.
 
@@ -854,6 +854,46 @@ int QMessageBox::critical( QWidget *parent,
     delete mb;
     return reply;
 }
+
+
+/*!  Displays a simple about box with window caption \a caption and
+  body text \a text.
+
+  about() looks for a suitable icon for the box in four locations:
+  <ol> <li>It prefers \a link QWidget::icon() parent->icon() \endlink
+  if that exists.  <li>If not, it tries the top level widget
+  containing \a parent <li>If that too fails, it tries the \link
+  QApplication::mainWidget() main widget. \endlink <li>As a last
+  resort it uses the Information icon. </ol>
+
+  The about box has a single button labelled OK.
+
+  \sa QWidget::icon() QApplication::mainWidget()
+*/
+
+void QMessageBox::about( QWidget *parent, const char *caption,
+			 const char *text )
+{
+    QMessageBox *mb = new QMessageBox( caption, text,
+				       Information,
+				       OK, 0, 0, 
+				       parent, "simple about box" );
+    CHECK_PTR( mb );
+    QPixmap i;
+    if ( parent && parent->icon())
+	i = *(parent->icon());
+    if ( i.isNull() && parent &&
+	 parent->topLevelWidget()->icon() )
+	i = *(parent->topLevelWidget()->icon());
+    if ( i.isNull() && qApp && qApp->mainWidget() &&
+	 qApp->mainWidget()->icon() )
+	i = *(qApp->mainWidget()->icon());
+    if ( !i.isNull() )
+	mb->setIconPixmap( i );
+    mb->exec();
+    delete mb;
+}
+
 
 void QMessageBox::setStyle( GUIStyle s )
 {
