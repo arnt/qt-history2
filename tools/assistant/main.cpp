@@ -8,6 +8,7 @@
 #include <qdir.h>
 #include <qmessagebox.h>
 #include <stdlib.h>
+#include <iostreams.h>
 
 #include "assistant.h"
 #include "mainwindow.h"
