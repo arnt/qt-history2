@@ -92,7 +92,7 @@ public:
     virtual bool isContainer( const QString &widget ) const = 0;
 };
 
-#if CONTAINER_CUSTOM_WIDGETS
+#ifdef CONTAINER_CUSTOM_WIDGETS
 // {15976628-e3c3-47f4-b525-d124a3caf30e}
 #ifndef IID_QWidgetContainer
 #define IID_QWidgetContainer QUuid( 0x15976628, 0xe3c3, 0x47f4, 0xb5, 0x25, 0xd1, 0x24, 0xa3, 0xca, 0xf3, 0x0e )
@@ -101,9 +101,24 @@ public:
 struct QWidgetContainerInterfacePrivate : public QUnknownInterface
 {
 public:
-    virtual QWidget *containerOfWidget( QWidget *widget ) const = 0;
-    virtual QWidgetList containersOf( QWidget *widget ) const = 0;
-    virtual bool isPassiveInteractor( QWidget *widget ) const = 0;
+    virtual QWidget *containerOfWidget( const QString &f, QWidget *widget ) const = 0;
+    virtual QWidgetList containersOf( const QString &f, QWidget *widget ) const = 0;
+    virtual bool isPassiveInteractor( const QString &f, QWidget *widget ) const = 0;
+
+    virtual bool supportsPages( const QString &f ) const = 0;
+
+    virtual QWidget *addPage( const QString &f, QWidget *container,
+			      const QString &name, int index ) const = 0;
+    virtual void insertPage( const QString &f, QWidget *container,
+			     const QString &name, int index, QWidget *page ) const = 0;
+    virtual void removePage( const QString &f, QWidget *container, int index ) const = 0;
+    virtual void movePage( const QString &f, QWidget *container, int fromIndex, int toIndex ) const = 0;
+    virtual int count( const QString &key, QWidget *container ) const = 0;
+    virtual int currentIndex( const QString &key, QWidget *container ) const = 0;
+    virtual QString pageLabel( const QString &key, QWidget *container, int index ) const = 0;
+    virtual QWidget *page( const QString &key, QWidget *container, int index ) const = 0;
+    virtual void renamePage( const QString &key, QWidget *container,
+			     int index, const QString &newName ) const = 0;
 };
 #endif
 

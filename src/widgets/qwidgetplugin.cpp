@@ -35,33 +35,13 @@
 **
 **********************************************************************/
 
-#if CONTAINER_CUSTOM_WIDGETS
-
-// This should fgo into the .h file when it becomes public
-class QWidgetContainerPluginPrivate;
-
-class Q_EXPORT QWidgetContainerPlugin : public QWidgetPlugin
-{
-    Q_OBJECT
-
-public:
-    QWidgetContainerPlugin();
-    ~QWidgetContainerPlugin();
-
-    virtual QWidget* containerOfWidget( QWidget *widget ) const;
-    virtual QWidgetList containersOf( QWidget *widget ) const;
-    virtual bool isPassiveInteractor( QWidget *widget ) const;
-
-};
-#endif
-
 #include "qwidgetplugin.h"
 
 #ifndef QT_NO_WIDGETPLUGIN
 #include "qwidgetinterface_p.h"
 #include "qobjectcleanuphandler.h"
 #include "qwidget.h"
-#if CONTAINER_CUSTOM_WIDGETS
+#ifdef CONTAINER_CUSTOM_WIDGETS
 #include "qwidgetlist.h"
 #endif
 
@@ -91,7 +71,7 @@ public:
 */
 
 class QWidgetPluginPrivate : public QWidgetFactoryInterface,
-#if CONTAINER_CUSTOM_WIDGETS
+#ifdef CONTAINER_CUSTOM_WIDGETS
 			     public QWidgetContainerInterfacePrivate,
 #endif
 			     private QLibraryInterface
@@ -115,10 +95,23 @@ public:
     QString toolTip( const QString &widget ) const;
     QString whatsThis( const QString &widget ) const;
     bool isContainer( const QString &widget ) const;
-#if CONTAINER_CUSTOM_WIDGETS
-    QWidget* containerOfWidget( QWidget *widget ) const;
-    QWidgetList containersOf( QWidget *widget ) const;
-    bool isPassiveInteractor( QWidget *widget ) const;
+#ifdef CONTAINER_CUSTOM_WIDGETS
+    QWidget* containerOfWidget( const QString &key, QWidget *widget ) const;
+    QWidgetList containersOf( const QString &key, QWidget *widget ) const;
+    bool isPassiveInteractor( const QString &key, QWidget *widget ) const;
+    bool supportsPages( const QString &key ) const;
+    QWidget *addPage( const QString &key, QWidget *container, const QString &name, int index ) const;
+    void insertPage( const QString &key, QWidget *container,
+		     const QString &name, int index, QWidget *page ) const;
+    void Page( const QString &key, QWidget *container,
+	       const QString &name, int index, QWidget *page ) const;
+    void removePage( const QString &key, QWidget *container, int index ) const;
+    void movePage( const QString &key, QWidget *container, int fromIndex, int toIndex ) const;
+    int count( const QString &key, QWidget *container ) const;
+    int currentIndex( const QString &key, QWidget *container ) const;
+    QString pageLabel( const QString &key, QWidget *container, int index ) const;
+    QWidget *page( const QString &key, QWidget *container, int index ) const;
+    void renamePage( const QString &key, QWidget *container, int index, const QString &newName ) const;
 #endif
 
     bool init();
@@ -142,7 +135,7 @@ QRESULT QWidgetPluginPrivate::queryInterface( const QUuid &iid, QUnknownInterfac
 	*iface = (QWidgetFactoryInterface*)this;
     else if ( iid == IID_QLibrary )
 	*iface = (QLibraryInterface*)this;
-#if CONTAINER_CUSTOM_WIDGETS
+#ifdef CONTAINER_CUSTOM_WIDGETS
     else if ( iid == IID_QWidgetContainer )
 	*iface = (QWidgetContainerInterfacePrivate*)this;
 #endif
@@ -237,29 +230,109 @@ bool QWidgetPluginPrivate::canUnload() const
     return widgets.isEmpty();
 }
 
-#if CONTAINER_CUSTOM_WIDGETS
-QWidget* QWidgetPluginPrivate::containerOfWidget( QWidget *widget ) const
+#ifdef CONTAINER_CUSTOM_WIDGETS
+QWidget* QWidgetPluginPrivate::containerOfWidget( const QString &key, QWidget *widget ) const
 {
     QWidgetContainerPlugin *p = (QWidgetContainerPlugin*)plugin->qt_cast( "QWidgetContainerPlugin" );
     if ( p )
-	return p->containerOfWidget( widget );
+	return p->containerOfWidget( key, widget );
     return widget;
 }
 
-QWidgetList QWidgetPluginPrivate::containersOf( QWidget *widget ) const
+QWidgetList QWidgetPluginPrivate::containersOf( const QString &key, QWidget *widget ) const
 {
     QWidgetContainerPlugin *p = (QWidgetContainerPlugin*)plugin->qt_cast( "QWidgetContainerPlugin" );
     if ( p )
-	return p->containersOf( widget );
+	return p->containersOf( key, widget );
     return QWidgetList();
 }
 
-bool QWidgetPluginPrivate::isPassiveInteractor( QWidget *widget ) const
+int QWidgetPluginPrivate::count( const QString &key, QWidget *container ) const
 {
     QWidgetContainerPlugin *p = (QWidgetContainerPlugin*)plugin->qt_cast( "QWidgetContainerPlugin" );
     if ( p )
-	return p->isPassiveInteractor( widget );
+	return p->count( key, container );
+    return 0;
+}
+
+int QWidgetPluginPrivate::currentIndex( const QString &key, QWidget *container ) const
+{
+    QWidgetContainerPlugin *p = (QWidgetContainerPlugin*)plugin->qt_cast( "QWidgetContainerPlugin" );
+    if ( p )
+	return p->currentIndex( key, container );
+    return -1;
+}
+
+QString QWidgetPluginPrivate::pageLabel( const QString &key, QWidget *container, int index ) const
+{
+    QWidgetContainerPlugin *p = (QWidgetContainerPlugin*)plugin->qt_cast( "QWidgetContainerPlugin" );
+    if ( p )
+	return p->pageLabel( key, container, index );
+    return QString::null;
+}
+
+QWidget *QWidgetPluginPrivate::page( const QString &key, QWidget *container, int index ) const
+{
+    QWidgetContainerPlugin *p = (QWidgetContainerPlugin*)plugin->qt_cast( "QWidgetContainerPlugin" );
+    if ( p )
+	return p->page( key, container, index );
+    return 0;
+}
+
+bool QWidgetPluginPrivate::isPassiveInteractor( const QString &key, QWidget *widget ) const
+{
+    QWidgetContainerPlugin *p = (QWidgetContainerPlugin*)plugin->qt_cast( "QWidgetContainerPlugin" );
+    if ( p )
+	return p->isPassiveInteractor( key, widget );
     return FALSE;
+}
+
+bool QWidgetPluginPrivate::supportsPages( const QString &key ) const
+{
+    QWidgetContainerPlugin *p = (QWidgetContainerPlugin*)plugin->qt_cast( "QWidgetContainerPlugin" );
+    if ( p )
+	return p->supportsPages( key );
+    return 0;
+}
+
+QWidget *QWidgetPluginPrivate::addPage( const QString &key, QWidget *container,
+				    const QString &name, int index ) const
+{
+    QWidgetContainerPlugin *p = (QWidgetContainerPlugin*)plugin->qt_cast( "QWidgetContainerPlugin" );
+    if ( p )
+	return p->addPage( key, container, name, index );
+    return 0;
+}
+
+void QWidgetPluginPrivate::insertPage( const QString &key, QWidget *container,
+				       const QString &name, int index, QWidget *page ) const
+{
+    QWidgetContainerPlugin *p = (QWidgetContainerPlugin*)plugin->qt_cast( "QWidgetContainerPlugin" );
+    if ( p )
+	p->insertPage( key, container, name, index, page );
+}
+
+void QWidgetPluginPrivate::removePage( const QString &key, QWidget *container, int index ) const
+{
+    QWidgetContainerPlugin *p = (QWidgetContainerPlugin*)plugin->qt_cast( "QWidgetContainerPlugin" );
+    if ( p )
+	p->removePage( key, container, index );
+}
+
+void QWidgetPluginPrivate::movePage( const QString &key, QWidget *container,
+				     int fromIndex, int toIndex ) const
+{
+    QWidgetContainerPlugin *p = (QWidgetContainerPlugin*)plugin->qt_cast( "QWidgetContainerPlugin" );
+    if ( p )
+	p->movePage( key, container, fromIndex, toIndex );
+}
+
+void QWidgetPluginPrivate::renamePage( const QString &key, QWidget *container,
+				      int index, const QString &newName ) const
+{
+    QWidgetContainerPlugin *p = (QWidgetContainerPlugin*)plugin->qt_cast( "QWidgetContainerPlugin" );
+    if ( p )
+	p->renamePage( key, container, index, newName );
 }
 #endif
 
@@ -351,7 +424,7 @@ bool QWidgetPlugin::isContainer( const QString & ) const
     return FALSE;
 }
 
-#if CONTAINER_CUSTOM_WIDGETS
+#ifdef CONTAINER_CUSTOM_WIDGETS
 QWidgetContainerPlugin::QWidgetContainerPlugin()
     : QWidgetPlugin()
 {
@@ -361,22 +434,70 @@ QWidgetContainerPlugin::~QWidgetContainerPlugin()
 {
 }
 
-QWidget* QWidgetContainerPlugin::containerOfWidget( QWidget *widget ) const
+QWidget* QWidgetContainerPlugin::containerOfWidget( const QString &, QWidget *widget ) const
 {
     return widget;
 }
 
-QWidgetList QWidgetContainerPlugin::containersOf( QWidget *widget ) const
+QWidgetList QWidgetContainerPlugin::containersOf( const QString &, QWidget *widget ) const
 {
     Q_UNUSED( widget )
     return QWidgetList();
 }
 
-bool QWidgetContainerPlugin::isPassiveInteractor( QWidget *widget ) const
+int QWidgetContainerPlugin::count( const QString &, QWidget * ) const
+{
+    return 0;
+}
+
+int QWidgetContainerPlugin::currentIndex( const QString &, QWidget * ) const
+{
+    return -1;
+}
+
+QString QWidgetContainerPlugin::pageLabel( const QString &, QWidget *, int ) const
+{
+    return QString::null;
+}
+
+QWidget *QWidgetContainerPlugin::page( const QString &, QWidget *, int ) const
+{
+    return 0;
+}
+
+bool QWidgetContainerPlugin::isPassiveInteractor( const QString &, QWidget *widget ) const
 {
     Q_UNUSED( widget )
     return FALSE;
 }
+
+bool QWidgetContainerPlugin::supportsPages( const QString & ) const
+{
+    return FALSE;
+}
+
+QWidget* QWidgetContainerPlugin::addPage( const QString &, QWidget *, const QString &, int ) const
+{
+    return 0;
+}
+
+void QWidgetContainerPlugin::insertPage( const QString &, QWidget *,
+					 const QString &, int, QWidget * ) const
+{
+}
+
+void QWidgetContainerPlugin::removePage( const QString &, QWidget *, int ) const
+{
+}
+
+void QWidgetContainerPlugin::movePage( const QString &, QWidget *, int, int ) const
+{
+}
+
+void QWidgetContainerPlugin::renamePage( const QString &, QWidget *, int, const QString & ) const
+{
+}
+
 #endif
 
 #endif //QT_NO_WIDGETPLUGIN

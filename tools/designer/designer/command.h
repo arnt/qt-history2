@@ -106,7 +106,10 @@ public:
 	AddVariable,
 	SetVariables,
 	RemoveVariable,
-	EditDefinitions
+	EditDefinitions,
+	AddContainerPage,
+	DeleteContainerPage,
+	RenameContainerPage
     };
 
     QString name() const;
@@ -1013,5 +1016,73 @@ public:
     Type type() const { return RemoveToolBar; }
 
 };
+
+#ifdef CONTAINER_CUSTOM_WIDGETS
+class QWidgetContainerInterfacePrivate;
+
+class AddContainerPageCommand : public Command
+{
+public:
+    AddContainerPageCommand( const QString &n, FormWindow *fw,
+			     QWidget *c, const QString &label );
+
+    ~AddContainerPageCommand();
+
+    void execute();
+    void unexecute();
+    Type type() const { return AddContainerPage; }
+
+private:
+    QString wClassName;
+    QWidget *container;
+    int index;
+    QString pageLabel;
+    QWidget *page;
+    QWidgetContainerInterfacePrivate *wiface;
+
+};
+
+class DeleteContainerPageCommand : public Command
+{
+public:
+    DeleteContainerPageCommand( const QString &n, FormWindow *fw,
+				QWidget *container, int index );
+    ~DeleteContainerPageCommand();
+
+    void execute();
+    void unexecute();
+    Type type() const { return DeleteContainerPage; }
+
+private:
+    QString wClassName;
+    QWidget *container;
+    int index;
+    QString pageLabel;
+    QWidget *page;
+    QWidgetContainerInterfacePrivate *wiface;
+
+};
+
+class RenameContainerPageCommand : public Command
+{
+public:
+    RenameContainerPageCommand( const QString &n, FormWindow *fw,
+				QWidget *container, int index,
+				const QString &label );
+    ~RenameContainerPageCommand();
+
+    void execute();
+    void unexecute();
+    Type type() const { return RenameContainerPage; }
+
+private:
+    QString wClassName;
+    QWidget *container;
+    int index;
+    QString oldLabel, newLabel;
+    QWidgetContainerInterfacePrivate *wiface;
+
+};
+#endif
 
 #endif

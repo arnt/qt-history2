@@ -777,7 +777,7 @@ void Resource::saveObject( QObject *obj, QDesignerGridLayout* grid, QTextStream 
 	saveChildrenOf( ( (QMainWindow*)obj )->centralWidget(), ts, indent );
     } else {
 	bool saved = FALSE;
-#if CONTAINER_CUSTOM_WIDGETS
+#ifdef CONTAINER_CUSTOM_WIDGETS
 	if ( WidgetDatabase::isCustomPluginWidget( WidgetDatabase::idFromClassName( className ) ) ) {
 	    WidgetInterface *iface = 0;
 	    widgetManager()->queryInterface( className, &iface );
@@ -785,7 +785,7 @@ void Resource::saveObject( QObject *obj, QDesignerGridLayout* grid, QTextStream 
 		QWidgetContainerInterfacePrivate *iface2 = 0;
 		iface->queryInterface( IID_QWidgetContainer, (QUnknownInterface**)&iface2 );
 		if ( iface2 ) {
-		    QWidgetList containers = iface2->containersOf( (QWidget*)obj );
+		    QWidgetList containers = iface2->containersOf( obj->className(), (QWidget*)obj );
 		    if ( !containers.isEmpty() ) {
 			saved = TRUE;
 			for ( QWidget *w = containers.first(); w; w = containers.next() ) {

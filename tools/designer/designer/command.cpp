@@ -2007,3 +2007,141 @@ void AddToolBarCommand::unexecute()
     toolBar->hide();
     formWindow()->mainWindow()->objectHierarchy()->rebuild();
 }
+
+// ------------------------------------------------------------
+
+#ifdef CONTAINER_CUSTOM_WIDGETS
+AddContainerPageCommand::AddContainerPageCommand( const QString &n, FormWindow *fw,
+						  QWidget *c, const QString &label )
+    : Command( n, fw ), container( c ), index( -1 ), pageLabel( label ), page( 0 )
+{
+    WidgetInterface *iface = 0;
+    widgetManager()->queryInterface( WidgetFactory::classNameOf( container ), &iface );
+    if ( !iface )
+	return;
+    iface->queryInterface( IID_QWidgetContainer, (QUnknownInterface**)&wiface );
+    if ( !wiface )
+	return;
+    wClassName = WidgetFactory::classNameOf( container );
+}
+
+AddContainerPageCommand::~AddContainerPageCommand()
+{
+    if ( wiface )
+	wiface->release();
+}
+
+void AddContainerPageCommand::execute()
+{
+    if ( !wiface || !wiface->supportsPages( wClassName ) )
+	return;
+    if ( index == -1 )
+	index = wiface->count( wClassName, container );
+    if ( !page )
+	page = wiface->addPage( wClassName, container, pageLabel, index );
+    else
+	wiface->insertPage( wClassName, container, pageLabel, index, page );
+
+    MetaDataBase::addEntry( page );
+    formWindow()->emitUpdateProperties( formWindow()->currentWidget() );
+    // #### show and update pages in object hierarchy view
+}
+
+void AddContainerPageCommand::unexecute()
+{
+    if ( !wiface || !wiface->supportsPages( wClassName ) )
+	return;
+    wiface->removePage( wClassName, container, index );
+    formWindow()->emitUpdateProperties( formWindow()->currentWidget() );
+    // #### show and update pages in object hierarchy view
+}
+
+// ------------------------------------------------------------
+
+DeleteContainerPageCommand::DeleteContainerPageCommand( const QString &n, FormWindow *fw,
+							QWidget *c, int idx )
+    : Command( n, fw ), container( c ), index( idx )
+{
+    WidgetInterface *iface = 0;
+    widgetManager()->queryInterface( WidgetFactory::classNameOf( container ), &iface );
+    if ( !iface )
+	return;
+    iface->queryInterface( IID_QWidgetContainer, (QUnknownInterface**)&wiface );
+    if ( !wiface )
+	return;
+    wClassName = WidgetFactory::classNameOf( container );
+    page = wiface->page( wClassName, container, index );
+    pageLabel = wiface->pageLabel( wClassName, container, index );
+}
+
+DeleteContainerPageCommand::~DeleteContainerPageCommand()
+{
+    if ( wiface )
+	wiface->release();
+}
+
+void DeleteContainerPageCommand::execute()
+{
+    if ( !wiface || !wiface->supportsPages( wClassName ) )
+	return;
+
+    wiface->removePage( wClassName, container, index );
+    formWindow()->emitUpdateProperties( formWindow()->currentWidget() );
+    // #### show and update pages in object hierarchy view
+}
+
+void DeleteContainerPageCommand::unexecute()
+{
+    if ( !wiface || !wiface->supportsPages( wClassName ) )
+	return;
+    if ( index == -1 )
+	index = wiface->count( wClassName, container );
+
+    wiface->insertPage( wClassName, container, pageLabel, index, page );
+    formWindow()->emitUpdateProperties( formWindow()->currentWidget() );
+    // #### show and update pages in object hierarchy view
+}
+
+// ------------------------------------------------------------
+
+RenameContainerPageCommand::RenameContainerPageCommand( const QString &n, FormWindow *fw,
+							QWidget *c, int idx,
+							const QString &label )
+    : Command( n, fw ), container( c ), index( idx ), newLabel( label )
+{
+    WidgetInterface *iface = 0;
+    widgetManager()->queryInterface( WidgetFactory::classNameOf( container ), &iface );
+    if ( !iface )
+	return;
+    iface->queryInterface( IID_QWidgetContainer, (QUnknownInterface**)&wiface );
+    if ( !wiface )
+	return;
+    wClassName = WidgetFactory::classNameOf( container );
+    oldLabel = wiface->pageLabel( wClassName, container, index );
+}
+
+RenameContainerPageCommand::~RenameContainerPageCommand()
+{
+    if ( wiface )
+	wiface->release();
+}
+
+void RenameContainerPageCommand::execute()
+{
+    if ( !wiface || !wiface->supportsPages( wClassName ) )
+	return;
+    wiface->renamePage( wClassName, container, index, newLabel );
+    formWindow()->emitUpdateProperties( formWindow()->currentWidget() );
+    // #### show and update pages in object hierarchy view
+}
+
+void RenameContainerPageCommand::unexecute()
+{
+    if ( !wiface || !wiface->supportsPages( wClassName ) )
+	return;
+    wiface->renamePage( wClassName, container, index, oldLabel );
+    formWindow()->emitUpdateProperties( formWindow()->currentWidget() );
+    // #### show and update pages in object hierarchy view
+}
+
+#endif

@@ -518,6 +518,7 @@ QWidget *WidgetFactory::create( int id, QWidget *parent, const char *name, bool 
 
     QWidget *w = 0;
     QString str = WidgetDatabase::createWidgetName( id );
+    str[0] = str[0].lower();
     const char *s = str.latin1();
     w = createWidget( n, parent, name ? name : s, init, r, orient );
     if ( w && w->inherits( "QScrollView" ) )
@@ -1043,7 +1044,7 @@ QWidget* WidgetFactory::containerOfWidget( QWidget *w )
 	return ((QWidgetStack*)w)->visibleWidget();
     if ( w->inherits( "QMainWindow" ) )
 	return ((QMainWindow*)w)->centralWidget();
-#if CONTAINER_CUSTOM_WIDGETS
+#ifdef CONTAINER_CUSTOM_WIDGETS
     if ( !WidgetDatabase::isCustomPluginWidget( WidgetDatabase::idFromClassName( classNameOf( w ) ) ) )
 	return w;
     WidgetInterface *iface = 0;
@@ -1054,7 +1055,7 @@ QWidget* WidgetFactory::containerOfWidget( QWidget *w )
     iface->queryInterface( IID_QWidgetContainer, (QUnknownInterface**)&iface2 );
     if ( !iface2 )
 	return w;
-    QWidget *c = iface2->containerOfWidget( w );
+    QWidget *c = iface2->containerOfWidget( w->className(), w );
     iface2->release();
     iface->release();
     if ( c )
@@ -1118,7 +1119,7 @@ bool WidgetFactory::isPassiveInteractor( QObject* o )
     else if ( qstrcmp( o->name(), "designer_wizardstack_button" ) == 0 )
 	return ( lastWasAPassiveInteractor = TRUE );
 
-#if CONTAINER_CUSTOM_WIDGETS
+#ifdef CONTAINER_CUSTOM_WIDGETS
     if ( !o->isWidgetType() )
 	return ( lastWasAPassiveInteractor = FALSE );
     WidgetInterface *iface = 0;
@@ -1133,7 +1134,13 @@ bool WidgetFactory::isPassiveInteractor( QObject* o )
     iface->queryInterface( IID_QWidgetContainer, (QUnknownInterface**)&iface2 );
     if ( !iface2 )
 	return ( lastWasAPassiveInteractor = FALSE );
-    lastWasAPassiveInteractor = iface2->isPassiveInteractor( (QWidget*)o );
+    QWidget *fw = MainWindow::self->isAFormWindowChild( (QWidget*)o );
+    if ( !fw )
+	return ( lastWasAPassiveInteractor = FALSE );
+    QWidget *dw = ( (FormWindow*)fw )->designerWidget( (QWidget*)o );
+    if ( !dw )
+	return ( lastWasAPassiveInteractor = FALSE );
+    lastWasAPassiveInteractor = iface2->isPassiveInteractor( dw->className(), (QWidget*)o );
     iface2->release();
     iface->release();
 #endif
