@@ -104,7 +104,7 @@ QSqlError qMakeError( const QString& err, int type, const QOCIPrivate* p )
 QVariant::Type qDecodeOCIType( const QString& ocitype, int ocilen, int ociprec, int ociscale )
 {
     QVariant::Type type = QVariant::Invalid;
-    if ( ocitype == "VARCHAR2" || ocitype == "VARCHAR" || ocitype == "CHAR" || ocitype == "NVARCHAR2" )
+    if ( ocitype == "VARCHAR2" || ocitype == "VARCHAR" || ocitype == "CHAR" || ocitype == "NVARCHAR2" || ocitype == "NCHAR" )
 	type = QVariant::String;
     else if ( ocitype == "NUMBER" )
 	type = QVariant::Int;
@@ -127,7 +127,7 @@ QVariant::Type qDecodeOCIType( const QString& ocitype, int ocilen, int ociprec, 
 	    type = QVariant::Double;
     }
     if ( type == QVariant::Invalid )
-	qWarning("qDecodeOCIType: unknown type:" + ocitype );
+	qWarning("qDecodeOCIType: unknown type: " + ocitype );
     return type;
 }
 
