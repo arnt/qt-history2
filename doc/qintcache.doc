@@ -252,7 +252,7 @@
 */
 
 /*!
-  \fn void QCache::statistics() const
+  \fn void QIntCache::statistics() const
 
   A debug-only utility function. Prints out cache usage, hit/miss, and
   distribution information using qDebug(). This function does nothing
