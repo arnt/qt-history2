@@ -71,6 +71,7 @@ public:
     ~QTitleBar();
 
     bool isActive() const;
+    QString text() const { return txt; }
 
     QSize sizeHint() const;
 
@@ -113,7 +114,7 @@ private:
 public:
     bool act		    :1;
     QColor aleftc, ileftc, arightc, irightc, atextc, itextc;
-    QString text, cuttext;
+    QString txt, cuttext;
     QPixmap pixmap;
     QWidget* window;
 };

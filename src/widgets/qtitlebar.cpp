@@ -56,7 +56,7 @@
 #include "qt_windows.h"
 #endif
 
-
+#ifndef QT_NO_TOOLTIP
 class QTitleBarTip : public QToolTip
 {
 public:
@@ -115,18 +115,21 @@ public:
 	    }
 	}
 	if ( tipstring.isEmpty() ) {
-	    if ( t->cuttext != t->text )
-		tipstring = t->text;
+	    if ( t->cuttext != t->txt )
+		tipstring = t->txt;
 	}
 	if(!tipstring.isEmpty())
 	    tip( QRect(pos, controlSize), tipstring );
     }
 };
+#endif
 
 QTitleBar::QTitleBar (QWidget* w, QWidget* parent, const char* name)
     : QWidget( parent, name, WStyle_Customize | WStyle_NoBorder | WResizeNoErase | WRepaintNoErase )
 {
+#ifndef QT_NO_TOOLTIP
     toolTip = new QTitleBarTip( this );
+#endif
     window = w;
     buttonDown = QStyle::SC_None;
     act = 0;
@@ -136,7 +139,9 @@ QTitleBar::QTitleBar (QWidget* w, QWidget* parent, const char* name)
 
 QTitleBar::~QTitleBar()
 {
+#ifndef QT_NO_TOOLTIP
     delete toolTip;
+#endif
 }
 
 #ifdef Q_WS_WIN
@@ -442,20 +447,20 @@ void QTitleBar::cutText()
 					      QStyle::SC_TitleBarLabel).width();
     if ( !window )
 	maxw = width() - 20;
-    cuttext = text;
-    if ( fm.width( text+"m" ) > maxw ) {
-	int i = text.length();
-	while ( (fm.width(text.left( i ) + "...")  > maxw) && i>0 )
+    cuttext = txt;
+    if ( fm.width( txt+"m" ) > maxw ) {
+	int i = txt.length();
+	while ( (fm.width(txt.left( i ) + "...")  > maxw) && i>0 )
 	    i--;
-	cuttext = text.left( i ) + "...";
+	cuttext = txt.left( i ) + "...";
     }
 }
 
 void QTitleBar::setText( const QString& title )
 {
-    if(text == title)
+    if(txt == title)
 	return;
-    text = title;
+    txt = title;
     cutText();
     repaint( FALSE );
 }
