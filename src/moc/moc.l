@@ -99,7 +99,7 @@ extern void addExpressionString( const char * );
 extern void moc_warn( const char *msg );
 %}
 
-%start OUTSIDE QT_DEF IN_CLASS IN_NAMESPACE IN_ENUM IN_EXPR IN_FCT IN_TEMPL_ARGS GIMME_SEMICOLON SKIP IN_PROPERTY IN_PROPDEF IN_CLASSINFO
+%start OUTSIDE QT_DEF IN_CLASS IN_NAMESPACE IN_ENUM IN_EXPR IN_DEF_ARG IN_FCT IN_TEMPL_ARGS GIMME_SEMICOLON SKIP IN_PROPERTY IN_PROPDEF IN_CLASSINFO
 
 %%
 <OUTSIDE>"class"		{ X;
@@ -183,14 +183,24 @@ extern void moc_warn( const char *msg );
 				}
 
 <IN_EXPR>"("			{ expLevel++;X; }
-<IN_EXPR>")"			{ expLevel--;Y;if (expLevel <= 0)
+<IN_EXPR>")"			{ expLevel--;Y;if (expLevel == 0)
 					{ X; BEGIN QT_DEF; return ')';} }
 <IN_EXPR>"["			{ expLevel++;X; }
-<IN_EXPR>"]"			{ expLevel--;X;if (expLevel <= 0)
+<IN_EXPR>"]"			{ expLevel--;X;if (expLevel == 0)
 					{ X; BEGIN QT_DEF; return ']';} }
 <IN_EXPR>","			{ if (expLevel == 0)
 					{ X; BEGIN QT_DEF; return ',' ;} }
 <IN_EXPR>";"			{ if (expLevel == 0)
+					{ X; BEGIN QT_DEF; return ';' ;} }
+<IN_DEF_ARG>"("			{ expLevel++;X; }
+<IN_DEF_ARG>")"			{ expLevel--;Y;if (expLevel == 0)
+					{ X; BEGIN QT_DEF; return ')';} }
+<IN_DEF_ARG>"["			{ expLevel++;X; }
+<IN_DEF_ARG>"]"			{ expLevel--;X;if (expLevel == 0)
+					{ X; BEGIN QT_DEF; return ']';} }
+<IN_DEF_ARG>","			{ if (expLevel <= 1)
+					{ X; BEGIN QT_DEF; return ',' ;} }
+<IN_DEF_ARG>";"			{ if (expLevel == 0)
 					{ X; BEGIN QT_DEF; return ';' ;} }
 <IN_ENUM>"("			{ expLevel++;X; }
 <IN_ENUM>")"			{ expLevel--;X;if (expLevel == 0)
@@ -522,6 +532,7 @@ extern void moc_warn( const char *msg );
 <IN_NAMESPACE>.		;
 <IN_FCT>.		;
 <IN_EXPR>.		  { addExpressionChar( yytext[0] ); }
+<IN_DEF_ARG>.		;
 <IN_ENUM>.		  { addExpressionChar( yytext[0] ); }
 <IN_PROPDEF>.		  { addExpressionChar( yytext[0] ); }
 <OUTSIDE>.		;
