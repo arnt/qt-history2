@@ -1,7 +1,8 @@
 #!/usr/bin/perl
 
 #Set the variable $dryrun to 0 to actually send mail to all on qt-announce
-$qtanlist = "/tmp/qt-announce";  # get this from lupinella??
+#  scp l:/local/lib/lists/qt-announce /tmp/qt-announce
+$qtanlist = "/tmp/qt-announce";  # get this from lupinella
 
 
 $dryrun="testrun";          # 0 for real, or file for test result
