@@ -353,7 +353,8 @@ QMakeProject::read(QString project, QString pwd)
 
 	/* commandline */
 	cfile = project;
-	for(QStringList::Iterator it = Option::user_vars.begin(); it != Option::user_vars.end(); ++it) {
+	for(QStringList::Iterator it = Option::before_user_vars.begin(); 
+	    it != Option::before_user_vars.end(); ++it) {
 	    if(!parse("(internal)", (*it), base_vars)) {
 		fprintf(stderr, "Argument failed to parse: %s\n", (*it).latin1());
 		return FALSE;
@@ -371,6 +372,14 @@ QMakeProject::read(QString project, QString pwd)
 
     if(!read(pfile, vars))
 	return FALSE;
+
+    for(QStringList::Iterator it = Option::after_user_vars.begin(); 
+	it != Option::after_user_vars.end(); ++it) {
+	if(!parse("(internal after)", (*it), vars)) {
+	    fprintf(stderr, "Argument failed to parse: %s\n", (*it).latin1());
+	    return FALSE;
+	}
+    }
 
     /* now let the user override the template from an option.. */
     if(!Option::user_template.isEmpty()) {

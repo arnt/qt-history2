@@ -65,7 +65,8 @@ int Option::warn_level = WarnLogic;
 int Option::debug_level = 0;
 QFile Option::output;
 QString Option::output_dir;
-QStringList Option::user_vars;
+QStringList Option::before_user_vars;
+QStringList Option::after_user_vars;
 QString Option::user_template;
 #if defined(Q_OS_WIN32)
 Option::TARG_MODE Option::target_mode = Option::TARG_WIN_MODE;
@@ -118,6 +119,9 @@ bool usage(const char *a0)
 	    "\t-Wlogic        Turn on logic warnings\n"
 	    "\n"
 	    "Options:\n"
+	    "\t * You can place any variable asignment in options and it will be     *\n"
+	    "\t * processed as if it was in [files]. These asignments will be parsed *\n"
+	    "\t * before [files].                                                    *\n"
 	    "\t-o file        Write output to file\n"
 	    "\t-unix          Run in unix mode\n"
 	    "\t-win32         Run in win32 mode\n"
@@ -125,6 +129,8 @@ bool usage(const char *a0)
 	    "\t-t templ       Overrides TEMPLATE as templ\n"
 	    "\t-help          This help\n"
 	    "\t-v             Version information\n"
+	    "\t-after         All variable asignments after this will be\n"
+	    "\t               parsed after [files]        [makefile mode only]\n"
 	    "\t-cache file    Use file as cache           [makefile mode only]\n"
 	    "\t-spec spec     Use spec as QMAKESPEC       [makefile mode only]\n"
 	    "\t-nocache       Don't use a cache file      [makefile mode only]\n"
@@ -147,6 +153,7 @@ static Option::QMAKE_MODE default_mode(QString progname)
 bool
 Option::parseCommandLine(int argc, char **argv)
 {
+    bool before = TRUE;
     for(int x = 1; x < argc; x++) {
 	if(*argv[x] == '-' && strlen(argv[x]) > 1) { /* options */
 	    QString opt = argv[x] + 1;
@@ -168,6 +175,8 @@ Option::parseCommandLine(int argc, char **argv)
 	    //all modes
 	    if(opt == "o" || opt == "output") {
 		Option::output.setName(argv[++x]);
+	    } else if(opt == "after") {
+		before = FALSE;
 	    } else if(opt == "t" || opt == "template") {
 		Option::user_template = argv[++x];
 	    } else if(opt == "mac9") {
@@ -221,14 +230,16 @@ Option::parseCommandLine(int argc, char **argv)
 		    }
 		}
 	    }
-	}
-	else {
+	} else {
 	    if(x == 1)
 		Option::qmake_mode = default_mode(argv[0]);
 
 	    QString arg = argv[x];
 	    if(arg.find('=') != -1) {
-		Option::user_vars.append(arg);
+		if(before)
+		    Option::before_user_vars.append(arg);
+		else
+		    Option::after_user_vars.append(arg);
 	    } else {
 		if(Option::qmake_mode == Option::QMAKE_GENERATE_MAKEFILE)
 		    Option::mkfile::project_files.append(arg);

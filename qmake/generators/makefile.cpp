@@ -1036,9 +1036,18 @@ QString MakefileGenerator::build_args()
 	    ret += " -nodependheuristics";
 
 	//arguments
-	for(QStringList::Iterator it = Option::user_vars.begin(); it != Option::user_vars.end(); ++it) {
+	for(QStringList::Iterator it = Option::before_user_vars.begin(); 
+	    it != Option::before_user_vars.end(); ++it) {
 	    if((*it).left(qstrlen("QMAKE_ABSOLUTE_SOURCE_PATH")) != "QMAKE_ABSOLUTE_SOURCE_PATH")
 		ret += " \"" + (*it) + "\"";
+	}
+	if(Option::after_user_vars.count()) {
+	    ret += "-after ";
+	    for(QStringList::Iterator it = Option::after_user_vars.begin(); 
+		it != Option::after_user_vars.end(); ++it) {
+		if((*it).left(qstrlen("QMAKE_ABSOLUTE_SOURCE_PATH")) != "QMAKE_ABSOLUTE_SOURCE_PATH")
+		    ret += " \"" + (*it) + "\"";
+	    }
 	}
 
 	//inputs
