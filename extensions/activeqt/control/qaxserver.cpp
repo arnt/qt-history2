@@ -690,7 +690,7 @@ static HRESULT classIDL( QObject *o, const QMetaObject *mo, const QString &class
 	    out << "\t/****** Property is of unsupported datatype" << endl;
 
 	out << "\t\t[id(" << id << ")";
-	if (property.isWritable())
+	if (!property.isWritable())
 	    out << ", readonly";
 	if (isBindable && property.isScriptable(o))
 	    out << ", bindable";
