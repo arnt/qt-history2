@@ -4717,8 +4717,8 @@ void QWidget::setStyle( QStyle *style )
 	 && testWState(WState_Polished)) { // (and have been polished)
 	old.unPolish( this );
 	QWidget::style().polish( this );
-	styleChange( old );
     }
+    styleChange( old );
 }
 
 /*!\overload
