@@ -995,16 +995,26 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 	    }
 	    debug_msg(1, "Running function: %s( %s )", val.latin1(), arg_list.join("::").latin1());
 	    if(val.lower() == "member") {
-		if(arg_list.count() < 1 || arg_list.count() > 2) {
-		    fprintf(stderr, "%s:%d: member(var, place) requires two arguments.\n",
+		if(arg_list.count() < 1 || arg_list.count() > 3) {
+		    fprintf(stderr, "%s:%d: member(var, start, end) requires three arguments.\n",
 			    parser.file.latin1(), parser.line_no);
 		} else {
-		    uint pos = 0;
-		    if(arg_list.count() == 2)
-			pos = arg_list[1].toInt();
 		    const QStringList &var = place[varMap(arg_list.first())];
-		    if(var.count() >= pos)
-			replacement = var[pos];
+		    uint start = 0;
+		    if(arg_list.count() >= 2)
+			start = arg_list[1].toInt();
+		    int end = start;
+		    if(arg_list.count() == 3)
+			end = arg_list[2].toInt();
+		    if(end < 0)
+			end += var.count() - 1;
+		    if(end < start)
+			end = start;
+		    for(int i = start; i <= end && var.count() >= i; i++) {
+			if(!replacement.isEmpty())
+			    replacement += " ";
+			replacement += var[i];
+		    }
 		}
 	    } else if(val.lower() == "list") {
 		static int x = 0;
@@ -1029,6 +1039,24 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 		    const QStringList &var = place[varMap(arg_list.first())];
 		    if(!var.isEmpty())
 			replacement = before + var.join(glue) + after;
+		}
+	    } else if(val.lower() == "split") {
+		if(arg_list.count() < 2 || arg_list.count() > 3) {
+		    fprintf(stderr, "%s:%d join(var, sep, join) requires three arguments\n",
+			    parser.file.latin1(), parser.line_no);
+		} else {
+		    QString sep = arg_list[1], join = " ";
+		    if(arg_list.count() == 3)
+			join = arg_list[2];
+		    QStringList var = place[varMap(arg_list.first())];
+		    for(QStringList::Iterator vit = var.begin(); vit != var.end(); ++vit) {
+			QStringList lst = QStringList::split(sep, (*vit));
+			for(QStringList::Iterator spltit = lst.begin(); spltit != lst.end(); ++spltit) {
+			    if(!replacement.isEmpty())
+				replacement += join;
+			    replacement += (*spltit);
+			}
+		    }
 		}
 	    } else if(val.lower() == "find") {
 		if(arg_list.count() != 2) {
