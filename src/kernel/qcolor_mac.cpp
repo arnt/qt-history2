@@ -114,6 +114,14 @@ int QColor::numBitPlanes()
 
 void QColor::initialize()
 {
+    if ( color_init )
+	return;
+
+    color_init = TRUE;
+    if ( QApplication::colorSpec() == QApplication::NormalColor )
+	return;
+
+    int numCols = maxColors();
 }
 
 /*!
@@ -146,7 +154,16 @@ void QColor::cleanup()
 
 uint QColor::alloc()
 {
-    return 0;
+    if ( (rgbVal & RGB_INVALID) || !color_init ) {
+	rgbVal = 0;				// invalid color or state
+	pix = 0;
+    } else {
+	rgbVal &= RGB_MASK;
+	//FIXME: Under what coditions is this correct
+	pix = qRed( rgbVal ) << 16 + qGreen( rgbVal ) << 8 + qBlue( rgbVal );
+    }
+
+    return pix;
 }
 
 
