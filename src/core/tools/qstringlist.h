@@ -40,7 +40,7 @@ public:
     void sort();
 
 #ifdef QT_COMPAT
-    static QT_COMPAT QStringList split(const QString &sep, const QString &str, bool allowEmptyEntries = false);
+    inline static QT_COMPAT QStringList split(const QString &sep, const QString &str, bool allowEmptyEntries = false);
     static QT_COMPAT QStringList split(const QChar &sep, const QString &str, bool allowEmptyEntries = false);
     static QT_COMPAT QStringList split(const QRegExp &sep, const QString &str, bool allowEmptyEntries = false);
 #endif
@@ -64,6 +64,34 @@ public:
     ConstIterator QT_COMPAT fromLast() const { return (isEmpty() ? end() : --end()); }
 #endif
 };
+
+#ifdef QT_COMPAT
+inline
+QStringList QStringList::split(const QString &sep, const QString &str, bool allowEmptyEntries)
+{
+    QStringList s = str.split(sep);
+    if (!allowEmptyEntries)
+	s.remove(QString());
+    return s;
+}
+
+inline
+QStringList QStringList::split(const QChar &sep, const QString &str, bool allowEmptyEntries)
+{
+    QStringList s = str.split(sep);
+    if (!allowEmptyEntries)
+	s.remove(QString());
+    return s;
+}
+inline
+QStringList QStringList::split(const QRegExp &sep, const QString &str, bool allowEmptyEntries)
+{
+    QStringList s = str.split(sep);
+    if (!allowEmptyEntries)
+	s.remove(QString());
+    return s;
+}
+#endif
 
 #ifndef QT_NO_DATASTREAM
 template <class T>

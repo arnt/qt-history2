@@ -159,7 +159,8 @@ void QStringList::sort()
 }
 
 #ifdef QT_COMPAT
-/*!
+/*! \fn QStringList QStringList::split(const QChar &sep, const QString &str, bool allowEmptyEntries)
+
     \overload
 
     This version of the function uses a QChar as separator, rather
@@ -168,12 +169,8 @@ void QStringList::sort()
     \sa join() QString::section()
 */
 
-QStringList QStringList::split(const QChar &sep, const QString &str, bool allowEmptyEntries)
-{
-    return split(QString(sep), str, allowEmptyEntries);
-}
+/*! \fn QStringList QStringList::split(const QString &sep, const QString &str, bool allowEmptyEntries)
 
-/*!
     \overload
 
     This version of the function uses a QString as separator, rather
@@ -190,33 +187,9 @@ QStringList QStringList::split(const QChar &sep, const QString &str, bool allowE
     \sa join() QString::section()
 */
 
-QStringList QStringList::split(const QString &sep, const QString &str, bool allowEmptyEntries)
-{
-    QStringList lst;
-
-    int j = 0;
-    int i = str.indexOf(sep, j);
-
-    while (i != -1) {
-	if (i > j && i <= (int)str.length())
-	    lst << str.mid(j, i - j);
-	else if (allowEmptyEntries)
-	    lst << QString::null;
-	j = i + sep.length();
-	i = str.indexOf(sep, sep.length() > 0 ? j : j+1);
-    }
-
-    int l = str.length() - 1;
-    if (str.mid(j, l - j + 1).length() > 0)
-	lst << str.mid(j, l - j + 1);
-    else if (allowEmptyEntries)
-	lst << QString::null;
-
-    return lst;
-}
-
 #ifndef QT_NO_REGEXP
-/*!
+/*! \fn QStringList QStringList::split(const QRegExp &sep, const QString &str, bool allowEmptyEntries)
+
     Splits the string \a str into strings wherever the regular
     expression \a sep occurs, and returns the list of those strings.
 
@@ -235,36 +208,6 @@ QStringList QStringList::split(const QString &sep, const QString &str, bool allo
 
     \sa join() QString::section()
 */
-
-QStringList QStringList::split(const QRegExp &sep, const QString &str, bool allowEmptyEntries)
-{
-    QStringList lst;
-
-    QRegExp tep = sep;
-
-    int j = 0;
-    int i = tep.search(str, j);
-
-    while (i != -1) {
-	if (str.mid(j, i - j).length() > 0)
-	    lst << str.mid(j, i - j);
-	else if (allowEmptyEntries)
-	    lst << QString::null;
-	if (tep.matchedLength() == 0)
-	    j = i + 1;
-	else
-	    j = i + tep.matchedLength();
-	i = tep.search(str, j);
-    }
-
-    int l = str.length() - 1;
-    if (str.mid(j, l - j + 1).length() > 0)
-	lst << str.mid(j, l - j + 1);
-    else if (allowEmptyEntries)
-	lst << QString::null;
-
-    return lst;
-}
 #endif
 #endif //QT_COMPAT
 
