@@ -303,8 +303,6 @@ QDnsAnswer::~QDnsAnswer()
 	for (int i = 0; i < rrs.count(); ++i)
 	    rrs.at(i)->t = QDns::None; // will be deleted soonish
     }
-    while (!rrs.isEmpty())
-	delete rrs.takeFirst();
 }
 
 
