@@ -221,7 +221,11 @@ QSqlRecord::~QSqlRecord()
 
 QVariant QSqlRecord::value( int i ) const
 {
-    return field(i)->value();
+    const QSqlField * f = field(i);
+
+    if( f )
+	return f->value();
+    return QVariant();
 }
 
 /*!  \overload
