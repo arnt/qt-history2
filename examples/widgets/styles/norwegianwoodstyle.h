@@ -1,16 +1,17 @@
 #ifndef NORWEGIANWOODSTYLE_H
 #define NORWEGIANWOODSTYLE_H
 
-#include <QImage>
 #include <QMotifStyle>
 #include <QPalette>
+
+class QPainterPath;
 
 class NorwegianWoodStyle : public QMotifStyle
 {
     Q_OBJECT
 
 public:
-    NorwegianWoodStyle();
+    NorwegianWoodStyle() {}
 
     void polish(QPalette &palette);
     int pixelMetric(PixelMetric metric, const QStyleOption *option,
@@ -23,16 +24,9 @@ public:
                   const QWidget *widget, QStyleHintReturn *returnData) const;
 
 private:
-    void setBrushPixmap(QPalette &palette, QPalette::ColorRole role,
-                        const QPixmap &pixmap);
-
-    QImage buttonImage;
-    QImage lightImage;
-    QImage darkImage;
-    QImage midImage;
-    QImage backgroundImage;
-    QImage sunkenMidImage;
-    QPalette woodPalette;
+    static void setBrushPixmap(QPalette &palette, QPalette::ColorRole role,
+                               const QPixmap &pixmap);
+    static QPainterPath roundRectPath(const QRect &rect);
 };
 
 #endif
