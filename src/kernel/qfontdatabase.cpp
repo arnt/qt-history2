@@ -822,9 +822,14 @@ QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp,
 	    return fe;
 	}
 
-	QFontCache::Key key( request, script, fp->screen );
-	fe = QFontCache::instance->findEngine( key );
-	if ( fe ) return fe;
+#ifdef Q_WS_WIN
+	if (!fp->paintdevice) 
+#endif
+	{
+	    QFontCache::Key key( request, script, fp->screen );
+	    fe = QFontCache::instance->findEngine( key );
+	    if ( fe ) return fe;
+	}
     }
 
     QString family_name, foundry_name;
@@ -936,7 +941,11 @@ QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp,
 
 	fe = new QFontEngineBox( request.pixelSize );
 
-	if ( fp ) {
+	if ( fp 
+#ifdef Q_WS_WIN
+	    && !fp->paintdevice
+#endif
+	    ) {
 	    QFontCache::Key key( request, script, fp->screen );
 	    QFontCache::instance->insertEngine( key, fe );
 	}
@@ -982,7 +991,11 @@ QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp,
 
 	    fe = new QFontEngineBox( request.pixelSize );
 
-	    if ( fp ) {
+	    if ( fp 
+#ifdef Q_WS_WIN
+	    && !fp->paintdevice
+#endif
+	    ) {
 		QFontCache::Key key( request, script, fp->screen );
 		QFontCache::instance->insertEngine( key, fe );
 	    }
@@ -1028,7 +1041,11 @@ QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp,
 	fe->fontDef.stretch       = best_style->key.stretch;
 	fe->fontDef.ignorePitch   = FALSE;
 
-	if ( fp ) {
+	if ( fp 
+#ifdef Q_WS_WIN
+	    && !fp->paintdevice
+#endif
+	    ) {
 	    QFontCache::Key key( request, script, fp->screen );
 	    QFontCache::instance->insertEngine( key, fe );
 
@@ -1048,7 +1065,11 @@ QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp,
 
 	    fe = new QFontEngineBox( request.pixelSize );
 
-	    if ( fp ) {
+	    if ( fp 
+#ifdef Q_WS_WIN
+		&& !fp->paintdevice
+#endif
+		) {
 		QFontCache::Key key( request, script, fp->screen );
 		QFontCache::instance->insertEngine( key, fe );
 	    }

@@ -122,8 +122,22 @@ QFontPrivate::QFontPrivate( const QFontPrivate &other )
 
 QFontPrivate::~QFontPrivate()
 {
-    if ( engineData )
+    if ( engineData ) {
 	engineData->deref();
+#ifdef Q_WS_WIN
+	if (paintdevice && !engineData->count) {
+	    for ( int i = 0; i < QFont::LastPrivateScript; i++ ) {
+		if ( engineData->engines[i] ) {
+		    engineData->engines[i]->deref();
+		    if (!engineData->engines[i]->count)
+			delete engineData->engines[i];
+		    engineData->engines[i] = 0;
+		}
+	    }
+	    delete engineData;
+	}
+#endif
+    }
     engineData = 0;
 }
 
