@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#145 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#146 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -160,7 +160,7 @@ QLineEdit::QLineEdit( QWidget *parent, const char *name )
     setFocusPolicy( StrongFocus );
     setCursor( ibeamCursor );
     setBackgroundMode( PaletteBase );
-    setAcceptDrops( TRUE );
+    //setAcceptDrops( TRUE );
 }
 
 /*!
