@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: moc.doc,v 1.5 1996/02/17 22:05:36 agulbra Exp $
+** $Id: moc.doc,v 1.6 1996/07/04 19:58:09 agulbra Exp $
 **
 ** Moc usage, expanded from the manual page
 **
@@ -38,6 +38,10 @@ file.  If both -i and -f are present, the last one wins.
 <dt> -ldbg <dd> Write a flood of lex debug information on stdout.
 <dt> -dbg <dd> Treat all non-signal members as slots, for internal
 debugging purposes.  This is not useful for programming Qt clients.
+<dt> -p <var>path</var> <dd> Makes the moc prepend <var>path</var>/ to
+the file name in the generated #include statement (if one is
+generated).
+
 </dl>
 
 <h2>Usage</h2>
