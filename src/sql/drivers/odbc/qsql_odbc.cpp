@@ -312,6 +312,39 @@ QSqlFieldInfo qMakeFieldInfo( const QODBCPrivate* p, int i  )
 #undef COLNAMESIZE
 }
 
+void qSplitTableQualifier( const QString & qualifier, QString * catalog,
+			   QString * schema, QString * table )
+{
+    if ( !catalog || !schema || !table )
+	return;
+    QStringList l = QStringList::split( ".", qualifier, TRUE );
+    if ( l.count() > 3 )
+	return; // can't possibly be a valid table qualifier
+    int i = 0, n = l.count();
+    if ( n == 1 ) {
+	*table = qualifier;
+    } else {
+	for ( QStringList::Iterator it = l.begin(); it != l.end(); ++it ) {
+	    if ( n == 3 ) {
+		if ( i == 0 ) {
+		    *catalog = *it;
+		} else if ( i == 1 ) {
+		    *schema = *it;
+		} else if ( i == 2 ) {
+		    *table = *it;
+		}
+	    } else if ( n == 2 ) {
+		if ( i == 0 ) {
+		    *schema = *it;
+		} else if ( i == 1 ) {
+		    *table = *it;
+		}
+	    }
+	    i++;
+	}
+    }
+}
+
 ////////////////////////////////////////////////////////////////////////////
 
 QODBCResult::QODBCResult( const QODBCDriver * db, QODBCPrivate* p )
@@ -1065,21 +1098,31 @@ QSqlIndex QODBCDriver::primaryIndex( const QString& tablename ) const
 #endif
 	return index;
     }
+    QString catalog, schema, table;
+    qSplitTableQualifier( tablename, &catalog, &schema, &table );
     r = SQLSetStmtAttr( hStmt,
 			SQL_ATTR_CURSOR_TYPE,
 			(SQLPOINTER)SQL_CURSOR_FORWARD_ONLY,
 			SQL_IS_UINTEGER );
     r = SQLPrimaryKeys( hStmt,
-			NULL,
-			0,
-			NULL,
-			0,
 #ifdef UNICODE
-			(SQLWCHAR*)tablename.unicode(),
+			(SQLWCHAR*)catalog.unicode(),
 #else
-			(SQLCHAR*)tablename.latin1(),
+			(SQLCHAR*)catalog.latin1(),
 #endif
-			tablename.length() /* in characters, not in bytes */);
+			catalog.length(),
+#ifdef UNICODE
+			(SQLWCHAR*)schema.unicode(),
+#else
+			(SQLCHAR*)schema.latin1(),
+#endif
+			schema.length(),
+#ifdef UNICODE
+			(SQLWCHAR*)table.unicode(),
+#else
+			(SQLCHAR*)table.latin1(),
+#endif
+			table.length() /* in characters, not in bytes */);
 #ifdef QT_CHECK_RANGE
     if ( r != SQL_SUCCESS )
 	qSqlWarning( "QODBCDriver::primaryIndex: Unable to execute primary key list", d );
@@ -1121,6 +1164,9 @@ QSqlRecordInfo QODBCDriver::recordInfo( const QString& tablename ) const
 	return fil;
 
     SQLHANDLE hStmt;
+    QString catalog, schema, table;
+    qSplitTableQualifier( tablename, &catalog, &schema, &table );
+
     SQLRETURN r = SQLAllocHandle( SQL_HANDLE_STMT,
 				  d->hDbc,
 				  &hStmt );
@@ -1135,16 +1181,24 @@ QSqlRecordInfo QODBCDriver::recordInfo( const QString& tablename ) const
 			(SQLPOINTER)SQL_CURSOR_FORWARD_ONLY,
 			SQL_IS_UINTEGER );
     r =  SQLColumns( hStmt,
-		     NULL,
-		     0,
-		     NULL,
-		     0,
 #ifdef UNICODE
-		     (SQLWCHAR*)tablename.unicode(),
+		     (SQLWCHAR*)catalog.unicode(),
 #else
-		     (SQLCHAR*)tablename.latin1(),
+		     (SQLCHAR*)catalog.latin1(),
 #endif
-		     tablename.length(),
+		     catalog.length(),
+#ifdef UNICODE
+		     (SQLWCHAR*)schema.unicode(),
+#else
+		     (SQLCHAR*)schema.latin1(),
+#endif
+		     schema.length(),
+#ifdef UNICODE
+		     (SQLWCHAR*)table.unicode(),
+#else
+		     (SQLCHAR*)table.latin1(),
+#endif
+		     table.length(),
 		     NULL,
 		     0 );
 #ifdef QT_CHECK_RANGE
