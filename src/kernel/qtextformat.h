@@ -77,7 +77,7 @@ public:
 	FormatReference
     };
 
-    QTextFormat(int type, int inheritedType = -1);
+    Q_EXPLICIT QTextFormat(int type, int inheritedType = -1);
 
     Q_EXPLICIT QTextFormat(const QTextFormatPrivate &priv);
 
@@ -117,6 +117,8 @@ public:
 
     bool hasProperty(int propertyId) const;
     PropertyType propertyType(int propertyId) const;
+
+    QList<int> allPropertyIds() const;
 
 private:
     QTextFormatPrivate *d;

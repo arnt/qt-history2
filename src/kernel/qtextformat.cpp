@@ -380,6 +380,11 @@ QTextFormat::PropertyType QTextFormat::propertyType(int propertyId) const
     return prop.type;
 }
 
+QList<int> QTextFormat::allPropertyIds() const
+{
+    return d->propertyMap().keys();
+}
+
 void QTextCharFormat::setFont(const QFont &font)
 {
     setFontFamily(font.family());
