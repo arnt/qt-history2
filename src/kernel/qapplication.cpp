@@ -756,7 +756,10 @@ void QApplication::initialize( int argc, char **argv )
 	//
 	QString style;
 #if defined(Q_WS_WIN)
-	style = "Windows";		// default style for Windows
+	if ( qWinVersion() == WV_XP )
+	    style = "WindowsXP";
+	else
+	    style = "Windows";		// default styles for Windows
 #elif defined(Q_WS_X11) && defined(Q_OS_SOLARIS)
 	style = "CDE";			// default style for X11 on Solaris
 #elif defined(Q_WS_X11) && defined(Q_OS_IRIX)
