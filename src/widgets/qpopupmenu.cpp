@@ -456,6 +456,8 @@ void QPopupMenu::frameChanged()
   Displays the popup menu so that the item number \a indexAtPoint will be
   at the specified \e global position \a pos.  To translate a widget's
   local coordinates into global coordinates, use QWidget::mapToGlobal().
+  If \a indexAtPoint is negative, the topleft corner of the menu will be
+  at the specified position.
 
   When positioning a popup with exec() or popup(), bear in mind that
   you cannot rely on the popup menu's current size(). For performance
@@ -2184,6 +2186,8 @@ void QPopupMenu::updateRow( int row )
   Opens the popup menu so that the item number \a indexAtPoint will be
   at the specified \e global position \a pos.  To translate a widget's
   local coordinates into global coordinates, use QWidget::mapToGlobal().
+  If \a indexAtPoint is negative, the topleft corner of the menu will be
+  at the specified position.
 
   The return code is the id of the selected item in either the popup
   menu or one of its submenus, or -1 if no item is selected (normally
