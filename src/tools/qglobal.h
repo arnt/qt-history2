@@ -172,27 +172,27 @@
 /*
    The compiler, must be one of: (Q_CC_x)
 
-     SYM - Symantec C++ for both PC and Macintosh
-     MPW - MPW C++
-     MWERKS - Metrowerks CodeWarrior
-     MSVC - Microsoft Visual C/C++
-     BOR - Borland/Turbo C++
-     WAT - Watcom C++
-     GNU - GNU C++
-     COMEAU - Comeau C++
-     EDG - Edison Design Group C++
-     OC - CenterLine C++
-     SUN - Sun C++
-     MIPS - MIPSpro C++
-     DEC - DEC C++
-     HP - HPUX C++
-     HPACC - HPUX ANSI C++
-     USLC - SCO UnixWare C++
-     CDS - Reliant C++
-     KAI - KAI C++
-     INTEL - Intel C++
-     HIGHC - MetaWare High C/C++
-     PGI - Portland Group C++
+     SYM	- Symantec C++ for both PC and Macintosh
+     MPW	- MPW C++
+     MWERKS	- Metrowerks CodeWarrior
+     MSVC	- Microsoft Visual C/C++
+     BOR	- Borland/Turbo C++
+     WAT	- Watcom C++
+     GNU	- GNU C++
+     COMEAU	- Comeau C++
+     EDG	- Edison Design Group C++
+     OC		- CenterLine C++
+     SUN	- Sun WorkShop or Forte C++
+     MIPS	- MIPSpro C++
+     DEC	- DEC C++
+     HP		- HPUX C++
+     HPACC	- HPUX ANSI C++
+     USLC	- SCO UnixWare C++
+     CDS	- Reliant C++
+     KAI	- KAI C++
+     INTEL	- Intel C++
+     HIGHC	- MetaWare High C/C++
+     PGI	- Portland Group C++
 
    Should be sorted most to least authoritative.
 */
@@ -409,13 +409,13 @@
 /*
    The window system, must be one of: (Q_WS_x)
 
-     MACX	  - Mac OS X
-     MAC9	  - Mac OS 9
-     QWS	  - Qt/Embedded
-     WIN32  - Windows
-     X11	  - X Window System
-     PM	  - unsupported
-     WIN16  - unsupported
+     MACX	- Mac OS X
+     MAC9	- Mac OS 9
+     QWS	- Qt/Embedded
+     WIN32	- Windows
+     X11	- X Window System
+     PM		- unsupported
+     WIN16	- unsupported
 */
 
 #if defined(Q_OS_MAC9)
@@ -542,34 +542,34 @@ inline int qRound( double d )
 
 #if !defined(QT_CLEAN_NAMESPACE)
 // source compatibility with Qt 1.x
-typedef signed char	    INT8;		 // 8 bit signed
-typedef unsigned char	   UINT8;		// 8 bit unsigned
-typedef short		    INT16;	 // 16 bit signed
-typedef unsigned short	   UINT16;	// 16 bit unsigned
-typedef int		INT32;	  // 32 bit signed
-typedef unsigned int	   UINT32;	// 32 bit unsigned
+typedef signed char		INT8;		// 8 bit signed
+typedef unsigned char		UINT8;		// 8 bit unsigned
+typedef short			INT16;		// 16 bit signed
+typedef unsigned short		UINT16;		// 16 bit unsigned
+typedef int			INT32;		// 32 bit signed
+typedef unsigned int		UINT32;		// 32 bit unsigned
 #endif
 
-typedef signed char	    Q_INT8;	 // 8 bit signed
-typedef unsigned char	   Q_UINT8;	// 8 bit unsigned
-typedef short		    Q_INT16;	 // 16 bit signed
-typedef unsigned short	   Q_UINT16;	// 16 bit unsigned
-typedef int		Q_INT32;	  // 32 bit signed
-typedef unsigned int	   Q_UINT32;	// 32 bit unsigned
+typedef signed char		Q_INT8;		// 8 bit signed
+typedef unsigned char		Q_UINT8;	// 8 bit unsigned
+typedef short			Q_INT16;	// 16 bit signed
+typedef unsigned short		Q_UINT16;	// 16 bit unsigned
+typedef int			Q_INT32;	// 32 bit signed
+typedef unsigned int		Q_UINT32;	// 32 bit unsigned
 #if defined(Q_OS_WIN64)
 // LLP64 64-bit model on Windows
-typedef __int64	    Q_LONG;	 // word up to 64 bit signed
-typedef unsigned __int64	   Q_ULONG;	// word up to 64 bit unsigned
+typedef __int64			Q_LONG;		// word up to 64 bit signed
+typedef unsigned __int64	Q_ULONG;	// word up to 64 bit unsigned
 #else
 // LP64 64-bit model on Linux
-typedef long		    Q_LONG;
-typedef unsigned long	   Q_ULONG;
+typedef long			Q_LONG;
+typedef unsigned long		Q_ULONG;
 #endif
 
 #if !defined(QT_CLEAN_NAMESPACE)
 // mininum size of 64 bits is not guaranteed
-#define Q_INT64	    Q_LONG
-#define Q_UINT64	    Q_ULONG
+#define Q_INT64			Q_LONG
+#define Q_UINT64		Q_ULONG
 #endif
 
 
@@ -674,20 +674,20 @@ extern bool qt_winunicode;
 #  if defined(QT_NODLL)
 #    undef QT_MAKEDLL
 #    undef QT_DLL
-#  elif defined(QT_MAKEDLL) /* create a Qt DLL library */
+#  elif defined(QT_MAKEDLL)	/* create a Qt DLL library */
 #    if defined(QT_DLL)
 #      undef QT_DLL
 #    endif
 #    define Q_EXPORT  __declspec(dllexport)
 #    define Q_TEMPLATEDLL
-#    undef  Q_DISABLE_COPY  /* avoid unresolved externals */
-#  elif defined(QT_DLL)	   /* use a Qt DLL library */
+#    undef  Q_DISABLE_COPY	/* avoid unresolved externals */
+#  elif defined(QT_DLL)		/* use a Qt DLL library */
 #    define Q_EXPORT  __declspec(dllimport)
 #    define Q_TEMPLATEDLL
-#    undef  Q_DISABLE_COPY  /* avoid unresolved externals */
+#    undef  Q_DISABLE_COPY	/* avoid unresolved externals */
 #  endif
 #else
-#  undef QT_MAKEDLL	    /* ignore these for other platforms */
+#  undef QT_MAKEDLL		/* ignore these for other platforms */
 #  undef QT_DLL
 #endif
 
@@ -753,14 +753,14 @@ Q_EXPORT int qWinVersion();
 //
 
 #if !defined(QT_NO_CHECK)
-#  define QT_CHECK_STATE			 // check state of objects etc.
-#  define QT_CHECK_RANGE			 // check range of indexes etc.
-#  define QT_CHECK_NULL			 // check null pointers
-#  define QT_CHECK_MATH			 // check math functions
+#  define QT_CHECK_STATE			// check state of objects etc.
+#  define QT_CHECK_RANGE			// check range of indexes etc.
+#  define QT_CHECK_NULL				// check null pointers
+#  define QT_CHECK_MATH				// check math functions
 #endif
 
 #if !defined(QT_NO_DEBUG) && !defined(QT_DEBUG)
-#  define QT_DEBUG			  // display debug messages
+#  define QT_DEBUG				// display debug messages
 #  if !defined(QT_NO_COMPAT)
 // source compatibility with Qt 2.x
 #    if !defined(NO_DEBUG) && !defined(DEBUG)
@@ -772,19 +772,19 @@ Q_EXPORT int qWinVersion();
 #endif
 
 
-Q_EXPORT void qDebug( const char *, ... )   // print debug message
+Q_EXPORT void qDebug( const char *, ... )	// print debug message
 #if defined(Q_CC_GNU) && !defined(__INSURE__)
     __attribute__ ((format (printf, 1, 2)))
 #endif
 ;
 
-Q_EXPORT void qWarning( const char *, ... ) // print warning message
+Q_EXPORT void qWarning( const char *, ... )	// print warning message
 #if defined(Q_CC_GNU) && !defined(__INSURE__)
     __attribute__ ((format (printf, 1, 2)))
 #endif
 ;
 
-Q_EXPORT void qFatal( const char *, ... )   // print fatal message and exit
+Q_EXPORT void qFatal( const char *, ... )	// print fatal message and exit
 #if defined(Q_CC_GNU)
     __attribute__ ((format (printf, 1, 2)))
 #endif
@@ -795,19 +795,19 @@ Q_EXPORT void qSystemWarning( const char *, int code = -1 );
 #if !defined(QT_CLEAN_NAMESPACE)
 // source compatibility with Qt 1.x
 
-Q_EXPORT void debug( const char *, ... )    // print debug message
+Q_EXPORT void debug( const char *, ... )	// print debug message
 #if defined(Q_CC_GNU) && !defined(__INSURE__)
     __attribute__ ((format (printf, 1, 2)))
 #endif
 ;
 
-Q_EXPORT void warning( const char *, ... )  // print warning message
+Q_EXPORT void warning( const char *, ... )	// print warning message
 #if defined(Q_CC_GNU) && !defined(__INSURE__)
     __attribute__ ((format (printf, 1, 2)))
 #endif
 ;
 
-Q_EXPORT void fatal( const char *, ... )    // print fatal message and exit
+Q_EXPORT void fatal( const char *, ... )	// print fatal message and exit
 #if defined(Q_CC_GNU) && !defined(__INSURE__)
     __attribute__ ((format (printf, 1, 2)))
 #endif
