@@ -50,6 +50,7 @@
 #include "qstringlist.h"
 #include "qguardedptr.h"
 #include "qstyle.h"
+#include "qwhatsthis.h"
 #include <ctype.h>
 #include <private/qrichtext_p.h>
 #include <private/qinternal_p.h>
@@ -1039,7 +1040,7 @@ void QLineEdit::mouseMoveEvent( QMouseEvent *e )
 	return;
 #ifndef QT_NO_CURSOR
     if ( !d->mousePressed ) {
-	if ( !isReadOnly() && dragEnabled() ) {
+	if ( !isReadOnly() && dragEnabled() && !QWhatsThis::inWhatsThisMode() ) {
 	    if ( hasSelectedText() &&
 		 inSelection( e->pos().x() + d->offset - frameWidth() - margin() - 1, d->parag ) )
 		setCursor( arrowCursor );
