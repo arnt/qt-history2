@@ -5172,6 +5172,8 @@ void QIconView::keyPressEvent( QKeyEvent *e )
 		    break;
 		}
 	    }
+	    e->ignore();
+	    return;
 	}
     }
 
@@ -5183,10 +5185,7 @@ void QIconView::keyPressEvent( QKeyEvent *e )
 	d->currentItem->setSelected( TRUE );
     }
 
-    if ( e->key() != Key_Shift &&
-	 e->key() != Key_Control &&
-	 e->key() != Key_Alt )
-	ensureItemVisible( d->currentItem );
+    ensureItemVisible( d->currentItem );
 }
 
 /*
