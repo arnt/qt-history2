@@ -326,12 +326,6 @@ void FormWindow::insertWidget()
     if ( !w )
 	return;
 
-    TemplateWizardInterface *iface = mainWindow()->templateWizardInterface( w->className() );
-    if ( iface ) {
-	iface->setup( w->className(), w, iFace(), mainWindow()->designerInterface() );
-	iface->release();
-    }
-
     if ( !savePixmapInline() && currTool == WidgetDatabase::idFromClassName( "PixmapLabel" ) ) // ### what to do for pixmaps in project
 	( (QLabel*)w )->setPixmap( PixmapChooser::loadPixmap( "image.xpm" ) );
     int id = WidgetDatabase::idFromClassName( WidgetFactory::classNameOf(w) );
@@ -428,6 +422,12 @@ void FormWindow::insertWidget()
 	InsertCommand *cmd = new InsertCommand( tr( "Insert %1" ).arg( w->name() ), this, w, r );
 	commandHistory()->addCommand( cmd );
 	cmd->execute();
+    }
+
+    TemplateWizardInterface *iface = mainWindow()->templateWizardInterface( w->className() );
+    if ( iface ) {
+	iface->setup( w->className(), w, iFace(), mainWindow()->designerInterface() );
+	iface->release();
     }
 }
 
