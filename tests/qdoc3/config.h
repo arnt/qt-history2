@@ -15,6 +15,7 @@ class Config
 {
 public:
     Config( const QString& programName );
+    ~Config();
 
     void load( const QString& fileName );
     void setStringList( const QString& var, const QStringList& values );
@@ -32,10 +33,12 @@ public:
     QStringList getAllFiles( const QString& filesVar, const QString& dirsVar,
 			     const QString& nameFilter );
 
-    static QString findFile( const QStringList& files,
+    static QString findFile( const Location& location, const QStringList& files,
 			     const QStringList& dirsVar,
-			     const QString& fileName );
+			     const QString& fileName,
+			     QString& userFriendlyFilePath );
     static int numParams( const QString& value );
+    static bool removeDirContents( const QString& dir );
 
     QT_STATIC_CONST QString dot;
 
@@ -50,6 +53,9 @@ private:
     QMap<QString, Location> locMap;
     QMap<QString, QStringList> stringListValueMap;
     QMap<QString, QString> stringValueMap;
+
+    static QMap<QString, QString> tempDirs;
+    static int numInstances;
 };
 
 #define CONFIG_ALIAS                "alias"

@@ -67,9 +67,9 @@ CodeMarker *CodeMarker::markerForCode( const QString& code )
 CodeMarker *CodeMarker::markerForFileName( const QString& fileName )
 {
     QString ext;
-    int k = fileName.findRev( '.' );
-    if ( k != -1 )
-	ext = fileName.mid( k + 1 ).lower();
+    int dot = fileName.findRev( '.' );
+    if ( dot != -1 )
+	ext = fileName.mid( dot + 1 );
 
     CodeMarker *defaultMarker = markerForLanguage( defaultLang );
     if ( defaultMarker != 0 && defaultMarker->recognizeExtension(ext) )

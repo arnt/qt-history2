@@ -83,12 +83,12 @@ void Location::advance( QChar ch )
 }
 
 /*!
-  Pushes \a pathAndFileName onto the file position stack. The current
-  location becomes (\a pathAndFileName, 1, 1).
+  Pushes \a filePath onto the file position stack. The current
+  location becomes (\a filePath, 1, 1).
 
   \sa pop()
 */
-void Location::push( const QString& pathAndFileName )
+void Location::push( const QString& filePath )
 {
     if ( stkDepth++ >= 1 ) {
 	if ( stk == 0 )
@@ -97,7 +97,7 @@ void Location::push( const QString& pathAndFileName )
 	stkTop = &stk->top();
     }
 
-    stkTop->pathAndFileName = pathAndFileName;
+    stkTop->filePath = filePath;
     stkTop->lineNo = INT_MIN;
     stkTop->columnNo = 1;
 }
@@ -127,11 +127,11 @@ void Location::pop()
 /*! \fn bool Location::isEmpty() const
 
   Returns TRUE if there is no file name set yet; returns FALSE
-  otherwise. The functions pathAndFileName(), lineNo() and columnNo()
+  otherwise. The functions filePath(), lineNo() and columnNo()
   may only be called on non-empty objects.
 */
 
-/*! \fn const QString& Location::pathAndFileName() const
+/*! \fn const QString& Location::filePath() const
 
   Returns the current path and file name.
 
@@ -143,22 +143,22 @@ void Location::pop()
 */
 QString Location::fileName() const
 {
-    QString fn = pathAndFileName();
-    return fn.mid( fn.findRev('/') + 1 );
+    QString fp = filePath();
+    return fp.mid( fp.findRev('/') + 1 );
 }
 
 /*! \fn int Location::lineNo() const
 
   Returns the current line number.
 
-  \sa pathAndFileName(), columnNo()
+  \sa filePath(), columnNo()
 */
 
 /*! \fn int Location::columnNo() const
 
   Returns the current column number.
 
-  \sa pathAndFileName(), lineNo()
+  \sa filePath(), lineNo()
 */
 
 void Location::warning( const QString& message, const QString& details ) const
@@ -263,7 +263,7 @@ QString Location::toString() const
 
 QString Location::top() const
 {
-    QString str = pathAndFileName();
+    QString str = filePath();
     if ( lineNo() >= 1 ) {
 	str += ":" + QString::number( lineNo() );
 	if ( columnNo() >= 1 )

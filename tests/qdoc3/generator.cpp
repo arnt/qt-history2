@@ -11,36 +11,6 @@
 #include "node.h"
 #include "separator.h"
 
-static bool removeDirContents( const QString& dir )
-{
-    QDir dirInfo( dir );
-    const QFileInfoList *entries = dirInfo.entryInfoList();
-    if ( entries == 0 )
-	return FALSE;
-
-    QFileInfoListIterator it( *entries );
-    QFileInfo *entry;
-    bool ok = TRUE;
-
-    while ( (entry = it.current()) != 0 ) {
-	if ( entry->isFile() ) {
-	    if ( !dirInfo.remove(entry->fileName()) )
-		ok = FALSE;
-	} else if ( entry->isDir() ) {
-	    if ( entry->fileName() != "." && entry->fileName() != ".." ) {
-		if ( removeDirContents(entry->absFilePath()) ) {
-		    if ( !dirInfo.rmdir(entry->fileName()) )
-			ok = FALSE;
-		} else {
-		    ok = FALSE;
-		}
-	    }
-	}
-	++it;
-    }
-    return ok;
-}
-
 QValueList<Generator *> Generator::generators;
 QMap<QString, QMap<QString, QString> > Generator::fmtLeftMaps;
 QMap<QString, QMap<QString, QString> > Generator::fmtRightMaps;
@@ -75,7 +45,7 @@ void Generator::initialize( const Config& config )
 
     QDir dirInfo;
     if ( dirInfo.exists(outDir) ) {
-	if ( !removeDirContents(outDir) )
+	if ( !Config::removeDirContents(outDir) )
 	    config.lastLocation().error( tr("Cannot empty output directory"
 					    " '%1'")
 					 .arg(outDir) );

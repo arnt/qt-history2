@@ -16,7 +16,7 @@ class Location
 {
 public:
     Location();
-    Location( const QString& pathAndFileName );
+    Location( const QString& filePath );
     Location( const Location& other );
     ~Location() { delete stk; }
 
@@ -24,13 +24,13 @@ public:
 
     void start();
     void advance( QChar ch );
-    void push( const QString& pathAndFileName );
+    void push( const QString& filePath );
     void pop();
     void setEtc( bool etc ) { etcetera = etc; }
 
     bool isEmpty() const { return stkDepth == 0; }
     int depth() const { return stkDepth; }
-    const QString& pathAndFileName() const { return stkTop->pathAndFileName; }
+    const QString& filePath() const { return stkTop->filePath; }
     QString fileName() const;
     int lineNo() const { return stkTop->lineNo; }
     int columnNo() const { return stkTop->columnNo; }
@@ -51,7 +51,7 @@ private:
 
     struct StackEntry
     {
-	QString pathAndFileName;
+	QString filePath;
 	int lineNo;
 	int columnNo;
     };

@@ -1,5 +1,6 @@
 TEMPLATE = app
-HEADERS += atom.h \
+HEADERS += archiveextractor.h \
+	   atom.h \
 	   bookgenerator.h \
 	   ccodeparser.h \
            codechunk.h \
@@ -18,6 +19,7 @@ HEADERS += atom.h \
            openedlist.h \
 	   pagegenerator.h \
 	   plaincodemarker.h \
+	   polyarchiveextractor.h \
 	   qscodemarker.h \
 	   qscodeparser.h \
            quoter.h \
@@ -28,7 +30,8 @@ HEADERS += atom.h \
 	   tokenizer.h \
 	   tr.h \
 	   tree.h
-SOURCES += atom.cpp \
+SOURCES += archiveextractor.cpp \
+	   atom.cpp \
 	   bookgenerator.cpp \
 	   ccodeparser.cpp \
            codechunk.cpp \
@@ -48,6 +51,7 @@ SOURCES += atom.cpp \
            openedlist.cpp \
 	   pagegenerator.cpp \
 	   plaincodemarker.cpp \
+	   polyarchiveextractor.cpp \
 	   qscodemarker.cpp \
 	   qscodeparser.cpp \
            quoter.cpp \

@@ -17,6 +17,7 @@
 #include "loutgenerator.h"
 #include "mangenerator.h"
 #include "plaincodemarker.h"
+#include "polyarchiveextractor.h"
 #include "qscodemarker.h"
 #include "qscodeparser.h"
 #include "sgmlgenerator.h"
@@ -166,6 +167,9 @@ int main( int argc, char **argv )
     QApplication app( argc, argv, FALSE );
 
     trees.setAutoDelete( TRUE );
+
+    PolyArchiveExtractor qsArchiveExtractor( QStringList() << "qsa",
+					     "qsauncompress \1 \2" );
 
     CCodeParser cParser;
     CppCodeParser cppParser;

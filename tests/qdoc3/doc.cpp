@@ -226,7 +226,8 @@ private:
     static QString untabifyEtc( const QString& str );
     static int indentLevel( const QString& str );
     static QString unindent( int level, const QString& str );
-    static int editDistance( const QString& s, const QString& t );
+    static int pseudoEditDistance( const QString& actual,
+				   const QString& expected );
 
     QValueStack<int> openedInputs;
 
@@ -785,7 +786,7 @@ QString DocParser::detailsUnknownCommand( const Set<QString>& metaCommandSet,
 
     Set<QString>::ConstIterator c = commandSet.begin();
     while ( c != commandSet.end() ) {
-	int delta = editDistance( *c, str );
+	int delta = pseudoEditDistance( str, *c );
 	if ( delta < deltaBest ) {
 	    deltaBest = delta;
 	    numBest = 1;
@@ -875,16 +876,18 @@ void DocParser::include( const QString& fileName )
 	location().fatal( tr("Too many nested '\\%1's")
 			  .arg(commandName(CMD_INCLUDE)) );
 
-    QString filePath = Config::findFile( sourceFiles, sourceDirs, fileName );
+    QString userFriendlyFilePath;
+    QString filePath = Config::findFile( location(), sourceFiles, sourceDirs,
+					 fileName, userFriendlyFilePath );
     if ( filePath.isEmpty() ) {
 	location().warning( tr("Cannot find leaf file '%1'").arg(fileName) );
     } else {
 	QFile inFile( filePath );
 	if ( !inFile.open(IO_ReadOnly) ) {
 	    location().warning( tr("Cannot open leaf file '%1'")
-				.arg(filePath) );
+				.arg(userFriendlyFilePath) );
 	} else {
-	    location().push( fileName );
+	    location().push( userFriendlyFilePath );
 
 	    QTextStream inStream( &inFile );
 	    QString includedStuff = inStream.read();
@@ -1167,14 +1170,16 @@ void DocParser::quoteFromFile( int /* command */ )
     QString code;
     QString fileName = getArgument();
 
-    QString filePath = Config::findFile( exampleFiles, exampleDirs, fileName );
+    QString userFriendlyFilePath;
+    QString filePath = Config::findFile( location(), exampleFiles, exampleDirs,
+					 fileName, userFriendlyFilePath );
     if ( filePath.isEmpty() ) {
 	location().warning( tr("Cannot find example file '%1'").arg(fileName) );
     } else {
 	QFile inFile( filePath );
 	if ( !inFile.open(IO_ReadOnly) ) {
 	    location().warning( tr("Cannot open example file '%1'")
-				.arg(filePath) );
+				.arg(userFriendlyFilePath) );
 	} else {
 	    QTextStream inStream( &inFile );
 	    code = untabifyEtc( inStream.read() );
@@ -1184,7 +1189,7 @@ void DocParser::quoteFromFile( int /* command */ )
 
     QString dirPath = QFileInfo( filePath ).dirPath();
     CodeMarker *marker = CodeMarker::markerForFileName( fileName );
-    quoter.quoteFromFile( filePath, code,
+    quoter.quoteFromFile( userFriendlyFilePath, code,
 			  marker->markedUpCode(code, 0, dirPath) );
 }
 
@@ -1574,13 +1579,14 @@ QString DocParser::unindent( int level, const QString& str )
     return t;
 }
 
-int DocParser::editDistance( const QString& s, const QString& t )
+int DocParser::pseudoEditDistance( const QString& actual,
+				   const QString& expected )
 {
 #define D( i, j ) d[(i) * n + (j)]
     int i;
     int j;
-    int m = s.length() + 1;
-    int n = t.length() + 1;
+    int m = actual.length() + 1;
+    int n = expected.length() + 1;
     int *d = new int[m * n];
     int result;
 
@@ -1590,7 +1596,7 @@ int DocParser::editDistance( const QString& s, const QString& t )
 	D( 0, j ) = j;
     for ( i = 1; i < m; i++ ) {
 	for ( j = 1; j < n; j++ ) {
-	    if ( s[i - 1] == t[j - 1] ) {
+	    if ( actual[i - 1] == expected[j - 1] ) {
 		D( i, j ) = D( i - 1, j - 1 );
 	    } else {
 		int x = D( i - 1, j );
@@ -1601,6 +1607,12 @@ int DocParser::editDistance( const QString& s, const QString& t )
 	}
     }
     result = D( m - 1, n - 1 );
+    /*
+      Handle common mistake: \quickify instead of \quickified.
+    */
+    if ( result == 3 && m == n - 2 && actual.endsWith("y") &&
+	 expected.endsWith("ied") )
+	result = 1;
     delete[] d;
     return result;
 #undef D

@@ -15,7 +15,7 @@ public:
     Quoter();
 
     void reset();
-    void quoteFromFile( const QString& pathAndFileName,
+    void quoteFromFile( const QString& userFriendlyFileName,
 			const QString& plainCode, const QString& markedCode );
     QString quoteLine( const Location& docLocation, const QString& command,
 		       const QString& pattern );

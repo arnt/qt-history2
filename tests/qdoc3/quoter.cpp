@@ -19,7 +19,7 @@ void Quoter::reset()
     codeLocation = Location::null;
 }
 
-void Quoter::quoteFromFile( const QString& pathAndFileName,
+void Quoter::quoteFromFile( const QString& userFriendlyFilePath,
 			    const QString& plainCode,
 			    const QString& markedCode )
 {
@@ -58,7 +58,7 @@ void Quoter::quoteFromFile( const QString& pathAndFileName,
 	(*m).append( "\n" );
 	++m;
     }
-    codeLocation = Location( pathAndFileName );
+    codeLocation = Location( userFriendlyFilePath );
     codeLocation.start();
 }
 
@@ -80,8 +80,8 @@ QString Quoter::quoteLine( const Location& docLocation, const QString& command,
     } else {
 	if ( !silent ) {
 	    docLocation.warning( tr("Command '\\%1' failed").arg(command) );
-	    docLocation.warning( tr("Pattern '%1' didn't match here")
-				 .arg(pattern) );
+	    codeLocation.warning( tr("Pattern '%1' didn't match here")
+				  .arg(pattern) );
 	    silent = TRUE;
 	}
 	return "";
@@ -153,12 +153,11 @@ bool Quoter::match( const Location& docLocation, const QString& pattern,
 void Quoter::failedAtEnd( const Location& docLocation, const QString& command )
 {
     if ( !silent ) {
-	if ( codeLocation.pathAndFileName().isEmpty() ) {
+	if ( codeLocation.filePath().isEmpty() ) {
 	    docLocation.warning( tr("Unexpected '\\%1'").arg(command) );
 	} else {
 	    docLocation.warning( tr("Command '\\%1' failed at end of file '%2'")
-				 .arg(command)
-				 .arg(codeLocation.pathAndFileName()) );
+				 .arg(command).arg(codeLocation.filePath()) );
 	}
 	silent = TRUE;
     }

@@ -6,6 +6,7 @@
 #include <qfile.h>
 #include <qregexp.h>
 
+#include "archiveextractor.h"
 #include "config.h"
 
 /*
@@ -95,6 +96,8 @@ QStringList MetaStack::getExpanded( const Location& location )
 }
 
 QT_STATIC_CONST_IMPL QString Config::dot = ".";
+QMap<QString, QString> Config::tempDirs;
+int Config::numInstances;
 
 /*!
 
@@ -107,6 +110,23 @@ Config::Config( const QString& programName )
     locMap.clear();
     stringValueMap.clear();
     stringListValueMap.clear();
+    numInstances++;
+}
+
+Config::~Config()
+{
+    if ( --numInstances == 0 ) {
+	QMap<QString, QString>::ConstIterator d = tempDirs.begin();
+	while ( d != tempDirs.end() ) {
+	    removeDirContents( *d );
+	    QDir dir( *d );
+	    QString name = dir.dirName();
+	    dir.cdUp();
+	    dir.rmdir( name );
+	    ++d;
+	}
+	tempDirs.clear();
+    }
 }
 
 /*!
@@ -238,24 +258,75 @@ QStringList Config::getAllFiles( const QString& filesVar,
     return result;
 }
 
-QString Config::findFile( const QStringList& files, const QStringList& dirs,
-			  const QString& fileName )
+QString Config::findFile( const Location& location, const QStringList& files,
+			  const QStringList& dirs, const QString& fileName,
+			  QString& userFriendlyFilePath )
 {
+    if ( fileName.isEmpty() || fileName[0] == '/' ) {
+	userFriendlyFilePath = fileName;
+	return fileName;
+    }
+
+    QStringList components = QStringList::split( "?", fileName );
+    QStringList::ConstIterator curr = components.begin();
+
+    QDir dirInfo;
     QStringList::ConstIterator f = files.begin();
     while ( f != files.end() ) {
-	if ( (*f).mid((*f).findRev('/') + 1) == fileName )
-	    return *f;
+	if ( (*f) == *curr || (*f).endsWith("/" + *curr) ) {
+	    if ( !dirInfo.exists(*curr) )
+		location.fatal( tr("File '%1' does not exist").arg(*f) );
+	    dirInfo = QFileInfo( *f ).dir();
+	    userFriendlyFilePath = *f;
+	    break;
+	}
 	++f;
     }
 
-    QStringList::ConstIterator d = dirs.begin();
-    while ( d != dirs.end() ) {
-	QDir dirInfo( *d );
-	if ( dirInfo.exists(fileName) )
-	    return dirInfo.filePath( fileName );
-	++d;
+    if ( userFriendlyFilePath.isEmpty() ) {
+	QStringList::ConstIterator d = dirs.begin();
+	while ( d != dirs.end() ) {
+	    dirInfo.cd( *d );
+	    if ( dirInfo.exists(*curr) ) {
+		userFriendlyFilePath = dirInfo.filePath( *curr );
+		break;
+	    }
+	    ++d;
+	}
     }
-    return "";
+
+    if ( userFriendlyFilePath.isEmpty() )
+	return "";
+
+    QStringList::ConstIterator next = curr;
+    ++next;
+
+    while ( next != components.end() ) {
+	QString temp = tempDirs[userFriendlyFilePath];
+
+	if ( temp.isEmpty() ) {
+	    temp = QFile::decodeName( tmpnam(0) );
+	    if ( !dirInfo.mkdir(temp) )
+		location.fatal( tr("Cannot create temporary directory '%1'")
+				.arg(temp) );
+	    ArchiveExtractor *extractor =
+		    ArchiveExtractor::extractorForFileName( *curr );
+	    if ( extractor == 0 )
+		location.fatal( tr("Unknown archive type '%1'").arg(*curr) );
+	    extractor->extractArchive( location, dirInfo.filePath(*curr),
+				       temp );
+	    tempDirs.insert( userFriendlyFilePath, temp );
+	}
+
+	dirInfo.cd( temp );
+	if ( dirInfo.filePath(*next).isEmpty() )
+	    location.fatal( tr("Cannot find file '%1' in archive '%2'")
+			    .arg(*next).arg(*curr) );
+	userFriendlyFilePath += "?" + *next;
+	++curr;
+	++next;
+    }
+    return dirInfo.filePath( *curr );
 }
 
 int Config::numParams( const QString& value )
@@ -268,10 +339,40 @@ int Config::numParams( const QString& value )
     return max;
 }
 
+bool Config::removeDirContents( const QString& dir )
+{
+    QDir dirInfo( dir );
+    const QFileInfoList *entries = dirInfo.entryInfoList();
+    if ( entries == 0 )
+	return FALSE;
+
+    QFileInfoListIterator it( *entries );
+    QFileInfo *entry;
+    bool ok = TRUE;
+
+    while ( (entry = it.current()) != 0 ) {
+	if ( entry->isFile() ) {
+	    if ( !dirInfo.remove(entry->fileName()) )
+		ok = FALSE;
+	} else if ( entry->isDir() ) {
+	    if ( entry->fileName() != "." && entry->fileName() != ".." ) {
+		if ( removeDirContents(entry->absFilePath()) ) {
+		    if ( !dirInfo.rmdir(entry->fileName()) )
+			ok = FALSE;
+		} else {
+		    ok = FALSE;
+		}
+	    }
+	}
+	++it;
+    }
+    return ok;
+}
+
 bool Config::isMetaKeyChar( QChar ch )
 {
-    return ch.isLetterOrNumber() || ch == '_' || ch == '.' || ch == '{'
-	   || ch == '}' || ch == ',';
+    return ch.isLetterOrNumber() || ch == '_' || ch == '.' || ch == '{' ||
+	   ch == '}' || ch == ',';
 }
 
 void Config::load( Location location, const QString& fileName )

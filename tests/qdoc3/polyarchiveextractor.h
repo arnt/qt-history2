@@ -1,0 +1,27 @@
+/*
+  polyarchiveextractor.h
+*/
+
+#ifndef POLYARCHIVEEXTRACTOR_H
+#define POLYARCHIVEEXTRACTOR_H
+
+#include "archiveextractor.h"
+
+class PolyArchiveExtractor : public ArchiveExtractor
+{
+public:
+    PolyArchiveExtractor( const QStringList& extensions,
+			  const QString& commandLine );
+    ~PolyArchiveExtractor();
+
+    virtual bool recognizeExtension( const QString& ext );
+    virtual void extractArchive( const Location& location,
+				 const QString& filePath,
+				 const QString& outputDir );
+
+private:
+    QStringList correctExts;
+    QString cmd;
+};
+
+#endif
