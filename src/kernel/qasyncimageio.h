@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncimageio.h#23 $
+** $Id: //depot/qt/main/src/kernel/qasyncimageio.h#24 $
 **
 **		      ***   INTERNAL HEADER FILE   ***
 **
@@ -41,29 +41,29 @@ public:
     virtual void end()=0;
 
     // Change transfer type 1.
-    virtual void changed(const QRect&)=0;
-    virtual void frameDone()=0;
+    virtual void changed( const QRect& ) = 0;
+    virtual void frameDone() = 0;
 
     // Change transfer type 2.
-    virtual void frameDone(const QPoint&, const QRect&)=0;
+    virtual void frameDone( const QPoint&, const QRect& ) = 0;
 
-    virtual void setLooping(int)=0;
-    virtual void setFramePeriod(int)=0;
-    virtual void setSize(int, int)=0;
+    virtual void setLooping( int ) = 0;
+    virtual void setFramePeriod( int ) = 0;
+    virtual void setSize( int, int ) = 0;
 };
 
 class Q_EXPORT QImageFormat {
 public:
     virtual ~QImageFormat();
-    virtual int decode(QImage& img, QImageConsumer* consumer,
-	    const uchar* buffer, int length)=0;
+    virtual int decode( QImage& img, QImageConsumer* consumer,
+			const uchar* buffer, int length ) = 0;
 };
 
 class Q_EXPORT QImageFormatType {
 public:
     virtual ~QImageFormatType();
-    virtual QImageFormat* decoderFor(const uchar* buffer, int length)=0;
-    virtual const char* formatName() const=0;
+    virtual QImageFormat* decoderFor( const uchar* buffer, int length ) = 0;
+    virtual const char* formatName() const = 0;
 protected:
     QImageFormatType();
 };
@@ -72,17 +72,17 @@ struct QImageDecoderPrivate;
 
 class Q_EXPORT QImageDecoder {
 public:
-    QImageDecoder(QImageConsumer* c);
+    QImageDecoder( QImageConsumer* c );
     ~QImageDecoder();
 
     const QImage& image() { return img; }
-    int decode(const uchar* buffer, int length);
+    int decode( const uchar* buffer, int length );
 
-    static const char* formatName(const uchar* buffer, int length);
+    static const char* formatName( const uchar* buffer, int length );
 
     static QStrList inputFormats();
-    static void registerDecoderFactory(QImageFormatType*);
-    static void unregisterDecoderFactory(QImageFormatType*);
+    static void registerDecoderFactory( QImageFormatType* );
+    static void unregisterDecoderFactory( QImageFormatType* );
 
 private:
     QImageFormat* actual_decoder;
