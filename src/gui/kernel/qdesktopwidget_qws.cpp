@@ -13,8 +13,9 @@
 
 #include "qdesktopwidget.h"
 #include "qvector.h"
+#include "qwidget_p.h"
 
-class QDesktopWidgetPrivate
+class QDesktopWidgetPrivate : public QWidgetPrivate
 {
 public:
     QDesktopWidgetPrivate();
@@ -34,16 +35,16 @@ QDesktopWidgetPrivate::QDesktopWidgetPrivate()
     //### Get the rects for the different screens and put them into rects
 }
 
+#define d d_func()
+
 QDesktopWidget::QDesktopWidget()
-: QWidget(0, Qt::WType_Desktop)
+: QWidget(*new QDesktopWidgetPrivate, 0, Qt::WType_Desktop)
 {
-    d = new QDesktopWidgetPrivate;
     setObjectName("desktop");
 }
 
 QDesktopWidget::~QDesktopWidget()
 {
-    delete d;
 }
 
 bool QDesktopWidget::isVirtualDesktop() const

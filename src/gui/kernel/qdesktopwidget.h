@@ -17,7 +17,7 @@
 #include "qwidget.h"
 
 class QApplication;
-class QDesktopWidgetPrivate; /* Don't touch! */
+class QDesktopWidgetPrivate;
 
 class Q_GUI_EXPORT QDesktopWidget : public QWidget
 {
@@ -57,8 +57,7 @@ protected:
 
 private:
     Q_DISABLE_COPY(QDesktopWidget)
-
-    QDesktopWidgetPrivate *d;
+    Q_DECLARE_PRIVATE(QDesktopWidget)
 
     friend class QApplication;
 #ifdef Q_WS_QWS

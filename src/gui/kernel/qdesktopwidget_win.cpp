@@ -18,13 +18,15 @@
 #ifdef Q_OS_TEMP
 #include <sipapi.h>
 #endif
+#include "qwidget_p.h"
 
-class QDesktopWidgetPrivate
+class QDesktopWidgetPrivate : public QWidgetPrivate
 {
 public:
-    QDesktopWidgetPrivate(QDesktopWidget *that);
+    QDesktopWidgetPrivate();
     ~QDesktopWidgetPrivate();
 
+    static void init(QDesktopWidget *that);
     static int screenCount;
     static int primaryScreen;
 
@@ -92,16 +94,18 @@ BOOL CALLBACK enumCallback(HMONITOR hMonitor, HDC, LPRECT, LPARAM)
     return true;
 }
 
-QDesktopWidgetPrivate::QDesktopWidgetPrivate(QDesktopWidget *that)
+QDesktopWidgetPrivate::QDesktopWidgetPrivate()
 {
-    if (rects) {
-        ++refcount;
+    ++refcount;
+}
+
+QDesktopWidgetPrivate::init(QDesktopWidget *that)
+{
+    if (rects)
         return;
-    }
 
     rects = new QVector<QRect>();
     workrects = new QVector<QRect>();
-    ++refcount;
 
 #ifndef Q_OS_TEMP
     if (QSysInfo::WindowsVersion != QSysInfo::WV_95 && QSysInfo::WindowsVersion != QSysInfo::WV_NT) {
@@ -249,6 +253,8 @@ QDesktopWidgetPrivate::~QDesktopWidgetPrivate()
 
 */
 
+#define d d_func()
+
 /*!
     Creates the desktop widget.
 
@@ -260,7 +266,7 @@ QDesktopWidgetPrivate::~QDesktopWidgetPrivate()
     QAppliation::desktop().
 */
 QDesktopWidget::QDesktopWidget()
-: QWidget(0, Qt::WType_Desktop)
+    : QWidget(*new QDesktopWidgetPrivate, 0, Qt::WType_Desktop)
 {
     setObjectName("desktop");
     d = new QDesktopWidgetPrivate(this);
@@ -271,7 +277,6 @@ QDesktopWidget::QDesktopWidget()
 */
 QDesktopWidget::~QDesktopWidget()
 {
-    delete d;
 }
 
 /*!

@@ -14,6 +14,7 @@
 #include "qapplication.h"
 #include "qdesktopwidget.h"
 #include <private/qt_mac_p.h>
+#include "qwidget_p.h"
 
 /*****************************************************************************
   Externals
@@ -24,7 +25,7 @@ void qt_mac_dispose_rgn(RgnHandle r); //qregion_mac.cpp
 /*****************************************************************************
   QDesktopWidget member functions
  *****************************************************************************/
-class QDesktopWidgetPrivate
+class QDesktopWidgetPrivate : public QWidgetPrivate
 {
 public:
     QDesktopWidgetPrivate();
@@ -53,17 +54,18 @@ QDesktopWidgetPrivate::QDesktopWidgetPrivate()
     }
 }
 
+#define d d_func()
+
+
 QDesktopWidget::QDesktopWidget()
-: QWidget(0, Qt::WType_Desktop)
+: QWidget(*new QDesktopWidgetPrivate, 0, Qt::WType_Desktop)
 {
     setObjectName("desktop");
-    d = new QDesktopWidgetPrivate;
     setWState(Qt::WState_Visible);
 }
 
 QDesktopWidget::~QDesktopWidget()
 {
-    delete d;
 }
 
 bool QDesktopWidget::isVirtualDesktop() const

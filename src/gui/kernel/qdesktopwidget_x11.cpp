@@ -15,6 +15,7 @@
 #include "qapplication.h"
 #include "qt_x11_p.h"
 #include "qx11info_x11.h"
+#include "qwidget_p.h"
 
 // defined in qwidget_x11.cpp
 extern int qt_x11_create_desktop_on_screen;
@@ -52,7 +53,7 @@ QSingleDesktopWidget::~QSingleDesktopWidget()
 }
 
 
-class QDesktopWidgetPrivate
+class QDesktopWidgetPrivate : public QWidgetPrivate
 {
 public:
     QDesktopWidgetPrivate();
@@ -145,18 +146,18 @@ void QDesktopWidgetPrivate::init()
 
 }
 
+#define d d_func()
+
 // the QDesktopWidget itself will be created on the default screen
 // as qt_x11_create_desktop_on_screen defaults to -1
 QDesktopWidget::QDesktopWidget()
-    : QWidget(0, Qt::WType_Desktop)
+    : QWidget(*new QDesktopWidgetPrivate, 0, Qt::WType_Desktop)
 {
-    d = new QDesktopWidgetPrivate();
     d->init();
 }
 
 QDesktopWidget::~QDesktopWidget()
 {
-    delete d;
 }
 
 bool QDesktopWidget::isVirtualDesktop() const
