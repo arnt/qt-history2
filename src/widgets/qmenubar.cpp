@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#94 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#95 $
 **
 ** Implementation of QMenuBar class
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#94 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#95 $");
 
 
 /*!
@@ -112,8 +112,15 @@ QMenuBar::QMenuBar( QWidget *parent, const char *name )
     irects    = 0;
     mseparator = 0;
     windowsaltactive = 0;
-    if ( parent )				// filter parent events
-	topLevelWidget()->installEventFilter( this );
+    if ( parent ) {
+	// filter parent events for resizing
+	parent->installEventFilter( this );
+
+	// filter top-level-widget events for accelerators
+	QWidget *tlw = topLevelWidget();
+	if ( tlw != parent )
+	    tlw->installEventFilter( this );
+    }
 
     QFontMetrics fm = fontMetrics();
     int gs = style();
