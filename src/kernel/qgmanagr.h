@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgmanagr.h#5 $
+** $Id: //depot/qt/main/src/kernel/qgmanagr.h#6 $
 **
 ** Definition of QGManager class (workhorse for QLayout classes)
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgmanager.cpp#19 $
+** $Id: //depot/qt/main/src/kernel/qgmanager.cpp#20 $
 **
 ** Implementation of QGGeometry class
 **
@@ -14,7 +14,7 @@
 #include "qmenubar.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qgmanager.cpp#19 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qgmanager.cpp#20 $");
 
 
 
