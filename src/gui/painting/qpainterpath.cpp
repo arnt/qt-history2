@@ -500,7 +500,7 @@ void QPainterSubpath::removeBrokenSegments()
     Returns the element at the given \a index in the painter path.
 */
 
-/*!
+/*###
     \fn QPainterPath &QPainterPath::operator +=(const QPainterPath &other)
 
     Appends the \a other painter path to this painter path and returns a
@@ -815,8 +815,9 @@ QPointF QPainterPath::currentPosition() const
     \fn void QPainterPath::addRect(const QRectF &rectangle)
 
     Adds the \a rectangle to this path as a closed subpath. The
-    rectangle is added as a clockwise set of lines. Current position
-    after the rect has been added is (\a{x}, \a{y}).
+    rectangle is added as a clockwise set of lines. The painter path's
+    current position after the rect has been added is at the top-left
+    corner of the rectangle.
 */
 void QPainterPath::addRect(const QRectF &r)
 {
