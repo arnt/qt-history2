@@ -36,7 +36,7 @@ HeaderWhatsThis::HeaderWhatsThis( QHeader *h )
 {
 }
 
-QString HeaderWhatsThis::text( const QPoint &p )
+QString HeaderWhatsThis::text( const QPoint & )
 {
     QHeader *header = (QHeader*)parentWidget();
 
