@@ -10,8 +10,12 @@ DESTDIR		= ../../../../plugins/designer
 VERSION		= 1.0.0
 
 INCLUDEPATH	+= ../../interfaces ../../editor
-!hpux-acc:LIBS	+= -L$$QT_BUILD_TREE/lib -leditor
-hpux-acc:LIBS += -L$$QT_BUILD_TREE/lib -Wl,-a,default -leditor
+win32{
+    LIBS	+= editor.lib
+} else {
+    !hpux-acc:LIBS	+= -L$$QT_BUILD_TREE/lib -leditor
+    hpux-acc:LIBS += -L$$QT_BUILD_TREE/lib -Wl,-a,default -leditor
+}
 
 target.path += $$plugins.path/designer
 INSTALLS 	+= target
