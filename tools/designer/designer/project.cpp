@@ -383,25 +383,25 @@ void Project::parse()
 
     QStringList::ConstIterator it;
 
-    uifiles = parse_multiline_part( contents, "FORMS" );
-    uifiles += parse_multiline_part( contents, "INTERFACES" ); // compatibility
-    for ( it = uifiles.begin(); it != uifiles.end(); ++it )
-	(void) new FormFile( *it, FALSE, this );
+    int i = contents.find( "LANGUAGE" );
+    if ( i != -1 ) {
+	lang = "";
+	QString part = contents.mid( i + QString( "LANGUAGE" ).length() );
+	lang = parse_part( part );
+    }
 
-
-    int i = contents.find( "DBFILE" );
+    i = contents.find( "DBFILE" );
     if ( i != -1 ) {
 	dbFile = "";
 	QString part = contents.mid( i + QString( "DBFILE" ).length() );
 	dbFile = parse_part( part );
     }
 
-    i = contents.find( "LANGUAGE" );
-    if ( i != -1 ) {
-	lang = "";
-	QString part = contents.mid( i + QString( "LANGUAGE" ).length() );
-	lang = parse_part( part );
-    }
+    uifiles = parse_multiline_part( contents, "FORMS" );
+    uifiles += parse_multiline_part( contents, "INTERFACES" ); // compatibility
+    for ( it = uifiles.begin(); it != uifiles.end(); ++it )
+	(void) new FormFile( *it, FALSE, this );
+
 
     i = contents.find( "TEMPLATE" );
     if ( i != -1 ) {
