@@ -128,7 +128,7 @@ void MainWindow::createActions()
     exitAct = new QAction(tr("E&xit"), this);
     exitAct->setShortcut(tr("Ctrl+Q"));
     exitAct->setStatusTip(tr("Exit the application"));
-    connect(exitAct, SIGNAL(triggered()), qApp, SLOT(quit()));
+    connect(exitAct, SIGNAL(triggered()), this, SLOT(close()));
 
     cutAct = new QAction(QIconSet(QPixmap("images/cut.png")), tr("Cu&t"), this);
     cutAct->setShortcut(tr("Ctrl+X"));

@@ -17,7 +17,7 @@ MainWindow::MainWindow()
     connect(textEdit->document(), SIGNAL(contentsChanged()),
             this, SLOT(documentWasModified()));
 
-    setWindowTitle(tr("Application"));
+    setWindowTitle(tr("SDI"));
 //    ### setIcon(...);
 
     modified = false;
@@ -76,7 +76,7 @@ bool MainWindow::saveAs()
         return false;
 
     if (QFile::exists(fileName)) {
-        int ret = QMessageBox::warning(this, tr("Application"),
+        int ret = QMessageBox::warning(this, tr("SDI"),
                      tr("File %1 already exists.\n"
                         "Do you want to overwrite it?")
                      .arg(QDir::convertSeparators(fileName)),
@@ -125,10 +125,15 @@ void MainWindow::createActions()
     saveAsAct->setStatusTip(tr("Save the spreadsheet under a new name"));
     connect(saveAsAct, SIGNAL(triggered()), this, SLOT(saveAs()));
 
+    exitAct = new QAction(tr("&Close"), this);
+    exitAct->setShortcut(tr("Ctrl+W"));
+    exitAct->setStatusTip(tr("Close this window"));
+    connect(exitAct, SIGNAL(triggered()), this, SLOT(close()));
+
     exitAct = new QAction(tr("E&xit"), this);
     exitAct->setShortcut(tr("Ctrl+Q"));
     exitAct->setStatusTip(tr("Exit the application"));
-    connect(exitAct, SIGNAL(triggered()), this, SLOT(close()));
+    connect(exitAct, SIGNAL(triggered()), this, SLOT(exit()));
 
     cutAct = new QAction(QIconSet(QPixmap("images/cut.png")), tr("Cu&t"), this);
     cutAct->setShortcut(tr("Ctrl+X"));
@@ -208,7 +213,7 @@ void MainWindow::readSettings()
 {
 #if 0
     // TODO: enable settings code when the new QSettings is available
-    QSettings settings("doc.trolltech.com", "Application");
+    QSettings settings("doc.trolltech.com", "SDI");
     QPoint pos = settings.value("pos", QPoint(200, 200)).toPoint();
     QSize size = settings.value("size", QSize(400, 400)).toSize();
     move(pos);
@@ -220,7 +225,7 @@ void MainWindow::writeSettings()
 {
 #if 0
     // TODO: enable settings code when the new QSettings is available
-    QSettings settings("doc.trolltech.com", "Application");
+    QSettings settings("doc.trolltech.com", "SDI");
     settings.setValue("pos", pos());
     settings.setValue("size", size());
 #endif
@@ -229,7 +234,7 @@ void MainWindow::writeSettings()
 bool MainWindow::maybeSave()
 {
     if (modified) {
-        int ret = QMessageBox::warning(this, tr("Application"),
+        int ret = QMessageBox::warning(this, tr("SDI"),
                      tr("The document has been modified.\n"
                         "Do you want to save your changes?"),
                      QMessageBox::Yes | QMessageBox::Default,
@@ -245,9 +250,10 @@ bool MainWindow::maybeSave()
 
 void MainWindow::loadFile(const QString &fileName)
 {
+
     QFile file(fileName);
     if (!file.open(QFile::ReadOnly)) {
-        QMessageBox::warning(this, tr("Application"),
+        QMessageBox::warning(this, tr("SDI"),
                              tr("Cannot read file %1:\n%2.")
                              .arg(fileName)
                              .arg(file.errorString()));
@@ -267,7 +273,7 @@ void MainWindow::saveFile(const QString &fileName)
 {
     QFile file(fileName);
     if (!file.open(QFile::WriteOnly)) {
-        QMessageBox::warning(this, tr("Application"),
+        QMessageBox::warning(this, tr("SDI"),
                              tr("Cannot write file %1:\n%2.")
                              .arg(fileName)
                              .arg(file.errorString()));
@@ -290,10 +296,10 @@ void MainWindow::setCurrentFile(const QString &fileName)
     modified = false;
 
     if (curFile.isEmpty())
-        setWindowTitle(tr("Application"));
+        setWindowTitle(tr("SDI"));
     else
         setWindowTitle(tr("%1 - %2").arg(strippedName(curFile))
-                                    .arg(tr("Application")));
+                                    .arg(tr("SDI")));
 }
 
 QString MainWindow::strippedName(const QString &fullFileName)

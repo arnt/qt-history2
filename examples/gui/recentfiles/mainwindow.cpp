@@ -86,46 +86,46 @@ void MainWindow::createActions()
     newAct = new QAction(tr("&New"), this);
     newAct->setShortcut(tr("Ctrl+N"));
     newAct->setStatusTip(tr("Create a new file"));
-    connect(newAct, SIGNAL(activated()), this, SLOT(newFile()));
+    connect(newAct, SIGNAL(triggered()), this, SLOT(newFile()));
 
     openAct = new QAction(tr("&Open..."), this);
     openAct->setShortcut(tr("Ctrl+O"));
     openAct->setStatusTip(tr("Open an existing file"));
-    connect(openAct, SIGNAL(activated()), this, SLOT(open()));
+    connect(openAct, SIGNAL(triggered()), this, SLOT(open()));
 
     saveAct = new QAction(tr("&Save"), this);
     saveAct->setShortcut(tr("Ctrl+S"));
     saveAct->setStatusTip(tr("Save the spreadsheet to disk"));
-    connect(saveAct, SIGNAL(activated()), this, SLOT(save()));
+    connect(saveAct, SIGNAL(triggered()), this, SLOT(save()));
 
     saveAsAct = new QAction(tr("Save &As..."), this);
     saveAsAct->setStatusTip(tr("Save the spreadsheet under a new name"));
-    connect(saveAsAct, SIGNAL(activated()), this, SLOT(saveAs()));
+    connect(saveAsAct, SIGNAL(triggered()), this, SLOT(saveAs()));
 
     for (int i = 0; i < MaxRecentFiles; ++i) {
         recentFileActs[i] = new QAction(this);
         recentFileActs[i]->setVisible(false);
-        connect(recentFileActs[i], SIGNAL(activated()),
+        connect(recentFileActs[i], SIGNAL(triggered()),
                 this, SLOT(openRecentFile()));
     }
 
     exitAct = new QAction(tr("&Close"), this);
     exitAct->setShortcut(tr("Ctrl+W"));
     exitAct->setStatusTip(tr("Close this window"));
-    connect(exitAct, SIGNAL(activated()), this, SLOT(close()));
+    connect(exitAct, SIGNAL(triggered()), this, SLOT(close()));
 
     exitAct = new QAction(tr("E&xit"), this);
     exitAct->setShortcut(tr("Ctrl+Q"));
     exitAct->setStatusTip(tr("Exit the application"));
-    connect(exitAct, SIGNAL(activated()), qApp, SLOT(closeAllWindows()));
+    connect(exitAct, SIGNAL(triggered()), qApp, SLOT(closeAllWindows()));
 
     aboutAct = new QAction(tr("&About"), this);
     aboutAct->setStatusTip(tr("Show the application's About box"));
-    connect(aboutAct, SIGNAL(activated()), this, SLOT(about()));
+    connect(aboutAct, SIGNAL(triggered()), this, SLOT(about()));
 
     aboutQtAct = new QAction(tr("About &Qt"), this);
     aboutQtAct->setStatusTip(tr("Show the Qt library's About box"));
-    connect(aboutQtAct, SIGNAL(activated()), qApp, SLOT(aboutQt()));
+    connect(aboutQtAct, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
 }
 
 void MainWindow::createMenus()
