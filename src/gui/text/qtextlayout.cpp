@@ -211,7 +211,7 @@ bool QTextInlineObject::isRightToLeft() const
     applications.
 
     The class has a rather low level API and unless you intend to
-    implement you own text rendering for some specialized widget, you
+    implement your own text rendering for some specialized widget, you
     probably won't need to use it directly.
 
     QTextLayout can currently deal with plain text and rich text
