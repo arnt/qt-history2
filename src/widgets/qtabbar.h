@@ -112,8 +112,8 @@ public:
     int currentTab() const;
     int keyboardFocusTab() const;
 
-    QTab * tab( int );
-    QTab * tabAt( int );
+    QTab * tab( int ) const;
+    QTab * tabAt( int ) const;
     int indexOf( int ) const;
     int count() const;
 

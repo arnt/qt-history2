@@ -733,7 +733,7 @@ void QTabBar::keyPressEvent( QKeyEvent * e )
   \sa count()
 */
 
-QTab * QTabBar::tab( int id )
+QTab * QTabBar::tab( int id ) const
 {
     QTab * t;
     for( t = l->first(); t; t = l->next() )
@@ -748,7 +748,7 @@ QTab * QTabBar::tab( int id )
   \sa indexOf
 */
 
-QTab * QTabBar::tabAt( int index )
+QTab * QTabBar::tabAt( int index ) const
 {
     QTab * t;
     t = lstatic->at( index );
