@@ -626,6 +626,12 @@ inline const QString operator+(char c, const QString &s)
 { return QString(QChar(c)) += s; }
 inline const QString operator+(const QString &s, char c)
 { return QString(s) += c; }
+#ifndef QT_NO_STL
+inline const QString operator+(const QString& s1, const std::string& s2)
+{ return s1 + QString(s2.c_str()); }
+inline const QString operator+(const std::string& s1, const QString& s2)
+{ QString(s2).prepend(s1.c_str()); }
+#endif
 #endif
 
 #ifdef QT_COMPAT
