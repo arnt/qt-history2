@@ -1470,14 +1470,14 @@ void QComboBox::changeEvent(QEvent *e)
         if (!isEnabled() && d->container)
             hidePopup();
         break;
-    case QEvent::ApplicationPaletteChange:
     case QEvent::PaletteChange:
-        d->container->setPalette(palette());
+        if (d->container)
+            d->container->setPalette(palette());
         break;
-    case QEvent::ApplicationFontChange:
     case QEvent::FontChange:
         d->sizeHint = QSize(); // invalidate size hint
-        d->container->setFont(font());
+        if (d->container)
+            d->container->setFont(font());
         if (d->lineEdit)
             d->updateLineEditGeometry();
         break;
