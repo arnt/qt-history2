@@ -77,24 +77,38 @@ QValidator::State QSpinBoxValidator::validate( QString& str, int& pos ) const
     QString pref = spinBox->prefix();
     QString suff = spinBox->suffix();
     uint overhead = pref.length() + suff.length();
+    State state = Invalid;
 
     ((QIntValidator *) this)->setRange( spinBox->minValue(),
 					spinBox->maxValue() );
     if ( overhead == 0 ) {
-	return QIntValidator::validate( str, pos );
+	state = QIntValidator::validate( str, pos );
     } else {
 	if ( str.length() >= overhead && str.startsWith(pref) &&
 	     str.endsWith(suff) ) {
 	    QString core = str.mid( pref.length(), str.length() - overhead );
 	    int corePos = pos - pref.length();
-	    State coreState = QIntValidator::validate( core, corePos );
-	    pos += pref.length();
+	    state = QIntValidator::validate( core, corePos );
+	    pos = corePos + pref.length();
 	    str.replace( pref.length(), str.length() - overhead, core );
-	    return coreState;
 	} else {
-	    return Invalid;
+	    state = QIntValidator::validate( str, pos );
+	    if ( state == Invalid ) {
+		// stripWhiteSpace(), cf. QSpinBox::interpretText()
+		QString special = spinBox->specialValueText().stripWhiteSpace();
+		QString candidate = str.stripWhiteSpace();
+
+		if ( special.startsWith(candidate) ) {
+		    if ( candidate.length() == special.length() ) {
+			state = Acceptable;
+		    } else {
+			state = Intermediate;
+		    }
+		}
+	    }
 	}
     }
+    return state;
 }
 
 /*!
@@ -169,7 +183,7 @@ QValidator::State QSpinBoxValidator::validate( QString& str, int& pos ) const
 
 	QString mapValueToText( int value )
 	{
-	    if ( value == -1 ) // Special case
+	    if ( value == -1 ) // special case
 		return QString( "Auto" );
 
 	    return QString( "%1.%2" ) // 0.0 to 10.0
@@ -178,7 +192,7 @@ QValidator::State QSpinBoxValidator::validate( QString& str, int& pos ) const
 
 	int mapTextToValue( bool *ok )
 	{
-	    if ( text() == "Auto" ) // Special case
+	    if ( text() == "Auto" ) // special case
 		return -1;
 
 	    return (int) ( 10 * text().toFloat() ); // 0 to 100
@@ -708,8 +722,6 @@ void QSpinBox::valueChange()
 
 void QSpinBox::rangeChange()
 {
-    if ( validate->inherits( "QIntValidator" ) )
-	((QIntValidator*)validate)->setRange( minValue(), maxValue() );
     updateDisplay();
 }
 
@@ -751,14 +763,20 @@ const QValidator * QSpinBox::validator() const
 */
 void QSpinBox::updateDisplay()
 {
+    vi->setUpdatesEnabled( FALSE );
     vi->setText( currentValueText() );
-    if ( d->selreq && isVisible() && ( hasFocus() || editor()->hasFocus() ) )
+    if ( d->selreq && isVisible() && ( hasFocus() || vi->hasFocus() ) ) {
 	selectAll();
-    vi->repaint( FALSE ); // we want an immediate repaint, might be that a widget connected to the value changed does some longer stuff which would result in a bad feedback of the spinbox
+    } else {
+	if ( !suffix().isEmpty() && vi->text().endsWith(suffix()) )
+	     vi->setCursorPosition( vi->text().length() - suffix().length() );
+    }
+    vi->setUpdatesEnabled( TRUE );
+    vi->repaint( FALSE ); // immediate repaint needed for some reason
     edited = FALSE;
 
-    bool upEnabled = isEnabled() && (wrapping() || value() < maxValue());
-    bool downEnabled = isEnabled() && (wrapping() || value() > minValue());
+    bool upEnabled = isEnabled() && ( wrapping() || value() < maxValue() );
+    bool downEnabled = isEnabled() && ( wrapping() || value() > minValue() );
 
     d->controls->setUpEnabled( upEnabled );
     d->controls->setDownEnabled( downEnabled );
@@ -785,8 +803,8 @@ void QSpinBox::interpretText()
     bool done = FALSE;
     int newVal = 0;
     if ( !specialValueText().isEmpty() ) {
-	QString s = QString(text()).stripWhiteSpace();
-	QString t = QString(specialValueText()).stripWhiteSpace();
+	QString s = text().stripWhiteSpace();
+	QString t = specialValueText().stripWhiteSpace();
 	if ( s == t ) {
 	    newVal = minValue();
 	    done = TRUE;
@@ -796,7 +814,7 @@ void QSpinBox::interpretText()
 	newVal = mapTextToValue( &ok );
     if ( ok )
 	setValue( newVal );
-    updateDisplay();		// Sometimes redundant
+    updateDisplay(); // sometimes redundant
 }
 
 
@@ -836,10 +854,8 @@ QLineEdit* QSpinBox::editor() const
 
 void QSpinBox::textChanged()
 {
-    edited = TRUE;	// This flag is cleared in updateDisplay()
+    edited = TRUE; // this flag is cleared in updateDisplay()
 }
-
-
 
 
 /*!  This virtual function is used by the spin box whenever it needs
@@ -1037,11 +1053,16 @@ void QSpinBox::setLineStep( int i )
     setSteps( i, pageStep() );
 }
 
-/*! Selects all the text in the editor of the spinbox */
+/*! Selects all the text in the editor of the spinbox. */
 
 void QSpinBox::selectAll()
 {
-    editor()->selectAll();
+    int overhead = prefix().length() + suffix().length();
+    if ( !overhead || currentValueText() == specialValueText() ) {
+	vi->selectAll();
+    } else {
+	vi->setSelection( prefix().length(), vi->text().length() - overhead );
+    }
 }
 
 #endif
