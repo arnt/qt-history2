@@ -517,6 +517,9 @@ public:
     inline QVector<QTextLength> columnWidthConstraints() const
     { return lengthVectorProperty(TableColumnWidthConstraints); }
 
+    inline void clearColumnWidthConstraints()
+    { clearProperty(TableColumnWidthConstraints); }
+
     inline int cellSpacing() const
     { return intProperty(TableCellSpacing, 2); }
     inline void setCellSpacing(int spacing)

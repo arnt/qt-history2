@@ -38,6 +38,7 @@ QTextDocumentFragmentPrivate::QTextDocumentFragmentPrivate(const QTextCursor &cu
 
         QTextTableFormat tableFormat = table->format();
         tableFormat.setColumns(num_cols);
+        tableFormat.clearColumnWidthConstraints();
         int objectIndex = formatCollection.createObjectIndex(tableFormat);
 
         Q_ASSERT(row_start != -1);
