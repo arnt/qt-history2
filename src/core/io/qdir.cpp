@@ -25,20 +25,26 @@
 #include <stdlib.h>
 
 //************* QDirEngineHandler
-static QList<QDirEngineHandler*> dirHandlers;
+static QList<QDirEngineHandler*> *dirHandlers = 0;
 QDirEngineHandler::QDirEngineHandler()
 {
-    dirHandlers.append(this);
+    if(!dirHandlers)
+        dirHandlers = new QList<QDirEngineHandler*>;
+    dirHandlers->append(this);
 }
 
 QDirEngineHandler::~QDirEngineHandler()
 {
-    dirHandlers.removeAll(this);
+    dirHandlers->removeAll(this);
+    if(dirHandlers->isEmpty()) {
+        delete dirHandlers;
+        dirHandlers = 0;
+    }
 }
 QDirEngine *qt_createDirEngine(const QString &path)
 {
-    for(int i = 0; i < dirHandlers.size(); i++) {
-        if(QDirEngine *ret = dirHandlers[i]->createDirEngine(path))
+    for(int i = 0; i < dirHandlers->size(); i++) {
+        if(QDirEngine *ret = dirHandlers->at(i)->createDirEngine(path))
             return ret;
     }
     return new QFSDirEngine(path);

@@ -23,20 +23,26 @@
 #define q q_func()
 
 //************* QFileInfoEngineHandler
-static QList<QFileInfoEngineHandler*> fileInfoHandlers;
+static QList<QFileInfoEngineHandler*> *fileInfoHandlers = 0;
 QFileInfoEngineHandler::QFileInfoEngineHandler()
 {
-    fileInfoHandlers.append(this);
+    if(!fileInfoHandlers)
+        fileInfoHandlers = new QList<QFileInfoEngineHandler*>;
+    fileInfoHandlers->append(this);
 }
 
 QFileInfoEngineHandler::~QFileInfoEngineHandler()
 {
-    fileInfoHandlers.removeAll(this);
+    fileInfoHandlers->removeAll(this);
+    if(fileInfoHandlers->isEmpty()) {
+        delete fileInfoHandlers;
+        fileInfoHandlers = 0;
+    }
 }
 QFileInfoEngine *qt_createFileInfoEngine(const QString &path)
 {
-    for(int i = 0; i < fileInfoHandlers.size(); i++) {
-        if(QFileInfoEngine *ret = fileInfoHandlers[i]->createFileInfoEngine(path))
+    for(int i = 0; i < fileInfoHandlers->size(); i++) {
+        if(QFileInfoEngine *ret = fileInfoHandlers->at(i)->createFileInfoEngine(path))
             return ret;
     }
     return new QFSFileInfoEngine(path);
