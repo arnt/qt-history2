@@ -48,7 +48,7 @@
 #include <limits.h>
 
 /*
-  WARNING!  Be sure to read qregexp.tex before modifying this file.  And drop an
+  WARNING!  Be sure to read qregexp.tex before modifying this file.  And send
   email to Jasmin Blanchette (jasmin@trolltech.com).
 */
 
@@ -99,10 +99,10 @@
   <li> <b><em>c</em></b> matches the normal character <tt><em>c</em></tt>
   <li> <b>&#92;c</b> matches the character <tt><em>c</em></tt>, even
        if it is one that QRegExp normally assigns meaning to, such as 
-       <tt>$</tt> or <tt>\</tt>.  (Note that in C++, this must be
-       written as <tt>&#92;&#92;c</tt> since the preprocessor
+       <tt>$</tt> or <tt>&#92;</tt>.  (Note that in C++, this must be
+       written as <tt>&#92;&#92;c</tt> since the compiler
        transforms <tt>&#92;&#92;c</tt> into <tt>&#92;c</tt>.)
-  <li> <b>\a</b> matches the ASCII bell character (BEL, 0x07)
+  <li> <b>&#92;a</b> matches the ASCII bell character (BEL, 0x07)
   <li> <b>\f</b> matches the ASCII form feed character (FF, 0x0C)
   <li> <b>\n</b> matches the ASCII line feed character (LF, 0x0A), also known
        as Unix newline
@@ -126,7 +126,7 @@
   To count backslashes in a string:
 
   \code
-    QRegExp rx( "&#92;&#92;&#92;&#92;" ); // is &#92;&#92; after preprocessing
+    QRegExp rx( "\\\\" );                 // is really \\
     int pos = 0;
     int count = 0;
     do {
@@ -171,7 +171,7 @@
   \endcode
 
   If you are searching for such a number in a text, search() or searchRev() are
-  the the appropriate choices:
+  the appropriate choices:
 
   \code
     QRegExp rx( "[1-9][0-9][0-9]" );    // matches "100", "101", ..., "999"
@@ -273,7 +273,7 @@
   or <tt>optimum</tt>.
 
   When writing regular expressions in C++ code, remember that the C++
-  transforms <tt>&#92;</tt> characters.  For example, to match a
+  compiler transforms <tt>&#92;</tt> characters.  For example, to match a
   <tt>$</tt> character, you must write <tt>"&#92;&#92;$"</tt> in C++
   source, not <tt>"&#92;$"</tt>.  To match a <tt>&#92;</tt> character,
   you must write <tt>"&#92;&#92;&#92;&#92;</tt>.
@@ -1372,7 +1372,10 @@ bool QRegExpEngine::badCharMatch()
 	}
     }
 
-    while ( mmPos <= lastPos ) {
+    if ( mmPos > lastPos )
+	return FALSE;
+
+    while ( TRUE ) {
 	if ( ++slideNext >= mmSlideTabSize )
 	    slideNext = 0;
 	if ( mmSlideTab[slideHead] > 0 ) {
@@ -1383,6 +1386,9 @@ bool QRegExpEngine::badCharMatch()
 	    if ( matchHere() )
 		return TRUE;
 	}
+
+	if ( mmPos == lastPos )
+	    break;
 
 	/*
 	  Update the slide table.  This code has much in common with the
