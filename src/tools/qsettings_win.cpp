@@ -57,7 +57,7 @@ public:
     QString validateKey( const QString &key );
 
     bool writeKey( const QString &key, const QByteArray &value, ulong type );
-    QByteArray readKey( const QString &key, bool *ok );
+    QByteArray readKey( const QString &key, ulong &type );
     HKEY readKeyHelper( HKEY root, const QString &folder, const QString &entry, ulong &size );
 
     HKEY openKey( const QString &key, bool write, bool remove = FALSE );
@@ -304,11 +304,12 @@ HKEY QSettingsSysPrivate::readKeyHelper( HKEY root, const QString &folder, const
     return handle;
 }
 
-QByteArray QSettingsSysPrivate::readKey( const QString &key, bool *ok )
+QByteArray QSettingsSysPrivate::readKey( const QString &key, ulong &type )
 {
     HKEY handle = 0;
     ulong size = 0;
     QString e;
+    type = REG_NONE;
 
     if ( user ) {
 	for ( QStringList::Iterator it = paths.fromLast(); it != paths.end(); --it ) {
@@ -353,9 +354,7 @@ QByteArray QSettingsSysPrivate::readKey( const QString &key, bool *ok )
 	}
     }
 
-    if ( !size ) {
-	if ( ok )
-	    *ok = FALSE;
+    if ( !size ) {	
 	if ( handle )
 	    RegCloseKey( handle );
 	return QByteArray();
@@ -363,15 +362,13 @@ QByteArray QSettingsSysPrivate::readKey( const QString &key, bool *ok )
 
     QByteArray result(size, '\0');
     QT_WA( {
-	RegQueryValueExW( handle, e.isEmpty() ? 0 : (TCHAR*)e.ucs2(), NULL, NULL, (uchar *)result.data(), &size );
+	RegQueryValueExW( handle, e.isEmpty() ? 0 : (TCHAR*)e.ucs2(), NULL, &type, (uchar *)result.data(), &size );
     } , {
-	RegQueryValueExA( handle, e.isEmpty() ? (const char*)0 : (const char*)e.local8Bit(), NULL, NULL, (uchar *)result.data(), &size );
+	RegQueryValueExA( handle, e.isEmpty() ? (const char*)0 : (const char*)e.local8Bit(), NULL, &type, (uchar *)result.data(), &size );
     } );
 
     RegCloseKey( handle );
 
-    if ( ok )
-	*ok = TRUE;
     return result;
 }
 
@@ -405,9 +402,9 @@ double QSettingsPrivate::sysReadDoubleEntry( const QString &key, double def, boo
 
     if ( ok )
 	*ok = FALSE;
-    bool temp;
-    QByteArray array = sysd->readKey( key, &temp );
-    if ( !temp )
+    ulong type;
+    QByteArray array = sysd->readKey( key, type );
+    if ( type != REG_BINARY )
 	return def;
 
     if ( array.size() != sizeof(double) )
@@ -430,9 +427,10 @@ int QSettingsPrivate::sysReadNumEntry(const QString &key, int def, bool *ok ) co
 
     if ( ok )
 	*ok = FALSE;
-    bool temp;
-    QByteArray array = sysd->readKey( key, &temp );
-    if ( !temp )
+
+    ulong type;
+    QByteArray array = sysd->readKey( key, type );
+    if ( type != REG_DWORD )
 	return def;
 
     if ( array.size() != sizeof(int) )
@@ -454,9 +452,9 @@ QString QSettingsPrivate::sysReadEntry(const QString &key, const QString &def, b
     if ( ok ) // no, everything is not ok
 	*ok = FALSE;
 
-    bool temp;
-    QByteArray array = sysd->readKey( key, &temp );
-    if ( !temp )
+    ulong type;
+    QByteArray array = sysd->readKey( key, type );
+    if ( type != REG_SZ )
 	return def;
 
     if ( ok )
