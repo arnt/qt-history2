@@ -269,6 +269,7 @@ ZLIB=yes
 LIBPNG=yes
 JPEG=no
 MNG=no
+XFT=auto
 FT=yes
 NAS_SOUND=no
 D_FLAGS=
@@ -426,6 +427,12 @@ while [ -n "$1" ]; do
 	;;
    -big-codecs)
 	BIG_CODECS=yes
+	;;
+   -no-xft)
+	XFT=no
+	;;
+   -xft)
+	XFT=yes
 	;;
    -enable-kde2)
 	if [ '!' -f $KDEDIR/bin/dcopserver ]
@@ -714,6 +721,57 @@ then
     done
 fi
 
+# Auto-detect Xft support
+if [ $XFT = auto ]
+then
+    XFT=yes
+    XDIRS=`sed -n -e '/^QMAKE_LIBDIR_X11[	]*=/ { s/[^=]*=[	 ]*//; s/-L/ /g; p; }' $XMKSPEC`
+    LIBDIRS="$XDIRS /usr/lib /lib"
+
+    FOUND_LIB=
+    F=
+    for LIBDIR in $LIBDIRS
+    do
+	FOUND_LIB=`ls $LIBDIR/libXft.* 2>/dev/null`
+	if [ ! -z "$FOUND_LIB" ]
+	then
+	    F=yes
+	    break
+	fi
+    done
+
+    if [ -z "$F" ]
+    then
+	XFT=no
+    fi
+    
+    if [ "$XFT" = "yes" ]
+    then
+	INCS="X11/Xft/Xft.h"
+	XDIRS=`sed -n -e '/^QMAKE_INCDIR_X11[	]*=/ { s/[^=]*=[	 ]*//; s/-I/ /g; p; }' $XMKSPEC`
+	INCDIRS="$XDIRS /usr/include /include"
+
+	for I in $INCS
+	do
+	    F=
+	    for INCDIR in $INCDIRS
+	    do
+		if [ -f $INCDIR/$I ]
+		then
+		    F=yes
+		    break
+		fi
+	    done
+
+	    if [ -z "$F" ]
+	    then
+		XFT=no
+		break
+	    fi
+	done
+    fi
+fi
+
 # Find default thread option for target
 if grep >/dev/null '^QMAKE_LIBS_THREAD' $XMKSPEC
 then
@@ -756,15 +814,53 @@ fi
 # Auto-detect Xinerama support
 if [ $XINERAMA = auto ]
 then
-    XINERAMA=no
-    for INC in `sed -n -e '/^QMAKE_INCDIR_X11[	]*=/ { s/[^=]*=[	 ]*//; s/-I/ /g; p; }' $XMKSPEC`
+    XINERAMA=yes
+
+    XDIRS=`sed -n -e '/^QMAKE_LIBDIR_X11[	]*=/ { s/[^=]*=[	 ]*//; s/-L/ /g; p; }' $XMKSPEC`
+    LIBDIRS="$XDIRS /usr/lib /lib"
+
+    FOUND_LIB=
+    F=
+    for LIBDIR in $LIBDIRS
     do
-	if [ -f $INC/X11/extensions/Xinerama.h ]
+	FOUND_LIB=`ls $LIBDIR/libXinerama.* 2>/dev/null`
+	if [ ! -z "$FOUND_LIB" ]
 	then
-	    XINERAMA=yes
+	    F=yes
 	    break
 	fi
     done
+
+    if [ -z "$F" ]
+    then
+	XINERAMA=no
+    fi
+    
+    if [ "$XINERAMA" = "yes" ]
+    then
+	INCS="X11/extensions/Xinerama.h"
+	XDIRS=`sed -n -e '/^QMAKE_INCDIR_X11[	]*=/ { s/[^=]*=[	 ]*//; s/-I/ /g; p; }' $XMKSPEC`
+	INCDIRS="$XDIRS /usr/include /include"
+
+	for I in $INCS
+	do
+	    F=
+	    for INCDIR in $INCDIRS
+	    do
+		if [ -f $INCDIR/$I ]
+		then
+		    F=yes
+		    break
+		fi
+	    done
+
+	    if [ -z "$F" ]
+	    then
+		XINERAMA=no
+		break
+	    fi
+	done
+    fi
 fi
 
 # Compile in big text codecs by default
@@ -843,6 +939,15 @@ if [ "$HELP" = "yes" ]; then
 	XRN=" "
     fi
 
+    if [ "x$XFT" = "xno" ]
+    then
+	XFTY=" "
+	XFTN="*"
+    else
+	XFTY="*"
+	XFTN=" "
+    fi
+
     MODULES_HELP="iconview workspace network canvas table xml opengl"
     if [ -f $HOME/.qt-license ]
     then
@@ -903,7 +1008,11 @@ Installation options:
 
  $XRN  -no-xinerama ....... Do not compile Xinerama (multihead) support.
  $XRY  -xinerama .......... Compile Xinerama support.  Requires
-			 X11/extensions/Xinerama.h
+			 X11/extensions/Xinerama.h and libXinerama.
+
+ $XFTN  -no-xft ............ Do not compile Xft (anti-aliased font) support.
+ $XFTY  -xft ............... Compile Xft support. Requires X11/Xft/Xft.h and
+                         libXft.
 
  *  -qt-zlib ........... Use the zlib bundled with Qt.
     -system-zlib ....... Use a zlib from the operating system
@@ -1018,6 +1127,7 @@ QMAKE_VARS="$QMAKE_VARS \"OBJECTS_DIR=.obj/$QMAKE_OUTDIR\" \"MOC_DIR=.moc/$QMAKE
 [ "x$FT" = "xyes" -a "x$EMBEDDED" != "xno" ] && QMAKE_CONFIG="$QMAKE_CONFIG ft"
 [ "x$SM" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG sm"
 [ "x$XINERAMA" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG xinerama"
+[ "x$XFT" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG xft"
 [ "x$GIF" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG gif"
 [ "x$ZLIB" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG zlib"
 [ "x$LIBPNG" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG png"
@@ -1134,6 +1244,7 @@ echo "JPEG support......... $JPEG"
 echo "NAS sound support.... $NAS_SOUND"
 echo "Session management... $SM"
 echo "Xinerama support..... $XINERAMA"
+echo "Xft support ......... $XFT"
 echo
 
 #do the qmake..
