@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#27 $
+** $Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#28 $
 **
 ** Implementation of QClipboard class for X11
 **
@@ -31,7 +31,7 @@ static QWidget * owner = 0;
 static QByteArray * buf = 0;
 
 static void cleanup() {
-    delete owner;
+    // ### when qapp stops deleting no-parent widgets, we must delete owner
     owner = 0;
     delete buf;
     buf = 0;
