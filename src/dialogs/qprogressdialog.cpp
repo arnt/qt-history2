@@ -232,8 +232,8 @@ QProgressBar *QProgressDialog::bar() const
   \i The total number of steps is 100.
   \endlist
 
-  The top level parent of the \a creator widget becomes the parent of
-  the dialog. The \a name, \a modal, and the widget flags, \a f, are
+  The \a creator argument is the widget to use as the dialog's parent.
+  The \a name, \a modal, and the widget flags, \a f, are
   passed to the QDialog::QDialog() constructor. If \a modal is FALSE (the
   default), you must have an event loop proceeding for any redrawing
   of the dialog to occur. If \a modal is TRUE, the dialog ensures that
@@ -245,7 +245,7 @@ QProgressBar *QProgressDialog::bar() const
 
 QProgressDialog::QProgressDialog( QWidget *creator, const char *name,
 				  bool modal, WFlags f )
-    : QDialog( creator?creator->topLevelWidget():0, name, modal, f)
+    : QDialog( creator, name, modal, f)
 {
     init( creator, QString::fromLatin1(""), tr("Cancel"), 100 );
 }
@@ -265,15 +265,13 @@ QProgressDialog::QProgressDialog( QWidget *creator, const char *name,
    processed call setProgress(1), setProgress(2), etc., finally
    calling setProgress(50) after examining the last file.
 
+   The \a creator argument is the widget to use as the dialog's parent.
    The \a name, \a modal, and widget flags, \a f, are passed to the
    QDialog::QDialog() constructor. If \a modal is FALSE (the default),
    you will must have an event loop proceeding for any redrawing of
    the dialog to occur. If \a modal is TRUE, the dialog ensures that
    events are processed when needed.
 
-   The \a creator argument is the widget to use as the dialog's parent.
-   If \a creator is not a top level widget the argument passed on to
-   the QDialog constructor will be 0.
 
   \sa setLabelText(), setLabel(), setCancelButtonText(), setCancelButton(),
   setTotalSteps()
@@ -284,7 +282,7 @@ QProgressDialog::QProgressDialog( const QString &labelText,
 				  int totalSteps,
 				  QWidget *creator, const char *name,
 				  bool modal, WFlags f )
-    : QDialog( creator?creator->topLevelWidget():0, name, modal, f)
+    : QDialog( creator, name, modal, f)
 {
     init( creator, labelText, cancelButtonText, totalSteps );
 }
