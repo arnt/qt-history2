@@ -23,6 +23,14 @@
 #define UNICODE
 #endif
 
+#if defined(Q_CC_BOR)
+// DB2's sqlsystm.h (included through sqlcli1.h) defines the SQL_BIGINT_TYPE
+// and SQL_BIGUINT_TYPE to wrong the types for Borland; so do the defines to
+// the right type before including the header
+#define SQL_BIGINT_TYPE Q_INT64
+#define SQL_BIGUINT_TYPE Q_UINT64
+#endif
+
 #include <sqlcli1.h>
 
 static const int COLNAMESIZE = 255;
