@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#100 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#101 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -23,7 +23,7 @@
 #include "qlined.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#100 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#101 $");
 
 
 /*!
@@ -886,6 +886,9 @@ void QComboBox::paintEvent( QPaintEvent *event )
 	return;
     }
 
+    bool has_focus = hasFocus()
+	|| (d && d->usingListBox && d->ed && d->ed->hasFocus());
+
     if ( !d->usingListBox ) {		// motif 1.x style
 	int dist, buttonH, buttonW;
 	QBrush fill( g.background() );
@@ -908,7 +911,7 @@ void QComboBox::paintEvent( QPaintEvent *event )
 	    }
 	}
 
-	if ( hasFocus() )
+	if ( has_focus )
 	    p.drawRect( xPos - 5, 4, width() - xPos + 1 , height() - 8 );
 
     } else if ( style() == MotifStyle ) {	// motif 2.0 style
@@ -972,12 +975,12 @@ void QComboBox::paintEvent( QPaintEvent *event )
 	    }
 	}
 
-	if ( hasFocus() || (d && d->ed && d->ed->hasFocus()) )
+	if ( has_focus )
 	    p.drawRect( ax - 2, ay - 2, awh+4, sy+sh+4-ay );
 
     } else {					// windows 95 style
-	QColor	  bg  = isEnabled() ? g.base() : g.background();
-	const char   *str = d->listBox->text( d->current );
+	QColor bg = isEnabled() ? g.base() : g.background();
+	const char *str = d->listBox->text( d->current );
 
 	QBrush fill( bg );
 	qDrawWinPanel( &p, 0, 0, width(), height(), g, TRUE, &fill );
@@ -988,11 +991,26 @@ void QComboBox::paintEvent( QPaintEvent *event )
 		    arrowR.x() + 2, arrowR.y() + 2,
 		    arrowR.width() - 4, arrowR.height() - 4, g );
 
-	QRect clipR( 5, 4, width()  - 5 - 4 - arrowR.width(), 
+	QRect textR( 5, 4, width()  - 5 - 4 - arrowR.width(), 
 		     height() - 4 - 4 );
-	p.setClipRect( clipR );
+
+	if ( has_focus ) {
+	    QBrush fill( darkBlue );
+	    p.fillRect( textR.x()-1, textR.y(),
+		textR.width(), textR.height(), fill );
+	    p.drawWinFocusRect( textR.x()-2, textR.y()-1,
+		textR.width()+2, textR.height()+2 );
+	}
+
+	p.setClipRect( textR );
+
 	if ( str ) {
-	    p.drawText( clipR, AlignLeft | AlignVCenter | SingleLine, str);
+	    p.setPen(
+		has_focus
+		? colorGroup().base()
+		: colorGroup().text()
+	    );
+	    p.drawText( textR, AlignLeft | AlignVCenter | SingleLine, str);
 	} else {
 	    const QPixmap *pix = d->listBox->pixmap( d->current );
 	    if ( pix )
@@ -1538,10 +1556,13 @@ void QComboBox::setEnabled( bool enable )
 
 void QComboBox::focusInEvent( QFocusEvent * )
 {
-    if ( d && d->ed )
+    if ( d && d->ed ) {
+	if ( style() == WindowsStyle )
+	    d->ed->selectAll();
 	d->ed->setFocus();
-    else
+    } else {
 	repaint();
+    }
 }
 
 
