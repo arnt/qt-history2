@@ -144,6 +144,7 @@ SOURCES     =	dialogs/qfiledlg.cpp \
 		kernel/qpsprn.cpp \
 		kernel/qptd_x11.cpp \
 		kernel/qptr_x11.cpp \
+		kernel/qt_x11.cpp \
 		kernel/qrect.cpp \
 		kernel/qregion.cpp \
 		kernel/qrgn_x11.cpp \
