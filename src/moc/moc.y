@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#49 $
+** $Id: //depot/qt/main/src/moc/moc.y#50 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -37,7 +37,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/moc/moc.y#49 $";
+static char ident[] = "$Id: //depot/qt/main/src/moc/moc.y#50 $";
 #endif
 
 
@@ -55,9 +55,9 @@ struct Argument					// single arg meta data
     QString rightType;
 };
 
-declare(QList,Argument);
+declare(QListM,Argument);
 
-class ArgList : public QList(Argument) {	// member function arg list
+class ArgList : public QListM(Argument) {	// member function arg list
 public:
     ArgList() { setAutoDelete(TRUE); }
 };
@@ -75,9 +75,9 @@ struct Function					// member function meta data
    ~Function() { delete args; }
 };
 
-declare(QList,Function);
+declare(QListM,Function);
 
-class FuncList : public QList(Function) {	// list of member functions
+class FuncList : public QListM(Function) {	// list of member functions
 public:
     FuncList() { setAutoDelete(TRUE); }
 };
@@ -228,14 +228,15 @@ template_class_name:	  IDENTIFIER '<' template_args '>'
 				     tmpExpression.stripWhiteSpace(), ">" ); }
                         ;
 	
-/* template_args skips all characters until it encounters a ">" (it
+/*
+   template_args skips all characters until it encounters a ">" (it
    handles and discards sublevels of parentheses).  Since the rule is
    empty it must be used with care!
 */
 
 template_args:	          /* empty */		  { initExpression();
-                                                    templLevel = 1;
-						    BEGIN IN_TEMPL_ARGS; }
+						    templLevel = 1;
+ 						    BEGIN IN_TEMPL_ARGS; }
 			;
 
 /***** r.17.2 (ARM p.388): Expressions	*****/
