@@ -175,20 +175,19 @@ public:
 };
 
 
-/* 
-  Attention! 
-  This table is copied from qvariant.cpp. If you change 
-  one, change both.  
+/*
+  Attention!
+  This table is copied from qvariant.cpp. If you change
+  one, change both.
 */
-static const int ntypes = 21;
+static const int ntypes = 20;
 static const char* type_map[ntypes] =
 {
     0,
+    "QMap<QString,QVariant>",
     "QValueList<QVariant>",
     "QString",
     "QStringList",
-    "QValueList<int>",
-    "QValueList<double>",
     "QFont",
     "QPixmap",
     "QBrush",
