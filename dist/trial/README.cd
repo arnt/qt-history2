@@ -33,8 +33,8 @@ To use the evaluation, you need to have Microsoft Visual C++ v.6, .NET or
 Borland C++ v. 5.5 installed. In the Windows directory on this CD, you
 will find two versions of the Qt/Windows evaluation package:
 
-qt-win-eval-msvc-3.1.1.exe
-qt-win-eval-borland-3.1.1.exe
+qt-win-eval-msvc-3.1.2.exe
+qt-win-eval-borland-3.1.2.exe
 
 If you want to use Qt with Microsoft Visual C++, select the "msvc"
 package. Otherwise, select the "borland" package to use Qt with
@@ -60,9 +60,9 @@ Installation instructions for Qt/Mac
 You will find the Qt/Mac evaluation version in the MacOS directory on 
 this CD.
 
-Start the installation by copying the QtMac-Eval-3.1.1.sit package to your
+Start the installation by copying the qt-mac-eval-3.1.2.sit package to your
 hard disk and then double-clicking it to unstuff it. Once it is unstuffed,
-double-click the QtMac-Eval-3.1.1 application.
+double-click the QtMac-Eval-3.1.2 application.
 
 The installation wizard will ask you for the following information:
 Name:    Qt Evaluator
@@ -82,16 +82,16 @@ Installation instructions for Qt/X11
 In the Unix directory on this CD, you will find the Qt/X11 evaluation
 package:
 
-qt-x11-eval-3.1.1.tar
+qt-x11-eval-3.1.2.tar
 
 In a shell, cd to where you want to install the Qt/X11 evaluation, for
 example your home directory. Then unpack the archive by giving the command
 
-tar xf /cdrom/Unix/qt-x11-eval-3.1.1.tar
+tar xf /cdrom/Unix/qt-x11-eval-3.1.2.tar
 
 (replace "/cdrom" with the mount point of your CD-ROM drive). This will
-create a directory called qt-x11-eval-3.1.1. Further installation
-instructions are then available in the file qt-x11-eval-3.1.1/INSTALL.
+create a directory called qt-x11-eval-3.1.2. Further installation
+instructions are then available in the file qt-x11-eval-3.1.2/INSTALL.
 
 
 Installation instructions for Qt/Embedded
@@ -101,19 +101,19 @@ In the Embedded directory on this CD, you will find the Qt/Embedded
 evaluation packages:
 
 qt-embedded-2.3.2-eval.tar
-qt-embedded-eval-3.1.1.tar
+qt-embedded-eval-3.1.2.tar
 
 In a shell, cd to where you want to install the Qt/X11 evaluation, for
 example your home directory. Then unpack the archive by giving the command
 
 tar xf /cdrom/Unix/qt-embedded-eval-2.3.2.tar
 and/or:
-tar xf /cdrom/Unix/qt-embedded-eval-3.1.1.tar
+tar xf /cdrom/Unix/qt-embedded-eval-3.1.2.tar
 
 (replace "/cdrom" with the mount point of your CD-ROM drive). This will
-create a directory called qt-embedded-eval-2.3.2 or qt-embedded-eval-3.1.1.
+create a directory called qt-embedded-eval-2.3.2 or qt-embedded-eval-3.1.2.
 Further installation instructions are then available in the file 
-qt-embedded-eval-2.3.2/INSTALL or qt-embedded-eval-3.1.1/INSTALL.
+qt-embedded-eval-2.3.2/INSTALL or qt-embedded-eval-3.1.2/INSTALL.
 
 
 The Qt Reference Manual
@@ -150,3 +150,4 @@ http://www.trolltech.com/products/qt/evaluate.html
 
 
 Copyright (c) 2003 Trolltech AS. Qt is a trademark of Trolltech AS.
+
