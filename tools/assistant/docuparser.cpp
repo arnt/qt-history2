@@ -156,6 +156,10 @@ bool DocuParser310::startElement(const QString &, const QString &,
 bool DocuParser310::endElement(const QString &nameSpace, const QString &localName,
                              const QString &qName)
 {
+    Q_UNUSED(nameSpace);
+    Q_UNUSED(localName);
+    Q_UNUSED(qName);
+
     switch(state) {
     case StateInit:
         break;
@@ -167,6 +171,8 @@ bool DocuParser310::endElement(const QString &nameSpace, const QString &localNam
         break;
     case StateKeyword:
         state = StateSect;
+        break;
+    default:
         break;
     }
     return true;
@@ -294,6 +300,9 @@ bool DocuParser320::startElement(const QString &, const QString &,
 
     case StateProperty:
         break;
+
+    default:
+        break;
     }
 
     return true;
@@ -303,6 +312,10 @@ bool DocuParser320::endElement(const QString &nameSpace,
                                 const QString &localName,
                                 const QString &qName)
 {
+    Q_UNUSED(nameSpace);
+    Q_UNUSED(localName);
+    Q_UNUSED(qName);
+
     switch(state) {
     case StateInit:
         break;

@@ -274,6 +274,7 @@ void HelpDialog::removeOldCacheFiles()
 
 void HelpDialog::timerEvent(QTimerEvent *e)
 {
+    Q_UNUSED(e);
     static int opacity = 255;
     help->setWindowOpacity((opacity-=4)/255.0);
     if (opacity<=0)

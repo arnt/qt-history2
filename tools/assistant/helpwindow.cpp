@@ -55,7 +55,7 @@ void HelpWindow::setSource(const QString &name)
         QFileInfo linkInfo(name);
         QString target = name;
         if(linkInfo.isRelative())
-            target = currentInfo.dirPath(true) + "/" + name;
+            target = currentInfo.absolutePath() + "/" + name;
 
         nmw->setup();
         nmw->showLink(target);
@@ -67,7 +67,7 @@ void HelpWindow::setSource(const QString &name)
         return;
     }
 
-    if (name.left(7) == "http://" || name.left(6) == "ftp://") {
+    if (name.left(7) == QLatin1String("http://") || name.left(6) == QLatin1String("ftp://")) {
         QString webbrowser = Config::configuration()->webBrowser();
         if (webbrowser.isEmpty()) {
 #if defined(Q_OS_WIN32)

@@ -47,6 +47,8 @@ QDataStream &operator<<( QDataStream &s, const Document &l )
 Index::Index( const QString &dp, const QString &hp )
     : QObject( 0, 0 ), docPath( dp )
 {
+    Q_UNUSED(hp);
+
     alreadyHaveDocList = FALSE;
     lastWindowClosed = FALSE;
     connect( qApp, SIGNAL( lastWindowClosed() ),
@@ -56,6 +58,7 @@ Index::Index( const QString &dp, const QString &hp )
 Index::Index( const QStringList &dl, const QString &hp )
     : QObject( 0, 0 )
 {
+    Q_UNUSED(hp);
     docList = dl;
     alreadyHaveDocList = TRUE;
     lastWindowClosed = FALSE;
