@@ -58,9 +58,7 @@ protected slots:
     void optionSelected( QListViewItem * );
     void optionClicked( QListViewItem * );
     void configPageChanged();
-#if defined (USE_ARCHIVES)
     void archiveMsg(const QString &);
-#endif
 //    virtual void envDone();
 
 private:

@@ -1653,6 +1653,19 @@ void SetupWizardImpl::logOutput( const QString& entry, bool close )
 	outputLog.close();
 }
 
+void SetupWizardImpl::archiveMsg( const QString& msg )
+{
+#if defined (USE_ARCHIVES)
+    qApp->processEvents();
+    if( msg.find(QRegExp("Read \\d*")) == 0 ) { //progress message
+	operationProgress->setProgress( msg.right( msg.findRev(' ') + 1).toInt() );
+	return;
+    } 
+    logFiles( msg );
+#endif
+}
+
+
 #if defined (USE_ARCHIVES)
 void SetupWizardImpl::readArchive( const QString& arcname, const QString& installPath )
 {
@@ -1662,16 +1675,6 @@ void SetupWizardImpl::readArchive( const QString& arcname, const QString& instal
     ar.setPath( arcname );
     if(ar.open( IO_ReadOnly ) ) 
 	ar.readArchive( installPath );
-}
-
-void SetupWizardImpl::archiveMsg( const QString& msg )
-{
-    qApp->processEvents();
-    if( msg.find(QRegExp("Read \\d*")) == 0 ) { //progress message
-	operationProgress->setProgress( msg.right( msg.findRev(' ') + 1).toInt() );
-	return;
-    } 
-    logFiles( msg );
 }
 
 #else

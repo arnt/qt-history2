@@ -5,9 +5,10 @@ INTERFACES = setupwizard.ui folderdlg.ui
 CONFIG += windows qt
 TARGET  = install
 DESTDIR = ../../bin
-INCLUDEPATH = $(QTDIR)\src\3rdparty
+INCLUDEPATH = $(QTDIR)\src\3rdparty $(QTDIR)\util\install\archive
 
 win32-msvc:RC_FILE = install.rc
+
 
 do_archive {
    DEFINES += USE_ARCHIVES
