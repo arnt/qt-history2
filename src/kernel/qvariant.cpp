@@ -1965,13 +1965,15 @@ const QDateTime QVariant::toDateTime() const
 
 /*!
     Returns the variant as a QByteArray if the variant has type()
-    ByteArray; otherwise returns an empty bytearray.
+    ByteArray or CString; otherwise returns an empty bytearray.
 
     \sa asByteArray()
 */
 const QByteArray QVariant::toByteArray() const
 {
     if ( d->typ == ByteArray )
+	return *((QByteArray*)d->value.ptr);
+    if ( d->typ == CString )
 	return *((QByteArray*)d->value.ptr);
     return QByteArray();
 }
@@ -2686,6 +2688,8 @@ bool QVariant::canCast( Type t ) const
 	return d->typ == String;
     case String:
 	return d->typ == CString || d->typ == Int || d->typ == UInt || d->typ == Double || d->typ == Date || d->typ == Time || d->typ == DateTime || d->typ == KeySequence || d->typ == Font || d->typ == Color;
+    case ByteArray:
+	return d->typ == CString;
     case Date:
 	return d->typ == String || d->typ == DateTime;
     case Time:
