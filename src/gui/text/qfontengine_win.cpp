@@ -442,7 +442,7 @@ glyph_metrics_t QFontEngineWin::boundingBox(glyph_t glyph)
     GLYPHMETRICS gm;
 
     if(!ttf) {
-        SIZE s;
+        SIZE s = {0, 0};
         WCHAR ch = glyph;
         BOOL res = GetTextExtentPoint32W(dc(), &ch, 1, &s);
         Q_UNUSED(res);

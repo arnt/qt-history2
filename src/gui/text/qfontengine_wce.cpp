@@ -138,7 +138,7 @@ QFontEngine::Error QFontEngineWin::stringToCMap(const QChar *str, int len, QGlyp
         glyphs[i].advance = (glyph < widthCacheSize) ? widthCache[glyph] : 0;
         // font-width cache failed
         if (!glyphs[i].advance) {
-            SIZE size;
+            SIZE size = {0, 0};
             GetTextExtentPoint32W(hdc, (wchar_t *)str, 1, &size);
             glyphs[i].advance = size.cx;
             // if glyph's within cache range, store it for later
@@ -382,7 +382,7 @@ glyph_metrics_t QFontEngineWin::boundingBox(const QGlyphLayout *glyphs, int numG
 
 glyph_metrics_t QFontEngineWin::boundingBox(glyph_t glyph)
 {
-    SIZE s;
+    SIZE s = {0, 0};
     WCHAR ch = glyph;
     BOOL res = GetTextExtentPoint32W(dc(), &ch, 1, &s);
     Q_UNUSED(res);
