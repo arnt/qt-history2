@@ -587,34 +587,133 @@ public:
 	     this, SLOT(setCaption(const QString&)) );
     \endcode
 
-    QAxBase transparently converts between Qt data type and the
-    equivalent COM data types. Some COM types, for example the VARIANT
+    QAxBase transparently converts between COM data types and the
+    equivalent Qt data types. Some COM types, for example the VARIANT
     type VT_CY, have no equivalent Qt data structure.
 
-    Supported OLE datatypes are
-    \list
+    Supported COM datatypes are listed in the first column of following table. 
+    The second column is the Qt type that can be used with the QObject property
+    functions. The third column is the Qt type that is used in the prototype of
+    generated signals and slots for in-parameters, and the last column is the Qt
+    type that is used in the prototype of signals and slots for out-parameters.
+    \table
+    \header
+    \i COM type
+    \i Qt property
+    \i in-parameter
+    \i out-parameter
+    \row
     \i bool
-    \i char, unsigned char
-    \i const char*
-    \i float, double
-    \i int, unsigned int
+    \i bool
+    \i bool
+    \i bool&
+    \row
     \i BSTR
+    \i QString
+    \i const QString&
+    \i QString&
+    \row
+    \i char, short, int, long
+    \i int
+    \i int
+    \i int&
+    \row
+    \i uchar, ushort, uint, ulong
+    \i uint
+    \i uint
+    \i uint&
+    \row
+    \i enum X
+    \i enum X
+    \i enum X
+    \i enum X&
+    \row
+    \i float, double
+    \i double
+    \i double
+    \i double&
+    \row
     \i DATE
-    \i IFont*
+    \i QDateTime
+    \i const QDateTime&
+    \i QDateTime&
+    \row
     \i OLE_COLOR
-    \i SCODE and
+    \i QColor
+    \i const QColor&
+    \i QColor&
+    \row
+    \i SAFEARRAY(VARIANT)
+    \i QValueList
+    \i const QValueList<QVariant>&
+    \i QValueList<QVariant>&
+    \row
     \i VARIANT
-    \endlist
-
-    Unsupported OLE datatypes are
-    \list
-    \i CY
+    \i type dependent
+    \i const QVariant&
+    \i QVariant&
+    \row
+    \i IFontDisp*
+    \i QFont
+    \i const QFont&
+    \i QFont&
+    \row
+    \i IPictureDisp*
+    \i QPixmap
+    \i const QPixmap&
+    \i QPixmap&
+    \row
     \i IDispatch*
+    \i QAxObject* (read-only)
+    \i QAxObject* (return value)
+    \i \e unsupported
+    \row
     \i IUnknown*
-    \endlist
+    \i QAxObject* (read-only)
+    \i QAxObject* (return value)
+    \i \e unsupported
+    \row
+    \i CY, SCODE, DECIMAL
+    \i \e unsupported
+    \i \e unsupported
+    \i \e unsupported
+    \endtable
 
-    Pointer types and references cannot be provided by the Qt property
-    system, and cannot be passed as parameters to dynamicCall().
+    To call the methods of a COM interface described by the following IDL
+    \code
+    dispinterface IControl
+    {
+    properties:
+        [id(1)] BSTR text;
+	[id(2)] IFontDisp *font;
+
+    methods:
+	[id(6)] void showColumn( [in] int i );
+        [id(3)] bool addColumn( [in] BSTR t );
+	[id(4)] int fillList( [in, out] SAFEARRAY(VARIANT) *list );
+	[id(5)] IDispatch *item( [in] int i );
+    };
+    \endcode
+    use the QAxBase API like this:
+    \code
+    QAxObject object( "<CLSID>" );
+
+    QString text = object.property( "text" ).toString();
+    object.setProperty( "font", QFont( "Times New Roman", 12 ) );
+
+    connect( this, SIGNAL(clicked(int)), &object, SLOT(showColumn(int)) );
+    bool ok = object.dynamicCall( "addColumn(const QString&)", "Column 1" ).toBool();
+
+    QVariantList<QVariant> varlist;
+    QVariantList<QVariant> parameters;
+    parameters << QVariant( varlist );
+    int n = object.dynamicCall( "fillList(QValueList<QVariant>&)", parameters ).toInt();
+
+    QAxObject *item = object.querySubItem( "item(int)", 5 );
+    \endcode
+
+    Note that the QVariantList the object should fill has to be provided as an
+    element in the parameter list of QVariants.
 
     If you need to access properties or pass parameters of unsupported
     datatypes you must access the COM object directly through its
