@@ -179,6 +179,7 @@ static void resolveUsp10()
 
 	hasUsp10 = false;
 
+        return;
         ScriptFreeCache = (fScriptFreeCache) lib.resolve("ScriptFreeCache");
         ScriptItemize = (fScriptItemize) lib.resolve("ScriptItemize");
         ScriptShape = (fScriptShape) lib.resolve("ScriptShape");
