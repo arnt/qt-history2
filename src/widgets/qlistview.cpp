@@ -2726,7 +2726,7 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 
 	    bool drawActiveSelection = hasFocus() ||
 			    !style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus, this ) ||
-			    ( qApp->focusWidget() && qApp->focusWidget()->isPopup() ) ||
+			    ( qApp->focusWidget() && qApp->focusWidget()->isPopup() && qApp->focusWidget()->inherits( "QPopupMenu" ) ) ||
 			    ( currentItem() && currentItem()->renameBox && currentItem()->renameBox->hasFocus() );
 	    const QColorGroup &cg = ( drawActiveSelection ? colorGroup() : palette().inactive() );
 

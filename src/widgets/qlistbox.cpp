@@ -3996,7 +3996,7 @@ void QListBox::paintCell( QPainter * p, int row, int col )
 {
     bool drawActiveSelection = hasFocus() ||
 	!style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus, this ) ||
-	( qApp->focusWidget() && qApp->focusWidget()->isPopup() );
+	( qApp->focusWidget() && qApp->focusWidget()->isPopup() && qApp->focusWidget()->inherits( "QPopupMenu" ) );
     const QColorGroup &g = ( drawActiveSelection ? colorGroup() : palette().inactive() );
 
     int cw = d->columnPos[col+1] - d->columnPos[col];
