@@ -962,12 +962,18 @@ bool QSettings::sync()
 
 
 /*!
+  \fn bool QSettings::readBoolEntry(const QString &key, bool def, bool *ok ) const
+
   Reads the entry specified by \a key, and returns a bool, or the
   default value, \a def, if the entry couldn't be read.
   If \a ok is non-null, *ok is set to TRUE if the key was read, FALSE
   otherwise.
 
   \sa readEntry(), readNumEntry(), readDoubleEntry(), writeEntry(), removeEntry()
+*/
+
+/*!
+    \internal
 */
 bool QSettings::readBoolEntry(const QString &key, bool def, bool *ok )
 {
@@ -1008,12 +1014,18 @@ bool QSettings::readBoolEntry(const QString &key, bool def, bool *ok )
 
 
 /*!
+    \fn double QSettings::readDoubleEntry(const QString &key, double def, bool *ok ) const
+
   Reads the entry specified by \a key, and returns a double, or the
   default value, \a def, if the entry couldn't be read.
   If \a ok is non-null, *ok is set to TRUE if the key was read, FALSE
   otherwise.
 
   \sa readEntry(), readNumEntry(), readBoolEntry(), writeEntry(), removeEntry()
+*/
+
+/*!
+    \internal
 */
 double QSettings::readDoubleEntry(const QString &key, double def, bool *ok )
 {
@@ -1048,12 +1060,18 @@ double QSettings::readDoubleEntry(const QString &key, double def, bool *ok )
 
 
 /*!
+    \fn int QSettings::readNumEntry(const QString &key, int def, bool *ok ) const
+
   Reads the entry specified by \a key, and returns an integer, or the
   default value, \a def, if the entry couldn't be read.
   If \a ok is non-null, *ok is set to TRUE if the key was read, FALSE
   otherwise.
 
   \sa readEntry(), readDoubleEntry(), readBoolEntry(), writeEntry(), removeEntry()
+*/
+
+/*!
+    \internal
 */
 int QSettings::readNumEntry(const QString &key, int def, bool *ok )
 {
@@ -1088,12 +1106,18 @@ int QSettings::readNumEntry(const QString &key, int def, bool *ok )
 
 
 /*!
+    \fn QString QSettings::readEntry(const QString &key, const QString &def, bool *ok ) const
+
   Reads the entry specified by \a key, and returns a QString, or the
   default value, \a def, if the entry couldn't be read.
   If \a ok is non-null, *ok is set to TRUE if the key was read, FALSE
   otherwise.
 
   \sa readListEntry(), readNumEntry(), readDoubleEntry(), readBoolEntry(), writeEntry(), removeEntry()
+*/
+
+/*!
+    \internal
 */
 QString QSettings::readEntry(const QString &key, const QString &def, bool *ok )
 {
@@ -1705,7 +1729,7 @@ bool QSettings::writeEntry(const QString &key, const QStringList &value)
 
 
 /*!
-    \overload
+    \overload QStringList QSettings::readListEntry(const QString &key, const QChar &separator, bool *ok ) const
 
   Reads the entry specified by \a key as a string.  The \a separator is
   used to create a QStringList by calling QStringList::split(\a
@@ -1726,6 +1750,10 @@ bool QSettings::writeEntry(const QString &key, const QStringList &value)
 
   \sa readEntry(), readDoubleEntry(), readBoolEntry(), writeEntry(), removeEntry(), QStringList::split()
 */
+
+/*!
+    \internal
+*/
 QStringList QSettings::readListEntry(const QString &key, const QChar &separator, bool *ok )
 {
     QString value = readEntry( key, QString::null, ok );
@@ -1736,6 +1764,8 @@ QStringList QSettings::readListEntry(const QString &key, const QChar &separator,
 }
 
 /*!
+    \fn QStringList QSettings::readListEntry(const QString &key, bool *ok ) const
+
   Reads the entry specified by \a key as a string.
   If \a ok is non-null, *ok is set to TRUE if the key was read, FALSE
   otherwise.
@@ -1752,6 +1782,10 @@ QStringList QSettings::readListEntry(const QString &key, const QChar &separator,
     \endcode
 
   \sa readEntry(), readDoubleEntry(), readBoolEntry(), writeEntry(), removeEntry(), QStringList::split()
+*/
+
+/*!
+    \internal
 */
 QStringList QSettings::readListEntry(const QString &key, bool *ok )
 {

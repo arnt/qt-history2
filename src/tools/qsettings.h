@@ -83,13 +83,47 @@ public:
     QStringList entryList(const QString &) const;
     QStringList subkeyList(const QString &) const;
 
-    QStringList readListEntry( const QString &, bool * = 0 ); //### const in 4.0
-    QStringList readListEntry( const QString &, const QChar& sep, bool * = 0 ); //### const in 4.0
-    QString	readEntry( const QString &, const QString &def = QString::null, 
-			   bool * = 0 );//### const in 4.0
-    int		readNumEntry( const QString &, int def = 0, bool * = 0 ); //### const in 4.0
-    double	readDoubleEntry( const QString &, double def = 0, bool * = 0 ); //### const in 4.0
-    bool	readBoolEntry( const QString &, bool def = 0, bool * = 0 ); //### const in 4.0
+    //### remove non const versions in 4.0
+    QStringList readListEntry( const QString &, bool * = 0 );
+    QStringList readListEntry( const QString &, const QChar& sep, bool * = 0 );
+    QString	readEntry( const QString &, const QString &def = QString::null,  bool * = 0 );
+    int		readNumEntry( const QString &, int def = 0, bool * = 0 );
+    double	readDoubleEntry( const QString &, double def = 0, bool * = 0 );
+    bool	readBoolEntry( const QString &, bool def = 0, bool * = 0 );
+
+    //### make those non-inlined in 4.0
+    QStringList readListEntry( const QString &key, bool *ok = 0 ) const
+    {
+	QSettings *that = (QSettings*)this;
+	return that->readListEntry( key, ok );
+    }
+    QStringList readListEntry( const QString &key, const QChar& sep, bool *ok = 0 ) const 
+    {
+	QSettings *that = (QSettings*)this;
+	return that->readListEntry( key, sep, ok );
+    }
+    QString	readEntry( const QString &key, const QString &def = QString::null, 
+			   bool *ok = 0 ) const
+    {
+	QSettings *that = (QSettings*)this;
+	return that->readEntry( key, def, ok );
+    }
+    int		readNumEntry( const QString &key, int def = 0, bool *ok = 0 ) const
+    {
+	QSettings *that = (QSettings*)this;
+	return that->readNumEntry( key, def, ok );
+    }
+
+    double	readDoubleEntry( const QString &key, double def = 0, bool *ok = 0 ) const
+    {
+	QSettings *that = (QSettings*)this;
+	return that->readDoubleEntry( key, def, ok );
+    }
+    bool	readBoolEntry( const QString &key, bool def = 0, bool *ok = 0 ) const
+    {
+	QSettings *that = (QSettings*)this;
+	return that->readBoolEntry( key, def, ok );
+    }
 
     bool	removeEntry( const QString & );
 
