@@ -89,7 +89,7 @@ public:
     QStringList disabledDocks;
     QHideDock *hideDock;
 
-    QGuardedPtr<QPopupMenu> rmbMenu, tbMenu, dwMenu;
+    QPointer<QPopupMenu> rmbMenu, tbMenu, dwMenu;
     QMap<QDockWindow*, bool> appropriate;
     QMap<QPopupMenu*, QMainWindow::DockWindows> dockWindowModes;
 
