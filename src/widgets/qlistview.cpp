@@ -3187,6 +3187,7 @@ void QListView::updateGeometries()
 	horizontalScrollBar()->setValue( tw - QListView::d->h->width() );
     if ( QApplication::reverseLayout() && d->h->offset() != horizontalScrollBar()->value() )
 	horizontalScrollBar()->setValue( d->h->offset() );
+    verticalScrollBar()->raise();
     resizeContents( tw, th );
     if ( d->h->isHidden() ) {
 	setMargins( 0, 0, 0, 0 );
