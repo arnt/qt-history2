@@ -1169,9 +1169,6 @@ if [ -z "$PLATFORM" ]; then
 	else
 	PLATFORM=macx-g++
 	# PLATFORM=macx-pbuilder
-	PLATFORM_NOTES="
-	    - Also available for Mac OS X: macx-pbuilder
-	"
 	fi
 	;;
      AIX:*)
@@ -1332,7 +1329,7 @@ if [ "$QMAKESPEC" = "$XQMAKESPEC" ]; then
 fi
 
 if [ "$PLATFORM_MAC" = "yes" ]; then
-   if [ "$QMAKESPEC" = "macx-pbuilder" ] || [ "$XQMAKESPEC" = "macx-pbuilder" ]; then
+   if [ `basename $QMAKESPEC` = "macx-pbuilder" ] || [ `basename $XQMAKESPEC` = "macx-pbuilder" ]; then
       echo >&2
       echo "   Platform 'macx-pbuilder' should not be used when building Qt/Mac." >&2
       echo "   Please build Qt/Mac with 'macx-g++', then if you would like to" >&2
