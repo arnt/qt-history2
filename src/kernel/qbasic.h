@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbasic.h#8 $
+** $Id: //depot/qt/main/src/kernel/qbasic.h#9 $
 **
 **   Geometry Management
 **
@@ -13,8 +13,9 @@
 #ifndef QBASIC_H
 #define QBASIC_H
 
-#include <qintdict.h>
-#include <qwidget.h>
+#include "qintdict.h"
+#include "qwidget.h"
+
 
 class QChain;
 
