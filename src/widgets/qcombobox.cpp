@@ -480,16 +480,17 @@ QComboBox::QComboBox( QWidget *parent, const char *name )
     d->current               = 0;
     d->maxCount              = INT_MAX;
     d->sizeLimit	     = 10;
-    d->p                    =  AtBottom;
+    d->p                     = AtBottom;
     d->autoresize            = FALSE;
     d->poppedUp              = FALSE;
     d->arrowDown             = FALSE;
+    d->arrowPressed          = FALSE;
     d->discardNextMousePress = FALSE;
     d->shortClick            = FALSE;
-    d->useCompletion = FALSE;
-    d->completeAt = 0;
-    d->completeNow = FALSE;
-    d->completionTimer = new QTimer( this );
+    d->useCompletion         = FALSE;
+    d->completeAt            = 0;
+    d->completeNow           = FALSE;
+    d->completionTimer       = new QTimer( this );
 
     setFocusPolicy( TabFocus );
     setBackgroundMode( PaletteButton );
