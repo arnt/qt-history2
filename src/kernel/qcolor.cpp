@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.cpp#27 $
+** $Id: //depot/qt/main/src/kernel/qcolor.cpp#28 $
 **
 ** Implementation of QColor class
 **
@@ -14,7 +14,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qcolor.cpp#27 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qcolor.cpp#28 $";
 #endif
 
 
@@ -59,8 +59,8 @@ color and save it in the internal table.
 // Global colors
 //
 
-const QColor color0	( 0x00fffff1, 0 );   // quick-fix 11/9-95 EE
-const QColor color1	( 0x00000001, 1 );   // quick-fix 11/9-95 EE
+const QColor color0	( 0x00ffffff, 0 );
+const QColor color1	( 0x00000000, 1 );
 const QColor black	(   0,	 0,   0 );
 const QColor white	( 255, 255, 255 );
 const QColor darkGray	( 128, 128, 128 );
@@ -85,23 +85,24 @@ const QColor darkYellow ( 128, 128,   0 );
 //
 
 /*!
-\fn QColor::QColor()
-Constructs an invalid color with the RGB value (0,0,0). An invalid color
-is a color that is not properly set up for the underlying window system.
+  \fn QColor::QColor()
+  Constructs an invalid color with the RGB value (0,0,0). An invalid color
+  is a color that is not properly set up for the underlying window system.
 */
 
 /*!
-\fn QColor::QColor( int r, int g, int b )
-Constructs a color with the RGB value (r,g,b).
+  \fn QColor::QColor( int r, int g, int b )
+  Constructs a color with the RGB value (r,g,b).
 */
 
 /*!
-\fn QColor::QColor( ulong rgb, ulong pix )
-Constructs a color with a RGB value and a custom pixel value.
+  \fn QColor::QColor( ulong rgb, ulong pix )
+  Constructs a color with a RGB value and a custom pixel value.
 
-If the \e pix = 0xffffffff, then the color uses the RGB value in a
-standard way.  If \e pix is something else, then the pixel value will
-be set directly to \e pix (skips the standard allocation procedure). */
+  If the \e pix = 0xffffffff, then the color uses the RGB value in a
+  standard way.  If \e pix is something else, then the pixel value will
+  be set directly to \e pix (skips the standard allocation procedure).
+*/
 
 /*!
 \fn QColor::QColor( const char *name )

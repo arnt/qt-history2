@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcol_win.cpp#9 $
+** $Id: //depot/qt/main/src/kernel/qcol_win.cpp#10 $
 **
 ** Implementation of QColor class for Windows
 **
@@ -15,7 +15,7 @@
 #include <windows.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qcol_win.cpp#9 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qcol_win.cpp#10 $";
 #endif
 
 
@@ -155,6 +155,7 @@ QColor::QColor( ulong rgb, ulong pixel )	// specify RGB and/or pixel
 	rgbVal = rgb;
 	pix    = PALETTEINDEX( pixel );
     }
+    rgbVal |= RGB_DIRECT;
 }
 
 QColor::QColor( const char *name )		// load color from database

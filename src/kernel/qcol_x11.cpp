@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcol_x11.cpp#27 $
+** $Id: //depot/qt/main/src/kernel/qcol_x11.cpp#28 $
 **
 ** Implementation of QColor class for X11
 **
@@ -18,7 +18,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qcol_x11.cpp#27 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qcol_x11.cpp#28 $";
 #endif
 
 
@@ -165,6 +165,7 @@ QColor::QColor( ulong rgb, ulong pixel )	// specify RGB and/or pixel
 	rgbVal = rgb;
 	pix    = pixel;
     }
+    rgbVal |= RGB_DIRECT;
 }
 
 QColor::QColor( const char *name )		// load color from database
