@@ -171,16 +171,24 @@ int QEventLoop::registerTimer( int interval, QObject *obj )
 	delete t;				// could not set timer
 	return 0;
     }
-    timerVec->insert( ind, t );			// store in timer vector
+    timerVec->append( t );			// store in timer vector
     timerDict->insert( t->id, t );		// store in dict
     return ind + 1;				// return index in vector
 }
 
 bool QEventLoop::unregisterTimer( int ind )
 {
-    if ( !timerVec || ind <= 0 || ind > timerVec->size() )
+    if ( !timerVec || ind <= 0 )
 	return FALSE;
-    register TimerInfo *t = timerVec->at(ind-1);
+
+    TimerInfo *t = 0;
+    for (int i=0; i<timerVec->size(); ++i) {
+	if (timerVec->at(i)->ind == ind-1) {
+	    t = timerVec->at(i);
+	    break;
+	}
+    }
+
     if ( !t )
 	return FALSE;
     if ( t->zero )
@@ -188,7 +196,7 @@ bool QEventLoop::unregisterTimer( int ind )
     else
 	KillTimer( 0, t->id );
     timerDict->remove( t->id );
-    timerVec->removeAt( ind-1 );
+    timerVec->remove( t );
     delete t;
     return TRUE;
 }
