@@ -81,6 +81,9 @@ static QWidget *keyboardGrb = 0;
 extern Time qt_x_time;
 extern bool qt_use_xrender;
 
+// defined in qfont_x11.cpp
+extern bool qt_has_xft;
+
 int qt_x11_create_desktop_on_screen = -1;
 
 /*****************************************************************************
@@ -332,7 +335,9 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	rendhd = 0;
     }
 
-    rendhd = (HANDLE) XftDrawCreate( dpy, id, (Visual *) x11Visual(), x11Colormap() );
+    if ( qt_use_xrender && qt_has_xft )
+	rendhd = (HANDLE) XftDrawCreate( dpy, id, (Visual *) x11Visual(),
+					 x11Colormap() );
 #endif // QT_NO_XFTFREETYPE
 
     // NET window types
