@@ -160,6 +160,8 @@ void QDesignerWorkbench::switchToNeutralMode()
      if (m_mode == NeutralMode)
          return;
 
+     mainWindow()->setFocus();
+
     m_mode = NeutralMode;
 
     m_geometries.clear();

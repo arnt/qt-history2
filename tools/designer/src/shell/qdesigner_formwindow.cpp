@@ -34,7 +34,7 @@ QDesignerFormWindow::QDesignerFormWindow(QDesignerWorkbench *workbench, QWidget 
     m_action = new QAction(this);
     m_action->setText(windowTitle());
     m_action->setCheckable(true);
-    connect(m_action, SIGNAL(checked(bool)), this, SLOT(setShown(bool)));
+    connect(m_action, SIGNAL(checked(bool)), this, SIGNAL(activated(bool)));
 }
 
 QDesignerFormWindow::QDesignerFormWindow(AbstractFormWindow *editor, QDesignerWorkbench *workbench, QWidget *parent, Qt::WFlags flags)
@@ -51,29 +51,11 @@ QDesignerFormWindow::QDesignerFormWindow(AbstractFormWindow *editor, QDesignerWo
     m_action = new QAction(this);
     m_action->setText(windowTitle());
     m_action->setCheckable(true);
-    connect(m_action, SIGNAL(checked(bool)), this, SLOT(setShown(bool)));
+    connect(m_action, SIGNAL(checked(bool)), this, SIGNAL(activated(bool)));
 }
 
 QDesignerFormWindow::~QDesignerFormWindow()
 {
-}
-
-void QDesignerFormWindow::showEvent(QShowEvent *e)
-{
-    Q_UNUSED(e);
-
-    bool blocked = m_action->blockSignals(true);
-    m_action->setChecked(true);
-    m_action->blockSignals(blocked);
-}
-
-void QDesignerFormWindow::hideEvent(QHideEvent *e)
-{
-    Q_UNUSED(e);
-
-    bool blocked = m_action->blockSignals(true);
-    m_action->setChecked(false);
-    m_action->blockSignals(blocked);
 }
 
 QAction *QDesignerFormWindow::action() const
@@ -105,4 +87,3 @@ AbstractFormWindow *QDesignerFormWindow::editor() const
 {
     return m_editor;
 }
-

@@ -38,9 +38,10 @@ public:
 
     virtual QRect geometryHint() const;
 
+signals:
+    void activated(bool active);
+
 protected:
-    virtual void showEvent(QShowEvent *e);
-    virtual void hideEvent(QHideEvent *e);
     virtual void changeEvent(QEvent *e);
 
 private:

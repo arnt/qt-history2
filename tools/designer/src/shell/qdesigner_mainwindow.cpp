@@ -47,6 +47,12 @@ void QDesignerMainWindow::initialize()
     m_workbench = new QDesignerWorkbench(this);
     m_workbench->setMainWindow(this);
 
+    m_toolActions = new QActionGroup(this);
+    m_toolActions->setExclusive(false);
+
+    m_windowActions = new QActionGroup(this);
+    m_windowActions->setExclusive(true);
+
     m_actionManager = new QDesignerActions(this);
 
     m_fileMenu = menuBar()->addMenu(tr("&File"));
@@ -104,6 +110,7 @@ void QDesignerMainWindow::initialize()
 void QDesignerMainWindow::addFormWindow(QDesignerFormWindow *formWindow)
 {
     if (QAction *action = workbench()->actionForFormWindow(formWindow)) {
+        m_windowActions->addAction(action);
         m_windowMenu->addAction(action);
     }
 }
@@ -111,6 +118,7 @@ void QDesignerMainWindow::addFormWindow(QDesignerFormWindow *formWindow)
 void QDesignerMainWindow::removeFormWindow(QDesignerFormWindow *formWindow)
 {
     if (QAction *action = workbench()->actionForFormWindow(formWindow)) {
+        m_windowActions->removeAction(action);
         m_windowMenu->removeAction(action);
     }
 }
@@ -118,6 +126,7 @@ void QDesignerMainWindow::removeFormWindow(QDesignerFormWindow *formWindow)
 void QDesignerMainWindow::addToolWindow(QDesignerToolWindow *toolWindow)
 {
     if (QAction *action = workbench()->actionForToolWindow(toolWindow)) {
+        m_toolActions->addAction(action);
         m_toolMenu->addAction(action);
     }
 }
@@ -125,6 +134,7 @@ void QDesignerMainWindow::addToolWindow(QDesignerToolWindow *toolWindow)
 void QDesignerMainWindow::removeToolWindow(QDesignerToolWindow *toolWindow)
 {
     if (QAction *action = workbench()->actionForToolWindow(toolWindow)) {
+        m_toolActions->removeAction(action);
         m_toolMenu->removeAction(action);
     }
 }
