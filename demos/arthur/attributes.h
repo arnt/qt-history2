@@ -28,8 +28,13 @@ public:
           alpha(false),
           fillMode(Solid)
     {
-        color = QApplication::palette().base().color();
-        secondaryColor = QApplication::palette().background().color();
+        QPalette pal = QApplication::palette();
+        QColor c = pal.base().color();
+        if (!c.isValid())
+            c = Qt::gray;
+
+        color = c.light();
+        secondaryColor = c.dark();
         pattern.load(":/res/bg1.jpg");
         tile.load(":/res/qtlogo.png");
     }
