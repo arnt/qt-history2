@@ -339,6 +339,14 @@ void HierarchyList::setOpen( QListViewItem *i, bool b )
 
 void HierarchyList::insertObject( QObject *o, QListViewItem *parent )
 {
+    bool fakeMainWindow = FALSE;
+    if ( o && o->inherits( "QMainWindow" ) ) {
+	QObject *cw = ( (QMainWindow*)o )->centralWidget();
+	if ( cw ) {
+	    o = cw;
+	    fakeMainWindow = TRUE;
+	}
+    }
     QListViewItem *item = 0;
     QString className = WidgetFactory::classNameOf( o );
     if ( o->inherits( "QLayoutWidget" ) ) {
@@ -369,6 +377,11 @@ void HierarchyList::insertObject( QObject *o, QListViewItem *parent )
 	    name = ( (QTabWidget*)o->parent()->parent() )->tabLabel( (QWidget*)o );
 	else if ( o->parent()->parent()->inherits( "QWizard" ) )
 	    name = ( (QWizard*)o->parent()->parent() )->title( (QWidget*)o );
+    }
+
+    if ( fakeMainWindow ) {
+	name = o->parent()->name();
+	className = "QMainWindow";
     }
 
     if ( !parent )
