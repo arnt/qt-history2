@@ -51,6 +51,7 @@ HEADERS		= $$DIALOGS_H/qbuilder.h \
 		  $$KERNEL_H/qimage.h \
 		  $$KERNEL_H/qkeycode.h \
 		  $$KERNEL_H/qlayout.h \
+		  $$KERNEL_H/qmessagefile.h \
 		  $$KERNEL_H/qmetaobject.h \
 		  $$KERNEL_H/qmovie.h \
 		  $$KERNEL_H/qobject.h \
@@ -183,6 +184,7 @@ SOURCES		= dialogs/qbuilder.cpp \
 		  kernel/qiconset.cpp \
 		  kernel/qimage.cpp \
 		  kernel/qlayout.cpp \
+		  kernel/qmessagefile.cpp \
 		  kernel/qmetaobject.cpp \
 		  kernel/qmovie.cpp \
 		  kernel/qobject.cpp \
