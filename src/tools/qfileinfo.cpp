@@ -117,6 +117,11 @@ extern bool qt_file_access( const QString& fn, int t );
     \value ReadOther The file is readable by anyone.
     \value WriteOther The file is writable by anyone.
     \value ExeOther The file is executable by anyone.
+
+    \warning The semantics of \c ReadUser, \c WriteUser and \c ExeUser are
+    unfortunately not platform independent: on Unix, the rights of the owner of
+    the file are returned and on Windows the rights of the user running the
+    program are returned. This behavior might change in a future Qt version.
 */
 
 
@@ -479,7 +484,11 @@ QDir QFileInfo::dir( bool absPath ) const
 
 bool QFileInfo::isReadable() const
 {
+#ifdef Q_WS_WIN
     return qt_file_access( fn, R_OK ) && permission( ReadUser );
+#else
+    return qt_file_access( fn, R_OK );
+#endif
 }
 
 /*!
@@ -490,7 +499,11 @@ bool QFileInfo::isReadable() const
 
 bool QFileInfo::isWritable() const
 {
+#ifdef Q_WS_WIN
     return qt_file_access( fn, W_OK ) && permission( WriteUser );
+#else
+    return qt_file_access( fn, W_OK );
+#endif
 }
 
 /*!
@@ -501,7 +514,11 @@ bool QFileInfo::isWritable() const
 
 bool QFileInfo::isExecutable() const
 {
+#ifdef Q_WS_WIN
     return qt_file_access( fn, X_OK ) && permission( ExeUser );
+#else
+    return qt_file_access( fn, X_OK );
+#endif
 }
 
 #ifndef Q_WS_WIN
