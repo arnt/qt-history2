@@ -188,17 +188,17 @@ void unclippedScaledBitBlt(QPaintDevice *dst, int dx, int dy, int dw, int dh,
 	    dstoffx = p.x();
 	    dstoffy = p.y();
 	}
-	if(dw > dx + w->width())
+	if(!scalew && dw > dx + w->width())
 	    dw = w->width() - dx;
-	if(dh > dy + w->height())
+	if(!scaleh && dh > dy + w->height())
 	    dh = w->height() - dy;
     } else if(dst->devType() == QInternal::Pixmap) {
 	QPixmap *pm = (QPixmap *)dst;
 	pm->detach(); //must detach when we blt
 	dstbitmap = GetPortBitMapForCopyBits((GWorldPtr)pm->handle());
-	if(dw > dx + pm->width())
+	if(!scalew && dw > dx + pm->width())
 	    dw = pm->width() - dx;
-	if(dh > dy + pm->height())
+	if(!scaleh && dh > dy + pm->height())
 	    dh = pm->height() - dy;
     } else if(dst->devType() == QInternal::Printer) {
 	dstbitmap = GetPortBitMapForCopyBits((GWorldPtr)dst->handle());
