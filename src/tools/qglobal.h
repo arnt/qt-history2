@@ -71,6 +71,7 @@
 //   DYNIX	- DYNIX/ptx
 //   RELIANT	- Reliant UNIX
 //   QNX	- QNX
+//   BSD4	- Any BSD 4.4 system
 //   UNIX	- Any UNIX BSD/SYSV system
 //
 // The idea for configuring a UNIX platform is:
@@ -160,6 +161,7 @@
 #    define Q_OS_SOLARIS
 #  else
 #    define Q_OS_SUN
+#    define Q_OS_BSD4
 #  endif
 #elif defined(hpux) || defined(__hpux) || defined(__hpux__)
 #  define Q_OS_HPUX
@@ -171,16 +173,20 @@
 #  define Q_OS_LINUX
 #elif defined(__FreeBSD__)
 #  define Q_OS_FREEBSD
+#  define Q_OS_BSD4
 #elif defined(__NetBSD__)
 #  define Q_OS_NETBSD
+#  define Q_OS_BSD4
 #elif defined(__OpenBSD__)
 #  define Q_OS_OPENBSD
+#  define Q_OS_BSD4
+#elif defined(bsdi) || defined(__bsdi__)
+#  define Q_OS_BSDI
+#  define Q_OS_BSD4
 #elif defined(sgi) || defined(__sgi)
 #  define Q_OS_IRIX
 #elif defined(__osf__)
 #  define Q_OS_OSF
-#elif defined(bsdi) || defined(__bsdi__)
-#  define Q_OS_BSDI
 #elif defined(_AIX)
 #  define Q_OS_AIX
 #elif defined(__Lynx__)
@@ -217,7 +223,7 @@
 
 #if defined(Q_OS_UNIX)
 // BSDs have nice, stable interfaces...
-#  if defined(BSD4_4)
+#  if defined(Q_OS_BSD4)
 // Do not specify Open Group standards on Irix! Only use the general
 // _SGI_SOURCE macro which will automatically import the most recent
 // Open Group interfaces automatically together with proprietary or
@@ -397,8 +403,7 @@
 #    if !defined(_BOOL)
 #      define Q_NO_BOOL_TYPE
 #    endif
-#    if defined(__COMO__) || defined(como40)
-// __COMO__ is documented, the other?
+#    if defined(__COMO__)
 #      define Q_CC_COMEAU
 #      define Q_C_CALLBACKS
 #    elif defined( __KCC )
@@ -528,15 +533,17 @@ const bool TRUE = !0;
 #endif
 
 
+//
+// Workaround for static const members on MSVC++.
+//
+
 #if defined(Q_CC_MSVC)
-// Workaround for static const members.
 #  define QT_STATIC_CONST static
 #  define QT_STATIC_CONST_IMPL
 #else
 #  define QT_STATIC_CONST static const
 #  define QT_STATIC_CONST_IMPL const
 #endif
-
 
 
 //
@@ -587,6 +594,7 @@ typedef unsigned long		Q_ULONG;
 #define Q_INT64			Q_LONG
 #define Q_UINT64		Q_ULONG
 #endif
+
 
 //
 // Data stream functions is provided by many classes (defined in qdatastream.h)
