@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#286 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#287 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -11970,12 +11970,14 @@ QString QString::lower() const
 {
     QString s(*this);
     int l=length();
-    s.real_detach(); // could do this only when we find a change
-    register QChar *p=s.d->unicode;
-    if ( p ) {
-	while ( l-- ) {
-	    *p = p->lower();
-	    p++;
+    if ( l ) {
+	s.real_detach(); // could do this only when we find a change
+	register QChar *p=s.d->unicode;
+	if ( p ) {
+	    while ( l-- ) {
+		*p = p->lower();
+		p++;
+	    }
 	}
     }
     return s;
@@ -11997,12 +11999,14 @@ QString QString::upper() const
 {
     QString s(*this);
     int l=length();
-    s.real_detach(); // could do this only when we find a change
-    register QChar *p=s.d->unicode;
-    if ( p ) {
-	while ( l-- ) {
-	    *p = p->upper();
-	    p++;
+    if ( l ) {
+	s.real_detach(); // could do this only when we find a change
+	register QChar *p=s.d->unicode;
+	if ( p ) {
+	    while ( l-- ) {
+		*p = p->upper();
+		p++;
+	    }
 	}
     }
     return s;
