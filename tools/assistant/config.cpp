@@ -118,7 +118,6 @@ void Config::load()
         maximized = settings.value( key + QLatin1String("GeometryMaximized"), false ).toBool();
     }
     mainWinState = settings.value(key + QLatin1String("MainWindowState")).toByteArray();
-    mainWinState = QByteArray::fromBase64(mainWinState);
     rebuildDocs = settings.value( key + QLatin1String("RebuildDocDB"), true ).toBool();
 
     profileNames = settings.value( key + QLatin1String("Profile") ).toStringList();
@@ -154,7 +153,7 @@ void Config::saveSettings()
         settings.setValue( key + QLatin1String("Size"),  fontSiz );
         settings.setValue( key + QLatin1String("FixedFamily"), fontFix );
     }
-    settings.setValue( key + QLatin1String("MainWindowState"), mainWinState.toBase64() );
+    settings.setValue( key + QLatin1String("MainWindowState"), mainWinState );
     settings.setValue( key + QLatin1String("RebuildDocDB"), rebuildDocs );
 }
 
