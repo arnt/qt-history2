@@ -38,8 +38,6 @@
 #ifndef QIODEVICE_H
 #define QIODEVICE_H
 
-#define QT_LARGE_FILE_SUPPORT
-
 #ifndef QT_H
 #ifdef QT_LARGE_FILE_SUPPORT
 // ### Should be included first. This is a problem in the current
