@@ -53,55 +53,68 @@
   \class QWhatsThis qwhatsthis.h
 
   \brief The QWhatsThis class provides a simple description of any
-  widget, e.g., answering the question "What's this?"
+  widget, e.g., answering the question "What's this?".
 
   \ingroup helpsystem
 
-  <i>What's This?</i> help is part of an application's
-  <a href="helpsystem.html">on-line help systems</a>,
-  offering users a level of detail between
+  What's This? help is part of an application's
+  <a href="helpsystem.html">online help system</a> that
+  provides users with information about functionality, 
+  usage, background etc. in various levels of detail between
   tool tips and full text browsing windows.
 
   QWhatsThis provides a single window with a single explanatory
-  text which pops up quickly when the user asks "What's this?"; it
-  goes away as soon as the user does something else.
+  text which pops up when the user asks "What's this?".
+  The default way to do this is to focus
+  the relevant widget and press Shift-F1. The help text appears
+  immediately; it goes away as soon as the user does something else.
 
-  To assign <i>What's This?</i> text to a widget you simply
+  Note that this mechanism stops to take effect when Shift-F1 is
+  assigned to serve as an accelerator in the application. 
+
+  To add What's This? text to a widget you simply
   call QWhatsThis::add() for the widget. To assign text to a
   menu item, call QMenuData::setWhatsThis(); for a global
-  accelerator key, call QAccel::setWhatsThis().
+  accelerator key, call QAccel::setWhatsThis(). If you're
+  using actions QAction::setWhatsThis() does the job. 
 
   The text can be either rich text or plain text.  If you
   specify a rich text formatted string, it will be rendered using the
   default stylesheet. This makes it also possible to embed images. See
   QStyleSheet::defaultSheet() for details.
 
-  By default the user will be able to view the text for a widget
-  by pressing Shift-F1 while the widget has focus.
-  On window systems in which a context help button is provided in
-  the window decorations, that button enters <i>What's This?</i> mode.
-  In this mode, if the user
-  clicks on a widget help will be given for the widget.  The mode
-  is left when help is given or when the user presses the Escape key.
+  \dontinclude action/application.cpp
+  \skipto fileOpenText
+  \printuntil setWhatsThis
+ 
+  (For an exhaustive explanation of the above code refer to the
+  <A HREF="simple-application-action.html">Simple Application Walkthrough
+  featuring QAction</A>.)  
 
-  An alternative way to enter <i>What's This?</i> mode is
+  An alternative way to enter What's This? mode is
   to use the ready-made tool bar tool button from
   QWhatsThis::whatsThisButton().
-  If you are using QMainWindow you can also use
-  the QMainWindow::whatsThis() slot to invoke the mode from a menu item.
+  By invoking this context help button (in the below picture
+  the first one from the right) the user switches into What's this? mode.
+  If now he or she clicks on a widget the appropriate help text is shown.  
+  The mode is left when help is given or when the user presses the Escape key.
 
   <img src="whatsthis.png" width="284" height="246">
 
-  For more control, you can create a dedicated QWhatsThis object for a
+  If you are using QMainWindow you can also use
+  the QMainWindow::whatsThis() slot to invoke the mode from a menu item.
+
+  For more control you can create a dedicated QWhatsThis object for a
   special widget. By subclassing and reimplementing QWhatsThis::text()
-  it is possible to have different explanatory texts, depending on the
+  it is possible to have different help texts, depending on the
   position of the mouse click.
 
-  If your widget needs even more control, see
+  If you wish to control the What's This? behaviour of a widget manually see
   QWidget::customWhatsThis().
 
-  To remove added text you can use QWhatsThis::remove(), but this is rarely needed because
-  the text is automatically removed when the widget is destroyed.
+  Added help text might be removed using QWhatsThis::remove(). This 
+  is however rarely needed because the text is automatically removed as
+  soon as the widget is destroyed.
 
   \sa QToolTip
 */
@@ -649,7 +662,7 @@ void QWhatsThis::add( QWidget * widget, const QString &text )
 
 
 /*!
-  Removes the <i>What's This?</i> help for \a widget. This happens
+  Removes the What's This? help for \a widget. This happens
   automatically if the widget is destroyed.
   \sa add()
 */
@@ -670,7 +683,7 @@ void QWhatsThis::remove( QWidget * widget )
 
 /*!
   Returns the text for widget \a w or a null string if there
-  is no <i>What's This?</i> help for \a widget.
+  is no What's This? help for widget.
 
   If \a includeParents is TRUE, parent widgets are taken into
   consideration as well.
@@ -701,8 +714,8 @@ QString QWhatsThis::textFor( QWidget * w, const QPoint& pos, bool includeParents
 
 /*!
   Creates a QToolButton preconfigured
-  to enter <i>What's This?</i> mode when clicked. You
-  will often use this with a tool bar:
+  to enter What's This? mode when clicked. You
+  will often use this with a tool bar as \a parent:
   \code
      (void)QWhatsThis::whatsThisButton( my_help_tool_bar );
   \endcode
@@ -787,7 +800,7 @@ RzkopxCUA4ByAFAOAMoBQDkAKAcA5QCgHACUA4ByAP4PEPjyFx6Cy2AAAAAASUVORK5CYII=
 
 
 /*!
-  Constructs a dynamic <i>What's This?</i> object for \a widget.
+  Constructs a dynamic What's This? object for \a widget.
 
   When the widget is queried by the user the text() function of
   this QWhatsThis will be called to provide the appropriate text,
@@ -810,8 +823,8 @@ QWhatsThis::~QWhatsThis()
 
 /*!
   This virtual function returns the text for position \e p in the
-  widget that this <i>What's This?</i> object documents.  If there is no
-  <i>What's This?</i> text for a position, QString::null is returned.
+  widget that this What's This? object documents.  If there is no
+  What's This? text for a position, QString::null is returned.
 
   The default implementation returns QString::null.
 */
@@ -822,15 +835,15 @@ QString QWhatsThis::text( const QPoint & )
 
 
 /*!
-  Enters <i>What's This</i>? mode and returns immediately.
+  Enters What's This? mode and returns immediately.
 
   Qt will install a special cursor and take over mouse input
   until the user clicks somewhere. It then shows any help available and
-  switches out of <i>What's This?</i> mode.  Finally, Qt
+  switches out of What's This? mode.  Finally, Qt
   removes the special cursor and help window and then restores ordinary event
   processing, at which point the left mouse button is not pressed.
 
-  The user can also use the Escape key to leave <i>What's This</i>? mode.
+  The user can also use the Escape key to leave What's This? mode.
 
 \sa inWhatsThisMode(), leaveWhatsThisMode()
 */
@@ -849,7 +862,7 @@ void QWhatsThis::enterWhatsThisMode()
 
 
 /*!
-  Returns whether the application is in <i>What's This?</i> mode.
+  Returns whether the application is in What's This? mode.
 
   \sa enterWhatsThisMode(), leaveWhatsThisMode()
  */
@@ -862,16 +875,16 @@ bool QWhatsThis::inWhatsThisMode()
 
 
 /*!
-  Leaves <i>What's This</i>? question mode.
+  Leaves What's This? question mode.
 
   This function is used internally by widgets that support
   QWidget::customWhatsThis(); applications do not usually call
   it.  An example of this widget is QPopupMenu: menus still
-  work normally in <i>What's This?</i> mode but provide help texts for single
+  work normally in What's This? mode but provide help texts for single
   menu items instead.
 
-  If \a text is not a null string, a <i>What's This?</i> help window is
-  displayed at the global screen position \e pos.
+  If \a text is not a null string, a What's This? help window is
+  displayed at the global screen position \a pos.
 
 \sa inWhatsThisMode(), enterWhatsThisMode()
 */
