@@ -21,7 +21,7 @@ int main( int argc, char* argv[]  )
     QStyleSheet::defaultSheet()->item("p")->setMargin( QStyleSheetItem::MarginVertical, 0 );
     QStyleSheet::defaultSheet()->item("p")->setMargin( QStyleSheetItem::MarginTop, 4 );
 
-    
+
     style = new QStyleSheetItem( QStyleSheet::defaultSheet(), "right" );
     style->setAlignment( QStyleSheetItem::AlignCenter );
     style->setDisplayMode( QStyleSheetItem::DisplayBlock );

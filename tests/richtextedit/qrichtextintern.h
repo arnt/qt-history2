@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qrichtextintern.h#13 $
+** $Id: //depot/qt/main/tests/richtextedit/qrichtextintern.h#14 $
 **
 ** Internal rich text classes
 **
@@ -226,7 +226,8 @@ public:
 		      int ox, int oy, int cx, int cy, int cw, int ch,
 		      QRegion& backgroundRegion, const QColorGroup& cg, const QtTextOptions& to) = 0;
 
-    virtual bool expandsHorizontally() { return FALSE;  }
+    virtual bool expandsHorizontally() const { return FALSE; }
+    virtual void resize( int nwidth ){ width = nwidth; };
     int width;
     int height;
 };
@@ -253,7 +254,8 @@ public:
     void draw(QPainter* p, int x, int y,
 	      int ox, int oy, int cx, int cy, int cw, int ch,
 	      QRegion& backgroundRegion, const QColorGroup& cg, const QtTextOptions& to);
-    bool expandsHorizontally() { return TRUE; }
+    
+    bool expandsHorizontally() const { return TRUE; }
 private:
 };
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qrichtext.cpp#18 $
+** $Id: //depot/qt/main/tests/richtextedit/qrichtext.cpp#19 $
 **
 ** Implementation of the Qt classes dealing with rich text
 **
@@ -121,7 +121,6 @@ void QtTextImage::draw(QPainter* p, int x, int y,
 QtTextHorizontalLine::QtTextHorizontalLine()
 {
     height = 8;
-    width = 200;
 }
 
 
@@ -1665,11 +1664,11 @@ void QtTextCursor::gotoNextItem( QPainter* p, const QFontMetrics& fm )
     // tabulators belong here
     QtTextRichString::Item* item = &paragraph->text.items[current];
     QtTextCustomItem* custom = item->format->customItem();
-    updateCharFormat( p, fm ); // optimize again
+//     updateCharFormat( p, fm ); // optimize again
     if ( custom ) {
-	    if ( width >= 0 && custom->expandsHorizontally() )
-		custom->width = width + fm.minRightBearing() - fm.width(' ');
-	    currentx += custom->width;
+	if ( width >= 0 && custom->expandsHorizontally() )
+	    custom->resize( width - currentx - rmargin + fm.minRightBearing() - fm.width(' ' ) );
+	currentx += custom->width;
     }
     else {
 	QString c = item->c;
@@ -1681,13 +1680,10 @@ void QtTextCursor::gotoNextItem( QPainter* p, const QFontMetrics& fm )
     current++;
     currentoffset = currentoffsetx = 0;
 
-    updateCharFormat( p, fm ); // optimize again
+//     updateCharFormat( p, fm ); // optimize again
     if ( current < paragraph->text.length() && !paragraph->text.haveSameFormat( current-1, current ) ) {
  	updateCharFormat( p, fm );
     }
-    //     else if ( paragraph->nextInDocument() ) {
-// 	gotoParagraph( p, paragraph->nextInDocument() );
-//     }
 }
 
 void QtTextCursor::makeLineLayout( QPainter* p, const QFontMetrics& fm  )

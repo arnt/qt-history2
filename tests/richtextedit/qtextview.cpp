@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qtextview.cpp#11 $
+** $Id: //depot/qt/main/tests/richtextedit/qtextview.cpp#12 $
 **
 ** Implementation of the QtTextView class
 **
@@ -212,41 +212,33 @@ void QtTextView::setText( const QString& text, const QString& context)
     else // rich text
 	d->txt = text;
 
-    
+
     if ( isVisible() ) {
-	richText().flow(d->viewId)->x = 0;
+	QtTextFlow* flow = richText().flow(d->viewId);
+	flow->x = 0;
 	delete d->fcresize;
 	d->fcresize = new QtTextCursor( richText(), d->viewId );
-	d->fcresize->initFlow( richText().flow(d->viewId), viewport()->width() );
+	d->fcresize->initFlow( flow, viewportSize(0,0).width() );
 	{
 	    QPainter p( viewport() );
 	    d->fcresize->initParagraph( &p, &richText() );
 	    d->fcresize->doLayout( &p, viewport()->height() + contentsY() );
 	}
+	QSize vs( viewportSize( flow->widthUsed, flow->height ) );
+	if ( vs.width() != viewportSize(0,0).width() ) { // we'll get a vertical scrollbar, it seems. Once again
+	    d->fcresize->initFlow( flow, vs.width() );
+	    {
+		QPainter p( viewport() );
+		d->fcresize->initParagraph( &p, &richText() );
+		d->fcresize->doLayout( &p, viewport()->height() + contentsY() );
+	    }
+	}
 	setContentsPos( 0, 0 );
-	resizeContents( richText().flow( d->viewId )->widthUsed, 
-			richText().flow( d->viewId)->height );
+	resizeContents( flow->widthUsed-1, flow->height );
 	d->resizeTimer->start( 0, TRUE );
 	viewport()->repaint( FALSE );
     }
     setContentsPos( 0, 0 );
-//     if ( isVisible() ) {
-// 	QPainter * p = new QPainter( this );
-// 	// first try to use the full width of the viewport
-// 	QSize vs( viewportSize( 1,1 ) );
-// 	richText().setWidth( p, vs.width() );
-// 	// if we'll need to scroll vertically, and the only reason we'll
-// 	// need to scroll horizontally is the vertical scroll bar, try
-// 	// to reformat so we won't need to scroll horizontally at all
-// 	if ( richText().height > vs.height() &&
-// 	     richText().width <= vs.width() &&
-// 	     richText().width + /*###*/ 16 /*###*/ > vs.width() )
-// 	    richText().setWidth( p, vs.width()-16 );
-// 	delete p;
-// 	resizeContents( QMAX( richText().widthUsed, richText().width), richText().height );
-// 	viewport()->update();
-// 	viewport()->setCursor( arrowCursor );
-//     }
 
 }
 
@@ -549,12 +541,6 @@ void QtTextView::drawContentsOffset(QPainter* p, int ox, int oy,
     };
 
 
-//     if ( tc.lineGeometry().top() >= contentsHeight() ) {
-//  	bool u = viewport()->isUpdatesEnabled();
-//  	viewport()->setUpdatesEnabled( FALSE );
-//  	resizeContents( viewport()->width(), tc.lineGeometry().top() );
-//  	viewport()->setUpdatesEnabled( u );
-//     }
 
     p->setClipRegion(r);
 
@@ -587,18 +573,11 @@ void QtTextView::viewportResizeEvent(QResizeEvent* )
 
 void QtTextView::doResize()
 {
-    if ( !d->fcresize ) {
-	qDebug("ooops");
-	return;
-    }
-	
-    {
-	QPainter p( viewport() );
-	if ( !d->fcresize->doLayout( &p, d->fcresize->referenceBottom() + 1000 ) )
-	    d->resizeTimer->start( 0, TRUE );
-	QtTextFlow* flow = richText().flow( d->viewId );
-	resizeContents( flow->widthUsed, flow->height );
-    }
+    QPainter p( viewport() );
+    if ( !d->fcresize->doLayout( &p, d->fcresize->referenceBottom() + 1000 ) )
+	d->resizeTimer->start( 0, TRUE );
+    QtTextFlow* flow = richText().flow( d->viewId );
+    resizeContents( flow->widthUsed-1, flow->height );
 }
 
 
@@ -617,20 +596,27 @@ void QtTextView::paragraphChanged( QtTextParagraph* b)
 */
 void QtTextView::resizeEvent( QResizeEvent* e )
 {
-    viewport()->setUpdatesEnabled( FALSE );
-    QScrollView::resizeEvent( e );
-    viewport()->setUpdatesEnabled( TRUE );
-    richText().invalidateLayout( d->viewId );
-    richText().flow(d->viewId)->x = 0;
+    QtTextFlow* flow = richText().flow(d->viewId);
+    flow->x = 0;
     delete d->fcresize;
     d->fcresize = new QtTextCursor( richText(), d->viewId );
-    d->fcresize->initFlow( richText().flow(d->viewId), viewport()->width() );
+    d->fcresize->initFlow( flow, viewportSize(0,0).width() );
     {
 	QPainter p( viewport() );
 	d->fcresize->initParagraph( &p, &richText() );
 	d->fcresize->doLayout( &p, viewport()->height() + contentsY() );
     }
-    resizeContents( viewport()->width(), richText().flow( d->viewId)->height );
+    QSize vs( viewportSize( flow->widthUsed, flow->height ) );
+    if ( vs.width() != viewportSize(0,0).width() ) { // we'll get a vertical scrollbar, it seems. Once again
+	d->fcresize->initFlow( flow, vs.width() );
+	{
+	    QPainter p( viewport() );
+	    d->fcresize->initParagraph( &p, &richText() );
+	    d->fcresize->doLayout( &p, viewport()->height() + contentsY() );
+	}
+    }
+    setContentsPos( 0, 0 );
+    resizeContents( flow->widthUsed-1, flow->height );
     d->resizeTimer->start( 0, TRUE );
     viewport()->repaint( FALSE );
 }
