@@ -3227,8 +3227,8 @@ QStringList QRegExp::capturedTexts()
 }
 
 /*! Returns the text captured by the \a nth subexpression. The regular
-  expression itself is given index 0, and each parenthesised
-  subexpression is numbered, starting with 1.
+  expression itself has index 0 and the parenthesised subexpression
+  have indexes 1 and above.
 
   \code
     QRegExp length( "(\d+)(cm|inch)" );
@@ -3245,9 +3245,9 @@ QStringList QRegExp::capturedTexts()
 
   \code
     QRegExp r( "results: ((\d+)(,\s)?)*" );
-    int pos = length.search( "Here are the results: 14cm, 15cm, 12cm, 13cm" );
+    int pos = length.search( "Here are the results: 14, 15, 12, 13" );
     if ( pos > -1 ) {
-        QString measured = r.cap( 2 ); // "13cm"
+        QString measured = r.cap( 2 ); // "13"
 	...
     }
   \endcode
@@ -3256,15 +3256,15 @@ QStringList QRegExp::capturedTexts()
   The core of the regexp is <tt>(\d+)</tt>, which matches one
   number. Around that, <tt>(\d+)(,\s)?</tt> matches a number
   optionally followed by a comma and a space. Finally
-  <tt>((\d+)(,\s)?)*</tt> is a series of such number.
+  <tt>((\d+)(,\s)?)*</tt> is a series of such numbers.
 
   cap() indexing follows the position of the '(' character. In this
   expression, the first paren wraps <tt>(\d+)(,\s)?</tt>, so cap(1)
   returns the last number and its optional ", " suffix. The second
   parent wraps <tt>(\d+)</tt>, so cap(2) returns the last number.
 
-  There is also a function, pos(), that returns the positions of each
-  match, and one to return all of the subexpression matches, namely
+  There is also a function, pos(), that returns the position of each
+  match, and one to return all of the subexpression matches,
   capturedTexts().
 
   \sa pos() capturedTexts() search()
