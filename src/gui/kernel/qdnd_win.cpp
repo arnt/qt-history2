@@ -426,12 +426,12 @@ QVariant QDropData::retrieveData(const QString &format, QVariant::Type) const
     return qt_olednd_obtain_data(format);
 }
 
-static QDrag::DragOperations current_mode = QDrag::DefaultDrag;
+static QDrag::DropAction current_mode = QDrag::DefaultAction;
 
-QDrag::DragOperation QDragManager::drag(QDragPrivate *o, QDrag::DragOperations mode)
+QDrag::DropAction QDragManager::drag(QDragPrivate *o, QDrag::DropAction mode)
 {
     if (object == o || !o->source)
-        return QDrag::NoDrag;
+        return QDrag::NoAction;
 
     if (object) {
         o->source->removeEventFilter(this);
@@ -457,19 +457,20 @@ QDrag::DragOperation QDragManager::drag(QDragPrivate *o, QDrag::DragOperations m
     DWORD allowed_effects = 0;
     current_mode = mode;
     switch (mode) {
-      case QDrag::DefaultDrag:
+      case QDrag::DefaultAction:
         allowed_effects = DROPEFFECT_MOVE|DROPEFFECT_COPY;
         break;
-      case QDrag::MoveDrag:
+      case QDrag::MoveAction:
         allowed_effects = DROPEFFECT_MOVE;
         break;
-      case QDrag::CopyDrag:
+      case QDrag::CopyAction:
         allowed_effects = DROPEFFECT_COPY;
         break;
-      case QDrag::CopyOrMoveDrag:
-        allowed_effects = DROPEFFECT_MOVE|DROPEFFECT_COPY;
-        break;
-      case QDrag::LinkDrag:
+        // ### What enum is this?
+//       case QDrag::CopyOrMoveDrag:
+//         allowed_effects = DROPEFFECT_MOVE|DROPEFFECT_COPY;
+//         break;
+      case QDrag::LinkAction:
         allowed_effects = 0;
         break;
     }
@@ -494,15 +495,15 @@ QDrag::DragOperation QDragManager::drag(QDragPrivate *o, QDrag::DragOperations m
     current_dropobj = 0;
     global_src = 0;
     object = 0;
-    current_mode = QDrag::DefaultDrag;
+    current_mode = QDrag::DefaultAction;
 
     updatePixmap();
 
     // ###### wrong return values!
     if(r == DRAGDROP_S_DROP
         && (result_effect & DROPEFFECT_MOVE))
-        return QDrag::MoveDrag;
-    return QDrag::CopyDrag;
+        return QDrag::MoveAction;
+    return QDrag::CopyAction;
         //&& !acceptact;
 }
 
