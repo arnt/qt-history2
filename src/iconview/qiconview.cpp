@@ -3395,15 +3395,15 @@ QIconViewItem *QIconView::findItem( const QString &text, ComparisonFlags compare
 {
     if ( !d->firstItem )
         return 0;
-    
+
     if ( compare == CaseSensitive || compare == 0 )
         compare |= ExactMatch;
-    
+
     QString itmtxt;
     QString comtxt = text;
     if ( ! (compare & CaseSensitive) )
         comtxt = text.lower();
-    
+
     QIconViewItem *item = d->currentItem;
     if ( item ) {
         for ( ; item; item = item->next ) {
@@ -3411,7 +3411,7 @@ QIconViewItem *QIconView::findItem( const QString &text, ComparisonFlags compare
                 itmtxt = item->text().lower();
 	    else
 		itmtxt = item->text();
-            
+
             if ( compare & ExactMatch ) {
                 if ( itmtxt == comtxt )
                     return item;
@@ -3440,7 +3440,7 @@ QIconViewItem *QIconView::findItem( const QString &text, ComparisonFlags compare
                 itmtxt = item->text().lower();
 	    else
 		itmtxt = item->text();
-	    
+	
             if ( compare & ExactMatch ) {
                 if ( itmtxt == comtxt )
                     return item;
@@ -5293,8 +5293,6 @@ QIconViewItem *QIconView::makeRowLayout( QIconViewItem *begin, int &y, bool &cha
 	    while ( TRUE ) {
 		x += d->spacing + item->width();
 		if ( x > visibleWidth() && item != begin ) {
-		    h = QMAX( h, item->height() );
-		    ih = QMAX( ih, item->pixmapRect().height() );
 		    item = item->prev;
 		    break;
 		}
@@ -5356,8 +5354,6 @@ QIconViewItem *QIconView::makeRowLayout( QIconViewItem *begin, int &y, bool &cha
 		    x = i * d->rastX + sp * d->spacing;
 		}
 		if ( x > visibleWidth() && item != begin ) {
-		    h = QMAX( h, item->height() );
-		    ih = QMAX( ih, item->pixmapRect().height() );
 		    item = item->prev;
 		    break;
 		}
