@@ -2216,7 +2216,7 @@ QRegion::QRegion(const QRect &r, RegionType t)
     painting when used.
 */
 
-QRegion::QRegion(const QPointArray &a, bool winding)
+QRegion::QRegion(const QPointArray &a, Qt::FillRule fillRule)
 {
     if (a.count() > 2) {
         d =  new QRegionData;
@@ -2227,7 +2227,8 @@ QRegion::QRegion(const QPointArray &a, bool winding)
 #elif defined(Q_WS_MAC)
         d->rgn = 0;
 #endif
-        d->qt_rgn = PolygonRegion(a.constData(), a.size(), winding ? WindingRule : EvenOddRule);
+        d->qt_rgn = PolygonRegion(a.constData(), a.size(),
+                                  fillRule == Qt::WindingMode ? WindingRule : EvenOddRule);
     } else {
         d = &shared_empty;
         ++d->ref;

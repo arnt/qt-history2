@@ -700,26 +700,26 @@ void QPainterPath::addPath(const QPainterPath &other)
 }
 
 /*!
-    Returns the fill mode of the painter path. The default fill mode
-    is OddEven.
+    Returns the fill rule of the painter path. The default fill rule
+    is Qt::OddEvenFill.
 
-    \sa FillMode setFillMode()
+    \sa FillMode setFillRule()
 */
-QPainterPath::FillMode QPainterPath::fillMode() const
+Qt::FillRule QPainterPath::fillRule() const
 {
-    return d->fillMode;
+    return d->fillRule;
 }
 
 /*!
-    \fn void QPainterPath::setFillMode(FillMode fillMode)
+    \fn void QPainterPath::setFillRule(FillRule fillRule)
 
-    Sets the fill mode of the painter path to \a fillMode.
+    Sets the fill rule of the painter path to \a fillRule.
 
-    \sa FillMode, fillMode
+    \sa Qt::FillRule, fillRule
 */
-void QPainterPath::setFillMode(QPainterPath::FillMode fillMode)
+void QPainterPath::setFillRule(Qt::FillRule fillRule)
 {
-    d->fillMode = fillMode;
+    d->fillRule = fillRule;
 }
 
 /*!
@@ -1190,7 +1190,7 @@ QPainterPath QPainterPathStroker::createStroke(const QPainterPath &input) const
 #endif
     }
 
-    stroke.setFillMode(QPainterPath::Winding);
+    stroke.setFillRule(Qt::WindingFill);
 
 #ifdef QPP_STROKE_DEBUG
     printf(" -> Final path:\n");

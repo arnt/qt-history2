@@ -1013,6 +1013,11 @@ public:
         CopyPixmapNoMask // compatibility
     };
 
+    enum FillRule {
+        OddEvenFill,
+        WindingFill
+    };
+
     enum TransformationMode {
         FastTransformation,
         SmoothTransformation

@@ -44,7 +44,7 @@ class Q_GUI_EXPORT QPainter
 {
     Q_DECLARE_PRIVATE(QPainter)
 
-        public:
+public:
     enum TextDirection { Auto, RTL, LTR };
     enum RenderHint {
         LineAntialiasing = 0x01,
@@ -156,8 +156,10 @@ class Q_GUI_EXPORT QPainter
     void drawChord(const QRect &, int a, int alen);
     void drawLineSegments(const QPointArray &, int index = 0, int nlines = -1);
     void drawPolyline(const QPointArray &pa, int index = 0, int npoints = -1);
-    void drawPolygon(const QPointArray &pa, bool winding = false, int index = 0, int npoints = -1);
-    void drawPolygon(const QPolygon &polygon, bool winding = false, int index = 0, int npoints = -1);
+    void drawPolygon(const QPointArray &pa, Qt::FillRule fillRule = Qt::OddEvenFill, int index = 0,
+                     int npoints = -1);
+    void drawPolygon(const QPolygon &polygon, Qt::FillRule fillRule = Qt::OddEvenFill, int index = 0,
+                     int npoints = -1);
     void drawConvexPolygon(const QPointArray &pa, int index = 0, int npoints = -1);
 
     void drawTiledPixmap(int x, int y, int w, int h, const QPixmap &, int sx=0, int sy=0,
@@ -243,6 +245,13 @@ class Q_GUI_EXPORT QPainter
     QT_COMPAT void drawPoints(const QPointArray &pa, int index, int npoints = -1);
     QT_COMPAT void drawCubicBezier(const QPointArray &pa, int index = 0);
 
+    inline QT_COMPAT void drawPolygon(const QPointArray &pa, bool winding, int index = 0,
+                                      int npoints = -1)
+    { drawPolygon(pa, winding ? Qt::WindingFill : Qt::OddEvenFill, index, npoints); }
+
+    inline QT_COMPAT void drawPolygon(const QPolygon &polygon, bool winding, int index = 0,
+                                      int npoints = -1)
+    { drawPolygon(polygon, winding ? Qt::WindingFill : Qt::OddEvenFill, index, npoints); }
 
     static inline QT_COMPAT void redirect(QPaintDevice *pdev, QPaintDevice *replacement)
         { setRedirected(pdev, replacement); }

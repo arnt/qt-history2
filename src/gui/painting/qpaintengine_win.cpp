@@ -746,7 +746,7 @@ void QWin32PaintEngine::drawPath(const QPainterPath &p)
 
     d->composeGdiPath(p);
 
-    if (p.fillMode() == QPainterPath::Winding)
+    if (p.fillRule() == Qt::WindingFill)
         SetPolyFillMode(d->hdc, WINDING);
 
     bool pen = d->penStyle != Qt::NoPen;
@@ -781,7 +781,7 @@ void QWin32PaintEngine::drawPath(const QPainterPath &p)
     else if (brush)
         FillPath(d->hdc);
 
-    if (p.fillMode() == QPainterPath::Winding)
+    if (p.fillRule() == Qt::WindingFill)
         SetPolyFillMode(d->hdc, ALTERNATE);
 
 
@@ -2344,7 +2344,7 @@ void QGdiplusPaintEngine::drawPath(const QPainterPath &p)
         }
     }
 
-    GdipSetPathFillMode(path, p.fillMode() == QPainterPath::Winding ? 1 : 0);
+    GdipSetPathFillMode(path, p.fillRule() == Qt::WindingFill ? 1 : 0);
 
     if (start == prev)
         GdipClosePathFigure(path);

@@ -24,7 +24,7 @@ class QPainterPathPrivate
     Q_DECLARE_PUBLIC(QPainterPath);
 public:
     QPainterPathPrivate(QPainterPath *path) :
-        q_ptr(path), cStart(0), fillMode(QPainterPath::OddEven)
+        q_ptr(path), cStart(0), fillRule(Qt::OddEvenFill)
     {
     }
 
@@ -33,7 +33,7 @@ public:
 
     QPainterPath *q_ptr;
     int cStart;
-    QPainterPath::FillMode fillMode;
+    Qt::FillRule fillRule;
 };
 
 void qt_find_ellipse_coords(const QRectF &r, float angle, float length,

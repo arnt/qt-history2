@@ -2431,7 +2431,7 @@ static bool collision_double_dispatch(const QCanvasSprite* s1,
         QPointArray pa1 = p1->areaPointsAdvanced();
         QPointArray pa2 = p2 ? p2->areaPointsAdvanced()
                           : QPointArray(i2->boundingRectAdvanced());
-        bool col= !(QRegion(pa1) & QRegion(pa2,true)).isEmpty();
+        bool col= !(QRegion(pa1) & QRegion(pa2,Qt::WindingFill)).isEmpty();
 
         return col;
     } else {

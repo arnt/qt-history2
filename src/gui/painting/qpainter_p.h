@@ -184,16 +184,16 @@ public:
     };
 
     QPolygon draw_helper_xpolygon(const void *data, ShapeType type);
-    void draw_helper(const void *data, bool winding, ShapeType type,
+    void draw_helper(const void *data, Qt::FillRule fillRule, ShapeType type,
                      DrawOperation operation, uint emulationSpecifier);
-    void draw_helper(const void *data, bool winding, ShapeType type,
+    void draw_helper(const void *data, Qt::FillRule fillRule, ShapeType type,
                      DrawOperation operation = StrokeAndFillDraw);
 
     // Refactored draw_helper functionallity
-    void draw_helper_setclip(const void *data, bool winding, ShapeType type);
-    void draw_helper_fill_lineargradient(const void *data, bool winding, ShapeType type);
-    void draw_helper_fill_alpha(const void *data, bool winding, ShapeType type);
-    void draw_helper_fill_pattern(const void *data, bool winding, ShapeType type);
+    void draw_helper_setclip(const void *data, Qt::FillRule fillRule, ShapeType type);
+    void draw_helper_fill_lineargradient(const void *data, Qt::FillRule fillRule, ShapeType type);
+    void draw_helper_fill_alpha(const void *data, Qt::FillRule fillRule, ShapeType type);
+    void draw_helper_fill_pattern(const void *data, Qt::FillRule fillRule, ShapeType type);
     void draw_helper_stroke_normal(const void *data, ShapeType type, uint emulate);
     void draw_helper_stroke_pathbased(const void *data, ShapeType type);
 

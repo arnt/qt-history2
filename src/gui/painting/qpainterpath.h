@@ -27,8 +27,6 @@ class Q_GUI_EXPORT QPainterPath
 {
     Q_DECLARE_PRIVATE(QPainterPath)
 public:
-    enum FillMode { OddEven, Winding };
-
     enum ElementType {
         MoveToElement,
         LineToElement,
@@ -82,8 +80,8 @@ public:
 
     QRectF boundingRect() const;
 
-    FillMode fillMode() const;
-    void setFillMode(FillMode fillMode);
+    Qt::FillRule fillRule() const;
+    void setFillRule(Qt::FillRule fillRule);
 
     inline bool isEmpty() const;
 

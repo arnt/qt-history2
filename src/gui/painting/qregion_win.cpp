@@ -67,7 +67,7 @@ QRegion::QRegion(const QRect &r, RegionType t)
     the shape to be filled using the Winding algorithm, and if false
     casues it to be filled using the Odd-Even algorithm.
 */
-QRegion::QRegion(const QPointArray &a, bool winding)
+QRegion::QRegion(const QPointArray &a, Qt::FillRule rule)
 {
     if (a.size() < 3) {
         d = &shared_empty;
@@ -75,7 +75,8 @@ QRegion::QRegion(const QPointArray &a, bool winding)
     } else {
         d = new QRegionData;
         d->ref = 1;
-        d->rgn = CreatePolygonRgn(reinterpret_cast<const POINT*>(a.data()), a.size(), winding ? WINDING : ALTERNATE);
+        d->rgn = CreatePolygonRgn(reinterpret_cast<const POINT*>(a.data()), a.size(),
+                                  rule == Qt::OddEvenFill ? ALTERNATE : WINDING);
     }
 }
 

@@ -72,7 +72,7 @@ QPolygon QPainterPrivate::draw_helper_xpolygon(const void *data, ShapeType shape
 /*
   Sets the shape as a clipregion on the painter
 */
-void QPainterPrivate::draw_helper_setclip(const void *data, bool winding, ShapeType shape)
+void QPainterPrivate::draw_helper_setclip(const void *data, Qt::FillRule fillRule, ShapeType shape)
 {
 #ifdef QT_DEBUG_DRAW
     if (qt_show_painter_debug_output)
@@ -85,13 +85,13 @@ void QPainterPrivate::draw_helper_setclip(const void *data, bool winding, ShapeT
         break;
     case PathShape:
         clip = QRegion(reinterpret_cast<const QPainterPath*>(data)->toFillPolygon().toPointArray(),
-                       reinterpret_cast<const QPainterPath*>(data)->fillMode() == QPainterPath::Winding);
+                       reinterpret_cast<const QPainterPath*>(data)->fillRule());
         break;
     case RectangleShape:
         clip = QRegion(reinterpret_cast<const QRectF*>(data)->toRect());
         break;
     default:
-        clip = QRegion(reinterpret_cast<const QPolygon*>(data)->toPointArray(), winding);
+        clip = QRegion(reinterpret_cast<const QPolygon*>(data)->toPointArray(), fillRule);
         break;
     }
     QRegion currentClip = q->clipRegion();
@@ -105,14 +105,15 @@ void QPainterPrivate::draw_helper_setclip(const void *data, bool winding, ShapeT
   Fallback implementation of fill linear gradient. Sets a clipregion matching the shape to
   fill and calls qt_fill_linear_gradient (lots of drawlines) for the region in question
 */
-void QPainterPrivate::draw_helper_fill_lineargradient(const void *data, bool winding, ShapeType type)
+void QPainterPrivate::draw_helper_fill_lineargradient(const void *data, Qt::FillRule fillRule,
+                                                      ShapeType type)
 {
 #ifdef QT_DEBUG_DRAW
     if (qt_show_painter_debug_output)
         printf(" -> fill_lineargradient()\n");
 #endif
     q->save();
-    draw_helper_setclip(data, winding, type);
+    draw_helper_setclip(data, fillRule, type);
     QRect bounds = state->clipRegion.boundingRect();
     qt_fill_linear_gradient(bounds, q, state->brush);
     q->restore();
@@ -124,7 +125,7 @@ void QPainterPrivate::draw_helper_fill_lineargradient(const void *data, bool win
   the primitive type to fill (no clip for rects though), then tiles the pixmap across the
   area.
 */
-void QPainterPrivate::draw_helper_fill_alpha(const void *data, bool winding, ShapeType type)
+void QPainterPrivate::draw_helper_fill_alpha(const void *data, Qt::FillRule fillRule, ShapeType type)
 {
 #ifdef QT_DEBUG_DRAW
     if (qt_show_painter_debug_output)
@@ -140,7 +141,7 @@ void QPainterPrivate::draw_helper_fill_alpha(const void *data, bool winding, Sha
 
     if (type != RectangleShape) {
         q->save();
-        draw_helper_setclip(data, winding, type);
+        draw_helper_setclip(data, fillRule, type);
         bounds = state->clipRegion.boundingRect();
     } else {
         bounds = reinterpret_cast<const QRectF *>(data)->toRect();
@@ -156,7 +157,7 @@ void QPainterPrivate::draw_helper_fill_alpha(const void *data, bool winding, Sha
 /*
   Fallback implementation of fill patterns.
 */
-void QPainterPrivate::draw_helper_fill_pattern(const void *data, bool winding, ShapeType type)
+void QPainterPrivate::draw_helper_fill_pattern(const void *data, Qt::FillRule fillRule, ShapeType type)
 {
 #ifdef QT_DEBUG_DRAW
     if (qt_show_painter_debug_output)
@@ -167,7 +168,7 @@ void QPainterPrivate::draw_helper_fill_pattern(const void *data, bool winding, S
 
     QRect bounds;
     if (type != RectangleShape) {
-        draw_helper_setclip(data, winding, type);
+        draw_helper_setclip(data, fillRule, type);
         bounds = state->clipRegion.boundingRect();
     } else {
         bounds = reinterpret_cast<const QRectF *>(data)->toRect();
@@ -285,19 +286,19 @@ void QPainterPrivate::draw_helper_stroke_pathbased(const void *data, ShapeType s
 
 
 // ### make this inline when the X11 define has been removed
-void QPainterPrivate::draw_helper(const void *data, bool winding, ShapeType type,
+void QPainterPrivate::draw_helper(const void *data, Qt::FillRule fillRule, ShapeType type,
                                   DrawOperation operation)
 {
-    draw_helper(data, winding, type, operation, engine->emulationSpecifier);
+    draw_helper(data, fillRule, type, operation, engine->emulationSpecifier);
 }
 
-void QPainterPrivate::draw_helper(const void *data, bool winding, ShapeType shape,
+void QPainterPrivate::draw_helper(const void *data, Qt::FillRule fillRule, ShapeType shape,
                                   DrawOperation op, uint emulationSpecifier)
 {
 #ifdef QT_DEBUG_DRAW
     if (qt_show_painter_debug_output) {
-        printf("QPainter::drawHelper: winding=%d, shape=%d, op=%d, emulation=0x%x ( ",
-           winding, shape, op, emulationSpecifier);
+        printf("QPainter::drawHelper: fillRule=%d, shape=%d, op=%d, emulation=0x%x ( ",
+           fillRule, shape, op, emulationSpecifier);
         static struct { uint value; const char *text; } emuMap[] = {
             {    0x0001, "CoordTransform "},
             {    0x0002, "PenWidthTransform "},
@@ -355,18 +356,18 @@ void QPainterPrivate::draw_helper(const void *data, bool winding, ShapeType shap
                         q->setPen(Qt::NoPen);
                         engine->updateState(state);
                     }
-                    engine->drawPolygon(pg, winding ? QPaintEngine::WindingMode : QPaintEngine::OddEvenMode);
+                    engine->drawPolygon(pg, QPaintEngine::PolygonDrawMode(fillRule));
                     if (outlineMode == PathBased) {
                         q->restore();
                     }
                 }
             } else {
                 if (emulationSpecifier & QPaintEngine::LinearGradients)
-                    draw_helper_fill_lineargradient(data, winding, shape);
+                    draw_helper_fill_lineargradient(data, fillRule, shape);
                 else if (emulationSpecifier & QPaintEngine::AlphaFill)
-                    draw_helper_fill_alpha(data, winding, shape);
+                    draw_helper_fill_alpha(data, fillRule, shape);
                 else if (emulationSpecifier & QPaintEngine::PatternTransform)
-                    draw_helper_fill_pattern(data, winding, shape);
+                    draw_helper_fill_pattern(data, fillRule, shape);
             }
 
             // XFormed fills
@@ -386,8 +387,7 @@ void QPainterPrivate::draw_helper(const void *data, bool winding, ShapeType shap
                 QPolygon xformed = draw_helper_xpolygon(data, shape);
                 q->resetMatrix();
                 engine->updateState(state);
-                engine->drawPolygon(xformed,
-                                    winding ? QPaintEngine::WindingMode : QPaintEngine::OddEvenMode);
+                engine->drawPolygon(xformed, QPaintEngine::PolygonDrawMode(fillRule));
             }
             q->restore();
 
@@ -410,16 +410,13 @@ void QPainterPrivate::draw_helper(const void *data, bool winding, ShapeType shap
                 } else {
                     QList<QPolygon> polys = path->toFillPolygons();
                     for (int i=0; i<polys.size(); ++i)
-                        engine->drawPolygon(polys.at(i), winding
-                                            ? QPaintEngine::WindingMode
-                                            : QPaintEngine::OddEvenMode);
+                        engine->drawPolygon(polys.at(i), QPaintEngine::PolygonDrawMode(fillRule));
                 }
                 break;
             }
             default:
-                engine->drawPolygon(*reinterpret_cast<const QPolygon*>(data), winding
-                                    ? QPaintEngine::WindingMode
-                                    : QPaintEngine::OddEvenMode);
+                engine->drawPolygon(*reinterpret_cast<const QPolygon*>(data),
+                                    QPaintEngine::PolygonDrawMode(fillRule));
                 break;
             }
         }
@@ -1566,11 +1563,11 @@ void QPainter::setClipPath(const QPainterPath &path)
             p = p * d->state->matrix;
             QMatrix oldMatrix = d->state->matrix;
             d->state->matrix = QMatrix();
-            setClipRegion(QRegion(p.toPointArray(), path.fillMode() == QPainterPath::Winding));
+            setClipRegion(QRegion(p.toPointArray(), path.fillMode());
             d->state->matrix = oldMatrix;
             d->engine->setDirty(QPaintEngine::DirtyTransform);
         } else {
-            setClipRegion(QRegion(p.toPointArray(), path.fillMode() == QPainterPath::Winding));
+            setClipRegion(QRegion(p.toPointArray(), path.fillMode());
         }
         return;
     }
@@ -1644,7 +1641,7 @@ void QPainter::drawPath(const QPainterPath &path)
 
     if (d->engine->hasFeature(QPaintEngine::PainterPaths)) {
         if (d->engine->emulationSpecifier) {
-            d->draw_helper(&path, path.fillMode() == QPainterPath::Winding, QPainterPrivate::PathShape);
+            d->draw_helper(&path, path.fillRule(), QPainterPrivate::PathShape);
             return;
         }
         d->engine->drawPath(path);
@@ -1676,13 +1673,10 @@ void QPainter::drawPath(const QPainterPath &path)
 	d->engine->updateState(d->state);
         for (int i=0; i<fills.size(); ++i) {
             if (emulationSpecifier)
-                d->draw_helper(&fills.at(i), path.fillMode() == QPainterPath::Winding,
-                               QPainterPrivate::PolygonShape,
-                               QPainterPrivate::StrokeAndFillDraw,
-                               emulationSpecifier);
+                d->draw_helper(&fills.at(i), path.fillRule(), QPainterPrivate::PolygonShape,
+                               QPainterPrivate::StrokeAndFillDraw, emulationSpecifier);
             else
-                d->engine->drawPolygon(fills.at(i), path.fillMode() == QPainterPath::Winding ?
-                                       QPaintEngine::WindingMode : QPaintEngine::OddEvenMode);
+                d->engine->drawPolygon(fills.at(i), QPaintEngine::PolygonDrawMode(path.fillRule()));
         }
         setPen(oldPen);
     }
@@ -1693,8 +1687,8 @@ void QPainter::drawPath(const QPainterPath &path)
 	    d->engine->updateState(d->state);
             if (d->engine->emulationSpecifier) {
                 QPolygon polygon = polygons.at(i);
-                d->draw_helper(&polygon, path.fillMode() == QPainterPath::Winding,
-                               QPainterPrivate::LineShape, QPainterPrivate::StrokeDraw);
+                d->draw_helper(&polygon, path.fillRule(), QPainterPrivate::LineShape,
+                               QPainterPrivate::StrokeDraw);
             } else {
                 d->engine->drawPolygon(polygons.at(i), QPaintEngine::PolylineMode);
             }
@@ -1744,7 +1738,9 @@ void QPainter::drawLine(const QPoint &p1, const QPoint &p2)
         } else {
             QPolygon polyline;
             polyline << p1 << p2;
-            d->draw_helper(&polyline, false, QPainterPrivate::LineShape, QPainterPrivate::StrokeDraw);
+            d->draw_helper(&polyline,
+                           Qt::OddEvenFill, // Not used
+                           QPainterPrivate::LineShape, QPainterPrivate::StrokeDraw);
             return;
         }
     }
@@ -1788,7 +1784,9 @@ void QPainter::drawRect(const QRectF &r)
             && d->state->txop == QPainterPrivate::TxTranslate) {
             rect.moveBy(QPointF(d->state->matrix.dx(), d->state->matrix.dy()));
         } else {
-            d->draw_helper(&rect, false, QPainterPrivate::RectangleShape,
+            d->draw_helper(&rect,
+                           Qt::OddEvenFill, // Not used.
+                           QPainterPrivate::RectangleShape,
                            QPainterPrivate::StrokeAndFillDraw,
                            emulationSpecifier);
             return;
@@ -1880,7 +1878,9 @@ void QPainter::drawPoint(const QPoint &p)
             pt += QPointF(d->state->matrix.dx(), d->state->matrix.dy());
         } else {
             QRectF rect(pt.x(), pt.y(), 1, 1);
-            d->draw_helper(&rect, false, QPainterPrivate::RectangleShape);
+            d->draw_helper(&rect,
+                           Qt::OddEvenFill,
+                           QPainterPrivate::RectangleShape);
             return;
         }
     }
@@ -1917,7 +1917,9 @@ void QPainter::drawPoints(const QPointArray &pa)
         } else {
             for (int i=0; i<a.size(); ++i) {
                 QRectF rect(a.at(i).x(), a.at(i).y(), 1, 1);
-                d->draw_helper(&rect, false, QPainterPrivate::RectangleShape);
+                d->draw_helper(&rect,
+                               Qt::OddEvenFill,
+                               QPainterPrivate::RectangleShape);
             }
             return;
         }
@@ -2277,7 +2279,7 @@ void QPainter::drawEllipse(const QRect &r)
             && d->state->txop == QPainterPrivate::TxTranslate) {
             rect.moveBy(QPointF(d->state->matrix.dx(), d->state->matrix.dy()));
         } else {
-            d->draw_helper(&rect, false, QPainterPrivate::EllipseShape,
+            d->draw_helper(&rect, Qt::OddEvenFill, QPainterPrivate::EllipseShape,
                            QPainterPrivate::StrokeAndFillDraw);
             return;
         }
@@ -2480,7 +2482,8 @@ void QPainter::drawLineSegments(const QPointArray &a, int index, int nlines)
             for (int i=index; i<index + nlines*2; i+=2) {
                 QPolygon p;
                 p << a.at(i) << a.at(i+1);
-                d->draw_helper(&p, false, QPainterPrivate::LineShape, QPainterPrivate::StrokeDraw);
+                d->draw_helper(&p, Qt::OddEvenFill, QPainterPrivate::LineShape,
+                               QPainterPrivate::StrokeDraw);
             }
             return;
         }
@@ -2537,7 +2540,8 @@ void QPainter::drawPolyline(const QPointArray &a, int index, int npoints)
             && d->state->txop == QPainterPrivate::TxTranslate) {
             pa.translate(QPointF(d->state->matrix.dx(), d->state->matrix.dy()));
         } else {
-            d->draw_helper(&pa, false, QPainterPrivate::LineShape, QPainterPrivate::StrokeDraw);
+            d->draw_helper(&pa, Qt::OddEvenFill, QPainterPrivate::LineShape,
+                           QPainterPrivate::StrokeDraw);
             return;
         }
     }
@@ -2563,7 +2567,7 @@ void QPainter::drawPolyline(const QPointArray &a, int index, int npoints)
     \sa drawLineSegments(), drawPolyline(), QPen
 */
 
-void QPainter::drawPolygon(const QPolygon &polygon, bool winding, int index, int npoints)
+void QPainter::drawPolygon(const QPolygon &polygon, Qt::FillRule fillRule, int index, int npoints)
 {
 #ifdef QT_DEBUG_DRAW
     QRect rect = polygon.boundingRect().toRect();
@@ -2607,19 +2611,19 @@ void QPainter::drawPolygon(const QPolygon &polygon, bool winding, int index, int
             && d->state->txop == QPainterPrivate::TxTranslate) {
             pa.translate(QPointF(d->state->matrix.dx(), d->state->matrix.dy()));
         } else {
-            d->draw_helper(&pa, winding, QPainterPrivate::PolygonShape,
+            d->draw_helper(&pa, fillRule, QPainterPrivate::PolygonShape,
                            QPainterPrivate::StrokeAndFillDraw,
                            emulationSpecifier);
             return;
         }
     }
 
-    d->engine->drawPolygon(pa, winding ? QPaintEngine::WindingMode : QPaintEngine::OddEvenMode);
+    d->engine->drawPolygon(pa, QPaintEngine::PolygonDrawMode(fillRule));
 }
 
-void QPainter::drawPolygon(const QPointArray &pa, bool winding, int index, int npoints)
+void QPainter::drawPolygon(const QPointArray &pa, Qt::FillRule fillRule, int index, int npoints)
 {
-    drawPolygon(QPolygon::fromPointArray(pa), winding, index, npoints);
+    drawPolygon(QPolygon::fromPointArray(pa), fillRule, index, npoints);
 }
 
 
@@ -2636,7 +2640,7 @@ void QPainter::drawPolygon(const QPointArray &pa, bool winding, int index, int n
 void QPainter::drawConvexPolygon(const QPointArray &a, int index, int npoints)
 {
     // Fix when QPainter::drawPolygon(QPointArray, PolyDrawMode) is in place
-    drawPolygon(a, true, index, npoints);
+    drawPolygon(a, Qt::WindingFill, index, npoints);
 }
 
 /*!

@@ -163,7 +163,7 @@ void TextOutline::updatePath()
 {
     bool mappingOk = true;
     QPainterPath newPath;
-    newPath.setFillMode(QPainterPath::Winding);
+    newPath.setFillRule(Qt::WindingFill);
 
     for (int i=0; i<basePath.elementCount() && mappingOk; ++i) {
         const QPainterPath::Element &elm = basePath.elementAt(i);

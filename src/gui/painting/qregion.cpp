@@ -107,6 +107,14 @@ QRegion::QRegion(int x, int y, int w, int h, RegionType t)
     d = tmp.d;
 }
 
+#ifdef QT_COMPAT
+QRegion::QRegion(const QPointArray &pa, bool winding)
+{
+    QRegion other(pa, winding ? Qt::WindingFill : Qt::OddEvenFill);
+    *this = other;
+}
+#endif
+
 /*!
     Detaches from shared region data to make sure that this region is
     the only one referring to the data.
@@ -162,7 +170,7 @@ void QRegion::exec(const QByteArray &buffer, int ver)
         } else if (id == QRGN_SETPTARRAY_ALT || id == QRGN_SETPTARRAY_WIND) {
             QPointArray a;
             s >> a;
-            rgn = QRegion(a, id == QRGN_SETPTARRAY_WIND);
+            rgn = QRegion(a, id == QRGN_SETPTARRAY_WIND ? Qt::WindingFill : Qt::OddEvenFill);
         } else if (id == QRGN_TRANSLATE) {
             QPoint p;
             s >> p;
