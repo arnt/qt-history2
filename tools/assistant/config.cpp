@@ -27,7 +27,7 @@
 
 static Config *static_configuration = 0;
 
-static inline QString getVersionString()
+inline QString getVersionString()
 {
     return QString::number( (QT_VERSION >> 16) & 0xff )
 	+ "." + QString::number( (QT_VERSION >> 8) & 0xff );
