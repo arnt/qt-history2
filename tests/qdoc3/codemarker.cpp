@@ -49,6 +49,16 @@ void CodeMarker::terminate()
     }
 }
 
+void CodeMarker::deleteAllMarkers()
+{
+    QValueList<CodeMarker *>::ConstIterator m = markers.begin();
+    while ( m != markers.end() ) {
+	delete *m;
+	++m;
+    }
+    markers.clear();
+}
+
 CodeMarker *CodeMarker::markerForCode( const QString& code )
 {
     CodeMarker *defaultMarker = markerForLanguage( defaultLang );

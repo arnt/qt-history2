@@ -6,6 +6,7 @@
 #include <qdict.h>
 #include <qdir.h>
 
+#include "ccodeparser.h"
 #include "codemarker.h"
 #include "codeparser.h"
 #include "config.h"
@@ -34,9 +35,6 @@ static const struct {
 };
 
 static QDict<Tree> trees;
-static QPtrList<CodeParser> parsers;
-static QPtrList<CodeMarker> markers;
-static QPtrList<Generator> generators;
 
 static Tree *treeForLanguage( const QString& lang )
 {
@@ -167,19 +165,20 @@ int main( int argc, char **argv )
 {
     QApplication app( argc, argv, FALSE );
 
+    trees.setAutoDelete( TRUE );
+
+    (void) new CCodeParser;
     CodeParser *cppParser = new CppCodeParser;
-    parsers.append( cppParser );
-    parsers.append(
-	    new QsCodeParser(treeForLanguage(cppParser->language())) );
+    (void) new QsCodeParser( treeForLanguage(cppParser->language()) );
 
-    markers.append( new PlainCodeMarker );
-    markers.append( new CppCodeMarker );
-    markers.append( new QsCodeMarker );
+    (void) new PlainCodeMarker;
+    (void) new CppCodeMarker;
+    (void) new QsCodeMarker;
 
-    generators.append( new HtmlGenerator );
-    generators.append( new LoutGenerator );
-    generators.append( new ManGenerator );
-    generators.append( new SgmlGenerator );
+    (void) new HtmlGenerator;
+    (void) new LoutGenerator;
+    (void) new ManGenerator;
+    (void) new SgmlGenerator;
 
     QStringList qdocFiles;
     QString opt;
@@ -213,14 +212,10 @@ int main( int argc, char **argv )
 	++qf;
     }
 
-    trees.setAutoDelete( TRUE );
     trees.clear();
-    parsers.setAutoDelete( TRUE );
-    parsers.clear();
-    markers.setAutoDelete( TRUE );
-    markers.clear();
-    generators.setAutoDelete( TRUE );
-    generators.clear();
+    CodeParser::deleteAllParsers();
+    CodeMarker::deleteAllMarkers();
+    Generator::deleteAllGenerators();
 
     return EXIT_SUCCESS;
 }

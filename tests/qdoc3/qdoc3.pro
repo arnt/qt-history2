@@ -1,6 +1,7 @@
 TEMPLATE = app
 HEADERS += atom.h \
 	   bookgenerator.h \
+	   ccodeparser.h \
            codechunk.h \
            codemarker.h \
 	   codeparser.h \
@@ -29,6 +30,7 @@ HEADERS += atom.h \
 	   tree.h
 SOURCES += atom.cpp \
 	   bookgenerator.cpp \
+	   ccodeparser.cpp \
            codechunk.cpp \
            codemarker.cpp \
 	   codeparser.cpp \

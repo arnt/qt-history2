@@ -5,6 +5,8 @@
 #ifndef CPPCODEPARSER_H
 #define CPPCODEPARSER_H
 
+#include <qregexp.h>
+
 #include "codeparser.h"
 #include "node.h"
 

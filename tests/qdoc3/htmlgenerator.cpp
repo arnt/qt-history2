@@ -486,9 +486,11 @@ void HtmlGenerator::generateSynopsis( const Node *node,
     if ( node->type() == Node::Property ) {
 	Text brief = node->doc().body().subText( Atom::BriefLeft,
 						 Atom::BriefRight );
-	if ( !brief.isEmpty() ) {
-	    out() << " - ";
-	    generateText( brief, node, marker );
+	if ( style == CodeMarker::Overview ) {
+	    if ( !brief.isEmpty() ) {
+		out() << " - ";
+		generateText( brief, node, marker );
+	    }
 	}
     }
 }

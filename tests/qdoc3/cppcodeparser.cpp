@@ -3,7 +3,6 @@
 */
 
 #include <qfile.h>
-#include <qregexp.h>
 
 #include <stdio.h>
 
@@ -32,7 +31,6 @@
 
 CppCodeParser::CppCodeParser()
     : varComment( "/\\*\\s([a-zA-Z_0-9]+)\\s\\*/" ), sep( "(?:<[^>]+>)?::" )
-
 {
     reset( 0 );
 }
@@ -70,7 +68,7 @@ QString CppCodeParser::headerFileNameFilter()
 
 QString CppCodeParser::sourceFileNameFilter()
 {
-    return "*.c *.c++ *.cc *.cpp *.cxx";
+    return "*.c++ *.cc *.cpp *.cxx";
 }
 
 void CppCodeParser::parseHeaderFile( const Location& location,

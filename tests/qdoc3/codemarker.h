@@ -36,6 +36,7 @@ public:
 
     static void initialize( const Config& config );
     static void terminate();
+    static void deleteAllMarkers();
     static CodeMarker *markerForCode( const QString& code );
     static CodeMarker *markerForFileName( const QString& fileName );
     static CodeMarker *markerForLanguage( const QString& lang );

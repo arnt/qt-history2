@@ -33,6 +33,7 @@ public:
 
     static void initialize( const Config& config );
     static void terminate();
+    static void deleteAllParsers();
     static CodeParser *parserForLanguage( const QString& language );
 
 protected:

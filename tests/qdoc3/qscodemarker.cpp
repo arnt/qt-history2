@@ -42,13 +42,16 @@ QString QsCodeMarker::markedUpSynopsis( const Node *node,
     const FunctionNode *func;
     const PropertyNode *property;
     QString synopsis;
-    QString extra;
+    QStringList extras;
     QString name;
 
     name = taggedNode( node );
     if ( style == Overview )
         name = linkTag( node, name );
     name = "<@name>" + name + "</@name>";
+    if ( style == Detailed && !node->parent()->name().isEmpty() &&
+	 node->type() != Node::Property )
+	name.prepend( taggedNode(node->parent()) + "." );
 
     switch ( node->type() ) {
     case Node::Class:
@@ -56,7 +59,9 @@ QString QsCodeMarker::markedUpSynopsis( const Node *node,
         break;
     case Node::Function:
         func = (const FunctionNode *) node;
-        synopsis = "function " + name + " (";
+	if ( style == Overview )
+	    synopsis = "function ";
+	synopsis += name + " (";
         if ( !func->parameters().isEmpty() ) {
             synopsis += " ";
             QValueList<Parameter>::ConstIterator p = func->parameters().begin();
@@ -78,14 +83,8 @@ QString QsCodeMarker::markedUpSynopsis( const Node *node,
 	    synopsis += " : " + protect( func->returnType() );
 
         if ( style == Detailed ) {
-            QStringList bracketed;
-            if ( func->metaness() == FunctionNode::Signal ) {
-                bracketed += "signal";
-            } else if ( func->metaness() == FunctionNode::Slot ) {
-                bracketed += "slot";
-            }
-            if ( !bracketed.isEmpty() )
-                extra += " [" + bracketed.join(" ") + "]";
+            if ( func->metaness() == FunctionNode::Signal )
+                extras << "[signal]";
         }
         break;
     case Node::Property:
@@ -93,7 +92,7 @@ QString QsCodeMarker::markedUpSynopsis( const Node *node,
         synopsis = property->dataType() + " " + name;
         if ( style == Overview ) {
             if ( property->setter().isEmpty() )
-                extra += " (read only)";
+                extras << "(read only)";
         }
         break;
     case Node::Namespace:
@@ -105,18 +104,17 @@ QString QsCodeMarker::markedUpSynopsis( const Node *node,
 
     if ( style == Overview ) {
         if ( node->status() == Node::Preliminary ) {
-            extra += " (preliminary)";
+            extras << "(preliminary)";
         } else if ( node->status() == Node::Deprecated ) {
-            extra += " (deprecated)";
+            extras << "(deprecated)";
         } else if ( node->status() == Node::Obsolete ) {
-            extra += " (obsolete)";
+            extras << "(obsolete)";
         }
     }
 
-    if ( !extra.isEmpty() ) {
-        extra.prepend( "<@extra>" );
-        extra.append( "</@extra>" );
-    }
+    QString extra;
+    if ( !extras.isEmpty() )
+        extra = "<@extra>" + extras.join(" ") + "</@extra>";
     return synopsis + extra;
 }
 

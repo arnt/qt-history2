@@ -21,13 +21,13 @@ bool CppCodeMarker::recognizeCode( const QString& /* code */ )
 bool CppCodeMarker::recognizeExtension( const QString& ext )
 {
     return ext == "c" || ext == "c++" || ext == "cc" || ext == "cpp" ||
-	   ext == "cxx" || ext == "h" || ext == "h++" || ext == "hh" ||
-	   ext == "hpp" || ext == "hxx";
+	   ext == "cxx" || ext == "ch" || ext == "h" || ext == "h++" ||
+	   ext == "hh" || ext == "hpp" || ext == "hxx";
 }
 
 bool CppCodeMarker::recognizeLanguage( const QString& lang )
 {
-    return lang == "C++";
+    return lang == "C" || lang == "C++";
 }
 
 QString CppCodeMarker::markedUpCode( const QString& code,
@@ -50,7 +50,7 @@ QString CppCodeMarker::markedUpSynopsis( const Node *node, const Node *relative,
     if ( style == Overview )
 	name = linkTag( node, name );
     name = "<@name>" + name + "</@name>";
-    if ( style != Overview && !node->parent()->name().isEmpty() &&
+    if ( style == Detailed && !node->parent()->name().isEmpty() &&
 	 node->type() != Node::Property )
 	name.prepend( taggedNode(node->parent()) + "::" );
 
