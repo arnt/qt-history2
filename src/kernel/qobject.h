@@ -53,6 +53,7 @@ class QMetaObject;
 class QVariant;
 class QMetaProperty;
 class QPostEventList;
+class UObject;
 
 #ifndef QT_MOC_CPP
 
@@ -114,6 +115,7 @@ public:
 			  const QObject *receiver, const char *member );
     bool	 connect( const QObject *sender, const char *signal,
 			  const char *member ) const;
+    bool 	connect( const QObject *receiver );
     static bool  disconnect( const QObject *sender, const char *signal,
 			     const QObject *receiver, const char *member );
     bool	 disconnect( const char *signal=0,
@@ -136,16 +138,19 @@ public:
 
 private slots:
     void	 cleanupEventFilter();
+    void receiverDestroyed();
 
 protected:
     bool	 activate_filters( QEvent * );
     QConnectionList *receivers( const char* signal ) const;
     QConnectionList *receivers( int signal ) const;
-    void	 activate_signal( int signal );
-    void	 activate_signal( int signal, int );
-    void	 activate_signal( int signal, double );
-    void	 activate_signal( int signal, QString );
-    void	 activate_signal_bool( int signal, bool );
+    QObjectList *receivers() const;
+    void	activate_signal( int signal );
+    void	activate_signal( int signal, int );
+    void	activate_signal( int signal, double );
+    void	activate_signal( int signal, QString );
+    void	activate_signal_bool( int signal, bool );
+    void 	activate_signal( int signal, UObject *o );
 
     const QObject *sender();
 

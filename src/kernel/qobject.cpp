@@ -54,6 +54,14 @@
 #include "qdatetime.h"
 #include "qucom.h"
 
+class QObject::QObjectPrivate
+{
+public:
+    QObjectPrivate() : receivers( 0 ) {}
+
+    QObjectList *receivers;
+};
+
 // NOT REVISED
 /*! \class Qt qnamespace.h
 
@@ -320,6 +328,7 @@ static void remove_tree( QObject* obj )
 */
 
 QObject::QObject( QObject *parent, const char *name )
+    : d( 0 )
 {
     if ( !metaObj )				// will create object dict
 	(void) staticMetaObject();
@@ -1874,12 +1883,17 @@ QMetaObject* QObject::staticMetaObject()
 	{ "TextFormat", 3, enum_2, FALSE }
     };
 
-    QMetaData *slot_tbl = new QMetaData[1];
+    QMetaData *slot_tbl = new QMetaData[2];
     static const UMethod method_slot_1 = {"cleanupEventFilter", 0,  0 };
+    static const UMethod method_slot_2 = {"receiverDestroyed", 0,  0 };
     slot_tbl[0].name = "cleanupEventFilter()";
     slot_tbl[0].ptr = 0;
     slot_tbl[0].method = &method_slot_1;
     slot_tbl[0].access = QMetaData::Private;
+    slot_tbl[1].name = "receiverDestroyed()";
+    slot_tbl[1].ptr = 0;
+    slot_tbl[1].method = &method_slot_2;
+    slot_tbl[1].access = QMetaData::Private;
     QMetaData *signal_tbl = new QMetaData[1];
     static const UMethod method_signal_0 = {"destroyed", 0,  0 };
     signal_tbl[0].name = "destroyed()";
@@ -1894,7 +1908,7 @@ QMetaObject* QObject::staticMetaObject()
     props_tbl[0].setFlags(QMetaProperty::Readable|QMetaProperty::Writable|QMetaProperty::StdSet);
 #endif
     metaObj = new QMetaObject( "QObject", 0,
-	slot_tbl, 1,
+	slot_tbl, 2,
 	signal_tbl, 1,
 	props_tbl, 1,
 #ifndef QT_NO_PROPERTIES
@@ -1916,6 +1930,11 @@ QMetaObject* QObject::staticMetaObject()
   */
 void QObject::activate_signal( int signal )
 {
+    if ( d && d->receivers ) {
+	UObject o[1];
+	activate_signal( signal, o );
+    }
+
     if ( !connections || signalsBlocked() || signal < 0 )
 	return;
     QConnectionList *clist = connections->at( signal );
@@ -1943,6 +1962,19 @@ void QObject::activate_signal( int signal )
 	    else
 		object->qt_invoke( c->member(), o );
 	}
+    }	
+}
+
+void QObject::activate_signal( int signal, UObject *o )
+{
+    if ( !d || !d->receivers )
+	return;
+
+    QObjectListIt it( *d->receivers );
+    QObject *r;
+    while ( ( r = it.current() ) ) {
+	++it;
+	r->qt_invoke( signal, o );
     }
 }
 
@@ -2199,8 +2231,11 @@ bool QObject::qt_invoke( int _id, UObject* )
 {
     switch ( _id ) {
     case 0:
-        cleanupEventFilter();
-        break;
+	cleanupEventFilter();
+	break;
+    case 1:
+	receiverDestroyed();
+	break;
      default:
         return FALSE;
     }
@@ -2209,14 +2244,14 @@ bool QObject::qt_invoke( int _id, UObject* )
 
 /*!\internal
  */
-bool QObject::qt_emit( int _id, UObject* )
+bool QObject::qt_emit( int _id, UObject * )
 {
     switch ( _id ) {
     case 0:
-        destroyed();
-        break;
+	destroyed();
+	break;
      default:
-        return FALSE;
+	 return FALSE;
     }
     return TRUE;
 }
@@ -2236,4 +2271,28 @@ bool QObject::qt_property( const QMetaProperty* _p, int _f, QVariant* _v)
 	return FALSE;
     }
     return TRUE;
+}
+
+bool QObject::connect( const QObject *receiver )
+{
+    if ( !d )
+	d = new QObjectPrivate;
+    if ( !d->receivers )
+	d->receivers = new QObjectList;
+    d->receivers->append( receiver );
+    connect( receiver, SIGNAL( destroyed() ), this, SLOT( receiverDestroyed() ) );
+    return TRUE;
+}
+
+void QObject::receiverDestroyed()
+{
+    if ( d && d->receivers )
+	d->receivers->removeRef( sender() );
+}
+
+QObjectList *QObject::receivers() const
+{
+    if ( !d || !d->receivers )
+	return 0;
+    return d->receivers;
 }

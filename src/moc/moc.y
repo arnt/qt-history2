@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#239 $
+** $Id: //depot/qt/main/src/moc/moc.y#240 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -2634,7 +2634,7 @@ void generateClass()		      // generate C++ source code for a class
     const char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     const char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#239 $)\n**\n";
+		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#240 $)\n**\n";
     const char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     const char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
@@ -2885,10 +2885,10 @@ void generateClass()		      // generate C++ source code for a class
 
 	
 	int nargs = f->args->count();
-	fprintf( out, "    if ( signalsBlocked() )\n\treturn;\n" );
+	fprintf( out, "    if ( signalsBlocked() && !receivers() )\n\treturn;\n" );
 	fprintf( out, "    QConnectionList *clist = receivers( staticMetaObject()->signalOffset() + %d );\n",
 		 sigindex );
-	fprintf( out, "    if ( !clist )\n\treturn;\n" );
+	fprintf( out, "    if ( !clist && !receivers() )\n\treturn;\n" );
 	if ( !f->args->isEmpty() ) {
 	    offset = 0;
 	    fprintf( out, "    UObject o[%d];\n", f->args->count() + (f->type != "void"?0:1) );
@@ -2909,6 +2909,11 @@ void generateClass()		      // generate C++ source code for a class
 		offset++;
 	    }
 	}
+	fprintf( out, "    if ( receivers() )\n" );
+	fprintf( out, "\tactivate_signal( staticMetaObject()->signalOffset() + %d, %s );\n",
+		 sigindex, !f->args->isEmpty() ? "o" : "0" );
+	fprintf( out, "    if ( !clist )\n" );
+	fprintf( out, "\treturn;\n" );
 	fprintf( out, "    QConnection   *c;\n" );
 	fprintf( out, "    QSenderObject *object;\n" );
 	fprintf( out, "    QConnectionListIt it(*clist);\n" );
