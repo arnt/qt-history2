@@ -281,6 +281,8 @@ static QString reorderSyllable( const QString &string, int start, int end, unsig
 	// Rule 3: Move reph to follow post base matra
 	if ( reph ) {
 	    int toPos = base+1;
+	    if ( toPos < len && form( uc[toPos] ) == Nukta )
+		toPos++;
 	    if ( toPos < len && form( uc[toPos] ) == Matra )
 		toPos++;
 // 	    qDebug("moving reph from %d to %d", 0, toPos );
@@ -305,8 +307,10 @@ static QString reorderSyllable( const QString &string, int start, int end, unsig
 
     // all reordering happens now to the chars after (base+(reph halant)_vattu?)
     // so we move base to there
-    int fixed = base;
-    if ( fixed < len - 2 && isRa( uc[fixed+1] ) && form( uc[fixed+2] == Halant ) )
+    int fixed = base+1;
+    if ( fixed < len && form( uc[fixed] ) == Nukta )
+	fixed++;
+    if ( fixed < len - 1 && isRa( uc[fixed] ) && form( uc[fixed+1] ) == Halant )
 	fixed += 2;
 
 
@@ -330,10 +334,10 @@ static QString reorderSyllable( const QString &string, int start, int end, unsig
 	{ (Form)0, None }
     };
 
-    fixed++;
+//     qDebug("base=%d fixed=%d", base, fixed );
     int toMove = 0;
     while ( fixed < len ) {
-	//        qDebug("fixed = %d", fixed );
+// 	qDebug("fixed = %d", fixed );
 	for ( int i = fixed; i < len; i++ ) {
 	    if ( form( uc[i] ) == finalOrder[toMove].form &&
 		 position( uc[i] ) == finalOrder[toMove].position ) {
