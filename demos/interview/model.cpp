@@ -14,7 +14,6 @@
 #include "model.h"
 #include <qicon.h>
 #include <qpixmap.h>
-#include <private/qabstractitemmodel_p.h>
 
 Model::Model(int rows, int columns, QObject *parent)
     : QAbstractItemModel(parent),
