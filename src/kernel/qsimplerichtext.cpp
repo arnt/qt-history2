@@ -44,6 +44,7 @@ class QSimpleRichTextData
 public:
     QTextDocument *doc;
     QFont font;
+    int cachedWidth;
 };
 
 // NOT REVISED
@@ -104,6 +105,7 @@ QSimpleRichText::QSimpleRichText( const QString& text, const QFont& fnt,
 				  const QString& context, const QStyleSheet* sheet )
 {
     d = new QSimpleRichTextData;
+    d->cachedWidth = -1;
     d->font = fnt;
     d->doc = new QTextDocument( 0 );
     d->doc->setFormatter( new QTextFormatterBreakWords );
@@ -128,6 +130,7 @@ QSimpleRichText::QSimpleRichText( const QString& text, const QFont& fnt,
 				  const QColor& linkColor, bool linkUnderline )
 {
     d = new QSimpleRichTextData;
+    d->cachedWidth = -1;
     d->font = fnt;
     d->doc = new QTextDocument( 0 );
     d->doc->setFormatter( new QTextFormatterBreakWords );
@@ -159,6 +162,9 @@ QSimpleRichText::~QSimpleRichText()
 
 void QSimpleRichText::setWidth( int w )
 {
+    if ( w == d->cachedWidth )
+	return;
+    d->cachedWidth = w;
     d->doc->doLayout( 0, w );
 }
 
@@ -174,6 +180,9 @@ void QSimpleRichText::setWidth( int w )
 
 void QSimpleRichText::setWidth( QPainter *p, int w )
 {
+    if ( w == d->cachedWidth )
+	return;
+    d->cachedWidth = w;
     d->doc->doLayout( p, w );
 }
 
