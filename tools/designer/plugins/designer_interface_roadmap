@@ -135,7 +135,9 @@ the list of features the plugin is able to provide.
   filter as used by the QFileDialog class, e.g. My Filetype (*.mft).
   The import function will get the desired filter and the filename
   which it is supposed to convert into a list of UI files. The function
-  returns a QStringList with the filenames of the resulting files.
+  returns a QStringList with the filenames of the resulting files. 
+  The created files are deleted by the designer as soon as they are
+  loaded.
 
 
 Provided Application Interfaces:
