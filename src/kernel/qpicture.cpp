@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpicture.cpp#10 $
+** $Id: //depot/qt/main/src/kernel/qpicture.cpp#11 $
 **
-** Implementation of QMetaFile class
+** Implementation of QPicture class
 **
 ** Author  : Haavard Nord
 ** Created : 940802
@@ -10,25 +10,25 @@
 **
 *****************************************************************************/
 
-#include "qmetafil.h"
+#include "qpicture.h"
 #include "qpaintdc.h"
 #include "qpainter.h"
 #include "qpntarry.h"
-#include "qwxfmat.h"
+#include "qwmatrix.h"
 #include "qfile.h"
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpicture.cpp#10 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpicture.cpp#11 $";
 #endif
 
 
-static const UINT32 mfhdr_tag = 0x11140d06;	// header tag
+static const UINT32 mfhdr_tag = 0x11100903;	// header tag
 static const UINT16 mfhdr_maj = 1;		// major version #
 static const UINT16 mfhdr_min = 0;		// minor version #
 
 
-bool QMetaFile::load( const char *fileName )	// read from file
+bool QPicture::load( const char *fileName )	// read from file
 {
     QByteArray a;
     QFile f( fileName );
@@ -41,7 +41,7 @@ bool QMetaFile::load( const char *fileName )	// read from file
     return TRUE;
 }
 
-bool QMetaFile::save( const char *fileName )	// write to file
+bool QPicture::save( const char *fileName )	// write to file
 {
     QFile f( fileName );
     if ( !f.open( IO_WriteOnly ) )
@@ -52,7 +52,7 @@ bool QMetaFile::save( const char *fileName )	// write to file
 }
 
 
-bool QMetaFile::play( QPainter *painter )
+bool QPicture::play( QPainter *painter )
 {
     if ( mfbuf.size() == 0 )			// nothing recorded
 	return FALSE;
@@ -61,11 +61,11 @@ bool QMetaFile::play( QPainter *painter )
     QDataStream s;
     s.setDevice( &mfbuf );			// attach data stream to buffer
 
-    UINT32 mf_id;				// metafile id (tag)
+    UINT32 mf_id;				// picture id (tag)
     s >> mf_id;					// read tag
     if ( mf_id != mfhdr_tag ) {			// wrong header id
 #if defined(CHECK_RANGE)
-	warning( "QMetaFile::play: Incorrect header" );
+	warning( "QPicture::play: Incorrect header" );
 #endif
 	mfbuf.close();
 	return FALSE;
@@ -79,7 +79,7 @@ bool QMetaFile::play( QPainter *painter )
     ccs = qchecksum( buf.data() + data_start, buf.size() - data_start );
     if ( ccs != cs ) {
 #if defined(CHECK_STATE)
-	warning( "QMetaFile::play: Invalid checksum %x, %x expected",
+	warning( "QPicture::play: Invalid checksum %x, %x expected",
 		 ccs, cs );
 #endif
 #if !defined(DEBUG)
@@ -92,7 +92,7 @@ bool QMetaFile::play( QPainter *painter )
     s >> major >> minor;			// read version number
     if ( major > mfhdr_maj ) {			// new, incompatible version
 #if defined(CHECK_RANGE)
-	warning( "QMetaFile::play: Incompatible version %d.%d",
+	warning( "QPicture::play: Incompatible version %d.%d",
 		 major, minor);
 #endif
 	mfbuf.close();
@@ -108,7 +108,7 @@ bool QMetaFile::play( QPainter *painter )
     }
     if ( c !=  PDC_BEGIN ) {
 #if defined(CHECK_RANGE)
-	warning( "QMetaFile::play: Format error" );
+	warning( "QPicture::play: Format error" );
 #endif
 	mfbuf.close();
 	return FALSE;
@@ -118,7 +118,7 @@ bool QMetaFile::play( QPainter *painter )
 }
 
 
-bool QMetaFile::exec( QPainter *painter, QDataStream &s, long nrecords )
+bool QPicture::exec( QPainter *painter, QDataStream &s, long nrecords )
 {
     UINT8  c;					// command id
     UINT8  tiny_len;				// 8-bit length descriptor
@@ -136,7 +136,7 @@ bool QMetaFile::exec( QPainter *painter, QDataStream &s, long nrecords )
     QPen   pen;
     QBrush brush;
     QRegion rgn;
-    QWXFMatrix matrix;
+    QWorldMatrix matrix;
 
     while ( nrecords-- && !s.eos() ) {
 	s >> c;					// read cmd
@@ -209,10 +209,10 @@ bool QMetaFile::exec( QPainter *painter, QDataStream &s, long nrecords )
 		delete str;
 		break;
 	    case PDC_DRAWTEXTALIGN:
-	        debug( "QMetaFile: DRAWTEXTALIGN not implemented" );
+	        debug( "QPicture: DRAWTEXTALIGN not implemented" );
 	        break;
 	    case PDC_DRAWPIXMAP:
-	        debug( "QMetaFile: DRAWPIXMAP not implemented" );
+	        debug( "QPicture: DRAWPIXMAP not implemented" );
 	        break;
 	    case PDC_BEGIN:
 		s >> ul;			// number of records
@@ -273,9 +273,9 @@ bool QMetaFile::exec( QPainter *painter, QDataStream &s, long nrecords )
 	        s >> i_8;
 	        painter->setWorldXForm( i_8 );
 	        break;
-	    case PDC_SETWXFMATRIX:
+	    case PDC_SETWMATRIX:
 	        s >> matrix >> i_8;
-	        painter->setWxfMatrix( matrix, i_8 );
+	        painter->setWorldMatrix( matrix, i_8 );
 	        break;
 	    case PDC_SETCLIP:
 	        s >> i_8;
@@ -287,7 +287,7 @@ bool QMetaFile::exec( QPainter *painter, QDataStream &s, long nrecords )
 		break;
 	    default:
 #if defined(CHECK_RANGE)
-		warning( "QMetaFile::play: Invalid command %d", c );
+		warning( "QPicture::play: Invalid command %d", c );
 #endif
 		if ( len )			// skip unknown command
 		    s.device()->at( s.device()->at()+len );
@@ -300,7 +300,7 @@ bool QMetaFile::exec( QPainter *painter, QDataStream &s, long nrecords )
 }
 
 
-bool QMetaFile::cmd( int c, QPDevCmdParam *p )
+bool QPicture::cmd( int c, QPDevCmdParam *p )
 {
     QDataStream s;
     s.setDevice( &mfbuf );
@@ -365,10 +365,10 @@ bool QMetaFile::cmd( int c, QPDevCmdParam *p )
 	    s << *p[0].point << p[1].str;
 	    break;
 	case PDC_DRAWTEXTALIGN:
-	    debug( "QMetaFile::cmd: DRAWTEXTALIGN not implemented" );
+	    debug( "QPicture::cmd: DRAWTEXTALIGN not implemented" );
 	    break;
 	case PDC_DRAWPIXMAP:
-	    debug( "QMetaFile::cmd: DRAWPIXMAP not implemented" );
+	    debug( "QPicture::cmd: DRAWPIXMAP not implemented" );
 	    break;
 	case PDC_SAVE:
 	case PDC_RESTORE:
@@ -399,7 +399,7 @@ bool QMetaFile::cmd( int c, QPDevCmdParam *p )
 	case PDC_SETTARGETVIEW:
 	    s << *p[0].rect;
 	    break;
-	case PDC_SETWXFMATRIX:
+	case PDC_SETWMATRIX:
 	    s << *p[0].matrix << (INT8)p[1].ival;
 	    break;
 	case PDC_SETCLIPRGN:
@@ -407,7 +407,7 @@ bool QMetaFile::cmd( int c, QPDevCmdParam *p )
 	    break;
 #if defined(CHECK_RANGE)
 	default:
-	    warning( "QMetaFile::cmd: Command %d not recognized", c );
+	    warning( "QPicture::cmd: Command %d not recognized", c );
 #endif
     }
     int newpos = (int)mfbuf.at();		// new position
@@ -426,7 +426,7 @@ bool QMetaFile::cmd( int c, QPDevCmdParam *p )
 // QPainter member functions
 //
 
-void QPainter::drawMetaFile( const QMetaFile &mf )
+void QPainter::drawPicture( const QPicture &mf )
 {
-    ((QMetaFile*)&mf)->play( (QPainter*)this );
+    ((QPicture*)&mf)->play( (QPainter*)this );
 }
