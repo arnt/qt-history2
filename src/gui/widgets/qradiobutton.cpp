@@ -28,21 +28,19 @@
     \ingroup basic
     \mainclass
 
-    QRadioButton and QCheckBox are both option buttons. That is, they
-    can be switched on (checked) or off (unchecked). The classes
-    differ in how the choices for the user are restricted. Check boxes
-    define "many of many" choices, whereas radio buttons provide a
-    "one of many" choice. In a group of radio buttons only one radio
-    button at a time can be checked; if the user selects another
-    button, the previously selected button is switched off.
+    A QRadioButton is an option button that can be switched on (checked) or
+    off (unchecked). Radio buttons typically present the user with a "one
+    of many" choice. In a group of radio buttons only one radio button at
+    a time can be checked; if the user selects another button, the
+    previously selected button is switched off.
 
     The easiest way to implement a "one of many" choice is simply to
-    put the radio buttons into QButtonGroup.
+    put the radio buttons into a QButtonGroup.
 
-    Whenever a button is switched on or off it emits the signal
-    toggled(). Connect to this signal if you want to trigger an action
-    each time the button changes state. Otherwise, use isChecked() to
-    see if a particular button is selected.
+    Whenever a button is switched on or off it emits the toggled() signal.
+    Connect to this signal if you want to trigger an action each time the
+    button changes state. Otherwise, use isChecked() to see if a particular
+    button is selected.
 
     Just like QPushButton, a radio button can display text or a
     pixmap. The text can be set in the constructor or with setText();
@@ -55,7 +53,7 @@
     \inlineimage qradiobt-m.png Screenshot in Motif style
     \inlineimage qradiobt-w.png Screenshot in Windows style
 
-    \sa QPushButton QToolButton
+    \sa QPushButton QToolButton QCheckBox
     \link guibooks.html#fowler GUI Design Handbook: Radio Button\endlink
 */
 
@@ -69,6 +67,10 @@
 /*!
     \property QRadioButton::autoExclusive
     \brief whether the radio button is automatically exclusive
+
+    If the radio button is exclusive, it will be deselected if another in
+    the same group is enabled. Similarly, if it is selected, other exclusive
+    buttons in the same group will be deselected.
 
     The default is true.
 */
@@ -84,7 +86,8 @@ static void qRadioButtonInit(QRadioButton *button)
 
 
 /*!
-    Constructs a radio button with no text.
+    Constructs a radio button with the given \a parent, but with no text or
+    pixmap.
 
     The \a parent argument is passed on to the QAbstractButton constructor.
 */
@@ -96,7 +99,7 @@ QRadioButton::QRadioButton(QWidget *parent)
 }
 
 /*!
-    Constructs a radio button with the text \a text.
+    Constructs a radio button with the given \a parent and a \a text string.
 
     The \a parent argument is passed on to the QAbstractButton constructor.
 */

@@ -44,11 +44,11 @@ public:
     \ingroup basic
     \mainclass
 
-    QCheckBox and QRadioButton are both option buttons. That is, they
-    can be switched on (checked) or off (unchecked). The classes
-    differ in how the choices for the user are restricted. Radio
-    buttons define a "one of many" choice, whereas checkboxes provide
-    "many of many" choices.
+    A QCheckBox is an option button that can be switched on (checked)
+    or off (unchecked). Checkboxes are typically used to represent
+    features in an application that can be enabled or disabled without
+    affecting others, but different types of behavior can be
+    implemented.
 
     A QButtonGroup can be used to group check buttons visually.
 
@@ -61,7 +61,7 @@ public:
     optionally provides a third state to indicate "no change". This
     is useful whenever you need to give the user the option of neither
     checking nor unchecking a checkbox. If you need this third state,
-    enable it with setTristate() and use state() to query the current
+    enable it with setTristate(), and use state() to query the current
     toggle state.
 
     Just like QPushButton, a checkbox can display text or a pixmap.
@@ -103,7 +103,7 @@ public:
     \property QCheckBox::tristate
     \brief whether the checkbox is a tri-state checkbox
 
-    The default is two-state, i.e. tri-state is false.
+    The default is false; i.e. the checkbox has only two states.
 */
 
 
@@ -131,10 +131,9 @@ QStyleOptionButton QCheckBoxPrivate::getStyleOption() const
 }
 
 /*!
-    Constructs a checkbox with no text.
+    Constructs a checkbox with the given \a parent, but with no text.
 
-    The \a parent and \a name arguments are sent to the QWidget
-    constructor.
+    The \a parent argument is passed on to the QAbstractButton constructor.
 */
 
 QCheckBox::QCheckBox(QWidget *parent)
@@ -144,10 +143,9 @@ QCheckBox::QCheckBox(QWidget *parent)
 }
 
 /*!
-    Constructs a checkbox with text \a text.
+    Constructs a checkbox with the given \a parent and \a text.
 
-    The \a parent and \a name arguments are sent to the QWidget
-    constructor.
+    The \a parent argument is passed on to the QAbstractButton constructor.
 */
 
 QCheckBox::QCheckBox(const QString &text, QWidget *parent)
@@ -204,7 +202,7 @@ QSize QCheckBox::sizeHint() const
 }
 
 /*!
-    Draws the check box bevel. Called from paintEvent().
+    Draws the checkbox bevel. Called from paintEvent().
 
     \sa drawLabel()
 */
