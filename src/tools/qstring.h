@@ -541,7 +541,7 @@ public:
 #endif
     QString    &remove( QChar c );
     QString    &remove( char c )
-    { remove( QChar(c) ); }
+    { return remove( QChar(c) ); }
 #ifndef QT_NO_CAST_ASCII
     QString    &remove( const char * );
 #endif
