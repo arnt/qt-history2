@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qtextview.cpp#14 $
+** $Id: //depot/qt/main/tests/richtextedit/qtextview.cpp#15 $
 **
 ** Implementation of the QtTextView class
 **
@@ -578,7 +578,9 @@ void QtTextView::paragraphChanged( QtTextParagraph* b)
 */
 void QtTextView::resizeEvent( QResizeEvent* e )
 {
+    setUpdatesEnabled( FALSE ); // to hinder qscrollview from showing/hiding scrollbars. Safe since we call resizeContents later!
     QScrollView::resizeEvent( e );
+    setUpdatesEnabled( TRUE);
     richText().invalidateLayout();
     QtTextFlow* flow = richText().flow();
     flow->x = 0;
