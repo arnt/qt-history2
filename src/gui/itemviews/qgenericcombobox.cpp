@@ -117,19 +117,21 @@ void QGenericComboBoxPrivate::handleReturnPressed()
         case QGenericComboBox::AtTop:
             newItem = q->insertItem(text, 0);
             break;
-        case QGenericComboBox::AtCurrent:
-            if (!q->model()->rowCount(q->root()) || !q->currentItem().isValid())
-                newItem = q->insertItem(text, 0);
-            else
-                q->changeItem(text, q->currentItem().row());
-            break;
         case QGenericComboBox::AtBottom:
             newItem = q->insertItem(text, q->model()->rowCount(q->root()));
             break;
+        case QGenericComboBox::AtCurrent:
         case QGenericComboBox::AfterCurrent:
-            newItem = q->insertItem(text, q->currentItem().row() + 1);
         case QGenericComboBox::BeforeCurrent:
-            newItem = q->insertItem(text, q->currentItem().row());
+            if (!q->model()->rowCount(q->root()) || !q->currentItem().isValid())
+                newItem = q->insertItem(text, 0);
+            else if (insertionPolicy == QGenericComboBox::AtCurrent)
+                q->changeItem(text, q->currentItem().row());
+            else if (insertionPolicy == QGenericComboBox::AfterCurrent)
+                newItem = q->insertItem(text, q->currentItem().row() + 1);
+            else if (insertionPolicy == QGenericComboBox::BeforeCurrent)
+                newItem = q->insertItem(text, q->currentItem().row());
+            break;
         case QGenericComboBox::NoInsertion:
         default:
             break;
