@@ -2339,7 +2339,7 @@ void QIconView::styleChange( QStyle& old )
 	item->wordWrapDirty = TRUE;
 	item->calcRect();
     }
-    
+
     delete qiv_selection;
     qiv_selection = 0;
 }
