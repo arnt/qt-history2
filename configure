@@ -1119,7 +1119,7 @@ then
     esac
     if [ "x$NOTYPE" = "xyes" ]
     then
-	QMAKE_VARS="$QMAKE_VARS QMAKE_CXXFLAGS+=-fpermissive"
+	QMAKE_VARS="$QMAKE_VARS  \"QMAKE_CXXFLAGS+=-fpermissive\""
     fi
 fi
 

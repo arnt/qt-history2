@@ -43,11 +43,11 @@ then
     then
 	echo "Broken X11 headers detected."
     fi
-    exit 1
+    exit 0
 else
     if [ "$VERBOSE" = "yes" ]
     then
 	echo "X11 headers look good."
     fi
-    exit 0
+    exit 1
 fi
