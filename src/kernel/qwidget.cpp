@@ -3284,7 +3284,7 @@ void QWidget::show()
     QApplication::sendPostedEvents( this, QEvent::Resize );
 
     setWState( WState_Visible );
-    
+
     if ( parentWidget() )
 	QApplication::sendPostedEvents( parentWidget(),
 					QEvent::ChildInserted );
@@ -3922,8 +3922,6 @@ bool QWidget::event( QEvent *e )
 		w->keyPressEvent( k );
 		if ( k->isAccepted() || w->isTopLevel() )
 		    break;
-		if ( w->parentWidget() && w->parentWidget()->focusProxy() == this )
-		    w = w->parentWidget();
 		w = w->parentWidget();
 		k->accept();
 	    }
@@ -3938,8 +3936,6 @@ bool QWidget::event( QEvent *e )
 		w->keyReleaseEvent( k );
 		if ( k->isAccepted() || w->isTopLevel() )
 		    break;
-		if ( w->parentWidget() && w->parentWidget()->focusProxy() == this )
-		    w = w->parentWidget();
 		w = w->parentWidget();
 	    }
 	    }
