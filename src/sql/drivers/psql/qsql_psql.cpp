@@ -597,7 +597,7 @@ QStringList QPSQLDriver::tables( const QString& /* user */ ) const
 	return tl;
     QSqlQuery t = createQuery();
     QString stmt;
-    stmt = "select relname from pg_class where ( relkind = 'r' ) "
+    stmt = "select relname from pg_class where ( relkind = 'r' or relkind = 'v' ) "
 		"and ( relname !~ '^Inv' ) "
 		"and ( relname !~ '^pg_' ) ";
     t.exec( stmt );
@@ -613,30 +613,26 @@ QSqlIndex QPSQLDriver::primaryIndex( const QString& tablename ) const
 	return idx;
     QSqlQuery i = createQuery();
     QString stmt;
+
     switch( pro ) {
     case QPSQLDriver::Version6:
-	stmt = "select a.attname, int(a.atttypid), c2.relname "
-		"from pg_attribute a, pg_class c1, pg_class c2, pg_index i "
-		"where c2.relname = '%1_pkey' "
-		"and c1.oid = i.indrelid and i.indexrelid = c2.oid "
-		"and a.attrelid = c2.oid ";
+	stmt = "select pg_att1.attname, int(pg_att1.atttypid), pg_att2.attnum, pg_cl.relname "
+		"from pg_attribute pg_att1, pg_attribute pg_att2, pg_class pg_cl, pg_index pg_ind "
+		"where pg_cl.relname = '%1_pkey' AND pg_cl.oid = pg_ind.indexrelid "
+		"and pg_att2.attrelid = pg_ind.indexrelid "
+		"and pg_att1.attrelid = pg_ind.indrelid "
+		"and pg_att1.attnum = pg_ind.indkey[pg_att2.attnum-1] "
+		"order by pg_att2.attnum";
 	break;
     case QPSQLDriver::Version7:
-	stmt = "select a.attname, a.atttypid::int, c2.relname "
-		"from pg_attribute a, pg_class c1, pg_class c2, pg_index i "
-		"where c2.relname = '%1_pkey' "
-		"and c1.oid = i.indrelid and i.indexrelid = c2.oid "
-		"and a.attrelid = c2.oid ";
-	break;
     case QPSQLDriver::Version71:
-	stmt = "select pg_attribute.attname, pg_attribute.atttypid::int, pg_class2.relname "
-		"from pg_class, pg_attribute, pg_index, pg_class pg_class2 "
-		"where pg_class.oid = pg_attribute.attrelid "
-		"and pg_class.oid = pg_index.indrelid "
-		"and pg_index.indkey[0] = pg_attribute.attnum "
-		"and pg_index.indisprimary = 't' "
-		"and pg_class2.relfilenode = pg_index.indexrelid "
-		"and pg_class.relname = '%1' ";
+	stmt = "select pg_att1.attname, pg_att1.atttypid::int, pg_cl.relname "
+		"from pg_attribute pg_att1, pg_attribute pg_att2, pg_class pg_cl, pg_index pg_ind "
+		"where pg_cl.relname = '%1_pkey' AND pg_cl.oid = pg_ind.indexrelid "
+		"and pg_att2.attrelid = pg_ind.indexrelid "
+		"and pg_att1.attrelid = pg_ind.indrelid "
+		"and pg_att1.attnum = pg_ind.indkey[pg_att2.attnum-1] "
+		"order by pg_att2.attnum";
 	break;
     }
     i.exec( stmt.arg( tablename ) );
