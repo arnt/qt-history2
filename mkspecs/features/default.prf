@@ -1,2 +1,2 @@
-CONFIG = warn_on debug uic $$CONFIG
+CONFIG = warn_on debug uic rcc $$CONFIG
 
