@@ -558,8 +558,10 @@ QListBoxText::~QListBoxText()
 
 void QListBoxText::paint( QPainter *painter )
 {
+    int itemHeight = height( listBox() );
     QFontMetrics fm = painter->fontMetrics();
-    painter->drawText( 3, fm.ascent() +  (fm.leading()+1)/2 + 1, text() );
+    int yPos = ( ( itemHeight - fm.height() ) / 2 ) + fm.ascent() + 1;
+    painter->drawText( 3, yPos, text() );
 }
 
 /*!
