@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncimageio.h#11 $
+** $Id: //depot/qt/main/src/kernel/qasyncimageio.h#12 $
 **
 **		      ***   INTERNAL HEADER FILE   ***
 **
@@ -138,6 +138,7 @@ private:
     bool needfirst;
     int x, y;
     int frame;
+    bool out_of_bounds;
     bool digress;
     void nextY(QImage& img, QImageConsumer* consumer);
     void disposePrevious( QImage& img, QImageConsumer* consumer );

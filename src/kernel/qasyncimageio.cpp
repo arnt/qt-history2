@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#22 $
+** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#23 $
 **
 ** Implementation of asynchronous image/movie loading classes
 **
@@ -384,9 +384,17 @@ const char* QGIFDecoderFactory::formatName() const
 
 void QGIFDecoder::disposePrevious( QImage& img, QImageConsumer* consumer )
 {
+    if ( out_of_bounds ) // flush anything that survived
+	digress = !consumer->changed(QRect(0,0,swidth,sheight));
+
     // Handle disposal of previous image before processing next one
 
     if ( disposed ) return;
+
+    int l = QMIN(swidth-1,left);
+    int r = QMIN(swidth-1,right);
+    int t = QMIN(sheight-1,top);
+    int b = QMIN(sheight-1,bottom);
 
     switch (disposal) {
       case NoDisposal:
@@ -397,32 +405,32 @@ void QGIFDecoder::disposePrevious( QImage& img, QImageConsumer* consumer )
 	preserve_trans = FALSE;
 	if (trans>=0) {
 	    // Easy:  we use the transparent colour
-	    fillRect(img, left, top, right-left+1, bottom-top+1, trans);
+	    fillRect(img, l, t, r-l+1, b-t+1, trans);
 	} else if (bgcol>=0) {
 	    // Easy:  we use the bgcol given
-	    fillRect(img, left, top, right-left+1, bottom-top+1, bgcol);
+	    fillRect(img, l, t, r-l+1, b-t+1, bgcol);
 	} else {
 	    // Impossible:  We don't know of a bgcol - use pixel 0
 	    uchar** line = img.jumpTable();
-	    fillRect(img, left, top, right-left+1, bottom-top+1, line[0][0]);
+	    fillRect(img, l, t, r-l+1, b-t+1, line[0][0]);
 	}
 	if (consumer) {
-	    bool d = !consumer->changed(QRect(left, top,
-					      right-left+1, bottom-top+1));
+	    bool d = !consumer->changed(QRect(l, t,
+					      r-l+1, b-t+1));
 	    digress = digress || d;
 	}
 	break;
       case RestoreImage: {
 	uchar** line = img.jumpTable();
 	preserve_trans = FALSE;
-	for (int ln=top; ln<=bottom; ln++) {
-	    memcpy(line[ln]+left,
-		backingstore.scanLine(ln-top),
-		right-left+1);
+	for (int ln=t; ln<=b; ln++) {
+	    memcpy(line[ln]+l,
+		backingstore.scanLine(ln-t),
+		r-l+1);
 	}
 	if (consumer) {
-	    bool d = !consumer->changed(QRect(left, top,
-					      right-left+1, bottom-top+1));
+	    bool d = !consumer->changed(QRect(l, t,
+					      r-l+1, b-t+1));
 	    digress = digress || d;
 	}
       }
@@ -534,6 +542,15 @@ int QGIFDecoder::decode(QImage& img, QImageConsumer* consumer,
 		top=LM(hold[3], hold[4]);
 		int width=LM(hold[5], hold[6]);
 		int height=LM(hold[7], hold[8]);
+
+/*
+		// Sanity check frame size - must fit on "screen".
+		if (left >= swidth) left=swidth-1;
+		if (top >= sheight) top=sheight-1;
+		if (left+width >= swidth) width=swidth-left;
+		if (top+height >= sheight) height=sheight-top;
+*/
+
 		right=left+width-1;
 		bottom=top+height-1;
 		bool hadlcmap = lcmap;
@@ -562,18 +579,25 @@ int QGIFDecoder::decode(QImage& img, QImageConsumer* consumer,
 		}
 
 		if ( disposal == RestoreImage ) {
-		    if (backingstore.width() < width
-			|| backingstore.height() < height) {
+		    int l = QMIN(swidth-1,left);
+		    int r = QMIN(swidth-1,right);
+		    int t = QMIN(sheight-1,top);
+		    int b = QMIN(sheight-1,bottom);
+		    int w = r-l+1;
+		    int h = b-t+1;
+
+		    if (backingstore.width() < w
+			|| backingstore.height() < h) {
 			// We just use the backing store as a byte array
 			backingstore.create( QMAX(backingstore.width(),
-						  width),
+						  w),
 					     QMAX(backingstore.height(),
-						  height),
+						  h),
 					     8,1);
 		    }
-		    for (int ln=0; ln<height; ln++) {
+		    for (int ln=0; ln<h; ln++) {
 			memcpy(backingstore.scanLine(ln),
-			       line[top+ln]+left, width);
+			       line[t+ln]+l, w);
 		    }
 		}
 
@@ -602,6 +626,7 @@ int QGIFDecoder::decode(QImage& img, QImageConsumer* consumer,
 		bitcount = 0;
 		sp = stack;
 		needfirst = FALSE;
+		out_of_bounds = FALSE;
 	    }
 	    break;
 	  case TableImageLZWSize: {
@@ -666,12 +691,15 @@ int QGIFDecoder::decode(QImage& img, QImageConsumer* consumer,
 		} else {
 		    if (needfirst) {
 			firstcode=oldcode=code;
-			if (!(preserve_trans && firstcode==trans))
+			if (!out_of_bounds && !(preserve_trans && firstcode==trans))
 			    line[y][x] = firstcode;
 			x++;
+			if (x>=swidth) out_of_bounds = TRUE;
 			needfirst=FALSE;
 			if (x>right) {
 			    x=left;
+			    if (out_of_bounds)
+				out_of_bounds = left>=swidth || y>=sheight;
 			    nextY(img,consumer);
 			}
 		    } else {
@@ -708,11 +736,14 @@ int QGIFDecoder::decode(QImage& img, QImageConsumer* consumer,
 			oldcode=incode;
 			while (sp>stack) {
 			    --sp;
-			    if (!(preserve_trans && *sp==trans))
+			    if (!out_of_bounds && !(preserve_trans && *sp==trans))
 				line[y][x] = *sp;
 			    x++;
+			    if (x>=swidth) out_of_bounds = TRUE;
 			    if (x>right) {
 				x=left;
+				if (out_of_bounds)
+				    out_of_bounds = left>=swidth || y>=sheight;
 				nextY(img,consumer);
 			    }
 			}
@@ -863,7 +894,7 @@ void QGIFDecoder::nextY(QImage& img, QImageConsumer* consumer)
     switch (interlace) {
       case 0:
 	// Non-interlaced
-	if (consumer) digress =
+	if (consumer && !out_of_bounds) digress =
 	    !consumer->changed(QRect(left, y, right-left+1, 1));
 	y++;
 	break;
@@ -873,7 +904,7 @@ void QGIFDecoder::nextY(QImage& img, QImageConsumer* consumer)
 	    my = QMIN(7, bottom-y);
 	    for (i=1; i<=my; i++)
 	        memcpy(img.scanLine(y+i), img.scanLine(y), img.width());
-	    if (consumer) digress =
+	    if (consumer && !out_of_bounds) digress =
 	        !consumer->changed(QRect(left, y, right-left+1, my+1));
 	    y+=8;
 	    if (y>bottom) { interlace++; y=4; }
@@ -884,7 +915,7 @@ void QGIFDecoder::nextY(QImage& img, QImageConsumer* consumer)
 	    my = QMIN(3, bottom-y);
 	    for (i=1; i<=my; i++)
 	        memcpy(img.scanLine(y+i), img.scanLine(y), img.width());
-    	    if (consumer) digress =
+    	    if (consumer && !out_of_bounds) digress =
 	        !consumer->changed(QRect(left, y, right-left+1, my+1));
 	    y+=8;
 	    if (y>bottom) { interlace++; y=2; }
@@ -894,18 +925,18 @@ void QGIFDecoder::nextY(QImage& img, QImageConsumer* consumer)
 	    my = QMIN(1, bottom-y);
 	    for (int i=1; i<=my; i++)
 	        memcpy(img.scanLine(y+i), img.scanLine(y), img.width());
-	    if (consumer) digress =
+	    if (consumer && !out_of_bounds) digress =
 	        !consumer->changed(QRect(left, y, right-left+1, my+1));
 	    y+=4;
 	    if (y>bottom) { interlace++; y=1; }
 	} break;
       case 4:
-	if (consumer) digress =
+	if (consumer && !out_of_bounds) digress =
 	    !consumer->changed(QRect(left, y, right-left+1, 1));
 	y+=2;
     }
 
     // Consume bogus extra lines
-    if (y > bottom) y=bottom;
+    if (y >= sheight) out_of_bounds=TRUE; //y=bottom;
 }
 
