@@ -129,7 +129,7 @@ private:
     int border;
     int outerborder;
     int stretch;
-    
+
     Placement place;
 };
 
@@ -490,7 +490,6 @@ bool QRichText::parse (QTextParagraph* current, const QStyleSheetItem* curstyle,
 			current->child = dummy;
 		    }
 		    dummy = 0;
-		    PROVIDE_DUMMY
 		}
 		CLOSE_TAG
 	    }
@@ -513,7 +512,7 @@ bool QRichText::parse (QTextParagraph* current, const QStyleSheetItem* curstyle,
 		    attributes_ = attr; // propagate attributes
 
 		bool recover = FALSE;
-		if (parse( subparagraph, nstyle, 0, subparagraph->format, doc, pos, 
+		if (parse( subparagraph, nstyle, 0, subparagraph->format, doc, pos,
 			   nstyle->whiteSpaceMode() != QStyleSheetItem::WhiteSpaceNormal?
 			   nstyle->whiteSpaceMode() : QStyleSheetItem::WhiteSpaceNormal) ) {
 		    (void) eatSpace(doc, pos);
@@ -993,7 +992,7 @@ QTextParagraph* QRichText::getParBefore( int y ) const
 bool operator!=( const QtTriple &t1, const QtTriple &t2 )
 {
     return (t1.a != t2.a) || (t1.b != t2.b) || (t1.c != t2.c);
-} 
+}
 bool operator<( const QtTriple &t1, const QtTriple &t2 )
 {
     if ( t1.a != t2.a )
@@ -1049,7 +1048,7 @@ bool QRichTextIterator::right( bool doFormat )
 	    return TRUE;
 	}
     }
-    
+
     bool ok = doFormat?f.rightOneItem():f.lazyRightOneItem();
     if ( !ok ) {
 	if ( stack.getLast() ) {
@@ -1719,7 +1718,7 @@ void QRichTextFormatter::drawLine( QPainter* p, int ox, int oy,
     gotoLineStart( p );
     if ( pastEndOfLine() )
 	return;
-    
+
     int gx = 0;
     int gy = y();
     int realWidth = QMAX( width, widthUsed );
@@ -1941,7 +1940,7 @@ void QRichTextFormatter::left( QPainter* p )
 
 bool QRichTextFormatter::goTo( QPainter* p, int xpos, int ypos )
 {
-    
+
     QTextParagraph* b = doc->getParBefore( ypos );
     while ( b ) {
 	gotoParagraph( p, b );
@@ -2036,7 +2035,7 @@ void QRichTextFormatter::makeLineLayout( QPainter* p )
 	if ( !paragraph->text.haveSameFormat( fmt_current, current ) ) {
 	    fmt = format();
 	    fmt_current = current;
-	    if ( p ) 
+	    if ( p )
 		p->setFont( fmt->font() );
 	    else
 		fm = QFontMetrics( fmt->font() );
