@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbt.cpp#95 $
+** $Id: //depot/qt/main/src/widgets/qpushbt.cpp#96 $
 **
 ** Implementation of QPushButton class
 **
@@ -18,7 +18,7 @@
 #include "qpmcache.h"
 #include "qbitmap.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbt.cpp#95 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbt.cpp#96 $");
 
 
 /*!
@@ -197,9 +197,7 @@ void QPushButton::setDefault( bool enable )
 {
     if ( (defButton && enable) || !(defButton || enable) )
 	return;					// no change
-    QWidget *p = this;
-    while ( p && p->parentWidget() )		// get the top level parent
-	p = p->parentWidget();
+    QWidget *p = topLevelWidget();
     if ( !p->inherits("QDialog") )		// not a dialog
 	return;
     defButton = enable;
