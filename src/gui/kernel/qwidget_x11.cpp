@@ -2366,7 +2366,7 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
     if (testWState(Qt::WState_BlockUpdates) && d->children.isEmpty())
         return;
     bool valid_rect = r.isValid();
-    bool just_update = QABS(dx) > width() || QABS(dy) > height();
+    bool just_update = qAbs(dx) > width() || qAbs(dy) > height();
     if (just_update)
         update();
     QRect sr = valid_rect?r:clipRegion().boundingRect();
@@ -2423,16 +2423,16 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
     if (dx) {
         int x = x2 == sr.x() ? sr.x()+w : sr.x();
         if (repaint_immediately)
-            repaint(x, sr.y(), QABS(dx), sr.height());
+            repaint(x, sr.y(), qAbs(dx), sr.height());
         else
-            XClearArea(dpy, data->winid, x, sr.y(), QABS(dx), sr.height(), True);
+            XClearArea(dpy, data->winid, x, sr.y(), qAbs(dx), sr.height(), True);
     }
     if (dy) {
         int y = y2 == sr.y() ? sr.y()+h : sr.y();
         if (repaint_immediately)
-            repaint(sr.x(), y, sr.width(), QABS(dy));
+            repaint(sr.x(), y, sr.width(), qAbs(dy));
         else
-            XClearArea(dpy, data->winid, sr.x(), y, sr.width(), QABS(dy), True);
+            XClearArea(dpy, data->winid, sr.x(), y, sr.width(), qAbs(dy), True);
     }
 
     qt_insert_sip(this, dx, dy); // #### ignores r
