@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#30 $
+** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#31 $
 **
 ** Implementation of QProcess class for Unix
 **
@@ -43,6 +43,7 @@
 #include "qqueue.h"
 #include "qlist.h"
 #include "qsocketnotifier.h"
+#include "qtimer.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -81,156 +82,15 @@ static void qt_C_sigchldHnd( int );
 }
 #endif
 
-
-/***********************************************************************
- *
- * QProcessPrivate
- *
- **********************************************************************/
+class QProcessManager;
 class QProcessPrivate
 {
 public:
-    QProcessPrivate( QProcess *proc ) : d( proc )
-    {
-#if defined(QT_QPROCESS_DEBUG)
-	qDebug( "QProcessPrivate: Constructor" );
-#endif
-	stdinBufRead = 0;
+    QProcessPrivate( QProcess *proc );
+    ~QProcessPrivate();
 
-	notifierStdin = 0;
-	notifierStdout = 0;
-	notifierStderr = 0;
-
-	socketStdin[0] = 0;
-	socketStdin[1] = 0;
-	socketStdout[0] = 0;
-	socketStdout[1] = 0;
-	socketStderr[0] = 0;
-	socketStderr[1] = 0;
-
-	exitValuesCalculated = FALSE;
-
-	// install a SIGCHLD handler and ignore SIGPIPE
-	if ( proclist == 0 ) {
-	    proclist = new QList<QProcess>;
-
-	    struct sigaction act;
-
-#if defined(QT_QPROCESS_DEBUG)
-	    qDebug( "QProcessPrivate: install a sigchild handler" );
-#endif
-	    act.sa_handler = qt_C_sigchldHnd;
-	    sigemptyset( &(act.sa_mask) );
-	    sigaddset( &(act.sa_mask), SIGCHLD );
-	    act.sa_flags = SA_NOCLDSTOP;
-#if defined(SA_RESTART)
-	    act.sa_flags |= SA_RESTART;
-#endif
-	    if ( sigaction( SIGCHLD, &act, oldactChld ) != 0 )
-		qWarning( "Error installing SIGCHLD handler" );
-
-#if defined(QT_QPROCESS_DEBUG)
-	    qDebug( "QProcessPrivate: install a sigpipe handler (SIG_IGN)" );
-#endif
-	    act.sa_handler = qt_C_sigign;
-	    sigemptyset( &(act.sa_mask) );
-	    sigaddset( &(act.sa_mask), SIGPIPE );
-	    act.sa_flags = 0;
-	    if ( sigaction( SIGPIPE, &act, oldactPipe ) != 0 )
-		qWarning( "Error installing SIGPIPE handler" );
-	}
-	proclist->append( d );
-    }
-
-    ~QProcessPrivate()
-    {
-#if defined(QT_QPROCESS_DEBUG)
-	qDebug( "QProcessPrivate: Destructor" );
-#endif
-	// restore SIGCHLD handler
-	if ( proclist != 0 ) {
-	    proclist->remove( d );
-	    if ( proclist->count() == 0 ) {
-		delete proclist;
-		proclist = 0;
-
-#if defined(QT_QPROCESS_DEBUG)
-		qDebug( "QProcessPrivate: restore old sigchild handler" );
-#endif
-		if ( sigaction( SIGCHLD, oldactChld, 0 ) != 0 )
-		    qWarning( "Error restoring SIGCHLD handler" );
-
-#if defined(QT_QPROCESS_DEBUG)
-		qDebug( "QProcessPrivate: restore old sigpipe handler" );
-#endif
-		if ( sigaction( SIGPIPE, oldactPipe, 0 ) != 0 )
-		    qWarning( "Error restoring SIGPIPE handler" );
-	    }
-	}
-
-	while ( !stdinBuf.isEmpty() ) {
-	    delete stdinBuf.dequeue();
-	}
-	if ( notifierStdin ) {
-	    notifierStdin->setEnabled( FALSE );
-	    delete notifierStdin;
-	}
-	if ( notifierStdout ) {
-	    notifierStdout->setEnabled( FALSE );
-	    delete notifierStdout;
-	}
-	if ( notifierStderr ) {
-	    notifierStderr->setEnabled( FALSE );
-	    delete notifierStderr;
-	}
-	if( socketStdin[1] != 0 )
-	    ::close( socketStdin[1] );
-	if( socketStdout[0] != 0 )
-	    ::close( socketStdout[0] );
-	if( socketStderr[0] != 0 )
-	    ::close( socketStderr[0] );
-    }
-
-    static void sigchldHnd()
-    {
-#if defined(QT_QPROCESS_DEBUG)
-		qDebug( "QProcessPrivate::sigchldHnd()" );
-#endif
-	if ( !proclist )
-	    return;
-	QProcess *proc;
-	for ( proc=proclist->first(); proc!=0; proc=proclist->next() ) {
-	    if ( !proc->d->exitValuesCalculated && !proc->isRunning() ) {
-#if defined(QT_QPROCESS_DEBUG)
-		qDebug( "QProcessPrivate::sigchldHnd(): process exited" );
-#endif
-		// read pending data
-		proc->socketRead( proc->d->socketStdout[0] );
-		proc->socketRead( proc->d->socketStderr[0] );
-
-		if ( proc->notifyOnExit )
-		    emit proc->processExited();
-		// the slot might have deleted the last process...
-		if ( !proclist )
-		    return;
-	    }
-	}
-    }
-
-    void closeOpenSocketsForChild()
-    {
-	// Close all open sockets in the child process that are not needed by
-	// the child process. Otherwise one child may have an open socket on
-	// stdin, etc. of another child.
-	if ( !proclist )
-	    return;
-	QProcess *proc;
-	for ( proc=proclist->first(); proc!=0; proc=proclist->next() ) {
-	    ::close( proc->d->socketStdin[1] );
-	    ::close( proc->d->socketStdout[0] );
-	    ::close( proc->d->socketStderr[0] );
-	}
-    }
+    void closeOpenSocketsForChild();
+    static void sigchldHnd();
 
     QQueue<QByteArray> stdinBuf;
 
@@ -244,16 +104,221 @@ public:
     pid_t pid;
     ssize_t stdinBufRead;
     QProcess *d;
-    static struct sigaction *oldactChld;
-    static struct sigaction *oldactPipe;
-    static QList<QProcess> *proclist;
 
     bool exitValuesCalculated;
+
+    static QProcessManager *procManager;
 };
 
-struct sigaction *QProcessPrivate::oldactChld = 0;
-struct sigaction *QProcessPrivate::oldactPipe = 0;
-QList<QProcess> *QProcessPrivate::proclist = 0;
+
+/***********************************************************************
+ *
+ * QProcessManager
+ *
+ **********************************************************************/
+class QProcessManager : public QObject
+{
+    Q_OBJECT
+
+public:
+    QProcessManager();
+    ~QProcessManager();
+
+    void append( QProcess *d );
+    bool remove( QProcess *d );
+
+public slots:
+    void sigchldHnd();
+
+public:
+    struct sigaction *oldactChld;
+    struct sigaction *oldactPipe;
+    QList<QProcess> *procList;
+};
+
+QProcessManager::QProcessManager()
+{
+    procList = new QList<QProcess>;
+
+    // install a SIGCHLD handler and ignore SIGPIPE
+    struct sigaction act;
+
+#if defined(QT_QPROCESS_DEBUG)
+    qDebug( "QProcessManager: install a sigchild handler" );
+#endif
+    act.sa_handler = qt_C_sigchldHnd;
+    sigemptyset( &(act.sa_mask) );
+    sigaddset( &(act.sa_mask), SIGCHLD );
+    act.sa_flags = SA_NOCLDSTOP;
+#if defined(SA_RESTART)
+    act.sa_flags |= SA_RESTART;
+#endif
+    if ( sigaction( SIGCHLD, &act, oldactChld ) != 0 )
+	qWarning( "Error installing SIGCHLD handler" );
+
+#if defined(QT_QPROCESS_DEBUG)
+    qDebug( "QProcessManager: install a sigpipe handler (SIG_IGN)" );
+#endif
+    act.sa_handler = qt_C_sigign;
+    sigemptyset( &(act.sa_mask) );
+    sigaddset( &(act.sa_mask), SIGPIPE );
+    act.sa_flags = 0;
+    if ( sigaction( SIGPIPE, &act, oldactPipe ) != 0 )
+	qWarning( "Error installing SIGPIPE handler" );
+}
+
+QProcessManager::~QProcessManager()
+{
+    // restore SIGCHLD handler
+#if defined(QT_QPROCESS_DEBUG)
+    qDebug( "QProcessManager: restore old sigchild handler" );
+#endif
+    if ( sigaction( SIGCHLD, oldactChld, 0 ) != 0 )
+	qWarning( "Error restoring SIGCHLD handler" );
+
+#if defined(QT_QPROCESS_DEBUG)
+    qDebug( "QProcessManager: restore old sigpipe handler" );
+#endif
+    if ( sigaction( SIGPIPE, oldactPipe, 0 ) != 0 )
+	qWarning( "Error restoring SIGPIPE handler" );
+}
+
+void QProcessManager::append( QProcess *d )
+{
+    procList->append( d );
+#if defined(QT_QPROCESS_DEBUG)
+    qDebug( "QProcessManager: append process (procList.count(): %d)", procList->count() );
+#endif
+}
+
+bool QProcessManager::remove( QProcess *d )
+{
+    procList->remove( d );
+#if defined(QT_QPROCESS_DEBUG)
+    qDebug( "QProcessManager: remove process (procList.count(): %d)", procList->count() );
+#endif
+    if ( procList->count() == 0 )
+	return TRUE; // delete process manager
+    return FALSE;
+}
+
+void QProcessManager::sigchldHnd()
+{
+    QProcessPrivate::sigchldHnd();
+}
+
+#include "qprocess_unix.moc"
+
+
+/***********************************************************************
+ *
+ * QProcessPrivate
+ *
+ **********************************************************************/
+QProcessManager *QProcessPrivate::procManager = 0;
+
+QProcessPrivate::QProcessPrivate( QProcess *proc ) : d( proc )
+{
+#if defined(QT_QPROCESS_DEBUG)
+    qDebug( "QProcessPrivate: Constructor" );
+#endif
+    stdinBufRead = 0;
+
+    notifierStdin = 0;
+    notifierStdout = 0;
+    notifierStderr = 0;
+
+    socketStdin[0] = 0;
+    socketStdin[1] = 0;
+    socketStdout[0] = 0;
+    socketStdout[1] = 0;
+    socketStderr[0] = 0;
+    socketStderr[1] = 0;
+
+    exitValuesCalculated = FALSE;
+
+    if ( procManager == 0 ) {
+	procManager = new QProcessManager;
+    }
+    procManager->append( d );
+}
+
+QProcessPrivate::~QProcessPrivate()
+{
+#if defined(QT_QPROCESS_DEBUG)
+    qDebug( "QProcessPrivate: Destructor" );
+#endif
+
+    if ( procManager != 0 ) {
+	if ( procManager->remove( d ) ) {
+	    delete procManager;
+	    procManager = 0;
+	}
+    }
+
+    while ( !stdinBuf.isEmpty() ) {
+	delete stdinBuf.dequeue();
+    }
+    if ( notifierStdin ) {
+	notifierStdin->setEnabled( FALSE );
+	delete notifierStdin;
+    }
+    if ( notifierStdout ) {
+	notifierStdout->setEnabled( FALSE );
+	delete notifierStdout;
+    }
+    if ( notifierStderr ) {
+	notifierStderr->setEnabled( FALSE );
+	delete notifierStderr;
+    }
+    if( socketStdin[1] != 0 )
+	::close( socketStdin[1] );
+    if( socketStdout[0] != 0 )
+	::close( socketStdout[0] );
+    if( socketStderr[0] != 0 )
+	::close( socketStderr[0] );
+}
+
+void QProcessPrivate::closeOpenSocketsForChild()
+{
+    // Close all open sockets in the child process that are not needed by
+    // the child process. Otherwise one child may have an open socket on
+    // stdin, etc. of another child.
+    if ( procManager == 0 )
+	return;
+    QProcess *proc;
+    for ( proc=procManager->procList->first(); proc!=0; proc=procManager->procList->next() ) {
+	::close( proc->d->socketStdin[1] );
+	::close( proc->d->socketStdout[0] );
+	::close( proc->d->socketStderr[0] );
+    }
+}
+
+void QProcessPrivate::sigchldHnd()
+{
+#if defined(QT_QPROCESS_DEBUG)
+    qDebug( "QProcessManager::sigchldHnd()" );
+#endif
+    if ( !procManager )
+	return;
+    QProcess *proc;
+    for ( proc=procManager->procList->first(); proc!=0; proc=procManager->procList->next() ) {
+	if ( !proc->d->exitValuesCalculated && !proc->isRunning() ) {
+#if defined(QT_QPROCESS_DEBUG)
+	    qDebug( "QProcessManager::sigchldHnd(): process exited" );
+#endif
+	    // read pending data
+	    proc->socketRead( proc->d->socketStdout[0] );
+	    proc->socketRead( proc->d->socketStderr[0] );
+
+	    if ( proc->notifyOnExit )
+		emit proc->processExited();
+	    // the slot might have deleted the last process...
+	    if ( !procManager )
+		return;
+	}
+    }
+}
 
 
 /***********************************************************************
@@ -267,7 +332,9 @@ void qt_C_sigchldHnd()
 void qt_C_sigchldHnd( int )
 #endif
 {
-    QProcessPrivate::sigchldHnd();
+    if ( QProcessPrivate::procManager == 0 )
+	return;
+    QTimer::singleShot( 0, QProcessPrivate::procManager, SLOT(sigchldHnd()) );
 }
 
 
