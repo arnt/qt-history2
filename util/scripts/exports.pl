@@ -7,6 +7,7 @@ my @EXPORT_INPUTS; #files to read (or directories)
 my $EXPORT_NAME = "Qt"; #name in the linker script
 my $EXPORT_SYMBOL = 0; #symbol to look for in files
 my $EXPORT_CPP_ARGS = ""; #-D/-I to use in processing files
+my $EXPORT_FORMAT = "version-script";
 while($#ARGV >= 0) {
     if($ARGV[0] eq "-o") {
 	shift;
@@ -14,6 +15,9 @@ while($#ARGV >= 0) {
     } elsif($ARGV[0] eq "-symbol") {
 	shift;
 	$EXPORT_SYMBOL = $ARGV[0];
+    } elsif($ARGV[0] eq "-format") {
+	shift;
+	$EXPORT_FORMAT = $ARGV[0];
     } elsif($ARGV[0] eq "-name") {
 	shift;
 	$EXPORT_NAME = $ARGV[0];
@@ -174,31 +178,47 @@ if("$EXPORT_OUT" eq "-") {
 } else {
     open(OUTPUT, ">$EXPORT_OUT") || die "Cannot open $EXPORT_OUT!!";
 }
-print OUTPUT "$EXPORT_NAME\n";
-print OUTPUT "{\n";
-print OUTPUT "  global:\n";
-print OUTPUT "  extern \"C++\"\n";
-print OUTPUT "  {";
-my $symbol_count = 0;
-foreach (keys %CLASSES) {
-     my @symbols = ("${_}::*", "${_}?virtual?table", "${_}?type_info?*", "vtable?for?${_}", "non-virtual?thunk?to?${_}::*", "typeinfo?for?${_}");
-     foreach (@symbols) {
-	 print OUTPUT ";" if($symbol_count);
-	 print OUTPUT "\n     ${_}";
-	 $symbol_count++;
-     }
+if("$EXPORT_FORMAT" eq "version-script") {
+    print OUTPUT "$EXPORT_NAME\n";
+    print OUTPUT "{\n";
+    print OUTPUT "  global:\n";
+    print OUTPUT "  extern \"C++\"\n";
+    print OUTPUT "  {";
+    my $symbol_count = 0;
+    foreach (keys %CLASSES) {
+	my @symbols = ("${_}::*", "${_}?virtual?table", "${_}?type_info?*", "vtable?for?${_}", 
+		       "non-virtual?thunk?to?${_}::*", "typeinfo?for?${_}");
+	foreach (@symbols) {
+	    print OUTPUT ";" if($symbol_count);
+	    print OUTPUT "\n     ${_}";
+	    $symbol_count++;
+	}
+    }
+    foreach (keys %GLOBALS) {
+	print OUTPUT ";" if($symbol_count);
+	print OUTPUT "\n     ${_}*";
+	$symbol_count++;
+    }
+    print OUTPUT "\n     *" unless($symbol_count);
+    print OUTPUT "\n  };\n";
+    print OUTPUT "  local:\n";
+    print OUTPUT "  extern \"C++\"\n";
+    print OUTPUT "  {\n";
+    print OUTPUT "    *\n";
+    print OUTPUT "  };\n";
+    print OUTPUT "};\n";
+} elsif("$EXPORT_FORMAT" eq "symbol_list") {
+   foreach (keys %CLASSES) {
+	my @symbols = ("${_}::*", "${_}?virtual?table", "${_}?type_info?*", "vtable?for?${_}", 
+		       "non-virtual?thunk?to?${_}::*", "typeinfo?for?${_}");
+	foreach (@symbols) {
+	    print OUTPUT "${_}\n";
+	}
+    }
+    foreach (keys %GLOBALS) {
+	print OUTPUT "${_}\n";
+    }
+} else {
+    print "Uknown format: $EXPORT_FORMAT\n";
 }
-foreach (keys %GLOBALS) {
-    print OUTPUT ";" if($symbol_count);
-    print OUTPUT "\n     ${_}*";
-    $symbol_count++;
-}
-print OUTPUT "\n     *" unless($symbol_count);
-print OUTPUT "\n  };\n";
-print OUTPUT "  local:\n";
-print OUTPUT "  extern \"C++\"\n";
-print OUTPUT "  {\n";
-print OUTPUT "    *\n";
-print OUTPUT "  };\n";
-print OUTPUT "};\n";
 close(OUTPUT);

@@ -4,23 +4,39 @@ TEMPLATE	= lib
 VERSION		= 4.0.0
 
 #exported symbol table (for linux only now)
-sam_version_map:shared:linux-g++ {
-   0:exists($(QTDIR)/src/libqt.map) {
-       QMAKE_LFLAGS += -Wl,--version-script=$(QTDIR)/src/libqt.map
-       TARGETDEPS += $(QTDIR)/src/libqt.map
-   } else:!isEmpty(QPRO_PWD) { 
-       TARGET_MAP = lib$${TARGET}.map
+sam_version_map:shared {
+   macx-g++ {
+   !isEmpty(QPRO_PWD) { 
+       TARGET_MAP = lib$${TARGET}.symbols
        exists($$QPRO_PWD/$$TARGET_MAP)|contains(QT_PRODUCT, qt-internal) {
-           QMAKE_LFLAGS += -Wl,--version-script=$${TARGET_MAP}
+           QMAKE_LFLAGS += -exported_symbols_list $$TARGET_MAP
            TARGETDEPS += $$TARGET_MAP
            contains(QT_PRODUCT, qt-internal) {
-               VERSION_MAP.commands = $(QTDIR)/util/scripts/exports.pl -name lib$${TARGET} -o $$TARGET_MAP $$QPRO_PWD $$QPRO_SYMBOLS
+               VERSION_MAP.commands = $(QTDIR)/util/scripts/exports.pl -format symbol_list -o $$TARGET_MAP $$QPRO_PWD $$QPRO_SYMBOLS
                VERSION_MAP.target = $$TARGET_MAP
                QMAKE_EXTRA_TARGETS += VERSION_MAP
                exports.commands = [ -w "$$TARGET_MAP" ] || p4 edit "$$TARGET_MAP"; $$VERSION_MAP.commands
                QMAKE_EXTRA_TARGETS += exports
-            }
+           }
        }
+   } linux-g++ {
+       0:exists($(QTDIR)/src/libqt.map) {
+         QMAKE_LFLAGS += -Wl,--version-script=$(QTDIR)/src/libqt.map
+         TARGETDEPS += $(QTDIR)/src/libqt.map
+       } else:!isEmpty(QPRO_PWD) { 
+          TARGET_MAP = lib$${TARGET}.map
+          exists($$QPRO_PWD/$$TARGET_MAP)|contains(QT_PRODUCT, qt-internal) {
+              QMAKE_LFLAGS += -Wl,--version-script=$${TARGET_MAP}
+              TARGETDEPS += $$TARGET_MAP
+              contains(QT_PRODUCT, qt-internal) {
+                  VERSION_MAP.commands = $(QTDIR)/util/scripts/exports.pl -name lib$${TARGET} -o $$TARGET_MAP $$QPRO_PWD $$QPRO_SYMBOLS
+                  VERSION_MAP.target = $$TARGET_MAP
+                  QMAKE_EXTRA_TARGETS += VERSION_MAP
+                  exports.commands = [ -w "$$TARGET_MAP" ] || p4 edit "$$TARGET_MAP"; $$VERSION_MAP.commands
+                  QMAKE_EXTRA_TARGETS += exports
+              }
+          }
+      }
    }
 }
 
