@@ -665,9 +665,10 @@ public:
     {
 	sigs.insert( memid, name );
     }
-    void addProperty( DISPID propid, const QString &name )
+    void addProperty( DISPID propid, const QString &name, const QString &signal )
     {
 	props.insert( propid, name );
+	propsigs.insert( propid, signal );
     }
 
     // IUnknown
@@ -687,13 +688,13 @@ public:
     {
 	*ppvObject = 0;
 	if ( riid == IID_IUnknown)
-	    *ppvObject = this;
+	    *ppvObject = (IUnknown*)(IDispatch*)this;
 	else if ( riid == IID_IDispatch )
-	    *ppvObject = this;
+	    *ppvObject = (IDispatch*)this;
 	else if ( riid == IID_IPropertyNotifySink )
-	    *ppvObject = this;
+	    *ppvObject = (IPropertyNotifySink*)this;
 	else if ( connections.contains( Connection(0,riid,0) ) )
-	    *ppvObject = this;
+	    *ppvObject = (IDispatch*)this;
 	else
 	    return E_NOINTERFACE;
 
@@ -805,10 +806,33 @@ public:
     // IPropertyNotifySink
     HRESULT __stdcall OnChanged( DISPID dispID )
     {
-	QString name = props[dispID];
-	if ( !!name )
-	    qDebug( "Property %s changed", name.latin1() );
+	// verify input
+	QMetaObject *meta = combase->metaObject();
+	QString signame = propsigs[dispID];
+	QString propname = props[dispID];
+	if ( !meta || signame.isEmpty() )
+	    return S_OK;
 
+	// get the signal information from the metaobject
+	int index = meta->findSignal( signame );
+	const QMetaData *signal = meta->signal( index - meta->signalOffset() );
+	if ( !signal || signal->method->count != 1 )
+	    return S_OK;
+
+	// setup parameters
+	int pindex = meta->findProperty( propname );
+	QUObject object;
+	QVariant var;
+	combase->qt_property( pindex + meta->propertyOffset(), 1, &var );
+	if ( !var.isValid() )
+	    return S_OK;
+	if ( QUType::isEqual( signal->method->parameters->type, &static_QUType_QVariant ) )
+	    static_QUType_QVariant.set( &object, var );
+	else
+	    QVariantToQUObject( var, object );
+
+	// emit the "changed" signal
+	combase->qt_emit( index, &object );
 	return S_OK;
     }
     HRESULT __stdcall OnRequestEdit( DISPID /*dispID*/ )
@@ -832,6 +856,7 @@ private:
     };
     QValueList<Connection> connections;
     QMap<DISPID, QString> sigs;
+    QMap<DISPID, QString> propsigs;
     QMap<DISPID, QString> props;
 
     QComBase *combase;
@@ -1136,31 +1161,62 @@ QMetaObject *QComBase::metaObject() const
 		    if ( !!prototype )
 			prototype += ")";
 
+		    bool bindable = FALSE;
+		    if ( funcdesc->wFuncFlags & FUNCFLAG_FBINDABLE )
+			bindable = TRUE;
+		    if ( funcdesc->wFuncFlags & FUNCFLAG_FREQUESTEDIT )
+			bindable = TRUE;
+
 		    // get type of function
-		    switch( funcdesc->invkind ) {
+		    if ( !(funcdesc->wFuncFlags & FUNCFLAG_FHIDDEN) ) switch( funcdesc->invkind ) {
 		    case INVOKE_PROPERTYGET: // property
 		    case INVOKE_PROPERTYPUT:
 			{
 			    if ( funcdesc->cParams > 1 )
-				qFatal( "Too many parameters in property" );
+				qFatal( "%s: Too many parameters in property", function.latin1() );
 			    QMetaProperty *prop = proplist[function];
 			    if ( !prop ) {
-				if ( !eventSink )
-				    that->eventSink = new QAxEventSink( that );
-				eventSink->addProperty( funcdesc->memid, function );
+				if ( bindable ) {
+				    if ( !eventSink )
+					that->eventSink = new QAxEventSink( that );
+				    // generate changed signal
+				    QString signalName = function + "Changed";
+				    QString signalParam = constRefify( paramTypes[0] );
+				    QString signalProto = signalName + "(" + signalParam + ")";
+				    QString paramName = "value";
+				    if ( !signallist.find( signalProto ) ) {
+					QUMethod *signal = new QUMethod;
+					signal->name = new char[signalName.length()+1];
+					signal->name = qstrcpy( (char*)signal->name, signalName );
+					signal->count = 1;
+					QUParameter *param = new QUParameter;
+					param->name = new char[paramName.length()+1];
+					param->name = qstrcpy( (char*)param->name, paramName );
+					param->inOut = QUParameter::In;
+					QStringToQUType( signalParam, param );
+					signal->parameters = param;
+
+					signallist.insert( signalProto, signal );
+					eventSink->addProperty( funcdesc->memid, function, signalProto );
+				    }
+				}
 
 				prop = new QMetaProperty;
 				proplist.insert( function, prop );
 				prop->meta = (QMetaObject**)&metaobj;
 				prop->_id = -1;
 				prop->enumData = 0;
-				prop->flags = 0;
+				prop->flags = QMetaProperty::Stored;
+				if ( !(funcdesc->wFuncFlags & FUNCFLAG_FNONBROWSABLE) )
+				    prop->flags |= QMetaProperty::Designable;
+				if ( !(funcdesc->wFuncFlags & FUNCFLAG_FRESTRICTED) )
+				    prop->flags |= QMetaProperty::Scriptable;
+
 				QString ptype = paramTypes[0];
 				prop->t = new char[ptype.length()+1];
 				prop->t = qstrcpy( (char*)prop->t, ptype );
-				QString propname = function;
-				prop->n = new char[propname.length()+1];
-				prop->n = qstrcpy( (char*)prop->n, propname );
+				prop->n = new char[function.length()+1];
+				prop->n = qstrcpy( (char*)prop->n, function );
 			    }
 			    if ( funcdesc->invkind == INVOKE_PROPERTYGET ) {
 				prop->flags |= QMetaProperty::Readable;
@@ -1281,58 +1337,95 @@ QMetaObject *QComBase::metaObject() const
 			}
 		    }
 
-		    // generate meta property
-		    QMetaProperty *prop = proplist[variableName];
-		    if ( !prop ) {
-			if ( !eventSink )
-			    that->eventSink = new QAxEventSink( that );
-			eventSink->addProperty( vardesc->memid, variableName );
+		    bool bindable = FALSE;
+		    if ( vardesc->wVarFlags & VARFLAG_FBINDABLE )
+			bindable = TRUE;
+		    if ( vardesc->wVarFlags & VARFLAG_FREQUESTEDIT )
+			bindable = TRUE;
 
-			prop = new QMetaProperty;
-			proplist.insert( variableName, prop );
-			prop->meta = (QMetaObject**)&metaobj;
-			prop->_id = -1;
-			prop->enumData = 0;
-			prop->flags = QMetaProperty::Readable | QMetaProperty::Writable;;
+		    if ( !(vardesc->wVarFlags & VARFLAG_FHIDDEN) ) {
+			// generate meta property
+			QMetaProperty *prop = proplist[variableName];
+			if ( !prop ) {
+			    if ( bindable ) {
+				if ( !eventSink )
+				    that->eventSink = new QAxEventSink( that );
+				// generate changed signal
+				QString signalName = variableName + "Changed";
+				QString signalParam = constRefify( variableType );
+				QString signalProto = signalName + "(" + signalParam + ")";
+				QString paramName = "value";
+				if ( !signallist.find( signalProto ) ) {
+				    QUMethod *signal = new QUMethod;
+				    signal->name = new char[signalName.length()+1];
+				    signal->name = qstrcpy( (char*)signal->name, signalName );
+				    signal->count = 1;
+				    QUParameter *param = new QUParameter;
+				    param->name = new char[paramName.length()+1];
+				    param->name = qstrcpy( (char*)param->name, paramName );
+				    param->inOut = QUParameter::In;
+				    QStringToQUType( signalParam, param );
+				    signal->parameters = param;
 
-			prop->t = new char[variableType.length()+1];
-			prop->t = qstrcpy( (char*)prop->t, variableType );
-			prop->n = new char[variableName.length()+1];
-			prop->n = qstrcpy( (char*)prop->n, variableName );
-		    }
+				    signallist.insert( signalProto, signal );
+				    eventSink->addProperty( vardesc->memid, variableName, signalProto );
+				}
+			    }
 
-		    // generate a set slot
-		    variableType = constRefify( variableType );
+			    prop = new QMetaProperty;
+			    proplist.insert( variableName, prop );
+			    prop->meta = (QMetaObject**)&metaobj;
+			    prop->_id = -1;
+			    prop->enumData = 0;
+			    prop->flags = QMetaProperty::Readable | QMetaProperty::Stored;
+			    if ( !(vardesc->wVarFlags & VARFLAG_FREADONLY) )
+				prop->flags |= QMetaProperty::Writable;;
+			    if ( !(vardesc->wVarFlags & VARFLAG_FNONBROWSABLE) )
+				prop->flags |= QMetaProperty::Designable;
+			    if ( !(vardesc->wVarFlags & VARFLAG_FRESTRICTED) )
+				prop->flags |= QMetaProperty::Scriptable;
 
-		    QString function = "set" + variableName;
-		    QString prototype = function + "(" + variableType + ")";
+			    prop->t = new char[variableType.length()+1];
+			    prop->t = qstrcpy( (char*)prop->t, variableType );
+			    prop->n = new char[variableName.length()+1];
+			    prop->n = qstrcpy( (char*)prop->n, variableName );
+			}
 
-		    if ( !slotlist.find( prototype ) ) {
-			QUMethod *slot = new QUMethod;
-			slot->name = new char[ function.length() + 1 ];
-			slot->name = qstrcpy( (char*)slot->name, function );
-			slot->count = 1;
-			QUParameter *params = new QUParameter;
-			params->inOut = QUParameter::In;
-			params->name = new char[ variableName.length() + 1 ];
-			params->name = qstrcpy( (char*)params->name, variableName );
+			// generate a set slot
+			if ( !(vardesc->wVarFlags & VARFLAG_FREADONLY) ) {
+			    variableType = constRefify( variableType );
 
-			QStringToQUType( variableType, params );
+			    QString function = "set" + variableName;
+			    QString prototype = function + "(" + variableType + ")";
 
-			slot->parameters = params;
-			slotlist.insert( prototype, slot );
-		    }
+			    if ( !slotlist.find( prototype ) ) {
+				QUMethod *slot = new QUMethod;
+				slot->name = new char[ function.length() + 1 ];
+				slot->name = qstrcpy( (char*)slot->name, function );
+				slot->count = 1;
+				QUParameter *params = new QUParameter;
+				params->inOut = QUParameter::In;
+				params->name = new char[ variableName.length() + 1 ];
+				params->name = qstrcpy( (char*)params->name, variableName );
+
+				QStringToQUType( variableType, params );
+
+				slot->parameters = params;
+				slotlist.insert( prototype, slot );
+			    }
+			}
 
 #if 0 // documentation in metaobject would be cool?
-		    // get function documentation
-		    BSTR bstrDocu;
-		    info->GetDocumentation( vardesc->memid, 0, &bstrDocu, 0, 0 );
-		    QString strDocu = BSTRToQString( bstrDocu );
-		    if ( !!strDocu )
-			desc += "[" + strDocu + "]";
-		    desc += "\n";
-		    SysFreeString( bstrDocu );
+			// get function documentation
+			BSTR bstrDocu;
+			info->GetDocumentation( vardesc->memid, 0, &bstrDocu, 0, 0 );
+			QString strDocu = BSTRToQString( bstrDocu );
+			if ( !!strDocu )
+			    desc += "[" + strDocu + "]";
+			desc += "\n";
+			SysFreeString( bstrDocu );
 #endif
+		    }
 		    info->ReleaseVarDesc( vardesc );
 		}
 
@@ -1475,33 +1568,32 @@ QMetaObject *QComBase::metaObject() const
 				    if ( !!prototype )
 					prototype += ")";
 
-				    if ( signallist.find( prototype ) )
-					continue;
+				    if ( !signallist.find( prototype ) ) {
+					QUMethod *signal = new QUMethod;
+					signal->name = new char[function.length()+1];
+					signal->name = qstrcpy( (char*)signal->name, function );
+					signal->count = parameters.count();
+					QUParameter *params = signal->count ? new QUParameter[signal->count] : 0;
+					for ( p = 0; p< signal->count; ++p ) {
+					    QString paramName = parameters[p];
+					    QString paramType = paramTypes[p];
+					    params[p].name = new char[paramName.length()+1];
+					    params[p].name = qstrcpy( (char*)params[p].name, paramName );
+					    params[p].inOut = 0;
+					    if ( funcdesc->lprgelemdescParam + p ) {
+						ushort inout = funcdesc->lprgelemdescParam[p].paramdesc.wParamFlags;
+						if ( inout & PARAMFLAG_FIN )
+						    params[p].inOut |= QUParameter::In;
+						if ( inout & PARAMFLAG_FOUT )
+						    params[p].inOut |= QUParameter::Out;
+					    }
 
-				    QUMethod *signal = new QUMethod;
-				    signal->name = new char[function.length()+1];
-				    signal->name = qstrcpy( (char*)signal->name, function );
-				    signal->count = parameters.count();
-				    QUParameter *params = signal->count ? new QUParameter[signal->count] : 0;
-				    for ( p = 0; p< signal->count; ++p ) {
-					QString paramName = parameters[p];
-					QString paramType = paramTypes[p];
-					params[p].name = new char[paramName.length()+1];
-					params[p].name = qstrcpy( (char*)params[p].name, paramName );
-					params[p].inOut = 0;
-					if ( funcdesc->lprgelemdescParam + p ) {
-					    ushort inout = funcdesc->lprgelemdescParam[p].paramdesc.wParamFlags;
-					    if ( inout & PARAMFLAG_FIN )
-						params[p].inOut |= QUParameter::In;
-					    if ( inout & PARAMFLAG_FOUT )
-						params[p].inOut |= QUParameter::Out;
+					    QStringToQUType( paramType, params + p );
 					}
-
-					QStringToQUType( paramType, params + p );
+					signal->parameters = params;
+					signallist.insert( prototype, signal );
+					eventSink->addSignal( funcdesc->memid, prototype );
 				    }
-				    signal->parameters = params;
-				    signallist.insert( prototype, signal );
-				    eventSink->addSignal( funcdesc->memid, prototype );
 
 #if 0 // documentation in metaobject would be cool?
 				    // get function documentation
@@ -1788,114 +1880,126 @@ bool QComBase::qt_property( int _id, int _f, QVariant* _v )
 	if ( dispid == DISPID_UNKNOWN )
 	    return FALSE;
 	
-	// call the setter function
-	if ( _f == 0 ) { 
-	    VARIANTARG arg;
-	    arg.vt = VT_ERROR;
-	    arg.scode = DISP_E_TYPEMISMATCH;
+	switch ( _f ) {
+	case 0: // Set
+	    {
+		VARIANTARG arg;
+		arg.vt = VT_ERROR;
+		arg.scode = DISP_E_TYPEMISMATCH;
 
-	    // map QVariant to VARIANTARG. ### Maybe it would be better 
-	    // to convert the QVariant to what the VARIANT is supposed to be,
-	    // but we don't know that from the QMetaProperty of course.
-	    if ( qstrcmp( prop->type(), _v->typeName() ) ) {
-		QVariant::Type type = QVariant::nameToType( prop->type() );
-		if ( type != QVariant::Invalid )
-		    _v->cast( type );
+		// map QVariant to VARIANTARG. ### Maybe it would be better 
+		// to convert the QVariant to what the VARIANT is supposed to be,
+		// but we don't know that from the QMetaProperty of course.
+		if ( qstrcmp( prop->type(), _v->typeName() ) ) {
+		    QVariant::Type type = QVariant::nameToType( prop->type() );
+		    if ( type != QVariant::Invalid )
+			_v->cast( type );
+		}
+		arg = QVariantToVARIANT( *_v, prop->type() );
+
+		if ( arg.vt == VT_EMPTY ) {
+		    qDebug( "QActiveX::setProperty(): Unhandled property type" );
+		    return FALSE;
+		}
+		DISPPARAMS params;
+		DISPID dispidNamed = DISPID_PROPERTYPUT;
+		params.rgvarg = &arg;
+		params.cArgs = 1;
+		params.rgdispidNamedArgs = &dispidNamed;
+		params.cNamedArgs = 1;
+
+		UINT argerr = 0;
+		HRESULT hres = disp->Invoke( dispid, IID_NULL, LOCALE_SYSTEM_DEFAULT, DISPATCH_PROPERTYPUT, &params, 0, 0, &argerr );
+		if ( arg.vt == VT_BSTR )
+		    SysFreeString( arg.bstrVal );
+		return checkHRESULT( hres );
 	    }
-	    arg = QVariantToVARIANT( *_v, prop->type() );
+	case 1: // Get
+	    {
+		VARIANTARG arg;
+		DISPPARAMS params;
+		params.cArgs = 0;
+		params.cNamedArgs = 0;
+		params.rgdispidNamedArgs = 0;
+		params.rgvarg = 0;
 
-	    if ( arg.vt == VT_EMPTY ) {
-		qDebug( "QActiveX::setProperty(): Unhandled property type" );
-		return FALSE;
+		HRESULT hres = disp->Invoke( dispid, IID_NULL, LOCALE_SYSTEM_DEFAULT, DISPATCH_PROPERTYGET, &params, &arg, 0, 0 );
+		if ( !checkHRESULT( hres ) )
+		    return FALSE;
+
+		// map result VARIANTARG to QVariant
+		QVariant var;
+		switch( arg.vt ) {
+		case VT_UI1:
+		    var = arg.bVal;
+		    break;
+		case VT_I2:
+		    var = arg.iVal;
+		    break;
+		case VT_ERROR:
+		case VT_I4:
+		    var = arg.lVal;
+		    break;
+		case VT_R4:
+		    var = (double)arg.fltVal;
+		    break;
+		case VT_R8:
+		    var = arg.dblVal;
+		    break;
+		case VT_CY: // __int64 -> int ###
+		    var = arg.cyVal.Hi;
+		    break;
+		case VT_DATE: // DATE -> QDateTime
+		    var = DATEToQDateTime( arg.date );
+		    break;
+		case VT_BOOL:
+		    var = QVariant( arg.boolVal, 42 );
+		    break;
+		case VT_BSTR:
+		    var = BSTRToQString( arg.bstrVal );
+		    break;
+		case VT_I1:
+		    var = arg.cVal;
+		    break;
+		case VT_UI2:
+		    var = arg.uiVal;
+		    break;
+		case VT_UI4:
+		    var = (long)arg.ulVal;
+		    break;
+		case VT_INT:
+		    var = arg.intVal;
+		    break;
+		case VT_UINT:
+		    var = arg.uintVal;
+		    break;
+		case VT_DISPATCH: // IDispatch* -> int ###
+		    var = (Q_LONG)arg.pdispVal;
+		    break;
+		case VT_UNKNOWN: // IUnkonwn* -> int ###
+		    var = (Q_LONG)arg.punkVal;
+		    break;
+		case VT_EMPTY:
+		    // empty VARIANT type return
+		    break;
+
+		default:
+
+		    break;
+		}
+		*_v = var;
+		return ( _v->isValid() );
 	    }
-	    DISPPARAMS params;
-	    DISPID dispidNamed = DISPID_PROPERTYPUT;
-	    params.rgvarg = &arg;
-	    params.cArgs = 1;
-	    params.rgdispidNamedArgs = &dispidNamed;
-	    params.cNamedArgs = 1;
-
-	    UINT argerr = 0;
-	    HRESULT hres = disp->Invoke( dispid, IID_NULL, LOCALE_SYSTEM_DEFAULT, DISPATCH_PROPERTYPUT, &params, 0, 0, &argerr );
-	    if ( arg.vt == VT_BSTR )
-		SysFreeString( arg.bstrVal );
-	    return checkHRESULT( hres );
-	} else if ( _f == 1 ) { // call the getter function
-	    VARIANTARG arg;
-	    DISPPARAMS params;
-	    params.cArgs = 0;
-	    params.cNamedArgs = 0;
-	    params.rgdispidNamedArgs = 0;
-	    params.rgvarg = 0;
-
-	    HRESULT hres = disp->Invoke( dispid, IID_NULL, LOCALE_SYSTEM_DEFAULT, DISPATCH_PROPERTYGET, &params, &arg, 0, 0 );
-	    if ( !checkHRESULT( hres ) )
-		return FALSE;
-
-	    // map result VARIANTARG to QVariant
-	    QVariant var;
-	    switch( arg.vt ) {
-	    case VT_UI1:
-		var = arg.bVal;
-		break;
-	    case VT_I2:
-		var = arg.iVal;
-		break;
-	    case VT_ERROR:
-	    case VT_I4:
-		var = arg.lVal;
-		break;
-	    case VT_R4:
-		var = (double)arg.fltVal;
-		break;
-	    case VT_R8:
-		var = arg.dblVal;
-		break;
-	    case VT_CY: // __int64 -> int ###
-		var = arg.cyVal.Hi;
-		break;
-	    case VT_DATE: // DATE -> QDateTime
-		var = DATEToQDateTime( arg.date );
-		break;
-	    case VT_BOOL:
-		var = QVariant( arg.boolVal, 42 );
-		break;
-	    case VT_BSTR:
-		var = BSTRToQString( arg.bstrVal );
-		break;
-	    case VT_I1:
-		var = arg.cVal;
-		break;
-	    case VT_UI2:
-		var = arg.uiVal;
-		break;
-	    case VT_UI4:
-		var = (long)arg.ulVal;
-		break;
-	    case VT_INT:
-		var = arg.intVal;
-		break;
-	    case VT_UINT:
-		var = arg.uintVal;
-		break;
-	    case VT_DISPATCH: // IDispatch* -> int ###
-		var = (Q_LONG)arg.pdispVal;
-		break;
-	    case VT_UNKNOWN: // IUnkonwn* -> int ###
-		var = (Q_LONG)arg.punkVal;
-		break;
-	    case VT_EMPTY:
-		// empty VARIANT type return
-		break;
-
-	    default:
-
-		break;
-	    }
-	    *_v = var;
-	    return ( _v->isValid() );
-	} else if ( _f < 6 ) {
+	case 2: // Reset
 	    return TRUE;
+	case 3: // Designable
+	    return prop->flags & QMetaProperty::Designable;
+	case 4: // Scriptable
+	    return prop->flags & QMetaProperty::Scriptable;
+	case 5: // Stored
+	    return prop->flags & QMetaProperty::Stored;
+	default:
+	    break;
 	}
     }
     return FALSE;

@@ -127,7 +127,7 @@ public:
 	    control->QueryInterface( IID_IOleObject, (void**)&ole );
 	    if ( ole ) {
 		ole->Advise( this, &oleconnection );
-//		ole->SetClientSite( this );
+		ole->SetClientSite( this );
 		QString appname;
 		if ( qApp->mainWidget() )
 		    appname = qApp->mainWidget()->caption();
@@ -179,25 +179,27 @@ public:
     {
 	*ppvObject = 0;
 	if ( riid == IID_IUnknown)
-	    *ppvObject = this;
+	    *ppvObject = (IUnknown*)(IDispatch*)this;
 	else if ( riid == IID_IDispatch )
-	    *ppvObject = this;
+	    *ppvObject = (IDispatch*)this;
 	else if ( riid == IID_IAdviseSink )
-	    *ppvObject = this;
+	    *ppvObject = (IAdviseSink*)this;
 	else if ( riid == IID_IOleControlSite )
-	    *ppvObject = this;
+	    *ppvObject = (IOleControlSite*)this;
+	else if ( riid == IID_IOleWindow )
+	    *ppvObject = (IOleWindow*)(IOleInPlaceUIWindow*)this;
 	else if ( riid == IID_IOleInPlaceUIWindow )
-	    *ppvObject = this;
+	    *ppvObject = (IOleInPlaceUIWindow*)this;
 	else if ( riid == IID_IOleClientSite )
-	    *ppvObject = this;
+	    *ppvObject = (IOleClientSite*)this;
 /*	else if ( riid == IID_IOleContainer )
-	    *ppvObject = this;*/
+	    *ppvObject = (IOleContainer*)this;*/
 	else if ( riid == IID_IOleInPlaceSite )
-	    *ppvObject = this;
+	    *ppvObject = (IOleInPlaceSite*)this;
 	else if ( riid == IID_IOleInPlaceFrame )
-	    *ppvObject = this;
+	    *ppvObject = (IOleInPlaceFrame*)this;
 	else if ( riid == IID_ISimpleFrameSite )
-	    *ppvObject = this;
+	    *ppvObject = (ISimpleFrameSite*)this;
 	else
 	    return E_NOINTERFACE;
 
@@ -218,7 +220,87 @@ public:
 				  EXCEPINFO *pExcepInfo, 
 				  UINT *puArgErr )
     {
-	return E_NOTIMPL;
+	if ( riid != IID_NULL )
+	    return DISP_E_UNKNOWNINTERFACE;
+	if ( !pVarResult )
+	    return DISP_E_PARAMNOTOPTIONAL;
+	if ( wFlags != DISPATCH_PROPERTYGET )
+	    return DISP_E_MEMBERNOTFOUND;
+
+	pVarResult->vt = VT_ERROR;
+	switch ( dispIdMember ) {
+	case DISPID_AMBIENT_BACKCOLOR: // OLE_COLOR
+	    pVarResult->vt = VT_I4;
+	    pVarResult->lVal = 0;
+	    break;
+	case DISPID_AMBIENT_DISPLAYNAME: // VT_BSTR
+	    pVarResult->vt = VT_BSTR;
+	    pVarResult->bstrVal = SysAllocStringByteLen( 0, 0 );
+	    break;
+	case DISPID_AMBIENT_FONT: // OLE_FONT
+	    break;
+	case DISPID_AMBIENT_FORECOLOR: // OLE_COLOR
+	    pVarResult->vt = VT_I4;
+	    pVarResult->lVal = 10000;
+	    break;
+	case DISPID_AMBIENT_LOCALEID: // VT_I4
+	    pVarResult->vt = VT_I4;
+	    pVarResult->lVal = LOCALE_SYSTEM_DEFAULT;
+	    break;
+	case DISPID_AMBIENT_MESSAGEREFLECT: // VT_BOOL
+	    pVarResult->vt = VT_BOOL;
+	    pVarResult->boolVal = FALSE;
+	    break;
+	case DISPID_AMBIENT_SCALEUNITS: // VT_BSTR
+	    break;
+	case DISPID_AMBIENT_TEXTALIGN: // VT_I2; 0 - General; 1 - left; 2 - center; 3 - right; 4 - full
+	    pVarResult->vt = VT_I2;
+	    pVarResult->iVal = 0;
+	    break;
+	case DISPID_AMBIENT_USERMODE: // VT_BOOL; FALSE - Design; TRUE - Interaction
+	    pVarResult->vt = VT_BOOL;
+	    pVarResult->boolVal = TRUE;
+	    break;
+	case DISPID_AMBIENT_UIDEAD: // VT_BOOL
+	    pVarResult->vt = VT_BOOL;
+	    pVarResult->boolVal = FALSE;
+	    break;
+	case DISPID_AMBIENT_SHOWGRABHANDLES: // VT_BOOL
+	    pVarResult->vt = VT_BOOL;
+	    pVarResult->boolVal = FALSE;
+	    break;
+	case DISPID_AMBIENT_SHOWHATCHING: // VT_BOOL
+	    pVarResult->vt = VT_BOOL;
+	    pVarResult->boolVal = FALSE;
+	    break;
+	case DISPID_AMBIENT_DISPLAYASDEFAULT: // VT_BOOL
+	    pVarResult->vt = VT_BOOL;
+	    pVarResult->boolVal = FALSE;
+	    break;
+	case DISPID_AMBIENT_SUPPORTSMNEMONICS: // VT_BOOL
+	    pVarResult->vt = VT_BOOL;
+	    pVarResult->boolVal = FALSE;
+	    break;
+	case DISPID_AMBIENT_AUTOCLIP: // VT_BOOL
+	    pVarResult->vt = VT_BOOL;
+	    pVarResult->boolVal = FALSE;
+	    break;
+	case DISPID_AMBIENT_APPEARANCE: // VT_BOOL: 0-flat; 1-3D
+	    pVarResult->vt = VT_BOOL;
+	    pVarResult->boolVal = FALSE;
+	    break;
+
+	case DISPID_AMBIENT_CODEPAGE:
+	case DISPID_AMBIENT_PALETTE:
+	case DISPID_AMBIENT_CHARSET:
+	case DISPID_AMBIENT_TRANSFERPRIORITY:
+	case DISPID_AMBIENT_RIGHTTOLEFT:
+	case DISPID_AMBIENT_TOPTOBOTTOM:
+	default:
+	    break;
+	}
+
+	return pVarResult->vt != VT_ERROR ? S_OK : DISP_E_MEMBERNOTFOUND;
     }
 
     // IAdviseSink

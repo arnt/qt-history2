@@ -1,6 +1,6 @@
 CONFIG		+= qt warn_on release
-HEADERS		= qactivex.h
-SOURCES		= qactivex.cpp
+HEADERS		= qactivex.h qcomobject.h
+SOURCES		= qactivex.cpp qcomobject.cpp
 
 plugin {
     TEMPLATE	= vclib
@@ -11,7 +11,6 @@ plugin {
 }
 !plugin {
     TEMPLATE	= vcapp
-    CONFIG	+= console
     SOURCES	+= main.cpp
     TARGET	= qactivexapp
 }
