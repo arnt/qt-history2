@@ -17,6 +17,14 @@ applications into foreign languages to open up new markets.
 
 \omit ### Mark, I edited the following paragraph \endomit
 
+\index QChar
+\index QRegExp
+\index QString
+\index Unicode
+\index char
+\index implicit sharing
+\index strings
+
 Qt provides the \Class QString class to store Unicode strings, and
 uses it throughout in the API and internally. \Class QString replaces
 the crude \c {const char *} and the 16-bit \Class QChar class
@@ -24,6 +32,8 @@ replaces \c char. Constructors and operators are provided to
 automatically convert to and from 8-bit strings. And you can
 confidently copy \Class {QString}s by value, as they are \l
 {implicitly shared}.
+
+\index regular expressions
 
 \Class QString is more than a 16-bit character string. Functions such
 as \Func QChar::lower() and \Func QChar::isPunct() replace \Func
@@ -37,9 +47,23 @@ Items in widget classes such as \Class QListBox and \Class QTable can
 be sorted in the locale's dictionary order (only on Windows so far).
 \endomit
 
+\index QTextCodec
+\index charsets
+\index codecs
+\index encodings
+
 Conversion to and from different encodings and charsets is handled by
 \Class QTextCodec subclasses. Qt uses \Class QTextCodec for fonts,
 input methods and I/O; you can use it for your own purposes as well.
+
+\index Big5
+\index EUC-JP
+\index GBK
+\index ISO 8859
+\index JIS
+\index KOI8-R
+\index Shift-JIS
+\index charmap
 
 Qt 3.0 supports 37 different encodings, including Big5 and GBK for
 Chinese, EUC-JP, JIS and Shift-JIS for Japanese, KOI8-R for Russian
@@ -50,16 +74,35 @@ subclassing \Class QTextCodec.
 
 \section1 Text Rendering
 
+\index Arabic
+\index Chinese
+\index Cyrillic
+\index Greek
+\index Hebrew
+\index Japanese
+\index Korean
+\index Latin
+\index Thai
+\index Vietnamese
+\index bidirectional writing
+\index diacritical marks
+\index fonts
+\index line breaking
+\index text rendering
+
 Qt provides a powerful text-rendering engine for all text that is
 displayed on screen, from the simplest label to the most
 sophisticated rich-text editor. The engine supports advanced features
-such as  special line breaking behavior, bidirectional writing and
+such as special line breaking behavior, bidirectional writing and
 diacritical marks. It renders most of the world's writing systems,
 including Arabic, Chinese, Cyrillic, Greek, Hebrew, Japanese, Korean,
 Latin, Thai and Vietnamese. Qt will automatically combine many of the
 installed fonts to render multi-language text.
 
 \section1 Input Methods
+
+\index input methods
+\index keyboard
 
 Far-Eastern writing systems require many more characters than are
 available on a keyboard. The conversion from a sequence of key
@@ -69,6 +112,12 @@ installed input methods.
 
 \section1 Dates and Times
 
+\index QDateEdit
+\index QDateTimeEdit
+\index QTimeEdit
+\index dates
+\index times
+
 The editor classes for dates and times (\Class QDateEdit, \Class
 QTimeEdit and \Class QDateTimeEdit) respect the user's locale for
 separators and ordering.
@@ -77,8 +126,12 @@ separators and ordering.
 
 \omit ### Mark, I edited the following paragraph \endomit
 
+\index translation
+
 Qt provides functions and tools to help you provide applications
 translated to many languages.
+
+\index tr()
 
 To make a string translatable, simply wrap it in a call to \Func tr()
 (read "translate"):
@@ -91,6 +144,11 @@ text. You can use English as the source language and Chinese as the
 translated language, or vice versa. The argument to \Func tr() is
 converted to Unicode from the application's default encoding.
 
+\index QObject
+\index comments!for translation
+\index contexts!for translation
+\index source texts
+
 \Func tr()'s general syntax is
 \code
     Context::tr("source text", "comment")
@@ -101,14 +159,24 @@ call is used as the context. The \e {source text} is the text to
 translate. The \e {comment} is optional; along with the context, it
 provides additional information to the human translators.
 
+\index .qm
+\index QTranslator
+
 Translations are stored in \Class QTranslator objects, which use
 disk-based \c .qm files (Qt Message files). Each \c .qm file contains
 the translations for a particular language. It is possible to choose
 the language at run-time; for example, according to the locale or
 user preferences.
 
+\index Qt Linguist
+\index lrelease
+\index lupdate
+
 Qt provides three tools for preparing \c .qm files: \Cmd lupdate, \e
 {Qt Linguist} and \Cmd lrelease.
+
+\index .ts
+\index XML
 
 \list 1
 
@@ -133,8 +201,19 @@ changes in source texts and automatically suggests translations.
 These translations are marked as unfinished so that a translator
 can easily check them.
 
+\index French
+\index German
+
 Qt itself contains a modest 400 user-visible strings, for which
 Trolltech provides French and German translations.
+
+\omit
+More advanced topics:
+ * accelerators: stringToKey()
+ * variables in strings: arg()
+ * automatic sizes in layouts
+ * reversed layouts in Hebrew
+\endomit
 
 \section1 Further Reading
 
@@ -142,5 +221,5 @@ Trolltech provides French and German translations.
 \i \l http://doc.trolltech.com/i18n.html
 \i \l http://doc.trolltech.com/unicode.html
 \i \l http://doc.trolltech.com/scripts.html
-\i \l http://doc.trolltech.com/liguist-manual.html
+\i \l http://doc.trolltech.com/linguist-manual.html
 \endlist
