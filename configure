@@ -3600,6 +3600,7 @@ for file in .projects .projects.3; do
 	    echo "  for $a\c"
 	fi
 
+	QMAKE_EXEC="$outpath/bin/qmake $QMAKE_SWITCHES $QMAKE_SPEC_ARGS -o $OUTDIR $a"
 	if [ "$file" = ".projects.3" ]; then
 	    if echo '\c' | grep '\c' >/dev/null; then
 		echo -n " (fast)"
@@ -3614,7 +3615,7 @@ for file in .projects .projects.3; do
 # All changes made to this file will be lost.
 
 all clean install qmake Makefile: FORCE
-	$outpath/bin/qmake $QMAKE_SWITCHES $QMAKE_SPEC_ARGS -o $OUTDIR $a
+	$QMAKE_EXEC
 	cd $OUTDIR
 	\$(MAKE) \$@
 
@@ -3622,19 +3623,18 @@ FORCE:
 
 EOF
 	else
-	    EXEC="$outpath/bin/qmake $QMAKE_SWITCHES $QMAKE_SPEC_ARGS -o $OUTDIR $a"
 	    if [ "$OPT_VERBOSE" = "yes" ]; then
 		echo " (`basename $SPEC`)"
 		if echo '\c' | grep '\c' >/dev/null; then
-		    echo -n "$EXEC"
+		    echo -n "$QMAKE_EXEC"
 		else
-		    echo "$EXEC\c"
+		    echo "$QMAKE_EXEC\c"
 		fi
 	    fi
 	    echo
 
 	    [ -f "${OUTDIR}/Makefile" ] && chmod +w ${OUTDIR}/Makefile
-	    /bin/sh -c "$EXEC"
+	    (export QTDIR="$outpath"; $QMAKE_EXEC)
        fi
     done
 done

@@ -1,6 +1,6 @@
 # Qt core library codecs module
 
-#!contains(QT_CONFIG, bigcodecs):DEFINES += QT_NO_BIG_CODECS
+!contains(QT_CONFIG, bigcodecs):DEFINES += QT_NO_BIG_CODECS
 
 HEADERS += \
 	codecs/qbig5codec_p.h \
