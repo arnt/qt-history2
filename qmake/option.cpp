@@ -158,24 +158,11 @@ static Option::QMAKE_MODE default_mode(QString progname)
     return Option::QMAKE_GENERATE_MAKEFILE;
 }
 
-
 bool
-Option::parseCommandLine(int argc, char **argv)
+Option::internalParseCommandLine(int argc, char **argv, int skip)
 {
-    Option::moc_mod = "moc_";
-    Option::lex_mod = "_lex";
-    Option::yacc_mod = "_yacc";
-    Option::prl_ext = ".prl";
-    Option::prf_ext = ".prf";
-    Option::ui_ext = ".ui";
-    Option::h_ext << ".h" << ".hpp" << ".hh" << ".H" << ".hxx";
-    Option::moc_ext = ".moc";
-    Option::cpp_ext << ".cpp" << ".cc" << ".cxx" << ".C";
-    Option::lex_ext = ".l";
-    Option::yacc_ext = ".y";
-
     bool before = TRUE;
-    for(int x = 1; x < argc; x++) {
+    for(int x = skip; x < argc; x++) {
 	if(*argv[x] == '-' && strlen(argv[x]) > 1) { /* options */
 	    QString opt = argv[x] + 1;
 
@@ -192,7 +179,6 @@ Option::parseCommandLine(int argc, char **argv)
 		    Option::qmake_mode = Option::QMAKE_GENERATE_MAKEFILE;
 		} else {
 		    specified = FALSE;
-		    Option::qmake_mode = default_mode(argv[0]);
 		}
 		if(specified)
 		    continue;
@@ -221,7 +207,7 @@ Option::parseCommandLine(int argc, char **argv)
 		fprintf(stderr, "Qmake is free software from Trolltech AS.\n");
 		return FALSE;
 	    } else if(opt == "h" || opt == "help") {
-		return usage(argv[0]);
+		return FALSE;
 	    } else if(opt == "Wall") {
 		Option::warn_level |= WarnAll;
 	    } else if(opt == "Wparser") {
@@ -261,14 +247,11 @@ Option::parseCommandLine(int argc, char **argv)
 			Option::projfile::do_recursive = FALSE;
 		    } else {
 			fprintf(stderr, "***Unknown option -%s\n", opt.latin1());
-			return usage(argv[0]);
+			return FALSE;
 		    }
 		}
 	    }
 	} else {
-	    if(x == 1)
-		Option::qmake_mode = default_mode(argv[0]);
-
 	    QString arg = argv[x];
 	    if(arg.find('=') != -1) {
 		if(before)
@@ -287,8 +270,65 @@ Option::parseCommandLine(int argc, char **argv)
 	    }
 	}
     }
+    return TRUE;
+}
+
+
+bool
+Option::parseCommandLine(int argc, char **argv)
+{
+    Option::moc_mod = "moc_";
+    Option::lex_mod = "_lex";
+    Option::yacc_mod = "_yacc";
+    Option::prl_ext = ".prl";
+    Option::prf_ext = ".prf";
+    Option::ui_ext = ".ui";
+    Option::h_ext << ".h" << ".hpp" << ".hh" << ".H" << ".hxx";
+    Option::moc_ext = ".moc";
+    Option::cpp_ext << ".cpp" << ".cc" << ".cxx" << ".C";
+    Option::lex_ext = ".l";
+    Option::yacc_ext = ".y";
+
     if(Option::qmake_mode == Option::QMAKE_GENERATE_NOTHING)
 	Option::qmake_mode = default_mode(argv[0]);
+    if(const char *envflags = getenv("QMAKEFLAGS")) {
+	int env_argc = 0, env_size = 0, currlen=0;
+	char quote = 0, **env_argv = NULL;
+	for(int i = 0; envflags[i]; i++) {
+	    if(!quote && (envflags[i] == '\'' || envflags[i] == '"')) {
+		quote = envflags[i];
+	    } else if(envflags[i] == quote) {
+		quote = 0;
+	    } else if(!quote && envflags[i] == ' ') {
+		if(currlen && env_argv && env_argv[env_argc]) {
+		    env_argv[env_argc][currlen] = '\0';
+		    currlen = 0;
+		    env_argc++;
+		}
+	    } else {
+		if(!env_argv || env_argc > env_size) {
+		    env_argv = (char **)realloc(env_argv, sizeof(char *)*(env_size+=10));
+		    for(int i2 = env_argc; i2 < env_size; i2++)
+			env_argv[i2] = NULL;
+		}
+		if(!env_argv[env_argc]) {
+		    currlen = 0;
+		    env_argv[env_argc] = (char*)malloc(255);
+		}
+		if(currlen < 255) 
+		    env_argv[env_argc][currlen++] = envflags[i];
+	    }
+	}
+	if(env_argv[env_argc]) {
+	    env_argv[env_argc][currlen] = '\0';
+	    currlen = 0;
+	    env_argc++;
+	}
+	if(!internalParseCommandLine(env_argc, env_argv)) 
+	    return usage("(**QMAKEFLAGS**)");
+    }
+    if(!internalParseCommandLine(argc, argv, 1))
+	return usage(argv[0]);
 
     //last chance for defaults
     if(Option::qmake_mode == Option::QMAKE_GENERATE_MAKEFILE ||

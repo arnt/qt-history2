@@ -116,6 +116,9 @@ struct Option
 	static QStringList project_files;
 	static QString qmakespec_commandline;
     };
+
+private:
+    static bool internalParseCommandLine(int, char **, int=0);
 };
 
 
