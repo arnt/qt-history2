@@ -512,7 +512,6 @@ QWidget *WidgetFactory::create( int id, QWidget *parent, const char *name, bool 
 
     QWidget *w = 0;
     QString str = WidgetDatabase::createWidgetName( id );
-    str[0] = str[0].lower();
     const char *s = str.latin1();
     w = createWidget( n, parent, name ? name : s, init, r, orient );
     if ( w && w->inherits( "QScrollView" ) )

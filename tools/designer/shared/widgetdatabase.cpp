@@ -741,12 +741,17 @@ QString WidgetDatabase::createWidgetName( int id )
     QString n = className( id );
     if ( n == "QLayoutWidget" )
 	n = "Layout";
-    if ( n[ 0 ] == 'Q' )
+    if ( n[ 0 ] == 'Q' && n[ 1 ].lower() != n[ 1 ] )
 	n = n.mid( 1 );
+    int colonColon = n.findRev( "::" );
+    if ( colonColon != -1 )
+	n = n.mid( colonColon + 2 );
+
     WidgetDatabaseRecord *r = at( id );
     if ( !r )
 	return n;
     n += QString::number( ++r->nameCounter );
+    n[0] = n[0].lower();
     return n;
 }
 
