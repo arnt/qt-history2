@@ -62,8 +62,14 @@ public:
 	toDevice( 0 ),
 	postDevice( 0 ),
 	bytesDone( 0 ),
-	idleTimer( 0 )
-    { pending.setAutoDelete( TRUE ); }
+	chunkedSize( -1 ),
+	idleTimer( 0 ),
+	rsize(0),
+	rindex(0)
+    {
+	pending.setAutoDelete( TRUE );
+	rba.setAutoDelete( TRUE );
+    }
 
     QSocket socket;
     QPtrList<QHttpRequest> pending;
@@ -81,6 +87,7 @@ public:
 
     uint bytesDone;
     uint bytesTotal;
+    int chunkedSize;
 
     QHttpRequestHeader header;
 
@@ -89,6 +96,11 @@ public:
     QHttpResponseHeader response;
 
     int idleTimer;
+
+    // read buffer variables
+    QPtrList<QByteArray> rba;
+    QIODevice::Offset rsize;
+    QIODevice::Offset rindex;
 };
 
 class QHttpRequest
@@ -1332,9 +1344,10 @@ void QHttp::abort()
 */
 Q_ULONG QHttp::bytesAvailable() const
 {
-    if ( d->response.hasContentLength() )
-	return QMIN( d->response.contentLength()-d->bytesDone, d->socket.bytesAvailable() );
-    return d->socket.bytesAvailable();
+#if defined(QHTTP_DEBUG)
+    qDebug( "QHttp::bytesAvailable(): %d bytes", (int)d->rsize );
+#endif
+    return d->rsize;
 }
 
 /*!
@@ -1345,22 +1358,45 @@ Q_ULONG QHttp::bytesAvailable() const
 */
 Q_LONG QHttp::readBlock( char *data, Q_ULONG maxlen )
 {
-    if ( d->response.hasContentLength() ) {
-	uint n = QMIN( bytesAvailable(), maxlen );
-	Q_LONG read = d->socket.readBlock( data, n );
-	d->bytesDone += read;
-#if defined(QHTTP_DEBUG)
-	qDebug( "QHttp::readBlock(): read %d bytes (%d bytes done)", (int)read, d->bytesDone );
+    if ( data == 0 && maxlen != 0 ) {
+#if defined(QT_CHECK_NULL)
+	qWarning( "QHttp::readBlock: Null pointer error" );
 #endif
-	return read;
-    } else {
-	Q_LONG read = d->socket.readBlock( data, maxlen );
-	d->bytesDone += read;
-#if defined(QHTTP_DEBUG)
-	qDebug( "QHttp::readBlock(): read %d bytes (%d bytes done)", (int)read, d->bytesDone );
-#endif
-	return read;
+	return -1;
     }
+    if ( maxlen >= d->rsize )
+	maxlen = d->rsize;
+    Q_ULONG nbytes = maxlen;
+    d->rsize -= nbytes;
+    for ( ;; ) {
+	QByteArray *a = d->rba.first();
+	if ( d->rindex + nbytes >= a->size() ) {
+	    // Here we skip the whole byte array and get the next later
+	    int len = a->size() - d->rindex;
+	    if ( data ) {
+		memcpy( data, a->data()+d->rindex, len );
+		data += len;
+	    }
+	    nbytes -= len;
+	    d->rba.remove();
+	    d->rindex = 0;
+	    if ( nbytes == 0 ) {		// nothing more to skip
+		break;
+	    }
+	} else {
+	    // Here we skip only a part of the first byte array
+	    if ( data )
+		memcpy( data, a->data()+d->rindex, nbytes );
+	    d->rindex += nbytes;
+	    break;
+	}
+    }
+
+    d->bytesDone += maxlen;
+#if defined(QHTTP_DEBUG)
+    qDebug( "QHttp::readBlock(): read %d bytes (%d bytes done)", (int)maxlen, d->bytesDone );
+#endif
+    return maxlen;
 }
 
 /*!
@@ -1370,24 +1406,11 @@ Q_LONG QHttp::readBlock( char *data, Q_ULONG maxlen )
 */
 QByteArray QHttp::readAll()
 {
-    if ( d->response.hasContentLength() ) {
-	uint n = bytesAvailable();
-	QByteArray tmp( n );
-	Q_LONG read = d->socket.readBlock( tmp.data(), n );
-	tmp.resize( read );
-	d->bytesDone += read;
-#if defined(QHTTP_DEBUG)
-	qDebug( "QHttp::readAll(): read %d bytes (%d bytes done)", tmp.size(), d->bytesDone );
-#endif
-	return tmp;
-    } else {
-	QByteArray tmp = d->socket.readAll();
-	d->bytesDone += tmp.size();
-#if defined(QHTTP_DEBUG)
-	qDebug( "QHttp::readAll(): read %d bytes (%d bytes done)", tmp.size(), d->bytesDone );
-#endif
-	return tmp;
-    }
+    Q_ULONG avail = bytesAvailable();
+    QByteArray tmp( avail );
+    Q_LONG read = readBlock( tmp.data(), avail );
+    tmp.resize( read );
+    return tmp;
 }
 
 /*!
@@ -1786,6 +1809,7 @@ void QHttp::slotReadyRead()
 	d->readHeader = TRUE;
 	d->headerStr = "";
 	d->bytesDone = 0;
+	d->chunkedSize = -1;
     }
 
     if ( d->readHeader ) {
@@ -1812,24 +1836,60 @@ void QHttp::slotReadyRead()
 		close();
 		return;
 	    }
+	    if ( d->response.hasKey( "transfer-encoding" ) && d->response.value( "transfer-encoding" ).contains( "chunked" ) )
+		d->chunkedSize = 0;
 	    emit responseHeaderReceived( d->response );
 
 	}
     }
 
     if ( !d->readHeader ) {
-	uint n = bytesAvailable();
+	uint n = d->socket.bytesAvailable();
 	if ( n > 0 ) {
+	    QByteArray *arr;
+#if 0
+	    if ( d->chunkedSize == 0 ) {
+		if ( !d->socket.canReadLine() )
+		    return;
+		QString sizeString = d->socket.readLine();
+		int tPos = sizeString.find( ';' );
+		if ( tPos != -1 )
+		    sizeString.truncate( tPos );
+		bool ok;
+		d->chunkedSize = sizeString.toInt( &ok, 16 );
+		if ( !ok ) {
+		    finishedWithError( tr("Invalid HTTP chunked body"), WrongContentLength );
+		    close();
+		    return;
+		}
+	    }
+#endif
+	    if ( d->response.hasContentLength() ) {
+		n = QMIN( d->response.contentLength() - d->bytesDone, n );
+		arr = new QByteArray( n );
+		Q_LONG read = d->socket.readBlock( arr->data(), n );
+		arr->resize( read );
+#if defined(QHTTP_DEBUG)
+		qDebug( "QHttp::slotReadyRead(): read %d bytes (%d bytes done)", arr->size(), d->bytesDone );
+#endif
+	    } else {
+		arr = new QByteArray( d->socket.readAll() );
+#if defined(QHTTP_DEBUG)
+		qDebug( "QHttp::slotReadyRead(): read %d bytes (%d bytes done)", arr->size(), d->bytesDone );
+#endif
+	    }
+	    n = arr->size();
 	    if ( d->toDevice ) {
-		QByteArray arr( n );
-		n = d->socket.readBlock( arr.data(), n );
-		d->toDevice->writeBlock( arr.data(), n );
+		d->toDevice->writeBlock( arr->data(), n );
+		delete arr;
 		d->bytesDone += n;
 		if ( d->response.hasContentLength() )
 		    emit dataReadProgress( d->bytesDone, d->response.contentLength() );
 		else
 		    emit dataReadProgress( d->bytesDone, 0 );
 	    } else {
+		d->rba.append( arr );
+		d->rsize += n;
 		if ( d->response.hasContentLength() )
 		    emit dataReadProgress( d->bytesDone + n, d->response.contentLength() );
 		else
