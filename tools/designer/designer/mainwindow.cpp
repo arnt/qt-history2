@@ -951,6 +951,21 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
     QWidget *w = 0;
     bool passiveInteractor = WidgetFactory::isPassiveInteractor( o );
     switch ( e->type() ) {
+    case QEvent::AccelOverride:
+	if ( ( (QKeyEvent*)e )->key() == Key_F1 ) {
+	    w = (QWidget*)o;
+	    while ( w ) {
+		if ( w->inherits( "PropertyList" ) )
+		    break;
+		w = w->parentWidget( TRUE );
+	    }
+	    if ( w ) {
+		propertyEditor->propertyList()->showCurrentWhatsThis();
+		( (QKeyEvent*)e )->accept();
+		return TRUE;
+	    }
+	    break;
+	}
     case QEvent::MouseButtonPress:
 	if ( o->inherits( "QDesignerPopupMenu" ) )
 	    break;

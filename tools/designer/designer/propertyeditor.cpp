@@ -2293,7 +2293,7 @@ PropertyList::PropertyList( PropertyEditor *e )
 {
     init_colors();
 
-    (void)new PropertyWhatsThis( this );
+    whatsThis = new PropertyWhatsThis( this );
     showSorted = FALSE;
     header()->setMovingEnabled( FALSE );
     header()->setStretchEnabled( TRUE );
@@ -3097,10 +3097,23 @@ void PropertyList::viewportDropEvent ( QDropEvent *e )
 
 QString PropertyList::whatsThisAt( const QPoint &p )
 {
-    readPropertyDocs();
-    QListViewItem *i = itemAt( p );
+    return whatsThisText( itemAt( p ) );
+}
+
+void PropertyList::showCurrentWhatsThis()
+{
+    if ( !currentItem() )
+	return;
+    QPoint p( 0, currentItem()->itemPos() );
+    p = viewport()->mapToGlobal( contentsToViewport( p ) );
+    QWhatsThis::display( whatsThisText( currentItem() ), p );
+}
+
+QString PropertyList::whatsThisText( QListViewItem *i )
+{
     if ( !i || !editor->widget() )
 	return QString::null;
+    readPropertyDocs();
     if ( ( (PropertyItem*)i )->propertyParent() )
 	i = ( (PropertyItem*)i )->propertyParent();
 

@@ -43,6 +43,7 @@ class QLabel;
 class FormWindow;
 class QCloseEvent;
 class QResizeEvent;
+class PropertyWhatsThis;
 
 class PropertyItem : public QListViewItem
 {
@@ -485,6 +486,7 @@ public:
 
     PropertyEditor *propertyEditor() const;
     QString whatsThisAt( const QPoint &p );
+    void showCurrentWhatsThis();
 
 public slots:
     void updateEditorSize();
@@ -510,6 +512,7 @@ protected:
 
 private:
     void readPropertyDocs();
+    QString whatsThisText( QListViewItem *i );
 
 private:
     PropertyListItem* pressItem;
@@ -517,6 +520,7 @@ private:
     bool mousePressed;
     bool showSorted;
     QMap<QString, QString> propertyDocs;
+    PropertyWhatsThis *whatsThis;
 
 };
 
