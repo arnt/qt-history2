@@ -251,7 +251,7 @@ void QTextBrowser::setSource(const QString& name)
     bool doSetText = false;
 
     if (!source.isEmpty() && (source != d->currentURL || d->forceLoadOnSourceChange)) {
-        QByteArray data = loadResource(Source, source);
+        QByteArray data = loadResource(HtmlResource, source);
         QTextCodec *codec = QText::codecForHtml(data);
         txt = codec->toUnicode(data);
 

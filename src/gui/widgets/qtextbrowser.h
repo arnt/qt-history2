@@ -38,8 +38,8 @@ public:
     void setSearchPaths(const QStringList &paths);
 
     enum ResourceType {
-        Source,
-        Image
+        HtmlResource,
+        ImageResource
     };
     virtual QByteArray loadResource(ResourceType type, const QString &name);
 
