@@ -1911,8 +1911,11 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 	return;
     }
 
+    bool selectCurrent = FALSE;
+    
     switch ( e->key() ) {
     case Key_Up:
+	selectCurrent = TRUE;
 	d->currInputString = QString::null;
 	if ( currentItem() > 0 ) {
 	    if ( e->state() & ShiftButton ) {
@@ -1925,6 +1928,7 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 	}
 	break;
     case Key_Down:
+	selectCurrent = TRUE;
 	d->currInputString = QString::null;
 	if ( currentItem() < (int)count() - 1 ) {
 	    if ( e->state() & ShiftButton ) {
@@ -1937,6 +1941,7 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 	}
 	break;
     case Key_Left:
+	selectCurrent = TRUE;
 	d->currInputString = QString::null;
 	if ( currentColumn() > 0 ) {
 	    setCurrentItem( currentItem() - numRows() );
@@ -1956,6 +1961,7 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 	}
 	break;
     case Key_Right:
+	selectCurrent = TRUE;
 	d->currInputString = QString::null;
 	if ( currentColumn() < numColumns()-1 ) {
 	    int row = currentRow();
@@ -1984,6 +1990,7 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 	break;
     case Key_Next:
 	{
+	    selectCurrent = TRUE;
 	    d->currInputString = QString::null;
 	    int old = currentItem();
 	    int i = 0;
@@ -2020,6 +2027,7 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 	} break;
     case Key_Prior:
 	{
+	    selectCurrent = TRUE;
 	    d->currInputString = QString::null;
 	    int old = currentItem();
 	    int i;
@@ -2057,12 +2065,14 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 	break;
 
     case Key_Space:
+	selectCurrent = TRUE;
 	d->currInputString = QString::null;
 	toggleCurrentItem();
 	break;
 
     case Key_Return:
     case Key_Enter:
+	selectCurrent = TRUE;
 	d->currInputString = QString::null;
 	if ( currentItem() >= 0 && selectionMode() != NoSelection ) {
 	    QString tmp = item( currentItem() )->text();
@@ -2075,6 +2085,7 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 	break;
     case Key_Home:
 	{
+	    selectCurrent = TRUE;
 	    d->currInputString = QString::null;
 	    int old = currentItem();
 	    setCurrentItem( 0 );
@@ -2098,6 +2109,7 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 	} break;
     case Key_End:
 	{
+	    selectCurrent = TRUE;
 	    d->currInputString = QString::null;
 	    int old = currentItem();
 	    int i = (int)count() - 1;
@@ -2136,6 +2148,13 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 	    }
 	}
     }
+    
+    if ( selectCurrent && selectionMode() == Single &&
+	 !d->current->s ) {
+	updateItem( d->current );
+	d->current->s = TRUE;
+    }
+    
     emitChangedSignal( FALSE );
 }
 
