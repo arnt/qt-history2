@@ -2865,6 +2865,9 @@ void QApplication::sendPostedEvents( QObject *receiver, int event_type )
 		    }
 		}
 
+#ifdef QT_THREAD_SUPPORT
+		locker.mutex()->unlock();
+#endif // QT_THREAD_SUPPORT
 		// after all that work, it's time to deliver the event.
 		if ( e->type() == QEvent::Paint && r->isWidgetType() ) {
 		    QWidget * w = (QWidget*)r;
@@ -2873,18 +2876,12 @@ void QApplication::sendPostedEvents( QObject *receiver, int event_type )
 			w->repaint( p->reg, p->erase );
 		} else {
 		    sent = TRUE;
-
-#ifdef QT_THREAD_SUPPORT
-		    locker.mutex()->unlock();
-#endif // QT_THREAD_SUPPORT
-
 		    QApplication::sendEvent( r, e );
-
+		}
 #ifdef QT_THREAD_SUPPORT
-		    locker.mutex()->lock();
+		locker.mutex()->lock();
 #endif // QT_THREAD_SUPPORT
 
-		}
 		delete e;
 		// careful when adding anything below this point - the
 		// sendEvent() call might invalidate any invariants this
