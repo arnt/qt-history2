@@ -1630,7 +1630,7 @@ MakefileGenerator::writeSubDirs(QTextStream &t)
         QStringList subdirs = project->variables()["SUBDIRS"];
         for(int subdir = 0; subdir < subdirs.size(); ++subdir) {
             // Required since dir_sep is '\\'.
-            QString file = QDir::convertSeparators(subdirs[subdir]);
+            QString file = Option::fixPathToLocalOS(subdirs[subdir]);
             SubTarget *st = new SubTarget;
             targets.append(st);
             st->makefile = "$(MAKEFILE)";
