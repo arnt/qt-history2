@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion_x11.cpp#18 $
+** $Id: //depot/qt/main/src/kernel/qregion_x11.cpp#19 $
 **
 ** Implementation of QRegion class for X11
 **
@@ -18,10 +18,10 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qregion_x11.cpp#18 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qregion_x11.cpp#19 $")
 
 
-static void *empty_region = 0;
+static QRegion *empty_region = 0;
 
 static void cleanup_empty_region()
 {
@@ -41,7 +41,7 @@ QRegion::QRegion()
 	empty_region = new QRegion( TRUE );
 	CHECK_PTR( empty_region );
     }
-    data = (QRegionData*)empty_region;
+    data = empty_region->data;
     data->ref();
 }
 
@@ -222,7 +222,7 @@ bool QRegion::contains( const QRect &r ) const
 
 void QRegion::move( int dx, int dy )
 {
-    if ( data == empty_region )
+    if ( data == empty_region->data )
 	return;
     detach();
     XOffsetRegion( data->rgn, dx, dy );
