@@ -488,7 +488,8 @@ public:
         PM_ToolBarItemSpacing,
         PM_SpinBoxSliderHeight,
 
-        PM_DefaultLayoutMargin,
+        PM_DefaultToplevelMargin,
+        PM_DefaultChildMargin,
         PM_DefaultLayoutSpacing,
 
         // do not add any values below/greater than this

@@ -2355,8 +2355,11 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QWidget *widget) const
         ret = 16;
         break;
 
-    case PM_DefaultLayoutMargin:
+    case PM_DefaultToplevelMargin:
         ret = 11;
+        break;
+    case PM_DefaultChildMargin:
+        ret = 9;
         break;
     case PM_DefaultLayoutSpacing:
         ret = 6;

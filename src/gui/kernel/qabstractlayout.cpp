@@ -775,12 +775,16 @@ int QLayout::margin() const
 {
     if ( d->outsideBorder >= 0 )
         return d->outsideBorder;
-    else if (!d->topLevel)
+    if (!d->topLevel)
         return 0;
-    else if (parentWidget())
-        return parentWidget()->style().pixelMetric(QStyle::PM_DefaultLayoutMargin);
-    else
-        return QApplication::style().pixelMetric(QStyle::PM_DefaultLayoutMargin);
+    QWidget *pw = parentWidget();
+    if (pw)
+        return pw->style().pixelMetric(
+            (pw->isTopLevel() || pw->testWFlags(Qt::WSubWindow))
+            ? QStyle::PM_DefaultToplevelMargin
+            : QStyle::PM_DefaultChildMargin
+            );
+    return 0;
 }
 
 
@@ -789,8 +793,9 @@ int QLayout::spacing() const
     if (d->insideSpacing >=0) {
         return d->insideSpacing;
     } else if (d->topLevel) {
-        if (parentWidget())
-            return parentWidget()->style().pixelMetric(QStyle::PM_DefaultLayoutSpacing);
+        QWidget *pw = parentWidget();
+        if (pw)
+            return pw->style().pixelMetric(QStyle::PM_DefaultLayoutSpacing);
         else
             return QApplication::style().pixelMetric(QStyle::PM_DefaultLayoutSpacing);
     } else if (parent()) {
@@ -1007,11 +1012,11 @@ int QLayout::totalHeightForWidth(int w) const
 */
 QSize QLayout::totalMinimumSize() const
 {
-    if (d->topLevel)
-        parentWidget()->ensurePolished();
     int side=0, top=0;
     if (d->topLevel) {
-        QWidgetPrivate *wd = parentWidget()->d;
+        QWidget *pw = parentWidget();
+        pw->ensurePolished();
+        QWidgetPrivate *wd = pw->d;
         side += wd->leftmargin + wd->rightmargin;
         top += wd->topmargin + wd->bottommargin;
     }
@@ -1029,11 +1034,11 @@ QSize QLayout::totalMinimumSize() const
 */
 QSize QLayout::totalSizeHint() const
 {
-    if (d->topLevel)
-        parentWidget()->ensurePolished();
     int side=0, top=0;
     if (d->topLevel) {
-        QWidgetPrivate *wd = parentWidget()->d;
+        QWidget *pw = parentWidget();
+        pw->ensurePolished();
+        QWidgetPrivate *wd = pw->d;
         side += wd->leftmargin + wd->rightmargin;
         top += wd->topmargin + wd->bottommargin;
     }
@@ -1053,11 +1058,11 @@ QSize QLayout::totalSizeHint() const
 */
 QSize QLayout::totalMaximumSize() const
 {
-    if (d->topLevel)
-        parentWidget()->ensurePolished();
     int side=0, top=0;
     if (d->topLevel) {
-        QWidgetPrivate *wd = parentWidget()->d;
+        QWidget *pw = parentWidget();
+        pw->ensurePolished();
+        QWidgetPrivate *wd = pw->d;
         side += wd->leftmargin + wd->rightmargin;
         top += wd->topmargin + wd->bottommargin;
     }
