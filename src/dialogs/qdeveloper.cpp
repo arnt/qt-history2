@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qdeveloper.cpp#8 $
+** $Id: //depot/qt/main/src/dialogs/qdeveloper.cpp#9 $
 **
 ** Implementation of QDeveloper class
 **
@@ -374,7 +374,7 @@ void QDeveloper::addTopLevelWidget(QWidget* tlw)
     if ( !d->findTopLevel(tlw) ) {
 	QDeveloperObjectItem *lvi = new QDeveloperObjectItem( d->objects, tlw, d );
 	lvi->fillExistingTree();
-	lvi->setOpen(TRUE);es
+	lvi->setOpen(TRUE);
     }
 }
 
