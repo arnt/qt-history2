@@ -992,27 +992,30 @@ int QMacStyle::styleHint(StyleHint sh, const QWidget *w,
 {
     int ret = 0;
     switch(sh) {
+    case SH_ScrollBar_StopMouseOverSlider:
+        ret = TRUE;
+        break;
     case SH_TabBar_SelectMouseType:
-	ret = QEvent::MouseButtonRelease;
-	break;
+        ret = QEvent::MouseButtonRelease;
+        break;
     case SH_ComboBox_Popup:
-	ret = TRUE;
-	break;
+        ret = TRUE;
+        break;
     case SH_Workspace_FillSpaceOnMaximize:
-	ret = TRUE;
-	break;
+        ret = TRUE;
+        break;
     case SH_Widget_ShareActivation:
-	ret = TRUE;
-	break;
+        ret = TRUE;
+        break;
     case SH_Header_ArrowAlignment:
-	ret = Qt::AlignRight;
-	break;
+        ret = Qt::AlignRight;
+        break;
     case SH_TabBar_Alignment:
-	ret = Qt::AlignHCenter;
-	break;
+        ret = Qt::AlignHCenter;
+        break;
     default:
-	ret = QWindowsStyle::styleHint(sh, w, opt, d);
-	break;
+        ret = QWindowsStyle::styleHint(sh, w, opt, d);
+        break;
     }
     return ret;
 }

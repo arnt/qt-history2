@@ -554,6 +554,9 @@ public:
 	// bool - titlebar has no border
 	SH_TitleBar_NoBorder,
 
+    // bool - stop scrollbar at mouse
+    SH_ScrollBar_StopMouseOverSlider,
+
 	// do not add any values below/greater than this
 	SH_CustomBase =		0xf0000000
     };

@@ -1565,6 +1565,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 
     \value SH_TitleBar_NoBorder the titlebar has no border
 
+    \value SH_ScrollBar_StopMouseOverSlider stops autorepeat when slider reaches mouse
 
     \value SH_CustomBase  base value for custom ControlElements.  All values above
            this are reserved for custom use.  Therefore, custom values must be

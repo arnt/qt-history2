@@ -42,6 +42,9 @@
 #include "qapplication.h"
 #include "qtimer.h"
 #include "qstyle.h"
+#ifndef QT_NO_CURSOR
+#include <qcursor.h>
+#endif
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 #include "qaccessible.h"
 #endif
@@ -388,13 +391,22 @@ void QScrollBar::rangeChange()
 
 void QScrollBar::doAutoRepeat()
 {
-    if ( clickedAt ){
-	if ( repeater )
-	    repeater->changeInterval( repeatTime );
-	action( (QStyle::SubControl) pressedControl );
-	QApplication::syncX();
+    bool sendRepeat = clickedAt;
+#if !defined( QT_NO_CURSOR ) && !defined( QT_NO_STYLE )
+    if(sendRepeat && (pressedControl == QStyle::SC_ScrollBarAddPage || 
+                      pressedControl == QStyle::SC_ScrollBarSubPage) &&
+       style().styleHint(QStyle::SH_ScrollBar_StopMouseOverSlider, this) &&
+       style().querySubControl(QStyle::CC_ScrollBar, this, 
+                               mapFromGlobal(QCursor::pos()) ) == QStyle::SC_ScrollBarSlider)
+        sendRepeat = FALSE;
+#endif
+    if ( sendRepeat ){
+        if ( repeater )
+            repeater->changeInterval( repeatTime );
+        action( (QStyle::SubControl) pressedControl );
+        QApplication::syncX();
     } else {
-	stopAutoRepeat();
+        stopAutoRepeat();
     }
 }
 
