@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwssocket_qws.cpp#10 $
+** $Id: //depot/qt/main/src/kernel/qwssocket_qws.cpp#11 $
 **
 ** Implementation of QWSSocket and related classes.
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: credits.doc,v 2.17 1999/06/07 09:58:55 reggie Exp $
+** $Id: $
 **
 ** Credits file - all the qt-bugs stuff
 **
@@ -32,10 +32,6 @@
 ** not clear to you.
 **
 **********************************************************************/
-
-#if defined(QT_DEBUG)
-static char ident[] = "$Id: credits.doc,v 2.17 1999/06/07 09:58:55 reggie Exp $";
-#endif
 
 // the list is up to an including /local/qt/mail/qt-bugs/1715
 

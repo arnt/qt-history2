@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowsystem_qws.cpp#71 $
+** $Id: //depot/qt/main/src/kernel/qwindowsystem_qws.cpp#72 $
 **
 ** Implementation of Qt/FB central server
 **

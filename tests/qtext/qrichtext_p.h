@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrichtextintern.cpp#17 $
+** $Id: $
 **
 ** Definition of internal rich text classes
 **

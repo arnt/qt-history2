@@ -394,7 +394,6 @@ void SqlFormWizard::accept()
 	    /* label */
 	    QString labelName = field->name();
 	    labelName = labelName.mid(0,1).upper() + labelName.mid(1);
-	    labelName.replace( QRegExp("_"), " " );
 	    label = (QLabel*)formWindow->create( "QLabel", widget,
 						 QString( "label" + labelName ) );
 	    label->setText( labelName );
@@ -585,7 +584,6 @@ void SqlFormWizard::accept()
 
 		QString labelName = field->name();
 		labelName = labelName.mid(0,1).upper() + labelName.mid(1);
-		labelName.replace( QRegExp("_"), " " );
 
 		((QTable*)widget)->horizontalHeader()->setLabel( j, labelName );
 

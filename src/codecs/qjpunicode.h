@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/codecs/qjpunicode.h#6 $
+** $Id: //depot/qt/main/src/codecs/qjpunicode.h#7 $
 **
 ** Definition of QJpUnicodeConv class
 **

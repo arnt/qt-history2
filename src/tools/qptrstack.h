@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qptrstack.h#3 $
+** $Id: //depot/qt/main/src/tools/qptrstack.h#4 $
 **
 ** Definition of QPtrStack pointer based template class
 **

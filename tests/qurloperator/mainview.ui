@@ -1,0 +1,978 @@
+<!DOCTYPE UI><UI version="3.0" stdsetdef="1">
+<class>MainView</class>
+<include location="local" impldecl="in declaration">qurloperator.h</include>
+<include location="global" impldecl="in implementation">qapplication.h</include>
+<variable>QUrlOperator urlOp</variable>
+<widget class="QDialog">
+    <property name="name">
+        <cstring>MainView</cstring>
+    </property>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>572</width>
+            <height>466</height>
+        </rect>
+    </property>
+    <property name="caption">
+        <string>Form1</string>
+    </property>
+    <vbox>
+        <property name="name">
+            <cstring>unnamed</cstring>
+        </property>
+        <property name="margin">
+            <number>11</number>
+        </property>
+        <property name="spacing">
+            <number>6</number>
+        </property>
+        <widget class="QLayoutWidget">
+            <property name="name">
+                <cstring>Layout1</cstring>
+            </property>
+            <hbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <property name="margin">
+                    <number>0</number>
+                </property>
+                <property name="spacing">
+                    <number>6</number>
+                </property>
+                <widget class="QLabel">
+                    <property name="name">
+                        <cstring>TextLabel1</cstring>
+                    </property>
+                    <property name="text">
+                        <string>URL</string>
+                    </property>
+                </widget>
+                <widget class="QLineEdit">
+                    <property name="name">
+                        <cstring>urlEdit</cstring>
+                    </property>
+                </widget>
+            </hbox>
+        </widget>
+        <widget class="QTabWidget">
+            <property name="name">
+                <cstring>TabWidget2</cstring>
+            </property>
+            <widget class="QWidget">
+                <property name="name">
+                    <cstring>tab</cstring>
+                </property>
+                <attribute name="title">
+                    <string>Copy</string>
+                </attribute>
+                <grid>
+                    <property name="name">
+                        <cstring>unnamed</cstring>
+                    </property>
+                    <property name="margin">
+                        <number>11</number>
+                    </property>
+                    <property name="spacing">
+                        <number>6</number>
+                    </property>
+                    <widget class="QPushButton" row="4" column="0">
+                        <property name="name">
+                            <cstring>PushButton3_2</cstring>
+                        </property>
+                        <property name="text">
+                            <string>Start</string>
+                        </property>
+                    </widget>
+                    <widget class="QLayoutWidget" row="0" column="0" rowspan="1" colspan="2">
+                        <property name="name">
+                            <cstring>Layout3_2_3_2</cstring>
+                        </property>
+                        <hbox>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
+                            <property name="margin">
+                                <number>0</number>
+                            </property>
+                            <property name="spacing">
+                                <number>6</number>
+                            </property>
+                            <widget class="QLabel">
+                                <property name="name">
+                                    <cstring>TextLabel1_2_2_3_2</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>From</string>
+                                </property>
+                            </widget>
+                            <widget class="QLineEdit">
+                                <property name="name">
+                                    <cstring>copyFrom</cstring>
+                                </property>
+                            </widget>
+                        </hbox>
+                    </widget>
+                    <widget class="QLayoutWidget" row="1" column="0" rowspan="1" colspan="2">
+                        <property name="name">
+                            <cstring>Layout3_2_3_3</cstring>
+                        </property>
+                        <hbox>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
+                            <property name="margin">
+                                <number>0</number>
+                            </property>
+                            <property name="spacing">
+                                <number>6</number>
+                            </property>
+                            <widget class="QLabel">
+                                <property name="name">
+                                    <cstring>TextLabel1_2_2_3_3</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>To</string>
+                                </property>
+                            </widget>
+                            <widget class="QLineEdit">
+                                <property name="name">
+                                    <cstring>copyTo</cstring>
+                                </property>
+                            </widget>
+                        </hbox>
+                    </widget>
+                    <widget class="QCheckBox" row="2" column="0">
+                        <property name="name">
+                            <cstring>copyMove</cstring>
+                        </property>
+                        <property name="text">
+                            <string>move</string>
+                        </property>
+                    </widget>
+                    <spacer row="3" column="0">
+                        <property name="name">
+                            <cstring>Spacer14_2</cstring>
+                        </property>
+                        <property name="orientation">
+                            <enum>Vertical</enum>
+                        </property>
+                        <property name="sizeType">
+                            <enum>Expanding</enum>
+                        </property>
+                        <property name="sizeHint">
+                            <size>
+                                <width>20</width>
+                                <height>20</height>
+                            </size>
+                        </property>
+                    </spacer>
+                    <spacer row="4" column="1">
+                        <property name="name">
+                            <cstring>Spacer15_2</cstring>
+                        </property>
+                        <property name="orientation">
+                            <enum>Horizontal</enum>
+                        </property>
+                        <property name="sizeType">
+                            <enum>Expanding</enum>
+                        </property>
+                        <property name="sizeHint">
+                            <size>
+                                <width>20</width>
+                                <height>20</height>
+                            </size>
+                        </property>
+                    </spacer>
+                </grid>
+            </widget>
+            <widget class="QWidget">
+                <property name="name">
+                    <cstring>tab</cstring>
+                </property>
+                <attribute name="title">
+                    <string>Get</string>
+                </attribute>
+                <grid>
+                    <property name="name">
+                        <cstring>unnamed</cstring>
+                    </property>
+                    <property name="margin">
+                        <number>11</number>
+                    </property>
+                    <property name="spacing">
+                        <number>6</number>
+                    </property>
+                    <widget class="QPushButton" row="2" column="0">
+                        <property name="name">
+                            <cstring>PushButton3_3</cstring>
+                        </property>
+                        <property name="text">
+                            <string>Start</string>
+                        </property>
+                    </widget>
+                    <widget class="QLayoutWidget" row="0" column="0" rowspan="1" colspan="2">
+                        <property name="name">
+                            <cstring>Layout3</cstring>
+                        </property>
+                        <hbox>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
+                            <property name="margin">
+                                <number>0</number>
+                            </property>
+                            <property name="spacing">
+                                <number>6</number>
+                            </property>
+                            <widget class="QLabel">
+                                <property name="name">
+                                    <cstring>TextLabel1_2</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>Location</string>
+                                </property>
+                            </widget>
+                            <widget class="QLineEdit">
+                                <property name="name">
+                                    <cstring>getLocation</cstring>
+                                </property>
+                            </widget>
+                        </hbox>
+                    </widget>
+                    <spacer row="1" column="0">
+                        <property name="name">
+                            <cstring>Spacer4</cstring>
+                        </property>
+                        <property name="orientation">
+                            <enum>Vertical</enum>
+                        </property>
+                        <property name="sizeType">
+                            <enum>Expanding</enum>
+                        </property>
+                        <property name="sizeHint">
+                            <size>
+                                <width>20</width>
+                                <height>20</height>
+                            </size>
+                        </property>
+                    </spacer>
+                    <spacer row="2" column="1">
+                        <property name="name">
+                            <cstring>Spacer5</cstring>
+                        </property>
+                        <property name="orientation">
+                            <enum>Horizontal</enum>
+                        </property>
+                        <property name="sizeType">
+                            <enum>Expanding</enum>
+                        </property>
+                        <property name="sizeHint">
+                            <size>
+                                <width>20</width>
+                                <height>20</height>
+                            </size>
+                        </property>
+                    </spacer>
+                </grid>
+            </widget>
+            <widget class="QWidget">
+                <property name="name">
+                    <cstring>tab</cstring>
+                </property>
+                <attribute name="title">
+                    <string>ListChildren</string>
+                </attribute>
+                <grid>
+                    <property name="name">
+                        <cstring>unnamed</cstring>
+                    </property>
+                    <property name="margin">
+                        <number>11</number>
+                    </property>
+                    <property name="spacing">
+                        <number>6</number>
+                    </property>
+                    <widget class="QPushButton" row="1" column="0">
+                        <property name="name">
+                            <cstring>PushButton3</cstring>
+                        </property>
+                        <property name="text">
+                            <string>Start</string>
+                        </property>
+                    </widget>
+                    <spacer row="0" column="0">
+                        <property name="name">
+                            <cstring>Spacer2</cstring>
+                        </property>
+                        <property name="orientation">
+                            <enum>Vertical</enum>
+                        </property>
+                        <property name="sizeType">
+                            <enum>Expanding</enum>
+                        </property>
+                        <property name="sizeHint">
+                            <size>
+                                <width>20</width>
+                                <height>20</height>
+                            </size>
+                        </property>
+                    </spacer>
+                    <spacer row="1" column="1">
+                        <property name="name">
+                            <cstring>Spacer3</cstring>
+                        </property>
+                        <property name="orientation">
+                            <enum>Horizontal</enum>
+                        </property>
+                        <property name="sizeType">
+                            <enum>Expanding</enum>
+                        </property>
+                        <property name="sizeHint">
+                            <size>
+                                <width>20</width>
+                                <height>20</height>
+                            </size>
+                        </property>
+                    </spacer>
+                </grid>
+            </widget>
+            <widget class="QWidget">
+                <property name="name">
+                    <cstring>tab</cstring>
+                </property>
+                <attribute name="title">
+                    <string>Mkdir</string>
+                </attribute>
+                <grid>
+                    <property name="name">
+                        <cstring>unnamed</cstring>
+                    </property>
+                    <property name="margin">
+                        <number>11</number>
+                    </property>
+                    <property name="spacing">
+                        <number>6</number>
+                    </property>
+                    <widget class="QPushButton" row="2" column="0">
+                        <property name="name">
+                            <cstring>PushButton3_4</cstring>
+                        </property>
+                        <property name="text">
+                            <string>Start</string>
+                        </property>
+                    </widget>
+                    <widget class="QLayoutWidget" row="0" column="0" rowspan="1" colspan="2">
+                        <property name="name">
+                            <cstring>Layout3_2</cstring>
+                        </property>
+                        <hbox>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
+                            <property name="margin">
+                                <number>0</number>
+                            </property>
+                            <property name="spacing">
+                                <number>6</number>
+                            </property>
+                            <widget class="QLabel">
+                                <property name="name">
+                                    <cstring>TextLabel1_2_2</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>Dir name</string>
+                                </property>
+                            </widget>
+                            <widget class="QLineEdit">
+                                <property name="name">
+                                    <cstring>mkdirDirName</cstring>
+                                </property>
+                            </widget>
+                        </hbox>
+                    </widget>
+                    <spacer row="1" column="0">
+                        <property name="name">
+                            <cstring>Spacer6</cstring>
+                        </property>
+                        <property name="orientation">
+                            <enum>Vertical</enum>
+                        </property>
+                        <property name="sizeType">
+                            <enum>Expanding</enum>
+                        </property>
+                        <property name="sizeHint">
+                            <size>
+                                <width>20</width>
+                                <height>20</height>
+                            </size>
+                        </property>
+                    </spacer>
+                    <spacer row="2" column="1">
+                        <property name="name">
+                            <cstring>Spacer7</cstring>
+                        </property>
+                        <property name="orientation">
+                            <enum>Horizontal</enum>
+                        </property>
+                        <property name="sizeType">
+                            <enum>Expanding</enum>
+                        </property>
+                        <property name="sizeHint">
+                            <size>
+                                <width>20</width>
+                                <height>20</height>
+                            </size>
+                        </property>
+                    </spacer>
+                </grid>
+            </widget>
+            <widget class="QWidget">
+                <property name="name">
+                    <cstring>tab</cstring>
+                </property>
+                <attribute name="title">
+                    <string>Put</string>
+                </attribute>
+                <grid>
+                    <property name="name">
+                        <cstring>unnamed</cstring>
+                    </property>
+                    <property name="margin">
+                        <number>11</number>
+                    </property>
+                    <property name="spacing">
+                        <number>6</number>
+                    </property>
+                    <widget class="QPushButton" row="2" column="0">
+                        <property name="name">
+                            <cstring>PushButton3_5</cstring>
+                        </property>
+                        <property name="text">
+                            <string>Start</string>
+                        </property>
+                    </widget>
+                    <widget class="QLayoutWidget" row="0" column="0" rowspan="1" colspan="2">
+                        <property name="name">
+                            <cstring>Layout3_4</cstring>
+                        </property>
+                        <hbox>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
+                            <property name="margin">
+                                <number>0</number>
+                            </property>
+                            <property name="spacing">
+                                <number>6</number>
+                            </property>
+                            <widget class="QLabel">
+                                <property name="name">
+                                    <cstring>TextLabel1_2_4</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>Location</string>
+                                </property>
+                            </widget>
+                            <widget class="QLineEdit">
+                                <property name="name">
+                                    <cstring>putLocation</cstring>
+                                </property>
+                            </widget>
+                        </hbox>
+                    </widget>
+                    <spacer row="1" column="0">
+                        <property name="name">
+                            <cstring>Spacer14</cstring>
+                        </property>
+                        <property name="orientation">
+                            <enum>Vertical</enum>
+                        </property>
+                        <property name="sizeType">
+                            <enum>Expanding</enum>
+                        </property>
+                        <property name="sizeHint">
+                            <size>
+                                <width>20</width>
+                                <height>20</height>
+                            </size>
+                        </property>
+                    </spacer>
+                    <spacer row="2" column="1">
+                        <property name="name">
+                            <cstring>Spacer15</cstring>
+                        </property>
+                        <property name="orientation">
+                            <enum>Horizontal</enum>
+                        </property>
+                        <property name="sizeType">
+                            <enum>Expanding</enum>
+                        </property>
+                        <property name="sizeHint">
+                            <size>
+                                <width>20</width>
+                                <height>20</height>
+                            </size>
+                        </property>
+                    </spacer>
+                </grid>
+            </widget>
+            <widget class="QWidget">
+                <property name="name">
+                    <cstring>tab</cstring>
+                </property>
+                <attribute name="title">
+                    <string>Remove</string>
+                </attribute>
+                <grid>
+                    <property name="name">
+                        <cstring>unnamed</cstring>
+                    </property>
+                    <property name="margin">
+                        <number>11</number>
+                    </property>
+                    <property name="spacing">
+                        <number>6</number>
+                    </property>
+                    <widget class="QPushButton" row="2" column="0">
+                        <property name="name">
+                            <cstring>PushButton3_6</cstring>
+                        </property>
+                        <property name="text">
+                            <string>Start</string>
+                        </property>
+                    </widget>
+                    <widget class="QLayoutWidget" row="0" column="0" rowspan="1" colspan="2">
+                        <property name="name">
+                            <cstring>Layout3_2_2</cstring>
+                        </property>
+                        <hbox>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
+                            <property name="margin">
+                                <number>0</number>
+                            </property>
+                            <property name="spacing">
+                                <number>6</number>
+                            </property>
+                            <widget class="QLabel">
+                                <property name="name">
+                                    <cstring>TextLabel1_2_2_2</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>File name</string>
+                                </property>
+                            </widget>
+                            <widget class="QLineEdit">
+                                <property name="name">
+                                    <cstring>removeFileName</cstring>
+                                </property>
+                            </widget>
+                        </hbox>
+                    </widget>
+                    <spacer row="1" column="0">
+                        <property name="name">
+                            <cstring>Spacer12</cstring>
+                        </property>
+                        <property name="orientation">
+                            <enum>Vertical</enum>
+                        </property>
+                        <property name="sizeType">
+                            <enum>Expanding</enum>
+                        </property>
+                        <property name="sizeHint">
+                            <size>
+                                <width>20</width>
+                                <height>20</height>
+                            </size>
+                        </property>
+                    </spacer>
+                    <spacer row="2" column="1">
+                        <property name="name">
+                            <cstring>Spacer13</cstring>
+                        </property>
+                        <property name="orientation">
+                            <enum>Horizontal</enum>
+                        </property>
+                        <property name="sizeType">
+                            <enum>Expanding</enum>
+                        </property>
+                        <property name="sizeHint">
+                            <size>
+                                <width>20</width>
+                                <height>20</height>
+                            </size>
+                        </property>
+                    </spacer>
+                </grid>
+            </widget>
+            <widget class="QWidget">
+                <property name="name">
+                    <cstring>tab</cstring>
+                </property>
+                <attribute name="title">
+                    <string>Rename</string>
+                </attribute>
+                <grid>
+                    <property name="name">
+                        <cstring>unnamed</cstring>
+                    </property>
+                    <property name="margin">
+                        <number>11</number>
+                    </property>
+                    <property name="spacing">
+                        <number>6</number>
+                    </property>
+                    <widget class="QPushButton" row="3" column="0">
+                        <property name="name">
+                            <cstring>PushButton3_7</cstring>
+                        </property>
+                        <property name="text">
+                            <string>Start</string>
+                        </property>
+                    </widget>
+                    <widget class="QLayoutWidget" row="1" column="0" rowspan="1" colspan="2">
+                        <property name="name">
+                            <cstring>Layout3_2_4</cstring>
+                        </property>
+                        <hbox>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
+                            <property name="margin">
+                                <number>0</number>
+                            </property>
+                            <property name="spacing">
+                                <number>6</number>
+                            </property>
+                            <widget class="QLabel">
+                                <property name="name">
+                                    <cstring>TextLabel1_2_2_4</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>New name</string>
+                                </property>
+                            </widget>
+                            <widget class="QLineEdit">
+                                <property name="name">
+                                    <cstring>renameNewName</cstring>
+                                </property>
+                            </widget>
+                        </hbox>
+                    </widget>
+                    <widget class="QLayoutWidget" row="0" column="0" rowspan="1" colspan="2">
+                        <property name="name">
+                            <cstring>Layout3_2_3</cstring>
+                        </property>
+                        <hbox>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
+                            <property name="margin">
+                                <number>0</number>
+                            </property>
+                            <property name="spacing">
+                                <number>6</number>
+                            </property>
+                            <widget class="QLabel">
+                                <property name="name">
+                                    <cstring>TextLabel1_2_2_3</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>Old name</string>
+                                </property>
+                            </widget>
+                            <widget class="QLineEdit">
+                                <property name="name">
+                                    <cstring>renameOldName</cstring>
+                                </property>
+                            </widget>
+                        </hbox>
+                    </widget>
+                    <spacer row="2" column="0">
+                        <property name="name">
+                            <cstring>Spacer10</cstring>
+                        </property>
+                        <property name="orientation">
+                            <enum>Vertical</enum>
+                        </property>
+                        <property name="sizeType">
+                            <enum>Expanding</enum>
+                        </property>
+                        <property name="sizeHint">
+                            <size>
+                                <width>20</width>
+                                <height>20</height>
+                            </size>
+                        </property>
+                    </spacer>
+                    <spacer row="3" column="1">
+                        <property name="name">
+                            <cstring>Spacer11</cstring>
+                        </property>
+                        <property name="orientation">
+                            <enum>Horizontal</enum>
+                        </property>
+                        <property name="sizeType">
+                            <enum>Expanding</enum>
+                        </property>
+                        <property name="sizeHint">
+                            <size>
+                                <width>20</width>
+                                <height>20</height>
+                            </size>
+                        </property>
+                    </spacer>
+                </grid>
+            </widget>
+        </widget>
+        <widget class="QTextView">
+            <property name="name">
+                <cstring>logWindow</cstring>
+            </property>
+        </widget>
+        <widget class="QLayoutWidget">
+            <property name="name">
+                <cstring>Layout3</cstring>
+            </property>
+            <hbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <property name="margin">
+                    <number>0</number>
+                </property>
+                <property name="spacing">
+                    <number>6</number>
+                </property>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>PushButton2</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Stop</string>
+                    </property>
+                </widget>
+                <spacer>
+                    <property name="name">
+                        <cstring>Spacer1</cstring>
+                    </property>
+                    <property name="orientation">
+                        <enum>Horizontal</enum>
+                    </property>
+                    <property name="sizeType">
+                        <enum>Expanding</enum>
+                    </property>
+                    <property name="sizeHint">
+                        <size>
+                            <width>20</width>
+                            <height>20</height>
+                        </size>
+                    </property>
+                </spacer>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>PushButton1</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Quit</string>
+                    </property>
+                </widget>
+            </hbox>
+        </widget>
+    </vbox>
+</widget>
+<connections>
+    <connection language="C++">
+        <sender>PushButton1</sender>
+        <signal>clicked()</signal>
+        <receiver>MainView</receiver>
+        <slot>quit()</slot>
+    </connection>
+    <connection language="C++">
+        <sender>PushButton3</sender>
+        <signal>clicked()</signal>
+        <receiver>MainView</receiver>
+        <slot>start_listChildren()</slot>
+    </connection>
+    <connection language="C++">
+        <sender>PushButton3_3</sender>
+        <signal>clicked()</signal>
+        <receiver>MainView</receiver>
+        <slot>start_get()</slot>
+    </connection>
+    <connection language="C++">
+        <sender>PushButton3_2</sender>
+        <signal>clicked()</signal>
+        <receiver>MainView</receiver>
+        <slot>start_copy()</slot>
+    </connection>
+    <connection language="C++">
+        <sender>PushButton3_4</sender>
+        <signal>clicked()</signal>
+        <receiver>MainView</receiver>
+        <slot>start_mkdir()</slot>
+    </connection>
+    <connection language="C++">
+        <sender>PushButton3_5</sender>
+        <signal>clicked()</signal>
+        <receiver>MainView</receiver>
+        <slot>start_put()</slot>
+    </connection>
+    <connection language="C++">
+        <sender>PushButton3_6</sender>
+        <signal>clicked()</signal>
+        <receiver>MainView</receiver>
+        <slot>start_remove()</slot>
+    </connection>
+    <connection language="C++">
+        <sender>PushButton3_7</sender>
+        <signal>clicked()</signal>
+        <receiver>MainView</receiver>
+        <slot>start_rename()</slot>
+    </connection>
+    <connection language="C++">
+        <sender>PushButton2</sender>
+        <signal>clicked()</signal>
+        <receiver>MainView</receiver>
+        <slot>stop()</slot>
+    </connection>
+    <slot access="protected" language="C++" returnType="void">destroy()</slot>
+    <slot access="protected" language="C++" returnType="void">init()</slot>
+    <slot access="public" language="C++" returnType="void">quit()</slot>
+    <slot access="public" language="C++" returnType="void">start_copy()</slot>
+    <slot access="public" language="C++" returnType="void">start_get()</slot>
+    <slot access="public" language="C++" returnType="void">start_listChildren()</slot>
+    <slot access="public" language="C++" returnType="void">start_mkdir()</slot>
+    <slot access="public" language="C++" returnType="void">start_put()</slot>
+    <slot access="public" language="C++" returnType="void">start_remove()</slot>
+    <slot access="public" language="C++" returnType="void">start_rename()</slot>
+    <slot access="public" language="C++" returnType="void">stop()</slot>
+    <slot access="public" language="C++" returnType="void">url_connectionStateChanged( int i )</slot>
+    <slot access="public" language="C++" returnType="void">url_createdDirectory()</slot>
+    <slot access="public" language="C++" returnType="void">url_data()</slot>
+    <slot access="public" language="C++" returnType="void">url_dataTransferProgress( int bytesDone, int bytesTotal )</slot>
+    <slot access="public" language="C++" returnType="void">url_finished()</slot>
+    <slot access="public" language="C++" returnType="void">url_itemChanged()</slot>
+    <slot access="public" language="C++" returnType="void">url_newChildren()</slot>
+    <slot access="public" language="C++" returnType="void">url_nextCopy()</slot>
+    <slot access="public" language="C++" returnType="void">url_removed()</slot>
+    <slot access="public" language="C++" returnType="void">url_start()</slot>
+    <slot access="protected" language="C++" returnType="void">url_startedNextCopy()</slot>
+</connections>
+<functions>
+    <function name="destroy()" >{
+}</function>
+    <function name="init()" >{
+    connect( &amp;urlOp, SIGNAL(connectionStateChanged( int, const QString&amp;)),
+    	SLOT(url_connectionStateChanged(int)) );
+    connect( &amp;urlOp, SIGNAL(createdDirectory(const QUrlInfo&amp;, QNetworkOperation*)),
+    	SLOT(url_createdDirectory()) ); 
+    connect( &amp;urlOp, SIGNAL(data(const QByteArray&amp;, QNetworkOperation*)),
+    	SLOT(url_data()) );  
+    connect( &amp;urlOp, SIGNAL(dataTransferProgress(int,int,QNetworkOperation*)),
+    	SLOT(url_dataTransferProgress(int,int)) );  
+    connect( &amp;urlOp, SIGNAL(finished(QNetworkOperation*)),
+    	SLOT(url_finished()) );  
+    connect( &amp;urlOp, SIGNAL(itemChanged(QNetworkOperation*)),
+    	SLOT(url_itemChanged()) );  
+    connect( &amp;urlOp, SIGNAL(newChildren(const QValueList&lt;QUrlInfo&gt;&amp;,QNetworkOperation*)),
+    	SLOT(url_newChildren()) );  
+    connect( &amp;urlOp, SIGNAL(removed (QNetworkOperation*)),
+    	SLOT(url_removed()) );  
+    connect( &amp;urlOp, SIGNAL(start(QNetworkOperation*)),
+    	SLOT(url_start()) );  
+    connect( &amp;urlOp, SIGNAL(startedNextCopy(const QPtrList&lt;QNetworkOperation&gt;&amp;)),
+    	SLOT(url_startedNextCopy()) ); 
+}</function>
+    <function name="quit()" >{
+    QApplication::exit();
+}</function>
+    <function name="start_copy()" >{
+    logWindow-&gt;append( "START: copy()\n" );
+    urlOp = urlEdit-&gt;displayText(); 
+    urlOp.copy( copyFrom-&gt;displayText(), copyTo-&gt;displayText(), copyMove-&gt;isChecked() );  
+}</function>
+    <function name="start_get()" >{
+    logWindow-&gt;append( "START: get()\n" ); 
+    urlOp = urlEdit-&gt;displayText();
+    QString location = getLocation-&gt;displayText();
+    if ( location.isEmpty() )
+	urlOp.get();
+    else
+	urlOp.get( location );
+}</function>
+    <function name="start_listChildren()" >{
+    logWindow-&gt;append( "START: listChildren()\n" );
+    urlOp = urlEdit-&gt;displayText();
+    urlOp.listChildren();
+}</function>
+    <function name="start_mkdir()" >{
+    logWindow-&gt;append( "START: mkdir()\n" );
+    urlOp = urlEdit-&gt;displayText();
+    urlOp.mkdir( mkdirDirName-&gt;displayText() );
+}</function>
+    <function name="start_put()" >{
+    logWindow-&gt;append( "START: put()\n" );
+    urlOp = urlEdit-&gt;displayText(); 
+    QString location = getLocation-&gt;displayText(); 
+    QByteArray ba( 50 );
+    for ( int i=0; i&lt;50; i++ )
+	ba[i] = 'a' + i%26;
+    if ( location.isEmpty() ) 
+	urlOp.put( ba ); 
+    else 
+	urlOp.put( ba, location ); 
+}</function>
+    <function name="start_remove()" >{
+    logWindow-&gt;append( "START: remove()\n" );  
+    urlOp = urlEdit-&gt;displayText(); 
+    urlOp.remove( removeFileName-&gt;displayText() ); 
+}</function>
+    <function name="start_rename()" >{
+    logWindow-&gt;append( "START: rename()\n" );  
+    urlOp = urlEdit-&gt;displayText(); 
+    urlOp.rename( renameOldName-&gt;displayText(), renameNewName-&gt;displayText() ); 
+}</function>
+    <function name="stop()" >{
+    urlOp.stop();
+}</function>
+    <function name="url_connectionStateChanged(int)" >{
+    logWindow-&gt;append( QString("SIGNAL: connectionStateChanged %1\n").arg(i) );
+}</function>
+    <function name="url_createdDirectory()" >{
+    logWindow-&gt;append( "SIGNAL: createdDirectory\n" ); 
+}</function>
+    <function name="url_data()" >{
+    logWindow-&gt;append( "SIGNAL: data\n" ); 
+}</function>
+    <function name="url_dataTransferProgress(int,int)" >{
+    logWindow-&gt;append( QString("SIGNAL: dataTransferProgress %1 of %2\n")
+    	.arg(bytesDone).arg(bytesTotal) ); 
+}</function>
+    <function name="url_finished()" >{
+    logWindow-&gt;append( "SIGNAL: finished\n" ); 
+}</function>
+    <function name="url_itemChanged()" >{
+    logWindow-&gt;append( "SIGNAL: itemChanged\n" ); 
+}</function>
+    <function name="url_newChildren()" >{
+    logWindow-&gt;append( "SIGNAL: newChildren\n" ); 
+}</function>
+    <function name="url_nextCopy()" >{
+    logWindow-&gt;append( "SIGNAL: nextCopy\n" ); 
+}</function>
+    <function name="url_removed()" >{
+    logWindow-&gt;append( "SIGNAL: removed\n" ); 
+}</function>
+    <function name="url_start()" >{
+    logWindow-&gt;append( "SIGNAL: start\n" ); 
+}</function>
+    <function name="url_startedNextCopy()" >{
+    logWindow-&gt;append( "SIGNAL: startedNextCopy\n" );  
+}</function>
+</functions>
+</UI>

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/examples/overlay_x11/rubberbandwidget.cpp#1 $
+** $Id: $
 **
 ** Implementation of a widget that draws a rubberband. Designed to be used 
 ** in an X11 overlay visual

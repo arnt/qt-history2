@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/customlayout/flow.h#5 $
+** $Id: $
 **
 ** Definition of simple flow layout for custom layout example
 **

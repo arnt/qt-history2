@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#138 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#139 $
 **
 ** Implementation of the abstract layout base class
 **
@@ -1477,8 +1477,10 @@ Sets the hasHeightForWidth() flag to \a b.
   \class QGLayoutIterator qabstractlayout.h
   \brief The QGLayoutIterator class is an abstract base class of internal layout iterators.
 
-  To be subclassed by custom layout implementors. The functions that
-  need to be implemented are next(), current(), and takeCurrent().
+  (This class is \e not OpenGL related.)
+
+  Subclass this class to create a custom layout. The functions that
+  must be implemented are next(), current(), and takeCurrent().
 
   The QGLayoutIterator implements the functionality of
   QLayoutIterator. Each subclass of QLayout needs a

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/opengl/qglcolormap.h#4 $
+** $Id: //depot/qt/main/src/opengl/qglcolormap.h#5 $
 **
 ** Definition of QGLColormap class
 **
@@ -64,7 +64,7 @@ public:
     int    size() const;
     void   detach();
 
-    void   setEntries( int base, int count, const QRgb * colors );
+    void   setEntries( int count, const QRgb * colors, int base = 0 );
     void   setEntry( int idx, QRgb color );
     void   setEntry( int idx, const QColor & color );
     QRgb   entryRgb( int idx ) const;

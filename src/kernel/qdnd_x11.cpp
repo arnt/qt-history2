@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#141 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#142 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd/
 **
@@ -493,13 +493,13 @@ static bool checkEmbedded(QWidget* w, const XEvent* xe)
 	if (current_embedding_widget != w) {
 
 	    last_enter_event.xany.window = extra->xDndProxy;
-	    XSendEvent( qt_xdisplay(), extra->xDndProxy, FALSE, NoEventMask,
+	    XSendEvent( qt_xdisplay(), extra->xDndProxy, False, NoEventMask,
 			&last_enter_event );
 	    current_embedding_widget = w;
 	}
 
 	((XEvent*)xe)->xany.window = extra->xDndProxy;
-	XSendEvent( qt_xdisplay(), extra->xDndProxy, FALSE, NoEventMask,
+	XSendEvent( qt_xdisplay(), extra->xDndProxy, False, NoEventMask,
 		    (XEvent*)xe );
 	qt_xdnd_current_widget = w;
 	return TRUE;
@@ -676,7 +676,7 @@ void qt_handle_xdnd_position( QWidget *w, const XEvent * xe, bool passive )
     if ( source )
 	qt_handle_xdnd_status( source, (const XEvent *)&response, passive );
     else
-	XSendEvent( qt_xdisplay(), qt_xdnd_dragsource_xid, FALSE,
+	XSendEvent( qt_xdisplay(), qt_xdnd_dragsource_xid, False,
 		    emask, (XEvent*)&response );
 }
 
@@ -762,7 +762,7 @@ void qt_xdnd_send_leave()
     if ( w )
 	qt_handle_xdnd_leave( w, (const XEvent *)&leave, FALSE );
     else
-	XSendEvent( qt_xdisplay(), qt_xdnd_current_proxy_target, FALSE,
+	XSendEvent( qt_xdisplay(), qt_xdnd_current_proxy_target, False,
 		    emask, (XEvent*)&leave );
     qt_xdnd_current_target = 0;
     qt_xdnd_current_proxy_target = 0;
@@ -810,7 +810,7 @@ void qt_handle_xdnd_drop( QWidget *, const XEvent * xe, bool passive )
 	finished.message_type = qt_xdnd_finished;
 	finished.data.l[0] = qt_xdnd_current_widget?qt_xdnd_current_widget->topLevelWidget()->winId():0;
 	finished.data.l[1] = 0; // flags
-	XSendEvent( qt_xdisplay(), qt_xdnd_dragsource_xid, FALSE,
+	XSendEvent( qt_xdisplay(), qt_xdnd_dragsource_xid, False,
 		    NoEventMask, (XEvent*)&finished );
     } else {
 	QDragLeaveEvent e;
@@ -1210,7 +1210,7 @@ void QDragManager::move( const QPoint & globalPos )
 	    if ( w ) {
 		qt_handle_xdnd_enter( w, (const XEvent *)&enter, FALSE );
 	    } else if ( target ) {
-		XSendEvent( qt_xdisplay(), proxy_target, FALSE, emask,
+		XSendEvent( qt_xdisplay(), proxy_target, False, emask,
 			    (XEvent*)&enter );
 	    }
 	}
@@ -1232,7 +1232,7 @@ void QDragManager::move( const QPoint & globalPos )
 	if ( w )
 	    qt_handle_xdnd_position( w, (const XEvent *)&move, FALSE );
 	else
-	    XSendEvent( qt_xdisplay(), proxy_target, FALSE, emask,
+	    XSendEvent( qt_xdisplay(), proxy_target, False, emask,
 			(XEvent*)&move );
     } else {
 	if ( willDrop ) {
@@ -1273,7 +1273,7 @@ void QDragManager::drop()
     if ( w )
 	qt_handle_xdnd_drop( w, (const XEvent *)&drop, FALSE );
     else
-	XSendEvent( qt_xdisplay(), qt_xdnd_current_proxy_target, FALSE, emask,
+	XSendEvent( qt_xdisplay(), qt_xdnd_current_proxy_target, False, emask,
 		    (XEvent*)&drop );
 
 #ifndef QT_NO_CURSOR

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor.cpp#53 $
+** $Id: //depot/qt/main/src/kernel/qcursor.cpp#54 $
 **
 ** Implementation of QCursor class
 **

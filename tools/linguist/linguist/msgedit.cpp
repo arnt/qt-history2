@@ -700,7 +700,6 @@ void MessageEditor::setEditionEnabled( bool enabled )
 {
     editorPage->transLbl->setEnabled( enabled );
     editorPage->translationMed->setReadOnly( !enabled );
-    editorPage->translationMed->setEnabled( enabled );
 
     phraseLbl->setEnabled( enabled );
     phraseLv->setEnabled( enabled );

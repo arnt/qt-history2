@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion_win.cpp#66 $
+** $Id: //depot/qt/main/src/kernel/qregion_win.cpp#67 $
 **
 ** Implementation of QRegion class for Win32
 **

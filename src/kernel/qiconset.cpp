@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qiconset.cpp#77 $
+** $Id: //depot/qt/main/src/kernel/qiconset.cpp#78 $
 **
 ** Implementation of QIconSet class
 **
@@ -1053,8 +1053,8 @@ void QIconSet::setIconSize( Size s, const QSize & size )
     if ( !QIconSetPrivate::small_size ) {
 	QIconSetPrivate::small_size = new QSize( 22, 22 ); // default small size
 	QIconSetPrivate::large_size = new QSize( 32, 32 ); // default large size
-	qt_iconset_sizes_cleanup.add( QIconSetPrivate::small_size );
-	qt_iconset_sizes_cleanup.add( QIconSetPrivate::large_size );
+	qt_iconset_sizes_cleanup.add( &QIconSetPrivate::small_size );
+	qt_iconset_sizes_cleanup.add( &QIconSetPrivate::large_size );
     }
     if ( s == Small )
 	*QIconSetPrivate::small_size = size;
@@ -1074,8 +1074,8 @@ const QSize & QIconSet::iconSize( Size s )
     if ( !QIconSetPrivate::small_size ) {
 	QIconSetPrivate::small_size = new QSize( 22, 22 );
 	QIconSetPrivate::large_size = new QSize( 32, 32 );
-	qt_iconset_sizes_cleanup.add( QIconSetPrivate::small_size );
-	qt_iconset_sizes_cleanup.add( QIconSetPrivate::large_size );
+	qt_iconset_sizes_cleanup.add( &QIconSetPrivate::small_size );
+	qt_iconset_sizes_cleanup.add( &QIconSetPrivate::large_size );
     }
     if ( s == Small )
 	return *QIconSetPrivate::small_size;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.h#68 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.h#69 $
 **
 ** Definition of QTab and QTabBar classes
 **
@@ -147,10 +147,6 @@ protected:
     void keyPressEvent( QKeyEvent * );
     void styleChange( QStyle& );
     
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-    QAccessibleInterface *accessibleInterface();
-#endif
-
     QPtrList<QTab> * tabList();
 
 private slots:

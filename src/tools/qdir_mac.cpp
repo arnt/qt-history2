@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir_mac.cpp#42 $
+** $Id: //depot/qt/main/src/tools/qdir_mac.cpp#43 $
 **
 ** Implementation of QDir class
 **

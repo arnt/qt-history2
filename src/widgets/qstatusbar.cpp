@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qstatusbar.cpp#91 $
+** $Id: //depot/qt/main/src/widgets/qstatusbar.cpp#92 $
 **
 ** Implementation of QStatusBar class
 **
@@ -45,9 +45,6 @@
 #include "qdrawutil.h"
 #include "qapplication.h"
 #include "qsizegrip.h"
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-#include "qaccessiblewidget.h"
-#endif
 
 // REVISED: warwick
 /*!
@@ -284,7 +281,7 @@ void QStatusBar::reformat()
     if ( d->box )
 	delete d->box;
     d->box = new QVBoxLayout( this );
-    d->box->addSpacing( 3 );
+    d->box->addSpacing( 5 );
 
     QBoxLayout* l = new QHBoxLayout( d->box );
     l->addSpacing( 3 );
@@ -314,11 +311,9 @@ void QStatusBar::reformat()
 	maxH = QMAX( maxH, d->resizer->sizeHint().height() );
 	l->addSpacing( 1 );
 	l->addWidget( d->resizer, 0, AlignBottom );
-	l->addSpacing( 2 );
     }
 #endif
     l->addStrut( maxH );
-    d->box->addSpacing( 2 );
     d->box->activate();
     repaint();
 }
@@ -473,13 +468,5 @@ bool QStatusBar::event( QEvent *e )
     }
     return QWidget::event( e );
 }
-
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-/*! \reimp */
-QAccessibleInterface *QStatusBar::accessibleInterface()
-{
-    return new QAccessibleWidget( this, QAccessible::StatusBar );
-}
-#endif
 
 #endif

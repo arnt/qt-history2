@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.h#88 $
+** $Id: //depot/qt/main/src/widgets/qlabel.h#89 $
 **
 ** Definition of QLabel widget class
 **
@@ -94,8 +94,6 @@ public:
     virtual void setBuddy( QWidget * );
     QWidget     *buddy() const;
 #endif
-    void	 setAutoMask(bool);
-
     int		 heightForWidth(int) const;
 
     void setFont( const QFont &f );
@@ -115,13 +113,8 @@ public slots:
 
 protected:
     void	 drawContents( QPainter * );
-    void	 drawContentsMask( QPainter * );
     void	 fontChange( const QFont & );
     void	 resizeEvent( QResizeEvent* );
-
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-    QAccessibleInterface *accessibleInterface();
-#endif
 
 private slots:
 #ifndef QT_NO_ACCEL

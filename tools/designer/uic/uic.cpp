@@ -94,6 +94,8 @@ QString Uic::mkStdSet( const QString& prop )
 Uic::Uic( QTextStream &outStream, QDomDocument doc, bool decl, bool subcl, const QString &trm, const QString& subClass  )
     : out( outStream ), trmacro( trm )
 {
+    defMargin = BOXLAYOUT_DEFAULT_MARGIN;
+    defSpacing = BOXLAYOUT_DEFAULT_SPACING;
     externPixmaps = FALSE;
     indent = "    "; // default indent
 
@@ -110,8 +112,12 @@ Uic::Uic( QTextStream &outStream, QDomDocument doc, bool decl, bool subcl, const
 
     QDomElement firstWidget = doc.firstChild().firstChild().toElement();
     while ( firstWidget.tagName() != "widget" ) {
-	if ( firstWidget.tagName() == "pixmapinproject" )
+	if ( firstWidget.tagName() == "pixmapinproject" ) {
 	    externPixmaps = TRUE;
+	} else if ( firstWidget.tagName() == "layoutdefaults" ) {
+	    defSpacing = firstWidget.attribute( "spacing", QString::number( defSpacing ) ).toInt();
+	    defMargin = firstWidget.attribute( "margin", QString::number( defMargin ) ).toInt();
+	}
 	firstWidget = firstWidget.nextSibling().toElement();
     }
 
@@ -646,8 +652,8 @@ QString Uic::createLayoutImpl( const QDomElement &e, const QString& parentClass,
     bool isGrid = e.tagName() == "grid" ;
     objName = registerObject( getLayoutName( e ) );
     layoutObjects += objName;
-    int margin = DomTool::readProperty( e, "margin", BOXLAYOUT_DEFAULT_MARGIN ).toInt();
-    int spacing = DomTool::readProperty( e, "spacing", BOXLAYOUT_DEFAULT_SPACING ).toInt();
+    int margin = DomTool::readProperty( e, "margin", defMargin ).toInt();
+    int spacing = DomTool::readProperty( e, "spacing", defSpacing ).toInt();
 
     if ( (parentClass == "QGroupBox" || parentClass == "QButtonGroup") && layout.isEmpty() ) {
 	// special case for group box

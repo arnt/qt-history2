@@ -1,5 +1,5 @@
 /****************************************************************************
-n** $Id: //depot/qt/main/src/styles/qmotifplusstyle.cpp#10 $
+** $Id: //depot/qt/main/src/styles/qmotifplusstyle.cpp#11 $
 **
 ** Implementation of QMotifPlusStyle class
 **

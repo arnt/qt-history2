@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qconnection.h#35 $
+** $Id: //depot/qt/main/src/kernel/qconnection.h#36 $
 **
 ** Definition of QConnection class
 **

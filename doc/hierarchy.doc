@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: hierarchy.doc,v 1.6 1999/04/28 09:53:54 aavit Exp $
+** $Id: $
 **
 ** Documentation for class hierarchy
 **
@@ -32,11 +32,6 @@
 ** not clear to you.
 **
 **********************************************************************/
-
-#if defined(QT_DEBUG)
-static char ident[] = "$Id: hierarchy.doc,v 1.6 1999/04/28 09:53:54 aavit Exp $";
-#endif
-
 
 /*!
 \page hierarchy.html

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/nsplugin/src/qnp.cpp#35 $
+** $Id: $
 **
 ** Implementation of Qt extension classes for Netscape Plugin support.
 **

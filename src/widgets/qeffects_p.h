@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qeffects_p.h#11 $
+** $Id: //depot/qt/main/src/widgets/qeffects_p.h#12 $
 **
 ** Definition of QEffects functions
 **

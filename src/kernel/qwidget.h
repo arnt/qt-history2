@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#374 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#375 $
 **
 ** Definition of QWidget class
 **
@@ -425,10 +425,6 @@ public:
 #if defined(Q_WS_MAC)
     QRegion clippedRegion(bool do_children=TRUE);
     bool macDropEnabled;
-#endif
-
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-    QAccessibleInterface *accessibleInterface();
 #endif
 
 protected:

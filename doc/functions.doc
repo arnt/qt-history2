@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: functions.doc,v 1.6 1999/04/28 09:53:52 aavit Exp $
+** $Id: $
 **
 ** Documentation for class overview
 **
@@ -32,11 +32,6 @@
 ** not clear to you.
 **
 **********************************************************************/
-
-#if defined(QT_DEBUG)
-static char ident[] = "$Id: functions.doc,v 1.6 1999/04/28 09:53:52 aavit Exp $";
-#endif
-
 
 /*!
 \page functions.html

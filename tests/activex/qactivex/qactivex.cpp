@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/activex/qactivex/qactivex.cpp#2 $
+** $Id: $
 **
 ** Implementation of QActiveXControl
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/customlayout/border.cpp#6 $
+** $Id: $
 **
 ** Implementing your own layout: flow example
 **

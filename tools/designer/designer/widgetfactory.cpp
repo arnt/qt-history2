@@ -426,13 +426,13 @@ QWidget *WidgetFactory::create( int id, QWidget *parent, const char *name, bool 
 
 QLayout *WidgetFactory::createLayout( QWidget *widget, QLayout *layout, LayoutType type )
 {
-    int spacing = BOXLAYOUT_DEFAULT_SPACING;
+    int spacing = MainWindow::self->currentLayoutDefaultSpacing();
     int margin = 0;
 
     if ( widget && !widget->inherits( "QLayoutWidget" ) &&
 	 ( WidgetDatabase::isContainer( WidgetDatabase::idFromClassName( WidgetFactory::classNameOf( widget ) ) ) ||
 	   widget && widget->parentWidget() && widget->parentWidget()->inherits( "FormWindow" ) ) )
-	margin = BOXLAYOUT_DEFAULT_MARGIN;
+	margin = MainWindow::self->currentLayoutDefaultMargin();
 
     if ( !layout && widget && widget->inherits( "QTabWidget" ) )
 	widget = ((QTabWidget*)widget)->currentPage();

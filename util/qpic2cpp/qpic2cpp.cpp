@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/qpic2cpp/qpic2cpp.cpp#7 $
+** $Id: $
 **
 ** This is a utility program for converting Qt metafiles to C++ code
 **

@@ -137,6 +137,8 @@ QWidgetFactory::QWidgetFactory()
     : dbControls( 0 ), usePixmapCollection( FALSE )
 {
     widgetFactories.setAutoDelete( TRUE );
+    defSpacing = 6;
+    defMargin = 11;
 }
 
 /*! Loads the Qt Designer user interface description file \a uiFile
@@ -192,10 +194,14 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
     QDomElement firstWidget = doc.firstChild().toElement().firstChild().toElement();
 
     while ( firstWidget.tagName() != "widget" ) {
-	if ( firstWidget.tagName() == "variable" )
+	if ( firstWidget.tagName() == "variable" ) {
 	    widgetFactory->variables << firstWidget.firstChild().toText().data();
-	else if ( firstWidget.tagName() == "pixmapinproject" )
+	} else if ( firstWidget.tagName() == "pixmapinproject" ) {
 	    widgetFactory->usePixmapCollection = TRUE;
+	} else if ( firstWidget.tagName() == "layoutdefaults" ) {
+	    widgetFactory->defSpacing = firstWidget.attribute( "spacing", QString::number( widgetFactory->defSpacing ) ).toInt();
+	    widgetFactory->defMargin = firstWidget.attribute( "margin", QString::number( widgetFactory->defMargin ) ).toInt();
+	}
 	firstWidget = firstWidget.nextSibling().toElement();
     }
 
@@ -676,13 +682,10 @@ QWidget *QWidgetFactory::createWidgetInternal( const QDomElement &e, QWidget *pa
     return w;
 }
 
-#define BOXLAYOUT_DEFAULT_MARGIN 11
-#define BOXLAYOUT_DEFAULT_SPACING 6
-
 QLayout *QWidgetFactory::createLayout( QWidget *widget, QLayout*  layout, LayoutType type )
 {
-    int spacing = BOXLAYOUT_DEFAULT_SPACING;
-    int margin = BOXLAYOUT_DEFAULT_MARGIN;
+    int spacing = defSpacing;
+    int margin = defMargin;
 
     if ( !layout && widget && widget->inherits( "QTabWidget" ) )
 	widget = ((QTabWidget*)widget)->currentPage();

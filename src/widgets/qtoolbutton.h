@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbutton.h#54 $
+** $Id: //depot/qt/main/src/widgets/qtoolbutton.h#55 $
 **
 ** Definition of QToolButton class
 **
@@ -122,9 +122,8 @@ protected:
 
     bool uses3D() const;
 
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-    QAccessibleInterface *accessibleInterface();
-#endif
+    bool eventFilter( QObject *o, QEvent *e );
+
 #ifndef QT_NO_PALETTE
     void paletteChange( const QPalette & );
 #endif

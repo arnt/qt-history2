@@ -219,11 +219,11 @@ void EditorInterfaceImpl::splitView()
 #endif
 }
 
-void EditorInterfaceImpl::scrollTo( const QString &txt )
+void EditorInterfaceImpl::scrollTo( const QString &txt, const QString & )
 {
     if ( !viewManager || !viewManager->currentView() )
 	return;
-    qApp->processEvents();
+    ( (CppEditor*)viewManager->currentView() )->sync();
     QTextDocument *doc = ( (CppEditor*)viewManager->currentView() )->document();
     QTextParag *p = doc->firstParag();
     while ( p ) {

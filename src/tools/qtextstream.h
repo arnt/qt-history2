@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.h#75 $
+** $Id: //depot/qt/main/src/tools/qtextstream.h#76 $
 **
 ** Definition of QTextStream class
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qftp.cpp#22 $
+** $Id: //depot/qt/main/src/network/qftp.cpp#23 $
 **
 ** Implementation of QFtp class.
 **
@@ -56,23 +56,21 @@
 
   \module network
 
-  This class is derived from QNetworkProtocol and can be
-  used with QUrlOperator. In fact, you normally will not
-  use the QFtp class directly, but rather use it through
-  the QUrlOperator like
+  This class is derived from QNetworkProtocol. QFtp is not
+  normally used directly, but rather through a QUrlOperator, for
+  example:
 
   \code
   QUrlOperator op( "ftp://ftp.trolltech.com" );
-  op.listChildren();
+  op.listChildren(); // Asks the server to provide a directory listing
   \endcode
 
   This code will only work if the QFtp class is registered; to register the
-  class, you have to call qInitNetworkProtocols() before using a QUrlOperator
-  with FTP.
+  class, you must call qInitNetworkProtocols() before using a QUrlOperator
+  with QFtp.
 
   If you really need to use QFtp directly, don't forget
-  to set the QUrlOperator on which it works using
-  setUrl().
+  to set its QUrlOperator with setUrl().
 
   \sa \link network.html Qt Network Documentation \endlink QNetworkProtocol, QUrlOperator
 */
@@ -258,7 +256,7 @@ bool QFtp::checkConnection( QNetworkOperation * )
 }
 
 /*!
-  Closes the command and data connection to the FTP server
+  Closes the command and data connections to the FTP server
 */
 
 void QFtp::close()
@@ -289,9 +287,9 @@ int QFtp::supportedOperations() const
 }
 
 /*!
-  Parses \a buffer, which is one line of a directory list
-  which came from the FTP server, and sets the
-  values which have been parsed to \a info.
+  Parses the string, \a buffer, which is one line of a directory listing
+  which came from the FTP server, and sets the values which have been
+  parsed to the url info object, \a info.
 */
 
 void QFtp::parseDir( const QString &buffer, QUrlInfo &info )
@@ -449,8 +447,9 @@ void QFtp::closed()
 }
 
 /*!
-  If data arrived on the command socket, this slot is called. It looks at
-  the data and passes it to the correct method which can handle it
+  If data has arrived on the command socket, this slot is called. The
+  function loks at the data and passes it on to the function which can
+  handle it
 */
 
 void QFtp::readyRead()
@@ -495,7 +494,7 @@ void QFtp::readyRead()
 
 /*
   Handles responses from the server which say that
-  currently something couldn't be done and it should be tried later again.
+  something couldn't be done at the moment, but should be tried again later.
 */
 
 void QFtp::okButTryLater( int, const QCString & )
@@ -509,7 +508,8 @@ void QFtp::okButTryLater( int, const QCString & )
 }
 
 /*
-  Handles responses from the server which are the result of a success
+  Handles success responses from the server. The success code is in \a
+  code and the data is in \a data.
 */
 
 void QFtp::okGoOn( int code, const QCString &data )
@@ -658,7 +658,9 @@ void QFtp::okGoOn( int code, const QCString &data )
 }
 
 /*
-  Handles responses from the server which needs more information about something
+  Handles responses from the server which request more information.
+  The code in \a code indicates the kind of information that is
+  required.
 */
 
 void QFtp::okButNeedMoreInfo( int code, const QCString & )
@@ -683,7 +685,7 @@ void QFtp::okButNeedMoreInfo( int code, const QCString & )
 }
 
 /*
-  Handles error messages from the server
+  Handles error messages from the server.
 */
 
 void QFtp::errorForNow( int, const QCString & )
@@ -691,7 +693,8 @@ void QFtp::errorForNow( int, const QCString & )
 }
 
 /*
-  Handles fatal error messages from the server (after this nothing more can't be done)
+  Handles fatal error messages from the server (after this nothing more
+  can be done). The error code is in \a code and the data is in \a data.
 */
 
 void QFtp::errorForgetIt( int code, const QCString &data )
@@ -758,7 +761,7 @@ void QFtp::dataHostFound()
 
 /*!
   Some operations require a data connection to the server. If this connection
-  could be opened, this method handles the rest.
+  could be opened, this function handles the data connection.
 */
 
 void QFtp::dataConnected()
@@ -819,7 +822,7 @@ void QFtp::dataConnected()
 }
 
 /*!
-  Called when the data connection has been closed
+  This function is called when the data connection has been closed.
 */
 
 void QFtp::dataClosed()
@@ -839,7 +842,7 @@ void QFtp::dataClosed()
 }
 
 /*!
-  This method is called when new data arrived on the data socket.
+  This function is called when new data arrived on the data socket.
 */
 
 void QFtp::dataReadyRead()
@@ -895,8 +898,8 @@ void QFtp::dataReadyRead()
 }
 
 /*!
-  This method is called, when \a nbytes have been successfully written to the
-  data socket.
+  This function is called, when \a nbytes have been successfully written
+  to the data socket.
 */
 
 void QFtp::dataBytesWritten( int nbytes )

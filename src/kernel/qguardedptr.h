@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qguardedptr.h#18 $
+** $Id: //depot/qt/main/src/kernel/qguardedptr.h#19 $
 **
 ** Definition of QGuardedPtr class
 **
@@ -66,7 +66,7 @@ public:
     QGuardedPtr() : priv( new QGuardedPtrPrivate( 0 ) ) {}
 
     QGuardedPtr( T* o) {
-	priv = new QGuardedPtrPrivate( static_cast<QObject*>(o) );
+	priv = new QGuardedPtrPrivate( (QObject*)o );
     }
 
     QGuardedPtr(const QGuardedPtr<T> &p) {
@@ -90,7 +90,7 @@ public:
 	    priv->reconnect( o );
 	} else {
 	    deref();
-	    priv = new QGuardedPtrPrivate( static_cast<QObject*>(o) );
+	    priv = new QGuardedPtrPrivate( (QObject*)o );
 	}
 	return *this;
     }

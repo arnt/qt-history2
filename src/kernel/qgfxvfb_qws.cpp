@@ -1,5 +1,5 @@
 /*****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgfxvfb_qws.cpp#28 $
+** $Id: //depot/qt/main/src/kernel/qgfxvfb_qws.cpp#29 $
 **
 ** Implementation of QGfxvfb (virtual frame buffer driver)
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/process/process.cpp#9 $
+** $Id: //depot/qt/main/examples/process/process.cpp#10 $
 **
 ** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **

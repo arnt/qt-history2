@@ -117,6 +117,8 @@ void DesignerInterfaceImpl::setModified( bool b, QWidget *window )
 void DesignerInterfaceImpl::updateFunctionList()
 {
     mainWindow->updateFunctionList();
+    if ( mainWindow->objectHierarchy()->sourceEditor() )
+	mainWindow->objectHierarchy()->updateClassBrowsers();
 }
 
 void DesignerInterfaceImpl::onProjectChange( QObject *receiver, const char *slot )
@@ -258,6 +260,29 @@ QString DesignerProjectImpl::customSetting( const QString &key ) const
 DesignerPixmapCollection *DesignerProjectImpl::pixmapCollection() const
 {
     return project->pixmapCollection()->iFace();
+}
+
+void DesignerProjectImpl::breakPoints( QMap<QString, QValueList<int> > &bps ) const
+{
+    MainWindow::self->saveAllBreakPoints();
+    QPtrList<SourceFile> sources = project->sourceFiles();
+    for ( SourceFile *sf = sources.first(); sf; sf = sources.next() )
+	bps.insert( project->makeRelative( sf->fileName() ) + " <Source-File>", MetaDataBase::breakPoints( sf ) );
+    QPtrList<FormWindow> forms = project->forms();
+    for ( FormWindow *fw = forms.first(); fw; fw = forms.next() )
+	bps.insert( QString( fw->name() ) + " <Form>", MetaDataBase::breakPoints( fw ) );
+}
+
+void DesignerProjectImpl::clearAllBreakpoints() const
+{
+    QPtrList<SourceFile> sources = project->sourceFiles();
+    QValueList<int> empty;
+    for ( SourceFile *sf = sources.first(); sf; sf = sources.next() )
+	MetaDataBase::setBreakPoints( sf, empty );
+    QPtrList<FormWindow> forms = project->forms();
+    for ( FormWindow *fw = forms.first(); fw; fw = forms.next() )
+	MetaDataBase::setBreakPoints( fw, empty );
+    MainWindow::self->resetBreakPoints();
 }
 
 

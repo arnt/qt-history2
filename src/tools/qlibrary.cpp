@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qlibrary.cpp#13 $
+** $Id: //depot/qt/main/src/tools/qlibrary.cpp#14 $
 **
 ** Implementation of QLibrary class
 **
@@ -54,6 +54,10 @@
 // KAI C++ has at the moment problems with unloading the Qt plugins. So don't
 // unload them as a workaround for now.
 #if defined(Q_CC_KAI)
+#define QT_NO_LIBRARY_UNLOAD
+#endif
+
+#if defined(Q_WS_WIN) && !defined(QT_DLL)
 #define QT_NO_LIBRARY_UNLOAD
 #endif
 
@@ -242,7 +246,7 @@ bool QLibraryPrivate::loadLibrary()
     *handle = shl_load( filename.latin1(), BIND_DEFERRED | BIND_NONFATAL | DYNAMIC_PATH, 0 );
 #if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
     if ( !handle )
-	qDebug( "Failed to load library %1!", filename.latin1() );
+	qDebug( "Failed to load library %s!", filename.latin1() );
 #endif
     pHnd = (void*)handle;
     return pHnd != 0;
@@ -270,7 +274,7 @@ void* QLibraryPrivate::resolveSymbol( const char* symbol )
     void* address;
     if ( shl_findsym( (shl_t*)pHnd, symbol, TYPE_UNDEFINED, address ) < 0 ) {
 #if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
-	qDebug( "Couldn't resolve symbol \"%1\"", symbol );
+	qDebug( "Couldn't resolve symbol \"%s\"", symbol );
 #endif
 	return;
     }
@@ -412,13 +416,7 @@ bool QLibraryPrivate::freeLibrary()
     if ( !pHnd )
 	return TRUE;
 
-#if defined(QT_NO_LIBRARY_UNLOAD)
-    // ### this is a hack to solve problems with plugin unloading und KAI C++
-    // (other compilers may have the same problem)
-    int ec = 0;
-#else
     int ec = dlclose( pHnd );
-#endif
     if ( !ec )
 	pHnd = 0;
 #if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
@@ -513,13 +511,20 @@ void QLibrary::createInstanceInternal()
     }
 
     if ( d->pHnd && !entry ) {
-#if QT_DEBUG_COMPONENT == 2
+#if defined(QT_DEBUG_COMPONENT) && QT_DEBUG_COMPONENT == 2
 	qDebug( "%s has been loaded.", libfile.latin1() );
 #endif
-	typedef QUnknownInterface* (*UCMProc)();
-	UCMProc ucmProc;
-	ucmProc = (UCMProc) resolve( "ucm_instantiate" );
-	entry = ucmProc ? ucmProc() : 0;
+#ifndef QT_LITE_COMPONENT
+	typedef void(*UCMInitProc)( QApplication *theApp );
+	UCMInitProc ucmInitProc;
+	ucmInitProc = (UCMInitProc) resolve( "ucm_initialize" );
+	if ( ucmInitProc )
+	    ucmInitProc( qApp );
+#endif
+	typedef QUnknownInterface* (*UCMInstanceProc)();
+	UCMInstanceProc ucmInstanceProc;
+	ucmInstanceProc = (UCMInstanceProc) resolve( "ucm_instantiate" );
+	entry = ucmInstanceProc ? ucmInstanceProc() : 0;
 	if ( entry ) {
 	    entry->queryInterface( IID_QLibrary, (QUnknownInterface**)&d->libIface);
 	    if ( d->libIface ) {
@@ -536,13 +541,12 @@ void QLibrary::createInstanceInternal()
 		    d->startTimer();
 	    }
 	} else {
-#if QT_DEBUG_COMPONTENT == 2
+#if defined(QT_DEBUG_COMPONENT) && QT_DEBUG_COMPONTENT == 2
 	    qDebug( "%s: No interface implemented.", libfile.latin1() );
 #endif
 	    unload();
 	}
     }
-
 }
 
 /*!
@@ -643,15 +647,20 @@ bool QLibrary::unload( bool force )
 	entry = 0;
     }
 
-    if ( !d->freeLibrary() )
-    {
-#if QT_DEBUG_COMPONENT == 2
+// ### this is a hack to solve problems with plugin unloading und KAI C++
+// (other compilers may have the same problem)
+#if defined(QT_NO_LIBRARY_UNLOAD)
+    if ( TRUE ) {
+#else
+    if ( !d->freeLibrary() ) {
+#endif
+#if defined(QT_DEBUG_COMPONENT) && QT_DEBUG_COMPONENT == 2
 	qDebug( "%s could not be unloaded.", libfile.latin1() );
 #endif
 	return FALSE;
     }
 
-#if QT_DEBUG_COMPONENT == 2
+#if defined(QT_DEBUG_COMPONENT) && QT_DEBUG_COMPONENT == 2
     qDebug( "%s has been unloaded.", libfile.latin1() );
 #endif
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#76 $
+** $Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#77 $
 **
 ** Implementation of QWidgetStack class
 **

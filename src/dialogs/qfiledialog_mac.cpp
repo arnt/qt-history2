@@ -19,18 +19,16 @@ static void cleanup_str_buffer()
     }
 }
 
+extern const char qt_file_dialog_filter_reg_exp[]; // defined in qfiledialog.cpp
 
 // Returns the wildcard part of a filter.
-extern const char qt_file_dialog_filter_reg_exp[]; // defined in qfiledialog.cpp
 static QString extractFilter( const QString& rawFilter )
 {
-    QString result;
+    QString result = rawFilter;
     QRegExp r( QString::fromLatin1(qt_file_dialog_filter_reg_exp) );
-    int index = r.search( rawFilter );
+    int index = r.search( result );
     if ( index >= 0 )
-	result = rawFilter.mid( index + 1, r.matchedLength() - 2 );
-    else
-	result = rawFilter;
+	result = r.cap( 1 );
     return result.replace( QRegExp(QString::fromLatin1(" ")), QChar(';') );
 }
 

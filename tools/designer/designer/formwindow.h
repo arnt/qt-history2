@@ -184,6 +184,11 @@ public:
 
     DesignerFormWindow *iFace();
 
+    int layoutDefaultSpacing() const;
+    int layoutDefaultMargin() const;
+    void setLayoutDefaultSpacing( int s );
+    void setLayoutDefaultMargin( int s );
+
 public slots:
     virtual void widgetChanged( QObject *w );
     virtual void currentToolChanged();
@@ -288,6 +293,7 @@ private:
     QWidget* targetContainer;
     QColor restoreColor;
     bool hadOwnPalette;
+    int defSpacing, defMargin;
 
 };
 

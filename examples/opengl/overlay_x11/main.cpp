@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/examples/overlay_x11/main.cpp#1 $
+** $Id: $
 **
 ** Example application showing how to use Qt and Qt OpenGL Extension on an 
 ** X11 overlay visual 

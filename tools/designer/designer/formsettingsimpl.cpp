@@ -30,6 +30,7 @@
 #include <qcombobox.h>
 #include <qradiobutton.h>
 #include <qlineedit.h>
+#include <qspinbox.h>
 
 FormSettings::FormSettings( QWidget *parent, FormWindow *fw )
     : FormSettingsBase( parent, 0, TRUE ), formwindow( fw )
@@ -54,6 +55,8 @@ FormSettings::FormSettings( QWidget *parent, FormWindow *fw )
 	radioPixmapFunction->setChecked( TRUE );
     editPixmapFunction->setText( formwindow->pixmapLoaderFunction() );
     radioProjectImageFile->setEnabled( fw->project() != fw->mainWindow()->emptyProject() );
+    spinSpacing->setValue( formwindow->layoutDefaultSpacing() );
+    spinMargin->setValue( formwindow->layoutDefaultMargin() );
 }
 
 void FormSettings::okClicked()
@@ -88,6 +91,8 @@ void FormSettings::okClicked()
     }
 
     formwindow->setPixmapLoaderFunction( editPixmapFunction->text() );
+    formwindow->setLayoutDefaultSpacing( spinSpacing->value() );
+    formwindow->setLayoutDefaultMargin( spinMargin->value() );
 
     accept();
 }

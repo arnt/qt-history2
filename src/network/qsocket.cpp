@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocket.cpp#43 $
+** $Id: //depot/qt/main/src/network/qsocket.cpp#44 $
 **
 ** Implementation of QSocket class.
 **
@@ -40,6 +40,7 @@
 #include "qptrlist.h"
 #include "qsocketdevice.h"
 #include "qdns.h"
+#include "qtimer.h"
 
 #include <string.h>
 #include <errno.h>
@@ -1026,6 +1027,27 @@ QString QSocket::readLine()
     return s;
 }
 
+
+/*!
+  This private slot emits the error socket read. This is used by sn_read()
+  together with a single shot timer, so that one can delete the class if you
+  receive an error.
+*/
+void QSocket::emitErrSocketRead()
+{
+    emit error( ErrSocketRead );
+}
+
+/*!
+  This private slot emits the connectionClosed() signal. This is used by
+  sn_read() together with a single shot timer, so that one can delete the class
+  if the connection was closed.
+*/
+void QSocket::emitConnectionClosed()
+{
+    emit connectionClosed();
+}
+
 /*!
   Internal slot for handling socket read notifications.
 */
@@ -1079,7 +1101,7 @@ void QSocket::sn_read()
 	    d->socket->close();
 	    d->wba.clear();			// clear write buffer
 	    d->windex = d->wsize = 0;
-	    emit connectionClosed();
+	    QTimer::singleShot( 0, this, SLOT(emitConnectionClosed()) );
 	    d->sn_read_alreadyCalled = FALSE;
 	    return;
 	} else {
@@ -1094,7 +1116,7 @@ void QSocket::sn_read()
 #endif
 		if (d->rsn)
 		    d->rsn->setEnabled( FALSE );
-		emit error( ErrSocketRead );	// socket close error
+		QTimer::singleShot( 0, this, SLOT(emitErrSocketRead()) );
 		d->sn_read_alreadyCalled = FALSE;
 		return;
 	    }
@@ -1131,7 +1153,7 @@ void QSocket::sn_read()
 	    delete a;
 	    if (d->rsn)
 		d->rsn->setEnabled( FALSE );
-	    emit error( ErrSocketRead );	// socket read error
+	    QTimer::singleShot( 0, this, SLOT(emitErrSocketRead()) );
 	    d->sn_read_alreadyCalled = FALSE;
 	    return;
 	}

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/qimagepaintdevice/qimagepaintdevice_ttf.cpp#2 $
+** $Id: $
 **
 ** Implementation of QImagePaintDevice32 class
 **

@@ -2,7 +2,7 @@
 <title>Creating a Qt Application</title>
 
 <sect1 id="runningampexitingqtdesigner">
-<title>Starting and Exiting Qt Designer </title>
+<title>Starting and Exiting \qd </title>
 <para id="aktf">
 \x[Starting Qt Designer]
 \qd is controlled in the same way as any other modern
@@ -10,7 +10,7 @@ desktop application.
 To start \qd under Windows click the \menu[Start]
 button and click \menu[Programs|Qt X.x.x|Designer].
 (X.x.x is the Qt version number, e.g. 3.0.0.) If you're running a Unix
-or Linux operating system you can either click the \qd icon or enter
+or Linux operating system you can either double click the \qd icon or enter
 <literal>designer &amp;</literal> in an xterm.
 </para>
 <para id="aktp">
@@ -27,10 +27,11 @@ the work involves using \qd's menus, dialogs and editors, with only
 small amounts of code to type in. 
 </para>
 <para id="akud">
-When you start \qd you will see a menu bar and various toolbars at the
-top. 
+When you start \qd, by default, you will see a menu bar and various
+toolbars at the top. 
 \x[Widgets and Source window^Object Explorer]
 \x[Object Explorer]
+\x[Pixmaps]
 On the left hand side are three windows, the first is the Files
 window, the second is the Widgets and Source window (the Object
 Explorer) and the third is the
@@ -43,7 +44,7 @@ dialogs, menu options and toolbar buttons as we create example
 applications.
 </para>
 <para id="akut">
-In this chapter we will build an application called multiclip which
+In this chapter we will build an application called 'multiclip' which
 allows you to store and retrieve multiple text clippings to and from the
 clipboard.
 <figure><title>The Multiclip Application</title>
@@ -57,10 +58,12 @@ clipboard.
 <para id="akvf">
 \x[Projects]
 \x[Projects|Creating New]
-\x[Creating a new Project^Projects]
-Whenever you begin a new program we
-strongly recommend that you create a project file and open the project rather
-than individual \f[.ui] files. Opening a project has
+\x[Creating Projects^Projects]
+\x[Pixmaps|In Projects]
+\x[Pixmaps|Adding to Forms]
+Whenever you create a new application we
+\i[strongly] recommend that you create a project file and open the
+project rather than individual \f[.ui] files. Opening a project has
 the advantage that all the forms you create for the project are
 available via a single mouse click rather than having to be loaded
 individually through file open dialogs. An additional benefit of using
@@ -69,7 +72,8 @@ single file rather than duplicate them in each form in which they
 appear.
 </para>
 <para id="akvr">
-\x[Button^PushButton]
+\x[Adding|Forms]
+\x[Forms|Adding]
 Start \qd if you haven't already. Click \menu[File|New Project] to invoke
 the \dlg[Project Settings] dialog. Enter 'multiclip' as the project's name and
 'multiclip.pro' as the project's filename, then click \ok.  The name of
@@ -78,8 +82,8 @@ the current project is shown in the
 toolbar which is the top left toolbar by
 default. Once we have a project we can add forms and begin to build our
 application. (See <xref
-linkend="customizingqtdesigner"> "Customizing Qt Designer" for
-information on changing Designer's toolbars and windows to suit your
+linkend="customizingqtdesigner"> "Customizing \qd" for
+information on changing \qd's toolbars and windows to suit your
 preferences.)
 </para>
 </sect1>
@@ -88,7 +92,8 @@ preferences.)
 <title>Creating a New Form </title>
 <para id="akwi">
 \x[Dialogs|Creating New]
-\x[Creating a new Form^Dialogs]
+\x[Creating Forms^Dialogs]
+\x[Adding|Forms]
 Click \menu[File|New] to invoke the \dlg[New Form] dialog.
 Several default forms are supplied but we will use the default Dialog
 form, so just click \ok. A new form called 'Form1' will appear. Note
@@ -120,11 +125,11 @@ vSizeType. These properties are edited in the same way as any
 other properties.
 </para>
 <para id="akxu">
-Some properties have simple values, for example the \prop[name] property
+Some properties have simple values, for example, the \prop[name] property
 has a text value, the \prop[width] property (within \prop[minimumSize]
 for example) has a numeric value. To change a text value click the
 existing text and type in your new text. To change a numeric value click
-the value and either type in a new number or use the spin buttons to
+the value and either type in a new number, or use the spin buttons to
 increase or decrease the existing number until it reaches the value you
 want. Some properties have a fixed list of values, for example the
 \prop[mouseTracking] property is boolean and can take the values True or
@@ -169,7 +174,8 @@ from the \menu[Edit] menu).
 <sect1 id="addingwidgets">
 <title>Adding Widgets </title>
 <para id="alaa">
-\x[Adding Widgets to a Form]
+\x[Forms|Adding Widgets]
+\x[Adding|Widgets]
 \x[Cut and Paste (in Applications)]
 The multiclip application consists of a text box to display the current
 clipboard text (if any), a list box showing the previous clippings, a
@@ -200,7 +206,7 @@ correctly. We'll now add the multiclip form's widgets.
 	Click the 
 	\toolbutton[Line Edit] toolbar button and
 	click towards the top right of the form. Use the Property Editor
-	to rename the widget 'currentLineEdit'.
+	to change the widget's name to 'currentLineEdit'.
 	</para>
     </listitem>
     <listitem>
@@ -215,15 +221,16 @@ correctly. We'll now add the multiclip form's widgets.
 	</para>
 	<para id="albs">
 	\x[Properties|Property Editors]
-	\x[Property Editors|Listbox]
+	\x[Deleting|ListBox Items]
+	\x[Value Editors|List Box]
 	Click the 
 	\toolbutton[List Box] toolbar button and click
 	the form below the 'Previous Clippings' label. Change the list
 	box's name to 'clippingsListBox'. By default \qd creates list
-	boxes with a single default value of 'New Item'. We don't want
+	boxes with a single initial value of 'New Item'. We don't want
 	this value (we'll be populating our list box in code later), so
 	we need to remove the value. Right click the list box then click
-	the \menu[Edit] menu item on the pop up menu
+	the \menu[Edit] menu item on the popup menu
 	to invoke the listbox's value editor dialog. Click
 	\button[Delete Item] to delete the default item,
 	then click \ok. (See the <xref linkend="valueeditors"> "Value
@@ -236,6 +243,8 @@ correctly. We'll now add the multiclip form's widgets.
 	a label and an \widget[LCD Number] widget. 
 	</para>
 	<para id="alco">
+	\x[Adding|Text Labels]
+	\x[Adding|Labels]
 	Click the 
 	\toolbutton[Text Label] toolbar button and
 	\widget[Line Edit]. Change its \prop[text]
@@ -271,8 +280,9 @@ correctly. We'll now add the multiclip form's widgets.
 	paste repeatedly. We will use another approach.
 	</para>
 	<para id="aleb">
-	\x[Adding Duplicate Widgets]
+	\x[Adding|Duplicate Widgets]
 	\x[Widgets|Repeatedly Adding]
+	\x[Adding|Push Buttons]
 	<emphasis>Double</emphasis> click the 
 	\toolbutton[Push Button] toolbar button; now click below the
 	checkbox to place a button. Click below the button we've just
@@ -309,7 +319,7 @@ can only contain a single line of text, but a
 \class[QListBox] can contain any number of items each of
 which may be a line of text, a pixmap, or both. To invoke a widget's
 value editor double click the widget. (Alternatively right click the
-widget and a pop up menu will appear; if the first menu item is 'Edit',
+widget and a popup menu will appear; if the first menu item is 'Edit',
 you can click this to access the widget's value editor dialog.)
 Different widgets have different value editors.
 </para>
@@ -347,6 +357,9 @@ Different widgets have different value editors.
     using one of the layout buttons. 
     </para>
     <para id="algx">
+    \x[Layouts|Space filling]
+    \x[Widgets|Push Button]
+    \x[Widgets|Line Edit]
     Some widgets will grow to fill the available space, vertically or
     horizontally or both ways. Buttons and line edits will fill
     horizontal space for example, whereas a \widget[ListView] will fill
@@ -355,7 +368,7 @@ Different widgets have different value editors.
     widgets in some situations the widgets may not lay out the way you
     want. If a widget does not fill up enough space try changing its
     \prop[sizePolicy] to Expanding. If a widget takes up too much space one
-    approach is to change its sizePolicy, and another approach is to use
+    approach is to change its \prop[sizePolicy], and another approach is to use
     a <emphasis>Spacer</emphasis> to consume excess space.
     </para>
     <para id="alhl">
@@ -388,7 +401,7 @@ Different widgets have different value editors.
     \x[Scaling widgets and application windows]
     \x[Automatically scaling widgets and application windows]
     \x[Absolute positioning]
-    Layouts provide a means of relating widgets and groups of widgets
+    Layouts provide a means of grouping widgets and groups of widgets
     together in horizontal and vertical pairs and in grids. If you use
     layouts your forms and the widgets they contain will scale
     automatically when the user resizes the window. This is better than
@@ -414,9 +427,9 @@ Different widgets have different value editors.
     \x[Widgets|Grouping]
     To select an individual widget, either click the widget itself or
     click its Name in the Object Explorer window. To select a group
-    either click a tiny bit outside its red outline or click its Name in
+    either click a fraction outside its red outline or click its Name in
     the Object Explorer window. To select multiple widgets or groups,
-    click the form to deselecte any selected widgets, then \key[Ctrl+Click]
+    click the form to deselect any selected widgets, then \key[Ctrl+Click]
     one widget or group then drag the rubber band so that it touches the
     other widgets or groups that you want to select. This technique is
     particularly useful for selecting widgets that are
@@ -441,9 +454,9 @@ Different widgets have different value editors.
  </sidebar>
 
     <para id="alkn">
-    The layout we want to achieve is to have the Current Clipping label
+    The layout we want to achieve is to have the current clipping label
     and currentLineEdit side by side at the top of the form. We want the
-    Previous Clippings label and the clippingsListBox to occupy the left
+    previous clippings label and the clippingsListBox to occupy the left
     hand side of the form with the remaining widgets in a column on the
     right. We want to divide left and right with a splitter and make the
     left hand side larger by default. We'll leave the sizing of the
@@ -453,8 +466,8 @@ Different widgets have different value editors.
     <orderedlist numeration="arabic">
     <listitem>
     <para id="alla">
-    Click the Current Clipping label and \key[Shift+Click] the currentLineEdit
-    \widget[Line Edit]. 
+    Click the current clipping label and \key[Shift+Click] the
+    currentLineEdit \widget[Line Edit]. 
     (\key[Shift+Click] means hold down the shift key whilst
     clicking; this will ensure that \qd performs multiple selections.)
     Most of the layout toolbar buttons will now be available. Click the
@@ -547,8 +560,8 @@ Different widgets have different value editors.
     Now we'll add the spacer.
     Click the \toolbutton[Spacer] toolbar button, then click the form
     in the space you've created between the LCD Number and the check
-    box. A pop up menu with two options, Horizontal and Vertical, will
-    appear; click Vertical. We chose vertical because we want the spacer
+    box. A popup menu with two options, Horizontal and Vertical, will
+    appear; click Vertical. We choose vertical because we want the spacer
     to consume excess vertical space.
     </para>
     </listitem>
@@ -568,6 +581,7 @@ Different widgets have different value editors.
     <para id="alpl">
     \x[Layouts|Splitters]
     \x[Layouts|Horizontal]
+    \x[Layouts|Spacers]
     We now have three groups as we had before, only this time with the
     small addition of the spacer. Select the list box and the buttons by
     clicking the form, dragging and releasing once the rubber band
@@ -610,14 +624,14 @@ Different widgets have different value editors.
     \x[Selecting Widgets]
     We will create some space around the splitter by changing the
     margins of the layout groups that it joins together. To click a
-    layout either click a tiny bit above the layout's top red line or
+    layout either click a fraction above the layout's top red line or
     click the layout's name in the Object Explorer (the Widgets and
     Source window). (See <xref
     linkend="theobjectexplorer"> "The Object Explorer" sidebar for an
     explanation of the Object Explorer window.) Click the layout that
     contains the list box, and change the \prop[layoutMargin] property to 6,
-    then press \key[Return]. Click the layout that contains
-    the buttons and other widgets and change
+    then press \key[Enter]. Click the layout that contains
+    the buttons and other widgets, and change
     its \prop[layoutMargin] to the same value in the same way. 
     </para>
 
@@ -639,7 +653,15 @@ Different widgets have different value editors.
     \x[Code Editing]
     \x[Subclassing]
     \x[Forward declarations]
+    \x[Includes]
+    \x[Adding|Code]
+    \x[Adding|Forward declarations]
+    \x[Adding|Includes]
+    \x[Adding|Class variables]
     \x[Class variables]
+    \x[Deleting|Forward declarations]
+    \x[Deleting|Includes]
+    \x[Deleting|Class variables]
     \x[Forms|Forward declarations]
     \x[Forms|Class variables]
     \x[Forms|Code editing]
@@ -660,7 +682,7 @@ Different widgets have different value editors.
     or declaration right click the appropriate item, e.g. Class
     Variables, then click New then enter your text, e.g.
     <literal>QString fileName</literal>. If one or more items exist
-    right clicking will pop up a two item menu with New and Delete as
+    right clicking will popup a two item menu with New and Delete as
     options. To edit code just click the name of a function to invoke
     the code editor. Code editing and creating slots are covered later.
     </para>
@@ -682,10 +704,10 @@ Different widgets have different value editors.
     positioning, i.e. to place and size your widgets with exact pixel
     sizes you can easily do so. To place a widget click it and drag it
     to the desired position. To resize it, click it, and drag one of the
-    sizing handles (small blue squares) until the size is right. To stop
-    the widget from resizing when the window is resized change the
-    \prop[hSizeType] and \prop[vSizeType] (these are properties within
-    the \prop[sizePolicy] property), to Fixed.
+    sizing handles (these are small blue squares) until the size is
+    right. To stop the widget from resizing when the window is resized
+    change the \prop[hSizeType] and \prop[vSizeType] (these are
+    properties within the \prop[sizePolicy] property), to Fixed.
     </para>
     </sect2>
 
@@ -704,8 +726,8 @@ Different widgets have different value editors.
     </para>
     <para id="alur">
     To see a preview either click \menu[Preview|Preview Form] 
-    or press \key[Ctrl+T]. To leave preview mode press
-    \key[Esc] or close the window in the standard way for
+    or press \key[Ctrl+T]. To leave preview mode 
+    close the window in the standard way for
     your environment. To view previews which show how the application will
     look on other platforms click the \menu[Preview]
     menu and click one of the menu items that drop down.
@@ -741,13 +763,13 @@ Different widgets have different value editors.
     To remove a layout click the \toolbutton[Break Layout]
     toolbar button; to apply a layout select the
     relevant widgets or groups and click a layout button. You can
-    preview as often as you like and you can always Undo any changes
+    preview as often as you like and you can always undo any changes
     that you make. 
     </para>
     <para id="alwo">
     \x[Layouts|Grid]
     \x[Layouts|Break layout]
-    We'll try an experiment, to see how the grid layout works. Click
+    Let's try an experiment, to see how the grid layout works. Click
     the list box, then press \key[Ctrl+B] (break layout).
     Click one of the buttons and press \key[Ctrl+B]. Click
     the form at the bottom and drag until all the widgets are touching
@@ -774,24 +796,25 @@ Different widgets have different value editors.
     \x[Tab Order]
     When you click the \toolbutton[Tab Order] toolbar button a
     number in a blue circle will appear next to every widget that can
-    accept keyboard focus. You change the tab order by clicking the widgets in
-    the order you want to be the new tab order. If you make a mistake
-    and need to start again, double click the widget you want to be
-    first, then click the other widgets in the required order as before.
-    When you've finished press \key[Esc] to leave tab order
-    mode. If you made a mistake or preferred the previous tab order you
-    can undo your changes by leaving tab order and undoing (press
-    \key[Esc] then \key[Ctrl+Z]). 
+    accept keyboard focus. The numbers represent the each widget's tab
+    order, starting from 1. You change the tab order by clicking the
+    widgets in the order you want to be the new tab order. If you make
+    a mistake and need to start again, double click the widget you
+    want to be first, then click the other widgets in the required
+    order as before. When you've finished press \key[Esc] to leave tab
+    order mode. If you made a mistake or preferred the previous tab
+    order you can undo your changes by leaving tab order and undoing
+    (press \key[Esc] then \key[Ctrl+Z]). 
     </para>
     <para id="alyh">
     \x[Tab Order]
     Click the \toolbutton[Tab Order] toolbar button, then
-    click the current clipping \widget[LineEdit]
+    click the current clipping \widget[Line Edit]
     -- even if it is already number
     one in the tab order. Next click the previous clipping \widget[ListBox], 
-    then the auto add clippings CheckBox. Click each button in turn from
-    top (add clipping) to bottom (quit). Press \key[Esc] to finish tab
-    order mode, then preview the form and try tabbing through
+    then the auto add clippings \widget[CheckBox]. Click each button in
+    turn from top (add clipping) to bottom (quit). Press \key[Esc] to
+    finish tab order mode, then preview the form and try tabbing through
     the widgets. 
     </para>
     <para id="alys">
@@ -803,8 +826,10 @@ Different widgets have different value editors.
 </sect1>
 
 <sect1 id="connectingupanapplication">
-<title>Connecting up an Application </title>
+<title>Connecting Signals and Slots </title>
 <para id="alzc">
+\x[Signals and Slots]
+\x[Connecting^Signals and Slots]
 Qt provides the signals and slots mechanism for communicating between
 widgets. Signals are emitted by widgets when particular events occur. We
 can connect signals to slots, either pre-defined slots or those we
@@ -824,8 +849,8 @@ documentation.)
     one pre-defined connection that we can use, but in the richedit
     application that we'll build in <xref linkend="main-windows">
     "Creating Main Windows with Actions, Toolbars &amp; Menus" we will
-    use many pre-defined signals and slots to get a lot of functionality
-    without having to write any code. 
+    use many pre-defined signals and slots to get a lot of the functionality
+    we need without having to write any code. 
     </para>
     <para id="alzy">
     We will connect the Quit button's \fs[clicked()]
@@ -840,6 +865,7 @@ documentation.)
     </para>
     <para id="amaj">
     \x[Signals and Slots]
+    \x[Slots^Signals and Slots]
     Click the \toolbutton[Connect Signals/Slots] toolbar
     button. Click the Quit button, drag to the form and release. The
     \dlg[Edit Connections] dialog will pop up. The top left hand list box
@@ -847,7 +873,7 @@ documentation.)
     right is a combobox which lists the form and its widgets; any of
     these are candidates for receiving signals. Since we released on the
     form rather than a widget the slots combobox shows the 
-    form's name, 'MulticlipForm'. Below the combobox
+    form's name, 'MulticlipForm'. Beneath the combobox
     is a list box which shows the slots available in the form or widget
     shown in the combobox. Note that only those slots that can be
     connected to the highlighted signal are shown. If you clicked a
@@ -868,7 +894,7 @@ documentation.)
     </sect2>
 
     <sect2 id="creatingampconnectingcustomslots">
-    <title>Creating &amp; Connecting Custom Slots </title>
+    <title>Creating and Connecting Custom Slots </title>
     <para id="ambn">
     \x[Signals and Slots]
     \x[Subclassing]
@@ -892,9 +918,9 @@ documentation.)
     delete the current clipping and the current list box item. We will
     also need to write some initialization code so that when the
     application starts it will put the current clipboard text (if any)
-    into the line edit. The code is written directly in Designer; the
+    into the line edit. The code is written directly in \qd; the
     snippets are taken from the generated
-    \fe[qt/tools/designer/eg/multiclip/multiclip.cpp]
+    \fe[qt/tools/designer/examples/multiclip/multiclip.cpp]
     file. 
     </para>
     <para id="amcn">
@@ -912,24 +938,32 @@ documentation.)
     </para>
     <para id="amcz">
     \x[Forward declarations]
+    \x[Includes]
+    \x[Adding|Code]
+    \x[Adding|Forward declarations]
+    \x[Adding|Includes]
+    \x[Adding|Class variables]
+    \x[Deleting|Forward declarations]
+    \x[Deleting|Includes]
+    \x[Deleting|Class variables]
     \x[Class variables]
     \x[Forms|Forward declarations]
     \x[Forms|Class variables]
     \x[Forms|Code editing]
     Right click the Class Variables item, then click
-    \menu[New] on the pop up menu. (If there had
-    been any existing variables the pop up menu would also have a Delete
+    \menu[New] on the popup menu. (If there had
+    been any existing variables the popup menu would also have a Delete
     option.) Type in 'QClipboard *cb;' and press
-    \key[Return]. In the \fn[init()] function
+    \key[Enter]. In the \fn[init()] function
     we will assign this pointer to Qt's global clipboard object. We also
     need to declare the clipboard header file. Right click Includes (in
     Declaration), then click \menu[New]. Type in
-    '&lt;qclipboard.h&gt;' and press \key[Return]. Since we
+    '&lt;qclipboard.h&gt;' and press \key[Enter]. Since we
     need to refer to the global application object,
     <literal>qApp</literal>, we need to add another include declaration.
     Right click Includes (in Implementation), then click
     \menu[New]. Type in '&lt;qapplication.h&gt;' and
-    press \key[Return]. The variable and declarations will be
+    press \key[Enter]. The variable and declarations will be
     included in the code generated from \qd's \f[.ui]
     file.
     </para>
@@ -943,7 +977,7 @@ documentation.)
     our own code. To invoke the code editor click a function, e.g. click
     \fn[init()] in the Source tab of the Object Hierarchy.
 <programlisting>
-\scan eg/multiclip/multiclip.cpp /::init/ /^}/
+\scan eg/multiclip/multiclip.ui /init/ /^}/
 </programlisting>
     The first couple of lines change the LCD
     number's background color and make the form start with the focus in the
@@ -964,7 +998,7 @@ documentation.)
     \fs[selectionChanged()] slots we'll code them next,
     starting with \fs[dataChanged()].
 <programlisting>
-\scan eg/multiclip/multiclip.cpp /::dataChanged/ /^}/
+\scan eg/multiclip/multiclip.ui /dataChanged/ /^}/
 </programlisting>
     We take a copy of the clipboard's text and call our own
     \fse[clippingChanged()] slot with the text we've
@@ -981,7 +1015,7 @@ documentation.)
     under the X Window System. Users of MS Windows can still include the
     code to ensure that the application works cross-platform.
 <programlisting>
-\scan eg/multiclip/multiclip.cpp /::selectionChanged/ /^}/
+\scan eg/multiclip/multiclip.ui /selectionChanged/ /^}/
 </programlisting>
     We tell the clipboard to use selection mode, we call
     our \fs[dataChanged()] slot to retrieve any selected
@@ -992,7 +1026,7 @@ documentation.)
     In the \fs[dataChanged()] slot we called another
     custom slot, \fse[clippingChanged()]. 
 <programlisting>
-\scan eg/multiclip/multiclip.cpp /::clippingChanged/ /^}/
+\scan eg/multiclip/multiclip.ui /clippingChanged/ /^}/
 </programlisting>
     We set the line edit to whatever text is passed to the
     \fse[clippingChanged()] slot and update the LCD
@@ -1000,12 +1034,13 @@ documentation.)
     </para>
 
     <para id="amgb">
+    \x[Signals and Slots]
     The next slot we'll code will perform the Add Clipping function.
     This slot is called by our code internally (see the
     \fs[dataChanged()] slot above), and when the user
     clicks the Add Clipping button.
     Since we want \qd to be able to set up a connection to this slot
-    instead of just typing it in the editor window we'll have Designer
+    instead of just typing it in the editor window we'll let \qd
     create its skeleton for us. Click \menu[Edit|Slots] to
     invoke the \dlg[Edit Slots] dialog. Click \button[New Slot]
     and replace the default name of 'new_slot()' with 'addClipping()'.
@@ -1018,7 +1053,7 @@ documentation.)
     Current Clipping line edit into the list box. We also update the
     length number. 
 <programlisting>
-\scan eg/multiclip/multiclip.cpp /::addClipping/ /^}/
+\scan eg/multiclip/multiclip.ui /addClipping/ /^}/
 </programlisting>
     If there is some text we change the LCD's value to the length of the
     text. We then iterate over all the items in the list box to see if
@@ -1026,6 +1061,7 @@ documentation.)
     list box we insert it.
     </para>
     <para id="amhb">
+    \x[Signals and Slots]
     To make the Add Clipping button functional we need to connect the
     button's \fs[clicked()] signal to our
     \fse[addClipping()] slot. Click the
@@ -1051,6 +1087,7 @@ documentation.)
     Create the slot.
     </para>
     <para id="amia">
+    \x[Signals and Slots]
     Click the \menu[Edit|Slots] menu item to invoke
     the \dlg[Edit Slots] dialog. Click \button[New Slot] and
     replace the default 'new_slot()' name with 'copyPrevious()'. Click
@@ -1063,7 +1100,7 @@ documentation.)
     </para>
     <para id="amil">
 <programlisting>
-\scan eg/multiclip/multiclip.cpp /::copyPrevious/ /^}/
+\scan eg/multiclip/multiclip.ui /copyPrevious/ /^}/
 </programlisting>
     The code for Copy Previous checks to see if there is a selected item
     in the list box. If there is the item is copied to the line edit. If
@@ -1077,6 +1114,7 @@ documentation.)
     </listitem>
     <listitem>
     <para id="amja">
+    \x[Signals and Slots]
     Connect to the slot.
     </para>
     <para id="amjd">
@@ -1095,6 +1133,7 @@ documentation.)
     <orderedlist numeration="arabic">
     <listitem>
     <para id="amjs">
+    \x[Signals and Slots]
     Click \menu[Edit|Slots] to invoke the \dlg[Edit Slots]
     dialog. Click \button[New Slot] and replace the
     default name with 'deleteClipping()'. Click \ok.
@@ -1105,7 +1144,7 @@ documentation.)
     The Delete button must delete the current item in the list box and
     clear the line edit. 
 <programlisting>
-\scan eg/multiclip/multiclip.cpp /::deleteClipping/ /^}/
+\scan eg/multiclip/multiclip.ui /deleteClipping/ /^}/
 </programlisting>
     We call our own \fse[clippingChanged()] slot with an
     empty string and use the list box's
@@ -1115,6 +1154,7 @@ documentation.)
     </listitem>
     <listitem>
     <para id="amkm">
+    \x[Signals and Slots]
     Connect the Delete Clipping button's \fs[clicked()]
     signal to our \fse[deleteClipping()] slot.
     (Press \key[F3] -- which is the same as clicking the 
@@ -1138,6 +1178,8 @@ documentation.)
 <para id="amlh">
 \x[Compiling and Building Applications]
 \x[Makefiles]
+\x[Adding|Files to Projects]
+\x[Projects|Adding Files]
 So far we have written about 99% of a Qt application entirely
 in \qd. To make the application compile and run we must create a
 \f[main.cpp] file from which we can call our form.
@@ -1160,6 +1202,7 @@ event loop.
 </para>
 
 <para id="ammd">
+\x[Adding|Source Files to Project Files]
 We need to add \f[main.cpp] to the
 \f[.pro] file. Open \f[multiclip.pro]
 in a plain text editor (such as notepad, vim, xemacs, etc.). It will look
@@ -1177,13 +1220,6 @@ SOURCES    += images.cpp
 Add a new line at the end of the file: 
 <programlisting>
 SOURCES += main.cpp
-</programlisting>
-\x[Windows, Microsoft]
-\x[DLLs]
-If you are using MS Windows and are using Qt as a <literal>DLL</literal>
-you must add this line at the end of your project files:
-<programlisting>
-WIN32:DEFINES += QT_DLL 
 </programlisting>
 Save the updated project file. Now start up a console (or xterm), change
 directory to the multiclip application and run \cmd[qmake]. A Makefile

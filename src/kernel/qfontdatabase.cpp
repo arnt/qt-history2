@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontdatabase.cpp#87 $
+** $Id: //depot/qt/main/src/kernel/qfontdatabase.cpp#88 $
 **
 ** Implementation of font database class.
 **
@@ -996,7 +996,7 @@ void add_style( QtFontFamily *family, const QString& styleName,
         weightString = "Light";
     } else if ( weight <= QFont::Normal ) {
         weight = QFont::Normal;
-        weightString = "Regular";
+        weightString = "Normal";
     } else if ( weight <= QFont::DemiBold ) {
         weight = QFont::DemiBold;
         weightString = "DemiBold";
@@ -1071,11 +1071,15 @@ void newWinFont( void * p )
         familyName = QString::fromLocal8Bit((const char*)tc);
     }
 
+    // the "@family" fonts are just the same as "family". Ignore them.
+    if ( familyName[0] == '@' )
+	return;
+
     QtFontFamily *family = foundry->familyDict.find( familyName );
     if ( !family ) {
         //qWarning( "New font family [%s][%s]",
         // (const char*) familyName, (const char*) foundryName );
-        family = new QtFontFamily( foundry, familyName );
+        family = new QtFontFamily( foundry, familyName.lower() );
         Q_CHECK_PTR(family);
         foundry->addFamily( family );
     }
@@ -1341,7 +1345,7 @@ QString QFontDatabase::styleString( const QFont &f )
 
 static QString getStyleName( char ** tokens, bool *italic, bool *lesserItalic )
 {
-    char slant0 = tolower( tokens[QFontPrivate::Slant][0] );
+    char slant0 = tolower( (uchar) tokens[QFontPrivate::Slant][0] );
     *italic      = FALSE;
     *lesserItalic = FALSE;
 
@@ -1355,7 +1359,7 @@ static QString getStyleName( char ** tokens, bool *italic, bool *lesserItalic )
 
     if ( slant0 == 'r' ) {
         if ( tokens[QFontPrivate::Slant][1]) {
-            char slant1 = tolower( tokens[QFontPrivate::Slant][1] );
+            char slant1 = tolower( (uchar) tokens[QFontPrivate::Slant][1] );
 
             if ( slant1 == 'o' ) {
                 nm += ' ';

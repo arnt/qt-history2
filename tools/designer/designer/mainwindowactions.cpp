@@ -1226,6 +1226,23 @@ bool MainWindow::fileSave()
     return TRUE;
 }
 
+void MainWindow::fileSaveProject()
+{
+    QWidgetList windows = workspace->windowList();
+    for ( QWidget *w = windows.first(); w; w = windows.next() ) {
+	if ( w->inherits( "FormWindow" ) ) {
+	    FormWindow *fw = (FormWindow*)w;
+	    if ( fw->project() == currentProject && !fw->fileName().isEmpty() )
+		fw->save( fw->fileName() );
+	} else if ( w->inherits( "SourceEditor" ) ) {
+	    SourceEditor *e = (SourceEditor*)w;
+	    if ( e->object() && e->object()->inherits( "SourceFile" ) &&
+		 e->project() == currentProject )
+		( (SourceFile*)e->object() )->save();
+	}
+    }
+}
+
 bool MainWindow::fileSaveAs()
 {
     statusBar()->message( tr( "Enter a filename..." ) );
@@ -1635,10 +1652,10 @@ void MainWindow::editSource( bool /*resetSame*/ )
 	editor->setLanguage( lang );
 	sourceEditors.append( editor );
     }
-    editor->show();
-    editor->setFocus();
     if ( editor->object() != formWindow() )
 	editor->setObject( formWindow(), formWindow()->project() );
+    editor->show();
+    editor->setFocus();
 }
 
 void MainWindow::editSource( SourceFile *f )

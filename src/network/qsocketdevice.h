@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocketdevice.h#11 $
+** $Id: //depot/qt/main/src/network/qsocketdevice.h#12 $
 **
 ** Definition of QSocketDevice class.
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qthread_p.h#40 $
+** $Id: //depot/qt/main/src/kernel/qthread_p.h#41 $
 **
 ** QThread class for Unix
 **
@@ -59,6 +59,9 @@
 #include "qintdict.h"
 #endif
 #endif // QT_H
+
+#include <errno.h>
+
 
 static QMutex *dictMutex = 0;
 #ifdef QWS

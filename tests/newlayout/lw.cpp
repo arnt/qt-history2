@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/newlayout/lw.cpp#7 $
+** $Id: $
 **
 ** QGridLayout example
 **

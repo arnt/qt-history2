@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qgroupbox.h#61 $
+** $Id: //depot/qt/main/src/widgets/qgroupbox.h#62 $
 **
 ** Definition of QGroupBox widget class
 **
@@ -97,10 +97,6 @@ protected:
     void paintEvent( QPaintEvent * );
     void focusInEvent( QFocusEvent * );
     void fontChange( const QFont & );
-
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-    QAccessibleInterface *accessibleInterface();
-#endif
 
 private slots:
     void fixFocus();

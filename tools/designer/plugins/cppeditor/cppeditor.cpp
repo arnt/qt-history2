@@ -20,7 +20,7 @@
 
 #include "cppeditor.h"
 #include "syntaxhighliter_cpp.h"
-#include "indent_cpp.h"
+#include <cindent.h>
 #include "cppcompletion.h"
 #include "cppbrowser.h"
 #include <parenmatcher.h>
@@ -34,7 +34,7 @@ CppEditor::CppEditor( const QString &fn, QWidget *parent, const char *name, Desi
 {
     dIface->addRef();
     document()->setPreProcessor( new SyntaxHighlighter_CPP );
-    document()->setIndent( new Indent_CPP );
+    document()->setIndent( new CIndent );
     completion = new CppEditorCompletion( this );
     browser = new CppEditorBrowser( this );
     int j = 0;

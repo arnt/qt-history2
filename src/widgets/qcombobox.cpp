@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#343 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#344 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -50,9 +50,6 @@
 #include "qeffects_p.h"
 #include "qstringlist.h"
 #include "qcombobox.h"
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-#include "qaccessiblewidget.h"
-#endif
 #include <limits.h>
 
 // NOT REVISED
@@ -2025,13 +2022,5 @@ void QComboBox::setBackgroundPixmap( const QPixmap & pixmap )
 {
     setBackgroundPixmapForMode(PaletteBase, pixmap);
 }
-
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-/*! \reimp */
-QAccessibleInterface *QComboBox::accessibleInterface()
-{
-    return new QAccessibleWidget( this, QAccessible::ComboBox );
-}
-#endif
 
 #endif // QT_NO_COMBOBOX

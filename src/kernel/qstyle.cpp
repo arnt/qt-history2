@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.cpp#117 $
+** $Id: //depot/qt/main/src/kernel/qstyle.cpp#118 $
 **
 ** Implementation of QStyle class
 **

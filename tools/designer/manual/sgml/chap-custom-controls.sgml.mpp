@@ -3,6 +3,7 @@
 
 <para id="ahkj">
 \x[Custom Widgets]
+\x[Widgets|Custom]
 Custom widgets are created in code. They may comprise a combination of
 existing widgets but with additional functionality, slots and signals,
 or they may be written from scratch, or a mixture of both.
@@ -17,8 +18,7 @@ The original method involves little more than completing a dialog box.
 Widgets incorporated this way appear as flat pixmaps when added to a
 form in \qd, even in preview mode. They only appear in their true form
 at runtime. We'll explain how to create custom widgets using the
-original approach in <xref linkend="old-custom-widgets"> "Simple Custom
-Widgets".
+original approach in "Simple Custom Widgets".
 </para>\Item
 
 \item<para id="ahla">
@@ -58,7 +58,7 @@ basis of our custom widget.
 </para>
 <para id="ahmh">
 We'll look at the header file,
-\fe[qt/tools/designer/eg/vcr/vcr.h] first.
+\fe[qt/tools/designer/examples/vcr/vcr.h] first.
 <programlisting>
 \scan eg/vcr/vcr.h
 </programlisting>
@@ -96,16 +96,16 @@ widget-specific signal.
 </para>
 
 <para id="ahns">
-\x[Forms|Creating a test harness]
+\x[Forms|Creating Test Harnesses]
 The implementation is complete, but to make sure that our widget
 compiles and runs we'll create a tiny test harness. The test harness
 will require two files, a \f[.pro] project file and a
 \f[main.cpp]. The
-\fe[qt/tools/designer/eg/vcr/vcr.pro] project file:
+\fe[qt/tools/designer/examples/vcr/vcr.pro] project file:
 <programlisting>
 \scan eg/vcr/vcr.pro
 </programlisting>
-The \fe[qt/tools/designer/eg/vcr/main.cpp] file is
+The \fe[qt/tools/designer/examples/vcr/main.cpp] file is
 also brief:
 <programlisting>
 \scan eg/vcr/main.cpp
@@ -124,7 +124,8 @@ the creation of a container custom widget is described.
 <sect2 id="addingthecustomwidgettoqtdesigner">
 <title>Adding the Custom Widget to Qt Designer </title>
 <para id="ahot">
-\x[Adding the Custom Widget to Qt Designer]
+\x[Custom Widgets|Adding to Qt Designer]
+\x[Adding|Custom Widgets to Qt Designer]
 Click \menu[Tools|Custom|Edit Custom Widgets] to
 invoke the \dlg[Edit Custom Widgets] dialog. 
     <orderedlist numeration="arabic">
@@ -149,19 +150,19 @@ invoke the \dlg[Edit Custom Widgets] dialog.
     <listitem>
 	<para id="ahpr">
 	If you have a pixmap that you want to use to identify your
-	widget on the toolbar click the ellipsis (\button[...]) button
+	widget on the toolbar click the ellipsis button
 	to the right of Pixmap.
 	</para>
 	<para id="ahpw">
 	In our example we have the file
-	\fe[qt/tools/designer/eg/vcr/play.xpm] which we'll use
+	\fe[qt/tools/designer/examples/vcr/play.xpm] which we'll use
 	for this purpose.
 	</para>
     </listitem>
     <listitem>
 	<para id="ahqd">
 	Since we know the minimum sensible size for our widget we'll put
-	values into the Size Hint spin boxes. Enter a width of 80 (in
+	these values into the Size Hint spin boxes. Enter a width of 80 (in
 	the left hand spin box), and a height of 20 (in the right hand
 	spin box).
 	</para>
@@ -219,7 +220,7 @@ Plugin".
 
     <sect2 id="creatingacustomwidget">\title[Creating a Custom Widget]
     <para id="ahsh">
-    \x[Creating a Custom Widget]
+    \x[Creating Custom Widgets]
     \x[Widgets|Creating a Custom Widget]
     \x[Subclassing|Widgets]
     A custom widget is often a specialization (subclass) of another
@@ -276,7 +277,7 @@ Plugin".
 	<sect3>\title[Coding the Widget's Interface]
 	<para id="ahuh">
 	We will work step-by-step through the widget's header file,
-	\fe[eg/filechooser/widget/filechooser.h].
+	\fe[qt/tools/designer/examples/filechooser/widget/filechooser.h].
 	</para>
 	
 	<para id="ahum">
@@ -342,7 +343,7 @@ Plugin".
 	<sect3>\title[Coding the Implementation]
 	<para id="ahws"> 
 	We will work step-by-step through the implementation which is in
-	\fe[eg/filechooser/widget/filechooser.cpp].
+	\fe[qt/tools/designer/examples/filechooser/widget/filechooser.cpp].
 	</para>
 
 	<para id="ahwx">
@@ -350,7 +351,7 @@ Plugin".
 \scan eg/filechooser/widget/filechooser.cpp /FileChooser::/ 1
 </programlisting>
 	The constructor passes the parent and name to its superclass,
-	\class[QWidget], and also initialises the private mode data, md,
+	\class[QWidget], and also initializes the private mode data, md,
 	to File mode.
 	</para>
 
@@ -400,7 +401,7 @@ Plugin".
 	The \fne[setFileName()] function sets the filename in the
 	\class[QLineEdit], and the \fne[fileName()] function returns the
 	filename from the \class[QLineEdit]. The \fne[setMode()] and
-	\fne[mode()] functions (not shown) similarly set and return the
+	\fne[mode()] functions (not shown) are similarly set and return the
 	given mode.
 	</para>
 
@@ -426,16 +427,16 @@ Plugin".
 
 	<sect3>\title[Testing the Implementation]
 	<para id="ahzz">
-	\x[Forms|Creating a test harness]
+	\x[Forms|Creating Test Harnesses]
 	We present a rudimentary test harness which will allow us
 	to run our custom widget. The test harness requires two
 	files, a \f[main.cpp] to contain the FileChooser, and a \c[.pro]
 	file to create the Makefile from. Here is
-	\fe[eg/filechooser/widget/main.cpp]:
+	\fe[qt/tools/designer/examples/filechooser/widget/main.cpp]:
 <programlisting>
 \scan eg/filechooser/widget/main.cpp /#include/ /^}/
 </programlisting>
-	And here is \fe[eg/filechooser/widget/filechooser.pro]
+	And here is \fe[qt/tools/designer/examples/filechooser/widget/filechooser.pro]
 <programlisting>
 \scan eg/filechooser/widget/filechooser.pro
 </programlisting>
@@ -452,7 +453,7 @@ Plugin".
 
     <sect2 id="creating-a-plugin">\title[Creating a Plugin]
     <para id="aiay">
-    \x[Creating a Plugin]
+    \x[Creating Plugins]
     \x[Plugins|Creating a Plugin]
     \x[Component^Plugins]
     A plugin is a software component. Plugins are not specific to \qd;
@@ -471,6 +472,8 @@ Plugin".
 
     <sidebar><title>Plugin Terminology</title>
     <para id="aibo">
+    \x[Plugins|Terminology]
+    \x[Terminology|Plugins]
     \list[*]
     \item<para id="aibq">
     A \i[Plugin] is a library that is dynamically loaded by
@@ -509,7 +512,7 @@ Plugin".
     <para id="aicy">
     Within the context of the \class[WidgetInterface] a \i[feature] is a
     widget class that a \class[WidgetInterface] implementation makes
-    available to applications. Because a \class[WidgetInterface]
+    available to applications. Since a \class[WidgetInterface]
     implementation can include any number of features most of the
     interface functions take the name of the feature, (the particular
     widget class we wish to access through the interface), as their
@@ -551,7 +554,7 @@ Plugin".
 	present the entire header file to give you an impression of the
 	scope of the implementation required. Most of the functions
 	require just a few lines of code. 
-<example><title>From \fe[qt/tools/designer/eg/filechooser/plugin/plugin.h]</><programlisting>
+<example><title>From \fe[qt/tools/designer/examples/filechooser/plugin/plugin.h]</><programlisting>
 \scan eg/filechooser/plugin/plugin.h /#include/ /^};/
 </programlisting></example>
 	</para>
@@ -604,7 +607,7 @@ Plugin".
 </programlisting>
 	    If you copied our \f[plugin.h], and renamed the widget
 	    interface implementation's class name throughout, your
-	    destructor is done.
+	    destructor is finished.
 	    </para>
 
 	    <para id="aigt">
@@ -637,7 +640,7 @@ Plugin".
 	    <sidebar><title>Why we need \fn[addRef()] and \fn[release()]</title>
 	    <para id="aihs">
 	    Plugins are different from most other Qt classes with
-	    regards memory management. In Qt programming we often pass
+	    regards to memory management. In Qt programming we often pass
 	    on responsibility for memory management to the containing
 	    widgets and ultimately to \c[QApplication] itself by
 	    parenting our widgets. Plugins are different because they
@@ -763,7 +766,7 @@ Plugin".
 	    We use the \fn[group()] function to identify which \qd toolbar
 	    group this feature (custom widget) should be part of. If we
 	    use a name that is not in use \qd will create a new toolbar
-	    group with the given name. Copy this function changing the
+	    group with the given name. Copy this function, changing the
 	    class name, feature name and group name to suit your own
 	    widget interface implementation.
 	    </para>
@@ -772,7 +775,7 @@ Plugin".
 	    The \fn[iconSet()] function returns the pixmap to
 	    use in the toolbar to represent the custom widget. The
 	    \fn[toolTip()] function returns the tooltip text and the
-	    \fn[whatsThis()] function returns the whats this text. Copy
+	    \fn[whatsThis()] function returns the Whats This text. Copy
 	    each of these functions changing the class name, feature
 	    name and the string you return to suit your own widget
 	    interface implementation.
@@ -786,7 +789,7 @@ Plugin".
 	    Copy this function changing the class name to suit your
 	    widget interface implementation. It should return \c[TRUE]
 	    if your custom widget can contain other widgets, e.g. like
-	    \class[QFrame], or \c[FALSE] if it should not contain other
+	    \class[QFrame], or \c[FALSE] if it must not contain other
 	    widgets, e.g. like \class[QPushButton].
 	    </para>
 
@@ -794,12 +797,11 @@ Plugin".
 
 	<sect3>\title[The Project File]
 	<para id="ainq">
-	\x[Project Files|Examples]
 	The project file for a plugin is somewhat different from an
 	application's project file but in most cases you can use our
 	project file changing only the \c[HEADERS] and \c[SOURCES]
 	lines.
-<example><title>\fe[qt/tools/designer/eg/filechooser/plugin/plugin.pro]</><programlisting>
+<example><title>\fe[qt/tools/designer/examples/filechooser/plugin/plugin.pro]</><programlisting>
 \scan eg/filechooser/plugin/plugin.pro
 </programlisting></example>
 	Change the \c[HEADERS] line to list your plugin's header file

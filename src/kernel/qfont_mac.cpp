@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_mac.cpp
+** $Id: //depot/qt/main/src/kernel/qfont_mac.cpp#81 $
 **
 ** Implementation of QFont/QFontMetrics class for mac
 **

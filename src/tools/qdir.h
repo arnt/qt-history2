@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.h#58 $
+** $Id: //depot/qt/main/src/tools/qdir.h#59 $
 **
 ** Definition of QDir class
 **

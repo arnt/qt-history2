@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#577 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#578 $
 **
 ** Implementation of QListView widget class
 **
@@ -156,35 +156,21 @@ struct QListViewPrivate
 
     QListView::SelectionMode selectionMode;
 
-    // TRUE if the widget should take notice of mouseReleaseEvent
-    bool buttonDown;
-    // TRUE if the widget should ignore a double-click
-    bool ignoreDoubleClick;
-
     // Per-column structure for information not in the QHeader
     struct Column {
 	QListView::WidthMode wmode;
     };
     QPtrVector<Column> column;
 
-    // sort column and order   #### may need to move to QHeader [subclass]
-    int sortcolumn;
-    bool ascending;
-    bool sortIndicator;
-
     // suggested height for the items
     int fontMetricsHeight;
     int minLeftBearing, minRightBearing;
     int ellipsisWidth;
-    bool allColumnsShowFocus;
 
     // currently typed prefix for the keyboard interface, and the time
     // of the last key-press
     QString currentPrefix;
     QTime currentPrefixTime;
-
-    // whether to select or deselect during this mouse press.
-    bool select;
 
     // holds a list of iterators
     QPtrList<QListViewItemIterator> *iterators;
@@ -193,19 +179,34 @@ struct QListViewPrivate
     QTimer *scrollTimer;
     QTimer *renameTimer;
 
-    bool clearing;
-    bool pressedSelected;
-    bool useDoubleBuffer;
+    // sort column and order   #### may need to move to QHeader [subclass]
+    int sortcolumn;
+    bool ascending		:1;
+    bool sortIndicator		:1;
+    // whether to select or deselect during this mouse press.
+    bool allColumnsShowFocus	:1;
+    bool select			:1;
+
+    // TRUE if the widget should take notice of mouseReleaseEvent
+    bool buttonDown		:1;
+    // TRUE if the widget should ignore a double-click
+    bool ignoreDoubleClick	:1;
+
+    bool clearing		:1;
+    bool pressedSelected	:1;
+
+    bool useDoubleBuffer	:1;
+    bool toolTips		:1;
+    bool fullRepaintOnComlumnChange:1;
+    bool updateHeader		:1;
+
+    bool was_visible : 1;
 
     QSize sizeHint;
-    uint was_visible : 1;
     QListViewItem *startDragItem;
     QPoint dragStartPos;
-    bool toolTips;
     QListViewToolTip *toolTip;
-    bool updateHeader;
     int pressedColumn;
-    bool fullRepaintOnComlumnChange;
     QListView::ResizeMode resizeMode;
 
 };
@@ -572,6 +573,7 @@ void QListViewItem::sort()
     listView()->triggerUpdate();
 }
 
+int QListViewItem::RTTI = 0;
 
 /*! Returns 0.
 
@@ -587,7 +589,7 @@ void QListViewItem::sort()
 
 int QListViewItem::rtti() const
 {
-    return 0;
+    return RTTI;
 }
 
 /*!  Performs the initializations that's common to the constructors. */
@@ -732,6 +734,13 @@ void QListViewItem::startRename( int col )
     QListView *lv = listView();
     if ( !lv )
 	return;
+
+    if ( lv->currentItem() && lv->currentItem()->renameBox )
+	lv->currentItem()->cancelRename( lv->currentItem()->renameCol );
+
+    if ( this != lv->currentItem() )
+	lv->setCurrentItem( this );
+
     QRect r = lv->itemRect( this );
     r = QRect( lv->viewportToContents( r.topLeft() ), r.size() );
     r.setLeft( lv->header()->sectionPos( col ) );
@@ -946,6 +955,7 @@ void QListViewItem::insertItem( QListViewItem * newChild )
     QListView *lv = listView();
     if ( !lv )
 	return;
+	
     if ( lv && lv->hasFocus() && !lv->d->focusItem ) {
 	lv->d->focusItem = lv->firstChild();
 	lv->repaintItem( lv->d->focusItem );
@@ -2403,6 +2413,26 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 	    x = fx;
 	    c = fc;
 	    // draw to last interesting column
+
+	    QColorGroup cg;
+#if defined(Q_WS_WIN)
+	    bool drawActiveSelection = hasFocus() || style() != WindowsStyle;
+	    if ( !drawActiveSelection ) {
+		QWidget *fw = qApp->focusWidget();
+		while ( fw ) {
+		    fw = fw->parentWidget();
+		    if ( fw == this ) {
+			drawActiveSelection = TRUE;
+			break;
+		    }
+		}
+	    }
+	    if ( !drawActiveSelection && ( qWinVersion() == WV_98 || qWinVersion() == WV_2000 || qWinVersion() == WV_XP ) )
+		cg = palette().inactive();
+	    else
+#endif
+		cg = colorGroup();
+
 	    while ( c < lc && d->drawables ) {
 		int i = d->h->mapToLogical( c );
 		cs = d->h->cellSize( c );
@@ -2422,10 +2452,10 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 		    buffer.painter()->setFont( p->font() );
 		    buffer.painter()->setPen( p->pen() );
 		    buffer.painter()->setBrush( p->brush() );
-		    current->i->paintCell( buffer.painter(), colorGroup(), ac, r.width(),
+		    current->i->paintCell( buffer.painter(), cg, ac, r.width(),
 					   columnAlignment( ac ) );
 		} else {
-		    current->i->paintCell( p, colorGroup(), ac, r.width(),
+		    current->i->paintCell( p, cg, ac, r.width(),
 					   columnAlignment( ac ) );
 		}
 		p->restore();
@@ -3098,6 +3128,18 @@ void QListView::handleSizeChange( int section, int os, int ns )
     if ( align != AlignAuto && align != AlignLeft )
 	viewport()->repaint( d->h->cellPos( actual ) - contentsX(), 0,
 			     d->h->cellSize( actual ), visibleHeight() );
+
+    if ( currentItem() && currentItem()->renameBox ) {
+	QRect r = itemRect( currentItem() );
+	r = QRect( viewportToContents( r.topLeft() ), r.size() );
+	r.setLeft( header()->sectionPos( currentItem()->renameCol ) );
+	r.setWidth( header()->sectionSize( currentItem()->renameCol ) - 1 );
+	if ( currentItem()->renameCol == 0 )
+	    r.setLeft( r.left() + itemMargin() + ( currentItem()->depth() +
+						   ( rootIsDecorated() ? 1 : 0 ) ) * treeStepSize() - 1 );
+	addChild( currentItem()->renameBox, r.x(), r.y() );
+	currentItem()->renameBox->resize( r.size() );
+    }
 }
 
 
@@ -3149,16 +3191,18 @@ void QListView::viewportResizeEvent( QResizeEvent *e )
 {
     QScrollView::viewportResizeEvent( e );
     d->h->resize( visibleWidth(), d->h->height() );
+    if ( resizeMode() != NoColumn && currentItem() && currentItem()->renameBox ) {
+	QRect r = itemRect( currentItem() );
+	r = QRect( viewportToContents( r.topLeft() ), r.size() );
+	r.setLeft( header()->sectionPos( currentItem()->renameCol ) );
+	r.setWidth( header()->sectionSize( currentItem()->renameCol ) - 1 );
+	if ( currentItem()->renameCol == 0 )
+	    r.setLeft( r.left() + itemMargin() + ( currentItem()->depth() +
+						   ( rootIsDecorated() ? 1 : 0 ) ) * treeStepSize() - 1 );
+	addChild( currentItem()->renameBox, r.x(), r.y() );
+	currentItem()->renameBox->resize( r.size() );
+    }
 }
-
-/*! \reimp */
-
-void QListView::enabledChange( bool e )
-{
-    d->h->setEnabled( e );
-    triggerUpdate();
-}
-
 
 /*!  Triggers a size, geometry and content update during the next
   iteration of the event loop.  Cleverly makes sure that there'll be
@@ -3616,8 +3660,16 @@ void QListView::contentsMousePressEvent( QMouseEvent * e )
     if ( i && !i->isEnabled() )
 	return;
     if ( i == currentItem() && i && i->isSelected() && e->button() == LeftButton ) {
-	d->renameTimer->start( QApplication::doubleClickInterval(), TRUE );
+	QRect r = itemRect( currentItem() );
+	r = QRect( viewportToContents( r.topLeft() ), r.size() );
 	d->pressedColumn = header()->sectionAt( contentsToViewport( e->pos() ).x() );
+	r.setLeft( header()->sectionPos( d->pressedColumn ) );
+	r.setWidth( header()->sectionSize( d->pressedColumn ) - 1 );
+	if ( d->pressedColumn == 0 )
+	    r.setLeft( r.left() + itemMargin() + ( currentItem()->depth() +
+						   ( rootIsDecorated() ? 1 : 0 ) ) * treeStepSize() - 1 );
+	if ( r.contains( e->pos() ) )
+	    d->renameTimer->start( QApplication::doubleClickInterval(), TRUE );
     }
     QListViewItem *oldCurrent = currentItem();
     if ( !oldCurrent && !i && firstChild() ) {
@@ -4082,6 +4134,15 @@ void QListView::focusInEvent( QFocusEvent *e )
 	emit currentChanged( d->focusItem );
 	repaintItem( d->focusItem );
     }
+#if defined(Q_WS_WIN)
+    if ( style() == WindowsStyle && ( qWinVersion() == WV_98 || qWinVersion() == WV_2000 || qWinVersion() == WV_XP ) ) {
+	bool db = d->useDoubleBuffer;
+	d->useDoubleBuffer = TRUE;
+	viewport()->repaint( FALSE );
+	d->useDoubleBuffer = db;
+    }
+#endif
+
     QRect mfrect = itemRect( d->focusItem );
     if ( mfrect.isValid() ) {
 	if ( header() && header()->isVisible() )
@@ -4097,6 +4158,15 @@ void QListView::focusInEvent( QFocusEvent *e )
 
 void QListView::focusOutEvent( QFocusEvent * )
 {
+#if defined(Q_WS_WIN)
+    if ( style() == WindowsStyle && ( qWinVersion() == WV_98 || qWinVersion() == WV_2000 || qWinVersion() == WV_XP ) ) {
+	bool db = d->useDoubleBuffer;
+	d->useDoubleBuffer = TRUE;
+	viewport()->repaint( FALSE );
+	d->useDoubleBuffer = db;
+    }
+#endif
+
     if ( d->focusItem )
 	repaintItem( d->focusItem );
 }
@@ -5089,6 +5159,15 @@ QCheckListItem::QCheckListItem( QListView *parent, const QString &text,
 	qWarning( "QCheckListItem::QCheckListItem(), radio button must be "
 		 "child of a QCheckListItem" );
     init();
+}
+
+int QCheckListItem::RTTI = 1;
+
+/* \reimp */
+
+int QCheckListItem::rtti() const
+{
+    return RTTI;
 }
 
 /*!

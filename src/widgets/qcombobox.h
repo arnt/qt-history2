@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.h#106 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.h#107 $
 **
 ** Definition of QComboBox class
 **
@@ -176,10 +176,6 @@ protected:
 
     virtual void popup();
     void	updateMask();
-
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-    QAccessibleInterface *accessibleInterface();
-#endif
 
 private:
     void	setUpListBox();

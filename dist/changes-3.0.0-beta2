@@ -504,10 +504,15 @@ More sophisticated toString() function that takes a DateFormat, where
 DateFormat can be either TextDate (the default), ISODate (ISO 8601) or
 LocalDate (locale dependent).
 
+Added a toString( const QString& format ) function that allows free form
+formatstrings, for example "dd.MMMM.yyyy hh:mm:ss". See the Qt documentation
+for a list of allowed tokens.
+
 All new functions:
 	QDate addMonths( int months ) const;
 	QDate addYears( int years ) const;
 	QDate fromString( const QString& s, Qt::DateFormat f = Qt::TextDate );
+	QString toString( const QString& format );	
 	static QString shortMonthName( int month );
 	static QString longMonthName( int month );
 	static QString shortDayName( int weekday );

@@ -167,15 +167,15 @@ MainWindow::MainWindow( bool asClient )
     setupToolActions();
     setupLayoutActions();
     setupPreviewActions();
+    setupOutputWindow();
+    setupActionManager();
     setupWindowActions();
 
     setupFormList();
     setupHierarchyView();
     setupPropertyEditor();
     setupActionEditor();
-    setupOutputWindow();
 
-    setupActionManager();
     setupHelpActions();
 
     setupRMBMenus();
@@ -424,6 +424,7 @@ QObjectList *MainWindow::runProject()
 	e->save();
 	e->saveBreakPoints();
     }
+    fileSaveProject();
 
     if ( currentTool() == ORDER_TOOL )
 	resetTool();
@@ -1278,6 +1279,8 @@ void MainWindow::activeWindowChanged( QWidget *w )
 	actionEditUndo->setToolTip( textNoAccel( actionEditUndo->menuText()) );
 	actionEditRedo->setMenuText( tr( "&Redo" ) );
 	actionEditRedo->setToolTip( textNoAccel( actionEditRedo->menuText()) );
+	if ( hierarchyView->sourceEditor() != w )
+	    hierarchyView->showClasses( (SourceEditor*)w );
     } else {
 	actionSearchFind->setEnabled( FALSE );
 	actionSearchIncremetal->setEnabled( FALSE );
@@ -2543,8 +2546,10 @@ void MainWindow::setupActionManager()
 	    addToolBar( tb, grp );
 	}
 
-	a->addTo( menu );
-	a->addTo( tb );
+	if ( iface->location( *ait, ActionInterface::Menu ) )
+	    a->addTo( menu );
+	if ( iface->location( *ait, ActionInterface::Toolbar ) )
+	    a->addTo( tb );
 
 	iface->release();
     }
@@ -2581,12 +2586,12 @@ void MainWindow::editFunction( const QString &func, const QString &l, bool rerea
 	editor->setLanguage( lang );
 	sourceEditors.append( editor );
     }
-    editor->show();
-    editor->setFocus();
     if ( editor->object() != formWindow() )
 	editor->setObject( formWindow(), formWindow()->project() );
     else if ( rereadSource )
 	editor->refresh();
+    editor->show();
+    editor->setFocus();
     editor->setFunction( func );
 }
 
@@ -2986,4 +2991,32 @@ void MainWindow::breakPointsChanged()
     }
 
     iiface->release();
+}
+
+int MainWindow::currentLayoutDefaultSpacing() const
+{
+    if ( ( (MainWindow*)this )->formWindow() )
+	return ( (MainWindow*)this )->formWindow()->layoutDefaultSpacing();
+    return BOXLAYOUT_DEFAULT_SPACING;
+}
+
+int MainWindow::currentLayoutDefaultMargin() const
+{
+    if ( ( (MainWindow*)this )->formWindow() )
+	return ( (MainWindow*)this )->formWindow()->layoutDefaultMargin();
+    return BOXLAYOUT_DEFAULT_MARGIN;
+}
+
+void MainWindow::saveAllBreakPoints()
+{
+    for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() ) {
+	e->save();
+	e->saveBreakPoints();
+    }
+}
+
+void MainWindow::resetBreakPoints()
+{
+    for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() )
+	e->resetBreakPoints();
 }

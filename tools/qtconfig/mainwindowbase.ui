@@ -1,6 +1,7 @@
 <!DOCTYPE UI><UI version="3.0" stdsetdef="1">
 <class>MainWindowBase</class>
 <pixmapinproject/>
+<layoutdefaults spacing="6" margin="11"/>
 <widget class="QMainWindow">
     <property name="name">
         <cstring>MainWindowBase</cstring>
@@ -9,8 +10,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>650</width>
-            <height>540</height>
+            <width>666</width>
+            <height>575</height>
         </rect>
     </property>
     <property name="caption">
@@ -21,10 +22,10 @@
             <cstring>unnamed</cstring>
         </property>
         <property name="margin">
-            <number>4</number>
+            <number>11</number>
         </property>
         <property name="spacing">
-            <number>4</number>
+            <number>6</number>
         </property>
         <widget class="QTextView">
             <property name="name">
@@ -950,12 +951,6 @@
                                 <property name="name">
                                     <cstring>strutwidth</cstring>
                                 </property>
-                                <property name="frameShape">
-                                    <enum>WinPanel</enum>
-                                </property>
-                                <property name="frameShadow">
-                                    <enum>Sunken</enum>
-                                </property>
                                 <property name="suffix">
                                     <string> pixels</string>
                                 </property>
@@ -1151,21 +1146,38 @@
                     <cstring>tab</cstring>
                 </property>
                 <attribute name="title">
-                    <string>Font Paths</string>
+                    <string>Printer</string>
                 </attribute>
-                <hbox>
+                <vbox>
                     <property name="name">
                         <cstring>unnamed</cstring>
                     </property>
                     <property name="margin">
-                        <number>4</number>
+                        <number>11</number>
                     </property>
                     <property name="spacing">
-                        <number>4</number>
+                        <number>6</number>
                     </property>
+                    <widget class="QCheckBox">
+                        <property name="name">
+                            <cstring>fontembeddingcheckbox</cstring>
+                        </property>
+                        <property name="text">
+                            <string>Enable Font embedding</string>
+                        </property>
+                        <property name="checked">
+                            <bool>true</bool>
+                        </property>
+                    </widget>
                     <widget class="QGroupBox">
                         <property name="name">
                             <cstring>GroupBox10</cstring>
+                        </property>
+                        <property name="sizePolicy">
+                            <sizepolicy>
+                                <hsizetype>5</hsizetype>
+                                <vsizetype>7</vsizetype>
+                            </sizepolicy>
                         </property>
                         <property name="title">
                             <string>Font Paths</string>
@@ -1175,10 +1187,10 @@
                                 <cstring>unnamed</cstring>
                             </property>
                             <property name="margin">
-                                <number>8</number>
+                                <number>11</number>
                             </property>
                             <property name="spacing">
-                                <number>4</number>
+                                <number>6</number>
                             </property>
                             <widget class="QLayoutWidget">
                                 <property name="name">
@@ -1289,7 +1301,7 @@
                             </widget>
                         </vbox>
                     </widget>
-                </hbox>
+                </vbox>
             </widget>
         </widget>
     </hbox>
@@ -1352,7 +1364,7 @@
             <cstring>fileSaveAction</cstring>
         </property>
         <property name="iconSet">
-            <iconset>filesave</iconset>
+            <iconset></iconset>
         </property>
         <property name="text">
             <string>Save</string>
@@ -1420,7 +1432,7 @@
 </actions>
 <images>
     <image name="image0">
-        <data format="XPM.GZ" length="646">789c6dd2c10ac2300c00d07bbf2234b7229d1be245fc04c5a3201e4615f430059d0711ff5ddb2e6bb236ec90eed134cb5a19d8ef36602af5ecdbfeeac05dda0798d3abebde87e3faa374d3807fa0d633a52d38d8de6f679fe33fc776e196f53cd010188256a3600a292882096246517815ca99884606e18044a3a40d91824820924265a7923a2e8bcd05f33db1173e002913175f2a6be6d3294871a2d95fa00e8a94ee017b69d339d90df1e77c57ea072ede6758</data>
+        <data format="XPM.GZ" length="45">789cd3d7528808f055d0d2e72a2e492cc94c5648ce482c52d04a29cdcdad8c8eb5ade6523250004143a55a6b2e0026630c4f</data>
     </image>
 </images>
 <connections>
@@ -1673,6 +1685,18 @@
     <connection language="C++">
         <sender>resolvelinks</sender>
         <signal>toggled(bool)</signal>
+        <receiver>MainWindowBase</receiver>
+        <slot>somethingModified()</slot>
+    </connection>
+    <connection language="C++">
+        <sender>fontembeddingcheckbox</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>GroupBox10</receiver>
+        <slot>setEnabled(bool)</slot>
+    </connection>
+    <connection language="C++">
+        <sender>fontembeddingcheckbox</sender>
+        <signal>clicked()</signal>
         <receiver>MainWindowBase</receiver>
         <slot>somethingModified()</slot>
     </connection>

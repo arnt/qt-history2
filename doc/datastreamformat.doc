@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: indices.doc,v 2.35 1999/06/15 12:58:13 weis Exp $
+** $Id: $
 **
 ** Documentation of the Format of the QDataStream operators
 **
@@ -32,7 +32,9 @@
 ** not clear to you.
 **
 **********************************************************************/
-/*! \page datastreamformat.html
+
+/*!
+\page datastreamformat.html
 
 \title Format of the QDataStream operators
 

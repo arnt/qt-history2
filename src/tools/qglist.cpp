@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglist.cpp#82 $
+** $Id: //depot/qt/main/src/tools/qglist.cpp#83 $
 **
 ** Implementation of QGList and QGListIterator classes
 **
@@ -91,14 +91,14 @@
 class QGListIteratorList
 {
 public:
-    QGListIteratorList() 
+    QGListIteratorList()
 	: list(0), iterator(0) {
     }
     ~QGListIteratorList() {
 	notifyClear();
 	delete list;
     }
-    
+
     void add( QGListIterator* i ) {
 	if ( !iterator ) {
 	    iterator = i;
@@ -109,7 +109,7 @@ public:
 	    list->push_front( i );
 	}
     }
-    
+
     void remove( QGListIterator* i ) {
 	if ( iterator == i ) {
 	    iterator = 0;
@@ -121,7 +121,7 @@ public:
 	    }
 	}
     }
-    
+
     void notifyClear() {
 	if ( iterator ) {
 	    iterator->list = 0;
@@ -134,7 +134,7 @@ public:
 	    }
 	}
     }
-    
+
     void notifyRemove( QLNode* n, QLNode* curNode ) {
 	if ( iterator ) {
 	    if ( iterator->curNode == n )
@@ -147,7 +147,7 @@ public:
 	    }
 	}
     }
-    
+
 private:
     QValueList<QGListIterator*>* list;
     QGListIterator* iterator;
@@ -480,12 +480,10 @@ QLNode *QGList::unlink()
 	    n->next->prev = n->prev;
 	}
     }
-    if ( n->next ) {				// change current node
-	curNode = n->next;
-    } else if ( n->prev ) {
-	curNode = n->prev;
-	curIndex--;
-    }
+    
+    // change current node
+    curNode = n->next;
+
     if ( iterators )
 	iterators->notifyRemove( n, curNode );
     numNodes--;

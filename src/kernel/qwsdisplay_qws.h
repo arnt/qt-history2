@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwsdisplay_qws.h#19 $
+** $Id: //depot/qt/main/src/kernel/qwsdisplay_qws.h#20 $
 **
 ** QWS display
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#308 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#309 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -286,7 +286,7 @@ typedef QPtrStack<QWMatrix> QWMatrixStack;
   combined with any other horizontal or vertical flags.
 
   You can use at most one horizontal and one vertical flags at a time.  \c
-  AlignCenter counts as both horizontal and vertical.  
+  AlignCenter counts as both horizontal and vertical.
 
   Conflicting combinations of flags have undefined meanings.
 */
@@ -306,7 +306,7 @@ typedef QPtrStack<QWMatrix> QWMatrixStack;
     (see QButton for an example).  For an ampersand, use "\&\&".
   \value WordBreak Breaks lines at appropriate points.
 
-  You can use as many modifier flags as you want, except that \c 
+  You can use as many modifier flags as you want, except that \c
   SingleLine and \c WordBreak cannot be combined.
 
   Flags that are inappropriate for a given use (e.g., ShowPrefix to
@@ -1872,23 +1872,38 @@ void QPainter::fillRect( int x, int y, int w, int h, const QBrush &brush )
 */
 
 /*!
-  \fn const QRegion &QPainter::clipRegion() const
-
-  Returns the currently set clip region.  Note that the clip region is
-  given in physical device coordinates and \e not subject to any
-  \link coordsys.html coordinate transformation. \endlink
+  Returns the currently set clip region.  Note that the clip region
+  is given in physical device coordinates and \e not subject to any
+  \link coordsys.html coordinate transformation \endlink if \a m is
+  equal to ClipDevice (the default). If \a m equals ClipPainter
+  the returned region is in model coordinates.
 
   \sa setClipRegion(), setClipRect(), setClipping()
 */
+QRegion QPainter::clipRegion( ClipMode m ) const
+{
+#ifndef QT_NO_TRANSFORMATIONS
+    QRegion r;
+    if ( m == ClipDevice )
+	r = crgn;
+    else
+	r = ixmat * crgn;
+    return r;
+#else
+    return crgn;
+#endif
+}
 
 /*!
   \fn void QPainter::setClipRect( int x, int y, int w, int h )
 
   Sets the clip region to the rectangle \a (x,y,w,h) and enables clipping.
 
-  Note that the clip region is given in physical device coordinates and
-  \e not subject to any \link coordsys.html coordinate
-  transformation.\endlink
+  Note that the clip region is given in physical device coordinates
+  and \e not subject to any \link coordsys.html coordinate
+  transformation \endlink if \a m is equal to ClipDevice (the
+  default). If \a m equals ClipPainter the returned region is in
+  model coordinates.
 
   \sa setClipRegion(), clipRegion(), setClipping()
 */
@@ -2288,19 +2303,18 @@ void qt_format_text( const QFont& font, const QRect &r,
 	    brect->moveBy( -r.x() + xoff, -r.y() + yoff - fm.ascent() );
 
 	if ( painter ) {
-	    QRegion reg;
-	    if ( painter->hasClipping() ) {
-		reg = painter->clipRegion();
-		reg.translate( -(int)painter->translationX(), -(int)painter->translationY() );
-		reg = reg.intersect( r );
-	    } else {
-		reg = r;
-	    }
+#ifndef QT_NO_TRANSFORMATIONS
+	    QRegion reg = painter->xmat * r;
+#else
+	    // ### might miss a translation
+	    QRegion reg = r;
+#endif
+	    if ( painter->hasClipping() )
+		reg &= painter->clipRegion();
 
-	    reg.translate( (int)painter->translationX(), (int)painter->translationY() );
 	    painter->save();
 	    painter->setClipRegion( reg );
-	
+
 	    if ( !noaccel )
 		parStr = str.left( len );
 	    if( !( tf & QPainter::DontPrint ) ) {
@@ -2444,28 +2458,28 @@ void qt_format_text( const QFont& font, const QRect &r,
 	if ( tf & Qt::AlignRight )
 	    xoff -= 2; // ### strange
 	yoff += r.y();
-	QColorGroup cg;
-	painter->save();
+	if(!(tf & QPainter::DontPrint)) {
+	    QColorGroup cg;
+	    painter->save();
 #if defined(QT_FORMAT_TEXT_DEBUG)
-	QRect parRect = parag->rect();
-	qDebug("painting parag: %d, rect: %d", parRect.width(), r.width());
+	    QRect parRect = parag->rect();
+	    qDebug("painting parag: %d, rect: %d", parRect.width(), r.width());
 #endif
-	QRegion reg;
 
-	if ( painter->hasClipping() ) {
-	    reg = painter->clipRegion();
-	    reg.translate( - (int)painter->translationX(), - (int)painter->translationY() );
-	    reg = reg.intersect( rect );
-	} else {
-	    reg = rect;
-	}
+#ifndef QT_NO_TRANSFORMATIONS
+	    QRegion reg = painter->xmat * rect;
+#else
+	    // ### might miss a translation
+	    QRegion reg = rect;
+#endif
+	    if ( painter->hasClipping() )
+		reg &= painter->clipRegion();
 
-	reg.translate( (int)painter->translationX(), (int)painter->translationY() );
-	painter->setClipRegion( reg );
-	painter->translate( xoff, yoff );
-	if(!(tf & QPainter::DontPrint))
+	    painter->setClipRegion( reg );
+	    painter->translate( xoff, yoff );
 	    parag->paint( *painter, cg );
-	painter->restore();
+	    painter->restore();
+	}
     }
     if ( encode ) {
 	*internal = parag;
@@ -2977,7 +2991,7 @@ QBrush::QBrush( const QColor &color, BrushStyle style )
 }
 
 /*!
-  Constructs a brush with the color \a color and a custom pattern 
+  Constructs a brush with the color \a color and a custom pattern
   stored in \a pixmap.
 
   The color will only have an effect for monochrome pixmaps, i.e.,

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.cpp#149 $
+** $Id: //depot/qt/main/src/widgets/qslider.cpp#150 $
 **
 ** Implementation of QSlider class
 **
@@ -43,7 +43,7 @@
 #include "qbitmap.h"
 #include "qapplication.h"
 #if defined(QT_ACCESSIBILITY_SUPPORT)
-#include "qaccessiblewidget.h"
+#include "qaccessible.h"
 #endif
 
 static const int motifBorder = 2;
@@ -306,7 +306,7 @@ void QSlider::valueChange()
     }
     emit valueChanged(value());
 #if defined(QT_ACCESSIBILITY_SUPPORT)
-    emit accessibilityChanged( QAccessible::ValueChanged );
+    QAccessible::updateAccessibility( this, 0, QAccessible::ValueChanged );
 #endif
 }
 
@@ -567,7 +567,7 @@ void QSlider::moveSlider( int pos )
     }
     if ( tracking() && sliderVal != value() ) {
 	setValue( sliderVal );
-	// ### Why do we emit the valueChanged signal here?  It will get emitted in
+	// ### Why do we emit the valueChanged signal here?  It will get emitted in 
 	// valueChange() anyway...
 	//emit valueChanged( sliderVal );
     }
@@ -658,7 +658,7 @@ void QSlider::setValue( int value )
 {
     QRangeControl::setValue( value );
 #if defined(QT_ACCESSIBILITY_SUPPORT)
-    emit accessibilityChanged( QAccessible::ValueChanged );
+    QAccessible::updateAccessibility( this, 0, QAccessible::ValueChanged );
 #endif
 }
 
@@ -933,15 +933,5 @@ int QSlider::value() const
 {
     return QRangeControl::value();
 }
-
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-/*!
-  \reimp
-*/
-QAccessibleInterface *QSlider::accessibleInterface()
-{
-    return new QAccessibleRangeControl( this, QAccessible::Slider );
-}
-#endif
 
 #endif

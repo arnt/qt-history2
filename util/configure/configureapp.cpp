@@ -399,7 +399,7 @@ void ConfigureApp::generateCachefile()
         for( QStringList::Iterator var = qmakeVars.begin(); var != qmakeVars.end(); ++var ) {
 	    cacheStream << (*var) << endl;
 	}
-	cacheStream << "CONFIG+=" << qmakeConfig.join( " " ) << endl;
+	cacheStream << "CONFIG+=" << qmakeConfig.join( " " ) << " incremental" << endl;
 	cacheStream << "QMAKESPEC=" << dictionary[ "QMAKESPEC" ] << endl;
 	if( !qmakeIncludes.isEmpty() ) {
 	    cacheStream << "INCLUDEPATH=";

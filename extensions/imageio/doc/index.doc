@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: index.doc,v 1.11 1999/06/16 20:03:43 agulbra Exp $
+** $Id: $
 **
 ** Index page
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(QT_DEBUG)
-static char ident[] = "$Id: index.doc,v 1.11 1999/06/16 20:03:43 agulbra Exp $";
+static char ident[] = "$Id: $";
 #endif
 
 /*! \page imageio.html

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#532 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#533 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -320,7 +320,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	    }
 
 	    if (testWFlags(WStyle_Tool)) {
-		wsa.save_under = TRUE;
+		wsa.save_under = True;
 		wsa_mask |= CWSaveUnder;
 
 		// toolbar netwm type
@@ -356,7 +356,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	    net_winstates[curr_winstate++] = qt_net_wm_state_stays_on_top;
 
 	if ( testWFlags( WX11BypassWM ) ) {
-	    wsa.override_redirect = TRUE;
+	    wsa.override_redirect = True;
 	    wsa_mask |= CWOverrideRedirect;
 	}
 
@@ -372,8 +372,8 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     if ( !initializeWindow ) {
 	// do no initialization
     } else if ( popup ) {			// popup widget
-	wsa.override_redirect = TRUE;
-	wsa.save_under = TRUE;
+	wsa.override_redirect = True;
+	wsa.save_under = True;
 	XChangeWindowAttributes( dpy, id, CWOverrideRedirect | CWSaveUnder,
 				 &wsa );
     } else if ( topLevel && !desktop ) {	// top-level widget
@@ -1037,7 +1037,7 @@ void QWidget::grabMouse()
 #if defined(QT_CHECK_STATE)
 	int status =
 #endif
-	XGrabPointer( x11Display(), winId(), TRUE,
+	XGrabPointer( x11Display(), winId(), True,
 		      (uint)( ButtonPressMask | ButtonReleaseMask |
 			      PointerMotionMask | EnterWindowMask |
 			      LeaveWindowMask ),
@@ -1078,7 +1078,7 @@ void QWidget::grabMouse( const QCursor &cursor )
 #if defined(QT_CHECK_STATE)
 	int status =
 #endif
-	XGrabPointer( x11Display(), winId(), TRUE,
+	XGrabPointer( x11Display(), winId(), True,
 		      (uint)(ButtonPressMask | ButtonReleaseMask |
 			     PointerMotionMask | EnterWindowMask | LeaveWindowMask),
 		      GrabModeAsync, GrabModeAsync,
@@ -1135,7 +1135,7 @@ void QWidget::grabKeyboard()
     if ( !qt_nograb() ) {
 	if ( keyboardGrb )
 	    keyboardGrb->releaseKeyboard();
-	XGrabKeyboard( x11Display(), winid, TRUE, GrabModeAsync, GrabModeAsync,
+	XGrabKeyboard( x11Display(), winid, True, GrabModeAsync, GrabModeAsync,
 		       qt_x_time );
 	keyboardGrb = this;
     }
@@ -1344,7 +1344,7 @@ void QWidget::repaint( int x, int y, int w, int h, bool erase )
 	    qt_set_paintevent_clipping( this, r );
 	if ( erase && w != 0 && h != 0 ) {
 	    if ( backgroundOrigin() == WidgetOrigin )
-		XClearArea( x11Display(), winId(), x, y, w, h, FALSE );
+		XClearArea( x11Display(), winId(), x, y, w, h, False );
 	    else
 		this->erase( x, y, w, h);
 	}
@@ -1984,9 +1984,9 @@ void QWidget::scroll( int dx, int dy, const QRect& r )
     GC gc = qt_xget_readonly_gc( x11Screen(), FALSE );
     // Want expose events
     if ( w > 0 && h > 0 && !just_update ) {
-	XSetGraphicsExposures( dpy, gc, TRUE );
+	XSetGraphicsExposures( dpy, gc, True );
 	XCopyArea( dpy, winId(), winId(), gc, x1, y1, w, h, x2, y2);
-	XSetGraphicsExposures( dpy, gc, FALSE );
+	XSetGraphicsExposures( dpy, gc, False );
     }
 
     if ( !valid_rect && children() ) {	// scroll children
@@ -2014,14 +2014,14 @@ void QWidget::scroll( int dx, int dy, const QRect& r )
 	if ( repaint_immediately )
 	    repaint( x, sr.y(), QABS(dx), sr.height(), !testWFlags(WRepaintNoErase) );
 	else
-	    XClearArea( dpy, winid, x, sr.y(), QABS(dx), sr.height(), TRUE );
+	    XClearArea( dpy, winid, x, sr.y(), QABS(dx), sr.height(), True );
     }
     if ( dy ) {
 	int y = y2 == sr.y() ? sr.y()+h : sr.y();
 	if ( repaint_immediately )
 	    repaint( sr.x(), y, sr.width(), QABS(dy), !testWFlags(WRepaintNoErase) );
 	else
-	    XClearArea( dpy, winid, sr.x(), y, sr.width(), QABS(dy), TRUE );
+	    XClearArea( dpy, winid, sr.x(), y, sr.width(), QABS(dy), True );
     }
 
     qt_insert_sip( this, dx, dy ); // #### ignores r
@@ -2252,7 +2252,7 @@ void QWidget::updateFrameStrut() const
 	data_ret = 0;
 	if (p == r ||
 	    (XGetWindowProperty(QPaintDevice::x11AppDisplay(), p,
-				qt_enlightenment_desktop, 0, 1, FALSE, XA_CARDINAL,
+				qt_enlightenment_desktop, 0, 1, False, XA_CARDINAL,
 				&type_ret, &i_unused, &l_unused, &l_unused,
 				&data_ret) == Success &&
 	     type_ret == XA_CARDINAL)) {

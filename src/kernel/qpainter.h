@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#179 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#180 $
 **
 ** Definition of QPainter class
 **
@@ -157,12 +157,13 @@ public:
 
   // Clipping
 
+    enum ClipMode { ClipDevice, ClipPainter };
     void	setClipping( bool );		// set clipping on/off
     bool	hasClipping() const;
-    const QRegion &clipRegion() const;
-    void	setClipRect( const QRect & );	// set clip rectangle
-    void	setClipRect( int x, int y, int w, int h );
-    void	setClipRegion( const QRegion &);// set clip region
+    QRegion clipRegion( ClipMode = ClipDevice ) const;
+    void	setClipRect( const QRect &, ClipMode = ClipDevice );	// set clip rectangle
+    void	setClipRect( int x, int y, int w, int h, ClipMode = ClipDevice );
+    void	setClipRegion( const QRegion &, ClipMode = ClipDevice );// set clip region
 
   // Graphics drawing functions
 
@@ -502,11 +503,6 @@ inline bool QPainter::hasClipping() const
     return testf(ClipOn);
 }
 
-inline const QRegion &QPainter::clipRegion() const
-{
-    return crgn;
-}
-
 inline int QPainter::tabStops() const
 {
     return tabstops;
@@ -546,9 +542,9 @@ inline void QPainter::setViewport( const QRect &r )
 }
 #endif
 
-inline void QPainter::setClipRect( int x, int y, int w, int h )
+inline void QPainter::setClipRect( int x, int y, int w, int h, ClipMode m )
 {
-    setClipRect( QRect(x,y,w,h) );
+    setClipRect( QRect(x,y,w,h), m );
 }
 
 inline void QPainter::drawPoint( const QPoint &p )

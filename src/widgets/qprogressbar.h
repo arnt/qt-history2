@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qprogressbar.h#40 $
+** $Id: //depot/qt/main/src/widgets/qprogressbar.h#41 $
 **
 ** Definition of QProgressBar class
 **
@@ -89,10 +89,6 @@ protected:
     virtual bool setIndicator( QString & progress_str, int progress,
 			       int totalSteps );
     void styleChange( QStyle& );
-
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-    QAccessibleInterface *accessibleInterface();
-#endif
 
 private:
     int		total_steps;

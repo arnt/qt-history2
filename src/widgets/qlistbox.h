@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.h#155 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.h#156 $
 **
 ** Definition of QListBox widget class
 **
@@ -332,6 +332,7 @@ public:
     QListBoxItem *prev() const;
 
     virtual int rtti() const;
+    static int RTTI;
 
 protected:
     virtual void paint( QPainter * ) = 0;
@@ -369,7 +370,8 @@ public:
     int	 height( const QListBox * ) const;
     int	 width( const QListBox * )  const;
 
-    int rtti() const { return 1; }
+    int rtti() const;
+    static int RTTI;
 
 protected:
     void  paint( QPainter * );
@@ -398,7 +400,8 @@ public:
     int	 height( const QListBox * ) const;
     int	 width( const QListBox * )  const;
 
-    int rtti() const { return 2; }
+    int rtti() const;
+    static int RTTI;
 
 protected:
     void paint( QPainter * );

@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-# $Id: //depot/main/p4-contrib/misc/p4pr.perl#3 $
+# $Id: $
 
 # Interpolate change information into a source listing of a p4 file.
 # Takes a file name or depot filename, with #<ref> or @<change>.

@@ -3,15 +3,20 @@
 int main ( int argc, char **argv )
 {
     QSettings settings;
-    settings.writeEntry( "/Trolltech/Qt/QSettings/string", "String" );
-    settings.writeEntry( "/Trolltech/Qt/QSettings/int", 0xffff );
-    settings.writeEntry( "/Trolltech/Qt/QSettings/bool", true );
-    settings.writeEntry( "/Trolltech/Qt/QSettings/double", 3.1415927 );
+    settings.writeEntry( "/Trolltech/QSettings/string", "String" );
+    settings.writeEntry( "/Trolltech/QSettings/int", 0xffff );
+    settings.writeEntry( "/Trolltech/QSettings/bool", true );
+    settings.writeEntry( "/Trolltech/QSettings/double", 3.1415927 );
 
-    qDebug( settings.readEntry( "/Trolltech/Qt/QSettings/string" ) );
-    qDebug( "%d", settings.readNumEntry( "/Trolltech/Qt/QSettings/int" ) );
-    qDebug( "%d", settings.readBoolEntry( "/Trolltech/Qt/QSettings/bool" ) );
-    qDebug( "%g", settings.readDoubleEntry( "/Trolltech/Qt/QSettings/double" ) );
+    qDebug( settings.readEntry( "/Trolltech/QSettings/string" ) );
+    qDebug( "%d", settings.readNumEntry( "/Trolltech/QSettings/int" ) );
+    qDebug( "%d", settings.readBoolEntry( "/Trolltech/QSettings/bool" ) );
+    qDebug( "%g", settings.readDoubleEntry( "/Trolltech/QSettings/double" ) );
+
+    settings.removeEntry( "/Trolltech/QSettings/string" );
+    settings.removeEntry( "/Trolltech/QSettings/bool" );
+    settings.removeEntry( "/Trolltech/QSettings/double" );
+    settings.removeEntry( "/Trolltech/QSettings/int" );
 
     return 0;
 }

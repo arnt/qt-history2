@@ -17,9 +17,9 @@ manual: $(targets)
 
 ps: manual.ps
 
-html: manual.html
+oldhtml: manual.html
 
-tuthtml: tutorial.html
+html: tutorial.html
 
 tutorial: tutorial.ps
 
@@ -32,8 +32,8 @@ tutorial.ps: $(targets)
 tutorial.html: $(targets)
 	sgmltools -b html tutorial.sgml > /dev/null 
 	./fiximg tutorial/*.html
-	#p4 edit ../*.html
-	#mv tutorial/*.html ../
+	p4 edit ../*.html
+	mv tutorial/*.html ../
 
 
 manual.html: $(targets)

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#177 $
+** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#178 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for Win32
 **
@@ -165,7 +165,7 @@ void QFont::initialize()
     shared_dc_font = 0;
     QFontPrivate::fontCache = new QFontCache();
     Q_CHECK_PTR( QFontPrivate::fontCache );
-    cleanup_fontcache.add( QFontPrivate::fontCache );
+    cleanup_fontcache.add( &QFontPrivate::fontCache );
 }
 
 void QFont::cleanup()

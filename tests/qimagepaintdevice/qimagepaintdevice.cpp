@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/qimagepaintdevice/qimagepaintdevice.cpp#5 $
+** $Id: $
 **
 ** Implementation of QImagePaintDevice32 class
 **

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#207 $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#208 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -2168,7 +2168,7 @@ static QString wordwrap( const QString & s )
             cils = ip;
             cols = result.length();
         }
-        if ( isspace( s[ip] ) ) {
+        if ( isspace( (uchar) s[ip] ) ) {
             if ( !havews )
                 needws = TRUE;
             cils = ip+1;
@@ -3921,7 +3921,7 @@ static int nearout(int ci, charproc_data* cd)
 ** We call this routine to emmit the PostScript code
 ** for the character we have loaded with load_char().
 */
-void PSConvert(QTextStream& s, charproc_data* cd)
+static void PSConvert(QTextStream& s, charproc_data* cd)
 {
   int i,j,k,fst,start_offpt;
   int end_offpt=0;
@@ -4985,166 +4985,171 @@ QPSPrinterFont::QPSPrinterFont(const QFont& f, int script, QPSPrinterPrivate *pr
     QString fontfilename;
     QString fontname;
 
+
+    // append qsettings fontpath
+    QSettings settings;
+    bool embed = settings.readBoolEntry( "/qt/embedFonts", TRUE );
+
     // ### implement similar code for QWS and WIN
     xfontname = makePSFontName( f );
 
 #ifdef Q_WS_X11
-    f.d->load( (QFont::Script)script );
-    QFontStruct *fs = f.d->x11data.fontstruct[script];
-    //qDebug("fs = %p, script=%d", fs, script);
     bool xlfd = FALSE;
+    if ( embed ) {
+	f.d->load( (QFont::Script)script );
+	QFontStruct *fs = f.d->x11data.fontstruct[script];
+	//qDebug("fs = %p, script=%d", fs, script);
 
 #ifndef QT_NO_XFTFREETYPE
-    if ( qt_has_xft && fs && fs != (QFontStruct *)-1 && fs->xfthandle ) {
-        // ### cache filename directly!
-        //qDebug("fontstruct name: %s", fs->name.data());
-        XftPattern *pattern = XftNameParse(fs->name.data());
-        //qDebug("xfthandle=%p", font);
-        char *filename = 0;
-        XftResult res;
-        XftPattern *f = XftFontMatch(qt_xdisplay(), 0, pattern, &res);
-        XftPatternGetString (f, XFT_FILE, 0, &filename);
-        //qDebug("filename for font is '%s'", filename);
-        if ( filename ) {
-            fontfilename = QString::fromLatin1( filename );
-            xfontname = fontfilename;
-        }
-        XftPatternDestroy( f );
-        XftPatternDestroy( pattern );
-    } else
+	if ( qt_has_xft && fs && fs != (QFontStruct *)-1 && fs->xfthandle ) {
+	    // ### cache filename directly!
+	    //qDebug("fontstruct name: %s", fs->name.data());
+	    XftPattern *pattern = XftNameParse(fs->name.data());
+	    //qDebug("xfthandle=%p", font);
+	    char *filename = 0;
+	    XftResult res;
+	    XftPattern *f = XftFontMatch(qt_xdisplay(), 0, pattern, &res);
+	    XftPatternGetString (f, XFT_FILE, 0, &filename);
+	    //qDebug("filename for font is '%s'", filename);
+	    if ( filename ) {
+		fontfilename = QString::fromLatin1( filename );
+		xfontname = fontfilename;
+	    }
+	    XftPatternDestroy( f );
+	    XftPatternDestroy( pattern );
+	} else
 #endif
-    {
-        QString rawName;
-        if ( fs && fs != (QFontStruct *)-1 )
-            rawName = fs->name;
-        int index = rawName.find('-');
-        if (index == 0) {
-            // this is an XLFD font name
-            for (int i=0; i < 6; i++) {
-                index = rawName.find('-',index+1);
-            }
-            xfontname = rawName.mid(0,index);
-            xlfd = TRUE;
-        }
+	{
+	    QString rawName;
+	    if ( fs && fs != (QFontStruct *)-1 )
+		rawName = fs->name;
+	    int index = rawName.find('-');
+	    if (index == 0) {
+		// this is an XLFD font name
+		for (int i=0; i < 6; i++) {
+		    index = rawName.find('-',index+1);
+		}
+		xfontname = rawName.mid(0,index);
+		xlfd = TRUE;
+	    }
+	}
     }
 #endif // Q_WS_X11
     // ### somehow the font dict doesn't seem to work without this. Don't ask me why...
     priv->fonts.size();
     p = priv->fonts.find(xfontname);
     if ( p )
-        return;
+	return;
 
 #ifdef Q_WS_X11
-    if ( xlfd ) {
+    if ( embed && xlfd ) {
 
-        if ( priv->fontpath.isEmpty() ) {
-            int npaths;
-            char** font_path;
-            font_path = XGetFontPath( qt_xdisplay(), &npaths);
-            bool xfsconfig_read = FALSE;
-            for (int i=0; i<npaths; i++) {
-                // If we're using xfs, append font paths from /etc/X11/fs/config
-                // can't hurt, and chances are we'll get all fonts that way.
-                if (((font_path[i])[0] != '/') && !xfsconfig_read) {
-                    // We're using xfs -> read its config
-                    bool finished = FALSE;
-                    QFile f("/etc/X11/fs/config");
-                    if ( !f.exists() )
-                        f.setName("/usr/X11R6/lib/X11/fs/config");
-                    if ( !f.exists() )
-                        f.setName("/usr/X11/lib/X11/fs/config");
-                    if ( f.exists() ) {
-                        f.open(IO_ReadOnly);
-                        while(f.status()==IO_Ok && !finished) {
-                            QString fs;
-                            f.readLine(fs, 1024);
-                            fs=fs.stripWhiteSpace();
-                            if (fs.left(9)=="catalogue" && fs.contains('=')) {
-                                fs=fs.mid(fs.find('=')+1).stripWhiteSpace();
-                                while(f.status()==IO_Ok && fs.right(1)==",") {
-                                    if (!fs.contains(":unscaled"))
-                                        priv->fontpath += fs.left(fs.length()-1);
-                                    f.readLine(fs, 1024);
-                                    fs=fs.stripWhiteSpace();
-                                }
-                                finished = TRUE;
-                            }
-                        }
-                        f.close();
-                    }
-                    xfsconfig_read = TRUE;
-                } else if(!strstr(font_path[i], ":unscaled")) {
-                    // Fonts paths marked :unscaled are always bitmapped fonts
-                    // -> we can as well ignore them now and save time
-                    priv->fontpath += font_path[i];
-                }
-            }
-            XFreeFontPath(font_path);
+	if ( priv->fontpath.isEmpty() ) {
+	    int npaths;
+	    char** font_path;
+	    font_path = XGetFontPath( qt_xdisplay(), &npaths);
+	    bool xfsconfig_read = FALSE;
+	    for (int i=0; i<npaths; i++) {
+		// If we're using xfs, append font paths from /etc/X11/fs/config
+		// can't hurt, and chances are we'll get all fonts that way.
+		if (((font_path[i])[0] != '/') && !xfsconfig_read) {
+		    // We're using xfs -> read its config
+		    bool finished = FALSE;
+		    QFile f("/etc/X11/fs/config");
+		    if ( !f.exists() )
+			f.setName("/usr/X11R6/lib/X11/fs/config");
+		    if ( !f.exists() )
+			f.setName("/usr/X11/lib/X11/fs/config");
+		    if ( f.exists() ) {
+			f.open(IO_ReadOnly);
+			while(f.status()==IO_Ok && !finished) {
+			    QString fs;
+			    f.readLine(fs, 1024);
+			    fs=fs.stripWhiteSpace();
+			    if (fs.left(9)=="catalogue" && fs.contains('=')) {
+				fs=fs.mid(fs.find('=')+1).stripWhiteSpace();
+				while(f.status()==IO_Ok && fs.right(1)==",") {
+				    if (!fs.contains(":unscaled"))
+					priv->fontpath += fs.left(fs.length()-1);
+				    f.readLine(fs, 1024);
+				    fs=fs.stripWhiteSpace();
+				}
+				finished = TRUE;
+			    }
+			}
+			f.close();
+		    }
+		    xfsconfig_read = TRUE;
+		} else if(!strstr(font_path[i], ":unscaled")) {
+		    // Fonts paths marked :unscaled are always bitmapped fonts
+		    // -> we can as well ignore them now and save time
+		    priv->fontpath += font_path[i];
+		}
+	    }
+	    XFreeFontPath(font_path);
 
-            // append qsettings fontpath
-            QSettings settings;
-            QStringList fontpath = settings.readListEntry( "/qt/fontPath" );
-            if ( !fontpath.isEmpty() )
-                priv->fontpath += fontpath;
-        }
+	    // append qsettings fontpath
+	    QStringList fontpath = settings.readListEntry( "/qt/fontPath" );
+	    if ( !fontpath.isEmpty() )
+		priv->fontpath += fontpath;
+	}
 
-        for (QStringList::Iterator it=priv->fontpath.begin(); it!=priv->fontpath.end() && fontfilename.isEmpty(); it++) {
-            if ((*it).left(1) != "/") continue; // not a path name, a font server
-            QString fontmapname;
-            int num = 0;
-            // search font.dir and font.scale for the right file
-            while ( num < 2 ) {
-                if ( num == 0 )
-                    fontmapname = (*it) + "/fonts.scale";
-                else
-                    fontmapname = (*it) + "/fonts.dir";
-                 //qWarning(fontmapname);
-                QFile fontmap(fontmapname);
-                if (fontmap.open(IO_ReadOnly)) {
-                    while (!fontmap.atEnd()) {
-                        QString mapping;
-                        fontmap.readLine(mapping,512);
-                                // fold to lower (since X folds to lowercase)
-                                //qWarning(xfontname);
-                                //qWarning(mapping);
-                        if (mapping.lower().contains(xfontname.lower())) {
-                            int index = mapping.find(' ',0);
-                            QString ffn = mapping.mid(0,index);
-                                // remove the most common bitmap formats
-                            if( !ffn.contains( ".pcf" ) && !ffn.contains( " .bdf" ) &&
-                                !ffn.contains( ".spd" ) && !ffn.contains( ".phont" ) ) {
-                                fontfilename = (*it) + QString("/") + ffn;
-                                if ( QFile::exists(fontfilename) ) {
-                                    //qDebug("found font file %s", fontfilename.latin1());
-                                    break;
-                                } else // unset fontfilename
-                                    fontfilename = QString();
-                            }
-                        }
-                    }
-                    fontmap.close();
-                }
-                num++;
-            }
-        }
+	for (QStringList::Iterator it=priv->fontpath.begin(); it!=priv->fontpath.end() && fontfilename.isEmpty(); it++) {
+	    if ((*it).left(1) != "/") continue; // not a path name, a font server
+	    QString fontmapname;
+	    int num = 0;
+	    // search font.dir and font.scale for the right file
+	    while ( num < 2 ) {
+		if ( num == 0 )
+		    fontmapname = (*it) + "/fonts.scale";
+		else
+		    fontmapname = (*it) + "/fonts.dir";
+		//qWarning(fontmapname);
+		QFile fontmap(fontmapname);
+		if (fontmap.open(IO_ReadOnly)) {
+		    while (!fontmap.atEnd()) {
+			QString mapping;
+			fontmap.readLine(mapping,512);
+			// fold to lower (since X folds to lowercase)
+			//qWarning(xfontname);
+			//qWarning(mapping);
+			if (mapping.lower().contains(xfontname.lower())) {
+			    int index = mapping.find(' ',0);
+			    QString ffn = mapping.mid(0,index);
+				// remove the most common bitmap formats
+			    if( !ffn.contains( ".pcf" ) && !ffn.contains( " .bdf" ) &&
+				!ffn.contains( ".spd" ) && !ffn.contains( ".phont" ) ) {
+				fontfilename = (*it) + QString("/") + ffn;
+				if ( QFile::exists(fontfilename) ) {
+				    //qDebug("found font file %s", fontfilename.latin1());
+				    break;
+				} else // unset fontfilename
+				    fontfilename = QString();
+			    }
+			}
+		    }
+		    fontmap.close();
+		}
+		num++;
+	    }
+	}
     }
 #endif
 
     //qDebug("font=%s, fontname=%s, p=%p", f.family().latin1(), xfontname.latin1(), p);
 
-    // memory mapping would be better here
+	// memory mapping would be better here
     if (fontfilename.length() > 0) { // maybe there is no file name
-        QFile fontfile(fontfilename);
-        if ( fontfile.exists() ) {
-            //printf("font name %s size = %d\n",fontfilename.latin1(),fontfile.size());
-            data = QByteArray( fontfile.size() );
+	QFile fontfile(fontfilename);
+	if ( fontfile.exists() ) {
+	    //printf("font name %s size = %d\n",fontfilename.latin1(),fontfile.size());
+	    data = QByteArray( fontfile.size() );
 
-            fontfile.open(IO_Raw | IO_ReadOnly);
-            fontfile.readBlock(data.data(), fontfile.size());
-            fontfile.close();
-        }
+	    fontfile.open(IO_Raw | IO_ReadOnly);
+	    fontfile.readBlock(data.data(), fontfile.size());
+	    fontfile.close();
+	}
     }
-
 
     enum { NONE, PFB, PFA, TTF } type = NONE;
 
@@ -6003,6 +6008,8 @@ void QPSPrinterPrivate::initPage(QPainter *paint)
 
 void QPSPrinterPrivate::flushPage( bool last )
 {
+    if ( last && !pageBuffer )
+	return;
     bool pageFonts = ( buffer == 0 );
     if ( buffer &&
 //         ( last || pagesInBuffer++ > -1 ||
@@ -6026,8 +6033,9 @@ void QPSPrinterPrivate::flushPage( bool last )
         }
     }
     outStream  << "%%EndPageSetup\n";
-    outStream.writeRawBytes( pageBuffer->buffer().data(),
-                             pageBuffer->buffer().size() );
+    if ( pageBuffer )
+	outStream.writeRawBytes( pageBuffer->buffer().data(),
+				 pageBuffer->buffer().size() );
     outStream << "\nQP\n";
     pageCount++;
 }
@@ -6091,7 +6099,8 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
                    << d->fontsUsed.simplifyWhiteSpace() << '\n';
         d->outStream << "%%EOF\n";
         d->outStream.unsetDevice();
-        d->outDevice->close();
+	if ( d->outDevice )
+	    d->outDevice->close();
         if ( d->fd >= 0 )
             ::close( d->fd );
         d->fd = -1;

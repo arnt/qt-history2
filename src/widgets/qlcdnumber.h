@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnumber.h#62 $
+** $Id: //depot/qt/main/src/widgets/qlcdnumber.h#63 $
 **
 ** Definition of QLCDNumber class
 **
@@ -101,10 +101,6 @@ signals:
 
 protected:
     void    drawContents( QPainter * );
-
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-    QAccessibleInterface *accessibleInterface();
-#endif
 
 private:
     void    init();

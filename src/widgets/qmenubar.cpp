@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#284 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#285 $
 **
 ** Implementation of QMenuBar class
 **
@@ -53,7 +53,7 @@
 #include <ctype.h>
 #include "../kernel/qinternal_p.h"
 #if defined(QT_ACCESSIBILITY_SUPPORT)
-#include "qaccessiblewidget.h"
+#include "qaccessible.h"
 #endif
 
 class QMenuDataData {
@@ -555,7 +555,7 @@ void QMenuBar::openActPopup()
 {
 #if defined(QT_ACCESSIBILITY_SUPPORT)
     if ( !inMenu ) {
-	emit accessibilityChanged( QAccessible::MenuStart );
+	QAccessible::updateAccessibility( this, 0, QAccessible::MenuStart );
 	inMenu = TRUE;
     }
 #endif
@@ -627,7 +627,7 @@ void QMenuBar::hidePopups()
     }
 #if defined(QT_ACCESSIBILITY_SUPPORT)
     if ( !popupvisible && anyVisible && inMenu ) {
-	emit accessibilityChanged( QAccessible::MenuEnd );
+	QAccessible::updateAccessibility( this, 0, QAccessible::MenuEnd );
 	inMenu = FALSE;
     }
 #endif
@@ -1219,10 +1219,10 @@ void QMenuBar::setAltMode( bool enable )
 {
 #if defined(QT_ACCESSIBILITY_SUPPORT)
     if ( inMenu && !enable ) {
-	emit accessibilityChanged( QAccessible::MenuEnd );
+	QAccessible::updateAccessibility( this, 0, QAccessible::MenuEnd );
 	inMenu = FALSE;
     } else if ( !inMenu && enable ) {
-	emit accessibilityChanged( QAccessible::MenuStart );
+	QAccessible::updateAccessibility( this, 0, QAccessible::MenuStart );
 	inMenu = TRUE;
     }
 #endif
@@ -1394,16 +1394,5 @@ void QMenuBar::activateItemAt( int index )
     else
 	goodbye( FALSE );
 }
-
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-/*!
-  \reimp
-*/
-QAccessibleInterface *QMenuBar::accessibleInterface()
-{
-    return new QAccessibleWidget( this, QAccessible::MenuBar );
-}
-
-#endif
 
 #endif // QT_NO_MENUBAR

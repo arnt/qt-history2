@@ -8,15 +8,14 @@
 #include <memory.h>
 
 #if defined(Q_OS_WIN32)
-//This is a definition of GUID as present on many platforms
 #ifndef GUID_DEFINED
 #define GUID_DEFINED
 typedef struct _GUID
 {
-    uint   data1;
-    ushort data2;
-    ushort data3;
-    uchar  data4[ 8 ];
+    ulong   Data1;
+    ushort  Data2;
+    ushort  Data3;
+    uchar   Data4[ 8 ];
 } GUID;
 #endif
 #endif
@@ -96,10 +95,10 @@ struct Q_EXPORT QUuid
     }
 #endif
 
-    uint   data1;
-    ushort data2;
-    ushort data3;
-    uchar  data4[ 8 ];
+    ulong   data1;
+    ushort  data2;
+    ushort  data3;
+    uchar   data4[ 8 ];
 };
 
 #endif //QUUID_H

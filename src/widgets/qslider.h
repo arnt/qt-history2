@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.h#65 $
+** $Id: //depot/qt/main/src/widgets/qslider.h#66 $
 **
 ** Definition of QSlider class
 **
@@ -120,10 +120,6 @@ protected:
     void	focusOutEvent( QFocusEvent *e );
 
     void	styleChange( QStyle& );
-
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-    QAccessibleInterface *accessibleInterface();
-#endif
 
     void	valueChange();
     void	rangeChange();

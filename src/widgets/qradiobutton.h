@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobutton.h#67 $
+** $Id: //depot/qt/main/src/widgets/qradiobutton.h#68 $
 **
 ** Definition of QRadioButton class
 **
@@ -68,9 +68,6 @@ protected:
     void    resizeEvent( QResizeEvent* );
 
     void    updateMask();
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-    QAccessibleInterface *accessibleInterface();
-#endif
 
 private:
     void    init();

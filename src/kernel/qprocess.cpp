@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess.cpp#42 $
+** $Id: //depot/qt/main/src/kernel/qprocess.cpp#43 $
 **
 ** Implementation of QProcess class
 **
@@ -280,7 +280,7 @@ int QProcess::exitStatus() const
   If there is no data to read, this function returns a QByteArray of size 0: it
   does not wait until there is something to read.
 
-  \sa readyReadStdout() readStderr() writeToStdin()
+  \sa readyReadStdout() readLineStdout() readStderr() writeToStdin()
 */
 QByteArray QProcess::readStdout()
 {
@@ -303,7 +303,7 @@ QByteArray QProcess::readStdout()
   If there is no data to read, this function returns a QByteArray of size 0: it
   does not wait until there is something to read.
 
-  \sa readyReadStderr() readStdout() writeToStdin()
+  \sa readyReadStderr() readLineStderr() readStdout() writeToStdin()
 */
 QByteArray QProcess::readStderr()
 {
@@ -348,7 +348,7 @@ bool QProcess::canReadLineStderr() const
   carriage return characters and returns it. Returns QString::null if
   canReadLineStdout() returns FALSE.
 
-  \sa canReadLineStdout() readLineStderr()
+  \sa canReadLineStdout() readyReadStdout() readStdout() readLineStderr()
 */
 QString QProcess::readLineStdout()
 {
@@ -368,7 +368,7 @@ QString QProcess::readLineStdout()
   carriage return characters and returns it. Returns QString::null if
   canReadLineStderr() returns FALSE.
 
-  \sa canReadLineStderr() readLineStdout()
+  \sa canReadLineStderr() readyReadStderr() readStderr() readLineStdout()
 */
 QString QProcess::readLineStderr()
 {
@@ -496,7 +496,12 @@ void QProcess::closeStdinLaunch()
   This signal is emitted when the process wrote data to standard output.
   You can read the data with readStdout().
 
-  \sa readStdout() readyReadStderr()
+  Please note that this signal is only emitted when there is new data and not
+  when there is old, but unread data. In the slot connected to this signal, you
+  should always read everything that is available at that moment to make sure
+  that you don't loose any data.
+
+  \sa readStdout() readLineStdout() readyReadStderr()
 */
 /*!
   \fn void QProcess::readyReadStderr()
@@ -504,7 +509,12 @@ void QProcess::closeStdinLaunch()
   This signal is emitted when the process wrote data to standard error.
   You can read the data with readStderr().
 
-  \sa readStderr() readyReadStdout()
+  Please note that this signal is only emitted when there is new data and not
+  when there is old, but unread data. In the slot connected to this signal, you
+  should always read everything that is available at that moment to make sure
+  that you don't loose any data.
+
+  \sa readStderr() readLineStderr() readyReadStdout()
 */
 /*!
   \fn void QProcess::processExited()

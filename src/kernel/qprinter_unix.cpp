@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter_unix.cpp#15 $
+** $Id: //depot/qt/main/src/kernel/qprinter_unix.cpp#16 $
 **
 ** Implementation of QPrinter class for Unix
 **
@@ -47,6 +47,9 @@
 #include "qpsprinter_p.h"
 #include "qprintdialog.h"
 #include "qapplication.h"
+
+#include <stdlib.h>
+
 
 // NOT REVISED
 
@@ -288,7 +291,7 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 			(void)execlp("true", "true", 0);
 			(void)execl("/bin/true", "true", 0);
 			(void)execl("/usr/bin/true", "true", 0);
-                        exit( 0 );
+                        ::exit( 0 );
                     }
                     dup2( fds[0], 0 );
 

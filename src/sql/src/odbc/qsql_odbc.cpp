@@ -328,7 +328,7 @@ bool QODBCResult::reset ( const QString& query )
     setAt( QSql::BeforeFirst );
     SQLRETURN r;
 
-	// If a statement handle exists - reuse it
+    // If a statement handle exists - reuse it
     if ( d->hStmt ) {
 		r = SQLFreeStmt( d->hStmt, SQL_CLOSE );
 		if ( r != SQL_SUCCESS ) {
@@ -347,7 +347,7 @@ bool QODBCResult::reset ( const QString& query )
 #endif
 			return FALSE;
 		}
-	    r = SQLSetStmtAttr( d->hStmt,
+		r = SQLSetStmtAttr( d->hStmt,
 				SQL_ATTR_CURSOR_TYPE,
 				(SQLPOINTER)SQL_CURSOR_STATIC,
 				SQL_IS_UINTEGER );
@@ -357,13 +357,13 @@ bool QODBCResult::reset ( const QString& query )
 #endif
 			return FALSE;
 		}
-	}
+    }
     r = SQLExecDirect( d->hStmt,
 			(SQLCHAR*)query.local8Bit().data(),
 			SQL_NTS );
     if ( r != SQL_SUCCESS ) {
-		setLastError( qMakeError( "Unable to execute statement", QSqlError::Statement, d ) );
-		return FALSE;
+	setLastError( qMakeError( "Unable to execute statement", QSqlError::Statement, d ) );
+	return FALSE;
     }
     SQLSMALLINT count;
     r = SQLNumResultCols( d->hStmt, &count );
@@ -673,9 +673,11 @@ bool QODBCDriver::open( const QString & db,
 
     if ( !d->checkDriver() ) {
 #ifdef QT_CHECK_RANGE
-	// Shouldn't we rather abort here?
 	qWarning ( "QODBCDriver::open: Warning - Driver doesn't support all needed functionality" );
 #endif
+	setLastError( qMakeError( "Unable to connect - Driver doesn't support all needed functionality", QSqlError::Connection, d ) );
+	setOpenError( TRUE );
+	return FALSE;
     }
 
     setOpen( TRUE );
@@ -722,19 +724,28 @@ bool QODBCPrivate::checkDriver() const
 {
 #ifdef ODBC_CHECK_DRIVER
 
-    static const SQLUSMALLINT reqFunc[] = { 
+
+    // do not query for SQL_API_SQLFETCHSCROLL because it can't be used at this time
+    static const SQLUSMALLINT reqFunc[] = {
 		SQL_API_SQLDESCRIBECOL, SQL_API_SQLGETDATA, SQL_API_SQLCOLUMNS, 
-		SQL_API_SQLFETCHSCROLL, SQL_API_SQLGETSTMTATTR, SQL_API_SQLGETDIAGREC, 
-		SQL_API_SQLEXECDIRECT, SQL_API_SQLNUMRESULTCOLS, SQL_API_SQLROWCOUNT, 
+		SQL_API_SQLGETSTMTATTR, SQL_API_SQLGETDIAGREC, SQL_API_SQLEXECDIRECT,
 		SQL_API_SQLGETINFO, SQL_API_SQLTABLES, SQL_API_SQLPRIMARYKEYS, 0
+    };
+
+    // these functions are optional
+    static const SQLUSMALLINT optFunc[] = {
+    		SQL_API_SQLNUMRESULTCOLS, SQL_API_SQLROWCOUNT, 0
     };
 
     SQLRETURN r;
     SQLUSMALLINT sup;
 
-    for ( int i = 0; reqFunc[ i ] != 0; ++i ) {
+    
+    int i;
+    // check the required functions
+    for ( i = 0; reqFunc[ i ] != 0; ++i ) {
 
-	r = SQLGetFunctions( hDbc, SQL_API_SQLPRIMARYKEYS, &sup );
+	r = SQLGetFunctions( hDbc, reqFunc[ i ], &sup );
 
 #ifdef QT_CHECK_RANGE
         if ( r != SQL_SUCCESS ) {
@@ -742,14 +753,31 @@ bool QODBCPrivate::checkDriver() const
 	    return FALSE;
 	}
 #endif
-	if (sup == SQL_FALSE) {
+	if ( sup == SQL_FALSE ) {
 	    return FALSE;
+	}
+    }
+
+    // these functions are optional and just generate a warning
+    for ( i = 0; optFunc[ i ] != 0; ++i ) {
+
+	r = SQLGetFunctions( hDbc, optFunc[ i ], &sup );
+
+#ifdef QT_CHECK_RANGE
+        if ( r != SQL_SUCCESS ) {
+	    qSqlWarning( "QODBCDriver::checkDriver: Cannot get list of supported functions", this );
+	    return FALSE;
+	}
+#endif
+	if ( sup == SQL_FALSE ) {
+	    qDebug( "QODBCDriver::checkDriver: Warning - Driver doesn't support some non-critical functions" );
+	    return TRUE;
 	}
     }
 
 #endif //ODBC_CHECK_DRIVER
 
-    return true;
+    return TRUE;
 }
 
 QSqlQuery QODBCDriver::createQuery() const

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qstatusbar.h#26 $
+** $Id: //depot/qt/main/src/widgets/qstatusbar.h#27 $
 **
 ** Definition of QStatusBar class
 **
@@ -75,10 +75,6 @@ protected:
     void reformat();
     void hideOrShow();
     bool event( QEvent *);
-
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-    QAccessibleInterface *accessibleInterface();
-#endif
 
 private:
     QStatusBarPrivate * d;

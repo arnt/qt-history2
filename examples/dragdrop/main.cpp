@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/dragdrop/main.cpp#2 $
+** $Id: $
 **
 ** Ritual main() for Qt applications
 **

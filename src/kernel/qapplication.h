@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.h#237 $
+** $Id: //depot/qt/main/src/kernel/qapplication.h#238 $
 **
 ** Definition of QApplication class
 **
@@ -61,9 +61,6 @@ extern Q_EXPORT QApplication *qApp;		// global application object
 #if defined(QT_THREAD_SUPPORT)
 class QMutex;
 #endif
-
-// REMOVE IN 3.0 (just here for moc source compatibility)
-// #define QNonBaseApplication QApplication
 
 class Q_EXPORT QApplication : public QObject
 {
@@ -361,6 +358,7 @@ private:
     friend class QWidget;
     friend class QETWidget;
     friend class QEvent;
+    friend Q_EXPORT void qt_ucm_initialize( QApplication * );
 #if defined(Q_WS_WIN)
     friend bool qt_sendSpontaneousEvent( QObject*, QEvent* );
 #endif

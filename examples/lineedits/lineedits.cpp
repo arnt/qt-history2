@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/lineedits/lineedits.cpp#4 $
+** $Id: $
 **
 ** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **

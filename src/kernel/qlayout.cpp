@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#178 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#179 $
 **
 ** Implementation of layout classes
 **
@@ -102,12 +102,12 @@ public:
     ~QLayoutArray();
 
     void add( QLayoutBox*, int row, int col );
-    void add( QLayoutBox*, int row1, int row2, int col1, int col2  );
+    void add( QLayoutBox*, int row1, int row2, int col1, int col2 );
     QSize sizeHint( int ) const;
     QSize minimumSize( int ) const;
     QSize maximumSize( int ) const;
 
-    QSizePolicy::ExpandData expanding( int spacing);
+    QSizePolicy::ExpandData expanding( int spacing );
 
     void distribute( QRect, int );
     int numRows() const { return rr; }
@@ -243,8 +243,6 @@ int QLayoutArray::heightForWidth( int w, int spacing )
     return hfw_height;
 }
 
-
-
 bool QLayoutArray::findWidget( QWidget* w, int *row, int *col )
 {
     QPtrListIterator<QLayoutBox> it( things );
@@ -278,7 +276,6 @@ bool QLayoutArray::findWidget( QWidget* w, int *row, int *col )
     return FALSE;
 }
 
-
 QSize QLayoutArray::findSize( QCOORD QLayoutStruct::*size, int spacer ) const
 {
     QLayoutArray *This = (QLayoutArray*)this;
@@ -311,18 +308,21 @@ QSize QLayoutArray::findSize( QCOORD QLayoutStruct::*size, int spacer ) const
 QSizePolicy::ExpandData QLayoutArray::expanding( int spacing )
 {
     setupLayoutData( spacing );
-    bool hExp = FALSE;
-    bool vExp = FALSE;
+    int ret = 0;
 
     for ( int r = 0; r < rr; r++ ) {
-       vExp = vExp || rowData[r].expansive;
+	if ( rowData[r].expansive ) {
+	    ret |= (int) QSizePolicy::Vertically;
+	    break;
+	}
     }
     for ( int c = 0; c < cc; c++ ) {
-	hExp = hExp || colData[c].expansive;
+	if ( colData[c].expansive ) {
+	    ret |= (int) QSizePolicy::Horizontally;
+	    break;
+	}
     }
-
-    return (QSizePolicy::ExpandData) (( hExp ? QSizePolicy::Horizontally : 0 )
-		  | ( vExp ? QSizePolicy::Vertically : 0 ) );
+    return (QSizePolicy::ExpandData) ret;
 }
 
 QSize QLayoutArray::sizeHint( int spacer ) const
@@ -448,7 +448,7 @@ void QLayoutArray::addData ( QLayoutBox *box, bool r, bool c )
 		maxS.height(), box->expanding() & QSizePolicy::Vertically);
     }
     if ( !box->isEmpty() ) {
-	//empty boxes ( i.e. spacers) do not get borders. This is hacky, but compatible.
+	//empty boxes (i.e. spacers) do not get borders. This is hacky, but compatible.
 	if ( c )
 	    colData[box->col].empty = FALSE;
 	if ( r )
@@ -586,14 +586,8 @@ void QLayoutArray::setupLayoutData( int spacing )
     for ( i = 0; i < cc; i++ ) {
 	colData[i].expansive = colData[i].expansive || colData[i].stretch > 0;
     }
-
-
     needRecalc = FALSE;
 }
-
-
-
-
 
 void QLayoutArray::addHfwData ( QLayoutBox *box, int width )
 {
@@ -605,7 +599,6 @@ void QLayoutArray::addHfwData ( QLayoutBox *box, int width )
 	rData[box->row].minimumSize = QMAX( hint,
 					    rData[box->row].minimumSize );
     } else {
-
 	QSize hint = box->sizeHint();
 	QSize minS = box->minimumSize();
 	rData[box->row].sizeHint = QMAX( hint.height(),
@@ -686,7 +679,7 @@ void QLayoutArray::distribute( QRect r, int spacing )
 	qGeomCalc( rowData, 0, rr, r.y(), r.height(), spacing );
 	rDataPtr = &rowData;
     }
-    QMemArray<QLayoutStruct> &rData = *rDataPtr; //cannot assign to reference
+    QMemArray<QLayoutStruct> &rData = *rDataPtr;
 
     QPtrListIterator<QLayoutBox> it( things );
     QLayoutBox * box;
@@ -727,7 +720,7 @@ void QLayoutArray::distribute( QRect r, int spacing )
 	    if ( vReversed )
 		y = r.top() + r.bottom() - y - h;
 	    box->setGeometry( QRect( x, y, w, h ) );
-	    //end copying
+	    // end copying
 	}
     }
 }
@@ -736,11 +729,15 @@ QRect QLayoutArray::cellGeometry( int row, int col ) const
 {
     if ( row < 0 || row >= rr || col < 0 || col >= cc )
 	return QRect();
-    return QRect( colData[col].pos, rowData[row].pos,
-		  colData[col].size, rowData[row].size );
+
+    const QMemArray<QLayoutStruct> *rDataPtr;
+    if ( has_hfw )
+	rDataPtr = hfwData;
+    else
+	rDataPtr = &rowData;
+    return QRect( colData[col].pos, (*rDataPtr)[row].pos,
+		  colData[col].size, (*rDataPtr)[row].size );
 }
-
-
 
 class QLayoutArrayIterator : public QGLayoutIterator
 {
@@ -786,9 +783,8 @@ private:
 };
 
 
-// BEING REVISED: reggie
 /*!
-  \class QGridLayout qlayout.h
+  \class QGridLayout
 
   \brief The QGridLayout class lays out widgets in a grid.
 
@@ -809,40 +805,40 @@ private:
 
   Normally, each managed widget or layout is put into a cell of its
   own using addWidget(), addLayout(), or by the \link QLayout::setAutoAdd()
-  auto-add facility\endlink; but you can also put widget
-  into multiple cells using addMultiCellWidget().  If you do that,
+  auto-add facility\endlink; but you can also put widgets
+  into multiple cells using addMultiCellWidget().  If you do this,
   QGridLayout will guess how to distribute the size over the
   columns/rows (based on the stretch factors). You can adjust the
-  minimum width of each column/row using addColSpacing()/addRowSpacing().
+  minimum width of each column or row using addColSpacing() or
+  addRowSpacing().
 
   This illustration shows a fragment of a dialog with a five-column,
   three-row grid (the grid is shown overlaid in magenta):
 
-  <img src="gridlayout.png" width="425" height="150">
+  \img gridlayout.png
 
   Columns 0, 2 and 4 in this dialog fragment are made up of a QLabel,
-  a QLineEdit, and a QListBox.  Columns 1 and 2 are placeholders made
+  a QLineEdit, and a QListBox.  Columns 1 and 3 are placeholders made
   with setColSpacing(). Row 0 consists of three QLabel objects, row 1
   of three QLineEdit objects and row 2 of three QListBox objects.
+  We used placeholder columns (1 and 3) to get the right amount of space
+  between the columns.
 
-  Because we did not want any space between the rows, we had to use
-  placeholder columns to get the right amount of space between the
-  columns.
-
-  Note that the columns and rows are not equally wide/tall: If you
-  want two columns to be equally wide, you must set the columns'
+  Note that the columns and rows are not equally wide or tall: if you
+  want two columns to have the same width, you must set their 
   minimum widths and stretch factors to be the same yourself.  You do
-  this using addColSpacing() and setStretch().
+  this using addColSpacing() and setColStretch(). The addRowSpacing()
+  and setRowStretch() are the row equivalents.
 
-  If the QGridLayout is not the top-level layout (i.e., does not manage
+  If the QGridLayout is not the top-level layout (i.e. does not manage
   all of the widget's area and children), you must add it to its
   parent layout when you create it - but before you do
   anything with it.  The normal way to add a layout is by calling
   parentLayout->addLayout().
 
-  Once you have done that you can start putting widgets and other
+  Once you have added your layout you can start putting widgets and other
   layouts into the cells of your grid layout using addWidget(),
-  addLayout(), and addMultiCellWidget().
+  addLayout() and addMultiCellWidget(). 
 
   QGridLayout also includes two margin widths: the border width and
   the inter-box width. The border width is the width of the reserved
@@ -850,8 +846,8 @@ private:
   width is the width of the automatically allocated spacing between
   neighboring boxes.
 
-  The border width defaults to 0; the intra-widget width defaults
-  to the same.  Both are set using arguments to the constructor.
+  Both the border width and the intra-widget width defaults to 0. 
+  Both are set using arguments to the constructor.
 
   See also the \link layout.html Layout Overview \endlink documentation.
 */
@@ -895,6 +891,18 @@ RwbV+8hNqf4Hob4MkPD3BvwAAAAASUVORK5CYII=
 */
 
 /*!
+    \enum  QGridLayout::Corner
+
+    This enum identifies which corner is the origin (0, 0) of the layout.
+
+    \value TopLeft  
+    \value TopRight  
+    \value BottomLeft  
+    \value BottomRight  
+*/
+
+
+/*!
   Constructs a new QGridLayout with \a nRows rows, \a nCols columns
    and main widget \a  parent.	\a parent may not be 0.
 
@@ -911,8 +919,6 @@ QGridLayout::QGridLayout( QWidget *parent, int nRows, int nCols, int border ,
 {
     init( nRows, nCols );
 }
-
-
 
 /*!
   Constructs a new grid that is placed inside \a parentLayout
@@ -1012,8 +1018,6 @@ QSize QGridLayout::maximumSize() const
 }
 
 
-
-
 /*!
   Returns whether this layout's preferred height depends on its width.
 */
@@ -1037,14 +1041,12 @@ int QGridLayout::heightForWidth( int w ) const
 }
 
 
-
-
 /*!
   Searches for \a w in this layout (not including child layouts).  If
   \a w is found, it sets \a row and \a col to the row and column and
   returns TRUE. If \a w is not found, FALSE is returned.
 
-  \warning If a widget spans  multiple rows/columns, the top-left cell is returned.
+  \warning If a widget spans multiple rows/columns, the top-left cell is returned.
 */
 
 bool QGridLayout::findWidget( QWidget* w, int *row, int *col )
@@ -1498,7 +1500,7 @@ private:
 
 
 /*!
-  \class QBoxLayout qlayout.h
+  \class QBoxLayout
 
   \brief The QBoxLayout class lines up child widgets horizontally or
   vertically.
@@ -1529,50 +1531,47 @@ private:
   add a layout is by calling parentLayout->addLayout().
 
   Once you have done that, you can add boxes to the QBoxLayout using
-  one of four functions: <ul>
+  one of four functions:
 
-  <li> addWidget() to add a widget to the QBoxLayout and set the
+  \list
+  \i addWidget() to add a widget to the QBoxLayout and set the
   widget's stretch factor.  (The stretch factor is along the row of
   boxes.)
 
-  <li> addSpacing() to create an empty box; this is one of the
+  \i addSpacing() to create an empty box; this is one of the
   functions you use to create nice and spacious dialogs.  See below
   for ways to set margins.
 
-  <li> addStretch() to create an empty, stretchable box.
+  \i addStretch() to create an empty, stretchable box.
 
-  <li> addLayout() to add a box containing another QLayout to the row
+  \i addLayout() to add a box containing another QLayout to the row
   and set that layout's stretch factor.
-
-  </ul>
+  \endlist
 
   Use insertWidget(), insertSpacing(), insertStretch() or insertLayout()
   to insert a box at a specified position in the layout.
 
-  QBoxLayout also includes two margin widths: <ul>
+  QBoxLayout also includes two margin widths:
 
-  <li> setMargin() sets the width of the outer border. This is the width
+  \list
+  \i setMargin() sets the width of the outer border. This is the width
   of the reserved space along each of the QBoxLayout's four sides.
 
-  <li> setSpacing() sets the inter-box width. This is the width of the
+  \i setSpacing() sets the inter-box width. This is the width of the
   automatically allocated spacing between neighboring boxes.  (You
   can use addSpacing() to get more space at a.)
-
-  </ul>
+  \endlist
 
   The outer border width defaults to 0; the intra-widget width defaults
   to the same as the border width for a top-level layout, or otherwise to the
   same as the parent layout.  Both can be set using
   arguments to the constructor.
 
-  You will almost always want to use the convenience classes for
-  QBoxLayout - QVBoxLayout and QHBoxLayout - because of their simpler
-  constructors.
+  You will almost always want to use the convenience classes
+  QVBoxLayout and QHBoxLayout because of their simpler constructors.
 
   See also the \link layout.html Layout overview documentation \endlink.
 */
-
-
 
 
 /*! \enum QBoxLayout::Direction
@@ -1604,7 +1603,7 @@ static inline bool horz( QBoxLayout::Direction dir )
   between neighboring children.  If \a space is -1 the value
   of \a border is used.
 
-  \a name is the internal object name
+  \a name is the internal object name.
 
   \sa direction()
 */
@@ -1621,17 +1620,16 @@ QBoxLayout::QBoxLayout( QWidget *parent, Direction d,
 
 
 /*!
-  Constructs a new QBoxLayout with direction \a d and the name \a name 
-  and inserts it into \a parentLayout.  
-  
-  \a space is the default number of pixels between neighboring children.  
-  If \a space is -1, this QBoxLayout will inherit its parent's spacing()
+  Constructs a new QBoxLayout with direction \a d and the name \a name
+  and inserts it into \a parentLayout.
 
+  \a space is the default number of pixels between neighboring children.
+  If \a space is -1, this QBoxLayout will inherit its parent's spacing().
 */
 
 QBoxLayout::QBoxLayout( QLayout *parentLayout, Direction d, int space,
- const char *name )
-	: QLayout( parentLayout, space, name )
+			const char *name )
+    : QLayout( parentLayout, space, name )
 {
     data = new QBoxLayoutData;
     dir = d;
@@ -1650,8 +1648,7 @@ QBoxLayout::QBoxLayout( QLayout *parentLayout, Direction d, int space,
   You have to insert this box into another layout.
 */
 
-QBoxLayout::QBoxLayout( Direction d,
-			int space, const char *name )
+QBoxLayout::QBoxLayout( Direction d, int space, const char *name )
     : QLayout( space, name )
 {
     data = new QBoxLayoutData;
@@ -1702,8 +1699,8 @@ QSize QBoxLayout::maximumSize() const
 	QBoxLayout *that = (QBoxLayout*)this;
 	that->setupGeom();
     }
-    QSize s =  (data->maxSize + QSize(2*margin(),2*margin()))
-	       .boundedTo(QSize(QWIDGETSIZE_MAX,QWIDGETSIZE_MAX));
+    QSize s = (data->maxSize + QSize(2 * margin(), 2 * margin()))
+	      .boundedTo(QSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX));
     if ( alignment() & Qt::AlignHorizontal_Mask )
 	s.setWidth( QWIDGETSIZE_MAX );
     if ( alignment() & Qt::AlignVertical_Mask )
@@ -2126,7 +2123,7 @@ bool QBoxLayout::setStretchFactor( QWidget *w, int stretch )
 
 /*!
   \overload
-  
+
   Sets the stretch factor for the layout \a l to \a stretch and returns
   TRUE, if \a l is found in this layout (not including child layouts).
 
@@ -2347,7 +2344,7 @@ int QBoxLayout::calcHfw( int w )
 
 
 /*!
-  \class QHBoxLayout qlayout.h
+  \class QHBoxLayout
 
   \brief The QHBoxLayout class lines up widgets horizontally.
 
@@ -2374,14 +2371,14 @@ int QBoxLayout::calcHfw( int w )
      l->addWidget( anotherChildOfWidget );
   \endcode
 
-  \sa QVBoxLayout QGridLayout <a href="layout.html">Layout overview documentation</a>
-
+  \sa QVBoxLayout QGridLayout
+      \link layout.html Layout overview documentation \endlink
 */
 
 
 /*!
   Constructs a new top-level horizontal box with the parent \a parent, the name
-  \a name.  
+  \a name.
 
   \a border is the number of pixels between the edge of the widget and
   the managed children.	 \a space is the default number of pixels
@@ -2399,10 +2396,10 @@ QHBoxLayout::QHBoxLayout( QWidget *parent, int border,
 
 
 /*!
-  Constructs a new horizontal box with the name \a name and adds it 
+  Constructs a new horizontal box with the name \a name and adds it
   to \a parentLayout.
 
-  \a space is the default number of pixels between neighboring children.  
+  \a space is the default number of pixels between neighboring children.
   If \a space is -1, this QHBoxLayout will inherit its parent's spacing()
 
 */
@@ -2419,7 +2416,7 @@ QHBoxLayout::QHBoxLayout( QLayout *parentLayout, int space,
   Constructs a new horizontal box with the name \a name.  You have to add it to another
   layout.
 
-  \a space is the default number of pixels between neighboring children.  
+  \a space is the default number of pixels between neighboring children.
   If \a space is -1, this QHBoxLayout will inherit its parent's spacing()
 
  */
@@ -2439,7 +2436,7 @@ QHBoxLayout::~QHBoxLayout()
 
 
 /*!
-  \class QVBoxLayout qlayout.h
+  \class QVBoxLayout
 
   \brief The QVBoxLayout class lines up widgets vertically.
 
@@ -2456,7 +2453,8 @@ QHBoxLayout::~QHBoxLayout()
      l->addWidget( anotherWidget );
   \endcode
 
-  \sa QHBoxLayout QGridLayout <a href="layout.html">Layout overview documentation</a>
+  \sa QHBoxLayout QGridLayout
+      \link layout.html Layout overview documentation \endlink
 */
 
 /*!
@@ -2478,10 +2476,10 @@ QVBoxLayout::QVBoxLayout( QWidget *parent, int border,
 
 
 /*!
-  Constructs a new vertical box with the name \a name and adds it 
+  Constructs a new vertical box with the name \a name and adds it
   to \a parentLayout.
 
-  \a space is the default number of pixels between neighboring children.  
+  \a space is the default number of pixels between neighboring children.
   If \a space is -1, this QVBoxLayout will inherit its parent's spacing()
 
 */
@@ -2494,10 +2492,10 @@ QVBoxLayout::QVBoxLayout( QLayout *parentLayout, int space,
 }
 
 /*!
-  Constructs a new vertical box with the name \a name. You will have 
+  Constructs a new vertical box with the name \a name. You will have
   to add it to another layout.
 
-  \a space is the default number of pixels between neighboring children.  
+  \a space is the default number of pixels between neighboring children.
   If \a space is -1, this QVBoxLayout will inherit its parent's spacing()
 
 */

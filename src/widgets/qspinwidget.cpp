@@ -385,6 +385,14 @@ void QSpinWidget::setUpEnabled( bool on )
     }
 }
 
+/*!
+
+*/
+
+bool QSpinWidget::isUpEnabled() const
+{
+    return d->upEnabled;
+}
 
 /*!
 
@@ -398,6 +406,14 @@ void QSpinWidget::setDownEnabled( bool on )
     }
 }
 
+/*!
+
+*/
+
+bool QSpinWidget::isDownEnabled() const
+{
+    return d->downEnabled;
+}
 
 /*!
 
@@ -417,4 +433,5 @@ QSpinWidget::ButtonSymbols QSpinWidget::buttonSymbols() const
 {
     return d->bsyms;
 }
+
 #endif

@@ -839,7 +839,7 @@ QPluginManager<WidgetInterface> *widgetManager()
 	    it++;
 	}
 
-	cleanup_manager.add( widgetPluginManager );
+	cleanup_manager.add( &widgetPluginManager );
     }
     return widgetPluginManager;
 }

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#463 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#464 $
 **
 ** Implementation of QListBox widget class
 **
@@ -319,8 +319,8 @@ bool QListBoxItem::isSelectable() const
 /*!
   \fn void QListBoxItem::setText( const QString &text )
 
-  Sets the text of the QListBoxItem to \a text, which is 
-  also used for sorting.  The text is not shown unless 
+  Sets the text of the QListBoxItem to \a text, which is
+  also used for sorting.  The text is not shown unless
   explicitly drawn in paint().
 
   \sa text()
@@ -410,11 +410,17 @@ int QListBoxText::width( const QListBox* lb ) const
     return QMAX( w, QApplication::globalStrut().width() );
 }
 
-/*! 
+int QListBoxText::RTTI = 1;
+
+/*!
   \fn int QListBoxText::rtti() const
   \reimp
 */
 
+int QListBoxText::rtti() const
+{
+    return RTTI;
+}
 
 /*!
   \class QListBoxPixmap qlistbox.h
@@ -538,7 +544,7 @@ int QListBoxPixmap::height( const QListBox* lb ) const
     if ( text().isEmpty() )
 	h = pm.height();
     else
-	h = QMAX( pm.height(), lb->fontMetrics().lineSpacing() + 1 );
+	h = QMAX( pm.height(), lb->fontMetrics().lineSpacing() + 2 );
     return QMAX( h, QApplication::globalStrut().height() );
 }
 
@@ -556,11 +562,17 @@ int QListBoxPixmap::width( const QListBox* lb ) const
 	    QApplication::globalStrut().width() );
 }
 
-/*! 
+int QListBoxPixmap::RTTI = 2;
+
+/*!
   \fn int QListBoxPixmap::rtti() const
   \reimp
 */
 
+int QListBoxPixmap::rtti() const
+{
+    return RTTI;
+}
 
 /*!
   \class QListBox qlistbox.h
@@ -728,7 +740,7 @@ int QListBoxPixmap::width( const QListBox* lb ) const
 
 /*! \fn void  QListBox::onItem( QListBoxItem *i )
   This signal is emitted when the user moves the mouse cursor onto an
-  item, similar to the QWidget::enterEvent() function.  \a i is the 
+  item, similar to the QWidget::enterEvent() function.  \a i is the
   QListBoxItem that the mouse has moved on.
 */
 
@@ -811,7 +823,7 @@ QListBox::~QListBox()
   connected to this signal.
 */
 
-/*! 
+/*!
   \overload void QListBox::pressed( QListBoxItem *item, const QPoint &pnt )
 
   This signal is emitted when the user presses any mouse button. If \a
@@ -838,7 +850,7 @@ QListBox::~QListBox()
   connected to this signal.
 */
 
-/*! 
+/*!
   \overload void QListBox::clicked( QListBoxItem *item, const QPoint &pnt )
 
   This signal is emitted when the user clicks any mouse button. If \a
@@ -960,7 +972,7 @@ QListBox::~QListBox()
   \sa selected() currentItem() selectionChanged()
 */
 
-/*! 
+/*!
   \overload void QListBox::highlighted( QListBoxItem * )
 
   This signal is emitted when the user highlights a new current item.
@@ -969,7 +981,7 @@ QListBox::~QListBox()
   \sa selected() currentItem() selectionChanged()
 */
 
-/*! 
+/*!
   \overload void QListBox::highlighted( const QString &)
 
   This signal is emitted when the user highlights a new current item
@@ -988,7 +1000,7 @@ QListBox::~QListBox()
   \sa highlighted() selectionChanged()
 */
 
-/*! 
+/*!
   \overload void QListBox::selected( QListBoxItem * )
 
   This signal is emitted when the user double-clicks on an item or
@@ -998,7 +1010,7 @@ QListBox::~QListBox()
   \sa highlighted() selectionChanged()
 */
 
-/*! 
+/*!
   \overload void QListBox::selected( const QString &)
 
   This signal is emitted when the user double-clicks on an item or
@@ -1228,7 +1240,7 @@ void QListBox::insertItem( const QListBoxItem *lbi, int index )
 
 /*!
   \overload
-    
+
   Inserts the item \a lbi into the list after the item \a after.
 
   If \a after is NULL, \a lbi is inserted at the beginning.
@@ -1300,7 +1312,7 @@ void QListBox::insertItem( const QString &text, int index )
 
 /*!
   \overload
-  
+
   Inserts \a pixmap into the list at \a index.
 
   If \a index is negative, \a pixmap is inserted at the end of the list.
@@ -1429,7 +1441,7 @@ void QListBox::changeItem( const QString &text, int index )
 
 /*!
   \overload
-  
+
   Replaces the item at position \a index with \a pixmap.
 
   The operation is ignored if \a index is out of range.
@@ -1681,7 +1693,7 @@ bool QListBox::itemVisible( int index )
 }
 
 
-/*!  
+/*!
   \overload
 
   Returns TRUE if \a item is at least partly visible, or else FALSE.
@@ -2302,7 +2314,7 @@ void QListBox::updateItem( int index )
 
 
 /*!
-  \overload 
+  \overload
 
   Repaints the QListBoxItem \a i.
 */
@@ -2482,7 +2494,7 @@ bool QListBox::isSelected( int i ) const
 
 
 /*!
-  \overload 
+  \overload
 
   Returns TRUE if item \a i is selected. Returns FALSE if it is not
   selected or if there is an error.
@@ -2669,7 +2681,7 @@ void QListBox::setRowMode( LayoutMode mode )
 
 /*!
   \overload
-  
+
   Sets the row layout mode for this list box to \c FixedNumber and sets the
   number of displayed rows to \a rows.
 
@@ -4152,10 +4164,12 @@ void QListBox::windowActivationChange( bool )
 
     const QColorGroup acg = palette().active();
     const QColorGroup icg = palette().inactive();
-    
+
     if ( acg != icg )
 	viewport()->update();
 }
+
+int QListBoxItem::RTTI = 0;
 
 /*! Returns 0.
 
@@ -4171,7 +4185,7 @@ void QListBox::windowActivationChange( bool )
 
 int QListBoxItem::rtti() const
 {
-    return 0;
+    return RTTI;
 }
 
 #endif // QT_NO_LISTBOX

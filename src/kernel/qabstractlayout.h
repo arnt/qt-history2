@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.h#54 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.h#55 $
 **
 ** Definition of the abstract layout base class
 **

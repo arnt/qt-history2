@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/qtranslator_gui1/ab_mainwindow.h#1 $
+** $Id: $
 **
 ** Copyright ( C ) 1992-2000 Trolltech AS.  All rights reserved.
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qftp.h#10 $
+** $Id: //depot/qt/main/src/network/qftp.h#11 $
 **
 ** Definition of QFtp class.
 **

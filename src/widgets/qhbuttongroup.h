@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qhbuttongroup.h#13 $
+** $Id: //depot/qt/main/src/widgets/qhbuttongroup.h#14 $
 **
 ** Definition of QHButtonGroup class
 **

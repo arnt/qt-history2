@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/qws/qws.h#13 $
+** $Id: $
 **
 ** Definition of Qt/FB dummy framebuffer debug GUI
 **

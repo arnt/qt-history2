@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/layout/cex.cpp#5 $
+** $Id: $
 **
 ** Geometry Management example: putting a QGridLayout inside a QBoxLayout
 **

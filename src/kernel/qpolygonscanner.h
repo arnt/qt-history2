@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpolygonscanner.h#10 $
+** $Id: //depot/qt/main/src/kernel/qpolygonscanner.h#11 $
 **
 ** Definition of QPolygonScanner class
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#206 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#207 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -60,6 +60,7 @@
 #include "qapplication.h"
 #include "qt_x11.h"
 
+#include <stdlib.h>
 
 
 /*!

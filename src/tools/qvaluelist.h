@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qvaluelist.h#52 $
+** $Id: //depot/qt/main/src/tools/qvaluelist.h#53 $
 **
 ** Definition of QValueList class
 **
@@ -403,7 +403,7 @@ public:
 	if ( size() != l.size() )
 	    return FALSE;
 	const_iterator it2 = begin();
-	std::list<T>::const_iterator it = l.begin();
+	typename std::list<T>::const_iterator it = l.begin();
 	for ( ; it2 != end(); ++it2, ++it )
 	if ( !((*it2) == (*it)) )
 	    return FALSE;
@@ -558,7 +558,7 @@ template<class T>
 inline QDataStream& operator<<( QDataStream& s, const QValueList<T>& l )
 {
     s << (Q_UINT32)l.size();
-    QValueList<T>::const_iterator it = l.begin();
+    QValueListConstIterator<T> it = l.begin();
     for( ; it != l.end(); ++it )
 	s << *it;
     return s;

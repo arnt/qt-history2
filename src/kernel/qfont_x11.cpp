@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#320 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#321 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -60,6 +60,10 @@
 #endif // QT_NO_XFTFREETYPE
 
 #include "qt_x11.h"
+
+#include <ctype.h> 
+#include <stdlib.h> 
+
 
 #if !defined(QT_NO_XFTFREETYPE) && defined(QT_NO_XFTNAMEUNPARSE)
 // Assume XFree86 4.0.3 implementation which is missing XftInitFtLibrary and
@@ -241,11 +245,6 @@ static struct
 
 
 
-
-
-
-
-
 bool qt_has_xft = FALSE;
 
 // Data needed for XftFreeType support
@@ -254,11 +253,6 @@ typedef QIntDict<QPixmap> QPixmapDict;
 static QPixmapDict *qt_xft_render_sources = 0;
 QCleanupHandler<QPixmapDict> cleanup_pixmapdict;
 #endif // QT_NO_XFTFREETYPE
-
-
-
-
-
 
 
 
@@ -490,10 +484,10 @@ bool QFontPrivate::fillFontDef( const QCString &xlfd, QFontDef *fd,
     fd->pointSize = atoi(tokens[PointSize]);
     fd->styleHint = QFont::AnyStyle;	// ### any until we match families
 
-    char slant	= tolower( tokens[Slant][0] );
-    fd->italic = (slant == 'o' || slant == 'i');
-    char fixed	= tolower( tokens[Spacing][0] );
-    fd->fixedPitch = (fixed == 'm' || fixed == 'c');
+    char slant = tolower( (uchar) tokens[Slant][0] );
+    fd->italic = ( slant == 'o' || slant == 'i' );
+    char fixed = tolower( (uchar) tokens[Spacing][0] );
+    fd->fixedPitch = ( fixed == 'm' || fixed == 'c' );
     fd->weight = getFontWeight( tokens[Weight] );
 
     int r = atoi(tokens[ResolutionY]);
@@ -1727,20 +1721,20 @@ QCString QFontPrivate::bestMatch( const char *pattern, int *score,
 		 sc == bestScalable.score &&
 		 weightDiff == bestScalable.weightDiff &&
 		 smoothScalable && !bestScalable.smooth ) {
-		bestScalable.score	= sc;
-		bestScalable.name	= xFontNames[i];
-		bestScalable.pointDiff  = pointDiff;
+		bestScalable.score = sc;
+		bestScalable.name = xFontNames[i];
+		bestScalable.pointDiff = pointDiff;
 		bestScalable.weightDiff = weightDiff;
-		bestScalable.smooth	= smoothScalable;
+		bestScalable.smooth = smoothScalable;
 	    }
 	} else {
 	    if ( sc > best.score ||
 		 sc == best.score && pointDiff < best.pointDiff ||
 		 sc == best.score && pointDiff == best.pointDiff &&
 		 weightDiff < best.weightDiff ) {
-		best.score	= sc;
-		best.name	= xFontNames[i];
-		best.pointDiff	= pointDiff;
+		best.score = sc;
+		best.name = xFontNames[i];
+		best.pointDiff = pointDiff;
 		best.weightDiff = weightDiff;
 	    }
 	}
@@ -1767,8 +1761,8 @@ QCString QFontPrivate::bestMatch( const char *pattern, int *score,
 		pSize = int( (10.*request.pixelSize * QPaintDevice::x11AppDpiY()) / 72. + 0.5 );
 	    if ( bestScalable.smooth ) {
 		// X will scale the font accordingly
-		resx  = QPaintDevice::x11AppDpiX();
-		resy  = QPaintDevice::x11AppDpiY();
+		resx = QPaintDevice::x11AppDpiX();
+		resy = QPaintDevice::x11AppDpiY();
 	    } else {
 		resx = atoi(tokens[ResolutionX]);
 		resy = atoi(tokens[ResolutionY]);
@@ -1788,12 +1782,12 @@ QCString QFontPrivate::bestMatch( const char *pattern, int *score,
 			      tokens[Spacing],
 			      tokens[CharsetRegistry],
 			      tokens[CharsetEncoding] );
-	    best.name  = bestName.data();
+	    best.name = bestName.data();
 	    best.score = bestScalable.score;
 	}
     }
 
-    *score   = best.score;
+    *score = best.score;
     bestName = best.name;
 
     XFreeFontNames( xFontNames );
@@ -1830,7 +1824,7 @@ int QFontPrivate::fontMatchScore( const char *fontName, QCString &buffer,
     // we no longer score the charset, since we query the X server for fonts based
     // on the foundry, family and charset now
 
-    char pitch = tolower( tokens[Spacing][0] );
+    char pitch = tolower( (uchar) tokens[Spacing][0] );
     if ( script >= QFont::Han && script <= QFont::Yi ||
 	 script == QFont::HanX11 ) {
 	// basically we treat cell spaced and proportional fonts the same for asian.
@@ -1903,7 +1897,7 @@ int QFontPrivate::fontMatchScore( const char *fontName, QCString &buffer,
 	exactmatch = FALSE;
 
     *weightDiff = QABS( weightVal - (int) request.weight );
-    char slant = tolower( tokens[Slant][0] );
+    char slant = tolower( (uchar) tokens[Slant][0] );
 
     if ( request.italic ) {
 	if ( slant == 'o' || slant == 'i' )
@@ -2197,7 +2191,6 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
 {
     // Make sure fontCache is initialized
     if (! fontCache) {
-
 #ifdef QT_CHECK_STATE
 	qFatal( "QFont: Must construct a QApplication before a QFont" );
 #endif // QT_CHECK_STATE
@@ -2496,7 +2489,7 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
 
 /*!
   Returns TRUE if the font attributes have been changed and the font has to
-  be (re)loaded, or FALSE if no changes have been made.
+  be (re)loaded; otherwise returns FALSE.
 */
 bool QFont::dirty() const
 {
@@ -2526,12 +2519,12 @@ void QFont::initialize()
     // create font cache and name dict
     QFontPrivate::fontCache = new QFontCache();
     Q_CHECK_PTR(QFontPrivate::fontCache);
-    cleanup_fontcache.add(QFontPrivate::fontCache);
+    cleanup_fontcache.add(&QFontPrivate::fontCache);
 
     fontNameDict = new QFontNameDict(QFontPrivate::fontCache->size(), FALSE);
     Q_CHECK_PTR(fontNameDict);
     fontNameDict->setAutoDelete(TRUE);
-    cleanup_fontnamedict.add(fontNameDict);
+    cleanup_fontnamedict.add(&fontNameDict);
 
 #ifndef QT_NO_CODECS
 #ifndef QT_NO_BIG_CODECS
@@ -2552,7 +2545,7 @@ void QFont::initialize()
 	XftInit(0) && XftInitFtLibrary()) {
 	qt_has_xft = TRUE;
 	qt_xft_render_sources = new QPixmapDict();
-	cleanup_pixmapdict.add(qt_xft_render_sources);
+	cleanup_pixmapdict.add(&qt_xft_render_sources);
     }
 #endif // QT_NO_XFTFREETYPE
 
@@ -2686,10 +2679,9 @@ Qt::HANDLE QFont::handle() const
 
 /*!
   Returns the name of the font within the underlying window system.
-  On Windows, this is usually just the family name of a true type
-  font. Under X, it is a rather complex XLFD (X Logical Font
-  Description). Using the return value of this function is usually \e
-  not \e portable.
+  On Windows, this is usually just the family name of a truetype
+  font. Under X, it is an XLFD (X Logical Font Description). Using the
+  return value of this function is usually \e not \e portable.
 
   \sa setRawName()
 */
@@ -2709,16 +2701,17 @@ QString QFont::rawName() const
 /*!
   Sets a font by its system specific name. The function is in
   particular useful under X, where system font settings (for example
-  X resources) are usually available as XLFD (X Logical Font
-  Description) only. You can pass an XLFD as \a name to this function.
+  X resources) are usually available in XLFD (X Logical Font
+  Description) form only. You can pass an XLFD as \a name to this
+  function.
 
   In Qt 2.0 and later, a font set with setRawName() is still a
   full-featured QFont. It can be queried (for example with italic())
   or modified (for example with setItalic() ) and is therefore also
-  suitable as a basis font for rendering rich text.
+  suitable for rendering rich text.
 
   If Qt's internal font database cannot resolve the raw name, the font
-  becomes a raw font with \a name as family.
+  becomes a raw font with \a name as its family.
 
   Note that the present implementation does not handle
   wildcards in XLFDs well, and that font aliases (file \c fonts.alias
@@ -2813,7 +2806,8 @@ int QFontMetrics::descent() const
 
 
 /*!
-  Returns TRUE if \a ch is a valid character in the font.
+  Returns TRUE if character \a ch is a valid character in the font;
+  otherwise returns FALSE.
 */
 bool QFontMetrics::inFont(QChar ch) const
 {
@@ -2828,7 +2822,7 @@ bool QFontMetrics::inFont(QChar ch) const
 /*!
   Returns the left bearing of character \a ch in the font.
 
-  The left bearing is the rightward distance of the left-most pixel
+  The left bearing is the right-ward distance of the left-most pixel
   of the character from the logical origin of the character.
   This value is negative if the pixels of the character extend
   to the left of the logical origin.
@@ -2861,7 +2855,7 @@ int QFontMetrics::leftBearing(QChar ch) const
 /*!
   Returns the right bearing of character \a ch in the font.
 
-  The right bearing is the leftward distance of the right-most pixel
+  The right bearing is the left-ward distance of the right-most pixel
   of the character from the logical origin of a subsequent character.
   This value is negative if the pixels of the character extend
   to the right of the width() of the character.
@@ -2896,7 +2890,7 @@ int QFontMetrics::rightBearing(QChar ch) const
 
   This is the smallest leftBearing(char) of all characters in the font.
 
-  Note that this function can be very slow if the font is big.
+  Note that this function can be very slow if the font is large.
 
   \sa minRightBearing(), leftBearing(char)
 */
@@ -2944,7 +2938,7 @@ int QFontMetrics::minLeftBearing() const
   This is the smallest rightBearing(char) of all characters in the
   font.
 
-  Note that this function can be very slow if the font is big.
+  Note that this function can be very slow if the font is large.
 
   \sa minLeftBearing(), rightBearing(char)
 */
@@ -3075,9 +3069,8 @@ int QFontMetrics::lineSpacing() const
 
   <img src="bearings.png" align=right>
 
-  Returns the logical width of a
-  \a ch in pixels.  This is a distance appropriate for drawing a
-  subsequent character after \a ch.
+  Returns the logical width of character \a ch in pixels.  This is a
+  distance appropriate for drawing a subsequent character after \a ch.
 
   Some of the metrics are described in the image to the right.  The
   tall dark rectangle covers the logical width() of a character.  The
@@ -3085,12 +3078,11 @@ int QFontMetrics::lineSpacing() const
   the characters.  Notice that the bearings of "f" in this particular
   font are both negative, while the bearings of "o" are both positive.
 
-  \warning This function will produce incorrect results for arabic characters
-  or non spacing marks in the middle of a string , as
-  the glyph shaping  and positioning of marks  that happens when processing
-  strings can not be taken into account.
-  Use charWidth() instead if you aren't looking for the width of isolated
-  characters.
+  \warning This function will produce incorrect results for Arabic
+  characters or non spacing marks in the middle of a string, as the
+  glyph shaping  and positioning of marks  that happens when processing
+  strings cannot be taken into account. Use charWidth() instead if you
+  aren't looking for the width of isolated characters.
 
   \sa boundingRect(), charWidth()
 */
@@ -3138,13 +3130,15 @@ int QFontMetrics::width(QChar ch) const
 }
 
 
-/*! Returns the width of the character at position \a pos in the string \a str.
+/*! 
+    Returns the width of the character at position \a pos in the string
+    \a str.
 
   The whole string is needed, as the glyph drawn may change depending on the
   context (the letter before and after the current one) for some languages
   (e.g. Arabic).
 
-  Also takes non spacing marks and ligatures into account.
+  This function also takes non spacing marks and ligatures into account.
 */
 int QFontMetrics::charWidth( const QString &str, int pos ) const
 {
@@ -3191,8 +3185,9 @@ int QFontMetrics::charWidth( const QString &str, int pos ) const
 }
 
 
-/*! Returns the width in pixels of the first \a len characters of \a str.
-  If \a len is negative (the default value is), the whole string is used.
+/*! 
+    Returns the width in pixels of the first \a len characters of \a
+    str. If \a len is negative (the default), the entire string is used.
 
   Note that this value is \e not equal to boundingRect().width();
   boundingRect() returns a rectangle describing the pixels this string
@@ -3220,16 +3215,18 @@ int QFontMetrics::width( const QString &str, int len ) const
 }
 
 
-/*! Returns the bounding rectangle of the first \a len characters of \a str,
-  which is the set of pixels the text would cover if drawn at (0,0).
+/*! 
+    Returns the bounding rectangle of the first \a len characters of \a
+    str, which is the set of pixels the text would cover if drawn at
+    (0,0).
 
-  If \a len is negative (default value), the whole string is used.
+  If \a len is negative (the default), the entire string is used.
 
   Note that the bounding rectangle may extend to the left of (0,0),
   e.g. for italicized fonts, and that the text output may cover \e all
   pixels in the bounding rectangle.
 
-  Newline characters are processed as regular characters, \e not as
+  Newline characters are processed as normal characters, \e not as
   linebreaks.
 
   Due to the different actual character heights, the height of the
@@ -3372,7 +3369,7 @@ int QFontMetrics::underlinePos() const
 
 
 /*!
-  Returns the distance from the base line to where the strike-out line
+  Returns the distance from the base line to where the strikeout line
   should be drawn.
   \sa underlinePos(), lineWidth()
 */
@@ -3385,7 +3382,7 @@ int QFontMetrics::strikeOutPos() const
 
 
 /*!
-  Returns the width of the underline and strike-out lines, adjusted for
+  Returns the width of the underline and strikeout lines, adjusted for
   the point size of the font.
   \sa underlinePos(), strikeOutPos()
 */

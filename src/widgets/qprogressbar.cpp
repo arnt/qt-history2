@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qprogressbar.cpp#94 $
+** $Id: //depot/qt/main/src/widgets/qprogressbar.cpp#95 $
 **
 ** Implementation of QProgressBar class
 **
@@ -42,7 +42,7 @@
 #include "qapplication.h"
 #include "qpixmap.h"
 #if defined(QT_ACCESSIBILITY_SUPPORT)
-#include "qaccessiblewidget.h"
+#include "qaccessible.h"
 #endif
 #include <limits.h>
 
@@ -173,7 +173,7 @@ void QProgressBar::setProgress( int progress )
     repaint( FALSE );
 
 #if defined(QT_ACCESSIBILITY_SUPPORT)
-    emit accessibilityChanged( QAccessible::ValueChanged );
+    QAccessible::updateAccessibility( this, 0, QAccessible::ValueChanged );
 #endif
 }
 
@@ -384,14 +384,5 @@ void QProgressBar::drawContents( QPainter *p )
 
     p->drawPixmap( bar.x(), bar.y(), pm );
 }
-
-
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-/*! \reimp */
-QAccessibleInterface *QProgressBar::accessibleInterface()
-{
-    return new QAccessibleRangeControl( this, QAccessible::ProgressBar );
-}
-#endif
 
 #endif

@@ -69,7 +69,7 @@ static const struct {
     { "DlgWidget", "FontPropagation", 0, 0 },
     { "DlgWidget", "MaximumSize", "maximumSize", "qsize" },
     { "DlgWidget", "MinimumSize", "minimumSize", "qsize" },
-    { "DlgWidget", "Name", "name", "qcstring" },
+    { "DlgWidget", "Name", 0, 0 },
     { "DlgWidget", "Palette", "palette", "qpalette" },
     { "DlgWidget", "PalettePropagation", 0, 0 },
     { "DlgWidget", "ReadPixmapFromData", 0, 0 },
@@ -221,6 +221,14 @@ static QString entitize( const QString& str )
     t.replace( QRegExp(QChar('"')), QString("&quot;") );
     t.replace( QRegExp(QChar('\'')), QString("&apos;") );
     return t;
+}
+
+QString Dlg2Ui::alias( const QString& name ) const
+{
+    if ( yyAliasMap.contains(name) )
+	return yyAliasMap[name];
+    else
+	return name;
 }
 
 QString Dlg2Ui::opening( const QString& tag, const AttributeMap& attr )
@@ -555,6 +563,8 @@ void Dlg2Ui::emitWidgetBody( const QDomElement& e, bool layouted )
     QString userClassHeader;
     QString userClassName;
     QString parentTagName;
+    QString name;
+    QString variableName;
     QMap<QString, int> pp;
 
     QDomNode n = e;
@@ -568,6 +578,11 @@ void Dlg2Ui::emitWidgetBody( const QDomElement& e, bool layouted )
 
 	    QMap<QString, int>::ConstIterator p = pp.find( tagName );
 	    if ( p == pp.end() ) {
+		/*
+		  These properties are not in the propertyDefs table,
+		  since they are found in many classes anyway and need
+		  to be treated the same in each case.
+		*/
 		if ( tagName == QString("Alignement") ||
 		     tagName == QString("Alignment") ) {
 		    QString flags = getValue( n.toElement(), tagName )
@@ -592,6 +607,10 @@ void Dlg2Ui::emitWidgetBody( const QDomElement& e, bool layouted )
 		QString propertyName( propertyDefs[*p].qtName );
 
 		if ( propertyName.isEmpty() ) {
+		    /*
+		      These properties are in the propertyDefs table,
+		      but they have no direct Qt equivalent.
+		    */
 		    if ( parentTagName == QString("ComboBox") ) {
 			if ( tagName == QString("Style") ) {
 			    if ( getTextValue(n) == QString("ReadWrite") )
@@ -599,7 +618,9 @@ void Dlg2Ui::emitWidgetBody( const QDomElement& e, bool layouted )
 					      QVariant(TRUE, 0) );
 			}
 		    } else if ( parentTagName == QString("DlgWidget") ) {
-			if ( tagName == QString("Rect") ) {
+			if ( tagName == QString("Name") ) {
+			    name = getTextValue( n );
+			} else if ( tagName == QString("Rect") ) {
 			    QRect rect = getValue( n.toElement(), tagName,
 						   QString("qrect") )
 					 .toRect();
@@ -632,6 +653,8 @@ void Dlg2Ui::emitWidgetBody( const QDomElement& e, bool layouted )
 				}
 				child = child.nextSibling();
 			    }
+			} else if ( tagName == QString("Variable") ) {
+			    variableName = getTextValue( n );
 			}
 		    } else if ( parentTagName == QString("Frame") ) {
 			if ( tagName == QString("Style") ) {
@@ -699,6 +722,9 @@ void Dlg2Ui::emitWidgetBody( const QDomElement& e, bool layouted )
 			}
 		    }
 		} else {
+		    /*
+		      These properties have a direct Qt equivalent.
+		    */
 		    QString type( propertyDefs[*p].type );
 		    QVariant val = getValue( n.toElement(), tagName, type );
 
@@ -725,6 +751,13 @@ void Dlg2Ui::emitWidgetBody( const QDomElement& e, bool layouted )
 	    n = n.nextSibling();
 	}
     }
+
+    if ( !variableName.isEmpty() ) {
+	yyAliasMap.insert( name, variableName );
+	name = variableName;
+    }
+    if ( !name.isEmpty() )
+	emitProperty( QString("name"), name.latin1() );
 
     if ( !userClassName.isEmpty() )
 	yyCustomWidgets.insert( userClassName, userClassHeader );
@@ -930,7 +963,7 @@ void Dlg2Ui::matchDialogCommon( const QDomElement& dialogCommon )
 
     if ( windowCaption.isEmpty() )
 	windowCaption = yyClassName;
-    emitProperty( QString("name"), yyClassName );
+    emitProperty( QString("name"), yyClassName.latin1() );
     emitProperty( QString("caption"), windowCaption );
 
     if ( isCustom )
@@ -1365,7 +1398,7 @@ void Dlg2Ui::matchDialog( const QDomElement& dialog )
 	    QValueList<DlgConnection>::Iterator c = yyConnections.begin();
 	    while ( c != yyConnections.end() ) {
 		emitOpening( QString("connection") );
-		emitSimpleValue( QString("sender"), (*c).sender );
+		emitSimpleValue( QString("sender"), alias((*c).sender) );
 		emitSimpleValue( QString("signal"), (*c).signal );
 		emitSimpleValue( QString("receiver"), yyClassName );
 		emitSimpleValue( QString("slot"), (*c).slot );
@@ -1389,7 +1422,7 @@ void Dlg2Ui::matchDialog( const QDomElement& dialog )
 	    emitOpening( QString("tabstops") );
 	    QStringList::ConstIterator t = yyTabStops.begin();
 	    while ( t != yyTabStops.end() ) {
-		emitSimpleValue( QString("tabstop"), *t );
+		emitSimpleValue( QString("tabstop"), alias(*t) );
 		++t;
 	    }
 	    emitClosing( QString("tabstops") );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#720 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#721 $
 **
 ** Implementation of QWidget class
 **
@@ -51,7 +51,7 @@
 #include "qstylefactory.h"
 #include "qcleanuphandler.h"
 #if defined(QT_ACCESSIBILITY_SUPPORT)
-#include "qaccessiblewidget.h"
+#include "qaccessible.h"
 #endif
 #if defined(Q_WS_WIN)
 #include "qt_windows.h"
@@ -784,8 +784,6 @@ QWidget::~QWidget()
 	while ( (obj=it.current()) ) {
 	    ++it;
 	    obj->parentObj = 0;
-	    // ### nest line is a QGList workaround - remove in 3.0
-	    childObjects->removeRef( obj );
 	    delete obj;
 	}
 	delete childObjects;
@@ -1371,7 +1369,7 @@ void QWidget::enabledChange( bool )
 {
     update();
 #if defined(QT_ACCESSIBILITY_SUPPORT)
-    emit accessibilityChanged( QAccessible::StateChanged );
+    QAccessible::updateAccessibility( this, 0, QAccessible::StateChanged );
 #endif
 }
 
@@ -2799,7 +2797,7 @@ void QWidget::setFocus()
 	else {
 #endif
 #if defined(QT_ACCESSIBILITY_SUPPORT)
-	    emit accessibilityChanged( QAccessible::Focus );
+	    QAccessible::updateAccessibility( this, 0, QAccessible::Focus );
 #endif
 #if defined(Q_WS_WIN)
 	}
@@ -2838,7 +2836,7 @@ void QWidget::clearFocus()
 	else {
 #endif
 #if defined(QT_ACCESSIBILITY_SUPPORT)
-	    emit accessibilityChanged( QAccessible::Focus );
+	    QAccessible::updateAccessibility( this, 0, QAccessible::Focus );
 #endif
 #if defined(Q_WS_WIN)
 	}
@@ -3463,7 +3461,7 @@ void QWidget::show()
 	QApplication::postEvent( this, new QEvent( QEvent::ShowWindowRequest ) );
 
 #if defined(QT_ACCESSIBILITY_SUPPORT)
-    emit accessibilityChanged( QAccessible::ObjectShow );
+    QAccessible::updateAccessibility( this, 0, QAccessible::ObjectShow );
 #endif
 
     in_show = FALSE;
@@ -3530,7 +3528,7 @@ void QWidget::hide()
 	qt_leave_modal( this );
 
 #if defined(QT_ACCESSIBILITY_SUPPORT)
-    emit accessibilityChanged( QAccessible::ObjectHide );
+    QAccessible::updateAccessibility( this, 0, QAccessible::ObjectHide );
 #endif
 }
 
@@ -4140,6 +4138,9 @@ bool QWidget::event( QEvent *e )
 	case QEvent::ChildInserted:
 	case QEvent::ChildRemoved:
 	    childEvent( (QChildEvent*) e);
+	    break;
+	case QEvent::DeferredDelete:
+	    delete this;
 	    break;
 	case QEvent::ParentFontChange:
 	    if ( isTopLevel() )
@@ -5152,15 +5153,3 @@ void QWidget::showFullScreen()
 
   \sa setPalette(), unsetPalette()
 */
-
-/*!
-  \reimp
-*/
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-QAccessibleInterface *QWidget::accessibleInterface()
-{
-    return new QAccessibleWidget( this );
-}
-#endif
-
-

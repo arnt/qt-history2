@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard_mac.cpp
+** $Id: //depot/qt/main/src/kernel/qclipboard_mac.cpp#25 $
 **
 ** Implementation of QClipboard class for mac
 **

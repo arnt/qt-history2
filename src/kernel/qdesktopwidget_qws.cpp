@@ -53,7 +53,9 @@ QWidget *QDesktopWidget::screen( int )
 
 const QRect& QDesktopWidget::screenGeometry( int ) const
 {
-    return frameGeometry();
+    // use max window rect?
+    static QRect r = frameGeometry();
+    return r;
 }
 
 int QDesktopWidget::screenNumber( QWidget * ) const

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qdns.cpp#47 $
+** $Id: //depot/qt/main/src/network/qdns.cpp#48 $
 **
 ** Implementation of QDns class.
 **
@@ -77,7 +77,7 @@ static Q_UINT32 now()
 
     originOfTime = new QDateTime( QDateTime::currentDateTime() );
     ::id = originOfTime->time().msec() * 60 + originOfTime->time().second();
-    qdns_cleanup_time.add( originOfTime );
+    qdns_cleanup_time.add( &originOfTime );
     return 0;
 }
 
@@ -1781,13 +1781,19 @@ QValueList<QHostAddress> QDns::addresses() const
 
 
 /*!
-    \enum QDns::MailServer
+  \class QDns::MailServer
 
-  The struct \c QDns::MailServer contains the following variables:
+  \brief The QDns::MailServer class is  described in QDns::mailServers().
 
-  \value QString QDns::MailServer::name
-  \value Q_UINT16 QDns::MailServer::priority
-
+  \internal
+*/
+/*!
+   Returns a list of mail servers if the record type is \c Mx. The class
+   \c QDns::MailServer contains the following public variables:
+   <ul>
+   <li> \c QString QDns::MailServer::name
+   <li> \c Q_UINT16 QDns::MailServer::priority
+   </ul>
 */
 QValueList<QDns::MailServer> QDns::mailServers() const
 {
@@ -1814,15 +1820,21 @@ QValueList<QDns::MailServer> QDns::mailServers() const
 
 
 /*!
-    \enum QDns::Server
+  \class QDns::Server
 
-  The struct \c QDns::Server contains the following variables:
+  \brief The QDns::Server class is described in QDns::servers().
 
-  \value QString QDns::Server::name
-  \value Q_UINT16 QDns::Server::priority
-  \value Q_UINT16 QDns::Server::weight
-  \value Q_UINT16 QDns::Server::port
-
+  \internal
+*/
+/*!
+  Returns a list of servers if the record type is \c Srv. The class \c
+  QDns::Server contains the following public variables:
+  <ul>
+  <li> \c QString QDns::Server::name
+  <li> \c Q_UINT16 QDns::Server::priority
+  <li> \c Q_UINT16 QDns::Server::weight
+  <li> \c Q_UINT16 QDns::Server::port
+  </ul>
 */
 QValueList<QDns::Server> QDns::servers() const
 {

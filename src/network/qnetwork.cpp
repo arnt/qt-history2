@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qnetwork.cpp#7 $
+** $Id: //depot/qt/main/src/network/qnetwork.cpp#8 $
 **
 ** Implementation of qInitNetworkProtocols function.
 **

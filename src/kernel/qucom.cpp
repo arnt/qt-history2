@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qucom.cpp#17 $
+** $Id: //depot/qt/main/src/kernel/qucom.cpp#18 $
 **
 ** Implementation of the QUcom classes
 **
@@ -37,6 +37,7 @@
 
 #include "qucom.h"
 #include "qcom.h"
+#include <qvariant.h>
 
 void QUType::clear( QUObject* )
 {
@@ -490,6 +491,11 @@ void QUType_QVariant::set( QUObject *o, const QVariant& v )
 {
     o->payload.ptr = new QVariant( v );
     o->type = this;
+}
+
+QVariant &QUType_QVariant::get( QUObject * o )
+{ 
+    return *(QVariant*)o->payload.ptr; 
 }
 
 bool QUType_QVariant::canConvertFrom( QUObject *o, QUType *t )

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcopchannel_qws.cpp#6 $
+** $Id: //depot/qt/main/src/kernel/qcopchannel_qws.cpp#7 $
 **
 ** Implementation of QCOP protocol
 **

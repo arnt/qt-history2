@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess.h#34 $
+** $Id: //depot/qt/main/src/kernel/qprocess.h#35 $
 **
 ** Implementation of QProcess class
 **
@@ -85,6 +85,14 @@ public:
     bool canReadLineStderr() const;
     virtual QString readLineStdout();
     virtual QString readLineStderr();
+
+    // get platform dependent process information
+#if defined(Q_OS_WIN32)
+    typedef void* PID;
+#else
+    typedef Q_LONG PID;
+#endif
+    PID processIdentifier();
 
 signals:
     void readyReadStdout();

@@ -2,7 +2,7 @@
 <class>MainForm</class>
 <include location="global" impldecl="in implementation">qspinbox.h</include>
 <include location="global" impldecl="in implementation">qwidgetfactory.h</include>
-<pixmapinproject/>
+<layoutdefaults spacing="6" margin="11"/>
 <widget class="QDialog">
     <property name="name">
         <cstring>MainForm</cstring>
@@ -11,8 +11,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>393</width>
-            <height>117</height>
+            <width>389</width>
+            <height>115</height>
         </rect>
     </property>
     <property name="caption">
@@ -63,13 +63,13 @@
     </grid>
 </widget>
 <connections>
-    <connection>
+    <connection language="C++">
         <sender>creditPushButton</sender>
         <signal>clicked()</signal>
         <receiver>MainForm</receiver>
         <slot>creditDialog()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>quitPushButton</sender>
         <signal>clicked()</signal>
         <receiver>MainForm</receiver>

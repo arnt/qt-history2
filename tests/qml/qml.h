@@ -1,5 +1,5 @@
 /****************************************************************************
- ** $Id: //depot/qt/main/tests/qml/qml.h#16 $
+ ** $Id: $
  **
  ** Definition of something or other
  **

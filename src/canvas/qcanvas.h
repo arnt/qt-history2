@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/canvas/qcanvas.h#26 $
+** $Id: //depot/qt/main/src/canvas/qcanvas.h#27 $
 **
 ** Definition of QCanvas classes
 **
@@ -155,6 +155,7 @@ public:
     };
 
     virtual int rtti() const;
+    static int RTTI;
 
     virtual QRect boundingRect() const=0;
     virtual QRect boundingRectAdvanced() const;
@@ -457,7 +458,8 @@ public:
     int frameCount() const
 	{ return images->count(); }
 
-    virtual int rtti() const;
+    int rtti() const;
+    static int RTTI;
 
     bool collidesWith( const QCanvasItem* ) const;
 
@@ -532,6 +534,7 @@ public:
     QRect boundingRect() const;
 
     int rtti() const;
+    static int RTTI;
 
 protected:
     void draw(QPainter &);
@@ -578,6 +581,7 @@ public:
     bool collidesWith( const QCanvasItem* ) const;
 
     int rtti() const;
+    static int RTTI;
 
 protected:
     void drawShape(QPainter &);
@@ -604,7 +608,9 @@ public:
     void moveBy(double dx, double dy);
 
     QPointArray areaPoints() const;
+
     int rtti() const;
+    static int RTTI;
 
 protected:
     void drawShape(QPainter &);
@@ -623,6 +629,7 @@ public:
     bool closed() const;
 
     int rtti() const;
+    static int RTTI;
 
 private:
     void recalcPoly();
@@ -644,6 +651,7 @@ public:
 	{ return QPoint(x2,y2); }
 
     int rtti() const;
+    static int RTTI;
 
     void setPen(QPen p);
 
@@ -680,6 +688,7 @@ public:
     bool collidesWith( const QCanvasItem* ) const;
 
     int rtti() const;
+    static int RTTI;
 
 protected:
     void drawShape(QPainter &);
@@ -723,7 +732,8 @@ public:
 
     bool collidesWith( const QCanvasItem* ) const;
 
-    virtual int rtti() const;
+    int rtti() const;
+    static int RTTI;
 
 protected:
     virtual void draw(QPainter&);

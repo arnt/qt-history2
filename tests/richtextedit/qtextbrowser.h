@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qtextbrowser.h#2 $
+** $Id: $
 **
 ** Definition of the QTextBrowser class
 **

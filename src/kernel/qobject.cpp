@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#396 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#397 $
 **
 ** Implementation of QObject class
 **
@@ -185,9 +185,9 @@ static inline bool isSpace( char x )
     isspace() usually works, but not here.
     This implementation is sufficient for our internal use: rmWS()
   */
-    return (uchar)x <= 32;
+    return (uchar) x <= 32;
 #else
-    return isspace( x );
+    return isspace( (uchar) x );
 #endif
 }
 
@@ -350,10 +350,6 @@ QObject::QObject( QObject *parent, const char *name )
 
     // null out sigSender... this may be wrong.
     sigSender = 0;
-
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-    connect( this, SIGNAL( accessibilityChanged(int) ), SLOT( notifyAccessibility(int) ) );
-#endif
 }
 
 
@@ -378,6 +374,7 @@ QObject::~QObject()
 	return;
     }
     wasDeleted = 1;
+    emit destroyed( this );
     emit destroyed();
     if ( objname )
 	delete [] (char*)objname;
@@ -429,8 +426,6 @@ QObject::~QObject()
 	while ( (obj=it.current()) ) {
 	    ++it;
 	    obj->parentObj = 0;
-	    // ### nest line is a QGList workaround - remove in 3.0
-	    childObjects->removeRef( obj );
 	    delete obj;
 	}
 	delete childObjects;
@@ -644,6 +639,9 @@ bool QObject::event( QEvent *e )
     case QEvent::ChildInserted:
     case QEvent::ChildRemoved:
 	childEvent( (QChildEvent*)e );
+	return TRUE;
+    case QEvent::DeferredDelete:
+	delete this;
 	return TRUE;
     default:
 	break;
@@ -1171,14 +1169,14 @@ void QObject::installEventFilter( const QObject *obj )
 	int c = eventFilters->findRef( obj );
 	if ( c >= 0 )
 	    eventFilters->take( c );
-	disconnect( obj, SIGNAL(destroyed()),
-		    this, SLOT(cleanupEventFilter()) );
+	disconnect( obj, SIGNAL(destroyed(QObject*)),
+		    this, SLOT(cleanupEventFilter(QObject*)) );
     } else {
 	eventFilters = new QObjectList;
 	Q_CHECK_PTR( eventFilters );
     }
     eventFilters->insert( 0, obj );
-    connect( obj, SIGNAL(destroyed()), this, SLOT(cleanupEventFilter()) );
+    connect( obj, SIGNAL(destroyed(QObject*)), this, SLOT(cleanupEventFilter(QObject*)) );
 }
 
 /*!
@@ -1201,8 +1199,8 @@ void QObject::removeEventFilter( const QObject *obj )
 	    delete eventFilters;
 	    eventFilters = 0;			// reset event filter list
 	}
-	disconnect( obj,  SIGNAL(destroyed()),
-		    this, SLOT(cleanupEventFilter()) );
+	disconnect( obj,  SIGNAL(destroyed(QObject*)),
+		    this, SLOT(cleanupEventFilter(QObject*)) );
     }
 }
 
@@ -1800,73 +1798,35 @@ bool QObject::disconnect( const QObject *sender,   const char *signal,
   is emitted.
 */
 
+/*! \fn QObject::destroyed( QObject* obj)
+
+   \overload
+   This signal is emitted immediately before the object \a obj is destroyed.
+
+   All the objects's children are destroyed immediately after this signal
+   is emitted.
+*/
+
+/*!  Delete this object deferred.
+  
+  This function does not cause an immediate destruction - rather, it
+  schedules a deferred delete event for processing when Qt returns to
+  the main event loop.
+ */
+void QObject::deferredDelete()
+{
+    QApplication::postEvent( this, new QEvent( QEvent::DeferredDelete) );
+}
+
 /*!
   This slot is connected to the destroyed() signal of other objects
   that have installed event filters on this object. When the other
   object is destroyed, we want to remove its event filter.
 */
 
-void QObject::cleanupEventFilter()
+void QObject::cleanupEventFilter(QObject* obj)
 {
-    removeEventFilter( sender() );
-}
-
-
-/*!\fn void QObject::accessibilityChanged( int reason )
-  \preliminary
-
-  This signal is emitted when an object's accessibility information is
-  changed.
-
-  Notifies any running accessibility tool that properties of this accessible object
-  have changed. \a reason designates the cause of this change, e.g. ValueChange when the
-  position of e.g. a slider has been changed.
-
-  Emit this signal whenever the state of your accessible object has been changed
-  either programmatically (e.g. by calling QLabel::setText() ) or by user interaction.
-
-  If there are no accessibility tools listening to this event, the performance penalty for
-  emitting this signal is minor.
-
-  \sa accessibilityInterface()
-*/
-
-
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-extern bool qt_notify_accessibility( QObject *, int );
-#endif
-
-/*!
-  \preliminary
-
-  This slot is connected to the accessibilityChanged() signal and
-  notifies the platform dependent accessibility system of the change.
-*/
-void QObject::notifyAccessibility( int reason )
-{
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-    qt_notify_accessibility( this, reason );
-#else
-    Q_UNUSED( reason )
-#endif
-}
-
-/*!
-  \preliminary
-
-  Reimplement this function for QObject subclasses that are accessible,
-  and return a new object that implements the QAccessibleInterface. Do
-  not call \link QUnknownInterface::addRef() addRef() \endlink on the
-  returned object.
-
-  The default implementation return always NULL.
-
-  \warning Do not call this function. Instead, use QAccessible::accessibleInterface(),
-  as this will cache the interface pointer as appropriate for the underlying system.
-*/
-QAccessibleInterface *QObject::accessibleInterface()
-{
-    return 0;
+    removeEventFilter( obj );
 }
 
 

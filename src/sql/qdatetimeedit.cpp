@@ -1273,8 +1273,8 @@ void QDateEdit::fix()
     if ( year < 100 ) {
 	int currentCentury = (int) floor( (double)currentDate.year()/100 );
 	int loFullYear = currentDate.year() - 70;
-	int loCentury = (int) ( floor(loFullYear/100 ) < currentCentury ) ?
-			(int) floor( loFullYear/100 ) : currentCentury;
+	int loCentury = (int) ( floor((double)loFullYear/100) < currentCentury ) ?
+			(int) floor((double)loFullYear/100) : currentCentury;
 	int loYear = loFullYear - ( loCentury * 100 );
 	int hiCentury = currentCentury;
 	if ( loCentury == currentCentury )

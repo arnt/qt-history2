@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrichtext_p.cpp#14 $
+** $Id: //depot/qt/main/src/kernel/qrichtext_p.cpp#15 $
 **
 ** Implementation of the internal Qt classes dealing with rich text
 **
@@ -313,16 +313,16 @@ int QTextFormat::descent() const
 void QTextFormat::generateKey()
 {
     QTextOStream ts( &k );
-    ts << fn.pointSize()
-       << fn.weight()
-       << (int)fn.underline()
-       << (int)fn.strikeOut()
-       << (int)fn.italic()
-       << col.pixel()
-       << fn.family()
-       << (int)isMisspelled()
-       << anchor_href
-       << anchor_name
+    ts << fn.pointSize() << "/"
+       << fn.weight() << "/"
+       << (int)fn.underline() << "/"
+       << (int)fn.strikeOut() << "/"
+       << (int)fn.italic() << "/"
+       << col.pixel() << "/"
+       << fn.family() << "/"
+       << (int)isMisspelled() << "/"
+       << anchor_href << "/"
+       << anchor_name << "/"
        << (int)vAlign();
 }
 
@@ -331,16 +331,16 @@ QString QTextFormat::getKey( const QFont &fn, const QColor &col, bool misspelled
 {
     QString k;
     QTextOStream ts( &k );
-    ts << fn.pointSize()
-       << fn.weight()
-       << (int)fn.underline()
-       << (int)fn.strikeOut()
-       << (int)fn.italic()
-       << col.pixel()
-       << fn.family()
-       << (int)misspelled
-       << lhref
-       << lnm
+    ts << fn.pointSize() << "/"
+       << fn.weight() << "/"
+       << (int)fn.underline() << "/"
+       << (int)fn.strikeOut() << "/"
+       << (int)fn.italic() << "/"
+       << col.pixel() << "/"
+       << fn.family() << "/"
+       << (int)misspelled << "/"
+       << lhref << "/"
+       << lnm << "/"
        << (int)a;
     return k;
 }
@@ -584,11 +584,17 @@ int QTextParag::numberOfSubParagraph() const
     if ( list_val != -1 )
 	return list_val;
     if ( numSubParag != -1 )
-	return numSubParag;
+ 	return numSubParag;
     int n = 0;
     QTextParag *p = (QTextParag*)this;
-    while ( p && style() == p->style() && listStyle() == p->listStyle() ) {
-	++n;
+    while ( p && ( styleSheetItemsVec.size() >= p->styleSheetItemsVec.size() &&
+	    styleSheetItemsVec[ (int)p->styleSheetItemsVec.size() - 1 ] == p->style() ||
+		   p->styleSheetItemsVec.size() >= styleSheetItemsVec.size() &&
+		   p->styleSheetItemsVec[ (int)styleSheetItemsVec.size() - 1 ] == style() ) ) {
+	if ( p->style() == style() && listStyle() != p->listStyle() )
+	    break;
+	if ( p->style()->name() == "li" && p->style() != style() || styleSheetItemsVec.size() == p->styleSheetItemsVec.size() )
+	    ++n;
 	p = p->prev();
     }
     ( (QTextParag*)this )->numSubParag = n;
@@ -632,8 +638,8 @@ int QTextParag::minimumWidth() const
 
 void QTextParag::setTabArray( int *a )
 {
-    delete [] tabArray;
-    tabArray = a;
+    delete [] tArray;
+    tArray = a;
 }
 
 void QTextParag::setTabStops( int tw )

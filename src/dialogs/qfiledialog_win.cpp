@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog_win.cpp#35 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog_win.cpp#36 $
 **
 ** Implementation of QFileDialog Windows-specific functionality
 **
@@ -48,13 +48,11 @@ const int maxMultiLen = 16383;
 // Returns the wildcard part of a filter.
 static QString extractFilter( const QString& rawFilter )
 {
-    QString result;
+    QString result = rawFilter;
     QRegExp r( QString::fromLatin1(qt_file_dialog_filter_reg_exp) );
-    int index = r.search( rawFilter );
+    int index = r.search( result );
     if ( index >= 0 )
-	result = rawFilter.mid( index + 1, r.matchedLength() - 2 );
-    else
-	result = rawFilter;
+	result = r.cap( 1 );
     return result.replace( QRegExp(QString::fromLatin1(" ")), QChar(';') );
 }
 

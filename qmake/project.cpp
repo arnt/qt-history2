@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/%s#3 $
+** $Id: $
 **
 ** Definition of ________ class.
 **
@@ -45,7 +45,7 @@
 #include <qtextstream.h>
 
 int line_count;
-extern "C" int yyerror(const char *);
+extern "C" void yyerror(const char *);
 
 QMakeProject::QMakeProject()
 {

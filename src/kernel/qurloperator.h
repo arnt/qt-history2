@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurloperator.h#44 $
+** $Id: //depot/qt/main/src/kernel/qurloperator.h#45 $
 **
 ** Definition of QUrlOperator class
 **
@@ -100,14 +100,15 @@ signals:
     void connectionStateChanged( int state, const QString &data );
 
 protected:
-    virtual void reset();
-    virtual bool parse( const QString& url );
+    void reset();
+    bool parse( const QString& url );
     virtual bool checkValid();
     virtual void clearEntries();
     void getNetworkProtocol();
     void deleteNetworkProtocol();
 
 private slots:
+    const QNetworkOperation *startOperation( QNetworkOperation *op );
     void copyGotData( const QByteArray &data, QNetworkOperation *op );
     void continueCopy( QNetworkOperation *op );
     void finishedCopy();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/codecs/qtextcodec.h#7 $
+** $Id: //depot/qt/main/src/codecs/qtextcodec.h#8 $
 **
 ** Definition of QTextCodec class
 **

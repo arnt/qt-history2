@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/layout/wex.cpp#2 $
+** $Id: $
 **
 **	Testing heightForWidth functionality
 **

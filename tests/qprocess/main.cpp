@@ -11,6 +11,14 @@ int main( int argc, char **argv )
 {
     if ( argc > 1 ) {
 	if ( QString( "-cat" ) == argv[1] ) {
+	    char *envString;
+	    envString = getenv( "QTDIR" );
+	    if ( envString )
+		cout << envString << endl;
+	    envString = getenv( "SNAFU" );
+	    if ( envString )
+		cout << envString << endl;
+
 	    char ch;
 	    while( cin >> ch )
 	    {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qhbox.cpp#36 $
+** $Id: //depot/qt/main/src/widgets/qhbox.cpp#37 $
 **
 ** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **

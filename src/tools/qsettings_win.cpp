@@ -17,7 +17,7 @@ public:
     QString validateKey( const QString &key );
 
     bool writeKey( const QString &key, const QByteArray &value, ulong type );
-    QByteArray readKey( const QString &key, ulong type, bool *ok );
+    QByteArray readKey( const QString &key, bool *ok );
 
     HKEY openKey( const QString &key, bool create );
 
@@ -206,12 +206,11 @@ inline bool QSettingsPrivate::writeKey( const QString &key, const QByteArray &va
     return TRUE;
 }
 
-inline QByteArray QSettingsPrivate::readKey( const QString &key, ulong t, bool *ok )
+inline QByteArray QSettingsPrivate::readKey( const QString &key, bool *ok )
 {
     HKEY handle = 0;
     long res;
     ulong size = 0;
-    ulong type = 0;
     QString e;
     for ( QStringList::Iterator it = paths.fromLast(); it != paths.end(); --it ) {
 	QString k = *it + "/" + key;
@@ -230,10 +229,10 @@ inline QByteArray QSettingsPrivate::readKey( const QString &key, ulong t, bool *
 	    if ( res == ERROR_SUCCESS ) {
 #if defined(UNICODE)
 		if ( qWinVersion() & Qt::WV_NT_based )
-		    res = RegQueryValueExW( handle, (TCHAR*)qt_winTchar( e, TRUE ), NULL, &type, NULL, &size );
+		    res = RegQueryValueExW( handle, (TCHAR*)qt_winTchar( e, TRUE ), NULL, NULL, NULL, &size );
 		else
 #endif
-		    res = RegQueryValueExA( handle, e.local8Bit(), NULL, &type, NULL, &size );
+		    res = RegQueryValueExA( handle, e.local8Bit(), NULL, NULL, NULL, &size );
 	    }
 	}
 	if ( size )
@@ -259,17 +258,17 @@ inline QByteArray QSettingsPrivate::readKey( const QString &key, ulong t, bool *
 	    if ( res == ERROR_SUCCESS ) {
 #if defined(UNICODE)
 		if ( qWinVersion() & Qt::WV_NT_based )
-		    res = RegQueryValueExW( handle, (TCHAR*)qt_winTchar( e, TRUE ), NULL, &type, NULL, &size );
+		    res = RegQueryValueExW( handle, (TCHAR*)qt_winTchar( e, TRUE ), NULL, NULL, NULL, &size );
 		else
 #endif
-		    res = RegQueryValueExA( handle, e.local8Bit(), NULL, &type, NULL, &size );
+		    res = RegQueryValueExA( handle, e.local8Bit(), NULL, NULL, NULL, &size );
 	    }
 	    if ( size )
 		break;
 	}
     }
 
-    if ( !size || type != t ) {
+    if ( !size ) {
 	if ( ok )
 	    *ok = FALSE;
 	if ( handle )
@@ -391,7 +390,7 @@ QString QSettings::readEntry( const QString &key, const QString &def, bool *ok )
     if ( ok )
 	*ok = FALSE;
     bool temp;
-    QByteArray array = d->readKey( key, REG_SZ, &temp );
+    QByteArray array = d->readKey( key, &temp );
     if ( !temp ) {
 	char *data = array.data();
 	array.resetRawData( data, array.size() );
@@ -427,7 +426,7 @@ int QSettings::readNumEntry( const QString &key, int def, bool *ok )
     if ( ok )
 	*ok = FALSE;
     bool temp;
-    QByteArray array = d->readKey( key, REG_DWORD, &temp );
+    QByteArray array = d->readKey( key, &temp );
     if ( !temp ) {
 	char *data = array.data();
 	array.resetRawData( data, array.size() );
@@ -458,7 +457,7 @@ double QSettings::readDoubleEntry( const QString &key, double def, bool *ok )
     if ( ok )
 	*ok = FALSE;
     bool temp;
-    QByteArray array = d->readKey( key, REG_BINARY, &temp );
+    QByteArray array = d->readKey( key, &temp );
     if ( !temp ) {
 	char *data = array.data();
 	array.resetRawData( data, array.size() );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/widgets/widgets.h#3 $
+** $Id: $
 **
 ** Definition of something or other
 **

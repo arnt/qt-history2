@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#54 $
+** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#55 $
 **
 ** Implementation of QSocketDevice class.
 **
@@ -59,6 +59,9 @@ inline int qt_socket_listen(int s, int backlog)
 #if defined(listen)
 # undef listen
 #endif
+
+#include <errno.h>
+
 
 //#define QSOCKETDEVICE_DEBUG
 

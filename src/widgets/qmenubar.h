@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.h#84 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.h#85 $
 **
 ** Definition of QMenuBar class
 **
@@ -108,10 +108,6 @@ protected:
     int		itemAtPos( const QPoint & );
     void	hidePopups();
     QRect	itemRect( int item );
-
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-    QAccessibleInterface *accessibleInterface();
-#endif
 
 private slots:
     void	subActivated( int itemId );

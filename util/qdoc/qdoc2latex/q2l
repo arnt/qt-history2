@@ -1,0 +1,87 @@
+#!/usr/bin/perl -w
+
+# $Id$
+
+use strict;
+
+if ( not @ARGV ) {
+    print "usage: q2l [-d] [-y] file1.q2l file2.q2l ...\n",
+	  "-d is debug, i.e. show don't do\n",
+	  "-y is do it don't ask\n",
+	  "the options are order dependent\n";
+    exit;
+}
+
+my $DEBUG = 0;
+if ( $ARGV[0] eq '-d' ) {
+    $DEBUG = 1;
+    shift;
+}
+my $YES = 0;
+if ( $ARGV[0] eq '-y' ) {
+    $YES = 1;
+    shift;
+}
+
+my $QTDIR = $ENV{'QTDIR'};
+my @tex;
+my @dvi;
+my @ps;
+my @pdf;
+@tex = @dvi = @ps = @pdf = @ARGV;
+for ( my $i = 0; $i < scalar @ARGV; $i++ ) {
+    $tex[$i] =~ s/\.q2l/.tex/;
+    $dvi[$i] =~ s/\.q2l/.dvi/;
+    $ps[$i]  =~ s/\.q2l/.ps/;
+    $pdf[$i] =~ s/\.q2l/.pdf/;
+}
+
+perform("qdoc2latex $QTDIR/doc/html " . join(" ", @ARGV)) if ask("qdoc2latex");
+if ( ask("pslatex") ) {
+    for my $tex ( @tex ) {
+	perform("pslatex $tex");
+	perform("pslatex $tex");
+    }
+}
+if ( ask("dvips") ) {
+    for my $dvi ( @dvi ) {
+	my $ps = shift @ps;
+	push @ps, $ps;
+	perform("dvips $dvi -o $ps");
+    }
+}
+if ( ask("pdflatex") ) {
+    for my $tex ( @tex ) {
+	perform("pdflatex $tex");
+    }
+}
+else {
+    if ( ask("ps2pdf") ) {
+	for my $ps ( @ps ) {
+	    my $pdf = shift @pdf;
+	    perform("ps2pdf $ps $pdf");
+	}
+    }
+}
+
+
+sub perform {
+    if ( $DEBUG ) {
+	print shift, "\n";
+    }
+    else {
+	system shift;
+    }
+}
+
+
+sub ask {
+    return 1 if $YES;
+    my $prog = shift;
+    print "\n[Enter] run $prog    [n] no don't run it    [q] quit? ";
+    my $ans = <STDIN>;
+    exit if $ans =~ /^q/i;
+    $ans =~ /^n/i ? 0 : 1;
+}
+
+

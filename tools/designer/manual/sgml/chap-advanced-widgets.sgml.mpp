@@ -21,6 +21,8 @@ since this is used by some of the value editors.
 <sect1 id="sharedpixmaps">
 <title>Shared Pixmaps </title>
 <para id="aezd">
+\x[Adding|Pixmaps]
+\x[Pixmaps|Edit Pixmap Collection Dialog]
 \dlg[Edit Pixmap Collection]
 <figure>
 <title>Edit Pixmap Collection Dialog</title>
@@ -66,6 +68,10 @@ then click \menu[Form Settings]; click 'Save Inline', then click \ok.
 <title>Edit List Box Dialog</title>
 \img[listbox-editor]
 </figure>
+\x[Deleting|ListBox Items]
+\x[Deleting|ComboBox Items]
+\x[Adding|ListBox Items]
+\x[Adding|ComboBox Items]
 This value editor allows us to hard-code list items in
 \widget[ComboBox]es and \widget[List Box]es. We can always
 change them at runtime. A list item consists of some text or a pixmap or
@@ -92,6 +98,8 @@ value editor is used for list boxes and combo boxes.
 <title>Edit List View Dialog</title>
 \img[listview-editor]
 </figure>
+\x[Deleting|ListView Items]
+\x[Adding|ListView Items]
 This editor allows us to hard-code columns and list view items in
 \widget[List View]s. We can
 change the list view dynamically in code. A list
@@ -165,6 +173,10 @@ documentation.
 <para id="afef">
 \x[Value Editors|Table]
 \dlg[Edit Table]
+\x[Deleting|Table Columns]
+\x[Deleting|Table Rows]
+\x[Adding|Table Columns]
+\x[Adding|Table Rows]
 <figure>
 <title>Edit Table Dialog</title>
 \img[edit-table-dialog]
@@ -199,6 +211,8 @@ cells must be inserted through code.
 <para id="affl">
 \x[Value Editors|IconView]
 \dlg[Edit Iconview]
+\x[Deleting|Iconview Items]
+\x[Adding|Iconview Items]
 <figure>
 <title>Edit Iconview Dialog</title>
 \img[iconview-editor]

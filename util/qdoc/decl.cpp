@@ -45,25 +45,32 @@ static void printHtmlShortMembers( HtmlWriter& out,
 				   const QMap<QString, Decl *>& members,
 				   const QString& header )
 {
-    if ( !members.isEmpty() ) {
-	out.printfMeta( "<h2>%s</h2>\n", header.latin1() );
-	out.putsMeta( "<ul>\n" );
+    bool metAny = FALSE;
 
-	QMap<QString, Decl *>::ConstIterator m = members.begin();
-	while( m != members.end() ) {
-	    if ( config->isInternal() || !(*m)->internal() ) {
-		out.putsMeta( "<li><div class=fn>" );
-		(*m)->printHtmlShort( out );
-		if ( (*m)->internal() && (*m)->access() != Decl::Private )
-		    out.putsMeta( "&nbsp; <em>(internal)</em>" );
-		else if ( (*m)->obsolete() )
-		    out.putsMeta( "&nbsp; <em>(obsolete)</em>" );
-		out.putsMeta( "</div></li>\n" );
-	    }
+    QMap<QString, Decl *>::ConstIterator m = members.begin();
+    while ( m != members.end() ) {
+	if ( !config->isInternal() && (*m)->internal() ) {
 	    ++m;
+	    continue;
 	}
-	out.putsMeta( "</ul>\n" );
+
+	if ( !metAny ) {
+	    out.printfMeta( "<h2>%s</h2>\n", header.latin1() );
+	    out.putsMeta( "<ul>\n" );
+	    metAny = TRUE;
+	}
+
+	out.putsMeta( "<li><div class=fn>" );
+	(*m)->printHtmlShort( out );
+	if ( (*m)->internal() && (*m)->access() != Decl::Private )
+	    out.putsMeta( "&nbsp; <em>(internal)</em>" );
+	else if ( (*m)->obsolete() )
+	    out.putsMeta( "&nbsp; <em>(obsolete)</em>" );
+	out.putsMeta( "</div></li>\n" );
+	++m;
     }
+    if ( metAny )
+	out.putsMeta( "</ul>\n" );
 }
 
 static QString htmlShortName( const Decl *decl )
@@ -99,73 +106,76 @@ static void printHtmlLongMembers( HtmlWriter& out,
 				  const QMap<QString, Decl *>& members,
 				  const QString& header )
 {
-    if ( !members.isEmpty() ) {
-	out.printfMeta( "<hr><h2>%s</h2>\n", header.latin1() );
+    bool metAny = FALSE;
 
-	QMap<QString, Decl *>::ConstIterator m = members.begin();
-	while ( m != members.end() ) {
-	    if ( !config->isInternal() && (*m)->internal() ) {
-		++m;
-		continue;
-	    }
-
-	    out.putsMeta( "<h3 class=fn>" );
-	    (*m)->printHtmlLong( out );
-	    out.putsMeta( "</h3>" );
-	    (*m)->doc()->printHtml( out );
-
-	    if ( (*m)->reimplements() != 0 ) {
-		QString className = (*m)->reimplements()->context()->name();
-		out.printfMeta( "<p>Reimplemented from <a href=\"%s\"",
-				config->classRefHref(className).latin1() );
-		if ( (*m)->reimplements()->doc() != 0 )
-		    out.printfMeta( "#%s",
-				    (*m)->reimplements()->ref().latin1() );
-		out.printfMeta( ">%s</a>.\n", className.latin1() );
-	    }
-
-	    QValueList<Decl *> by = (*m)->reimplementedBy();
-	    if ( !by.isEmpty() ) {
-		/*
-		  We don't want totally uninteresting
-		  reimplementations in this list.
-		*/
-		QValueList<Decl *>::ConstIterator r;
-		r = by.begin();
-		while ( r != by.end() ) {
-		    Decl *d = *r;
-		    ++r;
-		    if ( d->doc() == 0 || d->internal() )
-			by.remove( d );
-		}
-	    }
-	    if ( !by.isEmpty() ) {
-		// ... so we probably never get here
-		QValueList<Decl *>::ConstIterator r;
-		QValueStack<QString> seps = separators( by.count(),
-							QString(".\n") );
-		out.putsMeta( "<p>Reimplemented in " );
-		r = by.begin();
-		while ( r != by.end() ) {
-		    QString className = (*r)->context()->fullName();
-
-		    if ( (*r)->context()->doc() == 0 ) {
-			out.puts( className.latin1() );
-		    } else {
-			out.printfMeta( "<a href=\"%s\"",
-					config->classRefHref(className)
-					.latin1() );
-			if ( (*r)->doc() != 0 )
-			    out.printfMeta( "#%s", (*r)->ref().latin1() );
-			out.printfMeta( ">%s</a>", className.latin1() );
-		    }
-
-		    out.puts( seps.pop() );
-		    ++r;
-		}
-	    }
+    QMap<QString, Decl *>::ConstIterator m = members.begin();
+    while ( m != members.end() ) {
+	if ( !config->isInternal() && (*m)->internal() ) {
 	    ++m;
+	    continue;
 	}
+
+	if ( !metAny ) {
+	    out.printfMeta( "<hr><h2>%s</h2>\n", header.latin1() );
+	    metAny = TRUE;
+	}
+
+	out.putsMeta( "<h3 class=fn>" );
+	(*m)->printHtmlLong( out );
+	out.putsMeta( "</h3>" );
+	(*m)->doc()->printHtml( out );
+
+	if ( (*m)->reimplements() != 0 ) {
+	    QString className = (*m)->reimplements()->context()->name();
+	    out.printfMeta( "<p>Reimplemented from <a href=\"%s",
+			    config->classRefHref(className).latin1() );
+	    if ( (*m)->reimplements()->doc() != 0 )
+		out.printfMeta( "#%s",
+				(*m)->reimplements()->ref().latin1() );
+	    out.printfMeta( "\">%s</a>.\n", className.latin1() );
+	}
+
+	QValueList<Decl *> by = (*m)->reimplementedBy();
+	if ( !by.isEmpty() ) {
+	    /*
+	      We don't want totally uninteresting
+	      reimplementations in this list.
+	    */
+	    QValueList<Decl *>::ConstIterator r;
+	    r = by.begin();
+	    while ( r != by.end() ) {
+		Decl *d = *r;
+		++r;
+		if ( d->doc() == 0 || d->internal() )
+		    by.remove( d );
+	    }
+	}
+	if ( !by.isEmpty() ) {
+	    // ... so we probably never get here
+	    QValueList<Decl *>::ConstIterator r;
+	    QValueStack<QString> seps = separators( by.count(),
+						    QString(".\n") );
+	    out.putsMeta( "<p>Reimplemented in " );
+	    r = by.begin();
+	    while ( r != by.end() ) {
+		QString className = (*r)->context()->fullName();
+
+		if ( (*r)->context()->doc() == 0 ) {
+		    out.puts( className.latin1() );
+		} else {
+		    out.printfMeta( "<a href=\"%s",
+				    config->classRefHref(className)
+				    .latin1() );
+		    if ( (*r)->doc() != 0 )
+			out.printfMeta( "#%s", (*r)->ref().latin1() );
+		    out.printfMeta( "\">%s</a>", className.latin1() );
+		}
+
+		out.puts( seps.pop() );
+		++r;
+	    }
+	}
+	++m;
     }
 }
 
@@ -177,7 +187,9 @@ static void tangle( Decl *child, QMap<QString, Decl *> *membersp,
 		    QMap<QString, Decl *> *memberPropertiesp,
 		    QMap<QString, Decl *> *memberFunctionsp )
 {
+#if 0
     static int unique = 0;
+#endif
 
     // enum items are documented as part of the enum
     if ( child->kind() == Decl::EnumItem )
@@ -974,8 +986,8 @@ void ClassDecl::fillInDocsForThis()
 
 		if ( !html.isEmpty() ) {
 		    html.prepend( QString("<p>") );
-		    html += QString( ". See the <a href=\"#%1\">\"%2\"</a>"
-				     " property for details." );
+		    html += QString( ".\nSee the <a href=\"#%1\">\"%2\"</a>"
+				     " property for details.\n" );
 		    html = html.arg( (*q)->ref() ).arg( (*q)->name() );
 
 		    Doc *doc = new FnDoc( (*q)->location(), html, QString::null,
@@ -1258,7 +1270,7 @@ void Parameter::printHtmlShort( HtmlWriter& out ) const
 {
     dataType().printHtml( out, QString::null, name() );
     if ( !defaultValue().isEmpty() ) {
-	out.printfMeta( " = " );
+	out.printfMeta( "&nbsp;=&nbsp;" );
 	defaultValue().printHtml( out );
     }
 }
@@ -1371,20 +1383,20 @@ void FunctionDecl::printHtmlShort( HtmlWriter& out ) const
 	out.putsMeta( "virtual " );
     if ( !returnType().isEmpty() ) {
 	returnType().printHtml( out );
-	out.putsMeta( " " );
+	out.putsMeta( "&nbsp;" );
     }
     printHtmlShortName( out, this );
-    out.putsMeta( " (" );
+    out.putsMeta( "&nbsp;(" );
 
     ParameterList::ConstIterator param = parameters().begin();
     if ( param != parameters().end() ) {
-	out.putsMeta( " " );
+	out.putsMeta( "&nbsp;" );
 	(*param).printHtmlShort( out );
 	while ( ++param != parameters().end() ) {
 	    out.putsMeta( ", " );
 	    (*param).printHtmlShort( out );
 	}
-	out.putsMeta( " " );
+	out.putsMeta( "&nbsp;" );
     }
     out.putsMeta( ")" );
 
@@ -1396,20 +1408,20 @@ void FunctionDecl::printHtmlLong( HtmlWriter& out ) const
 {
     if ( !returnType().isEmpty() ) {
 	printHtmlDataType( out, returnType(), context() );
-	out.putsMeta( " " );
+	out.putsMeta( "&nbsp;" );
     }
-    out.printfMeta( "<a name=\"%s\"></a>%s (", ref().latin1(),
-		    fullName().latin1() );
+    out.printfMeta( "<a name=\"%s\"></a>%s&nbsp;(", ref().latin1(),
+		    htmlProtect(fullName()).latin1() );
 
     ParameterList::ConstIterator param = parameters().begin();
     if ( param != parameters().end() ) {
-	out.putsMeta( " " );
+	out.putsMeta( "&nbsp;" );
 	(*param).printHtmlLong( out, context() );
 	while ( ++param != parameters().end() ) {
 	    out.putsMeta( ", " );
 	    (*param).printHtmlLong( out, context() );
 	}
-	out.putsMeta( " " );
+	out.putsMeta( "&nbsp;" );
     }
     out.putsMeta( ")" );
 
@@ -1451,7 +1463,7 @@ void EnumItemDecl::printHtmlShort( HtmlWriter& out ) const
 {
     out.putsMeta( name().latin1() );
     if ( !value().isEmpty() ) {
-	out.puts( " = " );
+	out.putsMeta( "&nbsp;=&nbsp;" );
 	value().printHtml( out );
     }
 }
@@ -1526,7 +1538,7 @@ void PropertyDecl::printHtmlShort( HtmlWriter& out ) const
     out.puts( " " );
     printHtmlShortName( out, this );
     if ( propertyDoc() != 0 && !propertyDoc()->brief().isEmpty() ) {
-	out.puts( " - " );
+	out.putsMeta( "&nbsp;- " );
 	out.putsMeta( propertyDoc()->brief() );
     }
 }

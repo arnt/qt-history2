@@ -244,7 +244,7 @@ QSqlPropertyMap * QSqlPropertyMap::defaultMap()
 {
     if( defaultmap == 0 ){
 	defaultmap = new QSqlPropertyMap();
-	qsql_cleanup_property_map.add( defaultmap );
+	qsql_cleanup_property_map.add( &defaultmap );
     }
     return defaultmap;
 }
@@ -261,11 +261,11 @@ void QSqlPropertyMap::installDefaultMap( QSqlPropertyMap * map )
     if( map == 0 ) return;
 
     if( defaultmap != 0 ){
-	qsql_cleanup_property_map.remove( defaultmap );
+	qsql_cleanup_property_map.remove( &defaultmap );
 	delete defaultmap;
     }
     defaultmap = map;
-    qsql_cleanup_property_map.add( defaultmap );
+    qsql_cleanup_property_map.add( &defaultmap );
 }
 
 #endif // QT_NO_SQL

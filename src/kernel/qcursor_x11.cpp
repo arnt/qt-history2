@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#88 $
+** $Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#89 $
 **
 ** Implementation of QCursor class for X11
 **

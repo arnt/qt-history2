@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayoutengine_p.h#10 $
+** $Id: //depot/qt/main/src/kernel/qlayoutengine_p.h#11 $
 **
 ** Internal header file.
 **

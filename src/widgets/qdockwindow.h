@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qdockwindow.h#17 $
+** $Id: //depot/qt/main/src/widgets/qdockwindow.h#18 $
 **
 ** Definition of the QDockWindow class
 **

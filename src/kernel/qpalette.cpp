@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpalette.cpp#94 $
+** $Id: //depot/qt/main/src/kernel/qpalette.cpp#95 $
 **
 ** Implementation of QColorGroup and QPalette classes
 **
@@ -166,7 +166,7 @@
 
 QColorGroup::QColorGroup()
 {
-    br = new QBrush[NColorRoles];	// all colors become black
+    br = new QBrush[(uint)NColorRoles];	// all colors become black
 
     // The d pointer may allow sharing in the future.  The br pointer
     // then will be a redundant pointer that makes possible the inlines
@@ -181,7 +181,7 @@ QColorGroup::QColorGroup()
 */
 QColorGroup::QColorGroup( const QColorGroup& other )
 {
-    br = new QBrush[NColorRoles];
+    br = new QBrush[(uint)NColorRoles];
     for (int i=0; i<NColorRoles; i++)
 	br[i] = other.br[i];
     d = 0;
@@ -218,7 +218,7 @@ such long lists of arguments are rather error-prone.
 			   const QBrush &bright_text, const QBrush &base,
 			   const QBrush &background)
 {
-    br = new QBrush[NColorRoles];
+    br = new QBrush[(uint)NColorRoles];
     br[Foreground]      = foreground;
     br[Button]		= button;
     br[Light]		= light;
@@ -249,7 +249,7 @@ QColorGroup::QColorGroup( const QColor &foreground, const QColor &background,
 			  const QColor &mid,
 			  const QColor &text, const QColor &base )
 {
-    br = new QBrush[NColorRoles];
+    br = new QBrush[(uint)NColorRoles];
     br[Foreground]      = QBrush(foreground);
     br[Button]          = QBrush(background);
     br[Light]           = QBrush(light);
@@ -507,7 +507,7 @@ QPalette::QPalette()
         defPalData = new QPalData;      //   for the default palette
         Q_CHECK_PTR( defPalData );
 	static QCleanupHandler<QPalData> defPalCleanup;
-	defPalCleanup.add( defPalData );
+	defPalCleanup.add( &defPalData );
         defPalData->ser_no = palette_count++;
     }
     data = defPalData;

@@ -38,6 +38,7 @@ public:
     QStringList convertQtArchitectDlgFile( const QString& fileName );
 
 private:
+    QString alias( const QString& name ) const;
     QString opening( const QString& tag,
 		     const AttributeMap& attr = AttributeMap() );
     QString closing( const QString& tag );
@@ -103,6 +104,7 @@ private:
     QMap<QString, QString> yyCustomWidgets;
     QValueList<DlgConnection> yyConnections;
     QMap<QString, QString> yySlots;
+    QMap<QString, QString> yyAliasMap;
     QStringList yyTabStops;
     QString yyBoxKind;
     int yyLayoutDepth;

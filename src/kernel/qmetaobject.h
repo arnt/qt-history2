@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmetaobject.h#86 $
+** $Id: //depot/qt/main/src/kernel/qmetaobject.h#87 $
 **
 ** Definition of QMetaObject class
 **
@@ -192,10 +192,11 @@ public:
 #endif
 					const QMetaEnum *enum_data, int n_enums,
 					const QClassInfo * class_info, int n_info );
-
 #ifndef QT_NO_PROPERTIES
     const QMetaEnum		*enumerator( const char* name, bool super = FALSE ) const;
 #endif
+
+    static QMetaObject *metaObject( const char *class_name );
 
 private:
     QMemberDict		*init( const QMetaData *, int );

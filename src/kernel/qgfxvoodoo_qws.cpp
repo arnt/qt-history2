@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgfxvoodoo_qws.cpp#15 $
+** $Id: //depot/qt/main/src/kernel/qgfxvoodoo_qws.cpp#16 $
 **
 ** Implementation of QGfxVoodoo (graphics context) class for Voodoo 3 cards
 **

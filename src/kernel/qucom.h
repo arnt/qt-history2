@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qucom.h#14 $
+** $Id: //depot/qt/main/src/kernel/qucom.h#15 $
 **
 ** Definition of the QUcom classes
 **
@@ -40,7 +40,6 @@
 
 #ifndef QT_H
 #include <qstring.h>
-#include <qvariant.h>
 #include <quuid.h>
 #endif // QT_H
 
@@ -48,6 +47,7 @@ struct QUObject;
 struct QUInterfaceDescription;
 struct QUnknownInterface;
 struct QDispatchInterface;
+class QVariant;
 
 // A type for a QUObject
 struct Q_EXPORT QUType
@@ -416,7 +416,7 @@ struct Q_EXPORT QUType_QVariant : public QUType
     const char *desc() const;
 
     void set( QUObject *, const QVariant & );
-    QVariant &get( QUObject * o ) { return *(QVariant*)o->payload.ptr; }
+    QVariant &get( QUObject * o );
 
     bool canConvertFrom( QUObject *, QUType * );
     bool canConvertTo( QUObject *, QUType * );

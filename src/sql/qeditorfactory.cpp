@@ -95,7 +95,7 @@ QEditorFactory * QEditorFactory::defaultFactory()
 {
     if( defaultfactory == 0 ){
 	defaultfactory = new QEditorFactory();
-	q_cleanup_editor_factory.add( defaultfactory );
+	q_cleanup_editor_factory.add( &defaultfactory );
     }
 
     return defaultfactory;
@@ -113,11 +113,11 @@ void QEditorFactory::installDefaultFactory( QEditorFactory * factory )
     if( factory == 0 ) return;
 
     if( defaultfactory != 0 ){
-	q_cleanup_editor_factory.remove( defaultfactory );
+	q_cleanup_editor_factory.remove( &defaultfactory );
 	delete defaultfactory;
     }
     defaultfactory = factory;
-    q_cleanup_editor_factory.add( defaultfactory );
+    q_cleanup_editor_factory.add( &defaultfactory );
 }
 
 /*!

@@ -206,12 +206,12 @@ bool QPSQLResult::fetch( int i )
 {
     if ( !isActive() )
 	return FALSE;
-    if ( at() == i )
-	return TRUE;
-    if ( i >= currentSize )
-	return FALSE;
     if ( i < 0 )
 	return FALSE;
+    if ( i >= currentSize )
+	return FALSE;
+    if ( at() == i )
+	return TRUE;
     setAt( i );
     return TRUE;
 }

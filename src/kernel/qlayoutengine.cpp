@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayoutengine.cpp#24 $
+** $Id: //depot/qt/main/src/kernel/qlayoutengine.cpp#25 $
 **
 ** Implementation of QLayout functionality
 **

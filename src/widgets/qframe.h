@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.h#64 $
+** $Id: //depot/qt/main/src/widgets/qframe.h#65 $
 **
 ** Definition of QFrame widget class
 **
@@ -112,10 +112,6 @@ protected:
     virtual void drawFrame( QPainter * );
     virtual void drawContents( QPainter * );
     virtual void frameChanged();
-
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-    QAccessibleInterface *accessibleInterface();
-#endif
 
 private:
     void        updateFrameWidth();

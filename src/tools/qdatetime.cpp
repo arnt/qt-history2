@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetime.cpp#130 $
+** $Id: //depot/qt/main/src/tools/qdatetime.cpp#131 $
 **
 ** Implementation of date and time classes
 **
@@ -69,6 +69,122 @@ static const char * const qt_shortMonthNames[] = {
 	"Jan", "Feb", "Mar", "Apr", "May", "Jun",
 	"Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
 
+	
+/*****************************************************************************
+  Some static function used by QDate, QTime and QDateTime
+ *****************************************************************************/
+
+// Replaces tokens by their value. See QDateTime::toString() for a list of valid tokens
+static QString getFmtString( const QString& f, const QTime* dt = 0, const QDate* dd = 0, bool am_pm = false )
+{
+    if ( f.isEmpty() )
+	return QString::null;
+
+    QString buf = f;
+
+    if ( dt ) {
+	if ( f == "h" ) {
+	    if ( ( am_pm ) && ( dt->hour() >= 12 ) )
+		buf = QString::number( dt->hour() - 12 );
+	    else
+		buf = QString::number( dt->hour() );
+        } else if ( f == "hh" ) {
+	    if ( ( am_pm ) && ( dt->hour() >= 12 ) )
+		buf = QString::number( dt->hour() - 12 ).rightJustify( 2, '0', TRUE );
+	    else
+		buf = QString::number( dt->hour() ).rightJustify( 2, '0', TRUE );
+	} else if ( f == "m" ) {
+	    buf = QString::number( dt->minute() );
+	} else if ( f == "mm" ) {
+	    buf = QString::number( dt->minute() ).rightJustify( 2, '0', TRUE );
+	} else if ( f == "s" ) {
+	    buf = QString::number( dt->second() );
+	} else if ( f == "ss" ) {
+	    buf = QString::number( dt->second() ).rightJustify( 2, '0', TRUE );
+	} else if ( f == "z" ) {
+	    buf = QString::number( dt->msec() );
+	} else if ( f == "zzz" ) {
+	    buf = QString::number( dt->msec() ).rightJustify( 3, '0', TRUE );
+	} else if ( f == "ap" ) {
+	    buf = dt->hour() < 12 ? "am" : "pm";
+	} else if ( f == "AP" ) {
+	    buf = dt->hour() < 12 ? "AM" : "PM";
+	}
+    }
+    	
+    if ( dd ) {
+	if ( f == "d" ) {
+	    buf = QString::number( dd->day() );
+	} else if ( f == "dd" ) {
+            buf = QString::number( dd->day() ).rightJustify( 2, '0', TRUE );
+	} else if ( f == "ddd" ) {
+            buf = dd->shortDayName( dd->dayOfWeek() );
+	} else if ( f == "dddd" ) {
+	    buf = dd->longDayName( dd->dayOfWeek() );
+	} else if ( f == "M" ) {
+	    buf = QString::number( dd->month() );
+	} else if ( f == "MM" ) {
+            buf = QString::number( dd->month() ).rightJustify( 2, '0', TRUE );
+	} else if ( f == "MMM" ) {
+            buf = dd->shortMonthName( dd->month() );
+	} else if ( f == "MMMM" ) {
+            buf = dd->longMonthName( dd->month() );
+	} else if ( f == "yy" ) {
+            buf = QString::number( dd->year() ).right( 2 );
+	} else if ( f == "yyyy" ) {
+            buf = QString::number( dd->year() );
+	}
+    }
+
+    return buf;
+}
+
+// Parses the format string and uses getFmtString to get the values for the tokens. Ret
+static QString fmtDateTime( const QString& f, const QTime* dt = 0, const QDate* dd = 0 )
+{
+    if ( f.isEmpty() ) {
+	return QString::null;
+    }
+
+    bool ap = ( f.contains( "AP" ) || f.contains( "ap" ) );
+
+    QString buf;
+    QString frm;
+    QChar status = '0';
+
+    for ( int i = 0; i < (int)f.length(); ++i ) {
+	
+	if ( f[ i ] == status ) {
+	    if ( ( ap ) && ( ( f[ i ] == 'P' ) || ( f[ i ] == 'p' ) ) )
+		status = '0';
+	    frm += f[ i ];
+	} else {
+	    buf += getFmtString( frm, dt, dd, ap );
+	    frm = QString::null;
+            if ( ( f[ i ] == 'h' ) || ( f[ i ] == 'm' ) || ( f[ i ] == 's' ) || ( f[ i ] == 'z' ) ) {
+		status = f[ i ];
+		frm += f[ i ];
+            } else if ( ( f[ i ] == 'd' ) || ( f[ i ] == 'M' ) || ( f[ i ] == 'y' ) ) {
+		status = f[ i ];
+		frm += f[ i ];
+	    } else if ( ( ap ) && ( f[ i ] == 'A' ) ) {
+	        status = 'P';
+		frm += f[ i ];
+	    } else  if( ( ap ) && ( f[ i ] == 'a' ) ) {
+	        status = 'p';
+		frm += f[ i ];
+            } else {
+                buf += f[ i ];
+                status = '0';
+            }		
+        }
+    }
+
+    buf += getFmtString( frm, dt, dd, ap );
+
+    return buf;
+} 	
+	
 /*****************************************************************************
   QDate member functions
  *****************************************************************************/
@@ -273,6 +389,8 @@ int QDate::daysInYear() const
 
   1 = "Jan", 2 = "Feb", ... 12 = "Dec"
 
+  The month names will be localized according to the system's locale settings.
+
   \sa toString(), longMonthName(), shortDayName(), longDayName()
 */
 
@@ -287,7 +405,7 @@ QString QDate::shortMonthName( int month )
     char buffer[255];
     tm tt;
     tt.tm_mon = month - 1;
-    if ( strftime( (char*)&buffer, sizeof( buffer ), "%b", &tt ) )
+    if ( strftime( buffer, sizeof( buffer ), "%b", &tt ) )
 	return QString::fromLocal8Bit( buffer );
     return QString::null;
 }
@@ -296,6 +414,8 @@ QString QDate::shortMonthName( int month )
   Returns the long name of the \a month.
 
   1 = "January", 2 = "February", ... 12 = "December"
+
+  The month names will be localized according to the system's locale settings.
 
   \sa toString(), shortMonthName(), shortDayName(), longDayName()
 */
@@ -311,7 +431,7 @@ QString QDate::longMonthName( int month )
     char buffer[255];
     tm tt;
     tt.tm_mon = month - 1;
-    if ( strftime( (char*)&buffer, sizeof( buffer ), "%B", &tt ) )
+    if ( strftime( buffer, sizeof( buffer ), "%B", &tt ) )
 	return QString::fromLocal8Bit( buffer );
     return QString::null;
 }
@@ -328,6 +448,8 @@ QString QDate::longMonthName( int month )
 
   1 = "Mon", 2 = "Tue", ... 7 = "Sun"
 
+  The day names will be localized according to the system's locale settings.
+
   \sa toString(), shortMonthName(), longMonthName(), longDayName()
 */
 
@@ -342,7 +464,7 @@ QString QDate::shortDayName( int weekday )
     char buffer[255];
     tm tt;
     tt.tm_wday = ( weekday == 7 ) ? 0 : weekday;
-    if ( strftime( (char*)&buffer, sizeof( buffer ), "%a", &tt ) )
+    if ( strftime( buffer, sizeof( buffer ), "%a", &tt ) )
 	return QString::fromLocal8Bit( buffer );
     return QString::null;
 }
@@ -351,6 +473,8 @@ QString QDate::shortDayName( int weekday )
   Returns the long name of the \a weekday.
 
   1 = "Monday", 2 = "Tuesday", ... 7 = "Sunday"
+
+  The day names will be localized according to the system's locale settings.
 
   \sa toString(), shortDayName(), shortMonthName(), longMonthName()
 */
@@ -366,7 +490,7 @@ QString QDate::longDayName( int weekday )
     char buffer[255];
     tm tt;
     tt.tm_wday = ( weekday == 7 ) ? 0 : weekday;
-    if ( strftime( (char*)&buffer, sizeof( buffer ), "%A", &tt ) )
+    if ( strftime( buffer, sizeof( buffer ), "%A", &tt ) )
 	return QString::fromLocal8Bit( buffer );
     return QString::null;
 }
@@ -384,6 +508,9 @@ QString QDate::longDayName( int weekday )
   where YYYY is the year, MM is the month of the year (between 01 and
   12), and DD is the day of the month between 01 and 31.
 
+  If \a f is Qt::LocalDate, the string format depends on the locale
+  settings of the system.
+
   \sa shortDayName(), shortMonthName()
 */
 
@@ -392,6 +519,19 @@ QString QDate::toString( Qt::DateFormat f ) const
     int y, m, d;
     julianToGregorian( jd, y, m, d );
     switch ( f ) {
+    case Qt::LocalDate:
+	{
+	    tm tt;
+	    char buf[255];
+	    tt.tm_mday = day();
+	    tt.tm_mon = month() - 1;
+	    tt.tm_year = year() - 1900;	
+	    // Get rid of a warning
+	    static const char * egcsWorkaround = "%x";
+	    if ( strftime( buf, sizeof(buf), egcsWorkaround, &tt ) )
+		return QString::fromLocal8Bit( buf );
+	    return QString::null;
+	}
 #ifdef QT_NO_TEXTDATE
     default:
 #endif
@@ -416,7 +556,43 @@ QString QDate::toString( Qt::DateFormat f ) const
 #endif
     }
 }
-#endif
+#endif //QT_NO_SPRINTF
+
+/*!  Returns the datetime as a string.  The \a format parameter determines
+  the format of the result string.
+
+  These expressions may be used:
+
+  \list
+  \i \e d - the day as number without a leading zero (1-31)
+  \i \e dd - the day as number with a leading zero (01-31)
+  \i \e ddd - the abbrevated day name (Mon - Sun). Uses QDate::shortDayName().
+  \i \e dddd - the long day name (Monday - Sunday). Uses QDate::longDayName().
+  \i \e M - the month as number without a leading zero (1-12)
+  \i \e MM - the month as number with a leading zero (01-12)
+  \i \e MMM - the abbrevated month name (Jan - Dec). Uses QDate::shortMonthName().
+  \i \e MMMM - the long month name (January - December). Uses QDate::longMonthName().
+  \i \e yy - the year as two digit number (00-99)
+  \i \e yyyy - the year as four digit number (0000-9999)
+  \endlist
+
+  All other input characters will be ignored.
+
+  Example format Strings (assumed that the QDate is 21. May 2001)
+
+  \list
+  \i "dd.MM.yyyy" will result in "21.05.2001"
+  \i "ddd MMMM d yy" will result in "Tue May 21 01"
+  \endlist
+
+  \sa QDate::toString() QTime::toString()
+
+*/
+QString QDate::toString( const QString& format ) const
+{
+    return fmtDateTime( format, 0, this );
+}
+
 
 /*!
   Sets the date's year \a y, month \a m and day \a d.
@@ -588,9 +764,22 @@ QDate QDate::currentDate()
 /*!
   Returns the QDate represented by the string \a s, using the format \a
   f, or an invalid date if this is not possible.
+
+  Note that Qt::LocalDate cannot be used here.
+
+  Note for Qt::TextDate: It is recommendet to use the english short monthnames
+  (Jan - Dec), which QT supports as default.
+  Localized monthnames may also be used, but they depend on the user's
+  locale settings.
  */
 QDate QDate::fromString( const QString& s, Qt::DateFormat f )
 {
+    if ( ( s.isEmpty() ) || ( f == Qt::LocalDate ) ) {
+#if defined(QT_CHECK_RANGE)
+	qWarning( "QDate::fromString: Parameter out of range." );
+#endif
+    	return QDate();
+    }
     switch ( f ) {
     case Qt::ISODate:
 	{
@@ -614,7 +803,7 @@ QDate QDate::fromString( const QString& s, Qt::DateFormat f )
 		    break;
 		}
 	    }
-	    // If English Names can't be found, search the localized ones
+	    // If English names can't be found, search the localized ones
 	    if ( month == -1 ) {
 		for ( int i = 1; i <= 12; ++i ) {
 		    if ( monthName == shortMonthName( i ) ) {
@@ -625,7 +814,7 @@ QDate QDate::fromString( const QString& s, Qt::DateFormat f )
 	    }
 #if defined(QT_CHECK_RANGE)
     	    if ( month < 1 || month > 12 ) {
-		qWarning( "QDate::fromString: Parameter out ouf range." );
+		qWarning( "QDate::fromString: Parameter out of range." );
 		month = 1;
 	    }
 #endif
@@ -871,11 +1060,25 @@ int QTime::msec() const
   If \a f is Qt::ISODate, the string format corresponds to the ISO
   8601 specification for representations of dates, which is also
   HH:MM:SS.
+
+  If \a f is Qt::LocalDate, the string format depends on the locale
+  settings of the system.
 */
 
 QString QTime::toString( Qt::DateFormat f ) const
 {
     switch ( f ) {
+    case Qt::LocalDate:
+	{
+	    tm tt;
+	    char buf[255];
+	    tt.tm_sec = second();
+	    tt.tm_min = minute();
+	    tt.tm_hour = hour();	
+	    if ( strftime( buf, sizeof(buf), "%X", &tt ) )
+		return QString::fromLocal8Bit( buf );
+	    return QString::null;
+	}
     default:
     case Qt::ISODate:
     case Qt::TextDate:
@@ -885,6 +1088,41 @@ QString QTime::toString( Qt::DateFormat f ) const
     }
 }
 #endif
+
+/*!  Returns the datetime as a string.  The \a format parameter determines
+  the format of the result string.
+
+  These expressions may be used:
+
+  \list
+  \i \e h - the hour without a leading zero (0-23 or 1-12 if AM/PM display)
+  \i \e hh - the hour with a leading zero (00-23 or 01-12 if AM/PM display)
+  \i \e m - the minute without a leading zero (0-59)
+  \i \e mm - the minute with a leading zero (00-59)
+  \i \e s - the second whithout a leading zero (0-59)
+  \i \e ss - the second whith a leading zero (00-59)
+  \i \e z - the milliseconds without leading zeroes (0-999)
+  \i \e zzz - the milliseconds with leading zeroes (000-999)
+  \i \e AP - switch to AM/PM display. \e AP will be replaced by either "AM" or "PM".
+  \i \e ap - switch to AM/PM display. \e ap will be replaced by either "am" or "pm".
+  \endlist
+
+  All other input characters will be ignored.
+
+  Example format Strings (assumed that the QTime is 14:13:09)
+
+  \list
+  \i "hh:mm:ss.zzz"  will result in "14:13:09.042"
+  \i "h:m:s ap" will result in "2:13:9 pm"
+  \endlist
+
+  \sa QDate::toString() QTime::toString()
+
+*/
+QString QTime::toString( const QString& format ) const
+{
+    return fmtDateTime( format, this, 0 );
+}
 
 /*!
   Sets the time to hour \a h, minute \a m, seconds \a s and
@@ -1048,9 +1286,17 @@ QTime QTime::currentTime()
 /*!
   Returns the representation \a s as a QTime using the format \a f, or
   an invalid time if this is not possible.
+
+  Note that Qt::LocalDate cannot be used here.
  */
 QTime QTime::fromString( const QString& s, Qt::DateFormat f )
 {
+    if ( ( s.isEmpty() ) || ( f == Qt::LocalDate ) ) {
+#if defined(QT_CHECK_RANGE)
+	qWarning( "QTime::fromString: Parameter out of range." );
+#endif
+	return QTime();
+    }
     switch ( f ) {
     default:
     case Qt::TextDate:
@@ -1062,6 +1308,7 @@ QTime QTime::fromString( const QString& s, Qt::DateFormat f )
 	    return QTime( hour, minute, second );
 	}
     }
+    return QTime();
 }
 
 /*!
@@ -1383,9 +1630,12 @@ void QDateTime::setTime_t( uint secsSince1Jan1970UTC )
   8601 specification for representations of dates and times, which is
   YYYY-MM-DDTHH:MM:SS.
 
+  If \a f is Qt::LocalDate, the string format depends on the locale
+  settings of the system.
+
   If the format \a f is invalid, toString() returns a null string.
 
-  \sa QDate::toString() QTime::toString
+  \sa QDate::toString() QTime::toString()
 
 */
 
@@ -1407,10 +1657,65 @@ QString QDateTime::toString( Qt::DateFormat f ) const
 	buf += QString().setNum( d.year() );
 	return buf;
     }
-#endif    
+#endif
+    else if ( f == Qt::LocalDate ) {
+	return d.toString( Qt::LocalDate ) + " " + t.toString( Qt::LocalDate );
+    }
     return QString::null;
 }
 #endif
+
+/*!  Returns the datetime as a string.  The \a format parameter determines
+  the format of the result string.
+
+  These expressions may be used for the date:
+
+  \list
+  \i \e d - the day as number without a leading zero (1-31)
+  \i \e dd - the day as number with a leading zero (01-31)
+  \i \e ddd - the abbrevated day name (Mon - Sun). Uses QDate::shortDayName().
+  \i \e dddd - the long day name (Monday - Sunday). Uses QDate::longDayName().
+  \i \e M - the month as number without a leading zero (1-12)
+  \i \e MM - the month as number with a leading zero (01-12)
+  \i \e MMM - the abbrevated month name (Jan - Dec). Uses QDate::shortMonthName().
+  \i \e MMMM - the long month name (January - December). Uses QDate::longMonthName().
+  \i \e yy - the year as two digit number (00-99)
+  \i \e yyyy - the year as four digit number (0000-9999)
+  \endlist
+
+  These expressions may be used for the time:
+
+  \list
+  \i \e h - the hour without a leading zero (0-23 or 1-12 if AM/PM display)
+  \i \e hh - the hour with a leading zero (00-23 or 01-12 if AM/PM display)
+  \i \e m - the minute without a leading zero (0-59)
+  \i \e mm - the minute with a leading zero (00-59)
+  \i \e s - the second whithout a leading zero (0-59)
+  \i \e ss - the second whith a leading zero (00-59)
+  \i \e z - the milliseconds without leading zeroes (0-999)
+  \i \e zzz - the milliseconds with leading zeroes (000-999)
+  \i \e AP - switch to AM/PM display. \e AP will be replaced by either "AM" or "PM".
+  \i \e ap - switch to AM/PM display. \e ap will be replaced by either "am" or "pm".
+  \endlist
+
+  All other input characters will be ignored.
+
+  Example format Strings (assumed that the QDateTime is 21. May 2001 14:13:09)
+
+  \list
+  \i "dd.MM.yyyy" will result in "21.05.2001"
+  \i "ddd MMMM d yy" will result in "Tue May 21 01"
+  \i "hh:mm:ss.zzz"  will result in "14:13:09.042"
+  \i "h:m:s ap" will result in "2:13:9 pm"
+  \endlist
+
+  \sa QDate::toString() QTime::toString()
+
+*/
+QString QDateTime::toString( const QString& format ) const
+{
+    return fmtDateTime( format, &t, &d );
+}
 
 /*!
   Returns a QDateTime object containing a datetime \a ndays days later
@@ -1608,13 +1913,26 @@ QDateTime QDateTime::currentDateTime()
 /*!
   Returns the QDateTime represented by the string \a s, using the format
   \a f, or an invalid datetime if this is not possible.
+
+  Note that Qt::LocalDate cannot be used here.
+
+  Note for Qt::TextDate: It is recommendet to use the english short monthnames
+  (Jan - Dec), which QT supports as default.
+  Localized monthnames may also be used, but they depend on the user's
+  locale settings.
  */
 QDateTime QDateTime::fromString( const QString& s, Qt::DateFormat f )
 {
+    if ( ( s.isEmpty() ) || ( f == Qt::LocalDate ) ) {
+#if defined(QT_CHECK_RANGE)
+	qWarning( "QDateTime::fromString: Parameter out of range." );
+#endif
+	return QDateTime();
+    }
     if ( f == Qt::ISODate ) {
 	return QDateTime( QDate::fromString( s.mid(0,10), Qt::ISODate ),
 			  QTime::fromString( s.mid(11,8), Qt::ISODate ) );
-    } 
+    }
 #if !defined(QT_NO_REGEXP) && !defined(QT_NO_TEXTDATE)
     else if ( f == Qt::TextDate ) {
 	QString monthName( s.mid( 4, 3 ) );
@@ -1626,7 +1944,7 @@ QDateTime QDateTime::fromString( const QString& s, Qt::DateFormat f )
 		break;
 	    }
 	}
-	// If English Names can't be found, search the localized ones
+	// If English names can't be found, search the localized ones
 	if ( month == -1 ) {
 	    for ( int i = 1; i <= 12; ++i ) {
 		if ( monthName == QDate::shortMonthName( i ) ) {
@@ -1637,7 +1955,7 @@ QDateTime QDateTime::fromString( const QString& s, Qt::DateFormat f )
 	}
 #if defined(QT_CHECK_RANGE)
     	if ( month < 1 || month > 12 ) {
-	    qWarning( "QDateTime::fromString: Parameter out ouf range." );
+	    qWarning( "QDateTime::fromString: Parameter out of range." );
 	    month = 1;
 	}
 #endif

@@ -216,6 +216,9 @@ bool Resource::load( QIODevice* dev, const QString& filename, bool keepname )
 	    }
 	} else if ( firstWidget.tagName() == "exportmacro" ) {
 	    exportMacro = firstWidget.firstChild().toText().data();
+	} else if ( firstWidget.tagName() == "layoutdefaults" ) {
+	    formwindow->setLayoutDefaultSpacing( firstWidget.attribute( "spacing", QString::number( formwindow->layoutDefaultSpacing() ) ).toInt() );
+	    formwindow->setLayoutDefaultMargin( firstWidget.attribute( "margin", QString::number( formwindow->layoutDefaultMargin() ) ).toInt() );
 	}
 
 	firstWidget = firstWidget.nextSibling().toElement();
@@ -2113,6 +2116,9 @@ void Resource::saveMetaInfo( QTextStream &ts, int indent )
 	ts << makeIndent( indent ) << "<pixmapfunction>" << formwindow->pixmapLoaderFunction() << "</pixmapfunction>" << endl;
     if ( !( exportMacro = MetaDataBase::exportMacro( formwindow->mainContainer() ) ).isEmpty() )
 	ts << makeIndent( indent ) << "<exportmacro>" << exportMacro << "</exportmacro>" << endl;
+    if ( formwindow )
+	ts << makeIndent( indent ) << "<layoutdefaults spacing=\"" << formwindow->layoutDefaultSpacing()
+	   << "\" margin=\"" << formwindow->layoutDefaultMargin() << "\"/>" << endl;
 }
 
 QColorGroup Resource::loadColorGroup( const QDomElement &e )

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocket.h#16 $
+** $Id: //depot/qt/main/src/network/qsocket.h#17 $
 **
 ** Definition of QSocket class.
 **
@@ -128,6 +128,8 @@ protected slots:
 
 private slots:
     void	tryConnecting();
+    void	emitErrSocketRead();
+    void	emitConnectionClosed();
 
 private:
     QSocketPrivate *d;

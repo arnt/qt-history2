@@ -633,6 +633,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		} else {
 		    setKind( Doc::Class, command );
 		}
+		prevSectionLevel = 1;
 		break;
 	    case hash( 'd', 6 ):
 		consume( "define" );
@@ -1119,9 +1120,9 @@ quotefile:
 		consume( "section" );
 		x = getWord( yyIn, yyPos );
 		if ( x.length() != 1 || x[0].unicode() < '1' ||
-		     x[0].unicode() > '5' ) {
+		     x[0].unicode() > '4' ) {
 		    warning( 2, location(),
-			     "Expected digit between '1' and '5' after"
+			     "Expected digit between '1' and '4' after"
 			     " '\\section'" );
 		    x = QChar( '1' );
 		}
@@ -1131,6 +1132,8 @@ quotefile:
 			     "Unexpected '\\section %d' within '\\section %d'",
 			     sectionLevel, prevSectionLevel );
 		prevSectionLevel = sectionLevel;
+		if ( kindIs == Doc::Class )
+		    prevSectionLevel++;
 		yyOut += QString( "<h%1>" ).arg( prevSectionLevel + 1 );
 		inHeading = TRUE;
 		break;
@@ -1149,6 +1152,12 @@ quotefile:
 	    case hash( 't', 5 ):
 		consume( "title" );
 		title = getRestOfLine( yyIn, yyPos ).simplifyWhiteSpace();
+		break;
+	    case hash( 't', 6 ):
+		consume( "target" );
+		yyOut += QString( "<a name=\"" );
+		yyOut += getWord( yyIn, yyPos );
+		yyOut += QString( "\"></a>" );
 		break;
 	    case hash( 'v', 5 ):
 		// see also \bug

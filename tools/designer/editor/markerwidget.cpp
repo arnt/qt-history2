@@ -27,46 +27,78 @@
 #include "paragdata.h"
 
 static const char * error_xpm[] = {
-    "14 14 4 1",
-    "       c None",
-    ".      c #FFFFFF",
-    "+      c #8B0000",
-    "@      c #FF0000",
-    "              ",
-    "     ....     ",
-    "    .++++.    ",
-    "   .+@@@@+.   ",
-    "  .+@@@@@@+.  ",
-    " .+@@@@@@@@+. ",
-    " .+@@@@@@@@+. ",
-    " .+@@@@@@@@+. ",
-    " .+@@@@@@@@+. ",
-    "  .+@@@@@@+.  ",
-    "   .+@@@@+.   ",
-    "    .++++.    ",
-    "     ....     ",
-    "              "};
+"15 15 35 1",
+"       c None",
+".      c #FF0000",
+"+      c #F50F0F",
+"@      c #BF5F5F",
+"#      c #FF1010",
+"$      c #FF7878",
+"%      c #FF0A0A",
+"&      c #FF0606",
+"*      c #FF1414",
+"=      c #FFFFFF",
+"-      c #FFA3A3",
+";      c #FF0707",
+">      c #FF0202",
+",      c #FF9898",
+"'      c #FF8888",
+")      c #D04747",
+"!      c #FFA7A7",
+"~      c #FF9D9D",
+"{      c #FFB1B1",
+"]      c #FF0C0C",
+"^      c #F90A0A",
+"/      c #FFB5B5",
+"(      c #FF0909",
+"_      c #A08F8F",
+":      c #FFACAC",
+"<      c #FF0303",
+"[      c #9F8F8F",
+"}      c #FB0606",
+"|      c #9F9090",
+"1      c #CE4949",
+"2      c #999999",
+"3      c #FF1919",
+"4      c #F70C0C",
+"5      c #A38A8A",
+"6      c #B37272",
+"     ....      ",
+"   ........    ",
+"  .........+@  ",
+" ..#$%..&$*.+  ",
+" ..$=-;>,='..) ",
+"...%-=!~={]..^ ",
+"....;!==/(...._",
+"....>~==:<....[",
+"...&,=/:=!;..}|",
+" ..$={(<!='..12",
+" ..*']..;'3.45 ",
+"  +........462 ",
+"  @+......462  ",
+"    )^..}152   ",
+"      _[|2     "};
 
 static const char * breakpoint_xpm[] = {
-    "14 14 4 1",
-    "       c None",
-    ".      c #FFFFFF",
-    "+      c #8B0000",
-    "@      c yellow",
-    "              ",
-    "     ....     ",
-    "    .++++.    ",
-    "   .+@@@@+.   ",
-    "  .+@@@@@@+.  ",
-    " .+@@@@@@@@+. ",
-    " .+@@@@@@@@+. ",
-    " .+@@@@@@@@+. ",
-    " .+@@@@@@@@+. ",
-    "  .+@@@@@@+.  ",
-    "   .+@@@@+.   ",
-    "    .++++.    ",
-    "     ....     ",
-    "              "};
+"15 15 3 1",
+"       c None",
+".      c #8B0000",
+"+      c #FFFFFF",
+"    .......    ",
+"   .........   ",
+"  ...........  ",
+" ............. ",
+"..+.+++.+..++..",
+".+.+.+.+.+.+.+.",
+".+...+.+.+.+.+.",
+"..+..+.+.+.++..",
+"...+.+.+.+.+...",
+".+.+.+.+.+.+...",
+"..+..+..+..+...",
+" ............. ",
+"  ...........  ",
+"   .........   ",
+"    .......    " };
 
 static const char * step_xpm[] = {
 "16 16 128 2",
@@ -351,15 +383,17 @@ void MarkerWidget::contextMenuEvent( QContextMenuEvent *e )
     QPopupMenu m;
 
     int toggleBreakPoint;
+    int editBreakpoints;
 
     QTextParag *p = ( (Editor*)viewManager->currentView() )->document()->firstParag();
     int yOffset = ( (Editor*)viewManager->currentView() )->contentsY();
     while ( p ) {
 	if ( e->y() >= p->rect().y() - yOffset && e->y() <= p->rect().y() + p->rect().height() - yOffset ) {
 	    if ( ( (ParagData*)p->extraData() )->marker == ParagData::Breakpoint )
-		toggleBreakPoint = m.insertItem( tr( "Clear Breakpoint" ) );
+		toggleBreakPoint = m.insertItem( tr( "Clear Breakpoint\tF9" ) );
 	    else
-		toggleBreakPoint = m.insertItem( tr( "Set Breakpoint" ) );
+		toggleBreakPoint = m.insertItem( tr( "Set Breakpoint\tF9" ) );
+	    editBreakpoints = m.insertItem( tr( "Edit Breakpoints..." ) );
 	    m.insertSeparator();
 	    break;
 	}
@@ -388,6 +422,8 @@ void MarkerWidget::contextMenuEvent( QContextMenuEvent *e )
 	    ( (ParagData*)p->extraData() )->marker = ParagData::NoMarker;
 	else
 	    ( (ParagData*)p->extraData() )->marker = ParagData::Breakpoint;
+    } else if ( res == editBreakpoints ) {
+	emit editBreakPoints();
     }
     doRepaint();
     emit markersChanged();

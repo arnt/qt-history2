@@ -136,6 +136,7 @@ private:
     static bool onlyAscii;
     static QString mkStdSet( const QString& prop );
     static QString getComment( const QDomNode& n );
+    int defSpacing, defMargin;
 
 };
 

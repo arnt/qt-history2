@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qxml.cpp#98 $
+** $Id: //depot/qt/main/src/xml/qxml.cpp#99 $
 **
 ** Implementation of QXmlSimpleReader and related classes.
 **
@@ -2494,7 +2494,7 @@ bool QXmlSimpleReader::parse( const QXmlInputSource* input )
     return parse( input, FALSE );
 }
 
-/*! \overload
+/*!
   Reads an XML document from \a input and parses it. Returns FALSE if the
   parsing detects an error.
 

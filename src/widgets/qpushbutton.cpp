@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#213 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#214 $
 **
 ** Implementation of QPushButton class
 **
@@ -329,7 +329,7 @@ void QPushButton::setDefault( bool enable )
 #endif
     update();
 #if defined(QT_ACCESSIBILITY_SUPPORT)
-    emit accessibilityChanged( QAccessible::StateChanged );
+    QAccessible::updateAccessibility( this, 0, QAccessible::StateChanged );
 #endif
 
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess_win.cpp#45 $
+** $Id: //depot/qt/main/src/kernel/qprocess_win.cpp#46 $
 **
 ** Implementation of QProcess class for Win32
 **
@@ -68,7 +68,7 @@ public:
 	qApp->connect( lookup, SIGNAL(timeout()),
 		proc, SLOT(timeout()) );
 
-	memset( &pid, 0, sizeof(PROCESS_INFORMATION) );
+	pid = 0;
     }
 
     ~QProcessPrivate()
@@ -101,7 +101,20 @@ public:
 	pipeStderr[1] = 0;
 	exitValuesCalculated = FALSE;
 
-	memset( &pid, 0, sizeof(PROCESS_INFORMATION) );
+	deletePid();
+    }
+
+    void deletePid()
+    {
+	delete pid;
+	pid = 0;
+    }
+
+    void newPid()
+    {
+	delete pid;
+	pid = new PROCESS_INFORMATION;
+	memset( pid, 0, sizeof(PROCESS_INFORMATION) );
     }
 
     QByteArray bufStdout;
@@ -114,7 +127,7 @@ public:
     HANDLE pipeStderr[2];
     QTimer *lookup;
 
-    PROCESS_INFORMATION pid;
+    PROCESS_INFORMATION *pid;
     uint stdinBufRead;
 
     bool exitValuesCalculated;
@@ -244,6 +257,7 @@ bool QProcess::start()
 
     // CreateProcess()
     bool success;
+    d->newPid();
 #if defined(UNICODE)
     if ( qWinVersion() & WV_NT_based ) {
 	STARTUPINFO startupInfo = { sizeof( STARTUPINFO ), 0, 0, 0,
@@ -257,7 +271,7 @@ bool QProcess::start()
 	success = CreateProcess( 0, commandLine,
 		0, 0, TRUE, CREATE_NO_WINDOW, 0,
 		(TCHAR*)qt_winTchar(workingDir.absPath(),TRUE),
-		&startupInfo, &d->pid );
+		&startupInfo, d->pid );
 	delete[] commandLine;
     } else
 #endif
@@ -272,9 +286,10 @@ bool QProcess::start()
 	success = CreateProcessA( 0, args.local8Bit().data(),
 		0, 0, TRUE, DETACHED_PROCESS, 0,
 		(const char*)workingDir.absPath().local8Bit(),
-		&startupInfo, &d->pid );
+		&startupInfo, d->pid );
     }
     if  ( !success ) {
+	d->deletePid();
 	return FALSE;
     }
 
@@ -297,15 +312,16 @@ void QProcess::hangUp() const
 
 void QProcess::kill() const
 {
-    TerminateProcess( d->pid.hProcess, 0 );
+    if ( d->pid )
+	TerminateProcess( d->pid->hProcess, 0 );
 }
 
 bool QProcess::isRunning() const
 {
-    if ( !d->pid.hProcess )
+    if ( !d->pid )
 	return FALSE;
 
-    if ( WaitForSingleObject( d->pid.hProcess, 0) == WAIT_OBJECT_0 ) {
+    if ( WaitForSingleObject( d->pid->hProcess, 0) == WAIT_OBJECT_0 ) {
 	// there might be data to read
 	QProcess *that = (QProcess*)this;
 	that->socketRead( 1 ); // try stdout
@@ -313,7 +329,7 @@ bool QProcess::isRunning() const
 	// compute the exit values
 	if ( !d->exitValuesCalculated ) {
 	    DWORD exitCode;
-	    if ( GetExitCodeProcess( d->pid.hProcess, &exitCode ) ) {
+	    if ( GetExitCodeProcess( d->pid->hProcess, &exitCode ) ) {
 		if ( exitCode != STILL_ACTIVE ) { // this should ever be true?
 		    QProcess *that = (QProcess*)this; // mutable 
 		    that->exitNormal = TRUE;
@@ -322,6 +338,7 @@ bool QProcess::isRunning() const
 	    }
 	    d->exitValuesCalculated = TRUE;
 	}
+	d->deletePid();
 	return FALSE;
     } else {
         return TRUE;
@@ -487,6 +504,11 @@ void QProcess::setNotifyOnExit( bool value )
 void QProcess::setWroteStdinConnected( bool value )
 {
     wroteToStdinConnected = value;
+}
+
+QProcess::PID QProcess::processIdentifier()
+{
+    return d->pid;
 }
 
 #endif // QT_NO_PROCESS

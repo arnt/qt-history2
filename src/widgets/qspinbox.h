@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.h#67 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.h#68 $
 **
 ** Definition of QSpinBox widget class
 **
@@ -143,10 +143,6 @@ protected:
     void		leaveEvent( QEvent* );
 
     void		styleChange( QStyle& );
-
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-    QAccessibleInterface *accessibleInterface();
-#endif
 
 protected slots:
     void		textChanged();

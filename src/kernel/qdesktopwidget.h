@@ -7,7 +7,6 @@
 #endif // QT_H
 
 class QDesktopWidgetPrivate; /* Don't touch! */
-struct QAccessibleInterface;
 
 class Q_EXPORT QDesktopWidget : public QWidget
 {

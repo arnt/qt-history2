@@ -2,7 +2,6 @@ TEMPLATE	= lib
 CONFIG		+= qt warn_on release plugin
 HEADERS		= cppeditor.h  \
 		  syntaxhighliter_cpp.h \
-		  indent_cpp.h \
 		  cppcompletion.h \
 		  editorinterfaceimpl.h \
 		  languageinterfaceimpl.h \
@@ -12,7 +11,6 @@ HEADERS		= cppeditor.h  \
 
 SOURCES		= cppeditor.cpp \
 		  syntaxhighliter_cpp.cpp \
-		  indent_cpp.cpp \
 		  cppcompletion.cpp \
 		  editorinterfaceimpl.cpp \
 		  languageinterfaceimpl.cpp \

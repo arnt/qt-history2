@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/demo/frame.cpp#12 $
+** $Id: //depot/qt/main/examples/demo/frame.cpp#13 $
 **
 ** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **

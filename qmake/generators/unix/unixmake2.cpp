@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/%s#3 $
+** $Id: $
 **
 ** Definition of ________ class.
 **
@@ -255,7 +255,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	    //incremental target
 	    t << incr_target_dir << ": $(OBJECTS) $(OBJMOC) ";
 	    if(!destdir.isEmpty())
-		t << "\n\t" << "[ -d " << destdir << " ] || mkdir -p " << destdir;
+		t << "\n\t" << "test -d " << destdir << " || mkdir -p " << destdir;
 	    QString incr_lflags = var("QMAKE_LFLAGS_SHLIB") + " ";
 	    incr_lflags += var(project->isActiveConfig("debug") ? "QMAKE_LFLAGS_DEBUG" : "QMAKE_LFLAGS_RELEASE");
 	    t << "\n\t"
@@ -264,7 +264,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	    QString objs = "$(INCREMENTAL_OBJECTS)";
 	    t << var("TARGET") << ": " << incr_target_dir << " " << objs << var("TARGETDEPS") << "\n\t";
 	    if(!destdir.isEmpty()) {
-		t << "[ -d " << destdir << " ] || mkdir -p " << destdir << "\n\t";
+		t << "test -d " << destdir << " || mkdir -p " << destdir << "\n\t";
 		objs += " -L" + destdir;
 	    }
 	    objs += " -l" + incr_target;
@@ -272,7 +272,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	} else {
 	    t << "$(TARGET): $(UICDECLS) $(OBJECTS) $(OBJMOC) " << var("TARGETDEPS") << "\n\t";
 	    if(!destdir.isEmpty())
-		t << "[ -d " << destdir << " ] || mkdir -p " << destdir << "\n\t";
+		t << "test -d " << destdir << " || mkdir -p " << destdir << "\n\t";
 	    t << "$(LINK) $(LFLAGS) -o $(TARGET) $(OBJECTS) $(OBJMOC) $(LIBS)";
 	    if(!project->isEmpty("QMAKE_POST_LINK"))
 		t << "\n\t" << var("QMAKE_POST_LINK");
@@ -292,7 +292,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	    //incremental target
 	    t << incr_target_dir << ": $(OBJECTS) $(OBJMOC) ";
 	    if(!destdir.isEmpty())
-		t << "\n\t" << "[ -d " << destdir << " ] || mkdir -p " << destdir;
+		t << "\n\t" << "test -d " << destdir << " || mkdir -p " << destdir;
 	    QString incr_lflags = var("QMAKE_LFLAGS_SHLIB") + " ";
 	    incr_lflags += var(project->isActiveConfig("debug") ? "QMAKE_LFLAGS_DEBUG" : "QMAKE_LFLAGS_RELEASE");
 	    t << "\n\t"
@@ -309,7 +309,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	    t << var("DESTDIR_TARGET") << ": $(OBJECTS) $(OBJMOC) $(SUBLIBS) " << var("TARGETDEPS");
 	}
 	if(!destdir.isEmpty())
-	    t << "\n\t" << "[ -d " << destdir << " ] || mkdir -p " << destdir;
+	    t << "\n\t" << "test -d " << destdir << " || mkdir -p " << destdir;
 
 	if(project->isActiveConfig("plugin")) {
 	    t << "\n\t"
@@ -369,7 +369,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 
 	if(!project->isEmpty("DESTDIR")) {
 	    QString destdir = project->first("DESTDIR");
-	    t << "[ -d " << destdir << " ] || mkdir -p " << destdir << "\n\t";
+	    t << "test -d " << destdir << " || mkdir -p " << destdir << "\n\t";
 	}
 	t << "-rm -f $(TARGET)" << "\n\t"
 	  << var("QMAKE_AR_CMD") << "\n\t";
@@ -404,7 +404,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	t << "#Looks strange? Well I don't even know what it means! ###SAM" << endl;
 	t << pkginfo << ": " << "\n\t";
 	if(!destdir.isEmpty())
-	    t << "[ -d " << destdir << " ] || mkdir -p " << destdir << "\n\t";
+	    t << "test -d " << destdir << " || mkdir -p " << destdir << "\n\t";
 	t << "rm -f " << pkginfo << "\n\t"
 	  << "echo \"APPL????\" >" << pkginfo << endl;
     }

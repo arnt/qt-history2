@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrichtext_p.h#154 $
+** $Id: //depot/qt/main/src/kernel/qrichtext_p.h#155 $
 **
 ** Definition of internal rich text classes
 **
@@ -417,7 +417,11 @@ public:
     virtual void down( QTextCursor *, QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy );
     virtual void up( QTextCursor *, QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy );
 
+    void setParagraph( QTextParag *p ) { parag = p; }
+    QTextParag *paragrapth() const { return parag; }
+
     QTextDocument *parent;
+    QTextParag *parag;
 };
 
 #if defined(Q_TEMPLATEDLL)
@@ -1046,6 +1050,7 @@ public:
 class Q_EXPORT QTextParag
 {
     friend class QTextDocument;
+    friend class QTextCursor;
 
 public:
     QTextParag( QTextDocument *d, QTextParag *pr = 0, QTextParag *nx = 0, bool updateIds = TRUE );
@@ -1063,6 +1068,7 @@ public:
     void setList( bool b, int listStyle );
     void incDepth();
     void decDepth();
+    int listDepth() const;
 
     void setFormat( QTextFormat *fm );
     QTextFormat *paragFormat() const;
@@ -1173,7 +1179,8 @@ public:
     QTextFormatter *formatter() const;
     int minimumWidth() const;
 
-    int nextTab( int x );
+    virtual int nextTab( int i, int x );
+    int *tabArray() const;
     void setTabArray( int *a );
     void setTabStops( int tw );
 
@@ -1190,6 +1197,9 @@ public:
     QTextCursor *redo( QTextCursor *c  = 0 );
     QTextCommandHistory *commands() const { return commandHistory; }
     virtual void copyParagData( QTextParag *parag );
+
+    void setBreakable( bool b ) { breakable = b; }
+    bool isBreakable() const { return breakable; }
 
 protected:
     virtual void drawLabel( QPainter* p, int x, int y, int w, int h, int base, const QColorGroup& cg );
@@ -1228,12 +1238,13 @@ private:
     int numCustomItems;
     QRect docRect;
     QTextFormatter *pFormatter;
-    int *tabArray;
+    int *tArray;
     int tabStopWidth;
     QTextParagData *eData;
     QPainter *pntr;
     QTextCommandHistory *commandHistory;
     int list_val;
+    bool breakable;
 
 };
 
@@ -1246,7 +1257,7 @@ public:
     virtual ~QTextFormatter();
     virtual int format( QTextDocument *doc, QTextParag *parag, int start, const QMap<int, QTextParagLineStart*> &oldLineStarts ) = 0;
 
-    bool isWrapEnabled() const { return wrapEnabled;}
+    bool isWrapEnabled( QTextParag *p ) const { if ( !wrapEnabled ) return FALSE; if ( p && !p->isBreakable() ) return FALSE; return TRUE;}
     int wrapAtColumn() const { return wrapColumn;}
     virtual void setWrapEnabled( bool b );
     virtual void setWrapAtColumn( int c );
@@ -1434,6 +1445,7 @@ template class Q_EXPORT QDict<QTextFormat>;
 class Q_EXPORT QTextFormatCollection
 {
     friend class QTextDocument;
+    friend class QTextFormat;
 
 public:
     QTextFormatCollection();
@@ -1728,6 +1740,8 @@ inline void QTextFormat::removeRef()
     ref--;
     if ( !collection )
 	return;
+    if ( this == collection->defFormat )
+	return;
 #ifdef DEBUG_COLLECTION
     qDebug( "remove ref of '%s' to %d (%p)", k.latin1(), ref, this );
 #endif
@@ -1847,7 +1861,7 @@ inline void QTextParag::setParagId( int i )
 inline int QTextParag::paragId() const
 {
     if ( id == -1 )
-	qWarning( "invalid parag id!!!!!!!! (%p)", this );
+	qWarning( "invalid parag id!!!!!!!! (%p)", (void*)this );
     return id;
 }
 

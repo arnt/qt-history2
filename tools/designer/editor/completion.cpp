@@ -299,7 +299,19 @@ bool EditorCompletion::eventFilter( QObject *o, QEvent *e )
     if ( o->inherits( "Editor" ) && e->type() == QEvent::KeyPress ) {
 	curEditor = (Editor*)o;
 	QKeyEvent *ke = (QKeyEvent*)e;
-	if ( ke->text().length() && !( ke->state() & AltButton ) &&
+	if ( ke->key() == Key_Tab ) {
+	    curEditor->indent();
+	    int i = 0;
+	    for ( ; i < curEditor->textCursor()->parag()->length() - 1; ++i ) {
+		if ( curEditor->textCursor()->parag()->at( i )->c != ' ' &&
+		     curEditor->textCursor()->parag()->at( i )->c != '\t' )
+		    break;
+	    }
+	    curEditor->drawCursor( FALSE );
+	    curEditor->textCursor()->setIndex( i );
+	    curEditor->drawCursor( TRUE );
+	    return TRUE;
+	} else if ( ke->text().length() && !( ke->state() & AltButton ) &&
 	     ( !ke->ascii() || ke->ascii() >= 32 ) ||
 	     ( ke->text() == "\t" && !( ke->state() & ControlButton ) ) ) {
 	    if ( ke->key() == Key_Tab ) {

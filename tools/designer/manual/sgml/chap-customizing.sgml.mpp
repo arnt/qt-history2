@@ -27,7 +27,8 @@ Show Grid) since using layouts makes the grid redundant.
 </para>
 <para id="aipu">
 \x[Plugins]
-\x[Code Editing]
+\x[Code Editing|Preferences]
+\x[Preferences|Code Editing]
 The \dlg[Preferences] dialog may have additional tabs, depending on what
 plugins you have installed. We'll describe the C++ Editor tab since this
 is installed by default.
@@ -129,7 +130,7 @@ ignore the list.
 <sect1 id="creatingandusingtemplates">
 <title>Creating and Using Templates </title>
 <para id="aitq">
-\x[Creating and Using Templates]
+\x[Creating Templates]
 \x[Templates|Creating and Using]
 \qd supports two approaches to creating template forms. The simplest
 approach involves little more than saving a \f[.ui]
@@ -161,7 +162,7 @@ Click the Dialog template then click \ok.
 <para id="aius">
 Click the \toolbutton[Text Label] toolbar button, then click
 near the top left of the form. Change the font Point Size property to 16
-and change the text property to your or your company's name. Click the
+and change the \prop[text] property to your or your company's name. Click the
 \toolbutton[Line] toolbar button, then click the form below
 the label; click Horizontal on the pop-up menu.
 </para>
@@ -176,9 +177,9 @@ Press \key[Ctrl+L] to lay them out vertically.
 <listitem>
 <para id="aivi">
 Click the \toolbutton[Save] toolbar button. In the \dlg[Save As]
-dialog, navigate to \qd's templates directory,
-(\fe[qt/tools/designer/templates] relative to wherever
-Qt is installed). Type in the name 'Simple_Dialog.ui' and click
+dialog, navigate to \qd's templates directory, e.g.
+(\fe[qt/tools/designer/templates].
+Type in the name 'Simple_Dialog.ui' and click
 \button[Save]. 
 </para>
 </listitem>
@@ -213,7 +214,7 @@ In our example we'll use a class called
 the basis of a template.
 We won't describe the class itself, but will focus instead on making use
 of it as a \qd template. The source for the class is in
-\fe[qt/tools/designer/eg/sizeaware].
+\fe[qt/tools/designer/examples/sizeaware].
 </para>
 
 <para id="aiwx">
@@ -229,7 +230,7 @@ detail in <xref linkend="old-custom-widgets"> "Simple Custom Widgets".)
 Click \button[New Widget]. Change the Class from
 'MyCustomWidget' to 'SizeAware'. Click the Headerfile ellipsis button
 and select the file 
-\fe[qt/tools/designer/eg/sizeaware/sizeaware.h]. Check
+\fe[qt/tools/designer/examples/sizeaware/sizeaware.h]. Check
 the Container Widget checkbox. This
 class provides two properties. Click the Properties tab. Click
 \button[New Property] and change the property name to
@@ -464,6 +465,7 @@ in the File Type combobox.
 
 <para id="ajgc">
 \x[Foreign File Formats|Qt Architect]
+\x[Qt Architect]
 <ulink url="http://qtarch.sourceforge.net/">Qt Architect</>
 is a free GUI builder for Qt written by Jeff Harris and Klaus Ebner. The
 \f[.dlg] extension is associated with Qt Architect dialog files.
@@ -495,7 +497,6 @@ format due to differences between the two tools; these are listed below:
     "layoutMargin" properties manually afterwards if necessary.
     </para>
     \Item
-
     \item
     <para id="ajhk">
     Layout stretches and spacings
@@ -504,25 +505,12 @@ format due to differences between the two tools; these are listed below:
     Qt Architect gives access to more features of Qt's layout
     system than \qd, namely stretches and spacings. Qt
     Designer will attempt to cope with \f[.dlg] files that use these
-    features, but sometimes the resizing will be far from perfect. 
+    features, but sometimes the resizing will not be what you want. 
     The solution typically involves setting the
     "sizePolicy" properties of some widgets and inserting or
     deleting spacers.
     </para>
-
-    \item
-    <para id="ajhy">
-    Widget names and variable names
-    </para>
-    <para id="ajib">
-    Widgets in \f[.dlg] files may have two names: a unique name used
-    within Qt Architect (the "Name" in the "Widget" tab of the
-    "Widget Properties" dialog), and an optional name used in the
-    generated C++ code (the "Variable Name" in the "Mapping" tab of
-    the "Widget Properties" dialog). \qd will only recognize the
-    former which it will use as the "name" property.
-    </para>
-
+    \Item
     \item
     <para id="ajil">
     Mixing managed and unmanaged widgets
@@ -533,7 +521,7 @@ format due to differences between the two tools; these are listed below:
     with a \f[.dlg] file that uses this facility, \qd will silently put
     the fixed position widgets into the layout.
     </para>
-
+    \Item
     \item
     <para id="ajiw">
     Pixmaps
@@ -542,6 +530,7 @@ format due to differences between the two tools; these are listed below:
     \qd ignores pixmaps specified in \f[.dlg] files. These
     have to be restored manually in \qd.
     </para>
+    \Item
 \List
 </para>
 </sect2>
@@ -552,6 +541,7 @@ format due to differences between the two tools; these are listed below:
 
 <para id="ajjl">
 \x[Foreign File Formats|Glade]
+\x[Glade]
 <ulink url="http://glade.pn.org/">Glade</> is a free GUI builder for
 GTK+ and GNOME written by Damon Chaplin. The \f[.glade] extension is
 associated with Glade files.
@@ -581,7 +571,7 @@ as listed below:
     users expect underlined characters to be accelerators. In
     this situation, Qt displays the ampersand itself instead of
     underlining the accelerator key. You should go over these \class[QLabel]
-    widgets and set their "buddy" property.
+    widgets and set their "\prop[buddy]" property.
     </para>
     \Item
     \item
@@ -644,7 +634,7 @@ as listed below:
     Glade provides size policies in the "Place" tab of the property
     editor. \qd does not attempt to make use of the padding, expand,
     shrink and fill information, as the Qt defaults are usually good
-    enough. In a few cases, you might have to set the "sizePolicy"
+    enough. In a few cases, you might have to set the "\prop[sizePolicy]"
     property manually to obtain the effect you want.
     </para>
     \Item
@@ -675,7 +665,7 @@ as listed below:
     Incorrectly-justified text after conversion
     </para>
     <para id="ajoe">
-    The "hAlign" property is sometimes set wrongly, in which case you
+    The "\prop[hAlign]" property is sometimes set wrongly, in which case you
     have to change it manually. It is caused by a quirk in Glade.
     </para>
     \List

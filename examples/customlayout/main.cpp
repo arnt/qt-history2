@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/customlayout/main.cpp#2 $
+** $Id: $
 **
 ** Main for custom layout example
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.cpp#88 $
+** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.cpp#89 $
 **
 ** Implementation of QNetworkProtocol class
 **
@@ -55,6 +55,37 @@ QNetworkProtocolDict *qNetworkProtocolRegister = 0;
 class QNetworkProtocolPrivate
 {
 public:
+    QNetworkProtocolPrivate( QNetworkProtocol *p )
+    {
+	url = 0;
+	opInProgress = 0;
+	opStartTimer = new QTimer( p );
+	removeTimer = new QTimer( p );
+	operationQueue.setAutoDelete( FALSE );
+	autoDelete = FALSE;
+	removeInterval = 10000;
+	oldOps.setAutoDelete( FALSE );
+    }
+
+    ~QNetworkProtocolPrivate()
+    {
+	removeTimer->stop();
+	if ( opInProgress ) {
+	    if ( opInProgress == operationQueue.head() )
+		operationQueue.dequeue();
+	    opInProgress->free();
+	}
+	while ( operationQueue.head() ) {
+	    operationQueue.head()->free();
+	    operationQueue.dequeue();
+	}
+	while ( oldOps.first() ) {
+	    oldOps.first()->free();
+	    oldOps.removeFirst();
+	}
+	delete opStartTimer;
+    }
+
     QUrlOperator *url;
     QPtrQueue< QNetworkOperation > operationQueue;
     QNetworkOperation *opInProgress;
@@ -343,16 +374,8 @@ public:
 QNetworkProtocol::QNetworkProtocol()
     : QObject()
 {
+    d = new QNetworkProtocolPrivate( this );
 
-    d = new QNetworkProtocolPrivate;
-    d->url = 0;
-    d->opInProgress = 0;
-    d->opStartTimer = new QTimer( this );
-    d->removeTimer = new QTimer( this );
-    d->operationQueue.setAutoDelete( FALSE );
-    d->autoDelete = FALSE;
-    d->removeInterval = 10000;
-    d->oldOps.setAutoDelete( FALSE );
     connect( d->opStartTimer, SIGNAL( timeout() ),
 	     this, SLOT( startOps() ) );
     connect( d->removeTimer, SIGNAL( timeout() ),
@@ -394,26 +417,7 @@ QNetworkProtocol::QNetworkProtocol()
 
 QNetworkProtocol::~QNetworkProtocol()
 {
-    if ( !d )
-	return;
-    d->removeTimer->stop();
-    if ( d->opInProgress == d->operationQueue.head() )
-	d->operationQueue.dequeue();
-    if ( d->opInProgress )
-	d->opInProgress->free();
-    d->opInProgress = 0;
-    while ( d->operationQueue.head() ) {
-	d->operationQueue.head()->free();
-	d->operationQueue.dequeue();
-    }
-    while ( d->oldOps.first() ) {
-	d->oldOps.first()->free();
-	d->oldOps.removeFirst();
-    }
-    delete d->opStartTimer;
-    d->opStartTimer = 0;
     delete d;
-    d = 0;
 }
 
 /*!
@@ -447,6 +451,12 @@ void QNetworkProtocol::setUrl( QUrlOperator *u )
 		    url(), SIGNAL( connectionStateChanged( int, const QString & ) ) );
     }
 
+
+    // ### if autoDelete is TRUE, we should delete the QUrlOperator (something
+    // like below; but that is not possible since it would delete this, too).
+    //if ( d->autoDelete && (d->url!=u) ) {
+    //    delete d->url; // destructor deletes the network protocol
+    //}
     d->url = u;
 
     if ( url() ) {
@@ -473,7 +483,7 @@ void QNetworkProtocol::setUrl( QUrlOperator *u )
     }
 
     if ( !d->opInProgress && !d->operationQueue.isEmpty() )
-	d->opStartTimer->start( 1, TRUE );
+	d->opStartTimer->start( 0, TRUE );
 }
 
 /*!
@@ -521,7 +531,7 @@ void QNetworkProtocol::addOperation( QNetworkOperation *op )
 #endif
     d->operationQueue.enqueue( op );
     if ( !d->opInProgress )
-	d->opStartTimer->start( 1, TRUE );
+	d->opStartTimer->start( 0, TRUE );
 }
 
 /*!
@@ -773,6 +783,8 @@ void QNetworkProtocol::processNextOperation( QNetworkOperation *old )
 
     if ( old )
 	d->oldOps.append( old );
+    if ( d->opInProgress && d->opInProgress!=old )
+	d->oldOps.append( d->opInProgress );
 
     if ( d->operationQueue.isEmpty() ) {
 	d->opInProgress = 0;
@@ -787,7 +799,7 @@ void QNetworkProtocol::processNextOperation( QNetworkOperation *old )
 
     if ( !checkConnection( op ) ) {
 	if ( op->state() != QNetworkProtocol::StFailed ) {
-	    d->opStartTimer->start( 1, TRUE );
+	    d->opStartTimer->start( 0, TRUE );
 	    d->opInProgress = op;
 	} else {
 	    d->opInProgress = op;
@@ -859,8 +871,8 @@ void QNetworkProtocol::stop()
   been processed).  If you set \a b to FALSE the auto-delete mechanism is
   switched off.
 
-  Note that if you switch on auto-delete, the QNetworkProtocol also
-  deletes its QUrlOperator!
+  If you switch on auto-delete, the QNetworkProtocol also deletes its
+  QUrlOperator.
 */
 
 void QNetworkProtocol::setAutoDelete( bool b, int i )
@@ -991,7 +1003,6 @@ QNetworkOperation::QNetworkOperation( QNetworkProtocol::Operation operation,
 QNetworkOperation::~QNetworkOperation()
 {
     delete d;
-    d = 0;
 }
 
 /*!

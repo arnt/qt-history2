@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: network.doc,v 1.8 1999/04/28 09:53:43 aavit Exp $
+** $Id: $
 **
 ** Documentation for network programming
 **
@@ -32,11 +32,6 @@
 ** not clear to you.
 **
 **********************************************************************/
-
-#if defined(QT_DEBUG)
-static char ident[] = "$Id: classes.doc,v 1.8 1999/04/28 09:53:43 aavit Exp $";
-#endif
-
 
 /*!
 \page network.html

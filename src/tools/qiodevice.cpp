@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qiodevice.cpp#70 $
+** $Id: //depot/qt/main/src/tools/qiodevice.cpp#71 $
 **
 ** Implementation of QIODevice class
 **

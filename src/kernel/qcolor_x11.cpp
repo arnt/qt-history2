@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#114 $
+** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#115 $
 **
 ** Implementation of QColor class for X11
 **

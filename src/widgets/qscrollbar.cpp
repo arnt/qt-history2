@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#186 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#187 $
 **
 ** Implementation of QScrollBar class
 **
@@ -42,7 +42,7 @@
 #include "qapplication.h"
 #include "qtimer.h"
 #if defined(QT_ACCESSIBILITY_SUPPORT)
-#include "qaccessiblewidget.h"
+#include "qaccessible.h"
 #endif
 #include <limits.h>
 
@@ -346,7 +346,7 @@ void QScrollBar::valueChange()
 		     pressedControl );
     emit valueChanged(value());
 #if defined(QT_ACCESSIBILITY_SUPPORT)
-    emit accessibilityChanged( QAccessible::ValueChanged );
+    QAccessible::updateAccessibility( this, 0, QAccessible::ValueChanged );
 #endif
 }
 
@@ -578,7 +578,7 @@ void QScrollBar::mousePressEvent( QMouseEvent *e )
 	drawControls( pressedControl, pressedControl );
 	emit sliderPressed();
 #if defined(QT_ACCESSIBILITY_SUPPORT)
-	emit accessibilityChanged( QAccessible::ScrollingStart );
+	QAccessible::updateAccessibility( this, 0, QAccessible::ScrollingStart );
 #endif
     } else if ( pressedControl != QStyle::SC_None ) {
 	drawControls( pressedControl, pressedControl );
@@ -611,11 +611,11 @@ void QScrollBar::mouseReleaseEvent( QMouseEvent *e )
 	if ( value() != prevValue() ) {
 	    emit valueChanged( value() );
 #if defined(QT_ACCESSIBILITY_SUPPORT)
-	    emit accessibilityChanged( QAccessible::ValueChanged );
+	    QAccessible::updateAccessibility( this, 0, QAccessible::ValueChanged );
 #endif
 	}
 #if defined(QT_ACCESSIBILITY_SUPPORT)
-	emit accessibilityChanged( QAccessible::ScrollingEnd );
+	QAccessible::updateAccessibility( this, 0, QAccessible::ScrollingEnd );
 #endif
     }
     drawControls( tmp, pressedControl );
@@ -690,7 +690,7 @@ void QScrollBar::mouseMoveEvent( QMouseEvent *e )
 	    directSetValue( newVal ); // Set directly, painting done below
 	    emit valueChanged( value() );
 #if defined(QT_ACCESSIBILITY_SUPPORT)
-	    emit accessibilityChanged( QAccessible::ValueChanged );
+	    QAccessible::updateAccessibility( this, 0, QAccessible::ValueChanged );
 #endif
 	}
 	slidePrevVal = newVal;
@@ -826,14 +826,14 @@ void QScrollBar::action( QStyle::SubControl control )
     case QStyle::SC_ScrollBarFirst:
 	emit valueChanged( minValue() );
 #if defined(QT_ACCESSIBILITY_SUPPORT)
-	emit accessibilityChanged( QAccessible::ValueChanged );
+	QAccessible::updateAccessibility( this, 0, QAccessible::ValueChanged );
 #endif
 	setValue( minValue() );
 	break;
     case QStyle::SC_ScrollBarLast:
 	emit valueChanged( maxValue() );
 #if defined(QT_ACCESSIBILITY_SUPPORT)
-	emit accessibilityChanged( QAccessible::ValueChanged );
+	QAccessible::updateAccessibility( this, 0, QAccessible::ValueChanged );
 #endif
 	setValue( maxValue() );
 	break;
@@ -969,16 +969,6 @@ void QScrollBar::setValue( int i )
 {
     QRangeControl::setValue( i );
 }
-
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-/*!
-  \reimp
-*/
-QAccessibleInterface *QScrollBar::accessibleInterface()
-{
-    return new QAccessibleRangeControl( this, QAccessible::ScrollBar );
-}
-#endif
 
 #undef ADD_LINE_ACTIVE
 #undef SUB_LINE_ACTIVE

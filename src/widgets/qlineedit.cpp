@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#391 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#392 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -53,7 +53,7 @@
 #include "../kernel/qrichtext_p.h"
 #include "../kernel/qinternal_p.h"
 #if defined(QT_ACCESSIBILITY_SUPPORT)
-#include "qaccessiblewidget.h"
+#include "qaccessible.h"
 #endif
 
 struct UndoRedoInfo {
@@ -339,7 +339,7 @@ void QLineEdit::setText( const QString &text )
     if ( oldText != text ) {
 	emit textChanged( text );
 #if defined(QT_ACCESSIBILITY_SUPPORT)
-	emit accessibilityChanged( QAccessible::ValueChanged );
+	QAccessible::updateAccessibility( this, 0, QAccessible::ValueChanged );
 #endif
     }
 }
@@ -774,14 +774,14 @@ void QLineEdit::drawContents( QPainter *painter )
     painter->translate( marg, 0 );
     updateOffset();
     const QColorGroup & g = colorGroup();
-    
+
     // always double buffer when we have focus, and keep the pixmap
     // around until we loose focus again. If we do not have focus,
     // only use the standard shared buffer.
-    
+
     if ( hasFocus() && !QLineEditPrivate::pm && !QSharedDoubleBuffer::getRawPixmap( width(), height() ) )
 	QLineEditPrivate::pm = new QPixmap; // create special while-we-have-focus buffer. Deleted in focusOutEvent
-    
+
     QSharedDoubleBuffer buffer( !hasFocus(), FALSE, QLineEditPrivate::pm );
     buffer.begin( painter, rect() );
     buffer.painter()->setPen( colorGroup().text() );
@@ -819,7 +819,7 @@ void QLineEdit::drawContents( QPainter *painter )
 	parag->paint( *buffer.painter(), colorGroup(), d->cursorOn && !d->readonly ? cursor : 0, TRUE );
 
     buffer.end();
-    
+
     if ( d->mode == Password ) {
 	delete parag;
 	delete cursor;
@@ -1190,7 +1190,7 @@ void QLineEdit::backspace()
     update();
     emit textChanged( text() );
 #if defined(QT_ACCESSIBILITY_SUPPORT)
-    emit accessibilityChanged( QAccessible::ValueChanged );
+    QAccessible::updateAccessibility( this, 0, QAccessible::ValueChanged );
 #endif
 }
 
@@ -1219,7 +1219,7 @@ void QLineEdit::del()
     setMicroFocusHint( d->cursor->x() - d->offset, d->cursor->y(), 0, d->cursor->parag()->rect().height(), TRUE );
     emit textChanged( text() );
 #if defined(QT_ACCESSIBILITY_SUPPORT)
-    emit accessibilityChanged( QAccessible::ValueChanged );
+    QAccessible::updateAccessibility( this, 0, QAccessible::ValueChanged );
 #endif
 }
 
@@ -1665,7 +1665,7 @@ void QLineEdit::insert( const QString &newText )
 	d->cursor->insert( t, FALSE );
 	emit textChanged( text() );
 #if defined(QT_ACCESSIBILITY_SUPPORT)
-	emit accessibilityChanged( QAccessible::ValueChanged );
+	QAccessible::updateAccessibility( this, 0, QAccessible::ValueChanged );
 #endif
     } else {
 	QString text = d->parag->string()->toString();
@@ -2015,12 +2015,20 @@ void QLineEdit::windowActivationChange( bool )
 	update();
 }
 
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-/*! \reimp */
-QAccessibleInterface *QLineEdit::accessibleInterface()
+/*! Returns the index of the character which is at \a xpos (in logical
+  coordinates from the left). If \a chr is not 0, chr becomes the
+  character at this position.
+*/
+
+int QLineEdit::characterAt( int xpos, QChar *chr ) const
 {
-    return new QAccessibleText( this, QAccessible::Text );
+    QTextCursor c;
+    c.setParag( d->parag );
+    c.setIndex( 0 );
+    c.place( QPoint( xpos, 0 ), c.parag() );
+    if ( chr )
+	*chr = c.parag()->at( c.index() )->c;
+    return c.index();
 }
-#endif
 
 #endif

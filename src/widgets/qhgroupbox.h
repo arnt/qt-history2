@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qhgroupbox.h#13 $
+** $Id: //depot/qt/main/src/widgets/qhgroupbox.h#14 $
 **
 ** Definition of QHGroupBox widget class
 **

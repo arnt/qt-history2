@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/doc/porting3.doc#1 $
+** $Id: $
 **
 ** Help with porting from Qt 2.x to Qt 3.x
 **
@@ -40,67 +40,65 @@
 You're probably looking at this page because you want to port
 your application from Qt 2.x to Qt 3.x, but to be sure, let's
 review the good reasons to do this:
-<ul>
- <li>###
-</ul>
+\list
+\i ###
+\endlist
 
-The Qt 3.x series is not binary compatible with the 2.x series.
-This means programs compiled for Qt 2.x must be recompiled to work
-with Qt 3.x.  Qt 3.x is also not completely \e source compatible
-with 2.x, however all points of incompatibility cause
-compiler errors (rather than mysterious results), or produce run-time
-messages.  The result is that Qt 3.x includes many additional features,
-discards obsolete functionality that is easily converted to use the new
-features, and that porting an application from Qt 2.x to Qt 3.x is
-a simple task well worth the amount of effort required.
+The Qt 3.x series is not binary compatible with the 2.x series. This
+means programs compiled for Qt 2.x must be recompiled to work with Qt
+3.x.  Qt 3.x is also not completely \e source compatible with 2.x,
+however all points of incompatibility cause compiler errors or
+run-time messages (rather than mysterious results).  The result is
+that Qt 3.x includes many additional features, discards obsolete
+functionality that is easily converted to use the new features, and
+that porting an application from Qt 2.x to Qt 3.x is a simple task
+well worth the amount of effort required.
 
 
 To port code using Qt 2.x to use Qt 3.x:
 
-<ol>
- <li> Briefly read the porting notes below to get an idea of what to expect.
- <li> Be sure your code compiles and runs well on all your target platforms
-        with Qt 2.x.
- <li> Recompile with Qt 3.x.  For each error, search below for related
-	identifiers (eg. function names, class names) - this documented is
-	structured to mention all relevant identifiers to facilitate such
-	searching, even if that makes it a little verbose.
- <li> If you get stuck, ask on the qt-interest mailing list, or
-	Trolltech Technical Support if you're a Professional Edition
-	licensee.
-</ol>
-
+\list 1
+\i Briefly read the porting notes below to get an idea of what to expect.
+\i Be sure your code compiles and runs well on all your target platforms
+   with Qt 2.x.
+\i Recompile with Qt 3.x.  For each error, search below for related
+   identifiers (eg. function names, class names) - this documented is
+   structured to mention all relevant identifiers to facilitate such
+   searching, even if that makes it a little verbose.
+\i If you get stuck, ask on the \link http://qt-interest.trolltech.com/
+   qt-interest \endlink mailing list, or Trolltech Technical Support if
+   you're a Professional Edition licensee.
+\endlist
 
 Many very major projects, such as ###
 have been ported, so there is plenty of expertise in the collective conscious
 that is the Qt Developer Community!
-</p>
-
 
 <hr>
 
 \section1 The Porting Notes
 
-<ul>
- <li><b>\link #Headers Header file inclusion changes \endlink</b>
- <li><b>\link #Namespace Namespace \endlink</b>
- <li><b>\link #Removed Removed functions \endlink</b>
- <li><b>\link #Collections Collection class renaming \endlink</b>
- <li><b>\link #QDate QDate \endlink</b> 
- <li><b>\link #QFont QFont \endlink</b>
- <li><b>\link #QMultiLineEdit QMultiLineEdit \endlink</b>
- <li><b>\link #QPrinter QPrinter \endlink</b>
- <li><b>\link #QRegExp QRegExp \endlink</b>
- <li><b>\link #QTableView QTableView \endlink</b>
- <li><b>\link #QToolButton QToolButton \endlink</b>
- <li><b>\link #QTranslator QTranslator \endlink</b>
- <li><b>\link #QXml QXml classes \endlink</b>
- <li><b>\link #Bezier Bezier Curves \endlink</b>
-</ul>
+\list
+\i \link #Headers Header file inclusion changes \endlink
+\i \link #Namespace Namespace \endlink
+\i \link #Removed Removed functions \endlink
+\i \link #Collections Collection class renaming \endlink
+\i \link #QDate QDate \endlink 
+\i \link #QFont QFont \endlink
+\i \link #QMultiLineEdit QMultiLineEdit \endlink
+\i \link #QPrinter QPrinter \endlink
+\i \link #QRegExp QRegExp \endlink
+\i \link #QTableView QTableView \endlink
+\i \link #QToolButton QToolButton \endlink
+\i \link #QTranslator QTranslator \endlink
+\i \link #QXml QXml classes \endlink
+\i \link #Bezier Bezier curves \endlink
+\i \link #Compare Locale-aware string comparisons in item classes \endlink
+\endlist
 
 <hr>
 
-<a name="Headers"></a>
+\target Headers
 \section2 Header file inclusion changes
 
 Qt 3.x remove some unnecessary nested #include directives from
@@ -113,22 +111,19 @@ not being defined, then add \c {#include <qstringlist.h>} at
 the top of the file giving the error.
 
 Header files that you might need to add #include directives for include:
-<ul>
-    <li>\c <qcursor.h>
-    <li>\c <qregexp.h>
-    <li>\c <qpainter.h>
-    <li>\c <qstringlist.h>
-    <li>\c <qstrlist.h>
-    <li>\c <qvaluelist.h>
-    <li>\c <qfile.h>
-    <li>\c <qtimer.h>
-    <li>\c <qdir.h>
-</ul>
+\list
+\i \c <qcursor.h>
+\i \c <qregexp.h>
+\i \c <qpainter.h>
+\i \c <qstringlist.h>
+\i \c <qstrlist.h>
+\i \c <qvaluelist.h>
+\endlist
 
-<a name="Namespace"></a>
+\target Namespace
 \section2 Namespace
 
-Qt 3.x is namespace-clean.  A few global identifiers that had been
+Qt 3.x is namespace clean.  A few global identifiers that had been
 left in Qt 2.x have been discarded.
 
 Enumeration \l Qt::CursorShape and it values are now part of the
@@ -136,90 +131,89 @@ special \c Qt class defined in qnamespace.h. If you get compilation
 errors about these being missing (unlikely, since most of your code will
 be in classes that inherit from the Qt namespace class), then change:
 
-<ul>
-    <li>\c QCursorShape becomes \c Qt::CursorShape
-    <li>\c ArrowCursor becomes \c Qt::ArrowCursor
-    <li>\c UpArrowCursor becomes \c Qt::UpArrowCursor
-    <li>\c CrossCursor becomes \c Qt::CrossCursor
-    <li>\c WaitCursor becomes \c Qt::WaitCursor
-    <li>\c IbeamCursor becomes \c Qt::IbeamCursor
-    <li>\c SizeVerCursor becomes \c Qt::SizeVerCursor
-    <li>\c SizeHorCursor becomes \c Qt::SizeHorCursor
-    <li>\c SizeBDiagCursor becomes \c Qt::SizeBDiagCursor
-    <li>\c SizeFDiagCursor becomes \c Qt::SizeFDiagCursor
-    <li>\c SizeAllCursor becomes \c Qt::SizeAllCursor
-    <li>\c BlankCursor becomes \c Qt::BlankCursor
-    <li>\c SplitVCursor becomes \c Qt::SplitVCursor
-    <li>\c SplitHCursor becomes \c Qt::SplitHCursor
-    <li>\c PointingHandCursor becomes \c Qt::PointingHandCursor
-    <li>\c BitmapCursor becomes \c Qt::BitmapCursor
-</ul>
+\list
+\i \c QCursorShape becomes \c Qt::CursorShape
+\i \c ArrowCursor becomes \c Qt::ArrowCursor
+\i \c UpArrowCursor becomes \c Qt::UpArrowCursor
+\i \c CrossCursor becomes \c Qt::CrossCursor
+\i \c WaitCursor becomes \c Qt::WaitCursor
+\i \c IbeamCursor becomes \c Qt::IbeamCursor
+\i \c SizeVerCursor becomes \c Qt::SizeVerCursor
+\i \c SizeHorCursor becomes \c Qt::SizeHorCursor
+\i \c SizeBDiagCursor becomes \c Qt::SizeBDiagCursor
+\i \c SizeFDiagCursor becomes \c Qt::SizeFDiagCursor
+\i \c SizeAllCursor becomes \c Qt::SizeAllCursor
+\i \c BlankCursor becomes \c Qt::BlankCursor
+\i \c SplitVCursor becomes \c Qt::SplitVCursor
+\i \c SplitHCursor becomes \c Qt::SplitHCursor
+\i \c PointingHandCursor becomes \c Qt::PointingHandCursor
+\i \c BitmapCursor becomes \c Qt::BitmapCursor
+\endlist
 
 The name of some debugging macro variables has been changed.  We have
 tried not to break source compatibility as much as possible.  If you observe
 error messages on the UNIX console or the Windows debugging stream that were
 previously disabled, please check these macro variables:
 
-<ul>
-    <li>\c DEBUG becomes \c QT_DEBUG
-    <li>\c NO_DEBUG becomes \c QT_NO_DEBUG
-    <li>\c NO_CHECK becomes \c QT_NO_CHECK
-    <li>\c CHECK_STATE becomes \c QT_CHECK_STATE
-    <li>\c CHECK_RANGE becomes \c QT_CHECK_RANGE
-    <li>\c CHECK_NULL becomes \c QT_CHECK_NULL
-    <li>\c CHECK_MATH becomes \c QT_CHECK_MATH
-</ul>
+\list
+\i \c DEBUG becomes \c QT_DEBUG
+\i \c NO_DEBUG becomes \c QT_NO_DEBUG
+\i \c NO_CHECK becomes \c QT_NO_CHECK
+\i \c CHECK_STATE becomes \c QT_CHECK_STATE
+\i \c CHECK_RANGE becomes \c QT_CHECK_RANGE
+\i \c CHECK_NULL becomes \c QT_CHECK_NULL
+\i \c CHECK_MATH becomes \c QT_CHECK_MATH
+\endlist
 
 The name of some debugging macro functions has been changed as well
 but source compatibility should not be affected if the macro variable
 \c QT_CLEAN_NAMESPACE is not defined:
 
-<ul>
-    <li>\c ASSERT becomes \c Q_ASSERT
-    <li>\c CHECK_PTR becomes \c Q_CHECK_PTR
-</ul>
+\list
+\i \c ASSERT becomes \c Q_ASSERT
+\i \c CHECK_PTR becomes \c Q_CHECK_PTR
+\endlist
 
 For the record, undocumented macro variables that are not part of the API
 have been changed:
 
-<ul>
-    <li>\c _OS_*_ becomes \c Q_OS_*
-    <li>\c _WS_*_ becomes \c Q_WS_*
-    <li>\c _CC_*_ becomes \c Q_CC_*
-</ul>
+\list
+\i \c _OS_*_ becomes \c Q_OS_*
+\i \c _WS_*_ becomes \c Q_WS_*
+\i \c _CC_*_ becomes \c Q_CC_*
+\endlist
 
-<a name="Removed"></a>
+\target Removed
 \section2 Removed functions
 
 All these functions have been removed in Qt 3.x:
-<ul>
-    <li>QWidget::setFontPropagation, QWidget::setPalettePropagation
-    <li>QMenuBar::setActItem, QMenuBar::setWindowsAltMode
-    <li>QCheckListItem::paintBranches
-    <li>QString::visual, QString::basicDirection
-    <li>QStyle::set...
+\list
+\i QWidget::setFontPropagation, QWidget::setPalettePropagation
+\i QMenuBar::setActItem, QMenuBar::setWindowsAltMode
+\i QCheckListItem::paintBranches
+\i QString::visual, QString::basicDirection
+\i QStyle::set...
     ### keep in sync with dist/changes-3.0
-</ul>
+\endlist
 
 Additionally, the following preprocessor directives have been removed:
 
-<ul>
-   <li>\c {#define strlen qstrlen}
-   <li>\c {#define strcpy qstrcpy}
-   <li>\c {#define strcmp qstrcmp}
-   <li>\c {#define strncmp qstrncmp}
-   <li>\c {#define stricmp qstricmp}
-   <li>\c {#define strnicmp qstrnicmp}
-</ul>
+\list
+\i \c {#define strlen qstrlen}
+\i \c {#define strcpy qstrcpy}
+\i \c {#define strcmp qstrcmp}
+\i \c {#define strncmp qstrncmp}
+\i \c {#define stricmp qstricmp}
+\i \c {#define strnicmp qstrnicmp}
+\endlist
 
-See the changes-3.0 document for motivation why this had to be done.
+See the changes-3.0.0 document for motivation why this had to be done.
 You might have been relying on the non-portable and unpredictable behavior
 resulting from these directives. We strongly recommend to either make
 use of the safe qstr* variants directly or ensure that no 0 pointer is
-passed to the standard C functions in your current and future code
-base.
+passed to the standard C functions in your code base.
 
-<a name="Collections"></a>
+\target Collections
 \section2 Collection class renaming
 
 The classes QArray, QCollection, QList, QListIterator, QQueue, QStack
@@ -230,17 +224,17 @@ header files \c <qmemarray.h>, \c <qptrcollection.h>, \c <qptrlist.h>,
 ease porting, the old names and the old header-file names are still
 supported.
 
-<a name="QDate"></a>
+\target QDate
 \section2 QDate
 
 Two member functions of QDate were virtual in Qt 2.0 and are not anymore
 in Qt 3.0. The information here is relevant only if you subclassed
 QDate and reimplemented these functions:
 
-<dl>
-<p><dt><b>QString QDate::monthName( int month ) const</b></dt>
-<p><dt><b>QString QDate::dayName( int weekday ) const</b></dt>
-</dl>
+\list
+\i QString QDate::monthName( int month ) const
+\i QString QDate::dayName( int weekday ) const
+\endlist
 
 Apart from losing their virtualness, QDate::monthName() and
 QDate::dayName() have been renamed QDate::shortMonthName() and
@@ -248,20 +242,24 @@ QDate::shortDayName() and have been made static (as they always
 should had been). The old names are still provided for source
 compatibility.
 
-<a name="QFont"></a>
+\target QFont
 \section2 QFont
 
-The internals of QFont have changed significantly between Qt 2.2 and Qt 3.0, to give better 
-Unicode support and make developing internationalized applications easier. The external 
-behaviour has however not changed a lot. The main change is that the CharSet enum in QFont 
-and functions related to it have disappeared. This comes about because Qt does now
-handle all charset related issues internally, and takes this burden away from the developer.
+The internals of QFont have changed significantly between Qt 2.2 and
+Qt 3.0, to give better  Unicode support and make developing
+internationalized applications easier. The external  behaviour has
+however not changed a lot. The main change is that the CharSet enum
+in QFont  and functions related to it have disappeared. This comes
+about because Qt does now handle all charset related issues
+internally, and takes this burden away from the developer.
 
-If you used the CharSet enum anywhere or any functions as QFont::charSet(), QFont::setCharSet() 
-just remove them from your code to get things working again. There are a few other functions that 
-took a QFont::CharSet as parameter. Just remove the charset from the parameterlist.
+If you used the CharSet enum anywhere or any functions as
+QFont::charSet(), QFont::setCharSet()  just remove them from your
+code to get things working again. There are a few other functions
+that  took a QFont::CharSet as parameter. Just remove the charset
+from the parameterlist.
 
-<a name="QMultiLineEdit"></a>
+\target QMultiLineEdit
 \section2 QMultiLineEdit
 
 The QMultiLineEdit was a simple editor widget in former Qt
@@ -296,7 +294,7 @@ need to keep compatibility with the old QMultiLineEdit, simply include
 this class in your project and rename all references from
 QMultiLineEdit to QtMultiLineEdit.
 
-<a name="QPrinter"></a>
+\target QPrinter
 \section2 QPrinter
 
 QPrinter has undergone some changes, to make it more flexible and
@@ -312,7 +310,7 @@ On X11, QPrinter used to generate encapsulated postscript when
 fullPage() was TRUE and only one page was printed. This does not
 happen by default anymore, giving a more consistent printing output.
 
-<a name="QRegExp"></a>
+\target QRegExp
 \section2 QRegExp
 
 The \l QRegExp class has been rewritten to support most of the features of Perl
@@ -325,15 +323,15 @@ automatically when you include \c <qstringlist.h>. See
 include qstringlist.h, so it's no good to have qstringlist.h include qregexp.h,
 unless one wants to achieve an Escher effect. -->
 
-<dl>
-<p><dt><b>New special characters</b></dt>
-<dd> There are five new special characters: <tt>(</tt>, <tt>)</tt>, <tt>{</tt>,
-<tt>|</tt> and <tt>}</tt> (parentheses, braces and pipe).  When porting old
+\section3 New special characters
+
+There are five new special characters: <tt>(</tt>, <tt>)</tt>, <tt>{</tt>,
+<tt>|</tt> and <tt>}</tt> (parentheses, braces and pipe). When porting old
 regular expressions, you have to add <tt>&#92;</tt> (backslash) in front of any
 of these (actually, <tt>&#92;&#92;</tt> in C++ strings), unless it is already
 there.
 
-Example:  Old code like
+Example: Old code like
 
 \code
     QRegExp rx( "([0-9|]*\\)" );        // works in Qt 2.x
@@ -367,10 +365,9 @@ it is subtle: as first argument to \l QString::replace().  Code like
 
 involves an implicit QRegExp (namely, \c "([^)]*)") that should be
 changed.
-</dd>
 
-<p><dt><b>QRegExp& QRegExp::operator= ( const QString & pattern )</b></dt>
-<dd>
+\section3 QRegExp& QRegExp::operator= ( const QString & pattern )
+
 This function has been replaced by \l QRegExp::setPattern() in Qt 2.2.  Old code
 such as
 
@@ -394,24 +391,20 @@ is the same as
 
 which is what one expects.
 
-</dd>
+\section3 bool QRegExp::match( const QString & str, int index = 0,
+    int * len = 0, bool indexIsStart = TRUE ) const
 
-<p><dt><b>bool QRegExp::match( const QString & str, int index = 0,
-    int * len = 0, bool indexIsStart = TRUE ) const</b></dt>
-<dd>
 This function is now obsolete, as it has an unwieldy parameter list
 and a bad name.  It will be removed in a future version of Qt.
 Its documentation explains how to accomplish the same.
-</dd>
 
-<p><dt><b>int QRegExp::find( const QString & str, int index )</b></dt>
-<dd>
-This function was removed, after a brief appearance in Qt 2.2.  Its name is
-confusing.  Use \l QRegExp::search() or \l QString::find() instead.
-</dd>
-</dl>
 
-<a name="QTableView"></a>
+\section3 int QRegExp::find( const QString & str, int index )
+
+This function was removed, after a brief appearance in Qt 2.2.  Its name was
+too confusing.  Use \l QRegExp::search() or \l QString::find() instead.
+
+\target QTableView
 \section2 QTableView
 
 The QTableView class has been obsoleted and is no longer a part of the
@@ -422,7 +415,7 @@ renamed from QTableView to QtTableView to avoid name clashes. To
 use it, simply include it in your project and rename all references in
 your code from QTableView to QtTableView.
 
-<a name="QToolButton"></a>
+\target QToolButton
 \section2 QToolButton
 
 The \l QToolButton class used to distinguish between "on" and "off"
@@ -437,33 +430,31 @@ need to adjust your code to use the QIconSet On/Off mechanism.
 
 Likewise, the \e on parameter of these two functions is now ignored:
 
-<ul>
-<li>void QToolButton::setIconSet ( const QIconSet & set, bool on )</li>
-<li>QIconSet QToolButton::iconSet ( bool on ) const</li>
-</dl>
+\list
+\i void QToolButton::setIconSet ( const QIconSet & set, bool on )</li>
+\i QIconSet QToolButton::iconSet ( bool on ) const</li>
+\endlist
 
 These functions are still provided only for ease of porting. New code
 should rather use the following:
 
-<ul>
-<li>void QToolButton::setIconSet( const QIconSet & set )</li>
-<li>QIconSet QToolButton::iconSet() const</li>
-</dl>
+\list
+\i void QToolButton::setIconSet( const QIconSet & set )</li>
+\i QIconSet QToolButton::iconSet() const</li>
+\endlist
 
 Finally, this function is no longer virtual:
 
-<dl>
-<p><dt><b>void QToolButton::setIconSet( const QIconSet & set,
-					bool on )</b></dt>
-<dd>
+\list
+\i void QToolButton::setIconSet( const QIconSet & set, bool on )
+\endlist
+
 If you have a class that inherits QToolButton and that reimplements
 QToolButton::setIconSet(), you should make the signature of the
 reimplementation agree with the new \l QToolButton::setIconSet(),
 a virtual function.
-</dd>
-</dl>
 
-<a name="QTranslator"></a>
+\target QTranslator
 \section2 QTranslator
 
 The \l QTranslator class was extended in Qt 2.2, and these extensions lead to a
@@ -474,19 +465,18 @@ documentation points out which functions are obsolete.
 
 However, the following function is no longer virtual:
 
-<dl>
-<p><dt><b>QString QTranslator::find( const char * context,
-    const char * sourceText ) const</b></dt>
-<dd>
+\list
+\i QString QTranslator::find( const char * context,
+			      const char * sourceText ) const
+\endlist
+
 If you have a class that inherits QTranslator and that reimplements
 QTranslator::find(), you should reimplement QTranslator::findMessage() instead.
 In fact, find() is now defined in terms of findMessage().  By doing the
 conversion, you will also gain support for translator comments and for any
 future extension.
-</dd>
-</dl>
 
-<a name="QXml"></a>
+\target QXml
 \section2 QXml classes
 
 The semantics of QXmlInputSource has slightly changed. This change affects
@@ -515,24 +505,39 @@ Has to be changed to:
     reader.parse( source );
 \endcode
 
-<a name="Bezier"></a>
-\section2 Bezier Curves
+\target Bezier
+\section2 Bezier curves
 
-The function names for Bezier curves in \c QPainter and
-\c QPointArray have been corrected. They now properly reflect their
-cubic form instead of a quadratic one. If you have been using either
-\c QPainter::drawQuadBezier() or
-\c QPointArray::quadBezier() you will have to replace these calls
-with
-<ul>
- <li>void QPainter::drawCubicBezier( const QPointArray &, int index=0 ) and
- <li>QPointArray QPointArray::cubicBezier() const
-</ul>
+The function names for Bezier curves in QPainter and QPointArray have
+been corrected. They now properly reflect their cubic form instead of
+a quadratic one. If you have been using either
+QPainter::drawQuadBezier() or QPointArray::quadBezier() you will have
+to replace these calls with
+\list
+\i void QPainter::drawCubicBezier( const QPointArray &, int index=0 ) and
+\i QPointArray QPointArray::cubicBezier() const
+\endlist
 respectively. Neither the arguments nor the resulting curve have changed.
+
+\target Compare
+\section2 Locale-aware string comparisons in item classes (QIconView, QListBox,
+	  QListView and QTable)
+
+In Qt 2.x, QString provided only string comparison using the Unicode
+values of the characters of a string. This is efficient and reliable,
+but it is not the appropriate order for most languages. For example,
+French users expect '&eacute;' (e acute) to be treated essentially as
+'e' and not put after 'z'.
+
+In Qt 3.0, QString::localeAwareCompare() implements that on some
+platforms. The classes \l QIconView, \l QListBox, \l QListView and \l
+QTable now use QString::localeAwareCompare() instead of
+QString::compare(). The impact of this is usually positive.
+Otherwise, you can always reimplement QIconViewItem::compare(),
+QListBox::text(), QListViewItem::compare() or QTableItem::key().
+
+*/
 
 // I split this to work around limitations in perl's regexp parser. --Arnt
 
 // warwick can regenerate this with his qt-2-report
-
-*/
-

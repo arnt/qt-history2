@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdialog.h#65 $
+** $Id: //depot/qt/main/src/kernel/qdialog.h#66 $
 **
 ** Definition of QDialog class
 **
@@ -102,10 +102,6 @@ protected:
     void	resizeEvent( QResizeEvent * );
     void 	contextMenuEvent( QContextMenuEvent * );
     bool 	eventFilter( QObject *, QEvent * );
-
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-    QAccessibleInterface *accessibleInterface();
-#endif
 
 private:
     void	setDefault( QPushButton * );

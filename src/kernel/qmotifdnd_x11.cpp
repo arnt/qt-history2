@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmotifdnd_x11.cpp#22 $
+** $Id: //depot/qt/main/src/kernel/qmotifdnd_x11.cpp#23 $
 **
 ** Implementation of Motif Dynamic Drag and Drop class
 **
@@ -73,6 +73,8 @@ in doc/dnd.doc, where the documentation system can see it. */
 #include "qapplication.h"
 #include "qwidget.h"
 #include "qt_x11.h"
+
+#include <stdlib.h>
 
 
 static Atom atom_message_type, atom_receiver_info, atom_src_property_type;

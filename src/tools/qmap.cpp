@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qmap.cpp#13 $
+** $Id: //depot/qt/main/src/tools/qmap.cpp#14 $
 **
 ** Implementation of QMap
 **

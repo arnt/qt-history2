@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#117 $
+** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#118 $
 **
 ** Implementation of QLCDNumber class
 **
@@ -39,9 +39,6 @@
 #ifndef QT_NO_LCDNUMBER
 #include "qbitarray.h"
 #include "qpainter.h"
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-#include "qaccessiblewidget.h"
-#endif
 
 
 // NOT REVISED
@@ -1127,13 +1124,5 @@ QSize QLCDNumber::sizeHint() const
 {
     return QSize( 10 + 9 * (numDigits() + (smallDecimalPoint() ? 0 : 1)), 23 );
 }
-
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-/*! \reimp */
-QAccessibleInterface *QLCDNumber::accessibleInterface()
-{
-    return new QAccessibleDisplay( this, QAccessible::StaticText );
-}
-#endif
 
 #endif // QT_NO_LCDNUMBER

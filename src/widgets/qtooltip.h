@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.h#50 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.h#51 $
 **
 ** Definition of Tool Tips (or Balloon Help) for any widget or rectangle
 **
@@ -96,6 +96,8 @@ public:
     static void add( QWidget *, const QRect &, const QString &,
 		     QToolTipGroup *, const QString& );
     static void remove( QWidget *, const QRect & );
+
+    static QString textFor( QWidget *, const QPoint & pos = QPoint() );
 
     static void hide();
 

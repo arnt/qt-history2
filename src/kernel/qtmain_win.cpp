@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtmain_win.cpp#20 $
+** $Id: //depot/qt/main/src/kernel/qtmain_win.cpp#21 $
 **
 ** Implementation of Win32 startup routines.
 **

@@ -90,14 +90,16 @@ static const char *libpath_text =
 "searches in the directory where you installed Qt for component plugins. "
 "Removing that path is not possible.</p>";
 
-static const char *fontpath_text =
-"<p><b><font size+=2>Font Paths</font></b></p>"
+static const char *printer_text =
+"<p><b><font size+=2>Printer</font></b></p>"
 "<hr>"
-"<p>Here you can select additional directories where Qt should search "
-"for TrueType font files.  By default, the X server font path is used, "
-"so adding those directories is not needed.</p>"
-"<p>These directories will be used by the PostScript generator when it "
-"needs to download a font to the printer.</p>";
+"<p>Here you can configure the way Qt generates output for the printer."
+"You can specify if Qt should try to embed fonts into it's generated output."
+"The resulting postscript is more portable and reflects more accurately the"
+"visual output on the screen, but the size of the resulting output will be bigger."
+"<p>When using font embedding you can select additional directories where"
+"Qt should search for embeddable font files.  By default, the X server font path is used, "
+"so adding those directories is not needed.</p>";
 
 static const char *about_text =
 "<p><b><font size+=4>About Qt Configuration</font></b><br>"
@@ -287,6 +289,7 @@ MainWindow::MainWindow()
 #endif
 
     QSettings settings;
+    fontembeddingcheckbox->setChecked( settings.readBoolEntry("/qt/embedFonts", TRUE) );
     fontpaths = settings.readListEntry("/qt/fontPath");
     fontpathlistbox->insertStringList(fontpaths);
 
@@ -333,6 +336,7 @@ void MainWindow::fileSave()
 	settings.writeEntry("/qt/Palette/disabled", discg);
 	settings.writeEntry("/qt/libraryPath", QApplication::libraryPaths(), ':');
 	settings.writeEntry("/qt/fontPath", fontpaths, ':');
+	settings.writeEntry("/qt/embedFonts", fontembeddingcheckbox->isChecked() );
 	settings.writeEntry("/qt/style", gstylecombo->currentText());
 	settings.writeEntry("/qt/useXft", xftcheckbox->isChecked());
 	settings.writeEntry("/qt/doubleClickInterval",
@@ -932,7 +936,7 @@ void MainWindow::pageChanged(QWidget *page)
     else if (page == tab_4)
 	helpview->setText(tr(libpath_text));
     else if (page == tab_5)
-	helpview->setText(tr(fontpath_text));
+	helpview->setText(tr(printer_text));
 }
 
 

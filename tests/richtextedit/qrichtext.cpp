@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qrichtext.cpp#27 $
+** $Id: $
 **
 ** Implementation of the Qt classes dealing with rich text
 **

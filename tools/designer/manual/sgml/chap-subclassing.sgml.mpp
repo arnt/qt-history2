@@ -18,7 +18,7 @@ change more often than the underlying application logic.
 <title>Subclassing</title>
 <!--
 <sidebar id="subclassingvscodinginqtdesigner">
-<title>Subclassing vs Coding in Qt Designer</title>
+<title>Subclassing vs Coding in \qd</title>
 <para id="amvl">
 Adding slots directly in \qd is a useful technique suitable for most
 situations. But in some cases we want to use our own constructor or
@@ -44,7 +44,7 @@ follow with a short example.
 </para>
 
 <sect2 id="turningdesignersuifilesintosourcecode">
-<title>Generating Source Code from Qt Designer .ui Files</title>
+<title>Generating Source Code from \qd .ui Files</title>
 <para id="amwl">
 \qd reads and writes \cmd[qmake] \f[.pro] (project)
 files which are used to record the files used to build the application
@@ -60,6 +60,8 @@ compiler into a working application.
 
 <para id="amwy">
 \x[Makefiles]
+\x[Projects|Adding Files]
+\x[Adding|Files to Projects]
 If you create applications wholly within \qd you only need to create a
 \f[main.cpp] and add 
 <programlisting>
@@ -98,7 +100,7 @@ implementation files to the \f[.pro] file.
 <title>Subclassing a Form </title>
 
 <para id="amyg">
-\[Subclassing]
+\x[Subclassing]
 When subclassing a form it is helpful to use a naming convention 
 to help us identify which files are generated from \qd's
 \f[.ui] files and which are hand coded. 
@@ -164,6 +166,7 @@ slots, then we'll create the subclass and a simple
 <title>Designing the Form </title>
 
 <para id="anaq">
+\x[Projects|Creating New]
 We'll begin by creating a new project.
 Click \menu[File|New Project] to invoke the \dlg[Project Settings]
 dialog, and type in a project
@@ -192,9 +195,11 @@ We'll now add some radio buttons. <emphasis>Double</emphasis> click the
 \toolbutton[Radio Button] toolbar button. Click towards the
 top of the Credit Rating button group and a radio button will appear.
 Click below this button, to create a second radio button, then click
-below the second button to create a third. Click the
-\toolbutton[Pointer] (arrow) toolbar button to stop clicking
-the form from adding any more radio buttons. 
+below the second button to create a third. Now we will switch off the
+effect of the \i[double] click by clicking the
+\toolbutton[Pointer] (arrow) toolbar button. The pointer will now
+behave normally, i.e. clicking the form will no longer create
+more radio buttons. 
 Change the first radio button's \prop[name] to
 'stdRadioButton' and its text to '&amp;Standard'. Change its \prop[checked]
 property to True. Change the second
@@ -227,7 +232,7 @@ a second button to the right of the first. Change the second button's
 </para>
 
 <para id="ancz">
-We'll lay out the widgets and connect up the slots we need.
+We'll now lay out the widgets and connect up the slots we need.
 <orderedlist numeration="arabic">
 <listitem>
 <para id="andd">
@@ -313,8 +318,8 @@ which radio button is checked. Save the form as 'creditformbase.ui' (press
 <sect3 id="creatingthetestharness">
 <title>Creating the Test Harness </title>
 <para id="angi">
-\x[Forms|Creating a test harness]
-\x[Creating a test harness, Forms]
+\x[Forms|Creating Test Harnesses]
+\x[Creating Test Harnesses for Forms]
 \x[Subclassing]
 Although we intend our dialog to be used within an application it is
 useful to create a test harness so that we can develop and test it
@@ -341,6 +346,8 @@ we've written our subclass we'll replace the header with our subclass,
 \fe[creditform.h], and instantiate a CreditForm.
 </para>
 <para id="anhh">
+\x[Projects|Adding Files]
+\x[Adding|Files to Projects]
 Add \f[main.cpp] to the \f[credit.pro]
 project file by adding the following line at the end:
 <programlisting>
@@ -358,17 +365,19 @@ The form should run fine, but doesn't yet have the behaviour we require.
 <para id="anhw">
 We need to create a header and an implementation file for our subclass.
 The code for our subclass is minimal. The header file is
-\fe[qt/tools/designer/eg/credit/creditform.h]:
+\fe[qt/tools/designer/examples/credit/creditform.h]:
 <programlisting>
 \scan eg/credit/creditform.h
 </programlisting>
+\x[Macros|Q_OBJECT]
+\x[Q_OBJECT]
 We've declared the slot, \fse[setAmount()],
 that we created in \qd. The <literal>Q_OBJECT</literal> macro is
 included because it is essential for classes that use signals and slots.
 </para>
 <para id="anih">
 The implementation in 
-\fe[qt/tools/designer/eg/credit/creditform.cpp] is
+\fe[qt/tools/designer/examples/credit/creditform.cpp] is
 simple:
 <programlisting>
 \scan eg/credit/creditform.cpp
@@ -418,6 +427,7 @@ subclassing forms in Qt: it is easy to do.
 <para id="ankb">
 \x[Dynamic Dialogs]
 \x[Dialogs|Dynamic]
+\x[Code Editing|Not in Dynamic Dialogs]
 Qt programs are capable of
 loading \qd \f[.ui] files and instantiating the forms
 represented by the \f[.ui] files. Since the
@@ -442,19 +452,21 @@ harness, and manually create a project file.
 <title>Creating the Project File </title>
 
 <para id="ankz">
-\x[Project Files|Examples]
 The project file
-\fe[qt/tools/designer/eg/receiver1/receiver.pro] looks like
+\fe[qt/tools/designer/examples/receiver1/receiver.pro] looks like
 this:
 <programlisting>
 TEMPLATE    = app
-CONFIG      = qt warn_on release
+CONFIG     += qt warn_on release
 TARGET      = receiver
 SOURCES    += main.cpp
-unix:LIBS  += -lqresource
-win32:LIBS += $(QTDIR)/lib/qresource.lib
+unix:LIBS  += -lqui
+win32:LIBS += $(QTDIR)/lib/qui.lib
 INTERFACES  = mainform.ui 
+IMAGEFILE   = images.cpp
 PROJECTNAME = receiver
+LANGUAGE    = C++
+INCLUDEPATH += $(QTDIR)/tools/designer/uilib
 </programlisting>
 We do <emphasis>not</emphasis> include the
 \fe[creditformbase.ui] file since this file will be read
@@ -526,6 +538,7 @@ widget, show it and enter the event loop in the
     </listitem>
     <listitem>
 	<para id="anoc">
+	\x[Signals and Slots|Connecting to Close a Dialog]
 	We'll now handle the signals and slots connections. Press
 	\key[F3] (connect signals/slots). Click the Credit Dialog
 	button, drag to the form and release. Click the
@@ -559,25 +572,27 @@ directly in \qd.
 \x[Dynamic Dialogs|Loading and Executing]
 \x[Dialogs|Dynamic]
 \x[Forms|Forward declarations]
+\x[Forward declarations]
+\x[Includes]
 We'll now add the code to invoke the credit dialog. Before we can do
 this we need to add the widget factory's header file to the form. Click
 the Source tab in the Object Hierarchy. Right click Included (in
 Implementation), then click \button[New]. Type in
 '<literal>&lt;qwidgetfactory.h&gt;</literal>', then press
-\key[Return]. Because we will need to access the spin box in
+\key[Enter]. Because we will need to access the spin box in
 the dynamic dialog we must add its header file. Right click Included
 (in Implmentation), then click New. Type in
 '<literal>&lt;qspinbox.h&gt;</literal>', then press
-\key[Return]. 
+\key[Enter]. 
 </para>
 
 <para id="anpt">
 In our main form we created a slot called
 \fse[creditDialog()]. We will implement this slot
 directly in \qd and use it to load and execute the dynamic dialog. The
-code is taken from \fe[qt/tools/designer/eg/receiver1/mainform.cpp] which is generated from \fe[mainform.ui].
+code is taken from \fe[qt/tools/designer/examples/receiver1/mainform.cpp] which is generated from \fe[mainform.ui].
 <programlisting>
-\scan eg/receiver1/mainform.cpp /::creditDialog/ /^}/
+\scan eg/receiver1/mainform.ui /creditDialog/ /^}/
 </programlisting>
 The \fn[create()] function is a static
 \class[QWidgetFactory] function. It loads the specified
@@ -625,6 +640,7 @@ documentation for further details.
 
 <para id="anrt">
 \x[Signals and Slots|Dynamic Dialogs]
+\x[Dynamic Dialogs]
 There is one outstanding issue that we haven't addressed: the dynamic
 dialog does not have the behaviour of the original credit dialog because
 we have not implemented the \fse[setAmount()] slot. We
@@ -643,10 +659,10 @@ our subclass that can be passed to the
 \fn[QWidgetFactory::create()]
 function. Here is the modified \fne[creditDialog()]
 function from the
-\fe[qt/tools/designer/eg/receiver2/mainform.cpp] file
+\fe[qt/tools/designer/examples/receiver2/mainform.cpp] file
 generated by \fe[mainform.ui].
 <programlisting>
-\scan eg/receiver2/mainform.cpp /::creditDialog/ /^}/
+\scan eg/receiver2/mainform.ui /creditDialog/ /^}/
 </programlisting>
 We create a new instance of our 'Receiver' subclass. (We'll write the
 code for this class shortly.) We then create the
@@ -662,9 +678,10 @@ object.
 </para>
 
 <para id="ante">
+\x[Dynamic Dialogs]
 We'll now look at the implementation of our 'Receiver' subclass. The code
 is taken from
-\fe[qt/tools/designer/eg/receiver2/receiver.h] and the
+\fe[qt/tools/designer/examples/receiver2/receiver.h] and the
 corresponding \fe[receiver.cpp] file. We'll start with
 the header file.
 <programlisting>
@@ -680,9 +697,9 @@ as a private \class[QDialog] pointer.
 </para>
 
 <para id="antu">
-We'll look at the implementation of each function separately.
+We'll discuss the implementation of each function separately.
 <programlisting>
-\scan eg/receiver2/receiver.cpp /::setParent/ /^}/
+\scan eg/receiver2/mainform.ui /creditDialog/ /^}/
 </programlisting>
 The \fne[setParent()] function assigns a pointer to the
 dynamic dialog to our private pointer. We could not do this in a
@@ -701,9 +718,6 @@ call \fne[setAmount()] in the
 </para>
 
 <para id="anup">
-<programlisting>
-\scan eg/receiver2/receiver.cpp /::setAmount/ /^}/
-</programlisting>
 Since we may be updating the amount spin box we need to get a pointer to
 it. We call \fn[child()] on the pointer
 <literal>p</literal> which points to the dynamic dialog assigned in the

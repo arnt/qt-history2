@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#504 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#505 $
 **
 ** Implementation of QApplication class
 **
@@ -607,6 +607,17 @@ QApplication::QApplication( int &argc, char **argv, Type type )
     construct( argc, argv, type );
 }
 
+Q_EXPORT void qt_ucm_initialize( QApplication *theApp )
+{
+    if ( qApp )
+	return;
+    int argc = theApp->argc();
+    char **argv = theApp->argv();
+    theApp->construct( argc, argv, qApp->type() );
+
+    Q_ASSERT( qApp == theApp );
+}
+
 void QApplication::construct( int &argc, char **argv, Type type )
 {
     qt_appType = type;
@@ -637,7 +648,6 @@ QApplication::Type QApplication::type() const
 {
     return qt_appType;
 }
-
 
 #if defined(Q_WS_X11)
 /*!
@@ -1941,10 +1951,10 @@ bool QApplication::internalNotify( QObject *receiver, QEvent * e)
     }
 
     // throw away mouse events to disabled widgets
-    if ( e->type() <= QEvent::MouseMove &&
-	 e->type() >= QEvent::MouseButtonPress &&
-	 ( receiver->isWidgetType() &&
-	   !((QWidget *)receiver)->isEnabled() ) ) {
+    if ( ( e->type() <= QEvent::MouseMove &&
+	 e->type() >= QEvent::MouseButtonPress || 
+	 e->type() == QEvent::Wheel ) &&
+	 ( receiver->isWidgetType() && !((QWidget *)receiver)->isEnabled() ) ) {
 	( (QMouseEvent*) e)->ignore();
 	return FALSE;
     }
@@ -2245,7 +2255,7 @@ void QApplication::postEvent( QObject *receiver, QEvent *event )
 	globalPostedEvents = new QPostEventList;
 	Q_CHECK_PTR( globalPostedEvents );
 	globalPostedEvents->setAutoDelete( TRUE );
-	qapp_cleanup_events.add( globalPostedEvents );
+	qapp_cleanup_events.add( &globalPostedEvents );
     }
     if ( receiver == 0 ) {
 #if defined(QT_CHECK_NULL)
@@ -2714,6 +2724,7 @@ QClipboard *QApplication::clipboard()
     return qt_clipboard;
 }
 #endif // QT_NO_CLIPBOARD
+
 /*!
   By default, Qt will try to get the current standard colors, fonts
   etc. from the underlying window system's desktop settings (resources),

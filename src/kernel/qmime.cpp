@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmime.cpp#51 $
+** $Id: //depot/qt/main/src/kernel/qmime.cpp#52 $
 **
 ** Implementation of MIME support
 **

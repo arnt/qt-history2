@@ -98,11 +98,10 @@ public:
     QSqlQuery createQuery() const { return QSqlQuery( new QNullResult(this) ); }
 };
 
-class QSqlDatabaseManager
+class QSqlDatabaseManager : public QObject
 {
 public:
-    //QSqlDatabaseManager( QObject * parent = 0, const char * name = 0 );
-    QSqlDatabaseManager();
+    QSqlDatabaseManager( QObject * parent = 0, const char * name = 0 );
     ~QSqlDatabaseManager();
     static QSqlDatabase* database( const QString& name, bool open );
     static QSqlDatabase* addDatabase( QSqlDatabase* db, const QString & name );
@@ -118,9 +117,8 @@ protected:
 
 */
 
-QSqlDatabaseManager::QSqlDatabaseManager(/* QObject * parent, const char * name*/ )
-    //    : QObject( parent, name ),
-    : dbDict( 1 )
+QSqlDatabaseManager::QSqlDatabaseManager( QObject * parent, const char * name )
+    : QObject( parent, name ), dbDict( 1 )
 {
 }
 
@@ -142,11 +140,10 @@ QSqlDatabaseManager::~QSqlDatabaseManager()
 
 /*!
   \internal
-
 */
 QSqlDatabaseManager* QSqlDatabaseManager::instance()
 {
-#if 0
+    static QSqlDatabaseManager *sqlConnection = 0;
     if ( !sqlConnection ) {
 	if( qApp == 0 ){
 	    qWarning( "QSqlDatabaseManager: A QApplication object has to be "
@@ -155,9 +152,7 @@ QSqlDatabaseManager* QSqlDatabaseManager::instance()
 	}
 	sqlConnection = new QSqlDatabaseManager( qApp, "database manager" );
     }
-#endif
-    static QSqlDatabaseManager sqlConnection;
-    return &sqlConnection;
+    return sqlConnection;
 }
 
 /*!  Returns a pointer to the database connection with name \a name.  If \a open

@@ -7,6 +7,7 @@ class Vcr : public QWidget
     Q_OBJECT
 public:
     Vcr( QWidget *parent = 0, const char *name = 0 );
+    ~Vcr() {}
 signals:
     void rewind();
     void play();

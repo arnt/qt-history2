@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: indices.doc,v 2.35 1999/06/15 12:58:13 weis Exp $
+** $Id: $
 **
 ** Qt feature definition file documentation
 **
@@ -32,6 +32,7 @@
 ** not clear to you.
 **
 **********************************************************************/
+
 /*! \page features.html
 
 \title The Feature Definition File

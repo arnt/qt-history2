@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontdata.h#41 $
+** $Id: $
 **
 ** Definition of internal QFontData struct
 **

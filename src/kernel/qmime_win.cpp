@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmime_win.cpp#46 $
+** $Id: //depot/qt/main/src/kernel/qmime_win.cpp#47 $
 **
 ** Implementation of Win32 MIME <-> clipboard converters
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtitlebar_p.h#16 $
+** $Id: //depot/qt/main/src/widgets/qtitlebar_p.h#17 $
 **
 ** Definition of some Qt private functions.
 **
@@ -102,10 +102,6 @@ protected:
     void mouseMoveEvent( QMouseEvent * );
     void enterEvent( QEvent *e );
     void paintEvent( QPaintEvent *p );
-
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-    QAccessibleInterface *accessibleInterface();
-#endif
 
 private:
     void cutText();

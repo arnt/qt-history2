@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#167 $
+** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#168 $
 **
 ** Implementation of QToolBar class
 **
@@ -53,9 +53,6 @@
 #include "qpopupmenu.h"
 #include "qtimer.h"
 #include "qwidgetlist.h"
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-#include "qaccessiblewidget.h"
-#endif
 
 static const char * arrow_v_xpm[] = {
     "7 9 3 1",
@@ -116,9 +113,6 @@ protected:
     void styleChange( QStyle& );
     void paintEvent( QPaintEvent * );
 
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-    QAccessibleInterface *accessibleInterface();
-#endif
 private:
     Orientation orient;
 };
@@ -215,16 +209,6 @@ void QToolBarSeparator::paintEvent( QPaintEvent * )
     style().drawPrimitive( QStyle::PO_DockWindowSeparator, &p, rect(),
 			   colorGroup(), flags );
 }
-
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-QAccessibleInterface *QToolBarSeparator::accessibleInterface()
-{
-    return new QAccessibleWidget( this, QAccessible::Separator, QString::null, 
-	QString::null, QString::null, QString::null, 
-	QString::null, QString::null, QAccessible::Unavailable );
-}
-#endif
-
 
 #include "qtoolbar.moc"
 
@@ -621,7 +605,12 @@ void QToolBar::resizeEvent( QResizeEvent *e )
 		    QString s = b->textLabel();
 		    if ( s.isEmpty() )
 			s = "";
-		    int id = d->extensionPopup->insertItem( b->iconSet(), s );
+		    int id;
+		    if ( b->popup() && b->popupDelay() == 0 )
+			id = d->extensionPopup->insertItem( b->iconSet(), s, b->popup() );
+		    else
+			id = d->extensionPopup->insertItem( b->iconSet(), s );
+
 		    d->hiddenItems.insert( id, b );
 		    if ( b->isToggleButton() )
 			d->extensionPopup->setItemChecked( id, b->isOn() );
@@ -660,17 +649,6 @@ void QToolBar::resizeEvent( QResizeEvent *e )
 	d->extension->hide();
     }
 }
-
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-/*!
-  \reimp
-*/
-QAccessibleInterface *QToolBar::accessibleInterface()
-{
-    return new QAccessibleWidget( this, QAccessible::ToolBar, label() );
-}
-#endif
-
 
 void QToolBar::popupSelected( int id )
 {

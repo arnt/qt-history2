@@ -52,6 +52,12 @@ struct LanguageInterface : public QUnknownInterface
 	QString body;
 	QString returnType;
 	QString comments;
+	bool operator==( const Function &f ) const {
+	    return ( name == f.name &&
+		     body == f.body &&
+		     returnType == f.returnType &&
+		     comments == f.comments );
+	}
     };
 
     struct Connection
@@ -59,6 +65,11 @@ struct LanguageInterface : public QUnknownInterface
 	QString sender;
 	QString signal;
 	QString slot;
+	bool operator==( const Connection &c ) const {
+	    return ( sender == c.sender &&
+		     signal == c.signal &&
+		     slot == c.slot );
+	}
     };
 
     enum Support

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qgrid.cpp#37 $
+** $Id: //depot/qt/main/src/widgets/qgrid.cpp#38 $
 **
 ** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
@@ -37,24 +37,23 @@
 #include "qlayout.h"
 #include "qapplication.h"
 
-// NOT REVISED
 /*!
   \class QGrid qgrid.h
   \brief The QGrid widget provides simple geometry management of its children.
 
   \ingroup geomanagement
 
-  The number of rows or columns is defined in the constructor. All its
-  children will be placed and sized according to their sizeHint() and
-  sizePolicy() return values.
+    The grid places its widgets either in a single column or in a single
+    row. If you want a multi-column, multi-row grid use \l{QGridLayout}.
 
-  Use setMargin() to add space around the edge, and use setSpacing() to
+  The number of rows \e or columns is defined in the constructor. All the
+  grid's children will be placed and sized in accordance with their sizeHint()
+  and sizePolicy().
+
+  Use setMargin() to add space around the grid itself, and setSpacing() to
   add space between the widgets.
 
   <img src=qgrid-m.png>
-
-  For more general control over grid layout, including multi-column and
-  multi-row widgets, use \l QGridLayout directly.
 
   \sa QVBox QHBox
 */
@@ -95,7 +94,7 @@ QGrid::QGrid( int n, QWidget *parent, const char *name, WFlags f )
 
 
 /*!
-  Sets the spacing between children to \a space.
+  Sets the spacing between the child widgets to \a space.
 */
 
 void QGrid::setSpacing( int space )

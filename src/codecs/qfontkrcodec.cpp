@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/codecs/qfontkrcodec.cpp#4 $
+** $Id: //depot/qt/main/src/codecs/qfontkrcodec.cpp#5 $
 **
 ** Korean Font utilities for X11
 **

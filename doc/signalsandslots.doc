@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: metaobjects.doc,v 2.13 1999/04/28 09:53:58 aavit Exp $
+** $Id: $
 **
 ** Explanation of moc and the meta object system
 **
@@ -280,7 +280,9 @@ worth the overhead, which your users won't even notice.
 The meta object compiler (moc) parses the class declaration in a C++
 file and generates C++ code that initializes the meta object. The meta
 object contains names of all signal and slot members, as well as
-pointers to these functions.
+pointers to these functions. (For more information on Qt's Meta Object
+System, see <a href="templates.html">Why doesn't Qt use templates for
+signals and slots?</a>.)
 
 The meta object contains additional information such as the object's \link
 QObject::className() class name\endlink. You can also check if an object

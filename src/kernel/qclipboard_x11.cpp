@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#89 $
+** $Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#90 $
 **
 ** Implementation of QClipboard class for X11
 **
@@ -362,7 +362,7 @@ bool qt_xclb_read_property( Display *dpy, Window win, Atom property,
 	format = &dummy_format;
 
     // Don't read anything, just get the size of the property data
-    r = XGetWindowProperty( dpy, win, property, 0, 0, FALSE,
+    r = XGetWindowProperty( dpy, win, property, 0, 0, False,
 			    AnyPropertyType, type, format,
 			    &length, &bytes_left, &data );
     if ( r != Success ) {
@@ -407,7 +407,7 @@ bool qt_xclb_read_property( Display *dpy, Window win, Atom property,
 	    // more to read...
 
 	    r = XGetWindowProperty( dpy, win, property, offset, maxsize/4,
-				    FALSE, AnyPropertyType, type, format,
+				    False, AnyPropertyType, type, format,
 				    &length, &bytes_left, &data );
 	    if ( r != Success )
 		break;
@@ -771,7 +771,7 @@ bool QClipboard::event( QEvent *e )
 		       XGetAtomName(dpy, evt.xselection.property));
 #endif
 
-		XSendEvent( dpy, req->requestor, FALSE, 0, &evt );
+		XSendEvent( dpy, req->requestor, False, 0, &evt );
 		if ( !nmulti )
 		    break;
 	    }
@@ -1008,7 +1008,7 @@ bool qt_check_selection_sentinel( XEvent* )
 	rootwindow = QApplication::desktop()->screen(owner->x11Screen())->winId();
 	if (XGetWindowProperty( owner->x11Display(),
 				rootwindow,
-				qt_selection_sentinel, 0, 2, FALSE, XA_WINDOW,
+				qt_selection_sentinel, 0, 2, False, XA_WINDOW,
 				&actualType, &actualFormat, &nitems,
 				&bytesLeft, (unsigned char**)&owners ) == Success) {
 	    if ( actualType == XA_WINDOW && actualFormat == 32 && nitems == 2 ) {
@@ -1040,7 +1040,7 @@ bool qt_check_clipboard_sentinel( XEvent* )
 	rootwindow = QApplication::desktop()->screen(owner->x11Screen())->winId();
 	if (XGetWindowProperty(owner->x11Display(),
 			       rootwindow,
-			       qt_clipboard_sentinel, 0, 2, FALSE, XA_WINDOW,
+			       qt_clipboard_sentinel, 0, 2, False, XA_WINDOW,
 			       &actualType, &actualFormat, &nitems, &bytesLeft,
 			       (unsigned char **) &owners) == Success) {
 	    if (actualType == XA_WINDOW && actualFormat == 32 && nitems == 2) {

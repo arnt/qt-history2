@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/demo/display.h#2 $
+** $Id: //depot/qt/main/examples/demo/display.h#3 $
 **
 ** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **

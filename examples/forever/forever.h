@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/forever/forever.h#1 $
+** $Id: $
 **
 ** Definition of something or other
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qconnection.cpp#38 $
+** $Id: //depot/qt/main/src/kernel/qconnection.cpp#39 $
 **
 ** Implementation of QConnection class
 **

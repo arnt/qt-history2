@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qrichtextintern.h#21 $
+** $Id: $
 **
 ** Internal rich text classes
 **

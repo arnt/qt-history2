@@ -43,6 +43,11 @@ class QObject;
 class ActionInterface : public QFeatureListInterface
 {
 public:
+    enum Location {
+	Toolbar,
+	Menu
+    };
+
     /*! This functions is called to create the action with the name \a
       name. \a parent should be used as parent of the action.
 
@@ -55,6 +60,10 @@ public:
       group of the action \a name.
     */
     virtual QString group( const QString &name ) const = 0;
+
+    /*! In the implementation of the interface return whether the
+      action \a name should appear in the location \a l */
+    virtual bool location( const QString &name, Location l ) const = 0;
 
     /*! \internal */
     virtual void connectTo( QUnknownInterface *appInterface ) = 0;

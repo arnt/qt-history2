@@ -92,6 +92,8 @@ QStyleFactoryPrivate::~QStyleFactoryPrivate()
 {
     delete manager;
     manager = 0;
+
+    instance = 0;
 }
 
 #endif //QT_NO_COMPONENT

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmime.h#30 $
+** $Id: //depot/qt/main/src/kernel/qmime.h#31 $
 **
 ** Definition of mime classes
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.cpp#108 $
+** $Id: //depot/qt/main/src/tools/qgdict.cpp#109 $
 **
 ** Implementation of QGDict and QGDictIterator classes
 **
@@ -136,7 +136,7 @@ int QGDict::hashKeyAscii( const char *key )
 	}
     } else {					// case insensitive
 	while ( *k ) {
-	    h = (h<<4) + tolower(*k);
+	    h = (h<<4) + tolower((uchar) *k);
 	    if ( (g = h & 0xf0000000) )
 		h ^= g >> 24;
 	    h &= ~g;

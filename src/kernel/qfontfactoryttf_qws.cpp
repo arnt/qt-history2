@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontfactoryttf_qws.cpp#14 $
+** $Id: //depot/qt/main/src/kernel/qfontfactoryttf_qws.cpp#15 $
 **
 ** Implementation of QFontFactory for Truetype class for Embedded Qt
 **

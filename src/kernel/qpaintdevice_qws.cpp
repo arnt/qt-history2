@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_qws.cpp#23 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_qws.cpp#24 $
 **
 ** Implementation of QPaintDevice class for FB
 **

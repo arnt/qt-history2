@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qkeyboard_qws.cpp#39 $
+** $Id: //depot/qt/main/src/kernel/qkeyboard_qws.cpp#40 $
 **
 ** Implementation of Qt/Embedded keyboard drivers
 **

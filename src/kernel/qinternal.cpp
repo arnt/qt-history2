@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qinternal.cpp#7 $
+** $Id: //depot/qt/main/src/kernel/qinternal.cpp#8 $
 **
 ** Implementation of some internal classes
 **
@@ -149,9 +149,9 @@ QPixmap* QSharedDoubleBuffer::getRawPixmap( int w, int h )
 	return 0;
 
     if ( qdb_owner ) {
-	qdb_cleanup_pixmap.remove( qdb_shared_pixmap );
+	qdb_cleanup_pixmap.remove( &qdb_shared_pixmap );
 	qdb_shared_pixmap = new QPixmap( w, h );
-	qdb_cleanup_pixmap.add( qdb_shared_pixmap );
+	qdb_cleanup_pixmap.add( &qdb_shared_pixmap );
 	qdb_owner = 0;
     } else {
 	if ( !qdb_shared_pixmap  )

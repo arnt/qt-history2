@@ -48,12 +48,15 @@ public:
     void setBreakPoints( const QValueList<int> &l );
     QValueList<int> breakPoints() const;
 
+    void emitMarkersChanged();
+
 signals:
     void markersChanged();
     void expandFunction( QTextParag *p );
     void collapseFunction( QTextParag *p );
     void collapse( bool all /*else only functions*/ );
     void expand( bool all /*else only functions*/ );
+    void editBreakPoints();
 
 protected slots:
     void clearErrorMarker();

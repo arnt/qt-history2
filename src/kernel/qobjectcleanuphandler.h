@@ -24,7 +24,7 @@ private:
     QObjectList *cleanupObjects;
 
 private slots:
-    void objectDestroyed();
+    void objectDestroyed( QObject * );
 };
 
 #endif // QOBJECTCLEANUPHANDLER_H

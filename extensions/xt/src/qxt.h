@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/xt/src/qxt.h#10 $
+** $Id: $
 **
 ** Definition of Qt extension classes for Xt/Motif support.
 **

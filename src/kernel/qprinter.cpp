@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter.cpp#84 $
+** $Id: //depot/qt/main/src/kernel/qprinter.cpp#85 $
 **
 ** Implementation of QPrinter class
 **

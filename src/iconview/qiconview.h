@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/iconview/qiconview.h#23 $
+** $Id: //depot/qt/main/src/iconview/qiconview.h#24 $
 **
 ** Definition of QIconView widget class
 **
@@ -195,6 +195,7 @@ public:
     virtual void setKey( const QString &k );
 
     virtual int rtti() const;
+    static int RTTI;
 
 protected:
     virtual void removeRenameBox();

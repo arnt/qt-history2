@@ -28,6 +28,7 @@
 #include <qregexp.h>
 #include "project.h"
 #include "sourcefile.h"
+#include "hierarchyview.h"
 
 static QString make_func_pretty( const QString &s )
 {
@@ -80,6 +81,7 @@ void SourceEditor::setObject( QObject *fw, Project *p )
 	iFace->setContext( pro->formList(), 0 );
     if ( changed || fw->inherits( "SourceFile" ) ) // #### ?
 	iFace->setBreakPoints( MetaDataBase::breakPoints( fw ) );
+    MainWindow::self->objectHierarchy()->showClasses( this );
 }
 
 QString SourceEditor::sourceOfObject( QObject *fw, const QString &lang, EditorInterface *, LanguageInterface *lIface )
@@ -110,13 +112,20 @@ QString SourceEditor::sourceOfObject( QObject *fw, const QString &lang, EditorIn
     return txt;
 }
 
-void SourceEditor::setFunction( const QString &func )
+void SourceEditor::setFunction( const QString &func, const QString &clss )
 {
-    iFace->scrollTo( lIface->createFunctionStart( formWindow->name(), func, "" ) );
+    iFace->scrollTo( lIface->createFunctionStart( formWindow->name(), func, "" ), clss );
+}
+
+void SourceEditor::setClass( const QString &clss )
+{
+    iFace->scrollTo( clss, QString::null );
 }
 
 void SourceEditor::closeEvent( QCloseEvent *e )
 {
+    save();
+    MainWindow::self->updateFunctionList();
     emit hidden();
     e->accept();
 }
@@ -246,4 +255,14 @@ void SourceEditor::saveBreakPoints()
 void SourceEditor::clearStep()
 {
     iFace->clearStep();
+}
+
+void SourceEditor::resetBreakPoints()
+{
+    iFace->setBreakPoints( MetaDataBase::breakPoints( formWindow ) );
+}
+
+QString SourceEditor::text() const
+{
+    return iFace->text();
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/layout/fex.cpp#3 $
+** $Id: $
 **
 ** Implementing your own layout: flow example
 **

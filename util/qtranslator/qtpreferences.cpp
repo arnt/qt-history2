@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/qtranslator/qtpreferences.cpp#3 $
+** $Id: $
 **
 ** This is a utility program for translating Qt applications
 **

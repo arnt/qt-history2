@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#213 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#214 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -1081,19 +1081,22 @@ void QPainter::setClipping( bool enable )
 }
 
 
-void QPainter::setClipRect( const QRect &r )
+void QPainter::setClipRect( const QRect &r, ClipMode m )
 {
     QRegion rgn( r );
-    setClipRegion( rgn );
+    setClipRegion( rgn, m );
 }
 
-void QPainter::setClipRegion( const QRegion &rgn )
+void QPainter::setClipRegion( const QRegion &rgn, ClipMode m )
 {
 #if defined(QT_CHECK_STATE)
     if ( !isActive() )
 	qWarning( "QPainter::setClipRegion: Will be reset by begin()" );
 #endif
-    crgn = rgn;
+    if ( m == ClipDevice )
+	crgn = rgn;
+    else
+	crgn = xmat * rgn;
 
     if ( testf(ExtDev) ) {
 	QPDevCmdParam param[1];

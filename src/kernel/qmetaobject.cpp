@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmetaobject.cpp#140 $
+** $Id: //depot/qt/main/src/kernel/qmetaobject.cpp#141 $
 **
 ** Implementation of QMetaObject class
 **
@@ -112,6 +112,8 @@
  *****************************************************************************/
 
 
+static QAsciiDict<QMetaObject> *qt_metaobjects = 0;
+
 class QMetaObjectPrivate
 {
 public:
@@ -148,11 +150,14 @@ public:
     { return (QMemberDict&)QAsciiDict<const QMetaData>::operator=(dict); }
 };
 
-#if !defined(Q_OS_IRIX)
+// THIS IS NECESSARY FOR MSVC (delete of const datatype not defined)
+// IRIX, IBM and other older compilers don't grok that.
+#if defined(Q_CC_MSVC)
 template<> inline void QAsciiDict<const QMetaData>::deleteItem( Item )
 {
 }
 #endif
+
 
 /*
   Calculate optimal dictionary size for n entries using prime numbers,
@@ -211,6 +216,9 @@ QMetaObject::QMetaObject( const char *class_name, QMetaObject *super_class,
 #ifndef QT_NO_PROPERTIES
     propertyoffset = superclass ? ( superclass->propertyOffset() + superclass->numProperties() ) : 0;
 #endif
+    if ( !qt_metaobjects )
+	qt_metaobjects = new QAsciiDict<QMetaObject>( 257 );
+    qt_metaobjects->replace( class_name, this );
 }
 
 /*!\internal
@@ -220,6 +228,14 @@ QMetaObject::~QMetaObject()
     delete slotDict;				// delete dicts
     delete signalDict;
     delete d;
+    if ( qt_metaobjects ) {
+	qt_metaobjects->remove( classname );
+	if ( qt_metaobjects->isEmpty() ) {
+	    delete qt_metaobjects;
+	    qt_metaobjects = 0;
+	}
+    }
+	
     // delete reserved;				// Unused void*
 }
 
@@ -583,6 +599,16 @@ bool QMetaObject::inherits( const char* clname ) const
     }
     return FALSE;
 }
+
+/*! \internal */
+
+QMetaObject *QMetaObject::metaObject( const char *class_name )
+{
+    if ( !qt_metaobjects )
+	return 0;
+    return qt_metaobjects->find( class_name );
+}
+
 
 #ifndef QT_NO_PROPERTIES
 /*!

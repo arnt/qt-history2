@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/layout/hex.cpp#6 $
+** $Id: $
 **
 ** Geometry management example: Putting a QBoxLayout inside a
 ** QGridLayout

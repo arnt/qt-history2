@@ -10,6 +10,10 @@
 \x[Creating Toolbars]
 \x[Toolbars, Creating]
 \x[Toolbar Buttons|Adding]
+\x[Adding|Menus]
+\x[Adding|Toolbars]
+\x[Adding|Actions and Action Groups]
+\x[Adding|Toolbar Buttons]
 In this chapter we will explain how to create an application's main
 window and how to add actions (explained shortly), menus and toolbars.
 We will also demonstrate how some common actions, like cut and paste in
@@ -22,19 +26,19 @@ application to illustrate the necessary techniques.
 </para>
 
 <para id="ajpc">
+\x[Projects]
 We begin by creating a project file. Start \qd or if it is already
-running close any existing project and files. Click 
+running, close any existing project and files. Click 
 \menu[File|New Project] to invoke the \dlg[Project Settings] dialog. Enter a
 name for the project, e.g. richedit, and a name for the  project file,
 e.g. richedit.pro. Click \ok. If you're unfamiliar with Actions and
 Action Groups the sidebar provides the necessary introduction; otherwise
-skip ahead to <xref linkend="designing-the-main-window"> "Designing the
-Main Window".
+skip ahead to "Designing the Main Window".
 </para>
 
 <sidebar>\title[Actions and Action Groups]
 <para id="ajpo">
-An \i[action] is some operation that the user initiates through the user
+An \i[action] is an operation that the user initiates through the user
 interface, for example, saving a file or changing some text's font
 weight to bold.
 </para>
@@ -44,7 +48,7 @@ We often want the user to be able to perform an action using a variety
 of means. For example, to save a file we might want the user to be able
 to press <keycap>Ctrl+S</>, or to click the \button[Save] toolbar button
 or to click the \menu[File|Save] menu option. Although the means of
-invoking the action are all different the underlying operation is the
+invoking the action are all different, the underlying operation is the
 same and we don't want to duplicate the code that performs the
 operation. In Qt we can create an action (a \class[QAction] object)
 which will call the appropriate function when the action is invoked. We
@@ -88,11 +92,15 @@ buttons.
     \x[Wizards|Main Window]
     \x[Creating Menus]
     \x[Menus|Adding]
+    \x[Adding|Menus]
     \x[Creating Toolbars]
     \x[Toolbars, Creating]
     \x[Toolbar Buttons|Adding]
+    \x[Adding|Toolbars]
+    \x[Adding|Actions and Action Groups]
+    \x[Adding|Toolbar Buttons]
     We will use the main window wizard to build a main window. The
-    wizard allows us to create actions and a menu bar and toolbar
+    wizard allows us to create actions and a menu bar and a toolbar
     through which the user can invoke the actions. We will also create
     our own actions, menus and toolbar. We will add some widgets to the
     toolbar and add a main widget to the main window. Finally we will
@@ -124,6 +132,11 @@ buttons.
 	\x[Creating Toolbars]
 	\x[Toolbars, Creating]
 	\x[Toolbar Buttons|Adding]
+	\x[Adding|Menus]
+	\x[Adding|Toolbars]
+	\x[Adding|Actions and Action Groups]
+	\x[Adding|Toolbar Buttons]
+	\x[Signals and Slots|Connecting Actions]
 	We will accept the defaults for File Actions, i.e. have menu
 	items, toolbar buttons and the relevant connections created. But
 	for the Edit Actions we don't want any connections created since
@@ -139,6 +152,7 @@ buttons.
 	\x[Creating Toolbars]
 	\x[Toolbars, Creating]
 	\x[Toolbar Buttons|Adding]
+	\x[Adding|Toolbar Buttons]
 	\x[Separator|Menu item]
 	\x[Separator|Toolbar button]
 	The \i[Setup Toolbar] wizard page is used to populate a toolbar
@@ -182,6 +196,7 @@ buttons.
 	    <sect3><title>Creating Actions</title>
 	    <para id="ajul">
 	    \x[Actions and Action Groups|Adding Actions]
+	    \x[Adding|Actions and Action Groups]
 	    Our application requires more menu items and toolbar buttons
 	    than the the defaults we created with the main window wizard.
 	    But before we create the menu items and toolbar buttons we
@@ -215,6 +230,8 @@ buttons.
 	    </para>\Item
 
 	    \item<para id="ajvr">
+	    \x[Adding|Pixmaps]
+	    \x[Pixmaps|Adding]
 	    The \prop[iconSet] property is used to set an icon which will
 	    appear to the left of the action's name in any menu you
 	    associate the action with. The \prop[iconSet] is also used for the
@@ -257,6 +274,7 @@ buttons.
 	    </para>
 
 	    <para id="ajxf">
+	    \x[Adding|Actions and Action Groups]
 	    We need to add two more actions, italic and underline. For each
 	    one right click the \dlg[Action Editor] and click New
 	    Action. Then repeat the steps listed above to change each
@@ -295,6 +313,7 @@ buttons.
 	    <sect3><title>Creating Action Groups</title>
 	    <para id="ajym">
 	    \x[Actions and Action Groups|Adding Action Groups]
+	    \x[Adding|Actions and Action Groups]
 	    It is perfectly possible to have bold, italic and underline
 	    all active at once. But for alignment, i.e. left align,
 	    right align and centered, it only makes sense for one of
@@ -326,6 +345,8 @@ buttons.
 	    the alignActionGroup:
 	    \list[1]
 	    \item<para id="ajzo">
+	    \x[Adding|Pixmaps]
+	    \x[Pixmaps|Adding]
 	    Create a new action within the alignActionGroup action
 	    group. Change the \prop[name] of this action to 'leftAlignAction'
 	    and ensure its \prop[toggleAction] property is True. Use the
@@ -365,6 +386,7 @@ buttons.
 	    <sect3><title>Deleting Actions and Action Groups</title>
 	    <para id="akaz">
 	    \x[Actions and Action Groups|Deleting]
+	    \x[Deleting|Actions and Action Groups]
 	    We have some actions that we don't intend providing for this
 	    first release, for example, the editFindAction and the
 	    filePrintAction. Click editFindAction and then click the
@@ -381,6 +403,7 @@ buttons.
 	<sect2><title>Creating and Populating a Toolbar</title>
 	<para id="akbo">
 	\x[Creating Toolbars]
+	\x[Adding|Toolbars]
 	\x[Toolbars, Creating]
 	All the actions we require are now in place and we are ready to
 	create a new toolbar and add some of our actions to it. Right
@@ -394,6 +417,8 @@ buttons.
 	<para id="akby">
 	\x[Actions and Action Groups|Adding to a Toolbar]
 	\x[Separator|Toolbar button]
+	\x[Adding|Actions and Action Groups to a Toolbar]
+	\x[Adding|Toolbar Separators]
 	We'll add the new actions we've just created. Drag the
 	alignActionGroup, (not any action it contains), to the new
 	toolbar and drop it on the toolbar handle to the right
@@ -412,6 +437,8 @@ buttons.
 
 	<para id="akcp">
 	\x[Separator|Toolbar button]
+	\x[Deleting|Toolbar Separators]
+	\x[Deleting|Toolbars]
 	Toolbar buttons and separators (usually represented as indented
 	vertical gray lines), can be dragged and dropped into new
 	positions in the toolbar at any time. Separators can be inserted
@@ -434,6 +461,7 @@ buttons.
 	    <para id="akdi">
 	    \x[Toolbars|Adding Widgets]
 	    \x[Widgets|Adding to Toolbars]
+	    \x[Adding|Widgets]
 	    We want our users to be able to choose the font and font size
 	    from the toolbar. To achieve this we'll create a font combobox
 	    and a font size spinbox and place them in the formatting toolbar
@@ -464,7 +492,7 @@ buttons.
 	   associate the action with the widget, and add the action to
 	   the toolbar. Widgets that can sensibly be inserted directly
 	   into a toolbar are \widget[ComboBox]es, \widget[SpinBox]es 
-	   and \widget[LineEdit]s. 
+	   and \widget[Line Edit]s. 
 	   </para>
 
 	    </sect3>
@@ -475,11 +503,14 @@ buttons.
 	<para id="akeq">
 	\x[Creating Menus]
 	\x[Menus|Adding]
+	\x[Adding|Menus]
 	We'll now add the actions we added to the new toolbar to a new
 	menu and modify the existing menus slightly. 
 	</para>
 
 	<para id="akev">
+	\x[Menus|Adding Menu Items]
+	\x[Adding|Menu Items]
 	Right click our application's menu bar and click Add Menu Item.
 	A new menu item called 'Menu' will appear. Right click this menu
 	item and click Rename Item. Change its name to 'F&amp;ormat'.
@@ -501,6 +532,12 @@ buttons.
 	\x[Creating Menus]
 	\x[Menus|Adding]
 	\x[Separator|Menu item]
+	\x[Menus|Adding Menu Separators]
+	\x[Adding|Menu Separators]
+	\x[Menus|Deleting]
+	\x[Deleting|Menus]
+	\x[Deleting|Menu Items]
+	\x[Deleting|Menu Separators]
 	We'll now deal with the separators in the menus. Firstly we'll
 	add a separator in the Format menu and then we'll remove some
 	redundant separators from the other menus. Click the Format menu
@@ -508,11 +545,12 @@ buttons.
 	File menu and right click one of the separators above the Exit
 	action; click Delete Item. Click the Edit menu, right click the
 	separator at the very bottom of the menu and click Delete Item.
-	Delete Item can be used to delete both separators and menu
-	items.
+	Delete Item can be used to delete separators, menu
+	items and menus.
 	</para>
 
 	<para id="akfz">
+	\x[Menus|Moving]
 	Click the Format menu and drag it to the left of the Help menu,
 	then drop the Format menu. (A thick red bar will appear to
 	indicate the insertion postion.) Both menus and menu items may
@@ -520,6 +558,7 @@ buttons.
 	</para>
 
 	<para id="akgg">
+	\x[Previewing|Menus]
 	Preview the application and try clicking the alignment and font
 	style toolbar buttons and menu items. Qt will automatically keep
 	the state of the menu items and the toolbar buttons
@@ -531,8 +570,10 @@ buttons.
 	<sect2><title>Adding and Connecting the Main Widget</title>
 	<para id="akgq">
 	\x[Main Widget]
+	\x[Adding|Main Widgets]
 	\x[Widgets|Adding a Main Widget]
 	\x[Main Window|Adding a Main Widget]
+	\x[Signals and Slots]
 	Our application is a rich text editor, but so far there has been
 	nowhere for the user to edit text. We'll add a \class[QTextEdit]
 	widget and use Qt's signals and slots mechanism to minimize the
@@ -589,7 +630,11 @@ buttons.
 	    <para id="akin">
 	    \x[Clipboard]
 	    \x[Cut and Paste (in Applications)]
-	    \x[Signals and Slots|Connecting for Cut, Copy, Paste, Undo and Redo]
+	    \x[Signals and Slots|Connecting for Cut]
+	    \x[Signals and Slots|Connecting for Copy]
+	    \x[Signals and Slots|Connecting for Paste]
+	    \x[Signals and Slots|Connecting for Undo]
+	    \x[Signals and Slots|Connecting for Redo]
 	    \x[Previewing|Signals and Slots]
 	    \x[Signals and Slots|Previewing]
 	    The cut, copy, paste, undo and redo actions are connected in
@@ -610,6 +655,8 @@ buttons.
 	    <sect3><title>Connecting for Text Alignment</title>
 	    
 	    <para id="akjf">
+	    \x[Signals and Slots|Connecting for Text Alignment]
+	    \x[Text Alignment]
 	    We need to create a slot to receive signals from alignment
 	    actions and set the textEdit widget's alignment state
 	    accordingly. One approach would be to connect each
@@ -640,8 +687,10 @@ buttons.
 
 	    <sect3><title>Connecting for Font Names and Sizes</title>
 	    <para id="akkj">
+	    \x[Connecting^Signals and Slots]
 	    \x[Signals and Slots|Connecting for Font Sizes]
-	    \x[Font Sizes, Connecting Signals and Slots]
+	    \x[Signals and Slots|Connecting for Font Names]
+	    \x[Font Sizes]
 	    \x[Previewing|Signals and Slots]
 	    \x[Signals and Slots|Previewing]
 	    We'll start by dealing with font size since it's easiest.
@@ -649,7 +698,7 @@ buttons.
 	    click the spinbox and drag to the text edit widget; release
 	    on the text edit. Click the \fs[valueChanged(int)] signal
 	    and on the textEdit's \fs[setPointSize(int)] slot. Click \ok
-	    and font sizes are done. (Because font sizes are handled
+	    and font sizes are done. (Since font sizes are handled
 	    purely through built-in signals and slots they work in
 	    preview mode.)
 	    </para>
@@ -664,7 +713,7 @@ buttons.
 	    "Changing Fonts".) It's a good idea to connect the
 	    fontComboBox's \fs[activate()] signal to the textEdit's
 	    \fs[setFocus()] slot; this will ensure that after the user
-	    has changed font the focus will return to their text. 
+	    has changed font the focus will return to the text. 
 	    </para>
 
 	    <para id="aklh">
@@ -683,6 +732,7 @@ buttons.
     <sect1><title>Converting the Design into an Executable Application</title>
     <para id="aklv">
     \x[Code Editing]
+    \x[Adding|Code^Code Editing]
     We've built the user interface through \qd and connected those slots
     that provided sufficient default functionality. The last steps are to
     code the slots that require customization and then to create
@@ -693,10 +743,9 @@ buttons.
 	When the user starts the richedit application we want the focus
 	to be in the textEdit widget so we'll add one line of code to
 	the \fn[init()] function to achieve this. (All the code snippets
-	are from \fe[eg/richedit/richedit.cpp] which is generated by
-	\cmd[uic] from \fe[richedit.ui].)
+	are from \fe[qt/tools/designer/examples/richedit/richedit.ui].
 <programlisting>
-\scan eg/richedit/richedit.cpp /->setFocus/ 0
+textEdit-&gt;setFocus();  
 </programlisting>
 	</para>
 
@@ -714,14 +763,14 @@ buttons.
 
 	    <para id="akmz">
 <programlisting>
-\scan eg/richedit/richedit.cpp /::fileNew/ /^}/ 
+\scan eg/richedit/richedit.ui /fileNew/ /^}/ 
 </programlisting>
 	    The \fne[fileNew()] function clears the text and the filename.
 	    </para>
 
 	    <para id="akng">
 <programlisting>
-\scan eg/richedit/richedit.cpp /::fileOpen/ /^}/ 
+\scan eg/richedit/richedit.ui /fileOpen/ /^}/ 
 </programlisting>
 	    The \fne[fileOpen()] function asks the user to choose a file
 	    using \fn[QFileDialog::getOpenFileName()]. If they 
@@ -732,7 +781,7 @@ buttons.
 
 	    <para id="aknr">
 <programlisting>
-\scan eg/richedit/richedit.cpp /::fileSave\(/ /^}/ 
+\scan eg/richedit/richedit.ui /fileSave/ /^}/ 
 </programlisting>
 	    If there is no current file name we call
 	    \fne[fileSaveAs()] which will prompt for a
@@ -745,7 +794,7 @@ buttons.
 
 	    <para id="akoe">
 <programlisting>
-\scan eg/richedit/richedit.cpp /::fileSaveAs/ /^}/ 
+\scan eg/richedit/richedit.ui /fileSaveAs/ /^}/ 
 </programlisting>
 	    The \fne[fileSaveAs] function prompts the user for a file
 	    name and if they give a file name, saves the text to the
@@ -754,7 +803,7 @@ buttons.
 
 	    <para id="akon">
 <programlisting>
-\scan eg/richedit/richedit.cpp /::fileExit/ /^}/ 
+\scan eg/richedit/richedit.ui /fileExit/ /^}/ 
 </programlisting>
 	    When we exit the application we must perform the same check
 	    for unsaved changes as we've done in the preceding
@@ -764,7 +813,7 @@ buttons.
 
 	    <para id="akox">
 <programlisting>
-\scan eg/richedit/richedit.cpp /::saveAndContinue/ /^}/ 
+\scan eg/richedit/richedit.ui /saveAndContinue/ /^}/ 
 </programlisting>
 	    The \fne[saveAndContinue()] function is included for
 	    completeness. 	    
@@ -775,7 +824,7 @@ buttons.
 	    <sect3 id="aligning-text"><title>Aligning Text</title>
 	    <para id="akpi">
 <programlisting>
-\scan eg/richedit/richedit.cpp /::changeAlignment/ /^}/ 
+\scan eg/richedit/richedit.ui /changeAlignment/ /^}/ 
 </programlisting>
 	    We compare the chosen alignment action's pointer to the
 	    the pointers stored in the form and if we get a match set
@@ -791,7 +840,7 @@ buttons.
 	    have to populate the combobox with the font names when we
 	    call \fn[init()].
 <programlisting>
-\scan eg/richedit/richedit.cpp /::init/ /^}/ 
+\scan eg/richedit/richedit.ui /init/ /^}/ 
 </programlisting>
 	    The first line sets the focus as we've already mentioned. We
 	    then create a \class[QFontDatabase] object and insert its
@@ -806,8 +855,12 @@ buttons.
 
 	<sect2><title>Making the Application Run</title>
 	<para id="akqo">
-	\x[Object Hierarch]
+	\x[Object Hierarchy]
 	\x[Forms|Forward declarations]
+	\x[Forward declarations]
+	\x[Includes]
+	\x[Adding|Forward declarations]
+	\x[Adding|Includes]
 	With all the connections and code in place we are now ready to
 	make our application run. Click on the Source tab of the Object
 	Hierarchy window and click on the Includes (in Implementation)
@@ -823,6 +876,8 @@ buttons.
 
 	<para id="akrc">
 	\x[Forms|Class variables]
+	\x[Adding|Class variables]
+	\x[Class variables]
 	We referred to a member variable, <literal>fileName</literal>,
 	in our source code so we must add it to the form. Click the
 	Source tab, right click the Class Variables item, click New from
@@ -830,6 +885,8 @@ buttons.
 	</para>
 
 	<para id="akrj">
+	\x[Adding|Files to Projects]
+	\x[Projects|Adding Files]
 	Create a \f[main.cpp] file in a plain text editor. Ours looks
 	like this:
 <programlisting>

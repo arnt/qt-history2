@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#433 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#434 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -11854,15 +11854,17 @@ unsigned char QChar::combiningClass() const
 QChar QChar::lower() const
 {
 #ifndef QT_NO_UNICODETABLES
-    if(category() != Letter_Uppercase) return *this;
-    Q_UINT16 lower = *(case_info[row()]+cell());
-    if(lower == 0) return *this;
+    if ( category() != Letter_Uppercase )
+	return *this;
+    Q_UINT16 lower = *( case_info[row()] + cell() );
+    if ( lower == 0 )
+	return *this;
     return lower;
 #else
-    if (row())
+    if ( row() )
 	return *this;
     else
-	return QChar(tolower(latin1()));
+	return QChar( tolower((uchar) latin1()) );
 #endif
 }
 
@@ -11873,15 +11875,17 @@ QChar QChar::lower() const
 QChar QChar::upper() const
 {
 #ifndef QT_NO_UNICODETABLES
-    if(category() != Letter_Lowercase) return *this;
+    if ( category() != Letter_Lowercase )
+	return *this;
     Q_UINT16 upper = *(case_info[row()]+cell());
-    if(upper == 0) return *this;
+    if ( upper == 0 )
+	return *this;
     return upper;
 #else
-    if (row())
+    if ( row() )
 	return *this;
     else
-	return QChar(toupper(latin1()));
+	return QChar( toupper((uchar) latin1()) );
 #endif
 }
 
@@ -13070,7 +13074,7 @@ QString &QString::sprintf( const char* cformat, ... )
     if (!escape) {
 	escape = new QRegExp( "%#?0?-? ?\\+?'?[0-9*]*\\.?[0-9*]*h?l?L?q?Z?" );
 #if !defined( QT_NO_COMPONENT ) && !defined( QT_LITE_COMPONENT )
-	qt_regexp_cleanup.add( escape );
+	qt_regexp_cleanup.add( &escape );
 #endif
     }
     QString result;
@@ -14956,13 +14960,13 @@ QCString QString::local8Bit() const
     return latin1();
 #else
 #ifdef Q_WS_X11
-    static QTextCodec* codec = QTextCodec::codecForLocale();
+    QTextCodec* codec = QTextCodec::codecForLocale();
     return codec
 	    ? codec->fromUnicode(*this)
 	    : QCString(latin1());
 #endif
 #if defined( Q_WS_MACX )
-    static QTextCodec* codec = QTextCodec::codecForLocale();
+    QTextCodec* codec = QTextCodec::codecForLocale();
     return codec
 	    ? codec->fromUnicode(*this)
 	    : QCString(latin1());
@@ -15002,14 +15006,14 @@ QString QString::fromLocal8Bit(const char* local8Bit, int len)
     if ( !local8Bit )
 	return QString::null;
 #ifdef Q_WS_X11
-    static QTextCodec* codec = QTextCodec::codecForLocale();
+    QTextCodec* codec = QTextCodec::codecForLocale();
     if ( len < 0 ) len = qstrlen(local8Bit);
     return codec
 	    ? codec->toUnicode( local8Bit, len )
 	    : fromLatin1( local8Bit, len );
 #endif
 #if defined( Q_WS_MAC )
-    static QTextCodec* codec = QTextCodec::codecForLocale();
+    QTextCodec* codec = QTextCodec::codecForLocale();
     if ( len < 0 ) len = qstrlen(local8Bit);
     return codec
 	    ? codec->toUnicode( local8Bit, len )
@@ -15339,6 +15343,13 @@ int QString::compare( const QString& s ) const
 
   Compares this string with \a s.
 */
+
+#if !defined(CSTR_LESS_THAN)
+#define CSTR_LESS_THAN            1           // string 1 less than string 2
+#define CSTR_EQUAL                2           // string 1 equal to string 2
+#define CSTR_GREATER_THAN         3           // string 1 greater than string 2
+#endif
+
 int QString::localeAwareCompare( const QString& s ) const
 {
 #if defined(Q_WS_WIN)

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/customlayout/card.cpp#3 $
+** $Id: $
 **
 ** Implementing your own layout: flow example
 **

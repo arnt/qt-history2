@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#156 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#157 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -1178,7 +1178,7 @@ bool QUriDrag::decode( const QMimeSource* e, QStrList& l )
     return FALSE;
 }
 
-static uint htod(int h)
+static uint htod( int h )
 {
     if ( isdigit(h) )
 	return h - '0';
@@ -1306,10 +1306,10 @@ QString QUriDrag::uriToUnicodeUri(const char* uri)
     while (*uri) {
 	switch (*uri) {
 	  case '%': {
-		uint ch = uri[1];
+		uint ch = (uchar) uri[1];
 		if ( ch && uri[2] ) {
-		    ch = htod(ch)*16 + htod(uri[2]);
-		    utf8 += char(ch);
+		    ch = htod( ch ) * 16 + htod( (uchar) uri[2] );
+		    utf8 += (char) ch;
 		    uri += 2;
 		}
 	    }

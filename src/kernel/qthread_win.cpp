@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qthread_win.cpp#56 $
+** $Id: //depot/qt/main/src/kernel/qthread_win.cpp#57 $
 **
 ** QThread class for windows
 **

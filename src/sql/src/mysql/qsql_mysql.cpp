@@ -363,7 +363,7 @@ QSqlIndex QMYSQLDriver::primaryIndex( const QString& tablename ) const
     i.exec( stmt.arg( tablename ) );
     while ( i.isActive() && i.next() ) {
 	if ( i.value(2).toString() == "PRIMARY" ) {
-	    idx.append( *fil.field( i.value(3).toInt()-1 ) );
+	    idx.append( *fil.field( i.value(4).toString() ) );
 	    idx.setCursorName( i.value(0).toString() );
 	    idx.setName( i.value(2).toString() );
 	}

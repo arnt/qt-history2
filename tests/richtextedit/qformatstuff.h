@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qformatstuff.h#16 $
+** $Id: $
 **
 ** Definition of the QtTextView class
 **

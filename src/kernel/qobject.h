@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.h#141 $
+** $Id: //depot/qt/main/src/kernel/qobject.h#142 $
 **
 ** Definition of QObject class
 **
@@ -55,7 +55,6 @@ class QMetaProperty;
 class QPostEventList;
 class QObjectPrivate;
 struct QUObject;
-struct QAccessibleInterface;
 
 class Q_EXPORT QObject: public Qt
 {
@@ -137,14 +136,16 @@ public:
 
 signals:
     void	 destroyed();
-    void	 accessibilityChanged( int reason );
+    void	 destroyed( QObject* obj );
 
 public:
     QObject	*parent() const { return parentObj; }
 
+public slots:
+    void	deferredDelete();
+    
 private slots:
-    void	cleanupEventFilter();
-    void	notifyAccessibility( int );
+    void	 cleanupEventFilter( QObject* );
 
 protected:
     bool	activate_filters( QEvent * );
@@ -168,8 +169,6 @@ protected:
     virtual bool checkConnectArgs( const char *signal, const QObject *receiver,
 				   const char *member );
     static QCString normalizeSignalSlot( const char *signalSlot );
-
-    virtual QAccessibleInterface *accessibleInterface();
 
 private:
     uint	isSignal   : 1;
@@ -195,9 +194,6 @@ private:
     friend class QWidget;
     friend class QSignal;
     friend class QSenderObject;
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-    friend class QAccessible;
-#endif
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qdns.h#9 $
+** $Id: //depot/qt/main/src/network/qdns.h#10 $
 **
 ** Definition of QDns class.
 **

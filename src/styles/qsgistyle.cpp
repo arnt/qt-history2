@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qsgistyle.cpp#12 $
+** $Id: //depot/qt/main/src/styles/qsgistyle.cpp#13 $
 **
 ** Implementation of Motif-like style class
 **

@@ -65,7 +65,7 @@ unsigned long DlgFilter::release()
 QStringList DlgFilter::featureList() const
 {
     QStringList list;
-    list << "Qt Architect 2.1+ Dialog Files (*.dlg)" ;
+    list << "Qt Architect Dialog Files (*.dlg)" ;
     return list;
 }
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qmacstyle_mac.cpp#2 $
+** $Id: //depot/qt/main/src/styles/qmacstyle_mac.cpp#3 $
 **
 ** Implementation of Motif-like style class
 **

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#202 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#203 $
 **
 ** Implementation of QLabel widget class
 **
@@ -49,9 +49,6 @@
 #include "qsimplerichtext.h"
 #include "qstylesheet.h"
 #include "qlineedit.h"
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-#include "qaccessiblewidget.h"
-#endif
 
 class QLabelPrivate
 {
@@ -483,12 +480,24 @@ QSize QLabel::sizeForWidth( int w ) const
     QMovie *mov = movie();
 #endif
     int fw = frameWidth();
-    int m  = 2*indent();
-    if ( m < 0 ) {
+    int hm = -1;
+    int horizAlign = QApplication::horizontalAlignment( align );
+    if ( (horizAlign & AlignLeft) || (horizAlign & AlignRight ) )
+	hm = indent();
+    if ( hm < 0 ) {
 	if ( fw > 0 )
-	    m = fm.width( QChar('x') );
+	    hm = fm.width( QChar('x') );
 	else
-	    m = 0;
+	    hm = 0;
+    }
+    int vm = -1;
+    if ( (align & AlignTop) || (align & AlignBottom ) )
+	vm = indent();
+    if ( vm < 0 ) {
+	if ( fw > 0 )
+	    vm = fm.width( QChar('x') );
+	else
+	    vm = 0;
     }
     if ( pix ) {
 	br = pix->rect();
@@ -509,7 +518,7 @@ QSize QLabel::sizeForWidth( int w ) const
 	if ( w < 0 )
 	    doc->adjustSize();
 	else {
-	    w -= 2*fw + m;
+	    w -= 2*fw + hm;
 	    doc->setWidth( w );
 	}
 	br = QRect( 0, 0, doc->widthUsed(), doc->height() );
@@ -533,16 +542,9 @@ QSize QLabel::sizeForWidth( int w ) const
 	if( h <= 0 ) // for broken fonts...
 	    h = 14;
 	br.setHeight( ((br.height() + h-1) / h)*h - fm.leading() );
-	if ( indent() > 0 ) {
-	    int horizAlign = QApplication::horizontalAlignment( align );
-	    if ( (horizAlign & AlignLeft) || (horizAlign & AlignRight ) )
-		br.setWidth( br.width() + indent() );
-	    else if ( (align & AlignTop) || (align & AlignBottom ) )
-		br.setHeight( br.height() + indent() );
-	}
     }
-    int wid = br.width() + m + 2*fw;
-    int hei = br.height() + m + 2*fw;
+    int wid = br.width() + hm + 2*fw;
+    int hei = br.height() + vm + 2*fw;
 
     return QSize( wid, hei );
 }
@@ -771,121 +773,6 @@ void QLabel::drawContents( QPainter *p )
 
 
 /*!
-  \reimp
-*/
-
-void QLabel::setAutoMask(bool b)
-{
-    if ( b )
-	setBackgroundMode( PaletteText );
-    else
-	setBackgroundMode( PaletteBackground );
-    QFrame::setAutoMask( b );
-}
-
-/*!
-  Draws the label contents mask using the painter \a p.
-  Used only in transparent mode.
-
-  \sa QWidget::setAutoMask();
-*/
-
-void QLabel::drawContentsMask( QPainter *p )
-{
-    QRect cr = contentsRect();
-    int m = indent();
-    if ( m < 0 ) {
-	if ( frameWidth() > 0 )
-	    m = p->fontMetrics().width('x')/2;
-	else
-	    m = 0;
-    }
-    if ( m > 0 ) {
-	int hAlign = QApplication::horizontalAlignment( align );
-	if ( hAlign & AlignLeft )
-	    cr.setLeft( cr.left() + m );
-	if ( hAlign & AlignRight )
-	    cr.setRight( cr.right() - m );
-	if ( align & AlignTop )
-	    cr.setTop( cr.top() + m );
-	if ( align & AlignBottom )
-	    cr.setBottom( cr.bottom() - m );
-    }
-
-#ifndef QT_NO_MOVIE
-    QMovie *mov = movie();
-    if ( mov ) {
-	// ### could add movie to qDrawItem
-	QRect r = style().itemRect( p,
-				    cr.x(), cr.y(), cr.width(), cr.height(),
-				    align, isEnabled(), &(mov->framePixmap()),
-				    QString::null );
-	// ### could resize movie frame at this point
-	QPixmap pm = mov->framePixmap();
-	if ( pm.mask() ) {
-	    p->setPen( color1);
-	    p->drawPixmap(r.x(), r.y(), *pm.mask() );
-	}
-	else
-	    p->fillRect( r, color1 );
-	return;
-    }
-#endif
-    QColorGroup g( color1, color1, color1, color1, color1, color1, color1,
-		   color1, color0);
-
-    QBitmap bm;
-    QPixmap* pix = lpixmap;
-#ifndef QT_NO_IMAGE_SMOOTHSCALE
-    if ( scaledcontents && lpixmap ) {
-	if ( !d->img )
-	    d->img = new QImage( lpixmap->convertToImage() );
-	if ( !d->pix )
-	    d->pix = new QPixmap;
-	if ( d->pix->size() != cr.size() )
-	    d->pix->convertFromImage( d->img->smoothScale( cr.width(), cr.height() ) );
-	pix = d->pix;
-    }
-#endif
-    if (pix ) {
-	if (pix->mask()) {
-	    bm = *pix->mask();
-	}
-	else {
-	    bm.resize( pix->size() );
-	    bm.fill(color1);
-	}
-    }
-
-#ifndef QT_NO_RICHTEXT
-    if ( doc ) {
-	doc->setWidth(p, cr.width() );
-	int rw = doc->widthUsed();
-	int rh = doc->height();
-	int xo = 0;
-	int yo = 0;
-	if ( align & AlignVCenter )
-	    yo = (cr.height()-rh)/2;
-	else if ( align & AlignBottom )
-	    yo = cr.height()-rh;
-	if ( align & AlignRight )
-	    xo = cr.width()-rw;
-	else if ( align & AlignHCenter )
-	    xo = (cr.width()-rw)/2;
-	if ( style() == WindowsStyle && !isEnabled() ) {
-	    doc->draw(p, cr.x()+xo+1, cr.y()+yo+1, cr, g, 0);
-	}
-	doc->draw(p, cr.x()+xo, cr.y()+yo, cr, g, 0);
-    } else
-#endif
-    {
-	style().drawItem( p, cr.x(), cr.y(), cr.width(), cr.height(),
-			  align, g, isEnabled(), bm.isNull()?0:&bm, ltext );
-    }
-}
-
-
-/*!
   Updates the label, not the frame.
 */
 
@@ -914,9 +801,6 @@ void QLabel::updateLabel( QSize oldSizeHint )
 	update( contentsRect() );
     } else {
 	update( contentsRect() );
-	updateGeometry();
-	if ( autoMask() )
-	    updateMask();
     }
 }
 
@@ -1044,8 +928,6 @@ void QLabel::movieUpdated(const QRect& rect)
 	r.setWidth(QMIN(r.width(), rect.width()));
 	r.setHeight(QMIN(r.height(), rect.height()));
 	repaint( r, mov->framePixmap().mask() != 0 );
-	if ( autoMask() )
-	    updateMask();
     }
 }
 
@@ -1204,8 +1086,6 @@ void QLabel::setScaledContents( bool enable )
 	delete d->pix;
 	d->pix = 0;
     }
-    if ( autoMask() )
-	updateMask();
     update( contentsRect() );
 }
 
@@ -1219,13 +1099,5 @@ void QLabel::setFont( const QFont &f )
 {
     QFrame::setFont( f );
 }
-
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-/*! \reimp */
-QAccessibleInterface *QLabel::accessibleInterface()
-{
-    return new QAccessibleDisplay( this, QAccessible::StaticText );
-}
-#endif
 
 #endif // QT_NO_LABEL

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmovie.cpp#96 $
+** $Id: //depot/qt/main/src/kernel/qmovie.cpp#97 $
 **
 ** Implementation of movie classes
 **
@@ -45,6 +45,7 @@
 #include "qfile.h"
 #include "qbuffer.h"
 #include "qobject.h"
+#include "qpixmapcache.h"
 
 #ifndef QT_NO_MOVIE
 
@@ -178,7 +179,7 @@ public:
     int lasttimerinterval;
     int loop;
     bool movie_ended;
-
+    bool dirty_cache;
     bool waitingForFrameTick;
     int stepping;
     QRect changed_area;
@@ -201,6 +202,7 @@ public:
 
 QMoviePrivate::QMoviePrivate()
 {
+    dirty_cache = false;
     buffer = 0;
     pump = 0;
     source = 0;
@@ -233,6 +235,10 @@ QMoviePrivate::~QMoviePrivate()
     delete pump;
     delete decoder;
     delete source;
+
+    // Too bad.. but better be safe than sorry
+    if ( dirty_cache )
+        QPixmapCache::clear();
 }
 
 bool QMoviePrivate::isNull() const
@@ -350,7 +356,21 @@ void QMoviePrivate::updatePixmapFromImage(const QPoint& off,
 
     // Convert to pixmap and paste that onto myself
     QPixmap lines;
-    lines.convertFromImage(img);
+
+    if (frameperiod < 0 && loop == -1)
+        lines.convertFromImage( img );
+    else {
+        // its an animation, lets see if we converted
+        // this frame already.
+        QString key;
+        key.sprintf( "%08lx:%04d", ( long )this, framenumber );
+        if ( !QPixmapCache::find( key, lines ) ) {
+            lines.convertFromImage(img);
+            QPixmapCache::insert( key, lines );
+            dirty_cache = true;
+        }
+    }
+
     bitBlt(&mypixmap, area.left(), area.top(),
 	   &lines, off.x(), off.x(), area.width(), area.height(),
 	   CopyROP, !bg.isValid());

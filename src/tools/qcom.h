@@ -58,7 +58,7 @@ template <class T> class Q_EXPORT QInterfacePtr
 {
 public:
     QInterfacePtr():iface(0){}
-    
+
     QInterfacePtr( T* i) {
 	if ( (iface = i) )
 	    iface->addRef();
@@ -98,7 +98,7 @@ public:
 
     bool operator!= ( const QInterfacePtr<T>& p ) const {  return !( *this == p ); }
 
-    bool isNull() const { return !iface; } 
+    bool isNull() const { return !iface; }
 
     T* operator->() const { return iface; }
 
@@ -225,13 +225,34 @@ public:
 #    ifdef Q_WS_WIN
 #	ifdef Q_CC_BOR
 #	    define Q_EXPORT_INTERFACE() \
+		extern Q_EXPORT QApplication *qApp; \
+		extern Q_EXPORT void qt_ucm_initialize( QApplication *theApp ); \
+		Q_EXTERN_C __declspec(dllexport) void __stdcall ucm_initialize( QApplication *theApp ) \
+		{ \
+		    if ( !qApp && theApp ) \
+			qt_ucm_initialize( theApp ); \
+		} \
 		Q_EXTERN_C __declspec(dllexport) QUnknownInterface* __stdcall ucm_instantiate()
 #	else
 #	    define Q_EXPORT_INTERFACE() \
+		extern Q_EXPORT QApplication *qApp; \
+		extern Q_EXPORT void qt_ucm_initialize( QApplication *theApp ); \
+		Q_EXTERN_C __declspec(dllexport) void ucm_initialize( QApplication *theApp ) \
+		{ \
+		    if ( !qApp && theApp ) \
+			qt_ucm_initialize( theApp ); \
+		} \
 		Q_EXTERN_C __declspec(dllexport) QUnknownInterface* ucm_instantiate()
 #	endif
 #    else
 #	define Q_EXPORT_INTERFACE() \
+	    extern Q_EXPORT QApplication *qApp; \
+	    extern Q_EXPORT void qt_ucm_initialize( QApplication *theApp ); \
+	    Q_EXTERN_C void ucm_initialize( QApplication *theApp ) \
+	    { \
+		if ( !qApp && theApp ) \
+		    qt_ucm_initialize( theApp ); \
+	    } \
 	    Q_EXTERN_C QUnknownInterface* ucm_instantiate()
 #    endif
 #endif

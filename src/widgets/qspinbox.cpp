@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#150 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#151 $
 **
 ** Implementation of QSpinBox widget class
 **
@@ -49,7 +49,7 @@
 #include "qapplication.h"
 #include "qtimer.h"
 #if defined(QT_ACCESSIBILITY_SUPPORT)
-#include "qaccessiblewidget.h"
+#include "qaccessible.h"
 #endif
 
 class QSpinBoxPrivate
@@ -595,7 +595,7 @@ void QSpinBox::valueChange()
     emit valueChanged( value() );
     emit valueChanged( currentValueText() );
 #if defined(QT_ACCESSIBILITY_SUPPORT)
-    emit accessibilityChanged( QAccessible::ValueChanged );
+    QAccessible::updateAccessibility( this, 0, QAccessible::ValueChanged );
 #endif
 }
 
@@ -997,13 +997,5 @@ void QSpinBox::setBackgroundPixmap( const QPixmap & pixmap )
     if(!vi) return;
     setBackgroundPixmapForMode(vi->backgroundMode(), pixmap);
 }
-
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-/*! \reimp */
-QAccessibleInterface *QSpinBox::accessibleInterface()
-{
-    return new QAccessibleRangeControl( this, QAccessible::SpinButton );
-}
-#endif
 
 #endif

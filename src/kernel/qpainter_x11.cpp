@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#386 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#387 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -117,7 +117,7 @@ void qt_erase_region( QWidget* w, const QRegion& region)
     for (uint i=0; i<r.size(); i++) {
         const QRect& rr = r[(int)i];
         XClearArea( w->x11Display(), w->winId(),
-                    rr.x(), rr.y(), rr.width(), rr.height(), FALSE );
+                    rr.x(), rr.y(), rr.width(), rr.height(), False );
     }
 }
 
@@ -126,7 +126,7 @@ void qt_erase_rect( QWidget* w, const QRect& r)
     if ( w == paintEventDevice || w->backgroundOrigin() != QWidget::WidgetOrigin )
         qt_erase_region( w, r );
     else
-        XClearArea( w->x11Display(), w->winId(), r.x(), r.y(), r.width(), r.height(), FALSE );
+        XClearArea( w->x11Display(), w->winId(), r.x(), r.y(), r.width(), r.height(), False );
 
 }
 
@@ -272,7 +272,7 @@ static GC alloc_gc( Display *dpy, int scrn, Drawable hd, bool monochrome=FALSE,
 #endif
     if ( privateGC ) {
         GC gc = XCreateGC( dpy, hd, 0, 0 );
-        XSetGraphicsExposures( dpy, gc, FALSE );
+        XSetGraphicsExposures( dpy, gc, False );
         return gc;
     }
     register QGC *p = gc_array;
@@ -283,7 +283,7 @@ static GC alloc_gc( Display *dpy, int scrn, Drawable hd, bool monochrome=FALSE,
         if ( !p->gc ) {                         // create GC (once)
             p->gc = XCreateGC( dpy, hd, 0, 0 );
             p->scrn = scrn;
-            XSetGraphicsExposures( dpy, p->gc, FALSE );
+            XSetGraphicsExposures( dpy, p->gc, False );
             p->in_use = FALSE;
             p->mono   = monochrome;
         }
@@ -297,7 +297,7 @@ static GC alloc_gc( Display *dpy, int scrn, Drawable hd, bool monochrome=FALSE,
     qWarning( "QPainter: Internal error; no available GC" );
 #endif
     GC gc = XCreateGC( dpy, hd, 0, 0 );
-    XSetGraphicsExposures( dpy, gc, FALSE );
+    XSetGraphicsExposures( dpy, gc, False );
     return gc;
 }
 
@@ -1471,10 +1471,10 @@ void QPainter::setClipping( bool enable )
   \overload void QPainter::setClipRect( const QRect &r )
 */
 
-void QPainter::setClipRect( const QRect &r )
+void QPainter::setClipRect( const QRect &r, ClipMode m )
 {
     QRegion rgn( r );
-    setClipRegion( rgn );
+    setClipRegion( rgn, m );
 }
 
 /*!
@@ -1487,13 +1487,16 @@ void QPainter::setClipRect( const QRect &r )
   \sa setClipRect(), clipRegion(), setClipping()
 */
 
-void QPainter::setClipRegion( const QRegion &rgn )
+void QPainter::setClipRegion( const QRegion &rgn, ClipMode m )
 {
 #if defined(QT_CHECK_STATE)
     if ( !isActive() )
         qWarning( "QPainter::setClipRegion: Will be reset by begin()" );
 #endif
-    crgn = rgn;
+    if ( m == ClipDevice )
+	crgn = rgn;
+    else
+	crgn = xmat * rgn;
 
     if ( testf(ExtDev) ) {
         QPDevCmdParam param[1];

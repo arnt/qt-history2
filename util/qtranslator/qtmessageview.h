@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/qtranslator/qtmessageview.h#2 $
+** $Id: $
 **
 ** This is a utility program for translating Qt applications
 **

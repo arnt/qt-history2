@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcomponentfactory.h#4 $
+** $Id: //depot/qt/main/src/kernel/qcomponentfactory.h#5 $
 **
 ** Definition of the QComponentFactory class
 **

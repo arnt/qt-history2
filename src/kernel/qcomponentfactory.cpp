@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcomponentfactory.cpp#9 $
+** $Id: //depot/qt/main/src/kernel/qcomponentfactory.cpp#10 $
 **
 ** Implementation of the QComponentFactory class
 **
@@ -67,8 +67,6 @@
   \sa QComponentServerInterface, QComponentFactoryInterface
 */
 
-QCleanupHandler< QLibrary > qt_component_server_cleanup;
-
 /*!
   Searches for the component identifier \a cid in the system registry,
   loads the corresponding component server and queries for the interface \a
@@ -105,7 +103,6 @@ QRESULT QComponentFactory::createInstance( const QUuid &cid, const QUuid &iid, Q
 	return;
 
     QLibrary *library = new QLibrary( file );
-    qt_component_server_cleanup.add( library );
 
     QComponentFactoryInterface *cfIface =0;
     library->queryInterface( IID_QComponentFactory, (QUnknownInterface**)&cfIface );

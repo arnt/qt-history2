@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#180 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#181 $
 **
 ** Implementation of QHeader widget class (table header)
 **
@@ -43,9 +43,6 @@
 #include "qbitarray.h"
 #include "qptrvector.h"
 #include "qapplication.h"
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-#include "qaccessiblewidget.h"
-#endif
 
 static const int GRIPMARGIN  = 4;		//half the size of the resize area
 static const int MARKSIZE = 32;
@@ -89,6 +86,7 @@ public:
 	positionsDirty = TRUE;
 	lastPos = 0;
 	fullSize = -2;
+	pos_dirty = FALSE;
     }
 
 
@@ -105,6 +103,7 @@ public:
     uint move : 1;
     uint clicks_default : 1; // default value for new clicks bits
     uint resize_default : 1; // default value for new resize bits
+    uint pos_dirty : 1;
     bool sortDirection;
     bool positionsDirty;
     int sortColumn;
@@ -141,7 +140,7 @@ public:
 
   This class provides a header, e.g. a vertical header to display row
   labels, or a horizontal header to display column labels. It is used by
-  QTable and QListView for example. 
+  QTable and QListView for example.
 
   A header is composed of one or more \e sections, each of which may
   display a text label and an iconset. A sort indicator (an arrow) may
@@ -165,13 +164,13 @@ public:
   (with addLabel()), may not be the same after the move. You don't have
   to worry about this in practice because the QHeader API works in terms
   of section numbers, so it doesn't matter where a particular section
-  has been moved to. 
-  
+  has been moved to.
+
   If you want the current index position of a section call mapToIndex()
   giving it the section number. (This is the number returned by the
   addLabel() call which created the section.) If you want to get the
   section number of a section at a particular index position call
-  mapToSection() giving it the index number. 
+  mapToSection() giving it the index number.
 
     <a name="mapexample">
   <table border="1" cellspacing="0" cellpadding="1">
@@ -822,7 +821,7 @@ void QHeader::setLabel( int section, const QIconSet& iconset, const QString &s, 
 }
 
 /*!
-  Sets the text of section \a section to \a s. 
+  Sets the text of section \a section to \a s.
   The section's width is set to \a size, unless size is negative in
   which case the size is calculated taking account of the size of the text.
   If the section does not exist, nothing happens.
@@ -874,10 +873,10 @@ QIconSet *QHeader::iconSet( int section ) const
 /*!
   Adds a new section with iconset \a iconset and label text \a
   s. Returns the index position where the section was added (at the
-  right for horizontal headers, at the bottom for vertical headers).  
+  right for horizontal headers, at the bottom for vertical headers).
   The section's width is set to \a size, unless size is negative in
   which case the size is calculated taking account of the size of the text.
-  
+
 */
 int QHeader::addLabel( const QIconSet& iconset, const QString &s, int size )
 {
@@ -942,7 +941,7 @@ void QHeader::removeLabel( int section )
 /*!
   Adds a new section with label text \a s. Returns the index position
   where the section was added (at the right for horizontal headers, at
-  the bottom for vertical headers).  
+  the bottom for vertical headers).
   The section's width is set to \a size, unless size is negative in
   which case the size is calculated taking account of the size of the
   text.
@@ -1176,7 +1175,7 @@ void QHeader::setCellSize( int section, int s )
     // Disable resizing of section 3, (the fourth section added)
     header->setResizeEnabled(FALSE, 3);
     \endcode
-  
+
   If the user resizes a section, a sizeChange() signal is emitted.
 
   \sa setMovingEnabled() setClickEnabled() setTracking()
@@ -1414,7 +1413,7 @@ void QHeader::paintEvent( QPaintEvent *e )
 /*!
   Because the QHeader is often used together with table or list widgets,
   QHeader can indicate a sort order. This is achieved by displaying an
-  arrow at the right edge of a section. 
+  arrow at the right edge of a section.
 
   If \a increasing is TRUE (the default) the arrow will point downwards;
   otherwise it will point upwards.
@@ -1624,7 +1623,7 @@ void QHeader::resizeEvent( QResizeEvent *e )
 
 /*!
   \fn void QHeader::adjustHeaderSize()
-  
+
   Adjusts the size of the sections to fit the size of the header as
   completely as possible. Only sections for which isStretchEnabled()
   is TRUE will be resized.
@@ -1673,6 +1672,10 @@ void QHeader::adjustHeaderSize( int diff )
 */
 int QHeader::headerWidth() const
 {
+    if ( d->pos_dirty ) {
+	( (QHeader*)this )->calculatePositions();
+	d->pos_dirty = FALSE;
+    }
     return d->lastPos;
 }
 
@@ -1686,6 +1689,7 @@ void QHeader::calculatePositions( bool onlyVisible, int start )
  	if ( onlyVisible && d->lastPos > offset() + ( orientation() == Horizontal ? width() : height() ) )
  	    break;
     }
+    d->pos_dirty = onlyVisible;
 }
 
 
@@ -1725,7 +1729,7 @@ bool QHeader::isStretchEnabled() const
     return d->fullSize == -1;
 }
 
-/*! 
+/*!
     Returns TRUE if section \a section will resize to take up the full
     width (or height) of the header; otherwise returns FALSE. If at
     least one section has stretch enabled the sections will always take
@@ -1738,13 +1742,5 @@ bool QHeader::isStretchEnabled( int section ) const
 {
     return d->fullSize == section;
 }
-
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-/*! \reimp */
-QAccessibleInterface *QHeader::accessibleInterface()
-{
-    return new QAccessibleHeader( this );
-}
-#endif
 
 #endif // QT_NO_HEADER

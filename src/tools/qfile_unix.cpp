@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile_unix.cpp#33 $
+** $Id: //depot/qt/main/src/tools/qfile_unix.cpp#34 $
 **
 ** Implementation of QFileInfo class
 **
@@ -37,6 +37,10 @@
 
 #include "qplatformdefs.h"
 #include "qfile.h"
+
+#include <errno.h>
+#include <limits.h>
+
 
 bool qt_file_access( const QString& fn, int t )
 {
@@ -611,4 +615,3 @@ void QFile::close()
 
     return;
 }
-

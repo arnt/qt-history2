@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurl.cpp#131 $
+** $Id: //depot/qt/main/src/kernel/qurl.cpp#132 $
 **
 ** Implementation of QUrl class
 **
@@ -1017,8 +1017,8 @@ QString QUrl::dirPath() const
     QString s = path();
     // ### If anything is broken with regards to the directories in QFileDialog
     // et al, then this is probably the place to look
-    if ( s.right( 1 ) != "/" )
-	s += "/";
+//    if ( s.right( 1 ) != "/" )
+//	s += "/";
     s = QFileInfo( s ).dirPath();
 
 //    s = QFileInfo( s ).dirPath( TRUE );

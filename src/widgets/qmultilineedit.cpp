@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#197 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#198 $
 **
 ** Implementation of QMultiLineEdit widget class
 **
@@ -232,19 +232,7 @@ void QMultiLineEdit::pageUp( bool mark )
 
 void QMultiLineEdit::insertLine( const QString &txt, int line )
 {
-    QString s = txt;
-    QTextCursor tmp = *textCursor();
-    if ( line < 0 || line >= numLines() ) {
-	textCursor()->setParag( document()->lastParag() );
-	textCursor()->gotoEnd();
-    } else {
-	s.append('\n');
-	textCursor()->setParag( document()->paragAt( line ) );
-	textCursor()->gotoLineStart();
-    }
-    insert( s );
-    QTextCursor *c = textCursor();
-    *c = tmp;
+    insertParagraph( txt, line );
 }
 
 /*!  Deletes the paragraph at paragraph number \a paragraph. If \a
@@ -254,11 +242,7 @@ void QMultiLineEdit::insertLine( const QString &txt, int line )
 
 void QMultiLineEdit::removeLine( int paragraph )
 {
-    if ( paragraph < 0 || paragraph >= numLines() )
-	return;
-    QTextCursor tmp = *textCursor();
-    tmp.killLine(); // until end
-    tmp.killLine(); // join
+    removeParagraph( paragraph );
 }
 
 /*!  Inserts \a str at the current cursor position and selects the
@@ -428,14 +412,7 @@ void QMultiLineEdit::cursorWordBackward( bool mark )
 
 void QMultiLineEdit::insertAt( const QString &s, int line, int col, bool mark )
 {
-    if ( line < 0 || line >= numLines() )
-	return;
-    QTextCursor tmp = *textCursor();
-    textCursor()->setParag( document()->paragAt( line ) );
-    textCursor()->setIndex( col );
-    insert( s );
-    QTextCursor *c = textCursor();
-    *c = tmp;
+    insertAt( s, line, col );
     if ( mark )
 	setSelection( line, col, line, col + s.length() );
 }

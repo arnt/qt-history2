@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#503 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#504 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -63,10 +63,6 @@ extern IAccessible *qt_createWindowsAccessible( QAccessibleInterface *object );
 #endif // QT_ACCESSIBILITY_SUPPORT
 
 static UINT WM95_MOUSEWHEEL = 0;
-
-#ifndef QT_MAKEDLL
-#include "qtmain_win.cpp"
-#endif
 
 extern void qt_dispatchEnterLeave( QWidget*, QWidget* ); // qapplication.cpp
 
@@ -296,10 +292,8 @@ void qWinMain( HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdParam,
     argv[0] = appName;
 
     while ( *p && p < p_end ) {				// parse cmd line arguments
-
-	while ( isspace(*p) )			// skip white space
+	while ( isspace((uchar) *p) )			// skip white space
 	    p++;
-
 	if ( *p && p < p_end ) {				// arg starts
 	    int quote;
 	    char *start, *r;
@@ -321,7 +315,7 @@ void qWinMain( HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdParam,
 		} else if ( quote ) {
 		    if ( *p == quote ) {
 			p++;
-			if ( isspace(*p) )
+			if ( isspace((uchar) *p) )
 			    break;
 			quote = 0;
 		    }
@@ -329,7 +323,7 @@ void qWinMain( HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdParam,
 		    if ( *p == '\"' || *p == '\'' ) {	// " or ' quote
 			quote = *p++;
 			continue;
-		    } else if ( isspace(*p) )
+		    } else if ( isspace((uchar) *p) )
 			break;
 		}
 		if ( p )
@@ -726,6 +720,20 @@ Q_EXPORT void qAddPostRoutine( QtCleanUpFunction p )
     postRList->prepend( p );
 }
 
+Q_EXPORT void qRemovePostRoutine( QtCleanUpFunction p )
+{
+    if ( !postRList ) 
+	return;
+
+    QVFuncList::Iterator it = postRList->begin();
+
+    while ( it != postRList->end() ) {
+	if ( *it == p ) {
+	    postRList->remove( it );
+	    it = postRList->begin();
+	}
+    }
+}
 
 Q_EXPORT const char *qAppName()			// get application name
 {
@@ -1618,15 +1626,12 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	if ( message >= WM_MOUSEFIRST && message <= WM_MOUSELAST
 	     && message != WM_MOUSEWHEEL ) {
 	    if ( qApp->activePopupWidget() != 0) { // in popup mode
-		QWidget *popup = qApp->activePopupWidget();
-
 		POINT curPos;
 		DWORD ol_pos = GetMessagePos();
 		curPos.x = GET_X_LPARAM(ol_pos);
 		curPos.y = GET_Y_LPARAM(ol_pos);
-		QPoint relPos = popup->mapFromGlobal( QPoint( curPos.x, curPos.y ) );
 
-		QWidget* w = popup->childAt( relPos.x(), relPos.y(), TRUE );
+		QWidget* w = QApplication::widgetAt(curPos.x, curPos.y, TRUE );
 		if ( w )
 		    widget = (QETWidget*)w;
 	    }
@@ -1917,7 +1922,8 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 			break;
 		    }
 
-		    QAccessibleInterface *acc = QAccessible::accessibleInterface( widget );
+		    QAccessibleInterface *acc = 0;
+		    QAccessible::queryAccessibleInterface( widget, &acc );
 		    if ( !acc ) {
 			result = FALSE;
 			break;
@@ -1928,6 +1934,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 
 		    // and get an instance of the IAccessibile implementation
 		    IAccessible *iface = qt_createWindowsAccessible( acc );
+		    acc->release();
 		    LRESULT res = LresultFromObject( IID_IAccessible, wParam, iface );  // ref == 2
 		    iface->Release(); // the client will release the object again, and then it will destroy itself
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/workspace/qworkspace.cpp#89 $
+** $Id: //depot/qt/main/src/workspace/qworkspace.cpp#90 $
 **
 ** Implementation of the QWorkspace class
 **
@@ -57,9 +57,6 @@
 #include "qwmatrix.h"
 #include "qimage.h"
 #include "qscrollbar.h"
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-#include "qaccessiblewidget.h"
-#endif
 
 #define BUTTON_WIDTH	16
 #define BUTTON_HEIGHT	14
@@ -184,10 +181,6 @@ protected:
     void contextMenuEvent( QContextMenuEvent *e ) { e->accept(); }
 
     bool focusNextPrevChild( bool );
-
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-    QAccessibleInterface *accessibleInterface();
-#endif
 
 private:
     QWidget* childWidget;
@@ -722,6 +715,8 @@ void QWorkspace::maximizeWindow( QWidget* w)
 	c->adjustToFullscreen();
 	c->show();
 	c->internalRaise();
+	qApp->sendPostedEvents( c, QEvent::Resize );
+	qApp->sendPostedEvents( c, QEvent::Move );
 	qApp->sendPostedEvents( c, QEvent::ShowWindowRequest );
 	if ( d->maxWindow != c ) {
 	    if ( d->maxWindow )
@@ -999,6 +994,7 @@ void QWorkspace::closeActiveWindow()
     else if ( d->active && d->active->windowWidget() )
 	d->active->windowWidget()->close();
     setUpdatesEnabled( TRUE );
+    updateWorkspace();
 }
 
 void QWorkspace::closeAllWindows()
@@ -1847,6 +1843,7 @@ void QWorkspaceChild::titleBarDoubleClicked()
 
 void QWorkspaceChild::adjustToFullscreen()
 {
+    qApp->sendPostedEvents( childWidget, QEvent::Resize );
     setGeometry( -childWidget->x(), -childWidget->y(),
 		 parentWidget()->width() + width() - childWidget->width(),
 		 parentWidget()->height() + height() - childWidget->height() );
@@ -1913,14 +1910,6 @@ void QWorkspaceChild::move( int x, int y )
     QFrame::move( nx, ny );
 }
 
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-QAccessibleInterface *QWorkspaceChild::accessibleInterface()
-{
-    return new QAccessibleWidget( this, QAccessible::Window );
-}
-#endif
-
-
 bool QWorkspace::scrollBarsEnabled() const
 {
     return d->vbar != 0;
@@ -1967,6 +1956,9 @@ void QWorkspace::setScrollBarsEnabled( bool enable )
 
 QRect QWorkspace::updateWorkspace()
 {
+    if ( !isUpdatesEnabled() )
+	return rect();
+
     QRect cr( rect() );
     
     if ( scrollBarsEnabled() ) {

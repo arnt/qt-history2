@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_p.h#7 $
+** $Id: //depot/qt/main/src/kernel/qpainter_p.h#8 $
 **
 ** Definition of some Qt private functions.
 **

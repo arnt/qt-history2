@@ -150,6 +150,12 @@ public:
     Project *emptyProject();
     void formNameChanged( FormWindow *fw );
 
+    int currentLayoutDefaultSpacing() const;
+    int currentLayoutDefaultMargin() const;
+
+    void saveAllBreakPoints();
+    void resetBreakPoints();
+
 public slots:
     void showProperties( QObject *w );
     void updateProperties( QObject *w );
@@ -181,6 +187,7 @@ public slots:
     bool fileSave();
     bool fileSaveAs();
     void fileSaveAll();
+    void fileSaveProject();
     void fileCreateTemplate();
 
     void editUndo();

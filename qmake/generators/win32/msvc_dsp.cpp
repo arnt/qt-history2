@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/%s#3 $
+** $Id: $
 **
 ** Definition of ________ class.
 **
@@ -360,9 +360,9 @@ DspMakefileGenerator::init()
 		    for(QStringList::Iterator libit = libs.begin(); libit != libs.end(); ++libit)
 			(*libit).replace(QRegExp("qt(-mt)?\\.lib"), ver);
 		}
-		if ( !project->isActiveConfig("dll") ) {
-		    project->variables()["QMAKE_LIBS"] +=project->variables()["QMAKE_LIBS_QT_DLL"];
-		}
+	    }
+	    if ( !project->isActiveConfig("dll") ) {
+		project->variables()["QMAKE_LIBS"] +=project->variables()["QMAKE_LIBS_QT_DLL"];
 	    }
 	}
     }

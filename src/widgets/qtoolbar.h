@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbar.h#71 $
+** $Id: //depot/qt/main/src/widgets/qtoolbar.h#72 $
 **
 ** Definition of QToolBar class
 **
@@ -87,10 +87,6 @@ public:
 protected:
     void resizeEvent( QResizeEvent *e );
     void styleChange( QStyle & );
-
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-    QAccessibleInterface *accessibleInterface();
-#endif
 
 private slots:
     void popupSelected( int id );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#135 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#136 $
 **
 **  Splitter widget
 **
@@ -45,12 +45,10 @@
 #include "qmemarray.h"
 #include "qobjectlist.h"
 #include "qapplication.h" //sendPostedEvents
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-#include "qaccessiblewidget.h"
-#endif
 
 class QSplitterHandle : public QWidget
 {
+    Q_OBJECT
 public:
     QSplitterHandle( Qt::Orientation o,
 		       QSplitter *parent, const char* name=0 );
@@ -69,9 +67,6 @@ protected:
     void mouseMoveEvent( QMouseEvent * );
     void mousePressEvent( QMouseEvent * );
     void mouseReleaseEvent( QMouseEvent * );
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-    QAccessibleInterface *accessibleInterface();
-#endif
 
 private:
     Qt::Orientation orient;
@@ -80,6 +75,8 @@ private:
 
     QSplitter *s;
 };
+
+#include "qsplitter.moc"
 
 static int mouseOffset;
 static int opaqueOldPos = -1; //### there's only one mouse, but this is a bit risky
@@ -146,15 +143,6 @@ void QSplitterHandle::paintEvent( QPaintEvent * )
     QPainter p( this );
     s->drawSplitter( &p, 0, 0, width(), height() );
 }
-
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-QAccessibleInterface *QSplitterHandle::accessibleInterface()
-{
-    return new QAccessibleWidget( this, QAccessible::Separator, QString::null, 
-					QString::null, QString::null, QString::null, 
-					QString::null, QString::null, QAccessible::Moveable );
-}
-#endif
 
 class QSplitterLayoutStruct
 {

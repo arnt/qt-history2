@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtextedit.h#24 $
+** $Id: //depot/qt/main/src/widgets/qtextedit.h#25 $
 **
 ** Definition of the QTextEdit class
 **
@@ -124,6 +124,12 @@ public:
 	MovePgDown
     };
 
+    enum VerticalAlignment {
+	AlignNormal,
+	AlignSuperScript,
+	AlignSubScript
+    };
+
     QTextEdit( const QString& text, const QString& context = QString::null,
 	       QWidget *parent=0, const char *name=0);
     QTextEdit( QWidget *parent = 0, const char *name = 0 );
@@ -146,6 +152,9 @@ public:
     int linesOfParagraph( int para ) const;
     int lineOfChar( int para, int chr );
     int length() const;
+    QRect paragraphRect( int para ) const;
+    int paragraphAt( const QPoint &pos ) const;
+    int charAt( const QPoint &pos, int *para ) const;
 
     QStyleSheet* styleSheet() const;
     QMimeSourceFactory* mimeSourceFactory() const;
@@ -181,8 +190,12 @@ public:
     QFont font() const;
     int alignment() const;
     int undoDepth() const;
-    virtual void insert( const QString &text, bool indent = FALSE, bool checkNewLine = TRUE, bool removeSelected = TRUE );
-    virtual bool getFormat( int para, int index, QFont *font, QColor *color );
+    virtual bool getFormat( int para, int index, QFont *font, QColor *color, VerticalAlignment *verticalAlignment );
+    virtual bool getParagraphFormat( int para, QFont *font, QColor *color,
+				     VerticalAlignment *verticalAlignment, int *alignment,
+				     QStyleSheetItem::DisplayMode *displayMode,
+				     QStyleSheetItem::ListStyle *listStyle,
+				     int *listDepth );
     bool isOverwriteMode() const { return overWrite; }
 
 public slots:
@@ -231,6 +244,7 @@ public slots:
     virtual void setPointSize( int s );
     virtual void setColor( const QColor &c );
     virtual void setFont( const QFont &f );
+    virtual void setVerticalAlignment( VerticalAlignment a );
     virtual void setAlignment( int a );
     virtual void setParagType( QStyleSheetItem::DisplayMode dm, QStyleSheetItem::ListStyle listStyle );
     virtual void setCursorPosition( int parag, int index );
@@ -244,9 +258,17 @@ public slots:
     virtual void placeCursor( const QPoint &pos, QTextCursor *c = 0 );
     virtual void moveCursor( CursorAction action, bool select );
     virtual void doKeyboardAction( KeyboardAction action );
-    virtual void removeSelectedText();
+    virtual void removeSelectedText( int selNum = 0 );
+    virtual void removeSelection( int selNum = 0 );
     virtual void setCurrentFont( const QFont &f );
     virtual void setOverwriteMode( bool b ) { overWrite = b; }
+
+    virtual void scrollToBottom();
+
+    virtual void insert( const QString &text, bool indent = FALSE, bool checkNewLine = TRUE, bool removeSelected = TRUE );
+    virtual void insertAt( const QString &text, int para, int index );
+    virtual void removeParagraph( int para );
+    virtual void insertParagraph( const QString &text, int para );
 
 signals:
     void textChanged();
@@ -257,6 +279,7 @@ signals:
     void currentFontChanged( const QFont &f );
     void currentColorChanged( const QColor &c );
     void currentAlignmentChanged( int a );
+    void currentVerticalAlignmentChanged( VerticalAlignment a );
     void cursorPositionChanged( QTextCursor *c );
     void returnPressed();
     void modificationChanged( bool m );
@@ -290,6 +313,7 @@ protected:
     QTextCursor *textCursor() const;
     void setDocument( QTextDocument *doc );
     virtual QPopupMenu *createPopupMenu();
+    void drawCursor( bool visible );
 
     void windowActivationChange( bool );
 
@@ -334,7 +358,6 @@ private:
 private:
     virtual bool linksEnabled() const { return FALSE; }
     void init();
-    void drawCursor( bool visible );
     void checkUndoRedoInfo( UndoRedoInfo::Type t );
     void updateCurrentFormat();
     void handleReadOnlyKeyEvent( QKeyEvent *e );
@@ -379,7 +402,6 @@ private:
     QTextEditPrivate *d;
     bool inDnD;
     bool readonly;
-
 };
 
 inline QTextDocument *QTextEdit::document() const

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#88 $
+** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#89 $
 **
 ** Implementation of OLE drag and drop for Qt.
 **
@@ -280,7 +280,7 @@ void QDragManager::cancel( bool /* deleteSource */ )
     }
 #endif
 #if defined(QT_ACCESSIBILITY_SUPPORT)
-    emit accessibilityChanged( QAccessible::DragDropEnd );
+    QAccessible::updateAccessibility( this, 0, QAccessible::DragDropEnd );
 #endif
 }
 
@@ -441,7 +441,7 @@ bool QDragManager::drag( QDragObject * o, QDragObject::DragMode mode )
     global_src->setTarget(0);
 
 #if defined(QT_ACCESSIBILITY_SUPPORT)
-    emit accessibilityChanged( QAccessible::DragDropStart );
+    QAccessible::updateAccessibility( this, 0, QAccessible::DragDropStart );
 #endif
 
     const char* fmt;
@@ -564,7 +564,7 @@ QOleDropSource::QueryContinueDrag(BOOL fEscapePressed, DWORD grfKeyState)
 {
     if (fEscapePressed)
 	return ResultFromScode(DRAGDROP_S_CANCEL);
-    else if (!(grfKeyState & MK_LBUTTON))
+    else if ( !(grfKeyState & (MK_LBUTTON|MK_MBUTTON|MK_RBUTTON)) )
 	return ResultFromScode(DRAGDROP_S_DROP);
     else
 	return NOERROR;

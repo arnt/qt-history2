@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#159 $
+** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#160 $
 **
 ** Implementation of QCheckBox class
 **
@@ -44,9 +44,6 @@
 #include "qbitmap.h"
 #include "qtextstream.h"
 #include "qapplication.h"
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-#include "qaccessiblewidget.h"
-#endif
 
 /*!
   \class QCheckBox qcheckbox.h
@@ -299,13 +296,5 @@ void QCheckBox::updateMask()
 
     setMask(bm);
 }
-
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-/*! \reimp */
-QAccessibleInterface *QCheckBox::accessibleInterface()
-{
-    return new QAccessibleButton( this, QAccessible::CheckBox );
-}
-#endif
 
 #endif

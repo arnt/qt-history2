@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qmotifplusstyle.h#5 $
+** $Id: //depot/qt/main/src/styles/qmotifplusstyle.h#6 $
 **
 ** Definition of QMotifPlusStyle class
 **

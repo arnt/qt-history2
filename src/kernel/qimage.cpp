@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#358 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#359 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -3552,7 +3552,7 @@ void qt_init_image_handlers()		// initialize image handlers
 	imageHandlers = new QIHList;
 	Q_CHECK_PTR( imageHandlers );
 	imageHandlers->setAutoDelete( TRUE );
-	qimg_cleanup_handler.add( imageHandlers );
+	qimg_cleanup_handler.add( &imageHandlers );
 #ifndef QT_NO_IMAGEIO_BMP
 	QImageIO::defineIOHandler( "BMP", "^BM", 0,
 				   read_bmp_image, write_bmp_image );
@@ -4647,7 +4647,7 @@ static int read_pbm_int( QIODevice *d )
     while ( TRUE ) {
 	if ( (c=d->getch()) == EOF )		// end of file
 	    break;
-	digit = isdigit(c);
+	digit = isdigit( (uchar) c );
 	if ( val != -1 ) {
 	    if ( digit ) {
 		val = 10*val + c - '0';
@@ -4660,7 +4660,7 @@ static int read_pbm_int( QIODevice *d )
 	}
 	if ( digit )				// first digit
 	    val = c - '0';
-	else if ( isspace(c) )
+	else if ( isspace((uchar) c) )
 	    continue;
 	else if ( c == '#' )
 	    d->readLine( buf, buflen );
@@ -4683,7 +4683,7 @@ static void read_pbm_image( QImageIO *iio )	// read PBM image data
 
     if ( d->readBlock( buf, 3 ) != 3 )			// read P[1-6]<white-space>
 	return;
-    if ( !(buf[0] == 'P' && isdigit(buf[1]) && isspace(buf[2])) )
+    if ( !(buf[0] == 'P' && isdigit((uchar) buf[1]) && isspace((uchar) buf[2])) )
 	return;
     switch ( (type=buf[1]) ) {
 	case '1':				// ascii PBM
@@ -5014,8 +5014,8 @@ static void read_async_image( QImageIO *iio )
 
 static inline int hex2byte( register char *p )
 {
-    return ((isdigit(*p)     ? *p     - '0' : toupper(*p)     - 'A' + 10)<< 4)|
-	   ( isdigit(*(p+1)) ? *(p+1) - '0' : toupper(*(p+1)) - 'A' + 10);
+    return ( (isdigit((uchar) *p) ? *p - '0' : toupper((uchar) *p) - 'A' + 10) << 4 ) |
+	   ( isdigit((uchar) *(p+1)) ? *(p+1) - '0' : toupper((uchar) *(p+1)) - 'A' + 10 );
 }
 
 static void read_xbm_image( QImageIO *iio )

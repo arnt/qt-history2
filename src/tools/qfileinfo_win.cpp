@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfileinfo_win.cpp#20 $
+** $Id: //depot/qt/main/src/tools/qfileinfo_win.cpp#21 $
 **
 ** Implementation of QFileInfo class
 **
@@ -47,12 +47,12 @@ static QString currentDirOfDrive( char ch )
 
     if ( qt_winunicode ) {
 	TCHAR currentName[PATH_MAX];
-	if ( _tgetdcwd( toupper( ch ) - 'A' + 1, currentName, PATH_MAX ) >= 0 ) {
+	if ( _tgetdcwd( toupper( (uchar) ch ) - 'A' + 1, currentName, PATH_MAX ) >= 0 ) {
 	    result = qt_winQString(currentName);
 	}
     } else {
 	char currentName[PATH_MAX];
-	if ( _getdcwd( toupper( ch ) - 'A' + 1, currentName, PATH_MAX ) >= 0 ) {
+	if ( _getdcwd( toupper( (uchar) ch ) - 'A' + 1, currentName, PATH_MAX ) >= 0 ) {
 	    result = QString::fromLatin1(currentName);
 	}
     }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#319 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#320 $
 **
 ** Global type declarations and definitions
 **
@@ -185,6 +185,7 @@
 //   CDS	- Reliant C++
 //   KAI	- KAI C++
 //   HIGHC	- MetaWare High C/C++
+//   INTEL	- Intel C++
 //
 
 // Should be sorted most-authoritative to least-authoritative
@@ -238,11 +239,17 @@
 #    if defined(_BOOL_EXISTS)
 // This is documented for Compaq C++ V6.3, not for Compaq C++ V5.7.
 #    elif __DECCXX_VER < 60060005
-// Versions prior to Compaq C++ V6.0-005, field-test version.
+// Versions prior to Compaq C++ V6.0-005.
 #      define Q_NO_BOOL_TYPE
 #    endif
 #  else
-#    if !defined(_BOOL)
+// From the EDG documentation:
+// _BOOL
+// 	Defined in C++ mode when bool is a keyword. The name of this predefined
+// 	macro is specified by a configuration flag. _BOOL is the default.
+// __BOOL_DEFINED
+// 	Defined in Microsoft C++ mode when bool is a keyword.
+#    if !defined(_BOOL) && !defined(__BOOL_DEFINED)
 #      define Q_NO_BOOL_TYPE
 #    endif
 #    if defined(__COMO__)
@@ -250,10 +257,12 @@
 #      define Q_C_CALLBACKS
 #    elif defined( __KCC )
 #      define Q_CC_KAI
+#    elif defined(__INTEL_COMPILER)
+#      define Q_CC_INTEL
 #    elif defined(CENTERLINE_CLPP) || defined(OBJECTCENTER)
 // mmmh... don't know whether it defines __EDG__ or __EDG for sure!
 #      define Q_CC_OC
-// the new UnixWare 7 compiler is based on EDG and defines __EDG__
+// the new UnixWare 7 compiler is based on EDG and does define __EDG__
 #    elif defined(__USLC__)
 #      define Q_CC_USLC
 #    endif

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.h#185 $
+** $Id: //depot/qt/main/src/widgets/qlistview.h#186 $
 **
 ** Definition of QListView widget class
 **
@@ -173,6 +173,7 @@ public:
     bool isEnabled() const;
 
     virtual int rtti() const;
+    static int RTTI;
 
     virtual void setMultiLinesEnabled( bool b );
     bool multiLinesEnabled() const;
@@ -404,7 +405,6 @@ protected:
 			     int cx, int cy, int cw, int ch );
 
     virtual void paintEmptyArea( QPainter *, const QRect & );
-    void enabledChange( bool );
     void styleChange( QStyle& );
     void windowActivationChange( bool );
 
@@ -471,7 +471,8 @@ public:
     void setEnabled( bool b );
     bool isEnabled() const;
 
-    int rtti() const { return 1; }
+    int rtti() const;
+    static int RTTI;
 
 protected:
     void activate();

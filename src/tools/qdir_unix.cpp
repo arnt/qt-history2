@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir_unix.cpp#30 $
+** $Id: //depot/qt/main/src/tools/qdir_unix.cpp#31 $
 **
 ** Implementation of QDir class
 **
@@ -47,6 +47,9 @@
 #include "qfileinfo.h"
 #include "qregexp.h"
 #include "qstringlist.h"
+
+#include <stdlib.h>
+
 
 void QDir::slashify( QString& )
 {

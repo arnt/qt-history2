@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qregexp.h#38 $
+** $Id: //depot/qt/main/src/tools/qregexp.h#39 $
 **
 ** Definition of QRegExp class
 **

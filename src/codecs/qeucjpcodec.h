@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/codecs/qeucjpcodec.h#5 $
+** $Id: //depot/qt/main/src/codecs/qeucjpcodec.h#6 $
 **
 ** Definition of QEucJpCodec class
 **

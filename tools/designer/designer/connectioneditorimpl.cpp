@@ -76,6 +76,7 @@ static const char* const ignore_slots[] = {
     "showDockMenu(const QPoint&)",
     "init()",
     "destroy()",
+    "deferredDelete()",
     0
 };
 
@@ -92,7 +93,9 @@ ConnectionEditor::ConnectionEditor( QWidget *parent, QObject* sndr, QObject* rcv
 
     QStrList sigs = sender->metaObject()->signalNames( TRUE );
     sigs.remove( "destroyed()" );
+    sigs.remove( "destroyed(QObject*)" );
     sigs.remove( "accessibilityChanged(int)" );
+    sigs.remove( "accessibilityChanged(int,int)" );
     signalBox->insertStrList( sigs );
 
     if ( sender->inherits( "CustomWidget" ) ) {
@@ -213,6 +216,9 @@ void ConnectionEditor::signalChanged()
 
 bool ConnectionEditor::ignoreSlot( const char* slot ) const
 {
+    if ( qstrcmp( slot, "update()" ) == 0 && receiver->inherits( "QDataBrowser" ) )
+	return FALSE;
+
     for ( int i = 0; ignore_slots[i]; i++ ) {
 	if ( qstrcmp( slot, ignore_slots[i] ) == 0 )
 	    return TRUE;

@@ -133,6 +133,7 @@ private:
     QStringList variables;
     QStringList noDatabaseWidgets;
     bool usePixmapCollection;
+    int defMargin, defSpacing;
 
 };
 

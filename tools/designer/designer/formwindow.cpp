@@ -32,6 +32,8 @@
 #include "orderindicator.h"
 #include "hierarchyview.h"
 #include "designerappiface.h"
+#define NO_STATIC_COLORS
+#include "globaldefs.h"
 
 #include <qevent.h>
 #include <qpainter.h>
@@ -175,6 +177,9 @@ void FormWindow::init()
     propertyWidget = w;
     targetContainer = 0;
     hadOwnPalette = FALSE;
+
+    defSpacing = BOXLAYOUT_DEFAULT_SPACING;
+    defMargin = BOXLAYOUT_DEFAULT_MARGIN;
 }
 
 void FormWindow::setMainWindow( MainWindow *w )
@@ -2524,3 +2529,24 @@ QObject *FormWindow::connectableObject( QObject *w, QObject * )
 	return w;
     return w;
 }
+
+int FormWindow::layoutDefaultSpacing() const
+{
+    return defSpacing;
+}
+
+int FormWindow::layoutDefaultMargin() const
+{
+    return defMargin;
+}
+
+void FormWindow::setLayoutDefaultSpacing( int s )
+{
+    defSpacing = s;
+}
+
+void FormWindow::setLayoutDefaultMargin( int s )
+{
+    defMargin = s;
+}
+

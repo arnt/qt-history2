@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/opengl/qgl.h#34 $
+** $Id: //depot/qt/main/src/opengl/qgl.h#35 $
 **
 ** Definition of OpenGL classes for Qt
 **

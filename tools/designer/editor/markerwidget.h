@@ -40,6 +40,7 @@ signals:
     void collapseFunction( QTextParag *p );
     void collapse( bool all /*else only functions*/ );
     void expand( bool all /*else only functions*/ );
+    void editBreakPoints();
 
 public slots:
     void doRepaint() { repaint( FALSE ); }

@@ -8,7 +8,6 @@
 // Set any POSIX/XOPEN defines at the top of this file to turn on specific APIs
 
 #include <unistd.h>
-#include <sys/types.h>
 
 
 // We are hot - unistd.h should have turned on the specific APIs we requested
@@ -18,23 +17,16 @@
 #include <pthread.h>
 #endif
 
-#include <ctype.h>
 #include <dirent.h>
-#include <errno.h>
 #include <fcntl.h>
 #include <grp.h>
-#include <limits.h>
-#include <locale.h>
 #include <pwd.h>
 #include <signal.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <time.h>
 
+#include <sys/types.h>
 #include <sys/ioctl.h>
 #include <sys/ipc.h>
 #include <sys/time.h>
-#include <sys/select.h>
 #include <sys/shm.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
@@ -43,7 +35,7 @@
 // DNS header files are not fully covered by X/Open specifications.
 // In particular nothing is said about res_* :/
 #include <resolv.h>
-// Undeclared - at least on in HP-UX 10.20.
+// Undeclared - at least on HP-UX 10.20.
 extern "C" int res_init();
 
 

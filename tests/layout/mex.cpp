@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/layout/mex.cpp#4 $
+** $Id: $
 **
 ** QBoxLayout example with a QMenuBar
 **

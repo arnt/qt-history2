@@ -291,6 +291,7 @@ public:
     QAction *create( const QString &actionname, QObject* parent = 0 );
     QString group( const QString &actionname ) const;
     void connectTo( QUnknownInterface *ai );
+    bool location( const QString &actionname, Location l ) const;
 
     bool init();
     void cleanup();
@@ -373,6 +374,11 @@ void P4Interface::connectTo( QUnknownInterface *ai )
 	connect( init, SIGNAL( showStatusBarMessage( const QString & ) ), this, SLOT( statusMessage( const QString & ) ) );
 	init->execute();
     }
+}
+
+bool P4Interface::location( const QString &actionname, Location l ) const
+{
+    return TRUE;
 }
 
 QAction* P4Interface::create( const QString& actionname, QObject* parent )

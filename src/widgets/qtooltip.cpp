@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#156 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#157 $
 **
 ** Tool Tips (or Balloon Help) for any widget or rectangle
 **
@@ -41,9 +41,6 @@
 #include "qguardedptr.h"
 #include "qtimer.h"
 #include "qeffects_p.h"
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-#include "qaccessiblewidget.h"
-#endif
 
 static bool globally_enabled = TRUE;
 
@@ -76,14 +73,6 @@ public:
 	setText(text);
 	adjustSize();
     }
-
-protected:
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-    QAccessibleInterface *accessibleInterface()
-    {
-	return new QAccessibleWidget( this, QAccessible::ToolTip );
-    }
-#endif
 };
 
 // Internal class - don't touch
@@ -118,6 +107,8 @@ public:
     void    removeFromGroup( QToolTipGroup * );
 
     void    hideTipAndSleep();
+
+    QString find( QWidget *, const QPoint& );
 
 public slots:
     void    hideTip();
@@ -575,6 +566,14 @@ void QTipManager::allowAnimation()
     preventAnimation = FALSE;
 }
 
+QString QTipManager::find( QWidget *w, const QPoint& pos )
+{
+    Tip *t = (*tips)[ w ];
+    while ( t && !t->rect.contains( pos ) )
+	t = t->next;
+
+    return t ? t->text : QString::null;
+}
 
 // NOT REVISED
 /*!
@@ -823,6 +822,17 @@ void QToolTip::remove( QWidget * widget, const QRect & rect )
 	tipManager->remove( widget, rect );
 }
 
+/*!
+  Returns the text for \a widget at position \a pos, or a null string 
+  if there is no tool tip for widget.
+*/
+
+QString QToolTip::textFor( QWidget *widget, const QPoint& pos )
+{
+    if ( tipManager )
+	return tipManager->find( widget, pos );
+    return QString::null;
+}
 
 /*!
   Hides any tip that is currently being shown.

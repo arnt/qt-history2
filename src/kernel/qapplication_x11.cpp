@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#819 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#820 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -83,6 +83,12 @@ static int qt_thread_pipe[2];
 
 #include "qt_x11.h"
 
+#include <stdlib.h>
+#include <ctype.h>
+#include <locale.h>
+#include <errno.h>
+
+
 //#define X_NOT_BROKEN
 #ifdef X_NOT_BROKEN
 // Some X libraries are built with setlocale #defined to _Xsetlocale,
@@ -163,7 +169,7 @@ static const char *mwTitle	= 0;		// main widget title
 static char    *ximServer	= 0;		// XIM Server will connect to
 static bool	mwIconic	= FALSE;	// main widget iconified
 //Ming-Che 10/10
-static bool	noxim		= False;	// connect to xim or not
+static bool	noxim		= FALSE;	// connect to xim or not
 static Display *appDpy		= 0;		// X11 application display
 static char    *appDpyName	= 0;		// X11 display name
 static bool	appForeignDpy	= FALSE;        // we didn't create display
@@ -671,7 +677,7 @@ void qt_x11_intern_atom( const char *name, Atom *result)
 	return;
 
     if ( create_atoms_now ) {
-	*result = XInternAtom(appDpy, name, FALSE );
+	*result = XInternAtom( appDpy, name, False );
     } else {
 	if ( !atoms_to_be_created ) {
 	    atoms_to_be_created = new QAsciiDict<Atom>;
@@ -701,7 +707,7 @@ static void qt_x11_process_intern_atoms()
 	    i++;
 	    ++it;
 	}
-	XInternAtoms( appDpy, names, i, FALSE, res );
+	XInternAtoms( appDpy, names, i, False, res );
 	while( i ) {
 	    i--;
 	    delete [] names[i];
@@ -718,7 +724,7 @@ static void qt_x11_process_intern_atoms()
 	while( (result = it.current()) != 0 ) {
 	    name = it.currentKey();
 	    ++it;
-	    *result = XInternAtom(appDpy, name, FALSE );
+	    *result = XInternAtom( appDpy, name, False );
 	}
 #endif
 	delete atoms_to_be_created;
@@ -745,7 +751,7 @@ bool QApplication::x11_apply_settings()
     bool update_timestamp = FALSE;
 
     if (XGetWindowProperty(appDpy, appRootWin, qt_settings_timestamp, 0, 0,
-			   FALSE, AnyPropertyType, &type, &format, &nitems,
+			   False, AnyPropertyType, &type, &format, &nitems,
 			   &after, &data) == Success && format == 8) {
 	if (data)
 	    XFree(data);
@@ -755,7 +761,7 @@ bool QApplication::x11_apply_settings()
 
 	while (after > 0) {
 	    XGetWindowProperty(appDpy, appRootWin, qt_settings_timestamp,
-			       offset, 1024, FALSE, AnyPropertyType,
+			       offset, 1024, False, AnyPropertyType,
 			       &type, &format, &nitems, &after, &data);
 	    if (format == 8) {
 		ts.writeBlock((const char *) data, nitems);
@@ -972,7 +978,7 @@ static bool qt_set_desktop_properties()
     const char *data;
 
     int e = XGetWindowProperty( appDpy, appRootWin, qt_desktop_properties, 0, 1,
-				FALSE, AnyPropertyType, &type, &format, &nitems,
+				False, AnyPropertyType, &type, &format, &nitems,
 				&after,  (unsigned char**)&data );
     if ( data )
 	XFree(  (unsigned char*)data );
@@ -983,7 +989,7 @@ static bool qt_set_desktop_properties()
     properties.open( IO_WriteOnly );
     while (after > 0) {
 	XGetWindowProperty( appDpy, appRootWin, qt_desktop_properties,
-			    offset, 1024, FALSE, AnyPropertyType,
+			    offset, 1024, False, AnyPropertyType,
 			    &type, &format, &nitems, &after, (unsigned char**) &data );
 	if (format == 8) {
 	    properties.writeBlock(data, nitems);
@@ -1044,7 +1050,7 @@ static void qt_set_input_encoding()
     const char *data;
 
     int e = XGetWindowProperty( appDpy, appRootWin, qt_input_encoding, 0, 1024,
-				FALSE, XA_STRING, &type, &format, &nitems,
+				False, XA_STRING, &type, &format, &nitems,
 				&after,  (unsigned char**)&data );
     if ( e != Success || !nitems || type == None ) {
 	// Always use the locale codec, since we have no examples of non-local
@@ -1088,7 +1094,7 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0,
 	while (after > 0) {
 	    uchar *data;
 	    XGetWindowProperty( appDpy, appRootWin, qt_resource_manager,
-				offset, 8192, FALSE, AnyPropertyType,
+				offset, 8192, False, AnyPropertyType,
 				&type, &format, &nitems, &after,
 				&data );
 	    res += (char*)data;
@@ -1107,7 +1113,7 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0,
 	    r = res.find( '\n', l );
 	    if ( r < 0 )
 		r = resl;
-	    while ( isspace(res[l]) )
+	    while ( isspace((uchar) res[l]) )
 		l++;
 	    bool mine = FALSE;
 	    if ( res[l] == '*'
@@ -1245,7 +1251,7 @@ void qt_get_net_supported()
     unsigned char *data;
 
     int e = XGetWindowProperty(appDpy, appRootWin, qt_net_supported, 0, 0,
-			       FALSE, XA_ATOM, &type, &format, &nitems, &after, &data);
+			       False, XA_ATOM, &type, &format, &nitems, &after, &data);
     if (data)
 	XFree(data);
 
@@ -1259,7 +1265,7 @@ void qt_get_net_supported()
 
 	while (after > 0) {
 	    XGetWindowProperty(appDpy, appRootWin, qt_net_supported, offset, 1024,
-			       FALSE, XA_ATOM, &type, &format, &nitems, &after, &data);
+			       False, XA_ATOM, &type, &format, &nitems, &after, &data);
 
 	    if (type == XA_ATOM && format == 32) {
 		ts.writeBlock((const char *) data, nitems * 4);
@@ -1316,7 +1322,7 @@ void qt_get_net_virtual_roots()
     unsigned char *data;
 
     int e = XGetWindowProperty(appDpy, appRootWin, qt_net_virtual_roots, 0, 0,
-			       FALSE, XA_ATOM, &type, &format, &nitems, &after, &data);
+			       False, XA_ATOM, &type, &format, &nitems, &after, &data);
     if (data)
 	XFree(data);
 
@@ -1326,7 +1332,7 @@ void qt_get_net_virtual_roots()
 
 	while (after > 0) {
 	    XGetWindowProperty(appDpy, appRootWin, qt_net_virtual_roots, offset, 1024,
-			       FALSE, XA_ATOM, &type, &format, &nitems, &after, &data);
+			       False, XA_ATOM, &type, &format, &nitems, &after, &data);
 
 	    if (type == XA_ATOM && format == 32) {
 		ts.writeBlock((const char *) data, nitems * 4);
@@ -1550,7 +1556,7 @@ void qt_init_internal( int *argcptr, char **argv,
 	    app_Xfd = XConnectionNumber( appDpy );	// set X network socket
 
 	    if ( appSync )				// if "-sync" argument
-		XSynchronize( appDpy, TRUE );
+		XSynchronize( appDpy, True );
 	}
     }
     // Common code, regardless of whether display is foreign.
@@ -1794,7 +1800,7 @@ void QApplication::x11_initialize_style()
 	return;
     if ( !seems_like_KDE_is_running ) {
 	if ( XGetWindowProperty( appDpy, appRootWin, qt_kwin_running, 0, 1,
-				 FALSE, AnyPropertyType, &type, &format,
+				 False, AnyPropertyType, &type, &format,
 				 &length, &after, &data ) == Success
 	     && length ) {
 	    seems_like_KDE_is_running = TRUE;
@@ -1804,7 +1810,7 @@ void QApplication::x11_initialize_style()
     }
     if ( !seems_like_KDE_is_running ) {
 	if ( XGetWindowProperty( appDpy, appRootWin, qt_kwm_running, 0, 1,
-				 FALSE, AnyPropertyType, &type, &format,
+				 False, AnyPropertyType, &type, &format,
 				 &length, &after, &data ) == Success
 	     && length ) {
 	    seems_like_KDE_is_running = TRUE; // KDE1, to be precise
@@ -1818,7 +1824,7 @@ void QApplication::x11_initialize_style()
 #endif
     } else { // maybe another desktop?
 	if ( XGetWindowProperty( appDpy, appRootWin, qt_gbackground_properties, 0, 1,
-				 FALSE, AnyPropertyType, &type, &format,
+				 False, AnyPropertyType, &type, &format,
 				 &length, &after, &data ) == Success
 	     && length ) {
 #ifndef QT_NO_STYLE_CDE
@@ -1897,7 +1903,7 @@ void qt_cleanup()
     appDpy = 0;
 
     if ( appForeignDpy ) {
-	delete [] appName;
+	delete [] (char *)appName;
 	appName = 0;
     }
 
@@ -1932,7 +1938,7 @@ void qt_save_rootinfo()				// save new root info
 
     if ( qt_xsetroot_id ) {			// kill old pixmap
 	if ( XGetWindowProperty( appDpy, appRootWin, qt_xsetroot_id, 0, 1,
-				 TRUE, AnyPropertyType, &type, &format,
+				 True, AnyPropertyType, &type, &format,
 				 &length, &after, &data ) == Success ) {
 	    if ( type == XA_PIXMAP && format == 32 && length == 1 &&
 		 after == 0 && data ) {
@@ -1959,7 +1965,7 @@ bool qt_wstate_iconified( WId winid )
     unsigned long length, after;
     uchar *data;
     int r = XGetWindowProperty( appDpy, winid, qt_wm_state, 0, 2,
-				 FALSE, AnyPropertyType, &type, &format,
+				 False, AnyPropertyType, &type, &format,
 				 &length, &after, &data );
     bool iconic = FALSE;
     if ( r == Success && data && format == 32 ) {
@@ -2135,7 +2141,7 @@ static GC create_gc( int scrn, bool monochrome )
 	    XDestroyWindow( appDpy, w );
 	}
     }
-    XSetGraphicsExposures( appDpy, gc, FALSE );
+    XSetGraphicsExposures( appDpy, gc, False );
     return gc;
 }
 
@@ -2151,13 +2157,13 @@ GC qt_xget_readonly_gc( int scrn, bool monochrome )	// get read-only GC
 	if ( !app_gc_ro_m )			// create GC for bitmap
 	    memset( (app_gc_ro_m = new GC[screenCount]), 0, screenCount * sizeof( GC ) );
 	if ( !app_gc_ro_m[scrn] )
-	    app_gc_ro_m[scrn] = create_gc( scrn, TRUE);
+	    app_gc_ro_m[scrn] = create_gc( scrn, TRUE );
 	gc = app_gc_ro_m[scrn];
     } else {					// create standard GC
 	if ( !app_gc_ro )
 	    memset( (app_gc_ro = new GC[screenCount]), 0, screenCount * sizeof( GC ) );
 	if ( !app_gc_ro[scrn] )
-	    app_gc_ro[scrn] = create_gc( scrn, FALSE);
+	    app_gc_ro[scrn] = create_gc( scrn, FALSE );
 	gc = app_gc_ro[scrn];
     }
     return gc;
@@ -2175,13 +2181,13 @@ GC qt_xget_temp_gc( int scrn, bool monochrome )		// get temporary GC
 	if ( !app_gc_tmp_m )			// create GC for bitmap
 	    memset( (app_gc_tmp_m = new GC[screenCount]), 0, screenCount * sizeof( GC ) );
 	if ( !app_gc_tmp_m[scrn] )
-	    app_gc_tmp_m[scrn] = create_gc( scrn, TRUE);
+	    app_gc_tmp_m[scrn] = create_gc( scrn, TRUE );
 	gc = app_gc_tmp_m[scrn];
     } else {					// create standard GC
 	if ( !app_gc_tmp )
 	    memset( (app_gc_tmp = new GC[screenCount]), 0, screenCount * sizeof( GC ) );
 	if ( !app_gc_tmp[scrn] )
-	    app_gc_tmp[scrn] = create_gc( scrn, FALSE);
+	    app_gc_tmp[scrn] = create_gc( scrn, FALSE );
 	gc = app_gc_tmp[scrn];
     }
     return gc;
@@ -2590,7 +2596,7 @@ void QApplication::flush()
 void QApplication::syncX()
 {
     if ( appDpy )
-	XSync( appDpy, FALSE );			// don't discard events
+	XSync( appDpy, False );			// don't discard events
 }
 
 
@@ -3205,7 +3211,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 			e = XGetWindowProperty(appDpy, event->xproperty.window,
 					       qt_net_wm_frame_strut,
 					       0, 4, // struts are 4 longs
-					       FALSE, XA_CARDINAL, &ret, &format,
+					       False, XA_CARDINAL, &ret, &format,
 					       &nitems, &after, &data);
 
 			if (e == Success && ret == XA_CARDINAL &&
@@ -3229,7 +3235,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 			// using length of 1024 should be safe for all current
 			// and possible NET states...
 			e = XGetWindowProperty(appDpy, event->xproperty.window,
-					       qt_net_wm_state, 0, 1024, FALSE,
+					       qt_net_wm_state, 0, 1024, False,
 					       XA_ATOM, &ret, &format, &nitems,
 					       &after, &data);
 
@@ -3275,7 +3281,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 			    // (the parentWinId != appRootWin) check above
 
 			    e = XGetWindowProperty(appDpy, widget->winId(), qt_wm_state,
-						   0, 2, FALSE, qt_wm_state, &ret,
+						   0, 2, False, qt_wm_state, &ret,
 						   &format, &nitems, &after, &data );
 
 			    if (e == Success && ret == qt_wm_state &&
@@ -3502,7 +3508,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	break;
 
     case ClientMessage:			// client message
-	return x11ClientMessage(widget,event,FALSE);
+	return x11ClientMessage(widget,event,False);
 
     case ReparentNotify:			// window manager reparents
 	while ( XCheckTypedWindowEvent( widget->x11Display(),
@@ -3743,7 +3749,7 @@ void QApplication::openPopup( QWidget *popup )
     }
     popupWidgets->append( popup );		// add to end of list
     if ( popupWidgets->count() == 1 && !qt_nograb() ){ // grab mouse
-	int r = XGrabPointer( popup->x11Display(), popup->winId(), TRUE,
+	int r = XGrabPointer( popup->x11Display(), popup->winId(), True,
 			      (uint)(ButtonPressMask | ButtonReleaseMask |
 				     ButtonMotionMask | EnterWindowMask |
 				     LeaveWindowMask | PointerMotionMask),
@@ -4432,7 +4438,7 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	    if ( type != QEvent::MouseButtonRelease && state != 0 &&
 		 QWidget::find((WId)mouseActWindow) ) {
 		manualGrab = TRUE;		// need to manually grab
-		XGrabPointer( dpy, mouseActWindow, FALSE,
+		XGrabPointer( dpy, mouseActWindow, False,
 			      (uint)(ButtonPressMask | ButtonReleaseMask |
 				     ButtonMotionMask |
 				     EnterWindowMask | LeaveWindowMask),
@@ -5063,9 +5069,9 @@ static Bool isPaintOrScrollDoneEvent( Display *, XEvent *ev, XPointer a )
 	 && ev->xclient.message_type == qt_qt_scrolldone )
     {
 	if ( ev->xexpose.window == info->window )
-	    return TRUE;
+	    return True;
     }
-    return FALSE;
+    return False;
 }
 
 #if defined(Q_C_CALLBACKS)
@@ -5092,7 +5098,7 @@ void qt_insert_sip( QWidget* scrolled_widget, int dx, int dy )
     client_message.message_type = qt_qt_scrolldone;
     client_message.data.l[0] = sip->id;
 
-    XSendEvent( appDpy, scrolled_widget->winId(), FALSE, NoEventMask,
+    XSendEvent( appDpy, scrolled_widget->winId(), False, NoEventMask,
 	(XEvent*)&client_message );
 }
 
@@ -5674,7 +5680,7 @@ static void sm_performSaveYourself( QSessionManager* sm )
 	}
 	else if ( sm_cancel && sm_isshutdown ) {
 	    if ( sm->allowsErrorInteraction() ) {
-		SmcInteractDone( smcConnection, TRUE );
+		SmcInteractDone( smcConnection, True );
 		sm_interactionActive = FALSE;
 	    }
 	}
@@ -5875,7 +5881,7 @@ bool QSessionManager::allowsErrorInteraction()
 void QSessionManager::release()
 {
     if ( sm_interactionActive ) {
-	SmcInteractDone( smcConnection, FALSE );
+	SmcInteractDone( smcConnection, False );
 	sm_interactionActive = FALSE;
 	if ( sm_smActive && sm_isshutdown )
 	    sm_blockUserInput = TRUE;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/xml/outliner/outlinetree.cpp#2 $
+** $Id: //depot/qt/main/examples/xml/outliner/outlinetree.cpp#3 $
 **
 ** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **

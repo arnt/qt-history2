@@ -54,7 +54,7 @@ public:
     bool replace( const QString &find, const QString &replace, bool cs, bool wo, bool forward, bool startAtCursor, bool replaceAll );
     void gotoLine( int line );
     void indent();
-    void scrollTo( const QString &txt );
+    void scrollTo( const QString &txt, const QString &first );
     void splitView();
     void setContext( QObjectList *toplevels, QObject *this_ );
     void readSettings();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/application/application.cpp#14 $
+** $Id: $
 **
 ** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
@@ -258,20 +258,20 @@ void ApplicationWindow::closeEvent( QCloseEvent* ce )
     }
 
     switch( QMessageBox::information( this, "Qt Application Example",
-				      "The document has been changed since "
-				      "the last save.",
-				      "Save Now", "Cancel", "Leave Anyway",
+				      "Do you want to save the changes"
+				      " to the document?",
+				      "Yes", "No", "Cancel",
 				      0, 1 ) ) {
     case 0:
 	save();
 	ce->accept();
 	break;
     case 1:
-    default: // just for sanity
-	ce->ignore();
+	ce->accept();
 	break;
     case 2:
-	ce->accept();
+    default: // just for sanity
+	ce->ignore();
 	break;
     }
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwscursor_qws.cpp#17 $
+** $Id: //depot/qt/main/src/kernel/qwscursor_qws.cpp#18 $
 **
 ** Implementation of QCursor for Qt/Embedded
 **

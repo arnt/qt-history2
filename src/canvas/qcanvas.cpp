@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/canvas/qcanvas.cpp#60 $
+** $Id: //depot/qt/main/src/canvas/qcanvas.cpp#61 $
 **
 ** Implementation of QCanvas and associated classes
 **
@@ -3195,7 +3195,7 @@ void QCanvasSprite::draw(QPainter& painter)
     {
 	QCanvasItemList l = canvas()->collisions(e->pos());
 	for (QCanvasItemList::Iterator it=l.begin(); it!=l.end(); ++it) {
-	    if ( (*it)->rtti() == QCanvasItem::Rtti_Rectangle )
+	    if ( (*it)->rtti() == QCanvasRectangle::RTTI )
 		qDebug("A QCanvasRectangle lies somewhere at this point");
 	}
     }
@@ -4746,13 +4746,12 @@ a QCanvas to be an efficient indexed storage mechanism.
 
 Make your derived classes return their own values for rtti(), so that you
 can distinguish between objects returned by QCanvas::at().  You should
-use values greater than 1000 to allow for extensions to this class.
+use values greater than 1000 to allow extensions to this class.
 
-Overuse of this functionality can
-it damage extensibility.  For example, once you have identified
-a base class of a QCanvasItem found by QCanvas::at(), cast it
-to that type and call meaningful methods rather than acting
-upon the object based on its rtti value.
+Overuse of this functionality can damage it's extensibility.  
+For example, once you have identified a base class of a QCanvasItem 
+found by QCanvas::at(), cast it to that type and call meaningful 
+methods rather than acting upon the object based on its rtti value.
 
 For example:
 
@@ -4760,7 +4759,7 @@ For example:
     QCanvasItem* item;
     // Find an item, eg. with QCanvasItem::collisions().
     ...
-    if (item->rtti() == Rtti_MySprite) {
+    if (item->rtti() == MySprite::RTTI ) {
 	MySprite* s = (MySprite*)item;
 	if (s->isDamagable()) s->loseHitPoints(1000);
 	if (s->isHot()) myself->loseHitPoints(1000);
@@ -4768,21 +4767,24 @@ For example:
     }
 \endcode
 */
-int QCanvasItem::rtti() const { return Rtti_Item; }
+int QCanvasItem::rtti() const { return RTTI; }
+int QCanvasItem::RTTI = Rtti_Item;
 
 /*!
 Returns 1 (QCanvasItem::Rtti_Sprite).
 
 \sa QCanvasItem::rtti()
 */
-int QCanvasSprite::rtti() const { return Rtti_Sprite; }
+int QCanvasSprite::rtti() const { return RTTI; }
+int QCanvasSprite::RTTI = Rtti_Sprite;
 
 /*!
 Returns 2 (QCanvasItem::Rtti_PolygonalItem).
 
 \sa QCanvasItem::rtti()
 */
-int QCanvasPolygonalItem::rtti() const { return Rtti_PolygonalItem; }
+int QCanvasPolygonalItem::rtti() const { return RTTI; }
+int QCanvasPolygonalItem::RTTI = Rtti_PolygonalItem;
 
 /*!
 Returns 3 (QCanvasItem::Rtti_Text).
@@ -4790,43 +4792,47 @@ Returns 3 (QCanvasItem::Rtti_Text).
 \sa QCanvasItem::rtti()
 */
 int QCanvasText::rtti() const { return Rtti_Text; }
+int QCanvasText::RTTI = Rtti_Text;
 
 /*!
 Returns 4 (QCanvasItem::Rtti_Polygon).
 
 \sa QCanvasItem::rtti()
 */
-int QCanvasPolygon::rtti() const { return Rtti_Polygon; }
+int QCanvasPolygon::rtti() const { return RTTI; }
+int QCanvasPolygon::RTTI = Rtti_Polygon;
 
 /*!
 Returns 5 (QCanvasItem::Rtti_Rectangle).
 
 \sa QCanvasItem::rtti()
 */
-int QCanvasRectangle::rtti() const { return Rtti_Rectangle; }
+int QCanvasRectangle::rtti() const { return RTTI; }
+int QCanvasRectangle::RTTI = Rtti_Rectangle;
 
 /*!
 Returns 6 (QCanvasItem::Rtti_Ellipse).
 
 \sa QCanvasItem::rtti()
 */
-int QCanvasEllipse::rtti() const { return Rtti_Ellipse; }
+int QCanvasEllipse::rtti() const { return RTTI; }
+int QCanvasEllipse::RTTI = Rtti_Ellipse;
 
 /*!
 Returns 7 (QCanvasItem::Rtti_Line).
 
 \sa QCanvasItem::rtti()
 */
-int QCanvasLine::rtti() const { return Rtti_Line; }
-
+int QCanvasLine::rtti() const { return RTTI; }
+int QCanvasLine::RTTI = Rtti_Line;
 
 /*!
 Returns 8 (QCanvasItem::Rtti_Spline).
 
 \sa QCanvasItem::rtti()
 */
-int QCanvasSpline::rtti() const { return Rtti_Spline; }
-
+int QCanvasSpline::rtti() const { return RTTI; }
+int QCanvasSpline::RTTI = Rtti_Spline;
 
 /*!
 Constructs a QCanvasSprite which uses images from the QCanvasPixmapArray

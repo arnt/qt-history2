@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/opengl/qglcolormap.cpp#5 $
+** $Id: //depot/qt/main/src/opengl/qglcolormap.cpp#6 $
 **
 ** Implementation of QGLColormap class
 **
@@ -111,7 +111,8 @@ QGLColormap::QGLColormap( const QGLColormap & map )
 }
 
 /*!
-  Dereferences the QGLColormap and deletes it if this was the last reference.
+  Dereferences the QGLColormap and deletes it if this was the last
+  reference to it.
 */
 QGLColormap::~QGLColormap()
 {
@@ -153,7 +154,7 @@ void QGLColormap::detach()
 }
 
 /*!
-  Set cell \a idx in the colormap to \a color.
+  Set cell \a idx in the colormap to color \a color.
 */
 void QGLColormap::setEntry( int idx, QRgb color )
 {
@@ -170,11 +171,12 @@ void QGLColormap::setEntry( int idx, QRgb color )
 }
 
 /*!
-  Set an array of cells in this colormap. \a base is the starting
-  index, \a count is the number of colors that should be set, and \a
-  colors is the array of colors.
+  
+  Set an array of cells in this colormap. \a count is the number of
+  colors that should be set, \a colors is the array of colors, and
+  \a base is the starting index.
 */
-void QGLColormap::setEntries( int base, int count, const QRgb * colors )
+void QGLColormap::setEntries( int count, const QRgb * colors, int base )
 {
     if ( !d )
 	d = new Private();
@@ -221,7 +223,7 @@ QColor QGLColormap::entryColor( int idx ) const
 }
 
 /*!
-  Returns TRUE if the colormap is valid, otherwise FALSE.
+  Returns TRUE if the colormap is empty; otherwise returns FALSE.
   A colormap with no color values set is considered to be empty.
 */
 bool QGLColormap::isEmpty() const

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/qtranslator/main.cpp#1 $
+** $Id: $
 **
 ** This is a utility program for translating Qt applications
 **

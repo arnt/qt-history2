@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtitlebar.cpp#46 $
+** $Id: //depot/qt/main/src/widgets/qtitlebar.cpp#47 $
 **
 ** Implementation of some Qt private functions.
 **
@@ -49,9 +49,6 @@
 #include "qtimer.h"
 #include "qpainter.h"
 #include "../kernel/qinternal_p.h"
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-#include "qaccessiblewidget.h"
-#endif
 #ifndef QT_NO_WORKSPACE
 #include "qworkspace.h"
 #endif
@@ -464,14 +461,7 @@ QSize QTitleBar::sizeHint() const
     constPolish();
     int controlWidth, controlHeight, titleHeight, titleWidth;
     style().titleBarMetrics(this, controlWidth, controlHeight, titleWidth, titleHeight);
-    return QSize( 128, QMAX( QMAX(controlHeight, titleHeight), fontMetrics().lineSpacing() ) );;
+    return QSize( controlWidth, QMAX( QMAX(controlHeight, titleHeight), fontMetrics().lineSpacing() ) );;
 }
-
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-QAccessibleInterface *QTitleBar::accessibleInterface()
-{
-    return new QAccessibleWidget( this, QAccessible::TitleBar );
-}
-#endif
 
 #endif //QT_NO_TITLEBAR

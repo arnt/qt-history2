@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/%s#3 $
+** $Id: $
 **
 ** Definition of ________ class.
 **
@@ -757,8 +757,13 @@ MakefileGenerator::writeUicSrc(QTextStream &t, const QString &ui)
 	t << decl << ": " << (*it) << " " << deps << "\n\t"
 	  << "$(UIC) " << (*it) << " -o " << decl << endl << endl;
 
+	QString mildDecl = decl;
+	int k = mildDecl.findRev( Option::dir_sep );
+	if ( k != -1 )
+	    mildDecl = mildDecl.mid( k + 1 );
+
 	t << impl << ": " << decl << " " << (*it) << " " << deps << "\n\t"
-	  << "$(UIC) " << (*it) << " -i " << decl << " -o " << impl << endl << endl;
+	  << "$(UIC) " << (*it) << " -i " << mildDecl << " -o " << impl << endl << endl;
     }
 }
 

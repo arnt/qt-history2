@@ -829,7 +829,7 @@ QPtrList<QTextRun> *QComplexText::bidiReorderLine( QBidiControl *control, const 
 	    dirCurrent = text.at(current).direction();
 
 
-#if BIDI_DEBUG > 1
+#if defined(BIDI_DEBUG) && BIDI_DEBUG > 1
 	cout << "directions: dir=" << dir << " current=" << dirCurrent << " last=" << status.last << " eor=" << status.eor << " lastStrong=" << status.lastStrong << " embedding=" << context->dir << " level =" << (int)context->level << endl;
 #endif
 

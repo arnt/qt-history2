@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qhostaddress.cpp#7 $
+** $Id: //depot/qt/main/src/network/qhostaddress.cpp#8 $
 **
 ** Implementation of QHostAddress class.
 **

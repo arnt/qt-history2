@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgfxvoodoodefs_qws.h#7 $
+** $Id: //depot/qt/main/src/kernel/qgfxvoodoodefs_qws.h#8 $
 **
 ** Voodoo defines
 **

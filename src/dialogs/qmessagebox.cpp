@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#171 $
+** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#172 $
 **
 ** Implementation of QMessageBox class
 **
@@ -43,9 +43,6 @@
 #include "qpushbutton.h"
 #include "qimage.h"
 #include "qapplication.h"
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-#include "qaccessiblewidget.h"
-#endif
 
 // Message box icons, from page 210 of the Windows style guide.
 
@@ -654,14 +651,18 @@ void QMessageBox::init( int button0, int button1, int button2 )
 {
     if ( !translatedTextAboutQt ) {
         translatedTextAboutQt = new QString;
-        *translatedTextAboutQt
-            = tr( "<h3>About Qt</h3>"
-                  "<p>This program uses Qt version %1, a multiplatform C++ "
-                  "GUI toolkit from Trolltech. Qt provides single-source "
-                  "portability across Windows 95/98/NT/2000, Linux, Solaris, "
-                  "HP-UX and many other versions of Unix with X11.</p>"
-                  "<p>See <tt>http://www.trolltech.com/qt/</tt> for more "
-                  "information.</p>" ).arg( QT_VERSION_STR );
+        *translatedTextAboutQt = tr(  
+	    "<h3>About Qt</h3>"
+	    "<p>This program uses Qt version %1.</p>"
+	    "<p>Qt is a multi-platform C++ "
+	    "GUI application framework from Trolltech. "
+	    "Qt provides single-source "
+	    "portability across Windows 95/98/NT4/ME/2000, Linux, Solaris, "
+	    "HP-UX and many other versions of Unix with X11. "
+	    "Qt is also available for embedded devices.</p>"
+	    "<p>See <tt>http://www.trolltech.com/qt/</tt> "
+	    "for more information.</p>"
+	    ).arg( QT_VERSION_STR );
     }
     label = new QLabel( this, "text" );
     Q_CHECK_PTR( label );
@@ -1504,14 +1505,6 @@ void QMessageBox::setTextFormat( Qt::TextFormat format )
 {
     label->setTextFormat( format );
 }
-
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-/*! \reimp */
-QAccessibleInterface *QMessageBox::accessibleInterface()
-{
-    return new QAccessibleWidget( this, QAccessible::AlertMessage );
-}
-#endif
 
 // My own personal favorite minimalist error message popped up whilst
 // testing Freehand 8 last month.  I took a screen shot.  I believe I

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.h#71 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.h#72 $
 **
 ** Definition of QScrollBar class
 **
@@ -115,10 +115,6 @@ protected:
     QRect	sliderRect() const;
 
     void styleChange( QStyle& );
-
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-    QAccessibleInterface *accessibleInterface();
-#endif
 
 private slots:
     void doAutoRepeat();

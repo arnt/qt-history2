@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_mac.cpp
+** $Id: //depot/qt/main/src/kernel/qapplication_mac.cpp#245 $
 **
 ** Implementation of Mac startup routines and event handling
 **

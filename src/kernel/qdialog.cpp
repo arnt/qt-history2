@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdialog.cpp#158 $
+** $Id: //depot/qt/main/src/kernel/qdialog.cpp#159 $
 **
 ** Implementation of QDialog class
 **
@@ -48,7 +48,7 @@
 #include "qwhatsthis.h" // ######## dependency
 #include "qpopupmenu.h" // ######## dependency
 #if defined(QT_ACCESSIBILITY_SUPPORT)
-#include "qaccessiblewidget.h" // ######## dependency
+#include "qaccessible.h"
 #endif
 
 
@@ -584,7 +584,7 @@ void QDialog::show()
     }
     QWidget::show();
 #if defined(QT_ACCESSIBILITY_SUPPORT)
-    emit accessibilityChanged( QAccessible::DialogStart );
+    QAccessible::updateAccessibility( this, 0, QAccessible::DialogStart );
 #endif
 }
 
@@ -593,7 +593,7 @@ void QDialog::hide()
 {
 #if defined(QT_ACCESSIBILITY_SUPPORT)
     if ( isVisible() )
-	emit accessibilityChanged( QAccessible::DialogEnd );
+	QAccessible::updateAccessibility( this, 0, QAccessible::DialogEnd );
 #endif
     // Reimplemented to exit a modal when the dialog is hidden.
     QWidget::hide();
@@ -835,15 +835,5 @@ void QDialog::resizeEvent( QResizeEvent * )
 	d->resizer->move( rect().bottomRight() -d->resizer->rect().bottomRight() );
 #endif
 }
-
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-/*!
-  \reimp
-*/
-QAccessibleInterface *QDialog::accessibleInterface()
-{
-    return new QAccessibleWidget( this, QAccessible::Dialog );
-}
-#endif
 
 #endif // QT_NO_DIALOG

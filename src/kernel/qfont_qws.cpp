@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_qws.cpp#36 $
+** $Id: //depot/qt/main/src/kernel/qfont_qws.cpp#37 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for FB
 **

@@ -78,13 +78,6 @@ protected:
     bool eventFilter( QObject* o, QEvent* e );
     void alphaBlend();
 
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-    QAccessibleInterface *accessibleInterface()
-    {
-	return 0;
-    }
-#endif
-
 protected slots:
     void render();
     void goodBye();
@@ -147,6 +140,9 @@ void QAlphaWidget::run( int time )
     showWidget = TRUE;
     widget->installEventFilter( this );
     qApp->installEventFilter( this );
+
+    widget->setWState( WState_Visible );
+    widget->clearWState( WState_ForceHide );
 
     move( widget->geometry().x(),widget->geometry().y() );
     resize( widget->size().width(), widget->size().height() );
@@ -333,13 +329,6 @@ protected:
     void paintEvent( QPaintEvent* );
     bool eventFilter( QObject*, QEvent* );
     void closeEvent( QCloseEvent* );
-
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-    QAccessibleInterface *accessibleInterface()
-    {
-	return 0;
-    }
-#endif
 
 private slots:
     void scroll();

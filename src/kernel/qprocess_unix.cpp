@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#82 $
+** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#83 $
 **
 ** Implementation of QProcess class for Unix
 **
@@ -49,6 +49,10 @@
 #include "qsocketnotifier.h"
 #include "qtimer.h"
 #include "qcleanuphandler.h"
+
+#include <stdlib.h>
+#include <errno.h>
+
 
 //#define QT_QPROCESS_DEBUG
 
@@ -226,8 +230,6 @@ QProcessManager::QProcessManager()
     act.sa_flags = 0;
     if ( sigaction( SIGPIPE, &act, &oldactPipe ) != 0 )
 	qWarning( "Error installing SIGPIPE handler" );
-
-    qprocess_cleanup_procmanager.add( this );
 }
 
 QProcessManager::~QProcessManager()
@@ -274,8 +276,8 @@ void QProcessManager::remove( QProc *p )
 
 void QProcessManager::removeMe()
 {
+    qprocess_cleanup_procmanager.remove( &QProcessPrivate::procManager );
     QProcessPrivate::procManager = 0;
-    qprocess_cleanup_procmanager.remove( this );
     delete this;
 }
 
@@ -415,6 +417,7 @@ void QProcessPrivate::newProc( pid_t pid, QProcess *process )
     proc = new QProc( pid, process );
     if ( procManager == 0 ) {
 	procManager = new QProcessManager;
+	qprocess_cleanup_procmanager.add( &procManager );
     }
     // the QProcessManager takes care of deleting the QProc instances
     procManager->append( proc );
@@ -975,6 +978,26 @@ void QProcess::setNotifyOnExit( bool value )
 void QProcess::setWroteStdinConnected( bool value )
 {
     wroteToStdinConnected = value;
+}
+
+/*! \enum QProcess::PID
+  \internal
+*/
+/*!
+  Returns platform dependent information about the process. This can be used
+  together with platform specific system calls.
+
+  Under Unix the return value is the PID of the process, or -1 if no process is
+  belonging to this object.
+
+  Under Windows it is a pointer to the \c PROCESS_INFORMATION struct, or 0 if
+  no process is belonging to this object.
+*/
+QProcess::PID QProcess::processIdentifier()
+{
+    if ( d->proc == 0 )
+	return -1;
+    return d->proc->pid;
 }
 
 #endif // QT_NO_PROCESS

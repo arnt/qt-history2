@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.h#112 $
+** $Id: //depot/qt/main/src/kernel/qfont.h#113 $
 **
 ** Definition of QFont class
 **

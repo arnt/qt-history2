@@ -31,6 +31,8 @@ class QPopupMenu;
 class QKeyEvent;
 class QMouseEvent;
 class QWizard;
+class SourceEditor;
+struct ClassBrowserInterface;
 
 class HierarchyItem : public QListViewItem
 {
@@ -136,6 +138,10 @@ public:
 
     void setFormWindow( FormWindow *fw, QWidget *w );
     FormWindow *formWindow() const;
+    SourceEditor *sourceEditor() const { return editor; }
+
+    void showClasses( SourceEditor *se );
+    void updateClassBrowsers();
 
     void widgetInserted( QWidget *w );
     void widgetRemoved( QWidget *w );
@@ -151,6 +157,9 @@ public:
 
     FunctionList *functionList() const { return fList; }
 
+protected slots:
+    void jumpTo( const QString &func, const QString &clss,int type );
+
 protected:
     void closeEvent( QCloseEvent *e );
 
@@ -158,9 +167,18 @@ signals:
     void hidden();
 
 private:
+    struct ClassBrowser
+    {
+	ClassBrowser( QListView * = 0, ClassBrowserInterface * = 0 );
+	~ClassBrowser();
+	QListView *lv;
+	ClassBrowserInterface *iface;
+    };
     FormWindow *formwindow;
     HierarchyList *listview;
     FunctionList *fList;
+    SourceEditor *editor;
+    QMap<QString, ClassBrowser> classBrowsers;
 
 };
 

@@ -93,7 +93,7 @@ QSqlEditorFactory * QSqlEditorFactory::defaultFactory()
 {
     if( defaultfactory == 0 ){
 	defaultfactory = new QSqlEditorFactory();
-	qsql_cleanup_editor_factory.add( defaultfactory );
+	qsql_cleanup_editor_factory.add( &defaultfactory );
     }
 
     return defaultfactory;
@@ -112,11 +112,11 @@ void QSqlEditorFactory::installDefaultFactory( QSqlEditorFactory * factory )
     if( factory == 0 ) return;
 
     if( defaultfactory != 0 ){
-	qsql_cleanup_editor_factory.remove( defaultfactory );
+	qsql_cleanup_editor_factory.remove( &defaultfactory );
 	delete defaultfactory;
     }
     defaultfactory = factory;
-    qsql_cleanup_editor_factory.add( defaultfactory );
+    qsql_cleanup_editor_factory.add( &defaultfactory );
 }
 
 /*!

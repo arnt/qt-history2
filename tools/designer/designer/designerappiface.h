@@ -82,6 +82,8 @@ public:
     void setCustomSetting( const QString &key, const QString &value );
     QString customSetting( const QString &key ) const;
     DesignerPixmapCollection *pixmapCollection() const;
+    void breakPoints( QMap<QString, QValueList<int> > &bps ) const;
+    void clearAllBreakpoints() const;
 
 private:
     Project *project;

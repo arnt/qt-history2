@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpen.h#39 $
+** $Id: //depot/qt/main/src/kernel/qpen.h#40 $
 **
 ** Definition of QPen class
 **

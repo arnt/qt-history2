@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_mac.cpp#123 $
+** $Id: //depot/qt/main/src/kernel/qpainter_mac.cpp#124 $
 **
 ** Implementation of QPainter class for Mac
 **
@@ -665,12 +665,12 @@ void QPainter::setClipping( bool b )
 }
 
 
-void QPainter::setClipRect( const QRect &r )
+void QPainter::setClipRect( const QRect &r, ClipMode m )
 {
-    setClipRegion(QRegion(r));
+    setClipRegion(QRegion(r), m);
 }
 
-void QPainter::setClipRegion( const QRegion &r )
+void QPainter::setClipRegion( const QRegion &r, ClipMode m )
 {
     if ( !isActive() ) {
 #if defined(CHECK_STATE)
@@ -679,7 +679,11 @@ void QPainter::setClipRegion( const QRegion &r )
 	return;
     }
 
-    crgn = r;
+    if ( m == ClipDevice )
+	crgn = rgn;
+    else
+	crgn = xmat * rgn;
+
     setf( ClipOn );
     paintreg = QRegion();
     initPaintDevice(); //reset clip region

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatastream.cpp#79 $
+** $Id: //depot/qt/main/src/tools/qdatastream.cpp#80 $
 **
 ** Implementation of QDataStream class
 **
@@ -741,7 +741,7 @@ QDataStream &QDataStream::readRawBytes( char *s, uint len )
 QDataStream &QDataStream::operator<<( Q_INT8 i )
 {
     CHECK_STREAM_PRECOND
-    if ( printable && (i == '\\' || !isprint(i)) ) {
+    if ( printable && (i == '\\' || !isprint((uchar) i)) ) {
 	char buf[6];				// write octal code
 	buf[0] = '\\';
 	buf[1] = '0' + ((i >> 6) & 0x07);

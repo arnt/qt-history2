@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/layout/jex.cpp#1 $
+** $Id: $
 **
 ** Implementing your own layout: flow example
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsizegrip.h#12 $
+** $Id: //depot/qt/main/src/kernel/qsizegrip.h#13 $
 **
 ** Definition of QSizeGrip class
 **
@@ -59,10 +59,6 @@ protected:
     void mouseMoveEvent( QMouseEvent * );
 
     bool eventFilter( QObject *, QEvent * );
-
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-    QAccessibleInterface *accessibleInterface();
-#endif
 
 private:
     QPoint p;

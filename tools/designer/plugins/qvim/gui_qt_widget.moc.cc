@@ -2,7 +2,7 @@
 ** VimMainWindow meta object code from reading C++ file 'gui_qt_widget.h'
 **
 ** Created: Sun Jan 14 22:38:29 2001
-**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#220 $)
+**      by: The Qt MOC ($Id: $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/

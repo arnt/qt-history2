@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qdockarea.cpp#68 $
+** $Id: //depot/qt/main/src/widgets/qdockarea.cpp#69 $
 **
 ** Implementation of the QDockArea class
 **
@@ -304,10 +304,9 @@ static void place_line( QValueList<DockData> &lastLine, Qt::Orientation o, int l
 
 int QDockAreaLayout::layoutItems( const QRect &rect, bool testonly )
 {
-    if ( !dockWindows || !dockWindows->first() || !testonly && skipNextLayout ) {
-	skipNextLayout = FALSE;
+    if ( !dockWindows || !dockWindows->first() )
 	return 0;
-    }
+
     // some corrections
     QRect r = rect;
     if ( orientation() == Vertical )
@@ -399,7 +398,6 @@ int QDockAreaLayout::layoutItems( const QRect &rect, bool testonly )
 	hadResizable = hadResizable || dw->isResizeEnabled();
 	dw->updateSplitterVisibility( !dw->area()->isLastDockWindow( dw ) );
     }
-    skipNextLayout = !testonly;
     return sectionpos + linestrut + ( orientation() == Horizontal ? 2 : 0 );
 }
 
@@ -471,7 +469,7 @@ int QDockAreaLayout::widthForHeight( int h ) const
   bottom. If a dock window is floated it still retains its position since this
   is where the window will return if the user double clicks its caption. A
   dock window's position can be determined with hasDockWindow(). The position
-  can be changed with moveDockWindow(). 
+  can be changed with moveDockWindow().
 
   To dock or undock a dock window use QDockWindow::dock() and
   QDockWindow::undock() respectively. If you want to control which dock
@@ -928,7 +926,7 @@ QPtrList<QDockWindow> QDockArea::dockWindowList() const
     return *dockWindows;
 }
 
-/*! 
+/*!
     Lines up the dock windows in this dock area to minimize wasted space. If
     \a keepNewLines is TRUE, only space within lines is cleaned up. If \a
     keepNewLines is FALSE the number of lines might be changed.

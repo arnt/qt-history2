@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/%s#3 $
+** $Id: $
 **
 ** Definition of ________ class.
 **
@@ -165,13 +165,17 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
       << "$(ZIP) " << var("PROJECT") << ".zip "
       << var("PROJECT") << ".pro $(SOURCES) $(HEADERS) $(DIST) $(INTERFACES)" << endl << endl;
 
-    t << "clean:" << "\n\t"
-      << varGlue("OBJECTS","\n\t-del ","\n\t-del ","") 
+    t << "clean:" << "\n"
+      << varGlue("OBJECTS","\t-del ","\n\t-del ","") 
       << varGlue("SRCMOC" ,"\n\t-del ","\n\t-del ","")
       << varGlue("OBJMOC" ,"\n\t-del ","\n\t-del ","")
       << "\n\t-del $(TARGET)"
       << varGlue("QMAKE_CLEAN","\n\t-del ","\n\t-del ","")
-      << varGlue("CLEAN_FILES","\n\t-del ","\n\t-del ","") << endl << endl;
+      << varGlue("CLEAN_FILES","\n\t-del ","\n\t-del ","");
+    if(project->isActiveConfig("dll") && !project->variables()["DLLDESTDIR"].isEmpty()) {
+	t << "\n\t-del" << var("DLLDESTDIR") << "\\$(TARGET)";
+    }
+    t << endl << endl;
 }
 
 
@@ -301,9 +305,9 @@ NmakeMakefileGenerator::init()
 		    for(QStringList::Iterator libit = libs.begin(); libit != libs.end(); ++libit)
 			(*libit).replace(QRegExp("qt(-mt)?\\.lib"), ver);
 		}
-		if ( !project->isActiveConfig("dll") ) {
-		    project->variables()["QMAKE_LIBS"] +=project->variables()["QMAKE_LIBS_QT_DLL"];
-		}
+	    }
+	    if ( !project->isActiveConfig("dll") ) {
+		project->variables()["QMAKE_LIBS"] +=project->variables()["QMAKE_LIBS_QT_DLL"];
 	    }
 	}
     }

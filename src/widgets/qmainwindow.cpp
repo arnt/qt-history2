@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#325 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#326 $
 **
 ** Implementation of QMainWindow class
 **
@@ -58,9 +58,63 @@
 #include "qbitmap.h"
 #include "qdockarea.h"
 #include "qstringlist.h"
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-#include "qaccessiblewidget.h"
+
+/*
+ QMainWindowPrivate - private variables of QMainWindow
+*/
+
+class QMainWindowPrivate
+{
+public:
+    QMainWindowPrivate()
+	:  mb(0), sb(0), ttg(0), mc(0), tll(0), ubp( FALSE ), utl( FALSE ),
+	   justify( FALSE ), movable( TRUE ), opaque( FALSE ), dockMenu( TRUE )
+    {
+	docks.insert( Qt::Top, TRUE );
+	docks.insert( Qt::Bottom, TRUE );
+	docks.insert( Qt::Left, TRUE );
+	docks.insert( Qt::Right, TRUE );
+	docks.insert( Qt::Minimized, TRUE );
+	docks.insert( Qt::TornOff, TRUE );
+    }
+
+    ~QMainWindowPrivate()
+    {
+    }
+
+#ifndef QT_NO_MENUBAR
+    QMenuBar * mb;
+#else
+    QWidget * mb;
 #endif
+    QStatusBar * sb;
+    QToolTipGroup * ttg;
+
+    QWidget * mc;
+
+    QBoxLayout * tll;
+
+    bool ubp;
+    bool utl;
+    bool justify;
+
+    bool movable;
+    bool opaque;
+
+    QDockArea *topDock, *bottomDock, *leftDock, *rightDock;
+
+    QPtrList<QDockWindow> dockWindows;
+    QMap<Qt::Dock, bool> docks;
+    QStringList disabledDocks;
+    bool dockMenu;
+    QHideDock *hideDock;
+
+    QGuardedPtr<QPopupMenu> rmbMenu, tbMenu, dwMenu;
+    QMap<QDockWindow*, bool> appropriate;
+    QMap<QPopupMenu*, QMainWindow::DockWindows> dockWindowModes;
+
+};
+
 
 /* QMainWindowLayout, respects widthForHeight layouts (like the left
   and right docks are)
@@ -71,7 +125,7 @@ class QMainWindowLayout : public QLayout
     Q_OBJECT
 
 public:
-    QMainWindowLayout( QLayout* parent = 0 );
+    QMainWindowLayout( QMainWindow *mw, QLayout* parent = 0 );
     ~QMainWindowLayout() {}
 
     void addItem( QLayoutItem * );
@@ -95,6 +149,7 @@ private:
     int layoutItems( const QRect&, bool testonly = FALSE );
     QDockArea *left, *right;
     QWidget *central;
+    QMainWindow *mainWindow;
 
 };
 
@@ -144,9 +199,10 @@ QSize QMainWindowLayout::minimumSize() const
     return QSize( w, h );
 }
 
-QMainWindowLayout::QMainWindowLayout( QLayout* parent )
+QMainWindowLayout::QMainWindowLayout( QMainWindow *mw, QLayout* parent )
     : QLayout( parent ), left( 0 ), right( 0 ), central( 0 )
 {
+    mainWindow = mw;
 }
 
 void QMainWindowLayout::setLeftDock( QDockArea *l )
@@ -178,14 +234,17 @@ int QMainWindowLayout::layoutItems( const QRect &r, bool testonly )
     if ( w < 0 )
 	w = 0;
 
+    int diff = 0;
+    if ( mainWindow->d->topDock->isEmpty() )
+	diff = 2;
     if ( !testonly ) {
 	QRect g( geometry() );
 	if ( left )
-	    left->setGeometry( QRect( g.x(), g.y(), wl, r.height() ) );
+	    left->setGeometry( QRect( g.x(), g.y() + diff, wl, r.height() - diff ) );
 	if ( right )
-	    right->setGeometry( QRect( g.x() + g.width() - wr, g.y(), wr, r.height() ) );
+	    right->setGeometry( QRect( g.x() + g.width() - wr, g.y() + diff, wr, r.height() - diff ) );
 	if ( central )
-	    central->setGeometry( g.x() + wl, g.y() + 2, w, r.height() - 2 );
+	    central->setGeometry( g.x() + wl, g.y() + diff, w, r.height() - diff );
     }
 
     w = wl + wr;
@@ -413,67 +472,6 @@ void QHideToolTip::maybeTip( const QPoint &pos )
 	x += 30;
     }
 }
-
-
-
-
-/*
- QMainWindowPrivate - private variables of QMainWindow
-*/
-
-class QMainWindowPrivate
-{
-public:
-    QMainWindowPrivate()
-	:  mb(0), sb(0), ttg(0), mc(0), tll(0), ubp( FALSE ), utl( FALSE ),
-	   justify( FALSE ), movable( TRUE ), opaque( FALSE ), dockMenu( TRUE )
-    {
-	docks.insert( Qt::Top, TRUE );
-	docks.insert( Qt::Bottom, TRUE );
-	docks.insert( Qt::Left, TRUE );
-	docks.insert( Qt::Right, TRUE );
-	docks.insert( Qt::Minimized, TRUE );
-	docks.insert( Qt::TornOff, TRUE );
-    }
-
-    ~QMainWindowPrivate()
-    {
-    }
-
-#ifndef QT_NO_MENUBAR
-    QMenuBar * mb;
-#else
-    QWidget * mb;
-#endif
-    QStatusBar * sb;
-    QToolTipGroup * ttg;
-
-    QWidget * mc;
-
-    QBoxLayout * tll;
-
-    bool ubp;
-    bool utl;
-    bool justify;
-
-    bool movable;
-    bool opaque;
-
-    QDockArea *topDock, *bottomDock, *leftDock, *rightDock;
-
-    QPtrList<QDockWindow> dockWindows;
-    QMap<Qt::Dock, bool> docks;
-    QStringList disabledDocks;
-    bool dockMenu;
-    QHideDock *hideDock;
-
-    QGuardedPtr<QPopupMenu> rmbMenu, tbMenu, dwMenu;
-    QMap<QDockWindow*, bool> appropriate;
-    QMap<QPopupMenu*, QMainWindow::DockWindows> dockWindowModes;
-
-};
-
-
 
 /*! \class QMainWindow qmainwindow.h
 
@@ -1124,6 +1122,7 @@ void QMainWindow::addDockWindow( QDockWindow *dockWindow,
     connect( dockWindow, SIGNAL( placeChanged( QDockWindow::Place ) ),
 	     this, SLOT( slotPlaceChanged() ) );
     dockWindow->installEventFilter( this );
+    dockWindow->setOpaqueMoving( d->opaque );
 }
 
 
@@ -1302,7 +1301,7 @@ void QMainWindow::setUpLayout()
 	d->tll->addSpacing( d->movable ? 1  : 2 );
     d->tll->addWidget( d->topDock );
 
-    QMainWindowLayout *mwl = new QMainWindowLayout( d->tll );
+    QMainWindowLayout *mwl = new QMainWindowLayout( this, d->tll );
 
     mwl->setLeftDock( d->leftDock );
     if ( centralWidget() )
@@ -1388,7 +1387,7 @@ QWidget * QMainWindow::centralWidget() const
 
 void QMainWindow::paintEvent( QPaintEvent * )
 {
-    if ( style() == WindowsStyle && d->mb && !d->topDock->isEmpty() ) {
+    if ( style() == WindowsStyle && d->mb ) {
 	QPainter p( this );
 	int y = d->mb->height() + 1;
 	style().drawSeparator( &p, 0, y, width(), y, colorGroup() );
@@ -2184,17 +2183,6 @@ void QMainWindow::setAppropriate( QDockWindow *dw, bool a )
 {
     d->appropriate.replace( dw, a );
 }
-
-
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-/*!
-  \reimp
-*/
-QAccessibleInterface *QMainWindow::accessibleInterface()
-{
-    return new QAccessibleWidget( this, QAccessible::Application );
-}
-#endif
 
 #ifndef QT_NO_TEXTSTREAM
 static void saveDockArea( QTextStream &ts, QDockArea *a )

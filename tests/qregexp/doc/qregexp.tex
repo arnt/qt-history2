@@ -25,7 +25,7 @@
 
 \beginsection 1. Introduction
 
-The purpose of this text is to describe the algorithms found in the implementation of regular expressions in~Qt~3.0.  We will focus on theory and examples, and mention hastily where to look for the relevant code.
+This text describes the algorithms found in the implementation of regular expressions in~Qt~3.0.  We will focus on theory and examples, and mention hastily where to look for the relevant code.
 
 Regular expressions are provided by the class {\sf QRegExp} in files {\it qregexp.cpp} and {\it qregexp.h}.  (We shall use a sans-serif font, {\sf like this}, for symbols in source files.)  A {\sf QRegExp} object is represented by a pair of pointers:  {\sf eng}, a pointer to a (shared) {\sf QRegExpEngine} object, and {\sf priv}, a pointer to the rest of the private data.  What interests us here is primarly {\sf QRegExpEngine}, which encapsulates the regular expression algorithms.
 

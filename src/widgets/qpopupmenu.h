@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.h#100 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.h#101 $
 **
 ** Definition of QPopupMenu class
 **
@@ -112,10 +112,6 @@ protected:
 
     QRect	itemGeometry( int index );
     int		itemAtPos( const QPoint &, bool ignoreSeparator = TRUE ) const;
-
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-    QAccessibleInterface *accessibleInterface();
-#endif
 
 private slots:
     void	subActivated( int itemId );

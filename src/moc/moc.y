@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#271 $
+** $Id: //depot/qt/main/src/moc/moc.y#272 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -253,7 +253,7 @@ public:
     FuncList find( const char* name )
     {
 	FuncList result;
-	for ( QPtrListIterator<Function> it( *this); it.current(); ++it ) {
+	for ( QPtrListIterator<Function> it(*this); it.current(); ++it ) {
 	    if ( it.current()->name == name )
 		result.append( it.current() );
 	}
@@ -306,11 +306,11 @@ struct Property
     Specification sspec;
     Specification gspec;
 
-    bool stdSet () {
+    bool stdSet() {
 	QCString s = "set";
 	s += toupper( name[0] );
-	s +=name.mid(1);
-	return s ==set;
+	s += name.mid( 1 );
+	return s == set;
     }
 
     static const char* specToString( Specification s )
@@ -2002,9 +2002,9 @@ inline bool isSpace( char x )
     isspace() usually works, but not here.
     This implementation is sufficient for our internal use: rmWS()
   */
-    return (uchar)x <= 32;
+    return (uchar) x <= 32;
 #else
-    return isspace( x );
+    return isspace( (uchar) x );
 #endif
 }
 
@@ -2175,38 +2175,23 @@ char *straddSpc( const char *s1, const char *s2,
 
 // Generate C++ code for building member function table
 
-QCString pureClassName()
+QCString pureSuperClassName()
 {
     QCString result;
-    int pos = g->className.findRev( "::");
+    int pos = g->superClassName.findRev( "::" );
     if ( pos != -1 )
-	result = g->className.right( g->className.length() - pos - 2 );
+	result = g->superClassName.right( g->superClassName.length() - pos - 2 );
     else
-	result = g->className;
+	result = g->superClassName;
     return result;
 }
 
 QCString qualifiedClassName()
 {
-    QCString tmp = nameQualifier();
-    tmp += g->className;
-    return tmp;
+    return nameQualifier() + g->className;
 }
 
-QCString qualifiedSuperclassName()
-{
-    if ( namespaces.count() == 0 )
-	return g->superClassName;
-    if ( namespaces.last()->definedClasses.find((const char *)g->superClassName)){
-	QCString tmp = nameQualifier();
-	tmp += g->superClassName;
-	return tmp;
-    } else {
-	return g->superClassName;
-    }
-}
-
-const int Slot_Num   = 1;
+const int Slot_Num = 1;
 const int Signal_Num = 2;
 const int Prop_Num = 3;
 
@@ -2214,7 +2199,6 @@ void generateFuncs( FuncList *list, const char *functype, int num )
 {
     Function *f;
     for ( f=list->first(); f; f=list->next() ) {
-
 	bool hasReturnValue = FALSE;
 
 	if ( ( f->type != "void" && validUType( f->type ) ) || !f->args->isEmpty() ) {
@@ -2694,7 +2678,7 @@ void generateClass()		      // generate C++ source code for a class
     const char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     const char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#271 $)\n**\n";
+		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#272 $)\n**\n";
     const char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     const char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
@@ -2793,8 +2777,7 @@ void generateClass()		      // generate C++ source code for a class
     fprintf( out, "\treturn qApp->translate( \"%s\", s, c, FALSE );\n",
 	     (const char*)qualifiedClassName() );
     fprintf( out, "    else\n" );
-    fprintf( out, "\treturn QString::fromLatin1( s );\n",
-	     (const char*)qualifiedClassName() );
+    fprintf( out, "\treturn QString::fromLatin1( s );\n");
     fprintf( out, "}\n" );
     fprintf( out, "QString %s::trUtf8( const char *s, const char *c )\n{\n",
 	     (const char*)qualifiedClassName() );
@@ -2985,7 +2968,6 @@ void generateClass()		      // generate C++ source code for a class
 //
     fprintf( out, "\nbool %s::qt_invoke( int _id, QUObject* _o )\n{\n", qualifiedClassName().data() );
 
-
     if( !g->slots.isEmpty() ) {
 	fprintf( out, "    switch ( _id - staticMetaObject()->slotOffset() ) {\n" );
 	int slotindex = -1;
@@ -3028,15 +3010,23 @@ void generateClass()		      // generate C++ source code for a class
 	    fprintf( out, "; break;\n" );
 	}
 	fprintf( out, "    default:\n" );
+
+	/*
+	  We call B::qt_invoke() rather than A::B::qt_invoke() to
+	  work around a bug in MSVC 6. The bug occurs if the
+	  super-class is in a namespace and the sub-class isn't.
+	*/
 	if ( !g->superClassName.isEmpty() && !isQObject )
-	    fprintf( out, "\treturn %s::qt_invoke(_id,_o);\n", (const char*)g->superClassName );
+	    fprintf( out, "\treturn %s::qt_invoke(_id,_o);\n",
+		     (const char *) pureSuperClassName() );
 	else
 	    fprintf( out, "\treturn FALSE;\n" );
 	fprintf( out, "    }\n" );
 	fprintf( out, "    return TRUE;\n}\n" );
     } else {
 	if ( !g->superClassName.isEmpty()  && !isQObject )
-	    fprintf( out, "    return %s::qt_invoke(_id,_o);\n}\n", (const char*)g->superClassName );
+	    fprintf( out, "    return %s::qt_invoke(_id,_o);\n}\n",
+		     (const char *) pureSuperClassName() );
 	else
 	    fprintf( out, "    return FALSE;\n}\n" );
     }
@@ -3046,6 +3036,7 @@ void generateClass()		      // generate C++ source code for a class
 // Generate internal qt_emit()  function
 //
     fprintf( out, "\nbool %s::qt_emit( int _id, QUObject* _o )\n{\n", qualifiedClassName().data() );
+
     if ( !g->signals.isEmpty() ) {
 	fprintf( out, "    switch ( _id - staticMetaObject()->signalOffset() ) {\n" );
 	int signalindex = -1;
@@ -3089,14 +3080,16 @@ void generateClass()		      // generate C++ source code for a class
 	}
 	fprintf( out, "    default:\n" );
 	if ( !g->superClassName.isEmpty()  && !isQObject )
-	    fprintf( out, "\treturn %s::qt_emit(_id,_o);\n", (const char*)g->superClassName );
+	    fprintf( out, "\treturn %s::qt_emit(_id,_o);\n",
+		     (const char *) pureSuperClassName() );
 	else
 	    fprintf( out, "\treturn FALSE;\n" );
 	fprintf( out, "    }\n" );
 	fprintf( out, "    return TRUE;\n}\n" );
     } else {
 	if ( !g->superClassName.isEmpty()  && !isQObject )
-	    fprintf( out, "    return %s::qt_emit(_id,_o);\n}\n", (const char*)g->superClassName );
+	    fprintf( out, "    return %s::qt_emit(_id,_o);\n}\n",
+		     (const char *) pureSuperClassName() );
 	else
 	    fprintf( out, "    return FALSE;\n}\n" );
     }
@@ -3205,14 +3198,16 @@ void generateClass()		      // generate C++ source code for a class
 	}
 	fprintf( out, "    default:\n" );
 	if ( !g->superClassName.isEmpty()  && !isQObject )
-	    fprintf( out, "\treturn %s::qt_property( _p, _f, _v );\n", (const char*)g->superClassName );
+	    fprintf( out, "\treturn %s::qt_property( _p, _f, _v );\n",
+		     (const char *) pureSuperClassName() );
 	else
 	    fprintf( out, "\treturn FALSE;\n" );
 	fprintf( out, "    }\n" );
 	fprintf( out, "    return TRUE;\n}\n" );
     } else {
 	if ( !g->superClassName.isEmpty() &&  !isQObject )
-	    fprintf( out, "    return %s::qt_property( _p, _f, _v);\n}\n", (const char*)g->superClassName );
+	    fprintf( out, "    return %s::qt_property( _p, _f, _v);\n}\n",
+		     (const char *) pureSuperClassName() );
 	else
 	    fprintf( out, "    return FALSE;\n}\n" );
     }

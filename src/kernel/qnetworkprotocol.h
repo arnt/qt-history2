@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.h#59 $
+** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.h#60 $
 **
 ** Definition of QNetworkProtocol class
 **
@@ -89,6 +89,7 @@ public:
     enum Operation {
 	OpListChildren = 1,
 	OpMkDir = 2,
+	OpMkdir = OpMkDir, // ### remove in 4.0
 	OpRemove = 4,
 	OpRename = 8,
 	OpGet = 32,
@@ -114,7 +115,9 @@ public:
 	ErrHostNotFound,
 	// protocol errors
 	ErrListChildren,
+	ErrListChlidren = ErrListChildren, // ### remove in 4.0
 	ErrMkDir,
+	ErrMkdir = ErrMkDir, // ### remove in 4.0
 	ErrRemove,
 	ErrRename,
 	ErrGet,

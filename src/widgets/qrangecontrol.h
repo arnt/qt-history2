@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qrangecontrol.h#47 $
+** $Id: //depot/qt/main/src/widgets/qrangecontrol.h#48 $
 **
 ** Definition of QRangeControl class
 **
@@ -139,6 +139,9 @@ public:
     void setUpEnabled( bool on );
     void setDownEnabled( bool on );
     
+    bool isUpEnabled() const;
+    bool isDownEnabled() const;
+
     enum ButtonSymbols { UpDownArrows, PlusMinus };
     virtual void	setButtonSymbols( ButtonSymbols bs );
     ButtonSymbols	buttonSymbols() const;
@@ -151,6 +154,8 @@ signals:
 
 public slots:
     void setEnabled( bool on );
+    void stepUp();
+    void stepDown();
 
 protected:
     void mousePressEvent( QMouseEvent *e );
@@ -159,11 +164,6 @@ protected:
     void mouseMoveEvent( QMouseEvent *e );
     void wheelEvent( QWheelEvent * );
     void styleChange( QStyle& );
-    void paintEvent( QPaintEvent * );
-    
-private slots:
-    void stepUp();
-    void stepDown();
 
 private:
     QSpinWidgetPrivate * d;

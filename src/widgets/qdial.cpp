@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qdial.cpp#77 $
+** $Id: //depot/qt/main/src/widgets/qdial.cpp#78 $
 **
 ** Implementation of the dial widget
 **
@@ -45,7 +45,7 @@
 #include "qapplication.h"
 #include "qregion.h"
 #if defined(QT_ACCESSIBILITY_SUPPORT)
-#include "qaccessiblewidget.h"
+#include "qaccessible.h"
 #endif
 
 #include <math.h> // sin(), cos(), atan()
@@ -498,7 +498,7 @@ void QDial::valueChange()
     if ( d->tracking || !d->doNotEmit ) {
 	emit valueChanged( value() );
 #if defined(QT_ACCESSIBILITY_SUPPORT)
-	emit accessibilityChanged( QAccessible::ValueChanged );
+	QAccessible::updateAccessibility( this, 0, QAccessible::ValueChanged );
 #endif
     }
 }
@@ -951,13 +951,5 @@ int QDial::value() const
 {
     return QRangeControl::value();
 }
-
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-/*! \reimp */
-QAccessibleInterface *QDial::accessibleInterface()
-{
-    return new QAccessibleRangeControl( this, QAccessible::Dial );
-}
-#endif
 
 #endif // QT_FEATURE_DIAL

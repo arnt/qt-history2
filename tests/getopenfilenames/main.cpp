@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/getopenfilenames/main.cpp#1 $
+** $Id: $
 **
 ** Implementation of something useful.
 **

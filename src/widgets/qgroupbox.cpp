@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#121 $
+** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#122 $
 **
 ** Implementation of QGroupBox widget class
 **
@@ -47,7 +47,7 @@
 #include "qdrawutil.h"
 #include "qapplication.h"
 #if defined(QT_ACCESSIBILITY_SUPPORT)
-#include "qaccessiblewidget.h"
+#include "qaccessible.h"
 #endif
 
 // REVISED: arnt
@@ -218,7 +218,7 @@ void QGroupBox::setTitle( const QString &title )
     update();
     updateGeometry();
 #if defined(QT_ACCESSIBILITY_SUPPORT)
-    emit accessibilityChanged( QAccessible::NameChanged );
+    QAccessible::updateAccessibility( this, 0, QAccessible::NameChanged );
 #endif
 }
 
@@ -648,13 +648,5 @@ QSize QGroupBox::sizeHint() const
 	return s.expandedTo( QSize( r.width() + 2 * r.x(), r.height()+ 2 * r.y() ) );
     }
 }
-
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-/*! \reimp */
-QAccessibleInterface *QGroupBox::accessibleInterface()
-{
-    return new QAccessibleDisplay( this, QAccessible::Grouping );
-}
-#endif
 
 #endif

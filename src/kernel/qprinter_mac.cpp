@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter_mac.cpp
+** $Id: //depot/qt/main/src/kernel/qprinter_mac.cpp#29 $
 **
 ** Implementation of QPrinter class for mac
 **

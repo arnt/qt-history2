@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#165 $
+** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#166 $
 **
 ** Implementation of QRadioButton class
 **
@@ -45,9 +45,6 @@
 #include "qbitmap.h"
 #include "qtextstream.h"
 #include "qapplication.h"
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-#include "qaccessiblewidget.h"
-#endif
 
 /*!
   \class QRadioButton qradiobutton.h
@@ -301,13 +298,5 @@ void QRadioButton::updateMask()
 
     setMask(bm);
 }
-
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-/*! \reimp */
-QAccessibleInterface *QRadioButton::accessibleInterface()
-{
-    return new QAccessibleButton( this, QAccessible::RadioButton );
-}
-#endif
 
 #endif

@@ -278,6 +278,9 @@ QComboBox
 QLCDNumber
   Support leading zeros, so you can have a number like 0003.
 
+QToolBar
+  Allow the ability to insert a toolbutton into a certain position (see qt-bugs/arc-10/21771)
+
 
 New functionality
 -----------------

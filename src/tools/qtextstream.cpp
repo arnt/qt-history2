@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#181 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#182 $
 **
 ** Implementation of QTextStream class
 **
@@ -104,7 +104,7 @@
 */
 
 /*
-  \class QTSManip qtextstream.h
+  \class QTSManip
 
   \brief The QTSManip class is an internal helper class for the
   QTextStream.
@@ -129,7 +129,7 @@
   is executed with the argument.
 */
 
-/*! \fn QTSManip::QTSManip (QTSMFI m, int a)
+/*! \fn QTSManip::QTSManip( QTSMFI m, int a )
 
   Constructs a QTSManip object which will call \a m (a member function
   in QTextStream which accepts a single int) with argument \a a when
@@ -140,7 +140,7 @@
   \endcode
 */
 
-/*! \fn void QTSManip::exec (QTextStream& s)
+/*! \fn void QTSManip::exec( QTextStream& s )
 
   Calls the member function specified in the constructor, for object
   \a s.  Used internally in e.g. endl:
@@ -560,7 +560,7 @@ QTextStream::QTextStream( QByteArray a, int mode )
 }
 
 /*!  Constructs a text stream that operates on an existing file handle
-  \e fh through an internal QFile device.
+  \a fh through an internal QFile device.
 
   Note that if you create a QTextStream \c cout or another name that
   is also used for another variable of a different type, some linkers
@@ -922,7 +922,7 @@ void QTextStream::ts_putc( QChar c )
     } else
 #endif
     if ( latin1 ) {
-	if( c.row() )
+	if ( c.row() )
 	    dev->putch( '?' ); //######unknown character???
 	else
 	    dev->putch( c.cell() );
@@ -946,12 +946,12 @@ void QTextStream::ts_putc( QChar c )
 /*!
   Puts one character to the stream.
 */
-void QTextStream::ts_putc(int ch)
+void QTextStream::ts_putc( int ch )
 {
-    ts_putc(QChar((ushort)ch));
+    ts_putc( QChar((ushort)ch) );
 }
 
-bool QTextStream::ts_isdigit(QChar c)
+bool QTextStream::ts_isdigit( QChar c )
 {
     return c.isDigit();
 }
@@ -972,10 +972,10 @@ void QTextStream::ts_ungetc( QChar c )
 
 
 /*!
-  Reads \e len bytes from the stream into \e s and returns a reference to
+  Reads \a len bytes from the stream into \a s and returns a reference to
   the stream.
 
-  The buffer \e s must be preallocated.
+  The buffer \a s must be preallocated.
 
   Note that no encoding is done by this function.
 
@@ -992,7 +992,7 @@ QTextStream &QTextStream::readRawBytes( char *s, uint len )
 }
 
 /*!
-  Writes the \e len bytes from \e s to the stream and returns a reference to
+  Writes the \a len bytes from \a s to the stream and returns a reference to
   the stream.
 
   Note that no encoding is done by this function.
@@ -1140,7 +1140,7 @@ QTextStream &QTextStream::operator>>( char &c )
 
 /*!
   Reads a \c char from the stream and returns a reference to the stream.
-  Note that whitespace is \e not skipped.
+  Note that whitespace is \a not skipped.
 */
 
 QTextStream &QTextStream::operator>>( QChar &c )
@@ -1205,12 +1205,12 @@ ulong QTextStream::input_hex()
     ulong val = 0;
     QChar ch = eat_ws();
     char c = ch;
-    while ( isxdigit(c) ) {
+    while ( isxdigit((uchar) c) ) {
 	val <<= 4;
 	if ( ts_isdigit(c) )
 	    val += c - '0';
 	else
-	    val += 10 + tolower(c) - 'a';
+	    val += 10 + tolower( (uchar) c ) - 'a';
 	c = ch = ts_getc();
     }
     if ( ch != QEOF )
@@ -1258,9 +1258,9 @@ long QTextStream::input_int()
 	c = ch = eat_ws();
 	if ( c == '0' ) {		// bin, oct or hex
 	    c = ch = ts_getc();
-	    if ( tolower(c) == 'x' )
+	    if ( tolower((uchar) c) == 'x' )
 		val = (long)input_hex();
-	    else if ( tolower(c) == 'b' )
+	    else if ( tolower((uchar) c) == 'b' )
 		val = (long)input_bin();
 	    else {			// octal
 		ts_ungetc( ch );
@@ -2030,7 +2030,7 @@ QTextStream &QTextStream::operator<<( const QString& s )
 /*!
   Writes a pointer to the stream and returns a reference to the stream.
 
-  The \e ptr is output as an unsigned long hexadecimal integer.
+  The \a ptr is output as an unsigned long hexadecimal integer.
 */
 
 QTextStream &QTextStream::operator<<( void *ptr )
@@ -2077,7 +2077,7 @@ QTextStream &QTextStream::operator<<( void *ptr )
 
 /*!
   \fn int QTextStream::flags( int f )
-  Sets the stream flags to \e f.
+  Sets the stream flags to \a f.
   Returns the previous stream flags.
 
   \sa setf(), unsetf(), flags()
@@ -2085,7 +2085,7 @@ QTextStream &QTextStream::operator<<( void *ptr )
 
 /*!
   \fn int QTextStream::setf( int bits )
-  Sets the stream flag bits \e bits.
+  Sets the stream flag bits \a bits.
   Returns the previous stream flags.
 
   Equivalent to <code>flags( flags() | bits )</code>.
@@ -2095,7 +2095,7 @@ QTextStream &QTextStream::operator<<( void *ptr )
 
 /*!
   \fn int QTextStream::setf( int bits, int mask )
-  Sets the stream flag bits \e bits with a bit mask \e mask.
+  Sets the stream flag bits \a bits with a bit mask \a mask.
   Returns the previous stream flags.
 
   Equivalent to <code>flags( (flags() & ~mask) | (bits & mask) )</code>.
@@ -2105,7 +2105,7 @@ QTextStream &QTextStream::operator<<( void *ptr )
 
 /*!
   \fn int QTextStream::unsetf( int bits )
-  Clears the stream flag bits \e bits.
+  Clears the stream flag bits \a bits.
   Returns the previous stream flags.
 
   Equivalent to <code>flags( flags() & ~mask )</code>.
@@ -2120,7 +2120,7 @@ QTextStream &QTextStream::operator<<( void *ptr )
 
 /*!
   \fn int QTextStream::width( int w )
-  Sets the field width to \e w. Returns the previous field width.
+  Sets the field width to \a w. Returns the previous field width.
 */
 
 /*!
@@ -2130,7 +2130,7 @@ QTextStream &QTextStream::operator<<( void *ptr )
 
 /*!
   \fn int QTextStream::fill( int f )
-  Sets the fill character to \e f. Returns the previous fill character.
+  Sets the fill character to \a f. Returns the previous fill character.
 */
 
 /*!
@@ -2140,7 +2140,7 @@ QTextStream &QTextStream::operator<<( void *ptr )
 
 /*!
   \fn int QTextStream::precision( int p )
-  Sets the precision to \e p. Returns the previous precision setting.
+  Sets the precision to \a p. Returns the previous precision setting.
 */
 
 
@@ -2233,7 +2233,7 @@ QTextStream &reset( QTextStream &s )
 
 
 /*!
-  \class QTextOStream qtextstream.h
+  \class QTextOStream
   \brief The QTextOStream class is a convenience class for output streams.
 
   For simple tasks, code should be simple.  Hence this

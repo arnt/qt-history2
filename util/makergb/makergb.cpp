@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/makergb/makergb.cpp#5 $
+** $Id: $
 **
 ** makergb - Utility to generate X11 RGB color lookup function
 **

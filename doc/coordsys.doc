@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: coordsys.doc,v 2.8 1999/06/03 15:14:47 warwick Exp $
+** $Id: $
 **
 ** Qt Coordinate System Documentation
 **
@@ -47,12 +47,12 @@ top left corner. X increases to the right and Y increases downwards.
 The unit is one pixel on pixel-based devices and one point on
 printers.
 
-<h2>An Example</h2>
+\section1 An Example
 
 The illustration below shows a strongly magnified portion of the top
 left corner of a paint device.
 
-<img src="coordsys.png" width="342" height="340">
+\img coordsys.png
 
 The rectangle and the line were drawn by this code (with the grid
 added and colors touched up afterwards):
@@ -77,50 +77,52 @@ Similarly, the drawLine() call draws both endpoints of the line, not
 just one.
 
 Here are the classes that relate most closely to the coordinate
-system: <ul>
+system:
 
-<li> \l QPoint is a single 2D point in the coordinate system.  Most
+\list
+
+\i \l QPoint is a single 2D point in the coordinate system.  Most
 functions in Qt that deal with points can accept both a QPoint
 argument and two ints, for example \l QPainter::drawPoint().
 
-<li> \l QSize is a single 2D vector.  Internally, QPoint and QSize are
+\i \l QSize is a single 2D vector.  Internally, QPoint and QSize are
 the same, but a point is not the same as a size, so both classes
 exist.  Again, most functions accept both a QSize and two ints, for
 example \l QWidget::resize().
 
-<li> \l QRect is a 2D rectangle.  Most functions accept both a QRect
+\i \l QRect is a 2D rectangle.  Most functions accept both a QRect
 and four ints, for example \l QWidget::setGeometry().
 
-<li> \l QRegion is an arbitrary set of points, including all the
+\i \l QRegion is an arbitrary set of points, including all the
 normal set operations, e.g. \l QRegion::intersect(), and also a less
 usual function to return a list of rectangles whose union is equal to
 the region.  QRegion is used e.g. by \l QPainter::setClipRegion(), \l
 QWidget::repaint() and \l QPaintEvent::region().
 
-<li> \l QPainter is the class that paints.  It can paint on any device
+\i \l QPainter is the class that paints.  It can paint on any device
 with the same code.  There are differences between devices, \l
 QPrinter::newPage() is a good example, but QPainter works the same way
 on all devices.
 
-<li> \l QPaintDevice is a device on which QPainter can paint.  There
+\i \l QPaintDevice is a device on which QPainter can paint.  There
 are two internal devices, both pixel-based, and two external devices,
 \l QPrinter and \l QPicture (which records QPainter commands to a file
 or other \l QIODevice, and plays them back).  Other devices can be
 defined.
 
-</ul>
+\endlist
 
-<h2>Transformations</h2>
+\section1 Transformations
 
 While Qt's default coordinate system is as described above, \l
 QPainter supports arbitrary transformations.
 
 This transformation engine is a three-step pipeline, closely following
 the model outlined in books such as
-<a href="http://www.amazon.com/exec/obidos/ASIN/0201848406/trolltech/t">
-Foley & Van Dam</a> and the
-<a href="http://www.amazon.com/exec/obidos/ASIN/0201604582/trolltech/t">
-OpenGL Programming Guide.</a> We refer to those for an in-depth
+\link http://www.amazon.com/exec/obidos/ASIN/0201848406/trolltech/t
+Foley \& Van Dam \endlink and the
+\link http://www.amazon.com/exec/obidos/ASIN/0201604582/trolltech/t
+OpenGL Programming Guide.\endlink We refer to those for an in-depth
 coverage; here we give just a brief overview and an example.
 
 The first step uses the world transformation matrix.  Use this matrix
@@ -160,11 +162,11 @@ fixed-size coordinate system, just \l QPainter::setWindow() is
 perfect. And so on.
 
 Here is a short example that uses all three mechanisms: the function
-that draws the clock face in the aclock/aclock.cpp example.  We
+that draws the clock face in the \l aclock/aclock.cpp example.  We
 recommend compiling and running the example before you read any
 further.  In particular, try resizing the window to different shapes.
 
-\walkthrough aclock/aclock.cpp
+\quotefile aclock/aclock.cpp
 \skipto ::drawClock
 \printline ::drawClock
 \printline {

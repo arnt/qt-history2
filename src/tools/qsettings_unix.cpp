@@ -166,7 +166,7 @@ static void initSearchPaths()
 
     searchPaths = new QStringList;
     Q_CHECK_PTR(searchPaths);
-    qsettings_path_cleanup.add(searchPaths);
+    qsettings_path_cleanup.add(&searchPaths);
 
     QDir dir(QDir::homeDirPath() + "/.qt/");
     if (! dir.exists()) {

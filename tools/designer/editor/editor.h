@@ -64,6 +64,8 @@ public:
     virtual bool supportsBreakPoints() const { return TRUE; }
     virtual void makeFunctionVisible( QTextParag * ) {}
 
+    void drawCursor( bool b ) { QTextEdit::drawCursor( b ); }
+
 signals:
     void clearErrorMarker();
     void intervalChanged();

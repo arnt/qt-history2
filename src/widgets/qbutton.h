@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.h#99 $
+** $Id: //depot/qt/main/src/widgets/qbutton.h#100 $
 **
 ** Definition of QButton widget class
 **
@@ -133,9 +133,6 @@ protected:
     void	focusOutEvent( QFocusEvent * );
 
     void	enabledChange( bool );
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-    QAccessibleInterface *accessibleInterface();
-#endif
 
 private slots:
     void	animateTimeout();

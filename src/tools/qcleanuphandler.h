@@ -12,16 +12,14 @@ public:
     QCleanupHandler() : cleanupObjects( 0 ) {}
     ~QCleanupHandler() { clear(); }
 
-    Type* add( Type* object ) {
-	if ( !cleanupObjects ) {
-	    cleanupObjects = new QPtrList<Type>;
- 	    cleanupObjects->setAutoDelete( TRUE );
-	}
+    Type* add( Type **object ) {
+	if ( !cleanupObjects )
+	    cleanupObjects = new QPtrList<Type*>;
 	cleanupObjects->insert( 0, object );
-	return object;
+	return *object;
     }
 
-    void remove( Type *object ) {
+    void remove( Type **object ) {
 	if ( !cleanupObjects )
 	    return;
 	if ( cleanupObjects->findRef( object ) >= 0 )
@@ -33,12 +31,21 @@ public:
     }
 
     void clear() {
+	if ( !cleanupObjects )
+	    return;
+	QPtrListIterator<Type*> it( *cleanupObjects );
+	Type **object;
+	while ( ( object = it.current() ) ) {
+	    delete *object;
+	    *object = 0;
+	    cleanupObjects->remove( object );
+	}
 	delete cleanupObjects;
 	cleanupObjects = 0;
     }
 
 private:
-    QPtrList<Type> *cleanupObjects;
+    QPtrList<Type*> *cleanupObjects;
 };
 
 #endif //QCLEANUPHANDLER_H

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/doc/sql.doc#1 $
+** $Id: $
 **
 ** Documentation for sql programming
 **
@@ -280,7 +280,7 @@ connection.
 \printline include
 \printuntil return 0
 \printline
-<h5 align="center">From \l sql/overview/connect1/main.cpp </h5>
+<!-- \caption From \l sql/overview/connect1/main.cpp  -->
 
 First we activate the driver by calling \l QSqlDatabase::addDatabase(),
 passing the name of the driver we wish to use for this connection. At
@@ -310,7 +310,7 @@ identifier distinguishing the connection.
 \printline include
 \printuntil return TRUE 
 \printline
-<h5 align="center">From \l sql/overview/create_connections/main.cpp </h5>
+<!-- \caption From \l sql/overview/create_connections/main.cpp  -->
 
 In the example above we have moved the connections into their own
 function, createConnections(), and added some basic error handling. The
@@ -356,8 +356,7 @@ and then either QSqlDatabase::commit() or \l{QSqlDatabase::rollback()}.
 \printline include
 \printuntil return 0 
 \printline
-<h5 align="center">From \l sql/overview/basicbrowsing/main.cpp
-</h5>
+<!-- \caption From \l sql/overview/basicbrowsing/main.cpp  -->
 
 In the example above we've added an additional header file, 
 \c qsqlquery.h. The first query we create, \c target, uses the default
@@ -379,8 +378,7 @@ database using the \c target QSqlQuery.
 \printuntil numRows 
 \printline
 \printline
-<h5 align="center">From \l sql/overview/basicbrowsing2/main.cpp
-</h5>
+<!-- \caption From \l sql/overview/basicbrowsing2/main.cpp  -->
 
 The above code introduces a count of how many records are successfully
 inserted. Note that isActive() returns FALSE if the query, e.g. the
@@ -394,8 +392,7 @@ cannot be determined, e.g. if the query fails.
 \printline main
 \printuntil return ( rows 
 \printline
-<h5 align="center">From \l sql/overview/basicdatamanip/main.cpp
-</h5>
+<!-- \caption From \l sql/overview/basicdatamanip/main.cpp  -->
 
 This example demonstrates straightforward SQL DML (data manipulation
 language) commands. Since we did not specify a database in the \l
@@ -423,8 +420,7 @@ first record in the dataset is zero. The number of the last record is
 \printline if (
 \printuntil i == 4 
 \printline
-<h5 align="center">From \l sql/overview/navigating/main.cpp
-</h5>
+<!-- \caption From \l sql/overview/navigating/main.cpp  -->
 
 The example above shows some of the navigation functions in use. 
 
@@ -453,8 +449,7 @@ retrieve data from it.
 \printline
 \printline
 \printline
-<h5 align="center">From \l sql/overview/retrieve1/main.cpp
-</h5>
+<!-- \caption From \l sql/overview/retrieve1/main.cpp  -->
 
 Note that if you wish to iterate through the record set in order the
 only navigation function you need is next().
@@ -516,8 +511,7 @@ The \l QSqlCursor class requires the \c qsqlcursor.h header file.
 \printline include
 \printuntil return 0 
 \printline
-<h5 align="center">From \l sql/overview/retrieve2/main.cpp
-</h5>
+<!-- \caption From \l sql/overview/retrieve2/main.cpp  -->
 
 We create the \l QSqlCursor object, specifying the table or view to use.
 If we need to use a database other than the default we can specify it
@@ -596,8 +590,7 @@ QSqlIndex::setDescending(); the default is ascending.
 \skipto QSqlCursor
 \printline QSqlCursor
 \printuntil while 
-<h5 align="center">From \l sql/overview/order1/main.cpp
-</h5>
+<!-- \caption From \l sql/overview/order1/main.cpp  -->
 
 Here we create a string list containing the fields we wish to sort by,
 in the order they are to be used. Then we create a \l QSqlIndex object
@@ -615,8 +608,7 @@ can create a filter based on an index.
 \skipto QSqlCursor
 \printline QSqlCursor
 \printuntil while 
-<h5 align="center">From \l sql/overview/order2/main.cpp
-</h5>
+<!-- \caption From \l sql/overview/order2/main.cpp  -->
 
 This executes
 \code
@@ -639,8 +631,7 @@ setValue() to ensure the value used is the one we want.
 \printline QSqlCursor
 \printuntil qDebug
 \printline
-<h5 align="center">From \l sql/overview/extract/main.cpp
-</h5>
+<!-- \caption From \l sql/overview/extract/main.cpp  -->
 
 In this example we begin by creating a cursor on the creditors table. We
 create two \l QSqlIndex objects. The first, "order", is created from the
@@ -716,8 +707,7 @@ changes to the database are accurately reflected in the cursor.
 \skipto QSqlCursor
 \printline QSqlCursor
 \printuntil } 
-<h5 align="center">From \l sql/overview/insert/main.cpp
-</h5>
+<!-- \caption From \l sql/overview/insert/main.cpp  -->
 
 In this example we create a cursor on the "prices" table. Next we
 create a list of product names which we iterate over. For each
@@ -742,8 +732,7 @@ this and the following example.
 \printline QSqlCursor
 \printuntil update
 \printline
-<h5 align="center">From \l sql/overview/update/main.cpp
-</h5>
+<!-- \caption From \l sql/overview/update/main.cpp  -->
 
 This example begins with the creation of a cursor over the prices table.
 We select the record we wish to update with the select() call and
@@ -768,8 +757,7 @@ with \l QSqlQuery is more efficient, e.g.
 \skipto QSqlCursor
 \printline QSqlCursor
 \printuntil del
-<h5 align="center">From \l sql/overview/del/main.cpp
-</h5>
+<!-- \caption From \l sql/overview/del/main.cpp  -->
 
 To delete records, select the record to be deleted and navigate to it.
 Then call primeDelete() to populate the cursor with the primary key
@@ -801,8 +789,7 @@ manual and its accompanying examples provides additional information.
 \printline include
 \printuntil return 0
 \printline
-<h5 align="center">From \l sql/overview/table1/main.cpp
-</h5>
+<!-- \caption From \l sql/overview/table1/main.cpp  -->
 
 Data-Aware tables require the \c qdatatable.h and \c qsqlcursor.h header
 files. We create our application object, call createConnections() and
@@ -820,8 +807,7 @@ function.
 \skipto staffCursor
 \printline staffCursor
 \printuntil show 
-<h5 align="center">From \l sql/overview/table2/main.cpp
-</h5>
+<!-- \caption From \l sql/overview/table2/main.cpp  -->
 
 We create an empty \l QDataTable which we make into our main widget and
 then we manually add the columns we want in the order we wish them to
@@ -852,8 +838,7 @@ See the <em>Qt Designer</em> manual for more details.
 \printline include
 \printuntil app.exec
 \printline
-<h5 align="center">From \l sql/overview/form1/main.cpp
-</h5>
+<!-- \caption From \l sql/overview/form1/main.cpp  -->
 
 We include the header files for the widgets that we need. We also
 include \c qsqldatabase.h and \c qsqlcursor.h as usual, but we now add
@@ -892,8 +877,7 @@ differences.
 \skipto class
 \printline class
 \printuntil };
-<h5 align="center">From \l sql/overview/form2/main.h
-</h5>
+<!-- \caption From \l sql/overview/form2/main.h  -->
 
 The save slot will be used for a button that the user can press to
 confirm their update. We also hold pointers to the \l QSqlCursor and the
@@ -1076,8 +1060,7 @@ a custom editor.
 \skipto StatusPicker
 \printline StatusPicker
 \printuntil }; 
-<h5 align="center">From \l sql/overview/table3/main.h
-</h5>
+<!-- \caption From \l sql/overview/table3/main.h  -->
 
 We create a property, statusid, and define our READ and WRITE methods
 for it. The statusid's in the status table will probably be different
@@ -1097,7 +1080,7 @@ function since that is the only function we need to reimplement.
 \printuntil index2id
 \printline
 \printline
-<h5 align="center">From \l sql/overview/table3/main.cpp </h5>
+<!-- \caption From \l sql/overview/table3/main.cpp  -->
 
 In the StatusPicker's constructor we create a cursor over the status
 table indexed by the name field. We then iterate over each record in the
@@ -1136,7 +1119,7 @@ subclass QDataTable and reimplement the paintField() function.
 \skipto CustomTable
 \printline CustomTable
 \printuntil };
-<h5 align="center">From \l sql/overview/table4/main.h </h5>
+<!-- \caption From \l sql/overview/table4/main.h  -->
 
 We simply call the original QDataTable constructor without changing
 anything. We also declare the paintField function.
@@ -1146,7 +1129,7 @@ anything. We also declare the paintField function.
 \printline CustomTable
 \printuntil QDataTable
 \printline
-<h5 align="center">From \l sql/overview/table4/main.cpp </h5>
+<!-- \caption From \l sql/overview/table4/main.cpp  -->
 
 The paintField code is based on QDataTable's source code. We need to make
 three changes. Firstly add an if clause <tt>field-&gt;name() ==
@@ -1162,8 +1145,7 @@ staffTable from being a QDataTable to being a CustomTable.
 \printline include
 \printuntil return 1
 \printline
-<h5 align="center">From \l sql/overview/subclass1/main.cpp
-</h5>
+<!-- \caption From \l sql/overview/subclass1/main.cpp  -->
 
 This example is very similar to the table1 example presented earlier. We
 create a cursor, add the fields and their display labels to a QDataTable,
@@ -1183,8 +1165,7 @@ the values when the user adds a new record.
 \printline InvoiceItem
 \printuntil };
 \printline
-<h5 align="center">From \l sql/overview/subclass2/main.h
-</h5>
+<!-- \caption From \l sql/overview/subclass2/main.h  -->
 
 We have created a separate header file and subclassed QSqlCursor.
 
@@ -1192,8 +1173,7 @@ We have created a separate header file and subclassed QSqlCursor.
 \skipto InvoiceItem
 \printline InvoiceItem
 \printuntil }
-<h5 align="center">From \l sql/overview/subclass2/main.cpp
-</h5>
+<!-- \caption From \l sql/overview/subclass2/main.cpp  -->
 
 In our class's constructor we call the QSqlCursor constructor with the
 name of the table. We don't have any other characteristics to add at this
@@ -1211,8 +1191,7 @@ We still need to show the product name rather than the pricesid.
 \skipto protected
 \printline protected
 \printline
-<h5 align="center">From \l sql/overview/subclass3/main.h
-</h5>
+<!-- \caption From \l sql/overview/subclass3/main.h  -->
 
 The change in the header file is minimal: we simply add the signature of
 the calculateField() function since we will be reimplementing it.
@@ -1222,8 +1201,7 @@ the calculateField() function since we will be reimplementing it.
 \printline InvoiceItem
 \printuntil return QVariant
 \printline
-<h5 align="center">From \l sql/overview/subclass3/main.cpp
-</h5>
+<!-- \caption From \l sql/overview/subclass3/main.cpp  -->
 
 We have changed the InvoiceItemCursor constructor. We now create a new
 QSqlField called productname and append this to the InvoiceItemCursor's
@@ -1254,8 +1232,7 @@ function require some simple expansion. We'll look at each in turn.
 \skipto InvoiceItem
 \printline InvoiceItem
 \printuntil }
-<h5 align="center">From \l sql/overview/subclass4/main.cpp
-</h5>
+<!-- \caption From \l sql/overview/subclass4/main.cpp  -->
 
 We create two extra fields, price and cost, and append them to the
 cursor's set of fields. Both are registered as calculated fields with
@@ -1265,8 +1242,7 @@ calls to setCalculated().
 \printline InvoiceItem
 \printuntil QString::null
 \printline
-<h5 align="center">From \l sql/overview/subclass4/main.cpp
-</h5>
+<!-- \caption From \l sql/overview/subclass4/main.cpp  -->
 
 The calculateField() function has expanded slightly because now we must
 calculate the value of three different fields. The productname and price
@@ -1285,8 +1261,7 @@ attempts to insert a new record.
 \walkthrough sql/overview/subclass5/main.h
 \skipto primeInsert
 \printline primeInsert
-<h5 align="center">From \l sql/overview/subclass5/main.h
-</h5>
+<!-- \caption From \l sql/overview/subclass5/main.h  -->
 
 We declare our own primeInsert() function since we will need to
 reimplement this.
@@ -1297,8 +1272,7 @@ The constructor and the calculateField() function remain unchanged.
 \skipto primeInsert
 \printline primeInsert
 \printuntil }
-<h5 align="center">From \l sql/overview/subclass5/main.cpp
-</h5>
+<!-- \caption From \l sql/overview/subclass5/main.cpp  -->
 
 We get a pointer to the internal edit buffer that the cursor uses for
 inserts and updates. The id field is a unique integer that we generate

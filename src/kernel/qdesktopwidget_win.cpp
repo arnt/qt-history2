@@ -232,9 +232,9 @@ const QRect& QDesktopWidget::screenGeometry( int screen ) const
 	if ( screen < 0 || screen >= d->screenCount )
 	    screen = d->primaryScreen;
 
-	return *(d->rects[ screen ]);
+	return d->rects->at( screen );
     } else {
-	return *(d->rects[ d->primaryScreen ]);
+	return d->rects->at( d->primaryScreen );
     }
 }
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qmacstyle_mac.h#2 $
+** $Id: //depot/qt/main/src/styles/qmacstyle_mac.h#3 $
 **
 ** Definition of Motif-like style class
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/activex/qactivex/qactivex.h#1 $
+** $Id: $
 **
 ** Definition of QActiveXControl
 **

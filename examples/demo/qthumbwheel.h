@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/demo/qthumbwheel.h#2 $
+** $Id: //depot/qt/main/examples/demo/qthumbwheel.h#3 $
 **
 ** Definition of QThumbWheel class
 **

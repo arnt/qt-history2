@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/dragdrop/dropsite.h#2 $
+** $Id: $
 **
 ** Drop site example implementation
 **

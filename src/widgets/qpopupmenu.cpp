@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#360 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#361 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -52,7 +52,7 @@
 #include "qeffects_p.h"
 #include "qcursor.h"
 #if defined(QT_ACCESSIBILITY_SUPPORT)
-#include "qaccessiblewidget.h"
+#include "qaccessible.h"
 #endif
 #include <ctype.h>
 
@@ -96,9 +96,18 @@ static QTimer * singleSingleShot = 0;
 
 static bool supressAboutToShow = FALSE;
 
+static void cleanup()
+{
+    delete singleSingleShot;
+    singleSingleShot = 0;
+}
+
 static void popupSubMenuLater( int msec, QPopupMenu * receiver ) {
-    if ( !singleSingleShot )
+    if ( !singleSingleShot ) {
 	singleSingleShot = new QTimer( qApp, "popup submenu timer" );
+	qAddPostRoutine( cleanup );
+    }
+
     singleSingleShot->disconnect( SIGNAL(timeout()) );
     QObject::connect( singleSingleShot, SIGNAL(timeout()),
 		      receiver, SLOT(subMenuTimer()) );
@@ -483,7 +492,7 @@ void QPopupMenu::popup( const QPoint &pos, int indexAtPoint )
 	show();
     }
 #if defined(QT_ACCESSIBILITY_SUPPORT)
-    emit accessibilityChanged( QAccessible::PopupMenuStart );
+    QAccessible::updateAccessibility( this, 0, QAccessible::PopupMenuStart );
 #endif
 }
 
@@ -569,9 +578,12 @@ void QPopupMenu::actSig( int id, bool inwhatsthis )
 	syncMenu = 0;
     }
 
-    if ( !inwhatsthis )
+    if ( !inwhatsthis ) {
 	emit activated( id );
-    else {
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+	QAccessible::updateAccessibility( this, id, QAccessible::MenuCommand );
+#endif
+    } else {
 	QRect r( itemGeometry( indexOf( id ) ) );
 #ifndef QT_NO_WHATSTHIS
 	QWhatsThis::leaveWhatsThisMode( findItem( id )->whatsThis(), mapToGlobal( r.bottomLeft() ) );
@@ -1081,7 +1093,7 @@ void QPopupMenu::hide()
     actItem = popupActive = -1;
     mouseBtDn = FALSE;				// mouse button up
 #if defined(QT_ACCESSIBILITY_SUPPORT)
-    emit accessibilityChanged( QAccessible::PopupMenuEnd );
+    QAccessible::updateAccessibility( this, 0, QAccessible::PopupMenuEnd );
 #endif
     hidePopups();
     QWidget::hide();
@@ -1616,6 +1628,10 @@ void QPopupMenu::subMenuTimer() {
 	popupActive = -1;
     }
 
+    // hidePopups() may change actItem etc.
+    if ( !isVisible() || (actItem < 0 && popupActive < 0) || actItem == popupActive )
+	return;
+
     QMenuItem *mi = mitems->at(actItem);
     if ( !mi || !mi->isEnabled() )
 	return;
@@ -2094,14 +2110,6 @@ void QPopupMenu::activateItemAt( int index )
     }
 
 }
-
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-/*! \reimp */
-QAccessibleInterface *QPopupMenu::accessibleInterface()
-{
-    return new QAccessibleWidget( this, QAccessible::PopupMenu );
-}
-#endif
 
 #endif // QT_NO_POPUPMENU
 

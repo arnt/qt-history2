@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstylesheet.cpp#85 $
+** $Id: //depot/qt/main/src/kernel/qstylesheet.cpp#86 $
 **
 ** Implementation of the QStyleSheet class
 **
@@ -1111,7 +1111,7 @@ QStyleSheet* QStyleSheet::defaultSheet()
 {
     if (!defaultsheet) {
 	defaultsheet = new QStyleSheet();
-	qt_cleanup_stylesheet.add( defaultsheet );
+	qt_cleanup_stylesheet.add( &defaultsheet );
     }
     return defaultsheet;
 }
@@ -1126,12 +1126,12 @@ void QStyleSheet::setDefaultSheet( QStyleSheet* sheet)
 {
     if ( defaultsheet != sheet ) {
 	if ( defaultsheet )
-	    qt_cleanup_stylesheet.remove( defaultsheet );
+	    qt_cleanup_stylesheet.remove( &defaultsheet );
 	delete defaultsheet;
-	if ( sheet )
-	    qt_cleanup_stylesheet.add( sheet );
     }
     defaultsheet = sheet;
+    if ( defaultsheet )
+	qt_cleanup_stylesheet.add( &defaultsheet );
 }
 
 /*!\internal

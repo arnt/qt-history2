@@ -9,7 +9,7 @@ QObject* QObjectCleanupHandler::add( QObject* object ) {
 	cleanupObjects = new QObjectList;
  	cleanupObjects->setAutoDelete( TRUE );
     }
-    connect( object, SIGNAL(destroyed()), this, SLOT(objectDestroyed()) );
+    connect( object, SIGNAL(destroyed(QObject*)), this, SLOT(objectDestroyed(QObject*)) );
     cleanupObjects->insert( 0, object );
     return object;
 }
@@ -19,7 +19,7 @@ void QObjectCleanupHandler::remove( QObject *object ) {
 	return;
     if ( cleanupObjects->findRef( object ) >= 0 ) {
 	(void) cleanupObjects->take();
-	disconnect( object, SIGNAL(destroyed()), this, SLOT(objectDestroyed()) );
+	disconnect( object, SIGNAL(destroyed( QObject* )), this, SLOT(objectDestroyed( QObject* )) );
     }
 }
 
@@ -32,12 +32,11 @@ void QObjectCleanupHandler::clear() {
     cleanupObjects = 0;
 }
 
-void QObjectCleanupHandler::objectDestroyed()
+void QObjectCleanupHandler::objectDestroyed( QObject*object )
 {
     if ( cleanupObjects )
 	cleanupObjects->setAutoDelete( FALSE );
 
-    QObject *object = (QObject*)sender();
     remove( object );
 
     if ( cleanupObjects )

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpicture.cpp#114 $
+** $Id: //depot/qt/main/src/kernel/qpicture.cpp#115 $
 **
 ** Implementation of QPicture class
 **

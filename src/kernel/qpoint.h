@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpoint.h#38 $
+** $Id: //depot/qt/main/src/kernel/qpoint.h#39 $
 **
 ** Definition of QPoint class
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwmatrix.h#25 $
+** $Id: //depot/qt/main/src/kernel/qwmatrix.h#26 $
 **
 ** Definition of QWMatrix class
 **
@@ -66,9 +66,11 @@ public:
 
     void	map( int x, int y, int *tx, int *ty )	      const;
     void	map( double x, double y, double *tx, double *ty ) const;
-    QPoint	map( const QPoint & )	const;
-    QRect	map( const QRect & )	const;
-    QPointArray map( const QPointArray & ) const;
+    QRect	mapRect( const QRect & )	const;
+
+    QPoint	map( const QPoint &p )	const { return operator *( p ); }
+    QRect	map( const QRect &r )	const { return mapRect ( r ); }
+    QPointArray map( const QPointArray &a ) const { return operator * ( a ); }
 
     void	reset();
     bool	isIdentity() const;
@@ -85,6 +87,12 @@ public:
     bool	operator!=( const QWMatrix & ) const;
     QWMatrix   &operator*=( const QWMatrix & );
 
+    /* we use matrix multiplication semantics here */
+    QPoint operator * (const QPoint & ) const;
+    QRegion operator * (const QRect & ) const;
+    QRegion operator * (const QRegion & ) const;
+    QPointArray operator *  ( const QPointArray &a ) const;
+    
 private:
     QWMatrix   &bmul( const QWMatrix & );
     double	_m11, _m12;
@@ -102,6 +110,7 @@ Q_EXPORT QWMatrix operator*( const QWMatrix &, const QWMatrix & );
 
 Q_EXPORT QDataStream &operator<<( QDataStream &, const QWMatrix & );
 Q_EXPORT QDataStream &operator>>( QDataStream &, QWMatrix & );
+
 
 #endif // QT_NO_TRANSFORMATIONS
 

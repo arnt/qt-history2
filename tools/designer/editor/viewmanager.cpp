@@ -42,6 +42,8 @@ ViewManager::ViewManager( QWidget *parent, const char *name )
 	     this, SIGNAL( collapse( bool ) ) );
     connect( markerWidget, SIGNAL( expand( bool ) ),
 	     this, SIGNAL( expand( bool ) ) );
+    connect( markerWidget, SIGNAL( editBreakPoints() ),
+	     this, SIGNAL( editBreakPoints() ) );
     markerWidget->setFixedWidth( 35 );
     dockArea = new QDockArea( Qt::Vertical, QDockArea::Normal, this );
     layout->addWidget( dockArea );
@@ -194,4 +196,9 @@ void ViewManager::showMarkerWidget( bool b )
 	markerWidget->show();
     else
 	markerWidget->hide();
+}
+
+void ViewManager::emitMarkersChanged()
+{
+    emit markersChanged();
 }

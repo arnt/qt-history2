@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qtextbrowser.cpp#7 $
+** $Id: $
 **
 ** Implementation of the QtTextView class
 **

@@ -14,3 +14,6 @@
 #define QT_MODULE_SQL
 
 // Compile time features
+#ifndef QT_NO_STL
+#define QT_NO_STL
+#endif

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.h#100 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.h#101 $
 **
 ** Definition of QMainWindow class
 **
@@ -50,8 +50,8 @@
 class QMenuBar;
 class QStatusBar;
 class QToolTipGroup;
-
 class QMainWindowPrivate;
+class QMainWindowLayout;
 
 class Q_EXPORT QMainWindow: public QWidget
 {
@@ -168,10 +168,6 @@ protected:
     bool event( QEvent * );
     void styleChange( QStyle& );
 
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-    QAccessibleInterface *accessibleInterface();
-#endif
-
 private slots:
     void slotPlaceChanged();
     void menuAboutToShow();
@@ -192,6 +188,7 @@ private:
     friend class QMenuBar;
     friend class QHideDock;
     friend class QToolBar;
+    friend class QMainWindowLayout;
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QMainWindow( const QMainWindow & );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbrush.h#44 $
+** $Id: //depot/qt/main/src/kernel/qbrush.h#45 $
 **
 ** Definition of QBrush class
 **

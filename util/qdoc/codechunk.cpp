@@ -96,7 +96,7 @@ void CodeChunk::append( const QString& lexeme )
 	  new lexeme?
 	*/
 	if ( needSpace[category(s.right(1)[0])][category(lexeme[0])] )
-	    s += ' ';
+	    s += QChar( ' ' );
     }
     s += lexeme;
 }
@@ -158,7 +158,7 @@ void CodeChunk::printHtml( HtmlWriter& out, const QString& baseHref,
     while ( TRUE ) {
 	if ( i == myhspot ) {
 	    if ( !hotspotHtml.isEmpty() ) {
-		out.putsMeta( " " );
+		out.putsMeta( "&nbsp;" );
 		out.putsMeta( hotspotHtml.latin1() );
 	    }
 	}
@@ -175,7 +175,11 @@ void CodeChunk::printHtml( HtmlWriter& out, const QString& baseHref,
 	    }
 	    i += myblen;
 	} else {
-	    out.puts( s.mid(i, 1).latin1() );
+	    QString t = s.mid( i, 1 );
+	    if ( t == QString(" ") )
+		out.putsMeta( "&nbsp;" );
+	    else
+		out.puts( t.latin1() );
 	    i++;
 	}
     }

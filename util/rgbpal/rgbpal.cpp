@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/rgbpal/rgbpal.cpp#3 $
+** $Id: $
 **
 ** Generates code to create a Windows 8 bit RGB palette. This palette
 ** is required by Qt for OpenGL RGBA rendering.

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qptrvector.h#3 $
+** $Id: //depot/qt/main/src/tools/qptrvector.h#4 $
 **
 ** Definition of QPtrVector pointer based template class
 **

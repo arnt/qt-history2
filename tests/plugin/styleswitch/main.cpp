@@ -28,6 +28,7 @@ public:
     QAction* create( const QString &actionname, QObject* parent = 0 );
     QString group( const QString &actionname ) const;
     void connectTo( QUnknownInterface *ai );
+    bool location( const QString &actionname, Location l ) const;
 
     bool init();
     void cleanup();
@@ -112,6 +113,11 @@ QStringList TestComponent::featureList() const
 
 void TestComponent::connectTo( QUnknownInterface * )
 {
+}
+
+bool TestComponent::location( const QString &actionname, Location l ) const
+{
+    return TRUE;
 }
 
 /* XPM */

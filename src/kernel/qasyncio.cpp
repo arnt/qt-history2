@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncio.cpp#46 $
+** $Id: //depot/qt/main/src/kernel/qasyncio.cpp#47 $
 **
 ** Implementation of asynchronous I/O classes
 **

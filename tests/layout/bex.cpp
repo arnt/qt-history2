@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/layout/bex.cpp#4 $
+** $Id: $
 **
 ** QBoxLayout example: boxes that go "backwards" (i.e. RightToLeft or
 ** BottomToTop)

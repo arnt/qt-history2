@@ -107,6 +107,8 @@ struct DesignerProject
     virtual void setCustomSetting( const QString &key, const QString &value ) = 0;
     virtual QString customSetting( const QString &key ) const = 0;
     virtual DesignerPixmapCollection *pixmapCollection() const = 0;
+    virtual void breakPoints( QMap<QString, QValueList<int> > &bps ) const = 0;
+    virtual void clearAllBreakpoints() const = 0;
 };
 
 struct DesignerDatabase

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#96 $
+** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#97 $
 **
 ** Implementation of QFontDialog
 **
@@ -57,10 +57,31 @@
 
 /*!
   \class QFontDialog qfontdialog.h
-  \brief The QFontDialog class provides a dialog widget for selecting a text font.
+  \brief The QFontDialog class provides a dialog widget for selecting a font.
 
-  This dialog can be used to let the user choose a font with attributes, etc.
-  Normally you may use the static convenience function getFont().
+  The usual way to use this class is to call one of the static convenience
+  functions, getFont(), e.g.
+
+  Examples:
+  \code
+    bool ok;
+    QFont font = QFontDialog::getFont( &ok, QFont( "Helvetica [Cronyx]", 10 ), this );
+    if ( ok ) {
+	// font is set to the font the user selected 
+    } else {
+	// the user cancelled the dialog; font is set to the initial
+	// value, in this case Helvetica [Cronyx], 10
+    }
+  \endcode
+
+    The dialog can also be used to set a widget's font directly:
+  \code
+    aWidget.setFont( QFontDialog::getFont( 0, aWidget.font() ) );
+  \endcode
+  If the user clicks OK the font they chose will be used for aWidget,
+  and if they click cancel the original font is kept.
+
+  \sa QFont QFontInfo QFontMetrics
 
   <img src=qfontdlg-m.png> <img src=qfontdlg-w.png>
 */
@@ -116,8 +137,9 @@ public:
 
 
 /*!
-  Constructs a default font dialog. Use setFont() for setting
-  the initial values.
+  Constructs a common font dialog. 
+
+  Use setFont() for setting the initial font attributes.
 
     The \a parent, \a name, \a modal and \a f parameters are passed to
     the QDialog constructor.
@@ -301,36 +323,37 @@ QFontDialog::~QFontDialog()
 }
 
 /*!
-  Opens a modal font dialog and returns the font selected by the user.
+  Executes a modal font dialog and returns a font.
+
+  If the user clicks OK, the selected font is returned. If the user
+  clicks Cancel, the \a initial font is returned.
 
   The dialog has parent \a parent and is called \a name.
-
   \a initial is the initial selected font.
+  If the \a ok parameter is not-null, \e *\a ok is set to TRUE if the
+  user clicked OK, and set to FALSE if the user clicked Cancel.
 
-  If the \a ok parameter is not-null, *ok is set to TRUE if the user
-  clicked OK, and FALSE if the user clicked Cancel.
+  This static function is less functional than the full QFontDialog
+  object, but is convenient and easy to use.
 
-  If the user clicks Cancel, the \a initial font is returned.
-
-  This static function is less capable than the full QFontDialog object,
-  but is convenient and easy to use.
-
-  Example:
+  Examples:
   \code
-    // start at the current working directory and with *.cpp as filter
     bool ok;
-    QFont f = QFontDialog::getFont( &ok, QFont( "Times", 12 ), this );
+    QFont font = QFontDialog::getFont( &ok, QFont( "Times", 12 ), this );
     if ( ok ) {
-	// the user selected a valid font
+	// font is set to the font the user selected 
     } else {
-	// the user cancelled the dialog
+	// the user cancelled the dialog; font is set to the initial
+	// value, in this case Times, 12.
     }
   \endcode
 
-  Another example:
+    The dialog can also be used to set a widget's font directly:
   \code
-    mywidget.setFont( QFontDialog::getFont( 0, mywidget.font() ) );
+    myWidget.setFont( QFontDialog::getFont( 0, myWidget.font() ) );
   \endcode
+  In this example, if the user clicks OK the font they chose will be
+  used, and if they click cancel the original font is kept.
 */
 QFont QFontDialog::getFont( bool *ok, const QFont &initial,
 			    QWidget *parent, const char* name)
@@ -341,27 +364,27 @@ QFont QFontDialog::getFont( bool *ok, const QFont &initial,
 /*!
     \overload
 
-  Opens a modal font dialog and returns the font selected by the user.
+  Executes a modal font dialog and returns a font.
+
+  If the user clicks OK, the selected font is returned. If the user
+  clicks Cancel, the Qt default font is returned.
 
   The dialog has parent \a parent and is called \a name.
-
-  If the \a ok parameter is not-null, *ok is set to TRUE if the user
+  If the \a ok parameter is not-null, \e * \a ok is set to TRUE if the user
   clicked OK, and FALSE if the user clicked Cancel.
 
-  If the user clicks Cancel, the Qt default font is returned.
-
-  This static function is less capable than the full QFontDialog object,
-  but is convenient and easy to use.
+  This static function is less functional than the full QFontDialog
+  object, but is convenient and easy to use.
 
   Example:
   \code
-    // start at the current working directory and with *.cpp as filter
     bool ok;
-    QFont f = QFontDialog::getFont( &ok, this );
+    QFont font = QFontDialog::getFont( &ok, this );
     if ( ok ) {
-	// the user selected a valid font
+	// font is set to the font the user selected 
     } else {
-	// the user cancelled the dialog
+	// the user cancelled the dialog; font is set to the default
+	// application font, QApplication::font()
     }
   \endcode
 
@@ -394,8 +417,9 @@ QFont QFontDialog::getFont( bool *ok, const QFont *def,
     return result;
 }
 
-/*! Returns a pointer to the "font family" list box.  This is usable
-  mainly if you reimplement updateFontFamilies();
+/*! 
+    Returns a pointer to the "font family" list box.  This is mainly
+    useful mainly if you reimplement updateFontFamilies();
 */
 
 QListBox * QFontDialog::familyListBox() const
@@ -403,8 +427,9 @@ QListBox * QFontDialog::familyListBox() const
     return d->familyList;
 }
 
-/*! Returns a pointer to the "font style" list box.  This is usable
-  mainly if you reimplement updateFontStyles();
+/*! 
+    Returns a pointer to the "font style" list box.  This is mainly
+    useful if you reimplement updateFontStyles();
 */
 
 QListBox * QFontDialog::styleListBox() const
@@ -412,8 +437,9 @@ QListBox * QFontDialog::styleListBox() const
     return d->styleList;
 }
 
-/*! Returns a pointer to the "font style" list box.  This is usable
-  mainly if you reimplement updateFontStyles();
+/*! 
+    Returns a pointer to the "font style" list box.  This is mainly
+    useful if you reimplement updateFontStyles();
 */
 
 QComboBox * QFontDialog::scriptCombo() const
@@ -421,8 +447,9 @@ QComboBox * QFontDialog::scriptCombo() const
     return d->scriptCombo;
 }
 
-/*! Returns a pointer to the "font size" list box.  This is usable
-  mainly if you reimplement updateFontSizes();
+/*! 
+    Returns a pointer to the "font size" list box.  This is mainly
+    useful if you reimplement updateFontSizes();
 */
 
 QListBox * QFontDialog::sizeListBox() const
@@ -448,9 +475,10 @@ void QFontDialog::sizeChanged( const QString &s )
 }
 
 
-/*!  Event filter to make the up, down, pageup and pagedown keys work
- correctly in the line edits. The source of the event is the object \a o
- and the event is \a e.
+/*!  
+    An event filter to make the Up, Down, PageUp and PageDown keys work
+    correctly in the line edits. The source of the event is the object
+    \a o and the event is \a e.
 */
 
 bool QFontDialog::eventFilter( QObject * o , QEvent * e )
@@ -762,7 +790,7 @@ void QFontDialog::sizeHighlighted( const QString &s )
 enum match_t { MATCH_NONE=0, MATCH_LAST_RESORT=1, MATCH_DEFAULT=2, MATCH_FAMILY=3 };
 
 /*!
-  Sets the font the QFontDialog highlights to \a f.
+  Sets the font the QFontDialog highlights to font \a f.
 
   \sa font()
 */
@@ -878,15 +906,15 @@ void QFontDialog::emitSelectedFont()
 /*!
   \fn void QFontDialog::fontSelected( const QFont & font )
 
-  This signal is emitted when the user has chosen a font and clicked ok,
-  the font that was selected is passed in \a font.
+  This signal is emitted when the user has chosen a font and clicked OK.
+  The font that was selected is passed in \a font.
 */
 
 /*!
   \fn void QFontDialog::fontHighlighted( const QFont & font )
 
-  This signal is emitted when the user changed a setting in the dialog,
-  the font that was highlighted is passed in \a font.
+  This signal is emitted when the user changed a setting in the dialog.
+  The font that is highlighted is passed in \a font.
 */
 
 #endif

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/%s#3 $
+** $Id: $
 **
 ** Definition of ________ class.
 **
@@ -108,6 +108,8 @@ BorlandMakefileGenerator::writeBorlandParts(QTextStream &t)
     t << "MOC	=	" << Option::fixPathToTargetOS(var("QMAKE_MOC"), FALSE) << endl;
     t << "UIC	=	" << var("QMAKE_UIC") << endl;
     t << "ZIP	=	" << var("QMAKE_ZIP") << endl;
+    t << "DEF_FILE =	" << varList("DEF_FILE") << endl;
+    t << "RES_FILE =	" << varList("RES_FILE") << endl;
     t << "COPY  =       " << var("QMAKE_COPY") << endl;
     t << "DEL   =       " << var("QMAKE_DEL") << endl;
     t << "MOVE  =       " << var("QMAKE_MOVE") << endl;
@@ -140,7 +142,7 @@ BorlandMakefileGenerator::writeBorlandParts(QTextStream &t)
     t << "$(TARGET): $(UICDECLS) $(OBJECTS) $(OBJMOC) " << var("TARGETDEPS");
     if(!project->variables()["QMAKE_APP_OR_DLL"].isEmpty()) {
 	t << "\n\t" << "$(LINK) @&&|" << "\n\t"
-	  << "$(LFLAGS) $(OBJECTS) $(OBJMOC), $(TARGET),,$(LIBS)";
+	  << "$(LFLAGS) $(OBJECTS) $(OBJMOC),$(TARGET),,$(LIBS),$(DEF_FILE),$(RES_FILE)";
     } else {
 	t << "\n\t" << "$(LIB) $(TARGET) @&&|" << " \n+"
 	  << project->variables()["OBJECTS"].join(" \\\n+") << " \\\n+"
@@ -170,7 +172,12 @@ BorlandMakefileGenerator::writeBorlandParts(QTextStream &t)
       << varGlue("OBJMOC" ,"-del ","\n\t-del ","") << "\n\t"
       << "-del $(TARGET)" << "\n\t"
       << varGlue("QMAKE_CLEAN","-del ","\n\t-del ","") << "\n\t"
-      << varGlue("CLEAN_FILES","-del ","\n\t-del ","") << endl << endl;
+      << varGlue("CLEAN_FILES","-del ","\n\t-del ","");
+    if(project->isActiveConfig("dll") && !project->variables()["DLLDESTDIR"].isEmpty()) {
+	t << "\n\t-del" << var("DLLDESTDIR") << "\\$(TARGET)";
+    }
+    t << endl << endl;
+
 }
 
 void
@@ -298,9 +305,9 @@ BorlandMakefileGenerator::init()
 		    for(QStringList::Iterator libit = libs.begin(); libit != libs.end(); ++libit)
 			(*libit).replace(QRegExp("qt(mt)?\\.lib"), ver);
 		}
-		if ( !project->isActiveConfig("dll") ) {
-		    project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_QT_DLL"];
-		}
+	    }
+	    if ( !project->isActiveConfig("dll") ) {
+		project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_QT_DLL"];
 	    }
 	}
     }
@@ -355,9 +362,6 @@ BorlandMakefileGenerator::init()
 	    (*inner) = Option::fixPathToTargetOS((*inner), FALSE);
     }
 
-    if ( !project->variables()["DEF_FILE"].isEmpty() ) {
-	project->variables()["QMAKE_LFLAGS"].append(QString("/DEF:") + project->first("DEF_FILE"));
-    }
     if ( !project->variables()["RC_FILE"].isEmpty()) {
 	if ( !project->variables()["RES_FILE"].isEmpty()) {
 	    fprintf(stderr, "Both .rc and .res file specified.\n");
@@ -367,9 +371,6 @@ BorlandMakefileGenerator::init()
 	project->variables()["RES_FILE"] = project->variables()["RC_FILE"];
 	project->variables()["RES_FILE"].first().replace(QRegExp("\\.rc"),".res");
 	project->variables()["TARGETDEPS"] += project->variables()["RES_FILE"];
-    }
-    if ( !project->variables()["RES_FILE"].isEmpty()) {
-	project->variables()["QMAKE_LIBS"] += project->variables()["RES_FILE"];
     }
     MakefileGenerator::init();
     if ( !project->variables()["VERSION"].isEmpty()) {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#130 $
+** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#131 $
 **
 ** Implementation of internal print dialog (X11) used by QPrinter::select().
 **
@@ -237,10 +237,10 @@ static void parseEtcLpPrinters( QListView * printers )
                        configuration.readLine( line, 1024 ) > 0 ) {
                     if ( remote.search(QString::fromLatin1(line)) == 0 ) {
                         const char * p = line;
-                        while( *p != ':' )
+                        while ( *p != ':' )
                             p++;
                         p++;
-                        while( isspace(*p) )
+                        while ( isspace((uchar) *p) )
                             p++;
                         printerHost = QString::fromLocal8Bit(p);
                         printerHost = printerHost.simplifyWhiteSpace();
@@ -252,12 +252,12 @@ static void parseEtcLpPrinters( QListView * printers )
                         p++;
                         char * e;
                         while( *p ) {
-                            while( isspace(*p) )
+                            while ( isspace((uchar) *p) )
                                 p++;
                             if ( *p ) {
                                 char s;
                                 e = p;
-                                while( isalnum(*e) )
+                                while( isalnum((uchar) *e) )
                                     e++;
                                 s = *e;
                                 *e = '\0';
@@ -809,7 +809,7 @@ QGroupBox * QPrintDialog::setupDestination()
                 def.readLine( etcLpDefault, 1024 );
                 char * p = etcLpDefault;
                 while( p && *p ) {
-                    if ( !isprint(*p) || isspace(*p) )
+                    if ( !isprint((uchar) *p) || isspace((uchar) *p) )
                         *p = 0;
                     else
                         p++;
@@ -1125,7 +1125,7 @@ bool QPrintDialog::getPrinterSetup( QPrinter * p )
     if ( !globalPrintDialog ) {
         globalPrintDialog = new QPrintDialog( 0, 0, "global print dialog" );
         globalPrintDialog->setCaption( QPrintDialog::tr( "Setup Printer" ) );
-        qpd_cleanup_globaldialog.add( globalPrintDialog );
+        qpd_cleanup_globaldialog.add( &globalPrintDialog );
         globalPrintDialog->setPrinter( p, TRUE );
     } else {
         globalPrintDialog->setPrinter( p, FALSE );

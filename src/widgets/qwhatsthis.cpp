@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#115 $
+** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#116 $
 **
 ** Implementation of QWhatsThis class
 **
@@ -365,7 +365,7 @@ bool QWhatsThisPrivate::eventFilter( QObject * o, QEvent * e )
 	    e->type() == QEvent::KeyPress ) {
 	    whatsThat->hide();
 #if defined(QT_ACCESSIBILITY_SUPPORT)
-	    emit accessibilityChanged( QAccessible::ContextHelpEnd );
+	    QAccessible::updateAccessibility( this, 0, QAccessible::ContextHelpEnd );
 #endif
 	    return TRUE;
 	}
@@ -398,7 +398,7 @@ bool QWhatsThisPrivate::eventFilter( QObject * o, QEvent * e )
 	    leaveWhatsThisMode();
 	    if (!i ) {
 #if defined(QT_ACCESSIBILITY_SUPPORT)
-		emit accessibilityChanged( QAccessible::ContextHelpEnd );
+		QAccessible::updateAccessibility( this, 0, QAccessible::ContextHelpEnd );
 #endif
 		return TRUE;
 	    }
@@ -469,7 +469,7 @@ void QWhatsThisPrivate::setUpWhatsThis()
 void QWhatsThisPrivate::enterWhatsThisMode()
 {
 #if defined(QT_ACCESSIBILITY_SUPPORT)
-    emit accessibilityChanged( QAccessible::ContextHelpStart );
+    QAccessible::updateAccessibility( this, 0, QAccessible::ContextHelpStart );
 #endif
 }
 

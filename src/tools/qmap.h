@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qmap.h#55 $
+** $Id: //depot/qt/main/src/tools/qmap.h#56 $
 **
 ** Definition of QMap class
 **
@@ -579,7 +579,7 @@ public:
     QMap( const std::map<Key,T>& m )
     {
 	sh = new QMapPrivate<Key,T>;
-	std::map<Key,T>::const_iterator it = m.begin();
+	QMapConstIterator<Key,T> it = m.begin();
 	for ( ; it != m.end(); ++it ) {
 	    value_type p( (*it).first, (*it).second );
 	    insert( p );
@@ -603,7 +603,7 @@ public:
     QMap<Key,T>& operator= ( const std::map<Key,T>& m )
     {
 	clear();
-	std::map<Key,T>::const_iterator it = m.begin();
+	QMapConstIterator<Key,T> it = m.begin();
 	for ( ; it != m.end(); ++it ) {
 	    value_type p( (*it).first, (*it).second );
 	    insert( p );
@@ -776,7 +776,7 @@ inline QDataStream& operator>>( QDataStream& s, QMap<Key,T>& m ) {
 template<class Key, class T>
 inline QDataStream& operator<<( QDataStream& s, const QMap<Key,T>& m ) {
     s << (Q_UINT32)m.size();
-    QMap<Key,T>::const_iterator it = m.begin();
+    QMapConstIterator<Key,T> it = m.begin();
     for( ; it != m.end(); ++it )
 	s << it.key() << it.data();
     return s;

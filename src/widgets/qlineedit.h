@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.h#120 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.h#121 $
 **
 ** Definition of QLineEdit widget class
 **
@@ -115,13 +115,13 @@ public:
     bool hasSelectedText() const;
     QString selectedText() const;
     bool getSelection( int *start, int *end );
-    
+
 #ifndef QT_NO_COMPAT
     bool hasMarkedText() const { return hasSelectedText(); }
     QString markedText() const { return selectedText(); }
 #endif
     bool dragEnabled() const;
-
+    int characterAt( int xpos, QChar *chr ) const;
 
 public slots:
     virtual void setText( const QString &);
@@ -182,10 +182,6 @@ protected:
 
     virtual QPopupMenu *createPopupMenu();
     void windowActivationChange( bool );
-
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-    QAccessibleInterface *accessibleInterface();
-#endif
 
 private slots:
     void clipboardChanged();

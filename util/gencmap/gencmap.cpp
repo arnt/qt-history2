@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/gencmap/gencmap.cpp#2 $
+** $Id: $
 **
 ** Utility program generating a color cube with priority ordered colors.
 **

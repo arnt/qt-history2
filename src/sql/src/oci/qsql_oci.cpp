@@ -477,7 +477,7 @@ QOCIResult::~QOCIResult()
 	int r = OCIHandleFree( d->sql,OCI_HTYPE_STMT );
 #ifdef QT_CHECK_RANGE
 	if ( r != 0 )
-	    qWarning( "QOCIResult::reset: unable to free statement handle: " + qOraWarn( d ) );
+	    qWarning( "~QOCIResult: unable to free statement handle: " + qOraWarn( d ) );
 #endif
     }
     delete d;
@@ -682,7 +682,7 @@ bool QOCIResult::cacheNext()
 		    OCI_HTYPE_ERROR);
 	switch ( errcode ) {
 	case 1406:
-	    qWarning("QOCI Warning: data truncated for " + lastQuery());
+	    qWarning( "QOCI Warning: data truncated for " + lastQuery() );
 	    r = 0; /* ignore it */
 	    break;
 	default:

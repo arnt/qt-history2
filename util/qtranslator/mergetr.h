@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/qtranslator/mergetr.h#1 $
+** $Id: $
 **
 ** This is a utility program for merging findtr msgfiles
 **

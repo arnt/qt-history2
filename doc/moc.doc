@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: moc.doc,v 2.18 1999/10/27 10:24:59 aavit Exp $
+** $Id: $
 **
 ** Moc usage, expanded from the manual page
 **
@@ -59,7 +59,9 @@ class's source file).
 Using the moc is introduced in \link t7.html chapter 7 \endlink of the
 Qt Tutorial.  Chapter 7 includes a simple \link t7-makefile.html
 Makefile that uses the moc \endlink and of course source code that
-uses signals and slots.
+uses signals and slots. For more background information on moc, see <a
+href="templates.html">Why doesn't Qt use templates for signals and
+slots?</a>.
 
 \section1 Usage
 

@@ -69,7 +69,7 @@ struct EditorInterface : public QUnknownInterface
     virtual bool replace( const QString &find, const QString &replace, bool cs, bool wo, bool forward, bool startAtCursor, bool replaceAll ) = 0;
     virtual void gotoLine( int line ) = 0;
     virtual void indent() = 0;
-    virtual void scrollTo( const QString &txt ) = 0;
+    virtual void scrollTo( const QString &txt, const QString &first ) = 0;
     virtual void splitView() = 0;
     virtual void setContext( QObjectList *toplevels, QObject *this_ ) = 0;
     virtual void setError( int line ) = 0;

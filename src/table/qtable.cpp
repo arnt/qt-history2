@@ -443,6 +443,8 @@ QTableItem::~QTableItem()
     table()->takeItem( this );
 }
 
+int QTableItem::RTTI = 0;
+
 /*!
     Returns the Run Time Type Identification number of this table item which
     for QTableItems is 0.
@@ -461,7 +463,7 @@ QTableItem::~QTableItem()
 
 int QTableItem::rtti() const
 {
-    return 0;
+    return RTTI;
 }
 
 /*! Returns the table item's pixmap or a null-pixmap if no pixmap has been
@@ -1089,6 +1091,8 @@ bool QComboTableItem::isEditable() const
     return edit;
 }
 
+int QComboTableItem::RTTI = 1;
+
 /*! \fn int QComboTableItem::rtti() const
 
   For QComboTableItems this function returns a Run Time Identification
@@ -1096,6 +1100,11 @@ bool QComboTableItem::isEditable() const
 
   \sa QTableItem::rtti()
 */
+
+int QComboTableItem::rtti() const
+{
+    return RTTI;
+}
 
 /*! \class QCheckTableItem qtable.h
 
@@ -1213,6 +1222,8 @@ bool QCheckTableItem::isChecked() const
     return checked;
 }
 
+int QCheckTableItem::RTTI = 2;
+
 /*! \fn int QCheckTableItem::rtti() const
 
     Returns 2.
@@ -1224,6 +1235,11 @@ bool QCheckTableItem::isChecked() const
 
   \sa QTableItem::rtti()
 */
+
+int QCheckTableItem::rtti() const
+{
+    return RTTI;
+}
 
 /*! \file table/small-table-demo/main.cpp */
 /*! \file table/bigtable/main.cpp */
@@ -1245,13 +1261,12 @@ bool QCheckTableItem::isChecked() const
     million by one million cells are perfectly possible. QTable is
     economical with memory, using none for unused cells.
 
-    \walkthrough table/small-table-demo/main.cpp
-    \skipto QTable
-    \printline
-    \skipto setPixmap
-    \printuntil setText
+    \code
+    QTable *table = new QTable( 100, 250, this );
+    table->setPixmap( 3, 2, pix );
+    table->setText( 3, 2, "A pixmap" );
+    \endcode
 
-    (Code from \l table/small-table-demo/main.cpp.)
     The first line constructs the table specifying its size in rows and
     columns. We then insert a pixmap and some text into the \e same
     cell, with the pixmap appearing to the left of the text. By default
@@ -2109,6 +2124,13 @@ void QTable::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 
 	    rowp = oldrp;
 	    rowh = oldrh;
+
+	    QWidget *w = cellWidget( r, c );
+	    if ( w && w->geometry() !=
+		 QRect( contentsToViewport( QPoint( colp, rowp ) ), QSize( colw - 1, rowh - 1 ) ) ) {
+		moveChild( w, colp, rowp );
+		w->resize( colw - 1, rowh - 1 );
+	    }
 	}
     }
 
@@ -3235,30 +3257,18 @@ void QTable::viewportToContents2( int vx, int vy, int& x, int& y )
 
 void QTable::columnWidthChanged( int col )
 {
-    updateContents( columnPos( col ), 0, contentsWidth(), contentsHeight() );
+    updateContents( columnPos( col ), contentsY(), contentsWidth(), visibleHeight() );
     QSize s( tableSize() );
     int w = contentsWidth();
     resizeContents( s.width(), s.height() );
     if ( contentsWidth() < w )
-	repaintContents( s.width(), 0,
-			 w - s.width() + 1, contentsHeight(), TRUE );
+	repaintContents( s.width(), contentsY(),
+			 w - s.width() + 1, visibleHeight(), TRUE );
     else
-	repaintContents( w, 0,
-			 s.width() - w + 1, contentsHeight(), FALSE );
+	repaintContents( w, contentsY(),
+			 s.width() - w + 1, visibleHeight(), FALSE );
 
     updateGeometries();
-    qApp->processEvents();
-
-    for ( int j = col; j < numCols(); ++j ) {
-	for ( int i = 0; i < numRows(); ++i ) {
-	    QWidget *w = cellWidget( i, j );
-	    if ( !w )
-		continue;
-	    moveChild( w, columnPos( j ), rowPos( i ) );
-	    w->resize( columnWidth( j ) - 1, rowHeight( i ) - 1 );
-	}
-	qApp->processEvents();
-    }
 }
 
 /*! This function should be called whenever the row height of \a row
@@ -3268,30 +3278,18 @@ void QTable::columnWidthChanged( int col )
 
 void QTable::rowHeightChanged( int row )
 {
-    updateContents( 0, rowPos( row ), contentsWidth(), contentsHeight() );
+    updateContents( contentsX(), rowPos( row ), visibleWidth(), contentsHeight() );
     QSize s( tableSize() );
     int h = contentsHeight();
     resizeContents( s.width(), s.height() );
     if ( contentsHeight() < h )
-	repaintContents( 0, contentsHeight(),
-			 contentsWidth(), h - s.height() + 1, TRUE );
+	repaintContents( contentsX(), contentsHeight(),
+			 visibleWidth(), h - s.height() + 1, TRUE );
     else
-	repaintContents( 0, h,
-			 contentsWidth(), s.height() - h + 1, FALSE );
+	repaintContents( contentsX(), h,
+			 visibleWidth(), s.height() - h + 1, FALSE );
 
     updateGeometries();
-    qApp->processEvents();
-
-    for ( int j = row; j < numRows(); ++j ) {
-	for ( int i = 0; i < numCols(); ++i ) {
-	    QWidget *w = cellWidget( j, i );
-	    if ( !w )
-		continue;
-	    moveChild( w, columnPos( i ), rowPos( j ) );
-	    w->resize( columnWidth( i ) - 1, rowHeight( j ) - 1 );
-	}
-	qApp->processEvents();
-    }
 }
 
 /*! \internal */
@@ -3325,7 +3323,7 @@ void QTable::updateColWidgets( int col )
   from \a fromIndex to \a toIndex.
 
   If you want to change the column order programmatically, call
-  QHeader::moveSection() on the horizontalHeader().
+  swapRows() or swapColumns();
 
   \sa QHeader::indexChange() rowIndexChanged()
 */
@@ -3341,7 +3339,7 @@ void QTable::columnIndexChanged( int, int, int )
   from \a fromIndex to \a toIndex.
 
   If you want to change the order programmatically, call
-  QHeader::moveSection() on the verticalHeader().
+  swapRows() or swapColumns();
 
   \sa QHeader::indexChange() columnIndexChanged()
 */
@@ -3921,7 +3919,7 @@ void QTable::repaintSelections( QTableSelection *oldSelection,
     bottom = QMAX( oldSelection ? oldSelection->bottomRow() : newSelection->bottomRow(), newSelection->bottomRow() );
     right = QMAX( oldSelection ? oldSelection->rightCol() : newSelection->rightCol(), newSelection->rightCol() );
 
-    if ( updateHorizontal ) {
+    if ( updateHorizontal && left >= 0 ) {
 	register int *s = &topHeader->states.data()[left];
 	for ( i = left; i <= right; ++i ) {
 	    if ( !isColumnSelected( i ) )
@@ -3935,7 +3933,7 @@ void QTable::repaintSelections( QTableSelection *oldSelection,
 	topHeader->repaint( FALSE );
     }
 
-    if ( updateVertical ) {
+    if ( updateVertical && top >= 0 ) {
 	register int *s = &leftHeader->states.data()[top];
 	for ( i = top; i <= bottom; ++i ) {
 	    if ( !isRowSelected( i ) )
@@ -4386,7 +4384,7 @@ void QTable::setCellWidget( int row, int col, QWidget *e )
 	e->reparent( viewport(), QPoint( 0,0 ) );
     insertWidget( row, col, e );
     QRect cr = cellGeometry( row, col );
-    e->resize( cr.size() - QSize( 1, 1 ) );
+    e->resize( cr.size() );
     moveChild( e, cr.x(), cr.y() );
     e->show();
     viewport()->setFocus();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgfxraster_qws.h#18 $
+** $Id: //depot/qt/main/src/kernel/qgfxraster_qws.h#19 $
 **
 ** Definition of QGfxRaster (unaccelerated graphics context) class
 **

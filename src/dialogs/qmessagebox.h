@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmessagebox.h#74 $
+** $Id: //depot/qt/main/src/dialogs/qmessagebox.h#75 $
 **
 ** Definition of QMessageBox class
 **
@@ -158,10 +158,6 @@ protected:
     void	resizeEvent( QResizeEvent * );
     void	keyPressEvent( QKeyEvent * );
     void	styleChanged( QStyle& );
-
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-    QAccessibleInterface *accessibleInterface();
-#endif
 
 private slots:
     void	buttonClicked();

@@ -41,7 +41,8 @@ public:
     void setObject( QObject *fw, Project *p );
     QObject *object() const { return formWindow; }
     Project *project() const { return pro; }
-    void setFunction( const QString &func );
+    void setFunction( const QString &func, const QString &clss = QString::null );
+    void setClass( const QString &clss );
     void save();
     void setModified( bool b );
 
@@ -66,6 +67,9 @@ public:
     int numLines() const;
     void saveBreakPoints();
     void clearStep();
+    void resetBreakPoints();
+
+    QString text() const;
 
 protected:
     void closeEvent( QCloseEvent *e );

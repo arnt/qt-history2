@@ -59,6 +59,7 @@ win32 {
 	}
 
 	CONFIG	+= png zlib
+	CONFIG -= incremental
 	DEFINES += UNICODE
 	INCLUDEPATH += tmp
 	MOC_DIR	= tmp

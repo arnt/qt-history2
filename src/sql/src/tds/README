@@ -1,0 +1,5 @@
+You will need the TDS development headers and libraries
+installed before compiling this plugin.  Under Windows, use the DB-Library supplied by Microsoft.  Under Unix, libraries are available which support the TDS protocol, such as FreeTDS.
+
+See the Qt SQL documentation for more information on compiling Qt SQL
+driver plugins.

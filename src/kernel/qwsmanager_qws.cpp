@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwsmanager_qws.cpp#34 $
+** $Id: //depot/qt/main/src/kernel/qwsmanager_qws.cpp#35 $
 **
 ** Implementation of Qt/Embedded window manager
 **

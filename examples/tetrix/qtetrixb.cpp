@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/tetrix/qtetrixb.cpp#2 $
+** $Id: $
 **
 ** Copyright (C) 1992-1998 Trolltech AS.  All rights reserved.
 **

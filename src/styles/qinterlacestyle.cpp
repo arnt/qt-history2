@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qinterlacestyle.cpp#7 $
+** $Id: //depot/qt/main/src/styles/qinterlacestyle.cpp#8 $
 **
 ** Implementation of QQInterlaceStyle widget class
 **

@@ -382,7 +382,7 @@ void Glade2Ui::emitVariant( const QVariant& val, const QString& stringType )
 }
 
 void Glade2Ui::emitProperty( const QString& prop, const QVariant& val,
-			     const QString& stringType = "string" )
+			     const QString& stringType )
 {
     emitOpening( QString("property"), attribute(QString("name"), prop) );
     emitVariant( val, stringType );
@@ -401,7 +401,7 @@ void Glade2Ui::emitFontProperty( const QString& prop, int pointSize, bool bold )
 }
 
 void Glade2Ui::emitAttribute( const QString& prop, const QVariant& val,
-			      const QString& stringType = "string" )
+			      const QString& stringType )
 {
     emitOpening( QString("attribute"), attribute(QString("name"), prop) );
     emitVariant( val, stringType );

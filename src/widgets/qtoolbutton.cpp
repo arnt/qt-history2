@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#139 $
+** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#140 $
 **
 ** Implementation of QToolButton class
 **
@@ -51,9 +51,6 @@
 #include "qtimer.h"
 #include "qpopupmenu.h"
 #include "qguardedptr.h"
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-#include "qaccessiblewidget.h"
-#endif
 
 static QToolButton * threeDeeButton = 0;
 
@@ -65,9 +62,11 @@ public:
     QGuardedPtr<QPopupMenu> popup;
     QTimer* popupTimer;
     int delay;
-    uint instantPopup : 1;
-    bool autoraise, repeat;
-    Qt::ArrowType arrow;
+    Qt::ArrowType arrow	    : 2;
+    uint instantPopup	    : 1;
+    uint autoraise	    : 1;
+    uint repeat		    : 1;
+    uint discardNextMouseEvent : 1;
 };
 
 
@@ -174,6 +173,7 @@ void QToolButton::init()
     d->autoraise = FALSE;
     d->arrow = LeftArrow;
     d->instantPopup = FALSE;
+    d->discardNextMouseEvent = FALSE;
     bpID = bp.serialNumber();
     spID = sp.serialNumber();
 
@@ -454,18 +454,16 @@ void QToolButton::moveEvent( QMoveEvent * )
 */
 void QToolButton::mousePressEvent( QMouseEvent *e )
 {
-    bool left = FALSE;
-    if ( parentWidget() && parentWidget()->isA( "QToolBar" ) ) {
-	QToolBar *tb = (QToolBar*)parentWidget();
-	if ( tb->orientation() == Vertical && mapToGlobal( tb->rect().center() ).x() > topLevelWidget()->rect().center().x() )
-	    left = TRUE;
+    int dbw = style().menuButtonIndicatorWidth( height() );
+    d->instantPopup = e->pos().x() > ( width() - dbw );
+
+    if ( d->discardNextMouseEvent ) {
+	d->discardNextMouseEvent = FALSE;
+	d->instantPopup = FALSE;
+	d->popup->removeEventFilter( this );	
+	return;
     }
-
-    int dbw = style().pixelMetric(QStyle::PM_MenuButtonIndicator, this);
-    d->instantPopup = ( ( e->pos().x() < dbw ) && left  ) ||
-		      ( ( e->pos().x() > ( width() - dbw ) ) && !left );
-
-    if ( e->button() == LeftButton && d->delay <= 0 && d->popup && d->instantPopup ) {
+    if ( e->button() == LeftButton && d->delay <= 0 && d->popup && d->instantPopup && !d->popup->isVisible() ) {
 	d->instantPopup = TRUE;
 	repaint( FALSE );
 	popupTimerDone();
@@ -475,6 +473,27 @@ void QToolButton::mousePressEvent( QMouseEvent *e )
     }
     d->instantPopup = FALSE;
     QButton::mousePressEvent( e );
+}
+
+/*! \reimp */
+bool QToolButton::eventFilter( QObject *o, QEvent *e )
+{
+    if ( o != d->popup )
+	return QButton::eventFilter( o, e );
+    switch ( e->type() ) {
+    case QEvent::MouseButtonPress:
+    case QEvent::MouseButtonDblClick:
+	{
+	    QMouseEvent *me = (QMouseEvent*)e;
+	    QPoint p = me->globalPos();
+	    if ( QApplication::widgetAt( p, TRUE ) == this )
+		d->discardNextMouseEvent = TRUE;
+	}
+	break;
+    default:
+	break;
+    }
+    return QButton::eventFilter( o, e );
 }
 
 /*!  Returns TRUE if this button should be drawn using raised edges.
@@ -700,6 +719,7 @@ void QToolButton::popupPressed()
 void QToolButton::popupTimerDone()
 {
     if ( d->popup ) {
+	d->popup->installEventFilter( this );
 	d->repeat = autoRepeat();
 	setAutoRepeat( FALSE );
 	bool horizontal = TRUE;
@@ -799,24 +819,6 @@ void QToolButton::paletteChange( const QPalette & )
 {
     if ( s )
 	s->clearGenerated();
-}
-#endif
-
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-/*!
-  \reimp
-
-  Provides accessible information for a push button, a menu button when this
-  toolbutton provides a popup menu, or a drop down button when this toolbutton has
-  a drop down section.
-*/
-QAccessibleInterface *QToolButton::accessibleInterface()
-{
-    if ( !d->popup )
-	return new QAccessibleButton( this, QAccessible::PushButton );
-    else if ( !d->delay )
-	return new QAccessibleButton( this, QAccessible::ButtonDropDown );
-    return new QAccessibleButton( this, QAccessible::ButtonMenu );
 }
 #endif
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qwindowsstyle.cpp#61 $
+** $Id: //depot/qt/main/src/styles/qwindowsstyle.cpp#62 $
 **
 ** Implementation of Windows-like style class
 **
@@ -1032,7 +1032,7 @@ void QWindowsStyle::drawCheckMark( QPainter *p, int x, int y, int w, int h,
 {
     const int markW = w > 7 ? 7 : w;
     const int markH = markW;
-    int posX = x + ( w - markW )/2 - 1;
+    int posX = x + ( w - markW )/2 + 1;
     int posY = y + ( h - markH )/2;
 
     // Could do with some optimizing/caching...
@@ -1145,7 +1145,7 @@ void QWindowsStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw,
 	     qWinVersion() == Qt::WV_98 ||
 	     qWinVersion() == Qt::WV_XP )
 
-            maxpmw = QMAX( maxpmw, 16 );
+            maxpmw = QMAX( maxpmw, 20 );
 #endif
         maxpmw = QMAX( maxpmw, 12 ); // space for the checkmarks
     }
@@ -1167,7 +1167,7 @@ void QWindowsStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw,
     if ( !mi )
         return;
 
-    bool reverse = QApplication::reverseLayout();
+    const bool reverse = QApplication::reverseLayout();
 
     int xpos = x;
     if ( reverse )
@@ -1216,16 +1216,11 @@ void QWindowsStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw,
             xp = xpos + checkcol + 1;
         p->fillRect( xp, y, w - checkcol - 1, h, fill);
     } else  if ( checkable ) {  // just "checking"...
-        int mw = checkcol + windowsItemFrame;
-        int mh = h - 2*windowsItemFrame;
         if ( mi->isChecked() ) {
-            int xp = xpos;
-            if( reverse )
-                xp -= windowsItemFrame;
-            else
-                xp += windowsItemFrame;
-            drawCheckMark( p, xp, y+windowsItemFrame, mw, mh, itemg, act, dis );
-        }
+	    int xp = reverse ? xpos - windowsItemFrame : xpos + windowsItemFrame;
+            drawCheckMark( p, xp, y + windowsItemFrame, checkcol - 2*windowsItemFrame, h - 2*windowsItemFrame, 
+		itemg, act, dis );
+	}
     }
 
     p->setPen( act ? g.highlightedText() : g.buttonText() );
@@ -1557,8 +1552,8 @@ void QWindowsStyle::drawListViewItemBranch( QPainter *p, int y, int w, int h, co
 	p.end();
 	QApplication::flushX();
 	horizontalLine->setMask( *horizontalLine );
-	qlv_cleanup_bitmap.add( verticalLine );
-	qlv_cleanup_bitmap.add( horizontalLine );
+	qlv_cleanup_bitmap.add( &verticalLine );
+	qlv_cleanup_bitmap.add( &horizontalLine );
     }
 
     int line; // index into dotlines

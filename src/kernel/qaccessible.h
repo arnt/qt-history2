@@ -2,18 +2,18 @@
 #define QACCESSIBLE_H
 
 #ifndef QT_H
-#include "qstring.h"
+#include "qobject.h"
 #include "qcom.h"
 #include "qrect.h"
 #include "qguardedptr.h"
+#include "qmemarray.h"
 #endif // QT_H
 
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 
-class QObject;
 struct QAccessibleInterface;
 
-class Q_EXPORT QAccessible : public Qt
+class Q_EXPORT QAccessible
 {
 public:
     enum Event {
@@ -32,6 +32,9 @@ public:
 	DialogEnd	    = 0x0011,
 	ScrollingStart	    = 0x0012,
 	ScrollingEnd	    = 0x0013,
+
+	MenuCommand	    = 0x0018,
+
 	ObjectCreated	    = 0x8000,
 	ObjectDestroyed	    = 0x8001,
 	ObjectShow	    = 0x8002,
@@ -131,7 +134,7 @@ public:
 	Indicator	= 0x00000027,
 	Graphic		= 0x00000028,
 	StaticText	= 0x00000029,
-	Text		= 0x0000002A,  // Editable, selectable, etc.
+	EditableText	= 0x0000002A,  // Editable, selectable, etc.
 	PushButton	= 0x0000002B,
 	CheckBox	= 0x0000002C,
 	RadioButton	= 0x0000002D,
@@ -141,7 +144,7 @@ public:
 	Dial		= 0x00000031,
 	HotkeyField	= 0x00000032,
 	Slider		= 0x00000033,
-	SpinButton	= 0x00000034,
+	SpinBox		= 0x00000034,
 	Diagram		= 0x00000035,
 	Animation	= 0x00000036,
 	Equation	= 0x00000037,
@@ -154,7 +157,6 @@ public:
     };
 
     enum NavDirection {
-	NavDirectionMin	= 0x00000000,
 	NavUp		= 0x00000001,
 	NavDown		= 0x00000002,
 	NavLeft		= 0x00000003,
@@ -163,10 +165,20 @@ public:
 	NavPrevious	= 0x00000006,
 	NavFirstChild	= 0x00000007,
 	NavLastChild	= 0x00000008,
-	NavDirectionMax	= 0x00000009
+	NavFocusChild	= 0x00000009
     };
 
-    static QAccessibleInterface *accessibleInterface( QObject * );
+    enum Text {
+	Name		= 0,
+	Description,
+	Value,
+	Help,
+	Accelerator,
+	DefaultAction
+    };
+
+    static QRESULT queryAccessibleInterface( QObject *, QAccessibleInterface ** );
+    static void updateAccessibility( QObject *, int who, Event reason );
 };
 
 // {EC86CB9C-5DA0-4c43-A739-13EBDF1C6B14}
@@ -174,31 +186,40 @@ public:
 
 struct Q_EXPORT QAccessibleInterface : public QAccessible, public QUnknownInterface
 {
-    // navigation and hierarchy
-    virtual QAccessibleInterface* hitTest( int x, int y, int *who ) const = 0;
-    virtual QRect	location( int who ) const = 0;
-    virtual QAccessibleInterface* navigate( NavDirection direction, int *target ) const = 0;
+    // check for valid pointers
+    virtual bool	isValid() const = 0;
+
+    // hierarchy
     virtual int		childCount() const = 0;
-    virtual QAccessibleInterface* child( int who ) const = 0;
-    virtual QAccessibleInterface* parent() const = 0;
+    virtual QRESULT	queryChild( int control, QAccessibleInterface** ) const = 0;
+    virtual QRESULT	queryParent( QAccessibleInterface** ) const = 0;
 
-    // descriptive properties and methods
-    virtual bool	doDefaultAction( int who ) = 0;
-    virtual QString	defaultAction( int who ) const = 0;
-    virtual QString	description( int who ) const = 0;
-    virtual QString	help( int who ) const = 0;
-    virtual QString	accelerator( int who ) const = 0;
-    virtual QString	name( int who ) const = 0;
-    virtual QString	value( int who ) const = 0;
-    virtual Role	role( int who ) const = 0;
-    virtual State	state( int who ) const = 0;
+    // navigation
+    virtual int		controlAt( int x, int y ) const = 0;
+    virtual QRect	rect( int control ) const = 0;
+    virtual int		navigate( NavDirection direction, int startControl ) const = 0;
 
-    // selection and focus
-    virtual QAccessibleInterface *hasFocus( int *who ) const = 0;
-/*
-    virtual void	select( int how, int who ) = 0;
-    virtual int		selection() const = 0;
-*/
+    // properties and state
+    virtual QString	text( Text t, int control ) const = 0;
+    virtual Role	role( int control ) const = 0;
+    virtual State	state( int control ) const = 0;
+    virtual QMemArray<int> selection() const = 0;
+
+    // methods
+    virtual bool	doDefaultAction( int control ) = 0;
+    virtual bool	setFocus( int control ) = 0;
+    virtual bool	setSelected( int control, bool on, bool extend ) = 0;
+    virtual void	clearSelection() = 0;    
+};
+
+// {49F4C6A7-412F-41DE-9E24-648843421FD3} 
+#ifndef IID_QAccessibleFactory
+#define IID_QAccessibleFactory QUuid( 0x49f4c6a7, 0x412f, 0x41de, 0x9e, 0x24, 0x64, 0x88, 0x43, 0x42, 0x1f, 0xd3 )
+#endif
+
+struct Q_EXPORT QAccessibleFactoryInterface : public QAccessible, public QFeatureListInterface
+{
+    virtual QRESULT createAccessibleInterface( const QString &, QObject *, QAccessibleInterface** ) = 0;
 };
 
 #if defined(Q_TEMPLATEDLL)
@@ -207,7 +228,7 @@ template class Q_EXPORT QGuardedPtr<QObject>;
 // MOC_SKIP_END
 #endif
 
-class Q_EXPORT QAccessibleObject : public QAccessibleInterface
+class Q_EXPORT QAccessibleObject : public QObject, public QAccessibleInterface
 {
 public:
     QAccessibleObject( QObject *object );
@@ -217,6 +238,9 @@ public:
     ulong addRef();
     ulong release();
 
+    bool isValid() const;
+
+protected:
     QObject *object() const;
 
 private:

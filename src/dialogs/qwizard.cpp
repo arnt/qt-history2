@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qwizard.cpp#81 $
+** $Id: //depot/qt/main/src/dialogs/qwizard.cpp#82 $
 **
 ** Implementation of QWizard class.
 **

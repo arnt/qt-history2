@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qdockarea.h#24 $
+** $Id: //depot/qt/main/src/widgets/qdockarea.h#25 $
 **
 ** Definition of the QDockArea class
 **
@@ -70,7 +70,7 @@ class Q_EXPORT QDockAreaLayout : public QLayout
 
 public:
     QDockAreaLayout( QWidget* parent, Qt::Orientation o, QPtrList<QDockWindow> *wl, int space = -1, int margin = -1, const char *name = 0 )
-	: QLayout( parent, space, margin, name ), orient( o ), dockWindows( wl ), parentWidget( parent ), skipNextLayout( FALSE ) { init(); }
+	: QLayout( parent, space, margin, name ), orient( o ), dockWindows( wl ), parentWidget( parent ) { init(); }
     ~QDockAreaLayout() {}
 
     void addItem( QLayoutItem * ) {}
@@ -99,7 +99,6 @@ private:
     QWidget *parentWidget;
     QValueList<QRect> lines;
     QPtrList<QDockWindow> ls;
-    bool skipNextLayout;
 
 };
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor_mac.cpp
+** $Id: //depot/qt/main/src/kernel/qcolor_mac.cpp#18 $
 **
 ** Implementation of QColor class for mac
 **

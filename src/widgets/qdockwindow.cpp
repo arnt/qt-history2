@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qdockwindow.cpp#69 $
+** $Id: //depot/qt/main/src/widgets/qdockwindow.cpp#70 $
 **
 ** Implementation of the QDockWindow class
 **
@@ -49,9 +49,7 @@
 #include "qmainwindow.h"
 #include "qtimer.h"
 #include "qtooltip.h"
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-#include "qaccessiblewidget.h"
-#endif
+#include "qguardedptr.h"
 
 #if defined( Q_WS_MAC )
 #define MAC_DRAG_HACK
@@ -72,6 +70,8 @@ static const char * close_xpm[] = {
 
 class QDockWindowResizeHandle : public QWidget
 {
+    Q_OBJECT
+
 public:
     QDockWindowResizeHandle( Qt::Orientation o, QWidget *parent, QDockWindow *w, const char* /*name*/=0 );
     void setOrientation( Qt::Orientation o );
@@ -84,10 +84,6 @@ protected:
     void mouseMoveEvent( QMouseEvent * );
     void mousePressEvent( QMouseEvent * );
     void mouseReleaseEvent( QMouseEvent * );
-
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-    QAccessibleInterface *accessibleInterface();
-#endif
 
 private:
     void startLineDraw();
@@ -293,16 +289,6 @@ void QDockWindowResizeHandle::drawLine( const QPoint &globalPos )
     }
 }
 
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-QAccessibleInterface *QDockWindowResizeHandle::accessibleInterface()
-{
-    return new QAccessibleWidget( this, QAccessible::Separator, QString::null,
-	QString::null, QString::null, QString::null,
-	QString::null, QString::null, QAccessible::Moveable );
-}
-#endif
-
-
 static QPoint realWidgetPos( QWidget *w )
 {
     if ( !w->parentWidget() || !w->parentWidget()->inherits( "QDockArea" ) )
@@ -313,6 +299,7 @@ static QPoint realWidgetPos( QWidget *w )
 class QDockWindowHandle : public QWidget
 {
     Q_OBJECT
+    Q_PROPERTY( QString caption READ caption )
     friend class QDockWindow;
 
 public:
@@ -325,6 +312,8 @@ public:
     QSizePolicy sizePolicy() const;
     void setOpaqueMoving( bool b ) { opaque = b; }
 
+    QString caption() const { return dockWindow->caption(); }
+
 signals:
     void doubleClicked();
 
@@ -335,9 +324,6 @@ protected:
     void mouseMoveEvent( QMouseEvent *e );
     void mouseReleaseEvent( QMouseEvent *e );
     void mouseDoubleClickEvent( QMouseEvent *e );
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-    QAccessibleInterface *accessibleInterface();
-#endif
 
 private slots:
     void minimize();
@@ -350,6 +336,7 @@ private:
     uint opaque		: 1;
     uint mousePressed	: 1;
     uint hadDblClick	: 1;
+    QGuardedPtr<QWidget> oldFocus;
 };
 
 QDockWindowHandle::QDockWindowHandle( QDockWindow *dw )
@@ -402,6 +389,8 @@ void QDockWindowHandle::paintEvent( QPaintEvent *e )
 
 void QDockWindowHandle::mousePressEvent( QMouseEvent *e )
 {
+    oldFocus = qApp->focusWidget();
+    setFocus();
     e->ignore();
     if ( e->button() != LeftButton )
 	return;
@@ -426,6 +415,8 @@ void QDockWindowHandle::mouseMoveEvent( QMouseEvent *e )
 void QDockWindowHandle::mouseReleaseEvent( QMouseEvent *e )
 {
     qApp->removeEventFilter( dockWindow );
+    if ( oldFocus )
+	oldFocus->setFocus();
     if ( !mousePressed )
 	return;
     dockWindow->endRectDraw( !opaque );
@@ -501,15 +492,6 @@ void QDockWindowHandle::mouseDoubleClickEvent( QMouseEvent *e )
     hadDblClick = TRUE;
 }
 
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-QAccessibleInterface *QDockWindowHandle::accessibleInterface()
-{
-    return new QAccessibleWidget( this, QAccessible::Grip, dockWindow->caption(),
-	QString::null, QString::null, QString::null,
-	QString::null, QString::null, QAccessible::Moveable );
-}
-#endif
-
 
 class QDockWindowTitleBar : public QTitleBar
 {
@@ -538,6 +520,7 @@ private:
     uint mousePressed : 1;
     uint hadDblClick : 1;
     uint opaque : 1;
+    QGuardedPtr<QWidget> oldFocus;
 
 };
 
@@ -552,6 +535,8 @@ QDockWindowTitleBar::QDockWindowTitleBar( QDockWindow *dw )
 
 void QDockWindowTitleBar::mousePressEvent( QMouseEvent *e )
 {
+    oldFocus = qApp->focusWidget();
+    setFocus();
     e->ignore();
     if ( e->button() != LeftButton )
 	return;
@@ -578,6 +563,9 @@ void QDockWindowTitleBar::mouseMoveEvent( QMouseEvent *e )
 
 void QDockWindowTitleBar::mouseReleaseEvent( QMouseEvent *e )
 {
+    qApp->removeEventFilter( dockWindow );
+    if ( oldFocus )
+	oldFocus->setFocus();
     qApp->removeEventFilter( dockWindow );
     if ( !mousePressed )
 	return;
@@ -641,8 +629,8 @@ void QDockWindowTitleBar::mouseDoubleClickEvent( QMouseEvent * )
     dock area that it was docked in. If the user clicks the close button
     (which appears on floating dock windows by default) the dock window will
     disappear. You can control whether or not a dock window has a close button
-    with setCloseMode(). 
-    
+    with setCloseMode().
+
     QMainWindow provides four dock areas (top, left, right and bottom)
     which can be used by dock windows. For many applications using the
     dock areas provided by QMainWindow will be sufficient. (See the \l
@@ -777,7 +765,7 @@ void QDockWindowTitleBar::mouseDoubleClickEvent( QMouseEvent * )
 */
 
 
-/*! 
+/*!
     Constructs a QDockWindow with parent \a parent, name \a name and widget
     flags \a f.
 
@@ -907,6 +895,10 @@ void QDockWindow::swapRect( QRect &r, Qt::Orientation o, const QPoint &offset, Q
 QWidget *QDockWindow::areaAt( const QPoint &gp )
 {
     QWidget *w = qApp->widgetAt( gp, TRUE );
+
+    if ( w && ( w == this || w == titleBar ) && parentWidget() )
+	w = parentWidget()->childAt( parentWidget()->mapFromGlobal( gp ) );
+	
     QMainWindow *mw = 0;
     while ( w ) {
 	if ( w->inherits( "QDockArea" ) ) {

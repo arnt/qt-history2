@@ -562,7 +562,6 @@ bool QSqlCursor::select( const QString & filter, const QSqlIndex & sort )
 	d->ftr = QString::null;
     if ( sort.count() > 0 )
 	str += " order by " + sort.toString( d->nm );
-    str += ";";
     d->srt = sort;
     d->lastAt = QSql::BeforeFirst;
     return exec( str );
@@ -621,7 +620,7 @@ bool QSqlCursor::select( const QSqlIndex& sort )
   QSqlCursor cur( "Employee" );
   QSqlIndex pk = cur.primaryIndex();
   cur.setValue( "id", 10 );
-  cur.select( pk, pk ); // generates "SELECT ... FROM Employee WHERE id=10 ORDER BY id;"
+  cur.select( pk, pk ); // generates "SELECT ... FROM Employee WHERE id=10 ORDER BY id"
   ...
   \endcode
 
@@ -896,7 +895,7 @@ int QSqlCursor::insert( bool invalidate )
 	    comma = TRUE;
 	}
     }
-    str += vals + ");";
+    str += vals + ")";
     return apply( str, invalidate );
 }
 
@@ -1039,7 +1038,6 @@ int QSqlCursor::update( const QString & filter, bool invalidate )
     str += " set " + toString( &d->editBuffer, QString::null, "=", "," );
     if ( filter.length() )
 	str+= " where " + filter;
-    str += ";";
 //    qDebug( str );
     return apply( str, invalidate );
 }
@@ -1103,7 +1101,6 @@ int QSqlCursor::del( const QString & filter, bool invalidate )
     QString str = "delete from " + name();
     if ( filter.length() )
 	str+= " where " + filter;
-    str += ";";
     return apply( str, invalidate );
 }
 

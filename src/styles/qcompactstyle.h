@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qcompactstyle.h#4 $
+** $Id: //depot/qt/main/src/styles/qcompactstyle.h#5 $
 **
 ** Definition of compact style class, good for small displays
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpalette.h#61 $
+** $Id: //depot/qt/main/src/kernel/qpalette.h#62 $
 **
 ** Definition of QColorGroup and QPalette classes
 **
@@ -46,6 +46,8 @@
 #endif // QT_H
 
 #ifndef QT_NO_PALETTE
+
+class QColorGroupPrivate;
 
 class Q_EXPORT QColorGroup
 {
@@ -99,8 +101,7 @@ public:
 
 private:
     QBrush *br;
-    class Private;
-    Private * d;
+    QColorGroupPrivate * d;
 
     friend class QPalette;
 };

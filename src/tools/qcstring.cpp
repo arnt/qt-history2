@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qcstring.cpp#43 $
+** $Id: //depot/qt/main/src/tools/qcstring.cpp#44 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QCString classes
@@ -725,8 +725,8 @@ int QCString::find( char c, int index, bool cs ) const
 	d = strchr( data()+index, c );
     } else {
 	d = data()+index;
-	c = tolower( c );
-	while ( *d && tolower(*d) != c )
+	c = tolower( (uchar) c );
+	while ( *d && tolower((uchar) *d) != c )
 	    d++;
 	if ( !*d && c )				// not found
 	    d = 0;
@@ -803,8 +803,8 @@ int QCString::findRev( char c, int index, bool cs ) const
 	while ( d >= b && *d != c )
 	    d--;
     } else {					// case insensitive
-	c = tolower( c );
-	while ( d >= b && tolower(*d) != c )
+	c = tolower( (uchar) c );
+	while ( d >= b && tolower((uchar) *d) != c )
 	    d--;
     }
     return d >= b ? (int)(d - b) : -1;
@@ -869,9 +869,9 @@ int QCString::contains( char c, bool cs ) const
 	    if ( *d++ == c )
 		count++;
     } else {					// case insensitive
-	c = tolower( c );
+	c = tolower( (uchar) c );
 	while ( *d ) {
-	    if ( tolower(*d) == c )
+	    if ( tolower((uchar) *d) == c )
 		count++;
 	    d++;
 	}
@@ -1101,7 +1101,7 @@ QCString QCString::lower() const
     register char *p = s.data();
     if ( p ) {
 	while ( *p ) {
-	    *p = tolower(*p);
+	    *p = tolower( (uchar) *p );
 	    p++;
 	}
     }
@@ -1159,19 +1159,19 @@ QCString QCString::stripWhiteSpace() const
     register char *s = data();
     QCString result = s;
     int reslen = result.length();
-    if ( !isspace(s[0]) && !isspace(s[reslen-1]) )
+    if ( !isspace((uchar) s[0]) && !isspace((uchar) s[reslen-1]) )
 	return result;				// returns a copy
 
     s = result.data();
     int start = 0;
     int end = reslen - 1;
-    while ( isspace(s[start]) )			// skip white space from start
+    while ( isspace((uchar) s[start]) )		// skip white space from start
 	start++;
     if ( s[start] == '\0' ) {			// only white space
 	result.resize( 1 );
 	return result;
     }
-    while ( end && isspace(s[end]) )		// skip white space from end
+    while ( end && isspace((uchar) s[end]) )	// skip white space from end
 	end--;
     end -= start - 1;
     memmove( result.data(), &s[start], end );
@@ -1204,9 +1204,9 @@ QCString QCString::simplifyWhiteSpace() const
     char *to	= result.data();
     char *first = to;
     while ( TRUE ) {
-	while ( *from && isspace(*from) )
+	while ( isspace((uchar) *from) )
 	    from++;
-	while ( *from && !isspace(*from) )
+	while ( *from && !isspace((uchar) *from) )
 	    *to++ = *from++;
 	if ( *from )
 	    *to++ = 0x20;			// ' '
@@ -1432,7 +1432,7 @@ QCString &QCString::replace( const QRegExp &rx, const char *str )
 /*!
   Returns the string converted to a <code>long</code> value.
 
-  If \a ok is non-null, \a *ok is set to FALSE if the string is not a
+  If \a ok is nonnull, \a *ok is set to FALSE if the string is not a
   number, or if it has trailing garbage; otherwise \a *ok is set to
   TRUE.
 */
@@ -1446,7 +1446,7 @@ long QCString::toLong( bool *ok ) const
     int neg = 0;
     if ( !p )
 	goto bye;
-    while ( isspace(*p) )			// skip leading space
+    while ( isspace((uchar) *p) )		// skip leading space
 	p++;
     if ( *p == '-' ) {
 	p++;
@@ -1454,16 +1454,16 @@ long QCString::toLong( bool *ok ) const
     } else if ( *p == '+' ) {
 	p++;
     }
-    if ( !isdigit(*p) )
+    if ( !isdigit((uchar) *p) )
 	goto bye;
-    while ( isdigit(*p) ) {
+    while ( isdigit((uchar) *p) ) {
 	if ( val > max_mult || (val == max_mult && (*p-'0') > 7+neg) )
 	    goto bye;
 	val = 10*val + (*p++ - '0');
     }
     if ( neg )
 	val = -val;
-    while ( isspace(*p) )			// skip trailing space
+    while ( isspace((uchar) *p) )		// skip trailing space
 	p++;
     if ( *p == '\0' )
 	is_ok = TRUE;
@@ -1477,7 +1477,7 @@ bye:
   Returns the string converted to an <code>unsigned long</code>
   value.
 
-  If \a ok is non-null, \a *ok is set to FALSE if the string is not a
+  If \a ok is nonnull, \a *ok is set to FALSE if the string is not a
   number, or if it has trailing garbage; otherwise \a *ok is set to
   TRUE.
 */
@@ -1490,18 +1490,18 @@ ulong QCString::toULong( bool *ok ) const
     bool is_ok = FALSE;
     if ( !p )
 	goto bye;
-    while ( isspace(*p) )			// skip leading space
+    while ( isspace((uchar) *p) )		// skip leading space
 	p++;
     if ( *p == '+' )
 	p++;
-    if ( !isdigit(*p) )
+    if ( !isdigit((uchar) *p) )
 	goto bye;
-    while ( isdigit(*p) ) {
+    while ( isdigit((uchar) *p) ) {
 	if ( val > max_mult || (val == max_mult && (*p-'0') > 5) )
 	    goto bye;
 	val = 10*val + (*p++ - '0');
     }
-    while ( isspace(*p) )			// skip trailing space
+    while ( isspace((uchar) *p) )		// skip trailing space
 	p++;
     if ( *p == '\0' )
 	is_ok = TRUE;
@@ -1514,7 +1514,7 @@ bye:
 /*!
   Returns the string converted to a <code>short</code> value.
 
-  If \a ok is non-null, \a *ok is set to FALSE if the string is not a
+  If \a ok is nonnull, \a *ok is set to FALSE if the string is not a
   number, or if it has trailing garbage; otherwise \a *ok is set to
   TRUE.
 */
@@ -1530,7 +1530,7 @@ short QCString::toShort( bool *ok ) const
 /*!
   Returns the string converted to an <code>unsigned short</code> value.
 
-  If \a ok is non-null, \a *ok is set to FALSE if the string is not a
+  If \a ok is nonnull, \a *ok is set to FALSE if the string is not a
   number, or if it has trailing garbage; otherwise \a *ok is set to
   TRUE.
 */
@@ -1547,7 +1547,7 @@ ushort QCString::toUShort( bool *ok ) const
 /*!
   Returns the string converted to a <code>int</code> value.
 
-  If \a ok is non-null, \a *ok is set to FALSE if the string is not a
+  If \a ok is nonnull, \a *ok is set to FALSE if the string is not a
   number, or if it has trailing garbage; otherwise \a *ok is set to
   TRUE.
 */
@@ -1560,7 +1560,7 @@ int QCString::toInt( bool *ok ) const
 /*!
   Returns the string converted to an <code>unsigned int</code> value.
 
-  If \a ok is non-null, \a *ok is set to FALSE if the string is not a
+  If \a ok is nonnull, \a *ok is set to FALSE if the string is not a
   number, or if it has trailing garbage; otherwise \a *ok is set to
   TRUE.
 */
@@ -1573,7 +1573,7 @@ uint QCString::toUInt( bool *ok ) const
 /*!
   Returns the string converted to a <code>double</code> value.
 
-  If \a ok is non-null, \a *ok is set to FALSE if the string is not a
+  If \a ok is nonnull, \a *ok is set to FALSE if the string is not a
   number, or if it has trailing garbage; otherwise \a *ok is set to
   TRUE.
 */
@@ -1590,7 +1590,7 @@ double QCString::toDouble( bool *ok ) const
 /*!
   Returns the string converted to a <code>float</code> value.
 
-  If \a ok is non-null, \a *ok is set to FALSE if the string is not a
+  If \a ok is nonnull, \a *ok is set to FALSE if the string is not a
   number, or if it has trailing garbage; otherwise \a *ok is set to
   TRUE.
 */

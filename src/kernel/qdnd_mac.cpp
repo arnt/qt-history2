@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_mac.cpp
+** $Id: //depot/qt/main/src/kernel/qdnd_mac.cpp#35 $
 **
 ** DND implementation for mac.
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qdial.h#33 $
+** $Id: //depot/qt/main/src/widgets/qdial.h#34 $
 **
 ** Definition of the dial widget
 **
@@ -124,10 +124,6 @@ protected:
     void rangeChange();
 
     virtual void repaintScreen( const QRect *cr = 0 );
-
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-    QAccessibleInterface *accessibleInterface();
-#endif
 
 private:
     QDialPrivate * d;

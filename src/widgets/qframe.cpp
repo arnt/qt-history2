@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.cpp#131 $
+** $Id: //depot/qt/main/src/widgets/qframe.cpp#132 $
 **
 ** Implementation of QFrame widget class
 **
@@ -41,9 +41,6 @@
 #include "qdrawutil.h"
 #include "qframe.h"
 #include "qbitmap.h"
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-#include "qaccessiblewidget.h"
-#endif
 
 // REVISED: warwick
 /*!
@@ -653,15 +650,5 @@ void QFrame::frameChanged()
 {
     update();
 }
-
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-/*!
-  \reimp
-*/
-QAccessibleInterface *QFrame::accessibleInterface()
-{
-    return new QAccessibleWidget( this, QAccessible::Border );
-}
-#endif
 
 #endif //QT_NO_FRAME

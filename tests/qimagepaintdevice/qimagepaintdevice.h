@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/qimagepaintdevice/qimagepaintdevice.h#4 $
+** $Id: $
 **
 ** Definition of QImagePaintDevice classes
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsemimodal.h#18 $
+** $Id: //depot/qt/main/src/kernel/qsemimodal.h#19 $
 **
 ** Definition of QSemiModal class for source compatibility
 **

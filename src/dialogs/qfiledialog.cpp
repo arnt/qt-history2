@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#608 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#609 $
 **
 ** Implementation of QFileDialog class
 **
@@ -87,9 +87,6 @@
 #include <qt_mac.h>
 #undef check
 #endif
-
-// see comment near use of this variable
-static const char * egcsWorkaround = "%x  %X";
 
 /* XPM */
 static const char * const start_xpm[]={
@@ -482,40 +479,40 @@ private:
 static void makeVariables() {
     if ( !openFolderIcon ) {
 	workingDirectory = new QString( QDir::currentDirPath() );
-	qfd_cleanup_string.add( workingDirectory );
+	qfd_cleanup_string.add( &workingDirectory );
 
 	openFolderIcon = new QPixmap( (const char **)open_xpm);
-	qfd_cleanup_pixmap.add( openFolderIcon );
+	qfd_cleanup_pixmap.add( &openFolderIcon );
 	symLinkDirIcon = new QPixmap( (const char **)link_dir_xpm);
-	qfd_cleanup_pixmap.add( symLinkDirIcon );
+	qfd_cleanup_pixmap.add( &symLinkDirIcon );
 	symLinkFileIcon = new QPixmap( (const char **)link_file_xpm);
-	qfd_cleanup_pixmap.add( symLinkFileIcon );
+	qfd_cleanup_pixmap.add( &symLinkFileIcon );
 	fileIcon = new QPixmap( (const char **)file_xpm);
-	qfd_cleanup_pixmap.add( fileIcon );
+	qfd_cleanup_pixmap.add( &fileIcon );
 	closedFolderIcon = new QPixmap( (const char **)closed_xpm);
-	qfd_cleanup_pixmap.add( closedFolderIcon );
+	qfd_cleanup_pixmap.add( &closedFolderIcon );
 	detailViewIcon = new QPixmap( (const char **)detailedview_xpm);
-	qfd_cleanup_pixmap.add( detailViewIcon );
+	qfd_cleanup_pixmap.add( &detailViewIcon );
 	multiColumnListViewIcon = new QPixmap( (const char **)mclistview_xpm);
-	qfd_cleanup_pixmap.add( multiColumnListViewIcon );
+	qfd_cleanup_pixmap.add( &multiColumnListViewIcon );
 	cdToParentIcon = new QPixmap( (const char **)cdtoparent_xpm);
-	qfd_cleanup_pixmap.add( cdToParentIcon );
+	qfd_cleanup_pixmap.add( &cdToParentIcon );
 	newFolderIcon = new QPixmap( (const char **)newfolder_xpm);
-	qfd_cleanup_pixmap.add( newFolderIcon );
+	qfd_cleanup_pixmap.add( &newFolderIcon );
 	previewInfoViewIcon
 	    = new QPixmap( (const char **)previewinfoview_xpm );
-	qfd_cleanup_pixmap.add( previewInfoViewIcon );
+	qfd_cleanup_pixmap.add( &previewInfoViewIcon );
 	previewContentsViewIcon
 	    = new QPixmap( (const char **)previewcontentsview_xpm );
-	qfd_cleanup_pixmap.add( previewContentsViewIcon );
+	qfd_cleanup_pixmap.add( &previewContentsViewIcon );
 	startCopyIcon = new QPixmap( (const char **)start_xpm );
-	qfd_cleanup_pixmap.add( startCopyIcon );
+	qfd_cleanup_pixmap.add( &startCopyIcon );
 	endCopyIcon = new QPixmap( (const char **)end_xpm );
-	qfd_cleanup_pixmap.add( endCopyIcon );
+	qfd_cleanup_pixmap.add( &endCopyIcon );
 	goBackIcon = new QPixmap( (const char **)back_xpm );
-	qfd_cleanup_pixmap.add( goBackIcon );
+	qfd_cleanup_pixmap.add( &goBackIcon );
 	fifteenTransparentPixels = new QPixmap( closedFolderIcon->width(), 1 );
-	qfd_cleanup_pixmap.add( fifteenTransparentPixels );
+	qfd_cleanup_pixmap.add( &fifteenTransparentPixels );
 	QBitmap m( fifteenTransparentPixels->width(), 1 );
 	m.fill( Qt::color0 );
 	fifteenTransparentPixels->setMask( m );
@@ -956,7 +953,8 @@ public:
     QTimer *mimeTypeTimer;
     const QNetworkOperation *currListChildren;
 
-    // This is similar to QUrl::encode but does ecnode "*" and doesn't encode Whitespaces
+    // this is similar to QUrl::encode but does encode "*" and
+    // doesn't encode whitespaces
     static QString encodeFileName( const QString& fName ) {
 
 	QString newStr;
@@ -967,20 +965,20 @@ public:
 	    ushort inCh = fName[ i ].unicode();
 
 	    if ( inCh >= 128 ||
-        	QString( "<>#@\"&%$:,;?={}|^~[]\'`\\*" ).contains(inCh) ) {
-	        newStr += QChar( '%' );
-        	ushort c = inCh / 16;
-        	c += c > 9 ? 'A' - 10 : '0';
-        	newStr += c;
-        	c = inCh % 16;
-        	c += c > 9 ? 'A' - 10 : '0';
-        	newStr += c;
+		QString( "<>#@\"&%$:,;?={}|^~[]\'`\\*" ).contains(inCh) ) {
+		newStr += QChar( '%' );
+		ushort c = inCh / 16;
+		c += c > 9 ? 'A' - 10 : '0';
+		newStr += c;
+		c = inCh % 16;
+		c += c > 9 ? 'A' - 10 : '0';
+		newStr += c;
 	    } else {
-        	newStr += fName[ i ];
+		newStr += fName[ i ];
 	    }
 	}
-        return newStr;	
-    }	
+	return newStr;
+    }
 
 };
 
@@ -1835,20 +1833,7 @@ QString QFileDialogPrivate::File::text( int column ) const
 	    return d->special;
 	}
     case 3: {
-	QDateTime epoch;
-	epoch.setTime_t( 0 );
-	char a[256];
-	time_t t1 = epoch.secsTo( info.lastModified() );
-	struct tm * t2 = ::localtime( &t1 );
-	// looks wrong for the last hour of the day...
-	if ( t2 && t2->tm_hour != info.lastModified().time().hour() )
-	    t2->tm_hour = info.lastModified().time().hour();
-	// use a static const char here, so that egcs will not see
-	// the formatting string and give an incorrect warning.
-	if ( t2 && strftime( a, 255, egcsWorkaround, t2 ) > 0 )
-	    return QString::fromLatin1(a);
-	else
-	    return QString::fromLatin1("????");
+	return info.lastModified().toString( Qt::LocalDate );
     }
     case 4:
 	if ( info.isReadable() )
@@ -2596,7 +2581,7 @@ void QFileDialog::init()
 	    resize( s );
 	}
 	lastSize = new QSize;
-	qfd_cleanup_size.add( lastSize );
+	qfd_cleanup_size.add( &lastSize );
 	*lastSize = size();
     } else
 	resize( *lastSize );
@@ -2802,7 +2787,7 @@ QStringList QFileDialog::selectedFiles() const
 		lst << u.toString();
 	    }
 	}
-    }    
+    }
 
     return lst;
 }
@@ -2865,7 +2850,8 @@ QString QFileDialog::dirPath() const
     return d->url.dirPath();
 }
 
-extern const char qt_file_dialog_filter_reg_exp[] = "\\([a-zA-Z0-9.*? +;#\\[\\]]*\\)$";
+extern const char qt_file_dialog_filter_reg_exp[] =
+	"\\(([a-zA-Z0-9.*? +;#\\[\\]]*)\\)$";
 
 /*!
 
@@ -2893,22 +2879,21 @@ void QFileDialog::setFilter( const QString & newFilter )
     QString f = newFilter;
     QRegExp r( QString::fromLatin1(qt_file_dialog_filter_reg_exp) );
     int index = r.search( f );
-    if ( index >= 0 ) {
-	f = f.mid( index + 1, r.matchedLength() - 2 );
-	d->url.setNameFilter( f );
-	if ( d->types->count() == 1 )  {
-	    d->types->clear();
-	    d->types->insertItem( newFilter );
-	} else {
-	    for ( int i = 0; i < d->types->count(); ++i ) {
-		if ( d->types->text( i ).left( newFilter.length() ) == newFilter ) {
-		    d->types->setCurrentItem( i );
-		    break;
-		}
+    if ( index >= 0 )
+	f = r.cap( 1 );
+    d->url.setNameFilter( f );
+    if ( d->types->count() == 1 )  {
+	d->types->clear();
+	d->types->insertItem( newFilter );
+    } else {
+	for ( int i = 0; i < d->types->count(); ++i ) {
+	    if ( d->types->text( i ).left( newFilter.length() ) == newFilter ) {
+		d->types->setCurrentItem( i );
+		break;
 	    }
 	}
-	rereadDir();
     }
+    rereadDir();
 }
 
 
@@ -3331,7 +3316,7 @@ void QFileDialog::okClicked()
     }
 #endif
 
-    if ( fn.contains( "*") ) {
+    if ( fn.contains("*") ) {
 	addFilter( fn );
 	nameEdit->blockSignals( TRUE );
 	nameEdit->setText( QString::fromLatin1("") );
@@ -3690,10 +3675,10 @@ void QFileDialog::listBoxSelectionChanged()
 		files->setSelected( ( (QFileDialogPrivate::MCItem *)i )->i, i->selected() );
 	}
 	if ( d->moreFiles->isSelected( i )
-        && !( (QFileDialogPrivate::File*)( (QFileDialogPrivate::MCItem *)i )->i )->info.isDir() ) {
+	&& !( (QFileDialogPrivate::File*)( (QFileDialogPrivate::MCItem *)i )->i )->info.isDir() ) {
 	    str += QString( "\"%1\" " ).arg( QFileDialogPrivate::encodeFileName( i->text() ) );
-        if ( j == 0 )
-            j = i;
+	if ( j == 0 )
+	    j = i;
     }
 	i = d->moreFiles->item( ++index );
     }
@@ -5011,12 +4996,12 @@ void QFileDialog::addFilter( const QString &filter )
     QRegExp r( QString::fromLatin1(qt_file_dialog_filter_reg_exp) );
     int index = r.search( f );
     if ( index >= 0 )
-	f = f.mid( index + 1, r.matchedLength() - 2 );
+	f = r.cap( 1 );
     for ( int i = 0; i < d->types->count(); ++i ) {
 	QString f2( d->types->text( i ) );
 	int index = r.search( f2 );
 	if ( index >= 0 )
-	    f2 = f2.mid( index + 1, r.matchedLength() - 2 );
+	    f2 = r.cap( 1 );
 	if ( f2 == f ) {
 	    d->types->setCurrentItem( i );
 	    setFilter( f2 );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_qws.cpp#59 $
+** $Id: //depot/qt/main/src/kernel/qwidget_qws.cpp#60 $
 **
 ** Implementation of QWidget and QWindow classes for FB
 **
@@ -36,6 +36,7 @@
 #include "qpaintdevicemetrics.h"
 #include "qpainter.h"
 #include "qbitmap.h"
+#include "qimage.h"
 #include "qwidgetlist.h"
 #include "qwidgetintdict.h"
 #include "qobjectlist.h"
@@ -544,7 +545,7 @@ void QWidget::setCaption( const QString &caption )
     QApplication::sendEvent( this, &e );
 }
 
-void QWidget::setIcon( const QPixmap &pixmap )
+void QWidget::setIcon( const QPixmap &unscaledPixmap )
 {
     if ( extra && extra->topextra ) {
 	delete extra->topextra->icon;
@@ -553,8 +554,11 @@ void QWidget::setIcon( const QPixmap &pixmap )
 	createTLExtra();
     }
     QBitmap mask;
-    if ( pixmap.isNull() ) {
+    if ( unscaledPixmap.isNull() ) {
     } else {
+	QImage unscaledIcon = unscaledPixmap.convertToImage();
+	QPixmap pixmap;
+	pixmap.convertFromImage( unscaledIcon.smoothScale( 16, 16 ) );
 	extra->topextra->icon = new QPixmap( pixmap );
 	mask = pixmap.mask() ? *pixmap.mask() : pixmap.createHeuristicMask();
     }

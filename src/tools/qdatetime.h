@@ -1,5 +1,5 @@
 /*************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetime.h#52 $
+** $Id: //depot/qt/main/src/tools/qdatetime.h#53 $
 **
 ** Definition of date and time classes
 **
@@ -78,6 +78,7 @@ public:
 #if !defined(QT_NO_SPRINTF) 
     QString toString( Qt::DateFormat f = Qt::TextDate )	 const;
 #endif
+    QString toString( const QString& format ) const;
     bool   setYMD( int y, int m, int d );
 
     QDate  addDays( int days )		const;
@@ -131,6 +132,8 @@ public:
 #ifndef QT_NO_SPRINTF
     QString toString( Qt::DateFormat f = Qt::TextDate )	 const;
 #endif
+    QString toString( const QString& format ) const;
+
     bool   setHMS( int h, int m, int s, int ms=0 );
 
     QTime  addSecs( int secs )		const;
@@ -188,6 +191,8 @@ public:
 #ifndef QT_NO_SPRINTF
     QString toString( Qt::DateFormat f = Qt::TextDate )	const;
 #endif
+    QString toString( const QString& format ) const;
+
     QDateTime addDays( int days )	const;
     QDateTime addMonths( int months )   const;
     QDateTime addYears( int years )     const;

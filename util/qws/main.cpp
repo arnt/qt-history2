@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/qws/qws.cpp#23 $
+** $Id: $
 **
 ** Main program of Qt/FB central server
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#133 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#134 $
 **
 ** Implementation of QPaintDevice class for X11
 **
@@ -571,7 +571,7 @@ static GC cache_mask_gc( Display *dpy, Drawable hd, int mask_no, Pixmap mask )
     if ( !p->gc || p->mask_no != mask_no ) {	// not a perfect match
 	if ( !p->gc ) {				// no GC
 	    p->gc = XCreateGC( dpy, hd, 0, 0 );
-	    XSetGraphicsExposures( dpy, p->gc, FALSE );
+	    XSetGraphicsExposures( dpy, p->gc, False );
 	}
 	XSetClipMask( dpy, p->gc, mask );
 	p->mask_no = mask_no;
@@ -776,7 +776,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 		// with the mask (not at the pixmap). This way, many pixmaps
 		// which have a common mask will be optimized at no extra cost.
 		gc = XCreateGC( dpy, dst->handle(), 0, 0 );
-		XSetGraphicsExposures( dpy, gc, FALSE );
+		XSetGraphicsExposures( dpy, gc, False );
 		XSetClipMask( dpy, gc, mask->handle() );
 		if ( src_pm->optimization() == QPixmap::BestOptim ) {
 		    mask->data->maskgc = gc;
@@ -867,7 +867,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
     } else {					// src is pixmap/widget
 
 	if ( graphics_exposure )		// widget to widget
-	    XSetGraphicsExposures( dpy, gc, TRUE );
+	    XSetGraphicsExposures( dpy, gc, True );
 	if ( include_inferiors ) {
 	    XSetSubwindowMode( dpy, gc, IncludeInferiors );
 	    XCopyArea( dpy, src->handle(), dst->handle(), gc, sx, sy, sw, sh,
@@ -878,7 +878,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 		       dx, dy );
 	}
 	if ( graphics_exposure )		// reset graphics exposure
-	    XSetGraphicsExposures( dpy, gc, FALSE );
+	    XSetGraphicsExposures( dpy, gc, False );
     }
 
     if ( rop != Qt::CopyROP )			// restore ROP

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qaction.h#45 $
+** $Id: //depot/qt/main/src/widgets/qaction.h#46 $
 **
 ** Definition of QAction class
 **

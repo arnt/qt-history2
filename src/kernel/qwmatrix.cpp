@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwmatrix.cpp#49 $
+** $Id: //depot/qt/main/src/kernel/qwmatrix.cpp#50 $
 **
 ** Implementation of QWMatrix class
 **
@@ -37,6 +37,7 @@
 
 #include "qwmatrix.h"
 #include "qdatastream.h"
+#include "qregion.h"
 #if defined(Q_WS_X11)
 double qsincos( double, bool calcCos );		// defined in qpainter_x11.cpp
 #else
@@ -258,12 +259,66 @@ void QWMatrix::map( int x, int y, int *tx, int *ty ) const
 }
 
 /*!
-  \overload
-
-  Returns the transformed \a p.
+  \fn QPoint QWMatrix::map( const QPoint &p ) const
+  
+  \obsolete
+  
+  Does the same as \l operator *( const QPoint &)
 */
 
-QPoint QWMatrix::map( const QPoint &p ) const
+/*!
+  \fn QRect QWMatrix::map( const QRect &r ) const
+  
+  \obsolete
+  
+  Please use \l mapRect instead.
+
+  Note that this method does return the bounding rectangle of the \a r, when
+  shearing or rotations are used.
+*/
+
+/*!
+  \fn QPointArray QWMatrix::map( const QPointArray &a ) const
+  
+  \obsolete
+  
+  Does the same as \l operator *( const QPointArray &)
+*/
+
+
+/*!
+  Returns the transformed rectangle \a rect.
+
+  The bounding rectangle is returned if rotation or shearing has been specified.
+  
+  If you need to know the exact region \a rect maps to use \l operator *( const QRect & ).
+
+  \sa operator *( const QRect & )
+*/
+
+QRect QWMatrix::mapRect( const QRect &rect ) const
+{
+    QRect result;
+    if ( _m12 == 0.0F && _m21 == 0.0F ) {
+	result = QRect( map(rect.topLeft()), map(rect.bottomRight()) );
+    } else {
+	QPointArray a( rect );
+	a = map( a );
+	result = a.boundingRect();
+    }
+    return result;
+}
+
+
+/*!
+   Transforms \a p to using the formulae:
+
+  \code
+    retx = m11*px + m21*py + dx  --  (rounded to the nearest integer)
+    rety = m22*py + m12*px + dy  --  (rounded to the nearest integer)
+  \endcode
+*/
+QPoint QWMatrix::operator *( const QPoint &p ) const
 {
     double fx = p.x();
     double fy = p.y();
@@ -271,26 +326,6 @@ QPoint QWMatrix::map( const QPoint &p ) const
 		   qRound(_m12*fx + _m22*fy + _dy) );
 }
 
-/*!
-  \overload
-  
-  Returns the transformed rectangle \a r.
-
-  The bounding rectangle is returned if rotation or shearing has been specified.
-*/
-
-QRect QWMatrix::map( const QRect &r ) const
-{
-    QRect result;
-    if ( _m12 == 0.0F && _m21 == 0.0F ) {
-	result = QRect( map(r.topLeft()), map(r.bottomRight()) );
-    } else {
-	QPointArray a( r );
-	a = map( a );
-	result = a.boundingRect();
-    }
-    return result;
-}
 
 /*!
   \overload
@@ -298,7 +333,7 @@ QRect QWMatrix::map( const QRect &r ) const
   Returns the point array \a a transformed by calling map for each point.
 */
 
-QPointArray QWMatrix::map( const QPointArray &a ) const
+QPointArray QWMatrix::operator *( const QPointArray &a ) const
 {
     QPointArray result = a.copy();
     int x, y;
@@ -310,6 +345,73 @@ QPointArray QWMatrix::map( const QPointArray &a ) const
     return result;
 }
 
+/*!
+  \overload
+  
+  Transforms the rectangle \a r. 
+  
+  Rotation and shearing of a rectangle results in a more general
+  region, which is returned here. 
+  
+  Calling this method can be rather expensive, if rotations or
+  shearing are used.  If you just need to know the bounding rectangle
+  of the returned region, use \l mapRect, as the method is a lot
+  faster than this one.
+
+  \sa mapRect
+*/
+QRegion QWMatrix::operator * (const QRect &r ) const
+{
+    QRegion result;
+    if ( isIdentity() ) {
+	result = r;
+    } else if ( _m12 == 0.0F && _m21 == 0.0F ) {
+	// simple case, no rotation
+	result = QRect( map(r.topLeft()), map(r.bottomRight()) );
+    } else {
+	QPointArray a( r );
+	a = map( a );
+	result = QRegion( a );
+    }
+    return result;
+	
+}
+
+/*!
+  \overload
+  
+  Transforms the region \a r. 
+  
+  Calling this method can be rather expensive, if rotations or
+  shearing are used.  
+*/
+QRegion QWMatrix::operator * (const QRegion &r ) const
+{
+    if ( isIdentity() )
+	return r;
+    QMemArray<QRect> rects = r.rects();
+    QRegion result;
+    register QRect *rect = rects.data();
+    register int i = rects.size();
+    if ( _m12 == 0.0F && _m21 == 0.0F ) {
+	// simple case, no rotation
+	while ( i ) {
+	    *rect = QRect( map(rect->topLeft()), map(rect->bottomRight()) );
+	    rect++;
+	    i--;
+	}
+	result.setRects( rects.data(), rects.size() );
+    } else {
+	while ( i ) {
+	    QPointArray a( *rect );
+	    a = map( a );
+	    result |= QRegion( a );
+	    rect++;
+	    i--;
+	}
+    }
+    return result;
+}
 
 /*!
   Resets the matrix to an identity matrix.
@@ -512,7 +614,6 @@ QWMatrix operator*( const QWMatrix &m1, const QWMatrix &m2 )
     return result;
 }
 
-
 /*****************************************************************************
   QWMatrix stream functions
  *****************************************************************************/
@@ -559,5 +660,6 @@ QDataStream &operator>>( QDataStream &s, QWMatrix &m )
     return s;
 }
 #endif // QT_NO_DATASTREAM
+
 #endif // QT_NO_TRANSFORMATIONS
 

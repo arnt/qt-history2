@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.h#82 $
+** $Id: //depot/qt/main/src/kernel/qcolor.h#83 $
 **
 ** Definition of QColor class
 **
