@@ -193,12 +193,16 @@ void ConnectionDialog::okClicked()
     QPtrList<Command> oldConnectionCmds;
     for ( ConnectionContainer *c = connections.first(); c; c = connections.next() ) {
 	MetaDataBase::Connection conn;
+
+        // find sender widget
 	conn.sender = MainWindow::self->formWindow()->child( c->senderItem()->currentText() );
-	if ( !conn.sender )
+	if ( !conn.sender ) // if no sender widget, find sender action
 	    conn.sender = MainWindow::self->formWindow()->findAction( c->senderItem()->currentText() );
+
+	// find reciever widget
 	conn.receiver = MainWindow::self->formWindow()->child( c->receiverItem()->currentText() );
-	if ( !conn.receiver )
-	    conn.receiver = MainWindow::self->formWindow()->findAction( c->senderItem()->currentText() );
+	if ( !conn.receiver ) // if no reciever widget, find reciever action
+	    conn.receiver = MainWindow::self->formWindow()->findAction( c->receiverItem()->currentText() );
 
 	conn.signal = c->signalItem()->currentText();
 	conn.slot = c->slotItem()->currentText();
