@@ -79,13 +79,17 @@ public:
 /*! \enum QStyleSheetItem::WhiteSpaceMode
 
   This enum defines the ways in which QStyleSheet can treat white
-  space.  There are two values at present: <ul>
+  space.  There are three values at present: <ul>
 
   <li> \c WhiteSpaceNormal - any sequence of white space is equivalent
   to a single space, and is a line-break position.
 
   <li> \c WhiteSpacePre - white space must be output exactly as given
   in the input.
+
+  <li> \c WhiteSpaceNoWrap - multiple spaces are collapsed as with 
+  WhiteSpaceNormal, but no  automatical line breaks occur. To break lines manually, 
+  use the  \c&lt;br&gt; tag.
 
 </ul>
 
@@ -526,6 +530,10 @@ QStyleSheetItem::WhiteSpaceMode QStyleSheetItem::whiteSpaceMode() const
    <li> \c WhiteSpacePre
 	  - white spaces are preserved. This is particulary useful to
 	  display programming code.
+   <li> \c WhiteSpaceNoWrap
+	  - multiple spaces are collapsed as with WhiteSpaceNormal, but no 
+	  automatical line breaks occur. To break lines manually, use the 
+	  \c&lt;br&gt; tag.
   </ul>
  */
 void QStyleSheetItem::setWhiteSpaceMode(WhiteSpaceMode m)
