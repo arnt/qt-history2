@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#43 $
+** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#44 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#43 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#44 $")
 
 
 /*
@@ -100,7 +100,7 @@ void QPixmap::init()
     data = new QPixmapData;
     CHECK_PTR( data );
     data->dirty	 = FALSE;
-    data->optim  = optimAll;
+    data->optim	 = optimAll;
     data->uninit = TRUE;
     data->bitmap = FALSE;
     data->ximage = 0;
@@ -294,7 +294,8 @@ bool QPixmap::isOptimized() const
   disadvantage is that pixmap optimization consumes some extra memory,
   rougly width()*depth()*height()/8 bytes.
 
-  \sa isOptimized(), optimizeGlobally(), isGloballyOptimized() */
+  \sa isOptimized(), optimizeGlobally(), isGloballyOptimized()
+*/
 
 void QPixmap::optimize( bool enable )
 {
@@ -309,7 +310,7 @@ void QPixmap::optimize( bool enable )
 }
 
 /*!
-  Returns the global pixmap optimization flag.  The default value is TRUE.
+  Returns the global pixmap optimization flag.	The default value is TRUE.
   \sa optimizeGlobally(), optimize(), isOptimized()
 */
 
@@ -326,7 +327,7 @@ bool QPixmap::isGloballyOptimized()
 
   Optimization can be overridden for individual pixmaps by optimize().
 
-  The default is TRUE.
+  The default value is TRUE.
 
   \sa isGloballyOptimized(), optimize(), isOptimized()
 */
