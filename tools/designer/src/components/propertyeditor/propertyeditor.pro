@@ -18,4 +18,4 @@ INCLUDEPATH += \
     ../../lib/uilib \
     ../../lib/extension
 
-include(../../lib/sharedcomponents.pri)
+include(../component.pri)

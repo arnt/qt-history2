@@ -27,4 +27,4 @@ SOURCES += \
     buddyeditor_plugin.cpp \
     buddyeditor_instance.cpp
 
-include(../../lib/sharedcomponents.pri)
+include(../component.pri)

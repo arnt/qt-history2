@@ -1,13 +1,7 @@
-contains(TEMPLATE,lib) {
-   CONFIG(debug, debug|release) {
-      unix:TARGET = $$member(TARGET, 0)_debug
-      else:TARGET = $$member(TARGET, 0)d
-   }
-}
 
 for(QTSHAREDLIB, $$list($$unique(LIBS))) {
     sharedlib =
-    isEqual(QTSHAREDLIB, -lformeditor):sharedlib = -lformeditor
+         isEqual(QTSHAREDLIB, -lformeditor):sharedlib = -lformeditor
     else:isEqual(QTSHAREDLIB, -lobjectinspector):sharedlib = -lobjectinspector
     else:isEqual(QTSHAREDLIB, -lpropertyeditor):sharedlib = -lpropertyeditor
     else:isEqual(QTSHAREDLIB, -lwidgetbox):sharedlib = -lwidgetbox

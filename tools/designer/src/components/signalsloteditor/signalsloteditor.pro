@@ -27,4 +27,4 @@ SOURCES += \
     signalsloteditor_plugin.cpp \
     signalsloteditor_instance.cpp
 
-include(../../lib/sharedcomponents.pri)
+include(../component.pri)

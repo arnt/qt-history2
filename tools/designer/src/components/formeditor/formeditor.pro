@@ -59,4 +59,4 @@ MOCABLE += formwindow.cpp
 
 RESOURCES += formeditor.qrc
 
-include(../../lib/sharedcomponents.pri)
+include(../component.pri)

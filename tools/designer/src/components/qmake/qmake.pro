@@ -8,14 +8,14 @@ OBJECTS_DIR = .
 MOC_DIR = .
 
 #guts
-bootstrap { 
+bootstrap {
     VPATH += $(QTDIR)/src/core/global $(QTDIR)/src/core/tools \
              $(QTDIR)/src/core/kernel $(QTDIR)/src/core/plugin \
-	     $(QTDIR)/src/core/io 
-    INCPATH += $(QTDIR)/include/QtCore 
+	     $(QTDIR)/src/core/io
+    INCPATH += $(QTDIR)/include/QtCore
 }
 INCPATH += $(QTDIR)/qmake/generators $(QTDIR)/qmake/generators/unix \
-           $(QTDIR)/qmake/generators/win32 $(QTDIR)/qmake/generators/mac 
+           $(QTDIR)/qmake/generators/win32 $(QTDIR)/qmake/generators/mac
 VPATH += $(QTDIR)/qmake
 INCPATH += $(QTDIR)/qmake
 include($(QTDIR)/qmake/qmake.pri)|error(Could not get qmake.pri!!!)
@@ -24,4 +24,4 @@ SOURCES -= main.cpp #we don't need the main.cpp
 HEADERS += qmakeinterface.h
 SOURCES += qmakeinterface.cpp
 
-include(../../lib/sharedcomponents.pri)
+include(../component.pri)

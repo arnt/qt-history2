@@ -26,4 +26,4 @@ SOURCES += button_taskmenu.cpp \
   label_taskmenu.cpp \
   taskmenu_component.cpp
 
-include(../../lib/sharedcomponents.pri)
+include(../component.pri)

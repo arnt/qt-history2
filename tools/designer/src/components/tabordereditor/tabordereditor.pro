@@ -27,4 +27,4 @@ SOURCES += \
     tabordereditor_plugin.cpp \
     tabordereditor_instance.cpp
 
-include(../../lib/sharedcomponents.pri)
+include(../component.pri)
