@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#231 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#232 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -3873,6 +3873,8 @@ static void read_async_image( QImageIO *iio )
     QImageIOFrameGrabber* consumer = new QImageIOFrameGrabber();
     QImageDecoder decoder(consumer);
     consumer->decoder = &decoder;
+    int startAt = d->at();
+    int totLen = 0;
 
     for (;;) {
 	int length = d->readBlock((char*)buffer, buf_len);
@@ -3886,10 +3888,16 @@ static void read_async_image( QImageIO *iio )
 	    r = decoder.decode(b, length);
 	    if ( r <= 0 ) break;
 	    b += r;
+	    totLen += r;
 	    length -= r;
 	}
 	if ( consumer->framecount ) {
 	    // Stopped after first frame
+	    if ( d->isDirectAccess() )
+		d->at( startAt + totLen );
+	    else
+		; // ### We have (probably) read too much from the stream into
+	          // the buffer, and there is no way to put it back!
 	    iio->setImage(decoder.image());
 	    iio->setStatus(0);
 	    break;
