@@ -292,6 +292,15 @@ bool QVariantToVARIANT( const QVariant &var, VARIANT &arg, const char *type )
 	}
 	break;
 
+    case QVariant::LongLong:
+	arg.vt = VT_CY;
+	arg.cyVal.int64 = qvar.toLongLong();
+	break;
+    case QVariant::ULongLong:
+	arg.vt = VT_CY;
+	arg.cyVal.int64 = qvar.toULongLong();
+	break;
+
     default:
 	return FALSE;
     }
@@ -335,6 +344,9 @@ static inline void makeReference( VARIANT &arg )
 	break;
     case VT_UINT:
 	arg.puintVal = new uint(arg.uintVal);
+	break;
+    case VT_CY:
+	arg.pcyVal = new CY(arg.cyVal);
 	break;
     case VT_R8:
 	arg.pdblVal = new double(arg.dblVal);
@@ -600,6 +612,46 @@ bool VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
 	    }
 	} 
 	break;
+    case VT_CY:
+	if ( QUType::isEqual( param->type, &static_QUType_varptr ) && param->typeExtra ) {
+	    const QVariant::Type vartype = (QVariant::Type)*(char*)param->typeExtra;
+	    switch( vartype ) {
+	    case QVariant::ULongLong:
+		static_QUType_varptr.set( obj, new Q_ULLONG(arg.cyVal.int64) );
+		break;
+	    case QVariant::LongLong:
+		static_QUType_varptr.set( obj, new Q_LLONG(arg.cyVal.int64) );
+		break;
+	    }
+	}
+	break;
+    case VT_CY|VT_BYREF:
+	if ( QUType::isEqual( param->type, &static_QUType_varptr ) && param->typeExtra ) {
+	    const QVariant::Type vartype = (QVariant::Type)*(char*)param->typeExtra;
+	    switch( vartype ) {
+	    case QVariant::ULongLong:
+		{
+		    Q_ULLONG *reference = (Q_ULLONG*)static_QUType_varptr.get( obj );
+		    if ( reference )
+			*reference = arg.cyVal.int64;
+		    else
+			reference = new Q_ULLONG(arg.cyVal.int64);
+		    static_QUType_varptr.set( obj, reference );
+		}
+		break;
+	    case QVariant::LongLong:
+		{
+		    Q_LLONG *reference = (Q_LLONG*)static_QUType_varptr.get( obj );
+		    if ( reference )
+			*reference = arg.cyVal.int64;
+		    else
+			reference = new Q_LLONG(arg.cyVal.int64);
+		    static_QUType_varptr.set( obj, reference );
+		}
+		break;
+	    }
+	}
+	break;
     case VT_R4:
 	if ( QUType::isEqual( param->type, &static_QUType_varptr ) && param->typeExtra 
 	    && (QVariant::Type)*(char*)param->typeExtra == QVariant::Double )
@@ -841,6 +893,12 @@ QVariant VARIANTToQVariant( const VARIANT &arg, const char *hint )
     case VT_UINT|VT_BYREF:
 	var = *arg.puintVal;
 	break;
+    case VT_CY:
+	var = arg.cyVal.int64;
+	break;
+    case VT_CY|VT_BYREF:
+	var = arg.pcyVal->int64;
+	break;
     case VT_R8:
 	var = arg.dblVal;
 	break;
@@ -997,6 +1055,12 @@ bool QVariantToQUObject( const QVariant &var, QUObject &obj, const QUParameter *
     case QVariant::List:
 	static_QUType_varptr.set( &obj, new QValueList<QVariant>( var.toList() ) );
 	break;
+    case QVariant::LongLong:
+	static_QUType_varptr.set( &obj, new Q_LLONG(var.toLongLong() ) );
+	break;
+    case QVariant::ULongLong:
+	static_QUType_varptr.set( &obj, new Q_LLONG(var.toULongLong() ) );
+	break;
     default:
 	return FALSE;
     }
@@ -1057,6 +1121,9 @@ static inline void updateReference( VARIANT &dest, VARIANT &src, bool byref )
 	    break;
 	case VT_UINT:
 	    *dest.puintVal = src.uintVal;
+	    break;
+	case VT_CY:
+	    *dest.pcyVal = src.cyVal;
 	    break;
 	case VT_R8:
 	    *dest.pdblVal = src.dblVal;
@@ -1178,6 +1245,12 @@ bool QUObjectToVARIANT( QUObject *obj, VARIANT &arg, const QUParameter *param )
 	    case QVariant::UInt:
 		value = *(uint*)ptrvalue;
 		break;
+	    case QVariant::ULongLong:
+		value = *(Q_ULLONG*)ptrvalue;
+		break;
+	    case QVariant::LongLong:
+		value = *(Q_LLONG*)ptrvalue;
+		break;
 	    case QVariant::CString:
 		value = *(QCString*)ptrvalue;
 		break;
@@ -1253,6 +1326,12 @@ void clearQUObject( QUObject *obj, const QUParameter *param )
 	case QVariant::UInt:
 	    delete (uint*)ptrvalue;
 	    break;
+	case QVariant::LongLong:
+	    delete (Q_LLONG*)ptrvalue;
+	    break;
+	case QVariant::ULongLong:
+	    delete (Q_ULLONG*)ptrvalue;
+	    break;
 	case QVariant::Double:
 	    delete (double*)ptrvalue;
 	    break;
@@ -1322,6 +1401,9 @@ void clearVARIANT( VARIANT *var )
 	    break;
 	case VT_UINT|VT_BYREF:
 	    delete var->puintVal;
+	    break;
+	case VT_CY|VT_BYREF:
+	    delete var->pcyVal;
 	    break;
 	case VT_R8|VT_BYREF:
 	    delete var->pdblVal;
