@@ -151,14 +151,19 @@ private:
 
 #if defined(Q_WS_MAC) && !defined(QMAC_QMENUBAR_NO_NATIVE)
     friend class QWidget;
+    friend class QApplication;
+
     void macCreateNativeMenubar();
     void macRemoveNativeMenubar();
     void macDirtyNativeMenubar();
 
-    friend bool syncPopups(MenuRef ret, QPopupMenu *d);
-    friend MenuRef createMacPopup(QPopupMenu *d, bool, bool);
-    friend bool updateMenuBar(QMenuBar *mbar);
-    friend class QApplication;
+    bool syncPopups(MenuRef ret, QPopupMenu *d);
+    MenuRef createMacPopup(QPopupMenu *d, bool, bool =FALSE);
+    bool updateMenuBar();
+#if !defined(QMAC_QMENUBAR_NO_MERGE)
+    uint isCommand(QMenuItem *);
+#endif
+
     uint mac_eaten_menubar : 1;
     class MacPrivate;
     MacPrivate *mac_d;

@@ -269,30 +269,30 @@ const QRect& QCanvasClusterizer::operator[](int i)
 
 
 
-class Q_EXPORT QCanvasItemPtr {
+class QCanvasItemPtr {
 public:
     QCanvasItemPtr() : ptr(0) { }
     QCanvasItemPtr( QCanvasItem* p ) : ptr(p) { }
 
-    int operator<=(const QCanvasItemPtr& that) const
+    bool operator<=(const QCanvasItemPtr& that) const
     {
 	// Order same-z objects by identity.
 	if (that.ptr->z()==ptr->z())
-	    return (long)that.ptr <= (long)ptr;
+	    return that.ptr <= ptr;
 	return that.ptr->z() <= ptr->z();
     }
-    int operator<(const QCanvasItemPtr& that) const
+    bool operator<(const QCanvasItemPtr& that) const
     {
 	// Order same-z objects by identity.
 	if (that.ptr->z()==ptr->z())
-	    return (long)that.ptr < (long)ptr;
+	    return that.ptr < ptr;
 	return that.ptr->z() < ptr->z();
     }
-    int operator>(const QCanvasItemPtr& that) const
+    bool operator>(const QCanvasItemPtr& that) const
     {
 	// Order same-z objects by identity.
 	if (that.ptr->z()==ptr->z())
-	    return (long)that.ptr > (long)ptr;
+	    return that.ptr > ptr;
 	return that.ptr->z() > ptr->z();
     }
     bool operator==(const QCanvasItemPtr& that) const
@@ -3393,16 +3393,6 @@ QSize QCanvasView::sizeHint() const
     if ( !canvas() )
 	return QScrollView::sizeHint();
     return canvas()->size()+QSize(frameWidth(),frameWidth())*2;
-}
-
-/*! \reimp */
-void QCanvasView::windowActivationChange( bool )
-{
-    const QColorGroup acg = palette().active();
-    const QColorGroup icg = palette().inactive();
-
-    if ( acg != icg )
-	viewport()->update();
 }
 
 /*!

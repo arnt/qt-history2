@@ -752,7 +752,7 @@ bool QPNGImagePacker::packImage(const QImage& img)
 
 #ifndef QT_NO_ASYNC_IMAGE_IO
 
-class Q_EXPORT QPNGFormat : public QImageFormat {
+class QPNGFormat : public QImageFormat {
 public:
     QPNGFormat();
     virtual ~QPNGFormat();
@@ -786,7 +786,7 @@ private:
     int unused_data;
 };
 
-class Q_EXPORT QPNGFormatType : public QImageFormatType
+class QPNGFormatType : public QImageFormatType
 {
     QImageFormat* decoderFor(const uchar* buffer, int length);
     const char* formatName() const;

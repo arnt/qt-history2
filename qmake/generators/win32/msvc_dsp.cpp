@@ -307,6 +307,7 @@ DspMakefileGenerator::init()
     if ( project->isActiveConfig("qt") ) {
 	if ( project->isActiveConfig( "plugin" ) ) {
 	    project->variables()["CONFIG"].append("dll");
+	    project->variables()["DEFINES"].append("QT_PLUGIN");
 	}
 	if ( (project->variables()["DEFINES"].findIndex("QT_NODLL") == -1) &&
 	     ((project->variables()["DEFINES"].findIndex("QT_MAKEDLL") != -1 ||

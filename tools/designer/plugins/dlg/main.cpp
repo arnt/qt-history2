@@ -43,9 +43,11 @@ QRESULT DlgFilter::queryInterface( const QUuid &uuid, QUnknownInterface **iface 
 	*iface = (ImportFilterInterface*)this;
     else if ( uuid == IID_QLibrary )
 	*iface = (QLibraryInterface*)this;
+    else
+	return QE_NOINTERFACE;
 
-    if ( *iface )
-	(*iface)->addRef();
+    (*iface)->addRef();
+    return QS_OK;
 }
 
 unsigned long DlgFilter::addRef()

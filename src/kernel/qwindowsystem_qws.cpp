@@ -534,7 +534,7 @@ private:
     {
 	if ( chunk_remaining < 0 )
 	    return 0; // in error state
-	while ( 1 ) {
+	for ( ;; ) {
 	    if ( chunk_remaining > 0 ) {
 		if ( count > chunk_remaining )
 		    count = chunk_remaining;

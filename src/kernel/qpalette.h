@@ -152,15 +152,6 @@ public:
 
     int		serialNumber() const	{ return data->ser_no; }
 
-    const QColor &backgroundColorForMode( ColorGroup, Qt::BackgroundMode );
-    void setBackgroundColorForMode( ColorGroup, Qt::BackgroundMode,  const QColor& );
-
-    const QColor &foregroundColorForMode(  ColorGroup, Qt::BackgroundMode );
-    void setForegroundColorForMode( ColorGroup, Qt::BackgroundMode,  const QColor& );
-
-    const QPixmap *backgroundPixmapForMode( ColorGroup, Qt::BackgroundMode );
-    void setBackgroundPixmapForMode( ColorGroup, Qt::BackgroundMode, const QPixmap& );
-
 private:
     void	detach();
     QBrush	&directBrush( ColorGroup, QColorGroup::ColorRole ) const;

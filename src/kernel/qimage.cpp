@@ -47,8 +47,10 @@
 #include "qmngio.h"
 #include "qjpegio.h"
 #include "qmap.h"
-#include "qcleanuphandler.h"
+#include "qpluginmanager.h"
+#include "qimageformatinterface.h"
 #include "qwmatrix.h"
+#include "qapplication.h"
 #include <stdlib.h>
 #include <ctype.h>
 
@@ -3565,8 +3567,48 @@ QImageHandler::QImageHandler( const char *f, const char *h, const QCString& fl,
 
 typedef QPtrList<QImageHandler> QIHList;// list of image handlers
 static QIHList *imageHandlers = 0;
+static QPluginManager<QImageFormatInterface> *plugin_manager = 0;
 
-static QCleanupHandler<QIHList> qimg_cleanup_handler;
+void qt_init_image_plugins()
+{
+    if ( plugin_manager )
+	return;
+
+    plugin_manager = new QPluginManager<QImageFormatInterface>( IID_QImageFormat );
+
+    QString defpath(getenv("QTDIR"));
+    if (! defpath.isNull() && ! defpath.isEmpty())
+	plugin_manager->addLibraryPath(defpath + "/plugins/imageformats");
+
+    QStringList paths(QApplication::libraryPaths());
+    QStringList::Iterator it = paths.begin();
+    while (it != paths.end()) {
+	plugin_manager->addLibraryPath(*it + "/imageformats");
+	it++;
+    }
+
+    QStringList features = plugin_manager->featureList();
+    it = features.begin();
+    while ( it != features.end() ) {
+	QString str = *it;
+	++it;
+	QImageFormatInterface *iface;
+	plugin_manager->queryInterface( str, &iface );
+	if ( iface ) {
+	    iface->installIOHandler( str );
+	    iface->release();
+	}
+    }
+}
+
+static void cleanup()
+{
+    // make sure that image handlers are delete before plugin manager
+    delete imageHandlers;
+    imageHandlers = 0;
+    delete plugin_manager;
+    plugin_manager = 0;
+}
 
 void qt_init_image_handlers()		// initialize image handlers
 {
@@ -3574,7 +3616,7 @@ void qt_init_image_handlers()		// initialize image handlers
 	imageHandlers = new QIHList;
 	Q_CHECK_PTR( imageHandlers );
 	imageHandlers->setAutoDelete( TRUE );
-	qimg_cleanup_handler.add( &imageHandlers );
+	qAddPostRoutine( cleanup );
 #ifndef QT_NO_IMAGEIO_BMP
 	QImageIO::defineIOHandler( "BMP", "^BM", 0,
 				   read_bmp_image, write_bmp_image );
@@ -3938,6 +3980,7 @@ QStrList QImageIO::inputFormats()
     QStrList result;
 
     qt_init_image_handlers();
+    qt_init_image_plugins();
 
 #ifndef QT_NO_ASYNC_IMAGE_IO
     // Include asynchronous loaders first.
@@ -3966,6 +4009,7 @@ QStrList QImageIO::outputFormats()
     QStrList result;
 
     qt_init_image_handlers();
+    qt_init_image_plugins();
 
     // Include asynchronous writers (!) first.
     // (None)
@@ -4032,6 +4076,10 @@ bool QImageIO::read()
     if (frmt.isEmpty()) {
 	// Try to guess format
 	image_format = imageFormat( iodev );	// get image format
+	if ( !image_format && !plugin_manager ) {
+	    qt_init_image_plugins();
+	    image_format = imageFormat( iodev );
+	}
 
 	if ( !image_format ) {
 	    if ( file.isOpen() ) {			// unknown format
@@ -4105,6 +4153,10 @@ bool QImageIO::write()
     if ( frmt.isEmpty() )
 	return FALSE;
     QImageHandler *h = get_image_handler( frmt );
+    if ( !h && !plugin_manager) {
+	qt_init_image_plugins();
+	h = get_image_handler( frmt );
+    }
     if ( !h || !h->write_image ) {
 #if defined(QT_CHECK_RANGE)
 	qWarning( "QImageIO::write: No such image format handler: %s",

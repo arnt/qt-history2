@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of Qt Sound System
 **
@@ -147,7 +147,7 @@ private:
 	l = r = 0;
 	if ( wavedata_remaining < 0 || !max )
 	    return; // in error state, return silence
-	while ( 1 ) {
+	for ( ;; ) {
 	    if ( wavedata_remaining > 0 ) {
 		if ( out >= max ) {
 		    max = dev->readBlock((char*)data,

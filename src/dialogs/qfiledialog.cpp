@@ -2701,7 +2701,14 @@ QFileDialog::~QFileDialog()
 
 QString QFileDialog::selectedFile() const
 {
-    QUrl u( QFileDialogPrivate::encodeFileName( d->currentFileName ) );
+    QString s = d->currentFileName;
+    // remove the protocol because we do not want to encode it...
+    QString prot = QUrl( s ).protocol();
+    if ( !prot.isEmpty() ) {
+        prot += ":";
+	s.remove( 0, prot.length() );
+    }
+    QUrl u( prot + QFileDialogPrivate::encodeFileName( s ) );
     if ( u.isLocalFile() ) {
 	QString s = u.toString();
 	if ( s.left( 5 ) == "file:" )
@@ -3350,7 +3357,8 @@ void QFileDialog::okClicked()
 	    d->currentFileName = d->url;
 	    if ( d->currentFileName.right(1) != "/" )
 		d->currentFileName += '/';
-	    d->currentFileName += f.name();
+	    if ( f.name() != "." )
+		d->currentFileName += f.name();
 	    accept();
 	    return;
 	}

@@ -756,7 +756,8 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
     interval = 10;
 
     if ( isReadOnly() ) {
-	handleReadOnlyKeyEvent( e );
+	if ( !handleReadOnlyKeyEvent( e ) )
+	    QScrollView::keyPressEvent( e );
 	changeIntervalTimer->start( 100, TRUE );
 	return;
     }
@@ -3299,7 +3300,7 @@ QString QTextEdit::selectedText() const
     return doc->selectedText( QTextDocument::Standard );
 }
 
-void QTextEdit::handleReadOnlyKeyEvent( QKeyEvent *e )
+bool QTextEdit::handleReadOnlyKeyEvent( QKeyEvent *e )
 {
     switch( e->key() ) {
     case Key_Down:
@@ -3347,8 +3348,9 @@ void QTextEdit::handleReadOnlyKeyEvent( QKeyEvent *e )
 		break;
 	    }
 	}
-	break;
+	return FALSE;
     }
+    return TRUE;
 }
 
 /*!  Returns the context of the edit.

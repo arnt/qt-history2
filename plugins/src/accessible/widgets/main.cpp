@@ -34,10 +34,11 @@ QRESULT AccessibleFactory::queryInterface( const QUuid &iid, QUnknownInterface *
 	*iface = (QFeatureListInterface*)this;
     else if ( iid == IID_QAccessibleFactory )
 	*iface = (QAccessibleFactoryInterface*)this;
+    else
+	return QE_NOINTERFACE;
 
-    if ( *iface )
-	(*iface)->addRef();
-    return;
+    (*iface)->addRef();
+    return QS_OK;
 }
 
 QStringList AccessibleFactory::featureList() const
@@ -157,7 +158,7 @@ QRESULT AccessibleFactory::createAccessibleInterface( const QString &classname, 
     } else if ( classname == "QHeader" ) {
 	*iface = new QAccessibleHeader( object );
     } else if ( classname == "QTabBar" ) {
-	*iface = new QAccessibleWidget( object, PageTab );
+	*iface = new QAccessibleTabBar( object );
     } else if ( classname == "QTitleBar" ) {
 	*iface = new QAccessibleWidget( object, TitleBar );
     } else if ( classname == "QWorkspaceChild" ) {
@@ -186,12 +187,11 @@ QRESULT AccessibleFactory::createAccessibleInterface( const QString &classname, 
 	*iface = new QAccessibleWidget( object, Border );
     } else if ( classname == "QWidget" ) {
 	*iface = new QAccessibleWidget( object );
-    }
+    } else
+	return QE_NOINTERFACE;
     
-    if ( *iface )
-	(*iface)->addRef();
-
-    return;
+    (*iface)->addRef();
+    return QS_OK;
 }
 
 Q_EXPORT_INTERFACE()

@@ -33,6 +33,7 @@ kernel {
 		  $$KERNEL_H/qgif.h \
 		  $$KERNEL_H/qiconset.h \
 		  $$KERNEL_H/qimage.h \
+		  $$KERNEL_H/qimageformatinterface.h \
 		  $$KERNEL_P/qinputcontext_p.h \
 		  $$KERNEL_H/qkeycode.h \
 		  $$KERNEL_H/qlayout.h \
@@ -227,4 +228,11 @@ kernel {
 
 	unix:HEADERS   += $$KERNEL_P/qpsprinter_p.h \
 			  $$KERNEL_H/qfontdatabase.h
+
+	accessibility {
+	      HEADERS += $$KERNEL_H/qaccessible.h
+	      SOURCES += $$KERNEL_CPP/qaccessible.cpp
+	      
+	      win32:SOURCES += $$KERNEL_CPP/qaccessible_win.cpp
+	}
 }

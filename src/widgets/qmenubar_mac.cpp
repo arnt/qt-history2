@@ -1,9 +1,5 @@
 #include <qglobal.h>
 #if defined(Q_WS_MAC) && !defined(QMAC_QMENUBAR_NO_NATIVE)
-#if !defined( Q_WS_MACX ) && !defined(QMAC_QMENUBAR_NO_MERGE)
-#define QMAC_QMENUBAR_NO_MERGE //9 does not really need the merge
-#endif
-
 #include <ctype.h>
 #include "qt_mac.h"
 #include <unistd.h>
@@ -18,8 +14,6 @@
 #include <qmessagebox.h>
 
 void qt_event_request_menubarupdate(); //qapplication_mac.cpp
-MenuRef createMacPopup(QPopupMenu *d, bool, bool=FALSE);
-bool syncPopups(MenuRef ret, QPopupMenu *d);
 
 class QMenuBar::MacPrivate {
 public:
@@ -133,7 +127,7 @@ QMAC_PASCAL void macMenuItemProc(SInt16 msg, MenuRef mr, Rect *menuRect, Point p
 #endif
 
 #if !defined(QMAC_QMENUBAR_NO_MERGE)
-static uint isCommand(QMenuItem *it) 
+uint QMenuBar::isCommand(QMenuItem *it) 
 {
     if(it->popup() || it->custom() || it->isSeparator())
 	return 0;
@@ -145,24 +139,25 @@ static uint isCommand(QMenuItem *it)
     if(st != -1) 
 	t.remove(st, t.length()-st);
     //now the fun part
-    if(t.find("about") != -1 && t.find(QRegExp("qt$")) == -1) {
-	EnableMenuCommand(NULL, kHICommandAbout);
-	return kHICommandAbout;
-    }
+    uint ret = 0;
+#if 0
+    if(t.find("about") != -1 && t.find(QRegExp("qt$")) == -1) 
+	ret = kHICommandAbout;
+#endif
     if(t.find("config") != -1 || t.find("preference") != -1 || 
-       t.find("options") != -1 || t.find("setting") != -1) {
-	EnableMenuCommand(NULL, kHICommandPreferences);
-	return kHICommandPreferences;
-    }
-    if(t.find("quit") != -1 || t.find("exit") != -1) {
-	EnableMenuCommand(NULL, kHICommandQuit);
-	return kHICommandQuit;
-    }
-    return 0;
+       t.find("options") != -1 || t.find("setting") != -1) 
+	ret = kHICommandPreferences;
+    if(t.find("quit") != -1 || t.find("exit") != -1) 
+	ret = kHICommandQuit;
+    //shall we?
+    if(ret && activeMenuBar && (!activeMenuBar->mac_d->commands || 
+			 !activeMenuBar->mac_d->commands->find(ret))) 
+	EnableMenuCommand(NULL, ret);
+    return ret;
 }
 #endif
 
-bool syncPopups(MenuRef ret, QPopupMenu *d)
+bool QMenuBar::syncPopups(MenuRef ret, QPopupMenu *d)
 {
     if(d) {
 	for(int id = 1, x = 0; x < (int)d->count(); x++) {
@@ -250,7 +245,7 @@ bool syncPopups(MenuRef ret, QPopupMenu *d)
     return TRUE;
 }
 
-MenuRef createMacPopup(QPopupMenu *d, bool do_sync, bool top_level) 
+MenuRef QMenuBar::createMacPopup(QPopupMenu *d, bool do_sync, bool top_level) 
 {
     MenuRef ret;
     if(CreateNewMenu(0, 0, &ret) != noErr)
@@ -278,17 +273,17 @@ MenuRef createMacPopup(QPopupMenu *d, bool do_sync, bool top_level)
     return ret;
 }
 	
-bool updateMenuBar(QMenuBar *mbar) 
+bool QMenuBar::updateMenuBar() 
 {
-    if(mbar != activeMenuBar) 
+    if(this != activeMenuBar) 
 	qDebug("Should have happend! %s:%d", __FILE__, __LINE__);
     ClearMenuBar();
     InvalMenuBar();
-    if(mbar->mac_d)
-	mbar->mac_d->clear();
+    if(mac_d)
+	mac_d->clear();
 
-    for(int x = 0; x < (int)mbar->count(); x++) {
-	QMenuItem *item = mbar->findItem(mbar->idAt(x));
+    for(int x = 0; x < (int)count(); x++) {
+	QMenuItem *item = findItem(idAt(x));
 	if(item->isSeparator()) //mac doesn't support these
 	    continue;
 
@@ -406,7 +401,7 @@ void QMenuBar::macDirtyNativeMenubar()
 
 void QMenuBar::initialize()
 {
-    if(MenuRef r = GetMenuRef(0)) {
+    if(MenuRef r = GetMenuHandle(0)) {
 	qDebug("doing it..");
 	InsertMenuItemTextWithCFString(r, no_ampersands("About"), 0, 0, kHICommandAbout);
 	DisableMenuItem(r, kHICommandAbout);
@@ -433,7 +428,7 @@ void QMenuBar::macUpdateMenuBar()
 	    first = FALSE;
 	    if(mb->mac_d->dirty || !mb->mac_d->mac_menubar) {
 		mb->mac_d->dirty = 0;
-		updateMenuBar(mb);
+		mb->updateMenuBar();
 		mb->mac_d->mac_menubar = GetMenuBar();
 	    } else {
 		SetMenuBar(mb->mac_d->mac_menubar);
@@ -460,7 +455,7 @@ void QMenuBar::macUpdatePopup(MenuRef mr)
 	if(1 || mpb->qpopup->mac_dirty_popup) {
 	    mpb->qpopup->mac_dirty_popup = 0;
 	    DeleteMenuItems(mr, 1, CountMenuItems(mr));
-	    syncPopups(mr, mpb->qpopup);
+	    activeMenuBar->syncPopups(mr, mpb->qpopup);
 	}
     } 
 }

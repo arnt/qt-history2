@@ -43,7 +43,6 @@
 #include "qwindowdefs.h"
 #include "qfile.h"
 #ifndef QT_LITE_COMPONENT
-#include "qobject.h"
 #include "qtimer.h"
 #endif
 #endif // QT_H
@@ -643,15 +642,14 @@ bool QLibrary::unload( bool force )
 
 // ### this is a hack to solve problems with plugin unloading und KAI C++
 // (other compilers may have the same problem)
-#if defined(QT_NO_LIBRARY_UNLOAD)
-    if ( TRUE ) {
-#else
+#if !defined(QT_NO_LIBRARY_UNLOAD)
     if ( !d->freeLibrary() ) {
 #endif
 #if defined(QT_DEBUG_COMPONENT) && QT_DEBUG_COMPONENT == 2
 	qDebug( "%s could not be unloaded.", libfile.latin1() );
 #endif
 	return FALSE;
+#if !defined(QT_NO_LIBRARY_UNLOAD)
     }
 
 #if defined(QT_DEBUG_COMPONENT) && QT_DEBUG_COMPONENT == 2
@@ -660,6 +658,7 @@ bool QLibrary::unload( bool force )
 
     d->pHnd = 0;
     return TRUE;
+#endif
 }
 
 /*!
@@ -705,9 +704,7 @@ QRESULT QLibrary::queryInterface( const QUuid& request, QUnknownInterface** ifac
     if ( !entry )
 	createInstanceInternal();
 
-    if( entry )
-	entry->queryInterface( request, iface );
-    //### return value
+    return entry ? entry->queryInterface( request, iface ) : QE_NOINTERFACE;
 }
 
 #endif // QT_NO_COMPONENT

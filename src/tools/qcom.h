@@ -13,7 +13,15 @@ class QObject;
 struct QUInterfaceDescription;
 struct QUObject;
 
-#define QRESULT void
+#define QRESULT		unsigned long
+#define QS_OK		(QRESULT)0x00000000
+#define QS_FALSE	(QRESULT)0x00000001
+
+#define QE_NOTIMPL      (QRESULT)0x80000001
+#define QE_OUTOFMEMORY  (QRESULT)0x80000002
+#define QE_INVALIDARG	(QRESULT)0x80000003
+#define QE_NOINTERFACE	(QRESULT)0x80000004
+
 
 // {1D8518CD-E8F5-4366-99E8-879FD7E482DE}
 #ifndef IID_QUnknown

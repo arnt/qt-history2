@@ -575,7 +575,8 @@ void Project::save()
     for ( QStringList::Iterator it = csList.begin(); it != csList.end(); ++it ) {
 	remove_contents( contents, *it );
 	QString val = *customSettings.find( *it );
-	contents += *it + "\t= " + val + "\n";
+	if ( !val.isEmpty() )
+	    contents += *it + "\t= " + val + "\n";
     }
 
     if ( !f.open( IO_WriteOnly ) ) {

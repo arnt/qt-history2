@@ -501,15 +501,18 @@ QSize QLabel::sizeForWidth( int w ) const
     }
     if ( pix ) {
 	br = pix->rect();
+	vm = hm = 0;
     }
 #ifndef QT_NO_PICTURE
     else if ( pic ) {
 	br = pic->boundingRect();
+	vm = hm = 0;
     }
 #endif
 #ifndef QT_NO_MOVIE
     else if ( mov ) {
 	br = mov->framePixmap().rect();
+	vm = hm = 0;
     }
 #endif
 #ifndef QT_NO_RICHTEXT

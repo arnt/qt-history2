@@ -45,13 +45,16 @@ EditorInterfaceImpl::~EditorInterfaceImpl()
 
 QRESULT EditorInterfaceImpl::queryInterface( const QUuid &uuid, QUnknownInterface** iface )
 {
+    *iface = 0;
     if ( uuid == IID_QUnknown )
 	*iface = (QUnknownInterface*)this;
     else if ( uuid == IID_Editor )
 	*iface = (EditorInterface*)this;
+    else
+	return QE_NOINTERFACE;
 
-    if ( *iface )
-	(*iface)->addRef();
+    (*iface)->addRef();
+    return QS_OK;
 }
 
 unsigned long EditorInterfaceImpl::addRef()

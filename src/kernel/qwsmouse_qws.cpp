@@ -553,7 +553,7 @@ void QAutoMouseHandlerPrivate::notify(int fd)
 
 void QAutoMouseHandlerPrivate::readMouseData(int fd)
 {
-    while(1) {
+    for (;;) {
 	uchar buf[8];
 	int n = read(fd, buf, 8);
 	if ( n<=0 )
@@ -562,7 +562,7 @@ void QAutoMouseHandlerPrivate::readMouseData(int fd)
 	    QAutoMouseSubHandler& h = *sub[i];
 	    if ( h.file() == fd ) {
 		h.appendData(buf,n);
-		while (1) {
+		for (;;) {
 		    switch ( h.useData() ) {
 		      case QAutoMouseSubHandler::Button:
 			sendEvent(h);
@@ -623,14 +623,14 @@ void QWSMouseHandlerPrivate::readMouseData()
     if ( BusMouse == mouseProtocol ) {
 	// a workaround of linux busmouse driver interface.  
 	// It'll only read 3 bytes a time and return all other buffer zeroed, thus cause protocol errors
-	do {
+	for (;;) {
 	    if ( mouseBufSize - mouseIdx < 3 )
 		break;
 	    n = read( mouseFD, mouseBuf+mouseIdx, 3 );
 	    if ( n != 3 )
 		break;
 	    mouseIdx += 3;
-	} while ( 1 );
+	}
     } else {
 	do {
 	    n = read(mouseFD, mouseBuf+mouseIdx, mouseBufSize-mouseIdx );

@@ -234,11 +234,11 @@ public:
     QAccessibleObject( QObject *object );
     virtual ~QAccessibleObject();
 
-    void queryInterface( const QUuid &, QUnknownInterface** );
-    ulong addRef();
-    ulong release();
+    QRESULT	queryInterface( const QUuid &, QUnknownInterface** );
+    ulong	addRef();
+    ulong	release();
 
-    bool isValid() const;
+    bool	isValid() const;
 
 protected:
     QObject *object() const;

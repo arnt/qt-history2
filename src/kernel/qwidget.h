@@ -211,6 +211,7 @@ public:
 
     BackgroundMode	backgroundMode() const;
     virtual void	setBackgroundMode( BackgroundMode );
+    void 		setBackgroundMode( BackgroundMode, BackgroundMode );
 
     virtual const QColor &	foregroundColor() const;
     virtual void		setForegroundColor( const QColor & );
@@ -478,15 +479,6 @@ protected:
     virtual void updateMask();
 
     // Misc. protected functions
-
-    const QColor &	foregroundColorForMode( BackgroundMode ) const;
-    void		setForegroundColorForMode( BackgroundMode, const QColor & );
-
-    const QColor &	backgroundColorForMode( BackgroundMode ) const;
-    void		setBackgroundColorForMode( BackgroundMode, const QColor & );
-
-    const QPixmap *	backgroundPixmapForMode( BackgroundMode ) const;
-    void		setBackgroundPixmapForMode( BackgroundMode, const QPixmap & );
 
 #ifndef QT_NO_STYLE
     virtual void styleChange( QStyle& );
@@ -923,6 +915,7 @@ struct Q_EXPORT QWExtra {
     QRegion mask;				// widget mask
 #endif
     char     bg_mode;				// background mode
+    char     bg_mode_visual;				// visual background mode
 #ifndef QT_NO_STYLE
     QStyle* style;
 #endif

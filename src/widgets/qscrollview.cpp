@@ -2330,54 +2330,6 @@ bool QScrollView::hasStaticBackground() const
 }
 
 /*!
-  \reimp
-*/
-const QColor & QScrollView::foregroundColor() const
-{
-    return foregroundColorForMode(viewport()->backgroundMode());
-}
-
-/*!
-  \reimp
-*/
-void QScrollView::setForegroundColor( const QColor & color )
-{
-    setForegroundColorForMode(viewport()->backgroundMode(), color);
-}
-
-/*!
-  \reimp
-*/
-const QColor & QScrollView::backgroundColor() const
-{
-    return backgroundColorForMode(viewport()->backgroundMode());
-}
-
-/*!
-  \reimp
-*/
-void QScrollView::setBackgroundColor( const QColor & color )
-{
-    setBackgroundColorForMode(viewport()->backgroundMode(), color);
-}
-
-/*!
-  \reimp
-*/
-const QPixmap* QScrollView::backgroundPixmap() const
-{
-    return backgroundPixmapForMode(viewport()->backgroundMode());
-}
-
-/*!
-  \reimp
-*/
-void QScrollView::setBackgroundPixmap( const QPixmap & pixmap )
-{
-    setBackgroundPixmapForMode(viewport()->backgroundMode(), pixmap);
-}
-
-/*!
   Returns the
     point \a p
   translated to

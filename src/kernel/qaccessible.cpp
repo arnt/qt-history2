@@ -6,7 +6,7 @@
 #include "qmetaobject.h"
 #include "qpluginmanager.h"
 #include "stdlib.h"
-
+#include "qapplication.h"
 
 /*!
   \class QAccessible qaccessible.h
@@ -402,14 +402,24 @@ QRESULT QAccessible::queryAccessibleInterface( QObject *object, QAccessibleInter
 {
     *iface = 0;
     if ( !object )
-	return;
+	return QE_INVALIDARG;
 
     if ( qAccessibleInterface )
 	*iface = qAccessibleInterface->find( object );
     if ( !*iface ) {
 	if ( !qAccessibleManager ) {
-	    QString dir = getenv( "QTDIR" );
-	    qAccessibleManager = new QPluginManager<QAccessibleFactoryInterface>( IID_QAccessibleFactory, dir+"/plugins" );
+	    qAccessibleManager = new QPluginManager<QAccessibleFactoryInterface>( IID_QAccessibleFactory );
+
+	    QString defpath(getenv("QTDIR"));
+	    if (! defpath.isNull() && ! defpath.isEmpty())
+		qAccessibleManager->addLibraryPath(defpath + "/plugins");
+
+	    QStringList paths(QApplication::libraryPaths());
+	    QStringList::Iterator it = paths.begin();
+	    while (it != paths.end()) {
+		qAccessibleManager->addLibraryPath(*it + "/codecs");
+		it++;
+	    }
 	}
 	QAccessibleFactoryInterface *factory = 0;
 	QMetaObject *mo = object->metaObject();
@@ -424,9 +434,11 @@ QRESULT QAccessible::queryAccessibleInterface( QObject *object, QAccessibleInter
 	    factory->release();
 	}
     }
-    if ( *iface )
-	(*iface)->addRef();
-    return;
+    if ( !*iface )
+	return QE_NOINTERFACE;
+
+    (*iface)->addRef();
+    return QS_OK;
 }
 
 /*!
@@ -469,17 +481,18 @@ QAccessibleObject::~QAccessibleObject()
 /*!
   \reimp
 */
-void QAccessibleObject::queryInterface( const QUuid &uuid, QUnknownInterface **iface )
+QRESULT QAccessibleObject::queryInterface( const QUuid &uuid, QUnknownInterface **iface )
 {
     *iface = 0;
     if ( uuid == IID_QAccessible )
 	*iface = (QAccessibleInterface*)this;
     else if ( uuid == IID_QUnknown )
 	*iface = (QUnknownInterface*)this;
-    
-    if ( *iface )
-	(*iface)->addRef();
-    return;
+    else
+	return QE_NOINTERFACE;
+
+    (*iface)->addRef();
+    return QS_OK;
 }
 
 /*!

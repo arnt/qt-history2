@@ -2244,6 +2244,7 @@ void QListView::init()
     viewport()->setFocusProxy( this );
     viewport()->setFocusPolicy( WheelFocus );
     viewport()->setBackgroundMode( PaletteBase );
+    setBackgroundMode( PaletteBackground, PaletteBase );
 }
 
 /*! \property QListView::showSortIndicator

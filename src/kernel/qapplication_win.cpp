@@ -149,7 +149,7 @@ static QWidget *popupButtonFocus   = 0;
 static bool	popupCloseDownMode = FALSE;
 static bool	qt_try_modal( QWidget *, MSG *, int& ret );
 
-static unsigned long qt_gui_thread = 0;
+static DWORD qt_gui_thread = 0;
 
 QWidget	       *qt_button_down = 0;		// widget got last button-down
 
@@ -2466,15 +2466,15 @@ static void releaseAutoCapture()
 
 static ushort mouseTbl[] = {
     WM_MOUSEMOVE,	QEvent::MouseMove,		0,
-    WM_LBUTTONDOWN,	QEvent::MouseButtonPress,	QMouseEvent::LeftButton,
-    WM_LBUTTONUP,	QEvent::MouseButtonRelease,	QMouseEvent::LeftButton,
-    WM_LBUTTONDBLCLK,	QEvent::MouseButtonDblClick,	QMouseEvent::LeftButton,
-    WM_RBUTTONDOWN,	QEvent::MouseButtonPress,	QMouseEvent::RightButton,
-    WM_RBUTTONUP,	QEvent::MouseButtonRelease,	QMouseEvent::RightButton,
-    WM_RBUTTONDBLCLK,	QEvent::MouseButtonDblClick,	QMouseEvent::RightButton,
-    WM_MBUTTONDOWN,	QEvent::MouseButtonPress,	QMouseEvent::MidButton,
-    WM_MBUTTONUP,	QEvent::MouseButtonRelease,	QMouseEvent::MidButton,
-    WM_MBUTTONDBLCLK,	QEvent::MouseButtonDblClick,	QMouseEvent::MidButton,
+    WM_LBUTTONDOWN,	QEvent::MouseButtonPress,	Qt::LeftButton,
+    WM_LBUTTONUP,	QEvent::MouseButtonRelease,	Qt::LeftButton,
+    WM_LBUTTONDBLCLK,	QEvent::MouseButtonDblClick,	Qt::LeftButton,
+    WM_RBUTTONDOWN,	QEvent::MouseButtonPress,	Qt::RightButton,
+    WM_RBUTTONUP,	QEvent::MouseButtonRelease,	Qt::RightButton,
+    WM_RBUTTONDBLCLK,	QEvent::MouseButtonDblClick,	Qt::RightButton,
+    WM_MBUTTONDOWN,	QEvent::MouseButtonPress,	Qt::MidButton,
+    WM_MBUTTONUP,	QEvent::MouseButtonRelease,	Qt::MidButton,
+    WM_MBUTTONDBLCLK,	QEvent::MouseButtonDblClick,	Qt::MidButton,
     0,			0,				0
 };
 
@@ -2482,17 +2482,17 @@ static int translateButtonState( int s, int type, int button )
 {
     int bst = 0;
     if ( s & MK_LBUTTON )
-	bst |= QMouseEvent::LeftButton;
+	bst |= Qt::LeftButton;
     if ( s & MK_MBUTTON )
-	bst |= QMouseEvent::MidButton;
+	bst |= Qt::MidButton;
     if ( s & MK_RBUTTON )
-	bst |= QMouseEvent::RightButton;
+	bst |= Qt::RightButton;
     if ( s & MK_SHIFT )
-	bst |= QMouseEvent::ShiftButton;
+	bst |= Qt::ShiftButton;
     if ( s & MK_CONTROL )
-	bst |= QMouseEvent::ControlButton;
+	bst |= Qt::ControlButton;
     if ( GetKeyState(VK_MENU) < 0 )
-	bst |= QMouseEvent::AltButton;
+	bst |= Qt::AltButton;
 
     // Translate from Windows-style "state after event"
     // to X-style "state before event"
@@ -2650,9 +2650,9 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	    }
 	}
     } else {					// not popup mode
-	int bs = state & (QMouseEvent::LeftButton
-			| QMouseEvent::RightButton
-			| QMouseEvent::MidButton);
+	int bs = state & (Qt::LeftButton
+			| Qt::RightButton
+			| Qt::MidButton);
 	if ( (type == QEvent::MouseButtonPress ||
 	      type == QEvent::MouseButtonDblClick) && bs == 0 ) {
 	    if ( QWidget::mouseGrabber() == 0 )
@@ -2818,7 +2818,7 @@ static int asciiToKeycode(char a, int state)
 {
     if ( a >= 'a' && a <= 'z' )
 	a = toupper( a );
-    if ( (state & QMouseEvent::ControlButton) != 0 ) {
+    if ( (state & Qt::ControlButton) != 0 ) {
 	if ( a >= 1 && a <= 26 )	// Ctrl+'A'..'Z'
 	    a += 'A' - 1;
     }
@@ -2883,12 +2883,11 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
     if ( GetKeyState(VK_MENU) < 0 )
 	state |= Qt::AltButton;
     //TODO: if it is a pure shift/ctrl/alt keydown, invert state logic, like X
-    if ( msg.lParam & 0xc0000000 ) {
+
+    /*
+    if ( msg.lParam & 0xc0000000 )
 	state |= Qt::Keypad;
-	//qDebug(  "YES! %x", msg.lParam );
-    } else {
-	//qDebug(  "NO! %x", msg.lParam );
-    }
+    */
 
     if ( msg.message == WM_CHAR ) {
 	// a multi-character key not found by our look-ahead
@@ -3010,7 +3009,7 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 		    code = asciiToKeycode( uch.cell(), state);
 	    }
 
-	    if ( state == QMouseEvent::AltButton ) {
+	    if ( state == Qt::AltButton ) {
 		// Special handling of global Windows hotkeys
 		switch ( code ) {
 		case Qt::Key_Escape:
@@ -3075,11 +3074,11 @@ bool QETWidget::translateWheelEvent( const MSG &msg )
 	return TRUE;
 
     if ( GetKeyState(VK_SHIFT) < 0 )
-	state |= QMouseEvent::ShiftButton;
+	state |= Qt::ShiftButton;
     if ( GetKeyState(VK_CONTROL) < 0 )
-	state |= QMouseEvent::ControlButton;
+	state |= Qt::ControlButton;
     if ( GetKeyState(VK_MENU) < 0 )
-	state |= QMouseEvent::AltButton;
+	state |= Qt::AltButton;
 
     int delta;
     if ( msg.message == WM_MOUSEWHEEL )
@@ -3152,7 +3151,7 @@ bool QETWidget::sendKeyEvent( QEvent::Type type, int code, int ascii,
 	return FALSE;
     QKeyEvent e( type, code, ascii, state, text, autor );
     QApplication::sendSpontaneousEvent( this, &e );
-    if ( !isModifierKey(code) && state == QMouseEvent::AltButton
+    if ( !isModifierKey(code) && state == Qt::AltButton
 	 && ((code>=Key_A && code<=Key_Z) || (code>=Key_0 && code<=Key_9))
 	 && type == QEvent::KeyPress && !e.isAccepted() )
 	QApplication::beep();  // emulate windows behavioar

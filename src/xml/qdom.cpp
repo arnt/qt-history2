@@ -3533,7 +3533,13 @@ static QString encodeAttr( const QString& str )
 
 void QDomAttrPrivate::save( QTextStream& s, int ) const
 {
-    s << name << "=\"" << encodeAttr( value ) << "\"";
+    if ( namespaceURI.isNull() ) {
+	s << name << "=\"" << encodeAttr( value ) << "\"";
+    } else {
+	// ### optimize this (see comment of QDomElementPrivate::save()
+	s << prefix << ":" << name << "=\"" << encodeAttr( value ) << "\""
+	    << " xmlns:" << prefix << "=\"" << encodeAttr( namespaceURI ) << "\"";
+    }
 }
 
 /**************************************************************
@@ -3885,7 +3891,17 @@ void QDomElementPrivate::save( QTextStream& s, int indent ) const
     for ( int i = 0; i < indent; ++i )
 	s << " ";
 
-    s << "<" << name;
+    if ( namespaceURI.isNull() ) {
+	s << "<" << name;
+    } else {
+	// ### optimize this, so that you only declare namespaces that are not
+	// yet declared -- we loose default namespace mappings, so maybe we
+	// should rather store the information that we get from
+	// startPrefixMapping()/endPrefixMapping() and use them (you have to
+	// take care if the DOM tree is modified, though)
+	s << "<" << prefix << ":" << name
+	    << " xmlns:" << prefix << "=\"" << encodeAttr( namespaceURI ) << "\"";
+    }
 
     if ( !m_attr->map.isEmpty() ) {
 	s << " ";
@@ -4194,7 +4210,7 @@ QDomNamedNodeMap QDomElement::attributes() const
 }
 
 /*!
-  Returns TRUE is this element has an attribute called \a name;
+  Returns TRUE if this element has an attribute called \a name;
   otherwise returns FALSE.
 */
 bool QDomElement::hasAttribute( const QString& name ) const
@@ -4328,7 +4344,7 @@ QDomNodeList QDomElement::elementsByTagNameNS( const QString& nsURI, const QStri
 }
 
 /*!
-  Returns TRUE is this element has an attribute with the local name \a
+  Returns TRUE if this element has an attribute with the local name \a
   localName and the namespace URI \a nsURI; otherwise returns FALSE.
 */
 bool QDomElement::hasAttributeNS( const QString& nsURI, const QString& localName ) const

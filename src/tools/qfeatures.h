@@ -92,6 +92,11 @@
 
 #include <qglobal.h>
 #ifdef Q_WS_MAC9
+//No need for menu merging
+#  ifndef QMAC_QMENUBAR_NO_MERGE
+#    define QMAC_QMENUBAR_NO_MERGE
+#  endif
+//Doesn't really work - but at least an effort
 #  ifndef QMAC_VIRTUAL_PIXMAP_SUPPORT
 #    define QMAC_VIRTUAL_PIXMAP_SUPPORT
 #  endif

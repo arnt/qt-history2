@@ -63,11 +63,16 @@ Q_EXPORT inline char *qstrcpy( char *dst, const char *src )
 Q_EXPORT char *qstrncpy( char *dst, const char *src, uint len );
 
 Q_EXPORT inline int qstrcmp( const char *str1, const char *str2 )
-{ return (str1 && str2) ? strcmp(str1,str2) : (int)((long)str2 - (long)str1); }
+{
+    return ( str1 && str2 ) ? strcmp( str1, str2 )
+			    : ( str1 ? 1 : ( str2 ? -1 : 0 ) );
+}
 
 Q_EXPORT inline int qstrncmp( const char *str1, const char *str2, uint len )
-{ return (str1 && str2) ? strncmp(str1,str2,len) :
-			  (int)((long)str2 - (long)str1); }
+{
+    return ( str1 && str2 ) ? strncmp( str1, str2, len )
+			    : ( str1 ? 1 : ( str2 ? -1 : 0 ) );
+}
 
 Q_EXPORT int qstricmp( const char *, const char * );
 

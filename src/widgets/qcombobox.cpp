@@ -434,6 +434,7 @@ QComboBox::QComboBox( QWidget *parent, const char *name )
     d->useCompletion = FALSE;
 
     setFocusPolicy( TabFocus );
+    setBackgroundMode( PaletteButton );
 }
 
 
@@ -468,7 +469,7 @@ QComboBox::QComboBox( bool rw, QWidget *parent, const char *name )
     d->ed = 0;
     if ( rw )
 	setUpLineEdit();
-    setBackgroundMode( PaletteButton );
+    setBackgroundMode( PaletteButton, PaletteBase );
 }
 
 
@@ -1982,54 +1983,6 @@ void QComboBox::setUpLineEdit()
     setFocusProxy( d->ed );
 
     connect( d->ed, SIGNAL(returnPressed()), SLOT(returnPressed()) );
-}
-
-/*!
-  \reimp
-*/
-const QColor & QComboBox::foregroundColor() const
-{
-    return foregroundColorForMode(PaletteBase);
-}
-
-/*!
-  \reimp
-*/
-void QComboBox::setForegroundColor( const QColor & color )
-{
-    setForegroundColorForMode(PaletteBase, color);
-}
-
-/*!
-  \reimp
-*/
-const QColor & QComboBox::backgroundColor() const
-{
-    return backgroundColorForMode(PaletteBase);
-}
-
-/*!
-  \reimp
-*/
-void QComboBox::setBackgroundColor( const QColor & color )
-{
-    setBackgroundColorForMode(PaletteBase, color);
-}
-
-/*!
-  \reimp
-*/
-const QPixmap* QComboBox::backgroundPixmap() const
-{
-    return backgroundPixmapForMode(PaletteBase);
-}
-
-/*!
-  \reimp
-*/
-void QComboBox::setBackgroundPixmap( const QPixmap & pixmap )
-{
-    setBackgroundPixmapForMode(PaletteBase, pixmap);
 }
 
 #endif // QT_NO_COMBOBOX

@@ -161,7 +161,7 @@ static QPixmap *get_qiv_buffer_pixmap( const QSize &s )
 
 #ifndef QT_NO_DRAGANDDROP
 
-class Q_EXPORT QIconDragData
+class QIconDragData
 {
 public:
     QIconDragData();
@@ -179,7 +179,7 @@ public:
     bool operator==( const QIconDragData &i ) const;
 };
 
-class Q_EXPORT QIconDragDataItem
+class QIconDragDataItem
 {
 public:
     QIconDragDataItem() {}
@@ -5301,7 +5301,7 @@ QIconViewItem *QIconView::makeRowLayout( QIconViewItem *begin, int &y, bool &cha
 	    int x = 0;
 	    int ih = 0;
 	    QIconViewItem *item = begin;
-	    while ( TRUE ) {
+	    for (;;) {
 		x += d->spacing + item->width();
 		if ( x > visibleWidth() && item != begin ) {
 		    item = item->prev;
@@ -5323,7 +5323,7 @@ QIconViewItem *QIconView::makeRowLayout( QIconViewItem *begin, int &y, bool &cha
 
 	    // now move the items
 	    item = begin;
-	    while ( TRUE ) {
+	    for (;;) {
 		item->dirty = FALSE;
 		int x;
 		if ( item == begin ) {
@@ -5353,7 +5353,7 @@ QIconViewItem *QIconView::makeRowLayout( QIconViewItem *begin, int &y, bool &cha
 	    QIconViewItem *item = begin;
 	    int i = 0;
 	    int sp = 0;
-	    while ( TRUE ) {
+	    for (;;) {
 		int r = calcGridNum( item->width(), d->rastX );
 		if ( item == begin ) {
 		    i += r;
@@ -5386,7 +5386,7 @@ QIconViewItem *QIconView::makeRowLayout( QIconViewItem *begin, int &y, bool &cha
 	    item = begin;
 	    i = 0;
 	    sp = 0;
-	    while ( TRUE ) {
+	    for (;;) {
 		item->dirty = FALSE;
 		int r = calcGridNum( item->width(), d->rastX );
 		if ( item == begin ) {
@@ -5425,7 +5425,7 @@ QIconViewItem *QIconView::makeRowLayout( QIconViewItem *begin, int &y, bool &cha
 	    int w = 0;
 	    int y = 0;
 	    QIconViewItem *item = begin;
-	    while ( TRUE ) {
+	    for (;;) {
 		y += d->spacing + item->height();
 		if ( y > visibleHeight() && item != begin ) {
 		    item = item->prev;
@@ -5446,7 +5446,7 @@ QIconViewItem *QIconView::makeRowLayout( QIconViewItem *begin, int &y, bool &cha
 
 	    // now move the items
 	    item = begin;
-	    while ( TRUE ) {
+	    for (;;) {
 		item->dirty = FALSE;
 		if ( d->itemTextPos == Bottom ) {
 		    if ( item == begin )
@@ -5637,7 +5637,7 @@ void QIconView::updateItemContainer( QIconViewItem *item )
     }
 
     bool contains = FALSE;
-    while ( TRUE ) {
+    for (;;) {
 	if ( c->rect.intersects( item->rect() ) ) {
 	    contains = c->rect.contains( item->rect() );
 	    break;

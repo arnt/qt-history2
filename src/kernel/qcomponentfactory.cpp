@@ -100,18 +100,18 @@ QRESULT QComponentFactory::createInstance( const QUuid &cid, const QUuid &iid, Q
 	file = file.left( dot );
 
     if ( !ok )
-	return;
+	return QS_FALSE;
 
     QLibrary *library = new QLibrary( file );
 
     QComponentFactoryInterface *cfIface =0;
     library->queryInterface( IID_QComponentFactory, (QUnknownInterface**)&cfIface );
     if ( cfIface ) {
-	cfIface->createInstance( iid, cid, instance, outer );
+	QRESULT res = cfIface->createInstance( iid, cid, instance, outer );
 	cfIface->release();
-    } else {
-	library->queryInterface( iid, instance );
+	return res;
     }
+    return library->queryInterface( iid, instance );
 }
 
 /*!

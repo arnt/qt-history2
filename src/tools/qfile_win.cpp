@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QFileInfo class
 **
@@ -180,7 +180,7 @@ bool QFile::open( int m )
 	else
 	    strcat( perm2, "b" );
 #endif
-	while (1) { // At most twice
+	for (;;) { // At most twice
 	    if ( qt_winunicode ) {
 		TCHAR tperm2[4];
 		tperm2[0] = perm2[0];

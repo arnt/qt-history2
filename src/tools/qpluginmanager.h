@@ -183,8 +183,7 @@ public:
 	QLibrary* plugin = 0;
 	plugin = library( feature );
 
-	if ( plugin )
-	    plugin->queryInterface( interfaceId, (QUnknownInterface**)iface );
+	return plugin ? plugin->queryInterface( interfaceId, (QUnknownInterface**)iface ) : QE_NOINTERFACE;
     }
 
 #ifdef Q_QDOC

@@ -1574,6 +1574,7 @@ void QTable::init( int rows, int cols )
     // Enable clipper and set background mode
     enableClipper( TRUE );
     viewport()->setBackgroundMode( PaletteBase );
+    setBackgroundMode( PaletteBackground, PaletteBase );
     setResizePolicy( Manual );
     selections.setAutoDelete( TRUE );
 

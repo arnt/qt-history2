@@ -1094,7 +1094,7 @@ int main( int argc, char **argv )
     QString suffix = "-m.png";
     QApplication::setStyle( new QMotifStyle );
 
-    while ( 1 ) {
+    for ( ;; ) {
 	WidgetDepicter wd(suffix);
 
 #define DEPICT(eg, ofile, wname) \

@@ -136,15 +136,6 @@ class Q_EXPORT QComboBox : public QWidget
     bool	editable() const;
     void	setEditable( bool );
 
-    virtual const QColor &	foregroundColor() const;
-    virtual void		setForegroundColor( const QColor & );
-
-    virtual const QColor &	backgroundColor() const;
-    virtual void		setBackgroundColor( const QColor & );
-
-    virtual const QPixmap *	backgroundPixmap() const;
-    virtual void		setBackgroundPixmap( const QPixmap & );
-
 public slots:
     void	clearValidator();
     void	clearEdit();

@@ -42,13 +42,12 @@ extern "C" {
 #ifdef QT_MAKEDLL
 #define Q_ZEXPORT __declspec(dllexport)
 #else
-#ifdef QT_DLL
+#if defined(QT_DLL) && !defined(QT_PLUGIN)
 #define Q_ZEXPORT __declspec(dllimport)
 #else
 #define Q_ZEXPORT ZEXPORT
 #endif
 #endif
-
 
 /* 
      The 'zlib' compression library provides in-memory compression and

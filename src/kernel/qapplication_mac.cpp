@@ -1816,6 +1816,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	}
 	break;
     }
+#if 0 //no need for text input since it doesn't really work yet..
     case kEventClassTextInput:
 	if(!(widget=focus_widget))
 	    return 1; //no use to me!
@@ -1843,6 +1844,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	    QApplication::sendSpontaneousEvent(widget, &imend);
 	}
 	break;
+#endif
     case kEventClassKeyboard:
     {
 	UInt32 modif;

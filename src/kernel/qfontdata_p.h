@@ -160,7 +160,7 @@ class QMacFontInfo;
 class QFontStruct : public QShared
 {
 public:
-    inline QFontStruct( const QFontDef& d ) :   QShared(), s(d), info(NULL), cache_cost(0), internal_fi(NULL) { }
+    inline QFontStruct() :   QShared(), info(NULL), cache_cost(0), internal_fi(NULL) { }
     int ascent() const { return info->ascent; }
     int descent() const { return info->descent; }
     int minLeftBearing() const { return 0; }

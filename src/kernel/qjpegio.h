@@ -40,6 +40,6 @@
 
 #include <qglobal.h>
 
-Q_EXPORT extern void qInitJpegIO();
+void qInitJpegIO();
 
 #endif

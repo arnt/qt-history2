@@ -205,43 +205,16 @@ static const UnicodeToTextFallbackUPP make_font_fallbackUPP()
 
 const unsigned char * p_str(const QString &); //qglobal.cpp
 enum text_task { GIMME_WIDTH=0x01, GIMME_DRAW=0x02, GIMME_EXISTS=0x04 };
-static int do_text_task( const QFontPrivate *d, QString s, int pos, int len, uchar task, bool no_optim=FALSE)
+static int do_text_task( const QFontPrivate *d, const QChar *s, int len, uchar task)
 {
-    QMacSetFontInfo fi(d);
-    if(!no_optim) //latin1 optimization
-    {
-	bool is_latin = TRUE;
-	const QChar *chs = s.unicode() + pos;
-	for(int i = 0; i < len; i++) {
-	    if(chs[i].row() || (chs[i].cell() & (1 << 7))) {
-		is_latin = FALSE;
-		break;
-	    } 
-	}
-	if(is_latin) {
-	    if(task & GIMME_EXISTS) {
-		if(task != GIMME_EXISTS)
-		    qWarning("GIMME_EXISTS must appear by itself!");
-		return TRUE;
-	    }
-
-	    int ret = 0;
-	    const unsigned char *str = p_str(s.mid(pos, len));
-	    if(task & GIMME_DRAW) 
-		DrawString(str);
-	    if(task & GIMME_WIDTH)
-		ret = StringWidth(str);
-	    return ret;
-	}
-    }
-
     //set the grafport font
+    QMacSetFontInfo fi(d);
     FontInfo setfi; GetFontInfo(&setfi);
     OSStatus err;
 
     //convert qt to mac unibuffer
     const int unilen = len * 2;
-    const UniChar *unibuf = (UniChar *)(s.unicode() + pos); //don't use pos here! FIXME
+    const UniChar *unibuf = (UniChar *)(s);
 
     //create converter
     UnicodeToTextRunInfo runi;
@@ -321,10 +294,46 @@ static int do_text_task( const QFontPrivate *d, QString s, int pos, int len, uch
     free(buf);
     return ret;
 }
-static inline int do_text_task( const QFontPrivate *d, const QChar &c, uchar task, bool no_optim=FALSE)
+
+static inline int do_text_task( const QFontPrivate *d, QString s, int pos, int len, uchar task) 
 {
-    if(no_optim || c.row() || (c.cell() & (1 << 7)))
-	return do_text_task(d, QString(c), 0, 1, task, TRUE);
+    if(!len || ((pos-1)+len) > (int)s.length()) {
+	if(len)
+	    qDebug("This should never happen %d > %d", (pos-1)+len, s.length());
+	return 0;
+    }
+
+    bool is_latin = TRUE;
+    const QChar *chs = s.unicode() + pos; //don't use pos here
+    for(int i = 0; i < len; i++) {
+	if(chs[i].row() || (chs[i].cell() & (1 << 7))) {
+	    is_latin = FALSE;
+	    break;
+	} 
+    }
+    if(is_latin) {
+	QMacSetFontInfo fi(d);
+	if(task & GIMME_EXISTS) {
+	    if(task != GIMME_EXISTS)
+		qWarning("GIMME_EXISTS must appear by itself!");
+	    return TRUE;
+	}
+	int ret = 0;
+	const unsigned char *str = p_str(s.mid(pos, len));
+	if(task & GIMME_DRAW) 
+	    DrawString(str);
+	if(task & GIMME_WIDTH)
+	    ret = StringWidth(str);
+	return ret;
+    }
+    return do_text_task(d, s.unicode()+pos, len, task); //don't use pos like this
+}
+
+static inline int do_text_task( const QFontPrivate *d, const QChar &c, uchar task)
+{
+    if(c.row() || (c.cell() & (1 << 7)))
+	return do_text_task(d, &c, 1, task);
+
     QMacSetFontInfo fi(d);
     int ret = 0; //latin1 optimization
     if(task & GIMME_EXISTS) {
@@ -502,7 +511,7 @@ void QFontPrivate::load()
 	QString k = key();
 	QFontStruct* qfs = fontCache->find(k);
 	if ( !qfs ) {
-	    qfs = new QFontStruct(request);
+	    qfs = new QFontStruct();
 	    fontCache->insert(k, qfs, 1);
 	}
 	qfs->ref();

@@ -547,54 +547,6 @@ void QDateTimeEditBase::removeLastNumber( int  )
 
 }
 
-/*!
-  \reimp
-*/
-const QColor & QDateTimeEditBase::foregroundColor() const
-{
-    return foregroundColorForMode(PaletteBase);
-}
-
-/*!
-  \reimp
-*/
-void QDateTimeEditBase::setForegroundColor( const QColor & color )
-{
-    setForegroundColorForMode(PaletteBase, color);
-}
-
-/*!
-  \reimp
-*/
-const QColor & QDateTimeEditBase::backgroundColor() const
-{
-    return backgroundColorForMode(PaletteBase);
-}
-
-/*!
-  \reimp
-*/
-void QDateTimeEditBase::setBackgroundColor( const QColor & color )
-{
-    setBackgroundColorForMode(PaletteBase, color);
-}
-
-/*!
-  \reimp
-*/
-const QPixmap* QDateTimeEditBase::backgroundPixmap() const
-{
-    return backgroundPixmapForMode(PaletteBase);
-}
-
-/*!
-  \reimp
-*/
-void QDateTimeEditBase::setBackgroundPixmap( const QPixmap & pixmap )
-{
-    setBackgroundPixmapForMode(PaletteBase, pixmap);
-}
-
 ////////////////
 
 class QDateEditPrivate
@@ -2213,54 +2165,6 @@ bool QDateTimeEdit::autoAdvance() const
   Returns the internal widget used for editing the time part of the datetime.
 */
 
-
-/*!
-  \reimp
-*/
-const QColor & QDateTimeEdit::foregroundColor() const
-{
-    return foregroundColorForMode(PaletteBase);
-}
-
-/*!
-  \reimp
-*/
-void QDateTimeEdit::setForegroundColor( const QColor & color )
-{
-    setForegroundColorForMode(PaletteBase, color);
-}
-
-/*!
-  \reimp
-*/
-const QColor & QDateTimeEdit::backgroundColor() const
-{
-    return backgroundColorForMode(PaletteBase);
-}
-
-/*!
-  \reimp
-*/
-void QDateTimeEdit::setBackgroundColor( const QColor & color )
-{
-    setBackgroundColorForMode(PaletteBase, color);
-}
-
-/*!
-  \reimp
-*/
-const QPixmap* QDateTimeEdit::backgroundPixmap() const
-{
-    return backgroundPixmapForMode(PaletteBase);
-}
-
-/*!
-  \reimp
-*/
-void QDateTimeEdit::setBackgroundPixmap( const QPixmap & pixmap )
-{
-    setBackgroundPixmapForMode(PaletteBase, pixmap);
-}
 
 
 #endif

@@ -86,7 +86,7 @@ inline void Mach64Accel::wait_for_fifo(short entries)
     //printf("Waiting for %d, fifo state %d\n",entries,
     //       regr(FIFO_STAT) & 0xffff);
 
-    while(1) {
+    for(;;) {
 	int wizzy=regr(FIFO_STAT);
 	if(wizzy & 0x80000000) {
 	    //qDebug("Resetting engine");
@@ -132,11 +132,3 @@ inline void Mach64Accel::reset_engine()
 }
 
 #endif
-
-
-
-
-
-
-
-

@@ -54,6 +54,9 @@ class MetrowerksMakefileGenerator : public MakefileGenerator
 public:
     MetrowerksMakefileGenerator(QMakeProject *p);
     ~MetrowerksMakefileGenerator();
+
+protected:
+    virtual bool doDepends() const { return FALSE; } //never necesary
 };
 
 inline MetrowerksMakefileGenerator::~MetrowerksMakefileGenerator()

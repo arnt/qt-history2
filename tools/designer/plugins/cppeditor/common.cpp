@@ -61,9 +61,10 @@ CommonInterface::~CommonInterface()
 
 QRESULT CommonInterface::queryInterface( const QUuid &uuid, QUnknownInterface** iface )
 {
+    *iface = 0;
     if ( uuid == IID_QUnknown )
 	*iface = (QUnknownInterface*)this;
-    if ( uuid == IID_QComponent )
+    else if ( uuid == IID_QComponent )
 	*iface = (QComponentInterface*)this;
     else if ( uuid == IID_Editor )
 	*iface = new EditorInterfaceImpl;
@@ -71,9 +72,11 @@ QRESULT CommonInterface::queryInterface( const QUuid &uuid, QUnknownInterface** 
 	*iface = langIface;
     else if ( uuid == IID_Preference )
 	*iface = prefIface;
+    else
+	return QE_NOINTERFACE;
 
-    if ( *iface )
-	(*iface)->addRef();
+    (*iface)->addRef();
+    return QS_OK;
 }
 
 unsigned long CommonInterface::addRef()

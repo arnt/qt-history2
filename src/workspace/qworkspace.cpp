@@ -310,8 +310,7 @@ QWorkspace::~QWorkspace()
     d = 0;
 }
 
-/*!\reimp
- */
+/*!\reimp */
 QSize QWorkspace::sizeHint() const
 {
     QSize s( QApplication::desktop()->size() );
@@ -319,8 +318,21 @@ QSize QWorkspace::sizeHint() const
 }
 
 
-/*! \reimp */
 
+/*! \reimp */
+void QWorkspace::setBackgroundColor( const QColor & c )
+{
+    setEraseColor( c );
+}
+
+
+/*! \reimp */
+void QWorkspace::setBackgroundPixmap( const QPixmap & pm )
+{
+    setErasePixmap( pm );
+}
+
+/*! \reimp */
 void QWorkspace::childEvent( QChildEvent * e)
 {
     if (e->inserted() && e->child()->isWidgetType()) {
@@ -633,6 +645,8 @@ void QWorkspace::resizeEvent( QResizeEvent * )
 /*! \reimp */
 void QWorkspace::showEvent( QShowEvent *e )
 {
+    if ( d->maxWindow )
+	showMaximizeControls();
     QWidget::showEvent( e );
     if ( d->becomeActive ) {
 	activateWindow( d->becomeActive );
@@ -642,6 +656,13 @@ void QWorkspace::showEvent( QShowEvent *e )
 	activateWindow( d->windows.first()->windowWidget() );
 
     updateWorkspace();
+}
+
+/*! \reimp */
+void QWorkspace::hideEvent( QHideEvent * )
+{
+    if ( !isVisibleTo(0) )
+	hideMaximizeControls();
 }
 
 void QWorkspace::minimizeWindow( QWidget* w)
@@ -2074,5 +2095,3 @@ void QWorkspace::scrollBarChanged()
 
 #include "qworkspace.moc"
 #endif // QT_NO_WORKSPACE
-
-

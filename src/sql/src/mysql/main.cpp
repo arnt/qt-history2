@@ -66,9 +66,11 @@ QRESULT QMYSQLDriverPlugin::queryInterface( const QUuid& uuid, QUnknownInterface
 	*iface = (QFeatureListInterface*)this;
     else if ( uuid == IID_QSqlDriverFactory )
 	*iface = (QSqlDriverFactoryInterface*)this;
+    else
+	return QE_NOINTERFACE;
 
-    if ( *iface )
-	(*iface)->addRef();
+    (*iface)->addRef();
+    return QS_OK;
 }
 
 unsigned long QMYSQLDriverPlugin::addRef()

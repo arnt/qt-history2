@@ -92,15 +92,6 @@ public:
     void setSeparator( const QString& s );
     QString separator() const;
 
-    virtual const QColor &	foregroundColor() const;
-    virtual void		setForegroundColor( const QColor & );
-
-    virtual const QColor &	backgroundColor() const;
-    virtual void		setBackgroundColor( const QColor & );
-
-    virtual const QPixmap *	backgroundPixmap() const;
-    virtual void		setBackgroundPixmap( const QPixmap & );
-
 public slots:
     virtual void stepUp();
     virtual void stepDown();
@@ -267,15 +258,6 @@ public:
 
     virtual void setAutoAdvance( bool advance );
     bool autoAdvance() const;
-
-    virtual const QColor &	foregroundColor() const;
-    virtual void		setForegroundColor( const QColor & );
-
-    virtual const QColor &	backgroundColor() const;
-    virtual void		setBackgroundColor( const QColor & );
-
-    virtual const QPixmap *	backgroundPixmap() const;
-    virtual void		setBackgroundPixmap( const QPixmap & );
 
 signals:
     void valueChanged( const QDateTime& datetime );

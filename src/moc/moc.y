@@ -1648,7 +1648,7 @@ moc_status do_moc( CWPluginContext ctx, const QCString &fin, const QCString &fou
 	cleanup();
 	return moc_general_error;
     }
-    while(1) {
+    for(;;) {
 	 GetAliasInfo(alias, x++, str);
 	 if(!str[0])
 	    break;
@@ -3262,7 +3262,7 @@ void addMember( Member m )
     tmpFunc->args	= tmpArgList;
     tmpFunc->lineNo	= lineNo;
 
-    while ( TRUE ) {
+    for ( ;; ) {
 	g->funcs.append( tmpFunc );
 
 	if ( m == SignalMember ) {

@@ -192,6 +192,8 @@ void QSpinBox::initSpinBox()
     vi->setFrame( FALSE );
 
     setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed ) );
+    setBackgroundMode( PaletteBackground, PaletteBase );
+    
     updateDisplay();
 
     connect( vi, SIGNAL(textChanged(const QString&)), SLOT(textChanged()) );
@@ -944,58 +946,6 @@ int QSpinBox::lineStep() const
 void QSpinBox::setLineStep( int i )
 {
     setSteps( i, pageStep() );
-}
-
-/*!
-  \reimp
-*/
-const QColor & QSpinBox::foregroundColor() const
-{
-    return vi ? foregroundColorForMode(vi->backgroundMode()) : QWidget::foregroundColor();
-}
-
-/*!
-  \reimp
-*/
-void QSpinBox::setForegroundColor( const QColor & color )
-{
-    if(!vi) return;
-    setForegroundColorForMode(vi->backgroundMode(), color);
-}
-
-/*!
-  \reimp
-*/
-const QColor & QSpinBox::backgroundColor() const
-{
-    return vi ? backgroundColorForMode(vi->backgroundMode()) : QWidget::backgroundColor();
-}
-
-/*!
-  \reimp
-*/
-void QSpinBox::setBackgroundColor( const QColor & color )
-{
-    if ( !vi )
-	return;
-    setBackgroundColorForMode(vi->backgroundMode(), color);
-}
-
-/*!
-  \reimp
-*/
-const QPixmap* QSpinBox::backgroundPixmap() const
-{
-    return vi ? backgroundPixmapForMode(vi->backgroundMode()) : QWidget::backgroundPixmap();
-}
-
-/*!
-  \reimp
-*/
-void QSpinBox::setBackgroundPixmap( const QPixmap & pixmap )
-{
-    if(!vi) return;
-    setBackgroundPixmapForMode(vi->backgroundMode(), pixmap);
 }
 
 #endif

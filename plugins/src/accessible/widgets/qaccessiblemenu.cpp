@@ -27,7 +27,7 @@ int QAccessiblePopup::childCount() const
 QRESULT QAccessiblePopup::queryChild( int control, QAccessibleInterface **iface ) const
 {
     *iface = 0;
-    return;
+    return QS_FALSE;
 }
 
 QRect QAccessiblePopup::rect( int control ) const
@@ -185,7 +185,7 @@ int QAccessibleMenuBar::childCount() const
 QRESULT QAccessibleMenuBar::queryChild( int control, QAccessibleInterface **iface ) const
 {
     *iface = 0;
-    return;
+    return QS_FALSE;
 }
 
 QRect QAccessibleMenuBar::rect( int control ) const

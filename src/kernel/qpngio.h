@@ -48,7 +48,15 @@ void qInitPngIO();
 
 class QIODevice;
 
-class Q_EXPORT QPNGImageWriter {
+#ifndef Q_PNGEXPORT
+#if !defined(QT_PLUGIN)
+#define Q_PNGEXPORT Q_EXPORT
+#else
+#define Q_PNGEXPORT
+#endif
+#endif
+
+class Q_PNGEXPORT QPNGImageWriter {
 public:
     QPNGImageWriter(QIODevice*);
     ~QPNGImageWriter();
@@ -75,7 +83,7 @@ private:
     int ms_delay;
 };
 
-class Q_EXPORT QPNGImagePacker : public QPNGImageWriter {
+class Q_PNGEXPORT QPNGImagePacker : public QPNGImageWriter {
 public:
     QPNGImagePacker(QIODevice*, int depth, int convflags);
 

@@ -54,7 +54,7 @@
 
 #ifndef QT_NO_ASYNC_IMAGE_IO
 
-class Q_EXPORT QMNGFormat : public QImageFormat {
+class QMNGFormat : public QImageFormat {
 public:
     QMNGFormat();
     virtual ~QMNGFormat();
@@ -186,7 +186,7 @@ private:
     QImage* image;
 };
 
-class Q_EXPORT QMNGFormatType : public QImageFormatType
+class QMNGFormatType : public QImageFormatType
 {
     QImageFormat* decoderFor(const uchar* buffer, int length);
     const char* formatName() const;

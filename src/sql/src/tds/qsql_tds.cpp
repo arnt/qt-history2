@@ -149,9 +149,6 @@ public:
     }
     QSqlClientNullData* clone()
     {
-#ifdef DEBUG_TDS
-	qDebug( "QTDSClientNullData::clone: %i", nullInfo );
-#endif
 	return new QTDSClientNullData( *this );
     }
 private:
@@ -334,16 +331,21 @@ void QTDSResult::cleanup()
 bool QTDSResult::fetch( int i )
 {
 #ifdef DEBUG_TDS
-    qDebug( "QTDSResult::fetch(%i)", i );
+    qDebug( "QTDSResult::fetch(%i), at: %i", i, at() );
 #endif
-    if ( ( !isActive() ) || ( i < 0 ) )
+    if ( ( !isActive() ) || ( i < 0 ) ) {
+#ifdef DEBUG_TDS
+	qDebug( "QTDSResult::fetch(%i): not active or < 0", i );
+#endif
 	return FALSE;
+    }
     if ( at() == i )
 	return TRUE;
     if ( set->seek( i ) ) {
 	setAt( i );
 	return TRUE;
     }
+    setAt( set->size() - 1 );
     while ( at() < i ) {
 	if ( !cacheNext() )
 	    return FALSE;
@@ -365,7 +367,7 @@ bool QTDSResult::fetchNext()
 #ifdef DEBUG_TDS
     qDebug( "QTDSResult::fetchNext()" );
 #endif
-    //## TODO
+    //## TODO Forward-Only
     return fetch( at() + 1 );
 }
 
@@ -402,15 +404,21 @@ QVariant QTDSResult::data( int i )
 bool QTDSResult::cacheNext()
 {
 #ifdef DEBUG_TDS
-    qDebug( "QTDSResult::cacheNext: filling set" );
+    qDebug( "QTDSResult::cacheNext: filling set at %i", at() );
 #endif
     STATUS stat = dbnextrow( d->dbproc );
     if ( stat == NO_MORE_ROWS ) {
 	setAt( QSql::AfterLast );
+#ifdef DEBUG_TDS
+	qDebug( "QTDSResult::cacheNext: got NO_MORE_ROWS at %i", at() );
+#endif
 	return FALSE;
     }
     if ( ( stat == FAIL ) || ( stat == BUF_FULL ) ) {
-	//### todo: Error handling
+#ifdef DEBUG_TDS
+	qDebug( "QTDSResult::cacheNext: FAIL or BUF_FULL" );
+#endif
+// ### TODO: Error handling
 	return FALSE;
     }
 #ifdef DEBUG_TDS

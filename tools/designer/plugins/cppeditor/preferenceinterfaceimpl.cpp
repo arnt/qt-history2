@@ -34,13 +34,16 @@ PreferenceInterfaceImpl::~PreferenceInterfaceImpl()
 
 QRESULT PreferenceInterfaceImpl::queryInterface( const QUuid &uuid, QUnknownInterface** iface )
 {
+    *iface = 0;
     if ( uuid == IID_QUnknown )
 	*iface = (QUnknownInterface*)this;
     else if ( uuid == IID_Preference )
 	*iface = (PreferenceInterface*)this;
+    else
+	return QE_NOINTERFACE;
 
-    if ( *iface )
-	(*iface)->addRef();
+    (*iface)->addRef();
+    return QS_OK;
 }
 
 unsigned long PreferenceInterfaceImpl::addRef()

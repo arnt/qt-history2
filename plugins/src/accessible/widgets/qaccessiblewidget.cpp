@@ -17,11 +17,13 @@
 #include <qtooltip.h>
 #include <qscrollview.h>
 #include <qheader.h>
+#include <qtabbar.h>
 #include <qrangecontrol.h>
 #include <qlistbox.h>
 #include <qlistview.h>
 #include <qiconview.h>
 #include <qtextedit.h>
+
 
 QString buddyString( QWidget *widget ) 
 {
@@ -254,7 +256,7 @@ QRESULT QAccessibleWidget::queryChild( int control, QAccessibleInterface **iface
     *iface = 0;
     QObjectList *cl = widget()->queryList( "QWidget", 0, FALSE, FALSE );
     if ( !cl )
-	return;
+	return QS_FALSE;
 
     QObject *o = 0;
     if ( cl->count() >= (uint)control ) 
@@ -262,17 +264,15 @@ QRESULT QAccessibleWidget::queryChild( int control, QAccessibleInterface **iface
     delete cl;
 
     if ( !o )
-	return;
+	return QS_FALSE;
 
-    QAccessible::queryAccessibleInterface( o, iface );
-    return;
+    return QAccessible::queryAccessibleInterface( o, iface );
 }
 
 /*! \reimp */
 QRESULT QAccessibleWidget::queryParent( QAccessibleInterface **iface ) const
 {
-    QAccessible::queryAccessibleInterface( widget()->parentWidget(), iface );
-    return;
+    return QAccessible::queryAccessibleInterface( widget()->parentWidget(), iface );
 }
 
 /*! \reimp */
@@ -417,8 +417,10 @@ QAccessibleButton::QAccessibleButton( QObject *o, Role role, QString description
 /*! \reimp */
 bool	QAccessibleButton::doDefaultAction( int /*control*/ )
 {
+    if ( !widget()->isEnabled() )
+	return FALSE;
+
     ((QButton*)widget())->animateClick();
-    
     return TRUE;
 }
 
@@ -610,7 +612,7 @@ int QAccessibleSpinWidget::childCount() const
 QRESULT QAccessibleSpinWidget::queryChild( int control, QAccessibleInterface **iface ) const
 {
     *iface = 0;
-    return;
+    return QS_FALSE;
 }
 
 /*! \reimp */
@@ -680,9 +682,13 @@ bool QAccessibleSpinWidget::doDefaultAction( int control )
 {
     switch( control ) {
     case 1:
+	if ( !((QSpinWidget*)widget())->isUpEnabled() )
+	    return FALSE;
 	((QSpinWidget*)widget())->stepUp();
 	return TRUE;
     case 2:
+	if ( !((QSpinWidget*)widget())->isDownEnabled() )
+	    return FALSE;
 	((QSpinWidget*)widget())->stepDown();
 	return TRUE;
     default:
@@ -810,8 +816,8 @@ QString QAccessibleDisplay::text( Text t, int control ) const
 
 
 /*! 
-  \class QAccessibleScrollView qaccessiblewidget.h
-  \brief The QAccessibleScrollView class implements the QAccessibleInterface for scrolled widgets.
+  \class QAccessibleHeader qaccessiblewidget.h
+  \brief The QAccessibleHeader class implements the QAccessibleInterface for header widgets.
   \preliminary
 */
 
@@ -899,7 +905,8 @@ int QAccessibleHeader::childCount() const
 /*! \reimp */
 QRESULT QAccessibleHeader::queryChild( int control, QAccessibleInterface **iface ) const
 {
-    return;
+    *iface = 0;
+    return QS_FALSE;
 }
 
 /*! \reimp */
@@ -931,6 +938,228 @@ QAccessible::Role QAccessibleHeader::role( int control ) const
 QAccessible::State QAccessibleHeader::state( int control ) const
 {
     return QAccessibleWidget::state( control );
+}
+
+
+/*! 
+  \class QAccessibleTabBar qaccessiblewidget.h
+  \brief The QAccessibleTabBar class implements the QAccessibleInterface for tab bars.
+  \preliminary
+*/
+
+/*! 
+  Constructs a QAccessibleTabBar object for \a o. 
+  \a role, \a description, \a value, \a help, \a defAction and \a accelerator 
+  are propagated to the QAccessibleWidget constructor.
+*/
+QAccessibleTabBar::QAccessibleTabBar( QObject *o, QString description, 
+    QString value, QString help, QString defAction, QString accelerator )
+    : QAccessibleWidget( o, NoRole, description, value, help, defAction, accelerator )
+{
+    Q_ASSERT(widget()->inherits("QTabBar"));
+}
+
+/*! Returns the QHeader. */
+QTabBar *QAccessibleTabBar::tabBar() const
+{
+    return (QTabBar*)widget();
+}
+
+/*! \reimp */
+int QAccessibleTabBar::controlAt( int x, int y ) const
+{
+    int wc = QAccessibleWidget::controlAt( x, y );
+    if ( wc )
+	return wc + tabBar()->count();
+
+    QPoint tp = tabBar()->mapFromGlobal( QPoint( x,y ) );
+    QTab *tab = tabBar()->selectTab( tp );
+    return tabBar()->indexOf( tab->identitifer() ) + 1;
+}
+
+/*! \reimp */
+QRect QAccessibleTabBar::rect( int control ) const
+{
+    if ( !control )
+	return QAccessibleWidget::rect( 0 );
+    if ( control > tabBar()->count() ) {
+	QAccessibleInterface *iface;
+	QAccessibleWidget::queryChild( control - tabBar()->count(), &iface );
+	if ( !iface )
+	    return QRect();
+	return iface->rect( 0 );
+    }
+
+    QTab *tab = tabBar()->tabAt( control - 1 );
+
+    QPoint tp = tabBar()->mapToGlobal( QPoint( 0,0 ) );
+    QRect rec = tab->rect();
+    return QRect( tp.x() + rec.x(), tp.y() + rec.y(), rec.width(), rec.height() );
+}
+
+/*! \reimp */
+QRESULT	QAccessibleTabBar::queryChild( int control, QAccessibleInterface **iface ) const
+{
+    *iface = 0;
+    return QS_FALSE;
+}
+
+/*! \reimp */
+int QAccessibleTabBar::navigate( NavDirection direction, int startControl ) const
+{
+    if ( direction != NavFirstChild && direction != NavLastChild && direction != NavFocusChild && !startControl )
+	return QAccessibleWidget::navigate( direction, startControl );
+
+    switch ( direction ) {
+    case NavFirstChild:
+	return 1;
+	break;
+    case NavLastChild:
+	return childCount();
+	break;
+    case NavNext:
+    case NavRight:
+	return startControl + 1 > childCount() ? -1 : startControl + 1;
+    case NavPrevious:
+    case NavLeft:
+	return startControl -1 < 1 ? -1 : startControl - 1;
+    default:
+	break;
+    }
+    return -1;
+}
+
+/*! \reimp */
+int QAccessibleTabBar::childCount() const
+{
+    int wc = QAccessibleWidget::childCount();
+    wc += tabBar()->count();
+    return wc;
+}
+
+/*! \reimp */
+QString QAccessibleTabBar::text( Text t, int control ) const
+{
+    QString str = QAccessibleWidget::text( t, control );
+    if ( !!str )
+	return str;
+
+    if ( !control )
+	return QAccessibleWidget::text( t, control );
+    if ( control > tabBar()->count() ) {
+	QAccessibleInterface *iface;
+	QAccessibleWidget::queryChild( control - tabBar()->count(), &iface );
+	if ( !iface )
+	    return QAccessibleWidget::text( t, 0 );
+	return iface->text( t, 0 );
+    }
+
+    QTab *tab = tabBar()->tabAt( control - 1 );
+    if ( !tab )
+	return QAccessibleWidget::text( t, 0 );
+
+    switch ( t ) {
+    case Name:
+	return stripAmp( tab->text() );
+    case DefaultAction:
+	return tabBar()->tr( "Switch" );
+    default:
+	break;
+    }
+    return str;
+}
+
+/*! \reimp */
+QAccessible::Role QAccessibleTabBar::role( int control ) const
+{
+    if ( !control )
+	return PageTabList;
+    if ( control > tabBar()->count() ) {
+	QAccessibleInterface *iface;
+	QAccessibleWidget::queryChild( control - tabBar()->count(), &iface );
+	if ( !iface )
+	    return QAccessibleWidget::role( 0 );
+	return iface->role( 0 );
+    }
+
+    return PageTab;
+}
+
+/*! \reimp */
+QAccessible::State QAccessibleTabBar::state( int control ) const
+{
+    int st = QAccessibleWidget::state( 0 );
+
+    if ( !control )
+	return (State)st;
+    if ( control > tabBar()->count() ) {
+	QAccessibleInterface *iface;
+	QAccessibleWidget::queryChild( control - tabBar()->count(), &iface );
+	if ( !iface )
+	    return (State)st;
+	return iface->state( 0 );
+    }
+
+    QTab *tab = tabBar()->tabAt( control - 1 );
+    if ( !tab )
+	return (State)st;
+    
+    if ( !tab->isEnabled() )
+	st |= Unavailable;
+    else
+	st |= Selectable;
+
+    if ( tabBar()->currentTab() == tab->identitifer() )
+	st |= Selected;
+
+    return (State)st;
+}
+
+/*! \reimp */
+bool QAccessibleTabBar::doDefaultAction( int control )
+{
+    if ( !control )
+	return FALSE;
+    if ( control > tabBar()->count() ) {
+	QAccessibleInterface *iface;
+	QAccessibleWidget::queryChild( control - tabBar()->count(), &iface );
+	if ( !iface )
+	    return FALSE;
+	return iface->doDefaultAction( 0 );
+    }
+
+    QTab *tab = tabBar()->tabAt( control - 1 );
+    if ( !tab || !tab->isEnabled() )
+	return FALSE;
+    tabBar()->setCurrentTab( tab );
+    return TRUE;
+}
+
+/*! \reimp */
+bool QAccessibleTabBar::setSelected( int control, bool on, bool extend )
+{
+    if ( !control || !on || extend || control > tabBar()->count() )
+	return FALSE;
+
+    QTab *tab = tabBar()->tabAt( control - 1 );
+    if ( !tab || !tab->isEnabled() )
+	return FALSE;
+    tabBar()->setCurrentTab( tab );
+    return TRUE;
+}
+
+/*! \reimp */
+void QAccessibleTabBar::clearSelection()
+{
+}
+
+/*! \reimp */
+QMemArray<int> QAccessibleTabBar::selection() const
+{
+    QMemArray<int> array( 1 );
+    array.at(0) = tabBar()->indexOf( tabBar()->currentTab() ) + 1;
+
+    return array;
 }
 
 /*! 

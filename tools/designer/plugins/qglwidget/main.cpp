@@ -102,9 +102,11 @@ QRESULT OpenGLWidgetInterface::queryInterface( const QUuid& uuid, QUnknownInterf
 	*iface = (QFeatureListInterface*)this;
     else if ( uuid == IID_Widget )
 	*iface = (WidgetInterface*)this;
+    else
+	return QE_NOINTERFACE;
 
-    if ( *iface )
-	(*iface)->addRef();
+    (*iface)->addRef();
+    return QS_OK;
 }
 
 unsigned long OpenGLWidgetInterface::addRef()

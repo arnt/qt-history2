@@ -84,9 +84,11 @@ QRESULT TestComponent::queryInterface( const QUuid &uuid, QUnknownInterface **if
 	*iface = (QComponentServerInterface*)this;
     else if ( uuid == IID_QComponentFactory )
 	*iface = (QComponentFactoryInterface*)this;
+    else
+	return QE_NOINTERFACE;
     
-    if ( *iface )
-	(*iface)->addRef();
+    (*iface)->addRef();
+    return QS_OK;
 }
 
 unsigned long TestComponent::addRef()
@@ -210,10 +212,11 @@ QRESULT TestComponent::createInstance( const QUuid &iid, const QUuid &cid, QUnkn
 	TestComponent *comp = new TestComponent();
 	comp->queryInterface( iid, iface );
 	if ( iface )
-	    return;
+	    return QS_OK;
 
 	delete comp;
     }
+    return QE_NOINTERFACE;
 }
 
 #include "main.moc"

@@ -360,7 +360,7 @@ private:
     void init();
     void checkUndoRedoInfo( UndoRedoInfo::Type t );
     void updateCurrentFormat();
-    void handleReadOnlyKeyEvent( QKeyEvent *e );
+    bool handleReadOnlyKeyEvent( QKeyEvent *e );
     void makeParagVisible( QTextParag *p );
 #ifndef QT_NO_MIME
     QCString pickSpecial(QMimeSource* ms, bool always_ask, const QPoint&);

@@ -161,6 +161,20 @@ MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
 		    list = project->variables()[arg];
 		    list << Option::mkfile::qmakespec;
 		    list << QDir::current().currentDirPath();
+
+		    QStringList &l = project->variables()["QMAKE_LIBS_PATH"];
+		    for(QStringList::Iterator val_it = l.begin(); val_it != l.end(); ++val_it) {
+			t << "\t\t\t\t\t<SETTING>" << endl
+			  << "\t\t\t\t\t\t<SETTING><NAME>SearchPath</NAME>" << endl
+			  << "\t\t\t\t\t\t\t<SETTING><NAME>Path</NAME>"
+			  << "<VALUE>" << (*val_it) << "</VALUE></SETTING>" << endl
+			  << "\t\t\t\t\t\t\t<SETTING><NAME>PathFormat</NAME><VALUE>MacOS</VALUE></SETTING>" << endl
+			  << "\t\t\t\t\t\t\t<SETTING><NAME>PathRoot</NAME><VALUE>CodeWarrior</VALUE></SETTING>" << endl
+			  << "\t\t\t\t\t\t</SETTING>" << endl
+			  << "\t\t\t\t\t\t<SETTING><NAME>Recursive</NAME><VALUE>true</VALUE></SETTING>" << endl
+			  << "\t\t\t\t\t\t<SETTING><NAME>HostFlags</NAME><VALUE>All</VALUE></SETTING>" << endl
+			  << "\t\t\t\t\t</SETTING>" << endl;
+		    }
 		} else {
 		    QStringList &l = project->variables()[arg];
 		    for(QStringList::Iterator val_it = l.begin(); val_it != l.end(); ++val_it)
@@ -218,8 +232,10 @@ MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
 			    p += ':';
 
 			QString recursive = "false";
+#if 0
 			if(p.right(11) == ".framework:")
 			    recursive = "true";
+#endif
 			t << "\t\t\t\t\t<SETTING>" << endl
 			  << "\t\t\t\t\t\t<SETTING><NAME>SearchPath</NAME>" << endl
 			  << "\t\t\t\t\t\t\t<SETTING><NAME>Path</NAME>"
@@ -362,12 +378,14 @@ MetrowerksMakefileGenerator::init()
 	    ++val_it;
 	    if(val_it == l.end())
 		break;
+#if 0
 	    QString dir = "/System/Library/Frameworks/" + (*val_it) + ".framework/";
 	    if(project->variables()["DEPENDPATH"].findIndex(dir) == -1 &&
 	       project->variables()["INCLUDEPATH"].findIndex(dir) == -1)
 		project->variables()["INCLUDEPATH"].append(dir);
 	    if(project->variables()["LIBRARIES"].findIndex((*val_it)) == -1)
 		project->variables()["LIBRARIES"].append((*val_it));
+#endif
 	} else if((*val_it).left(1) != "-") {
 	    QString lib=(*val_it);
 	    int s = lib.findRev('/');

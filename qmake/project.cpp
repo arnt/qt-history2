@@ -187,14 +187,15 @@ QMakeProject::parse(QString file, QString t, QMap<QString, QStringList> &place)
 	sep = ':';
 
     QStringList vallist;  /* vallist is the broken up list of values */
-    QRegExp quoted("[^\\\\](\"[^\"]*[^\\\\]\")");
+    //strip out quoted entities
+    QRegExp quoted("\"([^\"]*)\"");
     {
-	for(int x = 0; (x = quoted.search(vals, x)) != -1; ) {
-	vallist += QStringList::split(sep, vals.left(x));
-	vallist.append(quoted.cap(1));
-	vals.remove(0, x + quoted.matchedLength());
+	for(int x = 0; (x = quoted.match(vals, 0)) != -1; ) {
+	    vallist.append(quoted.cap(1));
+	    vals.remove(x, quoted.matchedLength());
 	}
     }
+    //now split on space
     vallist += QStringList::split(sep, vals);
     if(!vallist.grep("=").isEmpty())
 	debug_msg(1, "****Warning*****: Detected possible line continuation: {%s} %s:%d",

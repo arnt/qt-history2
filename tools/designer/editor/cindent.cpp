@@ -21,7 +21,7 @@ static void uncomment( QString &s )
 void CIndent::tabify( QString &s )
 {
     int i = 0;
-    while ( TRUE ) {
+    for ( ;; ) {
 	for ( int j = i; j < (int)s.length(); ++j ) {
 	    if ( s[ j ] != ' ' && s[ j ] != '\t' ) {
 		if ( j > i ) {
@@ -127,6 +127,7 @@ bool CIndent::isBlockStart( const QString &s ) const
 	     s.startsWith( "while(" ) ||
 	     s.startsWith( "with(" ) ||
 	     s.startsWith( "function" ) ||
+	     s.startsWith( "constructor" ) ||
 	     s.startsWith( "class" ) ||
 	     s.startsWith( "}else" ); // also covers else if
     if ( b )

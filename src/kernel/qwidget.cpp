@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QWidget class
 **
@@ -964,6 +964,7 @@ void QWidget::createExtra()
 #endif
 	extra->topextra = 0;
 	extra->bg_mode = PaletteBackground;
+	extra->bg_mode_visual = PaletteBackground;
 	extra->bg_origin = WidgetOrigin;
 #ifndef QT_NO_STYLE
 	extra->style = 0;
@@ -1920,28 +1921,58 @@ QWidget *QWidget::topLevelWidget() const
     return w;
 }
 
-void QWidget::setBackgroundColorForMode( BackgroundMode mode, const QColor &color )
+static QColorGroup::ColorRole foregroundRoleFromMode( Qt::BackgroundMode mode )
 {
-#ifndef QT_NO_PALETTE
-    switch( mode ) {
-    case FixedColor:
-    case FixedPixmap :
-    case NoBackground:
-    case X11ParentRelative:
-	setEraseColor( color );
-	break;
+    switch (mode) {
+    case Qt::PaletteButton:
+	return QColorGroup::ButtonText;
+    case Qt::PaletteBase:
+	return QColorGroup::Text;
+    case Qt::PaletteBackground:
     default:
-	QPalette pal = palette();
-	pal.setBackgroundColorForMode( QPalette::Active, mode, color );
-	pal.setBackgroundColorForMode( QPalette::Inactive, mode, color );
-	pal.setBackgroundColorForMode( QPalette::Disabled, mode, color );
-	setPalette( pal );
-	break;
+	return QColorGroup::Foreground;
     }
-#else
-    setEraseColor( color );
-#endif
 }
+
+static QColorGroup::ColorRole backgroundRoleFromMode( Qt::BackgroundMode mode)
+{
+    switch (mode) {
+    case Qt::PaletteForeground:
+	return QColorGroup::Foreground;
+    case Qt::PaletteButton:
+	return QColorGroup::Button;
+    case Qt::PaletteLight:
+	return QColorGroup::Light;
+    case Qt::PaletteMidlight:
+	return QColorGroup::Midlight;
+    case Qt::PaletteDark:
+	return QColorGroup::Dark;
+    case Qt::PaletteMid:
+	return QColorGroup::Mid;
+    case Qt::PaletteText:
+	return QColorGroup::Text;
+    case Qt::PaletteBrightText:
+	return QColorGroup::BrightText;
+    case Qt::PaletteButtonText:
+	return QColorGroup::ButtonText;
+    case Qt::PaletteBase:
+	return QColorGroup::Base;
+    case Qt::PaletteShadow:
+	return QColorGroup::Shadow;
+    case Qt::PaletteHighlight:
+	return QColorGroup::Highlight;
+    case Qt::PaletteHighlightedText:
+	return QColorGroup::HighlightedText;
+    case Qt::PaletteLink:
+	return QColorGroup::Link;
+    case Qt::PaletteLinkVisited:
+	return QColorGroup::LinkVisited;
+    case Qt::PaletteBackground:
+    default:
+	return QColorGroup::Background;
+    }
+}
+
 
 /*! \property QWidget::foregroundColor
     \brief the foreground color of the widget
@@ -1958,24 +1989,23 @@ void QWidget::setBackgroundColorForMode( BackgroundMode mode, const QColor &colo
 const QColor &QWidget::foregroundColor() const
 {
 #ifndef QT_NO_PALETTE
-    return foregroundColorForMode( backgroundMode() );
+    BackgroundMode mode = extra ? (BackgroundMode) extra->bg_mode_visual : PaletteBackground;
+    QPalette pal = palette();
+    return pal.color( QPalette::Active, foregroundRoleFromMode(mode) );
 #else
-    return black; //###
+    return Qt::black; //###
 #endif
 }
 
 void QWidget::setForegroundColor( const QColor & color )
 {
-    setForegroundColorForMode( backgroundMode(), color );
-}
-
-void QWidget::setForegroundColorForMode( BackgroundMode mode, const QColor & color )
-{
 #ifndef QT_NO_PALETTE
+    BackgroundMode mode = extra ? (BackgroundMode) extra->bg_mode_visual : PaletteBackground;
     QPalette pal = palette();
-    pal.setForegroundColorForMode( QPalette::Active, mode, color );
-    pal.setForegroundColorForMode( QPalette::Inactive, mode, color );
-    pal.setForegroundColorForMode( QPalette::Disabled, mode, color );
+    QColorGroup::ColorRole role = foregroundRoleFromMode( mode );
+    pal.setColor( QPalette::Active, role, color );
+    pal.setColor( QPalette::Inactive, role, color );
+    pal.setColor( QPalette::Disabled, role, color );
     setPalette( pal );
 #endif
 }
@@ -2021,17 +2051,28 @@ void QWidget::setEraseColor( const QColor & color )
 */
 const QPixmap *QWidget::backgroundPixmap() const
 {
-    return backgroundPixmapForMode(backgroundMode());
+#ifndef QT_NO_PALETTE
+    BackgroundMode mode = extra ? (BackgroundMode) extra->bg_mode_visual : PaletteBackground;
+    switch( mode ) {
+    case FixedColor:
+    case FixedPixmap :
+    case NoBackground:
+    case X11ParentRelative:
+	return erasePixmap();
+    default:
+	QPalette pal = palette();
+	QColorGroup::ColorRole role = backgroundRoleFromMode( mode );
+	return pal.brush( QPalette::Active, role ).pixmap();
+    }
+#else
+    return erasePixmap();
+#endif
 }
 
 void QWidget::setBackgroundPixmap( const QPixmap &pixmap )
 {
-    setBackgroundPixmapForMode( backgroundMode(), pixmap );
-}
-
-void QWidget::setBackgroundPixmapForMode( BackgroundMode mode, const QPixmap &pixmap )
-{
 #ifndef QT_NO_PALETTE
+    BackgroundMode mode = extra ? (BackgroundMode) extra->bg_mode_visual : PaletteBackground;
     switch( mode ) {
     case FixedColor:
     case FixedPixmap :
@@ -2041,9 +2082,10 @@ void QWidget::setBackgroundPixmapForMode( BackgroundMode mode, const QPixmap &pi
 	break;
     default:
 	QPalette pal = palette();
-	pal.setBackgroundPixmapForMode( QPalette::Active, mode, pixmap );
-	pal.setBackgroundPixmapForMode( QPalette::Inactive, mode, pixmap );
-	pal.setBackgroundPixmapForMode( QPalette::Disabled, mode, pixmap );
+	QColorGroup::ColorRole role = backgroundRoleFromMode( mode );
+	pal.setBrush( QPalette::Active, role, QBrush( pal.color( QPalette::Active, role ), pixmap ) );
+	pal.setBrush( QPalette::Inactive, role, QBrush( pal.color( QPalette::Inactive, role ), pixmap ) );
+	pal.setBrush( QPalette::Disabled, role, QBrush( pal.color( QPalette::Disabled, role ), pixmap ) );
 	setPalette( pal );
 	break;
     }
@@ -2220,6 +2262,29 @@ Qt::BackgroundMode QWidget::backgroundMode() const
 
 void QWidget::setBackgroundMode( BackgroundMode m )
 {
+    setBackgroundMode( m, m );
+}
+
+
+/*!\overload
+  
+  Sets the widget's own background mode to \a m and the visual
+  background mode to \a visual. The visual background mode is used
+  with the designable properties backgroundColor, foregroundColor and
+  backgroundPixmap. 
+  
+  For complex controls, the logical background mode sometimes differs
+  from a widget's own background mode. A spinbox for example has
+  PaletteBackground as background mode (typically dark grey), while
+  it's embedded lineedit control uses PaletteBase (typically
+  white). Since the lineedit covers most of the visual area of a
+  spinbox, it defines PaletteBase to be its \e visual background
+  mode. Changing the backgroundColor property thus changes the
+  lineedit control's background, which is exactly what the user
+  expects in Qt Designer.
+ */
+void QWidget::setBackgroundMode( BackgroundMode m, BackgroundMode visual )
+{
     if ( m == NoBackground ) {
 	setBackgroundEmpty();
     } else if ( m == FixedColor || m == FixedPixmap ) {
@@ -2230,7 +2295,12 @@ void QWidget::setBackgroundMode( BackgroundMode m )
 	return;
     }
     setBackgroundModeDirect(m);
+    if ( m != visual && !extra ) 
+	createExtra();
+    if ( extra )
+	extra->bg_mode_visual = visual;
 }
+
 
 /*!
   \internal
@@ -2252,7 +2322,12 @@ void QWidget::setBackgroundModeDirect( BackgroundMode m )
 
   The background color is usually set implicitly by
   setBackgroundMode(), although it can also be set explicitly by
-  setBackgroundColor().
+  setBackgroundColor().  setBackgroundColor() is a convenience
+  function that creates and sets a modified QPalette with
+  setPalette(). The palette is modified according to the widget's
+  background mode. For example, if the background mode is
+  PaletteButton the color used for the palette's QColorGroup::Button
+  color entry is set.
 
   If there is a background pixmap (set using setBackgroundPixmap()),
   then the return value of this function is indeterminate.
@@ -2261,17 +2336,8 @@ void QWidget::setBackgroundModeDirect( BackgroundMode m )
 */
 const QColor & QWidget::backgroundColor() const
 {
-    return backgroundColorForMode( backgroundMode() );
-}
-
-void QWidget::setBackgroundColor( const QColor &color )
-{
-    setBackgroundColorForMode( backgroundMode(), color );
-}
-
-const QColor & QWidget::backgroundColorForMode( BackgroundMode mode ) const
-{
 #ifndef QT_NO_PALETTE
+    BackgroundMode mode = extra ? (BackgroundMode) extra->bg_mode_visual : PaletteBackground;
     switch( mode ) {
     case FixedColor:
     case FixedPixmap :
@@ -2280,20 +2346,36 @@ const QColor & QWidget::backgroundColorForMode( BackgroundMode mode ) const
 	return eraseColor();
     default:
 	QPalette pal = palette();
-	return  pal.backgroundColorForMode( QPalette::Normal, mode );
+	QColorGroup::ColorRole role = backgroundRoleFromMode( mode );
+	return pal.color( QPalette::Active, role );
     }
 #else
     return eraseColor();
 #endif
 }
 
-const QColor &QWidget::foregroundColorForMode( BackgroundMode mode ) const
+void QWidget::setBackgroundColor( const QColor &color )
 {
 #ifndef QT_NO_PALETTE
-    QPalette pal = palette();
-    return pal.foregroundColorForMode( QPalette::Normal, mode );
+    BackgroundMode mode = extra ? (BackgroundMode) extra->bg_mode_visual : PaletteBackground;
+    switch( mode ) {
+    case FixedColor:
+    case FixedPixmap :
+    case NoBackground:
+    case X11ParentRelative:
+	setEraseColor( color );
+	break;
+    default:
+	QPalette pal = palette();
+	QColorGroup::ColorRole role = backgroundRoleFromMode( mode );
+	pal.setColor( QPalette::Active, role, color );
+	pal.setColor( QPalette::Inactive, role, color );
+	pal.setColor( QPalette::Disabled, role, color );
+	setPalette( pal );
+	break;
+    }
 #else
-    return Qt::black; //###
+    setEraseColor( color );
 #endif
 }
 
@@ -2316,24 +2398,6 @@ const QColor &QWidget::foregroundColorForMode( BackgroundMode mode ) const
 void QWidget::backgroundColorChange( const QColor & )
 {
     update();
-}
-
-const QPixmap *QWidget::backgroundPixmapForMode( BackgroundMode mode ) const
-{
-#ifndef QT_NO_PALETTE
-    switch( mode ) {
-    case FixedColor:
-    case FixedPixmap :
-    case NoBackground:
-    case X11ParentRelative:
-	return erasePixmap();
-    default:
-	QPalette pal = palette();
-	return pal.backgroundPixmapForMode( QPalette::Normal, mode );
-    }
-#else
-    return erasePixmap();
-#endif
 }
 
 /*!

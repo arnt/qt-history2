@@ -65,6 +65,12 @@ public:
     bool scrollBarsEnabled() const;
     void setScrollBarsEnabled( bool enable );
 
+    void setBackgroundColor( const QColor & );
+    void setBackgroundPixmap( const QPixmap & );
+    
+    void setBackgroundMode( BackgroundMode ) {}
+
+    
 signals:
     void windowActivated( QWidget* w);
 
@@ -77,6 +83,7 @@ protected:
     void resizeEvent( QResizeEvent * );
     bool eventFilter( QObject *, QEvent * );
     void showEvent( QShowEvent *e );
+    void hideEvent( QHideEvent *e );
 
 private slots:
     void closeActiveWindow();

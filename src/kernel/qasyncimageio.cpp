@@ -44,6 +44,7 @@
 #include <stdlib.h>
 
 extern void qt_init_image_handlers();
+extern void qt_init_image_plugins();
 
 #define TRANSPARENT 0x00000000
 
@@ -170,7 +171,7 @@ static const int max_header = 32;
 
 // See qgif.h for important information regarding this option
 #if defined(QT_BUILTIN_GIF_READER) && QT_BUILTIN_GIF_READER == 1
-class Q_EXPORT QGIFFormat : public QImageFormat {
+class QGIFFormat : public QImageFormat {
 public:
     QGIFFormat();
     virtual ~QGIFFormat();
@@ -244,7 +245,7 @@ private:
     void disposePrevious( QImage& img, QImageConsumer* consumer );
 };
 
-class Q_EXPORT QGIFFormatType : public QImageFormatType
+class QGIFFormatType : public QImageFormatType
 {
     QImageFormat* decoderFor(const uchar* buffer, int length);
     const char* formatName() const;
@@ -344,6 +345,8 @@ QImageDecoder::~QImageDecoder()
   Returns the number of bytes consumed: 0 if consumption is complete,
   and -1 if decoding fails due to invalid data.
 */
+static bool plugins_loaded = FALSE;
+
 int QImageDecoder::decode(const uchar* buffer, int length)
 {
     if (!actual_decoder) {
@@ -359,6 +362,17 @@ int QImageDecoder::decode(const uchar* buffer, int length)
 	    f = QImageDecoderPrivate::factories->next())
 	{
 	    actual_decoder = f->decoderFor(d->header, d->count);
+	}
+	if ( !actual_decoder && !plugins_loaded) {
+	    qt_init_image_plugins();
+	    plugins_loaded = TRUE;
+
+	    for (QImageFormatType* f = QImageDecoderPrivate::factories->first();
+		f && !actual_decoder;
+		f = QImageDecoderPrivate::factories->next())
+	    {
+		actual_decoder = f->decoderFor(d->header, d->count);
+	    }
 	}
 
 	if (!actual_decoder) {
@@ -382,6 +396,9 @@ int QImageDecoder::decode(const uchar* buffer, int length)
 */
 QImageFormatType* QImageDecoder::format( const char* name )
 {
+    QImageDecoderPrivate::ensureFactories();
+    qt_init_image_plugins();
+
     for (QImageFormatType* f = QImageDecoderPrivate::factories->first();
 	f;
 	f = QImageDecoderPrivate::factories->next())
@@ -413,6 +430,21 @@ const char* QImageDecoder::formatName(const uchar* buffer, int length)
 	    delete decoder;
 	}
     }
+    if ( !name && !plugins_loaded) {
+	qt_init_image_plugins();
+	plugins_loaded = TRUE;
+	for (QImageFormatType* f = QImageDecoderPrivate::factories->first();
+	    f && !name;
+	    f = QImageDecoderPrivate::factories->next())
+	{
+	    QImageFormat *decoder = f->decoderFor(buffer, length);
+	    if (decoder) {
+		name = f->formatName();
+		delete decoder;
+	    }
+	}
+    }
+
     return name;
 }
 
@@ -422,6 +454,7 @@ const char* QImageDecoder::formatName(const uchar* buffer, int length)
 QStrList QImageDecoder::inputFormats()
 {
     QImageDecoderPrivate::ensureFactories();
+    qt_init_image_plugins();
 
     QStrList result;
 

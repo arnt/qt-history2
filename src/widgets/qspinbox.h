@@ -100,15 +100,6 @@ public:
     void setLineStep( int );
     int  value() const;
 
-    virtual const QColor &	foregroundColor() const;
-    virtual void		setForegroundColor( const QColor & );
-
-    virtual const QColor &	backgroundColor() const;
-    virtual void		setBackgroundColor( const QColor & );
-
-    virtual const QPixmap *	backgroundPixmap() const;
-    virtual void		setBackgroundPixmap( const QPixmap & );
-
     QRect		upRect() const;
     QRect		downRect() const;
 

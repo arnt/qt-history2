@@ -49,7 +49,6 @@
 
 #ifndef QT_H
 #include "qcom.h"
-#include "qstringlist.h"
 #endif // QT_H
 
 #ifndef QT_NO_COMPONENT

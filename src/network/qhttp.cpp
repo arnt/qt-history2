@@ -369,7 +369,7 @@ QTextStream& QHttpHeader::read( QTextStream& stream )
     m_bValid = TRUE;
 
     int number = 0;
-    while( 1 ) {
+    for( ;; ) {
 	QString str = stream.readLine();
 
 	// Unexpected end of input ?

@@ -795,6 +795,7 @@ QListBox::QListBox( QWidget *parent, const char *name, WFlags f )
     connect( d->resizeTimer, SIGNAL( timeout() ),
 	     this, SLOT( adjustItems() ) );
     viewport()->setBackgroundMode( PaletteBase );
+    setBackgroundMode( PaletteBackground, PaletteBase );
     viewport()->setFocusProxy( this );
     viewport()->setFocusPolicy( WheelFocus );
 }

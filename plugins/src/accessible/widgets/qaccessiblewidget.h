@@ -11,6 +11,7 @@ class QListBox;
 class QListView;
 class QIconView;
 class QTextEdit;
+class QTabBar;
 
 QString buddyString( QWidget * );
 QString stripAmp( const QString& );
@@ -138,6 +139,33 @@ public:
 
 protected:
     QHeader *header() const;
+};
+
+class QAccessibleTabBar : public QAccessibleWidget
+{
+public:
+    QAccessibleTabBar( QObject *o, QString description = QString::null, 
+	QString value = QString::null, QString help = QString::null, 
+	QString defAction = QString::null, QString accelerator = QString::null );
+
+    int		controlAt( int x, int y ) const;
+    QRect	rect( int control ) const;
+    int		navigate( NavDirection direction, int startControl ) const;
+    int		childCount() const;
+    QRESULT	queryChild( int control, QAccessibleInterface ** ) const;
+
+    QString	text( Text t, int control ) const;
+
+    Role	role( int control ) const;
+    State	state( int control ) const;
+
+    bool	doDefaultAction( int control );
+    bool	setSelected( int control, bool on, bool extend );
+    void	clearSelection();
+    QMemArray<int> selection() const;    
+
+protected:
+    QTabBar *tabBar() const;
 };
 
 class QAccessibleScrollView : public QAccessibleWidget

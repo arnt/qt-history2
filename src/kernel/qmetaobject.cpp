@@ -819,8 +819,6 @@ bool QMetaProperty::designable( QObject* o ) const
  */
 bool QMetaProperty::scriptable( QObject* o ) const
 {
-    if ( !o || !testFlags( Readable) || !testFlags(Writable) )
-	return FALSE;
     return o->qt_property( this, 4, 0 );
 }
 

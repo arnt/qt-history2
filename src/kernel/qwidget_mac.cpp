@@ -253,13 +253,15 @@ static bool qt_create_root_win() {
 bool qt_recreate_root_win() {
     if(!qt_root_win)
 	return FALSE;
-    DisposeWindow(qt_root_win);
+    WindowPtr old_root_win = qt_root_win;
     qt_root_win = NULL;
     qt_create_root_win();
     for(QListIterator<QWidget> it(qt_root_win_widgets); it.current(); ++it) {
-	if((*it)->hd == qt_root_win) 
+	if((*it)->hd == old_root_win) 
 	    (*it)->hd = qt_root_win;
     }
+    //cleanup old window
+    DisposeWindow(old_root_win);
     return TRUE;
 }
 
@@ -857,8 +859,13 @@ void QWidget::update( int x, int y, int w, int h )
 	if ( h < 0 )
 	    h = crect.height() - y;
 	if ( w && h ) {
+#if 0
 	    QRegion r(x, y, w, h);
 	    qt_event_request_updates(this, r);
+#else
+	    QPoint p(posInWindow(this));
+	    qt_dirty_wndw_rgn("update", this, mac_rect(QRect(p.x() + x, p.y() + y, w, h)));
+#endif
 	}
     }
 }

@@ -126,15 +126,6 @@ public:
     void	setStaticBackground( bool y );
     bool	hasStaticBackground() const;
 
-    virtual const QColor &	foregroundColor() const;
-    virtual void		setForegroundColor( const QColor & );
-
-    virtual const QColor &	backgroundColor() const;
-    virtual void		setBackgroundColor( const QColor & );
-
-    virtual const QPixmap *	backgroundPixmap() const;
-    virtual void		setBackgroundPixmap( const QPixmap & );
-
     QSize	viewportSize( int, int ) const;
     QSize	sizeHint() const;
     QSize	minimumSizeHint() const;

@@ -47,7 +47,6 @@
 #ifndef QT_NO_TEXTCODEC
 #include "qtextcodec.h"
 #endif
-#include "qptrstack.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -12469,7 +12468,7 @@ QStringData* QString::makeSharedNull()
     QString *that = const_cast<QString *>(&QString::null);
     that->d = QString::shared_null;
 #endif
-    return shared_null;
+    return QString::shared_null;
 }
 
 // Uncomment this to get some useful statistics.

@@ -779,9 +779,11 @@ QRESULT P4Interface::queryInterface( const QUuid &uuid, QUnknownInterface **ifac
 	*iface = (ActionInterface*)this;
     else if ( uuid == IID_QLibrary )
 	*iface = (QLibraryInterface*)this;
+    else 
+	return QE_NOINTERFACE;
 
-    if ( *iface )
-	(*iface)->addRef();
+    (*iface)->addRef();
+    return QS_OK;
 }
 
 unsigned long P4Interface::addRef()
