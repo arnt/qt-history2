@@ -13,7 +13,7 @@
 
 #include "addressview.h"
 
-#include <qcache.h>
+#include <qhash.h>
 #include <qfile.h>
 #include <qlabel.h>
 #include <qlayout.h>
@@ -47,11 +47,11 @@ private:
     Outlook::Application outlook;
     Outlook::Items * contactItems;
 
-    mutable QCache<QModelIndex, QStringList> cache;
+    mutable QHash<QModelIndex, QStringList> cache;
 };
 
 AddressBookModel::AddressBookModel(AddressView *parent)
-: QAbstractListModel(parent), cache(100)
+: QAbstractListModel(parent)
 {
     if (!outlook.isNull()) {
         Outlook::NameSpace session(outlook.Session());
@@ -89,9 +89,9 @@ QVariant AddressBookModel::data(const QModelIndex &index, int role) const
     if (!cache.contains(index)) {
         Outlook::ContactItem contact(contactItems->Item(index.row() + 1));
         data << contact.FirstName() << contact.LastName() << contact.HomeAddress() << contact.Email1Address();
-        cache.insert(index, new QStringList(data));
+        cache.insert(index, data);
     } else {
-        data = *cache.find(index);
+        data = cache.value(index);
     }
 
     if (index.column() < data.count())
@@ -220,8 +220,9 @@ AddressView::AddressView(QWidget *parent)
     connect(change, SIGNAL(clicked()), this, SLOT(changeEntry()));
 
     treeView = new QTreeView(this);
-
     treeView->setSelectionMode(QTreeView::SingleSelection);
+    treeView->setRootIsDecorated(false);
+
     model = new AddressBookModel(this);
     treeView->setModel(model);
 
