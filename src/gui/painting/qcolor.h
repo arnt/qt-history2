@@ -165,6 +165,10 @@ private:
 
     void invalidate();
 
+#ifdef Q_CC_XLC
+// suppress bogus "An anonymous union should only define non-static data members."
+#pragma report(disable, CPPC1608)
+#endif
     Spec cspec;
     union {
         struct {
@@ -189,6 +193,9 @@ private:
             ushort black;
         } acmyk;
     };
+#ifdef Q_CC_XLC
+#pragma report(pop)
+#endif
 
     friend class QColormap;
 #ifndef QT_NO_DATASTREAM
