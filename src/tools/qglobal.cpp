@@ -170,7 +170,7 @@ static FILE * mac_debug=0;
 
 void qDebug( const char *msg, ... )
 {
-    mac_debug=fopen( "debug.txt", "a+b" );
+    mac_debug=fopen( "debug.txt", "a+" );
     if(mac_debug) {
 	char buf[512];
 	va_list ap;
@@ -195,7 +195,7 @@ void qDebug( const char *msg, ... )
 Q_EXPORT
 void debug( const char *msg, ... )
 {
-    mac_debug=fopen( "debug.txt", "a+b" );
+    mac_debug=fopen( "debug.txt", "a+" );
     if(mac_debug) {
 	char buf[512];
 	va_list ap;
@@ -216,7 +216,7 @@ void debug( const char *msg, ... )
 
 void qWarning( const char *msg, ... )
 {
-    mac_debug=fopen( "debug.txt", "a+b" );
+    mac_debug=fopen( "debug.txt", "a+" );
     if(mac_debug) {
 	char buf[512];
 	va_list ap;
@@ -239,7 +239,7 @@ void qWarning( const char *msg, ... )
 Q_EXPORT
 void warning( const char *msg, ... )
 {
-    mac_debug=fopen( "debug.txt", "a+b" );
+    mac_debug=fopen( "debug.txt", "a+" );
     if(mac_debug) {
 	char buf[512];
 	va_list ap;
@@ -260,7 +260,7 @@ void warning( const char *msg, ... )
 
 void qFatal( const char *msg, ... )
 {
-    mac_debug=fopen( "debug.txt", "a+b");
+    mac_debug=fopen( "debug.txt", "a+");
     if(mac_debug) {
 	char buf[512];
 	va_list ap;
@@ -284,7 +284,7 @@ void qFatal( const char *msg, ... )
 Q_EXPORT
 void fatal( const char *msg, ... )
 {
-    mac_debug=fopen( "debug.txt", "a+b" );
+    mac_debug=fopen( "debug.txt", "a+" );
     if(mac_debug) {
 	char buf[512];
 	va_list ap;
