@@ -41,8 +41,9 @@
 #include <private/qsqlextension_p.h>
 
 #ifndef UNICODE
-# define UNICODE
+#define UNICODE
 #endif
+
 #include <sqlcli.h>
 #include <sqlcli1.h>
 
@@ -95,7 +96,7 @@ QString qFromTChar( SQLTCHAR* str )
 #ifdef UNICODE    
     return QString::fromUcs2( str );
 #else
-    return QString::fromLocal8Bit( str );
+    return QString::fromLocal8Bit( (const char*) str );
 #endif    
 }
 
@@ -106,7 +107,7 @@ SQLTCHAR* qToTChar( const QString& str )
 #ifdef UNICODE
     return (SQLTCHAR*)str.ucs2();
 #else
-    return str.ascii();
+    return (unsigned char*) str.ascii();
 #endif
 }
 
