@@ -939,10 +939,12 @@ void QComboBox::setCurrentItem( int index )
 	d->ed->setText( text( index ) );
 	d->updateLinedGeometry();
     }
-    if ( d->poppedUp && d->usingListBox() && d->listBox() )
+    if ( d->poppedUp && d->usingListBox() && d->listBox() ) {
 	d->listBox()->setCurrentItem( index );
-    else
+    } else {
 	internalHighlight( index );
+	internalActivate( index );
+    }
 
     currentChanged();
 }
