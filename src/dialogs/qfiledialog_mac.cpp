@@ -375,10 +375,8 @@ QStringList QFileDialog::macGetOpenFileNames( const QString &filter, QString *,
 #ifdef Q_WS_MAC9
 	if(delete_file) 
 	    FSpDelete(&spec);
-	retstrl.append(QString::fromUtf8((const char *)str_buffer));
-#else
-	retstrl.append((const char *)str_buffer);
 #endif
+	retstrl.append(QString::fromUtf8((const char *)str_buffer));
     }
     NavDisposeReply(&ret);
     return retstrl;
@@ -488,10 +486,8 @@ QString QFileDialog::macGetSaveFileName( const QString &initialSelection, const 
 #ifdef Q_WS_MAC9
 	if(delete_file) 
 	    FSpDelete(&spec);
-	retstr = QString::fromUtf8((const char *)str_buffer);
-#else
-	retstr = (const char *)str_buffer;
 #endif
+	retstr = QString::fromUtf8((const char *)str_buffer);
 	//now filename
 	CFStringGetCString(ret.saveFileName, (char *)str_buffer, 1024, kCFStringEncodingUTF8);
 	retstr += "/" + QString::fromUtf8((const char *)str_buffer);
