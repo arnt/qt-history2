@@ -119,10 +119,17 @@ void qt_erase_background(QPaintDevice *pd, int screen,
 
     Qt::HANDLE hd = qt_x11Handle(pd);
     Display *dpy = QX11Info::display();
-    ulong pixel = (pd->devType() == QInternal::Pixmap && pd->depth() == 32
-                   && X11->use_xrender && X11->has_xft)
-                  ? brush.color().rgba()
-                  : QColormap::instance(screen).pixel(brush.color());
+
+    ulong pixel;
+    if (pd->depth() == 1) {
+        pixel = qGray(brush.color().rgb()) > 127 ? 0 : 1;
+    } else if (pd->devType() == QInternal::Pixmap && pd->depth() == 32
+               && X11->use_xrender && X11->has_xft) {
+        pixel = brush.color().rgba();
+    } else {
+        pixel = QColormap::instance(screen).pixel(brush.color());
+    }
+
     XGCValues vals;
     vals.graphics_exposures = false;
     vals.foreground = pixel;
@@ -892,7 +899,10 @@ void QX11PaintEngine::updatePen(const QPen &pen)
                  | GCLineStyle | GCCapStyle | GCJoinStyle;
     XGCValues vals;
     vals.graphics_exposures = false;
-    if (d->pdev->devType() == QInternal::Pixmap && d->pdev->depth() == 32
+    if (d->pdev->depth() == 1) {
+        vals.foreground = qGray(pen.color().rgb()) > 127 ? 0 : 1;
+        vals.background = qGray(d->bg_col.rgb()) > 127 ? 0 : 1;
+    } else if (d->pdev->devType() == QInternal::Pixmap && d->pdev->depth() == 32
         && X11->use_xrender && X11->has_xft) {
         vals.foreground = pen.color().rgba();
         vals.background = d->bg_col.rgba();
@@ -932,7 +942,10 @@ void QX11PaintEngine::updateBrush(const QBrush &brush, const QPointF &origin)
                  | GCLineStyle | GCCapStyle | GCJoinStyle | GCFillStyle;
     XGCValues vals;
     vals.graphics_exposures = false;
-    if (d->pdev->devType() == QInternal::Pixmap && d->pdev->depth() == 32
+    if (d->pdev->depth() == 1) {
+        vals.foreground = qGray(d->cbrush.color().rgb()) > 127 ? 0 : 1;
+        vals.background = qGray(d->bg_col.rgb()) > 127 ? 0 : 1;
+    } else if (d->pdev->devType() == QInternal::Pixmap && d->pdev->depth() == 32
         && X11->use_xrender && X11->has_xft) {
         vals.foreground = d->cbrush.color().rgba();
         vals.background = d->bg_col.rgba();
@@ -1520,6 +1533,7 @@ void QX11PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const Q
     if(mode != Qt::CopyPixmapNoMask && !pixmap.hasAlphaChannel())
         mask = const_cast<QBitmap *>(pixmap.mask());
     bool mono_src = pixmap.depth() == 1;
+    // bool mono_dst = d->pdev->depth() == 1;
 
     if (mono_src && mode == Qt::CopyPixmap) {
 	qt_bit_blt(d->pdev, x, y, &pixmap, sx, sy, sw, sh, true);
@@ -1595,11 +1609,17 @@ void QX11PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const Q
         XSetClipOrigin(d->dpy, d->gc, x, y);
     }
 
+    /* if (mono_src && mono_dst) {
+        XCopyArea(d->dpy, pixmap.handle(), d->hd, d->gc, sx, sy, sw, sh, x, y);
+        } else*/
     if (mono_src) {
         XSetClipMask(d->dpy, d->gc, pixmap.handle());
         XSetClipOrigin(d->dpy, d->gc, x-sx, y-sy);
-        if (d->pdev->devType() == QInternal::Pixmap && d->pdev->depth() == 32
-            && X11->use_xrender && X11->has_xft) {
+        if (d->pdev->depth() == 1) {
+            XSetBackground(d->dpy, d->gc, qGray(d->bg_brush.color().rgb()) > 127 ? 0 : 1);
+            XSetForeground(d->dpy, d->gc, qGray(d->cpen.color().rgb()) > 127 ? 0 : 1);
+        } else if (d->pdev->devType() == QInternal::Pixmap && d->pdev->depth() == 32
+                   && X11->use_xrender && X11->has_xft) {
             XSetBackground(d->dpy, d->gc, d->bg_brush.color().rgba());
             XSetForeground(d->dpy, d->gc, d->cpen.color().rgba());
         } else {

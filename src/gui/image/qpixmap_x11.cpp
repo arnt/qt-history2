@@ -39,6 +39,7 @@
 #include <private/qt_x11_p.h>
 #include "qx11info_x11.h"
 #include <private/qdrawhelper_p.h>
+#include  "qdebug.h"
 
 #include <stdlib.h>
 
@@ -487,10 +488,14 @@ void QPixmap::fill(const QColor &fillColor)
         detach();
     }
     GC gc = XCreateGC(data->xinfo.display(), data->hd, 0, 0);
-    XSetForeground(data->xinfo.display(), gc,
-                   ((X11->has_xft && X11->use_xrender)
-                    ? fillColor.rgba()
-                    : QColormap::instance(data->xinfo.screen()).pixel(fillColor)));
+    if (depth() == 1) {
+        XSetForeground(data->xinfo.display(), gc, qGray(fillColor.rgb()) > 127 ? 0 : 1);
+    } else if (X11->has_xft && X11->use_xrender) {
+        XSetForeground(data->xinfo.display(), gc, fillColor.rgba());
+    } else {
+        XSetForeground(data->xinfo.display(), gc,
+                       QColormap::instance(data->xinfo.screen()).pixel(fillColor));
+    }
     XFillRectangle(data->xinfo.display(), data->hd, gc, 0, 0, width(), height());
     XFreeGC(data->xinfo.display(), gc);
 }
@@ -1854,22 +1859,20 @@ QPixmap QPixmap::transform(const QMatrix &matrix, Qt::TransformationMode mode) c
     hs = height();
 
     QMatrix mat(matrix.m11(), matrix.m12(), matrix.m21(), matrix.m22(), 0., 0.);
-
-    if (matrix.m12() == 0.0F && matrix.m21() == 0.0F) {
-        if (matrix.m11() == 1.0F && matrix.m22() == 1.0F)
-            return *this;                        // identity matrix
-        h = qRound(matrix.m22()*hs);
-        w = qRound(matrix.m11()*ws);
+    if (mat.m12() == 0.0F && mat.m21() == 0.0F) {
+        if (mat.m11() == 1.0F && mat.m22() == 1.0F) // identity matrix
+            return *this;
+        h = int(qAbs(mat.m22()) * hs + 0.9999);
+        w = int(qAbs(mat.m11()) * ws + 0.9999);
         h = qAbs(h);
         w = qAbs(w);
     } else {                                        // rotation or shearing
-        QPolygon a(QRect(0,0,ws+1,hs+1));
+        QPolygonF a(QRectF(0, 0, ws+1, hs+1));
         a = mat.map(a);
-        QRect r = a.boundingRect().normalize();
-        w = r.width()-1;
-        h = r.height()-1;
+        QRectF r = a.boundingRect().normalize();
+        w = int(r.width() + 0.9999);
+        h = int(r.height() + 0.9999);
     }
-
     mat = trueMatrix(mat, ws, hs); // true matrix
 
 
