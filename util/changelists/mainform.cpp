@@ -91,6 +91,9 @@ void MainForm::go()
     changeListTo = 0;
 
     incIntegrates = includeIntegrates->isChecked();
+#if !defined(USE_READLINE)
+    changesTmp = "";
+#endif
     changeListFrom = new QValueList<int>;
     startChanges( changesFrom->currentText() );
 }
@@ -134,6 +137,7 @@ void MainForm::readyReadStdout()
 	    list = changeListFrom;
 	}
 	if ( list ) {
+#if defined(USE_READLINE)
 	    while ( process.canReadLineStdout() ) {
 		QString label = QStringList::split( ' ', process.readLineStdout() )[1];
 		list->append( label.toInt() );
@@ -141,6 +145,24 @@ void MainForm::readyReadStdout()
 		    qApp->processEvents();
 		}
 	    }
+#else
+	    changesTmp = QString(process.readStdout());
+	    int sPos = 0;
+	    int ePos = 0;
+	    while ( TRUE ) {
+		ePos = changesTmp.find( '\n', sPos );
+		if ( ePos == -1 )
+		    break;
+		int sTmpPos = changesTmp.find( ' ', sPos );
+		int eTmpPos = changesTmp.find( ' ', sTmpPos+1 );
+		if ( sTmpPos == -1 || eTmpPos == -1 )
+		    qWarning( "parsing error of p4 output" );
+		QString label = changesTmp.mid( sTmpPos, eTmpPos-sTmpPos );
+		list->append( label.toInt() );
+		sPos = ePos + 1;
+	    }
+	    changesTmp = changesTmp.right( changesTmp.length() - sPos );
+#endif
 	} else {
 	    qWarning( "Something went terribly wrong" );
 	}
@@ -163,11 +185,13 @@ void MainForm::readyReadStderr()
 
 void MainForm::processExited()
 {
+#if defined(USE_READLINE)
     // We do a processEvents() in readyReadStdout(). This can emit the
     // processExited() signal, even before we have read all data. So make sure
     // that you read all data of the process.
     readyReadStdout();
     readyReadStderr();
+#endif
 
     QString command = process.arguments()[1];
 
@@ -177,6 +201,9 @@ void MainForm::processExited()
     } else if ( command == "changes" ) {
 	if ( changeListFrom!=0 ) {
 	    if ( changeListTo==0 ) {
+#if !defined(USE_READLINE)
+		changesTmp = "";
+#endif
 		changeListTo = new QValueList<int>;
 		startChanges( changesTo->currentText() );
 	    } else {
