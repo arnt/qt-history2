@@ -1,5 +1,8 @@
 #include <qvaluevector.h>
+#include <qstringlist.h>
+#include <qstring.h>
 #include <iostream>
+#include <vector>
 
 template <class C>
 void print( const C& v )
@@ -24,23 +27,23 @@ int main()
     Q_ASSERT( v2.empty() );
     Q_ASSERT( v2.size() == 0 );
     Q_ASSERT( v2.capacity() >= v1.size() );
-    QValueVector<int> v3( 5 );
-    Q_ASSERT( v3.empty() );
-    Q_ASSERT( v3.size() == 0 );
-    Q_ASSERT( v3.capacity() >= 5 );
+    QValueVector<int> v5( 5 );
+    Q_ASSERT( !v5.empty() );
+    Q_ASSERT( v5.size() == 5 );
+    Q_ASSERT( v5.capacity() >= 5 );
 
     //operator=
-    QValueVector<int> v4 = v3;
+    QValueVector<int> v4 = v2;
     Q_ASSERT( v4.empty() );
     Q_ASSERT( v4.size() == 0 );
-    Q_ASSERT( v4.capacity() >= 5 );
+    Q_ASSERT( v4.capacity() >= 0 );
 
     // adding elements
     v4.push_back( 1 );
     v4.push_back( 2 );
     v4.push_back( 3 );
     Q_ASSERT( !v4.empty() );
-    Q_ASSERT( v3.empty() ); // should have detached
+    Q_ASSERT( v2.empty() ); // should have detached
     Q_ASSERT( v4.size() == 3 );
     Q_ASSERT( v4.capacity() >= v4.size() );
     v4.insert( v4.end(), 4 );
@@ -53,17 +56,23 @@ int main()
     print( v4 );
 
     // swap
-    v4.swap( v3 );
+    v4.swap( v2 );
     Q_ASSERT( v4.empty() );
-    Q_ASSERT( !v3.empty() );
-    Q_ASSERT( v3.size() == 5 );
-    Q_ASSERT( v3.capacity() >= v3.size() );
+    Q_ASSERT( !v2.empty() );
+    Q_ASSERT( v2.size() == 5 );
+    Q_ASSERT( v2.capacity() >= v2.size() );
     std::cout << "Should contain 5 elements: 0,1,2,3,4" << std::endl;
-    print( v3 );
+    print( v2 );
     std::cout << "Should contain no elements" << std::endl;
     print( v4 );
 
     // element access
+    QValueVector<int> v3( 5 );
+    v3[0] = 0;
+    v3[1] = 1;
+    v3[2] = 2;
+    v3[3] = 3;
+    v3[4] = 4;
     Q_ASSERT( v3[0] == 0 );
     Q_ASSERT( v3[1] == 1 );
     Q_ASSERT( v3[2] == 2 );
@@ -210,7 +219,7 @@ int main()
 
     v3.pop_back();
     Q_ASSERT( v3.size() == 2 );
-    std::cout << "Should contain 3 elements: 0,9" << std::endl;
+    std::cout << "Should contain 2 elements: 0,9" << std::endl;
     print( v3 );
 
     // instantiate other member functions
@@ -223,6 +232,25 @@ int main()
     const int& ci3 = v3.front();
     const int& ci4 = v3.back();
     v3.clear();
+
+
+    QStringList l1, l2;
+    l1 << "Weis" << "Ettrich" << "Arnt" << "Sue";
+    l2 << "Torben" << "Matthias";
+    qCopy( l2.begin(), l2.end(), l1.begin() );
+
+    QValueVector<QString> v( l1.size(), "Dave" );
+    qCopy( l2.begin(), l2.end(), v.begin() );
+    std::for_each( v.begin(), v.end(), qDebug );
+
+    std::vector<int> stdvec( 5, 100 );
+    QValueVector<int> cvec( stdvec );
+    std::cout << "Should contain 5 elements: 100,100,100,100,100" << std::endl;
+    print( cvec );
+    QValueVector<int> cvec2 = stdvec;
+    std::cout << "Should contain 5 elements: 100,100,100,100,100" << std::endl;
+    print( cvec2 );
+
 
     return 0;
 }
