@@ -6,6 +6,8 @@
 #include "qwmatrix.h"
 #include "qt_mac.h"
 
+extern const uchar *qt_get_bitflip_array();		// defined in qimage.cpp
+
 QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap )
     : QPaintDevice( QInternal::Pixmap )
 {
@@ -34,14 +36,15 @@ QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap )
 
     // Slow and icky
     RGBColor r;
+    const uchar *f = qt_get_bitflip_array();
     for(int y=0;y<h;y++) {
 	int sy = y * (w / 8);
 	for(int x=0;x<w;x++) {
 	    char one_bit;
 	    if(isXbitmap)
-		one_bit = (*(bits + (sy + (x / 8))) >> (7 - (x % 8))) & 0x01;
+		one_bit = ~f[*(bits + (sy + (x / 8)))];
 	    else
-		one_bit = (*(bits + (sy + (x / 8))) >> (x % 8)) & 0x01;
+		one_bit = ~(*(bits + (sy + (x / 8))));
 	    r.green = r.blue = r.red = one_bit ? 255*256 : 0;
 	    SetCPixel(x,y,&r);
 	}
