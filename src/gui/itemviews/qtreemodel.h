@@ -82,7 +82,8 @@ public:
     QTreeModelItem *item(const QModelIndex &index) const;
 
     QModelIndex index(QTreeModelItem *item) const;
-    QModelIndex index(int row, int column, const QModelIndex &parent) const;
+    QModelIndex index(int row, int column, const QModelIndex &parent,
+                      QModelIndex::Type type = QModelIndex::View) const;
     QModelIndex parent(const QModelIndex &child) const;
     int rowCount(const QModelIndex &parent) const;
     int columnCount(const QModelIndex &parent) const;

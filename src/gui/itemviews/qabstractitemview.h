@@ -44,6 +44,7 @@ public:
     int startEditActions() const;
 
     bool eventFilter(QObject *object, QEvent *event);
+    bool event(QEvent *event);
 
 protected slots:
     virtual void contentsChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);

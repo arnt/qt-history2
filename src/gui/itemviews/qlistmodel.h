@@ -13,7 +13,7 @@ class QListModel;
 class Q_GUI_EXPORT QListModelItem
 {
     friend class QListModel;
-    
+
 public:
     QListModelItem(QListModel *model);
     ~QListModelItem() {}
@@ -58,7 +58,8 @@ public:
     const QListModelItem *item(const QModelIndex &index) const;
 
     QModelIndex index(QListModelItem *item) const;
-    QModelIndex index(int row, int column, const QModelIndex &parent = 0) const;
+    QModelIndex index(int row, int column, const QModelIndex &parent = 0,
+                      QModelIndex::Type type = QModelIndex::View) const;
 
     int rowCount(const QModelIndex &parent = 0) const;
     int columnCount(const QModelIndex &parent = 0) const;

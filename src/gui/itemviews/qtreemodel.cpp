@@ -180,19 +180,20 @@ QModelIndex QTreeModel::index(QTreeModelItem *item) const
     return QModelIndex(row, 0, item);
 }
 
-QModelIndex QTreeModel::index(int row, int column, const QModelIndex &parent) const
+QModelIndex QTreeModel::index(int row, int column, const QModelIndex &parent,
+                              QModelIndex::Type type) const
 {
     int r = tree.count();
     if (row < 0 || row >= r || column < 0 || column >= c)
 	return QModelIndex();
     if (!parent.isValid() && row < r) {// toplevel
 	QTreeModelItem *itm = ((QTreeModel*)this)->tree[row]; // FIXME
-	return QModelIndex(row, column, itm);
+	return QModelIndex(row, column, itm, type);
     }
     QTreeModelItem *parentItem = item(parent);
     if (parentItem && row < parentItem->childCount()) {
 	QTreeModelItem *itm = (QTreeModelItem*)parentItem->child(row); // FIXME
-	return QModelIndex(row, column, itm);
+	return QModelIndex(row, column, itm, type);
     }
     return QModelIndex();
 }

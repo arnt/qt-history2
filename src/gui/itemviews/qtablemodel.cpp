@@ -206,10 +206,11 @@ QTableModelItem *QTableModel::item(const QModelIndex &index)
     return 0;
 }
 
-QModelIndex QTableModel::index(int row, int column, const QModelIndex &) const
+QModelIndex QTableModel::index(int row, int column, const QModelIndex&,
+                               QModelIndex::Type type) const
 {
     if (row >= 0 && row < r && column >= 0 && column < c)
-	return QModelIndex(row, column, 0);
+	return QModelIndex(row, column, 0, type);
     return QModelIndex();
 }
 
@@ -254,7 +255,7 @@ void QTableModel::insertDataList(const QModelIndex &index, const QVariant &varia
     // inserts row
     int ti = tableIndex(index.row(), 0) - 1;
     // FIXME
-    
+
     table.insert(ti, c, 0);
     for (int i = ti; i < (ti + c); ++i)
 	table[i] = new QTableModelItem();

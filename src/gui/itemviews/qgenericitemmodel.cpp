@@ -75,10 +75,11 @@ QGenericItemModel::~QGenericItemModel()
 {
 }
 
-QModelIndex QGenericItemModel::index(int row, int column, const QModelIndex &parent) const
+QModelIndex QGenericItemModel::index(int row, int column, const QModelIndex &parent,
+                                     QModelIndex::Type type) const
 {
     if (row >= 0 && row < rowCount(parent) && column >= 0 && column < columnCount(parent))
-	return QModelIndex(row, column, 0);
+	return QModelIndex(row, column, 0, type);
     return QModelIndex();
 }
 

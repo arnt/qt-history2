@@ -13,7 +13,7 @@ class QTableModel;
 class Q_GUI_EXPORT QTableModelItem
 {
     friend class QTableModel;
-    
+
 public:
     QTableModelItem() : edit(true), select(true) {}
     ~QTableModelItem() {}
@@ -67,7 +67,8 @@ public:
     const QTableModelItem *item(const QModelIndex &index) const;
     QTableModelItem *item(const QModelIndex &index);
 
-    QModelIndex index(int row, int column, const QModelIndex &parent = 0) const;
+    QModelIndex index(int row, int column, const QModelIndex &parent = 0,
+                      QModelIndex::Type type = QModelIndex::View) const;
 
     int rowCount(const QModelIndex &parent = 0) const;
     int columnCount(const QModelIndex &parent = 0) const;

@@ -13,7 +13,7 @@ class QGenericItemModel;
 class Q_GUI_EXPORT QModelIndex
 {
 public:
-    enum Type { View, HorizontalHeader, VerticalHeader };
+    enum Type { View, HorizontalHeader, VerticalHeader, ToolTip, WhatsThis };
     inline QModelIndex(const QModelIndex &other)
 	: r(other.row()), c(other.column()), d(other.data()), t(other.t) {}
     inline QModelIndex(int row = -1, int column = -1, void *data = 0, Type type = View)
@@ -25,7 +25,7 @@ public:
     inline Type type() const { return t; }
     inline bool isValid() const { return (r >= 0) && (c >= 0); }
     inline bool QModelIndex::operator==(const QModelIndex &other) const
-	{ return (other.r == r && other.c == c && other.d == d); }
+	{ return (other.r == r && other.c == c && other.d == d && other.t == t); }
     inline bool operator!=(const QModelIndex &other) const { return !(*this == other); }
 private:
     int r, c;
@@ -48,7 +48,8 @@ public:
     QGenericItemModel(QObject *parent = 0, const char *name = 0);
     virtual ~QGenericItemModel();
 
-    virtual QModelIndex index(int row, int col, const QModelIndex &parent = 0) const;
+    virtual QModelIndex index(int row, int col, const QModelIndex &parent = 0,
+                              QModelIndex::Type type = QModelIndex::View) const;
     virtual QModelIndex parent(const QModelIndex &child) const;
     inline QModelIndex topLeft(const QModelIndex &parent = 0) const
 	{ return index(0, 0, parent); }

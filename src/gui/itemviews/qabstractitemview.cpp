@@ -545,6 +545,11 @@ bool QAbstractItemView::eventFilter(QObject *o, QEvent *e)
     return QScrollView::eventFilter(o, e);
 }
 
+bool QAbstractItemView::event(QEvent *event)
+{
+    return false;
+}
+
 void QAbstractItemView::contentsChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
 {
     // Single item changed

@@ -76,10 +76,10 @@ QModelIndex QListModel::index(QListModelItem *item) const
     return QModelIndex(row, 0, 0);
 }
 
-QModelIndex QListModel::index(int row, int, const QModelIndex &) const
+QModelIndex QListModel::index(int row, int, const QModelIndex &, QModelIndex::Type type) const
 {
     if (row >= 0 && row < (int)lst.count())
-	return QModelIndex(row, 0, 0);
+	return QModelIndex(row, 0, 0, type);
     return QModelIndex();
 }
 
