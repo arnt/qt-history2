@@ -73,10 +73,6 @@ void QThreadPrivate::finish(void *arg)
     thr->d->thread_done.wakeAll();
 }
 
-Q_GLOBAL_STATIC(QMutexPool, qt_thread_mutexpool)
-QMutex *QThreadPrivate::mutex() const
-{ return qt_thread_mutexpool()->get((void *) this); }
-
 
 
 
@@ -106,27 +102,6 @@ QThread *QThread::currentQThread()
     return reinterpret_cast<QThread *>(pthread_getspecific(current_thread_key));
 }
 
-/*! \internal
-  Initializes the QThread system.
-*/
-void QThread::initialize()
-{
-    extern QMutexPool *static_qt_global_mutexpool;
-    if (!static_qt_global_mutexpool)
-        static_qt_global_mutexpool = new QMutexPool(true);
-}
-
-/*! \internal
-  Cleans up the QThread system.
-*/
-void QThread::cleanup()
-{
-    extern QMutexPool *static_qt_global_mutexpool;
-    delete static_qt_global_mutexpool;
-    static_qt_global_mutexpool = 0;
-
-    QThreadStorageData::finish(QThreadPrivate::threadLocalStorage(0));
-}
 
 /*!
     Ends the execution of the calling thread and wakes up any threads

@@ -134,9 +134,10 @@ void QWaitCondition::wakeOne()
 {
     // wake up the first thread in the queue
     QMutexLocker locker(&d->mtx);
-    QWaitConditionEvent *first = d->queue.first();
-    if (first)
+    if (!d->queue.isEmpty()) {
+        QWaitConditionEvent *first = d->queue.first();
         SetEvent(first->event);
+    }
 }
 
 void QWaitCondition::wakeAll()

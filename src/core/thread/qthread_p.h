@@ -59,7 +59,7 @@ public:
     int waiters;
 
     static unsigned int __stdcall start(void *);
-    static void finish(QThreadInstance *);
+    static void finish(void *, bool lockAnyway=true);
 #endif // Q_OS_WIN32
 
     QEventLoop *eventloop;

@@ -11,7 +11,9 @@
 ****************************************************************************/
 
 #include "qthread.h"
+#include "qthreadstorage.h"
 #include "qmutex.h"
+#include "qmutexpool_p.h"
 
 #include <qeventloop.h>
 #include <qhash.h>
@@ -32,8 +34,12 @@ QThreadPrivate::QThreadPrivate()
     : QObjectPrivate(), running(false), finished(false), terminated(false),
       stackSize(0), eventloop(0), tls(0)
 {
-#ifdef Q_OS_UNIX
+#if defined (Q_OS_UNIX)
     thread_id = 0;
+#elif defined (Q_WS_WIN)
+    handle = 0;
+    id = 0;
+    waiters = 0;
 #endif
 }
 
@@ -90,6 +96,12 @@ void **&QThreadPrivate::threadLocalStorage(QThread *thread)
     }
     return thread->d->tls;
 }
+
+
+Q_GLOBAL_STATIC(QMutexPool, qt_thread_mutexpool)
+
+QMutex *QThreadPrivate::mutex() const
+{ return qt_thread_mutexpool()->get((void *) this); }
 
 
 
@@ -267,3 +279,34 @@ uint QThread::stackSize() const
 
     \sa wait()
 */
+
+
+/*! \internal
+  Initializes the QThread system.
+*/
+void QThread::initialize()
+{
+    extern QMutexPool *static_qt_global_mutexpool;
+    if (static_qt_global_mutexpool)
+        return;
+
+    static_qt_global_mutexpool = new QMutexPool(true);
+
+#if defined (Q_OS_WIN)
+    extern void qt_create_tls();
+    qt_create_tls();
+#endif
+}
+
+
+/*! \internal
+  Cleans up the QThread system.
+*/
+void QThread::cleanup()
+{
+    extern QMutexPool *static_qt_global_mutexpool;
+    delete static_qt_global_mutexpool;
+    static_qt_global_mutexpool = 0;
+
+    QThreadStorageData::finish(QThreadPrivate::threadLocalStorage(0));
+}
