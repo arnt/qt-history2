@@ -152,7 +152,9 @@ public:
     enum Display {
 	Hours	= 0x01,
 	Minutes	= 0x02,
-	Seconds	= 0x04
+	Seconds	= 0x04,
+	Reserved = 0x08,
+	AMPM	= 0x10
     };
 
     QTimeEdit( QWidget* parent=0,  const char* name=0 );
