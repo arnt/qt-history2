@@ -4978,6 +4978,12 @@ void QTable::hideRow( int row )
     if ( isRowStretchable(row) )
 	leftHeader->numStretches--;
     rowHeightChanged( row );
+    if ( curRow == row ) {
+	int r = curRow;
+	int c = curCol;
+	fixCell( r, c, Key_Down );
+	setCurrentCell( r, c );
+    }
 }
 
 /*! Hides column \a col.
@@ -4995,6 +5001,12 @@ void QTable::hideColumn( int col )
     if ( isColumnStretchable(col) )
 	topHeader->numStretches--;
     columnWidthChanged( col );
+    if ( curCol == col ) {
+	int r = curRow;
+	int c = curCol;
+	fixCell( r, c, Key_Right );
+	setCurrentCell( r, c );
+    }
 }
 
 /*! Shows row \a row.
