@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#151 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#152 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#151 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#152 $");
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -345,11 +345,34 @@ QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
 /*!
   Sets the background color of this widget.
 
-  The background color is independent of the widget color group.
-  Setting a new palette overwrites the background color.
+  The background color is sem-independent of the widget color group.
+  Setting a new palette overwrites the background color, but setting
+  the background color does not change the palette in any way.
 
+  X11 and Windows clear the widget to the background color just before
+  sending a paint event.  This generally causes flicker if the widget
+  doesn not use colorGroup().background() as background color.  A
+  widget which uses colorGroup().base() as background color can do
+  avoid flicker by doing:
+
+  \code
+  setBackgroundColor( colorGroup().base() );
+  \endcode
+
+  If you want to change the color scheme of a widget, the setPalette()
+  function is better suited.  Here's how to set \e thatWidget to use a
+  light green (RGB value 80, 255, 80) as background color, with shades
+  of green used for all the 3D effects:
+
+  \code
+  thatWidget->setPalette( QPalette( QColor( 80, 255, 80, Rgb ) ) );
+  \endcode
+
+  You can also use QApplication::setPalette() if you want to change
+  the color scheme of your entire application, or of all new widgets.
+  
   \sa backgroundColor(), backgroundColorChange(), setPalette(),
-  setBackgroundPixmap()
+  setBackgroundPixmap() QApplication::setPalette()
 */
 
 void QWidget::setBackgroundColor( const QColor &color )
@@ -367,7 +390,8 @@ void QWidget::setBackgroundColor( const QColor &color )
 /*!
   Sets the background pixmap of the widget to \e pixmap.
 
-  The background pixmap is tiled.
+  The background pixmap is tiled.  Some widgets (e.g. QLineEdit) do
+  not work well with a background pixmap.
 
   \sa backgroundPixmap(), backgroundPixmapChange(), setBackgroundColor()
 */
