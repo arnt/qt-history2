@@ -810,7 +810,7 @@ QByteArray QTextCodec::fromUnicode( const QString &str, int pos, int len ) const
     if( len < 0 )
 	len = str.length() - pos;
     a = fromUnicode( str.mid(pos, len) );
-    if( a.size() > 0 && a[a.size() - 1] != '\0' )
+    if( a.size() > 0 && a[(int)a.size() - 1] != '\0' )
 	a.resize( a.size() - 1 );
     return a;
 }
