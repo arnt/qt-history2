@@ -84,6 +84,25 @@
   copyAvailable( FALSE ) is next emitted.
 */
 
+/*! \fn bool QMultiLineEdit::isOverwriteMode() const
+
+  Returns TRUE if this multi line edit is in overwrite mode, i.e.
+  if characters typed replace characters in the editor.
+
+  \sa setOverwriteMode()
+*/
+
+
+/*! \fn void QMultiLineEdit::setOverwriteMode( bool on )
+
+  Sets overwrite mode if \a on is TRUE. Overwrite mode means
+  that characters typed replace characters in the editor.
+
+  \sa isOverwriteMode()
+*/
+
+
+
 
 QTextView::QTextView( QWidget *parent, const char *name )
     : QScrollView( parent, name, WNorthWestGravity | WRepaintNoErase ),
@@ -713,7 +732,7 @@ void QTextView::moveCursor( int direction, bool control )
 
 void QTextView::resizeEvent( QResizeEvent *e )
 {
-    if ( !firstResize 
+    if ( !firstResize
 #if defined(_WS_X11_)
 	 && e->oldSize().width() != e->size().width()
 #endif
