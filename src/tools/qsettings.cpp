@@ -71,8 +71,8 @@ static inline int qt_open( const char *pathname, int flags, mode_t mode )
   \mainclass
 
   On Unix systems, QSettings uses text files to store settings. On Windows
-  systems, QSettings uses the system registry.  On Mac OS X, QSettings will
-  behave as on Unix, and store to text files.
+  systems, QSettings uses the system registry.  On Mac OS X, QSettings uses
+  the Carbon preferences API.
 
   Each setting comprises an identifying key and the data associated with
   the key. A key is a unicode string which consists of \e two or more
@@ -116,6 +116,7 @@ static inline int qt_open( const char *pathname, int flags, mode_t mode )
     \code
     QSettings settings;
     settings.insertSearchPath( QSettings::Windows, "/MyCompany" );
+    settings.insertSearchPath( QSettings::Mac, "/MyCompany" );
     // No search path needed for Unix; see notes further on.
     settings.writeEntry( "/MyApplication/background color", bgColor );
     settings.writeEntry( "/MyApplication/geometry/width", width );
@@ -152,7 +153,21 @@ static inline int qt_open( const char *pathname, int flags, mode_t mode )
     subkeys values), may not exceed 65,535 characters.
     \endlist
 
-    These limitations are not enforced on Unix.
+    These limitations are not enforced on Unix or Mac OS X.
+
+    \section1 Notes for Mac OS X Applications
+
+    Internal to the CFPreferences API it is not defined (for Mac OS 9
+    support) where the settings will ultimitely be stored. However, at the
+    time of this writing the settings will be stored (either on a global or
+    user basis, preferring locally) into a plist file in
+    $ROOT/System/Library/Preferences (in XML format). QSettings will create
+    an appropriate plist file (com.<first group name>.plist) out of the
+    full path to a key.
+
+    For further information on CFPreferences see also
+    \link http://developer.apple.com/techpubs/macosx/CoreFoundation/PreferenceServices/preferenceservices_carbon.html
+    Apple's Specifications\endlink
 
     \section1 Notes for Unix Applications
 
