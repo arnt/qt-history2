@@ -486,6 +486,12 @@ bool QPNGImageWriter::writeImage(const QImage& image, int quality, int off_x, in
 	info_ptr->sig_bit.alpha = 8;
     }
 
+    // Swap ARGB to RGBA (normal PNG format) before saving on
+    // BigEndian machines
+    if ( QImage::systemByteOrder() == QImage::BigEndian ) {
+	png_set_swap_alpha(png_ptr);
+    }
+
     // Qt==ARGB==Big(ARGB)==Little(BGRA)
     if ( QImage::systemByteOrder() == QImage::LittleEndian ) {
 	png_set_bgr(png_ptr);
