@@ -250,8 +250,10 @@ void QLabel::init()
   The label resizes itself if auto-resizing is enabled.
 
   Note that Qlabel is well-suited to display small rich text documents
-  only. For large documents, use QTextView instead. QTextView will
-  flicker less on resize and can also provide a scrollbar, when
+  only. Those small documents get their document specific settings
+  (font, text color, link color) from the label's palette and font
+  properties. For large documents, use QTextView instead. QTextView
+  will flicker less on resize and can also provide a scrollbar, when
   necessary.
 
   \sa text, setTextFormat(), setBuddy(), alignment
