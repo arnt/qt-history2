@@ -2,7 +2,7 @@
     \page qmake-manual.html
     \title qmake Manual
     \startpage index.html Qt Reference Documentation
-    \nextpage qmake-using.html Using qmake
+    \nextpage Using qmake
 
     \keyword qmake
 
@@ -25,30 +25,34 @@
     Table of contents:
 
     \list
-    \o \l{qmake-using.html}{Using qmake}
+    \o \l{Using qmake}
       \list
-      \tableofcontents{1 qmake-using.html}
+      \tableofcontents{1 Using qmake}
       \endlist
-    \o \l{qmake-running.html}{Running qmake}
+    \o \l{Running qmake}
       \list
-      \tableofcontents{1 qmake-running.html}
+      \tableofcontents{1 Running qmake}
       \endlist
-    \o \l{qmake-advanced-usage.html}{Advanced Usage}
-    \o \l{qmake-reference.html}{Reference}
+    \o \l{qmake Advanced Usage}
       \list
-      \tableofcontents{1 qmake-reference.html}
+      \tableofcontents{1 qmake Advanced Usage}
+      \endlist
+    \o \l{qmake Reference}
+      \list
+      \tableofcontents{1 qmake Reference}
       \endlist
     \endlist
 
     Getting Started:
 
     \list
-    \o \l{qmake-tutorial.html}{qmake Tutorial}
-    \o \l{qmake-common-projects.html}{Common Projects}
+    \o \l{qmake Tutorial}
       \list
-      \o \l{qmake-common-projects.html#Application}{Building an Application}
-      \o \l{qmake-common-projects.html#Library}{Building a Library}
-      \o \l{qmake-common-projects.html#Plugin}{Building a Plugin}
+      \tableofcontents{1 qmake Tutorial}
+      \endlist
+    \o \l{qmake Common Projects}
+      \list
+      \tableofcontents{1 qmake Common Projects}
       \endlist
     \endlist
 */
@@ -57,8 +61,8 @@
     \page qmake-using.html
     \title Using qmake
     \contentspage qmake-manual.html Contents
-    \previouspage qmake-manual.html qmake Manual
-    \nextpage qmake-project-files.html Project Files
+    \previouspage qmake Manual
+    \nextpage qmake Project Files
 
     \c qmake provides a project-oriented system for managing the build
     process for applications, libraries, and other components. This
@@ -110,10 +114,10 @@
 
 /*!
     \page qmake-project-files.html
-    \title Project Files
+    \title qmake Project Files
     \contentspage qmake-manual.html Contents
-    \previouspage qmake-using.html Using qmake
-    \nextpage qmake-running.html Running qmake
+    \previouspage Using qmake
+    \nextpage Running qmake
 
     Project files contain all the information required by \c qmake to build
     your application, library, or plugin. The resources used by your project
@@ -397,8 +401,8 @@
     \page qmake-running.html
     \title Running qmake
     \contentspage qmake-manual.html Contents
-    \previouspage qmake-project-files.html Project Files
-    \nextpage qmake-advanced-usage.html Advanced Usage
+    \previouspage qmake Project Files
+    \nextpage qmake Advanced Usage
 
     The behavior of \c qmake can be customized when it is run by
     specifying various options on the command line. These allow the
@@ -589,25 +593,24 @@
 
 /*!
     \page qmake-reference.html
-    \title Reference
+    \title qmake Reference
     \contentspage qmake-manual.html Contents
-    \previouspage qmake-advanced-usage.html Advanced Usage
-    \nextpage qmake-variable-reference.html Variable Reference
+    \previouspage qmake Advanced Usage
+    \nextpage qmake Variable Reference
 
     This reference is a detailed index of all the variables and function
     that are available for use in \c qmake project files.
 
     \section1 Variable Reference
 
-    The \l{qmake-variable-reference.html}{Variable Reference}
-    describes the variables that are recognized by \c qmake when
-    configuring the build process for projects.
+    The \l{qmake Variable Reference} describes the variables that are
+    recognized by \c qmake when configuring the build process for
+    projects.
 
     \section1 Function Reference
 
-    The \l{qmake-function-reference.html}{Function Reference}
-    describes the function that can be used to process the contents
-    of variables defined in project files.
+    The \l{qmake Function Reference} describes the function that can be
+    used to process the contents of variables defined in project files.
 
     \target FrequentlyUsedVariables
     \section1 Frequently Used Variables
@@ -617,29 +620,29 @@
     \l{qmake-variable-reference.html}{Variable Reference}.
 
     \list
-    \o \l{qmake-variable-reference.html#CONFIG}{CONFIG}
-    \o \l{qmake-variable-reference.html#DEFINES}{DEFINES}
-    \o \l{qmake-variable-reference.html#DEF_FILE}{DEF_FILE}
-    \o \l{qmake-variable-reference.html#DESTDIR}{DESTDIR}
-    \o \l{qmake-variable-reference.html#DLLDESTDIR}{DLLDESTDIR}
-    \o \l{qmake-variable-reference.html#HEADERS}{HEADERS}
-    \o \l{qmake-variable-reference.html#INCLUDEPATH}{INCLUDEPATH}
-    \o \l{qmake-variable-reference.html#FORMS}{FORMS}
-    \o \l{qmake-variable-reference.html#LEXSOURCES}{LEXSOURCES}
-    \o \l{qmake-variable-reference.html#LIBS}{LIBS}
-    \o \l{qmake-variable-reference.html#MOC_DIR}{MOC_DIR}
-    \o \l{qmake-variable-reference.html#OBJECTS_DIR}{OBJECTS_DIR}
-    \o \l{qmake-variable-reference.html#UI_DIR}{UI_DIR}
-    \o \l{qmake-variable-reference.html#UI_HEADERS_DIR}{UI_HEADERS_DIR}
-    \o \l{qmake-variable-reference.html#UI_SOURCES_DIR}{UI_SOURCES_DIR}
-    \o \l{qmake-variable-reference.html#REQUIRES}{REQUIRES}
-    \o \l{qmake-variable-reference.html#SOURCES}{SOURCES}
-    \o \l{qmake-variable-reference.html#SUBDIRS}{SUBDIRS}
-    \o \l{qmake-variable-reference.html#TARGET}{TARGET}
-    \o \l{qmake-variable-reference.html#TEMPLATE}{TEMPLATE}
-    \o \l{qmake-variable-reference.html#VERSION}{VERSION}
-    \o \l{qmake-variable-reference.html#DISTFILES}{DISTFILES}
-    \o \l{qmake-variable-reference.html#YACCSOURCES}{YACCSOURCES}
+    \o \l{qmake Variable Reference#CONFIG}{CONFIG}
+    \o \l{qmake Variable Reference#DEFINES}{DEFINES}
+    \o \l{qmake Variable Reference#DEF_FILE}{DEF_FILE}
+    \o \l{qmake Variable Reference#DESTDIR}{DESTDIR}
+    \o \l{qmake Variable Reference#DLLDESTDIR}{DLLDESTDIR}
+    \o \l{qmake Variable Reference#HEADERS}{HEADERS}
+    \o \l{qmake Variable Reference#INCLUDEPATH}{INCLUDEPATH}
+    \o \l{qmake Variable Reference#FORMS}{FORMS}
+    \o \l{qmake Variable Reference#LEXSOURCES}{LEXSOURCES}
+    \o \l{qmake Variable Reference#LIBS}{LIBS}
+    \o \l{qmake Variable Reference#MOC_DIR}{MOC_DIR}
+    \o \l{qmake Variable Reference#OBJECTS_DIR}{OBJECTS_DIR}
+    \o \l{qmake Variable Reference#UI_DIR}{UI_DIR}
+    \o \l{qmake Variable Reference#UI_HEADERS_DIR}{UI_HEADERS_DIR}
+    \o \l{qmake Variable Reference#UI_SOURCES_DIR}{UI_SOURCES_DIR}
+    \o \l{qmake Variable Reference#REQUIRES}{REQUIRES}
+    \o \l{qmake Variable Reference#SOURCES}{SOURCES}
+    \o \l{qmake Variable Reference#SUBDIRS}{SUBDIRS}
+    \o \l{qmake Variable Reference#TARGET}{TARGET}
+    \o \l{qmake Variable Reference#TEMPLATE}{TEMPLATE}
+    \o \l{qmake Variable Reference#VERSION}{VERSION}
+    \o \l{qmake Variable Reference#DISTFILES}{DISTFILES}
+    \o \l{qmake Variable Reference#YACCSOURCES}{YACCSOURCES}
     \endlist
 
     \section1 Environment Variables and Configuration
@@ -652,10 +655,10 @@
 
 /*!
     \page qmake-variable-reference.html
-    \title Variable Reference
+    \title qmake Variable Reference
     \contentspage qmake-manual.html Contents
-    \previouspage qmake-reference.html Reference
-    \nextpage qmake-function-reference.html Function Reference
+    \previouspage qmake Reference
+    \nextpage qmake Function Reference
 
     \tableofcontents{3}
 
@@ -2209,10 +2212,10 @@
 
 /*!
     \page qmake-function-reference.html
-    \title Function Reference
+    \title qmake Function Reference
     \contentspage qmake-manual.html Contents
-    \previouspage qmake-variable-reference.html Variable Reference
-    \nextpage qmake-environment-reference.html Environment Variables and Configuration
+    \previouspage qmake Variable Reference
+    \nextpage qmake Environment Variables and Configuration
 
     \c qmake provides built-in functions to allow the contents of
     variables to be processed, and to enable tests to be performed
@@ -2225,7 +2228,7 @@
 
     \tableofcontents{2}
 
-    \section2 basename(file)
+    \section3 basename(file)
 
     Returns the basename of the file specified. For example:
 
@@ -2234,7 +2237,7 @@
        FILENAME = $$basename($$FILE) #passwd
     \endcode
 
-    \section2 CONFIG(config)
+    \section3 CONFIG(config)
     [Conditional]
 
     This function can be used to test for variables placed into the CONFIG
@@ -2257,7 +2260,7 @@
     case a second paramter is not needed, but for specific mutual
     exclusive tests it is invaluable.
 
-    \section2 contains(variablename, value)
+    \section3 contains(variablename, value)
     [Conditional]
 
     Succeeds if the variable \e variablename contains the value \e value;
@@ -2280,7 +2283,7 @@
     appropriate files are added to the \c SOURCES and \c HEADERS
     variables.
 
-    \section2 count(variablename, number)
+    \section3 count(variablename, number)
     [Conditional]
 
     Succeeds if the variable \e variablename contains a list with the
@@ -2294,7 +2297,7 @@
     \skipto options =
     \printuntil }
 
-    \section2 dirname(file)
+    \section3 dirname(file)
 
     Returns the directory name part of the specified file. For example:
 
@@ -2303,7 +2306,7 @@
        DIRNAME = dirname($$FILE) #/etc/X11R6
     \endcode
 
-    \section2 error(string)
+    \section3 error(string)
 
     This function never returns a value. \c qmake displays the given
     \e string to the user, and exits. This function should only be used
@@ -2315,7 +2318,7 @@
         error(A error has occurred in the configuration process.)
     \endcode
 
-    \section2 exists(filename)
+    \section3 exists(filename)
     [Conditional]
 
     Tests whether a file with the given \e filename exists.
@@ -2334,7 +2337,7 @@
     Note that "/" can be used as a directory separator, regardless of the
     platform in use.
 
-    \section2 find(variablename, substr)
+    \section3 find(variablename, substr)
 
     Places all the values in \e variablename that match \e substr. \e
     substr may be a regular expression, and will be matched accordingly.
@@ -2348,7 +2351,7 @@
     MY_VAR2 will contain '-Lone -Ltwo -Lthree -Lfour -Lfive', and MYVAR3 will
     contains 'three two three'.
 
-    \section2 for(iterate, list)
+    \section3 for(iterate, list)
 
     This special test function will cause a loop to be started that
     iterates over all values in \e list, setting \e iterate to each
@@ -2365,7 +2368,7 @@
         for(a, LIST):exists(file.$${a}):message(I see a file.$${a}!)
     \endcode
 
-    \section2 include(filename)
+    \section3 include(filename)
     [Conditional]
 
     Includes the contents of the file specified by \e filename into the
@@ -2385,7 +2388,7 @@
         }
     \endcode
 
-    \section2 infile(filename, var, val)
+    \section3 infile(filename, var, val)
     [Conditional]
 
     Succeeds if the file \e filename (when parsed by \c qmake itself)
@@ -2393,7 +2396,7 @@
     If you do not specify a third argument (\e val), the function will
     only test whether \e var has been declared in the file.
 
-    \section2 isEmpty(variablename)
+    \section3 isEmpty(variablename)
     [Conditional]
 
     Succeeds if the variable \e variablename is empty; otherwise fails.
@@ -2407,7 +2410,7 @@
         }
     \endcode
 
-    \section2 join(variablename, glue, before, after)
+    \section3 join(variablename, glue, before, after)
 
     Joins the value of \e variablename with \c glue. If this value is
     non-empty it prefixes the value with \e before and suffix it with \e
@@ -2415,14 +2418,14 @@
     to empty strings. If you need to encode spaces in \e glue, \e before, or \e
     after you must quote them.
 
-    \section2 member(variablename, position)
+    \section3 member(variablename, position)
 
     Places the value in \e variablename in position \e position of the
     list. If the value of \e variablename is not long, an empty string is
     returned. \e variablename is the only required field. If not specified,
     \c position defaults to the first value in the list (0).
 
-    \section2 message(string) 
+    \section3 message(string) 
 
     This function simply writes a message to the console. Unlike the
     \c error() function, this function allows processing to continue.
@@ -2434,11 +2437,11 @@
     The above line causes "This is a message" to be written to the console.
     The use of quotation marks is optional.
 
-    \section2 prompt(question)
+    \section3 prompt(question)
 
     Displays the specified \e question, and returns a value read from stdin.
 
-    \section2 quote(string)
+    \section3 quote(string)
 
     Converts a whole \e string into a single entity and returns the result.
     Newlines, carriage returns, and tabs can be specified in the string
@@ -2446,12 +2449,12 @@
     or double quotation marks unless you explicitly include them yourself,
     but will be placed into a single entry (for literal expansion).
 
-    \section2 sprintf(string, arguments...)
+    \section3 sprintf(string, arguments...)
 
     Replaces %1-%9 with the arguments passed in the comma-separated list
     of function \e arguments and returns the processed string.
 
-    \section2 system(command)
+    \section3 system(command)
     [Conditional]
 
     Executes the given \c command in a secondary shell, and succeeds
@@ -2473,7 +2476,7 @@
         contains( UNAME, [lL]inux ):message( This looks like Linux ($$UNAME) to me )
     \endcode
 
-    \section2 unique(variablename)
+    \section3 unique(variablename)
 
     This will return a list of values in variable that are unique (that is
     with repetitive entries removed). For example:
@@ -2483,10 +2486,21 @@
        ARGS = $$unique(ARGS) #1 2 3 5
     \endcode
 
-    \section2 warning(string)
+    \section3 warning(string)
 
     This function will always succeed, and will display the given
     \e string to the user. message() is a synonym for warning().
+*/
+
+/*!
+    \page qmake-environment-reference.html
+    \contentspage qmake-manual.html Contents
+    \previouspage qmake-function-reference.html qmake Function Reference
+    \nextpage qmake Tutorial
+
+    \title qmake Environment Variables and Configuration
+
+    \tableofcontents
 
     \target Properties
     \section1 Properties
@@ -2542,17 +2556,6 @@
     \code
         QMAKE_VERS = $$[QMAKE_VERSION]
     \endcode
-*/
-
-/*!
-    \page qmake-environment-reference.html
-    \contentspage qmake-manual.html Contents
-    \previouspage qmake-function-reference.html Function Reference
-    \nextpage qmake-tutorial.html qmake Tutorial
-
-    \title Environment Variables and Configuration
-
-    \tableofcontents
 
     \target QMAKESPEC
     \section1 QMAKESPEC
@@ -2781,10 +2784,10 @@
 
 /*!
     \page qmake-advanced-usage.html
-    \title Advanced Usage
+    \title qmake Advanced Usage
     \contentspage qmake-manual.html Contents
-    \previouspage qmake-running.html Running qmake
-    \nextpage qmake-reference.html Reference
+    \previouspage Running qmake
+    \nextpage qmake Reference
 
     Many \c qmake project files simply describe the sources and header files used
     by the project, using a list of \c{name = value} and \c{name += value}
@@ -3234,8 +3237,8 @@
     \page qmake-tutorial.html
     \title qmake Tutorial
     \contentspage qmake-manual.html Contents
-    \previouspage qmake-function-reference.html Function Reference
-    \nextpage qmake-common-projects.html Common Projects
+    \previouspage qmake Function Reference
+    \nextpage qmake Common Projects
 
     This tutorial teaches you how to use \c qmake.  We recommend that
     you read the \c qmake user guide after completing this tutorial.
@@ -3610,9 +3613,9 @@
 
 /*!
     \page qmake-common-projects.html
-    \title Common Projects
+    \title qmake Common Projects
     \contentspage qmake-manual.html Contents
-    \previouspage qmake-tutorial.html qmake Tutorial
+    \previouspage qmake Tutorial
 
     This chapter describes how to set up \c qmake project files for three
     common types of project that are based on Qt. Although all kinds of
