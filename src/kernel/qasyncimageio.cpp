@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#12 $
+** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#13 $
 **
 ** Implementation of movie classes
 **
@@ -344,7 +344,13 @@ QGIFDecoder::~QGIFDecoder()
 }
 
 
-QImageFormatDecoder* QGIFDecoder::Factory::decoderFor(
+class QGIFDecoderFactory : public QImageFormatDecoderFactory {
+    QImageFormatDecoder* decoderFor(const uchar* buffer, int length);
+    const char* formatName() const;
+};
+static QGIFDecoderFactory factory;
+
+QImageFormatDecoder* QGIFDecoderFactory::decoderFor(
     const uchar* buffer, int length)
 {
     if (length < 6) return 0;
@@ -358,12 +364,11 @@ QImageFormatDecoder* QGIFDecoder::Factory::decoderFor(
     return 0;
 }
 
-const char* QGIFDecoder::Factory::formatName() const
+const char* QGIFDecoderFactory::formatName() const
 {
     return "GIF";
 }
 
-QGIFDecoder::Factory QGIFDecoder::factory;
 
 
 void QGIFDecoder::disposePrevious( QImage& img, QImageConsumer* consumer )
@@ -721,7 +726,7 @@ int QGIFDecoder::decode(QImage& img, QImageConsumer* consumer,
 //           case 0x01:
 //                break;
 ///////////////////////////////////////////////////////////////////////
-	    break; default:
+	     default:
 		state=SkipBlockSize;
 	    }
 	    count=0;

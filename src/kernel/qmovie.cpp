@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmovie.cpp#15 $
+** $Id: //depot/qt/main/src/kernel/qmovie.cpp#16 $
 **
 ** Implementation of movie classes
 **
@@ -57,7 +57,8 @@
   \sa QLabel::setMovie()
 */
 
-class QMoviePrivate : public QObject, public QShared, QDataSink, QImageConsumer
+class QMoviePrivate : public QObject, public QShared,
+		      private QDataSink, private QImageConsumer
 {
     Q_OBJECT
 
@@ -764,7 +765,7 @@ void QMovie::disconnectStatus(QObject* receiver, const char* member)
 ** QMoviePrivate meta object code from reading C++ file 'qmovie.cpp'
 **
 ** Created: Thu Jun 26 16:21:01 1997
-**      by: The Qt Meta Object Compiler ($Revision: 1.15 $)
+**      by: The Qt Meta Object Compiler ($Revision: 1.16 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/

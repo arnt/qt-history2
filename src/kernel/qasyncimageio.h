@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncimageio.h#8 $
+** $Id: //depot/qt/main/src/kernel/qasyncimageio.h#9 $
 **
 **		      ***   INTERNAL HEADER FILE   ***
 **
@@ -71,12 +71,6 @@ private:
 static const int max_lzw_bits=12;
 
 class QGIFDecoder : public QImageFormatDecoder {
-    class Factory : public QImageFormatDecoderFactory {
-	QImageFormatDecoder* decoderFor(const uchar* buffer, int length);
-	const char* formatName() const;
-    };
-    static Factory factory;
-
 public:
     QGIFDecoder();
     virtual ~QGIFDecoder();
