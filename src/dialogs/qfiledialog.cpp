@@ -3166,7 +3166,7 @@ r.setHeight( QMAX(r.height(),t.height()) )
 	for ( b = d->toolButtons.first(); b; b = d->toolButtons.next() )
 	    b->setFixedSize( r );
     }
-    
+
     if ( d->infoPreview ) {
 	d->previewInfo->show();
 	d->previewInfo->setFixedSize( r );
@@ -3792,7 +3792,10 @@ int QFileDialog::viewMode() const
 
   If you don't want to add something in one of the columns, pass 0.
 
-  It is not currently possible to add more than one row.
+  Each time calling this method adds a new row of widgets to the
+  bottom of the filedialog.
+
+  \sa addToolButton()
 */
 
 void QFileDialog::addWidgets( QLabel * l, QWidget * w, QPushButton * b )
@@ -3829,13 +3832,22 @@ void QFileDialog::addWidgets( QLabel * l, QWidget * w, QPushButton * b )
     updateGeometries();
 }
 
+/*!
+  Adds a the button \a b to the row of tool buttons on the top of the 
+  filedialog. The button is appended at the end (right) of
+  this row. If \a separator is TRUE, a small space is inserted between the
+  last button of the row and the new button \a b.
+
+  \sa addWidgets()
+*/
+
 void QFileDialog::addToolButton( QButton *b, bool separator )
 {
     if ( !b || !d->buttonLayout )
 	return;
-    
+
     d->geometryDirty = TRUE;
-    
+
     d->toolButtons.append( b );
     if ( separator )
 	d->buttonLayout->addSpacing( 8 );
