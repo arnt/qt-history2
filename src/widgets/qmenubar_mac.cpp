@@ -133,9 +133,12 @@ QMAC_PASCAL void macMenuItemProc(SInt16 msg, MenuRef mr, Rect *menuRect, Point p
 #endif
 
 #if !defined(QMAC_QMENUBAR_NO_MERGE)
-static uint isCommand(QString t) 
+static uint isCommand(QMenuItem *it) 
 {
-    t = t.lower();
+    if(it->popup() || it->custom() || it->isSeparator())
+	return 0;
+
+    QString t = it->text().lower();
     for(int w = 0; (w=t.find('&', w)) != -1; )
 	t.remove(w, 1);
     int st = t.findRev('\t');
@@ -178,9 +181,8 @@ bool syncPopups(MenuRef ret, QPopupMenu *d)
 
 	    QString text = "empty", accel; //Yes I need this, stupid!
 	    if(!item->isSeparator()) {
-		text = item->text();
 #if !defined(QMAC_QMENUBAR_NO_MERGE)
-		if(int cmd = isCommand(text)) {
+		if(int cmd = isCommand(item)) {
 		    if(!activeMenuBar->mac_d->commands) {
 			activeMenuBar->mac_d->commands = new QIntDict<QMenuBar::MacPrivate::CommandBinding>();
 			activeMenuBar->mac_d->commands->setAutoDelete(TRUE);
@@ -189,7 +191,7 @@ bool syncPopups(MenuRef ret, QPopupMenu *d)
 		    continue;
 		}
 #endif
-
+		text = item->text();
 		int st = text.findRev('\t');
 		if(st != -1) {
 		    accel = text.right(text.length()-(st+1));
@@ -197,12 +199,10 @@ bool syncPopups(MenuRef ret, QPopupMenu *d)
 		}
 	    } 
 #if !defined(QMAC_QMENUBAR_NO_MERGE)
-	    else if(x != (int)d->count()-1) {
-		text = d->findItem(d->idAt(x+1))->text();
-		if((x == (int)d->count() - 2 || d->findItem(d->idAt(x+2))->isSeparator()) && 
-		   isCommand(text)) 
-		    continue;
-	    }
+	    else if(x != (int)d->count()-1 &&
+		    ((x == (int)d->count() - 2 || d->findItem(d->idAt(x+2))->isSeparator()) &&
+		     isCommand(d->findItem(d->idAt(x+1)))))
+		continue;
 #endif
 
 	    InsertMenuItemTextWithCFString(ret, no_ampersands(text), id, 0, item->id());
@@ -247,7 +247,7 @@ bool syncPopups(MenuRef ret, QPopupMenu *d)
 		}
 	    }
 	    id++;
-	}
+ 	}
     }
     return TRUE;
 }
@@ -297,6 +297,7 @@ bool updateMenuBar(QMenuBar *mbar)
 	MenuRef mp = createMacPopup(item->popup(), FALSE, TRUE);
 	SetMenuTitleWithCFString(mp, no_ampersands(item->text()));
 	InsertMenu(mp, 0);
+	usleep(50); //seems to help prevent inversion of the menubar
     }
     InvalMenuBar();
     return TRUE;
@@ -310,21 +311,25 @@ bool updateMenuBar(QMenuBar *mbar)
 bool QMenuBar::activateCommand(uint cmd)
 {
 #if !defined(QMAC_QMENUBAR_NO_MERGE)
-    if(!activeMenuBar || !activeMenuBar->mac_d->commands) {
-	HiliteMenu(0);
-	return FALSE;
+    if(activeMenuBar && activeMenuBar->mac_d->commands) {
+	if(MacPrivate::CommandBinding *mcb = activeMenuBar->mac_d->commands->find(cmd)) {
+	    mcb->qpopup->activateItemAt(mcb->index);
+	    HiliteMenu(0);
+	    return TRUE;
+	}
     }
-    if(MacPrivate::CommandBinding *mcb = activeMenuBar->mac_d->commands->find(cmd)) {
-	mcb->qpopup->activateItemAt(mcb->index);
+#endif
+    if(cmd == kHICommandQuit) {
+	qApp->closeAllWindows();
 	HiliteMenu(0);
 	return TRUE;
-    }
+    } else if(cmd == kHICommandAbout) {
+	QMessageBox::aboutQt(NULL);
+	HiliteMenu(0);
+	return TRUE;
+    } 
     HiliteMenu(0);
     return FALSE;
-#else
-    Q_UNUSED(cmd);
-    return FALSE;
-#endif
 }
 
 /*!
