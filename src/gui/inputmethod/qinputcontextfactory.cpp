@@ -32,6 +32,7 @@
 #include "qcoreapplication.h"
 #include "qinputcontext.h"
 #include "qinputcontextplugin.h"
+#include "private/qt_x11_p.h"
 #include "qximinputcontext_p.h"
 #include "private/qfactoryloader_p.h"
 #include "qmutex.h"
@@ -50,7 +51,7 @@ Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
 QInputContext *QInputContextFactory::create( const QString& key, QObject *parent )
 {
     QInputContext *result = 0;
-#ifdef Q_WS_X11
+#if defined(Q_WS_X11) && !defined(QT_NO_XIM)
     if (key == QLatin1String("xim")) {
         result = new QXIMInputContext;
     }
@@ -75,7 +76,7 @@ QInputContext *QInputContextFactory::create( const QString& key, QObject *parent
 QStringList QInputContextFactory::keys()
 {
     QStringList result;
-#ifdef Q_WS_X11
+#if defined(Q_WS_X11) && !defined(QT_NO_XIM)
     result << QLatin1String("xim");
 #endif
 #ifndef QT_NO_COMPONENT
@@ -88,7 +89,7 @@ QStringList QInputContextFactory::keys()
 QStringList QInputContextFactory::languages( const QString &key )
 {
     QStringList result;
-#ifdef Q_WS_X11
+#if defined(Q_WS_X11) && !defined(QT_NO_XIM)
     if (key == QLatin1String("xim"))
         return QStringList(QString());
 #endif
@@ -104,7 +105,7 @@ QStringList QInputContextFactory::languages( const QString &key )
 QString QInputContextFactory::displayName( const QString &key )
 {
     QString result;
-#ifdef Q_WS_X11
+#if defined(Q_WS_X11) && !defined(QT_NO_XIM)
     if (key == QLatin1String("xim"))
         return QInputContext::tr( "XIM" );
 #endif
@@ -119,7 +120,7 @@ QString QInputContextFactory::displayName( const QString &key )
 
 QString QInputContextFactory::description( const QString &key )
 {
-#ifdef Q_WS_X11
+#if defined(Q_WS_X11) && !defined(QT_NO_XIM)
     if (key == QLatin1String("xim"))
         return QInputContext::tr( "XIM input method" );
 #endif

@@ -29,6 +29,8 @@
 
 #if !defined(QT_NO_IM)
 
+#if !defined(QT_NO_XIM)
+
 #include "qplatformdefs.h"
 
 #include "qapplication.h"
@@ -639,5 +641,26 @@ QXIMInputContext::ICData *QXIMInputContext::createICData(QWidget *w)
     ximData[w] = data;
     return data;
 }
+
+#else
+/*
+    When QT_NO_XIM is defined, we provide a dummy implementation for
+    this class. The reason for this is that the header file is moc'ed
+    regardless of QT_NO_XIM. The best would be to remove the file
+    completely from the pri file is QT_NO_XIM was defined, or for moc
+    to understand this preprocessor directive. Since the header does
+    not declare this class when QT_NO_XIM is defined, this is dead
+    code.
+*/
+bool QXIMInputContext::isComposing() const { return false; }
+QString QXIMInputContext::identifierName() { return QString(); }
+void QXIMInputContext::mouseHandler(int, QMouseEvent *) {}
+void QXIMInputContext::setFocusWidget(QWidget *) {}
+void QXIMInputContext::reset() {}
+QXIMInputContext::~QXIMInputContext() {}
+void QXIMInputContext::widgetDestroyed(QWidget *) {}
+QString QXIMInputContext::language() { return QString(); }
+bool QXIMInputContext::x11FilterEvent(QWidget *, XEvent *) { return true; }
+#endif //QT_NO_XIM
 
 #endif //QT_NO_IM
