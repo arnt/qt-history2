@@ -554,7 +554,7 @@ HRESULT DumpIDL( const QString &outfile, const QString &ver )
 
     // dummy application to create widgets
     int argc;
-    QApplication app( argc, 0, FALSE );
+    QApplication app( argc, 0 );
 
     QString appID = qAxFactory()->appID().toString().upper();
     STRIPCB(appID);
