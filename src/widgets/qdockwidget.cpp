@@ -7,6 +7,7 @@
 #include <qtoolbar.h>
 #include <qlayout.h>
 #include <qmainwindow.h>
+#include <qtimer.h>
 
 static const char * close_xpm[] = {
 "8 8 2 1",
@@ -203,18 +204,24 @@ protected:
     void mouseReleaseEvent( QMouseEvent *e );
     void mouseDoubleClickEvent( QMouseEvent *e );
 
+private slots:
+    void minimize();
+    
 private:
     QDockWidget *dockWidget;
     QPoint offset;
     bool mousePressed;
     QToolButton *closeButton;
     bool hadDblClick;
-
+    QTimer *timer;
+    
 };
 
 QDockWidgetHandle::QDockWidgetHandle( QDockWidget *dw )
     : QWidget( dw, "qt_dockwidget_internal" ), dockWidget( dw ), mousePressed( FALSE ), closeButton( 0 )
 {
+    timer = new QTimer( this );
+    connect( timer, SIGNAL( timeout() ), this, SLOT( minimize() ) );
 }
 
 void QDockWidgetHandle::paintEvent( QPaintEvent *e )
@@ -258,15 +265,20 @@ void QDockWidgetHandle::mouseReleaseEvent( QMouseEvent *e )
 	return;
     dockWidget->endRectDraw();
     mousePressed = FALSE;
-    if ( offset == e->pos() ) { 
-	if ( dockWidget->area() && dockWidget->area()->parentWidget() &&
-	     dockWidget->area()->parentWidget()->inherits( "QMainWindow" ) ) {
-	    QMainWindow *mw = (QMainWindow*)dockWidget->area()->parentWidget();
-	    if ( mw->isDockEnabled( dockWidget, Qt::Minimized ) )
-		mw->moveDockWidget( dockWidget, Qt::Minimized );
-	}
+    if ( !hadDblClick && offset == e->pos() ) {
+	timer->start( QApplication::doubleClickInterval(), TRUE );
     } else if ( !hadDblClick ) {
 	dockWidget->updatePosition( e->globalPos() );
+    }
+}
+
+void QDockWidgetHandle::minimize()
+{
+    if ( dockWidget->area() && dockWidget->area()->parentWidget() &&
+	 dockWidget->area()->parentWidget()->inherits( "QMainWindow" ) ) {
+	QMainWindow *mw = (QMainWindow*)dockWidget->area()->parentWidget();
+	if ( mw->isDockEnabled( dockWidget, Qt::Minimized ) )
+	    mw->moveDockWidget( dockWidget, Qt::Minimized );
     }
 }
 
@@ -315,6 +327,7 @@ QSizePolicy QDockWidgetHandle::sizePolicy() const
 
 void QDockWidgetHandle::mouseDoubleClickEvent( QMouseEvent * )
 {
+    timer->stop();
     emit doubleClicked();
     hadDblClick = TRUE;
 }
