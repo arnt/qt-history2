@@ -41,6 +41,7 @@
 
 #ifndef QT_NO_SOUND
 
+#include <qdir.h>
 #include <qpixmap.h>
 #include <qpainter.h>
 #include <qapplication.h>
@@ -61,7 +62,7 @@ public:
 
 private:
     QPixmap *offscreen;
-    MovieController aMovie;
+    Movie aMovie;
     Fixed volume;
 };
 
@@ -118,26 +119,28 @@ QMAC_PASCAL OSErr FSpLocationFromFullPath( short fullPathLength,
     return result;
 }
 
-MovieController get_movie(const QString &filename, QPixmap *offscreen) 
+static Movie get_movie(const QString &filename, QPixmap *offscreen) 
 {
     OSErr err;
     FSSpec fileSpec;
     short movieResFile;
     Movie aMovie = nil;
 
-    QString macFilename = filename.mid( 1 );
+    QString macFilename = filename;
+//    if(QDir::isRelativePath(macFilename))
+//	macFilename.prepend(':');
     while ( macFilename.find( "/" ) != -1 )
 	macFilename.replace( macFilename.find( "/" ), 1, ":" );
     //FIXME: prepend the volume name to the macFilename 
 
     err = FSpLocationFromFullPath( macFilename.length(), macFilename.latin1(),
 				   &fileSpec ); 
-    if ( err != noErr )
+    if ( err != noErr ) 
 	return NULL;
 
     // If a movie soundtrack is played then the movie will be played on
     // the current graphics port. So create an offscreen graphics port.
-    QPainter p( offscreen );
+    QMacSavedPortInfo psi( offscreen );
 
     err = OpenMovieFile ( &fileSpec, &movieResFile, fsRdPerm );
     if ( err != noErr )
@@ -151,23 +154,20 @@ MovieController get_movie(const QString &filename, QPixmap *offscreen)
 			    movieName, 
 			    newMovieActive,         /* flags */
 			    &wasChanged);
-    if ( err != noErr )
+    if ( err != noErr ) 
 	return NULL;
 
     CloseMovieFile (movieResFile);
-    Rect r;
-    return NewMovieController(aMovie, &r, 0);
+    return aMovie;
 }
 
 void QAuServerMac::play( const QString& filename )
 {
     if(!(aMovie = get_movie(filename, offscreen)))
        return;
-    MCDoAction(aMovie, mcActionSetVolume, &volume); 
-
-    //play
-    Fixed rate = 1;
-    MCDoAction(aMovie, mcActionPlay, &rate);
+    SetMovieVolume(aMovie, kFullVolume);
+    GoToBeginningOfMovie(aMovie);
+    StartMovie( aMovie );
 }
 
 /*
