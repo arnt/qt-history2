@@ -90,7 +90,7 @@ private:
 #else // QT_NO_THREAD
 
 
-class QMutex
+class Q_CORE_EXPORT QMutex
 {
 public:
     inline QMutex(bool) {}

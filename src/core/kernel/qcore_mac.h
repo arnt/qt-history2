@@ -35,7 +35,6 @@
 #endif
 
 #include <QuickTime/Movies.h>
-#undef QT_BUILD_KEY
 
 #undef DEBUG
 #ifdef OLD_DEBUG
