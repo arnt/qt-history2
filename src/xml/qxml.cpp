@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qxml.cpp#83 $
+** $Id: //depot/qt/main/src/xml/qxml.cpp#84 $
 **
 ** Implementation of QXmlSimpleReader and related classes.
 **
@@ -70,6 +70,7 @@
 #define XMLERR_EXTERNALGENERALENTITYINAV  "external parsed general entity reference not allowed in attribute value"
 #define XMLERR_EXTERNALGENERALENTITYINDTD "external parsed general entity reference not allowed in DTD"
 #define XMLERR_UNPARSEDENTITYREFERENCE    "unparsed entity reference in wrong context"
+#define XMLERR_RECURSIVEENTITIES          "recursive entities"
 
 // the constants for the lookup table
 static const signed char cltWS      =  0; // white space
@@ -6777,6 +6778,12 @@ bool QXmlSimpleReader::insertXmlRef( const QString &data, const QString &name, b
 	d->xmlRef.push( data );
     }
     d->xmlRefName.push( name );
+    uint n = QMAX( d->parameterEntities.count(), d->entities.count() );
+    if ( d->xmlRefName.count() > n+1 ) {
+	// recursive entities
+	reportParseError( XMLERR_RECURSIVEENTITIES );
+	return FALSE;
+    }
     if ( d->reportEntities && lexicalHnd ) {
 	if ( !lexicalHnd->startEntity( name ) ) {
 	    reportParseError( lexicalHnd->errorString() );
