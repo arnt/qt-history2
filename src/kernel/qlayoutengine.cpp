@@ -33,7 +33,7 @@
 //
 
 
-#include "qlayoutengine.h"
+#include "qlayoutengine_p.h"
 
 static inline int toFixed( int i ) { return i * 256; }
 static inline int fRound( int i ) {

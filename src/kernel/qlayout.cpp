@@ -30,7 +30,7 @@
 #include "qlist.h"
 #include "qsizepolicy.h"
 
-#include "qlayoutengine.h"
+#include "qlayoutengine_p.h"
 
 // This cannot be a subclass of QLayoutItem, since it can contain different item classes.
 class QLayoutBox
