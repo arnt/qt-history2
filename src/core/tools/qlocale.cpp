@@ -3944,7 +3944,7 @@ __RCSID("$NetBSD: strtod.c,v 1.26 1998/02/03 18:44:21 perry Exp $");
 inline ULong getWord0(const double x)
 {
     const uchar *ptr = reinterpret_cast<const uchar *>(&x);
-    if (QtByteOrder == QtBigEndian) {
+    if (QSysInfo::ByteOrder == QSysInfo::BigEndian) {
         return (ptr[0]<<24) + (ptr[1]<<16) + (ptr[2]<<8) + ptr[3];
     } else {
         return (ptr[7]<<24) + (ptr[6]<<16) + (ptr[5]<<8) + ptr[4];
@@ -3954,7 +3954,7 @@ inline ULong getWord0(const double x)
 inline void setWord0(double *x, ULong l)
 {
     uchar *ptr = reinterpret_cast<uchar *>(x);
-    if (QtByteOrder == QtBigEndian) {
+    if (QSysInfo::ByteOrder == QSysInfo::BigEndian) {
         ptr[0] = uchar(l>>24);
         ptr[1] = uchar(l>>16);
         ptr[2] = uchar(l>>8);
@@ -3970,7 +3970,7 @@ inline void setWord0(double *x, ULong l)
 inline ULong getWord1(const double x)
 {
     const uchar *ptr = reinterpret_cast<const uchar *>(&x);
-    if (QtByteOrder == QtBigEndian) {
+    if (QSysInfo::ByteOrder == QSysInfo::BigEndian) {
         return (ptr[4]<<24) + (ptr[5]<<16) + (ptr[6]<<8) + ptr[7];
     } else {
         return (ptr[3]<<24) + (ptr[2]<<16) + (ptr[1]<<8) + ptr[0];
@@ -3979,7 +3979,7 @@ inline ULong getWord1(const double x)
 inline void setWord1(double *x, ULong l)
 {
     uchar *ptr = reinterpret_cast<uchar *>(x);
-    if (QtByteOrder == QtBigEndian) {
+    if (QSysInfo::ByteOrder == QSysInfo::BigEndian) {
         ptr[4] = uchar(l>>24);
         ptr[5] = uchar(l>>16);
         ptr[6] = uchar(l>>8);

@@ -558,10 +558,10 @@ static inline bool compareIntersections(const QIntersectionPoint &i1, const QInt
     if (qAbs(i1.x - i2.x) > 0.01) { // x != other.x in 99% of the cases
         return i1.x < i2.x;
     } else {
-        float x1 = qIsInf(i1.edge->b) ? i1.edge->p1.x()
-                   : (currentY+1.f - i1.edge->b)*i1.edge->m;
-        float x2 = qIsInf(i2.edge->b) ? i2.edge->p1.x()
-                   : (currentY+1.f - i2.edge->b)*i2.edge->m;
+        float x1 = !qIsFinite(i1.edge->b) ? i1.edge->p1.x() :
+                   (currentY+1.f - i1.edge->b)*i1.edge->m;
+        float x2 = !qIsFinite(i2.edge->b) ? i2.edge->p1.x() :
+                   (currentY+1.f - i2.edge->b)*i2.edge->m;
         return x1 < x2;
     }
 }
@@ -663,8 +663,9 @@ static void qt_tesselate_polygon(QVector<XTrapezoid> *traps, const QPolygon &pg,
 	for (int k = i+1; k < et.size(); ++k) {
             if (et.at(k)->p1.y() > et.at(i)->p1.y() + 0.0001)
                 break;
-   	    if (isEqual(et.at(i)->p1, et.at(k)->p1) && isEqual(et.at(i)->p2, et.at(k)->p2)
-		&& et.at(i)->winding != et.at(k)->winding) {
+   	    if (et.at(i)->winding != et.at(k)->winding &&
+                isEqual(et.at(i)->p1, et.at(k)->p1) && isEqual(et.at(i)->p2, et.at(k)->p2)
+		) {
  		et.removeAt(k);
 		et.removeAt(i);
 		--i;
@@ -733,14 +734,14 @@ static void qt_tesselate_polygon(QVector<XTrapezoid> *traps, const QPolygon &pg,
 		float m2 = aet.at(k)->m;
 		float b2 = aet.at(k)->b;
 
-		if (m1 == m2)
+		if (qAbs(m1 - m2) < 0.001)
                     continue;
 
                 // ### intersect is not calculated correctly when optimized with -O2 (gcc)
                 volatile float intersect;
-                if (qIsInf(b1))
+                if (!qIsFinite(b1))
                     intersect = (1.f / m2) * aet.at(i)->p1.x() + b2;
-                else if (qIsInf(b2))
+                else if (!qIsFinite(b2))
                     intersect = (1.f / m1) * aet.at(k)->p1.x() + b1;
                 else
                     intersect = (b1*m1 - b2*m2) / (m1 - m2);
