@@ -129,8 +129,8 @@ static const uint nobodyID = (uint) -2;
 
   On systems where files do not have owners this function returns 0.
 
-  Note that this function can be time-consuming under UNIX. (in the order
-  of milliseconds on a 486 DX2/66 running Linux).
+  This function can be time consuming under Unix (in the order of
+  milliseconds).
 
   \sa ownerId(), group(), groupId()
 */
@@ -166,8 +166,8 @@ uint QFileInfo::ownerId() const
   On systems where files do not have groups this function always
   returns 0.
 
-  Note that this function can be time-consuming under UNIX (in the order of
-  milliseconds on a 486 DX2/66 running Linux).
+  This function can be time consuming under Unix (in the order of
+  milliseconds).
 
   \sa groupId(), owner(), ownerId()
 */
@@ -389,8 +389,8 @@ QString QFileInfo::fileName() const
   the QFileInfo is absolute (i.e. not relative) this function will return
   the same string as filePath().
 
-  Note that this function can be time-consuming under UNIX. (in the order
-  of milliseconds on a 486 DX2/66 running Linux).
+  This function can be time consuming under Unix (in the order of
+  milliseconds).
 
   \sa isRelative(), filePath()
 */
