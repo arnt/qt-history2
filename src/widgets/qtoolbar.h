@@ -58,7 +58,7 @@ public:
     QMainWindow * mainWindow();
 
     virtual void setStretchableWidget( QWidget * );
-    void setStretchable( bool b );
+    void setStretchable( bool );
     bool stretchable() const;
 
     bool event( QEvent * e );
@@ -74,7 +74,7 @@ protected:
 
 signals:
     void orientationChanged( Orientation );
-    
+
 protected slots:
     void startMoving( QToolBar *tb );
     void endMoving( QToolBar *tb );
