@@ -31,19 +31,19 @@
 template <typename T>
 inline static const T *v_cast(const QCoreVariant::Private *d, T * = 0)
 {
-    if (sizeof(T) > sizeof(QCoreVariant::Private::Data))
-        // this is really a static_cast, but gcc 2.95 complains about it.
-        return reinterpret_cast<const T*>(d->data.shared->ptr);
-    return reinterpret_cast<const T*>(&d->data.ptr);
+    return ((sizeof(T) > sizeof(QCoreVariant::Private::Data))
+            // this is really a static_cast, but gcc 2.95 complains about it.
+            ? reinterpret_cast<const T*>(d->data.shared->ptr)
+            : reinterpret_cast<const T*>(&d->data.ptr));
 }
 
 template <typename T>
 inline static T *v_cast(QCoreVariant::Private *d, T * = 0)
 {
-    if (sizeof(T) > sizeof(QCoreVariant::Private::Data))
-        // this is really a static_cast, but gcc 2.95 complains about it.
-        return reinterpret_cast<T*>(d->data.shared->ptr);
-    return reinterpret_cast<T*>(&d->data.ptr);
+    return ((sizeof(T) > sizeof(QCoreVariant::Private::Data))
+            // this is really a static_cast, but gcc 2.95 complains about it.
+            ? reinterpret_cast<T*>(d->data.shared->ptr)
+            : reinterpret_cast<T*>(&d->data.ptr));
 }
 
 // constructs an empty variant
