@@ -205,7 +205,6 @@ public:
     friend inline bool operator!=(const QPointF &, const QPointF &);
     friend inline const QPointF operator+(const QPointF &, const QPointF &);
     friend inline const QPointF operator-(const QPointF &, const QPointF &);
-    friend inline const QPointF operator*(const QPointF &, int);
     friend inline const QPointF operator*(float, const QPointF &);
     friend inline const QPointF operator*(const QPointF &, float);
     friend inline const QPointF operator-(const QPointF &);
