@@ -582,7 +582,7 @@ bool QODBCResult::reset ( const QString& query )
 #else
     QByteArray query8( query.local8Bit() );
     r = SQLExecDirect( d->hStmt,
-                       (SQLCHAR*) query8.detach(),
+                       (SQLCHAR*) query8.data(),
                        (SQLINTEGER) query8.length() );
 #endif
     if ( r != SQL_SUCCESS && r != SQL_SUCCESS_WITH_INFO ) {
@@ -904,7 +904,7 @@ bool QODBCResult::prepare( const QString& query )
 #else
     QByteArray query8( query.local8Bit() );
     r = SQLPrepare( d->hStmt,
-		    (SQLCHAR*) query8.detach(),
+		    (SQLCHAR*) query8.data(),
 		    (SQLINTEGER) query8.length() );
 #endif
 
@@ -1083,7 +1083,7 @@ bool QODBCResult::exec()
 					  SQL_VARCHAR,
   					  str->length() + 1,
 					  0,
-					  (void *) str->detach(),
+					  (void *) str->data(),
 					  str->length() + 1,
 					  ind );
 		    break; }
@@ -1939,8 +1939,8 @@ QString QODBCDriver::formatValue( const QSqlField* field,
 	QByteArray ba = field->value().toByteArray();
 	QString res;
 	static const char hexchars[] = "0123456789abcdef";
-	for ( uint i = 0; i < (uint)ba.size(); ++i ) {
-	    uchar s = (uchar) ba[(int)i];
+	for ( int i = 0; i < ba.size(); ++i ) {
+	    uchar s = (uchar) ba[i];
 	    res += hexchars[s >> 4];
 	    res += hexchars[s & 0x0f];
 	}

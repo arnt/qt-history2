@@ -777,7 +777,7 @@ bool QDB2Result::exec()
 					  SQL_VARCHAR,
 					  str->length() + 1,
 					  0,
-					  (void *) str->detach(),
+					  (void *) str->data(),
 					  str->length() + 1,
 					  ind );
 		    break; }
@@ -1561,8 +1561,8 @@ QString QDB2Driver::formatValue( const QSqlField* field, bool trimStrings ) cons
 	    QByteArray ba = field->value().toByteArray();
 	    QString res( "BLOB(X'" );
 	    static const char hexchars[] = "0123456789abcdef";
-	    for ( uint i = 0; i < ba.size(); ++i ) {
-		uchar s = (uchar) ba[(int)i];
+	    for ( int i = 0; i < ba.size(); ++i ) {
+		uchar s = (uchar) ba[i];
 		res += hexchars[s >> 4];
 		res += hexchars[s & 0x0f];
 	    }

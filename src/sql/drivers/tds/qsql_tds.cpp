@@ -338,7 +338,7 @@ bool QTDSResult::reset ( const QString& query )
     dbcanquery( d->dbproc );
     dbfreebuf( d->dbproc );
     QByteArray s( query.local8Bit() );
-    if ( dbcmd( d->dbproc , s.detach() ) == FAIL ) {
+    if ( dbcmd( d->dbproc , s.data() ) == FAIL ) {
 	setLastError( d->lastError );
 	return FALSE;
     }
@@ -514,13 +514,13 @@ bool QTDSDriver::open( const QString & db,
 	return FALSE;
     }
     QByteArray s( password.local8Bit() );
-    DBSETLPWD( d->login, s.detach() );
+    DBSETLPWD( d->login, s.data() );
     s = user.local8Bit();
-    DBSETLUSER( d->login, s.detach() );
+    DBSETLUSER( d->login, s.data() );
 //    DBSETLAPP( d->login, "QTDS7"); // we could set the name of the application here
 
     s = host.local8Bit();
-    d->dbproc = dbopen( d->login, s.detach() );
+    d->dbproc = dbopen( d->login, s.data() );
     if ( !d->dbproc ) {
 	// we have to manually set the error here because the error handler won't fire when no dbproc exists
 	setLastError( QSqlError( QString::null,
@@ -530,7 +530,7 @@ bool QTDSDriver::open( const QString & db,
 	return FALSE;
     }
     s = db.local8Bit();
-    if ( dbuse( d->dbproc, s.detach() ) == FAIL ) {
+    if ( dbuse( d->dbproc, s.data() ) == FAIL ) {
 	setLastError( QSqlError( QString::null,
 				 qApp->translate( "QSql", "Could not open database" ),
 				 QSqlError::Connection ) );
@@ -566,7 +566,7 @@ QSqlQuery QTDSDriver::createQuery() const
     d2.login = d->login;
 
     QByteArray s( hostName.local8Bit() );
-    d2.dbproc = dbopen( d2.login, s.detach() );
+    d2.dbproc = dbopen( d2.login, s.data() );
     if ( !d2.dbproc ) {
 	return QSqlQuery( (QSqlResult *) 0 );
     }
@@ -764,8 +764,8 @@ QString QTDSDriver::formatValue( const QSqlField* field,
 	QByteArray ba = field->value().toByteArray();
 	QString res;
 	static const char hexchars[] = "0123456789abcdef";
-	for ( uint i = 0; i < (uint)ba.size(); ++i ) {
-	    uchar s = (uchar) ba[(int)i];
+	for ( int i = 0; i < ba.size(); ++i ) {
+	    uchar s = (uchar) ba[i];
 	    res += hexchars[s >> 4];
 	    res += hexchars[s & 0x0f];
 	}
