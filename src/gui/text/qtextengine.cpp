@@ -1392,7 +1392,7 @@ void QTextEngine::addRequiredBoundaries() const
             const QTextLayout::FormatRange &r = specialData->addFormats.at(i);
             setBoundary(r.start);
             setBoundary(r.start + r.length);
-            qDebug("adding boundaries %d %d", r.start, r.start+r.length);
+            //qDebug("adding boundaries %d %d", r.start, r.start+r.length);
         }
     }
 }
