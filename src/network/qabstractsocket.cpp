@@ -270,7 +270,6 @@
 #include "qhostaddress.h"
 #include "qpointer.h"
 #include "qsignal.h"
-#include "qsocketlayer.h"
 #include "qtimer.h"
 
 #include <time.h>
@@ -1551,6 +1550,7 @@ QByteArray QAbstractSocket::readLine()
     // Allocate space for the '\n' and a '\0'.
     tmp.resize(endOfLine + 2);
     d->readBuffer.readLine(tmp.data(), endOfLine + 2);
+    tmp.resize(endOfLine + 1);
 #if defined (QABSTRACTSOCKET_DEBUG)
         qDebug("QAbstractSocket::readLine() == \"%s\"", tmp.data());
 #endif

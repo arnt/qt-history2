@@ -11,7 +11,6 @@ PRECOMPILED_HEADER = ../core/global/qt_pch.h
 HEADERS += qftp.h \
            qhttp.h \
            qhostaddress.h \
-           qsocketlayer.h \
            qsocketlayer_p.h \
            qabstractsocket.h \
            qabstractsocket_p.h \

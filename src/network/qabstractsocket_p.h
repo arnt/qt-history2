@@ -5,7 +5,7 @@
 #include "qbytearray.h"
 #include "qdns.h"
 #include "qlist.h"
-#include "qsocketlayer.h"
+#include "qsocketlayer_p.h"
 #include "qsocketnotifier.h"
 #include "qtimer.h"
 

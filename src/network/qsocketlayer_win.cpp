@@ -14,7 +14,6 @@
 
 #include <winsock2.h>
 
-#include "qsocketlayer.h"
 #include "qsocketlayer_p.h"
 
 //#define QSOCKETLAYER_DEBUG
@@ -720,7 +719,7 @@ Q_LONGLONG QSocketLayerPrivate::nativePendingDatagramSize() const
         flags = MSG_PEEK;
         DWORD bytesRead = 0;
         recvResult = ::WSARecv(socketDescriptor, buf, bufferCount, &bytesRead, &flags, 0,0);
-        
+
         if (recvResult != SOCKET_ERROR) {
             ret = Q_LONGLONG(bytesRead);
             break;
@@ -837,11 +836,11 @@ Q_LONGLONG QSocketLayerPrivate::nativeWrite(const char *data, Q_LONGLONG len)
         buf.len = bytesToSend;
         DWORD flags = 0;
         DWORD bytesWritten = 0;
-    
+
         int socketRet = ::WSASend(socketDescriptor, &buf, 1, &bytesWritten, flags, 0,0);
-        
+
         ret += Q_LONGLONG(bytesWritten);
-        
+
         if (socketRet != SOCKET_ERROR) {
             if (ret == len)
                 break;
@@ -862,7 +861,7 @@ Q_LONGLONG QSocketLayerPrivate::nativeWrite(const char *data, Q_LONGLONG len)
                 break;
             }
             break;
-        }             
+        }
     }
 
 #if defined (QSOCKETLAYER_DEBUG)

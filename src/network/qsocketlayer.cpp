@@ -67,7 +67,6 @@
     errorString() can be called to determine the cause of the error.
 */
 
-#include "qsocketlayer.h"
 #include "qsocketlayer_p.h"
 
 //#define QSOCKETLAYER_DEBUG
