@@ -45,7 +45,7 @@ static const char * const edit2_xpm[]={
 ".bb........bb...",
 "..b........b...."};
 
-#include "qtrayicon.h"
+#include <qtrayicon.h>
 
 #include <qapplication.h>
 #include <qpixmap.h>
@@ -59,28 +59,22 @@ int main( int argc, char **argv )
 	QMainWindow mw;
 	app.setMainWidget( &mw );
 
-	QTrayIcon tray( &app );
-	tray.setIcon( QPixmap( (const char**)edit_xpm ) );
-	tray.setToolTip( "QTrayWidget" );
-
 	QPopupMenu menu;
 	menu.insertItem( "Test 1" );
 	menu.insertSeparator();
 	menu.insertItem( "&Quit", &app, SLOT(quit()) );
-	tray.setPopup( &menu );
-
-	QTrayIcon tray2( &app );
-	tray2.setIcon( QPixmap( (const char**)edit2_xpm ) );
-	tray2.setToolTip( "QTrayWidget2" );
+	QTrayIcon tray( QPixmap( (const char**)edit_xpm ), "Hide MainWindow", &menu );
 
 	QPopupMenu menu2;
 	menu2.insertItem( "Test 2" );
-	tray2.setPopup( &menu2 );
+	QTrayIcon tray2( QPixmap( (const char**)edit2_xpm ), "Show MainWindow", &menu );
 
 	QObject::connect(&tray,SIGNAL(clicked(const QPoint&)),&mw,SLOT(hide()));
 	QObject::connect(&tray2,SIGNAL(clicked(const QPoint&)),&mw,SLOT(show()));
 
 	mw.show();
+	tray.show();
+	tray2.show();
 
 	return app.exec();
 }
