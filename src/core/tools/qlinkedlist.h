@@ -56,7 +56,6 @@ public:
     void prepend(const T &);
 
     int remove(const T &t);
-    int take(const T &t);
     bool contains(const T &t) const;
     int count(const T &t) const;
 
@@ -69,7 +68,8 @@ public:
 	typedef T *pointer;
 	typedef T &reference;
 	Node *i;
-	inline iterator(Node *n = 0): i(n){}
+	inline iterator() : i(0) {}
+	inline iterator(Node *n) : i(n) {}
 	inline iterator(const iterator &o): i(o.i){}
 	inline T &operator*() const { return i->t; }
 	inline bool operator==(const iterator &o) const { return i == o.i; }
@@ -78,8 +78,11 @@ public:
 	inline iterator operator++(int) { Node *n = i; i = i->n; return n; }
 	inline iterator operator--() { i = i->p; return *this; }
 	inline iterator operator--(int) { Node *n = i; i = i->p; return n; }
-	inline iterator operator+(int j) const { Node *n = i; while (j--) n = n->n; return n; }
-	inline iterator operator-(int j) const { Node *n = i; while (j--) n = n->p; return n; }
+	inline iterator operator+(int j) const
+        { Node *n = i; if (j > 0) while (j--) n = n->n; else while (j++) n = n->p; return n; }
+	inline iterator operator-(int j) const { return operator+(-j); }
+        inline iterator &operator+=(int j) { return *this = *this + j; }
+        inline iterator &operator-=(int j) { return *this = *this - j; }
     };
     friend class iterator;
 
@@ -92,7 +95,8 @@ public:
 	typedef T *pointer;
 	typedef T &reference;
 	Node *i;
-	inline const_iterator(Node *n = 0): i(n){}
+	inline const_iterator() : i(0) {}
+	inline const_iterator(Node *n) : i(n) {}
 	inline const_iterator(const const_iterator &o): i(o.i){}
 	inline const_iterator(iterator ci): i(ci.i){}
 	inline const T &operator*() const { return i->t; }
@@ -102,8 +106,11 @@ public:
 	inline const_iterator operator++(int) { Node *n = i; i = i->n; return n; }
 	inline const_iterator operator--() { i = i->p; return *this; }
 	inline const_iterator operator--(int) { Node *n = i; i = i->p; return n; }
-	inline const_iterator operator+(int j) const { Node *n = i; while (j--) n = n->n; return n; }
-	inline const_iterator operator-(int j) const { Node *n = i; while (j--) n = n->p; return n; }
+	inline const_iterator operator+(int j) const
+        { Node *n = i; if (j > 0) while (j--) n = n->n; else while (j++) n = n->p; return n; }
+	inline const_iterator operator-(int j) const { return operator+(-j); }
+        inline const_iterator &operator+=(int j) { return *this = *this + j; }
+        inline const_iterator &operator-=(int j) { return *this = *this - j; }
     };
     friend class const_iterator;
 
@@ -275,28 +282,6 @@ void QLinkedList<T>::prepend(const T &t)
 
 template <typename T>
 int QLinkedList<T>::remove(const T &t)
-{
-    detach();
-    Node *i = e->n;
-    int c = 0;
-    while (i != e) {
-	if (i->t == t) {
-	    Node *n = i;
-	    i->n->p = i->p;
-	    i->p->n = i->n;
-	    i = i->n;
-	    delete n;
-	    c++;
-	} else {
-	    i = i->n;
-	}
-    }
-    d->size-=c;
-    return c;
-}
-
-template <typename T>
-int QLinkedList<T>::take(const T &t)
 {
     detach();
     Node *i = e->n;
