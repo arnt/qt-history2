@@ -1,6 +1,5 @@
 TEMPLATE 	= app
 CONFIG		+= qt warn_off release
-QCONFIG         += sql
 HEADERS		= frame.h \
 		  categoryinterface.h \
 		  qthumbwheel.h \
@@ -47,6 +46,8 @@ canvas {
 }
 
 opengl {
+	QCONFIG += opengl
+
 	HEADERS += opengl/glworkspace.h \
 		   opengl/glcontrolwidget.h \
 		   opengl/gltexobj.h \
@@ -77,6 +78,8 @@ opengl {
 }
 
 sql {
+	QCONFIG += sql
+
 	HEADERS += sql/sqlsyntaxhighlighter.h
 	SOURCES += sql/sqlsyntaxhighlighter.cpp
 	FORMS += sql/connect.ui \
