@@ -1,10 +1,10 @@
 #include "previewstack.h"
 #include "styledbutton.h"
-#include "qdefaultinterface.h"
-#include "../../../qtable/qtable.h"
+#include "../../qdefaultinterface.h"
 
 #include <qworkspace.h>
 #include <qscrollview.h>
+#include <qtable.h>
 
 #ifdef _WS_WIN_
 #undef LIBEXPORT
@@ -16,22 +16,19 @@
 class TestInterface : public QDefaultInterface
 {
 public:
-    QString plugInInfo();
+    QString name() { return "Test Interface"; }
+    QString description() { return "Test implementation of the QDefaultInterface"; }
+    QString author() { return "vohi"; }
 
     QStringList widgets();
     QWidget* create( const QString &classname, QWidget* parent = 0, const char* name = 0 );
-    QString iconSet( const QString &classname );
+/*    QString iconSet( const QString &classname );
     QCString includeFile( const QString &classname );
     QString group( const QString &classname );
     QString toolTip( const QString &classname );
     QString whatsThis( const QString &classname );
-    bool isContainer( const QString &classname );
+    bool isContainer( const QString &classname );*/
 };
-
-QString TestInterface::plugInInfo()
-{
-    return "Test Interface";
-}
 
 QStringList TestInterface::widgets()
 {
@@ -58,7 +55,7 @@ QWidget* TestInterface::create( const QString &classname, QWidget* parent, const
     else
 	return 0;
 }
-
+/*
 QString TestInterface::iconSet( const QString& classname )
 {
     if ( classname == "StyledButton" )
@@ -73,8 +70,6 @@ QCString TestInterface::includeFile( const QString &classname )
 {
     if ( classname == "StyledButton" )
 	return "styledbutton.h";
-    else if ( classname == "QTable" )
-	return "qtable.h";
     else if ( classname == "MyScrollView" )
 	return "qscrollview.h";
     else if ( classname == "MyWorkspace" )
@@ -86,17 +81,15 @@ QString TestInterface::group( const QString &classname )
 {
     if ( classname == "StyledButton" )
 	return "Buttons";
-    else if ( classname == "QTable" )
-	return "Views";
     else if ( classname == "MyScrollView" )
+	return "Managers";
+    else if ( classname == "MyWorkspace" )
 	return "Managers";
     return QDefaultInterface::group( classname );
 }
 
 QString TestInterface::toolTip( const QString &classname )
 {
-    if ( classname == "QTable" )
-	return "QTable";
     return QDefaultInterface::toolTip( classname );
 }
 
@@ -116,7 +109,7 @@ bool TestInterface::isContainer( const QString &classname )
     else
 	return FALSE;
 }
-
+*/
 #if defined(__cplusplus )
 extern "C"
 {
