@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp.cpp#126 $
+** $Id: //depot/qt/main/src/kernel/qapp.cpp#127 $
 **
 ** Implementation of QApplication class
 **
@@ -15,7 +15,7 @@
 #include "qwidcoll.h"
 #include "qpalette.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp.cpp#126 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp.cpp#127 $");
 
 
 /*!
@@ -45,7 +45,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qapp.cpp#126 $");
 	connect( &hello, SIGNAL(clicked()),	// clicking the button
 		 &app, SLOT(quit()) );		//   quits the application
 	hello.show();				// show button
-	return a.exec();			// run main event loop
+	return app.exec();			// run main event loop
     }
   \endcode
 
