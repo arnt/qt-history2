@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#95 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#96 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -1379,12 +1379,11 @@ void QPainter::drawArc( int x, int y, int w, int h, int a, int alen )
     }
     double w2 = 0.5*w;
     double h2 = 0.5*h;
-    float r = (float)(w2+h2);
     Arc( hdc, x, y, x+w, y+h,
-	 qRound(w2 + (cos(ra1)*r) + x),
-	 qRound(h2 - (sin(ra1)*r) + y),
-	 qRound(w2 + (cos(ra2)*r) + x),
-	 qRound(h2 - (sin(ra2)*r) + y) );
+	 qRound(w2 + (cos(ra1)*w) + x),
+	 qRound(h2 - (sin(ra1)*h) + y),
+	 qRound(w2 + (cos(ra2)*w) + x),
+	 qRound(h2 - (sin(ra2)*h) + y) );
 }
 
 
@@ -1432,14 +1431,13 @@ void QPainter::drawPie( int x, int y, int w, int h, int a, int alen )
     }
     double w2 = 0.5*w;
     double h2 = 0.5*h;
-    float r = (float)(w2+h2);
     if ( nocolBrush )
 	SetTextColor( hdc, COLOR_VALUE(cbrush.data->color) );
     Pie( hdc, x, y, x+w, y+h,
-	 qRound(w2 + (cos(ra1)*r) + x),
-	 qRound(h2 - (sin(ra1)*r) + y),
-	 qRound(w2 + (cos(ra2)*r) + x),
-	 qRound(h2 - (sin(ra2)*r) + y) );
+	 qRound(w2 + (cos(ra1)*w) + x),
+	 qRound(h2 - (sin(ra1)*h) + y),
+	 qRound(w2 + (cos(ra2)*w) + x),
+	 qRound(h2 - (sin(ra2)*h) + y) );
     if ( nocolBrush )
 	SetTextColor( hdc, COLOR_VALUE(cpen.data->color) );
 }
@@ -1488,14 +1486,13 @@ void QPainter::drawChord( int x, int y, int w, int h, int a, int alen )
     }
     double w2 = 0.5*w;
     double h2 = 0.5*h;
-    float r = (float)(w2+h2);
     if ( nocolBrush )
 	SetTextColor( hdc, COLOR_VALUE(cbrush.data->color) );
     Chord( hdc, x, y, x+w, y+h,
-	   qRound(w2 + (cos(ra1)*r) + x),
-	   qRound(h2 - (sin(ra1)*r) + y),
-	   qRound(w2 + (cos(ra2)*r) + x),
-	   qRound(h2 - (sin(ra2)*r) + y) );
+	   qRound(w2 + (cos(ra1)*w) + x),
+	   qRound(h2 - (sin(ra1)*h) + y),
+	   qRound(w2 + (cos(ra2)*w) + x),
+	   qRound(h2 - (sin(ra2)*h) + y) );
     if ( nocolBrush )
 	SetTextColor( hdc, COLOR_VALUE(cpen.data->color) );
 }
