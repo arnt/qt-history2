@@ -12,8 +12,6 @@
 
 #include "printout.h"
 
-#if 0 // ### enable me
-
 #include <qprinter.h>
 #include <qfontmetrics.h>
 
@@ -161,4 +159,3 @@ void PrintOut::drawRule( Rule rule )
         voffset += 4;
     }
 }
-#endif

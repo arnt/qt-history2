@@ -49,6 +49,7 @@
 #include <qassistantclient.h>
 #include <qdesktopwidget.h>
 #include <qassistantclient.h>
+#include <qprintdialog.h>
 
 #include <stdlib.h>
 
@@ -436,10 +437,10 @@ void TrWindow::release()
 
 void TrWindow::print()
 {
-#if 0 /// ### enable me
     int pageNum = 0;
 
-    if ( printer.setup(this) ) {
+    QPrintDialog dlg(&printer, this);
+    if (dlg.exec()) {
         QApplication::setOverrideCursor( WaitCursor );
         printer.setDocName( filename );
         statusBar()->message( tr("Printing...") );
@@ -503,7 +504,6 @@ void TrWindow::print()
     } else {
         statusBar()->message( tr("Printing aborted"), MessageMS );
     }
-#endif
 }
 
 void TrWindow::find()
@@ -734,11 +734,11 @@ void TrWindow::editPhraseBook( int id )
 
 void TrWindow::printPhraseBook( int id )
 {
-#if 0 /// ### enable me
     int index = printPhraseBookp->indexOf( id );
     int pageNum = 0;
 
-    if ( printer.setup(this) ) {
+    QPrintDialog dlg(&printer, this);
+    if (dlg.exec()) {
         printer.setDocName(phraseBookNames.at(index));
         statusBar()->message( tr("Printing...") );
         PrintOut pout( &printer );
@@ -765,7 +765,6 @@ void TrWindow::printPhraseBook( int id )
     } else {
         statusBar()->message( tr("Printing aborted"), MessageMS );
     }
-#endif
 }
 
 void TrWindow::revertSorting()

@@ -24,10 +24,7 @@
 #include <qpixmap.h>
 #include <q3listview.h>
 
-#if 0 /// ### enable me
 #include <qprinter.h>
-#endif
-
 
 class QAction;
 class QDialog;
@@ -157,9 +154,7 @@ private:
     PBL phraseBooks;
     QStringList phraseBookNames;
 
-#if 0 /// ### enable me
     QPrinter printer;
-#endif
 
     FindDialog *f;
     FindDialog *h;

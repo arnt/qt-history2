@@ -13,8 +13,6 @@
 #ifndef PRINTOUT_H
 #define PRINTOUT_H
 
-#if 0 // ### enable me
-
 #include <qfont.h>
 #include <qpaintdevicemetrics.h>
 #include <qpainter.h>
@@ -103,7 +101,5 @@ private:
     int hsize;
     int vsize;
 };
-
-#endif
 
 #endif
