@@ -65,6 +65,7 @@ The following predicates are supported:
 	<between>
 	<like>
 	<null>
+	<in>
 
 NULL values are supported.
 
