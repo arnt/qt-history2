@@ -321,8 +321,8 @@ while [ -n "$1" ]; do
 	;;
     #Qt style complex options in one command
     -enable-*|-disable-*)
-	VAR=`echo $1 | sed "s,^-\(.*\)-.*,\1,"`
-	VAL=`echo $1 | sed "s,^-.*-\(.*\),\1,"`
+	VAR=`echo $1 | sed "s,^-\([^-]*\)-.*,\1,"`
+	VAL=`echo $1 | sed "s,^-[^-]*-\(.*\),\1,"`
 	;;
     #Qt Builtin/System style options
     -qt-*|-system-*|-no-*)
@@ -617,7 +617,7 @@ while [ -n "$1" ]; do
 	fi
 	;;
     nas-sound)
-	if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
+	if [ "$VAL" = "system" ] || [ "$VAL" = "no" ]; then
 	    CFG_NAS="$VAL"
 	else
 	    UNKNOWN_OPT=yes
