@@ -2098,6 +2098,11 @@ void QWidgetFactory::loadConnections( const QDomElement &e, QObject *connector )
 	    conn.signal = NormalizeObject::normalizeSignalSlot( conn.signal );
 	    conn.slot = NormalizeObject::normalizeSignalSlot( conn.slot );
 
+	    if ( !conn.sender || !conn.receiver ) {
+		n = n.nextSibling().toElement(); 
+		continue;
+	    }
+
 	    QObject *sender = 0, *receiver = 0;
 	    QObjectList *l = toplevel->queryList( 0, conn.sender->name(), FALSE );
 	    if ( qstrcmp( conn.sender->name(), toplevel->name() ) == 0 ) {
