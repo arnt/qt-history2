@@ -1,6 +1,7 @@
 #include "qwidgetplugin.h"
 #include "qwidgetinterface_p.h"
 #include "qobjectcleanuphandler.h"
+#include "qwidget.h"
 
 class QWidgetPluginPrivate : public QWidgetFactoryInterface, QLibraryInterface
 {
@@ -43,7 +44,7 @@ QRESULT QWidgetPluginPrivate::queryInterface( const QUuid &iid, QUnknownInterfac
 	*iface = (QFeatureListInterface*)this;
     else if ( iid == IID_QWidgetFactory )
 	*iface = (QWidgetFactoryInterface*)this;
-    else if ( iid == IID_QLibraryInterface )
+    else if ( iid == IID_QLibrary )
 	*iface = (QLibraryInterface*)this;
     else
 	return QE_NOINTERFACE;

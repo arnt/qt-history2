@@ -2,6 +2,7 @@
 #define QSTYLEPLUGIN_H
 
 #ifndef QT_H
+#include "qobject.h"
 #include "qstringlist.h"
 #include "qplugin.h"
 #include "qiconset.h"
