@@ -397,6 +397,7 @@ void KAstTopLevel::hideEvent( QHideEvent *e )
 void KAstTopLevel::slotNewGame()
 {
     score = 0;
+    shipsRemain = SB_SHIPS;
     scoreLCD->display( 0 );
     level = 0;
     levelLCD->display( level+1 );
