@@ -270,7 +270,7 @@ Q_OUTOFLINE_TEMPLATE QDataStream &operator<<(QDataStream &out, const QHash<Key, 
     out << (Q_UINT32)hash.size();
     typename QHash<Key, T>::ConstIterator it = hash.begin();
     while (it != hash.end()) {
-	out << it.key() << it.data();
+	out << it.key() << it.value();
         ++it;
     }
     return out;
