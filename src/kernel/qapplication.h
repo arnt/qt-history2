@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.h#91 $
+** $Id: //depot/qt/main/src/kernel/qapplication.h#92 $
 **
 ** Definition of QApplication class
 **
@@ -27,10 +27,10 @@
 #ifndef QT_H
 #include "qwidget.h"
 #include "qlist.h"
+#include "qmessagefile.h"
 #endif // QT_H
 
 class QStyle;
-class QMessageFile;
 
 
 #if defined(TrueColor)
