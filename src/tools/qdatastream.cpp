@@ -468,12 +468,6 @@ void QDataStream::setByteOrder( int bo )
   QDataStream read functions
  *****************************************************************************/
 
-#ifdef Q_OS_HPUX
-// #include <inttypes.h> // for __strtoll
-// broken header on HP-UX 10.20
-extern "C" long long __strtoll( const char *, char**, int );
-#endif
-
 static Q_INT64 read_int_ascii( QDataStream *s )
 {
     register int n = 0;
@@ -491,7 +485,12 @@ static Q_INT64 read_int_ascii( QDataStream *s )
 #elif defined(Q_OS_WIN)
     return _atoi64( buf );
 #elif defined(Q_OS_HPUX)
+#  if defined(__LP64__)
+    return strtol(buf, (char**)0, 10);
+#  else
+    extern "C" long long __strtoll( const char *, char**, int );
     return __strtoll( buf, (char**)0, 10 );
+#  endif
 #elif defined(Q_OS_MACX) && defined(QT_MACOSX_VERSION) && QT_MACOSX_VERSION < 0x1020
     return strtoq( buf, (char**)0, 10 );
 #elif defined(Q_OS_OSF) && defined(Q_CC_DEC)
