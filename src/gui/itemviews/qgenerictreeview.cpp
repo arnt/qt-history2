@@ -533,25 +533,20 @@ QRect QGenericTreeView::selectionViewportRect(const QItemSelection &selection) c
 
 void QGenericTreeView::scrollContentsBy(int dx, int dy)
 {
-    if (dy) { // FIXME
-        QViewport::scrollContentsBy(dx, dy);
-        return;
-    }
     if (dx) {
-        int hscroll = 0;
         int value = horizontalScrollBar()->value();
         int section = d->header->section(value / d->horizontalFactor);
         int left = (value % d->horizontalFactor) * d->header->sectionSize(section);
         int offset = (left / d->horizontalFactor) + d->header->sectionPosition(section);
         if (QApplication::reverseLayout()) {
-            hscroll = offset + d->header->offset();
+            dx = offset + d->header->offset();
             d->header->setOffset(offset - d->header->size() + d->viewport->x());
         } else {
-            hscroll = d->header->offset() - offset;
+            dx = d->header->offset() - offset;
             d->header->setOffset(offset);
         }
-        d->viewport->scroll(hscroll, 0);
     }
+    d->viewport->scroll(dx, dy);
 }
 
 void QGenericTreeView::contentsChanged()
