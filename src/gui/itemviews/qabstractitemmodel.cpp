@@ -1286,3 +1286,33 @@ QAbstractListModel::~QAbstractListModel()
 {
 
 }
+
+/*!
+    \internal
+
+    Returns the number of rows in the table with the given \a parent.
+
+    \sa columnCount()
+*/
+
+int QAbstractListModel::rowCount(const QModelIndex &parent) const
+{
+    if (parent.isValid())
+        return 0;
+    return rowCount();
+}
+
+/*!
+    \internal
+
+    Returns the number of columns in the table with the given \a parent.
+
+    \sa rowCount()
+*/
+
+int QAbstractListModel::columnCount(const QModelIndex &parent) const
+{
+    if (parent.isValid())
+        return 0;
+    return columnCount();
+}
