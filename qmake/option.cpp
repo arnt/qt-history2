@@ -261,6 +261,7 @@ void fixEnvVariables(QString &x)
 }
 static QString fixPath(QString x)
 {
+#if 0
     QFileInfo fi(x);
     if(fi.isDir()) {
 	QDir dir(x);
@@ -271,6 +272,7 @@ static QString fixPath(QString x)
 	    dir += Option::dir_sep;
 	x = dir + fi.fileName();
     }
+#endif
     return QDir::cleanDirPath(x);
 }
 
