@@ -441,6 +441,7 @@ public:
     void emitKeyPressed(const QModelIndex &index, Qt::Key key, Qt::ButtonState state);
     void emitReturnPressed(const QModelIndex &index);
     void emitCurrentChanged(const QModelIndex &previous, const QModelIndex &current);
+    void emitItemEntered(const QModelIndex &index);
 };
 
 void QTableWidgetPrivate::emitPressed(const QModelIndex &index, int button)
@@ -474,6 +475,10 @@ void QTableWidgetPrivate::emitCurrentChanged(const QModelIndex &current, const Q
     emit q->currentChanged(model()->item(current), model()->item(previous));
 }
 
+void QTableWidgetPrivate::emitItemEntered(const QModelIndex &index)
+{
+    emit q->itemEntered(model()->item(index));
+}
 
 /*!
     \fn void QTableWidget::clicked(QTableWidgetItem *item, int button)
@@ -812,6 +817,8 @@ void QTableWidget::setup()
             SLOT(emitKeyPressed(const QModelIndex&, Qt::Key, Qt::ButtonState)));
     connect(this, SIGNAL(returnPressed(const QModelIndex&)),
             SLOT(emitReturnPressed(const QModelIndex&)));
+    connect(this, SIGNAL(itemEntered(const QModelIndex&)),
+            SLOT(emitItemEntered(const QModelIndex&)));
     connect(selectionModel(),
             SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)),
             this, SLOT(emitCurrentChanged(const QModelIndex&, const QModelIndex&)));

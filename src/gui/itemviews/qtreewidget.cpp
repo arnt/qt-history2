@@ -830,6 +830,7 @@ public:
     void emitExpanded(const QModelIndex &index);
     void emitCollapsed(const QModelIndex &index);
     void emitCurrentChanged(const QModelIndex &previous, const QModelIndex &current);
+    void emitItemEntered(const QModelIndex &index);
 };
 
 void QTreeWidgetPrivate::emitPressed(const QModelIndex &index, int button)
@@ -871,6 +872,11 @@ void QTreeWidgetPrivate::emitCollapsed(const QModelIndex &index)
 void QTreeWidgetPrivate::emitCurrentChanged(const QModelIndex &current, const QModelIndex &previous)
 {
     emit q->currentChanged(model()->item(current), model()->item(previous));
+}
+
+void QTreeWidgetPrivate::emitItemEntered(const QModelIndex &index)
+{
+    emit q->itemEntered(model()->item(index), index.column());
 }
 
 /*!
@@ -948,6 +954,8 @@ QTreeWidget::QTreeWidget(QWidget *parent)
             SLOT(emitExpanded(const QModelIndex&)));
     connect(this, SIGNAL(collapsed(const QModelIndex&)),
             SLOT(emitCollapsed(const QModelIndex&)));
+    connect(this, SIGNAL(itemEntered(const QModelIndex&)),
+            SLOT(emitItemEntered(const QModelIndex&)));
     connect(selectionModel(),
             SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)),
             this, SLOT(emitCurrentChanged(const QModelIndex&, const QModelIndex&)));

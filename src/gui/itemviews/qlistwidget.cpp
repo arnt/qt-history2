@@ -465,6 +465,7 @@ public:
     void emitKeyPressed(const QModelIndex &index, Qt::Key key, Qt::ButtonState state);
     void emitReturnPressed(const QModelIndex &index);
     void emitCurrentChanged(const QModelIndex &previous, const QModelIndex &current);
+    void emitItemEntered(const QModelIndex &index);
 };
 
 void QListWidgetPrivate::emitPressed(const QModelIndex &index, int button)
@@ -496,6 +497,11 @@ void QListWidgetPrivate::emitReturnPressed(const QModelIndex &index)
 void QListWidgetPrivate::emitCurrentChanged(const QModelIndex &current, const QModelIndex &previous)
 {
     emit q->currentChanged(model()->at(current.row()), model()->at(previous.row()));
+}
+
+void QListWidgetPrivate::emitItemEntered(const QModelIndex &index)
+{
+    emit q->itemEntered(model()->at(index.row()));
 }
 
 #ifdef QT_COMPAT
@@ -776,6 +782,8 @@ void QListWidget::setup()
             SLOT(emitKeyPressed(const QModelIndex&, Qt::Key, Qt::ButtonState)));
     connect(this, SIGNAL(returnPressed(const QModelIndex&)),
             SLOT(emitReturnPressed(const QModelIndex&)));
+    connect(this, SIGNAL(itemEntered(const QModelIndex&)),
+            SLOT(emitItemEntered(const QModelIndex&)));
     connect(selectionModel(),
             SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)),
             this, SLOT(emitCurrentChanged(const QModelIndex&, const QModelIndex&)));

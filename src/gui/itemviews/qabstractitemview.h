@@ -140,8 +140,8 @@ signals:
     void keyPressed(const QModelIndex &index, Qt::Key key, Qt::ButtonState state);
     void returnPressed(const QModelIndex &index);
     void aboutToShowContextMenu(QMenu *menu, const QModelIndex &index);
-    void itemEntered(const QModelIndex &index, Qt::ButtonState state);
-    void viewportEntered(Qt::ButtonState state);
+    void itemEntered(const QModelIndex &index);
+    void viewportEntered();
 
 protected:
     QAbstractItemView(QAbstractItemViewPrivate &, QWidget *parent = 0);
