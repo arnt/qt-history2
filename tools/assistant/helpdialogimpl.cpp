@@ -167,8 +167,8 @@ HelpDialog::HelpDialog( QWidget *parent, MainWindow *h, QTextBrowser *v )
 {
     bookPixmap = new QPixmap( book_xpm );
     QMimeSourceFactory *mime = QMimeSourceFactory::defaultFactory();
-#ifdef QT_PALMTOPCENTER_DOCS
     QSettings settings;
+#ifdef QT_PALMTOPCENTER_DOCS
     settings.insertSearchPath( QSettings::Unix,
 			   QDir::homeDirPath() + "/.palmtopcenter/" );
 
@@ -217,7 +217,7 @@ void HelpDialog::lastWinClosed()
     lwClosed = TRUE;
 }
 
-void HelpDialog::generateNewDoc()
+void HelpDialog::generateNewDocu()
 {
     QString d( QDir::homeDirPath() );
     QDir dir( d );    
@@ -229,16 +229,16 @@ void HelpDialog::generateNewDoc()
 	    f.remove();
 	}
     }
-    showCatDoc(); 
+    showChangedDocu(); 
 }
 
-void HelpDialog::showCatDoc()
-{
+void HelpDialog::showChangedDocu()
+{    
     indexDone = FALSE;
     contentsDone = FALSE;
     contentsInserted = FALSE;
-    QTimer::singleShot( 100, this, SLOT( loadIndexFile() ) );
-    setupTitleMap();
+    QTimer::singleShot( 0, this, SLOT( loadIndexFile() ) );
+    setupTitleMap();    
     insertContents(); 
 }
 
@@ -772,7 +772,6 @@ void HelpDialog::insertContents()
 	if( !ok )
 	    delete additionalDocu;
     }
-    
 #endif
     
     HelpNavigationContentsItem *lastItem = 0;
@@ -889,10 +888,9 @@ bool HelpDialog::insertContents( QString additionalPath, const QString &filename
 	return FALSE;
     }
     
-    
     if( !isValidCategory( handler->getCategory() )) 	
 	return FALSE;    
-
+    
     HelpNavigationContentsItem *contentEntry;
     QPtrStack<HelpNavigationContentsItem> stack;
     stack.clear();
@@ -926,7 +924,7 @@ bool HelpDialog::insertContents( QString additionalPath, const QString &filename
 	}	
     }
     newEntry->sortChildItems( 1, FALSE );
-    return TRUE;    
+    return TRUE;        
 }
 
 void HelpDialog::insertContents( const QString &filename, const QString &titl,

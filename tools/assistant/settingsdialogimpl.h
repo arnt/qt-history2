@@ -1,7 +1,7 @@
 /**********************************************************************
 ** Copyright (C) 2000 Trolltech AS.  All rights reserved.
 **
-** This file is part of Qt Designer.
+** This file is part of Qt Assistant.
 **
 ** This file may be distributed and/or modified under the terms of the
 ** GNU General Public License version 2 as published by the Free Software
@@ -26,6 +26,43 @@
 #include <qlistview.h>
 #include "settingsdialog.h"
 
+struct listItem {
+    listItem( QString ln, QString sn, int de ) 
+	: lname( ln ), sname( sn ), d( de ) {}    
+    QString lname;
+    QString sname;
+    int d;
+};
+
+struct stateListItem {
+    stateListItem( QListViewItem *i, bool state )
+	: item( i ), isChecked( state ) {}
+    QListViewItem *item;
+    bool isChecked;
+};
+
+
+class CheckListItem : public QObject, public QCheckListItem 
+{
+    Q_OBJECT
+        
+public:
+    CheckListItem( CheckListItem *parent, const QString &text, 
+	const QString &fullcat );
+    CheckListItem( QListView *parent, const QString &text,
+	const QString &fullcat );
+    QString getFullCategory();
+    int rtti() const;
+    CheckListItem* getCurrentItem( QListView *parent );
+    CheckListItem* getCheckItem( QListViewItem* );
+    void stateChange( bool state );
+private:
+    QString fullCategory;
+
+};
+
+
+
 class SettingsDialog : public SettingsDialogBase
 {
     Q_OBJECT
@@ -43,14 +80,19 @@ protected slots:
     void accept();
     void reject();
 signals:
-    void changedPath();
-    void changedCategory();
+    void pathChanged();
+    void categoryChanged();
+
 private:
     void init();
+    void insertCategories();
+    void makeCategoryList();
+    void checkItem( CheckListItem* );
     bool newFilesExist( QString dir );
+    QStringList getCheckedItemList();
     bool changed;
-    QStringList pathlist, catlistavail, catlistsel;
-    QPtrList<QCheckListItem> catitems;
+    QStringList pathList, catListAvail, catListSel;
+    QPtrList<CheckListItem> catItemList;
 };
 
 #endif

@@ -1,5 +1,7 @@
 #include <qtabwidget.h>
+#include <qfileinfo.h>
 #include <qaccel.h>
+#include <qtimer.h>
 
 
 static const char *logo_xpm[] = {
@@ -377,6 +379,11 @@ void MainWindow::init()
 	showLink( source, title );
     else
 	goHome();
+    qApp->processEvents();
+    if ( config.readBoolEntry( "/Qt Assistant/3.1/newDocu/", FALSE ) ) {
+	QTimer::singleShot( 100, helpDock, SLOT( generateNewDocu() ));
+	config.writeEntry( "/Qt Assistant/3.1/newDocu/", FALSE );
+    }
 }
 
 void MainWindow::destroy()
@@ -504,7 +511,12 @@ void MainWindow::showDesignerHelp()
 void MainWindow::showLink( const QString & link, const QString & title )
 {    
     browser->setCaption( title );
-    browser->setSource( link );
+    QFileInfo fi( link );
+    // introduce a default-not-found site
+    if ( !fi.exists() )
+	browser->setSource( "index.html" ); 
+    else    
+	browser->setSource( link );
     browser->setFocus();
 }
 
@@ -528,8 +540,8 @@ void MainWindow::showSettingsDialog()
 {
     if ( !settings ){
 	settings = new SettingsDialog( this );
-	connect( settings, SIGNAL( changedPath() ), helpDock, SLOT( generateNewDoc() ));
-	connect( settings, SIGNAL( changedCategory() ), helpDock, SLOT( showCatDoc() ));
+	connect( settings, SIGNAL( pathChanged() ), helpDock, SLOT( generateNewDocu() ));
+	connect( settings, SIGNAL( categoryChanged() ), helpDock, SLOT( showChangedDocu() ));
     }
     QFontDatabase fonts;
     settings->fontCombo->insertStringList( fonts.families() );

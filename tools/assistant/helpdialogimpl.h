@@ -1,7 +1,7 @@
 /**********************************************************************
 ** Copyright (C) 2000 Trolltech AS.  All rights reserved.
 **
-** This file is part of Qt Designer.
+** This file is part of Qt Assistant.
 **
 ** This file may be distributed and/or modified under the terms of the
 ** GNU General Public License version 2 as published by the Free Software
@@ -72,8 +72,8 @@ protected slots:
     void loadIndexFile();
     void currentTabChanged( const QString &s );
     void currentIndexChanged( QListBoxItem *i );
-    void generateNewDoc();
-    void showCatDoc();
+    void generateNewDocu();
+    void showChangedDocu();
     void showTopic();
     void searchInIndex( const QString &s );
     void addBookmark();

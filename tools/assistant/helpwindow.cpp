@@ -8,6 +8,7 @@
 #include <qprocess.h>
 #include <qpopupmenu.h>
 #include <qaction.h>
+#include <qfileinfo.h>
 
 #include "mainwindow.h"
 
@@ -34,8 +35,8 @@ void HelpWindow::setSource( const QString &name )
 	    nmw->show();
 	return;
     }
-
-    mw->setCaption( tr( "Qt Assistant by Trolltech - %1" ).arg( name ) );
+    QFileInfo fi( name );    
+    mw->setCaption( tr( "Qt Assistant by Trolltech - %1" ).arg( fi.fileName() ) );
     
     if ( name.left( 7 ) == "http://" || name.left( 6 ) == "ftp://" ) {
 	QSettings settings;
