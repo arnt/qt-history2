@@ -364,7 +364,7 @@ QString qt_mac_get_save_file_name(const QFileDialogArgs &args, QString *pwd,
     options.modality = kWindowModalityAppModal;
     options.location.h = options.location.v = -1;
     if (!args.directory.isEmpty())
-        options.saveFileName = QCFString::toCFStringRef(args.directory);
+        options.saveFileName = QCFString::toCFStringRef(args.selection);
     if (!args.caption.isEmpty())
         options.windowTitle = QCFString::toCFStringRef(args.caption);
     if (parent && parent->isVisible()) {
