@@ -54,15 +54,15 @@ clean:
 	/bin/rm -f $(TARGET) $(LEX_FILE) $(YACC_HDR_FILE) $(CPP_FILE)
 
 # 'make checkout' updates files that MUST be old
-# 'make checkout CO=-d1994/12/24' recreates 1994/12/24
-# 'make checkout CO=-d2000/1/1 updates all files
+# 'make checkout CODATE=-d1994/12/24' recreates 1994/12/24
+# 'make checkout CODATE=-d2000/1/1 updates all files
 checkout:
 	@for rcs in RCS/*,v ; do \
 	    file=`basename $$rcs ,v` ;\
-	    [ -n "${CO}" ] || \
+	    [ -n "${CODATE}" ] || \
 	    [ '!' -f $$file ] || \
 	    ( [ '!' -w $$file ] && [ $$rcs -nt $$file ] ) && \
-	    echo co ${CO} $$file ;\
+	    co ${CODATE} $$file ;\
 	done; \
 	/bin/true # tell make it worked
 
