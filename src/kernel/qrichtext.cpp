@@ -46,7 +46,7 @@
 static QTextCursor* richTextExportStart = 0;
 static QTextCursor* richTextExportEnd = 0;
 
-class QTextFormatCollection;
+class Q3TextFormatCollection;
 
 const int border_tolerance = 2;
 
@@ -255,8 +255,8 @@ QTextCursor *QTextDeleteCommand::unexecute( QTextCursor *c )
     return &cursor;
 }
 
-QTextFormatCommand::QTextFormatCommand( QTextDocument *dc, int sid, int sidx, int eid, int eidx,
-					const QVector<QTextStringChar> &old, QTextFormat *f, int fl )
+Q3TextFormatCommand::Q3TextFormatCommand( QTextDocument *dc, int sid, int sidx, int eid, int eidx,
+					const QVector<QTextStringChar> &old, Q3TextFormat *f, int fl )
     : QTextCommand( dc ), startId( sid ), startIndex( sidx ), endId( eid ), endIndex( eidx ), format( f ), oldFormats( old ), flags( fl )
 {
     format = dc->formatCollection()->format( f );
@@ -266,7 +266,7 @@ QTextFormatCommand::QTextFormatCommand( QTextDocument *dc, int sid, int sidx, in
     }
 }
 
-QTextFormatCommand::~QTextFormatCommand()
+Q3TextFormatCommand::~Q3TextFormatCommand()
 {
     format->removeRef();
     for ( int j = 0; j < (int)oldFormats.size(); ++j ) {
@@ -275,7 +275,7 @@ QTextFormatCommand::~QTextFormatCommand()
     }
 }
 
-QTextCursor *QTextFormatCommand::execute( QTextCursor *c )
+QTextCursor *Q3TextFormatCommand::execute( QTextCursor *c )
 {
     QTextParagraph *sp = doc->paragAt( startId );
     QTextParagraph *ep = doc->paragAt( endId );
@@ -299,7 +299,7 @@ QTextCursor *QTextFormatCommand::execute( QTextCursor *c )
     return c;
 }
 
-QTextCursor *QTextFormatCommand::unexecute( QTextCursor *c )
+QTextCursor *Q3TextFormatCommand::unexecute( QTextCursor *c )
 {
     QTextParagraph *sp = doc->paragAt( startId );
     QTextParagraph *ep = doc->paragAt( endId );
@@ -1119,7 +1119,7 @@ void QTextCursor::splitAndInsertEmptyParagraph( bool ind, bool updateIds )
     if ( !para->document() )
 	return;
     tmpX = -1;
-    QTextFormat *f = 0;
+    Q3TextFormat *f = 0;
     if ( para->document()->useFormatCollection() ) {
 	f = para->at( idx )->format();
 	if ( idx == para->length() - 1 && idx > 0 )
@@ -1292,11 +1292,11 @@ QTextDocument::QTextDocument( QTextDocument *p )
 #endif
     , tArray( 0 ), tStopWidth( 0 )
 {
-    fCollection = new QTextFormatCollection;
+    fCollection = new Q3TextFormatCollection;
     init();
 }
 
-QTextDocument::QTextDocument( QTextDocument *p, QTextFormatCollection *f )
+QTextDocument::QTextDocument( QTextDocument *p, Q3TextFormatCollection *f )
     : par( p ), parentPar( 0 )
 #ifndef QT_NO_TEXTCUSTOMITEM
     , tc( 0 )
@@ -1498,7 +1498,7 @@ void QTextDocument::setPlainText( const QString &text )
 
 struct QTextDocumentTag {
     QTextDocumentTag(){}
-    QTextDocumentTag( const QString&n, const QStyleSheetItem* s, const QTextFormat& f )
+    QTextDocumentTag( const QString&n, const QStyleSheetItem* s, const Q3TextFormat& f )
 	:name(n),style(s), format(f), alignment(Qt::AlignAuto), direction(QChar::DirON),liststyle(QStyleSheetItem::ListDisc) {
 	    wsm = QStyleSheetItem::WhiteSpaceNormal;
     }
@@ -1506,7 +1506,7 @@ struct QTextDocumentTag {
     const QStyleSheetItem* style;
     QString anchorHref;
     QStyleSheetItem::WhiteSpaceMode wsm;
-    QTextFormat format;
+    Q3TextFormat format;
     int alignment : 16;
     int direction : 5;
     QStyleSheetItem::ListStyle liststyle;
@@ -1689,7 +1689,7 @@ void QTextDocument::setRichTextInternal( const QString &text, QTextCursor* curso
 		    if ( tagname == "br" ) {
 			emptyTag = space = TRUE;
 			int index = qMax( curpar->length(),1) - 1;
-			QTextFormat format = curtag.format.makeTextFormat( nstyle, attr, scaleFontsFactor );
+			Q3TextFormat format = curtag.format.makeTextFormat( nstyle, attr, scaleFontsFactor );
 			curpar->append( QString(QChar_linesep) );
 			curpar->setFormat( index, 1, &format );
 		    }  else if ( tagname == "hr" ) {
@@ -1700,7 +1700,7 @@ void QTextDocument::setRichTextInternal( const QString &text, QTextCursor* curso
 		    } else if ( tagname == "table" ) {
 			emptyTag = space = TRUE;
 #ifndef QT_NO_TEXTCUSTOMITEM
-			QTextFormat format = curtag.format.makeTextFormat(  nstyle, attr, scaleFontsFactor );
+			Q3TextFormat format = curtag.format.makeTextFormat(  nstyle, attr, scaleFontsFactor );
 			curpar->setAlignment( curtag.alignment );
 			custom = parseTable( attr, format, doc, length, pos, curpar );
 #endif
@@ -1787,9 +1787,9 @@ void QTextDocument::setRichTextInternal( const QString &text, QTextCursor* curso
 		if ( custom ) {
 #ifndef QT_NO_TEXTCUSTOMITEM
 		    int index = qMax( curpar->length(),1) - 1;
-		    QTextFormat format = curtag.format.makeTextFormat( nstyle, attr, scaleFontsFactor );
+		    Q3TextFormat format = curtag.format.makeTextFormat( nstyle, attr, scaleFontsFactor );
 		    curpar->append( QString(QChar('*')) );
-		    QTextFormat* f = formatCollection()->format( &format );
+		    Q3TextFormat* f = formatCollection()->format( &format );
 		    curpar->setFormat( index, 1, f );
 		    curpar->at( index )->setCustomItem( custom );
 		    if ( !curtag.anchorHref.isEmpty() )
@@ -2041,7 +2041,7 @@ void QTextDocument::setRichTextInternal( const QString &text, QTextCursor* curso
 			str->at(i).nobreak = TRUE;
 		}
 
-		QTextFormat* f = formatCollection()->format( &curtag.format );
+		Q3TextFormat* f = formatCollection()->format( &curtag.format );
 		curpar->setFormat( index, s.length(), f, FALSE ); // do not use collection because we have done that already
 		f->ref += s.length() -1; // that what friends are for...
 		if ( !curtag.anchorHref.isEmpty() ) {
@@ -2886,7 +2886,7 @@ QString QTextDocument::selectedText( int id, bool asRichText ) const
     return s;
 }
 
-void QTextDocument::setFormat( int id, QTextFormat *f, int flags )
+void QTextDocument::setFormat( int id, Q3TextFormat *f, int flags )
 {
     QMap<int, QTextDocumentSelection>::ConstIterator it = selections.find( id );
     if ( it == selections.end() )
@@ -3133,8 +3133,8 @@ void QTextDocument::doLayout( QPainter *p, int w )
     if ( !is_printer( p ) )
 	p = 0;
     withoutDoubleBuffer = ( p != 0 );
-    QPainter * oldPainter = QTextFormat::painter();
-    QTextFormat::setPainter( p );
+    QPainter * oldPainter = Q3TextFormat::painter();
+    Q3TextFormat::setPainter( p );
     flow_->setWidth( w );
     cw = w;
     vw = w;
@@ -3146,7 +3146,7 @@ void QTextDocument::doLayout( QPainter *p, int w )
 	parag->format();
 	parag = parag->next();
     }
-    QTextFormat::setPainter( oldPainter );
+    Q3TextFormat::setPainter( oldPainter );
 }
 
 QPixmap *QTextDocument::bufferPixmap( const QSize &s )
@@ -3171,8 +3171,8 @@ void QTextDocument::draw( QPainter *p, const QRect &rect, const QPalette &pal,
 	p->fillRect( rect, *paper );
     }
 
-    QPainter * oldPainter = QTextFormat::painter();
-    QTextFormat::setPainter( p );
+    QPainter * oldPainter = Q3TextFormat::painter();
+    Q3TextFormat::setPainter( p );
 
     if ( formatCollection()->defaultFormat()->color() != pal.text() )
 	setDefaultFormat( formatCollection()->defaultFormat()->font(), pal.text() );
@@ -3199,7 +3199,7 @@ void QTextDocument::draw( QPainter *p, const QRect &rect, const QPalette &pal,
 	if ( !flow()->isEmpty() )
 	    flow()->drawFloatingItems( p, rect.x(), rect.y(), rect.width(), rect.height(), pal, FALSE );
     }
-    QTextFormat::setPainter(oldPainter);
+    Q3TextFormat::setPainter(oldPainter);
 }
 
 void QTextDocument::drawParagraph( QPainter *p, QTextParagraph *parag, int cx, int cy,
@@ -3273,8 +3273,8 @@ QTextParagraph *QTextDocument::draw( QPainter *p, int cx, int cy, int cw, int ch
     if ( !firstParagraph() )
 	return 0;
 
-    QPainter * oldPainter = QTextFormat::painter();
-    QTextFormat::setPainter( p );
+    QPainter * oldPainter = Q3TextFormat::painter();
+    Q3TextFormat::setPainter( p );
     if ( formatCollection()->defaultFormat()->color() != pal.text() )
 	setDefaultFormat( formatCollection()->defaultFormat()->font(), pal.text() );
 
@@ -3332,7 +3332,7 @@ QTextParagraph *QTextDocument::draw( QPainter *p, int cx, int cy, int cw, int ch
 	buf_pixmap = 0;
     }
 
-    QTextFormat::setPainter(oldPainter);
+    Q3TextFormat::setPainter(oldPainter);
     return lastFormatted;
 }
 
@@ -3577,7 +3577,7 @@ int QTextDocument::length() const
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-int QTextFormat::width( const QChar &c ) const
+int Q3TextFormat::width( const QChar &c ) const
 {
     if ( c.unicode() == 0xad ) // soft hyphen
 	return 0;
@@ -3592,7 +3592,7 @@ int QTextFormat::width( const QChar &c ) const
 		w = widths[ c.unicode() ];
 	    if ( w == 0 && !c.row() ) {
 		w = fm.width( c );
-		( (QTextFormat*)this )->widths[ c.unicode() ] = w;
+		( (Q3TextFormat*)this )->widths[ c.unicode() ] = w;
 	    }
 	    return w;
 	} else {
@@ -3618,7 +3618,7 @@ int QTextFormat::width( const QChar &c ) const
     return pntr_fm->width( c );
 }
 
-int QTextFormat::width( const QString &str, int pos ) const
+int Q3TextFormat::width( const QString &str, int pos ) const
 {
     int w = 0;
     if ( str.unicode()[ pos ].unicode() == 0xad )
@@ -3668,18 +3668,18 @@ QTextString::QTextString( const QTextString &s )
     data = s.data;
     data.detach();
     for ( int i = 0; i < (int)data.size(); ++i ) {
-	QTextFormat *f = data[i].format();
+	Q3TextFormat *f = data[i].format();
 	if ( f )
 	    f->addRef();
     }
 }
 
-void QTextString::insert( int index, const QString &s, QTextFormat *f )
+void QTextString::insert( int index, const QString &s, Q3TextFormat *f )
 {
     insert( index, s.unicode(), s.length(), f );
 }
 
-void QTextString::insert( int index, const QChar *unicode, int len, QTextFormat *f )
+void QTextString::insert( int index, const QChar *unicode, int len, Q3TextFormat *f )
 {
     int os = data.size();
     data.resize(data.size() + len);
@@ -3798,7 +3798,7 @@ void QTextString::clear()
     bidiDirty = TRUE;
 }
 
-void QTextString::setFormat( int index, QTextFormat *f, bool useCollection )
+void QTextString::setFormat( int index, Q3TextFormat *f, bool useCollection )
 {
     QTextStringChar &ch = data[ index ];
     if ( useCollection && ch.format() )
@@ -3890,7 +3890,7 @@ void QTextDocument::setUnderlineLinks( bool b ) {
     }
 }
 
-void QTextStringChar::setFormat( QTextFormat *f )
+void QTextStringChar::setFormat( Q3TextFormat *f )
 {
     if ( type == Regular ) {
  	p.format = f;
@@ -3909,7 +3909,7 @@ void QTextStringChar::setFormat( QTextFormat *f )
 void QTextStringChar::setCustomItem( QTextCustomItem *i )
 {
     if ( type == Regular ) {
-	QTextFormat *f = format();
+	Q3TextFormat *f = format();
 	p.custom = new CustomData;
 	p.custom->format = f;
     } else {
@@ -3922,7 +3922,7 @@ void QTextStringChar::setCustomItem( QTextCustomItem *i )
 void QTextStringChar::loseCustomItem()
 {
     if ( type == Custom ) {
-	QTextFormat *f = p.custom->format;
+	Q3TextFormat *f = p.custom->format;
 	p.custom->custom = 0;
 	delete p.custom;
 	type = Regular;
@@ -3954,7 +3954,7 @@ QString QTextStringChar::anchorHref() const
 void QTextStringChar::setAnchor( const QString& name, const QString& href )
 {
     if ( type == Regular ) {
-	QTextFormat *f = format();
+	Q3TextFormat *f = format();
 	p.custom = new CustomData;
 #ifndef QT_NO_TEXTCUSTOMITEM
 	p.custom->custom = 0;
@@ -4025,7 +4025,7 @@ QTextParagraph::QTextParagraph( QTextDocument *dc, QTextParagraph *pr, QTextPara
     bgcol = 0;
     list_val = -1;
     paintdevice = 0;
-    QTextFormat* defFormat = formatCollection()->defaultFormat();
+    Q3TextFormat* defFormat = formatCollection()->defaultFormat();
     if ( !hasdoc ) {
 	tabStopWidth = defFormat->width( 'x' ) * 8;
 	pseudoDocument()->commandHistory = new QTextCommandHistory( 100 );
@@ -4476,7 +4476,7 @@ int QTextParagraph::leftGap() const
     return x;
 }
 
-void QTextParagraph::setFormat( int index, int len, QTextFormat *f, bool useCollection, int flags )
+void QTextParagraph::setFormat( int index, int len, Q3TextFormat *f, bool useCollection, int flags )
 {
     if ( !f )
 	return;
@@ -4487,10 +4487,10 @@ void QTextParagraph::setFormat( int index, int len, QTextFormat *f, bool useColl
     if ( index + len >= str->length() )
 	len = str->length() - index;
 
-    QTextFormatCollection *fc = 0;
+    Q3TextFormatCollection *fc = 0;
     if ( useCollection )
 	fc = formatCollection();
-    QTextFormat *of;
+    Q3TextFormat *of;
     for ( int i = 0; i < len; ++i ) {
 	of = str->at( i + index ).format();
 	if ( !changed && ( !of || f->key() != of->key() ) )
@@ -4503,12 +4503,12 @@ void QTextParagraph::setFormat( int index, int len, QTextFormat *f, bool useColl
 	       f->vAlign() != of->vAlign() ) ) {
 	    invalidate( 0 );
 	}
-	if ( flags == -1 || flags == QTextFormat::Format || !fc ) {
+	if ( flags == -1 || flags == Q3TextFormat::Format || !fc ) {
 	    if ( fc )
 		f = fc->format( f );
 	    str->setFormat( i + index, f, useCollection );
 	} else {
-	    QTextFormat *fm = fc->format( of, f, flags );
+	    Q3TextFormat *fm = fc->format( of, f, flags );
 	    str->setFormat( i + index, fm, useCollection );
 	}
     }
@@ -4725,7 +4725,7 @@ void QTextParagraph::drawString( QPainter &painter, const QString &str, int star
 				 bool rightToLeft )
 {
     bool plainText = hasdoc ? document()->textFormat() == Qt::PlainText : FALSE;
-    QTextFormat* format = formatChar->format();
+    Q3TextFormat* format = formatChar->format();
 
     if ( !plainText || hasdoc && format->color() != document()->formatCollection()->defaultFormat()->color() )
 	painter.setPen( QPen( format->color() ) );
@@ -4753,8 +4753,8 @@ void QTextParagraph::drawString( QPainter &painter, const QString &str, int star
 	len--;
 
 
-    QTextFormat::VerticalAlignment vAlign = format->vAlign();
-    if ( vAlign != QTextFormat::AlignNormal ) {
+    Q3TextFormat::VerticalAlignment vAlign = format->vAlign();
+    if ( vAlign != Q3TextFormat::AlignNormal ) {
 	// sub or superscript
 	QFont f( painter.font() );
 	if ( format->fontSizesInPixels() )
@@ -4763,7 +4763,7 @@ void QTextParagraph::drawString( QPainter &painter, const QString &str, int star
 	    f.setPointSize( ( f.pointSize() * 2 ) / 3 );
 	painter.setFont( f );
 	int h = painter.fontMetrics().height();
-	baseLine += (vAlign == QTextFormat::AlignSubScript) ? h/6 : -h/2;
+	baseLine += (vAlign == Q3TextFormat::AlignSubScript) ? h/6 : -h/2;
     }
 
     bool allSelected = FALSE;
@@ -4889,7 +4889,7 @@ void QTextParagraph::drawLabel( QPainter* p, int x, int y, int w, int h, int bas
     QStyleSheetItem::ListStyle s = listStyle();
 
     p->save();
-    QTextFormat *format = at( 0 )->format();
+    Q3TextFormat *format = at( 0 )->format();
     if ( format ) {
 	p->setPen( format->color() );
 	p->setFont( format->font() );
@@ -5065,11 +5065,11 @@ void QTextParagraph::adjustToPainter( QPainter *p )
 #endif
 }
 
-QTextFormatCollection *QTextParagraph::formatCollection() const
+Q3TextFormatCollection *QTextParagraph::formatCollection() const
 {
     if ( hasdoc )
 	return document()->formatCollection();
-    QTextFormatCollection* fc = &pseudoDocument()->collection;
+    Q3TextFormatCollection* fc = &pseudoDocument()->collection;
     if ( paintdevice != fc->paintDevice() )
 	fc->setPaintDevice( paintdevice );
     return fc;
@@ -5164,7 +5164,7 @@ int QTextParagraph::topMargin() const
 	    m = qMax( m, document()->list_tm );
     }
     m += utm;
-    return scale( m, QTextFormat::painter() );
+    return scale( m, Q3TextFormat::painter() );
 }
 
 int QTextParagraph::bottomMargin() const
@@ -5177,7 +5177,7 @@ int QTextParagraph::bottomMargin() const
 	    m = qMax( m, document()->list_bm );
     }
     m += ubm;
-    return scale( m, QTextFormat::painter() );
+    return scale( m, Q3TextFormat::painter() );
 }
 
 int QTextParagraph::leftMargin() const
@@ -5185,13 +5185,13 @@ int QTextParagraph::leftMargin() const
     int m = ulm;
     if ( listDepth() && !string()->isRightToLeft() )
 	m += listDepth() * document()->list_lm;
-    return scale( m, QTextFormat::painter() );
+    return scale( m, Q3TextFormat::painter() );
 }
 
 int QTextParagraph::firstLineMargin() const
 {
     int m = uflm;
-    return scale( m, QTextFormat::painter() );
+    return scale( m, Q3TextFormat::painter() );
 }
 
 int QTextParagraph::rightMargin() const
@@ -5199,13 +5199,13 @@ int QTextParagraph::rightMargin() const
     int m = urm;
     if ( listDepth() && string()->isRightToLeft() )
 	m += listDepth() * document()->list_lm;
-    return scale( m, QTextFormat::painter() );
+    return scale( m, Q3TextFormat::painter() );
 }
 
 int QTextParagraph::lineSpacing() const
 {
     int l = ulinespacing;
-    l = scale( l, QTextFormat::painter() );
+    l = scale( l, Q3TextFormat::painter() );
     return l;
 }
 
@@ -5273,12 +5273,12 @@ QTextPreProcessor::QTextPreProcessor()
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QTextFormatter::QTextFormatter()
+Q3TextFormatter::Q3TextFormatter()
     : thisminw(0), thiswused(0), wrapEnabled( TRUE ), wrapColumn( -1 ), biw( FALSE )
 {
 }
 
-QTextLineStart *QTextFormatter::formatLine( QTextParagraph *parag, QTextString *string, QTextLineStart *line,
+QTextLineStart *Q3TextFormatter::formatLine( QTextParagraph *parag, QTextString *string, QTextLineStart *line,
 						   QTextStringChar *startChar, QTextStringChar *lastChar, int align, int space )
 {
     if ( lastChar < startChar )
@@ -5347,7 +5347,7 @@ QTextLineStart *QTextFormatter::formatLine( QTextParagraph *parag, QTextString *
 #endif
 
 // collects one line of the paragraph and transforms it to visual order
-QTextLineStart *QTextFormatter::bidiReorderLine( QTextParagraph * /*parag*/, QTextString *text, QTextLineStart *line,
+QTextLineStart *Q3TextFormatter::bidiReorderLine( QTextParagraph * /*parag*/, QTextString *text, QTextLineStart *line,
 							QTextStringChar *startChar, QTextStringChar *lastChar, int align, int space )
 {
     // ignore white space at the end of the line.
@@ -5477,7 +5477,7 @@ QTextLineStart *QTextFormatter::bidiReorderLine( QTextParagraph * /*parag*/, QTe
 #endif
 
 
-void QTextFormatter::insertLineStart( QTextParagraph *parag, int index, QTextLineStart *ls )
+void Q3TextFormatter::insertLineStart( QTextParagraph *parag, int index, QTextLineStart *ls )
 {
     QMap<int, QTextLineStart*>::Iterator it;
     if ( ( it = parag->lineStartList().find( index ) ) == parag->lineStartList().end() ) {
@@ -5493,7 +5493,7 @@ void QTextFormatter::insertLineStart( QTextParagraph *parag, int index, QTextLin
 /* Standard pagebreak algorithm using QTextFlow::adjustFlow. Returns
  the shift of the paragraphs bottom line.
  */
-int QTextFormatter::formatVertically( QTextDocument* doc, QTextParagraph* parag )
+int Q3TextFormatter::formatVertically( QTextDocument* doc, QTextParagraph* parag )
 {
     int oldHeight = parag->rect().height();
     QMap<int, QTextLineStart*>& lineStarts = parag->lineStartList();
@@ -5534,13 +5534,13 @@ int QTextFormatter::formatVertically( QTextDocument* doc, QTextParagraph* parag 
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QTextFormatterBreakInWords::QTextFormatterBreakInWords()
+Q3TextFormatterBreakInWords::Q3TextFormatterBreakInWords()
 {
 }
 
 #define SPACE(s) s
 
-int QTextFormatterBreakInWords::format( QTextDocument *doc,QTextParagraph *parag,
+int Q3TextFormatterBreakInWords::format( QTextDocument *doc,QTextParagraph *parag,
 					int start, const QMap<int, QTextLineStart*> & )
 {
     // make sure bidi information is correct.
@@ -5571,7 +5571,7 @@ int QTextFormatterBreakInWords::format( QTextDocument *doc,QTextParagraph *parag
     QTextLineStart *lineStart = new QTextLineStart( y, y, 0 );
     insertLineStart( parag, 0, lineStart );
 
-    QPainter *painter = QTextFormat::painter();
+    QPainter *painter = Q3TextFormat::painter();
 
     int col = 0;
     int ww = 0;
@@ -5665,7 +5665,7 @@ int QTextFormatterBreakInWords::format( QTextDocument *doc,QTextParagraph *parag
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QTextFormatterBreakWords::QTextFormatterBreakWords()
+Q3TextFormatterBreakWords::Q3TextFormatterBreakWords()
 {
 }
 
@@ -5676,7 +5676,7 @@ QTextFormatterBreakWords::QTextFormatterBreakWords()
 		    y += shift;\
 		}}while(FALSE)
 
-int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParagraph *parag,
+int Q3TextFormatterBreakWords::format( QTextDocument *doc, QTextParagraph *parag,
 				      int start, const QMap<int, QTextLineStart*> & )
 {
     // make sure bidi information is correct.
@@ -5736,11 +5736,11 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParagraph *parag,
 
     c = &parag->string()->at( 0 );
 
-    QPainter *painter = QTextFormat::painter();
+    QPainter *painter = Q3TextFormat::painter();
     int col = 0;
     int ww = 0;
     QChar lastChr = c->c;
-    QTextFormat *lastFormat = c->format();
+    Q3TextFormat *lastFormat = c->format();
     for ( ; i < len; ++i, ++col ) {
 	if ( i ) {
 	    c = &parag->string()->at(i-1);
@@ -6002,10 +6002,10 @@ QTextIndent::QTextIndent()
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QTextFormatCollection::QTextFormatCollection()
+Q3TextFormatCollection::Q3TextFormatCollection()
     : paintdevice( 0 )
 {
-    defFormat = new QTextFormat( QApplication::font(),
+    defFormat = new Q3TextFormat( QApplication::font(),
 				 QApplication::palette().color( QPalette::Active, QPalette::Text ) );
     lastFormat = cres = 0;
     cflags = -1;
@@ -6013,12 +6013,12 @@ QTextFormatCollection::QTextFormatCollection()
     cachedFormat = 0;
 }
 
-QTextFormatCollection::~QTextFormatCollection()
+Q3TextFormatCollection::~Q3TextFormatCollection()
 {
     delete defFormat;
 }
 
-void QTextFormatCollection::setPaintDevice( QPaintDevice *pd )
+void Q3TextFormatCollection::setPaintDevice( QPaintDevice *pd )
 {
     paintdevice = pd;
 
@@ -6028,16 +6028,16 @@ void QTextFormatCollection::setPaintDevice( QPaintDevice *pd )
     defFormat->fn.x11SetScreen( scr );
     defFormat->update();
 
-    QHash<QString, QTextFormat *>::Iterator it = cKey.begin();
+    QHash<QString, Q3TextFormat *>::Iterator it = cKey.begin();
     for (; it != cKey.end(); ++it) {
-	QTextFormat *format = *it;
+	Q3TextFormat *format = *it;
 	format->fn.x11SetScreen( scr );
 	format->update();
     }
 #endif // Q_WS_X11
 }
 
-QTextFormat *QTextFormatCollection::format( QTextFormat *f )
+Q3TextFormat *Q3TextFormatCollection::format( Q3TextFormat *f )
 {
     if ( f->parent() == this || f == defFormat ) {
 	lastFormat = f;
@@ -6050,7 +6050,7 @@ QTextFormat *QTextFormatCollection::format( QTextFormat *f )
 	return lastFormat;
     }
 
-    QTextFormat *fm = cKey.value(f->key(), 0);
+    Q3TextFormat *fm = cKey.value(f->key(), 0);
     if ( fm ) {
 	lastFormat = fm;
 	lastFormat->addRef();
@@ -6066,7 +6066,7 @@ QTextFormat *QTextFormatCollection::format( QTextFormat *f )
     return lastFormat;
 }
 
-QTextFormat *QTextFormatCollection::format( QTextFormat *of, QTextFormat *nf, int flags )
+Q3TextFormat *Q3TextFormatCollection::format( Q3TextFormat *of, Q3TextFormat *nf, int flags )
 {
     if ( cres && kof == of->key() && knf == nf->key() && cflags == flags ) {
 	cres->addRef();
@@ -6077,31 +6077,31 @@ QTextFormat *QTextFormatCollection::format( QTextFormat *of, QTextFormat *nf, in
     kof = of->key();
     knf = nf->key();
     cflags = flags;
-    if ( flags & QTextFormat::Bold )
+    if ( flags & Q3TextFormat::Bold )
 	cres->fn.setBold( nf->fn.bold() );
-    if ( flags & QTextFormat::Italic )
+    if ( flags & Q3TextFormat::Italic )
 	cres->fn.setItalic( nf->fn.italic() );
-    if ( flags & QTextFormat::Underline )
+    if ( flags & Q3TextFormat::Underline )
 	cres->fn.setUnderline( nf->fn.underline() );
-    if ( flags & QTextFormat::StrikeOut )
+    if ( flags & Q3TextFormat::StrikeOut )
 	cres->fn.setStrikeOut( nf->fn.strikeOut() );
-    if ( flags & QTextFormat::Family )
+    if ( flags & Q3TextFormat::Family )
 	cres->fn.setFamily( nf->fn.family() );
-    if ( flags & QTextFormat::Size ) {
+    if ( flags & Q3TextFormat::Size ) {
 	if ( of->usePixelSizes )
 	    cres->fn.setPixelSize( nf->fn.pixelSize() );
 	else
 	    cres->fn.setPointSize( nf->fn.pointSize() );
     }
-    if ( flags & QTextFormat::Color )
+    if ( flags & Q3TextFormat::Color )
 	cres->col = nf->col;
-    if ( flags & QTextFormat::Misspelled )
+    if ( flags & Q3TextFormat::Misspelled )
 	cres->missp = nf->missp;
-    if ( flags & QTextFormat::VAlign )
+    if ( flags & Q3TextFormat::VAlign )
 	cres->ha = nf->ha;
     cres->update();
 
-    QTextFormat *fm = cKey.value(cres->key(),0);
+    Q3TextFormat *fm = cKey.value(cres->key(),0);
     if ( !fm ) {
 	cres->collection = this;
 	cKey.insert( cres->key(), cres );
@@ -6114,14 +6114,14 @@ QTextFormat *QTextFormatCollection::format( QTextFormat *of, QTextFormat *nf, in
     return cres;
 }
 
-QTextFormat *QTextFormatCollection::format( const QFont &f, const QColor &c )
+Q3TextFormat *Q3TextFormatCollection::format( const QFont &f, const QColor &c )
 {
     if ( cachedFormat && cfont == f && ccol == c ) {
 	cachedFormat->addRef();
 	return cachedFormat;
     }
 
-    QString key = QTextFormat::getKey( f, c, FALSE,  QTextFormat::AlignNormal );
+    QString key = Q3TextFormat::getKey( f, c, FALSE,  Q3TextFormat::AlignNormal );
     cachedFormat = cKey.value( key, 0 );
     cfont = f;
     ccol = c;
@@ -6142,7 +6142,7 @@ QTextFormat *QTextFormatCollection::format( const QFont &f, const QColor &c )
     return cachedFormat;
 }
 
-void QTextFormatCollection::remove( QTextFormat *f )
+void Q3TextFormatCollection::remove( Q3TextFormat *f )
 {
     if ( lastFormat == f )
 	lastFormat = 0;
@@ -6158,15 +6158,15 @@ void QTextFormatCollection::remove( QTextFormat *f )
 	if ( font.lo##rest() != defFormat->fn.lo##rest() && fm->fn.lo##rest() == defFormat->fn.lo##rest() ) \
 	    fm->fn.set##up##rest( font.lo##rest() )
 
-void QTextFormatCollection::updateDefaultFormat( const QFont &font, const QColor &color, QStyleSheet *sheet )
+void Q3TextFormatCollection::updateDefaultFormat( const QFont &font, const QColor &color, QStyleSheet *sheet )
 {
     bool usePixels = font.pointSize() == -1;
     bool changeSize = usePixels ? font.pixelSize() != defFormat->fn.pixelSize() :
 	font.pointSize() != defFormat->fn.pointSize();
     int base = usePixels ? font.pixelSize() : font.pointSize();
-    QHash<QString, QTextFormat *>::Iterator it = cKey.begin();
+    QHash<QString, Q3TextFormat *>::Iterator it = cKey.begin();
     for (; it != cKey.end(); ++it) {
-	QTextFormat *fm = *it;
+	Q3TextFormat *fm = *it;
 	UPDATE( F, f, amily );
 	UPDATE( W, w, eight );
 	UPDATE( B, b, old );
@@ -6196,14 +6196,14 @@ void QTextFormatCollection::updateDefaultFormat( const QFont &font, const QColor
 }
 
 // the keys in cKey have changed, rebuild the hashtable
-void QTextFormatCollection::updateKeys()
+void Q3TextFormatCollection::updateKeys()
 {
     if ( cKey.isEmpty() )
 	return;
     cKey.setAutoDelete( FALSE );
-    QTextFormat** formats = new QTextFormat*[ cKey.count() + 1 ];
-    QTextFormat **f = formats;
-    for (QHash<QString, QTextFormat *>::Iterator it = cKey.begin();
+    Q3TextFormat** formats = new Q3TextFormat*[ cKey.count() + 1 ];
+    Q3TextFormat **f = formats;
+    for (QHash<QString, Q3TextFormat *>::Iterator it = cKey.begin();
 	 it != cKey.end(); ++it, ++f)
 	*f = *it;
     *f = 0;
@@ -6218,7 +6218,7 @@ void QTextFormatCollection::updateKeys()
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void QTextFormat::setBold( bool b )
+void Q3TextFormat::setBold( bool b )
 {
     if ( b == fn.bold() )
 	return;
@@ -6226,7 +6226,7 @@ void QTextFormat::setBold( bool b )
     update();
 }
 
-void QTextFormat::setMisspelled( bool b )
+void Q3TextFormat::setMisspelled( bool b )
 {
     if ( b == (bool)missp )
 	return;
@@ -6234,7 +6234,7 @@ void QTextFormat::setMisspelled( bool b )
     update();
 }
 
-void QTextFormat::setVAlign( VerticalAlignment a )
+void Q3TextFormat::setVAlign( VerticalAlignment a )
 {
     if ( a == ha )
 	return;
@@ -6242,7 +6242,7 @@ void QTextFormat::setVAlign( VerticalAlignment a )
     update();
 }
 
-void QTextFormat::setItalic( bool b )
+void Q3TextFormat::setItalic( bool b )
 {
     if ( b == fn.italic() )
 	return;
@@ -6250,7 +6250,7 @@ void QTextFormat::setItalic( bool b )
     update();
 }
 
-void QTextFormat::setUnderline( bool b )
+void Q3TextFormat::setUnderline( bool b )
 {
     if ( b == fn.underline() )
 	return;
@@ -6258,7 +6258,7 @@ void QTextFormat::setUnderline( bool b )
     update();
 }
 
-void QTextFormat::setStrikeOut( bool b )
+void Q3TextFormat::setStrikeOut( bool b )
 {
     if ( b == fn.strikeOut() )
 	return;
@@ -6266,7 +6266,7 @@ void QTextFormat::setStrikeOut( bool b )
     update();
 }
 
-void QTextFormat::setFamily( const QString &f )
+void Q3TextFormat::setFamily( const QString &f )
 {
     if ( f == fn.family() )
 	return;
@@ -6274,7 +6274,7 @@ void QTextFormat::setFamily( const QString &f )
     update();
 }
 
-void QTextFormat::setPointSize( int s )
+void Q3TextFormat::setPointSize( int s )
 {
     if ( s == fn.pointSize() )
 	return;
@@ -6283,7 +6283,7 @@ void QTextFormat::setPointSize( int s )
     update();
 }
 
-void QTextFormat::setFont( const QFont &f )
+void Q3TextFormat::setFont( const QFont &f )
 {
     if ( f == fn && !k.isEmpty() )
 	return;
@@ -6291,7 +6291,7 @@ void QTextFormat::setFont( const QFont &f )
     update();
 }
 
-void QTextFormat::setColor( const QColor &c )
+void Q3TextFormat::setColor( const QColor &c )
 {
     if ( c == col )
 	return;
@@ -6299,7 +6299,7 @@ void QTextFormat::setColor( const QColor &c )
     update();
 }
 
-QString QTextFormat::makeFormatChangeTags( QTextFormat* defaultFormat, QTextFormat *f,
+QString Q3TextFormat::makeFormatChangeTags( Q3TextFormat* defaultFormat, Q3TextFormat *f,
 			   const QString& oldAnchorHref, const QString& anchorHref  ) const
 {
     QString tag;
@@ -6325,9 +6325,9 @@ QString QTextFormat::makeFormatChangeTags( QTextFormat* defaultFormat, QTextForm
 	    s += QString(!!s?";":"") + "text-decoration:" + ( font().underline() ? "underline" : "none");
 	if ( vAlign() != defaultFormat->vAlign() ) {
 	    s += QString(!!s?";":"") + "vertical-align:";
-	    if ( vAlign() == QTextFormat::AlignSuperScript )
+	    if ( vAlign() == Q3TextFormat::AlignSuperScript )
 		s += "super";
-	    else if ( vAlign() == QTextFormat::AlignSubScript )
+	    else if ( vAlign() == Q3TextFormat::AlignSubScript )
 		s += "sub";
 	    else
 		s += "normal";
@@ -6341,7 +6341,7 @@ QString QTextFormat::makeFormatChangeTags( QTextFormat* defaultFormat, QTextForm
     return tag;
 }
 
-QString QTextFormat::makeFormatEndTags( QTextFormat* defaultFormat, const QString& anchorHref ) const
+QString Q3TextFormat::makeFormatEndTags( Q3TextFormat* defaultFormat, const QString& anchorHref ) const
 {
     QString tag;
     if ( font().family() != defaultFormat->font().family()
@@ -6358,9 +6358,9 @@ QString QTextFormat::makeFormatEndTags( QTextFormat* defaultFormat, const QStrin
     return tag;
 }
 
-QTextFormat QTextFormat::makeTextFormat( const QStyleSheetItem *style, const QMap<QString,QString>& attr, double scaleFontsFactor ) const
+Q3TextFormat Q3TextFormat::makeTextFormat( const QStyleSheetItem *style, const QMap<QString,QString>& attr, double scaleFontsFactor ) const
 {
-    QTextFormat format(*this);
+    Q3TextFormat format(*this);
     if (!style )
 	return format;
 
@@ -6372,13 +6372,13 @@ QTextFormat QTextFormat::makeTextFormat( const QStyleSheetItem *style, const QMa
     }
     switch ( style->verticalAlignment() ) {
     case QStyleSheetItem::VAlignBaseline:
-	format.setVAlign( QTextFormat::AlignNormal );
+	format.setVAlign( Q3TextFormat::AlignNormal );
 	break;
     case QStyleSheetItem::VAlignSuper:
-	format.setVAlign( QTextFormat::AlignSuperScript );
+	format.setVAlign( Q3TextFormat::AlignSuperScript );
 	break;
     case QStyleSheetItem::VAlignSub:
-	format.setVAlign( QTextFormat::AlignSubScript );
+	format.setVAlign( Q3TextFormat::AlignSubScript );
 	break;
     }
 
@@ -6475,11 +6475,11 @@ QTextFormat QTextFormat::makeTextFormat( const QStyleSheetItem *style, const QMa
 	    } else if ( style.startsWith("vertical-align:" ) ) {
 		QString s = style.mid( 15 ).trimmed();
 		if ( s == "sub" )
-		    format.setVAlign( QTextFormat::AlignSubScript );
+		    format.setVAlign( Q3TextFormat::AlignSubScript );
 		else if ( s == "super" )
-		    format.setVAlign( QTextFormat::AlignSuperScript );
+		    format.setVAlign( Q3TextFormat::AlignSuperScript );
 		else
-		    format.setVAlign( QTextFormat::AlignNormal );
+		    format.setVAlign( Q3TextFormat::AlignNormal );
 	    } else if ( style.startsWith("color:" ) ) {
 		format.col.setNamedColor( style.mid(6) );
 		format.linkColor = FALSE;
@@ -6781,7 +6781,7 @@ static bool qt_is_cell_in_use( QList<QTextTableCell *>& cells, int row, int col 
     return FALSE;
 }
 
-QTextCustomItem* QTextDocument::parseTable( const QMap<QString, QString> &attr, const QTextFormat &fmt,
+QTextCustomItem* QTextDocument::parseTable( const QMap<QString, QString> &attr, const Q3TextFormat &fmt,
 					    const QChar* doc, int length, int& pos, QTextParagraph *curpar )
 {
 
@@ -7984,7 +7984,7 @@ QTextTableCell::QTextTableCell( QTextTable* table,
 				int row, int column,
 				const QMap<QString, QString> &attr,
 				const QStyleSheetItem* /*style*/, // ### use them
-				const QTextFormat& fmt, const QString& context,
+				const Q3TextFormat& fmt, const QString& context,
 				QMimeSourceFactory &factory, QStyleSheet *sheet,
 				const QString& doc)
 {
@@ -8112,7 +8112,7 @@ void QTextTableCell::setGeometry( const QRect& r )
 {
     int extra = 2 * ( parent->innerborder + parent->cellpadding );
     if ( r.width() != cached_width )
-	richtext->doLayout( QTextFormat::painter(), r.width() - extra );
+	richtext->doLayout( Q3TextFormat::painter(), r.width() - extra );
     cached_width = r.width();
     geom = r;
 }
@@ -8134,7 +8134,7 @@ int QTextTableCell::heightForWidth( int w ) const
 
     if ( cached_width != w ) {
 	QTextTableCell* that = (QTextTableCell*) this;
-	that->richtext->doLayout( QTextFormat::painter(), w - extra );
+	that->richtext->doLayout( Q3TextFormat::painter(), w - extra );
 	that->cached_width = w;
     }
     return richtext->height() + extra;

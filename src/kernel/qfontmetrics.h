@@ -76,7 +76,7 @@ private:
 
     friend class QWidget;
     friend class QPainter;
-    friend class QTextFormat;
+    friend class Q3TextFormat;
 #if defined( Q_WS_MAC )
     friend class QFontPrivate;
 #endif

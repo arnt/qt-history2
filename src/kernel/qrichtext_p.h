@@ -54,12 +54,12 @@
 class QTextDocument;
 class QTextString;
 class QTextPreProcessor;
-class QTextFormat;
+class Q3TextFormat;
 class QTextCursor;
 class QTextParagraph;
-class QTextFormatter;
+class Q3TextFormatter;
 class QTextIndent;
-class QTextFormatCollection;
+class Q3TextFormatCollection;
 class QStyleSheetItem;
 #ifndef QT_NO_TEXTCUSTOMITEM
 class QTextCustomItem;
@@ -80,7 +80,7 @@ public:
 
     struct CustomData
     {
-	QTextFormat *format;
+	Q3TextFormat *format;
 #ifndef QT_NO_TEXTCUSTOMITEM
 	QTextCustomItem *custom;
 #endif
@@ -104,7 +104,7 @@ public:
 
     int x;
     union {
-	QTextFormat* format;
+	Q3TextFormat* format;
 	CustomData* custom;
     } p;
 
@@ -113,11 +113,11 @@ public:
     int ascent() const;
     int descent() const;
     bool isCustom() const { return (type & Custom) != 0; }
-    QTextFormat *format() const;
+    Q3TextFormat *format() const;
 #ifndef QT_NO_TEXTCUSTOMITEM
     QTextCustomItem *customItem() const;
 #endif
-    void setFormat( QTextFormat *f );
+    void setFormat( Q3TextFormat *f );
 #ifndef QT_NO_TEXTCUSTOMITEM
     void setCustomItem( QTextCustomItem *i );
 #endif
@@ -164,14 +164,14 @@ public:
 
     int width( int idx ) const;
 
-    void insert( int index, const QString &s, QTextFormat *f );
-    void insert( int index, const QChar *unicode, int len, QTextFormat *f );
+    void insert( int index, const QString &s, Q3TextFormat *f );
+    void insert( int index, const QChar *unicode, int len, Q3TextFormat *f );
     void insert( int index, QTextStringChar *c, bool doAddRefFormat = FALSE );
     void truncate( int index );
     void remove( int index, int len );
     void clear();
 
-    void setFormat( int index, QTextFormat *f, bool useCollection );
+    void setFormat( int index, Q3TextFormat *f, bool useCollection );
 
     void setBidi( bool b ) { bidi = b; }
     bool isBidi() const;
@@ -570,7 +570,7 @@ public:
 		    int row, int column,
 		    const QMap<QString, QString> &attr,
 		    const QStyleSheetItem* style,
-		    const QTextFormat& fmt, const QString& context,
+		    const Q3TextFormat& fmt, const QString& context,
 		    QMimeSourceFactory &factory, QStyleSheet *sheet, const QString& doc );
     virtual ~QTextTableCell();
 
@@ -720,7 +720,7 @@ public:
     };
 
     QTextDocument( QTextDocument *p );
-    QTextDocument( QTextDocument *, QTextFormatCollection *f );
+    QTextDocument( QTextDocument *, Q3TextFormatCollection *f );
     virtual ~QTextDocument();
 
     QTextDocument *parent() const { return par; }
@@ -760,8 +760,8 @@ public:
     void setPreProcessor( QTextPreProcessor *sh );
     QTextPreProcessor *preProcessor() const;
 
-    void setFormatter( QTextFormatter *f );
-    QTextFormatter *formatter() const;
+    void setFormatter( Q3TextFormatter *f );
+    Q3TextFormatter *formatter() const;
 
     void setIndent( QTextIndent *i );
     QTextIndent *indent() const;
@@ -779,7 +779,7 @@ public:
     QTextCursor selectionStartCursor( int id );
     QTextCursor selectionEndCursor( int id );
     void selectionEnd( int id, int &paragId, int &index );
-    void setFormat( int id, QTextFormat *f, int flags );
+    void setFormat( int id, Q3TextFormat *f, int flags );
     int numSelections() const { return nSelections; }
     void addSelection( int id );
 
@@ -794,7 +794,7 @@ public:
     QTextCursor *redo( QTextCursor *c  = 0 );
     QTextCommandHistory *commands() const { return commandHistory; }
 
-    QTextFormatCollection *formatCollection() const;
+    Q3TextFormatCollection *formatCollection() const;
 
     bool find( QTextCursor &cursor, const QString &expr, bool cs, bool wo, bool forward);
 
@@ -894,7 +894,7 @@ private:
     bool hasPrefix(const QChar* doc, int length, int pos, QChar c);
     bool hasPrefix(const QChar* doc, int length, int pos, const QString& s);
 #ifndef QT_NO_TEXTCUSTOMITEM
-    QTextCustomItem* parseTable( const QMap<QString, QString> &attr, const QTextFormat &fmt,
+    QTextCustomItem* parseTable( const QMap<QString, QString> &attr, const Q3TextFormat &fmt,
 				 const QChar* doc, int length, int& pos, QTextParagraph *curpar );
 #endif
     bool eatSpace(const QChar* doc, int length, int& pos, bool includeNbsp = FALSE );
@@ -922,9 +922,9 @@ private:
     QMap<int, QTextDocumentSelection> selections;
     QMap<int, bool> selectionText;
     QTextCommandHistory *commandHistory;
-    QTextFormatter *pFormatter;
+    Q3TextFormatter *pFormatter;
     QTextIndent *indenter;
-    QTextFormatCollection *fCollection;
+    Q3TextFormatCollection *fCollection;
     Qt::TextFormat txtFormat;
     uint preferRichText : 1;
     uint pages : 1;
@@ -1010,11 +1010,11 @@ public:
 
 };
 
-class Q_GUI_EXPORT QTextFormatCommand : public QTextCommand
+class Q_GUI_EXPORT Q3TextFormatCommand : public QTextCommand
 {
 public:
-    QTextFormatCommand( QTextDocument *dc, int sid, int sidx, int eid, int eidx, const QVector<QTextStringChar> &old, QTextFormat *f, int fl );
-    virtual ~QTextFormatCommand();
+    Q3TextFormatCommand( QTextDocument *dc, int sid, int sidx, int eid, int eidx, const QVector<QTextStringChar> &old, Q3TextFormat *f, int fl );
+    virtual ~Q3TextFormatCommand();
 
     Commands type() const { return Format; }
     QTextCursor *execute( QTextCursor *c );
@@ -1022,7 +1022,7 @@ public:
 
 protected:
     int startId, startIndex, endId, endIndex;
-    QTextFormat *format;
+    Q3TextFormat *format;
     QVector<QTextStringChar> oldFormats;
     int flags;
 
@@ -1105,8 +1105,8 @@ public:
     void setListDepth( int depth );
     int listDepth() const { return ldepth; }
 
-//     void setFormat( QTextFormat *fm );
-//     QTextFormat *paragFormat() const;
+//     void setFormat( Q3TextFormat *fm );
+//     Q3TextFormat *paragFormat() const;
 
     inline QTextDocument *document() const {
 	if (hasdoc) return (QTextDocument*) docOrPseudo;
@@ -1174,7 +1174,7 @@ public:
 
     QMap<int, QTextLineStart*> &lineStartList();
 
-    void setFormat( int index, int len, QTextFormat *f, bool useCollection = TRUE, int flags = -1 );
+    void setFormat( int index, int len, Q3TextFormat *f, bool useCollection = TRUE, int flags = -1 );
 
     void setAlignment( int a );
     int alignment() const;
@@ -1208,8 +1208,8 @@ public:
     int documentVisibleWidth() const;
     int documentX() const;
     int documentY() const;
-    QTextFormatCollection *formatCollection() const;
-    QTextFormatter *formatter() const;
+    Q3TextFormatCollection *formatCollection() const;
+    Q3TextFormatter *formatter() const;
 
     int nextTab( int i, int x );
     int *tabArray() const;
@@ -1304,11 +1304,11 @@ private:
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-class Q_GUI_EXPORT QTextFormatter
+class Q_GUI_EXPORT Q3TextFormatter
 {
 public:
-    QTextFormatter();
-    virtual ~QTextFormatter();
+    Q3TextFormatter();
+    virtual ~Q3TextFormatter();
 
     virtual int format( QTextDocument *doc, QTextParagraph *parag, int start, const QMap<int, QTextLineStart*> &oldLineStarts ) = 0;
     virtual int formatVertically( QTextDocument* doc, QTextParagraph* parag );
@@ -1343,11 +1343,11 @@ private:
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-class Q_GUI_EXPORT QTextFormatterBreakInWords : public QTextFormatter
+class Q_GUI_EXPORT Q3TextFormatterBreakInWords : public Q3TextFormatter
 {
 public:
-    QTextFormatterBreakInWords();
-    virtual ~QTextFormatterBreakInWords() {}
+    Q3TextFormatterBreakInWords();
+    virtual ~Q3TextFormatterBreakInWords() {}
 
     int format( QTextDocument *doc, QTextParagraph *parag, int start, const QMap<int, QTextLineStart*> &oldLineStarts );
 
@@ -1355,11 +1355,11 @@ public:
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-class Q_GUI_EXPORT QTextFormatterBreakWords : public QTextFormatter
+class Q_GUI_EXPORT Q3TextFormatterBreakWords : public Q3TextFormatter
 {
 public:
-    QTextFormatterBreakWords();
-    virtual ~QTextFormatterBreakWords() {}
+    Q3TextFormatterBreakWords();
+    virtual ~Q3TextFormatterBreakWords() {}
 
     int format( QTextDocument *doc, QTextParagraph *parag, int start, const QMap<int, QTextLineStart*> &oldLineStarts );
 
@@ -1390,15 +1390,15 @@ public:
     virtual ~QTextPreProcessor() {}
 
     virtual void process( QTextDocument *doc, QTextParagraph *, int, bool = TRUE ) = 0;
-    virtual QTextFormat *format( int id ) = 0;
+    virtual Q3TextFormat *format( int id ) = 0;
 
 };
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-class Q_GUI_EXPORT QTextFormat
+class Q_GUI_EXPORT Q3TextFormat
 {
-    friend class QTextFormatCollection;
+    friend class Q3TextFormatCollection;
     friend class QTextDocument;
 
 public:
@@ -1419,14 +1419,14 @@ public:
 
     enum VerticalAlignment { AlignNormal, AlignSuperScript, AlignSubScript };
 
-    QTextFormat();
-    virtual ~QTextFormat();
+    Q3TextFormat();
+    virtual ~Q3TextFormat();
 
-    QTextFormat( const QStyleSheetItem *s );
-    QTextFormat( const QFont &f, const QColor &c, QTextFormatCollection *parent = 0 );
-    QTextFormat( const QTextFormat &fm );
-    QTextFormat makeTextFormat( const QStyleSheetItem *style, const QMap<QString,QString>& attr, double scaleFontsFactor ) const;
-    QTextFormat& operator=( const QTextFormat &fm );
+    Q3TextFormat( const QStyleSheetItem *s );
+    Q3TextFormat( const QFont &f, const QColor &c, Q3TextFormatCollection *parent = 0 );
+    Q3TextFormat( const Q3TextFormat &fm );
+    Q3TextFormat makeTextFormat( const QStyleSheetItem *style, const QMap<QString,QString>& attr, double scaleFontsFactor ) const;
+    Q3TextFormat& operator=( const Q3TextFormat &fm );
     QColor color() const;
     QFont font() const;
     QFontMetrics fontMetrics() const { return fm; }
@@ -1453,8 +1453,8 @@ public:
     void setMisspelled( bool b );
     void setVAlign( VerticalAlignment a );
 
-    bool operator==( const QTextFormat &f ) const;
-    QTextFormatCollection *parent() const;
+    bool operator==( const Q3TextFormat &f ) const;
+    Q3TextFormatCollection *parent() const;
     const QString &key() const;
 
     static QString getKey( const QFont &f, const QColor &c, bool misspelled, VerticalAlignment vAlign );
@@ -1462,8 +1462,8 @@ public:
     void addRef();
     void removeRef();
 
-    QString makeFormatChangeTags( QTextFormat* defaultFormat, QTextFormat *f, const QString& oldAnchorHref, const QString& anchorHref ) const;
-    QString makeFormatEndTags( QTextFormat* defaultFormat, const QString& anchorHref ) const;
+    QString makeFormatChangeTags( Q3TextFormat* defaultFormat, Q3TextFormat *f, const QString& oldAnchorHref, const QString& anchorHref ) const;
+    QString makeFormatEndTags( Q3TextFormat* defaultFormat, const QString& anchorHref ) const;
 
     static void setPainter( QPainter *p );
     static QPainter* painter();
@@ -1488,7 +1488,7 @@ private:
     VerticalAlignment ha;
     uchar widths[ 256 ];
     int hei, asc, dsc;
-    QTextFormatCollection *collection;
+    Q3TextFormatCollection *collection;
     int ref;
     QString k;
     int logicalFontSize;
@@ -1504,23 +1504,23 @@ private:
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-class Q_GUI_EXPORT QTextFormatCollection
+class Q_GUI_EXPORT Q3TextFormatCollection
 {
     friend class QTextDocument;
-    friend class QTextFormat;
+    friend class Q3TextFormat;
 
 public:
-    QTextFormatCollection();
-    virtual ~QTextFormatCollection();
+    Q3TextFormatCollection();
+    virtual ~Q3TextFormatCollection();
 
-    void setDefaultFormat( QTextFormat *f );
-    QTextFormat *defaultFormat() const;
-    virtual QTextFormat *format( QTextFormat *f );
-    virtual QTextFormat *format( QTextFormat *of, QTextFormat *nf, int flags );
-    virtual QTextFormat *format( const QFont &f, const QColor &c );
-    virtual void remove( QTextFormat *f );
-    virtual QTextFormat *createFormat( const QTextFormat &f ) { return new QTextFormat( f ); }
-    virtual QTextFormat *createFormat( const QFont &f, const QColor &c ) { return new QTextFormat( f, c, this ); }
+    void setDefaultFormat( Q3TextFormat *f );
+    Q3TextFormat *defaultFormat() const;
+    virtual Q3TextFormat *format( Q3TextFormat *f );
+    virtual Q3TextFormat *format( Q3TextFormat *of, Q3TextFormat *nf, int flags );
+    virtual Q3TextFormat *format( const QFont &f, const QColor &c );
+    virtual void remove( Q3TextFormat *f );
+    virtual Q3TextFormat *createFormat( const Q3TextFormat &f ) { return new Q3TextFormat( f ); }
+    virtual Q3TextFormat *createFormat( const QFont &f, const QColor &c ) { return new Q3TextFormat( f, c, this ); }
 
     void updateDefaultFormat( const QFont &font, const QColor &c, QStyleSheet *sheet );
 
@@ -1531,9 +1531,9 @@ private:
     void updateKeys();
 
 private:
-    QTextFormat *defFormat, *lastFormat, *cachedFormat;
-    QHash<QString, QTextFormat *> cKey;
-    QTextFormat *cres;
+    Q3TextFormat *defFormat, *lastFormat, *cachedFormat;
+    QHash<QString, Q3TextFormat *> cKey;
+    Q3TextFormat *cres;
     QFont cfont;
     QColor ccol;
     QString kof, knf;
@@ -1548,11 +1548,11 @@ public:
     QTextParagraphPseudoDocument();
     ~QTextParagraphPseudoDocument();
     QRect docRect;
-    QTextFormatter *pFormatter;
+    Q3TextFormatter *pFormatter;
     QTextCommandHistory *commandHistory;
     int minw;
     int wused;
-    QTextFormatCollection collection;
+    Q3TextFormatCollection collection;
 };
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -1661,13 +1661,13 @@ inline void QTextDocument::setPreProcessor( QTextPreProcessor * sh )
     pProcessor = sh;
 }
 
-inline void QTextDocument::setFormatter( QTextFormatter *f )
+inline void QTextDocument::setFormatter( Q3TextFormatter *f )
 {
     delete pFormatter;
     pFormatter = f;
 }
 
-inline QTextFormatter *QTextDocument::formatter() const
+inline Q3TextFormatter *QTextDocument::formatter() const
 {
     return pFormatter;
 }
@@ -1702,7 +1702,7 @@ inline void QTextDocument::setInvertSelectionText( int id, bool b )
     selectionText[ id ] = b;
 }
 
-inline QTextFormatCollection *QTextDocument::formatCollection() const
+inline Q3TextFormatCollection *QTextDocument::formatCollection() const
 {
     return fCollection;
 }
@@ -1764,42 +1764,42 @@ inline bool QTextDocument::useDoubleBuffer( QTextParagraph *parag, QPainter *p )
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-inline QColor QTextFormat::color() const
+inline QColor Q3TextFormat::color() const
 {
     return col;
 }
 
-inline QFont QTextFormat::font() const
+inline QFont Q3TextFormat::font() const
 {
     return fn;
 }
 
-inline bool QTextFormat::isMisspelled() const
+inline bool Q3TextFormat::isMisspelled() const
 {
     return missp;
 }
 
-inline QTextFormat::VerticalAlignment QTextFormat::vAlign() const
+inline Q3TextFormat::VerticalAlignment Q3TextFormat::vAlign() const
 {
     return ha;
 }
 
-inline bool QTextFormat::operator==( const QTextFormat &f ) const
+inline bool Q3TextFormat::operator==( const Q3TextFormat &f ) const
 {
     return k == f.k;
 }
 
-inline QTextFormatCollection *QTextFormat::parent() const
+inline Q3TextFormatCollection *Q3TextFormat::parent() const
 {
     return collection;
 }
 
-inline void QTextFormat::addRef()
+inline void Q3TextFormat::addRef()
 {
     ref++;
 }
 
-inline void QTextFormat::removeRef()
+inline void Q3TextFormat::removeRef()
 {
     ref--;
     if ( !collection )
@@ -1810,12 +1810,12 @@ inline void QTextFormat::removeRef()
 	collection->remove( this );
 }
 
-inline const QString &QTextFormat::key() const
+inline const QString &Q3TextFormat::key() const
 {
     return k;
 }
 
-inline bool QTextFormat::useLinkColor() const
+inline bool Q3TextFormat::useLinkColor() const
 {
     return linkColor;
 }
@@ -1993,19 +1993,19 @@ inline QTextParagraphData *QTextParagraph::extraData() const
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-inline void QTextFormatCollection::setDefaultFormat( QTextFormat *f )
+inline void Q3TextFormatCollection::setDefaultFormat( Q3TextFormat *f )
 {
     defFormat = f;
 }
 
-inline QTextFormat *QTextFormatCollection::defaultFormat() const
+inline Q3TextFormat *Q3TextFormatCollection::defaultFormat() const
 {
     return defFormat;
 }
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-inline QTextFormat *QTextStringChar::format() const
+inline Q3TextFormat *QTextStringChar::format() const
 {
     return (type == Regular) ? p.format : p.custom->format;
 }

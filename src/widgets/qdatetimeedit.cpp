@@ -289,9 +289,9 @@ public:
 	}
 
 	/* color all QDATETIMEEDIT_HIDDEN_CHAR chars to background color */
-	QTextFormat *fb = parag->formatCollection()->format( p.font(),
+	Q3TextFormat *fb = parag->formatCollection()->format( p.font(),
 							     pal.base() );
-	QTextFormat *nf = parag->formatCollection()->format( p.font(),
+	Q3TextFormat *nf = parag->formatCollection()->format( p.font(),
 							     pal.text() );
 	for ( int i = 0; i < txt.length(); ++i ) {
 	    parag->setFormat( i, 1, nf );

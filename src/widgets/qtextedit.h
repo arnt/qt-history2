@@ -36,7 +36,7 @@ class QTimer;
 class QTextString;
 class QTextCommand;
 class QTextParagraph;
-class QTextFormat;
+class Q3TextFormat;
 class QFont;
 class QColor;
 class QTextEdit;
@@ -340,7 +340,7 @@ public slots:
     virtual void setModified( bool m );
     virtual void resetFormat();
     virtual void setUndoDepth( int d );
-    virtual void setFormat( QTextFormat *f, int flags );
+    virtual void setFormat( Q3TextFormat *f, int flags );
     virtual void ensureCursorVisible();
     virtual void placeCursor( const QPoint &pos, QTextCursor *c = 0 );
     virtual void moveCursor( CursorAction action, bool select );
@@ -452,7 +452,7 @@ private:
 	int index;
 	int eid;
 	int eindex;
-	QTextFormat *format;
+	Q3TextFormat *format;
 	int flags;
 	Type type;
 	QTextDocument *doc;
@@ -511,7 +511,7 @@ private:
     bool optimFind( const QString & str, bool, bool, bool, int *, int * );
     void optimParseTags( QString * str, int lineNo = -1, int indexOffset = 0 );
     QTextEditOptimPrivate::Tag * optimPreviousLeftTag( int line );
-    void optimSetTextFormat( QTextDocument *, QTextCursor *, QTextFormat * f,
+    void optimSetTextFormat( QTextDocument *, QTextCursor *, Q3TextFormat * f,
 			     int, int, QTextEditOptimPrivate::Tag * t );
     QTextEditOptimPrivate::Tag * optimAppendTag( int index, const QString & tag );
     QTextEditOptimPrivate::Tag * optimInsertTag( int line, int index, const QString & tag );
@@ -533,7 +533,7 @@ private:
     QTextParagraph *lastFormatted;
     int interval;
     UndoRedoInfo undoRedoInfo;
-    QTextFormat *currentFormat;
+    Q3TextFormat *currentFormat;
     int currentAlignment;
     QPoint oldMousePos, mousePos;
     QPoint dragStartPos;

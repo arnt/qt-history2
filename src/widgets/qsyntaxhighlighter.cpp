@@ -125,7 +125,7 @@ void QSyntaxHighlighter::setFormat( int start, int count, const QFont &font, con
 {
     if ( !para || count <= 0 )
 	return;
-    QTextFormat *f = 0;
+    Q3TextFormat *f = 0;
     f = para->document()->formatCollection()->format( font, color );
     para->setFormat( start, count, f );
     f->removeRef();
@@ -137,7 +137,7 @@ void QSyntaxHighlighter::setFormat( int start, int count, const QColor &color )
 {
     if ( !para || count <= 0 )
 	return;
-    QTextFormat *f = 0;
+    Q3TextFormat *f = 0;
     QFont fnt = textEdit()->QWidget::font();
     f = para->document()->formatCollection()->format( fnt, color );
     para->setFormat( start, count, f );
@@ -150,7 +150,7 @@ void QSyntaxHighlighter::setFormat( int start, int count, const QFont &font )
 {
     if ( !para || count <= 0 )
 	return;
-    QTextFormat *f = 0;
+    Q3TextFormat *f = 0;
     QColor c = textEdit()->viewport()->paletteForegroundColor();
     f = para->document()->formatCollection()->format( font, c );
     para->setFormat( start, count, f );

@@ -76,9 +76,9 @@ void QTextTable::invalidate() { cachewidth = -1; }
 QTextParagraphData::~QTextParagraphData() {}
 void QTextParagraphData::join( QTextParagraphData * ) {}
 
-QTextFormatter::~QTextFormatter() {}
-void QTextFormatter::setWrapEnabled( bool b ) { wrapEnabled = b; }
-void QTextFormatter::setWrapAtColumn( int c ) { wrapColumn = c; }
+Q3TextFormatter::~Q3TextFormatter() {}
+void Q3TextFormatter::setWrapEnabled( bool b ) { wrapEnabled = b; }
+void Q3TextFormatter::setWrapAtColumn( int c ) { wrapColumn = c; }
 
 
 
@@ -165,11 +165,11 @@ QTextParagraph *QTextDocument::paragAt( int i ) const
 }
 
 
-QTextFormat::~QTextFormat()
+Q3TextFormat::~Q3TextFormat()
 {
 }
 
-QTextFormat::QTextFormat()
+Q3TextFormat::Q3TextFormat()
     : fm( QFontMetrics( fn ) ), linkColor( TRUE ), logicalFontSize( 3 ), stdSize( qApp->font().pointSize() )
 {
     ref = 0;
@@ -185,7 +185,7 @@ QTextFormat::QTextFormat()
     collection = 0;
 }
 
-QTextFormat::QTextFormat( const QStyleSheetItem *style )
+Q3TextFormat::Q3TextFormat( const QStyleSheetItem *style )
     : fm( QFontMetrics( fn ) ), linkColor( TRUE ), logicalFontSize( 3 ), stdSize( qApp->font().pointSize() )
 {
     ref = 0;
@@ -219,7 +219,7 @@ QTextFormat::QTextFormat( const QStyleSheetItem *style )
     addRef();
 }
 
-QTextFormat::QTextFormat( const QFont &f, const QColor &c, QTextFormatCollection *parent )
+Q3TextFormat::Q3TextFormat( const QFont &f, const QColor &c, Q3TextFormatCollection *parent )
     : fn( f ), col( c ), fm( QFontMetrics( f ) ), linkColor( TRUE ),
       logicalFontSize( 3 ), stdSize( f.pointSize() )
 {
@@ -242,7 +242,7 @@ QTextFormat::QTextFormat( const QFont &f, const QColor &c, QTextFormatCollection
     addRef();
 }
 
-QTextFormat::QTextFormat( const QTextFormat &f )
+Q3TextFormat::Q3TextFormat( const Q3TextFormat &f )
     : fm( f.fm )
 {
     ref = 0;
@@ -265,7 +265,7 @@ QTextFormat::QTextFormat( const QTextFormat &f )
     addRef();
 }
 
-QTextFormat& QTextFormat::operator=( const QTextFormat &f )
+Q3TextFormat& Q3TextFormat::operator=( const Q3TextFormat &f )
 {
     ref = 0;
     collection = f.collection;
@@ -289,7 +289,7 @@ QTextFormat& QTextFormat::operator=( const QTextFormat &f )
     return *this;
 }
 
-void QTextFormat::update()
+void Q3TextFormat::update()
 {
     fm = QFontMetrics( fn );
     leftBearing = fm.minLeftBearing();
@@ -302,24 +302,24 @@ void QTextFormat::update()
 }
 
 
-QPainter* QTextFormat::pntr = 0;
-QFontMetrics* QTextFormat::pntr_fm = 0;
-int QTextFormat::pntr_ldg=-1;
-int QTextFormat::pntr_asc=-1;
-int QTextFormat::pntr_hei=-1;
-int QTextFormat::pntr_dsc=-1;
+QPainter* Q3TextFormat::pntr = 0;
+QFontMetrics* Q3TextFormat::pntr_fm = 0;
+int Q3TextFormat::pntr_ldg=-1;
+int Q3TextFormat::pntr_asc=-1;
+int Q3TextFormat::pntr_hei=-1;
+int Q3TextFormat::pntr_dsc=-1;
 
-void QTextFormat::setPainter( QPainter *p )
+void Q3TextFormat::setPainter( QPainter *p )
 {
     pntr = p;
 }
 
-QPainter*  QTextFormat::painter()
+QPainter*  Q3TextFormat::painter()
 {
     return pntr;
 }
 
-void QTextFormat::applyFont( const QFont &f )
+void Q3TextFormat::applyFont( const QFont &f )
 {
     QFontMetrics fm( pntr->fontMetrics() );
     if ( !pntr_fm
@@ -336,7 +336,7 @@ void QTextFormat::applyFont( const QFont &f )
     }
 }
 
-int QTextFormat::minLeftBearing() const
+int Q3TextFormat::minLeftBearing() const
 {
     if ( !pntr || !pntr->isActive() )
 	return leftBearing;
@@ -344,7 +344,7 @@ int QTextFormat::minLeftBearing() const
     return pntr_fm->minLeftBearing();
 }
 
-int QTextFormat::minRightBearing() const
+int Q3TextFormat::minRightBearing() const
 {
     if ( !pntr || !pntr->isActive() )
 	return rightBearing;
@@ -352,7 +352,7 @@ int QTextFormat::minRightBearing() const
     return pntr_fm->minRightBearing();
 }
 
-int QTextFormat::height() const
+int Q3TextFormat::height() const
 {
     if ( !pntr || !pntr->isActive() )
 	return hei;
@@ -360,7 +360,7 @@ int QTextFormat::height() const
     return pntr_hei;
 }
 
-int QTextFormat::ascent() const
+int Q3TextFormat::ascent() const
 {
     if ( !pntr || !pntr->isActive() )
 	return asc;
@@ -368,7 +368,7 @@ int QTextFormat::ascent() const
     return pntr_asc;
 }
 
-int QTextFormat::descent() const
+int Q3TextFormat::descent() const
 {
     if ( !pntr || !pntr->isActive() )
 	return dsc;
@@ -378,7 +378,7 @@ int QTextFormat::descent() const
     return pntr_dsc;
 }
 
-int QTextFormat::leading() const
+int Q3TextFormat::leading() const
 {
     if ( !pntr || !pntr->isActive() )
 	return fm.leading();
@@ -386,12 +386,12 @@ int QTextFormat::leading() const
     return pntr_ldg;
 }
 
-void QTextFormat::generateKey()
+void Q3TextFormat::generateKey()
 {
     k = getKey( fn, col, isMisspelled(), vAlign() );
 }
 
-QString QTextFormat::getKey( const QFont &fn, const QColor &col, bool misspelled, VerticalAlignment a )
+QString Q3TextFormat::getKey( const QFont &fn, const QColor &col, bool misspelled, VerticalAlignment a )
 {
     QString k = fn.key();
     k += '/';
@@ -554,13 +554,13 @@ void QTextParagraph::setAlignment( int a )
     invalidate( 0 );
 }
 
-QTextFormatter *QTextParagraph::formatter() const
+Q3TextFormatter *QTextParagraph::formatter() const
 {
     if ( hasdoc )
 	return document()->formatter();
     if ( pseudoDocument()->pFormatter )
 	return pseudoDocument()->pFormatter;
-    return ( ( (QTextParagraph*)this )->pseudoDocument()->pFormatter = new QTextFormatterBreakWords );
+    return ( ( (QTextParagraph*)this )->pseudoDocument()->pFormatter = new Q3TextFormatterBreakWords );
 }
 
 void QTextParagraph::setTabArray( int *a )

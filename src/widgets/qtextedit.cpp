@@ -938,7 +938,7 @@ void QTextEdit::init()
     wrapWidth = -1;
     wPolicy = AtWhiteSpace;
     inDnD = FALSE;
-    doc->setFormatter( new QTextFormatterBreakWords );
+    doc->setFormatter( new Q3TextFormatterBreakWords );
     doc->formatCollection()->defaultFormat()->setFont( QScrollView::font() );
     doc->formatCollection()->defaultFormat()->setColor( palette().color( QPalette::Text ) );
     currentFormat = doc->formatCollection()->defaultFormat();
@@ -2960,7 +2960,7 @@ void QTextEdit::insert( const QString &text, uint insertionFlags )
     if ( doc->useFormatCollection() && !doc->preProcessor() ) {
 	doc->setSelectionStart( QTextDocument::Temp, oldCursor );
 	doc->setSelectionEnd( QTextDocument::Temp, *cursor );
-	doc->setFormat( QTextDocument::Temp, currentFormat, QTextFormat::Format );
+	doc->setFormat( QTextDocument::Temp, currentFormat, Q3TextFormat::Format );
 	doc->removeSelection( QTextDocument::Temp );
     }
 
@@ -3359,7 +3359,7 @@ bool QTextEdit::focusNextPrevChild( bool n )
   f which are specified by the \a flags are used.
 */
 
-void QTextEdit::setFormat( QTextFormat *f, int flags )
+void QTextEdit::setFormat( Q3TextFormat *f, int flags )
 {
     if ( doc->hasSelection( QTextDocument::Standard ) ) {
 	drawCursor( FALSE );
@@ -3417,7 +3417,7 @@ void QTextEdit::setPalette( const QPalette &p )
 {
     QScrollView::setPalette( p );
     if ( textFormat() == PlainText ) {
-	QTextFormat *f = doc->formatCollection()->defaultFormat();
+	Q3TextFormat *f = doc->formatCollection()->defaultFormat();
 	f->setColor( palette().text() );
 	updateContents();
     }
@@ -3559,10 +3559,10 @@ void QTextEdit::updateCurrentFormat()
 
 void QTextEdit::setItalic( bool b )
 {
-    QTextFormat f( *currentFormat );
+    Q3TextFormat f( *currentFormat );
     f.setItalic( b );
-    QTextFormat *f2 = doc->formatCollection()->format( &f );
-    setFormat( f2, QTextFormat::Italic );
+    Q3TextFormat *f2 = doc->formatCollection()->format( &f );
+    setFormat( f2, Q3TextFormat::Italic );
 }
 
 /*!
@@ -3574,10 +3574,10 @@ void QTextEdit::setItalic( bool b )
 
 void QTextEdit::setBold( bool b )
 {
-    QTextFormat f( *currentFormat );
+    Q3TextFormat f( *currentFormat );
     f.setBold( b );
-    QTextFormat *f2 = doc->formatCollection()->format( &f );
-    setFormat( f2, QTextFormat::Bold );
+    Q3TextFormat *f2 = doc->formatCollection()->format( &f );
+    setFormat( f2, Q3TextFormat::Bold );
 }
 
 /*!
@@ -3589,10 +3589,10 @@ void QTextEdit::setBold( bool b )
 
 void QTextEdit::setUnderline( bool b )
 {
-    QTextFormat f( *currentFormat );
+    Q3TextFormat f( *currentFormat );
     f.setUnderline( b );
-    QTextFormat *f2 = doc->formatCollection()->format( &f );
-    setFormat( f2, QTextFormat::Underline );
+    Q3TextFormat *f2 = doc->formatCollection()->format( &f );
+    setFormat( f2, Q3TextFormat::Underline );
 }
 
 /*!
@@ -3603,10 +3603,10 @@ void QTextEdit::setUnderline( bool b )
 
 void QTextEdit::setFamily( const QString &fontFamily )
 {
-    QTextFormat f( *currentFormat );
+    Q3TextFormat f( *currentFormat );
     f.setFamily( fontFamily );
-    QTextFormat *f2 = doc->formatCollection()->format( &f );
-    setFormat( f2, QTextFormat::Family );
+    Q3TextFormat *f2 = doc->formatCollection()->format( &f );
+    setFormat( f2, Q3TextFormat::Family );
 }
 
 /*!
@@ -3620,10 +3620,10 @@ void QTextEdit::setFamily( const QString &fontFamily )
 
 void QTextEdit::setPointSize( int s )
 {
-    QTextFormat f( *currentFormat );
+    Q3TextFormat f( *currentFormat );
     f.setPointSize( s );
-    QTextFormat *f2 = doc->formatCollection()->format( &f );
-    setFormat( f2, QTextFormat::Size );
+    Q3TextFormat *f2 = doc->formatCollection()->format( &f );
+    setFormat( f2, Q3TextFormat::Size );
 }
 
 /*!
@@ -3634,10 +3634,10 @@ void QTextEdit::setPointSize( int s )
 
 void QTextEdit::setColor( const QColor &c )
 {
-    QTextFormat f( *currentFormat );
+    Q3TextFormat f( *currentFormat );
     f.setColor( c );
-    QTextFormat *f2 = doc->formatCollection()->format( &f );
-    setFormat( f2, QTextFormat::Color );
+    Q3TextFormat *f2 = doc->formatCollection()->format( &f );
+    setFormat( f2, Q3TextFormat::Color );
 }
 
 /*!
@@ -3649,18 +3649,18 @@ void QTextEdit::setColor( const QColor &c )
 
 void QTextEdit::setVerticalAlignment( VerticalAlignment a )
 {
-    QTextFormat f( *currentFormat );
-    f.setVAlign( (QTextFormat::VerticalAlignment)a );
-    QTextFormat *f2 = doc->formatCollection()->format( &f );
-    setFormat( f2, QTextFormat::VAlign );
+    Q3TextFormat f( *currentFormat );
+    f.setVAlign( (Q3TextFormat::VerticalAlignment)a );
+    Q3TextFormat *f2 = doc->formatCollection()->format( &f );
+    setFormat( f2, Q3TextFormat::VAlign );
 }
 
 void QTextEdit::setFontInternal( const QFont &f_ )
 {
-    QTextFormat f( *currentFormat );
+    Q3TextFormat f( *currentFormat );
     f.setFont( f_ );
-    QTextFormat *f2 = doc->formatCollection()->format( &f );
-    setFormat( f2, QTextFormat::Font );
+    Q3TextFormat *f2 = doc->formatCollection()->format( &f );
+    setFormat( f2, Q3TextFormat::Font );
 }
 
 
@@ -4354,7 +4354,7 @@ void QTextEdit::UndoRedoInfo::clear()
 	if ( type == Insert || type == Return )
 	    doc->addCommand( new QTextInsertCommand( doc, id, index, d->text.rawData(), styleInformation ) );
 	else if ( type == Format )
-	    doc->addCommand( new QTextFormatCommand( doc, id, index, eid, eindex, d->text.rawData(), format, flags ) );
+	    doc->addCommand( new Q3TextFormatCommand( doc, id, index, eid, eindex, d->text.rawData(), format, flags ) );
 	else if ( type == Style )
 	    doc->addCommand( new QTextStyleCommand( doc, id, eid, styleInformation ) );
 	else if ( type != Invalid ) {
@@ -4417,7 +4417,7 @@ void QTextEdit::resetFormat()
 {
     setAlignment( Qt::AlignAuto );
     setParagType( QStyleSheetItem::DisplayBlock, QStyleSheetItem::ListDisc );
-    setFormat( doc->formatCollection()->defaultFormat(), QTextFormat::Format );
+    setFormat( doc->formatCollection()->defaultFormat(), Q3TextFormat::Format );
 }
 
 /*!
@@ -5180,12 +5180,12 @@ void QTextEdit::setWrapPolicy( WrapPolicy policy )
     if ( wPolicy == policy )
 	return;
     wPolicy = policy;
-    QTextFormatter *formatter;
+    Q3TextFormatter *formatter;
     if ( policy == AtWordBoundary || policy == AtWordOrDocumentBoundary ) {
-	formatter = new QTextFormatterBreakWords;
+	formatter = new Q3TextFormatterBreakWords;
 	formatter->setAllowBreakInWords( policy == AtWordOrDocumentBoundary );
     } else {
-	formatter = new QTextFormatterBreakInWords;
+	formatter = new Q3TextFormatterBreakInWords;
     }
     formatter->setWrapAtColumn( document()->formatter()->wrapAtColumn() );
     formatter->setWrapEnabled( document()->formatter()->isWrapEnabled( 0 ) );
@@ -5569,7 +5569,7 @@ void QTextEdit::setEnabled( bool b )
 {
     QScrollView::setEnabled( b );
     if ( textFormat() == PlainText ) {
-	QTextFormat *f = doc->formatCollection()->defaultFormat();
+	Q3TextFormat *f = doc->formatCollection()->defaultFormat();
 	f->setColor( palette().text() );
 	updateContents();
     }
@@ -6514,11 +6514,11 @@ QTextEditOptimPrivate::Tag * QTextEdit::optimPreviousLeftTag( int line )
   color the string.
 */
 void QTextEdit::optimSetTextFormat( QTextDocument * td, QTextCursor * cur,
-				    QTextFormat * f, int start, int end,
+				    Q3TextFormat * f, int start, int end,
 				    QTextEditOptimPrivate::Tag * tag )
 {
-    int formatFlags = QTextFormat::Bold | QTextFormat::Italic |
-		      QTextFormat::Underline;
+    int formatFlags = Q3TextFormat::Bold | Q3TextFormat::Italic |
+		      Q3TextFormat::Underline;
     cur->setIndex( start );
     td->setSelectionStart( 0, *cur );
     cur->setIndex( end );
@@ -6547,13 +6547,13 @@ void QTextEdit::optimSetTextFormat( QTextDocument * td, QTextCursor * cur,
 	    }
 	    QColor color = QColor( col );
 	    if ( color.isValid() ) {
-		formatFlags |= QTextFormat::Color;
+		formatFlags |= Q3TextFormat::Color;
 		f->setColor( color );
 	    }
 	}
     } else { // use the stylesheet tag definition
 	if ( ssItem->color().isValid() ) {
-	    formatFlags |= QTextFormat::Color;
+	    formatFlags |= Q3TextFormat::Color;
 	    f->setColor( ssItem->color() );
 	}
 	f->setBold( ssItem->fontWeight() == QFont::Bold );
@@ -6590,17 +6590,17 @@ void QTextEdit::optimDrawContents( QPainter * p, int clipx, int clipy,
     QTextDocument * td = new QTextDocument( 0 );
     td->setDefaultFormat( QScrollView::font(), QColor() );
     td->setPlainText( str );
-    td->setFormatter( new QTextFormatterBreakWords ); // deleted by QTextDoc
+    td->setFormatter( new Q3TextFormatterBreakWords ); // deleted by QTextDoc
     td->formatter()->setWrapEnabled( FALSE );
     td->setTabStops(doc->tabStopWidth());
 
     // get the current text color from the current format
     td->selectAll( QTextDocument::Standard );
-    QTextFormat f;
+    Q3TextFormat f;
     f.setColor( palette().text() );
     f.setFont( QScrollView::font() );
     td->setFormat( QTextDocument::Standard, &f,
-		   QTextFormat::Color | QTextFormat::Font );
+		   Q3TextFormat::Color | Q3TextFormat::Font );
     td->removeSelection( QTextDocument::Standard );
 
     // add tag formatting

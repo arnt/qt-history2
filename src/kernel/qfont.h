@@ -23,7 +23,7 @@
 
 class QFontPrivate;                                     /* don't touch */
 class QStringList;
-class QTextFormatCollection;
+class Q3TextFormatCollection;
 
 class Q_GUI_EXPORT QFont
 {
@@ -308,7 +308,7 @@ private:
     friend class QApplication;
     friend class QWidget;
     friend class QWidgetPrivate;
-    friend class QTextFormatCollection;
+    friend class Q3TextFormatCollection;
     friend class QTextLayout;
     friend class QTextItem;
 

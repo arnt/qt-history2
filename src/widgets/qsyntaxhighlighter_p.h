@@ -82,7 +82,7 @@ public:
 	    }
 	}
     }
-    QTextFormat *format( int ) { return 0; }
+    Q3TextFormat *format( int ) { return 0; }
 
 private:
     QSyntaxHighlighter *highlighter;
