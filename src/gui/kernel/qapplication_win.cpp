@@ -1158,6 +1158,54 @@ void QApplication::winFocus(QWidget *widget, bool gotFocus)
     }
 }
 
+struct KeyRec {
+    KeyRec(int c, int a, const QString& t) : code(c), ascii(a), text(t) { }
+    KeyRec() { }
+    int code, ascii;
+    QString text;
+};
+
+static const int maxrecs=64; // User has LOTS of fingers...
+static KeyRec key_rec[maxrecs];
+static int nrecs=0;
+
+static KeyRec* find_key_rec(int code, bool remove)
+{
+    KeyRec *result = 0;
+    for (int i=0; i<nrecs; i++) {
+        if (key_rec[i].code == code) {
+            if (remove) {
+                static KeyRec tmp;
+                tmp = key_rec[i];
+                while (i+1 < nrecs) {
+                    key_rec[i] = key_rec[i+1];
+                    i++;
+                }
+                nrecs--;
+                result = &tmp;
+            } else {
+                result = &key_rec[i];
+            }
+            break;
+        }
+    }
+    return result;
+}
+
+static void store_key_rec(int code, int ascii, const QString& text)
+{
+    if (nrecs == maxrecs) {
+        qWarning("Qt: Internal keyboard buffer overflow");
+        return;
+    }
+
+    key_rec[nrecs++] = KeyRec(code,ascii,text);
+}
+
+static void clear_key_rec()
+{
+    nrecs = 0;
+}
 
 //
 // QtWndProc() receives all messages from the main event loop
@@ -1698,6 +1746,8 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
                 if (!qt_tryModalHelper(widget, &top) && top && widget != top)
                     top->setActiveWindow();
             }
+            if (LOWORD(wParam) == WA_INACTIVE)
+                clear_key_rec(); // Ensure nothing gets consider an auto-repeat press later
 	    break;
 
 #ifndef Q_OS_TEMP
@@ -2639,50 +2689,6 @@ static int translateKeyCode(int key)                // get Qt::Key_... code
 Q_GUI_EXPORT int qt_translateKeyCode(int key)
 {
     return translateKeyCode(key);
-}
-
-struct KeyRec {
-    KeyRec(int c, int a, const QString& t) : code(c), ascii(a), text(t) { }
-    KeyRec() { }
-    int code, ascii;
-    QString text;
-};
-
-static const int maxrecs=64; // User has LOTS of fingers...
-static KeyRec key_rec[maxrecs];
-static int nrecs=0;
-
-static KeyRec* find_key_rec(int code, bool remove)
-{
-    KeyRec *result = 0;
-    for (int i=0; i<nrecs; i++) {
-        if (key_rec[i].code == code) {
-            if (remove) {
-                static KeyRec tmp;
-                tmp = key_rec[i];
-                while (i+1 < nrecs) {
-                    key_rec[i] = key_rec[i+1];
-                    i++;
-                }
-                nrecs--;
-                result = &tmp;
-            } else {
-                result = &key_rec[i];
-            }
-            break;
-        }
-    }
-    return result;
-}
-
-static void store_key_rec(int code, int ascii, const QString& text)
-{
-    if (nrecs == maxrecs) {
-        qWarning("Qt: Internal keyboard buffer overflow");
-        return;
-    }
-
-    key_rec[nrecs++] = KeyRec(code,ascii,text);
 }
 
 static int asciiToKeycode(char a, int state)
