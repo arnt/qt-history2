@@ -14,9 +14,9 @@
 
 */
 
-/*!  Creates a QSqlError contianing the error text \a text, database-specific error
-     text \databaseText, of type \a type and the optional error number \a number.
-
+/*!  Creates a QSqlError containing the error text \a text, database-specific
+     error text \a databaseText, of type \a type and the optional error number
+     \a number.
 */
 
 QSqlError::QSqlError(  const QString& driverText,
