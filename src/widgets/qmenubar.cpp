@@ -1226,7 +1226,7 @@ QSize QMenuBar::sizeHint() const
 {
     if ( badSize )
 	( (QMenuBar*)this )->calculateRects();
-    QSize s( 0, 0 );
+    QSize s( style().defaultFrameWidth(), 0 );
     if ( irects ) {
 	for ( int i = 0; i < (int)mitems->count(); ++i )
 	    s.setWidth( s.width() + irects[ i ].width() + 2 );

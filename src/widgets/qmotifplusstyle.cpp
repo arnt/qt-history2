@@ -247,9 +247,9 @@ void QMotifPlusStyle::polish(QWidget *widget)
 	((QFrame *) widget)->frameStyle() == QFrame::Panel)
 	((QFrame *) widget)->setFrameStyle(QFrame::WinPanel);
 
-    if (widget->inherits("QMenuBar"))
-	((QMenuBar *) widget)->setFrameStyle( QFrame::StyledPanel |
-					      QFrame::Raised);
+    if (widget->inherits("QMenuBar") &&
+	((QMenuBar *) widget)->frameStyle() != QFrame::NoFrame)
+	((QMenuBar *) widget)->setFrameStyle(QFrame::StyledPanel | QFrame::Raised);
 
     if (widget->inherits("QToolBar"))
 	widget->layout()->setMargin(2);
@@ -1193,9 +1193,8 @@ void QMotifPlusStyle::drawTab(QPainter *p, const QTabBar *tabbar, QTab *tab,
 		(selected) ? g.brush(QColorGroup::Button) 
 		           : g.brush(QColorGroup::Mid));
 
-    if (tabbar->shape() == QTabBar::RoundedAbove ||
-	tabbar->shape() == QTabBar::TriangularAbove) {
-	// tabs on top
+    if (tabbar->shape() == QTabBar::RoundedAbove) {
+	// "rounded" tabs on top
 
 	fr.setBottom(fr.bottom() - 1);
 
@@ -1214,8 +1213,8 @@ void QMotifPlusStyle::drawTab(QPainter *p, const QTabBar *tabbar, QTab *tab,
 
 	p->setPen(black);
 	p->drawLine(fr.right(), fr.top() + 1, fr.right(), fr.bottom() - 1);
-    } else {
-	// tabs on bottom
+    } else if (tabbar->shape() == QTabBar::RoundedBelow) {
+	// "rounded" tabs on bottom
 
 	fr.setTop(fr.top() + 1);
 
@@ -1249,10 +1248,14 @@ void QMotifPlusStyle::drawTab(QPainter *p, const QTabBar *tabbar, QTab *tab,
 		    fr.left(), fr.bottom() - 2);
 	if (! selected && fr.left() == 0)
 	    p->drawPoint(fr.left(), fr.top() - 1);
+    } else {
+	// triangular drawing code
+	QCommonStyle::drawTab(p, tabbar, tab, selected);
     }
 
     p->setPen(oldpen);
 }
+
 
 /*!
   \reimp
