@@ -1,6 +1,6 @@
 #$ IncludeTemplate("lib.t");
 
-#$ Substitute('LIBS += -L'.$project{"OBJECTS_DIR"}.' -lfreetype');
+#$ Substitute('LIBS += -L'.$project{"OBJECTS_DIR"}.' -lfreetype -lpng -lz');
 
 #$ Substitute('tmp/qt.cpp: ../include/qt.h $$ALLHEADERS');
 	echo "#include <qt.h>" >tmp/qt.cpp

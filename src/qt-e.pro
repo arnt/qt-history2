@@ -20,7 +20,7 @@ CONFIG		= qt warn_on release
 
 # Uncomment the next line if you want to use the standard png/zlib libs
 # (or static-linked ones as we do in Qt/Embedded)
-LIBS	+= -lpng -lz
+#LIBS	+= -lpng -lz
 
 # for now, dunno how to make this configurable, also requires a #define in qapplication_x11.cpp
 # unix:LIBS += $$TMAKE_LIBS_X11SM
