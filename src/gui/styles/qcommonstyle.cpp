@@ -429,7 +429,7 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
     case PE_SizeGrip: {
         p->save();
         int x, y, w, h;
-        opt->rect.rect(&x, &y, &w, &h);
+        opt->rect.getRect(&x, &y, &w, &h);
 
         int sw = qMin(h, w);
         if (h > w)
@@ -1098,7 +1098,7 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
             drawItem(p, ir, Qt::AlignCenter, button->palette,
                      (button->state & Style_Enabled), pixmap);
             if (!button->text.isEmpty()) {
-                const QRect tr(ir.topRight() + QPoint(2 + QRect::rectangleMode(), 0),
+                const QRect tr(ir.topRight() + QPoint(2 + 1, 0),
                                QSize(cr.width() - ir.width() - 9, ir.height()));
                 drawItem(p, tr, Qt::AlignLeft | Qt::AlignVCenter,
                          button->palette, (button->state & Style_Enabled), button->text);
@@ -1322,7 +1322,7 @@ QRect QCommonStyle::subRect(SubRect sr, const QStyleOption *opt, const QWidget *
         if (const QStyleOptionButton * const button = qt_cast<const QStyleOptionButton *>(opt)) {
             if (button->features & QStyleOptionButton::HasMenu) {
                 r = opt->rect;
-                r.setLeft(r.right() - (12 - QRect::rectangleMode()));
+                r.setLeft(r.right() - (12 - 1));
             }
         }
         break;

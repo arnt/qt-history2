@@ -486,7 +486,7 @@ QRect QStyle::itemRect(const QFontMetrics &fm, const QRect &r,
 {
     QRect result;
     int x, y, w, h;
-    r.rect(&x, &y, &w, &h);
+    r.getRect(&x, &y, &w, &h);
     if (!text.isEmpty()) {
         result = fm.boundingRect(x, y, w, h, flags, text, len);
         if (!enabled && styleHint(SH_EtchDisabledText)) {
@@ -511,7 +511,7 @@ QRect QStyle::itemRect(const QRect &r,
 {
     QRect result;
     int x, y, w, h;
-    r.rect(&x, &y, &w, &h);
+    r.getRect(&x, &y, &w, &h);
     if ((flags & Qt::AlignVCenter) == Qt::AlignVCenter)
         y += h/2 - pixmap.height()/2;
     else if ((flags & Qt::AlignBottom) == Qt::AlignBottom)
@@ -558,7 +558,7 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
                        const QColor *penColor) const
 {
     int x, y, w, h;
-    r.rect(&x, &y, &w, &h);
+    r.getRect(&x, &y, &w, &h);
 
     p->setPen(penColor ? *penColor : pal.foreground().color());
     if (!text.isEmpty()) {
@@ -583,7 +583,7 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
                        const QColor *penColor) const
 {
     int x, y, w, h;
-    r.rect(&x, &y, &w, &h);
+    r.getRect(&x, &y, &w, &h);
 
     p->setPen(penColor?*penColor:pal.foreground().color());
     QPixmap pm(pixmap);

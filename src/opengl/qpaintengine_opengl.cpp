@@ -448,7 +448,7 @@ void QOpenGLPaintEngine::drawRect(const QRect &r)
     glEnable(GL_BLEND);
 
     int x, y, w, h;
-    r.rect(&x, &y, &w, &h);
+    r.getRect(&x, &y, &w, &h);
     if (d->cbrush.style() == Qt::LinearGradientPattern) {
 	qt_fill_linear_gradient(r, d->cbrush);
 	if (d->cpen.style() == Qt::NoPen)
@@ -514,7 +514,7 @@ void QOpenGLPaintEngine::drawRoundRect(const QRect &r, int xRnd, int yRnd)
     QPointArray a;
 
     int x, y, w, h;
-    r.rect(&x, &y, &w, &h);
+    r.getRect(&x, &y, &w, &h);
 
     w--;
     h--;
@@ -564,7 +564,7 @@ void QOpenGLPaintEngine::drawArc(const QRect &r, int a, int alen)
 void QOpenGLPaintEngine::drawPie(const QRect &r, int a, int alen)
 {
     int x, y, w, h;
-    r.rect(&x, &y, &w, &h);
+    r.getRect(&x, &y, &w, &h);
 
     QPointArray pa;
     pa.makeArc(x, y, w, h, a, alen);
@@ -581,7 +581,7 @@ void QOpenGLPaintEngine::drawPie(const QRect &r, int a, int alen)
 void QOpenGLPaintEngine::drawChord(const QRect &r, int a, int alen)
 {
     int x, y, w, h;
-    r.rect(&x, &y, &w, &h);
+    r.getRect(&x, &y, &w, &h);
 
     QPointArray pa;
     pa.makeArc(x, y, w-1, h-1, a, alen); // arc polygon

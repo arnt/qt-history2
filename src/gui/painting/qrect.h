@@ -27,95 +27,92 @@
 class Q_GUI_EXPORT QRect                                        // rectangle class
 {
 public:
-    QRect()        { x1 = y1 = 0; x2 = y2 = -1; }
+    QRect() { x1 = y1 = 0; x2 = y2 = -1; }
     QRect(const QPoint &topleft, const QPoint &bottomright);
     QRect(const QPoint &topleft, const QSize &size);
     QRect(int left, int top, int width, int height);
 
-    bool   isNull()        const;
-    bool   isEmpty()        const;
-    bool   isValid()        const;
-    QRect  normalize()        const;
+    bool isNull() const;
+    bool isEmpty() const;
+    bool isValid() const;
+    QRect normalize() const;
 
-    int           left()        const;
-    int           top()        const;
-    int           right()        const;
-    int           bottom()        const;
+    int left() const;
+    int top() const;
+    int right() const;
+    int bottom() const;
 
     QCOORD &rLeft();
     QCOORD &rTop();
     QCOORD &rRight();
     QCOORD &rBottom();
 
-    int           x()                const;
-    int           y()                const;
-    void   setLeft(int pos);
-    void   setTop(int pos);
-    void   setRight(int pos);
-    void   setBottom(int pos);
-    void   setX(int x);
-    void   setY(int y);
+    int x() const;
+    int y() const;
+    void setLeft(int pos);
+    void setTop(int pos);
+    void setRight(int pos);
+    void setBottom(int pos);
+    void setX(int x);
+    void setY(int y);
 
-    void   setTopLeft(const QPoint &p);
-    void   setBottomRight(const QPoint &p);
-    void   setTopRight(const QPoint &p);
-    void   setBottomLeft(const QPoint &p);
+    void setTopLeft(const QPoint &p);
+    void setBottomRight(const QPoint &p);
+    void setTopRight(const QPoint &p);
+    void setBottomLeft(const QPoint &p);
 
-    QPoint topLeft()         const;
+    QPoint topLeft() const;
     QPoint bottomRight() const;
-    QPoint topRight()         const;
-    QPoint bottomLeft()         const;
-    QPoint center()         const;
+    QPoint topRight() const;
+    QPoint bottomLeft() const;
+    QPoint center() const;
 
-    void   rect(int *x, int *y, int *w, int *h) const;
-    void   coords(int *x1, int *y1, int *x2, int *y2) const;
+    void moveLeft(int pos);
+    void moveTop(int pos);
+    void moveRight(int pos);
+    void moveBottom(int pos);
+    void moveTopLeft(const QPoint &p);
+    void moveBottomRight(const QPoint &p);
+    void moveTopRight(const QPoint &p);
+    void moveBottomLeft(const QPoint &p);
+    void moveCenter(const QPoint &p);
+    void moveBy(int dx, int dy);
+    void moveBy(const QPoint &p);
 
-    void   moveLeft(int pos);
-    void   moveTop(int pos);
-    void   moveRight(int pos);
-    void   moveBottom(int pos);
-    void   moveTopLeft(const QPoint &p);
-    void   moveBottomRight(const QPoint &p);
-    void   moveTopRight(const QPoint &p);
-    void   moveBottomLeft(const QPoint &p);
-    void   moveCenter(const QPoint &p);
-    void   moveBy(int dx, int dy);
-    void   moveBy(const QPoint &p);
+    void setRect(int x, int y, int w, int h);
+    void getRect(int *x, int *y, int *w, int *h) const;
 
-    void   setRect(int x, int y, int w, int h);
-    void   setCoords(int x1, int y1, int x2, int y2);
-    void   addCoords(int x1, int y1, int x2, int y2);
+    void setCoords(int x1, int y1, int x2, int y2);
+    void addCoords(int x1, int y1, int x2, int y2);
+    void getCoords(int *x1, int *y1, int *x2, int *y2) const;
 
-    QSize  size()        const;
-    int           width()        const;
-    int           height()        const;
-    void   setWidth(int w);
-    void   setHeight(int h);
-    void   setSize(const QSize &s);
+    QSize size() const;
+    int width() const;
+    int height() const;
+    void setWidth(int w);
+    void setHeight(int h);
+    void setSize(const QSize &s);
 
-    QRect  operator|(const QRect &r) const;
-    QRect  operator&(const QRect &r) const;
-    QRect&  operator|=(const QRect &r);
-    QRect&  operator&=(const QRect &r);
+    QRect operator|(const QRect &r) const;
+    QRect operator&(const QRect &r) const;
+    QRect& operator|=(const QRect &r);
+    QRect& operator&=(const QRect &r);
 
-    bool   contains(const QPoint &p, bool proper=false) const;
-    bool   contains(int x, int y) const; // inline methods, _don't_ merge these
-    bool   contains(int x, int y, bool proper) const;
-    bool   contains(const QRect &r, bool proper=false) const;
-    QRect  unite(const QRect &r) const;
-    QRect  intersect(const QRect &r) const;
-    bool   intersects(const QRect &r) const;
+    bool contains(const QPoint &p, bool proper=false) const;
+    bool contains(int x, int y) const; // inline methods, _don't_ merge these
+    bool contains(int x, int y, bool proper) const;
+    bool contains(const QRect &r, bool proper=false) const;
+    QRect unite(const QRect &r) const;
+    QRect intersect(const QRect &r) const;
+    bool intersects(const QRect &r) const;
 
     friend Q_GUI_EXPORT bool operator==(const QRect &, const QRect &);
     friend Q_GUI_EXPORT bool operator!=(const QRect &, const QRect &);
 
-    enum RectangleMode {
-        ExclusiveRectangles = 0,
-        InclusiveRectangles = 1
-    };
-
-    static void setRectangleMode(RectangleMode mode) { static_rect_mode = mode; }
-    static RectangleMode rectangleMode() { return static_rect_mode; }
+#ifdef QT_COMPAT
+    inline QT_COMPAT void rect(int *x, int *y, int *w, int *h) const { return getRect(x, y, w, h); }
+    inline QT_COMPAT void coords(int *x1, int *y1, int *x2, int *y2) const { return getCoords(x1, y1, x2, y2); }
+#endif
 
 private:
 #if defined(Q_WS_X11) || defined(Q_OS_TEMP)
@@ -132,8 +129,6 @@ private:
     QCOORD x2;
     QCOORD y2;
 #endif
-
-    static RectangleMode static_rect_mode;
 
 };
 
@@ -157,8 +152,8 @@ inline QRect::QRect(int left, int top, int width, int height)
 {
     x1 = (QCOORD)left;
     y1 = (QCOORD)top;
-    x2 = (QCOORD)(left + width - static_rect_mode);
-    y2 = (QCOORD)(top + height - static_rect_mode);
+    x2 = (QCOORD)(left + width - 1);
+    y2 = (QCOORD)(top + height - 1);
 }
 
 inline QRect::QRect(const QPoint &topLeft, const QPoint &bottomRight)
@@ -173,12 +168,12 @@ inline QRect::QRect(const QPoint &topLeft, const QSize &size)
 {
     x1 = (QCOORD)topLeft.x();
     y1 = (QCOORD)topLeft.y();
-    x2 = (QCOORD)(x1+size.width() - static_rect_mode);
-    y2 = (QCOORD)(y1+size.height() - static_rect_mode);
+    x2 = (QCOORD)(x1+size.width() - 1);
+    y2 = (QCOORD)(y1+size.height() - 1);
 }
 
 inline bool QRect::isNull() const
-{ return x2 == x1 - static_rect_mode && y2 == y1 - static_rect_mode; }
+{ return x2 == x1 - 1 && y2 == y1 - 1; }
 
 inline bool QRect::isEmpty() const
 { return x1 > x2 || y1 > y2; }
@@ -262,13 +257,13 @@ inline QPoint QRect::center() const
 { return QPoint((x1+x2)/2, (y1+y2)/2); }
 
 inline int QRect::width() const
-{ return  x2 - x1 + static_rect_mode; }
+{ return  x2 - x1; }
 
 inline int QRect::height() const
-{ return  y2 - y1 + static_rect_mode; }
+{ return  y2 - y1; }
 
 inline QSize QRect::size() const
-{ return QSize(x2 - x1 + static_rect_mode, y2-y1 + static_rect_mode); }
+{ return QSize(x2 - x1, y2-y1); }
 
 inline void QRect::moveBy(int dx, int dy)
 {
@@ -328,23 +323,23 @@ inline void QRect::moveBottomLeft(const QPoint &p)
     moveBottom(p.y());
 }
 
-inline void QRect::rect(int *x, int *y, int *w, int *h) const
+inline void QRect::getRect(int *x, int *y, int *w, int *h) const
 {
     *x = x1;
     *y = y1;
-    *w = x2-x1 + static_rect_mode;
-    *h = y2-y1 + static_rect_mode;
+    *w = x2 - x1 + 1;
+    *h = y2 - y1 + 1;
 }
 
 inline void QRect::setRect(int x, int y, int w, int h)
 {
     x1 = (QCOORD)x;
     y1 = (QCOORD)y;
-    x2 = (QCOORD)(x+w - static_rect_mode);
-    y2 = (QCOORD)(y+h - static_rect_mode);
+    x2 = (QCOORD)(x + w - 1);
+    y2 = (QCOORD)(y + h - 1);
 }
 
-inline void QRect::coords(int *xp1, int *yp1, int *xp2, int *yp2) const
+inline void QRect::getCoords(int *xp1, int *yp1, int *xp2, int *yp2) const
 {
     *xp1 = x1;
     *yp1 = y1;
@@ -369,15 +364,15 @@ inline void QRect::addCoords(int xp1, int yp1, int xp2, int yp2)
 }
 
 inline void QRect::setWidth(int w)
-{ x2 = (QCOORD)(x1 + w - static_rect_mode); }
+{ x2 = (QCOORD)(x1 + w); }
 
 inline void QRect::setHeight(int h)
-{ y2 = (QCOORD)(y1 + h - static_rect_mode); }
+{ y2 = (QCOORD)(y1 + h); }
 
 inline void QRect::setSize(const QSize &s)
 {
-    x2 = (QCOORD)(s.width()  + x1 - static_rect_mode);
-    y2 = (QCOORD)(s.height() + y1 - static_rect_mode);
+    x2 = (QCOORD)(s.width()  + x1);
+    y2 = (QCOORD)(s.height() + y1);
 }
 
 inline bool QRect::contains(int x, int y, bool proper) const

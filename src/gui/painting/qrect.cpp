@@ -15,9 +15,6 @@
 #include "qdatastream.h"
 #include "qdebug.h"
 
-// ### change this to ExclusiveRectangles after the tech preview
-QRect::RectangleMode QRect::static_rect_mode = QRect::InclusiveRectangles;
-
 /*!
     \class QRect
     \brief The QRect class defines a rectangle in the plane.
@@ -62,29 +59,6 @@ QRect::RectangleMode QRect::static_rect_mode = QRect::InclusiveRectangles;
     of two QRects use unite().
 
     \sa QPoint, QSize
-*/
-
-/*!
-    \enum QRect::RectangleMode
-
-    \value ExclusiveRectangles
-    \value InclusiveRectangles
-*/
-
-/*!
-    \fn void QRect::setRectangleMode(RectangleMode mode)
-
-    Sets the rectangle's drawing \a mode.
-
-    \sa rectangleMode()
-*/
-
-/*!
-    \fn RectangleMode QRect::rectangleMode()
-
-    Returns the rectangle's drawing \l{RectangleMode}.
-
-    \sa setRectangleMode()
 */
 
 /*****************************************************************************
@@ -432,7 +406,7 @@ QRect QRect::normalize() const
 
 
 /*!
-  \fn void QRect::rect(int *x, int *y, int *w, int *h) const
+  \fn void QRect::getRect(int *x, int *y, int *w, int *h) const
 
     Extracts the rectangle parameters as the position \c{*}\a{x},
     \c{*}\a{y} and width \c{*}\a{w} and height \c{*}\a{h}.
@@ -442,7 +416,7 @@ QRect QRect::normalize() const
 
 
 /*!
-  \fn void QRect::coords(int *xp1, int *yp1, int *xp2, int *yp2) const
+  \fn void QRect::getCoords(int *xp1, int *yp1, int *xp2, int *yp2) const
 
     Extracts the rectangle parameters as the top-left point
     \c{*}\a{xp1}, \c{*}\a{yp1} and the bottom-right point
@@ -451,6 +425,19 @@ QRect QRect::normalize() const
     \sa setCoords(), rect()
 */
 
+/*!
+  \fn void QRect::rect(int *x, int *y, int *w, int *h) const
+
+  Use getRect() instead.
+*/
+
+
+/*!
+  \fn void QRect::coords(int *xp1, int *yp1, int *xp2, int *yp2) const
+
+  Use getCoords() instead.
+
+*/
 
 /*!
   \fn void QRect::moveLeft(int pos)

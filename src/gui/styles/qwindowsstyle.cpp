@@ -1378,25 +1378,24 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
     case PE_DockWindowResizeHandle: {
         QPen oldPen = p->pen();
         p->setPen(opt->palette.light());
-        const int extra = QRect::rectangleMode() == QRect::InclusiveRectangles ? 0 : 1;
         if (opt->state & Style_Horizontal) {
             p->drawLine(opt->rect.left(),          opt->rect.top(),
-                        opt->rect.right() - extra, opt->rect.top());
+                        opt->rect.right(), opt->rect.top());
             p->setPen(opt->palette.dark());
-            p->drawLine(opt->rect.left(),          opt->rect.bottom() - 1 - extra,
-                        opt->rect.right() - extra, opt->rect.bottom() - 1 - extra);
+            p->drawLine(opt->rect.left(),          opt->rect.bottom() - 1,
+                        opt->rect.right(), opt->rect.bottom() - 1);
             p->setPen(opt->palette.shadow());
-            p->drawLine(opt->rect.left(),          opt->rect.bottom() - extra,
-                        opt->rect.right() - extra, opt->rect.bottom() - extra);
+            p->drawLine(opt->rect.left(),          opt->rect.bottom(),
+                        opt->rect.right(), opt->rect.bottom());
         } else {
             p->drawLine(opt->rect.left(), opt->rect.top(),
-                        opt->rect.left(), opt->rect.bottom() - extra);
+                        opt->rect.left(), opt->rect.bottom());
             p->setPen(opt->palette.dark());
-            p->drawLine(opt->rect.right() - 1 - extra, opt->rect.top(),
-                        opt->rect.right() - 1 - extra, opt->rect.bottom() - extra);
+            p->drawLine(opt->rect.right() - 1, opt->rect.top(),
+                        opt->rect.right() - 1, opt->rect.bottom());
             p->setPen(opt->palette.shadow());
-            p->drawLine(opt->rect.right() - extra, opt->rect.top(),
-                        opt->rect.right() - extra, opt->rect.bottom() - extra);
+            p->drawLine(opt->rect.right(), opt->rect.top(),
+                        opt->rect.right(), opt->rect.bottom());
         }
         p->setPen(oldPen);
         break; }
@@ -1419,7 +1418,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
             bool act = menuitem->state & Style_Active;
 
             int x, y, w, h;
-            menuitem->rect.rect(&x, &y, &w, &h);
+            menuitem->rect.getRect(&x, &y, &w, &h);
 
             if (menuitem->checkState != QStyleOptionMenuItem::NotCheckable) {
                 // space for the checkmarks
