@@ -5,12 +5,6 @@
 #include "qglobal.h"
 #endif // QT_H
 
-#ifndef QT_NO_CODEC_FOR_C_STRINGS
-#ifdef QT_NO_TEXTCODEC
-#define QT_NO_CODEC_FOR_C_STRINGS
-#endif
-#endif
-
 class QString;
 
 class Q_EXPORT QChar {
