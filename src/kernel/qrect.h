@@ -80,6 +80,7 @@ public:
     void   moveBottomLeft( const QPoint &p );
     void   moveCenter( const QPoint &p );
     void   moveBy( int dx, int dy );
+    void   moveBy( const QPoint &p );
 
     void   setRect( int x, int y, int w, int h );
     void   setCoords( int x1, int y1, int x2, int y2 );
@@ -229,6 +230,9 @@ inline int QRect::height() const
 
 inline QSize QRect::size() const
 { return QSize(x2-x1+1, y2-y1+1); }
+
+inline void QRect::moveBy( const QPoint &p )
+{ moveBy(p.x(), p.y()); }
 
 inline bool QRect::contains( int x, int y, bool proper ) const
 {
