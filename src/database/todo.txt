@@ -1,18 +1,10 @@
-ODBC
-- reimplement QODBCDriver::table() to use catalog functions which will make this method faster (and potentially more accurate).
-
-OCI
-- get proper datatype back when creating QSqlResultInfo
-
-QVariant
-- add binary support
-
 QPSQL
 - add large object support in the driver only
 
-QSQL
-- add QSqlRow to QSql to support insert, update, delete?  this may only make sense for tables...
-
+QSqlIndex
+- Add ASC/DESC sorting
+- add proper name support for each driver
+- foreign indexes?  <= important for lookups
 
 
 
