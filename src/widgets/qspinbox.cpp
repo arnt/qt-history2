@@ -468,7 +468,7 @@ void QSpinBox::arrangeWidgets()
     }
 
     up = QRect( x, y, bs.width(), bs.height() );
-    down = QRect( x, up.bottom()+1, bs.width(), bs.height() );
+    down = QRect( x, height() - fw - bs.height(), bs.width(), bs.height() );
     vi->setGeometry( lx, fw, rx, height() - 2*fw );
 }
 
@@ -622,9 +622,9 @@ void QSpinBox::mousePressEvent( QMouseEvent *e )
 
     uint oldButtonDown = buttonDown;
 
-    if ( down.contains( e->pos() ) && ( enabled & 1 ) == 1 )
+    if ( down.contains( e->pos() ) && enabled & 1 )
 	buttonDown = 1;
-    else if ( up.contains( e->pos() ) && ( enabled & 2 ) == 2 )
+    else if ( up.contains( e->pos() ) && enabled & 2 )
 	buttonDown = 2;
     else
 	buttonDown = 0;

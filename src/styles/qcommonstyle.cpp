@@ -383,31 +383,35 @@ void QCommonStyle::drawSpinBoxButton( QPainter *p, const QRect &rect, const QCol
 void QCommonStyle::drawSpinBoxSymbol( QPainter *p, const QRect &rect, const QColorGroup &g, const QSpinBox *sp,
 			    bool downbtn, bool /*enabled*/, bool down )
 {
+    p->save();
     if ( sp->buttonSymbols() == QSpinBox::PlusMinus ) {
 	
+	p->setPen( g.buttonText() );
+	p->setBrush( g.buttonText() );
+
 	int length;
 	if ( rect.width() <= 8 || rect.height() <= 6 ) {
 	    length = QMIN( rect.width()-2, rect.height()-2 );
-	}
-	else {
+	} else {
 	    length = QMIN( 2*rect.width() / 3, 2*rect.height() / 3 );
-	    p->setPen( QPen( g.buttonText(), 1 ) );
-	}
+ 	}
+	if ( !(length & 1) )
+	    length -=1;
 	int xmarg = ( rect.width() - length ) / 2;
 	int ymarg = ( rect.height() - length ) / 2;
 
 	p->drawLine( rect.left() + xmarg, ( rect.y() + rect.height() / 2 - 1 ),
-		     rect.right() - xmarg, ( rect.y() + rect.height() / 2 - 1 ) );
+		     rect.left() + xmarg + length - 1, ( rect.y() + rect.height() / 2 - 1 ) );
 	if ( !downbtn )
 	    p->drawLine( ( rect.x() + rect.width() / 2 ) - 1, rect.top() + ymarg,
-			 ( rect.x() + rect.width() / 2 ) - 1, rect.bottom() - ymarg );
+			 ( rect.x() + rect.width() / 2 ) - 1, rect.top() + ymarg + length - 1 );
     } else {
 	int w = rect.width()-4;
 	if ( w < 3 )
 	    return;
 	else if ( !(w & 1) )
 	    w--;
-	w -= ( w / 7 ) * 2;		// Empty border
+	w -= ( w / 7 ) * 2;	// Empty border
 	int h = w/2 + 2;        // Must have empty row at foot of arrow
 
 	int x = rect.x() + rect.width() / 2 - w / 2 - 1;
@@ -418,16 +422,16 @@ void QCommonStyle::drawSpinBoxSymbol( QPainter *p, const QRect &rect, const QCol
 	    a.setPoints( 3,  0, 1,  w-1, 1,  h-2, h-1 );
 	else
 	    a.setPoints( 3,  0, h-1,  w-1, h-1,  h-2, 1 );
-	p->save();
 	int sx = 0;
 	int sy = 0;
 	if ( down )
 	    getButtonShift( sx, sy );
 	p->translate( x + sx, y + sy );
-	p->setBrush( g.foreground() );
+	p->setPen( g.buttonText() );
+	p->setBrush( g.buttonText() );
 	p->drawPolygon( a );
-	p->restore();
     }
+    p->restore();
 }
 
 // groupbox
