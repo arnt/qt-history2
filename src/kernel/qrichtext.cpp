@@ -3655,12 +3655,14 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
     int lasth = 0;
     for ( i = 0; i < length(); i++ ) {
 	chr = at( i );
+#if 0 // seems we don't need that anymore
 	if ( !str->isBidi() && is_printer( &painter ) ) { // ### fix our broken ps-printer
 	    if ( !chr->lineStart )
 		chr->x = QMAX( chr->x, tw );
 	    else
 		tw = 0;
 	}
+#endif
 	cw = string()->width( i );
 	if ( chr->c == '\t' && i < length() - 1 )
 	    cw = at( i + 1 )->x - chr->x + 1;
@@ -3737,6 +3739,7 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 				 lastBaseLine, bw, lasth, drawSelections,
 				 lastFormat, i, selectionStarts, selectionEnds, cg, lastDirection );
 	    }
+#if 0 // seems we don't need that anymore
 	    if ( !str->isBidi() && is_printer( &painter ) ) { // ### fix our broken ps-printer
 		if ( !chr->lineStart ) {
 		    // ### the next line doesn't look 100% correct for arabic
@@ -3746,6 +3749,7 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 		    tw = 0;
 		}
 	    }
+#endif
 	    if ( !chr->isCustom() ) {
 		if ( chr->c != '\n' ) {
 		    paintStart = i;
