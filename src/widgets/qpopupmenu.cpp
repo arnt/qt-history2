@@ -361,8 +361,12 @@ void QPopupMenu::menuContentsChanged()
     if( pendingDelayedContentsChanges )
         return;
     pendingDelayedContentsChanges = 1;
-    if( !pendingDelayedStateChanges ) // if the timer hasn't been started yet
-        QTimer::singleShot( 0, this, SLOT(performDelayedChanges()));
+    if( !pendingDelayedStateChanges ) { // if the timer hasn't been started yet
+	if ( isVisible() )
+	    QTimer::singleShot( 0, this, SLOT(performDelayedChanges()));
+	else
+	    performDelayedContentsChanged();
+    }
 }
 
 void QPopupMenu::performDelayedContentsChanged()
@@ -399,12 +403,16 @@ void QPopupMenu::performDelayedContentsChanged()
 
 void QPopupMenu::menuStateChanged()
 {
-     // here the part that can't be delayed
-     if( pendingDelayedStateChanges )
-         return;
-     pendingDelayedStateChanges = 1;
-     if( !pendingDelayedContentsChanges ) // if the timer hasn't been started yet
-         QTimer::singleShot( 0, this, SLOT(performDelayedChanges()));
+    // here the part that can't be delayed
+    if( pendingDelayedStateChanges )
+	return;
+    pendingDelayedStateChanges = 1;
+    if( !pendingDelayedContentsChanges ) { // if the timer hasn't been started yet
+	if ( isVisible() )
+	    QTimer::singleShot( 0, this, SLOT(performDelayedChanges()));
+	else
+	    performDelayedStateChanged();
+    }
 }
 
 void QPopupMenu::performDelayedStateChanged()
