@@ -44,6 +44,8 @@ WType_Popup
 
 QListBox
     Inserting items in an empty listbox *with* focus doesn't emit highlighted signal
+Accelerator eating broken, this time on Unix
+    support/arc-08/16327
 
 Cosmetic
 --------
