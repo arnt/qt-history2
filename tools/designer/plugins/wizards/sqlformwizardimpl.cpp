@@ -225,7 +225,10 @@ void SqlFormWizard::setupPage1()
     listBoxConnection->clear();
     editTable->clear();
     editConnection->clear();
-
+    if ( !widget->parentWidget()->inherits( "FormWindow" ) ) {
+	checkBoxEdit->setChecked( FALSE );
+	checkBoxNavig->setChecked( FALSE );
+    }
     QStringList lst = proIface->databaseConnectionList();
     listBoxConnection->insertStringList( lst );
 }
