@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#353 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#354 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1361,7 +1361,7 @@ QString QFileDialogPrivate::File::text( int column ) const
 	if ( t2 && strftime( a, 255, egcsWorkaround, t2 ) > 0 )
 	    return QString::fromLatin1(a);
 	else
-	    return QString::fromLatin1("????");                             
+	    return QString::fromLatin1("????");
     }
     case 4:
 	if ( info.isReadable() )
@@ -3179,7 +3179,6 @@ QString QFileDialog::getExistingDirectory( const QString & dir,
     }
 
     QString result;
-    dialog->setSelection( "." );
 
     if ( dialog->exec() == QDialog::Accepted ) {
 	result = dialog->selectedFile();
