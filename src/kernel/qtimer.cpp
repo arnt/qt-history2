@@ -199,63 +199,33 @@ bool QTimer::event( QEvent *e )
 }
 
 
-/*
-  The QSingleShotTimer class is an internal class for implementing
-  QTimer::singleShot(). It starts a timer and emits the signal
-  and kills itself when it gets the timeout.
-*/
-
-static QObjectList *sst_list = 0;		// list of single shot timers
-
-static void sst_cleanup()
-{
-    if ( sst_list ) {
-	sst_list->setAutoDelete( TRUE );
-	delete sst_list;
-	sst_list = 0;
-    }
-}
-
-static void sst_init()
-{
-    if ( !sst_list ) {
-	sst_list = new QObjectList;
-	qAddPostRoutine( sst_cleanup );
-    }
-}
-
-
 class QSingleShotTimer : public QObject
 {
+    Q_OBJECT
 public:
-    bool    start( int msec, QObject *r, const char * m );
-    bool    isActive() const { return timerId > 0; }
+    QSingleShotTimer(int msec, QObject *r, const char * m);
+signals:
+    void timeout();
 protected:
-    bool    event( QEvent * );
-private:
-    QSignal signal;
-    int	    timerId;
+    void timerEvent(QTimerEvent *);
 };
 
-bool QSingleShotTimer::start( int msec, QObject *r, const char *m )
+QSingleShotTimer::QSingleShotTimer(int msec, QObject *receiver, const char *member)
+    : QObject(QEventLoop::instance())
 {
-    timerId = 0;
-    if ( signal.connect(r, m) )
-	timerId = QKernelApplication::eventLoop()->registerTimer(msec, (QObject *)this);
-    return timerId != 0;
+    connect(this, SIGNAL(timeout()), receiver, member);
+    startTimer(msec);
 }
 
-bool QSingleShotTimer::event( QEvent * )
+void QSingleShotTimer::timerEvent(QTimerEvent *)
 {
-    QKernelApplication::eventLoop()->unregisterTimer(timerId);	// no more timeouts
-    signal.activate();				// emit the signal
-    signal.disconnect( 0, 0 );
-    timerId = 0;                                // mark as inactive
-    return TRUE;
+    emit timeout();
+    delete this;
 }
 
+#include "qtimer.moc"
 
-/*!
+/*! \reentrant
     This static function calls a slot after a given time interval.
 
     It is very convenient to use this function because you do not need
@@ -285,22 +255,6 @@ bool QSingleShotTimer::event( QEvent * )
 
 void QTimer::singleShot( int msec, QObject *receiver, const char *member )
 {
-    if ( !sst_list )
-	sst_init();
-    // search the list for a free ss timer we could reuse
-    QSingleShotTimer *sst = 0;
-    for (int i = 0; i < sst_list->size(); ++i) {
-	QSingleShotTimer *t = static_cast<QSingleShotTimer *>(sst_list->at(i));
-	if (!t->isActive()) {
-	    sst = t;
-	    break;
-	}
-    }
-
-    // create a new one if not successful
-    if ( !sst ) {
-	sst = new QSingleShotTimer;
-        sst_list->append( sst );
-    }
-    sst->start(msec, receiver, member);
+    if (receiver && member)
+	(void) new QSingleShotTimer(msec, receiver, member);
 }
