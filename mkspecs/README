@@ -218,12 +218,24 @@ Solaris		<sys/feature_tests.h>
 
 	By default Solaris defines no macros!
 
-	However the system header files always check against _POSIX_C_SOURCE,
+	The system header files always check against _POSIX_C_SOURCE,
 	_POSIX_C_SOURCE, _XOPEN_SOURCE_EXTENDED or __EXTENSIONS__.
 
 	The default behaviour is specified by defining:
 
 		Solaris 	__EXTENSIONS__
+
+
+SCO	<unistd.h>	
+
+	By default Uniware defines no macros, just like Solaris.
+
+	However The system header files always check against _XOPEN_SOURCE,
+	_XOPEN_SOURCE_EXTENDED, _POSIX_SOURCE - and even old _SCO_ODS_30 but
+	we don't need it.
+
+	Once one of the above macros is defined, there's unfortunately
+	no way to return to the default environment.
 
 
 Tru64		<standards.h>
@@ -246,6 +258,17 @@ Tru64		<standards.h>
 	such as _POSIX_C_SOURCE set to 199506L or _XOPEN_SOURCE set
 	to 500, then _all_ the above must be defined to recover the
 	default environment. There's no shortcut on Tru64.
+
+
+Unixware	<unistd.h>	
+
+	By default Uniware defines no macros, just like Solaris.
+
+	The system header files always check against _XOPEN_SOURCE,
+	_POSIX_SOURCE, _POSIX_C_SOURCE, _XOPEN_SOURCE_EXTENDED.
+
+	Once one of the above macros is defined, there's unfortunately
+	no way to return to the default environment.
 
 
 QNX		<sys/platform.h>
