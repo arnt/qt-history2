@@ -100,7 +100,7 @@ void TabbedBrowser::previousTab()
 HelpWindow *TabbedBrowser::createHelpWindow(const QString &title)
 {
     MainWindow *mainWin = mainWindow();
-    HelpWindow *win = new HelpWindow(mainWin, 0, "qt_assistant_helpwin");
+    HelpWindow *win = new HelpWindow(mainWin, 0);
     win->setFont(browserFont());
     win->setPalette(palette());
     win->setSearchPaths(Config::configuration()->mimePaths());

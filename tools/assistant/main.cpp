@@ -25,8 +25,8 @@
 #include <qpointer.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <qtextcodec.h>
 #include <qtranslator.h>
+#include <qlocale.h>
 
 #ifdef Q_WS_WIN
 #define INDEX_CHECK( text ) if( i+1 >= argc ) { QMessageBox::information( 0, "Qt Assistant", text ); return 1; }
@@ -246,11 +246,11 @@ int main( int argc, char ** argv )
         resourceDir = QFile::decodeName(qInstallPathTranslations());
 
     QTranslator translator( 0 );
-    translator.load( QLatin1String("assistant_") + QLatin1String(QTextCodec::locale()), resourceDir );
+    translator.load( QLatin1String("assistant_") + QLatin1String(QLocale::system().name().toLower()), resourceDir );
     a.installTranslator( &translator );
 
     QTranslator qtTranslator( 0 );
-    qtTranslator.load( QLatin1String("qt_") + QLatin1String(QTextCodec::locale()), resourceDir );
+    qtTranslator.load( QLatin1String("qt_") + QLatin1String(QLocale::system().name().toLower()), resourceDir );
     a.installTranslator( &qtTranslator );
 
     Config *conf = Config::loadConfig( profileName );

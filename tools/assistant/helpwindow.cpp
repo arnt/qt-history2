@@ -36,8 +36,8 @@
 #include <windows.h>
 #endif
 
-HelpWindow::HelpWindow(MainWindow *w, QWidget *parent, const char *name)
-    : QTextBrowser(parent, name), mw(w), blockScroll(false),
+HelpWindow::HelpWindow(MainWindow *w, QWidget *parent)
+    : QTextBrowser(parent), mw(w), blockScroll(false),
       shiftPressed(false), newWindow(false)
 {
 }
@@ -142,7 +142,7 @@ void HelpWindow::setSource(const QString &name)
         return;
     }
 
-    setText(QLatin1String("<body bgcolor=\"")
+    setHtml(QLatin1String("<body bgcolor=\"")
         + palette().color(backgroundRole()).name()
         + QLatin1String("\">"));
 
@@ -211,35 +211,12 @@ void HelpWindow::ensureCursorVisible()
 
 void HelpWindow::mousePressEvent(QMouseEvent *e)
 {
-    shiftPressed = (e->state() & Qt::ShiftButton);
+    shiftPressed = e->modifiers() & Qt::ShiftButton;
     QTextBrowser::mousePressEvent(e);
 }
 
 void HelpWindow::keyPressEvent(QKeyEvent *e)
 {
-    shiftPressed = (e->state() & Qt::ShiftButton);
+    shiftPressed = e->modifiers() & Qt::ShiftButton;
     QTextBrowser::keyPressEvent(e);
 }
-
-void HelpWindow::copy()
-{
-    if (textFormat() == Qt::PlainText) {
-        QTextBrowser::copy();
-    } else {
-        Qt::TextFormat oldTf = textFormat();
-        setTextFormat(Qt::PlainText);
-        QString selectText = selectedText();
-        selectText.replace(QLatin1String("<br>"), QLatin1String("\n"));
-        selectText.replace(QLatin1String("\xa0"), QLatin1String(" "));
-        selectText.replace(QLatin1String("&gt;"), QLatin1String(">"));
-        selectText.replace(QLatin1String("&lt;"), QLatin1String("<"));
-        selectText.replace(QLatin1String("&amp;"), QLatin1String("&"));
-
-        QClipboard *cb = QApplication::clipboard();
-        if (cb->supportsSelection())
-            cb->setText(selectText, QClipboard::Selection);
-        cb->setText(selectText, QClipboard::Clipboard);
-        setTextFormat(oldTf);
-    }
-}
-

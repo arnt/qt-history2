@@ -26,7 +26,7 @@ class HelpWindow : public QTextBrowser
 {
     Q_OBJECT
 public:
-    HelpWindow( MainWindow *m, QWidget *parent = 0, const char *name = 0 );
+    HelpWindow( MainWindow *m, QWidget *parent = 0);
     void setSource( const QString &name );
     QMenu *createPopupMenu( const QPoint& pos );
     void blockScrolling( bool b );
@@ -40,8 +40,6 @@ public:
 signals:
     void chooseWebBrowser();
 
-public slots:
-    void copy();
 protected slots:
     void ensureCursorVisible();
 

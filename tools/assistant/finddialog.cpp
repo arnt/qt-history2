@@ -78,8 +78,9 @@ void FindDialog::doFind(bool forward)
         browser->setTextCursor(c);
     }
 
-    const bool found = browser->find(findExpr, flags, forward ? QTextDocument::FindForward : QTextDocument::FindBackward);
-    if (!found) {
+    QTextCursor found = browser->document()->find(findExpr, c, flags,
+        forward ? QTextDocument::FindForward : QTextDocument::FindBackward);
+    if (found.isNull()) {
         if (onceFound) {
             if (forward)
                 statusMessage(tr("Search reached end of the document"));
@@ -89,7 +90,7 @@ void FindDialog::doFind(bool forward)
             statusMessage(tr( "Text not found" ));
         }
     }
-    onceFound |= found;
+    onceFound |= !found.isNull();
     lastBrowser = browser;
 }
 

@@ -352,7 +352,7 @@ void MainWindow::on_actionFilePrint_triggered()
             p.drawText(view.right() - p.fontMetrics().width(QString::number(page)),
                        view.bottom() + p.fontMetrics().ascent() + 5, QString::number(page));
 
-            view.moveBy(0, body.height());
+            view.translate(0, body.height());
             p.translate(0 , -body.height());
 
             if (view.top() >= layout->sizeUsed().height())
@@ -432,7 +432,7 @@ void MainWindow::showLink(const QString &link)
     } else {
         // ### Default 404 site!
         statusBar()->message(tr("Failed to open link: '%1'").arg(link), 5000);
-        tabs->currentBrowser()->setText(tr("<div align=\"center\"><h1>The page could not be found!</h1><br>"
+        tabs->currentBrowser()->setHtml(tr("<div align=\"center\"><h1>The page could not be found!</h1><br>"
                                              "<h3>'%1'</h3></div>").arg(link));
         tabs->updateTitle(tr("Error..."));
     }
