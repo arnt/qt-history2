@@ -693,31 +693,70 @@ const char* QPixmap::imageFormat( const QString &fileName )
 
   \sa smoothScale() xForm()
 */
-QPixmap QPixmap::scale( int w, int h ) const
+
+QPixmap QPixmap::scale( int w, int h, ScaleMode mode ) const
 {
-    QWMatrix wm;
-    wm.scale( (double)w/width(), (double)h/height() );
-    QPixmap p = xForm( wm );
-    if ( p.width() != w || p.height() != h )
-	p.resize( w, h );
-    return p;
+    return scale( QSize( w, h ), mode );
 }
 
 /*! \overload
 */
-QPixmap QPixmap::scale( const QSize& size ) const
+
+QPixmap QPixmap::scale( const QSize& size, ScaleMode mode ) const
 {
-    return scale( size.width(), size.height() );
+    QSize ss = scaleSize( size, mode );
+
+    QWMatrix wm;
+    wm.scale( (double)ss.width()/width(), (double)ss.height()/height() );
+    QPixmap p = xForm( wm );
+    if ( p.width() != ss.width() || p.height() != ss.height() )
+	p.resize( ss.width(), ss.height() );
+    return p;
 }
 #endif
 
-/*! \overload
+/*!
+  Returns a pixmap that is a scaled version of this pixmap with width \w and
+  height \a h. This function uses QImage::smoothScale() for this. The quality
+  of the result is better than scale(), but it also takes more time. If you
+  need a faster algorithm, use scale() instead.
+
+  \sa scale() QImage::smoothScale()
 */
-QPixmap QPixmap::smoothScale( const QSize& size ) const
+
+QPixmap QPixmap::smoothScale( int w, int h, ScaleMode mode ) const
 {
-    return smoothScale( size.width(), size.height() );
+    return smoothScale( QSize( w, h ), mode );
 }
 
+/*!
+  This private function calculates the size that is actually used for scaling
+  with the scale mode \a mode. \a size is the wanted size, specified to the
+  scaling function scale() or smoothScale().
+*/
+
+QSize QPixmap::scaleSize( const QSize &size, ScaleMode mode ) const
+{
+    if ( mode == ScaleFree ) {
+	return size;
+    }
+
+    bool useHeight = TRUE;
+    double ratio = (double)width() / height();
+    int rw = (int)( ratio * size.height() );
+
+    if ( mode == ScaleMin ) {
+	if ( rw > size.width() )
+	    useHeight = FALSE;
+    } else if ( mode == ScaleMax ) {
+	if ( rw < size.width() )
+	    useHeight = FALSE;
+    }
+
+    if ( useHeight )
+	return QSize( rw, size.height() );
+    return QSize( size.width(), (int)(size.width()/ratio) );
+}
 
 /*!
   Loads a pixmap from the file \e fileName at runtime.

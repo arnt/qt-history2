@@ -1862,20 +1862,15 @@ QWMatrix QPixmap::trueMatrix( const QWMatrix &matrix, int w, int h )
 }
 
 
-/*!
-  Returns a pixmap that is a scaled version of this pixmap with width \w and
-  height \a h. This function uses QImage::smoothScale() for this. The quality
-  of the result is better than scale(), but it also takes more time. If you
-  need a faster algorithm, use scale() instead.
-
-  \sa scale() QImage::smoothScale()
+/*! \overload
 */
 
-QPixmap QPixmap::smoothScale( int w, int h ) const
+QPixmap QPixmap::smoothScale( const QSize& size, ScaleMode mode ) const
 {
     // ### can you optimize this?
     QPixmap p;
-    p.convertFromImage( convertToImage().smoothScale( w, h ) );
+    QSize ss = scaleSize( size, mode );
+    p.convertFromImage( convertToImage().smoothScale( ss.width(), ss.height() ) );
     return p;
 }
 

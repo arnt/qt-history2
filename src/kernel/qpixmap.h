@@ -105,12 +105,17 @@ public:
     static QWMatrix trueMatrix( const QWMatrix &, int w, int h );
 #endif
 
+    enum ScaleMode {
+	ScaleFree,
+	ScaleMin,
+	ScaleMax
+    };
 #ifndef QT_NO_TRANSFORMATIONS
-    QPixmap scale( int w, int h ) const;
-    QPixmap scale( const QSize& size ) const;
+    QPixmap scale( int w, int h, ScaleMode mode=ScaleFree ) const;
+    QPixmap scale( const QSize& size, ScaleMode mode=ScaleFree ) const;
 #endif
-    QPixmap smoothScale( int w, int h ) const;
-    QPixmap smoothScale( const QSize& size ) const;
+    QPixmap smoothScale( int w, int h, ScaleMode mode=ScaleFree ) const;
+    QPixmap smoothScale( const QSize& size, ScaleMode mode=ScaleFree ) const;
 
     QImage	convertToImage() const;
     bool	convertFromImage( const QImage &, ColorMode mode=Auto );
@@ -223,6 +228,7 @@ private:
     void	init( int, int, int, bool, Optimization );
     void	deref();
     QPixmap	copy( bool ignoreMask = FALSE ) const;
+    QSize	scaleSize( const QSize &size, ScaleMode mode ) const;
     static Optimization defOptim;
     friend Q_EXPORT void bitBlt( QPaintDevice *, int, int,
 				 const QPaintDevice *,

@@ -740,11 +740,12 @@ QWMatrix QPixmap::trueMatrix(const QWMatrix & matrix,int w,int h)
 }
 
 
-QPixmap QPixmap::smoothScale( int w, int h ) const
+QPixmap QPixmap::smoothScale( const QSize& size, ScaleMode mode ) const
 {
     // ### can you optimize this?
     QPixmap p;
-    p.convertFromImage( convertToImage().smoothScale( w, h ) );
+    QSize ss = scaleSize( size, mode );
+    p.convertFromImage( convertToImage().smoothScale( ss.width(), ss.height() ) );
     return p;
 }
 
