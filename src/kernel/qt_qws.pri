@@ -107,7 +107,6 @@ embedded {
 
 	else:DEFINES += QT_NO_FREETYPE
 
-	ALLMOC_HEADER=$$QT_SOURCE_TREE/include/qt.h
 	ft:DEFINES += FT_CONFIG_OPTION_SYSTEM_ZLIB
 
 	qnx6 { 
