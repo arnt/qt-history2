@@ -2,18 +2,18 @@ Qt 3.0 adds a wide range of major new features as well as substantial
 improvements over the Qt 2.x series. Some internals have undergone
 major redesign and new classes and methods have been added.
 
-The Qt version c.x series is not binary compatible with the 2.x
+The Qt version 3.x series is not binary compatible with the 2.x
 series.  This means programs compiled with Qt version 2.x must be
 recompiled to work with Qt 3.0.
 
 In addition to the traditional Qt platforms Linux, Unix and the
-various flavours of MS-Windows, Qt 3.0 for the first time introduces a
+various flavours of MS-Windows.  Qt 3.0 for the first time introduces a
 native port to MacOS X. Like all Qt versions, Qt/Mac is source
-compatible with the others editions and follows closely the platform's
+compatible with the other editions and follows closely the platform's
 native look and feel guidelines.
 
 We have tried to keep the API of Qt 3.0 as compatible as possible with
-the Qt 2.x series. For most applications only minor changes will be
+the Qt 2.x series. For most applications, only minor changes will be
 needed to compile and run them successfully using Qt 3.0.
 
 One of the major new features that has been added in the 3.0 release
@@ -23,7 +23,7 @@ integrated into Qt Designer, greatly simplifying the process of
 building database applications and using data aware widgets.
 
 Other major new features include a plugin architecture to extend Qt's
-functionality, for styles, text encodings, imageformats and database
+functionality, for styles, text encodings, image formats and database
 drivers. The Unicode support of Qt 2.x has been greatly enhanced, it
 now includes full support for scripts written from right to left
 (e.g. Arabic and Hebrew) and also provides improved support for Asian
@@ -44,7 +44,7 @@ supports bookmarks and can search by keyword.
 
 Another change concerns the Qt build system, which has been reworked
 to make it a lot easier to port Qt to new platforms. You can use this
-platform independent build system - called QMake - for your own
+platform independent build system - called qmake - for your own
 applications.
 
 And last but not least we hope you will enjoy the revisited and widely
@@ -96,7 +96,7 @@ form-based data browser (which provides data navigation and edit
 functions) and a form-based data viewer (which provides read-only
 forms). This framework can be extended by using custom field editors,
 allowing for example, a data table to use custom widgets for in-place
-editing. The SQL module fully supports Qt's signal/slots mechanism,
+editing. The SQL module fully supports Qt's signals/slots mechanism,
 making it easy for developers to include their own data validation and
 auditing code.
 
@@ -112,7 +112,7 @@ Explicit linking and plugins
 The QLibrary class provides a platform independent wrapper for runtime
 loading of shared libraries.
 
-Specialised classes that make it possible to extend Qt's functionality
+Specialized classes that make it possible to extend Qt's functionality
 with plugins: QStylePlugin for user interface styles, QTextCodecPlugin
 for text encodings, QImageFormatPlugin for image formats and
 QSqlDriverPlugin for database drivers.
@@ -160,9 +160,9 @@ these scripts, as Qt takes care of this automatically.
 Docked and Floating Windows
 ---------------------------
 
-Qt 3.0 introduces the concept of Dock Windows and Dock Areas. Dock
+Qt 3.0 introduces the concept of dock windows and dock areas. Dock
 windows are widgets, that can be attached to, and detached from, dock
-areas. The commonest kind of dock window is a tool bar. Any number of
+areas. The most common kind of dock window is a tool bar. Any number of
 dock windows may be placed in a dock area. A main window can have dock
 areas, for example, QMainWindow provides four dock areas (top, left,
 bottom, right) by default. The user can freely move dock windows and
@@ -204,7 +204,7 @@ Creating and controlling other processes
 
 QProcess is a class that allows you to start other programs from
 within a Qt application in a platform independent manner. It gives you
-full control over the started program, for example you can redirect
+full control over the started program.  For example you can redirect
 the input and output of console applications.
 
 
@@ -223,7 +223,7 @@ Qt 3.0.
 Qt uses the Active Accessibility infrastructure on Windows, and needs
 the MSAA SDK, which is part of most platform SDKs. With improving
 standardization of accessibility on other platforms, Qt will support
-assistive technologies on other systems, too.
+assistive technologies on other systems too.
 
 
 XML Improvements
@@ -274,7 +274,7 @@ by KDE 2.0.  This allows easy integration and proper execution with
 desktop environments that support the NET WM specification.
 
 The font handling on X11 has undergone major changes.  QFont no longer
-has a one-to-one relation with window system fonts.  QFontis now a
+has a one-to-one relation with window system fonts.  QFont is now a
 logical font that can load multiple window system fonts to simplify
 Unicode text display.  This completely removes the burden of
 changing/setting fonts for a specific locale/language from the
@@ -283,7 +283,7 @@ example, a user in Norway will be able to see Korean text without
 having to set their locale to Korean.
 
 Qt 3.0 also supports the new render extension recently added to
-XFree86. This adds support for anti aliased text and pixmaps with
+XFree86. This adds support for anti-aliased text and pixmaps with
 alpha channel (semi transparency) on the systems that support the
 rendering extension (at the moment XFree 4.0.3 and later).
 
@@ -424,15 +424,15 @@ history and incremental search. Qt Assistant is used by both Qt
 Designer and Qt Linguist for browsing their help documentation.
 
 
-QMake
+qmake
 ========================================
 
-QMake is a cross-platform make utility that makes it possible to build
+qmake is a cross-platform make utility that makes it possible to build
 the Qt library and Qt-based applications on various target platforms
 from one single project description. It is the C++ successor of
 'tmake' which required Perl.
 
-QMake offers additional functionallity that is difficult to reproduce
+qmake offers additional functionallity that is difficult to reproduce
 in tmake. Trolltech uses qmake in its build system for Qt and related
 products and we have released it as free software.
 
@@ -441,7 +441,7 @@ products and we have released it as free software.
 Detailed changes
 =============
 
-Qt 3.0 went through 6 beta release. These are the detailed changes
+Qt 3.0 went through 6 beta releases. These are the detailed changes
 since Beta 6 only. For other changes, please see the changes notes
 of the respective beta releases.
 
@@ -465,46 +465,46 @@ changes in the API.
 	make sure we process deferred deletes before leaving the event
 	loop. This fixes some ocassions of memory leaks on exit.
 	win32: some improvements for modality and dockwindow handling
-	x11 only: read non-gui QSettings when running without GUI
+	x11 only: read non-gui QSettings when running without GUI.
 	
 
 - QCheckListItem
 	Make the checkboxes respect the AlignCenter flag. Also make
 	the boxes look better in case they are not placed in the first
-	column
+	column.
 
 - QComboBox
 	if we have a currentItem and then we set the combobox to be
 	editable then set the text in the lineedit to be of the
-	current item
+	current item.
 
 - QCommonStyle
-	QToolButton: spacing between a toolbutton's icon and its label
-	QProgressBar: text color fixed
+	QToolButton: spacing between a toolbutton's icon and its label.
+	QProgressBar: text color fixed.
 
 - QCursor
-	added the What's This? cursor to the collection
+	added the What's This? cursor to the collection.
 
 - QDataTable
-	fixed broken context menus
+	fixed broken context menus.
 
 - QDate
-	fixed addMonth() overflow
+	fixed addMonth() overflow.
 
 - QDesktopWidget
 	win32 only: works now also for cases where the card handles
 	multiple monitors and GetSystemMetrics returns a single screen
-	only
+	only.
 
 - QDomAttr
 	fixed a memory leak in setNodeValue()
 
-- QDomNodeMap:
+- QDomNodeMap
 	added count() as a Qt-style alias for length()
 
 - QDragObject
 	default to the middle of the pixmap as a hot spot, this looks
-	nicer
+	nicer.
 
 - QFileDialog (internal dialog)
 	make viewMode() return the correct value even after the dialog
@@ -513,7 +513,7 @@ changes in the API.
 	directory mode that the filters reflect this, and change the
 	label from file name to directory.
 	win32 only: Improved modality when using the native file
-	dialog
+	dialog.
 
 - QFont
 	x11 only: speed up fontloading with even more clever
@@ -525,30 +525,30 @@ changes in the API.
 
 - QFontDialog
 	make sure the content is set up correctly when initializing
-	the dialog
+	the dialog.
 
 - QGLWidget
 	IRIX only: fixed reparent/resize bug, QGLContext::setContext()
-	is incredibly sensitive on different X servers
+	is incredibly sensitive on different X servers.
 
 - QHeader
 	fixed missing updates on height resp. width changes like the
-	occur when changing the application font
+	occur when changing the application font.
 
 - QIconView
-	fixed updates of non-auto-arranged views
+	fixed updates of non-auto-arranged views.
 
 - QImage
-	no gamma correction by default
-	x11 only: some alignment issue with the alpha masked fixed
+	no gamma correction by default.
+	x11 only: some alignment issue with the alpha masked fixed.
 
 - QIODevice
 	fixed return value of QIODevice::readLine() for sequential
-	access
+	access.
 
 - QKeyEvent
 	win32 only: generate Direction_R/L events for bidirectional
-	input
+	input.
 
 - QLabel
 	handle setPixmap( *pixmap() ) gracefully. Apply the WordBreak
@@ -558,10 +558,10 @@ changes in the API.
 
 - QLineEdit
 	fixed a crash when doing undo and a validator is set. Emit
-	textChanged() also if the text changed because of undo or redo
+	textChanged() also if the text changed because of undo or redo.
 
 - QListBox
-	fixed RMB context-menu offset
+	fixed RMB context-menu offset.
 
 - QListView
 	do not start renaming an item is CTRL or SHIFT is
@@ -570,23 +570,23 @@ changes in the API.
 	operation.
 
 - QMainWindow
-	show dock-menu also when clicking on the menubar
+	show dock-menu also when clicking on the menubar.
 
 - QPainter
 	win32 only: improved printing performance through printer font
 	caching.
-	boundingRect(): ignore 0-width in the constrain rectangle
+	boundingRect(): ignore 0-width in the constrain rectangle.
 
 - QPicture
-	added overload for load()  that takes a QIODevice
+	added overload for load()  that takes a QIODevice.
 
 - QPrintDialog (internal dialog)
-	fixed enabling of the first page and last page labels
+	fixed enabling of the first page and last page labels.
 
 - QPrinter
 	win32 only: make setColorMode() work, some unicode fixes. Make
 	collate the default.  Enable the collate checkbox without
-	loosing the page selection if you want to print multiple
+	losing the page selection if you want to print multiple
 	pages. Make the collateCopies property work that it knows
 	checks/unchecks the collate checkbox in the printing
 	dialog. Make settings also work when the print dialog is not
@@ -594,14 +594,13 @@ changes in the API.
 
 - QProcess
 	added a new communication mode that duplicates stderr to
-	stdout (i.e. the equivalent of the shell's 2>&1)
+	stdout (i.e. the equivalent of the shell's 2>&1).
 
 - QPSPrinter (unix)
 	fixed collate.
 	
-
 - QRangeControl
-	simplified code
+	simplified code.
 
 - QRichText
 	Propagate WhiteSpaceMode to subitems with
@@ -609,23 +608,23 @@ changes in the API.
 	items without additional newline. Fixed links inside non-left
 	aligned tables. Fixed some bidi layout problems. Fixed last
 	line layout in right-aligned paragraphs. For plain text,
-	always use the palette's text color
+	always use the palette's text color.
 
 - QScrollView
-	safer destruction
+	safer destruction.
 
 - QSettings
 	win32 only: fixed a dead lock situation when writing
 	to LOCAL_MACHINE, but reading from CURRENT_USER.
 
 - QSGIStyle
-	fixed drawing of checkable menu items
+	fixed drawing of checkable menu items.
 
 - QSimpleRichText
-	use the specified default font
+	use the specified default font.
 
 - QSlider
-	optimized drawing in the new style engine
+	optimized drawing in the new style engine.
 
 - QString
 	QString::replace() with a regular expression requires a
@@ -635,28 +634,27 @@ changes in the API.
 - QStyleSheet
 	additional parameter 'whitespacemode' for
 	QStyleSheet::convertFromPlainText(). Support for superscript
-	('sup') and subscript ( 'sub' )
+	('sup') and subscript ( 'sub' ).
 
 - QTabBar
-	react properly on runtime font changes, less flicker
+	react properly on runtime font changes, less flicker.
 
 - QTable
 	take the pixmap of a header section into account when
-	adjusting the size
+	adjusting the size.
 
 - QTabWidget
-	use the embedded tabbar as focus proxy
+	use the embedded tabbar as focus proxy.
 
 - QThread
-	win32 only: possible crash with the thread dictionary fixed
+	win32 only: possible crash with the thread dictionary fixed.
 
 - QValidator
 	In Q{Int,Double}Validator, consider '-' as Invalid rather than
 	Intermediate if bottom() >= 0.
 	
-
 - QWidget
-	made showFullScreen() multihead aware
+	made showFullScreen() multihead aware.
 	win32 only: Better size and position restoring when switching
 	between fullscreen, maximized and minimized.
 	x11 only: improvements to XIM, overthespot works correctly
@@ -666,7 +664,7 @@ changes in the API.
 	smarter placement of the minimize button when there is no
 	maximize button. Make titlebars of tool windows a bit smaller.
 	Improved styleability. Do not maximize a widget that has a
-	maximum size that is smaller than the workspace
+	maximum size that is smaller than the workspace.
 
 
 
@@ -679,22 +677,22 @@ changes in the API.
 	Q_ENUMS and signal/slots.
 
 - unicode
-	allow keyboard switching of paragraph directionality
+	allow keyboard switching of paragraph directionality.
 
 - installation
 	install $QTDIR/doc/html/ instead of $QTDIR/doc/
-	install Qt Designer templates as well
+	install Qt Designer templates as well.
 
 - improved build on
-	HP-UX with cc
-	Solaris 8 with gcc 3.0.1
-	AIX with xlC and aCC
+	HP-UX with cc.
+	Solaris 8 with gcc 3.0.1.
+	AIX with xlC and aCC.
 
 - inputmethods
-	x11 only: do not reset the input context on focus changes
+	x11 only: do not reset the input context on focus changes.
 
 - uic
-	smaller improvements, handle additinal form signals
+	smaller improvements, handle additional form signals.
 
 - Qt Designer
 	make it possible to add new signals to a form without
@@ -714,9 +712,9 @@ changes in the API.
 	window decoration on restart. Use 'finished', 'unfinished' and
 	'unresolved' instead of the (!), (?) symbols on printouts.
 
-- QtMsDev
+- QMsDev
 	merge "Add UIC" and "New Dialog". Better user interface and
 	general cleanup. Wwrite (and merge) qmake pro file with active
-	project. Load qmake pro files into Visual Studio
+	project. Load qmake pro files into Visual Studio.
 
 
