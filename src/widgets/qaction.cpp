@@ -815,9 +815,15 @@ public:
     QAction* selected;
     QAction* separatorAction;
 
+    struct MenuItem {
+	MenuItem():popup(0),id(0){}
+	QPopupMenu* popup;
+	int id;
+    };
+
     QList<QComboBox> comboboxes;
     QList<QToolButton> menubuttons;
-    QList<QPopupMenu> popups;
+    QList<MenuItem> menuitems;
 
     void update( const QActionGroup * );
 };
@@ -849,10 +855,15 @@ void QActionGroupPrivate::update( const QActionGroup* that )
 	    QToolTip::add( mb.current(), that->toolTip() );
 	if ( !!that->whatsThis() )
 	    QWhatsThis::add( mb.current(), that->whatsThis() );
-
     }
-    for ( QListIterator<QPopupMenu> pu( popups ); pu.current(); ++pu ) {
-	pu.current()->setEnabled( that->isEnabled() );
+    for ( QListIterator<QActionGroupPrivate::MenuItem> pu( menuitems ); pu.current(); ++pu ) {
+	QWidget* parent = pu.current()->popup->parentWidget();
+	if ( parent->inherits( "QPopupMenu" ) ) {
+	    QPopupMenu* ppopup = (QPopupMenu*)parent;
+	    ppopup->setItemEnabled( pu.current()->id, that->isEnabled() );
+	} else {
+	    pu.current()->popup->setEnabled( that->isEnabled() );
+	}
     }
 }
 
@@ -906,7 +917,7 @@ QActionGroup::~QActionGroup()
     delete d->separatorAction;
     d->menubuttons.setAutoDelete( TRUE );
     d->comboboxes.setAutoDelete( TRUE );
-    d->popups.setAutoDelete( TRUE );
+    d->menuitems.setAutoDelete( TRUE );
     delete d;
 }
 
@@ -1048,12 +1059,17 @@ bool QActionGroup::addTo( QWidget* w )
 	    QPopupMenu *menu = (QPopupMenu*)w;
 	    popup = new QPopupMenu( w );
 	    connect( popup, SIGNAL(destroyed()), SLOT(objectDestroyed()) );
-	    d->popups.append( popup );
 
+	    int id;
 	    if ( !iconSet().isNull() )
-		menu->insertItem( iconSet(), menuText().isEmpty() ? text() : menuText(), popup );
+		id = menu->insertItem( iconSet(), menuText().isEmpty() ? text() : menuText(), popup );
 	    else
-		menu->insertItem( menuText().isEmpty() ? text() : menuText(), popup );
+		id = menu->insertItem( menuText().isEmpty() ? text() : menuText(), popup );
+
+	    QActionGroupPrivate::MenuItem *item = new QActionGroupPrivate::MenuItem;
+	    item->id = id;
+	    item->popup = popup;
+	    d->menuitems.append( item );
 	} else {
 	    popup = (QPopupMenu*)w;
 	}
@@ -1221,7 +1237,12 @@ void QActionGroup::objectDestroyed()
 {
     const QObject* obj = sender();
     d->menubuttons.removeRef( (QToolButton*)obj );
-    d->popups.removeRef( (QPopupMenu*)obj );
+    for ( QListIterator<QActionGroupPrivate::MenuItem> mi( d->menuitems ); mi.current(); ++mi ) {
+	if ( mi.current()->popup == obj ) {
+	    d->menuitems.removeRef( mi.current() );
+	    break;
+	}
+    }
     d->comboboxes.removeRef( (QComboBox*)obj );
 }
 
