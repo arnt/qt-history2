@@ -225,7 +225,8 @@ public:
     STDMETHOD(ReactivateAndUndo)();
 
 // IOleInPlaceActiveObject
-    STDMETHOD(TranslateAccelerator)( MSG *pMsg );
+    STDMETHOD(TranslateAcceleratorW)( MSG *pMsg );
+    STDMETHOD(TranslateAcceleratorA)( MSG *pMsg );
     STDMETHOD(OnFrameWindowActivate)( BOOL );
     STDMETHOD(OnDocWindowActivate)( BOOL fActivate );
     STDMETHOD(ResizeBorder)( LPCRECT prcBorder, IOleInPlaceUIWindow *pUIWindow, BOOL fFrameWindow );
@@ -673,12 +674,11 @@ public:
 	    qax_ownQApp = TRUE;
 	    int argc = 0;
 	    (void)new QApplication( argc, 0 );
-#if defined(UNICODE)
-	    if ( qWinVersion() & Qt::WV_NT_based )
-		hhook = SetWindowsHookEx( WH_GETMESSAGE, FilterProc, 0, GetCurrentThreadId() );
-	    else
-#endif
-		hhook = SetWindowsHookExA( WH_GETMESSAGE, FilterProc, 0, GetCurrentThreadId() );	    
+	    QT_WA( {
+		hhook = SetWindowsHookExW( WH_GETMESSAGE, FilterProc, 0, GetCurrentThreadId() );
+	    }, {
+		hhook = SetWindowsHookExA( WH_GETMESSAGE, FilterProc, 0, GetCurrentThreadId() );
+	    } );
 	}
 
 	// Create the ActiveX wrapper
@@ -904,12 +904,11 @@ bool QAxServerBase::internalCreate()
 	((HackWidget*)activeqt)->topData()->fright = 0;
 	((HackWidget*)activeqt)->topData()->fleft = 0;
 	((HackWidget*)activeqt)->topData()->fbottom = 0;
-#if defined(UNICODE)
-	if ( qWinVersion() & Qt::WV_NT_based )
-	    ::SetWindowLong( activeqt->winId(), GWL_STYLE, WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS );
-	else
-#endif
+	QT_WA( {
+	    ::SetWindowLongW( activeqt->winId(), GWL_STYLE, WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS );
+	}, {
 	    ::SetWindowLongA( activeqt->winId(), GWL_STYLE, WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS );
+	} );
     }
 
     activeqt->setGeometry( rcPos.left, rcPos.top, rcPos.right-rcPos.left, rcPos.bottom-rcPos.top );
@@ -949,25 +948,22 @@ LRESULT CALLBACK QAxServerBase::ActiveXProc(HWND hWnd, UINT uMsg, WPARAM wParam,
 {
     if ( uMsg == WM_CREATE ) {
 	QAxServerBase *that;
-#if defined(UNICODE)
-	if ( qWinVersion() & Qt::WV_NT_based ) {
-	    CREATESTRUCT *cs = (CREATESTRUCT*)lParam;
+	QT_WA( {
+	    CREATESTRUCTW *cs = (CREATESTRUCTW*)lParam;
 	    that = (QAxServerBase*)cs->lpCreateParams;
-	} else
-#endif
-	{
+	}, {
 	    CREATESTRUCTA *cs = (CREATESTRUCTA*)lParam;
 	    that = (QAxServerBase*)cs->lpCreateParams;
-	}
+	} );
+
 	axServerMapper()->insert( hWnd, that );
 	that->m_hWnd = hWnd;
 
-#if defined(UNICODE)
-	if ( qWinVersion() & Qt::WV_NT_based )
-	    return ::DefWindowProc( hWnd, uMsg, wParam, lParam );
-	else
-#endif
+	QT_WA( {
+	    return ::DefWindowProcW( hWnd, uMsg, wParam, lParam );
+	}, {
 	    return ::DefWindowProcA( hWnd, uMsg, wParam, lParam );
+	} );
     }
 
     QAxServerBase *that = axServerMapper()->find( hWnd );
@@ -1129,12 +1125,11 @@ LRESULT CALLBACK QAxServerBase::ActiveXProc(HWND hWnd, UINT uMsg, WPARAM wParam,
 	break;
     }
 
-#if defined(UNICODE)
-    if ( qWinVersion() & Qt::WV_NT_based )
-	return ::DefWindowProc( hWnd, uMsg, wParam, lParam );
-    else
-#endif
+    QT_WA( {
+	return ::DefWindowProcW( hWnd, uMsg, wParam, lParam );
+    }, {
 	return ::DefWindowProcA( hWnd, uMsg, wParam, lParam );
+    } );
 }
 
 /*!
@@ -1147,8 +1142,7 @@ HWND QAxServerBase::create(HWND hWndParent, RECT& rcPos )
     HINSTANCE hInst = (HINSTANCE)qAxInstance;
     EnterCriticalSection( &createWindowSection );
     if ( !atom ) {
-#ifdef UNICODE
-	if ( qWinVersion() & Qt::WV_NT_based ) {
+	QT_WA( {
 	    WNDCLASSW wcTemp;
 	    wcTemp.style = CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS;
 	    wcTemp.cbClsExtra = 0;
@@ -1162,10 +1156,7 @@ HWND QAxServerBase::create(HWND hWndParent, RECT& rcPos )
 	    wcTemp.lpfnWndProc = ActiveXProc;
 
 	    atom = RegisterClassW( &wcTemp );
-
-	} else
-#endif
-	{
+	}, {
 	    WNDCLASSA wcTemp;
 	    wcTemp.style = CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS;
 	    wcTemp.cbClsExtra = 0;
@@ -1179,7 +1170,7 @@ HWND QAxServerBase::create(HWND hWndParent, RECT& rcPos )
 	    wcTemp.lpfnWndProc = ActiveXProc;
 
 	    atom = RegisterClassA( &wcTemp );
-	}
+	} );
     }
     LeaveCriticalSection( &createWindowSection );
     if ( !atom )
@@ -1188,18 +1179,18 @@ HWND QAxServerBase::create(HWND hWndParent, RECT& rcPos )
     Q_ASSERT( !m_hWnd );
 
     HWND hWnd = 0;
-#ifdef UNICODE
-    if ( qWinVersion() & Qt::WV_NT_based )
+
+    QT_WA( {
 	hWnd = ::CreateWindowW( (TCHAR*)MAKELONG(atom, 0), 0,
 	    WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
 	    rcPos.left, rcPos.top, rcPos.right - rcPos.left,
 	    rcPos.bottom - rcPos.top, hWndParent, 0, hInst, this );
-    else
-#endif
+    }, {
 	hWnd = ::CreateWindowA( (char*)MAKELONG(atom, 0), 0,
 	    WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
 	    rcPos.left, rcPos.top, rcPos.right - rcPos.left,
 	    rcPos.bottom - rcPos.top, hWndParent, 0, hInst, this );
+    } );
 
     Q_ASSERT(m_hWnd == hWnd);
 
@@ -2654,7 +2645,7 @@ int QAxEventFilter( MSG *pMsg )
 
 int QAxServerBase::PreTranslateMessage( MSG *pMsg )
 {
-    if ( TranslateAccelerator( pMsg ) == S_OK )
+    if ( TranslateAcceleratorW( pMsg ) == S_OK )
 	return TRUE;
 
     if ( !m_spClientSite )
@@ -2672,13 +2663,15 @@ int QAxServerBase::PreTranslateMessage( MSG *pMsg )
 	dwKeyMod += 2;	// KEYMOD_CONTROL
     if (::GetKeyState(VK_MENU) < 0)
 	dwKeyMod += 4;	// KEYMOD_ALT
-    controlSite->TranslateAccelerator(pMsg, dwKeyMod);
+
+    controlSite->TranslateAcceleratorW(pMsg, dwKeyMod);
+
     controlSite->Release();
 
     return FALSE;
 }
 
-HRESULT WINAPI QAxServerBase::TranslateAccelerator( MSG *pMsg )
+HRESULT WINAPI QAxServerBase::TranslateAcceleratorW( MSG *pMsg )
 {
     if ( pMsg->message != WM_KEYDOWN )
 	return S_FALSE;
@@ -2716,6 +2709,11 @@ HRESULT WINAPI QAxServerBase::TranslateAccelerator( MSG *pMsg )
 	return S_FALSE;
     }
     return S_FALSE;
+}
+
+HRESULT WINAPI QAxServerBase::TranslateAcceleratorA( MSG *pMsg )
+{
+    return TranslateAcceleratorW( pMsg );
 }
 
 HRESULT WINAPI QAxServerBase::OnFrameWindowActivate( BOOL fActivate )
