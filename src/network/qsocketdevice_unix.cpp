@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#19 $
+** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#20 $
 **
 ** Implementation of QSocketDevice class.
 **
@@ -57,14 +57,14 @@
 #include <sys/param.h>
 #include <sys/types.h>
 #include <sys/socket.h>
-#if defined(_OS_SOLARIS_) || defined(_OS_UNIXWARE7_)
+#if defined(Q_OS_SOLARIS) || defined(Q_OS_UNIXWARE7)
 // Needed for FIONREAD.
 // FIONREAD is #defined in <sys/filio.h>.
 // Have <sys/ioctl.h> include <sys/filio.h>.
 #define BSD_COMP
 #endif
 #include <sys/ioctl.h>
-#if defined(_OS_SOLARIS_) || defined(_OS_UNIXWARE7_)
+#if defined(Q_OS_SOLARIS) || defined(Q_OS_UNIXWARE7)
 #undef BSD_COMP
 #endif
 #include <sys/file.h>
