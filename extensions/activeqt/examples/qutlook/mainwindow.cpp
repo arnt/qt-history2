@@ -38,6 +38,7 @@ ABMainWindow::~ABMainWindow()
 
 void ABMainWindow::setupMenuBar()
 {
+    /*
     QPopupMenu *file = new QPopupMenu( this );
     menuBar()->insertItem( "&File", file );
 
@@ -50,7 +51,7 @@ void ABMainWindow::setupMenuBar()
     file->insertItem( QPixmap( "fileprint.xpm" ), "Print...", this, SLOT( filePrint() ), CTRL + Key_P );
     file->insertSeparator();
     file->insertItem( "Close", this, SLOT( closeWindow() ), CTRL + Key_W );
-    file->insertItem( "Quit", qApp, SLOT( quit() ), CTRL + Key_Q );
+    file->insertItem( "Quit", qApp, SLOT( quit() ), CTRL + Key_Q );*/
 }
 
 void ABMainWindow::setupFileTools()
