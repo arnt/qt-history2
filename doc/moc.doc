@@ -10,8 +10,6 @@
 **
 ****************************************************************************/
 
-// Note: Text in this file must also be copied to the moc man page:
-// src/moc/moc.1
 
 /*!
 \page moc.html
@@ -236,25 +234,23 @@ file.  If both -i and -f are present, the last one wins.
 \i -nw 
 \i Do not generate any warnings.  Not recommended.
 \row
-\i -ldbg 
-\i Write a flood of lex debug information to stdout.
 \row
 \i -p \e path 
 \i Makes the moc prepend \e {path}/ to
 the file name in the generated #include statement (if one is
 generated).
 \row
-\i -q \e path 
-\i Makes the moc prepend \e {path}/ to
-the file name of qt #include files in the generated code.
 \endtable
 
 You can explicitly tell the moc not to parse parts of a header
-file. It recognizes any C++ comment (//) that contains the substrings
-MOC_SKIP_BEGIN or MOC_SKIP_END. They work as you would expect and you
-can have several levels of them. The net result as seen by the moc is
-as if you had removed all lines between a MOC_SKIP_BEGIN and a
-MOC_SKIP_END.
+file. Moc defines the preprocessor symbol Q_MOC_RUN. Any code
+surrounded by
+\code
+    #ifndef Q_MOC_RUN
+	... 
+    #endif
+\endcode
+is skipped by the moc.
 
 
 \section1 Diagnostics
@@ -262,18 +258,14 @@ MOC_SKIP_END.
 The moc will warn you about a number of dangerous or illegal
 constructs in the Q_OBJECT class declarations.
 
-If you get linkage errors in the final building phase of your
-program, saying that YourClass::className() is undefined or that
-YourClass lacks a vtbl, something has been done wrong. Most often,
-you have forgotten to compile or #include the moc-generated C++ code, or
-(in the former case) include that object file in the link command.
+If you get linkage errors in the final building phase of your program,
+saying that YourClass::className() is undefined or that YourClass
+lacks a vtbl, something has been done wrong. Most often, you have
+forgotten to compile or #include the moc-generated C++ code, or (in
+the former case) include that object file in the link command.
 
 
 \section1 Limitations
-
-The moc does not expand #include or #define, it simply skips any
-preprocessor directives it encounters. This is regrettable, but is
-not usually a problem in practice.
 
 The moc does not handle all of C++.  The main problem is that class
 templates cannot have signals or slots. Here is an example:
@@ -444,44 +436,5 @@ of the illegal syntax:
     };
 \endcode
 
-\section2 Properties need to be declared before the public section that
-contains the respective get and set functions
-
-Declaring the first property within or after the public section that
-contains the type definition and the respective get and set functions
-does not work as expected. The moc will complain that it can neither
-find the functions nor resolve the type. Here is an example of the
-illegal syntax:
-
-\code
-    class SomeClass : public QObject {
-        Q_OBJECT
-    public:
-	...
-        Q_PROPERTY( Priority priority READ priority WRITE setPriority ) // WRONG
-        Q_ENUMS( Priority ) // WRONG
-        enum Priority { High, Low, VeryHigh, VeryLow };
-        void setPriority( Priority );
-        Priority priority() const;
-	...
-    };
-\endcode
-
-Work around this limitation by declaring all properties at the
-beginning of the class declaration, right after Q_OBJECT:
-
-\code
-    class SomeClass : public QObject {
-        Q_OBJECT
-        Q_PROPERTY( Priority priority READ priority WRITE setPriority )
-        Q_ENUMS( Priority )
-    public:
-	...
-        enum Priority { High, Low, VeryHigh, VeryLow };
-        void setPriority( Priority );
-        Priority priority() const;
-	...
-    };
-\endcode
 
 */
