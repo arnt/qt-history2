@@ -126,7 +126,7 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
 
   The algorithm for reducing the demands of the format is quite
   simple-minded, so override this method in your subclass if your
-  application has spcific requirements on visual selection.
+  application has specific requirements on visual selection.
 
   \sa chooseContext()
 */
