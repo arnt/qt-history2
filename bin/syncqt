@@ -520,7 +520,7 @@ foreach (@modules_to_sync) {
 		    my $header_copies = 0;
 		    #figure out if it is a public header
 		    my $public_header = $header;
-		    if($public_header =~ /_(p|mac|win|unix|x11).h$/) {
+		    if($public_header =~ /_(p|mac|win|unix|x11|qws).h$/) {
 			$public_header = 0;
 		    } else {
 			foreach (@ignore_master_headers) {
