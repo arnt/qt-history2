@@ -254,6 +254,8 @@ public:
 
     void setup();
 
+    void updateButtons(const QModelIndex &index);
+
     void setRoot(const QModelIndex &index);
     QModelIndex root() const;
 
@@ -318,8 +320,10 @@ QFileDialog::~QFileDialog()
 void QFileDialog::setDirectory(const QDir &directory)
 {
     QModelIndex index = d->model->index(directory.absPath());
-    if (index.isValid())
+    if (index.isValid()) {
         d->setRoot(index);
+        d->updateButtons(index);
+    }
 }
 
 QDir QFileDialog::directory() const
@@ -390,9 +394,9 @@ void QFileDialog::setFileMode(FileMode mode)
     switch (mode) {
     case Directory:
     case DirectoryOnly:
-//         d->fileType->clear();
-//         d->fileType->insertItem(QFileDialog::tr("Directories"));
-//         d->fileType->setEnabled(false);
+        d->fileType->clear();
+        d->fileType->insertItem(QFileDialog::tr("Directories"));
+        d->fileType->setEnabled(false);
         spec = QDir::Dirs;
         break;
     case AnyFile:
@@ -436,6 +440,7 @@ void QFileDialog::back()
     QModelIndex root = d->history.back();
     d->history.pop_back();
     d->setRoot(root);
+    d->updateButtons(root);
 }
 
 void QFileDialog::up()
@@ -443,9 +448,10 @@ void QFileDialog::up()
     QModelIndex root = d->root();
     if (!root.isValid())
         return;
+    d->history.push_back(root);
     QModelIndex parent = d->model->parent(root);
     d->setRoot(parent);
-    d->history.push_back(root);
+    d->updateButtons(parent);
 }
 
 void QFileDialog::mkdir()
@@ -497,6 +503,7 @@ void QFileDialog::doubleClicked(const QModelIndex &index)
         && d->model->isDir(index)) {
         d->history.push_back(d->root());
         d->setRoot(index);
+        d->updateButtons(index);
     } else {
         accept();
     }
@@ -509,12 +516,10 @@ void QFileDialog::deletePressed(const QModelIndex &index)
     // so all QModelIndex objects are invalidated, including the root object.
     QString path = d->model->path(d->root());
     d->setRoot(QModelIndex());
-
     if (d->model->isDir(index))
         d->model->rmdir(index);
     else
         d->model->remove(index);
-
     setCurrentDir(path);
 }
 
@@ -555,9 +560,8 @@ void QFileDialog::setFilter(const QString &filter)
     if (i >= 0)
         f = regexp.cap(2);
     QStringList filters = f.split(' ', QString::SkipEmptyParts);
-
     // Save path to current root, set the filter and then set the root back.
-    // This is because the models internal data structure is totally rebuilt, and
+    // This is because the models internal data structure is rebuilt, and
     // so all QModelIndex objects are invalidated, including the root object.
     QString path = d->model->path(d->root());
     d->setRoot(QModelIndex());
@@ -567,7 +571,9 @@ void QFileDialog::setFilter(const QString &filter)
 
 void QFileDialog::setCurrentDir(const QString &path)
 {
-    d->setRoot(d->model->index(path));
+    QModelIndex index = d->model->index(path);
+    d->setRoot(index);
+    d->updateButtons(index);
 }
 
 void QFileDialog::showContextMenu(const QModelIndex &index, const QPoint &position)
@@ -747,7 +753,7 @@ void QFileDialogPrivate::setup()
     viewContextMenu = new QMenu(q);
     reloadAction = viewContextMenu->addAction("&Reload");
     QMenu *sortContextMenu = new QMenu();
-    viewContextMenu->addMenu("Sort", sortContextMenu); // FIXME: QMenu bug
+    viewContextMenu->addMenu("Sort", sortContextMenu);
     sortByNameAction = sortContextMenu->addAction("Sort by &Name");
     sortByNameAction->setCheckable(true);
     sortByNameAction->setChecked(true);
@@ -814,10 +820,16 @@ void QFileDialogPrivate::setup()
     q->resize(550, 320);
 }
 
-void QFileDialogPrivate::setRoot(const QModelIndex &index)
+void QFileDialogPrivate::updateButtons(const QModelIndex &index)
 {
     toParent->setEnabled(index.isValid());
     back->setEnabled(history.count() > 0);
+    lookIn->insertItem(d->model->path(index));
+    lookIn->setCurrentItem(lookIn->count() - 1);
+}
+
+void QFileDialogPrivate::setRoot(const QModelIndex &index)
+{
     QItemSelectionModel *selections = lview->selectionModel();
     bool block = selections->blockSignals(true);
     selections->clear();
@@ -825,8 +837,6 @@ void QFileDialogPrivate::setRoot(const QModelIndex &index)
     lview->setRoot(index);
     tview->setRoot(index);
     selections->blockSignals(block);
-    lookIn->insertItem(d->model->path(index));
-    lookIn->setCurrentItem(lookIn->count() - 1);
 }
 
 QModelIndex QFileDialogPrivate::root() const
@@ -857,7 +867,7 @@ QModelIndexList QFileDialogPrivate::selectedItems() const
 void QFileDialogPrivate::refresh()
 {
     // Save path to current root, set the filter and then set the root back.
-    // This is because the models internal data structure is totally rebuilt, and
+    // This is because the models internal data structure is rebuilt, and
     // so all QModelIndex objects are invalidated, including the root object.
     QString path = model->path(d->root());
     setRoot(QModelIndex());
@@ -873,7 +883,7 @@ void QFileDialogPrivate::setDirSorting(int spec)
     sortByDateAction->setChecked(sortBy == QDir::Time);
     unsortedAction->setChecked(sortBy == QDir::Unsorted);
     // Save path to current root, set the filter and then set the root back.
-    // This is because the models internal data structure is totally rebuilt, and
+    // This is because the models internal data structure is rebuilt, and
     // so all QModelIndex objects are invalidated, including the root object.
     QString path = model->path(d->root());
     setRoot(QModelIndex());
@@ -885,13 +895,12 @@ void QFileDialogPrivate::setDirFilter(int spec)
 {
     showHiddenAction->setChecked(spec & QDir::Hidden);
     // Save path to current root, set the filter and then set the root back.
-    // This is because the models internal data structure is totally rebuilt, and
+    // This is because the models internal data structure is rebuilt, and
     // so all QModelIndex objects are invalidated, including the root object.
     QString path = model->path(d->root());
     setRoot(QModelIndex());
     model->setFilter(spec);
-    QModelIndex root = model->index(path);
-    setRoot(root);
+    setRoot(model->index(path));
 }
 
 /******************************************************************
