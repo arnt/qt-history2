@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#27 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#28 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -156,6 +156,25 @@ QMultiLineEdit::QMultiLineEdit( QWidget *parent , const char *name )
 
   \sa setReadOnly() QWidget::isEnabled()
 */
+
+/*! \fn bool QMultiLineEdit::isOverwriteMode()
+
+  Returns TRUE if this multi line edit is in overwrite mode, i.e.
+  if characters typed replace characters in the editor.
+
+  \sa setOverwriteMode()
+*/
+
+
+/*! \fn void QMultiLineEdit::setOverwriteMode( bool on )
+
+  Sets overwrite mode if \a on is TRUE. Overwrite mode means
+  that characters typed replace characters in the editor.
+
+  \sa isOverwriteMode()
+*/
+
+
 
 
 /*!
