@@ -93,7 +93,7 @@ toolbar button. After this, every time you click the form a new widget
 will be added. Click the \Toolbutton Pointer toolbar button to leave
 this mode.
 
-\img qd-pointertoolbuttons.png
+\img qd-pointertoolbuttons2.png
 \caption tools
 
 \section2 Tools
@@ -280,7 +280,7 @@ toolbar button only appears if you have created a custom widget using
 
 \endlist
 
-\img qd-layouttoolbuttons.png
+\img qd-layouttoolbuttons2.png
 \caption layout toolbuttons
 
 \section2 The Layout Toolbar Buttons
