@@ -561,11 +561,11 @@ int QPixmap::metric( int m ) const
 	switch ( m ) {
 	    case QPaintDeviceMetrics::PdmDpiX:
 	    case QPaintDeviceMetrics::PdmPhysicalDpiX:
-		val = QPaintDevice::x11AppDpiX();
+		val = QPaintDevice::x11AppDpiX( scr );
 		break;
 	    case QPaintDeviceMetrics::PdmDpiY:
 	    case QPaintDeviceMetrics::PdmPhysicalDpiY:
-		val = QPaintDevice::x11AppDpiY();
+		val = QPaintDevice::x11AppDpiY( scr );
 		break;
 	    case QPaintDeviceMetrics::PdmWidthMM:
 		val = (DisplayWidthMM(dpy,scr)*width())/

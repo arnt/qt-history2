@@ -113,11 +113,11 @@ public:
 
     static Display *x11AppDisplay();
     static int	    x11AppScreen();
+
     static int      x11AppDpiX();
     static int      x11AppDpiY();
     static void     x11SetAppDpiX(int);
     static void     x11SetAppDpiY(int);
-
     static int	    x11AppDepth();
     static int	    x11AppCells();
     static Qt::HANDLE   x11AppRootWindow();
@@ -135,6 +135,10 @@ public:
     static void    *x11AppVisual( int screen );
     static bool     x11AppDefaultColormap( int screen );
     static bool	    x11AppDefaultVisual( int screen );
+    static int      x11AppDpiX( int );
+    static int      x11AppDpiY( int );
+    static void     x11SetAppDpiX( int, int );
+    static void     x11SetAppDpiY( int, int );
 #endif
 
 #if defined(Q_WS_QWS)

@@ -41,6 +41,7 @@
 #ifndef QT_H
 #include <qcache.h>
 #include <qobject.h>
+#include <qpaintdevice.h>
 #endif // QT_H
 
 
@@ -227,6 +228,9 @@ public:
 #if defined(Q_WS_WIN)
 	currHDC = 0;
 #endif // Q_WS_WIN
+#if defined(Q_WS_X11)
+	x11Screen = QPaintDevice::x11AppScreen();
+#endif // Q_WS_X11
 	paintdevice = 0;
     }
 
@@ -241,6 +245,9 @@ public:
 #if defined(Q_WS_WIN)
 	currHDC = 0;
 #endif // Q_WS_WIN
+#if defined(Q_WS_X11)
+	x11Screen = fp.x11Screen;
+#endif // Q_WS_X11
 	paintdevice = 0;
     }
 
@@ -255,6 +262,9 @@ public:
 #if defined(Q_WS_WIN)
 	currHDC = 0;
 #endif // Q_WS_WIN
+#if defined(Q_WS_X11)
+	x11Screen = pd->x11Screen();
+#endif // Q_WS_X11
 	paintdevice = pd;
     }
 
@@ -339,7 +349,7 @@ public:
     static char **getXFontNames(const char *, int *);
     static bool fontExists(const QString &);
     static bool parseXFontName(const QCString &, char **);
-    static bool fillFontDef(const QCString &, QFontDef *, QCString *);
+    static bool fillFontDef(const QCString &, QFontDef *, int);
 
     static inline bool isZero(char *x)
     {
@@ -436,7 +446,7 @@ public:
 	}
     } x11data;
     static QFont::Script defaultScript;
-
+    int x11Screen;
 #endif // Q_WS_X11
 
     QPaintDevice *paintdevice;
@@ -467,7 +477,7 @@ public:
 #if defined( Q_WS_MAC )
     ~QFontPrivate() {
 	if( fin && fin->deref() )
-	    delete fin; 
+	    delete fin;
     }
     void macSetFont(QPaintDevice *);
     void drawText( int x, int y, QString s, int len );

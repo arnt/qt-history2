@@ -623,6 +623,7 @@ void QPainter::setFont( const QFont &font )
 #endif
     if ( cfont.d != font.d ) {
         cfont = font;
+	cfont.x11SetScreen( scrn );
         setf(DirtyFont);
     }
 }

@@ -768,6 +768,9 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
     pal = isTopLevel() ? QApplication::palette() : parentWidget()->palette();
 #endif
     fnt = isTopLevel() ? QApplication::font() : parentWidget()->font();
+#if defined(Q_WS_X11)
+    fnt.x11SetScreen( x11Screen() );
+#endif // Q_WS_X11
 
     if ( !isDesktop() )
 	setBackgroundFromMode(); //### parts of this are done in create but not all (see reparent(...) )
@@ -2562,6 +2565,10 @@ void QWidget::setFont( const QFont &font )
 	return;
     QFont old = fnt;
     fnt = font;
+#if defined(Q_WS_X11)
+    // make sure the font set on this widget is associated with the correct screen
+    fnt.x11SetScreen( x11Screen() );
+#endif
     fnt.handle(); // force load font
     fontChange( old );
     if ( children() ) {
@@ -3085,7 +3092,7 @@ bool QWidget::isActiveWindow() const
 	   tlw->parentWidget() && tlw->parentWidget()->isActiveWindow())
 	   return TRUE;
 	QWidget *w = qApp->activeWindow();
-	if( !testWFlags(WSubWindow) && w && w->testWFlags(WSubWindow) && 
+	if( !testWFlags(WSubWindow) && w && w->testWFlags(WSubWindow) &&
 	    w->parentWidget()->topLevelWidget() == tlw)
 	    return TRUE;
 	while( w && w->isDialog() && !w->testWFlags(WShowModal) && w->parentWidget() ) {
@@ -3480,7 +3487,11 @@ void QWidget::show()
 	    s.setWidth( QMAX( s.width(), 200 ) );
 	if ( exp & QSizePolicy::Vertically )
 	    s.setHeight( QMAX( s.height(), 150 ) );
+#if defined(Q_WS_X11)
+	QRect screen = QApplication::desktop()->screenGeometry( x11Screen() );
+#else // all others
 	QRect screen = QApplication::desktop()->screenGeometry( QApplication::desktop()->screenNumber( pos() ) );
+#endif
 	s.setWidth( QMIN( s.width(), screen.width()*2/3 ) );
 	s.setHeight( QMIN( s.height(), screen.height()*2/3 ) );
 	if ( !s.isEmpty() )
@@ -4335,7 +4346,7 @@ bool QWidget::event( QEvent *e )
 	    }
 	    update();
 	    break;
-	
+
 	case QEvent::LayoutDirectionChange:
 	    if ( layout() ) {
 		layout()->activate();
@@ -5052,7 +5063,7 @@ void QWidget::setAutoMask( bool enable )
   neighboring widgets makes the background blend together seamlessly.
   AncestorOrigin allows blending backgrounds seamlessly when an ancestor
   of the widget has an origin other than QWindowOrigin.
-  
+
   \sa backgroundPixmap(), setBackgroundMode()
 */
 QWidget::BackgroundOrigin QWidget::backgroundOrigin() const
@@ -5084,7 +5095,7 @@ void QWidget::updateMask()
   \internal
   Returns the offset of the widget from the backgroundOrigin.
 
-  \sa setBackgroundMode(), backgroundMode(), 
+  \sa setBackgroundMode(), backgroundMode(),
 */
 QPoint QWidget::backgroundOffset() const
 {
@@ -5094,23 +5105,23 @@ QPoint QWidget::backgroundOffset() const
 		break;
 	    case ParentOrigin:
 		return pos();
-	    case WindowOrigin: 
+	    case WindowOrigin:
 		{
 		    const QWidget *topl = this;
 		    while(!topl->isTopLevel() && !topl->testWFlags(Qt::WSubWindow))
 			topl = topl->parentWidget(TRUE);
-		    return mapTo((QWidget *)topl, QPoint(0, 0) ); 
+		    return mapTo((QWidget *)topl, QPoint(0, 0) );
 		}
 	    case AncestorOrigin:
 		{
 		    const QWidget *topl = this;
 		    bool ancestorIsWindowOrigin = FALSE;
-		    while(!topl->isTopLevel() && !topl->testWFlags(Qt::WSubWindow)) 
+		    while(!topl->isTopLevel() && !topl->testWFlags(Qt::WSubWindow))
 		    {
 			if (!ancestorIsWindowOrigin) {
 			    if (topl->backgroundOrigin() == QWidget::WidgetOrigin)
 				break;
-			    if (topl->backgroundOrigin() == QWidget::ParentOrigin) 
+			    if (topl->backgroundOrigin() == QWidget::ParentOrigin)
 			    {
 				topl = topl->parentWidget(TRUE);
 				break;

@@ -416,35 +416,118 @@ Qt::HANDLE QPaintDevice::x11RenderHandle() const
   only).  Using this function is not portable.
 */
 
-static int dpiX=0,dpiY=0;
+static int *dpisX=0, *dpisY=0;
+static void create_dpis()
+{
+    if ( dpisX )
+	return;
+
+    Display *dpy = QPaintDevice::x11AppDisplay();
+    if ( ! dpy )
+	return;
+
+    int i, screens =  ScreenCount( dpy );
+    dpisX = new int[ screens ];
+    dpisY = new int[ screens ];
+    Q_CHECK_PTR( dpisX );
+    Q_CHECK_PTR( dpisY );
+    for ( i = 0; i < screens; i++ ) {
+	dpisX[ i ] = (DisplayWidth(dpy,i) * 254 + DisplayWidthMM(dpy,i)*5)
+
+		     / (DisplayWidthMM(dpy,i)*10);
+	dpisY[ i ] = (DisplayHeight(dpy,i) * 254 + DisplayHeightMM(dpy,i)*5)
+		     / (DisplayHeightMM(dpy,i)*10);
+    }
+}
 extern void     qX11ClearFontNameCache(); // defined in qfont_x11.cpp
 
 /*!
-  Sets the value returned by x11AppDpiX() to \a dpi.  The default is
-  determined by the display configuration.  Changing this value will
-  alter the scaling of fonts and many other metrics and is not recommended.
-  Using this function is not portable.
+  Sets the value returned by x11AppDpiX() to \a dpi for screen \a screen.
+  The default is determined by the display configuration.  Changing this
+  value will alter the scaling of fonts and many other metrics and is not
+  recommended.  Using this function is not portable.
 
   \sa x11SetAppDpiY()
 */
-void QPaintDevice::x11SetAppDpiX(int dpi)
+void QPaintDevice::x11SetAppDpiX(int dpi, int screen)
 {
-    dpiX = dpi;
+    create_dpis();
+    if ( ! dpisX )
+	return;
+    if ( screen < 0 )
+	screen = QPaintDevice::x11AppScreen();
+    if ( screen > ScreenCount( QPaintDevice::x11AppDisplay() ) )
+	return;
+    dpisX[ screen ] = dpi;
     qX11ClearFontNameCache();
 }
 
 /*!
-  Sets the value returned by x11AppDpiY() to \a dpi.  The default is
-  determined by the display configuration.  Changing this value will
-  alter the scaling of fonts and many other metrics and is not recommended.
-  Using this function is not portable.
+   Sets the value returned by x11AppDpiX() to \a dpi for the default screen.
+  The default is determined by the display configuration.  Changing this
+  value will alter the scaling of fonts and many other metrics and is not
+  recommended.  Using this function is not portable.
+
+  \sa x11SetAppDpiY(), x11AppScreen()
+*/
+// ### REMOVE 4.0
+void QPaintDevice::x11SetAppDpiX( int dpi )
+{
+    QPaintDevice::x11SetAppDpiX( dpi, -1 );
+}
+
+/*!
+  Sets the value returned by x11AppDpiY() to \a dpi for screen \a screen.
+  The default is determined by the display configuration.  Changing this
+  value will alter the scaling of fonts and many other metrics and is not
+  recommended.  Using this function is not portable.
 
   \sa x11SetAppDpiX()
 */
-void QPaintDevice::x11SetAppDpiY(int dpi)
+void QPaintDevice::x11SetAppDpiY(int dpi, int screen)
 {
-    dpiY = dpi;
+    create_dpis();
+    if ( ! dpisY )
+	return;
+    if ( screen < 0 )
+	screen = QPaintDevice::x11AppScreen();
+    if ( screen > ScreenCount( QPaintDevice::x11AppDisplay() ) )
+	return;
+    dpisY[ screen ] = dpi;
     qX11ClearFontNameCache();
+}
+
+/*!
+  Sets the value returned by x11AppDpiY() to \a dpi for the default screen.
+  The default is determined by the display configuration.  Changing this
+  value will alter the scaling of fonts and many other metrics and is not
+  recommended.  Using this function is not portable.
+
+  \sa x11SetAppDpiX()
+*/
+// ### REMOVE 4.0
+void QPaintDevice::x11SetAppDpiY( int dpi )
+{
+    QPaintDevice::x11SetAppDpiY( dpi, -1 );
+}
+
+/*!  Returns the horizontal DPI of the X display (X11 only) for
+  screen \a screen.  Using this function is not portable. See
+  QPaintDeviceMetrics for portable access to related information.
+  Using this function is not portable.
+
+  \sa x11AppDpiY(), x11SetAppDpiX(), QPaintDeviceMetrics::logicalDpiX()
+*/
+int QPaintDevice::x11AppDpiX(int screen)
+{
+    create_dpis();
+    if ( ! dpisX )
+	return 0;
+    if ( screen < 0 )
+	screen = QPaintDevice::x11AppScreen();
+    if ( screen > ScreenCount( QPaintDevice::x11AppDisplay() ) )
+	return 0;
+    return dpisX[ screen ];
 }
 
 /*!  Returns the horizontal DPI of the X display (X11 only).  Using this
@@ -456,16 +539,26 @@ void QPaintDevice::x11SetAppDpiY(int dpi)
 */
 int QPaintDevice::x11AppDpiX()
 {
-    if ( !dpiX ) {
-	Display *dpy = x11AppDisplay();
-	int scr = x11AppScreen();
-	if ( dpy ) {
-	    dpiX =
-		(DisplayWidth(dpy,scr) * 254 + DisplayWidthMM(dpy,scr)*5)
-		       / (DisplayWidthMM(dpy,scr)*10);
-	}
-    }
-    return dpiX;
+    return QPaintDevice::x11AppDpiX( -1 );
+}
+
+/*!  Returns the vertical DPI of the X11 display (X11 only) for
+  screen \a screen.  Using this function is not portable. See
+  QPaintDeviceMetrics for portable access to related information.
+  Using this function is not portable.
+
+  \sa x11AppDpiX(), x11SetAppDpiY(), QPaintDeviceMetrics::logicalDpiY()
+*/
+int QPaintDevice::x11AppDpiY( int screen )
+{
+    create_dpis();
+    if ( ! dpisY )
+	return 0;
+    if ( screen < 0 )
+	screen = QPaintDevice::x11AppScreen();
+    if ( screen > ScreenCount( QPaintDevice::x11AppDisplay() ) )
+	return 0;
+    return dpisY[ screen ];
 }
 
 /*!  Returns the vertical DPI of the X11 display (X11 only).  Using this
@@ -477,17 +570,8 @@ int QPaintDevice::x11AppDpiX()
 */
 int QPaintDevice::x11AppDpiY()
 {
-    if ( !dpiY ) {
-	Display *dpy = x11AppDisplay();
-	int scr = x11AppScreen();
-	if ( dpy )
-	    dpiY =
-		(DisplayHeight(dpy,scr) * 254 + DisplayHeightMM(dpy,scr)*5)
-		       / (DisplayHeightMM(dpy,scr)*10);
-    }
-    return dpiY;
+    return QPaintDevice::x11AppDpiY( -1 );
 }
-
 
 /*!
   \fn bool QPaintDevice::paintingActive() const

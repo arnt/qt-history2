@@ -259,17 +259,18 @@ QCleanupHandler<QPixmapDict> cleanup_pixmapdict;
 #endif // QT_NO_XFTFREETYPE
 
 
-static inline float pixelSize( const QFontDef &request, QPaintDevice *paintdevice )
+static inline float pixelSize( const QFontDef &request, QPaintDevice *paintdevice,
+			       int scr )
 {
     float pSize;
     if ( request.pointSize != -1 ) {
 	if ( paintdevice )
 	    pSize = request.pointSize *
 		    QPaintDeviceMetrics( paintdevice ).logicalDpiY() / 720.;
-	else if (QPaintDevice::x11AppDpiY() == 75)
+	else if (QPaintDevice::x11AppDpiY( scr ) == 75)
 	    pSize = request.pointSize / 10.;
 	else
-	    pSize = request.pointSize * QPaintDevice::x11AppDpiY() / 720.;
+	    pSize = request.pointSize * QPaintDevice::x11AppDpiY( scr ) / 720.;
     } else {
 	pSize = request.pixelSize;
     }
@@ -277,17 +278,18 @@ static inline float pixelSize( const QFontDef &request, QPaintDevice *paintdevic
 
 }
 
-static inline float pointSize( const QFontDef &fd, QPaintDevice *paintdevice )
+static inline float pointSize( const QFontDef &fd, QPaintDevice *paintdevice,
+			       int scr )
 {
     float pSize;
     if ( fd.pointSize == -1 ) {
 	if ( paintdevice )
 	    pSize = fd.pixelSize * 10 *
 		    QPaintDeviceMetrics( paintdevice ).logicalDpiY() / 72.;
-	else if (QPaintDevice::x11AppDpiY() == 75)
+	else if (QPaintDevice::x11AppDpiY( scr ) == 75)
 	    pSize = fd.pixelSize * 10;
 	else
-	    pSize = fd.pixelSize * 10 * QPaintDevice::x11AppDpiY() / 72.;
+	    pSize = fd.pixelSize * 10 * QPaintDevice::x11AppDpiY( scr ) / 72.;
     } else {
 	pSize = fd.pointSize;
     }
@@ -510,19 +512,12 @@ bool QFontPrivate::parseXFontName(const QCString &fontName, char **tokens)
 // Returns TRUE if the the given xlfd is valid. If the xlfd is valid the encoding
 // name (charset registry + "-" + charset encoding) is returned in encodingName if
 // encodingName is non-zero. The fileds lbearing and rbearing are not given any values.
-bool QFontPrivate::fillFontDef( const QCString &xlfd, QFontDef *fd,
-				QCString *encodingName )
+bool QFontPrivate::fillFontDef( const QCString &xlfd, QFontDef *fd, int screen )
 {
     char *tokens[QFontPrivate::NFontFields];
     QCString buffer = xlfd.copy();
     if ( ! parseXFontName(buffer, tokens) )
 	return FALSE;
-
-    if ( encodingName ) {
-	*encodingName = tokens[QFontPrivate::CharsetRegistry];
-	*encodingName += '-';
-	*encodingName += tokens[QFontPrivate::CharsetEncoding];
-    }
 
     fd->family = QString::fromLatin1(tokens[Family]);
     fd->pointSize = atoi(tokens[PointSize]);
@@ -537,14 +532,14 @@ bool QFontPrivate::fillFontDef( const QCString &xlfd, QFontDef *fd,
     int r = atoi(tokens[ResolutionY]);
     fd->pixelSize = atoi(tokens[PixelSize]);
     // not "0" or "*", or required DPI
-    if ( r && fd->pixelSize && QPaintDevice::x11AppDpiY() &&
-	 r != QPaintDevice::x11AppDpiY() ) {
+    if ( r && fd->pixelSize && QPaintDevice::x11AppDpiY( screen ) &&
+	 r != QPaintDevice::x11AppDpiY( screen ) ) {
 	// calculate actual pointsize for display DPI
 	fd->pointSize = (int) ((fd->pixelSize * 720.) /
-			       QPaintDevice::x11AppDpiY() + 0.5);
+			       QPaintDevice::x11AppDpiY( screen ) + 0.5);
     } else if ( fd->pixelSize == 0 && fd->pointSize ) {
 	// calculate pixel size from pointsize/dpi
-	fd->pixelSize = ( fd->pointSize * QPaintDevice::x11AppDpiY() ) / 720;
+	fd->pixelSize = ( fd->pointSize * QPaintDevice::x11AppDpiY( screen ) ) / 720;
     }
 
     fd->underline     = FALSE;
@@ -1427,8 +1422,8 @@ XftPattern *QFontPrivate::bestXftPattern(const QString &familyName,
 
     if ( paintdevice &&
 	 (QPaintDeviceMetrics( paintdevice ).logicalDpiY() !=
-	  QPaintDevice::x11AppDpiY()) ) {
-	size_value = pixelSize( request, paintdevice );
+	  QPaintDevice::x11AppDpiY( x11Screen )) ) {
+	size_value = pixelSize( request, paintdevice, x11Screen );
 	sizeFormat = XFT_PIXEL_SIZE;
 	//qDebug("requesting scaled font, dpy=%d, pixelsize=%f",
 	// QPaintDeviceMetrics( paintdevice ).logicalDpiY(), size_value);
@@ -1532,7 +1527,7 @@ XftPattern *QFontPrivate::bestXftPattern(const QString &familyName,
 
     if (pattern) {
 	result = XftFontMatch(QPaintDevice::x11AppDisplay(),
-			      QPaintDevice::x11AppScreen(), pattern, &res);
+			      x11Screen, pattern, &res);
 	XftPatternDestroy(pattern);
     }
 
@@ -1861,7 +1856,7 @@ QCString QFontPrivate::bestMatch( const char *pattern, int *score,
 		resx = atoi(tokens[ResolutionX]);
 		resy = atoi(tokens[ResolutionY]);
 	    }
-	    pSize = (int) (pixelSize( request, paintdevice ) + 0.5 );
+	    pSize = (int) (pixelSize( request, paintdevice, x11Screen ) + 0.5 );
 
 	    bestName.sprintf( "-%s-%s-%s-%s-%s-%s-%i-*-%i-%i-%s-*-%s-%s",
 			      tokens[Foundry],
@@ -1959,7 +1954,7 @@ int QFontPrivate::fontMatchScore( const char *fontName, QCString &buffer,
 	float percentDiff;
 	pSize = atoi(tokens[PixelSize]);
 
-	int reqPSize = (int) (pixelSize( request, paintdevice ) + 0.5);
+	int reqPSize = (int) (pixelSize( request, paintdevice, x11Screen ) + 0.5);
 
 	if ( reqPSize != 0 ) {
 	    diff = (float)QABS(pSize - reqPSize);
@@ -2046,18 +2041,18 @@ void QFontPrivate::initFontInfo(QFont::Script script)
 	// boxes in the correct size...
 	if (request.pixelSize == -1) {
 	    actual.pointSize = request.pointSize;
-	    actual.pixelSize = (int)(pixelSize( actual, paintdevice ) +.5);
+	    actual.pixelSize = (int)(pixelSize( actual, paintdevice, x11Screen ) +.5);
 	}
 	return;
     }
 
     if ( paintdevice &&
 	 (QPaintDeviceMetrics( paintdevice ).logicalDpiY() !=
-	  QPaintDevice::x11AppDpiY()) ) {
+	  QPaintDevice::x11AppDpiY( x11Screen )) ) {
 	// we have a printer font
 	actual = request;
-	float _pointSize = pointSize( actual, paintdevice );
-	float _pixelSize = pixelSize( actual, paintdevice );
+	float _pointSize = pointSize( actual, paintdevice, x11Screen );
+	float _pixelSize = pixelSize( actual, paintdevice, x11Screen );
 	if ( actual.pointSize == -1 )
 	    actual.pointSize = (int)(_pointSize + 0.5);
 	else
@@ -2116,9 +2111,9 @@ void QFontPrivate::initFontInfo(QFont::Script script)
 	actual.dirty = FALSE;
 
 	if ( actual.pointSize == -1 )
-	    actual.pointSize = (int)(pointSize( actual, paintdevice ) +.5);
+	    actual.pointSize = (int)(pointSize( actual, paintdevice, x11Screen ) +.5);
 	else
-	    actual.pixelSize = (int)(pixelSize( actual, paintdevice ) +.5);
+	    actual.pixelSize = (int)(pixelSize( actual, paintdevice, x11Screen ) +.5);
 
 	return;
     }
@@ -2134,9 +2129,9 @@ void QFontPrivate::initFontInfo(QFont::Script script)
 	exactMatch = FALSE;
 
 	if ( actual.pointSize == -1 )
-	    actual.pointSize = (int)(pointSize( actual, paintdevice ) +.5);
+	    actual.pointSize = (int)(pointSize( actual, paintdevice, x11Screen ) +.5);
 	else
-	    actual.pixelSize = (int)(pixelSize( actual, paintdevice ) +.5);
+	    actual.pixelSize = (int)(pixelSize( actual, paintdevice, x11Screen ) +.5);
     }
 
     actual.underline = request.underline;
@@ -2410,8 +2405,11 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
 #endif // QT_NO_XFTFREETYPE
 
     QString k(key() + script_table[script].list[script_table[script].index]);
+    k += "/scr" + QString::number( x11Screen );
     if ( paintdevice )
-	k += "/" + QString::number(QPaintDeviceMetrics( paintdevice ).logicalDpiY());
+	k += "/res" + QString::number(QPaintDeviceMetrics( paintdevice ).logicalDpiY());
+    else
+	k += "/res" + QString::number( QPaintDevice::x11AppDpiY( x11Screen ) );
 
     // Look for font name in fontNameDict based on QFont::key()
     QXFontName *qxfn = fontNameDict->find(k);
@@ -2519,7 +2517,7 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
 	    XftResult res;
 	    xftmatch = XftNameParse(qxfn->name.data());
 	    xftmatch = XftFontMatch(QPaintDevice::x11AppDisplay(),
-				    QPaintDevice::x11AppScreen(), xftmatch, &res);
+				    x11Screen, xftmatch, &res);
 	}
 
 #ifdef QFONTLOADER_DEBUG
@@ -2932,6 +2930,31 @@ void QFont::setRawName( const QString &name )
     }
 }
 
+/*!
+  \internal
+  X11 Only: Associate the font with the specified \a screen.
+*/
+void QFont::x11SetScreen( int screen )
+{
+    if ( screen < 0 ) // assume default
+	screen = QPaintDevice::x11AppScreen();
+
+    if ( screen == d->x11Screen )
+	return; // nothing to do
+
+    detach();
+    d->x11Screen = screen;
+    d->request.dirty = TRUE;
+}
+
+/*!
+  \internal
+  X11 Only: Returns the screen with which this font is associated.
+*/
+int QFont::x11Screen() const
+{
+    return d->x11Screen;
+}
 
 // **********************************************************************
 // QFontMetrics member methods

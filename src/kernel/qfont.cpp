@@ -888,7 +888,7 @@ QFont::StyleHint QFont::styleHint() const
 */
 void QFont::setStyleHint( StyleHint hint, StyleStrategy strategy )
 {
-    if ((StyleHint) d->request.styleHint == hint && (StyleStrategy) d->request.styleStrategy == strategy ) 
+    if ((StyleHint) d->request.styleHint == hint && (StyleStrategy) d->request.styleStrategy == strategy )
 	return;
 
     detach();
@@ -1673,7 +1673,17 @@ QFontMetrics::QFontMetrics( const QPainter *p )
 	d = painter->pfont->d;
     else
 	d = painter->cfont.d;
-    d->ref();
+#if defined(Q_WS_X11)
+    if ( d->x11Screen != p->scrn ) {
+	QFontPrivate *new_d = new QFontPrivate( *d );
+	Q_CHECK_PTR( new_d );
+	d = new_d;
+	d->x11Screen = p->scrn;
+	d->request.dirty = TRUE;
+	d->count = 1;
+    } else
+#endif // Q_WS_X11
+	d->ref();
 
     d->load();
 

@@ -290,10 +290,17 @@ private:
     void *textMetric() const;
 #endif
 
+#if defined(Q_WS_X11)
+    void x11SetScreen( int screen = -1 );
+    int x11Screen() const;
+#endif
+
     friend class QFontMetrics;
     friend class QFontInfo;
     friend class QPainter;
     friend class QPSPrinterFont;
+    friend class QWidget;
+    friend class QTextFormatCollection;
 
 #ifndef QT_NO_DATASTREAM
     friend Q_EXPORT QDataStream &operator<<( QDataStream &, const QFont & );
