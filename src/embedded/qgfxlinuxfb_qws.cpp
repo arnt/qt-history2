@@ -650,7 +650,7 @@ void QLinuxFbScreen::deleteEntry(uchar * c)
     unsigned long pos=(unsigned long)c;
     pos-=((unsigned long)data);
     unsigned int hold=(*entryp);
-    for(unsigned int loopc=0;loopc<hold;loopc++) {
+    for(unsigned int loopc=1;loopc<hold;loopc++) {
 	if(entries[loopc].start==pos) {
 	    delete_entry(loopc);
 	    qt_fbdpy->ungrab();
