@@ -415,6 +415,31 @@ void QTextDocument::setHtml(const QString &html)
     \value FindWholeWords Makes find match only complete words.
 */
 
+static bool findInBlock(const QTextBlock &block, const QString &text, const QString &expression, int offset, QTextDocument::FindFlags options, QTextCursor &cursor)
+{
+    const Qt::CaseSensitivity cs = (options & QTextDocument::FindCaseSensitively) ? Qt::CaseSensitive : Qt::CaseInsensitive;
+
+    int idx = text.lastIndexOf(expression, offset, cs);
+
+    if (options & QTextDocument::FindWholeWords && idx >= 0) {
+        const int start = idx;
+        const int end = start + expression.length();
+        if ((start != 0 && text.at(start - 1).isLetterOrNumber())
+                || (end != text.length() && text.at(end).isLetterOrNumber()))
+            idx = -1;
+    }
+
+    if (idx >= 0) {
+        // ### FIXME
+        cursor = QTextCursor(block.docHandle()->document());
+        cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::MoveAnchor, block.position() + idx);
+        cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, expression.length());
+        return true;
+    }
+
+    return false;
+}
+
 /*!
     \fn QTextCursor QTextDocument::find(const QString &expr, int position, FindFlags options, FindDirection direction) const
 
@@ -438,32 +463,19 @@ QTextCursor QTextDocument::find(const QString &expr, int from, FindFlags options
 
     int pos = from;
 
-    const Qt::CaseSensitivity cs = (options & FindCaseSensitively) ? Qt::CaseSensitive : Qt::CaseInsensitive;
-
+    QTextCursor cursor;
     QTextBlock block = d->blocksFind(pos);
 
     if (direction == FindForward) {
         while (block.isValid()) {
             int blockOffset = qMax(0, pos - block.position());
-            QString text = block.text();
+            const QString blockText = block.text();
 
             const int blockLength = block.length();
             while (blockOffset < blockLength) {
-                int idx = text.indexOf(expr, blockOffset, cs);
-
-                if (options & FindWholeWords && idx >= 0) {
-                    const int start = idx;
-                    const int end = start + expr.length();
-                    if ((start != 0 && text.at(start - 1).isLetterOrNumber())
-                            || (end != text.length() && text.at(end).isLetterOrNumber()))
-                        idx = -1;
-                } 
-
-                if (idx >= 0) {
-                    QTextCursor cursor(docHandle(), block.position() + idx);
-                    cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, expr.length());
+                if (findInBlock(block, blockText, expr, blockOffset, options, cursor))
                     return cursor;
-                }
+
                 blockOffset += expr.length();
             }
 
@@ -475,24 +487,11 @@ QTextCursor QTextDocument::find(const QString &expr, int from, FindFlags options
             if (pos > block.position())
                 blockOffset = block.length() - 1;
 
-            QString text = block.text();
+            const QString blockText = block.text();
 
             while (blockOffset >= 0) {
-                int idx = text.lastIndexOf(expr, blockOffset, cs);
-
-                if (options & FindWholeWords && idx >= 0) {
-                    const int start = idx;
-                    const int end = start + expr.length();
-                    if ((start != 0 && text.at(start - 1).isLetterOrNumber())
-                            || (end != text.length() && text.at(end).isLetterOrNumber()))
-                        idx = -1;
-                }
-
-                if (idx >= 0) {
-                    QTextCursor cursor(docHandle(), block.position() + idx);
-                    cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, expr.length());
+                if (findInBlock(block, blockText, expr, blockOffset, options, cursor))
                     return cursor;
-                }
 
                 blockOffset -= expr.length();
             }
