@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#112 $
+** $Id: //depot/qt/main/src/moc/moc.y#113 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -43,6 +43,7 @@
 void yyerror( char *msg );
 
 #include "qlist.h"
+#include "qdict.h"
 #include "qstring.h"
 #include "qdatetime.h"
 #include <ctype.h>
@@ -139,7 +140,7 @@ const int  formatRevision = 3;			// moc output format revision
     Argument   *arg;
 }
 
-%start class_defs
+%start declaration_seq
 
 %token <char_val>	CHAR_VAL		/* value types */
 %token <int_val>	INT_VAL
@@ -178,6 +179,9 @@ const int  formatRevision = 3;			// moc output format revision
 %token			DBL_COLON
 %token			TRIPLE_DOT
 %token			TEMPLATE
+%token			NAMESPACE
+%token			USING
+%token			MUTABLE
 
 %token			SIGNALS
 %token			SLOTS
@@ -222,13 +226,58 @@ const int  formatRevision = 3;			// moc output format revision
 %type  <string>		ptr_operators_opt
 
 %%
-class_defs:		  /* empty */
-			| class_defs class_def
+declaration_seq:	  /* empty */
+                        | declaration_seq declaration
 			;
+
+declaration:		  class_def
+/* | template_declaration */
+                        | namespace_def
+                        | namespace_alias_def
+                        | using_declaration
+                        | using_directive
+                        ;
+
+namespace_def:            named_namespace_def
+                        | unnamed_namespace_def
+                        ;
+
+named_namespace_def:      NAMESPACE
+                          IDENTIFIER         { enterNameSpace($2); }
+                          '{'                { BEGIN IN_NAMESPACE; }
+                          namespace_body
+                          '}'                { leaveNameSpace();
+			                       selectOutsideClassState();
+                                             }
+                        ; 
+
+unnamed_namespace_def:    NAMESPACE          { enterNameSpace(); }
+                          '{'                { BEGIN IN_NAMESPACE; }
+                          namespace_body
+                          '}'                { leaveNameSpace();
+  			                       selectOutsideClassState();
+			                     }
+                        ; 
+
+namespace_body:           declaration_seq
+                        ;
+
+namespace_alias_def:      NAMESPACE IDENTIFIER '=' complete_class_name ';'
+                                            { selectOutsideClassState(); }
+                        ;
+
+
+using_directive:          USING NAMESPACE   { selectOutsideClassState(); }// Skip namespace
+                        ;
+
+using_declaration:        USING IDENTIFIER  { selectOutsideClassState(); }
+                        | USING DBL_COLON   { selectOutsideClassState(); }
+                        ;
 
 class_def:				      { initClass(); }
 			  class_specifier ';' { generateClass();
-						BEGIN OUTSIDE; }
+			                        registerClassInNamespace();
+						selectOutsideClassState(); }
 			;
 
 
@@ -503,7 +552,8 @@ fct_body:		  '{' {BEGIN IN_FCT; fctLevel = 1;}
 /***** r.17.5 (ARM p.395): Class Declarations *****/
 
 class_specifier:	  full_class_head
-			  '{'			{ BEGIN IN_CLASS; level = 1; }
+			  '{'			{ BEGIN IN_CLASS;
+                                                  classPLevel = 1; }
 			  opt_obj_member_list
 			  '}'			{ BEGIN QT_DEF; } /*catch ';'*/
 			| class_head		{ BEGIN QT_DEF;	  /* -- " -- */
@@ -563,6 +613,7 @@ obj_member_area:	  qt_access_specifier	{ BEGIN QT_DEF; }
 					"Q_OBJECT is a macro that resets"
 					" access permission to \"private\".");
 						  Q_OBJECTdetected = TRUE; }
+
 			;
 
 slot_area:		  SIGNALS ':'	     { moc_err( "Signals cannot "
@@ -575,7 +626,7 @@ slot_area:		  SIGNALS ':'	     { moc_err( "Signals cannot "
 					 }
 				      opt_slot_declarations
 			| IDENTIFIER	 { BEGIN IN_CLASS;
-					   if ( level != 1 )
+					   if ( classPLevel != 1 )
 					       moc_warn( "unexpected access"
 							 "specifier" );
 					 }
@@ -742,6 +793,16 @@ signal_or_slot:		  type_and_name fct_decl opt_semicolons
 				{ func_warn("Variable as signal or slot."); }
 			| enum_specifier  ';' opt_semicolons
 				{ func_warn("Enum declaration as signal or"
+					  " slot."); }
+                        | USING complete_class_name ';' opt_semicolons
+                                { func_warn("Using declaration as signal or"
+					    " slot."); }
+			|USING NAMESPACE complete_class_name ';' opt_semicolons
+                                { func_warn("Using declaration as signal or"
+					    " slot."); }
+			| NAMESPACE IDENTIFIER '{'
+                                { classPLevel++;
+				  moc_err("Namespace declaration as signal or"
 					  " slot."); }
 			;
 
@@ -1050,6 +1111,96 @@ void initClass()				 // prepare for new class
     signals.clear();
 }
 
+struct NamespaceInfo
+{
+    QCString name;
+    int pLevelOnEntering; // Parenthesis level on entering the namespace
+    QDict<char> definedClasses; // Classes defined in the namespace
+};
+
+QList<NamespaceInfo> namespaces;
+
+void enterNameSpace( const char *name = 0 )   	 // prepare for new class
+{
+    static bool first = TRUE;
+    if ( first ) {
+	namespaces.setAutoDelete( TRUE );
+	first = FALSE;
+    }
+	
+    NamespaceInfo *tmp = new NamespaceInfo;
+    if ( name )
+	tmp->name = name;
+    tmp->pLevelOnEntering = namespacePLevel;
+    namespaces.append( tmp );
+}
+
+void leaveNameSpace()				 // prepare for new class
+{
+    NamespaceInfo *tmp = namespaces.last();
+    namespacePLevel = tmp->pLevelOnEntering;
+    namespaces.remove();
+}
+
+QCString nameQualifier()
+{
+    QListIterator<NamespaceInfo> iter( namespaces );
+    NamespaceInfo *tmp;
+    QCString qualifier = "";
+    for( ; (tmp = iter.current()) ; ++iter ) {
+	if ( !tmp->name.isNull() ) {  // If not unnamed namespace
+	    qualifier += tmp->name;
+	    qualifier += "::"; 
+	}
+    }
+    return qualifier;
+}
+
+void openNameSpaceForMetaObject( FILE *out )
+{
+    if ( namespaces.count() == 0 )
+	return;
+    QListIterator<NamespaceInfo> iter( namespaces );
+    NamespaceInfo *tmp;
+    QCString indent = "";
+    for( ; (tmp = iter.current()) ; ++iter ) {
+	if ( !tmp->name.isNull() ) {  // If not unnamed namespace
+	    fprintf( out, "%snamespace %s {\n", (const char *)indent,
+		     (const char *) tmp->name );
+	    indent += "    ";
+	}
+    }
+}
+
+void closeNameSpaceForMetaObject( FILE *out )
+{
+    if ( namespaces.count() == 0 )
+	return;
+    QListIterator<NamespaceInfo> iter( namespaces );
+    NamespaceInfo *tmp;
+    for( ; (tmp = iter.current()) ; ++iter ) {
+	if ( !tmp->name.isNull() ) {  // If not unnamed namespace
+	    fprintf( out, "}" );
+	}
+    }
+    fprintf( out, "\n" );
+}
+
+void selectOutsideClassState()
+{
+    if ( namespaces.count() == 0 )
+	BEGIN OUTSIDE;
+    else
+	BEGIN IN_NAMESPACE;
+}
+
+void registerClassInNamespace()
+{
+    if ( namespaces.count() == 0 )
+	return;
+    namespaces.last()->definedClasses.insert((const char *)className,(char*)1);
+}
+
 //
 // Remove white space from SIGNAL and SLOT names.
 // This function has been copied from qobject.cpp.
@@ -1229,6 +1380,26 @@ char *straddSpc( const char *s1, const char *s2,
 
 // Generate C++ code for building member function table
 
+QCString qualifiedClassName()
+{
+    QCString tmp = nameQualifier();
+    tmp += className;
+    return tmp;    
+}
+
+QCString qualifiedSuperclassName()
+{
+    if ( namespaces.count() == 0 )
+	return superclassName;
+    if ( namespaces.last()->definedClasses.find((const char *)superclassName)){
+	QCString tmp = nameQualifier();
+	tmp += superclassName;
+	return tmp;
+    } else {
+	return superclassName;
+    }
+}
+
 const int Slot_Num   = 1;
 const int Signal_Num = 2;
 
@@ -1249,7 +1420,8 @@ void generateFuncs( FuncList *list, char *functype, int num )
 	    a = f->args->next();
 	}
 	fprintf( out, "    typedef %s(%s::*m%d_t%d)(%s)%s;\n",
-		 (const char*)f->type, (const char*)className, num, list->at(),
+		 (const char*)f->type, (const char*)qualifiedClassName(),
+		 num, list->at(),
 		 (const char*)typstr,  (const char*)f->qualifier );
 	f->type = f->name.copy();
 	f->type += "(";
@@ -1258,7 +1430,8 @@ void generateFuncs( FuncList *list, char *functype, int num )
     }
     for ( f=list->first(); f; f=list->next() )
 	fprintf( out, "    m%d_t%d v%d_%d = &%s::%s;\n", num, list->at(),
-		 num, list->at(), (const char*)className,(const char*)f->name);
+		 num, list->at(), (const char*)qualifiedClassName(),
+		 (const char*)f->name);
     if ( list->count() )
 	fprintf(out,"    QMetaData *%s_tbl = QMetaObject::new_metadata(%d);\n",
 		functype, list->count() );
@@ -1276,7 +1449,7 @@ void generateClass()		      // generate C++ source code for a class
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt Meta Object Compiler ($Revision: 2.46 $)\n**\n";
+		 "**      by: The Qt Meta Object Compiler ($Revision: 2.47 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
@@ -1312,7 +1485,7 @@ void generateClass()		      // generate C++ source code for a class
 	    i--;				// skip path
 	if ( i >= 0 )
 	    fn = &fileName[i];
-	fprintf( out, hdr1, (const char*)className, (const char*)fn );
+	fprintf( out, hdr1, (const char*)qualifiedClassName(),(const char*)fn);
 	fprintf( out, hdr2, (const char*)dstr );
 	fprintf( out, hdr3 );
 	fprintf( out, hdr4 );
@@ -1335,32 +1508,34 @@ void generateClass()		      // generate C++ source code for a class
 // Generate virtual function className()
 //
     fprintf( out, "const char *%s::className() const\n{\n    ",
-	     (const char*)className );
-    fprintf( out, "return \"%s\";\n}\n\n", (const char*)className );
+	     (const char*)qualifiedClassName() );
+    fprintf( out, "return \"%s\";\n}\n\n", (const char*)qualifiedClassName() );
 
 //
 // Generate static metaObj variable
 //
-    fprintf( out, "QMetaObject *%s::metaObj = 0;\n\n", (const char*)className);
+    fprintf( out, "QMetaObject *%s::metaObj = 0;\n\n", (const char*)qualifiedClassName());
 
 //
 // Generate static meta-object constructor-object (we don't rely on
 // it, except for QBuilder).
 //
     fprintf( out, "\n#if QT_VERSION >= 199\n" );
+    openNameSpaceForMetaObject( out );
     fprintf( out, "static QMetaObjectInit init_%s(&%s::staticMetaObject);\n\n",
-	(const char*)className, (const char*)className );
+	(const char*)className, (const char*)qualifiedClassName() );
+    closeNameSpaceForMetaObject( out );
     fprintf( out, "#endif\n\n" );
 
 //
 // Generate initMetaObject member function
 //
-    fprintf( out, "void %s::initMetaObject()\n{\n", (const char*)className );
+    fprintf( out, "void %s::initMetaObject()\n{\n", (const char*)qualifiedClassName() );
     fprintf( out, "    if ( metaObj )\n\treturn;\n" );
     fprintf( out, "    if ( strcmp(%s::className(), \"%s\") != 0 )\n"
 	          "\tbadSuperclassWarning(\"%s\",\"%s\");\n",
-             (const char*)superclassName, (const char*)superclassName,
-             (const char*)className, (const char*)superclassName );
+             (const char*)qualifiedSuperclassName(), (const char*)qualifiedSuperclassName(),
+             (const char*)qualifiedClassName(), (const char*)qualifiedSuperclassName() );
     fprintf( out, "\n#if QT_VERSION >= 199\n" );
     fprintf( out, "    staticMetaObject();\n");
     fprintf( out, "}\n\n");
@@ -1368,17 +1543,17 @@ void generateClass()		      // generate C++ source code for a class
 //
 // Generate tr member function
 //
-    fprintf( out, "QString %s::tr(const char* s)\n{\n", (const char*)className );
-    fprintf( out, "    return qApp->translate(\"%s\",s);\n}\n\n", (const char*)className );
+    fprintf( out, "QString %s::tr(const char* s)\n{\n", (const char*)qualifiedClassName() );
+    fprintf( out, "    return qApp->translate(\"%s\",s);\n}\n\n", (const char*)qualifiedClassName() );
 
 //
 // Generate staticMetaObject member function
 //
-    fprintf( out, "void %s::staticMetaObject()\n{\n", (const char*)className );
+    fprintf( out, "void %s::staticMetaObject()\n{\n", (const char*)qualifiedClassName() );
     fprintf( out, "    if ( metaObj )\n\treturn;\n" );
-    fprintf( out, "    %s::staticMetaObject();\n", (const char*)superclassName );
+    fprintf( out, "    %s::staticMetaObject();\n", (const char*)qualifiedSuperclassName() );
     fprintf( out, "#else\n\n" );
-    fprintf( out, "    %s::initMetaObject();\n", (const char*)superclassName );
+    fprintf( out, "    %s::initMetaObject();\n", (const char*)qualifiedSuperclassName() );
     fprintf( out, "#endif\n\n" );
 //
 // Build slots array in staticMetaObject()
@@ -1395,7 +1570,7 @@ void generateClass()		      // generate C++ source code for a class
 //
     fprintf( out, "    metaObj = QMetaObject::new_metaobject(\n"
 		  "\t\"%s\", \"%s\",\n",
-	     (const char*)className, (const char*)superclassName );
+	     (const char*)qualifiedClassName(), (const char*)qualifiedSuperclassName() );
     if ( slots.count() )
 	fprintf( out, "\tslot_tbl, %d,\n", slots.count() );
     else
@@ -1476,7 +1651,7 @@ void generateClass()		      // generate C++ source code for a class
 	}
 
 	fprintf( out, "\n/" /* c++ */ "/ SIGNAL %s\n", (const char*)f->name );
-	fprintf( out, "void %s::%s(", (const char*)className,
+	fprintf( out, "void %s::%s(", (const char*)qualifiedClassName(),
 		 (const char*)f->name );
 
 	if ( argstr.isEmpty() )
