@@ -200,6 +200,7 @@ int Tokenizer::getToken()
 			yyCh = getChar();
 		    } while ( yyCh != EOF && yyCh != '\n' );
 		} else if ( yyCh == '*' ) {
+		    bool metDoc = FALSE; // empty doc is no doc
 		    bool metSlashAsterBang = FALSE;
 		    bool metAster = FALSE;
 		    bool metAsterSlash = FALSE;
@@ -213,16 +214,19 @@ int Tokenizer::getToken()
 			    warning( 1, yyTokLoc, "Unterminated C++ comment" );
 			    break;
 			} else {
-			    if ( yyCh == '*' )
+			    if ( yyCh == '*' ) {
 				metAster = TRUE;
-			    else if ( metAster && yyCh == '/' )
+			    } else if ( metAster && yyCh == '/' ) {
 				metAsterSlash = TRUE;
-			    else
+			    } else {
 				metAster = FALSE;
+				if ( isgraph(yyCh) )
+				    metDoc = TRUE;
+			    }
 			}
 			yyCh = getChar();
 		    }
-		    if ( metSlashAsterBang )
+		    if ( metSlashAsterBang && metDoc )
 			return Tok_Doc;
 		    else if ( yyParenDepth > 0 )
 			return Tok_Comment;
