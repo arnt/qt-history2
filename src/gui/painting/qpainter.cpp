@@ -2167,7 +2167,7 @@ void QPainter::drawPolygon(const QPolygon &polygon, bool winding, int index, int
 
     // Connect if polygon if we have a pen.
     if (d->state->pen.style() != Qt::NoPen && pa.first() != pa.last())
-        pa << pa.first();
+        pa << QPointF(pa.first());
 
     if (d->engine->emulationSpecifier) {
         if (d->engine->emulationSpecifier == QPaintEngine::CoordTransform
