@@ -14,6 +14,7 @@ class QTextImageHandler : public QObject,
                           public QTextObjectInterface
 {
     Q_OBJECT
+    Q_INTERFACES(QTextObjectInterface)
 public:
     QTextImageHandler(QObject *parent = 0);
 

@@ -69,6 +69,7 @@ private slots:
 class QTextObjectInterface
 {
 public:
+    static inline const char *iid() { return "trolltech.com/Qt/QTextObjectInterface"; }
     virtual QSize intrinsicSize(const QTextFormat &format) = 0;
     virtual void drawObject(QPainter *painter, const QRect &rect, const QTextFormat &format) = 0;
 };

@@ -293,7 +293,7 @@ inline T qt_cast(const QObject *object)
 
 #define Q_DECLARE_INTERFACE(IFace) \
 template <> inline IFace *qt_cast_helper<IFace *>(const QObject *object, IFace *) \
-{ return (IFace *)(object ? object->qt_metacast(#IFace) : 0); }
+{ return (IFace *)(object ? object->qt_metacast(IFace::iid()) : 0); }
 
 #else
 
@@ -327,7 +327,7 @@ inline T qt_cast(const QObject *object)
 
 #define Q_DECLARE_INTERFACE(IFace) \
 template <> inline IFace *qt_cast<IFace *>(const QObject *object) \
-{ return (IFace *)(object ? object->qt_metacast(#IFace) : 0); }
+{ return (IFace *)(object ? object->qt_metacast(IFace::iid()) : 0); }
 
 #endif
 
