@@ -90,7 +90,7 @@ ProjectGenerator::init()
 			QDir d(dir);
 			d.setFilter(QDir::Dirs);
 			for(int i = 0; i < (int)d.count(); i++) {
-			    if(d[i] != "." && d[i] != "..")
+			    if(d[i] != "." && d[i] != "..") 
 				dirs.append(dir + d[i] + QDir::separator() + builtin_regex);
 			}
 		    }
@@ -113,6 +113,14 @@ ProjectGenerator::init()
 		if(s != -1) {
 		    dir = regex.left(s+1);
 		    regex = regex.right(regex.length() - (s+1));
+		}
+		if(Option::projfile::do_recursive) {
+		    QDir d(dir);
+		    d.setFilter(QDir::Dirs);
+		    for(int i = 0; i < (int)d.count(); i++) {
+			if(d[i] != "." && d[i] != "..") 
+			    dirs.append(dir + d[i] + QDir::separator() + regex);
+		    }
 		}
 		QDir d(dir, regex);
 		for(int i = 0; i < (int)d.count(); i++) {
