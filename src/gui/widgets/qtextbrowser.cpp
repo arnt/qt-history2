@@ -13,8 +13,11 @@
 
 #include "qtextbrowser.h"
 #include "qtextedit_p.h"
+
 #include <qstack.h>
 #include <qapplication.h>
+#include <qevent.h>
+#include <qdesktopwidget.h>
 #include <qdebug.h>
 #include <qabstracttextdocumentlayout.h>
 #include <qurl.h>
