@@ -228,14 +228,15 @@ void QVariantPrivate::clear()
 	case QVariant::List:
 	    delete (QValueList<QVariant>*)value.ptr;
 	    break;
+	case QVariant::SizePolicy:
+	    delete (QSizePolicy*)value.ptr;
+	    break;
 	case QVariant::Invalid:
 	case QVariant::Int:
 	case QVariant::UInt:
 	case QVariant::Bool:
 	case QVariant::Double:
 	    break;
-	default:
-	    ASSERT(0);
 	}
 
     typ = QVariant::Invalid;
@@ -876,8 +877,10 @@ void QVariant::load( QDataStream& s )
 	case Double:
 	    { double x; s >> x; d->value.d = x; }
 	    break;
-	default:
-	    ASSERT(0);
+	case SizePolicy:
+	    { int h,v; Q_INT8 hfw; s >> h >> v >> hfw; 
+	    d->value.ptr = new QSizePolicy( (QSizePolicy::SizeType)h, (QSizePolicy::SizeType)v, (bool) hfw); }
+	    break;
 	}
 
     d->typ = t;
@@ -965,8 +968,10 @@ void QVariant::save( QDataStream& s ) const
 	case Double:
 	    s << d->value.d;
 	    break;
+	case SizePolicy:
+	    { QSizePolicy p = toSizePolicy(); s << (int) p.horData() << (int) p.verData() << (Q_INT8) p.hasHeightForWidth(); }
+	    break;
 	case Invalid: // fall through
-	default:
 	    s << QString();
 	    break;
 	}
@@ -1872,8 +1877,7 @@ bool QVariant::operator==( const QVariant &v ) const
     case SizePolicy:
 	return v.toSizePolicy() == toSizePolicy();
     case Invalid: // fall through
-    default:
-	return FALSE;
+	break;
     }
     return FALSE;
 }
