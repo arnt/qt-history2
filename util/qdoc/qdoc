@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#194 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#195 $
 #
 # this is a massive hack, written very quickly
 #
@@ -289,7 +289,7 @@ sub preprocessdocs {
 
     foreach $url ( sort keys %type ) {
 	$doc{$url} =~ s@\\define\s+(\S+)@
-	    $anchor{$1} = $url unless defined($anchor{$1});
+	    #$anchor{$1} = $url unless defined($anchor{$1});
 	    sprintf("");
 	@egsx;
     }
@@ -327,6 +327,7 @@ sub handlecodeincludes {
 	die "unable to find $arg, stopped" if ( !defined( $basefile ) );
 	open(IF, "expand < $basefile |") ||
 	    die "cannot read $basefile";
+	print "including code from $basefile\n";
 	$slash = $/;
 	undef $/;
 	$arg = <IF>;
@@ -886,7 +887,7 @@ sub getfile {
 	$dates{$1} = $2 if (/\$Id\:\s+(.*?),v\s+[0-9\.]+\s+(\S+)\s/);
 	if ( /^#if/ ) {
 	    push @defines, $ifdef;
-	    $ifdef = 1 if ( !/_H_?$/ && !/\bUSE_TEMPLATECLASS\)?$/ );
+	    $ifdef = 1 if ( !/_H_?$/ );
 	}
 	if ( !$ifdef ) {
 	    if ( defined( $preprocess ) ) {
