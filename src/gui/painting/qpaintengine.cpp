@@ -16,6 +16,8 @@
 #include "qpaintengine_p.h"
 #include "qpainter_p.h"
 
+#include <private/qfontengine_p.h>
+
 #define d d_ptr()
 #define q q_ptr()
 
@@ -102,8 +104,58 @@ void QPaintEngine::updateInternal(QPainterState *s, bool updateGC)
     state = s;
 }
 
-void QPaintEngine::drawTextItem(const QPoint &, const QTextItem &, int)
+void QPaintEngine::drawTextItem(const QPoint &p, const QTextItem &ti, int textFlags)
 {
+    bool useFontEngine = true;
+    if (hasCapability(QPaintEngine::UsesFontEngine)) {
+        if (state->txop > QPainter::TxTranslate) {
+            useFontEngine = false;
+            QFontEngine *fe = ti.fontEngine;
+            QFontEngine::FECaps fecaps = fe->capabilites();
+            if (state->txop == QPainter::TxRotShear) {
+                useFontEngine = (fecaps == QFontEngine::FullTransformations);
+                if (!useFontEngine
+                    && state->matrix.m11() == state->matrix.m22()
+                    && state->matrix.m12() == -state->matrix.m21())
+                    useFontEngine = (fecaps & QFontEngine::RotScale) == QFontEngine::RotScale;
+            } else if (state->txop == QPainter::TxScale) {
+                useFontEngine = (fecaps & QFontEngine::Scale);
+            }
+        }
+        if (useFontEngine) {
+            ti.fontEngine->draw(this, p.x(),  p.y(), ti, textFlags);
+        }
+    }
+
+    if (!useFontEngine) {
+        // Fallback: rasterize into a pixmap and draw the pixmap
+        QPixmap pm(ti.width, ti.ascent + ti.descent);
+        pm.fill(white);
+
+        QPainter painter;
+        painter.begin(&pm);
+        painter.setPen(black);
+        painter.drawTextItem(0, ti.ascent, ti, textFlags);
+        painter.end();
+
+        QImage img = pm;
+        if (img.depth() != 32)
+            img = img.convertDepth(32);
+        img.setAlphaBuffer(true);
+        int i = 0;
+        while (i < img.height()) {
+            uint *p = (uint *) img.scanLine(i);
+            uint *end = p + img.width();
+            while (p < end) {
+                *p = ((0xff - qGray(*p)) << 24) | (state->pen.color().rgb() & 0x00ffffff);
+                ++p;
+            }
+            ++i;
+        }
+
+        pm = img;
+        state->painter->drawPixmap(p.x(), p.y() - ti.ascent, pm);
+    }
 }
 
 void QPaintEngine::drawRects(const QList<QRect> &)

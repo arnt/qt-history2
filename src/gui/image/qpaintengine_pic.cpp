@@ -35,13 +35,13 @@ public:
 #define pic_d d->pic_d
 
 QPicturePaintEngine::QPicturePaintEngine()
-    : QPaintEngine(*(new QPicturePaintEnginePrivate), CanRenderText)
+    : QPaintEngine(*(new QPicturePaintEnginePrivate))
 {
     d->pt = 0;
 }
 
 QPicturePaintEngine::QPicturePaintEngine(QPaintEnginePrivate &dptr)
-    : QPaintEngine(dptr, CanRenderText)
+    : QPaintEngine(dptr)
 {
     d->pt = 0;
 }

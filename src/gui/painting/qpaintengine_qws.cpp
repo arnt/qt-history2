@@ -588,10 +588,6 @@ void QWSPaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, cons
     qDebug("QWSPaintEngine::drawTiledPixmap");
 }
 
-void QWSPaintEngine::drawTextItem(const QPoint &p, const QTextItem &ti, int textflags){
-    ti.fontEngine->draw(this, p.x(),  p.y(), ti, textflags);
-}
-
 Qt::HANDLE QWSPaintEngine::handle() const{
     qDebug("QWSPaintEngine::handle");
     return 0;

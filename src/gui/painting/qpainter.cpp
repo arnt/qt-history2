@@ -2278,61 +2278,7 @@ void QPainter::drawTextItem(const QPoint &p, const QTextItem &ti, int textFlags)
     if (!isActive())
         return;
     d->engine->updateState(d->state);
-    if (d->engine->hasCapability(QPaintEngine::CanRenderText)) {
-        d->engine->drawTextItem(p, ti, textFlags);
-        return;
-    }
-
-    if (d->engine->hasCapability(QPaintEngine::UsesFontEngine)) {
-        bool useFontEngine = true;
-        if (d->state->txop > TxTranslate) {
-            useFontEngine = false;
-            QFontEngine *fe = ti.fontEngine;
-            QFontEngine::FECaps fecaps = fe->capabilites();
-            if (d->state->txop == TxRotShear) {
-                useFontEngine = (fecaps == QFontEngine::FullTransformations);
-                if (!useFontEngine
-                    && d->state->matrix.m11() == d->state->matrix.m22()
-                    && d->state->matrix.m12() == -d->state->matrix.m21())
-                    useFontEngine = (fecaps & QFontEngine::RotScale) == QFontEngine::RotScale;
-            } else if (d->state->txop == TxScale) {
-                useFontEngine = (fecaps & QFontEngine::Scale);
-            }
-        }
-        if (useFontEngine) {
-            ti.fontEngine->draw(d->engine, p.x(),  p.y(), ti, textFlags);
-            return;
-        }
-    }
-
-    // Fallback: rasterize into a pixmap and draw the pixmap
-
-    QPixmap pm(ti.width, ti.ascent + ti.descent);
-    pm.fill(white);
-
-    QPainter painter;
-    painter.begin(&pm);
-    painter.setPen(black);
-    painter.drawTextItem(0, ti.ascent, ti, textFlags);
-    painter.end();
-
-    QImage img = pm;
-    if (img.depth() != 32)
-        img = img.convertDepth(32);
-    img.setAlphaBuffer(true);
-    int i = 0;
-    while (i < img.height()) {
-        uint *p = (uint *) img.scanLine(i);
-        uint *end = p + img.width();
-        while (p < end) {
-            *p = ((0xff - qGray(*p)) << 24) | (pen().color().rgb() & 0x00ffffff);
-            ++p;
-        }
-        ++i;
-    }
-
-    pm = img;
-    drawPixmap(p.x(), p.y() - ti.ascent, pm);
+    d->engine->drawTextItem(p, ti, textFlags);
 }
 
 /*!

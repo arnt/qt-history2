@@ -94,6 +94,8 @@ public:
         nocolBrush(false),
         pixmapBrush(false),
         usesWidgetDC(false),
+        antialiased(false),
+        forceGdi(false),
         rasterOp(Qt::CopyROP),
         pStyle(Qt::SolidLine),
         pWidth(0),
@@ -120,6 +122,9 @@ public:
     uint pixmapBrush:1;
     uint usesWidgetDC:1;
 
+    uint antialiased:1;
+    uint forceGdi:1; // Used in drawTextItem to block GDI+
+
     Qt::RasterOp rasterOp;
     Qt::PenStyle pStyle;
     int pWidth;
@@ -128,9 +133,42 @@ public:
 
     uint fontFlags;
 
-    bool usesGdiplus() { return gdiplusInUse && gdiplusEngine; }
+    /*!
+     Switches the paint engine into GDI+ mode
+    */
     void beginGdiplus();
+
+    /*!
+      Switches the paint engine back from GDI+ mode.
+    */
     void endGdiplus();
+
+    /*!
+      Returns true if GDI+ is currently in use
+    */
+    inline bool usesGdiplus() { return gdiplusInUse && gdiplusEngine; }
+
+    /*!
+      Returns true if the engine has any property set that requires it to
+      use GDI+ for rendering
+    */
+    inline bool requiresGdiplus() { return !forceGdi && antialiased; }
+
+    /*!
+      Convenience function for checking if the engine should switch to/from
+      GDI+. Returns true if GDI+ is in use after the checking is done.
+    */
+    inline bool tryGdiplus() {
+        if (requiresGdiplus()) {
+            if (!usesGdiplus())
+                beginGdiplus();
+        } else {
+            if (usesGdiplus())
+                endGdiplus();
+        }
+        return usesGdiplus();
+    }
+
     uint gdiplusInUse : 1;
     QGdiplusPaintEngine *gdiplusEngine;
 };
