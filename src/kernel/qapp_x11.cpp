@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#76 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#77 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -32,7 +32,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#76 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#77 $";
 #endif
 
 
@@ -115,6 +115,7 @@ public:
 
 #if defined(_OS_SUN_)
 #define SIG_HANDLER SIG_PF
+extern "C" int gettimeofday( struct timeval * );
 #else
 #define SIG_HANDLER __sighandler_t
 #endif
@@ -242,7 +243,11 @@ void qt_init( int *argcptr, char **argv )
     QFont::initialize();
     QCursor::initialize();
     QPainter::initialize();
+#if defined(_OS_SUN_)
+    gettimeofday( &watchtime );
+#else
     gettimeofday( &watchtime, 0 );
+#endif
 
     if ( appFont ) {				// set application font
 	QFont font;
@@ -251,14 +256,22 @@ void qt_init( int *argcptr, char **argv )
 	QApplication::setFont( font );
     }
     if ( appBGCol || appFGCol ) {		// set application colors
-	QColor bg = appBGCol ? QColor(appBGCol) : lightGray;
-	QColor fg = appFGCol ? QColor(appFGCol) : black;
+	QColor bg;
+	QColor fg;
+	if ( appBGCol )
+	    bg = QColor(appBGCol);
+	else
+	    bg = lightGray;
+	if ( appFGCol )
+	    fg = QColor(appFGCol);
+	else
+	    fg = black;
 	QColorGroup cg( fg, bg, bg.light(), bg.dark(), bg.dark(150), fg,
 			white );
 	QPalette pal( cg, cg, cg );
 	QApplication::setPalette( pal );
     }
-    (void) setlocale(LC_ALL, "ISO-8859-1"); 	// ### move to qapp.cpp?
+    setlocale( LC_ALL, "ISO-8859-1" );		// use correct char set mapping
 }
 
 
@@ -951,15 +964,15 @@ static bool qt_try_modal( QWidget *widget, XEvent *event )
     if ( widget->testFlag(WType_Modal) )	// widget is modal
 	modal = widget;
     else {					// widget is not modal
-	while ( widget ) {			// find overlap/popup parent
-	    if ( widget->testFlag(WType_Popup) )// popups are ok
-		return TRUE;
+	while ( widget->parentWidget() ) {	// find overlapped parent
 	    if ( widget->testFlag(WType_Overlap) )
 		break;
 	    widget = widget->parentWidget();
 	}
-	if ( widget && widget->testFlag(WType_Modal) )
-	    modal = widget;			// overlapped modal parent
+	if ( widget->testFlag(WType_Popup) )	// popups are ok
+	    return TRUE;
+	if ( widget->testFlag(WType_Modal) )	// is it modal?
+	    modal = widget;
     }
 
     ASSERT( modal_stack && modal_stack->getFirst() );
@@ -1004,8 +1017,8 @@ void qt_open_popup( QWidget *popup )		// add popup widget
 		       GrabModeSync, GrabModeSync, CurrentTime );
 	XAllowEvents( popup->display(), SyncKeyboard, CurrentTime );
 	XGrabPointer( popup->display(), popup->id(), TRUE,
-		      ButtonPressMask | ButtonReleaseMask | ButtonMotionMask |
-		      EnterWindowMask | LeaveWindowMask,
+		      (uint)(ButtonPressMask | ButtonReleaseMask |
+		      ButtonMotionMask | EnterWindowMask | LeaveWindowMask),
 		      GrabModeSync, GrabModeAsync,
 		      None, None, CurrentTime );
 	XAllowEvents( popup->display(), SyncPointer, CurrentTime );
@@ -1165,8 +1178,8 @@ static void insertTimer( const TimerInfo *ti )	// insert timer info into list
 
 static inline void getTime( timeval &t )	// get time of day
 {
-    gettimeofday( &t, 0 );
 #if defined(_OS_SUN_)
+    gettimeofday( &t );
     while ( t.tv_usec >= 1000000 ) {		// correct if NTP daemon bug
 	t.tv_usec -= 1000000;
 	t.tv_sec++;
@@ -1181,6 +1194,8 @@ static inline void getTime( timeval &t )	// get time of day
 	    break;
 	}
     }
+#else
+    gettimeofday( &t, 0 );
 #endif
 }
 
@@ -1445,9 +1460,9 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	    if ( type != Event_MouseButtonRelease && state != 0 ) {
 		manualGrab = TRUE;		// need to manually grab
 		XGrabPointer( display(), mouseActWindow, FALSE,
-			      ButtonPressMask | ButtonReleaseMask |
+			      (uint)(ButtonPressMask | ButtonReleaseMask |
 			      ButtonMotionMask |
-			      EnterWindowMask | LeaveWindowMask,
+			      EnterWindowMask | LeaveWindowMask),
 			      GrabModeAsync, GrabModeAsync,
 			      None, None, CurrentTime );
 	    }
@@ -1524,7 +1539,7 @@ bool QETWidget::translateKeyEvent( const XEvent *event )
 {
     int	   type;
     int	   code = -1;
-    char   ascii[16]; // 16 for no real reason :)
+    char   ascii[16];
     int	   count;
     int	   state;
     KeySym key;
@@ -1546,7 +1561,7 @@ bool QETWidget::translateKeyEvent( const XEvent *event )
 	code = Key_0 + ((int)key - XK_KP_0);	// assumes contiguous codes!
     else {
 	int i = 0;				// any other keys
-	while ( KeyTbl[i] && code<0 ) {
+	while ( KeyTbl[i] && code == -1 ) {
 	    if ( key == KeyTbl[i] )
 		code = KeyTbl[i+1];
 	    else
@@ -1557,15 +1572,15 @@ bool QETWidget::translateKeyEvent( const XEvent *event )
 	    ascii[0] = 0;
 	}
     }
-#if 0 //defined(DEBUG)
-    if ( code < 0 ) {				// cannot translate keysym
+#if 0 // defined(DEBUG)
+    if ( code == -1 ) {				// cannot translate keysym
 	debug( "translateKey: No translation for X keysym %s (0x%x)",
 	       XKeysymToString(XLookupKeysym(&((XEvent*)event)->xkey,0)),
 	       key );
 	return FALSE;
     }
 #endif
-#if defined(DEBUG)
+#if 0 // defined(DEBUG)
     if ( count > 1 ) {
 	ascii[15] = '\0'; // ### need to support and test this
 	debug( "translateKey: Multibyte translation disabled (%d, %s)",

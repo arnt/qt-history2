@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcur_x11.cpp#15 $
+** $Id: //depot/qt/main/src/kernel/qcur_x11.cpp#16 $
 **
 ** Implementation of QCursor class for X11
 **
@@ -9,30 +9,6 @@
 ** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
-
-/*! \class QCursor qcursor.h
-
-  \brief This class provides a mouse cursor with arbitrary shape and color.
-
-  The QCursor class represents the window system's mouse curor.  There
-  are a number of <a name=cursors>predefined cursor shapes</a>:
-  <dl compact>
-  <dt> arrowCursor <dd> standard arrow cursor
-  <dt> upArrowCursor <dd> upwards arrow
-  <dt> crossCursor <dd> crosshair
-  <dt> hourGlassCursor <dd> hourglass/watch
-  <dt> ibeamCursor <dd> ibeam/text entry
-  <dt> sizeVerCursor <dd> vertical resize
-  <dt> sizeHorCursor <dd> horizontal resize
-  <dt> sizeBDiagCursor <dd> diagonal resize (/)
-  <dt> sizeFDiagCursor <dd> diagonal resize (\)
-  <dt> sizeAllCursor <dd> all directions resize
-  </dl>
-
-  It is also possible to define custom shapes.
-
-  Members are provided to \link setShape() change shape \endlink,
-  \link pos() get the cursor position \endlink and so on. */
 
 #include "qcursor.h"
 #include "qapp.h"
@@ -46,8 +22,34 @@
 #include <X11/cursorfont.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qcur_x11.cpp#15 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qcur_x11.cpp#16 $";
 #endif
+
+
+/*!
+\class QCursor qcursor.h
+\brief This class provides a mouse cursor with arbitrary shape and color.
+
+The QCursor class represents the window system's mouse curor.  There
+are a number of <a name=cursors>predefined cursor shapes</a>:
+<dl compact>
+<dt> arrowCursor <dd> standard arrow cursor
+<dt> upArrowCursor <dd> upwards arrow
+<dt> crossCursor <dd> crosshair
+<dt> hourGlassCursor <dd> hourglass/watch
+<dt> ibeamCursor <dd> ibeam/text entry
+<dt> sizeVerCursor <dd> vertical resize
+<dt> sizeHorCursor <dd> horizontal resize
+<dt> sizeBDiagCursor <dd> diagonal resize (/)
+<dt> sizeFDiagCursor <dd> diagonal resize (\)
+<dt> sizeAllCursor <dd> all directions resize
+</dl>
+
+It is also possible to define custom shapes.
+
+Members are provided to \link setShape() change shape \endlink,
+\link pos() get the cursor position \endlink and so on.
+*/
 
 
 // --------------------------------------------------------------------------
@@ -171,7 +173,7 @@ QCursor::QCursor()				// default arrow cursor
 }
 
 /*!
-Constructor a cursor with the specified \e shape.
+Constructs a cursor with the specified \e shape.
 */
 
 QCursor::QCursor( int shape )			// cursor with shape
@@ -218,7 +220,8 @@ QCursor::QCursor( const QCursor &c )
 
 /*!
 Dereferences the cursor and destroys the cursor data if it was the last
-reference. */
+reference.
+*/
 
 QCursor::~QCursor()
 {
@@ -251,16 +254,20 @@ QCursor QCursor::copy() const
     return c;
 }
 
-/*! This function returns the cursor shape (one of the <a
-  href=#cursors>global cursors</a> or one of the custom cursors. */
+/*!
+This function returns the cursor shape (one of the
+<a href=#cursors>global cursors</a> or one of the custom cursors.
+*/
 
 int QCursor::shape() const			// get cursor shape
 {
     return data->cshape;
 }
 
-/*! This function sets the cursor shape.  If the argument isn't a
-  valid shape number, an arrow cursor will be substituted. */
+/*!
+This function sets the cursor shape.  If the argument isn't a
+valid shape number, an arrow cursor will be substituted.
+*/
 
 bool QCursor::setShape( int shape )		// set cursor shape
 {

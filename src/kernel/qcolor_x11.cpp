@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#21 $
+** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#22 $
 **
 ** Implementation of QColor class for X11
 **
@@ -17,7 +17,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#21 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#22 $";
 #endif
 
 
@@ -98,9 +98,9 @@ void QColor::initialize()			// called from startup routines
 
     if ( g_truecolor ) {			// truecolor
 	dictsize    = 1;			// will not need color dict
-	red_mask    = g_vis->red_mask;
-	green_mask  = g_vis->green_mask;
-	blue_mask   = g_vis->blue_mask;
+	red_mask    = (uint)g_vis->red_mask;
+	green_mask  = (uint)g_vis->green_mask;
+	blue_mask   = (uint)g_vis->blue_mask;
 	red_shift   = highest_bit( red_mask )   - 7;
 	green_shift = highest_bit( green_mask ) - 7;
 	blue_shift  = highest_bit( blue_mask )  - 7;
@@ -110,10 +110,10 @@ void QColor::initialize()			// called from startup routines
 
   // Initialize global color objects
 
-    ((QColor*)(&black))->pix = BlackPixel( dpy, screen );
     ((QColor*)(&black))->rgb = QRGB( 0, 0, 0 );
+    ((QColor*)(&black))->pix = BlackPixel( dpy, screen );
+    ((QColor*)(&white))->rgb = QRGB( 255, 255, 255 );
     ((QColor*)(&white))->pix = WhitePixel( dpy, screen );
-    ((QColor*)(&white))->pix = QRGB( 255, 255, 255 );
 
 #if 0 /* 0 == allocate colors on demand */
     setLazyAlloc( FALSE );			// allocate global colors

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#33 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#34 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -25,10 +25,12 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont_x11.cpp#33 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont_x11.cpp#34 $";
 #endif
 
+
 // #define DEBUG_FONT
+
 static const int fontFields = 14;
 
 enum FontFieldNames {	Foundry,
@@ -121,9 +123,8 @@ char **getXFontNames( const char *pattern, int *count )
 
 bool smoothlyScalable ( const char *fontName )
 {
-#if 1
+    fontName = fontName; // REF!!!
     return TRUE;
-#endif
 }
 
 bool fontExists( const char *fontName )
@@ -173,17 +174,18 @@ struct QXFontData {
     QString	  name;
     QXFontStruct *f;
     bool dirty() { return f == 0; }
-    ~QXFontData() { 
+    QXFontData() {}
+   ~QXFontData() { 
 #if defined (DEBUG_FONT)
-		      debug("+++ Deleting [%s]",name.data());
+	debug("+++ Deleting [%s]",name.data());
 #endif
-		      if( f ) {
-			  XFreeFont( qt_xdisplay(), f );
+	if( f ) {
+	    XFreeFont( qt_xdisplay(), f );
 #if defined (DEBUG_FONT)
-			  debug("+++ XFreeFont [%s]",name.data());
+	    debug("+++ XFreeFont [%s]",name.data());
 #endif
-		      }
-		  }
+	}
+    }
 };
 
 
@@ -761,17 +763,23 @@ QString QFont_Private::findFont( bool *exact )
     if ( *exact && score != exactScore )
 	*exact = FALSE;
 
-    if ( score == 0 && familyName != defaultFamily() ) {
-	familyName = defaultFamily();	// Try def family for style
-	bestName   = bestFamilyMember( familyName, &score );
+    if ( score == 0 ) {
+	QString df = defaultFamily();
+	if( familyName != df ) {
+	    familyName = df;			// try def family for style
+	    bestName   = bestFamilyMember( familyName, &score );
+	}
     }
 
-    if ( score == 0 && familyName != lastResortFamily() ) {
-	familyName = lastResortFamily(); // try system default family
-	bestName   = bestFamilyMember( familyName, &score );
+    if ( score == 0 ) {
+	QString lrf = lastResortFamily();
+	if ( familyName != lrf ) {
+	    familyName = lrf;			// try system default family
+	    bestName   = bestFamilyMember( familyName, &score );
+	}
     }
 
-    if ( bestName.isNull() ) { // No remotely matching fonts found
+    if ( bestName.isNull() ) {		// no remotely matching fonts found
 	bestName = lastResortFont();
     }
     return bestName;

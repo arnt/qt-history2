@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#44 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#45 $
 **
 ** Implementation of QApplication class
 **
@@ -17,7 +17,7 @@
 #include "qpalette.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication.cpp#44 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication.cpp#45 $";
 #endif
 
 
@@ -398,7 +398,7 @@ bool QApplication::notify( QObject *receiver, QEvent *event )
 {						// send event to object
 #if defined(CHECK_NULL)
     if ( receiver == 0 )			// fatal error
-	warning( "QApplication::notify: Unexpected NULL receiver" );
+	warning( "QApplication::notify: Unexpected null receiver" );
 #endif
     return receiver->event( event );
 }
