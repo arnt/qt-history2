@@ -477,7 +477,7 @@
                 <SETTING><NAME>MWMerge_MacOS_outputName</NAME><VALUE>Merge Out</VALUE></SETTING>
                 <SETTING><NAME>MWMerge_MacOS_outputCreator</NAME><VALUE>????</VALUE></SETTING>
                 <SETTING><NAME>MWMerge_MacOS_outputType</NAME><VALUE>APPL</VALUE></SETTING>
-                <SETTING><NAME>MWMerge_MacOS_suppressWarning</NAME><VALUE>0</VALUE></SETTING>
+                <SETTING><NAME>MWMerge_MacOS_suppressWarning</NAME><VALUE>$$CODEWARRIOR_WARNING</VALUE></SETTING>
                 <SETTING><NAME>MWMerge_MacOS_copyFragments</NAME><VALUE>1</VALUE></SETTING>
                 <SETTING><NAME>MWMerge_MacOS_copyResources</NAME><VALUE>1</VALUE></SETTING>
                 <SETTING><NAME>MWMerge_MacOS_flattenResource</NAME><VALUE>0</VALUE></SETTING>
@@ -616,14 +616,14 @@
                 <SETTING><NAME>MWLinker_PPC_termname</NAME><VALUE></VALUE></SETTING>
 
                 <!-- Settings for "PPC Mach-O Linker" panel -->
-                <SETTING><NAME>MWLinker_MachO_exports</NAME><VALUE>None</VALUE></SETTING>
-                <SETTING><NAME>MWLinker_MachO_mainname</NAME><VALUE>start</VALUE></SETTING>
+                <SETTING><NAME>MWLinker_MachO_exports</NAME><VALUE>All</VALUE></SETTING>
+                <SETTING><NAME>MWLinker_MachO_mainname</NAME><VALUE>main</VALUE></SETTING>
                 <SETTING><NAME>MWLinker_MachO_currentversion</NAME><VALUE>0</VALUE></SETTING>
                 <SETTING><NAME>MWLinker_MachO_compatibleversion</NAME><VALUE>0</VALUE></SETTING>
                 <SETTING><NAME>MWLinker_MachO_symfullpath</NAME><VALUE>0</VALUE></SETTING>
                 <SETTING><NAME>MWLinker_MachO_supresswarnings</NAME><VALUE>0</VALUE></SETTING>
                 <SETTING><NAME>MWLinker_MachO_multisymerror</NAME><VALUE>1</VALUE></SETTING>
-                <SETTING><NAME>MWLinker_MachO_prebind</NAME><VALUE>1</VALUE></SETTING>
+                <SETTING><NAME>MWLinker_MachO_prebind</NAME><VALUE>0</VALUE></SETTING>
                 <SETTING><NAME>MWLinker_MachO_objectivecsemantics</NAME><VALUE>0</VALUE></SETTING>
                 <SETTING><NAME>MWLinker_MachO_whichfileloaded</NAME><VALUE>0</VALUE></SETTING>
                 <SETTING><NAME>MWLinker_MachO_whyfileloaded</NAME><VALUE>0</VALUE></SETTING>
@@ -696,7 +696,7 @@
                 <SETTING><NAME>MWRez_Language_script</NAME><VALUE>Roman</VALUE></SETTING>
                 <SETTING><NAME>MWRez_Language_alignment</NAME><VALUE>Align1</VALUE></SETTING>
                 <SETTING><NAME>MWRez_Language_filtermode</NAME><VALUE>FilterSkip</VALUE></SETTING>
-                <SETTING><NAME>MWRez_Language_suppresswarnings</NAME><VALUE>0</VALUE></SETTING>
+                <SETTING><NAME>MWRez_Language_suppresswarnings</NAME><VALUE>$$CODEWARRIOR_WARNING</VALUE></SETTING>
                 <SETTING><NAME>MWRez_Language_escapecontrolchars</NAME><VALUE>1</VALUE></SETTING>
                 <SETTING><NAME>MWRez_Language_prefixname</NAME><VALUE></VALUE></SETTING>
                 <SETTING><NAME>MWRez_Language_filteredtypes</NAME><VALUE>'CODE' 'DATA' 'PICT'</VALUE></SETTING>
