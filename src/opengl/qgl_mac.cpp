@@ -108,7 +108,7 @@ bool QGLContext::chooseContext( const QGLContext* shareContext )
 	shareContext = 0;
     AGLContext ctx = aglCreateContext(fmt, (AGLContext) (shareContext ? shareContext->cx : NULL));
     if((cx = (void *)ctx)) {
-#ifdef ONE_PIXEL_LOCK
+#ifdef QMAC_ONE_PIXEL_LOCK
 	if(deviceIsPixmap()) {
 	    QPixmap *pm = (QPixmap *)d->paintDevice;
 	    PixMapHandle mac_pm = GetGWorldPixMap((GWorldPtr)pm->handle());
