@@ -75,7 +75,6 @@ public:
 
     QCanvasItemList collisions(bool exact /* NO DEFAULT */ ) const;
 
-    static void setDefaultCanvas(QCanvas*);
     void setCanvas(QCanvas*);
 
     virtual void draw(QPainter&)=0;

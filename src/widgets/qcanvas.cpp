@@ -1290,13 +1290,12 @@ QCanvasItem::QCanvasItem(QCanvas* canvas) :
 }
 
 /*!
-Constructs a QCanvasItem on the
-\link QCanvasItem::setDefaultCanvas() default canvas\endlink.
+Constructs a QCanvasItem.
 
 \sa setCanvas(QCanvas*)
 */
 QCanvasItem::QCanvasItem() :
-    cnv(current_canvas),
+    cnv(0),
     myx(0),myy(0),myz(0)
 {
     ani=0;
@@ -1470,18 +1469,6 @@ void QCanvasItem::advance(int phase)
 
 This abstract method should draw the item using \a painter.
 */
-
-/*!
-  By default, items are created on the NULL canvas.
-
-  You can change the canvas used for new items with setCanvas().
-  This is only recommended for applications which use a single
-  canvas. Otherwise, you should leave this NULL.
-*/
-void QCanvasItem::setDefaultCanvas(QCanvas* c)
-{
-    current_canvas=c;
-}
 
 /*!
 Sets the QCanvas upon which the QCanvasItem is to be drawn to \a c.
@@ -1734,8 +1721,6 @@ bool qt_testCollision(const QCanvasSprite* s1, const QCanvasSprite* s2)
 
     return FALSE;
 }
-
-QCanvas* QCanvasItem::current_canvas=0;
 
 static bool collision_double_dispatch(
 			      	const QCanvasSprite* s1,
@@ -2170,7 +2155,7 @@ QCanvasPixmapArray::QCanvasPixmapArray()
 }
 
 /*!
-Construct a QCanvasPixmapArray from files.
+Constructs a QCanvasPixmapArray from files.
 
 The fc parameter sets the number of frames to be
 loaded for this image.  If \a fc is not 0, the
@@ -2187,7 +2172,7 @@ QCanvasPixmapArray::QCanvasPixmapArray(const QString& datafilenamepattern, int f
 }
 
 /*!
-Construct a QCanvasPixmapArray from QPixmaps.
+Constructs a QCanvasPixmapArray from QPixmaps.
 */
 QCanvasPixmapArray::QCanvasPixmapArray(QList<QPixmap> list, QList<QPoint> hotspots) :
     framecount(list.count()),
@@ -2645,7 +2630,7 @@ QSize QCanvasView::sizeHint() const
 */
 
 /*!
-  Construct a QCanvasPolygonalItem on \a canvas.
+  Constructs a QCanvasPolygonalItem on \a canvas.
   Derived classes should call addToChunks()
   in their constructor once numAreaPoints() and getAreaPoints() are valid.
 */
@@ -2656,8 +2641,7 @@ QCanvasPolygonalItem::QCanvasPolygonalItem(QCanvas* canvas) :
 }
 
 /*!
-  Construct a QCanvasPolygonalItem on the
-  \link QCanvasItem::setDefaultCanvas() default canvas\endlink.
+  Constructs a QCanvasPolygonalItem.
   Derived classes should call addToChunks()
   in their constructor once numAreaPoints() and getAreaPoints() are valid.
 */
@@ -2947,8 +2931,7 @@ QCanvasPolygon::QCanvasPolygon(QCanvas* canvas) :
 }
 
 /*!
-  Constructs a pointless polygon on the
-  \link QCanvasItem::setDefaultCanvas() default canvas\endlink.
+  Constructs a pointless polygon.
   You should call setPoints() before
   using it further.
 */
@@ -3054,8 +3037,7 @@ QCanvasLine::QCanvasLine(QCanvas* canvas) :
 }
 
 /*!
-  Constructs a line from (0,0) to (0,0) on the
-  \link QCanvasItem::setDefaultCanvas() default canvas\endlink.
+  Constructs a line from (0,0) to (0,0).
 
   \sa setPoints().
 */
@@ -3154,8 +3136,7 @@ QCanvasRectangle::QCanvasRectangle(QCanvas* canvas) :
 }
 
 /*!
-  Constructs a rectangle (0,0,32,32) on the
-  \link QCanvasItem::setDefaultCanvas() default canvas\endlink.
+  Constructs a rectangle (0,0,32,32).
 */
 QCanvasRectangle::QCanvasRectangle() :
     w(32), h(32)
@@ -3175,8 +3156,7 @@ QCanvasRectangle::QCanvasRectangle(const QRect& r, QCanvas* canvas) :
 }
 
 /*!
-  Constructs a rectangle positioned and sized by \a r on the
-  \link QCanvasItem::setDefaultCanvas() default canvas\endlink.
+  Constructs a rectangle positioned and sized by \a r.
 */
 QCanvasRectangle::QCanvasRectangle(const QRect& r) :
     w(r.width()), h(r.height())
@@ -3200,8 +3180,7 @@ QCanvasRectangle::QCanvasRectangle(int x, int y, int width, int height,
 
 /*!
   Constructs a rectangle with position \a x, \a y
-  and size \a width by \a height, on the
-  \link QCanvasItem::setDefaultCanvas() default canvas\endlink.
+  and size \a width by \a height.
 */
 QCanvasRectangle::QCanvasRectangle(int x, int y, int width, int height) :
     w(width), h(height)
@@ -3301,8 +3280,7 @@ QCanvasEllipse::QCanvasEllipse(QCanvas* canvas) :
 }
 
 /*!
-  Constructs a 32x32 ellipse, centered at (0,0) on the
-  \link QCanvasItem::setDefaultCanvas() default canvas\endlink.
+  Constructs a 32x32 ellipse, centered at (0,0).
 */
 QCanvasEllipse::QCanvasEllipse() :
     w(32), h(32),
@@ -3441,7 +3419,7 @@ void QCanvasEllipse::drawShape(QPainter & p)
 */
 
 /*!
-  Construct a QCanvasText with the text "<text>", on \a canvas.
+  Constructs a QCanvasText with the text "<text>", on \a canvas.
 */
 QCanvasText::QCanvasText(QCanvas* canvas) :
     QCanvasItem(canvas),
@@ -3451,8 +3429,7 @@ QCanvasText::QCanvasText(QCanvas* canvas) :
 }
 
 /*!
-  Construct a QCanvasText with the text "<text>", on the
-  \link QCanvasItem::setDefaultCanvas() default canvas\endlink.
+  Constructs a QCanvasText with the text "<text>".
 */
 QCanvasText::QCanvasText() :
     text("<text>"), flags(0)
@@ -3461,7 +3438,7 @@ QCanvasText::QCanvasText() :
 }
 
 /*!
-  Construct a QCanvasText with the text \a t, on \a canvas.
+  Constructs a QCanvasText with the text \a t, on \a canvas.
 
   The text should not contain newlines.
 */
@@ -3473,8 +3450,7 @@ QCanvasText::QCanvasText(const QString& t, QCanvas* canvas) :
 }
 
 /*!
-  Construct a QCanvasText with the text \a t, on the
-  \link QCanvasItem::setDefaultCanvas() default canvas\endlink.
+  Constructs a QCanvasText with the text \a t.
 
   The text should not contain newlines.
 */
@@ -3485,7 +3461,7 @@ QCanvasText::QCanvasText(const QString& t) :
 }
 
 /*!
-  Construct a QCanvasText with the text \a t and font \a f, on \a canvas.
+  Constructs a QCanvasText with the text \a t and font \a f, on \a canvas.
 
   The text should not contain newlines.
 */
@@ -3498,8 +3474,7 @@ QCanvasText::QCanvasText(const QString& t, QFont f, QCanvas* canvas) :
 }
 
 /*!
-  Construct a QCanvasText with the text \a t and font \a f, on the
-  \link QCanvasItem::setDefaultCanvas() default canvas\endlink.
+  Constructs a QCanvasText with the text \a t and font \a f.
 
   The text should not contain newlines.
 */
@@ -3764,9 +3739,7 @@ QCanvasSprite::QCanvasSprite(QCanvasPixmapArray* a, QCanvas* canvas) :
 /*!
 Creates a QCanvasSprite which uses images from the given array.
 
-The sprite in initially at (0,0) on the
-\link QCanvasItem::setDefaultCanvas() default canvas\endlink,
-using frame 0.
+The sprite in initially at (0,0), using frame 0.
 */
 QCanvasSprite::QCanvasSprite(QCanvasPixmapArray* a) :
     frm(0),
@@ -3794,9 +3767,7 @@ QCanvasSprite::QCanvasSprite(QCanvas* canvas) :
 /*!
 Create a QCanvasSprite without defining its image array.
 
-The sprite in initially at (0,0) on the
-\link QCanvasItem::setDefaultCanvas() default canvas\endlink,
-using frame 0.
+The sprite in initially at (0,0) on, using frame 0.
 
 Note that you must call setSequence(QCanvasPixmapArray*) before
 doing anything else with the sprite.
