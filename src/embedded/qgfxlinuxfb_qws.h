@@ -80,6 +80,8 @@ public:
 
 protected:
 
+    void deleteEntry(uchar *);
+
     bool canaccel;
     int dataoffset;
 

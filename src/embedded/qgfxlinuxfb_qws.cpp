@@ -637,11 +637,31 @@ uchar * QLinuxFbScreen::cache(int amount, int optim)
 }
 
 /*!
-\fn void QLinuxFbScreen::uncache(uchar * c)
+  Delete a block of memory allocated from graphics card memory.
+
+  This function will first sync the graphics card to ensure the
+  memory isn't still being used by a command in the graphics
+  card fifo queue.
+
+  You can speed up a driver by overriding uncache to avoid
+  syncing, however it will then be up to the driver to ensure
+  the memory at \a c is no longer being used.  For example the
+  driver might delay deleting the memory until it detects that
+  all commands dealing with the memory are no longer in the
+  queue.
+
+  \sa deleteEntry() sync()
+ */
+void QLinuxFbScreen::uncache(uchar * c)
+{
+    sync();
+    deleteEntry(c);
+}
+
+/*!
 Delete a block of memory \a c allocated from graphics card memory.
 */
-
-void QLinuxFbScreen::uncache(uchar * c)
+void QLinuxFbScreen::deleteEntry(uchar * c)
 {
     qt_fbdpy->grab();
     unsigned long pos=(unsigned long)c;
