@@ -17,16 +17,17 @@
 #include <qlistview.h>
 
 class QListWidget;
+class QListModel;
 
 class Q_GUI_EXPORT QListWidgetItem
 {
-    friend class QListWidget;
+    friend class QListModel;
 public:
     QListWidgetItem(QListWidget *view = 0);
     virtual ~QListWidgetItem();
 
-    void openPersistentEditor();
-    void closePersistentEditor();
+//    void openPersistentEditor();
+//    void closePersistentEditor();
 
     inline QAbstractItemModel::ItemFlags flags() const { return itemFlags; }
     inline void setFlags(QAbstractItemModel::ItemFlags flags) { itemFlags = flags; }
@@ -89,8 +90,8 @@ protected:
     };
 
     QVector<Data> values;
-    QListWidget *view;
     QAbstractItemModel::ItemFlags itemFlags;
+    QListModel *model;
 };
 
 class QListWidgetPrivate;
@@ -120,8 +121,8 @@ public:
 protected:
     void removeItem(QListWidgetItem *item);
     void setModel(QAbstractItemModel *model);
-    void openPersistentEditor(QListWidgetItem *item);
-    void closePersistentEditor(QListWidgetItem *item);
+//    void openPersistentEditor(QListWidgetItem *item);
+//    void closePersistentEditor(QListWidgetItem *item);
 };
 
 #endif

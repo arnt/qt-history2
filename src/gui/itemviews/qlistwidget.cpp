@@ -20,6 +20,7 @@ class QListModel : public QAbstractListModel
 {
 public:
     QListModel(QListWidget *parent = 0);
+    ~QListModel();
 
     QListWidgetItem *at(int row) const;
     void insert(int row, QListWidgetItem *item);
@@ -52,6 +53,16 @@ QListModel::QListModel(QListWidget *parent)
 {
 }
 
+QListModel::~QListModel()
+{
+    for (int i = 0; i < lst.count(); ++i) {
+        if (lst.at(i)) {
+            lst.at(i)->model = 0;
+            delete lst.at(i);
+        }
+    }
+}
+
 QListWidgetItem *QListModel::at(int row) const
 {
     if (row >= 0 && row < lst.count())
@@ -61,6 +72,8 @@ QListWidgetItem *QListModel::at(int row) const
 
 void QListModel::append(QListWidgetItem *item)
 {
+    Q_ASSERT(item);
+    item->model = this;
     lst.append(item);
     int row = lst.count() - 1;
     emit rowsInserted(QModelIndex::Null, row, row);
@@ -69,12 +82,16 @@ void QListModel::append(QListWidgetItem *item)
 void QListModel::remove(QListWidgetItem *item)
 {
     int row = lst.indexOf(item);
-    if (row != -1)
+    if (row != -1) {
+        lst.at(row)->model = 0;
         lst.removeAt(row);
+    }
 }
 
 void QListModel::insert(int row, QListWidgetItem *item)
 {
+    Q_ASSERT(item);
+    item->model = this;
     if (row >= 0 && row <= lst.count()) {
         lst.insert(row, item);
         emit rowsInserted(QModelIndex::Null, row, row);
@@ -85,6 +102,7 @@ QListWidgetItem *QListModel::take(int row)
 {
     if (row >= 0 && row <= lst.count()) {
         emit rowsRemoved(QModelIndex::Null, row, row);
+        lst.at(row)->model = 0;
         return lst.takeAt(row);
     }
     return 0;
@@ -188,14 +206,15 @@ void QListModel::sort(int column, const QModelIndex &parent, Qt::SortOrder order
 */
 
 QListWidgetItem::QListWidgetItem(QListWidget *view)
-    : view(view),
-      itemFlags(QAbstractItemModel::ItemIsEditable
+    : itemFlags(QAbstractItemModel::ItemIsEditable
                 |QAbstractItemModel::ItemIsSelectable
                 |QAbstractItemModel::ItemIsCheckable
-                |QAbstractItemModel::ItemIsEnabled)
+                |QAbstractItemModel::ItemIsEnabled),
+      model(0)
 {
-    if (view)
-        view->appendItem(this);
+    model = ::qt_cast<QListModel*>(view->model());
+    if (model)
+        model->append(this);
 }
 
 /*!
@@ -204,13 +223,13 @@ QListWidgetItem::QListWidgetItem(QListWidget *view)
 
 QListWidgetItem::~QListWidgetItem()
 {
-    if (view)
-        view->removeItem(this);
+    if (model)
+        model->remove(this);
 }
-
+/*
 void QListWidgetItem::openPersistentEditor()
 {
-    if (view)
+    if (model)
         view->openPersistentEditor(this);
 }
 
@@ -219,7 +238,7 @@ void QListWidgetItem::closePersistentEditor()
     if (view)
         view->closePersistentEditor(this);
 }
-
+*/
 bool QListWidgetItem::operator<(const QListWidgetItem &other) const
 {
     return text() < other.text();
@@ -513,8 +532,6 @@ int QListWidget::row(const QListWidgetItem *item) const
 
 void QListWidget::insertItem(int row, QListWidgetItem *item)
 {
-    Q_ASSERT(item);
-    item->view = this;
     d->model()->insert(row, item);
 }
 
@@ -527,11 +544,12 @@ void QListWidget::insertItem(int row, QListWidgetItem *item)
 
 void QListWidget::insertItems(const QStringList &labels, int row)
 {
-    int insertRow = (row > -1 && row <= count()) ? row : count();
-    for (int i=0; i<labels.count(); ++i) {
-        QListWidgetItem *item = new QListWidgetItem(this);
+    QListModel *model = d->model();
+    int r = (row > -1 && row <= count()) ? row : count();
+    for (int i = 0; i < labels.count(); ++i) {
+        QListWidgetItem *item = new QListWidgetItem();
         item->setText(labels.at(i));
-        d->model()->insert(insertRow + i, item);
+        model->insert(r + i, item);
     }
 }
 
@@ -543,8 +561,6 @@ void QListWidget::insertItems(const QStringList &labels, int row)
 
 void QListWidget::appendItem(QListWidgetItem *item)
 {
-    Q_ASSERT(item);
-    item->view = this;
     d->model()->append(item);
 }
 
@@ -556,9 +572,7 @@ void QListWidget::appendItem(QListWidgetItem *item)
 
 QListWidgetItem *QListWidget::takeItem(int row)
 {
-    QListWidgetItem *item =  d->model()->take(row);
-    item->view = 0;
-    return item;
+    return d->model()->take(row);
 }
 
 /*!
@@ -593,7 +607,7 @@ void QListWidget::setModel(QAbstractItemModel *model)
 {
     QListView::setModel(model);
 }
-
+/*
 void QListWidget::openPersistentEditor(QListWidgetItem *item)
 {
     Q_ASSERT(item);
@@ -607,3 +621,4 @@ void QListWidget::closePersistentEditor(QListWidgetItem *item)
     QModelIndex index = d->model()->index(item);
     QAbstractItemView::closePersistentEditor(index);
 }
+*/
