@@ -201,8 +201,12 @@ bool QSQLiteResultPrivate::fetchNext()
 		}
 		rowCache[0] = values;
 	    } else {
-		if (rowCacheEnd == rowCache.size())
-		    rowCache.resize(rowCache.size() + initial_cache_size);
+		if (rowCacheEnd == rowCache.size()) {
+		    if (rowCache.isEmpty())
+			rowCache.resize(initial_cache_size);
+		    else
+			rowCache.resize(rowCache.size() << 1);
+		}
 		rowCache[rowCacheEnd++] = values;
 	    }
 	    return TRUE;
