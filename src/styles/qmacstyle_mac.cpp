@@ -325,17 +325,6 @@ void QMacStyle::polish(QWidget* w)
     } else if(w->inherits("QPopupMenu")) {
 #ifdef Q_WS_MAC
 	QMacSavedPortInfo::setAlphaTransparancy(w, 0.9);
-	if(!w->ownPalette()) {
-	    RGBColor c;
-	    QPalette pal = w->palette();
-	    GetThemeTextColor(kThemeTextColorMenuItemActive, 32, true, &c);
-	    pal.setBrush(QColorGroup::ButtonText, QColor(c.red / 256, c.green / 256, c.blue / 256));
-	    GetThemeTextColor(kThemeTextColorMenuItemSelected, 32, true, &c);
-	    pal.setBrush(QColorGroup::HighlightedText, QColor(c.red / 256, c.green / 256, c.blue / 256));
-	    GetThemeTextColor(kThemeTextColorMenuItemDisabled, 32, true, &c);
-	    pal.setBrush(QColorGroup::Text, QColor(c.red / 256, c.green / 256, c.blue / 256));
-	    w->setPalette(pal);
-	}
 #endif
     } else if(w->inherits("QTitleBar")) {
 //	w->font().setPixelSize(10);
@@ -365,52 +354,66 @@ void QMacStyle::drawItem(QPainter *p, const QRect &r,
 			   const QPixmap *pixmap, const QString& text,
 			   int len, const QColor* penColor) const
 {
-#if defined(Q_WS_MACX) && 0
-    /* No accelerators drawn here! */
-    bool pass_through = TRUE;
-    if(!pixmap && !text.isEmpty()) {
-	ThemeDrawState tds = kThemeStateActive;
-	if(qAquaActive(cg)) {
-	    if(!enabled)
-		tds = kThemeStateUnavailable;
-	} else {
-	    if(enabled)
-		tds = kThemeStateInactive;
+    flags |= NoAccel;     //No accelerators drawn here!
+    int x = r.x(), y = r.y(), w = r.width(), h = r.height();
+    p->setPen(penColor ? *penColor : cg.foreground());
+    if(pixmap) {
+	QPixmap  pm(*pixmap);
+	bool clip = (flags & Qt::DontClip) == 0;
+	if(clip) {
+	    if(pm.width() < w && pm.height() < h)
+		clip = FALSE;
 	    else
-		tds = kThemeStateUnavailableInactive;
+		p->setClipRect(r);
 	}
-	int bkup = 0;
-	QString rt = text;
-	for(uint i = 0; i < rt.length(); i++) {
-	    if(rt[i] == '&' && rt[i+1] != '&')
-		bkup++;
-	    else
-		rt[i-bkup] = rt[i];
-	}
-	len = (len < 0) ? rt.length() - bkup : len - bkup;
+	if((flags & Qt::AlignVCenter) == Qt::AlignVCenter)
+	    y += h/2 - pm.height()/2;
+	else if((flags & Qt::AlignBottom) == Qt::AlignBottom)
+	    y += h - pm.height();
+	if((flags & Qt::AlignRight) == Qt::AlignRight)
+	    x += w - pm.width();
+	else if((flags & Qt::AlignHCenter) == Qt::AlignHCenter)
+	    x += w/2 - pm.width()/2;
+	else if(((flags & Qt::AlignLeft) != Qt::AlignLeft) && QApplication::reverseLayout())
+	    x += w - pm.width();
 
-	pass_through = FALSE;
-	((QMacPainter *)p)->setport();
-	((QMacPainter *)p)->setfont();
-	int x = r.x(), y = r.y(), w = r.width(), h = r.height();
-	QFontMetrics met = p->fontMetrics();
-	if(flags & AlignRight)
-	    x += w - met.width(text, len);
-	else if(flags & AlignHCenter)
-	    x += (w / 2) - (met.width(text, len) / 2);
-	if(flags & AlignBottom)
-	    y += h - met.height();
-	else if(flags & AlignVCenter)
-	    y += (h / 2) - (met.height() / 2);
-	CFStringRef str = CFStringCreateWithCharacters(NULL, (UniChar *)rt.unicode(), len);
-	DrawThemeTextBox(str, kThemeCurrentPortFont, tds, false,
-			 qt_glb_mac_rect(QRect(x, y, x+w, y+h), p), 0, 0);
-	CFRelease(str);
-    }
-    if(pass_through)
+	if(!enabled) {
+	    if(pm.mask()) {			// pixmap with a mask
+		if(!pm.selfMask()) {		// mask is not pixmap itself
+		    QPixmap pmm(*pm.mask());
+		    pmm.setMask(*((QBitmap *)&pmm));
+		    pm = pmm;
+		}
+	    } else if(pm.depth() == 1) {	// monochrome pixmap, no mask
+		pm.setMask(*((QBitmap *)&pm));
+#ifndef QT_NO_IMAGE_HEURISTIC_MASK
+	    } else {				// color pixmap, no mask
+		QString k;
+		k.sprintf("$qt-drawitem-%x", pm.serialNumber());
+		QPixmap *mask = QPixmapCache::find(k);
+		bool del=FALSE;
+		if(!mask) {
+		    mask = new QPixmap(pm.createHeuristicMask());
+		    mask->setMask(*((QBitmap*)mask));
+		    del = !QPixmapCache::insert(k, mask);
+		}
+		pm = *mask;
+		if(del) 
+		    delete mask;
 #endif
-	QWindowsStyle::drawItem(p, r, flags | NoAccel, cg,
-				 enabled, pixmap, text, len, penColor);
+	    }
+	    { //do we want the drop thingie for QMacStyle?
+		p->setPen(cg.light());
+		p->drawPixmap(x+1, y+1, pm);
+		p->setPen(cg.text());
+	    }
+	}
+	p->drawPixmap(x, y, pm);
+	if(clip)
+	    p->setClipping(FALSE);
+    } else if(!text.isNull()) {
+	p->drawText(x, y, w, h, flags, text, len);
+    }
 }
 
 /*! \reimp */

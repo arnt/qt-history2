@@ -1177,6 +1177,7 @@ void QComboBox::paintEvent( QPaintEvent * )
 {
     QPainter p( this );
     const QColorGroup & g = colorGroup();
+    p.setPen(g.text());
 
     QStyle::SFlags flags = QStyle::Style_Default;
     if (isEnabled())

@@ -50,7 +50,7 @@
 #endif // QT_H
 
 #ifdef Q_WS_MAC
-//#define QMAC_QAQUA_MODIFY_TEXT_COLOURS
+#define QMAC_QAQUA_MODIFY_TEXT_COLOURS
 #endif
 
 class QAquaFocusWidget : public QWidget

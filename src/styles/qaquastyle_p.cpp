@@ -398,16 +398,28 @@ void qt_mac_polish_font(QWidget *w, QAquaWidgetSize size)
 			     (bool)(f_style & ::italic)));
 	}
     }
-#ifdef QMAC_QAQUA_MODIFY_TEXT_COLOURS
+#if defined(QMAC_QAQUA_MODIFY_TEXT_COLOURS)
     if( !w->ownPalette() ) {
-	ThemeBrush active = kThemeTextColorDialogActive, 
-		 inactive = kThemeTextColorDialogInactive;
+	ThemeBrush active = kThemeTextColorDialogActive, inactive = kThemeTextColorDialogInactive;
 	bool set_colour = TRUE;
-	if(w->inherits("QButton")) {
+	if(w->inherits("QToolButton")) {
+	    active = kThemeTextColorBevelButtonActive;
+	    inactive = kThemeTextColorBevelButtonInactive;
+	} else if(w->inherits("QButton")) {
 	    active = kThemeTextColorPushButtonActive;
 	    inactive = kThemeTextColorPushButtonInactive;
+	} else if(w->inherits("QComboBox") || 
+		  (w->inherits("QLineEdit") && w->parentWidget() && w->parentWidget()->inherits("QLineEdit"))) {
+	    active = kThemeTextColorPopupButtonActive;
+	    inactive = kThemeTextColorPopupButtonInactive;
 	} else if(w->inherits("QListView") || w->inherits("QListBox")) {
-	    active = inactive = kThemeTextColorListView;
+	    active = kThemeTextColorListView;
+	} else if(w->inherits("QLabel") && w->topLevelWidget() && w->topLevelWidget()->inherits("QMessageBox")) {
+	    active = kThemeTextColorAlertActive;
+	    inactive = kThemeTextColorAlertInactive;
+	} else if(w->inherits("QTabBar")) {
+	    active = kThemeTextColorTabFrontActive;
+	    inactive = kThemeTextColorTabFrontInactive;
 	} else if(w->inherits("QLabel")) {
 	    active = kThemeTextColorPlacardActive;
 	    inactive = kThemeTextColorPlacardInactive;
@@ -415,21 +427,21 @@ void qt_mac_polish_font(QWidget *w, QAquaWidgetSize size)
 	    active = kThemeTextColorPopupLabelActive;
 	    inactive = kThemeTextColorPopupLabelInactive;
 	} else {
-	    set_colour = FALSE;
+//	    set_colour = FALSE;
 	}
 	if(set_colour) {
 	    QColor qc;
 	    RGBColor c;
 	    QPalette pal = w->palette();
 	    //active
-	    if(!GetThemeTextColor(active, 32, true, &c)) {
+	    if(active && !GetThemeTextColor(active, 32, true, &c)) {
 		qc = QColor(c.red / 256, c.green / 256, c.blue / 256);		
 		pal.setColor(QPalette::Active, QColorGroup::Text, qc);
 		pal.setColor(QPalette::Active, QColorGroup::Foreground, qc);
 		pal.setColor(QPalette::Active, QColorGroup::HighlightedText, qc);
 	    }
 	    //inactive
-	    if(!GetThemeTextColor(inactive, 32, true, &c)) {
+	    if(inactive && !GetThemeTextColor(inactive, 32, true, &c)) {
 		qc = QColor(c.red / 256, c.green / 256, c.blue / 256);		
 		pal.setColor(QPalette::Inactive, QColorGroup::Text, qc);
 		pal.setColor(QPalette::Disabled, QColorGroup::Text, qc);
@@ -437,6 +449,14 @@ void qt_mac_polish_font(QWidget *w, QAquaWidgetSize size)
 		pal.setColor(QPalette::Disabled, QColorGroup::Foreground, qc);
 		pal.setColor(QPalette::Inactive, QColorGroup::HighlightedText, qc);
 		pal.setColor(QPalette::Disabled, QColorGroup::HighlightedText, qc);
+	    }
+	    if(w->inherits("QPopupMenu")) { //more things get set for the popupmenu
+		GetThemeTextColor(kThemeTextColorMenuItemActive, 32, true, &c);
+		pal.setBrush(QColorGroup::ButtonText, QColor(c.red / 256, c.green / 256, c.blue / 256));
+		GetThemeTextColor(kThemeTextColorMenuItemSelected, 32, true, &c);
+		pal.setBrush(QColorGroup::HighlightedText, QColor(c.red / 256, c.green / 256, c.blue / 256));
+		GetThemeTextColor(kThemeTextColorMenuItemDisabled, 32, true, &c);
+		pal.setBrush(QColorGroup::Text, QColor(c.red / 256, c.green / 256, c.blue / 256));
 	    }
 	    w->setPalette(pal);
 	}
@@ -462,7 +482,7 @@ bool qt_mac_update_palette(QPalette &pal, bool do_init)
 	last_pal.setColor(QPalette::Active, QColorGroup::Shadow, Qt::gray);
 	last_pal.setColor(QPalette::Inactive, QColorGroup::Shadow, Qt::lightGray);
 	last_pal.setColor(QColorGroup::HighlightedText, Qt::black);
-#ifdef QMAC_QAQUA_MODIFY_TEXT_COLOURS
+#if defined(QMAC_QAQUA_MODIFY_TEXT_COLOURS)
 	last_pal.setColor(QColorGroup::Text, Qt::black);
 	last_pal.setColor(QColorGroup::Foreground, Qt::black);
 #endif
@@ -480,13 +500,16 @@ bool qt_mac_update_palette(QPalette &pal, bool do_init)
     BIND_CLR(-4, QPalette::Inactive, QColorGroup::Highlight);
     BIND_CLR(kThemeBrushButtonActiveDarkShadow, QPalette::Active, QColorGroup::Shadow);
     BIND_CLR(kThemeBrushButtonInactiveDarkShadow, QPalette::Inactive, QColorGroup::Shadow);
-#ifdef QMAC_QAQUA_MODIFY_TEXT_COLOURS
+#if defined(QMAC_QAQUA_MODIFY_TEXT_COLOURS)
     BIND_CLR(kThemeTextColorDialogActive, QPalette::Active, QColorGroup::Text);
     BIND_CLR(kThemeTextColorDialogActive, QPalette::Active, QColorGroup::Foreground);
     BIND_CLR(kThemeTextColorDialogActive, QPalette::Active, QColorGroup::HighlightedText);
     BIND_CLR(kThemeTextColorDialogInactive, QPalette::Inactive, QColorGroup::Text);
     BIND_CLR(kThemeTextColorDialogInactive, QPalette::Inactive, QColorGroup::Foreground);
     BIND_CLR(kThemeTextColorDialogInactive, QPalette::Inactive, QColorGroup::HighlightedText);
+    BIND_CLR(kThemeTextColorDialogInactive, QPalette::Disabled, QColorGroup::Text);
+    BIND_CLR(kThemeTextColorDialogInactive, QPalette::Disabled, QColorGroup::Foreground);
+    BIND_CLR(kThemeTextColorDialogInactive, QPalette::Disabled, QColorGroup::HighlightedText);
 #endif
 #undef BIND_CLR
 #endif
