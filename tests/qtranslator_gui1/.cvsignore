@@ -1,0 +1,5 @@
+addressbook
+*moc*
+*.debug
+*.release
+.obj
