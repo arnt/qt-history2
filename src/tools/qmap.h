@@ -299,11 +299,9 @@ Q_INLINE_TEMPLATE QMapData::Node *QMap<Key, T>::findNode(const Key &key) const
     QMapData::Node *cur = e;
     QMapData::Node *next = e;
 
-#if 0
     QMapData::Node *node = d->cachedNode;
-    if (node && concrete(node)->key == key)
+    if (node != e && concrete(node)->key == key)
 	return node;
-#endif
 
     for (int i = d->topLevel; i >= 0; i--) {
 	while ((next = cur->forward[i]) != e && concrete(next)->key < key)
@@ -480,11 +478,9 @@ template <class Key, class T>
 Q_OUTOFLINE_TEMPLATE QMapData::Node *
 QMap<Key, T>::mutableFindNode(QMapData::Node *update[], const Key &key)
 {
-#if 0
     QMapData::Node *node = d->cachedNode;
-    if (node && concrete(node)->key == key)
+    if (node != e && concrete(node)->key == key)
 	return node;
-#endif
 
     QMapData::Node *cur = e;
     QMapData::Node *next = e;
