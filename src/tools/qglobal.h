@@ -1234,7 +1234,17 @@ template <typename T> inline void qDelete(T *&t)
 }
 template <typename T> inline void qDelete(const T *&t)
 {
-    if (false) t->~T(); // provoke compile error if T is not a fully-defined type
+    if (false) t->~T(); // ditto
+    delete t;
+}
+template <typename T> inline void qDelete(T * const &t)
+{
+    if (false) t->~T(); // ditto
+    delete t;
+}
+template <typename T> inline void qDelete(const T * const &t)
+{
+    if (false) t->~T(); // ditto
     delete t;
 }
 
