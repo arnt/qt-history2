@@ -2163,10 +2163,8 @@ Draw_Sweep( RAS_ARG )
 
                 /* We need an even number of intersections, otherwise there is something */
                 /* wrong... */
-                if (!P_Right) {
-                    printf("bad...\n");
+                if (!P_Right)
                     return Raster_Err_Invalid;
-                }
 
                 x1 = P_Left ->X;
                 x2 = P_Right->X;
