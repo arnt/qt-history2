@@ -368,6 +368,7 @@ static void init_gc_cache()
 {
     if ( !gc_cache_init ) {
         gc_cache_init = TRUE;
+	gc_cache_clip_serial = 0;
         QGCC *g = gc_cache_buf = new QGCC[4*gc_cache_size];
         memset( g, 0, 4*gc_cache_size*sizeof(QGCC) );
         for ( int i=0; i<4*gc_cache_size; i++ )

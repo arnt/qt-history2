@@ -158,7 +158,7 @@ QPixmap* QSharedDoubleBuffer::getRawPixmap( int w, int h )
             qdb_shared_pixmap = new QPixmap( w, h );
         else if ( qdb_shared_pixmap->width() < w  || qdb_shared_pixmap->height() < h)
             qdb_shared_pixmap->resize( w, h );
-    }	
+    }
     return qdb_shared_pixmap;
 }
 
@@ -245,4 +245,14 @@ void QSharedDoubleBuffer::flush()
         QPainter p(wid);
         p.drawPixmap(rx, ry, *pix, 0, 0, rw, rh);
     }
+}
+
+void QSharedDoubleBuffer::cleanup()
+{
+    if (qdb_shared_pixmap) {
+	qdb_cleanup_pixmap.remove( &qdb_shared_pixmap );
+	delete qdb_shared_pixmap;
+    }
+    qdb_owner = 0;
+    qdb_shared_pixmap = 0;
 }

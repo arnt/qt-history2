@@ -77,6 +77,7 @@
 
 // Input method stuff - UNFINISHED
 #include "qinputcontext_p.h"
+#include "qinternal_p.h" // shared double buffer cleanup
 
 #if defined(QT_THREAD_SUPPORT)
 # include "qthread.h"
@@ -2074,6 +2075,7 @@ void qt_cleanup()
 	QPainter::cleanup();
 	QFont::cleanup();
 	QColor::cleanup();
+	QSharedDoubleBuffer::cleanup();
     }
 #if defined(QT_THREAD_SUPPORT)
     QThread::cleanup();

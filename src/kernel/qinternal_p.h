@@ -82,6 +82,7 @@ public:
 
     static bool isDisabled() { return !dblbufr; }
     static QPixmap* getRawPixmap( int w, int h );
+    static void cleanup();
 
 private:
     QWidget* wid;
