@@ -16,7 +16,7 @@ class HtmlWriter;
 class Resolver;
 
 /*
-  The Doc class represents a doc comment (a '/*!' comment).
+  The Doc class represents a doc comment (a slashasterbang comment).
 */
 class Doc
 {
@@ -91,6 +91,7 @@ private:
     static QMap<QString, QString> clist;
     static QMap<QString, StringSet> findex;
     static QMap<QString, StringSet> chierarchy;
+protected:
     static StringSet extlist;
     static QMap<QString, QString> classext;
 };
