@@ -360,7 +360,7 @@ bool QODBCResult::reset ( const QString& query )
     r = SQLNumResultCols( d->hStmt, &count );
     setSelect( count != 0 );
     setActive( TRUE );
-    return FALSE;
+    return TRUE;
 }
 
 bool QODBCResult::fetch(int i)
