@@ -47,6 +47,16 @@ QString WidgetPlugIn::iconSet( const QString& classname )
 
 /*! \reimp
 */
+QIconSet WidgetPlugIn::iconset( const QString& classname )
+{
+    if ( !use() )
+	return QIconSet();
+
+    return ((WidgetInterface*)plugInterface())->iconset( classname );
+}
+
+/*! \reimp
+*/
 QString WidgetPlugIn::includeFile( const QString& classname )
 {
     if ( !use() )

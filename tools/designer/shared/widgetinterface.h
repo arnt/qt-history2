@@ -2,6 +2,7 @@
 #define QWIDGETINTERFACE_H
 
 #include <qplugininterface.h>
+#include <qiconset.h>
 
 class QWidget;
 
@@ -14,6 +15,7 @@ public:
 
     virtual QString group( const QString& ) = 0;
     virtual QString iconSet( const QString& ) = 0;
+    virtual QIconSet iconset( const QString& ) = 0;
     virtual QString includeFile( const QString& ) = 0;
     virtual QString toolTip( const QString& ) = 0;
     virtual QString whatsThis( const QString& ) = 0;
