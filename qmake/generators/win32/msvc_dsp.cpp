@@ -473,7 +473,7 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 									QString::null);
 			    QString cmd = replaceExtraCompilerVariables(tmp_cmd, (*input), out), deps;
 			    if(!tmp_dep.isEmpty())
-				deps = " " + tmp_dep;
+				deps = "\"" + tmp_dep + "\" ";
 			    if(!tmp_dep_cmd.isEmpty()) {
 				char buff[256];
 				QString dep_cmd = replaceExtraCompilerVariables(tmp_dep_cmd, 
@@ -486,7 +486,7 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 					int l = 0;
 					for(int i = 0; i < read_in; i++) {
 					    if(buff[i] == '\n' || buff[i] == ' ') {
-						deps += " " + QByteArray(buff+l, (i - l) + 1);
+						deps += "\"" + QByteArray(buff+l, (i - l) + 1) + "\" ";
 						l = i;
 					    }
 					}
@@ -500,13 +500,12 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
                                 group[0] = group[0].toUpper();
 				t << "# Begin Group \"" << (*it2) << "\"\n";
                             }
-			    t <<  "# Begin Source File\n\nSOURCE=" << in << endl
-			      << "USERDEP_" << in.section('.', 0, 0) << "=\"" << deps << "\"" << endl;
-			    QString cmd_name;
+                            int space = cmd.indexOf(' ');
+                            deps += "\"" + cmd.left(space) + "\" ";
+                            QString cmd_name;
 			    if(!tmp_cmd_name.isEmpty()) {
 				cmd_name = replaceExtraCompilerVariables(tmp_cmd_name, (*input), out);
 			    } else {
-				int space = cmd.indexOf(' ');
 				if(space != -1)
 				    cmd_name = cmd.left(space);
 				else
@@ -523,7 +522,9 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 					 "\t$(BuildCmds)\n\n");
 			    build.append("# End Custom Build\n\n");
 
-			    t << "!IF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - " << platform << " Release\"" << build
+			    t <<  "# Begin Source File\n\nSOURCE=" << in << endl
+			      << "USERDEP_" << in.section('.', 0, 0) << "=" << deps << endl
+			      << "!IF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - " << platform << " Release\"" << build
 			      << "!ELSEIF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - " << platform << " Debug\"" << build
 			      << "!ENDIF \n\n" << "# End Source File" << endl;
 			    output_count++;
