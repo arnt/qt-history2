@@ -102,7 +102,7 @@ void QDockWidgetResizeHandle::mouseReleaseEvent( QMouseEvent *e )
 	    int dx = e->globalPos().x() - firstPos.x();
 	    dockWidget->setFixedExtendWidth( dockWidget->width() + dx );
 	}
-	if ( orientation() == dockWidget->area()->orientation() )
+	if ( orientation() != dockWidget->area()->orientation() )
 	    dockWidget->area()->invalidNextOffset( dockWidget );
     }
 
