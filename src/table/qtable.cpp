@@ -410,7 +410,7 @@ void QTableItem::paint( QPainter *p, const QColorGroup &cg,
 	p->setPen( cg.highlightedText() );
     else
 	p->setPen( cg.text() );
-    p->drawText( x, 0, w - x, h,
+    p->drawText( x + 2, 0, w - x - 4, h,
 		 wordwrap ? (alignment() | WordBreak) : alignment(), txt );
 }
 

@@ -2374,6 +2374,8 @@ void qt_format_text( const QFont& font, const QRect &r,
     }
     if ( painter ) {
 	xoff += r.x();
+	if ( tf & Qt::AlignRight )
+	    xoff -= 2; // ### strange
 	yoff += r.y();
 	QColorGroup cg;
  	painter->save();
