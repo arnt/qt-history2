@@ -71,7 +71,7 @@ struct OraFieldInfo
 QString qOraWarn( const QOCIPrivate* d)
 {
     unsigned char   errbuf[100];
-    int             errcode;
+    sb4             errcode;
     OCIErrorGet((dvoid *)d->err,
 		(ub4) 1,
 		(text *) NULL,
@@ -639,7 +639,7 @@ bool QOCIResult::cacheNext()
 
 	    status = OCIStmtFetch (  d->sql, d->err, 1, OCI_FETCH_NEXT, OCI_DEFAULT );
 	    if ( status == -1 ) {
-		int errcode;
+		sb4 errcode;
 		OCIErrorGet((dvoid *)d->err, (ub4) 1, (text *) NULL, &errcode, NULL, 0, OCI_HTYPE_ERROR);
 		switch ( errcode ) {
 		case 1405: /* NULL */
@@ -671,7 +671,7 @@ bool QOCIResult::cacheNext()
 	}
     }
     if( r == OCI_ERROR ) {
-	int errcode;
+	sb4 errcode;
 	OCIErrorGet((dvoid *)d->err,
 		    (ub4) 1,
 		    (text *) NULL,
@@ -825,6 +825,8 @@ QOCIDriver::QOCIDriver( QObject * parent, const char * name )
 void QOCIDriver::init()
 {
     d = new QOCIPrivate();
+#if 0 
+    // This call only works with Oracle >= 8.1.x
     int r = OCIEnvCreate( &d->env,
 			    OCI_DEFAULT | OCI_OBJECT,
 			    NULL,
@@ -832,7 +834,23 @@ void QOCIDriver::init()
 			    NULL,
 			    NULL,
 			    0,
-			    NULL);
+			    NULL );
+#else
+    // this call is deprecated in Oracle >= 8.1.x, but still works
+    int r = OCIInitialize( OCI_DEFAULT | OCI_OBJECT,
+			    NULL,
+			    NULL,
+			    NULL,
+			    NULL );
+#ifdef QT_CHECK_RANGE
+    if ( r != 0 )
+	qWarning( "QOCIDriver: unable to initialize environment: " + qOraWarn( d ) );
+#endif
+    r = OCIEnvInit( &d->env,
+			    OCI_DEFAULT,
+			    0,
+			    NULL );
+#endif
 #ifdef QT_CHECK_RANGE
     if ( r != 0 )
 	qWarning( "QOCIDriver: unable to create environment: " + qOraWarn( d ) );
