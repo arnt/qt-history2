@@ -1,0 +1,2 @@
+#include "install.rc"
+QT_ARQ			RCDATA	"qt.arq"

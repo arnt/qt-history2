@@ -28,6 +28,7 @@ public:
     bool writeDirList( const QStringList dirList, bool includeLastComponent = true );
 
     bool readArchive( const QString &outpath, const QString &key = QString::null );
+    bool readArchive( QDataStream *inStream, const QString &outpath, const QString &key = QString::null );
 private:
     QFile arcFile;
 

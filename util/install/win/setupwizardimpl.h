@@ -68,9 +68,7 @@ private:
     void setJpegDirect( bool jd );
     void readLicenseAgreement();
 
-#if defined (USE_ARCHIVES)
-    void readArchive( const QString& arcname, const QString& installPath );
-#else
+#if !defined (USE_ARCHIVES)
     bool copyFiles( const QString& sourcePath, const QString& destPath, bool topLevel );
 #endif
     int totalRead;

@@ -1,10 +1,9 @@
 TEMPLATE = app
-HEADERS = generatordlgimpl.h
-SOURCES = main.cpp generatordlgimpl.cpp
+SOURCES = main.cpp
 INCLUDEPATH += ../archive $(QTDIR)/include ../keygen
-INTERFACES = generatordlg.ui
-TARGET  = package
 CONFIG += qt console
+TARGET  = package
+win32:DESTDIR = ../../../bin
 unix:LIBS += -L$(QTDIR)/util/install/archive -larq
 win32:LIBS += ../archive/arq.lib
 

@@ -118,7 +118,7 @@
                     </widget>
                     <widget class="QLineEdit" row="6" column="1" rowspan="1" colspan="2">
                         <property name="name">
-                            <cstring>productKey</cstring>
+                            <cstring>key</cstring>
                         </property>
                         <property name="sizePolicy">
                             <sizepolicy>
@@ -295,7 +295,7 @@ Alternatively, the installation wizard may read them from a license file.</strin
                     </widget>
                     <widget class="QLabel" row="6" column="0">
                         <property name="name">
-                            <cstring>expiryLabel_2</cstring>
+                            <cstring>keyLabel</cstring>
                         </property>
                         <property name="text">
                             <string>Product key</string>
@@ -1382,6 +1382,14 @@ Alternatively, the installation wizard may read them from a license file.</strin
                     <property name="spacing">
                         <number>6</number>
                     </property>
+                    <widget class="QMultiLineEdit">
+                        <property name="name">
+                            <cstring>filesDisplay</cstring>
+                        </property>
+                        <property name="readOnly">
+                            <bool>true</bool>
+                        </property>
+                    </widget>
                     <widget class="QProgressBar">
                         <property name="name">
                             <cstring>operationProgress</cstring>
@@ -1391,14 +1399,6 @@ Alternatively, the installation wizard may read them from a license file.</strin
                         </property>
                         <property name="percentageVisible">
                             <bool>false</bool>
-                        </property>
-                    </widget>
-                    <widget class="QMultiLineEdit">
-                        <property name="name">
-                            <cstring>filesDisplay</cstring>
-                        </property>
-                        <property name="readOnly">
-                            <bool>true</bool>
                         </property>
                     </widget>
                 </vbox>
@@ -1656,7 +1656,7 @@ Alternatively, the installation wizard may read them from a license file.</strin
         <slot>licenseChanged()</slot>
     </connection>
     <connection>
-        <sender>productKey</sender>
+        <sender>key</sender>
         <signal>textChanged(const QString&amp;)</signal>
         <receiver>SetupWizard</receiver>
         <slot>licenseChanged()</slot>
@@ -1677,7 +1677,7 @@ Alternatively, the installation wizard may read them from a license file.</strin
     <tabstop>licenseeName</tabstop>
     <tabstop>productsString</tabstop>
     <tabstop>expiryDate</tabstop>
-    <tabstop>productKey</tabstop>
+    <tabstop>key</tabstop>
     <tabstop>readLicenseButton</tabstop>
     <tabstop>folderPath</tabstop>
     <tabstop>folderPathButton</tabstop>

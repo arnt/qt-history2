@@ -93,9 +93,9 @@ bool QArchive::writeFile( const QString& fileName, const QString& localPath )
 		outStream << fi.fileName().latin1();
 		outStream << fi.lastModified();
 	        if( verbosityMode & Source )
-		    emit operationFeedback( "Deflating " + fi.absFilePath() + "... " );
+		    emit operationFeedback( "Deflating " + fi.absFilePath() + "..." );
 		else if( verbosityMode & Destination )
-		    emit operationFeedback( "Deflating " + localPath + "/" + fi.fileName() + "... " );
+		    emit operationFeedback( "Deflating " + localPath + "/" + fi.fileName() + "..." );
 		ztream.next_in = (unsigned char*)inBuffer.data();
 		ztream.avail_in = inBuffer.size();
 		ztream.total_in = 0;
@@ -232,6 +232,12 @@ void QArchive::setVerbosity( int verbosity )
 
 bool QArchive::readArchive( const QString &outpath, const QString &key ) 
 {
+    QDataStream inStream( &arcFile );
+    return readArchive( &inStream, outpath, key );
+}
+
+bool QArchive::readArchive( QDataStream *inStream, const QString &outpath, const QString &key )
+{
     QDataStream outStream;
     QFile outFile;
     QDir outDir;
@@ -242,13 +248,11 @@ bool QArchive::readArchive( const QString &outpath, const QString &key )
     QString entryName, dirName, symName;
     int entryLength, chunktype;
 
-    QDataStream inStream( &arcFile );
-
     //get the key
-    inStream >> chunktype;
+    *inStream >> chunktype;
     if(chunktype == ChunkKey) {
 	uint features, infeatures = featuresForKey( key );
-	inStream >> features;
+	*inStream >> features;
 	if( (features & infeatures) != features) {
 	    emit operationFeedback( "Invalid key" );
 	    return FALSE;
@@ -263,13 +267,13 @@ bool QArchive::readArchive( const QString &outpath, const QString &key )
 	return FALSE;
     outDir.cd( dirName );
 
-    while(  !inStream.atEnd()  ) {
+    while(  !inStream->atEnd()  ) {
 	//get our type
-	inStream >> chunktype;
+	*inStream >> chunktype;
 	if(chunktype == ChunkDirectory) {
-	    inStream >> entryLength;
+	    *inStream >> entryLength;
 	    inBuffer.resize( entryLength );
-	    inStream.readRawBytes( inBuffer.data(), entryLength );
+	    inStream->readRawBytes( inBuffer.data(), entryLength );
 	    entryName = inBuffer.data();
 
 	    if( verbosityMode & Source )
@@ -289,9 +293,9 @@ bool QArchive::readArchive( const QString &outpath, const QString &key )
 		outDir.cd( dirName );
 	    }
 	} else if(chunktype == ChunkFile) {
-	    inStream >> entryLength;
+	    *inStream >> entryLength;
 	    inBuffer.resize( entryLength );
-	    inStream.readRawBytes( inBuffer.data(), entryLength );
+	    inStream->readRawBytes( inBuffer.data(), entryLength );
 	    entryName = inBuffer.data();
 
 	    QDateTime timeStamp;
@@ -299,15 +303,15 @@ bool QArchive::readArchive( const QString &outpath, const QString &key )
 	    outFile.setName( fileName );
 	    if( outFile.open( IO_WriteOnly ) ) {
 		// Get timestamp from the archive
-		inStream >> timeStamp;
+		*inStream >> timeStamp;
 		outStream.setDevice( &outFile );
-		inStream >> entryLength;
+		*inStream >> entryLength;
 		if( verbosityMode & Source )
-		    emit operationFeedback( "Deflating " + entryName + "... " );
+		    emit operationFeedback( "Deflating " + entryName + "..." );
 		else if( verbosityMode & Destination )
-		    emit operationFeedback( "Deflating " + fileName + "... " );
+		    emit operationFeedback( "Deflating " + fileName + "..." );
 		inBuffer.resize( entryLength );
-		inStream.readRawBytes( inBuffer.data(), entryLength );
+		inStream->readRawBytes( inBuffer.data(), entryLength );
 		ztream.next_in = (unsigned char*)inBuffer.data();
 		ztream.avail_in = entryLength;
 		ztream.total_in = 0;
@@ -335,15 +339,15 @@ bool QArchive::readArchive( const QString &outpath, const QString &key )
 #endif
 	    }
 	} else if(chunktype == ChunkSymlink) {
-	    inStream >> entryLength;
+	    *inStream >> entryLength;
 	    inBuffer.resize( entryLength );
-	    inStream.readRawBytes( inBuffer.data(), entryLength );
+	    inStream->readRawBytes( inBuffer.data(), entryLength );
 	    entryName = inBuffer.data();
 	    QString fileName = QDir::convertSeparators( outDir.absPath() + QString( "/" ) + entryName );
 
-	    inStream >> entryLength;
+	    *inStream >> entryLength;
 	    inBuffer.resize( entryLength );
-	    inStream.readRawBytes( inBuffer.data(), entryLength );
+	    inStream->readRawBytes( inBuffer.data(), entryLength );
 	    symName = inBuffer.data();
 	    if( verbosityMode & Source )
 		emit operationFeedback( "Linking " + symName + "... " );
@@ -359,7 +363,7 @@ bool QArchive::readArchive( const QString &outpath, const QString &key )
 		emit operationFeedback( QString("Unknown chunk: %d") .arg(chunktype) );
 	}
 	if( verbosityMode & Progress ) 
-	    emit operationFeedback( arcFile.at() );
+	    emit operationFeedback( inStream->device()->at() );
     }
     return TRUE;
 }

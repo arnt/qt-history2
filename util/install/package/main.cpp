@@ -1,7 +1,6 @@
 #include "qarchive.h"
 #include <qapplication.h>
 #include <qfileinfo.h>
-#include "generatordlgimpl.h"
 #include "keyinfo.h"
 
 class ConsoleOutput : public QObject
@@ -29,7 +28,7 @@ static int usage(const char *argv0, const char *un=NULL) {
 
     fprintf(stderr, "\nKey Info:\n");
     fprintf(stderr, " -us         : Enable US\n");
-    fprintf(stderr, " -enterprise : Enable Enterprise Package\n");
+//    fprintf(stderr, " -enterprise : Enable Enterprise Package\n");
     fprintf(stderr, " -win        : Windows Archive\n");
     fprintf(stderr, " -unix       : Unix Archive\n");
     fprintf(stderr, " -mac        : MacOSX Archive\n");
@@ -41,7 +40,7 @@ int main( int argc, char** argv )
 {
     uint features = 0;
     bool output = TRUE, doSyms = TRUE;
-    QString dest, key;
+    QString dest;
     QStringList files;
     for(int i = 1; i < argc; i++) {
 	//options
@@ -56,8 +55,8 @@ int main( int argc, char** argv )
 	//keyinfo
 	else if(!strcmp(argv[i], "-us"))
 	    features |= Feature_US;
-	else if(!strcmp(argv[i], "-enterprise"))
-	    features |= Feature_Enterprise;
+//	else if(!strcmp(argv[i], "-enterprise"))
+//	    features |= Feature_Enterprise;
 	else if(!strcmp(argv[i], "-unix"))
 	    features |= Feature_Unix;
 	else if(!strcmp(argv[i], "-win"))
@@ -105,9 +104,7 @@ int main( int argc, char** argv )
 	}
 	archive.close();
     } else {
-	QApplication app( argc, argv );
-	GeneratorDlgImpl dlg( dest );
-	dlg.exec();
+	return usage(argv[0]);
     }
     return 0;
 }

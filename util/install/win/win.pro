@@ -9,14 +9,20 @@ INCLUDEPATH += $(QTDIR)\src\3rdparty $(QTDIR)\util\install\archive
 
 win32-msvc:RC_FILE = install.rc
 
-#CONFIG += do_archive
+#CONFIG += do_archive use_rcdata
+
+use_rcdata {
+    CONFIG		+= do_archive
+    DEFINES		+= USE_RCDATA
+    win32-msvc:RC_FILE	= install-rcdata.rc
+}
 
 do_archive {
-    CONFIG -= md4_keys
-    DEFINES += USE_ARCHIVES
-    unix:LIBS += -L$(QTDIR)/util/install/archive -larq
-    win32:LIBS += ../archive/arq.lib
-    INCLUDEPATH += ../keygen
+    CONFIG		-= md4_keys
+    DEFINES		+= USE_ARCHIVES
+    unix:LIBS		+= -L$(QTDIR)/util/install/archive -larq
+    win32:LIBS		+= ../archive/arq.lib
+    INCLUDEPATH		+= ../keygen
 }
 
 md4_keys {

@@ -21,6 +21,7 @@
 #include <qtabwidget.h>
 #include <qarchive.h>
 #include <qvalidator.h>
+#include <qdatetime.h>
 
 #if defined(MD4_KEYS)
 #include "../md4/qrsync.h"
@@ -30,6 +31,52 @@
 #endif
 
 #define FILESTOCOPY 4582
+
+class ResourceLoader
+{
+public:
+    ResourceLoader( char *resourceName )
+    {
+	valid = TRUE;
+
+	HMODULE hmodule = GetModuleHandle( 0 );
+	HRSRC resource = FindResource( hmodule, resourceName, RT_RCDATA );
+	HGLOBAL hglobal = LoadResource( hmodule, resource );
+	arSize = SizeofResource( hmodule, resource );
+	if ( arSize == 0 ) {
+	    valid = FALSE;
+	    return;
+	}
+	arData = (char*)LockResource( hglobal );
+	if ( arData == 0 ) {
+	    valid = FALSE;
+	    return;
+	}
+	ba.setRawData( arData, arSize );
+    }
+
+    ~ResourceLoader()
+    {
+	if ( isValid() )
+	    ba.resetRawData( arData, arSize );
+    }
+
+    bool isValid() const
+    {
+	return valid;
+    }
+
+    QByteArray data()
+    {
+	return ba;
+    }
+
+private:
+    bool valid;
+    int arSize;
+    char *arData;
+    QByteArray ba;
+};
 
 static bool createDir( const QString& fullPath )
 {
@@ -107,6 +154,15 @@ SetupWizardImpl::SetupWizardImpl( QWidget* pParent, const char* pName, bool moda
     // do this rather here than in the showPage() to keep the user's settings
     // when he returns back to the page
     qtDirCheck->setChecked( ( QEnvironment::getEnv( "QTDIR" ).length() == 0 ) );
+
+#if defined(USE_ARCHIVES)
+    // expiryDate and productsString comes from the license key
+    expiryDate->setEnabled( FALSE );
+    productsString->setEnabled( FALSE );
+    keyLabel->setText( tr("License key") );
+    licenseInfoHeader->setText( tr("Please insert your license information.\n"
+		"The License key is required to be able to proceed with the installation process.") );
+#endif
 }
 
 void SetupWizardImpl::stopProcesses()
@@ -1000,21 +1056,52 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	    filesDisplay->append( "Starting copy process\n" );
 #if defined (USE_ARCHIVES)
 	    // install the right LICENSE file
-	    readArchive( "sys.arq", installPath->text() );
 	    QDir installDir( installPath->text() );
-	    if ( usLicense ) {
-		installDir.remove( "LICENSE" );
-		installDir.rename( "LICENSE-US", "LICENSE" );
+	    QFile licenseFile( installDir.filePath("LICENSE") );
+	    if ( licenseFile.open( IO_WriteOnly ) ) {
+		ResourceLoader *rcLoader;
+		if ( usLicense ) {
+		    rcLoader = new ResourceLoader( "LICENSE-US" );
+		} else {
+		    rcLoader = new ResourceLoader( "LICENSE" );
+		}
+		if ( rcLoader->isValid() ) {
+		    licenseFile.writeBlock( rcLoader->data() );
+		} else {
+		    QMessageBox::critical( this, tr("Package corrupted"),
+			    tr("Could not find the LICENSE file in the package.\nThe package might be corrupted.") );
+		}
+		delete rcLoader;
+		licenseFile.close();
 	    } else {
-		installDir.remove( "LICENSE-US" );
+		// ### error handling -- we could not write the LICENSE file
 	    }
 
+	    // install qt.arq
+	    QArchive ar;
+	    ar.setVerbosity( QArchive::Destination | QArchive::Verbose | QArchive::Progress );
+	    connect( &ar, SIGNAL( operationFeedback( const QString& ) ), this, SLOT( archiveMsg( const QString& ) ) );
+	    connect( &ar, SIGNAL( operationFeedback( int ) ), operationProgress, SLOT( setProgress( int ) ) );
+#  if defined (USE_RCDATA)
+	    ResourceLoader rcLoader( "QT_ARQ" );
+	    if ( rcLoader.isValid() ) {
+		operationProgress->setTotalSteps( rcLoader.data().count() );
+		QDataStream ds( rcLoader.data(), IO_ReadOnly );
+		ar.readArchive( &ds, installPath->text(), key->text() );
+	    } else {
+		QMessageBox::critical( this, tr("Package corrupted"),
+			tr("Could not find the Qt archive file in the package.\nThe package might be corrupted.") );
+	    }
+#  else
 	    fi.setFile( "qt.arq" );
 	    if( fi.exists() )
 		totalSize = fi.size();
 	    operationProgress->setTotalSteps( totalSize );
 
-	    readArchive( "qt.arq", installPath->text() );
+	    ar.setPath( "qt.arq" );
+	    if( ar.open( IO_ReadOnly ) ) 
+		ar.readArchive( installPath->text(), key->text() );
+#  endif
 #else
 	    operationProgress->setTotalSteps( FILESTOCOPY );
 	    copySuccessful = copyFiles( QDir::currentDirPath(), installPath->text(), true );
@@ -1758,7 +1845,7 @@ void SetupWizardImpl::licenseChanged()
     // ### at the moment MD4_KEYS and USE_ARCHIVES exclude each other -- maybe
     // we should change that for compatibility
 #if defined(MD4_KEYS)
-    QString proKey = productKey->text();
+    QString proKey = key->text();
     if ( proKey.length() < 19 ) {
 	setNextEnabled( licensePage, FALSE );
 	return;
@@ -1784,35 +1871,72 @@ void SetupWizardImpl::licenseChanged()
     setNextEnabled( licensePage, sum.scrambled() == proKey.mid( i+1, 17 ) );
 #endif
 #if defined (USE_ARCHIVES)
-    QString proKey = productKey->text();
-    if ( proKey.length() != 9 ) {
-	setNextEnabled( licensePage, FALSE );
-	return;
+    QDate date;
+    uint features;
+    QString licenseKey = key->text();
+    if ( licenseKey.length() != 14 ) {
+	goto rejectLicense;
     }
-    uint features = featuresForKey( proKey.upper() );
+    features = featuresForKey( licenseKey.upper() );
+    date = decodedExpiryDate( licenseKey.mid(9) );
+    if ( !date.isValid() ) {
+	goto rejectLicense;
+    }
     if ( !(features&Feature_Windows) ) {
 	if ( features & (Feature_Unix|Feature_Windows|Feature_Mac|Feature_Embedded) ) {
 	    int ret = QMessageBox::information( this,
 		    tr("No Windows license"),
-		    tr("You don't have a valid Windows license.\n"
-		       "Please contact sales@trolltech.com if you have further questions."),
+		    tr("You are not licensed for the Windows platform.\n"
+		       "Please contact sales@trolltech.com to upgrade\n"
+		       "your license to include the Windows platform."),
 		    tr("Try again"),
 		    tr("Abort installation")
 		    );
 	    if ( ret == 1 ) {
 		QApplication::exit();
 	    } else {
-		productKey->setText( "" );
+		key->setText( "" );
 	    }
 	}
-	setNextEnabled( licensePage, FALSE );
-	return;
+	goto rejectLicense;
+    }
+    if ( date < QDate::currentDate() ) {
+	static bool alreadyShown = FALSE;
+	if ( !alreadyShown ) {
+	    QMessageBox::warning( this,
+		    tr("Support and upgrade periode has expired"),
+		    tr("Your support and upgrade period has expired.\n"
+			"\n"
+			"You may continue to use your last licensed release\n"
+			"of Qt under the terms of your existing license\n"
+			"agreement, but you are not entitled to technical\n"
+			"support, nor are you entitled to use any more recent\n"
+			"Qt releases.\n"
+			"\n"
+			"Please contact sales@trolltech.com to renew your\n"
+			"support and upgrades for this license.")
+		    );
+	    alreadyShown = TRUE;
+	}
     }
     if ( features & Feature_US )
 	usLicense = TRUE;
     else
 	usLicense = FALSE;
+
+    expiryDate->setText( date.toString( Qt::ISODate ) );
+    if( features & Feature_Enterprise )
+	productsString->setCurrentItem( 1 );
+    else
+	productsString->setCurrentItem( 0 );
     setNextEnabled( licensePage, TRUE );
+    return;
+
+rejectLicense:
+    expiryDate->setText( "" );
+    productsString->setCurrentItem( -1 );
+    setNextEnabled( licensePage, FALSE );
+    return;
 #endif
 }
 
@@ -1853,6 +1977,8 @@ void SetupWizardImpl::logOutput( const QString& entry, bool close )
 void SetupWizardImpl::archiveMsg( const QString& msg )
 {
 #if defined (USE_ARCHIVES)
+    if( msg.right( 7 ) == ".cpp..." || msg.right( 5 ) == ".c..." || msg.right( 7 ) == ".pro..." || msg.right( 6 ) == ".ui..." )
+	filesToCompile++;
     qApp->processEvents();
     logFiles( msg );
 #else
@@ -1860,21 +1986,7 @@ void SetupWizardImpl::archiveMsg( const QString& msg )
 #endif
 }
 
-
-#if defined (USE_ARCHIVES)
-void SetupWizardImpl::readArchive( const QString& arcname, const QString& installPath )
-{
-    QArchive ar;
-    ar.setVerbosity( QArchive::Destination | QArchive::Verbose | QArchive::Progress );
-    connect( &ar, SIGNAL( operationFeedback( const QString& ) ), this, SLOT( archiveMsg( const QString& ) ) );
-    connect( &ar, SIGNAL( operationFeedback( int ) ), operationProgress, SLOT( setProgress( int ) ) );
-    ar.setPath( arcname );
-    if(ar.open( IO_ReadOnly ) ) 
-	ar.readArchive( installPath, productKey->text() );
-}
-
-#else
-
+#if !defined (USE_ARCHIVES)
 bool SetupWizardImpl::copyFiles( const QString& sourcePath, const QString& destPath, bool topLevel )
 {
     QDir dir( sourcePath );
@@ -1978,10 +2090,10 @@ void SetupWizardImpl::readLicense( QString filePath)
 	    if( buffer[ 0 ] != '#' ) {
 		QStringList components = QStringList::split( '=', buffer );
 		QStringList::Iterator it = components.begin();
-		QString key = (*it++).stripWhiteSpace().replace( QRegExp( QString( "\"" ) ), QString::null ).upper();
+		QString keyString = (*it++).stripWhiteSpace().replace( QRegExp( QString( "\"" ) ), QString::null ).upper();
 		QString value = (*it++).stripWhiteSpace().replace( QRegExp( QString( "\"" ) ), QString::null );
 
-		licenseInfo[ key ] = value;
+		licenseInfo[ keyString ] = value;
 	    }
 	}
 	licenseFile.close();
@@ -1994,7 +2106,11 @@ void SetupWizardImpl::readLicense( QString filePath)
 	else
 	    productsString->setCurrentItem( 0 );
 	expiryDate->setText( licenseInfo[ "EXPIRYDATE" ] );
-	productKey->setText( licenseInfo[ "PRODUCTKEY" ] );
+#if defined(MD4_KEYS)
+	key->setText( licenseInfo[ "PRODUCTKEY" ] );
+#else
+	key->setText( licenseInfo[ "LICENSEKEY" ] );
+#endif
     }
 }
 
@@ -2014,7 +2130,11 @@ void SetupWizardImpl::writeLicense( QString filePath )
 	    licenseInfo[ "PRODUCTS" ] = "qt-enterprise";
 
 	licenseInfo[ "EXPIRYDATE" ] = expiryDate->text();
-	licenseInfo[ "PRODUCTKEY" ] = productKey->text();
+#if defined(MD4_KEYS)
+	licenseInfo[ "PRODUCTKEY" ] = key->text();
+#else
+	licenseInfo[ "LICENSEKEY" ] = key->text();
+#endif
 
 	licStream << "# Toolkit license file" << endl;
 	licStream << "CustomerID=\"" << licenseInfo[ "CUSTOMERID" ].latin1() << "\"" << endl;
@@ -2022,7 +2142,11 @@ void SetupWizardImpl::writeLicense( QString filePath )
 	licStream << "Licensee=\"" << licenseInfo[ "LICENSEE" ].latin1() << "\"" << endl;
 	licStream << "Products=\"" << licenseInfo[ "PRODUCTS" ].latin1() << "\"" << endl;
 	licStream << "ExpiryDate=" << licenseInfo[ "EXPIRYDATE" ].latin1() << endl;
+#if defined(MD4_KEYS)
 	licStream << "ProductKey=" << licenseInfo[ "PRODUCTKEY" ].latin1() << endl;
+#else
+	licStream << "LicenseKey=" << licenseInfo[ "LICENSEKEY" ].latin1() << endl;
+#endif
 
 	licenseFile.close();
     }
@@ -2051,15 +2175,21 @@ void SetupWizardImpl::readLicenseAgreement()
 {
     // Intropage
 #ifdef USE_ARCHIVES
-    readArchive( "sys.arq", tmpPath );
-    QFile licenseFile;
-    if ( usLicense )
-	licenseFile.setName( tmpPath + "/LICENSE-US" );
-    else
-	licenseFile.setName( tmpPath + "/LICENSE" );
+    ResourceLoader *rcLoader;
+    if ( usLicense ) {
+	rcLoader = new ResourceLoader( "LICENSE-US" );
+    } else {
+	rcLoader = new ResourceLoader( "LICENSE" );
+    }
+    if ( rcLoader->isValid() ) {
+	introText->setText( rcLoader->data() );
+    } else {
+	QMessageBox::critical( this, tr("Package corrupted"),
+		tr("Could not find the LICENSE file in the package.\nThe package might be corrupted.") );
+    }
+    delete rcLoader;
 #else
     QFile licenseFile( "LICENSE" );
-#endif
     if( licenseFile.open( IO_ReadOnly ) ) {
 	QFileInfo fi( licenseFile );
 	QByteArray fileData( fi.size() + 2 );
@@ -2068,9 +2198,5 @@ void SetupWizardImpl::readLicenseAgreement()
 	fileData.data()[ fi.size() + 1 ] = 0;
 	introText->setText( QString( fileData.data() ) );
     }
-#ifdef USE_ARCHIVES
-    QDir tmpDir( tmpPath );
-    tmpDir.remove( "LICENSE-US" );
-    tmpDir.remove( "LICENSE" );
 #endif
 }
