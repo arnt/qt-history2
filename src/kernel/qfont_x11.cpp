@@ -62,6 +62,9 @@
 #include "qt_x11.h"
 
 #if !defined(QT_NO_XFTFREETYPE) && defined(QT_NO_XFTNAMEUNPARSE)
+// Assume XFree86 4.0.3 implementation which is missing XftInitFtLibrary and
+// XftNameUnparse
+Bool XftInitFtLibrary(void);
 Bool XftNameUnparse (XftPattern *, char *, int);
 #endif
 
