@@ -20,33 +20,19 @@
 #  include <stdlib.h>
 #endif
 
-#if defined __cplusplus
-#  if defined(__GNUC__)
-#    ifndef QT_NO_STL
-#      include <ios>
-#      undef _GLIBCPP_FULLY_COMPLIANT_HEADERS  // Makes qlocale.cpp compile
-#    endif
-#  endif
 #include <qcoreapplication.h>
 #include <qglobal.h>
+#include <qlist.h>
 #include <qmetaobject.h>  // All moc genereated code has this include
 #include <qobject.h>
 #include <qplatformdefs.h>
-#include <qlist.h>
-#include <qmap.h>
-#include <qhash.h>
-#include <qcoreevent.h>
+#include <qregexp.h>
 #include <qstring.h>
 #include <qstringlist.h>
-#include <qtimer.h>
+#include <qtextcodec.h>
 
 #include <limits.h>
 #include <stdlib.h>
-#if defined(__GNUC__)
-#  ifndef QT_NO_STL
-#    define _GLIBCPP_FULLY_COMPLIANT_HEADERS
-#  endif
-#endif
 #endif
 
 #if defined(QT_UNDEF_MACROS_IN_PCH)
