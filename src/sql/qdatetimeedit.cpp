@@ -206,8 +206,8 @@ private:
   \module ???
 
   The QDateTimeEditBase class contains common functionality for
-  date/time editors.  For date/time editing widgets, see QDateEdit and
-  QTimeEdit.
+  date/time editors.  For date/time editing widgets, see QDateEdit,
+  QTimeEdit and QDateTimeEdit.
 
 */
 
