@@ -453,7 +453,7 @@ void TextEdit::editorChanged( QWidget * )
 {
     if ( !currentEditor() )
 	return;
-    fontChanged( currentEditor()->font() );
+    fontChanged( currentEditor()->currentFont() );
     colorChanged( currentEditor()->color() );
     alignmentChanged( currentEditor()->alignment() );
 }
