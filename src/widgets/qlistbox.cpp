@@ -90,17 +90,11 @@ public:
     QListBoxItem * head, *last, *cache;
     int cacheIndex;
     QListBoxItem * current, *highlighted, *tmpCurrent;
-    bool layoutDirty;
-    bool mustPaintAll;
-    bool dragging;
-    bool variableHeight;
-    bool variableWidth;
 
     QMemArray<int> columnPos;
     QMemArray<int> rowPos;
     int columnPosOne;
 
-    bool rowModeWins;
     QListBox::LayoutMode rowMode;
     QListBox::LayoutMode columnMode;
     int numRows;
@@ -124,17 +118,24 @@ public:
 
     int count;
 
-    bool ignoreMoves;
-    bool clearing;
 
     QListBox *listBox;
     QString currInputString;
     QTimer *inputTimer;
 
     QListBoxItem *pressedItem, *selectAnchor;
-    bool select;
-    bool pressedSelected;
-    bool context_menu;
+
+    uint select :1;
+    uint pressedSelected :1;
+    uint context_menu :1;
+    uint rowModeWins :1;
+    uint ignoreMoves :1;
+    uint clearing :1;
+    uint layoutDirty :1;
+    uint mustPaintAll :1;
+    uint dragging :1;
+    uint variableHeight :1;
+    uint variableWidth :1;
 
     QRect *rubber;
     QPtrDict<bool> selectable;
