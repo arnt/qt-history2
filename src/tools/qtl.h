@@ -49,12 +49,6 @@
 #define Q_TYPENAME
 #endif
 
-#ifdef QT_NO_FORCED_INLINE
-#  define Q_TEMPLATE_INLINE
-#else
-#  define Q_TEMPLATE_INLINE inline
-#endif
-
 #ifndef QT_NO_TEXTSTREAM
 template <class T>
 class QTextOStreamIterator

@@ -118,9 +118,62 @@ public:
 	return end - start;
     }
 
-    void insert( pointer pos, const T& x );
+    void insert( pointer pos, const T& x )
+    {
+	const size_t lastSize = size();
+	const size_t n = lastSize !=0 ? 2*lastSize : 1;
+	const size_t offset = pos - start;
+	pointer newStart = new T[n];
+	pointer newFinish = newStart + offset;
+	qCopy( start, pos, newStart );
+	*newFinish = x;
+	qCopy( pos, finish, ++newFinish );
+	delete[] start;
+	start = newStart;
+	finish = newStart + lastSize + 1;
+	end = newStart + n;
+    }
 
-    void insert( pointer pos, size_t n, const T& x );
+    void insert( pointer pos, size_t n, const T& x )
+    {
+	if ( size_t( end - finish ) >= n ) {
+	    // enough room
+	    const size_t elems_after = finish - pos;
+	    pointer old_finish = finish;
+	    if ( elems_after > n ) {
+		qCopy( finish - n, finish, finish );
+		finish += n;
+		qCopyBackward( pos, old_finish - n, old_finish );
+		qFill( pos, pos + n, x );
+	    } else {
+		pointer filler = finish;
+		size_t i = n - elems_after;
+		for ( ; i > 0; --i, ++filler )
+		    *filler = x;
+		finish += n - elems_after;
+		qCopy( pos, old_finish, finish );
+		finish += elems_after;
+		qFill( pos, old_finish, x );
+	    }
+	} else {
+	    // not enough room
+	    const size_t lastSize = size();
+	    const size_t len = lastSize + QMAX( lastSize, n );
+	    pointer newStart = new T[len];
+	    pointer newFinish = newStart;
+	    newFinish = qCopy( start, pos, newStart );
+	    pointer filler = newFinish;
+	    size_t i = n;
+	    for ( ; i > 0; --i, ++filler )
+		*filler = x;
+	    newFinish = filler;
+	    newFinish = qCopy( pos, finish, newFinish );
+	    delete[] start;
+	    start = newStart;
+	    finish = newFinish;
+	    end = newStart + len;
+	}
+    }
 
     void reserve( size_t n )
     {
@@ -155,68 +208,6 @@ private:
     QValueVectorPrivate& operator=( const QValueVectorPrivate<T>& x );
 
 };
-
-template <class T>
-Q_TEMPLATE_INLINE
-void QValueVectorPrivate::insert( pointer pos, const T& x )
-{
-    const size_t lastSize = size();
-    const size_t n = lastSize !=0 ? 2*lastSize : 1;
-    const size_t offset = pos - start;
-    pointer newStart = new T[n];
-    pointer newFinish = newStart + offset;
-    qCopy( start, pos, newStart );
-    *newFinish = x;
-    qCopy( pos, finish, ++newFinish );
-    delete[] start;
-    start = newStart;
-    finish = newStart + lastSize + 1;
-    end = newStart + n;
-}
-
-template <class T>
-Q_TEMPLATE_INLINE
-void QValueVectorPrivate::insert( pointer pos, size_t n, const T& x )
-{
-    if ( size_t( end - finish ) >= n ) {
-	// enough room
-	const size_t elems_after = finish - pos;
-	pointer old_finish = finish;
-	if ( elems_after > n ) {
-	    qCopy( finish - n, finish, finish );
-	    finish += n;
-	    qCopyBackward( pos, old_finish - n, old_finish );
-	    qFill( pos, pos + n, x );
-	} else {
-	    pointer filler = finish;
-	    size_t i = n - elems_after;
-	    for ( ; i > 0; --i, ++filler )
-		*filler = x;
-	    finish += n - elems_after;
-	    qCopy( pos, old_finish, finish );
-	    finish += elems_after;
-	    qFill( pos, old_finish, x );
-	}
-    } else {
-	// not enough room
-	const size_t lastSize = size();
-	const size_t len = lastSize + QMAX( lastSize, n );
-	pointer newStart = new T[len];
-	pointer newFinish = newStart;
-	newFinish = qCopy( start, pos, newStart );
-	pointer filler = newFinish;
-	size_t i = n;
-	for ( ; i > 0; --i, ++filler )
-	    *filler = x;
-	newFinish = filler;
-	newFinish = qCopy( pos, finish, newFinish );
-	delete[] start;
-	start = newStart;
-	finish = newFinish;
-	end = newStart + len;
-    }
-}
-
 
 template <class T>
 class Q_EXPORT QValueVector
