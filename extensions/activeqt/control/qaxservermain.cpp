@@ -585,7 +585,7 @@ HRESULT DumpIDL( const QString &outfile, const QString &ver )
 	QWidget *w = qAxFactory()->create( className );
 	QAxBindable *bind = (QAxBindable*)w->qt_cast( "QAxBindable" );
 	bool isBindable =  bind != 0;
-	QMetaObject *mo = w->metaObject( className );
+	QMetaObject *mo = w->metaObject();
 	if ( !mo )
 	    return E_FAIL;
 
@@ -868,7 +868,7 @@ HRESULT DumpIDL( const QString &outfile, const QString &ver )
 		if ( param->inOut & QUParameter::Out )
 		    signal += "*";
 		if ( param->name )
-		    signal += "_" + replaceKeyword( param->name );
+		    signal += "p_" + replaceKeyword( param->name );
 		else
 		    signal += "p" + QString::number( p );
 		if ( p+1 < signaldata->method->count )
