@@ -7,8 +7,6 @@
 
 QString includePath = 				// default include path
     "/home/popcorn/hanord/quasar/src/include";
-//    "/usr/g++-include:"
-//    "/usr/include:";
 
 // --------------------------------------------------------------------------
 // Returns the complete filename (including file path)
@@ -150,12 +148,10 @@ void printFlat()
     QStrListIterator i(*flist);
     while ( i ) {
 	FileInfo *f = fdict->find( i.get() );
-	if ( !f->in ) {
-	    printf( "%s\n", i.get() );
-	    QStrListIterator j(*f->incl);
-	    while ( j )
-		printf( "    %s\n", j() );
-	}
+	printf( "%s\n", i.get() );
+	QStrListIterator j(*f->incl);
+	while ( j )
+	    printf( "    %s\n", j() );
 	++i;
     }
 }
@@ -167,7 +163,7 @@ void printFlat()
 
 int main( int argc, char **argv )
 {
-    bool flat = TRUE;
+    bool flat = FALSE;				// hierarchical output default
     bool wasFiles = FALSE;
     if ( argc < 2 )
 	fatal( "Usage:\n\tshowincs [-Ipath] [-hf] files ..." );
