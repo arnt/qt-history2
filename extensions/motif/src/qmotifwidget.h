@@ -41,6 +41,7 @@ public:
 protected:
     bool event( QEvent * );
     bool eventFilter( QObject *object, QEvent *event );
+    bool x11Event(XEvent *event);
 
 private:
     void realize( Widget );

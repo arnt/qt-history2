@@ -252,10 +252,13 @@ class QMotifWidgetPrivate : public QWidgetPrivate
     Q_DECLARE_PUBLIC(QMotifWidget)
 
 public:
-    QMotifWidgetPrivate() : widget( NULL ), shell( NULL ) { }
+    QMotifWidgetPrivate()
+        : widget( NULL ), shell( NULL ),
+          filter1(0), filter2(0)
+    { }
 
-    Widget widget;
-    Widget shell;
+    Widget widget, shell;
+    QObject *filter1, *filter2;
 };
 
 /*!
@@ -326,7 +329,21 @@ QMotifWidget::QMotifWidget(QWidget *parent, WidgetClass widgetclass,
 	} else {
 	    // keep an eye on the position of the toplevel widget, so that we
 	    // can tell our hidden shell its real on-screen position
-	    parent->topLevelWidget()->installEventFilter( this );
+            QWidget *tlw = parent;
+            while (!tlw->isTopLevel()) {
+                if (tlw->parentWidget()->inherits("QWorkspace")) {
+                    d->filter2 = tlw;
+                    d->filter2->installEventFilter(this);
+                } else if (tlw->parentWidget()->inherits("QViewportWidget")
+                           || tlw->parentWidget()->inherits("QViewportHelper")) {
+                    break;
+                }
+                tlw = tlw->parentWidget();
+                Q_ASSERT(tlw != 0);
+            }
+            d->filter1 = tlw;
+            d->filter1->installEventFilter(this);
+
 	}
     }
 
@@ -626,18 +643,72 @@ bool QMotifWidget::event( QEvent* e )
  */
 bool QMotifWidget::eventFilter( QObject *object, QEvent *event )
 {
-    if (object != topLevelWidget() || event->type() != QEvent::Move || !d->shell)
-	return FALSE;
+    if (!d->shell)
+        return FALSE;
 
-    // the motif widget is embedded in our special shell, so when the
-    // top-level widget moves, we need to inform the special shell
-    // about our new position
-    QPoint p = topLevelWidget()->geometry().topLeft() +
-	       mapTo( topLevelWidget(), QPoint( 0, 0 ) );
-    d->shell->core.x = p.x();
-    d->shell->core.y = p.y();
+    switch (event->type()) {
+    case QEvent::Reparent:
+        {
+            // update event filters
+            if (d->filter1)
+                d->filter1->removeEventFilter(this);
+            if (d->filter2)
+                d->filter2->removeEventFilter(this);
 
-    return FALSE;
+            d->filter1 = d->filter2 = 0;
+
+            QWidget *tlw = parentWidget();
+            if (tlw) {
+                while (!tlw->isTopLevel()) {
+                    if (tlw->parentWidget()->inherits("QWorkspace")) {
+                        d->filter2 = tlw;
+                        d->filter2->installEventFilter(this);
+                    } else if (tlw->parentWidget()->inherits("QViewportWidget")
+                               || tlw->parentWidget()->inherits("QViewportHelper")) {
+                        break;
+                    }
+                    tlw = tlw->parentWidget();
+                    Q_ASSERT(tlw != 0);
+                }
+                d->filter1 = tlw;
+                d->filter1->installEventFilter( this );
+            }
+        }
+        // fall-through intended (makes sure our position is correct after a reparent)
+
+    case QEvent::Move:
+    case QEvent::Resize:
+        {
+            // the motif widget is embedded in our special shell, so when the
+            // top-level widget moves, we need to inform the special shell
+            // about our new position
+            QPoint p = topLevelWidget()->geometry().topLeft() +
+                       mapTo( topLevelWidget(), QPoint( 0, 0 ) );
+            d->shell->core.x = p.x();
+            d->shell->core.y = p.y();
+            break;
+        }
+    default:
+        break;
+    }
+
+    return false;
+}
+
+/*!\reimp
+ */
+bool QMotifWidget::x11Event(XEvent *event)
+{
+    if (d->shell) {
+        // the motif widget is embedded in our special shell, so when the
+        // top-level widget moves, we need to inform the special shell
+        // about our new position
+        QPoint p = topLevelWidget()->geometry().topLeft() +
+                   mapTo( topLevelWidget(), QPoint( 0, 0 ) );
+        d->shell->core.x = p.x();
+        d->shell->core.y = p.y();
+    }
+    return QWidget::x11Event(event);
 }
 
 bool QMotifWidget::dispatchQEvent( QEvent* e, QWidget* w)
