@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#44 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#45 $
 **
 ** Definition of QWidget class
 **
@@ -47,8 +47,8 @@ public:
 
   // Widget coordinates
 
-    QRect   	 frameGeometry() const;
-    QRect   	 geometry()	const;
+    const QRect &frameGeometry() const;
+    const QRect &geometry()	const;
     int	    	 x()		const;
     int	    	 y()		const;
     QPoint  	 pos()		const;
@@ -70,8 +70,8 @@ public:
 
   // Widget attribute functions
 
-    QColor  	 backgroundColor() const;
-    QColor  	 foregroundColor() const;
+    const QColor &backgroundColor() const;
+    const QColor &foregroundColor() const;
     virtual void setBackgroundColor( const QColor & );
     virtual void setBackgroundPixmap( const QPixmap & );
 
@@ -84,7 +84,7 @@ public:
 
     const QFont	&font();
     virtual void setFont( const QFont & );
-    QCursor 	 cursor() const;
+    const QCursor &cursor() const;
     void    	 setCursor( const QCursor & );
 
     bool    	 setMouseTracking( bool enable );
@@ -229,10 +229,10 @@ inline WId QWidget::id() const
 inline bool QWidget::isDisabled() const
 { return testWFlags(WState_Disabled); }
 
-inline QRect QWidget::frameGeometry() const
+inline const QRect &QWidget::frameGeometry() const
 { return frect; }
 
-inline QRect QWidget::geometry() const
+inline const QRect &QWidget::geometry() const
 { return crect; }
 
 inline int QWidget::x()	const
@@ -255,12 +255,6 @@ inline int QWidget::height() const
 
 inline QRect QWidget::rect() const
 { return QRect(0,0,crect.width(),crect.height()); }
-
-inline QFontMetrics QWidget::fontMetrics() const
-{ return QFontMetrics(fnt); }
-
-inline QFontInfo QWidget::fontInfo() const
-{ return QFontInfo(fnt); }
 
 inline void QWidget::repaint( bool erase )
 { repaint( rect(), erase ); }
