@@ -24,6 +24,7 @@
 */
 
 #include <qregexp.h>
+#include <qcleanuphandler.h>
 
 /*
   The indenter avoids getting stuck in almost infinite loops by
@@ -60,19 +61,20 @@ static int ppCommentOffset = 2;
       keyword ( x )
 	  y;
 */
-static QRegExp ctlStmtKeyword( QString("\\b(?:do|for|if|while)\\b") );
+static QRegExp *ctlStmtKeyword = 0;
+static QRegExp *braceElse = 0;
+static QRegExp *forKeyword = 0;
+static QRegExp *label = 0;
 
-static QRegExp braceElse( QString("^\\s*\\}\\s*else\\b") );
-static QRegExp forKeyword( QString("\\bfor\\b") );
-static QRegExp label( QString("^\\s*((?:case\\b[^:]+|[a-zA-Z_0-9]+):(?!:))") );
+static QString *comparators = 0;
+static QString *parens = 0;
+static QString *separators = 0;
 
-static QString comparators( "!=<>" );
-static QString parens( "()" );
-static QString separators( "{};" );
-
-static QString slashAster( "/*" );
-static QString asterSlash( "*/" );
-static QString slashSlash( "//" );
+static QString *slashAster = 0;
+static QString *asterSlash = 0;
+static QString *slashSlash = 0;
+static QCleanupHandler<QString> indent_string_cleanup;
+static QCleanupHandler<QRegExp> indent_regexp_cleanup;
 
 /*
   Returns the first non-space character in the string t, or
@@ -186,9 +188,9 @@ static QString trimmedCodeLine( const QString& t )
 	  foo1: foo2: bar1;
 		      bar2;
     */
-    while ( trimmed.findRev(QChar(':')) != -1 && trimmed.find(label) != -1 ) {
-	QString cap1 = label.cap( 1 );
-	int pos1 = label.pos( 1 );
+    while ( trimmed.findRev(QChar(':')) != -1 && trimmed.find(*label) != -1 ) {
+	QString cap1 = (*label).cap( 1 );
+	int pos1 = (*label).pos( 1 );
 	for ( int i = 0; i < (int) cap1.length(); i++ )
 	    eraseChar( trimmed, pos1 + i, QChar(' ') );
     }
@@ -196,7 +198,7 @@ static QString trimmedCodeLine( const QString& t )
     /*
       Remove C++-style comments.
     */
-    k = trimmed.find( slashSlash );
+    k = trimmed.find( (*slashSlash) );
     if ( k != -1 )
 	trimmed.truncate( k );
 
@@ -212,7 +214,7 @@ static inline QChar lastParen( const QString& t )
     int i = t.length();
     while ( i > 0 ) {
 	i--;
-	if ( parens.find(t[i]) != -1 )
+	if ( (*parens).find(t[i]) != -1 )
 	    return t[i];
     }
     return QChar::null;
@@ -289,7 +291,7 @@ static bool readLine()
 	*/
 
 	if ( yyLinizerState.inCComment ) {
-	    k = yyLinizerState.line.find( slashAster );
+	    k = yyLinizerState.line.find( (*slashAster) );
 	    if ( k == -1 ) {
 		yyLinizerState.line = QString::null;
 	    } else {
@@ -299,7 +301,7 @@ static bool readLine()
 	}
 
 	if ( !yyLinizerState.inCComment ) {
-	    k = yyLinizerState.line.find( asterSlash );
+	    k = yyLinizerState.line.find( (*asterSlash) );
 	    if ( k != -1 ) {
 		for ( int i = 0; i < k + 2; i++ )
 		    eraseChar( yyLinizerState.line, i, QChar(' ') );
@@ -351,7 +353,7 @@ static bool readLine()
 	if ( yyLinizerState.pendingRightBrace )
 	    yyLinizerState.braceDepth++;
 	yyLinizerState.pendingRightBrace =
-		( yyLinizerState.line.find(braceElse) == 0 );
+		( yyLinizerState.line.find(*braceElse) == 0 );
 	if ( yyLinizerState.pendingRightBrace )
 	    yyLinizerState.braceDepth--;
     } while ( yyLinizerState.line.isEmpty() );
@@ -395,12 +397,12 @@ static bool bottomLineStartsInCComment()
 	    return FALSE;
 	--p;
 
-	if ( (*p).find(slashAster) != -1 || (*p).find(asterSlash) != -1 ) {
+	if ( (*p).find((*slashAster)) != -1 || (*p).find((*asterSlash)) != -1 ) {
 	    QString trimmed = trimmedCodeLine( *p );
 
-	    if ( trimmed.find(slashAster) != -1 ) {
+	    if ( trimmed.find((*slashAster)) != -1 ) {
 		return TRUE;
-	    } else if ( trimmed.find(asterSlash) != -1 ) {
+	    } else if ( trimmed.find((*asterSlash)) != -1 ) {
 		return FALSE;
 	    }
 	}
@@ -415,11 +417,9 @@ static bool bottomLineStartsInCComment()
 */
 static int indentWhenBottomLineStartsInCComment()
 {
-    static QString slashAster( "/*" );
-
     restartLinizer();
     for ( int i = 0; i < SmallRoof; i++ ) {
-	int k = yyLine.findRev( slashAster );
+	int k = yyLine.findRev( (*slashAster) );
 	if ( k == -1 ) {
 	    /*
 	      We found a normal text line in a comment. Align the
@@ -489,7 +489,7 @@ static bool matchBracelessControlStatement()
 	    case '(':
 		delimDepth--;
 		if ( delimDepth == 0 ) {
-		    if ( yyLine.find(ctlStmtKeyword) != -1 ) {
+		    if ( yyLine.find(*ctlStmtKeyword) != -1 ) {
 			/*
 			  We have
 
@@ -563,7 +563,7 @@ static bool isContinuationLine()
 
     if ( readLine() ) {
 	QChar last = yyLine[ (int)yyLine.length() - 1 ];
-	if ( separators.find(last) == -1 ) {
+	if ( (*separators).find(last) == -1 ) {
 	    /*
 	      It doesn't end with ';' or similar. If it's not
 	      "if ( x )", it must be an unfinished line.
@@ -630,7 +630,7 @@ static int indentForContinuationLine()
 		readLine();
 		if ( !yyLine.endsWith(QChar(';')) ||
 		     lastParen(yyLine) != QChar('(') ||
-		     yyLine.find(forKeyword) == -1 ) {
+		     yyLine.find(*forKeyword) == -1 ) {
 		    /*
 		      And it isn't the exceptional case
 
@@ -712,7 +712,7 @@ static int indentForContinuationLine()
 		  end of the unfinished lines or by non-balanced
 		  parentheses.
 		*/
-		if ( j == 0 || comparators.find(yyLine[j - 1]) == -1 ) {
+		if ( j == 0 || (*comparators).find(yyLine[j - 1]) == -1 ) {
 		    if ( braceDepth == 0 && delimDepth == 0 &&
 			 j < (int) yyLine.length() - 1 &&
 			 yyLine.contains(QChar(',')) == 0 &&
@@ -756,7 +756,7 @@ static int indentForContinuationLine()
 	  course.
 	*/
 	if ( delimDepth == 0 ) {
-	    if ( yyLine.find(ctlStmtKeyword) != -1 ) {
+	    if ( yyLine.find(*ctlStmtKeyword) != -1 ) {
 		/*
 		  The line is of the form "if ( x )". The following
 		  code line is clearly not a continuation line.
@@ -915,6 +915,32 @@ int indentForBottomLine( const QStringList& program, QChar typedIn )
 
     if ( program.isEmpty() )
 	return 0;
+
+    if ( !ctlStmtKeyword ) {
+	ctlStmtKeyword = new QRegExp( QString("\\b(?:do|for|if|while)\\b") );
+	indent_regexp_cleanup.add( &ctlStmtKeyword );
+	braceElse = new QRegExp( QString("^\\s*\\}\\s*else\\b") );
+	indent_regexp_cleanup.add( &braceElse );
+	forKeyword = new QRegExp( QString("\\bfor\\b") );
+	indent_regexp_cleanup.add( &forKeyword );
+	label = new QRegExp( QString("^\\s*((?:case\\b[^:]+|[a-zA-Z_0-9]+):(?!:))") );
+	indent_regexp_cleanup.add( &label );
+
+	comparators = new QString( "!=<>" );
+	indent_string_cleanup.add( &comparators );
+	parens = new QString( "()" );
+	indent_string_cleanup.add( &parens );
+	separators = new QString( "{};" );
+	indent_string_cleanup.add( &separators );
+
+	slashAster = new QString( "/*" );
+	indent_string_cleanup.add( &slashAster );
+	asterSlash = new QString( "*/" );
+	indent_string_cleanup.add( &asterSlash );
+	slashSlash = new QString( "//" );
+	indent_string_cleanup.add( &slashSlash );
+    }
+
     yyProgram = program;
 
     const QString& bottomLine = program.last();
@@ -963,7 +989,7 @@ int indentForBottomLine( const QStringList& program, QChar typedIn )
 	    */
 	    indent -= ppIndentSize;
 	} else if ( okay(typedIn, QChar(':')) &&
-		    bottomLine.find(label) == 0 ) {
+		    bottomLine.find(*label) == 0 ) {
 	    /*
 	      Move a case or goto label one level to the left, but
 	      only if the user did not play around with it yet. Some
