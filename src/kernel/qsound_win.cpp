@@ -45,7 +45,7 @@ public:
     QAuServerWindows(QObject* parent);
     ~QAuServerWindows();
 
-    void play(const QString& filename);
+    void play(const QString& filename, int loop );
     void play(QSound*);
     void stop(QSound*);
     bool okay();
@@ -60,29 +60,30 @@ QAuServerWindows::~QAuServerWindows()
 {
 }
 
-void QAuServerWindows::play(const QString& filename)
+void QAuServerWindows::play( const QString& filename, int loop )
 {
+    DWORD flags = SND_FILENAME|SND_ASYNC;
+    if ( loop > 1 || loop < 0 )
+	flags |= SND_LOOP;
 #ifdef UNICODE
 #ifndef Q_OS_TEMP
     if ( qWinVersion() == Qt::WV_NT ) {
 #endif
-	PlaySoundW((TCHAR*)qt_winTchar(filename,TRUE),
-	    0,SND_FILENAME|SND_ASYNC);
+	PlaySoundW( (TCHAR*)qt_winTchar(filename,TRUE), 0, flags );
 #ifndef Q_OS_TEMP
     } else
 #endif
 #endif
 #ifndef Q_OS_TEMP
     {
-	PlaySoundA(QFile::encodeName(filename).data(),
-	    0,SND_FILENAME|SND_ASYNC);
+	PlaySoundA( QFile::encodeName(filename).data(), 0, flags );
     }
 #endif
 }
 
 void QAuServerWindows::play(QSound* s)
 {
-    play(s->fileName());
+    play(s->fileName(), s->loops() );
 }
 
 void QAuServerWindows::stop(QSound* s)
@@ -92,14 +93,14 @@ void QAuServerWindows::stop(QSound* s)
 #ifndef Q_OS_TEMP
 	if ( qWinVersion() == Qt::WV_NT ) {
 #endif
-	    PlaySoundW(NULL,0,NULL);
+	    PlaySoundW( 0, 0, 0 );
 #ifndef Q_OS_TEMP
 	} else
 #endif
 #endif
 #ifndef Q_OS_TEMP
 	{
-	    PlaySoundA(NULL,0,NULL);
+	    PlaySoundA( 0, 0, 0 );
 	}
 #endif
     }

@@ -213,6 +213,9 @@ int QSound::loops() const
 /*!
     Returns the number of times the sound will loop. This value
     decreases each time the sound loops.
+
+    This function is not supported on Windows and will always return
+    the total number of loops.
 */
 int QSound::loopsRemaining() const
 {
@@ -222,6 +225,9 @@ int QSound::loopsRemaining() const
 /*!
     Sets the sound to repeat \a l times when it is played. Passing the
     value -1 will cause the sound to loop indefinitely.
+
+    On Windows, sounds with a loop count different from 1 will always 
+    loop indefinitely.
 
     \sa loops()
 */
