@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qwizard.cpp#28 $
+** $Id: //depot/qt/main/src/dialogs/qwizard.cpp#29 $
 **
 ** Implementation of something useful.
 **
@@ -554,7 +554,8 @@ void QWizard::layOutButtonRow( QHBoxLayout * layout )
 	h->addWidget( d->nextButton );
 	h->addSpacing( 12 );
 	h->addWidget( d->finishButton );
-    } else if ( d->current->finishEnabled ||
+    } else if ( d->pages.size() == 0 ||
+		d->current->finishEnabled ||
 		d->current == d->pages[d->pages.size()-1] ) {
 	d->nextButton->hide();
 	d->finishButton->show();
