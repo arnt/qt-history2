@@ -25,9 +25,11 @@ fi
 echo -n "Finding code.."
 rm -f $OUTPWD/exports
 CXXFLAGS=
-for var in CFLAGS INCPATH; do
-   CXXFLAGS="$CXXFLAGS $(grep "^$var *=" $DIR/Makefile | cut -d'=' -f2-)"
-done
+if [ -f "$DIR/Makefile" ]; then
+  for var in CFLAGS INCPATH; do
+     CXXFLAGS="$CXXFLAGS $(grep "^$var *=" $DIR/Makefile | cut -d'=' -f2-)"
+  done
+fi
 for export in $EXPORT; do
    EXTRA_CXXFLAGS="$CXXFLAGS -D${EXPORT}=${EXPORT}"
 done
@@ -35,8 +37,8 @@ for suff in cpp c h; do
   FILES=`find . -name "*.${suff}"`
   rm -f $OUTPWD/tmp.out $OUTPWD/tmp.local
   for file in $FILES; do
-    if [ "$suff" = "h" ] && [ -e "$OUTPWD/parse-private.awk" ] && which awk >/dev/null 2>&1; then
-	gcc -E $CXXFLAGS "$file" 2>/dev/null | awk -f "$OUTPWD/parse-private.awk" >>$OUTPWD/tmp.local
+    if [ -e "$OUTPWD/parse-private.awk" ] && which awk >/dev/null 2>&1; then
+        awk -f "$OUTPWD/parse-private.awk" "$file" >>$OUTPWD/tmp.out
     fi
     for export in $EXPORT; do
         echo -n .
