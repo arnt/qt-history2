@@ -152,7 +152,7 @@ void MainWindow::setup()
 
     QAction *viewsAction = createPopupMenu()->menuAction();
     viewsAction->setText(tr("Views"));
-    ui.PopupMenu->addAction(viewsAction);
+    ui.viewMenu->addAction(viewsAction);
 
     helpDock->tabWidget()->setCurrentIndex(config->sideBarPage());
 

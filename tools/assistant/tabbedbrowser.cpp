@@ -16,6 +16,7 @@
 #include "helpwindow.h"
 #include "config.h"
 
+#include <QtGui/QStyleOptionTab>
 #include <qtooltip.h>
 #include <qfileinfo.h>
 #include <qtoolbutton.h>

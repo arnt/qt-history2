@@ -14,9 +14,6 @@
   *********************************************************************</comment>
   <widget class="QMainWindow" name="MainWindow" >
     <widget class="QWidget" name="__qt_central_widget" />
-    <property name="objectName" >
-      <string notr="true">MainWindow</string>
-    </property>
     <property name="geometry" >
       <rect>
         <x>0</x>
@@ -29,9 +26,6 @@
       <string>Qt Assistant by Trolltech</string>
     </property>
     <widget class="QToolBar" name="Toolbar" >
-      <property name="objectName" >
-        <string notr="true">Toolbar</string>
-      </property>
       <property name="windowTitle" >
         <string>Toolbar</string>
       </property>
@@ -49,17 +43,11 @@
       <addaction name="actionHelpWhatsThis" />
     </widget>
     <widget class="QToolBar" name="goActionToolbar" >
-      <property name="objectName" >
-        <string notr="true">goActionToolbar</string>
-      </property>
       <property name="windowTitle" >
         <string>Go</string>
       </property>
     </widget>
     <widget class="QMenuBar" name="menubar" >
-      <property name="objectName" >
-        <string notr="true">menubar</string>
-      </property>
       <property name="geometry" >
         <rect>
           <x>0</x>
@@ -69,9 +57,6 @@
         </rect>
       </property>
       <widget class="QMenu" name="fileMenu" >
-        <property name="objectName" >
-          <string notr="true">fileMenu</string>
-        </property>
         <property name="title" >
           <string>&amp;File</string>
         </property>
@@ -85,9 +70,6 @@
         <addaction name="actionFileExit" />
       </widget>
       <widget class="QMenu" name="editMenu" >
-        <property name="objectName" >
-          <string notr="true">editMenu</string>
-        </property>
         <property name="title" >
           <string>&amp;Edit</string>
         </property>
@@ -98,10 +80,7 @@
         <addaction name="separator" />
         <addaction name="actionSettings" />
       </widget>
-      <widget class="QMenu" name="PopupMenu" >
-        <property name="objectName" >
-          <string notr="true">PopupMenu</string>
-        </property>
+      <widget class="QMenu" name="viewMenu" >
         <property name="title" >
           <string>&amp;View</string>
         </property>
@@ -109,9 +88,6 @@
         <addaction name="actionZoomOut" />
       </widget>
       <widget class="QMenu" name="goMenu" >
-        <property name="objectName" >
-          <string notr="true">goMenu</string>
-        </property>
         <property name="title" >
           <string>&amp;Go</string>
         </property>
@@ -123,17 +99,11 @@
         <addaction name="actionPrevPage" />
       </widget>
       <widget class="QMenu" name="bookmarkMenu" >
-        <property name="objectName" >
-          <string notr="true">bookmarkMenu</string>
-        </property>
         <property name="title" >
           <string>Boo&amp;kmarks</string>
         </property>
       </widget>
       <widget class="QMenu" name="helpMenu" >
-        <property name="objectName" >
-          <string notr="true">helpMenu</string>
-        </property>
         <property name="title" >
           <string>&amp;Help</string>
         </property>
@@ -152,9 +122,6 @@
       <addaction name="helpMenu" />
     </widget>
       <action name="actionFilePrint" >
-        <property name="objectName" >
-          <string notr="true">actionFilePrint</string>
-        </property>
         <property name="icon" >
           <iconset>:/trolltech/assistant/images/win/print.png</iconset>
         </property>
@@ -169,9 +136,6 @@
         </property>
       </action>
       <action name="actionFileExit" >
-        <property name="objectName" >
-          <string notr="true">actionFileExit</string>
-        </property>
         <property name="whatsThis" >
           <string>Quit Qt Assistant.</string>
         </property>
@@ -183,9 +147,6 @@
         </property>
       </action>
       <action name="actionEditCopy" >
-        <property name="objectName" >
-          <string notr="true">actionEditCopy</string>
-        </property>
         <property name="icon" >
           <iconset>:/trolltech/assistant/images/win/editcopy.png</iconset>
         </property>
@@ -200,9 +161,6 @@
         </property>
       </action>
       <action name="actionEditFind" >
-        <property name="objectName" >
-          <string notr="true">actionEditFind</string>
-        </property>
         <property name="icon" >
           <iconset>:/trolltech/assistant/images/win/find.png</iconset>
         </property>
@@ -217,9 +175,6 @@
         </property>
       </action>
       <action name="actionEditFindAgain" >
-        <property name="objectName" >
-          <string notr="true">actionEditFindAgain</string>
-        </property>
         <property name="shortcut" >
           <string>F3</string>
         </property>
@@ -228,9 +183,6 @@
         </property>
       </action>
       <action name="actionEditFindAgainPrev" >
-        <property name="objectName" >
-          <string notr="true">actionEditFindAgainPrev</string>
-        </property>
         <property name="shortcut" >
           <string>Shift+F3</string>
         </property>
@@ -239,9 +191,6 @@
         </property>
       </action>
       <action name="actionGoHome" >
-        <property name="objectName" >
-          <string notr="true">actionGoHome</string>
-        </property>
         <property name="icon" >
           <iconset>:/trolltech/assistant/images/win/home.png</iconset>
         </property>
@@ -256,9 +205,6 @@
         </property>
       </action>
       <action name="actionGoPrevious" >
-        <property name="objectName" >
-          <string notr="true">actionGoPrevious</string>
-        </property>
         <property name="icon" >
           <iconset>:/trolltech/assistant/images/win/previous.png</iconset>
         </property>
@@ -273,9 +219,6 @@
         </property>
       </action>
       <action name="actionGoNext" >
-        <property name="objectName" >
-          <string notr="true">actionGoNext</string>
-        </property>
         <property name="icon" >
           <iconset>:/trolltech/assistant/images/win/next.png</iconset>
         </property>
@@ -290,9 +233,6 @@
         </property>
       </action>
       <action name="actionAboutAssistant" >
-        <property name="objectName" >
-          <string notr="true">actionAboutAssistant</string>
-        </property>
         <property name="whatsThis" >
           <string>Display further information about Qt Assistant.</string>
         </property>
@@ -301,17 +241,11 @@
         </property>
       </action>
       <action name="actionAboutApplication" >
-        <property name="objectName" >
-          <string notr="true">actionAboutApplication</string>
-        </property>
         <property name="text" >
           <string>About Qt</string>
         </property>
       </action>
       <action name="actionZoomIn" >
-        <property name="objectName" >
-          <string notr="true">actionZoomIn</string>
-        </property>
         <property name="icon" >
           <iconset>:/trolltech/assistant/images/win/zoomin.png</iconset>
         </property>
@@ -326,9 +260,6 @@
         </property>
       </action>
       <action name="actionZoomOut" >
-        <property name="objectName" >
-          <string notr="true">actionZoomOut</string>
-        </property>
         <property name="icon" >
           <iconset>:/trolltech/assistant/images/win/zoomout.png</iconset>
         </property>
@@ -343,9 +274,6 @@
         </property>
       </action>
       <action name="actionSettings" >
-        <property name="objectName" >
-          <string notr="true">actionSettings</string>
-        </property>
         <property name="whatsThis" >
           <string>Open the settings dialog.</string>
         </property>
@@ -354,9 +282,6 @@
         </property>
       </action>
       <action name="actionNewWindow" >
-        <property name="objectName" >
-          <string notr="true">actionNewWindow</string>
-        </property>
         <property name="whatsThis" >
           <string>Open a new window.</string>
         </property>
@@ -368,9 +293,6 @@
         </property>
       </action>
       <action name="actionClose" >
-        <property name="objectName" >
-          <string notr="true">actionClose</string>
-        </property>
         <property name="whatsThis" >
           <string>Close the current window.</string>
         </property>
@@ -379,9 +301,6 @@
         </property>
       </action>
       <action name="actionAddBookmark" >
-        <property name="objectName" >
-          <string notr="true">actionAddBookmark</string>
-        </property>
         <property name="whatsThis" >
           <string>Add the currently displayed page as a new bookmark.</string>
         </property>
@@ -390,9 +309,6 @@
         </property>
       </action>
       <action name="actionHelpWhatsThis" >
-        <property name="objectName" >
-          <string notr="true">actionHelpWhatsThis</string>
-        </property>
         <property name="icon" >
           <iconset>:/trolltech/assistant/images/win/whatsthis.png</iconset>
         </property>
@@ -410,9 +326,6 @@
         </property>
       </action>
       <action name="actionOpenPage" >
-        <property name="objectName" >
-          <string notr="true">actionOpenPage</string>
-        </property>
         <property name="shortcut" >
           <string>Ctrl+Alt+N</string>
         </property>
@@ -421,9 +334,6 @@
         </property>
       </action>
       <action name="actionNextPage" >
-        <property name="objectName" >
-          <string notr="true">actionNextPage</string>
-        </property>
         <property name="shortcut" >
           <string>Ctrl+Alt+Right</string>
         </property>
@@ -432,9 +342,6 @@
         </property>
       </action>
       <action name="actionPrevPage" >
-        <property name="objectName" >
-          <string notr="true">actionPrevPage</string>
-        </property>
         <property name="shortcut" >
           <string>Ctrl+Alt+Left</string>
         </property>
@@ -443,9 +350,6 @@
         </property>
       </action>
       <action name="actionClosePage" >
-        <property name="objectName" >
-          <string notr="true">actionClosePage</string>
-        </property>
         <property name="shortcut" >
           <string>Ctrl+Alt+Q</string>
         </property>
@@ -454,9 +358,6 @@
         </property>
       </action>
       <action name="actionHelpAssistant" >
-        <property name="objectName" >
-          <string notr="true">actionHelpAssistant</string>
-        </property>
         <property name="icon" >
           <iconset>:/trolltech/assistant/images/assistant.png</iconset>
         </property>
@@ -468,10 +369,4 @@
         </property>
       </action>
   </widget>
-  <includes>
-    <include location="global" >qmap.h</include>
-    <include location="local" >finddialog.h</include>
-    <include location="global" >qstringlist.h</include>
-    <include location="local" >helpwindow.h</include>
-  </includes>
 </UI>
