@@ -514,7 +514,7 @@ void FormWindowManager::slotUpdateActions()
 
     m_actionCut->setEnabled(enable);
     m_actionCopy->setEnabled(enable);
-    m_actionPaste->setEnabled(qApp->clipboard()->mimeData()->hasText());
+    m_actionPaste->setEnabled(qApp->clipboard()->mimeData() && qApp->clipboard()->mimeData()->hasText());
     m_actionDelete->setEnabled(enable);
     m_actionLower->setEnabled(enable);
     m_actionRaise->setEnabled(enable);
