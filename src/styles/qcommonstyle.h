@@ -63,7 +63,7 @@ public:
 				const QRect &r,
 				const QColorGroup &cg,
 				PFlags flags = PStyle_Default,
-				void *data = 0 ) const;
+				void **data = 0 ) const;
 
     virtual void drawControl( ControlElement element,
 			      QPainter *p,
@@ -71,12 +71,12 @@ public:
 			      const QRect &r,
 			      const QColorGroup &cg,
 			      CFlags how = CStyle_Default,
-			      void *data = 0 ) const;
+			      void **data = 0 ) const;
     virtual void drawControlMask( ControlElement element,
 				  QPainter *p,
 				  const QWidget *w,
 				  const QRect &r,
-				  void *data = 0 ) const;
+				  void **data = 0 ) const;
 
     virtual QRect subRect( SubRect r, const QWidget *w ) const;
 
@@ -88,35 +88,36 @@ public:
 				     CFlags flags = CStyle_Default,
 				     SCFlags sub = SC_None,
 				     SCFlags subActive = SC_None,
-				     void *data = 0 ) const;
+				     void **data = 0 ) const;
     virtual void drawComplexControlMask( ComplexControl control,
 					 QPainter *p,
 					 const QWidget *w,
 					 const QRect &r,
-					 void *data = 0 ) const;
+					 void **data = 0 ) const;
 
     virtual QRect querySubControlMetrics( ComplexControl control,
 					  const QWidget *w,
 					  SubControl sc,
-					  void *data = 0 ) const;
+					  void **data = 0 ) const;
     virtual SubControl querySubControl( ComplexControl control,
 					const QWidget *w,
 					const QPoint &pos,
-					void *data = 0 ) const;
+					void **data = 0 ) const;
 
     virtual int pixelMetric( PixelMetric m, const QWidget *w = 0 ) const;
 
     virtual QSize sizeFromContents( ContentsType s,
 				    const QWidget *w,
 				    const QSize &contentsSize,
-				    void *data = 0 ) const;
+				    void **data = 0 ) const;
 
     virtual int styleHint( StyleHint sh,
 			   const QWidget *w = 0,
-			   void **returnData = 0 ) const;
+			   void ***returnData = 0 ) const;
 
 
-private:        // Disabled copy constructor and operator=
+private:
+    // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QCommonStyle( const QCommonStyle & );
     QCommonStyle &operator=( const QCommonStyle & );

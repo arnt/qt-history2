@@ -203,27 +203,6 @@ void QStyle::polish( QPalette&)
 {
 }
 
-const QWidget *qt_style_global_context = NULL;
-/*!
-   Returns the global static widget currently requesting a QStyle operations.
-   This value will be modified whenever QApplication::style() or QWidget::style()
-   is called, you may use this pointer to gain information about the widget
-   you may be drawing on.
-*/
-const QWidget *QStyle::contextWidget()
-{
-    return qt_style_global_context;
-}
-
-/*!
-  \fn QPixmap QStyle::titleBarPixmap( const QTitleBar *tb, TitleControl ctrl)
-
-  Returns the pixmap representing the action in ctrl.
-
-*/
-
-// New QStyle API
-
 /*!
   Returns the appropriate area within a rectangle in which to
   draw text or a pixmap.

@@ -70,7 +70,7 @@ public:
 			const QRect &r,
 			const QColorGroup &cg,
 			PFlags flags = PStyle_Default,
-			void *data = 0 ) const;
+			void **data = 0 ) const;
 
     void drawControl( ControlElement element,
 		      QPainter *p,
@@ -78,7 +78,7 @@ public:
 		      const QRect &r,
 		      const QColorGroup &cg,
 		      CFlags how = CStyle_Default,
-		      void *data = 0 ) const;
+		      void **data = 0 ) const;
 
     void drawComplexControl( ComplexControl control,
 			     QPainter* p,
@@ -88,7 +88,7 @@ public:
 			     CFlags flags = CStyle_Default,
 			     SCFlags sub = SC_None,
 			     SCFlags subActive = SC_None,
-			     void* data = 0 ) const;
+			     void **data = 0 ) const;
 
     void drawSubControl( SCFlags subCtrl,
 			 QPainter* p,
@@ -97,34 +97,29 @@ public:
 			 const QColorGroup& cg,
 			 CFlags flags = CStyle_Default,
 			 SCFlags subActive = SC_None,
-			 void* data = 0 ) const;
+			 void **data = 0 ) const;
 
-    int pixelMetric( PixelMetric metic, const QWidget *widget = 0 ) const;
+    int pixelMetric( PixelMetric metic,
+		     const QWidget *widget = 0 ) const;
 
     QSize sizeFromContents( ContentsType contents,
 			    const QWidget *w,
 			    const QSize &contentsSize,
-			    void *data ) const;
+			    void **data ) const;
 
-
-
-
-
-
-
-    // old stuff
-
-    // title bar
-    QPixmap titleBarPixmap( const QTitleBar *, SubControl ) const;
+    QPixmap stylePixmap( StylePixmap stylepixmap,
+			 const QWidget * = 0,
+			 void **data = 0 ) const;
 
 
 protected:
     bool eventFilter( QObject *o, QEvent *e );
 
 
-private:        // Disabled copy constructor and operator=
+private:
     QWindowsStylePrivate *d;
 
+    // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QWindowsStyle( const QWindowsStyle & );
     QWindowsStyle& operator=( const QWindowsStyle & );

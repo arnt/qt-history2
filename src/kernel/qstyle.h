@@ -179,7 +179,7 @@ public:
 				const QRect &r,
 				const QColorGroup &cg,
 				PFlags flags = PStyle_Default,
-				void *data = 0 ) const = 0;
+				void **data = 0 ) const = 0;
 
 
     enum ControlElement {
@@ -214,12 +214,12 @@ public:
 			      const QRect &r,
 			      const QColorGroup &cg,
 			      CFlags how = CStyle_Default,
-			      void *data = 0 ) const = 0;
+			      void **data = 0 ) const = 0;
     virtual void drawControlMask( ControlElement element,
 				  QPainter *p,
 				  const QWidget *widget,
 				  const QRect &r,
-				  void *data = 0 ) const = 0;
+				  void **data = 0 ) const = 0;
 
     enum SubRect {
 	SR_PushButtonContents,
@@ -314,21 +314,21 @@ public:
 				     CFlags flags = CStyle_Default,
 				     SCFlags sub = SC_None,
 				     SCFlags subActive = SC_None,
-				     void *data = 0 ) const = 0;
+				     void **data = 0 ) const = 0;
     virtual void drawComplexControlMask( ComplexControl control,
 					 QPainter *p,
 					 const QWidget *widget,
 					 const QRect &r,
-					 void *data = 0 ) const = 0;
+					 void **data = 0 ) const = 0;
 
     virtual QRect querySubControlMetrics( ComplexControl control,
 					  const QWidget *widget,
 					  SubControl sc,
-					  void *data = 0 ) const = 0;
+					  void **data = 0 ) const = 0;
     virtual SubControl querySubControl( ComplexControl control,
 					const QWidget *widget,
 					const QPoint &pos,
-					void *data = 0 ) const = 0;
+					void **data = 0 ) const = 0;
 
 
     enum PixelMetric {
@@ -398,7 +398,7 @@ public:
     virtual QSize sizeFromContents( ContentsType contents,
 				    const QWidget *widget,
 				    const QSize &contentsSize,
-				    void *data = 0 ) const = 0;
+				    void **data = 0 ) const = 0;
 
     enum StyleHint  {
 	SH_ScrollBar_BackgroundMode,
@@ -409,9 +409,23 @@ public:
 	*/
     };
 
-    virtual int styleHint( StyleHint f,
-			   const QWidget *w = 0,
-			   void **returnData = 0 ) const = 0;
+    virtual int styleHint( StyleHint stylehint,
+			   const QWidget *widget = 0,
+			   void ***returnData = 0 ) const = 0;
+
+
+    enum StylePixmap {
+	SP_TitleBarMinButton =		0x00000001,
+	SP_TitleBarMaxButton =		0x00000002,
+	SP_TitleBarCloseButton =       	0x00000004,
+	SP_TitleBarNormalButton =	0x00000008,
+	SP_TitleBarShadeButton =       	0x00000010,
+	SP_TitleBarUnshadeButton =	0x00000020
+    };
+
+    virtual QPixmap stylePixmap( StylePixmap stylepixmap,
+				 const QWidget *widget = 0,
+				 void **data = 0 ) const = 0;
 
 
 
@@ -429,15 +443,6 @@ public:
 #endif
 
     GUIStyle guiStyle() const { return gs; }
-
-    // title bar
-    // titleBarPixmap - how would we do something like this in the new api? use
-    // styleHint and return pointers to pixmaps?
-    virtual QPixmap titleBarPixmap( const QTitleBar *, SubControl ) const = 0;
-
-
-protected:
-    static const QWidget *contextWidget();
 
 
 private:

@@ -117,7 +117,7 @@ void QCommonStyle::drawPrimitive( PrimitiveOperation op,
 				  const QRect &r,
 				  const QColorGroup &cg,
 				  PFlags flags,
-				  void *data ) const
+				  void **data ) const
 {
     switch (op) {
     case PO_StatusBarSection:
@@ -468,7 +468,7 @@ void QCommonStyle::drawControl( ControlElement element,
 				const QRect &r,
 				const QColorGroup &cg,
 				CFlags how,
-				void *data ) const
+				void **data ) const
 {
     PFlags flags = PStyle_Default;
     if (widget->isEnabled())
@@ -715,7 +715,7 @@ void QCommonStyle::drawControlMask( ControlElement control,
 				    QPainter *p,
 				    const QWidget *widget,
 				    const QRect &r,
-				    void *data ) const
+				    void **data ) const
 {
     Q_UNUSED(widget);
 
@@ -923,10 +923,10 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 				       const QWidget *widget,
 				       const QRect &r,
 				       const QColorGroup &cg,
-				       CFlags flags,
+				       CFlags,
 				       SCFlags controls,
 				       SCFlags active,
-				       void *data ) const
+				       void **data ) const
 {
     switch (control) {
     case CC_ToolButton: {
@@ -1089,7 +1089,7 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 	    QRect ir(titlebar->width()-((TITLEBAR_CONTROL_WIDTH+TITLEBAR_SEPARATION)),
 		     2, TITLEBAR_CONTROL_WIDTH, TITLEBAR_CONTROL_HEIGHT);
 	    bool down = active & SC_TitleBarCloseButton;
-	    QPixmap pm(titleBarPixmap(titlebar, SC_TitleBarCloseButton));
+	    QPixmap pm(stylePixmap(SP_TitleBarCloseButton, widget));
 	    drawPrimitive(PO_ButtonTool, p, ir, titlebar->colorGroup(),
 			  down ? PStyle_Sunken : PStyle_Raised);
 	    int xoff = 0, yoff = 0;
@@ -1106,7 +1106,7 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 		       2, TITLEBAR_CONTROL_WIDTH, TITLEBAR_CONTROL_HEIGHT);
 
 	    down = active & SC_TitleBarMaxButton;
-	    pm = QPixmap(titleBarPixmap(titlebar, SC_TitleBarMaxButton));
+	    pm = QPixmap(stylePixmap(SP_TitleBarMaxButton, widget));
 	    drawPrimitive(PO_ButtonTool, p, ir, titlebar->colorGroup(),
 			  down ? PStyle_Sunken : PStyle_Raised);
 	    xoff = 0;
@@ -1123,9 +1123,13 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 					   TITLEBAR_SEPARATION)*3),
 		       2, TITLEBAR_CONTROL_WIDTH, TITLEBAR_CONTROL_HEIGHT);
 	    QStyle::SubControl ctrl = (controls & SC_TitleBarNormalButton ?
-				       SC_TitleBarNormalButton : SC_TitleBarMinButton);
+				       SC_TitleBarNormalButton :
+				       SC_TitleBarMinButton);
+	    QStyle::StylePixmap spixmap = (controls & SC_TitleBarNormalButton ?
+					   SP_TitleBarNormalButton :
+					   SP_TitleBarMinButton);
 	    down = active & ctrl;
-	    pm = QPixmap(titleBarPixmap(titlebar, ctrl));
+	    pm = QPixmap(stylePixmap(spixmap, widget));
 	    drawPrimitive(PO_ButtonTool, p, ir, titlebar->colorGroup(),
 			  down ? PStyle_Sunken : PStyle_Raised);
 	    xoff=0, yoff=0;
@@ -1258,7 +1262,7 @@ void QCommonStyle::drawComplexControlMask( ComplexControl control,
 					   QPainter *p,
 					   const QWidget *widget,
 					   const QRect &r,
-					   void *data ) const
+					   void **data ) const
 {
     Q_UNUSED(control);
     Q_UNUSED(widget);
@@ -1274,7 +1278,7 @@ void QCommonStyle::drawComplexControlMask( ComplexControl control,
 QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
 					    const QWidget *w,
 					    SubControl sc,
-					    void *data ) const
+					    void **data ) const
 {
     QRect rect;
 
@@ -1538,7 +1542,7 @@ QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
 QStyle::SubControl QCommonStyle::querySubControl(ComplexControl control,
 						 const QWidget *widget,
 						 const QPoint &pos,
-						 void *data ) const
+						 void **data ) const
 {
     SubControl ret = SC_None;
 
@@ -1717,7 +1721,7 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QWidget *widget) const
 QSize QCommonStyle::sizeFromContents(ContentsType contents,
 				     const QWidget *widget,
 				     const QSize &contentsSize,
-				     void *data ) const
+				     void **data ) const
 {
     QSize sz(contentsSize);
 
@@ -1810,7 +1814,7 @@ QSize QCommonStyle::sizeFromContents(ContentsType contents,
 /*!
   Returns a style (look and feel) hint.
 */
-int QCommonStyle::styleHint(StyleHint sh, const QWidget *, void **) const
+int QCommonStyle::styleHint(StyleHint sh, const QWidget *, void ***) const
 {
     int ret;
 

@@ -133,7 +133,7 @@ void QWindowsStyle::drawPrimitive( PrimitiveOperation op,
 				   const QRect &r,
 				   const QColorGroup &cg,
 				   PFlags flags,
-				   void *data ) const
+				   void **data ) const
 {
     switch (op) {
     case PO_ButtonCommand:
@@ -407,7 +407,7 @@ void QWindowsStyle::drawControl( ControlElement element,
 				 const QRect &r,
 				 const QColorGroup &cg,
 				 CFlags how,
-				 void *data ) const
+				 void **data ) const
 {
     switch (element) {
     case CE_Splitter:
@@ -826,7 +826,7 @@ int QWindowsStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
 QSize QWindowsStyle::sizeFromContents( ContentsType contents,
 				       const QWidget *widget,
 				       const QSize &contentsSize,
-				       void *data ) const
+				       void **data ) const
 {
     QSize sz(contentsSize);
 
@@ -1082,20 +1082,22 @@ static const char * const qt_unshade_xpm[] = {
 /*!
  \reimp
  */
-QPixmap QWindowsStyle::titleBarPixmap( const QTitleBar *, SubControl ctrl) const
+QPixmap QWindowsStyle::stylePixmap(StylePixmap stylepixmap,
+				   const QWidget *,
+				   void **) const
 {
-    switch(ctrl) {
-    case SC_TitleBarShadeButton:
+    switch (stylepixmap) {
+    case SP_TitleBarShadeButton:
 	return QPixmap((const char **)qt_shade_xpm);
-    case SC_TitleBarUnshadeButton:
+    case SP_TitleBarUnshadeButton:
 	return QPixmap((const char **)qt_unshade_xpm);
-    case SC_TitleBarNormalButton:
+    case SP_TitleBarNormalButton:
 	return QPixmap((const char **)qt_normalizeup_xpm);
-    case SC_TitleBarMinButton:
+    case SP_TitleBarMinButton:
 	return QPixmap((const char **)qt_minimize_xpm);
-    case SC_TitleBarMaxButton:
+    case SP_TitleBarMaxButton:
 	return QPixmap((const char **)qt_maximize_xpm);
-    case SC_TitleBarCloseButton:
+    case SP_TitleBarCloseButton:
 	return QPixmap((const char **)qt_close_xpm);
     default:
 	break;
@@ -1103,13 +1105,14 @@ QPixmap QWindowsStyle::titleBarPixmap( const QTitleBar *, SubControl ctrl) const
     return QPixmap();
 }
 
-void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter * p,
-					const QWidget * w,
-					const QRect & r,
-					const QColorGroup & cg,
+void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
+					const QWidget *w,
+					const QRect &r,
+					const QColorGroup &cg,
 					CFlags flags,
 					SCFlags sub,
-					SCFlags subActive, void * data ) const
+					SCFlags subActive,
+					void **data ) const
 {
     switch (ctrl) {
     case CC_ScrollBar: {
@@ -1381,7 +1384,7 @@ void QWindowsStyle::drawSubControl( SCFlags subCtrl, QPainter * p,
 				    const QColorGroup & cg,
 				    CFlags flags,
 				    SCFlags subActive,
-				    void * data ) const
+				    void **data ) const
 {
     switch( subCtrl ) {
     case SC_ComboBoxArrow: {
