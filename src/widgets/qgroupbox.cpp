@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#53 $
+** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#54 $
 **
 ** Implementation of QGroupBox widget class
 **
@@ -210,12 +210,11 @@ void QGroupBox::paintEvent( QPaintEvent *event )
     QPainter paint( this );
 
     paint.setClipRegion( event->region() );
-    
+
     if ( lenvisible ) {					// draw title
 	QFontMetrics fm = paint.fontMetrics();
 	int h = fm.height();
-	int tw = fm.width( str, lenvisible );
-		 
+	int tw = fm.width( str, lenvisible ) + 2*fm.width(QChar(' '));
 	int x;
 	if ( align & AlignHCenter )		// center alignment
 	    x = frameRect().width()/2 - tw/2;
@@ -393,7 +392,7 @@ void QGroupBox::fixFocus()
 void QGroupBox::calculateFrame()
 {
     lenvisible = str.length();
-    
+
     if ( lenvisible ) { // do we have a label?
 	QFontMetrics fm = fontMetrics();
 	int h = fm.height();
@@ -411,7 +410,7 @@ void QGroupBox::calculateFrame()
 	    return;
 	}
     }
-    
+
     // no visible label
     setFrameRect( QRect(0,0,0,0) );		//  then use client rect
 }
