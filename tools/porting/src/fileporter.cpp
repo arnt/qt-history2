@@ -49,6 +49,9 @@ void FilePorter::port(QString inBasePath, QString inFilePath, QString outBasePat
     QByteArray portedContents = textReplacements.apply(sym->contents);
 */
     QByteArray portedContents = replaceToken.getTokenTextReplacements(sym).apply(sym->contents);
+    
+    //This step needs to be done after the token replacements, since
+    //we need to know which new class names that has been inserted in the source
     portedContents = includeAnalyse(portedContents, fileType);
 
     if(!outFilePath.isEmpty()) {
@@ -116,7 +119,7 @@ QByteArray FilePorter::includeAnalyse(QByteArray fileContents, FileType /*fileTy
                 }
             }
             if(needHeader) {
-                headersToInsert.push_back(QString("#include <" + c.key() + ">\n"));
+                headersToInsert.push_back(QString("#include <" + c.key() + ">"));
              //   printf("Must insert header file for class  %s \n ", c.key().constData());
             }
         }
@@ -124,6 +127,7 @@ QByteArray FilePorter::includeAnalyse(QByteArray fileContents, FileType /*fileTy
     
     //insert headers in files, at the end of the first block of
     //include files
+    //TODO: make this more intelligent by not inserting inside #ifdefs
     inStream->rewind(0);
     bool includeEnd = false;
     bool includeStart = false;
@@ -149,17 +153,22 @@ QByteArray FilePorter::includeAnalyse(QByteArray fileContents, FileType /*fileTy
     int insertCount = headersToInsert.count();
     if(insertCount>0) {
         QByteArray insertText;
+        QByteArray logText;
+        
         insertText+="\n//Added by the Qt porting tool:\n";
+        logText += "Added the following include directives: ";
         
         foreach(QString headerName, headersToInsert) {
-            insertText +=headerName.latin1();
+            insertText = insertText + headerName.latin1() + "\n";
+            logText = logText + headerName.latin1() + " ";
         }
         insertText+="\n";
-                
         fileContents.insert(insertPos, insertText);        
+        Logger::instance()->addEntry("AddHeader", logText, QString(), 0, 0); //TODO get line/column here
     }
     
     return fileContents;
 }
+
 
 
