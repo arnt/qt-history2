@@ -932,10 +932,10 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
     }
     detach();					// detach other references
     QImage  image = img;
-    int	 w   = image.width();
-    int	 h   = image.height();
+    const uint	 w   = image.width();
+    const uint	 h   = image.height();
     int	 d   = image.depth();
-    int	 dd  = x11Depth();
+    const int	 dd  = x11Depth();
     bool force_mono = (dd == 1 || isQBitmap() ||
 		       (conversion_flags & ColorMode_Mask)==MonoOnly );
 
@@ -1000,7 +1000,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	    tmp_bits = new uchar[bpl*h];
 	    bits = (char *)tmp_bits;
 	    uchar *p, *b, *end;
-	    int y, count;
+	    uint y, count;
 	    if ( image.bitOrder() == QImage::BigEndian ) {
 		const uchar *f = qt_get_bitflip_array();
 		b = tmp_bits;
@@ -1058,28 +1058,26 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
     bool    trucol = (visual->c_class == TrueColor);
     int	    nbytes = image.numBytes();
     uchar  *newbits= 0;
-    register uchar *p;
 
     if ( trucol ) {				// truecolor display
 	QRgb  pix[256];				// pixel translation table
-	bool  d8 = d == 8;
-	uint  red_mask	  = (uint)visual->red_mask;
-	uint  green_mask  = (uint)visual->green_mask;
-	uint  blue_mask	  = (uint)visual->blue_mask;
-	int   red_shift	  = highest_bit( red_mask )   - 7;
-	int   green_shift = highest_bit( green_mask ) - 7;
-	int   blue_shift  = highest_bit( blue_mask )  - 7;
-	uint  rbits = highest_bit(red_mask) - lowest_bit(red_mask) + 1;
-	uint  gbits = highest_bit(green_mask) - lowest_bit(green_mask) + 1;
-	uint  bbits = highest_bit(blue_mask) - lowest_bit(blue_mask) + 1;
-	int   r, g, b;
+	const bool  d8 = d == 8;
+	const uint  red_mask	  = (uint)visual->red_mask;
+	const uint  green_mask  = (uint)visual->green_mask;
+	const uint  blue_mask	  = (uint)visual->blue_mask;
+	const int   red_shift	  = highest_bit( red_mask )   - 7;
+	const int   green_shift = highest_bit( green_mask ) - 7;
+	const int   blue_shift  = highest_bit( blue_mask )  - 7;
+	const uint  rbits = highest_bit(red_mask) - lowest_bit(red_mask) + 1;
+	const uint  gbits = highest_bit(green_mask) - lowest_bit(green_mask) + 1;
+	const uint  bbits = highest_bit(blue_mask) - lowest_bit(blue_mask) + 1;
 
 	if ( d8 ) {				// setup pixel translation
 	    QRgb *ctable = image.colorTable();
 	    for ( int i=0; i<image.numColors(); i++ ) {
-		r = qRed  (ctable[i]);
-		g = qGreen(ctable[i]);
-		b = qBlue (ctable[i]);
+		int r = qRed  (ctable[i]);
+		int g = qGreen(ctable[i]);
+		int b = qBlue (ctable[i]);
 		r = red_shift	> 0 ? r << red_shift   : r >> -red_shift;
 		g = green_shift > 0 ? g << green_shift : g >> -green_shift;
 		b = blue_shift	> 0 ? b << blue_shift  : b >> -blue_shift;
@@ -1093,17 +1091,14 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	Q_CHECK_PTR( newbits );
 	if ( !newbits )				// no memory
 	    return FALSE;
-	uchar *src;
-	uchar *dst;
-	QRgb   pixel;
 	int    bppc = xi->bits_per_pixel;
 
 	if ( bppc > 8 && xi->byte_order == LSBFirst )
 	    bppc++;
 
 	bool contig_bits = n_bits(red_mask) == rbits &&
-      n_bits(green_mask) == gbits &&
-       n_bits(blue_mask) == bbits;
+                           n_bits(green_mask) == gbits &&
+                           n_bits(blue_mask) == bbits;
 	bool dither_tc =
 	    // Want it?
 	    (conversion_flags & Dither_Mask) != ThresholdDither &&
@@ -1150,16 +1145,15 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	    init=TRUE;
 	}
 
-	for ( int y=0; y<h; y++ ) {
-	    QRgb *p;
-	    src = image.scanLine( y );
-	    dst = newbits + xi->bytes_per_line*y;
-	    p	= (QRgb *)src;
+	for ( uint y=0; y<h; y++ ) {
+	    uchar* src = image.scanLine( y );
+	    uchar* dst = newbits + xi->bytes_per_line*y;
+	    QRgb* p = (QRgb *)src;
 
 #define GET_RGB \
-		r = qRed  ( *p ); \
-		g = qGreen( *p ); \
-		b = qBlue ( *p++ ); \
+		int r = qRed  ( *p ); \
+		int g = qGreen( *p ); \
+		int b = qBlue ( *p++ ); \
 		r = red_shift   > 0 \
 		    ? r << red_shift   : r >> -red_shift; \
 		g = green_shift > 0 \
@@ -1168,6 +1162,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 		    ? b << blue_shift  : b >> -blue_shift;
 
 #define GET_PIXEL \
+                int pixel; \
 		if ( d8 ) pixel = pix[*src++]; \
 		else { \
 		    GET_RGB \
@@ -1175,10 +1170,10 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 		}
 
 #define GET_PIXEL_DITHER_TC \
-		r = qRed  ( *p ); \
-		g = qGreen( *p ); \
-		b = qBlue ( *p++ ); \
-		int thres = D[x%16][y%16]; \
+		int r = qRed  ( *p ); \
+		int g = qGreen( *p ); \
+		int b = qBlue ( *p++ ); \
+		const int thres = D[x%16][y%16]; \
 		if ( r <= (255-(1<<(8-rbits))) && ((r<<rbits) & 255) \
 			> thres) \
 		    r += (1<<(8-rbits)); \
@@ -1194,22 +1189,21 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 		    ? g << green_shift : g >> -green_shift; \
 		b = blue_shift  > 0 \
 		    ? b << blue_shift  : b >> -blue_shift; \
-		pixel = (b & blue_mask)|(g & green_mask) | (r & red_mask);
+		int pixel = (b & blue_mask)|(g & green_mask) | (r & red_mask);
 
-	    int x;
 	    if ( dither_tc ) {
 		switch ( bppc ) {
 		case 16:			// 16 bit MSB
-		    for ( x=0; x<w; x++ ) {
+		    for ( uint x=0; x<w; x++ ) {
 			GET_PIXEL_DITHER_TC
-			    *dst++ = (pixel >> 8);
+			*dst++ = (pixel >> 8);
 			*dst++ = pixel;
 		    }
 		    break;
 		case 17:			// 16 bit LSB
-		    for ( x=0; x<w; x++ ) {
+		    for ( uint x=0; x<w; x++ ) {
 			GET_PIXEL_DITHER_TC
-			    *dst++ = pixel;
+			*dst++ = pixel;
 			*dst++ = pixel >> 8;
 		    }
 		    break;
@@ -1219,54 +1213,54 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	    } else {
 		switch ( bppc ) {
 		case 8:			// 8 bit
-		    for ( x=0; x<w; x++ ) {
-			pixel = pix[*src++];
+		    for ( uint x=0; x<w; x++ ) {
+			int pixel = pix[*src++];
 			*dst++ = pixel;
 		    }
 		    break;
 		case 16:			// 16 bit MSB
-		    for ( x=0; x<w; x++ ) {
+		    for ( uint x=0; x<w; x++ ) {
 			GET_PIXEL
-			    *dst++ = (pixel >> 8);
+			*dst++ = (pixel >> 8);
 			*dst++ = pixel;
 		    }
 		    break;
 		case 17:			// 16 bit LSB
-		    for ( x=0; x<w; x++ ) {
+		    for ( uint x=0; x<w; x++ ) {
 			GET_PIXEL
-			    *dst++ = pixel;
+			*dst++ = pixel;
 			*dst++ = pixel >> 8;
 		    }
 		    break;
 		case 24:			// 24 bit MSB
-		    for ( x=0; x<w; x++ ) {
+		    for ( uint x=0; x<w; x++ ) {
 			GET_PIXEL
-			    *dst++ = pixel >> 16;
+			*dst++ = pixel >> 16;
 			*dst++ = pixel >> 8;
 			*dst++ = pixel;
 		    }
 		    break;
 		case 25:			// 24 bit LSB
-		    for ( x=0; x<w; x++ ) {
+		    for ( uint x=0; x<w; x++ ) {
 			GET_PIXEL
-			    *dst++ = pixel;
+			*dst++ = pixel;
 			*dst++ = pixel >> 8;
 			*dst++ = pixel >> 16;
 		    }
 		    break;
 		case 32:			// 32 bit MSB
-		    for ( x=0; x<w; x++ ) {
+		    for ( uint x=0; x<w; x++ ) {
 			GET_PIXEL
-			    *dst++ = pixel >> 24;
+			*dst++ = pixel >> 24;
 			*dst++ = pixel >> 16;
 			*dst++ = pixel >> 8;
 			*dst++ = pixel;
 		    }
 		    break;
 		case 33:			// 32 bit LSB
-		    for ( x=0; x<w; x++ ) {
+		    for ( uint x=0; x<w; x++ ) {
 			GET_PIXEL
-			    *dst++ = pixel;
+			*dst++ = pixel;
 			*dst++ = pixel >> 8;
 			*dst++ = pixel >> 16;
 			*dst++ = pixel >> 24;
@@ -1281,15 +1275,14 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
     }
 
     if ( d == 8 && !trucol ) {			// 8 bit pixmap
-	int  i, j;
 	int  pop[256];				// pixel popularity
 
 	if ( image.numColors() == 0 )
 	    image.setNumColors( 1 );
 
 	memset( pop, 0, sizeof(int)*256 );	// reset popularity array
-	for ( i=0; i<h; i++ ) {			// for each scanline...
-	    p = image.scanLine( i );
+	for ( uint i=0; i<h; i++ ) {			// for each scanline...
+	    uchar* p = image.scanLine( i );
 	    uchar *end = p + w;
 	    while ( p < end )			// compute popularity
 		pop[*p++]++;
@@ -1299,7 +1292,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	Q_CHECK_PTR( newbits );
 	if ( !newbits )				// no memory
 	    return FALSE;
-	p = newbits;
+	uchar* p = newbits;
 	memcpy( p, image.bits(), nbytes );	// copy image data into newbits
 
 	/*
@@ -1314,11 +1307,11 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	    int	  mindist;
 	};
 	int ncols = 0;
-	for ( i=0; i<image.numColors(); i++ ) { // compute number of colors
+	for ( int i=0; i<image.numColors(); i++ ) { // compute number of colors
 	    if ( pop[i] > 0 )
 		ncols++;
 	}
-	for ( i=image.numColors(); i<256; i++ ) // ignore out-of-range pixels
+	for ( int i=image.numColors(); i<256; i++ ) // ignore out-of-range pixels
 	    pop[i] = 0;
 
 	// works since we make sure above to have at least
@@ -1332,9 +1325,9 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	PIX *px		   = &pixarr[0];
 	int  maxpop = 0;
 	int  maxpix = 0;
-	j = 0;
+	uint j = 0;
 	QRgb* ctable = image.colorTable();
-	for ( i=0; i<256; i++ ) {		// init pixel array
+	for ( uint i=0; i<256; i++ ) {		// init pixel array
 	    if ( pop[i] > 0 ) {
 		px->r = qRed  ( ctable[i] );
 		px->g = qGreen( ctable[i] );
@@ -1354,7 +1347,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	pixarr_sorted[0] = pixarr[maxpix];
 	pixarr[maxpix].use = 0;
 
-	for ( i=1; i<ncols; i++ ) {		// sort pixels
+	for ( int i=1; i<ncols; i++ ) {		// sort pixels
 	    int minpix = -1, mindist = -1;
 	    px = &pixarr_sorted[i-1];
 	    int r = px->r;
@@ -1362,7 +1355,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	    int b = px->b;
 	    int dist;
 	    if ( (i & 1) || i<10 ) {		// sort on max distance
-		for ( j=0; j<ncols; j++ ) {
+		for ( int j=0; j<ncols; j++ ) {
 		    px = &pixarr[j];
 		    if ( px->use ) {
 			dist = (px->r - r)*(px->r - r) +
@@ -1377,7 +1370,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 		    }
 		}
 	    } else {				// sort on max popularity
-		for ( j=0; j<ncols; j++ ) {
+		for ( int j=0; j<ncols; j++ ) {
 		    px = &pixarr[j];
 		    if ( px->use ) {
 			dist = (px->r - r)*(px->r - r) +
@@ -1398,14 +1391,14 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 
 	uint pix[256];				// pixel translation table
 	px = &pixarr_sorted[0];
-	for ( i=0; i<ncols; i++ ) {		// allocate colors
+	for ( int i=0; i<ncols; i++ ) {		// allocate colors
 	    QColor c( px->r, px->g, px->b );
 	    pix[px->index] = c.pixel(x11Screen());
 	    px++;
 	}
 
 	p = newbits;
-	for ( i=0; i<nbytes; i++ ) {		// translate pixels
+	for ( int i=0; i<nbytes; i++ ) {		// translate pixels
 	    *p = pix[*p];
 	    p++;
 	}
@@ -1420,10 +1413,10 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	    Q_CHECK_PTR( newerbits );
 	    if ( !newerbits )				// no memory
 		return FALSE;
-	    p = newbits;
-	    for ( int y=0; y<h; y++ ) {		// OOPS: Do right byte order!!
+	    uchar* p = newbits;
+	    for ( uint y=0; y<h; y++ ) {		// OOPS: Do right byte order!!
 		p2 = newerbits + p2inc*y;
-		for ( int x=0; x<w; x++ )
+		for ( uint x=0; x<w; x++ )
 		    *p2++ = *p++;
 	    }
 	    free( newbits );
@@ -1435,7 +1428,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	xi->data = (char *)newbits;
     }
 
-    if ( hd && (width() != w || height() != h || this->depth() != dd) ) {
+    if ( hd && (width() != (int)w || height() != (int)h || this->depth() != dd) ) {
 
 #ifndef QT_NO_XFTFREETYPE
 	if (rendhd) {
