@@ -1614,7 +1614,7 @@ void QTextDocument::setRichTextInternal( const QString &text )
 			QTextParag *p = curpar;
 			if ( p && p->length() == 0 && p->prev() )
 			    p = p->prev();
-			if ( p->length() > 0 ) {
+			if ( p && p->length() > 0 ) {
 			    QTextFormat *f = p->at( p->length() - 1 )->format();
 			    if ( f ) {
 				f = fCollection->createFormat( *f );
