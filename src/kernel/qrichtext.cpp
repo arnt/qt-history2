@@ -1738,11 +1738,11 @@ void QTextDocument::setFormat( int id, QTextFormat *f, int flags )
     c1.restoreState();
 
     if ( c1.parag() == c2.parag() ) {
-	c1.parag()->setFormat( c1.index(), c2.index() - c1.index() + 1, f, TRUE, flags );
+	c1.parag()->setFormat( c1.index(), c2.index() - c1.index(), f, TRUE, flags );
 	return;
     }
 
-    c1.parag()->setFormat( c1.index(), c1.parag()->length() - c1.index() + 1, f, TRUE, flags );
+    c1.parag()->setFormat( c1.index(), c1.parag()->length() - c1.index(), f, TRUE, flags );
     QTextParag *p = c1.parag()->next();
     while ( p && p != c2.parag() ) {
 	p->setFormat( 0, p->length() - 1, f, TRUE, flags );
