@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#202 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#203 $
 **
 ** Implementation of QObject class
 **
@@ -1496,7 +1496,7 @@ bool QObject::connect( const QObject *sender,	const char *signal,
 		 s->className(), signal,
 		 r->className(), member );
 #endif
-    if ( !s->connections ) {		// create connections dict
+    if ( !s->connections ) {			// create connections dict
 	s->connections = new QSignalDict( 7, TRUE, FALSE );
 	CHECK_PTR( s->connections );
 	s->connections->setAutoDelete( TRUE );
@@ -1842,8 +1842,8 @@ void QObject::activate_signal( const char *signal )
 */
 
 
-#define ACTIVATE_SIGNAL_WITH_PARAM(TYPE)				      \
-void QObject::activate_signal( const char *signal, TYPE param )		      \
+#define ACTIVATE_SIGNAL_WITH_PARAM(FNAME,TYPE)				      \
+void QObject::FNAME( const char *signal, TYPE param )			      \
 {									      \
     if ( !connections )							      \
 	return;								      \
@@ -1875,10 +1875,13 @@ void QObject::activate_signal( const char *signal, TYPE param )		      \
 
 // We don't want to duplicate too much text so...
 
-ACTIVATE_SIGNAL_WITH_PARAM( short )
-ACTIVATE_SIGNAL_WITH_PARAM( int )
-ACTIVATE_SIGNAL_WITH_PARAM( long )
-ACTIVATE_SIGNAL_WITH_PARAM( const char * )
+ACTIVATE_SIGNAL_WITH_PARAM( activate_signal, short )
+ACTIVATE_SIGNAL_WITH_PARAM( activate_signal, int )
+ACTIVATE_SIGNAL_WITH_PARAM( activate_signal, long )
+ACTIVATE_SIGNAL_WITH_PARAM( activate_signal, const char * )
+ACTIVATE_SIGNAL_WITH_PARAM( activate_signal_bool, bool )
+ACTIVATE_SIGNAL_WITH_PARAM( activate_signal_string, QString )
+ACTIVATE_SIGNAL_WITH_PARAM( activate_signal_strref, const QString & )
 
 
 /*****************************************************************************
