@@ -274,23 +274,18 @@ private:
     static int argc;
     static char** argv;
     int mousecheck;
-    int timerchoke;
 
 public:
     PluginSDK_QApplication() :
 	QApplication(argc, argv),
-	mousecheck(0),
-	timerchoke(0)
+	mousecheck(0)
     {
     }
 
     void timerEvent(QTimerEvent* event)
     {
 	if (event->timerId() == mousecheck) {
-	    if ( timerchoke ) {
-		timerchoke--;
-		return;
-	    }
+	    killTimer( mousecheck );
 	    checkFocussedWidget();
 	} else {
 	    QApplication::timerEvent(event);
@@ -314,12 +309,13 @@ public:
 		    break;
 		}
 	    }
-	    
+debug("foc = %p",newFocussedWidget);
 	    if (newFocussedWidget != focussedWidget && focussedWidget)
 		focussedWidget->leaveInstance();
 	    
 	    if (newFocussedWidget) {
-		newFocussedWidget->enterInstance();
+		if (newFocussedWidget != focussedWidget)
+		    newFocussedWidget->enterInstance();
 	    } else {
 		killTimer( mousecheck );
 		mousecheck = 0;
@@ -329,19 +325,23 @@ public:
 	}
     }
 
-    bool winEventFilter( MSG *msg )
+    bool notify( QObject* obj, QEvent* event )
     {
-	return FALSE; // #### feature not debugged
-
-	if (!mousecheck) {
-	    // Only way to get "leave" events is to poll.
-	    mousecheck = startTimer(200);
+	if (event->type() == Event_Enter) {
+	    	debug("enter event");
+	    if ( mousecheck ) {
+		killTimer( mousecheck );
+		mousecheck = 0;
+	    }
 	    checkFocussedWidget();
+	} else if (event->type() == Event_Leave) {
+	    debug("leave event");
+	    if ( !mousecheck ) {
+		mousecheck = startTimer(200);
+	    }
 	}
-	if (msg->message != WM_TIMER)
-	    timerchoke = 0; // ### something like this changed to 1
 
-	return FALSE;
+	return QApplication::notify( obj, event );
     }
 #endif
 
@@ -1744,7 +1744,7 @@ void QNPStream::requestRead(int offset, uint length)
     NPByteRange range;
     range.offset = offset;
     range.length = length;
-    range.next = 0; // ### Only one support at this time
+    range.next = 0; // ### Only one supported at this time
     NPN_RequestRead(stream, &range);
 }
 

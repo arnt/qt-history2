@@ -60,6 +60,7 @@ public:
 	help->insertItem( "About plugin...", this, SIGNAL(aboutPlugin()) );
 	help->insertItem( "About data...", this, SIGNAL(aboutData()) );
 	menubar->insertItem("Help", help);
+	menubar->show();
     }
 
     ~Graph()
@@ -100,12 +101,14 @@ public:
 
     void enterInstance()
     {
-	menubar->show();
+	//debug("Enter %p",menubar);
+	if (menubar) menubar->show();
     }
 
     void leaveInstance()
     {
-	menubar->hide();
+	//debug("Leave %p",menubar);
+	if (menubar) menubar->hide();
     }
 
     void paintError(const char* e)
@@ -271,15 +274,18 @@ public:
 
     void paintEvent(QPaintEvent* event)
     {
-	if (!model.nCols()) return;
-
-	switch (style) {
-	  case Pie:
-	    paintPie(event);
-	    break;
-	  case Bar:
-	    paintBar(event);
-	    break;
+	if (!model.nCols()) {
+	    QPainter p(this);
+	    p.drawText(rect(), AlignCenter, "Loading...");
+	} else {
+	    switch (style) {
+	      case Pie:
+		paintPie(event);
+		break;
+	      case Bar:
+		paintBar(event);
+		break;
+	    }
 	}
     }
 
@@ -313,20 +319,6 @@ public:
 	firstline = TRUE;
 	ncols = 0;
 	line.open(IO_WriteOnly|IO_Truncate);
-
-	// X11: Calls to getURL cause problems, as we are inside
-	// Netscape's call.  Do it later (but soon).
-	// ### should this problem be hidden within our API?
-	startTimer(0);
-	//const char* rawsrc = arg("rawsrc");
-	//if (rawsrc) getURL(rawsrc);
-    }
-
-    void timerEvent(QTimerEvent*)
-    {
-	killTimers();
-	const char* rawsrc = arg("rawsrc");
-	if (rawsrc) getURL(rawsrc);
     }
 
     ~Grapher()
