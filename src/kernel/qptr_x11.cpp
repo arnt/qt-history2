@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#162 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#163 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#162 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#163 $")
 
 
 /*****************************************************************************
@@ -2556,37 +2556,17 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 		setBrush( backgroundColor() );
 		updateBrush();
 		XFillPolygon( dpy, hd, gc_brush, (XPoint*)a.data(), 4,
-			      Convex, CoordModeOrigin );
+			      Nonconvex, CoordModeOrigin );
 		XDrawLines( dpy, hd, gc_brush, (XPoint*)a.data(), 5,
 			    CoordModeOrigin );
 		setBrush( oldBrush );
 	    }
-	    bool do_clip = hasClipping();
-	    QPixmap *draw_bm;
-	    if ( do_clip ) {			// clipping enabled
-		draw_bm = new QPixmap( wx_bm->size(), 1 );
-		draw_bm->fill( color0 );
-		QPainter paint;
-		paint.begin( draw_bm );
-		QRegion rgn( crgn );
-		rgn.move( -x, -y );
-		paint.setClipRegion( rgn );
-		paint.drawPixmap( 0, 0, *wx_bm );
-		paint.end();
-	    }
-	    else
-		draw_bm = wx_bm;
-	    XSetClipMask( dpy, gc, draw_bm->handle() );
-	    XSetClipOrigin( dpy, gc, x, y );
-	    XCopyPlane( dpy, draw_bm->handle(), hd, gc, 0, 0,
-			draw_bm->width(), draw_bm->height(), x, y, 1 );
-	    XSetClipOrigin( dpy, gc, 0, 0 );
-	    if ( do_clip ) {
-		delete draw_bm;			// delete temporary bitmap
-		XSetRegion( dpy, gc, crgn.handle() );
-	    }
-	    else				// restore clip mask
-		XSetClipMask( dpy, gc, None );
+	    XSetFillStyle( dpy, gc, FillStippled );
+	    XSetStipple( dpy, gc, wx_bm->handle() );
+	    XSetTSOrigin( dpy, gc, x, y );
+	    XFillRectangle( dpy, hd, gc, x, y,wx_bm->width(),wx_bm->height() );
+	    XSetTSOrigin( dpy, gc, 0, 0 );
+	    XSetFillStyle( dpy, gc, FillSolid );
 	    if ( create_new_bm )
 		ins_text_bitmap( mat, fi, str, len, wx_bm );
 	    return;
