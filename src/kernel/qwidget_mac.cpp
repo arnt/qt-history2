@@ -569,6 +569,7 @@ void QWidget::reparentSys( QWidget *parent, WFlags f, const QPoint &p,
     }
 
     WindowPtr old_hd = testWFlags(WType_Desktop) ? NULL : (WindowPtr)hd;
+    QWidget* oldtlw = topLevelWidget();
     reparentFocusWidgets( parent );		// fix focus chains
 
     setWinId( 0 );
@@ -650,11 +651,7 @@ void QWidget::reparentSys( QWidget *parent, WFlags f, const QPoint &p,
     }
 #endif
 
-    if ( !parent ) {
-	QFocusData *fd = focusData( TRUE );
-	if ( fd->focusWidgets.findRef(this) < 0 )
- 	    fd->focusWidgets.append( this );
-    }
+    reparentFocusWidgets( oldtlw );
 
     //repaint the new area, on the window parent
     if(isVisible()) //finally paint my new area
