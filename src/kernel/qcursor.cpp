@@ -73,6 +73,7 @@
     \row \i Qt::UpArrowCursor           \i up_arrow
     \row \i Qt::CrossCursor             \i cross
     \row \i Qt::WaitCursor              \i wait
+    \row \i Qt::BusyCursor		\i busy
     \row \i Qt::IbeamCursor             \i ibeam
     \row \i Qt::SizeVerCursor           \i size_ver
     \row \i Qt::SizeHorCursor           \i size_hor
@@ -96,6 +97,7 @@
     \value UpArrowCursor  upwards arrow
     \value CrossCursor  crosshair
     \value WaitCursor  hourglass/watch
+    \value BusyCursor  standard arrow with hourglass/watch
     \value IbeamCursor  ibeam/text entry
     \value SizeVerCursor  vertical resize
     \value SizeHorCursor  horizontal resize

@@ -497,6 +497,10 @@ void QCursor::update() const
 	d->type = QCursorData::TYPE_ThemeCursor;
 	d->curs.tc = kThemePointingHandCursor;
 	break;
+    case BusyCursor:
+	d->type = QCursorData::TYPE_ThemeCursor;
+	d->curs.tc = kThemeSpinningCursor;
+	break;
 
 #define QT_USE_APPROXIMATE_CURSORS
 #ifdef QT_USE_APPROXIMATE_CURSORS

@@ -362,6 +362,9 @@ void QCursor::update() const
     case WhatsThisCursor:
 	sh = (unsigned short*)IDC_HELP;
 	break;
+    case BusyCursor:
+	sh = (unsigned short*)IDC_APPSTARTING;
+	break;
     case PointingHandCursor:
 	if ( qWinVersion() == Qt::WV_2000 || qWinVersion() == Qt::WV_XP ) {
 	    sh = (unsigned short*)IDC_HAND;

@@ -764,7 +764,8 @@ public:
 	PointingHandCursor,
 	ForbiddenCursor,
 	WhatsThisCursor,
-	LastCursor	= WhatsThisCursor,
+	BusyCursor,
+	LastCursor	= BusyCursor,
 	BitmapCursor	= 24
 
 #ifndef QT_NO_COMPAT

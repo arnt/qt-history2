@@ -468,7 +468,8 @@ void QCursor::update() const
 	"split_h",
 	"pointing_hand",
 	"forbidden",
-	"whats_this"
+	"whats_this",
+	"busy"
     };
 
     d->hcurs = XcursorLibraryLoadCursor( dpy, cursorNames[d->cshape] );
@@ -728,6 +729,9 @@ void QCursor::update() const
 	break;
     case ForbiddenCursor:
 	sh = XC_circle;
+	break;
+    case BusyCursor:
+	sh = XC_coffee_mug;
 	break;
 #endif /* QT_USE_APPROXIMATE_CURSORS */
     default:
