@@ -2809,7 +2809,7 @@ void TrWindow::writeConfig()
 
     config.insertSearchPath( QSettings::Windows, "/Trolltech" );
     config.writeEntry( keybase + "RecentlyOpenedFiles", recentFiles, ',' );
-    config.writeEntry( keybase + "Geometries/MainwindowMaximized", isMaximized() );
+    config.writeEntry( keybase + "Geometry/MainwindowMaximized", isMaximized() );
     config.writeEntry( keybase + "Geometry/MainwindowX", x() );
     config.writeEntry( keybase + "Geometry/MainwindowY", y() );
     config.writeEntry( keybase + "Geometry/MainwindowWidth", width() );
