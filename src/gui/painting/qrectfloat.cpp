@@ -17,7 +17,8 @@
 
 /*!
     \class QRectFloat
-    \brief The QRectFloat class defines a rectangle in the plane.
+    \brief The QRectFloat class defines a rectangle in the plane using floating
+    point coordinates for accuracy.
 
     \ingroup multimedia
 

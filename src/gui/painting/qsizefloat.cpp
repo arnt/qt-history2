@@ -17,7 +17,8 @@
 
 /*!
     \class QSizeFloat
-    \brief The QSizeFloat class defines the size of a two-dimensional object.
+    \brief The QSizeFloat class defines the size of a two-dimensional object
+    using floating point values for accuracy.
 
     \ingroup multimedia
 
@@ -32,8 +33,7 @@
     the maximum height and width of two sizes using expandedTo(), and
     the minimum height and width of two sizes using boundedTo().
 
-
-    \sa QPoint, QRect
+    \sa QSize QPointFloat QRectFloat
 */
 
 
