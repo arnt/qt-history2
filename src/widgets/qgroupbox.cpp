@@ -79,8 +79,8 @@
   constructor) and the title's alignment().
 
   You can change the spacing used by the group box with
-  setInsideMargin() and setInsideSpacing(). To reduce space consumption, 
-  you can remove the right, left and bottom edges of the frame with 
+  setInsideMargin() and setInsideSpacing(). To reduce space consumption,
+  you can remove the right, left and bottom edges of the frame with
   setFlat().
 
   <img src=qgrpbox-w.png>
@@ -170,30 +170,32 @@ void QGroupBox::init()
 
 void QGroupBox::setTextSpacer()
 {
-    QSpacerItem *sp = (QSpacerItem*)d;
-    if ( ! sp )
+    QSpacerItem *spacer = (QSpacerItem*)d;
+    if ( !spacer )
 	return;
     int h = 0;
     int w = 0;
     if ( lenvisible ) {
 	QFontMetrics fm = fontMetrics();
-	h = fm.height();
+	int fh = fm.height();
 	w = fm.width( str, lenvisible ) + 2*fm.width( "xx" );
+	h = frameRect().y();
 	if ( layout() ) {
-	    int m = layout()->margin();
+ 	    int m = layout()->margin();
+	    int sp = layout()->spacing();
 	    // do we have a child layout?
 	    for ( QLayoutIterator it = layout()->iterator(); it.current(); ++it ) {
 		if ( it.current()->layout() ) {
-		    m += it.current()->layout()->margin();
+ 		    m += it.current()->layout()->margin();
+		    sp = QMAX( sp, it.current()->layout()->spacing() );
 		    break;
 		}
 	    }
-	    if ( m > 4 )
-		h -= m - 4;
-	    h = QMAX( 0, h );
+	    h = QMAX( fh-m, h );
+	    h += QMAX( sp - (h+m - fh), 0 );
 	}
     }
-    sp->changeSize( w, h, QSizePolicy::Minimum, QSizePolicy::Fixed );
+    spacer->changeSize( w, h, QSizePolicy::Minimum, QSizePolicy::Fixed );
 }
 
 
@@ -688,21 +690,23 @@ QSize QGroupBox::sizeHint() const
   \property QGroupBox::flat
   \brief whether the group box is painted flat or has a frame around it.
 
-  By default a group box has a surrounding frame, with the title being placed 
-  on the upper frame line. In flat mode the right, left and bottom frame lines 
+  By default a group box has a surrounding frame, with the title being placed
+  on the upper frame line. In flat mode the right, left and bottom frame lines
   are omitted, and only the thin line at the top is drawn.
-  
+
   \sa title
 */
 bool QGroupBox::isFlat() const
-{ 
+{
     return bFlat;
 }
 
 void QGroupBox::setFlat( bool b )
 {
+    if ( bFlat == b )
+	return;
     bFlat = b;
-    setColumnLayout( columns(), dir );
+    update();
 }
 
 #endif
