@@ -190,14 +190,7 @@ inline bool QMacSetFontInfo::setMacFont(const QFontPrivate *d, QMacSetFontInfo *
 	d->fin->internal_fi = fi = new QMacFontInfo();
 
 	//face
-	Str255 str;
-	// encoding == 1, yes it is strange the names of fonts are encoded in MacJapanese
-	TextEncoding encoding = CreateTextEncoding( kTextEncodingMacJapanese,
-						    kTextEncodingDefaultVariant, kTextEncodingDefaultFormat );
-	qstring_to_pstring( d->request.family, d->request.family.length(), str, encoding );
-	short fnum;
-	GetFNum(str, &fnum);
-	fi->setFont(fnum);
+	fi->setFont(d->fin->fnum);
 
 	//style
 	short face = normal;
@@ -208,13 +201,14 @@ inline bool QMacSetFontInfo::setMacFont(const QFontPrivate *d, QMacSetFontInfo *
 	fi->setStyle(face);
 	
 	//size
-	int pointSize = d->request.pointSize != -1 ? d->request.pointSize / 10 : d->request.pixelSize *80 /72; 
+	int pointSize = d->request.pointSize != -1 ? d->request.pointSize / 10 : 
+			      d->request.pixelSize *80 /72; 
 	fi->setSize( pointSize );
 
 	//encoding
 	TextEncoding enc;
-	UpgradeScriptInfoToTextEncoding( FontToScript( fnum ), kTextLanguageDontCare, 
-					 kTextRegionDontCare, NULL, &enc );
+	UpgradeScriptInfoToTextEncoding(FontToScript(d->fin->fnum), kTextLanguageDontCare, 
+					kTextRegionDontCare, NULL, &enc);
 	fi->setEncoding(enc);
     }
     if(!sfi || fi->font() != sfi->tfont)
@@ -247,7 +241,7 @@ static QMAC_PASCAL OSStatus macFallbackChar(UniChar *, ByteCount, ByteCount *oSr
 	CreateUnicodeToTextInfo(map, &tuni);
 	const short flbk = 0x25A1; //square
 	const ByteCount flbklen = sizeof(flbk);
-	OSStatus err = ConvertFromUnicodeToText( tuni, flbklen,(UniChar *)&flbk, 0,
+	OSStatus err = ConvertFromUnicodeToText(tuni, flbklen,(UniChar *)&flbk, 0,
 						 0, NULL, NULL, NULL, myDestLen, &mySrcConvLen,
 						 &myDestConvLen, myStr);
 	DisposeUnicodeToTextInfo(&tuni);
@@ -264,7 +258,7 @@ static QMAC_PASCAL OSStatus macFallbackChar(UniChar *, ByteCount, ByteCount *oSr
     CreateUnicodeToTextInfo(map, &tuni);
     const short flbk = 0x25A1; //square
     const ByteCount flbklen = sizeof(flbk);
-    OSStatus err = ConvertFromUnicodeToText( tuni, flbklen,(UniChar *)&flbk, 0,
+    OSStatus err = ConvertFromUnicodeToText(tuni, flbklen,(UniChar *)&flbk, 0,
 					     0, NULL, NULL, NULL, iDestLen, oSrcConvLen,
 					     oDestConvLen, oStr);
     DisposeUnicodeToTextInfo(&tuni);
@@ -287,6 +281,7 @@ static const UnicodeToTextFallbackUPP make_font_fallbackUPP()
     return qt_macFallbackCharUPP = NewUnicodeToTextFallbackUPP(macFallbackChar);
 }
 
+QCString p2qstring(const unsigned char *c); //qglobal.cpp
 const unsigned char * p_str(const QString &); //qglobal.cpp
 enum text_task { GIMME_WIDTH=0x01, GIMME_DRAW=0x02, GIMME_EXISTS=0x04 };
 static int do_text_task( const QFontPrivate *d, const QChar *s, int len, uchar task)
@@ -309,7 +304,7 @@ static int do_text_task( const QFontPrivate *d, const QChar *s, int len, uchar t
 	qDebug("unlikely error %d %s:%d", (int)err, __FILE__, __LINE__);
 	return 0;
     }
-    SetFallbackUnicodeToTextRun( runi, make_font_fallbackUPP(), kUnicodeFallbackCustomFirst, NULL);
+    SetFallbackUnicodeToTextRun(runi, make_font_fallbackUPP(), kUnicodeFallbackCustomFirst, NULL);
 
     //now convert
     int buf_len = 2056;     //buffer
@@ -324,9 +319,9 @@ static int do_text_task( const QFontPrivate *d, const QChar *s, int len, uchar t
     int ret = 0, sz = fi.size();
     ScriptCode sc = FontToScript(fi.font());
     for (;;) {
-	err = ConvertFromUnicodeToScriptCodeRun( runi, unilen-read_so_far, unibuf+read_so_far, flags,
-						 0, NULL, NULL, NULL, buf_len, &read, 
-						 &converted, buf, run_len, &run_len, runs);
+	err = ConvertFromUnicodeToScriptCodeRun(runi, unilen-read_so_far, unibuf+read_so_far, flags,
+						0, NULL, NULL, NULL, buf_len, &read, 
+						&converted, buf, run_len, &run_len, runs);
 	if(err != noErr && err != kTECUsedFallbacksStatus && 
 	   err != kTECArrayFullErr && err != kTECOutputBufferFullStatus)  {
 	    qDebug("unlikely error %d %s:%d", (int)err, __FILE__, __LINE__);
@@ -684,6 +679,15 @@ void QFontPrivate::load()
 	    QMacSetFontInfo fi(this);
 	    GetFontInfo(fin->info);
 	}
+	if(fin->fnum == -1) {
+	    Str255 str;
+	    // encoding == 1, yes it is strange the names of fonts are encoded in MacJapanese
+	    TextEncoding encoding = CreateTextEncoding( kTextEncodingMacJapanese,
+							kTextEncodingDefaultVariant, 
+							kTextEncodingDefaultFormat );
+	    qstring_to_pstring(request.family, request.family.length(), str, encoding);
+	    GetFNum(str, &fin->fnum);
+	}
 	actual.dirty = TRUE;
     }
     if(actual.dirty) {
@@ -693,6 +697,14 @@ void QFontPrivate::load()
 	    actual.pointSize = int( (actual.pixelSize * 10 * 80) / 72. + 0.5);
 	else
 	    actual.pixelSize = (actual.pointSize * 72 / (10 * 80));
+
+	Str255 font;
+	GetFontName(fin->fnum, font);
+	actual.family = p2qstring(font);
+
+	exactMatch = (actual.family == request.family && 
+		      (request.pointSize == -1 || (actual.pointSize == request.pointSize)) && 
+		      (request.pixelSize == -1 || (actual.pixelSize == request.pixelSize))); 
     }
 }
 

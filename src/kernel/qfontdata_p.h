@@ -166,7 +166,7 @@ class QMacFontInfo;
 class QFontStruct : public QShared
 {
 public:
-    inline QFontStruct() :   QShared(), info(NULL), cache_cost(0), internal_fi(NULL) { }
+    inline QFontStruct() :   QShared(), fnum(-1), info(NULL), cache_cost(0), internal_fi(NULL) { }
     int ascent() const { return info->ascent; }
     int descent() const { return info->descent; }
     int minLeftBearing() const { return 0; }
@@ -174,6 +174,7 @@ public:
     int leading() const { return info->leading; }
     int maxWidth() const { return info->widMax; }
 
+    short fnum;
     int psize;
     FontInfo *info;
     int cache_cost;
