@@ -112,7 +112,7 @@ public:
 
     inline T& localData()
     { return qThreadStorage_localData(d, reinterpret_cast<T*>(0)); }
-    inline const T localData() const
+    inline T localData() const
     { return qThreadStorage_localData_const(d, reinterpret_cast<T*>(0)); }
 
     inline void setLocalData(T t)
