@@ -25,7 +25,7 @@
 class QHBoxLayout;
 class QWizardPrivate;
 
-class Q_GUI_EXPORT QWizard : public QDialog
+class Q_COMPAT_EXPORT QWizard : public QDialog
 {
     Q_OBJECT
     Q_PROPERTY(QFont titleFont READ titleFont WRITE setTitleFont)
