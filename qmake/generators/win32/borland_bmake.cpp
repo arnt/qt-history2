@@ -74,6 +74,9 @@ BorlandMakefileGenerator::writeMakefile(QTextStream &t)
 void
 BorlandMakefileGenerator::writeBorlandParts(QTextStream &t)
 {
+    t << "!if !$d(BCB)" << endl;
+    t << "BCB = $(MAKEDIR)\\.." << endl;
+    t << "!endif" << endl << endl;
     t << "####### Compiler, tools and options" << endl << endl;
     t << "CC	=	" << var("QMAKE_CC") << endl;
     t << "CXX	=	" << var("QMAKE_CXX") << endl;
