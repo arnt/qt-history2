@@ -54,6 +54,7 @@ update alltypes set c2 = 'updated2' where n1 = 1;
 update alltypes set c2 = 'updated3' where n1 = 1;
 update alltypes set c2 = 'updated4' where n1 = 1;
 update alltypes set n2 = 999 where n1 = 1;
+update alltypes set n2 = NULL where n2 = 12;
 update alltypes set d1 = '1972-04-18' where n1 = 1;
 
 -- actually change a primary key
@@ -64,5 +65,25 @@ update alltypes set c1 = 'mass update' where n1 > 1;
 
 -- complex where clause
 update alltypes set c1 = 'complex update' where n1 = 91 OR ( n1+n2 > 189 );
+
+
+-- some select statements
+select * from alltypes;
+select count(n1) from alltypes;
+select n1,n2 from alltypes group by n1, n2;
+select n1, alltypes.* from alltypes;
+--select a.n1 from alltypes a, alltypes b ## currently fails
+
+-- another table
+create table another
+(id int primary key,
+linkid int);
+create index another_link_idx on another(linkid);
+insert into another values (1,99);
+insert into another values (1,NULL);
+
+-- some joins
+select a.linkid, b.n1 from another a, alltypes b
+       where a.linkid=b.n1;
 
 --delete from alltypes;
