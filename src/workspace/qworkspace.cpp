@@ -52,6 +52,7 @@
 #include "qpainter.h"
 #include "qimage.h"
 #include "qdatetime.h"
+#include "qguardedptr.h"
 
 // REVISED: arnt
 
@@ -568,6 +569,7 @@ public:
     QWorkspaceChild* maxWindow;
     QRect maxRestore;
     QFrame* maxcontrols;
+    QGuardedPtr<QMenuBar> maxmenubar;
 
     int px;
     int py;
@@ -578,7 +580,6 @@ public:
     int menuId;
     int controlId;
     QString topCaption;
-
 };
 
 /*!
@@ -718,7 +719,7 @@ void QWorkspace::activateWindow( QWidget* w, bool change_focus )
     if (!d->active)
 	return;
 
-    if ( d->maxWindow && d->maxWindow != d->active &&
+    if ( d->maxWindow && d->maxWindow != d->active && d->active->windowWidget() &&
 	d->active->windowWidget()->testWFlags( WStyle_MinMax ) &&
 	!d->active->windowWidget()->testWFlags( WStyle_Tool ) ) {
 	maximizeWindow( d->active->windowWidget() );
@@ -1023,7 +1024,7 @@ QWidgetList QWorkspace::windowList() const
 {
     QWidgetList windows;
     for (QWorkspaceChild* c = d->windows.first(); c; c = d->windows.next() ) {
-	if ( c->windowWidget()->isVisibleTo( c ) )
+	if ( c->windowWidget() && c->windowWidget()->isVisibleTo( c ) )
 	    windows.append( c->windowWidget() );
     }
     return windows;
@@ -1130,9 +1131,10 @@ bool QWorkspace::eventFilter( QObject *o, QEvent * e)
 void QWorkspace::showMaximizeControls()
 {
 #ifndef QT_NO_MENUBAR
+    QMenuBar* b = 0;
+    
     QObjectList * l = topLevelWidget()->queryList( "QMenuBar", 0,
-						   FALSE, TRUE );
-    QMenuBar * b = 0;
+						   FALSE, FALSE );
     if ( l && l->count() )
 	b = (QMenuBar *)l->first();
     delete l;
@@ -1141,6 +1143,7 @@ void QWorkspace::showMaximizeControls()
 	return;
 
     if ( !d->maxcontrols ) {
+	d->maxmenubar = b;
 	d->maxcontrols = new QFrame( topLevelWidget() );
 	QHBoxLayout* l = new QHBoxLayout( d->maxcontrols,
 					  d->maxcontrols->frameWidth(), 0 );
@@ -1184,7 +1187,7 @@ void QWorkspace::showMaximizeControls()
 	    d->maxtools = new QWorkspaceChildTitleButton( topLevelWidget() );
 	    d->maxtools->installEventFilter( this );
 	}
-	if ( d->active->windowWidget()->icon() ) {
+	if ( d->active->windowWidget() && d->active->windowWidget()->icon() ) {
 	    d->maxtools->setPixmap( *d->active->windowWidget()->icon() );
 	} else {
 	    QPixmap pm(14,14);
@@ -1201,22 +1204,17 @@ void QWorkspace::showMaximizeControls()
 void QWorkspace::hideMaximizeControls()
 {
 #ifndef QT_NO_MENUBAR
-    QObjectList * l = topLevelWidget()->queryList( "QMenuBar", 0, FALSE, TRUE );
-    QMenuBar * b = 0;
-    if ( l && l->count() )
-	b = (QMenuBar *)l->first();
-    delete l;
-    if ( b ) {
+    if ( d->maxmenubar ) {
 	int mi = d->menuId;
 	if ( mi != -1 ) {
-	    b->removeItem( mi );
+	    d->maxmenubar->removeItem( mi );
 	    if ( d ) {
 		d->maxtools = 0;
 	    }
 	}
 	int ci = d->controlId;
 	if ( ci != -1 )
-	    b->removeItem( ci );
+	    d->maxmenubar->removeItem( ci );
     }
     d->maxcontrols = 0;
     d->menuId = -1;
@@ -1238,7 +1236,8 @@ void QWorkspace::closeAllWindows()
     QWorkspaceChild *c = 0;
     while ( ( c = it.current() ) != 0 ) {
 	++it;
-	c->windowWidget()->close();
+	if ( c->windowWidget() )
+	    c->windowWidget()->close();
     }
 }
 
@@ -1260,7 +1259,7 @@ void QWorkspace::minimizeActiveWindow()
 
 void QWorkspace::showOperationMenu()
 {
-    if  ( !d->active )
+    if  ( !d->active || !d->active->windowWidget() )
 	return;
     QPoint p( d->active->windowWidget()->mapToGlobal( QPoint(0,0) ) );
     if ( !d->active->isVisible() ) {
@@ -1272,7 +1271,7 @@ void QWorkspace::showOperationMenu()
 
 void QWorkspace::popupOperationMenu( const QPoint&  p)
 {
-    if ( !d->active || !d->active->windowWidget()->testWFlags( WStyle_SysMenu ) )
+    if ( !d->active || !d->active->windowWidget() || !d->active->windowWidget()->testWFlags( WStyle_SysMenu ) )
 	return;
     if ( d->active->windowWidget()->testWFlags( WStyle_Tool ))
 	d->toolPopup->popup( p );
@@ -2224,6 +2223,9 @@ static bool isChildOf( QWidget * child, QWidget * parent )
 
 void QWorkspaceChild::setActive( bool b )
 {
+    if ( !childWidget )
+	return;
+
     act = b;
 
     if ( titlebar )
@@ -2302,9 +2304,11 @@ QWidget* QWorkspaceChild::iconWidget() const
 	connect( iconw, SIGNAL( showOperationMenu() ),
 		 this, SIGNAL( showOperationMenu() ) );
     }
-    iconw->setText( windowWidget()->caption() );
-    if ( windowWidget()->icon() )
-	iconw->setIcon( *windowWidget()->icon() );
+    if ( windowWidget() ) {
+	iconw->setText( windowWidget()->caption() );
+	if ( windowWidget()->icon() )
+	    iconw->setIcon( *windowWidget()->icon() );
+    }
     return iconw->parentWidget();
 }
 
@@ -2564,6 +2568,8 @@ void QWorkspaceChild::internalRaise()
 {
     raise();
 
+    if ( !windowWidget() )
+	return;
     if ( windowWidget()->testWFlags( WStyle_StaysOnTop ) )
 	return;
 
