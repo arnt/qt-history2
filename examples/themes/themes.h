@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/themes/themes.h#1 $
+** $Id: //depot/qt/main/examples/themes/themes.h#2 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -34,7 +34,12 @@ protected slots:
     void styleWindows();
     void styleCDE();
     void styleMotif();
+    
+    void about();
+    void aboutQt();
 
+private:
+    void selectStyleMenu( int );
 };
 
 

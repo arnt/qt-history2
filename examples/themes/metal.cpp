@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/themes/metal.cpp#1 $
+** $Id: //depot/qt/main/examples/themes/metal.cpp#2 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -26,8 +26,9 @@
 
 /////////////////////////////////////////////////////////
 #include "metal.xpm"
+#include "stonedark.xpm"
+#include "stonebright.xpm"
 #include "stone1.xpm"
-#include "marble.xpm"
 ///////////////////////////////////////////////////////
 
 
@@ -46,12 +47,16 @@ void MetalStyle::polish( QApplication *app)
     // we simply create a nice QColorGroup with a couple of fancy
     // pixmaps here and apply to it all widgets
 
+    QFont f = app->font();
+    f.setBold( TRUE );
+    f.setItalic( TRUE );
+    app->setFont( f, TRUE, "QMenuBar");
+    app->setFont( f, TRUE, "QPopupMenu");
 
 
     //QPixmap button( stone1_xpm );
-    QColor buttonCol( 111, 111, 111 );
-    QPixmap button( 1,1 ); button.fill( buttonCol );
-    QPixmap background(marble_xpm);
+    QPixmap button( stonedark_xpm );
+    QPixmap background(stonebright_xpm);
 #if 0
 
     int i;
@@ -138,6 +143,8 @@ void MetalStyle::polish( QApplication *app)
 void MetalStyle::unPolish( QApplication *app)
 {
     app->setPalette(oldPalette, TRUE);
+    app->setFont( app->font(), TRUE, "QMenuBar");
+    app->setFont( app->font(), TRUE, "QPopupMenu");
 }
 
 /*!
@@ -156,6 +163,11 @@ void MetalStyle::polish( QWidget* w)
 	return;
     }
     if (w->inherits("QLCDNumber")){
+	return;
+    }
+
+    if (w->inherits("QPushButton")){
+	w->setBackgroundMode( QWidget::NoBackground );
 	return;
     }
 
@@ -192,6 +204,11 @@ void MetalStyle::unPolish( QWidget* w)
 	return;
     }
 
+    if (w->inherits("QPushButton")){
+	w->setBackgroundMode( QWidget::PaletteButton );
+	return;
+    }
+    
     if ( w->inherits("QRadioButton") || w->inherits("QCheckBox") ){
 	w->setAutoMask( FALSE );
 	return;
@@ -232,7 +249,7 @@ void MetalStyle::drawButton( QPainter *p, int x, int y, int w, int h,
     QColorGroup g2;
     g2.setColor( QColorGroup::Light,  white  );
     g2.setColor( QColorGroup::Dark,  black  );
-    qDrawShadePanel( p, x, y, w, h, g2, sunken);
+    qDrawShadePanel( p, x, y, w, h, g2, sunken, sunken?3:1);
 	
 
 //    static QPixmap* darkpixmap = 0;
@@ -334,12 +351,10 @@ void MetalStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p)
     int dy = 0;
     if ( btn->isMenuButton() )
 	dx = (y2-y1) / 3;
-#if 0 //text does not move when button is pushed
     if ( btn->isOn() || btn->isDown() ) {
-	dx++;
+	//dx++;
 	dy++;
     }
-#endif
     if ( dx || dy )
 	p->translate( dx, dy );
 
