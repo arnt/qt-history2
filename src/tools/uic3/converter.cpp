@@ -618,16 +618,13 @@ void Ui3Reader::createProperties(const QDomElement &n, QList<DomProperty*> *prop
 
             // changes in QWidget
             if (name == QLatin1String("ownCursor")) {
-                // skip
-            } else if (name == QLatin1String("customWhatsThis")) {
-                prop->setAttributeName("whatsThis");
-            } else if (name == QLatin1String("icon")) {
-                prop->setAttributeName("windowIcon");
-            } else if (name == QLatin1String("iconText")) {
-                prop->setAttributeName("windowIconText");
-            } else if (name == QLatin1String("caption")) {
-                prop->setAttributeName("windowTitle");
+                // ### skip
             }
+
+            CONVERT_PROPERTY("customWhatsThis", "whatsThis");
+            CONVERT_PROPERTY("icon", "windowIcon");
+            CONVERT_PROPERTY("iconText", "windowIconText");
+            CONVERT_PROPERTY("caption", "windowTitle");
 
             if (name == QLatin1String("name")) {
                 prop->setAttributeName("objectName");
