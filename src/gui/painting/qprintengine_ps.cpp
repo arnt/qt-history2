@@ -856,7 +856,7 @@ public:
     virtual QString defineFont(QTextStream &stream, const QString &ps, const QString &key,
                              QPSPrintEnginePrivate *ptr);
     virtual void download(QTextStream& s, bool global);
-    virtual void drawText(QTextStream &stream, QPSPrintEnginePrivate *d, const QPointF &p, const QTextItem &ti, int textflags);
+    virtual void drawText(QTextStream &stream, QPSPrintEnginePrivate *d, const QPointF &p, const QTextItem &ti);
     virtual unsigned short mapUnicode(unsigned short unicode);
     void downloadMapping(QTextStream &s, bool global);
     QString glyphName(unsigned short glyphindex, bool *glyphSet = 0);
@@ -1148,7 +1148,7 @@ static inline const char * toInt(int i)
     return intVal+pos;
 }
 
-void QPSPrintEngineFontPrivate::drawText(QTextStream &stream, QPSPrintEnginePrivate *d, const QPointF &p, const QTextItem &ti, int textflags)
+void QPSPrintEngineFontPrivate::drawText(QTextStream &stream, QPSPrintEnginePrivate *d, const QPointF &p, const QTextItem &ti)
 {
     float x = p.x();
     float y = p.y();
@@ -1159,7 +1159,7 @@ void QPSPrintEngineFontPrivate::drawText(QTextStream &stream, QPSPrintEnginePriv
     int len = ti.num_chars;
 
     stream << "<";
-    if (ti.right_to_left) {
+    if (ti.flags & QTextItem::RightToLeft) {
         for (int i = len-1; i >=0; i--)
             stream << toHex(mapUnicode(ti.chars[i].unicode()));
     } else {
@@ -1170,10 +1170,10 @@ void QPSPrintEngineFontPrivate::drawText(QTextStream &stream, QPSPrintEnginePriv
 
     stream << ti.width << " " << x;
 
-    if (textflags & Qt::TextUnderline)
+    if (ti.flags & QTextItem::Underline)
         stream << ' ' << y + d->fm.underlinePos() + d->fm.lineWidth()
                << " " << d->fm.lineWidth() << " Tl";
-    if (textflags & Qt::TextStrikeOut)
+    if (ti.flags & QTextItem::StrikeOut)
         stream << ' ' << y + d->fm.strikeOutPos()
                << " " << d->fm.lineWidth() << " Tl";
     stream << " AT\n";
@@ -1521,7 +1521,7 @@ class QPSPrintEngineFontTTF
 public:
     QPSPrintEngineFontTTF(QFontEngine *f, QByteArray& data);
     virtual void    download(QTextStream& s, bool global);
-    virtual void drawText(QTextStream &stream, QPSPrintEnginePrivate *d, const QPointF &p, const QTextItem &ti, int textflags);
+    virtual void drawText(QTextStream &stream, QPSPrintEnginePrivate *d, const QPointF &p, const QTextItem &ti);
     //  virtual ~QPSPrintEngineFontTTF();
 
     virtual bool embedded() { return true; }
@@ -1820,7 +1820,7 @@ QPSPrintEngineFontTTF::QPSPrintEngineFontTTF(QFontEngine *f, QByteArray& ba)
 }
 
 
-void QPSPrintEngineFontTTF::drawText(QTextStream &stream, QPSPrintEnginePrivate *d, const QPointF &p, const QTextItem &ti, int textflags)
+void QPSPrintEngineFontTTF::drawText(QTextStream &stream, QPSPrintEnginePrivate *d, const QPointF &p, const QTextItem &ti)
 {
     float x = p.x();
     float y = p.y();
@@ -1849,7 +1849,7 @@ void QPSPrintEngineFontTTF::drawText(QTextStream &stream, QPSPrintEnginePrivate 
     len =  (glyphIndices || useGlyphAsUnicode) ? ti.num_glyphs : ti.num_chars;
 
     stream << "<";
-    if (ti.right_to_left) {
+    if (ti.flags & QTextItem::RightToLeft) {
         for (int i = len-1; i >=0; i--) {
             // map unicode is not really the correct name, as we map glyphs, but we also download glyphs, so this works
             unsigned short glyph;
@@ -1891,10 +1891,10 @@ void QPSPrintEngineFontTTF::drawText(QTextStream &stream, QPSPrintEnginePrivate 
     stream << "[" << xyarray << "0 0]";
     stream << ti.width << " " << x;
 
-    if (textflags & Qt::TextUnderline)
+    if (ti.flags & QTextItem::Underline)
         stream << ' ' << y + d->fm.underlinePos() + d->fm.lineWidth()
                << " " << d->fm.lineWidth() << " Tl";
-    if (textflags & Qt::TextStrikeOut)
+    if (ti.flags & QTextItem::StrikeOut)
         stream << ' ' << y + d->fm.strikeOutPos()
                << " " << d->fm.lineWidth() << " Tl";
     stream << " XYT\n";
@@ -3643,7 +3643,7 @@ public:
     void download(QTextStream& s, bool global);
     QString defineFont(QTextStream &stream, const QString &ps, const QString &key,
                         QPSPrintEnginePrivate *d);
-    void drawText(QTextStream &stream, QPSPrintEnginePrivate *d, const QPointF &p, const QTextItem &ti, int textflags);
+    void drawText(QTextStream &stream, QPSPrintEnginePrivate *d, const QPointF &p, const QTextItem &ti);
 
     QString makePSFontName(const QFontEngine *f, int type) const;
     virtual QString extension() const = 0;
@@ -3748,7 +3748,7 @@ void QPSPrintEngineFontAsian::download(QTextStream& s, bool)
 
 
 void QPSPrintEngineFontAsian::drawText(QTextStream &, QPSPrintEnginePrivate *,
-                                       const QPointF &, const QTextItem &, int)
+                                       const QPointF &, const QTextItem &)
 {
     // ###
 #if 0
@@ -5549,13 +5549,13 @@ void QPSPrintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF
     d->drawImage(r.x(), r.y(), r.width(), r.height(), img.copy(sr.toRect()), mask.copy(sr.toRect()));
 }
 
-void QPSPrintEngine::drawTextItem(const QPointF &p, const QTextItem &ti, int textflags)
+void QPSPrintEngine::drawTextItem(const QPointF &p, const QTextItem &ti)
 {
     if (d->currentSet != ti.fontEngine || !d->currentFontFile) {
         d->setFont(ti.fontEngine);
     }
     if(d->currentFontFile) // better not crash in case somethig goes wrong.
-        d->currentFontFile->drawText(d->pageStream, d, p, ti, textflags);
+        d->currentFontFile->drawText(d->pageStream, d, p, ti);
 }
 
 void QPSPrintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPointF &p,

@@ -155,7 +155,7 @@ QFontEngine::Error QFontEngineWin::stringToCMap(const QChar *str, int len, QGlyp
 #define COLOR_VALUE(c) ((p->flags & QPainter::RGBColor) ? RGB(c.red(),c.green(),c.blue()) : c.pixel())
 
 
-void QFontEngineWin::draw(QPainter *p, int x, int y, const QTextItem &si, int textFlags)
+void QFontEngineWin::draw(QPainter *p, int x, int y, const QTextItem &si)
 {
     bool force_bitmap = p->rop != QPainter::CopyROP;
     force_bitmap |= p->txop >= QPainterPrivate::TxScale
@@ -190,7 +190,7 @@ void QFontEngineWin::draw(QPainter *p, int x, int y, const QTextItem &si, int te
             HDC oldDC = hdc;
             hdc = paint.handle();
             SelectObject(hdc, hfont);
-            draw(&paint, 0, si.ascent, si, textFlags);
+            draw(&paint, 0, si.ascent, si);
             hdc = oldDC;
             paint.end();
             QBitmap wx_bm = bm.xForm(mat2); // transform bitmap
@@ -267,10 +267,10 @@ void QFontEngineWin::draw(QPainter *p, int x, int y, const QTextItem &si, int te
         p->map(x, y, &x, &y);
     }
 
-    if (textFlags & Qt::TextUnderline || textFlags & Qt::TextStrikeOut || scale != 1. || angle) {
+    if (ti.flags & QTextItem::Underline || ti.flags & QTextItem::StrikeOut || scale != 1. || angle) {
         LOGFONT lf = logfont;
-        lf.lfUnderline = (bool)(textFlags & Qt::TextUnderline);
-        lf.lfStrikeOut = (bool)(textFlags & Qt::TextStrikeOut);
+        lf.lfUnderline = (ti.flags & QTextItem::Underline);
+        lf.lfStrikeOut = (ti.flags & QTextItem::StrikeOut);
         if (angle) {
             lf.lfOrientation = -angle;
             lf.lfEscapement = -angle;
@@ -312,7 +312,7 @@ void QFontEngineWin::draw(QPainter *p, int x, int y, const QTextItem &si, int te
     int xo = x;
 
     y -= ascent();
-    if (!(si.right_to_left)) {
+    if (!(si.flags & QTextItem::RightToLeft)) {
         bool haveOffsets = false;
         int w = 0;
         for(int i = 0; i < si.num_glyphs; i++) {
@@ -355,10 +355,10 @@ void QFontEngineWin::draw(QPainter *p, int x, int y, const QTextItem &si, int te
         }
     }
 
-    if (textFlags & Qt::TextUnderline || textFlags & Qt::TextStrikeOut || scale != 1. || angle)
+    if (ti.flags & QTextItem::Underline || ti.flags & QTextItem::StrikeOut || scale != 1. || angle)
         DeleteObject(SelectObject(hdc, hfont));
 
-    if (textFlags & Qt::TextOverline) {
+    if (si.flags & QTextItem::Overline) {
         int lw = lineThickness();
         int yp = y - 1;
         Rectangle(hdc, xo, yp, x, yp + lw);
@@ -475,14 +475,13 @@ QFontEngine::Error QFontEngineBox::stringToCMap(const QChar *,  int len, QGlyphL
     return NoError;
 }
 
-void QFontEngineBox::draw(QPainter *p, int x, int y, const QTextItem &si, int textFlags)
+void QFontEngineBox::draw(QPainter *p, int x, int y, const QTextItem &si)
 {
     Q_UNUSED(p);
     Q_UNUSED(x);
     Q_UNUSED(y);
     Q_UNUSED(engine);
     Q_UNUSED(si);
-    Q_UNUSED(textFlags);
 }
 
 glyph_metrics_t QFontEngineBox::boundingBox(const QGlyphLayout *, int numGlyphs)

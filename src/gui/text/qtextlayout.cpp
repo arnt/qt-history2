@@ -1338,18 +1338,21 @@ void QTextLine::draw(QPainter *p, int xpos, int ypos, int selection) const
         Q_ASSERT(fe);
 
         QTextItem gf;
-        gf.right_to_left = (si.analysis.bidiLevel % 2);
-        gf.ascent = qRound(si.ascent);
-        gf.descent = qRound(si.descent);
+        if (si.analysis.bidiLevel %2)
+            gf.flags |= QTextItem::RightToLeft;
+        if (f.d->underline)
+            gf.flags |= QTextItem::Underline;
+        if (f.d->overline)
+            gf.flags |= QTextItem::Overline;
+        if (f.d->strikeOut)
+            gf.flags |= QTextItem::StrikeOut;
+        gf.ascent = si.ascent;
+        gf.descent = si.descent;
         gf.num_glyphs = ge - gs + 1;
         gf.glyphs = glyphs + gs;
         gf.fontEngine = fe;
         gf.chars = eng->string.unicode() + start;
         gf.num_chars = end - start;
-        int textFlags = 0;
-        if (f.d->underline) textFlags |= Qt::TextUnderline;
-        if (f.d->overline) textFlags |= Qt::TextOverline;
-        if (f.d->strikeOut) textFlags |= Qt::TextStrikeOut;
 
         int *ul = eng->underlinePositions;
         if (ul)
@@ -1373,9 +1376,9 @@ void QTextLine::draw(QPainter *p, int xpos, int ypos, int selection) const
                 ++gs;
             }
             start = stmp;
-            gf.width = qRound(w);
+            gf.width = w;
             if (gf.num_chars)
-                p->drawTextItem(QPoint(qRound(x), qRound(y)), gf, textFlags);
+                p->drawTextItem(QPoint(qRound(x), qRound(y)), gf);
             x += w;
             if (ul && *ul != -1 && *ul < end) {
                 // draw underline
@@ -1391,8 +1394,9 @@ void QTextLine::draw(QPainter *p, int xpos, int ypos, int selection) const
                     ++gs;
                 }
                 ++start;
-                gf.width = qRound(w);
-                p->drawTextItem(QPoint(qRound(x), qRound(y)), gf, (textFlags ^ Qt::TextUnderline));
+                gf.width = w;
+                gf.flags ^= QTextItem::Underline;
+                p->drawTextItem(QPoint(qRound(x), qRound(y)), gf);
                 ++gf.chars;
                 x += w;
                 ++ul;

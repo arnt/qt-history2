@@ -111,7 +111,7 @@ public:
                             Qt::PixmapDrawingMode mode);
     virtual void drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPointF &s,
 				 Qt::PixmapDrawingMode mode);
-    void drawTextItem(const QPointF &p, const QTextItem &ti, int textFlags);
+    void drawTextItem(const QPointF &p, const QTextItem &ti);
 
     virtual Qt::HANDLE handle() const;
     inline Type type() const { return QPaintEngine::X11; }
@@ -124,11 +124,11 @@ public:
 protected:
     QX11PaintEngine(QX11PaintEnginePrivate &dptr);
 
-    void drawBox(const QPointF &p, const QTextItem &si, int textFlags);
-    void drawXLFD(const QPointF &p, const QTextItem &si, int textFlags);
-    void drawLatinXLFD(const QPointF &p, const QTextItem &si, int textFlags);
+    void drawBox(const QPointF &p, const QTextItem &si);
+    void drawXLFD(const QPointF &p, const QTextItem &si);
+    void drawLatinXLFD(const QPointF &p, const QTextItem &si);
 #ifndef QT_NO_XFT
-    void drawXft(const QPointF &p, const QTextItem &si, int textFlags);
+    void drawXft(const QPointF &p, const QTextItem &si);
 #endif
     friend void qt_cleanup();
     friend void qt_draw_transformed_rect(QPaintEngine *pp,  int x, int y, int w,  int h, bool fill);

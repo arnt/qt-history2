@@ -275,7 +275,7 @@ void QPicturePaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap
     writeCmdLength(pos, r, false);
 }
 
-void QPicturePaintEngine::drawTextItem(const QPointF &p , const QTextItem &ti , int /*textflags*/)
+void QPicturePaintEngine::drawTextItem(const QPointF &p , const QTextItem &ti)
 {
     int pos;
     SERIALIZE_CMD(QPicturePrivate::PdcDrawText2);

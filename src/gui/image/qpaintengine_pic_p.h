@@ -44,7 +44,7 @@ public:
                     Qt::PixmapDrawingMode mode);
     void drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPointF &s,
 			 Qt::PixmapDrawingMode mode);
-    void drawTextItem(const QPointF &p, const QTextItem &ti, int textflags);
+    void drawTextItem(const QPointF &p, const QTextItem &ti);
 
     Type type() const { return Picture; }
 

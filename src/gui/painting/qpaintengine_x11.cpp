@@ -2146,44 +2146,44 @@ void QX11PaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, co
     }
 }
 
-static void drawLines(QPaintEngine *p, QFontEngine *fe, int baseline, int x1, int w, int textFlags)
+static void drawLines(QPaintEngine *p, const QTextItem &ti, int baseline, int x1, int w)
 {
-    int lw = qRound(fe->lineThickness());
-    if (textFlags & Qt::TextUnderline) {
-        int pos = qRound(fe->underlinePosition());
+    int lw = qRound(ti.fontEngine->lineThickness());
+    if (ti.flags & QTextItem::Underline) {
+        int pos = qRound(ti.fontEngine->underlinePosition());
         qt_draw_transformed_rect(p, x1, baseline+pos, w, lw, true);
     }
-    if (textFlags & Qt::TextOverline) {
-        int pos = qRound(fe->ascent()+1);
+    if (ti.flags & QTextItem::Overline) {
+        int pos = qRound(ti.fontEngine->ascent()+1);
         if (!pos) pos = 1;
         qt_draw_transformed_rect(p, x1, baseline-pos, w, lw, true);
     }
-    if (textFlags & Qt::TextStrikeOut) {
-        int pos = qRound(fe->ascent()/3);
+    if (ti.flags & QTextItem::StrikeOut) {
+        int pos = qRound(ti.fontEngine->ascent()/3);
         if (!pos) pos = 1;
         qt_draw_transformed_rect(p, x1, baseline-pos, w, lw, true);
     }
 }
 
 
-void QX11PaintEngine::drawTextItem(const QPointF &p, const QTextItem &ti, int textFlags)
+void QX11PaintEngine::drawTextItem(const QPointF &p, const QTextItem &ti)
 {
     if (!ti.num_glyphs)
         return;
 
     switch(ti.fontEngine->type()) {
     case QFontEngine::Box:
-        drawBox(p, ti, textFlags);
+        drawBox(p, ti);
         break;
     case QFontEngine::XLFD:
-        drawXLFD(p, ti, textFlags);
+        drawXLFD(p, ti);
         break;
     case QFontEngine::LatinXLFD:
-        drawLatinXLFD(p, ti, textFlags);
+        drawLatinXLFD(p, ti);
         break;
 #ifndef QT_NO_XFT
     case QFontEngine::Xft:
-        drawXft(p, ti, textFlags);
+        drawXft(p, ti);
         break;
 #endif
     default:
@@ -2191,7 +2191,7 @@ void QX11PaintEngine::drawTextItem(const QPointF &p, const QTextItem &ti, int te
     }
 }
 
-void QX11PaintEngine::drawBox(const QPointF &p, const QTextItem &ti, int textFlags)
+void QX11PaintEngine::drawBox(const QPointF &p, const QTextItem &ti)
 {
     int size = qRound(ti.fontEngine->ascent());
     int x = qRound(p.x());
@@ -2227,12 +2227,12 @@ void QX11PaintEngine::drawBox(const QPointF &p, const QTextItem &ti, int textFla
         }
     }
 
-    if (textFlags != 0)
-        ::drawLines(this, ti.fontEngine, p.toPoint().y(), p.toPoint().x(), ti.num_glyphs*size, textFlags);
+    if (ti.flags)
+        ::drawLines(this, ti, p.toPoint().y(), p.toPoint().x(), ti.num_glyphs*size);
 }
 
 
-void QX11PaintEngine::drawXLFD(const QPointF &p, const QTextItem &si, int textFlags)
+void QX11PaintEngine::drawXLFD(const QPointF &p, const QTextItem &si)
 {
     int xpos = qRound(p.x());
     int ypos = qRound(p.y());
@@ -2245,7 +2245,7 @@ void QX11PaintEngine::drawXLFD(const QPointF &p, const QTextItem &si, int textFl
     double scale = si.fontEngine->scale();
     if ( d->txop > QPainterPrivate::TxTranslate || scale < 0.9999 || scale > 1.0001  ) {
         // XServer or font don't support server side transformations, need to do it by hand
-        QPaintEngine::drawTextItem(p, si, textFlags);
+        QPaintEngine::drawTextItem(p, si);
         return;
     }
 
@@ -2280,7 +2280,7 @@ void QX11PaintEngine::drawXLFD(const QPointF &p, const QTextItem &si, int textFl
         chars[i].byte2 = glyphs[i].glyph & 0xff;
     }
 
-    if (si.right_to_left) {
+    if (si.flags & QTextItem::RightToLeft) {
         int i = si.num_glyphs;
         while(i--) {
             x += glyphs[i].advance.x() + ((float)glyphs[i].space_18d6) / 64.;
@@ -2328,8 +2328,8 @@ void QX11PaintEngine::drawXLFD(const QPointF &p, const QTextItem &si, int textFl
         }
     }
 
-    if (textFlags != 0)
-        ::drawLines(this, si.fontEngine, yorig, xorig, qRound(x-xpos), textFlags);
+    if (si.flags)
+        ::drawLines(this, si, yorig, xorig, qRound(x-xpos));
 
 #ifdef FONTENGINE_DEBUG
     x = xp;
@@ -2350,7 +2350,7 @@ void QX11PaintEngine::drawXLFD(const QPointF &p, const QTextItem &si, int textFl
 }
 
 
-void QX11PaintEngine::drawLatinXLFD(const QPointF &p, const QTextItem &si, int textFlags)
+void QX11PaintEngine::drawLatinXLFD(const QPointF &p, const QTextItem &si)
 {
     int xpos = qRound(p.x());
     int y = qRound(p.y());
@@ -2376,7 +2376,7 @@ void QX11PaintEngine::drawLatinXLFD(const QPointF &p, const QTextItem &si, int t
         si2.glyphs = si.glyphs + start;
         si2.num_glyphs = end - start;
         si2.fontEngine = lxlfd->engine(which);
-        drawXLFD(QPoint(qRound(x), qRound(y)), si2, textFlags);
+        drawXLFD(QPoint(qRound(x), qRound(y)), si2);
 
         // reset the high byte for all glyphs and advance to the next sub-string
         const int hi = which << 8;
@@ -2399,7 +2399,7 @@ void QX11PaintEngine::drawLatinXLFD(const QPointF &p, const QTextItem &si, int t
     si2.glyphs = si.glyphs + start;
     si2.num_glyphs = end - start;
     si2.fontEngine = lxlfd->engine(which);
-    drawXLFD(QPoint(qRound(x), qRound(y)), si2, textFlags);
+    drawXLFD(QPoint(qRound(x), qRound(y)), si2);
 
     // reset the high byte for all glyphs
     const int hi = which << 8;
@@ -2409,7 +2409,7 @@ void QX11PaintEngine::drawLatinXLFD(const QPointF &p, const QTextItem &si, int t
 
 
 #ifndef QT_NO_XFT
-void QX11PaintEngine::drawXft(const QPointF &p, const QTextItem &si, int textFlags)
+void QX11PaintEngine::drawXft(const QPointF &p, const QTextItem &si)
 {
     float xpos = p.x();
     float ypos = p.y();
@@ -2439,7 +2439,8 @@ void QX11PaintEngine::drawXft(const QPointF &p, const QTextItem &si, int textFla
     col.pixel = QColormap::instance(screen).pixel(pen);
 
 #ifdef FONTENGINE_DEBUG
-    qDebug("===== drawing %d glyphs reverse=%s ======", si.num_glyphs, si.right_to_left?"true":"false");
+    qDebug("===== drawing %d glyphs reverse=%s ======", si.num_glyphs,
+           si.flags & QTextItem::RightToLeft ?"true":"false");
     p->painter()->save();
     p->painter()->setBrush(Qt::white);
     glyph_metrics_t ci = boundingBox(glyphs, si.num_glyphs);
@@ -2451,8 +2452,8 @@ void QX11PaintEngine::drawXft(const QPointF &p, const QTextItem &si, int textFla
     p->painter()->restore();
 #endif
 
-    if (textFlags != 0)
-        ::drawLines(this, si.fontEngine, p.toPoint().y(), p.toPoint().x(), si.width, textFlags);
+    if (si.flags)
+        ::drawLines(this, si, p.toPoint().y(), p.toPoint().x(), qRound(si.width));
 
     QVarLengthArray<XftGlyphSpec,256> glyphSpec(si.num_glyphs);
 
@@ -2463,7 +2464,7 @@ void QX11PaintEngine::drawXft(const QPointF &p, const QTextItem &si, int textFla
 
     int nGlyphs = 0;
 
-    if (si.right_to_left) {
+    if (si.flags & QTextItem::RightToLeft) {
         int i = si.num_glyphs;
         while(i--) {
             pos.rx() += glyphs[i].advance.x() + ((float)glyphs[i].space_18d6)/64.;

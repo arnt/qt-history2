@@ -658,10 +658,10 @@ void QMacPrintEngine::drawPixmap(const QRectF &r, const QPixmap &pm,
     d->paintEngine->drawPixmap(r, pm, sr, mode);
 }
 
-void QMacPrintEngine::drawTextItem(const QPointF &p, const QTextItem &ti, int textflags)
+void QMacPrintEngine::drawTextItem(const QPointF &p, const QTextItem &ti)
 {
     Q_ASSERT(d->state == QPrinter::Active);
-    d->paintEngine->drawTextItem(p, ti, textflags);
+    d->paintEngine->drawTextItem(p, ti);
 }
 
 void QMacPrintEngine::drawTiledPixmap(const QRectF &dr, const QPixmap &pixmap,

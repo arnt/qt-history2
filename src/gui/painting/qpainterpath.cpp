@@ -846,11 +846,6 @@ void QPainterPath::addText(const QPointF &point, const QFont &f, const QString &
     if (!sl.length)
         return;
 
-    int textFlags = 0;
-    if (f.underline()) textFlags |= Qt::TextUnderline;
-    if (f.overline()) textFlags |= Qt::TextOverline;
-    if (f.strikeOut()) textFlags |= Qt::TextStrikeOut;
-
     int nItems = eng->items.size();
 
     float x(point.x());

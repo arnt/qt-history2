@@ -94,7 +94,7 @@ bool QFontEngineMac::stringToCMap(const QChar *str, int len, QGlyphLayout *glyph
 }
 
 void
-QFontEngineMac::draw(QPaintEngine *p, int req_x, int req_y, const QTextItem &si, int textFlags)
+QFontEngineMac::draw(QPaintEngine *p, int req_x, int req_y, const QTextItem &si)
 {
     if(p->type() == QPaintEngine::MacPrinter)
         p = static_cast<QMacPrintEngine*>(p)->paintEngine();
@@ -113,7 +113,7 @@ QFontEngineMac::draw(QPaintEngine *p, int req_x, int req_y, const QTextItem &si,
             {
                 QPainter paint(&bm);  // draw text in bitmap
                 paint.setPen(Qt::color1);
-                paint.drawTextItem(QPoint(0, si.ascent), si, textFlags);
+                paint.drawTextItem(QPoint(0, si.ascent), si);
                 paint.end();
             }
 
@@ -157,7 +157,7 @@ QFontEngineMac::draw(QPaintEngine *p, int req_x, int req_y, const QTextItem &si,
     if(p->type() == QPaintEngine::CoreGraphics && textAA != lineAA)
         CGContextSetShouldAntialias(QMacCGContext(p->painter()), textAA);
 
-    if(si.right_to_left) {
+    if(si.flags & QTextItem::RightToLeft) {
         for(int i = si.num_glyphs-1; i >= 0; --i) {
             doTextTask((QChar*)(si.glyphs+i), 0, 1, 1, DRAW, x, y, p);
             x += int(si.glyphs[i].advance.x());
@@ -168,17 +168,17 @@ QFontEngineMac::draw(QPaintEngine *p, int req_x, int req_y, const QTextItem &si,
             g[i] = si.glyphs[i].glyph;
         doTextTask((QChar*)g.data(), 0, si.num_glyphs, si.num_glyphs, DRAW, x, y, p) + 1;
     }
-    if(si.width && textFlags != 0) {
+    if(si.width && si.flags != 0) {
         QPen oldPen = p->painter()->pen();
         QBrush oldBrush = p->painter()->brush();
         p->painter()->setBrush(p->painter()->pen().color());
         p->painter()->setPen(Qt::NoPen);
         const float lw = lineThickness();
-        if(textFlags & Qt::TextUnderline)
+        if(si.flags & QTextItem::Underline)
             p->painter()->drawRect(QRectF(req_x, req_y + underlinePosition(), si.width, lw));
-        if(textFlags & Qt::TextOverline)
+        if(si.flags & QTextItem::Overline)
             p->painter()->drawRect(QRectF(req_x, req_y - (ascent() + 1), si.width, lw));
-        if(textFlags & Qt::TextStrikeOut)
+        if(si.flags & QTextItem::StrikeOut)
             p->painter()->drawRect(QRectF(req_x, req_y - (ascent() / 3), si.width, lw));
         p->painter()->setBrush(oldBrush);
         p->painter()->setPen(oldPen);
@@ -703,13 +703,12 @@ bool QFontEngineBox::stringToCMap(const QChar *,  int len, QGlyphLayout *glyphs,
     return true;
 }
 
-void QFontEngineBox::draw(QPaintEngine *p, int x, int y, const QTextItem &si, int textFlags)
+void QFontEngineBox::draw(QPaintEngine *p, int x, int y, const QTextItem &si)
 {
     Q_UNUSED(p);
     Q_UNUSED(x);
     Q_UNUSED(y);
     Q_UNUSED(si);
-    Q_UNUSED(textFlags);
     //qDebug("QFontEngineBox::draw(%d, %d, numglyphs=%d", x, y, numGlyphs);
 }
 

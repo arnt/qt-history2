@@ -88,7 +88,7 @@ public:
     virtual void recalcAdvances(int , QGlyphLayout *, QTextEngine::ShaperFlags) const {}
 
 #if !defined(Q_WS_X11) && !defined(Q_WS_WIN)
-    virtual void draw(QPaintEngine *p, int x, int y, const QTextItem &si, int textFlags) = 0;
+    virtual void draw(QPaintEngine *p, int x, int y, const QTextItem &si) = 0;
 #endif
     virtual void addOutlineToPath(float, float, const QGlyphLayout *, int, QPainterPath *) { }
 
@@ -167,7 +167,7 @@ public:
     /* returns 0 as glyph index for non existant glyphs */
     bool stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags) const;
 
-    void draw(QPaintEngine *p, int x, int y, const QTextItem &si, int textFlags);
+    void draw(QPaintEngine *p, int x, int y, const QTextItem &si);
     void addOutlineToPath(float x, float y, const QGlyphLayout *glyphs, int numGlyphs, QPainterPath *path);
 
     glyph_metrics_t boundingBox(const QGlyphLayout *glyphs,  int numGlyphs);
@@ -207,7 +207,7 @@ public:
     FECaps capabilites() const;
     bool stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags) const;
 
-    void draw(QPaintEngine *p, int x, int y, const QTextItem &si, int textFlags);
+    void draw(QPaintEngine *p, int x, int y, const QTextItem &si);
 
     glyph_metrics_t boundingBox(const QGlyphLayout *glyphs,  int numGlyphs);
     glyph_metrics_t boundingBox(glyph_t glyph);
@@ -244,7 +244,7 @@ public:
     bool stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags) const;
 
 #if !defined(Q_WS_X11) && !defined(Q_WS_WIN)
-    void draw(QPaintEngine *p, int x, int y, const QTextItem &si, int textFlags);
+    void draw(QPaintEngine *p, int x, int y, const QTextItem &si);
 #endif
 
     glyph_metrics_t boundingBox(const QGlyphLayout *glyphs,  int numGlyphs);
@@ -459,7 +459,7 @@ public:
 
     bool stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags) const;
 
-    void draw(QPaintEngine *p, int x, int y, const QTextItem &si, int textFlags);
+    void draw(QPaintEngine *p, int x, int y, const QTextItem &si);
     void addOutlineToPath(float x, float y, const QGlyphLayout *glyphs, int numGlyphs, QPainterPath *path);
 
     glyph_metrics_t boundingBox(const QGlyphLayout *glyphs,  int numGlyphs);
@@ -496,10 +496,7 @@ public:
 
     bool stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags) const;
 
-    void draw(QPaintEngine *p, int x, int y, const QTextItem &si, int textFlags);
-
-    void addOutlineToPath(float x, float y, const QGlyphLayout *glyphs, int numGlyphs,
-                          QPainterPath *path);
+    void addOutlineToPath(float x, float y, const QGlyphLayout *glyphs, int numGlyphs, QPainterPath *path);
 
 
     glyph_metrics_t boundingBox(const QGlyphLayout *glyphs,  int numGlyphs);

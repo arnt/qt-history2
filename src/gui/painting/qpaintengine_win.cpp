@@ -925,14 +925,14 @@ void QWin32PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const
     pm->releaseDC(pm_dc);
 }
 
-void QWin32PaintEngine::drawTextItem(const QPointF &p, const QTextItem &ti, int textFlags)
+void QWin32PaintEngine::drawTextItem(const QPointF &p, const QTextItem &ti)
 {
 #ifdef QT_DEBUG_DRAW
-    printf(" - QWin32PaintEngine::drawTextItem(), (%.2f,%.2f), flags=%x, string=%s\n",
-           p.x(), p.y(), textFlags, QString::fromRawData(ti.chars, ti.num_chars).latin1());
+    printf(" - QWin32PaintEngine::drawTextItem(), (%.2f,%.2f), string=%s\n",
+           p.x(), p.y(), QString::fromRawData(ti.chars, ti.num_chars).latin1());
 #endif
     if (d->tryGdiplus()) {
-        d->gdiplusEngine->drawTextItem(p, ti, textFlags);
+        d->gdiplusEngine->drawTextItem(p, ti);
         return;
     }
 
@@ -964,10 +964,10 @@ void QWin32PaintEngine::drawTextItem(const QPointF &p, const QTextItem &ti, int 
         state->painter->matrix().map(x, y, &x, &y);
     }
 
-    if (textFlags & Qt::TextUnderline || textFlags & Qt::TextStrikeOut || scale != 1. || angle) {
+    if (ti.flags & (QTextItem::Underline|QTextItem::StrikeOut) || scale != 1. || angle) {
         LOGFONT lf = fe->logfont;
-        lf.lfUnderline = (bool)(textFlags & Qt::TextUnderline);
-        lf.lfStrikeOut = (bool)(textFlags & Qt::TextStrikeOut);
+        lf.lfUnderline = (ti.flags & QTextItem::Underline);
+        lf.lfStrikeOut = (ti.flags & QTextItem::StrikeOut);
         if (angle) {
             lf.lfOrientation = -angle;
             lf.lfEscapement = -angle;
@@ -1010,7 +1010,7 @@ void QWin32PaintEngine::drawTextItem(const QPointF &p, const QTextItem &ti, int 
 
     int xo = x;
 
-    if (!(ti.right_to_left)) {
+    if (!(ti.flags & QTextItem::RightToLeft)) {
         // hack to get symbol fonts working on Win95. See also QFontEngine constructor
         if (fe->useTextOutA) {
             // can only happen if !ttf
@@ -1071,10 +1071,10 @@ void QWin32PaintEngine::drawTextItem(const QPointF &p, const QTextItem &ti, int 
         }
     }
 
-    if (textFlags & Qt::TextUnderline || textFlags & Qt::TextStrikeOut || scale != 1. || angle)
+    if (ti.flags & (QTextItem::Underline|QTextItem::StrikeOut) || scale != 1. || angle)
         DeleteObject(SelectObject(d->hdc, fe->hfont));
 
-    if (textFlags & Qt::TextOverline) {
+    if (ti.flags & (QTextItem::Overline)) {
         int lw = qRound(fe->lineThickness());
         int yp = y - qRound(fe->ascent()) -1;
         Rectangle(d->hdc, xo, yp, x, yp + lw);
@@ -2599,7 +2599,7 @@ void QGdiplusPaintEngine::cleanup()
 }
 
 
-void QGdiplusPaintEngine::drawTextItem(const QPointF &p, const QTextItem &ti, int /* flag */)
+void QGdiplusPaintEngine::drawTextItem(const QPointF &p, const QTextItem &ti)
 {
     HDC hdc;
     GdipGetDC(d->graphics, &hdc);

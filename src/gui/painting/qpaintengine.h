@@ -31,13 +31,19 @@ struct QGlyphLayout;
 
 class QTextItem {
 public:
-    unsigned short right_to_left : 1;
-    unsigned short underline : 1;
-    unsigned short overline : 1;
-    unsigned short strikeout : 1;
-    short descent;
-    int ascent;
-    int width;
+    enum RenderFlag {
+        RightToLeft = 0x1,
+        Overline = 0x10,
+        Underline = 0x20,
+        StrikeOut = 0x40,
+
+        Dummy = 0xffffffff
+    };
+    Q_DECLARE_FLAGS(RenderFlags, RenderFlag);
+    RenderFlags flags;
+    double descent;
+    double ascent;
+    double width;
 
     const QChar *chars;
     int num_chars;
@@ -123,7 +129,7 @@ public:
 
     virtual void drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr,
                             Qt::PixmapDrawingMode mode = Qt::ComposePixmap) = 0;
-    virtual void drawTextItem(const QPointF &p, const QTextItem &ti, int textflags);
+    virtual void drawTextItem(const QPointF &p, const QTextItem &ti);
     virtual void drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPointF &s,
 				 Qt::PixmapDrawingMode mode = Qt::ComposePixmap);
     virtual void drawImage(const QRectF &r, const QImage &pm, const QRectF &sr,

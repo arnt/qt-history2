@@ -664,13 +664,12 @@ void QPaintEngine::drawPoint(const QPointF &pf)
 
 
 /*!
-    This function draws the text item \a ti at position \a p in
-    accordance with the given \a textFlags. The default implementation
-    of this function renders the text to a pixmap and draws the
-    resultant pixmap.
+    This function draws the text item \a ti at position \a p. The
+    default implementation of this function converts the text to a
+    QPainterPath and paints the resulting path.
 */
 
-void QPaintEngine::drawTextItem(const QPointF &p, const QTextItem &ti, int textFlags)
+void QPaintEngine::drawTextItem(const QPointF &p, const QTextItem &ti)
 {
 #if !defined(Q_WS_X11) && !defined(Q_WS_WIN)
     bool useFontEngine = false;
@@ -691,7 +690,7 @@ void QPaintEngine::drawTextItem(const QPointF &p, const QTextItem &ti, int textF
             }
         }
         if (useFontEngine) {
-            ti.fontEngine->draw(this, qRound(p.x()),  qRound(p.y()), ti, textFlags);
+            ti.fontEngine->draw(this, qRound(p.x()),  qRound(p.y()), ti);
         }
     }
 #else
@@ -709,13 +708,13 @@ void QPaintEngine::drawTextItem(const QPointF &p, const QTextItem &ti, int textF
             painter()->restore();
         } else {
             // Fallback: rasterize into a pixmap and draw the pixmap
-            QPixmap pm(ti.width, ti.ascent + ti.descent);
+            QPixmap pm(qRound(ti.width), qRound(ti.ascent + ti.descent));
             pm.fill(Qt::white);
 
             QPainter painter;
             painter.begin(&pm);
             painter.setPen(Qt::black);
-            painter.drawTextItem(0, ti.ascent, ti, textFlags);
+            painter.drawTextItem(QPointF(0., ti.ascent), ti);
             painter.end();
 
             QImage img = pm.toImage();

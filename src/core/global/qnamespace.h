@@ -148,9 +148,6 @@ public:
         TextWordWrap = 0x0800,
         TextWrapAnywhere = 0x1000,
         TextDontPrint = 0x2000,
-        TextUnderline = 0x01000000,
-        TextOverline  = 0x02000000,
-        TextStrikeOut = 0x04000000,
         TextIncludeTrailingSpaces = 0x08000000,
         TextHideMnemonic = 0x4000
 
@@ -162,9 +159,6 @@ public:
         WordBreak = TextWordWrap,
         BreakAnywhere = TextWrapAnywhere,
         DontPrint = TextDontPrint,
-        Underline = TextUnderline,
-        Overline  = TextOverline,
-        StrikeOut = TextStrikeOut,
         IncludeTrailingSpaces = TextIncludeTrailingSpaces,
         NoAccel = TextHideMnemonic
 #endif

@@ -3232,8 +3232,7 @@ void QPainter::drawText(const QRectF &r, int flags, const QString &str, int len,
 }
 
 /*!
-    \fn void QPainter::drawTextItem(int x, int y, const QTextItem &ti,
-                                    int textflags)
+    \fn void QPainter::drawTextItem(int x, int y, const QTextItem &ti)
 
     \internal
     \overload
@@ -3253,18 +3252,18 @@ void QPainter::drawText(const QRectF &r, int flags, const QString &str, int len,
     underlining and strikeout.
 */
 
-void QPainter::drawTextItem(const QPointF &p, const QTextItem &ti, int textFlags)
+void QPainter::drawTextItem(const QPointF &p, const QTextItem &ti)
 {
 #ifdef QT_DEBUG_DRAW
     if (qt_show_painter_debug_output)
-        printf("QPainter::drawTextItem(), pos=[%.f,%.f], flags=%d, str='%s'\n",
-           p.x(), p.y(), textFlags, QString(ti.chars, ti.num_chars).latin1());
+        printf("QPainter::drawTextItem(), pos=[%.f,%.f], str='%s'\n",
+           p.x(), p.y(), QString(ti.chars, ti.num_chars).latin1());
 #endif
     if (!isActive())
         return;
     Q_D(QPainter);
     d->engine->updateState(d->state);
-    d->engine->drawTextItem(p, ti, textFlags);
+    d->engine->drawTextItem(p, ti);
 }
 
 /*!
@@ -4312,11 +4311,6 @@ void qt_format_text(const QFont &font, const QRectF &_r,
             painter->save();
             painter->setClipRect(r, Qt::IntersectClip);
         }
-
-        int _tf = 0;
-        if (fnt.underline()) _tf |= Qt::TextUnderline;
-        if (fnt.overline()) _tf |= Qt::TextOverline;
-        if (fnt.strikeOut()) _tf |= Qt::TextStrikeOut;
 
         for (int i = 0; i < textLayout.numLines(); i++) {
             QTextLine line = textLayout.lineAt(i);

@@ -259,9 +259,9 @@ public:
     QRect boundingRect(const QRect &rect, int flags, const QString &text, int len = -1);
     QRect boundingRect(int x, int y, int w, int h, int flags, const QString&, int len = -1);
 
-    void drawTextItem(const QPointF &p, const QTextItem &ti, int textflags = 0);
-    inline void drawTextItem(int x, int y, const QTextItem &ti, int textflags = 0);
-    inline void drawTextItem(const QPoint &p, const QTextItem &ti, int textflags = 0);
+    void drawTextItem(const QPointF &p, const QTextItem &ti);
+    inline void drawTextItem(int x, int y, const QTextItem &ti);
+    inline void drawTextItem(const QPoint &p, const QTextItem &ti);
 
     void fillRect(const QRectF &, const QBrush &);
     inline void fillRect(int x, int y, int w, int h, const QBrush &);
@@ -554,9 +554,9 @@ inline QRect QPainter::boundingRect(int x, int y, int w, int h, int flags,
     return boundingRect(QRect(x, y, w, h), flags, s, len);
 }
 
-inline void QPainter::drawTextItem(int x, int y, const QTextItem &ti, int textflags)
+inline void QPainter::drawTextItem(int x, int y, const QTextItem &ti)
 {
-    drawTextItem(QPointF(x, y), ti, textflags);
+    drawTextItem(QPointF(x, y), ti);
 }
 
 inline void QPainter::drawImage(const QRect &targetRect, const QImage &image, const QRect &sourceRect,
@@ -604,9 +604,9 @@ inline void QPainter::drawImage(int x, int y, const QImage &image, int sx, int s
     drawImage(QRectF(x, y, -1, -1), image, QRectF(sx, sy, sw, sh), flags);
 }
 
-inline void QPainter::drawTextItem(const QPoint &p, const QTextItem &ti, int textflags)
+inline void QPainter::drawTextItem(const QPoint &p, const QTextItem &ti)
 {
-    drawTextItem(QPointF(p), ti, textflags);
+    drawTextItem(QPointF(p), ti);
 }
 
 inline void QPainter::drawText(const QPoint &p, const QString &s, TextDirection dir)

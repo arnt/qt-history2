@@ -46,7 +46,7 @@ public:
 			 Qt::PixmapDrawingMode mode);
     void drawImage(const QRectF &r, const QImage &image, const QRectF &sr,
                    Qt::ImageConversionFlags conversionFlags);
-    void drawTextItem(const QPointF &p, const QTextItem &ti, int textflags);
+    void drawTextItem(const QPointF &p, const QTextItem &ti);
 
 #ifdef Q_WS_WIN
     HDC handle() const;

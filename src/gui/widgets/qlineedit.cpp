@@ -1842,13 +1842,6 @@ void QLineEdit::paintEvent(QPaintEvent *)
     // draw text, selections and cursors
     p.setPen(pal.text().color());
     bool supressCursor = d->readOnly;
-    int textflags = 0;
-    if (font().underline())
-        textflags |= Qt::TextUnderline;
-    if (font().strikeOut())
-        textflags |= Qt::TextStrikeOut;
-    if (font().overline())
-        textflags |= Qt::TextOverline;
 
     QTextLayout::Selection sel[4];
     int nSel = 0;

@@ -184,7 +184,7 @@ bool QFontEngineFT::stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs
 }
 
 
-void QFontEngineFT::draw(QPaintEngine *p, int x, int y, const QTextItem &si, int textFlags)
+void QFontEngineFT::draw(QPaintEngine *p, int x, int y, const QTextItem &si)
 {
     Q_ASSERT(p->painterState()->txop < QPainterPrivate::TxScale);
     if (p->painterState()->txop == QPainterPrivate::TxTranslate) {
@@ -195,17 +195,17 @@ void QFontEngineFT::draw(QPaintEngine *p, int x, int y, const QTextItem &si, int
     }
     QWSPaintEngine *qpe = static_cast<QWSPaintEngine*>(p);
 
-    if (textFlags) {
+    if (si.flags) {
         int lw = qRound(lineThickness());
         lw = qMax(1, lw);
 
         p->updateBrush(p->painterState()->pen.color(), QPoint(0,0));
 
-        if (textFlags & Qt::TextUnderline)
+        if (si.flags & QTextItem::Underline)
             qpe->fillRect(x, y+qRound(underlinePosition()), si.width, lw);
-        if (textFlags & Qt::TextStrikeOut)
+        if (si.flags & QTextItem::StrikeOut)
             qpe->fillRect(x, y-qRound(ascent())/3, si.width, lw);
-        if (textFlags & Qt::TextOverline)
+        if (si.flags & QTextItem::Overline)
             qpe->fillRect(x, y-qRound(ascent())-1, si.width, lw);
 
         p->updateBrush(p->painterState()->brush, p->painterState()->bgOrigin);
@@ -227,10 +227,10 @@ void QFontEngineFT::draw(QPaintEngine *p, int x, int y, const QTextItem &si, int
 #endif
 
 
-    if (si.right_to_left)
+    if (si.flags & QTextItem::RightToLeft)
         glyphs += si.num_glyphs - 1;
     for(int i = 0; i < si.num_glyphs; i++) {
-        const QGlyphLayout *g = glyphs + (si.right_to_left ? -i : i);
+        const QGlyphLayout *g = glyphs + (si.flags & QTextItem::RightToLeft ? -i : i);
         const QGlyph *glyph = rendered_glyphs[g->glyph];
         Q_ASSERT(glyph);
         int myw = glyph->width;
@@ -486,13 +486,12 @@ bool QFontEngineBox::stringToCMap(const QChar *, int len, QGlyphLayout *glyphs, 
     return true;
 }
 
-void QFontEngineBox::draw(QPaintEngine *p, int x, int y, const QTextItem &si, int textFlags)
+void QFontEngineBox::draw(QPaintEngine *p, int x, int y, const QTextItem &si)
 {
     Q_UNUSED(p);
     Q_UNUSED(x);
     Q_UNUSED(y);
     Q_UNUSED(si);
-    Q_UNUSED(textFlags);
     //qDebug("QFontEngineBox::draw(%d, %d, numglyphs=%d", x, y, numGlyphs);
 }
 
@@ -940,7 +939,7 @@ bool QFontEngineQPF::stringToCMap(const QChar *str, int len, QGlyphLayout *glyph
     return true;
 }
 
-void QFontEngineQPF::draw(QPaintEngine *p, int x, int y, const QTextItem &si, int textFlags)
+void QFontEngineQPF::draw(QPaintEngine *p, int x, int y, const QTextItem &si)
 {
     Q_ASSERT(p->painterState()->txop < QPainterPrivate::TxScale);
     if (p->painterState()->txop == QPainterPrivate::TxTranslate) {
@@ -951,17 +950,17 @@ void QFontEngineQPF::draw(QPaintEngine *p, int x, int y, const QTextItem &si, in
     }
     QWSPaintEngine *qpe = static_cast<QWSPaintEngine*>(p);
 
-    if (textFlags) {
+    if (si.flags) {
         int lw = qRound(lineThickness());
         lw = qMax(1, lw);
 
         p->updateBrush(p->painterState()->pen.color(), QPoint(0,0));
 
-        if (textFlags & Qt::TextUnderline)
+        if (si.flags & QTextItem::Underline)
             qpe->fillRect(x, y+qRound(underlinePosition()), si.width, lw);
-        if (textFlags & Qt::TextStrikeOut)
+        if (si.flags & QTextItem::StrikeOut)
             qpe->fillRect(x, y-qRound(ascent())/3, si.width, lw);
-        if (textFlags & Qt::TextOverline)
+        if (si.flags & QTextItem::Overline)
             qpe->fillRect(x, y-qRound(ascent())-1, si.width, lw);
 
         p->updateBrush(p->painterState()->brush, p->painterState()->bgOrigin);
@@ -969,11 +968,11 @@ void QFontEngineQPF::draw(QPaintEngine *p, int x, int y, const QTextItem &si, in
 
     QGlyphLayout *glyphs = si.glyphs;
 
-    if (si.right_to_left)
+    if (si.flags & QTextItem::RightToLeft)
         glyphs += si.num_glyphs - 1;
 
     for(int i = 0; i < si.num_glyphs; i++) {
-        const QGlyphLayout *g = glyphs + (si.right_to_left ? -i : i);
+        const QGlyphLayout *g = glyphs + (si.flags & QTextItem::RightToLeft ? -i : i);
         const QPFGlyph *glyph = d->tree->get(g->glyph);
         Q_ASSERT(glyph);
         int myw = glyph->metrics->width;

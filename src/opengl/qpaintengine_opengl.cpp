@@ -917,7 +917,7 @@ static void qt_fill_linear_gradient(const QRectF &rect, const QBrush &brush)
     glPopAttrib();
 }
 
-void QOpenGLPaintEngine::drawTextItem(const QPointF &p, const QTextItem &ti, int)
+void QOpenGLPaintEngine::drawTextItem(const QPointF &p, const QTextItem &ti)
 {
 #if defined(Q_WS_WIN) || defined (Q_WS_MAC)
     QPaintEngine::drawTextItem(p, ti, 0);
