@@ -364,12 +364,15 @@ static QMAC_PASCAL OSErr qt_mac_receive_handler(WindowPtr, void *handlerRefCon, 
     Point mouse;
     GetDragMouse( theDrag, &mouse, 0L );
     QWidget *widget = QApplication::widgetAt( mouse.h, mouse.v, true );
-    if ( !widget || (!widget->acceptDrops()) ) 
-	return 1;
-    QDropEvent de( widget->mapFromGlobal( QPoint( mouse.h, mouse.v )) );
-    QApplication::sendEvent( widget, &de );
-    macDndExtra->acceptact = de.isActionAccepted();
-    return 0;
+    while ( widget && !widget->acceptDrops() ) 
+	widget = widget->parentWidget(TRUE);
+    if(widget) {
+	QDropEvent de( widget->mapFromGlobal( QPoint( mouse.h, mouse.v )) );
+	QApplication::sendEvent( widget, &de );
+	macDndExtra->acceptact = de.isActionAccepted();
+	return 0;
+    }
+    return 1;
 }
 static DragReceiveHandlerUPP qt_mac_receive_handlerUPP = NULL;
 static void cleanup_dnd_receiveUPP() 
