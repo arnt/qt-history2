@@ -104,7 +104,7 @@ embedded {
 
 
 	PRECOMPH=$$QT_SOURCE_TREE/include/qt.h
-	INCLUDEPATH += 3rdparty/freetype2/include 3rdparty/libpng 3rdparty/zlib
+	INCLUDEPATH += 3rdparty/freetype2/include 
 
 	qnx { 
 		HEADERS += $$KERNEL_H/qwsgfx_qnx6.h
