@@ -20,7 +20,7 @@ sam_version_map:shared {
                }
            }
        }
-   } linux-g++ {
+   } else:linux-g++ {
        0:exists($(QTDIR)/src/libqt.map) {
          QMAKE_LFLAGS += -Wl,--version-script=$(QTDIR)/src/libqt.map
          TARGETDEPS += $(QTDIR)/src/libqt.map
@@ -82,11 +82,6 @@ win32-borland {
     QMAKE_CXXFLAGS_DEBUG += -vi -y-
 }
 
-linux-*:version_script {
-   QMAKE_LFLAGS += -Wl,--version-script=libqt.map
-   TARGETDEPS += libqt.map
-}
-
 win32 {
     CONFIG += zlib
     INCLUDEPATH += tmp
@@ -124,3 +119,8 @@ unix {
 
 # enable COMPAT warnings.
 DEFINES += QT_COMPAT_WARNINGS QT_NO_CAST_TO_ASCII
+
+false:isConfig(debug, debug|release) {
+   unix:TARGET = $$member(TARGET, 0)_debug
+   else:TARGET = $$member(TARGET, 0)d
+}
