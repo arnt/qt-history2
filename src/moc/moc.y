@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#201 $
+** $Id: //depot/qt/main/src/moc/moc.y#202 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -2456,7 +2456,7 @@ void generateClass()		      // generate C++ source code for a class
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#201 $)\n**\n";
+		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#202 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
@@ -2556,7 +2556,7 @@ void generateClass()		      // generate C++ source code for a class
 //
     fprintf( out, "QMetaObject* %s::staticMetaObject()\n{\n", (const char*)qualifiedClassName() );
     fprintf( out, "    if ( metaObj )\n\treturn metaObj;\n" );
-    fprintf( out, "    (void) %s::staticMetaObject();\n", (const char*)qualifiedSuperclassName() );
+    fprintf( out, "    (void) %s::staticMetaObject();\n", (const char*)superclassName );
 
 //
 // Build the enums array in staticMetaObject()
