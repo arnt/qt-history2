@@ -1,5 +1,17 @@
 #!/bin/bash
 
+#tmp places
+TMP_DIR=
+if [ -d "$HOME/tmp" ]; then
+   TMP_DIR="$HOME/tmp"
+elif [ -d "/tmp" ]; then
+   TMP_DIR="/tmp"
+else
+   die "Cannot find a suitable temporary directory!"
+fi
+echo "Temporary directory: $TMP_DIR"
+TMP_FILE=${TMP_DIR}/qt-tmpf-$$
+
 #customizing
 P4=                     #p4 location
 if which p4 >/dev/null 2>&1; then
@@ -313,17 +325,6 @@ if [ "$BRANCH" = "auto" ]; then
        BRANCH=`echo "$REL_VERSION" | sed "s,\([0-9.]*\).*,\1,"`
     fi
 fi
-
-TMP_DIR=
-if [ -d "$HOME/tmp" ]; then
-   TMP_DIR="$HOME/tmp"
-elif [ -d "/tmp" ]; then
-   TMP_DIR="/tmp"
-else
-   die "Cannot find a suitable temporary directory!"
-fi
-echo "Temporary directory: $TMP_DIR"
-TMP_FILE=${TMP_DIR}/qt-tmpf-$$
 
 #make sure everything is in order before bothering..
 [ ! -x "$QMAKE_PATH" ] && die "qmake not found, failed (${QMAKE_PATH})"
@@ -835,6 +836,18 @@ for plat in mac win x11 qnx6 embedded; do
 	    ;;
 	esac
 
+	#find the header/source license
+	edition_plat_license=
+	for lic in "${plat}-${edition}" "${edition}"; do
+	    if [ -f "$DISTDIR/qt/dist/licenses/$lic" ]; then
+		edition_plat_license="$DISTDIR/qt/dist/$lic"
+		break;
+	    fi
+	done
+	if [ -z "$edition_plat_license" ]; then
+	    die "Package [${plat}-${edition}] does not have a valid source license!"
+	fi
+
 	#generate the manifest file
 	if [ ! -e "$MANIFEST_FILE" ]; then
 	    CREATED_MANIFEST=yes
@@ -904,14 +917,16 @@ for plat in mac win x11 qnx6 embedded; do
 	rm -rf "$PLATDIR/tmake"
 	rm -rf "$PLATDIR/util"
 	rm -rf "$PLATDIR/tests"
-	if [ "$plat" != "mac" ] || [ "$edition" = "free" ]; then
+	if [ "$plat" != "mac" ]; then
 	    remove_file_and_includes "src/styles/qaquastyle.h" "src/styles/qaquastyle_p.h"
 	    remove_file_and_includes "src/styles/qaquastyle.cpp"
 	    remove_file_and_includes "src/styles/qaquastylepix_p.h" "src/styles/qaquastyle_p.cpp"
-	    rm -rf "$PLATDIR/plugins/src/styles/aqua" 
+	    rm -rf "$PLATDIR/plugins/src/styles/aqua" "$PLATDIR/plugins/src/styles/mac"
         fi
-	if [ "$plat" != "mac" ]; then
-	    rm -rf "$PLATDIR/plugins/src/styles/mac"
+	if [ "$plat" = "mac" ] && [ "$edition" = "free" ]; then
+	    remove_file_and_includes "src/styles/qaquastyle.h" "src/styles/qaquastyle.cpp"
+	    remove_file_and_includes "src/styles/qaquastylepix_p.h"
+	    rm -rf "$PLATDIR/plugins/src/styles/aqua"
         fi
 	if [ "$plat" != "win" ]; then
 	    remove_file_and_includes "src/styles/qwindowsxpstyle.h" "src/styles/qwindowsxpstyle.cpp"
@@ -928,8 +943,6 @@ for plat in mac win x11 qnx6 embedded; do
 	    #fix makefile mess
 	    rm -f "$PLATDIR/Makefile" "$PLATDIR/qmake/Makefile" "$PLATDIR/qmake/GNUmakefile"
 	    mv "$PLATDIR/GNUmakefile" "$PLATDIR/Makefile"
-
-
 	    #Some code is specific to platform though..
 	    remove_file_and_includes "extensions/activeqt" #activeqt is windows only
 	    rm -rf "$PLATDIR/tools/designer/integration/QMsDev"
@@ -1056,6 +1069,28 @@ for plat in mac win x11 qnx6 embedded; do
 		rm -f $PLATDIR/$f
 	    done
 	fi
+
+	#insert license headers
+	status "Licensing.." "1"
+	for a in `find $DISTDIR/qt/`; do
+           if [ -f $a ] && ! binary_file "$a" && [ ! -L $a ] && grep '^** EDITIONS: ' $a >>$LOG 2>&1; then
+	      allowed_editions=`grep '^** EDITIONS: ' $a | cut -d ':' -f2- | sed -e "s/, */ /g" -e "s/^ *//g" -e "s/ *$//g"`
+	      if [ "$edition" = "free" ] && ! echo "$allowed_editions" | grep "FREE" >/dev/null 2>&1; then
+	          status "!! Warning: $a is not licensed for $edition package [$allowed_editions] !!"
+		  continue
+	      elif [ "$edition" = "commercial" ] && ! echo "$allowed_editions" | grep "\(PROFESSIONAL\|ENTERPRISE\)" >/dev/null 2>&1; then
+	          status "!! Warning: $a is not licensed for $edition package [$allowed_editions] !!"
+		  continue
+	      fi
+	      execut=444
+	      [ -x $a ] && execut=555
+	      sed "/EDITIONS/r $edition_plat_license" $a >${TMP_FILE}
+	      rm -f $a
+	      mv ${TMP_FILE} $a
+	      chmod $execut $a
+	   fi
+        done
+	status "" "-1"
 
 	#actually package
 	status "Packaging.." "1"
