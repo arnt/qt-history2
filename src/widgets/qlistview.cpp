@@ -224,6 +224,7 @@ struct QListViewPrivate
     QListViewToolTip *toolTip;
     bool updateHeader;
     int pressedColumn;
+    bool fullRepaintOnComlumnChange;
 
 };
 
@@ -2259,6 +2260,7 @@ void QListView::init()
     d->toolTips = TRUE;
     d->toolTip = new QListViewToolTip( viewport(), this );
     d->updateHeader = FALSE;
+    d->fullRepaintOnComlumnChange = FALSE;
 
     setMouseTracking( TRUE );
     viewport()->setMouseTracking( TRUE );
@@ -3158,7 +3160,8 @@ void QListView::handleSizeChange( int section, int os, int ns )
     viewport()->setUpdatesEnabled( FALSE );
     int sx = horizontalScrollBar()->value();
     updateGeometries();
-    bool fullRepaint = sx != horizontalScrollBar()->value();
+    bool fullRepaint = d->fullRepaintOnComlumnChange || sx != horizontalScrollBar()->value();
+    d->fullRepaintOnComlumnChange = FALSE;
     viewport()->setUpdatesEnabled( upe );
 
     if ( fullRepaint ) {
@@ -3221,6 +3224,7 @@ void QListView::makeVisible()
 void QListView::resizeEvent( QResizeEvent *e )
 {
     QScrollView::resizeEvent( e );
+    d->fullRepaintOnComlumnChange = TRUE;
     d->h->resize( visibleWidth(), d->h->height() );
 }
 
@@ -5714,6 +5718,7 @@ void QListView::showEvent( QShowEvent * )
     delete d->dirtyItems;
     d->dirtyItems = 0;
     d->dirtyItemTimer->stop();
+    d->fullRepaintOnComlumnChange = TRUE;
 
     updateGeometries();
 }
