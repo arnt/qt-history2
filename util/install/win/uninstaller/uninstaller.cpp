@@ -79,10 +79,10 @@ int main( int argc, char** argv )
 	QEnvironment::removeUninstall( QString( "Qt " ) + argv[ 3 ] );
 	QString qtEnv = QEnvironment::getEnv( "QTDIR", QEnvironment::LocalEnv );
 	QString pathEnv = QEnvironment::getEnv( "PATH", QEnvironment::PersistentEnv );
-	if ( argv[3] == qtEnv )
+	if ( qtEnv == QString(argv[1]) )
 	    QEnvironment::removeEnv( "QTDIR", QEnvironment::LocalEnv | QEnvironment::PersistentEnv );
 	else
-	    qtEnv = argv[3];
+	    qtEnv = argv[1];
 	
 	qtEnv.append("\\bin;");
 	pathEnv.replace( qtEnv, "" );
