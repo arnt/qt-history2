@@ -4615,6 +4615,10 @@ void QTable::removeRow( int row )
     Removes the rows listed in the array \a rows, and deletes all their
     cells including any table items and widgets the cells may contain.
 
+    The array passed in has to contain only valid rows (in the range
+    from 0 to numRows() - 1), no duplicates and must be sorted in
+    ascending order.
+
    \sa removeRow() insertRows() removeColumns()
 */
 
@@ -4639,7 +4643,11 @@ void QTable::removeRows( const QMemArray<int> &rows )
     Removes column \a col, and deletes all its cells including any table
     items and widgets the cells may contain.
 
-  \sa removeColumns() hideColumn() insertColumns() removeRow()
+    The array passed in has to contain only valid columns (in the range
+    from 0 to numCols() - 1), no duplicates and must be sorted in
+    ascending order.
+
+    \sa removeColumns() hideColumn() insertColumns() removeRow()
 */
 
 void QTable::removeColumn( int col )
