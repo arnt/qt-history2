@@ -54,7 +54,6 @@
      OS2EMX	- XFree86 on OS/2 (not PM)
      WIN32	- Win32 (Windows 95/98/ME and Windows NT/2000/XP)
      CYGWIN	- Cygwin
-     SUN	- SunOS
      SOLARIS	- Sun Solaris
      HPUX	- HP-UX
      ULTRIX	- DEC Ultrix
@@ -64,15 +63,14 @@
      OPENBSD	- OpenBSD
      BSDI	- BSD/OS
      IRIX	- SGI Irix
-     OSF	- Compaq Tru64
-     SCO	- SCO OpenServer
-     UNIXWARE	- UnixWare, Open UNIX 8
+     OSF	- HP Tru64 UNIX
+     SCO	- SCO OpenServer 5
+     UNIXWARE	- UnixWare 7, Open UNIX 8
      AIX	- AIX
      HURD	- GNU Hurd
      DGUX	- DG/UX
      RELIANT	- Reliant UNIX
      DYNIX	- DYNIX/ptx
-     HITACHI	- Hitachi UNIX
      QNX	- QNX
      QNX6	- QNX RTP 6.1
      LYNX	- LynxOS
@@ -88,9 +86,9 @@
 #  define Q_OS_MAC9
 #elif defined(__CYGWIN__)
 #  define Q_OS_CYGWIN
-#elif defined(MSDOS) || defined(_MSDOS) || defined(__MSDOS__)
+#elif defined(MSDOS) || defined(_MSDOS)
 #  define Q_OS_MSDOS
-#elif defined(OS2) || defined(_OS2) || defined(__OS2__)
+#elif defined(__OS2__)
 #  if defined(__EMX__)
 #    define Q_OS_OS2EMX
 #  else
@@ -104,12 +102,7 @@
 #elif defined(__MWERKS__) && defined(__INTEL__)
 #  define Q_OS_WIN32
 #elif defined(__sun) || defined(sun)
-#  if defined(__svr4__) || defined(__SVR4)
-#    define Q_OS_SOLARIS
-#  else
-#    define Q_OS_SUN
-#    define Q_OS_BSD4
-#  endif
+#  define Q_OS_SOLARIS
 #elif defined(hpux) || defined(__hpux)
 #  define Q_OS_HPUX
 #elif defined(__ultrix) || defined(ultrix)
@@ -140,7 +133,7 @@
 #  define Q_OS_LYNX
 #elif defined(__GNU_HURD__)
 #  define Q_OS_HURD
-#elif defined(DGUX)
+#elif defined(__DGUX__)
 #  define Q_OS_DGUX
 #elif defined(__QNXNTO__)
 #  define Q_OS_QNX6
@@ -148,19 +141,14 @@
 #  define Q_OS_QNX
 #elif defined(_SEQUENT_)
 #  define Q_OS_DYNIX
-#elif defined(__H3050R)
-#  define Q_OS_HITACHI
-#elif defined(_SCO_DS)      /* SCO OpenServer */
+#elif defined(_SCO_DS)      /* SCO OpenServer 5 */
 #  define Q_OS_SCO
-#elif defined(__UNIXWARE__) /* UnixWare + GCC, Open UNIX 8 + GCC */
+#elif defined(__UNIXWARE__) /* UnixWare 7 + GCC, Open UNIX 8 + GCC */
 #  define Q_OS_UNIXWARE
 #  define Q_OS_UNIXWARE7
-#elif defined(__USLC__)     /* UnixWare + UDK, Open UNIX 8 + OUDK */
+#elif defined(__USLC__)     /* UnixWare 7 + UDK, Open UNIX 8 + OUDK */
 #  define Q_OS_UNIXWARE
 #  define Q_OS_UNIXWARE7
-#elif defined(__svr4__)
-/* generic fallback for the rest of svr4 systems */
-#  define Q_OS_SVR4
 #else
 #  error "Qt has not been ported to this OS - talk to qt-bugs@trolltech.com"
 #endif
