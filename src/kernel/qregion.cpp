@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion.cpp#24 $
+** $Id: //depot/qt/main/src/kernel/qregion.cpp#25 $
 **
 ** Implementation of QRegion class
 **
@@ -185,65 +185,27 @@ void QRegion::exec( const QByteArray &buffer )
 
 QDataStream &operator<<( QDataStream &s, const QRegion &r )
 {
-    QRect  rect = r.data->rect;
-    QPoint offs = r.data->offs;
-    rect.moveBy( offs.x(), offs.y() );
-    QPointArray poly;
-    if ( r.data->poly ) {
-	poly = *(r.data->poly);
-	if ( !offs.isNull() )
-	    poly.translate( offs.x(), offs.y() );
-    }
-    // First comes the size of the total data, then the
-    // actual data.
-    switch ( r.data->type ) {
-	case QRegion::QRegionData::NullRgn:
-	    s << (Q_UINT32)0;
-	    break;
-	case QRegion::QRegionData::RectangleRgn:
-	    s << (Q_UINT32)(4+8) << (int)QRGN_SETRECT << rect;
-	    break;
-	case QRegion::QRegionData::EllipseRgn:
-	    s << (Q_UINT32)(4+8) << (int)QRGN_SETELLIPSE << rect;
-	    break;
-	case QRegion::QRegionData::PolygonAltRgn:
-	    s << (Q_UINT32)(4+4*poly.size()) << (int)QRGN_SETPTARRAY_ALT
-	      << poly;
-	    break;
-	case QRegion::QRegionData::PolygonWindRgn:
-	    s << (Q_UINT32)(4+4*poly.size()) << (int)QRGN_SETPTARRAY_WIND
-	      << poly;
-	    break;
+    QArray<QRect> a = r.rects();
+    if ( a.isEmpty() ) {
+	s << (Q_UINT32)0;
+    } else {
 #if QT_VERSION >= 200
-	case QRegion::QRegionData::ComplexRgn:
-	    {
-		QArray<QRect> a = r.rects();
-		s << (Q_UINT32)(4+4+8*a.size());
-		s << (int)QRGN_RECTS;
-		s << (Q_UINT32)a.size();
-		for ( int i=0; i<(int)a.size(); i++ )
-		    s << a[i];
-	    } break;
+	s << (Q_UINT32)(4+4+8*a.size());
+	s << (int)QRGN_RECTS;
+	s << (Q_UINT32)a.size();
+	for ( int i=0; i<(int)a.size(); i++ )
+	    s << a[i];
 #else
-	case QRegion::QRegionData::ComplexRgn:
-	    {
-		QArray<QRect> a = r.rects();
-		if ( a.isEmpty() ) {
-		    s << (Q_UINT32)0;
-		} else {
-		    int i;
-		    for ( i=(int)a.size()-1; i>0; i-- ) {
-			s << (Q_UINT32)(12+i*24);
-			s << (int)QRGN_OR;
-		    }
-		    for ( i=0; i<(int)a.size(); i++ ) {
-			s << (Q_UINT32)(4+8) << (int)QRGN_SETRECT << a[i];
-		    }
-		}
-	    } break;
+	int i;
+	for ( i=(int)a.size()-1; i>0; i-- ) {
+	    s << (Q_UINT32)(12+i*24);
+	    s << (int)QRGN_OR;
+	}
+	for ( i=0; i<(int)a.size(); i++ ) {
+	    s << (Q_UINT32)(4+8) << (int)QRGN_SETRECT << a[i];
+	}
 #endif
     }
-    //    return s << r.data->bop;
     return s;
 }
 
