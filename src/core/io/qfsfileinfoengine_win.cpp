@@ -34,7 +34,7 @@
 #include <security.h>
 
 extern QByteArray qt_win95Name(const QString s);
-int qt_ntfs_permission_lookup = 0;
+Q_CORE_EXPORT int qt_ntfs_permission_lookup = 0;
 
 typedef DWORD (WINAPI *PtrGetNamedSecurityInfoW)(LPWSTR, SE_OBJECT_TYPE, SECURITY_INFORMATION, PSID*, PSID*, PACL*, PACL*, PSECURITY_DESCRIPTOR*);
 static PtrGetNamedSecurityInfoW ptrGetNamedSecurityInfoW = 0;
@@ -138,7 +138,7 @@ static QString currentDirOfDrive(char ch)
             ret = QString::fromUtf16((ushort*)currentName);
     } , {
         char currentName[PATH_MAX];
-        if (_getdcwd(toupper((uchar) ch) - 'A' + 1, currentName, PATH_MAX) >= 0) 
+        if (_getdcwd(toupper((uchar) ch) - 'A' + 1, currentName, PATH_MAX) >= 0)
             ret = QString::fromLocal8Bit(currentName);
     });
     return QDir::convertSeparators(ret);
@@ -147,7 +147,7 @@ static QString currentDirOfDrive(char ch)
 #define d d_func()
 #define q q_func()
 
-void 
+void
 QFSFileInfoEnginePrivate::init()
 {
 }
@@ -376,19 +376,19 @@ QFSFileInfoEnginePrivate::getPermissions() const
                 LocalFree(pSD);
             }
         }
-    } 
-    if(ret & (QFileInfoEngine::WriteOwner | QFileInfoEngine::WriteUser | 
+    }
+    if(ret & (QFileInfoEngine::WriteOwner | QFileInfoEngine::WriteUser |
 	      QFileInfoEngine::WriteGroup | QFileInfoEngine::WriteOther)) {
 	QT_WA({
 	    DWORD attr = GetFileAttributes((TCHAR*)file.utf16());
 	    if(attr & FILE_ATTRIBUTE_READONLY)
 		if (attr & FILE_ATTRIBUTE_READONLY)
-		    ret &= ~(QFileInfoEngine::WriteOwner | QFileInfoEngine::WriteUser | 
+		    ret &= ~(QFileInfoEngine::WriteOwner | QFileInfoEngine::WriteUser |
 			      QFileInfoEngine::WriteGroup | QFileInfoEngine::WriteOther);
 	} , {
 	    DWORD attr = GetFileAttributesA(file.local8Bit());
 	    if (attr & FILE_ATTRIBUTE_READONLY)
-		ret &= ~(QFileInfoEngine::WriteOwner | QFileInfoEngine::WriteUser | 
+		ret &= ~(QFileInfoEngine::WriteOwner | QFileInfoEngine::WriteUser |
 			 QFileInfoEngine::WriteGroup | QFileInfoEngine::WriteOther);
 	});
     }
@@ -399,7 +399,7 @@ uint
 QFSFileInfoEngine::fileFlags(uint type) const
 {
     uint ret = 0;
-    if(type & PermsMask) 
+    if(type & PermsMask)
 	ret = d->getPermissions();
     if(type & TypeMask) {
 	if(d->doStat()) {
@@ -445,7 +445,7 @@ QFSFileInfoEngine::fileName(FileName file) const
             return d->file;
 	int slash = d->file.lastIndexOf('/');
 	if (slash == -1) {
-	    if (d->file.at(1) == ':') 
+	    if (d->file.at(1) == ':')
 		return d->file.left(2);
 	    return QString::fromLatin1(".");
 	} else {
@@ -536,8 +536,8 @@ QFSFileInfoEngine::owner(FileOwner own) const
 	resolveLibs();
 
 	if (ptrGetNamedSecurityInfoW && ptrLookupAccountSidW) {
-	    if (ptrGetNamedSecurityInfoW((wchar_t*)d->file.utf16(), SE_FILE_OBJECT, 
-					 own == Group ? GROUP_SECURITY_INFORMATION : OWNER_SECURITY_INFORMATION, 
+	    if (ptrGetNamedSecurityInfoW((wchar_t*)d->file.utf16(), SE_FILE_OBJECT,
+					 own == Group ? GROUP_SECURITY_INFORMATION : OWNER_SECURITY_INFORMATION,
 					 NULL, &pOwner, NULL, NULL, &pSD) == ERROR_SUCCESS) {
 		DWORD lowner = 0, ldomain = 0;
 		SID_NAME_USE use;
@@ -546,7 +546,7 @@ QFSFileInfoEngine::owner(FileOwner own) const
 		wchar_t *owner = new wchar_t[lowner];
 		wchar_t *domain = new wchar_t[ldomain];
 		// Second call, size is without '\0'
-		if (ptrLookupAccountSidW(NULL, pOwner, (LPWSTR)owner, &lowner, 
+		if (ptrLookupAccountSidW(NULL, pOwner, (LPWSTR)owner, &lowner,
 					 (LPWSTR)domain, &ldomain, (SID_NAME_USE*)&use)) {
 		    name = QString::fromUtf16((ushort*)owner);
 		}

@@ -19,7 +19,7 @@
 #include "qstyle.h"
 #include "qtabbar.h"
 
-struct Q4StyleOption {
+struct Q_GUI_EXPORT Q4StyleOption {
     int version;
     int type;
     QStyle::SFlags state;
