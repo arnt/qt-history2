@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#305 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#306 $
 **
 ** Implementation of QListView widget class
 **
@@ -164,7 +164,8 @@ struct QListViewPrivate
     // suggested height for the items
     int fontMetricsHeight;
     bool allColumnsShowFocus;
-
+    bool autoResort;
+    
     // currently typed prefix for the keyboard interface, and the time
     // of the last key-press
     QString currentPrefix;
@@ -1051,10 +1052,12 @@ void QListViewItem::setText( int column, const QString &text )
 	return;
 
     l->text = text;
-    if ( parent() )
-	parent()->lsc = Unsorted;
     widthChanged( column );
-    repaint();
+    if ( parent() && listView()->autoResort() && listView()->d->sortcolumn != -1 ) {
+ 	parent()->lsc = Unsorted;
+	listView()->triggerUpdate();
+    } else
+	repaint();
 }
 
 
@@ -1591,7 +1594,8 @@ QListView::QListView( QWidget * parent, const char *name )
     d->column.setAutoDelete( TRUE );
     d->iterators = 0;
     d->scrollTimer = 0;
-
+    d->autoResort = FALSE;
+    
     connect( d->timer, SIGNAL(timeout()),
 	     this, SLOT(updateContents()) );
     connect( d->dirtyItemTimer, SIGNAL(timeout()),
@@ -3405,6 +3409,33 @@ void QListView::refreshSorting()
     }
 }
 
+/*!
+  When setting \a b to TRUE, changing the text of an item will
+  resort the listview immediately. But this only works, if the
+  current sortcolumn is valid, this means if you didn't set 
+  it to -1 before (using QListView::setSorting()).
+  If \a b is FALSE, this listview is never resorted if an item
+  text changed.
+
+  \sa QListView::setSorting()
+*/
+
+void QListView::setAutoResort( bool b )
+{
+    d->autoResort = b;
+}
+
+/*!
+  Returns the state of autoResorting. 
+  
+  \sa QListView::setAutoResort()
+*/
+  
+bool QListView::autoResort() const
+{
+    return d->autoResort;
+}
+
 /*! Sets the advisory item margin which list items may use to \a m.
 
   The item margin defaults to one pixel and is the margin between the
@@ -3453,7 +3484,7 @@ int QListView::itemMargin() const
 */
 
 /*!  Reimplemented to let the list view items update themselves.  \a s
-  is the new GUI style. 
+  is the new GUI style.
 */
 
 void QListView::styleChange( QStyle& old )
@@ -3464,7 +3495,7 @@ void QListView::styleChange( QStyle& old )
 
 
 /*!  Reimplemented to let the list view items update themselves.  \a f
-  is the new font. 
+  is the new font.
 */
 
 void QListView::setFont( const QFont & f )
@@ -3476,7 +3507,7 @@ void QListView::setFont( const QFont & f )
 
 
 /*!  Reimplemented to let the list view items update themselves.  \a p
-  is the new palette. 
+  is the new palette.
 */
 
 void QListView::setPalette( const QPalette & p )
