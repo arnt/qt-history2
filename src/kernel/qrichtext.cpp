@@ -2108,7 +2108,7 @@ static QString align_to_string( int a )
 static QString direction_to_string( int d )
 {
     if ( d != QChar::DirON )
-	return ( d == QChar::DirL? " dir=ltr" : " dir=rtl" );
+	return ( d == QChar::DirL? " dir=\"ltr\"" : " dir=\"rtl\"" );
     return QString::null;
 }
 
@@ -4615,9 +4615,12 @@ void QTextParagraph::drawLabel( QPainter* p, int x, int y, int w, int h, int bas
 
 void QTextParagraph::readStyleInformation( QDataStream& stream )
 {
-    int int_align, int_lstyle, int_litem, int_rtext;
-    stream >> int_align >> int_lstyle >> utm >> ubm >> ulm >> urm >> uflm >> ulineextra >> ldepth >> int_litem >> int_rtext;
-    align = int_align; lstyle = (QStyleSheetItem::ListStyle) int_lstyle; litem = int_litem; rtext = int_rtext;
+    int int_align, int_lstyle;
+    uchar uchar_litem, uchar_rtext, uchar_dir;
+    stream >> int_align >> int_lstyle >> utm >> ubm >> ulm >> urm >> uflm  
+	   >> ulineextra >> ldepth >> uchar_litem >> uchar_rtext >> uchar_dir;
+    align = int_align; lstyle = (QStyleSheetItem::ListStyle) int_lstyle; 
+    litem = uchar_litem; rtext = uchar_rtext; str->setDirection( (QChar::Direction)uchar_dir );
     QTextParagraph* s = prev() ? prev() : this;
     while ( s ) {
 	s->invalidate( 0 );
@@ -4627,7 +4630,7 @@ void QTextParagraph::readStyleInformation( QDataStream& stream )
 
 void QTextParagraph::writeStyleInformation( QDataStream& stream ) const
 {
-    stream << (int) align << (int) lstyle << utm << ubm << ulm << urm << uflm << ulineextra << ldepth << (int)litem << (int)rtext;
+    stream << (int) align << (int) lstyle << utm << ubm << ulm << urm << uflm << ulineextra << ldepth << (uchar)litem << (uchar)rtext << (uchar)str->direction();
 }
 
 
@@ -4845,6 +4848,7 @@ void QTextParagraph::copyParagData( QTextParagraph *parag )
     QColor *c = parag->backgroundColor();
     if ( c )
 	setBackgroundColor( *c );
+    str->setDirection( parag->str->direction() );
 }
 
 void QTextParagraph::show()
