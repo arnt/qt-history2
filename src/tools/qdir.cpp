@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#77 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#78 $
 **
 ** Implementation of QDir class
 **
@@ -702,6 +702,44 @@ QString QDir::operator[]( int index ) const
 
 
 /*!
+  This function is included to easy porting from Qt 1.x to Qt 2.0,
+  it is the same as entryList(), but encodes the filenames as 8-bit
+  strings using QFile::encodedName().
+
+  It is more efficient to use entryList().
+*/
+QStrList QDir::encodedEntryList( int filterSpec, int sortSpec ) const
+{
+    QStrList r;
+    QStringList l = entryList(filterSpec,sortSpec);
+    for ( QStringList::Iterator it = l.begin(); it != l.end(); ++it ) {
+	r.append( QFile::encodeName(*it) );
+    }
+    return r;
+}
+
+/*!
+  This function is included to easy porting from Qt 1.x to Qt 2.0,
+  it is the same as entryList(), but encodes the filenames as 8-bit
+  strings using QFile::encodedName().
+
+  It is more efficient to use entryList().
+*/
+QStrList QDir::encodedEntryList( const QString &nameFilter,
+			   int filterSpec,
+			   int sortSpec ) const
+{
+    QStrList r;
+    QStringList l = entryList(nameFilter,filterSpec,sortSpec);
+    for ( QStringList::Iterator it = l.begin(); it != l.end(); ++it ) {
+	r.append( QFile::encodeName(*it) );
+    }
+    return r;
+}
+
+
+
+/*!
   Returns a list of the names of all files and directories in the directory
   indicated by the setSorting(), setFilter() and setNameFilter()
   specifications.
@@ -711,7 +749,8 @@ QString QDir::operator[]( int index ) const
 
   Returns an empty list if the directory is unreadable or does not exist.
 
-  \sa entryInfoList(), setNameFilter(), setSorting(), setFilter()
+  \sa entryInfoList(), setNameFilter(), setSorting(), setFilter(),
+	encodedEntryList()
 */
 
 QStringList QDir::entryList( int filterSpec, int sortSpec ) const
@@ -732,7 +771,8 @@ QStringList QDir::entryList( int filterSpec, int sortSpec ) const
 
   Returns and empty list if the directory is unreadable or does not exist.
 
-  \sa entryInfoList(), setNameFilter(), setSorting(), setFilter()
+  \sa entryInfoList(), setNameFilter(), setSorting(), setFilter(),
+	encodedEntryList()
 */
 
 QStringList QDir::entryList( const QString &nameFilter,
@@ -875,7 +915,6 @@ bool QDir::isReadable() const
 #if defined (UNIX) || defined(__CYGWIN32__)
     return ACCESS( QFile::encodeName(dPath), R_OK | X_OK ) == 0;
 #else
-debug("QDir::isReadable");
     if ( qt_winunicode ) {
 	return _taccess((const TCHAR*)qt_winTchar(dPath,TRUE), R_OK) == 0;
     } else {
@@ -1122,7 +1161,6 @@ bool QDir::setCurrent( const QString &path )
     int r;
 
 #ifdef _WS_WIN_
-debug("QDir::setCurrent");
     if ( qt_winunicode ) {
 	r = _tchdir((const TCHAR*)qt_winTchar(path,TRUE));
     } else {
@@ -1362,76 +1400,60 @@ bool QDir::isRelativePath( const QString &path )
 #endif
 }
 
-
-static void dirInSort( QStringList *fl, QFileInfoList *fil,
-		       const QString &fileName,
-		       const QFileInfo &fi, int sortSpec )
+struct QDirSortItem {
+    QString filename_cache;
+    QFileInfo* item;
+};
+static int cmp_si_sortSpec;
+static int cmp_si( const void *n1, const void *n2 )
 {
-    // ###### placeholder
-    QFileInfo *newFi = new QFileInfo( fi );
-    CHECK_PTR( newFi );
-    if ( sortSpec & QDir::Reversed ) {
-	fl ->prepend( fileName );
-	fil->insert( 0, newFi );
-    } else {
-	fl ->append( fileName );
-	fil->append( newFi );
+    if ( !n1 || !n2 )
+        return 0;
+ 
+    QDirSortItem* f1 = (QDirSortItem*)n1;
+    QDirSortItem* f2 = (QDirSortItem*)n2;
+
+    if ( cmp_si_sortSpec & QDir::DirsFirst )
+	if ( f1->item->isDir() != f2->item->isDir() )
+	    return f1->item->isDir() ? -1 : 1;
+
+    int r = 0;
+    int sortBy = cmp_si_sortSpec & QDir::SortByMask;
+
+    switch ( sortBy ) {
+      case QDir::Time:
+	r = f1->item->lastModified().secsTo(f2->item->lastModified());
+	break;
+      case QDir::Size:
+	r = f2->item->size() - f1->item->size();
+	break;
+      default:
+	;
     }
 
-/* This is an O(n*n) solution!  Better to sort afterwards.
+    if ( r == 0 && sortBy != QDir::Unsorted ) {
+	// Still not sorted - sort by name
+	bool ic = cmp_si_sortSpec & QDir::IgnoreCase;
 
-    int sortBy = sortSpec & QDir::SortByMask;
-    if ( sortBy == QDir::Unsorted ) {
-	if ( sortSpec & QDir::Reversed ) {
-	    fl ->insert( 0, fileName );
-	    fil->insert( 0, newFi );
-	} else {
-	    fl ->append( fileName );
-	    fil->append( newFi );
-	}
-	return;
+	if ( f1->filename_cache.isNull() )
+	    f1->filename_cache = ic ? f1->item->fileName().lower()
+				    : f1->item->fileName();
+	if ( f2->filename_cache.isNull() )
+	    f2->filename_cache = ic ? f2->item->fileName().lower()
+				    : f2->item->fileName();
+
+	r = f1->filename_cache.compare(f2->filename_cache);
     }
 
-    char      *tmp1;
-    QFileInfo *tmp2 = 0;
-    tmp1 = ( sortSpec & QDir::Reversed ) ? fl->last() : fl->first();
-    if ( sortBy != QDir::Name )
-	tmp2 = ( sortSpec & QDir::Reversed ) ? fil->last() : fil->first();
-    bool stop = FALSE;
-    while ( tmp1 ) {
-	switch( sortBy ) {
-	    case QDir::Name:
-		if ( sortSpec & QDir::IgnoreCase ) {
-		    if ( stricmp(fileName,tmp1) < 0 )
-			stop = TRUE;
-		} else {
-		    if ( strcmp(fileName,tmp1) < 0 )
-			stop = TRUE;
-		}
-		break;
-	    case QDir::Time:
-		if ( fi.lastModified() > tmp2->lastModified() )
-		    stop = TRUE;
-		break;
-	    case QDir::Size:
-		if ( fi.size() > tmp2->size() )
-		    stop = TRUE;
-		break;
-	}
-	if (stop)
-	    break;
-	tmp1 = ( sortSpec & QDir::Reversed ) ? fl->prev() : fl->next();
-	if ( sortBy != QDir::Name )
-	    tmp2 = ( sortSpec & QDir::Reversed ) ? fil->prev() : fil->next();
+    if ( r == 0 ) {
+	// Enforce an order - the order the items appear in the array
+	r = (char*)n1 - (char*)n2;
     }
-    int pos;
-    if ( stop )
-	pos = fl->at() + (( sortSpec & QDir::Reversed ) ? 1 : 0);
+
+    if ( cmp_si_sortSpec & QDir::Reversed )
+	return -r;
     else
-	pos = ( sortSpec & QDir::Reversed ) ? 0 : fl->count();
-    fl ->insert( pos, fileName );
-    fil->insert( pos, newFi );
-*/
+	return r;
 }
 
 
@@ -1468,20 +1490,8 @@ bool QDir::readDirEntries( const QString &nameFilter,
     bool doModified = (filterSpec & Modified)	!= 0;
     bool doSystem   = (filterSpec & System)	!= 0;
 #endif
-    bool dirsFirst  = (sortSpec	  & DirsFirst)	!= 0;
-
-    QStringList	  *dList  = 0;
-    QFileInfoList *diList = 0;
-
-    if ( dirsFirst ) {
-	dList = new QStringList;
-	CHECK_PTR( dList );
-	diList	 = new QFileInfoList;
-	CHECK_PTR( dList );
-    }
 
 #if defined(_OS_WIN32_) || defined(_OS_MSDOS_)
-debug("QDir::readDirEntries");
 
     QRegExp   wc( nameFilter, FALSE, TRUE );	// wild card, case insensitive
     bool      first = TRUE;
@@ -1608,10 +1618,7 @@ debug("QDir::readDirEntries");
 	    if ( !doSystem && isSystem )
 		continue;
 	    fi.setFile( *this, name );
-	    if ( dirsFirst && isDir )
-		dirInSort( dList, diList, name, fi, sortSpec );
-	    else
-		dirInSort( fList, fiList, name, fi, sortSpec );
+	    fiList->append( new QFileInfo( fi ); );
 	}
     }
 #if defined(_OS_WIN32_)
@@ -1628,8 +1635,6 @@ debug("QDir::readDirEntries");
 #undef	FF_GETFIRST
 #undef	FF_GETNEXT
 #undef	FF_ERROR
-
-debug("<QDir::readDirEntries");
 
 #elif defined(UNIX)
 
@@ -1668,10 +1673,7 @@ debug("<QDir::readDirEntries");
 		    fn != QString::fromLatin1(".")
 		    && fn != QString::fromLatin1("..") )
 		continue;
-	    if ( dirsFirst && fi.isDir() )
-		dirInSort( dList, diList , fn, fi, sortSpec );
-	    else
-		dirInSort( fList, fiList, fn, fi, sortSpec );
+	    fiList->append( new QFileInfo( fi ) );
 	}
     }
     if ( closedir(dir) != 0 ) {
@@ -1683,19 +1685,25 @@ debug("<QDir::readDirEntries");
 
 #endif // UNIX
 
-    if ( dirsFirst ) {
-	// Prepend dirs into fList and fiList
-	QStringList::Iterator it = dList->last();
-	QFileInfo *fiTmp = diList->last();
-	while ( it != dList->end() ) {
-	    fList->prepend(*it);
-	    fiList->insert(0, fiTmp);
-	    it++;
-	    fiTmp = diList->prev();
-	}
-	delete dList;
-	delete diList;
+    // Sort...
+    QDirSortItem* si= new QDirSortItem[fiList->count()];
+    int i=0;
+    QFileInfo* itm;
+    for (itm = fiList->first(); itm; itm = fiList->next())
+	si[i++].item = itm;
+    cmp_si_sortSpec = sortSpec;
+    qsort( si, i, sizeof(si[0]), cmp_si );
+    // put them back in the list
+    fiList->setAutoDelete( FALSE );
+    fiList->clear();
+    int j;
+    for (j=0; j<i; j++) {
+	fiList->append(si[j].item);
+	fList->append(si[j].item->filePath());
     }
+    delete [] si;
+    fiList->setAutoDelete( TRUE );
+
     if ( filterSpec == (FilterSpec)filtS && sortSpec == (SortSpec)sortS &&
 	 nameFilter == nameFilt )
 	dirty = FALSE;
@@ -1721,8 +1729,6 @@ const QFileInfoList * QDir::drives()
 	knownMemoryLeak = new QFileInfoList;
 
 #if defined(_OS_WIN32_)
-debug("QDir::drives");
-
 	Q_UINT32 driveBits = (Q_UINT32) GetLogicalDrives() & 0x3ffffff;
 #elif defined(_OS_OS2EMX_)
 	Q_UINT32 driveBits, cur;
