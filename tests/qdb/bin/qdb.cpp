@@ -20,8 +20,7 @@ void usage( const QString& message = QString::null )
     qWarning( " -f <file>      Read commands from file" );
     qWarning( " -o <file>      Place output in file" );
     qWarning( " -v             Verbose" );
-    qWarning( "\nWith no [command] and no -f, command is read from stdin." );
-    qWarning( "Exit status is 0 if command(s) successful, 1 if trouble." );
+    qWarning( "\nExit status is 0 if command(s) successful, 1 if trouble." );
 }
 
 void die( const QString& message = QString::null )
