@@ -10,7 +10,6 @@
 #include <stdio.h>
 
 #include "zutil.h"
-#include "qwinfunctions.h"
 
 struct internal_state {int dummy;}; /* for buggy compilers */
 
