@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#25 $
+** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#26 $
 **
 ** Implementation of QToolButton class
 **
@@ -37,7 +37,8 @@ class QToolButtonPrivate
   \ingroup realwidgets
 
   This means that it implements the ridiculous Microsoft auto-raise
-  feature.  And it isn't finished, either.
+  feature using QIconSet.  Apart from that, it's pretty much like a
+  QPushButton.  The two classes may at some point be merged.
 
   \sa QPushButton QToolButton
   <a href="guibooks.html#fowler">GUI Design Handbook: Push Button</a>
@@ -214,8 +215,13 @@ QSize QToolButton::sizeHint() const
   \sa setTextLabel() usesTextLabel() setUsesTextLabel() setText()
 */
 
-/*!
 
+
+/*!  Sets this button to use the big pixmaps provided by its QIconSet
+  if \a enable is TRUE, and to use the small ones else.
+  
+  QToolButton automatically connects this slot to the relevant signal
+  in the QMainWindow in which is resides.
 */
 
 void QToolButton::setUsesBigPixmap( bool enable )
@@ -238,8 +244,11 @@ void QToolButton::setUsesBigPixmap( bool enable )
 */
 
 
-/*!
-
+/*!  Sets this button to draw a text label below the icon if \a enable
+  is TRUE, and to not draw it if \a enable is FALSE.
+  
+  QToolButton automatically connects this slot to the relevant signal
+  in the QMainWindow in which is resides.
 */
 
 void QToolButton::setUsesTextLabel( bool enable )
