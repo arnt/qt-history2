@@ -744,7 +744,7 @@ void QWidget::repaint(const QRegion& rgn)
     }
 
     if (!testAttribute(Qt::WA_NoBackground) && !testAttribute(Qt::WA_NoSystemBackground))
-        d->composeBackground(redirectionOffset);
+        d->composeBackground(redirectionOffset, br);
 
     // Send paint event to self
     QPaintEvent e(rgn);
@@ -800,7 +800,7 @@ void QWidgetPrivate::show_sys()
 #endif
         q->qwsDisplay()->requestRegion(data.winid, r);
         if (q->windowType() != Qt::Tool
-                && (q->windowType() != Qt::Tooltip)) {
+                && (q->windowType() != Qt::ToolTip)) {
             q->qwsDisplay()->requestFocus(data.winid,true);
         }
         q->qwsDisplay()->setAltitude(data.winid,
