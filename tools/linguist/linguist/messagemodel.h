@@ -25,6 +25,7 @@ class MessageItem
 public:
     MessageItem(const MetaTranslatorMessage &message,
         const QString &text, const QString &comment, ContextItem *ctxtI);
+    inline virtual ~MessageItem() {}
 
     inline virtual bool danger() const {return d;}
 
