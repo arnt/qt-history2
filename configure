@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #
 # Configures to build the Qt library
 #
@@ -973,8 +973,8 @@ while [ "$#" -gt 0 ]; do
 	        [ "$VAR" = "decoration" ] && CFG_DECORATION_ON=`echo "${CFG_DECORATION_ON} " | sed "s,${VAL} ,,g"`
                 [ "$VAR" = "sql" ] && CFG_SQL_ON=`echo "${CFG_SQL_ON} " | sed "s,${VAL} ,,g"`
                 [ "$VAR" = "gfx" ] && CFG_GFX_ON=`echo "${CFG_GFX_ON} " | sed "s,${VAL} ,,g"`
-                [ "$VAR" = "kbd" ] && CFG_KBD_ON=`echo "${$CFG_KBD_ON} " | sed "s,${VAL} ,,g"`
-                [ "$VAR" = "mouse" ] && CFG_MOUSE_ON=`echo "${$CFG_MOUSE_ON} " | sed "s,${VAL} ,,g"`
+                [ "$VAR" = "kbd" ] && CFG_KBD_ON=`echo "${CFG_KBD_ON} " | sed "s,${VAL} ,,g"`
+                [ "$VAR" = "mouse" ] && CFG_MOUSE_ON=`echo "${CFG_MOUSE_ON} " | sed "s,${VAL} ,,g"`
 		QMAKE_VARS="$QMAKE_VARS \"${IN_VAR}s -= $VAL\" \"${PLUG_VAR}s -= $VAL\""
 	    fi
 	fi
