@@ -39,7 +39,7 @@ TreeModel::~TreeModel()
 int TreeModel::columnCount(const QModelIndex &parent) const
 {
     if (parent.isValid())
-        return static_cast<TreeItem*>(parent.data())->columnCount();
+        return static_cast<TreeItem*>(parent.internalPointer())->columnCount();
     else
         return rootItem->columnCount();
 }
@@ -52,7 +52,7 @@ QVariant TreeModel::data(const QModelIndex &index, int role) const
     if (role != Qt::DisplayRole)
         return QVariant();
 
-    TreeItem *item = static_cast<TreeItem*>(index.data());
+    TreeItem *item = static_cast<TreeItem*>(index.internalPointer());
 
     return item->data(index.column());
 }
@@ -82,7 +82,7 @@ QModelIndex TreeModel::index(int row, int column, const QModelIndex &parent)
     if (!parent.isValid())
         parentItem = rootItem;
     else
-        parentItem = static_cast<TreeItem*>(parent.data());
+        parentItem = static_cast<TreeItem*>(parent.internalPointer());
 
     TreeItem *childItem = parentItem->child(row);
     if (childItem)
@@ -96,7 +96,7 @@ QModelIndex TreeModel::parent(const QModelIndex &index) const
     if (!index.isValid())
         return QModelIndex();
 
-    TreeItem *childItem = static_cast<TreeItem*>(index.data());
+    TreeItem *childItem = static_cast<TreeItem*>(index.internalPointer());
     TreeItem *parentItem = childItem->parent();
 
     if (parentItem == rootItem)
@@ -112,7 +112,7 @@ int TreeModel::rowCount(const QModelIndex &parent) const
     if (!parent.isValid())
         parentItem = rootItem;
     else
-        parentItem = static_cast<TreeItem*>(parent.data());
+        parentItem = static_cast<TreeItem*>(parent.internalPointer());
 
     return parentItem->childCount();
 }
