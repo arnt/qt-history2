@@ -2219,14 +2219,14 @@ int QListView::addColumn( const QIconSet& iconset, const QString &label, int wid
 }
 
 /*!
-  Returns the number of columns of this list view. 
-  
+  Returns the number of columns of this list view.
+
   \sa addColumn(), removeColumn()
 */
 
 int QListView::columns() const
 {
-    d->column.count();
+    return d->column.count();
 }
 
 /*!
