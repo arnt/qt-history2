@@ -729,7 +729,13 @@ const QString qt_reg_winclass(Qt::WFlags flags)        // register window class
 #else
         style = CS_DBLCLKS;
 #endif
-        if (QSysInfo::WindowsVersion == QSysInfo::WV_XP)
+        if (QSysInfo::WindowsVersion == QSysInfo::WV_XP
+#ifndef QT_WINXP_TOOLWINDOW_DROPSHADOW
+             // drop shadows on tool windows that contains an OpenGL
+             // window simply doesn't work, so disable it by default
+             && !(flags & Qt::WStyle_Tool)
+#endif
+            )
             style |= 0x00020000;                // CS_DROPSHADOW
         icon  = false;
     }
@@ -861,7 +867,7 @@ static void unregWinClasses()
 void QApplication::setMainWidget(QWidget *mainWidget)
 {
     QApplicationPrivate::main_widget = mainWidget;
-    if (QApplicationPrivate::main_widget && windowIcon().isNull() 
+    if (QApplicationPrivate::main_widget && windowIcon().isNull()
 	&& QApplicationPrivate::main_widget->testAttribute(Qt::WA_SetWindowIcon))
         setWindowIcon(QApplicationPrivate::main_widget->windowIcon());
 }
@@ -1052,7 +1058,7 @@ void QApplication::winFocus(QWidget *widget, bool gotFocus)
         return;
     if (gotFocus) {
         setActiveWindow(widget);
-        if (QApplicationPrivate::active_window 
+        if (QApplicationPrivate::active_window
 	    && QApplicationPrivate::active_window->testWFlags(Qt::WType_Dialog)) {
             // raise the entire application, not just the dialog
             QWidget* mw = QApplicationPrivate::active_window;
@@ -3403,8 +3409,8 @@ void QApplication::setEffectEnabled(Qt::UIEffect effect, bool enable)
         QApplicationPrivate::animate_ui = enable;
         break;
     }
-    if (desktopSettingsAware() 
-	&& !(QSysInfo::WindowsVersion == QSysInfo::WV_95 
+    if (desktopSettingsAware()
+	&& !(QSysInfo::WindowsVersion == QSysInfo::WV_95
 	     || QSysInfo::WindowsVersion == QSysInfo::WV_NT)) {
         // we know that they can be used when we are here
         UINT api;
