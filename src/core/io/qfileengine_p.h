@@ -41,12 +41,6 @@ public:
     static inline QString fixToQtSlashes(const QString &path) { return path; }
 #endif
 
-protected:
-    QFSFileEnginePrivate();
-
-    void init();
-    int sysOpen(const QString &, int flags);
-private:
     QString file;
 
     inline void resetErrors() {
@@ -74,11 +68,16 @@ private:
     mutable QT_STATBUF st;
     bool doStat() const;
 
+protected:
+    QFSFileEnginePrivate();
+
+    void init();
+    int sysOpen(const QString &, int flags);
+
 #if defined(Q_OS_WIN32)
     uint getPermissions() const;
     QString getLink() const;
 #endif
-
 };
 
 #endif // QFILEENGINE_P_H
