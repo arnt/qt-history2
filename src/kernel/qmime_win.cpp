@@ -751,7 +751,7 @@ QByteArray QWindowsMimeUri::convertToMime( QByteArray data, const char* mime, in
 	    QString fn = QString::fromLocal8Bit( files+i );
 	    texturi += QUriDrag::localFileToUri(fn);
 	    texturi += "\r\n";
-	    i += fn.length()+1;
+	    i += strlen(files+i)+1;
 	}
     }
 
