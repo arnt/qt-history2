@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#126 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#127 $
 **
 ** Implementation of QListView widget class
 **
@@ -195,10 +195,12 @@ struct QListViewPrivate
   Many programs will need to reimplement QListViewItem.  The most
   commonly reimplemented functions are: <ul> <li> text() returns the
   text in a column.  Many subclasses will compute that on the
-  fly. <li> key() is used for sorting. <li> setup() is called before
-  showing the item, and whenever e.g. the font changes. <li>
-  activate() is called whenever the user clicks on the item or presses
-  space when the item is the currently highlighted item.</ul>
+  fly. <li> key() is used for sorting.  The default key() simply calls
+  text(), but judicious use of key can be used to sort by e.g. date
+  (as QFileDialog does).  <li> setup() is called before showing the
+  item, and whenever e.g. the font changes. <li> activate() is called
+  whenever the user clicks on the item or presses space when the item
+  is the currently highlighted item.</ul>
 
   Some subclasses call setExpandable( TRUE ) even when they have no
   children, and populate themselves when setup() is called.  The
@@ -410,6 +412,19 @@ void QListViewItem::removeItem( QListViewItem * tbg )
 
   QListViewItem immediately copies the return value of this function,
   so it's safe to return a pointer to a static variable.
+
+  You can use this function to sort by non-alphabetic data.  This code
+  excerpt sort by file modification date, for example
+  
+  \code
+    if ( column == 3 ) {
+        QDateTime epoch( QDate( 1980, 1, 1 ) );
+	tmpString.sprintf( "%08d", epoch.secsTo( myFile.lastModified() ) );
+    } else {
+        // ....
+    }
+    return tmpString;
+  \endcode
 
   \sa sortChildItems()
 */
