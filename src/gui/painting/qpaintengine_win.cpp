@@ -957,19 +957,24 @@ void QWin32PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const
     pm->releaseDC(pm_dc);
 }
 
-void QWin32PaintEngine::drawTextItem(const QPointF &p, const QTextItem &ti)
+void QWin32PaintEngine::drawTextItem(const QPointF &pt, const QTextItem &ti)
 {
-#ifdef QT_DEBUG_DRAW
-    printf(" - QWin32PaintEngine::drawTextItem(), (%.2f,%.2f), string=%s\n",
-           p.x(), p.y(), QString::fromRawData(ti.chars, ti.num_chars).latin1());
-#endif
     if (d->tryGdiplus()) {
-        d->gdiplusEngine->drawTextItem(p, ti);
+        d->gdiplusEngine->drawTextItem(pt, ti);
         return;
     }
 
-    if (d->txop > QPainterPrivate::TxNone)
+    QPointF p = pt;
+    if (d->txop > QPainterPrivate::TxNone) {
         d->setNativeMatrix(d->matrix);
+        // Since we enable native xform, we need to move the coords back to logical
+        p = p * d->invMatrix;
+    }
+
+#ifdef QT_DEBUG_DRAW
+        printf(" - QWin32PaintEngine::drawTextItem(), (%.2f,%.2f), string=%s\n",
+               p.x(), p.y(), QString::fromRawData(ti.chars, ti.num_chars).latin1());
+#endif
 
     QFontEngine *fe = ti.fontEngine;
     QPainterState *state = painterState();
@@ -1442,6 +1447,7 @@ void QWin32PaintEngine::updateMatrix(const QMatrix &mtx)
         d->txop = QPainterPrivate::TxNone;
 
     d->matrix = mtx;
+    d->invMatrix = mtx.invert();
 
 #ifndef QT_NO_NATIVE_XFORM
     d->setNativeMatrix(mtx);

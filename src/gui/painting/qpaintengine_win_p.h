@@ -242,6 +242,7 @@ public:
     Qt::BGMode bgMode;
 
     QMatrix matrix;
+    QMatrix invMatrix;
     QPainterPrivate::TransformationCodes txop;
 
     /*!
