@@ -69,7 +69,7 @@ public:
     QSqlDriver( QObject * parent=0, const char * name=0 );
     ~QSqlDriver();
 
-    bool	          isOpen() const;
+    virtual bool	  isOpen() const;
     bool	          isOpenError() const;
 
     virtual bool          beginTransaction();
@@ -97,7 +97,7 @@ protected:
     virtual void          setOpenError( bool e );
     virtual void	  setLastError( const QSqlError& e );
 private:
-    int	          dbState;
+    int		          dbState;
     QSqlError	          error;
 #if defined(Q_DISABLE_COPY)
     QSqlDriver( const QSqlDriver & );
