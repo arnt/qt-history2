@@ -421,17 +421,18 @@ void QGenericListView::dragMoveEvent(QDragMoveEvent *e)
 
 void QGenericListView::dropEvent(QDropEvent *e)
 {
-    if (e->source() == this && d->movement == Free
-	 /*&& e->action() == QDropEvent::Move*/) {
-	QPoint delta = e->pos() - d->viewport->mapFromGlobal(d->rubberBand->pos());
+    if (e->source() == this && d->movement != Static /*&& e->action() == QDropEvent::Move*/) {
+	QPoint start = d->viewport->mapFromGlobal(d->rubberBand->pos());
+	QPoint delta = (d->movement == Snap ? d->snapToGrid(e->pos()) - d->snapToGrid(start) : e->pos() - start);
 	QList<QModelIndex> items = selectionModel()->selectedItems();
+	QPoint dest;
         int i;
 	for (i = 0; i < items.count(); ++i) {
-            QModelIndex pos = items.at(i);
-	    QRect rect = itemRect(pos);
-	    moveItem(pos.row(), QPoint(rect.x() + delta.x(), rect.y() + delta.y()));
+            QModelIndex item = items.at(i);
+	    QRect rect = itemRect(item);
+	    moveItem(item.row(), rect.topLeft() + delta);
 	    d->viewport->update(rect);
-	    updateItem(pos);
+	    updateItem(item);
 	}
     } else {
 	QAbstractItemView::dropEvent(e);
@@ -680,7 +681,7 @@ QRect QGenericListView::selectionViewportRect(const QItemSelection &selection) c
 void QGenericListView::startItemsLayout()
 {
     // we should keep the original layout rect if and only start layout once
-//    if ( /*d->movement == Free && arrangeItemsDone()*/ d->layoutBounds.isValid() )
+//    if ( /*d->movement != Static && arrangeItemsDone()*/ d->layoutBounds.isValid() )
 //	return;
 
     d->layoutStart = 0;
@@ -757,8 +758,10 @@ void QGenericListView::doStaticLayout(const QRect &bounds, int first, int last)
     int y = 0;
     d->initStaticLayout(x, y, first, bounds);
 
+    int gw = d->gridSize.width() > 0 ? d->gridSize.width() : 0;
+    int gh = d->gridSize.height() > 0 ? d->gridSize.height() : 0;
     int delta = last - first + 1;
-    int spacing = d->spacing;
+    int spacing = d->gridSize.isEmpty() ? 0 : d->spacing;
     int layoutWraps = d->layoutWraps;
     bool wrap = d->wrap;
     QModelIndex item;
@@ -777,12 +780,12 @@ void QGenericListView::doStaticLayout(const QRect &bounds, int first, int last)
 
     if (d->flow == LeftToRight) {
 	int w = bounds.width();
-	int dx, dy = (d->gridSize.height() > 0 ? d->gridSize.height() : d->translate);
+	int dx, dy = (gh ? gh : d->translate);
 	for (int i = first; i <= last ; ++i) {
 
 	    item = model()->index(i, 0, root());
 	    hint = delegate->sizeHint(fontMetrics, options, item);
-	    dx = (d->gridSize.width() > 0 ? d->gridSize.width() : hint.width());
+	    dx = (gw ? gw : hint.width());
 
 	    if (wrap && (x + spacing + dx >= w))
 		d->createStaticRow(x, y, dy, layoutWraps, i, bounds, spacing, delta);
@@ -798,12 +801,12 @@ void QGenericListView::doStaticLayout(const QRect &bounds, int first, int last)
 	rect.setBottom(y + dy);
     } else { // d->flow == TopToBottom
 	int h = bounds.height();
-	int dy, dx = (d->gridSize.width() > 0 ? d->gridSize.width() : d->translate);
+	int dy, dx = (gw ? gw : d->translate);
 	for (int i = first; i <= last ; ++i) {
 
 	    item = model()->index(i, 0, root());
 	    hint = delegate->sizeHint(fontMetrics, options, item);
-	    dy = (d->gridSize.height() > 0 ? d->gridSize.height() : hint.height());
+	    dy = (gh ? gh : hint.height());
 
 	    if (wrap && (y + spacing + dy >= h))
 		d->createStaticColumn(x, y, dx, layoutWraps, i, bounds, spacing, delta);
@@ -831,7 +834,9 @@ void QGenericListView::doStaticLayout(const QRect &bounds, int first, int last)
 
 void QGenericListView::doDynamicLayout(const QRect &bounds, int first, int last)
 {
-    int spacing = d->spacing;
+    int gw = d->gridSize.width() > 0 ? d->gridSize.width() : 0;
+    int gh = d->gridSize.height() > 0 ? d->gridSize.height() : 0;
+    int spacing = gw && gh ? 0 : d->spacing;
     int x, y;
 
     if (first == 0) {
@@ -844,9 +849,9 @@ void QGenericListView::doDynamicLayout(const QRect &bounds, int first, int last)
 	x = item.x;
 	y = item.y;
 	if (d->flow == LeftToRight)
-	    x += (d->gridSize.width() > 0 ? d->gridSize.width() : item.w + spacing);
+	    x += (gw ? gw : item.w) + spacing;
 	else
-	    y += (d->gridSize.height() > 0 ? d->gridSize.height() : item.h + spacing);
+	    y += (gh ? gh : item.h) + spacing;
     }
 
     bool wrap = d->wrap;
@@ -856,10 +861,10 @@ void QGenericListView::doDynamicLayout(const QRect &bounds, int first, int last)
 
     if (d->flow == LeftToRight) {
 	int w = bounds.width();
-	int dy = (d->gridSize.height() > 0 ? d->gridSize.height() : d->translate);
+	int dy = (gh ? gh : d->translate);
 	for (int i = first; i <= last; ++i) {
 	    item = d->tree.itemPtr(i);
-	    int dx = (d->gridSize.width() > 0 ? d->gridSize.width() : item->w);
+	    int dx = (gw ? gw : item->w);
 	    // create new layout row
 	    if (wrap && (x + spacing + dx >= w)) {
 		x = bounds.x() + spacing;
@@ -874,10 +879,10 @@ void QGenericListView::doDynamicLayout(const QRect &bounds, int first, int last)
 	d->translate = dy;
     } else { // TopToBottom
 	int h = bounds.height();
-	int dx = (d->gridSize.width() > 0 ? d->gridSize.width() : d->translate);
+	int dx = (gw ? gw : d->translate);
 	for (int i = first; i <= last; ++i) {
 	    item = d->tree.itemPtr(i);
-	    int dy = (d->gridSize.height() > 0 ? d->gridSize.height() : item->h);
+	    int dy = (gh ? gh : item->h);
 	    if (wrap && (y + spacing + dy >= h)) {
 		y = bounds.y() + spacing;
 		x += spacing + dx;
@@ -957,10 +962,10 @@ void QGenericListView::moveItem(int index, const QPoint &dest)
 
 void QGenericListView::updateGeometries()
 {
-    horizontalScrollBar()->setPageStep(width());
-    horizontalScrollBar()->setRange(0, contentsWidth() - width() + horizontalScrollBar()->height());
-    verticalScrollBar()->setPageStep(height());
-    verticalScrollBar()->setRange(0, contentsHeight() - height() + verticalScrollBar()->height());
+    horizontalScrollBar()->setPageStep(d->viewport->width());
+    horizontalScrollBar()->setRange(0, contentsWidth() - d->viewport->width());
+    verticalScrollBar()->setPageStep(d->viewport->height());
+    verticalScrollBar()->setRange(0, contentsHeight() - d->viewport->height());
 }
 
 void QGenericListViewPrivate::prepareItemsLayout()
@@ -1055,7 +1060,8 @@ void QGenericListViewPrivate::drawDraggedItems(QPainter *painter, const QPoint &
     QItemOptions options;
     q->getViewOptions(&options);
     QAbstractItemDelegate *delegate = q->itemDelegate();
-    QPoint delta = pos - viewport->mapFromGlobal(rubberBand->pos());
+    QPoint start = viewport->mapFromGlobal(rubberBand->pos());
+    QPoint delta = (movement == QGenericListView::Snap ? snapToGrid(pos) - snapToGrid(start) : pos - start);
     QVector<QModelIndex>::const_iterator it = draggedItems.begin();
     QGenericListViewItem item = indexToListViewItem(*it);
     draggedItemsRect.setRect(item.x + delta.x(), item.y + delta.y(), item.w, item.h);
@@ -1067,6 +1073,7 @@ void QGenericListViewPrivate::drawDraggedItems(QPainter *painter, const QPoint &
  	delegate->paint(painter, options, *it);
 	draggedItemsRect |= options.itemRect;
     }
+    painter->drawRect(draggedItemsRect);
 }
 
 QGenericListViewItem QGenericListViewPrivate::indexToListViewItem(const QModelIndex &item) const
@@ -1074,7 +1081,7 @@ QGenericListViewItem QGenericListViewPrivate::indexToListViewItem(const QModelIn
     if (!item.isValid())
 	return QGenericListViewItem();
 
-    if (movement == QGenericListView::Free)
+    if (movement != QGenericListView::Static)
 	if (item.row() < tree.itemCount())
 	    return tree.const_item(item.row());
 	else
@@ -1216,4 +1223,11 @@ void QGenericListViewPrivate::initStaticLayout(int &x, int &y, int first, const 
 	    y = bounds.top() + spacing;
 	}
     }
+}
+
+QPoint QGenericListViewPrivate::snapToGrid(const QPoint &pos) const
+{
+    int x = pos.x() - (pos.x() % gridSize.width());
+    int y = pos.y() - (pos.y() % gridSize.height());
+    return QPoint(x, y);
 }

@@ -124,6 +124,8 @@ public:
     void createStaticColumn(int &x, int &y, int &dx, int &wraps, int i,
 			    const QRect &bounds, int spacing, int delta);
     void initStaticLayout(int &x, int &y, int first, const QRect &bounds);
+    
+    QPoint snapToGrid(const QPoint &pos) const;
 
     QGenericListView::Flow flow;
     QGenericListView::Wrap wrap;
