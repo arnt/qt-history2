@@ -93,7 +93,7 @@ ProjectGenerator::init()
 		regx = regx.right(regx.length() - (s+1));
 	    }
 	    QDir d(dir, regx);
-	    for(int i = 0; i < d.count(); i++)
+	    for(int i = 0; i < (int)d.count(); i++)
 		addFile(dir + d[i]);
 	}
 	if(!dir.isEmpty() && !v["DEPENDPATH"].contains(dir))
@@ -255,7 +255,7 @@ ProjectGenerator::getWritableVar(const QString &v)
 	ret = v + " += ";
     if(vals.count() > 5) {
 	QString spaces;
-	for(int i = 0; i < ret.length(); i++)
+	for(unsigned int i = 0; i < ret.length(); i++)
 	    spaces += " ";
 	ret += vals.join("\\\n" + spaces);
     } else {
