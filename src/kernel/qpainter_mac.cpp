@@ -329,7 +329,8 @@ bool QPainter::begin( const QPaintDevice *pd )
         bg_col = w->backgroundColor();          // use widget bg color
         ww = vw = w->width();                   // default view size
         wh = vh = w->height();
-	if(paintEventDevice == pdev) {
+	if(!w->isVisible()); //leave the clipped reg empty if its not visible, this is hacky FIXME!!!
+	else if(paintEventDevice == pdev) {
 	    clippedreg = *paintEventClipRegion;
 	}
         else if ( w->testWFlags(WPaintUnclipped) ) { // paint direct on device
