@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#178 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#179 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -43,7 +43,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #include <bstring.h> // bzero
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#178 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#179 $");
 
 
 #if !defined(XlibSpecificationRelease)
@@ -96,6 +96,8 @@ static short	mouseXPos, mouseYPos;		// mouse position in act window
 static QWidgetList *modal_stack = 0;		// stack of modal widgets
 static QWidgetList *popupWidgets = 0;		// list of popup widgets
 static bool	    popupCloseDownMode = FALSE;
+static bool	    popupGrabOk;
+
 
 typedef void  (*VFPTR)();
 typedef Q_DECLARE(QListM,void) QVFuncList;
@@ -1505,15 +1507,23 @@ void qt_open_popup( QWidget *popup )
     }
     popupWidgets->append( popup );		// add to end of list
     if ( popupWidgets->count() == 1 && !qt_nograb() ){ // grab mouse/keyboard
-	XGrabKeyboard( popup->x11Display(), popup->winId(), TRUE,
-		       GrabModeSync, GrabModeSync, CurrentTime );
-	XAllowEvents( popup->x11Display(), SyncKeyboard, CurrentTime );
-	XGrabPointer( popup->x11Display(), popup->winId(), TRUE,
-		      (uint)(ButtonPressMask | ButtonReleaseMask |
-		      ButtonMotionMask | EnterWindowMask | LeaveWindowMask),
-		      GrabModeSync, GrabModeAsync,
-		      None, None, CurrentTime );
-	XAllowEvents( popup->x11Display(), SyncPointer, CurrentTime );
+	int r;
+	r = XGrabKeyboard( popup->x11Display(), popup->winId(), TRUE,
+			   GrabModeSync, GrabModeSync, CurrentTime );
+	if ( (popupGrabOk = (r == GrabSuccess)) ) {
+	    XAllowEvents( popup->x11Display(), SyncKeyboard, CurrentTime );
+	    r = XGrabPointer( popup->x11Display(), popup->winId(), TRUE,
+			      (uint)(ButtonPressMask | ButtonReleaseMask |
+				     ButtonMotionMask | EnterWindowMask |
+				     LeaveWindowMask),
+			      GrabModeSync, GrabModeAsync,
+			      None, None, CurrentTime );
+	    if ( (popupGrabOk = (r == GrabSuccess)) ) {
+		XAllowEvents( popup->x11Display(), SyncPointer, CurrentTime );
+	    } else {
+		XUngrabKeyboard( popup->x11Display(), CurrentTime );
+	    }
+	}
     }
 }
 
@@ -1526,11 +1536,12 @@ void qt_close_popup( QWidget *popup )
 	popupCloseDownMode = TRUE;		// control mouse events
 	delete popupWidgets;
 	popupWidgets = 0;
-	if ( !qt_nograb() ) {			// grabbing not disabled
+	if ( !qt_nograb() && popupGrabOk ) {	// grabbing not disabled
 	    XUngrabKeyboard( popup->x11Display(), CurrentTime );
-	    if ( mouseButtonState != 0 )	// mouse release event
-		XAllowEvents( popup->x11Display(), AsyncPointer, CurrentTime );
-	    else {				// mouse press event
+	    if ( mouseButtonState != 0 ) {	// mouse release event
+		XAllowEvents( popup->x11Display(), AsyncPointer,
+			      CurrentTime );
+	    } else {				// mouse press event
 		mouseButtonPressTime -= 10000;	// avoid double click
 		XAllowEvents( popup->x11Display(), ReplayPointer,CurrentTime );
 	    }
@@ -1949,9 +1960,10 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	}
 	QMouseEvent e( type, pos, button, state );
 	QApplication::sendEvent( popup, &e );
-	if ( popupWidgets )			// still in popup mode
-	    XAllowEvents( dpy, SyncPointer, CurrentTime );
-	else {					// left popup mode
+	if ( popupWidgets ) {			// still in popup mode
+	    if ( popupGrabOk )
+		XAllowEvents( dpy, SyncPointer, CurrentTime );
+	} else {				// left popup mode
 	    if ( type != Event_MouseButtonRelease && state != 0 ) {
 		manualGrab = TRUE;		// need to manually grab
 		XGrabPointer( dpy, mouseActWindow, FALSE,
@@ -2094,8 +2106,10 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
     if ( popupWidgets ) {			// oops, in popup mode
 	QWidget *popup = popupWidgets->last();
 	QApplication::sendEvent( popup, &e );	// send event to popup instead
-	if ( popupWidgets )			// still in popup mode
-	    XAllowEvents( dpy, SyncKeyboard, CurrentTime );
+	if ( popupWidgets ) {			// still in popup mode
+	    if ( popupGrabOk )
+		XAllowEvents( dpy, SyncKeyboard, CurrentTime );
+	}
 	return TRUE;
     }
     if ( type == Event_KeyPress && !grab ) {	// send accel event to tlw
