@@ -745,12 +745,11 @@ then
 	PLATFORM=irix-64
 	;;
      IRIX:*)
-	#PLATFORM=irix-dcc
 	#PLATFORM=irix-g++
 	PLATFORM=irix-n32
 	#PLATFORM=irix-o32
 	PLATFORM_NOTES="
-	    - Also available for IRIX: irix-dcc irix-g++ irix-o32
+	    - Also available for IRIX: irix-g++ irix-o32
 	"
 	;;
      HP-UX:*)
