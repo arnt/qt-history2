@@ -117,7 +117,7 @@ protected:
 
     /* used for blt functions */
     bool mapSourceToTexture(int x, int y, int w, int h);
-    bool bltTexture(int x, int y, int clp, int w=-1, int h=-1);
+    bool bltTexture(int x, int y, int clp, int w=-1, int h=-1, int tw=-1, int th=-1);
     void buildSourceClut(QRgb * cols,int numcols);
 
     /* for polygonscanner */

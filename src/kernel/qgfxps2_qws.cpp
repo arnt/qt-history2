@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id: //depot/qt/main/src/%s#3 $
 **
-** Created : 970521
+** Created : 001001
 **
 ** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
@@ -74,7 +74,7 @@ QPS2Screen::initCard()
 	}
     }
     if(output == 0) {
-	/* stolen more-or-less verabim from the gsx code base */
+	/* stolen verabim from the gsx code base */
 	static int framerate[4][3]= {
 	    /* 60, 75, 85 Hz */
 	    {   1,  3,  4},	/*  640x 480 */
@@ -151,7 +151,7 @@ QPS2Screen::connect( const QString & )
 //    screenclut = 0;
     screencols = 0;
 
-    // No blankin' screen, no blinkin' cursor!
+    // No blankin' screen, no blinkin' cursor! ##I don't think these are working for the PS2.. FIXME
     const char termctl[] = "\033[9;0]\033[?33l";
     write(1,termctl,sizeof(termctl));
 
@@ -163,7 +163,7 @@ QPS2Screen::disconnect()
 {
     gsosClose();
 
-    // a reasonable screensaver timeout
+    // a reasonable screensaver timeout ##I don't think these are working for the PS2.. FIXME
     printf("\033[9;15]");
     fflush(stdout);
 }
@@ -203,7 +203,8 @@ QGfx * QPS2Screen::createGfx(unsigned char *data,int w,int h,int d, int linestep
     /* this lets off screen painting happen, however it is very wrong,
        since some objects won't have a frame buffer (so called "data"), I
        either need to a) figure out how to get some texture space working
-       or b) get an fb, either way will work, a is probably better.
+       or b) get an fb, either way will work, a is probably better. For now 
+       I will leave it like this until it is decided this is unnacceptable.
     */
     QGfx *ret;
     if(data)
@@ -225,21 +226,24 @@ QGfxPS2::~QGfxPS2()
 {
 }
 
+/* This will flush registers to some acceptable values. 
+
+   If flushtex is specified it will flush registers relating to textures, chances are you 
+   don't want to use this, however if you are putting something to texture memory you
+   will want to use them.
+*/
 void 
 QGfxPS2::flushRegisters(bool flushtex) 
 {
     /* flush */
-    gsosMakeGiftag( flushtex ? 23: 22, GSOS_GIF_EOP_TERMINATE, GSOS_GIF_PRE_IGNORE,
+    gsosMakeGiftag( flushtex ? 23: 19, GSOS_GIF_EOP_TERMINATE, GSOS_GIF_PRE_IGNORE,
 		    0, GSOS_GIF_FLG_PACKED, 1, GSOS_GIF_REG_AD);
     gsosSetPacketAddrData(GSOS_XYOFFSET_1, GsosXyoffsetData(GSOS_XYOFFSET<<4, GSOS_XYOFFSET<<4));
     gsosSetPacketAddrData(GSOS_FRAME_1, GsosFrameData(0x00, (qt_screen->deviceWidth() +63)/64, 0, 0));
     gsosSetPacketAddrData(0x100, GsosZbufData(0x100, 0, 0));
     gsosSetPacketAddrData(GSOS_PRMODECONT, GsosPrmodecontData( 0));
-    gsosSetPacketAddrData(GSOS_TEX0_1, GsosTex0Data(0x3000, 1, 0, 10, 10, 1, 0, 0, 0, 0, 0, 0));
     gsosSetPacketAddrData(GSOS_SCANMSK, GsosScanmskData(0));
     gsosSetPacketAddrData(GSOS_CLAMP_1, GsosClampData(0, 0, 0, 0, 0, 0));
-    gsosSetPacketAddrData(GSOS_TEX1_1, GsosTex1Data(0, 0, 0, 0, 0, 0, 0));
-    gsosSetPacketAddrData(GSOS_TEX2_1, GsosTex2Data(0, 0, 0, 0, 0, 0));
     gsosSetPacketAddrData(GSOS_MIPTBP1_1, GsosMiptbp1Data(0, 0, 0, 0, 0, 0));
     gsosSetPacketAddrData(GSOS_MIPTBP2_1, GsosMiptbp2Data(0, 0, 0, 0, 0, 0));
     gsosSetPacketAddrData(GSOS_SCISSOR_1, GsosScissorData(0, qt_screen->deviceWidth(), 0, qt_screen->deviceHeight()));
@@ -253,8 +257,12 @@ QGfxPS2::flushRegisters(bool flushtex)
     gsosSetPacketAddrData(GSOS_DTHE, GsosDtheData(0));
     gsosSetPacketAddrData(GSOS_COLCLAMP, GsosColclampData(0));
     gsosSetPacketAddrData(GSOS_PABE, GsosPabeData(0));
-    if(flushtex)
+    if(flushtex) {
+	gsosSetPacketAddrData(GSOS_TEX0_1, GsosTex0Data(0x3000, 1, 0, 10, 10, 1, 0, 0, 0, 0, 0, 0));
+	gsosSetPacketAddrData(GSOS_TEX1_1, GsosTex1Data(0, 0, 0, 0, 0, 0, 0));
+	gsosSetPacketAddrData(GSOS_TEX2_1, GsosTex2Data(0, 0, 0, 0, 0, 0));
 	gsosSetPacketAddrData( 0x3f, 0); //why don't they do this??!?
+    }
     gsosExec() ;
 }
 
@@ -592,6 +600,10 @@ void QGfxPS2::processSpans( int n, QPoint* point, int* width )
     }
 }
 
+/* This maps the source into a texture, for now it will always write to 0, 0 in the 
+   texture buffer, it sets up the texture register, then does the write to gs local 
+   memory. It will blt from x, y of the source, to x+w, y+h.
+*/
 bool
 QGfxPS2::mapSourceToTexture(int x, int y, int w, int h)
 {
@@ -720,15 +732,31 @@ QGfxPS2::mapSourceToTexture(int x, int y, int w, int h)
     return TRUE;
 }
 
-bool
-QGfxPS2::bltTexture(int x, int y, int clp, int w, int h)
-{
-//    flushRegisters();
+/* This will blt a texture (presumably from mapSourceToTexture) at screen
+   coord x, y using clipping region clp, if clp is -1 it will use a
+   bounding rect of the clipped region.
 
+   You can specify the width and height of the blt itself with w and h, if
+   set to -1 then they will use the cached texture width and texture height
+   (again from mapSourceToTexture).
+
+   You can also specify the width and height of the texture sample with tw
+   and th, if set to -1 then they will use the cached texture width and
+   texture height as well.
+*/
+bool
+QGfxPS2::bltTexture(int x, int y, int clp, int w, int h, int tw, int th)
+{
+    //defaults for blt w/h
     if(w == -1) 
-	w = tex_width;
+	w = tex_width; 
     if(h == -1)
 	h = tex_height;
+    //defaults for tex w/h
+    if(tw == -1)
+	tw = tex_width;
+    if(th == -1)
+	th = tex_height;
 
     gsosMakeGiftag(5, GSOS_GIF_EOP_CONTINUE, GSOS_GIF_PRE_IGNORE, 0, GSOS_GIF_FLG_PACKED, 1, GSOS_GIF_REG_AD);
 
@@ -757,7 +785,7 @@ QGfxPS2::bltTexture(int x, int y, int clp, int w, int h)
     gsosSetPacket4(GSOS_SUBPIX_OFST(0), GSOS_SUBPIX_OFST(0),0,0);
     gsosSetPacket4(GSOS_SUBPIX_OFST(x), GSOS_SUBPIX_OFST(y),0,0);
 
-    gsosSetPacket4(GSOS_SUBPIX_OFST((w+1)), GSOS_SUBPIX_OFST((h+1)),0,0);
+    gsosSetPacket4(GSOS_SUBPIX_OFST((tw+1)), GSOS_SUBPIX_OFST((th+1)),0,0);
     gsosSetPacket4(GSOS_SUBPIX_OFST((x+w)), GSOS_SUBPIX_OFST((y+h)),0,0);
 
     gsosExec();
@@ -775,8 +803,8 @@ QGfxPS2::blt(int rx, int ry, int w, int h, int sx,int sy)
     rx += xoffs;
     ry += yoffs;
 
-    QWSDisplay::grab(TRUE);
     GFX_START(QRect(rx, ry, w+1, h+1));
+    QWSDisplay::grab(TRUE);
 
     /* this is really gross, however it'll work for now, basically I see
        the buffers wrapping at some point so I'm going to segment up blts
@@ -804,8 +832,9 @@ QGfxPS2::blt(int rx, int ry, int w, int h, int sx,int sy)
 		bltTexture(rx, ry, clp);
 	}
 
-    GFX_END;
     QWSDisplay::ungrab();
+    GFX_END;
+
 }
 
 
@@ -813,8 +842,22 @@ QGfxPS2::blt(int rx, int ry, int w, int h, int sx,int sy)
 void
 QGfxPS2::stretchBlt( int rx, int ry, int w, int h, int sx, int sy)
 {
-    /* must write this function still.. */
-    fprintf(stderr, "Must implement stretchBlt..\n");
+    if(!ncliprect)
+	return;
+
+    rx += xoffs;
+    ry += yoffs;
+
+    GFX_START(QRect(rx, ry, w+1, h+1));
+    QWSDisplay::grab(TRUE);
+
+    if(mapSourceToTexture(sx, sy, srcwidth-sx, srcheight-sy)) {
+	for(int clp = 0; clp < ncliprect; clp++)
+	    bltTexture(rx, ry, clp, w, h);
+    }
+
+    QWSDisplay::ungrab();
+    GFX_END;
 }
 #endif
 
@@ -827,8 +870,8 @@ QGfxPS2::tiledBlt( int rx, int ry, int w, int h)
     rx += xoffs;
     ry += yoffs;
 
-    QWSDisplay::grab(TRUE);
     GFX_START(QRect(rx, ry, w+1, h+1));
+    QWSDisplay::grab(TRUE);
 
     /* I should probably do the chunking that I do in blt in some general function
        and use it here, however tiledblt hasn't proved to be necesary since the tiles
@@ -837,11 +880,11 @@ QGfxPS2::tiledBlt( int rx, int ry, int w, int h)
 
     if(mapSourceToTexture(0, 0, srcwidth, srcheight)) {
 	for(int clp = 0; clp < ncliprect; clp++)
-	    bltTexture(rx, ry, clp, w, h);
+	    bltTexture(rx, ry, clp, w, h, w, h);
     }
 
-    GFX_END;
     QWSDisplay::ungrab();
+    GFX_END;
 }
 
 /* This doesn't use textures for blts because screen->screen seemed right
@@ -857,6 +900,7 @@ QGfxPS2::scroll( int rx, int ry, int w, int h,int sx, int sy)
     sy += yoffs;
 
     GFX_START(QRect(rx, ry, w+1, h+1));
+    QWSDisplay::grab(TRUE);
 
     flushRegisters(TRUE);
     gsosMakeGiftag( 6, GSOS_GIF_EOP_CONTINUE, GSOS_GIF_PRE_IGNORE,
@@ -879,6 +923,7 @@ QGfxPS2::scroll( int rx, int ry, int w, int h,int sx, int sy)
     gsosExec() ;
     gsosFlush();
 
+    QWSDisplay::ungrab();
     GFX_END;    
 }
 
@@ -1047,8 +1092,8 @@ bool QPS2Cursor::restoreUnder( const QRect &r, QGfxRasterBase *g )
 	return FALSE;
 
     if (!save_under) {
-	QGfxPS2::flushRegisters(TRUE);
 	QWSDisplay::grab(TRUE);
+	QGfxPS2::flushRegisters(TRUE);
 
 	gsosWriteImage( 0, 0, 64, 64, 0x3000, 1, 0, (uchar *)mydata->grabdata );
 
