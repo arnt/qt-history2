@@ -27,6 +27,12 @@ QDesignerSettings::QDesignerSettings()
     : QSettings()
 {
     m_designerPath = QLatin1String("/.designer");
+
+    QStringList paths = defaultFormTemplatePaths();
+    foreach (QString path, paths) {
+        if (!QDir::current().exists(path))
+            QDir::current().mkdir(path, QDir::Recursive);
+    }
 }
 
 QDesignerSettings::~QDesignerSettings()
