@@ -370,7 +370,7 @@ void QPainter::setWorldMatrix(const QWMatrix &wm, bool combine)
 	ds->worldMatrix = wm;				// set new matrix
 //     bool identity = ds->worldMatrix.isIdentity();
 //     if ( identity && pdev->devType() != QInternal::Picture )
-// 	setWorldXForm( FALSE );
+// 	setWorldXForm( false );
 //     else
     if (!ds->WxF)
 	setWorldXForm(true);
@@ -398,21 +398,21 @@ void QPainter::scale(double sx, double sy)
 {
     QWMatrix m;
     m.scale( sx, sy );
-    setWorldMatrix( m, TRUE );
+    setWorldMatrix( m, true );
 }
 
 void QPainter::shear(double sh, double sv)
 {
     QWMatrix m;
     m.shear( sv, sh );
-    setWorldMatrix( m, TRUE );
+    setWorldMatrix( m, true );
 }
 
 void QPainter::rotate(double a)
 {
     QWMatrix m;
     m.rotate( a );
-    setWorldMatrix( m, TRUE );
+    setWorldMatrix( m, true );
 }
 #endif
 
@@ -435,7 +435,7 @@ void QPainter::translate(double dx, double dy)
 #ifndef QT_NO_TRANSFORMATIONS
     QWMatrix m;
     m.translate( dx, dy );
-    setWorldMatrix( m, TRUE );
+    setWorldMatrix( m, true );
 #else
     xlatex += (int)dx;
     xlatey += (int)dy;
@@ -1300,7 +1300,7 @@ void QPainter::updateXForm()
     ds->matrix = m;
 
 
-    d->txinv = FALSE;				// no inverted matrix
+    d->txinv = false;				// no inverted matrix
     d->txop  = TxNone;
     if (ds->matrix.m12()==0.0 && ds->matrix.m21()==0.0
 	&& ds->matrix.m11() >= 0.0 && ds->matrix.m22() >= 0.0 ) {
@@ -1336,8 +1336,8 @@ void QPainter::updateXForm()
 
 void QPainter::updateInvXForm()
 {
-    Q_ASSERT(d->txinv == FALSE);
-    d->txinv = TRUE;				// creating inverted matrix
+    Q_ASSERT(d->txinv == false);
+    d->txinv = true;				// creating inverted matrix
     bool invertible;
     QWMatrix m;
     if (ds->VxF) {
@@ -1733,13 +1733,13 @@ void qt_format_text( const QFont& font, const QRect &_r,
     // tabs by spaces
     QChar *chr = (QChar*)text.unicode();
     const QChar *end = chr + len;
-    bool haveLineSep = FALSE;
+    bool haveLineSep = false;
     while ( chr != end ) {
 	if ( *chr == '\r' || ( singleline && *chr == '\n' ) ) {
 	    *chr = ' ';
 	} else if ( *chr == '\n' ) {
 	    *chr = QChar_linesep;
-	    haveLineSep = TRUE;
+	    haveLineSep = true;
 	} else if ( *chr == '&' ) {
 	    ++maxUnderlines;
 	}
@@ -1823,7 +1823,7 @@ void qt_format_text( const QFont& font, const QRect &_r,
 	    height += leading;
 	    textLayout.beginLine( lineWidth == INT_MAX ? lineWidth : lineWidth + add );
 	    //qDebug("-----beginLine( %d )-----",  lineWidth+add );
-	    bool linesep = FALSE;
+	    bool linesep = false;
 	    while ( 1 ) {
 		QTextItem ti = textLayout.currentItem();
  		//qDebug("item: from=%d, ch=%x", ti.from(), text.unicode()[ti.from()].unicode() );
@@ -1848,7 +1848,7 @@ void qt_format_text( const QFont& font, const QRect &_r,
 			ti.setWidth( tw );
 		}
 		if ( ti.isObject() && text.unicode()[ti.from()] == QChar_linesep )
-		    linesep = TRUE;
+		    linesep = true;
 
 		if ( linesep || textLayout.addCurrentItem() != QTextLayout::Ok || textLayout.atEnd() )
 		    break;
@@ -1885,29 +1885,27 @@ void qt_format_text( const QFont& font, const QRect &_r,
     }
 
     if (!(tf & QPainter::DontPrint)) {
-	bool restoreClipping = FALSE;
-	bool painterHasClip = FALSE;
+	bool restoreClipping = false;
+	bool painterHasClip = false;
 	QRegion painterClipRegion;
 	if ( !dontclip ) {
-#ifndef QT_NO_TRANSFORMATIONS
-	    QRegion reg =  painter->d->matrix * r;
-#else
-	    QRegion reg = r;
-	    reg.translate( painter->xlatex, painter->xlatey );
+	    QRegion reg(r);
+#ifdef QT_NO_TRANSFORMATIONS
+	    reg.translate( painter->d->state->xlatex, painter->d->state->xlatey );
 #endif
-	    if ( painter->hasClipping() )
-		reg &= painter->clipRegion();
+ 	    if (painter->hasClipping())
+ 		reg &= painter->clipRegion(QPainter::CoordPainter);
 
 	    painterHasClip = painter->hasClipping();
 	    painterClipRegion = painter->clipRegion();
-	    restoreClipping = TRUE;
-	    painter->setClipRegion( reg );
+	    restoreClipping = true;
+	    painter->setClipRegion(reg, QPainter::CoordPainter);
 	} else {
 	    if ( painter->hasClipping() ){
 		painterHasClip = painter->hasClipping();
-		painterClipRegion = painter->clipRegion();
-		restoreClipping = TRUE;
-		painter->setClipping( FALSE );
+		painterClipRegion = painter->clipRegion(QPainter::CoordPainter);
+		restoreClipping = true;
+		painter->setClipping( false );
 	    }
 	}
 
@@ -1939,7 +1937,7 @@ void qt_format_text( const QFont& font, const QRect &_r,
 	}
 
 	if ( restoreClipping ) {
-	    painter->setClipRegion( painterClipRegion );
+	    painter->setClipRegion(painterClipRegion, QPainter::CoordPainter);
 	    painter->setClipping( painterHasClip );
 	}
     }
