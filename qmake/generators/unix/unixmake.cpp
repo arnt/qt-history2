@@ -83,6 +83,8 @@ UnixMakefileGenerator::init()
     bool extern_libs = !project->isEmpty("QMAKE_APP_FLAG") ||
 		       (!project->isEmpty("QMAKE_LIB_FLAG") &&
 			project->isActiveConfig("dll")) || is_qt;
+    if(!project->isActiveConfig("global_init_link_order"))
+	project->variables()["QMAKE_LIBS"] += project->variables()["LIBS"];
     if ( (!project->isEmpty("QMAKE_LIB_FLAG") && !project->isActiveConfig("staticlib") ) ||
 	 (project->isActiveConfig("qt") &&  project->isActiveConfig( "plugin" ) )) {
 	if(configs.findIndex("dll") == -1) configs.append("dll");
@@ -174,7 +176,8 @@ UnixMakefileGenerator::init()
 	else
 	    project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_OPENGL"];
     }
-    project->variables()["QMAKE_LIBS"] += project->variables()["LIBS"];
+    if(project->isActiveConfig("global_init_link_order"))
+	project->variables()["QMAKE_LIBS"] += project->variables()["LIBS"];
     if ( project->isActiveConfig("x11sm") )
 	project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_X11SM"];
     if ( project->isActiveConfig("dylib") )
