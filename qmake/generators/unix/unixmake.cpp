@@ -461,7 +461,7 @@ UnixMakefileGenerator::findLibraries()
 
 QString linkLib(const QString &file, const QString &libName) {
   QString ret;
-  QRegExp reg("^.*lib(" + libName + "[^./=]*).*$");
+  QRegExp reg("^.*lib(" + QRegExp::escape(libName) + "[^./=]*).*$");
   if(reg.exactMatch(file))
     ret = "-l" + reg.cap(1);
   return ret;
