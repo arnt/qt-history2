@@ -32,6 +32,7 @@
 #include "qtooltip.h"
 #include "qsimplerichtext.h"
 #include "qstylesheet.h"
+#include "qtoolbutton.h"
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 #include "qaccessible.h"
 #endif
@@ -157,7 +158,6 @@ QWhatsThat *QWhatsThat::instance = 0;
 static int shadowWidth = 6;   // also used as '5' and '6' and even '8' below
 static const int vMargin = 8;
 static const int hMargin = 12;
-static QPointer<QAction> whatsThisAction;
 
 QWhatsThat::QWhatsThat(const QString& txt, QWidget* parent, QWidget *showTextFor)
     : QWidget(parent, WType_Popup | WDestructiveClose), widget(showTextFor),pressed(false), text(txt)
@@ -352,6 +352,9 @@ class QWhatsThisPrivate : public QObject
     static QWhatsThisPrivate *instance;
     bool eventFilter(QObject *, QEvent *);
     QPointer<QAction> action;
+#ifdef QT_COMPAT
+    QPointer<QToolButton> button;
+#endif
     static void say(QWidget *, const QString &, int x = 0, int y = 0);
 };
 
@@ -371,6 +374,8 @@ QWhatsThisPrivate::~QWhatsThisPrivate()
 {
     if (action)
         action->setChecked(false);
+    if (button)
+        button->setChecked(false);
     QApplication::restoreOverrideCursor();
 #if defined(QT_ACCESSIBILITY_SUPPORT)
     QAccessible::updateAccessibility(this, 0, QAccessible::ContextHelpEnd);
@@ -426,17 +431,6 @@ bool QWhatsThisPrivate::eventFilter(QObject *o, QEvent *e)
     return true;
 }
 
-class QWhatsThisAction: public QAction
-{
-    Q_OBJECT
-
-public:
-    QWhatsThisAction();
-
-public slots:
-    void actionTriggered();
-};
-
 QWhatsThisAction::QWhatsThisAction() : QAction(tr("What's this?"))
 {
     QPixmap p((const char**)button_image);
@@ -477,28 +471,29 @@ void QWhatsThis::remove(QWidget *w)
 }
 
 
-static void cleanup_whatsthis_action()
-{
-    delete whatsThisAction;
-}
-
-QAction *QWhatsThis::action()
-{
-    if(!whatsThisAction) {
-        whatsThisAction = new QAction;
-        qAddPostRoutine(cleanup_whatsthis_action);
-    }
-    return whatsThisAction;
-}
-
 #ifdef QT_COMPAT
+class QWhatsThisButton : public QToolButton
+{
+    Q_OBJECT
+public:
+    QWhatsThisButton(QWidget *p) : QToolButton(p, "automatic what's this? button") {
+        QObject::connect(this, SIGNAL(toggled(bool)), this, SLOT(whatToggled(bool)));
+        setAutoRaise(true);
+        setFocusPolicy(NoFocus);
+    }
+
+public slots:
+    void whatToggled(bool b) {
+        if (b) {
+            QWhatsThis::enterWhatsThisMode();
+            QWhatsThisPrivate::instance->button = this;
+        }
+    }
+};
+
 QToolButton * QWhatsThis::whatsThisButton(QWidget * parent)
 {
-    QToolButton *ret = new QToolButton(parent, "automatic what's this? button");
-    ret->addAction(QWhatsThis::action());
-    ret->setAutoRaise(true);
-    ret->setFocusPolicy(NoFocus);
-    return ret;
+    return new QWhatsThisButton(parent);
 }
 #endif
 

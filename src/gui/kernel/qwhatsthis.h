@@ -18,6 +18,7 @@
 #ifndef QT_H
 #include "qobject.h"
 #include "qcursor.h"
+#include "qaction.h"
 #endif // QT_H
 
 #ifndef QT_NO_WHATSTHIS
@@ -25,7 +26,6 @@
 #ifdef QT_COMPAT
 class QToolButton;
 #endif
-class QAction;
 class Q_GUI_EXPORT QWhatsThis: public Qt
 {
     QWhatsThis();
@@ -37,14 +37,23 @@ public:
     static void showText(const QPoint &pos, const QString& text, QWidget* w = 0);
     static void hideText();
 
-    static QAction *action();
-
     static void add(QWidget *w, const QString &s); // obsolete
     static void remove(QWidget *); // obsolete
 
 #ifdef QT_COMPAT
     static QT_COMPAT QToolButton * whatsThisButton(QWidget * parent);
 #endif
+};
+
+class QWhatsThisAction: public QAction
+{
+    Q_OBJECT
+
+public:
+    QWhatsThisAction();
+
+public slots:
+    void actionTriggered();
 };
 
 #endif // QT_NO_WHATSTHIS
