@@ -33,6 +33,8 @@ public:
 #endif
     }
 
+    void init();
+
     //item calculations
     uint itemsDirty : 1;
     int itemsWidth, itemsStart;

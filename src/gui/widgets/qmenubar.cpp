@@ -346,26 +346,39 @@ void QMenuBarPrivate::activateAction(QAction *action, QAction::ActionEvent actio
 */
 
 
+void QMenuBarPrivate::init()
+{
+#ifdef Q_WS_MAC
+    macCreateMenuBar(parent);
+#endif
+    q->setBackgroundRole(QPalette::Button);
+    QWidget *parent = q->parentWidget();
+    if(parent) {
+        q->topLevelWidget()->installEventFilter(q); //grab accels (and maybe resizes)
+        if(!parent->isTopLevel())
+            parent->installEventFilter(q); //handle resizes
+    }
+    q->setMouseTracking(q->style().styleHint(QStyle::SH_MenuBar_MouseTracking));
+#ifdef QT_COMPAT
+    QObject::connect(q, SIGNAL(activated(QAction*)), q, SLOT(compatActivated(QAction*)));
+    QObject::connect(q, SIGNAL(highlighted(QAction*)), q, SLOT(compatHighlighted(QAction*)));
+#endif
+}
+
 /*!
     Constructs a menu bar with parent \a parent.
 */
 QMenuBar::QMenuBar(QWidget *parent) : QWidget(*new QMenuBarPrivate, parent, 0)
 {
-#ifdef Q_WS_MAC
-    d->macCreateMenuBar(parent);
-#endif
-    setBackgroundRole(QPalette::Button);
-    if(parent) {
-        topLevelWidget()->installEventFilter(this); //grab accels (and maybe resizes)
-        if(!parent->isTopLevel())
-            parent->installEventFilter(this); //handle resizes
-    }
-    setMouseTracking(style().styleHint(QStyle::SH_MenuBar_MouseTracking));
-#ifdef QT_COMPAT
-    QObject::connect(this, SIGNAL(activated(QAction*)), this, SLOT(compatActivated(QAction*)));
-    QObject::connect(this, SIGNAL(highlighted(QAction*)), this, SLOT(compatHighlighted(QAction*)));
-#endif
+    d->init();
 }
+
+#ifdef QT_COMPAT
+QMenuBar::QMenuBar(QWidget *parent, const char *name) : QWidget(*new QMenuBarPrivate, parent, 0)
+{
+    d->init();
+}
+#endif
 
 /*!
     Destroys the menu bar.

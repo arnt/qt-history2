@@ -30,6 +30,9 @@ class Q_GUI_EXPORT QMenuBar : public QWidget
 
 public:
     QMenuBar(QWidget *parent = 0);
+#ifdef QT_COMPAT
+    QMenuBar(QWidget *parent, const char *name);
+#endif
     ~QMenuBar();
 
     QAction *addMenu(const QString &title, QMenu *menu);
