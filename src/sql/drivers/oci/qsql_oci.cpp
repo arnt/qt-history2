@@ -472,7 +472,9 @@ OraFieldInfo qMakeOraField(const QOCIPrivate* p, OCIParam* param)
         qOraWarning("qMakeOraField:", p);
 
     type = qDecodeOCIType(colType);
-    if (type == QCoreVariant::Int) {
+    if (type == QCoreVariant::Double && colPrecision > 22) {
+        type = QCoreVariant::String;
+    } else if (type == QCoreVariant::Int) {
         if (colLength == 22 && colPrecision == 0 && colScale == 0)
             type = QCoreVariant::Double;
         if (colScale > 0)
