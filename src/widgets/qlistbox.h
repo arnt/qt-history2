@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.h#87 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.h#88 $
 **
 ** Definition of QListBox widget class
 **
@@ -250,8 +250,8 @@ public:
     virtual int	 height() const;
     virtual int	 width()  const;
 
-    virtual int	 height( const QListBox * ) const; // obolete, use height() instead
-    virtual int	 width( const QListBox * )  const; // obolete, use width() instead
+    virtual int	 height( const QListBox * ) const; // obsolete, use height() instead
+    virtual int	 width( const QListBox * )  const; // obsolete, use width() instead
 
     bool selected() const { return s; }
 
@@ -284,9 +284,16 @@ public:
     QListBoxText( QListBox* listbox, const QString & text=QString::null );
     QListBoxText( const QString & text=QString::null );
    ~QListBoxText();
-    void  paint( QPainter * );
+
     int height() const;
     int width()  const;
+
+    int	 height( const QListBox * ) const; // obsolete, use height() instead
+    int	 width( const QListBox * )  const; // obsolete, use width() instead
+
+protected:
+    void  paint( QPainter * );
+
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QListBoxText( const QListBoxText & );
@@ -301,11 +308,18 @@ public:
     QListBoxPixmap( QListBox* listbox, const QPixmap & );
     QListBoxPixmap( const QPixmap & );
    ~QListBoxPixmap();
+
     const QPixmap *pixmap() const { return &pm; }
-protected:
-    void paint( QPainter * );
+
     int height() const;
     int width() const;
+
+    int	 height( const QListBox * ) const; // obsolete, use height() instead
+    int	 width( const QListBox * )  const; // obsolete, use width() instead
+
+protected:
+    void paint( QPainter * );
+
 private:
     QPixmap pm;
 private:	// Disabled copy constructor and operator=
