@@ -51,8 +51,8 @@
 // Solaris redefines connect -> __xnet_connect with _XOPEN_SOURCE_EXTENDED
 static inline int qt_socket_connect(int s, struct sockaddr *addr, QT_SOCKLEN_T addrlen)
 { return  ::connect(s, addr, addrlen); }
-#ifdef connect
-#undef connect
+#if defined (connect)
+# undef connect
 #endif
 
 // Solaris redefines bind -> __xnet_bind with _XOPEN_SOURCE_EXTENDED
@@ -61,6 +61,16 @@ static inline int qt_socket_bind(int s, struct sockaddr *addr, QT_SOCKLEN_T addr
 #if defined(bind)
 # undef bind
 #endif
+
+// POSIX Large File Support redefines open -> open64
+static inline int qt_open(const char *pathname, int flags, mode_t mode)
+{ return ::open(pathname, flags, mode); }
+
+
+// POSIX Large File Support redefines truncate -> truncate64
+static inline int qt_truncate(const char *pathname, off_t length)
+{ return ::truncate(pathname, length); }
+
 
 #define QT_STATBUF		struct stat
 #define QT_STATBUF4TSTAT	struct stat
@@ -112,6 +122,15 @@ extern "C" int gethostname(char *, int);
 #define QT_VSNPRINTF		::vsnprintf
 #endif
 
+// POSIX Large File Support redefines open -> open64
+#if defined(open)
+# undef open
+#endif
+
+// POSIX Large File Support redefines truncate -> truncate64
+#if defined(truncate)
+# undef truncate
+#endif
 
 
 #endif // QPLATFORMDEFS_H
