@@ -991,6 +991,13 @@ void QWidget::raise()
 
 void QWidget::lower()
 {
+    QWidget *p = parentWidget();
+    if ( p && p->childObjects && p->childObjects->findRef(this) >= 0 )
+	p->childObjects->insert( 0, p->childObjects->take() );
+    if ( isTopLevel() )
+	; //how do I lower a window?? FIXME
+    else if(p)
+	update(geometry());
 }
 
 
@@ -1001,8 +1008,17 @@ void QWidget::lower()
 
   \sa raise(), lower()
 */
-void QWidget::stackUnder( QWidget*)
+void QWidget::stackUnder( QWidget *w )
 {
+    QWidget *p = parentWidget();
+    if ( !p || !w || isTopLevel() || p != w->parentWidget() )
+	return;
+    int loc = p->childObjects->findRef(w);
+    if ( loc >= 0 && p->childObjects && p->childObjects->findRef(this) >= 0 )
+	p->childObjects->insert( loc, p->childObjects->take() );
+    // #### excessive repaints
+    update( geometry() );
+    w->update ( w->geometry() );
 }
 
 
@@ -1478,8 +1494,12 @@ void QWidget::setAcceptDrops( bool )
   \sa setMask(QBitmap), clearMask()
 */
 
-void QWidget::setMask( const QRegion& )
+void QWidget::setMask( const QRegion &region )
 {
+    createExtra();
+    extra->mask = region;
+    if ( isVisible() && !isTopLevel() ) 
+	update( geometry() );
 }
 
 /*!
@@ -1495,9 +1515,11 @@ void QWidget::setMask( const QRegion& )
   \sa setMask(const QRegion&), clearMask()
 */
 
-void QWidget::setMask( const QBitmap & )
+void QWidget::setMask( const QBitmap &bitmap )
 {
+    setMask( QRegion( bitmap ) );
 }
+
 
 /*!
   Removes any mask set by setMask().
@@ -1507,6 +1529,7 @@ void QWidget::setMask( const QBitmap & )
 
 void QWidget::clearMask()
 {
+    setMask( QRegion() );
 }
 
 /*!\reimp
@@ -1547,7 +1570,8 @@ void QWidget::propagateUpdates(int , int , int w, int h)
 QRegion QWidget::clippedRegion()
 {
     QPoint tmp;
-    QRegion clippedRgn;
+    createExtra();
+    QRegion clippedRgn = extra->mask;
 
     //clip out my children
     if(const QObjectList *chldnlst=children()) {

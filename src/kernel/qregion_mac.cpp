@@ -154,9 +154,13 @@ QRegion::QRegion( const QRegion &r )
   can be done much faster using QPixmap::setMask().
 
 */
-QRegion::QRegion( const QBitmap & )
+QRegion::QRegion( const QBitmap &bm )
 {
-    qDebug("Need to fill this in %s:%d", __FILE__, __LINE__);
+    data = new QRegionData;
+    CHECK_PTR( data );
+    data->is_null = FALSE;
+    data->rgn = NewRgn();
+    qDebug("Need to really do this function..");
 }
 
 /*!

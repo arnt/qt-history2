@@ -863,7 +863,7 @@ struct QWExtra {
 #if defined(_WS_X11_)
     WId xDndProxy;			// XDND forwarding to embedded windows
 #endif
-#if defined(_WS_QWS_)
+#if defined(_WS_QWS_) || defined(_WS_MAC_)
     QRegion mask;				// widget mask
 #endif
     char     bg_mode;				// background mode
