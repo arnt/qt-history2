@@ -69,6 +69,7 @@ protected:
     virtual void processPrlVariable(const QString &, const QStringList &);
     virtual bool findLibraries();
     virtual void outputVariables();
+    QString fixFilename(QString ofile) const;
     
     void initOld();
     void initProject();
@@ -94,7 +95,7 @@ protected:
     target projectTarget;
 
 private:
-    QUuid increaseUUID( const QUuid &id );
+    QUuid increaseUUID(const QUuid &id);
     friend class VCFilter;
 };
 

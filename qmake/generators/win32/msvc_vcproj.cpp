@@ -201,66 +201,75 @@ void VcprojGenerator::writeSubDirs(QTextStream &t)
 		    if(tmp_proj.first("TEMPLATE") == "vcsubdirs") {
 			QStringList tmp_subdirs = fileFixify(tmp_proj.variables()["SUBDIRS"]);
 			subdirs += tmp_subdirs;
-		    } else if(tmp_proj.first("TEMPLATE") == "vcapp" ||
-			      tmp_proj.first("TEMPLATE") == "vclib") {
-			// We _assume_ target.vcproj, and don't actually check!
-			QString vcproj = fi.baseName() + project->first("VCPROJ_EXTENSION");
-			if(QFile::exists(vcproj) || 1) {
-			    VcprojGenerator tmp_vcproj(&tmp_proj);
-			    tmp_vcproj.setNoIO(TRUE);
-			    tmp_vcproj.init();
-			    if(Option::debug_level) {
-				QMap<QString, QStringList> &vars = tmp_proj.variables();
-				for(QMap<QString, QStringList>::Iterator it = vars.begin(); 
-				    it != vars.end(); ++it) {
-				    if(it.key().left(1) != "." && !it.data().isEmpty())
-					debug_msg(1, "%s: %s === %s", fn.latin1(), it.key().latin1(), 
-						  it.data().join(" :: ").latin1());
+		    } else if(tmp_proj.first("TEMPLATE") == "vcapp" || tmp_proj.first("TEMPLATE") == "vclib") {
+			// Initialize a 'fake' project to get the correct variables
+			// and to be able to extract all the dependencies
+			VcprojGenerator tmp_vcproj(&tmp_proj);
+			tmp_vcproj.setNoIO(TRUE);
+			tmp_vcproj.init();
+			if(Option::debug_level) {
+			    QMap<QString, QStringList> &vars = tmp_proj.variables();
+			    for(QMap<QString, QStringList>::Iterator it = vars.begin(); 
+				it != vars.end(); ++it) {
+				if(it.key().left(1) != "." && !it.data().isEmpty())
+				    debug_msg(1, "%s: %s === %s", fn.latin1(), it.key().latin1(), 
+						it.data().join(" :: ").latin1());
+			    }
+			}
+
+			// We assume project filename is [QMAKE_ORIG_TARGET].vcproj 
+			QString vcproj = fixFilename(tmp_vcproj.project->first("QMAKE_ORIG_TARGET")) + project->first("VCPROJ_EXTENSION");
+
+			// If file doesn't exsist, then maybe the users configuration
+			// doesn't allow it to be created. Skip to next...
+			if(!QFile::exists(QDir::currentDirPath() + Option::dir_sep + vcproj)) {
+			    qDebug( "Ignored (not found) '%s'",  QString(QDir::currentDirPath() + Option::dir_sep + vcproj).latin1() );
+			    goto nextfile; // # Dirty!
+			}
+
+			VcsolutionDepend *newDep = new VcsolutionDepend;
+			newDep->vcprojFile = fileFixify(vcproj);
+			newDep->orig_target = tmp_proj.first("QMAKE_ORIG_TARGET");
+			newDep->target = tmp_proj.first("TARGET").section(Option::dir_sep, -1);
+			newDep->targetType = tmp_vcproj.projectTarget;
+			{
+			    static QUuid uuid = solutionGUID;
+			    uuid = increaseUUID( uuid );
+			    newDep->uuid = uuid.toString().upper();
+			}
+			if(newDep->target.endsWith(".dll"))
+			    newDep->target = newDep->target.left(newDep->target.length()-3) + "lib";
+			if(!tmp_proj.isEmpty("FORMS")) 
+			    newDep->dependencies << "uic.exe";
+			{
+			    QStringList where("QMAKE_LIBS");
+			    if(!tmp_proj.isEmpty("QMAKE_INTERNAL_PRL_LIBS"))
+				where = tmp_proj.variables()["QMAKE_INTERNAL_PRL_LIBS"];
+			    for(QStringList::iterator wit = where.begin(); 
+				wit != where.end(); ++wit) {
+				QStringList &l = tmp_proj.variables()[(*wit)];
+				for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
+				    QString opt = (*it);
+				    if(!opt.startsWith("/")) //Not a switch
+					newDep->dependencies << opt.section(Option::dir_sep, -1);
 				}
 			    }
-			    VcsolutionDepend *newDep = new VcsolutionDepend;
-			    newDep->vcprojFile = fileFixify(vcproj);
-			    newDep->orig_target = tmp_proj.first("QMAKE_ORIG_TARGET");
-			    newDep->target = tmp_proj.first("TARGET").section(Option::dir_sep, -1);
-			    newDep->targetType = tmp_vcproj.projectTarget;
-			    {
-				static QUuid uuid = solutionGUID;
-				uuid = increaseUUID( uuid );
-			    	newDep->uuid = uuid.toString().upper();
-			    }
-			    if(newDep->target.endsWith(".dll"))
-				newDep->target = newDep->target.left(newDep->target.length()-3) + "lib";
-			    if(!tmp_proj.isEmpty("FORMS")) 
-				newDep->dependencies << "uic.exe";
-			    {
-				QStringList where("QMAKE_LIBS");
-				if(!tmp_proj.isEmpty("QMAKE_INTERNAL_PRL_LIBS"))
-				    where = tmp_proj.variables()["QMAKE_INTERNAL_PRL_LIBS"];
-				for(QStringList::iterator wit = where.begin(); 
-				    wit != where.end(); ++wit) {
-				    QStringList &l = tmp_proj.variables()[(*wit)];
-				    for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
-					QString opt = (*it);
-					if(!opt.startsWith("/")) //Not a switch
-					    newDep->dependencies << opt.section(Option::dir_sep, -1);
-				    }
-				}
-			    }
-			    solution_cleanup.append(newDep);
-  			    solution_depends.insert(newDep->target, newDep);
-  			    {
-  			    	QRegExp libVersion("[0-9]{3,3}\\.lib$");
-    	  			if(libVersion.search(newDep->target) != -1) 
-	    			   solution_depends.insert(newDep->target.left(newDep->target.length() - 
-	    						   libVersion.matchedLength()) + ".lib", newDep);
-			    }
-			    t << _snlProjectBeg << _snlMSVCvcprojGUID << _snlProjectMid 
-			      << "\"" << newDep->orig_target << "\", \"" << newDep->vcprojFile 
-			      << "\", \"" << newDep->uuid << "\"";
-			    t << _snlProjectEnd;
-		        }
+			}
+			solution_cleanup.append(newDep);
+  			solution_depends.insert(newDep->target, newDep);
+  			{
+  			    QRegExp libVersion("[0-9]{3,3}\\.lib$");
+    	  		    if(libVersion.search(newDep->target) != -1) 
+	    			solution_depends.insert(newDep->target.left(newDep->target.length() - 
+	    						libVersion.matchedLength()) + ".lib", newDep);
+			}
+			t << _snlProjectBeg << _snlMSVCvcprojGUID << _snlProjectMid 
+			    << "\"" << newDep->orig_target << "\", \"" << newDep->vcprojFile 
+			    << "\", \"" << newDep->uuid << "\"";
+			t << _snlProjectEnd;
 		    }
 		}
+nextfile:
 		QDir::setCurrent(oldpwd);
 	    }
 	}
@@ -708,21 +717,6 @@ void VcprojGenerator::initResourceFiles()
     vcProject.ResourceFiles.CustomBuild = none;
 }
 
-/*
-// $$MSVCPROJ_IDLSOURCES ---------------------------------------------
-void VcprojGenerator::writeIDLs( QTextStream &t )
-{
-	QStringList &l = project->variables()["MSVCPROJ_IDLSOURCES"];
-	for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
-	    t << "# Begin Source File" << endl << endl;
-	    t << "SOURCE=" << (*it) << endl;
-	    t << "# PROP Exclude_From_Build 1" << endl;
-	    t << "# End Source File" << endl << endl;
-	}
-    debug_msg(3, "Generator: MSVC.NET: Added IDLs" );
-}
-*/
-
 /* \internal
     Sets up all needed variables from the environment and all the different caches and .conf files
 */
@@ -1102,21 +1096,24 @@ bool VcprojGenerator::openOutput(QFile &file) const
 	file.setName(outdir + project->first("TARGET") + ext);
     }
     if(QDir::isRelativePath(file.name())) {
-	QString ofile;
-	ofile = file.name();
-	int slashfind = ofile.findRev('\\');
-	if (slashfind == -1) {
-	    ofile = ofile.replace("-", "_");
-	} else {
-	    int hypenfind = ofile.find('-', slashfind);
-	    while (hypenfind != -1 && slashfind < hypenfind) {
-		ofile = ofile.replace(hypenfind, 1, "_");
-		hypenfind = ofile.find('-', hypenfind + 1);
-	    }
-	}
-	file.setName(Option::fixPathToLocalOS(QDir::currentDirPath() + Option::dir_sep + ofile));
+	file.setName( Option::fixPathToLocalOS(QDir::currentDirPath() + Option::dir_sep + fixFilename(file.name())) );
     }
     return Win32MakefileGenerator::openOutput(file);
+}
+
+QString VcprojGenerator::fixFilename(QString ofile) const
+{
+    int slashfind = ofile.findRev('\\');
+    if (slashfind == -1) {
+	ofile = ofile.replace("-", "_");
+    } else {
+	int hypenfind = ofile.find('-', slashfind);
+	while (hypenfind != -1 && slashfind < hypenfind) {
+	    ofile = ofile.replace(hypenfind, 1, "_");
+	    hypenfind = ofile.find('-', hypenfind + 1);
+	}
+    }
+    return ofile;
 }
 
 QString VcprojGenerator::findTemplate(QString file)
@@ -1148,9 +1145,9 @@ void VcprojGenerator::processPrlVariable(const QString &var, const QStringList &
 void VcprojGenerator::outputVariables()
 {
 #if 0
-    debug_msg(3, "Generator: MSVC.NET: List of current variables:" );
+    qDebug( "Generator: MSVC.NET: List of current variables:" );
     for ( QMap<QString, QStringList>::ConstIterator it = project->variables().begin(); it != project->variables().end(); ++it) {
-	debug_msg(3, "Generator: MSVC.NET: %s => %s", it.key().latin1(), it.data().join(" | ").latin1() );
+	qDebug( "Generator: MSVC.NET: %s => %s", it.key().latin1(), it.data().join(" | ").latin1() );
     }
 #endif
 }
