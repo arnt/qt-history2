@@ -9538,8 +9538,7 @@ static const Q_INT8 *decimal_info [256] = {
 
 
 
-static
-int ucstrcmp( const QString &as, const QString &bs )
+static int ucstrcmp( const QString &as, const QString &bs )
 {
     const QChar *a = as.unicode();
     const QChar *b = bs.unicode();
@@ -9556,17 +9555,17 @@ int ucstrcmp( const QString &as, const QString &bs )
 	return ( as.length()-bs.length() );
     return a->unicode() - b->unicode();
 }
-static
-int ucstrncmp( const QChar *a, const QChar *b, int l )
+
+static int ucstrncmp( const QChar *a, const QChar *b, int l )
 {
     while ( l-- && *a == *b )
 	a++,b++;
     if ( l==-1 )
 	return 0;
-    return *a - *b;
+    return a->unicode() - b->unicode();
 }
-static
-int ucstrnicmp( const QChar *a, const QChar *b, int l )
+
+static int ucstrnicmp( const QChar *a, const QChar *b, int l )
 {
     while ( l-- && a->lower() == b->lower() )
 	a++,b++;
@@ -9574,7 +9573,7 @@ int ucstrnicmp( const QChar *a, const QChar *b, int l )
 	return 0;
     QChar al = a->lower();
     QChar bl = b->lower();
-    return al.row() == bl.row() ? al.cell() - bl.cell() : al.row() - bl.row();
+    return al.unicode() - bl.unicode();
 }
 
 // NOT REVISED
