@@ -18,7 +18,7 @@
 
 #include "qapplication.h"
 #include "qwidget.h"
-#include "qptrlist.h"
+#include "qlist.h"
 #include "qsizepolicy.h"
 #include "qvector.h"
 
@@ -156,8 +156,8 @@ private:
     QVector<int> cStretch;
     QVector<int> rSpacing;
     QVector<int> cSpacing;
-    QPtrList<QGridBox> things;
-    QPtrList<QGridMultiBox> *multi;
+    QList<QGridBox*> things;
+    QList<QGridMultiBox*> *multi;
 
     int hfw_width;
     int hfw_height;
@@ -276,10 +276,8 @@ int QGridLayoutData::minimumHeightForWidth( int w, int margin, int spacing )
 
 bool QGridLayoutData::findWidget( QWidget* w, int *row, int *col )
 {
-    QPtrListIterator<QGridBox> it( things );
-    QGridBox * box;
-    while ( (box = it.current()) != 0 ) {
-	++it;
+    for(int i = 0; i < things.size(); ++i) {
+        QGridBox * box = things.at(i);
 	if ( box->item()->widget() == w ) {
 	    if ( row )
 		*row = box->row;
@@ -289,11 +287,9 @@ bool QGridLayoutData::findWidget( QWidget* w, int *row, int *col )
 	}
     }
     if ( multi ) {
-	QPtrListIterator<QGridMultiBox> it( *multi );
-	QGridMultiBox * mbox;
-	while ( (mbox = it.current()) != 0 ) {
-	    ++it;
-	    box = mbox->box();
+	for(int i = 0; i < multi->size(); ++i) {
+	    QGridMultiBox * mbox = multi->at(i);
+	    QGridBox *box = mbox->box();
 	    if ( box->item()->widget() == w ) {
 		if ( row )
 		    *row = box->row;
@@ -454,7 +450,7 @@ void QGridLayoutData::add( QGridBox *box, int row1, int row2, int col1,
     box->col = col1;
     QGridMultiBox *mbox = new QGridMultiBox( box, row2, col2 );
     if ( !multi ) {
-	multi = new QPtrList<QGridMultiBox>;
+	multi = new QList<QGridMultiBox*>;
 	multi->setAutoDelete( TRUE );
     }
     multi->append( mbox );
@@ -599,19 +595,15 @@ void QGridLayoutData::setupLayoutData( int spacing )
     for ( i = 0; i < cc; i++ )
 	colData[i].init( cStretch[i], cSpacing[i] );
 
-    QPtrListIterator<QGridBox> it( things );
-    QGridBox * box;
-    while ( (box = it.current()) != 0 ) {
-	++it;
+    for(int i = 0; i < things.size(); ++i) {
+	QGridBox * box = things.at(i);
 	addData( box );
 	has_hfw = has_hfw || box->item()->hasHeightForWidth();
     }
 
     if ( multi ) {
-	QPtrListIterator<QGridMultiBox> it( *multi );
-	QGridMultiBox * mbox;
-	while ( (mbox = it.current()) != 0 ) {
-	    ++it;
+	for(int i = 0; i < multi->size(); ++i) {
+	    QGridMultiBox *mbox = multi->at(i);
 	    QGridBox *box = mbox->box();
 	    int r1 = box->row;
 	    int c1 = box->col;
@@ -681,17 +673,13 @@ void QGridLayoutData::setupHfwLayoutData( int spacing )
 	rData[i] = rowData[i];
 	rData[i].minimumSize = rData[i].sizeHint = 0;
     }
-    QPtrListIterator<QGridBox> it( things );
-    QGridBox * box;
-    while ( (box=it.current()) != 0 ) {
-	++it;
+    for(int i = 0; i < things.size(); ++i) {
+	QGridBox * box = things.at(i);
 	addHfwData( box, colData[box->col].size );
     }
     if ( multi ) {
-	QPtrListIterator<QGridMultiBox> it( *multi );
-	QGridMultiBox * mbox;
-	while ( (mbox=it.current()) != 0 ) {
-	    ++it;
+	for(int i = 0; i < multi->size(); ++i) {
+	    QGridMultiBox *mbox = multi->at(i);
 	    QGridBox *box = mbox->box();
 	    int r1 = box->row;
 	    int c1 = box->col;
@@ -744,10 +732,8 @@ void QGridLayoutData::distribute( QRect r, int spacing )
     }
     QVector<QLayoutStruct> &rData = *rDataPtr;
 
-    QPtrListIterator<QGridBox> it( things );
-    QGridBox * box;
-    while ( (box=it.current()) != 0 ) {
-	++it;
+    for(int i = 0; i < things.size(); ++i) {
+	QGridBox * box = things.at(i);
 	int x = colData[box->col].pos;
 	int y = rData[box->row].pos;
 	int w = colData[box->col].size;
@@ -759,10 +745,8 @@ void QGridLayoutData::distribute( QRect r, int spacing )
 	box->setGeometry( QRect( x, y, w, h ) );
     }
     if ( multi ) {
-	QPtrListIterator<QGridMultiBox> it( *multi );
-	QGridMultiBox * mbox;
-	while ( (mbox=it.current()) != 0 ) {
-	    ++it;
+	for(int i = 0; i < multi->size(); ++i) {
+	    QGridMultiBox *mbox = multi->at(i);
 	    QGridBox *box = mbox->box();
 	    int r2 = mbox->torow;
 	    int c2 = mbox->tocol;
@@ -832,13 +816,13 @@ public:
     QLayoutItem *takeCurrent() {
 	QLayoutItem *item = 0;
 	if ( multi ) {
-	    QGridMultiBox *b = data->multi->take( idx );
+	    QGridMultiBox *b = data->multi->takeAt( idx );
 	    if ( b ) {
 		item = b->takeItem();
 		delete b;
 	    }
 	} else {
-	    QGridBox *b = data->things.take( idx );
+	    QGridBox *b = data->things.takeAt( idx );
 	    if ( b ) {
 		item = b->takeItem();
 		delete b;
@@ -1469,7 +1453,7 @@ public:
 	dirty = TRUE;
     }
 
-    QPtrList<QBoxLayoutItem> list;
+    QList<QBoxLayoutItem*> list;
     QVector<QLayoutStruct> *geomArray;
     int hfwWidth;
     int hfwHeight;
@@ -1498,7 +1482,7 @@ public:
     QLayoutItem *takeCurrent() {
 	QLayoutItem *item = 0;
 
-	QBoxLayoutItem *b = data->list.take( idx );
+	QBoxLayoutItem *b = data->list.takeAt( idx );
 	if ( b ) {
 	    item = b->item;
 	    b->item = 0;
@@ -2104,10 +2088,8 @@ int QBoxLayout::findWidget( QWidget* w )
 */
 bool QBoxLayout::setStretchFactor( QWidget *w, int stretch )
 {
-    QPtrListIterator<QBoxLayoutItem> it( data->list );
-    QBoxLayoutItem *box;
-    while ( (box=it.current()) != 0 ) {
-	++it;
+    for(int i = 0; i < data->list.size(); ++i) {
+	QBoxLayoutItem *box = data->list.at(i);
 	if ( box->item->widget() == w ) {
 	    box->stretch = stretch;
 	    invalidate();
@@ -2126,10 +2108,8 @@ bool QBoxLayout::setStretchFactor( QWidget *w, int stretch )
 */
 bool QBoxLayout::setStretchFactor( QLayout *l, int stretch )
 {
-    QPtrListIterator<QBoxLayoutItem> it( data->list );
-    QBoxLayoutItem *box;
-    while ( (box=it.current()) != 0 ) {
-	++it;
+    for(int i = 0; i < data->list.size(); ++i) {
+	QBoxLayoutItem *box = data->list.at(i);
 	if ( box->item->layout() == l ) {
 	    box->stretch = stretch;
 	    invalidate();
@@ -2148,10 +2128,8 @@ bool QBoxLayout::setStretchFactor( QLayout *l, int stretch )
 */
 bool QBoxLayout::setAlignment( QWidget *w, Alignment alignment )
 {
-    QPtrListIterator<QBoxLayoutItem> it( data->list );
-    QBoxLayoutItem *box;
-    while ( (box=it.current()) != 0 ) {
-	++it;
+    for(int i = 0; i < data->list.size(); ++i) {
+	QBoxLayoutItem *box = data->list.at(i);
 	if ( box->item->widget() == w ) {
 	    box->item->setAlignment( alignment );
 	    invalidate();
@@ -2170,10 +2148,8 @@ bool QBoxLayout::setAlignment( QWidget *w, Alignment alignment )
 */
 bool QBoxLayout::setAlignment( QLayout *l, Alignment alignment )
 {
-    QPtrListIterator<QBoxLayoutItem> it( data->list );
-    QBoxLayoutItem *box;
-    while ( (box=it.current()) != 0 ) {
-	++it;
+    for(int i = 0; i < data->list.size(); ++i) {
+	QBoxLayoutItem *box = data->list.at(i);
 	if ( box->item->layout() == l ) {
 	    box->item->setAlignment( alignment );
 	    invalidate();
@@ -2201,10 +2177,8 @@ void QBoxLayout::setDirection( Direction direction )
 	//#### a bit yucky, knows too much.
 	//#### probably best to add access functions to spacerItem
 	//#### or even a QSpacerItem::flip()
-	QPtrListIterator<QBoxLayoutItem> it( data->list );
-	QBoxLayoutItem *box;
-	while ( (box=it.current()) != 0 ) {
-	    ++it;
+	for(int i = 0; i < data->list.size(); ++i) {
+	    QBoxLayoutItem *box = data->list.at(i);
 	    if ( box->magic ) {
 		QSpacerItem *sp = box->item->spacerItem();
 		if ( sp ) {
@@ -2342,11 +2316,9 @@ void QBoxLayout::calcHfw( int w )
 	    mh = QMAX( mh, box->mhfw(a[i].size) );
 	}
     } else {
-	QPtrListIterator<QBoxLayoutItem> it( data->list );
-	QBoxLayoutItem *box;
 	bool first = TRUE;
-	while ( (box = it.current()) != 0 ) {
-	    ++it;
+	for(int i = 0; i < data->list.size(); ++i) {
+	    QBoxLayoutItem *box = data->list.at(i);
 	    bool empty = box->item->isEmpty();
 	    h += box->hfw( w );
 	    mh += box->mhfw( w );
