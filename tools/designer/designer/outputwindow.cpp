@@ -34,6 +34,8 @@
 static QTextEdit *debugoutput = 0;
 bool debugToStderr = FALSE;
 
+QtMsgHandler OutputWindow::oldMsgHandler = 0;
+
 OutputWindow::OutputWindow( QWidget *parent )
     : QTabWidget( parent, "output_window" ), debugView( 0 ), errorView( 0 )
 {
@@ -90,6 +92,8 @@ void debugMessageOutput( QtMsgType type, const char *msg )
     if ( type != QtFatalMsg ) {
 	if ( debugoutput && debugoutput->isVisible() )
 	    debugoutput->append( s );
+	else if ( OutputWindow::oldMsgHandler )
+	    (*OutputWindow::oldMsgHandler)( type, msg );
 	else
 	    fprintf( stderr, s.latin1() );
     } else {

@@ -73,6 +73,8 @@ public:
 
     void shuttingDown();
 
+    static QtMsgHandler oldMsgHandler;
+
 private slots:
     void currentErrorChanged( QListViewItem *i );
 
@@ -85,7 +87,6 @@ private:
 
     DesignerOutputDock *iface;
 
-    QtMsgHandler oldMsgHandler;
 };
 
 #endif
