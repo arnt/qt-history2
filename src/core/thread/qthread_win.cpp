@@ -13,7 +13,6 @@
 
 #include "qthread.h"
 #include "qthread_p.h"
-#include "qmutexpool_p.h"
 #include "qthreadstorage.h"
 
 #include <qcoreapplication.h>
