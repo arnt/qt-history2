@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qvalidator.h#1 $
+** $Id: //depot/qt/main/src/widgets/qvalidator.h#2 $
 **
 ** Definition of 
 **
@@ -23,7 +23,7 @@ public:
     QValidator( QObject * parent = 0, const char * name = 0 );
     ~QValidator();
 
-    enum Result{ Good, MaybeGood, Unknown, Bad, Revert };
+    enum Result{ Good, Unknown, Bad };
 
     virtual Result validate( const char * );
     virtual Result validatePureData( QString );
