@@ -722,7 +722,8 @@ void QWorkspace::handleUndock(QDockWindow *w)
 		    }
 		}
 	    }
-	    if(!nearest || !nearest->rect().intersects(QRect(x, y, w->width(), w->height()))) {
+	    QRect r2(x, y, w->width(), w->height());
+	    if(!nearest || (!nearest->geometry().intersects(r2) /*|| r2.contains(nearest->rect())*/)) {
 		wpos = QPoint(x, y); //best possible outcome
 		possible = 1;
 		break;
@@ -873,7 +874,8 @@ void QWorkspace::handleUndock(QDockWindow *w)
     QSize olds(w->size());
     if(w->place() == QDockWindow::InDock)
 	w->undock();
-    w->setGeometry(QRect(wpos, olds));
+    w->move(wpos);
+    w->resize(olds);
     if(!ishidden)
 	w->show();
     else
