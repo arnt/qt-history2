@@ -57,6 +57,9 @@ public:
 protected:
     virtual bool doDepends() const { return !include_deps && MakefileGenerator::doDepends(); }
     virtual QString defaultInstall(const QString &);
+    
+private:
+    void init2();
 };
 
 inline UnixMakefileGenerator::~UnixMakefileGenerator()
