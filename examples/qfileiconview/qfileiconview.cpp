@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.cpp#38 $
+** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.cpp#39 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -599,6 +599,12 @@ QtFileIconView::QtFileIconView( const QString &dir, bool isdesktop,
     connect( this, SIGNAL( dropped( QDropEvent * ) ), this, SLOT( slotDropped( QDropEvent * ) ) );
     connect( this, SIGNAL( itemRightClicked( QIconViewItem * ) ), this, SLOT( slotItemRightClicked( QIconViewItem * ) ) );
     connect( this, SIGNAL( viewportRightClicked() ), this, SLOT( slotViewportRightClicked() ) );
+
+    QFont f( font() );
+    f.setUnderline( TRUE );
+    setSingleClickMode( new QFont( f ), new QColor( Qt::red ),
+			new QFont( f ), new QColor( Qt::blue ),
+			new QCursor( PointingHandCursor ), 1000 );
 }
 
 void QtFileIconView::setDirectory( const QString &dir )
@@ -802,6 +808,18 @@ void QtFileIconView::flowSouth()
     alignInGrid();
 }
 
+void QtFileIconView::doubleClick()
+{
+    setUseSingleClickMode( FALSE );
+    viewport()->repaint( FALSE );
+}
+
+void QtFileIconView::singleClick()
+{
+    setUseSingleClickMode( TRUE );
+    viewport()->repaint( FALSE );
+}
+
 void QtFileIconView::alignInGrid()
 {
     orderItemsInGrid();
@@ -846,6 +864,9 @@ void QtFileIconView::slotViewportRightClicked()
     menu->insertSeparator();
     menu->insertItem( "Items flow to the &East", this, SLOT( flowEast() ) );
     menu->insertItem( "Items flor to the &South", this, SLOT( flowSouth() ) );
+    menu->insertSeparator();
+    menu->insertItem( "Use &Single clicks", this, SLOT( singleClick() ) );
+    menu->insertItem( "Use &Double clicks", this, SLOT( doubleClick() ) );
     menu->insertSeparator();
     menu->insertItem( "Align Items in &Grid", this, SLOT( alignInGrid() ) );
 
