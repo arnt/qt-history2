@@ -578,7 +578,7 @@ void QDockArea::moveDockWindow( QDockWindow *w, const QPoint &p, const QRect &r,
 	else
 	    mse = QMAX( QMAX( dw->fixedExtent().height(), dw->height() ), mse );
     }
-    if ( !hasResizable )
+    if ( !hasResizable && w->isResizeEnabled() )
 	mse = 200;
 
     QDockWindow *dockWindow = 0;
