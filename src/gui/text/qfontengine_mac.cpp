@@ -85,11 +85,11 @@ bool QFontEngineMac::stringToCMap(const QChar *str, int len, QGlyphLayout *glyph
     for(int i = 0; i < len; i++) {
         glyphs[i].glyph = str[i].unicode();
         if(str[i].unicode() < widthCacheSize && widthCache[str[i].unicode()]) {
-            glyphs[i].advance.x = widthCache[str[i].unicode()];
-            glyphs[i].advance.y = 0;
+            glyphs[i].advance.rx() = widthCache[str[i].unicode()];
+            glyphs[i].advance.ry() = 0;
         } else {
-            glyphs[i].advance.x = doTextTask(str+i, 0, 1, 1, WIDTH);
-            glyphs[i].advance.y = 0;
+            glyphs[i].advance.rx() = doTextTask(str+i, 0, 1, 1, WIDTH);
+            glyphs[i].advance.ry() = 0;
         }
     }
     return true;
@@ -147,7 +147,7 @@ QFontEngineMac::draw(QPaintEngine *p, int req_x, int req_y, const QTextItem &si,
     QGlyphLayout *glyphs = si.glyphs;
     if(pState->painter->backgroundMode() == Qt::OpaqueMode) {
         glyph_metrics_t br = boundingBox(glyphs, si.num_glyphs);
-        pState->painter->fillRect(x+br.x.toInt(), y+br.y.toInt(), br.width.toInt(), br.height.toInt(),
+        pState->painter->fillRect(x+br.x, y+br.y, br.width, br.height,
                                   pState->painter->background().color());
     }
 
@@ -165,7 +165,7 @@ QFontEngineMac::draw(QPaintEngine *p, int req_x, int req_y, const QTextItem &si,
         for(int i = 0; i < si.num_glyphs; i++) {
             glyphs--;
             w += doTextTask((QChar*)&glyphs->glyph, 0, 1, 1, task, x, y, p);
-            x += glyphs->advance.x.toInt();
+            x += glyphs->advance.x();
         }
     } else {
         QVarLengthArray<ushort> g(si.num_glyphs);
@@ -176,15 +176,15 @@ QFontEngineMac::draw(QPaintEngine *p, int req_x, int req_y, const QTextItem &si,
     if(w && textFlags != 0) {
         QBrush oldBrush = p->painter()->brush();
         p->painter()->setBrush(p->painter()->pen().color());
-        const int lw = lineThickness().toInt();
+        const int lw = lineThickness();
         if(textFlags & Qt::TextUnderline)
-            p->painter()->drawRect(QRect(req_x, req_y+underlinePosition().toInt(),
+            p->painter()->drawRect(QRect(req_x, req_y+underlinePosition(),
                                          si.right_to_left ? -w : w, lw));
         if(textFlags & Qt::TextOverline)
-            p->painter()->drawRect(QRect(req_x, req_y - (ascent().toInt() + 1),
+            p->painter()->drawRect(QRect(req_x, req_y - (ascent() + 1),
                                          si.right_to_left ? -w : w, lw));
         if(textFlags & Qt::TextStrikeOut)
-            p->painter()->drawRect(QRect(req_x, req_y - (ascent().toInt() / 3),
+            p->painter()->drawRect(QRect(req_x, req_y - (ascent() / 3),
                                          si.right_to_left ? -w : w, lw));
         p->painter()->setBrush(oldBrush);
     }
@@ -198,7 +198,7 @@ QFontEngineMac::boundingBox(const QGlyphLayout *glyphs, int numGlyphs)
     float w = 0;
     const QGlyphLayout *end = glyphs + numGlyphs;
     while(end > glyphs)
-        w += (--end)->advance.x;
+        w += (--end)->advance.x();
     return glyph_metrics_t(0, -(ascent()), w, ascent()+descent()+1, w, 0);
 }
 
@@ -219,7 +219,7 @@ void
 QFontEngineMac::calculateCost()
 {
     // don't know how to get the number of glyphs from the font so default to 1024
-    cache_cost = (ascent() + descent() + 1).toInt() * maxCharWidth().toInt() * 1024;
+    cache_cost = (ascent() + descent() + 1) * maxCharWidth() * 1024;
 }
 
 //Create a cacheable ATSUStyle
@@ -580,8 +580,8 @@ bool QFontEngineBox::stringToCMap(const QChar *,  int len, QGlyphLayout *glyphs,
     *nglyphs = len;
 
     for(int i = 0; i < len; i++) {
-        (glyphs++)->advance.x = _size;
-        (glyphs++)->advance.y = 0;
+        (glyphs++)->advance.rx() = _size;
+        (glyphs++)->advance.ry() = 0;
     }
 
     return true;

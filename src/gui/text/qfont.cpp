@@ -2747,7 +2747,7 @@ bool QFontInfo::fixedPitch() const
         QGlyphLayout g[2];
         int l = 2;
         engine->stringToCMap(ch, 2, g, &l, 0);
-        engine->fontDef.fixedPitch = g[0].advance.x == g[1].advance.x;
+        engine->fontDef.fixedPitch = g[0].advance.x() == g[1].advance.x();
         engine->fontDef.fixedPitchComputed = true;
     }
 #endif

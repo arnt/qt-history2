@@ -1223,8 +1223,7 @@ QCoreGraphicsPaintEngine::drawPath(const QPainterPath &p)
         const QPainterSubpath &sub = pd->subpaths.at(i);
         if (sub.elements.isEmpty())
             continue;
-        const QPointFloat firstPoint = sub.firstPoint();
-        CGPathMoveToPoint(path, 0, firstPoint.x(), firstPoint.y());
+        CGPathMoveToPoint(path, 0, sub.startPoint.x(), sub.startPoint.y());
         for (int j=0; j<sub.elements.size(); ++j) {
             const QPainterPathElement &elm = sub.elements.at(j);
             switch (elm.type) {

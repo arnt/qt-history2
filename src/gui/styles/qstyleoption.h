@@ -340,7 +340,8 @@ struct QStyleOptionViewItem : public QStyleOption
 template <typename T>
 T qt_cast(const QStyleOption *opt)
 {
-    if (opt && opt->type == static_cast<T>(0)->Type)
+    if (opt && (opt->type == static_cast<T>(0)->Type
+            || static_cast<T>(0)->Type == QStyleOption::SO_Default))
         return static_cast<T>(opt);
     return 0;
 }
