@@ -1,4 +1,5 @@
 /****************************************************************************
+
 ** $Id$
 **
 ** Implementation of QImage and QImageIO classes
@@ -5436,6 +5437,9 @@ static void read_xpm_image_or_array( QImageIO * iio, const char * const * source
 		colorMap.insert( index, rgb );
 	    }
 	} else {
+	    if ( ((buf.length()-1) % 3) && (buf[0] == '#') ) {
+		buf.truncate (((buf.length()-1) / 4 * 3) + 1); // remove alpha channel left by imagemagick
+	    }
 	    QColor c( buf.data() );
 	    if ( image.depth() == 8 ) {
 		image.setColor( currentColor, 0xff000000 | c.rgb() );
