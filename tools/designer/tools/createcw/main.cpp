@@ -24,6 +24,7 @@
 #include <qstrlist.h>
 #include <qmetaobject.h>
 #include <qapplication.h>
+#include <qregexp.h>
 
 // STEP1: Include header files of the widgets for which a description
 // should be created here. If you have a widget which is defined in
@@ -104,7 +105,7 @@ static void createDescription( const QValueList<Widget> &l, QTextStream &ts )
 	QStrList slts = w.w->metaObject()->slotNames( TRUE );
 	if ( !slts.isEmpty() ) {
 	    for ( int i = 0; i < (int)slts.count(); ++i ) {
-		QMetaData::Access data = w.w->metaObject()->slot_access( i, TRUE );
+		QMetaData::Access data = w.w->metaObject()->slot( i, TRUE )->access;
 		if ( data == QMetaData::Private )
 		    continue;
 		ts << makeIndent( indent ) << "<slot access=\""
@@ -115,8 +116,12 @@ static void createDescription( const QValueList<Widget> &l, QTextStream &ts )
 	QStrList props = w.w->metaObject()->propertyNames( TRUE );
 	if ( !props.isEmpty() ) {
 	    for ( int i = 0; i < (int)props.count(); ++i ) {
-		const QMetaProperty *p = w.w->metaObject()->property( props.at( i ), TRUE );
+		const QMetaProperty *p = w.w->metaObject()->
+					 property( w.w->metaObject()->
+						   findProperty( props.at( i ), TRUE ), TRUE );
 		if ( !p )
+		    continue;
+		if ( !p->writable() || !p->designable( w.w ) )
 		    continue;
 		ts << makeIndent( indent ) << "<property type=\"" << convert_type( p->type() ) << "\">" << entitize( p->name() ) << "</property>" << endl;
 	    }
