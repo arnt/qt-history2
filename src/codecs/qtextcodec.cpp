@@ -2824,7 +2824,7 @@ static void realSetup()
 }
 
 
-void QTextCodec::fromUnicode( const QChar *in, unsigned short *out, int length )
+void QTextCodec::fromUnicodeInternal( const QChar *in, unsigned short *out, int length )
 {
 #ifndef QT_NO_CODECS
     switch( mibEnum() ) {
