@@ -1498,6 +1498,12 @@ void QRasterBuffer::prepareBuffer(int width, int height)
 #endif
 
 }
+#elif defined(Q_WS_QWS)
+void QRasterBuffer::prepareBuffer(int width, int height)
+{
+    qFatal("QRasterBuffer::prepareBuffer not implemented on embedded");
+    m_buffer = 0;
+}
 #endif
 
 void QRasterBuffer::appendClipSpan(int x, int y, int len, int coverage)
