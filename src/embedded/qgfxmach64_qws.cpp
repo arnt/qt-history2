@@ -439,7 +439,7 @@ void QGfxMach64<depth,type>::drawLine(int x1,int y1,int x2,int y2)
     int dx,dy;
     dx=abs(x2-x1);
     dy=abs(y2-y1);
-    
+
     GFX_START(QRect(x1, y1 < y2 ? y1 : y2, dx+1, QABS(dy)+1))
 
     if((*gfx_optype)!=1 || (*gfx_lastop)!=LASTOP_LINE) {
@@ -857,7 +857,7 @@ void QGfxMach64<depth,type>::stretchBlt(int rx,int ry,int w,int h,
 	QGfxRaster<depth,type>::stretchBlt(rx,ry,w,h,sw,sh);
 	return;	
     }
-    
+
     QRect cursRect(rx, ry, w+1, h+1);
     GFX_START(cursRect);
 
@@ -1771,7 +1771,6 @@ QMachCursor::QMachCursor()
 
 QMachCursor::~QMachCursor()
 {
-    hide();
 }
 
 void QMachCursor::init(SWCursorData *,bool)
