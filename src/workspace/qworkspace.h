@@ -60,11 +60,11 @@ class QDockWindow;
 class QM_EXPORT_WORKSPACE QWorkspace : public QWidget
 {
     Q_OBJECT
-    Q_ENUMS( WindowMode )
     Q_PROPERTY( bool scrollBarsEnabled READ scrollBarsEnabled WRITE setScrollBarsEnabled )
-    Q_PROPERTY( WindowMode windowMode READ windowMode WRITE setWindowMode )
 public:
+    enum WindowMode { TopLevel, MDI, Default };
     QWorkspace( QWidget* parent=0, const char* name=0 );
+    QWorkspace( WindowMode mode, QWidget* parent=0, const char* name=0 );
     ~QWorkspace();
 
     QWidget* activeWindow() const;
@@ -78,8 +78,6 @@ public:
     void setPaletteBackgroundColor( const QColor & );
     void setPaletteBackgroundPixmap( const QPixmap & );
 
-    enum WindowMode { TopLevel, MDI, Default };
-    void setWindowMode(WindowMode);
     WindowMode windowMode() const;
 
 signals:
@@ -118,6 +116,7 @@ private slots:
     void scrollBarChanged();
 
 private:
+    void init();
     void handleUndock( QDockWindow* w);
     void insertIcon( QWidget* w);
     void removeIcon( QWidget* w);

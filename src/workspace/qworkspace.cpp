@@ -244,6 +244,29 @@ public:
 QWorkspace::QWorkspace( QWidget *parent, const char *name )
     : QWidget( parent, name, WNoMousePropagation )
 {
+    init();
+}
+
+/*!
+  Constructs a workspace with a \a parent and a \a name. This constructor will also set the
+  WindowMode to \a mode. 
+
+  \sa windowMode()
+ */
+QWorkspace::QWorkspace( QWorkspace::WindowMode mode, QWidget *parent, const char *name )
+    : QWidget( parent, name, WNoMousePropagation )
+{
+    init();
+    d->wmode = mode;
+}
+
+
+/*!
+    \internal
+*/
+void
+QWorkspace::init()
+{
     d = new QWorkspacePrivate;
     d->maxcontrols = 0;
     d->active = 0;
@@ -835,8 +858,11 @@ void QWorkspace::handleUndock(QDockWindow *w)
 
     bool ishidden = w->isHidden();
     QSize olds(w->size());
-    if(w->place() == QDockWindow::InDock)
+    if(w->place() == QDockWindow::InDock) {
 	w->undock();
+	// We set the parent to NULL so that QWidget::close() does not send lastWindowClosed()
+	w->reparent(NULL, w->pos());
+    }
     w->move(wpos);
     w->resize(olds);
     if(!ishidden)
@@ -2774,9 +2800,6 @@ void QWorkspace::scrollBarChanged()
 */
 
 /*!
-    \property QWorkspace::windowMode
-    \brief the windowing model of the QWorkspace object
-
    The windowing model influences how the subwindows are actually created. 
    For most platforms the default behavior of a workspace is to operate in 
    MDI mode. On Macintosh QWorkspace will try to manage windows as TopLevel windows.
@@ -2784,11 +2807,6 @@ void QWorkspace::scrollBarChanged()
 QWorkspace::WindowMode QWorkspace::windowMode() const
 {
     return d->wmode;
-}
-
-void QWorkspace::setWindowMode(QWorkspace::WindowMode m)
-{
-    d->wmode = m;
 }
 
 #ifndef QT_NO_STYLE
