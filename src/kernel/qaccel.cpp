@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.cpp#78 $
+** $Id: //depot/qt/main/src/kernel/qaccel.cpp#79 $
 **
 ** Implementation of QAccel class
 **
@@ -214,6 +214,12 @@ uint QAccel::count() const
 }
 
 
+static int get_seq_id()
+{
+    static int seq_no = -2;  // -1 is used as return value in findKey()
+    return seq_no--;
+}
+
 /*!
   Inserts an accelerator item and returns the item's identifier.
 
@@ -221,22 +227,22 @@ uint QAccel::count() const
   \arg \e id is the accelerator item id.
 
   If \e id is negative, then the item will be assigned a unique
-  identifier.
+  negative identifier.
 
   \code
     QAccel *a = new QAccel( myWindow );		// create accels for myWindow
     a->insertItem( Key_P + CTRL, 200 );		// Ctrl+P to print document
     a->insertItem( Key_X + ALT , 201 );		// Alt+X  to quit
     a->insertItem( UNICODE_ACCEL + 'q', 202 );	// Unicode 'q' to quit
-    a->insertItem( Key_D );			// gets id 3
-    a->insertItem( Key_P + CTRL + SHIFT );	// gets id 4
+    a->insertItem( Key_D );			// gets a unique negative id
+    a->insertItem( Key_P + CTRL + SHIFT );	// gets a unique negative id
   \endcode
 */
 
 int QAccel::insertItem( int key, int id )
 {
     if ( id == -1 )
-	id = d->aitems.count();
+	id = get_seq_id();
     d->aitems.insert( 0, new QAccelItem(key,id) );
     return id;
 }
