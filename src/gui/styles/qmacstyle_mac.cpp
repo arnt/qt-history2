@@ -547,7 +547,8 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
                 ret = QSize(-1, 19);
         }
     } else if (ct == QStyle::CT_HeaderSection) {
-        if (sz == QAquaSizeLarge && (widg && (qobject_cast<const QTreeView *>(widg->parentWidget())
+        if (sz == QAquaSizeLarge && (widg && widg->parentWidget() &&
+                                     (qobject_cast<const QTreeView *>(widg->parentWidget())
 #ifdef QT3_SUPPORT
                         || widg->parentWidget()->inherits("Q3ListView")
 #endif
