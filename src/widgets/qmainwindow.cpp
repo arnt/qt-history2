@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#6 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#7 $
 **
 ** Implementation of something useful.
 **
@@ -25,7 +25,7 @@
 
 #include "qtooltip.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmainwindow.cpp#6 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmainwindow.cpp#7 $");
 
 
 class QMainWindowPrivate {
@@ -438,7 +438,8 @@ void QMainWindow::setUpLayout()
     d->timer->stop();
     delete d->tll;
     d->tll = new QBoxLayout( this, QBoxLayout::Down );
-    d->tll->setMenuBar( menuBar() );
+    if ( d->mb )
+	d->tll->setMenuBar( d->mb );
     if ( style() == WindowsStyle )
 	d->tll->addSpacing( 1 );
     addToolBarToLayout( d->top, d->tll,
@@ -459,7 +460,8 @@ void QMainWindow::setUpLayout()
     addToolBarToLayout( d->bottom, d->tll,
 			QBoxLayout::LeftToRight, QBoxLayout::Up, TRUE,
 			style() );
-    d->tll->addWidget( statusBar(), 0 );
+    if ( d->sb )
+	d->tll->addWidget( d->sb, 0 );
     d->tll->activate();
 }
 
@@ -531,4 +533,32 @@ void QMainWindow::paintEvent( QPaintEvent * )
 	p.setPen( colorGroup().dark() );
 	p.drawLine( 0, y, width()-1, y );
     }
+}
+
+
+/*!
+
+*/
+
+bool QMainWindow::event( QEvent * e )
+{
+    if ( e->type() == Event_ChildRemoved ) {
+	QChildEvent * c = (QChildEvent *) e;
+	if ( c->child() == 0 )
+	    debug( "null child in ChildRemovedEvent" );
+	else if ( c->child() == d->sb )
+	    d->sb = 0;
+	else if ( c->child() == d->mb )
+	    d->mb = 0;
+	else if ( c->child() == d->mc )
+	    d->mc = 0;
+	else if ( c->child()->inherits( "QToolBar" ) )
+	    removeToolBar( (QToolBar *)(c->child()) );
+	else
+	    debug( "unknown child went away - %p (%s/%s)",
+		   c->child(),
+		   c->child()->name() ? c->child()->name() : "unnamed",
+		   c->child()->className() );
+    }
+    return QWidget::event( e );
 }
