@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#280 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#281 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -74,6 +74,7 @@ static bool sm_blockUserInput = FALSE;
 static bool sm_smActive = FALSE;
 static bool sm_interactionActive = FALSE;
 static QSessionManager* win_session_manager = 0;
+static bool sm_cancel;
 
 
 #if defined(DEBUG)
@@ -1392,13 +1393,13 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	    }
 	    result = FALSE;
 	    break;
-	    
+	
 	case WM_QUERYENDSESSION:
 	    {
 		if ( sm_smActive ) // bogus message from windows
 		    return TRUE;
 		
-		sm_smActive = TRUE; 
+		sm_smActive = TRUE;
 		sm_blockUserInput = TRUE; // prevent user-interaction outside interaction windows
 		sm_cancel = FALSE;
 		qApp->commitData( *win_session_manager );
@@ -1407,7 +1408,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		}
 		return !sm_cancel;
 	    }
-	    
+	
 	case WM_ENDSESSION:
 	    {
 		sm_smActive = FALSE;
@@ -1420,7 +1421,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		
 		return 0;
 	    }
-	    
+	
 	case WM_GETMINMAXINFO:
 	    if ( widget->xtra() ) {
 		MINMAXINFO *mmi = (MINMAXINFO *)lParam;
@@ -1987,7 +1988,7 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 
     if ( sm_blockUserInput ) // block user interaction during session management
 	return TRUE;
-    
+
     for ( i=0; (UINT)mouseTbl[i] != msg.message || !mouseTbl[i]; i += 3 )
 	;
     if ( !mouseTbl[i] )
@@ -2273,7 +2274,7 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 
     if ( sm_blockUserInput ) // block user interaction during session management
 	return TRUE;
-    
+
     if ( GetKeyState(VK_SHIFT) < 0 )
 	state |= QMouseEvent::ShiftButton;
     if ( GetKeyState(VK_CONTROL) < 0 )
@@ -2399,7 +2400,7 @@ bool QETWidget::translateWheelEvent( const MSG &msg )
 
     if ( sm_blockUserInput ) // block user interaction during session management
 	return TRUE;
-    
+
     if ( GetKeyState(VK_SHIFT) < 0 )
 	state |= QMouseEvent::ShiftButton;
     if ( GetKeyState(VK_CONTROL) < 0 )
