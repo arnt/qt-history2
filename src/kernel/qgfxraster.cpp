@@ -447,7 +447,7 @@ QGfxRasterBase::QGfxRasterBase(unsigned char * b,int w,int h) :
     clutcols = 0;
     update_clip();
 
-#if defined(QWS_DEPTH_8) || defined(QWS_DEPTH_8GRAYSCALE)
+#if defined(QWS_DEPTH_8) || defined(QWS_DEPTH_8GRAYSCALE) || defined(QWS_DEPTH_8DIRECT)
     // default colour map
     setClut( qt_screen->clut(), qt_screen->numCols() );
 #endif
