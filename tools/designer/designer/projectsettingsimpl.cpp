@@ -78,12 +78,17 @@ ProjectSettings::ProjectSettings( Project *pro, QWidget* parent,  const char* na
     if ( !filePixmap )
 	filePixmap = new QPixmap( file_xpm );
     editProjectFile->setFocus();
-    
+
     if ( project->isDummy() ) {
 	editProjectFile->setEnabled( FALSE );
 	editProjectFile->setText( project->projectName() );
     } else {
-	editProjectFile->setText( pro->fileName() );
+	if ( pro->fileName().isEmpty() || pro->fileName() == ".pro" ) {
+	    editProjectFile->setText( tr( "unnamed.pro" ) );
+	    editProjectFile->selectAll();
+	} else {
+	    editProjectFile->setText( pro->fileName() );
+	}
     }
 
     editProjectDescription->setText( pro->description() );

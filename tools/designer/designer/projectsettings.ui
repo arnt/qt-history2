@@ -1,5 +1,19 @@
 <!DOCTYPE UI><UI version="3.0" stdsetdef="1">
 <class>ProjectSettingsBase</class>
+<includes>
+    <include location="local" impldecl="in implementation">projectsettings.ui.h</include>
+</includes>
+<slots>
+    <slot access="protected" specifier="virtual" language="C++" returnType="void">chooseDatabaseFile()</slot>
+    <slot access="protected" specifier="virtual" language="C++" returnType="void">chooseProjectFile()</slot>
+    <slot access="protected" specifier="virtual" language="C++" returnType="void">destroy()</slot>
+    <slot access="protected" specifier="virtual" language="C++" returnType="void">helpClicked()</slot>
+    <slot access="protected" specifier="virtual" language="C++" returnType="void">init()</slot>
+    <slot access="protected" specifier="virtual" language="C++" returnType="void">languageChanged( const QString &amp; )</slot>
+    <slot access="public" specifier="virtual" language="C++" returnType="void">addProject()</slot>
+    <slot access="protected" specifier="virtual" language="C++" returnType="void">okClicked()</slot>
+    <slot access="protected" specifier="virtual" language="C++" returnType="void">removeProject()</slot>
+</slots>
 <layoutdefaults spacing="6" margin="11"/>
 <widget class="QDialog">
     <property name="name">
@@ -104,6 +118,9 @@
                     <widget class="QComboBox" row="2" column="1">
                         <property name="name">
                             <cstring>comboLanguage</cstring>
+                        </property>
+                        <property name="enabled">
+                            <bool>false</bool>
                         </property>
                     </widget>
                     <widget class="QTextEdit" row="4" column="1" rowspan="2" colspan="1">
@@ -421,15 +438,6 @@
         <receiver>ProjectSettingsBase</receiver>
         <slot>addProject()</slot>
     </connection>
-    <slot access="protected" specifier="virtual" language="C++" returnType="void">chooseDatabaseFile()</slot>
-    <slot access="protected" specifier="virtual" language="C++" returnType="void">chooseProjectFile()</slot>
-    <slot access="protected" specifier="virtual" language="C++" returnType="void">destroy()</slot>
-    <slot access="protected" specifier="virtual" language="C++" returnType="void">helpClicked()</slot>
-    <slot access="protected" specifier="virtual" language="C++" returnType="void">init()</slot>
-    <slot access="protected" specifier="virtual" language="C++" returnType="void">languageChanged( const QString &amp; )</slot>
-    <slot access="public" specifier="virtual" language="C++" returnType="void">addProject()</slot>
-    <slot access="protected" specifier="virtual" language="C++" returnType="void">okClicked()</slot>
-    <slot access="protected" specifier="virtual" language="C++" returnType="void">removeProject()</slot>
 </connections>
 <tabstops>
     <tabstop>tabWidget</tabstop>

@@ -43,6 +43,7 @@ public:
     QString createEmptyFunction();
     bool supports( Support s ) const;
     void fileFilters( QMap<QString, QString> & ) const;
+    void preferedExtensions( QMap<QString, QString> &extensionMap ) const;
     void sourceProjectKeys( QStringList &keys ) const;
     QString projectKeyForExtension( const QString &extension ) const;
     QString cleanSignature( const QString &sig ) { return sig; } // #### implement me

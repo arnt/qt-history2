@@ -22,38 +22,52 @@
 #define SOURCEFILE_H
 
 #include <qobject.h>
+#include "timestamp.h"
 
 struct DesignerSourceFile;
 class SourceEditor;
+class Project;
 
 class SourceFile : public QObject
 {
     Q_OBJECT
 
 public:
-    SourceFile( const QString &fn );
+    SourceFile( const QString &fn, bool temp, Project *p );
     ~SourceFile();
 
-    QString text() const;
     void setText( const QString &s );
+    void setModified( bool m );
+    void setFileName( const QString &fn ) { filename = fn; save(); }
 
     bool save();
+    bool saveAs();
     bool load();
+    bool close();
+    bool closeEvent();
+    Project *project() const;
 
-    void setFileName( const QString &fn ) { filename = fn; save(); }
+    QString text() const;
     QString fileName() const { return filename; }
+    bool isModified() const;
+
+    void checkTimeStamp();
 
     DesignerSourceFile *iFace();
 
     void setEditor( SourceEditor *e );
     SourceEditor *editor() const { return ed; }
-    bool isModified() const;
+
+    static QString createUnnamedFileName( const QString &extension );
 
 private:
     QString filename;
     QString txt;
     DesignerSourceFile *iface;
     SourceEditor *ed;
+    bool fileNameTemp;
+    TimeStamp timeStamp;
+    Project *pro;
 
 };
 

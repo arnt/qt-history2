@@ -953,83 +953,12 @@ void MainWindow::setupHelpActions()
     actionHelpWhatsThis->addTo( menu );
 }
 
-static void unifyFormName( FormWindow *fw, QWorkspace *qworkspace )
-{
-    QStringList lst;
-    QWidgetList windows = qworkspace->windowList();
-    for ( QWidget *w =windows.first(); w; w = windows.next() ) {
-	if ( w == fw )
-	    continue;
-	lst << w->name();
-    }
-
-    if ( lst.findIndex( fw->name() ) == -1 )
-	return;
-    QString origName = fw->name();
-    QString n = origName;
-    int i = 1;
-    while ( lst.findIndex( n ) != -1 ) {
-	n = origName + QString::number( i++ );
-    }
-    fw->setName( n );
-    fw->setCaption( n );
-}
-
 void MainWindow::fileNew()
 {
     statusBar()->message( tr( "Select new item ...") );
     NewForm dlg( this, projectNames(), currentProject->projectName(), templatePath() );
-    if ( dlg.exec() == QDialog::Accepted ) {
-	NewForm::Form f = dlg.formType();
-	if ( f == NewForm::Project ) {
-	    fileNewProject(); // temporary hack TODOMATTHIAS
-	} else if ( f != NewForm::Custom ) {
-	    insertFormWindow( f )->setFocus();
-	} else {
-	    QString filename = dlg.templateFile();
-	    if ( !filename.isEmpty() && QFile::exists( filename ) ) {
-		Resource resource( this );
-		if ( !resource.load( filename, FALSE ) ) {
-		    QMessageBox::information( this, tr("Load Template"),
-			tr("Couldn't load form description from template "+ filename ) );
-		    return;
-		}
-		if ( formWindow() )
-		    formWindow()->setFileName( QString::null );
-		unifyFormName( formWindow(), qworkspace );
-	    }
-	}
-    }
-
-    if ( formWindow() && !formWindow()->project()->isDummy() ) {
-	formWindow()->setSavePixmapInProject( TRUE );
-	formWindow()->setSavePixmapInline( FALSE );
-    }
-
+    dlg.exec();
     statusBar()->clear();
-}
-
-void MainWindow::fileNewProject()
-{
-    Project *pro = new Project( "", "", projectSettingsPluginManager );
-    ProjectSettings dia( pro, this, 0, TRUE );
-    if ( dia.exec() != QDialog::Accepted ) {
-	delete pro;
-	return;
-    }
-
-    if ( !pro->isValid() ) {
-	QMessageBox::information( this, tr("New Project"),
-			tr("Cannot create invalid project." ) );
-	delete pro;
-	return;
-    }
-
-    QAction *a = new QAction( pro->projectName(), pro->projectName(), 0, actionGroupProjects, 0, TRUE );
-    projects.insert( a, pro );
-    addRecentlyOpened( pro->makeAbsolute( pro->fileName() ), recentlyProjects );
-    a->setOn( TRUE );
-    projectSelected( a );
 }
 
 void MainWindow::fileClose()
@@ -1076,7 +1005,7 @@ void MainWindow::fileCloseProject()
 		break;
 	    }
 	}
- 
+
 	QWidgetList windows = qWorkspace()->windowList();
 	qWorkspace()->blockSignals( TRUE );
 	for ( QWidget *w = windows.first(); w; w = windows.next() ) {
@@ -1087,12 +1016,8 @@ void MainWindow::fileCloseProject()
 		    w->close();
 		}
 	    } else if ( w->inherits( "SourceEditor" ) ) {
-		if ( ( (SourceEditor*)w )->project() == pro &&
-		     ( (SourceEditor*)w )->object()->inherits( "SourceFile" ) ) {
-		    if ( !closeEditor( (SourceEditor*)w ) )
-			return;
-		    w->close();
-		}
+		if ( !( (SourceEditor*)w )->close() )
+		    return;
 	    }
 	}
 	hierarchyView->clear();
@@ -1178,9 +1103,7 @@ void MainWindow::fileOpen( const QString &filter, const QString &extension, cons
 			additionalSources.find( fi.extension() ) != additionalSources.end() ) {
 		LanguageInterface *iface = MetaDataBase::languageInterface( currentProject->language() );
 		if ( iface && iface->supports( LanguageInterface::AdditionalFiles ) ) {
-		    SourceFile *sf = new SourceFile( currentProject->makeRelative( filename ) );
-		    MetaDataBase::addEntry( sf );
-		    currentProject->addSourceFile( sf );
+		    SourceFile *sf = new SourceFile( currentProject->makeRelative( filename ), FALSE, currentProject );
 		    wspace->setProject( currentProject );
 		    editSource( sf );
 		}
@@ -1275,14 +1198,14 @@ void MainWindow::openFile( const QString &filename, bool validFileName )
 
 bool MainWindow::fileSave()
 {
-    
+
     if ( !currentProject->isDummy() )
 	return fileSaveProject();
     return fileSaveForm();
 }
 
 bool MainWindow::fileSaveForm()
-{    
+{
     SourceEditor *se = 0;
     for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() ) {
 	if ( e->object() == formWindow() )
@@ -1342,7 +1265,7 @@ bool MainWindow::fileSaveProject()
     currentProject->save();
     statusBar()->message( tr( "Project '%1' saved.").arg( currentProject->projectName() ), 3000 );
     return TRUE;
-    
+
     //#### TODO reggie: this needs to check return values, ensure that
     //saveAs() works properly if there is no real filename, update
     //timestamps and and and ...
@@ -1826,58 +1749,9 @@ void MainWindow::editFormSettings()
     statusBar()->clear();
 }
 
-class SenderObject : public QObject
-{
-    Q_OBJECT
-
-public:
-    SenderObject( QUnknownInterface *i ) : iface( i ) { iface->addRef(); }
-    ~SenderObject() { iface->release(); }
-
-public slots:
-    void emitInitSignal() { emit initSignal( iface ); }
-    void emitAcceptSignal() { emit acceptSignal( iface ); }
-
-signals:
-    void initSignal( QUnknownInterface * );
-    void acceptSignal( QUnknownInterface * );
-
-private:
-    QUnknownInterface *iface;
-
-};
-
-
 void MainWindow::editProjectSettings()
 {
-    ProjectSettings dia( currentProject, this, 0, TRUE );
-
-    SenderObject *senderObject = new SenderObject( designerInterface() );
-    QValueList<Tab>::Iterator it;
-    for ( it = projectTabs.begin(); it != projectTabs.end(); ++it ) {
-	Tab t = *it;
-	// #### take something else than t.title to get the language, support a default to add tab to each project setting dialog
-	if ( t.title != currentProject->language() )
-	    continue;
-	dia.tabWidget->addTab( t.w, t.title );
-	if ( t.receiver ) {
-	    connect( dia.buttonOk, SIGNAL( clicked() ), senderObject, SLOT( emitAcceptSignal() ) );
-	    connect( senderObject, SIGNAL( acceptSignal( QUnknownInterface * ) ), t.receiver, t.accept_slot );
-	    connect( senderObject, SIGNAL( initSignal( QUnknownInterface * ) ), t.receiver, t.init_slot );
-	    senderObject->emitInitSignal();
-	    disconnect( senderObject, SIGNAL( initSignal( QUnknownInterface * ) ), t.receiver, t.init_slot );
-	}
-    }
-
-    dia.exec();
-
-    delete senderObject;
-    for ( it = projectTabs.begin(); it != projectTabs.end(); ++it ) {
-	Tab t = *it;
-	dia.tabWidget->removePage( t.w );
-	t.w->reparent( 0, QPoint(0,0), FALSE );
-    }
-
+    openProjectSettings( currentProject );
     wspace->setProject( currentProject );
 }
 

@@ -52,7 +52,8 @@ HEADERS	= command.h \
 		  sourcefile.h \
 		  filechooser.h \
 		  wizardeditorimpl.h \
-		  qcompletionedit.h 
+		  qcompletionedit.h \
+		  timestamp.h
 
 SOURCES	= command.cpp \
 		  formwindow.cpp \
@@ -103,7 +104,8 @@ SOURCES	= command.cpp \
 		  sourcefile.cpp \
 		  filechooser.cpp \
 		  wizardeditorimpl.cpp \
-		  qcompletionedit.cpp
+		  qcompletionedit.cpp \
+		  timestamp.cpp
 
 include( ../../../src/qt_professional.pri )
 

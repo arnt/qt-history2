@@ -249,3 +249,9 @@ void LanguageInterfaceImpl::loadFormCode( const QString &, const QString &filena
     QString code( ts.read() );
     this->functions( code, &functions );
 }
+
+void LanguageInterfaceImpl::preferedExtensions( QMap<QString, QString> &extensionMap ) const
+{
+    extensionMap.insert( "cpp", "C++ Source File" );
+    extensionMap.insert( "h", "C++ Header File" );
+}

@@ -40,7 +40,7 @@ public:
     ~SourceEditor();
 
     void setObject( QObject *fw, Project *p );
-    QObject *object() const { return formWindow; }
+    QObject *object() const { return obj; }
     Project *project() const { return pro; }
     void setFunction( const QString &func, const QString &clss = QString::null );
     void setClass( const QString &clss );
@@ -89,7 +89,7 @@ signals:
 private:
     EditorInterface *iFace;
     LanguageInterface *lIface;
-    QGuardedPtr<QObject> formWindow;
+    QGuardedPtr<QObject> obj;
     Project *pro;
     QString lang;
     QGuardedPtr<QWidget> editor;

@@ -83,7 +83,6 @@
 #include <qaccel.h>
 #include <qtooltip.h>
 
-static int forms = 0;
 static bool mblockNewForms = FALSE;
 extern QMap<QWidget*, QString> *qwf_functions;
 extern QMap<QWidget*, QString> *qwf_forms;
@@ -199,7 +198,7 @@ MainWindow::MainWindow( bool asClient )
 
     connect( this, SIGNAL( projectChanged() ), this, SLOT( checkHasActiveWindowOrProject() ) );
     connect( this, SIGNAL( hasActiveWindow(bool) ), this, SLOT( checkHasActiveWindowOrProject() ) );
-    
+
     emit hasActiveForm( FALSE );
     emit hasActiveWindow( FALSE );
 
@@ -1128,13 +1127,6 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 		unregisterClient( (FormWindow*)o );
 	    }
 	    return TRUE;
-	} else if ( o->inherits( "SourceEditor" ) && ( (SourceEditor*)o )->object()->inherits( "SourceFile" ) ) {
-	    if ( !closeEditor( (SourceEditor*)o ) ) {
-		( (QCloseEvent*)e )->ignore();
-	    } else {
-		( (QCloseEvent*)e )->accept();
-	    }		
-	    return TRUE;
 	} else if ( o->isWidgetType() && (QWidget*)o == (QWidget*)previewedForm ) {
 	    if ( lastActiveFormWindow && lastActiveFormWindow->project() ) {
 		QStringList lst =
@@ -1238,47 +1230,6 @@ FormWindow *MainWindow::formWindow()
     return 0;
 }
 
-FormWindow* MainWindow::insertFormWindow( int type )
-{
-    QString n = tr( "Form%1" ).arg( ++forms );
-    FormWindow *fw = 0;
-    fw = new FormWindow( this, qworkspace, n );
-    MetaDataBase::addEntry( fw );
-    if ( type == NewForm::Widget ) {
-	QWidget *w = WidgetFactory::create( WidgetDatabase::idFromClassName( "QWidget" ), fw, n.latin1() );
-	fw->setMainContainer( w );
-    } else if ( type == NewForm::Dialog ) {
-	QWidget *w = WidgetFactory::create( WidgetDatabase::idFromClassName( "QDialog" ), fw, n.latin1() );
-	fw->setMainContainer( w );
-    } else if ( type == NewForm::Wizard ) {
-	QWidget *w = WidgetFactory::create( WidgetDatabase::idFromClassName( "QWizard" ), fw, n.latin1() );
-	fw->setMainContainer( w );
-    } else if ( type == NewForm::Mainwindow ) {
-	QWidget *w = WidgetFactory::create( WidgetDatabase::idFromClassName( "QMainWindow" ), fw, n.latin1() );
-	fw->setMainContainer( w );
-    }
-
-    fw->setCaption( n );
-    fw->resize( 600, 480 );
-    MetaDataBase::addEntry( fw );
-    insertFormWindow( fw );
-
-    TemplateWizardInterface *iface = templateWizardInterface( fw->mainContainer()->className() );
-    if ( iface ) {
-	iface->setup( fw->mainContainer()->className(), fw->mainContainer(), fw->iFace(), desInterface );
-	iface->release();
-    }
-
-    // the wizard might have changed a lot, lets update everything
-    actionEditor->setFormWindow( fw );
-    hierarchyView->setFormWindow( fw, fw );
-    hierarchyView->functionList()->refreshFunctions();
-    fw->killAccels( fw );
-    fw->project()->setModified( TRUE );
-
-    return fw;
-}
-
 void MainWindow::checkHasActiveWindowOrProject()
 {
     emit hasActiveWindowOrProject( !!qworkspace->activeWindow() || !currentProject->isDummy() );
@@ -1333,6 +1284,32 @@ void MainWindow::insertFormWindow( FormWindow *fw )
 	    e->resetContext();
     }
 }
+
+void MainWindow::createNewProject( const QString &lang )
+{
+    Project *pro = new Project( "", "", projectSettingsPluginManager );
+    pro->setLanguage( lang );
+
+
+    if ( !openProjectSettings( pro ) ) {
+	delete pro;
+	return;
+    }
+
+    if ( !pro->isValid() ) {
+	QMessageBox::information( this, tr("New Project"),
+			tr("Cannot create invalid project." ) );
+	delete pro;
+	return;
+    }
+
+    QAction *a = new QAction( pro->projectName(), pro->projectName(), 0, actionGroupProjects, 0, TRUE );
+    projects.insert( a, pro );
+    addRecentlyOpened( pro->makeAbsolute( pro->fileName() ), recentlyProjects );
+    a->setOn( TRUE );
+    projectSelected( a );
+}
+
 
 bool MainWindow::unregisterClient( FormWindow *w )
 {
@@ -2271,15 +2248,13 @@ void MainWindow::closeEvent( QCloseEvent *e )
 		return;
 	    }
 	} else if ( w->inherits( "SourceEditor" ) ) {
-	    if ( ( (SourceEditor*)w )->object()->inherits( "SourceFile" ) ) {
-		if ( !closeEditor( (SourceEditor*)w ) ) { 
-		    e->ignore();
-		    return;
-		}
+	    if ( !( (SourceEditor*)w )->close() ) {
+		e->ignore();
+		return;
 	    }
 	}
     }
-    
+
     QMapConstIterator<QAction*, Project*> it = projects.begin();
     while( it != projects.end() ) {
 	Project *pro = it.data();
@@ -2301,7 +2276,7 @@ void MainWindow::closeEvent( QCloseEvent *e )
 	    }
 	}
     }
-    
+
     writeConfig();
     hide();
     e->accept();
@@ -2337,34 +2312,6 @@ bool MainWindow::closeForm( FormWindow *fw )
 
     for ( QMap<QAction*, Project* >::Iterator it = projects.begin(); it != projects.end(); ++it )
 	(*it)->formClosed( fw );
-
-    return TRUE;
-}
-
-bool MainWindow::closeEditor( SourceEditor *se )
-{
-    se->save();
-    se->emitHidden();
-    bool modified = FALSE;
-    modified = se->isModified();
-    QString fn = ( (SourceFile*)se->object() )->fileName();
-    if ( modified ) {
-	switch ( QMessageBox::warning( this, tr( "Save Code" ),
-				       tr( "Save changes to '%1'?" ).arg( fn ),
-				       tr( "&Yes" ), tr( "&No" ), tr( "&Cancel" ), 0, 2 ) ) {
-	case 0: // save
-	    ( (SourceFile*)se->object() )->save();
-	    break;
-	case 1: // don't save
-	    break;
-	case 2: // cancel
-	    return FALSE;
-	default:
-	    break;
-	}
-	se->setModified( FALSE );
-	setModified( FALSE, se );
-    }
 
     return TRUE;
 }
@@ -2849,11 +2796,31 @@ QPtrList<DesignerProject> MainWindow::projectList() const
     return list;
 }
 
-QStringList MainWindow::projectNames() const {
+QStringList MainWindow::projectNames() const
+{
     QStringList res;
-    for ( QMapConstIterator<QAction*, Project* >  it = projects.begin(); it != projects.end(); ++it )
+    for ( QMap<QAction*, Project* >::ConstIterator it = projects.begin(); it != projects.end(); ++it )
 	res << (*it)->projectName();
     return res;
+}
+
+Project *MainWindow::findProject( const QString &projectName ) const
+{
+    for ( QMap<QAction*, Project* >::ConstIterator it = projects.begin(); it != projects.end(); ++it ) {
+	if ( (*it)->projectName() == projectName )
+	    return *it;
+    }
+    return 0;
+}
+
+void MainWindow::setCurrentProject( Project *pro )
+{
+    for ( QMap<QAction*, Project* >::ConstIterator it = projects.begin(); it != projects.end(); ++it ) {
+	if ( *it == pro ) {
+	    projectSelected( it.key() );
+	    return;
+	}
+    }
 }
 
 void MainWindow::recentlyFilesMenuActivated( int id )
@@ -3313,4 +3280,36 @@ SourceFile *MainWindow::sourceFile()
 	}
     }
     return 0;
+}
+
+bool MainWindow::openProjectSettings( Project *pro )
+{
+    ProjectSettings dia( pro, this, 0, TRUE );
+    SenderObject *senderObject = new SenderObject( designerInterface() );
+    QValueList<Tab>::Iterator it;
+    for ( it = projectTabs.begin(); it != projectTabs.end(); ++it ) {
+	Tab t = *it;
+	if ( t.title != currentProject->language() )
+	    continue;
+	dia.tabWidget->addTab( t.w, t.title );
+	if ( t.receiver ) {
+	    connect( dia.buttonOk, SIGNAL( clicked() ), senderObject, SLOT( emitAcceptSignal() ) );
+	    connect( senderObject, SIGNAL( acceptSignal( QUnknownInterface * ) ), t.receiver, t.accept_slot );
+	    connect( senderObject, SIGNAL( initSignal( QUnknownInterface * ) ), t.receiver, t.init_slot );
+	    senderObject->emitInitSignal();
+	    disconnect( senderObject, SIGNAL( initSignal( QUnknownInterface * ) ), t.receiver, t.init_slot );
+	}
+    }
+
+    int res = dia.exec();
+
+    delete senderObject;
+
+    for ( it = projectTabs.begin(); it != projectTabs.end(); ++it ) {
+	Tab t = *it;
+	dia.tabWidget->removePage( t.w );
+	t.w->reparent( 0, QPoint(0,0), FALSE );
+    }
+
+    return res == QDialog::Accepted;
 }

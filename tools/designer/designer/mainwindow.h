@@ -139,6 +139,8 @@ public:
     QUnknownInterface* designerInterface() const { return desInterface; }
     QPtrList<DesignerProject> projectList() const;
     QStringList projectNames() const;
+    Project *findProject( const QString &projectName ) const;
+    void setCurrentProject( Project *pro );
     OutputWindow *outputWindow() const { return oWindow; }
     void addPreferencesTab( QWidget *tab, const QString &title, QObject *receiver, const char *init_slot, const char *accept_slot );
     void addProjectTab( QWidget *tab, const QString &title, QObject *receiver, const char *init_slot, const char *accept_slot );
@@ -157,6 +159,7 @@ public:
     void resetBreakPoints();
 
     SourceFile *sourceFile();
+    void createNewProject( const QString &lang );
 
 public slots:
     void showProperties( QObject *w );
@@ -185,7 +188,6 @@ protected:
 
 public slots:
     void fileNew();
-    void fileNewProject(); // not visible in menu, called from fileNew
     void fileClose();
     void fileCloseProject(); // not visible in menu, called from fileClose
     void fileOpen() { fileOpen( "", "", "" ); }
@@ -266,7 +268,7 @@ private slots:
     void setupRecentlyProjectsMenu();
     void recentlyFilesMenuActivated( int id );
     void recentlyProjectsMenuActivated( int id );
-    
+
     void checkHasActiveWindowOrProject();
 
 private:
@@ -295,8 +297,6 @@ private:
 
     QWidget* previewFormInternal( QStyle* style = 0, QPalette* pal = 0 );
 
-    FormWindow *insertFormWindow( int type );
-
     void writeConfig();
     void readConfig();
     void readOldConfig();
@@ -324,6 +324,7 @@ private:
 
 private slots:
     void doSlotsChanged();
+    bool openProjectSettings( Project *pro );
 
 private:
     struct Tab
@@ -419,6 +420,27 @@ private:
     QGuardedPtr<QWidget> previewedForm;
 public:
     QString lastSaveFilter;
+
+};
+
+class SenderObject : public QObject
+{
+    Q_OBJECT
+
+public:
+    SenderObject( QUnknownInterface *i ) : iface( i ) { iface->addRef(); }
+    ~SenderObject() { iface->release(); }
+
+public slots:
+    void emitInitSignal() { emit initSignal( iface ); }
+    void emitAcceptSignal() { emit acceptSignal( iface ); }
+
+signals:
+    void initSignal( QUnknownInterface * );
+    void acceptSignal( QUnknownInterface * );
+
+private:
+    QUnknownInterface *iface;
 
 };
 

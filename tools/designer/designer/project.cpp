@@ -410,10 +410,9 @@ void Project::parse()
 	for ( QStringList::Iterator spit = sourceKeys.begin(); spit != sourceKeys.end(); ++spit ) {
 	    QStringList lst = parse_multiline_part( contents, *spit );
 	    for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it ) {
-		SourceFile *f = new SourceFile( makeAbsolute( *it ) );
+		SourceFile *f = new SourceFile( makeAbsolute( *it ), FALSE, this );
 		f->setFileName( *it );
-		sources.append( f );
-		MetaDataBase::addEntry( f );
+		modified = FALSE;
 	    }
 	}
     }
