@@ -1427,15 +1427,23 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 #ifndef QT_NO_IMAGE_TRANSFORMATION
 		    complexWxf = m.m12() != 0 || m.m21() != 0;
 		    if ( complexWxf ) {
-			image.setAlphaBuffer( TRUE );
+ 			image.setAlphaBuffer( TRUE );
 
+			// When have to scale the image according to the rectangle before
+			// the rotation takes place to avoid shearing the image.
+			if (rect.width() != image.width() || rect.height() != image.height()) {
+			    m = QWMatrix( rect.width()/(double)image.width(), 0,
+					  0, rect.height()/(double)image.height(),
+					  0, 0 ) * m;
+			}
+
+			int origW = image.width();
+			int origH = image.height();
 			image = image.xForm( m );
-			int origW = w;
-			int origH = h;
  			w = image.width();
  			h = image.height();
- 			rect.setWidth( rect.width() * w / origW );
- 			rect.setHeight( rect.height() * h / origH );
+			rect.setWidth(w);
+			rect.setHeight(h);
 
 			// The image is already transformed. For the transformation
 			// of pos, we need a modified world matrix:
@@ -1448,7 +1456,7 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 			//   whith pos' being the desired upper left corner of the
 			//   transformed image.
 			paint->save();
-			QPoint p1 = QPixmap::trueMatrix( paint->worldMatrix(), origW, origH ) * QPoint(0,0);
+			QPoint p1 = QPixmap::trueMatrix( m, origW, origH ) * QPoint(0,0);
 			QPoint p2 = paint->worldMatrix() * pos;
 			p1 = p2 - p1 - pos;
    			paint->setWorldMatrix( QWMatrix( 1, 0, 0, 1, p1.x(), p1.y() ) );
