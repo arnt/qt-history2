@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#46 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#47 $
 **
 ** Implementation of QWidget class
 **
@@ -22,7 +22,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#46 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#47 $";
 #endif
 
 /*!
@@ -721,6 +721,8 @@ bool QWidget::event( QEvent *e )		// receive event(),
 #endif
 	    if ( qApp->focusWidget() )
 		w = qApp->focusWidget();
+	    else
+	        w = this;
 	    w->keyPressEvent( k );
 #if defined(_WS_X11_)
 	    if ( !k->isAccepted() && !testFlag(WType_Overlap) && parentObj )
