@@ -117,11 +117,11 @@ void WriteInitialization::accept(DomWidget *node)
 
     QString savedParentWidget = parentWidget;
 
-    if (parentClass == QLatin1String("QStackedBox") ||
-            parentClass == QLatin1String("QToolBox") ||
-            parentClass == QLatin1String("QTabWidget") ||
-            parentClass == QLatin1String("QWidgetStack") ||
-            parentClass == QLatin1String("QWizard"))
+    if (uic->customWidgetsInfo()->extends(parentClass, "QStackedBox") ||
+            uic->customWidgetsInfo()->extends(parentClass, "QToolBox") ||
+            uic->customWidgetsInfo()->extends(parentClass, "QTabWidget") ||
+            uic->customWidgetsInfo()->extends(parentClass, "QWidgetStack") ||
+            uic->customWidgetsInfo()->extends(parentClass, "QWizard"))
         parentWidget.clear();
 
     if (m_widgetChain.size() != 1)
@@ -135,13 +135,13 @@ void WriteInitialization::accept(DomWidget *node)
         initializeListBox(node);
     } else if (uic->customWidgetsInfo()->extends(className, "Q3ListView")) {
         initializeListView(node);
-    } else if (className == QLatin1String("QIconView")) {
+    } else if (uic->customWidgetsInfo()->extends(className, "QIconView")) {
         initializeIconView(node);
-    } else if (className == QLatin1String("QTable")) {
+    } else if (uic->customWidgetsInfo()->extends(className, "QTable")) {
         initializeTable(node);
-    } else if (className == QLatin1String("QDataTable")) {
+    } else if (uic->customWidgetsInfo()->extends(className, "QDataTable")) {
         initializeSqlDataTable(node);
-    } else if (className == QLatin1String("QDataBrowser")) {
+    } else if (uic->customWidgetsInfo()->extends(className, "QDataBrowser")) {
         initializeSqlDataBrowser(node);
     }
 
@@ -170,18 +170,18 @@ void WriteInitialization::accept(DomWidget *node)
     if (attributes.contains("id"))
         id = attributes.value("id")->elementNumber();
 
-    if (parentClass == QLatin1String("QStackedBox"))
+    if (uic->customWidgetsInfo()->extends(parentClass, "QStackedBox"))
         output << option.indent << parentWidget << "->addWidget(" << varName << ");\n";
-    else if (parentClass == QLatin1String("QWidgetStack"))
+    else if (uic->customWidgetsInfo()->extends(parentClass, "QWidgetStack"))
         output << option.indent << parentWidget << "->addWidget(" << varName << ", " << id << ");\n";
-    else if (parentClass == QLatin1String("QToolBox"))
+    else if (uic->customWidgetsInfo()->extends(parentClass, "QToolBox"))
         output << option.indent << parentWidget << "->addItem(" << varName << ", " << trCall(label, className) << ");\n";
-    else if (parentClass == QLatin1String("QTabWidget"))
+    else if (uic->customWidgetsInfo()->extends(parentClass, "QTabWidget"))
         output << option.indent << parentWidget << "->addTab(" << varName << ", " << trCall(title, className) << ");\n";
-    else if (parentClass == QLatin1String("QWizard"))
+    else if (uic->customWidgetsInfo()->extends(parentClass, "QWizard"))
         output << option.indent << parentWidget << "->addPage(" << varName << ", " << trCall(title, className) << ");\n";
-    else if (parentClass == QLatin1String("QMenuBar")
-            || parentClass == QLatin1String("QMenu") && className == QLatin1String("QMenu"))
+    else if (uic->customWidgetsInfo()->extends(parentClass, "QMenuBar")
+            || uic->customWidgetsInfo()->extends(parentClass, "QMenu") && uic->customWidgetsInfo()->extends(className, "QMenu"))
         output << option.indent << parentWidget << "->addMenu(" << trCall(title, className) << ", " << varName << ");\n";
 
     if (node->elementLayout().isEmpty())
@@ -211,7 +211,8 @@ void WriteInitialization::accept(DomLayout *node)
     if (m_widgetChain.top()) {
         QString parentWidget = m_widgetChain.top()->attributeClass();
 
-        if (!m_layoutChain.top() && (parentWidget == QLatin1String("Q3GroupBox") || parentWidget == QLatin1String("Q3ButtonGroup"))) {
+        if (!m_layoutChain.top() && (uic->customWidgetsInfo()->extends(parentWidget, "Q3GroupBox")
+                        || uic->customWidgetsInfo()->extends(parentWidget, "Q3ButtonGroup"))) {
             QString parent = driver->findOrInsertWidget(m_widgetChain.top());
 
             isGroupBox = true;
@@ -220,8 +221,8 @@ void WriteInitialization::accept(DomLayout *node)
             output << option.indent << parent << "->setColumnLayout(0, Qt::Vertical);\n";
             output << option.indent << parent << "->layout()->setSpacing(" << spacing << ");\n";
             output << option.indent << parent << "->layout()->setMargin(" << margin << ");\n";
-        } else if (m_widgetChain.top()->attributeClass() == QLatin1String("QMainWindow") ||
-                m_widgetChain.top()->attributeClass() == QLatin1String("Q3MainWindow")) {
+        } else if (uic->customWidgetsInfo()->extends(parentWidget, "QMainWindow") ||
+                uic->customWidgetsInfo()->extends(parentWidget, "Q3MainWindow")) {
             QString parent = driver->findOrInsertWidget(m_widgetChain.top());
 
             isMainWindow = true;
@@ -229,7 +230,7 @@ void WriteInitialization::accept(DomLayout *node)
             output << option.indent << "QWidget *" << centerWidget << "= new QWidget(" << parent << ");\n";
             output << option.indent << centerWidget << "->setObjectName(" << fixString(centerWidget) << ");\n";
 
-            if (m_widgetChain.top()->attributeClass() == QLatin1String("Q3MainWindow")) {
+            if (uic->customWidgetsInfo()->extends(parentWidget, "Q3MainWindow")) {
                 output << option.indent << parent << "->setCentralWidget(" << centerWidget << ");\n";
             } else {
                 output << option.indent << parent << "->setCenterWidget(" << centerWidget << ");\n";
@@ -377,7 +378,7 @@ void WriteInitialization::accept(DomActionRef *node)
 
     if (m_widgetChain.top() && actionName == QLatin1String("separator")) {
         QString parentClass = m_widgetChain.top()->attributeClass();
-        if (parentClass == QLatin1String("QMenuBar")) {
+        if (uic->customWidgetsInfo()->extends(parentClass, "QMenuBar")) {
             // ### separator in menubar are not supported!
             return;
         } else {
@@ -395,7 +396,7 @@ void WriteInitialization::writeProperties(const QString &varName, const QString 
 {
     bool isTopLevel = m_widgetChain.count() == 1;
 
-    if (className == QLatin1String("QAxWidget")) {
+    if (uic->customWidgetsInfo()->extends(className, "QAxWidget")) {
         QHash<QString, DomProperty*> properties = propertyMap(lst);
         if (properties.contains("control")) {
             DomProperty *p = properties.value("control");
@@ -419,12 +420,13 @@ void WriteInitialization::writeProperties(const QString &varName, const QString 
             continue;
         } else if (propertyName == QLatin1String("buttonGroupId") // Q3ButtonGroup support
                     && p->elementNumber()
-                    && m_widgetChain.top() && m_widgetChain.top()->attributeClass() == QLatin1String("Q3ButtonGroup")) {
+                    && m_widgetChain.top()
+                    && uic->customWidgetsInfo()->extends(m_widgetChain.top()->attributeClass(), "Q3ButtonGroup")) {
             output << option.indent << driver->findOrInsertWidget(m_widgetChain.top()) << "->insert("
                    << varName << ", " << p->elementNumber() << ");\n";
             continue;
         } else if (propertyName == QLatin1String("control") // ActiveQt support
-                    && className == QLatin1String("QAxWidget")) {
+                    && uic->customWidgetsInfo()->extends(className, "QAxWidget")) {
             // already done ;)
             continue;
         } else if (propertyName == QLatin1String("database")
@@ -458,7 +460,7 @@ void WriteInitialization::writeProperties(const QString &varName, const QString 
                   .arg(c->elementBlue()); }
             break;
         case DomProperty::Cstring:
-            if (propertyName == QLatin1String("buddy") && className == QLatin1String("QLabel")) {
+            if (propertyName == QLatin1String("buddy") && uic->customWidgetsInfo()->extends(className, "QLabel")) {
                 m_buddies.append(Buddy(varName, p->elementCstring()));
             } else {
                 propertyValue = fixString(p->elementCstring());
