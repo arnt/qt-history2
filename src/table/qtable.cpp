@@ -304,14 +304,36 @@ bool QTableSelection::operator==( const QTableSelection &s ) const
   This enum type defines whether and when the user may edit a table
   cell.  The currently defined states are:
 
-  \value Always  the cell always is and always looks editable.
+  \value Always  the cell always is and always looks editable,
+                 even if QTable::isColumnReadOnly(), QTable::isRowReadOnly()
+                 or QTable::isReadOnly() return TRUE.
+
+                 This means that the editor created with createEditor()
+                 (by default a QLineEdit) is always visible. This has
+                 implications on the alignment of the content: 
+                 the default editor aligns everything (even numbers) 
+                 to the left whilst numerical values in the cell are by default
+                 aligned to the right. 
+
+                 If a cell with EditType::Always looks
+                 misaligned you might decide to reimplement createEditor()
+                 for this particular item.
 
   \value WhenCurrent  the cell is editable, and looks editable
-  whenever it has keyboard focus (see QTable::setCurrentCell()).
+                      whenever it has keyboard focus 
+                      (see QTable::setCurrentCell()).
+
+                      This setting does not overwrite QTable::isColumnReadOnly(), 
+                      QTable::isRowReadOnly() or QTable::isReadOnly().
 
   \value OnTyping  the cell is editable, but looks editable only when
-  the user types in it or double-clicks in it. (This is like \c
-  WhenCurrent in function but can look a bit cleaner.)
+                   the user types in it or double-clicks it. 
+                   It resembles the \c WhenCurrent functionality 
+                   but can look a bit cleaner.
+
+                   Note that this setting does not overwrite 
+                   QTable::isColumnReadOnly(),
+                   QTable::isRowReadOnly() or QTable::isReadOnly().
 
   \value Never  the cell isn't editable.
 */
@@ -437,7 +459,8 @@ void QTableItem::paint( QPainter *p, const QColorGroup &cg,
 }
 
 /*! This virtual function creates the editor with which the user can
-  edit the cell.  The default implementation creates a QLineEdit.
+  edit the cell.  The default implementation creates a QLineEdit that
+  aligns everything to the left.
 
   If the function returns 0, that the cell can not be edited.
 
@@ -1300,7 +1323,7 @@ QTable::~QTable()
   Note that if \a b is TRUE this setting overrides
   individual settings of the QComboTableItem::isEditable() property.
 
-  EditType settings of individual QTableItems are not affected.
+  \l EditType::Always settings of individual QTableItems are not affected.
 
   \sa isRowReadOnly() setRowReadOnly() setColumnReadOnly()
 */
@@ -1346,7 +1369,7 @@ void QTable::setRowReadOnly( int row, bool ro )
   returns TRUE. For QComboTableItems this is the case
   no matter what the individual QComboTableItem::isEditable()
   returns. QTableItems neglect this setting if their
-  QTableItem::EditType allows editing.
+  QTableItem::EditType is set to \c Always.
 
   \sa isColumnReadOnly() setRowReadOnly() setReadOnly()
 */
