@@ -898,14 +898,16 @@ QString QSqlCursor::toString( const QString& prefix, QSqlField* field, const QSt
 QString QSqlCursor::toString( QSqlRecord* rec, const QString& prefix, const QString& fieldSep,
 			      const QString& sep ) const
 {
+    static QString blank( " " );
     QString filter;
     bool separator = FALSE;
     for ( uint j = 0; j < count(); ++j ) {
 	QSqlField* f = rec->field( j );
 	if ( rec->isGenerated( j ) ) {
 	    if ( separator )
-		filter += sep + " " ;
+		filter += sep + blank;
 	    filter += toString( prefix, f, fieldSep );
+	    filter += blank;
 	    separator = TRUE;
 	}
     }
@@ -1070,7 +1072,11 @@ QSqlRecord* QSqlCursor::primeUpdate()
 {
     // memorize the primary keys as they were before the user changed the values in editBuffer
     QSqlRecord* buf = editBuffer( TRUE );
-    d->editIndex = toString( primaryIndex(), buf, d->nm, "=", "and" );
+    QSqlIndex idx = primaryIndex( FALSE );
+    if ( !idx.isEmpty() )
+	d->editIndex = toString( primaryIndex( FALSE ), buf, d->nm, "=", "and" );
+    else
+	d->editIndex = toString( buf, d->nm, "=", "and" );
     return buf;
 }
 
@@ -1168,7 +1174,7 @@ int QSqlCursor::update( bool invalidate )
 */
 
 int QSqlCursor::update( const QString & filter, bool invalidate )
-{
+{    
     if ( ( d->md & Update ) != Update ) {
 	return FALSE;
     }
@@ -1176,7 +1182,7 @@ int QSqlCursor::update( const QString & filter, bool invalidate )
     if ( k == 0 ) {
 	return 0;
     }
-
+    
     // use a prepared query if the driver supports it
     if ( driver()->hasFeature( QSqlDriver::PreparedQueries ) ) {
 	QString fList;
@@ -1243,9 +1249,11 @@ int QSqlCursor::update( const QString & filter, bool invalidate )
 
 int QSqlCursor::del( bool invalidate )
 {
-    if ( primaryIndex().isEmpty() )
-	return 0;
-    return del( toString( primaryIndex(), &d->editBuffer, d->nm,
+    QSqlIndex idx = primaryIndex( FALSE );
+    if ( idx.isEmpty() )
+	return del( toString( &d->editBuffer, d->nm, "=", "and" ), invalidate );
+    else
+	return del( toString( primaryIndex(), &d->editBuffer, d->nm,
 			  "=", "and" ), invalidate );
 }
 

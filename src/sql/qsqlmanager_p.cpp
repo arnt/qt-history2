@@ -351,8 +351,11 @@ bool QSqlCursorManager::findBuffer( const QSqlIndex& idx, int atHint )
 	return FALSE;
     if ( !cur->isActive() )
 	return FALSE;
-    if ( !idx.count() )
+    if ( !idx.count() ) {
+	if ( cur->at() == QSql::BeforeFirst )
+	    cur->next();
 	return FALSE;
+    }
     QSqlRecord* buf = cur->editBuffer();
     bool indexEquals = FALSE;
 #ifdef QT_DEBUG_DATAMANAGER
