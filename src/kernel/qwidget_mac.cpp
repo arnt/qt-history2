@@ -1165,6 +1165,9 @@ void QWidget::showWindow()
           but I will workaround it for now (see below) */
 	if(testWFlags(WShowModal))
 	    BeginAppModalStateForWindow((WindowRef)hd);
+#else
+	if(testWFlags(WShowModal))
+	    DisableMenuCommand(NULL, kHICommandQuit);
 #endif
 	setActiveWindow();
     } else if(!parentWidget(TRUE) || parentWidget(TRUE)->isVisibleTo(0)) {
@@ -1184,6 +1187,9 @@ void QWidget::hideWindow()
          but I will workaround it for now (see above) */
 	if(testWFlags(WShowModal))
 	    EndAppModalStateForWindow((WindowRef)hd);
+#else
+	if(testWFlags(WShowModal))
+	    EnableMenuCommand(NULL, kHICommandQuit);
 #endif
 	if(qt_mac_is_macsheet(this))
 	    HideSheetWindow((WindowPtr)hd);

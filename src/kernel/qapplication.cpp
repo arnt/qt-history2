@@ -1888,10 +1888,15 @@ void QApplication::quit()
  */
 void QApplication::closeAllWindows()
 {
-    QWidgetList *list = QApplication::topLevelWidgets();
     bool did_close = TRUE;
-    QWidget* w = list->first();
-    while ( did_close && w ) {
+    QWidget *w;
+    while((w = activeModalWidget()) && did_close) {
+	if(w->isHidden())
+	    break;
+	did_close = w->close();
+    }
+    QWidgetList *list = QApplication::topLevelWidgets();
+    for (w = list->first();  did_close && w;  ) {
 	if ( !w->isHidden() ) {
 	    did_close = w->close();
 	    delete list;
@@ -2208,6 +2213,29 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
     return res;
 }
 
+/*!\reimp
+
+*/
+bool QApplication::event( QEvent *e )
+{
+    if(e->type() == QEvent::Close) {
+	QCloseEvent *ce = (QCloseEvent*)e;
+	ce->accept();
+	closeAllWindows();
+	
+	QWidgetList *list = topLevelWidgets();
+	for(QWidget *w = list->first(); w; w = list->next()) {
+	    if ( !w->isHidden() && !w->isDesktop() && !w->isPopup() &&
+		 (!w->isDialog() || !w->parentWidget())) {
+		ce->ignore();
+		break;
+	    }
+	}
+	if(ce->isAccepted())
+	    return TRUE;
+    } 
+    return QObject::event(e);
+}
 
 /*!\internal
 
@@ -2254,7 +2282,7 @@ bool QApplication::internalNotify( QObject *receiver, QEvent * e)
 	    consumed = TRUE;
 	    goto done;
 	}
-    }
+    } 
     consumed = receiver->event( e );
  done:
     e->spont = FALSE;

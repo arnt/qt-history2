@@ -282,23 +282,26 @@ public slots:
 
 #if defined(Q_WS_QWS)
 protected:
-        void setArgs(int, char **);
+    void setArgs(int, char **);
 #endif
 
+protected:
+    bool event(QEvent *);
+
 private:
-    void	     construct( int &argc, char **argv, Type );
-    bool	     processNextEvent( bool );
-    void	     initialize( int, char ** );
-    void	     init_precmdline();
-    void	     process_cmdline( int* argcptr, char ** argv );
-    bool	     internalNotify( QObject *, QEvent * );
+    void construct( int &argc, char **argv, Type );
+    bool processNextEvent( bool );
+    void initialize( int, char ** );
+    void init_precmdline();
+    void process_cmdline( int* argcptr, char ** argv );
+    bool internalNotify( QObject *, QEvent * );
 #if defined(Q_WS_QWS)
     static QWidget *findChildWidget( const QWidget *p, const QPoint &pos );
     static QWidget *findWidget( const QObjectList&, const QPoint &, bool rec );
 #endif
 
 #if defined(Q_WS_MAC)
-    bool	     do_mouse_down(Point *);
+    bool do_mouse_down(Point *);
     static QMAC_PASCAL OSStatus globalEventProcessor(EventHandlerCallRef,  EventRef, void *);
     static QMAC_PASCAL void qt_context_timer_callbk(EventLoopTimerRef, void *);
     static QMAC_PASCAL void qt_select_timer_callbk(EventLoopTimerRef, void *);

@@ -487,21 +487,6 @@ bool QMenuBar::activateCommand(uint cmd)
 	}
     }
 #endif
-    if(cmd == kHICommandQuit) {
-#ifdef DEBUG_MENUBAR_ACTIVATE
-	qDebug("ActivateCommand: activating internal command Quit");
-#endif
-	qApp->closeAllWindows();
-	HiliteMenu(0);
-	return TRUE;
-    } else if(cmd == kHICommandAbout) {
-#ifdef DEBUG_MENUBAR_ACTIVATE
-	qDebug("ActivateCommand: activating internal command About");
-#endif
-	QMessageBox::aboutQt(NULL);
-	HiliteMenu(0);
-	return TRUE;
-    }
     HiliteMenu(0);
     return FALSE;
 }

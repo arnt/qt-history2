@@ -58,17 +58,15 @@
 #include <qstylefactory.h>
 #include <qstyle.h>
 #include <qeventloop.h>
+#include "qmessagebox.h"
 
 //#define QMAC_LAME_TIME_LIMITED
 #ifdef QMAC_LAME_TIME_LIMITED
 #  include <qtimer.h>
-#  include <qmessagebox.h>
 #endif
 
 #if !defined(QMAC_QMENUBAR_NO_NATIVE)
 #  include "qmenubar.h"
-#else
-#  include "qmessagebox.h"
 #endif
 
 #include <stdio.h>
@@ -430,6 +428,8 @@ void qt_init(int* argcptr, char **argv, QApplication::Type)
     if (qt_is_gui_used) {
 #if !defined(QMAC_QMENUBAR_NO_NATIVE)
 	QMenuBar::initialize();
+#else
+	DisableMenuCommand(NULL, kHICommandQuit);
 #endif
 	QColor::initialize();
 	QFont::initialize();
@@ -1877,11 +1877,14 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 			      NULL, sizeof(aeID), NULL, &aeID);
 	    if(aeClass == kCoreEventClass) {
 		switch(aeID) {
-		case kAEQuitApplication:
-		    handled_event = TRUE;
-		    app->closeAllWindows();
-		    app->quit();
-		    break;
+		case kAEQuitApplication: {
+		    QCloseEvent ev;
+		    QApplication::sendSpontaneousEvent(app, &ev);
+		    if(ev.isAccepted()) {
+			handled_event = TRUE;
+			app->quit();
+		    }
+		    break; }
 		default:
 		    break;
 		}
@@ -1898,21 +1901,26 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 					     NULL, sizeof(keyc), NULL, &keyc);
 
 #if !defined(QMAC_QMENUBAR_NO_NATIVE) //offer it to the menubar..
-	    if(!QMenuBar::activateCommand(cmd.commandID)) {
-		bool by_accel = gotmod && keyc;
-		if(!QMenuBar::activate(cmd.menu.menuRef, cmd.menu.menuItemIndex, FALSE, by_accel) && by_accel)
-		    handled_event = FALSE;
-	    }
-#else
-	    if(cmd.commandID == kHICommandQuit) {
-		qApp->closeAllWindows();
-		qApp->quit();
-	    } else if(cmd.commandID == kHICommandAbout) {
-		QMessageBox::aboutQt(NULL);
-	    } else {
-		handled_event = FALSE;
-	    }
+	    if(!QMenuBar::activateCommand(cmd.commandID)) 
 #endif
+	    {
+		if(cmd.commandID == kHICommandQuit) {
+		    QCloseEvent ev;
+		    QApplication::sendSpontaneousEvent(app, &ev);
+		    HiliteMenu(0);
+		    if(ev.isAccepted()) 
+			app->quit();
+		} else if(cmd.commandID == kHICommandAbout) {
+		    QMessageBox::aboutQt(NULL);
+		    HiliteMenu(0);
+		} else {
+#if !defined(QMAC_QMENUBAR_NO_NATIVE) //offer it to the menubar..
+		    bool by_accel = gotmod && keyc;
+		    if(!QMenuBar::activate(cmd.menu.menuRef, cmd.menu.menuItemIndex, FALSE, by_accel) && by_accel)
+#endif
+			handled_event = FALSE;
+		}
+	    }
 	} else {
 	    handled_event = FALSE;
 	}

@@ -4003,8 +4003,7 @@ bool QWidget::close( bool alsoDelete )
 	    if ( !widget->isHidden()
 		 && !widget->isDesktop()
 		 && !widget->isPopup()
-		 && (!widget->testWFlags(Qt::WType_Dialog)
-		     || !widget->parentWidget()))
+		 && (!widget->isDialog() || !widget->parentWidget()))
 		break;
 	    widget = list->next();
 	}
