@@ -10,7 +10,6 @@ SUBDIRS	=	aclock \
 		checklists \
 		cursor \
 		customlayout \
-		component \
 		dclock \
 		demo \
 		dirview \
