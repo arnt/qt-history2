@@ -1013,11 +1013,8 @@ QDirModelPrivate::QDirNode *QDirModelPrivate::node(int row, QDirNode *parent) co
     bool isDir =  !parent || parent->info.isDir();
     QVector<QDirNode> *nodes = parent ? &(parent->children) : &(root.children);
 
-    if (isDir && nodes->isEmpty()) {
-	*nodes = children(parent);
-    } else if (parent && parent->info.isSymLink() && d->resolveSymlinks) {
-        qWarning("node: the node is a symlink");
-    }
+    if (isDir && nodes->isEmpty())
+	*nodes = children(parent); // children will also resolve symlinks
 
     if (row >= nodes->count()) {
         qWarning("node: the row does not exist");
