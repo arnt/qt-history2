@@ -13,7 +13,7 @@ public:
 
     virtual QStringList import( const QString& filter, const QString& filename ) = 0;
 
-    QString interfaceID() const { return createID( QUnknownInterface::interfaceID(), "FilterInterface" ); }
+    QString interfaceId() const { return createId( QUnknownInterface::interfaceId(), "FilterInterface" ); }
 };
 
 #endif

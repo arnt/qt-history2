@@ -17,7 +17,7 @@ public:
     virtual QAction* create( const QString&, QObject* parent = 0 ) = 0;
     virtual QString group( const QString & ) = 0;
 
-    QString interfaceID() const { return createID( QUnknownInterface::interfaceID(), "ActionInterface" ); }
+    QString interfaceId() const { return createId( QUnknownInterface::interfaceId(), "ActionInterface" ); }
 };
 
 #endif
