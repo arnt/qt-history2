@@ -67,6 +67,8 @@ private:
     friend Q_GUI_EXPORT QDataStream &operator<<( QDataStream &, const QKeySequence & );
     friend Q_GUI_EXPORT QDataStream &operator>>( QDataStream &, QKeySequence & );
     friend class QAccelManager;
+    friend class QShortcutMap;
+    friend class QShortcut;
 };
 
 #ifndef QT_NO_DEBUG
