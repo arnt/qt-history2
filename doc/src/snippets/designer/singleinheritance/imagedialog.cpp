@@ -14,6 +14,6 @@ ImageDialog::ImageDialog(QWidget *parent)
     ui.colorDepthCombo->insertItem(tr("65536 colors (16 bits per pixel)"));
     ui.colorDepthCombo->insertItem(tr("16 million colors (24 bits per pixel)"));
 
-    connect(okButton, SIGNAL(clicked()), this, SLOT(accept()));
-    connect(cancelButton, SIGNAL(clicked()), this, SLOT(reject()));
+    connect(ui.okButton, SIGNAL(clicked()), this, SLOT(accept()));
+    connect(ui.cancelButton, SIGNAL(clicked()), this, SLOT(reject()));
 }
