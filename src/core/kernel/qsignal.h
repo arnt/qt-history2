@@ -14,6 +14,8 @@
 #ifndef QSIGNAL_H
 #define QSIGNAL_H
 
+#ifndef QT_NO_QOBJECT
+
 #include "qobject.h"
 #include "qmetaobject.h"
 
@@ -194,5 +196,7 @@ inline Q_CORE_EXPORT bool qInvokeMetaMember(QObject *obj, const char *member,
     return qInvokeMetaMember(obj, member, Qt::AutoConnection, QGenericReturnArgument(), val0,
                              val1, val2, val3, val4, val5, val6, val7, val8, val9);
 }
+
+#endif QT_NO_QOBJECT
 
 #endif // QSIGNAL_H

@@ -14,6 +14,8 @@
 #ifndef QOBJECT_H
 #define QOBJECT_H
 
+#ifndef QT_NO_QOBJECT
+
 #include "qobjectdefs.h"
 #include "qnamespace.h"
 #include "qstring.h"
@@ -342,6 +344,8 @@ template <> inline IFace *qt_cast<IFace *>(const QObject *object) \
 
 #ifndef QT_NO_DEBUG
 Q_CORE_EXPORT QDebug operator<<(QDebug, const QObject *);
+#endif
+
 #endif
 
 #endif // QOBJECT_H

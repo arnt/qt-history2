@@ -13,7 +13,9 @@
 
 #include "qbuffer.h"
 #include "private/qiodevice_p.h"
+#ifndef QT_NO_QOBJECT
 #include "qsignal.h"
+#endif
 #include "qtimer.h"
 
 /** QBufferPrivate **/

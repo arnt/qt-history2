@@ -7,7 +7,9 @@
 #include <qiodevice.h>
 #include <qstack.h>
 #include <qstringlist.h>
+#ifndef QT_NO_QOBJECT
 #include <private/qobject_p.h>
+#endif
 
 #ifdef Q_OS_WIN
 #include <qt_windows.h>

@@ -5,13 +5,16 @@
 #ifndef QT_NO_SETTINGS
 
 #include "qcache.h"
-#include "qcoreapplication.h"
 #include "qsettings_p.h"
 #include "qfile.h"
 #include "qdir.h"
 #include "qfileinfo.h"
 #include "qrect.h"
 #include "qmutex.h"
+
+#ifndef QT_NO_QOBJECT
+#include "qcoreapplication.h"
+#endif
 
 // ************************************************************************
 // QConfFile

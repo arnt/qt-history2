@@ -69,6 +69,7 @@ QTOBJS= \
 	qglobal.obj \
 	qhash.obj \
 	qiodevice.obj \
+	qinternal.obj \
 	qlist.obj \
 	qlocale.obj \
 	qmap.obj \
@@ -142,6 +143,9 @@ qtextstream.obj: ..\src\core\io\qtextstream.cpp
 
 qiodevice.obj: ..\src\core\io\qiodevice.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\io\qiodevice.cpp
+
+qinternal.obj: ..\src\core\kernel\qinternal.cpp
+	$(CXX) $(CXXFLAGS) ..\src\core\kernel\qinternal.cpp
 
 qglobal.obj: ..\src\core\global\qglobal.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\global\qglobal.cpp

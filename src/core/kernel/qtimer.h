@@ -14,6 +14,8 @@
 #ifndef QTIMER_H
 #define QTIMER_H
 
+#ifndef QT_NO_QOBJECT
+
 #include "qbasictimer.h" // conceptual inheritance
 #include "qobject.h"
 
@@ -65,5 +67,7 @@ private:
     uint single : 1;
     uint nulltimer : 1;
 };
+
+#endif
 
 #endif // QTIMER_H
