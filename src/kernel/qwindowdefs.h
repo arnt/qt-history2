@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#6 $
+** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#7 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -19,10 +19,12 @@
 
 // Class forward definitions
 
+class QApplication;
 class QWidget;
 class QWidgetMapper;
 class QView;
 class QColor;
+class QCursor;
 class QPoint;
 class QSize;
 class QRect;
@@ -30,11 +32,14 @@ class QPointArray;
 class QPainter;
 class QRegion;
 class QFont;
+class QFontMetrics;
 class QPen;
 class QBrush;
+class QWXFMatrix;
 class QPixMap;
 class QBitMap;
-class QWXFMatrix;
+class QMetaFile;
+class QPrinter;
 
 
 // Window system setting
