@@ -317,8 +317,11 @@ public:
     void savePersistentIndexes();
     void restorePersistentIndexes();
 
-    inline bool childrenAreDrives(const QDirNode *node) const // FIXME_ROOT
-        { return (node == &root) && (!root.info.exists());}
+    QFileInfoList rootChildren() const;
+    inline QString rootPath() const
+        { return root.info.exists() ? root.info.absoluteFilePath() : QString::null; }
+    inline QString rootName() const
+        { return root.info.exists() ? root.info.fileName() : QString::null; }
 
     mutable QDirNode root;
 
@@ -372,7 +375,7 @@ QDirModel::QDirModel(const QString &path, QObject *parent)
     if (path.isEmpty()) {
         d->root.parent = 0;
         d->root.info = QFileInfo();
-        d->root.children = d->children(&d->root);
+        d->root.children = d->children(0);
     } else {
         d->init(QDir(path));
     }
@@ -423,19 +426,19 @@ QModelIndex QDirModel::index(int row, int column, const QModelIndex &parent, QMo
         return QModelIndex();
     }
 
-    if (!parent.isValid() && row == 0) {
-//        qDebug("index: creating root index");
-        return createIndex(0, column, const_cast<QDirModelPrivate::QDirNode*>(&d->root), type);
-    }
+//     if (!parent.isValid())
+//         qDebug("index: creating toplevel index %d %d", row, column);
+//     else
+//         qDebug("index: creating normal index %d %d", row, column);
 
     QDirModelPrivate::QDirNode *p = static_cast<QDirModelPrivate::QDirNode*>(parent.data());
     QDirModelPrivate::QDirNode *n = d->node(row, p);
+    
     if (!n) {
         qWarning("index: the node does not exist");
 	return QModelIndex();
     }
 
-//    qDebug("index: creating normal index %d %d", row, column);
     return createIndex(row, column, n, type);
 }
 
@@ -458,7 +461,12 @@ QModelIndex QDirModel::parent(const QModelIndex &child) const
 	return QModelIndex();
     }
 
-    return createIndex(d->idx(par), 0, par);
+    int r = d->idx(par);
+    if (r < 0) {
+        qWarning("parent: the row was negative");
+        QModelIndex();
+    }
+    return createIndex(r, 0, par);
 }
 
 /*!
@@ -471,20 +479,19 @@ int QDirModel::rowCount(const QModelIndex &parent) const
     if (parent.type() == QModelIndex::HorizontalHeader)
         return 1;
 
-    if (!parent.isValid())
-        return 1; // root node
-
     QDirModelPrivate::QDirNode *p = static_cast<QDirModelPrivate::QDirNode*>(parent.data());
-    if (!p) {
-        qWarning("rowCount: valid index without data");
-        return -1;
+        
+    bool isDir = !p || p->info.isDir();
+    QVector<QDirModelPrivate::QDirNode> *nodes = p ? &(p->children) : &(d->root.children);
+
+    if (isDir && nodes->isEmpty()) {
+//        qDebug("rowCount: refreshing children");
+	*nodes = d->children(p); // lazy population
     }
 
-    if (p->children.isEmpty() && (p->info.isDir() || d->childrenAreDrives(p)))
-	p->children = d->children(p); // lazy population
-//    qDebug("rowCount: returning %d", p->children.count());
+//    qDebug("rowCount: returning %d", nodes->count());
 
-    return p->children.count();
+    return nodes->count();
 }
 
 /*!
@@ -533,6 +540,9 @@ QVariant QDirModel::data(const QModelIndex &index, int role) const
         return QVariant();
     }
 
+//     if (node == &d->root)
+//         qDebug("data: the node is the root '%s'", node->info.fileName().latin1());
+
     if (role == Role_Display || role == Role_Edit) {
         switch (index.column()) {
         case 0: return node->info.fileName();
@@ -578,10 +588,6 @@ bool QDirModel::setData(const QModelIndex &index, int role, const QVariant &valu
     QDirModelPrivate::QDirNode *node = static_cast<QDirModelPrivate::QDirNode*>(index.data());
     if (!node) {
         qWarning("setData: the node does not exist");
-        return false;
-    }
-    if (d->childrenAreDrives(node)) {
-        qWarning("setData: cannot rename the root node");
         return false;
     }
     QDir dir = node->info.dir();
@@ -940,7 +946,7 @@ void QDirModel::refresh(const QModelIndex &parent)
 QModelIndex QDirModel::index(const QString &path) const
 {
 //    qDebug("index: path %s", path.latin1());
-    QStringList pth = QDir::convertSeparators(path).split(QDir::separator(), QString::SkipEmptyParts);
+    QStringList pth = QDir(path).absolutePath().split(QDir::separator(), QString::SkipEmptyParts);
 
 //     for (int j = 0; j < pth.count(); ++j)
 //         qDebug("index: path element '%s'", pth.at(j).latin1());
@@ -954,9 +960,11 @@ QModelIndex QDirModel::index(const QString &path) const
 
     QStringList entries;
     QDirModelPrivate::QDirNode *node;
-    QModelIndex idx = index(0, 0, QModelIndex()); // start with the root node
+    QModelIndex idx; // start with the root node
+
 #ifndef Q_OS_WIN
-    idx = index(0, 0, idx); // we only have one 'drive' entry on unix
+    idx = index(0, 0, idx); // "/"
+    node = &(d->root);
 #endif
 
     for (int i = 0; i < pth.count(); ++i) {
@@ -968,38 +976,34 @@ QModelIndex QDirModel::index(const QString &path) const
             continue;
         }
 
+        node = idx.isValid() ? static_cast<QDirModelPrivate::QDirNode*>(idx.data()) : &(d->root);
+#if 0
         if (!idx.isValid()) {
-            qWarning("index: the path does not exist");
-            return QModelIndex();
-        }
-
-        node = static_cast<QDirModelPrivate::QDirNode*>(idx.data());
-
-        if (!node) {
-            qWarning("index: the node is null");
-            return QModelIndex();
-        }
-#ifdef Q_OS_WIN
-        if (d->childrenAreDrives(node)) {
-//            qDebug("index: entries are drives");
-            QFileInfoList info = QDir::drives();
+            qDebug("index: idx is not valid");
+            QFileInfoList info = d->rootChildren(); // the children could be drives
             entries.clear();
-            for (int i = 0; i < info.count(); ++i)
-                entries << info.at(i).fileName();
+            for (int j = 0; j < info.count(); ++j)
+                entries << info.at(j).absoluteFilePath();
         } else
 #endif
         {
+//            qDebug("index: idx is valid");
             QString absPath = node->info.absoluteFilePath();
-//            qDebug("index: node '%s'", absPath.latin1());
             entries = QDir(absPath).entryList(d->nameFilters, d->filterSpec, d->sortSpec);
-//            qDebug("index: entries count %d", entries.count());
         }
+
+//         for (int j = 0; j < entries.count(); ++j)
+//             qDebug("index: entry %d '%s'", j, entries.at(j).latin1());
 
         QString entry = pth.at(i);
 //        qDebug("index: path element %d is '%s'", i, entry.latin1());
         int r = entries.indexOf(entry);
 //        qDebug("index: index of element is %d", r);
         idx = index(r, 0, idx); // will check row and lazily populate
+        if (!idx.isValid()) {
+//            qDebug("index: path does not exist");
+            return QModelIndex();
+        }
     }
 
 //    qDebug("index: end of funcion");
@@ -1014,13 +1018,9 @@ QModelIndex QDirModel::index(const QString &path) const
 
 QString QDirModel::path(const QModelIndex &index) const
 {
-    QString pth;
-    if (!index.isValid()) {
-        qWarning("path: the index is invalid");
-        return QString::null;
-    }
-    pth = fileInfo(index).absoluteFilePath();
-    return pth;//QDir::cleanPath(pth);
+    if (!index.isValid())
+        return d->rootPath();
+    return fileInfo(index).absoluteFilePath();
 }
 
 /*!
@@ -1031,11 +1031,9 @@ QString QDirModel::path(const QModelIndex &index) const
 
 QString QDirModel::name(const QModelIndex &index) const
 {
-    if (!index.isValid()) {
-        qWarning("name: the index is invalid");
-        return QString::null;
-    }
-    return fileInfo(index).fileName();
+    if (!index.isValid())
+        return d->rootName();
+    return fileInfo(index).fileName(); // FIXME: "test/" returns ""
 }
 
 /*!
@@ -1074,23 +1072,6 @@ QFileInfo QDirModel::fileInfo(const QModelIndex &index) const
 }
 
 /*!
-  Returns true if the model item \a index represents the root directory,
-  otherwise returns false.
-*/
-
-bool QDirModel::isRoot(const QModelIndex &index) const
-{
-    QDirModelPrivate::QDirNode *node = static_cast<QDirModelPrivate::QDirNode*>(index.data());
-    if (!node) {
-        qWarning("isRoot: the node does not exist");
-        return false;
-    }
-    if (!node->info.isDir())
-        return false;
-    return node->info.dir().isRoot();
-}
-
-/*!
   Returns true if the model item \a index represents a directory;
   otherwise returns false.
 */
@@ -1102,7 +1083,7 @@ bool QDirModel::isDir(const QModelIndex &index) const
         qWarning("isDir: the node does not exist");
         return false;
     }
-    return node->info.isDir() || d->childrenAreDrives(node); // FIXME_ROOT
+    return node->info.isDir();
 }
 
 /*!
@@ -1123,12 +1104,7 @@ QModelIndex QDirModel::mkdir(const QModelIndex &parent, const QString &name)
         qWarning("mkdir: parent node does not exist");
         return QModelIndex();
     }
-
-    if (d->childrenAreDrives(p)) {
-        qWarning("mkdir: cannot create a new drive");
-        return QModelIndex();
-    }
-
+    
     d->savePersistentIndexes();
 
     QDir dir = p->info.dir();
@@ -1177,12 +1153,7 @@ bool QDirModel::rmdir(const QModelIndex &index)
         qWarning("rmdir: the parent node does not exist");
         return false;
     }
-
-    if (d->childrenAreDrives(p)) {
-        qWarning("rmdir: the node is a drive");
-        return false;
-    }
-
+    
     emit rowsRemoved(parent(index), index.row(), 1);
     d->savePersistentIndexes();
 
@@ -1230,11 +1201,6 @@ bool QDirModel::remove(const QModelIndex &index)
         return false;
     }
 
-    if (d->childrenAreDrives(p)) {
-        qWarning("remove: the node is a drive");
-        return false;
-    }
-
     emit rowsRemoved(parent(index), index.row(), 1);
     d->savePersistentIndexes();
 
@@ -1251,14 +1217,22 @@ bool QDirModel::remove(const QModelIndex &index)
     return true;
 }
 
+/*
+  The root node is never seen outside the model.
+*/
+  
 void QDirModelPrivate::init(const QDir &directory)
 {
     root.parent = 0;
     root.info = QFileInfo(directory.absolutePath());
     root.children = children(&root);
+
     filterSpec = directory.filter();
     sortSpec = directory.sorting();
     nameFilters = directory.nameFilters();
+
+//     qDebug("init: %s", root.info.absoluteFilePath().latin1());
+//     qDebug("init: %s", root.info.fileName().latin1());
 }
 
 QDirModelPrivate::QDirNode *QDirModelPrivate::node(int row, QDirNode *parent) const
@@ -1268,20 +1242,20 @@ QDirModelPrivate::QDirNode *QDirModelPrivate::node(int row, QDirNode *parent) co
 	return 0;
     }
 
-    if (!parent)
-        return &root;
+    bool isDir =  !parent || parent->info.isDir();
+    QVector<QDirNode> *nodes = parent ? &(parent->children) : &(root.children);
 
-    if (parent->children.isEmpty() && (parent->info.isDir() || childrenAreDrives(parent))) {
+    if (isDir && nodes->isEmpty()) {
 //        qDebug("node: refreshing children");
-	parent->children = children(parent);
+	*nodes = children(parent);
     }
 
-    if (row >= parent->children.count()) {
+    if (row >= nodes->count()) {
         qWarning("node: the row does not exist");
         return 0;
     }
 
-    return const_cast<QDirNode*>(&parent->children.at(row));
+    return const_cast<QDirNode*>(&nodes->at(row));
 }
 
 QDirModelPrivate::QDirNode *QDirModelPrivate::parent(QDirNode *child) const
@@ -1291,15 +1265,9 @@ QDirModelPrivate::QDirNode *QDirModelPrivate::parent(QDirNode *child) const
 
 QVector<QDirModelPrivate::QDirNode> QDirModelPrivate::children(QDirNode *parent) const
 {
-    if (!parent) { // FIXME_ROOT:
-        qWarning("children: parent is null");
-        QVector<QDirNode> nodes(1);
-        return nodes;
-    }
-
     QFileInfoList info;
-    if (childrenAreDrives(parent)) {
-        info = QDir::drives();
+    if (!parent) {
+        info = rootChildren();
     } else if (parent->info.isDir()) {
         QDir dir = QDir(parent->info.filePath());
         info = dir.entryInfoList(nameFilters, filterSpec, sortSpec);
@@ -1326,12 +1294,7 @@ int QDirModelPrivate::idx(QDirNode *node) const
     if (node == &root)
         return 0;
 
-    if (!node->parent) {
-        qWarning("idx: the parent is null");
-        return -1;
-    }
-
-    const QVector<QDirNode> children = node->parent->children;
+    const QVector<QDirNode> children = node->parent ? node->parent->children : root.children;
     if (children.isEmpty()) {
         qWarning("idx: the parent's child list was empty");
 	return -1;
@@ -1343,22 +1306,15 @@ int QDirModelPrivate::idx(QDirNode *node) const
 
 void QDirModelPrivate::refresh(QDirNode *parent)
 {
-    if (!parent) {
-        qWarning("refresh: cannot refresh null node");
-        return;
-    }
-
     QFileInfoList info;
-
-    if (childrenAreDrives(parent)) {
-        info = QDir::drives();
+    if (!parent) {
+        info = rootChildren();
     } else if (parent->info.isDir()) {
         QDir dir = QDir(parent->info.filePath());
         info = dir.entryInfoList(nameFilters, filterSpec, sortSpec);
     }
-
-    QVector<QDirNode> *nodes = &(parent->children);
-
+    
+    QVector<QDirNode> *nodes = parent ? &(parent->children) : &(root.children);
     if (nodes->count() != info.count()) {
         qWarning("refresh: the number of children has changed");
         nodes->resize(info.count());
@@ -1398,4 +1354,12 @@ void QDirModelPrivate::restorePersistentIndexes()
         QPersistentModelIndexData::destroy(deleteList.last());
         deleteList.removeLast();
     }
+}
+
+QFileInfoList QDirModelPrivate::rootChildren() const
+{
+    if (!root.info.exists())
+        return QDir::drives();
+    QDir dir = QDir(root.info.absoluteFilePath());
+    return dir.entryInfoList(nameFilters, filterSpec, sortSpec);
 }
