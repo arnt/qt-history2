@@ -195,7 +195,7 @@ QAction::QAction(const QString &menuText, QWidget* parent)
 }
 
 /*!
-    Constructs an action with an \a icon and some \a text for the
+    Constructs an action with the given \a icon and \a menuText for the
     \a parent widget. The action will \e not be automatically inserted
     into the widget.
 
@@ -870,7 +870,7 @@ void QActionGroupPrivate::actionDeleted()
     single unit, with all the actions within the action group
     appearing as separate menu options or toolbar buttons.
 
-    Here's an example from examples/textedit:
+    Here's an example from demos/textedit:
     \quotefile textedit/textedit.cpp
     \skipto QActionGroup
     \printuntil connect

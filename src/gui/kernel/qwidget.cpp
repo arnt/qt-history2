@@ -6200,8 +6200,8 @@ const QPixmap *QWidget::icon() const
     position. This is set/cleared by QWidget::move() and
     by QWidget::setGeometry().
 
-    \row \i Qt::WA_Mapped \i Indicates that the widget is mapped on screen.
-    \i Qt kernel.
+    \value WA_Mapped Indicates that the widget is mapped on screen.
+    This is set/cleared by the Qt kernel.
 
     \value WA_OutsideWSRange Indicates that the widget is outside
     the valid range of the window system's coordinate system. A widget
@@ -6237,6 +6237,7 @@ const QPixmap *QWidget::icon() const
     \omitvalue WA_ForegroundInherited
     \omitvalue WA_BackgroundInherited
     \omitvalue WA_TransparentForMouseEvents
+    \omitvalue WA_InvalidSize
 
     \omitvalue WA_AttributeCount
 */

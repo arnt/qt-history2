@@ -39,6 +39,9 @@ QAccessibleSpinBox::QAccessibleSpinBox(QWidget *w)
     addControllingSignal("valueChanged(QString)");
 }
 
+/*!
+    Returns the underlying QSpinBox.
+*/
 QSpinBox *QAccessibleSpinBox::spinBox() const
 {
     return qt_cast<QSpinBox*>(object());
@@ -452,6 +455,12 @@ QAccessible::Role QAccessibleSlider::role(int child) const
     }
 }
 
+/*!
+    \fn int QAccessibleSlider::defaultAction(int child) const
+
+    Returns the default action for the given \a child. The base class
+    implementation returns 0.
+*/
 int QAccessibleSlider::defaultAction(int /*child*/) const
 {
 /*

@@ -48,8 +48,8 @@ void QSqlModelPrivate::prefetch(int limit)
 
 /*!
     \class QSqlModel
-    \brief The QSqlModel class provides a read only data model for
-           SQL result sets.
+    \brief The QSqlModel class provides a read only data model for SQL
+    result sets.
 
     \ingroup database
     \mainclass
@@ -60,7 +60,7 @@ void QSqlModelPrivate::prefetch(int limit)
 
     \code
     QSqlModel model;
-    model.setQuery("SELECT * FROM TEST");
+    model.setQuery("SELECT FORENAME, SURNAME, ID FROM TEST");
     \endcode
 
     The model is read-only by default, to make it read-write, it is
@@ -94,6 +94,9 @@ QSqlModel::~QSqlModel()
 {
 }
 
+/*!
+    \internal
+*/
 void QSqlModel::fetchMore()
 {
     d->prefetch(d->bottom.row() + QSQL_PREFETCH);

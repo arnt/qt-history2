@@ -1693,8 +1693,10 @@ void QGLWidget::resizeOverlayGL(int, int)
 
 
 /*!
-    Handles paint events. Will cause the virtual paintGL() function to
-    be called.
+    \fn void QGLWidget::paintEvent(QPaintEvent *event)
+
+    Handles paint events passed in the \a event parameter. Will cause
+    the virtual paintGL() function to be called.
 
     The widget's rendering context will become the current context and
     initializeGL() will be called if it hasn't already been called.
@@ -1708,14 +1710,18 @@ void QGLWidget::paintEvent(QPaintEvent *)
 
 
 /*!
-    \fn void QGLWidget::resizeEvent(QResizeEvent *)
+    \fn void QGLWidget::resizeEvent(QResizeEvent *event)
 
-    Handles resize events. Calls the virtual function resizeGL().
+    Handles resize events that are passed in the \a event parameter.
+    Calls the virtual function resizeGL().
 */
 
 
 /*!
-  \fn void QGLWidget::setMouseTracking(bool enable)
+    \fn void QGLWidget::setMouseTracking(bool enable)
+
+    If \a enable is true then mouse tracking is enabled; otherwise it
+    is disabled.
 */
 
 

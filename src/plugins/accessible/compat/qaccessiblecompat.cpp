@@ -727,6 +727,16 @@ bool QAccessibleListBox::setFocus(int child)
     return true;
 }*/
 
+/*!
+    Selects the item with index \a child if \a on is true; otherwise
+    unselects it. If \a extend is true and the selection mode is not
+    \c Single and there is an existing selection, the selection is
+    extended to include all the items from the existing selection up
+    to and including the item with index \a child. Returns true if a
+    selection was made or extended; otherwise returns false.
+
+    \sa selection() clearSelection()
+*/
 bool QAccessibleListBox::setSelected(int child, bool on, bool extend)
 {
     if (!child || (extend &&
@@ -751,11 +761,22 @@ bool QAccessibleListBox::setSelected(int child, bool on, bool extend)
     return true;
 }
 
+/*!
+    Sets all the items in the list box to be unselected.
+
+    \sa setSelected() selection()
+*/
 void QAccessibleListBox::clearSelection()
 {
     listBox()->clearSelection();
 }
 
+/*!
+    Returns a (possibly empty) list of indexes of the items selected
+    in the list box.
+
+    \sa setSelected() clearSelection()
+*/
 QVector<int> QAccessibleListBox::selection() const
 {
     QVector<int> array;

@@ -1939,9 +1939,9 @@ void QApplication::syncX()        {}                // do nothing
 #endif
 
 /*!
-
-  Sets the active window in reaction to a system event. The function
-  is called from the platform specific event handlers.
+  Sets the active window to the \a act widget in response to a system
+  event. The function is called from the platform specific event
+  handlers.
 
   \warning This function does \e not set the keyboard focus to the
   active widget. Call QWidget::setActiveWindow() instead.

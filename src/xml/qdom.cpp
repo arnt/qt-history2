@@ -5945,8 +5945,8 @@ bool QDomDocument::setContent(const QString& text, bool namespaceProcessing, QSt
     If a parse error occurs, the function returns false; otherwise it
     returns true. If a parse error occurs and \a errorMsg, \a
     errorLine and \a errorColumn are not 0, the error message is
-    placed in \a *errorMsg, the line number \a *errorLine and the
-    column number in \a *errorColumn.
+    placed in \c{*}\a{errorMsg}, the line number \c{*}\a{errorLine} and the
+    column number in \c{*}\a{errorColumn}.
 
     If \a namespaceProcessing is true, the function QDomNode::prefix()
     returns a string for all elements and attributes. It returns an

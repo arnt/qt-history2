@@ -1673,7 +1673,19 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
     \value SP_MessageBoxWarning the 'warning' icon.
     \value SP_MessageBoxCritical the 'critical' icon.
     \value SP_MessageBoxQuestion the 'question' icon.
-
+    \value SP_DesktopIcon
+    \value SP_TrashIcon
+    \value SP_ComputerIcon
+    \value SP_DriveFDIcon
+    \value SP_DriveHDIcon
+    \value SP_DriveCDIcon
+    \value SP_DriveDVDIcon
+    \value SP_DriveNetIcon
+    \value SP_DirOpenIcon
+    \value SP_DirClosedIcon
+    \value SP_DirLinkIcon
+    \value SP_FileIcon
+    \value SP_FileLinkIcon
 
     \value SP_DockWindowCloseButton  close button on dock windows;
         see also QDockWindow.

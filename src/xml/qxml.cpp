@@ -2427,8 +2427,8 @@ private:
     is returned. If no such feature exists the return value is
     undefined.
 
-    If \a ok is not 0: \a *ok  is set to true if the reader has the
-    feature called \a name; otherwise \a *ok is set to false.
+    If \a ok is not 0: \c{*}\a{ok}  is set to true if the reader has the
+    feature called \a name; otherwise \c{*}\a{ok} is set to false.
 
     \sa setFeature() hasFeature()
 */
@@ -2457,8 +2457,8 @@ private:
     If the reader has the property \a name, this function returns the
     value of the property; otherwise the return value is undefined.
 
-    If \a ok is not 0: if the reader has the \a name property \a *ok
-    is set to true; otherwise \a *ok is set to false.
+    If \a ok is not 0: if the reader has the \a name property
+    \c{*}\a{ok} is set to true; otherwise \c{*}\a{ok} is set to false.
 
     \sa setProperty() hasProperty()
 */
@@ -2582,6 +2582,8 @@ private:
   \fn bool QXmlReader::parse(const QXmlInputSource& input)
 
   \obsolete
+
+  Parses the given \a input.
 */
 
 /*!

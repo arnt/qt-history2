@@ -57,8 +57,7 @@ public:
     backlog to specify how many pending connections the server can
     have.
 
-    The \a parent and \a name arguments are passed on to the QObject
-    constructor.
+    The \a parent argument is passed on to the QObject constructor.
 
     \warning On Tru64 Unix systems a value of 0 for \a backlog means
     that you don't accept any connections at all; you should specify a
@@ -78,8 +77,7 @@ QServerSocket::QServerSocket(Q_UINT16 port, int backlog, QObject *parent)
     only on the given \a address. Use \a backlog to specify how many
     pending connections the server can have.
 
-    The \a parent and \a name arguments are passed on to the QObject
-    constructor.
+    The \a parent argument is passed on to the QObject constructor.
 
     \warning On Tru64 Unix systems a value of 0 for \a backlog means
     that you don't accept any connections at all; you should specify a
@@ -96,14 +94,11 @@ QServerSocket::QServerSocket(const QHostAddress & address, Q_UINT16 port,
 
 
 /*!
-    Construct an empty server socket.
+    Construct an empty server socket with the given \a parent.
 
     This constructor, in combination with setSocket(), allows us to
     use the QServerSocket class as a wrapper for other socket types,
     such as Unix Domain Sockets.
-
-    The \a parent and \a name arguments are passed on to the QObject
-    constructor.
 
     \sa setSocket()
 */

@@ -25,7 +25,8 @@
 
 /*!
   \class DomTool domtool.h
-  \brief Tools for the dom
+  \brief The DomTool class provides static functions for Qt Designer
+  and uic.
 
   A collection of static functions used by Resource (part of the
   designer) and Uic.
@@ -34,8 +35,9 @@
 
 /*!
   Returns the contents of property \a name of object \a e as
-  variant or the variant passed as \a defValue if the property does
-  not exist.
+  a variant or the variant passed as \a defValue if the property does
+  not exist. The \a comment is passed on to the elementToVariant()
+  function.
 
   \sa hasProperty()
 */
@@ -80,6 +82,10 @@ bool DomTool::hasProperty(const QDomElement& e, const QString& name)
     return FALSE;
 }
 
+/*!
+    Returns a list of the names of the properties of the given \a type
+    found in the element \a e.
+*/
 QStringList DomTool::propertiesOfType(const QDomElement& e, const QString& type)
 {
     QStringList result;
@@ -95,6 +101,9 @@ QStringList DomTool::propertiesOfType(const QDomElement& e, const QString& type)
 }
 
 
+/*!
+    \overload
+*/
 QCoreVariant DomTool::elementToVariant(const QDomElement& e, const QCoreVariant& defValue)
 {
     QString dummy;
@@ -102,7 +111,10 @@ QCoreVariant DomTool::elementToVariant(const QDomElement& e, const QCoreVariant&
 }
 
 /*!
-  Interprets element \a e as variant and returns the result of the interpretation.
+  Interprets element \a e as a variant and returns the result of the
+  interpretation, extracting the data as a text element is the \a
+  comment matches the tag name. If the interpretation fails the \a
+  defValue is returned instead.
  */
 QCoreVariant DomTool::elementToVariant(const QDomElement& e, const QCoreVariant& defValue, QString &comment)
 {
@@ -303,8 +315,9 @@ Color DomTool::readColor(const QDomElement &e)
 
 /*!
   Returns the contents of attribute \a name of object \a e as
-  variant or the variant passed as \a defValue if the attribute does
-  not exist.
+  a variant or the variant passed as \a defValue if the attribute does
+  not exist. The \a comment is passed to the elementToVariant()
+  function.
 
   \sa hasAttribute()
  */
@@ -354,7 +367,9 @@ static bool toBool(const QString& s)
 }
 
 /*!
-  Convert Qt 2.x format to Qt 3.x format if necessary
+    \internal
+
+    Convert Qt 2.x format to Qt 3.x format if necessary.
 */
 void DomTool::fixDocument(QDomDocument& doc)
 {
@@ -467,6 +482,9 @@ propertyName propertyTable[1] = {
     propertyName(3.0, "resizeable", "resizable"), // we need to fix a spelling error in 3.0
 };
 
+/*!
+    \internal
+*/
 void DomTool::fixAttributes(QDomNodeList &nodes, double version)
 {
     QDomNode n;
@@ -479,6 +497,9 @@ void DomTool::fixAttributes(QDomNodeList &nodes, double version)
     }
 }
 
+/*!
+    \internal
+*/
 void DomTool::fixAttribute(QDomNode &node, double version)
 {
     QString tagName =  node.toElement().tagName();

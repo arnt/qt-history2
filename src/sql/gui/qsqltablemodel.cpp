@@ -110,7 +110,7 @@ QSqlRecord QSqlTableModelPrivate::primaryValues(int row)
 
 /*!
   \class QSqlTableModel
-  \brief The QSqlModel class provides an editable data model
+  \brief The QSqlTableModel class provides an editable data model
   for a single database table.
 
   \ingroup database
@@ -122,7 +122,7 @@ QSqlRecord QSqlTableModelPrivate::primaryValues(int row)
 
   \code
   QSqlTableModel model;
-  model.setTable("mytable");
+  model.setTable("MYTABLE");
   model.select();
   \endcode
 
@@ -138,6 +138,15 @@ QSqlRecord QSqlTableModelPrivate::primaryValues(int row)
   \fn QSqlTableModel::beforeDelete(int row)
 
   This signal is emitted before the row \a row is deleted.
+*/
+
+/*!
+    \fn void QSqlTableModel::primeInsert(int row, QSqlRecord &record)
+
+    This signal is emitted when an insertion is initiated in the given
+    \a row. The \a record parameter can be written to (since it is a
+    reference), for example to populate some fields with default
+    values.
 */
 
 /*!
@@ -676,6 +685,11 @@ QString QSqlTableModel::selectStatement() const
     return query;
 }
 
+/*!
+    Removes the given \a column from the \a parent model.
+
+    \sa removeRow()
+*/
 bool QSqlTableModel::removeColumn(int column, const QModelIndex &parent)
 {
     if (parent.isValid() || column < 0 || column >= d->rec.count())
@@ -686,6 +700,11 @@ bool QSqlTableModel::removeColumn(int column, const QModelIndex &parent)
     return true;
 }
 
+/*!
+    Removes the given \a row from the \a parent model.
+
+    \sa removeColumn()
+*/
 bool QSqlTableModel::removeRow(int row, const QModelIndex &parent)
 {
     // ### also handle manual update strategy...?

@@ -1627,9 +1627,9 @@ int QHttp::setHost(const QString &hostname, Q_UINT16 port)
 }
 
 /*!
-    Replaces the internal QSocket that QHttp uses to connect with. By
-    default, QHttp assigns a socket automatically, but using this
-    function a specialized version of QSocket is used instead.
+    Replaces the internal QSocket that QHttp uses with the given \a
+    socket. This is useful if you want to use your own custom QSocket
+    subclass instead of the plain QSocket that QHttp uses by default.
 */
 int QHttp::setSocket(QSocket *socket)
 {

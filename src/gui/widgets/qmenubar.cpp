@@ -308,7 +308,7 @@ QStyleOptionMenuItem QMenuBarPrivate::getStyleOption(const QAction *action) cons
 
     Example (from \l action/application.cpp):
     \quotefile action/application.cpp
-    \skipto file = new QMenu
+    \skipto file = new
     \printuntil fileNewAction
 
     Menu items may be removed with removeAction().

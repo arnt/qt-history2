@@ -1300,8 +1300,7 @@ int QFtpPrivate::addCommand(QFtpCommand *cmd)
 
 
 /*!
-    Constructs a QFtp object. The \a parent and \a name parameters
-    are passed to the QObject constructor.
+    Constructs a QFtp object with the given \a parent.
 */
 QFtp::QFtp(QObject *parent)
     : QObject(*new QFtpPrivate, parent)
@@ -1410,6 +1409,8 @@ QFtp::QFtp(QObject *parent, const char *name)
     the currentCommand() is \c List.
 
     \value None No command is being executed.
+    \value SetTransferMode set the \link TransferMode transfer\endlink mode.
+    \value SetProxy switch proxying on or off.
     \value ConnectToHost connectToHost() is being executed.
     \value Login login() is being executed.
     \value Close close() is being executed.

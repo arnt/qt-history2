@@ -763,10 +763,9 @@ void QSocketPrivate::connectToNextAddress()
 
 
 /*!
-    Creates a QSocket object in \c QSocket::Idle state.
+    Creates a QSocket object in the \c QSocket::Idle state.
 
-    The \a parent and \a name arguments are passed on to the QObject
-    constructor.
+    The \a parent argument is passed on to the QObject constructor.
 */
 
 QSocket::QSocket(QObject *parent)
@@ -919,10 +918,10 @@ void QSocket::connectToHost(const QString &host, Q_UINT16 port)
 */
 
 /*!
-    \fn void QSocket::error(int)
+    \fn void QSocket::error(int err)
 
-    This signal is emitted after an error occurred. The parameter is
-    the \l Error value.
+    This signal is emitted after an error occurred. The \a err
+    parameter contains an \l Error value.
 */
 
 /*!
@@ -1025,9 +1024,9 @@ Q_ULONG QSocket::bytesAvailable() const
     Returns the number of bytes available.
 
     If \a timeout is non-null and no error occurred (i.e. it does not
-    return -1): this function sets \a *timeout to true, if the reason
+    return -1): this function sets \c{*}\a{timeout} to true, if the reason
     for returning was that the timeout was reached; otherwise it sets
-    \a *timeout to false. This is useful to find out if the peer
+    \c{*}\a{timeout} to false. This is useful to find out if the peer
     closed the connection.
 
     \warning This is a blocking call and should be avoided in
