@@ -1157,6 +1157,8 @@ QPixmap QPixmap::grabWidget( QWidget * widget, int x, int y, int w, int h )
 	return res;
 
     res.resize( w, h );
+    if( res.isNull() )
+	return res;
     res.fill( widget, QPoint( w,h ) );
     QPixmap tmp( grabChildWidgets( widget ) );
     ::bitBlt( &res, 0, 0, &tmp, x, y, w, h );
