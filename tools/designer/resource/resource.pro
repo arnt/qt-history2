@@ -2,6 +2,7 @@ TEMPLATE	= lib
 OBJECTS_DIR	= .
 CONFIG		+= qt warn_on release
 win32:CONFIG	+= static
+win32:CONFIG	-= dll
 SOURCES		= qwidgetfactory.cpp \
 		  ../shared/widgetdatabase.cpp \
 		  ../shared/domtool.cpp \
