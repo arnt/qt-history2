@@ -16,5 +16,6 @@
 InvisibleWidget::InvisibleWidget(QWidget *parent)
     : QWidget(parent)
 {
+    setAttribute(Qt::WA_NoChildEventsForParent);
 }
 
