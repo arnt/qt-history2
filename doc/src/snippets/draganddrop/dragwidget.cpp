@@ -81,8 +81,14 @@ void DragWidget::mouseMoveEvent(QMouseEvent *event)
     mimeData->setData(mimeType, data);
     drag->setMimeData(mimeData);
 
-    QDrag::DropAction dropAction = drag->start(QDrag::CopyAction
-        | QDrag::MoveAction | QDrag::LinkAction | QDrag::IgnoreAction);
+    QDrag::DropAction dropAction;
+
+    if (event->button() & Qt::ShiftModifier) {
+        dropAction = drag->start(QDrag::MoveAction);
+        qDebug("Move");
+    }
+    else
+        dropAction = drag->start(QDrag::CopyAction);
 
     switch (dropAction) {
         case QDrag::CopyAction:
@@ -90,12 +96,6 @@ void DragWidget::mouseMoveEvent(QMouseEvent *event)
             break;
         case QDrag::MoveAction:
             emit dragResult(tr("The text was moved."));
-            break;
-        case QDrag::LinkAction:
-            emit dragResult(tr("The text was linked."));
-            break;
-        case QDrag::IgnoreAction:
-            emit dragResult(tr("The drag was ignored."));
             break;
         default:
             emit dragResult(tr("Unknown action."));
