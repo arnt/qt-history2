@@ -281,6 +281,13 @@ bool QPrinter::cmd(int c, QPainter *, QPDevCmdParam *)
         if(PMSessionGetGraphicsContext(psession, kPMGraphicsContextQuickdraw, 
 					&hd) != noErr) //get the gworld
             return FALSE;
+	if(fullPage()) {
+	    QSize marg(margins());
+	    QMacSavedPortInfo mp(this);
+	    SetOrigin(marg.width(), marg.height());
+	} else {
+	    SetOrigin(0, 0);
+	}
         state = PST_ACTIVE;
     } else if(c == PdcEnd) {
         if(hd && state != PST_IDLE) {
