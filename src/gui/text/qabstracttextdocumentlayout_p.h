@@ -17,6 +17,8 @@ public:
     Q_DECLARE_PUBLIC(QAbstractTextDocumentLayout)
 
     HandlerHash handlers;
+
+    void handlerDestroyed(QObject *obj);
 };
 
 

@@ -196,12 +196,12 @@ void QAbstractTextDocumentLayout::drawObject(QPainter *p, const QRect &rect, QTe
     }
 }
 
-void QAbstractTextDocumentLayout::handlerDestroyed(QObject *obj)
+void QAbstractTextDocumentLayoutPrivate::handlerDestroyed(QObject *obj)
 {
-    HandlerHash::Iterator it = d->handlers.begin();
-    while (it != d->handlers.end())
+    HandlerHash::Iterator it = handlers.begin();
+    while (it != handlers.end())
         if ((*it).component == obj)
-            it = d->handlers.erase(it);
+            it = handlers.erase(it);
         else
             ++it;
 }
@@ -254,3 +254,6 @@ QString QAbstractTextDocumentLayout::anchorAt(const QPoint& pos) const
     QTextCharFormat fmt = pieceTable->formatCollection()->charFormat(it->format);
     return fmt.anchorName();
 }
+
+#include "moc_qabstracttextdocumentlayout.cpp"
+
