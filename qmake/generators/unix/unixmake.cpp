@@ -144,7 +144,7 @@ UnixMakefileGenerator::init()
 		if ( !project->isEmpty("QMAKE_RPATH") )
 		    project->variables()["QMAKE_LIBDIR_FLAGS"] += varGlue("QMAKE_LIBDIR_QT", " " + var("QMAKE_RPATH"), 
 									  " " + var("QMAKE_RPATH"), "");
-		project->variables()["QMAKE_LIBDIR_FLAGS"] += varGlue("QMAKE_LIBDIR_QT", " -L", " -L", "");
+		project->variables()["QMAKE_LIBDIR_FLAGS"] += varGlue("QMAKE_LIBDIR_QT", "-L", " -L", "");
 	    }
 	    if (project->isActiveConfig("thread") && !project->isEmpty("QMAKE_LIBS_QT_THREAD"))
 		project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_QT_THREAD"];
@@ -307,7 +307,7 @@ UnixMakefileGenerator::processPrlFiles()
 	    QStringList l_out;
 	    QStringList &l = project->variables()[lflags[i]];
 	    for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
-		QString opt = (*it);
+		QString opt = (*it).stripWhiteSpace();;
 		if(opt.left(1) == "-") {
 		    if(opt.left(2) == "-L") {
 			QString r = opt.right(opt.length() - 2), l = r;
