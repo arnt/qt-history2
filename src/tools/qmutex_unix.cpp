@@ -360,7 +360,7 @@ int QRecursiveMutexPrivate::type() const
 
 
 /*!
-  \class QMutex qthread.h
+  \class QMutex qmutex.h
   \brief The QMutex class provides access serialization between threads.
 
   \ingroup thread
@@ -507,5 +507,173 @@ bool QMutex::tryLock()
 {
     return d->trylock();
 }
+
+/*!
+  \class QMutexLocker qmutex.h
+  \brief The QMutexLocker class simplifies locking and unlocking of QMutex.
+
+  \ingroup thread
+  \ingroup environment
+
+  The purpose of QMutexLocker is to simplify QMutex locking and unlocking.
+  Locking and unlocking a QMutex in complex functions and statements or in
+  exception handling code is error prone and difficult to debug.  QMutexLocker
+  should be used in such situations to ensure that the state of the mutex is
+  well defined and always locked and unlocked properly.
+
+  QMutexLocker should be created within a function where a QMutex needs to be
+  locked.  The mutex is locked when QMutexLocker is created, and unlocked when
+  QMutexLocker is destroyed.
+
+  For example, this complex function locks a QMutex upon entering the function
+  and unlocks the mutex at all the exit points:
+
+  \code
+  int complexFunction( int flag )
+  {
+      mutex.lock();
+
+      int return_value = 0;
+
+      switch ( flag ) {
+      case 0:
+      case 1:
+          {
+              mutex.unlock();
+	      return moreComplexFunction( flag );
+          }
+
+      case 2:
+          {
+	      int status = anotherFunction();
+	      if ( status < 0 ) {
+	          mutex.unlock();
+		  return -2;
+	      }
+	      return_value = status + flag;
+              break;
+	  }
+
+      default:
+          {
+              if ( flag > 10 ) {
+	          mutex.unlock();
+		  return -1;
+	      }
+	      break;
+	  }
+      }
+
+      mutex.unlock();
+      return return_value;
+  }
+  \endcode
+
+  This example function will get more complicated as it is developed, which
+  increases the opportunity for errors to occur.
+
+  Using QMutexLocker greatly simplifies the code, and makes it more readable:
+
+  \code
+  int complexFunction( int flag )
+  {
+      QMutexLocker locker( &mutex );
+
+      int return_value = 0;
+
+      switch ( flag ) {
+      case 0:
+      case 1:
+          {
+	      return moreComplexFunction( flag );
+          }
+
+      case 2:
+          {
+	      int status = anotherFunction();
+	      if ( status < 0 )
+		  return -2;
+	      return_value = status + flag;
+              break;
+	  }
+
+      default:
+          {
+              if ( flag > 10 )
+		  return -1;
+	      break;
+	  }
+      }
+
+      return return_value;
+  }
+  \endcode
+
+  Now, the mutex will always be unlocked when the QMutexLocker object is
+  destroyed (when the function returns).
+
+  The same principle applies to code that throws and catches exceptions.  An
+  exception that is not caught in the function that has locked the mutex has
+  no way of unlocking the mutex before the exception is passed up the stack
+  to the calling function.
+
+  QMutexLocker also provides a mutex() member function that returns the
+  mutex on which the QMutexLocker is operating.  This is useful for
+  code that needs access to the mutex, such as QWaitCondition::wait().  For
+  example:
+
+  \code
+  class SignalWaiter
+  {
+  private:
+      QMutexLocker locker;
+
+  public:
+      SignalWaiter( QMutex *mutex )
+        : locker( mutex )
+      {
+      }
+
+      void waitForSignal()
+      {
+          ...
+	  ...
+	  ...
+
+	  while ( ! signalled )
+              waitcondition.wait( locker.mutex() );
+
+	  ...
+	  ...
+	  ...
+      }
+  };
+  \endcode
+
+  \sa QMutex, QWaitCondition
+*/
+
+/*! \fn QMutexLocker::QMutexLocker( QMutex *mutex )
+
+  Constructs a QMutexLocker and locks \a mutex.  The mutex will be unlocked
+  when the QMutexLocker is destroyed.
+
+  \sa QMutex::lock()
+*/
+
+/*! \fn QMutexLocker::~QMutexLocker()
+
+  Destroys the QMutexLocker and unlocks the mutex which was locked in the
+  constructor.
+
+  \sa QMutexLocker::QMutexLocker(), QMutex::unlock()
+*/
+
+/*! \fn QMutex *QMutexLocker::mutex() const
+
+  Returns a pointer to the mutex which was locked in the constructor.
+
+  \sa QMutexLocker::QMutexLocker()
+*/
 
 #endif // QT_THREAD_SUPPORT

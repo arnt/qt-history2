@@ -72,6 +72,39 @@ private:
 #endif
 };
 
+class Q_EXPORT QMutexLocker
+{
+public:
+    QMutexLocker( QMutex * );
+    ~QMutexLocker();
+
+    QMutex *mutex() const;
+
+private:
+    QMutex *mtx;
+
+#if defined(Q_DISABLE_COPY)
+    QMutexLocker( const QMutexLocker & );
+    QMutexLocker &operator=( const QMutexLocker & );
+#endif
+};
+
+inline QMutexLocker::QMutexLocker( QMutex *m )
+    : mtx( m )
+{
+    mtx->lock();
+}
+
+inline QMutexLocker::~QMutexLocker()
+{
+    mtx->unlock();
+}
+
+inline QMutex *QMutexLocker::mutex() const
+{
+    return mtx;
+}
+
 #endif
 
 #endif
