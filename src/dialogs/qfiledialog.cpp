@@ -4267,9 +4267,11 @@ void QFileDialog::setMode( Mode newMode )
 	} else if ( newMode == ExistingFiles ) {
 	    files->setSelectionMode( QListView::Extended );
 	    d->moreFiles->setSelectionMode( QListBox::Extended );
+	    d->types->setEnabled( TRUE );
 	} else {
 	    files->setMultiSelection( FALSE );
 	    d->moreFiles->setMultiSelection( FALSE );
+	    d->types->setEnabled( TRUE );
 	}
 	rereadDir();
 	QUrlInfo f( d->url, "." );
