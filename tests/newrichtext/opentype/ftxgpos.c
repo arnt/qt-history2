@@ -2376,7 +2376,13 @@
       j--;
     }
 
-    if ( property != TTO_BASE_GLYPH )
+    /*
+      According to the specs this should only be used on base glyphs, but MS mangal
+      defines the attachments for [Consonant+Nukta] in here (even though the ligature
+      [Consonant+Nukta] has TTO_LIGATURE property. Well, if the font is correctly built, there will
+      not be attachments to the ligatures defined here, so allowing this to proceed can't really hurt
+    */
+    if ( property != TTO_BASE_GLYPH && property != TTO_LIGATURE )
       return TTO_Err_Not_Covered;
 
     if ( i > in->pos )
@@ -3519,8 +3525,8 @@
       /* We check whether the specific class is used at all.  If not,
          class 0 is used instead.                                     */
 
-      if ( !d[c[n]] )
-        c[n] = 0;
+//       if ( !d[c[n]] )
+//         c[n] = 0;
     }
 
     FORGET_Frame();
@@ -4562,8 +4568,8 @@
       /* We check whether the specific class is used at all.  If not,
          class 0 is used instead.                                     */
 
-      if ( !d[b[n]] )
-        b[n] = 0;
+//       if ( !d[b[n]] )
+//         b[n] = 0;
     }
 
     FORGET_Frame();
@@ -4595,8 +4601,8 @@
     {
       i[n] = GET_UShort();
 
-      if ( !d[i[n]] )
-        i[n] = 0;
+//       if ( !d[i[n]] )
+//         i[n] = 0;
     }
 
     FORGET_Frame();
@@ -4628,8 +4634,8 @@
     {
       l[n] = GET_UShort();
 
-      if ( !d[l[n]] )
-        l[n] = 0;
+//       if ( !d[l[n]] )
+//         l[n] = 0;
     }
 
     FORGET_Frame();

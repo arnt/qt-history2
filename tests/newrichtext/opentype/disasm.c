@@ -126,6 +126,21 @@ DEF_DUMP (Feature)
     DUMP("<LookupIndex>%d</LookupIndex>\n", Feature->LookupListIndex[i]);
 }
 
+DEF_DUMP (MarkArray)
+{
+  int i;
+
+  DUMP_FUINT (MarkArray, MarkCount);
+
+  for (i=0; i < MarkArray->MarkCount; i++) {
+      TTO_MarkRecord *r = &MarkArray->MarkRecord[i];
+      DUMP("<MarkRecord> <!-- %d -->\n", i);
+      DUMP("   <Class>%d</Class>\n", r->Class );
+      DUMP("   <Anchor>%d</Anchor>\n", r->MarkAnchor.PosFormat );
+      DUMP("</MarkRecord>\n");
+  }
+}
+
 DEF_DUMP (FeatureList)
 {
   int i;
@@ -146,17 +161,19 @@ DEF_DUMP (Coverage)
 {
   DUMP_FUINT (Coverage, CoverageFormat);
 
-  if (Coverage->CoverageFormat == 1)
-    {
+  if (Coverage->CoverageFormat == 1) {
       int i;
       DUMP_FUINT (&Coverage->cf.cf1, GlyphCount);
 
       for (i = 0; i < Coverage->cf.cf1.GlyphCount; i++)
-	DUMP("<Glyph>%#4x</Glyph> <!-- %d -->\n", Coverage->cf.cf1.GlyphArray[i], i);
-    }
-  else
-    {
-    }
+	  DUMP("<Glyph>%#4x</Glyph> <!-- %d -->\n", Coverage->cf.cf1.GlyphArray[i], i);
+  } else {
+      int i;
+      TTO_CoverageFormat2 *cf2 = &Coverage->cf.cf2;
+      for ( i = 0; i < cf2->RangeCount; i++ ) {
+	  DUMP("<Glyph>%4x - %4x</Glyph>\n", cf2->RangeRecord[i].Start, cf2->RangeRecord[i].End );
+      }
+  }
 }
 
 DEF_DUMP (ClassDefinition)
@@ -527,6 +544,34 @@ Dump_GPOS_Lookup_Pair (TTO_SubTable *subtable, FILE *stream, int indent, FT_Bool
     }
 }
 
+static void
+Dump_GPOS_Lookup_Markbase (TTO_GPOS_SubTable *subtable, FILE *stream, int indent, FT_Bool is_gsub)
+{
+    int i;
+    TTO_MarkBasePos *markbase = &subtable->markbase;
+
+    DUMP_FUINT( markbase, PosFormat );
+    RECURSE( Coverage, Coverage, &markbase->MarkCoverage );
+    RECURSE( Coverage, Coverage, &markbase->BaseCoverage );
+    DUMP_FUINT( markbase, ClassCount );
+    RECURSE( MarkArray, MarkArray, &markbase->MarkArray );
+
+    DUMP("<BaseArray>\n");
+    indent++;
+    for ( i = 0; i < markbase->BaseArray.BaseCount; i++ ) {
+	int j;
+	TTO_BaseRecord *r = &markbase->BaseArray.BaseRecord[i];
+	DUMP("<BaseRecord> <!-- %d -->\n",  i);
+	for ( j = 0; j < markbase->ClassCount; j++ ) {
+	    DUMP("   <Anchor>%d</Anchor>\n", r->BaseAnchor->PosFormat );
+	}
+	DUMP("<BaseRecord>\n" );
+    }
+    indent--;
+    DUMP("</BaseArray>\n");
+}
+
+
 DEF_DUMP (Lookup)
 {
   int i;
@@ -578,6 +623,7 @@ DEF_DUMP (Lookup)
 	  break;
 	case GPOS_LOOKUP_MARKBASE:
 	  lookup_name = "MARKBASE";
+	  lookup_func = Dump_GPOS_Lookup_Markbase;
 	  break;
 	case GPOS_LOOKUP_MARKLIG:
 	  lookup_name = "MARKLIG";
