@@ -650,7 +650,8 @@ void QTreeView::drawBranches(QPainter *painter, const QRect &rect,
     const bool reverse = isRightToLeft();
     const int indent = d->indent;
     const int outer = d->rootDecoration ? 0 : 1;
-    int level = d->viewItems.at(d->current).level;
+    const int item = d->current;
+    int level = d->viewItems.at(item).level;
     QRect primitive(reverse ? rect.left() : rect.right(), rect.top(), indent, rect.height());
 
     QModelIndex parent = index.parent();
@@ -663,11 +664,15 @@ void QTreeView::drawBranches(QPainter *painter, const QRect &rect,
         // start with the innermost branch
         primitive.moveLeft(reverse ? primitive.left() : primitive.left() - indent);
         opt.rect = primitive;
+        const bool open = d->viewItems.at(item).open;
+        const bool children = (open // already layed out
+                               ? d->viewItems.at(item).total // this also covers the hidden items
+                               : d->model->hasChildren(index)); // not layed out yet, so we don't know
         opt.state = QStyle::State_Item
                     | (d->model->rowCount(parent) - 1 > index.row()
                       ? QStyle::State_Sibling : QStyle::State_None)
-                    | (d->model->hasChildren(index) ? QStyle::State_Children : QStyle::State_None)
-                    | (d->viewItems.at(d->current).open ? QStyle::State_Open : QStyle::State_None);
+                    | (children ? QStyle::State_Children : QStyle::State_None)
+                    | (open ? QStyle::State_Open : QStyle::State_None);
         style()->drawPrimitive(QStyle::PE_IndicatorBranch, &opt, painter, this);
     }
     // then go out level by level
