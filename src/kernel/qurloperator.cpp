@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurloperator.cpp#9 $
+** $Id: //depot/qt/main/src/kernel/qurloperator.cpp#10 $
 **
 ** Implementation of QFileDialog class
 **
@@ -39,6 +39,9 @@ struct QUrlOperatorPrivate
 
 /*!
   \class QUrlOperator qurloperator.h
+
+  \brief The QUrlOperator class provides common operations on URLs
+  ("get" and more).
 
   This class operates on hirachical filesystems (or sort of)
   using URLs. It's API allows do all common operations on it
