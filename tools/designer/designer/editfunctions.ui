@@ -159,8 +159,18 @@
                     <property name="name">
                         <cstring>showOnlySlots</cstring>
                     </property>
+                    <property name="focusPolicy">
+                        <enum>StrongFocus</enum>
+                    </property>
                     <property name="text">
                         <string>d&amp;isplay only Slots</string>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>Change displaying mode for functions</string>
+                    </property>
+                    <property name="whatsThis" stdset="0">
+                        <string>&lt;b&gt;Check this button if only the slots should be displayed&lt;/b&gt;&lt;p&gt;Otherwise all functions, i.e. normal C++ functions and slots are displayed.&lt;/p&gt;
+</string>
                     </property>
                 </widget>
                 <spacer>
@@ -314,10 +324,10 @@
                                         </sizepolicy>
                                     </property>
                                     <property name="toolTip" stdset="0">
-                                        <string>Change function name</string>
+                                        <string>Change the return type of the function</string>
                                     </property>
                                     <property name="whatsThis" stdset="0">
-                                        <string>&lt;b&gt;Change the name of the selected slot.&lt;/b&gt;&lt;p&gt;The name should include the argument list and must be syntactically correct.&lt;/p&gt;</string>
+                                        <string>&lt;b&gt;Change the return type of the selected function.&lt;/b&gt;&lt;p&gt;Specifiy here the datatype which should be returned by the function.&lt;/p&gt;</string>
                                     </property>
                                 </widget>
                             </hbox>
@@ -392,10 +402,10 @@
                                         </sizepolicy>
                                     </property>
                                     <property name="toolTip" stdset="0">
-                                        <string>Change slot access</string>
+                                        <string>Change function access</string>
                                     </property>
                                     <property name="whatsThis" stdset="0">
-                                        <string>&lt;b&gt;Change the access policy of the slot&lt;/b&gt;&lt;p&gt;All slots are created virtual and should be reimplemented in subclasses.&lt;/p&gt;</string>
+                                        <string>&lt;b&gt;Change the access policy of the function&lt;/b&gt;&lt;p&gt;All functions are created virtual and should be reimplemented in subclasses.&lt;/p&gt;</string>
                                     </property>
                                 </widget>
                                 <widget class="QLabel">
@@ -443,7 +453,7 @@
                                         <string>Change function access</string>
                                     </property>
                                     <property name="whatsThis" stdset="0">
-                                        <string>&lt;b&gt;Change the access policy of the slot&lt;/b&gt;&lt;p&gt;All slots are created virtual and should be reimplemented in subclasses.&lt;/p&gt;</string>
+                                        <string>&lt;b&gt;Change the access policy of the function&lt;/b&gt;&lt;p&gt;All functions are created virtual and should be reimplemented in subclasses.&lt;/p&gt;</string>
                                     </property>
                                 </widget>
                                 <widget class="QLabel">
@@ -473,6 +483,12 @@
                                     </item>
                                     <property name="name">
                                         <cstring>functionType</cstring>
+                                    </property>
+                                    <property name="toolTip" stdset="0">
+                                        <string>Change function type</string>
+                                    </property>
+                                    <property name="whatsThis" stdset="0">
+                                        <string>&lt;b&gt;Change the type of the function.&lt;/b&gt;&lt;p&gt;The type specifies if the function is either a slot or a normal C++ function.&lt;/p&gt;</string>
                                     </property>
                                 </widget>
                                 <spacer>
