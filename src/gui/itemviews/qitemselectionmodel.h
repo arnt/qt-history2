@@ -19,7 +19,7 @@
 #include <qlist.h>
 #endif
 
-class QItemSelectionRange
+class Q_GUI_EXPORT QItemSelectionRange
 {
 
 public:
@@ -133,7 +133,7 @@ protected:
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QItemSelectionModel::SelectionFlags);
 
-class QItemSelection : public QList<QItemSelectionRange>
+class Q_GUI_EXPORT QItemSelection : public QList<QItemSelectionRange>
 {
 public:
     QItemSelection() {}
