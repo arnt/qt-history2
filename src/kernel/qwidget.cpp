@@ -1199,7 +1199,7 @@ void QWidget::styleChange( QStyle& )
 
 /*!
   \fn bool QWidget::isDialog() const
-  
+
   Returns TRUE if the widget is a dialog widget, otherwise FALSE.
 
   A dialog widget is a secondary top-level widget.
@@ -3590,36 +3590,30 @@ bool QWidget::close( bool alsoDelete )
     if ( is_closing )
 	return TRUE;
     is_closing = 1;
-
-    WId	 id	= winId();
+    WId id	= winId();
     bool isMain = qApp->mainWidget() == this;
     bool checkLastWindowClosed = isTopLevel() && !isPopup();
     QCloseEvent e;
     QApplication::sendEvent( this, &e );
-    bool accept = e.isAccepted();
-    if ( !QWidget::find(id) ) {			// widget was deleted
-	accept = TRUE;
-    } else {
-	if ( accept ) {
-	    hide();
-	    if ( alsoDelete || testWFlags(WDestructiveClose) ) {
-		if ( checkLastWindowClosed && noMoreToplevels() )
-		    emit qApp->lastWindowClosed();
-		if ( isMain )
-		    qApp->quit();
-		delete this;
-		return TRUE;
-	    }
-	}
+    bool deleted = !QWidget::find(id);
+    if ( !deleted && !e.isAccepted() ) {
+	is_closing = 0;
+	return FALSE;
     }
-    if ( accept ) {	// last window closed?
-	if ( checkLastWindowClosed && noMoreToplevels() )
-	    emit qApp->lastWindowClosed();
-	if ( isMain )
-	    qApp->quit();
-    }
+    if ( !deleted )
+	hide();
+    if ( checkLastWindowClosed
+	 && qApp->receivers(SIGNAL(lastWindowClosed()))
+	 && noMoreToplevels() )
+	emit qApp->lastWindowClosed();
+    if ( isMain )
+	qApp->quit();
+    if ( deleted ) 
+	return TRUE;
     is_closing = 0;
-    return accept;
+    if ( alsoDelete || testWFlags(WDestructiveClose) )
+	delete this;
+    return TRUE;
 }
 
 
