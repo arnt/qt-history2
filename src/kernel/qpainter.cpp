@@ -2248,20 +2248,23 @@ void qt_format_text( const QFont& font, const QRect &r,
 
     if ( simple ) {
 	// we can use a simple drawText instead of the QTextParag.
-	QFontMetrics fm(font);
-	QRect br = fm.boundingRect(str, len);
-	if ( brect ) *brect = br;
+	QFontMetrics fm( font );
+	QRect br = fm.boundingRect( str, len );
+	if ( brect )
+	    *brect = br;
 	if ( painter ) {
+	    int w = fm.width( str, len );
+	    int h = fm.height();
 	    int xoff = r.x();
 	    int yoff = r.y() + fm.ascent();
 	    if ( tf & Qt::AlignBottom )
-		yoff += r.height() - br.height();
+		yoff += r.height() - h;
 	    else if ( tf & Qt::AlignVCenter )
-		yoff += ( r.height() - fm.height() )/2;
+		yoff += ( r.height() - h )/2;
 	    if ( tf & Qt::AlignRight )
-		xoff += r.width() - br.width();
+		xoff += r.width() - w;
 	    else if ( tf & Qt::AlignHCenter )
-		xoff += ( r.width() - br.width() )/2;
+		xoff += ( r.width() - w )/2;
 	    QRegion reg;
 	    if ( painter->hasClipping() )
 		reg = painter->clipRegion();
