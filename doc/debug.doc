@@ -1,0 +1,106 @@
+/****************************************************************************
+** $Id: debug.doc,v 1.1 1995/07/12 15:26:10 hanord Exp $
+**
+** Qt Debugging Techniques
+**
+** Copyright (C) 1995 by Troll Tech AS.  All rights reserved.
+**
+*****************************************************************************/
+
+/*!
+\page debug.html
+
+<title>Qt Debugging Techniques</title>
+</head><body>
+<h1>Qt Debugging Techniques</h1>
+<hr>
+
+<h2>Command Line Options</h2>
+
+When you run a Qt program you can specify several command line options
+for debugging purposes.
+<p>
+Notice that these options are only available in the development version of
+the Qt library, not in the production version.
+Currently, <a href=file:troll.html> Troll Tech</a> only supports a
+development version of the Qt library.
+<p>
+<a href=#memorychecking> Memory checking</a> (includes memory leak detection)
+options: <ul>
+<li> \c -memchk Turns memory checking on.
+<li> \c -memlog file Sets the memory checking log file. Default: MEMCHK.LOG
+<li> \c -membug n  Sets the size of max pointers to record. Default: 100000.
+</ul>
+<p>
+Other debugging options: <ul>
+<li>-nograb The application should never grab \link QWidget::grabMouse the
+mouse\endlink or \link QWidget::grabKeyboard() the keyboard \endlink.
+<li>-sync Runs the application in X synchronous mode.
+Synchronous mode forces the X server perform each X client request immediatly
+and not use a buffer optimizaton. It makes the program easier to debug.
+The -sync option is only valid for the X-Windows version of Qt.
+</ul>
+<p>
+<p>
+
+<hr>
+<h2>Memory Checking</h2> <a name=memorychecking>
+
+The Qt development library provides built-in memory checking.  It detects
+memory leaks (pointers that are never deleted) and attempts to delete
+invalid pointers.
+<p>
+Memory checking is enabled when starting a Qt program with the \e -memchk
+option.  A QApplication object is required for built-in memory
+checking to work.
+<p>
+Here is a buggy example program:
+\code
+// BUGGY.CPP
+int main( int argc, char **argv )
+{
+    QApplication( argc, argv );	// required!
+
+    int *p, *q, *r;
+    p = new int[10];
+    q = new int[12];		// q will never be deleted
+    q = p;			// oops, pointer lost
+    delete p;			// delete p (and q)
+    delete q;			// delete invalid pointer since q == p
+    delete r;			// delete invalid pointer r
+}
+\endcode
+<p>
+Run it: buggy -memchk
+<p>
+This example program probably crashes when it tries to delete q (depends
+on the robustness of the C library).  It also leaks an array of 12 ints.
+Using the built-in memory checking in Qt will help to uncover such errors.
+<p>
+Qt memory checking detects memory leaks and attempts to delete invalid
+pointers.  We recommend getting a tool like Purify (tm), Checker, Electric
+Fence, Bounds-Checker etc. for more advanced memory access and leak
+detection.
+<p>
+
+<hr>
+<h2>Macros and Functions for Debugging</h2>
+
+\code
+void f( char *p, int i )
+{
+ #if defined(CHECK_NULL)
+    if ( p == 0 )
+	warning( "f: Null pointer not allowed" );
+ #endif
+
+ #if defined(CHECK_RANGE)
+    if ( i < 0 )
+	warning( "f: The index cannot be negative" );
+ #endif
+}
+\endcode
+
+
+*/
+
