@@ -41,6 +41,7 @@ int main( int argc, char * argv[] )
     bool impl = FALSE;
     bool subcl = FALSE;
     bool imagecollection = FALSE;
+    bool imagecollection_tmpfile = FALSE;
 #if defined(UIB)
     bool binary = FALSE;
 #endif
@@ -50,6 +51,7 @@ int main( int argc, char * argv[] )
     const char* className = 0;
     const char* headerFile = 0;
     QCString outputFile;
+    QCString image_tmpfile;
     const char* projectName = 0;
     const char* trmacro = 0;
     bool nofwd = FALSE;
@@ -86,8 +88,14 @@ int main( int argc, char * argv[] )
 			break;
 		    }
 		    projectName = argv[++n];
-		} else
+		} else {
 		    projectName = &opt[1];
+		}
+		if ( argc > n+1 && qstrcmp( argv[n+1], "-f" ) == 0 ) {
+		    imagecollection_tmpfile = TRUE;
+		    image_tmpfile = argv[n+2];
+		    n += 2;
+		}
 #if defined(UIB)
 
 	    } else if ( opt == "binary" ) {
@@ -142,10 +150,10 @@ int main( int argc, char * argv[] )
 	    } else if ( opt == "fix" ) {
 		fix = TRUE;
 	    } else {
-		error = "Unrecognized option";
+		error = QString( "Unrecognized option " + opt ).latin1();
 	    }
 	} else {
-	    if ( imagecollection )
+	    if ( imagecollection && !imagecollection_tmpfile )
 		images << argv[n];
 	    else if ( fileName )		// can handle only one file
 		error = "Too many input files specified";
@@ -167,6 +175,8 @@ int main( int argc, char * argv[] )
 		 "\t<headerfile>    name of the declaration file\n"
 		 "Generate image collection:\n"
 		 "   %s  [options] -embed <project> <image1> <image2> <image3> ...\n"
+		 "or\n"
+		 "   %s  [options] -embed <project> -f <temporary file containing image names>\n"
 		 "\t<project>       project name\n"
 		 "\t<image[1-N]>    image files\n"
 #if defined(UIB)
@@ -189,12 +199,23 @@ int main( int argc, char * argv[] )
 		 "\t-L path         Additional plugin search path\n"
 		 "\t-version        Display version of uic\n"
 		 "\t-help           Display this information\n"
-		 , argv[0], argv[0], argv[0], argv[0], argv[0], argv[0]
+		 , argv[0], argv[0], argv[0], argv[0], argv[0], argv[0], argv[0]
 #if defined(UIB)
 		 , argv[0]
 #endif
 	    );
 	exit( 1 );
+    }
+
+    if ( imagecollection_tmpfile ) {
+	QFile ifile( image_tmpfile );
+	if ( ifile.open( IO_ReadOnly ) ) {
+	    QTextStream ts( &ifile );
+	    QString s = ts.read();
+	    images = QStringList::split( ' ', s );
+	    for ( QStringList::Iterator it = images.begin(); it != images.end(); ++it )
+		*it = (*it).simplifyWhiteSpace();
+	}
     }
 
 #if defined(UIB)
