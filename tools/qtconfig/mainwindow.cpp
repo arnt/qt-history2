@@ -572,7 +572,7 @@ MainWindow::MainWindow()
     inputStyle->hide();
     inputStyleLabel->hide();
 #endif
-    
+
 #ifdef Q_WS_X11
     xftcheckbox->setChecked( settings.readBoolEntry( "/qt/enableXft", TRUE ) );
     if ( xftcheckbox->isChecked() ) {
@@ -634,11 +634,6 @@ void MainWindow::fileSave()
 	settings.writeEntry("/qt/Palette/disabled", discg);
 
 	QStringList libpath = QApplication::libraryPaths();
-	QString QTDIRpath = getenv("QTDIR");
-	if ( ! QTDIRpath.isEmpty() ) {
-	    QTDIRpath += "/plugins";
-	    libpath.remove(QTDIRpath);
-	}
 	settings.writeEntry("/qt/libraryPath", libpath, ':');
 	settings.writeEntry("/qt/fontPath", fontpaths, ':');
 	settings.writeEntry("/qt/embedFonts", fontembeddingcheckbox->isChecked() );
@@ -658,7 +653,7 @@ void MainWindow::fileSave()
 
 	settings.writeEntry("/qt/useRtlExtensions", rtlExtensions->isChecked() );
 
-#ifdef Q_WS_X11	
+#ifdef Q_WS_X11
 	QString style = inputStyle->currentText();
 	QString str = "On The Spot";
 	if ( style == trUtf8( "Over The Spot" ) )
@@ -669,7 +664,7 @@ void MainWindow::fileSave()
 	    str = "Root";
         settings.writeEntry( "/qt/XIMInputStyle", inputStyle->currentText() );
 #endif
-	
+
 	QStringList effects;
 	if (effectcheckbox->isChecked()) {
 	    effects << "general";
