@@ -834,6 +834,7 @@ protected:
     virtual QTextParag::LineStart *bidiReorderLine( QTextString *string, QTextParag::LineStart *line, QTextString::Char *start,
 						    QTextString::Char *last, int align, int space );
     virtual bool isBreakable( QTextString *string, int pos ) const;
+    void insertLineStart( QTextParag *parag, int index, QTextParag::LineStart *ls );
 
 private:
     bool wrapEnabled;
@@ -1236,7 +1237,7 @@ class QTextFormatCollection
 public:
     QTextFormatCollection();
     ~QTextFormatCollection();
-    
+
     void setDefaultFormat( QTextFormat *f );
     QTextFormat *defaultFormat() const;
     QTextFormat *format( QTextFormat *f );

@@ -3878,6 +3878,21 @@ bool QTextFormatter::isBreakable( QTextString *string, int pos ) const
     return string->at( pos ).c.isSpace();
 }
 
+void QTextFormatter::insertLineStart( QTextParag *parag, int index, QTextParag::LineStart *ls )
+{
+    if ( index > 0 ) { // we can assume that only first line starts are insrted multiple times
+	parag->lineStartList().insert( index, ls );
+	return;
+    }
+    QMap<int, QTextParag::LineStart*>::Iterator it;
+    if ( ( it = parag->lineStartList().find( index ) ) == parag->lineStartList().end() ) {
+	parag->lineStartList().insert( index, ls );
+    } else {
+	parag->lineStartList().remove( it );
+	delete *it;
+	parag->lineStartList().insert( index, ls );
+    }
+}
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -3909,7 +3924,7 @@ int QTextFormatterBreakInWords::format( QTextDocument *doc,QTextParag *parag,
 
     int i = start;
     QTextParag::LineStart *lineStart = new QTextParag::LineStart( 0, 0, 0 );
-    parag->lineStartList().insert( 0, lineStart );
+    insertLineStart( parag, 0, lineStart );
 
     int col = 0;
     int ww = 0;
@@ -3947,7 +3962,7 @@ int QTextFormatterBreakInWords::format( QTextDocument *doc,QTextParag *parag,
 	    y += h;
 	    h = c->height();
 	    lineStart = new QTextParag::LineStart( y, h, h );
-	    parag->lineStartList().insert( i, lineStart );
+	    insertLineStart( parag, i, lineStart );
 	    c->lineStart = 1;
 	    firstChar = c;
 	    x = 0xffffff;
@@ -3966,7 +3981,7 @@ int QTextFormatterBreakInWords::format( QTextDocument *doc,QTextParag *parag,
 	    h = c->height();
 	    lineStart = formatLine( parag->string(), lineStart, firstChar, c-1 );
 	    lineStart->y = y;
-	    parag->lineStartList().insert( i, lineStart );
+	    insertLineStart( parag, i, lineStart );
 	    lineStart->baseLine = c->ascent();
 	    lineStart->h = c->height();
 	    c->lineStart = 1;
@@ -4034,7 +4049,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 
     int i = start;
     QTextParag::LineStart *lineStart = new QTextParag::LineStart( 0, 0, 0 );
-    parag->lineStartList().insert( 0, lineStart );
+    insertLineStart( parag, 0, lineStart );
     int lastBreak = -1;
     int tmpBaseLine = 0, tmph = 0;
     bool lastWasNonInlineCustom = FALSE;
@@ -4088,7 +4103,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 	    lineStart->y = y;
 	    lineStart->h = h;
 	    lineStart->baseLine = h;
-	    parag->lineStartList().insert( i, lineStart );
+	    insertLineStart( parag, i, lineStart );
 	    c->lineStart = 1;
 	    firstChar = c;
 	    tmpBaseLine = lineStart->baseLine;
@@ -4121,7 +4136,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 		tmph = c->height();
 		h = 0;
 		lineStart->y = y;
-		parag->lineStartList().insert( i, lineStart );
+		insertLineStart( parag, i, lineStart );
 		lineStart->baseLine = c->ascent();
 		lineStart->h = c->height();
 		c->lineStart = 1;
@@ -4143,7 +4158,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 		tmph = c->height();
 		h = tmph;
 		lineStart->y = y;
-		parag->lineStartList().insert( i + 1, lineStart );
+		insertLineStart( parag, i + 1, lineStart );
 		lineStart->baseLine = c->ascent();
 		lineStart->h = c->height();
 		c->lineStart = 1;
