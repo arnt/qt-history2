@@ -201,11 +201,13 @@ public:
     virtual int rowCount() const = 0;
     virtual int columnCount() const = 0;
 
+    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex(),
+                      QModelIndex::Type type = QModelIndex::View) const;
+
 protected:
     QAbstractTableModel(QAbstractItemModelPrivate &dd, QObject *parent);
 
 private:
-    QModelIndex index(int row, int column, const QModelIndex &parent, QModelIndex::Type type) const;
     QModelIndex parent(const QModelIndex &child) const;
 
     int rowCount(const QModelIndex &parent) const;
