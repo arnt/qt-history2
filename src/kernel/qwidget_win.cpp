@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#216 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#217 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -547,7 +547,7 @@ void QWidget::setCaption( const QString &caption )
   Create an icon mask the way Windows wants it using CreateBitmap.
 */
 
-static HBITMAP createIconMask( const QBitmap &bitmap )
+HBITMAP qt_createIconMask( const QBitmap &bitmap )
 {
     QImage bm = bitmap.convertToImage();
     int w = bm.width();
@@ -585,7 +585,7 @@ void QWidget::setIcon( const QPixmap &pixmap )
 	    mask.fill( color1 );
 	}
 	bitBlt( &pm, 0, 0, &pixmap );
-	HBITMAP im = createIconMask(mask);
+	HBITMAP im = qt_createIconMask(mask);
 	ICONINFO ii;
 	ii.fIcon    = TRUE;
 	ii.hbmMask  = im;
