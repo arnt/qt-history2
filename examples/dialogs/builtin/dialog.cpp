@@ -174,15 +174,17 @@ void Dialog::setFont()
 
 void Dialog::setExistingDirectory()
 {
-    /* TODO Correct once Qt 4 version works.
     QString directory = QFileDialog::getExistingDirectory(
                                 this, tr("QFileDialog::getExistingDirectory()"),
-                                directoryLabel->text(),
+                                directoryLabel->text()
+                                );
+                                /*
+                                ,
                                 QFileDialog::DontResolveSymlinks|
                                 QFileDialog::ShowDirsOnly);
+                                */
     if (!directory.isEmpty())
         directoryLabel->setText(directory);
-    */
 }
 
 
