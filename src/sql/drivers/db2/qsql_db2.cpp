@@ -729,8 +729,6 @@ bool QDB2Result::isNull( int i )
 
 int QDB2Result::numRowsAffected()
 {
-    if ( isSelect() )
-	return size();
     SQLINTEGER affectedRowCount = 0;
     SQLRETURN r = SQLRowCount( d->hStmt, &affectedRowCount );
     if ( r == SQL_SUCCESS || r == SQL_SUCCESS_WITH_INFO )
