@@ -517,7 +517,7 @@ MingwMakefileGenerator::init()
 	    exit(666);
 	}
 	project->variables()["RES_FILE"] = project->variables()["RC_FILE"];
-	project->variables()["RES_FILE"].value(0).replace(".rc",".o");
+        project->variables()["RES_FILE"].first().replace(".rc",".o");
 	project->variables()["POST_TARGETDEPS"] += project->variables()["RES_FILE"];
     }
     if ( !project->variables()["RES_FILE"].isEmpty())
