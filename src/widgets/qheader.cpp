@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#45 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#46 $
 **
 ** Implementation of QHeader widget class (table header)
 **
@@ -504,8 +504,8 @@ void QHeader::mousePressEvent( QMouseEvent *m )
     handleIdx = 0;
     int c = orient == Horizontal ? m->pos().x() : m->pos().y();
     int i = 0;
-    while ( i <= (int) count() ) {
-	if ( i+1 <= count() &&  pPos(i+1) - MINSIZE/2 < c &&
+    while ( i < (int) count() ) {
+	if ( pPos(i+1) - MINSIZE/2 < c &&
 	     c < pPos(i+1) + MINSIZE/2 ) {
 		handleIdx = i+1;
 		oldHIdxSize = cellSize( i );
@@ -514,7 +514,7 @@ void QHeader::mousePressEvent( QMouseEvent *m )
 	    else
 		state = Blocked;
 	    break;
-	} else if ( pPos(i)  < c && c < pPos( i+1 ) ) {
+	} else if (  pPos(i)  < c && c < pPos( i+1 ) ) {
 	    handleIdx = i;
 	    moveToIdx = -1;
 	    if ( data->clicks.testBit(i) )
