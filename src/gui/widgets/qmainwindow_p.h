@@ -69,44 +69,4 @@ public:
     QMap<QDockWindow*, bool> appropriate;
 };
 
-/* QMainWindowLayout, respects widthForHeight layouts (like the left
-  and right docks are)
-*/
-
-class QMainWindowLayout : public QLayout
-{
-    Q_OBJECT
-
-public:
-    QMainWindowLayout(QMainWindow *mw, QLayout* parent = 0);
-    ~QMainWindowLayout() {}
-
-    void addItem(QLayoutItem *);
-    void setLeftDock(QDockArea *l);
-    void setRightDock(QDockArea *r);
-    void setCentralWidget(QWidget *w);
-    bool hasHeightForWidth() const { return false; }
-    QSize sizeHint() const;
-    QSize minimumSize() const;
-    QLayoutItem *itemAt(int) const { return 0; } //###
-    QLayoutItem *takeAt(int) { return 0; } //###
-
-    QSizePolicy::ExpandData expanding() const { return QSizePolicy::BothDirections; }
-
-protected:
-    void setGeometry(const QRect &r) {
-        QLayout::setGeometry(r);
-        layoutItems(r);
-    }
-
-private:
-    int layoutItems(const QRect&, bool testonly = false);
-    int extraPixels() const;
-
-    QDockArea *left, *right;
-    QWidget *central;
-    QMainWindow *mainWindow;
-
-};
-
 #endif /* __QMAINWINDOW_P_H__ */
