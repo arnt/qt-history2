@@ -97,6 +97,8 @@ contains(QT_CONFIG, jpeg) {
 		  ../3rdparty/libjpeg/jutils.c \
 		  ../3rdparty/libjpeg/jmemnobs.c
         }
+} else {
+   DEFINES *= QT_NO_IMAGEIO_JPEG
 }
 
 #png support
@@ -124,4 +126,6 @@ contains(QT_CONFIG, png) {
 		  ../3rdparty/libpng/pngwtran.c \
 		  ../3rdparty/libpng/pngwutil.c
         }
+} else {
+   DEFINES *= QT_NO_IMAGEIO_PNG
 }
