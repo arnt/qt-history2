@@ -300,12 +300,14 @@ void MainWindow::printSetup()
 {
     if (!printer)
         printer = new QPrinter;
-    printer->printSetup();
+    QPrintDialog dialog(printer);
+    dialog.exec();
 }
 
 void MainWindow::pageSetup()
 {
     if (!printer)
         printer = new QPrinter;
-    printer->pageSetup();
+    QPrintDialog dialog(printer);
+    dialog.exec();
 }
