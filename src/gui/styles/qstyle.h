@@ -677,11 +677,14 @@ public:
 	// when the mouse is over the button
 	SH_ToolButton_Uses3D,
 
-	// bool - QSpinBox - animate a click when up or down is pressed in a spin box
-	SH_SpinBoxAnimateButton,
-
 	SH_ScrollBar_BackgroundRole,
 
+	// bool - QSpinBox - animate a click when up or down is pressed in a spin box
+	SH_SpinBoxAnimateButton,
+	// int - QSpinBox - autorepeat interval for keyboard on spinboxes
+	SH_SpinBoxKeyPressAutoRepeatrate,
+	// int - QSpinBox - autorepeat interval for mouse clicks on spinboxes
+	SH_SpinBoxClickAutoRepeatrate,
 	// do not add any values below/greater than this
 	SH_CustomBase =		0xf0000000
     };

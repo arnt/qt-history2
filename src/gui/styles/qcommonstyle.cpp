@@ -2035,7 +2035,7 @@ QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
 
 	switch (sc) {
 	case SC_SliderHandle: {
-            
+
             int sliderPos = 0;
             int len = pixelMetric(PM_SliderLength, sl);
             bool horizontal = sl->orientation() == Horizontal;
@@ -2704,6 +2704,14 @@ int QCommonStyle::styleHint(StyleHint sh, const QWidget * w, const QStyleOption 
 
     case SH_ToolButton_Uses3D:
 	ret = 1;
+	break;
+
+    case SH_SpinBoxClickAutoRepeatrate:
+	ret = 150;
+	break;
+
+    case SH_SpinBoxKeyPressAutoRepeatrate:
+	ret = 75;
 	break;
 
     default:
