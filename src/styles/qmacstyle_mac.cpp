@@ -505,6 +505,7 @@ void QMacStyle::drawPrimitive(PrimitiveElement pe,
     case PE_FocusRect:
 	break;     //This is not used because of the QAquaFocusWidget thingie..
     case PE_TabBarBase:
+	((QMacPainter *)p)->setport();
 	DrawThemeTabPane(qt_glb_mac_rect(r, p), tds);
 	break;
     case PE_HeaderArrow: //drawn in HeaderSection rather than separately..
@@ -847,8 +848,6 @@ void QMacStyle::drawControl(ControlElement element,
     case CE_TabBarTab: {
 	if(!widget)
 	    break;
-	if(how & Style_Sunken)
-	    tds = kThemeStatePressed;
 	QTabBar * tb = (QTabBar *) widget;
 	ThemeTabStyle tts = kThemeTabNonFront;
 	if(how & Style_Selected) {
@@ -868,14 +867,20 @@ void QMacStyle::drawControl(ControlElement element,
 	ThemeTabDirection ttd = kThemeTabNorth;
 	if(tb->shape() == QTabBar::RoundedBelow)
 	    ttd = kThemeTabSouth;
+	QRect tabr(r.x(), r.y(), r.width(), r.height() + pixelMetric(PM_TabBarBaseOverlap, widget));
 	((QMacPainter *)p)->setport();
-	DrawThemeTab(qt_glb_mac_rect(r, p, FALSE), tts, ttd, NULL, 0);
+	DrawThemeTab(qt_glb_mac_rect(tabr, p, FALSE), tts, ttd, NULL, 0);
 	if(!(how & Style_Selected)) {
-	    int height = kThemeLargeTabHeight;
-	    if(qt_aqua_size_constrain(widget) == QAquaSizeSmall)
-		height = kThemeSmallTabHeight;
-	    QRect pr = QRect(r.x() - 20, r.y() + height, r.width() + 20, 8);
+	    //The "fudge" is just so the left and right side doesn't
+	    //get drawn onto my widget (not sure it will really happen)
+	    const int fudge = 20;
+	    QRect pr = QRect(r.x() - fudge, r.bottom() - 2, 
+			     r.width() + (fudge * 2), pixelMetric(PM_TabBarBaseHeight, widget));
+	    p->save();
+	    p->setClipRect(QRect(pr.x() + fudge, pr.y(), pr.width() - (fudge * 2), pr.height()));
+	    ((QMacPainter *)p)->setport();
 	    DrawThemeTabPane(qt_glb_mac_rect(pr, p), tds);
+	    p->restore();
 	}
 	break; }
     case CE_PushButton: {
@@ -1284,7 +1289,7 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
 	GetThemeMetric(tm, &ret);
 	break; }
     case PM_TabBarBaseOverlap:
-	ret = kThemeTabPaneOverlap;
+	GetThemeMetric(kThemeMetricTabFrameOverlap, &ret);
 	break;
     case PM_IndicatorHeight: {
 	ThemeMetric tm = kThemeMetricCheckBoxHeight;
