@@ -297,7 +297,8 @@ public:
 	    motion +=
 		QPoint((signed char)buffer[1] + (signed char)buffer[3],
 		       -(signed char)buffer[2] + (signed char)buffer[4]);
-	    int nbstate = ~buffer[0] & 0x7;
+	    int t = ~buffer[0];
+	    int nbstate = ((t&3) << 1) | ((t&4) >> 2);
 	    if ( motion.x() || motion.y() || bstate != nbstate ) {
 		bstate = nbstate;
 		goodness++;
@@ -312,9 +313,11 @@ public:
 };
 
 class QAutoMouseSubHandler_ms : public QAutoMouseSubHandler_serial {
+    int mman;
 public:
     QAutoMouseSubHandler_ms(int f) : QAutoMouseSubHandler_serial(f)
     {
+	mman=0;
 	init();
     }
 
@@ -331,36 +334,42 @@ public:
 
     int tryData()
     {
-	int mman=0;
-	if ( (buffer[0] & 0x40) != 0x40 ) {
-	    if ( buffer[0] == 0x20 && (bstate & Qt::MidButton ) )
+	if ( !(buffer[0] & 0x40) ) {
+	    if ( buffer[0] == 0x20 && (bstate & Qt::MidButton) ) {
 		mman=1; // mouseman extension
+	    }
+	    return 1;
 	}
-//qDebug("%d/%d",nbuf,3+mman);
-	if ( nbuf >= 3+mman ) {
+	int extra = mman&&(bstate & Qt::MidButton);
+	if ( nbuf >= 3+extra ) {
 	    int nbstate = 0;
-	    if ( buffer[0] & 0x40 && !bstate && !buffer[1] && !buffer[2] ) {
+	    if ( buffer[0] == 0x40 && !bstate && !buffer[1] && !buffer[2] ) {
 		nbstate = Qt::MidButton;
 	    } else {
-		nbstate = ((buffer[0] & 0x20) >> 3)
-			| ((buffer[0] & 0x10) >> 4);
-		if ( mman && buffer[3] == 0x20 )
+		nbstate = ((buffer[0] & 0x20) >> 5)
+			| ((buffer[0] & 0x10) >> 3);
+		if ( extra && buffer[3] == 0x20 )
 		    nbstate = Qt::MidButton;
 	    }
 
-	    motion +=
-		QPoint((signed char)((buffer[0]&0x3)<<6)
-			|(signed char)(buffer[1]&0x3f),
-		       (signed char)((buffer[0]&0xc)<<4)
-			|(signed char)(buffer[2]&0x3f));
-	    if ( motion.x() || motion.y() || bstate != nbstate ) {
-		bstate = nbstate;
-		goodness++;
-	    } else {
+	    if ( buffer[1] & 0x40 ) {
 		badness++;
 		return 1;
+	    } else {
+		motion +=
+		    QPoint((signed char)((buffer[0]&0x3)<<6)
+			    |(signed char)(buffer[1]&0x3f),
+			   (signed char)((buffer[0]&0xc)<<4)
+			    |(signed char)(buffer[2]&0x3f));
+		if ( motion.x() || motion.y() || bstate != nbstate ) {
+		    bstate = nbstate;
+		    goodness++;
+		} else {
+		    badness++;
+		    return 1;
+		}
+		return 3+extra;
 	    }
-	    return 3+mman;
 	}
 	return 0;
     }
@@ -431,6 +440,13 @@ private:
 	if ( h.reliable() ) {
 	    mousePos += h.takeMotion();
 	    limitToScreen( mousePos );
+/*
+qDebug("%d,%d %c%c%c",
+mousePos.x(),mousePos.y(),
+(h.buttonState()&Qt::LeftButton)?'L':'.',
+(h.buttonState()&Qt::MidButton)?'M':'.',
+(h.buttonState()&Qt::RightButton)?'R':'.');
+*/
 	    emit mouseChanged(mousePos,h.buttonState());
 	    return TRUE;
 	} else {
