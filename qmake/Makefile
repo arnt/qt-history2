@@ -19,7 +19,7 @@ CFLAGS	    = -c -Fo$@ \
               -DQT_NO_COMPRESS -DUNICODE -DHAVE_QCONFIG_CPP -DQT_BUILD_QMAKE -DQT_NO_THREAD \
               -DQT_NO_QOBJECT
 CXXFLAGS    = $(CFLAGS)
-LFLAGS	    = 
+LFLAGS	    =
 LIBS	    = ole32.lib advapi32.lib
 LINKQMAKE   = $(LINK) $(LFLAGS) -DEBUG -OUT:qmake.exe $(OBJS) $(QTOBJS) $(LIBS)
 ADDCLEAN    = vc60.pdb vc70.pdb qmake.pdb qmake.ilk
@@ -50,7 +50,7 @@ ADDCLEAN    = qmake.tds
 #qmake code
 OBJS        = project.obj main.obj makefile.obj unixmake.obj unixmake2.obj mingw_make.obj \
               option.obj winmakefile.obj projectgenerator.obj property.obj meta.obj qtmd5.obj \
-              makefiledeps.obj metamakefile.obj xmloutput.obj 
+              makefiledeps.obj metamakefile.obj xmloutput.obj
 
 !IFNDEF QMAKE_OPENSOURCE_EDITION
 OBJS        = $(OBJS) borland_bmake.obj msvc_nmake.obj msvc_dsp.obj msvc_vcproj.obj \
@@ -63,6 +63,7 @@ CFLAGS      = $(CFLAGS) -DQMAKE_OPENSOURCE_EDITION
 QTOBJS= \
 	qbitarray.obj \
 	qbuffer.obj \
+	qbufferedfsfileengine.obj \
 	qbytearray.obj \
         qvsnprintf.obj \
 	qbytearraymatcher.obj \
@@ -109,6 +110,7 @@ qmake.exe: $(OBJS) $(QTOBJS)
 clean::
 	-del qbitarray.obj
 	-del qbuffer.obj
+	-del qbufferedfsfileengine.obj
 	-del qbytearray.obj
         -del qvsnprintf.obj
 	-del qbytearraymatcher.obj
@@ -145,31 +147,31 @@ clean::
 	-del qpoint.obj
 	-del qsize.obj
         -del qmetatype.obj
-	-del project.obj 
-	-del main.obj 
-	-del makefile.obj 
-	-del unixmake.obj 
-	-del unixmake2.obj 
+	-del project.obj
+	-del main.obj
+	-del makefile.obj
+	-del unixmake.obj
+	-del unixmake2.obj
 	-del mingw_make.obj
-	-del option.obj 
-	-del winmakefile.obj 
-	-del projectgenerator.obj 
-	-del property.obj 
-	-del meta.obj 
+	-del option.obj
+	-del winmakefile.obj
+	-del projectgenerator.obj
+	-del property.obj
+	-del meta.obj
 	-del qtmd5.obj
-	-del makefiledeps.obj 
-	-del metamakefile.obj 
-	-del xmloutput.obj 
-	-del borland_bmake.obj 
-	-del msvc_nmake.obj 
-	-del msvc_dsp.obj 
+	-del makefiledeps.obj
+	-del metamakefile.obj
+	-del xmloutput.obj
+	-del borland_bmake.obj
+	-del msvc_nmake.obj
+	-del msvc_dsp.obj
 	-del msvc_vcproj.obj
-	-del msvc_objectmodel.obj 
-	-del metrowerks_xml.obj 
+	-del msvc_objectmodel.obj
+	-del metrowerks_xml.obj
 	-del pbuilder_pbx.obj
-	-del vc60.pdb 
-	-del vc70.pdb 
-	-del qmake.pdb 
+	-del vc60.pdb
+	-del vc70.pdb
+	-del qmake.pdb
 	-del qmake.ilk
 	-del qmake.tds
 
@@ -274,6 +276,9 @@ qfileengine_win.obj: ..\src\core\io\qfileengine_win.cpp
 
 qfileengine.obj: ..\src\core\io\qfileengine.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\io\qfileengine.cpp
+
+qbufferedfsfileengine.obj: ..\src\core\io\qbufferedfsfileengine.cpp
+	$(CXX) $(CXXFLAGS) ..\src\core\io\qbufferedfsfileengine.cpp
 
 qtextcodec.obj: ..\src\codecs\qtextcodec.cpp
 	$(CXX) $(CXXFLAGS) ..\src\codecs\qtextcodec.cpp
