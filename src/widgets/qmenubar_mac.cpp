@@ -248,10 +248,14 @@ static QIntDict<QMenuBar> *menubars = NULL;
 void QMenuBar::macCreateNativeMenubar(QWidget *parent) 
 {
     mac_dirty_menubar = 1;
-    if((mac_eaten_menubar = parent && !parent->parentWidget())) {
+    if((!menubars || !menubars->find((int)parent)) && parent && !parent->parentWidget() && 
+       parent->inherits("QMainWindow")) {
+	mac_eaten_menubar = 1;
 	if(!menubars)
 	    menubars = new QIntDict<QMenuBar>();
 	menubars->insert((int)parent, this);
+    } else {
+	mac_eaten_menubar = 0;	
     }
 }
 void QMenuBar::macRemoveNativeMenubar()
