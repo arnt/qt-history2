@@ -151,14 +151,12 @@
     \value TabletRelease  A Wacom Tablet Release Event
     \value OkRequest  Internal event used by Qt on some platforms.
     \value HelpRequest  Internal event used by Qt on some platforms.
-
-    ###TBD!!!!
-    \value FontChange
-    \value EnabledChange
-    \value ActivationChange
-    \value StyleChange
-    \value IconTextChange 
-    \value ModifiedChange
+    \value FontChange Widget's font has changed
+    \value EnabledChange Widget's enabled state has changed
+    \value ActivationChange Widget's top level window activation state has changed
+    \value StyleChange Widget's style has been changed
+    \value IconTextChange Widget's icon text has been changed
+    \value ModifiedChange Widgets modification state has been changed
 
     \value User  User defined event.
     \value MaxUser  Last user event id.
