@@ -157,7 +157,7 @@ public:
 
     enum Type {
         X11,
-        Windows, Gdiplus,
+        Windows,
         QuickDraw, CoreGraphics, MacPrinter,
         QWindowSystem,
         PostScript,

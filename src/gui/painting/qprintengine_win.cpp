@@ -229,8 +229,6 @@ bool QWin32PrintEngine::begin(QPaintDevice *dev)
 	return false;
     }
 
-    d->forceGdi = true;
-
     bool ok = d->state == QPrinter::Idle;
 //     if (ok && !d->hdc) {
 // 	setup(0);
