@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#100 $
+** $Id: //depot/qt/main/src/tools/qstring.h#101 $
 **
 ** Definition of the QString class, extended char array operations,
 ** and QByteArray and QCString classes
@@ -311,8 +311,6 @@ public:
 
 #ifndef QT_NO_COMPAT
     const char* data() const { return ascii(); }
-    void detach() { }
-    uint size() const;
 #endif
 
 private:

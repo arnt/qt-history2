@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#169 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#170 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -472,7 +472,7 @@ QString &QString::operator=( const char *str )
     b.isEmpty();	// TRUE, because b.length() == 0
   \endcode
 
-  \sa isEmpty(), length(), size()
+  \sa isEmpty(), length()
 */
 
 /*!
@@ -483,7 +483,7 @@ QString &QString::operator=( const char *str )
 
   See example in isNull().
 
-  \sa isNull(), length(), size()
+  \sa isNull(), length()
 */
 
 /*!
@@ -493,7 +493,7 @@ QString &QString::operator=( const char *str )
 
   Null strings and empty strings have zero length.
 
-  \sa size(), isNull(), isEmpty()
+  \sa isNull(), isEmpty()
 */
 
 /*!
@@ -2030,15 +2030,6 @@ void QString::setExpand( uint index, QChar c )
 	d->unicode[--index]=' ';
 }
 
-
-/*!
-  \fn void QString::detach()
-
-  Obsolete.  This method is provided to aide porting to Qt 2.0.
-
-  In Qt 1.x, QString was explicitly shared.  Now it
-  is implicitly shared.  This function is a no-op.
-*/
 
 /*!
   \fn const char* QString::data() const
