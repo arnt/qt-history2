@@ -431,14 +431,14 @@ miInsertEdgeInET(EdgeTable *ET, EdgeTableEntry *ETE,
 	    if (!tmpSLLBlock)
 		return FALSE;
             (*SLLBlock)->next = tmpSLLBlock;
-            tmpSLLBlock->next = (ScanLineListBlock *)NULL;
+            tmpSLLBlock->next = 0;
             *SLLBlock = tmpSLLBlock;
             *iSLLBlock = 0;
         }
         pSLL = &((*SLLBlock)->SLLs[(*iSLLBlock)++]);
 
         pSLL->next = pPrevSLL->next;
-        pSLL->edgelist = (EdgeTableEntry *)NULL;
+        pSLL->edgelist = 0;
         pPrevSLL->next = pSLL;
     }
     pSLL->scanline = scanline;
@@ -446,7 +446,7 @@ miInsertEdgeInET(EdgeTable *ET, EdgeTableEntry *ETE,
     /*
      * now insert the edge in the right bucket
      */
-    prev = (EdgeTableEntry *)NULL;
+    prev = 0;
     start = pSLL->edgelist;
     while (start && (start->bres.minor < ETE->bres.minor))
     {
@@ -522,18 +522,18 @@ miCreateETandAET(int count, DDXPointPtr pts, EdgeTable *ET,
     /*
      *  initialize the Active Edge Table
      */
-    AET->next = (EdgeTableEntry *)NULL;
-    AET->back = (EdgeTableEntry *)NULL;
-    AET->nextWETE = (EdgeTableEntry *)NULL;
+    AET->next = 0;
+    AET->back = 0;
+    AET->nextWETE = 0;
     AET->bres.minor = MININT;
 
     /*
      *  initialize the Edge Table.
      */
-    ET->scanlines.next = (ScanLineList *)NULL;
+    ET->scanlines.next = 0;
     ET->ymax = MININT;
     ET->ymin = MAXINT;
-    pSLLBlock->next = (ScanLineListBlock *)NULL;
+    pSLLBlock->next = 0;
 
     PrevPt = &pts[count-1];
 
@@ -652,7 +652,7 @@ micomputeWAET(EdgeTableEntry *AET)
     register int inside = 1;
     register int isInside = 0;
 
-    AET->nextWETE = (EdgeTableEntry *)NULL;
+    AET->nextWETE = 0;
     pWETE = AET;
     AET = AET->next;
     while (AET)
@@ -671,7 +671,7 @@ micomputeWAET(EdgeTableEntry *AET)
         }
         AET = AET->next;
     }
-    pWETE->nextWETE = (EdgeTableEntry *)NULL;
+    pWETE->nextWETE = 0;
 }
 
 /*
