@@ -3831,7 +3831,7 @@ struct DriverTable
 #if !defined(QT_NO_QWS_TRANSFORMED)
     { "Transformed", qt_get_screen_transformed },
 #endif
-#if !defined(QT_NO_QWS_VGA16)
+#if !defined(QT_NO_QWS_VGA_16)
     { "VGA16", qt_get_screen_vga16 },
 #endif
     { 0,         0 },
