@@ -85,9 +85,7 @@ public:
     static void setIconSize( Size which, const QSize& size );
     static const QSize& iconSize( Size which );
 
-#if defined(Q_FULL_TEMPLATE_INSTANTIATION)
-    bool operator==( const QIconSet& ) const { return FALSE; }
-#endif
+    Q_DUMMY_COMPARISON_OPERATOR(QPixmap)
 
 private:
     void normalize( Size& which, const QSize& pixSize );

@@ -170,9 +170,7 @@ public:
     void x11SetScreen( int screen );
 #endif
 
-#if defined(Q_FULL_TEMPLATE_INSTANTIATION)
-    bool operator==( const QPixmap& ) const { return FALSE; }
-#endif
+    Q_DUMMY_COMPARISON_OPERATOR(QPixmap)
 
 protected:
     QPixmap( int w, int h, const uchar *data, bool isXbitmap );

@@ -94,9 +94,7 @@ public:
 	    :name(n), priority(p) {}
 	QString name;
 	Q_UINT16 priority;
-#if defined(Q_FULL_TEMPLATE_INSTANTIATION)
-	bool operator==( const MailServer& ) const { return FALSE; }
-#endif
+	Q_DUMMY_COMPARISON_OPERATOR(MailServer)
     };
     QValueList<MailServer> mailServers() const;
 
@@ -108,9 +106,7 @@ public:
 	Q_UINT16 priority;
 	Q_UINT16 weight;
 	Q_UINT16 port;
-#if defined(Q_FULL_TEMPLATE_INSTANTIATION)
-	bool operator==( const Server& ) const { return FALSE; }
-#endif
+	Q_DUMMY_COMPARISON_OPERATOR(Server)
     };
     QValueList<Server> servers() const;
 

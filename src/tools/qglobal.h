@@ -969,6 +969,22 @@ Q_EXPORT const char *qInstallPathData();
 
 #endif // __cplusplus
 
+// compilers which follow outdated template instantiation rules
+// require a class to have a comparison operator to exist when
+// a QValueList of this type is instantiated. It's not actually
+// used in the list, though. Hence the dummy implementation.
+// Just in case other code relies on it we better trigger a warning
+// mandating a real implementation.
+#ifdef Q_FULL_TEMPLATE_INSTANTIATION
+#  define Q_DUMMY_COMPARISON_OPERATOR(C) \
+    bool operator==( const C& ) const { \
+        qWarning( #C"::operator==( const "#C"& ) got called." ); \
+        return FALSE; \
+    }
+#else
+#  define Q_DUMMY_COMPARISON_OPERATOR(C)
+#endif
+
 #endif // QGLOBAL_H
 
 //

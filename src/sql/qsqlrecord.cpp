@@ -60,6 +60,7 @@ public:
 	    nogen = other.nogen;
 	    return *this;
 	}
+	Q_DUMMY_COMPARISON_OPERATOR(info)
 	QSqlField field;
 	bool    nogen;
     };

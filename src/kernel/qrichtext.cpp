@@ -1433,9 +1433,7 @@ struct Q_EXPORT QTextDocumentTag {
 	return *this;
     }
 
-#if defined(Q_FULL_TEMPLATE_INSTANTIATION)
-    bool operator==( const QTextDocumentTag& ) const { return FALSE; }
-#endif
+    Q_DUMMY_COMPARISON_OPERATOR(QTextDocumentTag)
 };
 
 
@@ -6335,6 +6333,7 @@ struct QPixmapInt
     QPixmapInt() : ref( 0 ) {}
     QPixmap pm;
     int	    ref;
+    Q_DUMMY_COMPARISON_OPERATOR(QPixmapInt)
 };
 
 static QMap<QString, QPixmapInt> *pixmap_map = 0;

@@ -703,6 +703,7 @@ struct Q_EXPORT QTextDocumentSelection
 {
     QTextCursor startCursor, endCursor;
     bool swapped;
+    Q_DUMMY_COMPARISON_OPERATOR(QTextDocumentSelection)
 };
 
 #if defined(Q_TEMPLATEDLL)
@@ -1067,6 +1068,7 @@ private:
 struct Q_EXPORT QTextParagraphSelection
 {
     int start, end;
+    Q_DUMMY_COMPARISON_OPERATOR(QTextParagraphSelection)
 };
 
 struct Q_EXPORT QTextLineStart
