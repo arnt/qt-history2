@@ -49,6 +49,10 @@ void QFileInfo::slashify( QString& )
 
 extern bool qt_file_access( const QString& fn, int t );
 
+/*!
+  Returns TRUE if we are pointing to a real file.
+  \sa isDir(), isSymLink()
+*/
 bool QFileInfo::isFile() const
 {
     if ( !fic || !cache )
