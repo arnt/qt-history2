@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#92 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#93 $
 **
 ** Implementation of QDir class
 **
@@ -559,8 +559,10 @@ bool QDir::cdUp()
   Sets the name filter used by entryList() and entryInfoList().
 
   The name filter is a wildcarding filter that understands "*" and "?"
-  wildcards, if you want entryList() and entryInfoList() to list all files
-  ending with ".cpp", you simply call dir.setNameFilter("*.cpp");
+  wildcards, You may specify several filter entries separated by a " ". If
+  you want entryList() and entryInfoList() to list all files ending with
+  ".cpp"and all files ending with ".h", you simply call
+  dir.setNameFilter("*.cpp *.h").
 
   \sa nameFilter()
 */
