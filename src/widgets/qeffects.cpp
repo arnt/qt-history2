@@ -129,11 +129,11 @@ void QAlphaWidget::run( int time )
     if ( duration < 0 )
 	duration = 200;
 
-    elapsed = 0;
-    checkTime.start();
-
     if ( !widget )
 	return;
+
+    elapsed = 0;
+    checkTime.start();
 
     showWidget = TRUE;
     widget->installEventFilter( this );
@@ -149,16 +149,15 @@ void QAlphaWidget::run( int time )
 				widget->geometry().x(), widget->geometry().y(),
 				widget->geometry().width(), widget->geometry().height() );
 
-    mixed = back.copy();
-
-    if ( !mixed.isNull() ) {
+    if ( !back.isNull() && checkTime.elapsed() < duration / 2 ) {
+        mixed = back.copy();
 	widget->setWState( WState_Visible );
 	widget->clearWState( WState_ForceHide );
 	pm = mixed;
 	show();
 
 	connect( &anim, SIGNAL(timeout()), this, SLOT(render()));
-	anim.start( 0 );
+	anim.start( 1 );
     } else {
         widget->clearWState( WState_Visible );
 	widget->setWState( WState_ForceHide );
@@ -220,21 +219,17 @@ void QAlphaWidget::render()
 	widget->clearWState( WState_Visible );
 	widget->setWState( WState_ForceHide );
 	
-	BackgroundMode bgm = widget->backgroundMode();
-	
 	if ( showWidget ) {
+	    BackgroundMode bgm = widget->backgroundMode();
 	    widget->setBackgroundMode( NoBackground );
 	    widget->show();
-	}
-	hide();
-	if ( showWidget ) {
+	    
 	    widget->clearWState( WState_Visible ); // prevent update in setBackgroundMode
 	    widget->setBackgroundMode( bgm );
 	    widget->setWState( WState_Visible );
-	    widget->update();
 	}
 	q_blend = 0;
-	QTimer::singleShot( 0, this, SLOT(goodBye()) );
+	QTimer::singleShot( 10, this, SLOT(goodBye()) );
     } else {
 	alphaBlend();
 	pm = mixed;
