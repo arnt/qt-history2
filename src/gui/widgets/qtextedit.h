@@ -41,7 +41,7 @@ class Q_GUI_EXPORT QTextEdit : public QAbstractScrollArea
     Q_ENUMS(WordWrap)
     Q_PROPERTY(AutoFormatting autoFormatting READ autoFormatting WRITE setAutoFormatting)
     Q_PROPERTY(bool tabChangesFocus READ tabChangesFocus WRITE setTabChangesFocus)
-    Q_PROPERTY(QString documentTitle READ documentTitle)
+    Q_PROPERTY(QString documentTitle READ documentTitle WRITE setDocumentTitle)
     Q_PROPERTY(bool undoRedoEnabled READ isUndoRedoEnabled WRITE setUndoRedoEnabled)
     Q_PROPERTY(WordWrap wordWrap READ wordWrap WRITE setWordWrap)
     Q_PROPERTY(int wrapColumnOrWidth READ wrapColumnOrWidth WRITE setWrapColumnOrWidth)
@@ -115,6 +115,8 @@ public:
     bool tabChangesFocus() const;
     void setTabChangesFocus(bool b);
 
+    inline void setDocumentTitle(const QString &title)
+    { document()->setMetaInformation(QTextDocument::DocumentTitle, title); }
     inline QString documentTitle() const
     { return document()->metaInformation(QTextDocument::DocumentTitle); }
 
