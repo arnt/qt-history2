@@ -31,6 +31,7 @@
 #include <qdatastream.h>
 #include <qprinter.h>
 #include <qsimplerichtext.h>
+#include <qpainter.h>
 #include <qpaintdevicemetrics.h>
 
 #include <ctype.h>

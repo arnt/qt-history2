@@ -18,6 +18,7 @@
 #include <qpixmap.h>
 #include <qlabel.h>
 #include <qimage.h>
+#include <qpainter.h>
 
 
 class MyListBoxItem : public QListBoxItem
