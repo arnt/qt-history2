@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#16 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#17 $
 **
 ** Implementation of QWidget and QView classes for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#16 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#17 $";
 #endif
 
 
@@ -113,13 +113,6 @@ bool QWidget::create()				// create widget
 				 &v );
     }
     else if ( overlap ) {			// top level widget
-#if 0
-	XSetWindowAttributes v;
-	v.bit_gravity = NorthWestGravity;	// don't erase when resizing
-	XChangeWindowAttributes( dpy, id,
-				 CWBitGravity,
-				 &v );
-#endif
 	XSizeHints size_hints;
 	size_hints.flags = PPosition | PSize | PWinGravity;
 	size_hints.x = rect.left();
@@ -141,6 +134,13 @@ bool QWidget::create()				// create widget
 	Atom protocols[1];
 	protocols[0] = q_wm_delete_window;	// support del window protocol
 	XSetWMProtocols( dpy, id, protocols, 1 );
+    }
+    if ( testFlag(WResizeNoErase) ) {
+	XSetWindowAttributes v;
+	v.bit_gravity = NorthWestGravity;	// don't erase when resizing
+	XChangeWindowAttributes( dpy, id,
+				 CWBitGravity,
+				 &v );
     }
     setMouseMoveEvents( FALSE );		// events only when button down
     gc = qXAllocGC( fnt.fontId(), bg_col.pixel(),
