@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmsgbox.h#30 $
+** $Id: //depot/qt/main/src/dialogs/qmsgbox.h#31 $
 **
 ** Definition of QMessageBox class
 **
@@ -72,7 +72,7 @@ public:
     static void about( QWidget *parent, const char *caption,
 		       const char *text );
 
-    static void aboutQt( QWidget *parent, const char *caption );
+    static void aboutQt( QWidget *parent, const char *caption=0 );
 
 #if 1 /* OBSOLETE */
     static int message( const char *caption,

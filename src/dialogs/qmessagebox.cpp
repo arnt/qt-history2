@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#49 $
+** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#50 $
 **
 ** Implementation of QMessageBox class
 **
@@ -16,11 +16,8 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-#include "qlayout.h"
-#include "qmlined.h"
-#include "qpushbt.h"
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#50 $");
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#49 $");
 
 // Message box icons, from page 210 of the Windows style guide.
 
@@ -524,6 +521,7 @@ void QMessageBox::resizeButtons()
     for ( i=0; i<mbd->numButtons; i++ )
 	mbd->pb[i]->resize( maxSize );
 }
+
 
 /*!
   Returns the message box text currently set, or null if no text has been set.
@@ -1175,71 +1173,27 @@ int QMessageBox::critical( QWidget *parent, const char *caption,
 }
 
 
-static const char * longTextAboutQt =
-"Qt is cool\n";
+static const char *textAboutQt =
+"This program was developed with the cross-platform GUI library Qt.\n\n"
+"Qt is a product of Troll Tech AS (http://www.troll.no).\n"
+"The free edition of Qt may be used freely to develop free software\n"
+"on the X Window System.\n\n"
+"If you develop non-free software or want to use Qt to develop\n"
+"software for Microsoft Windows, you need the professional edition.\n"
+"Please contact sales@troll.no for information and pricing.";
 
 
-/*!  Displays a simple message box about Qt, with window caption \a
+/*!
+  Displays a simple message box about Qt, with window caption \a
   caption and optionally centered over \a parent.
 
-  This is neat for inclusion into the Help menu - see the menu.cpp
+  This is neat for inclusion into the Help menu.  See the menu.cpp
   example.
 */
 
 void QMessageBox::aboutQt( QWidget *parent, const char *caption )
 {
-    int r;
-    r = information( parent, caption,
-		     "This program uses Qt, a cross-platform GUI library.\n\n"
-		     "Qt is a product of Troll Tech AS (http://www.troll.no)\n"
-		     "and may be used freely for free software on the X\n"
-		     "Window System.\n\n"
-		     "If you want to use Qt on Microsoft Windows or for\n"
-		     "non-free software on the X Window System, please\n"
-		     "contact sales@troll.no.",
-		     "OK", "&More about Qt" );
-    if ( r != 1 )
-	return;
-
-    QDialog * tlw = new QDialog( 0, "Qt blurb", TRUE );
-    CHECK_PTR( tlw );
-
-    tlw->setCaption( QString( "About Qt - " ) + caption );
-
-    QGridLayout * l = new QGridLayout( tlw, 2, 2, 6 );
-    CHECK_PTR( l );
-
-    QMultiLineEdit * m = new QMultiLineEdit( tlw, "details about Qt" );
-    CHECK_PTR( m );
-    l->addMultiCellWidget( m, 0, 0, 0, 1 );
-
-    m->setText( longTextAboutQt );
-
-    QPushButton * ok = new QPushButton( "Close", tlw, "enough blurbery" );
-    CHECK_PTR( ok );
-    ok->setDefault( TRUE );
-    QSize s( ok->sizeHint() );
-    if ( ok->style() == WindowsStyle && s.width() < 75 )
-	s.setWidth( 75 );
-    ok->setFixedSize( s );
-    l->addWidget( ok, 1, 1 );
-
-    connect( ok, SIGNAL(clicked()), tlw, SLOT(accept()) );
-
-    l->activate();
-
-    s = QApplication::desktop()->size();
-    if ( s.width() > 400 )
-	s.setWidth( s.width()/2 );
-    if ( s.width() > 512 )
-	s.setWidth( 512 );
-
-    if ( s.height() > 600 )
-	s.setHeight( s.height()*2/3 );
-    if ( s.height() > 640 )
-	s.setHeight( 640 );
-
-    tlw->resize( s );
-
-    tlw->exec();
+    if ( !caption )
+	caption = "About Qt";
+    information( parent, caption, textAboutQt );
 }
