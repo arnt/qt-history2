@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsignal.cpp#29 $
+** $Id: //depot/qt/main/src/kernel/qsignal.cpp#30 $
 **
 ** Implementation of QSignal class
 **
@@ -154,7 +154,7 @@ bool QSignal::connect( const QObject *receiver, const char *member )
 bool QSignal::disconnect( const QObject *receiver, const char *member )
 {
     extern QCString qt_rmWS( const char *src );
-    if ( checkConnectArgs( SIGNAL(y(int)), receiver,  qt_rmWS(member) ) )
+    if ( receiver && checkConnectArgs( SIGNAL(y(int)), receiver,  qt_rmWS(member) ) )
 	return QObject::disconnect( (QObject *)this, SIGNAL(y(int)),
 				    receiver, member );
     else
@@ -187,8 +187,8 @@ bool QSignal::disconnect( const QObject *receiver, const char *member )
   Emits the signal.
   \sa isBlock()
 */
-void  QSignal::activate() 
-{ 
+void  QSignal::activate()
+{
     activate_signal("y(int)", val );
     activate_signal("x()");
 }
@@ -229,7 +229,7 @@ void QSignal::initMetaObject()			// initialize meta object
 	return;
     if ( !QObject::metaObject() )
 	QObject::initMetaObject();
-    
+
     typedef void(QSignal::*m2_t0)();
     typedef void(QSignal::*m2_t1)(int);
     m2_t0 v2_0 =  &QSignal::dummy;
@@ -242,5 +242,5 @@ void QSignal::initMetaObject()			// initialize meta object
     metaObj = QMetaObject::new_metaobject(
         "QSignal", "QObject",
         0, 0,
-        signal_tbl, 2 );             
+        signal_tbl, 2 );
 }
