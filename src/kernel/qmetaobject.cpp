@@ -38,8 +38,13 @@
 #include "qmetaobject.h"
 #include "qasciidict.h"
 
+#ifdef QT_THREAD_SUPPORT
+#include <private/qmutexpool_p.h>
+#endif // QT_THREAD_SUPPORT
+
 /*!
   \class QMetaData qmetaobject.h
+  \reentrant
 
   \brief The QMetaData class provides information about a member function that is known to the meta object system.
 
@@ -273,6 +278,10 @@ QMetaObject::~QMetaObject()
     delete slotDict;				// delete dicts
     delete signalDict;
     delete d;
+#ifdef QT_THREAD_SUPPORT
+    QMutexLocker( qt_global_mutexpool ?
+		  qt_global_mutexpool->get( &qt_metaobjects ) : 0 );
+#endif // QT_THREAD_SUPPORT
     if ( qt_metaobjects ) {
 	qt_metaobjects->remove( classname );
 	if ( qt_metaobjects->isEmpty() ) {
@@ -786,6 +795,10 @@ QMetaObject *QMetaObject::metaObject( const char *class_name )
 {
     if ( !qt_metaobjects )
 	return 0;
+#ifdef QT_THREAD_SUPPORT
+    QMutexLocker( qt_global_mutexpool ?
+		  qt_global_mutexpool->get( &qt_metaobjects ) : 0 );
+#endif // QT_THREAD_SUPPORT
     QtStaticMetaObjectFunction func = (QtStaticMetaObjectFunction)qt_metaobjects->find( class_name );
     if ( func )
 	return func();
@@ -797,6 +810,10 @@ bool QMetaObject::hasMetaObject( const char *class_name )
 {
     if ( !qt_metaobjects )
 	return FALSE;
+#ifdef QT_THREAD_SUPPORT
+    QMutexLocker( qt_global_mutexpool ?
+		  qt_global_mutexpool->get( &qt_metaobjects ) : 0 );
+#endif // QT_THREAD_SUPPORT
     return !!qt_metaobjects->find( class_name );
 }
 
@@ -1177,6 +1194,10 @@ bool QMetaProperty::reset( QObject* o ) const
 QMetaObjectCleanUp::QMetaObjectCleanUp( const char *mo_name, QtStaticMetaObjectFunction func )
     : metaObject( 0 )
 {
+#ifdef QT_THREAD_SUPPORT
+    QMutexLocker( qt_global_mutexpool ?
+		  qt_global_mutexpool->get( &qt_metaobjects ) : 0 );
+#endif // QT_THREAD_SUPPORT
     if ( !qt_metaobjects )
 	qt_metaobjects = new QAsciiDict<void>( 257 );
     qt_metaobjects->insert( mo_name, (void*)func );

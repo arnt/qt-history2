@@ -107,6 +107,7 @@ public:
 
     \ingroup objectmodel
     \mainclass
+    \reentrant
 
     QObject is the heart of the \link object.html Qt object model.
     \endlink The central feature in this model is a very powerful
@@ -375,6 +376,13 @@ QObject::QObject( QObject *parent, const char *name )
     outside the parent. If you still do, the QObject::destroyed()
     signal gives you an opportunity to detect when an object is
     destroyed.
+
+    \warning Deleting a QObject while pending events are waiting to be
+    delivered can cause a crash.  You must not delete the QObject
+    directly from a thread that is not the GUI thread.  Use the
+    QObject::deleteLater() method instead, which will cause the event
+    loop to delete the object after all pending events have been
+    delivered to the object.
 */
 
 QObject::~QObject()
