@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#69 $
+** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#70 $
 **
 ** Implementation of QTextCodec class
 **
@@ -456,16 +456,17 @@ QTextCodec* QTextCodec::codecForLocale()
 
 /*!
   Searches all installed QTextCodec objects, returning the one
-  which best matches given name.  May return NULL.
+  which best matches given name.  Returns NULL if no codec has
+  a match closeness above \a accuracy.
 
   \sa heuristicNameMatch()
 */
-QTextCodec* QTextCodec::codecForName(const char* hint)
+QTextCodec* QTextCodec::codecForName(const char* hint, int accuracy)
 {
     setup();
     QListIterator<QTextCodec> i(*all);
     QTextCodec* result = 0;
-    int best=0;
+    int best=accuracy;
     for ( QTextCodec* cursor; (cursor=i); ++i ) {
 	int s = cursor->heuristicNameMatch(hint);
 	if ( s > best ) {
