@@ -459,6 +459,9 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
         ulong wsa_mask = 0;
 
         if (customize) {
+            mwmhints.decorations = 0L;
+            mwmhints.flags |= MWM_HINTS_DECORATIONS;
+
             // All these buttons depend on the system menu, so we enable it
             if (flags & (Qt::WindowMinimizeButtonHint
                          | Qt::WindowMaximizeButtonHint
