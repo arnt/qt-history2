@@ -74,7 +74,7 @@ static void slashify( QString& s, bool allowMultiple = TRUE )
 
   \brief This class provides mainly an URL parser and
   simplifies working with URLs.
-  
+
   \ingroup misc
 
   The QUrl class is provided for a easy working with URLs.
@@ -953,7 +953,7 @@ void QUrl::addPath( const QString& pa )
 	else
 	    d->path = p;
     } else {
-	if ( p[ 0 ] != QChar( '/' ) && d->path[ (int)path().length() - 1 ] != '/' )
+	if ( p[ 0 ] != QChar( '/' ) && d->path[ (int)d->path.length() - 1 ] != '/' )
 	    d->path += "/" + p;
 	else
 	    d->path += p;
