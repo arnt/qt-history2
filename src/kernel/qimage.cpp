@@ -3644,9 +3644,9 @@ void QImageIO::init()
     d->parameters = 0;
     d->quality = -1; // default quality of the current format
 #if defined(Q_OS_MAC)
-    d->gamma=1.7;
+    d->gamma=1.7f;
 #else
-    d->gamma=2.2;
+    d->gamma=2.2f;
 #endif
     iostat = 0;
     iodev  = 0;
