@@ -650,45 +650,41 @@ function compile(platform, edition, platformName)
 	execute(["ssh", login, "cp", platformName + "/lib/*.pdb", platformName+"clean/lib/."]);
 	// copy the plugin directory
 	execute(["ssh", login, "cp", "-r", platformName + "/plugins", platformName+"clean/."]);
-	// copy generated qconfig.h/.cpp
+	// copy generated qconfig.h
 	execute(["ssh", login, "cp",
-		 platformName + "/src/core/global/qconfig.h",
+		 platformName + "/src/corelib/global/qconfig.h",
 		 platformName + "clean/include/Qt/qconfig.h"]);
 	execute(["ssh", login, "cp",
-		 platformName + "/src/core/global/qconfig.h",
+		 platformName + "/src/corelib/global/qconfig.h",
 		 platformName + "clean/include/QtCore/qconfig.h"]);
 	// copy arch/qatomic.h
 	execute(["ssh", login, "mkdir", "-p", platformName + "clean/include/Qt/arch"]);
 	execute(["ssh", login, "mkdir", "-p", platformName + "clean/include/QtCore/arch"]);
 	execute(["ssh", login, "cp",
-		 platformName + "/src/core/arch/windows/arch/qatomic.h",
+		 platformName + "/src/corelib/arch/windows/arch/qatomic.h",
 		 platformName + "clean/include/Qt/arch/."]);
 	execute(["ssh", login, "cp",
-		 platformName + "/src/core/arch/windows/arch/qatomic.h",
+		 platformName + "/src/corelib/arch/windows/arch/qatomic.h",
 		 platformName + "clean/include/QtCore/arch/."]);
 	// copy qatomic.h
 	execute(["ssh", login, "cp",
-		 platformName + "/src/core/thread/qatomic.h",
+		 platformName + "/src/corelib/thread/qatomic.h",
 		 platformName + "clean/include/Qt/."]);
 	execute(["ssh", login, "cp",
-		 platformName + "/src/core/thread/qatomic.h",
+		 platformName + "/src/corelib/thread/qatomic.h",
 		 platformName + "clean/include/QtCore/."]);
 	execute(["ssh", login, "cp",
-		 platformName + "/src/core/thread/qatomic.h",
+		 platformName + "/src/corelib/thread/qatomic.h",
 		 platformName + "clean/include/QtCore/QAtomic"]);
 	execute(["ssh", login, "cp",
-		 platformName + "/src/core/thread/qatomic.h",
+		 platformName + "/src/corelib/thread/qatomic.h",
 		 platformName + "clean/include/QtCore/QBasicAtomic"]);
 	execute(["ssh", login, "cp",
-		 platformName + "/src/core/thread/qatomic.h",
+		 platformName + "/src/corelib/thread/qatomic.h",
 		 platformName + "clean/include/QtCore/QAtomicPointer"]);
 	execute(["ssh", login, "cp",
-		 platformName + "/src/core/thread/qatomic.h",
+		 platformName + "/src/corelib/thread/qatomic.h",
 		 platformName + "clean/include/QtCore/QBasicAtomicPointer"]);
-	// copy generated .qt.config
-	execute(["ssh", login, "cp",
-		 platformName + "/mkspecs/.qt.config",
-		 platformName + "clean/mkspecs/.qt.config"]);
 
 	// replace tags in installscript.nsi
 	var installScript = p4Copy(p4BranchPath + "/util/scripts", "installscriptwin.nsi",
