@@ -182,7 +182,7 @@ QTemporaryFile::QTemporaryFile(const QString &templateName)
 }
 
 /*!
-    Constructs a QTemporaryFile with no name.
+    Constructs a QTemporaryFile with the given \a parent, but with no name.
 */
 QTemporaryFile::QTemporaryFile(QObject *parent)
     : QFile(*new QTemporaryFilePrivate, parent)
@@ -193,7 +193,8 @@ QTemporaryFile::QTemporaryFile(QObject *parent)
 
 /*!
     Constructs a QTemporaryFile with a template filename of \a
-    templateName. Upon opening the temporary file this will be used to
+    templateName and the specified \a parent.
+    Upon opening the temporary file this will be used to
     create a unique filename. If the \a templateName does end in
     XXXXXX it will automatically be appended and used as the dynamic
     portion of the filename.

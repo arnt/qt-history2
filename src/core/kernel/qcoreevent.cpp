@@ -93,9 +93,6 @@
     \value FontChange Widget's font has changed
     \value Hide  Widget was hidden, \l{QHideEvent}.
     \value HideToParent  A child widget has been hidden.
-    \value IMCompose  Input method composition is taking place, \l{QIMEvent}.
-    \value IMEnd  The end of input method composition, \l{QIMEvent}.
-    \value IMStart  The start of input method composition, \l{QIMEvent}.
     \value IconTextChange Widget's icon text has been changed
     \value KeyPress  Key press (including Shift, for example), \l{QKeyEvent}.
     \value KeyRelease  Key release, \l{QKeyEvent}.

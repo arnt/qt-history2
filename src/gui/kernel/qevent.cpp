@@ -1117,21 +1117,24 @@ Qt::ButtonState QContextMenuEvent::state() const
     The events are of interest to authors of keyboard entry widgets
     who want to be able to correctly handle languages with complex
     character input. Text input in such languages is usually a three
-    step process.
+    step process:
 
     \list 1
-    \i <b>Starting to Compose</b><br>
+    \i \bold{Starting to Compose}
+
     When the user presses the first key on a keyboard, an input
     context is created. This input context will contain a string
     of the typed characters.
 
-    \i <b>Composing</b><br>
+    \i \bold{Composing}
+
     With every new key pressed, the input method will try to create a
     matching string for the text typed so far called preedit
     string. While the input context is active, the user can only move
     the cursor inside the string belonging to this input context.
 
-    \i <b>Completing</b><br>
+    \i \bold{Completing}
+
     At some point, the user will activate a user interface component
     (perhaps using a particular key) where they can choose from a
     number of strings matching the text they have typed so far. The

@@ -30,6 +30,22 @@ public:
     int returnCode;
 };
 
+/*! \enum QEventLoop::ProcessEventsFlag
+
+    This enum controls the types of events processed by the
+    processEvents() functions.
+
+    \value AllEvents - All events are processed
+    \value ExcludeUserInput - Do not process user input events, such
+            as ButtonPress and KeyPress.
+    \value ExcludeSocketNotifiers - Do not process socket notifier
+           events.
+    \value WaitForMore - Wait for events if no pending events
+           are available.
+
+    \sa processEvents()
+*/
+
 QEventLoop::QEventLoop(QObject *parent)
     : QObject(*new QEventLoopPrivate, parent)
 {

@@ -476,8 +476,8 @@ bool QCoreApplication::closingDown()
 
 
 /*!
-    Processes all pending events until there are no more events to
-    process.
+    Processes all pending events according to the specified \a flags until
+    there are no more events to process.
 
     You can call this function occasionally when your program is busy
     performing a long operation (e.g. copying a file).
@@ -1423,9 +1423,9 @@ QCoreApplication::setEventFilter(QCoreApplication::EventFilter filter)
 
 /*!
     Sends \a message through the event filter that was set by
-    setEventFilter().  If no event filter has been set, this function
+    setEventFilter(). If no event filter has been set, this function
     returns false; otherwise, this function returns the result of the
-    event filter function.
+    event filter function in the \a result parameter.
 
     \sa setEventFilter()
 */

@@ -55,22 +55,9 @@
     \sa QEventLoop
 */
 
-/*! \enum QAbstractEventDispatcher::ProcessEvents
-
-    This enum controls the types of events processed by the
-    processEvents() functions.
-
-    \value AllEvents - All events are processed
-    \value ExcludeUserInput - Do not process user input events, such
-            as ButtonPress and KeyPress.
-    \value ExcludeSocketNotifiers - Do not process socket notifier
-           events.
-    \value WaitForMore - Wait for events if no pending events
-           are available.
-
-    \sa processEvents()
+/*!
+    Constructs a new event dispatcher with the given \a parent.
 */
-
 QAbstractEventDispatcher::QAbstractEventDispatcher(QObject *parent)
     : QObject(*new QAbstractEventDispatcherPrivate, parent)
 {
@@ -91,6 +78,9 @@ QAbstractEventDispatcher::QAbstractEventDispatcher(QObject *parent)
     }
 }
 
+/*!
+    \internal
+*/
 QAbstractEventDispatcher::QAbstractEventDispatcher(QAbstractEventDispatcherPrivate &dd,
                                                    QObject *parent)
     : QObject(dd, parent)
@@ -112,6 +102,9 @@ QAbstractEventDispatcher::QAbstractEventDispatcher(QAbstractEventDispatcherPriva
     }
 }
 
+/*!
+    Destroys the event dispatcher.
+*/
 QAbstractEventDispatcher::~QAbstractEventDispatcher()
 { }
 
@@ -186,16 +179,22 @@ QAbstractEventDispatcher *QAbstractEventDispatcher::instance(QThread *thread)
     implementation.
 */
 
-/*! \fn int QAbstractEventDispatcher::registerTimer(int interval, QObject *object)
+/*!
+    \fn int QAbstractEventDispatcher::registerTimer(int interval, QObject *object)
 
+    Register a timer with the specified \a interval for the given \a object.
 */
 
-/*! \fn bool QAbstractEventDispatcher::unregisterTimer(int timerId)
+/*!
+    \fn bool QAbstractEventDispatcher::unregisterTimer(int timerId)
 
+    Unregister the timer with the given \a timerId.
 */
 
-/*! \fn bool QAbstractEventDispatcher::unregisterTimers(QObject *object)
+/*!
+    \fn bool QAbstractEventDispatcher::unregisterTimers(QObject *object)
 
+    Unregister all the timers associated with the given \a object.
 */
 
 /*! \fn void QAbstractEventDispatcher::wakeUp()

@@ -263,6 +263,8 @@ QTextStream::QTextStream(QIODevice *iod)
 }
 
 /*!
+    \fn QTextStream::QTextStream(QString *str, QIODevice::OpenMode mode)
+
     Constructs a text stream that operates on the Unicode QString, \a
     str, through an internal device. The \a mode argument is passed
     to the device's open() function; see \l{QIODevice::mode()}.
@@ -303,6 +305,8 @@ QTextStream::QTextStream(QString *str, QIODevice::OpenMode)
 }
 
 /*!
+    \fn QTextStream::QTextStream(QByteArray *a, QIODevice::OpenMode mode)
+
     Constructs a text stream that operates on a byte array, \a a. The
     \a mode is a QIODevice::mode(), usually either \c QIODevice::ReadOnly or
     \c QIODevice::WriteOnly. Use QTextStream(const QByteArray&, int) if you
@@ -349,6 +353,8 @@ QTextStream::QTextStream(QByteArray *a, QIODevice::OpenMode flags)
 }
 
 /*!
+    \fn QTextStream::QTextStream(const QByteArray &a, QIODevice::OpenMode mode)
+
     Constructs a text stream that operates on byte array \a a. Since
     the byte array is passed as a const it can only be read from; use
     QTextStream(QByteArray*, int) if you want to write to a byte
@@ -378,6 +384,8 @@ QTextStream::QTextStream(const QByteArray &a, QIODevice::OpenMode flags)
 }
 
 /*!
+    \fn QTextStream::QTextStream(FILE *fh, QIODevice::OpenMode mode)
+
     Constructs a text stream that operates on an existing file handle
     \a fh, through an internal QFile device. The \a mode argument is
     passed to the device's open() function; see \l{QIODevice::mode()}.

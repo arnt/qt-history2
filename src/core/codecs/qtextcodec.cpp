@@ -664,7 +664,6 @@ QTextCodec::~QTextCodec()
 
 /*!
     \fn QTextCodec *QTextCodec::codecForName(const char *name)
-    \reimpl
 
     Searches all installed QTextCodec objects and returns the one
     which best matches \a name; the match is case-insensitive. Returns
@@ -819,11 +818,11 @@ QList<QByteArray> QTextCodec::aliases() const
 
     QTextCodec subclasses must reimplement this function.
 
-    It converts the first \a len characters of \a chars from the
+    Converts the first \a len characters of \a chars from the
     encoding of the subclass to Unicode, and returns the result in a
     QString.
 
-    \a state can be 0 in which case the conversion is stateless and
+    \a state can be 0, in which case the conversion is stateless and
     default conversion rules should be used. If state is not 0, the
     codec should save the state after the conversion in \a state, and
     adjust the remainingChars and invalidChars members of the struct.
@@ -869,11 +868,14 @@ QTextEncoder* QTextCodec::makeEncoder() const
 }
 
 /*!
-    \fn QByteArray QTextCodec::fromUnicode(const QChar *input, int number)
+    \fn QByteArray QTextCodec::fromUnicode(const QChar *input, int number,
+                                           ConverterState *state) const
 
     Converts the first \a number of characters from the \a input array
     from Unicode to the encoding of this codec, and returns the result
     in a QByteArray.
+
+    The \a state of the convertor used is updated.
 */
 
 /*!
@@ -885,11 +887,14 @@ QByteArray QTextCodec::fromUnicode(const QString& str) const
     return convertFromUnicode(str.constData(), str.length(), 0);
 }
 
-/*!
-    \fn QString QTextCodec::toUnicode(const char *input, int number, ConverterState *state)
+/*
+    \fn QString QTextCodec::toUnicode(const char *input, int number,
+                                      ConverterState *state) const
 
     Converts the first \a number of characters from the \a input from the
     encoding of this codec to Unicode, and returns the result in a QString.
+
+    The \a state of the convertor used is updated.
 */
 
 /*!
@@ -1027,6 +1032,10 @@ QByteArray QTextEncoder::fromUnicode(const QChar *uc, int len)
 #ifdef QT_COMPAT
 /*!
   \overload
+
+  Converts \a lenInOut characters (not bytes) from \a uc, and returns the
+  result in a QByteArray. The number of characters read is returned in
+  the \a lenInOut parameter.
 */
 QByteArray QTextEncoder::fromUnicode(const QString& uc, int& lenInOut)
 {

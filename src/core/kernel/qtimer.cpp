@@ -97,7 +97,7 @@
 static const int INV_TIMER = -1;                // invalid timer id
 
 /*!
-    Constructs a timer with a \a parent.
+    Constructs a timer with the given \a parent.
 */
 
 QTimer::QTimer(QObject *parent)
@@ -167,10 +167,9 @@ void QTimer::start()
 }
 
 /*!
-  Starts or restarts the timer with a timeout interval of \a milliseconds.
-
-    If \l singleShot is true, the timer will be activated only once.
- */
+    Starts or restarts the timer with a timeout interval of \a msec
+    milliseconds.
+*/
 void QTimer::start(int msec)
 {
     setInterval(msec);
@@ -298,12 +297,12 @@ void QTimer::singleShot(int msec, QObject *receiver, const char *member)
         (void) new QSingleShotTimer(msec, receiver, member);
 }
 
-/*\property QTimer::singleShot
+/*
+    \property QTimer::singleShot
     \brief whether the timer is a single-shot timer
 
     A single-shot timer fires only once, non-single-shot timers fire
     every \l interval milliseconds.
-
  */
 
 /*\property QTimer::interval
@@ -315,7 +314,7 @@ void QTimer::singleShot(int msec, QObject *receiver, const char *member)
 
   Setting the interval of an active timer changes its timerId().
 
-  \sa  singleShot
+  \sa singleShot
 */
 void QTimer::setInterval(int msec)
 {
