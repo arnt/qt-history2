@@ -5109,6 +5109,9 @@ const QPixmap * QWindowsIconProvider::pixmap( const QFileInfo &fi )
 		return &pix;
 	    }
 	}
+	if ( filepath[0] == '"' && filepath[(int)filepath.length()-1] == '"' )
+	    filepath = filepath.mid( 1, filepath.length()-2 );
+
 	resolveLibs();
 	QT_WA( {
 	    res = ptrExtractIconEx( (TCHAR*)filepath.ucs2(), lst[ 1 ].stripWhiteSpace().toInt(),
