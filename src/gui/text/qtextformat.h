@@ -459,7 +459,7 @@ public:
     inline void setColumns(int columns)
     { setProperty(TableColumns, columns, 1); }
 
-    inline void setTableColumConstraints(const QList<int> &constraintTypes, const QList<int> &values)
+    inline void setTableColumnConstraints(const QList<int> &constraintTypes, const QList<int> &values)
     {
         setProperty(TableColumnConstraints, constraintTypes);
         setProperty(TableColumnConstraintValues, values);
