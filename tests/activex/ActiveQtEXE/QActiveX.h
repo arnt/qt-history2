@@ -6,17 +6,61 @@
 #include "resource.h"       // main symbols
 #include <atlctl.h>
 #include <qvbox.h>
-#include "resource.h"
 
 Q_EXPORT LRESULT QtWndProcGate( HWND, UINT, WPARAM, LPARAM );
 
 extern "C" QWidget *axmain( QWidget *parent );
 
+
+class ATL_NO_VTABLE QActiveXTypeInfo : public ITypeInfo
+{
+public:
+    QActiveXTypeInfo( const QObject *qo ) : object( qo ), ref( 0 )
+    {}
+
+    // IUnknown
+    unsigned long __stdcall AddRef()
+    {
+	return ref++;
+    }
+    unsigned long __stdcall Release()
+    {
+	if ( !--ref ) {
+	    delete this;
+	    return 0;
+	}
+	return ref;
+    }
+    HRESULT __stdcall QueryInterface( REFIID riid, void **ppvObject )
+    {
+	*ppvObject = 0;
+	if ( riid == IID_IUnknown)
+	    *ppvObject = (IUnknown*)this;
+	else if ( riid == IID_ITypeInfo )
+	    *ppvObject = (ITypeInfo*)this;
+	else
+	    return E_NOINTERFACE;
+
+	AddRef();
+	return S_OK;
+    }
+
+    // ITypeInfo
+
+
+    const QObject *qObject() { return object; }
+    void setObject( const QObject *o ) { object = o; }
+
+private:
+    const QObject *object;
+    unsigned long ref;
+};
+
 /////////////////////////////////////////////////////////////////////////////
 // QActiveX
 class ATL_NO_VTABLE QActiveX : 
     public CComObjectRootEx<CComSingleThreadModel>,
-    public IDispatchImpl<IQActiveX, &IID_IQActiveX, &LIBID_ACTIVEQTEXELib>,
+    public IDispatchImpl<IQActiveX, &IID_IQActiveX, &LIBID_ACTIVEQTEXELib >,
     public CComControl<QActiveX>,
     public IPersistStreamInitImpl<QActiveX>,
     public IOleControlImpl<QActiveX>,
@@ -33,14 +77,26 @@ class ATL_NO_VTABLE QActiveX :
 {
 public:
     QActiveX()
-	: m_pWidget( 0 )
+	: m_pTypeInfo( 0 )
     {
+	m_pWidget = new QVBox( 0, 0, Qt::WStyle_Customize );
+	::SetWindowLong( m_pWidget->winId(), GWL_STYLE, WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS );
+	object = axmain( m_pWidget );
     }
 
     ~QActiveX()
     {
-	if ( m_pWidget )
+	if ( m_pTypeInfo ) {
+	    m_pTypeInfo->setObject( 0 );
+	    m_pTypeInfo->Release();
+	    m_pTypeInfo = 0;
+	}
+	if ( object ) {
+	    delete object;
+	}
+	if ( m_pWidget ) {
 	    delete m_pWidget;
+	}
     }
 
 DECLARE_REGISTRY_RESOURCEID(IDR_QEXETEST)
@@ -93,19 +149,31 @@ END_MSG_MAP()
 
 // IViewObjectEx
     DECLARE_VIEW_STATUS(VIEWSTATUS_SOLIDBKGND | VIEWSTATUS_OPAQUE)
-
+/*
+    STDMETHOD(GetTypeInfo)(UINT itinfo, LCID lcid, ITypeInfo** pptinfo)
+    {
+	*pptinfo = 0;
+	if ( itinfo )
+	    return ResultFromScode( DISP_E_BADINDEX );
+	if ( !m_pTypeInfo ) {
+	    m_pTypeInfo = new QActiveXTypeInfo( object );
+	    m_pTypeInfo->AddRef();
+	}
+	m_pTypeInfo->AddRef();
+	*pptinfo = m_pTypeInfo;
+    }
+*/
 private:
     QVBox* m_pWidget;
+    QObject *object;
+    QActiveXTypeInfo *m_pTypeInfo;
 
     LRESULT OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
     {
-	m_pWidget = new QVBox( 0, 0, Qt::WStyle_Customize );
 	::SetParent( m_pWidget->winId(), m_hWnd );
-	::SetWindowLong( m_pWidget->winId(), GWL_STYLE, WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS );
 	m_pWidget->raise();
 	m_pWidget->move( 0, 0 );
 
-	QWidget *widget = axmain( m_pWidget );
 	return 0;
     }
     LRESULT OnShowWindow( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled )

@@ -2139,8 +2139,6 @@ void QTextEdit::formatMore()
 
 void QTextEdit::doResize()
 {
-    if (( wrapMode != WidgetWidth ) && ( wrapMode != FixedColumnWidth ))
-	return;
     doc->setMinimumWidth( -1 );
     resizeContents( 0, 0 );
     doc->setWidth( visibleWidth() );
