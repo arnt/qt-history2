@@ -33,7 +33,7 @@ static int compareMtime( const void *n1, const void *n2 )
 	return 0;
 }
 
-static QStringList find( const QString & rootDir, const QString & nameFilter )
+static QStringList find( const QString& rootDir, const QString& nameFilter )
 {
     QStringList result;
     QStringList fileNames;
@@ -46,7 +46,7 @@ static QStringList find( const QString & rootDir, const QString & nameFilter )
     fileNames = dir.entryList();
     fn = fileNames.begin();
     while ( fn != fileNames.end() ) {
-	result += dir.filePath(*fn);
+	result += dir.filePath( *fn );
 	++fn;
     }
 

@@ -125,7 +125,7 @@ static QString processBackslashes( const QString& str )
   This function is imperfect. If sophisticated '\keyword's are
   needed, it can always be changed.
 */
-static QString indexAnchor( const QString& str )
+static QString keywordRef( const QString& str )
 {
     static QRegExp unfriendly( QString("[^a-zA-Z0-9_-]+") );
     QString t = str;
@@ -708,7 +708,8 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		  setLink() is used.
 		*/
 		if ( kindIs == Doc::Page )
-		    yyOut += QString( "<a name=\"%1\"></a>" ).arg( x );
+		    yyOut += QString( "<a name=\"%1\"></a>" )
+			     .arg( keywordRef(x) );
 		break;
 	    case hash( 'l', 4 ):
 		consume( "link" );
@@ -1772,7 +1773,7 @@ void Doc::setLink( const QString& link, const QString& title )
 	StringSet::ConstIterator s = kwords.begin();
 	while ( s != kwords.end() ) {
 	    if ( kind() == Page )
-		kwordLnk = base + QChar( '#' ) + indexAnchor( *s );
+		kwordLnk = base + QChar( '#' ) + keywordRef( *s );
 	    else
 		kwordLnk = link;
 

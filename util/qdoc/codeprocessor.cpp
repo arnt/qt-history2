@@ -96,7 +96,7 @@ static void insertSomeQtStuffThatCannotHarm( QMap<QString, StringSet> *types )
 /*
   The two following functions have much in common. They don't have to,
   but if it works in one place, it works in the other... mostly. When
-  doing changes, strive to keep these in synch.
+  doing changes, strive to keep these in sync.
 */
 
 /*
@@ -245,6 +245,17 @@ OccurrenceMap occurrenceMap( const QString& code, const Resolver *res,
 QString processCodeHtml( const QString& code, const Resolver *res,
 			 const QString& dirPath, bool localLinks )
 {
+    /*
+      These QRegExps are designed to be fast. If you change them,
+      strive to keep them that way.
+
+      A QRegExp such as newClassX is very fast because it starts
+      with a literal string ("new"). xIsStaticZOfY is also fast,
+      because it starts with a very restrictive character class
+      ("[\n:;{(=]").
+
+      The source code is '\n'-free.
+    */
     static QRegExp amp( QChar('&') );
     static QRegExp lt( QChar('<') );
     static QRegExp gt( QChar('>') );

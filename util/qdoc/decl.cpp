@@ -140,11 +140,18 @@ static void printHtmlLongMembers( HtmlWriter& out,
 		r = by.begin();
 		while ( r != by.end() ) {
 		    QString className = (*r)->context()->fullName();
-		    out.printfMeta( "<a href=\"%s\"",
-				    config->classRefHref(className).latin1() );
-		    if ( (*r)->doc() != 0 )
-			out.printfMeta( "#%s", (*r)->ref().latin1() );
-		    out.printfMeta( ">%s</a>", className.latin1() );
+
+		    if ( (*r)->context()->doc() == 0 ) {
+			out.puts( className.latin1() );
+		    } else {
+			out.printfMeta( "<a href=\"%s\"",
+					config->classRefHref(className)
+					.latin1() );
+			if ( (*r)->doc() != 0 )
+			    out.printfMeta( "#%s", (*r)->ref().latin1() );
+			out.printfMeta( ">%s</a>", className.latin1() );
+		    }
+
 		    out.puts( seps.pop() );
 		    ++r;
 		}
@@ -303,9 +310,6 @@ void Decl::buildMangledSymbolTables()
 
 void Decl::buildPlainSymbolTables( bool omitUndocumented )
 {
-    if ( omitUndocumented && doc() == 0 && this != rootContext() )
-	return;
-
     QValueList<Decl *>::ConstIterator child;
 
     if ( symTable[PlainSymTable].isEmpty() ) {
@@ -317,14 +321,17 @@ void Decl::buildPlainSymbolTables( bool omitUndocumented )
 
 	child = children().begin();
 	while ( child != children().end() ) {
-	    symTable[PlainSymTable].insert( (*child)->uniqueName(), *child );
+	    if ( (*child)->doc() != 0 || !omitUndocumented )
+		symTable[PlainSymTable].insert( (*child)->uniqueName(),
+						*child );
 	    ++child;
 	}
     }
 
     child = children().begin();
     while ( child != children().end() ) {
-	(*child)->buildPlainSymbolTables( omitUndocumented );
+	if ( (*child)->doc() != 0 || !omitUndocumented )
+	    (*child)->buildPlainSymbolTables( omitUndocumented );
 	++child;
     }
 }
@@ -619,7 +626,7 @@ void ClassDecl::printHtmlLong( HtmlWriter& out ) const
     out.setHeading( name() + QString(" Class Reference") );
     if ( classDoc() != 0 && !classDoc()->module().isEmpty() )
 	out.setSubHeading( QString("[<a href=\"%1.html\">%2 module</a>]")
-			   .arg(classDoc()->module())
+			   .arg(classDoc()->module().lower())
 			   .arg(classDoc()->module()) );
 
     if ( classDoc() != 0 ) {
@@ -872,14 +879,15 @@ void ClassDecl::fillInDocsForThis()
     }
 
     /*
-      Constructors are a special case.  If a class possesses many constructors,
-      none is a reimplementation of the others.  Internally, we'll elect the
-      first constructor as the canonical one.
+      Constructors are a special case. If a class possesses many
+      constructors, none is a reimplementation of the others.
+      Internally, we'll elect the first constructor as the canonical
+      one.
     */
     f = fmap.find( name() );
     if ( f != fmap.end() ) {
 	/*
-	  First pass:  Get rid of extra '\overload's.
+	  First pass: Get rid of extra '\overload's.
 	*/
 	g = (*f).begin();
 	while ( g != (*f).end() ) {
@@ -895,7 +903,7 @@ void ClassDecl::fillInDocsForThis()
 	}
 
 	/*
-	  Second pass:  Put '\overload's for all functions but the first one.
+	  Second pass: Put '\overload's for all functions but the first one.
 	*/
 	int overloadNo = 1;
 	g = (*f).begin();
@@ -922,24 +930,24 @@ void ClassDecl::fillInDocsForThis()
 	int overloadNo = 2;
 
 	/*
-	  First pass:  Fill in the candidate lists.  Among the
+	  First pass: Fill in the candidate lists. Among the
 	  candidates, we'll choose a canonical version and make sure
 	  all the others are '\overload's
 
-	  Ideally, the situation is this:  All versions of the
-	  function except one are marked '\overload'.  Unfortunately,
-	  on Qt, this policy led to hundreds of warnings about missing
-	  '\overload's.  To avoid that, we distinguish candidates
-	  according to their quality (or rather badness).  A normal
-	  function has badness 0, an obsolete one has badness 1, and
-	  an internal one has badness 2.  So if there are five
-	  versions of 'Foo::foo()' (without any '\overload') of
-	  badness 0, 1, 1, 2, 2, qdoc elects the version with badness
-	  0 as the canonical one, without complaining about missing
-	  '\overload's.
+	  Ideally, the situation is this: All versions of the
+	  function except one are marked '\overload'. Unfortunately,
+	  on Qt, this policy led to hundreds of warnings about
+	  missing '\overload's. To avoid that, we distinguish
+	  candidates according to their quality (or rather badness).
+	  A normal function has badness 0, an obsolete one has
+	  badness 1, and an internal one has badness 2. So if there
+	  are five versions of 'Foo::foo()' (without any '\overload')
+	  of badness 0, 1, 1, 2, 2, qdoc elects the version with
+	  badness 0 as the canonical one, without complaining about
+	  missing '\overload's.
 
 	  There are three candidate lists, to distinguish between the
-	  three quality levels.  The best candidate should fall in
+	  three quality levels. The best candidate should fall in
 	  candidates[0].
 	*/
 	g = (*f).begin();
@@ -1017,9 +1025,9 @@ void ClassDecl::fillInDocsForThis()
 	}
 
 	/*
-	  Second pass:  Assign overload numbers.  If the canonical function is
-	  internal or obsolete, the other documented functions inherit this
-	  property.
+	  Second pass: Assign overload numbers. If the canonical
+	  function is internal or obsolete, the other documented
+	  functions inherit this property.
 	*/
 	g = (*f).begin();
 	while ( g != (*f).end() ) {
@@ -1035,9 +1043,9 @@ void ClassDecl::fillInDocsForThis()
 	    }
 
 	    /*
-	      Here is another great place to do something unrelated to assigning
-	      overload numbers.  Parameters inherited from the canonical
-	      function need no documentation.
+	      Here is another great place to do something unrelated
+	      to assigning overload numbers. Parameters inherited
+	      from the canonical function need no documentation.
 	    */
 	    if ( canonical == 0 || (*g) == canonical )
 		checkParams( *g, (*g)->parameterNames() );
