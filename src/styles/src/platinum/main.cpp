@@ -1,6 +1,6 @@
 #include <qstyleinterface.h>
 #include <qplatinumstyle.h>
-#include <qguardedptr.h>
+#include <qcleanuphandler.h>
 
 class PlatinumStyle : public QStyleInterface, public QLibraryInterface
 {
@@ -19,13 +19,13 @@ public:
     bool canUnload() const;
 
 private:
-    QGuardedPtr<QStyle> style;
+    QGuardedCleanupHandler<QStyle> styles;
 
     unsigned long ref;
 };
 
 PlatinumStyle::PlatinumStyle()
-: ref( 0 ), style( 0 )
+: ref( 0 )
 {
 }
 
@@ -68,8 +68,11 @@ QStringList PlatinumStyle::featureList() const
 
 QStyle* PlatinumStyle::create( const QString& s )
 {
-    if ( s.lower() == "platinum" )
-        return style = new QPlatinumStyle();
+    if ( s.lower() == "platinum" ) {
+        QStyle *style = new QPlatinumStyle();
+	styles.add( style );
+	return style;
+    }
     return 0;
 }
 
@@ -80,12 +83,12 @@ bool PlatinumStyle::init()
 
 void PlatinumStyle::cleanup() 
 {
-    delete style;
+    styles.clear();;
 }
 
 bool PlatinumStyle::canUnload() const
 {
-    return style.isNull();
+    return styles.isEmpty();
 }
 
 Q_EXPORT_INTERFACE()
