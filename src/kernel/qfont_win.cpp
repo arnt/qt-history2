@@ -314,6 +314,10 @@ void QFontPrivate::initFontInfo()
     }
 
     actual.dirty = FALSE;
+    exactMatch = ( actual.family == request.family && 
+		   ( request.pointSize == -1 || ( actual.pointSize == request.pointSize ) ) && 
+		   ( request.pixelSize == -1 || ( actual.pixelSize == request.pixelSize ) ) && 
+		   actual.fixedPitch == request.fixedPitch );
 }
 
 void QFontPrivate::load()
@@ -373,7 +377,6 @@ void QFontPrivate::load()
 	fontCache->insert( k, fin, cost );
     }
     initFontInfo();
-    exactMatch = TRUE;
     request.dirty = FALSE;
 }
 
