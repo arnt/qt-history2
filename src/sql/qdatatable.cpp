@@ -1540,7 +1540,7 @@ void QDataTable::repaintCell( int row, int col )
 void QDataTable::paintCell( QPainter * p, int row, int col, const QRect & cr,
 			  bool selected )
 {
-    QTable::paintCell(p,row,col,cr, false);  // empty cell
+    QTable::paintCell(p,row,col,cr, FALSE);  // empty cell
 
 #if 0 // ### Reggie: This looks ugly, any reason for it?
     if( hasFocus() && (row == currentRow()) && (col == currentColumn()) ){

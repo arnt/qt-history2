@@ -2144,10 +2144,10 @@ void QFontDatabase::createDatabase()
         if(!mystyle) {
             mystyle=new QtFontStyle(family,style);
             mystyle->ital=qdf->italic;
-            mystyle->lesserItal=false;
+            mystyle->lesserItal=FALSE;
             mystyle->weightString=weightString;
             mystyle->weightVal=weight;
-            mystyle->weightDirty=false;
+            mystyle->weightDirty=FALSE;
             family->addStyle(mystyle);
         }
         mystyle->setSmoothlyScalable();
