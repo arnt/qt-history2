@@ -766,9 +766,8 @@ void QFontDialog::setFont( const QFont &f )
 		i = -1;
 		break;
 	    }
-	} else if (bestFamilyMatch != -1 && familyName1 == familyName2) {
+	} else if (bestFamilyMatch == -1 && familyName1 == familyName2)
 	    bestFamilyMatch = i;
-	}
 
 	i++;
     }
