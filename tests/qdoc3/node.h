@@ -70,6 +70,7 @@ public:
     FunctionNode *findFunctionNode( const FunctionNode *clone );
     void addInclude( const QString& include );
     void setOverload( const FunctionNode *func, bool overlode );
+    void normalizeOverloads();
 
     virtual bool isInnerNode() const;
     const Node *findNode( const QString& name ) const;
@@ -255,6 +256,8 @@ public:
     const QValueList<FunctionNode *>& reimplementedBy() const { return rb; }
 
 private:
+    friend class InnerNode;
+
     QString rt;
     Metaness met;
     Virtualness vir;

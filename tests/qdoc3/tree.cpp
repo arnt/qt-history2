@@ -78,5 +78,15 @@ void Tree::addBaseClass( ClassNode *subclass, Node::Access access,
 {
 #if 0
     bas[subclass].append( BaseClass(access, basePath, baseTemplateArgs) );
+#else
+    Q_UNUSED( subclass )
+    Q_UNUSED( access )
+    Q_UNUSED( basePath )
+    Q_UNUSED( baseTemplateArgs )
 #endif
+}
+
+void Tree::normalizeOverloads()
+{
+    root()->normalizeOverloads();
 }

@@ -74,12 +74,10 @@ FunctionNode *InnerNode::findFunctionNode( const FunctionNode *clone )
 {
     QMap<QString, Node *>::ConstIterator c =
 	    primaryFunctionMap.find( clone->name() );
-    if ( c == primaryFunctionMap.end() ) {
-	return 0;
-    } else {
+    if ( c != primaryFunctionMap.end() ) {
 	if ( isSameSignature(clone, (FunctionNode *) *c) ) {
 	    return (FunctionNode *) *c;
-	} else {
+	} else if ( secondaryFunctionMap.contains(clone->name()) ) {
 	    const NodeList& secs = secondaryFunctionMap[clone->name()];
 	    NodeList::ConstIterator s = secs.begin();
 	    while ( s != secs.end() ) {
@@ -87,23 +85,63 @@ FunctionNode *InnerNode::findFunctionNode( const FunctionNode *clone )
 		    return (FunctionNode *) *s;
 		++s;
 	    }
-	    return 0;
 	}
     }
+    return 0;
 }
 
 void InnerNode::setOverload( const FunctionNode *func, bool overlode )
 {
-    if ( overlode ) {
-	Node *node = (Node *) func;
-	if ( primaryFunctionMap[func->name()] == node ) {
-	    NodeList& secs = secondaryFunctionMap[func->name()];
-	    if ( !secs.isEmpty() ) {
-		primaryFunctionMap[func->name()] = secs.first();
+    Node *node = (Node *) func;
+    Node *&primary = primaryFunctionMap[func->name()];
+
+    if ( secondaryFunctionMap.contains(func->name()) ) {
+	NodeList& secs = secondaryFunctionMap[func->name()];
+	if ( overlode ) {
+	    if ( primary == node ) {
+		primary = secs.first();
 		secs.remove( secs.begin() );
-		secs.append( node );
+		secs.prepend( node );
+	    }
+	} else {
+	    if ( primary != node ) {
+		secs.remove( node );
+		secs.prepend( primary );
+		primary = node;
 	    }
 	}
+    }
+}
+
+void InnerNode::normalizeOverloads()
+{
+    QMap<QString, Node *>::ConstIterator p = primaryFunctionMap.begin();
+    while ( p != primaryFunctionMap.end() ) {
+	FunctionNode *primaryFunc = (FunctionNode *) *p;
+	if ( primaryFunc->isOverload() ) {
+	    // ### emit warning
+	    primaryFunc->ove = FALSE;
+	}
+	if ( secondaryFunctionMap.contains(primaryFunc->name()) ) {
+	    NodeList& secs = secondaryFunctionMap[primaryFunc->name()];
+	    NodeList::ConstIterator s = secs.begin();
+	    while ( s != secs.end() ) {
+		FunctionNode *secondaryFunc = (FunctionNode *) *s;
+		if ( !secondaryFunc->isOverload() ) {
+		    // ### emit warning
+		    secondaryFunc->ove = TRUE;
+		}
+		++s;
+	    }
+	}
+	++p;
+    }
+
+    NodeList::ConstIterator c = childNodes().begin();
+    while ( c != childNodes().end() ) {
+	if ( (*c)->isInnerNode() )
+	    ((InnerNode *) *c)->normalizeOverloads();
+	++c;
     }
 }
 

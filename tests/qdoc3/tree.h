@@ -23,6 +23,7 @@ public:
     void addBaseClass( ClassNode *subclass, Node::Access access,
 		       const QStringList& basePath,
 		       const QString& baseTemplateArgs );
+    void normalizeOverloads();
 
     const NamespaceNode *root() const { return &roo; }
 

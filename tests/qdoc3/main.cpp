@@ -139,8 +139,9 @@ qDebug( "Parsing source file '%s'", (*s).latin1() );
 	codeParser->parseSourceFile( config.location(), *s, tree );
 	++s;
     }
+    tree->normalizeOverloads();
 qDebug( "Done parsing source files" );
-    
+
     Set<QString> outputFormats = config.getStringSet( CONFIG_OUTPUTFORMATS );
     Set<QString>::ConstIterator of = outputFormats.begin();
     while ( of != outputFormats.end() ) {

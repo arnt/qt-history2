@@ -138,7 +138,7 @@ Node *CppCodeParser::processTopicCommand( const Doc& doc,
 					  const QString& arg )
 {
 #ifdef QDOC2_COMPAT
-    if ( command == COMMAND_FN || (command == COMMAND_OVERLOAD && !arg.isEmpty()) ) {
+    if ( command == COMMAND_FN || command == COMMAND_OVERLOAD ) {
 #else
     if ( command == COMMAND_FN ) {
 #endif
@@ -148,6 +148,9 @@ Node *CppCodeParser::processTopicCommand( const Doc& doc,
 
 	if ( !makeFunctionNode(arg, &path, &clone) &&
 	     !makeFunctionNode("void " + arg, &path, &clone) ) {
+#ifdef QDOC2_COMPAT
+	    if ( command != COMMAND_OVERLOAD )
+#endif
 	    doc.location().warning( tr("Invalid syntax in '\\%1'")
 				    .arg(COMMAND_FN) );
 	} else {
@@ -170,8 +173,13 @@ Node *CppCodeParser::processTopicCommand( const Doc& doc,
 		lastPath = path;
 	    }
 
-	    if ( func != 0 )
+	    if ( func != 0 ) {
+#ifdef QDOC2_COMPAT
+		if ( command == COMMAND_OVERLOAD )
+		    func->setOverload( TRUE );
+#endif
 		func->borrowParameterNames( clone );
+	    }
 	    delete clone;
 	}
 	return func;
