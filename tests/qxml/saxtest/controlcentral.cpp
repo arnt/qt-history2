@@ -81,6 +81,10 @@ void ControlCentral::parse( const QString& filename, const QString& incrementalS
     parser.setFeature( "http://xml.org/sax/features/namespace-prefixes", TRUE );
     parser.setFeature( "http://trolltech.com/xml/features/report-whitespace-only-CharData", FALSE );
 
+    QTextView* src = new QTextView();
+    src->setCaption( "Source for " + filename );
+    src->setTextFormat( PlainText );
+
     if ( incrementalSteps.isNull() ) {
 	*parseProtocolTS << endl << "******** "
 	    << filename << " ********" << endl;
@@ -96,12 +100,9 @@ void ControlCentral::parse( const QString& filename, const QString& incrementalS
 	time += " ms";
 
 	file.reset();
-    }
 
-    QTextView* src = new QTextView();
-    src->setTextFormat( PlainText );
-    src->setText( sourceData );
-    src->setCaption( "Source for " + filename );
+	src->setText( sourceData );
+    }
 
     QListView* protocol = new QListView;
     protocol->addColumn( "Function" );
@@ -144,6 +145,7 @@ void ControlCentral::parse( const QString& filename, const QString& incrementalS
 	    errorStatus = "Error";
 	}
     } else {
+
 	file.reset();
 	bool first = TRUE;
 	QByteArray rawData;
@@ -156,15 +158,11 @@ void ControlCentral::parse( const QString& filename, const QString& incrementalS
 	    rawData.resize( size );
 	    size = file.readBlock( rawData.data(), size );
 	    rawData.resize( size );
-#if 1
 	    source.setData( rawData );
 	    QString tmp = source.data();
-	    qDebug( tmp );
+	    src->append( "---------------------------------------------------------" );
+	    src->append( tmp );
 	    source.setData( tmp );
-#else
-	    //qDebug( rawData );
-	    source.setData( rawData );
-#endif
 	    if ( first ) {
 		first = FALSE;
 		if ( parser.parse( source, TRUE ) ) {
@@ -183,6 +181,7 @@ void ControlCentral::parse( const QString& filename, const QString& incrementalS
 	    }
 	    ++it;
 	}
+	src->append( "---------------------------------------------------------" );
     }
 
     new XMLFileItem( lview, filename, errorStatus, time,
