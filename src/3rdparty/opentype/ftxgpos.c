@@ -3530,8 +3530,10 @@ static FT_Error  default_mmfunc( FT_Face      face,
       /* We check whether the specific class is used at all.  If not,
          class 0 is used instead.                                     */
 
-//       if ( !d[c[n]] )
-//         c[n] = 0;
+      /*
+	if ( !d[c[n]] )
+	    c[n] = 0;
+      */
     }
 
     FORGET_Frame();
@@ -4572,9 +4574,10 @@ static FT_Error  default_mmfunc( FT_Face      face,
 
       /* We check whether the specific class is used at all.  If not,
          class 0 is used instead.                                     */
-
-//       if ( !d[b[n]] )
-//         b[n] = 0;
+      /*
+	if ( !d[b[n]] )
+	    b[n] = 0;
+      */
     }
 
     FORGET_Frame();
@@ -4606,8 +4609,10 @@ static FT_Error  default_mmfunc( FT_Face      face,
     {
       i[n] = GET_UShort();
 
-//       if ( !d[i[n]] )
-//         i[n] = 0;
+      /*
+	if ( !d[i[n]] )
+	    i[n] = 0;
+      */
     }
 
     FORGET_Frame();
@@ -4639,8 +4644,10 @@ static FT_Error  default_mmfunc( FT_Face      face,
     {
       l[n] = GET_UShort();
 
-//       if ( !d[l[n]] )
-//         l[n] = 0;
+      /*
+	if ( !d[l[n]] )
+	    l[n] = 0;
+      */
     }
 
     FORGET_Frame();
