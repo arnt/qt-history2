@@ -1,12 +1,9 @@
-//depot/qt/3.1/src/kernel/qpaintdevice_mac.cpp#7 - edit change 89290 (text)
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QPaintDevice class for Mac
 **
-** Created : 001018
-**
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2003 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
