@@ -1989,10 +1989,14 @@ int QAxServerBase::qt_metacall(QMetaObject::Call call, int index, void **argv)
 		    bool out;
 		    QByteArray ptype = paramType(ptypes.at(p), &out);
                     QVariant variant;
-                    if (mo->indexOfEnumerator(ptype) != -1)
+                    if (mo->indexOfEnumerator(ptype) != -1) {
                         variant = QVariant(QVariant::Int);
-                    else
-		        variant = QVariant(QVariant::nameToType(ptype), argv[p + 1]);
+                    } else {
+                        QVariant::Type vt = QVariant::nameToType(ptype);
+                        if (vt == QVariant::UserType)
+                            vt = QVariant::Invalid;
+                        variant = QVariant(vt, argv[p + 1]);
+                    }
 
 		    QVariantToVARIANT(variant, *arg, type, out);
 		}
@@ -2398,7 +2402,10 @@ HRESULT WINAPI QAxServerBase::Invoke(DISPID dispidMember, REFIID riid,
 
             // return value
 	    if (!type.isEmpty()) {
-                varp[0] = QVariant(QVariant::nameToType(type));
+                QVariant::Type vt = QVariant::nameToType(type);
+                if (vt == QVariant::UserType)
+                    vt = QVariant::Invalid;
+                varp[0] = QVariant(vt);
                 if (varp[0].type() == QVariant::Invalid && mo->indexOfEnumerator(slot.typeName()) != -1)
                     varp[0] = QVariant(QVariant::Int);
 
