@@ -1,22 +1,25 @@
 #!/bin/sh
 
-MAKEFILES=`(find . -name Makefile -print ; echo ./Makefile) | sort | uniq -u`;
+MAKEFILES=`find . -name Makefile -print | sort`;
 
-QTDIR=`( cd ../.. ; pwd )`
+QTDIR=`pwd`
 
 for a in $MAKEFILES ; do
     M=`dirname $a`/Makefile
     N=${M}.new
     cat > $N <<EOF
-####### This section is automatically generated from
-#######    `pwd`/Makefile
+####### This section was automatically generated from
+#######    `pwd`/Makefile for building on
+#######    ${PLATFORM} on `date`
 
-INCDIR	=	${QTDIR}/include
-CFLAGS	=	${CFLAGS}
-LFLAGS	=	-L`pwd`/lib ${LFLAGS}
-CC	=	${CC}
-MOC	=	`pwd`/bin/moc
-SHELL   =	${SHELL}
+INCDIR = ${QTDIR}/include
+CFLAGS = ${CFLAGS}
+LIBCFLAGS = ${LIBCFLAGS}
+YACCCFLAGS = ${YACCCFLAGS}
+LFLAGS = -L${QTDIR}/lib ${LFLAGS}
+CC = ${CC}
+MOC = ${QTDIR}/bin/moc
+SHELL =	${SHELL}
 
 ####### End of automatically generated section
 #
@@ -24,6 +27,8 @@ EOF
     sed -ne '/# *\$Source.*\$/,$ p' < $M >> $N
     rm -f $M
     mv $N $M
-    echo edited $M
+    echo '  edited' $M
 done
 
+sed -e 's/^all:.*/all: link-'${PLATFORM}/ < src/Makefile > .makefile
+mv .makefile src/Makefile
