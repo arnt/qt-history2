@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp.cpp#4 $
+** $Id: //depot/qt/main/src/kernel/qapp.cpp#5 $
 **
 ** Implementation of QApplication class
 **
@@ -15,7 +15,7 @@
 #include "qwidget.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp.cpp#4 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp.cpp#5 $";
 #endif
 
 
@@ -79,7 +79,11 @@ void QApplication::quit( int retcode )		// quit application
 }
 
 
-bool QApplication::notify( QObject *obj, QEvent *evt )
+bool QApplication::notify( QObject *receiver, QEvent *event )
 {						// send event to object
-    return obj->event( evt );
+#if defined(CHECK_NULL)
+    if ( receiver == 0 )
+	warning( "QApplication::notify: Unexpected NULL receiver" );
+#endif
+    return receiver->event( event );
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#22 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#23 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -22,7 +22,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#22 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#23 $";
 #endif
 
 
@@ -48,6 +48,8 @@ static QVFuncList *postRList = 0;		// list of post routines
 
 static void	trapSignals( int signo );	// default signal handler
 static int	trapIOErrors( Display * );	// default X11 IO error handler
+
+static void	cleanupPostedEvents();
 
 static void	initTimers();
 static void	cleanupTimers();
@@ -150,6 +152,7 @@ int main( int argc, char **argv )
 
   // Cleanup
 
+    cleanupPostedEvents();			// remove list of posted events
     if ( postRList ) {
 	VFPTR f = (VFPTR)postRList->first();
 	while ( f ) {				// call post routines
@@ -245,7 +248,78 @@ QWidget *QApplication::desktop()
 
 
 // --------------------------------------------------------------------------
-// Special lookup functions for windows that have been recreated recently.
+// QApplication management of posted events
+//
+
+class QPEObject : public QObject		// trick to reset pendEvent
+{
+public:
+    void setPendEventFlag()	{ pendEvent = TRUE; }
+    void clearPendEventFlag()	{ pendEvent = FALSE; }
+};
+
+struct QPostEvent {
+    QPostEvent( QObject *r, QEvent *e ) { receiver=r; event=e; }
+   ~QPostEvent()			{ delete event; }
+    QObject  *receiver;
+    QEvent   *event;
+};
+
+declare(QListM,QPostEvent);
+static QListM(QPostEvent) *postedEvents = 0;	// list of posted events
+
+
+void QApplication::postEvent( QObject *receiver, QEvent *event )
+{
+    if ( !postedEvents ) {			// create list
+	postedEvents = new QListM(QPostEvent);
+	CHECK_PTR( postedEvents );
+	postedEvents->setAutoDelete( TRUE );
+    }
+#if defined(CHECK_NULL)
+    if ( receiver == 0 )
+	warning( "QApplication::postEvent: Unexpeced NULL receiver" );
+#endif
+    ((QPEObject*)receiver)->setPendEventFlag();
+    postedEvents->append( new QPostEvent(receiver,event) );
+}
+
+static void sendPostedEvents()			// transmit posted events
+{
+    int count = postedEvents ? postedEvents->count() : 0;
+    while ( count-- ) {				// just send to existing recvs
+	register QPostEvent *pe = postedEvents->first();
+	QApplication::sendEvent( pe->receiver, pe->event );
+	((QPEObject*)pe->receiver)->clearPendEventFlag();
+	postedEvents->remove( (uint)0 );
+    }
+}
+
+void qRemovePostedEvents( QObject *receiver )	// remove receiver from list
+{
+    if ( !postedEvents )
+	return;
+    register QPostEvent *pe = postedEvents->first();
+    while ( pe ) {
+	if ( pe->receiver == receiver ) {	// remove this receiver
+	    ((QPEObject*)pe->receiver)->clearPendEventFlag();
+	    postedEvents->remove();
+	    pe = postedEvents->current();
+	}
+	else
+	    pe = postedEvents->next();
+    }
+}
+
+static void cleanupPostedEvents()		// cleanup list
+{
+    delete postedEvents;
+    postedEvents = 0;
+}
+
+
+// --------------------------------------------------------------------------
+// Special lookup functions for windows that have been recreated recently
 //
 
 #include "qintdict.h"
@@ -310,9 +384,10 @@ int QApplication::exec( QWidget *mainWidget )	// main event loop
 
     while ( quit_now == FALSE ) {		// until qapp->quit() called
 
-	while ( XPending(appDpy) ) {		// also flushes output buffer
+	if ( postedEvents && postedEvents->count() )
+	    sendPostedEvents();
 
-	    int evt_type = Event_None;
+	while ( XPending(appDpy) ) {		// also flushes output buffer
 
 	    if ( quit_now )			// quit between events
 		break;
@@ -368,21 +443,23 @@ int QApplication::exec( QWidget *mainWidget )	// main event loop
 		    widget->translateConfigEvent( &event );
 		    break;
 
-		case FocusIn:			// got focus
-		    evt_type = Event_FocusIn;
+		case FocusIn: {			// got focus
+		    QFocusEvent focusEvent( Event_FocusIn );
+		    QApplication::sendEvent( widget, &focusEvent );
+		    }
 		    break;
 
-		case FocusOut:			// lost focus
-		    evt_type = Event_FocusOut;
+		case FocusOut: {		// lost focus
+		    QFocusEvent focusEvent( Event_FocusOut );
+		    QApplication::sendEvent( widget, &focusEvent );
+		    }
 		    break;
 
 		case EnterNotify:		// enter window
-		    evt_type = Event_Enter;
-		    break;
+		    break;			// ignored
 
 		case LeaveNotify:		// leave window
-		    evt_type = Event_Leave;
-		    break;
+		    break;			// ignored
 
 		case UnmapNotify:		// window hidden
 		    widget->clearFlag( WState_Visible );
@@ -429,11 +506,6 @@ int QApplication::exec( QWidget *mainWidget )	// main event loop
 		default:
 		    widget->x11Event( &event );
 		    break;
-	    }
-
-	    if ( evt_type != Event_None ) {	// simple event
-		QEvent evt( evt_type );
-		SEND_EVENT( widget, &evt );
 	    }
 	}
 
@@ -570,8 +642,6 @@ void qXClosePopup( QWidget *popup )		// remove popup widget
 // Internal data structure for timers
 //
 
-#include "qlist.h"
-
 struct TimerInfo {				// internal timer info
     int	     id;				// - timer identifier
     timeval  interval;				// - timer interval
@@ -620,8 +690,8 @@ static inline timeval operator-( const timeval &t1, const timeval &t2 )
 
 
 // --------------------------------------------------------------------------
-// Internal functions for manipulating timer data structures
-// The timerBitVec array is used for keeping track of timer identifiers
+// Internal functions for manipulating timer data structures.
+// The timerBitVec array is used for keeping track of timer identifiers.
 //
 
 static inline void setTimerBit( int id )	// set timer bit
@@ -751,8 +821,8 @@ static bool activateTimer()			// activate timer(s)
 	timerList->take();			// unlink from list
 	t->timeout = currentTime + t->interval;
 	insertTimer( t );			// relink timer
-	QTimerEvent evt( t->id );
-	SEND_EVENT( t->obj, &evt );		// send event
+	QTimerEvent e( t->id );
+	QApplication::sendEvent( t->obj, &e );	// send event
     }
     return TRUE;
 }
@@ -880,13 +950,13 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
     int	   state;
 
     if ( event->type == MotionNotify ) {	// mouse move
-	XEvent *xevt = (XEvent *)event;
-	while ( XCheckTypedWindowEvent( display(), id(), MotionNotify, xevt ) )
+	XEvent *xevent = (XEvent *)event;
+	while ( XCheckTypedWindowEvent(display(), id(), MotionNotify, xevent) )
 	    ;					// compress motion events
 	type = Event_MouseMove;
-	pos.rx() = xevt->xmotion.x;
-	pos.ry() = xevt->xmotion.y;
-	state = translateButtonState( xevt->xmotion.state );
+	pos.rx() = xevent->xmotion.x;
+	pos.ry() = xevent->xmotion.y;
+	state = translateButtonState( xevent->xmotion.state );
 	if ( !buttonDown ) {
 	    state &= ~(LeftButton|MidButton|RightButton);
 	    if ( !testFlag(WGetMouseMove) )
@@ -927,7 +997,6 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 		buttonDown = FALSE;
 	}
     }
-    bool result;
     if ( popupWidgets ) {			// oops, in popup mode
 	QWidget *popup = popupWidgets->last();
 	if ( popup != this ) {
@@ -941,21 +1010,21 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	    else
 		popup = this;
 	}
-	QMouseEvent evt( type, pos, button, state );
-	result = SEND_EVENT( popup, &evt );
+	QMouseEvent e( type, pos, button, state );
+	QApplication::sendEvent( popup, &e );
 	if ( popupWidgets )			// still in popup mode
 	    XAllowEvents( appDpy, SyncPointer, CurrentTime );
     }
     else {
-	QMouseEvent evt( type, pos, button, state );
+	QMouseEvent e( type, pos, button, state );
 	if ( popupCloseDownMode ) {
 	    popupCloseDownMode = FALSE;
 	    if ( testFlag(WType_Popup) )	// ignore replayed event
 		return TRUE;
 	}
-	result = SEND_EVENT( this, &evt );
+	QApplication::sendEvent( this, &e );
     }
-    return result;
+    return TRUE;
 }
 
 
@@ -1059,8 +1128,8 @@ bool QETWidget::translateKeyEvent( const XEvent *event )
 	return FALSE;
     }
 #endif
-    QKeyEvent evt( type, code, count > 0 ? ascii[0] : 0, state );
-    return SEND_EVENT( this, &evt );
+    QKeyEvent e( type, code, count > 0 ? ascii[0] : 0, state );
+    return QApplication::sendEvent( this, &e );
 }
 
 
@@ -1076,28 +1145,28 @@ bool QETWidget::translatePaintEvent( const XEvent *event )
     bool  firstTime = TRUE;
     QRect paintRect;
     int	  type = event->xany.type;
-    XEvent *xevt = (XEvent *)event;
+    XEvent *xevent = (XEvent *)event;
 
     while ( TRUE ) {
-	QRect rect( QPoint(xevt->xexpose.x,xevt->xexpose.y),
-		    QSize(xevt->xexpose.width,xevt->xexpose.height) );
+	QRect rect( QPoint(xevent->xexpose.x,xevent->xexpose.y),
+		    QSize(xevent->xexpose.width,xevent->xexpose.height) );
 	if ( firstTime ) {			// set rectangle
 	    paintRect = rect;
 	    firstTime = FALSE;
 	}
 	else					// make union rectangle
 	    paintRect = paintRect.unite( rect );
-	if ( !XCheckTypedWindowEvent( display(), id(), type, xevt ) )
+	if ( !XCheckTypedWindowEvent( display(), id(), type, xevent ) )
 	    break;
-	if ( qApp->x11EventFilter( xevt ) )	// send event through filter
+	if ( qApp->x11EventFilter( xevent ) )	// send event through filter
 	    break;
     }
 
-    QPaintEvent evt( paintRect );
+    QPaintEvent e( paintRect );
     setFlag( WState_Paint );
-    bool res = SEND_EVENT( this, &evt );
+    QApplication::sendEvent( this, &e );
     clearFlag( WState_Paint );
-    return res;
+    return TRUE;
 }
 
 
@@ -1106,8 +1175,6 @@ bool QETWidget::translatePaintEvent( const XEvent *event )
 // getting two events back when performing a geometry change from the
 // program.
 //
-
-#include "qintdict.h"
 
 declare(QIntDictM,int);
 static QIntDictM(int) *configCount = 0;
@@ -1172,8 +1239,8 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
     if ( newSize != clientSize() ) {		// size changed
 	r.setSize( newSize );
 	setRect( r );
-	QResizeEvent evt( newSize );
-	SEND_EVENT( this, &evt );		// send resize event
+	QResizeEvent e( newSize );
+	QApplication::sendEvent( this, &e );	// send resize event
 	if ( !parentWidget() ) {		// top level widget
 	    int x, y;
 	    Window child;
@@ -1187,8 +1254,8 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
     if ( newPos != r.topLeft() && moveOk ) {	// position changed
 	r.setTopLeft( newPos );
 	setRect( r );
-	QMoveEvent evt( geometry().topLeft() );
-	SEND_EVENT( this, &evt );		// send move event
+	QMoveEvent e( geometry().topLeft() );
+	QApplication::sendEvent( this, &e );	// send move event
     }
     return TRUE;
 }
@@ -1200,8 +1267,8 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 
 bool QETWidget::translateCloseEvent( const XEvent * )
 {
-    QEvent evt( Event_Close );
-    if ( SEND_EVENT( this, &evt ) ) {		// close widget
+    QEvent e( Event_Close );
+    if ( QApplication::sendEvent( this, &e ) ) {// close widget
 	hide();
 	if ( qApp->mainWidget() == this )
 	    qApp->quit();

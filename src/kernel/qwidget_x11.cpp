@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#21 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#22 $
 **
 ** Implementation of QWidget and QView classes for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#21 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#22 $";
 #endif
 
 
@@ -334,8 +334,8 @@ void QWidget::setFocus()			// set keyboard focus
 {
     if ( activeWidget == this ) {		// is active widget
 	if ( !testFlag(WState_FocusA) ) {
-	    QEvent evt( Event_FocusOut );
-	    if ( SEND_EVENT( this, &evt ) )
+	    QFocusEvent e( Event_FocusOut );
+	    if ( QApplication::sendEvent( this, &e ) )
 		setFlag( (WState_FocusA | WState_FocusP) );
 	}
 	return;
@@ -344,8 +344,8 @@ void QWidget::setFocus()			// set keyboard focus
 	activeWidget->clearFlag( WState_FocusA );
 	if ( activeWidget->parent && activeWidget->parent == parent )
 	    activeWidget->clearFlag( WState_FocusP );
-	QEvent evt( Event_FocusOut );
-	SEND_EVENT( activeWidget, &evt );
+	QFocusEvent e( Event_FocusOut );
+	QApplication::sendEvent( activeWidget, &e );
     }
     setFlag( WState_FocusA );
     activeWidget = this;
@@ -464,8 +464,8 @@ void QWidget::move( int x, int y )		// move widget
 	do_size_hints( dpy, ident, extra, &size_hints );
     }
     XMoveWindow( dpy, ident, x, y );
-    QMoveEvent evt( r.topLeft() );
-    SEND_EVENT( this, &evt );			// send move event
+    QMoveEvent e( r.topLeft() );
+    QApplication::sendEvent( this, &e );	// send move event
 }
 
 void QWidget::resize( int w, int h )		// resize widget
@@ -489,8 +489,8 @@ void QWidget::resize( int w, int h )		// resize widget
 	do_size_hints( dpy, ident, extra, &size_hints );
     }
     XResizeWindow( dpy, ident, w, h );
-    QResizeEvent evt( s );
-    SEND_EVENT( this, &evt );			// send resize event
+    QResizeEvent e( s );
+    QApplication::sendEvent( this, &e );	// send resize event
 }
 
 void QWidget::changeGeometry( int x, int y, int w, int h )
@@ -514,10 +514,10 @@ void QWidget::changeGeometry( int x, int y, int w, int h )
 	do_size_hints( dpy, ident, extra, &size_hints );
     }
     XMoveResizeWindow( dpy, ident, x, y, w, h );
-    QResizeEvent evt1( r.size() );
-    SEND_EVENT( this, &evt1 );			// send resize event
-    QMoveEvent evt2( r.topLeft() );
-    SEND_EVENT( this, &evt2 );			// send move event
+    QResizeEvent e1( r.size() );
+    QApplication::sendEvent( this, &e1 );	// send resize event
+    QMoveEvent e2( r.topLeft() );
+    QApplication::sendEvent( this, &e2 );	// send move event
 }
 
 
@@ -565,7 +565,7 @@ void QWidget::repaint( const QRect &r, bool eraseArea )
     QPaintEvent e( r );				// send fake paint event
     if ( eraseArea )
 	XClearArea( dpy, ident, r.x(), r.y(), r.width(), r.height(), FALSE );
-    paintEvent( &e );
+    QApplication::sendEvent( this, &e );
 }
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#13 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#14 $
 **
 ** Implementation of QWidget class
 **
@@ -20,7 +20,7 @@
 #include "qcolor.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#13 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#14 $";
 #endif
 
 
@@ -296,11 +296,11 @@ QPoint QWidget::mapFromParent( const QPoint &p ) const
 
 bool QWidget::close( bool forceKill )		// close widget
 {
-    QEvent e( Event_Close );
-    bool ok = closeEvent(&e);
-    if ( ok || forceKill )
+    QCloseEvent event;
+    QApplication::sendEvent( this, &event );
+    if ( event.isAccepted() || forceKill )
 	delete this;
-    return ok;
+    return event.isAccepted();
 }
 
 
@@ -314,70 +314,97 @@ bool QWidget::event( QEvent *e )		// receive event
 	if ( activate_filters( e ) )		// eaten by some filter
 	    return TRUE;
     }
-    bool res = TRUE;
     switch ( e->type() ) {
+
 	case Event_Timer:
 	    timerEvent( (QTimerEvent*)e );
 	    break;
+
 	case Event_MouseMove:
 	    mouseMoveEvent( (QMouseEvent*)e );
 	    break;
+
 	case Event_MouseButtonPress:
+#if 0	/* NOTE!!! Experimental */
 	    if ( !testFlag(WState_FocusA) ) {
 		if ( focusInEvent( e ) ) {
 		    setFocus();
 		}
 	    }
+#endif
 	    mousePressEvent( (QMouseEvent*)e );
 	    break;
+
 	case Event_MouseButtonRelease:
 	    mouseReleaseEvent( (QMouseEvent*)e );
 	    break;
+
 	case Event_MouseButtonDblClick:
 	    mouseDoubleClickEvent( (QMouseEvent*)e );
 	    break;
-	case Event_Paint:
-	    paintEvent( (QPaintEvent*)e );
-	    break;
-	case Event_KeyPress:
-	    res = keyPressEvent( (QKeyEvent*)e );
+
+	case Event_KeyPress: {
+	    QKeyEvent *k = (QKeyEvent*)e;
+	    keyPressEvent( k );
 #if defined(_WS_X11_)
-	    if ( !res && parentObj )		// child didn't want it, then
+	    if ( !k->isAccepted() && parentObj )// child didn't want it, then
 		return parentObj->event( e );	//   pass event to parent
 #endif
+	    }
 	    break;
-	case Event_KeyRelease:
-	    res = keyReleaseEvent( (QKeyEvent*)e );
+
+	case Event_KeyRelease: {
+	    QKeyEvent *k = (QKeyEvent*)e;
+	    keyReleaseEvent( k );
 #if defined(_WS_X11_)
-	    if ( !res && parentObj )		// child didn't want it, then
+	    if ( !k->isAccepted() && parentObj )// child didn't want it, then
 		return parentObj->event( e );	//   pass event to parent
 #endif
+	    }
 	    break;
+
 	case Event_FocusIn:
+#if 0	/* NOTE!!! Experimental */
 	    setFlag( WState_FocusP );		// set focus pending flag
 	    if ( res = focusInEvent(e) )
 		setFocus();
 	    clearFlag( WState_FocusP );
+#endif
 	    break;
+
 	case Event_FocusOut:
+#if 0	/* NOTE!!! Experimental */
 	    if ( testFlag(WState_FocusA) ) {
 		clearFlag( WState_FocusA );
 		focusOutEvent( e );
 	    }
+#endif
 	    break;
+
+	case Event_Paint:
+	    paintEvent( (QPaintEvent*)e );
+	    break;
+
 	case Event_Move:
 	    moveEvent( (QMoveEvent*)e );
 	    break;
+
 	case Event_Resize:
 	    resizeEvent( (QResizeEvent*)e );
 	    break;
-	case Event_Close:
-	    res = closeEvent( e );
+
+	case Event_Close: {
+	    QCloseEvent *c = (QCloseEvent *)e;
+	    closeEvent( c );
+	    if ( !c->isAccepted() )
+		return FALSE;
+	    }
 	    break;
+
 	default:
-	    res = FALSE;
+	    return FALSE;
     }
-    return res;
+    return TRUE;
 }
 
 void QWidget::timerEvent( QTimerEvent * )
@@ -401,22 +428,21 @@ void QWidget::mouseDoubleClickEvent( QMouseEvent *e )
     mousePressEvent( e );			// try mouse press event
 }
 
-bool QWidget::keyPressEvent( QKeyEvent * )
+void QWidget::keyPressEvent( QKeyEvent *e )
 {
-    return FALSE;
+    e->ignore();
 }
 
-bool QWidget::keyReleaseEvent( QKeyEvent * )
+void QWidget::keyReleaseEvent( QKeyEvent *e )
 {
-    return FALSE;
+    e->ignore();
 }
 
-bool QWidget::focusInEvent( QEvent * )
+void QWidget::focusInEvent( QFocusEvent * )
 {
-    return FALSE;
 }
 
-void QWidget::focusOutEvent( QEvent * )
+void QWidget::focusOutEvent( QFocusEvent * )
 {
 }
 
@@ -432,9 +458,16 @@ void QWidget::resizeEvent( QResizeEvent * )
 {
 }
 
-bool QWidget::closeEvent( QEvent * )
+void QWidget::showEvent( QShowEvent *e )
 {
-    return TRUE;
+}
+
+void QWidget::hideEvent( QHideEvent *e )
+{
+}
+
+void QWidget::closeEvent( QCloseEvent *e )
+{
 }
 
 
