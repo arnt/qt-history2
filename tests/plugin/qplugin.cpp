@@ -1,254 +1,222 @@
 #include "qplugin.h"
 #include <qdir.h>
-#include <qdict.h>
 #ifdef _WS_WIN_
 #include <qt_windows.h>
 #endif
 
-class QPlugIn
+#ifndef _OS_WIN32_
+#define LoadLibrary(name) dlopen(name)
+#define FreeLibrary(handle) dlclose(handle)
+#define GetProcAddress(handle, name) dlsym(handle, name)
+#include <dlfnc.h>
+#endif
+
+/*!
+  \class QPlugIn qplugin.h
+  
+  \brief Abstract class for plugin implementation
+*/
+
+/*!
+  \enum QPlugIn::LibraryPolicy
+
+  This enum type is used to set and read the plugin's library
+  policy.
+  Defined values are:
+  <ul>
+  <li> \c DefaultPolicy - The library get's loaded on first need
+  <li> \c OptimizeSpeed - The library is loaded as soon as possible
+  <li> \c ManualPolicy - The library has to be loaded and unloaded manually
+  </ul>
+*/
+
+/*!
+  Creates a plugin using the shared library \a filename.
+  The library get's loaded immediately if \a pol is OptimizeSpeed,
+  otherwise as soon as necessary.
+
+  \sa setPolicy()
+*/
+QPlugIn::QPlugIn( const QString& filename, LibraryPolicy pol )
+: pHnd( 0 ), libfile( filename ), libPol( pol )
 {
-    friend class QPlugInManager;
-public:
-    QPlugIn( HINSTANCE pHnd );
-    ~QPlugIn();
-
-private:
-    HINSTANCE pHnd;
-
-    typedef QWidget* (*CREATEWIDGETPROC)(const QString&, QWidget* = 0, const char* = 0, Qt::WFlags = 0 );
-    typedef const char* (*ENUMERATEWIDGETSPROC)();
-
-    typedef QWidget* (*PROCESSFILEPROC)( QFile* f, bool& ok );
-    typedef const char* (*ENUMERATEFILETYPESPROC)();
-
-    typedef QAction* (*CREATEACTIONPROC)(const QString&, QObject* = 0 );
-    typedef const char* (*ENUMERATEACTIONSPROC)();
-
-    CREATEWIDGETPROC createWidget;
-    ENUMERATEWIDGETSPROC enumerateWidgets;
-
-    PROCESSFILEPROC processFile;
-    ENUMERATEFILETYPESPROC enumerateFileTypes;
-
-    CREATEACTIONPROC createAction;
-    ENUMERATEACTIONSPROC enumerateActions;
-};
-
-QPlugIn::QPlugIn( HINSTANCE handle )
-{
-    pHnd = handle;
-
-    createWidget = (CREATEWIDGETPROC) GetProcAddress( pHnd, "createWidget" );
-    enumerateWidgets = (ENUMERATEWIDGETSPROC) GetProcAddress( pHnd, "enumerateWidgets" );
-
-    processFile = (PROCESSFILEPROC) GetProcAddress( pHnd, "processFile" );
-    enumerateFileTypes = (ENUMERATEFILETYPESPROC) GetProcAddress( pHnd, "enumerateFileTypes" );
-    
-    createAction = (CREATEACTIONPROC) GetProcAddress( pHnd, "createAction" );
-    enumerateActions = (ENUMERATEACTIONSPROC) GetProcAddress( pHnd, "enumerateActions" );
+    if ( pol == OptimizeSpeed )
+	load();
 }
 
+/*!
+  Deletes the plugin.
+  
+  Unloads the shared library as appropriate.
+*/
 QPlugIn::~QPlugIn()
 {
-    FreeLibrary( pHnd );
+    unload();
 }
 
-static QDict<QPlugIn> pHnds;
-static QDict<QPlugIn> pLibs;
-
-/*! \class QPlugInManager qplugin.h
-    \brief Implementation of QWidgetFactory and QActionFactory for plugin support.
-*/
-
 /*!
-  Creates an empty plugin manager.
+  Loads the shared library and initializes function pointers. This function
+  gets called automatically if the policy is not ManualPolicy. Otherwise you
+  have to make sure that the library has been loaded before usage.
+
+  Reimplement this function for custom plugin support.
+
+  \sa setPolicy()
 */
-QPlugInManager::QPlugInManager()
+bool QPlugIn::load()
 {
-    init();
+    if ( libfile.isEmpty() )
+	return FALSE;
+
+    if ( !pHnd )
+	pHnd = LoadLibrary( libfile );
+
+    infoStringPtr = (STRINGPROC) getSymbolAddress( "infoString" );
+
+    return (bool)pHnd;
 }
 
 /*!
+  Unloads the library.
+*/
+void QPlugIn::unload()
+{
+    if ( pHnd )
+	FreeLibrary( pHnd );
+
+    pHnd = 0;
+}
+
+/*!
+  Sets the current policy to \a pol.
+  Forces the library to load if \a pol is set to
+  OptimizeSpeed.
+
+  \sa LibraryPolicy
+*/
+void QPlugIn::setPolicy( LibraryPolicy pol )
+{
+    libPol = pol;
+    
+    if ( libPol == OptimizeSpeed )
+	load();
+}
+
+/*!
+  Returns the current policy.
+*/
+QPlugIn::LibraryPolicy QPlugIn::policy() const
+{
+    return libPol;
+}
+
+/*!
+  Returns the filename of the shared object connected to this plugin.
+*/
+QString QPlugIn::library() const
+{
+    return libfile;
+}
+
+/*!
+  Makes sure the library is loaded unless policy
+  is ManualPolicy. Call this method before accessing
+  the library functions.
+
+  \sa setPolicy
+*/
+void QPlugIn::use()
+{
+    if ( !pHnd ) {
+	if ( libPol != ManualPolicy )
+	    load();
+	else
+	    qWarning( "Tried to use library %s without loading!", libfile.latin1() );
+    }
+}
+
+/*!
+  Returns the address of the library's exported symbol \a sym.
+  Returns 0 if the symbol could not be located.
+*/
+void* QPlugIn::getSymbolAddress( const QString& sym )
+{
+    return GetProcAddress( pHnd, sym );
+}
+
+/*!
+  Calls the library's infoString() function and returns the result.
+*/
+const char* QPlugIn::infoString()
+{
+    use();
+
+    if ( infoStringPtr )
+	return infoStringPtr();
+    return "";
+}
+
+/*!
+  \fn bool QPlugIn::addToManager( QPlugInDict& dict )
+
+  Registers this plugin with all widgets and actions it provides in \a dict and
+  returns TRUE if successful.
+  This pure virtual function gets called by QPlugInManager::addPlugIn() and has 
+  to be reimplemented for custom extensions.
+*/
+
+/*! 
+  \class QPlugInManager qplugin.h
+  \brief Template class for plugin management.
+
+  The QPlugInManager provides basic support for plugins.
+*/
+
+/*!
+  \fn QPlugInManager::QPlugInManager( const QString &path, QPlugIn::LibraryPolicy pol )
+
   Creates a plugin manager.
   The manager looks up and loads all shared libraries in \a path.
 
   \sa addPlugInPath(), addPlugIn()
 */
-QPlugInManager::QPlugInManager( const QString &path )
-{
-    init();
-    addPlugInPath( path );
-}
-
-void QPlugInManager::init()
-{
-    pLibs.setAutoDelete( TRUE );
-    pHnds.setAutoDelete( FALSE );
-}
 
 /*!
+  \fn QPlugInManager::~QPlugInManager()
+  Deletes the plugin manager.
+
+  Calls the destructor of all managed plugins, too.
+*/
+
+/*!
+  \fn void QPlugInManager::setDefaultPolicy( QPlugIn::LibraryPolicy pol )
+
+  Sets the current default policy to \a pol.
+  The default policy does not affect plugins already registered to
+  this manager.
+
+  \sa QPlugIn::setPolicy
+*/
+
+/*!
+  \fn QPlugIn::LibraryPolicy QPlugInManager::defaultPolicy() const
+
+  Returns the current default policy.
+
+  \sa setDefaultPolicy
+*/
+
+/*!
+  \fn bool QPlugInManager::addPlugIn( const QString& file )
+
   Loads the shared library \a file and registers all provided
   widgets and actions.
-*/
-bool QPlugInManager::addPlugIn( const QString &file )
-{
-    HINSTANCE dllHandle = LoadLibrary( file );
-    bool useful = FALSE;
-    if ( dllHandle ) {
-	QPlugIn* plugin = new QPlugIn( dllHandle );
-	if ( pLibs[file] )
-	    return FALSE;
 
-	if ( plugin->enumerateWidgets && plugin->createWidget ) {
-	    QStringList wl = QStringList::split( QRegExp("\n"), plugin->enumerateWidgets() );
-	    for ( uint w = 0; w < wl.count(); w++ ) {
-		if ( pHnds["WIDGET_"+wl[w]] )
-		    qWarning("%s: Widget %s already defined!", file.latin1(), wl[w].latin1() );
-		else
-		    pHnds.insert( "WIDGET_"+wl[w], plugin );
-	    }
-	    useful = TRUE;
-	}
-	if ( plugin->enumerateActions && plugin->createAction ) {
-	    QStringList al = QStringList::split( QRegExp("\n"), plugin->enumerateActions() );
-	    for ( uint a = 0; a < al.count(); a++ ) {
-		if ( pHnds["ACTION_"+al[a]] )
-		    qWarning("%s: Action %s already defined!", file.latin1(), al[a].latin1() );
-		else
-		    pHnds.insert( "ACTION_"+al[a], plugin );
-	    }
-	    useful = TRUE;
-	}
-	if ( plugin->enumerateFileTypes && plugin->processFile ) {
-	    QStringList fl = QStringList::split( QRegExp("\n"), plugin->enumerateFileTypes() );
-	    for ( uint f = 0; f < fl.count(); f++ ) {
-		if ( pHnds["FILE_"+fl[f]] )
-		    qWarning("%s: File %s already supported!", file.latin1(), fl[f].latin1() );
-		else
-		    pHnds.insert( "FILE_"+fl[f].lower(), plugin );
-	    }
-	    useful = TRUE;
-	}
-	if ( useful )
-	    pLibs.insert( file, plugin );
-	else
-	    delete plugin;	    
-    } 
-    return useful;
-}
+  \sa addPlugIn()
+*/
 
 /*!
-  Tries to add all shared libraries in \a path.
+  \fn void QPlugInManager::addPlugInPath( const QString& path, const QString& filter )
+
+  Tries to add all shared libraries matching \a filter in \a path.
 */
-void QPlugInManager::addPlugInPath( const QString& path )
-{
-    QStringList plugins = QDir(path).entryList("*.dll *.so");
-
-    for ( uint p = 0; p < plugins.count(); p++ ) {
-	QString lib = path + "/" + plugins[p];
-	addPlugIn( lib );
-    }
-}
-
-/*! \reimp
-*/
-QWidget* QPlugInManager::newWidget( const QString& classname, QWidget* parent, const char* name, Qt::WFlags f )
-{
-    QPlugIn* plugin = pHnds[ "WIDGET_"+classname ];
-    if ( plugin )
-	return plugin->createWidget( classname, parent, name, f );
-    return 0;
-}
-
-/*!
-  Returns a list of all widget classes supported by loaded
-  plugins.
-*/
-QStringList QPlugInManager::enumerateWidgets()
-{
-    QStringList list;
-    QDictIterator<QPlugIn> it( pLibs );
-
-    while( it.current() ) {
-	QPlugIn* plugin = it.current();
-	if ( plugin->enumerateWidgets ) {
-	    QStringList widgets = QStringList::split( QRegExp("\n"), plugin->enumerateWidgets() );
-	    for ( uint w = 0; w < widgets.count(); w++ )
-		list << widgets[w];
-	}
-	++it;
-    }
-
-    return list;
-}
-
-/*! \reimp
-*/
-
-QStringList QPlugInManager::enumerateFileTypes()
-{
-    QStringList list;
-    QDictIterator<QPlugIn> it( pLibs );
-
-    while ( it.current() ) {
-	QPlugIn* plugin = it.current();
-	if ( plugin->enumerateFileTypes ) {
-	    QStringList ft = QStringList::split( QRegExp("\n"), it.current()->enumerateFileTypes() );
-	    for ( uint f = 0; f < ft.count(); f++ )
-		list << ft[f].lower();
-	}
-	++it;
-    }
-
-    return list;
-}
-
-/*! \reimp
-*/
-QWidget* QPlugInManager::processFile( QFile* file, bool &ok )
-{
-    QString filename = file->name();
-    QString fileext = "";
-    int extpos = filename.findRev('.');
-    if ( extpos != -1 )
-	fileext = filename.right( filename.length() - extpos );
-
-    QPlugIn* plugin = pHnds[ "FILE_"+fileext ];
-    if ( plugin )
-	return plugin->processFile( file, ok );
-
-    return 0;
-}
-
-/*! \reimp
-*/
-QAction* QPlugInManager::newAction( const QString& actionname, QObject* parent )
-{
-    QPlugIn* plugin = pHnds[ "ACTION_"+actionname ];
-    if ( plugin )
-	return plugin->createAction( actionname, parent );
-    return 0;
-}
-
-/*!
-  Returns a list of all action names supported by loaded
-  plugins.
-*/
-QStringList QPlugInManager::enumerateActions()
-{
-    QStringList list;
-    QDictIterator<QPlugIn> it( pHnds );
-
-    while( it.current() ) {
-	QPlugIn* plugin = it.current();
-	if ( plugin->enumerateActions ) {
-    	    QStringList actions = QStringList::split( QRegExp("\n"), plugin->enumerateActions() );
-	    for ( uint a = 0; a < actions.count(); a++ )
-		list << actions[a];
-	}
-	++it;
-    }
-
-    return list;
-}
-
