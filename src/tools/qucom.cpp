@@ -338,6 +338,48 @@ int QUType_int::serializeFrom( QUObject *, QUBuffer * )
     return 0;
 }
 
+// {5938712A-C496-11D5-8CB2-00C0F03BC0F3} 
+const QUuid TID_QUType_uint( 0x5938712a, 0xc496, 0x11d5, 0x8c, 0xb2, 0x00, 0xc0, 0xf0, 0x3b, 0xc0, 0xf3);
+QUType_uint static_QUType_uint;
+const QUuid *QUType_uint::uuid() const  { return &TID_QUType_uint; }
+const char *QUType_uint::desc() const { return "uint"; }
+
+void QUType_uint::set( QUObject *o, uint v )
+{
+    o->payload.ui = v;
+    o->type = this;
+}
+
+bool QUType_uint::canConvertFrom( QUObject *o, QUType *t )
+{
+    return t->canConvertTo( o, this );
+}
+
+bool QUType_uint::canConvertTo( QUObject * /*o*/, QUType */*t*/ )
+{
+    return FALSE;
+}
+
+bool QUType_uint::convertFrom( QUObject *o, QUType *t )
+{
+    return t->convertTo( o, this );
+}
+
+bool QUType_uint::convertTo( QUObject */*o*/, QUType */*t*/ )
+{
+    return FALSE;
+}
+
+int QUType_uint::serializeTo( QUObject *, QUBuffer * )
+{
+    return 0;
+}
+
+int QUType_uint::serializeFrom( QUObject *, QUBuffer * )
+{
+    return 0;
+}
+
 // {2D0974E5-0BA6-4ec2-8837-C198972CB48C}
 const QUuid TID_QUType_double( 0x2d0974e5, 0xba6, 0x4ec2, 0x88, 0x37, 0xc1, 0x98, 0x97, 0x2c, 0xb4, 0x8c );
 QUType_double static_QUType_double;

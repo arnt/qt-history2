@@ -86,6 +86,7 @@ static const char* const utype_map[] =
 {
     "bool",
     "int",
+    "uint",
     "double",
     "QString",
     "QVariant",

@@ -2699,4 +2699,19 @@ bool QVariant::operator!=( const QVariant &v ) const
 {
     return !( v == *this );
 }
+
+
+/*! \internal
+  
+  Reads or sets the variant type and ptr
+ */
+void* QVariant::rawAccess( void* ptr, Type typ )
+{
+    if ( ptr ) {
+	d->typ = typ;
+	d->value.ptr = ptr;
+    }
+    return d->value.ptr;
+}
+
 #endif //QT_NO_VARIANT

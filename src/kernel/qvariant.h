@@ -288,6 +288,9 @@ private:
     };
 
     Private* d;
+
+public:
+    void* rawAccess( void* ptr = 0, Type typ = Invalid );
 };
 
 // down here for GCC 2.7.* compatibility
