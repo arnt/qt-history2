@@ -520,11 +520,32 @@ QStringList QPlugIn::featureList()
 /*!
   \fn bool QPlugInManager::removeLibrary( const QString& file )
 
-  Tries to unload the library and removes all features provided by the 
-  specified library from manager, so they will no longer be available using 
-  this plugin manager. The corresponding QPlugIn object will be deleted.
-  
-  Returns TRUE when successful, otherwise returns FALSE.
+  Tries to remove all features provided by the specified library from the 
+  manager.
+  The corresponding QPlugIn object will be deleted, but as the library can
+  prevent to be unloaded it might stay in memory.
+  Returns TRUE when the library was successfully removed, otherwise FALSE.
+
+  \warning Using this function requires some attention, e.g. when removing
+  the provided features from an application:
+
+  \code
+  MyPlugIn* plugin = pluginManager->plugInFromFile( filename );
+  if ( plugin ) {
+      // As the data in the stringlist belongs to the library
+      // We have to get rid of the stringlist BEFORE unloading
+      // the library. Otherwise we experience a GPF.
+      {
+	  QStringList list = plugin->featureList();
+	  for ( uint f = 0; f < list.count(); f++ ) {
+	      ... // remove feature from menu etc.
+	  }
+      }
+      pluginManager->removeLibrary( filename );
+  }
+  \endcode
+
+  \sa unloadFeature
 */
 
 /*!
@@ -581,10 +602,12 @@ QStringList QPlugIn::featureList()
 */
 
 /*!
-  \fn void unloadFeature( const QString& feat )
+  \fn bool unloadFeature( const QString& feat )
 
   This function is pretty much the opposite of the above, as it unloads the library that
   provides the feature \a feat.
+  Returns TRUE when the plugin providing the feature \a feat has been unloaded successfully,
+  otherwise returns FALSE.
 
   \sa selectFeature, featureList, plugIn
 */

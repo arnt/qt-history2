@@ -84,13 +84,14 @@ public:
 	    for ( QStringList::Iterator a = al.begin(); a != al.end(); a++ )
 		plugDict.remove( *a );
 	}
+	bool unloaded = plugin->unload();
 
 	if ( !libDict.remove( file ) ) {
 	    delete plugin;
 	    return FALSE;
 	}
 
-	return TRUE;
+	return unloaded;
     }
 
     void setDefaultPolicy( QPlugIn::LibraryPolicy pol )
@@ -183,11 +184,14 @@ public:
 	return plugin != 0;
     }
 
-    void unloadFeature( const QString& feat )
+    bool unloadFeature( const QString& feat )
     {
 	Type* plugin = plugIn( feat );
-	if ( plugin && plugin->loaded() )
-	    plugin->unload();
+	if ( !plugin )
+	    return FALSE;
+	if ( plugin->loaded() )
+	    return plugin->unload();
+	return TRUE;
     }
 
 private:
