@@ -990,7 +990,7 @@ int QSqlCursor::insert( bool invalidate )
 	if ( !comma ) {
 	    return 0;
 	}
-	QString str = QString("insert into %1 (%2) values (%3)" ).arg( name() ).arg( fList ).arg( vList );
+	QString str = "insert into " + name() + "(" + fList + ") values (" + vList + ")";
 	return applyPrepared( str, invalidate );
     } else {
 	for( int j = 0; j < k; ++j ) {
@@ -1011,7 +1011,7 @@ int QSqlCursor::insert( bool invalidate )
 	    return 0;
 	}
 
-	QString str = QString( "insert into %1 (%2) values (%3)" ).arg( name() ).arg( fList ).arg( vList );
+	QString str = "insert into " + name() + "(" + fList + ") values (" + vList + ")";
 	return apply( str, invalidate );
     }
 }
