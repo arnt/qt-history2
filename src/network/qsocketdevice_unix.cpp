@@ -52,7 +52,7 @@
 
 // Tru64 redefines accept() to _accept() when _XOPEN_SOURCE_EXTENDED is
 // defined.  This breaks our sources.
-inline int qt_socket_accept(int s, struct sockaddr *addr, QT_SOCKLEN_T *addrlen)
+static inline int qt_socket_accept(int s, struct sockaddr *addr, QT_SOCKLEN_T *addrlen)
 { return ::accept(s, addr, addrlen); }
 #if defined(accept)
 # undef accept
@@ -60,7 +60,7 @@ inline int qt_socket_accept(int s, struct sockaddr *addr, QT_SOCKLEN_T *addrlen)
 
 // Solaris redefines bind to __xnet_bind when _XOPEN_SOURCE_EXTENDED is
 // defined.  This breaks our sources.
-inline int qt_socket_bind(int s, const struct sockaddr *addr, QT_SOCKLEN_T addrlen)
+static inline int qt_socket_bind(int s, const struct sockaddr *addr, QT_SOCKLEN_T addrlen)
 { return ::bind(s, addr, addrlen); }
 #if defined(bind)
 # undef bind
@@ -68,14 +68,14 @@ inline int qt_socket_bind(int s, const struct sockaddr *addr, QT_SOCKLEN_T addrl
 
 // Solaris redefines connect to __xnet_connect when _XOPEN_SOURCE_EXTENDED is
 // defined.  This breaks our sources.
-inline int qt_socket_connect(int s, const struct sockaddr *addr, QT_SOCKLEN_T addrlen)
+static inline int qt_socket_connect(int s, const struct sockaddr *addr, QT_SOCKLEN_T addrlen)
 { return ::connect(s, addr, addrlen); }
 #if defined(connect)
 # undef connect
 #endif
 
 // UnixWare 7 redefines listen() to _listen().  This breaks our sources.
-inline int qt_socket_listen(int s, int backlog)
+static inline int qt_socket_listen(int s, int backlog)
 { return ::listen(s, backlog); }
 #if defined(listen)
 # undef listen
