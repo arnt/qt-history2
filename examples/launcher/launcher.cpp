@@ -246,6 +246,7 @@ private:
 
 
 
+#ifdef _WS_QWS_
 
 #include <qmap.h>
 #include <qfile.h>
@@ -340,6 +341,7 @@ bool SimpleIM::filter(int code, int modifiers, bool isPress,
     return FALSE;
 }
 
+#endif
 
 void silent(QtMsgType, const char *)
 {
@@ -353,10 +355,12 @@ main(int argc, char** argv)
     qInstallMsgHandler(silent);
 
     app.setFont(QFont("smoothtimes",22));
+#ifdef _WS_QWS_
     if ( QString(argv[1]) == "-im" && argv[2] ) {
 	SimpleIM* im = new SimpleIM( argv[2] );
 	QWSServer::setKeyboardFilter( im );
     }
+#endif
 
     Launcher l;
     app.setMainWidget(&l);
