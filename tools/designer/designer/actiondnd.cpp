@@ -662,16 +662,27 @@ void QDesignerMenuBar::mousePressEvent( QMouseEvent *e )
 	menu.insertItem( tr( "Rename Item..." ), 2 );
 	int res = menu.exec( e->globalPos() );
 	if ( res == 1 ) {
-	    removeItemAt( itm );
+	    QMenuItem *item = findItem( idAt( itm ) );
+	    RemoveMenuCommand *cmd = new RemoveMenuCommand( tr( "Remove Menu '%1'" ).arg( item->text() ),
+							    formWindow,
+							    (QMainWindow*)parentWidget(), this,
+							    (QDesignerPopupMenu*)item->popup(),
+							    idAt( itm ), itm, item->text() );
+	    formWindow->commandHistory()->addCommand( cmd );
+	    cmd->execute();
 	    // #### need to do a proper invalidate and re-layout
 	    parentWidget()->layout()->invalidate();
 	    parentWidget()->layout()->activate();
 	} else if ( res == 2 ) {
 	    bool ok;
+	    QString old = text( idAt( itm ) );
 	    QString txt = QInputDialog::getText( tr( "Rename Menuitem" ), tr( "Menu Text" ), QLineEdit::Normal, text( idAt( itm ) ), &ok, 0 );
-	    if ( ok )
-		changeItem( idAt( itm ), txt );
-	
+	    if ( ok ) {
+		RenameMenuCommand *cmd = new RenameMenuCommand( tr( "Rename Menu '%1' to '%2'" ).arg( old ).arg( txt ),
+								formWindow, this, idAt( itm ), old, txt );
+		formWindow->commandHistory()->addCommand( cmd );
+		cmd->execute();
+	    }
 	}
 	return;
     }
@@ -711,6 +722,7 @@ void QDesignerMenuBar::mouseMoveEvent( QMouseEvent *e )
     p.end();
     pix.setMask( pix.createHeuristicMask() );
     drag->setPixmap( pix );
+    oldPos = itm;
     if ( !drag->drag() ) {
 	insertItem( txt, popup, -1, itm );
     }
@@ -779,6 +791,12 @@ void QDesignerMenuBar::dropEvent( QDropEvent *e )
     QPopupMenu *popup = (QPopupMenu*)s1.toLong();  // #### huha, that is evil
     QString txt = s2;
     insertItem( txt, popup, -1, insertAt );
+
+    MoveMenuCommand *cmd = new MoveMenuCommand( tr( "Move menu '%1'" ).arg( txt ), formWindow,
+						this, (QDesignerPopupMenu*)popup, oldPos, insertAt, txt );
+    // do not execute, we did the work already
+    formWindow->commandHistory()->addCommand( cmd );
+
     indicator->hide();
 }
 

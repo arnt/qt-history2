@@ -1442,6 +1442,8 @@ void AddActionToToolBarCommand::unexecute()
     }
 }
 
+// ------------------------------------------------------------
+
 AddActionToPopupCommand::AddActionToPopupCommand( const QString &n, FormWindow *fw,
 						  QAction *a, QDesignerPopupMenu *p, int idx )
     : Command( n, fw ), action( a ), popup( p ), index( idx )
@@ -1499,4 +1501,74 @@ void AddActionToPopupCommand::unexecute()
 	    }
 	}
     }
+}
+
+// ------------------------------------------------------------
+
+AddMenuCommand::AddMenuCommand( const QString &n, FormWindow *fw, QMainWindow *mw )
+    : Command( n, fw ), menuBar( 0 ), popup( 0 ), mainWindow( mw ), id( -1 ), name( "Menu" )
+{
+}
+
+void AddMenuCommand::execute()
+{
+    if ( !popup ) {
+	QString n = "PopupMenu";
+	popup = new QDesignerPopupMenu( mainWindow );
+	formWindow()->unify( popup, n, TRUE );
+	popup->setName( n );
+    }
+    if ( !mainWindow->child( 0, "QMenuBar" ) )
+	menuBar = new QDesignerMenuBar( (QWidget*)mainWindow );
+    else
+	menuBar = (QDesignerMenuBar*)mainWindow->menuBar();
+    if ( id == -1 )
+	id = mainWindow->menuBar()->insertItem( name, popup );
+    else
+	id = mainWindow->menuBar()->insertItem( name, popup, id, index );
+}
+
+void AddMenuCommand::unexecute()
+{
+    if ( !popup || !menuBar )
+	return;
+    menuBar->removeItem( id );
+}
+
+// ------------------------------------------------------------
+
+RenameMenuCommand::RenameMenuCommand( const QString &n, FormWindow *fw, QDesignerMenuBar *mb,
+				      int i, const QString &on, const QString &nn )
+    : Command( n, fw ), menuBar( mb ), id( i ), oldName( on ), newName( nn )
+{
+}
+
+void RenameMenuCommand::execute()
+{
+    menuBar->changeItem( id, newName );
+}
+
+void RenameMenuCommand::unexecute()
+{
+    menuBar->changeItem( id, oldName );
+}
+
+// ------------------------------------------------------------
+
+MoveMenuCommand::MoveMenuCommand( const QString &n, FormWindow *fw, QDesignerMenuBar *mb,
+				  QDesignerPopupMenu *p, int fidx, int tidx, const QString &txt )
+    : Command( n, fw ), menuBar( mb ), popup( p ), fromIdx( fidx ), toIdx( tidx ), text( txt )
+{
+}
+
+void MoveMenuCommand::execute()
+{
+    menuBar->removeItem( menuBar->idAt( fromIdx ) );
+    menuBar->insertItem( text, popup, -1, toIdx );
+}
+
+void MoveMenuCommand::unexecute()
+{
+    menuBar->removeItem( menuBar->idAt( toIdx ) );
+    menuBar->insertItem( text, popup, -1, fromIdx );
 }

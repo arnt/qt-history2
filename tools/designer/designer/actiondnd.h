@@ -212,6 +212,7 @@ private:
     int insertAt;
     QDesignerIndicatorWidget *indicator;
     FormWindow *formWindow;
+    int oldPos;
 
 };
 

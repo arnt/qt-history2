@@ -3328,13 +3328,9 @@ void MainWindow::handleRMBSpecialCommands( int id, QMap<QString, int> &commands,
 	    tb->setName( n );
 	    mw->addToolBar( tb, "Toolbar" );
 	} else if ( id == commands[ "add_menu_item" ] ) {
-	    QString n = "PopupMenu";
-	    QDesignerPopupMenu *popup = new QDesignerPopupMenu( mw );
-	    lastActiveFormWindow->unify( popup, n, TRUE );
-	    popup->setName( n );
-	    if ( !mw->child( 0, "QMenuBar" ) )
-		(void)new QDesignerMenuBar( (QWidget*)mw );
-	    mw->menuBar()->insertItem( "Menu", popup );
+	    AddMenuCommand *cmd = new AddMenuCommand( tr( "Add Menu to '%s'" ).arg( formWindow()->name() ), formWindow(), mw );
+	    formWindow()->commandHistory()->addCommand( cmd );
+	    cmd->execute();
 	}
     }
 }

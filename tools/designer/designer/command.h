@@ -45,7 +45,9 @@ class QMultiLineEdit;
 class QTable;
 class QAction;
 class QDesignerToolBar;
+class QMainWindow;
 class QDesignerPopupMenu;
+class QDesignerMenuBar;
 
 class Command : public Qt
 {
@@ -86,7 +88,11 @@ public:
 	AddActionToToolBar,
 	RemoveActionFromToolBar,
 	AddActionToPopup,
-	RemoveActionFromPopup
+	RemoveActionFromPopup,
+	AddMenu,
+	RemoveMenu,
+	RenameMenu,
+	MoveMenu
     };
 
     QString name() const;
@@ -718,5 +724,71 @@ public:
 
 };
 
+class AddMenuCommand : public Command
+{
+public:
+    AddMenuCommand( const QString &n, FormWindow *fw, QMainWindow *mw );
+
+    void execute();
+    void unexecute();
+    Type type() const { return AddMenu; }
+
+protected:
+    QDesignerMenuBar *menuBar;
+    QDesignerPopupMenu *popup;
+    QMainWindow *mainWindow;
+    int id;
+    int index;
+    QString name;
+
+};
+
+class RemoveMenuCommand : public AddMenuCommand
+{
+public:
+    RemoveMenuCommand( const QString &n, FormWindow *fw, QMainWindow *mw,
+		       QDesignerMenuBar *mb, QDesignerPopupMenu *p, int i, int idx, const QString &mn )
+	: AddMenuCommand( n, fw, mw ) { menuBar = mb; popup = p; id = i; index = idx, name = mn; }
+
+    void execute() { AddMenuCommand::unexecute(); }
+    void unexecute() { AddMenuCommand::execute(); }
+    Type type() const { return RemoveMenu; }
+
+};
+
+class RenameMenuCommand : public Command
+{
+public:
+    RenameMenuCommand( const QString &n, FormWindow *fw, QDesignerMenuBar *mb,
+		       int i, const QString &on, const QString &nn );
+
+    void execute();
+    void unexecute();
+    Type type() const { return RenameMenu; }
+
+private:
+    QDesignerMenuBar *menuBar;
+    int id;
+    QString oldName, newName;
+
+};
+
+class MoveMenuCommand : public Command
+{
+public:
+    MoveMenuCommand( const QString &n, FormWindow *fw, QDesignerMenuBar *mb,
+		     QDesignerPopupMenu *p, int fidx, int tidx, const QString &txt );
+
+    void execute();
+    void unexecute();
+    Type type() const { return MoveMenu; }
+
+private:
+    QDesignerMenuBar *menuBar;
+    QDesignerPopupMenu *popup;
+    int fromIdx, toIdx;
+    QString text;
+
+};
 
 #endif
