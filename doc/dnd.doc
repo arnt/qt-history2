@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: dnd.doc,v 1.4 1999/05/26 11:55:03 warwick Exp $
+** $Id: dnd.doc,v 1.5 1999/06/03 13:22:50 paul Exp $
 **
 ** Drag and drop documentation
 **
@@ -176,7 +176,7 @@ Qt toolkit - Drag and Drop
   QImageDrag provides for "<tt>image/</tt><tt>*</tt>",
   where <tt>*</tt>
   is any \link QImageIO image format that Qt supports\endlink;
-  and the QUrlDrag subclass provides "<tt>text/uri-list</tt>",
+  and the QUriDrag subclass provides "<tt>text/uri-list</tt>",
   a standard format for transferring a list of filenames (or URLs).
 
   To implement drag-and-drop of some type of information for which there
