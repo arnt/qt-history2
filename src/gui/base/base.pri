@@ -115,7 +115,7 @@ embedded {
 		base/qdnd_mac.cpp \
 		base/qdesktopwidget_mac.cpp \
 		base/qwidget_mac.cpp \
-		base/qguieventloop_mac.cpp \
+		base/qguieventloop_mac.cpp
 }
 
 
