@@ -520,6 +520,7 @@ QMAC_PASCAL void qt_mac_select_timer_callbk(EventLoopTimerRef, void *me)
    that go into the real callback into qwindowdefs.h  --Sam */
 void qt_mac_internal_select_callbk(int sock, int type, QEventLoop *eloop)
 {
+#if 0
      for(int i=0; i<3; i++) {
 	if(!eloop->d->sn_vec[i].list)
 	    continue;
@@ -534,6 +535,15 @@ void qt_mac_internal_select_callbk(int sock, int type, QEventLoop *eloop)
 	 eloop->activateSocketNotifiers();
      else
 	 qt_event_request_sockact(eloop);
+#else
+     /* This is a bit of a shame, but CFSockets can starve each other out, however we have special code
+	to prevent that from happening in our general select() case, so we'll we'll just use the moment
+	we know data is there to fire the 'old timer case' and all will be happy (sockets will fire faster than
+	as through the timer, but our fancy handling will prevent socket starvation */
+     Q_UNUSED(sock);
+     Q_UNUSED(type);
+     qt_mac_select_timer_callbk(0, eloop);
+#endif
 }
 static void qt_mac_select_callbk(CFSocketRef s, CFSocketCallBackType t, CFDataRef, const void *, void *me)
 {
@@ -607,7 +617,7 @@ int QEventLoop::macHandleSelect(timeval *tm)
 	for(int i=0; i<3; i++) {
 	    QList<QSockNot *> &list = d->sn_vec[i].list;
 	    for (int j = 0; j < list.size(); ++j) {
-		QSockNot *sn = list->at(j);
+		QSockNot *sn = list.at(j);
 		if(FD_ISSET(sn->fd, &d->sn_vec[i].select_fds))
 		    setSocketNotifierPending(sn->obj);
 	    }
@@ -756,14 +766,13 @@ void QEventLoop::setSocketNotifierPending(QSocketNotifier *notifier)
     }
 
     QList<QSockNot *> &list = d->sn_vec[type].list;
-    QSockNot *sn;
-    int i;
-    for (i = 0; i < list.size(); ++i) {
+    QSockNot *sn = NULL;
+    for(int i = 0; i < list.size(); ++i) {
 	sn = list.at(i);
 	if (sn->obj == notifier && sn->fd == sockfd)
 	    break;
     }
-    if(i == list.size()) // not found
+    if(!sn) // not found
 	return;
 
     // We choose a random activation order to be more fair under high load.
@@ -902,16 +911,32 @@ void QEventLoop::wakeUp()
 
 /* This allows the eventloop to block, and will keep things going - including keeping away
    the evil spinning cursor */
-int QMacBlockingFunction::block = 0;
+class QMacBlockingFunction::Object : public QObject
+{
+    QAtomic ref;
+public:
+    Object() { startTimer(1); }
+
+    void addRef() { ++ref; }
+    bool subRef() { return (--ref); }
+
+protected:
+    void timerEvent(QTimerEvent *)
+    {
+	if(qt_activate_timers(TimerInfo::TIMER_ZERO))
+	    QApplication::flush();
+    }
+};
+QMacBlockingFunction::Object *QMacBlockingFunction::block = NULL;
 QMacBlockingFunction::QMacBlockingFunction()
 {
-    if(!block)
-	startTimer(1);
-    block++;
+    if(!block) 
+	block = new QMacBlockingFunction::Object;
+    block->addRef();
 }
-
-void QMacBlockingFunction::timerEvent(QTimerEvent *)
+QMacBlockingFunction::~QMacBlockingFunction()
 {
-    if(qt_activate_timers(TimerInfo::TIMER_ZERO))
-	QApplication::flush();
+    Q_ASSERT(block);
+    if(!block->subRef())
+	delete block;
 }
