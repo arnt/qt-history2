@@ -973,6 +973,7 @@ void Configure::generateCachefile()
 	}
 	cacheStream << "CONFIG+=" << qmakeConfig.join( " " ) << " incremental create_prl link_prl" << endl;
 	cacheStream << "QMAKESPEC=" << dictionary[ "QMAKESPEC" ] << endl;
+	cacheStream << "ARCH=i386" << endl; //### need to detect platform
 	cacheStream << "QT_BUILD_TREE=" << dictionary[ "QT_SOURCE_TREE" ] << endl;
 	cacheStream << "QT_SOURCE_TREE=" << dictionary[ "QT_SOURCE_TREE" ] << endl;
 	cacheStream << "QT_INSTALL_PREFIX=" << dictionary[ "QT_INSTALL_PREFIX" ] << endl;
@@ -1104,6 +1105,12 @@ void Configure::generateConfigfiles()
 	    ::SetFileAttributesA( outName, FILE_ATTRIBUTE_READONLY );
 	}
     }
+
+    QString archFile = dictionary[ "QT_SOURCE_TREE" ] + "/arch/i386/arch/qatomic.h";
+    QDir archhelper;
+    archhelper.mkdir(dictionary[ "QT_INSTALL_HEADERS" ] + "/arch");
+    if (!CopyFileA(archFile, dictionary[ "QT_INSTALL_HEADERS" ] + "/arch/qatomic.h", FALSE))
+	qDebug("Couldn't copy %s to include/arch", archFile.latin1() );
 
     outName = outDir + "/qmodules.h";
 
