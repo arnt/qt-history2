@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#25 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#26 $
 #
 # this is a massive hack, written very quickly
 #
@@ -121,6 +121,7 @@ sub processdocs {
 		(?:(?:\n\s*?\n\s*)|(?:$ ))/\n/sx);
 	$doc =~ s/\s*$/\n/s;
 	$doc =~ s/^\s*//s;
+	$doc =~ s/\s*\\warning\s+/<p><strong>Warning: </strong>/gs;
 	$doc =~ s/\\internal\s.*//s if (!$internal);
 
 	$doc =~ s-\\link\s+(\S+)\s*(.+?)\s*\\endlink-
