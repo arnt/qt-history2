@@ -210,8 +210,8 @@ void QTreeView::setIndentation(int i)
   \property QTreeView::rootIsDecorated
   \brief whether to show controls for expanding and collapsing items
 
-  This property holds whether root items are displayed with controls for expandinging and
-  collapsing them.
+  This property holds whether root items are displayed with controls for
+  expanding and collapsing them.
 */
 bool QTreeView::rootIsDecorated() const
 {
