@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#13 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#14 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd2/
 **
@@ -493,6 +493,10 @@ void QDragManager::drop()
     else
 	XSendEvent( qt_xdisplay(), qt_xdnd_current_target, FALSE, NoEventMask,
 		    (XEvent*)&drop );
+    if ( restoreCursor ) {
+	QApplication::restoreOverrideCursor();
+	restoreCursor = FALSE;
+    }
 }
 
 
@@ -539,7 +543,7 @@ const char * QDragMoveEvent::format( int n )
     QString * name = qt_xdnd_drag_types->find( (long)(qt_xdnd_types[i]) );
     if ( !name )
 	return 0;
-    
+
     return *name;
 }
 
@@ -679,10 +683,8 @@ QByteArray QDropEvent::data( const char * format )
 
 void QDragManager::startDrag( QDragObject * o )
 {
-    if ( object == o ) {
-	debug( "meaningless" );
+    if ( object == o )
 	return;
-    }
 
     if ( object ) {
 	cancel();
@@ -700,3 +702,4 @@ void QDragManager::startDrag( QDragObject * o )
 			dragSource->topLevelWidget()->winId(),
 			qt_xdnd_source_current_time );
 }
+

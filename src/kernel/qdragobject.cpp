@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#13 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#14 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -14,13 +14,8 @@
 #include "qkeycode.h"
 #include "qwidget.h"
 #include "qobjcoll.h"
+#include "qbitmap.h"
 
-
-#if defined(_WS_X11_)
-#include <X11/Xlib.h>
-
-extern void qt_xdnd_send_move( Window, QDragObject *, const QPoint & );
-#endif
 
 // both a struct for storing stuff in and a wrapper to avoid polluting
 // the name space
@@ -33,6 +28,18 @@ struct QDragData {
     bool autoDelete;
     QDragObject * next;
 };
+
+
+
+static QCursor *noDropCursor = 0;
+
+#define noDropCursorWidth 18
+#define noDropCursorHeight 18
+static unsigned char noDropCutBits[] = {
+ 0xc0,0x0f,0xfc,0xf0,0x3f,0xfc,0x78,0x78,0xfc,0x1c,0xe0,0xfc,0x3e,0xc0,0xfd,
+ 0x76,0x80,0xfd,0xe7,0x80,0xff,0xc3,0x01,0xff,0x83,0x03,0xff,0x03,0x07,0xff,
+ 0x03,0x0e,0xff,0x07,0x9c,0xff,0x06,0xb8,0xfd,0x0e,0xf0,0xfd,0x1c,0xe0,0xfc,
+ 0x78,0x70,0xfc,0xf0,0x3f,0xfc,0xc0,0x0f,0xfc};
 
 
 // the universe's only drag manager
@@ -49,6 +56,8 @@ QDragManager::QDragManager()
 	manager = this;
     beingCancelled = FALSE;
     restoreCursor = FALSE;
+    QBitmap b( noDropCursorWidth, noDropCursorHeight, noDropCutBits, TRUE );
+    noDropCursor = new QCursor( b, b );
 }
 
 
@@ -103,10 +112,10 @@ bool QDragManager::eventFilter( QObject * o, QEvent * e)
 	return TRUE;
     } else if ( e->type() == Event_DragResponse ) {
 	if ( ((QDragResponseEvent *)e)->dragAccepted() ) {
-	    QApplication::setOverrideCursor( crossCursor, restoreCursor );
+	    QApplication::setOverrideCursor( arrowCursor, restoreCursor );
 	    restoreCursor = TRUE;
 	} else {
-	    QApplication::setOverrideCursor( arrowCursor, restoreCursor );
+	    QApplication::setOverrideCursor( *noDropCursor, restoreCursor );
 	    restoreCursor = TRUE;
 	}
 	return TRUE;
@@ -166,8 +175,11 @@ void QDragObject::startDrag()
 
 void QDragObject::setEncodedData( QByteArray & encodedData )
 {
+    debug( "WOW %d %d", d->enc.size(), encodedData.size() );
     d->enc = encodedData;
+    debug( "uh %d %d", d->enc.size(), encodedData.size() );
     d->enc.detach();
+    debug( "uh %d %d", d->enc.size(), encodedData.size() );
     if ( !manager && qApp )
 	(void)new QDragManager();
 }
