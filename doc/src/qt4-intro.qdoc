@@ -82,7 +82,8 @@
     \o \l{QtOpenGL}: OpenGL module
     \o \l{QtSql}: SQL module
     \o \l{QtXml}: XML module
-    \o \l{Qt3Support}: Qt 3 support classes (see \l{Qt 3 Support Layer} below)
+    \o \l{The Qt 3 Support Classes}{Qt3Support}: Qt 3 support classes (see
+       \l{Qt 3 Support Layer} below)
     \endlist
 
     QtCore contains tool classes like QString, QList, and QFile, as

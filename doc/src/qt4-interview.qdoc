@@ -70,7 +70,7 @@
 
     Two specialized abstract models are provided that can be subclassed
     and extended (see the
-    \l{Model/View Programming#related-examples}{Model/View Programming}
+    \l{model-view-programming.html#related-examples}{Model/View Programming}
     examples):
 
     \list

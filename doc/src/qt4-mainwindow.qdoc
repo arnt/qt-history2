@@ -4,7 +4,7 @@
 
     Qt 4 introduces a new set of main window classes that will replace the
     Qt 3 main window classes, providing a more efficient implementation
-    while remaining easy-to-use.
+    while remaining easy to use.
 
     \tableofcontents
 
@@ -44,14 +44,14 @@
 
     \list
     \o QMainWindow remains the central class around which applications
-       can be built. The interface to this class has been simplified --
-       much of the functionality previously included is now present in the
-       companion classes, QDockWidget and QToolBar.
+       can be built. The interface to this class has been simplified, and
+       much of the functionality previously included in this class is now
+       present in the companion QDockWidget and QToolBar classes.
 
     \o QDockWidget provides a widget that can be used to create
        detachable tool palettes or helper windows. Dock widgets keep track
-       of their own properties -- they can be moved, closed, and floated as
-       external windows.
+       of their own properties, and they can be moved, closed, and floated
+       as external windows.
 
     \o QToolBar provides a generic toolbar widget that can hold a
        number of different action-related widgets, such as buttons,
@@ -86,30 +86,23 @@
         MainWindow::MainWindow(QWidget *parent)
             : QMainWindow(parent)
         {
-            ...
-            QAction *newAction = new QAction(tr("&New"), this);
-            QAction *openAction = new QAction(tr("&Open"), this);
-            ...
     \endcode
+    \dots
+    \quotefromfile mainwindows/menus/mainwindow.cpp
+    \skipto newAct = new QAction
+    \printuntil connect(openAct
+    \dots
 
     Once actions have been created, we can add them to the main window
     components. To begin with, we add them to the popup menus:
 
+    \skipto fileMenu = menuBar()->addMenu(
+    \printuntil addAction(openAct)
+    \dots
+    \skipto fileMenu->addSeparator()
+    \printuntil fileMenu->addSeparator()
+    \dots
     \code
-            QMenu *fileMenu = new QMenu(tr("&File"), this);
-            QMenu *editMenu = new QMenu(tr("&Edit"), this);
-            QMenu *helpMenu = new QMenu(tr("&Help"), this);
-            ...
-            fileMenu->addAction(newAction);
-            fileMenu->addAction(openAction);
-            fileMenu->addAction(saveAction);
-            fileMenu->addAction(saveAsAction);
-            fileMenu->addSeparator();
-            ...
-            menuBar()->addMenu(fileMenu);
-            menuBar()->addMenu(editMenu);
-            menuBar()->addMenu(helpMenu);
-            ...
         }
     \endcode
 
@@ -122,19 +115,13 @@
     We create a toolbar as a child of the main window, and add the desired
     actions to it:
 
+    \quotefromfile mainwindows/sdi/mainwindow.cpp
+    \skipto fileToolBar = addToolBar(
+    \printuntil openAct
+    \dots
     \code
-        QToolBar *toolbar = new QToolBar(this);
-        toolbar->setWindowTitle(tr("Main Tool Bar"));
-
-        toolbar->addAction(openAction);
-        toolbar->addAction(saveAction);
-        toolbar->addAction(printAction);
-        toolbar->addSeparator();
-        toolbar->addAction(undoAction);
-        toolbar->addAction(redoAction);
-        ...
-        toolbar->setAllowedAreas(Qt::TopToolBarArea | Qt::BottomToolBarArea);
-        toolbar->setArea(Qt::TopToolBarArea);
+            fileToolbar->setAllowedAreas(Qt::TopToolBarArea | Qt::BottomToolBarArea);
+            fileToolbar->setArea(Qt::TopToolBarArea);
     \endcode
 
     In this example, the toolbar is restricted to the top and bottom
@@ -147,15 +134,9 @@
     dock widget as a child of the main window, and add widgets as children
     of the dock widget:
 
-    \code
-        QDockWidget *dockWidget = new QDockWidget(mainWindow);
-        dockWidget->setWindowTitle(tr("Tools"));
-
-        QWidget *widget = new QWidget(dockWidget);
-        ...
-        dockWidget->setAllowedArea(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-        mainWindow->addDockWidget(Qt::LeftDockWidgetArea, dockWidget);
-    \endcode
+    \quotefromfile snippets/dockwidgets/mainwindow.cpp
+    \skipto contentsWindow
+    \printuntil setWidget
 
     In this example, the dock widget can only be placed in the left and
     right dock areas, and it is initially placed in the left dock area.
@@ -178,8 +159,8 @@
 
     \image mainwindow-docks-example.png
 
-    Finally, once all of the main window components have been set up, the
-    central widget is created and installed:
+    Once all of the main window components have been set up, the central widget
+    is created and installed by using code similar to the following:
 
     \code
         QWidget *centralWidget = new QWidget(this);
