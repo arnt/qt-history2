@@ -281,7 +281,7 @@ private:
     QString label;
     Q3DnsRR * rr;
 
-    QString readString(bool multipleLabels = true);
+    QString readString(bool multipleLabels = true, bool isTxt = false);
     void parseA();
     void parseAaaa();
     void parseMx();
@@ -358,7 +358,7 @@ Q3DnsAnswer::~Q3DnsAnswer()
 }
 
 
-QString Q3DnsAnswer::readString(bool multipleLabels)
+QString Q3DnsAnswer::readString(bool multipleLabels, bool isTxt)
 {
     int p = pp;
     QString r = QString::null;
@@ -369,10 +369,9 @@ QString Q3DnsAnswer::readString(bool multipleLabels)
         if ( p >= 0 && p < size )
 	    b = answer[p];
 
-	switch( b >> 6 ) {
-	case 0:
-            // b is less than 64
-	    p++;
+        // b should be less than 64 unless it is a txt record in which case it can be 0-255 
+        if (b >> 6 == 0 || isTxt) {
+            p++;
 
             // Detect end of data
 	    if ( b == 0 ) {
@@ -392,12 +391,7 @@ QString Q3DnsAnswer::readString(bool multipleLabels)
             if (!multipleLabels)
                 return r;
 
-	    break;
-	default:
-            // Ignore unrecognized control character, or p was out of
-            // range.
-	    goto not_ok;
-	case 3:
+        } else if(b >> 6 == 3) {
             // Use the next character to determine the relative offset
             // to jump to before continuing the packet parsing.
 	    int q = ( (answer[p] & 0x3f) << 8 ) + answer[p+1];
@@ -407,7 +401,11 @@ QString Q3DnsAnswer::readString(bool multipleLabels)
 	    if ( p >= pp )
 		pp = p + 2;
 	    p = q;
-        }
+        } else {
+            // Ignore unrecognized control character, or p was out of
+            // range.
+	    goto not_ok;
+        }	
     }
 not_ok:
     ok = FALSE;
@@ -586,7 +584,8 @@ void Q3DnsAnswer::parsePtr()
 
 void Q3DnsAnswer::parseTxt()
 {
-    QString text = readString(false);
+    // disallow multiple labels and specify that we want to read a txt record
+    QString text = readString(false, true);
     if (!ok) {
 #if defined(QDNS_DEBUG)
         qDebug("Q3Dns: saw bad TXT for for %s", label.ascii());
