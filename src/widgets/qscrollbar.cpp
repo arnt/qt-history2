@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#133 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#134 $
 **
 ** Implementation of QScrollBar class
 **
@@ -191,7 +191,7 @@ QScrollBar::QScrollBar( QWidget *parent, const char *name )
 
 QScrollBar::QScrollBar( Orientation orientation, QWidget *parent,
 			const char *name )
-    : QWidget( parent, name )
+    : QWidget( parent, name, WResizeNoErase )
 {
     orient = orientation;
     init();
@@ -213,7 +213,7 @@ QScrollBar::QScrollBar( Orientation orientation, QWidget *parent,
 QScrollBar::QScrollBar( int minValue, int maxValue, int lineStep, int pageStep,
 			int value,  Orientation orientation,
 			QWidget *parent, const char *name )
-    : QWidget( parent, name ),
+    : QWidget( parent, name, WResizeNoErase ),
       QRangeControl( minValue, maxValue, lineStep, pageStep, value )
 {
     orient = orientation;
@@ -496,18 +496,9 @@ void QScrollBar::resizeEvent( QResizeEvent * )
 void QScrollBar::paintEvent( QPaintEvent * )
 {
     QPainter p( this );
-
-    qDrawShadePanel( &p, rect(), colorGroup(), TRUE );
-    if ( hasFocus() ) {
-	if ( style() != WindowsStyle ) {
-	    p.setPen( black );
-	    p.drawRect(  1, 1, width() - 2, height() - 2 );
-	}
-    }
     drawControls( QStyle::AddLine | QStyle::SubLine | QStyle::AddPage | QStyle::SubPage | QStyle::Slider,
 			pressedControl, &p );
 }
-
 
 static QCOORD sliderStartPos = 0;
 
@@ -776,7 +767,7 @@ void QScrollBar::styleChange( QStyle& old )
 	setBackgroundMode( PaletteMid );
     else
 	setBackgroundMode( PaletteBackground );
-    
+
     QWidget::styleChange( old );
 }
 
