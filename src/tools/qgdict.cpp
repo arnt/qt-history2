@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.cpp#51 $
+** $Id: //depot/qt/main/src/tools/qgdict.cpp#52 $
 **
 ** Implementation of QGDict and QGDictIterator classes
 **
@@ -15,7 +15,7 @@
 #include "qdstream.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qgdict.cpp#51 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qgdict.cpp#52 $");
 
 
 /*!
@@ -139,16 +139,23 @@ private:
 
 QGDict::QGDict( uint len, bool cs, bool ck, bool th )
 {
-    vec = new QBucket *[vlen = len];		// allocate hash table
-    CHECK_PTR( vec );
-    memset( (char*)vec, 0, vlen*sizeof(QBucket*) );
-    numItems = 0;
+    init( len );
     cases = cs;
     copyk = ck;
     triv = th;
     if ( triv )					// copyk must be FALSE for
 	copyk = FALSE;				//   int-hashed dicts
+}
+
+void QGDict::init( uint len )
+{
+    vec = new QBucket *[vlen = len];		// allocate hash table
+    CHECK_PTR( vec );
+    memset( (char*)vec, 0, vlen*sizeof(QBucket*) );
+    numItems = 0;
     iterators = 0;
+
+    // Be careful not to break resize() if you add something.
 }
 
 /*!
@@ -159,14 +166,10 @@ QGDict::QGDict( uint len, bool cs, bool ck, bool th )
 QGDict::QGDict( const QGDict & dict )
     : QCollection( dict )
 {
-    vec = new QBucket *[vlen = dict.vlen];	// allocate hash table
-    CHECK_PTR( vec );
-    memset( (char*)vec, 0, vlen*sizeof(QBucket*) );
-    numItems = 0;
+    init( dict.vlen );
     cases = dict.cases;
     copyk = dict.copyk;
     triv  = dict.triv;
-    iterators = 0;
     QGDictIterator it( dict );
     while ( it.get() ) {			// copy from other dict
 	look( it.getKey(), it.get(), TRUE );
@@ -271,6 +274,48 @@ GCI QGDict::look( const char *key, GCI d, int op )
     vec[index] = node;
     numItems++;
     return node->getData();
+}
+
+/*!
+  Changes the size of the hashtable.
+  The contents of the dictionary are preserved,
+  but all iterators on the dictionary become invalid.
+*/
+void QGDict::resize( uint newsize )
+{
+    // Save old information
+    QBucket   **old_vec = vec;
+    uint	old_vlen = vlen;
+    QGDItList  *old_iterators = iterators;
+    bool	old_copyk = copyk;
+
+    init( newsize );
+    copyk = FALSE;
+
+    // Reinsert every item from vec, deleting vec as we go
+    for ( uint index = 0; index < old_vlen; index++ ) {
+	QBucket *n=old_vec[index];
+	while ( n ) {
+	    look( n->getKey(), n->getData(), 2 );
+	    QBucket *t=n->getNext();
+	    delete n;
+	    n = t;
+	}
+    }
+    delete [] old_vec;
+
+    // Restore state
+    iterators = old_iterators;
+    copyk = old_copyk;
+
+    // `Invalidate' all iterators, since order is lost
+    if ( iterators ) {			// update iterators
+	register QGDictIterator *i = iterators->first();
+	while ( i ) {			// fix all iterators
+	    i->toFirst();
+	    i = iterators->next();
+	}
+    }
 }
 
 /*!
