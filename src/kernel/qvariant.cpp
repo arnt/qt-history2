@@ -81,18 +81,18 @@ QVariantPrivate::QVariantPrivate( QVariantPrivate* d )
 	case QVariant::Region:
 	    value.ptr = new QRegion( *((QRegion*)d->value.ptr) );
 	    // ## Force a detach
-	    ((QRegion*)value.ptr)->translate( 0, 0 );
+	    // ((QRegion*)value.ptr)->translate( 0, 0 );
 	    break;
 	case QVariant::PointArray:
 	    // PointArray is explicit shared
-	    value.ptr = new QPointArray( ((QPointArray*)d->value.ptr)->copy() );
+	    value.ptr = new QPointArray( *((QPointArray*)d->value.ptr) );
 	    break;
 	case QVariant::String:
 	    value.ptr = new QString( *((QString*)d->value.ptr) );
 	    break;
 	case QVariant::CString:
 	    // QCString is explicit shared
-	    value.ptr = new QCString( ((QCString*)d->value.ptr)->copy() );
+	    value.ptr = new QCString( *((QCString*)d->value.ptr) );
 	    break;
 	case QVariant::StringList:
 	    value.ptr = new QStringList( *((QStringList*)d->value.ptr) );
@@ -108,12 +108,12 @@ QVariantPrivate::QVariantPrivate( QVariantPrivate* d )
 	    break;
 	case QVariant::Image:
 	    // QImage is explicit shared
-	    value.ptr = new QImage( ((QImage*)d->value.ptr)->copy() );
+	    value.ptr = new QImage( *((QImage*)d->value.ptr) );
 	    break;
 	case QVariant::Brush:
 	    value.ptr = new QBrush( *((QBrush*)d->value.ptr) );
 	    // ## Force a detach
-	    ((QBrush*)value.ptr)->setColor( ((QBrush*)value.ptr)->color() );
+	    // ((QBrush*)value.ptr)->setColor( ((QBrush*)value.ptr)->color() );
 	    break;
 	case QVariant::Point:
 	    value.ptr = new QPoint( *((QPoint*)d->value.ptr) );
@@ -129,7 +129,7 @@ QVariantPrivate::QVariantPrivate( QVariantPrivate* d )
 	    break;
 	case QVariant::Palette:
 	    // QPalette is explicit shared
-	    value.ptr = new QPalette( ((QPalette*)d->value.ptr)->copy() );
+	    value.ptr = new QPalette( *((QPalette*)d->value.ptr) );
 	    break;
 	case QVariant::ColorGroup:
 	    value.ptr = new QColorGroup( *((QColorGroup*)d->value.ptr) );
@@ -375,8 +375,13 @@ QVariant::~QVariant()
     if ( d->deref() ) delete d;
 }
 
-/*!  Constructs a deep copy of the variant passed as argument to this
-  constructor.
+/*!
+  Constructs a copy of the variant passed as argument to this
+  constructor. Usually this is a deep copy. But if the stored data
+  type is explicit shared then only a shallow copy is made.
+  
+  The variant just resembles the copy behaviour of the data type
+  it contains.
 */
 QVariant::QVariant( const QVariant& p )
 {
