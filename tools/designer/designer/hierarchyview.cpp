@@ -261,7 +261,6 @@ void HierarchyList::objectClicked( QListViewItem *i )
 	formWindow->emitShowProperties( formWindow );
 	return;
     }
-
     if ( o->isWidgetType() ) {
 	QWidget *w = (QWidget*)o;
 	if ( !formWindow->widgets()->find( w ) ) {
@@ -366,8 +365,8 @@ void HierarchyList::setup()
 	}
     }
 #endif
-    lastWidgetStack = 0;
-    if ( w )
+    lastWidgetStack = 0;    
+    if ( w ) 
 	insertObject( w, 0 );
     lastWidgetStack = 0;
 }
@@ -442,7 +441,6 @@ void HierarchyList::insertObject( QObject *o, QListViewItem *parent )
 	item->setPixmap( 0, ( (QAction*)o )->iconSet().pixmap() );
 
     ( (HierarchyItem*)item )->setObject( o );
-
     const QObjectList *l = o->children();
     if ( l ) {
 	QObjectListIt it( *l );
@@ -487,14 +485,15 @@ void HierarchyList::insertObject( QObject *o, QListViewItem *parent )
 	    insertObject( it.current(), item );
 	}
     }
-
+    
     if ( fakeMainWindow ) {
 	QObjectList *l = o->parent()->queryList( "QDesignerToolBar" );
-	for ( QObject *obj = l->first(); obj; obj = l->next() )
+	for ( QObject *obj = l->first(); obj; obj = l->next() ) 
 	    insertObject( obj, item );
 	delete l;
 	QMenuBar *m = (QMenuBar*)o->parent()->child( 0, "QDesignerMenuBar" );
-	insertObject( m, item );
+	if ( m )
+	    insertObject( m, item );
     } else if ( o->inherits( "QDesignerToolBar" ) || o->inherits( "QDesignerPopupMenu" ) ) {
 	QPtrList<QAction> actions;
 	if ( o->inherits( "QDesignerToolBar" ) )
@@ -966,7 +965,8 @@ void FormDefinitionView::showRMBMenu( QListViewItem *i, const QPoint &pos )
 	menu.insertItem( PixmapChooser::loadPixmap( "filenew" ), tr( "New" ), NEW_ITEM );
 	if ( formWindow->project()->language() == "C++" )
 	    menu.insertItem( PixmapChooser::loadPixmap( "editslots" ), tr( "Properties..." ), PROPS );
-	menu.insertItem( tr( "Goto Implementation" ), EDIT );
+	if ( MetaDataBase::hasEditor( formWindow->project()->language() ) )
+	    menu.insertItem( tr( "Goto Implementation" ), EDIT );
 	menu.insertSeparator();
 	menu.insertItem( PixmapChooser::loadPixmap( "editcut" ), tr( "Delete" ), REMOVE );
 	popupOpen = TRUE;
@@ -1092,7 +1092,6 @@ void FormDefinitionView::save( QListViewItem *p, QListViewItem *i )
 	return;
     }
     if ( i && ( (i->rtti() == HierarchyItem::Slot) || (i->rtti() == HierarchyItem::Function) ) ) {
-	// todo?
 	MetaDataBase::addFunction( formWindow, i->text( 0 ).latin1(), "virtual", p->text( 0 ),
 			           i->text( 4 ), formWindow->project()->language(), "void" );
 	MainWindow::self->editFunction( i->text( 0 ).left( i->text( 0 ).find( "(" ) ),

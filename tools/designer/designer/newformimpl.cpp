@@ -98,11 +98,12 @@ void FormItem::insert( Project *pro )
 		      fw->iFace(), MainWindow::self->designerInterface() );
 	iface->release();
     }
-
+    
     // the wizard might have changed a lot, lets update everything
     MainWindow::self->actioneditor()->setFormWindow( fw );
     MainWindow::self->objectHierarchy()->setFormWindow( fw, fw );
     MainWindow::self->objectHierarchy()->formDefinitionView()->refresh();
+    MainWindow::self->objectHierarchy()->rebuild();
     fw->killAccels( fw );
     fw->project()->setModified( TRUE );
     fw->setFocus();
