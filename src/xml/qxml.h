@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qxml.h#38 $
+** $Id: //depot/qt/main/src/xml/qxml.h#39 $
 **
 ** Definition of QXmlSimpleReader and related classes.
 **
@@ -446,8 +446,8 @@ class QM_EXPORT QXmlLexicalHandler
 public:
     virtual bool startDTD( const QString& name, const QString& publicId, const QString& systemId ) = 0;
     virtual bool endDTD() = 0;
-//    virtual bool startEntity( const QString& name ) = 0;
-//    virtual bool endEntity( const QString& name ) = 0;
+    virtual bool startEntity( const QString& name ) = 0;
+    virtual bool endEntity( const QString& name ) = 0;
     virtual bool startCDATA() = 0;
     virtual bool endCDATA() = 0;
     virtual bool comment( const QString& ch ) = 0;
@@ -493,8 +493,8 @@ public:
 
     bool startDTD( const QString& name, const QString& publicId, const QString& systemId );
     bool endDTD();
-//    bool startEntity( const QString& name );
-//    bool endEntity( const QString& name );
+    bool startEntity( const QString& name );
+    bool endEntity( const QString& name );
     bool startCDATA();
     bool endCDATA();
     bool comment( const QString& ch );

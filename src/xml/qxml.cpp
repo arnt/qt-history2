@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qxml.cpp#81 $
+** $Id: //depot/qt/main/src/xml/qxml.cpp#82 $
 **
 ** Implementation of QXmlSimpleReader and related classes.
 **
@@ -176,11 +176,14 @@ class QXmlDefaultHandlerPrivate
 {
 };
 
+#if 0
+// ### do we still need this for any platform?
 #if defined(Q_FULL_TEMPLATE_INSTANTIATION)
 bool operator==( const QMap<QString, QString>, const QMap<QString, QString> )
 {
     return FALSE;
 }
+#endif
 #endif
 
 /*!
@@ -1465,8 +1468,7 @@ QString QXmlInputSource::fromRawData( const QByteArray &data, bool beginning )
 
   You can set the lexical handler with QXmlReader::setLexicalHandler().
 
-  This interface is designed after the SAX2 extension LexicalHandler. The
-  functions startEntity() and endEntity() are not included though.
+  This interface is designed after the SAX2 extension LexicalHandler.
 
   See also the <a href="xml-sax.html#introSAX2">Introduction to SAX2</a>.
 
@@ -1503,6 +1505,41 @@ QString QXmlInputSource::fromRawData( const QByteArray &data, bool beginning )
   message that is used for reporting the error.
 
   \sa startDTD()
+*/
+/*!
+  \fn bool QXmlLexicalHandler::startEntity( const QString& name )
+
+  The reader calls this function to report the start of an entity with the name
+  \a name.
+
+  Please note that if the entity is unknown, the reader reports it through
+  QXmlContentHandler::skippedEntity() and not throught this function.
+
+  To get the reporting of startEntity() and endEntity() with the
+  QXmlSimpleReader, you have to set the feature 
+  \e http://trolltech.com/xml/features/report-start-end-entity to TRUE (the
+  default is FALSE).
+
+  If this function returns FALSE the reader stops parsing and reports
+  an error. The reader uses the function errorString() to get the error
+  message that is used for reporting the error.
+
+  \sa endEntity() QXmlSimpleReader::setFeature()
+*/
+/*!
+  \fn bool QXmlLexicalHandler::endEntity( const QString& name )
+
+  The reader calls this function to report the end of an entity with the name
+  \a name.
+
+  To every call of startEntity(), there is a fitting call of endEntity(). The
+  calls of startEntity() and endEntity() are properly nested.
+
+  If this function returns FALSE the reader stops parsing and reports
+  an error. The reader uses the function errorString() to get the error
+  message that is used for reporting the error.
+
+  \sa startEntity() QXmlSimpleReader::setFeature()
 */
 /*!
   \fn bool QXmlLexicalHandler::startCDATA()
@@ -1812,7 +1849,6 @@ bool QXmlDefaultHandler::endDTD()
     return TRUE;
 }
 
-#if 0
 /*!  \reimp
   Does nothing.
 */
@@ -1828,7 +1864,6 @@ bool QXmlDefaultHandler::endEntity( const QString& )
 {
     return TRUE;
 }
-#endif
 
 /*!  \reimp
   Does nothing.
@@ -2199,6 +2234,7 @@ private:
   <li> \e http://xml.org/sax/features/namespaces TRUE
   <li> \e http://xml.org/sax/features/namespace-prefixes FALSE
   <li> \e http://trolltech.com/xml/features/report-whitespace-only-CharData TRUE
+  <li> \e http://trolltech.com/xml/features/report-start-end-entity FALSE
   </ul>
 
   More information about features can be found in the \link xml-sax.html#features
@@ -2280,6 +2316,12 @@ bool QXmlSimpleReader::feature( const QString& name, bool *ok ) const
        if this feature is TRUE, CharData that consist of whitespace only (and
        no other characters) are not reported via
        QXmlContentHandler::characters()
+  <li> \e http://trolltech.com/xml/features/report-start-end-entity:
+       if this feature is TRUE, the parser reports
+       QXmlContentHandler::startEntity() and QXmlContentHandler::endEntity()
+       events. So character data might be reported in chunks. If this feature
+       is FALSE, the parser does not report those events, but rather silently
+       substitutes the entities and reports the character data in one chunk.
   </ul>
 
   \sa feature() hasFeature()
@@ -3224,7 +3266,6 @@ bool QXmlSimpleReader::parseContent()
 		}
 		break;
 	    case CDS:
-		// empty string
 		stringClear();
 		break;
 	    case CDS2:
@@ -3337,6 +3378,18 @@ bool QXmlSimpleReader::parseContent()
 		    }
 		    charDataRead = d->parseReference_charDataRead;
 		} else {
+		    if ( d->reportEntities ) {
+			// report character data in chunks
+			if ( contentHnd ) {
+			    if ( d->reportWhitespaceCharData || !string().simplifyWhiteSpace().isEmpty() ) {
+				if ( !contentHnd->characters( string() ) ) {
+				    parseFailed( &QXmlSimpleReader::parseContent, state );
+				    return FALSE;
+				}
+			    }
+			}
+			stringClear();
+		    }
 		    d->parseReference_context = InContent;
 		    if ( !parseReference() ) {
 			parseFailed( &QXmlSimpleReader::parseContent, state );
