@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptd_x11.cpp#59 $
+** $Id: //depot/qt/main/src/kernel/qptd_x11.cpp#60 $
 **
 ** Implementation of QPaintDevice class for X11
 **
@@ -20,7 +20,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptd_x11.cpp#59 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptd_x11.cpp#60 $")
 
 
 /*----------------------------------------------------------------------------
@@ -181,7 +181,7 @@ int QPaintDevice::metric( int ) const
 //
 
 static bool  init_mask_gc = FALSE;
-static const max_mask_gcs = 11;			// suitable for hashing
+static const int max_mask_gcs = 11;		// suitable for hashing
 
 struct mask_gc {
     GC	gc;

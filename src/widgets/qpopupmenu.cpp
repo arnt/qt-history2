@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#71 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#72 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -19,29 +19,29 @@
 #include "qscrbar.h"				// qDrawArrow
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#71 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#72 $")
 
 
 // Windows style parameters
 
-static const winPopupFrame	= 2;		// popup frame width
-static const winItemFrame	= 2;		// menu item frame width
-static const winSepHeight	= 2;		// separator item height
-static const winItemHMargin	= 3;		// menu item hor text margin
-static const winItemVMargin	= 8;		// menu item ver text margin
-static const winArrowHMargin	= 6;		// arrow horizontal margin
-static const winArrowVMargin	= 4;		// arrow horizontal margin
+static const int winPopupFrame		= 2;	// popup frame width
+static const int winItemFrame		= 2;	// menu item frame width
+static const int winSepHeight		= 2;	// separator item height
+static const int winItemHMargin		= 3;	// menu item hor text margin
+static const int winItemVMargin		= 8;	// menu item ver text margin
+static const int winArrowHMargin	= 6;	// arrow horizontal margin
+static const int winArrowVMargin	= 4;	// arrow horizontal margin
 
 // Motif style parameters
 
-static const motifPopupFrame	= 2;		// popup frame width
-static const motifItemFrame	= 2;		// menu item frame width
-static const motifSepHeight	= 2;		// separator item height
-static const motifItemHMargin	= 3;		// menu item hor text margin
-static const motifItemVMargin	= 2;		// menu item ver text margin
-static const motifArrowHMargin	= 6;		// arrow horizontal margin
-static const motifArrowVMargin	= 2;		// arrow horizontal margin
-static const motifTabSpacing	= 12;		// space between text and tab
+static const int motifPopupFrame	= 2;	// popup frame width
+static const int motifItemFrame		= 2;	// menu item frame width
+static const int motifSepHeight		= 2;	// separator item height
+static const int motifItemHMargin	= 3;	// menu item hor text margin
+static const int motifItemVMargin	= 2;	// menu item ver text margin
+static const int motifArrowHMargin	= 6;	// arrow horizontal margin
+static const int motifArrowVMargin	= 2;	// arrow horizontal margin
+static const int motifTabSpacing	= 12;	// space between text and tab
 
 /*
 
@@ -722,7 +722,7 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
 	const char *t = strchr( s, '\t' );
 	int x = motifItemFrame + motifItemHMargin;
 	int m = motifItemVMargin;
-	const text_flags = AlignVCenter | ShowPrefix | DontClip | SingleLine;
+	const int text_flags = AlignVCenter|ShowPrefix | DontClip | SingleLine;
 	if ( t ) {				// draw text before tab
 	    p->drawText( x, m, cellw, cellh-2*m, text_flags,
 			 s, (int)((long)t-(long)s) );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtstream.cpp#26 $
+** $Id: //depot/qt/main/src/tools/qtstream.cpp#27 $
 **
 ** Implementation of QTextStream class
 **
@@ -17,7 +17,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qtstream.cpp#26 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qtstream.cpp#27 $")
 
 
 /*----------------------------------------------------------------------------
@@ -413,20 +413,20 @@ long QTextStream::input_int()
 
 static double input_double( QTextStream *s )
 {
-    const Init	   = 0;				// states
-    const Sign	   = 1;
-    const Mantissa = 2;
-    const Dot	   = 3;
-    const Abscissa = 4;
-    const ExpMark  = 5;
-    const ExpSign  = 6;
-    const Exponent = 7;
-    const Done	   = 8;
+    const int Init	 = 0;			// states
+    const int Sign	 = 1;
+    const int Mantissa   = 2;
+    const int Dot        = 3;
+    const int Abscissa   = 4;
+    const int ExpMark    = 5;
+    const int ExpSign    = 6;
+    const int Exponent   = 7;
+    const int Done       = 8;
 
-    const InputSign  = 1;			// input tokens
-    const InputDigit = 2;
-    const InputDot   = 3;
-    const InputExp   = 4;
+    const int InputSign  = 1;			// input tokens
+    const int InputDigit = 2;
+    const int InputDot   = 3;
+    const int InputExp   = 4;
 
     static uchar table[8][5] = {
      /* None	 InputSign   InputDigit InputDot InputExp */

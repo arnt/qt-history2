@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#185 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#186 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -26,7 +26,7 @@
 #define QXFontStruct XFontStruct
 #include "qfontdta.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#185 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#186 $")
 
 
 /*****************************************************************************
@@ -365,10 +365,10 @@ static inline void release_gc( void *ref )
   QPainter member functions
  *****************************************************************************/
 
-const TxNone	  = 0;				// transformation code
-const TxTranslate = 1;
-const TxScale	  = 2;
-const TxRotShear  = 3;
+const int TxNone      = 0;			// transformation codes
+const int TxTranslate = 1;
+const int TxScale     = 2;
+const int TxRotShear  = 3;
 
 
 /*----------------------------------------------------------------------------
@@ -2727,11 +2727,11 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 	code_alloc = TRUE;
     }
 
-    const BEGLINE  = 0x8000;			// encoding 0x8zzz, zzz=width
-    const TABSTOP  = 0x4000;			// encoding 0x4zzz, zzz=tab pos
-    const PREFIX   = 0x2000;			// encoding 0x20zz, zz=char
-    const WIDTHBITS= 0x1fff;			// bits for width encoding
-    const MAXWIDTH = 0x1fff;			// max width value
+    const int BEGLINE  = 0x8000;		// encoding 0x8zzz, zzz=width
+    const int TABSTOP  = 0x4000;		// encoding 0x4zzz, zzz=tab pos
+    const int PREFIX   = 0x2000;		// encoding 0x20zz, zz=char
+    const int WIDTHBITS= 0x1fff;		// bits for width encoding
+    const int MAXWIDTH = 0x1fff;		// max width value
 
     char *p = (char *)str;
     int nlines;					// number of lines

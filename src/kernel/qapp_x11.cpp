@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#164 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#165 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -44,7 +44,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #include <bstring.h> // bzero
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#164 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#165 $")
 
 
 /*****************************************************************************
@@ -1576,10 +1576,10 @@ struct TimerInfo {				// internal timer info
 
 typedef declare(QListM,TimerInfo) TimerList;	// list of TimerInfo structs
 
-static const MaxTimers = 256;			// max number of timers
-static const TimerBitVecLen = MaxTimers/8+1;	// size of timer bit vector
-static uchar *timerBitVec = 0;			// timer bit vector
-static TimerList *timerList = 0;		// timer list
+static const int MaxTimers	= 256;		// max number of timers
+static const int TimerBitVecLen = MaxTimers/8+1;// size of timer bit vector
+static uchar *timerBitVec	= 0;		// timer bit vector
+static TimerList *timerList	= 0;		// timer list
 
 
 //

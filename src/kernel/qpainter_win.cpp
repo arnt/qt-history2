@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#49 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#50 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -30,7 +30,7 @@
 
 extern WindowsVersion qt_winver;		// defined in qapp_win.cpp
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_win.cpp#49 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_win.cpp#50 $")
 
 
 #define COLOR_VALUE(c) ((flags & RGBColor) ? c.rgb() : c.pixel())
@@ -258,10 +258,10 @@ static inline bool obtain_brush( void **ref, HANDLE *brush, uint pix )
   QPainter member functions
  *****************************************************************************/
 
-const TxNone	  = 0;				// transformation code
-const TxTranslate = 1;
-const TxScale	  = 2;
-const TxRotShear  = 3;
+const int TxNone      = 0;			// transformation codes
+const int TxTranslate = 1;
+const int TxScale     = 2;
+const int TxRotShear  = 3;
 
 
 void QPainter::initialize()
@@ -1975,11 +1975,11 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 	code_alloc = TRUE;
     }
 
-    const BEGLINE  = 0x8000;			// encoding 0x8zzz, zzz=width
-    const TABSTOP  = 0x4000;			// encoding 0x4zzz, zzz=tab pos
-    const PREFIX   = 0x2000;			// encoding 0x20zz, zz=char
-    const WIDTHBITS= 0x1fff;			// bits for width encoding
-    const MAXWIDTH = 0x1fff;			// max width value
+    const int BEGLINE  = 0x8000;		// encoding 0x8zzz, zzz=width
+    const int TABSTOP  = 0x4000;		// encoding 0x4zzz, zzz=tab pos
+    const int PREFIX   = 0x2000;		// encoding 0x20zz, zz=char
+    const int WIDTHBITS= 0x1fff;		// bits for width encoding
+    const int MAXWIDTH = 0x1fff;		// max width value
 
     char *p = (char *)str;
     int nlines;					// number of lines

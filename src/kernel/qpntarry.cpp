@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpntarry.cpp#33 $
+** $Id: //depot/qt/main/src/kernel/qpntarry.cpp#34 $
 **
 ** Implementation of QPointArray class
 **
@@ -16,7 +16,7 @@
 #include "qdstream.h"
 #include <stdarg.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpntarry.cpp#33 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpntarry.cpp#34 $")
 
 
 /*----------------------------------------------------------------------------
@@ -579,10 +579,10 @@ QPointArray QPointArray::quadBezier() const
  and wrote it, honest.  It's going away soon.
  *****************************************************************************/
 
-const max_bezcontrols = 20;			// max Bezier control points
+const int max_bezcontrols = 20;			// max Bezier control points
 
-const max_bico	= max_bezcontrols;		// max binomial coefficient n
-const num_bicos = max_bico*(max_bico+1)/2;	// 1+2+3+...+max_bico
+const int max_bico  = max_bezcontrols;		// max binomial coefficient n
+const int num_bicos = max_bico*(max_bico+1)/2;	// 1+2+3+...+max_bico
 static long bicot[num_bicos];			// Pascal's triangle
 
 #define BICO(n,k) bicot[ (n)*((n)+1)/2 + (k) ];

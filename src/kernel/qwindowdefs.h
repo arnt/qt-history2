@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#76 $
+** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#77 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -152,8 +152,8 @@ GC	 qt_xget_temp_gc( bool monochrome=FALSE );
 // Global platform-independent types and functions
 
 typedef short QCOORD;				// coordinate type
-const QCOORD_MIN = -32768;
-const QCOORD_MAX =  32767;
+const int QCOORD_MIN = -32768;
+const int QCOORD_MAX =  32767;
 
 typedef unsigned int QRgb;			// RGB triplet
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qregexp.cpp#28 $
+** $Id: //depot/qt/main/src/tools/qregexp.cpp#29 $
 **
 ** Implementation of QRegExp class
 **
@@ -18,7 +18,7 @@
 #include <malloc.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qregexp.cpp#28 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qregexp.cpp#29 $")
 
 
 /*----------------------------------------------------------------------------
@@ -78,10 +78,10 @@ const ushort END	= 0x0000;
 // QRegExp::error codes (internal)
 //
 
-const PatOk		= 0;			// pattern ok
-const PatNull		= 1;			// no pattern defined
-const PatSyntax		= 2;			// pattern syntax error
-const PatOverflow	= 4;			// pattern too long
+const int PatOk		= 0;			// pattern ok
+const int PatNull	= 1;			// no pattern defined
+const int PatSyntax	= 2;			// pattern syntax error
+const int PatOverflow	= 4;			// pattern too long
 
 
 /*****************************************************************************
@@ -600,7 +600,7 @@ static ushort *dump( ushort *p )
 #endif // DEBUG
 
 
-const maxlen = 1024;				// max length of regexp array
+static const int maxlen = 1024;			// max length of regexp array
 static ushort rxarray[ maxlen ];		// tmp regexp array
 
 /*----------------------------------------------------------------------------

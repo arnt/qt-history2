@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#54 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#55 $
 **
 ** Implementation of QMenuBar class
 **
@@ -18,7 +18,7 @@
 #include "qapp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#54 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#55 $")
 
 
 /*----------------------------------------------------------------------------
@@ -39,12 +39,12 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#54 $")
 
 // Motif style parameters
 
-static const motifBarFrame	= 2;		// menu bar frame width
-static const motifBarHMargin	= 2;		// menu bar hor margin to item
-static const motifBarVMargin	= 2;		// menu bar ver margin to item
-static const motifItemFrame	= 2;		// menu item frame width
-static const motifItemHMargin	= 8;		// menu item hor text margin
-static const motifItemVMargin	= 8;		// menu item ver text margin
+static const int motifBarFrame		= 2;	// menu bar frame width
+static const int motifBarHMargin	= 2;	// menu bar hor margin to item
+static const int motifBarVMargin	= 2;	// menu bar ver margin to item
+static const int motifItemFrame		= 2;	// menu item frame width
+static const int motifItemHMargin	= 8;	// menu item hor text margin
+static const int motifItemVMargin	= 8;	// menu item ver text margin
 
 /*
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#126 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#127 $
 **
 ** Implementation of QWidget class
 **
@@ -20,7 +20,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#126 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#127 $")
 
 
 /*----------------------------------------------------------------------------
@@ -60,7 +60,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#126 $")
   in the file qapp_xxx.cpp.
  *****************************************************************************/
 
-static const WDictSize = 101;
+static const int WDictSize = 101;
 
 class QWidgetMapper : public QWidgetIntDict
 {						// maps ids -> widgets

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#50 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#51 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -25,7 +25,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#50 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#51 $")
 
 
 /*****************************************************************************
@@ -1080,7 +1080,7 @@ struct TimerInfo {				// internal timer info
 typedef declare(QVectorM,TimerInfo)  TimerVec;	// vector of TimerInfo structs
 typedef declare(QIntDictM,TimerInfo) TimerDict; // fast dict of timers
 
-static const MaxTimers	    = 256;		// max number of timers
+static const int MaxTimers  = 256;		// max number of timers
 static TimerVec *timerVec   = 0;		// timer vector
 static TimerDict *timerDict = 0;		// timer dict
 

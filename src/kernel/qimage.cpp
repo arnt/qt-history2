@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#63 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#64 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -20,7 +20,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#63 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#64 $")
 
 
 /*----------------------------------------------------------------------------
@@ -1349,8 +1349,8 @@ const char *QImageIO::imageFormat( const char *fileName )
 
 const char *QImageIO::imageFormat( QIODevice *d )
 {
-    const  buflen = 14;
-    char   buf[buflen];
+    const int buflen = 14;
+    char buf[buflen];
     if ( imageHandlers == 0 )
 	init_image_handlers();
     int pos   = d->at();			// save position
@@ -1522,7 +1522,7 @@ static void write_gif_image( QImageIO * )	// write GIF image data
   BMP (DIB) image read/write functions
  *****************************************************************************/
 
-const  BMP_FILEHDR_SIZE = 14;			// size of BMP_FILEHDR data
+const int BMP_FILEHDR_SIZE = 14;		// size of BMP_FILEHDR data
 
 struct BMP_FILEHDR {				// BMP file header
     char   bfType[2];				// "BM"
@@ -1547,13 +1547,13 @@ QDataStream &operator<<( QDataStream &s, const BMP_FILEHDR &bf )
 }
 
 
-const  BMP_OLD = 12;				// old Windows/OS2 BMP size
-const  BMP_WIN = 40;				// new Windows BMP size
-const  BMP_OS2 = 64;				// new OS/2 BMP size
+const int BMP_OLD  = 12;			// old Windows/OS2 BMP size
+const int BMP_WIN  = 40;			// new Windows BMP size
+const int BMP_OS2  = 64;			// new OS/2 BMP size
 
-const  BMP_RGB	= 0;				// no compression
-const  BMP_RLE8 = 1;				// run-length encoded, 8 bits
-const  BMP_RLE4 = 2;				// run-length encoded, 4 bits
+const int BMP_RGB  = 0;				// no compression
+const int BMP_RLE8 = 1;				// run-length encoded, 8 bits
+const int BMP_RLE4 = 2;				// run-length encoded, 4 bits
 
 struct BMP_INFOHDR {				// BMP information header
     INT32  biSize;				// size of this struct
@@ -1946,7 +1946,7 @@ static int read_pbm_int( QIODevice *d )		// read int, skip comments
     int	  c;
     int	  val = -1;
     bool  digit;
-    const buflen = 100;
+    const int buflen = 100;
     char  buf[buflen];
     while ( TRUE ) {
 	if ( (c=d->getch()) == EOF )		// end of file
@@ -1977,7 +1977,7 @@ static int read_pbm_int( QIODevice *d )		// read int, skip comments
 
 static void read_pbm_image( QImageIO *iio )	// read PBM image data
 {
-    const	buflen = 300;
+    const int	buflen = 300;
     char	buf[buflen];
     QRegExp	r1, r2;
     QIODevice  *d = iio->ioDevice();
@@ -2113,7 +2113,7 @@ static inline int hex2byte( register char *p )
 
 static void read_xbm_image( QImageIO *iio )	// read X bitmap image data
 {
-    const	buflen = 300;
+    const int	buflen = 300;
     char	buf[buflen];
     QRegExp	r1, r2;
     QIODevice  *d = iio->ioDevice();
@@ -2291,7 +2291,7 @@ static int read_xpm_char( QIODevice *d )
 static void read_xpm_image( QImageIO * /* iio */ ) // read XPM image data
 {
 #if 0
-    const	buflen = 200;
+    const int	buflen = 200;
     char	buf[buflen];
     char       *p = buf;
     QRegExp	r = "/\\*.XPM.\\*/";

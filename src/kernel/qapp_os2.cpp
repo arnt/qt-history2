@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_os2.cpp#10 $
+** $Id: //depot/qt/main/src/kernel/qapp_os2.cpp#11 $
 **
 ** Implementation of OS/2 PM startup routines and event handling
 **
@@ -20,7 +20,7 @@
 #define	 INCL_PM
 #include <os2.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_os2.cpp#10 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_os2.cpp#11 $")
 
 
 // --------------------------------------------------------------------------
@@ -447,8 +447,8 @@ struct TimerInfo {				// internal timer info
 typedef declare(QVectorM,TimerInfo) TimerVec;	// vector of TimerInfo structs
 typedef declare(QIntDictM,TimerInfo) TimerDict; // fast dict of timers
 
-static const MaxTimers = 64;			// max number of timers
-static TimerVec *timerVec = 0;			// timer vector
+static const int MaxTimers  = 64;		// max number of timers
+static TimerVec  *timerVec  = 0;		// timer vector
 static TimerDict *timerDict = 0;		// timer dict
 
 
