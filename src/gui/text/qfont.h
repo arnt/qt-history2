@@ -331,7 +331,7 @@ inline bool QFont::italic() const
 }
 
 inline void QFont::setItalic(bool b) {
-    setStyle(b ? StyleItalic : StyleOblique);
+    setStyle(b ? StyleItalic : StyleNormal);
 }
 
 
