@@ -119,6 +119,7 @@
     \row \i Printing doesn't work. \i Fix scheduled for beta 2.
     \row \i QTextEdit crashes when pasting in lots of text; for example, see examples/sdi.
     \i Fix scheduled for beta 2.
+    \row \i Windows XP style not ported to Qt 4. \i Fix scheduled for beta 2.
     \endtable
 
     \section2 X11
