@@ -2400,15 +2400,12 @@ void QTextString::Char::setFormat( QTextFormat *f )
 {
     if ( !isCustom ) {
 	d.format = f;
-	// ### WWA: f->addRef() needed?
     } else {
 	if ( !d.custom ) {
 	    d.custom = new CharData;
 	    d.custom->custom = 0;
 	}
-	// ### WWA: d.custom->format->removeRef() needed?
 	d.custom->format = f;
-	// ### WWA: f->addRef() needed?
     }
 }
 
