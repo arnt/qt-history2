@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsessionmanager.h#5 $
+** $Id: //depot/qt/main/src/kernel/qsessionmanager.h#6 $
 **
 ** Definition of QSessionManager class
 **
@@ -42,7 +42,10 @@ class Q_EXPORT  QSessionManager : public QObject
     QSessionManager( QApplication *app, QString &session );
     ~QSessionManager();
 public:
-    QString sessionId();
+    QString sessionId() const;
+#if defined(_WS_X11_)
+    HANDLE handle() const;
+#endif
 
     bool allowsInteraction();
     bool allowsErrorInteraction();
@@ -62,7 +65,7 @@ public:
     void setProperty( const QString& name, const QString& value );
     void setProperty( const QString& name, const QStringList& value );
 
-    bool isPhase2();
+    bool isPhase2() const;
     void requestPhase2();
 
 private:

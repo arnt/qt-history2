@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#516 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#517 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -4078,9 +4078,14 @@ QSessionManager::~QSessionManager()
     delete d;
 }
 
-QString QSessionManager::sessionId()
+QString QSessionManager::sessionId() const
 {
     return d->sessionId;
+}
+
+HANDLE QSessionManager::handle() const
+{
+    return 0;
 }
 
 bool QSessionManager::allowsInteraction()
@@ -4139,7 +4144,7 @@ void QSessionManager::setProperty( const QString&, const QStringList& )
 {
 }
 
-bool QSessionManager::isPhase2()
+bool QSessionManager::isPhase2() const
 {
     return FALSE;
 }
@@ -4493,10 +4498,16 @@ QSessionManager::~QSessionManager()
     delete d;
 }
 
-QString QSessionManager::sessionId()
+QString QSessionManager::sessionId() const
 {
     return d->sessionId;
 }
+
+HANDLE QSessionManager::handle() const
+{
+    return (HANDLE) smcConnection;
+}
+
 
 bool QSessionManager::allowsInteraction()
 {
@@ -4606,7 +4617,7 @@ void QSessionManager::setProperty( const QString& name, const QStringList& value
     delete [] prop;
 }
 
-bool QSessionManager::isPhase2()
+bool QSessionManager::isPhase2() const
 {
     return sm_phase2;
 }

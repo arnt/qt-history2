@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#256 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#257 $
 **
 ** Implementation of QApplication class
 **
@@ -2039,7 +2039,7 @@ void QApplication::saveState( QSessionManager& /* sm */ )
   further details.
 */
 
-/*! \fn     QString QSessionManager::sessionId()
+/*! \fn     QString QSessionManager::sessionId() const
 
   Returns the identifier of the current \link session.html session
   \endlink.
@@ -2049,6 +2049,13 @@ void QApplication::saveState( QSessionManager& /* sm */ )
 
   \sa QApplication::sessionId()
  */
+
+
+/*! \fn HANDLE QSessionManager::handle() const
+  
+  X11 only: returns a handle to the current \c SmcConnection.
+ */
+
 
 /*! \fn     bool QSessionManager::allowsInteraction()
 
@@ -2239,7 +2246,7 @@ void MyApplication::commitData( QSessionManager& sm ) {
 
  */
 
-/*! \fn     bool QSessionManager::isPhase2()
+/*! \fn     bool QSessionManager::isPhase2() const
 
   Returns whether the session manager is currently performing a second
   session management phase.

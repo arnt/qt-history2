@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#306 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#307 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -2746,7 +2746,7 @@ QSessionManager::~QSessionManager()
     delete d;
 }
 
-QString QSessionManager::sessionId()
+QString QSessionManager::sessionId() const
 {
     return d->sessionId;
 }
@@ -2815,7 +2815,7 @@ void QSessionManager::setProperty( const QString&, const QStringList& )
 }
 
 
-bool QSessionManager::isPhase2()
+bool QSessionManager::isPhase2() const
 {
     return FALSE;
 }
