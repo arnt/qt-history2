@@ -13,7 +13,7 @@
 #include <qapplication.h>
 
 const unsigned char * p_str(const char *); //qglobal.cpp
-static MenuRef createPopup(QPopupMenu *d);
+static MenuRef createPopup(QPopupMenu *d, bool);
 static bool syncPopup(MenuRef ret, QPopupMenu *d);
 
 /* utility functions */
@@ -97,7 +97,7 @@ static bool syncPopup(MenuRef ret, QPopupMenu *d)
 		    DisableMenuItem(ret, id);
 		CheckMenuItem(ret, id, item->isChecked() ? true : false);
 		if(item->popup()) 
-		    SetMenuItemHierarchicalMenu(ret, id, createPopup(item->popup()));
+		    SetMenuItemHierarchicalMenu(ret, id, createPopup(item->popup(), FALSE));
 	    }
 	    id++;
 	}
@@ -105,7 +105,7 @@ static bool syncPopup(MenuRef ret, QPopupMenu *d)
     return TRUE;
 }
 
-static MenuRef createPopup(QPopupMenu *d) 
+static MenuRef createPopup(QPopupMenu *d, bool do_sync) 
 {
     MenuRef ret;
 #if 0
@@ -126,7 +126,8 @@ static MenuRef createPopup(QPopupMenu *d)
     short mid = (short)ret;
     SetMenuID(ret, mid);
     pdict->insert((int)mid, new MacPopupBinding(d, ret));
-    syncPopup(ret, d);
+    if(do_sync)
+	syncPopup(ret, d);
     return ret;
 }
 	
@@ -141,7 +142,7 @@ static bool updateMenuBar(QMenuBar *mbar)
 	if(item->isSeparator()) //mac doesn't support these
 	    continue;
 
-	MenuRef mp = createPopup(item->popup());
+	MenuRef mp = createPopup(item->popup(), FALSE);
 	SetMenuTitle(mp, no_ampersands(item->text()));
 	InsertMenu(mp, 0);
     }
