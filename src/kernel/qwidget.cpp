@@ -4046,17 +4046,10 @@ QSize QWidget::minimumSizeHint() const
 
 bool QWidget::event( QEvent *e )
 {
-    if ( eventFilters ) {			// try filters
-	if ( activate_filters(e) )		// stopped by a filter
-	    return TRUE;
-    }
+    if ( QObject::event( e ) )
+	return TRUE;
 
     switch ( e->type() ) {
-
-	case QEvent::Timer:
-	    timerEvent( (QTimerEvent*)e );
-	    break;
-
 	case QEvent::MouseMove:
 	    mouseMoveEvent( (QMouseEvent*)e );
 	    if ( ! ((QMouseEvent*)e)->isAccepted() )
@@ -4188,6 +4181,7 @@ bool QWidget::event( QEvent *e )
 		return FALSE;
 	    }
 	    break;
+
 	case QEvent::ContextMenu: {
 	    QContextMenuEvent *c = (QContextMenuEvent *)e;
 	    contextMenuEvent( c );
@@ -4195,37 +4189,38 @@ bool QWidget::event( QEvent *e )
 		return FALSE;
 	    }
 	    break;
+
 #ifndef QT_NO_DRAGANDDROP
 	case QEvent::Drop:
 	    dropEvent( (QDropEvent*) e);
 	    break;
+
 	case QEvent::DragEnter:
 	    dragEnterEvent( (QDragEnterEvent*) e);
 	    break;
+
 	case QEvent::DragMove:
 	    dragMoveEvent( (QDragMoveEvent*) e);
 	    break;
+
 	case QEvent::DragLeave:
 	    dragLeaveEvent( (QDragLeaveEvent*) e);
 	    break;
 #endif
+
 	case QEvent::Show:
 	    showEvent( (QShowEvent*) e);
 	    break;
+
 	case QEvent::Hide:
 	    hideEvent( (QHideEvent*) e);
 	    break;
+
 	case QEvent::ShowWindowRequest:
 	    if ( !isHidden() )
 		showWindow();
 	    break;
-	case QEvent::ChildInserted:
-	case QEvent::ChildRemoved:
-	    childEvent( (QChildEvent*) e);
-	    break;
-	case QEvent::DeferredDelete:
-	    delete this;
-	    break;
+
 	case QEvent::ParentFontChange:
 	    if ( isTopLevel() )
 		break;
@@ -4236,6 +4231,7 @@ bool QWidget::event( QEvent *e )
 		unsetFont();
 	    }
 	    break;
+
 #ifndef QT_NO_PALETTE
 	case QEvent::ParentPaletteChange:
 	    if ( isTopLevel() )
@@ -4248,6 +4244,7 @@ bool QWidget::event( QEvent *e )
 	    }
 	    break;
 #endif
+
 	case QEvent::WindowActivate:
 	case QEvent::WindowDeactivate:
 	    windowActivationChange( e->type() == QEvent::WindowActivate );
@@ -4260,11 +4257,8 @@ bool QWidget::event( QEvent *e )
 		}
 	    }
 	    break;
+
 	default:
-	    if ( e->type() >= QEvent::User ) {
-		customEvent( (QCustomEvent*) e );
-		return TRUE;
-	    }
 	    return FALSE;
     }
     return TRUE;

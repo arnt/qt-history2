@@ -641,18 +641,26 @@ bool QObject::event( QEvent *e )
 	if ( activate_filters(e) )		// stopped by a filter
 	    return TRUE;
     }
+
     switch ( e->type() ) {
     case QEvent::Timer:
 	timerEvent( (QTimerEvent*)e );
 	return TRUE;
+
     case QEvent::ChildInserted:
     case QEvent::ChildRemoved:
 	childEvent( (QChildEvent*)e );
 	return TRUE;
+
     case QEvent::DeferredDelete:
 	delete this;
 	return TRUE;
+
     default:
+	if ( e->type() >= QEvent::User ) {
+	    customEvent( (QCustomEvent*) e );
+	    return TRUE;
+	}
 	break;
     }
     return FALSE;
