@@ -41,7 +41,7 @@ OBJS=project.obj main.obj makefile.obj unixmake.obj unixmake2.obj borland_bmake.
 QTOBJS=qstring.obj quuid.obj qtextstream.obj qiodevice.obj qglobal.obj qgdict.obj qcstring.obj qdatastream.obj qgarray.obj qbuffer.obj \
 	qglist.obj qptrcollection.obj qfile.obj qfile_win.obj qregexp.obj qgvector.obj qgcache.obj qbitarray.obj \
 	qdir.obj qfileinfo_win.obj qdir_win.obj qfileinfo.obj qdatetime.obj qstringlist.obj qmap.obj qlibrary.obj qlibrary_win.obj \
-        qconfig.obj
+        qconfig.obj qunicodetables.obj
 
 
 
@@ -147,6 +147,9 @@ qstringlist.obj: ..\src\tools\qstringlist.cpp
 
 qmap.obj: ..\src\tools\qmap.cpp
 	$(CXX) $(CXXFLAGS) ..\src\tools\qmap.cpp
+
+qunicodetables.obj: ..\src\tools\qunicodetables.cpp
+	$(CXX) $(CXXFLAGS) ..\src\tools\qunicodetables.cpp
 
 makefile.obj: generators\makefile.cpp
 	$(CXX) $(CXXFLAGS) generators\makefile.cpp
