@@ -81,8 +81,8 @@ Bool XftNameUnparse (XftPattern *, char *, int);
 #endif
 
 
-// #define QFONTLOADER_DEBUG
-// #define QFONTLOADER_DEBUG_VERBOSE
+#define QFONTLOADER_DEBUG
+#define QFONTLOADER_DEBUG_VERBOSE
 
 #define CN_ENCODINGS "gb18030-0", "gb18030.2000-0", "gbk-0", "gb2312.1980-0"
 #define JP_ENCODINGS "jisx0208.1997-0", "jisx0208.1990-0", "jisx0208.1983-0"
@@ -1541,7 +1541,7 @@ static QChar sampleCharacter(QFont::Script script)
     ushort ch;
 
     switch (script) {
-    case QFont::Latin:                     ch = 0x0030; break;
+    case QFont::Latin:                     ch = 0x00c0; break;
     case QFont::Greek:                     ch = 0x0390; break;
     case QFont::Cyrillic:                  ch = 0x0410; break;
     case QFont::Armenian:                  ch = 0x0540; break;
