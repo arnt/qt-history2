@@ -161,5 +161,5 @@ contains(QT_CONFIG, png) {
 else:DEFINES += QT_NO_IMAGEIO_PNG
 
 #use Qt gif
-gif:DEFINES += QT_BUILTIN_GIF_READER=1
+contains(QT_CONFIG,gif):DEFINES += QT_BUILTIN_GIF_READER=1
 
