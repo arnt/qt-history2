@@ -39,7 +39,7 @@
 #define QGLOBAL_H
 
 #define QT_VERSION       300
-#define QT_VERSION_STR   "3.0.0-beta5"
+#define QT_VERSION_STR   "3.0.0-beta6"
 
 
 /*
@@ -241,7 +241,7 @@
    match. This little table (I'm not sure it's accurate) should be helpful:
 
 	   C++ product               C product
-    
+
 	    C Set 3.1              C Compiler 3.0
 		 ...                       ...
 	C++ Compiler 3.6.6         C Compiler 4.3
