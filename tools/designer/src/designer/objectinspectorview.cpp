@@ -39,12 +39,12 @@ ObjectInspectorView::~ObjectInspectorView()
 
 void ObjectInspectorView::hideEvent(QHideEvent *ev)
 {
-    emit visibilityChanged(false);
+    emit visibilityChanged(isVisible());
     QMainWindow::hideEvent(ev);
 }
 
 void ObjectInspectorView::showEvent(QShowEvent *ev)
 {
-    emit visibilityChanged(true);
+    emit visibilityChanged(isVisible());
     QMainWindow::showEvent(ev);
 }

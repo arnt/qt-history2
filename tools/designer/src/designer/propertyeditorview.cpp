@@ -12,7 +12,6 @@
 ****************************************************************************/
 
 #include "propertyeditorview.h"
-
 // components
 #include <propertyeditor.h>
 
@@ -36,12 +35,12 @@ PropertyEditorView::~PropertyEditorView()
 
 void PropertyEditorView::showEvent(QShowEvent *ev)
 {
-    emit visibilityChanged(true);
+    emit visibilityChanged(isVisible());
     QMainWindow::showEvent(ev);
 }
 
 void PropertyEditorView::hideEvent(QHideEvent *ev)
 {
-    emit visibilityChanged(false);
+    emit visibilityChanged(isVisible());
     QMainWindow::hideEvent(ev);
 }
