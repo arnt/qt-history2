@@ -3061,7 +3061,7 @@ int QRegExp::match( const QString& str, int index, int *len,
 
 /*!
   Attempts to find a match in \a str from position \a start (0 by default).  If
-  \a start is -1 (the default), the search starts at the last character; if -2,
+  \a start is -1, the search starts at the last character; if -2,
   at the next to last character; etc.
 
   Returns the position of the first match, or -1 if there was no match.
