@@ -88,6 +88,7 @@ public:
     void setFocusWidget( QWidget * widget );
     QWidget* widget() { return d; }
     QSize sizeHint() { return QSize( 0, 0 ); }
+    static bool handles(QWidget *);
     
 public slots:
     void objDestroyed(QObject *);
@@ -121,7 +122,7 @@ void QAquaFocusWidget::setFocusWidget( QWidget * widget )
     hide();
     if (d)
 	d->removeEventFilter( this );
-    if (widget && widget->parentWidget()) {
+    if(handles(widget)) {
 	d = widget;
 	reparent( d->parentWidget(), pos() );
 	raise();
@@ -132,6 +133,13 @@ void QAquaFocusWidget::setFocusWidget( QWidget * widget )
     } else {
 	d = NULL;
     }
+}
+
+bool QAquaFocusWidget::handles(QWidget *widget)
+{
+    return (widget && widget->parentWidget() && 
+	    (widget->inherits("QDateTimeEditor") || widget->inherits("QLineEdit") || 
+	     (widget->inherits("QTextEdit") && !widget->inherits("QTextView"))));
 }
 
 void QAquaFocusWidget::objDestroyed(QObject * o)
@@ -316,11 +324,8 @@ void QAquaStyle::polish( QWidget * w )
             w->setBackgroundOrigin( QWidget::WindowOrigin );
     }
 
-    if( w->parentWidget() && 
-	(w->inherits("QLineEdit") || (w->inherits("QTextEdit") && !w->inherits("QTextView")))) {
-	QObject::connect(w, SIGNAL(destroyed(QObject*)), d, SLOT(objDestroyed(QObject*)));
+    if( QAquaFocusWidget::handles(w) ) 
 	w->installEventFilter( this );
-    }
 }
 
 /*! \reimp */
@@ -345,7 +350,6 @@ void QAquaStyle::unPolish( QWidget * w )
 	}
     }
 
-
     if( w->inherits("QToolButton") ){
         QToolButton * btn = (QToolButton *) w;
         btn->setAutoRaise( TRUE );
@@ -358,7 +362,7 @@ void QAquaStyle::unPolish( QWidget * w )
     }
 
     if(d->focusWidget && d->focusWidget->widget() == w)
-	d->focusWidget->hide();
+	d->focusWidget->setFocusWidget(NULL);
 }
 
 /*! \reimp
@@ -383,14 +387,14 @@ void QAquaStyle::timerEvent( QTimerEvent * te )
 /*! \reimp */
 bool QAquaStyle::eventFilter( QObject * o, QEvent * e )
 {
-    if(d->focusWidget && d->focusWidget->widget() &&
-       (o->inherits("QLineEdit") || (o->inherits("QTextEdit") && !o->inherits("QTextView"))) &&
+    if(o->isWidgetType() &&
+       d->focusWidget && d->focusWidget->widget() && QAquaFocusWidget::handles((QWidget *)o) &&
        ((e->type() == QEvent::FocusOut && d->focusWidget->widget() == o) ||
 	(e->type() == QEvent::FocusIn && d->focusWidget->widget() != o)))  { //restore it
 	d->focusWidget->setFocusWidget( NULL );
     }
-    if( o && e->type() == QEvent::FocusIn ) {
-	if( (o->inherits("QLineEdit") || (o->inherits("QTextEdit") && !o->inherits("QTextView")))) {
+    if( o && o->isWidgetType() && e->type() == QEvent::FocusIn ) {
+	if( QAquaFocusWidget::handles((QWidget *)o) ) {
 	    if (!d->focusWidget)
 		d->focusWidget = new QAquaFocusWidget();
 	    d->focusWidget->setFocusWidget( (QWidget*)o );

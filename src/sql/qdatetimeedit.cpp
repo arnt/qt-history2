@@ -298,6 +298,7 @@ private:
 
 class QDateTimeEditor : public QWidget
 {
+    Q_OBJECT
 public:
     QDateTimeEditor( QDateTimeEditBase * Q_PARENT,
 		       const char * Q_NAME );
@@ -2367,5 +2368,7 @@ bool QDateTimeEdit::autoAdvance() const
 /*! \fn QTimeEdit* QDateTimeEdit::timeEdit()
   Returns the internal widget used for editing the time part of the datetime.
 */
+
+#include <qdatetimeedit.moc>
 
 #endif
