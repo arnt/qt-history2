@@ -43,7 +43,8 @@ protected slots:
     void currentActionChanged( QListViewItem * );
     void deleteAction();
     void newAction();
-
+    void connectionsClicked();
+    
 signals:
     void hidden();
 

@@ -70,6 +70,8 @@ static const char* const ignore_slots[] = {
     "setGeometry(const QRect&)",
     "focusProxyDestroyed()",
     "showExtension(bool)",
+    "setUpLayout()",
+    "showDockMenu(const QPoint&)",
     0
 };
 

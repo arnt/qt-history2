@@ -22,6 +22,8 @@
 #include "formwindow.h"
 #include "metadatabase.h"
 #include "actionlistview.h"
+#include "connectioneditorimpl.h"
+#include "mainwindow.h"
 
 #include <qaction.h>
 #include <qlineedit.h>
@@ -36,6 +38,7 @@ ActionEditor::ActionEditor( QWidget* parent,  const char* name, WFlags fl )
 {
     listActions->addColumn( tr( "Actions" ) );
     setEnabled( FALSE );
+    buttonConnect->setEnabled( FALSE );
 }
 
 void ActionEditor::closeEvent( QCloseEvent *e )
@@ -46,6 +49,7 @@ void ActionEditor::closeEvent( QCloseEvent *e )
 
 void ActionEditor::currentActionChanged( QListViewItem *i )
 {
+    buttonConnect->setEnabled( (bool)i );
     if ( !i )
 	return;
     currentAction = ( (ActionItem*)i )->action();
@@ -108,4 +112,10 @@ void ActionEditor::updateActionIcon( QAction *a )
 	    ( (ActionItem*)it.current() )->setPixmap( 0, a->iconSet().pixmap() );
 	++it;
     }
+}
+
+void ActionEditor::connectionsClicked()
+{
+    ConnectionEditor editor( formWindow->mainWindow(), currentAction, formWindow, formWindow );
+    editor.exec();
 }

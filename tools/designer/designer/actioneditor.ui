@@ -12,8 +12,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>210</width>
-            <height>265</height>
+            <width>198</width>
+            <height>259</height>
         </rect>
     </property>
     <property stdset="1">
@@ -26,7 +26,7 @@
     <vbox>
         <property stdset="1">
             <name>margin</name>
-            <number>11</number>
+            <number>3</number>
         </property>
         <property stdset="1">
             <name>spacing</name>
@@ -130,6 +130,62 @@
                 <cstring>listActions</cstring>
             </property>
         </widget>
+        <widget>
+            <class>QLayoutWidget</class>
+            <property stdset="1">
+                <name>name</name>
+                <cstring>Layout2</cstring>
+            </property>
+            <hbox>
+                <property stdset="1">
+                    <name>margin</name>
+                    <number>0</number>
+                </property>
+                <property stdset="1">
+                    <name>spacing</name>
+                    <number>6</number>
+                </property>
+                <widget>
+                    <class>QPushButton</class>
+                    <property stdset="1">
+                        <name>name</name>
+                        <cstring>buttonConnect</cstring>
+                    </property>
+                    <property stdset="1">
+                        <name>text</name>
+                        <string>Connect...</string>
+                    </property>
+                </widget>
+                <spacer>
+                    <property>
+                        <name>name</name>
+                        <cstring>Spacer1_2</cstring>
+                    </property>
+                    <property stdset="1">
+                        <name>orientation</name>
+                        <enum>Horizontal</enum>
+                    </property>
+                    <property stdset="1">
+                        <name>sizeType</name>
+                        <enum>Expanding</enum>
+                    </property>
+                    <property>
+                        <name>sizeHint</name>
+                        <size>
+                            <width>20</width>
+                            <height>20</height>
+                        </size>
+                    </property>
+                    <property>
+                        <name>sizeHint</name>
+                        <size>
+                            <width>20</width>
+                            <height>20</height>
+                        </size>
+                    </property>
+                </spacer>
+            </hbox>
+        </widget>
     </vbox>
 </widget>
 <customwidgets>
@@ -196,21 +252,16 @@
         <receiver>ActionEditorBase</receiver>
         <slot>currentActionChanged( QListViewItem * )</slot>
     </connection>
-    <slot access="protected">accelChanged( const QString &amp; )</slot>
+    <connection>
+        <sender>buttonConnect</sender>
+        <signal>clicked()</signal>
+        <receiver>ActionEditorBase</receiver>
+        <slot>connectionsClicked()</slot>
+    </connection>
     <slot access="protected">connectionsClicked()</slot>
     <slot access="protected">currentActionChanged( QListViewItem * )</slot>
     <slot access="protected">deleteAction()</slot>
-    <slot access="protected">enabledChanged( bool )</slot>
-    <slot access="protected">menuTextChanged( const QString &amp; )</slot>
-    <slot access="protected">nameChanged( const QString &amp; )</slot>
     <slot access="protected">newAction()</slot>
-    <slot access="protected">onChanged( bool )</slot>
-    <slot access="protected">statusTipChanged( const QString &amp; )</slot>
-    <slot access="protected">textChanged( const QString &amp; )</slot>
-    <slot access="protected">toggleChanged( bool )</slot>
-    <slot access="protected">toolTipChanged( const QString &amp; )</slot>
-    <slot access="protected">whatsThisChanged( const QString &amp; )</slot>
-    <slot access="protected">chooseIcon()</slot>
 </connections>
 <tabstops>
     <tabstop>buttonNewAction</tabstop>
