@@ -167,11 +167,11 @@ extern "C" int usleep(useconds_t);
 #endif
 
 
-class QMutex::Private {
+class QMutexPrivate {
 public:
     mutex_t mutex;
 
-    Private(bool recursive = FALSE)
+    QMutexPrivate(bool recursive = FALSE)
     {
 #ifdef QT_CHECK_RANGE
 	int ret =
@@ -184,7 +184,7 @@ public:
 #endif
     }
 
-    virtual ~Private()
+    virtual ~QMutexPrivate()
     {
 #ifdef QT_CHECK_RANGE
 	int ret =
@@ -261,7 +261,7 @@ public:
 };
 
 
-class QRMutexPrivate : public QMutex::Private
+class QRMutexPrivate : public QMutexPrivate
 {
 public:
     int count;
@@ -269,7 +269,7 @@ public:
     mutex_t mutex2;
 
     QRMutexPrivate()
-	: Private(TRUE)
+	: QMutexPrivate(TRUE)
     {
 #ifdef QT_CHECK_RANGE
 	int ret =
@@ -306,7 +306,7 @@ public:
 	    count++;
 	} else {
 	    mutex_unlock(&mutex2);
-	    Private::lock();
+	    QMutexPrivate::lock();
 	    mutex_lock(&mutex2);
 
 	    count = 1;
@@ -334,7 +334,7 @@ public:
 	// do nothing if the count is already 0... to reflect the behaviour described
 	// in the docs
 	if (count && (--count) < 1) {
-	    Private::unlock();
+	    QMutexPrivate::unlock();
 	    count=0;
 	}
 
@@ -344,7 +344,7 @@ public:
     bool locked()
     {
 	mutex_lock(&mutex2);
-	bool ret = Private::locked();
+	bool ret = QMutexPrivate::locked();
 	mutex_unlock(&mutex2);
 
 	return ret;
@@ -353,7 +353,7 @@ public:
     bool trylock()
     {
 	mutex_lock(&mutex2);
-	bool ret = Private::trylock();
+	bool ret = QMutexPrivate::trylock();
 
 	if (ret)
 	    count++;
@@ -393,7 +393,7 @@ public:
     {
 	dictMutex->lock();
 	if (thread_id)
-	    thrDict->remove((HANDLE) thread_id);
+	    thrDict->remove((Qt::HANDLE) thread_id);
 	dictMutex->unlock();
 
 	thread_id = 0;
@@ -440,7 +440,7 @@ public:
 };
 
 
-class QWaitCondition::QWaitConditionPrivate {
+class QWaitConditionPrivate {
 public:
     cond_t cond;
     QMutex mutex;
@@ -539,7 +539,7 @@ public:
 
 #ifndef Q_HAS_RECURSIVE_MUTEX
 	int c = 0;
-	HANDLE id = 0;
+	Qt::HANDLE id = 0;
 
 	if (mtx->d->type() == Q_MUTEX_RECURSIVE) {
 	    QRMutexPrivate *rmp = (QRMutexPrivate *) mtx->d;
