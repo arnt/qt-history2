@@ -949,10 +949,12 @@ void Q4Menu::keyPressEvent(QKeyEvent *e)
     }
 
     if(!key_consumed) {				// send to menu bar
+	qDebug("blah blah..");
 	if(QWidget *caused = d->causedPopup) {
 	    while(Q4Menu *m = qt_cast<Q4Menu*>(caused))
 		caused = m->d->causedPopup;
 	    if(Q4MenuBar *mb = qt_cast<Q4MenuBar*>(caused)) {
+		qDebug("sending to menubar..");
 		Q4MenuAction *oldAct = mb->d->currentAction;
 		QApplication::sendEvent(mb, e);
 		if(mb->d->currentAction != oldAct)
@@ -1370,6 +1372,7 @@ void Q4MenuBar::mouseReleaseEvent(QMouseEvent *e)
 
 void Q4MenuBar::keyPressEvent(QKeyEvent *e)
 {
+    qDebug("QMenuBar::keyPress..");
     int key = e->key();
     if(QApplication::reverseLayout()) {  // in reverse mode open/close key for submenues are reversed
 	if(key == Key_Left)
@@ -1431,7 +1434,9 @@ void Q4MenuBar::keyPressEvent(QKeyEvent *e)
 	key_consumed = false;
     }
 
-    if((!e->state() || (e->state()&(MetaButton|AltButton))) && e->text().length()==1 && !d->popupState) {
+    if(!key_consumed && 
+       (!e->state() || (e->state()&(MetaButton|AltButton))) && e->text().length()==1 && !d->popupState) {
+	qDebug("a boink..");
 	int clashCount = 0;
 	Q4MenuAction *first = 0, *currentSelected = 0, *firstAfterCurrent = 0;
 	{
@@ -1524,10 +1529,12 @@ Q4MenuBar::event(QEvent *e)
 {
     if(e->type() == QEvent::KeyPress) {
 	QKeyEvent *ke = (QKeyEvent*)e;
+#if 0
 	if(!d->keyboardState) { //all keypresses..
 	    d->setCurrentAction(0);
-	    return true;
+	    return ;
 	}
+#endif
 	if(ke->key() == Key_Tab || ke->key() == Key_BackTab) {
 	    keyPressEvent(ke);
 	    return true;
