@@ -530,7 +530,7 @@ void WriteInitialization::writeProperties(const QString &varName, const QString 
         case DomProperty::Palette: {
             DomPalette *pal = p->elementPalette();
             QString paletteName = driver->unique("palette");
-            output << option.indent << "QPalette " << paletteName << ";\b";
+            output << option.indent << "QPalette " << paletteName << ";\n";
 
             writeColorGroup(pal->elementActive(), QLatin1String("QPalette::Active"), paletteName);
             writeColorGroup(pal->elementInactive(), QLatin1String("QPalette::Inactive"), paletteName);
