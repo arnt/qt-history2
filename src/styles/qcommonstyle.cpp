@@ -1282,7 +1282,7 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 	{
 	    const QTitleBar *titlebar = (const QTitleBar *) widget;
 	    if ( controls & SC_TitleBarLabel ) {
-		QColorGroup cgroup = titlebar->isActive() || 
+		QColorGroup cgroup = titlebar->isActive() ||
 		    (qApp->activeWindow() && qApp->activeWindow()->inherits( "QDockWindow" )) ?
 		    titlebar->palette().active() : titlebar->palette().inactive();
 
@@ -1962,7 +1962,15 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QWidget *widget) const
 	break;
 
     case PM_ScrollBarExtent:
-	ret = 16;
+	if ( !widget ) {
+	    ret = 16;
+	} else {
+	    const QScrollBar *bar = (const QScrollBar*)widget;
+	    int s = bar->orientation() == Qt::Horizontal ?
+		    QApplication::globalStrut().height()
+		    : QApplication::globalStrut().width();
+	    ret = QMAX( 16, s );
+	}
 	break;
 
     case PM_MaximumDragDistance:
