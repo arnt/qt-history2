@@ -529,6 +529,7 @@ Pages:
 <li> \link xml-examples.html XML examples \endlink
 <li> \link network-examples.html Network examples \endlink
 <li> \link table-examples.html Table examples \endlink
+<li> \link sql-examples.html SQL examples \endlink
 </ul>
 
 <table cellpadding=2 cellspacing=1 border=0  width=100% bgcolor=#E5E5E5>
@@ -596,6 +597,11 @@ of the Qt table module.
 
 The following example programs show how to use the 
 Qt SQL classes.
+
+<ul>
+<li> \link sqloverview-examples.html Qt SQL Overview \endlink
+<li> \link sqltable-examples.html QDataTable \endlink
+</ul>
 
 */
 
