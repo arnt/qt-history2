@@ -32,7 +32,7 @@
 QCleanupHandler< QLibrary > qt_component_server_cleanup;
 
 /*!
-  Searches for the component identifier \a cid in the system registry, 
+  Searches for the component identifier \a cid in the system registry,
   loads the corresponding component server and queries for the interface \a
   iid. The parameter \a outer is a pointer to the outer interface used
   for containment and aggregation and is propagated to the \link
@@ -53,7 +53,6 @@ QCleanupHandler< QLibrary > qt_component_server_cleanup;
 
 QRESULT QComponentFactory::createInstance( const QUuid &cid, const QUuid &iid, QUnknownInterface** instance, QUnknownInterface *outer )
 {
-#if defined(Q_WS_WIN)
     QSettings settings;
     bool ok;
 
@@ -78,8 +77,6 @@ QRESULT QComponentFactory::createInstance( const QUuid &cid, const QUuid &iid, Q
     } else {
 	library->queryInterface( iid, instance );
     }
-#else
-#endif
 }
 
 /*!
@@ -87,7 +84,7 @@ QRESULT QComponentFactory::createInstance( const QUuid &cid, const QUuid &iid, Q
   QComponentServerInterface. If the library implements this interface,
   the \link QComponentServerInterface::registerComponents()
   registerComponents \endlink function is called.
-  
+
   Returns TRUE if the interface is found and successfully registered,
   otherwise returns FALSE.
 */
@@ -108,7 +105,7 @@ bool QComponentFactory::registerServer( const QString &filename )
   QComponentServerInterface. If the library implements this interface,
   the \link QComponentServerInterface::unregisterComponents()
   unregisterComponents \endlink function is called.
-  
+
   Returns TRUE if the interface is found and successfully unregistered,
   otherwise returns FALSE.
 */
@@ -125,18 +122,17 @@ bool QComponentFactory::unregisterServer( const QString &filename )
 }
 
 /*!
-  Registers the component with id \a cid in the global component database. 
-  The component is registered with an optional \a description and is provided 
+  Registers the component with id \a cid in the global component database.
+  The component is registered with an optional \a description and is provided
   by the server at \a filepath.
 
-  Call this function for each component in an implementation of 
+  Call this function for each component in an implementation of
   \link QComponentServerInterface::registerComponents() registerComponents \endlink.
 
   \sa unregisterComponent(), registerServer()
 */
 bool QComponentFactory::registerComponent( const QUuid &cid, const QString &filepath, const QString &description )
 {
-#if defined(Q_WS_WIN)
     QString cidStr = cid.toString();
     QSettings settings;
     bool ok;
@@ -147,21 +143,18 @@ bool QComponentFactory::registerComponent( const QUuid &cid, const QString &file
 	ok = ok && settings.writeEntry( "/CLSID/" + cidStr + "/Default", description );
 
     return ok;
-#else
-#endif
 }
 
 /*!
   Unregisters the component with id \a cid from the global component database.
-  
-  Call this function for each component in an implementation of 
+
+  Call this function for each component in an implementation of
   \link QComponentServerInterface::unregisterComponents() unregisterComponents \endlink.
 
   \sa registerComponent(), unregisterServer()
 */
 bool QComponentFactory::unregisterComponent( const QUuid &cid )
 {
-#if defined(Q_WS_WIN)
     QString cidStr = cid.toString();
     QSettings settings;
     bool ok;
@@ -171,8 +164,6 @@ bool QComponentFactory::unregisterComponent( const QUuid &cid )
     ok = ok && settings.removeEntry( "/CLSID/" + cidStr + "/Default" );
 
     return ok;
-#else
-#endif
 }
 
 #endif // QT_NO_COMPONENT
