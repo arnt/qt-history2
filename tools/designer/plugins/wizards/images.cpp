@@ -23122,10 +23122,13 @@ static struct EmbedImage {
     { 0, 0, 0, 0, 0, 0, 0, 0 }
 };
 
+static QDict<QImage> *uic_image_dict = 0;
+
 static QImage& uic_findImage_Wizards( const char *name )
 {
-    static QDict<QImage> dict;
-    QImage* img = dict.find(name);
+    if ( !uic_image_dict )
+	uic_image_dict = new QDict<QImage>;
+    QImage* img = uic_image_dict->find(name);
     if ( !img ) {
         for (int i=0; embed_image_vec[i].data; i++) {
 	if ( 0==strcmp(embed_image_vec[i].name, name) ) {
@@ -23137,6 +23140,7 @@ static QImage& uic_findImage_Wizards( const char *name )
 			embed_image_vec[i].numColors,
 			QImage::BigEndian
 		);
+	    uic_image_dict->insert( name, img );
 	    if ( embed_image_vec[i].alpha )
 	        img->setAlphaBuffer(TRUE);
 	    break;
@@ -23187,6 +23191,8 @@ static void qCleanupImages()
     QMimeSourceFactory::defaultFactory()->removeFactory( designerMimeSourceFactory );
     delete designerMimeSourceFactory;
     designerMimeSourceFactory = 0;
+    delete uic_image_dict;
+    uic_image_dict = 0;
 }
 class StaticInitImages
 {
