@@ -1718,7 +1718,7 @@ void QTextDocument::setRichTextInternal( const QString &text )
 		    registerCustomItem( custom, curpar );
 		    curpar->setAlignment( curtag.alignment );
 		    hasNewPar = FALSE;
-		} else 
+		} else
 #endif
 		  if ( !emptyTag ) {
 		    // ignore whitespace for inline elements if there was already one
@@ -1980,6 +1980,8 @@ QString QTextDocument::richText( QTextParag *p ) const
 		    s += "<" + item->name() + align_to_string( item->name(), p->alignment() )
 			 + direction_to_string( item->name(), p->direction() )  + ">" +
 			 p->richText() + "</" + item->name() + ">\n";
+		} else if ( p->next() ) {
+		    s += "<br>\n"; // empty paragraph, except the last one
 		}
 	    } else {
 		QString end;
@@ -3279,7 +3281,7 @@ void QTextString::truncate( int index )
 		if ( data[ i ].d.custom->format )
 		    data[ i ].d.custom->format->removeRef();
 		data[ i ].d.custom = 0;
-	    } else 
+	    } else
 #endif
 		if ( data[ i ].format() ) {
 		    data[ i ].format()->removeRef();
@@ -3299,7 +3301,7 @@ void QTextString::remove( int index, int len )
 	    if ( data[ i ].d.custom->format )
 		data[ i ].d.custom->format->removeRef();
 	    data[ i ].d.custom = 0;
-	} else 
+	} else
 #endif
 	    if ( data[ i ].format() ) {
 		data[ i ].format()->removeRef();
@@ -3321,7 +3323,7 @@ void QTextString::clear()
 		data[ i ].d.custom->format->removeRef();
 	    delete data[ i ].d.custom;
 	    data[ i ].d.custom = 0;
-	} else 
+	} else
 #endif
 	    if ( data[ i ].format() ) {
 		data[ i ].format()->removeRef();
@@ -3460,7 +3462,7 @@ int QTextString::width( int idx ) const
      if( c->isCustom() ) {
 	 if( c->customItem()->placement() == QTextCustomItem::PlaceInline )
 	     w = c->customItem()->width;
-     } else 
+     } else
 #endif
        if ( c->type == QTextStringChar::Mark ) {
 	 return 0;
@@ -3528,7 +3530,7 @@ QTextParag::QTextParag( QTextDocument *d, QTextParag *pr, QTextParag *nx, bool u
     : invalid( 0 ), p( pr ), n( nx ), doc( d ), align( 0 ), numSubParag( -1 ),
       tm( -1 ), bm( -1 ), lm( -1 ), rm( -1 ), flm( -1 ),
 #ifndef QT_NO_TEXTCUSTOMITEM
-      tc( 0 ), numCustomItems( 0 ), 
+      tc( 0 ), numCustomItems( 0 ),
 #endif
       pFormatter( 0 ), tArray( 0 ), tabStopWidth( 0 ),
       eData( 0 ), pntr( 0 ), commandHistory( 0 )
@@ -5119,7 +5121,7 @@ int QTextFormatter::formatVertically( QTextDocument* doc, QTextParag* parag )
 	    ls->h += delta;
 	    if ( delta )
 		parag->setMovedDown( TRUE );
-	} else 
+	} else
 #endif
 	{
 
