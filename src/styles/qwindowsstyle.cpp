@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qwindowsstyle.cpp#64 $
+** $Id: //depot/qt/main/src/styles/qwindowsstyle.cpp#65 $
 **
 ** Implementation of Windows-like style class
 **
@@ -279,6 +279,30 @@ void QWindowsStyle::drawPrimitive( PrimitiveOperation op,
 	}
     	break; }
 
+    case PO_MenuBarItem: {
+	bool active = flags & PStyle_On;
+	bool hasFocus = flags & PStyle_HasFocus;
+	bool down = flags & PStyle_Sunken;
+	QRect pr = r;
+	    
+	p->fillRect( r, cg.brush( QColorGroup::Button ) );
+	if ( active || hasFocus ) {
+	    QBrush b = cg.brush( QColorGroup::Button );
+	    if ( active && down )
+		p->setBrushOrigin(p->brushOrigin() + QPoint(1,1));
+	    if ( active && hasFocus )
+		qDrawShadeRect( p, r.x(), r.y(), r.width(), r.height(), 
+				cg, active && down, 1, 0, &b );
+	    if ( active && down ) {
+		// ### fix me!
+//		pr.addCoords( 2, 2, -2, -2 );
+		pr.setRect( r.x()+2, r.y()+2, r.width()-2, r.height()-2 );
+		p->setBrushOrigin(p->brushOrigin() - QPoint(1,1));
+	    }
+	}
+	QCommonStyle::drawPrimitive( PO_MenuBarItem, p, pr, cg, flags, data );
+	break; }       
+
     default:
 	if (op >= PO_ArrowUp && op <= PO_ArrowLeft) {
 	    QPointArray a;
@@ -431,6 +455,10 @@ int QWindowsStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
 	    thick += (space * 2) / (n + 2);
 	ret = thick;
 	break; }
+    
+    case PM_MenuBarFrameWidth:
+	ret = 0;
+	break;
 
     default:
 	ret = QCommonStyle::pixelMetric(metric, widget);

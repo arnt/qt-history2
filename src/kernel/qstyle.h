@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.h#108 $
+** $Id: //depot/qt/main/src/kernel/qstyle.h#109 $
 **
 ** Definition of QStyle class
 **
@@ -121,7 +121,10 @@ public:
 
 	PO_DockWindowHandle,
 	PO_DockWindowSeparator,
-	PO_DockWindowPanel
+	PO_DockWindowPanel,
+	
+	PO_MenuBarItem,
+	PO_MenuBarPanel
 	/*
 	  PO_Panel,
 	  PO_PanelPopup,
@@ -146,7 +149,8 @@ public:
 	PStyle_NoChange =		0x00000008,
 	PStyle_On =			0x00000010,
 	PStyle_Horizontal =		0x00000020,
-	PStyle_Vertical =		0x00000040
+	PStyle_Vertical =		0x00000040,
+	PStyle_HasFocus =		0x00000080
 	/*
 	  PStyle_FocusHighlight=	0x00000001,
 	  PStyle_FocusAtBorder=		0X00000002
@@ -317,7 +321,9 @@ public:
 	
 	PM_DockWindowSeparatorExtent,
 	PM_DockWindowHandleExtent,
-	PM_DockWindowFrameWidth
+	PM_DockWindowFrameWidth,
+	
+	PM_MenuBarFrameWidth
 	
 	/*
 	  PM_PopupFrameWidth,

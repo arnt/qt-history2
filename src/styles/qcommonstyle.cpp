@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qcommonstyle.cpp#58 $
+** $Id: //depot/qt/main/src/styles/qcommonstyle.cpp#59 $
 **
 ** Implementation of the QCommonStyle class
 **
@@ -467,7 +467,7 @@ void QCommonStyle::drawPrimitive( PrimitiveOperation op,
 				  const QRect &r,
 				  const QColorGroup &cg,
 				  PFlags flags,
-				  void * ) const
+				  void * data ) const
 {
     switch (op) {
     case PO_ButtonCommand:
@@ -675,12 +675,29 @@ void QCommonStyle::drawPrimitive( PrimitiveOperation op,
 	that->drawPanel( p, r.x(), r.y(), r.width(), r.height(), cg,
 			 FALSE, pixelMetric( PM_DockWindowFrameWidth ), 0 );
 	break; }
+    
+    case PO_MenuBarPanel: {
+	QCommonStyle * that = (QCommonStyle *) this;
+	that->drawPanel( p, r.x(), r.y(), r.width(), r.height(), cg,
+			 FALSE, pixelMetric( PM_MenuBarFrameWidth ), 0 );
+	break; }
+    
+    case PO_MenuBarItem: {
+	QMenuItem * mi;
+	void ** sdata = (void **) data;
 
+	if ( sdata ) {
+	    mi = (QMenuItem *) sdata[0];
+	    drawItem( p, r, AlignCenter|ShowPrefix|DontClip|SingleLine, cg, 
+		      mi->isEnabled(), mi->pixmap(), mi->text(), -1, 
+		      &cg.buttonText() );
+	}
+	break; }
+    
     default:
 	break;
     }
-}
-
+} 
 
 /*
   Draws a control.
@@ -1403,6 +1420,10 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QWidget *widget) const
 
     case PM_DockWindowFrameWidth:
 	ret = 1;
+	break;
+	
+    case PM_MenuBarFrameWidth:
+	ret = 2;
 	break;
 
     default:

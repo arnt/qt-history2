@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#286 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#287 $
 **
 ** Implementation of QMenuBar class
 **
@@ -216,8 +216,9 @@ QMenuBar::QMenuBar( QWidget *parent, const char *name )
     if ( gs == WindowsStyle ) {
 	h = 2 + fm.height() + motifItemVMargin + 2*frameWidth() + 2*motifItemFrame;
     } else {
-	h =  style().defaultFrameWidth() + motifBarVMargin + fm.height()
-	     + motifItemVMargin + 2*frameWidth() + 2*motifItemFrame;
+	h =  style().pixelMetric( QStyle::PM_DefaultFrameWidth, this ) + 
+	    motifBarVMargin + fm.height() + motifItemVMargin + 
+	    2*frameWidth() + 2*motifItemFrame;
     }
 
     move( 0, 0 );
@@ -244,7 +245,8 @@ void QMenuBar::styleChange( QStyle& old )
 	    setMouseTracking( TRUE );
 	    break;
 	case MotifStyle:
-	    setLineWidth( style().defaultFrameWidth() );
+	    setLineWidth( style().pixelMetric( QStyle::PM_DefaultFrameWidth, 
+					       this ) );
 	    setMouseTracking( FALSE );
 	    break;
 	default:
@@ -933,7 +935,7 @@ QMenuBar::Separator QMenuBar::separator() const
 void QMenuBar::drawContents( QPainter *p )
 {
     QRegion reg( contentsRect() );
-    QColorGroup g;
+    QColorGroup g = colorGroup();
     bool e;
 
     // ### this shouldn't happen.
@@ -941,7 +943,7 @@ void QMenuBar::drawContents( QPainter *p )
 	return;
 
     // Draw the menu bar contents in the current style
-    style().drawMenuBarPanel( p, 0, 0, width(), height(), g );
+    style().drawPrimitive( QStyle::PO_MenuBarPanel, p, rect(), g );
 
     for ( int i=0; i<(int)mitems->count(); i++ ) {
 	QMenuItem *mi = mitems->at( i );
@@ -960,13 +962,26 @@ void QMenuBar::drawContents( QPainter *p )
 	    buffer.painter()->setFont( p->font() );
 	    buffer.painter()->setPen( p->pen() );
 	    buffer.painter()->setBrush( p->brush() );
-	    style().drawMenuBarItem( buffer.painter(), r.x(), r.y(), r.width(),
-				     r.height(), mi, g, (i == actItem),
-				     actItemDown,
-				  ( hasFocus() || hasmouse || popupvisible ) );
+	    
+	    void * data[1];
+	    data[0] = (void *) mi;
+	    QStyle::PFlags flags = QStyle::PStyle_Default;
+
+	    if ( i == actItem )
+		flags |= QStyle::PStyle_On;
+	    if ( actItemDown )
+		flags |= QStyle::PStyle_Sunken;
+	    if ( hasFocus() || hasmouse || popupvisible )
+		flags |= QStyle::PStyle_HasFocus;
+	    
+	    style().drawPrimitive( QStyle::PO_MenuBarItem, buffer.painter(),
+				   r, g, flags, data );
 	}
     }
-    erase( reg );
+
+    // should not be necessary since the call to draw the
+    // PO_MenuBarPanel should take care of this
+//    erase( reg );
 
 #if defined(Q_WS_MAC) && !defined(QMAC_QMENUBAR_NO_NATIVE)
 	    if ( !mac_eaten_menubar ) {
@@ -1066,7 +1081,7 @@ void QMenuBar::keyPressEvent( QKeyEvent *e )
     int dx = 0;
 
     switch ( e->key() ) {
-    case Key_Left:
+     case Key_Left:
 	dx = -1;
 	break;
 
