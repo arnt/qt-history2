@@ -70,7 +70,7 @@ void qt_find_ellipse_coords(const QRectF &r, float angle, float length,
 #define BEZIER_Q(t, tm, a, b, c, d) (a)*POW3(tm) + (b)*t*POW2(tm) + (c)*POW2(t)*tm + (d)*POW3(t)
 
 static QPolygon qBezierCurve(const QPointF &p1, const QPointF &p2,
-                                   const QPointF &p3, const QPointF &p4)
+                             const QPointF &p3, const QPointF &p4)
 {
 
     QLineF ab(p1, p2), bc(p2, p3), cd(p3, p4);
@@ -91,9 +91,9 @@ static QPolygon qBezierCurve(const QPointF &p1, const QPointF &p2,
     double c_y = 3 * p3.y();
     double d_y = p4.y();
 
-    double step = 1 / steps;
+    double step = 1. / steps;
     double t, tm, x, y;
-    QPolygon polygon(int(steps+1));
+    QPolygon polygon;
     for (t = 0; t <= 1; t += step) {
         tm = 1 - t;
         x = BEZIER_Q(t, tm, a_x, b_x, c_x, d_x);
@@ -101,7 +101,7 @@ static QPolygon qBezierCurve(const QPointF &p1, const QPointF &p2,
         polygon << QPointF(x, y);
     }
 
-    if (t != 1)
+    if (t != 1.)
         polygon << p4;
 
     return polygon;
@@ -194,12 +194,12 @@ QPolygon QPainterSubpath::toPolygon(const QMatrix &matrix) const
         return QPolygon();
     QPolygon p;
     fflush(stdout);
-    p << (startPoint * matrix).toPoint();
+    p << (startPoint * matrix);
     for (int i=0; i<elements.size(); ++i) {
         const QPainterPathElement &elm = elements.at(i);
         switch (elm.type) {
         case QPainterPathElement::Line:
-            p << (QPointF(elm.lineData.x, elm.lineData.y) * matrix).toPoint();
+            p << (QPointF(elm.lineData.x, elm.lineData.y) * matrix);
             break;
         case QPainterPathElement::Curve: {
             p += qBezierCurve((p.isEmpty() ? (startPoint * matrix) : p.last()),

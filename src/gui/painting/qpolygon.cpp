@@ -155,17 +155,19 @@ QRectF QPolygon::boundingRect() const
 
 QPointArray QPolygon::toPointArray() const
 {
-    QPointArray pa(size());
+    QPointArray pa;
+    pa.reserve(size());
     for (int i=0; i<size(); ++i)
-        pa.replace(i, at(i).toPoint());
+        pa.append(at(i).toPoint());
     return pa;
 }
 
 QPolygon QPolygon::fromPointArray(const QPointArray &a)
 {
-    QPolygon p(a.size());
+    QPolygon p;
+    p.reserve(a.size());
     for (int i=0; i<a.size(); ++i)
-        p.replace(i, a.at(i));
+        p.append(a.at(i));
     return p;
 }
 

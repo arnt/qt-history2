@@ -461,7 +461,8 @@ void QPaintEngine::drawPath(const QPainterPath &)
 */
 void QPaintEngine::drawLine(const QLineF &line)
 {
-    QPolygon polygon(2);
+    QPolygon polygon;
+    polygon.reserve(2);
     polygon << line.start() << line.end();
     drawPolygon(polygon, PolylineMode);
 }

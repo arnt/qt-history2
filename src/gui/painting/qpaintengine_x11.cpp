@@ -546,6 +546,7 @@ bool QEdge::operator<(const QEdge &other) const
 {
     return min_y(*this) < min_y(other);
 }
+
 static bool isEqual(const QPointF &p1, const QPointF &p2)
 {
     return QABS(p1.x()-p2.x()) < 0.0001 && QABS(p1.y() - p2.y()) < 0.0001;
@@ -592,7 +593,7 @@ static void qt_tesselate_polygon(QVarLengthArray<XTrapezoid> *traps, const QPoly
 	QEdge edge;
  	edge.p1 = pa.at(x);
  	edge.p2 = pa.at(x+1);
-//         qDebug("edge %f/%f %f/%f", edge.p1.x(), edge.p1.y(), edge.p2.x(), edge.p2.y());
+//         qDebug("%d edge %f/%f %f/%f", x, edge.p1.x(), edge.p1.y(), edge.p2.x(), edge.p2.y());
 	edge.m = double(edge.p1.y() - edge.p2.y())
 		 / double(edge.p1.x() - edge.p2.x()); // line derivative
 	edge.b = qRound(edge.p1.y() - edge.m * edge.p1.x()); // intersection with y axis
@@ -603,28 +604,33 @@ static void qt_tesselate_polygon(QVarLengthArray<XTrapezoid> *traps, const QPoly
     // sort edge table by min y value
     qHeapSort(et);
 
-    float ymin = min_y(et.at(0));
+    float ymin = 99999999;
     float ymax = -99999999;
 
     // eliminate shared edges and find scan range
     for (int i = 0; i < et.size()-1; ++i) {
 	for (int k = i+1; k < et.size(); ++k) {
-	    float my = qMax(max_y(et.at(i)), max_y(et.at(k)));
-
-	    if (my > ymax)
-		ymax = my;
-
-   	    if (((isEqual(et.at(i).p1, et.at(k).p1) && isEqual(et.at(i).p2, et.at(k).p2))
- 		 || (isEqual(et.at(i).p2, et.at(k).p1) && isEqual(et.at(i).p1, et.at(k).p2)))) {
+   	    if (isEqual(et.at(i).p2, et.at(k).p1) && isEqual(et.at(i).p1, et.at(k).p2)) {
+//                 qDebug("edge %d and %d equal (%f/%f %f/%f   %f/%f %f/%f)", i, k,
+//                        et.at(i).p1.x(), et.at(i).p1.y(),
+//                        et.at(i).p2.x(), et.at(i).p2.y(),
+//                        et.at(k).p1.x(), et.at(k).p1.y(),
+//                        et.at(k).p2.x(), et.at(k).p2.y());
+ 		et.removeAt(k);
 		et.removeAt(i);
- 		et.removeAt(k-1);
-		i = k-2;
+		--i;
 		break;
 	    }
 	}
     }
 
-    if (ymax < 0)
+    for (int i = 0; i < et.size(); ++i) {
+//         qDebug("%d edge %f/%f %f/%f", i, et.at(i).p1.x(), et.at(i).p1.y(), et.at(i).p2.x(), et.at(i).p2.y());
+        ymax = qMax(ymax, max_y(et.at(i)));
+        ymin = qMin(ymin, min_y(et.at(i)));
+    }
+
+    if (ymax <= ymin)
 	return;
 
     if (ymin < 0)
@@ -632,9 +638,9 @@ static void qt_tesselate_polygon(QVarLengthArray<XTrapezoid> *traps, const QPoly
     if (paintEventClipRegion) // don't scan more lines than we have to
 	ymax = paintEventClipRegion->boundingRect().height();
 
-//     qDebug("et=%d", et.size());
+//     qDebug("et=%d, ymin=%f ymax=%f", et.size(), ymin, ymax);
 
-    for (int y = (int)ymin; y <= ymax; ++y) {
+    for (int y = (int)ymin; y <= ymax+1; ++y) {
 	bool aetChanged = false;
 
 	currentScanline = y; // used by the less than op
@@ -664,8 +670,12 @@ static void qt_tesselate_polygon(QVarLengthArray<XTrapezoid> *traps, const QPoly
 	}
 
 	// done?
-	if (!aet.size())
-	    break;
+	if (!aet.size()) {
+            if (!et.size())
+                break;
+            else
+                continue;
+        }
 
 //         qDebug("y=%d: %d active edges", y, aet.size());
 	// calc intersection points
