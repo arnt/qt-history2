@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#203 $
+** $Id: //depot/qt/main/src/moc/moc.y#204 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -2456,7 +2456,7 @@ void generateClass()		      // generate C++ source code for a class
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#203 $)\n**\n";
+		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#204 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
@@ -2528,8 +2528,13 @@ void generateClass()		      // generate C++ source code for a class
 //
 // Generate static cleanup object variable
 //
-    fprintf( out, "static QMetaObjectCleanUp cleanUp_%s = QMetaObjectCleanUp();\n\n", 
-	     (const char*)qualifiedClassName() );
+    char *cname = strdup( (const char*)qualifiedClassName() );
+    for ( int cnpos = 0; cnpos < qualifiedClassName().length(); cnpos++ ) {
+	if ( cname[cnpos] == ':' )
+	    cname[cnpos] = '_';
+    }
+
+    fprintf( out, "static QMetaObjectCleanUp cleanUp_%s = QMetaObjectCleanUp();\n\n", cname );
 
 //
 // Generate tr member function ### 3.0 one function
@@ -2621,7 +2626,8 @@ void generateClass()		      // generate C++ source code for a class
 //
 // Setup cleanup handler and return meta object
 //
-    fprintf( out, "    cleanUp_%s.setMetaObject( metaObj );\n", (const char*)qualifiedClassName() );
+    fprintf( out, "    cleanUp_%s.setMetaObject( metaObj );\n", cname );
+    delete cname;
 
     fprintf( out, "    return metaObj;\n}\n" );
 
