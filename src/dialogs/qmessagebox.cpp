@@ -539,18 +539,6 @@ static const char *mb_texts[] = {
     0
 };
 
-static const char *mb_keyaccels[] = {
-    0,
-    QT_TRANSLATE_NOOP("QMessageBox","O"),
-    QT_TRANSLATE_NOOP("QMessageBox","C"),
-    QT_TRANSLATE_NOOP("QMessageBox","Y"),
-    QT_TRANSLATE_NOOP("QMessageBox","N"),
-    QT_TRANSLATE_NOOP("QMessageBox","A"),
-    QT_TRANSLATE_NOOP("QMessageBox","R"),
-    QT_TRANSLATE_NOOP("QMessageBox","I"),
-    0
-};
-
 /*!
   Constructs a message box with no text and a button with the text "OK".
 
@@ -804,10 +792,6 @@ void QMessageBox::init( int button0, int button1, int button2 )
                 tr(mb_texts[mbd->button[i]]),
                 this, buttonName );
 	    
-	    QAccel* a = new QAccel( this );
-	    int id = a->insertItem( QAccel::stringToKey( tr( mb_keyaccels[mbd->button[i]] ) ) );
-	    a->connectItem( id, mbd->pb[i], SLOT(animateClick()) );
-            
 	    if ( mbd->defButton == i ) {
                 mbd->pb[i]->setDefault( TRUE );
                 mbd->pb[i]->setFocus();
