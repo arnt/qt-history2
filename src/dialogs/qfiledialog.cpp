@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#274 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#275 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1788,6 +1788,11 @@ void QFileDialog::init()
 	     okB, SIGNAL( clicked() ) );
 }
 
+/*!
+  \internal
+  Changes the preview mode.
+*/
+
 void QFileDialog::changeMode( int id )
 {
     QPushButton *pb = (QPushButton*)d->modeButtons->find( id );
@@ -1854,6 +1859,10 @@ void QFileDialog::setSelection( const QString & filename )
 	d->waitFor.remove( (uint)0 );
 }
 
+/*!
+  \internal
+*/
+
 void QFileDialog::slotIsDir()
 {
     if ( d->waitFor.isEmpty() )
@@ -1886,6 +1895,10 @@ void QFileDialog::slotIsDir()
 
     d->waitFor.remove( (uint)0 );
 }
+
+/*!
+  \internal
+*/
 
 void QFileDialog::slotIsFile()
 {
@@ -2025,6 +2038,10 @@ void QFileDialog::setDir( const QDir &dir )
     rereadDir();
     emit dirEntered( d->url.path() );
 }
+
+/*!
+  Sets the \a url which should be used as working directory
+*/
 
 void QFileDialog::setUrl( const QUrl &url )
 {
@@ -3161,6 +3178,15 @@ const QPixmap * QFileIconProvider::pixmap( const QFileInfo & )
     return 0;
 }
 
+/*!  Returns a pointer to a pixmap suitable for display when the file
+  dialog next to the name of \a file.
+
+  If pixmap() returns 0, QFileDialog draws nothing.
+
+  The default implementation returns 0 in Qt 1.40.  In future versions
+  of Qt it may be extended.
+*/
+
 const QPixmap * QFileIconProvider::pixmap( const QUrlInfo & )
 {
     return 0;
@@ -3446,6 +3472,10 @@ void QFileDialog::fixupNameEdit()
 	nameEdit->setText( files->currentItem()->text( 0 ) );
 }
 
+/*!
+  Returns the URL of the current working directory.
+*/
+
 QUrl QFileDialog::url() const
 {
     return d->url;
@@ -3544,9 +3574,29 @@ void QFileDialog::itemChanged( const QString &oldname, const QString &newname )
     }
 }
 
-void QFileDialog::setPreviewMode( bool, bool )
+/*!
+  Sets the file preview modes. If \a info is TRUE, a widget for
+  showing file information can be shown, else not.
+  If \a contents is TRUE, a widget for showing a file preview 
+  can be shown, else not.
+*/
+
+void QFileDialog::setPreviewMode( bool info, bool contents )
 {
 }
+
+/*!
+  Sets the widget which should be used for displaying information
+  of a file.
+  
+  This widget should implement a public slot 
+  
+  void showPreview( const QUrl & );
+  
+  A signal of the filedialog will then be automatically connected to
+  this slot. If the user selects a file then, this signal is emitted, 
+  so that the preview widget can show information of this file (url).
+*/
 
 void QFileDialog::setInfoPreviewWidget( QWidget *w )
 {
@@ -3556,16 +3606,29 @@ void QFileDialog::setInfoPreviewWidget( QWidget *w )
     if ( d->infoPreviewWidget ) {
 	d->preview->removeWidget( d->infoPreviewWidget );
 
-	disconnect( this, SIGNAL( showPreview( const QUrl &, const QUrlInfo & ) ),
-		    d->infoPreviewWidget, SLOT( showPreview( const QUrl &, const QUrlInfo & ) ) );
+	disconnect( this, SIGNAL( showPreview( const QUrl & ) ),
+		    d->infoPreviewWidget, SLOT( showPreview( const QUrl & ) ) );
 
 	delete d->infoPreviewWidget;
     }
     d->infoPreviewWidget = w;
-    connect( this, SIGNAL( showPreview( const QUrl &, const QUrlInfo & ) ),
-	     d->infoPreviewWidget, SLOT( showPreview( const QUrl &, const QUrlInfo & ) ) );
+    connect( this, SIGNAL( showPreview( const QUrl & ) ),
+	     d->infoPreviewWidget, SLOT( showPreview( const QUrl & ) ) );
     w->recreate( d->preview, 0, QPoint( 0, 0 ) );
 }
+
+/*!
+  Sets the widget which should be used for displaying the preview
+  of a file.
+  
+  This widget should implement a public slot 
+  
+  void showPreview( const QUrl & );
+  
+  A signal of the filedialog will then be automatically connected to
+  this slot. If the user selects a file then, this signal is emitted, 
+  so that the preview widget can show a preview of this file (url).
+*/
 
 void QFileDialog::setContentsPreviewWidget( QWidget *w )
 {
@@ -3575,14 +3638,14 @@ void QFileDialog::setContentsPreviewWidget( QWidget *w )
     if ( d->contentsPreviewWidget ) {
 	d->preview->removeWidget( d->contentsPreviewWidget );
 
-	disconnect( this, SIGNAL( showPreview( const QUrl &, const QUrlInfo & ) ),
-		    d->contentsPreviewWidget, SLOT( showPreview( const QUrl &, const QUrlInfo & ) ) );
+	disconnect( this, SIGNAL( showPreview( const QUrl & ) ),
+		    d->contentsPreviewWidget, SLOT( showPreview( const QUrl & ) ) );
 	
 	delete d->contentsPreviewWidget;
     }
     d->contentsPreviewWidget = w;
-    connect( this, SIGNAL( showPreview( const QUrl &, const QUrlInfo & ) ),
-	     d->contentsPreviewWidget, SLOT( showPreview( const QUrl &, const QUrlInfo & ) ) );
+    connect( this, SIGNAL( showPreview( const QUrl & ) ),
+	     d->contentsPreviewWidget, SLOT( showPreview( const QUrl & ) ) );
     w->recreate( d->preview, 0, QPoint( 0, 0 ) );
 }
 
