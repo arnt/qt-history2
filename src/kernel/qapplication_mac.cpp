@@ -12,9 +12,6 @@
 **
 ****************************************************************************/
 
-// NOT REVISED
-#include "qglobal.h"
-#include "qt_mac.h"
 
 #include "private/qapplication_p.h"
 #include "private/qcolor_p.h"
@@ -27,6 +24,7 @@
 #include "qdatastream.h"
 #include "qdatetime.h"
 #include "qdesktopwidget.h"
+#include "qdockarea.h"
 #include "qevent.h"
 #include "qguardedptr.h"
 #include "qhash.h"
@@ -1386,7 +1384,7 @@ bool QApplication::do_mouse_down(Point *pt, bool *mouse_down_unhandled)
 	if(set_active) {
 	    widget->raise();
 	    if(widget->isTopLevel() && !widget->isDesktop() && !widget->isPopup() &&
-	       (widget->isModal() || !widget->inherits("QDockWindow")))
+	       (widget->isModal() || !::qt_cast<QDockWindow *>(widget)))
 		widget->setActiveWindow();
 	}
     }
@@ -1407,25 +1405,28 @@ bool QApplication::do_mouse_down(Point *pt, bool *mouse_down_unhandled)
     case inToolbarButton: { //hide toolbars thing
 	int h = 0;
 	QObjectList chldrn = widget->children();
+#ifndef QT_NO_MAINWINDOW
+	QMainWindow *mw = ::qt_cast<QMainWindow *>(widget);
+#endif
 	for(int i = 0; i < chldrn.size(); i++) {
 	    QObject *obj = chldrn.at(i);
-	    if(obj->isWidgetType() && obj->inherits("QDockArea")) {
-		QWidget *w = (QWidget *)obj;
+	    QDockArea *area = ::qt_cast<QDockArea *>(obj);
+	    if (area) {
 #ifndef QT_NO_MAINWINDOW
-		if(widget->inherits("QMainWindow") && ((QMainWindow*)widget)->topDock() != (QDockArea*)w)
-		    continue; //bleh
-#endif
-		if(w->width() < w->height()) //only do horizontal orientations
+		if(mw && mw->topDock() != area)
 		    continue;
-		int oh = w->sizeHint().height();
+#endif
+		if(area->width() < area->height()) //only do horizontal orientations
+		    continue;
+		int oh = area->sizeHint().height();
 		if(oh < 0)
 		    oh = 0;
-		if(w->isVisible())
-		    w->hide();
+		if(area->isVisible())
+		    area->hide();
 		else
-		    w->show();
+		    area->show();
 		sendPostedEvents();
-		int nh = w->sizeHint().height();
+		int nh = area->sizeHint().height();
 		if(nh < 0)
 		    nh = 0;
 		if(oh != nh)
@@ -1976,7 +1977,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		QWidget *tlw = w->topLevelWidget();
 		tlw->raise();
 		if(tlw->isTopLevel() && !tlw->isDesktop() && !tlw->isPopup() &&
-		   (tlw->isModal() || !tlw->inherits("QDockWindow")))
+		   (tlw->isModal() || !::qt_cast<QDockWindow *>(tlw)))
 		    tlw->setActiveWindow();
 	    }
 	}

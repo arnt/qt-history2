@@ -23,11 +23,13 @@
 #include <qdockwindow.h>
 #include <qguardedptr.h>
 #include <qhash.h>
+#include <qmainwindow.h>
 #include <qmenubar.h>
 #include <qmessagebox.h>
 #include <qpopupmenu.h>
 #include <qregexp.h>
 #include <qstring.h>
+#include <qtoolbar.h>
 
 /*****************************************************************************
   QMenubar debug facilities
@@ -682,10 +684,10 @@ void QMenuBar::macCreateNativeMenubar()
 	mac_eaten_menubar = true;
 	if(!mac_d)
 	    mac_d = new MacPrivate;
-    } else if(p && !menubars.find(topLevelWidget()) &&
-       (((p->isDialog() || p->inherits("QMainWindow")) && p->isTopLevel()) ||
-	p->inherits("QToolBar") ||
-	topLevelWidget() == qApp->mainWidget() || !qApp->mainWidget())) {
+    } else if(p && (!menubars || !menubars.find(topLevelWidget())) &&
+              (((p->isDialog() || ::qt_cast<QMainWindow *>(p)) && p->isTopLevel())
+               || ::qt_cast<QToolBar *>(p) || topLevelWidget() == qApp->mainWidget()
+               || !qApp->mainWidget())) {
 	mac_eaten_menubar = true;
 	menubars.insert(topLevelWidget(), this);
 	if(!mac_d)
@@ -763,7 +765,8 @@ bool QMenuBar::macUpdateMenuBar()
 	w = qApp->mainWidget();
     if(w) {
 	mb = menubars.value(w);
-	if(!mb && (!w->parentWidget() || w->parentWidget()->isDesktop()) && w->inherits("QDockWindow")) {
+	if(!mb && (!w->parentWidget() || w->parentWidget()->isDesktop())
+	   && ::qt_cast<QDockWindow *>(w)) {
 	    if(QWidget *area = ((QDockWindow*)w)->area()) {
 		QWidget *areaTL = area->topLevelWidget();
 		if((mb = menubars.value(areaTL)))

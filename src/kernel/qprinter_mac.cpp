@@ -16,21 +16,22 @@
 
 #ifndef QT_NO_PRINTER
 
-#include "qpaintdevicemetrics.h"
-#include "qfile.h"
-#include "qfileinfo.h"
-#include "qdir.h"
-#include "qpsprinter_p.h"
-#include "qprintdialog.h"
 #include "qapplication.h"
 #include "qapplication_p.h"
-#include "qt_mac.h"
-#include <qstyle.h>
-#include <stdlib.h>
-#include "qprinter_p.h"
+#include "qdir.h"
+#include "qfile.h"
+#include "qfileinfo.h"
+#include "qmacstyle_mac.h"
+#include "qpaintdevicemetrics.h"
 #include "qpaintengine.h"
+#include "qprintdialog.h"
+#include "qprinter_p.h"
+#include "qprinter_p.h"
+#include "qpsprinter_p.h"
+#include "qstyle.h"
+#include "qt_mac.h"
 
-// NOT REVISED
+#include <stdlib.h>
 
 /*****************************************************************************
   QPrinter member functions
@@ -240,7 +241,7 @@ bool QPrinter::setup(QWidget *w)
 {
     if(!psession && PMCreateSession(&psession) != noErr)
         return false;
-    if(qApp->style().inherits("QMacStyle")) {
+    if(::qt_cast<QMacStyle *>(&qApp->style())) {
 	return (printSetup(w) && pageSetup(w));
     } else if(QPrintDialog::getPrinterSetup(this)) {
         if(!prepare(&pformat) || !prepare(&psettings))
@@ -289,7 +290,7 @@ bool QPrinter::printSetup(QWidget *)
 {
     if(!psession && PMCreateSession(&psession) != noErr)
         return false;
-    if(qApp->style().inherits("QMacStyle")) {
+    if(::qt_cast<QMacStyle *>(&qApp->style())) {
         Boolean ret;
 	QMacBlockingFunction block;
         //setup
@@ -311,7 +312,7 @@ bool QPrinter::pageSetup(QWidget *)
 {
     if(!psession && PMCreateSession(&psession) != noErr)
         return false;
-    if(qApp->style().inherits("QMacStyle")) {
+    if(::qt_cast<QMacStyle *>(&qApp->style())) {
         Boolean ret;
 	QMacBlockingFunction block;
         //page format

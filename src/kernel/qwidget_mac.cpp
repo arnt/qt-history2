@@ -695,8 +695,8 @@ bool qt_mac_is_macsheet(QWidget *w, bool ignore_exclusion=false)
     if(w && w->isTopLevel() && w->testWFlags(Qt::WStyle_DialogBorder) &&
        (ignore_exclusion || !w->testWFlags(Qt::WMacNoSheet)) &&
        w->parentWidget() && !w->parentWidget()->topLevelWidget()->isDesktop() &&
-       w->parentWidget()->topLevelWidget()->isVisible() &&
-       (w->style().inherits("QAquaStyle") || w->style().inherits("QMacStyle")))
+       w->parentWidget()->topLevelWidget()->isVisible() 
+       && ::qt_cast<QMacStyle *>(&w->style()))
 	return true;
 #else
     Q_UNUSED(w);
