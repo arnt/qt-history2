@@ -2211,8 +2211,8 @@ QObjectList *MainWindow::previewProject()
 			    return 0;
 			}
 		    }
+		    piface->release();
 		}
-		piface->release();
 	    }
 	}
     }
@@ -3017,7 +3017,7 @@ void MainWindow::activeWindowChanged( QWidget *w )
 	actionSearchReplace->setEnabled( TRUE );
 	actionSearchGotoLine->setEnabled( TRUE );
 	incrementalSearch->setEnabled( TRUE );
-	
+
 	actionEditUndo->setEnabled( TRUE );
 	actionEditRedo->setEnabled( TRUE );
 	actionEditCut->setEnabled( TRUE );
