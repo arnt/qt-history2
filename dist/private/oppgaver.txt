@@ -61,9 +61,7 @@ Funksjonalitet:
 Ferdigstilling:
 ---------------
 
-    Moc
-	-p "/usr/include"	path prefix for #include 
-	-i "hurra.h"		#include "hurra.h"
+    Font metrics & info direkte av QFont.
 
     Windows porting (mest kritisk: rotert tekst)
 
@@ -93,3 +91,10 @@ Ferdigstilling:
 
     Tilgang paa scrollbarene i QTableView
 
+
+Gjort:
+------
+
+    Moc
+	-p "/usr/include"	path prefix for #include 
+	-i "hurra.h"		#include "hurra.h"
