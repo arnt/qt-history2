@@ -636,6 +636,7 @@ void QCommonStyle::drawControl( ControlElement element,
 		ir.setWidth(ir.width() - mbi);
 	    }
 
+	    int tf=AlignVCenter | ShowPrefix;
 #ifndef QT_NO_ICONSET
 	    if ( button->iconSet() && ! button->iconSet()->isNull() ) {
 		QIconSet::Mode mode =
@@ -659,9 +660,15 @@ void QCommonStyle::drawControl( ControlElement element,
 
 		ir.moveBy(pixw + 4, 0);
 		ir.setWidth(ir.width() - (pixw + 4));
-	    }
+		// left-align text if there is
+		if (!button->text().isEmpty())
+		    tf |= AlignLeft;
+		else if (button->pixmap())
+		    tf |= AlignHCenter;
+	    } else
 #endif //QT_NO_ICONSET
-	    drawItem(p, ir, AlignCenter | ShowPrefix, pal,
+		tf |= AlignHCenter;
+	    drawItem(p, ir, tf, pal,
 		     flags & Style_Enabled, button->pixmap(), button->text(),
 		     button->text().length(), &(pal.buttonText().color()) );
 
