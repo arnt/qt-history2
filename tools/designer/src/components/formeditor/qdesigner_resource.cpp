@@ -288,20 +288,29 @@ void QDesignerResource::applyProperties(QObject *o, const QList<DomProperty*> &p
             if (index != -1) {
                 QVariant v;
                 if (p->kind() == DomProperty::IconSet || p->kind() == DomProperty::Pixmap) {
-                    QString icon_path;
-                    QString qrc_path;
-                    if (p->elementIconSet() != 0) {
-                        icon_path = p->elementIconSet()->text();
-                        qrc_path = p->elementIconSet()->attributeResource();
-                    } else if (p->elementPixmap() != 0) {
-                        icon_path = p->elementPixmap()->text();
-                        qrc_path = p->elementPixmap()->attributeResource();
-                    }
-                    if (qrc_path.isEmpty())
-                        icon_path = m_formWindow->absolutePath(icon_path);
+                    DomResourcePixmap *resource = 0;
+                    if (p->kind() == DomProperty::IconSet)
+                        resource = p->elementIconSet();
                     else
-                        qrc_path = m_formWindow->absolutePath(qrc_path);
-                    v = qVariantFromValue(m_core->iconCache()->nameToIcon(icon_path, qrc_path));
+                        resource = p->elementPixmap();
+
+                    if (resource != 0) {
+                        QString icon_path = resource->text();
+                        QString qrc_path = resource->attributeResource();
+                        
+                        if (qrc_path.isEmpty())
+                            icon_path = m_formWindow->absolutePath(icon_path);
+                        else
+                            qrc_path = m_formWindow->absolutePath(qrc_path);
+                            
+                        if (p->kind() == DomProperty::IconSet) {
+                            QIcon icon = m_core->iconCache()->nameToIcon(icon_path, qrc_path);
+                            v = qVariantFromValue(icon);
+                        } else {
+                            QPixmap pixmap = m_core->iconCache()->nameToPixmap(icon_path, qrc_path);
+                            v = qVariantFromValue(pixmap);
+                        }
+                    }                        
                 } else {
                     v = toVariant(o->metaObject(), p);
                 }
@@ -991,18 +1000,33 @@ DomProperty *QDesignerResource::createProperty(QObject *object, const QString &p
         return p;
     } else if (value.type() == QVariant::Pixmap || value.type() == QVariant::Icon) {
         DomResourcePixmap *r = new DomResourcePixmap;
-        QIcon icon = qvariant_cast<QIcon>(value);
-        QString icon_path = m_core->iconCache()->iconToFilePath(icon);
-        QString qrc_path = m_core->iconCache()->iconToQrcPath(icon);
+        QString icon_path;
+        QString qrc_path;
+        if (value.type() == QVariant::Icon) {
+            QIcon icon = qvariant_cast<QIcon>(value);
+            icon_path = m_core->iconCache()->iconToFilePath(icon);
+            qrc_path = m_core->iconCache()->iconToQrcPath(icon);
+        } else {
+            QPixmap pixmap = qvariant_cast<QPixmap>(value);
+            icon_path = m_core->iconCache()->pixmapToFilePath(pixmap);
+            qrc_path = m_core->iconCache()->pixmapToQrcPath(pixmap);
+        }
+        
         if (qrc_path.isEmpty())
             icon_path = m_formWindow->relativePath(icon_path);
         else
             qrc_path = m_formWindow->relativePath(qrc_path);
+
         r->setText(icon_path);
         if (!qrc_path.isEmpty())
             r->setAttributeResource(qrc_path);
         DomProperty *p = new DomProperty;
-        p->setElementIconSet(r);
+        
+        if (value.type() == QVariant::Icon)
+            p->setElementIconSet(r);
+        else
+            p->setElementPixmap(r);
+            
         p->setAttributeName(propertyName);
         return p;
     }
