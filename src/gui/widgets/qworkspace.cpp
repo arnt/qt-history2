@@ -315,7 +315,7 @@ QWorkspacePrivate::init()
                                                           q->tr("Sh&ade"), q);
 
     QObject::connect(d->popup, SIGNAL(aboutToShow()), q, SLOT(updateActions()));
-    QObject::connect(d->popup, SIGNAL(activated(QAction*)), q, SLOT(operationMenuActivated(QAction*)));
+    QObject::connect(d->popup, SIGNAL(triggered(QAction*)), q, SLOT(operationMenuActivated(QAction*)));
     d->popup->addAction(d->actions[QWorkspacePrivate::RestoreAct]);
     d->popup->addAction(d->actions[QWorkspacePrivate::MoveAct]);
     d->popup->addAction(d->actions[QWorkspacePrivate::ResizeAct]);
@@ -325,7 +325,7 @@ QWorkspacePrivate::init()
     d->popup->addAction(d->actions[QWorkspacePrivate::CloseAct]);
 
     QObject::connect(d->toolPopup, SIGNAL(aboutToShow()), q, SLOT(updateActions()));
-    QObject::connect(d->toolPopup, SIGNAL(activated(QAction*)), q, SLOT(operationMenuActivated(QAction*)));
+    QObject::connect(d->toolPopup, SIGNAL(triggered(QAction*)), q, SLOT(operationMenuActivated(QAction*)));
     d->toolPopup->addAction(d->actions[QWorkspacePrivate::MoveAct]);
     d->toolPopup->addAction(d->actions[QWorkspacePrivate::ResizeAct]);
     d->toolPopup->addAction(d->actions[QWorkspacePrivate::StaysOnTopAct]);
