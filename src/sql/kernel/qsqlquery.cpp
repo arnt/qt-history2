@@ -256,6 +256,14 @@ QSqlQuery::QSqlQuery(const QString& query, QSqlDatabase db)
     init(query, db);
 }
 
+/*! \overload
+ */
+QSqlQuery::QSqlQuery(const char *query, QSqlDatabase db)
+{
+    init(QString::fromLatin1(query), db);
+}
+
+
 /*!
     Creates a QSqlQuery object using the database \a db. If \a db is
     0, the application's default database is used.
