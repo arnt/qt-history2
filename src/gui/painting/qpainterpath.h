@@ -18,6 +18,7 @@
 #include "qline.h"
 #include "qvector.h"
 
+class QRegion;
 class QPolygon;
 class QPainterPathPrivate;
 class QPainterPathStrokerPrivate;
