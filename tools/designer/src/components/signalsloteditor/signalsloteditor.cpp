@@ -254,8 +254,8 @@ SignalSlotDialog::SignalSlotDialog(AbstractFormEditor *core, QWidget *source, QW
     QHBoxLayout *l5 = new QHBoxLayout(l1);
     l5->addWidget(m_show_all_checkbox);
     l5->addStretch();
-    l5->addWidget(cancel_button);
     l5->addWidget(m_ok_button);
+    l5->addWidget(cancel_button);
 
     setWindowTitle(tr("Configure Connection"));
 
