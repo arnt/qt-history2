@@ -455,6 +455,7 @@ QRasterPaintEngine::QRasterPaintEngine()
                                                      | PainterPaths
                                                      | AlphaFill
                                                      | AlphaStroke
+                                                     | BrushStroke
                                                      | LinearGradients
                                                      | ClipTransform
                                                      | CoordTransform
@@ -800,7 +801,7 @@ void QRasterPaintEngine::drawPath(const QPainterPath &path)
             if (stroke.isEmpty())
                 return;
         }
-        d->fillForBrush(QBrush(d->pen.color()), &fillData, &stroke);
+        d->fillForBrush(QBrush(d->pen.brush()), &fillData, &stroke);
         fillPath(stroke, &fillData);
     }
 
@@ -926,13 +927,16 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &ti)
     qt_draw_text_item(QPoint(0, ti.ascent), ti, d->fontRasterBuffer->hdc(), d);
 
     // Decide on which span func to use
-    SolidFillData solid;
-    solid.color = d->pen.color();
-    solid.rasterBuffer = d->rasterBuffer;
-    solid.rop = d->rasterOperation;
-    qt_span_func func = qt_span_solidfill;
-    void *data = &solid;
-    FillData clipData = { d->rasterBuffer, func, data };
+    FillData fillData = { d->rasterBuffer, 0, 0 };
+    d->fillForBrush(d->pen.brush(), &fillData, 0);
+
+    qt_span_func func = fillData.callback;
+    void *data = fillData.data;
+
+    if (!func)
+        return;
+
+    FillData clipData = { d->rasterBuffer, fillData.callback, fillData.data };
     if (d->clipEnabled) {
         func = qt_span_fill_clipped;
         data = &clipData;
