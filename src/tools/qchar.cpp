@@ -1,3 +1,17 @@
+/****************************************************************************
+**
+** Implementation of QChar class.
+**
+** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
+**
+** This file is part of the tools module of the Qt GUI Toolkit.
+** EDITIONS: FREE, PROFESSIONAL, ENTERPRISE
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
 // Don't define it while compiling this module, or USERS of Qt will
 // not be able to link.
 #ifdef QT_NO_CAST_FROM_ASCII
@@ -571,7 +585,7 @@ QChar QChar::upper() const
 
     \sa unicode(), QTextCodec::codecForCStrings()
 */
-const char QChar::ascii() const
+char QChar::ascii() const
 {
 #ifndef QT_NO_CODEC_FOR_C_STRINGS
     if (QTextCodec::codecForCStrings())
