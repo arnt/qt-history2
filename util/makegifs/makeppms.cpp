@@ -128,7 +128,7 @@ public:
 	}
 
 	if (includeframe) {
-	    pm.save( filename, "PPM" );
+	    pm.save( filename, "PNG" );
 	} else {
 	    QPixmap ppm(r.width()+2*margin, r.height()+2*margin);
 	    ppm.fill(QApplication::palette().normal().background());
@@ -136,7 +136,7 @@ public:
 	    p.begin(&ppm);
 	    p.drawPixmap(margin,margin,pm);
 	    p.end();
-	    ppm.save( filename, "PPM" );
+	    ppm.save( filename, "PNG" );
 	}
     }
 };
@@ -754,7 +754,7 @@ int main( int argc, char **argv )
     QApplication a( argc, argv );
 
     bool first = true;
-    QString suffix = "-m.ppm";
+    QString suffix = "-m.png";
     QApplication::setStyle( new QMotifStyle );
 
     while ( 1 ) {
@@ -809,7 +809,7 @@ int main( int argc, char **argv )
 
 	first = false;
 	QApplication::setStyle( new QWindowsStyle );
-	suffix = "-w.ppm";
+	suffix = "-w.png";
     }
 
     return 0;
