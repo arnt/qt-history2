@@ -1535,8 +1535,9 @@ QTabletEvent::QTabletEvent(Type t, const QPoint &pos, const QPoint &globalPos, i
       mXT(xTilt),
       mYT(yTilt),
       mType(uId.first),
-      mPhy(uId.second),
-{}
+      mPhy(uId.second)
+{
+}
 
 /*!
   \obsolete
