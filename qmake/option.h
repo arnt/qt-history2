@@ -59,8 +59,8 @@ struct Option
     static QString dir_sep;
     //and convenience functions
     static bool parseCommandLine(int argc, char **argv);
-    static QString fixPathToLocalOS(QString in);
-    static QString fixPathToTargetOS(QString in, bool fix_env=TRUE);
+    static QString fixPathToLocalOS(const QString& in);
+    static QString fixPathToTargetOS(const QString& in, bool fix_env=TRUE);
 
     //global qmake mode, can only be in one mode per invocation!
     enum QMAKE_MODE { QMAKE_GENERATE_NOTHING, QMAKE_GENERATE_PROJECT, QMAKE_GENERATE_MAKEFILE };

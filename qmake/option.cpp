@@ -278,11 +278,12 @@ static QString fixPath(QString x)
 
 
 QString
-Option::fixPathToTargetOS(QString in, bool fix_env)
+Option::fixPathToTargetOS(const QString& in, bool fix_env)
 {
+    QString tmp(in);
     if(fix_env)
-	fixEnvVariables(in);
-    in = fixPath(in);
+	fixEnvVariables(tmp);
+    tmp = fixPath(tmp);
     QString rep;
     if(Option::target_mode == TARG_UNIX_MODE || Option::target_mode == TARG_MACX_MODE)
 	rep = "[\\\\]";
@@ -290,18 +291,19 @@ Option::fixPathToTargetOS(QString in, bool fix_env)
 	rep = "[/\\\\]";
     else if(Option::target_mode == TARG_WIN_MODE)
 	rep = "[/]";
-    return in.replace(QRegExp(rep), Option::dir_sep);
+    return tmp.replace(QRegExp(rep), Option::dir_sep);
 }
 
 QString
-Option::fixPathToLocalOS(QString in)
+Option::fixPathToLocalOS(const QString& in)
 {
-    fixEnvVariables(in);
-    in = fixPath(in);
+    QString tmp(in);
+    fixEnvVariables(tmp);
+    tmp = fixPath(tmp);
 #if defined(Q_OS_WIN32)
-    return in.replace(QRegExp("/"), "\\");
+    return tmp.replace(QRegExp("/"), "\\");
 #else
-    return in.replace(QRegExp("\\\\"), "/");
+    return tmp.replace(QRegExp("\\\\"), "/");
 #endif
 }
 
