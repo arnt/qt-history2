@@ -297,7 +297,6 @@ void QSocketDevice::setSocket(int socket, Type type)
     d->protocol = Unknown;
     d->e = NoError;
     setFlags(IO_Sequential);
-    resetStatus();
     setMode(IO_ReadWrite);
     d->fetchConnectionParameters();
 }

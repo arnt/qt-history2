@@ -355,24 +355,14 @@ void qt_init_destination(j_compress_ptr)
 }
 
 static
-void qt_exit_on_error(j_compress_ptr cinfo, QIODevice* dev)
-{
-    if (dev->status() == IO_Ok) {
-        return;
-    } else {
-        // cinfo->err->msg_code = JERR_FILE_WRITE;
-        (*cinfo->err->error_exit)((j_common_ptr)cinfo);
-    }
-}
-
-static
 boolean qt_empty_output_buffer(j_compress_ptr cinfo)
 {
     my_jpeg_destination_mgr* dest = (my_jpeg_destination_mgr*)cinfo->dest;
     QIODevice* dev = dest->iio->ioDevice();
 
-    if (dev->write((char*)dest->buffer, max_buf) != max_buf)
-        qt_exit_on_error(cinfo, dev);
+    int written = dev->write((char*)dest->buffer, max_buf);
+    if (written == -1)
+        (*cinfo->err->error_exit)((j_common_ptr)cinfo);
 
     dest->next_output_byte = dest->buffer;
     dest->free_in_buffer = max_buf;
@@ -391,12 +381,10 @@ void qt_term_destination(j_compress_ptr cinfo)
     QIODevice* dev = dest->iio->ioDevice();
     Q_LONG n = max_buf - dest->free_in_buffer;
 
-    if (dev->write((char*)dest->buffer, n) != n)
-        qt_exit_on_error(cinfo, dev);
-
+    Q_LONGLONG written = dev->write((char*)dest->buffer, n);
+    if (written == -1)
+        (*cinfo->err->error_exit)((j_common_ptr)cinfo);
     dev->flush();
-
-    qt_exit_on_error(cinfo, dev);
 }
 
 #if defined(Q_C_CALLBACKS)

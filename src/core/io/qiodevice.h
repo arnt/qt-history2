@@ -49,25 +49,6 @@ public:
         ModeMask = 0x00ff
     };
 
-    enum Status {
-        Ok = 0,
-        ReadError = 1,
-        WriteError = 2,
-        FatalError = 3,
-        ResourceError = 4,
-        OpenError = 5,
-        ConnectError = 6,
-        AbortError = 7,
-        TimeOutError = 8,
-        UnspecifiedError = 9,
-        RemoveError = 10,
-        RenameError = 11,
-        PositionError = 12,
-        ResizeError = 13,
-        PermissionsError = 14,
-        CopyError = 15
-    };
-
     QIODevice();
     virtual ~QIODevice();
 
@@ -87,10 +68,6 @@ public:
     inline bool isReadWrite() const { return (flags() & ReadWrite) == ReadWrite; }
     inline bool isInactive() const { return !isOpen(); }
     virtual bool isOpen() const = 0;
-
-    int status() const;
-    void resetStatus();
-    QString errorString() const;
 
     virtual inline bool open(int) { return false; }
     virtual void close() = 0;
@@ -138,49 +115,32 @@ protected:
     void setMode(int);
     void setBufferSize(int);
 
-    void setStatus(int);
-    void setStatus(int, const QString &errorString);
-    void setStatus(int, int);
-
     QIODevicePrivate *d_ptr;
 
 private:
     Q_DISABLE_COPY(QIODevice)
 };
 
-#define IO_Direct QIODevice::Direct
-#define IO_Sequential QIODevice::Sequential
-#define IO_Combined QIODevice::Combined
-#define IO_TypeMask QIODevice::TypeMask
-
-#define IO_Raw QIODevice::Raw
-#define IO_Async QIODevice::Async
-
-#define IO_ReadOnly QIODevice::ReadOnly
-#define IO_WriteOnly QIODevice::WriteOnly
-#define IO_ReadWrite QIODevice::ReadWrite
-#define IO_Append QIODevice::Append
-#define IO_Truncate QIODevice::Truncate
-#define IO_Translate QIODevice::Translate
-#define IO_ModeMask QIODevice::ModeMask
-
-#define IO_Open QIODevice::Open
-#if defined QT_COMPAT
-#define IO_StateMask QIODevice::StateMask
+#ifdef QT_COMPAT
+// QIODevice::AccessType 
+#  define IO_Direct QIODevice::Direct
+#  define IO_Sequential QIODevice::Sequential
+#  define IO_Combined QIODevice::Combined
+#  define IO_TypeMask QIODevice::TypeMask
+// QIODevice::HandlingMode
+#  define IO_Raw QIODevice::Raw
+#  define IO_Async QIODevice::Async
+// QIODevice::OpenMode
+#  define IO_ReadOnly QIODevice::ReadOnly
+#  define IO_WriteOnly QIODevice::WriteOnly
+#  define IO_ReadWrite QIODevice::ReadWrite
+#  define IO_Append QIODevice::Append
+#  define IO_Truncate QIODevice::Truncate
+#  define IO_Translate QIODevice::Translate
+#  define IO_ModeMask QIODevice::ModeMask
+// QIODevice::State
+#  define IO_Open QIODevice::Open
+#  define IO_StateMask QIODevice::StateMask
 #endif
-
-#define IO_Ok QIODevice::Ok
-#define IO_ReadError QIODevice::ReadError
-#define IO_WriteError QIODevice::WriteError
-#define IO_FatalError QIODevice::FatalError
-#define IO_ResourceError QIODevice::ResourceError
-#define IO_OpenError QIODevice::OpenError
-#define IO_ConnectError QIODevice::ConnectError
-#define IO_AbortError QIODevice::AbortError
-#define IO_TimeOutError QIODevice::TimeOutError
-#define IO_UnspecifiedError QIODevice::UnspecifiedError
-#define IO_RemoveError QIODevice::RemoveError
-#define IO_RenameError QIODevice::RenameError
-#define IO_PositionError QIODevice::PositionError
 
 #endif // QIODEVICE_H

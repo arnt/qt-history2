@@ -241,14 +241,14 @@ QResourceFileEngine::map(Q_LONG /*len*/)
     return 0;
 }
 
-uint
-QResourceFileEngine::fileFlags(uint type) const
+QFileEngine::FileFlags
+QResourceFileEngine::fileFlags(QFileEngine::FileFlags type) const
 {
-    uint ret = 0;
+    QFileEngine::FileFlags ret = 0;
     if(!d->resource && !(d->resource = qt_find_resource(d->file)))
         return ret;
     if(type & PermsMask)
-        ret |= (ReadOwnerPerm|ReadUserPerm|ReadGroupPerm|ReadOtherPerm);
+        ret |= QFileEngine::FileFlags(ReadOwnerPerm|ReadUserPerm|ReadGroupPerm|ReadOtherPerm);
     if(type & TypesMask) {
         if(d->resource->isContainer())
             ret |= DirectoryType;

@@ -284,10 +284,10 @@ QFSFileEnginePrivate::doStat() const
     return could_stat;
 }
 
-uint
-QFSFileEngine::fileFlags(uint type) const
+QFileEngine::FileFlags
+QFSFileEngine::fileFlags(QFileEngine::FileFlags type) const
 {
-    uint ret = 0;
+    QFileEngine::FileFlags ret = 0;
     if(!d->doStat())
         return ret;
     if(type & PermsMask) {
@@ -341,7 +341,7 @@ QFSFileEngine::fileFlags(uint type) const
         }
     }
     if(type & FlagsMask) {
-        ret |= ExistsFlag | LocalDiskFlag;
+        ret |= QFileEngine::FileFlags(ExistsFlag | LocalDiskFlag);
         if(fileName(BaseName)[0] == QLatin1Char('.'))
             ret |= HiddenFlag;
         if(d->file == QLatin1String("/"))
@@ -406,9 +406,16 @@ QFSFileEngine::fileName(FileName file) const
         if(d->doStat() && (d->st.st_mode & S_IFMT) == S_IFLNK) {
             char s[PATH_MAX+1];
             int len = readlink(QFile::encodeName(d->file), s, PATH_MAX);
-            if(len >= 0) {
+            if(len > 0) {
+                QString ret;
+                if(s[0] != QLatin1Char('/')) {
+                    ret = QDir::currentPath();
+                    if(!ret.isEmpty() && ret.right(1) != QLatin1String("/"))
+                        ret += QLatin1Char('/');
+                }
                 s[len] = '\0';
-                return QFile::decodeName(QByteArray(s));
+                ret += QFile::decodeName(QByteArray(s));
+                return ret;
             }
         }
 #if !defined(QWS) && defined(Q_OS_MAC)

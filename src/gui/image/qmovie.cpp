@@ -508,8 +508,7 @@ int QMoviePrivate::bufferSpace()
 
 void QMoviePrivate::pollForData()
 {
-    if(waitingForFrameTick || !stepping || buf_usage || error ||
-       source->status() != IO_Ok || !source->isOpen())
+    if(waitingForFrameTick || !stepping || buf_usage || error || !source->isOpen())
         return;
 
     if(!bufferSpace()) { //EOF

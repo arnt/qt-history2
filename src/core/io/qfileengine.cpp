@@ -292,23 +292,23 @@ QFileEngine *QFileEngine::createFileEngine(const QString &file)
 */
 
 /*!
-  Returns the QIODevice::Status that resulted from the last failed
-  operation. If QIOevice::UnspecifiedError is returned, QIODevice will
+  Returns the QFile::Error that resulted from the last failed
+  operation. If QFile::UnspecifiedError is returned, QFile will
   use its own idea of the error status.
 
-  \sa QIODevice::Status, errorString
+  \sa QFile::Error, errorString
  */
-QIODevice::Status QFileEngine::errorStatus() const
+QFile::Error QFileEngine::error() const
 {
-    return QIODevice::UnspecifiedError;
+    return QFile::UnspecifiedError;
 }
 
 /*!
   Returns the human-readable message appropriate to the current error
-  reported by errorStatus(). If no suitable string is available, an
+  reported by error(). If no suitable string is available, an
   empty string is returned.
 
-  \sa errorStatus()
+  \sa error()
  */
 QString QFileEngine::errorString() const
 {
@@ -655,7 +655,7 @@ QFSFileEngine::open(int flags)
     d->resetErrors();
     if (d->file.isEmpty()) {
         qWarning("QFSFileEngine::open: No file name specified");
-        d->setError(QIODevice::OpenError, QLatin1String("No file name specified"));
+        d->setError(QFile::OpenError, QLatin1String("No file name specified"));
         return false;
     }
     int oflags = QT_OPEN_RDONLY;
@@ -709,7 +709,7 @@ QFSFileEngine::open(int flags)
         }
         return true;
     }
-    d->setError(errno == EMFILE ? QIODevice::ResourceError : QIODevice::OpenError, errno);
+    d->setError(errno == EMFILE ? QFile::ResourceError : QFile::OpenError, errno);
     return false;
 }
 
@@ -749,7 +749,7 @@ QFSFileEngine::close()
     d->tried_stat = 0;
     d->fd = -1;
     if(ret == -1) {
-        d->setError(QIODevice::UnspecifiedError, errno);
+        d->setError(QFile::UnspecifiedError, errno);
         return false;
     }
     return true;
@@ -781,7 +781,7 @@ QFSFileEngine::read(char *data, Q_LONGLONG len)
         if(read <= 0) {
             if(!ret)
                 ret = -1;
-            d->setError(QIODevice::ReadError, errno);
+            d->setError(QFile::ReadError, errno);
         } else {
             ret += read;
         }
@@ -795,7 +795,7 @@ QFSFileEngine::write(const char *data, Q_LONGLONG len)
     d->resetErrors();
     Q_LONG ret = QT_WRITE(d->fd, data, len);
     if(ret != len)
-        d->setError(errno == ENOSPC ? QIODevice::ResourceError : QIODevice::WriteError, errno);
+        d->setError(errno == ENOSPC ? QFile::ResourceError : QFile::WriteError, errno);
     return ret;
 }
 
@@ -816,7 +816,7 @@ QFSFileEngine::seek(QFile::Offset pos)
 {
     if(QT_LSEEK(d->fd, pos, SEEK_SET) == -1) {
         qWarning("QFile::at: Cannot set file position %lld", pos);
-        d->setError(QIODevice::PositionError, errno);
+        d->setError(QFile::PositionError, errno);
         return false;
     }
     d->ungetchBuffer.clear();
@@ -844,10 +844,10 @@ QFSFileEngine::fileTime(FileTime time) const
     return ret;
 }
 
-QIODevice::Status
-QFSFileEngine::errorStatus() const
+QFile::Error
+QFSFileEngine::error() const
 {
-    return d->errorStatus;
+    return d->error;
 }
 
 QString

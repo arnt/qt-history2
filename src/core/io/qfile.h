@@ -36,12 +36,42 @@ class Q_CORE_EXPORT QFile :
     Q_DECLARE_PRIVATE(QFile)
 
 public:
-    enum PermissionSpec {
+
+    enum Error {
+        NoError = 0,
+        ReadError = 1,
+        WriteError = 2,
+        FatalError = 3,
+        ResourceError = 4,
+        OpenError = 5,
+        AbortError = 6,
+        TimeOutError = 7,
+        UnspecifiedError = 8,
+        RemoveError = 9,
+        RenameError = 10,
+        PositionError = 11,
+        ResizeError = 12,
+        PermissionsError = 13,
+        CopyError = 14
+#ifdef QT_COMPAT
+        ,
+        ConnectError = 30
+#endif
+    };
+#ifdef QT_COMPAT
+    typedef Error Status;
+#endif
+
+    enum Permission {
         ReadOwner = 0x4000, WriteOwner = 0x2000, ExeOwner = 0x1000,
         ReadUser  = 0x0400, WriteUser  = 0x0200, ExeUser  = 0x0100,
         ReadGroup = 0x0040, WriteGroup = 0x0020, ExeGroup = 0x0010,
         ReadOther = 0x0004, WriteOther = 0x0002, ExeOther = 0x0001
     };
+    Q_DECLARE_FLAGS(Permissions, Permission)
+#ifdef QT_COMPAT
+    typedef Permission PermissionSpec;
+#endif
 
     QFile();
 #ifndef QT_NO_QFILE_QOBJECT
@@ -49,6 +79,14 @@ public:
 #endif
     QFile(const QString &name);
     ~QFile();
+
+    Error error() const;
+    void unsetError();
+    QString errorString() const;
+#ifdef QT_COMPAT
+    inline QT_COMPAT Status status() const { return error(); }
+    inline QT_COMPAT void resetStatus() { unsetError(); }
+#endif
 
     QString fileName() const;
     void setFileName(const QString &name);
@@ -124,10 +162,10 @@ public:
     bool resize(QIODevice::Offset sz);
     static bool resize(const QString &filename, QIODevice::Offset sz);
 
-    uint permissions() const;
-    static uint permissions(const QString &filename);
-    bool setPermissions(uint permissionSpec);
-    static bool setPermissions(const QString &filename, uint permissionSpec);
+    Permissions permissions() const;
+    static Permissions permissions(const QString &filename);
+    bool setPermissions(Permissions permissionSpec);
+    static bool setPermissions(const QString &filename, Permissions permissionSpec);
 
     int handle() const;
 
@@ -140,5 +178,22 @@ protected:
 private:
     Q_DISABLE_COPY(QFile)
 };
+
+#ifdef QT_COMPAT
+// QFile::Error
+#  define IO_Ok QFile::NoError
+#  define IO_ReadError QFile::ReadError
+#  define IO_WriteError QFile::WriteError
+#  define IO_FatalError QFile::FatalError
+#  define IO_ResourceError QFile::ResourceError
+#  define IO_OpenError QFile::OpenError
+#  define IO_ConnectError QFile::ConnectError
+#  define IO_AbortError QFile::AbortError
+#  define IO_TimeOutError QFile::TimeOutError
+#  define IO_UnspecifiedError QFile::UnspecifiedError
+#  define IO_RemoveError QFile::RemoveError
+#  define IO_RenameError QFile::RenameError
+#  define IO_PositionError QFile::PositionError
+#endif
 
 #endif // QFILE_H

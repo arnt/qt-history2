@@ -117,8 +117,12 @@ public:
     QString group() const;
     uint groupId() const;
 
-    bool permission(uint permissionSpec) const;
-    uint permissions() const;
+    bool permission(QFile::Permissions permissions) const;
+#ifdef QT_COMPAT
+    inline QT_COMPAT bool permission(QFileInfo::PermissionSpec permissionSpec) const
+    { return permission(QFile::Permission(permissionSpec)); }
+#endif
+    QFile::Permissions permissions() const;
 
     QIODevice::Offset size() const;
 

@@ -37,6 +37,12 @@ protected:
     mutable QFileEngine *fileEngine;
     bool isOpen;
 
+    QFile::Error error;
+    QString errorString;
+    void setError(QFile::Error err);
+    void setError(QFile::Error err, const QString &errorString);
+    void setError(QFile::Error err, int errNum);
+
 private:
     inline static QByteArray locale_encode(const QString &f)
            { return f.toLocal8Bit(); }

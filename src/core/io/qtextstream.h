@@ -139,9 +139,9 @@ typedef QTextStream QTS;
 class Q_CORE_EXPORT QTextIStream : public QTextStream
 {
 public:
-    QTextIStream(const QString *s) : QTextStream(const_cast<QString *>(s), IO_ReadOnly) {}
-    QTextIStream(QByteArray *a) : QTextStream(a, IO_ReadOnly) {}
-    QTextIStream(FILE *f) : QTextStream(f, IO_ReadOnly) {}
+    QTextIStream(const QString *s) : QTextStream(const_cast<QString *>(s), QIODevice::ReadOnly) {}
+    QTextIStream(QByteArray *a) : QTextStream(a, QIODevice::ReadOnly) {}
+    QTextIStream(FILE *f) : QTextStream(f, QIODevice::ReadOnly) {}
 
 private:
     Q_DISABLE_COPY(QTextIStream)
@@ -150,9 +150,9 @@ private:
 class Q_CORE_EXPORT QTextOStream : public QTextStream
 {
 public:
-    QTextOStream(QString *s) : QTextStream(s, IO_WriteOnly) {}
-    QTextOStream(QByteArray *a) : QTextStream(a, IO_WriteOnly) {}
-    QTextOStream(FILE *f) : QTextStream(f, IO_WriteOnly) {}
+    QTextOStream(QString *s) : QTextStream(s, QIODevice::WriteOnly) {}
+    QTextOStream(QByteArray *a) : QTextStream(a, QIODevice::WriteOnly) {}
+    QTextOStream(FILE *f) : QTextStream(f, QIODevice::WriteOnly) {}
 
 private:
     Q_DISABLE_COPY(QTextOStream)

@@ -1091,7 +1091,7 @@ void QXmlInputSource::fetchData()
     QByteArray rawData;
 
     if (inputDevice != 0) {
-        if (inputDevice->isOpen() || inputDevice->open(IO_ReadOnly) )
+        if (inputDevice->isOpen() || inputDevice->open(QIODevice::ReadOnly) )
             rawData = inputDevice->readAll();
     } else if (inputStream != 0) {
         if (inputStream->device()->isDirectAccess()) {

@@ -66,7 +66,7 @@ QTemporaryFileEngine::open(int)
         return true;
     }
     free(filename);
-    d->setError(errno == EMFILE ? QIODevice::ResourceError : QIODevice::OpenError, errno);
+    d->setError(errno == EMFILE ? QFile::ResourceError : QFile::OpenError, errno);
     return false;
 }
 

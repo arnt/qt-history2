@@ -16,16 +16,11 @@
 #include "qbytearray.h"
 #include "qiodevice.h"
 #include "qiodevice_p.h"
-#if defined(QT_BUILD_CORE_LIB)
-# include "qcoreapplication.h"
-#endif
 
 #define d d_func()
 #define q q_func()
 
-extern QString qt_errorstr(int errorCode);
-
-QIODevicePrivate::QIODevicePrivate() : q_ptr(0), ioMode(0), ioSt(QIODevice::Ok)
+QIODevicePrivate::QIODevicePrivate() : q_ptr(0), ioMode(0)
 {
 
 }
@@ -401,56 +396,6 @@ int QIODevice::flags() const
 
 
 /*!
-    Returns the I/O device status.
-
-    \keyword QIODevice::Ok
-    \keyword QIODevice::ReadError
-    \keyword QIODevice::WriteError
-    \keyword QIODevice::FatalError
-    \keyword QIODevice::OpenError
-    \keyword QIODevice::ConnectError
-    \keyword QIODevice::AbortError
-    \keyword QIODevice::TimeOutError
-    \keyword QIODevice::UnspecifiedError
-
-    The I/O device status returns an error code. For example, if open()
-    returns false, or a read/write operation returns -1, this function can
-    be called to find out the reason why the operation failed.
-
-    The status codes are:
-    \table
-    \header \i Status code \i Meaning
-    \row \i \c QIODevice::Ok \i The operation was successful.
-    \row \i \c QIODevice::ReadError \i Could not read from the device.
-    \row \i \c QIODevice::WriteError \i Could not write to the device.
-    \row \i \c QIODevice::FatalError \i A fatal unrecoverable error occurred.
-    \row \i \c QIODevice::OpenError \i Could not open the device.
-    \row \i \c QIODevice::ConnectError \i Could not connect to the device.
-    \row \i \c QIODevice::AbortError \i The operation was unexpectedly aborted.
-    \row \i \c QIODevice::TimeOutError \i The operation timed out.
-    \row \i \c QIODevice::UnspecifiedError \i An unspecified error happened on close.
-    \endtable
-
-    \sa resetStatus()
-*/
-
-int QIODevice::status() const
-{
-    return d->ioSt;
-}
-
-/*!
-    Sets the I/O device status to \c QIODevice::Ok.
-
-    \sa status()
-*/
-void QIODevice::resetStatus()
-{
-    d->ioSt = Ok;
-    d->errStr.clear();
-}
-
-/*!
     \fn void QIODevice::setFlags(int flags)
 
     Used by subclasses to set the device \a flags.
@@ -486,35 +431,6 @@ void QIODevice::setMode(int m)
         qWarning("QIODevice::setMode: Specified mode out of range");
     d->ioMode &= ~QIODevice::ModeMask;                        // reset mode bits
     d->ioMode |= m;
-}
-
-/*!
-    \internal
-    Used by subclasses to set the device status (not state) to \a status.
-*/
-
-void QIODevice::setStatus(int status)
-{
-    d->ioSt = status;
-    d->errStr.clear();
-}
-
-/*!
-    \internal
-*/
-void QIODevice::setStatus(int status, const QString &errorString)
-{
-    d->ioSt = status;
-    d->errStr = errorString;
-}
-
-/*!
-    \internal
-*/
-void QIODevice::setStatus(int status, int errNum)
-{
-    d->ioSt = status;
-    d->errStr = qt_errorstr(errNum);
 }
 
 /*!
@@ -871,68 +787,6 @@ QIODevice::putch(int character)
 
     \sa getch(), putch()
 */
-
-/*!
-    Returns a human-readable description of an error that occurred on
-    the device. The error described by the string corresponds to
-    changes of QIODevice::status(). If the status is reset, the error
-    string is also reset.
-
-    \code
-        QFile file("address.dat");
-        if (!file.open(QIODevice::ReadOnly) {
-            QMessageBox::critical(this, tr("Error"),
-                    tr("Could not open file for reading: %1")
-                    .arg(file.errorString()));
-            return;
-        }
-    \endcode
-
-    \sa resetStatus()
-*/
-
-QString QIODevice::errorString() const
-{
-    if (d->errStr.isEmpty()) {
-        const char *str = 0;
-        switch (d->ioSt) {
-        case Ok:
-        case UnspecifiedError:
-            str = QT_TRANSLATE_NOOP("QIODevice", "Unknown error");
-            break;
-        case ReadError:
-            str = QT_TRANSLATE_NOOP("QIODevice", "Could not read from the device");
-            break;
-        case WriteError:
-            str = QT_TRANSLATE_NOOP("QIODevice", "Could not write to the device");
-            break;
-        case FatalError:
-            str = QT_TRANSLATE_NOOP("QIODevice", "Fatal error");
-            break;
-        case ResourceError:
-            str = QT_TRANSLATE_NOOP("QIODevice", "Resource error");
-            break;
-        case OpenError:
-            str = QT_TRANSLATE_NOOP("QIODevice", "Could not open the device");
-            break;
-        case ConnectError:
-            str = QT_TRANSLATE_NOOP("QIODevice", "Could not connect to host");
-            break;
-        case AbortError:
-            str = QT_TRANSLATE_NOOP("QIODevice", "Aborted");
-            break;
-        case TimeOutError:
-            str = QT_TRANSLATE_NOOP("QIODevice", "Connection timed out");
-        }
-#if defined(QT_BUILD_CORE_LIB)
-        return QCoreApplication::translate("QIODevice", str);
-#else
-        return QString::fromLatin1(str);
-#endif
-    }
-    return d->errStr;
-}
-
 
 /*!
     \fn bool QIODevice::atEnd() const

@@ -19,6 +19,9 @@
 #include <qtemporaryfile.h>
 #include <private/qiodevice_p.h>
 #include <private/qfile_p.h>
+#if defined(QT_BUILD_CORE_LIB)
+# include "qcoreapplication.h"
+#endif
 
 #include <errno.h>
 
@@ -35,8 +38,7 @@ QFilePrivate::QFilePrivate() :
 #ifndef QT_NO_FILE_BUFFER
     buffer(read_cache_size),
 #endif
-    fileEngine(0),
-    isOpen(false)
+    fileEngine(0), isOpen(false), error(QFile::NoError)
 {
 }
 
@@ -54,6 +56,28 @@ QFilePrivate::openExternalFile(int flags, int fd)
     QFSFileEngine *fe = new QFSFileEngine;
     fileEngine = fe;
     return fe->open(flags, fd);
+}
+
+void 
+QFilePrivate::setError(QFile::Error err)
+{
+    error = err;
+    d->errorString.clear();
+}
+
+void 
+QFilePrivate::setError(QFile::Error err, const QString &errStr)
+{
+    error = err;
+    d->errorString = errStr;
+}
+
+void 
+QFilePrivate::setError(QFile::Error err, int errNum)
+{
+    error = err;
+    extern QString qt_errorstr(int errorCode); //qglobal.cpp
+    errorString = qt_errorstr(errNum);
 }
 
 //************* QFile
@@ -142,7 +166,7 @@ QFilePrivate::openExternalFile(int flags, int fd)
 */
 
 /*!
-    \enum QFile::PermissionSpec
+    \enum QFile::Permission
 
     This enum is used by the permission() function to report the
     permissions and ownership of a file. The values may be OR-ed
@@ -179,7 +203,7 @@ QFile::QFile()
 {
     d_ptr = static_cast<QFilePrivate *>(QIODevice::d_ptr);
     setFlags(QIODevice::Direct);
-    resetStatus();
+    unsetError();
 }
 
 #ifndef QT_NO_QFILE_QOBJECT
@@ -192,7 +216,7 @@ QFile::QFile(QObject *parent) : QObject(parent), QIODevice(*new QFilePrivate)
 {
     d_ptr = static_cast<QFilePrivate *>(QIODevice::d_ptr);
     setFlags(QIODevice::Direct);
-    resetStatus();
+    unsetError();
 }
 #endif
 
@@ -207,7 +231,7 @@ QFile::QFile(const QString &name)
     d_ptr = static_cast<QFilePrivate *>(QIODevice::d_ptr);
     d->fileName = name;
     setFlags(QIODevice::Direct);
-    resetStatus();
+    unsetError();
 }
 
 /*!
@@ -218,7 +242,7 @@ QFile::QFile(QFilePrivate &dd)
 {
     d_ptr = static_cast<QFilePrivate *>(QIODevice::d_ptr);
     setFlags(QIODevice::Direct);
-    resetStatus();
+    unsetError();
 }
 
 /*!
@@ -400,12 +424,12 @@ QFile::remove()
         return false;
     }
     close();
-    if(status() == QIODevice::Ok) {
+    if(error() == QFile::NoError) {
         if(fileEngine()->remove()) {
-            resetStatus();
+            unsetError();
             return true;
         }
-        setStatus(QIODevice::RemoveError, errno);
+        d->setError(QFile::RemoveError, errno);
     }
     return false;
 }
@@ -443,15 +467,15 @@ QFile::rename(const QString &newName)
         return false;
     }
     close();
-    if(status() == QIODevice::Ok) {
+    if(error() == QFile::NoError) {
         if(fileEngine()->rename(newName)) {
-            resetStatus();
+            unsetError();
             return true;
         } else {
             QFile in(fileName());
             QFile out(newName);
             if (in.open(QIODevice::ReadOnly)) {
-                if(out.open(IO_WriteOnly | IO_Truncate)) {
+                if(out.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
                     bool error = false;
                     char block[1024];
                     while(!atEnd()) {
@@ -459,8 +483,7 @@ QFile::rename(const QString &newName)
                         if(read == -1)
                             break;
                         if(read != out.write(block, read)) {
-                            setStatus(QIODevice::CopyError,
-                                      QLatin1String("Failure to write block"));
+                            d->setError(QFile::CopyError, QLatin1String("Failure to write block"));
                             error = true;
                             break;
                         }
@@ -471,7 +494,7 @@ QFile::rename(const QString &newName)
                  }
             }
         }
-        setStatus(QIODevice::RenameError, errno);
+        d->setError(QFile::RenameError, errno);
     }
     return false;
 }
@@ -508,10 +531,10 @@ QFile::link(const QString &newName)
         return false;
     }
     if(fileEngine()->link(newName)) {
-        resetStatus();
+        unsetError();
         return true;
     }
-    setStatus(QIODevice::RenameError, errno);
+    d->setError(QFile::RenameError, errno);
     return false;
 }
 
@@ -549,19 +572,18 @@ QFile::copy(const QString &newName)
         return false;
     }
     close();
-    if(status() == QIODevice::Ok) {
+    if(error() == QFile::NoError) {
         bool error = false;
         if(!open(QFile::ReadOnly)) {
             error = true;
             QString errorMessage = QLatin1String("Cannot open %1 for input");
-            setStatus(QIODevice::CopyError, errorMessage.arg(d->fileName));
+            d->setError(QFile::CopyError, errorMessage.arg(d->fileName));
         } else {
             QTemporaryFile out;
             if(!out.open()) {
                 close();
                 error = true;
-                setStatus(QIODevice::CopyError,
-                          QLatin1String("Cannot open for output"));
+                d->setError(QFile::CopyError, QLatin1String("Cannot open for output"));
             } else {
                 char block[1024];
                 while(!atEnd()) {
@@ -569,8 +591,7 @@ QFile::copy(const QString &newName)
                     if(in == -1)
                         break;
                     if(in != out.write(block, in)) {
-                        setStatus(QIODevice::CopyError,
-                                  QLatin1String("Failure to write block"));
+                        d->setError(QFile::CopyError, QLatin1String("Failure to write block"));
                         error = true;
                         break;
                     }
@@ -578,13 +599,13 @@ QFile::copy(const QString &newName)
                 if(!error && !QFile::rename(out.fileName(), newName)) {
                     error = true;
                     QString errorMessage = QLatin1String("Cannot create %1 for output");
-                    setStatus(QIODevice::CopyError, errorMessage.arg(newName));
+                    d->setError(QFile::CopyError, errorMessage.arg(newName));
                 }
             }
         }
         if(!error) {
             QFile::setPermissions(newName, permissions());
-            resetStatus();
+            unsetError();
             return true;
         }
     }
@@ -655,7 +676,7 @@ QFile::open(int mode)
     if(mode & Append) //append implies write
         mode |= WriteOnly;
     setFlags(QIODevice::Direct);
-    resetStatus();
+    unsetError();
     setMode(mode);
     if (!(isReadable() || isWritable())) {
         qWarning("QIODevice::open: File access not specified");
@@ -667,10 +688,10 @@ QFile::open(int mode)
             setType(Sequential);
         return true;
     }
-    QIODevice::Status error = fileEngine()->errorStatus();
-    if(error == QIODevice::UnspecifiedError)
-        error = QIODevice::OpenError;
-    setStatus(error, fileEngine()->errorString());
+    QFile::Error err = fileEngine()->error();
+    if(err == QFile::UnspecifiedError)
+        err = QFile::OpenError;
+    d->setError(err, fileEngine()->errorString());
     return false;
 }
 
@@ -705,7 +726,7 @@ QFile::open(int mode, int fd)
     if(mode & (Append|WriteOnly)) //append implies write
         mode |= WriteOnly;
     setFlags(QIODevice::Direct);
-    resetStatus();
+    unsetError();
     setMode(mode);
     if (!(isReadable() || isWritable())) {
         qWarning("QFile::open: File access not specified");
@@ -895,10 +916,10 @@ bool
 QFile::resize(QIODevice::Offset sz)
 {
     if(fileEngine()->setSize(sz)) {
-        resetStatus();
+        unsetError();
         return true;
     }
-    setStatus(QIODevice::ResizeError, errno);
+    d->setError(QFile::ResizeError, errno);
     return false;
 }
 
@@ -921,65 +942,62 @@ QFile::resize(const QString &fileName, QIODevice::Offset sz)
 
 /*!
     Returns the complete OR-ed together combination of
-    QFile::PermissionSpec for the file.
+    QFile::Permission for the file.
 
-    \sa QFile::setPermissions, QFile::PermissionSpec, setFileName()
+    \sa QFile::setPermissions, QFile::Permission, setFileName()
 */
 
-uint
+QFile::Permissions
 QFile::permissions() const
 {
-    return (fileEngine()->fileFlags(QFileEngine::PermsMask) & QFileEngine::PermsMask);
+    QFileEngine::FileFlags perms = fileEngine()->fileFlags(QFileEngine::PermsMask) & QFileEngine::PermsMask;
+    return QFile::Permissions((int)perms); //ewww
 }
 
 /*!
     \overload
 
     Returns the complete OR-ed together combination of
-    QFile::PermissionSpec for \a fileName.
+    QFile::Permission for \a fileName.
 
-    \sa permissions(), QFile::PermissionSpec
+    \sa permissions(), QFile::Permission
 */
 
-uint
+QFile::Permissions
 QFile::permissions(const QString &fileName)
 {
     return QFile(fileName).permissions();
 }
 
 /*!
-    Sets the permissions for the file to \a permissionSpec. The
-    permissionSpec argument can be several flags of type \c
-    QFile::PermissionSpec OR-ed together to set the file to.
+    Sets the permissions for the file to \a permissions. 
 
-    \sa permissions(), QFile::PermissionSpec, setFileName()
+    \sa permissions(), QFile::Permission, setFileName()
 */
 
 bool
-QFile::setPermissions(uint permissionSpec)
+QFile::setPermissions(QFile::Permissions permissions)
 {
-    if(fileEngine()->chmod(permissionSpec)) {
-        resetStatus();
+    if(fileEngine()->chmod(permissions)) {
+        unsetError();
         return true;
     }
-    setStatus(QIODevice::PermissionsError, errno);
+    d->setError(QFile::PermissionsError, errno);
     return false;
 }
 
 /*!
     \overload
 
-    Sets the permissions for \a fileName file to \a permissionSpec. The
-    permissionSpec argument can be several flags of type \c
-    QFile::PermissionSpec OR-ed together to set the file to.
+    Sets the permissions for \a fileName file to \a permissions. 
 
-    \sa setPermissions()
+    \sa setPermissions(), QFile::Permission
 */
 
 bool
-QFile::setPermissions(const QString &fileName, uint permissionSpec)
+QFile::setPermissions(const QString &fileName, QFile::Permissions permissions)
 {
-    return QFile(fileName).setPermissions(permissionSpec);
+    return QFile(fileName).setPermissions(permissions);
 }
 
 /*!
@@ -1003,21 +1021,20 @@ QFile::close()
         return;
 
     d->isOpen = false;
-    resetStatus();
+    unsetError();
 #ifndef QT_NO_FILE_BUFFER
     d->buffer.clear();
 #endif
-    if(!fileEngine()->close()) {
-        QIODevice::Status error = fileEngine()->errorStatus();
-        setStatus(error, fileEngine()->errorString());
-    } else {
+    if(!fileEngine()->close()) 
+        d->setError(fileEngine()->error(), fileEngine()->errorString());
+    else 
         setFlags(QIODevice::Direct);
-    }
 }
 
 /*! \reimp
 */
-bool QFile::isOpen() const
+bool 
+QFile::isOpen() const
 {
     return d->isOpen;
 }
@@ -1057,16 +1074,16 @@ bool QFile::seek(Q_LONGLONG off)
         return false;
     }
     if(!fileEngine()->seek(off)) {
-        QIODevice::Status error = fileEngine()->errorStatus();
-        if(error == QIODevice::UnspecifiedError)
-            error = QIODevice::PositionError;
-        setStatus(error, fileEngine()->errorString());
+        QFile::Error err = fileEngine()->error();
+        if(err == QFile::UnspecifiedError)
+            err = QFile::PositionError;
+        d->setError(err, fileEngine()->errorString());
         return false;
     }
 #ifndef QT_NO_FILE_BUFFER
     d->buffer.clear();
 #endif
-    resetStatus();
+    unsetError();
     return true;
 }
 
@@ -1087,7 +1104,7 @@ Q_LONGLONG QFile::read(char *data, Q_LONGLONG len)
         qWarning("QFile::read: Read operation not permitted");
         return -1;
     }
-    resetStatus();
+    unsetError();
 
     Q_LONGLONG ret = 0;
 #ifndef QT_NO_FILE_BUFFER
@@ -1129,10 +1146,10 @@ Q_LONGLONG QFile::read(char *data, Q_LONGLONG len)
         ret += read;
 #endif
     if(ret < 0) {
-        QIODevice::Status error = fileEngine()->errorStatus();
-        if(error == QIODevice::UnspecifiedError)
-            error = QIODevice::ReadError;
-        setStatus(error, fileEngine()->errorString());
+        QFile::Error err = fileEngine()->error();
+        if(err == QFile::UnspecifiedError)
+            err = QFile::ReadError;
+        d->setError(err, fileEngine()->errorString());
     }
     return ret;
 }
@@ -1141,7 +1158,8 @@ Q_LONGLONG QFile::read(char *data, Q_LONGLONG len)
   \reimp
 */
 
-Q_LONGLONG QFile::write(const char *data, Q_LONGLONG len)
+Q_LONGLONG 
+QFile::write(const char *data, Q_LONGLONG len)
 {
     if (len <= 0) // nothing to do
         return 0;
@@ -1154,7 +1172,7 @@ Q_LONGLONG QFile::write(const char *data, Q_LONGLONG len)
         qWarning("QFile::write: Write operation not permitted");
         return -1;
     }
-    resetStatus();
+    unsetError();
 
 #ifndef QT_NO_FILE_BUFFER
     if(!d->buffer.isEmpty())
@@ -1162,10 +1180,10 @@ Q_LONGLONG QFile::write(const char *data, Q_LONGLONG len)
 #endif
     Q_LONGLONG ret = fileEngine()->write(data, len);
     if(ret < 0) {
-        QIODevice::Status error = fileEngine()->errorStatus();
-        if(error == QIODevice::UnspecifiedError)
-            error = QIODevice::WriteError;
-        setStatus(error, fileEngine()->errorString());
+        QFile::Error err = fileEngine()->error();
+        if(err == QFile::UnspecifiedError)
+            err = QFile::WriteError;
+        d->setError(err, fileEngine()->errorString());
     }
     return ret;
 }
@@ -1180,4 +1198,143 @@ QFileEngine
     if(!d->fileEngine)
         d->fileEngine = QFileEngine::createFileEngine(d->fileName);
     return d->fileEngine;
+}
+
+/*!
+    Returns the file error status.
+
+    \keyword QFile::NoError
+    \keyword QFile::ReadError
+    \keyword QFile::WriteError
+    \keyword QFile::FatalError
+    \keyword QFile::OpenError
+    \keyword QFile::ConnectError
+    \keyword QFile::AbortError
+    \keyword QFile::TimeOutError
+    \keyword QFile::UnspecifiedError
+
+    The I/O device status returns an error code. For example, if open()
+    returns false, or a read/write operation returns -1, this function can
+    be called to find out the reason why the operation failed.
+
+    The status codes are:
+    \table
+    \header \i Status code \i Meaning
+    \row \i \c QFile::NoError \i The operation was successful.
+    \row \i \c QFile::ReadError \i Could not read from the device.
+    \row \i \c QFile::WriteError \i Could not write to the device.
+    \row \i \c QFile::FatalError \i A fatal unrecoverable error occurred.
+    \row \i \c QFile::OpenError \i Could not open the device.
+    \row \i \c QFile::ConnectError \i Could not connect to the device.
+    \row \i \c QFile::AbortError \i The operation was unexpectedly aborted.
+    \row \i \c QFile::TimeOutError \i The operation timed out.
+    \row \i \c QFile::UnspecifiedError \i An unspecified error happened on close.
+    \endtable
+
+    \sa unsetError()
+*/
+
+QFile::Error
+QFile::error() const
+{
+    return d->error;
+}
+
+/*!
+    Sets the file's error to \c QFile::NoError.
+
+    \sa error()
+*/
+void 
+QFile::unsetError()
+{
+    d->setError(QFile::NoError);
+}
+
+/*!
+    Returns a human-readable description of an error that occurred on
+    the device. The error described by the string corresponds to
+    changes of QFile::error(). If the status is reset, the error
+    string is also reset.
+
+    \code
+        QFile file("address.dat");
+        if (!file.open(QIODevice::ReadOnly) {
+            QMessageBox::critical(this, tr("Error"),
+                    tr("Could not open file for reading: %1")
+                    .arg(file.errorString()));
+            return;
+        }
+    \endcode
+
+    \sa unsetError()
+*/
+
+QString 
+QFile::errorString() const
+{
+    if (d->errorString.isEmpty()) {
+        const char *str = 0;
+        switch (d->error) {
+        case NoError:
+        case UnspecifiedError:
+            str = QT_TRANSLATE_NOOP("QFile", "Unknown error");
+            break;
+        case ReadError:
+            str = QT_TRANSLATE_NOOP("QFile", "Could not read from the file");
+            break;
+        case WriteError:
+            str = QT_TRANSLATE_NOOP("QFile", "Could not write to the file");
+            break;
+        case FatalError:
+            str = QT_TRANSLATE_NOOP("QFile", "Fatal error");
+            break;
+        case ResourceError:
+            str = QT_TRANSLATE_NOOP("QFile", "Resource error");
+            break;
+        case OpenError:
+            str = QT_TRANSLATE_NOOP("QFile", "Could not open the file");
+            break;
+#ifdef QT_COMPAT
+        case ConnectError:
+            str = QT_TRANSLATE_NOOP("QFile", "Could not connect to host");
+            break;
+#endif
+        case AbortError:
+            str = QT_TRANSLATE_NOOP("QFile", "Aborted");
+            break;
+        case TimeOutError:
+            str = QT_TRANSLATE_NOOP("QFile", "Timeout");
+            break;
+        case RemoveError:
+            str = QT_TRANSLATE_NOOP("QFile", "Could not remove file");
+            break;
+        case RenameError:
+            str = QT_TRANSLATE_NOOP("QFile", "Could not rename file");
+            break;
+        case PositionError:
+            str = QT_TRANSLATE_NOOP("QFile", "Could not position in file");
+            break;
+        case PermissionsError:
+            str = QT_TRANSLATE_NOOP("QFile", "Failure to set Permissions");
+            break;
+        case CopyError:
+            str = QT_TRANSLATE_NOOP("QFile", "Could not copy file");
+            break;
+        case ResizeError:
+            str = QT_TRANSLATE_NOOP("QFile", "Could not resize file");
+            break;
+        }
+#if defined(QT_BUILD_CORE_LIB)
+        QString ret = QCoreApplication::translate("QFile", str);
+#ifdef QT_COMPAT
+        if(ret == str)
+            ret = QCoreApplication::translate("QIODevice", str);
+#endif
+        return ret;
+#else
+        return QString::fromLatin1(str);
+#endif
+    }
+    return d->errorString;
 }

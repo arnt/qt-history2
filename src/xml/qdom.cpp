@@ -6066,7 +6066,7 @@ bool QDomDocument::setContent(QXmlInputSource *source, QXmlReader *reader, QStri
 QString QDomDocument::toString(int indent) const
 {
     QString str;
-    QTextStream s(&str, IO_WriteOnly);
+    QTextStream s(&str, QIODevice::WriteOnly);
     save(s, indent);
     return str;
 }

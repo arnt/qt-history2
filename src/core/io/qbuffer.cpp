@@ -179,7 +179,6 @@ bool QBuffer::open(int mode)
     if(mode & (Append|WriteOnly)) //append implies write
         mode |= WriteOnly;
     setFlags(QIODevice::Direct);
-    resetStatus();
     setMode(mode);
     if (!(isReadable() || isWritable())) {
         qWarning("QFile::open: File access not specified");
@@ -295,7 +294,6 @@ Q_LONGLONG QBuffer::read(char *data, Q_LONGLONG len)
         qWarning("QIODevice::read: Read operation not permitted");
         return -1;
     }
-    resetStatus();
 
     if (d->ioIndex + len > d->buf->size()) {   // overflow
         if ((int)d->ioIndex >= d->buf->size()) {
@@ -326,7 +324,6 @@ Q_LONGLONG QBuffer::write(const char *data, Q_LONGLONG len)
         qWarning("QBuffer::write: Write operation not permitted");
         return -1;
     }
-    resetStatus();
 
     if (d->ioIndex + len > d->buf->size()) {             // overflow
         d->buf->resize(d->ioIndex + len);
@@ -355,10 +352,8 @@ int QBuffer::getch()
         return -1;
     }
 
-    if ( d->ioIndex+1 > d->buf->size() ) {               // overflow
-        setStatus( IO_ReadError );
+    if ( d->ioIndex+1 > d->buf->size() )  // overflow
         return -1;
-    }
     return uchar(*(d->buf->data()+d->ioIndex++));
 }
 

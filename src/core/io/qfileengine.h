@@ -46,7 +46,7 @@ public:
     virtual Q_LONGLONG read(char *data, Q_LONGLONG maxlen) = 0;
     virtual Q_LONGLONG write(const char *data, Q_LONGLONG len) = 0;
 
-    virtual QIODevice::Status errorStatus() const;
+    virtual QFile::Error error() const;
     virtual QString errorString() const;
 
     virtual bool remove() = 0;
@@ -73,8 +73,8 @@ public:
 
     virtual bool isRelativePath() const = 0;
 
-    enum FileInfo {
-        //perms (overlaps the QFile::PermissionSpec)
+    enum FileFlag {
+        //perms (overlaps the QFile::Permission)
         ReadOwnerPerm = 0x4000, WriteOwnerPerm = 0x2000, ExeOwnerPerm = 0x1000,
         ReadUserPerm  = 0x0400, WriteUserPerm  = 0x0200, ExeUserPerm  = 0x0100,
         ReadGroupPerm = 0x0040, WriteGroupPerm = 0x0020, ExeGroupPerm = 0x0010,
@@ -97,7 +97,8 @@ public:
         FlagsMask  = 0x0FF00000,
         FileInfoAll = FlagsMask | PermsMask | TypesMask
     };
-    virtual uint fileFlags(uint type=FileInfoAll) const = 0;
+    Q_DECLARE_FLAGS(FileFlags, FileFlag)
+    virtual FileFlags fileFlags(FileFlags type=FileInfoAll) const = 0;
 
     virtual bool chmod(uint perms) = 0;
 
@@ -147,8 +148,8 @@ public:
     virtual bool seek(QIODevice::Offset);
     virtual Q_LONGLONG read(char *data, Q_LONGLONG maxlen);
     virtual Q_LONGLONG write(const char *data, Q_LONGLONG len);
+    virtual QFile::Error error() const;
     virtual QString errorString() const;
-    virtual QIODevice::Status errorStatus() const;
     
     virtual bool remove();
     virtual bool rename(const QString &newName);
@@ -170,7 +171,7 @@ public:
 
     virtual bool isRelativePath() const;
 
-    virtual uint fileFlags(uint type) const;
+    virtual FileFlags fileFlags(FileFlags type) const;
 
     virtual bool chmod(uint perms);
 

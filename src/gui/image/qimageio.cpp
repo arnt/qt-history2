@@ -689,7 +689,7 @@ QByteArray QImageIO::imageFormat(QIODevice *d)
     for (int n = 0; n < rdlen; n++)
         if (buf[n] == '\0')
             buf[n] = '\001';
-    if (d->status() == IO_Ok && rdlen > 0) {
+    if (rdlen > 0) {
         buf[rdlen - 1] = '\0';
         QString bufStr = QString::fromLatin1(buf);
         int bestMatch = -1;

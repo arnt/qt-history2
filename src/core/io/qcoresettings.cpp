@@ -1325,7 +1325,8 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
         iniMap[section][key] = j.value();
     }
 
-    for (i = iniMap.constBegin(); i != iniMap.constEnd(); ++i) {
+    bool writeError = false;
+    for (i = iniMap.constBegin(); !writeError && i != iniMap.constEnd(); ++i) {
         QByteArray realSection;
 
         iniEscapedKey(i.key(), realSection);
@@ -1358,10 +1359,13 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
                 iniEscapedString(variantToString(value), block);
             }
             block += '\n';
-            device.write(block);
+            if(device.write(block) == -1) {
+                writeError = true;
+                break;
+            }
         }
     }
-    return device.status() == QIODevice::Ok;
+    return !writeError;
 }
 
 /*! \class QCoreSettings

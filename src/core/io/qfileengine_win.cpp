@@ -948,10 +948,10 @@ QFSFileEnginePrivate::getPermissions() const
     return ret;
 }
 
-uint
-QFSFileEngine::fileFlags(uint type) const
+QFileEngine::FileFlags
+QFSFileEngine::fileFlags(QFileEngine::FileFlags type) const
 {
-    uint ret = 0;
+    QFileEngine::FileFlags ret = 0;
     if(type & PermsMask) {
 	ret |= d->getPermissions();
         // ### Workaround pascals ### above. Since we always set all properties to true
@@ -973,7 +973,7 @@ QFSFileEngine::fileFlags(uint type) const
     }
     if(type & FlagsMask) {
 	if(d->doStat()) {
-	    ret |= ExistsFlag | LocalDiskFlag;
+	    ret |= QFileEngine::FileFlags(ExistsFlag | LocalDiskFlag);
 	    if(fileName(BaseName)[0] == QChar('.')) {
 		QT_WA({
 		    if(GetFileAttributesW((TCHAR*)d->file.utf16()) & FILE_ATTRIBUTE_HIDDEN)

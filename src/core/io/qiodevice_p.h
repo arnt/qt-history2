@@ -41,8 +41,6 @@ protected:
 
 protected:
     int ioMode;
-    int ioSt;
-    QString errStr;
 };
 
 #endif // QIODEVICE_P_H

@@ -34,7 +34,7 @@ protected:
 
     void initFileEngine(const QString &);
 
-    uint getFileInfo(QFileEngine::FileInfo) const;
+    uint getFileFlags(QFileEngine::FileFlags) const;
     QDateTime &getFileTime(QFileEngine::FileTime) const;
 private:
     enum { CachedPerms=0x01, CachedTypes=0x02, CachedFlags=0x04,
@@ -44,7 +44,7 @@ private:
         inline Data() : fileEngine(0), cache_enabled(1) { ref = 1; clear(); }
         inline ~Data() { delete fileEngine; }
         inline void clear() {
-            fileInfo = 0;
+            fileFlags = 0;
             cached = 0;
         }
         mutable QAtomic ref;
@@ -55,7 +55,7 @@ private:
         mutable uint cache_enabled : 1;
         mutable uint fileSize;
         mutable QDateTime fileTimes[3];
-        mutable uint fileInfo;
+        mutable uint fileFlags;
         mutable uchar cached;
         inline bool getCached(uchar c) const { return cache_enabled ? (cached&c) : 0; }
         inline void setCached(uchar c) { if(cache_enabled) cached |= c; }
@@ -86,7 +86,8 @@ QFileInfoPrivate::~QFileInfoPrivate()
     q_ptr = 0;
 }
 
-void QFileInfoPrivate::initFileEngine(const QString &file)
+void 
+QFileInfoPrivate::initFileEngine(const QString &file)
 {
     detach();
     delete data->fileEngine;
@@ -96,7 +97,8 @@ void QFileInfoPrivate::initFileEngine(const QString &file)
     data->fileName = file;
 }
 
-void QFileInfoPrivate::detach()
+void 
+QFileInfoPrivate::detach()
 {
     if (data->ref != 1) {
         QFileInfoPrivate::Data *x = data;
@@ -106,27 +108,29 @@ void QFileInfoPrivate::detach()
     }
 }
 
-uint QFileInfoPrivate::getFileInfo(QFileEngine::FileInfo request) const
+uint 
+QFileInfoPrivate::getFileFlags(QFileEngine::FileFlags request) const
 {
-    uint masks = 0;
+    QFileEngine::FileFlags flags = 0;
     if((request & QFileEngine::TypesMask) && !data->getCached(CachedTypes)) {
         data->setCached(CachedTypes);
-        masks |= QFileEngine::TypesMask;
+        flags |= QFileEngine::TypesMask;
     }
     if((request & QFileEngine::PermsMask) && !data->getCached(CachedPerms)) {
         data->setCached(CachedPerms);
-        masks |= QFileEngine::PermsMask;
+        flags |= QFileEngine::PermsMask;
     }
     if((request & QFileEngine::FlagsMask) && !data->getCached(CachedFlags)) {
         data->setCached(CachedFlags);
-        masks |= QFileEngine::FlagsMask;
+        flags |= QFileEngine::FlagsMask;
     }
-    if(masks)
-        data->fileInfo |= (data->fileEngine->fileFlags(masks) & masks);
-    return data->fileInfo & request;
+    if(flags)
+        data->fileFlags |= (data->fileEngine->fileFlags(flags) & flags);
+    return data->fileFlags & request;
 }
 
-QDateTime &QFileInfoPrivate::getFileTime(QFileEngine::FileTime request) const
+QDateTime 
+&QFileInfoPrivate::getFileTime(QFileEngine::FileTime request) const
 {
     if(request == QFileEngine::CreationTime) {
         if(data->getCached(CachedCTime))
@@ -509,7 +513,7 @@ QFileInfo::exists() const
 {
     if(!d->data->fileEngine)
         return false;
-    return d->getFileInfo(QFileEngine::ExistsFlag);
+    return d->getFileFlags(QFileEngine::ExistsFlag);
 }
 
 /*!
@@ -701,7 +705,7 @@ QFileInfo::isReadable() const
 {
     if(!d->data->fileEngine)
         return false;
-    return d->getFileInfo(QFileEngine::ReadUserPerm);
+    return d->getFileFlags(QFileEngine::ReadUserPerm);
 }
 
 /*!
@@ -716,7 +720,7 @@ QFileInfo::isWritable() const
 {
     if(!d->data->fileEngine)
         return false;
-    return d->getFileInfo(QFileEngine::WriteUserPerm);
+    return d->getFileFlags(QFileEngine::WriteUserPerm);
 }
 
 /*!
@@ -730,7 +734,7 @@ QFileInfo::isExecutable() const
 {
     if(!d->data->fileEngine)
         return false;
-    return d->getFileInfo(QFileEngine::ExeUserPerm);
+    return d->getFileFlags(QFileEngine::ExeUserPerm);
 }
 
 bool
@@ -738,7 +742,7 @@ QFileInfo::isHidden() const
 {
     if(!d->data->fileEngine)
         return false;
-    return d->getFileInfo(QFileEngine::HiddenFlag);
+    return d->getFileFlags(QFileEngine::HiddenFlag);
 }
 
 /*!
@@ -754,7 +758,7 @@ QFileInfo::isFile() const
 {
     if(!d->data->fileEngine)
         return false;
-    return d->getFileInfo(QFileEngine::FileType);
+    return d->getFileFlags(QFileEngine::FileType);
 }
 
 /*!
@@ -769,7 +773,7 @@ QFileInfo::isDir() const
 {
     if(!d->data->fileEngine)
         return false;
-    return d->getFileInfo(QFileEngine::DirectoryType);
+    return d->getFileFlags(QFileEngine::DirectoryType);
 }
 
 /*!
@@ -784,7 +788,7 @@ QFileInfo::isSymLink() const
 {
     if(!d->data->fileEngine)
         return false;
-    return d->getFileInfo(QFileEngine::LinkType);
+    return d->getFileFlags(QFileEngine::LinkType);
 }
 
 /*!
@@ -798,7 +802,7 @@ QFileInfo::isRoot() const
 {
     if (!d->data->fileEngine)
         return true;
-    return d->getFileInfo(QFileEngine::RootFlag);
+    return d->getFileFlags(QFileEngine::RootFlag);
 }
 
 /*!
@@ -893,8 +897,8 @@ QFileInfo::groupId() const
 }
 
 /*!
-    Tests for file permissions. The \a permissionSpec argument can be
-    several flags of type \c QFile::PermissionSpec OR-ed together to check
+    Tests for file permissions. The \a permissions argument can be
+    several flags of type \c QFile::Permissions OR-ed together to check
     for permission combinations.
 
     On systems where files do not have permissions this function
@@ -909,30 +913,30 @@ QFileInfo::groupId() const
             qWarning("The group or others can change the file");
     \endcode
 
-    \sa isReadable(), isWritable(), isExecutable(), QFile::PermissionSpec
+    \sa isReadable(), isWritable(), isExecutable(), QFile::Permissions
 */
 
 bool
-QFileInfo::permission(uint permissionSpec) const
+QFileInfo::permission(QFile::Permissions permissions) const
 {
     if(!d->data->fileEngine)
         return false;
-    return d->getFileInfo((QFileEngine::FileInfo)permissionSpec) == permissionSpec;
+    return d->getFileFlags(QFileEngine::FileFlags((int)permissions)) == (uint)permissions;
 }
 
 /*!
     Returns the complete OR-ed together combination of
-    QFile::PermissionSpec for the file.
+    QFile::Permissions for the file.
 
-    \sa QFileInfo::permission(), QFile::PermissionSpec
+    \sa QFileInfo::permission(), QFile::Permissions
 */
 
-uint
+QFile::Permissions
 QFileInfo::permissions() const
 {
     if(!d->data->fileEngine)
         return false;
-    return d->getFileInfo(QFileEngine::PermsMask) & QFileEngine::PermsMask;
+    return QFile::Permissions(d->getFileFlags(QFileEngine::PermsMask) & QFileEngine::PermsMask);
 }
 
 

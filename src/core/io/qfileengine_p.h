@@ -45,18 +45,18 @@ public:
     QString file;
 
     inline void resetErrors() {
-        errorStatus = QIODevice::UnspecifiedError;
+        error = QFile::UnspecifiedError;
         errorString.clear();
     }
-    inline void setError(QIODevice::Status status, int errorCode) {
-        errorStatus = status;
+    inline void setError(QFile::Error err, int errorCode) {
+        error = err;
         errorString = qt_errorstr(errorCode);
     }
-    inline void setError(QIODevice::Status status, QString error = QString()) {
-        errorStatus = status;
-        errorString = error;
+    inline void setError(QFile::Error err, QString errStr = QString()) {
+        error = err;
+        errorString = errStr;
     }
-    QIODevice::Status errorStatus;
+    QFile::Error error;
     QString errorString;
 
     int fd;

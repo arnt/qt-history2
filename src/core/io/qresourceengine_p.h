@@ -56,7 +56,7 @@ public:
 
     virtual bool caseSensitive() const;
 
-    virtual uint fileFlags(uint type) const;
+    virtual FileFlags fileFlags(FileFlags type) const;
 
     virtual bool chmod(uint perms);
 

@@ -305,7 +305,6 @@ void QSocket::flush()
         qDebug("QSocket(): flush: Delayed close done. Terminating.");
 #endif
         setFlags(IO_Sequential);
-        resetStatus();
         d->close();
         d->state = QSocket::Idle;
         emit delayedCloseFinished();
@@ -530,7 +529,6 @@ void QSocketPrivate::setSocket(int socket)
 
     // Initialize the IO device flags
     q->setFlags(IO_Direct);
-    q->resetStatus();
     q->open(QSocket::ReadWrite);
 
     // this is not very nice
@@ -714,7 +712,6 @@ QSocket::QSocket(QObject *parent)
 
     d->internalSetSocketDevice(0);
     setFlags(IO_Direct);
-    resetStatus();
 }
 
 #ifdef QT_COMPAT
@@ -734,7 +731,6 @@ QSocket::QSocket(QObject *parent, const char *name)
 
     d->internalSetSocketDevice(0);
     setFlags(IO_Direct);
-    resetStatus();
 }
 #endif
 
