@@ -61,6 +61,9 @@ private:
     QString useName( const QString& );
 
     QStringList usedNames;
+
+    const QString blockStart1;
+    const QString blockStart2;
 };
 
 #endif //

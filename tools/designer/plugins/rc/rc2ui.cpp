@@ -3,9 +3,6 @@
 
 /// some little helpers ///
 
-const QString blockStart1 = "/////////////////////////////////////////////////////////////////////////////";
-const QString blockStart2 = "//";
-
 void RC2UI::wi()
 {
     for ( int i = 0; i < indentation; i++ )
@@ -173,6 +170,8 @@ void RC2UI::writeStyles( const QStringList styles, bool isFrame )
 */
 
 RC2UI::RC2UI( QTextStream* input )
+: blockStart1( "/////////////////////////////////////////////////////////////////////////////" ),
+  blockStart2( "//" )
 {
     writeToFile = TRUE;
     in = input;
