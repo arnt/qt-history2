@@ -663,36 +663,40 @@ void MainWindow::closeEvent(QCloseEvent *ev)
     ev->accept();
 
     if (dirtyForms.size()) {
-        QMessageBox box(tr("Save Forms?"),
-                tr("There are %1 forms with unsaved changes."
-                    " Do you want to review these changes before quitting?")
-                .arg(dirtyForms.size()),
-                QMessageBox::Warning,
-                QMessageBox::Yes | QMessageBox::Default, QMessageBox::No,
-                QMessageBox::Cancel | QMessageBox::Escape, this);
-        box.setButtonText(QMessageBox::Yes, tr("Review Changes"));
-        box.setButtonText(QMessageBox::No, tr("Discard Changes"));
-        switch (box.exec()) {
-            case QMessageBox::Cancel:
-                ev->ignore();
-                return;
+        if (dirtyForms.size() == 1) {
+            dirtyForms.at(0)->close();
+        } else {
+            QMessageBox box(tr("Save Forms?"),
+                    tr("There are %1 forms with unsaved changes."
+                        " Do you want to review these changes before quitting?")
+                    .arg(dirtyForms.size()),
+                    QMessageBox::Warning,
+                    QMessageBox::Yes | QMessageBox::Default, QMessageBox::No,
+                    QMessageBox::Cancel | QMessageBox::Escape, this);
+            box.setButtonText(QMessageBox::Yes, tr("Review Changes"));
+            box.setButtonText(QMessageBox::No, tr("Discard Changes"));
+            switch (box.exec()) {
+                case QMessageBox::Cancel:
+                    ev->ignore();
+                    return;
 
-            case QMessageBox::Yes: {
-                foreach (AbstractFormWindow *fw, dirtyForms) {
-                    fw->show();
-                    fw->raise();
-                    fw->close();
-                    if (!mCloseForm) {
-                        ev->ignore();
-                        return;
+                case QMessageBox::Yes: {
+                    foreach (AbstractFormWindow *fw, dirtyForms) {
+                        fw->show();
+                        fw->raise();
+                        fw->close();
+                        if (!mCloseForm) {
+                            ev->ignore();
+                            return;
+                        }
                     }
-                }
-            } break;
+                } break;
 
-            case QMessageBox::No: {
-                foreach (AbstractFormWindow *fw, dirtyForms)
-                    fw->setDirty(false);
-            } break;
+                case QMessageBox::No: {
+                    foreach (AbstractFormWindow *fw, dirtyForms)
+                        fw->setDirty(false);
+                } break;
+            }
         }
     }
 
