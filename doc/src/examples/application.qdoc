@@ -51,7 +51,7 @@
     \printline #include "mainwindow.h"
 
     We start by including \c <QtGui>, a header file that contains the
-    definition of all classes in the \c QtCore and \c QtGui
+    definition of all classes in the \l QtCore and \l QtGui
     libraries. This saves us from the trouble of having to include
     every class individually. We also include \c mainwindow.h.
 
@@ -137,13 +137,12 @@
 
     If the file already exists, we pop up a QMessageBox asking the
     user whether the existing file should be overwritten or not. The
-    options are \l{QMessageBox::Yes}{Yes} and
-    \l{QMessageBox::No}{No}. The \l{QMessageBox::Yes}{Yes} button is
-    made the default button (the button that is invoked when the user
-    presses \key{Return}) using the QMessageBox::Default
-    flag; the \l{QMessageBox::No}{No} button is made the escape
+    options are QMessageBox::Yes and QMessageBox::No. The
+    \gui{Yes} button is made the default button (the button that is
+    invoked when the user presses \key{Return}) using the
+    QMessageBox::Default flag; the \gui{No} button is made the escape
     button (the button that is invoked when the user presses
-    \key{Esc}) using the Escape flag. 
+    \key{Esc}) using the QMessageBox::Escape flag.
 
     \printline ::about(
     \printuntil /^\}/

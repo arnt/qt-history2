@@ -29,7 +29,7 @@
     problems, comparison with other widgets that can serve some of the
     same roles as this one, etc.
 
-    \target Gamma
+    \target Design Patterns
     \bold{\l{http://www.amazon.com/exec/obidos/ASIN/0201633612/103-8144203-3273444}
     {Design Patterns - Elements of Reusable Object-Oriented Software}}
     by Gamma, Helm, Johnson, and Vlissides, ISBN 0-201-63361-2, provides

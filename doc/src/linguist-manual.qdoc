@@ -2,6 +2,8 @@
     \page linguist-manual.html
     \title Qt Linguist Manual
 
+    \keyword Qt Linguist
+
     Qt provides excellent support for translating applications into local
     languages. This Guide explains how to use Qt's translation tools for
     each of the roles involved in translating an application. The Guide
@@ -111,7 +113,7 @@
 
     Using a locale within the translation file name is useful for
     determining which language to load at runtime. This is explained in
-    the \l{linguist-programmers}{Programmers} chapter.
+    the \l{linguist-programmers.html}{Programmers} chapter.
 
     An example of a complete \c .pro file with four translation source files:
     \code
@@ -609,8 +611,8 @@
         matching against translations that are in the current phrase book.
         \endlist
 
-    \o \e {Phrase} (See the section \l {Creating ... Phrase
-    Books} for details.)
+    \o \e {Phrase} (See the section \l {Creating and Using Phrase Books}
+    for details.)
         \list
         \o \e {New Phrase Book... Ctrl+N} \BR pops up a save as file dialog.
         You must enter a filename to be used for the phrase book and save
@@ -1526,9 +1528,9 @@
     \skipto QTranslator
     \printuntil installTranslator
 
-    The \c main() function in \c main.cpp is the same as the one in \link
-    {Tutorial 2...} Tutorial 2 \endlink. In particular it chooses a
-    translation file based on the current locale.
+    The \c main() function in \c main.cpp is the same as the one in
+    \l{Tutorial 2: Using Two or More Languages}. In particular, it
+    chooses a translation file based on the current locale.
 
     \section3 Running Troll Print 1.0 in English and in Portuguese
 

@@ -14,8 +14,7 @@
 
     Model-View-Controller (MVC) is a design pattern originating from
     Smalltalk that is often used when building user interfaces.
-    In \l{http://www.amazon.com/exec/obidos/ASIN/0201633612/103-8144203-3273444}
-    {Design Patterns}, Gamma et al. write:
+    In \l{Design Patterns}, Gamma et al. write:
 
     \quote
     MVC consists of three kinds of objects. The Model is the

@@ -2,6 +2,8 @@
     \page assistant-manual.html
     \title Qt Assistant Manual
 
+    \keyword Qt Assistant
+
     \chapter Introduction
 
     This document introduces \QA, a tool for presenting on-line
@@ -34,21 +36,21 @@
 
     \list
 
-    \i The \link classes.html All Classes\endlink page lists every class
+    \i The \l{All Classes} page lists every class
     in Qt's public API, and consists of several hundred classes.
 
-    \i The \link mainclasses.html Main Classes\endlink page lists the
+    \i The \l{Main Classes} page lists the
     classes you're most likely to use most often, and provides a much
     shorter and more managable list than the All Classes list.
 
-    \i The \link groups.html Grouped Classes\endlink page presents a list
+    \i The \l{Grouped Classes} page presents a list
     of groups, each of which leads to a list of related classes, for
-    example, the \link advanced.html Advanced Widgets\endlink list.
+    example, the \l{Advanced Widgets} list.
 
-    \i The \link hierarchy.html Inheritance Hierarchy\endlink page
+    \i The \l{Inheritance Hierarchy} page
     presents a list of classes in terms of the hierarchy of Qt classes.
 
-    \i The \link functions.html All Functions\endlink page lists all the
+    \i The \l{All Functions} page lists all the
     functions provided by Qt classes, each one with links to the class(es)
     in which it appears.
 
@@ -142,7 +144,7 @@
     documentation window. Click a '-' sign to the left of an item to hide
     its sub-items.
     \i The \gui{Index} tab is used to look up key words or phrases.
-    See \l{The 1 Minute Guide to using Qt Assistant} for how to use this
+    See \l{The One-Minute Guide to Using Qt Assistant} for how to use this
     tab.
     \i The \gui{Bookmarks} tab lists any bookmarks you've made.
     Double click a bookmark to make its page appear in the documentation

@@ -4,6 +4,8 @@
     \startpage index.html Qt Reference Documentation
     \nextpage qmake-using.html Using qmake
 
+    \keyword qmake
+
     \c qmake is an tool from Trolltech that helps simplify the build
     process for development project across different platforms.  \c qmake
     automates the generation of Makefiles so that only a few lines of

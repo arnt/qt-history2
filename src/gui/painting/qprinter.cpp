@@ -1512,10 +1512,8 @@ bool QPrinter::isOptionEnabled( PrinterOption option ) const
 
 #endif // QT3_SUPPORT
 
-// QPrintEngine documentation
-
 /*!
-    \class QPrintEngine qprintengine.h
+    \class QPrintEngine
 
     \brief The QPrintEngine class defines an interface for how QPrinter
     interacts with a given printing subsystem.
@@ -1533,53 +1531,53 @@ bool QPrinter::isOptionEnabled( PrinterOption option ) const
     engine and QPrinter. A property may or may not be supported by a
     given print engine.
 
-    \item PPK_CollateCopies A bool value describing wether the
+    \value PPK_CollateCopies A bool value describing wether the
     printout should be collated or not.
 
-    \item PPK_ColorMode Refers to QPrinter::ColorMode, either color or
+    \value PPK_ColorMode Refers to QPrinter::ColorMode, either color or
     monochrome.
 
-    \item PPK_Creator
+    \value PPK_Creator
 
-    \item PPK_DocumentName A string describing the document name in
+    \value PPK_DocumentName A string describing the document name in
     the spooler.
 
-    \item PPK_FullPage A boolean describing if the printer should be
+    \value PPK_FullPage A boolean describing if the printer should be
     full page or not.
 
-    \item PPK_NumberOfCopies An integer specifying the number of
+    \value PPK_NumberOfCopies An integer specifying the number of
     copies
 
-    \item PPK_Orientation Specifies a QPrinter::Orientation value.
+    \value PPK_Orientation Specifies a QPrinter::Orientation value.
 
-    \item PPK_OutputFileName The output file name as a string. An
+    \value PPK_OutputFileName The output file name as a string. An
     empty file name indicates that we do not print to file.
 
-    \item PPK_PageOrder Specifies a QPrinter::PageOrder value.
+    \value PPK_PageOrder Specifies a QPrinter::PageOrder value.
 
-    \item PPK_PageRect A QRect specifying the page rectangle
+    \value PPK_PageRect A QRect specifying the page rectangle
 
-    \item PPK_PageSize Specifies a QPrinter::PageSize value.
+    \value PPK_PageSize Specifies a QPrinter::PageSize value.
 
-    \item PPK_PaperRect A QRect specifying the paper rectangle.
+    \value PPK_PaperRect A QRect specifying the paper rectangle.
 
-    \item PPK_PaperSource Specifies a QPrinter::PaperSource value.
+    \value PPK_PaperSource Specifies a QPrinter::PaperSource value.
 
-    \item PPK_PrinterName A string specifying the name of the printer.
+    \value PPK_PrinterName A string specifying the name of the printer.
 
-    \item PPK_PrinterProgram A string specifying the name of the
+    \value PPK_PrinterProgram A string specifying the name of the
     printer program used for printing,
 
-    \item PPK_Resolution An integer describing the dots per inch for
+    \value PPK_Resolution An integer describing the dots per inch for
     this printer.
 
-    \item PPK_SelectionOption
+    \value PPK_SelectionOption
 
-    \item PPK_SupportedResolutions A list of integer QVariants
+    \value PPK_SupportedResolutions A list of integer QVariants
     describing the set of supported resolutions that the printer has.
 
-    \item PPK_WindowsPageSize An integer specifying a DM_PAPER entry
+    \value PPK_WindowsPageSize An integer specifying a DM_PAPER entry
     on Windows(tm).
 
-    \item PPK_CustomBase Basis for extension.
+    \value PPK_CustomBase Basis for extension.
 */

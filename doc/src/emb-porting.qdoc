@@ -71,7 +71,7 @@
 
     Modify \c qsoundqss_qws.cpp.
 
-    \i \bold{select()} is used to implement \l{QSocketDevice}s and listen for
+    \i \bold{select()} is used to for
     events to/from the Qt/Embedded server application.
 
     Modify \c qeventdispatcher_qws.cpp.

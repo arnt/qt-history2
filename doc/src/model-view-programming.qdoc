@@ -23,8 +23,7 @@ and examples are given that show how to use the classes provided.
 
 Model-View-Controller (MVC) is a design pattern originating from
 Smalltalk that is often used when building user interfaces.
-In \l{resources.html#Gamma}{Design Patterns}, Gamma et al.
-write:
+In \l{Design Patterns}, Gamma et al. write:
 
 \quote
 MVC consists of three kinds of objects. The Model is the application
@@ -1053,7 +1052,7 @@ items.
     by the user.
 
     For an example of a more complex model, see the
-    \l{simpletreemodel.html}{Simple Tree Model} example.
+    \l{itemviews/simpletreemodel}{Simple Tree Model} example.
 
     \section1 A Read-Only Example Model
 

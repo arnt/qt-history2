@@ -71,7 +71,7 @@
 
     Although the user may take some time to complete the dragging operation,
     as far as the application is concerned the start() function returns
-    immediately with \l{QDrag::DropActions}{one of several values}. These
+    immediately with \l{Qt::DropActions}{one of several values}. These
     indicate how the operation ended, and are described in more detail below.
 
     \section1 Dropping
@@ -114,12 +114,12 @@
     In a real world application, it may be necessary to return from the
     dropEvent() function without accepting the proposed action or handling
     the data if the action is not relevant. For example, we may choose to
-    ignore \l{QDrag::DropAction}{LinkAction} actions if we do not support
+    ignore Qt::LinkAction actions if we do not support
     links to external sources in our application.
     We may also ignore the proposed action, and perform some other action on
     the data. To do this, we would call the event object's
     \l{QDropEvent::setDropAction()}{setDropAction()} with the preferred
-    action from \l QDrag::DropAction.
+    action from Qt::DropAction.
 
     For more sophisticated applications, reimplementing
     \l{QWidget::dragMoveEvent()}{dragMoveEvent()} and
@@ -141,12 +141,12 @@
     ownership of the data sent in the drag and drop operation; this is
     usually done by keeping references to the data.
 
-    If the target understands the \c LinkAction action, it should store its
-    own reference to the original information; the source does not need to
-    perform any further processing on the data. The most common use of drag
-    and drop actions is when performing a Move within the same widget: See
-    the section on \l{#DropActions}{Drop Actions} for more information about
-    this feature.
+    If the target understands the \c LinkAction action, it should
+    store its own reference to the original information; the source
+    does not need to perform any further processing on the data. The
+    most common use of drag and drop actions is when performing a
+    Move within the same widget; see the section on \l{Drop Actions}
+    for more information about this feature.
 
     The other major use of drag actions is when using a reference type
     such as text/uri-list, where the dragged data are actually references
@@ -189,10 +189,9 @@
     \printuntil mimeData->setData
 
     Of course, for this case we could have simply used
-    \l{QMimeData::setPixmap()}{setPixmap()} instead, but the above code
-    provides more control over the image's data format.
+    \l{QMimeData::setImageData()}{setImageData()} instead, but the
+    above code provides more control over the image's data format.
 
-    \target DropActions
     \section1 Drop Actions
 
     In the clipboard model, the user can \e cut or \e copy the source

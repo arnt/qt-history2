@@ -5,6 +5,8 @@
 
 \title Qt Designer Manual
 
+\keyword Qt Designer
+
 \QD is Trolltech's tool for designing and building graphical user
 interfaces (GUIs) from Qt components. It allows you to design and build
 widgets and dialogs using on-screen forms using the same widgets that
@@ -381,7 +383,7 @@ the final component will behave.
 We can show how the connection editor is used by connecting the
 \l{QLineEdit::returnPressed()}{returnPressed()} signal of the line edit
 in our dialog to the \key OK button's
-\l{QButton::animateClick()}{animateClick()} slot.
+\l{QAbstractButton::animateClick()}{animateClick()} slot.
 We change into connection editing mode by opening the \key{Form} menu
 and selecting \key{Connection Mode}. The objects in the form will now
 become highlighted as the cursor passes over them. 
@@ -1099,7 +1101,7 @@ and radio buttons with similar purposes.
 
 The most important properties of groupboxes are \c title, \c flat,
 \c checkable, and \c checked. These are demonstrated in the
-\l{widgets-groupbox.html}{Group Boxes} example, and described in the
+\l{widgets/groupbox}{Group Box} example, and described in the
 QGroupBox class documentation.
 
 Each group box can contain its own layout, and this is needed if it
