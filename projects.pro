@@ -14,7 +14,7 @@ TEMPLATE = subdirs
 isEmpty(QT_PROJECTS) {
    QT_PROJECTS = qmake qt plugins tools examples tutorials
    qmake:!win32-msvc.net:SUBDIRS+=qmake	  
-   qt:SUBDIRS  = src/qtlibs.pro 
+   qt:SUBDIRS  = src
    plugins:SUBDIRS += plugins/src
    tools:SUBDIRS += tools
    examples:SUBDIRS += examples
