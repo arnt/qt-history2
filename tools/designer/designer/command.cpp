@@ -764,9 +764,9 @@ BreakLayoutCommand::BreakLayoutCommand( const QString &n, FormWindow *fw,
     margin = MetaDataBase::margin( layoutBase );
     layout = 0;
     if ( lay == WidgetFactory::HBox )
-	layout = new HorizontalLayout( wl, layoutBase, fw, layoutBase, FALSE, qt_cast<QSplitter*>(layoutBase) );
+	layout = new HorizontalLayout( wl, layoutBase, fw, layoutBase, FALSE, ::qt_cast<QSplitter*>(layoutBase) != 0 );
     else if ( lay == WidgetFactory::VBox )
-	layout = new VerticalLayout( wl, layoutBase, fw, layoutBase, FALSE, qt_cast<QSplitter*>(layoutBase) );
+	layout = new VerticalLayout( wl, layoutBase, fw, layoutBase, FALSE, ::qt_cast<QSplitter*>(layoutBase) != 0 );
     else if ( lay == WidgetFactory::Grid )
 	layout = new GridLayout( wl, layoutBase, fw, layoutBase, QSize( QMAX( 5, fw->grid().x()), QMAX( 5, fw->grid().y()) ), FALSE );
 }
