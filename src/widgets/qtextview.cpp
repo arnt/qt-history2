@@ -199,20 +199,20 @@ void QTextView::setText( const QString& text, const QString& context)
     else // rich text
 	d->txt = text;
 
+    QPainter * p = new QPainter( this );
+    // first try to use the full width of the viewport
+    QSize vs( viewportSize( 1,1 ) );
+    richText().setWidth( p, vs.width() );
+    // if we'll need to scroll vertically, and the only reason we'll
+    // need to scroll horizontally is the vertical scroll bar, try
+    // to reformat so we won't need to scroll horizontally at all
+    if ( richText().height > vs.height() &&
+	 richText().width <= vs.width() &&
+	 richText().width + /*###*/ 16 /*###*/ > vs.width() )
+	richText().setWidth( p, vs.width()-16 );
+    delete p;
+    resizeContents( QMAX( richText().widthUsed, richText().width), richText().height );
     if ( isVisible() ) {
-	QPainter * p = new QPainter( this );
-	// first try to use the full width of the viewport
-	QSize vs( viewportSize( 1,1 ) );
-	richText().setWidth( p, vs.width() );
-	// if we'll need to scroll vertically, and the only reason we'll
-	// need to scroll horizontally is the vertical scroll bar, try
-	// to reformat so we won't need to scroll horizontally at all
-	if ( richText().height > vs.height() &&
-	     richText().width <= vs.width() &&
-	     richText().width + /*###*/ 16 /*###*/ > vs.width() )
-	    richText().setWidth( p, vs.width()-16 );
-	delete p;
-	resizeContents( QMAX( richText().widthUsed, richText().width), richText().height );
 	viewport()->update();
 	viewport()->setCursor( arrowCursor );
     }
@@ -619,7 +619,7 @@ Qt::TextFormat QTextView::textFormat() const
   Sets the text format to \a format. Possible choices are
   <ul>
   <li> \c PlainText - all characters are displayed verbatimely,
-  including all blanks and linebreaks. 
+  including all blanks and linebreaks.
   <li> \c RichText - rich text rendering. The available
   styles are defined in the default stylesheet
   QStyleSheet::defaultSheet().
