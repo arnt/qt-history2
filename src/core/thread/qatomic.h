@@ -32,7 +32,7 @@ inline int q_atomic_increment(volatile int * const ptr)
     return expected != -1;
 }
 
-inline bool q_atomic_decrement(volatile int * const ptr)
+inline int q_atomic_decrement(volatile int * const ptr)
 {
     register int expected;
     for (;;) {
