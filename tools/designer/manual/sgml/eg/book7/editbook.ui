@@ -1,0 +1,335 @@
+<!DOCTYPE UI><UI version="3.0" stdsetdef="1">
+<class>EditBookFormBase</class>
+<forward>class QSqlRecord;</forward>
+<widget class="QSqlDialog">
+    <property name="name">
+        <cstring>EditBookFormBase</cstring>
+    </property>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>592</width>
+            <height>474</height>
+        </rect>
+    </property>
+    <property name="sort">
+        <stringlist>
+            <string>title ASC</string>
+        </stringlist>
+    </property>
+    <property name="caption">
+        <string>Edit Book</string>
+    </property>
+    <property name="database" stdset="0">
+        <stringlist>
+            <string>(default)</string>
+            <string>book</string>
+        </stringlist>
+    </property>
+    <widget class="QLabel">
+        <property name="name">
+            <cstring>labelformatid</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>25</x>
+                <y>25</y>
+                <width>75</width>
+                <height>25</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>Formatid</string>
+        </property>
+    </widget>
+    <widget class="QSpinBox">
+        <property name="name">
+            <cstring>QSpinBoxformatid</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>125</x>
+                <y>25</y>
+                <width>75</width>
+                <height>25</height>
+            </rect>
+        </property>
+        <property name="database" stdset="0">
+            <stringlist>
+                <string>(default)</string>
+                <string>book</string>
+                <string>formatid</string>
+            </stringlist>
+        </property>
+    </widget>
+    <widget class="QLabel">
+        <property name="name">
+            <cstring>labelauthorid</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>25</x>
+                <y>55</y>
+                <width>75</width>
+                <height>25</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>Authorid</string>
+        </property>
+    </widget>
+    <widget class="QSpinBox">
+        <property name="name">
+            <cstring>QSpinBoxauthorid</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>125</x>
+                <y>55</y>
+                <width>75</width>
+                <height>25</height>
+            </rect>
+        </property>
+        <property name="database" stdset="0">
+            <stringlist>
+                <string>(default)</string>
+                <string>book</string>
+                <string>authorid</string>
+            </stringlist>
+        </property>
+    </widget>
+    <widget class="QLabel">
+        <property name="name">
+            <cstring>labelprice</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>25</x>
+                <y>85</y>
+                <width>75</width>
+                <height>25</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>Price</string>
+        </property>
+    </widget>
+    <widget class="QLabel">
+        <property name="name">
+            <cstring>labeltitle</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>25</x>
+                <y>115</y>
+                <width>75</width>
+                <height>25</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>Title</string>
+        </property>
+    </widget>
+    <widget class="QPushButton">
+        <property name="name">
+            <cstring>PushButtonPrev</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>325</x>
+                <y>25</y>
+                <width>75</width>
+                <height>25</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>&lt;&lt; &amp;Prev</string>
+        </property>
+    </widget>
+    <widget class="QPushButton">
+        <property name="name">
+            <cstring>PushButtonNext</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>400</x>
+                <y>25</y>
+                <width>75</width>
+                <height>25</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>&amp;Next &gt;&gt;</string>
+        </property>
+    </widget>
+    <widget class="QPushButton">
+        <property name="name">
+            <cstring>PushButtonLast</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>475</x>
+                <y>25</y>
+                <width>75</width>
+                <height>25</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>&amp;Last &gt;|</string>
+        </property>
+    </widget>
+    <widget class="QPushButton">
+        <property name="name">
+            <cstring>PushButtonInsert</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>250</x>
+                <y>75</y>
+                <width>75</width>
+                <height>25</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>&amp;Insert</string>
+        </property>
+    </widget>
+    <widget class="QPushButton">
+        <property name="name">
+            <cstring>PushButtonUpdate</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>325</x>
+                <y>75</y>
+                <width>75</width>
+                <height>25</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>&amp;Update</string>
+        </property>
+    </widget>
+    <widget class="QPushButton">
+        <property name="name">
+            <cstring>PushButtonDelete</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>400</x>
+                <y>75</y>
+                <width>75</width>
+                <height>25</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>&amp;Delete</string>
+        </property>
+    </widget>
+    <widget class="QLineEdit">
+        <property name="name">
+            <cstring>QLineEdittitle</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>125</x>
+                <y>115</y>
+                <width>75</width>
+                <height>25</height>
+            </rect>
+        </property>
+        <property name="database" stdset="0">
+            <stringlist>
+                <string>(default)</string>
+                <string>book</string>
+                <string>title</string>
+            </stringlist>
+        </property>
+    </widget>
+    <widget class="QLineEdit">
+        <property name="name">
+            <cstring>QLineEditprice</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>125</x>
+                <y>85</y>
+                <width>75</width>
+                <height>25</height>
+            </rect>
+        </property>
+        <property name="database" stdset="0">
+            <stringlist>
+                <string>(default)</string>
+                <string>book</string>
+                <string>price</string>
+            </stringlist>
+        </property>
+    </widget>
+    <widget class="QPushButton">
+        <property name="name">
+            <cstring>PushButtonFirst</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>250</x>
+                <y>25</y>
+                <width>75</width>
+                <height>25</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>|&lt; &amp;First</string>
+        </property>
+    </widget>
+</widget>
+<connections>
+    <connection>
+        <sender>PushButtonFirst</sender>
+        <signal>clicked()</signal>
+        <receiver>EditBookFormBase</receiver>
+        <slot>firstRecord()</slot>
+    </connection>
+    <connection>
+        <sender>PushButtonPrev</sender>
+        <signal>clicked()</signal>
+        <receiver>EditBookFormBase</receiver>
+        <slot>prevRecord()</slot>
+    </connection>
+    <connection>
+        <sender>PushButtonNext</sender>
+        <signal>clicked()</signal>
+        <receiver>EditBookFormBase</receiver>
+        <slot>nextRecord()</slot>
+    </connection>
+    <connection>
+        <sender>PushButtonLast</sender>
+        <signal>clicked()</signal>
+        <receiver>EditBookFormBase</receiver>
+        <slot>lastRecord()</slot>
+    </connection>
+    <connection>
+        <sender>PushButtonInsert</sender>
+        <signal>clicked()</signal>
+        <receiver>EditBookFormBase</receiver>
+        <slot>insertRecord()</slot>
+    </connection>
+    <connection>
+        <sender>PushButtonUpdate</sender>
+        <signal>clicked()</signal>
+        <receiver>EditBookFormBase</receiver>
+        <slot>updateRecord()</slot>
+    </connection>
+    <connection>
+        <sender>PushButtonDelete</sender>
+        <signal>clicked()</signal>
+        <receiver>EditBookFormBase</receiver>
+        <slot>deleteRecord()</slot>
+    </connection>
+    <slot access="public">slotInsertBook()</slot>
+    <slot access="public">slotNewAuthor(const QSqlRecord *)</slot>
+    <slot access="public">slotUpdateBook()</slot>
+    <slot access="public">slotDeleteBook()</slot>
+</connections>
+</UI>

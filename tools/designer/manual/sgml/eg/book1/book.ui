@@ -1,0 +1,82 @@
+<!DOCTYPE UI><UI version="3.0" stdsetdef="1">
+<class>BookForm</class>
+<widget class="QDialog">
+    <property name="name">
+        <cstring>BookForm</cstring>
+    </property>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>770</width>
+            <height>378</height>
+        </rect>
+    </property>
+    <property name="caption">
+        <string>Book 1</string>
+    </property>
+    <widget class="QSqlTable">
+        <column>
+            <property name="text">
+                <string>Title</string>
+            </property>
+            <property name="pixmap">
+                <pixmap></pixmap>
+            </property>
+            <property name="field">
+                <string>title</string>
+            </property>
+        </column>
+        <column>
+            <property name="text">
+                <string>AuthorID</string>
+            </property>
+            <property name="pixmap">
+                <pixmap></pixmap>
+            </property>
+            <property name="field">
+                <string>authorid</string>
+            </property>
+        </column>
+        <column>
+            <property name="text">
+                <string>Price</string>
+            </property>
+            <property name="pixmap">
+                <pixmap></pixmap>
+            </property>
+            <property name="field">
+                <string>price</string>
+            </property>
+        </column>
+        <column>
+            <property name="text">
+                <string>Format</string>
+            </property>
+            <property name="pixmap">
+                <pixmap></pixmap>
+            </property>
+            <property name="field">
+                <string>format</string>
+            </property>
+        </column>
+        <property name="name">
+            <cstring>BookSqlTable</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>10</x>
+                <y>10</y>
+                <width>750</width>
+                <height>350</height>
+            </rect>
+        </property>
+        <property name="database" stdset="0">
+            <stringlist>
+                <string>(default)</string>
+                <string>book_view</string>
+            </stringlist>
+        </property>
+    </widget>
+</widget>
+</UI>
