@@ -1439,7 +1439,7 @@ QString HtmlGenerator::linkForNode(const Node *node, const Node *relative)
 	return QString();
 
     fn = fileName(node);
-    if (fn != outFileName())
+    //if (fn != outFileName())
         link += fn;
 
     if (!node->isInnerNode()) {
