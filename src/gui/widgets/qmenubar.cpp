@@ -210,9 +210,9 @@ void QMenuBarPrivate::calcActionRects(int max_width, int start, QMap<QAction*, Q
                 int iWidth = sz.width();
                 if(i)
                     iWidth += itemSpacing;
-                if(separator == -1) 
+                if(separator == -1)
                     separator_start += iWidth;
-                else 
+                else
                     separator_len += iWidth;
             }
             //maximum height
@@ -913,6 +913,8 @@ bool QMenuBar::event(QEvent *e)
             if (shortcutId == d->shortcutIndexMap.value(j))
                 d->internalShortcutActivated(j);
         }
+    } else if (e->type() == QEvent::Show) {
+        d->updateActions();
     }
     return QWidget::event(e);
 }
