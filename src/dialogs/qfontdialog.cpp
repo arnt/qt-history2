@@ -648,7 +648,7 @@ void QFontDialog::updateSizes()
 	}
 
 	d->sizeEdit->blockSignals( TRUE );
-	d->sizeEdit->setText( d->smoothScalable ? QString::number( d->size ) : d->sizeList->currentText() );
+	d->sizeEdit->setText( ( d->smoothScalable ? QString::number( d->size ) : d->sizeList->currentText() ) );
 	if ( style().styleHint(QStyle::SH_FontDialog_SelectAssociatedText, this) &&
 	     d->sizeList->hasFocus() )
 	    d->sizeEdit->selectAll();
