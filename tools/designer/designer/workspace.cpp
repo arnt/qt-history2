@@ -539,14 +539,14 @@ void Workspace::activeFormChanged( FormWindow *fw )
     }
 
     closeAutoOpenItems();
-	
+
 }
 
 void Workspace::activeEditorChanged( SourceEditor *se )
 {
     if ( !se->object() )
 	return;
-	
+
     if ( se->formWindow() ) {
 	WorkspaceItem *i = findItem( se->formWindow()->formFile() );
 	if ( i && i->firstChild() ) {
@@ -741,10 +741,11 @@ void Workspace::rmbClicked( QListViewItem *i, const QPoint& pos )
 	break;
     }
 }
-	
+
 bool Workspace::eventFilter( QObject *o, QEvent * e )
 {
-    if ( o ==bufferEdit )
+    // Reggie, on what type of events do we have to execute updateBufferEdit()
+    if ( o ==bufferEdit && e->type() != QEvent::ChildRemoved )
 	updateBufferEdit();
     return QListView::eventFilter( o, e );
 }
