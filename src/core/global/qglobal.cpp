@@ -704,9 +704,35 @@ void qCritical(const char *msg, ...)
     }
 }
 
-void qSystemWarning(const char *msg, int code)
-{ qCritical("%s\n\t%s", msg, qt_error_string(code).local8Bit()); }
+void qErrnoWarning(const char *msg, ...)
+{
+    char buf[QT_BUFFER_LENGTH];
+    va_list ap;
+    va_start(ap, msg);
+#if defined(QT_VSNPRINTF)
+    QT_VSNPRINTF(buf, QT_BUFFER_LENGTH, msg, ap);
+#else
+    vsprintf(buf, msg, ap);
+#endif
+    va_end(ap);
 
+    qCritical("%s\n\t%s", buf, qt_error_string(-1).local8Bit()); 
+}
+
+void qErrnoWarning(int code, const char *msg, ...)
+{ 
+    char buf[QT_BUFFER_LENGTH];
+    va_list ap;
+    va_start(ap, msg);
+#if defined(QT_VSNPRINTF)
+    QT_VSNPRINTF(buf, QT_BUFFER_LENGTH, msg, ap);
+#else
+    vsprintf(buf, msg, ap);
+#endif
+    va_end(ap);
+
+    qCritical("%s\n\t%s", buf, qt_error_string(code).local8Bit());
+}
 
 /*!
     \relates QApplication
