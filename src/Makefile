@@ -49,25 +49,27 @@ all:
 # Create the tools library (necessary for the meta object compiler)
 #
 
-tools:
-	cd tools
-	make
+tools: toolshack
+
+toolshack:
+	( cd tools ; make )
 
 #
 # Create the meta object compiler
 #
 
-moc:
-	cd tools
-	make
-	cd moc
-	make
+moc: tools mochack
+
+mochack:
+	( cd moc ; make )
 
 #
 # Create a library, called from aout, aoutdbg, elf and elfdbg
 #
 
-lib:
+FORCE:
+
+lib: dirs
 	$(RM) -f tools/*.o
 	$(RM) -f kernel/*.o
 	$(RM) -f widgets/*.o
@@ -125,3 +127,6 @@ depend:
 	do (cd $$d; echo "[--- $$d ---]"; \
 	    make depend \
 	) done
+
+dirs:
+	ln -sf $(QTDIR)/src/{tools,kernel,widgets}/q*.h $(INCDIR)
