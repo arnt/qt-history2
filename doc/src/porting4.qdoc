@@ -18,13 +18,9 @@
     This document describes porting applications from Qt 3 to Qt 4.
 
     ### no integral conversion for containers? strings?
-
     ### QVector etc. are initialized to 0 by default?
-
     ### How to port from Qt 2.3 to Qt 4.
-
     ### missing sort() functions?
-
     ### make sure all QT_COMPAT enums are documented here and omitvalue otherwise
 
     If you haven't yet made the decision about porting, or are unsure
@@ -64,6 +60,7 @@
     ### what to do with slots that aren't slots anymore
     ### what to do with virtual functions that aren't virtual anymore
     ### what to do with virtual functions that changed signature
+    ### properties?
 
     ### <qtl.h> -- stuff that vanished?
     ### implicit sharing
@@ -1049,9 +1046,28 @@
 
     \section1 QFrame
 
-    ###
+    The QFrame class has been made more lightweight in Qt 4, by
+    reducing the number of properties and virtual functions. The
+    reduction in the number of virtual functions is significant
+    because QFrame is the base class of many Qt classes.
 
-    Q3Frame
+    Here's an overview of the changes:
+
+    \list
+    \i  QFrame no longer has a \c margin property (which wasn't
+        honored by Qt's layout managers anyway).
+    \i  QFrame used to have drawFrame(QPainter *),
+        drawContents(QPainter *), and frameChanged() virtual
+        functions. These are now gone. If you want to change the way
+        QFrame paints itself, reimplement QFrame:paintEvent().
+    \endlist
+
+    As an help to porting, the \l{Qt 3 compatibility library}
+    contains a Q3Frame class that inherits QFrame and provides a
+    similar API to the old QFrame class. If you derived from QFrame
+    in your application, you might want to use Q3Frame as a base
+    class as a first step in the porting process, and later move on
+    to the new QFrame class.
 
     \section1 QFtp
 
@@ -1070,9 +1086,27 @@
     \target qgroubox.section
     \section1 QGroupBox
 
-    ###
+    The QGroupBox class has been redesigned in Qt 4. The old QUrl
+    class has been renamed Q3GroupBox and moved to the \l{Qt 3
+    compatibility library}.
 
-    Q3GroupBox
+    The new QGroupBox is more lightweight. It doesn't attempt to
+    duplicate functionality already provided by QGridLayout. For that
+    reason, the following members have been removed:
+
+    \list
+    \i Q3GroupBox::setColumns(), Q3GroupBox::columns()
+    \i Q3GroupBox::setOrientation(), Q3GroupBox::orientation()
+    \i Q3GroupBox::setInsideMargin(), Q3GroupBox::insideMargin()
+    \i Q3GroupBox::addSpace()
+    \endlist
+
+    Naturally, the \c columns and \c orientation properties have also
+    been removed.
+
+    If you rely on some of the missing functionality in your
+    application, you can use Q3GroupBox instead of QGroupBox as a
+    help to porting.
 
     \section1 QGuardedPtr<T>
 
@@ -1098,14 +1132,13 @@
 
     \section1 QIconFactory
 
-    QIconFactory has been removed in favor of using function
-    pointers. Generally this involves taking the
-    QIconFactory::createPixmap() function and making it a regular
-    functions. Use QIconSet::setPixmapGeneratorFn() in place of
-    QIconSet::installFactory() and QIconSet::setDefaultPixmapGeneratorFn()
-    and QIconSet::defaultPixmapGeneratorFn() in place of
-    QIconFactory::installDefaultFactory() and
-    QIconFactory::defaultFactory() respectively.
+    The QIconFactory is no longer part of Qt. It has been replaced by
+    a lighter mechanism based on function pointers.
+
+    To port old code that uses QIconFactory to Qt 4, you generally
+    need to turn your QIconFactory::createPixmap() reimplementation
+    into a regular function and call QIconSet::setPixmapGeneratorFn()
+    or QIconSet::setDefaultPixmapGeneratorFn() on it.
 
     \section1 QIconView
 
@@ -1963,34 +1996,32 @@
         };
     \endcode
 
-    \section1 QRect
-
-    QRects are now exclusive. This means that
-
-        x + width == right
-        y + height == bottom
-
-    In Qt 3 this was:
-        x + width - 1 == right
-        y + height - 1 == bottom
-
-    QRect(QPoint(0, 0), QSize(10, 10)) or QRect(0, 0, 10, 10)
-        -> width() == height() == 10, would be 10 in Qt 3
-        -> bottom() == right() == 10, would be 9 in Qt 3
-
-    QRect(QPoint(0, 0), QPoint(10, 10))
-        -> width() == height() == 10, would be 11 in Qt 3
-        -> bottom() == right() == 10, would be 10 in Qt 3
-
     \section1 QRegion
 
-    Null QRegions have been removed, use isEmpty() in most places where
-    you would have used a null QRegion. rects() now returns a
-    QVector<QRect> instead of QMemArray<QRect>.
+    The following changes have been made to QRegion in Qt 4:
+
+    \list
+    \i  There is no longer any difference between a \e null region and
+        an \e empty region. Use isEmpty() in most places where you
+        would have used a null QRegion. 
+    \i  QRegion::rects() used to return a QMemArray<QRect>. It now returns
+        a QVector<QRect>.
+    \endlist
 
     \section1 QScrollView
 
-    ###
+    The QScrollView class has been moved to the \l{Qt 3 compatibility
+    library}. It has been replaced by the QViewport and QWidgetView
+    classes.
+
+    QScrollView was designed to work around the 16-bit limitation on
+    widget coordinates found on most window systems. In Qt 4, this is
+    done transparently for \e all widgets, so there is no longer a
+    need for such functionality in QScrollView. For that reason, the
+    new QViewport and QWidgetView classes are much more lightweight,
+    and concentrate on handling scroll bars.
+
+    If you used QScrollView as a base class
 
     \section1 QShared
 
@@ -2665,7 +2696,11 @@
 
     \section1 QWidgetStack
 
-    ###
+    The QWidgetStack class is no longer part of the Qt public API. It
+    has been moved to the \l{Qt 3 compatibility library}.
+
+    In Qt 4 applications, you can use QStackedLayout instead to obtain
+    the same results.
 
     \section1 QWizard
 
