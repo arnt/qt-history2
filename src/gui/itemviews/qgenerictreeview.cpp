@@ -648,8 +648,7 @@ bool QGenericTreeView::doItemsLayout(int num)
 void QGenericTreeView::columnWidthChanged(int column, int, int)
 {
     int columnPos = d->header->sectionPosition(column);
-    d->viewport->update(QRect(columnPos, contentsY(),
- 		   visibleWidth() - columnPos + contentsX(), visibleHeight()));
+    d->viewport->update(QRect(columnPos, 0, visibleWidth() - columnPos + contentsX(), visibleHeight()));
 //     resizeContents(contentsWidth() + (newSize - oldSize), contentsHeight());
     updateGeometries();
     updateCurrentEditor();
