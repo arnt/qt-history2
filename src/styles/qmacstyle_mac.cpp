@@ -58,6 +58,7 @@ public:
 #include <qbuttongroup.h>
 #include <qtoolbar.h>
 #include <qlayout.h>
+#include <private/qdialogbuttons_p.h>
 #include <qpopupmenu.h>
 #include <qmenubar.h>
 #include <qcombobox.h>
@@ -81,6 +82,9 @@ void qt_mac_dispose_rgn(RgnHandle r); //qregion_mac.cpp
 extern QPaintDevice *qt_mac_safe_pdev; //qapplication_mac.cpp
 
 //static utility variables
+static const QDialogButtons::Button macBtnOrder[] = { QDialogButtons::Reject, QDialogButtons::Accept, //reverse order (right to left)
+						      QDialogButtons::All, QDialogButtons::Apply, QDialogButtons::Abort,
+                                                      QDialogButtons::Retry, QDialogButtons::Ignore };
 static ThemeWindowType macWinType = kThemeUtilityWindow;
 static const int macSpinBoxSep        = 5;    // distance between spinwidget and the lineedit
 static const int macItemFrame         = 2;    // menu item frame width
@@ -352,6 +356,10 @@ void QMacStyle::polish(QWidget* w)
 	SInt32 frame_size;
 	GetThemeMetric(kThemeMetricEditTextFrameOutset, &frame_size);
 	lined->setLineWidth(frame_size);
+    } else if(w->inherits("QDialogButtons")) {
+	QDialogButtons *btns = (QDialogButtons*)w;
+	if(btns->buttonText(QDialogButtons::Help).isNull())
+	    btns->setButtonText(QDialogButtons::Help, "?");
     } else if(w->inherits("QToolButton")) {
         QToolButton * btn = (QToolButton *) w;
         btn->setAutoRaise(FALSE);
@@ -1389,6 +1397,25 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
 {
     SInt32 ret = 0;
     switch(metric) {
+    case PM_DialogButtonsSeparator:
+	ret = -5;
+	break;
+    case PM_DialogButtonsButtonHeight: {
+	QSize sz;
+	ret = qt_aqua_size_constrain(NULL, QStyle::CT_PushButton, QSize(-1, -1), &sz);
+	if(sz == QSize(-1, -1))
+	    ret = 32;
+	else
+	    ret = sz.height();
+	break; }
+    case PM_DialogButtonsButtonWidth: {
+	QSize sz;
+	ret = qt_aqua_size_constrain(NULL, QStyle::CT_PushButton, QSize(-1, -1), &sz);
+	if(sz == QSize(-1, -1))
+	    ret = 70;
+	else
+	    ret = sz.width();
+	break; }
     case PM_PopupMenuScrollerHeight:
 #if 0
 	SInt16 ash, asw;
@@ -1659,6 +1686,89 @@ QRect QMacStyle::subRect(SubRect r, const QWidget *w) const
 {
     QRect ret;
     switch(r) {
+    case SR_DialogButtonAbort:
+    case SR_DialogButtonRetry:
+    case SR_DialogButtonIgnore:
+    case SR_DialogButtonApply:
+    case SR_DialogButtonAccept:
+    case SR_DialogButtonReject:
+    case SR_DialogButtonHelp:
+    case SR_DialogButtonAll:
+    case SR_DialogButtonCustom: {
+	QDialogButtons::Button srch = QDialogButtons::None;
+	if(r == SR_DialogButtonAccept)
+	    srch = QDialogButtons::Accept;
+	else if(r == SR_DialogButtonReject)
+	    srch = QDialogButtons::Reject;
+	else if(r == SR_DialogButtonAll)
+	    srch = QDialogButtons::All;
+	else if(r == SR_DialogButtonApply)
+	    srch = QDialogButtons::Apply;
+	else if(r == SR_DialogButtonHelp)
+	    srch = QDialogButtons::Help;
+	else if(r == SR_DialogButtonRetry)
+	    srch = QDialogButtons::Retry;
+	else if(r == SR_DialogButtonIgnore)
+	    srch = QDialogButtons::Ignore;
+	else if(r == SR_DialogButtonAbort)
+	    srch = QDialogButtons::Abort;
+
+	const int bwidth = pixelMetric(PM_DialogButtonsButtonWidth, w), 
+		 bheight = pixelMetric(PM_DialogButtonsButtonHeight, w),
+		  bspace = pixelMetric(PM_DialogButtonsSeparator, w),
+		      fw = pixelMetric(PM_DefaultFrameWidth, w);
+	QRect wrect = w->rect();
+	const QDialogButtons *dbtns = (const QDialogButtons *) w;
+	int start = fw;
+	if(dbtns->orientation() == Horizontal)
+	    start = wrect.right() - fw;
+	for(unsigned int i = 0, cnt = 0; i < (sizeof(macBtnOrder)/sizeof(macBtnOrder[0])); i++) {
+	    if(dbtns->isButtonVisible(macBtnOrder[i])) {
+		QSize szH = dbtns->sizeHint(macBtnOrder[i]);
+		int mwidth = QMAX(bwidth, szH.width()), mheight = QMAX(bheight, szH.height());
+		if(dbtns->orientation() == Horizontal) {
+		    start -= mwidth;
+		    if(cnt)
+			start -= bspace;
+		} else if(cnt) {
+		    start += mheight;
+		    start += bspace;
+		}
+		cnt++;
+		if(macBtnOrder[i] == srch) {
+		    if(dbtns->orientation() == Horizontal) 
+			ret = QRect(start, wrect.bottom() - fw - mheight, mwidth, mheight);
+		    else
+			ret = QRect(fw, start, mwidth, mheight);
+		}
+	    }
+	    if(cnt == 2 && macBtnOrder[i] == QDialogButtons::Accept) { //yuck, but I need to put some extra space in there now..
+		if(dbtns->orientation() == Horizontal)
+		    start -= 20;
+		else
+		    start += 20;
+	    }
+	}
+	int help_width = 0, help_height = 0;
+	if(dbtns->isButtonVisible(QDialogButtons::Help)) {
+	    if(dbtns->buttonText(QDialogButtons::Help) == "?") {
+		help_width = 35;
+		help_height = bheight;
+	    } else { 
+		QSize szH = dbtns->sizeHint(QDialogButtons::Help);
+		help_width = szH.width();
+		help_height = szH.height();
+	    }
+	}
+	if(r == SR_DialogButtonCustom) {
+	    if(dbtns->orientation() == Horizontal) 
+		ret = QRect(fw + help_width, fw, start - help_width - (fw*2) - bspace, wrect.height() - (fw*2));
+	    else
+		ret = QRect(fw, start, wrect.width() - (fw*2), wrect.height() - help_height - start - (fw*2));
+	} else if(r == SR_DialogButtonHelp && dbtns->buttonText(QDialogButtons::Help)) {
+	    ret = QRect(fw, wrect.height() - help_height - fw, help_width, help_height);
+	}
+	break; }
     case SR_PushButtonContents: {
 	ThemeButtonKind bkind = kThemePushButton;
 	ThemeButtonDrawInfo info = { kThemeStateActive, kThemeButtonOff, kThemeAdornmentNone };
@@ -1752,6 +1862,14 @@ int QMacStyle::styleHint(StyleHint sh, const QWidget *w,
 {
     SInt32 ret = 0;
     switch(sh) {
+#if 0
+    case SH_LineEdit_PasswordCharacter:
+	ret = QChar(0x25E6);
+	break;
+#endif
+    case SH_DialogButtons_DefaultButton:
+	ret = QDialogButtons::Reject;
+	break;
     case SH_GroupBox_TextLabelColor:
 	ret = (int) ( w ? w->colorGroup().foreground().rgb() : 0 );
 	break;
@@ -1811,6 +1929,58 @@ QSize QMacStyle::sizeFromContents(ContentsType contents, const QWidget *widget,
 {
     QSize sz(contentsSize);
     switch(contents) {
+    case CT_DialogButtons: {
+	const QDialogButtons *dbtns = (const QDialogButtons *)widget;
+	int w = contentsSize.width(), h = contentsSize.height();
+	const int bwidth = pixelMetric(PM_DialogButtonsButtonWidth, widget), 
+		  bspace = pixelMetric(PM_DialogButtonsSeparator, widget),
+		 bheight = pixelMetric(PM_DialogButtonsButtonHeight, widget);
+	if(dbtns->orientation() == Horizontal) {
+	    if(!w)
+		w = bwidth;
+	} else {
+	    if(!h) 
+		h = bheight;
+	}
+	for(unsigned int i = 0, cnt = 0; i < (sizeof(macBtnOrder)/sizeof(macBtnOrder[0])); i++) {
+	    if(dbtns->isButtonVisible(macBtnOrder[i])) {
+		QSize szH = dbtns->sizeHint(macBtnOrder[i]);
+		int mwidth = QMAX(bwidth, szH.width()), mheight = QMAX(bheight, szH.height());
+		if(dbtns->orientation() == Horizontal)
+		    h = QMAX(h, mheight);
+		else
+		    w = QMAX(w, mwidth);
+
+		if(cnt) 
+		    w += bspace;
+		cnt++;
+		if(dbtns->orientation() == Horizontal) 
+		    w += mwidth;
+		else
+		    h += mheight;
+		if(cnt == 2 && macBtnOrder[i] == QDialogButtons::Accept) { //yuck, but I need to put some extra space in there now..
+		    if(dbtns->orientation() == Horizontal)
+			w += 20;
+		    else
+			h += 20;
+		}
+	    }
+	}
+	if(dbtns->isButtonVisible(QDialogButtons::Help)) {
+	    if(dbtns->buttonText(QDialogButtons::Help) == "?") {
+		if(dbtns->orientation() == Horizontal) 
+		    w += 35;
+	    } else {
+		QSize szH = dbtns->sizeHint(QDialogButtons::Help);
+		if(dbtns->orientation() == Horizontal) 
+		    w += QMAX(bwidth, szH.width());
+		else
+		    h += QMAX(bheight, szH.height());		    
+	    }
+	}
+	const int fw = pixelMetric(PM_DefaultFrameWidth, widget) * 2;
+	sz = QSize(w + fw, h + fw);
+	break; }
     case CT_SpinBox: 
 	sz.setWidth(sz.width() + macSpinBoxSep); //leave space between the spinner and the editor
 	break;
@@ -1870,7 +2040,7 @@ QSize QMacStyle::sizeFromContents(ContentsType contents, const QWidget *widget,
 	sz = QSize(w, h);
 	break; }
     case CT_PushButton:
-	sz = QWindowsStyle::sizeFromContents(contents, widget, contentsSize, opt);
+	sz = QCommonStyle::sizeFromContents(contents, widget, contentsSize, opt);
 	sz = QSize(sz.width() + 16, sz.height()); //###
 	break;
     default:

@@ -1107,7 +1107,15 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 
     \value SR_ToolButtonContents area for the tool button's label.
 
-
+    \value SR_DialogButtonAccept area for a dialog's accept button.
+    \value SR_DialogButtonReject area for a dialog's reject button.
+    \value SR_DialogButtonApply  area for a dialog's apply button.
+    \value SR_DialogButtonHelp area for a dialog's help button.
+    \value SR_DialogButtonAll area for a dialog's all button.
+    \value SR_DialogButtonRetry area for a dialog's retry button.
+    \value SR_DialogButtonAbort area for a dialog's abort button.
+    \value SR_DialogButtonIgnore area for a dialog's ignore button.
+    \value SR_DialogButtonCustom area for a dialog's custom widget area (in button row).
 
     \value SR_CustomBase  base value for custom ControlElements. All values above
 	    this are reserved for custom use. Therefore, custom values must be
@@ -1469,6 +1477,9 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
     \value PM_CheckListButtonSize area (width/height) of the
 	checkbox/radiobutton in a QCheckListItem
 
+    \value PM_DialogButtonsSeparator distance between buttons in a dialog buttons widget.
+    \value PM_DialogButtonsButtonWidth minimum width of a button in a dialog buttons widget.
+    \value PM_DialogButtonsButtonHeight minimum height of a button in a dialog buttons widget.
 
     \value PM_CustomBase  base value for custom ControlElements. All
 	values above this are reserved for custom use. Therefore,
@@ -1522,7 +1533,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
     \value CT_LineEdit
     \value CT_MenuBar
     \value CT_SpinBox
-
+    \value CT_DialogButtons
 
     \value CT_CustomBase  base value for custom ControlElements. All
 	values above this are reserved for custom use. Therefore,
@@ -1683,6 +1694,9 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
         groupbox's text label.
 
     \value SH_GroupBox_TextLabelColor how to paint a groupbox's text label.
+
+    \value SH_DialogButtons_DefaultButton which buttons gets the
+        default status in a dialog's button widget.
 
     \value SH_CustomBase  base value for custom ControlElements. All
 	values above this are reserved for custom use. Therefore,

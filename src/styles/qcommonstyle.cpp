@@ -59,6 +59,7 @@
 #include "qradiobutton.h"
 #include "qbitmap.h"
 #include "qprogressbar.h"
+#include "private/qdialogbuttons_p.h"
 #include <limits.h>
 #include <qpixmap.h>
 #include "../widgets/qtitlebar_p.h"
@@ -1026,6 +1027,72 @@ QRect QCommonStyle::subRect(SubRect r, const QWidget *widget) const
     QRect rect, wrect(widget->rect());
 
     switch (r) {
+    case SR_DialogButtonAbort:
+    case SR_DialogButtonRetry:
+    case SR_DialogButtonIgnore:
+    case SR_DialogButtonAccept:
+    case SR_DialogButtonReject:
+    case SR_DialogButtonApply:
+    case SR_DialogButtonHelp:
+    case SR_DialogButtonAll:
+    case SR_DialogButtonCustom: {
+	QDialogButtons::Button srch = QDialogButtons::None;
+	if(r == SR_DialogButtonAccept)
+	    srch = QDialogButtons::Accept;
+	else if(r == SR_DialogButtonReject)
+	    srch = QDialogButtons::Reject;
+	else if(r == SR_DialogButtonAll)
+	    srch = QDialogButtons::All;
+	else if(r == SR_DialogButtonApply)
+	    srch = QDialogButtons::Apply;
+	else if(r == SR_DialogButtonHelp)
+	    srch = QDialogButtons::Help;
+	else if(r == SR_DialogButtonRetry)
+	    srch = QDialogButtons::Retry;
+	else if(r == SR_DialogButtonIgnore)
+	    srch = QDialogButtons::Ignore;
+	else if(r == SR_DialogButtonAbort)
+	    srch = QDialogButtons::Abort;
+
+	const int bwidth = pixelMetric(PM_DialogButtonsButtonWidth, widget), 
+		 bheight = pixelMetric(PM_DialogButtonsButtonHeight, widget),
+		  bspace = pixelMetric(PM_DialogButtonsSeparator, widget),
+		      fw = pixelMetric(PM_DefaultFrameWidth, widget);
+	const QDialogButtons *dbtns = (const QDialogButtons *) widget;
+	int start = fw;
+	if(dbtns->orientation() == Horizontal)
+	    start = wrect.right() - fw;
+	QDialogButtons::Button btns[] = { QDialogButtons::All, QDialogButtons::Reject, QDialogButtons::Accept, //reverse order (right to left)
+					  QDialogButtons::Apply, QDialogButtons::Retry, QDialogButtons::Ignore, QDialogButtons::Abort,
+					  QDialogButtons::Help };
+	for(unsigned int i = 0, cnt = 0; i < (sizeof(btns)/sizeof(btns[0])); i++) {
+	    if(dbtns->isButtonVisible(btns[i])) {
+		QSize szH = dbtns->sizeHint(btns[i]);
+		int mwidth = QMAX(bwidth, szH.width()), mheight = QMAX(bheight, szH.height());
+		if(dbtns->orientation() == Horizontal) {
+		    start -= mwidth;
+		    if(cnt)
+			start -= bspace;
+		} else if(cnt) {
+		    start += mheight;
+		    start += bspace;
+		}
+		cnt++;
+		if(btns[i] == srch) {
+		    if(dbtns->orientation() == Horizontal) 
+			return QRect(start, wrect.bottom() - fw - mheight, mwidth, mheight);
+		    else
+			return QRect(fw, start, mwidth, mheight);
+		}
+	    }
+	}
+	if(r == SR_DialogButtonCustom) {
+	    if(dbtns->orientation() == Horizontal) 
+		return QRect(fw, fw, start - fw - bspace, wrect.height() - (fw*2));
+	    else
+		return QRect(fw, start, wrect.width() - (fw*2), wrect.height() - start - (fw*2));
+	}
+	return QRect(); }
     case SR_PushButtonContents:
 	{
 #ifndef QT_NO_PUSHBUTTON
@@ -2046,6 +2113,15 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QWidget *widget) const
     int ret;
 
     switch (m) {
+    case PM_DialogButtonsSeparator:
+	ret = 5;
+	break;
+    case PM_DialogButtonsButtonWidth:
+	ret = 70;
+	break;
+    case PM_DialogButtonsButtonHeight:
+	ret = 30;
+	break;
     case PM_CheckListButtonSize:
 	ret = 16;
 	break;
@@ -2232,6 +2308,43 @@ QSize QCommonStyle::sizeFromContents(ContentsType contents,
 #endif
 
     switch (contents) {
+    case CT_DialogButtons: {
+	const QDialogButtons *dbtns = (const QDialogButtons *)widget;
+	int w = contentsSize.width(), h = contentsSize.height();
+	const int bwidth = pixelMetric(PM_DialogButtonsButtonWidth, widget), 
+		  bspace = pixelMetric(PM_DialogButtonsSeparator, widget),
+		 bheight = pixelMetric(PM_DialogButtonsButtonHeight, widget);
+	if(dbtns->orientation() == Horizontal) {
+	    if(!w)
+		w = bwidth;
+	} else {
+	    if(!h) 
+		h = bheight;
+	}
+	QDialogButtons::Button btns[] = { QDialogButtons::All, QDialogButtons::Reject, QDialogButtons::Accept, //reverse order (right to left)
+					  QDialogButtons::Apply, QDialogButtons::Retry, QDialogButtons::Ignore, QDialogButtons::Abort,
+					  QDialogButtons::Help };
+	for(unsigned int i = 0, cnt = 0; i < (sizeof(btns)/sizeof(btns[0])); i++) {
+	    if(dbtns->isButtonVisible(btns[i])) {
+		QSize szH = dbtns->sizeHint(btns[i]);
+		int mwidth = QMAX(bwidth, szH.width()), mheight = QMAX(bheight, szH.height());
+		if(dbtns->orientation() == Horizontal)
+		    h = QMAX(h, mheight);
+		else
+		    w = QMAX(w, mwidth);
+
+		if(cnt) 
+		    w += bspace;
+		cnt++;
+		if(dbtns->orientation() == Horizontal) 
+		    w += mwidth;
+		else
+		    h += mheight;
+	    }
+	}
+	const int fw = pixelMetric(PM_DefaultFrameWidth, widget) * 2;
+	sz = QSize(w + fw, h + fw);
+	break; }
     case CT_PushButton:
 	{
 #ifndef QT_NO_PUSHBUTTON
@@ -2365,6 +2478,10 @@ int QCommonStyle::styleHint(StyleHint sh, const QWidget * w, const QStyleOption 
     int ret;
 
     switch (sh) {
+    case SH_DialogButtons_DefaultButton:
+	ret = QDialogButtons::Accept;
+	break;
+
     case SH_GroupBox_TextLabelVerticalAlignment:
 	ret = Qt::AlignVCenter;
 	break;
@@ -2403,10 +2520,13 @@ int QCommonStyle::styleHint(StyleHint sh, const QWidget * w, const QStyleOption 
 	break;
 
     case SH_Table_GridLineColor:
-	return (int) ( w ? w->colorGroup().mid().rgb() : 0 );
+	ret = (int) ( w ? w->colorGroup().mid().rgb() : 0 );
+	break;
 
     case SH_LineEdit_PasswordCharacter:
-	return '*';
+	ret = '*';
+	break;
+
     default:
 	ret = 0;
 	break;

@@ -315,6 +315,16 @@ public:
 
 	SR_ToolButtonContents,
 
+	SR_DialogButtonAccept,
+	SR_DialogButtonReject,
+	SR_DialogButtonApply,
+	SR_DialogButtonHelp,
+	SR_DialogButtonAll,
+	SR_DialogButtonAbort,
+	SR_DialogButtonIgnore,
+	SR_DialogButtonRetry,
+	SR_DialogButtonCustom,
+
 	// do not add any values below/greater than this
 	SR_CustomBase =		0xf0000000
     };
@@ -453,6 +463,10 @@ public:
 	PM_PopupMenuScrollerHeight,
 	PM_CheckListButtonSize,
 
+	PM_DialogButtonsSeparator,
+	PM_DialogButtonsButtonWidth,
+	PM_DialogButtonsButtonHeight,
+
 	// do not add any values below/greater than this
 	PM_CustomBase =		0xf0000000
     };
@@ -477,6 +491,7 @@ public:
 	CT_LineEdit,
 	CT_MenuBar,
 	CT_SpinBox,
+	CT_DialogButtons,
 
 	// do not add any values below/greater than this
 	CT_CustomBase =		0xf0000000
@@ -606,6 +621,9 @@ public:
 
 	// QChar - Unicode character for password char
 	SH_LineEdit_PasswordCharacter,
+
+	// QDialogButtons::Button - default button
+	SH_DialogButtons_DefaultButton,
 
 	// do not add any values below/greater than this
 	SH_CustomBase =		0xf0000000
