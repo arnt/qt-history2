@@ -14,9 +14,8 @@
 #ifndef QABSTRACTITEMMODEL_H
 #define QABSTRACTITEMMODEL_H
 
+#include <QtCore/qcorevariant.h>
 #include <QtCore/qobject.h>
-#include <QtGui/qvariant.h>
-#include <QtGui/qdrag.h>
 
 class QAbstractItemModel;
 class QPersistentModelIndex;
@@ -161,16 +160,16 @@ public:
     virtual int columnCount(const QModelIndex &parent = QModelIndex()) const = 0;
     virtual bool hasChildren(const QModelIndex &parent = QModelIndex()) const;
 
-    virtual QVariant data(const QModelIndex &index, int role = DisplayRole) const = 0;
-    virtual bool setData(const QModelIndex &index, const QVariant &value, int role = EditRole);
+    virtual QCoreVariant data(const QModelIndex &index, int role = DisplayRole) const = 0;
+    virtual bool setData(const QModelIndex &index, const QCoreVariant &value, int role = EditRole);
 
-    virtual QVariant headerData(int section, Qt::Orientation orientation,
+    virtual QCoreVariant headerData(int section, Qt::Orientation orientation,
                                 int role = DisplayRole) const;
-    virtual bool setHeaderData(int section, Qt::Orientation orientation, const QVariant &value,
+    virtual bool setHeaderData(int section, Qt::Orientation orientation, const QCoreVariant &value,
                                int role = EditRole);
 
-    virtual QMap<int, QVariant> itemData(const QModelIndex &index) const;
-    virtual bool setItemData(const QModelIndex &index, const QMap<int, QVariant> &roles);
+    virtual QMap<int, QCoreVariant> itemData(const QModelIndex &index) const;
+    virtual bool setItemData(const QModelIndex &index, const QMap<int, QCoreVariant> &roles);
 
     virtual QStringList mimeTypes() const;
     virtual QMimeData *mimeData(const QModelIndexList &indexes) const;
@@ -196,7 +195,7 @@ public:
     virtual ItemFlags flags(const QModelIndex &index) const;
     virtual void sort(int column, Qt::SortOrder order = Qt::AscendingOrder);
     virtual QModelIndex buddy(const QModelIndex &index) const;
-    virtual QModelIndexList match(const QModelIndex &start, int role, const QVariant &value,
+    virtual QModelIndexList match(const QModelIndex &start, int role, const QCoreVariant &value,
                                   int hits = 1,
                                   MatchFlags flags = MatchFlags(MatchFromStart | MatchWrap)) const;
     virtual QSize span(const QModelIndex &index) const;

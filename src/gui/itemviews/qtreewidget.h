@@ -16,6 +16,7 @@
 
 #include <QtGui/qtreeview.h>
 #include <QtCore/qlist.h>
+#include <QtGui/qvariant.h>
 
 class QTreeWidget;
 class QTreeModel;

@@ -15,8 +15,9 @@
 #define QCOMBOBOX_H
 
 #include <QtGui/qwidget.h>
-#include <QtGui/qabstractitemmodel.h>
+#include <QtCore/qabstractitemmodel.h>
 #include <QtGui/qabstractitemdelegate.h>
+#include <QtGui/qvariant.h>
 
 class QAbstractItemView;
 class QLineEdit;

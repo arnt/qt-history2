@@ -16,6 +16,7 @@
 
 #include <QtGui/qlistview.h>
 #include <QtCore/qlist.h>
+#include <QtGui/qvariant.h>
 
 class QListWidget;
 class QListModel;

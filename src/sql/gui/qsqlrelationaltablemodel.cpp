@@ -89,7 +89,7 @@ struct Relation
     Relation(): model(0) {}
     QSqlRelation rel;
     QSqlTableModel *model;
-    QHash<int, QVariant> displayValues;
+    QHash<int, QCoreVariant> displayValues;
 };
 
 class QSqlRelationalTableModelPrivate: public QSqlTableModelPrivate
@@ -207,10 +207,10 @@ QSqlRelationalTableModel::~QSqlRelationalTableModel()
 /*!
     \reimp
 */
-QVariant QSqlRelationalTableModel::data(const QModelIndex &index, int role) const
+QCoreVariant QSqlRelationalTableModel::data(const QModelIndex &index, int role) const
 {
     if (role == DisplayRole && index.column() > 0 && index.column() < d->relations.count()) {
-        const QVariant v = d->relations.at(index.column()).displayValues.value(index.row());
+        const QCoreVariant v = d->relations.at(index.column()).displayValues.value(index.row());
         if (v.isValid())
             return v;
     }
@@ -232,7 +232,8 @@ QVariant QSqlRelationalTableModel::data(const QModelIndex &index, int role) cons
 
     \sa editStrategy(), data(), submitChanges(), revertRow()
 */
-bool QSqlRelationalTableModel::setData(const QModelIndex &index, const QVariant &value, int role)
+bool QSqlRelationalTableModel::setData(const QModelIndex &index, const QCoreVariant &value,
+                                       int role)
 {
     if (role == DisplayRole && index.column() > 0 && index.column() < d->relations.count()) {
         d->relations[index.column()].displayValues[index.row()] = value;

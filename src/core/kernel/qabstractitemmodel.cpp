@@ -16,7 +16,7 @@
 #include <qstringlist.h>
 #include <qmap.h>
 #include <qsize.h>
-#include <qmime.h>
+#include <qmimedata.h>
 #include <qdebug.h>
 #include <private/qabstractitemmodel_p.h>
 
@@ -800,12 +800,12 @@ bool QAbstractItemModel::hasChildren(const QModelIndex &parent) const
 
     \sa Role data()
 */
-QMap<int, QVariant> QAbstractItemModel::itemData(const QModelIndex &index) const
+QMap<int, QCoreVariant> QAbstractItemModel::itemData(const QModelIndex &index) const
 {
-    QMap<int, QVariant> roles;
+    QMap<int, QCoreVariant> roles;
     for (int i = 0; i < UserRole; ++i) {
-        QVariant variantData = data(index, i);
-        if (variantData != QVariant::Invalid)
+        QCoreVariant variantData = data(index, i);
+        if (variantData != QCoreVariant::Invalid)
             roles.insert(i, variantData);
     }
     return roles;
@@ -820,7 +820,7 @@ QMap<int, QVariant> QAbstractItemModel::itemData(const QModelIndex &index) const
 
     \sa data() itemData()
 */
-bool QAbstractItemModel::setData(const QModelIndex &index, const QVariant &value, int role)
+bool QAbstractItemModel::setData(const QModelIndex &index, const QCoreVariant &value, int role)
 {
     Q_UNUSED(index);
     Q_UNUSED(value);
@@ -829,7 +829,7 @@ bool QAbstractItemModel::setData(const QModelIndex &index, const QVariant &value
 }
 
 /*!
-    \fn QVariant QAbstractItemModel::data(const QModelIndex &index, int role) const = 0
+    \fn QCoreVariant QAbstractItemModel::data(const QModelIndex &index, int role) const = 0
 
     Returns the data stored under the given \a role for the item referred to
     by the \a index.
@@ -842,10 +842,10 @@ bool QAbstractItemModel::setData(const QModelIndex &index, const QVariant &value
 
     \sa setData() data() itemData()
 */
-bool QAbstractItemModel::setItemData(const QModelIndex &index, const QMap<int, QVariant> &roles)
+bool QAbstractItemModel::setItemData(const QModelIndex &index, const QMap<int, QCoreVariant> &roles)
 {
     bool b = true;
-    for (QMap<int, QVariant>::ConstIterator it = roles.begin(); it != roles.end(); ++it)
+    for (QMap<int, QCoreVariant>::ConstIterator it = roles.begin(); it != roles.end(); ++it)
         b = b && setData(index, it.value(), it.key());
     return b;
 }
@@ -1079,7 +1079,7 @@ QModelIndex QAbstractItemModel::buddy(const QModelIndex &index) const
     \sa QAbstractItemModel::MatchFlag
 */
 QModelIndexList QAbstractItemModel::match(const QModelIndex &start, int role,
-                                          const QVariant &value, int hits,
+                                          const QCoreVariant &value, int hits,
                                           MatchFlags flags) const
 {
     QString val = value.toString();
@@ -1167,7 +1167,7 @@ void QAbstractItemModel::revert()
   with the specified \a orientation.
 */
 
-QVariant QAbstractItemModel::headerData(int section, Qt::Orientation orientation, int role) const
+QCoreVariant QAbstractItemModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if (role == DisplayRole) {
         if ((orientation == Qt::Horizontal && section < columnCount())
@@ -1175,7 +1175,7 @@ QVariant QAbstractItemModel::headerData(int section, Qt::Orientation orientation
             return QString::number(section + 1);
     } else if (role == TextAlignmentRole)
         return Qt::AlignVCenter;
-    return QVariant();
+    return QCoreVariant();
 }
 
 /*!
@@ -1186,7 +1186,7 @@ QVariant QAbstractItemModel::headerData(int section, Qt::Orientation orientation
 */
 
 bool QAbstractItemModel::setHeaderData(int section, Qt::Orientation orientation,
-                                       const QVariant &value, int role)
+                                       const QCoreVariant &value, int role)
 {
     Q_UNUSED(section);
     Q_UNUSED(orientation);
@@ -1212,9 +1212,9 @@ void QAbstractItemModel::encodeData(const QModelIndexList &indexes, QDataStream 
 {
     QModelIndexList::ConstIterator it = indexes.begin();
     for (; it != indexes.end(); ++it) {
-        QMap<int, QVariant> data = itemData(*it);
+        QMap<int, QCoreVariant> data = itemData(*it);
         stream << data.count(); // roles
-        QMap<int, QVariant>::ConstIterator it2 = data.begin();
+        QMap<int, QCoreVariant>::ConstIterator it2 = data.begin();
         for (; it2 != data.end(); ++it2) {
             stream << it2.key();
             stream << it2.value();
@@ -1238,9 +1238,9 @@ void QAbstractItemModel::encodeData(const QModelIndex &parent, QDataStream &stre
     for (int row = 0; row < rowCount(parent); ++row) {
         for (int column = 0; column < columnCount(parent); ++column) {
             QModelIndex idx = index(row, column, parent);
-            QMap<int, QVariant> data = itemData(idx);
+            QMap<int, QCoreVariant> data = itemData(idx);
             stream << data.count(); // roles
-            QMap<int, QVariant>::ConstIterator it2 = data.begin();
+            QMap<int, QCoreVariant>::ConstIterator it2 = data.begin();
             for (; it2 != data.end(); ++it2) {
                 stream << it2.key();
                 stream << it2.value();
@@ -1263,7 +1263,7 @@ void QAbstractItemModel::encodeData(const QModelIndex &parent, QDataStream &stre
 bool QAbstractItemModel::decodeData(int row, const QModelIndex &parent, QDataStream &stream)
 {
     int count, role, rows, columns;
-    QVariant value;
+    QCoreVariant value;
     QModelIndex idx;
     QVector<QModelIndex> parents;
     while (!stream.atEnd()) {

@@ -13,6 +13,7 @@
 
 #include "qstandarditemmodel.h"
 #include <qpair.h>
+#include <qvariant.h>
 #include <qvector.h>
 
 #include <private/qstandarditemmodel_p.h>
@@ -146,7 +147,7 @@ bool QStandardItemModel::hasChildren(const QModelIndex &parent) const
 /*!
     Returns the data for the given \a index and \a role.
 */
-QVariant QStandardItemModel::data(const QModelIndex &index, int role) const
+QCoreVariant QStandardItemModel::data(const QModelIndex &index, int role) const
 {
     role = (role == QAbstractItemModel::EditRole ? QAbstractItemModel::DisplayRole : role);
     if (index.isValid()) {
@@ -157,13 +158,13 @@ QVariant QStandardItemModel::data(const QModelIndex &index, int role) const
                 return item->value(role);
         }
     }
-    return QVariant::Invalid;
+    return QCoreVariant::Invalid;
 }
 
 /*!
     Sets the data for the given \a index and \a role to the \a value specified.
 */
-bool QStandardItemModel::setData(const QModelIndex &index, const QVariant &value, int role)
+bool QStandardItemModel::setData(const QModelIndex &index, const QCoreVariant &value, int role)
 {
     role = (role == QAbstractItemModel::EditRole ? QAbstractItemModel::DisplayRole : role);
     if (index.isValid()) {

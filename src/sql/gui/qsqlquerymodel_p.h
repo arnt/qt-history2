@@ -48,7 +48,7 @@ public:
     QModelIndex bottom;
     QSqlRecord rec;
     uint atEnd : 1;
-    QVector<QVariant> headers;
+    QVector<QCoreVariant> headers;
     QVarLengthArray<int, 56> colOffsets; // used to calculate indexInQuery of columns
 };
 

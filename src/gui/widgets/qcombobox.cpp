@@ -44,7 +44,8 @@ QStyleOptionMenuItem MenuDelegate::getStyleOption(const QStyleOptionViewItem &op
     menuOption.checkType = QStyleOptionMenuItem::NonExclusive;
     menuOption.checked = mCombo->currentItem() == index.row();
     menuOption.menuItemType = QStyleOptionMenuItem::Normal;
-    menuOption.icon = index.model()->data(index, QAbstractItemModel::DecorationRole).toIcon();
+    menuOption.icon = qVariant_to<QIcon>(index.model()->data(index,
+                         QAbstractItemModel::DecorationRole));
     menuOption.text = index.model()->data(index, QAbstractItemModel::DisplayRole).toString();
     menuOption.tabWidth = 0;
     menuOption.maxIconWidth = 0;
@@ -1029,7 +1030,7 @@ QIcon QComboBox::itemIcon(int index) const
 {
     QStyleOptionComboBox opt = d->getStyleOption();
     QModelIndex item = model()->index(index, 0, rootModelIndex());
-    return model()->data(item, QAbstractItemModel::DecorationRole).toIcon()
+    return qVariant_to<QIcon>(model()->data(item, QAbstractItemModel::DecorationRole))
         .pixmap(style()->pixelMetric(QStyle::PM_SmallIconSize),
                 opt.state & QStyle::State_Enabled ? QIcon::Normal : QIcon::Disabled);
 }
@@ -1062,9 +1063,9 @@ void QComboBox::insertItem(int index, const QIcon &icon, const QString &text, co
     QModelIndex item;
     if (model()->insertRows(index, 1, rootModelIndex())) {
         item = model()->index(index, 0, rootModelIndex());
-        QMap<int, QVariant> values;
+        QMap<int, QCoreVariant> values;
         values.insert(QAbstractItemModel::EditRole, text);
-        values.insert(QAbstractItemModel::DecorationRole, icon);
+        values.insert(QAbstractItemModel::DecorationRole, qVariant(icon));
         values.insert(QAbstractItemModel::UserRole, userData);
         model()->setItemData(item, values);
         if (!d->currentIndex.isValid()) {
@@ -1135,7 +1136,7 @@ void QComboBox::setItemIcon(int index, const QIcon &icon)
 {
     QModelIndex item = model()->index(index, 0, rootModelIndex());
     if (item.isValid()) {
-        model()->setData(item, icon, QAbstractItemModel::DecorationRole);
+        model()->setData(item, qVariant(icon), QAbstractItemModel::DecorationRole);
     }
 }
 

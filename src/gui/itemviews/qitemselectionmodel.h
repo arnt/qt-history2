@@ -15,7 +15,7 @@
 #define QITEMSELECTIONMODEL_H
 
 #include <QtCore/qlist.h>
-#include <QtGui/qabstractitemmodel.h>
+#include <QtCore/qabstractitemmodel.h>
 
 class Q_GUI_EXPORT QItemSelectionRange
 {

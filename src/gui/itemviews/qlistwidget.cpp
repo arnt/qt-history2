@@ -37,8 +37,8 @@ public:
     QModelIndex index(QListWidgetItem *item) const;
     QModelIndex index(int row, int column = 0, const QModelIndex &parent = QModelIndex()) const;
 
-    QVariant data(const QModelIndex &index, int role = QAbstractItemModel::DisplayRole) const;
-    bool setData(const QModelIndex &index, const QVariant &value, int role);
+    QCoreVariant data(const QModelIndex &index, int role = QAbstractItemModel::DisplayRole) const;
+    bool setData(const QModelIndex &index, const QCoreVariant &value, int role);
 
     bool insertRows(int row, int count = 1, const QModelIndex &parent = QModelIndex());
     bool removeRows(int row, int count = 1, const QModelIndex &parent = QModelIndex());
@@ -142,14 +142,14 @@ QModelIndex QListModel::index(int row, int column, const QModelIndex &parent) co
     return QModelIndex();
 }
 
-QVariant QListModel::data(const QModelIndex &index, int role) const
+QCoreVariant QListModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid() || index.row() >= lst.count())
-        return QVariant();
+        return QCoreVariant();
     return lst.at(index.row())->data(role);
 }
 
-bool QListModel::setData(const QModelIndex &index, const QVariant &value, int role)
+bool QListModel::setData(const QModelIndex &index, const QCoreVariant &value, int role)
 {
     if (!index.isValid() || index.row() >= lst.count())
         return false;

@@ -41,7 +41,7 @@ public:
     QFontListModel(QObject *parent);
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    QVariant data(const QModelIndex &index, int role) const;
+    QCoreVariant data(const QModelIndex &index, int role) const;
 
     inline QStringList list()  const { return lst; }
     inline void setList(const QStringList &l) {
@@ -63,11 +63,11 @@ int QFontListModel::rowCount(const QModelIndex &) const
     return lst.count();
 }
 
-QVariant QFontListModel::data(const QModelIndex &index, int role) const
+QCoreVariant QFontListModel::data(const QModelIndex &index, int role) const
 {
     if (role == QAbstractListModel::DisplayRole)
         return lst.at(index.row());
-    return QVariant();
+    return QCoreVariant();
 }
 
 class QFontListView : public QListView

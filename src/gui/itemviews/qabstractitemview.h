@@ -15,7 +15,7 @@
 #define QABSTRACTITEMVIEW_H
 
 #include <QtGui/qviewport.h>
-#include <QtGui/qabstractitemmodel.h>
+#include <QtCore/qabstractitemmodel.h>
 #include <QtGui/qitemselectionmodel.h>
 #include <QtGui/qabstractitemdelegate.h>
 

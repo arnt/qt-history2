@@ -14,7 +14,7 @@
 #ifndef QPROXYMODEL_H
 #define QPROXYMODEL_H
 
-#include <QtGui/qabstractitemmodel.h>
+#include <QtCore/qabstractitemmodel.h>
 
 class QProxyModelPrivate;
 
@@ -38,11 +38,12 @@ public:
     int columnCount(const QModelIndex &parent) const;
     bool hasChildren(const QModelIndex &parent) const;
 
-    QVariant data(const QModelIndex &index, int role) const;
-    bool setData(const QModelIndex &index, const QVariant &value, int role);
+    QCoreVariant data(const QModelIndex &index, int role) const;
+    bool setData(const QModelIndex &index, const QCoreVariant &value, int role);
 
-    QVariant headerData(int section, Qt::Orientation orientation, int role) const;
-    bool setHeaderData(int section, Qt::Orientation orientation, const QVariant &value, int role);
+    QCoreVariant headerData(int section, Qt::Orientation orientation, int role) const;
+    bool setHeaderData(int section, Qt::Orientation orientation, const QCoreVariant &value,
+                       int role);
 
     QStringList mimeTypes() const;
     QMimeData *mimeData(const QModelIndexList &indexes) const;
@@ -58,7 +59,7 @@ public:
 
     void sort(int column, Qt::SortOrder order);
 
-    QModelIndexList match(const QModelIndex &start, int role, const QVariant &value,
+    QModelIndexList match(const QModelIndex &start, int role, const QCoreVariant &value,
                           int hits, QAbstractItemModel::MatchFlags flags) const;
 
     QSize span(const QModelIndex &index) const;

@@ -369,10 +369,10 @@ int QDirModel::columnCount(const QModelIndex &) const
 
 */
 
-QVariant QDirModel::data(const QModelIndex &index, int role) const
+QCoreVariant QDirModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid())
-        return QVariant();
+        return QCoreVariant();
 
     QDirModelPrivate::QDirNode *node = static_cast<QDirModelPrivate::QDirNode*>(index.data());
     Q_ASSERT(node);
@@ -386,19 +386,19 @@ QVariant QDirModel::data(const QModelIndex &index, int role) const
         case 3: return info.lastModified();
         default:
             qWarning("data: invalid display value column %d", index.column());
-            return QVariant();
+            return QCoreVariant();
         }
     }
 
     if (index.column() == 0) {
         if (role == FileIconRole)
-            return fileIcon(index);
+            return qVariant(fileIcon(index));
         if (role == FilePathRole)
             return filePath(index);
         if (role == FileNameRole)
             return fileName(index);
     }
-    return QVariant();
+    return QCoreVariant();
 }
 
 /*!
@@ -408,7 +408,7 @@ QVariant QDirModel::data(const QModelIndex &index, int role) const
 
 */
 
-bool QDirModel::setData(const QModelIndex &index, const QVariant &value, int role)
+bool QDirModel::setData(const QModelIndex &index, const QCoreVariant &value, int role)
 {
     if (!index.isValid() || index.column() != 0
         || (flags(index) & ItemIsEditable) == 0 || role != EditRole)
@@ -437,17 +437,17 @@ bool QDirModel::setData(const QModelIndex &index, const QVariant &value, int rol
   of the header with the given \a orientation.
 */
 
-QVariant QDirModel::headerData(int section, Qt::Orientation orientation, int role) const
+QCoreVariant QDirModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if (orientation == Qt::Horizontal) {
         if (role != DisplayRole)
-            return QVariant();
+            return QCoreVariant();
 	switch (section) {
         case 0: return "Name";
         case 1: return "Size";
         case 2: return "Type";
         case 3: return "Modified";
-        default: return QVariant();
+        default: return QCoreVariant();
         }
     }
     return QAbstractItemModel::headerData(section, orientation, role);

@@ -16,6 +16,7 @@
 
 #include <QtGui/qtableview.h>
 #include <QtCore/qlist.h>
+#include <QtGui/qvariant.h>
 
 class Q_GUI_EXPORT QTableWidgetSelectionRange
 {

@@ -14,7 +14,7 @@
 #ifndef QSQLQUERYMODEL_H
 #define QSQLQUERYMODEL_H
 
-#include <QtGui/qabstractitemmodel.h>
+#include <QtCore/qabstractitemmodel.h>
 #include <QtSql/qsqldatabase.h>
 
 class QSqlQueryModelPrivate;
@@ -36,10 +36,10 @@ public:
     QSqlRecord record(int row) const;
     QSqlRecord record() const;
 
-    QVariant data(const QModelIndex &item, int role = DisplayRole) const;
-    QVariant headerData(int section, Qt::Orientation orientation,
+    QCoreVariant data(const QModelIndex &item, int role = DisplayRole) const;
+    QCoreVariant headerData(int section, Qt::Orientation orientation,
                         int role = DisplayRole) const;
-    bool setHeaderData(int section, Qt::Orientation orientation, const QVariant &value,
+    bool setHeaderData(int section, Qt::Orientation orientation, const QCoreVariant &value,
                        int role = EditRole);
 
     bool insertColumns(int column, int count, const QModelIndex &parent = QModelIndex());

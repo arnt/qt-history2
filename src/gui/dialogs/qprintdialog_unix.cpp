@@ -85,8 +85,8 @@ public:
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
-    QVariant data(const QModelIndex &index, int role) const;
-    QVariant headerData(int section, Qt::Orientation orientation, int role) const;
+    QCoreVariant data(const QModelIndex &index, int role) const;
+    QCoreVariant headerData(int section, Qt::Orientation orientation, int role) const;
 
     QList<QPrinterDescription> lst;
 };
@@ -107,7 +107,7 @@ int QPrinterModel::columnCount(const QModelIndex &) const
     return 3;
 }
 
-QVariant QPrinterModel::data(const QModelIndex &index, int role) const
+QCoreVariant QPrinterModel::data(const QModelIndex &index, int role) const
 {
     if (index.isValid() && index.row() < (int)lst.count()
         && role == QAbstractItemModel::DisplayRole) {
@@ -121,10 +121,10 @@ QVariant QPrinterModel::data(const QModelIndex &index, int role) const
             return desc.comment;
         }
     }
-    return QVariant();
+    return QCoreVariant();
 }
 
-QVariant QPrinterModel::headerData(int section, Qt::Orientation orientation, int role) const
+QCoreVariant QPrinterModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if (orientation == Qt::Horizontal) {
         const char *name = 0;

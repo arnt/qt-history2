@@ -14,7 +14,7 @@
 #ifndef QSTANDARDITEMMODEL_H
 #define QSTANDARDITEMMODEL_H
 
-#include <QtGui/qabstractitemmodel.h>
+#include <QtCore/qabstractitemmodel.h>
 
 class QStandardItemModelPrivate;
 
@@ -33,8 +33,8 @@ public:
 
     bool hasChildren(const QModelIndex &parent) const;
 
-    QVariant data(const QModelIndex &index, int role) const;
-    bool setData(const QModelIndex &index, const QVariant &value, int role);
+    QCoreVariant data(const QModelIndex &index, int role) const;
+    bool setData(const QModelIndex &index, const QCoreVariant &value, int role);
 
     bool insertRows(int row, int count, const QModelIndex &parent);
     bool insertColumns(int column, int count, const QModelIndex &parent);
