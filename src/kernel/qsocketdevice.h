@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsocketdevice.h#2 $
+** $Id: //depot/qt/main/src/kernel/qsocketdevice.h#3 $
 **
 ** Definition of QSocketDevice class
 **
@@ -37,6 +37,7 @@ public:
     QSocketAddress();
     QSocketAddress( int port, uint ip4Addr=0 );
     QSocketAddress( const QSocketAddress & );
+   ~QSocketAddress();
 
     QSocketAddress & operator=( const QSocketAddress & );
 
@@ -90,6 +91,11 @@ public:
 
     int		 option( Option ) const;
     virtual void setOption( Option, int );
+
+    /*
+    enum Error { OK, InProgress, Failed };
+    Error	 lastError() const;
+    */
 
     bool	 connect( const QSocketAddress & );
 

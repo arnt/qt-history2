@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsocket.h#5 $
+** $Id: //depot/qt/main/src/kernel/qsocket.h#6 $
 **
 ** Definition of QSocket class
 **
@@ -39,8 +39,8 @@ class QSocket : public QObject, public QIODevice
 {
     Q_OBJECT
 public:
-    QSocket();
-    QSocket( int socket );
+    QSocket( QObject *parent=0, const char *name=0 );
+    QSocket( int socket, QObject *parent=0, const char *name=0 );
    ~QSocket();
 
     enum State { Idle, HostLookup, Connecting, Connection };

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsocket.cpp#4 $
+** $Id: //depot/qt/main/src/kernel/qsocket.cpp#5 $
 **
 ** Implementation of QSocket class
 **
@@ -49,6 +49,7 @@ public:
     QSocketDevice      *socket;			// connection socket
     QSocketNotifier    *rsn, *wsn;		// socket notifiers
     QList<QByteArray>	rba, wba;		// list of read/write bufs
+    QSocketAddress	addr;			// connection address
     int			rsize, wsize;		// read/write total buf size
     int			rindex, windex;		// read/write index
     bool		newline;		// has newline/can read line
@@ -116,9 +117,12 @@ void QSocketPrivate::reinit()
   the connectToHost() function.
 */
 
-QSocket::QSocket()
+QSocket::QSocket( QObject *parent, const char *name )
+    : QObject( parent, name )
 {
     d = new QSocketPrivate;
+    setFlags( IO_Direct );
+    setStatus( IO_Ok );
 }
 
 
@@ -130,7 +134,8 @@ QSocket::QSocket()
   socket option\endlink \c QSocketDevice::ReuseAddress is enabled.
 */
 
-QSocket::QSocket( int socket )
+QSocket::QSocket( int socket, QObject *parent, const char *name )
+    : QObject( parent, name )
 {
 #if defined(QSOCKET_DEBUG)
     debug( "QSocket: Attach to socket %x", socket );
@@ -148,9 +153,9 @@ QSocket::QSocket( int socket )
     connect( d->wsn, SIGNAL(activated(int)), SLOT(sn_write()) );
     d->wsn->setEnabled( FALSE );
     // Initialize the IO device flags
-    open( IO_ReadWrite );
-    setFlags( IO_Sequential );
+    setFlags( IO_Direct );
     setStatus( IO_Ok );
+    open( IO_ReadWrite );
 }
 
 
@@ -298,6 +303,9 @@ void QSocket::connectToHost( const QString &host, int port )
     d->host = host;
     d->port = port;
     // Host lookup - no async DNS yet
+#if defined(QSOCKET_DEBUG)
+    debug( "QSocket: Lookup host" );
+#endif
     struct hostent *hp;
     hp = gethostbyname( d->host );
     if ( !hp ) {
@@ -310,14 +318,16 @@ void QSocket::connectToHost( const QString &host, int port )
     struct in_addr *in_a = (struct in_addr *)(hp->h_addr_list[0]);
     uint ip4addr = in_a->s_addr;
     ip4addr = htonl(ip4addr);
-
+#if defined(QSOCKET_DEBUG)
+    debug( "QSocket: Now connect to %8x", ip4addr );
+#endif
     // Now prepare a connection
     d->state = Connecting;
     d->socket = new QSocketDevice;
     d->socket->setOption( QSocketDevice::ReuseAddress, TRUE );
     d->socket->setNonblocking( TRUE );
-    QSocketAddress a( port, ip4addr );
-    d->socket->connect( a );
+    d->addr = QSocketAddress( port, ip4addr );
+    d->socket->connect( d->addr );
     // Create and setup read/write socket notifiers
     // The socket write notifier will fire when the connection succeeds
     d->rsn = new QSocketNotifier(d->socket->socket(), QSocketNotifier::Read);
@@ -327,9 +337,9 @@ void QSocket::connectToHost( const QString &host, int port )
     connect( d->rsn, SIGNAL(activated(int)), SLOT(sn_read()) );
     connect( d->wsn, SIGNAL(activated(int)), SLOT(sn_write()) );    
     // Initialize the IO device flags
-    open( IO_ReadWrite );
     setFlags( IO_Sequential );
     setStatus( IO_Ok );
+    open( IO_ReadWrite );
 }
 
 
@@ -363,8 +373,12 @@ int QSocket::port() const
 
 bool QSocket::open( int m )
 {
-    if ( isOpen() || d->socket == 0 )
+    if ( isOpen() || d->socket == 0 ) {
+#if defined(CHECK_STATE)
+	warning( "QSocket::open: Already open or no socket device" );
+#endif
 	return FALSE;
+    }
     QIODevice::setMode( m & IO_ReadWrite );
     setState( IO_Open );
     return TRUE;
@@ -401,6 +415,9 @@ bool QSocket::skipReadBuf( int nbytes, char *copyInto )
 {
     if ( nbytes <= 0 || nbytes > d->rsize )
 	return FALSE;
+#if defined(QSOCKET_DEBUG)
+    debug( "QSocket: skipReadBuf %d bytes", nbytes );
+#endif
     d->rsize -= nbytes;
     while ( TRUE ) {
 	QByteArray *a = d->rba.first();
@@ -440,6 +457,9 @@ bool QSocket::skipWriteBuf( int nbytes )
 {
     if ( nbytes <= 0 || nbytes > d->wsize )
 	return FALSE;
+#if defined(QSOCKET_DEBUG)
+    debug( "QSocket: skipWriteBuf %d bytes", nbytes );
+#endif
     d->wsize -= nbytes;
     while ( TRUE ) {
 	QByteArray *a = d->wba.first();
@@ -496,9 +516,13 @@ bool QSocket::scanNewline( QByteArray *store )
 		if ( ++i == (int)store->size() )
 		    store->resize( store->size()*2 );
 		if ( *p == '\n' ) {
+		    *(store->data()+i) = '\0';
+		    debug( "yep, we got a text %d bytes, %s",
+			   strlen(store->data()), store->data() );
 		    store->resize( i );
 		    return TRUE;
 		}
+		p++;
 	    }
 	} else {
 	    while ( n-- > 0 ) {
@@ -603,6 +627,9 @@ int QSocket::readBlock( char *data, uint maxlen )
     }
     if ( (int)maxlen >= d->rsize )
 	maxlen = d->rsize;
+#if defined(QSOCKET_DEBUG)
+    debug( "QSocket: readBlock %d bytes", maxlen );
+#endif
     skipReadBuf( maxlen, data );
     if ( d->mode == Ascii )
 	d->newline = scanNewline();
@@ -642,6 +669,9 @@ int QSocket::writeBlock( const char *data, uint len )
     }
     d->wsize += len;
     d->wsn->setEnabled( TRUE );			// there's data to write
+#if defined(QSOCKET_DEBUG)
+    debug( "QSocket: writeBlock %d bytes", len );
+#endif
     return len;
 }
 
@@ -683,16 +713,24 @@ void QSocket::sn_read()
 {
     int nbytes = d->socket->bytesAvailable();
     if ( nbytes == 0 ) {			// connection closed
+#if defined(QSOCKET_DEBUG)
+	debug( "QSocket: sn_read: Connection closed" );
+#endif
 	// We keep the open state in case there's unread incoming data
 	if ( d->rsize == 0 ) {
 	    setFlags( IO_Sequential );
 	    setStatus( IO_Ok );
 	}
 	d->state = Idle;
+	d->rsn->setEnabled( FALSE );
+	d->wsn->setEnabled( FALSE );
 	d->wba.clear();				// clear write buffer
 	d->windex = d->wsize = 0;
 	emit closed();
     } else if ( nbytes > 0 ) {			// data to be read
+#if defined(QSOCKET_DEBUG)
+	debug( "QSocket: sn_read: %d incoming bytes", nbytes );
+#endif
 	QByteArray *a = new QByteArray( nbytes );
 	int nread = d->socket->readBlock( a->data(), nbytes );
 	if ( nread != nbytes ) {		// unexpected
@@ -717,11 +755,28 @@ void QSocket::sn_read()
 void QSocket::sn_write()
 {
     if ( d->state == Connecting ) {		// connection established
-	emit connected();
+	if ( d->socket->connect(d->addr) ) {
+#if defined(QSOCKET_DEBUG)
+	    debug( "QSocket: sn_write: Connection!" );
+#endif
+	    d->state = Connection;
+	    emit connected();
+	} else {
+#if defined(QSOCKET_DEBUG)
+	    debug( "QSocket: sn_write: No connection yet" );
+#endif
+	    return;
+	}
     } else if ( d->state == Connection ) {
+#if defined(QSOCKET_DEBUG)
+	debug( "QSocket: sn_write: Emit readyWrite()" );
+#endif
 	emit readyWrite();
     }
     if ( d->wsize > 0 ) {
+#if defined(QSOCKET_DEBUG)
+	debug( "QSocket: sn_write: Write data to the socket" );
+#endif
 	QByteArray *a = d->wba.first();
 	int nwritten = d->socket->writeBlock( a->data() + d->windex,
 					      a->size() - d->windex );

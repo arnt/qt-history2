@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsocketdevice.cpp#3 $
+** $Id: //depot/qt/main/src/kernel/qsocketdevice.cpp#4 $
 **
 ** Implementation of QSocketDevice class
 **
@@ -111,7 +111,8 @@ QSocketDevice::QSocketDevice( Type type )
 	    break;
 	default:
 #if defined(CHECK_RANGE)
-	    warning( "QSocketDevice::QSocketDevice: Invalid socket type %d", sock_type );
+	    warning( "QSocketDevice::QSocketDevice: Invalid socket type %d",
+		     sock_type );
 #endif
 	    s = -1;
 	    break;
@@ -135,6 +136,11 @@ QSocketDevice::QSocketDevice( int socket, Type type )
     : sock_fd(-1)
 {
     setSocket( socket, type );
+}
+
+
+QSocketDevice::~QSocketDevice()
+{
 }
 
 
@@ -636,17 +642,18 @@ int QSocketDevice::writeBlock( const char *data, uint len )
   QSocketAddress member functions
  *****************************************************************************/
 
-void QSocketAddress::setData( void *data, int len )
+void QSocketAddress::setData( void *data, int size )
 {
     if ( ptr )
 	delete [] ptr;
-    ptr = new char[len];
+    ptr = new char[size];
+    len = size;
     memcpy( ptr, data, len );
 }
 
 
 QSocketAddress::QSocketAddress()
-    : ptr(0)
+    : ptr(0), len(0)
 {
     struct sockaddr_in a;
     memset( &a, 0, sizeof(a) );
@@ -671,6 +678,13 @@ QSocketAddress::QSocketAddress( const QSocketAddress &a )
     : ptr(0)
 {
     setData( a.ptr, a.len );
+}
+
+
+QSocketAddress::~QSocketAddress()
+{
+    if ( ptr )
+	delete [] ptr;
 }
 
 
