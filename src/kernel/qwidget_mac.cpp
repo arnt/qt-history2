@@ -394,14 +394,17 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 	setCursor(oldcurs);
     }
 
-    QObjectList	*accelerators = queryList( "QAccel" );
+    QObjectList	*accelerators = queryList();
     QObjectListIt it( *accelerators );
-    QObject *obj;
-    while ( (obj=it.current()) != 0 ) {
-	++it;
-	((QAccel*)obj)->repairEventFilter();
+    for ( QObject *obj; (obj=it.current()); ++it ) {
+	if(obj->inherits("QAccel"))
+	    ((QAccel*)obj)->repairEventFilter();
+	if(obj->isWidgetType())
+	    ((QWidget*)obj)->hd = hd; //all my children hd's are now mine!
     }
     delete accelerators;
+
+    
     if ( !parent ) {
 	QFocusData *fd = focusData( TRUE );
 	if ( fd->focusWidgets.findRef(this) < 0 )
