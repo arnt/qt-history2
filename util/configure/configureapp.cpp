@@ -45,6 +45,10 @@ Configure::Configure( int& argc, char** argv )
 {
     int i;
 
+    processorArchitecture = QString(getenv("PROCESSOR_ARCHITECTURE")).toLower();
+    if (processorArchitecture.isEmpty() || processorArchitecture == "x86")
+        processorArchitecture = "i386";
+
     /*
     ** Set up the initial state, the default
     */
@@ -1025,7 +1029,7 @@ void Configure::generateCachefile()
 	}
 	cacheStream << "CONFIG+=" << qmakeConfig.join( " " ) << " incremental create_prl link_prl depend_includepath" << endl;
 	cacheStream << "QMAKESPEC=" << dictionary[ "QMAKESPEC" ] << endl;
-	cacheStream << "ARCH=i386" << endl; //### need to detect platform
+        cacheStream << "ARCH=" << processorArchitecture << endl;
 	cacheStream << "QT_BUILD_TREE=" << dictionary[ "QT_SOURCE_TREE" ] << endl;
 	cacheStream << "QT_SOURCE_TREE=" << dictionary[ "QT_SOURCE_TREE" ] << endl;
 	cacheStream << "QT_INSTALL_PREFIX=" << dictionary[ "QT_INSTALL_PREFIX" ] << endl;
@@ -1198,7 +1202,9 @@ void Configure::generateConfigfiles()
         }
     }
 
-    QString archFile = dictionary[ "QT_SOURCE_TREE" ] + "/src/core/arch/i386/arch/qatomic.h";
+    
+
+    QString archFile = dictionary[ "QT_SOURCE_TREE" ] + "/src/core/arch/" + processorArchitecture + "/arch/qatomic.h";
     QDir archhelper;
     archhelper.mkdir(dictionary[ "QT_INSTALL_HEADERS" ] + "/QtCore/arch");
     if (!CopyFileA(archFile, dictionary[ "QT_INSTALL_HEADERS" ] + "/QtCore/arch/qatomic.h", FALSE))
@@ -1208,7 +1214,7 @@ void Configure::generateConfigfiles()
 	qDebug("Couldn't reset writable file attribute for qatomic.h");
 
     // Create qatomic.h "symlinks"
-    const char* atomicContents = "#include \"../../src/core/arch/i386/arch/qatomic.h\"\n";
+    QString atomicContents = QString("#include \"../../src/core/arch/") + processorArchitecture + QString("/arch/qatomic.h\"\n");
     if (!writeToFile(atomicContents, dictionary[ "QT_INSTALL_HEADERS" ] + "/QtCore/arch/qatomic.h")
         || !writeToFile(atomicContents, dictionary[ "QT_INSTALL_HEADERS" ] + "/Qt/arch/qatomic.h")) {
         dictionary[ "DONE" ] = "error";
@@ -1672,10 +1678,9 @@ void Configure::showSummary()
 Configure::ProjectType Configure::projectType( const QString& proFileName )
 {
     QFile proFile( proFileName );
-    QString buffer;
-
     if( proFile.open( IO_ReadOnly ) ) {
-	while( proFile.readLine( buffer, 1024 ) != -1 ) {
+        QString buffer = proFile.readLine(1024);
+	while (!buffer.isEmpty()) {
 	    QStringList segments = QStringList::split( QRegExp( "\\s" ), buffer );
 	    QStringList::Iterator it = segments.begin();
 
@@ -1691,6 +1696,8 @@ Configure::ProjectType Configure::projectType( const QString& proFileName )
 			return Subdirs;
 		}
 	    }
+	    // read next line
+	    buffer = proFile.readLine(1024);
 	}
 	proFile.close();
     }
@@ -1740,9 +1747,9 @@ void Configure::readLicense()
     QFile licenseFile( licensePath );
     if( !licensePath.isEmpty() && licenseFile.open( IO_ReadOnly ) ) {
 	cout << "Reading license file in....." << firstLicensePath().latin1() << endl;
-	QString buffer;
 
-	while( licenseFile.readLine( buffer, 1024 ) > 0 ) {
+	QString buffer = licenseFile.readLine(1024);
+        while (!buffer.isEmpty()) {
 	    if( buffer[ 0 ] != '#' ) {
 		QStringList components = QStringList::split( '=', buffer );
 		if ( components.size() >= 2 ) {
@@ -1752,6 +1759,8 @@ void Configure::readLicense()
 		    licenseInfo[ key ] = value;
 		}
 	    }
+	    // read next line
+	    buffer = licenseFile.readLine(1024);
 	}
         licenseFile.close();
     }

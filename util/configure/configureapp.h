@@ -49,6 +49,9 @@ public:
     bool isDone();
     bool isOk();
 private:
+    // architecture type of the target machine
+    QString processorArchitecture;
+
     // Our variable dictionaries
     QMap<QString,QString> dictionary;
     QStringList licensedModules;
