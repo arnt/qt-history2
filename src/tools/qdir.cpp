@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#109 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#110 $
 **
 ** Implementation of QDir class
 **
@@ -591,32 +591,41 @@ void QDir::setNameFilter( const QString &nameFilter )
   \sa setFilter()
 */
 
+/*! \enum QDir::FilterSpec
+
+  This enum describes how QDir is to select what entries in a
+  directory to return.  The filter value is specified by or-ing
+  together values from the following list: <ul>
+
+  <li> \c Dirs - List directories only
+  <li> \c Files - List files only
+
+  <li> \c  Drives - List disk drives (does nothing under unix)
+  <li> \c  NoSymLinks - Do not list symbolic links (where they exist)
+  <li> \c  Readable - List files for which the application has read access.
+  <li> \c  Writable - List files for which the application has write access.
+  <li> \c  Executable - List files for which the application has execute access
+  <li> \c  Modified - Only list files that have been modified (does nothing
+  under unix)
+  <li> \c  Hidden - List hidden files (on unix, files starting with a .)
+  <li> \c  System - List system files (does nothing under unix)
+  </ul>  
+
+  If you do not set any of \c Readable, \c Writable or \c Executable,
+  QDir will set all three of them.  This makes the default easy to
+  write and at the same time useful.
+
+  Examples: \c Readable|Writable means list all files for which the
+  application has read access, write access or both.  \c Dirs|Drives
+  means list drives, directories, all files that the application can
+  read, write or execute, and also symlinks to such files/directories.
+*/
+
+
 /*!
   Sets the filter used by entryList() and entryInfoList(). The filter is used
   to specify the kind of files that should be returned by entryList() and
-  entryInfoList(). The filter is specified by or-ing values from the enum
-  FilterSpec. The different values are:
-
-
-  <dl compact>
-  <dt>Dirs<dd> List directories only.
-  <dt>Files<dd> List files only.
-  <dt>Drives<dd> List drives.
-  <dt>NoSymLinks<dd> Do not list symbolic links.
-
-  <dt>Readable<dd> List files with read permission.
-  <dt>Writable<dd> List files with write permission.
-  <dt>Executable<dd> List files with execute permission.
-
-  Setting none of the three flags above is equivalent to setting all of them.
-
-  <dt>Modified<dd> Only list files that have been modified (does nothing
-			  under UNIX).
-  <dt>Hidden<dd> List hidden files also (.* under UNIX).
-  <dt>System<dd> List system files (does nothing under UNIX).
-
-  </dl>
-
+  entryInfoList().
   \sa nameFilter()
 */
 
@@ -635,6 +644,30 @@ void QDir::setFilter( int filterSpec )
 
   \sa setSorting()
 */
+
+/*! \enum QDir::SortSpec
+
+  This enum describes how QDir is to sort entries in a directory when
+  it returns a list of them.  The sort value is specified by or-ing
+  together values from the following list: <ul>
+
+  <li> \c Name - sort by name
+  <li> \c Time - sort by time (modification time)
+  <li> \c Size - sort by file size
+  <li> \c Unsorted - do not sort
+
+  <li> \c DirsFirst - put all directories first in the list
+  <li> \c Reversed - reverse the sort order
+  <li> \c IgnoreCase - sort case-insensitively
+  
+  </ul>
+
+  You can only specify one of the first four.  If you specify both \c
+  DirsFirst and \c Reversed, directories are still put first but the
+  list is otherwise reversed.
+*/
+
+// ### Unsorted+DirsFirst ? Unsorted+Reversed?
 
 /*!
   Sets the sorting order used by entryList() and entryInfoList().

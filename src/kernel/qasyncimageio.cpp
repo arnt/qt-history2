@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#53 $
+** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#54 $
 **
 ** Implementation of asynchronous image/movie loading classes
 **
@@ -75,8 +75,9 @@
   QImageFormat::decode().
 */
 
-//#warning "the two versions of frameDone() are related how? please document"
-
+#if defined(_CC_GNU_)
+#warning "the two versions of frameDone() are related how? please document"
+#endif
 
 /*!
   \fn void QImageConsumer::setLooping(int n)

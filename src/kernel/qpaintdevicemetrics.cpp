@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevicemetrics.cpp#23 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevicemetrics.cpp#24 $
 **
 ** Implementation of QPaintDeviceMetrics class
 **
@@ -46,7 +46,7 @@
   of a device in both pixels and millimeters, the number of colours
   the device supports, the number of bit planes, and finally the
   resolution of the device.
-  
+
   Note that it is not always possible for QPaintDeviceMetrics to
   compute the values you ask for, particularly for external devices.
   The ultimate example is asking for the resolution of of a QPrinter
@@ -55,7 +55,9 @@
 
 */
 
-//#warning "cannot explain why dpi is necessary - width and widthMM exist"
+#if defined(_CC_GNU_)
+#warning "cannot explain why dpi is necessary - width and widthMM exist"
+#endif
 
 /*!
   Constructs a metric for the paint device \e pd.

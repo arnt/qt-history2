@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstylesheet.cpp#23 $
+** $Id: //depot/qt/main/src/kernel/qstylesheet.cpp#24 $
 **
 ** Implementation of the QStyleSheet class
 **
@@ -81,7 +81,7 @@ public:
 
   <li> \c WhiteSpaceNormal - any sequence of white space is equivalent
   to a single space, and is a line-break position.
-  
+
   <li> \c WhiteSpacePre - white space must be output exactly as given
   in the input.
 
@@ -89,18 +89,20 @@ public:
 
 */
 
-//#warning "Matthias: Please fill in the Margin doc"
+#if defined(_CC_GNU_)
+#warning "Matthias: Please fill in the Margin doc"
+#endif
 
 /*! \enum QStyleSheetItem::Margin
 
   <ul>
-  <li> \c MarginLeft - 
-  <li> \c MarginRight - 
-  <li> \c MarginTop - 
-  <li> \c MarginBottom - 
-  <li> \c MarginAll - 
-  <li> \c MarginVertical - 
-  <li> \c MarginHorizontal - 
+  <li> \c MarginLeft -
+  <li> \c MarginRight -
+  <li> \c MarginTop -
+  <li> \c MarginBottom -
+  <li> \c MarginAll -
+  <li> \c MarginVertical -
+  <li> \c MarginHorizontal -
 */
 
 /*!
