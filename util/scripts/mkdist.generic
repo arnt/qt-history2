@@ -104,6 +104,12 @@ VERSIONWIN=`echo ${VERSION} | sed -e 's/\.//'`
 
 echo "Auto-detected the Qt version number -- " $VERSION >&2
 
+if [ ! -f "${DISTDIR}/qt/dist/changes-$VERSION" ]
+then
+    echo "You must create qt/dist/changes-$VERSION first"
+    exit 1
+fi
+
 QTDIR=${DISTDIR}/qt
 export QTDIR
 
