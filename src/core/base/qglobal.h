@@ -1072,7 +1072,7 @@ Q_CORE_EXPORT const char *qVersion();
 Q_CORE_EXPORT bool qSharedBuild();
 
 #if defined(Q_OS_MAC)
-inline QT_COMPAT int qMacVersion() { return QSysInfo::MacintoshVersion; }
+inline int qMacVersion() { return QSysInfo::MacintoshVersion; }
 #endif
 
 #ifdef QT_COMPAT
