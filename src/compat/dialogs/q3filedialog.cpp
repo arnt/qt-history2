@@ -3363,11 +3363,11 @@ QString Q3FileDialog::getOpenFileName(const QString & startWith,
         *workingDirectory = QDir::currentDirPath();
 
 #if defined(Q_WS_WIN)
-    if (qt_use_native_dialogs && qt_cast<QWindowsStyle *>(&qApp->style()))
+    if (qt_use_native_dialogs && qt_cast<QWindowsStyle *>(qApp->style()))
         return winGetOpenFileName(initialSelection, filter, workingDirectory,
                                    parent, name, caption, selectedFilter);
 #elif defined(Q_WS_MAC)
-    if(qt_use_native_dialogs && qt_cast<QMacStyle *>(&qApp->style())) {
+    if(qt_use_native_dialogs && qt_cast<QMacStyle *>(qApp->style())) {
         QStringList files = macGetOpenFileNames(filter, workingDirectory, parent, name, caption, selectedFilter, false);
         return files.isEmpty() ? QString::null : files.first();
     }
@@ -3480,11 +3480,11 @@ QString Q3FileDialog::getSaveFileName(const QString & startWith,
         *workingDirectory = QDir::currentDirPath();
 
 #if defined(Q_WS_WIN)
-    if (qt_use_native_dialogs && qt_cast<QWindowsStyle *>(&qApp->style()))
+    if (qt_use_native_dialogs && qt_cast<QWindowsStyle *>(qApp->style()))
         return winGetSaveFileName(initialSelection, filter, workingDirectory,
                                    parent, name, caption, selectedFilter);
 #elif defined(Q_WS_MAC)
-    if(qt_use_native_dialogs && qt_cast<QMacStyle *>(&qApp->style()))
+    if(qt_use_native_dialogs && qt_cast<QMacStyle *>(qApp->style()))
         return macGetSaveFileName(initialSelection.isNull() ? startWith : initialSelection, filter, workingDirectory,
                                    parent, name, caption, selectedFilter);
 #endif
@@ -4367,11 +4367,11 @@ QString Q3FileDialog::getExistingDirectory(const QString & dir,
             initialDir = dir;
     } else
         initialDir = QString::null;
-    if (qt_use_native_dialogs && qt_cast<QWindowsStyle *>(&qApp->style()) && dirOnly)
+    if (qt_use_native_dialogs && qt_cast<QWindowsStyle *>(qApp->style()) && dirOnly)
         return winGetExistingDirectory(initialDir, parent, name, caption);
 #endif
 #if defined(Q_WS_MAC)
-    if(qt_use_native_dialogs && qt_cast<QMacStyle *>(&qApp->style()))
+    if(qt_use_native_dialogs && qt_cast<QMacStyle *>(qApp->style()))
         return macGetOpenFileNames("", 0, parent, name, caption, NULL, false, true).first();
 #endif
 
@@ -5507,10 +5507,10 @@ QStringList Q3FileDialog::getOpenFileNames(const QString & filter,
     }
 
 #if defined(Q_WS_WIN)
-    if (qt_use_native_dialogs && qt_cast<QWindowsStyle *>(&qApp->style()))
+    if (qt_use_native_dialogs && qt_cast<QWindowsStyle *>(qApp->style()))
         return winGetOpenFileNames(filter, workingDirectory, parent, name, caption, selectedFilter);
 #elif defined(Q_WS_MAC)
-    if(qt_use_native_dialogs && qt_cast<QMacStyle *>(&qApp->style()))
+    if(qt_use_native_dialogs && qt_cast<QMacStyle *>(qApp->style()))
         return macGetOpenFileNames(filter, workingDirectory, parent, name, caption, selectedFilter);
 #endif
 

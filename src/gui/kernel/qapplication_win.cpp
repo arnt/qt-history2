@@ -1803,7 +1803,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam,
 
             if (widget->testWState(Qt::WState_Polished))
                 qApp->style()->polish(widget);
-            widget->repolishStyle(qApp->style());
+            widget->repolishStyle(*qApp->style());
             if (widget->isVisible())
                 widget->update();
             break;
