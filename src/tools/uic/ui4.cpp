@@ -1748,7 +1748,8 @@ QDomElement DomTabStops::write(QDomDocument &doc, const QString &tagName)
 
     for (int i = 0; i < m_tabStop.size(); ++i) {
         QString v = m_tabStop[i];
-        QDomNode child = doc.createTextNode(v);
+        QDomNode child = doc.createElement(QLatin1String("tabstop"));
+        child.appendChild(doc.createTextNode(v));
         e.appendChild(child);
     }
     if (!m_text.isEmpty())
@@ -2454,7 +2455,8 @@ QDomElement DomWidget::write(QDomDocument &doc, const QString &tagName)
 
     for (int i = 0; i < m_class.size(); ++i) {
         QString v = m_class[i];
-        QDomNode child = doc.createTextNode(v);
+        QDomNode child = doc.createElement(QLatin1String("class"));
+        child.appendChild(doc.createTextNode(v));
         e.appendChild(child);
     }
     for (int i = 0; i < m_property.size(); ++i) {
@@ -3784,7 +3786,8 @@ QDomElement DomStringList::write(QDomDocument &doc, const QString &tagName)
 
     for (int i = 0; i < m_string.size(); ++i) {
         QString v = m_string[i];
-        QDomNode child = doc.createTextNode(v);
+        QDomNode child = doc.createElement(QLatin1String("string"));
+        child.appendChild(doc.createTextNode(v));
         e.appendChild(child);
     }
     if (!m_text.isEmpty())
