@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#250 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#251 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -38,6 +38,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 #include <X11/Xatom.h>
+#include <X11/extensions/shape.h>
 #if !defined(XlibSpecificationRelease)
 #define X11R4
 typedef char *XPointer;
@@ -1713,7 +1714,6 @@ void QWidget::setAcceptDrops( bool on )
 
 	if ( on ) {
 	    QWidget * tlw = topLevelWidget();
-	    QWExtra * ed = tlw->extraData();
 
 	    extern Atom qt_xdnd_aware;
 	    Atom qt_xdnd_version = (Atom)2;
@@ -1732,4 +1732,18 @@ void QWidget::setAcceptDrops( bool on )
 bool QWidget::acceptDrops() const
 {
     return ( extra && extra->dnd );
+}
+
+/*!
+  Causes only the parts of the window which overlap \a region
+  to be visible.
+
+  Note that this effect can be slow if the region is particularly
+  complex.
+*/
+void QWidget::setMask(const QRegion& region)
+{
+    // ##### May need to use xOff,yOff to align with/off titlebar.
+    XShapeCombineRegion( dpy, winId(), ShapeBounding, 0, 0,
+	region.handle(), ShapeSet);
 }

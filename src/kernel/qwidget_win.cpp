@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#114 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#115 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -1049,4 +1049,11 @@ void QWidget::setAcceptDrops( bool on )
 	    extra->dropTarget = 0;
 	}
     }
+}
+
+void QWidget::setMask(const QRegion& region)
+{
+    // ##### May need align with/off titlebar.
+    HRGN = CopyRegion(region.handle()); // Since SetWindowRegion takes ownership.
+    SetWindowRegion( winId(), region.handle());
 }
