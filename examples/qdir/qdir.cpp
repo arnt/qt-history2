@@ -8,6 +8,9 @@
 **
 *****************************************************************************/
 
+#include "../dirview/dirview.h"
+#include "qdir.h"
+
 #include <qapplication.h>
 #include <qtextview.h>
 #include <qfileinfo.h>
@@ -19,15 +22,13 @@
 #include <qmultilineedit.h>
 #include <qheader.h>
 #include <qevent.h>
+#include <qpainter.h>
 #include <qpopupmenu.h>
 #include <qpushbutton.h>
 #include <qtoolbutton.h>
 #include <qfile.h>
 #include <qtextstream.h>
 #include <qtooltip.h>
-
-#include "../dirview/dirview.h"
-#include "qdir.h"
 
 #include <stdlib.h>
 
