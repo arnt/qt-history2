@@ -425,9 +425,9 @@ void QStatusBar::paintEvent( QPaintEvent * )
     QStatusBarPrivate::SBItem* item = d->items.first();
 
 #ifndef QT_NO_SIZEGRIP
-    int psx = d->resizer ? d->resizer->x() : width()-12;
+    int psx = ( d->resizer && d->resizer->isVisible() ) ? d->resizer->x() : width()-12;
 #else
-    int psx = width()-12;
+    int psx = width() - 12;
 #endif
 
     while ( item ) {
@@ -445,6 +445,7 @@ void QStatusBar::paintEvent( QPaintEvent * )
     if ( haveMessage ) {
 	p.setPen( colorGroup().text() );
 	p.drawText( 6, 0, psx, height(), AlignVCenter | SingleLine, d->tempItem );
+	qDebug( "psx = %d", psx );
     }
 }
 
