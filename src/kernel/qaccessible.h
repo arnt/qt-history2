@@ -10,6 +10,7 @@
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 
 class QObject;
+class QButton;
 
 class Q_EXPORT QAccessible
 {
@@ -129,7 +130,7 @@ public:
 	StaticText	= 0x00000029,
 	Text		= 0x0000002A,  // Editable, selectable, etc.
 	PushButton	= 0x0000002B,
-	CheckButton	= 0x0000002C,
+	CheckBox	= 0x0000002C,
 	RadioButton	= 0x0000002D,
 	ComboBox	= 0x0000002E,
 	DropLest	= 0x0000002F,
@@ -220,7 +221,7 @@ private:
 class Q_EXPORT QAccessibleWidget : public QAccessibleObject
 {
 public:
-    QAccessibleWidget( QWidget *w, Role r = NoRole, QString name = QString::null, 
+    QAccessibleWidget( QWidget *w, Role r = Client, QString name = QString::null, 
 	QString description = QString::null, QString value = QString::null, 
 	QString help = QString::null, QString defAction = QString::null,
 	QString accelerator = QString::null );
@@ -244,8 +245,11 @@ public:
 
     QAccessibleInterface *hasFocus( int *who ) const;
 
+protected:
+    QWidget *widget() const;
+
 private:
-    QWidget *widget;
+    QWidget *widget_;
 
     Role role_;
     QString name_;
@@ -254,6 +258,18 @@ private:
     QString help_;
     QString defAction_;
     QString accelerator_;
+};
+
+class Q_EXPORT QAccessibleButton : public QAccessibleWidget
+{
+public:
+    QAccessibleButton( QButton *b, Role r = PushButton, QString description = QString::null,
+	QString help = QString::null );
+
+    bool	doDefaultAction( int who );
+    QString	accelerator( int who ) const;
+    QString	name( int who ) const;
+    State	state( int who ) const;
 };
 
 #endif //QT_ACCESSIBILITY_SUPPORT
