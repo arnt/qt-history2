@@ -546,10 +546,8 @@ bool QMakeSourceFileInfo::findMocs(SourceFile *file)
     int line_count = 1;
     bool ignore_qobject = false;
  /* qmake ignore Q_OBJECT */
-#define COMP_LEN 8 //strlen("Q_OBJECT")
 #define OBJ_LEN 8 //strlen("Q_OBJECT")
-#define DIS_LEN 10 //strlen("Q_DISPATCH")
-    for(int x = 0; x < (buffer_len-COMP_LEN); x++) {
+    for(int x = 0; x < (buffer_len-OBJ_LEN); x++) {
         if(*(buffer + x) == '/') {
             x++;
             if(buffer_len >= x) {
@@ -582,8 +580,7 @@ bool QMakeSourceFileInfo::findMocs(SourceFile *file)
 #define SYMBOL_CHAR(x) ((x >= 'a' && x <= 'z') || (x >= 'A' && x <= 'Z') || \
                         (x >= '0' && x <= '9') || x == '_')
 
-        bool interesting = *(buffer+x) == 'Q' && (!strncmp(buffer+x, "Q_OBJECT", OBJ_LEN) ||
-                                                      !strncmp(buffer+x, "Q_DISPATCH", DIS_LEN));
+        bool interesting = *(buffer+x) == 'Q' && (!strncmp(buffer+x, "Q_OBJECT", OBJ_LEN));
         if(interesting) {
             int len = 0;
             if(!strncmp(buffer+x, "Q_OBJECT", OBJ_LEN)) {
@@ -592,8 +589,6 @@ bool QMakeSourceFileInfo::findMocs(SourceFile *file)
                     interesting = false;
                 }
                 len=OBJ_LEN;
-            } else if(!strncmp(buffer+x, "Q_DISPATCH", DIS_LEN)) {
-                len=DIS_LEN;
             }
             if(SYMBOL_CHAR(*(buffer+x+len)))
                 interesting = false;
@@ -613,7 +608,6 @@ bool QMakeSourceFileInfo::findMocs(SourceFile *file)
             line_count++;
     }
 #undef OBJ_LEN
-#undef DIS_LEN
     return true;
 }
 
