@@ -8,7 +8,7 @@ unix:LIBS += -L$$QT_BUILD_TREE/util/install/archive -larq
 win32:LIBS += ../archive/arq.lib
 DEFINES -= UNICODE
 
-win32:SOURCES += \
+win32:!shared:SOURCES += \
 	../../../src/3rdparty/zlib/adler32.c \
 	../../../src/3rdparty/zlib/compress.c \
 	../../../src/3rdparty/zlib/crc32.c \
