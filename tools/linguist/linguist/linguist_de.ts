@@ -1,24 +1,24 @@
 <!DOCTYPE TS><TS>
-<context encoding="UTF-8">
+<context>
     <name>AboutDialog</name>
-    <message encoding="UTF-8">
+    <message>
         <source>Qt Linguist</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>Version 1.0</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
-        <source>Copyright (C) 2000-2001 Trolltech AS</source>
+    <message>
+        <source>Copyright (C) 2000-2002 Trolltech AS. All Rights Reserved.</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
-        <source>&lt;p&gt;This program is licensed to you under the terms of the GNU General Public License Version 2 as published by the Free Software Foundation. This gives you legal permission to copy, distribute and/or modify this software under certain conditions. For details, see the file &apos;COPYING&apos; that came with this software distribution. If you did not get the file, send email to info@trolltech.com.&lt;/p&gt;
+    <message>
+        <source>&lt;p&gt;This program is licensed to you under the terms of the GNU General Public License Version 2 as published by the Free Software Foundation. This gives you legal permission to copy, distribute and/or modify this software under certain conditions. For details, see the file &apos;LICENSE.GPL&apos; that came with this software distribution. If you did not get the file, send email to info@trolltech.com.&lt;/p&gt;
 &lt;p&gt;The program is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.&lt;/p&gt;</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>OK</source>
         <translation type="unfinished"></translation>
     </message>
@@ -36,7 +36,7 @@
 </context>
 <context>
     <name>FindDialog</name>
-    <comment>Choose Edit|Find from the menu bar or press Alt+F to pop up the Find dialog</comment>
+    <comment>Choose Edit|Find from the menu bar or press Ctrl+F to pop up the Find dialog</comment>
     <message>
         <source>Fi&amp;nd what:</source>
         <translation type="unfinished"></translation>
@@ -373,6 +373,10 @@ All files (*)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Release</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>File created.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -413,7 +417,11 @@ All files (*)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>No match.</source>
+        <source>Qt Linguist - Find</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cannot find the string &apos;%1&apos;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -422,7 +430,7 @@ All files (*)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Create new phrase book</source>
+        <source>Create New Phrase Book</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -431,10 +439,6 @@ All files (*)</source>
     </message>
     <message>
         <source>Phrase book created.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Open phrase book</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -706,7 +710,7 @@ All files (*)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&amp;Manual...</source>
+        <source>&amp;Manual</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
