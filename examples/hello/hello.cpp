@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/hello/hello.cpp#2 $
+** $Id: //depot/qt/main/examples/hello/hello.cpp#3 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -26,7 +26,7 @@ Hello::Hello( const char *text, QWidget *parent, const char *name )
     connect( timer, SIGNAL(timeout()), SLOT(animate()) );
     timer->start( 40 );
 
-    resize( 200, 100 );
+    resize( 260, 130 );
 }
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/picture/picture.cpp#2 $
+** $Id: //depot/qt/main/examples/picture/picture.cpp#3 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -27,7 +27,7 @@ void paintCar( QPainter *p )			// paint a car
     a.setPoints( 5, 50,50, 350,50, 450,120, 450,250, 50,250 );
     p->drawPolygon( a );			// draw car body
 
-    QFont f( "courier", 14, QFont::Bold );
+    QFont f( "courier", 12, QFont::Bold );
     p->setFont( f );
 
     QColor windowColor( 120, 120, 255 );	// a light blue color
