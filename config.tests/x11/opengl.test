@@ -115,13 +115,13 @@ if [ "$OPENGL" != "yes" ]
 then
     if [ "$VERBOSE" = "yes" ]
     then
-	echo "OpenGL module disabled."
+	echo "OpenGL disabled."
     fi
     exit 0
 else
     if [ "$VERBOSE" = "yes" ]
     then
-	echo "OpenGL module enabled."
+	echo "OpenGL enabled."
     fi
     exit 1
 fi
