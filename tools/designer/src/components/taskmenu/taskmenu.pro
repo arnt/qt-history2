@@ -6,7 +6,7 @@ CONFIG += staticlib
 INCLUDEPATH += \
     ../../lib/sdk \
     ../../lib/extension \
-    ../../shared \
+    ../../lib/shared \
 
 TARGET = taskmenu
 
@@ -26,4 +26,4 @@ SOURCES += button_taskmenu.cpp \
   label_taskmenu.cpp \
   taskmenu_component.cpp
 
-include(../../sharedcomponents.pri)
+include(../../lib/sharedcomponents.pri)

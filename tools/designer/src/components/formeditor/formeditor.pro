@@ -9,8 +9,8 @@ DEFINES += QT_FORMEDITOR_LIBRARY
 DESTDIR = ../../../lib
 
 INCLUDEPATH += ../../lib/sdk \
-    ../../shared \
-    ../../uilib \
+    ../../lib/shared \
+    ../../lib/uilib \
     ../../lib/extension \
     ../propertyeditor \
     ../signalsloteditor \
@@ -59,4 +59,4 @@ MOCABLE += formwindow.cpp
 
 RESOURCES += formeditor.qrc
 
-include(../../sharedcomponents.pri)
+include(../../lib/sharedcomponents.pri)

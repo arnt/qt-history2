@@ -7,12 +7,12 @@ CONFIG += staticlib
 INCLUDEPATH += \
     ../../lib/sdk \
     ../../lib/extension \
-    ../../uilib \
-    ../../shared
+    ../../lib/uilib \
+    ../../lib/shared
 
 HEADERS += objectinspector.h \
     objectinspector_global.h
 
 SOURCES += objectinspector.cpp
 
-include(../../sharedcomponents.pri)
+include(../../lib/sharedcomponents.pri)

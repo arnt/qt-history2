@@ -11,12 +11,10 @@ for(QTSHAREDLIB, $$list($$unique(LIBS))) {
     else:isEqual(QTSHAREDLIB, -lobjectinspector):sharedlib = -lobjectinspector
     else:isEqual(QTSHAREDLIB, -lpropertyeditor):sharedlib = -lpropertyeditor
     else:isEqual(QTSHAREDLIB, -lwidgetbox):sharedlib = -lwidgetbox
-    else:isEqual(QTSHAREDLIB, -luilib):sharedlib = -luilib
     else:isEqual(QTSHAREDLIB, -lsignalsloteditor):sharedlib = -lsignalsloteditor
     else:isEqual(QTSHAREDLIB, -ltabordereditor):sharedlib = -ltabordereditor
     else:isEqual(QTSHAREDLIB, -lresourceeditor):sharedlib = -lresourceeditor
     else:isEqual(QTSHAREDLIB, -lbuddyeditor):sharedlib = -lbuddyeditor
-    else:isEqual(QTSHAREDLIB, -lshared):sharedlib = -lshared
     else:isEqual(QTSHAREDLIB, -ltaskmenu):sharedlib = -ltaskmenu
     else:isEqual(QTSHAREDLIB, -lQtDesigner):sharedlib = -lQtDesigner
     else:isEqual(QTSHAREDLIB, -lQtOpenGL):sharedlib = -lQtOpenGL

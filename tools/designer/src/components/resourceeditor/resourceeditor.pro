@@ -7,8 +7,8 @@ CONFIG += staticlib
 INCLUDEPATH += \
     ../../lib/sdk \
     ../../lib/extension \
-    ../../uilib \
-    ../../shared
+    ../../lib/uilib \
+    ../../lib/shared
 
 DEFINES += QT_RESOURCEEDITOR_LIBRARY
 
@@ -19,4 +19,4 @@ HEADERS += resourceeditor.h \
 # DEFINES -= QT_COMPAT_WARNINGS
 # DEFINES += QT_COMPAT
 
-include(../../sharedcomponents.pri)
+include(../../lib/sharedcomponents.pri)

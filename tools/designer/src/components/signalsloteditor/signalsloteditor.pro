@@ -9,8 +9,8 @@ DEFINES += QT_SIGNALSLOTEDITOR_LIBRARY
 DESTDIR = ../../../lib
 
 INCLUDEPATH += ../../lib/sdk \
-    ../../shared \
-    ../../uilib \
+    ../../lib/shared \
+    ../../lib/uilib \
     ../../lib/extension
 
 HEADERS += \
@@ -27,4 +27,4 @@ SOURCES += \
     signalsloteditor_plugin.cpp \
     signalsloteditor_instance.cpp
 
-include(../../sharedcomponents.pri)
+include(../../lib/sharedcomponents.pri)

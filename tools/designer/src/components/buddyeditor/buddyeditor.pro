@@ -9,8 +9,8 @@ DEFINES += QT_BUDDYEDITOR_LIBRARY
 DESTDIR = ../../../lib
 
 INCLUDEPATH += ../../lib/sdk \
-    ../../shared \
-    ../../uilib \
+    ../../lib/shared \
+    ../../lib/uilib \
     ../../lib/extension \
     ../buddyeditor
 
@@ -27,4 +27,4 @@ SOURCES += \
     buddyeditor_plugin.cpp \
     buddyeditor_instance.cpp
 
-include(../../sharedcomponents.pri)
+include(../../lib/sharedcomponents.pri)

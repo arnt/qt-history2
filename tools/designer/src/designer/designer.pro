@@ -3,10 +3,11 @@ DESTDIR = ../../../../bin
 QT += xml network qt3support
 CONFIG += qt depend_prl assistant
 
-INCLUDEPATH += ../uilib \
+INCLUDEPATH += \
     ../lib/sdk \
     ../lib/extension \
-    ../shared \
+    ../lib/shared \
+    ../lib/uilib \
     ../components \
     ../components/formeditor \
     ../components/objectinspector \
@@ -22,12 +23,10 @@ LIBS += -L../../lib \
     -lpropertyeditor \
     -lresourceeditor \
     -lwidgetbox \
-    -luilib \
     -lsignalsloteditor \
     -lbuddyeditor \
     -ltabordereditor \
     -ltaskmenu \
-    -lshared \
     -lQtDesigner
 
 RESOURCES += designer.qrc

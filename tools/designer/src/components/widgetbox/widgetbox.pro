@@ -7,8 +7,8 @@ CONFIG += staticlib
 INCLUDEPATH += \
     ../../lib/sdk \
     ../../lib/extension \
-    ../../uilib \
-    ../../shared \
+    ../../lib/uilib \
+    ../../lib/shared \
     ../formeditor
 
 DEFINES += QT_WIDGETBOX_LIBRARY
@@ -22,4 +22,4 @@ RESOURCES += widgetbox.qrc
 # DEFINES -= QT_COMPAT_WARNINGS
 # DEFINES += QT_COMPAT
 
-include(../../sharedcomponents.pri)
+include(../../lib/sharedcomponents.pri)

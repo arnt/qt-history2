@@ -24,4 +24,4 @@ SOURCES -= main.cpp #we don't need the main.cpp
 HEADERS += qmakeinterface.h
 SOURCES += qmakeinterface.cpp
 
-include(../../sharedcomponents.pri)
+include(../../lib/sharedcomponents.pri)

@@ -14,23 +14,26 @@
 #include "resource.h"
 #include "ui4.h"
 
-#include <QAction>
-#include <QActionGroup>
-#include <QGridLayout>
-#include <QDomDocument>
-#include <QVariant>
-#include <QWidget>
-#include <QMetaProperty>
-#include <QDateTime>
-#include <QIcon>
-#include <QPixmap>
+#include <QtCore/QVariant>
+#include <QtCore/QMetaProperty>
+#include <QtCore/QDateTime>
+
+#include <QtGui/QAction>
+#include <QtGui/QActionGroup>
+#include <QtGui/QGridLayout>
+#include <QtGui/QWidget>
+#include <QtGui/QIcon>
+#include <QtGui/QPixmap>
+
+#include <QtXml/QDomDocument>
+
 // containers
-#include <QToolBox>
-#include <QStackedWidget>
-#include <QTabWidget>
-#include <QMainWindow>
-#include <QToolBar>
-#include <QMenuBar>
+#include <QtGui/QToolBox>
+#include <QtGui/QStackedWidget>
+#include <QtGui/QTabWidget>
+#include <QtGui/QMainWindow>
+#include <QtGui/QToolBar>
+#include <QtGui/QMenuBar>
 
 #include <QtCore/qdebug.h>
 

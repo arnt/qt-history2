@@ -15,7 +15,7 @@ FORMS += findicondialog.ui
 
 INCLUDEPATH += \
     ../../lib/sdk \
-    ../../uilib \
+    ../../lib/uilib \
     ../../lib/extension
 
-include(../../sharedcomponents.pri)
+include(../../lib/sharedcomponents.pri)

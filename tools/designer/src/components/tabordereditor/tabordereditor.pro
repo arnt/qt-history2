@@ -9,8 +9,8 @@ DEFINES += QT_TABORDEREDITOR_LIBRARY
 DESTDIR = ../../../lib
 
 INCLUDEPATH += ../../lib/sdk \
-    ../../shared \
-    ../../uilib \
+    ../../lib/shared \
+    ../../lib/uilib \
     ../../lib/extension \
     ../tabordereditor
 
@@ -27,4 +27,4 @@ SOURCES += \
     tabordereditor_plugin.cpp \
     tabordereditor_instance.cpp
 
-include(../../sharedcomponents.pri)
+include(../../lib/sharedcomponents.pri)
