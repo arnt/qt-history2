@@ -1421,11 +1421,12 @@ QSize QSplitter::sizeHint() const
     ensurePolished();
     int l = 0;
     int t = 0;
-    QObjectList childs = children();
-    for (int i = 0; i < childs.size(); ++i) {
-        QObject *obj = childs.at(i);
-        if (obj->isWidgetType() && !static_cast<QWidget*>(obj)->isExplicitlyHidden()) {
-            QSize s = static_cast<QWidget*>(obj)->sizeHint();
+    QObjectList childList = children();
+    for (int i = 0; i < childList.size(); ++i) {
+        if (QWidget *w = qobject_cast<QWidget *>(childList.at(i))) {
+            if (w->isExplicitlyHidden())
+                continue;
+            QSize s = w->sizeHint();
             if (s.isValid()) {
                 l += d->pick(s);
                 t = qMax(t, d->trans(s));
@@ -1445,11 +1446,12 @@ QSize QSplitter::minimumSizeHint() const
     ensurePolished();
     int l = 0;
     int t = 0;
-    QObjectList childs = children();
-    for (int i = 0; i < childs.size(); ++i) {
-        QObject *obj = childs.at(i);
-        if (obj->isWidgetType() && !static_cast<QWidget *>(obj)->isExplicitlyHidden()) {
-            QSize s = qSmartMinSize(static_cast<QWidget *>(obj));
+    QObjectList childList = children();
+    for (int i = 0; i < childList.size(); ++i) {
+        if (QWidget *w = qobject_cast<QWidget *>(childList.at(i))) {
+            if (w->isExplicitlyHidden())
+                continue;
+            QSize s = qSmartMinSize(w);
             if (s.isValid()) {
                 l += d->pick(s);
                 t = qMax(t, d->trans(s));
