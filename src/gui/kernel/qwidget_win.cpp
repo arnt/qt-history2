@@ -457,6 +457,7 @@ void QWidget::setParent_sys(QWidget *parent, Qt::WFlags f)
     data->widget_flags = f;
     clearWState(Qt::WState_Created | Qt::WState_Visible | Qt::WState_Hidden | Qt::WState_ExplicitShowHide);
     create();
+
     if (isTopLevel() || (!parent || parent->isVisible()))
         setWState(Qt::WState_Hidden);
     QObjectList chlist = children();
