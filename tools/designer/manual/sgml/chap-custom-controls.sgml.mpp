@@ -103,8 +103,8 @@ linkend="old-custom-widgets"> "Custom Widgets".)
 \scan /fileName/ /mode/
 </programlisting>
 	The constructor is declared in the standard way for widgets. We
-	declare two public functions, \fn[fileName] to return the
-	filename, and \fn[mode] to return the mode.
+	declare two public functions, \fn[fileName()] to return the
+	filename, and \fn[mode()] to return the mode.
 	\P
 
 	\p
@@ -114,9 +114,9 @@ linkend="old-custom-widgets"> "Custom Widgets".)
 \scan /private slots/ 1 
 </programlisting>
 	The two 'set' functions are declared as public slots.
-	\fn[setFileName] and \fn[setMode] set the filename and mode
-	respectively. We declare a single signal, \fn[fileNameChanged]. The
-	private slot, \fn[chooseFile] is called by the widget itself
+	\fn[setFileName()] and \fn[setMode()] set the filename and mode
+	respectively. We declare a single signal, \fn[fileNameChanged()]. The
+	private slot, \fn[chooseFile()] is called by the widget itself
 	when its button is clicked.
 	\P
 
@@ -165,12 +165,12 @@ linkend="old-custom-widgets"> "Custom Widgets".)
 
 \scan /connect/ 1
 </programlisting>
-	We connect the lineEdit's \fn[textChanged] signal to the custom
-	widget's \fn[fileNameChanged] signal. This ensures that if the
+	We connect the lineEdit's \fn[textChanged()] signal to the custom
+	widget's \fn[fileNameChanged()] signal. This ensures that if the
 	user changes the text in the \class[QLineEdit] this fact will be
 	propagated via the custom widget's own signal. The button's
-	\fn[clicked] signal is connected to the custom widget's
-	\fn[chooseFile] slot which invokes the appropriate dialog for
+	\fn[clicked()] signal is connected to the custom widget's
+	\fn[chooseFile()] slot which invokes the appropriate dialog for
 	the user to choose their file or directory.
 	\P
 
@@ -188,10 +188,10 @@ linkend="old-custom-widgets"> "Custom Widgets".)
 \scan /::setFileName/ /^}/
 \scan /::fileName/ /^}/
 </programlisting>
-	The \fn[setFileName] function sets the filename in the
-	\class[QLineEdit], and the \fn[fileName] function returns the
-	filename from the \class[QLineEdit]. The \fn[setMode] and
-	\fn[mode] functions (not shown) similarly set and return the
+	The \fn[setFileName()] function sets the filename in the
+	\class[QLineEdit], and the \fn[fileName()] function returns the
+	filename from the \class[QLineEdit]. The \fn[setMode()] and
+	\fn[mode()] functions (not shown) similarly set and return the
 	given mode.
 	\P
 
@@ -199,10 +199,10 @@ linkend="old-custom-widgets"> "Custom Widgets".)
 <programlisting>
 \scan /chooseFile/ /^}/ 
 </programlisting>
-	When \fn[chooseFile] is called it presents the user with a file
+	When \fn[chooseFile()] is called it presents the user with a file
 	or directory dialog depending on the mode. If the user chooses a
 	file or directory the \class[QLineEdit] is updated with the
-	chosen file or directory and the \fn[fileNameChanged] signal is
+	chosen file or directory and the \fn[fileNameChanged()] signal is
 	emitted.
 	\P
 
@@ -320,7 +320,7 @@ linkend="old-custom-widgets"> "Custom Widgets".)
     conflict. This is because every interface (i.e. abstract base
     class) has a unique uuid (\i[univeral unique identifier]). When the
     application wants the functionality of a particular interface it
-    calls \fn[queryInterface] passing the uuid of the interface it is
+    calls \fn[queryInterface()] passing the uuid of the interface it is
     interested in, for example, \c[IID_WidgetInterface]. If the
     implementation provides the requested interface it returns a
     pointer to the interface's implementation. The application never
@@ -395,7 +395,7 @@ linkend="old-custom-widgets"> "Custom Widgets".)
 	    destructor is done.
 	    \P
 
-	    <sect3><title>\fn[queryInterface]</title>
+	    <sect3><title>\fn[queryInterface()]</title>
 	    \p
 	    This is the most complicated function: but it can simply be
 	    copied into your own widget interface implementation.
@@ -406,7 +406,7 @@ linkend="old-custom-widgets"> "Custom Widgets".)
 <programlisting>
 \scan eg/filechooser/plugin/plugin.cpp /::queryInterface/ /^}/
 </programlisting>
-	    The \fn[queryInterface] function is called by programs that
+	    The \fn[queryInterface()] function is called by programs that
 	    load a plugin so that they can determine whether the plugin
 	    provides an implementation for a particular interface. Every
 	    interface has a unique uuid 
@@ -420,7 +420,7 @@ linkend="old-custom-widgets"> "Custom Widgets".)
 	    pointer is returned to the caller. 	    
 	    \P
 
-	    <sect3><title>\fn[addRef]</title>
+	    <sect3><title>\fn[addRef()]</title>
 	    \p
 <programlisting>
 \scan eg/filechooser/plugin/plugin.cpp /::addRef/ /^}/
@@ -430,7 +430,7 @@ linkend="old-custom-widgets"> "Custom Widgets".)
 	    the class name of your widget interface implementation.
 	    \P
 
-	    <sect3><title>\fn[release]</title>
+	    <sect3><title>\fn[release()]</title>
 	    \p
 <programlisting>
 \scan eg/filechooser/plugin/plugin.cpp /::release/ /^}/
@@ -441,7 +441,7 @@ linkend="old-custom-widgets"> "Custom Widgets".)
 	    name of your widget interface implementation.
 	    \P
 
-	    <sidebar><title>Why we need \fn[addRef] and \fn[release]</title>
+	    <sidebar><title>Why we need \fn[addRef()] and \fn[release()]</title>
 	    \p
 	    Plugins are different from most other Qt classes with
 	    regards memory management. In Qt programming we often pass
@@ -453,7 +453,7 @@ linkend="old-custom-widgets"> "Custom Widgets".)
 	    you get a reference to a widget interface implementation
 	    object a reference count is incremented, and when you have
 	    no further use for the reference \i[you] must call
-	    \fn[release]. The reference counting prevents the
+	    \fn[release()]. The reference counting prevents the
 	    unloading of a library (plugin) that is still in use. If all
 	    a plugin's reference counts are zero the library can be
 	    automatically unloaded.
@@ -461,8 +461,8 @@ linkend="old-custom-widgets"> "Custom Widgets".)
 
 	    \p
 	    Since we are writing a widget interface implementation for
-	    \qd, all we need to do is provide the \fn[addRef] and
-	    \fn[release] functions. \qd (or any other application using
+	    \qd, all we need to do is provide the \fn[addRef()] and
+	    \fn[release()] functions. \qd (or any other application using
 	    our plugin) is responsible for calling these functions when
 	    appropriate.
 	    \P
@@ -488,7 +488,7 @@ linkend="old-custom-widgets"> "Custom Widgets".)
 	    point.)
 	    \P
 
-	    <sect3><title>\fn[featureList]</title>
+	    <sect3><title>\fn[featureList()]</title>
 	    \p
 	    Each widget you wrap in a widget interface implementation
 	    becomes a feature that the interface implementation offers.
@@ -503,7 +503,7 @@ linkend="old-custom-widgets"> "Custom Widgets".)
 	    example we add a single feature, 'FileChooser'.
 	    \P
 
-	    <sect3><title>\fn[create]</title>
+	    <sect3><title>\fn[create()]</title>
 	    \p
 <programlisting>
 \scan eg/filechooser/plugin/plugin.cpp /::create/ /^}/
@@ -519,7 +519,7 @@ linkend="old-custom-widgets"> "Custom Widgets".)
 	    documentation</> for more information on cleanup handling.)
 	    \P
 
-	    <sect3><title>\fn[includeFile]</title>
+	    <sect3><title>\fn[includeFile()]</title>
 	    \p
 <programlisting>
 \scan eg/filechooser/plugin/plugin.cpp /::includeFile/ /^}/
@@ -529,13 +529,13 @@ linkend="old-custom-widgets"> "Custom Widgets".)
 	    feature name and filename to suit your own custom widget.
 	    \P
 
-	    <sect3><title>\fn[group], \fn[iconSet], \fn[iconset],
-	    \fn[toolTip] and \fn[whatsThis]</title>
+	    <sect3><title>\fn[group()], \fn[iconSet()], \fn[iconset()],
+	    \fn[toolTip()] and \fn[whatsThis()]</title>
 	    \p
 <programlisting>
 \scan eg/filechooser/plugin/plugin.cpp /::group/ /^}/
 </programlisting>
-	    We use the \fn[group] function to identify which \qd toolbar
+	    We use the \fn[group()] function to identify which \qd toolbar
 	    group this feature (custom widget) should be part of. If we
 	    use a name that is not in use \qd will create a new toolbar
 	    group with the given name. Copy this function changing the
@@ -544,16 +544,16 @@ linkend="old-custom-widgets"> "Custom Widgets".)
 	    \P
 
 	    \p
-	    The \fn[iconSet] function returns the name of the pixmap to
+	    The \fn[iconSet()] function returns the name of the pixmap to
 	    use in the toolbar to represent the custom widget. The
-	    \fn[toolTip] function returns the tooltip text and the
-	    \fn[whatsThis] function returns the whats this text. Copy
+	    \fn[toolTip()] function returns the tooltip text and the
+	    \fn[whatsThis()] function returns the whats this text. Copy
 	    each of these functions changing the class name, feature
 	    name and the string you return to suit your own widget
 	    interface implementation.
 	    \P
 
-	    <sect3><title>\fn[isContainer]</title>
+	    <sect3><title>\fn[isContainer()]</title>
 	    \p
 <programlisting>
 \scan eg/filechooser/plugin/plugin.cpp /::isContainer/ /^}/

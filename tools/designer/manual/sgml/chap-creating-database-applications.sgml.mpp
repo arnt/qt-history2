@@ -457,8 +457,8 @@ bool createConnections()
 		Click the <guibutton>Connect Signal/Slots</>
 		toolbar button, then click the AuthorDataTable, drag to
 		the form and release the mouse. The Edit Connections
-		dialog will now appear. Click the \fn[primeInsert]
-		signal and then the \fn[primeInsertAuthor] slot to make
+		dialog will now appear. Click the \fn[primeInsert()]
+		signal and then the \fn[primeInsertAuthor()] slot to make
 		the connection. Now click \ok.
 		</para>
 	    </listitem>
@@ -468,14 +468,14 @@ bool createConnections()
 		Click the Source tab of the Object Hierarchy window
 		(click <guimenuitem>Window|Object Hierarchy</> to make
 		the window visible if necessary). Click the
-		\fn[primeInsertAuthor] slot and an editor window will
+		\fn[primeInsertAuthor()] slot and an editor window will
 		appear.
 		</para>
 	    </listitem>
 
 	    <listitem>
 		<para>
-		We must change the \fn[BookForm::primeInsertAuthor] slot to
+		We must change the \fn[BookForm::primeInsertAuthor()] slot to
 		specify the parameter name and perform the necessary
 		action:
 <programlisting>
@@ -782,14 +782,14 @@ bool createConnections()
 		    Click the Source tab of the Object Hierarchy window
 		    (click <guimenuitem>Window|Object Hierarchy</> to make
 		    the window visible if necessary). Click the
-		    \fn[newCurrentAuthor] slot and an editor window will
+		    \fn[newCurrentAuthor()] slot and an editor window will
 		    appear.
 		    </para>
 		</listitem>
 
 		<listitem>
 		<para>
-		    We must change the \fn[BookForm::newCurrentAuthor] slot to
+		    We must change the \fn[BookForm::newCurrentAuthor()] slot to
 		    specify the parameter name and perform the necessary
 		    action:
 <programlisting>
@@ -1028,26 +1028,26 @@ bool createConnections()
 	is created by connecting slots and signals. The slots provided are:
 	    \list[*]
 		\item\p
-		\fn[insert], \fn[update] and \fn[del] for edits;
+		\fn[insert()], \fn[update()] and \fn[del()] for edits;
 		\P\Item
 
 		\item\p
-		\fn[first], \fn[next], \fn[prev], and \fn[last] for
+		\fn[first()], \fn[next()], \fn[prev()], and \fn[last()] for
 		navigation;
 		\P\Item
 
 		\item\p
-		\fn[refresh] to refresh the cursor from the database; 
+		\fn[refresh()] to refresh the cursor from the database; 
 		\P\Item
 
 		\item\p
-		\fn[readFields] to read data from the cursor's edit
-		buffer and \fn[writeFields] to write the form's data to
+		\fn[readFields()] to read data from the cursor's edit
+		buffer and \fn[writeFields()] to write the form's data to
 		the cursor's edit buffer;
 		\P\Item
 
 		\item\p
-		\fn[clearValues] to clear the form's values. 
+		\fn[clearValues()] to clear the form's values. 
 		\P\Item
 
 	    </itemizedlist>
@@ -1205,7 +1205,7 @@ bool createConnections()
 	    <listitem>
 		<para>
 		Connect the BookDataBrowser's <function>primeInsert()</>
-		signal to the \fn[primeInsertBook] slot. 
+		signal to the \fn[primeInsertBook()] slot. 
 		</para>
 		<para>
 		Click the
@@ -1233,8 +1233,8 @@ bool createConnections()
 		<para>
 		We will also tidy up the user interface slightly. Click
 		the Update button and set its default property to True.
-		Connect the Close button's \fn[clicked] signal to the
-		EditBookForm's \fn[accept] slot.
+		Connect the Close button's \fn[clicked()] signal to the
+		EditBookForm's \fn[accept()] slot.
 		</para>
 	    </listitem> 
 
@@ -1304,11 +1304,11 @@ bool createConnections()
 
 	\item\p
 	When the user navigates through the dialog each time they move
-	to a new record a \fn[primeUpdate] signal is emitted. We connect
+	to a new record a \fn[primeUpdate()] signal is emitted. We connect
 	to this so that we can update the ComboBox's display. Just
 	before a record is updated or inserted into the database a
-	\fn[beforeUpdate] or \fn[beforeInsert] signal is emitted. We
-	connect our \fn[beforeUpdateBook] slot to both these signals so
+	\fn[beforeUpdate()] or \fn[beforeInsert()] signal is emitted. We
+	connect our \fn[beforeUpdateBook()] slot to both these signals so
 	that we can ensure that the book's authorid field is correctly
 	populated.
 	\P
@@ -1316,10 +1316,10 @@ bool createConnections()
 	\p
 	Click the BookDataBrowser and drag the mouse to the form;
 	release the mouse and the Edit Connections dialog will appear.
-	Connect the \fn[beforeUpdate] signal to our
-	\fn[beforeUpdateBook] slot. Connect the \fn[beforeInsert] signal
-	to our \fn[beforeUpdateBook] slot. Finally connect the
-	\fn[primeUpdate] signal to our \fn[primeUpdateBook] slot.
+	Connect the \fn[beforeUpdate()] signal to our
+	\fn[beforeUpdateBook()] slot. Connect the \fn[beforeInsert()] signal
+	to our \fn[beforeUpdateBook()] slot. Finally connect the
+	\fn[primeUpdate()] signal to our \fn[primeUpdateBook()] slot.
 	\P\Item
 
 	\item\p
@@ -1329,7 +1329,7 @@ bool createConnections()
 	    \list[1,1]
 	    \item\p
 	    We start with
-	    the \fn[init] function; this is called after the dialog is
+	    the \fn[init()] function; this is called after the dialog is
 	    constructed and we will use it to populate the ComboBox with
 	    author names.
 <programlisting>

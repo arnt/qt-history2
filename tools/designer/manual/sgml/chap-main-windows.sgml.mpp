@@ -129,54 +129,300 @@ buttons.
 
 	\List1
 	\P
-	
-	</sect2>
 
-	<sect2><title>Creating Actions</title>
 	\p
-	\P
-
-	<sidebar><title>Using the Action Editor</title>
-	\p
-	\P
-	</sidebar>
-	
-	</sect2>
-
-	<sect2><title>Creating an Action Group and its Actions</title>
-	\p
+	If you preview the form (<keycap>Ctrl+T</>) the File and Edit
+	menus will be available and you'll be able to drag the toolbar
+	either into an independent window of its own, or to dock it to
+	the left, right, bottom or back to the top of the window. The
+	menus and toolbars are not functional but we will correct that
+	as we progress.
 	\P
 	
 	</sect2>
 
-	<sect2><title>Creating a Toolbar</title>
+	<sect2><title>Creating and Deleting Actions and Action Groups</title>
+
+	    <sect3><title>Creating Actions</title>
+	    \p
+	    Our application requires more menu items and toolbar buttons
+	    than the the defaults we created with the main window wizard.
+	    But before we create the menu items and toolbar buttons we
+	    create the actions that they will invoke. The Action Editor
+	    appears automatically if you create a main window. You can also
+	    access it through the Window menu. 
+	    \P
+
+	    \p
+	    For the richedit application we need to create actions for
+	    indicating bold, italic and underlined font attributes, and to
+	    set text alignment.
+
+	    \p
+	    Right click in the Action Editor where the actions are listed,
+	    then left click New Action. This will create a new action called
+	    'Action' at the top of the list of actions. The Property Editor
+	    will change to show the default settings for the new action.
+	    We'll now go through all the properties we need to change.
+	    \list[1]
+	    \item\p
+	    Change the name of the action to 'boldAction'. 
+	    \P\Item
+	    
+	    \item\p
+	    Because bold can only be on or off change the
+	    toggleAction property to True. 
+	    \P\Item
+
+	    \item\p
+	    The iconSet property is used to set an icon which will
+	    appear to the left of the action's name in any menu you
+	    associate the action with. The iconSet will also be used for
+	    the toolbar button if you associate the action with a
+	    toolbar. The icons we require are in the Qt examples
+	    directory, \f[qt/examples/textedit/]. Click the ellipsis
+	    button (<keycap>...</>) and a file dialog will appear;
+	    navigate to the textedit directory and select the
+	    \f[textbold.xpm] file.
+	    \P\Item
+	    
+	    \item\p
+	    Change the text property to 'bold'. This automatically
+	    changes the menuText, toolTip and statusTip properties.
+	    \P\Item
+
+	    \item\p
+	    Change the menu text to '&amp;Bold'. If we choose to
+	    associate this action with a menu item then this text is
+	    used; otherwise it is ignored.
+	    \P\Item
+
+	    \item\p
+	    Change the accel property to 'CTRL+B'. This will associate
+	    the <keycap>Ctrl+B</> keyboard accelerator with this action.
+	    \P\Item
+
+	    \List1
+	    Note that at this point the only way to invoke this action is to
+	    use the keyboard accelerator (<keycap>Ctrl+B</>), because we
+	    have not yet associated the action with a menu item or with a
+	    toolbar button.
+	    \P
+
+	    \p
+	    We need to add two more actions, italic and underline. For each
+	    one right click the Action Editor and click New Action. Then
+	    repeat the steps listed above to change each action's
+	    properties. 
+	    \list[*]
+	    \item\p
+	    For the italic action change its name to
+	    'italicAction' and ensure its toggleAction property is True. The
+	    iconSet is in the textedit directory and is called
+	    \f[textitalic.xpm]. Change its text to 'italic', its menuText to
+	    '&amp;Italic' and its accel to 'CTRL+I'.
+	    \P\Item
+
+	    \item\p
+	    For the underline action change its name to 'underlineAction'
+	    and set its toggleAction property to True. The iconSet is in the
+	    same directory and is called \f[textunder.xpm]. Change its text
+	    to 'underline', its menuText to '&amp;Underline' and its accel
+	    to 'CTRL+U'.
+	    \P\Item
+	    \List
+	    \P
+
+	    </sect3>
+
+	    <sect3><title>Creating Action Groups</title>
+	    \p
+	    It is perfectly possible to have bold, italic and underline
+	    all active at once. But for alignment, i.e. left align,
+	    right align and centered, it only makes sense for one of
+	    them to be active at any one time. Because we need the
+	    alignment actions to operate in sync with one another we
+	    need to create an Action Group in which we can add the
+	    alignment actions.
+	    \P
+
+	    \p
+	    Right click the Action Editor, but this time left click New
+	    Action Group. Change its name in the Property Editor to
+	    'alignActionGroup', and change its text to 'align'. Note
+	    that the exclusive property default is True; this is what we
+	    want, since it ensures that only one action within the
+	    action group can be 'on' at any one time.
+	    \P
+
+	    \p
+	    We create the actions within the action group in almost the
+	    same way as before. The only difference is that instead of
+	    right clicking anywhere in the Action Editor's list of
+	    action we right click the alignActionGroup and then left
+	    click New Action to create a new action \i[within] the
+	    action group. We will create three new actions within the
+	    alignActionGroup:
+	    \list[1]
+	    \item\p
+	    Create a new action within the alignActionGroup action
+	    group. Change the name of this action to 'leftAlignAction'
+	    and ensure its toggleAction property is True. The iconSet is
+	    in the textedit directory and is called \f[textleft.xpm].
+	    Change its text to 'left', its menuText to '&amp;Left' and
+	    its accel to 'CTRL+L'.
+	    \P\Item
+
+	    \item\p
+	    Create another new action within alignActionGroup. Change
+	    this action's name to 'rightAlignAction' and set its
+	    toggleAction property to True. Set its iconSet to
+	    \f[textright.xpm]. Change its text to 'right', its menuText
+	    to '&amp;Right' and its accel to 'CTRL+R'.
+	    \P\Item
+
+	    \item\p
+	    Create the third new action within alignActionGroup. Change
+	    its name to 'centerAlignAction' and make its toggleAction
+	    property True. Change its iconSet to \f[textcenter.xpm].
+	    Change its text to 'center' and its menuText to
+	    '&amp;Center'. We won't set an accelerator for this action.
+	    \P\Item
+	    \List1
+
+	    Note that the toolTip and statusTip properties were
+	    inherited from the action group; you may wish to change
+	    these to be specific to the actions concerned.
+	    \P
+
+	    </sect3>
+
+	    <sect3><title>Deleting Actions and Action Groups</title>
+	    \p
+	    We have some actions that we don't intend providing for this
+	    first release, for example, the editFindAction and the
+	    filePrintAction. Click editFindAction and then click the
+	    Delete Action toolbar button. Delete the filePrintAction in
+	    the same way. Action Groups (including any actions they
+	    contain) can also be deleted with the Delete Action toolbar
+	    button.
+	    \P
+
+	    </sect3>
+	
+	</sect2>
+
+	<sect2><title>Creating and Populating a Toolbar</title>
 	\p
+	All the actions we require are now in place and we are ready to
+	create a new toolbar and add some of our actions to it. Right
+	click on the right hand side of the toolbar area (but not on
+	the existing toolbar) and left click Add Toolbar. The new
+	toolbar is empty and is visible only by its dock window handle
+	(a grey area containing two thick vertical lines). 
+	\P
+	
+	\p
+	We'll add the new actions we've just created. Drag the
+	alignActionGroup, (not any action it contains), to the new
+	toolbar and drop it on the \i[dock window handle] to the right
+	of the vertical lines. The three alignment actions will be added
+	to the toolbar. The bold, italic and underline actions do not
+	belong to an action group, and must be dragged to the toolbar
+	individually. Drag the bold action to the toolbar: when the
+	mouse is over the toolbar a thick black line will appear
+	indicating the position at which the toolbar button will be
+	inserted; drop the bold action on the toolbar. Drag the italic
+	and underline actions to the toolbar and drop them next to the
+	bold button. Separate the alignment toolbar buttons from the
+	font related buttons by right clicking to the centered toolbar
+	button and clicking Insert Separator.
 	\P
 
-	<sidebar><title>Adding &amp; Deleting Toolbar Items &amp;
-	Separators</title>
 	\p
+	Toolbar buttons and separators (indented vertical grey lines),
+	can be dragged and dropped into new positions in the toolbar at
+	any time. Separators can be inserted by right clicking a toolbar
+	button and clicking Insert Separator. Toolbar buttons and
+	separators can be deleted by right clicking them and clicking
+	Delete Item. Toolbars can be deleted by right clicking their
+	dock window handle and clicking Delete Toolbar.
 	\P
-	</sidebar>
-		
+
+	\p
+	If you preview the application you'll find that both the
+	original and new toolbar can be dragged to different docking
+	points or dragged out of the application as independent tool
+	windows.
+	\P
+
+	    <sect3><title>Adding Widgets to the Toolbar</title>
+	    \p
+	    We want our users to be able to choose the font and font size
+	    from the toolbar. To achieve this we'll create a font ComboBox
+	    and a font size SpinBox and place them in the formatting toolbar
+	    we created in the previous section.
+	    \P
+
+	    \p
+	    Click \qd's ComboBox toolbar button and click the last
+	    (right-most) toolbar button in the application's new toolbar.
+	    Click the SpinBox toolbar button and click the combobox we've
+	    just added. Insert a separator to the left of the combobox.
+	    \P
+	    
+	    </sect3>
+
 	</sect2>
 
 	<sect2><title>Creating Menus</title>
 	\p
+	We'll now add the actions we added to the new toolbar to a new
+	menu and modify the existing menus slightly. 
 	\P
 
-	<sidebar><title>Adding &amp; Deleting Menu Items &amp;
-	Separators</title>
 	\p
+	Right click the application's menu bar and click Add Menu Item.
+	A new menu item called 'Menu' will appear. Right click this menu
+	item and click Rename Item. Change its name to 'F&amp;ormat'.
+	Click the menu item and a grey bar will appear beneath it --
+	this is the empty menu. Drag the alignActionGroup to the Format
+	menu item -- the grey bar will appear and a thick black line will
+	be drawn where the new menu items will appear -- drop the action
+	here. If you click the Format menu item the three alignment
+	actions will appear. Just like the toolbar we must add the bold,
+	italic and underline actions individually. Drag the bold action
+	to the Format menu and move the mouse so that position the black
+	line is at the bottom of the menu, then release the action.
+	Repeat this process for the italic and underline actions.
 	\P
-	</sidebar>
+
+	\p
+	We'll now deal with the separators in the menus. Firstly we'll
+	add a separator in the Format menu and then we'll remove some
+	redundant separators from the other menus. Click the Format menu
+	and right click the bold item; click Insert Separator. Click the
+	File menu and right click one of the separators above the Exit
+	action; click Delete Item. Click the Edit menu, right click the
+	separator at the very bottom of the menu and click Delete Item.
+	Delete Item can be used to delete separators and menu items.
+	\P
+
+	\p
+	Click the Format menu and drag it to the left of the Help menu
+	-- a thick black bar will appear to indicate the insertion
+	postion -- drop the Format menu left of the Help menu. Menu
+	items themselves may be drag and dropped to different positions.
+	in the same way.
+	\P
+
+	\p
+	Preview the application and try clicking the alignment and font
+	style toolbar buttons and menu items. Qt will automatically keep
+	the state of the menu items and the toolbar buttons
+	synchronized.
+	\P
 		
-	</sect2>
-
-	<sect2><title>Adding Widgets to the Toolbar</title>
-	\p
-	\P
-	
 	</sect2>
 
 	<sect2><title>Adding the Main Widget</title>
@@ -187,9 +433,20 @@ buttons.
 
 	<sect2><title>Connecting up the Application</title>
 	\p
+	naming
+	\P
+	
+	\p
+	connecting
 	\P
 	
 	</sect2>
+
+    </sect1>
+
+    <sect1><title>Adding a Status Bar</title>
+    \p
+    \P
 
     </sect1>
 
