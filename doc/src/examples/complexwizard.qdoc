@@ -2,4 +2,335 @@
     \example dialogs/complexwizard
     \title Complex Wizard Example
 
+    The Complex Wizard example shows to implement complex wizards in
+    Qt.
+
+    A wizard is a special type of input dialog that consists of a
+    sequence of dialog pages. A wizard's purpose is to walk the user
+    through a process step by step. Wizards are useful for complex or
+    infrequently occurring tasks that users may find difficult to
+    learn or do.
+
+    \image complexwizard.png Screenshot of the Complex Wizard example
+
+    Most wizards have a linear structure, with step 1 followed by
+    step 2 and so on until the last step. The
+    \l{dialogs/simplewizard}{Simple Wizard} example shows how to
+    create such wizards.
+
+    Some wizards are more complex in that they allow different
+    traversal paths based on the information provided by the user.
+    The Complex Wizard example illustrates this. It provides five
+    wizard pages; depending on which options are selected, the user
+    can reach different pages.
+
+    \image complexwizard-flow.png The Complex Wizard Pages
+
+    The example consists of the following classes:
+
+    \list
+    \o \c ComplexWizard is a base class that provides the basic
+       framework for complex wizards. You can use it in your own
+       projects for implementing custom wizards.
+    \o \c WizardPage is the base class for each wizard page. Like
+       \c ComplexWizard, you can use it in your own projects.
+    \o \c LicenseWizard inherits \c ComplexWizard and provides a
+       five-page wizard that leads the user through the process
+       of choosing a license agreement.
+    \o \c LicenseWizardPage is a \c WizardPage subclass and is the
+       base class for each of the license wizard pages.
+    \o \c TitlePage, \c EvaluatePage, \c RegisterPage, \c
+       DetailsPage, and \c FinishPage are \c LicenseWizardPage
+       subclasses that implement the wizard pages.
+    \endlist
+
+    \section1 WizardPage Class
+
+    The \c WizardPage class is the base class for the wizard pages.
+    It inherits from QWidget and provides a few functions that are
+    called by \c ComplexWizard. Here's the class definition:
+
+    \quotefromfile dialogs/complexwizard/complexwizard.h
+    \skipto class WizardPage :
+    \printuntil };
+
+    Subclasses can reimplement the virtual functions to refine the
+    behavior of the class:
+
+    \list
+    \o \c resetPage() resets all the page's fields to their default
+       values.
+    \o \c nextPage() returns a pointer to the next wizard page.
+    \o \c isLastPage() returns \c true if this page is the last page;
+       otherwise it returns \c false.
+    \o \c isComplete() returns \c true if the user has filled the page
+       with enough information and is allowed to go to the next page
+       (or to click \gui{Finish} if this is the last page); otherwise
+       it returns \c false.
+    \endlist
+
+    Subclasses are also expected to emit the \c
+    completeStateChanged() signal whenever the \c isComplete() state
+    changes.
+
+    \c WizardPage provides default implementations of the virtual
+    functions:
+
+    \quotefromfile dialogs/complexwizard/complexwizard.cpp
+    \skipto ::WizardPage
+    \printuntil /^\}$/
+
+    \skipto ::resetPage
+    \printuntil /^\}$/
+
+    \skipto ::nextPage
+    \printuntil /^\}$/
+
+    \skipto ::isLastPage
+    \printuntil /^\}$/
+
+    \skipto ::isComplete
+    \printuntil /^\}$/
+
+    \section1 ComplexWizard Class Definition
+
+    \c ComplexWizard offers a \gui Cancel, a \gui Back, a \gui Next,
+    and a \gui Finish button. It takes care of enabling and disabling
+    the buttons as the user advances through the pages. For example,
+    if the user is viewing the first page, \gui Back and \gui Finish
+    are disabled. It communicates with the pages through the four
+    virtual functions declared in \c WizardPage.
+
+    Here's the class definition:
+
+    \quotefromfile dialogs/complexwizard/complexwizard.h
+    \skipto class ComplexWizard :
+    \printuntil };
+
+    The \c ComplexWizard class inherits QDialog. Subclasses must call
+    \c setFirstPage() in their constructor to get things started.
+
+    The \c historyPages() function returns the traversal path taken
+    so far by the user. This may be used by subclasses to find out
+    which pages have been visited and which pages have been skipped.
+    The current page is always last in the history. When the user
+    presses \gui Back, the previous page in the history list is
+    retrieved so that the user can adjust their input when required.
+
+    \section1 ComplexWizard Class Implementation
+
+    First the constructor:
+
+    \quotefromfile dialogs/complexwizard/complexwizard.cpp
+    \skipto ::ComplexWizard
+    \printuntil /^\}/
+
+    We start by creating the \gui Cancel, \gui Back, \gui Next, and
+    \gui Finish buttons and connecting their
+    \l{QPushButton::clicked()}{clicked()} signals to \c SimpleWizard
+    slots. The \l{QDialog::accept()}{accept()} and
+    \l{QDialog::reject()}{reject()} slots are inherited from QDialog;
+    they close the dialog and set the dialog's
+    \l{QDialog::result()}{return code} to QDialog::Accepted or
+    QDialog::Rejected. The \c backButtonClicked() and
+    \c nextButtonClicked() are defined in \c ComplexWizard.
+
+    \skipto ::setFirstPage
+    \printuntil }
+
+    The \c setFirstPage() function is called by subclasses with the
+    page that should be shown first. We call \c resetPage() to make
+    sure that its fields are correctly initialized, we append it to
+    the history, and we call \c switchPage() to make the current page
+    visible (the last page in the history). The \c switchPage()
+    function takes a pointer to the previously current page as
+    argument; here, we pass a null pointer.
+
+    \skipto ::backButtonClicked
+    \printuntil }
+
+    When the user clicks \gui Back, we remove the current page from
+    the history and clear all its fields. We call \c switchPage() to
+    make the last page in the history visible. The argument to \c
+    switchPage() is a pointer to the previously current page, not the
+    new current page.
+
+    \skipto ::nextButtonClicked
+    \printuntil }
+
+    When the user clicks \gui Next, we call \c nextPage() on the
+    current page to obtain the next page. We initialize the next
+    page's fields, we append it to the history, and we call \c
+    switchPage() to make it visible.
+
+    \skipto ::completeStateChanged()
+    \printuntil }
+
+    The \c completeStateChanged() slot is called whenever the current
+    page emits the \c completeStateChanged() signal. Depending on the
+    value of \c isComplete() and \c isFinalPage(), we enable or
+    disable the \gui Next or the \gui Finish button.
+
+    \skipto ::switchPage()
+    \printuntil }
+
+    The \c switchPage() function contains all the ugly logic for
+    making a page the current page. We start by hiding the previously
+    current page, remove it from the layout, and disconnect its \c
+    completeStateChanged() signal.
+
+    Next, we add the new current page (the last page in the history)
+    to the layout and we connect its \c completeStateChanged() to
+    \c{ComplexWizard}'s slot of the same name.
+
+    Then we must update the enabled state of the \gui Back, \gui
+    Next, and \gui Finish buttons. At the end, we call \c
+    completeStateChanged() to reuse the logic we wrote earlier to
+    enable or disable the \gui Next or \gui Finish buttons according
+    to whether the current page is complete.
+
+    This completes the \c ComplexWizard class. The good news is that
+    we can now use it to write any number of wizards, without having
+    to worry about updating the state of the wizard buttons. The rest
+    of the code implements a license wizard using \c ComplexWizard
+    and \c WizardPage.
+
+    \section1 LicenseWizardPage Class
+
+    The \c LicenseWizardPage is a thin wrapper for \c WizardPage that
+    provides a back pointer to the \c LicenseWizard:
+
+    \quotefromfile dialogs/complexwizard/licensewizard.h
+    \skipto class LicenseWizardPage :
+    \printuntil };
+
+    \section1 LicenseWizard Class
+
+    The \c LicenseWizard class derives from \c ComplexWizard and
+    provides a five-page wizard that guides the user through the
+    process of registering their copy of a fictitious software
+    product. Here's the class definition:
+
+    \quotefromfile dialogs/complexwizard/licensewizard.h
+    \skipto class LicenseWizard :
+    \printuntil };
+
+    The class's public API is limited to a constructor. More
+    interesting is the private API: It consists of a pointer to each
+    page, and makes each page a friend of the class. This will make
+    it possible for pages to refer to each other, as we will see
+    shortly.
+
+    \quotefromfile dialogs/complexwizard/licensewizard.cpp
+    \skipto ::LicenseWizard
+    \printuntil /^\}$/
+
+    In the constructor, we create the five pages and set \c titlePage
+    to be the first page.
+
+    \section1 The Title-, Evaluate-, Register-, Details-, and FinishPage Classes
+
+    The pages are defined in \c licensewizard.h and implemented in \c
+    licensewizard.cpp, together with \c LicenseWizard.
+
+    Here's the definition and implementation of \c{TitlePage}:
+
+    \quotefromfile dialogs/complexwizard/licensewizard.h
+    \skipto class TitlePage :
+    \printuntil };
+
+    We reimplement the \c resetPage() and \c nextPage() functions
+    from \c WizardPage. For the other two virtual functions (\c
+    isLastPage() and \c isComplete()), the default implementations
+    suffice ("not the last page, always complete").
+
+    \quotefromfile dialogs/complexwizard/licensewizard.cpp
+    \skipto ::TitlePage
+    \printuntil }
+
+    The \c TitlePage constructor takes a \c LicenseWizard and passes
+    it on to \c LicenseWizardPage, which stores it in its \c wizard
+    member.
+
+    The constructor sets up the page. The QWidget::setFocusProxy() call
+    ensures that whenever \c ComplexWizard calls \c setFocus() on the
+    page, the \gui{Register your copy} button gets the focus.
+
+    \printuntil TitlePage::resetPage
+
+    Resetting the \c TitlePage consists in checking the \gui{Evaluate
+    our product} option.
+
+    \printuntil TitlePage::nextPage
+    \printuntil /^\}$/
+
+    The \c nextPage() function returns the \c EvaluatePage if the
+    \gui{Evaluate our product} option is checked; otherwise it
+    returns the \c RegisterPage. We can access the wizard's pointers
+    because we made all the wizard pages friends of the \c LicenseWizard
+    class.
+
+    The \c EvaluatePage is slightly more involved:
+
+    \quotefromfile dialogs/complexwizard/licensewizard.h
+    \skipto class EvaluatePage :
+    \printuntil };
+
+    This time, we reimplement \c isComplete() in addition to \c
+    resetPage() and \c nextPage(). Here's the constructor:
+
+    \quotefromfile dialogs/complexwizard/licensewizard.cpp
+    \skipto EvaluatePage::EvaluatePage
+    \printuntil /^\}$/
+
+    The interesting part is the two QObject::connect() calls near the
+    middle. Whenever the user types in some text in the \gui{Name} or
+    \gui{Email address} fields, we emit the \c completeStateChanged()
+    signal, even though the complete state might not actually have
+    changed. It doesn't hurt anyway.
+
+    \skipto EvaluatePage::resetPage()
+    \printuntil /^\}$/
+
+    Resetting the page amounts to clearing the two text fields.
+
+    \skipto EvaluatePage::nextPage()
+    \printuntil /^\}$/
+
+    The next page is always the \c FinishPage.
+
+    \skipto EvaluatePage::isComplete()
+    \printuntil /^\}$/
+
+    The page is considered complete when both the \gui{Name} and the
+    \gui{Email address} fields contain some text.
+
+    The \c RegisterPage and \c DetailsPage are very similar. Let's go
+    directly to the \c FinishPage:
+
+    \quotefromfile dialogs/complexwizard/licensewizard.h
+    \skipto class FinishPage :
+    \printuntil };
+
+    This time, we reimplement \c isLastPage() to return \c true.
+
+    The \c resetPage() implementation is also interesting:
+
+    \quotefromfile dialogs/complexwizard/licensewizard.cpp
+    \skipto FinishPage::resetPage
+    \printuntil }
+
+    We use \c historyPages() to determine the type of license
+    agreement the user has chosen. If the user filled the \c
+    EvaluatePage, the license text refers to an Evaluation License
+    Agreement. If the user filled the \c DetailsPage, the license
+    text is a First-Time License Agreement. If the user provided an
+    upgrade key and skipped the \c DetailsPage, the license text is
+    an Update License Agreement.
+
+    \skipto ::isComplete
+    \printuntil }
+
+    The \c FinishPage is complete when the user checks the \gui{I
+    agree to the terms and conditions of the license} option.
 */

@@ -265,16 +265,14 @@
 
     A QObject instance is said to \e live in the thread in which it
     is created. Events to that object are dispatched by that thread's
-    event loop. All other access to the QObject must be made from
-    that thread, since \l{QObject}s aren't thread-safe. (See
-    \l{Accessing QObject Subclasses from Other Threads} for details.)
-    The thread in which a QObject lives is available using
+    event loop. The thread in which a QObject lives is available using
     QObject::thread().
 
     Calling \c delete on a QObject from another thread than the
-    thread where it is created is unsafe, unless you can guarantee
-    that the object isn't processing events at the same moment. Use
-    QObject::deleteLater() instead; it will post a
+    thread where it is created (or accessing the object in other
+    ways) is unsafe unless you can guarantee that the object isn't
+    processing events at the same moment. Use QObject::deleteLater()
+    instead; it will post a
     \l{QCoreEvent::DeferredDelete}{DeferredDelete} event, which the
     event loop of the object's thread will eventually pick up.
 
@@ -307,10 +305,20 @@
     thread.
 
     If you are calling a function on an QObject subclass that doesn't
-    live in the current thread and an event loop is active in the
-    object's thread, you must protect all access to your QObject
-    subclass's internal data with a mutex; otherwise, you may
-    experience crashes or other undesired behavior.
+    live in the current thread and the object might receive events,
+    you must protect all access to your QObject subclass's internal
+    data with a mutex; otherwise, you may experience crashes or other
+    undesired behavior.
+
+    Like other objects, QThread objects live in the thread where the
+    object was created -- \e not in the thread that is created when
+    QThread::run() is called. It is generally unsafe to provide slots
+    in your QThread subclass, unless you protect the member variables
+    with a mutex.
+
+    On the other hand, you can safely emit signals from your
+    QThread::run() implementation, because signal emission is
+    thread-safe.
 
     \section2 Signals and Slots Across Threads
 

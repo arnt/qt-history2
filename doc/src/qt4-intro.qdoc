@@ -8,15 +8,15 @@
     completely frozen. The feedback we receive will help us to ensure
     that the final Qt 4.0 release provides as much value and
     productivity as possible. We expect to release the final Qt 4.0
-    in Q2, 2005.
+    in late Q2, 2005.
 
-    This beta release is not meant to be used in production code.
-    However, you can already start using it for new projects. The API
-    might change before Qt 4.0 final is released, but only in minor
-    ways. You can also start porting your Qt 3 based projects over
-    to Qt 4. The \l{porting4.html}{Porting Guide} and the
-    \l{qt3to4.html}{qt3to4 porting tool} will help you with the
-    process.
+    This beta release is not meant to be used in production code, and
+    we strongly advise against doing so. However, you can start using
+    it for small, new projects where you can accept rough edges and
+    do not have schedule constraints. You can also start porting your
+    Qt 3 based projects over to Qt 4. The \l{porting4.html}{Porting
+    Guide} and the \l{qt3to4.html}{qt3to4 porting tool} will help you
+    with the process.
 
     We suggest that you write new small programs to experience what
     the next generation of Qt programming will be like. In

@@ -38,7 +38,7 @@
     \section1 Dialog Examples
 
     \list
-    \o \l{dialogs/complexwizard}{Complex Wizard}
+    \o \l{dialogs/complexwizard}{Complex Wizard}\raisedaster
     \o \l{dialogs/extension}{Extension}
     \o \l{dialogs/simplewizard}{Simple Wizard}\raisedaster
     \o \l{dialogs/standarddialogs}{Standard Dialogs}
