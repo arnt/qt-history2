@@ -285,6 +285,8 @@ MakefileGenerator::init()
 
     //moc files
     if ( mocAware() ) {
+	if(!project->variables()["MOC_DIR"].isEmpty())
+	    project->variables()["INCLUDEPATH"].append(project->variables()["MOC_DIR"].first());
 	v["OBJMOC"] = createObjectList("_HDRMOC") + createObjectList("_UIMOC");
 	v["SRCMOC"] = v["_HDRMOC"] + v["_SRCMOC"] + v["_UIMOC"];
     }
