@@ -2036,7 +2036,7 @@ Draw_Sweep( RAS_ARG )
     short winding;
 
     TProfileList  waiting;
-//     TProfileList  draw_left, draw_right;
+/*     TProfileList  draw_left, draw_right; */
 
     TProfileList profile_list;
 
@@ -2047,8 +2047,8 @@ Draw_Sweep( RAS_ARG )
 
     Init_Linked( &waiting );
 
-//     Init_Linked( &draw_left  );
-//     Init_Linked( &draw_right );
+/*     Init_Linked( &draw_left  );*/
+/*     Init_Linked( &draw_right );*/
 
     Init_Linked( &profile_list );
 
@@ -2153,7 +2153,7 @@ Draw_Sweep( RAS_ARG )
 
                 if (ras.odd_even) {
                     P_Right = P_Left->link;
-                } else { // Winding fill;
+                } else { /* Winding fill; */
                     P_Right = P_Left;
                     while (winding && P_Right->link) {
                         P_Right = P_Right->link;
@@ -2161,8 +2161,8 @@ Draw_Sweep( RAS_ARG )
                     }
                 }
 
-                // We need an even number of intersections, otherwise there is something
-                // wrong...
+                /* We need an even number of intersections, otherwise there is something */
+                /* wrong... */
                 if (!P_Right) {
                     printf("bad...\n");
                     return Raster_Err_Invalid;
@@ -2378,7 +2378,7 @@ static void
 qt_ft_black_done( QT_FT_Raster  raster )
 {
     /* nothing */
-//     raster->init = 0;
+/*     raster->init = 0; */
 }
 
 
