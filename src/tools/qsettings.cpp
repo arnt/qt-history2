@@ -39,7 +39,7 @@
 
 // POSIX Large File Support redefines open -> open64
 static inline int qt_open( const char *pathname, int flags, mode_t mode )
-{ return ::open( pathname, flags, mode ); }
+{ return QT_OPEN( pathname, flags, mode ); }
 #if defined(open)
 # undef open
 #endif
