@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontdatabase.cpp#17 $
+** $Id: //depot/qt/main/src/kernel/qfontdatabase.cpp#18 $
 **
 ** Implementation of font database class.
 **
@@ -1126,13 +1126,27 @@ debug("%s with quality %x",familyName.latin1(),f->elfLogFont.lfQuality);
 	add_style( charSet, styleName, FALSE, FALSE, weight );
 	add_style( charSet, styleName, FALSE, TRUE, weight );
 
-	if ( weight < QFont::DemiBold*10 ) {
+	if ( weight < QFont::DemiBold ) {
 	    // Can make bolder
 	    add_style( charSet, styleName, FALSE, FALSE, QFont::Bold );
 	    add_style( charSet, styleName, FALSE, TRUE, QFont::Bold );
 	}
     } else {
-	add_style( charSet, styleName, italic, FALSE, weight );
+	if ( italic ) {
+	    add_style( charSet, styleName, italic, FALSE, weight );
+	} else {
+	    add_style( charSet, styleName, italic, FALSE, weight );
+	    add_style( charSet, QString::null, italic, TRUE, weight );
+	}
+	if ( weight < QFont::DemiBold ) {
+	    // Can make bolder
+	    if ( italic )
+		add_style( charSet, QString::null, italic, FALSE, QFont::Bold );
+	    else {
+		add_style( charSet, QString::null, FALSE, FALSE, QFont::Bold );
+		add_style( charSet, QString::null, FALSE, TRUE, QFont::Bold );
+	    }
+	}
     }
 }
 
