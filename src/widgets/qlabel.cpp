@@ -593,7 +593,17 @@ QSize QLabel::sizeHint() const
 {
     //     Does not work well with the WordBreak flag; use
     //    heightForWidth() in stead.
-    return sizeForWidth( -1 );
+#ifndef QT_NO_RICHTEXT
+    int oldW = 0;
+    if ( doc )
+	oldW = doc->width();
+#endif
+    QSize sh = sizeForWidth( -1 );
+#ifndef QT_NO_RICHTEXT
+    if ( doc )
+	doc->setWidth( oldW );
+#endif
+    return sh;
 }
 
 /*!
