@@ -91,20 +91,245 @@ void QAbstractItemViewPrivate::init()
 }
 
 /*!
-  \class QAbstractItemView qabstractitemview.h
+    \class QAbstractItemView qabstractitemview.h
 
-  \brief Abstract baseclass for every view working on a QAbstractItemModel
+    \brief The QAbstractItemView class is the base class for every
+    view that uses a QAbstractItemModel.
 
-  This subclass of QViewprt provides the base functionality needed
-  by every item view which works on a QAbstractItemModel. It handles common
-  functionality of editing of items, keyboard and mouse handling, etc.
- Current item and  selections are handled by the QItemSelectionModel.
+    This class is a QViewport subclass that provides all the
+    functionality common to all views, such as keyboard and mouse
+    support for editing items, scrolling, and selection control; (but
+    note that selections are handled separately by the
+    QItemSelectionModel class).
 
-  A specific view only implements the specific functionality of that
-  view, like drawing an item, returning the geometry of an item,
-  finding items, etc.
+    The view classes that inherit QAbstractItemView only need
+    to implement their own view-specific functionality, such as
+    drawing items, returning the geometry of items, finding items,
+    etc.
+
+    QAbstractItemView provides common slots such as edit() and
+    setCurrentItem(), and common signals such as clicked(),
+    doubleClicked(), returnPressed(), spacePressed(), and
+    deletePressed(). Many protected slots are also provided, including
+    contentsChanged(), contentsInserted(), contentsRemoved(),
+    selectionChanged(), and currentChanged().
+
+    The ``root'' item is returned by root(), and the current item by
+    currentItem(). To make sure that an item is visible use
+    ensureItemVisible().
+
+    Some of QAbstractItemView's functions are concerned with
+    scrolling, for example setHorizontalFactor() and
+    setVerticalFactor(). Several other functions are concerned with
+    selection control, for example, setSelectionModel(),
+    setSelectionMode(), and setSelectionBehavior().
+
+    For complete control over the display and editing of items you can
+    specify a delegate with setItemDelegate().
+
+    QAbstractItemView provides a lot of protected functions. Some are
+    concerned with editing, for example, startEdit(), endEdit(), and
+    currentEditor(), whilst others are keyboard and mouse event
+    handlers.
+
 */
 
+/*!
+    \enum QAbstractItemView::SelectionMode
+
+    \value Single
+    \value Multi
+    \value Extended
+*/
+
+/*!
+    \enum QAbstractItemView::SelectionBehavior
+
+    \value SelectItems
+    \value SelectRows
+    \value SelectColumns
+*/
+
+/*!
+    \enum QAbstractItemView::CursorAction
+
+    \value MoveUp
+    \value MoveDown
+    \value MoveLeft
+    \value MoveRight
+    \value MoveHome
+    \value MoveEnd
+    \value MovePageUp
+    \value MovePageDown
+*/
+
+/*!
+    \enum QAbstractItemView::State
+
+    \value NoState
+    \value Dragging
+    \value Selecting
+    \value Editing
+    \value Opening
+    \value Closing
+*/
+
+
+/*!
+    \fn QRect QAbstractItemView::itemViewportRect(const QModelIndex &index) const = 0
+    Returns the rectangle on the viewport occupied by the item at \a
+    index.
+
+    In the base class this is a pure virtual function.
+*/
+
+
+/*!
+    \fn void QAbstractItemView::ensureItemVisible(const QModelIndex &index) = 0
+
+    Scrolls the view if necessary to ensure that the item at \a index
+    is visible.
+
+    In the base class this is a pure virtual function.
+*/
+
+
+/*!
+    \fn QModelIndex QAbstractItemView::itemAt(const QPoint &p) const
+
+    \overload
+
+    Returns the model index of the item at point \a p.
+
+    In the base class this is built on the other itemAt() function,
+    which is pure virtual.
+*/
+
+
+/*!
+    \fn QModelIndex QAbstractItemView::itemAt(int x, int y) const = 0
+
+    Returns the model index of the item at point \a(x, y).
+
+    In the base class this is a pure virtual function.
+*/
+
+/*!
+    \fn void QAbstractItemView::needMore()
+
+    \internal
+*/
+
+/*!
+    \fn void QAbstractItemView::pressed(const QModelIndex &index, int button)
+
+    This signal is emitted when a mouse button is pressed. The button
+    is given by \a button (see \l{Qt::ButtonState}), and the item the
+    mouse was pressed on is given by \a index (which may be invalid if
+    the mouse was not pressed on an item).
+*/
+
+/*!
+    \fn void QAbstractItemView::clicked(const QModelIndex &index, int button)
+
+    This signal is emitted when a mouse button is clicked. The button
+    is given by \a button (see \l{Qt::ButtonState}), and the item the
+    mouse was clicked on is given by \a index (which may be invalid if
+    the mouse was not clicked on an item).
+*/
+
+/*!
+    \fn void QAbstractItemView::doubleClicked(const QModelIndex &index, int button)
+
+    This signal is emitted when a mouse button is double-clicked. The
+    button is given by \a button (see \l{Qt::ButtonState}), and the
+    item the mouse was double-clicked on is given by \a index (which
+    may be invalid if the mouse was not double-clicked on an item).
+*/
+
+/*!
+    \fn void QAbstractItemView::returnPressed(const QModelIndex &index)
+
+    This signal is emitted when Return (or Enter) is pressed. The item
+    that the key press was made on is given by \a index.
+*/
+
+/*!
+    \fn void QAbstractItemView::spacePressed(const QModelIndex &index)
+
+    This signal is emitted when Space is pressed. The item that the
+    key press was made on is given by \a index.
+*/
+
+/*!
+    \fn void QAbstractItemView::deletePressed(const QModelIndex &index)
+
+    This signal is emitted when the Delete key is pressed. The item
+    that the key press was made on is given by \a index.
+*/
+
+/*!
+    \fn void QAbstractItemView::aboutToShowContextMenu(QMenu *menu, const QModelIndex &index)
+
+    This signal is emitted when the context menu is invoked. The \a
+    menu is an empty menu; if you populate it with actions it will be
+    popped up for the user. The current item when the contex menu
+    event occurred is given by \a index.
+*/
+
+/*!
+    \fn QModelIndex QAbstractItemView::moveCursor(QAbstractItemView::CursorAction cursorAction, ButtonState state) = 0
+
+    Moves the cursor in the view in accordance with the given \a
+    cursorAction and button \a state.
+*/
+
+
+/*!
+    \fn int QAbstractItemView::horizontalOffset() const = 0
+
+    Returns the horizontal offset of the view.
+
+    In the base class this is a pure virtual function.
+*/
+
+/*!
+    \fn int QAbstractItemView::verticalOffset() const = 0
+
+    Returns the vertical offset of the view.
+
+    In the base class this is a pure virtual function.
+*/
+
+
+/*!
+    \fn void QAbstractItemView::setSelection(const QRect &rect, int command) = 0
+
+    Applies the selection \a command to the items in or touched by the
+    rectangle, \a rect.
+
+    \sa selectionCommand()
+*/
+
+/*!
+    \fn QRect QAbstractItemView::selectionViewportRect(const QItemSelection &selection) const = 0
+
+    Returns the rectangle from the viewport of the items in the given
+    \a selection.
+*/
+
+/*!
+    \fn int QAbstractItemView::selectionCommand(ButtonState state, const QModelIndex &index, QEvent::Type type, Qt::Key key) const
+
+    Returns a ``selection command'' based on the given button \a
+    state, model item \a index, event \a type, and \a key.
+*/
+
+
+/*!
+    Creates a new QAbstractItemView to view the \a model, and with
+    parent \a parent.
+*/
 QAbstractItemView::QAbstractItemView(QAbstractItemModel *model, QWidget *parent)
     : QViewport(*(new QAbstractItemViewPrivate), parent)
 {
@@ -113,6 +338,9 @@ QAbstractItemView::QAbstractItemView(QAbstractItemModel *model, QWidget *parent)
     d->init();
 }
 
+/*!
+    \internal
+*/
 QAbstractItemView::QAbstractItemView(QAbstractItemViewPrivate &dd, QAbstractItemModel *model, QWidget *parent)
     : QViewport(dd, parent)
 {
@@ -121,42 +349,79 @@ QAbstractItemView::QAbstractItemView(QAbstractItemViewPrivate &dd, QAbstractItem
     d->init();
 }
 
+/*!
+    Destroys the view.
+*/
 QAbstractItemView::~QAbstractItemView()
 {
 }
 
+/*!
+    Returns the model that this view is presenting. The model is set
+    in the constructor.
+*/
 QAbstractItemModel *QAbstractItemView::model() const
 {
     return d->model;
 }
 
+/*!
+    Sets the horizontal scrollbar's stepping factor to \a factor.
+
+    \sa horizontalFactor() setVerticalFactor()
+*/
 void QAbstractItemView::setHorizontalFactor(int factor)
 {
     d->horizontalFactor = factor;
     horizontalScrollBar()->setSingleStep(factor);
 }
 
+/*!
+    Returns the horizontal scrollbar's stepping factor.
+
+    \sa setHorizontalFactor() verticalFactor()
+*/
 int QAbstractItemView::horizontalFactor() const
 {
     return d->horizontalFactor;
 }
 
+/*!
+    Sets the vertical scrollbar's stepping factor to \a factor.
+
+    \sa verticalFactor() setHorizontalFactor()
+*/
 void QAbstractItemView::setVerticalFactor(int factor)
 {
     d->verticalFactor = factor;
     verticalScrollBar()->setSingleStep(factor);
 }
 
+/*!
+    Returns the vertical scrollbar's stepping factor.
+
+    \sa setVerticalFactor() horizontalFactor()
+*/
 int QAbstractItemView::verticalFactor() const
 {
     return d->verticalFactor;
 }
 
+/*!
+    Clears the selection.
+
+    \sa setSelectionModel()
+*/
 void QAbstractItemView::clearSelections()
 {
     d->selectionModel->clear();
 }
 
+/*!
+    Sets the current selection to be \a selectionModel.
+
+    \sa selectionModel() clearSelections()
+*/
 void QAbstractItemView::setSelectionModel(QItemSelectionModel *selectionModel)
 {
     if (!selectionModel)
@@ -189,52 +454,101 @@ void QAbstractItemView::setSelectionModel(QItemSelectionModel *selectionModel)
     selectionModel->blockSignals(block);
 }
 
+// ### DOC: Couldn't we call this selection() (and setSelection() and clearSelection()) ?
+/*!
+    Returns the current selection.
+
+    \sa setSelectionModel() clearSelections()
+*/
 QItemSelectionModel* QAbstractItemView::selectionModel() const
 {
     return d->selectionModel;
 }
 
+/*!
+    Sets the \l{SelectionMode} flags to \a mode.
+
+    \sa selectionMode() SelectionBehavior
+*/
 void QAbstractItemView::setSelectionMode(int mode)
 {
     d->selectionMode = mode;
 }
 
+/*!
+    Returns the \l{SelectionMode} flags.
+
+    \sa setSelectionMode() SelectionBehavior
+*/
 int QAbstractItemView::selectionMode() const
 {
     return d->selectionMode;
 }
 
+/*!
+    Sets the \l{SelectionBehavior} flags to \a behavior.
+
+    \sa selectionBehavior() SelectionMode
+*/
 void QAbstractItemView::setSelectionBehavior(int behavior)
 {
     d->selectionBehavior = behavior;
 }
 
+/*!
+    Returns the \l{SelectionBehavior} flags.
+
+    \sa setSelectionBehavior() SelectionMode
+*/
 int QAbstractItemView::selectionBehavior() const
 {
     return d->selectionBehavior;
 }
 
-void QAbstractItemView::setCurrentItem(const QModelIndex &data)
+/*!
+    Sets the current item to be the item at \a index.
+
+    \sa currentItem()
+*/
+void QAbstractItemView::setCurrentItem(const QModelIndex &index)
 {
-    d->selectionModel->setCurrentItem(data, selectionCommand(NoButton, data));
+    d->selectionModel->setCurrentItem(index, selectionCommand(NoButton, data));
 }
 
+/*!
+    Returns the model index of the current item.
+
+    \sa setCurrentItem()
+*/
 QModelIndex QAbstractItemView::currentItem() const
 {
     return d->selectionModel->currentItem();
 }
 
+/*!
+    Sets the ``root'' item to the item at \a index.
+
+    \sa root()
+*/
 void QAbstractItemView::setRoot(const QModelIndex &index)
 {
     d->root = index;
     doItemsLayout();
 }
 
+/*!
+    Returns the model index of the model's ``root'' item.
+
+    \sa setRoot()
+*/
 QModelIndex QAbstractItemView::root() const
 {
     return d->root;
 }
 
+/*!
+    Calls startEdit() for the item at \a index.
+*/
 void QAbstractItemView::edit(const QModelIndex &index)
 {
     if (!index.isValid())
@@ -243,30 +557,43 @@ void QAbstractItemView::edit(const QModelIndex &index)
         qWarning("edit: editing failed");
 }
 
+// ### DOC: Guessed
+/*!
+    \internal
+*/
 void QAbstractItemView::doItemsLayout()
 {
     d->viewport->update();
     // do nothing
 }
 
+// ### DOC: Guessed
+/*!
+    \internal
+*/
 void QAbstractItemView::setStartEditActions(int actions)
 {
     d->startEditActions = actions;
 }
 
+// ### DOC: Guessed
+/*!
+    \internal
+*/
 int QAbstractItemView::startEditActions() const
 {
     return d->startEditActions;
 }
 
 /*!
-  \property QAbstractItemView::autoScroll
-  \brief whether autoscrolling in drag move events is enabled
+    \property QAbstractItemView::autoScroll
+    \brief whether autoscrolling in drag move events is enabled
 
-  If this property is set to true (the default), the QAbstractItemView
-  automatically scrolls the contents of the view.
-  This works only if the viewport accepts drops. Specifying false
-  disables this autoscroll feature.
+    If this property is set to true (the default), the
+    QAbstractItemView automatically scrolls the contents of the view
+    if the user drags past the left or bottom edge. This only works if
+    the viewport accepts drops. Autoscroll is switched off by setting
+    the property to false.
 */
 void QAbstractItemView::setAutoScroll(bool b)
 {
@@ -278,6 +605,12 @@ bool QAbstractItemView::autoScroll() const
     return d->autoScroll;
 }
 
+/*!
+    This function is used to handle tool tips, status tips, and What's
+    This? mode, if event \a e is a QEvent::ToolTip, a
+    QEvent::WhatsThis, or a QEvent::StatusTip. It passes all other
+    events on to its base class event() handler.
+*/
 bool QAbstractItemView::event(QEvent *e)
 {
     switch (e->type()) {
@@ -316,6 +649,11 @@ bool QAbstractItemView::event(QEvent *e)
     return QViewport::event(e);
 }
 
+/*!
+    This function is called when a mouse event \a e occurs. If a valid
+    item is pressed on it is made into the current item. This function
+    emits the pressed() signal.
+*/
 void QAbstractItemView::mousePressEvent(QMouseEvent *e)
 {
     QPoint pos = e->pos();
@@ -333,6 +671,11 @@ void QAbstractItemView::mousePressEvent(QMouseEvent *e)
     emit pressed(index, e->button());
 }
 
+/*!
+    This function is called when a mouse move event \a e occurs. If a
+    selection is in progress and new items are moved over the
+    selection is extended; if a drag is in progress it is continued.
+*/
 void QAbstractItemView::mouseMoveEvent(QMouseEvent *e)
 {
     if (!(e->state() & LeftButton))
@@ -371,6 +714,14 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *e)
                  selectionCommand(e->state(), item, e->type()));
 }
 
+/*!
+    This function is called when a mouse release event \a e
+    occurs. It will emit the clicked() signal if an item was being
+    pressed and will send a context menu event if it is a right-mouse
+    button release.
+
+    \sa contextMenuEvent()
+*/
 void QAbstractItemView::mouseReleaseEvent(QMouseEvent *e)
 {
     QPoint pos = e->pos();
@@ -385,6 +736,11 @@ void QAbstractItemView::mouseReleaseEvent(QMouseEvent *e)
     }
 }
 
+/*!
+    This function is called when a mouse double-click event \a e
+    occurs. If the double-click is on a valid item it emits the
+    doubleClicked() signal and calls startEdit() on the item.
+*/
 void QAbstractItemView::mouseDoubleClickEvent(QMouseEvent *e)
 {
     QModelIndex item = itemAt(e->pos());
@@ -394,6 +750,13 @@ void QAbstractItemView::mouseDoubleClickEvent(QMouseEvent *e)
     startEdit(item, QAbstractItemDelegate::DoubleClicked, e);
 }
 
+/*!
+    This function is called when context menu event \a e occurs. It
+    emits the aboutToShowContextMenu() signal with a pointer to a
+    QMenu object; if this QMenu object is populated with actions (e.g.
+    in a slot you've connected to the aboutToShowContextMenu()
+    signal), then the menu is shown.
+*/
 void QAbstractItemView::contextMenuEvent(QContextMenuEvent *e)
 {
     QPoint position = e->pos();
@@ -404,12 +767,26 @@ void QAbstractItemView::contextMenuEvent(QContextMenuEvent *e)
         contextMenu.exec(mapToGlobal(position));
 }
 
+/*!
+    This function is called when drag enter event \a e occurs. If the
+    drag is over a valid dropping place (e.g. over an item that
+    accepts drops), the event is accepted.
+
+    \sa dropEvent() startDrag()
+*/
 void QAbstractItemView::dragEnterEvent(QDragEnterEvent *e)
 {
     if (model()->canDecode(e))
         e->accept();
 }
 
+/*!
+    This function is called when drag move event \a e occurs. It can
+    cause the view to scroll, for example if the user drags a
+    selection to view's right or bottom edge.
+
+    \sa dropEvent() startDrag()
+*/
 void QAbstractItemView::dragMoveEvent(QDragMoveEvent *e)
 {
     if (!model()->canDecode(e)) {
@@ -422,6 +799,13 @@ void QAbstractItemView::dragMoveEvent(QDragMoveEvent *e)
         startAutoScroll();
 }
 
+/*!
+    This function is called when drop event \a e occurs. If there's a
+    valid item under the mouse pointer when the drop occurs, the drop
+    is accepted.
+
+    \sa startDrag() itemAt()
+*/
 void QAbstractItemView::dropEvent(QDropEvent *e)
 {
     QModelIndex index = itemAt(e->pos());
@@ -429,6 +813,10 @@ void QAbstractItemView::dropEvent(QDropEvent *e)
         e->accept();
 }
 
+/*!
+    This function is called when focus event \a e occurs and is a
+    focus in event.
+*/
 void QAbstractItemView::focusInEvent(QFocusEvent *e)
 {
     QViewport::focusInEvent(e);
@@ -437,6 +825,10 @@ void QAbstractItemView::focusInEvent(QFocusEvent *e)
         d->viewport->update(itemViewportRect(item));
 }
 
+/*!
+    This function is called when focus event \a e occurs and is a
+    focus out event.
+*/
 void QAbstractItemView::focusOutEvent(QFocusEvent *e)
 {
     QViewport::focusOutEvent(e);
@@ -445,6 +837,16 @@ void QAbstractItemView::focusOutEvent(QFocusEvent *e)
         d->viewport->update(itemViewportRect(item));
 }
 
+/*!
+    This function is called when a key event \a e occurs. It handles
+    basic cursor movement, e.g. Up, Down, Left, Right, Home, PageUp,
+    and PageDown, and emits the returnPressed(), spacePressed(), and
+    deletePressed() signals is the associated key is pressed. This
+    function is where editing is initiated by key press, e.g. if F2 is
+    pressed.
+
+    \sa startEdit()
+*/
 void QAbstractItemView::keyPressEvent(QKeyEvent *e)
 {
     bool hadCurrent = true;
@@ -548,6 +950,10 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
     }
 }
 
+// ### DOC: Guessed
+/*!
+    This function is called when a resize event \a e occurs.
+*/
 void QAbstractItemView::resizeEvent(QResizeEvent *e)
 {
     d->backBuffer.resize(e->size());
@@ -555,18 +961,34 @@ void QAbstractItemView::resizeEvent(QResizeEvent *e)
     updateGeometries();
 }
 
+/*!
+    This function is called when a show event \a e occurs.
+*/
 void QAbstractItemView::showEvent(QShowEvent *e)
 {
     QViewport::showEvent(e);
     updateGeometries();
 }
 
+// ### DOC: Guessed
+/*!
+    \internal
+*/
 void QAbstractItemView::timerEvent(QTimerEvent *e)
 {
     if (e->timerId() == d->autoScrollTimer)
         doAutoScroll();
 }
 
+/*!
+    Starts editing the item at \a index, creating an editor if
+    necessary, and returns true if the view's \l{State} is now \c
+    Editing; otherwise returns false. The action that initiated the
+    editing is given by \a action, and the event that was behind this
+    is given by \a event.
+
+    \sa endEdit() QAbstractItemDelegate::releaseEditor()
+*/
 bool QAbstractItemView::startEdit(const QModelIndex &index,
                                   QAbstractItemDelegate::StartEditAction action,
                                   QEvent *event)
@@ -581,6 +1003,14 @@ bool QAbstractItemView::startEdit(const QModelIndex &index,
     return d->state == Editing;
 }
 
+/*!
+    If \a accept is true the edit of the item at \a index is accepted
+    and the model is updated with the editor's value. If \a accept is
+    false, the edited value is ignored. In both cases, if there was an
+    editor widget it is released.
+
+    \sa startEdit() QAbstractItemDelegate::releaseEditor()
+*/
 void QAbstractItemView::endEdit(const QModelIndex &index, bool accept)
 {
     if (!index.isValid())
@@ -607,6 +1037,10 @@ void QAbstractItemView::endEdit(const QModelIndex &index, bool accept)
     setFocus();
 }
 
+/*!
+    Returns the editor if the view is in the \c Editing \l{State};
+    otherwise returns 0.
+*/
 QWidget *QAbstractItemView::currentEditor() const
 {
     if (d->state == Editing)
@@ -614,6 +1048,10 @@ QWidget *QAbstractItemView::currentEditor() const
     return 0;
 }
 
+// ### DOC: Guessed
+/*!
+    \internal
+*/
 void QAbstractItemView::updateCurrentEditor()
 {
     //  this presumes that only one editor is open at one time
@@ -626,21 +1064,35 @@ void QAbstractItemView::updateCurrentEditor()
     itemDelegate()->updateEditorGeometry(d->currentEditor, options, item);
 }
 
+// ### DOC: No idea!
 void QAbstractItemView::updateGeometries()
 {
     //do nothing
 }
 
+// ### DOC: No idea!
 void QAbstractItemView::verticalScrollbarAction(int)
 {
     //do nothing
 }
 
+// ### DOC: No idea!
 void QAbstractItemView::horizontalScrollbarAction(int)
 {
     //do nothing
 }
 
+/*!
+    If the \a object is the current editor: if the \a event is an Esc
+    key press the current edit is cancelled and ended, or if the \a
+    event is an Enter or Return key press the current edit is accepted
+    and ended. If editing is ended the event filter returns true to
+    signify that it has handled the event; in all other cases it does
+    nothing and returns false to signify that the event hasn't been
+    handled.
+
+    \sa endEdit()
+*/
 bool QAbstractItemView::eventFilter(QObject *object, QEvent *event)
 {
     if (object == d->currentEditor && event->type() == QEvent::KeyPress) {
@@ -702,6 +1154,9 @@ void QAbstractItemView::keyboardSearch(const QString &search) {
     }
 }
 
+/*!
+    Returns the size hint for the specified \a item.
+*/
 QSize QAbstractItemView::itemSizeHint(const QModelIndex &item) const
 {
     QItemOptions options;
@@ -709,6 +1164,9 @@ QSize QAbstractItemView::itemSizeHint(const QModelIndex &item) const
     return itemDelegate()->sizeHint(fontMetrics(), options, item);
 }
 
+/*!
+    Returns the height size hint for the specified \a row.
+*/
 int QAbstractItemView::rowSizeHint(int row) const
 {
     QItemOptions options;
@@ -724,6 +1182,9 @@ int QAbstractItemView::rowSizeHint(int row) const
     return height;
 }
 
+/*!
+    Returns the width size hint for the specified \a column.
+*/
 int QAbstractItemView::columnSizeHint(int column) const
 {
     QItemOptions options;
@@ -754,6 +1215,12 @@ int QAbstractItemView::keyboardInputInterval() const
     return d->inputInterval;
 }
 
+/*!
+    This signal is emitted if items are changed in the model. The
+    changed items are those from \a topLeft to \a bottomRight
+    inclusive. If just one item is changed \a topLeft == \a
+    bottomRight.
+*/
 void QAbstractItemView::contentsChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
 {
     // Single item changed
@@ -767,18 +1234,38 @@ void QAbstractItemView::contentsChanged(const QModelIndex &topLeft, const QModel
     doItemsLayout();
 }
 
+/*!
+    This signal is emitted if new items are inserted into the model.
+    The new items are those from \a topLeft to \a bottomRight
+    inclusive.
+
+    The base class implementation does nothing.
+*/
 void QAbstractItemView::contentsInserted(const QModelIndex &, const QModelIndex &)
 {
     // do nothing
     // NOTE: if root() was a valid QModelIndex, it may have been invalidated
 }
 
+/*!
+    This signal is emitted if items are removed from the model. The
+    removed items are those from \a topLeft to \a bottomRight
+    inclusive.
+
+    The base class implementation does nothing.
+*/
 void QAbstractItemView::contentsRemoved(const QModelIndex &, const QModelIndex &)
 {
     // do nothing
     // NOTE: if root() was a valid QModelIndex, it may have been invalidated
 }
 
+/*!
+    Returns the item delegate used by this view and model. This is
+    either one set with setItemDelegate(), or the default one.
+
+    \sa setItemDelegate()
+*/
 QAbstractItemDelegate *QAbstractItemView::itemDelegate() const
 {
     if (!d->delegate)
@@ -786,6 +1273,13 @@ QAbstractItemDelegate *QAbstractItemView::itemDelegate() const
     return d->delegate;
 }
 
+/*!
+    Sets the item delegate for this view and its model to \a delegate.
+    This is useful if you want complete control over the editing and
+    display of items.
+
+    \sa itemDelegate()
+*/
 void QAbstractItemView::setItemDelegate(QAbstractItemDelegate *delegate)
 {
     if (delegate->model() != model()) {
@@ -798,6 +1292,11 @@ void QAbstractItemView::setItemDelegate(QAbstractItemDelegate *delegate)
     d->delegate = delegate;
 }
 
+/*!
+    This signal is emitted when the selection is changed. The previous
+    selection (which may be empty), is given by \a deselected, and the
+    new selection by \a selected.
+*/
 void QAbstractItemView::selectionChanged(const QItemSelection &deselected,
                                          const QItemSelection &selected)
 {
@@ -806,6 +1305,14 @@ void QAbstractItemView::selectionChanged(const QItemSelection &deselected,
     d->viewport->repaint(deselectedRect.unite(selectedRect));
 }
 
+/*!
+    This signal is emitted when a new item becomes the current item.
+    The previous current item is given by \a old, and the new current
+    item by \a current.
+
+    If you want to know about changes to items see the
+    contentsChanged() signal.
+*/
 void QAbstractItemView::currentChanged(const QModelIndex &old, const QModelIndex &current)
 {
     if (d->currentEditor)
@@ -828,22 +1335,41 @@ void QAbstractItemView::fetchMore()
         model()->fetchMore();
 }
 
+/*!
+    Clears the area specified by \a rect with the palette's base color
+    using the given \a painter.
+*/
 void QAbstractItemView::clearArea(QPainter *painter, const QRect &rect) const
 {
     painter->fillRect(rect, palette().brush(QPalette::Base));
 }
 
+/*!
+    Returns true if this view supports drag and drop; otherwise
+    returns false.
+
+    The base class implementation returns false.
+*/
 bool QAbstractItemView::supportsDragAndDrop() const
 {
     return false;
 }
 
+/*!
+    Returns a new drag object that contains the model indexes of all
+    the model's selected items.
+
+    \sa startDrag()
+*/
 QDragObject *QAbstractItemView::dragObject()
 {
     QModelIndexList items = d->selectionModel->selectedItems();
     return model()->dragObject(items, this);
 }
 
+/*!
+    Starts a drag by calling drag() on a new dragObject().
+*/
 void QAbstractItemView::startDrag()
 {
     QDragObject *obj = dragObject();
@@ -852,17 +1378,31 @@ void QAbstractItemView::startDrag()
     obj->drag();
 }
 
+/*!
+    Populates the \a options with the view's palette and whether or
+    not the view is in the \c Editing state.
+*/
 void QAbstractItemView::getViewOptions(QItemOptions *options) const
 {
     options->palette = palette();
     options->editing = state() == Editing;
 }
 
+/*!
+    Returns the item view's state.
+
+    \sa setState()
+*/
 QAbstractItemView::State QAbstractItemView::state() const
 {
     return d->state;
 }
 
+/*!
+    Sets the item view's state to \a state
+
+    \sa state()
+*/
 void QAbstractItemView::setState(State state)
 {
     d->state = state;
