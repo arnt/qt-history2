@@ -127,6 +127,7 @@ public:
     void setExclusive( bool );
     bool isExclusive() const;
     void insert( QAction* );
+    void insertSeparator();
     bool addTo( QWidget* );
     bool removeFrom( QWidget* );
     void setEnabled( bool );

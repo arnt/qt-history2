@@ -638,34 +638,42 @@ void QAction::toolButtonToggled( bool on )
 bool QAction::addTo( QWidget* w )
 {
     if ( w->inherits( "QToolBar" ) ) {
-	QToolButton* btn = new QToolButton( (QToolBar*) w );
-	btn->setToggleButton( d->toggleaction );
-	d->toolbuttons.append( btn );
-	if ( d->iconset )
-	    btn->setIconSet( *d->iconset );
-	d->update( QActionPrivate::State );
-	d->update( QActionPrivate::Everything );
-	connect( btn, SIGNAL( clicked() ), this, SIGNAL( activated() ) );
-	connect( btn, SIGNAL( toggled(bool) ), this, SLOT( toolButtonToggled(bool) ) );
-	connect( btn, SIGNAL( destroyed() ), this, SLOT( objectDestroyed() ) );
-	connect( d->tipGroup, SIGNAL(showTip(const QString&)), this, SLOT(showStatusText(const QString&)) );
-	connect( d->tipGroup, SIGNAL(removeTip()), this, SLOT(clearStatusText()) );
+	if ( !qstrcmp( name(), "qt_separator_action" ) ) {
+	    ((QToolBar*)w)->addSeparator();
+	} else {
+	    QToolButton* btn = new QToolButton( (QToolBar*) w );
+	    btn->setToggleButton( d->toggleaction );
+	    d->toolbuttons.append( btn );
+	    if ( d->iconset )
+		btn->setIconSet( *d->iconset );
+	    d->update( QActionPrivate::State );
+	    d->update( QActionPrivate::Everything );
+	    connect( btn, SIGNAL( clicked() ), this, SIGNAL( activated() ) );
+	    connect( btn, SIGNAL( toggled(bool) ), this, SLOT( toolButtonToggled(bool) ) );
+	    connect( btn, SIGNAL( destroyed() ), this, SLOT( objectDestroyed() ) );
+	    connect( d->tipGroup, SIGNAL(showTip(const QString&)), this, SLOT(showStatusText(const QString&)) );
+	    connect( d->tipGroup, SIGNAL(removeTip()), this, SLOT(clearStatusText()) );
+	}
     } else if ( w->inherits( "QPopupMenu" ) ) {
-	QActionPrivate::MenuItem* mi = new QActionPrivate::MenuItem;
-	mi->popup = (QPopupMenu*) w;
-	QIconSet* diconset = d->iconset; // stupid GCC 2.7.x compiler
-	if ( diconset )
-	    mi->id = mi->popup->insertItem( *diconset, QString::fromLatin1("") );
-	else
-	    mi->id = mi->popup->insertItem( QString::fromLatin1("") );
-	mi->popup->connectItem( mi->id, this, SLOT(internalActivation()) );
-	d->menuitems.append( mi );
-	d->update( QActionPrivate::State );
-	d->update( QActionPrivate::Everything );
-	w->topLevelWidget()->className();
-	connect( mi->popup, SIGNAL(highlighted( int )), this, SLOT(menuStatusText( int )) );
-	connect( mi->popup, SIGNAL(aboutToHide()), this, SLOT(clearStatusText()) );
-	connect( mi->popup, SIGNAL( destroyed() ), this, SLOT( objectDestroyed() ) );
+	if ( !qstrcmp( name(), "qt_separator_action" ) ) {
+	    ((QPopupMenu*)w)->insertSeparator();
+	} else {
+	    QActionPrivate::MenuItem* mi = new QActionPrivate::MenuItem;
+	    mi->popup = (QPopupMenu*) w;
+	    QIconSet* diconset = d->iconset; // stupid GCC 2.7.x compiler
+	    if ( diconset )
+		mi->id = mi->popup->insertItem( *diconset, QString::fromLatin1("") );
+	    else
+		mi->id = mi->popup->insertItem( QString::fromLatin1("") );
+	    mi->popup->connectItem( mi->id, this, SLOT(internalActivation()) );
+	    d->menuitems.append( mi );
+	    d->update( QActionPrivate::State );
+	    d->update( QActionPrivate::Everything );
+	    w->topLevelWidget()->className();
+	    connect( mi->popup, SIGNAL(highlighted( int )), this, SLOT(menuStatusText( int )) );
+	    connect( mi->popup, SIGNAL(aboutToHide()), this, SLOT(clearStatusText()) );
+	    connect( mi->popup, SIGNAL( destroyed() ), this, SLOT( objectDestroyed() ) );
+	}
     } else {
 	qWarning( "QAction::addTo(), unknown object" );
 	return FALSE;
@@ -799,6 +807,7 @@ public:
     uint exclusive: 1;
     QList<QAction> actions;
     QAction* selected;
+    QAction* separatorAction;
 };
 
 
@@ -839,12 +848,14 @@ QActionGroup::QActionGroup( QObject* parent, const char* name, bool exclusive )
     d = new QActionGroupPrivate;
     d->exclusive = exclusive;
     d->selected = 0;
+    d->separatorAction = 0;
 }
 
 /*! Destroys the object and frees any allocated resources. */
 
 QActionGroup::~QActionGroup()
 {
+    delete d->separatorAction;
     delete d;
 }
 
@@ -892,6 +903,15 @@ void QActionGroup::insert( QAction* action )
     connect( action, SIGNAL( toggled( bool ) ), this, SLOT( childToggled( bool ) ) );
 }
 
+/*!
+  Inserts a separator to the group.
+*/
+void QActionGroup::insertSeparator()
+{
+    if ( !d->separatorAction )
+	d->separatorAction = new QAction( 0, "qt_separator_action" );
+    d->actions.append( d->separatorAction );
+}
 
 /*!\reimp
  */
