@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#217 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#218 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -118,7 +118,7 @@ QWidget*	qt_button_down	     = 0;	// the widget getting last button-down
 #define __export
 #endif
 
-extern "C" LRESULT CALLBACK WndProc( HWND, UINT, WPARAM, LPARAM );
+extern "C" LRESULT CALLBACK QtWndProc( HWND, UINT, WPARAM, LPARAM );
 
 class QETWidget : public QWidget		// event translator widget
 {
@@ -565,7 +565,7 @@ const char* qt_reg_winclass( int flags )	// register window class
 
     WNDCLASS wc;
     wc.style		= style;
-    wc.lpfnWndProc	= (WNDPROC)WndProc;
+    wc.lpfnWndProc	= (WNDPROC)QtWndProc;
     wc.cbClsExtra	= 0;
     wc.cbWndExtra	= 0;
     wc.hInstance	= qWinAppInst();
@@ -1265,7 +1265,7 @@ bool QApplication::processNextEvent( bool canWait )
 
 
     TranslateMessage( &msg );			// translate to WM_CHAR
-    DispatchMessage( &msg );			// send to WndProc
+    DispatchMessage( &msg );			// send to QtWndProc
     if ( configRequests )			// any pending configs?
 	qWinProcessConfigRequests();
 
@@ -1337,12 +1337,12 @@ void QApplication::winFocus( QWidget *widget, bool gotFocus )
 
 
 //
-// WndProc() receives all messages from the main event loop
+// QtWndProc() receives all messages from the main event loop
 //
 
 extern "C"
-LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam,
-			  LPARAM lParam )
+LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
+			    LPARAM lParam )
 {
     if ( !qApp )				// unstable app state
 	return DefWindowProc(hwnd,message,wParam,lParam);

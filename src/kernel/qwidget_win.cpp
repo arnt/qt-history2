@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#154 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#155 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -55,7 +55,8 @@ static QCursor *mouseGrbCur = 0;
 static QWidget *keyboardGrb = 0;
 static HANDLE	journalRec  = 0;
 
-extern "C" LRESULT CALLBACK WndProc( HWND, UINT, WPARAM, LPARAM );
+extern "C" LRESULT CALLBACK QtWndProc( HWND, UINT, WPARAM, LPARAM );
+
 
 /*****************************************************************************
   QWidget member functions
@@ -175,7 +176,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	id = window;
 	setWinId( window );
 	SetWindowLong( window, GWL_STYLE, style );
-	SetWindowLong( window, GWL_WNDPROC, (LONG)WndProc );
+	SetWindowLong( window, GWL_WNDPROC, (LONG)QtWndProc );
     } else if ( desktop ) {			// desktop widget
 	id = GetDesktopWindow();
 	QWidget *otherDesktop = find( id );	// is there another desktop?
