@@ -156,8 +156,6 @@ QSqlRecord QSqlTableModelPrivate::primaryValues(int row)
     return record;
 }
 
-#define d d_func()
-
 /*!
     \class QSqlTableModel
     \brief The QSqlTableModel class provides an editable data model
@@ -251,6 +249,7 @@ QSqlRecord QSqlTableModelPrivate::primaryValues(int row)
 QSqlTableModel::QSqlTableModel(QObject *parent, QSqlDatabase db)
     : QSqlQueryModel(*new QSqlTableModelPrivate, parent)
 {
+    Q_D(QSqlTableModel);
     d->db = db.isValid() ? db : QSqlDatabase::database();
 }
 
@@ -259,6 +258,7 @@ QSqlTableModel::QSqlTableModel(QObject *parent, QSqlDatabase db)
 QSqlTableModel::QSqlTableModel(QSqlTableModelPrivate &dd, QObject *parent, QSqlDatabase db)
     : QSqlQueryModel(dd, parent)
 {
+    Q_D(QSqlTableModel);
     d->db = db.isValid() ? db : QSqlDatabase::database();
 }
 
@@ -280,6 +280,7 @@ QSqlTableModel::~QSqlTableModel()
 */
 void QSqlTableModel::setTable(const QString &tableName)
 {
+    Q_D(QSqlTableModel);
     clear();
     d->tableName = tableName;
     d->rec = d->db.record(tableName);
@@ -291,6 +292,7 @@ void QSqlTableModel::setTable(const QString &tableName)
 */
 QString QSqlTableModel::tableName() const
 {
+    Q_D(const QSqlTableModel);
     return d->tableName;
 }
 
@@ -302,6 +304,7 @@ QString QSqlTableModel::tableName() const
 */
 bool QSqlTableModel::select()
 {
+    Q_D(QSqlTableModel);
     QString query = selectStatement();
     if (query.isEmpty())
         return false;
@@ -317,6 +320,7 @@ bool QSqlTableModel::select()
 */
 QVariant QSqlTableModel::data(const QModelIndex &index, int role) const
 {
+    Q_D(const QSqlTableModel);
     if (!index.isValid() || role & ~(DisplayRole | EditRole))
         return QVariant();
 
@@ -355,6 +359,7 @@ QVariant QSqlTableModel::data(const QModelIndex &index, int role) const
 */
 QVariant QSqlTableModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
+    Q_D(const QSqlTableModel);
     if (orientation == Qt::Vertical) {
         switch (d->strategy) {
         case OnFieldChange:
@@ -383,6 +388,7 @@ QVariant QSqlTableModel::headerData(int section, Qt::Orientation orientation, in
 */
 bool QSqlTableModel::isDirty(const QModelIndex &index) const
 {
+    Q_D(const QSqlTableModel);
     if (!index.isValid())
         return false;
 
@@ -414,6 +420,7 @@ bool QSqlTableModel::isDirty(const QModelIndex &index) const
 */
 bool QSqlTableModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
+    Q_D(QSqlTableModel);
     if (role & ~EditRole)
         return QSqlQueryModel::setData(index, value, role);
 
@@ -490,6 +497,7 @@ void QSqlTableModel::setQuery(const QSqlQuery &query)
 */
 bool QSqlTableModel::updateRowInTable(int row, const QSqlRecord &values)
 {
+    Q_D(QSqlTableModel);
     QSqlRecord rec(values);
     emit beforeUpdate(row, rec);
 
@@ -526,6 +534,7 @@ bool QSqlTableModel::updateRowInTable(int row, const QSqlRecord &values)
 */
 bool QSqlTableModel::insertRowIntoTable(const QSqlRecord &values)
 {
+    Q_D(QSqlTableModel);
     QSqlRecord rec(values);
     emit beforeInsert(rec);
 
@@ -550,6 +559,7 @@ bool QSqlTableModel::insertRowIntoTable(const QSqlRecord &values)
 */
 bool QSqlTableModel::deleteRowFromTable(int row)
 {
+    Q_D(QSqlTableModel);
     emit beforeDelete(row);
 
     QSqlRecord rec = d->primaryValues(row);
@@ -578,6 +588,7 @@ bool QSqlTableModel::deleteRowFromTable(int row)
 */
 bool QSqlTableModel::submitAll()
 {
+    Q_D(QSqlTableModel);
     bool isOk = true;
 
     switch (d->strategy) {
@@ -643,6 +654,7 @@ bool QSqlTableModel::submitAll()
 */
 bool QSqlTableModel::submit()
 {
+    Q_D(QSqlTableModel);
     if (d->strategy == OnRowChange)
         return submitAll();
     return true;
@@ -662,6 +674,7 @@ bool QSqlTableModel::submit()
 */
 void QSqlTableModel::revert()
 {
+    Q_D(QSqlTableModel);
     if (d->strategy == OnRowChange)
         revertAll();
 }
@@ -690,6 +703,7 @@ void QSqlTableModel::revert()
 */
 void QSqlTableModel::setEditStrategy(EditStrategy strategy)
 {
+    Q_D(QSqlTableModel);
     revertAll();
     d->strategy = strategy;
 }
@@ -701,6 +715,7 @@ void QSqlTableModel::setEditStrategy(EditStrategy strategy)
 */
 QSqlTableModel::EditStrategy QSqlTableModel::editStrategy() const
 {
+    Q_D(const QSqlTableModel);
     return d->strategy;
 }
 
@@ -711,6 +726,7 @@ QSqlTableModel::EditStrategy QSqlTableModel::editStrategy() const
 */
 void QSqlTableModel::revertAll()
 {
+    Q_D(QSqlTableModel);
     switch (d->strategy) {
     case OnFieldChange:
         break;
@@ -741,6 +757,7 @@ void QSqlTableModel::revertAll()
 */
 void QSqlTableModel::revertRow(int row)
 {
+    Q_D(QSqlTableModel);
     switch (d->strategy) {
     case OnFieldChange:
     case OnRowChange:
@@ -760,6 +777,7 @@ void QSqlTableModel::revertRow(int row)
 */
 QSqlIndex QSqlTableModel::primaryKey() const
 {
+    Q_D(const QSqlTableModel);
     return d->primaryIndex;
 }
 
@@ -774,6 +792,7 @@ QSqlIndex QSqlTableModel::primaryKey() const
 */
 void QSqlTableModel::setPrimaryKey(const QSqlIndex &key)
 {
+    Q_D(QSqlTableModel);
     d->primaryIndex = key;
 }
 
@@ -782,6 +801,7 @@ void QSqlTableModel::setPrimaryKey(const QSqlIndex &key)
 */
 QSqlDatabase QSqlTableModel::database() const
 {
+    Q_D(const QSqlTableModel);
      return d->db;
 }
 
@@ -794,6 +814,7 @@ QSqlDatabase QSqlTableModel::database() const
 */
 void QSqlTableModel::sort(int column, Qt::SortOrder order)
 {
+    Q_D(QSqlTableModel);
     d->sortColumn = column;
     d->sortOrder = order;
     select();
@@ -808,8 +829,9 @@ void QSqlTableModel::sort(int column, Qt::SortOrder order)
 */
 void QSqlTableModel::setSort(int column, Qt::SortOrder order)
 {
-   d->sortColumn = column;
-   d->sortOrder = order;
+    Q_D(QSqlTableModel);
+    d->sortColumn = column;
+    d->sortOrder = order;
 }
 
 /*!
@@ -820,6 +842,7 @@ void QSqlTableModel::setSort(int column, Qt::SortOrder order)
 */
 QString QSqlTableModel::orderByClause() const
 {
+    Q_D(const QSqlTableModel);
     QString s;
     QSqlField f = d->rec.field(d->sortColumn);
     if (!f.isValid())
@@ -834,6 +857,7 @@ QString QSqlTableModel::orderByClause() const
 */
 int QSqlTableModel::fieldIndex(const QString &fieldName) const
 {
+    Q_D(const QSqlTableModel);
     return d->rec.indexOf(fieldName);
 }
 
@@ -846,6 +870,7 @@ int QSqlTableModel::fieldIndex(const QString &fieldName) const
 */
 QString QSqlTableModel::selectStatement() const
 {
+    Q_D(const QSqlTableModel);
     QString query;
     if (d->tableName.isEmpty()) {
         d->error = QSqlError(QLatin1String("No table name given"), QString(),
@@ -885,6 +910,7 @@ QString QSqlTableModel::selectStatement() const
 */
 bool QSqlTableModel::removeColumns(int column, int count, const QModelIndex &parent)
 {
+    Q_D(QSqlTableModel);
     if (parent.isValid() || column < 0 || column + count > d->rec.count())
         return false;
     for (int i = 0; i < count; ++i)
@@ -909,6 +935,7 @@ bool QSqlTableModel::removeColumns(int column, int count, const QModelIndex &par
 */
 bool QSqlTableModel::removeRows(int row, int count, const QModelIndex &parent)
 {
+    Q_D(QSqlTableModel);
     if (parent.isValid() || row < 0 || count <= 0)
         return false;
 
@@ -958,6 +985,7 @@ bool QSqlTableModel::removeRows(int row, int count, const QModelIndex &parent)
 */
 bool QSqlTableModel::insertRows(int row, int count, const QModelIndex &parent)
 {
+    Q_D(QSqlTableModel);
     if (row < 0 || count <= 0 || row > rowCount() || parent.isValid())
         return false;
 
@@ -1004,6 +1032,7 @@ bool QSqlTableModel::insertRows(int row, int count, const QModelIndex &parent)
 */
 bool QSqlTableModel::insertRecord(int row, const QSqlRecord &record)
 {
+    Q_D(QSqlTableModel);
     if (row < 0)
         row = rowCount();
     if (!insertRow(row, QModelIndex()))
@@ -1019,6 +1048,7 @@ bool QSqlTableModel::insertRecord(int row, const QSqlRecord &record)
 */
 int QSqlTableModel::rowCount(const QModelIndex &) const
 {
+    Q_D(const QSqlTableModel);
     int rc = QSqlQueryModel::rowCount();
     if (d->strategy == OnManualSubmit) {
         for (QSqlTableModelPrivate::CacheMap::ConstIterator it = d->cache.constBegin();
@@ -1046,6 +1076,7 @@ int QSqlTableModel::rowCount(const QModelIndex &) const
 */
 QModelIndex QSqlTableModel::indexInQuery(const QModelIndex &item) const
 {
+    Q_D(const QSqlTableModel);
     const QModelIndex it = QSqlQueryModel::indexInQuery(item);
     if (d->strategy == OnManualSubmit) {
         int rowOffset = 0;
@@ -1070,6 +1101,7 @@ QModelIndex QSqlTableModel::indexInQuery(const QModelIndex &item) const
 */
 QString QSqlTableModel::filter() const
 {
+    Q_D(const QSqlTableModel);
     return d->filter;
 }
 
@@ -1085,6 +1117,7 @@ QString QSqlTableModel::filter() const
 */
 void QSqlTableModel::setFilter(const QString &filter)
 {
+    Q_D(QSqlTableModel);
     d->filter = filter;
     if (d->query.isActive())
         select();
@@ -1094,6 +1127,7 @@ void QSqlTableModel::setFilter(const QString &filter)
 */
 void QSqlTableModel::clear()
 {
+    Q_D(QSqlTableModel);
     d->clear();
     QSqlQueryModel::clear();
 }
@@ -1102,6 +1136,7 @@ void QSqlTableModel::clear()
 */
 QSqlTableModel::ItemFlags QSqlTableModel::flags(const QModelIndex &index) const
 {
+    Q_D(const QSqlTableModel);
     if (index.data() || index.column() < 0 || index.column() >= d->rec.count()
         || index.row() < 0)
         return 0;
@@ -1119,6 +1154,7 @@ QSqlTableModel::ItemFlags QSqlTableModel::flags(const QModelIndex &index) const
 */
 bool QSqlTableModel::setRecord(int row, const QSqlRecord &record)
 {
+    Q_D(QSqlTableModel);
     if (row >= rowCount())
         return false;
 

@@ -124,8 +124,6 @@ void QSqlRelationalTableModelPrivate::clearChanges()
     }
 }
 
-#define d d_func()
-
 /*!
     \class QSqlRelationalTableModel
     \brief The QSqlRelationalTableModel class provides an editable
@@ -209,6 +207,7 @@ QSqlRelationalTableModel::~QSqlRelationalTableModel()
 */
 QVariant QSqlRelationalTableModel::data(const QModelIndex &index, int role) const
 {
+    Q_D(const QSqlRelationalTableModel);
     if (role == DisplayRole && index.column() > 0 && index.column() < d->relations.count()) {
         const QVariant v = d->relations.at(index.column()).displayValues.value(index.row());
         if (v.isValid())
@@ -235,6 +234,7 @@ QVariant QSqlRelationalTableModel::data(const QModelIndex &index, int role) cons
 bool QSqlRelationalTableModel::setData(const QModelIndex &index, const QVariant &value,
                                        int role)
 {
+    Q_D(QSqlRelationalTableModel);
     if (role == DisplayRole && index.column() > 0 && index.column() < d->relations.count()) {
         d->relations[index.column()].displayValues[index.row()] = value;
         return true;
@@ -263,6 +263,7 @@ bool QSqlRelationalTableModel::setData(const QModelIndex &index, const QVariant 
 */
 void QSqlRelationalTableModel::setRelation(int column, const QSqlRelation &relation)
 {
+    Q_D(QSqlRelationalTableModel);
     if (d->relations.size() <= column)
         d->relations.resize(column + 1);
     d->relations[column].rel = relation;
@@ -276,6 +277,7 @@ void QSqlRelationalTableModel::setRelation(int column, const QSqlRelation &relat
 */
 QSqlRelation QSqlRelationalTableModel::relation(int column) const
 {
+    Q_D(const QSqlRelationalTableModel);
     return d->relations.value(column).rel;
 }
 
@@ -284,6 +286,7 @@ QSqlRelation QSqlRelationalTableModel::relation(int column) const
 */
 QString QSqlRelationalTableModel::selectStatement() const
 {
+    Q_D(const QSqlRelationalTableModel);
     QString query;
 
     if (tableName().isEmpty())
@@ -341,6 +344,7 @@ QString QSqlRelationalTableModel::selectStatement() const
 */
 QSqlTableModel *QSqlRelationalTableModel::relationModel(int column) const
 {
+    Q_D(const QSqlRelationalTableModel);
     Relation relation = d->relations.value(column);
     if (!relation.rel.isValid())
         return 0;
@@ -360,6 +364,7 @@ QSqlTableModel *QSqlRelationalTableModel::relationModel(int column) const
 */
 void QSqlRelationalTableModel::revertRow(int row)
 {
+    Q_D(QSqlRelationalTableModel);
     for (int i = 0; i < d->relations.count(); ++i)
         d->relations[i].displayValues.remove(row);
     QSqlTableModel::revertRow(row);
@@ -370,6 +375,7 @@ void QSqlRelationalTableModel::revertRow(int row)
 */
 void QSqlRelationalTableModel::clear()
 {
+    Q_D(QSqlRelationalTableModel);
     d->clearChanges();
     d->relations.clear();
     QSqlTableModel::clear();
@@ -380,6 +386,7 @@ void QSqlRelationalTableModel::clear()
 */
 bool QSqlRelationalTableModel::select()
 {
+    Q_D(QSqlRelationalTableModel);
     d->clearChanges();
     return QSqlTableModel::select();
 }

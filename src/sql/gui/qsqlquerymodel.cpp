@@ -50,8 +50,6 @@ QSqlQueryModelPrivate::~QSqlQueryModelPrivate()
 {
 }
 
-#define d d_func()
-
 /*!
     \class QSqlQueryModel
     \brief The QSqlQueryModel class provides a read-only data model for SQL
@@ -130,6 +128,7 @@ QSqlQueryModel::~QSqlQueryModel()
 */
 void QSqlQueryModel::fetchMore(const QModelIndex &parent)
 {
+    Q_D(QSqlQueryModel);
     if (parent.isValid())
         return;
     d->prefetch(d->bottom.row() + QSQL_PREFETCH);
@@ -139,6 +138,7 @@ void QSqlQueryModel::fetchMore(const QModelIndex &parent)
  */
 int QSqlQueryModel::rowCount(const QModelIndex &) const
 {
+    Q_D(const QSqlQueryModel);
     return d->bottom.row() + 1;
 }
 
@@ -146,6 +146,7 @@ int QSqlQueryModel::rowCount(const QModelIndex &) const
  */
 int QSqlQueryModel::columnCount(const QModelIndex &) const
 {
+    Q_D(const QSqlQueryModel);
     return d->rec.count();
 }
 
@@ -159,6 +160,7 @@ int QSqlQueryModel::columnCount(const QModelIndex &) const
 */
 QVariant QSqlQueryModel::data(const QModelIndex &item, int role) const
 {
+    Q_D(const QSqlQueryModel);
     if (!item.isValid())
         return QVariant();
 
@@ -186,6 +188,7 @@ QVariant QSqlQueryModel::data(const QModelIndex &item, int role) const
 */
 QVariant QSqlQueryModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
+    Q_D(const QSqlQueryModel);
     if (orientation == Qt::Horizontal && role == DisplayRole) {
         QVariant val = d->headers.value(section);
         if (val.isValid())
@@ -218,6 +221,7 @@ void QSqlQueryModel::queryChange()
 */
 void QSqlQueryModel::setQuery(const QSqlQuery &query)
 {
+    Q_D(QSqlQueryModel);
     QSqlRecord newRec = query.record();
     bool columnsChanged = (newRec != d->rec);
 
@@ -283,6 +287,7 @@ void QSqlQueryModel::setQuery(const QString &query, const QSqlDatabase &db)
 */
 void QSqlQueryModel::clear()
 {
+    Q_D(QSqlQueryModel);
     d->error = QSqlError();
     d->atEnd = true;
     d->query.clear();
@@ -309,6 +314,7 @@ void QSqlQueryModel::clear()
 bool QSqlQueryModel::setHeaderData(int section, Qt::Orientation orientation,
                                    const QVariant &value, int role)
 {
+    Q_D(QSqlQueryModel);
     if ((role != EditRole && role != DisplayRole) || orientation != Qt::Horizontal || section < 0)
         return false;
 
@@ -325,6 +331,7 @@ bool QSqlQueryModel::setHeaderData(int section, Qt::Orientation orientation,
 */
 QSqlQuery QSqlQueryModel::query() const
 {
+    Q_D(const QSqlQueryModel);
     return d->query;
 }
 
@@ -334,6 +341,7 @@ QSqlQuery QSqlQueryModel::query() const
 */
 QSqlError QSqlQueryModel::lastError() const
 {
+    Q_D(const QSqlQueryModel);
     return d->error;
 }
 
@@ -345,6 +353,7 @@ QSqlError QSqlQueryModel::lastError() const
 */
 void QSqlQueryModel::setLastError(const QSqlError &error)
 {
+    Q_D(QSqlQueryModel);
     d->error = error;
 }
 
@@ -360,6 +369,7 @@ void QSqlQueryModel::setLastError(const QSqlError &error)
 */
 QSqlRecord QSqlQueryModel::record(int row) const
 {
+    Q_D(const QSqlQueryModel);
     if (row < 0)
         return d->rec;
 
@@ -381,6 +391,7 @@ QSqlRecord QSqlQueryModel::record(int row) const
  */
 QSqlRecord QSqlQueryModel::record() const
 {
+    Q_D(const QSqlQueryModel);
     return d->rec;
 }
 
@@ -403,6 +414,7 @@ QSqlRecord QSqlQueryModel::record() const
 */
 bool QSqlQueryModel::insertColumns(int column, int count, const QModelIndex &parent)
 {
+    Q_D(QSqlQueryModel);
     if (count <= 0 || parent.isValid() || column < 0 || column > d->rec.count())
         return false;
 
@@ -436,6 +448,7 @@ bool QSqlQueryModel::insertColumns(int column, int count, const QModelIndex &par
  */
 bool QSqlQueryModel::removeColumns(int column, int count, const QModelIndex &parent)
 {
+    Q_D(QSqlQueryModel);
     if (count <= 0 || parent.isValid() || column < 0 || column >= d->rec.count())
         return false;
 
@@ -462,6 +475,7 @@ bool QSqlQueryModel::removeColumns(int column, int count, const QModelIndex &par
 */
 QModelIndex QSqlQueryModel::indexInQuery(const QModelIndex &item) const
 {
+    Q_D(const QSqlQueryModel);
     if (item.column() < 0 || item.column() >= d->rec.count()
         || !d->rec.isGenerated(item.column()))
         return QModelIndex();
