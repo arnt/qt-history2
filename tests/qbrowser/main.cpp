@@ -11,13 +11,10 @@ int main( int argc, char ** argv ) {
     QApplication::setStyle( new QWindowsStyle );
     QApplication a(argc, argv);
 
-    
-    QMLStyleSheet::defaultSheet()->style("p")->setSelfNesting( FALSE );
-    QMLStyleSheet::defaultSheet()->style("li")->setSelfNesting( FALSE );
     QMLStyle* style = new QMLStyle( QMLStyleSheet::defaultSheet(), "head" );
     style->setDisplayMode(QMLStyle::DisplayNone);
-    
-    
+
+
     QString qt = getenv("QTDIR");
     QString home;
     if (argc > 1)
