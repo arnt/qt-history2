@@ -50,7 +50,7 @@ internal:X11LIBS += -lICE -lSM
 internal:CONFIG += jpeg
 embedded:CONFIG -= jpeg
 jpeg:INTJPEGIU += -ljpeg
-jpeg:INTJPEGIW += libjpeg.lib
+jpeg:INTJPEGIW += $(QTDIR)/lib/libjpeg.lib
 DEFINESI += QT_NO_IMAGEIO_JPEG
 jpeg:DEFINESI -= QT_NO_IMAGEIO_JPEG
 unix:INTJPEGI += $$INTJPEGIU
@@ -670,7 +670,6 @@ database:HEADERS += $$DATABASE_H/qsql.h \
 		    $$DATABASE_H/qsqldatabase.h \
 		    $$DATABASE_H/qsqlfield.h \
 		    $$DATABASE_H/qsqlrowset.h \
-		    $$DATABASE_H/qsq.h \
 		    $$DATABASE_H/qsqldriver.h \
 		    $$DATABASE_H/qsqldriverinterface.h \
 		    $$DATABASE_H/qsqldriverplugin.h \
