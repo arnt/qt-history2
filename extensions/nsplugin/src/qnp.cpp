@@ -884,7 +884,7 @@ NPP_DestroyStream(NPP instance, NPStream *stream, NPError reason)
     if (instance == NULL)
         return NPERR_INVALID_INSTANCE_ERROR;
 
-    if (qnps_no_call_back) {
+    if (!qnps_no_call_back) {
 	This = (_NPInstance*) instance->pdata;
 
 	QNPStream* qnps = (QNPStream*)stream->pdata;
