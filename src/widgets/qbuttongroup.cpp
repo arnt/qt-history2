@@ -453,11 +453,6 @@ void QButtonGroup::buttonToggled( bool on )
 
 
 
-/*!
-    Sets the button with id \a id to be on; if this is an exclusive
-    group, all the other buttons in the group will be set to off.
-*/
-
 void QButtonGroup::setButton( int id )
 {
     QButton * b = find( id );
@@ -607,8 +602,14 @@ QButton *QButtonGroup::selected() const
 }
 
 /*!
-    Returns the id of the selected toggle button if exactly one is selected;
-    otherwise returns -1.
+    \property QButtonGroup::selectedId
+    \brief The id of the selected toggle button.
+
+    If no toggle button is selected, id() returns -1.
+
+    If setButton() is called on an exclusive group, the button with
+    the given id will be set to on and all the others will be set to
+    off.
 
     \sa selected()
 */

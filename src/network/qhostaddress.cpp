@@ -23,6 +23,7 @@ public:
     {
     }
     QHostAddressPrivate( Q_UINT8 *a_ );
+    QHostAddressPrivate(const Q_IPV6ADDR &a_);
     ~QHostAddressPrivate()
     {
     }
@@ -41,14 +42,22 @@ private:
     Q_UINT32 a;     // ip 4 address
     Q_UINT8 a6[16]; // ip 6 address
     bool isIp4;
+    bool isIp6;
 
     friend class QHostAddress;
 };
 
-QHostAddressPrivate::QHostAddressPrivate( Q_UINT8 *a_ ) : a(0), isIp4(FALSE)
+QHostAddressPrivate::QHostAddressPrivate(Q_UINT8 *a_) : a(0), isIp4(false), isIp6(true)
 {
     for ( int i=0; i<16; i++ ) {
 	a6[i] = a_[i];
+    }
+}
+
+QHostAddressPrivate::QHostAddressPrivate(const Q_IPV6ADDR &a_) : a(0), isIp4(false), isIp6(true)
+{
+    for (int i = 0; i < 16; i++) {
+	a6[i] = a_.c[i];
     }
 }
 
@@ -104,6 +113,14 @@ QHostAddress::QHostAddress( Q_UINT32 ip4Addr )
 */
 QHostAddress::QHostAddress( Q_UINT8 *ip6Addr )
     : d( new QHostAddressPrivate( ip6Addr ) )
+{
+}
+
+/*!
+    Creates a host address object with the IPv6 address, \a ip6Addr.
+*/
+QHostAddress::QHostAddress(const Q_IPV6ADDR &ip6Addr)
+    : d(new QHostAddressPrivate(ip6Addr))
 {
 }
 
@@ -301,6 +318,45 @@ bool QHostAddress::isIp4Addr() const
 Q_UINT32 QHostAddress::ip4Addr() const
 {
     return d->a;
+}
+
+/*!
+    Returns TRUE if the host address represents an IPv6 address;
+    otherwise returns FALSE.
+*/
+bool QHostAddress::isIp6Addr() const
+{
+    return d->isIp6;
+}
+
+/*!
+    Returns the IPv6 address as a Q_IPV6ADDR structure. The structure
+    consists of a union of 16 unsigned characters, 8 unsigned short
+    integers or 4 unsigned integers.
+
+    \code
+        Q_IPV6ADDR addr = hostAddr.ip6Addr();
+        // addr.c[] contains 16 unsigned characters
+        // addr.s[] contains 8 unsigned shorts
+        // addr.u[] contains 4 unsigned ints
+
+        for (int i = 0; i < 16; ++i) {
+            // process addr.c[i]
+        }
+    \endcode
+
+    This value is only valid when isIp6Addr() returns TRUE.
+
+    \sa toString()
+*/
+Q_IPV6ADDR QHostAddress::ip6Addr() const
+{
+    Q_IPV6ADDR tmp;
+
+    for (int i = 0; i < 16; ++i)
+	tmp.c[i] = d->a6[i];
+
+    return tmp;
 }
 
 #ifndef QT_NO_SPRINTF
