@@ -624,7 +624,7 @@ void qSystemWarning( const char* msg, int code )
 		       0,
 		       NULL );
 
-	qWarning( "%s\n\tError code %d - %s (###may need fixing in qglobal.h)", msg, code, QString::fromUcs2(string).latin1() );
+	qWarning( "%s\n\tError code %d - %s", msg, code, QString::fromUcs2(string).latin1() );
     }, {
 	FormatMessageA( FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM,
 			NULL,
