@@ -627,17 +627,6 @@ bool QSplitterPrivate::collapsible(QSplitterLayoutStruct *s) const
 
 void QSplitterPrivate::updateHandles()
 {
-/*
-    int hw = q->handleWidth();
-    for (int i = 0; i < list.size(); ++i) {
-        QSplitterLayoutStruct *sl = list.at(i);
-        if (sl->isHandle)
-            sl->sizer = hw;
-    }
-
-Should not be necessary(?)
-
-*/
     recalc(q->isVisible());
 }
 
