@@ -1475,7 +1475,8 @@ bool QRegExpEngine::matchHere()
 			in = bref <= ncap && mmCurCapBegin[ell] != EmptyCapture;
 			if ( in ) {
 			    if ( cs )
-				in = ( mmIn[mmPos + mmCurCapBegin[ell]] == QChar(ch) );
+				in = ( mmIn[mmPos + mmCurCapBegin[ell]]
+				       == QChar(ch) );
 			    else
 				in = ( mmIn[mmPos + mmCurCapBegin[ell]].lower()
 				       == QChar(ch).lower() );
@@ -2730,7 +2731,8 @@ static void derefEngine( QRegExpEngine *eng, const QString& pattern )
 	    engineCache = new QCache<QRegExpEngine>;
 	    engineCache->setAutoDelete( TRUE );
 	}
-	if ( engineCache->insert(pattern, eng, 4 + pattern.length() / 4) )
+	if ( !pattern.isNull() &&
+	     engineCache->insert(pattern, eng, 4 + pattern.length() / 4) )
 	    return;
 #endif
 	delete eng;
@@ -2804,7 +2806,7 @@ QRegExp::~QRegExp()
 QRegExp& QRegExp::operator=( const QRegExp& rx )
 {
     rx.eng->ref();
-    derefEngine( eng, priv->pattern );
+    derefEngine( eng, priv->rxpattern );
     eng = rx.eng;
     priv->pattern = rx.priv->pattern;
     priv->rxpattern = rx.priv->rxpattern;
@@ -3234,7 +3236,7 @@ int QRegExp::pos( int nth )
 
 void QRegExp::compile( bool caseSensitive )
 {
-    derefEngine( eng, priv->pattern );
+    derefEngine( eng, priv->rxpattern );
     if ( priv->pattern.isNull() ) {
 	eng = new QRegExpEngine( caseSensitive );
     } else {
