@@ -2242,39 +2242,48 @@ void qt_format_text( const QFont& font, const QRect &r,
     bool breakany = (tf & Qt::BreakAnywhere ) == Qt::BreakAnywhere;
     bool noaccel = ( tf & Qt::NoAccel ) == Qt::NoAccel;
 
-    bool simple = !decode && singleline && !showprefix && !expandtabs && !noaccel;
+    if ( !singleline && str.length() < 30 )
+	singleline = str.find( '\n' ) == -1;
+
+    bool simple = !decode && singleline && !wordbreak && !expandtabs && ( !showprefix || !str.isRightToLeft() );
 
 #ifdef QT_NO_RICHTEXT
     simple = TRUE; //####### This is ugly and hopefully temporary
 #endif
 
-
     if ( simple ) {
 	// we can use a simple drawText instead of the QTextParag.
 	QFontMetrics fm( font );
-	QRect br = fm.boundingRect( str, len );
-	if ( brect )
+	QString parStr( str.left( len ) );
+	if ( noaccel || showprefix )
+		parStr.replace( QRegExp( "&" ), "" );
+	if ( brect ) {
+	    QRect br( 0, 0, fm.width( parStr ), fm.height() );
 	    *brect = br;
+	}
 	if ( painter ) {
-	    int w = fm.width( str, len );
+	    int w = fm.width( parStr );
 	    int h = fm.height();
 	    int xoff = r.x();
 	    int yoff = r.y() + fm.ascent();
+
 	    if ( tf & Qt::AlignBottom )
 		yoff += r.height() - h;
 	    else if ( tf & Qt::AlignVCenter )
-		yoff += ( r.height() - h )/2;
-	    if ( (tf & Qt::AlignHorizontal_Mask) == Qt::AlignAuto && str.isRightToLeft() )
+		yoff += ( r.height() - h ) / 2;
+	    if ( ( tf & Qt::AlignHorizontal_Mask ) == Qt::AlignAuto && parStr.isRightToLeft() )
 		tf |= Qt::AlignRight;
 	    if ( tf & Qt::AlignRight )
 		xoff += r.width() - w;
 	    else if ( tf & Qt::AlignHCenter )
-		xoff += ( r.width() - w )/2;
-	    QRegion reg;
+		xoff += ( r.width() - w ) / 2;
+	    if ( brect )
+		brect->moveBy( xoff, yoff );
 
+	    QRegion reg;
 	    if ( painter->hasClipping() ) {
 		reg = painter->clipRegion();
-		reg.translate( - (int)painter->translationX(), - (int)painter->translationY() );
+		reg.translate( -(int)painter->translationX(), -(int)painter->translationY() );
 		reg = reg.intersect( r );
 	    } else {
 		reg = r;
@@ -2283,12 +2292,40 @@ void qt_format_text( const QFont& font, const QRect &r,
 	    reg.translate( (int)painter->translationX(), (int)painter->translationY() );
 	    painter->save();
 	    painter->setClipRegion( reg );
-	    if(!(tf & QPainter::DontPrint))
-		painter->drawText(xoff, yoff, str, len);
+	
+	    if ( !noaccel )
+		parStr = str.left( len );
+	    if( !( tf & QPainter::DontPrint ) ) {
+		if ( !showprefix || noaccel ) {
+		    painter->drawText( xoff, yoff, parStr, len );
+		} else {
+		    QFont uf( font );
+		    uf.setUnderline( TRUE );
+		    QFont nf( font );
+		    int lastPos = 0;
+		    int i = parStr.find( '&' );
+		    while ( i != -1 ) {
+			QString part( parStr.mid( lastPos, i - lastPos ) );
+			painter->drawText( xoff, yoff, part );
+			++i;
+			if ( !noaccel )
+			    painter->setFont( uf );
+			xoff += fm.width( part );
+			painter->drawText( xoff, yoff, QString( parStr[ i ] ) );
+			xoff += fm.charWidth( parStr, i );
+			lastPos = i + 1;
+			painter->setFont( nf );
+			i = parStr.find( '&', i );
+		    }
+		    if ( lastPos < (int)parStr.length() )
+			painter->drawText( xoff, yoff, parStr.mid( lastPos, parStr.length() - lastPos ) );
+		}
+	    }
 	    painter->restore();
 	}
 	return;
     }
+
 #ifndef QT_NO_RICHTEXT
 #if defined(QT_FORMAT_TEXT_DEBUG)
     qDebug("textflags: %d %d %d %d alignment: %d/%d", wordbreak, expandtabs, singleline, showprefix, tf&Qt::AlignHorizontal_Mask, tf&Qt::AlignVertical_Mask);
@@ -2416,7 +2453,7 @@ void qt_format_text( const QFont& font, const QRect &r,
 
 	reg.translate( (int)painter->translationX(), (int)painter->translationY() );
 	painter->setClipRegion( reg );
-	painter->translate( xoff, yoff);
+	painter->translate( xoff, yoff );
 	if(!(tf & QPainter::DontPrint))
 	    parag->paint( *painter, cg );
 	painter->restore();
