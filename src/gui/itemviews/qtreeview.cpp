@@ -21,6 +21,7 @@
 #include <qstyleoption.h>
 #include <qevent.h>
 #include <qpen.h>
+#include <qdebug.h>
 
 #include <private/qtreeview_p.h>
 #define d d_func()
@@ -513,6 +514,7 @@ void QTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
     int position;
     int headerSection;
     QModelIndex modelIndex;
+
     for (int headerIndex = d->left; headerIndex <= d->right; ++headerIndex) {
         headerSection = d->header->section(headerIndex);
         if (header->isSectionHidden(headerSection))
@@ -695,7 +697,8 @@ int QTreeView::verticalOffset() const
   Move the cursor in the way described by \a cursorAction, using the
   information provided by the button \a state.
 
-  \sa QAbstractItemView::CursorAction                                                                                                                                                        */
+  \sa QAbstractItemView::CursorAction
+*/
 
 QModelIndex QTreeView::moveCursor(QAbstractItemView::CursorAction cursorAction, Qt::ButtonState)
 {
@@ -705,7 +708,6 @@ QModelIndex QTreeView::moveCursor(QAbstractItemView::CursorAction cursorAction, 
     int vi = d->viewIndex(current);
     if (vi < 0)
         return current;
-
     switch (cursorAction) {
     case QAbstractItemView::MoveDown:
         return d->modelIndex(d->below(vi));
@@ -977,7 +979,6 @@ void QTreeView::columnWidthChanged(int column, int, int)
     QRect rect(x, 0, d->viewport->width() - x, d->viewport->height());
     d->viewport->update(rect.normalize());
     updateGeometries();
-    updateEditors();
 }
 
 /*!
@@ -1030,6 +1031,8 @@ void QTreeView::updateGeometries()
     if (w < 0)
         max += (horizontalFactor() * -w / d->header->sectionSize(col));
     horizontalScrollBar()->setRange(0, max);
+
+    QAbstractItemView::updateGeometries();
 }
 
 /*!

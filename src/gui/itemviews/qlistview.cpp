@@ -1114,7 +1114,8 @@ QRect QListView::itemRect(const QModelIndex &index) const
 {
     if (!index.isValid() || model()->parent(index) != root())
         return QRect();
-    return d->indexToListViewItem(index).rect();
+    QListViewItem item = d->indexToListViewItem(index);
+    return item.rect();
 }
 
 /*!
@@ -1444,6 +1445,8 @@ void QListView::updateGeometries()
     verticalScrollBar()->setSingleStep(size.height() + d->spacing);
     verticalScrollBar()->setPageStep(d->viewport->height());
     verticalScrollBar()->setRange(0, d->contentsSize.height() - d->viewport->height() - 1);
+
+    QAbstractItemView::updateGeometries();
 }
 
 /*
@@ -1613,7 +1616,8 @@ QListViewItem QListViewPrivate::indexToListViewItem(const QModelIndex &index) co
     }
 
     QStyleOptionViewItem option = q->viewOptions();
-    QSize size = delegate->sizeHint(q->fontMetrics(), option, model, index);
+    QAbstractItemDelegate *del = q->itemDelegate();
+    QSize size = del->sizeHint(q->fontMetrics(), option, model, index);
     return QListViewItem(QRect(pos, size), index.row());
 }
 

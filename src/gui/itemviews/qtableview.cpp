@@ -592,6 +592,8 @@ void QTableView::updateGeometries()
     if (w < 0)
         max += (factor * -w / d->horizontalHeader->sectionSize(col));
     horizontalScrollBar()->setRange(0, max);
+
+    QAbstractItemView::updateGeometries();
 }
 
 /*!
@@ -824,7 +826,6 @@ void QTableView::rowHeightChanged(int row, int, int)
     int y = rowViewportPosition(row);
     d->viewport->update(QRect(0, y, d->viewport->width(), d->viewport->height() - y));
     updateGeometries();
-    updateEditors();
 }
 
 /*!
@@ -842,7 +843,6 @@ void QTableView::columnWidthChanged(int column, int, int)
     QRect rect(x, 0, d->viewport->width() - x, d->viewport->height());
     d->viewport->update(rect.normalize());
     updateGeometries();
-    updateEditors();
 }
 
 /*!

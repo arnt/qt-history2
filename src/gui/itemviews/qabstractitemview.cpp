@@ -1136,7 +1136,7 @@ void QAbstractItemView::updateEditors()
 */
 void QAbstractItemView::updateGeometries()
 {
-    //do nothing
+    updateEditors();
 }
 
 /*!
