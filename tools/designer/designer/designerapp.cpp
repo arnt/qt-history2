@@ -42,10 +42,10 @@ void set_splash_status( const QString &txt )
 	return;
     splash->repaint( FALSE );
     QPainter p( splash );
-    p.setPen( Qt::white );
-    p.drawText( 5, splash->fontMetrics().height(), txt );
+    p.setPen( Qt::black );
+    p.drawText( splash->width() - splash->fontMetrics().width( txt ) - 5, splash->fontMetrics().height(), txt );
     QString s = "Licensed to " + QString::fromLatin1( QT_PRODUCT_LICENSEE );
-    p.drawText( 5, 2 * splash->fontMetrics().height() + 1, s );
+    p.drawText( splash->width() - splash->fontMetrics().width( s ) - 5, 2 * splash->fontMetrics().height() + 1, s );
     QApplication::flush();
 }
 

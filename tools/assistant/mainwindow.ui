@@ -264,7 +264,7 @@
             <cstring>actionGoQt</cstring>
         </property>
         <property name="iconSet">
-            <iconset>qt.xpm</iconset>
+            <iconset>qt.png</iconset>
         </property>
         <property name="text">
             <string>Qt Class Reference</string>
@@ -292,7 +292,7 @@
             <cstring>actionZoomIn</cstring>
         </property>
         <property name="iconSet">
-            <iconset>zoomin.xpm</iconset>
+            <iconset>zoomin.png</iconset>
         </property>
         <property name="text">
             <string>Zoom in</string>
@@ -312,7 +312,7 @@
             <cstring>actionZoomOut</cstring>
         </property>
         <property name="iconSet">
-            <iconset>zoomout.xpm</iconset>
+            <iconset>zoomout.png</iconset>
         </property>
         <property name="text">
             <string>Zoom out</string>

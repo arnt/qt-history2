@@ -14,7 +14,6 @@ HEADERS	+= helpwindow.h \
 TARGET	= assistant
 
 #DEFINES +=  QT_PALMTOPCENTER_DOCS
-DEFINES	+= QT_INTERNAL_NETWORK QT_INTERNAL_XML
 include( ../../src/qt_professional.pri )
 DESTDIR	= ../../bin
 
@@ -31,6 +30,7 @@ TRANSLATIONS	= assistant_de.ts \
 		  assistant_fr.ts
 
 unix:!zlib:LIBS	+= -lz
+DEFINES	+= QT_INTERNAL_NETWORK QT_INTERNAL_XML
 FORMS	= mainwindow.ui \
 	topicchooser.ui \
 	finddialog.ui \
@@ -43,15 +43,15 @@ IMAGES	= images/appicon.png \
 	images/next.png \
 	images/previous.png \
 	images/print.png \
-	images/qt.xpm \
 	images/whatsthis.xpm \
-	images/zoomin.xpm \
-	images/zoomout.xpm \
 	images/book.png \
 	images/designer.png \
 	images/assistant.png \
-	images/linguist.png
+	images/linguist.png \
+	images/qt.png \
+	images/zoomin.png \
+	images/zoomout.png
 TEMPLATE	=app
 CONFIG	+= qt warn_off release
-DEFINES	+= QT_INTERNAL_NETWORK
+DEFINES	+= QT_INTERNAL_NETWORK QT_INTERNAL_XML
 LANGUAGE	= C++
