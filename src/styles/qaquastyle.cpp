@@ -74,6 +74,7 @@ static const int aquaTabSpacing        = 12;   // space between text and tab
 static const int aquaCheckMarkHMargin  = 2;    // horiz. margins of check mark
 static const int aquaRightBorder       = 12;   // right border on aqua
 static const int aquaCheckMarkWidth    = 12;   // checkmarks width on aqua
+static QColor highlightColor = QColor( 0xC2, 0xC2, 0xC2 );
 
 class QAquaStylePrivate : public QObject
 {
@@ -168,12 +169,9 @@ void QAquaStyle::polish( QPalette & pal )
     pal.setColor( QPalette::Disabled, QColorGroup::ButtonText,
                   QColor( 148,148,148 ));
 
-    pal.setColor( QPalette::Active, QColorGroup::Highlight,
-                  QColor( 0xC2, 0xC2, 0xC2 ) );
-    pal.setColor( QPalette::Inactive, QColorGroup::Highlight,
-                  QColor( 0xC2, 0xC2, 0xC2 ));
-    pal.setColor( QPalette::Disabled, QColorGroup::Highlight,
-                  QColor( 0xC2, 0xC2, 0xC2 ));
+    pal.setColor( QPalette::Active, QColorGroup::Highlight, highlightColor );
+    pal.setColor( QPalette::Inactive, QColorGroup::Highlight, QColor( 0xC2, 0xC2, 0xC2 ) );
+    pal.setColor( QPalette::Disabled, QColorGroup::Highlight, QColor( 0xC2, 0xC2, 0xC2 ) );
 
     pal.setColor( QPalette::Active, QColorGroup::HighlightedText, Qt::black);
     pal.setColor( QPalette::Inactive, QColorGroup::HighlightedText, Qt::black);
@@ -1734,6 +1732,21 @@ void QAquaStyle::appearanceChanged()
 	} else {
 	    qDebug("Shouldn't happen %s:%d", __FILE__, __LINE__);
 	}
+
+	RGBColor color;
+	s = sizeof(color);
+	if(!GetCollectionItem(c, kThemeHighlightColorTag, 0, &s, &color)) {
+	    QColor qc(color.red/256, color.green/256, color.blue/256);
+	    if(highlightColor != qc) {
+		highlightColor = qc;
+		QPalette pal = qApp->palette();
+		pal.setColor( QPalette::Active, QColorGroup::Highlight, highlightColor );
+		qApp->setPalette( pal, TRUE );
+	    }
+	} else {
+	    qDebug("Shouldn't happen %s:%d", __FILE__, __LINE__);
+	}
+
 	DisposeCollection(c);
     }
 #if 0
