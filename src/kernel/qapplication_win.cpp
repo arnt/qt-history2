@@ -49,8 +49,8 @@
 #include "qlibrary.h"
 #include "qt_windows.h"
 #include "qcursor.h"
+#include "qmutex.h"
 #include "private/qinternal_p.h"
-#include "private/qcriticalsection_p.h"
 #include "private/qinputcontext_p.h"
 #include "qstyle.h"
 #include "qmetaobject.h"
@@ -937,26 +937,26 @@ static void msgHandler( QtMsgType t, const char* str )
 {
 #if defined(QT_THREAD_SUPPORT)
     // OutputDebugString is not threadsafe.
-    static QCriticalSection staticSection;
+    static QMutex staticMutex;
 #endif
 
     if ( !str )
 	str = "(null)";
 
 #if defined(QT_THREAD_SUPPORT)
-    staticSection.enter();
+    staticMutex.lock();
 #endif
-    QT_WA(
+    QT_WA( {
 	QString s(str);
 	s += "\n";
 	OutputDebugStringW( (TCHAR*)s.ucs2() );
-    ,
+    }, {
 	QByteArray s(str);
 	s += "\n";
 	OutputDebugStringA( s.data() );
-    )
+    } )
 #if defined(QT_THREAD_SUPPORT)
-    staticSection.leave();
+    staticMutex.unlock();
 #endif
     if ( t == QtFatalMsg )
 #ifndef Q_OS_TEMP
