@@ -1,10 +1,24 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/table/table.h#2 $
+**
+** Definition of QTable widget class
+**
+** Created : 000607
 **
 ** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
 **
-** This file is part of an example program for Qt.  This example
-** program may be used, distributed and modified without limitation.
+** This file is part of the Qt GUI Toolkit.
+**
+** This file may be distributed under the terms of the Q Public License
+** as defined by Troll Tech AS of Norway and appearing in the file
+** LICENSE.QPL included in the packaging of this file.
+**
+** Licensees holding valid Qt Professional Edition licenses may use this
+** file in accordance with the Qt Professional Edition License Agreement
+** provided with the Qt Professional Edition.
+**
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
+** information about the Professional Edition licensing, or see
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -54,7 +68,7 @@ public:
     bool isTypeChangeAllowed() const;
 
     virtual QString key() const;
-    
+
 protected:
     virtual void paint( QPainter *p, const QColorGroup &cg, const QRect &cr, bool selected );
 
@@ -144,7 +158,7 @@ public:
     virtual void sortColumn( int col, bool ascending = TRUE );
     virtual void setSorting( bool b );
     bool sorting() const;
-    
+
 protected:
     void drawContents( QPainter *p, int cx, int cy, int cw, int ch );
     void contentsMousePressEvent( QMouseEvent* );
@@ -167,7 +181,7 @@ protected slots:
     virtual void columnIndexChanged( int s, int oi, int ni );
     virtual void rowIndexChanged( int s, int oi, int ni );
     virtual void columnClicked( int col );
-    
+
 signals:
     void currentChanged( int row, int col );
 
@@ -193,7 +207,7 @@ private:
     {
 	QTableItem *item;
     };
-    
+
     void paintCell( QPainter *p, int row, int col, const QRect &cr, bool selected );
     int indexOf( int row, int col ) const;
     void updateGeometries();
@@ -220,7 +234,7 @@ private:
     int lastSortCol;
     bool asc;
     bool doSort;
-    
+
 };
 
 class QTableHeader : public QHeader

@@ -1,10 +1,24 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/table/table.cpp#3 $
+**
+** Implementation of QTable widget class
+**
+** Created : 000607
 **
 ** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
 **
-** This file is part of an example program for Qt.  This example
-** program may be used, distributed and modified without limitation.
+** This file is part of the Qt GUI Toolkit.
+**
+** This file may be distributed under the terms of the Q Public License
+** as defined by Troll Tech AS of Norway and appearing in the file
+** LICENSE.QPL included in the packaging of this file.
+**
+** Licensees holding valid Qt Professional Edition licenses may use this
+** file in accordance with the Qt Professional Edition License Agreement
+** provided with the Qt Professional Edition.
+**
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
+** information about the Professional Edition licensing, or see
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -299,11 +313,11 @@ QString QTableItem::key() const
   If you want to make a cell not editable and do not want to waste a
   QTableItem for this cell, reimplement editor() and return 0 there
   for the cells which should be not editable.
-  
+
   QTable supports also all needed selection types like range
   selections, selectiongs through the header, selection with keyboard
   and mouse, etc.
-  
+
   QTable offers also an API for sorting columns. See setSorting(),
   sortColumn() and QTableItem::key() for more details.
 */
@@ -1310,24 +1324,24 @@ void QTable::rowIndexChanged( int, int, int )
   sorting() is TRUE
 */
 
-void QTable::columnClicked( int col ) 
-{ 
+void QTable::columnClicked( int col )
+{
     if ( !sorting() )
 	return;
-    
+
     if ( col == lastSortCol ) {
 	asc = !asc;
     } else {
 	lastSortCol = col;
 	asc = TRUE;
     }
-    
+
     sortColumn( lastSortCol, asc );
 }
 
 /*!  If \a b is set to TRUE, clicking on the header of a column sorts
   this column.
-  
+
   \sa sortColumn()
 */
 
@@ -1337,7 +1351,7 @@ void QTable::setSorting( bool b )
 }
 
 /*!  Returns wheather clicking on a column header sorts the column.
- 
+
  \sa setSorting()
  */
 
@@ -1878,13 +1892,13 @@ static int cmpTableItems( const void *n1, const void *n2 )
 
 /*!  Sorts the column \a col in ascending order if \a ascending is
   TRUE, else in descending order.
-  
+
   In this implementation really only the column is sorted. If you need
   to do more (e.g. moving whole rows instead of only cells when
   re-sorting), you have to reimplement this function and do what you need.
-  
+
   \internal
-  
+
   Should we have a moveCell( from, to ) is used and can be
   reimplemented to move whole rows?
 */
@@ -1897,10 +1911,10 @@ void QTable::sortColumn( int col, bool ascending )
 	if ( item )
 	    filledRows++;
     }
-    
+
     if ( !filledRows )
 	return;
-    
+
     QTable::SortableItem *items = new QTable::SortableItem[ filledRows ];
     int j = 0;
     for ( i = 0; i < rows(); ++i ) {
@@ -1909,9 +1923,9 @@ void QTable::sortColumn( int col, bool ascending )
 	    continue;
 	items[ j++ ].item = item;
     }
-    
+
     qsort( items, filledRows, sizeof( QTable::SortableItem ), cmpTableItems );
-    
+
     contents.setAutoDelete( FALSE );
     for ( i = 0; i < rows(); ++i ) {
 	contents.remove( indexOf( i, col ) );
@@ -1923,7 +1937,7 @@ void QTable::sortColumn( int col, bool ascending )
 	}
     }
     contents.setAutoDelete( TRUE );
-    
+
     repaintContents( columnPos( col ), 0, columnWidth( col ), contentsHeight(), FALSE );
     delete [] items;
 }
