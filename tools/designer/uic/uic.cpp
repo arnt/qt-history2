@@ -284,8 +284,8 @@ void Uic::createFormDecl( const QDomElement &e )
 	    if ( s == "Line" )
 		s = "QFrame";
 	    forwardDecl += s;
-	    if ( s == "QListBox" || s == "QListView" || s == "QIconView" )
-		forwardDecl += s + "Item";
+	    if ( s.mid( 1 ) == "ListBox" || s.mid( 1 ) == "ListView" || s.mid( 1 ) == "IconView" )
+		forwardDecl += "Q" + s.mid( 1 ) + "Item";
 	}
     }
 
@@ -476,7 +476,7 @@ void Uic::createFormImpl( const QDomElement &e )
 	    QString name = getClassName( nl.item(i).toElement() );
 	    if ( name != objClass )
 		globalIncludes += getInclude( name );
-	    if ( name == "QListView" )
+	    if ( name.mid( 1 ) == "ListView" )
 		globalIncludes += "qheader.h";
 	}
     }
@@ -969,25 +969,25 @@ QString Uic::createObjectImpl( const QDomElement &e, const QString& parentClass,
 
 	    }
 	} else if ( n.tagName() == "item" ) {
-	    if ( objClass == "QListBox" ) {
+	    if ( objClass.mid( 1 ) == "ListBox" ) {
 		QString s = createListBoxItemImpl( n, objName );
 		if ( !s.isEmpty() )
 		    out << indent << s << endl;
-	    } else if ( objClass == "QComboBox" ) {
+	    } else if ( objClass.mid( 1 ) == "ComboBox" ) {
 		QString s = createListBoxItemImpl( n, objName );
 		if ( !s.isEmpty() )
 		    out << indent << s << endl;
-	    } else if ( objClass == "QIconView" ) {
+	    } else if ( objClass.mid( 1 ) == "IconView" ) {
 		QString s = createIconViewItemImpl( n, objName );
 		if ( !s.isEmpty() )
 		    out << indent << s << endl;
-	    } else if ( objClass == "QListView" ) {
+	    } else if ( objClass.mid( 1 ) == "ListView" ) {
 		QString s = createListViewItemImpl( n, objName, QString::null );
 		if ( !s.isEmpty() )
 		    out << s << endl;
 	    }
 	} else if ( n.tagName() == "column" ) {
-	    if ( objClass == "QListView" ) {
+	    if ( objClass.mid( 1 ) == "ListView" ) {
 		QString s = createListViewColumnImpl( n, objName );
 		if ( !s.isEmpty() )
 		    out << s;
@@ -1733,7 +1733,7 @@ QStringList Uic::unique( const QStringList& list )
 QString Uic::createObjectInstance( const QString& objClass, const QString& parent, const QString& objName )
 {
 
-    if ( objClass == "QComboBox" ) {
+    if ( objClass.mid( 1 ) == "ComboBox" ) {
 	return objClass + "( FALSE, " + parent + ", \"" + objName + "\" )";
     }
     return objClass + "( " + parent + ", \"" + objName + "\" )";
