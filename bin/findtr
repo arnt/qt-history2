@@ -96,7 +96,7 @@ foreach $file ( @ARGV ) {
 		    # The parameters
 		    \(
 			# The scope parameter
-			\s*("[^\"]*")
+			\s*"([^\"]*)"
 			\s*,\s*
 			# The msgid parameter
 			\s*((?:\"(?:[^"]|[^\\]\\")*"\s*)+)
