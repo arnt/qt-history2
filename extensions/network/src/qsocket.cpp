@@ -308,6 +308,8 @@ void QSocket::connectToHost( const QString &host, int port )
     delete d;
     d = new QSocketPrivate;
     d->socket = new QSocketDevice( QSocketDevice::Stream );
+    d->socket->setBlocking( FALSE );
+    d->socket->setAddressReusable( TRUE );
     d->state = HostLookup;
     d->host = host;
     d->port = port;
@@ -989,7 +991,7 @@ void QSocket::sn_read()
 	    d->state = Idle;
 	    d->rsn->setEnabled( FALSE );
 	    d->wsn->setEnabled( FALSE );
-	    d->socket->close();	
+	    d->socket->close();
 	    d->wba.clear();			// clear write buffer
 	    d->windex = d->wsize = 0;
 	    emit closed();
