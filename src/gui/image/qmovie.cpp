@@ -165,7 +165,6 @@ public:
     bool movie_ended;
     bool waitingForFrameTick;
     int stepping;
-    QString movie_name;
     QRect changed_area;
     QRect valid_area;
     QIODevice *source;
@@ -198,8 +197,6 @@ QMoviePrivate::QMoviePrivate()
 QMoviePrivate::QMoviePrivate(QIODevice* src, QMovie* movie, int bufsize) :
     that(movie), buf_size(bufsize)
 {
-    static int movie_cntr = 0;
-    movie_name = QString("qt_movie%1_frame_%2").arg(movie_cntr++);
     polltimer = new QTimer(this);
     QObject::connect(polltimer, SIGNAL(timeout()), this, SLOT(pollForData()));
     frametimer = new QTimer(this);
@@ -335,8 +332,11 @@ void QMoviePrivate::updatePixmapFromImage(const QPoint& off,
     if (!(frameperiod < 0 && loop == -1)) {
         // its an animation, lets see if we converted
         // this frame already.
-        QString key = movie_name.arg(framenumber);
-        if ( !QPixmapCache::find( key, lines ) ) {
+         QString key( "qt_movie012301" ); // reserve 8+4 bytes for the key
+	 void *p = this;
+         memcpy((void *)(key.unicode()+8), (void *)&p, sizeof(void *));
+         memcpy((void *)(key.unicode()+12), &framenumber, sizeof(framenumber));
+	 if ( !QPixmapCache::find( key, lines ) ) {
             lines.convertFromImage(img, Qt::ColorOnly);
             QPixmapCache::insert( key, lines );
         }

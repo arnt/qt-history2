@@ -969,12 +969,9 @@ int QGIFFormat::decode(QImage& img, QImageConsumer* consumer,
 		max_code_size=2*clear_code;
 		max_code=clear_code+2;
 		int i;
-		for (i=0; i<clear_code && i<(1<<max_lzw_bits); i++) {
+		for (i=0; i<clear_code; i++) {
 		    table[0][i]=0;
 		    table[1][i]=i;
-		}
-		for (i=clear_code; i<(1<<max_lzw_bits); i++) {
-		    table[0][i]=table[1][i]=0;
 		}
 		state=ImageDataBlockSize;
 	    }
@@ -1004,17 +1001,9 @@ int QGIFFormat::decode(QImage& img, QImageConsumer* consumer,
 
 		if (code==clear_code) {
 		    if (!needfirst) {
-			int i;
 			code_size=lzwsize+1;
 			max_code_size=2*clear_code;
 			max_code=clear_code+2;
-			for (i=0; i<clear_code; i++) {
-			    table[0][i]=0;
-			    table[1][i]=i;
-			}
-			for (i=clear_code; i<(1<<max_lzw_bits); i++) {
-			    table[0][i]=table[1][i]=0;
-			}
 		    }
 		    needfirst=TRUE;
 		} else if (code==end_code) {
@@ -1040,7 +1029,7 @@ int QGIFFormat::decode(QImage& img, QImageConsumer* consumer,
 			    *sp++=firstcode;
 			    code=oldcode;
 			}
-			while (code>=clear_code) {
+			while (code>=clear_code+2) {
 			    *sp++=table[1][code];
 			    if (code==table[0][code]) {
 				state=Error;
