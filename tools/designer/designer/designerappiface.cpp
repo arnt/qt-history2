@@ -483,6 +483,11 @@ void DesignerPixmapCollectionImpl::addPixmap( const QPixmap &p, const QString &n
 	MetaDataBase::setPixmapKey( fw, p.serialNumber(), name );
 }
 
+QPixmap DesignerPixmapCollectionImpl::pixmap( const QString &name ) const
+{
+    pixCollection->pixmap( name );
+}
+
 
 
 DesignerFormWindowImpl::DesignerFormWindowImpl( FormWindow *fw )

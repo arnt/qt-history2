@@ -150,6 +150,7 @@ struct DesignerDatabase
 struct DesignerPixmapCollection
 {
     virtual void addPixmap( const QPixmap &p, const QString &name, bool force ) = 0;
+    virtual QPixmap pixmap( const QString &name ) const = 0;
 };
 
 struct DesignerFormWindow

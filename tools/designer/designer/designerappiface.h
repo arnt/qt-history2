@@ -1,5 +1,5 @@
  /**********************************************************************
-** Copyright (C) 2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2001 Trolltech AS.  All rights reserved.
 **
 ** This file is part of Qt Designer.
 **
@@ -141,6 +141,7 @@ class DesignerPixmapCollectionImpl : public DesignerPixmapCollection
 public:
     DesignerPixmapCollectionImpl( PixmapCollection *coll );
     void addPixmap( const QPixmap &p, const QString &name, bool force );
+    QPixmap pixmap( const QString &name ) const;
 
 private:
     PixmapCollection *pixCollection;
