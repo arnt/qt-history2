@@ -126,6 +126,7 @@ protected:
 private slots:
     void fileNew();
     void fileNewProject();
+    void fileCloseProject();
     void fileOpen();
     bool fileSave();
     bool fileSaveAs();
@@ -270,11 +271,11 @@ private:
     QAction *actionWindowNext, *actionWindowPrevious;
     QAction *actionEditFormSettings, *actionEditAccels;
     QAction *actionEditDatabaseConnections;
-    
+
     QPopupMenu *rmbWidgets;
     QPopupMenu *rmbFormWindow;
-    QPopupMenu *customWidgetMenu, *windowMenu;
-    QToolBar *customWidgetToolBar, *layoutToolBar;
+    QPopupMenu *customWidgetMenu, *windowMenu, *fileMenu;
+    QToolBar *customWidgetToolBar, *layoutToolBar, *projectToolBar;
 
     Preferences *prefDia;
     QMap<QString,QString> propertyDocumentation;

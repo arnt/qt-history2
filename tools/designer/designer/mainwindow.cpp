@@ -103,7 +103,7 @@ static int forms = 0;
 
 static const char * whatsthis_image[] = {
     "16 16 3 1",
-    " 	c None",
+    "	c None",
     "o	c #000000",
     "a	c #000080",
     "o        aaaaa  ",
@@ -670,13 +670,13 @@ void MainWindow::setupFileActions()
     KToolBar *tb = new KToolBar( this, "File" );
     tb->setFullSize( FALSE );
 #else
-    QToolBar *tb = new QToolBar( this, "File" );
+    QToolBar* tb  = new QToolBar( this, "File" );
     tb->setCloseMode( QDockWindow::Undocked );
 #endif
     QWhatsThis::add( tb, tr( "<b>The File toolbar</b>%1" ).arg(tr(toolbarHelp).arg("")) );
     addToolBar( tb, tr( "File" ) );
-    QPopupMenu *menu = new QPopupMenu( this, "File" );
-    menubar->insertItem( tr( "&File" ), menu );
+    fileMenu = new QPopupMenu( this, "File" );
+    menubar->insertItem( tr( "&File" ), fileMenu );
 
     QAction *a = 0;
 
@@ -687,10 +687,10 @@ void MainWindow::setupFileActions()
     a->setAccel( CTRL + Key_N );
     a->setStatusTip( tr( "Creates a new form" ) );
     a->setWhatsThis( tr("<b>Create a new form</b>"
-		        "<p>Select a template for the new form or start with an empty form. This form is added to the current project.</p>") );
+			"<p>Select a template for the new form or start with an empty form. This form is added to the current project.</p>") );
     connect( a, SIGNAL( activated() ), this, SLOT( fileNew() ) );
     a->addTo( tb );
-    a->addTo( menu );
+    a->addTo( fileMenu );
 
     a = new QAction( this, 0 );
     a->setText( tr( "New Project" ) );
@@ -698,9 +698,19 @@ void MainWindow::setupFileActions()
     a->setIconSet( createIconSet("filenew.xpm") );
     a->setStatusTip( tr( "Creates a new project" ) );
     a->setWhatsThis( tr("<b>Create a new project</b>"
-		        "<p>Creates a new Qt project</p>") );
+			"<p>Creates a new Qt project</p>") );
     connect( a, SIGNAL( activated() ), this, SLOT( fileNewProject() ) );
-    a->addTo( menu );
+    a->addTo( fileMenu );
+
+    a = new QAction( this, 0 );
+    a->setText( tr( "Close Project" ) );
+    a->setMenuText( tr( "Close P&roject" ) );
+    a->setIconSet( createIconSet("filenew.xpm") );
+    a->setStatusTip( tr( "Closes the current project" ) );
+    a->setWhatsThis( tr("<b>Closes the current project</b>"
+			"<p>Closes the current project, if one exists.</p>") );
+    connect( a, SIGNAL( activated() ), this, SLOT( fileCloseProject() ) );
+    a->addTo( fileMenu );
 
     a = new QAction( this, 0 );
     a->setText( tr( "Open" ) );
@@ -713,7 +723,7 @@ void MainWindow::setupFileActions()
 			"open. You can also use Drag&Drop to open multiple files.</p>") );
     connect( a, SIGNAL( activated() ), this, SLOT( fileOpen() ) );
     a->addTo( tb );
-    a->addTo( menu );
+    a->addTo( fileMenu );
 
     a = new QAction( this, 0 );
     a->setText( tr( "Save" ) );
@@ -729,9 +739,9 @@ void MainWindow::setupFileActions()
 #if 0 // #### Reggie: I don't like it
     connect( this, SIGNAL( formModified(bool) ), a, SLOT( setEnabled(bool) ) );
 #endif
-    menu->insertSeparator();
+    fileMenu->insertSeparator();
     a->addTo( tb );
-    a->addTo( menu );
+    a->addTo( fileMenu );
 
     a = new QAction( this, 0 );
     a->setText( tr( "Save As" ) );
@@ -740,7 +750,7 @@ void MainWindow::setupFileActions()
     a->setWhatsThis( tr( "Save the current form with a new filename" ) );
     connect( a, SIGNAL( activated() ), this, SLOT( fileSaveAs() ) );
     connect( this, SIGNAL( hasActiveForm(bool) ), a, SLOT( setEnabled(bool) ) );
-    a->addTo( menu );
+    a->addTo( fileMenu );
 
     a = new QAction( this, 0 );
     a->setText( tr( "Save All" ) );
@@ -749,9 +759,9 @@ void MainWindow::setupFileActions()
     a->setWhatsThis( tr( "Save all open forms" ) );
     connect( a, SIGNAL( activated() ), this, SLOT( fileSaveAll() ) );
     connect( this, SIGNAL( hasActiveForm(bool) ), a, SLOT( setEnabled(bool) ) );
-    a->addTo( menu );
+    a->addTo( fileMenu );
 
-    menu->insertSeparator();
+    fileMenu->insertSeparator();
 
     QActionGroup *ag = new QActionGroup( this, 0 );
     ag->setText( tr( "Project" ) );
@@ -762,11 +772,12 @@ void MainWindow::setupFileActions()
     a = new QAction( tr( "<No Project>" ), tr( "<No Project>" ), 0, ag, 0, TRUE );
     projects.insert( a, new Project( "", tr( "<No Project>" ) ) );
     a->setOn( TRUE );
-    ag->addTo( menu );
+    ag->addTo( fileMenu );
     ag->addTo( tb );
+    projectToolBar = tb;
     actionGroupProjects = ag;
 
-    menu->insertSeparator();
+    fileMenu->insertSeparator();
 
     a = new QAction( this, 0 );
     a->setText( tr( "Create Template" ) );
@@ -774,9 +785,9 @@ void MainWindow::setupFileActions()
     a->setStatusTip( tr( "Creates a new template" ) );
     a->setWhatsThis( tr( "Creates a new template" ) );
     connect( a, SIGNAL( activated() ), this, SLOT( fileCreateTemplate() ) );
-    a->addTo( menu );
+    a->addTo( fileMenu );
 
-    menu->insertSeparator();
+    fileMenu->insertSeparator();
 
     a = new QAction( this, 0 );
     a->setText( tr( "Exit" ) );
@@ -786,7 +797,7 @@ void MainWindow::setupFileActions()
 			 "<p>The Qt Designer will ask if you want to save changed forms before "
 			 "the application closes.</p>") );
     connect( a, SIGNAL( activated() ), qApp, SLOT( closeAllWindows() ) );
-    a->addTo( menu );
+    a->addTo( fileMenu );
 }
 
 void MainWindow::setupPreviewActions()
@@ -888,12 +899,12 @@ void MainWindow::setupWindowActions()
 	actionWindowCloseAll->setWhatsThis( tr( "Close all form windows") );
 	connect( actionWindowCloseAll, SIGNAL( activated() ), this, SLOT( closeAllForms() ) );
 
-    	actionWindowNext = new QAction( tr( "Next" ), tr( "Ne&xt" ), CTRL + Key_F6, this );
+	actionWindowNext = new QAction( tr( "Next" ), tr( "Ne&xt" ), CTRL + Key_F6, this );
 	actionWindowNext->setStatusTip( tr( "Activates the next window" ) );
 	actionWindowNext->setWhatsThis( tr( "Activate the next window" ) );
 	connect( actionWindowNext, SIGNAL( activated() ), workspace, SLOT( activateNextWindow() ) );
 
-    	actionWindowPrevious = new QAction( tr( "Previous" ), tr( "Pre&vious" ), CTRL + SHIFT + Key_F6, this );
+	actionWindowPrevious = new QAction( tr( "Previous" ), tr( "Pre&vious" ), CTRL + SHIFT + Key_F6, this );
 	actionWindowPrevious->setStatusTip( tr( "Activates the previous window" ) );
 	actionWindowPrevious->setWhatsThis( tr( "Activate the previous window" ) );
 	connect( actionWindowPrevious, SIGNAL( activated() ), workspace, SLOT( activatePreviousWindow() ) );
@@ -1209,6 +1220,33 @@ void MainWindow::fileNewProject()
     projectSelected( a );
 }
 
+void MainWindow::fileCloseProject()
+{
+    if ( currentProject->projectName() == "<No Project>" )
+	return;
+    QAction* a = 0;
+    QAction* lastValid = 0;
+    for ( QMap<QAction*, Project* >::Iterator it = projects.begin(); it != projects.end(); ++it ) {
+	if ( it.data() == currentProject ) {
+	    a = it.key();
+	    break;
+	}
+	lastValid = it.key();
+    }
+    if ( a ) {
+	currentProject->save(); // ### do more here? close all project form windows? other cleanup?
+	actionGroupProjects->removeChild( a );
+	projects.remove( a );
+	delete a;
+	delete currentProject;
+	if ( lastValid ) {
+	    projectSelected( lastValid );
+	    lastValid->setOn( TRUE );
+	}
+    }
+}
+
+
 void MainWindow::fileOpen()
 {
     statusBar()->message( tr( "Select a file...") );
@@ -1398,7 +1436,7 @@ void MainWindow::fileCreateTemplate()
 void MainWindow::editUndo()
 {
     if ( formWindow() )
- 	formWindow()->undo();
+	formWindow()->undo();
 }
 
 void MainWindow::editRedo()
@@ -2248,9 +2286,9 @@ void MainWindow::insertFormWindow( FormWindow *fw )
 			       "in the <b>Form List</b>.") );
 
     connect( fw, SIGNAL( showProperties( QObject * ) ),
- 	     this, SLOT( showProperties( QObject * ) ) );
+	     this, SLOT( showProperties( QObject * ) ) );
     connect( fw, SIGNAL( updateProperties( QObject * ) ),
- 	     this, SLOT( updateProperties( QObject * ) ) );
+	     this, SLOT( updateProperties( QObject * ) ) );
     connect( this, SIGNAL( currentToolChanged() ),
 	     fw, SLOT( currentToolChanged() ) );
     connect( fw, SIGNAL( selectionChanged() ),
@@ -2634,7 +2672,7 @@ void MainWindow::selectionChanged()
 	actionEditBreakLayout->setEnabled( FALSE );
 	actionEditLower->setEnabled( FALSE );
 	actionEditRaise->setEnabled( FALSE );
- 	actionEditAdjustSize->setEnabled( FALSE );
+	actionEditAdjustSize->setEnabled( FALSE );
 	return;
     }
 
@@ -2663,15 +2701,15 @@ void MainWindow::selectionChanged()
 	actionEditVLayout->setEnabled( unlaidout > 1 );
 	actionEditGridLayout->setEnabled( unlaidout > 1 );
 	actionEditBreakLayout->setEnabled( laidout > 0 );
- 	actionEditAdjustSize->setEnabled( laidout > 0 );
+	actionEditAdjustSize->setEnabled( laidout > 0 );
 	layoutSelected = unlaidout > 1;
 	breakLayout = laidout > 0;
     } else if ( selectedWidgets == 1 ) {
 	QWidget *w = widgets.first();
 	bool isContainer = WidgetDatabase::isContainer( WidgetDatabase::idFromClassName( WidgetFactory::classNameOf( w ) ) ) ||
 			   w == formWindow()->mainContainer();
- 	actionEditAdjustSize->setEnabled( !w->parentWidget() ||
- 					  WidgetFactory::layoutType( w->parentWidget() ) == WidgetFactory::NoLayout );
+	actionEditAdjustSize->setEnabled( !w->parentWidget() ||
+					  WidgetFactory::layoutType( w->parentWidget() ) == WidgetFactory::NoLayout );
 
 	if ( !isContainer ) {
 	    actionEditHLayout->setEnabled( FALSE );
@@ -2710,7 +2748,7 @@ void MainWindow::selectionChanged()
 	    }
 	}
     } else if ( selectedWidgets == 0 && formWindow() ) {
- 	actionEditAdjustSize->setEnabled( TRUE );
+	actionEditAdjustSize->setEnabled( TRUE );
 	QWidget *w = formWindow()->mainContainer();
 	if ( WidgetFactory::layoutType( w ) == WidgetFactory::NoLayout ) {
 	    if ( !formWindow()->hasInsertedChildren( w ) ) {
