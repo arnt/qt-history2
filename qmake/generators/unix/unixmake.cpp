@@ -50,7 +50,7 @@ UnixMakefileGenerator::init()
 	return;
     init_flag = TRUE;
 
-    if(!project->variables()["QMAKE_FAILED_REQUIREMENTS"].isEmpty()) /* no point */
+    if(!project->isEmpty("QMAKE_FAILED_REQUIREMENTS")) /* no point */
 	return;
 
     QStringList &configs = project->variables()["CONFIG"];
@@ -61,16 +61,16 @@ UnixMakefileGenerator::init()
 	project->variables()["QMAKE_LIB_FLAG"].append("1");
     else if(project->first("TEMPLATE") == "subdirs") {
 	MakefileGenerator::init();
-	if(project->variables()["MAKEFILE"].isEmpty())
+	if(project->isEmpty("MAKEFILE"))
 	    project->variables()["MAKEFILE"].append("Makefile");
-	if(project->variables()["QMAKE"].isEmpty())
+	if(project->isEmpty("QMAKE"))
 	    project->variables()["QMAKE"].append("qmake");
 	if(project->variables()["QMAKE_INTERNAL_QMAKE_DEPS"].findIndex("qmake_all") == -1)
 	    project->variables()["QMAKE_INTERNAL_QMAKE_DEPS"].append("qmake_all");
 	return; /* subdirs is done */
     }
 
-    if( project->variables()["QMAKE_EXTENSION_SHLIB"].isEmpty() )
+    if( project->isEmpty("QMAKE_EXTENSION_SHLIB") )
 	project->variables()["QMAKE_EXTENSION_SHLIB"].append( "so" );
     if( project->isEmpty("QMAKE_COPY_FILE") )
 	project->variables()["QMAKE_COPY_FILE"].append( "$(COPY) -p" );
@@ -80,15 +80,14 @@ UnixMakefileGenerator::init()
 
     bool is_qt = (project->first("TARGET") == "qt" || project->first("TARGET") == "qte" ||
 		  project->first("TARGET") == "qt-mt" || project->first("TARGET") == "qte-mt");
-    bool extern_libs = !project->variables()["QMAKE_APP_FLAG"].isEmpty() ||
-		       (!project->variables()["QMAKE_LIB_FLAG"].isEmpty() && 
+    bool extern_libs = !project->isEmpty("QMAKE_APP_FLAG") ||
+		       (!project->isEmpty("QMAKE_LIB_FLAG") && 
 			project->isActiveConfig("dll")) || is_qt;
-                       ;
     project->variables()["QMAKE_LIBS"] += project->variables()["LIBS"];
-    if ( (!project->variables()["QMAKE_LIB_FLAG"].isEmpty() && !project->isActiveConfig("staticlib") ) ||
+    if ( (!project->isEmpty("QMAKE_LIB_FLAG") && !project->isActiveConfig("staticlib") ) ||
 	 (project->isActiveConfig("qt") &&  project->isActiveConfig( "plugin" ) )) {
 	if(configs.findIndex("dll") == -1) configs.append("dll");
-    } else if ( !project->variables()["QMAKE_APP_FLAG"].isEmpty() || project->isActiveConfig("dll") ) {
+    } else if ( !project->isEmpty("QMAKE_APP_FLAG") || project->isActiveConfig("dll") ) {
 	configs.remove("staticlib");
     }
     if ( project->isActiveConfig("warn_off") ) {
@@ -107,9 +106,11 @@ UnixMakefileGenerator::init()
 	project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_RELEASE"];
 	project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_RELEASE"];
     }
-    if ( !project->variables()["QMAKE_INCDIR"].isEmpty() ) 
+    if(!project->isEmpty("QMAKE_INCREMENTAL")) 
+	project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_INCREMENTAL"];
+    if(!project->isEmpty("QMAKE_INCDIR")) 
 	project->variables()["INCLUDEPATH"] += project->variables()["QMAKE_INCDIR"];
-    if ( !project->variables()["QMAKE_LIBDIR"].isEmpty() ) 
+    if(!project->isEmpty("QMAKE_LIBDIR")) 
 	project->variables()["QMAKE_LIBDIR_FLAGS"].append("-L" + project->first("QMAKE_LIBDIR"));
     if ( extern_libs && (project->isActiveConfig("qt") || project->isActiveConfig("opengl")) ) {
 	if(configs.findIndex("x11lib") == -1) 
@@ -133,14 +134,14 @@ UnixMakefileGenerator::init()
 	if ( !project->isActiveConfig("debug") ) 
 	    project->variables()[is_qt ? "PRL_EXPORT_DEFINES" : "DEFINES"].append("QT_NO_DEBUG");
 	if ( !is_qt ) {
-	    if ( !project->variables()["QMAKE_LIBDIR_QT"].isEmpty() ) {
-		if ( !project->variables()["QMAKE_RPATH"].isEmpty() )
+	    if ( !project->isEmpty("QMAKE_LIBDIR_QT") ) {
+		if ( !project->isEmpty("QMAKE_RPATH") )
 		    project->variables()["QMAKE_LIBDIR_FLAGS"].append(project->first("QMAKE_RPATH") +
 								  project->first("QMAKE_LIBDIR_QT"));
 		project->variables()["QMAKE_LIBDIR_FLAGS"].append("-L" +
 								  project->first("QMAKE_LIBDIR_QT"));
 	    }
-	    if (project->isActiveConfig("thread") && !project->variables()["QMAKE_LIBS_QT_THREAD"].isEmpty()) 
+	    if (project->isActiveConfig("thread") && !project->isEmpty("QMAKE_LIBS_QT_THREAD")) 
 		project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_QT_THREAD"];
 	    else 
 		project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_QT"];
@@ -149,18 +150,18 @@ UnixMakefileGenerator::init()
     if ( project->isActiveConfig("thread") ) {
 	if(project->isActiveConfig("qt"))
 	    project->variables()[is_qt ? "PRL_EXPORT_DEFINES" : "DEFINES"].append("QT_THREAD_SUPPORT");
-	if ( !project->variables()["QMAKE_CFLAGS_THREAD"].isEmpty())
+	if ( !project->isEmpty("QMAKE_CFLAGS_THREAD"))
 	    project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_THREAD"];
-	if( !project->variables()["QMAKE_CXXFLAGS_THREAD"].isEmpty())
+	if( !project->isEmpty("QMAKE_CXXFLAGS_THREAD"))
 	    project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_THREAD"];
 	project->variables()["INCLUDEPATH"] += project->variables()["QMAKE_INCDIR_THREAD"];
 	project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_THREAD"];
-	if(!project->variables()["QMAKE_LFLAGS_THREAD"].isEmpty())
+	if(!project->isEmpty("QMAKE_LFLAGS_THREAD"))
 	    project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_THREAD"];
     }
     if ( project->isActiveConfig("opengl") ) {
 	project->variables()["INCLUDEPATH"] += project->variables()["QMAKE_INCDIR_OPENGL"];
-	if(!project->variables()["QMAKE_LIBDIR_OPENGL"].isEmpty()) {
+	if(!project->isEmpty("QMAKE_LIBDIR_OPENGL")) {
 	    project->variables()["QMAKE_LIBDIR_FLAGS"].append("-L" + project->first("QMAKE_LIBDIR_OPENGL"));
 	}
 	if ( is_qt )
@@ -175,27 +176,27 @@ UnixMakefileGenerator::init()
     if ( project->isActiveConfig("x11inc") )
 	project->variables()["INCLUDEPATH"] += project->variables()["QMAKE_INCDIR_X11"];
     if ( project->isActiveConfig("x11lib") ) {
-	if(!project->variables()["QMAKE_LIBDIR_X11"].isEmpty()) 
+	if(!project->isEmpty("QMAKE_LIBDIR_X11")) 
 	    project->variables()["QMAKE_LIBDIR_FLAGS"].append("-L" + project->first("QMAKE_LIBDIR_X11"));
 	project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_X11"];
     }
     if ( project->isActiveConfig("moc") )
 	setMocAware(TRUE);
-    if ( project->variables()["QMAKE_RUN_CC"].isEmpty() )
+    if ( project->isEmpty("QMAKE_RUN_CC") )
 	project->variables()["QMAKE_RUN_CC"].append("$(CC) -c $(CFLAGS) $(INCPATH) -o $obj $src");
-    if ( project->variables()["QMAKE_RUN_CC_IMP"].isEmpty() )
+    if ( project->isEmpty("QMAKE_RUN_CC_IMP") )
 	project->variables()["QMAKE_RUN_CC_IMP"].append("$(CC) -c $(CFLAGS) $(INCPATH) -o $@ $<");
-    if ( project->variables()["QMAKE_RUN_CXX"].isEmpty() )
+    if ( project->isEmpty("QMAKE_RUN_CXX") )
 	project->variables()["QMAKE_RUN_CXX"].append("$(CXX) -c $(CXXFLAGS) $(INCPATH) -o $obj $src");
-    if ( project->variables()["QMAKE_RUN_CXX_IMP"].isEmpty() )
+    if ( project->isEmpty("QMAKE_RUN_CXX_IMP") )
 	project->variables()["QMAKE_RUN_CXX_IMP"].append("$(CXX) -c $(CXXFLAGS) $(INCPATH) -o $@ $<");
     project->variables()["QMAKE_FILETAGS"] += QStringList::split("HEADERS SOURCES TARGET DESTDIR", " ");
-    if ( !project->variables()["PRECOMPH"].isEmpty() ) {
+    if ( !project->isEmpty("PRECOMPH") ) {
 	// Need to fix MOC_DIR since we do this before init()
 	QString allmoc = project->first("MOC_DIR");
 	if(allmoc.right(Option::dir_sep.length()) != Option::dir_sep)
 	    allmoc += Option::dir_sep;
-	if(QDir::isRelativePath(allmoc) && !project->variables()["QMAKE_ABSOLUTE_SOURCE_PATH"].isEmpty())
+	if(QDir::isRelativePath(allmoc) && !project->isEmpty("QMAKE_ABSOLUTE_SOURCE_PATH"))
 	    allmoc.prepend(Option::output_dir + Option::dir_sep);
 	allmoc += "/allmoc.cpp";
 	project->variables()["SOURCES"].prepend(allmoc);
@@ -207,7 +208,7 @@ UnixMakefileGenerator::init()
 
     MakefileGenerator::init();
     if ( project->isActiveConfig("resource_fork") && !project->isActiveConfig("console")) {
-	if(!project->variables()["QMAKE_APP_FLAG"].isEmpty()) {
+	if(!project->isEmpty("QMAKE_APP_FLAG")) {
 	    if(project->isEmpty("DESTDIR"))
 		project->values("DESTDIR").append("");
 	    project->variables()["DESTDIR"].first() += project->variables()["TARGET"].first() + 
@@ -353,7 +354,7 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
 	target = "$(QMAKE_TARGET)";
     } else if(!project->isActiveConfig("staticlib")) {
 	if(project->isActiveConfig("plugin")) {
-	} else if ( !project->variables()["QMAKE_HPUX_SHLIB"].isEmpty() ) {
+	} else if ( !project->isEmpty("QMAKE_HPUX_SHLIB") ) {
 	    links << "$(TARGET0)";
 	}else
 	    links << "$(TARGET0)" << "$(TARGET1)" << "$(TARGET2)";
