@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcol_x11.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qcol_x11.cpp#3 $
 **
 ** Implementation of QColor class for X11
 **
@@ -18,7 +18,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qcol_x11.cpp#2 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qcol_x11.cpp#3 $";
 #endif
 
 
@@ -122,6 +122,20 @@ void QColor::initialize()			// called from startup routines
 
 void QColor::cleanup()
 {
+    if ( !colorDict )
+	return;
+#if 0		/* NOTE!!! Is this required for read-only colors */
+    int s = colorDict->count();
+    ulong *pixels = new ulong[s];		// array of pixel values
+    CHECK_PTR( pixels );
+    QColorDictIt it( *colorDict );
+    for ( int i=0; i<s; i++ ) {			// put all colors in array
+	pixels[i] = it.current()->pixel();
+	++it;
+    }
+    XFreeColors( qXDisplay(), cmap, pixels, s, 0 ); // free colors
+    delete pixels;
+#endif
     colorDict->setAutoDelete( TRUE );		// remove all entries
     colorDict->clear();
     delete colorDict;
