@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#3 $
 **
 ** Implementation of QObject class
 **
@@ -16,7 +16,7 @@
 #include "qview.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#2 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#3 $";
 #endif
 
 
@@ -60,6 +60,12 @@ QObject::~QObject()
 bool QObject::event( QEvent * )			// receive event
 {
     return FALSE;				// don't do anything with it
+}
+
+
+void QObject::blockSignals( bool b )
+{
+    blockSig = b ? TRUE : FALSE;
 }
 
 

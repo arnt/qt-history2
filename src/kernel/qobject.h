@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.h#2 $
+** $Id: //depot/qt/main/src/kernel/qobject.h#3 $
 **
 ** Definition of QObject class
 **
@@ -32,8 +32,11 @@ public:
     virtual QMetaObject *metaObject() const { return metaObj; }
     virtual char *className() const;		// get name of class
 
-    bool    isParentType() const { return isPType; }
-    bool    isWidgetType() const { return isWidget; }
+    bool    isParentType()    const { return isPType; }
+    bool    isWidgetType()    const { return isWidget; }
+
+    bool    signalsBlocked()  const { return blockSig; }
+    void    blockSignals( bool b );
 
     int	    startTimer( long interval );	// start timer events
     void    killTimer( int id );		// kill timer event
@@ -48,9 +51,10 @@ protected:
     bool    bind( const char *, const QObject *, const char * );
     bool    unbind( const char * );
 
-    int	    isPType    : 1;			// is parent type
-    int	    isWidget   : 1;			// is widget
-    int	    hasTimer : 1;			// receives timer events
+    uint    isPType    : 1;			// is parent type
+    uint    isWidget   : 1;			// is widget
+    uint    hasTimer   : 1;			// receives timer events
+    uint    blockSig   : 1;			// blocking signals
     QObject *parentObj;				// parent object
     QObject *sender;				// sender of last signal
 
