@@ -11,7 +11,6 @@
 **
 ****************************************************************************/
 
-
 #include "qapplication.h"
 #include "qapplication_p.h"
 #include "qbrush.h"
@@ -1275,10 +1274,10 @@ QStyle* QWidget::setStyle(const QString &style)
     \brief whether the widget is a top-level widget
 
     A top-level widget is a widget which usually has a frame and a
-    \link QWidget::setWindowTitle() title\endlink. \link.
+    \l{QWidget::setWindowTitle()}{window title}.
 
-    A top-level widget can have a \link QWidget::parentWidget() parent
-    widget\endlink. It will then be grouped with its parent and deleted
+    A top-level widget can have a \l{QWidget::parentWidget()}{parent
+    widget}. It will then be grouped with its parent and deleted
     when the parent is deleted, minimized when the parent is minimized
     etc. If supported by the window manager, it will also have a
     common taskbar entry with its parent.
@@ -1327,11 +1326,11 @@ bool QWidget::isMinimized() const
 /*!
     Shows the widget minimized, as an icon.
 
-    Calling this function only affects \link isWindow() top-level
-    widgets\endlink.
+    Calling this function only affects \l{isWindow()}{top-level
+    widgets}.
 
     \sa showNormal(), showMaximized(), show(), hide(), isVisible(),
-    isMinimized()
+        isMinimized()
 */
 void QWidget::showMinimized()
 {
@@ -1477,12 +1476,10 @@ void QWidget::showFullScreen()
 /*!
     Shows the widget maximized.
 
-    Calling this function only affects \link isWindow() top-level
-    widgets\endlink.
+    Calling this function only affects \l{isWindow()}{windows}.
 
     On X11, this function may not work properly with certain window
-    managers. See the \link geometry.html Window Geometry
-    documentation\endlink for an explanation.
+    managers. See \l{geometry.html}{Window Geometry} for an explanation.
 
     \sa setWindowState(), showNormal(), showMinimized(), show(), hide(), isVisible()
 */
@@ -2338,9 +2335,10 @@ QWidget *QWidget::window() const
     return w;
 }
 
-/*! \obsolete \fn QWidget *QWidget::topLevelWidget() const
+/*! \fn QWidget *QWidget::topLevelWidget() const
+    \obsolete
 
-    use window() instead
+    Use window() instead.
 */
 
 #ifdef QT3_SUPPORT
@@ -2473,6 +2471,9 @@ void QWidget::setBackgroundMode(Qt::BackgroundMode m, Qt::BackgroundMode)
     setBackgroundRole(role);
 }
 
+/*!
+    The widget mapper is no longer part of the public API.
+*/
 QT3_SUPPORT QWidgetMapper *QWidget::wmapper() { return QWidgetPrivate::mapper; }
 
 #endif
@@ -3174,17 +3175,6 @@ QWidget *QWidget::nextInFocusChain() const
 }
 
 /*!
-  \obsolete
-    \property QWidget::inputMethodEnabled
-    \brief enables or disables the use of input methods for this widget.
-
-    Most Widgets (as eg. buttons) that do not handle text input should have
-    the input method disabled if they have focus. This is the default.
-
-    If a widget handles text input it should set this property to true.
-*/
-
-/*!
     \property QWidget::isActiveWindow
     \brief whether this widget's window is the active window
 
@@ -3559,22 +3549,6 @@ void QWidget::setContextMenuPolicy(Qt::ContextMenuPolicy policy)
 {
     data->context_menu_policy = (uint) policy;
 }
-
-/*!
-    \property QWidget::focusEnabled
-    \brief whether the widget accepts keyboard focus
-
-    Keyboard focus is initially disabled (i.e. focusPolicy() ==
-    \c QWidget::NoFocus).
-
-    You must enable keyboard focus for a widget if it processes
-    keyboard events. This is normally done from the widget's
-    constructor. For instance, the QLineEdit constructor calls
-    setFocusPolicy(QWidget::StrongFocus).
-
-    \sa setFocusPolicy(), focusInEvent(), focusOutEvent(), keyPressEvent(),
-      keyReleaseEvent(), isEnabled()
-*/
 
 /*!
     \property QWidget::focusPolicy
@@ -4123,23 +4097,19 @@ bool QWidget::isVisibleTo(QWidget* ancestor) const
 
 
 /*!
-    \property QWidget::hidden
+    \property QWidget::explicitlyHidden
     \brief whether the widget is explicitly hidden
 
-    If false, the widget is visible or would become visible if all its
-    ancestors became visible.
+    If true, the widget is hidden and would stay hidden even if if
+    all its ancestors became visible. If false, the widget is visible
+    or would become visible if none of the ancestors were explicitly
+    hidden themselves.
 
-    \sa hide(), show(), isVisible(), isVisibleTo(), shown
-*/
+    Windows are explicitly hidden by default. This is why you must
+    call show() on them to make them visible. Child widgets aren't
+    explictly hidden, so you don't need to call show().
 
-/*!
-    \property QWidget::shown
-    \brief whether the widget is shown
-
-    If true, the widget is visible or would become visible if all its
-    ancestors became visible.
-
-    \sa hide(), show(), isVisible(), isVisibleTo(), hidden
+    \sa hide(), show(), isVisible(), isVisibleTo()
 */
 
 
@@ -5115,12 +5085,14 @@ void QWidget::inputMethodEvent(QInputMethodEvent *e)
 }
 
 /*!
-  This method is only relevant for input widgets. It is used by the
-  input method to query a set of properties of the widget to be able
-  to support complex input method operations as support for
-  surrounding text and reconversions.
+    This method is only relevant for input widgets. It is used by the
+    input method to query a set of properties of the widget to be
+    able to support complex input method operations as support for
+    surrounding text and reconversions.
 
-  /sa Qt::ImQueryProperty QInputMethodEvent QInputContext
+    \a query specifies which property is queried.
+
+    \sa Qt::ImQueryProperty QInputMethodEvent QInputContext
 */
 QVariant QWidget::inputMethodQuery(Qt::InputMethodQuery query) const
 {
@@ -6190,6 +6162,8 @@ void QWidget::updateMicroFocus()
     access. Using this function is not portable.
 
     An HDC aquired with getDC() has to be released with releaseDC().
+
+    \warning Using this function is not portable.
 */
 HDC QWidget::getDC() const
 {
@@ -6198,8 +6172,9 @@ HDC QWidget::getDC() const
 }
 
 /*!
-    Releases the HDC aquired by a previous call to getDC().
-    Using this function is not portable.
+    Releases the HDC \a hdc aquired by a previous call to getDC().
+
+    \warning Using this function is not portable.
 */
 void QWidget::releaseDC(HDC hdc) const
 {
@@ -6648,7 +6623,94 @@ void QWidget::languageChange() { }  // compat
 /*!
     \fn QString QWidget::iconText() const
 
-    Use windowIconText() instead();
+    Use windowIconText() instead().
+*/
+
+/*!
+    \fn bool QWidget::isTopLevel() const
+    \obsolete
+
+    Use isWindow() instead.
+*/
+
+/*!
+    \fn bool QWidget::isRightToLeft() const
+    \internal
+*/
+
+/*!
+    \fn bool QWidget::isLeftToRight() const
+    \internal
+*/
+
+/*!
+    \fn void QWidget::setInputMethodEnabled(bool enabled)
+
+    Use setAttribute(Qt::WA_InputMethodEnabled, \a enabled) instead.
+*/
+
+/*!
+    \fn bool QWidget::isInputMethodEnabled() const
+
+    Use testAttribute(Qt::WA_InputMethodEnabled) instead.
+*/
+
+/*!
+    \fn void QWidget::setActiveWindow()
+
+    Use activateWindow() instead.
+*/
+
+/*!
+    \fn bool QWidget::isHidden() const
+
+    Use isExplicitlyHidden() instead.
+*/
+
+/*!
+    \fn bool QWidget::isShown() const
+
+    Use !isExplicitlyHidden() instead (notice the exclamation mark).
+*/
+
+/*!
+    \fn bool QWidget::isDialog() const
+
+    Use windowType() == Qt::Dialog instead.
+*/
+
+/*!
+    \fn bool QWidget::isPopup() const
+
+    Use windowType() == Qt::Popup instead.
+*/
+
+/*!
+    \fn bool QWidget::isDesktop() const
+
+    Use windowType() == Qt::Desktop instead.
+*/
+
+/*!
+    \fn void QWidget::polish()
+
+    Use ensurePolished() instead.
+*/
+
+/*!
+    \fn QWidget *QWidget::childAt(int x, int y, bool includeThis) const
+
+    Use the childAt() overload that doesn't have an \a includeThis parameter.
+
+    \oldcode
+        return widget->childAt(x, y, true);
+    \newcode
+        QWidget *child = widget->childAt(x, y, true);
+        if (child)
+            return child;
+        if (widget->rect().contains(x, y))
+            return widget;
+    \endcode
 */
 
 #include "moc_qwidget.cpp"
