@@ -515,6 +515,8 @@ void QButton::setAccel( const QKeySequence& key )
 #endif
 }
 
+#ifndef QT_NO_COMPAT
+
 void QButton::setAutoResize( bool enable )
 {
     if ( (bool)autoresize != enable ) {
@@ -524,6 +526,7 @@ void QButton::setAutoResize( bool enable )
     }
 }
 
+#endif
 
 void QButton::setAutoRepeat( bool enable )
 {
