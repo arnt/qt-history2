@@ -5322,7 +5322,7 @@ void QTable::setEnabled( bool b )
 
 QTableHeader::QTableHeader( int i, QTable *t,
 			    QWidget *parent, const char *name )
-    : QHeader( i, parent, name ),
+    : QHeader( i, parent, name ), startPos(-1),
       table( t ), caching( FALSE ), numStretches( 0 )
 {
     d = 0;
