@@ -1,4 +1,4 @@
-EXTENSIONS=imageio opengl xt nsplugin xembed
+EXTENSIONS=imageio opengl xt nsplugin
 
 EXAMPLES=\
 	nsplugin/examples/grapher \
@@ -12,10 +12,6 @@ EXAMPLES=\
 	xt/examples/mainlyMotif \
 	xt/examples/mainlyQt \
 	xt/examples/mainlyXt \
-	\
-	xembed/examples/component \
-	xembed/examples/shell
-
 
 
 extensions:
