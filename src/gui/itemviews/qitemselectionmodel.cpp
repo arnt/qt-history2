@@ -629,12 +629,15 @@ void QItemSelectionModel::reset()
 */
 void QItemSelectionModel::setCurrentIndex(const QModelIndex &index, SelectionFlags command)
 {
+    if (index == d->currentIndex) {
+        if (command != NoUpdate)
+            select(index, command); // select item
+        return;
+    }
+    QModelIndex previous = d->currentIndex;
+    d->currentIndex = QPersistentModelIndex(index, model()); // set current before emitting selection changed below
     if (command != NoUpdate)
         select(index, command); // select item
-    if (index == d->currentIndex)
-        return;
-    QModelIndex previous = d->currentIndex;
-    d->currentIndex = QPersistentModelIndex(index, model()); // set current
     emit currentChanged(index, previous);
 }
 

@@ -46,7 +46,7 @@ public:
         switch (selectionBehavior) {
         case QAbstractItemView::SelectRows: return QItemSelectionModel::Rows;
         case QAbstractItemView::SelectColumns: return QItemSelectionModel::Columns;
-        case QAbstractItemView::SelectItems: return QItemSelectionModel::NoUpdate;
+        case QAbstractItemView::SelectItems: default: return QItemSelectionModel::NoUpdate;
         }
     }
 
