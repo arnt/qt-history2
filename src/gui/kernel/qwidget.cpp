@@ -799,6 +799,8 @@ void QWidgetPrivate::init(Qt::WFlags f)
 	q->setAttribute(Qt::WA_DeleteOnClose);
     if (f & Qt::WShowModal)
 	q->setAttribute(Qt::WA_ShowModal);
+    if (f & Qt::WMouseNoMask)
+	q->setAttribute(Qt::WA_MouseNoMask);
 #endif
     data.window_type = f;
     data.window_state = 0;
@@ -5841,7 +5843,7 @@ QWidget *QWidget::childAt(const QPoint &p) const
             // if WMouseNoMask is set the widget mask is ignored, if
             // the widget has no mask then the WMouseNoMask flag has no
             // effect
-            if (w->testWFlags(Qt::WMouseNoMask) || w->mask().contains(p)
+            if (w->testAttribute(Qt::WA_MouseNoMask) || w->mask().contains(p)
                 || w->mask().isEmpty())
                 return w;
         }

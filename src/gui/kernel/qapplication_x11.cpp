@@ -3418,7 +3418,7 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
             }
 #endif
             qt_button_down = childAt(pos);        //magic for masked widgets
-            if (!qt_button_down || !qt_button_down->testWFlags(Qt::WMouseNoMask))
+            if (!qt_button_down || !qt_button_down->testAttribute(Qt::WA_MouseNoMask))
                 qt_button_down = this;
             if (mouseActWindow == event->xbutton.window &&
                 mouseButtonPressed == button &&

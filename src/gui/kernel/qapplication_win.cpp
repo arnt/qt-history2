@@ -2507,7 +2507,7 @@ bool QETWidget::translateMouseEvent(const MSG &msg)
         if (type == QEvent::MouseButtonPress || type == QEvent::MouseButtonDblClick) {        // mouse button pressed
             // Magic for masked widgets
             qt_button_down = findChildWidget(this, pos);
-            if (!qt_button_down || !qt_button_down->testWFlags(Qt::WMouseNoMask))
+            if (!qt_button_down || !qt_button_down->testAttribute(Qt::WA_MouseNoMask))
                 qt_button_down = this;
         }
     }

@@ -202,6 +202,10 @@ public:
 
 #ifdef QT3_SUPPORT_TBD
         ,
+        WMouseNoMask = 0x00010000,
+        WDestructiveClose = 0x00020000,
+        WStaticContents = 0x00040000,
+
         WType_TopLevel = Window,
         WType_Dialog = Dialog
         WType_Popup = Popup,
@@ -224,7 +228,6 @@ public:
         // misc flags
         WPaintDesktop = 0,
         WPaintClever = 0,
-        WMouseNoMask            = 0x00200000,
 
         WX11BypassWM            = X11BypassWindowManagerHint,
         WWinOwnDC               = 0,
@@ -237,8 +240,6 @@ public:
         WStyle_Splash           = SplashScreen,
         WStyle_ToolTip          = ToolTip,
 
-        WDestructiveClose      = 0x00010000,
-        WStaticContents        = 0x00400000,
         WNoAutoErase           = 0,
         WRepaintNoErase        = 0,
         WNorthWestGravity      = WStaticContents,
@@ -402,6 +403,7 @@ public:
         WA_WState_ExplicitShowHide = 69,
 
         WA_ShowModal = 70,
+        WA_MouseNoMask = 71,
 
         // Add new attributes above this!
         WA_AttributeCount
