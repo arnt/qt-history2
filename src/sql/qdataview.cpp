@@ -51,14 +51,14 @@ public:
 /*!
 
   \class QDataView qdataview.h
-  \brief This class provides SQL forms that support navigation but are
-  read-only.
+  \brief This class provides read-only SQL forms
 
   \module sql
 
-    This class provides SQL forms that users can navigate to view data.
-    Because QDataViews don't support editing they use less resources
-    than QDataBrowsers making them a good choice for read-only forms.
+  This class provides a form which displays SQL field data from a
+  record buffer.  Because QDataView does not support editing it uses
+  less resources than QDataBrowsers.  This class is well suited for
+  displaying read-only data from a SQL database.
 
 */
 
@@ -83,7 +83,7 @@ QDataView::~QDataView()
 
 /*!  Clears the default form's values.  If there is no default form,
   nothing happens. All the values are set to their 'zero state', e.g. 0
-  for numeric fields, "" for string fields. 
+  for numeric fields, "" for string fields.
 
 */
 
