@@ -54,21 +54,29 @@ public:
     
     bool valid;
     int size;
-    QWidget * widget;
+    QWidget * topLevelWidget;
 };
 
 
-QColormap::QColormap( QWidget * w, const char * name )
-    : QObject( w, name )
+QColormap::QColormap( QWidget * w )
+    : QObject( w )
 {
 }
 
 QColormap::QColormap( const QColormap & map )
-    : QObject( map.d->widget, map.name() )
+    : QObject( map.d->topLevelWidget )
 {
 }
 
 QColormap::~QColormap()
+{
+}
+
+void QColormap::create( QWidget * )
+{
+}
+
+void QColormap::install( QWidget * )
 {
 }
 
@@ -82,6 +90,10 @@ void QColormap::detach()
 }
 
 void QColormap::setRgb( int, QRgb )
+{    
+}
+
+void QColormap::setRgb( int, int, const QRgb * )
 {    
 }
 
@@ -102,11 +114,6 @@ QColor QColormap::color( int ) const
 bool QColormap::isValid() const
 {
     return FALSE;
-}
-
-Qt::HANDLE QColormap::colormap() const
-{
-    return 0;
 }
 
 int QColormap::size() const

@@ -48,23 +48,25 @@ class QWidget;
 class Q_EXPORT QColormap : public QObject
 {
 public:
-    QColormap( QWidget * w, const char * name = 0 );
+    QColormap( QWidget * w );
     QColormap( const QColormap & );
     virtual   ~QColormap();
     
     QColormap &operator=( const QColormap & );
     bool      isValid() const;
+    int       size() const;
     
+    void   setRgb( int base, int count, const QRgb * colors );
     void   setRgb( int idx, QRgb color );
     QRgb   rgb( int idx ) const;
     void   setColor( int idx, const QColor & color );
     QColor color( int idx ) const;
-    
-    HANDLE colormap() const;
-    int    size() const;
+        
+    void   install( QWidget * w );
     
 private:
     void detach();
+    void create( QWidget * w );
     QColormapPrivate * d;
 };
 

@@ -45,23 +45,21 @@ class QColormapPrivate : public QShared
 {
 public:
     QColormapPrivate( QWidget * w ) { 
-	valid  = FALSE;
-	widget = w;
-	size   = 0;
-
+	valid = FALSE;
+	topLevelWidget = w;
+	size = 256; // ### hardcoded to 256 entries
+	
         LOGPALETTE * lpal = (LOGPALETTE *) malloc( sizeof(LOGPALETTE)
-			    + 256 * sizeof(PALETTEENTRY) );
+			    + size * sizeof(PALETTEENTRY) );
 
 	lpal->palVersion    = 0x300;
-	lpal->palNumEntries = 256;
+	lpal->palNumEntries = size;
 	map = CreatePalette( lpal );
 
 	if ( map != 0 ) {
-	    HDC hdc = GetDC( w->topLevelWidget()->winId() );
+	    HDC hdc = GetDC( topLevelWidget->winId() );
 	    SelectPalette( hdc, map, FALSE );
-	    ReleaseDC( w->topLevelWidget()->winId(), hdc );
-	    size   = 256;
-	    widget = w;
+	    ReleaseDC( topLevelWidget->winId(), hdc );
 	    valid  = TRUE;
 	    cells.resize( size );
 	}
@@ -69,31 +67,31 @@ public:
     }
     
     ~QColormapPrivate() {
-	if ( widget && map ) {
-	    HDC hdc = GetDC( widget->topLevelWidget()->winId() ); 
+	if ( topLevelWidget && map ) {
+	    HDC hdc = GetDC( topLevelWidget->winId() ); 
 	    SelectPalette( hdc, (HPALETTE) GetStockObject( DEFAULT_PALETTE ),
 			   FALSE );
 	    DeleteObject( map );
-	    ReleaseDC( widget->topLevelWidget()->winId(), hdc );
+	    ReleaseDC( topLevelWidget->winId(), hdc );
 	}
     }
     
     bool valid;
     int size;
     HPALETTE   map;
-    QWidget *  widget;
+    QWidget *  topLevelWidget;
     QArray< QRgb > cells;
 };
 
 
-QColormap::QColormap( QWidget * w, const char * name )
-    : QObject( w, name )
+QColormap::QColormap( QWidget * w )
+    : QObject( w )
 {
     d = new QColormapPrivate( w );
 }
 
 QColormap::QColormap( const QColormap & map )
-    : QObject( map.d->widget, map.name() )
+    : QObject( map.d->topLevelWidget )
 {
     d = map.d;
     d->ref();
@@ -106,6 +104,22 @@ QColormap::~QColormap()
 	d = 0;
     }
 }
+
+void QColormap::create( QWidget * w )
+{
+    // ### empty for now, need to re-organize QColormapPrivate
+}
+
+void QColormap::install( QWidget * w )
+{    
+    if ( w && d->valid && d->map ) { 
+	HDC hdc = GetDC( w->winId() );
+	SelectPalette( hdc, d->map, FALSE );
+	RealizePalette( hdc );
+	ReleaseDC( w->winId(), hdc );
+    }
+}
+
 
 QColormap & QColormap::operator=( const QColormap & map )
 {
@@ -120,12 +134,13 @@ QColormap & QColormap::operator=( const QColormap & map )
 void QColormap::detach()
 {
     if ( d->count != 1 ) {
-	QColormapPrivate * newd = new QColormapPrivate( d->widget );
-	newd->widget = d->widget;
-	newd->size   = d->size;
-	newd->valid  = d->valid;
-	newd->cells  = d->cells;
+	QColormapPrivate * newd = new QColormapPrivate( d->topLevelWidget );
+	newd->topLevelWidget = d->topLevelWidget;
+	newd->size  = d->size;
+	newd->valid = d->valid;
+	newd->cells = d->cells;
 	newd->cells.detach();
+	// ### also have to create a new palette!
     }
 }
 
@@ -147,9 +162,22 @@ void QColormap::setRgb( int idx, QRgb color )
     d->cells[ idx ] = color;
     // ### needed if we want to set a colormap AFTER the window has been created
     // ### - disabled for now (maybe add a QColormap::realize()??)
-//    HDC hdc = GetDC( d->widget->topLevelWidget()->winId() );
+//    HDC hdc = GetDC( d->topLevelWidget->topLevelWidget()->winId() );
 //    RealizePalette( hdc ); 
-//    ReleaseDC( d->widget->topLevelWidget()->winId(), hdc );
+//    ReleaseDC( d->topLevelWidget->topLevelWidget()->winId(), hdc );
+}
+
+void QColormap::setRgb( int base, int count, const QRgb * colors )
+{
+    if ( !colors || base < 0 || base >= d->size )
+	return;
+    
+    for( int i = base; i < base + count; i++ ) {
+	if ( i < d->size )
+	    setRgb( i, colors[i] );
+	else
+	    break;
+    }
 }
 
 void QColormap::setColor( int idx, const QColor & color )
@@ -157,24 +185,26 @@ void QColormap::setColor( int idx, const QColor & color )
     setRgb( idx, color.rgb() );
 }
 
+
 QRgb QColormap::rgb( int idx ) const
 {
-    return 0;
+    if ( !d->valid || idx < 0 || idx > d->size )
+	return 0;
+    else
+	return d->cells[ idx ];
 }
 
 QColor QColormap::color( int idx ) const
 {
-    return QColor();
+    if ( !d->valid || idx < 0 || idx > d->size )
+	return QColor();
+    else
+	return QColor( d->cells[ idx ] );
 }
 
 bool QColormap::isValid() const
 {
     return d->valid;
-}
-
-Qt::HANDLE QColormap::colormap() const
-{
-    return d->map;
 }
 
 int QColormap::size() const

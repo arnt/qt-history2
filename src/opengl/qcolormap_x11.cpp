@@ -47,30 +47,52 @@ public:
     QColormapPrivate() {
 	valid  = FALSE;
 	size   = 0;
-	widget = 0;
 	cells  = 0;
 	map    = 0;
+	topLevelWidget = 0;
     }
 
     ~QColormapPrivate() {
-	if ( valid && widget && map )
-	    XFreeColormap( widget->x11Display(), map );
+	if ( valid && topLevelWidget && map )
+	    XFreeColormap( topLevelWidget->x11Display(), map );
     }
 
     bool valid;
     int size;
     QMemArray< QRgb > cells;
-    Colormap       map;
-    QWidget * widget;
+    Colormap  map;
+    QWidget * topLevelWidget;
 };
 
-
-QColormap::QColormap( QWidget * w, const char * name )
-    : QObject( w, name )
+QColormap::QColormap( QWidget * w )
+    : QObject( w->topLevelWidget() )
 {
     d = new QColormapPrivate();
-    if ( !w )
+    create( w );
+}
+
+QColormap::QColormap( const QColormap & map )
+    : QObject( map.d->topLevelWidget )
+{
+    d = map.d;
+    d->ref();
+}
+
+QColormap::~QColormap()
+{
+    if ( d && d->deref() ) {
+	delete d;
+	d = 0;
+    }
+}
+
+void QColormap::create( QWidget * widget )
+{
+    if ( !widget )
 	return;
+
+    // colormaps can only be installed in toplevel widgets
+    QWidget * w = widget->topLevelWidget();     
 
     bool validVisual = FALSE;
     int  numVisuals;
@@ -108,30 +130,23 @@ QColormap::QColormap( QWidget * w, const char * name )
 	return;
     }
 
-    d->map = XCreateColormap( w->x11Display(), w->topLevelWidget()->winId(),
+    d->map = XCreateColormap( w->x11Display(), w->winId(),
 			      (Visual *) w->x11Visual(), AllocAll );
     if ( d->map ) {
-	XSetWindowColormap( w->x11Display(), w->topLevelWidget()->winId(),
+	XSetWindowColormap( w->x11Display(), w->winId(),
 			    d->map );
 	d->valid  = TRUE;
 	d->size   = ((Visual *) w->x11Visual())->map_entries;
-	d->widget = w;
+	d->topLevelWidget = w;
 	d->cells.resize( d->size );
     }
 }
 
-QColormap::QColormap( const QColormap & map )
-    : QObject( map.d->widget, map.name() )
-{
-    d = map.d;
-    d->ref();
-}
-
-QColormap::~QColormap()
-{
-    if ( d && d->deref() ) {
-	delete d;
-	d = 0;
+void QColormap::install( QWidget * w )
+{    
+    if ( w && d->valid && d->map ) { 
+	XSetWindowColormap( w->topLevelWidget()->x11Display(), 
+			    w->topLevelWidget()->winId(), d->map );
     }
 }
 
@@ -149,15 +164,14 @@ void QColormap::detach()
 {
     if ( d->count != 1 ) {
 	QColormapPrivate * newd = new QColormapPrivate();
-	// copy internal data of QColormapPrivate here
-	newd->widget = d->widget;
+	newd->topLevelWidget = d->topLevelWidget;
 	newd->size   = d->size;
 	newd->valid  = d->valid;
 	newd->cells  = d->cells;
 	newd->cells.detach();
-	newd->map = XCreateColormap( d->widget->x11Display(),
-				     d->widget->topLevelWidget()->winId(),
-				     (Visual *) d->widget->x11Visual(),
+	newd->map = XCreateColormap( d->topLevelWidget->x11Display(),
+				     d->topLevelWidget->winId(),
+				     (Visual *) d->topLevelWidget->x11Visual(),
 				     AllocAll );
 	if ( d->deref() )
 	    delete d;
@@ -190,13 +204,29 @@ void QColormap::setRgb( int idx, QRgb color )
     c.green = (ushort)( (qGreen(color) / 255.0) * 65535.0 + 0.5 );
     c.blue  = (ushort)( (qBlue(color) / 255.0) * 65535.0 + 0.5 );
     c.flags = DoRed | DoGreen | DoBlue;
-    XStoreColor( d->widget->x11Display(), d->map, &c );
+    XStoreColor( d->topLevelWidget->x11Display(), d->map, &c );
     d->cells[ idx ] = color;
+}
+
+void QColormap::setRgb( int base, int count, const QRgb * colors )
+{
+    if ( !colors || base < 0 || base >= d->size )
+	return;
+    
+    for( int i = base; i < base + count; i++ ) {
+	if ( i < d->size )
+	    setRgb( i, colors[i] );
+	else
+	    break;
+    }
 }
 
 QRgb QColormap::rgb( int idx ) const
 {
-    return d->cells[ idx ];
+    if ( !d->valid || idx < 0 || idx > d->size )
+	return 0;
+    else
+	return d->cells[ idx ];
 }
 
 void QColormap::setColor( int idx, const QColor & color )
@@ -206,17 +236,15 @@ void QColormap::setColor( int idx, const QColor & color )
 
 QColor QColormap::color( int idx ) const
 {
-    return QColor( d->cells[ idx ] );
+    if ( !d->valid || idx < 0 || idx > d->size )
+	return QColor();
+    else
+	return QColor( d->cells[ idx ] );
 }
 
 bool QColormap::isValid() const
 {
     return d->valid;
-}
-
-Qt::HANDLE QColormap::colormap() const
-{
-    return d->map;
 }
 
 int QColormap::size() const
