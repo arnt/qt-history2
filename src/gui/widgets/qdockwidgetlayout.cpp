@@ -860,13 +860,13 @@ QDockWidgetLayout::Location QDockWidgetLayout::locate(const QPoint &p) const
 
 static QRect trySplit(Qt::Orientation orientation,
                       Qt::DockWidgetArea &area,
-                      Qt::DockWidgetAreas allowedAreas,
                       const QRect &r,
                       const QPoint &p,
                       const QSize &sz1,
                       const QSize &sz2,
                       int separatorExtent)
 {
+    Qt::DockWidgetAreas allowedAreas = Qt::AllDockWidgetAreas;
     if (!r.contains(QRect(r.x(),
                           r.y(),
                           sz1.width() + sz2.width() + separatorExtent,
@@ -1024,43 +1024,39 @@ QRect QDockWidgetLayout::place(QDockWidget *dockwidget, const QRect &r, const QP
         return target;
     }
 
-    if (dockwidget == info.item->widget()) {
-        if (horizontal) {
-            target.setRect(geometry().x() + info.cur_pos,
-                           geometry().y(),
-                           info.cur_size,
-                           geometry().height());
-        } else {
-            target.setRect(geometry().x(),
-                           geometry().y() + info.cur_pos,
-                           geometry().width(),
-                           info.cur_size);
-        }
-        target.moveTopLeft(parentWidget()->mapToGlobal(target.topLeft()));
-        DEBUG() << "END of place (placed back at original position" << target << ")";
-        return target;
-    }
-
     /*
-      if the immediately adjacent item is the dockwidget we are trying
-      to place, adjust the locate result to place the dockwidget as
-      far away as possible
+      if the dockwidget is in the layout, we do in-place reordering
     */
-    Qt::DockWidgetAreas allowedAreas = Qt::AllDockWidgetAreas;
-    if (location.index >= 2) {
-        const QDockWidgetLayoutInfo &prevInfo = layout_info.at(location.index - 2);
-        if (!prevInfo.item->isEmpty() && dockwidget == prevInfo.item->widget())
-            allowedAreas &= horizontal ? ~Qt::LeftDockWidgetArea : ~Qt::TopDockWidgetArea;
+    int which = -1;
+    for (int i = 0; which == -1 && i < layout_info.count(); ++i) {
+        const QDockWidgetLayoutInfo &info = layout_info.at(i);
+        if (info.is_sep)
+            continue;
+        if (dockwidget == info.item->widget())
+            which = i;
     }
-    if (location.index < layout_info.size() - 2) {
-        const QDockWidgetLayoutInfo &nextInfo = layout_info.at(location.index + 2);
-        if (!nextInfo.item->isEmpty() && dockwidget == nextInfo.item->widget())
-            allowedAreas &= horizontal ? ~Qt::RightDockWidgetArea : ~Qt::BottomDockWidgetArea;
+    if (which != -1) {
+        if (which == location.index) {
+            target = info.item->geometry();
+            target.moveTopLeft(parentWidget()->mapToGlobal(target.topLeft()));
+            DEBUG() << "END of place (placed back at original position" << target << ")";
+            return target;
+        }
+
+        DEBUG() << "  swapping" << which << "with" << location.index;
+        layout_info.swap(which, location.index);
+        relayout();
+        target = layout_info.at(location.index).item->geometry();
+        target.moveTopLeft(parentWidget()->mapToGlobal(target.topLeft()));
+        // make sure we don't discard the new layout information!
+        *save_layout_info = layout_info;
+        DEBUG() << "END of place, in-place reorder, target is" << target;
+        return target;
     }
 
     const QSize sz1 = dockwidget->minimumSizeHint(),
                 sz2 = info.item->minimumSize();
-    const QRect r2 = ((orientation == Qt::Horizontal)
+    const QRect r2 = (horizontal
                       ? QRect(geometry().x() + info.cur_pos,
                               geometry().y(),
                               info.cur_size,
@@ -1072,10 +1068,10 @@ QRect QDockWidgetLayout::place(QDockWidget *dockwidget, const QRect &r, const QP
     const int separatorExtent =
         parentWidget()->style()->pixelMetric(QStyle::PM_DockWidgetSeparatorExtent);
 
-    DEBUG() << "  trySplit:" << orientation << location.area << allowedAreas << r2 << p
-            << sz1 << sz2 << separatorExtent;
+    DEBUG() << "  trySplit:" << orientation << location.area
+            << r2 << p << sz1 << sz2 << separatorExtent;
     target =
-        ::trySplit(orientation, location.area, allowedAreas, r2, p, sz1, sz2, separatorExtent);
+        ::trySplit(orientation, location.area, r2, p, sz1, sz2, separatorExtent);
     if (!target.isEmpty())
         target.moveTopLeft(parentWidget()->mapToGlobal(target.topLeft()));
     DEBUG() << "END of place, target is" << target;
@@ -1113,26 +1109,9 @@ void QDockWidgetLayout::drop(QDockWidget *dockwidget, const QRect &r, const QPoi
         return;
     }
 
-    /*
-      if the immediately adjacent item is the dockwidget we are trying
-      to place, adjust the locate result to place the dockwidget as
-      far away as possible
-    */
-    Qt::DockWidgetAreas allowedAreas = Qt::AllDockWidgetAreas;
-    if (location.index >= 2) {
-        const QDockWidgetLayoutInfo &prevInfo = layout_info.at(location.index - 2);
-        if (!prevInfo.item->isEmpty() && dockwidget == prevInfo.item->widget())
-            allowedAreas &= horizontal ? ~Qt::LeftDockWidgetArea : ~Qt::TopDockWidgetArea;
-    }
-    if (location.index < layout_info.size() - 2) {
-        const QDockWidgetLayoutInfo &nextInfo = layout_info.at(location.index + 2);
-        if (!nextInfo.item->isEmpty() && dockwidget == nextInfo.item->widget())
-            allowedAreas &= horizontal ? ~Qt::RightDockWidgetArea : ~Qt::BottomDockWidgetArea;
-    }
-
     const QSize sz1 = dockwidget->minimumSizeHint(),
                 sz2 = info.item->minimumSize();
-    const QRect r2 = ((orientation == Qt::Horizontal)
+    const QRect r2 = (horizontal
                       ? QRect(geometry().x() + info.cur_pos,
                               geometry().y(),
                               info.cur_size,
@@ -1144,10 +1123,10 @@ void QDockWidgetLayout::drop(QDockWidget *dockwidget, const QRect &r, const QPoi
     const int separatorExtent =
         parentWidget()->style()->pixelMetric(QStyle::PM_DockWidgetSeparatorExtent);
 
-    DEBUG() << "  trySplit:" << orientation << location.area << allowedAreas << r2 << p
-            << sz1 << sz2 << separatorExtent;
+    DEBUG() << "  trySplit:" << orientation << location.area
+            << r2 << p << sz1 << sz2 << separatorExtent;
     QRect target =
-        ::trySplit(orientation, location.area, allowedAreas, r2, p, sz1, sz2, separatorExtent);
+        ::trySplit(orientation, location.area, r2, p, sz1, sz2, separatorExtent);
     if (!target.isEmpty()) {
         QMainWindowLayout *layout = qt_cast<QMainWindowLayout *>(parentWidget()->layout());
         Q_ASSERT(layout != 0);
