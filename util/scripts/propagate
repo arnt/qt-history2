@@ -1,24 +1,35 @@
 #!/bin/sh
 
-MAKEFILES=`find . -name Makefile.in -print | sort`;
+# to remove the need for the first test, do this:
+# QTDIR=`pwd` export QTDIR
 
-if cmp "$QTDIR/LICENSE" "$PWD/LICENSE" || cmp "$QTDIR/LICENSE" `pwd`/LICENSE || cmp "$QTDIR/LICENSE" "$CWD/LICENSE" 2>/dev/null
+touch .test.$$
+if [ '!' -f ${QTDIR}/.stuff.$$ ];
 then
-    true
-else
-    echo >&2
-    echo >&2
-    echo '   $QTDIR must be set to $PWD ('$PWD')' >&2
-    echo '   Please read INSTALL' >&2
-    echo >&2
-    echo >&2
+    echo
+    echo
+    echo '   $QTDIR must be set to $PWD ('`pwd`')'
+    echo '   Please read INSTALL'
+    echo
+    echo
+    rm .test.$$
     exit 1
 fi
+rm .test.$$
 
+if [ "$1" eq "" '!' -f $1 ];
+then
+    echo
+    echo
+    echo '   An error occured.  This is an error message'
+    echo
+    echo
+    exit 2
+fi
 
 QTDIR='$(QTDIR)'
 
-for a in $MAKEFILES ; do
+for a in `find . -name Makefile.in -print | sort` ; do
     N=`dirname $a`/Makefile
     M=${N}.in
     sed -ne '1,/##* BEGIN/ p' < $M > $N
