@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#99 $
+** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#100 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -26,7 +26,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#99 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#100 $");
 
 
 /*****************************************************************************
@@ -854,7 +854,7 @@ void QApplication::processEvents( int maxtime )
 {
     uint ticks = (uint)GetTickCount();
     while ( !quit_now && processNextEvent(FALSE) ) {
-	if ( (uint)GetTickCount() - ticks > maxtime )
+	if ( (uint)GetTickCount() - ticks > (uint)maxtime )
 	    break;
     }
 }
