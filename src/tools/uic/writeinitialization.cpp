@@ -295,8 +295,10 @@ void WriteInitialization::accept(DomLayout *node)
     if (isGroupBox)
         output << option.indent << varName << "->setAlignment(Qt::AlignTop);\n";
 
+/*
     if (!properties.contains("margin"))
         output << option.indent << varName << "->setMargin(" << m_defaultMargin << ");\n";
+*/
 
     if (!properties.contains("spacing"))
         output << option.indent << varName << "->setSpacing(" << m_defaultSpacing << ");\n";

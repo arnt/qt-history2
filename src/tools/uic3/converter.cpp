@@ -377,9 +377,13 @@ void Ui3Reader::fixActionGroup(DomActionGroup *g)
 
 QString Ui3Reader::fixClassName(const QString &className) const
 {
+#if 0
     if (className == QLatin1String("QLayoutWidget"))
         return QLatin1String("QWidget");
-    else if (className == QLatin1String("QButtonGroup"))
+    else 
+#endif
+
+    if (className == QLatin1String("QButtonGroup"))
         return QLatin1String("Q3ButtonGroup");
     else if (className == QLatin1String("QTextEdit"))
         return QLatin1String("Q3TextEdit");
@@ -445,7 +449,20 @@ DomWidget *Ui3Reader::createWidget(const QDomElement &w, const QString &widgetCl
         } else if (t == QLatin1String("widget")) {
             DomWidget *ui_child = createWidget(e);
             Q_ASSERT(ui_child != 0);
-            ui_child_list.append(ui_child);
+            
+            if (ui_child->attributeClass() == QLatin1String("QLayoutWidget")
+                    && ui_child->elementLayout().size() == 1) {
+                QList<DomLayout*> layouts = ui_child->elementLayout();
+                
+                ui_child->setElementLayout(QList<DomLayout*>());
+                delete ui_child;
+                ui_layout_list.append(layouts.at(0));        
+            } else {
+                if (ui_child->attributeClass() == QLatin1String("QLayoutWidget"))
+                    ui_child->setAttributeClass("QWidget");
+
+                ui_child_list.append(ui_child);
+            }
         } else if (t == QLatin1String("action")) {
             DomActionRef *a = new DomActionRef();
             a->read(e);
@@ -594,7 +611,20 @@ DomLayoutItem *Ui3Reader::createLayoutItem(const QDomElement &e)
     if (tagName == QLatin1String("widget")) {
         DomWidget *ui_widget = createWidget(e);
         Q_ASSERT(ui_widget != 0);
-        lay_item->setElementWidget(ui_widget);
+        
+        if (ui_widget->attributeClass() == QLatin1String("QLayoutWidget")
+                    && ui_widget->elementLayout().size() == 1) {
+            QList<DomLayout*> layouts = ui_widget->elementLayout();
+                
+            ui_widget->setElementLayout(QList<DomLayout*>());
+            delete ui_widget;
+            lay_item->setElementLayout(layouts.at(0));
+        } else {
+            if (ui_widget->attributeClass() == QLatin1String("QLayoutWidget"))
+                ui_widget->setAttributeClass("QWidget");
+                
+            lay_item->setElementWidget(ui_widget);
+        }
     } else if (tagName == QLatin1String("spacer")) {
         DomSpacer *ui_spacer = new DomSpacer();
         QList<DomProperty*> properties;
