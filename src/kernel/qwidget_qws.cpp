@@ -264,7 +264,7 @@ void QWidget::create( WId window, bool initializeWindow, bool /*destroyOldWindow
 	    req_region = crect;
 	}
     }
-    fpos = crect.topLeft();			// default frame rect
+    //### frame rect is not handled in Qt/Embedded
 }
 
 
