@@ -41,6 +41,8 @@ public:
     void drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr, Qt::PixmapDrawingMode mode);
     void drawPoint(const QPointF &p);
     void drawPolygon(const QPointF *points, int pointCount, PolygonDrawMode mode);
+    inline void drawPolygon(const QPoint *points, int pointCount, PolygonDrawMode mode)
+        { QPaintEngine::drawPolygon(points, pointCount, mode); }
     void drawRect(const QRectF &r);
     void drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPointF &s,
 			 Qt::PixmapDrawingMode mode);

@@ -128,7 +128,8 @@ public:
     virtual void drawPoint(const QPointF &p);
     virtual void drawEllipse(const QRectF &r);
     virtual void drawPolygon(const QPointF *points, int pointCount, PolygonDrawMode mode);
-    virtual void drawPolygon(const QPoint *points, int pointCount, PolygonDrawMode mode);
+    inline void drawPolygon(const QPoint *points, int pointCount, PolygonDrawMode mode)
+        { QPaintEngine::drawPolygon(points, pointCount, mode); }
 
     virtual void drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr,
                             Qt::PixmapDrawingMode mode);
