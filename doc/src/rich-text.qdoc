@@ -1,26 +1,26 @@
 /*!
 \page rich-text.html
+\nextpage rich-text-structure.html Rich Text Document Structure
 
 \title Rich Text Processing
 
 The Scribe framework provides a set of classes for reading and manipulating
-structured textual documents. Unlike previous rich text support in Qt, the
+structured rich text documents. Unlike previous rich text support in Qt, the
 new classes are centered around the \c QTextDocument class rather than raw
 textual information. This enables the developer to create and modify
 structured rich text documents without having to prepare content in an
 intermediate markup format.
 
 The information within a document can be accessed via two complementary
-interfaces: a cursor-based interface for editing, and a read-only
-hierarchical interface for easy navigation that provides a high level
-overview of the document structure. The main advantage of the
-cursor-based interface is that the text can be edited using operations
-that mimic a user's interaction with an editor without losing the
-underlying structure of the document. The read-only hierarchical
-interface is most useful when performing operations such as searching
-and document export.
+interfaces: A cursor-based interface is used for editing, and a read-only
+hierarchical interface provides a high level overview of the document
+structure. The main advantage of the cursor-based interface is that the
+text can be edited using operations that mimic a user's interaction with
+an editor, without losing the underlying structure of the document. The
+read-only hierarchical interface is most useful when performing operations
+such as searching and document export.
 
-This document is divided up into several chapters for convenient reference:
+This document is divided up into chapters for convenient reference:
 
 \list
 \i \l{rich-text-structure.html}{Rich Text Document Structure} outlines
@@ -38,6 +38,9 @@ See also the list of \l{text.html}{Text Related Classes}.
 
 /*!
 \page rich-text-structure.html
+\contentspage rich-text.html Contents
+\previouspage rich-text.html Rich Text Processing
+\nextpage rich-text-cursor.html The QTextCursor Interface
 
 \title Rich Text Document Structure
 
@@ -45,19 +48,21 @@ See also the list of \l{text.html}{Text Related Classes}.
 
 The structured representation of a text document presents its contents as
 a hierarchy of text blocks, frames, tables, and other objects. These provide
-both logical structure to the document, and indicate how their contents are
+logical structure to the document and indicate how their contents are
 to be displayed. Generally, frames and tables are used to group other
-structures, and text blocks contain the actual textual information.
+structures and text blocks contain the actual textual information.
 
 New elements are created and inserted into the document
-\l{rich-text-cursor.html}{using a \c QTextCursor} or via an editor widget such
-as QTextEdit. Elements can be given a particular format when they are created;
-otherwise they take the cursor's current format for the element.
+\l{rich-text-cursor.html}{with a \c QTextCursor} or by using an editor
+widget, such as QTextEdit. Elements can be given a particular format when
+they are created; otherwise they take the cursor's current format for the
+element.
 
 \table
 \row
 \i \inlineimage richtext-document.png
-\i \bold{Basic structure:}
+\i \bold{Basic structure}
+
 The "top level" of a document might be populated in the way shown.
 Each document always contains a root frame, and this contains always contains
 at least one text block.
@@ -78,16 +83,20 @@ the chapter on \l{rich-text-cursor.html}{The QTextCursor Interface}.
 \section1 Rich Text Documents
 
 QTextDocument objects contain all the information required to construct
-rich text documents for use in a QTextEdit widget or custom editor.
+rich text documents for use with a QTextEdit widget or in a custom editor.
 Although QTextEdit makes it easy to display and edit rich text, and allows
 the underlying document to be edited programmatically, documents can also
-be used independently of any editor widget.
+be used independently of any editor widget:
 
 \code
 QTextDocument *newDocument = new QTextDocument;
 QTextEdit *editor = new QTextEdit;
 QTextDocument *editorDocument = editor->document();
 \endcode
+
+This enables applications to handle multiple rich text documents
+without the overhead of multiple editor widgets, or requiring documents
+to be stored in some intermediate format.
 
 An empty document contains a root frame which itself contains a single
 empty text block. The \l{rich-text-cursor.html}{text cursor interface}
@@ -103,8 +112,8 @@ We obtain the root frame in the following manner:
 \skipto textDocument->rootFrame()
 \printuntil textDocument->rootFrame()
 
-When navigating the document structure, we use the root frame as a
-starting point.
+When navigating the document structure, it is useful to begin at the
+root frame because it provides access to the entire document structure.
 
 \section1 Document Elements
 
@@ -116,7 +125,7 @@ QTextFrame. Blocks themselves contain fragments of rich text, but these
 do not directly influence the high level structure of a document.
 
 Elements which can group together other document elements are typically
-subclasses of QTextObject, and fall into two categories: those that
+subclasses of QTextObject, and fall into two categories: Elements that
 group together text blocks are subclasses of QTextBlockGroup, and those
 that group together frames and other elements are subclasses of QTextFrame.
 
@@ -145,8 +154,8 @@ QTextBlock::iterator to traverse the block's internal structure:
 \skipto }
 \printuntil }
 
-Blocks are also used to represent list items. As a result, blocks can have
-their own character formats that are used to contain information about
+Blocks are also used to represent list items. As a result, blocks can
+define their own character formats which contain information about
 block-level decoration, such as the bullet points found alongside
 list items. The formatting for the block itself is described by the
 QTextBlockFormat class, and describes properties such as text alignment,
@@ -165,28 +174,27 @@ of the text blocks in the order in which they were written:
 \printuntil }
 
 This method is useful for when you want to extract just the rich text from a
-document because it ignores other types of structure, such as frames and
-tables.
+document because it ignores frames, tables, and other types of structure.
 
 QTextBlock provides comparison operators that make it easier to manipulate
 blocks: \l{QTextBlock::operator==()}{operator==()} and
 \l{QTextBlock::operator!=()}{operator!=()} are used to test whether two
 blocks are the same, and \l{QTextBlock::operator<()}{operator<()} is used
-to determine which one occurs first in a document. These are 
+to determine which one occurs first in a document.
 
 \section2 Frames
 
 Frames are provided by the QTextFrame class.
 
-Text frames group together blocks of text, providing document structures
-that are larger than paragraphs in the document. The format of a frame
+Text frames group together blocks of text and child frames, providing
+document structures that are larger than paragraphs. The format of a frame
 specifies how it is rendered and positioned on the page. Frames are
 either inserted into the text flow, or they float on the left or right
 hand side of the page.
 
-Frames can contain other frames as well as text blocks. Each document
-contains a root frame that contains all the other document elements.
-As a result, all frames except the root frame have a parent frame.
+Each document contains a root frame that contains all the other document
+elements. As a result, all frames except the root frame have a parent
+frame.
 
 Since text blocks are used to separate other document elements, each
 frame will always contain at least one text block, and may contain no
@@ -284,13 +292,13 @@ we identify list items correctly with the following code:
 Images in QTextDocument are represented by text fragments that reference
 external images via the resource mechanism
 
-\l{rich-text.html}{[Up]}
-\l{rich-text-cursor.html}{[The QTextCursor Interface]}
-
 */
 
 /*!
 \page rich-text-cursor.html
+\contentspage rich-text.html Contents
+\previouspage rich-text-structure.html Rich Text Document Structure
+\nextpage rich-text-common-tasks.html Common Editing Tasks
 
 \title The QTextCursor Interface
 
@@ -446,25 +454,46 @@ Text blocks are inserted into the document with the
 
 Frames are inserted into a document using the cursor, and will be placed
 within the cursor's current frame \e after the current block.
-
 The following code shows how a frame can be inserted between two text
-blocks in a document's root frame:
+blocks in a document's root frame. We begin by finding the cursor's
+current frame:
 
 \quotefromfile snippets/textdocument-frames/mainwindow.cpp
+\skipto main frame
 \skipto QTextFrame *mainFrame
-\printuntil QTextFrame *mainFrame
-\skipto cursor.insertText(...);
 \printuntil cursor.insertText(...);
+
+We insert some text in this frame then set up a frame format for the
+child frame:
+
 \skipto QTextFrameFormat
-\printuntil cursor.insertFrame(
-\skipto cursor.insertText(...);
+\printuntil setBorder(
+
+The frame format will give the frame an external margin of 32 pixels,
+internal padding of 8 pixels, and a border that is 4 pixels wide.
+See the QTextFrameFormat documentation for more information about
+frame formats.
+
+The frame is inserted into the document after the preceding text:
+
+\skipto insert frame
+\skipto cursor.insertFrame
 \printuntil cursor.insertText(...);
+
+We add some text to the document immediately after we insert the frame.
+Since the text cursor is positioned \e{inside the frame} when it is inserted
+into the document, this text will also be inserted inside the frame.
+
+Finally, we position the cursor outside the frame by taking the last
+available cursor position inside the frame we recorded earlier:
+
+\skipto last cursor
 \skipto cursor = mainFrame->
-\printuntil cursor = mainFrame->
-\skipto cursor.insertText(...);
 \printuntil cursor.insertText(...);
 
-
+The text that we add last is inserted after the child frame in the
+document because each frame is padded with text blocks to ensure that
+more elements can always be inserted with a cursor.
 
 \section2 Tables
 
@@ -511,16 +540,19 @@ We can create a simple timetable by following this approach:
 
 \section2 Lists
 
+Lists of block elements can be automatically created and inserted into the
+document at the current cursor position. Each list that is created in this
+way requires a list format to be specified:
+
 \quotefromfile snippets/textdocument-lists/mainwindow.cpp
 \skipto QTextListFormat listFormat;
-\printuntil cursor.createList(listFormat);
+\printuntil cursor.insertList(listFormat);
 
-By increasing the indentation of the new list relative to the indentation
-of the current block, we can provide suitable indentation for the list.
-To create lower levels of the list, we need to insert a list within an
-existing list, and we should specify a higher level of indentation for
-its items. A more sophisticated implementation would also use different
-kinds of symbol for the bullet points in each level of the list.
+The above code first checks whether the cursor is within an existing list
+and, if so, gives the list format for the new list a suitable level of
+indentation. This allows nested lists to be created within increasing
+levels of indentation. A more sophisticated implementation would also use
+different kinds of symbol for the bullet points in each level of the list.
 
 \section2 Images
 
@@ -534,16 +566,15 @@ created before an image can be inserted:
 \printuntil cursor.insertImage(imageFormat);
 
 The image name refers to an entry in the application's resource file.
-How this name is derived is beyond the scope of this document.
-
-\l{rich-text-structure.html}{[Rich Text Document Structure]}
-\l{rich-text.html}{[Up]}
-\l{rich-text-common-tasks.html}{[Common Editing Tasks]}
+How this name is derived is described in
+\l{resources.html}{The Qt Resource System}.
 
 */
 
 /*!
 \page rich-text-common-tasks.html
+\contentspage rich-text.html Contents
+\previouspage rich-text-cursor.html The QTextCursor Interface
 
 \title Common Editing Tasks
 
@@ -629,7 +660,25 @@ Note that the cursor does not have to be moved after each search and replace
 operation; it is always positioned at the end of the word that was just
 replaced.
 
-\l{rich-text-cursor.html}{[The QTextCursor Interface]}
-\l{rich-text.html}{[Up]}
+\section2 Printing Documents
+
+QTextEdit is designed for the display of large rich text documents that are
+read on screen, rendering them in the same way as a web browser. As a result,
+it does not automatically break the contents of the document into page-sized
+pieces that are suitable for printing.
+
+QTextDocument provides a \l{QTextDocument::print()}{print()} function to
+allow documents to be printed using the QPrinter class. The following code
+shows how to prepare a document in a QTextEdit for printing with a QPrinter:
+
+\quotefromfile snippets/textdocument-printing/mainwindow.cpp
+\skipto printFile()
+\skipto QTextDocument
+\printuntil document->print
+
+The document is obtained from the text editor, and a QPrinter is constructed
+then configured using a QPrintDialog. If the user accepts the printer's
+configuration then the document is formatted and printed using the
+\l{QTextDocument::print()}{print()} function.
 
 */
