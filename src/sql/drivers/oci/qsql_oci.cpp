@@ -2299,7 +2299,8 @@ QSqlRecord QOCIDriver::record( const QSqlQuery& query ) const
 #ifdef QOCI_USES_VERSION_9
 	if ( d->serverVersion >= 9 ) {
 	    QOCI9Result* result = (QOCI9Result*)query.result();
-	    fil = result->fs;
+	    if ( result )
+		fil = result->fs;
 	    return fil;
 	}
 #endif
@@ -2374,7 +2375,8 @@ QSqlRecordInfo QOCIDriver::recordInfo( const QSqlQuery& query ) const
 #ifdef QOCI_USES_VERSION_9
 	if ( d->serverVersion >= 9 ) {
 	    QOCI9Result* result = (QOCI9Result*)query.result();
-	    result->cols->getOraFields( inf );
+	    if ( result && result->cols )
+		result->cols->getOraFields( inf );
 	    return inf;
 	}
 #endif
