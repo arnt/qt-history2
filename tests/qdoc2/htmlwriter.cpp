@@ -3,6 +3,7 @@
 */
 
 #include <qfile.h>
+#include <qdir.h>
 
 #include <stdarg.h>
 
@@ -44,10 +45,22 @@ HtmlWriter::HtmlWriter( const QString& fileName )
 {
     initStatic();
 
-    QString filePath = config->outputDir() + QChar( '/' ) + fileName;
-    out = fopen( QFile::encodeName(filePath), "w" );
+    QString filePath = config->outputDir();
+
+    QDir dir( filePath ); 
+
+    if ( ! dir.exists() ) {
+	if ( ! dir.mkdir( filePath ) ) {
+		warning( "Can't create '%s' ", filePath.latin1()); 
+		return;
+	}
+	warning( "Creating '%s' ", filePath.latin1());
+    }
+
+    QString file = filePath + QChar( '/' ) + fileName;
+    out = fopen( QFile::encodeName(file), "w" );
     if ( out == 0 ) {
-	syswarning( "Cannot open '%s' for writing HTML", filePath.latin1());
+	syswarning( "Cannot open '%s' for writing HTML", file.latin1());
 	return;
     }
 }
