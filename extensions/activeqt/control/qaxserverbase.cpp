@@ -109,7 +109,8 @@ class QAxServerBase :
     public IConnectionPointContainer,
     public IPersistStreamInit,
     public IPersistStorage,
-    public IPersistPropertyBag
+    public IPersistPropertyBag,
+    public IDataObject
 {
 public:
     typedef QMap<QUuid,IConnectionPoint*> ConnectionPoints;
@@ -281,6 +282,17 @@ public:
     STDMETHOD(Save)(IStorage *pStg, BOOL fSameAsLoad );
     STDMETHOD(SaveCompleted)( IStorage *pStgNew );
     STDMETHOD(HandsOffStorage)();
+
+// IDataObject
+    STDMETHOD(GetData)(FORMATETC *pformatetcIn, STGMEDIUM *pmedium);
+    STDMETHOD(GetDataHere)(FORMATETC* /* pformatetc */, STGMEDIUM* /* pmedium */);
+    STDMETHOD(QueryGetData)(FORMATETC* /* pformatetc */);
+    STDMETHOD(GetCanonicalFormatEtc)(FORMATETC* /* pformatectIn */,FORMATETC* /* pformatetcOut */);
+    STDMETHOD(SetData)(FORMATETC* /* pformatetc */, STGMEDIUM* /* pmedium */, BOOL /* fRelease */);
+    STDMETHOD(EnumFormatEtc)(DWORD /* dwDirection */, IEnumFORMATETC** /* ppenumFormatEtc */);
+    STDMETHOD(DAdvise)(FORMATETC *pformatetc, DWORD advf, IAdviseSink *pAdvSink, DWORD *pdwConnection);
+    STDMETHOD(DUnadvise)(DWORD dwConnection);
+    STDMETHOD(EnumDAdvise)(IEnumSTATDATA **ppenumAdvise);
 
 // QObject
     bool qt_emit( int, QUObject* );
@@ -1118,6 +1130,8 @@ HRESULT QAxServerBase::InternalQueryInterface( REFIID iid, void **iface )
 		*iface = (IOleInPlaceObject*)this;
 	    else if ( iid == IID_IOleInPlaceActiveObject)
 		*iface = (IOleInPlaceActiveObject*)this;
+	    else if ( iid == IID_IDataObject)
+		*iface = (IDataObject*)this;
 	}
     }
     if ( !*iface )
@@ -3612,6 +3626,126 @@ HRESULT WINAPI QAxServerBase::Update()
 {
     return S_OK;
 }
+
+//**** IDataObject
+/*
+    Calls IViewObject::Draw after setting up the parameters.
+*/
+HRESULT WINAPI QAxServerBase::GetData(FORMATETC *pformatetcIn, STGMEDIUM *pmedium)
+{
+    if (!pmedium)
+	return E_POINTER;
+    if (!qt.widget)
+	return E_UNEXPECTED;
+
+    memset(pmedium, 0, sizeof(STGMEDIUM));
+
+    if ((pformatetcIn->tymed & TYMED_MFPICT) == 0)
+	return DATA_E_FORMATETC;
+
+    QPaintDeviceMetrics pmetric( qt.widget );
+    int width = MAP_LOGHIM_TO_PIX(sizeExtent.cx, pmetric.logicalDpiX());
+    int height = MAP_LOGHIM_TO_PIX(sizeExtent.cy, pmetric.logicalDpiY());
+    RECTL rectl = {0, 0, width, height};
+
+    HDC hdc = CreateMetaFile(0);
+    SaveDC(hdc);
+    SetWindowOrgEx(hdc, 0, 0, 0);
+    SetWindowExtEx(hdc, rectl.right, rectl.bottom, 0);
+
+    Draw(pformatetcIn->dwAspect, pformatetcIn->lindex, 0, pformatetcIn->ptd, 0, hdc, &rectl, &rectl, 0, 0);
+
+    RestoreDC(hdc, -1);
+    HMETAFILE hMF = CloseMetaFile(hdc);
+    if (!hMF)
+	return E_UNEXPECTED;
+
+    HGLOBAL hMem = GlobalAlloc(GMEM_SHARE | GMEM_MOVEABLE, sizeof(METAFILEPICT));
+    if (!hMem) {
+	DeleteMetaFile(hMF);
+	return ResultFromScode(STG_E_MEDIUMFULL);
+    }
+
+    LPMETAFILEPICT pMF = (LPMETAFILEPICT)GlobalLock(hMem);
+    pMF->hMF = hMF;
+    pMF->mm = MM_ANISOTROPIC;
+    pMF->xExt = sizeExtent.cx;
+    pMF->yExt = sizeExtent.cy;
+    GlobalUnlock(hMem);
+
+    pmedium->tymed = TYMED_MFPICT;
+    pmedium->hGlobal = hMem;
+    pmedium->pUnkForRelease = 0;
+
+    return S_OK;
+}
+
+/*
+    Not implemented.
+*/
+HRESULT WINAPI QAxServerBase::DAdvise(FORMATETC * /*pformatetc*/, DWORD /*advf*/, 
+				      IAdviseSink * /*pAdvSink*/, DWORD * /*pdwConnection*/)
+{
+    return E_NOTIMPL;
+}
+
+/*
+    Not implemented.
+*/
+HRESULT WINAPI QAxServerBase::DUnadvise(DWORD /*dwConnection*/)
+{
+    return E_NOTIMPL;
+}
+
+/*
+    Not implemented.
+*/
+HRESULT WINAPI QAxServerBase::EnumDAdvise(IEnumSTATDATA ** /*ppenumAdvise*/)
+{
+    return E_NOTIMPL;
+}
+
+/*
+    Not implemented.
+*/
+HRESULT WINAPI QAxServerBase::GetDataHere(FORMATETC* /* pformatetc */, STGMEDIUM* /* pmedium */)
+{
+    return E_NOTIMPL;
+}
+
+/*
+    Not implemented.
+*/
+HRESULT WINAPI QAxServerBase::QueryGetData(FORMATETC* /* pformatetc */)
+{
+    return E_NOTIMPL;
+}
+
+/*
+    Not implemented.
+*/
+HRESULT WINAPI QAxServerBase::GetCanonicalFormatEtc(FORMATETC* /* pformatectIn */,FORMATETC* /* pformatetcOut */)
+{
+    return E_NOTIMPL;
+}
+
+/*
+    Not implemented.
+*/
+HRESULT WINAPI QAxServerBase::SetData(FORMATETC* /* pformatetc */, STGMEDIUM* /* pmedium */, BOOL /* fRelease */)
+{
+    return E_NOTIMPL;
+}
+
+/*
+    Not implemented.
+*/
+HRESULT WINAPI QAxServerBase::EnumFormatEtc(DWORD /* dwDirection */, IEnumFORMATETC** /* ppenumFormatEtc */)
+{
+    return E_NOTIMPL;
+}
+
+
 
 static int mapModifiers( int state )
 {
