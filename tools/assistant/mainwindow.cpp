@@ -670,8 +670,8 @@ void MainWindow::updateProfileSettings()
     setWindowIcon(config->applicationIcon());
 #endif
     ui.helpMenu->clear();
-    ui.helpMenu->addAction(ui.actionHelpAssistant);
-    ui.helpMenu->addSeparator();
+    //ui.helpMenu->addAction(ui.actionHelpAssistant);
+    //ui.helpMenu->addSeparator();
     ui.helpMenu->addAction(ui.actionAboutAssistant);
     if (!config->aboutApplicationMenuText().isEmpty())
         ui.helpMenu->addAction(ui.actionAboutApplication);
