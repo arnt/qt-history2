@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrect.h#42 $
+** $Id: //depot/qt/main/src/kernel/qrect.h#43 $
 **
 ** Definition of QRect class
 **
@@ -30,6 +30,10 @@
 #include "qsize.h"
 #endif // QT_H
 
+#if defined(topLeft)
+#error "Macro definition of topLeft conflicts with QRect"
+// don't just silently undo people's defines: #undef topLeft
+#endif
 
 class Q_EXPORT QRect					// rectangle class
 {
@@ -48,7 +52,7 @@ public:
     int	   top()	const;
     int	   right()	const;
     int	   bottom()	const;
-    
+
     QCOORD &rLeft();
     QCOORD &rTop();
     QCOORD &rRight();
@@ -62,8 +66,6 @@ public:
     void   setBottom( int pos );
     void   setX( int x );
     void   setY( int y );
-
-#undef topLeft
 
     QPoint topLeft()	 const;
     QPoint bottomRight() const;
