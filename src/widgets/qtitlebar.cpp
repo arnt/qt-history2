@@ -274,7 +274,7 @@ void QTitleBar::mouseReleaseEvent( QMouseEvent * e)
 	    style().drawComplexControl(QStyle::CC_TitleBar, &p, this, rect(),
 				       colorGroup(), QStyle::CStyle_Default,
 				       ctrl | (window && window->isMinimized() ?
-					       QStyle::SC_TitleBarNormalButton : 0),
+					       QStyle::SC_TitleBarNormalButton : QStyle::SC_None),
 				       QStyle::SC_None);
 	    p.end();
 
@@ -332,7 +332,7 @@ void QTitleBar::mouseMoveEvent( QMouseEvent * e)
 	    style().drawComplexControl(QStyle::CC_TitleBar, &p, this, rect(),
 				       colorGroup(), QStyle::CStyle_Default,
 				       ctrl | (window && window->isMinimized() ?
-					       QStyle::SC_TitleBarNormalButton : 0),
+					       QStyle::SC_TitleBarNormalButton : QStyle::SC_None),
 				       ((ctrl == buttonDown) ? buttonDown :
 					QStyle::SC_None));
 	}
