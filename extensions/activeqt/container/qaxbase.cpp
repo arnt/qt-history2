@@ -1739,7 +1739,7 @@ void MetaObjectGenerator::readFuncInfo()
 		QString ptype = guessTypes( tdesc, typeinfo, enumDict, function );
 		if ( pdesc.wParamFlags & PARAMFLAG_FRETVAL ) {
 		    returnType = ptype;
-		    paramTypes[0] = returnType;
+		    paramTypes << returnType;
 		} else {
 		    if ( ptype.startsWith("const ") && pdesc.wParamFlags&PARAMFLAG_FOUT )
 			prototype += ptype.mid( 6 );
