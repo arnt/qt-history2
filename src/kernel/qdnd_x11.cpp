@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#45 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#46 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd2/
 **
@@ -369,11 +369,18 @@ void qt_handle_xdnd_position( QWidget *w, const XEvent * xe )
     response.data.l[3] = (answerRect.width() << 16) + answerRect.height();
 
     QWidget * source = QWidget::find( qt_xdnd_dragsource_xid );
-    if ( source && (!source->isDesktop() || source->acceptDrops()) )
+
+    int emask = NoEventMask;
+    if ( source && source->isDesktop() && !source->acceptDrops() ) {
+	emask = EnterWindowMask;
+	source = 0;
+    }
+    
+    if ( source )
 	qt_handle_xdnd_status( source, (const XEvent *)&response );
     else
-	XSendEvent( w->x11Display(), qt_xdnd_dragsource_xid, FALSE,
-		    NoEventMask, (XEvent*)&response );
+	XSendEvent( qt_xdisplay(), qt_xdnd_dragsource_xid, FALSE,
+		    emask, (XEvent*)&response );
 }
 
 
@@ -438,11 +445,18 @@ static void qt_xdnd_send_leave()
     leave.data.l[4] = 0; // just null
 
     QWidget * w = QWidget::find( qt_xdnd_current_target );
-    if ( w && (!w->isDesktop() || w->acceptDrops()) )
+
+    int emask = NoEventMask;
+    if ( w && w->isDesktop() && !w->acceptDrops() ) {
+	emask = EnterWindowMask;
+	w = 0;
+    }
+
+    if ( w )
 	qt_handle_xdnd_leave( w, (const XEvent *)&leave );
     else
-	XSendEvent( w->x11Display(), qt_xdnd_current_target, FALSE,
-		    NoEventMask, (XEvent*)&leave );
+	XSendEvent( qt_xdisplay(), qt_xdnd_current_target, FALSE,
+		    emask, (XEvent*)&leave );
     qt_xdnd_current_target = 0;
 }
 
@@ -670,8 +684,11 @@ void QDragManager::move( const QPoint & globalPos )
 
     QWidget * w = QWidget::find( (WId)target );
 
-    if ( w && target == qt_xrootwin() && !w->acceptDrops() )
-	w = 0; // Ignore our handle on the root window
+    int emask = NoEventMask;
+    if ( w && w->isDesktop() && !w->acceptDrops() ) {
+	emask = EnterWindowMask;
+	w = 0;
+    }
 
     if ( target != qt_xdnd_current_target ) {
 	if ( qt_xdnd_current_target )
@@ -701,7 +718,7 @@ void QDragManager::move( const QPoint & globalPos )
 	if ( w ) {
 	    qt_handle_xdnd_enter( w, (const XEvent *)&enter );
 	} else {
-	    XSendEvent( qt_xdisplay(), target, FALSE, NoEventMask,
+	    XSendEvent( qt_xdisplay(), target, FALSE, emask,
 			(XEvent*)&enter );
 	}
     }
@@ -721,7 +738,7 @@ void QDragManager::move( const QPoint & globalPos )
     if ( w )
 	qt_handle_xdnd_position( w, (const XEvent *)&move );
     else
-	XSendEvent( qt_xdisplay(), target, FALSE, NoEventMask,
+	XSendEvent( qt_xdisplay(), target, FALSE, emask,
 		    (XEvent*)&move );
 }
 
@@ -743,10 +760,17 @@ void QDragManager::drop()
     drop.data.l[4] = 0;
 
     QWidget * w = QWidget::find( qt_xdnd_current_target );
-    if ( w && (!w->isDesktop() || w->acceptDrops()) )
+
+    int emask = NoEventMask;
+    if ( w && w->isDesktop() && !w->acceptDrops() ) {
+	emask = EnterWindowMask;
+	w = 0;
+    }
+
+    if ( w )
 	qt_handle_xdnd_drop( w, (const XEvent *)&drop );
     else
-	XSendEvent( qt_xdisplay(), qt_xdnd_current_target, FALSE, NoEventMask,
+	XSendEvent( qt_xdisplay(), qt_xdnd_current_target, FALSE, emask,
 		    (XEvent*)&drop );
     qt_xdnd_current_target = 0;
     if ( restoreCursor ) {
@@ -884,7 +908,7 @@ static QByteArray qt_xdnd_obtain_data( const char * format )
     if ( qt_xdnd_target_data->find( (int)*a ) ) {
 	result = *(qt_xdnd_target_data->find( (int)*a ));
     } else {
-	if ( XGetSelectionOwner( qt_xdnd_current_widget->x11Display(),
+	if ( XGetSelectionOwner( qt_xdisplay(),
 				 qt_xdnd_selection ) == None )
 	    return result; // should never happen?
 
@@ -892,26 +916,26 @@ static QByteArray qt_xdnd_obtain_data( const char * format )
 	if ( qt_xdnd_current_widget->isDesktop() ) {
 	    tw = new QWidget;
 	}
-	XConvertSelection( qt_xdnd_current_widget->x11Display(),
+	XConvertSelection( qt_xdisplay(),
 			   qt_xdnd_selection, *a,
 			   qt_xdnd_selection,
 			   tw->winId(), CurrentTime );
-	XFlush( qt_xdnd_current_widget->x11Display() );
+	XFlush( qt_xdisplay() );
 
 	XEvent xevent;
-	bool got=qt_xclb_wait_for_event( qt_xdnd_current_widget->x11Display(),
+	bool got=qt_xclb_wait_for_event( qt_xdisplay(),
 				      tw->winId(),
 				      SelectionNotify, &xevent, 5000);
 	if ( got ) {
 	    Atom type;
 
-	    if ( qt_xclb_read_property( qt_xdnd_current_widget->x11Display(),
+	    if ( qt_xclb_read_property( qt_xdisplay(),
 					tw->winId(),
 					qt_xdnd_selection, TRUE,
 					&result, 0, &type, 0, FALSE ) ) {
 		if ( type == qt_incr_atom ) {
 		    int nbytes = result.size() >= 4 ? *((int*)result.data()) : 0;
-		    result = qt_xclb_read_incremental_property( qt_xdnd_current_widget->x11Display(),
+		    result = qt_xclb_read_incremental_property( qt_xdisplay(),
 								tw->winId(),
 								qt_xdnd_selection,
 								nbytes, FALSE );
