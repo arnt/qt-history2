@@ -796,10 +796,8 @@ void QAbstractSocketPrivate::canReadNotification(int)
 
     // If there is still space in the buffer, reenable the read socket
     // notifier.
-    if (!readBufferMaxSize || d->readBuffer.size() < d->readBufferMaxSize) {
-        if (d->readSocketNotifier)
-            d->readSocketNotifier->setEnabled(true);
-    }
+    if (!readBufferMaxSize || d->readBuffer.size() < d->readBufferMaxSize)
+        d->readSocketNotifier->setEnabled(true);
 
     readSocketNotifierCalled = false;
 }
@@ -1842,8 +1840,7 @@ void QAbstractSocket::close()
 
     // Disable and delete read notification
     if (d->readSocketNotifier) {
-        if (d->readSocketNotifier)
-            d->readSocketNotifier->setEnabled(false);
+        d->readSocketNotifier->setEnabled(false);
         delete d->readSocketNotifier;
         d->readSocketNotifier = 0;
     }
@@ -1886,8 +1883,7 @@ void QAbstractSocket::close()
 
     // Disable and delete write notification
     if (d->writeSocketNotifier) {
-        if (d->writeSocketNotifier)
-            d->writeSocketNotifier->setEnabled(false);
+        d->writeSocketNotifier->setEnabled(false);
         delete d->writeSocketNotifier;
         d->writeSocketNotifier = 0;
     }

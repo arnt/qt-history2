@@ -126,7 +126,8 @@ QTcpServerPrivate::~QTcpServerPrivate()
 */
 void QTcpServerPrivate::processIncomingConnection(int)
 {
-    d->readSocketNotifier->setEnabled(false);
+    if (d->readSocketNotifier)
+        d->readSocketNotifier->setEnabled(false);
 
     for (;;) {
         if (pendingConnections.count() >= maxConnections) {
