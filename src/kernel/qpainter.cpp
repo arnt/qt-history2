@@ -1260,7 +1260,6 @@ void QPainter::restoreWorldMatrix()
 
 #endif // QT_NO_TRANSFORMATIONS
 
-#ifndef QT_NO_TRANSFORMATIONS
 /*!
   Translates the coordinate system by \a (dx,dy).
 
@@ -1280,21 +1279,17 @@ void QPainter::restoreWorldMatrix()
 
 void QPainter::translate( double dx, double dy )
 {
+#ifndef QT_NO_TRANSFORMATIONS
     QWMatrix m;
     m.translate( dx, dy );
     setWorldMatrix( m, TRUE );
-}
-
 #else
-
-void QPainter::translate( int dx, int dy )
-{
-    xlatex += dx;
-    xlatey += dy;
+    xlatex += (int)dx;
+    xlatey += (int)dy;
     setf( VxF );
+#endif
 }
 
-#endif
 
 #ifndef QT_NO_TRANSFORMATIONS
 /*!

@@ -977,10 +977,21 @@ int QStyle::menuButtonIndicatorWidth( int h )
 
 
 
+/*!
+  Returns the amount of whitespace between pushbutton labels and
+  the frame in this style.
+*/
 int QStyle::buttonMargin() const
 {
     return d(this)->button_margin;
 }
+
+/*!
+  Sets the button margin.
+
+  In a future version of the Qt library, this function may be removed
+  and subclasses will be able to reimplement buttonMargin().
+*/
 void QStyle::setButtonMargin( int m )
 {
     d(this)->button_margin = m;

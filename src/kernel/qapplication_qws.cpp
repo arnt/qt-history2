@@ -1855,16 +1855,6 @@ int QApplication::qwsProcessEvent( QWSEvent* event )
     return 0;
 }
 
-/*!
-  This virtual does the core processing of individual Qt/Embedded events,
-  normally by dispatching Qt events to the right destination.
- 
-  It returns 1 if the event was consumed by special handling, 0 if the
-  event was consumed by normal handling, and -1 if the event was for an
-  unrecognized widget.
-  
-  \sa qwsEventFilter()
-*/
 void QApplication::processEvents( int maxtime )
 {
     QTime start = QTime::currentTime();

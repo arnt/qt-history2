@@ -121,13 +121,11 @@ public:
     void	saveWorldMatrix();
     void	restoreWorldMatrix();
 
-    void	translate( double dx, double dy );
     void	scale( double sx, double sy );
     void	shear( double sh, double sv );
     void	rotate( double a );
-#else
-    void	translate( int dx, int dy );	// ###
 #endif
+    void	translate( double dx, double dy );
     void	resetXForm();
 
     QPoint	xForm( const QPoint & ) const;	// map virtual -> device

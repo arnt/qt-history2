@@ -77,12 +77,6 @@ const double Q_PI = 3.14159265358979323846;   // pi // one more useful comment
 */
 
 /*!
-  \fn QPointArray::~QPointArray()
-
-  Deallocates the point array and frees all resources used.
-*/
-
-/*!
   \fn QPointArray::QPointArray( int size )
 
   Constructs a point array with room for \a size points. Makes a null

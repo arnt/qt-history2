@@ -6,7 +6,7 @@
 #include "qtimer.h"
 #include "qdatetime.h"
 
-/*!
+/*
   Internal class to get access to protected QWidget-members
 */
 
@@ -19,7 +19,7 @@ public:
 	: QWidget( parent, name, f ) {}
 };
 
-/*!
+/*
   Internal class QAlphaWidget.
 
   The QAlphaWidget is shown while the animation lasts
@@ -57,7 +57,7 @@ private:
 
 static QAlphaWidget* blend = 0;
 
-/*!
+/*
   Constructs a QAlphaWidget.
 */
 QAlphaWidget::QAlphaWidget( QWidget* w, QWidget* parent, const char* name, WFlags f )
@@ -69,7 +69,7 @@ QAlphaWidget::QAlphaWidget( QWidget* w, QWidget* parent, const char* name, WFlag
     alpha = 0;
 }
 
-/*!
+/*
   \reimp
 */
 void QAlphaWidget::paintEvent( QPaintEvent* )
@@ -77,7 +77,7 @@ void QAlphaWidget::paintEvent( QPaintEvent* )
     bitBlt( this, QPoint(0,0), &pm );
 }
 
-/*!
+/*
   Starts the alphablending animation.
   The animation will take about \a time ms
 */
@@ -125,7 +125,7 @@ void QAlphaWidget::run( int time )
     }
 }
 
-/*!
+/*
   \reimp
 */
 bool QAlphaWidget::eventFilter( QObject* o, QEvent* e )
@@ -147,7 +147,7 @@ bool QAlphaWidget::eventFilter( QObject* o, QEvent* e )
     return QWidget::eventFilter( o, e );
 }
 
-/*!
+/*
   Render alphablending for the time elapsed.
 
   Show the blended widget and free all allocated source
@@ -182,8 +182,8 @@ void QAlphaWidget::render()
     }
 }
 
-/*!
-  Caluclate an alphablended image.
+/*
+  Calculate an alphablended image.
 */
 void QAlphaWidget::alphaBlend()
 {
@@ -208,7 +208,7 @@ void QAlphaWidget::alphaBlend()
     }
 }
 
-/*!
+/*
   Internal class QRollEffect
 
   The QRollEffect widget is shown while the animation lasts
@@ -251,7 +251,7 @@ private:
 
 static QRollEffect* roll = 0;
 
-/*!
+/*
   Construct a QRollEffect widget.
 */
 QRollEffect::QRollEffect( QWidget* w, DirFlags orient )
@@ -283,7 +283,7 @@ QRollEffect::QRollEffect( QWidget* w, DirFlags orient )
     pm = QPixmap::grabWidget( widget );
 }
 
-/*!
+/*
   \reimp
 */
 void QRollEffect::paintEvent( QPaintEvent* )
@@ -295,7 +295,7 @@ void QRollEffect::paintEvent( QPaintEvent* )
 		  0, 0, pm.width(), pm.height(), CopyROP, TRUE );
 }
 
-/*!
+/*
   \reimp
 */
 bool QRollEffect::eventFilter( QObject* o, QEvent* e )
@@ -318,7 +318,7 @@ bool QRollEffect::eventFilter( QObject* o, QEvent* e )
     return QWidget::eventFilter( o, e );
 }
 
-/*!
+/*
   Start the animation.
 
   The animation will take about \a time ms, or is
@@ -353,7 +353,7 @@ void QRollEffect::run( int time )
     checkTime.start();
 }
 
-/*!
+/*
   Roll according to the time elapsed.
 */
 void QRollEffect::scroll()

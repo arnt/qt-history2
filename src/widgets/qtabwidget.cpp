@@ -94,7 +94,8 @@
 */
 
 
-/*! \obsolete
+/* undocumented now
+  \obsolete
   
   \fn void QTabWidget::selected( const QString &tabLabel );
 
