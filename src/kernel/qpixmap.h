@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.h#26 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.h#27 $
 **
 ** Definition of QPixmap class
 **
@@ -53,7 +53,7 @@ public:
 
     bool    enableImageCache( bool enable );
 
-    QPixmap		xForm( const Q2DMatrix & );
+    QPixmap		xForm( const Q2DMatrix & )	const;
     static  Q2DMatrix	trueMatrix( const Q2DMatrix &, int w, int h );
 
     bool    convertToImage( QImage * )	const;
