@@ -72,9 +72,11 @@ General
 <ul>
 <li><a href="tech-preview.html"><b><font size=+1>Introduction to the Technology Preview</font></b></a>
 <li><a href="how-to-learn-qt.html">How to Learn Qt</a>
+<!-- not for the preview
 <li><a href="tutorial.html">Tutorial #1</a>, 
 <a href="tutorial2.html">Tutorial #2</a>
 <li><a href="examples.html">Examples</a>
+-->
 <li><a href="http://www.trolltech.com/products/qt/whitepaper.html">Whitepaper</a>
 </ul>
 </td>
@@ -113,15 +115,11 @@ Overviews
 </td>
 <td valign="top">
 <ul>
-<li><a href="modules.html">All Modules</a>
-<li><a href="canvas.html">Canvas</a>
-<li><a href="iconview.html">Iconview</a>
-<li><a href="network.html">Network</a>
-<li><a href="opengl.html">OpenGL</a>
-<li><a href="sql.html">SQL</a>
-<li><a href="table.html">Table</a>
-<li><a href="workspace.html">Workspace</a>
-<li><a href="xml.html">XML</a>
+<li><a href="tulip-overview.html">Tulip: Tool Classes</a>
+<li><a href="interview-overview.html">Interview: Item View Classes</a>
+<li><a href="arthur-overview.html">Arthur: Paint Engine</a>
+<li><a href="scribe-overview.html">Scribe: Text-Rendering Engine</a>
+<li><a href="mainwindow-overview.html">Mainwindow: Main Window Classes</a>
 </ul>
 </td>
 <td valign="top">
