@@ -458,7 +458,7 @@ void QAction::unplug( QWidget* widget )
 void QAction::setToolTip( const QString& tt )
 {
     m_toolTip = tt;
-    
+
     int len = containerCount();
     for( int i = 0; i < len; ++i )
     {
@@ -1491,7 +1491,7 @@ void QToggleAction::setChecked( bool checked )
 	    }
 	}
     }
-    
+
     m_checked = checked;
 
     emit activated();
@@ -1517,7 +1517,7 @@ void QToggleAction::slotActivated()
  In certain cases you may want to make a group of QToggleAction
  exclusive, that means: Only one may be checked at a time. Checking
  one toggles all the others in the group.
- 
+
  All QToggleAction in an exclusive group need to have the same parent.
 */
 void QToggleAction::setExclusiveGroup( const QString& name )
@@ -1791,6 +1791,7 @@ QFontAction::QFontAction( const QString& text, int accel, QObject* parent, const
     : QSelectAction( text, accel, parent, name )
 {
     setItems( m_fdb.families() );
+    setEditable( TRUE );
 }
 
 QFontAction::QFontAction( const QString& text, int accel,
@@ -1798,6 +1799,7 @@ QFontAction::QFontAction( const QString& text, int accel,
     : QSelectAction( text, accel, receiver, slot, parent, name )
 {
     setItems( m_fdb.families() );
+    setEditable( TRUE );
 }
 
 QFontAction::QFontAction( const QString& text, const QIconSet& pix, int accel,
@@ -1805,6 +1807,7 @@ QFontAction::QFontAction( const QString& text, const QIconSet& pix, int accel,
     : QSelectAction( text, pix, accel, parent, name )
 {
     setItems( m_fdb.families() );
+    setEditable( TRUE );
 }
 
 QFontAction::QFontAction( const QString& text, const QIconSet& pix, int accel,
@@ -1812,12 +1815,14 @@ QFontAction::QFontAction( const QString& text, const QIconSet& pix, int accel,
     : QSelectAction( text, pix, accel, receiver, slot, parent, name )
 {
     setItems( m_fdb.families() );
+    setEditable( TRUE );
 }
 
 QFontAction::QFontAction( QObject* parent, const char* name )
     : QSelectAction( parent, name )
 {
     setItems( m_fdb.families() );
+    setEditable( TRUE );
 }
 
 // ------------------------------------------------------------
