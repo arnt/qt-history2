@@ -264,7 +264,7 @@ void QTableSelection::expandTo( int row, int col )
 	bRow = row;
     }
 
-    if ( col < anchorCol() ) {
+    if ( col < aCol ) {
 	lCol = col;
 	rCol = aCol;
     } else {
@@ -6648,7 +6648,7 @@ bool QTableHeader::doSelection( QMouseEvent *e )
 		    table->currentSel = new QTableSelection();
 		    table->selections.append( table->currentSel );
 		    table->currentSel->init( secAt, 0 );
-		    table->currentSel->expandTo( secAt, table->numCols() );
+		    table->currentSel->expandTo( secAt, table->numCols() - 1 );
 		} else if ( table->currentSel ) {
 		    table->currentSel->init( secAt, 0 );
 		}
@@ -6658,7 +6658,7 @@ bool QTableHeader::doSelection( QMouseEvent *e )
 		    table->currentSel = new QTableSelection();
 		    table->selections.append( table->currentSel );
 		    table->currentSel->init( 0, secAt );
-		    table->currentSel->expandTo( table->numRows(), secAt );
+		    table->currentSel->expandTo( table->numRows() - 1, secAt );
 		} else if ( table->currentSel ) {
 		    table->currentSel->init( 0, secAt );
 		}
