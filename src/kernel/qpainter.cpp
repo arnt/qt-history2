@@ -2414,6 +2414,8 @@ void qt_format_text( const QFont& font, const QRect &r,
 #ifndef QT_NO_REGEXP
 	if ( noaccel || showprefix )
 		parStr.replace( QRegExp( "&" ), "" );
+	// compatible behaviour to the old implementation. Replace tabs by spaces
+	parStr.replace( QRegExp( "\t" ), " " );
 #endif
 	if ( brect ) {
 	    QRect br( r.x(), r.y(), fm.width( parStr ), fm.height() );
@@ -2452,8 +2454,13 @@ void qt_format_text( const QFont& font, const QRect &r,
 	    painter->save();
 	    painter->setClipRegion( reg );
 
-	    if ( !noaccel )
+	    if ( !noaccel ) {
 		parStr = str.left( len );
+#ifndef QT_NO_REGEXP   
+		// compatible behaviour to the old implementation. Replace tabs by spaces
+		parStr.replace( QRegExp( "\t" ), " " );
+#endif	
+	    }
 	    if( !( tf & QPainter::DontPrint ) ) {
 		if ( !showprefix || noaccel ) {
 		    painter->drawText( xoff, yoff, parStr, len );
