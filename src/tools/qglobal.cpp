@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.cpp#47 $
+** $Id: //depot/qt/main/src/tools/qglobal.cpp#48 $
 **
 ** Global functions
 **
@@ -16,7 +16,7 @@
 #include <stdarg.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qglobal.cpp#47 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qglobal.cpp#48 $");
 
 
 #define QT_VERSION "1.2"
@@ -24,7 +24,7 @@ RCSTAG("$Id: //depot/qt/main/src/tools/qglobal.cpp#47 $");
 
 /*!
   \relates QApplication
-  Returns the Qt version number for the library, typically "1.1".
+  Returns the Qt version number for the library, typically "1.2".
 */
 
 const char *qVersion()
@@ -148,28 +148,6 @@ static msg_handler handler = 0;			// pointer to debug handler
   \link debug.html Debugging\endlink
 */
 
-void qDebug( const char *msg, ... )
-{
-    char buf[512];
-    va_list ap;
-    va_start( ap, msg );			// use variable arg list
-    if ( handler ) {
-	vsprintf( buf, msg, ap );
-	va_end( ap );
-	(*handler)( QtDebugMsg, buf );
-    } else {
-	vfprintf( stderr, msg, ap );
-	va_end( ap );
-	fprintf( stderr, "\n" );		// add newline
-    }
-}
-
-/*!
-  \relates QApplication
-  Old name for qDebug().
-
-  \sa qDebug()
-*/
 void debug( const char *msg, ... )
 {
     char buf[512];
@@ -213,29 +191,6 @@ void debug( const char *msg, ... )
   \link debug.html Debugging\endlink
 */
 
-void qWarning( const char *msg, ... )
-{
-    char buf[512];
-    va_list ap;
-    va_start( ap, msg );			// use variable arg list
-    if ( handler ) {
-	vsprintf( buf, msg, ap );
-	va_end( ap );
-	(*handler)( QtWarningMsg, buf );
-    } else {
-	vfprintf( stderr, msg, ap );
-	va_end( ap );
-	fprintf( stderr, "\n" );		// add newline
-    }
-}
-
-
-/*!
-  \relates QApplication
-  Old name for qWarning().
-
-  \sa qWarning()
-*/
 void warning( const char *msg, ... )
 {
     char buf[512];
@@ -251,6 +206,7 @@ void warning( const char *msg, ... )
 	fprintf( stderr, "\n" );		// add newline
     }
 }
+
 
 /*!
   \relates QApplication
@@ -280,33 +236,6 @@ void warning( const char *msg, ... )
   \link debug.html Debugging\endlink
 */
 
-void qFatal( const char *msg, ... )
-{
-    char buf[512];
-    va_list ap;
-    va_start( ap, msg );			// use variable arg list
-    if ( handler ) {
-	vsprintf( buf, msg, ap );
-	va_end( ap );
-	(*handler)( QtFatalMsg, buf );
-    } else {
-	vfprintf( stderr, msg, ap );
-	va_end( ap );
-	fprintf( stderr, "\n" );		// add newline
-#if defined(UNIX) && defined(DEBUG)
-	abort();				// trap; generates core dump
-#else
-	exit( 1 );				// goodbye cruel world
-#endif
-    }
-}
-
-/*!
-  \relates QApplication
-  Old name for qFatal().
-
-  \sa qFatal()
-*/
 void fatal( const char *msg, ... )
 {
     char buf[512];
@@ -327,7 +256,6 @@ void fatal( const char *msg, ... )
 #endif
     }
 }
-
 
 /*!
   \fn void ASSERT( bool test )
