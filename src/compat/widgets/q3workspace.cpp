@@ -295,13 +295,8 @@ Q3WorkspacePrivate::init()
     d->px = 0;
     d->py = 0;
     d->becomeActive = 0;
-#if defined(Q_WS_WIN)
     d->popup = new QMenu(q);
     d->toolPopup = new QMenu(q);
-#else
-    d->popup = new QMenu(q->parentWidget());
-    d->toolPopup = new QMenu(q->parentWidget());
-#endif
     d->popup->setObjectName("qt_internal_mdi_popup");
     d->toolPopup->setObjectName("qt_internal_mdi_tool_popup");
 
