@@ -1816,12 +1816,6 @@ bool QTable::isColumnReadOnly( int col ) const
     return (roCols.find( col ) != 0);
 }
 
-/*! Sets the table's selection mode to \a mode. The default mode is \c
-    Multi which allows the user to select multiple ranges of cells.
-
-  \sa SelectionMode selectionMode()
-*/
-
 void QTable::setSelectionMode( SelectionMode mode )
 {
     if ( mode == selMode )
@@ -1840,6 +1834,9 @@ void QTable::setSelectionMode( SelectionMode mode )
 /*! \property QTable::selectionMode
     \brief the current selection mode
 
+  The default mode is \c Multi which allows the user to select multiple
+  ranges of cells.
+
   \sa SelectionMode setSelectionMode()
 */
 
@@ -1851,9 +1848,9 @@ QTable::SelectionMode QTable::selectionMode() const
 /*! \property QTable::focusStyle
     \brief how the current (focus) cell is drawn
 
- The default style is \c SpreadSheet.
+  The default style is \c SpreadSheet.
 
-    \sa QTable::FocusStyle
+  \sa QTable::FocusStyle
 */
 
 void QTable::setFocusStyle( FocusStyle fs )
@@ -1861,8 +1858,6 @@ void QTable::setFocusStyle( FocusStyle fs )
     focusStl = fs;
     updateCell( curRow, curCol );
 }
-
-/*! Returns the way the current cell is drawn */
 
 QTable::FocusStyle QTable::focusStyle() const
 {
@@ -3901,11 +3896,6 @@ int QTable::numCols() const
     return topHeader->count();
 }
 
-/*! Sets the number of rows to \a r.
-
-  \sa numRows() setNumCols()
-*/
-
 void QTable::setNumRows( int r )
 {
     if ( r < 0 )
@@ -3972,11 +3962,6 @@ void QTable::setNumRows( int r )
 	setCurrentCell( r, curCol );
     }
 }
-
-/*! Sets the number of columns to \a c.
-
-  \sa numCols() setNumRows()
-*/
 
 void QTable::setNumCols( int c )
 {
