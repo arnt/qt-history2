@@ -41,28 +41,29 @@ The Qt SQL module provides classes to access SQL databases in a
 uniform way across different platforms and across different SQL
 database servers. 
 
-The SQL module contains three layers of classes:
+The Qt SQL module contains three layers of classes:
 
-<em>Driver layer</em>
+<em>Driver Layer</em>
 
 Connections to SQL database servers at a low level are handled by the
-QSqlDriver and QSqlResult abstract classes.  These classes provide an
-interface for database-specific derived classes to implement the
-actual connections to specific SQL servers.  All low-level interaction
-with the SQL servers is handled by these drivers.
+\l QSqlDriver and \l QSqlResult abstract classes.  These classes
+provide an interface for database-specific derived classes to
+implement the actual connections to specific SQL servers.  All
+low-level interaction with the SQL servers is handled by these
+drivers.
 
-<em>SQL layer</em>
+<em>SQL Layer</em>
 
 At a higher level, QSqlQuery and QSqlCursor provide functionality to
-send SQL queries (INSERT, UPDATE, DELETE, etc.) to a database and to
-return results (i.e., data) from those queries.  QSqlField, QSqlRecord
-and QSqlIndex are helper classes which represent SQL fields, records
-and indexes respectively.
+send SQL queries (\c INSERT, \c UPDATE, \c DELETE, etc.) to a database
+and to return results (i.e., data) from those queries.  \l QSqlField,
+\l SqlRecord and \l QSqlIndex are helper classes which represent SQL
+fields, records and indexes respectively.
 
-<em>Widget layer</em>
+<em>Widget Layer</em>
 
-QSqlTable and QSqlForm display data from SQL databases.  There are
-also helper classes such as QSqlPropertyMap and QSqlEditorFactory
+\l QSqlTable and \l QSqlForm display data from SQL databases.  There are
+also helper classes such as \l QSqlPropertyMap and \l QSqlEditorFactory
 which help 'glue' together the GUI to the SQL database in your
 applications.
 
@@ -98,11 +99,31 @@ is returned.  For example:
     }
 \endcode
 
+To establish multiple connections to different databases, use
+QSqlDatabase::addDatabase() repeatedly, specifying unique database
+names which will be used by application code.  For example:
+
+\code
+    QSqlDatabase* defaultConnection = QSqlDatabase::addDatabase( "QODBC" );
+    QSqlDatabase* oracleConnection = QSqlDatabase::addDatabase( "QOCI", "oracle" );
+    QSqlDatabase* mysqlConnection = QSqlDatabase::addDatabase( "QMYSQL", "mysql" );
+\endcode
+
+These connections can be used later by calling the
+QSqlDatabase::database() static function, and passing the name of the
+desired connection:
+
+\code
+    QSqlDatabase* db = QSqlDatabase::database( "oracle" ); // get the oracle connection
+    QSqlQuery q1( "select * from emp;", db );              // and use it in a query
+    QSqlQuery q2( "select name from Employee;" );          // uses the default application connection
+\endcode
+
 At least one QSqlDatabase must be created and opened in order to use
-the other Qt SQL classes, since those classes communicate to the
-database through QSqlDatabase.  QSqlDatabase provides information
-about objects within the database such as tables, views and
-indexes.  For example:
+the other Qt SQL classes (such as \l QSqlQuery and \l QSqlCursor),
+since those classes communicate to the database through QSqlDatabase.
+QSqlDatabase provides information about objects within the database
+such as tables, views and indexes.  For example:
 
 \code
     // get the default database connection
@@ -136,7 +157,10 @@ an error, lastError() will return error information.  For example:
 
 \code
     QSqlDatabase* db = QSqlDatabase::database();
-    // set connection parameters...
+    db->setDatabaseName( "sales" );
+    db->setUserName( "Dave" );
+    db->setPassword( "dolphin" );
+    db->setHostName( "saleshost" );
     if ( !db->open() ) {
 	QSqlError err = db->lastError();
         ...
@@ -152,7 +176,7 @@ close the database.  Or, the static function
 QSqlDatabase::removeDatabase() will close and permanently remove the
 database from the list of available connections.  Note that there
 should be no active queries left in your application when closing a
-database.
+database otherwise there will be a resource leak.
 
 <h2>Fields, Records and Indexes</h2>
 
@@ -169,12 +193,12 @@ of a column in a database field, such as the data type, field name,
 etc.  The field's value can also be viewed and changed.
 
 The QSqlRecord class encapsulates the functionality and
-characteristics of a database record (usually a table or view within
-the database), such as adding or removing fields, setting and
-retrieving field values, etc.  In addition, there are several
-functions which alter other characteristics of the record, for
-example, changing the display label associated with a particular field
-when displaying that field on screen.
+characteristics of a database record (a table or view within the
+database), such as adding or removing fields, setting and retrieving
+field values, etc.  In addition, there are several functions which
+alter other characteristics of the record, for example, changing the
+display label associated with a particular field when displaying that
+field on screen.
 
 \code
     QSqlRecord r = QSqlDatabase::database()->record( "Employee" );
@@ -213,19 +237,19 @@ the application default connection in this case).  For example:
     QSqlDatabase* db = QSqlDatabase::database();
     QSqlQuery employeeCount = db->exec( "select count(*) from Employee;" );
     ...
-    QSqlQuery updEmployee; // uses the default application connection
+    QSqlQuery updEmployee; // automatically uses the default application connection
     upd.exec( "update Employee set name='db' where id=1;" );
 \endcode
 
 QSqlQuery allows any SQL statement to be passed to the database,
 including database-specific SQL statements.  Primarily, however, there
 are two types of SQL statements which are intended to be used with
-QSqlQuery: SELECT statements and data manipulation statements (INSERT,
-UPDATE and DELETE).
+QSqlQuery: \c SELECT statements and data manipulation statements (\c INSERT,
+\c UPDATE and \c DELETE).
 
-To use QSqlQuery with a SELECT statement, specify the statement in the
+To use QSqlQuery with a \c SELECT statement, specify the statement in the
 object constructor, or use the QSqlQuery::exec() method.  When a
-QSqlQuery object is given a SELECT statement, the statement is
+QSqlQuery object is given a \c SELECT statement, the statement is
 verified against the database.  If the statement contains an error,
 the QSqlQuery object will remain in an inactive state, otherwise the
 QSqlQuery becomes active, and data can be retrieved.  
@@ -238,21 +262,21 @@ the query to point to a different row.  The following methods navigate
 through the rows of an active query:
 
 <ul>
-<li> <b>first()</b> - Moves to the first row in the query
-<li> <b>last()</b> - Moves to the last row in the query
-<li> <b>next()</b> - Moves to the next row in the query
-<li> <b>prev()</b> - Moves to the previous row in the query
-<li> <b>seek()</b> - Moves to a random row in the query
+<li> \c first() - Moves to the first row in the query
+<li> \c last() - Moves to the last row in the query
+<li> \c next() - Moves to the next row in the query
+<li> \c prev() - Moves to the previous row in the query
+<li> \c seek() - Moves to a random row in the query
 </ul>
 
 In addition, the following functions can be used to describe
 properties of the query which are useful when navigating the rows:
 
 <ul>
-<li> <b>isActive()</b> - Returns TRUE if the last statement was successful
-<li> <b>isValid()</b> - Returns TRUE if the query is positioned on a valid record
-<li> <b>at()</b> - Returns the current row (can be used with seek())
-<li> <b>isSelect()</b> - Returns TRUE if the last statement was a SELECT statement
+<li> \c isActive() - Returns TRUE if the last statement was successful
+<li> \c isValid() - Returns TRUE if the query is positioned on a valid record
+<li> \c at() - Returns the current row (can be used with seek())
+<li> \c isSelect() - Returns TRUE if the last statement was a \c SELECT statement
 </ul>
 
 For example:
@@ -308,7 +332,7 @@ example:
 
 Applications that use QSqlQuery do so mainly to browse, or scroll,
 through records returned by the query.  To use a QSqlQuery with a data
-manipulation statement (INSERT, UPDATE and DELETE), just specify the
+manipulation statement (\c INSERT, \c UPDATE and \c DELETE), just specify the
 statement to the object constructor or use the QSqlQuery::exec()
 method.  Data manipulation statements will execute on the database
 immediately (unless a transaction is started), and the query will be
@@ -339,20 +363,20 @@ connection, pass a pointer to the desired QSqlDatabase. For example:
 	
 <h2>Cursors</h2>
 
-You can perform operations on tables or views within the database as a
-whole using QSqlCursor.  A 'cursor' is a database record (see above)
-which coresponds to a table or view within the database.  To position
-to a valid record, cursors can be navigated in the same way as a
-QSqlQuery (see above).  Once positioned on a valid record, data can be
-retrieved from the record fields directly.  In addition, for cursors
-that correspond to tables or views that contain primary indexes, data
-can be edited directly using the edit functions of QSqlCursor.
+You can perform operations on tables or views within the database
+using QSqlCursor.  A 'cursor' is a database record (see above) which
+corresponds to a table or view within the database.  To position to a
+valid record, cursors can be navigated in the same way as a QSqlQuery
+(see above).  Once positioned on a valid record, data can be retrieved
+from the record fields directly.  In addition, for cursors that
+correspond to tables or views that contain primary indexes, data can
+be edited directly using the edit functions of QSqlCursor.
 
 For example, to create a list of all employee names from department #10
 of the Employee table:
 
 \code
-    QSqlCursor emp( "Employee" ); // uses the default application database
+    QSqlCursor emp( "Employee" ); // uses the default application database connection
                                   // and constructs a record of all 'Employee' fields
     emp.select( "deptno=10" );    // select everyone in deparment #10
     while( emp.next() )           // for each valid record
@@ -374,21 +398,33 @@ records based upon an index:
 
 \endcode
 
+<em> Editing Records in a Cursor </em>
+
 If the underlying table or view has a primary index which identifies a
 unique record, a cursor can also edit records in the database.  Before
-inserting, updating or deleting records in a cursor, functions should
-be called which prepare the cursor for edit operations.  The following
-lists methods for returning a pointer to an internal buffer used for editing:
+inserting, updating or deleting records in a cursor, the cursor must
+be prepared for edit operations.  Cursors use a separate internal
+record buffer for inserting and updating records in the cursor.  The
+following methods will prepare the cursor's internal record buffer for
+editing:
 
 <ul>
-<li> <b>insertBuffer()</b> - returns a pointer to the insert record buffer
-<li> <b>updateBuffer()</b> - returns a pointer to the update record buffer
+<li> \c insertBuffer() - returns a pointer to the edit buffer, primed for insert
+<li> \c updateBuffer() - returns a pointer to the edit buffer, primed for update
 </ul>
 
-The edit buffer of a cursor is independant of the current cursor
-record buffer which contains the values of the current fields from the
-database.  After getting a pointer to the internal edit buffer, values
-can be manipulated, and then saved to the database.  For example:
+\l QSqlCursor::insertBuffer() will prepare the edit buffer for an
+insert operation: the record buffer will be cleared and the virtual
+QSqlCursor::primeInsert() function will be invoked to 'prime' the edit
+buffer values.  Derived classes can reimplement this function in order
+to, for example, auto-number any relevant fields, or supply fields
+with default values.  QSqlCursor::updateBuffer() will prepare the edit
+buffer for an update operation: the record buffer will be primed with
+the values of the current cursor record.  The edit buffer of a cursor
+is independant of the current cursor record buffer which contains the
+values of the current fields from the database.  After getting a
+pointer to the internal edit buffer, values can be manipulated, and
+then saved to the database.  For example:
 
 \code
     QSqlCursor emp( "Employee" );
@@ -413,7 +449,111 @@ can be manipulated, and then saved to the database.  For example:
 
 <h2>GUI Components</h2>
 
+<em> Displaying Data in a Table </em>
+
+There are several classes which can display and edit data from
+cursors.  
+
+\l QSqlTable is a flexible, editable table widget which displays the
+data from a QSqlCursor.  It has an API for sorting records, finding
+records and editing records (for cursors which allow editing).
+
+To use QSqlTable, create one as you would any other QWidget.  Then,
+associate a cursor with the table using QSqlTable::setCursor():
+
+\code
+    QSqlCursor cursor( "Employee" );
+    ...
+    QSqlTable* table = new QSqlTable( this );
+    table->setCursor( &cursor );
+\endcode
+
+QSqlTable will adjust itself to the column formatting and editing
+capability of the cursor.  However, all of these properties can be
+overriden (see \l QSqlTable for the complete API).
+
+<em> Creating Database Forms </em>
+
+\l QSqlForm can link QSqlFields with QWidgets, and using the <a
+href="properties.html">property system</a> can transfer data from the
+database to widgets on screen, and vice versa.
+
+A form is responsible for linking GUI components (QLineEdit, QSpinBox,
+etc) to database fields (typically a field that is part of a
+QSqlCursor).  For example:
+
+\code
+    QSqlCursor cursor( "Employee" );
+    ...
+    QSqlForm* form = new QSqlForm( this );
+    QLineEdit* edit = new QLineEdit( this );
+    form->insert( edit, cursor.field( "name" ) );
+\endcode
+
+Once a form is created, widgets that have been inserted into the form
+can be updated with the values of the associated fields:
+
+\code
+    cursor.select();    // select all records
+    cursor.first();     // go to the first record
+    form->readFields(); // the line edit now contains the value of the 'name'
+                        // field from the database record
+\endcode
+
+Cursor field values can also be updated directly from the associated
+widgets.
+
+\code
+    edit->setText( "Dave" );            // change the line edit contents
+    form->writeFields();                // write the data to the cursor field
+    QString s = cursor.value( "name" ); // note: s == "Dave"
+\endcode
+
+See \l QSqlForm for complete API documentation.
+
+QSqlForm uses QSqlPropertyMap to handle the transfer of data between
+widgets and database fields.  Custom widgets can also be used in a
+form by installing a property map that contains information about the
+properties of the custom widget which should be used to transfer the
+data.  For example:
+
+\code
+    MyCustomEditor* myedit = new MyCustomEditor( this ); // create a custom widget editor
+    QSqlPropertyMap* p = new QSqlPropertyMap();          // create a property map
+    p->insert( myedit->className(), "foo" );             // use the "foo" property of this class
+                                                         // to transfer data to and from database fields
+    form->installPropertyMap( p );                       // use the new property map in the form
+    form->insert( myedit, cursor.field( "deptno" ) );
+    ...
+    form->readFields();	                                 // read data from the "deptno" field 
+                                                         // and put it in myedit
+    ...
+    form->writeFields();                                 // read data from myedit and put it
+                                                         // in the "deptno" field
+\endcode
+
+See \l QSqlPropertyMap for complete API documentation.
+
 <h2>Drivers</h2>
+
+The Qt SQL classes provide drivers for several popular SQL
+databases. A 'driver' is used by QSqlQuery and QSqlDatabase to handle
+the native API to the various backends.
+
+Drivers can be linked in directly with the Qt library, or they can be
+dynamically loaded using the Qt plugin system.  To write your own
+driver, reimplement the QSqlDriver and QSqlResult classes for your
+database, and then compile your driver as a Qt plugin.  Make sure to
+give your driver a unique 'interface' name which will be used by the
+plugin system to locate the proper library which contains your driver.
+For example, the Qt database drivers use names such as 'QPSQL6',
+'QODBC', etc.
+
+All the Qt database drivers can be compiled as plugins as well.  See
+the driver source code in QTDIR/src/sql/src for examples.  At runtime,
+QSqlDatabase will attempt to load database drivers for your plugin if
+it cannot load a standard driver (either compiled into the Qt library
+or through a standard Qt driver plugin).
 
 */
 
