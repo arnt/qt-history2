@@ -1328,6 +1328,11 @@ int QCheckTableItem::rtti() const
     the table's top margin whose height is set with setTopMargin(). The
     table's grid can be switched off with setShowGrid().
 
+    Header labels are indexed via their section numbers.  Note that the
+    default behavior of QHeader regarding section numbers is overriden for
+    QTable.  See the explanation below in Rows and Columns section in the
+    discussion of moving columns and rows.
+
     \target columnsrows
     \section1 Rows and Columns
 
@@ -1350,7 +1355,15 @@ int QCheckTableItem::rtti() const
 
     Rows and columns can be set to be moveable, i.e. the user can drag
     them to reorder them, using rowMovingEnabled() and
-    columnMovingEnabled(). The table can be sorted using sortColumn().
+    columnMovingEnabled(). For performance reasons, the default behavior
+    of QHeader section numbers is overwritten by QTable.  Currently in QTable,
+    when a row or column is dragged and reordered, the section number is
+    also changed to its new position.  Therefore, there is no difference
+    between the section and the index fields in QHeader. The QTable QHeader
+    classes do not provide a mechanism for indexing independent of the user
+    interface ordering.
+
+    The table can be sorted using sortColumn().
     Users can sort a column by clicking its header if setSorting() is
     set to TRUE. Rows can be swapped with swapRows(), columns with
     swapColumns() and cells with swapCells().
