@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#103 $
+** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#104 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for Win32
 **
@@ -498,7 +498,7 @@ HFONT QFont::create( bool *stockFont, HDC hdc, bool VxF ) const
     } else {
 	// LOGFONTA and LOGFONTW are binary compatible
 	memcpy(lf.lfFaceName,fam.ascii(),
-	    sizeof(TCHAR)*QMIN(fam.length()+1,32));  // 32 = Windows hard-coded
+	    QMIN(fam.length()+1,32));  // 32 = Windows hard-coded
 	hfont = CreateFontIndirectA( (LOGFONTA*)&lf );
     }
 
