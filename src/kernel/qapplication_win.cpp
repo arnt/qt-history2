@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#462 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#463 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -208,7 +208,8 @@ static int	translateKeyCode( int );
 Qt::WindowsVersion qt_winver = Qt::WV_NT;
 
 QObject	       *qt_clipboard   = 0;
-
+static QString *imeComposition = 0;
+static int	imePosition    = 0;
 extern QCursor *qt_grab_cursor();
 
 #if defined(Q_WS_WIN)
@@ -676,6 +677,7 @@ void qt_cleanup()
 
     delete activeBeforePopup;
     activeBeforePopup = 0;
+    delete imeComposition;
 }
 
 
@@ -1446,6 +1448,7 @@ static bool inLoop = FALSE;
 
 #define RETURN(x) { inLoop=FALSE;return x; }
 
+
 extern "C"
 LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 			    LPARAM lParam )
@@ -1769,7 +1772,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
     		    QWidget *fw = qApp->focusWidget();
 		    if ( fw ) {
 			QIMEvent e( QEvent::IMStart, QString::null, -1 );
-			result = QApplication::sendEvent( fw, &e );
+			result = QApplication::sendEvent( fw, &e );	
 		    }
 		}
 		break;
@@ -1778,15 +1781,10 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		    QWidget *fw = qApp->focusWidget();
 	        
 		    if ( fw ) {
-			HIMC imc = ImmGetContext( fw->winId() ); // Should we store it?
-			char buffer[256];
-			LONG cursorPos = ImmGetCompositionString( imc, GCS_CURSORPOS, &buffer, 255 ) & 0xffff;
-			LONG buflen = ImmGetCompositionString( imc, GCS_COMPSTR, &buffer, 255 );
-			//qDebug( "cursor at %d string is %d bytes '%s'", cursorPos, buflen, buffer);
-			ImmReleaseContext( fw->winId(), imc );
-			QString string = imestring_to_unicode( buffer, buflen );
-			QIMEvent e( QEvent::IMEnd, string, -1 );
+			QIMEvent e( QEvent::IMEnd, *imeComposition, -1 );
 			result = QApplication::sendEvent( fw, &e );
+			*imeComposition = QString::null;
+			imePosition = 0;
 		    }
 		}
 		break;
@@ -1796,12 +1794,21 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		    if ( fw ) {
 			HIMC imc = ImmGetContext( fw->winId() ); // Should we store it?
 			char buffer[256];
-			LONG cursorPos = ImmGetCompositionString( imc, GCS_CURSORPOS, &buffer, 255 ) & 0xffff;
-			LONG buflen = ImmGetCompositionString( imc, GCS_COMPSTR, &buffer, 255 );
-			//qDebug( "cursor at %d string is %d bytes '%s'", cursorPos, buflen, buffer);
+			LONG buflen = -1;
+			if ( lParam & GCS_CURSORPOS )
+			    imePosition = ImmGetCompositionString( imc, GCS_CURSORPOS, &buffer, 255 ) & 0xffff;
+			if ( lParam & GCS_COMPSTR ) {
+			    buflen = ImmGetCompositionString( imc, GCS_COMPSTR, &buffer, 255 );
+			} else if (lParam & GCS_RESULTSTR ) {
+			    buflen = ImmGetCompositionString( imc, GCS_RESULTSTR, &buffer, 255 );
+			}
+			if ( buflen != -1 ) {
+			    if ( !imeComposition )
+    				imeComposition = new QString();
+			    *imeComposition = imestring_to_unicode( buffer, buflen );
+			}
 			ImmReleaseContext( fw->winId(), imc );
-			QString string = imestring_to_unicode( buffer, buflen );
-			QIMEvent e( QEvent::IMCompose, string, cursorPos );
+			QIMEvent e( QEvent::IMCompose, *imeComposition, imePosition );
 			result = QApplication::sendEvent( fw, &e );
 		    }
 		}
