@@ -528,6 +528,36 @@ bool QAbstractSpinBox::event(QEvent *event)
     \reimp
 */
 
+bool QAbstractSpinBox::eventFilter(QObject *object, QEvent *event)
+{
+    bool ret = false;
+    if (object == d->edit) {
+        switch (event->type()) {
+
+        case QEvent::MouseMove:
+        case QEvent::MouseButtonPress:
+        case QEvent::MouseButtonRelease: {
+            QMouseEvent *me = static_cast<QMouseEvent*>(event);
+            me->ignore();
+            switch (event->type()) {
+            case QEvent::MouseMove: mouseMoveEvent(me); break;
+            case QEvent::MouseButtonPress: mousePressEvent(me); break;
+            case QEvent::MouseButtonRelease: mouseReleaseEvent(me); break;
+            default: break;
+            }
+            ret = me->isAccepted();
+            break; }
+        default: break;
+        }
+    }
+    return ret;
+}
+
+
+/*!
+    \reimp
+*/
+
 void QAbstractSpinBox::showEvent(QShowEvent *)
 {
     if (d->dirty) {
