@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfileinfo.cpp#60 $
+** $Id: //depot/qt/main/src/tools/qfileinfo.cpp#61 $
 **
 ** Implementation of QFileInfo class
 **
@@ -381,7 +381,7 @@ QString QFileInfo::fileName() const
 {
     int p = fn.findRev( '/' );
     if ( p == -1 )
-	return fn.copy();
+	return fn;
     else
 	return fn.mid(p+1);
 }
