@@ -2631,7 +2631,8 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
     int cy = 0;
     int curx = -1, cury, curh;
     bool lastDirection = 0;
-
+    int tw = 0;
+    
     int selectionStarts[ numSelections ];
     int selectionEnds[ numSelections ];
     if ( drawSelections ) {
@@ -2658,12 +2659,19 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
     bool didListLabel = FALSE;
     for ( i = 0; i < length(); i++ ) {
 	chr = at( i );
+	if ( !str->isBidi() && painter.device()->devType() == QInternal::Printer ) { // ### fix our broken ps-printer
+	    if ( !chr->lineStart )
+		chr->x = QMAX( chr->x, tw );
+	    else
+		tw = 0;
+	}
 	cw = chr->width();
 	if ( chr->c == '\t' && i < length() - 1 )
 	    cw = at( i + 1 )->x - chr->x + 1;
 	
 	// init a new line
 	if ( chr->lineStart ) {
+	    tw = 0;
 	    ++line;
 	    lineInfo( line, cy, h, baseLine );
 	    if ( lastBaseLine == 0 )
@@ -2714,6 +2722,14 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 	     selectionChange || chr->isCustom ) {
 	    drawParagBuffer( painter, buffer, startX, lastY, lastBaseLine, bw, h, drawSelections,
 			     lastFormat, i, selectionStarts, selectionEnds, cg );
+	    if ( !str->isBidi() && painter.device()->devType() == QInternal::Printer ) { // ### fix our broken ps-printer
+		if ( !chr->lineStart ) {
+		    tw = startX + painter.fontMetrics().width( buffer );
+		    chr->x = QMAX( chr->x, tw );
+		} else {
+		    tw = 0;
+		}
+	    }
 	    if ( !chr->isCustom ) {
 		buffer = chr->c;
 		lastFormat = chr->format();
@@ -4039,7 +4055,7 @@ QTextFormat *QTextFormatCollection::format( QTextFormat *f )
 	return lastFormat;
     }
 #endif
-    
+
     QTextFormat *fm = cKey.find( f->key() );
     if ( fm ) {
 #ifdef DEBUG_COLLECTION
