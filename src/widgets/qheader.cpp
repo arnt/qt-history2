@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#26 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#27 $
 **
 **  Table header
 **
@@ -471,6 +471,8 @@ void QHeader::paintCell( QPainter *p, int row, int col )
 
 void QHeader::mousePressEvent( QMouseEvent *m )
 {
+    if ( m->button() != LeftButton )
+	return;
     handleIdx = 0;
     int c = orient == Horizontal ? m->pos().x() : m->pos().y();
     int i = 0;
@@ -494,6 +496,8 @@ void QHeader::mousePressEvent( QMouseEvent *m )
 
 void QHeader::mouseReleaseEvent( QMouseEvent *m )
 {
+    if ( m->button() != LeftButton )
+	return;
     State oldState = state;
     state = Idle;
     switch ( oldState ) {
