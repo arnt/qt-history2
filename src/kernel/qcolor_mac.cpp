@@ -109,6 +109,9 @@ void QColor::setSystemNamedColor( const QString& name )
 	} else {
 	    alloc();
 	}
+    } else {
+	// set to invalid color
+	*this = QColor();
     }
 }
 

@@ -623,12 +623,17 @@ void QColor::setSystemNamedColor( const QString& name )
 	qWarning( "QColor::setSystemNamedColor: Cannot perform this operation "
 		  "because QApplication does not exist" );
 #endif
+	// set color to invalid
+	*this = QColor();
     } else {
 	XColor col, hw_col;
 	if ( XLookupColor(QPaintDevice::x11AppDisplay(),
 			  QPaintDevice::x11AppColormap(), name.latin1(),
 			  &col, &hw_col) ) {
 	    setRgb( col.red>>8, col.green>>8, col.blue>>8 );
+	} else {
+	    // set color to invalid
+	    *this = QColor();
 	}
     }
 }
