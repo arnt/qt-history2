@@ -138,26 +138,25 @@ int main(int argc, char**argv)
         retval = projectMode(in);
     else
         retval = fileMode(in);
-
   
     QStringList report = Logger::instance()->cronologicalReport();
     QString logFileName =  "portinglog.txt";
     cout << "Writing log to " << logFileName.latin1() << endl;
     QByteArray logContents;
-	QBuffer logBuffer(&logContents);
-	logBuffer.open(QIODevice::Translate | QIODevice::WriteOnly);
-	QTextStream logStream(&logBuffer);
-	foreach(QString logLine, report) {
+    QBuffer logBuffer(&logContents);
+    logBuffer.open(QIODevice::Translate | QIODevice::WriteOnly);
+    QTextStream logStream(&logBuffer);
+    foreach(QString logLine, report) {
 //temporary workarond for missing Translate functionality in QTextStream
 #ifdef Q_OS_WIN	
-		logStream << logLine << "\r\n";
+        logStream << logLine << "\r\n";
 #else
-		logStream << logLine << endl;
+        logStream << logLine << endl;
 #endif
-	}
-	FileWriter fileWriter(FileWriter::AskOnOverWrite, "Overwrite file ");
+    }
+    FileWriter fileWriter(FileWriter::AskOnOverWrite, "Overwrite file ");
     fileWriter.writeFile(logFileName, logContents);
 
-	Logger::deleteInstance();
+    Logger::deleteInstance();
     return retval;
 }
