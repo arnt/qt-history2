@@ -8,7 +8,6 @@ HEADERS += \
 	dialogs/qfontdialog.h \
 	dialogs/qmessagebox.h \
 	dialogs/qprogressdialog.h \
-	dialogs/qwizard.h \
 	dialogs/qinputdialog.h \
 	dialogs/qpagesetupdialog.h \
 	dialogs/qfiledialog.h
@@ -28,7 +27,6 @@ SOURCES += \
 	dialogs/qfontdialog.cpp \
 	dialogs/qmessagebox.cpp \
 	dialogs/qprogressdialog.cpp \
-	dialogs/qwizard.cpp \
 	dialogs/qinputdialog.cpp \
 	dialogs/qpagesetupdialog.cpp \
 	dialogs/qfiledialog.cpp

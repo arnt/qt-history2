@@ -22,7 +22,7 @@
 #include "qpushbutton.h"
 #include "qspinbox.h"
 #include "qcombobox.h"
-#include "qwidgetstack.h"
+#include "qstackedbox.h"
 #include "qvalidator.h"
 #include "qapplication.h"
 
@@ -35,7 +35,7 @@ public:
     QSpinBox *spinBox;
     QComboBox *comboBox, *editComboBox;
     QPushButton *ok;
-    QWidgetStack *stack;
+    QStackedBox *stack;
     QInputDialog::Type type;
 };
 
@@ -113,7 +113,7 @@ QInputDialog::QInputDialog(const QString &label, QWidget* parent,
     d->label = new QLabel(label, this, "qt_inputdlg_lbl");
     vbox->addWidget(d->label);
 
-    d->stack = new QWidgetStack(this, "qt_inputdlg_ws");
+    d->stack = new QStackedBox(this);
     vbox->addWidget(d->stack);
     d->lineEdit = new QLineEdit(d->stack, "qt_inputdlg_le");
     d->spinBox = new QSpinBox(d->stack, "qt_inputdlg_sb");
@@ -206,7 +206,7 @@ void QInputDialog::setType(Type t)
         break;
     }
     if (input) {
-        d->stack->raiseWidget(input);
+        d->stack->setCurrentIndex(t);
         d->stack->setFixedHeight(input->sizeHint().height());
         input->setFocus();
 #ifndef QT_NO_ACCEL
