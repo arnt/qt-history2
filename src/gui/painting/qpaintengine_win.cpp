@@ -502,7 +502,7 @@ void QWin32PaintEngine::drawRect(const QRect &r)
     if (d->advancedMode) {
         --w;
         --h;
-    } else
+    }
     if (d->penStyle == Qt::NoPen) {
         w++;
         h++;

@@ -464,6 +464,13 @@ void QPaintEngine::updateInternal(QPainterState *s, bool updateGC)
         updateRenderHints(d->renderhints);
         clearDirty(DirtyHints);
     }
+
+    // It might be the case that a update call flags a previously
+    // updated state to dirty. For this case we need to call
+    // updateInternal() again to update these states. This is to be
+    // sure that all states are in sync when the function returns.
+    if (dirtyFlag)
+        updateInternal(state);
 }
 
 /*!
