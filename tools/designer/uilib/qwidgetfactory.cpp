@@ -98,12 +98,45 @@ static QPluginManager<InterpreterInterface> *interpreterInterfaceManager = 0;
 static QPluginManager<LanguageInterface> *languageInterfaceManager = 0;
 static QPluginManager<WidgetInterface> *widgetInterfaceManager = 0;
 
+static QMap<QString, bool> *availableWidgetMap = 0;
+static QStringList *availableWidgetList = 0;
+
 QMap<QWidget*, QString> *qwf_functions = 0;
 QMap<QWidget*, QString> *qwf_forms = 0;
 QString *qwf_language = 0;
 bool qwf_execute_code = TRUE;
 bool qwf_stays_on_top = FALSE;
 QString qwf_currFileName = "";
+
+static void setupWidgetListAndMap()
+{
+    if ( availableWidgetMap )
+	return;
+    availableWidgetList = new QStringList;
+    (*availableWidgetList) << "QPushButton" << "QToolButton" << "QCheckBox" << "QRadioButton"
+			   << "QGroupBox" << "QButtonGroup" << "QIconView" << "QTable"
+			   << "QListBox" << "QListView" << "QLineEdit" << "QSpinBox"
+			   << "QMultiLineEdit" << "QLabel" << "TextLabel" << "PixmapLabel"
+			   << "QLayoutWidget" << "QTabWidget" << "QComboBox"
+			   << "QWidget" << "QDialog" << "QWizard" << "QLCDNumber"
+			   << "QProgressBar" << "QTextView" << "QTextBrowser"
+			   << "QDial" << "QSlider" << "QFrame" << "Line" << "QTextEdit"
+			   << "QDateEdit" << "QTimeEdit" << "QDateTimeEdit" << "QScrollBar"
+			   << "QPopupMenu" << "QWidgetStack" << "QMainWindow"
+			   << "QDataTable" << "QDataBrowser" << "QDataView"
+			   << "QVBox" << "QHBox" << "QGrid";
+
+    if ( !widgetInterfaceManager )
+	widgetInterfaceManager = new QPluginManager<WidgetInterface>( IID_Widget, QApplication::libraryPaths(), "/designer" );
+
+    QStringList l = widgetInterfaceManager->featureList();
+    for ( QStringList::Iterator it = l.begin(); it != l.end(); ++it )
+	(*availableWidgetList) << *it;
+
+    availableWidgetMap = new QMap<QString, bool>;
+    for ( QStringList::Iterator it = availableWidgetList->begin(); it != availableWidgetList->end(); ++it )
+	availableWidgetMap->insert( *it, TRUE );
+}
 
 /*!
   \class QWidgetFactory
@@ -594,6 +627,23 @@ QWidget *QWidgetFactory::createWidget( const QString &className, QWidget *parent
 
     // no success
     return 0;
+}
+
+/*! Returns the names of the widgets, which this facory can create. */
+
+QStringList QWidgetFactory::widgets()
+{
+    setupWidgetListAndMap();
+    return *availableWidgetList;
+}
+
+/*! Returns whether this widget factory can create the widget \a
+  widget */
+
+bool QWidgetFactory::supportsWidget( const QString &widget )
+{
+    setupWidgetListAndMap();
+    return ( availableWidgetMap->find( widget ) != availableWidgetMap->end() );
 }
 
 QWidget *QWidgetFactory::createWidgetInternal( const QDomElement &e, QWidget *parent, QLayout* layout, const QString &classNameArg )

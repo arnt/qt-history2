@@ -49,6 +49,8 @@ public:
     static void loadImages( const QString &dir );
 
     virtual QWidget *createWidget( const QString &className, QWidget *parent, const char *name ) const;
+    static QStringList widgets();
+    static bool supportsWidget( const QString &widget );
 
 private:
     enum LayoutType { HBox, VBox, Grid, NoLayout };
