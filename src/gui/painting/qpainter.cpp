@@ -1182,7 +1182,7 @@ const QBrush &QPainter::background() const
 
 bool QPainter::hasClipping() const
 {
-    return !d->state->tmpClipRegion.isEmpty() || !d->state->tmpClipPath.isEmpty();
+    return d->state->clipEnabled;
 }
 
 
@@ -1204,17 +1204,12 @@ void QPainter::setClipping(bool enable)
         return;
     }
 
-    if (hasClipping() == enable)
+    if (d->state->clipEnabled == enable)
         return;
-
-    if (enable) {
-        // ### missing what to do...
-    } else {
-        d->state->tmpClipRegion = QRegion();
-        d->state->tmpClipOp = Qt::ReplaceClip;
-        d->engine->setDirty(QPaintEngine::DirtyClip);
-        d->engine->updateState(d->state);
-    }
+    
+    d->state->clipEnabled = enable;
+    d->engine->setDirty(QPaintEngine::DirtyClip);
+    d->engine->updateState(d->state);
 }
 
 
@@ -1273,6 +1268,7 @@ void QPainter::setClipRegion(const QRegion &r, Qt::ClipOperation op)
         printf("QPainter::setClipRegion(), size=%d, [%d,%d,%d,%d]\n",
            r.rects().size(), rect.x(), rect.y(), rect.width(), rect.height());
 #endif
+    Q_ASSERT(op != Qt::NoClip);
     if (!isActive()) {
         qWarning("QPainter::setClipRegion(); painter not active");
         return;
@@ -1283,6 +1279,7 @@ void QPainter::setClipRegion(const QRegion &r, Qt::ClipOperation op)
 
     d->state->tmpClipRegion = r;
     d->state->tmpClipOp = op;
+    d->state->clipEnabled = true;
     d->engine->setDirty(QPaintEngine::DirtyClip);
     d->engine->updateState(d->state);
 }
@@ -1569,6 +1566,7 @@ void QPainter::setClipPath(const QPainterPath &path, Qt::ClipOperation op)
     if (qt_show_painter_debug_output)
         printf("QPainter::setClipPath(), size=%d, op=%d\n", path.elementCount(), op);
 #endif
+    Q_ASSERT(op != Qt::NoClip);
 
     if (!isActive()
         || (!hasClipping() && path.isEmpty()))
@@ -1592,6 +1590,7 @@ void QPainter::setClipPath(const QPainterPath &path, Qt::ClipOperation op)
 
     d->state->tmpClipPath = path;
     d->state->tmpClipOp = op;
+    d->state->clipEnabled = true;
     d->engine->setDirty(QPaintEngine::DirtyClipPath);
     d->engine->updateState(d->state);
 }

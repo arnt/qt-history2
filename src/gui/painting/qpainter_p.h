@@ -41,6 +41,7 @@ public:
         brush = QBrush(s->brush);
         bgOrigin = s->bgOrigin;
         bgBrush = QBrush(s->bgBrush);
+        clipEnabled = s->clipEnabled;
         tmpClipRegion = QRegion(s->tmpClipRegion);
         tmpClipPath = s->tmpClipPath;
         tmpClipOp = s->tmpClipOp;
@@ -85,6 +86,7 @@ public:
         bgOrigin = QPoint(0, 0);
         brush = bgBrush = QBrush();
         font = deviceFont = QFont();
+        clipEnabled = 0;
         tmpClipRegion = QRegion();
         tmpClipPath = QPainterPath();
         tmpClipOp = Qt::ReplaceClip;
@@ -104,6 +106,7 @@ public:
     QPen pen;
     QBrush brush;
     QBrush bgBrush;             // background brush
+    uint clipEnabled : 1;
     QRegion tmpClipRegion;
     QPainterPath tmpClipPath;
     Qt::ClipOperation tmpClipOp;
