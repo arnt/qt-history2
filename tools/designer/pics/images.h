@@ -13559,7 +13559,7 @@ static struct Embed {
     { 0, 0, 0 }
 };
 
-inline const QByteArray& qembed_findData(const char* name)
+static const QByteArray& qembed_findData(const char* name)
 {
     static QDict<QByteArray> dict;
     QByteArray* ba = dict.find(name);
