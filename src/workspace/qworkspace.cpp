@@ -367,15 +367,15 @@ void QWorkspace::childEvent( QChildEvent * e)
 
 	bool hasBeenHidden = w->isHidden();
 	bool hasSize = w->testWState( WState_Resized );
-	int width = w->width();
-	int height = w->height();
 	int x = w->x();
 	int y = w->y();
 	bool hasPos = x != 0 || y != 0;
+	int width = w->width();
+	int height = w->height();
+	if ( !hasSize && w->sizeHint().isValid() )
+	    w->adjustSize();
 
 	QWorkspaceChild* child = new QWorkspaceChild( w, this, "qt_workspacechild" );
-	if ( !hasSize && w->sizeHint().isValid() )
-	    child->adjustSize();
 	child->installEventFilter( this );
 
 	connect( child, SIGNAL( popupOperationMenu( const QPoint& ) ),
@@ -396,6 +396,8 @@ void QWorkspace::childEvent( QChildEvent * e)
 	    place( child );
 	if ( hasSize )
 	    child->resize(width + child->baseSize().width(), height + child->baseSize().height() );
+	else
+	    child->adjustSize();
 	if ( hasPos )
 	    child->move( x, y );
 
@@ -2454,9 +2456,10 @@ void QWorkspaceChild::adjustSize()
     if ( !testWState(WState_Polished) )
 	polish();
 
-    QSize prefSize = sizeHint();
+    QSize prefSize = windowWidget()->sizeHint().expandedTo( windowWidget()->minimumSizeHint() );
     prefSize = prefSize.boundedTo( parentWidget()->size() );
     prefSize = prefSize.expandedTo( windowWidget()->minimumSize() ).boundedTo( windowWidget()->maximumSize() );
+    prefSize += baseSize();
 
     resize( prefSize );
 }
