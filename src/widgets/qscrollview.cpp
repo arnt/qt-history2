@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#80 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#81 $
 **
 ** Implementation of QScrollView class
 **
@@ -691,6 +691,9 @@ bool QScrollView::eventFilter( QObject *obj, QEvent *e )
 	case QEvent::Paint:
 	    viewportPaintEvent( (QPaintEvent*)e );
 	    break;
+	case QEvent::Resize:
+	    viewportResizeEvent( (QResizeEvent*)e );
+	    break;
 	case QEvent::MouseButtonPress:
 	    viewportMousePressEvent( (QMouseEvent*)e );
 	    break;
@@ -750,6 +753,17 @@ void QScrollView::viewportPaintEvent( QPaintEvent* pe )
     int ew = pe->rect().width();
     int eh = pe->rect().height();
     drawContentsOffset(&p, contentsX(), contentsY(), ex, ey, ew, eh);
+}
+
+
+/*!
+  To provide simple processing of events on the contents, this method
+  receives all resize events sent to the viewport.
+
+  \sa QWidget::resizeEvent()
+*/
+void QScrollView::viewportResizeEvent( QResizeEvent*  )
+{
 }
 
 /*!
