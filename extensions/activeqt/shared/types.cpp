@@ -876,7 +876,20 @@ QVariant VARIANTToQVariant( const VARIANT &arg, const char *hint )
 		} else {
 		    var = QPixmap();
 		}
+	    } else {
+		var.rawAccess( (IUnknown*)disp, (QVariant::Type)1000 );
 	    }
+	}
+	break;
+    case VT_UNKNOWN:
+    case VT_UNKNOWN|VT_BYREF:
+	{
+	    IUnknown *unkn = 0;
+	    if ( arg.vt & VT_BYREF )
+		unkn = *arg.ppunkVal;
+	    else
+		unkn = arg.punkVal;
+	    var.rawAccess( unkn, (QVariant::Type)1000 );
 	}
 	break;
     case VT_ARRAY|VT_VARIANT:
