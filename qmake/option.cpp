@@ -441,13 +441,13 @@ Option::fixPathToTargetOS(const QString& in, bool fix_env, bool canonical)
     if(canonical)
 	tmp = fixPath(tmp);
     QString rep;
-    if(Option::target_mode == TARG_MAC9_MODE)
-	rep = "[/\\\\]";
-    else if(Option::target_mode == TARG_WIN_MODE)
-	rep = "[/]";
-    else
-	rep = "[\\\\]";
-    return tmp.replace(QRegExp(rep), Option::dir_sep);
+    if(Option::target_mode == TARG_MAC9_MODE) 
+	tmp = tmp.replace('/', Option::dir_sep).replace('\\', Option::dir_sep);
+    else if(Option::target_mode == TARG_WIN_MODE) 
+	tmp = tmp.replace('/', Option::dir_sep);
+    else 
+	tmp = tmp.replace('\\', Option::dir_sep);
+    return tmp;
 }
 
 QString
