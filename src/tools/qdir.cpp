@@ -972,7 +972,7 @@ bool QDir::remove( const QString &fileName, bool acceptAbsPath )
   \sa QFileInfo::exists(), QFile::exists()
 */
 
-bool QDir::exists( const QString &name, bool acceptAbsPath )
+bool QDir::exists( const QString &name, bool acceptAbsPath ) //### const in 4.0
 {
     if ( name.isEmpty() ) {
 #if defined(QT_CHECK_NULL)
@@ -985,8 +985,8 @@ bool QDir::exists( const QString &name, bool acceptAbsPath )
 }
 
 /*!
-  Returns the native directory separator; "/" under UNIX and "\" under
-  MS-DOS, Windows NT and OS/2.
+  Returns the native directory separator; "/" under UNIX, "\" under
+  MS-DOS, Windows NT and OS/2, and ":" under Mac OS.
 
   You do not need to use this function to build file paths. If you always
   use "/", Qt will translate your paths to conform to the underlying
