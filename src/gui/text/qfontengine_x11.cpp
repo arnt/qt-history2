@@ -316,8 +316,8 @@ qreal QFontEngineXLFD::descent() const
 
 qreal QFontEngineXLFD::leading() const
 {
-    qreal l = (qMin(_fs->ascent, _fs->max_bounds.ascent)
-                 + qMin(_fs->descent, _fs->max_bounds.descent)) * _scale * qreal(0.15);
+    qreal l = (qMin<int>(_fs->ascent, _fs->max_bounds.ascent)
+                 + qMin<int>(_fs->descent, _fs->max_bounds.descent)) * _scale * qreal(0.15);
     return ceil(l);
 }
 
