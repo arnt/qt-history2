@@ -1398,6 +1398,7 @@ int QWidget::metric( int m ) const
 
 void QWidget::createSysExtra()
 {
+    font().handle(); // force QFont::load call
 }
 
 void QWidget::deleteSysExtra()
