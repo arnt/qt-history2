@@ -745,12 +745,9 @@ void generateManualRules()
     addRenamedHeaderRule("qvbox.h", "qvboxwidget.h");
     addRenamedHeaderRule("qhbox.h", "qhboxwidget.h");
     addRenamedHeaderRule("qiconset.h", "qicon.h");
-    addRenamedHeaderRule("qvbox.h", "qvboxwidget.h");
     addRenamedHeaderRule("qwmatrix.h", "qmatrix.h");
     addRenamedHeaderRule("qguardedptr.h", "qpointer.h");
-
-    addRenamedHeaderRule("qlayout.h", "qabstractlayout.h");
-    
+   
     xml["Rules"]["Count"] = QString("%1").arg(ruleIndex);
 }
 
