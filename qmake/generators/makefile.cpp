@@ -518,6 +518,7 @@ MakefileGenerator::initOutPaths()
 		}
 	    }
 	}
+#if 0 //Don't try to detect this
 	if(!v.contains("QMAKE_ABSOLUTE_SOURCE_PATH")) {
 	    QString absolute_dir = Option::output_dir;
 	    if(absolute_dir == ".") {
@@ -530,6 +531,7 @@ MakefileGenerator::initOutPaths()
 	    if(absolute_dir != QDir::currentDirPath())
 		v.insert("QMAKE_ABSOLUTE_SOURCE_PATH", absolute_dir);
 	}
+#endif
 	if(!v["QMAKE_ABSOLUTE_SOURCE_PATH"].isEmpty()) {
 	    QString &asp = v["QMAKE_ABSOLUTE_SOURCE_PATH"].first();
 	    asp = Option::fixPathToTargetOS( asp );
@@ -2007,7 +2009,7 @@ MakefileGenerator::openOutput(QFile &file) const
 	if(!file.name().isEmpty()) {
 	    QFileInfo fi(file);
 	    if(fi.isDir())
-		outdir = fi.dirPath() + QDir::separator();
+		outdir = file.name() + QDir::separator();
 	}
 	if(!outdir.isEmpty() || file.name().isEmpty())
 	    file.setName(outdir + "Makefile");
