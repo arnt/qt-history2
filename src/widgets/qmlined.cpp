@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmlined.cpp#9 $
+** $Id: //depot/qt/main/src/widgets/qmlined.cpp#10 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -95,9 +95,11 @@ QMultiLineEdit::QMultiLineEdit( QWidget *parent , const char *name )
     ((QScrollBar*)verticalScrollBar())->setCursor( arrowCursor );
     ((QScrollBar*)horizontalScrollBar())->setCursor( arrowCursor );
     insert("");
-    dummy = TRUE;
-    markStartX = markStartY = 0;
-    markEndX = markEndY = 0;
+    dummy          = TRUE;
+    dragScrolling  = FALSE;
+    dragMarking    = FALSE;
+    markAnchorX    = markAnchorY = 0;
+    markDragX      = markDragY   = 0;
 }
 
 /*!
@@ -145,6 +147,7 @@ QMultiLineEdit::~QMultiLineEdit()
 void QMultiLineEdit::paintCell( QPainter *p, int row, int )
 {
     //debug( "paint cell %d", row );
+    QColorGroup	 g    = colorGroup();
     QFontMetrics fm = p->fontMetrics();
     QString *s = contents->at( row );
     if ( !s ) {
@@ -152,7 +155,67 @@ void QMultiLineEdit::paintCell( QPainter *p, int row, int )
 	return;
     }
     int yPos = fm.ascent() + fm.leading()/2 - 1;
-    p->drawText( BORDER,  yPos , *s );
+    bool hasMark = FALSE;
+    int markX1, markX2;			// in x-coordinate pixels
+    if ( markIsOn ) {
+	int markBeginX, markBeginY;
+	int markEndX, markEndY;
+	if ( markAnchorY < markDragY ) {
+	    markBeginX = markAnchorX;
+	    markBeginY = markAnchorY;
+	    markEndX   = markDragX;
+	    markEndY   = markDragY;
+	} else {
+	    markBeginX = markDragX;
+	    markBeginY = markDragY;
+	    markEndX   = markAnchorX;
+	    markEndY   = markAnchorY;
+	}
+	if ( markAnchorY == markDragY && markBeginX > markEndX ) {
+	    int tmp    = markBeginX;
+	    markBeginX = markEndX;
+	    markEndX   = tmp;
+	}
+	if ( row >= markBeginY && row <= markEndY ) {
+	    hasMark = TRUE;
+	    if ( row == markBeginY ) {
+		markX1 = markBeginX;
+		if ( row == markEndY ) 		// both marks on same row
+		    markX2 = markEndX;
+		else
+		    markX2 = s->length();	// mark till end of line
+	    } else {
+		if ( row == markEndY ) {
+		    markX1 = 0;
+		    markX2 = markEndX;
+		} else {
+		    markX1 = 0;			// whole line is marked
+		    markX2 = s->length();	// whole line is marked
+		}
+	    }
+	}
+    }
+    if ( !hasMark ) {
+	p->setPen( g.text() );
+	p->drawText( BORDER,  yPos , *s );
+    } else {
+	if ( markX1 != markX2 ) {
+	    	int xpos1 =  BORDER + fm.width( s->data(), markX1 );
+		int xpos2 =  xpos1 + fm.width( s->data() + markX1, 
+					       markX2 - markX1 ) - 1;
+		p->fillRect( xpos1, 0, xpos2 - xpos1, cellHeight(row), 
+			     g.text() );
+		p->setPen( g.base() );
+		p->drawText( xpos1, yPos, s->data() + markX1, markX2 - markX1);
+	}
+	p->setPen( g.text() );
+	if ( markX1 != 0 )
+	    p->drawText( BORDER, yPos, *s, markX1 );
+	if ( markX2 != (int)s->length() )
+	    p->drawText( BORDER + fm.width( *s, markX2 ), yPos,  // ### length
+			 s->data() + markX2, s->length() - markX2 );
+    }
+
     if ( row == cursorY && cursorOn && isInputEnabled ) {
 	int cursorPos = QMIN( (int)s->length(), cursorX );
 	int curXPos   = BORDER +
@@ -243,7 +306,7 @@ void QMultiLineEdit::timerEvent( QTimerEvent * )
 
 bool QMultiLineEdit::hasMarkedText() const
 {
-    return markEndY != markStartY || markEndX != markStartX ;
+    return markAnchorY != markDragY || markAnchorX != markAnchorX ;
 }
 
 /*!
@@ -963,15 +1026,55 @@ void QMultiLineEdit::mousePressEvent( QMouseEvent *m )
     cursorX = xPosToCursorPos( *getString( newY ), fontMetrics(),
 			       m->pos().x() - BORDER + xOffset(),
 			       cellWidth() - 2 * BORDER );
-    curXPos = 0;
-    if ( cursorY != newY ) {
-	int oldY = cursorY;
-	cursorY = newY;
-	updateCell( oldY, 0 );
+    if ( m->button() ==  LeftButton ) {
+	dragMarking    = TRUE;
+	curXPos        = 0;
+	markAnchorX    = cursorX;
+	markAnchorY    = newY;
+	bool markWasOn = markIsOn;
+	markIsOn       = FALSE;
+	if ( markWasOn ) {
+	    cursorY = newY;
+	    repaint();
+	    return;
+	}	
+    }
+
+    if ( m->button() ==  MidButton || m->button() ==  LeftButton) {
+	if ( cursorY != newY ) {
+	    int oldY = cursorY;
+	    cursorY = newY;
+	    updateCell( oldY, 0 );
+	}
+	updateCell( cursorY, 0 );		// ###
     }
     if ( m->button() ==  MidButton )
-	paste();
-    updateCell( cursorY, 0 );
+	paste();		// Will repaint the cursor line.
+}
+
+void QMultiLineEdit::mouseMoveEvent( QMouseEvent *e )
+{
+    if ( !isInputEnabled || !dragMarking )
+	return;
+    if ( rect().contains( e->pos() ) ) {
+	int newY = findRow( e->pos().y() );
+	if ( newY < 0 )
+	    return;
+	newY = QMIN( (int)contents->count() - 1, newY );
+	int newX = xPosToCursorPos( *getString( newY ), fontMetrics(),
+				   e->pos().x() - BORDER + xOffset(),
+				   cellWidth() - 2 * BORDER );
+	markDragX = newX;
+	markDragY = newY;
+	markIsOn = ( markDragX != markAnchorX ||  markDragY != markAnchorY );
+	repaint(); //###
+    }
+}
+
+void QMultiLineEdit::mouseReleaseEvent( QMouseEvent * )
+{
+    dragScrolling = FALSE;
+    dragMarking   = FALSE;
 }
 
 bool QMultiLineEdit::partiallyInvisible( int row )

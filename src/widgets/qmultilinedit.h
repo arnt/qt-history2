@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.h#8 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.h#9 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -35,6 +35,8 @@ public:
 
     bool	atBeginning();
     bool	atEnd();
+    void	setFont( const QFont &font );
+
 public slots:
     void	setText( const char * );
     void	selectAll();
@@ -48,11 +50,9 @@ protected:
     // table view stuff
     void	paintCell( QPainter *, int row, int col );
 
-    void	setFont( const QFont &font );
-
     void	mousePressEvent( QMouseEvent * );
-    //    void	mouseMoveEvent( QMouseEvent * );
-    //    void	mouseReleaseEvent( QMouseEvent * );
+    void	mouseMoveEvent( QMouseEvent * );
+    void	mouseReleaseEvent( QMouseEvent * );
     //    void	mouseDoubleClickEvent( QMouseEvent * );
     void	keyPressEvent( QKeyEvent * );
     void	focusInEvent( QFocusEvent * );
@@ -70,16 +70,18 @@ private slots:
 private:
     QList<QString> *contents;
     uint	    isInputEnabled : 1;
-    uint	    cursorOn : 1;
-    uint	    dummy : 1;
-    uint	    markIsOn : 1;
+    uint	    cursorOn       : 1;
+    uint	    dummy          : 1;
+    uint	    markIsOn       : 1;
+    uint	    dragScrolling  : 1;
+    uint	    dragMarking    : 1;
 
     int		cursorX;
     int		cursorY;
-    int		markStartX;
-    int		markStartY;
-    int		markEndX;
-    int		markEndY;
+    int		markAnchorX;
+    int		markAnchorY;
+    int		markDragX;
+    int		markDragY;
     int		curXPos;	// cell coord of cursor
     enum { BORDER = 3 };
 
