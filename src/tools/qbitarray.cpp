@@ -536,15 +536,17 @@ QBitArray operator^( const QBitArray &a1, const QBitArray &a2 )
 
 /*! \fn QBitArray::array_data * QBitArray::newData()
 
+  Returns data specific to QBitArray that extends what QGArray provides.
   \internal
-  Someone who knows: Explain, please.  ### 3.0 ###
+  QCollection mechanism for allowing extra/different data.
 */
 
 
 /*! \fn void  QBitArray::deleteData ( QBitArray::array_data * d)
 
+  Deletes data specific to QBitArray that extended what QGArray provided.
   \internal
-  Someone who knows: Explain, please.  ### 3.0 ###
+  QCollection mechanism for allowing extra/different data.
 */
 
 
