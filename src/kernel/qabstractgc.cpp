@@ -79,3 +79,53 @@ void QAbstractGC::updateInternal(QPainterState *s, bool updateGC)
     dirtyFlag = 0;
     state = s;
 }
+
+
+
+void QWrapperGC::updatePen(QPainterState *ps) { wrap->updatePen(ps); }
+void QWrapperGC::updateBrush(QPainterState *ps) { wrap->updateBrush(ps); }
+void QWrapperGC::updateFont(QPainterState *ps) { wrap->updateFont(ps); }
+void QWrapperGC::updateRasterOp(QPainterState *ps) { wrap->updateRasterOp(ps); }
+void QWrapperGC::updateBackground(QPainterState *ps) { wrap->updateBackground(ps); }
+void QWrapperGC::updateXForm(QPainterState *ps) { wrap->updateXForm(ps); }
+void QWrapperGC::updateClipRegion(QPainterState *ps) { wrap->updateClipRegion(ps); }
+
+
+void QWrapperGC::drawLine(const QPoint &p1, const QPoint &p2) { wrap->drawLine(p1, p2); }
+void QWrapperGC::drawRect(const QRect &r) { wrap->drawRect(r); }
+void QWrapperGC::drawPoint(const QPoint &p) { wrap->drawPoint(p); }
+void QWrapperGC::drawPoints(const QPointArray &pa, int index, int npoints)
+{ wrap->drawPoints(pa, index, npoints); }
+void QWrapperGC::drawWinFocusRect(const QRect &r, bool xorPaint, const QColor &bgColor)
+{ wrap->drawWinFocusRect(r, xorPaint, bgColor); }
+void QWrapperGC::drawRoundRect(const QRect &r, int xRnd, int yRnd)
+{ wrap->drawRoundRect(r, xRnd, yRnd); }
+void QWrapperGC::drawEllipse(const QRect &r)
+{ wrap->drawEllipse(r); }
+void QWrapperGC::drawArc(const QRect &r, int a, int alen)
+{ wrap->drawArc(r, a, alen); }
+void QWrapperGC::drawPie(const QRect &r, int a, int alen)
+{ wrap->drawPie(r, a, alen); }
+void QWrapperGC::drawChord(const QRect &r, int a, int alen)
+{ wrap->drawChord(r, a, alen); }
+void QWrapperGC::drawLineSegments(const QPointArray &a, int index, int nlines)
+{ wrap->drawLineSegments(a, index, nlines); }
+void QWrapperGC::drawPolyline(const QPointArray &pa, int index, int npoints)
+{ wrap->drawPolyline(pa, index, npoints); }
+void QWrapperGC::drawPolygon(const QPointArray &pa, bool winding, int index, int npoints)
+{ wrap->drawPolygon(pa, winding, index, npoints); }
+
+void QWrapperGC::drawConvexPolygon(const QPointArray &a, int index, int npoints)
+{ wrap->drawConvexPolygon(a, index, npoints); }
+#ifndef QT_NO_BEZIER
+void QWrapperGC::drawCubicBezier(const QPointArray &a, int index)
+{ wrap->drawCubicBezier(a, index); }
+#endif
+
+void QWrapperGC::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr)
+{ wrap->drawPixmap(r, pm, sr); }
+void QWrapperGC::drawTextItem(const QPoint &p, const QTextItem &ti, int textflags)
+{ wrap->drawTextItem(p, ti, textflags); }
+void QWrapperGC::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s, bool optim)
+{ wrap->drawTiledPixmap(r, pixmap, s, optim); }
+

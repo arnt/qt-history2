@@ -647,61 +647,50 @@ bool QX11GC::end()
     return true;
 }
 
-void QX11GC::drawLine(int x1, int y1, int x2, int y2)
+void QX11GC::drawLine(const QPoint &p1, const QPoint &p2)
 {
     if (!isActive())
         return;
     if (d->cpen.style() != NoPen)
-        XDrawLine(d->dpy, d->hd, d->gc, x1, y1, x2, y2);
+        XDrawLine(d->dpy, d->hd, d->gc, p1.x(), p1.y(), p2.x(), p2.y());
 }
 
-void QX11GC::drawRect(int x, int y, int w, int h)
+void QX11GC::drawRect(const QRect &r)
 {
     if (!isActive())
         return;
-    if (w <= 0 || h <= 0) {
-        if (w == 0 || h == 0)
-            return;
-    }
     if (d->cbrush.style() != NoBrush) {
         if (d->cpen.style() == NoPen) {
-            XFillRectangle(d->dpy, d->hd, d->gc_brush, x, y, w, h);
+            XFillRectangle(d->dpy, d->hd, d->gc_brush, r.x(), r.y(), r.width(), r.height());
             return;
         }
 	int lw = d->cpen.width();
 	int lw2 = (lw+1)/2;
-        if (w > lw && h > lw)
-            XFillRectangle(d->dpy, d->hd, d->gc_brush, x+lw2, y+lw2, w-lw-1, h-lw-1);
+        if (r.width() > lw && r.height() > lw)
+            XFillRectangle(d->dpy, d->hd, d->gc_brush,
+			   r.x()+lw2, r.y()+lw2, r.width()-lw-1, r.height()-lw-1);
     }
     if (d->cpen.style() != NoPen)
-        XDrawRectangle(d->dpy, d->hd, d->gc, x, y, w-1, h-1);
+        XDrawRectangle(d->dpy, d->hd, d->gc, r.x(), r.y(), r.width()-1, r.height()-1);
 }
 
-void QX11GC::drawPoint(int x, int y)
+void QX11GC::drawPoint(const QPoint &p)
 {
     if (!isActive())
         return;
     if (d->cpen.style() != NoPen)
-        XDrawPoint(d->dpy, d->hd, d->gc, x, y);
+        XDrawPoint(d->dpy, d->hd, d->gc, p.x(), p.y());
 }
 
-void QX11GC::drawPoints(const QPointArray &a, int index , int npoints)
+void QX11GC::drawPoints(const QPointArray &a, int index, int npoints)
 {
-    if (npoints < 0)
-        npoints = a.size() - index;
-    if (index + npoints > (int)a.size())
-        npoints = a.size() - index;
-    if (!isActive() || npoints < 1 || index < 0)
-        return;
     if (d->cpen.style() != NoPen)
         XDrawPoints(d->dpy, d->hd, d->gc, (XPoint*)(a.shortPoints(index, npoints)),
 		    npoints, CoordModeOrigin);
 }
 
-void QX11GC::drawWinFocusRect(int x, int y, int w, int h, bool xorPaint, const QColor &bgColor)
+void QX11GC::drawWinFocusRect(const QRect &r, bool xorPaint, const QColor &bgColor)
 {
-    if (!isActive()) //|| txop == TxRotShear)
-        return;
     static char winfocus_line[] = {1, 1};
 
     QPen old_pen = d->cpen;
@@ -721,15 +710,10 @@ void QX11GC::drawWinFocusRect(int x, int y, int w, int h, bool xorPaint, const Q
     }
     updatePen(0);
 
-    if (w <= 0 || h <= 0) {
-        if (w == 0 || h == 0)
-            return;
-        fix_neg_rect(&x, &y, &w, &h);
-    }
     XSetDashes(d->dpy, d->gc, 0, winfocus_line, 2);
     XSetLineAttributes(d->dpy, d->gc, 1, LineOnOffDash, CapButt, JoinMiter);
 
-    XDrawRectangle(d->dpy, d->hd, d->gc, x, y, w-1, h-1);
+    XDrawRectangle(d->dpy, d->hd, d->gc, r.x(), r.y(), r.width()-1, r.height()-1);
     XSetLineAttributes(d->dpy, d->gc, 0, LineSolid, CapButt, JoinMiter);
     setRasterOp(old_rop);
     updatePen(0);
@@ -1142,18 +1126,12 @@ void QX11GC::setRasterOp(RasterOp r)
     XSetFunction(d->dpy, d->gc_brush, ropCodes[d->rop]);
 }
 
-void QX11GC::drawRoundRect(int x, int y, int w, int h, int xRnd, int yRnd)
+void QX11GC::drawRoundRect(const QRect &r, int xRnd, int yRnd)
 {
-    if (!isActive())
-        return;
-    if (xRnd <= 0 || yRnd <= 0) {
-        drawRect(x, y, w, h);                 // draw normal rectangle
-        return;
-    }
-    if (xRnd >= 100)                          // fix ranges
-        xRnd = 99;
-    if (yRnd >= 100)
-        yRnd = 99;
+    int x = r.x();
+    int y = r.y();
+    int w = r.width();
+    int h = r.height();
     w--;
     h--;
     if (w <= 0 || h <= 0) {
@@ -1218,10 +1196,12 @@ void QX11GC::drawRoundRect(int x, int y, int w, int h, int xRnd, int yRnd)
     }
 }
 
-void QX11GC::drawEllipse(int x, int y, int w, int h)
+void QX11GC::drawEllipse(const QRect &r)
 {
-    if (!isActive())
-        return;
+    int x = r.x();
+    int y = r.y();
+    int w = r.width();
+    int h = r.height();
     if (w == 1 && h == 1) {
 	XDrawPoint(d->dpy, d->hd, (d->cpen.style() == NoPen) ? d->gc_brush : d->gc, x, y);
 	return;
@@ -1239,23 +1219,27 @@ void QX11GC::drawEllipse(int x, int y, int w, int h)
         XDrawArc(d->dpy, d->hd, d->gc, x, y, w, h, 0, 360*64);
 }
 
-void QX11GC::drawArc(int x, int y, int w, int h, int a, int alen)
+void QX11GC::drawArc(const QRect &r, int a, int alen)
 {
-    if (!isActive())
-        return;
+    int x = r.x();
+    int y = r.y();
+    int w = r.width();
+    int h = r.height();
     w--;
     h--;
-    if (w <= 0 || h <= 0) {
-        if (w == 0 || h == 0)
-            return;
-        fix_neg_rect(&x, &y, &w, &h);
-    }
+    if (w <= 0 || h <= 0)
+	return;
     if (d->cpen.style() != NoPen)
         XDrawArc(d->dpy, d->hd, d->gc, x, y, w, h, a*4, alen*4);
 }
 
-void QX11GC::drawPie(int x, int y, int w, int h, int a, int alen)
+void QX11GC::drawPie(const QRect &r, int a, int alen)
 {
+    int x = r.x();
+    int y = r.y();
+    int w = r.width();
+    int h = r.height();
+
     // Make sure "a" is 0..360*16, as otherwise a*4 may overflow 16 bits.
     if (a > (360*16)) {
         a = a % (360*16);
@@ -1271,11 +1255,8 @@ void QX11GC::drawPie(int x, int y, int w, int h, int a, int alen)
 
     w--;
     h--;
-    if (w <= 0 || h <= 0) {
-        if (w == 0 || h == 0)
-            return;
-        fix_neg_rect(&x, &y, &w, &h);
-    }
+    if (w <= 0 || h <= 0)
+	return;
 
     GC g = d->gc;
     bool nopen = d->cpen.style() == NoPen;
@@ -1304,20 +1285,19 @@ void QX11GC::drawPie(int x, int y, int w, int h, int a, int alen)
     }
 }
 
-void QX11GC::drawChord(int x, int y, int w, int h, int a, int alen)
+void QX11GC::drawChord(const QRect &r, int a, int alen)
 {
-    if (!isActive())
-        return;
+    int x = r.x();
+    int y = r.y();
+    int w = r.width();
+    int h = r.height();
 
     XSetArcMode(d->dpy, d->gc_brush, ArcChord);
 
     w--;
     h--;
-    if (w <= 0 || h <= 0) {
-        if (w == 0 || h == 0)
-            return;
-        fix_neg_rect(&x, &y, &w, &h);
-    }
+    if (w <= 0 || h <= 0)
+	return;
 
     GC g = d->gc;
     bool nopen = d->cpen.style() == NoPen;
@@ -1347,12 +1327,6 @@ void QX11GC::drawChord(int x, int y, int w, int h, int a, int alen)
 
 void QX11GC::drawLineSegments(const QPointArray &a, int index, int nlines)
 {
-    if (nlines < 0)
-        nlines = a.size()/2 - index/2;
-    if (index + nlines*2 > (int)a.size())
-        nlines = (a.size() - index)/2;
-    if (!isActive() || nlines < 1 || index < 0)
-        return;
     QPointArray pa = a;
     if (d->cpen.style() != NoPen)
         XDrawSegments(d->dpy, d->hd, d->gc,
@@ -1361,12 +1335,6 @@ void QX11GC::drawLineSegments(const QPointArray &a, int index, int nlines)
 
 void QX11GC::drawPolyline(const QPointArray &a, int index, int npoints)
 {
-    if (npoints < 0)
-        npoints = a.size() - index;
-    if (index + npoints > (int)a.size())
-        npoints = a.size() - index;
-    if (!isActive() || npoints < 2 || index < 0)
-        return;
     QPointArray pa = a;
     if (d->cpen.style() != NoPen) {
         while(npoints > 65535) {
@@ -1384,12 +1352,6 @@ int global_polygon_shape = Complex;
 
 void QX11GC::drawPolygon(const QPointArray &a, bool winding, int index, int npoints)
 {
-    if (npoints < 0)
-        npoints = a.size() - index;
-    if (index + npoints > (int)a.size())
-        npoints = a.size() - index;
-    if (!isActive() || npoints < 2 || index < 0)
-        return;
     QPointArray pa = a;
     if (winding)                              // set to winding fill rule
         XSetFillRule(d->dpy, d->gc_brush, WindingRule);
@@ -1426,8 +1388,7 @@ void QX11GC::drawCubicBezier(const QPointArray &a, int index)
     if (!isActive())
         return;
     if (a.size() - index < 4) {
-        qWarning( "QX11GC::drawCubicBezier: Cubic Bezier needs 4 control "
-                  "points" );
+        qWarning( "drawCubicBezier: Cubic Bezier needs 4 control points" );
         return;
     }
     QPointArray pa(a);
@@ -1443,8 +1404,17 @@ void QX11GC::drawCubicBezier(const QPointArray &a, int index)
     }
 }
 
-void QX11GC::drawPixmap(int x, int y, const QPixmap &pixmap, int sx, int sy, int sw, int sh)
+void QX11GC::drawPixmap(const QRect &r, const QPixmap &pixmap, const QRect &sr)
 {
+    int x = r.x();
+    int y = r.y();
+    int sx = sr.x();
+    int sy = sr.y();
+    int sw = sr.width();
+    int sh = sr.height();
+    // since we can't scale pixmaps this should always hold
+    Q_ASSERT(r.width() == sr.width() && r.height() == sr.height());
+
     if ( d->pdev->x11Screen() != pixmap.x11Screen() ) {
         QPixmap* p = (QPixmap*) &pixmap;
         p->x11SetScreen( d->pdev->x11Screen() );
@@ -1618,7 +1588,7 @@ void QX11GC::updateFont(QPainterState *ps)
         updatePen(ps);                            // force a non-cached GC
 }
 
-void QX11GC::drawTextItem(int x, int y, const QTextItem &ti, int textflags)
+void QX11GC::drawTextItem(const QPoint &p, const QTextItem &ti, int textflags)
 {
     qDebug("QX11GC::drawTextItem() - implement me!");
 }
@@ -1702,8 +1672,15 @@ void QX11GC::x11SetAppDpiY(int screen, int ydpi)
 
 extern void drawTile(QAbstractGC *, int, int, int, int, const QPixmap &, int, int);
 
-void QX11GC::drawTiledPixmap(int x, int y, int w, int h, const QPixmap &pixmap, int sx, int sy, bool optim)
+void QX11GC::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &p, bool optim)
 {
+    int x = r.x();
+    int y = r.y();
+    int w = r.width();
+    int h = r.height();
+    int sx = p.x();
+    int sy = p.y();
+
     if (optim) {
 #ifndef QT_NO_XRENDER
 	QPixmap *alpha = pixmap.data->alphapm;

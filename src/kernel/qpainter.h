@@ -200,10 +200,6 @@ public:
     void eraseRect(const QRect &);
 
     void map(int x, int y, int *rx, int *ry) const;
-    void map(int x, int y, int w, int h, int *rx, int *ry, int *rw, int *rh) const;
-    void mapInv(int x, int y, int *mx, int *my) const;
-    void mapInv(int x, int y, int w, int h, int *mx, int *my, int *mw, int *mh) const;
-
     QPoint 	xForm(const QPoint &) const;	// map virtual -> deviceb
     QRect 	xForm(const QRect &)	const;
     QPointArray xForm(const QPointArray &) const;
@@ -281,54 +277,54 @@ private:
 // functions
 //
 
-inline void QPainter::drawLine(const QPoint &p1, const QPoint &p2)
+inline void QPainter::drawLine(int x1, int y1, int x2, int y2)
 {
-    drawLine(p1.x(), p1.y(), p2.x(), p2.y());
+    drawLine(QPoint(x1, y1), QPoint(x2, y2));
 }
 
-inline void QPainter::drawRect(const QRect &r)
+inline void QPainter::drawRect(int x, int y, int w, int h)
 {
-    drawRect(r.x(), r.y(), r.width(), r.height());
+    drawRect(QRect(x, y, w, h));
 }
 
-inline void QPainter::drawPoint(const QPoint &p)
+inline void QPainter::drawPoint(int x, int y)
 {
-    drawPoint(p.x(), p.y());
+    drawPoint(QPoint(x, y));
 }
 
-inline void QPainter::drawWinFocusRect(const QRect &r)
+inline void QPainter::drawWinFocusRect(int x, int y, int w, int h)
 {
-    drawWinFocusRect(r.x(), r.y(), r.width(), r.height());
+    drawWinFocusRect(QRect(x, y, w, h));
 }
 
-inline void QPainter::drawWinFocusRect(const QRect &r,const QColor &penColor)
+inline void QPainter::drawWinFocusRect(int x, int y, int w, int h, const QColor &penColor)
 {
-    drawWinFocusRect(r.x(), r.y(), r.width(), r.height(), penColor);
+    drawWinFocusRect(QRect(x, y, w, h), penColor);
 }
 
-inline void QPainter::drawRoundRect(const QRect &r, int xRnd, int yRnd)
+inline void QPainter::drawRoundRect(int x, int y, int w, int h, int xRnd, int yRnd)
 {
-    drawRoundRect(r.x(), r.y(), r.width(), r.height(), xRnd, yRnd);
+    drawRoundRect(QRect(x, y, w, h), xRnd, yRnd);
 }
 
-inline void QPainter::drawEllipse(const QRect &r)
+inline void QPainter::drawEllipse(int x, int y, int w, int h)
 {
-    drawEllipse(r.x(), r.y(), r.width(), r.height());
+    drawEllipse(QRect(x, y, w, h));
 }
 
-inline void QPainter::drawArc(const QRect &r, int a, int alen)
+inline void QPainter::drawArc(int x, int y, int w, int h, int a, int alen)
 {
-    drawArc(r.x(), r.y(), r.width(), r.height(), a, alen);
+    drawArc(QRect(x, y, w, h), a, alen);
 }
 
-inline void QPainter::drawPie(const QRect &r, int a, int alen)
+inline void QPainter::drawPie(int x, int y, int w, int h, int a, int alen)
 {
-    drawPie(r.x(), r.y(), r.width(), r.height(), a, alen);
+    drawPie(QRect(x, y, w, h), a, alen);
 }
 
-inline void QPainter::drawChord(const QRect &r, int a, int alen)
+inline void QPainter::drawChord(int x, int y, int w, int h, int a, int alen)
 {
-    drawChord(r.x(), r.y(), r.width(), r.height(), a, alen);
+    drawChord(QRect(x, y, w, h), a, alen);
 }
 
 inline void QPainter::setClipRect(int x, int y, int w, int h, CoordinateMode mode)
@@ -427,6 +423,14 @@ inline void QPainter::drawImage(const QPoint &p, const QImage &i, const QRect &s
 inline void QPainter::drawImage(const QPoint &p, const QImage &i, int conversion_flags)
 {
     drawImage(p.x(), p.y(), i, 0, 0, i.width(), i.height(), conversion_flags);
+}
+
+inline void QPainter::map(int x, int y, int *rx, int *ry) const
+{
+    QPoint p(x, y);
+    p = xForm(p);
+    *rx = p.x();
+    *ry = p.y();
 }
 
 #endif // #ifdef Q_Q3PAINTER

@@ -27,6 +27,7 @@
 #endif
 
 class QPrinterPrivate;
+class QAbstractGC;
 
 class Q_GUI_EXPORT QPrinter : public QPaintDevice
 {
@@ -150,7 +151,7 @@ protected:
 
 private:
 #if defined(Q_WS_X11) || defined(Q_WS_QWS)
-    QPaintDevice *pdrv;
+    QAbstractGC *pdrv;
     int         pid;
 #endif
 #if defined(Q_WS_MAC)

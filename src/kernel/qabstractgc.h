@@ -67,16 +67,16 @@ public:
     virtual void updateXForm(QPainterState *ps) = 0;
     virtual void updateClipRegion(QPainterState *ps) = 0;
 
-    virtual void drawLine(int x1, int y1, int x2, int y2) = 0;
-    virtual void drawRect(int x, int y, int w, int h) = 0;
-    virtual void drawPoint(int x, int y) = 0;
+    virtual void drawLine(const QPoint &p1, const QPoint &ps) = 0;
+    virtual void drawRect(const QRect &r) = 0;
+    virtual void drawPoint(const QPoint &p) = 0;
     virtual void drawPoints(const QPointArray &pa, int index = 0, int npoints = -1) = 0;
-    virtual void drawWinFocusRect(int x, int y, int w, int h, bool xorPaint, const QColor &bgColor) = 0;
-    virtual void drawRoundRect(int x, int y, int w, int h, int xRnd, int yRnd) = 0;
-    virtual void drawEllipse(int x, int y, int w, int h) = 0;
-    virtual void drawArc(int x, int y, int w, int h, int a, int alen) = 0;
-    virtual void drawPie(int x, int y, int w, int h, int a, int alen) = 0;
-    virtual void drawChord(int x, int y, int w, int h, int a, int alen) = 0;
+    virtual void drawWinFocusRect(const QRect &r, bool xorPaint, const QColor &bgColor) = 0;
+    virtual void drawRoundRect(const QRect &r, int xRnd, int yRnd) = 0;
+    virtual void drawEllipse(const QRect &r) = 0;
+    virtual void drawArc(const QRect &r, int a, int alen) = 0;
+    virtual void drawPie(const QRect &r, int a, int alen) = 0;
+    virtual void drawChord(const QRect &r, int a, int alen) = 0;
     virtual void drawLineSegments(const QPointArray &, int index = 0, int nlines = -1) = 0;
     virtual void drawPolyline(const QPointArray &pa, int index = 0, int npoints = -1) = 0;
     virtual void drawPolygon(const QPointArray &pa, bool winding = false, int index = 0, int npoints = -1) = 0;
@@ -85,9 +85,9 @@ public:
     virtual void drawCubicBezier(const QPointArray &, int index = 0) = 0;
 #endif
 
-    virtual void drawPixmap(int x, int y, const QPixmap &pm, int sx, int sy, int sw, int sh) = 0;
-    virtual void drawTextItem(int x, int y, const QTextItem &ti, int textflags) = 0;
-    virtual void drawTiledPixmap(int x, int y, int w, int h, const QPixmap &pixmap, int sx, int sy, bool optim) = 0;
+    virtual void drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr) = 0;
+    virtual void drawTextItem(const QPoint &p, const QTextItem &ti, int textflags) = 0;
+    virtual void drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s, bool optim) = 0;
 
 #if defined Q_WS_WIN // ### not liking this!!
     virtual HDC handle() const = 0;
@@ -106,6 +106,8 @@ public:
 	QWindowSystem,
 	//Magic wrapper type
 	Wrapper,
+	// PostScript
+	PostScript,
 
 	User = 50,				// first user type id
 	MaxUser = 100				// last user type id
@@ -170,35 +172,35 @@ public:
     virtual bool begin(const QPaintDevice *pdev, QPainterState *state, bool unclipped) { return wrap->begin(pdev, state, unclipped); }
     virtual bool end() { return wrap->end(); }
 
-    virtual void updatePen(QPainterState *ps) { wrap->updatePen(ps); }
-    virtual void updateBrush(QPainterState *ps) { wrap->updateBrush(ps); }
-    virtual void updateFont(QPainterState *ps) { wrap->updateFont(ps); }
-    virtual void updateRasterOp(QPainterState *ps) { wrap->updateRasterOp(ps); }
-    virtual void updateBackground(QPainterState *ps) { wrap->updateBackground(ps); }
-    virtual void updateXForm(QPainterState *ps) { wrap->updateXForm(ps); }
-    virtual void updateClipRegion(QPainterState *ps) { wrap->updateClipRegion(ps); }
+    virtual void updatePen(QPainterState *ps);
+    virtual void updateBrush(QPainterState *ps);
+    virtual void updateFont(QPainterState *ps);
+    virtual void updateRasterOp(QPainterState *ps);
+    virtual void updateBackground(QPainterState *ps);
+    virtual void updateXForm(QPainterState *ps);
+    virtual void updateClipRegion(QPainterState *ps);
 
-    virtual void drawLine(int x1, int y1, int x2, int y2) { wrap->drawLine(x1, y1, x2, y2); }
-    virtual void drawRect(int x, int y, int w, int h) { wrap->drawRect(x, y, w, h); }
-    virtual void drawPoint(int x, int y) { wrap->drawPoint(x, y); }
-    virtual void drawPoints(const QPointArray &pa, int index, int npoints) { wrap->drawPoints(pa, index, npoints); }
-    virtual void drawWinFocusRect(int x, int y, int w, int h, bool xorPaint, const QColor &bgColor) { wrap->drawWinFocusRect(x, y, w, h, xorPaint, bgColor); }
-    virtual void drawRoundRect(int x, int y, int w, int h, int xRnd, int yRnd) { wrap->drawRoundRect(x, y, w, h, xRnd, yRnd); }
-    virtual void drawEllipse(int x, int y, int w, int h) { wrap->drawEllipse(x, y, w, h); }
-    virtual void drawArc(int x, int y, int w, int h, int a, int alen) { wrap->drawArc(x, y, w, h, a, alen); }
-    virtual void drawPie(int x, int y, int w, int h, int a, int alen) { wrap->drawPie(x, y, w, h, a, alen); }
-    virtual void drawChord(int x, int y, int w, int h, int a, int alen) { wrap->drawChord(x, y, w, h, a, alen); }
-    virtual void drawLineSegments(const QPointArray &pa, int index, int nlines) { wrap->drawLineSegments(pa, index, nlines); }
-    virtual void drawPolyline(const QPointArray &pa, int index, int npoints) { wrap->drawPolyline(pa, index, npoints); }
-    virtual void drawPolygon(const QPointArray &pa, bool winding, int index, int npoints) { wrap->drawPolygon(pa, winding, index, npoints); }
-    virtual void drawConvexPolygon(const QPointArray &pa, int index, int npoints) { wrap->drawConvexPolygon(pa, index, npoints); }
+    virtual void drawLine(const QPoint &p1, const QPoint &ps);
+    virtual void drawRect(const QRect &r);
+    virtual void drawPoint(const QPoint &p);
+    virtual void drawPoints(const QPointArray &pa, int index, int npoints = -1);
+    virtual void drawWinFocusRect(const QRect &r, bool xorPaint, const QColor &bgColor);
+    virtual void drawRoundRect(const QRect &r, int xRnd, int yRnd);
+    virtual void drawEllipse(const QRect &r);
+    virtual void drawArc(const QRect &r, int a, int alen);
+    virtual void drawPie(const QRect &r, int a, int alen);
+    virtual void drawChord(const QRect &r, int a, int alen);
+    virtual void drawLineSegments(const QPointArray &, int index, int nlines = -1);
+    virtual void drawPolyline(const QPointArray &pa, int index, int npoints = -1);
+    virtual void drawPolygon(const QPointArray &pa, bool winding = false, int index = 0, int npoints = -1);
+    virtual void drawConvexPolygon(const QPointArray &, int index, int npoints = -1);
 #ifndef QT_NO_BEZIER
-    virtual void drawCubicBezier(const QPointArray &pa, int index) { wrap->drawCubicBezier(pa, index); }
+    virtual void drawCubicBezier(const QPointArray &, int index);
 #endif
 
-    virtual void drawPixmap(int x, int y, const QPixmap &pm, int sx, int sy, int sw, int sh) { wrap->drawPixmap(x, y, pm, sx, sy, sw, sh); }
-    virtual void drawTextItem(int x, int y, const QTextItem &ti, int textflags) { wrap->drawTextItem(x, y, ti, textflags); }
-    virtual void drawTiledPixmap(int x, int y, int w, int h, const QPixmap &pixmap, int sx, int sy, bool optim) { wrap->drawTiledPixmap(x, y, w, h, pixmap, sx, sy, optim); }
+    virtual void drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr);
+    virtual void drawTextItem(const QPoint &p, const QTextItem &ti, int textflags);
+    virtual void drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s, bool optim);
 
 #if defined Q_WS_WIN // ### not liking this!!
     virtual HDC handle() const { return wrap->handle(); }

@@ -25,6 +25,7 @@
 #endif
 
 #include "qpsprinter_p.h"
+#include "qpainter_p.h"
 
 #ifndef QT_NO_PRINTER
 
@@ -755,15 +756,15 @@ public:
     QPSPrinterPrivate( QPrinter *prt, int filedes );
     ~QPSPrinterPrivate();
 
-    void matrixSetup( QPainter * );
-    void clippingSetup( QPainter * );
-    void setClippingOff( QPainter * );
+    void matrixSetup(QPainterState *);
+    void clippingSetup(QPainterState *);
+    void setClippingOff(QPainterState *);
     void orientationSetup();
-    void resetDrawingTools( QPainter * );
+    void resetDrawingTools(QPainterState *);
     void emitHeader( bool finished );
     void setFont( const QFont &, int script );
-    void drawImage( QPainter *, float x, float y, float w, float h, const QImage &img, const QImage &mask );
-    void initPage( QPainter *paint );
+    void drawImage(float x, float y, float w, float h, const QImage &img, const QImage &mask );
+    void initPage(QPainterState *paint );
     void flushPage( bool last = FALSE );
 
     QPrinter   *printer;
@@ -835,7 +836,7 @@ public:
                              QPSPrinterPrivate *d );
     virtual void download(QTextStream& s, bool global);
     virtual void drawText( QTextStream &stream, const QPoint &p, QTextEngine *engine, int item,
-                           const QString &text, QPSPrinterPrivate *d, QPainter *paint);
+                           const QString &text, QPSPrinterPrivate *d, QPainterState *ps);
     virtual unsigned short mapUnicode( unsigned short unicode );
     void downloadMapping( QTextStream &s, bool global );
     QString glyphName( unsigned short glyphindex, bool *glyphSet = 0 );
@@ -1134,7 +1135,7 @@ static inline const char * toInt( int i )
 }
 
 void QPSPrinterFontPrivate::drawText( QTextStream &stream, const QPoint &p, QTextEngine *engine, int item,
-                                 const QString &text, QPSPrinterPrivate *d, QPainter *paint)
+                                 const QString &text, QPSPrinterPrivate *d, QPainterState *ps)
 {
     int len = engine->length( item );
     QScriptItem &si = engine->items[item];
@@ -1157,10 +1158,10 @@ void QPSPrinterFontPrivate::drawText( QTextStream &stream, const QPoint &p, QTex
 
     stream << si.width << " " << x;
 
-    if ( paint->font().underline() )
+    if ( ps->font.underline() )
         stream << ' ' << y + d->fm.underlinePos() + d->fm.lineWidth()
                << " " << d->fm.lineWidth() << " Tl";
-    if ( paint->font().strikeOut() )
+    if ( ps->font.strikeOut() )
         stream << ' ' << y + d->fm.strikeOutPos()
                << " " << d->fm.lineWidth() << " Tl";
     stream << " AT\n";
@@ -1509,7 +1510,7 @@ public:
     QPSPrinterFontTTF(const QFontEngine *f, QByteArray& data);
     virtual void    download(QTextStream& s, bool global);
     virtual void drawText( QTextStream &stream, const QPoint &p, QTextEngine *engine, int item,
-                           const QString &text, QPSPrinterPrivate *d, QPainter *paint);
+                           const QString &text, QPSPrinterPrivate *d, QPainterState *ps);
     //  virtual ~QPSPrinterFontTTF();
 
     virtual bool embedded() { return TRUE; }
@@ -1808,7 +1809,7 @@ QPSPrinterFontTTF::QPSPrinterFontTTF(const QFontEngine *f, QByteArray& d)
 
 
 void QPSPrinterFontTTF::drawText( QTextStream &stream, const QPoint &p, QTextEngine *engine, int item,
-				  const QString &text, QPSPrinterPrivate *d, QPainter *paint)
+				  const QString &text, QPSPrinterPrivate *d, QPainterState *ps)
 {
     // we draw glyphs here to get correct shaping of arabic and indic
     QScriptItem &si = engine->items[item];
@@ -1863,10 +1864,10 @@ void QPSPrinterFontTTF::drawText( QTextStream &stream, const QPoint &p, QTextEng
     stream << "[" << xyarray << "0 0]";
     stream << si.width << " " << x;
 
-    if ( paint->font().underline() )
+    if ( ps->font.underline() )
         stream << ' ' << y + d->fm.underlinePos() + d->fm.lineWidth()
                << " " << d->fm.lineWidth() << " Tl";
-    if ( paint->font().strikeOut() )
+    if ( ps->font.strikeOut() )
         stream << ' ' << y + d->fm.strikeOutPos()
                << " " << d->fm.lineWidth() << " Tl";
     stream << " XYT\n";
@@ -3613,7 +3614,7 @@ public:
     QString defineFont( QTextStream &stream, const QString &ps, const QFont &f, const QString &key,
 			QPSPrinterPrivate *d );
     void drawText( QTextStream &stream, const QPoint &p, QTextEngine *engine, int item,
-		   const QString &text, QPSPrinterPrivate *d, QPainter *paint );
+		   const QString &text, QPSPrinterPrivate *d, QPainterState *ps );
 
     QString makePSFontName( const QFontEngine *f, int type ) const;
     virtual QString extension() const = 0;
@@ -3717,7 +3718,7 @@ void QPSPrinterFontAsian::download(QTextStream& s, bool)
 }
 
 void QPSPrinterFontAsian::drawText( QTextStream &stream, const QPoint &p, QTextEngine *engine, int item,
-				    const QString &text, QPSPrinterPrivate *d, QPainter *paint)
+				    const QString &text, QPSPrinterPrivate *d, QPainterState *ps)
 {
     int len = engine->length( item );
     QScriptItem &si = engine->items[item];
@@ -3729,10 +3730,10 @@ void QPSPrinterFontAsian::drawText( QTextStream &stream, const QPoint &p, QTextE
     d->textY = y;
 
     QString mdf;
-    if ( paint->font().underline() )
+    if ( ps->font.underline() )
         mdf += " " + QString().setNum( y + d->fm.underlinePos() + d->fm.lineWidth() ) +
                " " + toString( d->fm.lineWidth() ) + " Tl";
-    if ( paint->font().strikeOut() )
+    if ( ps->font.strikeOut() )
         mdf += " " + QString().setNum( y + d->fm.strikeOutPos() ) +
                " " + toString( d->fm.lineWidth() ) + " Tl";
     QByteArray mb;
@@ -5104,13 +5105,10 @@ QByteArray compress( const QImage & image, bool gray ) {
 #define WIDTH(w)        (float)(w)
 #define HEIGHT(h)       (float)(h)
 
-#define POINT(index)    XCOORD(p[index].point->x()+0.5) << ' ' <<           \
-                        YCOORD(p[index].point->y()+0.5) << ' '
-#define RECT(index)     XCOORD(p[index].rect->normalize().x())  << ' ' <<     \
-                        YCOORD(p[index].rect->normalize().y())  << ' ' <<     \
-                        WIDTH (p[index].rect->normalize().width()) << ' ' <<  \
-                        HEIGHT(p[index].rect->normalize().height()) << ' '
-#define INT_ARG(index)  p[index].ival << ' '
+#define POINT(p) XCOORD(p.x()+0.5) << ' ' << YCOORD(p.y()+0.5) << ' '
+#define RECT(r) XCOORD(r.x())  << ' ' << YCOORD(r.y())  << ' ' <<     \
+                        WIDTH (r.width()) << ' ' << HEIGHT(r.height()) << ' '
+#define INT_ARG(x)  x << ' '
 
 static char returnbuffer[13];
 static const char * color( const QColor &c, QPrinter * printer )
@@ -5151,8 +5149,8 @@ static const char * psJoin( Qt::PenJoinStyle p ) {
 
 
 
-void QPSPrinterPrivate::drawImage( QPainter *paint, float x, float y, float w, float h,
-				   const QImage &img, const QImage &mask )
+void QPSPrinterPrivate::drawImage(float x, float y, float w, float h,
+				  const QImage &img, const QImage &mask )
 {
     if ( !w || !h || img.isNull() ) return;
 
@@ -5174,7 +5172,7 @@ void QPSPrinterPrivate::drawImage( QPainter *paint, float x, float y, float w, f
         }
         int suby = 0;
         while( suby < height ) {
-            drawImage(paint, x, y + suby/scaleY, w, qMin( subheight, height-suby )/scaleY,
+            drawImage(x, y + suby/scaleY, w, qMin( subheight, height-suby )/scaleY,
 		      img.copy( 0, suby, width, qMin( subheight, height-suby ) ),
 		      mask.isNull() ? mask : mask.copy( 0, suby, width, qMin( subheight, height-suby ) ));
             suby += subheight;
@@ -5213,21 +5211,10 @@ void QPSPrinterPrivate::drawImage( QPainter *paint, float x, float y, float w, f
 }
 
 
-void QPSPrinterPrivate::matrixSetup( QPainter *paint )
+void QPSPrinterPrivate::matrixSetup(QPainterState *ps)
 {
 #ifndef QT_NO_TRANSFORMATIONS
-    QWMatrix tmp;
-    if ( paint->hasViewXForm() ) {
-        QRect viewport = paint->viewport();
-        QRect window   = paint->window();
-        tmp.translate( viewport.x(), viewport.y() );
-        tmp.scale( 1.0 * viewport.width()  / window.width(),
-                   1.0 * viewport.height() / window.height() );
-        tmp.translate( -window.x(), -window.y() );
-    }
-    if ( paint->hasWorldXForm() ) {
-        tmp = paint->worldMatrix() * tmp;
-    }
+    QWMatrix tmp = ps->matrix;
     pageStream << "["
            << tmp.m11() << ' ' << tmp.m12() << ' '
            << tmp.m21() << ' ' << tmp.m22() << ' '
@@ -5395,38 +5382,37 @@ void QPSPrinterPrivate::emitHeader( bool finished )
 
 /* Called whenever a restore has been done. Currently done at the top of a
   new page and whenever clipping is turned off. */
-void QPSPrinterPrivate::resetDrawingTools( QPainter *paint )
+void QPSPrinterPrivate::resetDrawingTools(QPainterState *ps )
 {
     QPen   defaultPen;                  // default drawing tools
     QBrush defaultBrush;
 
-    QColor c = paint->backgroundColor();
+    QColor c = ps->bgBrush;
     if ( c != Qt::white )
         pageStream << color( c, printer ) << "BC\n";
 
-    if ( paint->backgroundMode() != Qt::TransparentMode )
-            pageStream << "/OMo true d\n";
+    if ( ps->bgMode != Qt::TransparentMode )
+	pageStream << "/OMo true d\n";
 
     //currentUsed = currentSet;
     //setFont( currentSet );
     currentFontFile = 0;
 
-    QBrush b = paint->brush();
-    if ( b != defaultBrush ) {
-        if ( b == Qt::CustomPattern ) {
+    if ( ps->brush != defaultBrush ) {
+        if ( ps->brush == Qt::CustomPattern ) {
 #if defined(CHECK_RANGE)
             qWarning( "QPrinter: Pixmap brush not supported" );
 #endif
         } else {
-            cbrush = b;
+            cbrush = ps->brush;
         }
     }
 
     dirtypen = TRUE;
     dirtybrush = TRUE;
 
-    if ( paint->hasViewXForm() || paint->hasWorldXForm() )
-        matrixSetup( paint );
+    if (ps->VxF || ps->WxF)
+        matrixSetup(ps);
 }
 
 
@@ -5439,23 +5425,23 @@ static void putRect( QTextStream &stream, const QRect &r )
 }
 
 
-void QPSPrinterPrivate::setClippingOff( QPainter *paint )
+void QPSPrinterPrivate::setClippingOff( QPainterState *ps )
 {
-        pageStream << "CLO\n";              // clipping off, includes a restore
-        resetDrawingTools( paint );     // so drawing tools must be reset
+    pageStream << "CLO\n";              // clipping off, includes a restore
+    resetDrawingTools(ps);     // so drawing tools must be reset
 }
 
 
-void QPSPrinterPrivate::clippingSetup( QPainter *paint )
+void QPSPrinterPrivate::clippingSetup(QPainterState *ps)
 {
-    if ( paint->hasClipping() ) {
+    if ( ps->clipEnabled ) {
         if ( !firstClipOnPage )
-            setClippingOff( paint );
-        const QRegion rgn = paint->clipRegion();
+            setClippingOff(ps);
+        const QRegion rgn = ps->clipRegion;
         QVector<QRect> rects = rgn.rects();
         int i;
         pageStream<< "CLSTART\n";           // start clipping
-        for( i = 0 ; i < (int)rects.size() ; i++ ) {
+        for( i = 0 ; i < rects.size() ; i++ ) {
             putRect( pageStream, rects[i] );
             pageStream << "ACR\n";          // add clip rect
             if ( pageCount == 1 )
@@ -5465,7 +5451,7 @@ void QPSPrinterPrivate::clippingSetup( QPainter *paint )
         firstClipOnPage = FALSE;
     } else {
         if ( !firstClipOnPage )      // no need to turn off if first on page
-            setClippingOff( paint );
+            setClippingOff( ps );
         // if we're painting without clipping, the bounding box must
         // be everything.  NOTE: this assumes that this function is
         // only ever called when something is to be painted.
@@ -5476,7 +5462,7 @@ void QPSPrinterPrivate::clippingSetup( QPainter *paint )
     dirtyClipping = FALSE;
 }
 
-void QPSPrinterPrivate::initPage(QPainter *paint)
+void QPSPrinterPrivate::initPage(QPainterState *ps)
 {
 
     // a restore undefines all the fonts that have been defined
@@ -5505,7 +5491,7 @@ void QPSPrinterPrivate::initPage(QPainter *paint)
     firstClipOnPage = TRUE;
 
 
-    resetDrawingTools( paint );
+    resetDrawingTools(ps);
     dirtyNewPage      = FALSE;
     pageFontNumber = headerFontNumber;
 }
@@ -5545,7 +5531,7 @@ void QPSPrinterPrivate::flushPage( bool last )
 // ================ PSPrinter class ========================
 
 QPSPrinter::QPSPrinter( QPrinter *prt, int fd )
-    : QPaintDevice( QInternal::Printer | QInternal::ExternalDevice )
+    : QAbstractGC(CoordTransform|PenWidthTransform|PatternTransform|PixmapTransform)
 {
     d = new QPSPrinterPrivate( prt, fd );
 }
@@ -5595,238 +5581,314 @@ static void ignoreSigPipe(bool b)
     }
 }
 
-bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
+bool QPSPrinter::begin(const QPaintDevice *pdev, QPainterState *state, bool unclipped)
 {
-    if ( c == PdcBegin ) {              // start painting
-        d->pagesInBuffer = 0;
-        d->buffer = new QBuffer();
-        d->buffer->open( IO_WriteOnly );
-        d->outStream.setEncoding( QTextStream::Latin1 );
-        d->outStream.setDevice( d->buffer );
-        d->fontBuffer = new QBuffer();
-        d->fontBuffer->open( IO_WriteOnly );
-        d->fontStream.setEncoding( QTextStream::Latin1 );
-        d->fontStream.setDevice( d->fontBuffer );
-        d->headerFontNumber = 0;
-        d->pageCount           = 1;                // initialize state
-        d->dirtyMatrix         = TRUE;
-        d->dirtyClipping    = TRUE;
-        d->dirtyNewPage        = TRUE;
-        d->firstClipOnPage  = TRUE;
-        d->boundingBox = QRect( 0, 0, -1, -1 );
-        d->fontsUsed = QString::fromLatin1("");
+    d->pagesInBuffer = 0;
+    d->buffer = new QBuffer();
+    d->buffer->open( IO_WriteOnly );
+    d->outStream.setEncoding( QTextStream::Latin1 );
+    d->outStream.setDevice( d->buffer );
+    d->fontBuffer = new QBuffer();
+    d->fontBuffer->open( IO_WriteOnly );
+    d->fontStream.setEncoding( QTextStream::Latin1 );
+    d->fontStream.setDevice( d->fontBuffer );
+    d->headerFontNumber = 0;
+    d->pageCount           = 1;                // initialize state
+    d->dirtyMatrix         = TRUE;
+    d->dirtyClipping    = TRUE;
+    d->dirtyNewPage        = TRUE;
+    d->firstClipOnPage  = TRUE;
+    d->boundingBox = QRect( 0, 0, -1, -1 );
+    d->fontsUsed = QString::fromLatin1("");
 
-        QPaintDeviceMetrics m( d->printer );
-        d->scale = 72. / ((float) m.logicalDpiY());
+    QPaintDeviceMetrics m( d->printer );
+    d->scale = 72. / ((float) m.logicalDpiY());
 
-        return TRUE;
+    return TRUE;
+}
+
+bool QPSPrinter::end()
+{
+    bool pageCountAtEnd = (d->buffer != 0);
+
+    // we're writing to lp/lpr through a pipe, we don't want to crash with SIGPIPE
+    // if lp/lpr dies
+    ignoreSigPipe(TRUE);
+    d->flushPage( TRUE );
+    d->outStream << "%%Trailer\n";
+    if ( pageCountAtEnd )
+	d->outStream << "%%Pages: " << d->pageCount - 1 << "\n" <<
+	    wrapDSC( "%%DocumentFonts: " + d->fontsUsed );
+    d->outStream << "%%EOF\n";
+    ignoreSigPipe(FALSE);
+
+    d->outStream.unsetDevice();
+    if ( d->outDevice )
+	d->outDevice->close();
+    if ( d->fd >= 0 )
+	::close( d->fd );
+    d->fd = -1;
+    delete d->outDevice;
+    d->outDevice = 0;
+
+    return true;
+}
+
+bool QPSPrinter::updateState()
+{
+    if ( d->dirtyNewPage )
+	d->initPage(state);
+    if ( d->dirtyMatrix )
+	d->matrixSetup(state);
+    if ( d->dirtyClipping ) // Must be after matrixSetup and initPage
+	d->clippingSetup(state);
+    if ( d->dirtypen ) {
+	// we special-case for narrow solid lines with the default
+	// cap and join styles
+	if ( d->cpen.style() == Qt::SolidLine && d->cpen.width() == 0 &&
+	     d->cpen.capStyle() == Qt::FlatCap &&
+	     d->cpen.joinStyle() == Qt::MiterJoin )
+	    d->pageStream << color( d->cpen.color(), d->printer ) << "P1\n";
+	else
+	    d->pageStream << (int)d->cpen.style() << ' ' << d->cpen.width()
+			  << ' ' << color( d->cpen.color(), d->printer )
+			  << psCap( d->cpen.capStyle() )
+			  << psJoin( d->cpen.joinStyle() ) << "PE\n";
+	d->dirtypen = FALSE;
     }
-
-    if ( c == PdcEnd ) {                        // painting done
-        bool pageCountAtEnd = (d->buffer != 0);
-
-    	// we're writing to lp/lpr through a pipe, we don't want to crash with SIGPIPE
-	// if lp/lpr dies
-	ignoreSigPipe(TRUE);
-        d->flushPage( TRUE );
-        d->outStream << "%%Trailer\n";
-        if ( pageCountAtEnd )
-            d->outStream << "%%Pages: " << d->pageCount - 1 << "\n" <<
-		wrapDSC( "%%DocumentFonts: " + d->fontsUsed );
-        d->outStream << "%%EOF\n";
-	ignoreSigPipe(FALSE);
-
-        d->outStream.unsetDevice();
-	if ( d->outDevice )
-	    d->outDevice->close();
-        if ( d->fd >= 0 )
-            ::close( d->fd );
-        d->fd = -1;
-        delete d->outDevice;
-        d->outDevice = 0;
+    if ( d->dirtybrush ) {
+	// we special-case for nobrush and solid white, since
+	// those are the two most common brushes
+	if ( d->cbrush.style() == Qt::NoBrush )
+	    d->pageStream << "NB\n";
+	else if ( d->cbrush.style() == Qt::SolidPattern &&
+		  d->cbrush.color() == Qt::white )
+	    d->pageStream << "WB\n";
+	else
+	    d->pageStream << (int)d->cbrush.style() << ' '
+			  << color( d->cbrush.color(), d->printer ) << "BR\n";
+	d->dirtybrush = FALSE;
     }
-
-    if ( c >= PdcDrawFirst && c <= PdcDrawLast ) {
-        if ( !paint )
-            return FALSE; // sanity
-        if ( d->dirtyNewPage )
-            d->initPage( paint );
-        if ( d->dirtyMatrix )
-            d->matrixSetup( paint );
-        if ( d->dirtyClipping ) // Must be after matrixSetup and initPage
-            d->clippingSetup( paint );
-        if ( d->dirtypen ) {
-            // we special-case for narrow solid lines with the default
-            // cap and join styles
-            if ( d->cpen.style() == Qt::SolidLine && d->cpen.width() == 0 &&
-                 d->cpen.capStyle() == Qt::FlatCap &&
-                 d->cpen.joinStyle() == Qt::MiterJoin )
-                d->pageStream << color( d->cpen.color(), d->printer ) << "P1\n";
-            else
-                d->pageStream << (int)d->cpen.style() << ' ' << d->cpen.width()
-			      << ' ' << color( d->cpen.color(), d->printer )
-			      << psCap( d->cpen.capStyle() )
-			      << psJoin( d->cpen.joinStyle() ) << "PE\n";
-            d->dirtypen = FALSE;
-        }
-        if ( d->dirtybrush ) {
-            // we special-case for nobrush and solid white, since
-            // those are the two most common brushes
-            if ( d->cbrush.style() == Qt::NoBrush )
-                d->pageStream << "NB\n";
-            else if ( d->cbrush.style() == Qt::SolidPattern &&
-                      d->cbrush.color() == Qt::white )
-                d->pageStream << "WB\n";
-            else
-                d->pageStream << (int)d->cbrush.style() << ' '
-			      << color( d->cbrush.color(), d->printer ) << "BR\n";
-            d->dirtybrush = FALSE;
-        }
-	if ( d->dirtyBkColor ) {
-	    d->pageStream << color( d->bkColor, d->printer ) << "BC\n";
-	    d->dirtyBkColor = FALSE;
-	}
-	if ( d->dirtyBkMode ) {
-	    if ( d->bkMode == Qt::TransparentMode )
-		d->pageStream << "/OMo false d\n";
-	    else
-		d->pageStream << "/OMo true d\n";
-	    d->dirtyBkMode = FALSE;
-	}
+    if ( d->dirtyBkColor ) {
+	d->pageStream << color( d->bkColor, d->printer ) << "BC\n";
+	d->dirtyBkColor = FALSE;
     }
-
-    switch( c ) {
-    case PdcDrawPoint:
-        d->pageStream << POINT(0) << "P\n";
-        break;
-    case PdcMoveTo:
-        d->pageStream << POINT(0) << "M\n";
-        break;
-    case PdcLineTo:
-        d->pageStream << POINT(0) << "L\n";
-        break;
-    case PdcDrawLine:
-        if ( p[0].point->y() == p[1].point->y() )
-            d->pageStream << POINT(1) << p[0].point->x() << " HL\n";
-        else if ( p[0].point->x() == p[1].point->x() )
-            d->pageStream << POINT(1) << p[0].point->y() << " VL\n";
-        else
-            d->pageStream << POINT(1) << POINT(0) << "DL\n";
-        break;
-    case PdcDrawRect:
-        d->pageStream << RECT(0) << "R\n";
-        break;
-    case PdcDrawRoundRect:
-        d->pageStream << RECT(0) << INT_ARG(1) << INT_ARG(2) << "RR\n";
-        break;
-    case PdcDrawEllipse:
-        d->pageStream << RECT(0) << "E\n";
-        break;
-    case PdcDrawArc:
-        d->pageStream << RECT(0) << INT_ARG(1) << INT_ARG(2) << "A\n";
-        break;
-    case PdcDrawPie:
-        d->pageStream << RECT(0) << INT_ARG(1) << INT_ARG(2) << "PIE\n";
-        break;
-    case PdcDrawChord:
-        d->pageStream << RECT(0) << INT_ARG(1) << INT_ARG(2) << "CH\n";
-        break;
-    case PdcDrawLineSegments:
-        if ( p[0].ptarr->size() > 0 ) {
-            QPointArray a = *p[0].ptarr;
-            QPoint pt;
-            d->pageStream << "NP\n";
-            for ( int i=0; i<(int)a.size(); i+=2 ) {
-                pt = a.point( i );
-                d->pageStream << XCOORD(pt.x()) << ' '
-			      << YCOORD(pt.y()) << " MT\n";
-                pt = a.point( i+1 );
-                d->pageStream << XCOORD(pt.x()) << ' '
-			      << YCOORD(pt.y()) << " LT\n";
-            }
-            d->pageStream << "QS\n";
-        }
-        break;
-    case PdcDrawPolyline:
-        if ( p[0].ptarr->size() > 1 ) {
-            QPointArray a = *p[0].ptarr;
-            QPoint pt = a.point( 0 );
-            d->pageStream << "NP\n"
-			  << XCOORD(pt.x()) << ' ' << YCOORD(pt.y()) << " MT\n";
-            for ( int i=1; i<(int)a.size(); i++ ) {
-                pt = a.point( i );
-                d->pageStream << XCOORD(pt.x()) << ' '
-			      << YCOORD(pt.y()) << " LT\n";
-            }
-            d->pageStream << "QS\n";
-        }
-        break;
-    case PdcDrawPolygon:
-        if ( p[0].ptarr->size() > 2 ) {
-            QPointArray a = *p[0].ptarr;
-            if ( p[1].ival )
-                d->pageStream << "/WFi true d\n";
-            QPoint pt = a.point(0);
-            d->pageStream << "NP\n";
-            d->pageStream << XCOORD(pt.x()) << ' '
-			  << YCOORD(pt.y()) << " MT\n";
-            for( int i=1; i<(int)a.size(); i++) {
-                pt = a.point( i );
-                d->pageStream << XCOORD(pt.x()) << ' '
-			      << YCOORD(pt.y()) << " LT\n";
-            }
-            d->pageStream << "CP BF QS\n";
-            if ( p[1].ival )
-                d->pageStream << "/WFi false d\n";
-        }
-        break;
-    case PdcDrawCubicBezier:
-        if ( p[0].ptarr->size() == 4 ) {
-            d->pageStream << "NP\n";
-            QPointArray a = *p[0].ptarr;
-            d->pageStream << XCOORD(a[0].x()) << ' '
-			  << YCOORD(a[0].y()) << " MT ";
-            for ( int i=1; i<4; i++ ) {
-                d->pageStream << XCOORD(a[i].x()) << ' '
-			      << YCOORD(a[i].y()) << ' ';
-            }
-            d->pageStream << "BZ\n";
-        }
-        break;
-    case PdcDrawText2:
-	// we use drawTextItem instead
-	return TRUE;
-    case PdcDrawText2Formatted:
-        return TRUE;
-    case PdcDrawTextItem: {
-	const QTextItem *ti = p[1].textItem;
-	QScriptItem &si = ti->engine()->items[ti->item()];
-	int len = ti->engine()->length( ti->item() );
-	if ( si.isSpace || si.isObject )
-	    return FALSE;
-
-	if ( d->currentSet != d->currentUsed || d->scriptUsed != si.analysis.script || !d->currentFontFile ) {
-	    d->currentUsed = d->currentSet;
-	    d->setFont( d->currentSet, si.analysis.script );
-	}
-	if( d->currentFontFile ) // better not crash in case somethig goes wrong.
-	    d->currentFontFile->drawText( d->pageStream, *p[0].point, ti->engine(), ti->item(),
-					  ti->engine()->string.mid( si.position, len ), d, paint);
-        return FALSE;
+    if ( d->dirtyBkMode ) {
+	if ( d->bkMode == Qt::TransparentMode )
+	    d->pageStream << "/OMo false d\n";
+	else
+	    d->pageStream << "/OMo true d\n";
+	d->dirtyBkMode = FALSE;
     }
-    case PdcDrawPixmap: {
-        if ( p[1].pixmap->isNull() )
-            break;
-        QRect r = *p[0].rect;
-        QImage img;
-        img = *(p[1].pixmap);
-	QImage mask;
-	if ( p[1].pixmap->mask() )
-	    mask = *(p[1].pixmap->mask());
-        d->drawImage(paint, r.x(), r.y(), r.width(), r.height(), img, mask);
-        break;
+    return true;
+}
+
+void QPSPrinter::updatePen(QPainterState *ps)
+{
+    d->dirtypen = TRUE;
+    d->cpen = ps->pen;
+}
+
+void QPSPrinter::updateBrush(QPainterState *ps)
+{
+    if ( ps->brush.style() == Qt::CustomPattern ) {
+#if defined(CHECK_RANGE)
+	qWarning( "QPrinter: Pixmap brush not supported" );
+#endif
+	return;
     }
-    case PdcDrawImage: {
+    d->dirtybrush = TRUE;
+    d->cbrush = ps->brush;
+}
+
+void QPSPrinter::updateFont(QPainterState *ps)
+{
+    d->currentSet = ps->font;
+    d->fm = QFontMetrics(*ps->pfont);
+    // turn these off - they confuse the 'avoid font change' logic
+    d->currentSet.setUnderline( FALSE );
+    d->currentSet.setStrikeOut( FALSE );
+}
+
+void QPSPrinter::updateRasterOp(QPainterState *)
+{
+    qWarning("raster ops not supported on Postscript driver");
+}
+
+void QPSPrinter::updateBackground(QPainterState *ps)
+{
+    d->bkColor = ps->bgBrush;
+    d->dirtyBkColor = TRUE;
+    d->bkMode = ps->bgMode;
+    d->dirtyBkMode = TRUE;
+}
+
+void QPSPrinter::updateXForm(QPainterState *)
+{
+    d->dirtyMatrix = TRUE;
+}
+
+void QPSPrinter::updateClipRegion(QPainterState *)
+{
+    d->dirtyClipping = TRUE;
+}
+
+void QPSPrinter::drawLine(const QPoint &p1, const QPoint &p2)
+{
+    d->pageStream << POINT(p2);
+    if (p1.y() == p2.y())
+	d->pageStream << p1.x() << " HL\n";
+    else if (p1.x() == p2.x())
+	d->pageStream << p1.y() << " VL\n";
+    else
+	d->pageStream << POINT(p1) << "DL\n";
+}
+
+void QPSPrinter::drawRect(const QRect &r)
+{
+    d->pageStream << RECT(r) << "R\n";
+}
+
+void QPSPrinter::drawPoint(const QPoint &p)
+{
+    d->pageStream << POINT(p) << "P\n";
+}
+
+void QPSPrinter::drawPoints(const QPointArray &pa, int index, int npoints)
+{
+    for (int i = 0; i < npoints; ++i)
+	drawPoint(pa[i+index]);
+}
+
+void QPSPrinter::drawWinFocusRect(const QRect &r, bool xorPaint, const QColor &bgColor)
+{
+    drawRect(r);
+}
+
+void QPSPrinter::drawRoundRect(const QRect &r, int xRnd, int yRnd)
+{
+    d->pageStream << RECT(r) << INT_ARG(xRnd) << INT_ARG(yRnd) << "RR\n";
+}
+
+void QPSPrinter::drawEllipse(const QRect &r)
+{
+    d->pageStream << RECT(r) << "E\n";
+}
+
+void QPSPrinter::drawArc(const QRect &r, int a, int alen)
+{
+    d->pageStream << RECT(r) << INT_ARG(a) << INT_ARG(alen) << "A\n";
+}
+
+void QPSPrinter::drawPie(const QRect &r, int a, int alen)
+{
+    d->pageStream << RECT(r) << INT_ARG(a) << INT_ARG(alen) << "PIE\n";
+}
+
+void QPSPrinter::drawChord(const QRect &r, int a, int alen)
+{
+    d->pageStream << RECT(r) << INT_ARG(a) << INT_ARG(alen) << "CH\n";
+}
+
+void QPSPrinter::drawLineSegments(const QPointArray &a, int index, int nlines)
+{
+    d->pageStream << "NP\n";
+    for (int i = index; i < index+nlines; i ++) {
+	QPoint pt = a.point( 2*i );
+	d->pageStream << XCOORD(pt.x()) << ' '
+		      << YCOORD(pt.y()) << " MT\n";
+	pt = a.point( 2*i+1 );
+	d->pageStream << XCOORD(pt.x()) << ' '
+		      << YCOORD(pt.y()) << " LT\n";
+    }
+    d->pageStream << "QS\n";
+}
+
+void QPSPrinter::drawPolyline(const QPointArray &a, int index, int npoints)
+{
+    QPoint pt = a.point(index);
+    d->pageStream << "NP\n"
+		  << XCOORD(pt.x()) << ' ' << YCOORD(pt.y()) << " MT\n";
+    for (int i = 1; i < npoints; i++) {
+	pt = a.point(i + index);
+	d->pageStream << XCOORD(pt.x()) << ' '
+		      << YCOORD(pt.y()) << " LT\n";
+    }
+    d->pageStream << "QS\n";
+}
+
+void QPSPrinter::drawPolygon(const QPointArray &a, bool winding, int index, int npoints)
+{
+    if (winding)
+	d->pageStream << "/WFi true d\n";
+    QPoint pt = a.point(index);
+    d->pageStream << "NP\n";
+    d->pageStream << XCOORD(pt.x()) << ' '
+		  << YCOORD(pt.y()) << " MT\n";
+    for(int i = 1; i < npoints; i++) {
+	pt = a.point(i + index);
+	d->pageStream << XCOORD(pt.x()) << ' '
+		      << YCOORD(pt.y()) << " LT\n";
+    }
+    d->pageStream << "CP BF QS\n";
+    if ( winding )
+	d->pageStream << "/WFi false d\n";
+}
+
+void QPSPrinter::drawConvexPolygon(const QPointArray &, int index, int npoints)
+{
+    // ####################
+}
+
+#ifndef QT_NO_BEZIER
+void QPSPrinter::drawCubicBezier(const QPointArray &a, int index)
+{
+    d->pageStream << "NP\n";
+    d->pageStream << XCOORD(a[index].x()) << ' '
+		  << YCOORD(a[index].y()) << " MT ";
+    for (int i = 1; i < 4; i++) {
+	d->pageStream << XCOORD(a[index + i].x()) << ' '
+		      << YCOORD(a[index + i].y()) << ' ';
+    }
+    d->pageStream << "BZ\n";
+}
+#endif
+
+void QPSPrinter::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr)
+{
+    // ###### fix sr
+    QImage img = pm;
+    QImage mask;
+    if ( pm.mask() )
+	mask = *pm.mask();
+    d->drawImage(r.x(), r.y(), r.width(), r.height(), img, mask);
+}
+
+void QPSPrinter::drawTextItem(const QPoint &p, const QTextItem &ti, int textflags)
+{
+    int x = p.x();
+    int y = p.y();
+    QScriptItem &si = ti.engine()->items[ti.item()];
+    int len = ti.engine()->length( ti.item() );
+    if ( si.isSpace || si.isObject )
+	return;
+
+    if ( d->currentSet != d->currentUsed || d->scriptUsed != si.analysis.script || !d->currentFontFile ) {
+	d->currentUsed = d->currentSet;
+	d->setFont( d->currentSet, si.analysis.script );
+    }
+    if( d->currentFontFile ) // better not crash in case somethig goes wrong.
+	d->currentFontFile->drawText( d->pageStream, QPoint(x, y), ti.engine(), ti.item(),
+				      ti.engine()->string.mid( si.position, len ), d, state);
+}
+
+void QPSPrinter::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &p, bool optim)
+{
+    // ####################
+}
+
+#if 0
+ case PdcDrawImage: {
         if ( p[1].image->isNull() )
             break;
         QRect r = *(p[0].rect);
@@ -5836,92 +5898,24 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	if ( img.hasAlphaBuffer() )
 	    mask = img.createAlphaMask();
 #endif
-        d->drawImage(paint, r.x(), r.y(), r.width(), r.height(), img, mask);
+        d->drawImage(r.x(), r.y(), r.width(), r.height(), img, mask);
         break;
     }
-    case PdcSetBkColor:
-    {
-	if ( d->bkColor != *(p[0].color) ) {
-	    d->bkColor = *(p[0].color);
-	    d->dirtyBkColor = TRUE;
-	}
-        break;
-    }
-    case PdcSetBkMode:
-    {
-	if ( d->bkMode != p[0].ival ) {
-	    d->bkMode = (Qt::BGMode) p[0].ival;
-	    d->dirtyBkMode = TRUE;
-	}
-        break;
-    }
-    case PdcSetROP:
-#if defined(CHECK_RANGE)
-        if ( p[0].ival != Qt::CopyROP )
-            qWarning( "QPrinter: Raster operation setting not supported" );
 #endif
-        break;
-    case PdcSetBrushOrigin:
-        break;
-    case PdcSetFont:
-        d->currentSet = *(p[0].font);
-	d->fm = paint->fontMetrics();
-        // turn these off - they confuse the 'avoid font change' logic
-        d->currentSet.setUnderline( FALSE );
-        d->currentSet.setStrikeOut( FALSE );
-        break;
-    case PdcSetPen:
-        if ( d->cpen != *(p[0].pen) ) {
-            d->dirtypen = TRUE;
-            d->cpen = *(p[0].pen);
-        }
-        break;
-    case PdcSetBrush:
-        if ( p[0].brush->style() == Qt::CustomPattern ) {
-#if defined(CHECK_RANGE)
-            qWarning( "QPrinter: Pixmap brush not supported" );
-#endif
-            return FALSE;
-        }
-        if ( d->cbrush != *(p[0].brush) ) {
-            d->dirtybrush = TRUE;
-            d->cbrush = *(p[0].brush);
-        }
-        break;
-    case PdcSetTabStops:
-    case PdcSetTabArray:
-        return FALSE;
-    case PdcSetUnit:
-        break;
-    case PdcSetVXform:
-    case PdcSetWindow:
-    case PdcSetViewport:
-    case PdcSetWXform:
-    case PdcSetWMatrix:
-    case PdcRestoreWMatrix:
-        d->dirtyMatrix = TRUE;
-        break;
-    case PdcSetClip:
-        d->dirtyClipping = TRUE;
-        break;
-    case PdcSetClipRegion:
-        d->dirtyClipping = TRUE;
-        break;
-    case NewPage:
-    	// we're writing to lp/lpr through a pipe, we don't want to crash with SIGPIPE
-	// if lp/lpr dies
-    	ignoreSigPipe(TRUE);
-        d->flushPage();
-	ignoreSigPipe(FALSE);
 
-        d->dirtyNewPage = TRUE;
-        break;
-    case AbortPrinting:
-        break;
-    default:
-        break;
-    }
-    return TRUE;
+void QPSPrinter::newPage()
+{
+ // we're writing to lp/lpr through a pipe, we don't want to crash with SIGPIPE
+// if lp/lpr dies
+ignoreSigPipe(TRUE);
+d->flushPage();
+ignoreSigPipe(FALSE);
+
+d->dirtyNewPage = TRUE;
+}
+
+void QPSPrinter::abort()
+{
 }
 
 #endif // QT_NO_PRINTER

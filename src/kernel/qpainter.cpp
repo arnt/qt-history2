@@ -39,20 +39,14 @@ void qt_format_text(const QFont &font, const QRect &_r, int tf, const QString& s
 		    int len, QRect *brect, int tabstops, int* tabarray, int tabarraylen,
 		    QPainter* painter);
 
-static inline void qt_fix_rect(QPainterState *ps, int *x, int *y, int *w, int *h)
+static inline QRect fix_rect(QPainterState *ps, const QRect &r)
 {
-    if ( *w < 0 ) {
-	*w = -*w;
-	*x -= *w - 1;
-    }
-    if ( *h < 0 ) {
-	*h = -*h;
-	*y -= *h - 1;
-    }
+    QRect rect = r.normalize();
     if (ps->pen.style() == Qt::NoPen) {
-	w++;
-	h++;
+	rect.setRight(rect.right() + 1);
+	rect.setBottom(rect.bottom() + 1);
     }
+    return rect;
 }
 
 QPainter::QPainter()
@@ -476,52 +470,50 @@ double QPainter::translationY() const
 #endif
 }
 
-void QPainter::drawLine(int x1, int y1, int x2, int y2)
+void QPainter::drawLine(const QPoint &p1, const QPoint &p2)
 {
     if (!isActive())
 	return;
 
     dgc->updateState(ds);
 
-    if (ds->WxF || ds->VxF) {
-	if (!dgc->hasCapability(QAbstractGC::CoordTransform)) {
-	    map(x1, y1, &x1, &y1);
-	    map(x2, y2, &x2, &y2);
-	}
+    if ((ds->WxF || ds->VxF) && !dgc->hasCapability(QAbstractGC::CoordTransform)) {
+	dgc->drawLine(xForm(p1), xForm(p2));
+	return;
     }
 
-    dgc->drawLine(x1, y1, x2, y2);
+    dgc->drawLine(p1, p2);
 }
 
-void QPainter::drawRect(int x, int y, int w, int h)
+void QPainter::drawRect(const QRect &r)
 {
     if (!isActive())
 	return;
     dgc->updateState(ds);
 
-    qt_fix_rect(ds, &x, &y, &w, &h);
+    QRect rect = fix_rect(ds, r);
 
     if ((ds->VxF || ds->WxF) && !dgc->hasCapability(QAbstractGC::CoordTransform)) {
 	if (d->txop == TxRotShear) {
-	    drawPolygon(QPointArray(QRect(x, y, w, h)));
+	    drawPolygon(QPointArray(rect));
 	    return;
 	}
-	map(x, y, w, h, &x, &y, &w, &h);
+	rect = xForm(rect);
     }
 
-    dgc->drawRect(x, y, w, h);
+    dgc->drawRect(rect);
 }
 
-void QPainter::drawPoint(int x, int y)
+void QPainter::drawPoint(const QPoint &p)
 {
     if (!isActive())
 	return;
     dgc->updateState(ds);
 
     if ((ds->VxF || ds->WxF) && !dgc->hasCapability(QAbstractGC::CoordTransform))
-	map(x, y, &x, &y);
+	dgc->drawPoint(xForm(p));
 
-    dgc->drawPoint(x, y);
+    dgc->drawPoint(p);
 }
 
 void QPainter::drawPoints(const QPointArray &pa, int index, int npoints)
@@ -539,10 +531,8 @@ void QPainter::drawPoints(const QPointArray &pa, int index, int npoints)
 
     if ((ds->VxF || ds->WxF) && !dgc->hasCapability(QAbstractGC::CoordTransform)) {
 	QPointArray a = xForm(pa, index, npoints);
-	if (a.size() != a.size()) {
-	    index = 0;
-	    npoints = a.size();
-	}
+	index = 0;
+	npoints = a.size();
 	dgc->drawPoints(a, index, npoints);
 	return;
     }
@@ -551,52 +541,52 @@ void QPainter::drawPoints(const QPointArray &pa, int index, int npoints)
 }
 
 
-void QPainter::drawWinFocusRect(int x, int y, int w, int h)
+void QPainter::drawWinFocusRect(const QRect &r)
 {
     if (!isActive())
 	return;
     dgc->updateState(ds);
 
-    qt_fix_rect(ds, &x, &y, &w, &h);
+    QRect rect = fix_rect(ds, r);
 
     if ((ds->VxF || ds->WxF) && !dgc->hasCapability(QAbstractGC::CoordTransform)) {
 	if (d->txop == TxRotShear) {
 	    QPen cpen = ds->pen;
 	    ds->pen = QPen(black, 0, DotLine);
 	    dgc->updatePen(ds);
-	    drawPolygon(QPointArray(QRect(x, y, w, h)));
+	    drawPolygon(QPointArray(rect));
 	    ds->pen = cpen;
 	    dgc->updatePen(ds);
 	    return;
 	}
-	map(x, y, w, h, &x, &y, &w, &h);
+	rect = xForm(rect);
     }
 
-    dgc->drawWinFocusRect(x, y, w, h, true, color0);
+    dgc->drawWinFocusRect(rect, true, color0);
 }
 
-void QPainter::drawWinFocusRect(int x, int y, int w, int h, const QColor &bgColor)
+void QPainter::drawWinFocusRect(const QRect &r, const QColor &bgColor)
 {
     if (!isActive())
 	return;
     dgc->updateState(ds);
 
-    qt_fix_rect(ds, &x, &y, &w, &h);
+    QRect rect = fix_rect(ds, r);
 
     if ((ds->VxF || ds->WxF) && !dgc->hasCapability(QAbstractGC::CoordTransform)) {
 	if (d->txop == TxRotShear) {
 	    QPen cpen = ds->pen;
 	    ds->pen = QPen(black, 0, DotLine);
 	    dgc->updatePen(ds);
-	    drawPolygon(QPointArray(QRect(x, y, w, h)));
+	    drawPolygon(QPointArray(rect));
 	    ds->pen = cpen;
 	    dgc->updatePen(ds);
 	    return;
 	}
-	map(x, y, w, h, &x, &y, &w, &h);
+	rect = xForm(rect);
     }
 
-    dgc->drawWinFocusRect(x, y, w, h, false, bgColor);
+    dgc->drawWinFocusRect(rect, false, bgColor);
 }
 
 
@@ -704,7 +694,7 @@ const QFont &QPainter::font() const
     return ds->font;
 }
 
-void QPainter::drawRoundRect(int x, int y, int w, int h, int xRnd, int yRnd)
+void QPainter::drawRoundRect(const QRect &r, int xRnd, int yRnd)
 {
     if (!isActive())
 	return;
@@ -714,16 +704,21 @@ void QPainter::drawRoundRect(int x, int y, int w, int h, int xRnd, int yRnd)
     if(yRnd >= 100)
 	yRnd = 99;
     if(xRnd <= 0 || yRnd <= 0) {             // draw normal rectangle
-	drawRect(x, y, w, h);
+	drawRect(r);
 	return;
     }
 
     dgc->updateState(ds);
 
-    qt_fix_rect(ds, &x, &y, &w, &h);
+    QRect rect = fix_rect(ds, r);
 
     if ((ds->VxF || ds->WxF) && !dgc->hasCapability(QAbstractGC::CoordTransform)) {
 	if (d->txop == TxRotShear) {
+	    int x = rect.x();
+	    int y = rect.y();
+	    int w = rect.width();
+	    int h = rect.height();
+
 	    w--; // ###?
 	    h--; // ###?
 	    int rxx = w*xRnd/200;
@@ -753,99 +748,99 @@ void QPainter::drawRoundRect(int x, int y, int w, int h, int xRnd, int yRnd)
 	    dgc->drawPolygon(aa, false, 0, aa.size());
 	    return;
 	}
-	map(x, y, w, h, &x, &y, &w, &h);
+	rect = xForm(rect);
     }
-    dgc->drawRoundRect(x, y, w, h, xRnd, yRnd);
+    dgc->drawRoundRect(rect, xRnd, yRnd);
 }
 
-void QPainter::drawEllipse(int x, int y, int w, int h)
+void QPainter::drawEllipse(const QRect &r)
 {
     if (!isActive())
 	return;
     dgc->updateState(ds);
 
-    qt_fix_rect(ds, &x, &y, &w, &h);
+    QRect rect = fix_rect(ds, r);
 
     if ((ds->VxF || ds->WxF) && !dgc->hasCapability(QAbstractGC::CoordTransform)) {
 	if (d->txop == TxRotShear) {
 	    QPointArray a;
-	    a.makeArc(x, y, w, h, 0, 360*16, ds->matrix);
+	    a.makeArc(rect.x(), rect.y(), rect.width(), rect.height(), 0, 360*16, ds->matrix);
 	    dgc->drawPolygon(a, false, 0, a.size());
 	    return;
 	}
-	map(x, y, w, h, &x, &y, &w, &h);
+	rect = xForm(rect);
     }
 
-    dgc->drawEllipse(x, y, w, h);
+    dgc->drawEllipse(rect);
 }
 
-void QPainter::drawArc(int x, int y, int w, int h, int a, int alen)
+void QPainter::drawArc(const QRect &r, int a, int alen)
 {
     if (!isActive())
 	return;
     dgc->updateState(ds);
 
-    qt_fix_rect(ds, &x, &y, &w, &h);
+    QRect rect = fix_rect(ds, r);
 
     if ((ds->VxF || ds->WxF) && !dgc->hasCapability(QAbstractGC::CoordTransform)) {
 	if (d->txop == TxRotShear) {
 	    QPointArray pa;
-	    pa.makeArc(x, y, w, h, a, alen, ds->matrix);
+	    pa.makeArc(rect.x(), rect.y(), rect.width(), rect.height(), a, alen, ds->matrix);
 	    dgc->drawPolyline(pa, 0, pa.size());
 	    return;
 	}
-	map(x, y, w, h, &x, &y, &w, &h);
+	rect = xForm(rect);
     }
-    dgc->drawArc(x, y, w, h, a, alen);
+    dgc->drawArc(rect, a, alen);
 }
 
- void QPainter::drawPie(int x, int y, int w, int h, int a, int alen)
+ void QPainter::drawPie(const QRect &r, int a, int alen)
 {
     if (!isActive())
 	return;
     dgc->updateState(ds);
 
-    qt_fix_rect(ds, &x, &y, &w, &h);
+    QRect rect = fix_rect(ds, r);
 
     if ((ds->VxF || ds->WxF) && !dgc->hasCapability(QAbstractGC::CoordTransform)) {
 	if (d->txop == TxRotShear) {		// rotate/shear
+	    // arc polyline
 	    QPointArray pa;
-	    pa.makeArc( x, y, w, h, a, alen, ds->matrix ); // arc polyline
+	    pa.makeArc(rect.x(), rect.y(), rect.width(), rect.height(), a, alen, ds->matrix );
 	    int n = pa.size();
-	    int cx, cy;
-	    ds->matrix.map(x+w/2, y+h/2, &cx, &cy);
+	    QPoint p = xForm(QPoint(r.x()+r.width()/2, r.y()+r.height()/2));
 	    pa.resize(n+2);
-	    pa.setPoint(n, cx, cy);	// add legs
+	    pa.setPoint(n, p);	// add legs
 	    pa.setPoint(n+1, pa.at(0));
 	    dgc->drawPolygon(pa, false, 0, pa.size());
 	    return;
 	}
-	map( x, y, w, h, &x, &y, &w, &h );
+	rect = xForm(rect);
     }
-    dgc->drawPie(x, y, w, h, a, alen);
+    dgc->drawPie(rect, a, alen);
 }
 
-void QPainter::drawChord(int x, int y, int w, int h, int a, int alen)
+void QPainter::drawChord(const QRect &r, int a, int alen)
 {
     if ( !isActive() )
 	return;
     dgc->updateState(ds);
 
-    qt_fix_rect(ds, &x, &y, &w, &h);
+    QRect rect = fix_rect(ds, r);
 
     if ((ds->VxF || ds->WxF) && !dgc->hasCapability(QAbstractGC::CoordTransform)) {
 	if (d->txop == TxRotShear) {		// rotate/shear
 	    QPointArray pa;
-	    pa.makeArc(x, y, w-1, h-1, a, alen, ds->matrix); // arc polygon
+	    pa.makeArc(rect.x(), rect.y(), rect.width()-1, rect.height()-1, a, alen, ds->matrix); // arc polygon
 	    int n = pa.size();
 	    pa.resize(n+1);
 	    pa.setPoint(n, pa.at(0));		// connect endpoints
 	    dgc->drawPolygon(pa, false, 0, pa.size());
 	    return;
 	}
-	map( x, y, w, h, &x, &y, &w, &h );
+	rect = xForm(rect);
     }
-    dgc->drawChord(x, y, w, h, a, alen);
+    dgc->drawChord(rect, a, alen);
 }
 
 void QPainter::drawLineSegments(const QPointArray &a, int index, int nlines)
@@ -1018,11 +1013,12 @@ void QPainter::drawPixmap(int x, int y, const QPixmap &pm, int sx, int sy, int s
 	map(x, y, &x, &y);	// compute position of pixmap
 	int dx, dy;
 	mat.map( 0, 0, &dx, &dy );
-	dgc->drawPixmap(x-dx, y-dy, pmx, 0, 0, pmx.width(), pmx.height());
+	dgc->drawPixmap(QRect(x-dx, y-dy, pmx.width(), pmx.height()), pmx,
+			QRect(0, 0, pmx.width(), pmx.height()));
 	return;
     }
 
-    dgc->drawPixmap(x, y, pm, sx, sy, sw, sh);
+    dgc->drawPixmap(QRect(x, y, sw, sh), pm, QRect(sx, sy, sw, sh));
     return;
 }
 
@@ -1033,39 +1029,42 @@ void QPainter::drawPixmap( const QRect &r, const QPixmap &pm )
 	return;
     dgc->updateState(ds);
 
-    int rw = r.width();
-    int rh = r.height();
-    int iw= pm.width();
-    int ih = pm.height();
-    if ( rw <= 0 || rh <= 0 || iw <= 0 || ih <= 0 )
-	return;
-    bool scale = ( rw != iw || rh != ih );
-    float scaleX = (float)rw/(float)iw;
-    float scaleY = (float)rh/(float)ih;
-    bool smooth = ( scaleX < 1.5 || scaleY < 1.5 );
-
     QPixmap pixmap = pm;
 
-    if ( scale ) {
+    if (!dgc->hasCapability(QAbstractGC::PixmapTransform)) {
+	int rw = r.width();
+	int rh = r.height();
+	int iw= pm.width();
+	int ih = pm.height();
+	if ( rw <= 0 || rh <= 0 || iw <= 0 || ih <= 0 )
+	    return;
+	bool scale = ( rw != iw || rh != ih );
+	float scaleX = (float)rw/(float)iw;
+	float scaleY = (float)rh/(float)ih;
+	bool smooth = ( scaleX < 1.5 || scaleY < 1.5 );
+
+	if ( scale ) {
 #ifndef QT_NO_IMAGE_SMOOTHSCALE
 # ifndef QT_NO_PIXMAP_TRANSFORMATION
-	if ( smooth )
+	    if ( smooth )
 # endif
-	{
-	    QImage i = pm.convertToImage();
-	    pixmap = QPixmap( i.smoothScale( rw, rh ) );
-	}
+	    {
+		QImage i = pm.convertToImage();
+		pixmap = QPixmap( i.smoothScale( rw, rh ) );
+	    }
 # ifndef QT_NO_PIXMAP_TRANSFORMATION
-	else
+	    else
 # endif
 #endif
 #ifndef QT_NO_PIXMAP_TRANSFORMATION
-	{
-	    pixmap = pm.xForm( QWMatrix( scaleX, 0, 0, scaleY, 0, 0 ) );
-	}
+	    {
+		pixmap = pm.xForm( QWMatrix( scaleX, 0, 0, scaleY, 0, 0 ) );
+	    }
 #endif
+	}
     }
-    drawPixmap( r.x(), r.y(), pixmap );
+    // ##### probably wrong with world transform!
+    dgc->drawPixmap(r, pixmap, pixmap.rect());
 }
 
 void QPainter::drawImage(int x, int y, const QImage &,
@@ -1223,8 +1222,9 @@ QRect QPainter::boundingRect(int x, int y, int w, int h, int flags, const QStrin
     return brect;
 }
 
-/* Internal, used by drawTiledPixmap */
+// ################### make static or prefix with qt_
 
+/* Internal, used by drawTiledPixmap */
 void drawTile( QAbstractGC *gc, int x, int y, int w, int h,
 	       const QPixmap &pixmap, int xOffset, int yOffset )
 {
@@ -1241,7 +1241,7 @@ void drawTile( QAbstractGC *gc, int x, int y, int w, int h,
 	    drawW = pixmap.width() - xOff; // Cropping first column
 	    if ( xPos + drawW > x + w )	   // Cropping last column
 		drawW = x + w - xPos;
-	    gc->drawPixmap( xPos, yPos, pixmap, xOff, yOff, drawW, drawH );
+	    gc->drawPixmap(QRect(xPos, yPos, drawW, drawH), pixmap, QRect(xOff, yOff, drawW, drawH));
 	    xPos += drawW;
 	    xOff = 0;
 	}
@@ -1270,7 +1270,7 @@ void QPainter::drawTiledPixmap(int x, int y, int w, int h, const QPixmap &pixmap
 	sy = sy % sh;
 
     bool optim = (pixmap.mask() && pixmap.depth() > 1 && d->txop <= TxTranslate);
-    dgc->drawTiledPixmap(x, y, w, h, pixmap, sx, sy, optim);
+    dgc->drawTiledPixmap(QRect(x, y, w, h), pixmap, QPoint(sx, sy), optim);
 }
 
 void QPainter::drawPicture(int x, int y, const QPicture &p)
@@ -1378,157 +1378,67 @@ void QPainter::updateInvXForm()
 }
 
 
-/*!
-  \internal
-  Maps a point from logical coordinates to device coordinates.
-*/
-
-void QPainter::map(int x, int y, int *rx, int *ry) const
-{
-#ifndef QT_NO_TRANSFORMATIONS
-    switch (d->txop) {
-
-    case TxNone:
-	*rx = x;
-	*ry = y;
-	break;
-    case TxTranslate:
-	*rx = qRound(x + ds->matrix.dx());
-	*ry = qRound(y + ds->matrix.dy());
-	break;
-    case TxScale:
-	*rx = qRound(ds->matrix.m11()*x + ds->matrix.dx());
-	*ry = qRound(ds->matrix.m22()*y + ds->matrix.dy());
-	break;
-    default:
-	*rx = qRound(ds->matrix.m11()*x + ds->matrix.m21()*y+ds->matrix.dx());
-	*ry = qRound(ds->matrix.m12()*x + ds->matrix.m22()*y+ds->matrix.dy());
-	break;
-    }
-#else
-    *rx = x + ds->xlatex;
-    *ry = y + ds->xlatey;
-#endif
-}
-
-/*!
-  \internal
-  Maps a rectangle from logical coordinates to device coordinates.
-  This internal function does not handle rotation and/or shear.
-*/
-
-void QPainter::map(int x, int y, int w, int h,
-		    int *rx, int *ry, int *rw, int *rh) const
+QPoint QPainter::xForm(const QPoint &p) const
 {
 #ifndef QT_NO_TRANSFORMATIONS
     switch (d->txop) {
     case TxNone:
-	*rx = x;  *ry = y;
-	*rw = w;  *rh = h;
-	break;
+	return p;
     case TxTranslate:
-	*rx = qRound(x + ds->matrix.dx());
-	*ry = qRound(y + ds->matrix.dy());
-	*rw = w;  *rh = h;
-	break;
+	return QPoint(qRound(p.x() + ds->matrix.dx()), qRound(p.y() + ds->matrix.dy()));
     case TxScale:
-	*rx = qRound(ds->matrix.m11()*x + ds->matrix.dx());
-	*ry = qRound(ds->matrix.m22()*y + ds->matrix.dy());
-	*rw = qRound(ds->matrix.m11()*w);
-	*rh = qRound(ds->matrix.m22()*h);
-	break;
+	return QPoint(qRound(ds->matrix.m11()*p.x() + ds->matrix.dx()),
+		      qRound(ds->matrix.m22()*p.y() + ds->matrix.dy()));
     default:
-	qWarning("QPainter::map: Internal error");
-	break;
+	return QPoint(qRound(ds->matrix.m11()*p.x() + ds->matrix.m21()*p.y()+ds->matrix.dx()),
+		      qRound(ds->matrix.m12()*p.x() + ds->matrix.m22()*p.y()+ds->matrix.dy()));
     }
 #else
-    *rx = x + ds->matrix.xlatex;
-    *ry = y + ds->matrix.xlatey;
-    *rw = w;  *rh = h;
+    return QPoint(p.x() + ds->xlatex, p.y() + ds->xlatey);
 #endif
 }
 
-
-void QPainter::mapInv( int x, int y, int *rx, int *ry ) const
+QRect QPainter::xForm(const QRect &r)	const
 {
 #ifndef QT_NO_TRANSFORMATIONS
-    if ( !d->txinv )
-	qWarning( "QPainter::mapInv: Internal error" );
-    *rx = qRound( d->invMatrix.m11()*x + d->invMatrix.m21()*y + d->invMatrix.dx() );
-    *ry = qRound( d->invMatrix.m12()*x + d->invMatrix.m22()*y + d->invMatrix.dy() );
+    switch (d->txop) {
+    case TxNone:
+	return r;
+    case TxTranslate: {
+	QRect rect(r);
+	rect.moveBy(qRound(ds->matrix.dx()), qRound(ds->matrix.dy()));
+	return rect;
+    }
+    case TxScale:
+	return QRect(qRound(ds->matrix.m11()*r.x() + ds->matrix.dx()),
+		     qRound(ds->matrix.m22()*r.y() + ds->matrix.dy()),
+		     qRound(ds->matrix.m11()*r.width()),
+		     qRound(ds->matrix.m22()*r.height()));
+    case TxRotShear:
+	return ds->matrix.mapRect(r);
+    }
 #else
-    *rx = x - xlatex;
-    *ry = y - xlatey;
+    return QRect( r.x()+ds->xlatex, r.y()+ds->xlatey, r.width(), r.height() );
 #endif
 }
 
-
-void QPainter::mapInv( int x, int y, int w, int h,
-		       int *rx, int *ry, int *rw, int *rh ) const
-{
-#ifndef QT_NO_TRANSFORMATIONS
-    if ( !d->txinv || d->txop == TxRotShear )
-	qWarning( "QPainter::mapInv: Internal error" );
-    *rx = qRound( d->invMatrix.m11()*x + d->invMatrix.dx() );
-    *ry = qRound( d->invMatrix.m22()*y + d->invMatrix.dy() );
-    *rw = qRound( d->invMatrix.m11()*w );
-    *rh = qRound( d->invMatrix.m22()*h );
-#else
-    *rx = x - xlatex;
-    *ry = y - xlatey;
-    *rw = w;
-    *rh = h;
-#endif
-}
-
-
-QPoint QPainter::xForm( const QPoint &pt) const
+QPointArray QPainter::xForm(const QPointArray &a) const
 {
 #ifndef QT_NO_TRANSFORMATIONS
     if ( d->txop == TxNone )
-	return pt;
-    int x=pt.x(), y=pt.y();
-    map( x, y, &x, &y );
-    return QPoint( x, y );
+	return a;
+    return ds->matrix * a;
 #else
-    return QPoint( pt.x()+ds->xlatex, pt.y()+ds->xlatey );
+    QPointArray p(a);
+    p.translate( ds->xlatex, ds->xlatey );
+    return p;
 #endif
-}
-
-QRect QPainter::xForm( const QRect &rv )	const
-{
-#ifndef QT_NO_TRANSFORMATIONS
-    if ( d->txop == TxNone )
-	return rv;
-    if ( d->txop == TxRotShear ) {			// rotation/shear
-	return ds->matrix.mapRect( rv );
-    }
-    // Just translation/scale
-    int x, y, w, h;
-    rv.rect(&x, &y, &w, &h);
-    map(x, y, w, h, &x, &y, &w, &h);
-    return QRect( x, y, w, h );
-#else
-    return QRect( rv.x()+ds->xlatex, rv.y()+ds->xlatey, rv.width(), rv.height() );
-#endif
-}
-
-QPointArray QPainter::xForm( const QPointArray &av ) const
-{
-    QPointArray a = av;
-#ifndef QT_NO_TRANSFORMATIONS
-    if ( d->txop != TxNone )
-	return ds->matrix * av;
-#else
-    a.translate( ds->xlatex, ds->xlatey );
-#endif
-    return a;
 }
 
 QPointArray QPainter::xForm( const QPointArray &av, int index, int npoints ) const
 {
     int lastPoint = npoints < 0 ? av.size() : index+npoints;
-    QPointArray a( lastPoint-index );
+    QPointArray a(lastPoint-index);
     memcpy( a.data(), av.data()+index, (lastPoint-index)*sizeof( QPoint ) );
 #ifndef QT_NO_TRANSFORMATIONS
     return ds->matrix*a;
@@ -1538,54 +1448,58 @@ QPointArray QPainter::xForm( const QPointArray &av, int index, int npoints ) con
 #endif
 }
 
-QPoint QPainter::xFormDev( const QPoint &pd ) const
+QPoint QPainter::xFormDev( const QPoint &p ) const
 {
 #ifndef QT_NO_TRANSFORMATIONS
     if(d->txop == TxNone)
-	return pd;
+	return p;
     if (!d->txinv) {
 	QPainter *that = (QPainter*)this;	// mutable
 	that->updateInvXForm();
     }
+    return QPoint(qRound(d->invMatrix.m11()*p.x() + d->invMatrix.m21()*p.y() + d->invMatrix.dx()),
+		  qRound(d->invMatrix.m12()*p.x() + d->invMatrix.m22()*p.y() + d->invMatrix.dy()));
+#else
+    return QPoint(p.x() - xlatex, p.y() - xlatey);
 #endif
-    int x=pd.x(), y=pd.y();
-    mapInv( x, y, &x, &y );
-    return QPoint( x, y );
 }
 
-QRect QPainter::xFormDev( const QRect &rd )  const
+QRect QPainter::xFormDev( const QRect &r )  const
 {
 #ifndef QT_NO_TRANSFORMATIONS
     if (d->txop == TxNone)
-	return rd;
+	return r;
     if (!d->txinv) {
 	QPainter *that = (QPainter*)this;	// mutable
 	that->updateInvXForm();
     }
     if (d->txop == TxRotShear) {			// rotation/shear
-	return d->invMatrix.mapRect(rd);
+	return d->invMatrix.mapRect(r);
+    } else {
+	return QRect(qRound(d->invMatrix.m11()*r.x() + d->invMatrix.dx()),
+		     qRound(d->invMatrix.m22()*r.y() + d->invMatrix.dy()),
+		     qRound(d->invMatrix.m11()*r.width()),
+		     qRound(d->invMatrix.m22()*r.height()));
     }
+#else
+    return QRect( r.x()-ds->xlatex, r.y()-ds->xlatey, r.width(), r.height() );
 #endif
-    // Just translation/scale
-    int x, y, w, h;
-    rd.rect( &x, &y, &w, &h );
-    mapInv( x, y, w, h, &x, &y, &w, &h );
-    return QRect( x, y, w, h);
 }
 
-QPointArray QPainter::xFormDev( const QPointArray &ad ) const
+QPointArray QPainter::xFormDev( const QPointArray &a ) const
 {
 #ifndef QT_NO_TRANSFORMATIONS
     if (d->txop == TxNone)
-	return ad;
+	return a;
     if ( !d->txinv ) {
 	QPainter *that = (QPainter*)this;	// mutable
 	that->updateInvXForm();
     }
-    return d->invMatrix * ad;
+    return d->invMatrix * a;
 #else
-    // ###
-    return ad;
+    QPointArray p(a);
+    p.translate( -ds->xlatex, -ds->xlatey );
+    return p;
 #endif
 
 }
@@ -1604,7 +1518,7 @@ QPointArray QPainter::xFormDev( const QPointArray &ad, int index, int npoints ) 
     }
     return d->invMatrix * a;
 #else
-    // ###
+    a.translate( -ds->xlatex, -ds->xlatey );
     return a;
 #endif
 }

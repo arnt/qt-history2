@@ -148,8 +148,8 @@ QPrinter::~QPrinter()
 bool QPrinter::newPage()
 {
     if ( state == PST_ACTIVE && pdrv )
-	return ((QPSPrinter*)pdrv)->cmd( QPSPrinter::NewPage, 0, 0 );
-    return FALSE;
+	((QPSPrinter*)pdrv)->newPage();
+    return TRUE;
 }
 
 
@@ -163,7 +163,7 @@ bool QPrinter::newPage()
 bool QPrinter::abort()
 {
     if ( state == PST_ACTIVE && pdrv ) {
-	((QPSPrinter*)pdrv)->cmd( QPSPrinter::AbortPrinting, 0, 0 );
+	((QPSPrinter*)pdrv)->abort();
 	state = PST_ABORTED;
 	if ( pid ) {
 	    (void)::kill( pid, 6 );
@@ -412,15 +412,17 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 		}
 #endif // else part of Q_OS_OS2EMX
 	    }
-	    if ( state == PST_ACTIVE && pdrv )
-		return ((QPSPrinter*)pdrv)->cmd( c, paint, p );
+	    // ##############################
+// 	    if ( state == PST_ACTIVE && pdrv )
+// 		return ((QPSPrinter*)pdrv)->cmd( c, paint, p );
 	} else {
 	    // ignore it?  I don't know
 	}
     } else {
 	bool r = FALSE;
 	if ( state == PST_ACTIVE && pdrv ) {
-	    r = ((QPSPrinter*)pdrv)->cmd( c, paint, p );
+	    // ##############################
+// 	    r = ((QPSPrinter*)pdrv)->cmd( c, paint, p );
 	    if ( c == PdcEnd ) {
 		state = PST_IDLE;
 		delete pdrv;
