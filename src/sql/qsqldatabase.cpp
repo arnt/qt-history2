@@ -126,7 +126,7 @@ void QSqlDatabase::init( const QString& type )
 	    d->driver = new QPSQLDriver();
 #endif
 #ifdef QT_SQL_MYSQL
-	if ( type == "MYSQL" )
+	if ( type == "QMYSQL" )
 	    d->driver = new QMySQLDriver();
 #endif
     }
