@@ -1229,28 +1229,27 @@ void QMacStyleCG::drawControl(ControlElement ce, const QStyleOption *opt, QPaint
     case CE_ToolBarButton:
         if (const QStyleOptionButton *btn = qt_cast<const QStyleOptionButton *>(opt)) {
             const QRect cr = subRect(SR_ToolBarButtonContents, btn, w);
-            QIconSet::Mode iconMode = (btn->state & Style_Enabled)
-                                        ? QIconSet::Normal
-                                        : QIconSet::Disabled;
+            QIconSet::Mode iconMode = (btn->state & Style_Enabled) ? QIconSet::Normal
+                                                                   : QIconSet::Disabled;
             if (btn->state & Style_Down)
                 iconMode = QIconSet::Active;
-            QIconSet::State iconState = (btn->state & Style_On)
-                ? QIconSet::On
-                : QIconSet::Off;
+            QIconSet::State iconState = (btn->state & Style_On) ? QIconSet::On : QIconSet::Off;
 
             const QPixmap pixmap = btn->icon.pixmap(QIconSet::Large, iconMode, iconState);
 
-            p->drawPixmap((cr.width() - pixmap.width()) / 2, 0, pixmap);
+            p->drawPixmap((cr.width() - pixmap.width()) / 2, 3, pixmap);
             if (!btn->text.isEmpty()) {
                 if (btn->state & Style_Down)
+                    p->drawText(cr.x(), cr.y() + pixmap.height(), cr.width(),
+                                cr.height() - pixmap.height(), Qt::AlignCenter, btn->text);
                 p->drawText(cr.x(), cr.y() + pixmap.height(), cr.width(),
                             cr.height() - pixmap.height(), Qt::AlignCenter, btn->text);
-                p->drawText(cr.x(), cr.y() + pixmap.height(), cr.width(), cr.height() - pixmap.height(),
-                            Qt::AlignCenter, btn->text);
             }
             if (btn->features & QStyleOptionButton::HasMenu) {
                 QStyleOption arrowOpt(0);
                 arrowOpt.rect = subRect(SR_ToolBarButtonMenu, btn, w);
+                arrowOpt.rect.setY(arrowOpt.rect.y() + arrowOpt.rect.height() / 2);
+                arrowOpt.rect.setHeight(arrowOpt.rect.height() / 2);
                 arrowOpt.state = btn->state;
                 arrowOpt.palette = btn->palette;
                 drawPrimitive(PE_ArrowDown, &arrowOpt, p, w);
@@ -1918,8 +1917,7 @@ QSize QMacStyleCG::sizeFromContents(ContentsType ct, const QStyleOption *opt, co
         break;
     case CT_ToolBarButton:
         if (const QStyleOptionButton *btn = qt_cast<const QStyleOptionButton *>(opt)) {
-            const QPixmap pix = btn->icon.pixmap();
-            sz = pix.size();
+            sz = btn->icon.pixmap(QIconSet::Large, QIconSet::Normal).size() + QSize(7, 7);
             if (!btn->text.isEmpty()) {
                 sz.rheight() += fm.lineSpacing();
                 sz.rwidth() = qMax(sz.width(), fm.width(btn->text));
