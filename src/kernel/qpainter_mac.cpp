@@ -120,8 +120,7 @@ static void ins_text_bitmap( const QString &key, QBitmap *bm )
 }
 #endif
 
-/* paintevent magic to provide Windows semantics on MAC
- */
+/* paintevent magic to provide Windows semantics on Qt/Mac */
 class paintevent_item
 {
     QPaintDevice* dev;
@@ -766,8 +765,9 @@ void QPainter::drawPolyInternal( const QPointArray &a, bool close )
     OpenRgn();
     uint loopc;
     MoveTo( a[0].x()+d->offx, a[0].y()+d->offy );
-    for ( loopc = 1; loopc < a.size(); loopc++ )
+    for ( loopc = 1; loopc < a.size(); loopc++ ) {
 	LineTo( a[loopc].x()+d->offx, a[loopc].y()+d->offy );
+    }
     LineTo( a[0].x()+d->offx, a[0].y()+d->offy );
     CloseRgn( polyRegion );
 
@@ -1347,44 +1347,25 @@ void QPainter::drawArc( int x, int y, int w, int h, int a, int alen )
 #ifdef QMAC_NO_QUARTZ
 void QPainter::drawPie( int x, int y, int w, int h, int a, int alen )
 {
-    if ( a > (360*16) ) {
-      a = a % (360*16);
-    } else if ( a < 0 ) {
-      a = a % (360*16);
-      if ( a < 0 ) a += (360*16);
-    }
     if ( !isActive() )
 	return;
-    if ( testf(ExtDev|VxF|WxF) ) {
-	if ( testf(ExtDev) ) {
-	    QPDevCmdParam param[3];
-	    QRect r( x, y, w, h );
-	    param[0].rect = &r;
-	    param[1].ival = a;
-	    param[2].ival = alen;
-	    if ( !pdev->cmd( QPaintDevice::PdcDrawPie, this, param ) || !pdev->handle())
-		return;
-	}
-	if ( txop == TxRotShear ) {             // rotate/shear
-	    QPointArray pa;
-	    pa.makeArc( x, y, w, h, a, alen, xmat ); // arc polyline
-	    int n = pa.size();
-	    int cx, cy;
-	    xmat.map(x+w/2, y+h/2, &cx, &cy);
-	    pa.resize( n+2 );
-	    pa.setPoint( n, cx, cy );   // add legs
-	    pa.setPoint( n+1, pa.at(0) );
-	    drawPolyInternal( pa );
-	    return;
-	}
-	map( x, y, w, h, &x, &y, &w, &h );
-    }
-    if ( w <= 0 || h <= 0 ) {
-	if ( w == 0 || h == 0 )
-	    return;
-	fix_neg_rect( &x, &y, &w, &h );
-    }
 
+    if ( a > (360*16) ) {
+	a = a % (360*16);
+    } else if ( a < 0 ) {
+	a = a % (360*16);
+	if ( a < 0 ) 
+	    a += (360*16);
+    }
+    if ( testf(ExtDev) ) {
+	QPDevCmdParam param[3];
+	QRect r( x, y, w, h );
+	param[0].rect = &r;
+	param[1].ival = a;
+	param[2].ival = alen;
+	if ( !pdev->cmd( QPaintDevice::PdcDrawPie, this, param ) || !pdev->handle())
+	    return;
+    }
     //There is probably a way to do this with FrameArc/PaintArc, but for now it is
     //very different from Qt and not worth it FIXME
     QPointArray pa;
