@@ -651,9 +651,9 @@ public:
     QMultiHash() {}
     QMultiHash(const QHash<Key, T> &other) : QHash<Key, T>(other) {}
 
-    inline iterator replace(const Key &key, const T &value)
+    inline typename QHash<Key, T>::iterator replace(const Key &key, const T &value)
     { return QHash<Key, T>::insert(key, value); }
-    inline iterator insert(const Key &key, const T &value)
+    inline typename QHash<Key, T>::iterator insert(const Key &key, const T &value)
     { return QHash<Key, T>::insertMulti(key, value); }
 
     inline QMultiHash<Key, T> &operator+=(const QMultiHash<Key, T> &other)

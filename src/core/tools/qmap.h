@@ -686,9 +686,9 @@ public:
     QMultiMap() {}
     QMultiMap(const QMap<Key, T> &other) : QMap<Key, T>(other) {}
 
-    inline iterator replace(const Key &key, const T &value)
+    inline typename QMap<Key, T>::iterator replace(const Key &key, const T &value)
     { return QMap<Key, T>::insert(key, value); }
-    inline iterator insert(const Key &key, const T &value)
+    inline typename QMap<Key, T>::iterator insert(const Key &key, const T &value)
     { return QMap<Key, T>::insertMulti(key, value); }
 
     inline QMultiMap<Key, T> &operator+=(const QMultiMap<Key, T> &other)
