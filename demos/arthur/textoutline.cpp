@@ -8,7 +8,11 @@
 TextOutline::TextOutline(QWidget *parent)
     : DemoWidget(parent)
 {
+#ifndef Q_WS_QWS
     QFont f("times");
+#else
+    QFont f("babelfish");
+#endif
     f.setStyleHint(QFont::Serif);
     f.setPointSize(100);
     basePath.addText(0, 100, f, "Trolltech");
