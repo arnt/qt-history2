@@ -330,9 +330,6 @@ QWhatsThisPrivate::~QWhatsThisPrivate()
 	    delete i;
     }
     delete dict;
-#ifndef QT_NO_CURSOR
-    delete cursor;
-#endif
     delete whatsThat;
 
     // and finally lose wt
