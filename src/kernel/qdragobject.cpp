@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#49 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#50 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -756,7 +756,7 @@ void QStoredDrag::setEncodedData( const QByteArray & encodedData )
 */
 QByteArray QStoredDrag::encodedData(const char* m) const
 {
-    if ( m == d->fmt )
+    if ( !qstricmp(m,d->fmt) )
 	return d->enc;
     else
 	return QByteArray();
