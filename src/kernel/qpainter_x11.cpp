@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#302 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#303 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -2490,15 +2490,19 @@ void QPainter::drawTiledPixmap( int x, int y, int w, int h,
 static QString gen_text_bitmap_key( const QWMatrix &m, const QFont &font,
 				    const QString &str, int len )
 {
-    QString s = str;
-    s.truncate( len );
-    QString fd = font.key();
-    QString k;
-    k.sprintf( "$qt$%g,%g,%g,%g,%g,%g",
-	       m.m11(), m.m12(), m.m21(),m.m22(), m.dx(), m.dy() );
-    k += fd;
-    k += QChar(',');
-    k += s;
+    QString k = "$qt$";
+    k += QString( str, len );
+    k += font.key();
+    // Here we put binary data directly into the QString key
+    double mv[6];
+    mv[0] = m.m11();
+    mv[1] = m.m12();
+    mv[2] = m.m21();
+    mv[3] = m.m22();
+    mv[4] = m.dx();
+    mv[5] = m.dy();
+    // Use sizeof(double)*3 since each character is 2 bytes
+    k += QString( (QChar*)&mv[0], sizeof(double)*3 );
     return k;
 }
 
