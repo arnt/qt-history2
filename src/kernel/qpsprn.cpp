@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprn.cpp#27 $
+** $Id: //depot/qt/main/src/kernel/qpsprn.cpp#28 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -18,7 +18,7 @@
 #include "qfile.h"
 #include "qbuffer.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpsprn.cpp#27 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpsprn.cpp#28 $");
 
 
 #if !defined(QT_HEADER_PS)
@@ -120,18 +120,17 @@ static void ps_setFont( QTextStream *s, const QFont *f, QString *fonts )
     bool times	= FALSE;
     bool symbol = FALSE;
     family = family.lower();
-    if ( family == "courier" )
+    if ( family == "courier" ) {
 	ps = "/Courier";
-    else if ( family == "times" ) {
+    } else if ( family == "times" ) {
 	ps = "/Times";
 	times = TRUE;
-    }
-    else if ( family == "symbol" ) {
+    } else if ( family == "symbol" ) {
 	ps = "/Symbol";
 	symbol = TRUE;
-    }
-    else
+    } else {
 	ps = "/Helvetica";
+    }
     QString extra;
     if ( weight >= QFont::Bold && !symbol )
 	extra = "Bold";
@@ -144,15 +143,14 @@ static void ps_setFont( QTextStream *s, const QFont *f, QString *fonts )
     if ( !extra.isEmpty() ) {
 	ps += '-';
 	ps += extra;
-    }
-    else {
+    } else {
 	if ( times )
 	    ps += "-Roman";
     }
     QString fontMatrix;
     fontMatrix.sprintf( "[ %d 0 0 -%d 0 0 ]", f->pointSize(), f->pointSize() );
     *s << ps << " findfont " << fontMatrix << " makefont setfont\n";
-    ps.remove( 0, 1 );	// removes the '/'
+    ps.remove( 0, 1 );				// removes the '/'
     ps += ' ';
     if ( !fonts->contains(ps) )
 	*fonts += ps;
@@ -492,17 +490,14 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	    ps_setFont( &stream, p[0].font, &fontsUsed );
 	    break;
 	case PDC_SETPEN:
-	    if ( p[0].pen->width() == 0 )
-		stream << (int)p[0].pen->style()   << " 0.3 "
-		       << COLOR(p[0].pen->color()) << "PE\n";
-	    else
-		stream << (int)p[0].pen->style()   << ' '
-		       << p[0].pen->width()
-		       << COLOR(p[0].pen->color()) << "PE\n";
+	    stream << (int)p[0].pen->style() << ' ' << p[0].pen->width()
+		   << ' ' << COLOR(p[0].pen->color()) << "PE\n";
 	    break;
 	case PDC_SETBRUSH:
 	    if ( p[0].brush->style() == CustomPattern ) {
+#if defined(DEBUG)
 		warning( "QPrinter: Pixmap brush not supported" );
+#endif
 		return FALSE;
 	    }
 	    stream << (int)p[0].brush->style()	 << ' '

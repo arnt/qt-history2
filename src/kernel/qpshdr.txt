@@ -1,5 +1,5 @@
 %
-% $Id: //depot/qt/main/src/kernel/qpshdr.txt#11 $
+% $Id: //depot/qt/main/src/kernel/qpshdr.txt#12 $
 %
 % Postscript routines for QPSPrinter class
 %
@@ -292,6 +292,7 @@ end
     PCol astore pop
     /LWi ED
     /PSt ED
+    LWi 0 eq { 0.3 /LWi ED } if
 } D
 
 /ST {				% SET TRANSFORM [matrix]
@@ -333,22 +334,22 @@ end
      } if
      BCol SC
      0.3 SW
-     BSt 9 eq BSt 11 eq or		% horiz or cross pattern
-     { 0 4 h				% draw horiz lines !!! alignment
+     BSt 9 eq BSt 11 eq or	% horiz or cross pattern
+     { 0 4 h			% draw horiz lines !!! alignment
        { NP dup 0 exch MT w exch LT S } for
      } if
-     BSt 10 eq BSt 11 eq or		% vert or cross pattern
-     { 0 4 w				% draw vert lines !!! alignment
+     BSt 10 eq BSt 11 eq or	% vert or cross pattern
+     { 0 4 w			% draw vert lines !!! alignment
        { NP dup 0 MT h LT S } for
      } if
-     BSt 12 eq BSt 14 eq or		% F-diag or diag cross
+     BSt 12 eq BSt 14 eq or	% F-diag or diag cross
      { w h gt
        { 0 6 w h add
 	{ NP dup h MT h sub 0 LT S } for }
        { 0 6 w h add
 	 { NP dup w exch MT w add 0 exch LT S } for } ifelse
      } if
-     BSt 13 eq BSt 14 eq or		% B-diag or diag cross
+     BSt 13 eq BSt 14 eq or	% B-diag or diag cross
      { w h gt
        { 0 6 w h add
 	 { NP dup 0 MT h sub h LT S } for }
@@ -368,13 +369,21 @@ end
     [ 5 3 3 3 3 3 ]  [ 3 5 3 3 3 3 ]	%   dash dot dot line
 ] def
 
-/GPS {			% get penstyle	BOOL => dash_pattern
-			% arg BOOL: true=draw pattern,	false=fill pattern
-    PSt 1 ge PSt 5 le and			% valid pen pattern?
-    { { LArr PSt 1 sub 2 mul get }		% draw pattern
-      { LArr PSt 2 mul 1 sub get } ifelse	% opaque pattern
+%
+% Returns the line pattern (from pen style PSt).
+%
+% Argument:
+%   bool pattern
+%	true : draw pattern
+%	false: fill pattern
+%
+
+/GPS {
+  PSt 1 ge PSt 5 le and			% valid pen pattern?
+    { { LArr PSt 1 sub 2 mul get }	% draw pattern
+      { LArr PSt 2 mul 1 sub get } ifelse   % opaque pattern
     }
-    { [] } ifelse				% out of range => solid line
+    { [] } ifelse			% out of range => solid line
 } D
 
 QI
