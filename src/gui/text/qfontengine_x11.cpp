@@ -1270,9 +1270,8 @@ void QFontEngineXft::draw(QPaintEngine *p, int xpos, int ypos, const QTextItem &
     if (p->painterState()->txop >= QPainter::TxScale) {
         Q_ASSERT(_face->face_flags & FT_FACE_FLAG_SCALABLE);
 
-        XftPattern *pattern = XftPatternDuplicate(_pattern);
         XftMatrix *mat = 0;
-        XftPatternGetMatrix(pattern, XFT_MATRIX, 0, &mat);
+        XftPatternGetMatrix(_pattern, XFT_MATRIX, 0, &mat);
         XftMatrix m2;
         double scale = p->painterState()->worldMatrix.det();
         scale = sqrt(QABS(scale));
@@ -1316,6 +1315,7 @@ void QFontEngineXft::draw(QPaintEngine *p, int xpos, int ypos, const QTextItem &
             if (scale > 0)
                 XftMatrixScale(&m2, 1/scale, 1/scale);
 
+            XftPattern *pattern = XftPatternDuplicate(_pattern);
             XftPatternDel(pattern, XFT_MATRIX);
             XftPatternAddMatrix(pattern, XFT_MATRIX, &m2);
             double size;
