@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgeneric.h#8 $
+** $Id: //depot/qt/main/src/tools/qgeneric.h#9 $
 **
 ** Macros for pasting tokens; utilized by our generic classes
 **
@@ -18,17 +18,15 @@
 #include <generic.h>		/* MPW C++ has a non-standard preprocessor */
 #else
 
-#if defined(UNIX)		// TODO what Windows compilers include it?
+#if defined(_OS_LINUX_)
+#include <g++/generic.h>
+#elsiif defined(UNIX)		// TODO what Windows compilers include it?
 #include <generic.h>
 #endif
 
 #define USE_STDC_MACROS		/* comment out this line for K&R style cpp */
 
 #if defined(USE_STDC_MACROS)
-
-#if defined(UNIX)		// TODO what Windows compilers include it?
-#include <generic.h>
-#endif
 
 // Standard token-pasting macros for ANSI C preprocessors
 
