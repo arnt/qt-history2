@@ -1525,7 +1525,7 @@ void QCommonStyle::drawComplexControlMask( ComplexControl control,
 QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
 					    const QWidget *widget,
 					    SubControl sc,
-					    const QStyleOption& opt ) const
+					    const QStyleOption&  ) const
 {
 
     QRect rect;
@@ -1906,6 +1906,11 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QWidget *widget) const
     int ret;
 
     switch (m) {
+    case PM_TitleBarHeight: {
+	QRect menur = querySubControlMetrics(QStyle::CC_TitleBar, widget,
+					     QStyle::SC_TitleBarSysMenu);
+	ret = QMAX( QMAX( menur.height(), 18 ), widget ? widget->fontMetrics().lineSpacing() : 0);
+	break; }
     case PM_ScrollBarSliderMin:
 	ret = 9;
 	break;

@@ -724,8 +724,13 @@ void QWorkspace::normalizeWindow( QWidget* w)
     if ( c ) {
 	QWorkspace *fake = (QWorkspace*)w;
 	fake->clearWState( WState_Minimized | WState_Maximized );
-	if ( d->maxWindow )
+	if ( !style().styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, this) && d->maxWindow )
 	    hideMaximizeControls();
+	else {
+	    c->widgetResizeHandler->setActive( TRUE );
+	    c->titlebar->setMovable(TRUE);
+	}
+
 	if ( c == d->maxWindow ) {
 	    c->setGeometry( d->maxRestore );
 	    d->maxWindow = 0;
@@ -741,7 +746,12 @@ void QWorkspace::normalizeWindow( QWidget* w)
 	    c->show();
 	}
 
-	hideMaximizeControls();
+	if ( style().styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, this)) {
+	    c->titlebar->setMovable( TRUE );
+	    c->widgetResizeHandler->setActive( TRUE );
+	} else {
+	    hideMaximizeControls();
+	}
 	activateWindow( w, TRUE );
 
 	updateWorkspace();
@@ -778,7 +788,12 @@ void QWorkspace::maximizeWindow( QWidget* w)
 	}
 
 	activateWindow( w );
-	showMaximizeControls();
+	if(!style().styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, this)) {
+	    showMaximizeControls();
+	} else {
+	    c->widgetResizeHandler->setActive( FALSE );
+	    c->titlebar->setMovable( FALSE );
+	}
 #ifndef QT_NO_WIDGET_TOPEXTRA
 	inCaptionChange = TRUE;
 	if ( !!d->topCaption )
@@ -890,7 +905,14 @@ bool QWorkspace::eventFilter( QObject *o, QEvent * e)
 		maximizeWindow( d->active );
 
 	    if ( !d->maxWindow ) {
-		hideMaximizeControls();
+
+		if ( style().styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, this)) {
+		    QWorkspaceChild *wc = (QWorkspaceChild *)o;
+		    wc->widgetResizeHandler->setActive( TRUE );
+		    wc->titlebar->setMovable( TRUE );
+		} else {
+		    hideMaximizeControls();
+		}
 #ifndef QT_NO_WIDGET_TOPEXTRA
 		inCaptionChange = TRUE;
 		if ( !!d->topCaption )
@@ -1441,6 +1463,8 @@ QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
 		 window, SLOT( close() ) );
 	connect( titlebar, SIGNAL( doMinimize() ),
 		 this, SLOT( showMinimized() ) );
+	connect( titlebar, SIGNAL( doNormal() ),
+		 this, SLOT( showNormal() ) );
 	connect( titlebar, SIGNAL( doMaximize() ),
 		 this, SLOT( showMaximized() ) );
 	connect( titlebar, SIGNAL( popupOperationMenu( const QPoint& ) ),
@@ -1938,9 +1962,13 @@ void QWorkspaceChild::titleBarDoubleClicked()
 void QWorkspaceChild::adjustToFullscreen()
 {
     qApp->sendPostedEvents( childWidget, QEvent::Resize );
-    setGeometry( -childWidget->x(), -childWidget->y(),
-		 parentWidget()->width() + width() - childWidget->width(),
-		 parentWidget()->height() + height() - childWidget->height() );
+    if(style().styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, this)) {
+	setGeometry( 0, 0, parentWidget()->width(), parentWidget()->height());
+    } else {
+	setGeometry( -childWidget->x(), -childWidget->y(),
+		     parentWidget()->width() + width() - childWidget->width(),
+		     parentWidget()->height() + height() - childWidget->height() );
+    }
 }
 
 

@@ -74,6 +74,9 @@ public:
     bool isActive() const;
     virtual QString visibleText() const;
 
+    bool isMovable() const;
+    void setMovable(bool);
+
     QWidget *window() const;
 
     QSize sizeHint() const;

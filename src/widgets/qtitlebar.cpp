@@ -132,7 +132,7 @@ class QTitleBarPrivate
 {
 public:
     QTitleBarPrivate()
-	: toolTip( 0 ), act( 0 ), window( 0 )
+	: toolTip( 0 ), act( 0 ), window( 0 ), movable( 0 )
     {
     }
 
@@ -141,6 +141,7 @@ public:
     QToolTip *toolTip;
     bool act		    :1;
     QWidget* window;
+    bool movable            :1;
     QString cuttext;
 };
 
@@ -328,8 +329,13 @@ void QTitleBar::mouseReleaseEvent( QMouseEvent * e)
 		break;
 
 	    case QStyle::SC_TitleBarMaxButton:
-		if( d->window && d->window->testWFlags( WStyle_Maximize ) && !d->window->testWFlags( WStyle_Tool ) )
-		    emit doMaximize();
+		if( d->window && d->window->testWFlags( WStyle_Maximize ) && 
+		    !d->window->testWFlags( WStyle_Tool ) ) {
+		    if(d->window->isMaximized())
+			emit doNormal();
+		    else
+			emit doMaximize();
+		}
 		break;
 
 	    case QStyle::SC_TitleBarCloseButton:
@@ -375,7 +381,7 @@ void QTitleBar::mouseMoveEvent( QMouseEvent * e)
 	break; 
 
     case QStyle::SC_TitleBarLabel:
-	if ( d->buttonDown == QStyle::SC_TitleBarLabel ) {
+	if ( d->buttonDown == QStyle::SC_TitleBarLabel && d->movable) {
 	    if ( (d->moveOffset - mapToParent( e->pos() ) ).manhattanLength() >= 4 ) {
 		QPoint p = mapFromGlobal(e->globalPos());
 #ifndef QT_NO_WORKSPACE
@@ -581,12 +587,22 @@ bool QTitleBar::event( QEvent* e )
     return QWidget::event( e );
 }
 
+void QTitleBar::setMovable(bool b)
+{
+    d->movable = b;
+}
+
+bool QTitleBar::isMovable() const
+{
+    return d->movable;
+}
+
 QSize QTitleBar::sizeHint() const
 {
     constPolish();
     QRect menur = style().querySubControlMetrics(QStyle::CC_TitleBar, this,
 						 QStyle::SC_TitleBarSysMenu);
-    return QSize( menur.width(), QMAX( menur.height(), fontMetrics().lineSpacing() ) );
+    return QSize( menur.width(), style().pixelMetric( QStyle::PM_TitleBarHeight, this ) );
 }
 
 #endif //QT_NO_TITLEBAR

@@ -121,8 +121,13 @@ void QAquaFocusWidget::setFocusWidget( QWidget * widget )
     if (d == widget)
 	return;
     hide();
-    if (d)
+    if (d) {
+	QObject::disconnect(d, SIGNAL(destroyed(QObject*)), this, SLOT(objDestroyed(QObject*)));
+	if(d->parentWidget())
+	    d->parentWidget()->removeEventFilter(this);
 	d->removeEventFilter( this );
+    }
+    d = NULL;
     if(handles(widget)) {
 	d = widget;
 	reparent( d->parentWidget(), pos() );
@@ -131,10 +136,9 @@ void QAquaFocusWidget::setFocusWidget( QWidget * widget )
 	d->parentWidget()->installEventFilter( this );
 	setGeometry( widget->x() - 3, widget->y() - 3, widget->width() + 6, widget->height() + 6 );
 	setMask( QRegion( rect() ) - QRegion( 5, 5, width() - 10, height() - 10 ) );
+	QObject::connect(d, SIGNAL(destroyed(QObject*)), this, SLOT(objDestroyed(QObject*)));
 	show();
-    } else {
-	d = NULL;
-    }
+    } 
 }
 
 bool QAquaFocusWidget::handles(QWidget *widget)
@@ -147,43 +151,43 @@ bool QAquaFocusWidget::handles(QWidget *widget)
 
 void QAquaFocusWidget::objDestroyed(QObject * o)
 {
-    if (o == d) {
+    if (o && o == d) {
 	hide();
+	if(d->parentWidget())
+	    d->parentWidget()->removeEventFilter(this);
+	d->removeEventFilter( this );
 	d = NULL;
     }
 }
 
 bool QAquaFocusWidget::eventFilter( QObject * o, QEvent * e )
 {
-    if (d && o == d->parentWidget()) {
-	if (e->type() == QEvent::ChildInserted)
-	    return TRUE;
-	else
-	    return FALSE;
-    }
-    if (o != d)
-	return FALSE;
-    switch (e->type()) {
-    case QEvent::Move: {
-	QMoveEvent *me = (QMoveEvent*)e;
-	move( me->pos().x() - 3, me->pos().y() - 3 );
-	break;
-    }
-    case QEvent::Resize: {
-	QResizeEvent *re = (QResizeEvent*)e;
-	resize( re->size().width() + 6, re->size().height() + 6 );
-	setMask( QRegion( rect() ) - QRegion( 5, 5, width() - 10, height() - 10 ) );
-	break;
-    }
-    case QEvent::Reparent: {
-	QWidget *w = (QWidget*)o;
-	reparent( w->parentWidget(), pos() );
-	raise();
-	break;
-    }
-    default:
-	break;
-    }
+    if ((e->type() == QEvent::ChildInserted || e->type() == QEvent::ChildRemoved) &&
+	((QChildEvent*)e)->child() == this) {
+	if(e->type() == QEvent::ChildRemoved)
+	    o->removeEventFilter(this); //once we're removed, stop listening
+	return TRUE; //block child events
+    } else if (o == d) 
+	switch (e->type()) {
+	case QEvent::Move: {
+	    QMoveEvent *me = (QMoveEvent*)e;
+	    move( me->pos().x() - 3, me->pos().y() - 3 );
+	    break;
+	}
+	case QEvent::Resize: {
+	    QResizeEvent *re = (QResizeEvent*)e;
+	    resize( re->size().width() + 6, re->size().height() + 6 );
+	    setMask( QRegion( rect() ) - QRegion( 5, 5, width() - 10, height() - 10 ) );
+	    break;
+	}
+	case QEvent::Reparent: 
+	    reparent( d->parentWidget(), pos() );
+	    d->parentWidget()->installEventFilter( this );
+	    raise();
+	    break;
+	default:
+	    break;
+	}
     return FALSE;
 }
 
@@ -1139,6 +1143,9 @@ int QAquaStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
 {
     int ret = 0;
     switch(metric) {
+    case PM_TitleBarHeight: 
+	ret = 16;
+	break;
     case PM_ScrollBarSliderMin:
 	ret = 24;
 	break;
@@ -1679,8 +1686,6 @@ QRect QAquaStyle::querySubControlMetrics( ComplexControl control,
 	    rect = QRect(42, 2, 11, 12);
 	else if(sc & SC_TitleBarLabel)
 	    rect = QRect(53, 0, w->width(), 16);
-	else if(sc & SC_TitleBarSysMenu)
-	    rect = QRect(-666, -666, 0, 16); //ugh, how bogus!
 	break; }
 
 #ifndef QT_NO_SCROLLBAR
@@ -1762,6 +1767,9 @@ int QAquaStyle::styleHint(StyleHint sh, const QWidget *w, QStyleHintReturn *d) c
 {
     int ret = 0;
     switch(sh) {
+    case SH_Workspace_FillSpaceOnMaximize:
+	ret = TRUE;
+	break;
     case SH_Widget_ShareActivation:
 	ret = TRUE;
 	break;

@@ -409,6 +409,7 @@ public:
 	PM_ProgressBarChunkWidth,
 
 	PM_SplitterWidth,
+	PM_TitleBarHeight,
 
 	PM_IndicatorWidth,
 	PM_IndicatorHeight,
@@ -515,7 +516,10 @@ public:
 	SH_ItemView_ChangeHighlightOnFocus,
 
 	// bool - supports shared activation among modeless widgets
-	SH_Widget_ShareActivation
+	SH_Widget_ShareActivation,
+
+	// bool - workspace should just maximize the client area
+	SH_Workspace_FillSpaceOnMaximize
     };
 
     virtual int styleHint( StyleHint stylehint,
