@@ -1042,11 +1042,11 @@ void QSGIStyle::drawComplexControl( ComplexControl control,
 		QRect grooveTop = groove;
 		grooveTop.addCoords( 1, 1, -1, -1 );
 		qDrawShadePanel( p, groove, cg, TRUE, 2, &cg.brush( QColorGroup::Mid ) );
-		drawPrimitive( PE_ButtonCommand, p, grooveTop, cg, flags, data );
+		drawPrimitive( PE_ButtonCommand, p, grooveTop, cg, flags & ~Style_MouseOver, data );
 
 		if ( slider->hasFocus() ) {
 		    QRect fr = subRect( SR_SliderFocusRect, widget );
-		    drawPrimitive( PE_FocusRect, p, fr, cg, flags );
+		    drawPrimitive( PE_FocusRect, p, fr, cg, flags & ~Style_MouseOver );
 		}
 	    }
 
@@ -1115,11 +1115,11 @@ void QSGIStyle::drawComplexControl( ComplexControl control,
 	    }
 	    if ( sub & SC_ScrollBarAddPage ) {
 		QRect er = QStyle::visualRect( querySubControlMetrics( CC_ScrollBar, widget, SC_ScrollBarAddPage, data ), widget );
-		drawPrimitive( PE_ScrollBarAddPage, p, er, cg, flags, data );
+		drawPrimitive( PE_ScrollBarAddPage, p, er, cg, flags & ~Style_MouseOver, data );
 	    }
 	    if ( sub & SC_ScrollBarSubPage ) {
 		QRect er = QStyle::visualRect( querySubControlMetrics( CC_ScrollBar, widget, SC_ScrollBarSubPage, data ), widget );
-		drawPrimitive( PE_ScrollBarSubPage, p, er, cg, flags, data );
+		drawPrimitive( PE_ScrollBarSubPage, p, er, cg, flags & ~Style_MouseOver, data );
 	    }
 	    if ( sub & SC_ScrollBarSlider ) {
 		QRect er = QStyle::visualRect( querySubControlMetrics( CC_ScrollBar, widget, SC_ScrollBarSlider, data ), widget );
