@@ -20,6 +20,7 @@
 #include "qstring.h"
 #include "qcleanuphandler.h"
 #include <private/qcore_mac_p.h>
+#include <CoreFoundation/CoreFoundation.h>
 #include <stdlib.h>
 
 /*****************************************************************************
@@ -95,13 +96,13 @@ qt_mac_get_global_setting(QString key, QString ret=QString::null, QString file=Q
             float fnum;
             CFNumberType numType = CFNumberGetType(number);
             switch (numType) {
-            case CFNumberIntType:
-                if (CFNumberGetValue(number), kCFNumberIntType, &num)
-                    ret = QString::number(num);
+            case kCFNumberIntType:
+                if (CFNumberGetValue(number, kCFNumberIntType, &inum))
+                    ret = QString::number(inum);
                 break;
-            case CFNumberFloatType:
-                if (CFNumberGetValue(number), kCFNumberFloatType, &fnum)
-                    ret = QString::number(num);
+            case kCFNumberFloatType:
+                if (CFNumberGetValue(number, kCFNumberFloatType, &fnum))
+                    ret = QString::number(fnum);
                 break;
             default:
                 qWarning("qt-internal::QSettings, %s: unknown CFNumber Type %d", key.latin1(), numType);
