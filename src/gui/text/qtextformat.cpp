@@ -1575,15 +1575,18 @@ QFont QTextCharFormat::font() const
 
     \ingroup text
 
-    A list is composed of one or more items; each item is a block. A
-    list format is used to specify the characteristics of a list; for
-    example, setStyle() controls the style of the bullet points and the
-    numbering scheme of the list items, and setIndent() controls the
-    list's indentation.
+    A list is composed of one or more items, represented as text blocks.
+    The list's format specifies the appearance of items in the list.
+    In particular, it determines the indentation and the style of each item.
 
-    \omit
-    ### Mention something about the ordered list items.
-    \endomit
+    The indentation of the items is an integer value that causes each item to
+    be offset from the left margin by a certain amount. This value is read with
+    indent() and set with setIndent().
+
+    The style used to decorate each item is set with setStyle() and can be read
+    with the style() function. The style controls the type of bullet points and
+    numbering scheme used for items in the list. Note that lists that use the
+    decimal numbering scheme begin counting at 1 rather than 0.
 
     \sa QTextList
 */
@@ -1794,7 +1797,7 @@ QFont QTextCharFormat::font() const
 /*!
     \class QTextTableFormat qtextformat.h
     \brief The QTextTableFormat class provides formatting information for
-    tables in a text document.
+    tables in a QTextDocument.
 
     \ingroup text
 
