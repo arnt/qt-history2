@@ -99,7 +99,7 @@ void Distributor::browseLibFilename()
 
 static char *find_pattern( char *h, const char *n, ulong hlen )
 {
-    if ( ! h || ! *h || ! n || ! *n || hlen == 0 )
+    if ( ! h || ! n || hlen == 0 )
 	return 0;
 
 #ifdef Q_OS_UNIX
