@@ -2675,7 +2675,9 @@ void Resource::saveFormCode()
     LanguageInterface *iface = langIface;
     if ( !iface )
 	return;
-    if ( formwindow->formFile()->code().isEmpty() || !formwindow->formFile()->hasFormCode() )
+    if ( formwindow->formFile()->hasTempFileName() ||
+	 formwindow->formFile()->code().isEmpty() ||
+	 !formwindow->formFile()->hasFormCode() )
 	return;
     QFile f( formwindow->project()->makeAbsolute( formwindow->formFile()->codeFile() ) );
     if ( f.open( IO_WriteOnly | IO_Translate ) ) {

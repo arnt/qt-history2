@@ -97,6 +97,8 @@ public:
     void removeConnection( const QString &sender, const QString &signal,
 			   const QString &receiver, const QString &slot );
 
+    bool hasTempFileName() const { return fileNameTemp; }
+
 signals:
     void somethingChanged( FormFile* );
 
