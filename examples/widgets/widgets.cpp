@@ -691,8 +691,7 @@ bool WidgetView::eventFilter( QObject *obj, QEvent *event )
 	    else
 		str += "<no name>";
 	    identify_now = FALSE;		// don't do it in message box
-	    QMessageBox::message( "Identify Widget", str,
-				  QString::null, (QWidget*)obj );
+	    QMessageBox::information( (QWidget*)obj, "Identify Widget", str );
 	    identify_now = TRUE;		// allow it again
 	}
     }
