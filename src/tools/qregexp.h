@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qregexp.h#2 $
+** $Id: //depot/qt/main/src/tools/qregexp.h#3 $
 **
 ** Definition of QRegExp class
 **
@@ -34,7 +34,7 @@ public:
 protected:
     void	wc2rx();
     void	compile();
-    char       *matchsub( ushort *, char *, char * ) const;
+    char       *matchstr( ushort *, char *, char * ) const;
 
 private:
     QString	rxstring;			// regular expression pattern
