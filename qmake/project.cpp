@@ -1069,15 +1069,22 @@ QMakeProject::read(uchar cmd)
     if(cmd & ReadFeatures) {
         debug_msg(1, "Processing default_post: %s", vars["CONFIG"].join("::").toLatin1().constData());
         doProjectInclude("default_post", true, vars);
-        debug_msg(1, "Processing CONFIG features: %s", vars["CONFIG"].join("::").toLatin1().constData());
+
+        QHash<QString, bool> processed;
+        const QStringList &configs = vars["CONFIG"];
+        debug_msg(1, "Processing CONFIG features: %s", configs.join("::").toLatin1().constData());
         while(1) {
-            const QStringList &configs = vars["CONFIG"];
-            int i = configs.size()-1;
-            for( ; i >= 0; i--) {
-                if(doProjectInclude(configs[i], true, vars) == IncludeSuccess)
-                    break;
+            bool finished = true;
+            for(int i = configs.size()-1; i >= 0; --i) {
+                if(!processed.contains(configs[i])) {
+                    processed.insert(configs[i], true);
+                    if(doProjectInclude(configs[i], true, vars) == IncludeSuccess) {
+                        finished = false;
+                        break;
+                    }
+                }
             }
-            if(i == -1)
+            if(finished)
                 break;
         }
     }
