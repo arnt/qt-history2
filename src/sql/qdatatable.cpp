@@ -337,9 +337,7 @@ void QDataTable::removeColumn( uint col )
     }
 }
 
-/*! \reimp
- */
-
+/*! \reimp */
 void QDataTable::setColumnWidth( int col, int w )
 {
     if ( d->fldWidth.at( col ) != d->fldWidth.end() ) {
@@ -526,7 +524,7 @@ bool QDataTable::confirmCancels() const
     return d->dat.confirmCancels();
 }
 
-/*!  \reimp
+/*! \reimp
 
   For an editable table, creates an editor suitable for the field in
   column \a col.  The editor is created using the default editor
@@ -559,9 +557,7 @@ QWidget * QDataTable::createEditor( int , int col, bool initFromCell ) const
     return w;
 }
 
-/*! \reimp
-*/
-
+/*! \reimp */
 bool QDataTable::eventFilter( QObject *o, QEvent *e )
 {
     if ( !o || !e )
@@ -654,9 +650,7 @@ bool QDataTable::eventFilter( QObject *o, QEvent *e )
     return b;
 }
 
-/*!  \reimp
-*/
-
+/*! \reimp */
 void QDataTable::resizeEvent ( QResizeEvent * e )
 {
     if ( sqlCursor() &&
@@ -666,9 +660,7 @@ void QDataTable::resizeEvent ( QResizeEvent * e )
     QTable::resizeEvent( e );
 }
 
-/*!  \reimp
-*/
-
+/*! \reimp */
 void QDataTable::contentsMousePressEvent( QMouseEvent* e )
 {
     QTable::contentsMousePressEvent( e );
@@ -711,9 +703,7 @@ void QDataTable::contentsMousePressEvent( QMouseEvent* e )
     }
 }
 
-/*!  \reimp
-*/
-
+/*! \reimp */
 QWidget* QDataTable::beginEdit ( int row, int col, bool replace )
 {
     d->editRow = -1;
@@ -735,9 +725,7 @@ QWidget* QDataTable::beginEdit ( int row, int col, bool replace )
     return 0;
 }
 
-/*! \reimp
-*/
-
+/*! \reimp */
 void QDataTable::endEdit( int row, int col, bool accept, bool )
 {
     QWidget *editor = cellWidget( row, col );
@@ -777,8 +765,7 @@ void QDataTable::endEdit( int row, int col, bool accept, bool )
     emit valueChanged( row, col );
 }
 
-/*! \reimp
-*/
+/*! \reimp */
 void QDataTable::activateNextCell()
 {
 //     if ( d->dat.mode() == QSql::None )
@@ -1365,8 +1352,6 @@ QString QDataTable::falseText() const
 /*! \property QDataTable::numRows
 
   \brief the number of rows in the table
-
-  \reimp
 */
 
 int QDataTable::numRows() const
@@ -1401,8 +1386,6 @@ void QDataTable::setNumCols ( int r )
 /*! \property QDataTable::numCols
 
   \brief the number of columns in the table
-
-  \reimp
 */
 
 int QDataTable::numCols() const
@@ -1503,9 +1486,7 @@ void QDataTable::sortColumn ( int col, bool ascending,
     }
 }
 
-/*!  \reimp
-*/
-
+/*! \reimp */
 void QDataTable::columnClicked ( int col )
 {
     if ( sorting() ) {
@@ -1519,7 +1500,7 @@ void QDataTable::columnClicked ( int col )
     }
 }
 
-/*!  \reimp
+/*! \reimp
 
   Repaints the cell at \a row, \a col.
 
@@ -1770,9 +1751,7 @@ void QDataTable::setPixmap ( int , int , const QPixmap &  )
 
 }
 
-/*!  \reimp
-*/
-
+/*! \reimp */
 void QDataTable::takeItem ( QTableItem * )
 {
 
@@ -1942,7 +1921,7 @@ void QDataTable::refresh()
     refresh( RefreshData );
 }
 
-/*!  \reimp
+/*! \reimp
 
   Selects the record in the table using the current cursor edit buffer
   and the fields specified by the index \a idx.  If \a atHint is
