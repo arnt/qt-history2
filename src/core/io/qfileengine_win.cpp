@@ -1096,7 +1096,7 @@ bool QFSFileEngine::setSize(QIODevice::Offset size)
                     newSize += in;
                 }
                 if (newSize < size) {
-                    QByteArray ba(size - newSize, 0);
+                    QByteArray ba(size - newSize, char(0));
                     if (file2.write(ba) != ba.size())
                         return false;
                 }
