@@ -22,16 +22,17 @@
 #include <qwidget.h>
 #include <qtoolbutton.h>
 #include "mainwindow.h"
-#include <qwindowsstyle.h>
+#include <qstylefactory.h>
+#include <qstyle.h>
 
-static QWindowsStyle *windowsStyle = 0;
+static QStyle *windowsStyle = 0;
 
 void WidgetAction::addedTo( QWidget *w, QWidget *container )
 {
     if ( w->inherits( "QToolButton" ) && container->parent()->parent() &&
 	 container->parent()->parent()->inherits( "QScrollView" ) ) {
 	if ( !windowsStyle )
-	    windowsStyle = new QWindowsStyle;
+	    windowsStyle = QStyleFactory::create( "windows" );
 	w->setStyle( windowsStyle );
 	( (QToolButton*)w )->setUsesTextLabel( TRUE );
 	( (QToolButton*)w )->setTextPosition( QToolButton::Right );
