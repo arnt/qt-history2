@@ -183,7 +183,7 @@ QGenericItemModel *QAbstractItemView::model() const
     return d->model;
 }
 /*
-void QAbstractItemView::sort(int column, Qt::SortOrder order)
+void QAbstractItemView::sort(int column, SortOrder order)
 {
     // FIXME: this code is not active yet
     int rows = model()->rowCount(root());
@@ -255,10 +255,10 @@ void QAbstractItemView::contentsMousePressEvent(QMouseEvent *e)
 	if (e->state() & ShiftButton) {
 	    d->dragRect.setBottomRight(pos); // do not normalize
 	    selectionModel()->setCurrentItem(item, QItemSelectionModel::NoUpdate, selectionBehavior());
-	    setSelection(d->dragRect.normalize(), selectionUpdateMode(e->state(), item));
+	    setSelection(d->dragRect.normalize(), selectionUpdateMode(e->state(), item, e->type()));
 	} else {
 	    d->dragRect = QRect(pos, pos);
-	    selectionModel()->setCurrentItem(item, selectionUpdateMode(e->state(), item), selectionBehavior());
+	    selectionModel()->setCurrentItem(item, selectionUpdateMode(e->state(), item, e->type()), selectionBehavior());
 	}
     } else {
  	clearSelections();
@@ -267,7 +267,7 @@ void QAbstractItemView::contentsMousePressEvent(QMouseEvent *e)
 
 void QAbstractItemView::contentsMouseMoveEvent(QMouseEvent *e)
 {
-    if (!(e->state() & Qt::LeftButton))
+    if (!(e->state() & LeftButton))
 	return;
     QPoint pos = e->pos();
 
@@ -301,7 +301,7 @@ void QAbstractItemView::contentsMouseMoveEvent(QMouseEvent *e)
 	selectionModel()->setCurrentItem(item, QItemSelectionModel::NoUpdate, selectionBehavior());
     }
     setState(Selecting);
-    setSelection(d->dragRect.normalize(), selectionUpdateMode(e->state(), item));
+    setSelection(d->dragRect.normalize(), selectionUpdateMode(e->state(), item, e->type()));
     updateContents(d->dragRect.normalize() | oldRect.normalize()); // draw selection rect
 }
 
@@ -309,16 +309,13 @@ void QAbstractItemView::contentsMouseReleaseEvent(QMouseEvent *e)
 {
     QPoint pos = e->pos();
     QModelIndex item  = itemAt(pos);
-    if (item.isValid() &&
-	item == d->pressedItem &&
-	!(d->pressedState & ShiftButton) &&
-	!(d->pressedState & Qt::ControlButton) &&
-	selectionModel()->isSelected(item))
-	selectionModel()->select(item,
-				 QItemSelectionModel::ClearAndSelect,
-				 selectionBehavior() );
+    selectionModel()->select(item,
+			     selectionUpdateMode(e->state(),
+						 item,
+						 e->type()),
+			     selectionBehavior());
     d->pressedItem = QModelIndex();
-    d->pressedState = Qt::NoButton;
+    d->pressedState = NoButton;
     updateContents(d->dragRect.normalize());
     setState(NoState);
 }
@@ -405,7 +402,7 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
 						 QItemSelectionModel::NoUpdate,
 						 selectionBehavior());
 		setSelection(d->dragRect.normalize(),
-			     selectionUpdateMode(e->state(), newCurrent));
+			     selectionUpdateMode(e->state(), newCurrent, e->type(), (Key)e->key()));
 	    } else if (e->state() & ControlButton) {
 		d->dragRect = itemRect(newCurrent);
 		selectionModel()->setCurrentItem(newCurrent,
@@ -415,7 +412,9 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
 		d->dragRect = itemRect(newCurrent);
 		selectionModel()->setCurrentItem(newCurrent,
 						 selectionUpdateMode(e->state(),
-								     newCurrent),
+								     newCurrent,
+								     e->type(),
+								     (Key)e->key()),
 						 selectionBehavior());
 	    }
 	    return;
@@ -437,8 +436,11 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
 // 	} else {
     {
 	    selectionModel()->select(currentItem(),
-				     selectionUpdateMode(e->state(),currentItem()),
-				     selectionBehavior() );
+				     selectionUpdateMode(e->state(),
+							 currentItem(),
+							 e->type(),
+							 (Key)e->key()),
+				     selectionBehavior());
 	    return;
 	}
 	break;
@@ -794,19 +796,75 @@ QItemSelectionModel::SelectionBehavior QAbstractItemView::selectionBehavior() co
     return QItemSelectionModel::SelectItems;
 }
 
-QItemSelectionModel::SelectionUpdateMode QAbstractItemView::selectionUpdateMode(ButtonState state,
-										const QModelIndex &item) const
+/*!
+  Returns the SelectionUpdateMode to be used when
+  updating selections. Reimplement this function to add your own
+  selection update behavior.
+
+  This function is usually called on user input events like mouse and
+  keyboard events.
+*/
+
+QItemSelectionModel::SelectionUpdateMode QAbstractItemView::selectionUpdateMode(
+    ButtonState state,
+    const QModelIndex &item,
+    QEvent::Type type,
+    Key key) const
 {
+    // ClearAndSelect always on Single selectionmode
     if (selectionMode() == QItemSelectionModel::Single)
 	return QItemSelectionModel::ClearAndSelect;
+
+    // Toggle on MouseMove
+    if (type == QEvent::MouseMove && state & ControlButton)
+	return QItemSelectionModel::ToggleCurrent;
+
+    // NoUpdate when pressing without modifiers on a selected item
+    if (type == QEvent::MouseButtonPress &&
+	!(d->pressedState & ShiftButton) &&
+	!(d->pressedState & ControlButton) &&
+	item.isValid() &&
+	selectionModel()->isSelected(item))
+	return QItemSelectionModel::NoUpdate;
+
+    // ClearAndSelect on MouseButtonRelease if MouseButtonPress on selected item
+    if (type == QEvent::MouseButtonRelease &&
+	item.isValid() &&
+	item == d->pressedItem &&
+	!(d->pressedState & ShiftButton) &&
+	!(d->pressedState & ControlButton) &&
+	selectionModel()->isSelected(item))
+	return QItemSelectionModel::ClearAndSelect;
+    else if (type == QEvent::MouseButtonRelease)
+	return QItemSelectionModel::NoUpdate;
+
+    // NoUpdate on Key movement and Ctrl
+    if (type == QEvent::KeyPress &&
+	state & ControlButton &&
+	(key == Key_Down ||
+	 key == Key_Up ||
+	 key == Key_Left ||
+	 key == Key_Right ||
+	 key == Key_Home ||
+	 key == Key_End ||
+	 key == Key_PageUp ||
+	 key == Key_PageDown))
+	return QItemSelectionModel::NoUpdate;
+
+    // Toggle on Ctrl-Key_Space, Select on Space
+    if (type == QEvent::KeyPress && key == Key_Space) {
+	if (state & ControlButton)
+	    return QItemSelectionModel::Toggle;
+	else
+	    return QItemSelectionModel::Select;
+    }
+
     if (state & ShiftButton)
-	return QItemSelectionModel::Select;
+	return QItemSelectionModel::SelectCurrent;
     if (state & ControlButton)
 	return QItemSelectionModel::Toggle;
     if (QAbstractItemView::state() == Selecting)
-	return QItemSelectionModel::Select;
-    if (selectionModel()->isSelected(item))
-	return QItemSelectionModel::NoUpdate;
+	return QItemSelectionModel::SelectCurrent;
     return QItemSelectionModel::ClearAndSelect;
 }
 

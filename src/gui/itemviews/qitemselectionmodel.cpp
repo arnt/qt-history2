@@ -117,6 +117,8 @@ public:
 	return rows;
     }
 
+
+
     QItemSelectionModel *q;
     QGenericItemModel *model;
     QItemSelectionModel::SelectionMode selectionMode;
@@ -163,6 +165,8 @@ void QItemSelectionModel::select(QItemSelection *selection,
 	case NoUpdate:
 	    return;
 	case Toggle:
+	    mergeCurrentSelection();
+	case ToggleCurrent:
 	    d->toggleState = true;
 	    old = d->currentSelection;
 	    d->currentSelection = sel;
@@ -180,6 +184,8 @@ void QItemSelectionModel::select(QItemSelection *selection,
 		d->currentSelection = 0;
 	    }
 	case Select:
+	    mergeCurrentSelection();
+	case SelectCurrent:
 	    d->toggleState = false;
 	    if (d->currentSelection) {
 		if (!old)
@@ -194,6 +200,21 @@ void QItemSelectionModel::select(QItemSelection *selection,
  	    exchange(sel, old);
 	    qWarning( "QItemSelectionModel::select Remove has not been implemented yet!" );
  	    return;
+    }
+}
+/*!
+  \internal
+
+  merges the currentSelection with the ranges in the selection model, does not emit any signal
+*/
+void QItemSelectionModel::mergeCurrentSelection()
+{
+    if (d->currentSelection) {
+	if (d->toggleState)
+	    toggle(d->currentSelection, false);
+	else
+	    d->ranges += d->currentSelection->ranges;
+	d->currentSelection = 0;
     }
 }
 
@@ -218,13 +239,6 @@ void QItemSelectionModel::setCurrentItem(const QModelIndex &item,
 					 SelectionUpdateMode mode,
 					 SelectionBehavior behavior)
 {
-    if (d->currentSelection && mode != NoUpdate) {
-	if (d->toggleState)
-	    toggle(d->currentSelection, false);
-	else
-	    d->ranges += d->currentSelection->ranges;
-  	d->currentSelection = 0;
-    }
     if (mode != NoUpdate)
  	select(item, mode, behavior); // select item
     if (item == d->currentItem)

@@ -7,6 +7,7 @@
 #include <qitemselectionmodel.h>
 #include <qitemdelegate.h>
 #include <qdragobject.h>
+#include <qevent.h>
 #endif
 
 class QAbstractItemViewPrivate;
@@ -93,7 +94,11 @@ protected:
     virtual void endEdit(const QModelIndex &item, bool accept);
 
     virtual QItemSelectionModel::SelectionBehavior selectionBehavior() const;
-    virtual QItemSelectionModel::SelectionUpdateMode selectionUpdateMode(ButtonState state, const QModelIndex &item = QModelIndex()) const;
+    virtual QItemSelectionModel::SelectionUpdateMode selectionUpdateMode(
+	ButtonState state,
+	const QModelIndex &item = QModelIndex(),
+	QEvent::Type type = QEvent::None,
+	Qt::Key key = Qt::Key_unknown) const;
 
     void drawSelectionRect(QPainter *painter, const QRect &rect) const;
     void clearArea(QPainter *painter, const QRect &rect) const;

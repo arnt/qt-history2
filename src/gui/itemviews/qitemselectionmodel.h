@@ -108,8 +108,10 @@ public:
     enum SelectionUpdateMode {
 	NoUpdate,
 	Toggle,
+	ToggleCurrent,
 	ClearAndSelect,
 	Select,
+	SelectCurrent,
 	Remove
     };
 
@@ -154,6 +156,7 @@ protected:
 		  const QItemSelectionPointer &newSelection,
 		  bool alterRanges = true);
     void toggle(const QItemSelectionPointer &selection, bool emitSelectionChanged = true);
+    void mergeCurrentSelection();
 
 private:
     QItemSelectionModelPrivate *d;
