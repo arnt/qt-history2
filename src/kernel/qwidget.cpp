@@ -2338,7 +2338,7 @@ void QWidget::setBackgroundMode( BackgroundMode m )
     setAttribute(WA_NoSystemBackground, false);
     setAttribute(WA_SetForegroundRole, false);
 #ifndef QT_NO_PALETTE
-    QPalette::ColorRole role;
+    QPalette::ColorRole role = d->bg_role;;
     switch(m) {
     case FixedColor:
     case FixedPixmap:
