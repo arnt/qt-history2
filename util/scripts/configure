@@ -495,10 +495,10 @@ then
 	"
 	;;
      OSF1:*)
-	#PLATFORM=osf1-cxx
-	PLATFORM=osf1-g++
+	PLATFORM=osf1-cxx
+	#PLATFORM=osf1-g++
 	PLATFORM_NOTES="
-	    - Also available for OSF1: osf1-cxx
+	    - Also available for OSF1: osf1-g++
 	"
 	;;
      Linux:*)
