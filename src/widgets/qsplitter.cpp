@@ -38,15 +38,15 @@
 #include "qsplitter.h"
 #ifndef QT_NO_SPLITTER
 
-#include "qpainter.h"
-#include "qdrawutil.h"
-#include "qbitmap.h"
 #include "../kernel/qlayoutengine_p.h"
-#include "qptrlist.h"
+#include "qapplication.h"
+#include "qbitmap.h"
+#include "qdrawutil.h"
 #include "qmemarray.h"
 #include "qobjectlist.h"
+#include "qpainter.h"
+#include "qptrlist.h"
 #include "qstyle.h"
-#include "qapplication.h" //sendPostedEvents
 
 class QSplitterHandle : public QWidget
 {
@@ -578,13 +578,13 @@ void QSplitter::moveBefore( int pos, int id, bool upLeft )
 	if( QApplication::reverseLayout() && orient == Horizontal ) {
 	    dd = w->geometry().right() - pos;
 	    dd = QMAX( pick(w->minimumSize()),
-		       QMIN(dd, pick(qSmartMaxSize(w))) );
+		       QMIN(dd, pick(w->maximumSize())) );
 	    newLeft = pos+1;
 	    nextPos = newLeft + dd;
 	} else {
 	    dd = pos - pick( w->pos() ) + 1;
 	    dd = QMAX( pick(w->minimumSize()),
-		       QMIN(dd, pick(qSmartMaxSize(w))) );
+		       QMIN(dd, pick(w->maximumSize())) );
 	    newLeft = pos-dd+1;
 	    nextPos = newLeft - 1;
 	}
@@ -635,14 +635,14 @@ void QSplitter::moveAfter( int pos, int id, bool upLeft )
 	if ( QApplication::reverseLayout() && orient == Horizontal ) {
 	    dd = pos - left + 1;
 	    dd = QMAX( pick(w->minimumSize()),
-		       QMIN(dd, pick(qSmartMaxSize(w))) );
+		       QMIN(dd, pick(w->maximumSize())) );
 	    newLeft = pos-dd+1;
 	    nextPos = newLeft - 1;
 	} else {
 	    right = pick( w->geometry().bottomRight() );
 	    dd = right - pos + 1;
 	    dd = QMAX( pick(w->minimumSize()),
-		       QMIN(dd, pick(qSmartMaxSize(w))) );
+		       QMIN(dd, pick(w->maximumSize())) );
 	    /*newRight = pos+dd-1;*/
 	    newLeft = pos;
 	    nextPos = newLeft + dd;
@@ -679,7 +679,7 @@ void QSplitter::getRange( int id, int *min, int *max )
 	    maxB += s->sizer;
 	} else {
 	    minB += pick( s->wid->minimumSize() );
-	    maxB += pick( qSmartMaxSize(s->wid) );
+	    maxB += pick( s->wid->maximumSize() );
 	}
     }
     for ( i = id; i < n; i++ ) {
@@ -691,7 +691,7 @@ void QSplitter::getRange( int id, int *min, int *max )
 	    maxA += s->sizer;
 	} else {
 	    minA += pick( s->wid->minimumSize() );
-	    maxA += pick( qSmartMaxSize(s->wid) );
+	    maxA += pick( s->wid->maximumSize() );
 	}
     }
     QRect r = contentsRect();
@@ -771,7 +771,7 @@ void QSplitter::doResize()
 		}
 
 		a[i].minimumSize = pick( s->wid->minimumSize() );
-		a[i].maximumSize = pick( qSmartMaxSize(s->wid) );
+		a[i].maximumSize = pick( s->wid->maximumSize() );
 		a[i].empty = FALSE;
 
 		if ( mode == Stretch ) {
@@ -850,9 +850,8 @@ void QSplitter::recalc( bool update )
 	    } else {
 		QSize minS = s->wid->minimumSize();
 		minl += pick( minS );
-		maxl += pick( qSmartMaxSize(s->wid) );
+		maxl += pick( s->wid->maximumSize() );
 		mint = QMAX( mint, trans(minS) );
-		// maybe qSmartMaxSize()?
 		int tm = trans( s->wid->maximumSize() );
 		if ( tm > 0 )
 		    maxt = QMIN( maxt, tm );
