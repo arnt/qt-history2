@@ -244,7 +244,7 @@ QWhatsThat::QWhatsThat( QWidget* w, const QString& txt, QWidget* parent, const c
     if ( QStyleSheet::mightBeRichText( text ) ) {
 	doc = new QSimpleRichText( text, font() );
 	doc->adjustSize();
-	r.setRect( 0, 0, doc->width(), doc->height() );
+	r.setRect( 0, 0, doc->widthUsed(), doc->height() );
     }
     else
 #endif
