@@ -249,8 +249,8 @@ Equivalent, that is, except that the first is faster, and that the
 first gives much better diagnostics at compile time.  When accessible,
 the first is preferred.  However, since you can get a list of all
 available properties for any QObject through its \link QMetaObject
-metaObject() \endlink setProperty() can give you control over classes
-that weren't available at compile time.
+metaObject() \endlink, \l setProperty() can give you control over
+classes that weren't available at compile time.
 
 As well as QObject::setProperty(), there is a \l QObject::property().
 \l QMetaObject::propertyNames() returns the names of all available
@@ -258,7 +258,7 @@ properties.  \l QMetaObject::property() returns the property data for
 a named property: a \l QMetaProperty object.
 
 Here's a simple example that shows the most important property
-functions in use/.
+functions in use:
 
 \code
     class MyClass : public QObject
