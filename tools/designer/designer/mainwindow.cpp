@@ -2649,6 +2649,8 @@ void MainWindow::editFunction( const QString &func, const QString &l, bool rerea
 {
     if ( !formWindow() )
 	return;
+    if ( !formWindow()->formFile()->hasFormCode() )
+	formWindow()->formFile()->createFormCode();
     SourceEditor *editor = 0;
     QString lang = l;
     if ( lang.isEmpty() )

@@ -3339,8 +3339,6 @@ void EventList::renamed( QListViewItem *i )
 	    // exists and if we can connect to this one
 	    MetaDataBase::addSlot( formWindow, i->text( 0 ).latin1(), "virtual", "public",
 				   formWindow->project()->language(), "void" );
-	    if ( !editor->formWindow()->formFile()->hasFormCode() )
-		editor->formWindow()->formFile()->createFormCode();
 	    editor->formWindow()->mainWindow()->
 		editFunction( i->text( 0 ).left( i->text( 0 ).find( "(" ) ),
 			      editor->formWindow()->project()->language(), TRUE );
