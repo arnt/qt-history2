@@ -185,6 +185,7 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$WIDGETS_H/qsplitter.h \
 		  $$WIDGETS_H/qstatusbar.h \
 		  $$WIDGETS_H/qtabbar.h \
+		  $$WIDGETS_H/qtabwidget.h \
 		  $$WIDGETS_H/qtableview.h \
 		  $$WIDGETS_H/qtoolbar.h \
 		  $$WIDGETS_H/qtoolbutton.h \
@@ -348,6 +349,7 @@ SOURCES	       += tools/qbitarray.cpp \
 		  widgets/qsplitter.cpp \
 		  widgets/qstatusbar.cpp \
 		  widgets/qtabbar.cpp \
+		  widgets/qtabwidget.cpp \
 		  widgets/qtableview.cpp \
 		  widgets/qtoolbar.cpp \
 		  widgets/qtoolbutton.cpp \
