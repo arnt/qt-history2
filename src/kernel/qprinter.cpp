@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter.cpp#49 $
+** $Id: //depot/qt/main/src/kernel/qprinter.cpp#50 $
 **
 ** Implementation of QPrinter class
 **
@@ -56,8 +56,8 @@
   range for fromPage() and toPage() are.
   </ul>
 
-  There are also some settings that the user sets (through
-  QPrintDialog) and that applications are expected to obey: <ul>
+  There are also some settings that the user sets (through the printer
+  dialog) and that applications are expected to obey: <ul>
 
   <li> pageOrder() tells the application program whether to print
   first-page-first or last-page-first.
@@ -70,6 +70,7 @@
 
   <li> fromPage() and toPage() indicate what pages the application
   program should print.
+
   </ul>
 
   You can of course call e.g. setPageOrder() to establish a default
@@ -161,6 +162,20 @@
 
   <li> \c QPrinter::LastPageFirst - the highest-numbered page should
   be printed first.
+
+  </ul>
+*/
+
+/*! \enum QPrinter::ColorMode
+
+  This enum type is used to indicate whether QPrinter should print in
+  color or not.  The possible values are: <ul>
+
+  <li> \c Color - print in color if available, else in grayscale.  This
+  is the default.
+
+  <li> \c GrayScale - print in grayscale, even on color printers.
+  Might be a little faster than \c Color.
 
   </ul>
 */
