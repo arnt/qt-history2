@@ -37,7 +37,7 @@ private:
 
     void drawTarget(QPainter *p, const QPoint &pt);
     void updatePath();
-    QPointF mapPoint(float x, float y);
+    QPointF mapPoint(float x, float y, bool *ok);
 
     QPainterPath basePath;
     QRectF basePathBounds;

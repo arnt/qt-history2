@@ -18,6 +18,9 @@ TextOutline::TextOutline(QWidget *parent)
     f.setPointSize(100);
     basePath.addText(0, 100, f, "Trolltech");
     basePathBounds = basePath.boundingRect();
+
+    // Increase the bounds a bit to avoid close to zero calculation problems...
+    basePathBounds.addCoords(-5, -5, 5, 5);
     pul = pur = pbl = pbr = QPoint(-1, -1);
     dragLocation = TopLeft;
 }
@@ -137,7 +140,7 @@ void TextOutline::showEvent(QShowEvent *)
     }
 }
 
-QPointF TextOutline::mapPoint(float x, float y)
+QPointF TextOutline::mapPoint(float x, float y, bool *mappingOk)
 {
     float dx = (x-basePathBounds.x()) / basePathBounds.width();
 
@@ -151,28 +154,30 @@ QPointF TextOutline::mapPoint(float x, float y)
     QLineF horLine(leftLine.pointAt(dy), rightLine.pointAt(dy));
 
     QPointF isect;
-    horLine.intersect(vertLine, &isect);
+    QLineF::IntersectType t = horLine.intersect(vertLine, &isect);
+    *mappingOk = t != QLineF::NoIntersection;
     return isect;
 }
 
 void TextOutline::updatePath()
 {
+    bool mappingOk = true;
     QPainterPath newPath;
     newPath.setFillMode(QPainterPath::Winding);
 
-    for (int i=0; i<basePath.elementCount(); ++i) {
+    for (int i=0; i<basePath.elementCount() && mappingOk; ++i) {
         const QPainterPath::Element &elm = basePath.elementAt(i);
         switch (elm.type) {
         case QPainterPath::MoveToElement:
-            newPath.moveTo(mapPoint(elm.x, elm.y));
+            newPath.moveTo(mapPoint(elm.x, elm.y, &mappingOk));
             break;
         case QPainterPath::LineToElement:
-            newPath.lineTo(mapPoint(elm.x, elm.y));
+            newPath.lineTo(mapPoint(elm.x, elm.y, &mappingOk));
             break;
         case QPainterPath::CurveToElement:
-            newPath.curveTo(mapPoint(elm.x, elm.y),
-                            mapPoint(basePath.elementAt(i+1).x, basePath.elementAt(i+1).y),
-                            mapPoint(basePath.elementAt(i+2).x, basePath.elementAt(i+2).y));
+            newPath.curveTo(mapPoint(elm.x, elm.y, &mappingOk),
+                            mapPoint(basePath.elementAt(i+1).x, basePath.elementAt(i+1).y, &mappingOk),
+                            mapPoint(basePath.elementAt(i+2).x, basePath.elementAt(i+2).y, &mappingOk));
             // Skip the two CurveToDataElement's
             i += 2;
             break;
@@ -181,5 +186,6 @@ void TextOutline::updatePath()
             break;
         }
     }
-    xpath = newPath;
+    if (mappingOk)
+        xpath = newPath;
 }
