@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#17 $
+** $Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#18 $
 **
 ** Implementation of QButtonGroup class
 **
@@ -15,7 +15,7 @@
 #include "qbutton.h"
 #include "qlist.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#17 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#18 $")
 
 
 /*----------------------------------------------------------------------------
@@ -111,12 +111,12 @@ QButtonGroup::~QButtonGroup()
 
   The button is assigned the identifier \e id or an automatically
   generated identifier.  It works as follows: If \e id >= 0, this
-  identifier will be assigned.  If \e id == -1 (default), the identifier
-  will be equal to the number of buttons in the group.  If \e id is
-  any other negative integer, for instance -2, a unique identifier
-  (negative integer < -1) will be generated.
+  identifier is assigned.  If \e id == -1 (default), the identifier is
+  equal to the number of buttons in the group.  If \e id is any other
+  negative integer, for instance -2, a unique identifier (negative
+  integer \< -1) is generated.
 
-  Inserting several buttons with \e id = -1 will assign the identifers 0,
+  Inserting several buttons with \e id = -1 assigns the identifers 0,
   1, 2, etc.
 
   \sa remove()
