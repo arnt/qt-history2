@@ -32,8 +32,9 @@ void ConfigToolboxDialog::init()
 			commonDnd, SLOT( confirmDrop( QListViewItem * ) ) );
 
     QHash<QString, QListViewItem *> groups;
-    for(QList<QAction*>::Iterator it = MainWindow::self->toolActions.end(); it != MainWindow::self->toolActions.begin(); --it) {
-	QAction *a = (*it);
+#   warning there must be a way to iterate backwards with a QList::Iterator!!!!! ###sam
+    for(int i = MainWindow::self->toolActions.count()-1; i >= 0; i--) {
+	QAction *a = MainWindow::self->toolActions.at(i);
 	QString grp = ( (WidgetAction*)a )->group();
 	QListViewItem *parent = groups.value( grp );
 	if ( !parent ) {
@@ -46,8 +47,9 @@ void ConfigToolboxDialog::init()
 	i->setText( 0, a->text() );
 	i->setPixmap( 0, a->iconSet().pixmap() );
     }
-    for(QList<QAction*>::Iterator it = MainWindow::self->toolActions.end(); it != MainWindow::self->toolActions.begin(); --it) {
-	QAction *a = (*it);
+#   warning there must be a way to iterate backwards with a QList::Iterator!!!!! ###sam
+    for(int i = MainWindow::self->toolActions.count()-1; i >= 0; i--) {
+	QAction *a = MainWindow::self->toolActions.at(i);
 	QListViewItem *i = new QListViewItem( listViewCommon );
 	i->setText( 0, a->text() );
 	i->setPixmap( 0, a->iconSet().pixmap() );

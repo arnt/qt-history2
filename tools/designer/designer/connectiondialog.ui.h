@@ -187,10 +187,9 @@ void ConnectionDialog::updateConnectionState( ConnectionContainer *c )
 
 void ConnectionDialog::okClicked()
 {
-    QList<MetaDataBase::Connection> oldConnections =
-	MetaDataBase::connections( MainWindow::self->formWindow() );
-    QList<Command> newConnectionCmds;
-    QList<Command> oldConnectionCmds;
+    QList<MetaDataBase::Connection> oldConnections = MetaDataBase::connections( MainWindow::self->formWindow() );
+    QList<Command*> newConnectionCmds;
+    QList<Command*> oldConnectionCmds;
     for(QList<ConnectionContainer*>::Iterator it = connections.begin(); it != connections.end(); ++it) {
 	ConnectionContainer *c = (*it);
 	MetaDataBase::Connection conn;
@@ -231,7 +230,7 @@ void ConnectionDialog::okClicked()
     MacroCommand *cmd2 = new MacroCommand( tr( "Remove Signal/Slot Connections" ),
 					   MainWindow::self->formWindow(),
 					   oldConnectionCmds );
-    QList<Command> cmds;
+    QList<Command*> cmds;
     cmds.append( cmd2 );
     cmds.append( cmd1 );
     MacroCommand *cmd = new MacroCommand( tr( "Edit Signal/Slot Connections" ),
@@ -298,7 +297,7 @@ void ConnectionDialog::updateEditSlotsButton()
 
 void ConnectionDialog::updateConnectionContainers()
 {
-    QList<ConnectionContainer> newContainers;
+    QList<ConnectionContainer*> newContainers;
     for ( int i = 0; i < connectionsTable->numRows(); ++i ) {
 	for(QList<ConnectionContainer*>::Iterator it = connections.begin(); it != connections.end(); ++it) {
 	    ConnectionContainer *c = (*it);

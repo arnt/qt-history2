@@ -817,8 +817,9 @@ void MacroCommand::execute()
 
 void MacroCommand::unexecute()
 {
-    for( QList<Command*>::Iterator it = commands.begin(); it != commands.end(); ++it)
-	(*it)->unexecute();
+#   warning there must be a way to iterate backwards with a QList::Iterator!!!!! ###sam
+    for(int i = commands.count()-1; i >= 0; i--)
+	commands.at(i)->unexecute();
 }
 
 // ------------------------------------------------------------
