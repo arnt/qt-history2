@@ -1448,6 +1448,7 @@ void QTextView::selectAll( bool select )
 	doc->removeSelection( QTextDocument::Standard );
 	repaintChanged();
     }
+    emit selectionChanged();
 }
 
 void QTextView::UndoRedoInfo::clear()
