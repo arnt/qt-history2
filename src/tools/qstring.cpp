@@ -1673,25 +1673,26 @@ QString QString::section( const QString &sep, int start, int end, int flags ) co
     QString ret;
     for(QStringList::Iterator it = sections.begin(); x <= end && it != sections.end(); ++it) {
 	if(x >= start) {
-	    if((*it).isEmpty() && (flags & SectionSkipEmpty)) {
+	    if((*it).isEmpty()) {
 		run++;
 	    } else {
-		if((flags & SectionIncludeLeadingSep) && it != sections.begin())
-		    ret += sep;
-		if(!ret.isEmpty()) {
-		    for(int i = 0; i <= run; i++)
+		if(!ret.isEmpty() || !(flags & SectionSkipEmpty)) {
+		    int i_end = run;
+		    if(!ret.isEmpty())
+			i_end++;
+		    for(int i = 0; i < i_end; i++)
 			ret += sep;
+		} else if((flags & SectionIncludeLeadingSep) && it != sections.begin()) {
+		    ret += sep;
 		}
 		run = 0;
-		x++;
 		ret += (*it);
 		if((flags & SectionIncludeTrailingSep) && it != sections.end())
 		    ret += sep;
 	    }
-	} else {
-	    if(!(*it).isEmpty() || !(flags & SectionSkipEmpty)) 
-		x++;
-	}
+	} 
+	if(!(*it).isEmpty() || !(flags & SectionSkipEmpty)) 
+	    x++;
     }
     return ret;
 }
