@@ -4,10 +4,10 @@
 #include <qcolor.h>
 #include <qsettings.h>
 
-QMap<QString, Config::Style> Config::defaultStyles()
+QMap<QString, ConfigStyle> Config::defaultStyles()
 {
-    Config::Style s;
-    QMap<QString, Style> styles;
+    ConfigStyle s;
+    QMap<QString, ConfigStyle> styles;
     int normalSize =  qApp->font().pointSize();
     QString normalFamily = qApp->font().family();
     QString commentFamily = "times";
@@ -48,10 +48,10 @@ QMap<QString, Config::Style> Config::defaultStyles()
     return styles;
 }
 
-QMap<QString, Config::Style> Config::readStyles( const QString &path )
+QMap<QString, ConfigStyle> Config::readStyles( const QString &path )
 {
     QSettings settings;
-    QMap<QString, Style> styles;
+    QMap<QString, ConfigStyle> styles;
     styles = defaultStyles();
 
     QString family;
@@ -108,7 +108,7 @@ QMap<QString, Config::Style> Config::readStyles( const QString &path )
 	f.setItalic( italic );
 	f.setUnderline( underline );
 	QColor c( red, green, blue );
-	Config::Style s;
+	ConfigStyle s;
 	s.font = f;
 	s.color = c;
 	styles.remove( elements[ i ] );
@@ -117,7 +117,7 @@ QMap<QString, Config::Style> Config::readStyles( const QString &path )
     return styles;
 }
 
-void Config::saveStyles( const QMap<QString, Config::Style> &styles, const QString &path )
+void Config::saveStyles( const QMap<QString, ConfigStyle> &styles, const QString &path )
 {
     QSettings settings;
     QString elements[] = {

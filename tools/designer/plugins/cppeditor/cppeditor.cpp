@@ -38,7 +38,7 @@ CppEditor::CppEditor( const QString &fn, QWidget *parent, const char *name )
 
 void CppEditor::configChanged()
 {
-    QMap<QString, Config::Style> styles = Config::readStyles( "/Software/Trolltech/CppEditor" );
+    QMap<QString, ConfigStyle> styles = Config::readStyles( "/Software/Trolltech/CppEditor" );
     config()->styles = styles;
     ( (SyntaxHighlighter_CPP*)document()->preProcessor() )->updateStyles( config()->styles );
     Editor::configChanged();

@@ -176,9 +176,9 @@ static int string2Id( const QString &s )
     return SyntaxHighlighter_CPP::Standard;
 }
 
-void SyntaxHighlighter_CPP::updateStyles( const QMap<QString, Config::Style> &styles )
+void SyntaxHighlighter_CPP::updateStyles( const QMap<QString, ConfigStyle> &styles )
 {
-    for ( QMap<QString, Config::Style>::ConstIterator it = styles.begin(); it != styles.end(); ++it ) {
+    for ( QMap<QString, ConfigStyle>::ConstIterator it = styles.begin(); it != styles.end(); ++it ) {
 	int id = string2Id( it.key() );
 	QTextFormat *f = format( id );
 	if ( !f )

@@ -13,8 +13,8 @@
 <include location="global" impldecl="in implementation">qpixmap.h</include>
 <include location="global" impldecl="in implementation">qlineedit.h</include>
 <variable>QString path;</variable>
-<variable>QMap&lt;QString, Config::Style&gt; styles;</variable>
-<variable>Config::Style currentStyle;</variable>
+<variable>QMap&lt;QString, ConfigStyle&gt; styles;</variable>
+<variable>ConfigStyle currentStyle;</variable>
 <variable>QString currentElement;</variable>
 <widget class="QWidget">
     <property name="name">
@@ -277,7 +277,7 @@
 </connections>
 <functions>
     <function name="boldChanged(bool)" >{
-    currentStyle.font.setBold( b ); 
+    currentStyle.font.setBold( b );
 }</function>
     <function name="colorClicked()" >{
     QColor c = QColorDialog::getColor( currentStyle.color, this );
@@ -292,15 +292,15 @@
 	styles.insert( currentElement, currentStyle );
 	currentElement = "";
     }
-    QMap&lt;QString, Config::Style&gt;::Iterator it = styles.find( element );
+    QMap&lt;QString, ConfigStyle&gt;::Iterator it = styles.find( element );
     if ( it == styles.end() )
 	return;
-    Config::Style s = *it;
+    ConfigStyle s = *it;
     currentStyle = s;
     comboFamily-&gt;lineEdit()-&gt;setText( s.font.family() );
     spinSize-&gt;setValue( s.font.pointSize() );
     checkBold-&gt;setChecked( s.font.bold() );
-    checkItalic-&gt;setChecked( s.font.italic() ); 
+    checkItalic-&gt;setChecked( s.font.italic() );
     checkUnderline-&gt;setChecked( s.font.underline() );
     setColorPixmap( s.color );
     currentElement = element;
@@ -308,10 +308,10 @@
     <function name="familyChanged(const QString&amp;)" >{
     QString oldFamily = currentStyle.font.family();
     currentStyle.font.setFamily( f );
-    for ( QMap&lt;QString, Config::Style&gt;::Iterator it = styles.begin(); it != styles.end(); ++it ) { 
-	if ( (*it).font.family() == oldFamily ) 
-	    (*it).font.setFamily( f ); 
-    } 
+    for ( QMap&lt;QString, ConfigStyle&gt;::Iterator it = styles.begin(); it != styles.end(); ++it ) {
+	if ( (*it).font.family() == oldFamily )
+	    (*it).font.setFamily( f );
+    }
 }</function>
     <function name="init()" >{
     QFontDatabase fdb;
@@ -325,7 +325,7 @@
     <function name="reInit()" >{
     styles = Config::readStyles( path );
     currentElement = "";
-    elementChanged( "Comment" );   
+    elementChanged( "Comment" );
     for ( int i = 0; i &lt; comboFamily-&gt;count(); ++i ) {
 	if ( listElements-&gt;text( i ) == "Comment" ) {
 	    listElements-&gt;setCurrentItem( i );
@@ -334,13 +334,13 @@
     }
 }</function>
     <function name="save()" >{
-    if ( !currentElement.isEmpty() ) { 
-	styles.remove( currentElement ); 
-	styles.insert( currentElement, currentStyle ); 
-	currentElement = ""; 
-    } 
+    if ( !currentElement.isEmpty() ) {
+	styles.remove( currentElement );
+	styles.insert( currentElement, currentStyle );
+	currentElement = "";
+    }
 
-    QSettings settings; 
+    QSettings settings;
     Config::saveStyles( styles, path );
 }</function>
     <function name="setColorPixmap(const QColor&amp;)" >{
@@ -354,13 +354,13 @@
     <function name="sizeChanged(int)" >{
     int oldSize = currentStyle.font.pointSize();
     currentStyle.font.setPointSize( s );
-    for ( QMap&lt;QString, Config::Style&gt;::Iterator it = styles.begin(); it != styles.end(); ++it ) {
+    for ( QMap&lt;QString, ConfigStyle&gt;::Iterator it = styles.begin(); it != styles.end(); ++it ) {
 	if ( (*it).font.pointSize() == oldSize )
 	    (*it).font.setPointSize( s );
     }
 }</function>
     <function name="underlineChanged(bool)" >{
-    currentStyle.font.setUnderline( b ); 
+    currentStyle.font.setUnderline( b );
 }</function>
 </functions>
 </UI>
