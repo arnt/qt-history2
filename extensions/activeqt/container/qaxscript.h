@@ -38,7 +38,8 @@ public:
 
     QVariant call(const QString &function, QValueList<QVariant> &arguments = QValueList<QVariant>());
 
-    static void registerEngine(const QString &name, const QString &extension, const QString &code = QString());
+    static bool registerEngine(const QString &name, const QString &extension, const QString &code = QString());
+    static QString scriptFileFilter();
 
 signals:
     void entered();

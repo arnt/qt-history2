@@ -830,18 +830,53 @@ QVariant QAxScript::call(const QString &function, QValueList<QVariant> &argument
 }
 
 /*!
-    Registers the script engine \a name.
+    Registers the script engine \a name and returns TRUE if the engine
+    could be located on the system, otherwise returns FALSE and does nothing.
+
     The script engine will be used when loading files with \a extension,
     or when loading source code that contains the string \a code.
 */
-void QAxScript::registerEngine(const QString &name, const QString &extension, const QString &code)
+bool QAxScript::registerEngine(const QString &name, const QString &extension, const QString &code)
 {
+    if (name.isEmpty())
+	return FALSE;
+
+    CLSID clsid;
+    HRESULT hres = CLSIDFromProgID( name.ucs2(), &clsid );
+    if (hres != S_OK)
+	return FALSE;
+
     QAxEngineDescriptor engine;
     engine.name = name;
     engine.extension = extension;
     engine.code = code;
 
     engines.prepend(engine);
+    return TRUE;
+}
+
+/*!
+    Returns a file filter listing all script languages supported.
+    This filter string can conveniently be used in calls to QFileDialog.
+*/
+QString QAxScript::scriptFileFilter()
+{
+    QString allFiles = "Script Files (*.js *.dsm";
+    QString specialFiles = ";;VBScript Files (*.dsm)"
+			   ";;JavaScript Files (*.js)";
+
+    QValueList<QAxEngineDescriptor>::ConstIterator it;
+    for (it = engines.begin(); it != engines.end(); ++it) {
+	QAxEngineDescriptor engine = *it;
+	if (engine.extension.isEmpty())
+	    continue;
+
+	allFiles += " *" + engine.extension;
+	specialFiles += ";;" + engine.name + " Files (*" + engine.extension + ")";
+    }
+    allFiles += ")";
+
+    return allFiles + specialFiles + ";;All Files (*.*)";
 }
 
 /*!
