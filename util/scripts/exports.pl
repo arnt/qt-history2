@@ -8,6 +8,24 @@ my $EXPORT_NAME = "Qt"; #name in the linker script
 my $EXPORT_SYMBOL = 0; #symbol to look for in files
 my $EXPORT_CPP_ARGS = ""; #-D/-I to use in processing files
 my $EXPORT_FORMAT = "version-script";
+
+sub showHelp {
+    print "$0: We can operate in two different modes, one uses a heuristic to determine\n";
+    print "    the exported symbols, the other (see -symbol below) will actually run the\n";
+    print "    preprocessor over input files, this is much slower, and unfortunetely bound\n";
+    print "    to the current configuration. Therefore the default is to use the heuristic.\n";
+    print "\n";
+    print "-help               This help.\n";
+    print "-symbol <symbol>    Uses symbol as the exact exported symbol (ie, Q_GUI_EXPORT)\n";
+    print "-D<define>          If -symbol is used define is passed onto the preprocessor.\n";
+    print "-I<include>         If -symbol is used include is added to the include path.\n";
+    print "-format <format>    Determines the output format (version-script is the default)\n";
+    print "-name <name>        Some output formats will require a base symbol name (version-script)\n";
+    print "\n";
+    print "Any other arguments are processed as input directories (or files) to look for symbols\n";
+    print "in.\n";
+}
+
 while($#ARGV >= 0) {
     if($ARGV[0] eq "-o") {
 	shift;
@@ -23,6 +41,12 @@ while($#ARGV >= 0) {
 	$EXPORT_NAME = $ARGV[0];
     } elsif($ARGV[0] =~ /^-D/ || $ARGV[0] =~ /^-I/) {
 	$EXPORT_CPP_ARGS .= "$ARGV[0] ";
+    } elsif($ARGV[0] eq "-h" || $ARGV[0] eq "-help") {
+        showHelp();
+        exit 0;
+    } elsif($ARGV[0] =~ /^-/) {
+        showHelp();
+	exit 1;
     } else {
 	push @EXPORT_INPUTS, $ARGV[0];
     }
@@ -222,3 +246,4 @@ if("$EXPORT_FORMAT" eq "version-script") {
     print "Uknown format: $EXPORT_FORMAT\n";
 }
 close(OUTPUT);
+exit 0;
