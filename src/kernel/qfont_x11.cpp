@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#145 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#146 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -93,7 +93,7 @@ public:
     QCString bestMatch( const char *pattern, int *score );
     QCString bestFamilyMember( const char *family, int *score );
     QCString findFont( bool *exact );
-    bool needsSet() { return charSet() >= Set_1 && charSet() <= Set_N; }
+    bool needsSet() const { return charSet() >= Set_1 && charSet() <= Set_N; }
 };
 
 #undef  PRIV
@@ -346,10 +346,10 @@ HANDLE QFont::handle() const
     static Font last = 0;
     if ( DIRTY_FONT ) {
 	load();
-	if ( PRIV->needsSet() )
+	if ( d->fin->fontSet() )
 	    return 0;
     } else {
-	if ( PRIV->needsSet() )
+	if ( d->fin->fontSet() )
 	    return 0;
 	if ( d->fin->fontStruct()->fid != last )
 	    fontCache->find( d->fin->name() );
@@ -1238,6 +1238,8 @@ static
 void getExt(QString str, int len, XRectangle& ink, XRectangle& logical, XFontSet set, const QTextCodec* m)
 {
     // Callers to this / this needs to be optimized.
+    // Trouble is, too much caching in multiple clients will make the
+    //  overall performance suffer.
 
     QCString x = m->fromUnicode(str,len);
     XmbTextExtents( set, x, len, &ink, &logical );
@@ -1431,11 +1433,13 @@ int QFontMetrics::lineSpacing() const
 int QFontMetrics::width( QChar ch ) const
 {
     XFontStruct *f = FS;
-    if ( f )
+    if ( f ) {
 	return printerAdjusted(charStr(mapper(),f,ch)->width);
-    XRectangle ink, log;
-    getExt(ch,1,ink,log,SET,mapper());
-    return printerAdjusted(log.width);
+    } else {
+	XRectangle ink, log;
+	getExt(ch,1,ink,log,SET,mapper());
+	return printerAdjusted(log.width);
+    }
 }
 
 /*!
