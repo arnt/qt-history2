@@ -259,15 +259,6 @@ QPrinter\QPainter??
 QToolButton
   Option to have associated popup menu pop up instead of down.
 
-QListView::lastItem() (andy)
-  Return the last item in the listview - I'll add this to the next version that I am 
-  allowed since this missed 3.0.
-
-QListView::setFocusItem() (andy)
-  Allow the user to be able to set the focus on a particular listview item.  This will 
-  allow users to make their listviews look like the ClassView/FileView in Visual Studio.
-  (i.e. items that just have focus).
-
 Services/Daemons (vohi, rms)
   Platform independent API to install deamons on Unix and Services on NT. (support/arc-12/24505)
 
@@ -280,6 +271,9 @@ QLCDNumber
 
 QToolBar
   Allow the ability to insert a toolbutton into a certain position (see qt-bugs/arc-10/21771)
+
+QListBoxItem::setEnabled()
+  Allow the user to be able to set a list box item to be disabled.
 
 
 New functionality
