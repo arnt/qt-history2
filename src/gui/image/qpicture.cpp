@@ -83,7 +83,7 @@
 */
 
 const char  *qt_mfhdr_tag = "QPIC"; // header tag
-const quint16 mfhdr_maj = 6; // major version #
+const quint16 mfhdr_maj = 7; // major version #
 const quint16 mfhdr_min = 0; // minor version #
 
 #define d d_func()
@@ -101,7 +101,7 @@ const quint16 mfhdr_min = 0; // minor version #
     \i \a formatVersion == 3 is binary compatible with Qt 2.1.x and later.
     \i \a formatVersion == 4 is binary compatible with Qt 3.0.x and later.
     \i \a formatVersion == 5 is binary compatible with Qt 3.1.x and later.
-    \i \a formatVersion == 6 is binary compatible with Qt 4.0.
+    \i \a formatVersion == 7 is binary compatible with Qt 4.0.
     \endlist
 
     Note that the default formatVersion is -1 which signifies the

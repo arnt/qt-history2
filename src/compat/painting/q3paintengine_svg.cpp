@@ -649,6 +649,10 @@ void Q3SVGPaintEnginePrivate::applyStyle(QDomElement *e, QPicturePrivate::PaintC
         s += QString("font-family:%1;").arg(f.family());
     } else {
         s += QString("stroke:rgb(%1,%2,%3);").arg(pcol.red()).arg(pcol.green()).arg(pcol.blue());
+        if (pcol.alpha() != 255)
+            s += QString("stroke-opacity:%1;").arg(pcol.alpha()/255.0);
+        if (bcol.alpha() != 255)
+            s += QString("fill-opacity:%1;").arg(bcol.alpha()/255.0);
         double pw = d->cpen.width();
         if (pw == 0 && d->cpen.style() != Qt::NoPen)
             pw = 0.9;
@@ -1223,6 +1227,16 @@ void Q3SVGPaintEnginePrivate::setStyleProperty(const QString &prop, const QStrin
             if (pen->width() == 0)
                 pen->setWidth(1);
         }
+    } else if (prop == "stroke-opacity") {
+        double opacity = parseLen(val);
+        QColor c = pen->color();
+        c.setAlpha((int)(opacity*255));
+        pen->setColor(c);
+    } else if (prop == "fill-opacity") {
+        double opacity = parseLen(val);
+        QColor c = pt->brush().color();
+        c.setAlpha((int)(opacity*255));
+        pt->setBrush(c);
     } else if (prop == "stroke-width") {
         double w = parseLen(val);
         if (w > 0.0001)
