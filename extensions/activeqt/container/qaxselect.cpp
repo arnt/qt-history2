@@ -69,9 +69,9 @@ QVariant ControlList::data(const QModelIndex &index, int role) const
     if (!index.isValid())
         return QVariant();
 
-    if (role == ControlList::DisplayRole)
+    if (role == Qt::DisplayRole)
         return controls.at(index.row());
-    if (role == ControlList::UserRole)
+    if (role == Qt::UserRole)
         return clsids.value(controls.at(index.row()));
 
     return QVariant();
@@ -93,13 +93,13 @@ QAxSelect::QAxSelect(QWidget *parent, Qt::WFlags f)
 
 void QAxSelect::on_ActiveXList_clicked(const QModelIndex &index)
 {
-    QVariant clsid = ActiveXList->model()->data(index, ControlList::UserRole);
+    QVariant clsid = ActiveXList->model()->data(index, Qt::UserRole);
     ActiveX->setText(clsid.toString());
 }
 
 void QAxSelect::on_ActiveXList_doubleClicked(const QModelIndex &index)
 {
-    QVariant clsid = ActiveXList->model()->data(index, ControlList::UserRole);
+    QVariant clsid = ActiveXList->model()->data(index, Qt::UserRole);
     ActiveX->setText(clsid.toString());
 
     accept();
