@@ -1769,6 +1769,20 @@ QObject *QObject::sender() const
 /*!
     Returns the number of receivers connect to the \a signal.
 
+    When calling this function, you can use the SIGNAL() macro
+    to pass a specific signal:
+
+    \code
+        if (receivers(SIGNAL(valueChanged(QByteArray))) > 0) {
+            QByteArray data;
+            get_the_value(data);    // expensive operation
+            emit valueChanged(data);
+        }
+    \endcode
+
+    As the code snippet above illustrates, you can use this function
+    to avoid emitting a signal that nobody listens to.
+
     \warning This function violates the object-oriented principle of
     modularity. However, it might be useful when you need to perform
     expensive initialization only if something is connected to a
@@ -2190,6 +2204,19 @@ bool QObject::disconnect(const QObject *sender, const char *signal,
     This virtual function is called when something has been connected
     to \a signal in this object.
 
+    If you want to compare \a signal with a specific signal, use
+    QLatin1String and the SIGNAL() macro as follows:
+
+    \code
+        if (QLatin1String(signal) == SIGNAL(valueChanged(int))) {
+            // signal is valueChanged(int)
+        }
+    \endcode
+
+    If the signal contains multiple parameters or parameters that
+    contain spaces, call QMetaObject::normalizedSignature() on
+    the result of the SIGNAL() macro.
+
     \warning This function violates the object-oriented principle of
     modularity. However, it might be useful when you need to perform
     expensive initialization only if something is connected to a
@@ -2207,6 +2234,9 @@ void QObject::connectNotify(const char *)
 
     This virtual function is called when something has been
     disconnected from \a signal in this object.
+
+    See connectNotify() for an example of how to compare
+    \a signal with a specific signal.
 
     \warning This function violates the object-oriented principle of
     modularity. However, it might be useful for optimizing access to
