@@ -121,7 +121,7 @@ struct QSpinBoxPrivate
 
 
 /*!
-  Creates a spin box with the default QRangeControl range and step
+  Constructs a spin box with the default QRangeControl range and step
   values.
 
   \sa minValue(), maxValue(), setRange(), lineStep(), setSteps()
@@ -136,7 +136,7 @@ QSpinBox::QSpinBox( QWidget * parent , const char *name )
 
 
 /*!
-  Creates a spin box with range from \a minValue to \a maxValue
+  Constructs a spin box with range from \a minValue to \a maxValue
   inclusive, with step amount \a step.  The value is initially
   set to \a minValue.
 

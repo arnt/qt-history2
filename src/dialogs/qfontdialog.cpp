@@ -142,7 +142,7 @@ public:
 
 
 /*!
-  Creates a default font dialog.
+  Constructs a default font dialog.
 */
 
 QFontDialog::QFontDialog( QWidget *parent, const char *name,

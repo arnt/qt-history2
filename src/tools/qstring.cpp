@@ -13596,7 +13596,7 @@ QDataStream &operator>>( QDataStream &s, QString &str )
 */
 
 /*!
-  Creates a QConstString that uses the first \a length Unicode
+  Constructs a QConstString that uses the first \a length Unicode
   characters in the array \a unicode.  Any attempt to modify
   copies of the string will cause it to create a copy of the
   data, thus it remains forever unmodified.

@@ -537,7 +537,7 @@ QImageFormat::~QImageFormat()
 */
 
 /*!
-  Creates a factory.  It automatically registers itself with QImageDecoder.
+  Constructs a factory.  It automatically registers itself with QImageDecoder.
 */
 QImageFormatType::QImageFormatType()
 {

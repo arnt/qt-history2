@@ -125,7 +125,7 @@ void QToolButton::init()
 }
 
 
-/*!  Creates a tool button that is a child of \a parent (which must be
+/*!  Constructs a tool button that is a child of \a parent (which must be
   a QToolBar) and named \a name.
 
   The tool button will display \a pm, with text label or tool tip \a
@@ -165,7 +165,7 @@ QToolButton::QToolButton( const QPixmap &pm, const QString &textLabel,
 }
 
 
-/*!  Creates a tool button that is a child of \a parent (which must be
+/*!  Constructs a tool button that is a child of \a parent (which must be
   a QToolBar) and named \a name.
 
   The tool button will display \a iconSet, with text label or tool tip \a

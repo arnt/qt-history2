@@ -867,7 +867,7 @@ struct QNetworkOperationPrivate
 */
 
 /*!
-  Creates a network operation object. \a operation is the type
+  Constructs a network operation object. \a operation is the type
   of the operation, \a arg0, \a arg1 and  \a arg2 are the
   first three arguments of the operation.
   The state is initialized to QNetworkProtocol::StWaiting.
@@ -894,7 +894,7 @@ QNetworkOperation::QNetworkOperation( QNetworkProtocol::Operation operation,
 }
 
 /*!
-  Creates a network operation object. \a operation is the type
+  Constructs a network operation object. \a operation is the type
   of the operation, \a arg0, \a arg1 and  \a arg2 are the first three
   raw data arguments of the operation.
   The state is initialized to QNetworkProtocol::StWaiting.

@@ -648,7 +648,7 @@ void QToolTip::setPalette( const QPalette &palette )
 
 
 /*!
-  Creates a tool tip object.  This is necessary only if you need tool
+  Constructs a tool tip object.  This is necessary only if you need tool
   tips on regions that can move within the widget (most often because
   the widget's contents can scroll).
 

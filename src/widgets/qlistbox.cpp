@@ -349,7 +349,7 @@ int QListBoxText::width( const QListBox* lb ) const
 
 
 /*!
-  Creates a new list box item in listbox \a listbox showing the pixmap \a pixmap.
+  Constructs a new list box item in listbox \a listbox showing the pixmap \a pixmap.
 */
 
 QListBoxPixmap::QListBoxPixmap( QListBox* listbox, const QPixmap &pixmap )
@@ -359,7 +359,7 @@ QListBoxPixmap::QListBoxPixmap( QListBox* listbox, const QPixmap &pixmap )
 }
 
 /*!
-  Creates a new list box item showing the pixmap \a pixmap.
+  Constructs a new list box item showing the pixmap \a pixmap.
 */
 
 QListBoxPixmap::QListBoxPixmap( const QPixmap &pixmap )
@@ -369,7 +369,7 @@ QListBoxPixmap::QListBoxPixmap( const QPixmap &pixmap )
 }
 
 /*!
-  Creates a new list box item in listbox \a listbox showing the pixmap \a pixmap. The item
+  Constructs a new list box item in listbox \a listbox showing the pixmap \a pixmap. The item
   gets inserted after the item \a after.
 */
 
@@ -390,7 +390,7 @@ QListBoxPixmap::~QListBoxPixmap()
 
 
 /*!
-  Creates a new list box item in listbox \a listbox showing the pixmap
+  Constructs a new list box item in listbox \a listbox showing the pixmap
   \a pixmap and the text \a text
 */
 QListBoxPixmap::QListBoxPixmap( QListBox* listbox, const QPixmap &pix, const QString& text)
@@ -401,7 +401,7 @@ QListBoxPixmap::QListBoxPixmap( QListBox* listbox, const QPixmap &pix, const QSt
 }
 
 /*!
-  Creates a new list box item in listbox \a listbox showing the pixmap
+  Constructs a new list box item in listbox \a listbox showing the pixmap
   \a pixmap. The item gets inserted after the item \a after.
 */
 QListBoxPixmap::QListBoxPixmap( const QPixmap & pix, const QString& text)
@@ -412,7 +412,7 @@ QListBoxPixmap::QListBoxPixmap( const QPixmap & pix, const QString& text)
 }
 
 /*!
-  Creates a new list box item in listbox \a listbox showing the pixmap
+  Constructs a new list box item in listbox \a listbox showing the pixmap
   \a pixmap and the string \a text . The item gets inserted after the
   item \a after.
 */

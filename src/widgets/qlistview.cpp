@@ -281,7 +281,7 @@ struct QListViewPrivate
   <img src="treeview.png" width="227" height="261" alt="Example Tree View">
 */
 
-/*!  Creates a new top-level list view item in the QListView \a parent.
+/*!  Constructs a new top-level list view item in the QListView \a parent.
 */
 
 QListViewItem::QListViewItem( QListView * parent )
@@ -291,7 +291,7 @@ QListViewItem::QListViewItem( QListView * parent )
 }
 
 
-/*!  Creates a new list view item which is a child of \a parent and first
+/*!  Constructs a new list view item which is a child of \a parent and first
   in the parent's list of children. */
 
 QListViewItem::QListViewItem( QListViewItem * parent )
@@ -326,7 +326,7 @@ QListViewItem::QListViewItem( QListViewItem * parent, QListViewItem * after )
 
 
 
-/*!  Creates a new list view item in the QListView \a parent,
+/*!  Constructs a new list view item in the QListView \a parent,
   \a parent, with at most 8 constant strings as contents.
 
   \code
@@ -360,7 +360,7 @@ QListViewItem::QListViewItem( QListView * parent,
 }
 
 
-/*!  Creates a new list view item that's a child of the QListViewItem
+/*!  Constructs a new list view item that's a child of the QListViewItem
   \a parent, with at most 8 constant strings as contents.  Possible
   example in a threaded news or e-mail reader:
 
@@ -394,7 +394,7 @@ QListViewItem::QListViewItem( QListViewItem * parent,
     setText( 7, label8 );
 }
 
-/*!  Creates a new list view item in the QListView \a parent,
+/*!  Constructs a new list view item in the QListView \a parent,
   after item \a after, with at most 8 constant strings as contents.
 
   Note that the order is changed according to QListViewItem::key()
@@ -429,7 +429,7 @@ QListViewItem::QListViewItem( QListView * parent, QListViewItem * after,
 }
 
 
-/*!  Creates a new list view item that's a child of the QListViewItem
+/*!  Constructs a new list view item that's a child of the QListViewItem
   \a parent, after item \a after, with at most 8 constant strings as
   contents.
 
@@ -1682,7 +1682,7 @@ void QListViewPrivate::Root::setup()
   need to say stuff about the mouse and keyboard interface.
 */
 
-/*!  Creates a new empty list view, with \a parent as a parent and \a
+/*!  Constructs a new empty list view, with \a parent as a parent and \a
   name as object name. */
 
 QListView::QListView( QWidget * parent, const char *name )

@@ -326,7 +326,7 @@ static int xPosToCursorPos( const QString &s, const QFontMetrics &fm,
 }
 
 /*!
-  Creates a new, empty, QMultiLineEdit.
+  Constructs a new, empty, QMultiLineEdit.
 */
 
 QMultiLineEdit::QMultiLineEdit( QWidget *parent , const char *name )

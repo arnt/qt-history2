@@ -264,7 +264,7 @@ QDragManager::~QDragManager()
 
 
 
-/*!  Creates a drag object which is a child of \a dragSource and
+/*!  Constructs a drag object which is a child of \a dragSource and
   named \a name.
 
   Note that the drag object will be deleted when \a dragSource is.
@@ -542,7 +542,7 @@ void QTextDrag::setSubtype( const QCString & st)
 */
 
 
-/*!  Creates a text drag object and sets it to \a text.  \a dragSource
+/*!  Constructs a text drag object and sets it to \a text.  \a dragSource
   must be the drag source, \a name is the object name. */
 
 QTextDrag::QTextDrag( const QString &text,
@@ -554,7 +554,7 @@ QTextDrag::QTextDrag( const QString &text,
 }
 
 
-/*!  Creates a default text drag object.  \a dragSource must be the drag
+/*!  Constructs a default text drag object.  \a dragSource must be the drag
   source, \a name is the object name.
 */
 
@@ -740,7 +740,7 @@ public:
   For detailed information about drag-and-drop, see the QDragObject class.
 */
 
-/*!  Creates an image drag object and sets it to \a image.  \a dragSource
+/*!  Constructs an image drag object and sets it to \a image.  \a dragSource
   must be the drag source, \a name is the object name. */
 
 QImageDrag::QImageDrag( QImage image,
@@ -751,7 +751,7 @@ QImageDrag::QImageDrag( QImage image,
     setImage( image );
 }
 
-/*!  Creates a default text drag object.  \a dragSource must be the drag
+/*!  Constructs a default text drag object.  \a dragSource must be the drag
   source, \a name is the object name.
 */
 
@@ -977,7 +977,7 @@ QByteArray QStoredDrag::encodedData(const char* m) const
 */
 
 /*!
-  Creates an object to drag the list of URIs in \a uris.
+  Constructs an object to drag the list of URIs in \a uris.
   The \a dragSource and \a name arguments are passed on to
   QStoredDrag.  Note that URIs are always in escaped UTF8
   encoding, as defined by the W3C.
@@ -990,7 +990,7 @@ QUriDrag::QUriDrag( QStrList uris,
 }
 
 /*!
-  Creates a object to drag.  You will need to call
+  Constructs a object to drag.  You will need to call
   setUris() before you start the drag().
 */
 QUriDrag::QUriDrag( QWidget * dragSource, const char * name ) :

@@ -82,7 +82,7 @@
 */
 
 /*!
-  Creates an invalid variant.
+  Constructs an invalid variant.
 */
 QVariant::QVariant()
 {
@@ -119,7 +119,7 @@ QVariant::QVariant( QDataStream& s )
 }
 
 /*!
-  Creates a new variant with a string value.
+  Constructs a new variant with a string value.
 */
 QVariant::QVariant( const QString& val )
 {
@@ -128,7 +128,7 @@ QVariant::QVariant( const QString& val )
 }
 
 /*!
-  Creates a new variant with a c-string value.
+  Constructs a new variant with a c-string value.
 */
 QVariant::QVariant( const QCString& val )
 {
@@ -137,7 +137,7 @@ QVariant::QVariant( const QCString& val )
 }
 
 /*!
-  Creates a new variant with a c-string value.
+  Constructs a new variant with a c-string value.
 */
 QVariant::QVariant( const char* val )
 {
@@ -146,7 +146,7 @@ QVariant::QVariant( const char* val )
 }
 
 /*!
-  Creates a new variant with a string list value.
+  Constructs a new variant with a string list value.
 */
 QVariant::QVariant( const QStringList& val )
 {
@@ -155,7 +155,7 @@ QVariant::QVariant( const QStringList& val )
 }
 
 /*!
-  Creates a new variant with a integer list value.
+  Constructs a new variant with a integer list value.
 */
 QVariant::QVariant( const QValueList<int>& val )
 {
@@ -164,7 +164,7 @@ QVariant::QVariant( const QValueList<int>& val )
 }
 
 /*!
-  Creates a new variant with a floating point list value.
+  Constructs a new variant with a floating point list value.
 */
 QVariant::QVariant( const QValueList<double>& val )
 {
@@ -173,7 +173,7 @@ QVariant::QVariant( const QValueList<double>& val )
 }
 
 /*!
-  Creates a new variant with a font value.
+  Constructs a new variant with a font value.
 */
 QVariant::QVariant( const QFont& val )
 {
@@ -182,7 +182,7 @@ QVariant::QVariant( const QFont& val )
 }
 
 /*!
-  Creates a new variant with a pixmap value.
+  Constructs a new variant with a pixmap value.
 */
 QVariant::QVariant( const QPixmap& val )
 {
@@ -192,7 +192,7 @@ QVariant::QVariant( const QPixmap& val )
 
 
 /*!
-  Creates a new variant with an image value.
+  Constructs a new variant with an image value.
 */
 QVariant::QVariant( const QImage& val )
 {
@@ -201,7 +201,7 @@ QVariant::QVariant( const QImage& val )
 }
 
 /*!
-  Creates a new variant with a brush value.
+  Constructs a new variant with a brush value.
 */
 QVariant::QVariant( const QBrush& val )
 {
@@ -210,7 +210,7 @@ QVariant::QVariant( const QBrush& val )
 }
 
 /*!
-  Creates a new variant with a point value.
+  Constructs a new variant with a point value.
 */
 QVariant::QVariant( const QPoint& val )
 {
@@ -219,7 +219,7 @@ QVariant::QVariant( const QPoint& val )
 }
 
 /*!
-  Creates a new variant with a rect value.
+  Constructs a new variant with a rect value.
 */
 QVariant::QVariant( const QRect& val )
 {
@@ -228,7 +228,7 @@ QVariant::QVariant( const QRect& val )
 }
 
 /*!
-  Creates a new variant with a size value.
+  Constructs a new variant with a size value.
 */
 QVariant::QVariant( const QSize& val )
 {
@@ -237,7 +237,7 @@ QVariant::QVariant( const QSize& val )
 }
 
 /*!
-  Creates a new variant with a color value.
+  Constructs a new variant with a color value.
 */
 QVariant::QVariant( const QColor& val )
 {
@@ -246,7 +246,7 @@ QVariant::QVariant( const QColor& val )
 }
 
 /*!
-  Creates a new variant with a color palette value.
+  Constructs a new variant with a color palette value.
 */
 QVariant::QVariant( const QPalette& val )
 {
@@ -255,7 +255,7 @@ QVariant::QVariant( const QPalette& val )
 }
 
 /*!
-  Creates a new variant with a color group value.
+  Constructs a new variant with a color group value.
 */
 QVariant::QVariant( const QColorGroup& val )
 {
@@ -264,7 +264,7 @@ QVariant::QVariant( const QColorGroup& val )
 }
 
 /*!
-  Creates a new variant with an empty iconset
+  Constructs a new variant with an empty iconset
 */
 QVariant::QVariant( const QIconSet& val )
 {
@@ -273,7 +273,7 @@ QVariant::QVariant( const QIconSet& val )
 }
 
 /*!
-  Creates a new variant with an integer value.
+  Constructs a new variant with an integer value.
 */
 QVariant::QVariant( int val )
 {
@@ -282,7 +282,7 @@ QVariant::QVariant( int val )
 }
 
 /*!
-  Creates a new variant with a boolean value.
+  Constructs a new variant with a boolean value.
 */
 QVariant::QVariant( bool val )
 {
@@ -292,7 +292,7 @@ QVariant::QVariant( bool val )
 
 
 /*!
-  Creates a new variant with a floating point value.
+  Constructs a new variant with a floating point value.
 */
 QVariant::QVariant( double val )
 {

@@ -290,7 +290,7 @@ void QIODeviceSource::rewind()
 */
 
 /*!
-  Creates a QDataPump to move data from a given \a data_source
+  Constructs a QDataPump to move data from a given \a data_source
   to a given \a data_sink.
 */
 QDataPump::QDataPump(QDataSource* data_source, QDataSink* data_sink) :

@@ -138,7 +138,7 @@ struct QTabPrivate {
 */
 
 /*!
-  Creates a new, empty tab bar.
+  Constructs a new, empty tab bar.
 */
 
 QTabBar::QTabBar( QWidget * parent, const char *name )

@@ -219,7 +219,7 @@ static QSize minSize( const QWidget *w )
 }
 
 /*!
-  Creates a horizontal splitter.
+  Constructs a horizontal splitter.
 */
 
 QSplitter::QSplitter( QWidget *parent, const char *name )
@@ -231,7 +231,7 @@ QSplitter::QSplitter( QWidget *parent, const char *name )
 
 
 /*!
-  Creates splitter with orientation \a o.
+  Constructs splitter with orientation \a o.
 */
 
 QSplitter::QSplitter( Orientation o, QWidget *parent, const char *name )

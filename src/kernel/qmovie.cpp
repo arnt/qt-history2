@@ -526,7 +526,7 @@ void QMovieFilePrivate::refresh()
 
 
 /*!
-  Creates a null QMovie.  The only interesting thing to do to such
+  Constructs a null QMovie.  The only interesting thing to do to such
   a movie is to assign another movie to it.
 
   \sa isNull()
@@ -537,7 +537,7 @@ QMovie::QMovie()
 }
 
 /*!
-  Creates a QMovie which reads an image sequence from the given
+  Constructs a QMovie which reads an image sequence from the given
   QDataSource.  The source must be allocated dynamically,
   as it becomes owned by the QMovie, and will be destroyed
   when the movie is destroyed.
@@ -554,7 +554,7 @@ QMovie::QMovie(QDataSource* src, int bufsize)
 }
 
 /*!
-  Creates a QMovie which reads an image sequence from the named file.
+  Constructs a QMovie which reads an image sequence from the named file.
 */
 QMovie::QMovie(const QString &fileName, int bufsize)
 {
@@ -564,7 +564,7 @@ QMovie::QMovie(const QString &fileName, int bufsize)
 }
 
 /*!
-  Creates a QMovie which reads an image sequence from given data.
+  Constructs a QMovie which reads an image sequence from given data.
 */
 QMovie::QMovie(QByteArray data, int bufsize)
 {

@@ -55,7 +55,7 @@ struct QUrlInfoPrivate
 */
 
 /*!
-  Creates an empty QUrlInfo object with default values.
+  Constructs an empty QUrlInfo object with default values.
 */
 
 QUrlInfo::QUrlInfo()
@@ -69,7 +69,7 @@ QUrlInfo::QUrlInfo()
 }
 
 /*!
-  Creates a QUrlInfo object with information about the file \a file
+  Constructs a QUrlInfo object with information about the file \a file
   in the \a path. This constructor tries to find the infos about
   \a file, which should be stored in the QUrlOperator \a path.
   If this is not the case, an empty QUrlInfo object is created.

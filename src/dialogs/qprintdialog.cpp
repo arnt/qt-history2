@@ -571,7 +571,7 @@ static void deleteGlobalPrintDialog()
 */
 
 
-/*! Creates a new modal printer dialog that configures \a prn and is a
+/*! Constructs a new modal printer dialog that configures \a prn and is a
   child of \a parent named \a name.
 */
 

@@ -154,7 +154,7 @@ static const int motifItemVMargin	= 4;	// menu item ver text margin
 
 
 /*!
-  Creates a menu bar with a \e parent and a \e name.
+  Constructs a menu bar with a \e parent and a \e name.
 */
 
 QMenuBar::QMenuBar( QWidget *parent, const char *name )

@@ -612,7 +612,7 @@ bool QWidgetItem::isEmpty() const
 
 
 /*!
-  Creates a new top-level QLayout with main widget \a
+  Constructs a new top-level QLayout with main widget \a
   parent.  \a parent may not be 0.
 
   \a border is the number of pixels between the edge of the widget and

@@ -140,7 +140,7 @@ static QAccelItem *find_key( QAccelList &list, int key, QChar ch )
 
 
 /*!
-  Creates a QAccel object with a parent widget and a name.
+  Constructs a QAccel object with a parent widget and a name.
 */
 
 QAccel::QAccel( QWidget *parent, const char *name )
@@ -160,7 +160,7 @@ QAccel::QAccel( QWidget *parent, const char *name )
 }
 
 /*!
-  Creates a QAccel object with a watch widget, a parent object and a
+  Constructs a QAccel object with a watch widget, a parent object and a
   name.
 
   The accelerator operates on the the watch widget.

@@ -182,7 +182,7 @@ void QValidator::fixup( QString & input ) const
 
 
 /*!
-  Creates a validator object which accepts all integers.
+  Constructs a validator object which accepts all integers.
 */
 
 QIntValidator::QIntValidator( QWidget * parent, const char *name )
@@ -194,7 +194,7 @@ QIntValidator::QIntValidator( QWidget * parent, const char *name )
 
 
 /*!
-  Creates a validator object which accepts all integers from \a
+  Constructs a validator object which accepts all integers from \a
   bottom up to and including \a top.
 */
 
@@ -285,7 +285,7 @@ void QIntValidator::setRange( int bottom, int top )
 */
 
 /*!
-  Creates a validator object which accepts all double from 2.7182818
+  Constructs a validator object which accepts all double from 2.7182818
   to 3.1415926 (please, no bug reports) with at most seven digits after
   the decimal point.
 
@@ -303,7 +303,7 @@ QDoubleValidator::QDoubleValidator( QWidget * parent, const char *name )
 
 
 /*!
-  Creates a validator object which accepts all doubles from \a
+  Constructs a validator object which accepts all doubles from \a
   bottom up to and including \a top with at most \a decimals digits
   after the decimal point.
 */

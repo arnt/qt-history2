@@ -1452,7 +1452,7 @@ static inline bool horz( QBoxLayout::Direction dir )
 }
 
 /*!
-  Creates a new QBoxLayout with direction \a d and main widget \a
+  Constructs a new QBoxLayout with direction \a d and main widget \a
   parent.  \a parent may not be 0.
 
   \a border is the number of pixels between the edge of the widget and
@@ -1476,7 +1476,7 @@ QBoxLayout::QBoxLayout( QWidget *parent, Direction d,
 
 
 /*!
-  Creates a new QBoxLayout with direction \a d and inserts it into
+  Constructs a new QBoxLayout with direction \a d and inserts it into
   \a parentLayout.
 
 */
@@ -2070,7 +2070,7 @@ int QBoxLayout::calcHfw( int w )
 
 
 /*!
-  Creates a new top-level horizontal box.
+  Constructs a new top-level horizontal box.
  */
 QHBoxLayout::QHBoxLayout( QWidget *parent, int border,
 			  int space, const char *name )
@@ -2082,7 +2082,7 @@ QHBoxLayout::QHBoxLayout( QWidget *parent, int border,
 
 
 /*!
-  Creates a new horizontal box and adds it to \a parentLayout.
+  Constructs a new horizontal box and adds it to \a parentLayout.
 */
 
 QHBoxLayout::QHBoxLayout( QLayout *parentLayout, int space,
@@ -2094,7 +2094,7 @@ QHBoxLayout::QHBoxLayout( QLayout *parentLayout, int space,
 
 
 /*!
-  Creates a new horizontal box. You have to add it to another
+  Constructs a new horizontal box. You have to add it to another
   layout.
  */
 QHBoxLayout::QHBoxLayout( int space, const char *name )
@@ -2134,7 +2134,7 @@ QHBoxLayout::~QHBoxLayout()
 */
 
 /*!
-  Creates a new top-level vertical box.
+  Constructs a new top-level vertical box.
  */
 QVBoxLayout::QVBoxLayout( QWidget *parent, int border,
 			  int space, const char *name )
@@ -2145,7 +2145,7 @@ QVBoxLayout::QVBoxLayout( QWidget *parent, int border,
 
 
 /*!
-  Creates a new vertical box and adds it to \a parentLayout.
+  Constructs a new vertical box and adds it to \a parentLayout.
 */
 
 QVBoxLayout::QVBoxLayout( QLayout *parentLayout, int space,
@@ -2156,7 +2156,7 @@ QVBoxLayout::QVBoxLayout( QLayout *parentLayout, int space,
 }
 
 /*!
-  Creates a new vertical box. You have to add it to another
+  Constructs a new vertical box. You have to add it to another
   layout.
  */
 QVBoxLayout::QVBoxLayout( int space, const char *name )

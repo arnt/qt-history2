@@ -3601,7 +3601,7 @@ int QCanvasLine::rtti() const { return 7; }
 
 
 /*!
-Creates a QCanvasSprite which uses images from the given array.
+Constructs a QCanvasSprite which uses images from the given array.
 
 The sprite in initially at (0,0) on \a canvas, using frame 0.
 */
