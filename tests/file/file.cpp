@@ -43,6 +43,28 @@ void readTextLines(QIODevice& f)
 
 int main()
 {
+    printf("Testing userbug...\n");
+    {
+	QFile file("file.txt");
+	if(!file.open(IO_ReadOnly | IO_Translate))
+	{
+	    // ... error
+	}
+
+	QTextStream input(&file);
+
+	while(!input.eof())
+	{
+	    QString key;
+	    input >> key;
+	    
+	    QString value;
+	    input >> value;
+
+	    debug("got %s = %s", key.data(), value.data());
+	}
+    }
+
     printf("Testing stdin...\n");
     {
 	QFile file;
