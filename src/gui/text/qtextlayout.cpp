@@ -1407,8 +1407,8 @@ void QTextLine::draw(QPainter *p, const QPointF &pos,
             p->drawTextItem(QPointF(x, y), gf);
 
             for (int s = 0; s < nSelections; ++s) {
-                int from = qMax(0, selections[s].from()- si.position);
-                int to = qMin(eng->length(item), selections[s].from() + selections[s].length() - si.position);
+                int from = qMax(start, selections[s].from()) - si.position;
+                int to = qMin(end, selections[s].from() + selections[s].length()) - si.position;
                 if (from >= to)
                     continue;
                 int start_glyph = logClusters[from];
@@ -1421,7 +1421,7 @@ void QTextLine::draw(QPainter *p, const QPointF &pos,
                     for (int g = end_glyph - 1; g >= start_glyph; --g)
                         swidth += glyphs[g].advance.x() + ((float)glyphs[g].space_18d6)/64.;
                 } else {
-                    for (int g = 0; g < start_glyph; ++g)
+                    for (int g = start; g < start_glyph; ++g)
                         soff += glyphs[g].advance.x() + ((float)glyphs[g].space_18d6)/64.;
                     for (int g = start_glyph; g < end_glyph; ++g)
                         swidth += glyphs[g].advance.x() + ((float)glyphs[g].space_18d6)/64.;
@@ -1463,11 +1463,11 @@ float QTextLine::cursorToX(int *cursorPos, Edge edge) const
         return eng->lines[0].x;
     }
 
-    int pos = *cursorPos;
-
-    int itm = eng->findItem(pos);
-
     const QScriptLine &line = eng->lines[i];
+    eng->justify(line);
+
+    int pos = *cursorPos;
+    int itm = eng->findItem(pos);
     if (pos == line.from + (int)line.length) {
         // end of line ensure we have the last item on the line
         itm = eng->findItem(pos-1);
@@ -1497,21 +1497,25 @@ float QTextLine::cursorToX(int *cursorPos, Edge edge) const
     float x = 0;
     bool reverse = eng->items[itm].analysis.bidiLevel % 2;
 
-    if (reverse) {
-        for (int i = si->num_glyphs-1; i >= glyph_pos; i--)
-            x += glyphs[i].advance.x() + ((float)glyphs[i].space_18d6)/64.;
-    } else {
-        for (int i = 0; i < glyph_pos; i++)
-            x += glyphs[i].advance.x() + ((float)glyphs[i].space_18d6)/64.;
-    }
-
-    // add the items left of the cursor
-
     int lineEnd = line.from + line.length;
 //     // don't draw trailing spaces or take them into the layout.
 //     const QCharAttributes *attributes = eng->attributes();
 //     while (lineEnd > line.from && attributes[lineEnd-1].whiteSpace)
 //         --lineEnd;
+
+    if (reverse) {
+        int end = qMin(lineEnd, si->position + l) - si->position;
+        int glyph_end = end == l ? si->num_glyphs : logClusters[end];
+        for (int i = glyph_end - 1; i >= glyph_pos; i--)
+            x += glyphs[i].advance.x() + ((float)glyphs[i].space_18d6)/64.;
+    } else {
+        int start = qMax(line.from - si->position, 0);
+        int glyph_start = logClusters[start];
+        for (int i = glyph_start; i < glyph_pos; i++)
+            x += glyphs[i].advance.x() + ((float)glyphs[i].space_18d6)/64.;
+    }
+
+    // add the items left of the cursor
 
     int firstItem = eng->findItem(line.from);
     int lastItem = eng->findItem(lineEnd - 1);
@@ -1519,7 +1523,6 @@ float QTextLine::cursorToX(int *cursorPos, Edge edge) const
 
     x += line.x;
 
-    eng->justify(line);
     if (eng->textFlags & Qt::AlignRight)
         x += line.width - line.textWidth;
     else if (eng->textFlags & Qt::AlignHCenter)
