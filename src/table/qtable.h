@@ -233,6 +233,7 @@ class Q_EXPORT QTable : public QScrollView
     friend class QTableHeader;
     friend class QComboTableItem;
     friend class QCheckTableItem;
+    friend class QTableItem;
 
 public:
     QTable( QWidget* parent=0, const char* name=0 );

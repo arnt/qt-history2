@@ -226,7 +226,6 @@ struct QListViewPrivate
     bool updateHeader		:1;
 
     bool was_visible : 1;
-    bool context_menu : 1;
 
     bool startEdit : 1;
 
@@ -2392,7 +2391,6 @@ void QListView::init()
     d->updateHeader = FALSE;
     d->fullRepaintOnComlumnChange = FALSE;
     d->resizeMode = NoColumn;
-    d->context_menu = FALSE;
     d->defRenameAction = Reject;
     d->pressedEmptyArea = FALSE;
 
@@ -3876,9 +3874,6 @@ void QListView::contentsMousePressEventEx( QMouseEvent * e )
     if ( !e )
 	return;
 
-    if ((!d->context_menu) && (e->button() == RightButton))
-	return;
-
     d->startEdit = TRUE;
     if ( currentItem() && currentItem()->renameBox ) {
 	d->startEdit = FALSE;
@@ -3960,7 +3955,6 @@ void QListView::contentsMousePressEventEx( QMouseEvent * e )
     }
 
     d->select = d->selectionMode == Multi ? !i->isSelected() : TRUE;
-    d->select |= d->context_menu;
 
     {// calculate activatedP
 	activatedByClick = TRUE;
@@ -4050,22 +4044,17 @@ void QListView::contentsMousePressEventEx( QMouseEvent * e )
     d->pressedItem = i;
 
     int c = i ? d->h->mapToLogical( d->h->cellAt( vp.x() ) ) : -1;
-    if ( !d->context_menu ) {
-	if ( !i || ( i && i->isEnabled() ) ) {
-	    emit pressed( i );
-	    emit pressed( i, viewport()->mapToGlobal( vp ), d->h->mapToLogical( c ) );
-	}
-	emit mouseButtonPressed( e->button(), i, viewport()->mapToGlobal( vp ), c );
+    if ( !i || ( i && i->isEnabled() ) ) {
+	emit pressed( i );
+	emit pressed( i, viewport()->mapToGlobal( vp ), d->h->mapToLogical( c ) );
     }
+    emit mouseButtonPressed( e->button(), i, viewport()->mapToGlobal( vp ), c );
 
     if ( e->button() == RightButton && i == d->pressedItem ) {
 	if ( !i )
 	    clearSelection();
 
-	if ( !d->context_menu )
-	    emit rightButtonPressed( i, viewport()->mapToGlobal( vp ), c );
-	else
-	    emit contextMenuRequested( i, viewport()->mapToGlobal( vp ), c );
+	emit rightButtonPressed( i, viewport()->mapToGlobal( vp ), c );
     }
 }
 
@@ -4088,12 +4077,10 @@ void QListView::contentsContextMenuEvent( QContextMenuEvent *e )
 	    emit contextMenuRequested( item, mapToGlobal( p ), -1 );
 	}
     } else {
-	QMouseEvent mpe( QEvent::MouseButtonPress, e->pos(), e->globalPos(), RightButton, e->state() );
-	QMouseEvent mre( QEvent::MouseButtonRelease, e->pos(), e->globalPos(), RightButton, e->state() );
-	d->context_menu = TRUE;
-	contentsMousePressEventEx( &mpe );
-	contentsMouseReleaseEventEx( &mre );
-	d->context_menu = FALSE;
+	QPoint vp = contentsToViewport( e->pos() );
+	QListViewItem * i = itemAt( vp );
+	int c = i ? d->h->mapToLogical( d->h->cellAt( vp.x() ) ) : -1;
+	emit contextMenuRequested( i, viewport()->mapToGlobal( vp ), c );
     }
 }
 
@@ -4106,9 +4093,6 @@ void QListView::contentsMouseReleaseEvent( QMouseEvent * e )
 
 void QListView::contentsMouseReleaseEventEx( QMouseEvent * e )
 {
-    if (e && (!d->context_menu) && (e->button() == RightButton))
-	return;
-
     d->startDragItem = 0;
     bool emitClicked = !d->pressedItem || d->buttonDown;
     d->buttonDown = FALSE;
@@ -5565,7 +5549,7 @@ void QCheckListItem::activate()
     if ( activatedPos( pos ) ) {
 	//ignore clicks outside the box
 	QRect r;
-	if ( parent() && parent()->rtti() == 1  && 
+	if ( parent() && parent()->rtti() == 1  &&
 	     ((QCheckListItem*) parent())->type() == Controller )
 	    r.setRect( 0, 2, boxsize, boxsize-3 );
 	else
@@ -5633,7 +5617,7 @@ void QCheckListItem::setup()
 {
     QListViewItem::setup();
     int h = height();
-    h = QMAX( listView()->style().pixelMetric(QStyle::PM_CheckListButtonSize, listView()), 
+    h = QMAX( listView()->style().pixelMetric(QStyle::PM_CheckListButtonSize, listView()),
 	      h );
     h = QMAX( h, QApplication::globalStrut().height() );
     setHeight( h );
@@ -5691,7 +5675,7 @@ void QCheckListItem::paintCell( QPainter * p, const QColorGroup & cg,
     QFontMetrics fm( lv->fontMetrics() );
 
     bool parentControl = FALSE;
-    if ( parent() && parent()->rtti() == 1  && 
+    if ( parent() && parent()->rtti() == 1  &&
 	 ((QCheckListItem*) parent())->type() == Controller )
 	parentControl = TRUE;
 
@@ -5700,7 +5684,7 @@ void QCheckListItem::paintCell( QPainter * p, const QColorGroup & cg,
 	if(!parentControl)
 	    x += 3;
 	lv->style().drawPrimitive(QStyle::PE_CheckListController, p,
-				  QRect(x, 0, boxsize, 
+				  QRect(x, 0, boxsize,
 					fm.height() + 2 + marg),
 				  cg, QStyle::Style_Default, QStyleOption(this));
 	r += boxsize + 4;
@@ -5717,12 +5701,12 @@ void QCheckListItem::paintCell( QPainter * p, const QColorGroup & cg,
 	//	p->setPen( QPen( cg.text(), winStyle ? 2 : 1 ) );
 	if ( myType == CheckBox ) {
 	    lv->style().drawPrimitive(QStyle::PE_CheckListIndicator, p,
-				      QRect(x, y, boxsize, 
+				      QRect(x, y, boxsize,
 					    fm.height() + 2 + marg),
 				      cg, QStyle::Style_Default, QStyleOption(this));
 	} else { //radio button look
 	    lv->style().drawPrimitive(QStyle::PE_CheckListExclusiveIndicator,
-					      p, QRect(x, y, boxsize, 
+					      p, QRect(x, y, boxsize,
 						       fm.height() + 2 + marg),
 					      cg, QStyle::Style_Default, QStyleOption(this));
 	}
@@ -5759,7 +5743,7 @@ void QCheckListItem::paintFocus( QPainter *p, const QColorGroup & cg,
     if ( parent() && parent()->rtti() == 1  &&
 	 ((QCheckListItem*) parent())->type() == Controller )
 	parentControl = TRUE;
-    if ( myType != Controller && intersect && 
+    if ( myType != Controller && intersect &&
 	 (lv->rootIsDecorated() || myType == RadioButton ||
 	  (myType == CheckBox && parentControl) ) ) {
 	QRect rect;
@@ -6523,7 +6507,7 @@ QListViewItemIterator &QListViewItemIterator::operator-=( int j )
 
 QListViewItem* QListViewItemIterator::operator*()
 {
-    return curr;    
+    return curr;
 }
 
 /*! Returns a pointer to the current item of the iterator.

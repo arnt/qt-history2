@@ -258,7 +258,6 @@ public:
     uint showTips		:1;
     uint pressedSelected	:1;
     uint dragging		:1;
-    uint context_menu		:1;
     uint drawActiveSelection	:1;
 
     QIconViewToolTip *toolTip;
@@ -2628,7 +2627,6 @@ QIconView::QIconView( QWidget *parent, const char *name, WFlags f )
     d->firstSizeHint = TRUE;
     d->selectAnchor = 0;
     d->drawActiveSelection = TRUE;
-    d->context_menu = FALSE;
 
     connect( d->adjustTimer, SIGNAL( timeout() ),
 	     this, SLOT( adjustItems() ) );
@@ -4284,18 +4282,12 @@ void QIconView::contentsMousePressEventEx( QMouseEvent *e )
 
  emit_signals:
     if ( !d->rubber ) {
-	if ( !d->context_menu ) {
-	    emit mouseButtonPressed( e->button(), item, e->globalPos() );
-	    emit pressed( item );
-	    emit pressed( item, e->globalPos() );
-	}
+	emit mouseButtonPressed( e->button(), item, e->globalPos() );
+	emit pressed( item );
+	emit pressed( item, e->globalPos() );
 
-	if ( e->button() == RightButton ) {
-	    if ( !d->context_menu )
-		emit rightButtonPressed( item, e->globalPos() );
-	    else
-		emit contextMenuRequested( item, e->globalPos() );
-	}
+	if ( e->button() == RightButton )
+	    emit rightButtonPressed( item, e->globalPos() );
     }
 }
 
@@ -4312,10 +4304,8 @@ void QIconView::contentsContextMenuEvent( QContextMenuEvent *e )
 	QRect r = item ? item->rect() : QRect( 0, 0, visibleWidth(), visibleHeight() );
 	emit contextMenuRequested( item, mapToGlobal( contentsToViewport( r.center() ) ) );
     } else {
-	QMouseEvent me( QEvent::MouseButtonPress, e->pos(), e->globalPos(), RightButton, e->state() );
-	d->context_menu = TRUE;
-	contentsMousePressEventEx( &me );
-	d->context_menu = FALSE;
+	QIconViewItem *item = findItem( e->pos() );
+	emit contextMenuRequested( item, e->globalPos() );
     }
 }
 

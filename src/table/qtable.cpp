@@ -144,6 +144,9 @@ private:
 
 struct QTablePrivate
 {
+    QTablePrivate() : hasRowSpan( FALSE ), hasColSpan( FALSE ) {}
+    uint hasRowSpan : 1;
+    uint hasColSpan : 1;
 };
 
 struct QTableHeaderPrivate
@@ -789,6 +792,10 @@ QSize QTableItem::sizeHint() const
 
 void QTableItem::setSpan( int rs, int cs )
 {
+    if ( !table()->d->hasRowSpan )
+	table()->d->hasRowSpan = rs > 1;
+    if ( !table()->d->hasColSpan )
+	table()->d->hasColSpan = cs > 1;
     // return if we are thinking too big...
     if ( rw + rs > table()->numRows() )
 	return;
@@ -1702,7 +1709,7 @@ void QTable::init( int rows, int cols )
 #ifndef QT_NO_DRAGANDDROP
     setDragAutoScroll( FALSE );
 #endif
-    d = 0;
+    d = new QTablePrivate;
     shouldClearSelection = FALSE;
     dEnabled = FALSE;
     roRows.setAutoDelete( TRUE );
@@ -1781,7 +1788,6 @@ void QTable::init( int rows, int cols )
     editRow = editCol = -1;
 
     drawActiveSelection = TRUE;
-    context_menu = FALSE;
 
     installEventFilter( this );
 
@@ -3082,10 +3088,7 @@ void QTable::contentsMousePressEventEx( QMouseEvent* e )
 
     QTableItem *itm = item( pressedRow, pressedCol );
     if ( itm && !itm->isEnabled() ) {
-	if ( !context_menu )
-	    emit pressed( tmpRow, tmpCol, e->button(), e->pos() );
-	if ( e->button() == RightButton && context_menu )
-	    emit contextMenuRequested( tmpRow, tmpCol, e->globalPos() );
+	emit pressed( tmpRow, tmpCol, e->button(), e->pos() );
 	return;
     }
 
@@ -3159,11 +3162,7 @@ void QTable::contentsMousePressEventEx( QMouseEvent* e )
 	}
     }
 
-    if ( !context_menu )
-	emit pressed( tmpRow, tmpCol, e->button(), e->pos() );
-
-    if ( e->button() == RightButton && context_menu )
-	emit contextMenuRequested( tmpRow, tmpCol, e->globalPos() );
+    emit pressed( tmpRow, tmpCol, e->button(), e->pos() );
 }
 
 /*! \reimp
@@ -3376,10 +3375,9 @@ void QTable::contentsContextMenuEvent( QContextMenuEvent *e )
 	r.moveBy( -contentsX(), -contentsY() );
 	emit contextMenuRequested( curRow, curCol, mapToGlobal( contentsToViewport( r.center() ) ) );
     } else {
-	QMouseEvent me( QEvent::MouseButtonPress, e->pos(), e->globalPos(), RightButton, e->state() );
-	context_menu = TRUE;
-	contentsMousePressEventEx( &me );
-	context_menu = FALSE;
+	int tmpRow = rowAt( e->pos().y() );
+	int tmpCol = columnAt( e->pos().x() );
+	emit contextMenuRequested( tmpRow, tmpCol, e->globalPos() );
     }
 }
 
@@ -3792,7 +3790,10 @@ void QTable::viewportToContents2( int vx, int vy, int& x, int& y )
 
 void QTable::columnWidthChanged( int col )
 {
-    updateContents( columnPos( col ), contentsY(), contentsWidth(), visibleHeight() );
+    int p = columnPos( col );
+    if ( d->hasColSpan )
+	p = contentsX();
+    updateContents( p, contentsY(), contentsWidth(), visibleHeight() );
     QSize s( tableSize() );
     int w = contentsWidth();
     resizeContents( s.width(), s.height() );
@@ -3813,7 +3814,10 @@ void QTable::columnWidthChanged( int col )
 
 void QTable::rowHeightChanged( int row )
 {
-    updateContents( contentsX(), rowPos( row ), visibleWidth(), contentsHeight() );
+    int p = rowPos( row );
+    if ( d->hasRowSpan )
+	p = contentsY();
+    updateContents( contentsX(), p, visibleWidth(), contentsHeight() );
     QSize s( tableSize() );
     int h = contentsHeight();
     resizeContents( s.width(), s.height() );

@@ -75,7 +75,6 @@ public:
 	selectionMode( QListBox::Single ),
 	count( 0 ),
 	listBox( lb ), currInputString( QString::null ),
-	context_menu( FALSE ),
 	rowModeWins( FALSE ),
 	ignoreMoves( FALSE ),
 	layoutDirty( TRUE ),
@@ -128,7 +127,6 @@ public:
 
     uint select :1;
     uint pressedSelected :1;
-    uint context_menu :1;
     uint rowModeWins :1;
     uint ignoreMoves :1;
     uint clearing :1;
@@ -2039,16 +2037,11 @@ void QListBox::mousePressEventEx( QMouseEvent *e )
 
     d->pressedItem = i;
 
-    if ( !d->context_menu ) {
-	emit pressed( i );
-	emit pressed( i, e->globalPos() );
-	emit mouseButtonPressed( e->button(), i, e->globalPos() );
-	if ( e->button() == RightButton )
-	    emit rightButtonPressed( i, e->globalPos() );
-    } else {
-	if ( e->button() == RightButton )
-	    emit contextMenuRequested( i, e->globalPos() );
-    }
+    emit pressed( i );
+    emit pressed( i, e->globalPos() );
+    emit mouseButtonPressed( e->button(), i, e->globalPos() );
+    if ( e->button() == RightButton )
+	emit rightButtonPressed( i, e->globalPos() );
 }
 
 
@@ -2291,10 +2284,8 @@ void QListBox::contentsContextMenuEvent( QContextMenuEvent *e )
 	    emit contextMenuRequested( i, mapToGlobal( r.topLeft() + QPoint( width() / 2, r.height() / 2 ) ) );
 	}
     } else {
-	QMouseEvent me( QEvent::MouseButtonPress, contentsToViewport(e->pos()), e->globalPos(), RightButton, e->state() );
-	d->context_menu = TRUE;
-	mousePressEventEx( &me );
-	d->context_menu = FALSE;
+	QListBoxItem * i = itemAt( e->pos() );
+	emit contextMenuRequested( i, e->globalPos() );
     }
 }
 
