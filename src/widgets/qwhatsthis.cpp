@@ -343,10 +343,10 @@ QWhatsThisPrivate::~QWhatsThisPrivate()
 	    delete i;
     }
     delete dict;
-    // ### whatsThat is destroyed when its parent is destroyed.
-    // ### Deleting it here will cause a double QObject deletion error.
-    // delete whatsThat;
-
+    if ( whatsThat && !whatsThat->parentWidget() ) {
+	delete whatsThat;
+	whatsThat = 0;
+    }
     // and finally lose wt
     wt = 0;
 }
