@@ -145,9 +145,10 @@ void TextLayoutQt::shape( ShapedItem &shaped, const QFont &f, const QString &str
     item++;
     int len = ( item < items.size() ? items[item].position : string.length() ) - from;
 
-    FontEngineIface *fe = f.engineForScript( script );
-    if ( fe )
-	scriptEngines[script]->shape( *fe, string, from, len, si.analysis, &shaped );
+    shaped.d->fontEngine = f.engineForScript( script );
+    shaped.d->analysis = si.analysis;
+    if ( shaped.d->fontEngine )
+	scriptEngines[script]->shape( string, from, len, &shaped );
 }
 
 static TextLayout *_instance = 0;

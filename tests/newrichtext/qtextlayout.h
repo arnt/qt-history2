@@ -21,6 +21,8 @@ Some of the ideas are stolen from the Uniscribe API or from Pango.
 #include "qrtstring.h"
 #include <qmemarray.h>
 #include <stdlib.h>
+class FontEngineIface;
+
 
 struct ScriptAnalysis
 {
@@ -92,15 +94,16 @@ public:
 class ShapedItemPrivate
 {
 public:
-    ShapedItemPrivate() : alloc( 0 ), num_glyphs( 0 ), glyphs( 0 ), offsets( 0 ) {}
+    ShapedItemPrivate() : num_glyphs( 0 ), glyphs( 0 ), offsets( 0 ), fontEngine( 0 ) {}
     ~ShapedItemPrivate() {
 	free( glyphs );
 	delete[] offsets;
     }
-    int alloc;
     int num_glyphs;
     int * glyphs;
     Offset *offsets;
+    FontEngineIface *fontEngine;
+    ScriptAnalysis analysis;
 };
 
 class ShapedItem
@@ -167,6 +170,7 @@ public:
 			const ScriptItemArray &items, int item ) const = 0;
     virtual void shape( ShapedItem &shaped, const QFont &f, const QString &string,
 			const ScriptItemArray &items, int item ) const = 0;
+
 
 #if 0
 
