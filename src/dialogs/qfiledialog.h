@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#77 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#78 $
 **
 ** Definition of QFileDialog class
 **
@@ -265,7 +265,7 @@ signals:
     void fileHighlighted( const QString& );
     void fileSelected( const QString& );
     void dirEntered( const QString& );
-    void showPreview( const QUrlOperator & );
+    void showPreview( const QUrl & );
 
 protected slots:
     void detailViewSelectionChanged();

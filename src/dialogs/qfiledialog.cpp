@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#313 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#314 $
 **
 ** Implementation of QFileDialog class
 **
@@ -3738,14 +3738,14 @@ void QFileDialog::setInfoPreviewWidget( QWidget *w )
     if ( d->infoPreviewWidget ) {
 	d->preview->removeWidget( d->infoPreviewWidget );
 
-	disconnect( this, SIGNAL( showPreview( const QUrlOperator & ) ),
-		    d->infoPreviewWidget, SLOT( showPreview( const QUrlOperator & ) ) );
+	disconnect( this, SIGNAL( showPreview( const QUrl & ) ),
+		    d->infoPreviewWidget, SLOT( showPreview( const QUrl & ) ) );
 
 	delete d->infoPreviewWidget;
     }
     d->infoPreviewWidget = w;
-    connect( this, SIGNAL( showPreview( const QUrlOperator & ) ),
-	     d->infoPreviewWidget, SLOT( showPreview( const QUrlOperator & ) ) );
+    connect( this, SIGNAL( showPreview( const QUrl & ) ),
+	     d->infoPreviewWidget, SLOT( showPreview( const QUrl & ) ) );
     w->recreate( d->preview, 0, QPoint( 0, 0 ) );
 }
 
@@ -3770,14 +3770,14 @@ void QFileDialog::setContentsPreviewWidget( QWidget *w )
     if ( d->contentsPreviewWidget ) {
 	d->preview->removeWidget( d->contentsPreviewWidget );
 
-	disconnect( this, SIGNAL( showPreview( const QUrlOperator & ) ),
-		    d->contentsPreviewWidget, SLOT( showPreview( const QUrlOperator & ) ) );
+	disconnect( this, SIGNAL( showPreview( const QUrl & ) ),
+		    d->contentsPreviewWidget, SLOT( showPreview( const QUrl & ) ) );
 	
 	delete d->contentsPreviewWidget;
     }
     d->contentsPreviewWidget = w;
-    connect( this, SIGNAL( showPreview( const QUrlOperator & ) ),
-	     d->contentsPreviewWidget, SLOT( showPreview( const QUrlOperator & ) ) );
+    connect( this, SIGNAL( showPreview( const QUrl & ) ),
+	     d->contentsPreviewWidget, SLOT( showPreview( const QUrl & ) ) );
     w->recreate( d->preview, 0, QPoint( 0, 0 ) );
 }
 
