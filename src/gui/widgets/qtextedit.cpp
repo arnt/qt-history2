@@ -2199,7 +2199,11 @@ void QTextEdit::moveCursor(CursorAction action, QTextCursor::MoveMode mode)
 }
 
 /*!
-    \internal
+    Executes keyboard action \a action.
+
+    Use the QTextCursor API instead.
+
+    \sa textCursor()
 */
 void QTextEdit::doKeyboardAction(KeyboardAction action)
 {
