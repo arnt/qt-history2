@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#16 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#17 $
 **
 ** Implementation of QSpinBox widget class
 **
@@ -105,6 +105,7 @@ void QSpinBox::setRange( double bottom, double top, int decimals )
 	d->a = d->a / 10;
 	d->d++;
     }
+    enableButtons();
 }
 
 
@@ -161,8 +162,13 @@ void QSpinBox::next()
     f.sprintf( "%%.%df", d->d );
     QString s;
     s.sprintf( f, c );
-    if ( s.toDouble( &ok ) > d->t )
-	c = wrapping() ? d->b : d->t;
+    if ( s.toDouble( &ok ) > d->t ) {
+	if ( wrapping() ) {
+	    c = d->b;
+	} else {
+	    c = d->t;
+	}
+    }
 
     setCurrent( c );
 }
@@ -189,8 +195,13 @@ void QSpinBox::prev()
     f.sprintf( "%%.%df", d->d );
     QString s;
     s.sprintf( f, c );
-    if ( s.toDouble( &ok ) < d->b )
-	c = wrapping() ? d->t : d->b;
+    if ( s.toDouble( &ok ) < d->b ) {
+	if ( wrapping() ) {
+	    c = d->t;
+	} else {
+	    c = d->b;
+	}
+    }
 
     setCurrent( c );
 }
@@ -211,6 +222,7 @@ void QSpinBox::setCurrent( double value )
     QString s;
     s.sprintf( f, value );
     vi->setText( s );
+    enableButtons();
 }
 
 
