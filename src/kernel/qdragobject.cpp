@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#14 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#15 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -73,9 +73,10 @@ QDragManager::~QDragManager()
 bool QDragManager::eventFilter( QObject * o, QEvent * e)
 {
     if ( o != dragSource ) {
-	debug( "unexpected event for object %p - %s/%s",
-	       o, o->name( "unnamed" ), o->className() );
+	//debug( "unexpected event for object %p - %s/%s",
+	//       o, o->name( "unnamed" ), o->className() );
 	o->removeEventFilter( this );
+	return;
     }
 
     ASSERT( object != 0 );
@@ -175,11 +176,8 @@ void QDragObject::startDrag()
 
 void QDragObject::setEncodedData( QByteArray & encodedData )
 {
-    debug( "WOW %d %d", d->enc.size(), encodedData.size() );
     d->enc = encodedData;
-    debug( "uh %d %d", d->enc.size(), encodedData.size() );
     d->enc.detach();
-    debug( "uh %d %d", d->enc.size(), encodedData.size() );
     if ( !manager && qApp )
 	(void)new QDragManager();
 }
