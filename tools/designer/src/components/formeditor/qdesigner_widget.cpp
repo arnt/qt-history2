@@ -127,7 +127,6 @@ void QDesignerWidget::dragEnterEvent(QDragEnterEvent *)
 
 QLayoutWidget::QLayoutWidget(FormWindow *formWindow, QWidget *parent)
     : QWidget(parent), m_formWindow(formWindow),
-      sp(QWidget::sizePolicy()),
       m_support(formWindow, this)
 {
 }
@@ -176,12 +175,6 @@ void QLayoutWidget::paintEvent(QPaintEvent*)
     p.drawRect(0, 0, width() - 1, height() - 1);
 }
 
-QSizePolicy QLayoutWidget::sizePolicy() const
-{
-    return QWidget::sizePolicy();
-    // ### (old) return sp;
-}
-
 void QLayoutWidget::updateMargin()
 {
     if (!layout())
@@ -201,20 +194,9 @@ void QLayoutWidget::updateMargin()
 bool QLayoutWidget::event(QEvent *e)
 {
     switch (e->type()) {
-        case QEvent::ChildPolished:
-        case QEvent::ChildRemoved: {
-            QChildEvent *ev = static_cast<QChildEvent*>(e);
-            if (QWidget *widget = qt_cast<QWidget*>(ev->child())) {
-                if (formWindow()->isManaged(widget)) {
-                    updateSizePolicy();
-                }
-            }
-        } break;
-
         case QEvent::ParentChange:
             if (e->type() == QEvent::ParentChange)
                 updateMargin();
-            updateSizePolicy();
             break;
 
         case QEvent::LayoutRequest: {
@@ -233,117 +215,6 @@ bool QLayoutWidget::event(QEvent *e)
     }
 
     return QWidget::event(e);
-}
-
-
-/*
-  This function must be called on QLayoutWidget creation and whenever
-  the QLayoutWidget's parent layout changes (e.g., from a QHBoxLayout
-  to a QVBoxLayout), because of the (illogical) way layouting works.
-*/
-void QLayoutWidget::updateSizePolicy()
-{
-    QList<QWidget*> l = widgets(layout());
-    if (l.isEmpty()) {
-        sp = QWidget::sizePolicy();
-        return;
-    }
-
-    /*
-      QSizePolicy::MayShrink & friends are private. Here we assume the
-      following:
-
-          Fixed = 0
-          Maximum = MayShrink
-          Minimum = MayGrow
-          Preferred = MayShrink | MayGrow
-    */
-
-    int ht = (int) QSizePolicy::Preferred;
-    int vt = (int) QSizePolicy::Preferred;
-
-    if (layout()) {
-        /*
-          parentLayout is set to the parent layout if there is one and if it is
-          top level, in which case layouting is illogical.
-        */
-        QLayout *parentLayout = 0;
-        if (parent() && parent()->isWidgetType()) {
-            parentLayout = ((QWidget *)parent())->layout();
-            if (parentLayout &&
-                 qt_cast<QLayoutWidget*>(parentLayout->parentWidget()))
-                parentLayout = 0;
-        }
-
-        if (qt_cast<QVBoxLayout*>(layout())) {
-            if (qt_cast<QHBoxLayout*>(parentLayout) || qt_cast<QGridLayout*>(parentLayout))
-                vt = QSizePolicy::Minimum;
-            else
-                vt = QSizePolicy::Fixed;
-
-            foreach (QWidget *w, l) {
-                if (w->testWState(Qt::WState_ForceHide))
-                    continue;
-
-                if (!w->sizePolicy().mayGrowHorizontally())
-                    ht &= ~QSizePolicy::Minimum;
-                if (!w->sizePolicy().mayShrinkHorizontally())
-                    ht &= ~QSizePolicy::Maximum;
-                if (w->sizePolicy().mayGrowVertically())
-                    vt |= QSizePolicy::Minimum;
-                if (w->sizePolicy().mayShrinkVertically())
-                    vt |= QSizePolicy::Maximum;
-            }
-        } else if (qt_cast<QHBoxLayout*>(layout())) {
-            if (qt_cast<QVBoxLayout*>(parentLayout) || qt_cast<QGridLayout*>(parentLayout))
-                ht = QSizePolicy::Minimum;
-            else
-                ht = QSizePolicy::Fixed;
-
-            foreach (QWidget *w, l) {
-                if (w->testWState(Qt::WState_ForceHide))
-                    continue;
-
-                if (w->sizePolicy().mayGrowHorizontally())
-                    ht |= QSizePolicy::Minimum;
-                if (w->sizePolicy().mayShrinkHorizontally())
-                    ht |= QSizePolicy::Maximum;
-                if (!w->sizePolicy().mayGrowVertically())
-                    vt &= ~QSizePolicy::Minimum;
-                if (!w->sizePolicy().mayShrinkVertically())
-                    vt &= ~QSizePolicy::Maximum;
-            }
-        } else if (qt_cast<QGridLayout*>(layout())) {
-            ht = QSizePolicy::Fixed;
-            vt = QSizePolicy::Fixed;
-            if (parentLayout) {
-                if (qt_cast<QVBoxLayout*>(parentLayout))
-                    ht = QSizePolicy::Minimum;
-                else if (qt_cast<QHBoxLayout*>(parentLayout))
-                    vt = QSizePolicy::Minimum;
-            }
-
-            foreach (QWidget *w, l) {
-                if (w->testWState(Qt::WState_ForceHide))
-                    continue;
-
-                if (w->sizePolicy().mayGrowHorizontally())
-                    ht |= QSizePolicy::Minimum;
-                if (w->sizePolicy().mayShrinkHorizontally())
-                    ht |= QSizePolicy::Maximum;
-                if (w->sizePolicy().mayGrowVertically())
-                    vt |= QSizePolicy::Minimum;
-                if (w->sizePolicy().mayShrinkVertically())
-                    vt |= QSizePolicy::Maximum;
-            }
-        }
-        if (layout()->expanding() & QSizePolicy::Horizontally)
-            ht = QSizePolicy::Expanding;
-        if (layout()->expanding() & QSizePolicy::Vertically)
-            vt = QSizePolicy::Expanding;
-    }
-
-    sp = QSizePolicy((QSizePolicy::SizeType) ht, (QSizePolicy::SizeType) vt);
 }
 
 int QLayoutWidget::layoutMargin() const

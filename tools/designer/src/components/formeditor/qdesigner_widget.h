@@ -129,9 +129,6 @@ class QT_FORMEDITOR_EXPORT QLayoutWidget: public QWidget
 public:
     QLayoutWidget(FormWindow *formWindow, QWidget *parent = 0);
 
-    QSizePolicy sizePolicy() const;
-    void updateSizePolicy();
-
     int layoutMargin() const;
     void setLayoutMargin(int layoutMargin);
 
@@ -182,7 +179,6 @@ protected:
 
 private:
     FormWindow *m_formWindow;
-    QSizePolicy sp;
     QLayoutSupport m_support;
 };
 

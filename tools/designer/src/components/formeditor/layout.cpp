@@ -393,9 +393,6 @@ void HorizontalLayout::doLayout()
                 layout->addWidget(w, 0, spacer->alignment());
             else
                 add_to_box_layout(layout, w);
-
-            if (QLayoutWidget *l = qt_cast<QLayoutWidget*>(w))
-                l->updateSizePolicy();
         }
         w->show();
     }
@@ -444,9 +441,6 @@ void VerticalLayout::doLayout()
                 layout->addWidget(w, 0, spacer->alignment());
             else
                 add_to_box_layout(layout, w);
-
-            if (QLayoutWidget *l = qt_cast<QLayoutWidget*>(w))
-                l->updateSizePolicy();
         }
         w->show();
     }
@@ -842,9 +836,6 @@ void GridLayout::doLayout()
             } else {
                 add_to_grid_layout(layout, w, r, c, rs, cs, alignment);
             }
-
-            if (QLayoutWidget *layoutWidget = qt_cast<QLayoutWidget*>(w))
-                layoutWidget->updateSizePolicy();
 
             w->show();
         } else {
