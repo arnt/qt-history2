@@ -148,7 +148,7 @@ void QSpinWidget::mousePressEvent(QMouseEvent *e)
 
 static QStyleOptionSpinBox getStyleOption(const QSpinWidget *spin)
 {
-    QStyleOptionSpinBox opt(0);
+    QStyleOptionSpinBox opt;
     opt.init(spin);
     opt.subControls = 0;
     opt.buttonSymbols = (QAbstractSpinBox::ButtonSymbols)spin->buttonSymbols();

@@ -537,7 +537,7 @@ QRect QAccessibleTitleBar::rect(int child) const
 
     QRect r;
     if (sc != QStyle::SC_None) {
-        QStyleOptionTitleBar option(0);
+        QStyleOptionTitleBar option;
         r = titleBar()->style().querySubControlMetrics(QStyle::CC_TitleBar, &option, sc, titleBar());
     }
 

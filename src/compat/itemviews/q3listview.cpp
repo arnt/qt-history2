@@ -1932,7 +1932,7 @@ const QPixmap * Q3ListViewItem::pixmap(int column) const
 
 static QStyleOptionListView getStyleOption(const Q3ListView *lv, const Q3ListViewItem *item)
 {
-    QStyleOptionListView opt(0);
+    QStyleOptionListView opt;
     opt.init(lv);
     opt.subControls = QStyle::SC_None;
     opt.activeSubControls = QStyle::SC_None;
@@ -1945,7 +1945,7 @@ static QStyleOptionListView getStyleOption(const Q3ListView *lv, const Q3ListVie
     opt.rootIsDecorated = lv->rootIsDecorated();
     bool firstItem = true;
     while (item) {
-        QStyleOptionListViewItem lvi(0);
+        QStyleOptionListViewItem lvi;
         lvi.height = item->height();
         lvi.totalHeight = item->totalHeight();
         lvi.itemY = item->itemPos();
@@ -2187,7 +2187,7 @@ void Q3ListViewItem::paintFocus(QPainter *p, const QPalette &pal, const QRect &r
 {
     Q3ListView *lv = listView();
     if (lv) {
-        QStyleOptionFocusRect opt(0);
+        QStyleOptionFocusRect opt;
         opt.rect = r;
         opt.palette = pal;
         if (isSelected()) {

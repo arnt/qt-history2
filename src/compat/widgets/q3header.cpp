@@ -114,7 +114,7 @@ public:
 
 static QStyleOptionHeader getStyleOption(const Q3Header *header, int section)
 {
-    QStyleOptionHeader opt(0);
+    QStyleOptionHeader opt;
     opt.init(header);
     opt.section = section;
     if (header->iconSet(section))
@@ -1592,7 +1592,7 @@ void Q3Header::paintEvent(QPaintEvent *e)
                 if (i < count() || d->clicks[mapToSection(count() - 1)])
                     paintSection(&p, i, r);
                 if (hasFocus() && d->focusIdx == i) {
-                    QStyleOptionFocusRect opt(0);
+                    QStyleOptionFocusRect opt;
                     opt.rect.setRect(r.x()+2, r.y()+2, r.width()-4, r.height()-4);
                     opt.palette = palette();
                     opt.state = QStyle::Style_Default;

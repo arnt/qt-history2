@@ -1255,7 +1255,7 @@ void QComboTableItem::paint(QPainter *p, const QPalette &pal,
     if(isEnabled() && table()->isEnabled())
         flags |= QStyle::Style_Enabled;
     // Since we still have the "fakeCombo" may as well use it in this case.
-    QStyleOptionComboBox opt(0);
+    QStyleOptionComboBox opt;
     opt.rect = fakeCombo->rect();
     opt.palette = pal2;
     opt.state = flags;
@@ -1519,7 +1519,7 @@ void QCheckTableItem::paint(QPainter *p, const QPalette &pal,
                       table()->style().pixelMetric(QStyle::PM_IndicatorHeight));
     QPalette pal2(pal);
     pal2.setBrush(QPalette::Background, pal.brush(QPalette::Base));
-    QStyleOptionButton opt(0);
+    QStyleOptionButton opt;
     opt.rect.setRect(0, (cr.height() - sz.height()) / 2, sz.width(), sz.height());
     opt.palette = pal2;
     opt.state = QStyle::Style_Default;
@@ -2890,7 +2890,7 @@ void QTable::paintFocus(QPainter *p, const QRect &cr)
         p->drawRect(focusRect.x(), focusRect.y(), focusRect.width() - 1, focusRect.height() - 1);
         p->drawRect(focusRect.x() - 1, focusRect.y() - 1, focusRect.width() + 1, focusRect.height() + 1);
     } else {
-        QStyleOptionFocusRect opt(0);
+        QStyleOptionFocusRect opt;
         opt.rect = focusRect;
         opt.palette = palette();
         if (isSelected(curRow, curCol, false)) {
@@ -6514,7 +6514,7 @@ void QTableHeader::paintSection(QPainter *p, int index, const QRect& fr)
          orientation() == Qt::Horizontal && isRowSelection(table->selectionMode())) {
         Q3Header::paintSection(p, index, fr);
    } else {
-       QStyleOptionHeader opt(0);
+       QStyleOptionHeader opt;
        opt.palette = palette();
        opt.rect = fr;
        opt.state = QStyle::Style_Off | (orient == Qt::Horizontal ? QStyle::Style_Horizontal

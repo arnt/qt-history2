@@ -82,7 +82,7 @@ Q3DockWindowResizeHandle::Q3DockWindowResizeHandle(Qt::Orientation o, QWidget *p
 
 QSize Q3DockWindowResizeHandle::sizeHint() const
 {
-    QStyleOptionDockWindow opt(0);
+    QStyleOptionDockWindow opt;
     opt.init(this);
     if (!dockWindow->area() || dockWindow->area()->orientation() == Qt::Horizontal)
         opt.state |= QStyle::Style_Horizontal;
@@ -384,7 +384,7 @@ void Q3DockWindowHandle::paintEvent(QPaintEvent *e)
     if ((!dockWindow->dockArea || mousePressed) && !opaque)
         return;
     QPainter p(this);
-    QStyleOptionDockWindow opt(0);
+    QStyleOptionDockWindow opt;
     opt.init(this);
     if (!dockWindow->area() || dockWindow->area()->orientation() == Qt::Horizontal)
         opt.state |= QStyle::Style_Horizontal;
@@ -594,7 +594,7 @@ void Q3DockWindowTitleBar::keyReleaseEvent(QKeyEvent *e)
 
 void Q3DockWindowTitleBar::mousePressEvent(QMouseEvent *e)
 {
-    QStyleOptionTitleBar opt(0);
+    QStyleOptionTitleBar opt;
     opt.init(this);
     opt.subControls = QStyle::SC_All;
     opt.activeSubControls = QStyle::SC_None;
@@ -1514,7 +1514,7 @@ void Q3DockWindow::drawFrame(QPainter *p)
         return;
     }
 
-    QStyleOptionFrame opt(0);
+    QStyleOptionFrame opt;
     opt.rect = rect();
     opt.palette = palette();
     opt.state = QStyle::Style_Default;

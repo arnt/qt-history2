@@ -2032,7 +2032,7 @@ void QIconViewItem::paintFocus(QPainter *p, const QPalette &cg)
     if (!view)
         return;
 
-    QStyleOptionFocusRect opt(0);
+    QStyleOptionFocusRect opt;
     opt.rect = textRect(false);
     opt.palette = cg;
     if (isSelected()) {
@@ -5466,7 +5466,7 @@ void QIconView::drawDragShapes(const QPoint &pos)
     p.begin(viewport());
     p.translate(-contentsX(), -contentsY());
     p.setPen(QPen(Qt::color0));
-    QStyleOptionFocusRect opt(0);
+    QStyleOptionFocusRect opt;
     opt.palette = palette();
     opt.state = QStyle::Style_Default;
     opt.backgroundColor = palette().base();
@@ -5926,7 +5926,7 @@ QSize QIconView::sizeHint() const
 
     d->dirty = true;
     const QScrollBar *sb = verticalScrollBar();
-    QStyleOptionSlider opt(0);
+    QStyleOptionSlider opt;
     opt.init(sb);
     opt.orientation = sb->orientation();
     int extra = style().pixelMetric(QStyle::PM_ScrollBarExtent, &opt, sb) + 2 * frameWidth();

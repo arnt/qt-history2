@@ -237,7 +237,7 @@ QScrollBar *QAccessibleScrollBar::scrollBar() const
 QRect QAccessibleScrollBar::rect(int child) const
 {
     QRect rect;
-    QStyleOptionSlider option(0);
+    QStyleOptionSlider option;
     QRect srect = scrollBar()->style().querySubControlMetrics(QStyle::CC_Slider,
                                                               &option,
                                                               QStyle::SC_SliderHandle,
@@ -393,7 +393,7 @@ QSlider *QAccessibleSlider::slider() const
 QRect QAccessibleSlider::rect(int child) const
 {
     QRect rect;
-    QStyleOptionSlider option(0);
+    QStyleOptionSlider option;
     QRect srect = slider()->style().querySubControlMetrics(QStyle::CC_Slider,
                                                            &option,
                                                            QStyle::SC_SliderHandle,

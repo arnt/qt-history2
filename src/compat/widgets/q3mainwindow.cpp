@@ -249,7 +249,7 @@ protected:
             Q3DockWindow *dw = qt_cast<Q3DockWindow*>(o);
             if (!dw || !dw->isVisible())
                 continue;
-            QStyleOptionDockWindow opt(0);
+            QStyleOptionDockWindow opt;
             opt.rect.setRect(x, 0, 30, 10);
             opt.palette = palette();
             opt.docked = dw->area();

@@ -3859,7 +3859,7 @@ void QListBox::paintCell(QPainter * p, int row, int col)
     if (d->current == i && hasFocus() && !i->custom_highlight) {
         if (numColumns() > 1)
             cw = i->width(this);
-        QStyleOptionFocusRect opt(0);
+        QStyleOptionFocusRect opt;
         opt.rect.setRect(0, 0, cw, ch);
         opt.palette = pal;
         opt.state = QStyle::Style_FocusAtBorder;

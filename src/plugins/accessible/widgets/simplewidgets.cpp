@@ -241,7 +241,7 @@ QRect QAccessibleToolButton::rect(int child) const
     if (!child)
         return QAccessibleButton::rect(child);
 
-    QStyleOptionToolButton option(0);
+    QStyleOptionToolButton option;
     QRect logical = widget()->style().querySubControlMetrics(QStyle::CC_ToolButton,
                                                              &option,
                                                              QStyle::SC_ToolButtonMenu,
