@@ -969,7 +969,7 @@ void QIconViewItem::setPixmap( const QPixmap &icon, bool recalc, bool redraw )
 }
 
 /*!
-  If \allow is TRUE, the user can rename the iconview item by clicking
+  If \a allow is TRUE, the user can rename the iconview item by clicking
   on the text while the item is selected (in-place renaming). If \a
   allow is FALSE, in-place renaming is not possible.
 */
