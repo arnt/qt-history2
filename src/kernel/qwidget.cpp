@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#163 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#164 $
 **
 ** Implementation of QWidget class
 **
@@ -19,7 +19,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#163 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#164 $");
 
 
 /*!
@@ -924,12 +924,8 @@ QRect QWidget::childrenRect() const
     QObject *obj;
     while ( (obj=it.current()) ) {
 	++it;
-	if ( obj->isWidgetType() ) {
-	    if ( r.isNull() )
-		r = ((QWidget*)obj)->geometry();
-	    else
-		r = r.unite( ((QWidget*)obj)->geometry() );
-	}
+	if ( obj->isWidgetType() )
+	    r = r.unite( ((QWidget*)obj)->geometry() );
     }
     return r;
 }
@@ -1254,15 +1250,29 @@ void QWidget::fontChange( const QFont & )
 }
 
 
+#if QT_VERSION == 200
+#error "Fix doc below. No longer automatic font metrics update"
+#endif
+
 /*!
   \fn QFontMetrics QWidget::fontMetrics() const
   Returns the font metrics for the widget.
+
+  The font metrics object is automatically updated if somebody sets a new
+  widget font. We have decided to change this policy in Qt 2.0: setting
+  a new font for a widget should not affect existing QFontMetric objects.
+
   \sa font(), fontInfo(), setFont()
 */
 
 /*!
   \fn QFontInfo QWidget::fontInfo() const
   Returns the font info for the widget.
+
+  The font info object is automatically updated if somebody sets a new
+  widget font. We have decided to change this policy in Qt 2.0: setting
+  a new font for a widget should not affect existing QFontInfo objects.
+
   \sa font(), fontMetrics(), setFont()
 */
 
