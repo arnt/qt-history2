@@ -1,5 +1,9 @@
 \chapter Databases
 
+The Qt SQL module simplifies the creation of GUI database
+applications. Programmers can easily execute SQL statements, use
+database-specific widgets, and make any widget data-aware.
+
   \index Microsoft SQL Server
   \index MySQL
   \index OCI
@@ -13,7 +17,7 @@
 The Qt SQL module provides a cross-platform interface for accessing
 SQL databases. Qt includes native drivers for Oracle, Microsoft SQL
 Server, Sybase Adaptive Server, PostgreSQL, MySQL and ODBC. The
-drivers work on all supported platforms by Qt, and programs can
+drivers work on all platforms supported by Qt, and programs can
 access multiple databases using multiple drivers simultaneously.
 
 Programmers can easily execute any arbitrary SQL statements. Qt also
@@ -40,9 +44,9 @@ provides templates and wizards to make the creation of database forms
 as quick and easy as possible. The wizards can create forms with
 navigation buttons, and with update, insert and delete buttons.
 
-The Qt SQL module allows programmers to execute SQL statements and to
-create GUI applications that use foreign key lookups, present
-master-detail relationships, and have drill-down.
+Using the facilities that the Qt SQL module provides it is
+straightforward to create database applications that use foreign key
+lookups, present master-detail relationships, and support drill-down.
 
 \section1 Executing SQL Commands
 

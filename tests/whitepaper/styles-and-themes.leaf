@@ -1,5 +1,9 @@
 \chapter Styles and Themes
 
+Qt supports a variety of styles, and defaults to the native 'look and
+feel' on target platforms. Qt's powerful style engine can be used by
+programmers to modify existing styles or to create new styles.
+
   \index colors
   \index fonts
   \index look and feel

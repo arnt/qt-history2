@@ -1,11 +1,14 @@
 \chapter Collection Classes
 
+Qt provides a set of collection classes that are compatible with the
+Standard Template Library (STL), regardless of whether the compiler
+supports STL or not. 
+
 Applications often need to manage items in memory, for example, groups
 of images, widgets or custom objects. Many C++ compilers support the
 STL (standard template library) which provides read-made data
 structures for storing items. Qt provides lists, stacks, queues and
-dictionaries with STL-syntax that work with all compilers, regardless
-of whether the compiler supports STL or not. 
+dictionaries with STL-syntax that work with all compilers.
 
   \index STL
   \index collection classes

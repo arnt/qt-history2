@@ -1,5 +1,10 @@
 \chapter Internationalization
 
+Qt fully supports Unicode. Programmers can freely mix Arabic, English,
+Hebrew, Japanese, and every other language supported by Unicode, in
+their applications. Qt also includes tools to support application
+translation to help companies reach international markets.
+
   \index i18n
   \index internationalization
   \index l10n
@@ -7,9 +12,6 @@
   \index multi-language
 
 \omit ### Mark, I'll need your help here ### \endomit
-
-Qt provides full Unicode support. Applications can mix Arabic,
-English, Japanese freely in their application.
 
 Applications are translated using the graphical tool \e {Qt
 Linguist}. It is easy to use by non-technical people.

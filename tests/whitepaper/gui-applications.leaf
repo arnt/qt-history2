@@ -2,6 +2,10 @@
 
 \chapter GUI Applications
 
+Building modern GUI applications with Qt is fast and simple and can be
+achieved by hand coding or by using \l{Qt Designer}, Qt's visual
+design tool.
+
 Qt provides all the classes and functions necessary to create modern
 GUI applications. Qt can be used to create both 'main window' style
 applications with a menu bar, tool bars and status bar surrounding a
@@ -29,17 +33,6 @@ all that is necessary to present a message box or a standard dialog.
 Qt can platform-independently store application settings, e.g. user
 preferences, most recently used files, window and tool bar positions
 and sizes, etc.
-
-Building GUI applications with Qt is fast, simple and flexible.
-
-\omit
-Whatever library you use, the code, compile, link and run cycle can be
-time consuming, especially when designing user interfaces. Qt's
-classes and functions are designed to be comfortable and easy to hand
-code, so the cycle time mostly depends on the compiler and linker. But
-to quickly develop and experiment with user interface designs, it is
-probably fastest to use \l{Qt Designer}, Qt's visual design tool. 
-\endomit
 
 \section1 Main Window Classes
 
