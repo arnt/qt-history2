@@ -290,14 +290,19 @@ void QLabel::setText( const QString &text )
 #endif
 #ifndef QT_NO_RICHTEXT
     if ( useRichText ) {
-	doc = new QSimpleRichText( ltext, font() );
+	if ( !hadRichtext )
+	    align |= WordBreak;
+	QString t = ltext;
+	if ( align & AlignRight )
+	    t.prepend( "<div align=\"right\">");
+	else if ( align & AlignHCenter )
+	    t.prepend( "<div align=\"center\">");
+	if ( (align & WordBreak) == 0  )
+	    t.prepend( "<nobr>" );
+	doc = new QSimpleRichText( t, font() );
 	doc->setDefaultFont( font() );
 	doc->setWidth( 10 );
 	d->minimumWidth = doc->widthUsed();
-	if ( !hadRichtext )
-	    align |= WordBreak;
-	if ( (align & WordBreak ) == 0 )
-	    doc->setWidth( INT_MAX );
     }
 #endif
 
@@ -332,7 +337,7 @@ void QLabel::setPixmap( const QPixmap &pixmap )
 	clearContents();
 	lpixmap = new QPixmap( pixmap );
     }
-    
+
     if ( lpixmap->depth() == 1 && !lpixmap->mask() )
 	lpixmap->setMask( *((QBitmap *)lpixmap) );
 
@@ -410,7 +415,7 @@ void QLabel::setNum( double num )
   labels.
 
   If the label has a buddy, the \c ShowPrefix flag is forced to TRUE.
-  
+
   The default alignment is \c{AlignAuto | AlignVCenter | ExpandTabs}
   if the label doesn't have a buddy and \c{AlignAuto | AlignVCenter |
   ExpandTabs | ShowPrefix} if the label has a buddy. If the label
@@ -431,6 +436,14 @@ void QLabel::setAlignment( int alignment )
 #endif
 	align = alignment;
 
+#ifndef QT_NO_RICHTEXT    
+    QString t = ltext;
+    if ( !t.isNull() ) {
+	ltext = QString::null;
+	setText( t );
+    }
+#endif    
+    
     updateLabel( osh );
 }
 
@@ -556,8 +569,7 @@ QSize QLabel::sizeForWidth( int w ) const
 	if ( align & WordBreak ) {
 	    if ( w < 0 ) {
 		doc->adjustSize();
-	    }
-	    else {
+	    } else {
 		w -= 2*fw + hm;
 		doc->setWidth( w );
 	    }
@@ -597,11 +609,11 @@ QSize QLabel::sizeForWidth( int w ) const
 
 int QLabel::heightForWidth( int w ) const
 {
-    if ( 
+    if (
 #ifndef QT_NO_RICHTEXT
-	doc || 
+	doc ||
 #endif
-	(align & WordBreak) )	 
+	(align & WordBreak) )	
 	return sizeForWidth( w ).height();
     return QWidget::heightForWidth( w );
 }
@@ -733,28 +745,21 @@ void QLabel::drawContents( QPainter *p )
 #endif
 #ifndef QT_NO_RICHTEXT
     if ( doc ) {
-	if ( align & WordBreak  )
-	    doc->setWidth(p, cr.width() );
-	int rw = doc->widthUsed();
+	doc->setWidth(p, cr.width() );
 	int rh = doc->height();
-	int xo = 0;
 	int yo = 0;
 	if ( align & AlignVCenter )
 	    yo = (cr.height()-rh)/2;
 	else if ( align & AlignBottom )
 	    yo = cr.height()-rh;
-	if ( align & AlignRight )
-	    xo = cr.width()-rw;
-	else if ( align & AlignHCenter )
-	    xo = (cr.width()-rw)/2;
 	if (! isEnabled() &&
 	    style().styleHint(QStyle::SH_EtchDisabledText, this)) {
 	    QColorGroup cg = colorGroup();
 	    cg.setColor( QColorGroup::Text, cg.light() );
-	    doc->draw(p, cr.x()+xo+1, cr.y()+yo+1, cr, cg, 0);
+	    doc->draw(p, cr.x()+1, cr.y()+yo+1, cr, cg, 0);
 	}
 	QColorGroup cg( colorGroup() );
-	doc->draw(p, cr.x()+xo, cr.y()+yo, cr, cg, 0);
+	doc->draw(p, cr.x(), cr.y()+yo, cr, cg, 0);
     } else
 #endif
 #ifndef QT_NO_PICTURE
@@ -814,10 +819,6 @@ void QLabel::updateLabel( QSize oldSizeHint )
     QSizePolicy policy = sizePolicy();
     bool wordBreak = align & WordBreak;
     policy.setHeightForWidth( wordBreak );
-#ifndef QT_NO_RICHTEXT
-    if ( doc && !wordBreak ) 
-	doc->setWidth( INT_MAX );
-#endif
     if ( policy != sizePolicy() )
 	setSizePolicy( policy );
     if ( sizeHint() != oldSizeHint )
