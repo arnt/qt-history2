@@ -51,15 +51,18 @@
 static bool createDir(const QString& fullPath)
 {
     QDir dirTmp;
+    bool ret = TRUE;
     QString pathComponent, tmpPath;
-    QStringList hierarchy = QStringList::split(QString(Option::dir_sep), fullPath);
+    QStringList hierarchy = QStringList::split(QString(Option::dir_sep), fullPath, TRUE);
     for(QStringList::Iterator it = hierarchy.begin(); it != hierarchy.end(); ++it) {
 	pathComponent = *it + QDir::separator();
 	tmpPath += pathComponent;
-	if(!dirTmp.mkdir(tmpPath))
-	    return FALSE;
+	if(!dirTmp.mkdir(tmpPath)) {
+	    ret = FALSE;
+//	    break;
+	}
     }
-    return TRUE;
+    return ret;
 }
 
 // for Borland, main is defined to qMain which breaks qmake

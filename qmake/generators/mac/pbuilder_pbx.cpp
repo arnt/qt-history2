@@ -764,7 +764,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
       << "}" << endl;
 
     QString mkwrap = Option::output_dir + Option::dir_sep + ".." + Option::dir_sep + project->first("MAKEFILE");
-    fileFixify(mkwrap);
+    fileFixify(mkwrap, QDir::currentDirPath());
     QFile mkwrapf(mkwrap);
     if(mkwrapf.open(IO_WriteOnly | IO_Translate)) {
 	debug_msg(1, "pbuilder: Creating file: %s", mkwrap.latin1());
