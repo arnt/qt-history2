@@ -707,22 +707,18 @@ QWidget *QDockWindow::areaAt( const QPoint &gp )
     while ( w ) {
 	if ( w->inherits( "QDockArea" ) ) {
 	    QDockArea *a = (QDockArea*)w;
-	    if ( !a->isDockWindowAccepted( this ) )
-		return 0;
-	    return w;
+	    if ( a->isDockWindowAccepted( this ) )
+		return w;
 	}
-	if ( w->inherits( "QMainWindow" ) )
+	if ( w->inherits( "QMainWindow" ) ) {
 	    mw = (QMainWindow*)w;
-	w = w->parentWidget();
+	    QDockArea *a = mw->dockingArea( mw->mapFromGlobal( gp ) );
+	    if ( a && a->isDockWindowAccepted( this ) )
+		return a;
+	}
+	w = w->parentWidget( TRUE );
     }
-
-    if ( !mw )
-	return 0;
-
-    QDockArea *a = mw->dockingArea( mw->mapFromGlobal( gp ) );
-    if ( !a || !a->isDockWindowAccepted( this ) )
-	return 0;
-    return a;
+    return 0;
 }
 
 void QDockWindow::handleMove( const QPoint &pos, const QPoint &gp, bool drawRect )
