@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#221 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#222 $
 **
 ** Implementation of QListBox widget class
 **
@@ -933,7 +933,7 @@ void QListBox::setCurrentItem( QListBoxItem * i )
       if ( i )
 	setSelected( i, TRUE );
     }
-    
+
     if ( o )
 	updateItem( o );
     if ( i )
@@ -2246,6 +2246,8 @@ void QListBox::refreshSlot()
     while ( i && (int)col < numCols() &&
 	    d->columnPos[col] < x + viewport()->width()  ) {
 	int cw = d->columnPos[col+1] - d->columnPos[col];
+	if ( numColumns() == 1 && columnMode() == FixedNumber )
+	    cw = viewport()->width();
 	while ( i && row < top ) {
 	    i = i->n;
 	    row++;
@@ -2310,6 +2312,8 @@ void QListBox::viewportPaintEvent( QPaintEvent * e )
 	while ( i && (int)row < numRows() && d->rowPos[row] < y + h ) {
 	    int ch = d->rowPos[row+1] - d->rowPos[row];
 	    QRect itemRect( d->columnPos[col]-x,  d->rowPos[row]-y, cw, ch );
+	    if ( numColumns() == 1  && columnMode() == FixedNumber )
+		itemRect.setWidth( viewport()->width() );
 	    QRegion itemPaintRegion( QRegion( itemRect ).intersect( r  ) );
 	    if ( !itemPaintRegion.isEmpty() ) {
 		p.save();
@@ -2433,6 +2437,8 @@ void QListBox::paintCell( QPainter * p, int row, int col )
 {
     const QColorGroup & g = colorGroup();
     int cw = d->columnPos[col+1] - d->columnPos[col];
+    if ( numColumns() == 1 && columnMode() == FixedNumber )
+	cw = viewport()->width();
     int ch = d->rowPos[row+1] - d->rowPos[row];
     QListBoxItem * i = item( col*numRows()+row );
     if ( i->s ) {
