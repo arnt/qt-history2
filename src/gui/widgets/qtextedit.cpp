@@ -1188,7 +1188,6 @@ void QTextEdit::copy()
 
 void QTextEdit::paste()
 {
-    Q_D(QTextEdit);
     insertFromMimeData(QApplication::clipboard()->mimeData());
 }
 
