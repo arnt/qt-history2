@@ -3928,8 +3928,8 @@ void QWidget::hideChildren( bool spontaneous )
     After this function, the widget has a proper font and palette and
     QApplication::polish() has been called.
 
-    Remember to call QWidget's implementation when reimplementing this
-    function.
+    Remember to call QWidget's implementation first when reimplementing this
+    function to ensure that your program does not end up in infinite recursion.
 
     \sa constPolish(), QApplication::polish()
 */
@@ -3942,7 +3942,7 @@ void QWidget::polish()
 	if ( !pm || pm->isNull() ) {
 	    QWidget *mw = (QWidget *)parent();
 	    pm = mw ? mw->icon() : 0;
-    	    if ( pm && !pm->isNull() )
+	    if ( pm && !pm->isNull() )
 		setIcon( *pm );
 	    else {
 		mw = mw ? mw->topLevelWidget() : 0;
