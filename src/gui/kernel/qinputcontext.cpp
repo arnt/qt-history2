@@ -308,7 +308,7 @@ void QInputContext::setFocusWidget(QWidget *w)
 }
 
 /*!
-  \fn bool QInputContext::isComposing() const
+    \fn bool QInputContext::isComposing() const
 
     This function indicates whether InputMethodStart event had been
     sent to the current focus widget. It is ensured that an input

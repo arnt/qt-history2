@@ -1401,7 +1401,7 @@ void QTreeWidgetPrivate::emitCurrentItemChanged(const QModelIndex &current,
 */
 
 /*!
-    \fn void QTreeWidget::itemDoubleClicked(QTreeWidgetItem *item)
+    \fn void QTreeWidget::itemDoubleClicked(QTreeWidgetItem *item, int column)
 
     This signal is emitted when the user double clicks inside the widget.
     The specified \a item is the item that was clicked, or 0 if no item was

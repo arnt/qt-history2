@@ -1523,10 +1523,6 @@ void QTableWidget::setModel(QAbstractItemModel *model)
 QTableWidgetItemCreatorBase::~QTableWidgetItemCreatorBase() {}
 
 /*!
-    \fn void QTableWidgetItemCreator::setItemCreator(QTableWidgetItemCreatorBase *factory)
-*/
-
-/*!
     \class QTableWidgetItemCreatorBase
 */
 

@@ -33,7 +33,7 @@ class QLabelPrivate : public QFramePrivate
     Q_DECLARE_PUBLIC(QLabel)
 public:
     QLabelPrivate()
-        :img(0), pix(0), valid_hints(false), margin(0)
+        : img(0), pix(0), valid_hints(false), margin(0)
     {}
 
     void init();
@@ -73,7 +73,7 @@ public:
 
 
 /*!
-    \class QLabel qlabel.h
+    \class QLabel
     \brief The QLabel widget provides a text or image display.
 
     \ingroup basic
@@ -86,21 +86,22 @@ public:
     for specifying a focus mnemonic key for another widget.
 
     A QLabel can contain any of the following content types:
+
     \table
-    \header \i Content \i Setting
-    \row \i Plain text
-         \i Pass a QString to setText().
-    \row \i Rich text
-         \i Pass a QString that contains rich text to setText().
-    \row \i A pixmap
-         \i Pass a QPixmap to setPixmap().
-    \row \i A movie
-         \i Pass a QMovie to setMovie().
-    \row \i A number
-         \i Pass an \e int or a \e double to setNum(), which converts
+    \header \o Content \o Setting
+    \row \o Plain text
+         \o Pass a QString to setText().
+    \row \o Rich text
+         \o Pass a QString that contains rich text to setText().
+    \row \o A pixmap
+         \o Pass a QPixmap to setPixmap().
+    \row \o A movie
+         \o Pass a QMovie to setMovie().
+    \row \o A number
+         \o Pass an \e int or a \e double to setNum(), which converts
             the number to plain text.
-    \row \i Nothing
-         \i The same as an empty plain text. This is the default. Set
+    \row \o Nothing
+         \o The same as an empty plain text. This is the default. Set
             by clear().
     \endtable
 
@@ -459,6 +460,12 @@ void QLabel::setAlignment(Qt::Alignment alignment)
 }
 
 #ifdef QT3_SUPPORT
+/*!
+    Use setAlignment(Qt::Alignment) instead.
+
+    If \a alignment specifies text flags as well, use setTextFormat()
+    to set those.
+*/
 void QLabel::setAlignment(int alignment)
 {
     d->align = alignment & ~(Qt::AlignVertical_Mask|Qt::AlignHorizontal_Mask|Qt::TextWordWrap);
@@ -1066,10 +1073,10 @@ QMovie *QLabel::movie() const
     \property QLabel::textFormat
     \brief the label's text format
 
-    See the \c Qt::Textformat enum for an explanation of the possible
+    See the Qt::TextFormat enum for an explanation of the possible
     options.
 
-    The default format is \c Qt::AutoText.
+    The default format is Qt::AutoText.
 
     \sa text()
 */
@@ -1085,7 +1092,7 @@ void QLabel::setTextFormat(Qt::TextFormat format)
         d->textformat = format;
         QString t = d->ltext;
         if (!t.isNull()) {
-            d->ltext = QString::null;
+            d->ltext.clear();
             setText(t);
         }
     }
@@ -1118,8 +1125,6 @@ void QLabel::changeEvent(QEvent *ev)
     pixmap to fill the available space.
 
     This property's default is false.
-
-    \sa setScaledContents()
 */
 bool QLabel::hasScaledContents() const
 {
@@ -1144,9 +1149,10 @@ void QLabel::setScaledContents(bool enable)
 
 /*!
     \fn void QLabel::setAlignment(Qt::AlignmentFlag flag)
+    \internal
 
     Without this function, a call to e.g. setAlignment(Qt::AlignTop)
-    results in the QT3_SUPPORT function setAlignment(int) being called,
+    results in the \c QT3_SUPPORT function setAlignment(int) being called,
     rather than setAlignment(Qt::Alignment).
 */
 

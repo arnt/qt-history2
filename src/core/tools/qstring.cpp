@@ -5240,7 +5240,7 @@ QString QString::number(double n, char f, int prec)
     string is split, the string is split where characters are found
     that match \a sep case insensitively (e.g. "and" matches "AND").
 
-    If \a behavior is \c SkipEmptyParts, empty entries don't
+    If \a behavior is QString::SkipEmptyParts, empty entries don't
     appear in the result. By default, empty entries are kept.
 
     Example:
@@ -5313,12 +5313,10 @@ QStringList QString::split(const QChar &sep, SplitBehavior behavior, Qt::CaseSen
 
     \code
         QString str = "This time, a normal English sentence.";
-        QStringList list = str.split(QRegExp("\\W+"));
-        // list: [ "This", "time", "a", "normal", "English", "sentence", "" ]
+        QStringList list = str.split(QRegExp("\\W+"),
+                                     QString::SkipEmptyParts);
+        // list: [ "This", "time", "a", "normal", "English", "sentence" ]
     \endcode
-
-    (If you want to discard empty entries, call
-    QStringList::remove(QString()) on the result.)
 
     Here's a third example where we use a zero-length assertion,
     \bold{\\b} (word boundary), to split the string into an
