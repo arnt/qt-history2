@@ -25,6 +25,7 @@
 extern QCursorData *qt_cursorTable[Qt::LastCursor + 1];
 extern WindowPtr qt_mac_window_for(const QWidget *); //qwidget_mac.cpp
 extern GrafPtr qt_macQDHandle(const QPaintDevice *); //qpaintdevice_mac.cpp
+extern bool qt_sendSpontaneousEvent(QObject *, QEvent *); //qapplication_mac.cpp
 
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
 # define QMAC_NO_FAKECURSOR
