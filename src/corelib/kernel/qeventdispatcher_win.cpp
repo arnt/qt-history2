@@ -15,11 +15,14 @@
 
 #include "qcoreapplication.h"
 #include "qhash.h"
+#include "qlibrary.h"
 #include "qsocketnotifier.h"
 #include "qwineventnotifier_p.h"
 
 #include "qabstracteventdispatcher_p.h"
 #include <private/qthread_p.h>
+
+class QEventDispatcherWin32Private;
 
 struct QSockNot {
     QSocketNotifier *obj;
@@ -31,9 +34,26 @@ struct TimerInfo {                              // internal timer info
     int     ind;                                // - Qt timer identifier - 1
     uint     id;                                // - Windows timer identifier
     QObject *obj;                               // - object to receive events
+    bool    fast;                               // fast multimedia timer
+    QEventDispatcherWin32Private *dispatcher;
 };
 typedef QList<TimerInfo*>  TimerVec;            // vector of TimerInfo structs
 typedef QHash<int,TimerInfo*> TimerDict;        // fast dict of timers
+
+typedef MMRESULT(WINAPI *ptimeSetEvent)(UINT, UINT, LPTIMECALLBACK, DWORD_PTR, UINT);
+typedef MMRESULT(WINAPI *ptimeKillEvent)(UINT);
+
+static ptimeSetEvent qtimeSetEvent = 0;
+static ptimeKillEvent qtimeKillEvent = 0;
+
+static void resolveTimerAPI()
+{
+    if (!qtimeSetEvent) {
+        qtimeSetEvent = (ptimeSetEvent)QLibrary::resolve(QLatin1String("winmm"), "timeSetEvent");
+        qtimeKillEvent = (ptimeKillEvent)QLibrary::resolve(QLatin1String("winmm"), "timeKillEvent");
+    }
+}
+
 
 class QEventDispatcherWin32Private : public QAbstractEventDispatcherPrivate
 {
@@ -63,11 +83,16 @@ public:
     void activateEventNotifier(QWinEventNotifier * wen);
 
     QList<MSG> queuedUserInputEvents;
+
+    CRITICAL_SECTION fastTimerCriticalSection;
 };
 
 QEventDispatcherWin32Private::QEventDispatcherWin32Private()
     : threadId(GetCurrentThreadId()), interrupt(false), sn_win(0)
 {
+    resolveTimerAPI();
+    InitializeCriticalSection(&fastTimerCriticalSection);
+
     wakeUpNotifier.setHandle(QT_WA_INLINE(CreateEventW(0, false, false, L"Wakeup event"),
                                           CreateEventA(0, false, false, "Wakeup event")));
 }
@@ -76,6 +101,8 @@ QEventDispatcherWin32Private::~QEventDispatcherWin32Private()
 {
     wakeUpNotifier.setEnabled(false);
     CloseHandle(wakeUpNotifier.handle());
+
+    DeleteCriticalSection(&fastTimerCriticalSection);
 }
 
 void QEventDispatcherWin32Private::activateEventNotifier(QWinEventNotifier * wen)
@@ -135,6 +162,44 @@ void CALLBACK qt_timer_proc(HWND hwnd, UINT message, UINT timerId, DWORD)
 
     QTimerEvent e(t->ind);
     QCoreApplication::sendEvent(t->obj, &e);
+}
+
+// This function is called by a workerthread
+void WINAPI CALLBACK qt_fast_timer_proc(uint timerId, uint /*reserved*/, DWORD_PTR user, ulong /*reserved*/, ulong /*reserved*/)
+{
+    if (!timerId) // sanity check             
+        return;
+
+    MSG msg;
+    msg.hwnd = 0;
+    msg.message = WM_TIMER;
+    msg.wParam = WPARAM(timerId);
+    msg.lParam = LPARAM(qt_fast_timer_proc);
+
+    QCoreApplication *app = QCoreApplication::instance();
+    Q_ASSERT_X(app, "qt_fast_timer_proc", "Timer fired, but no QCoreApplication");
+    if (!app) {
+        qtimeKillEvent(timerId);
+        return;
+    }
+
+    long result;
+    if (app->filterEvent(&msg, &result))
+        return;
+
+    TimerInfo *t = (TimerInfo*)user;
+    Q_ASSERT(t);
+    EnterCriticalSection(&t->dispatcher->fastTimerCriticalSection);
+    if (!t->fast) { // timer stopped
+        qtimeKillEvent(timerId);
+        LeaveCriticalSection(&t->dispatcher->fastTimerCriticalSection);
+        delete t;
+        return;
+    }
+
+    QTimerEvent *e = new QTimerEvent(t->ind);
+    QCoreApplication::postEvent(t->obj, e);
+    LeaveCriticalSection(&t->dispatcher->fastTimerCriticalSection);
 }
 
 LRESULT CALLBACK qt_socketnotifier_proc(HWND hwnd, UINT message, WPARAM wp, LPARAM lp)
@@ -462,7 +527,21 @@ int QEventDispatcherWin32::registerTimer(int interval, QObject *object)
     register TimerInfo *t = new TimerInfo;
     t->ind  = d->timerVec.isEmpty() ? 1 : d->timerVec.last()->ind + 1;
     t->obj  = object;
-    t->id = SetTimer(0, 0, (uint) interval, (TIMERPROC) qt_timer_proc);
+    t->dispatcher = 0;
+    t->fast = false;
+
+    if (interval > 10 || !interval || !qtimeSetEvent) {
+        t->id = SetTimer(0, 0, (uint) interval, (TIMERPROC) qt_timer_proc);
+    } else {
+        t->dispatcher = d;
+        t->fast = true;
+        t->id = qtimeSetEvent(interval, 1, qt_fast_timer_proc, (DWORD_PTR)t, TIME_CALLBACK_FUNCTION|TIME_PERIODIC);
+        if (!t->id) { // fall back to normal timer if no more multimedia timers avaiable
+            t->dispatcher = 0;
+            t->fast = false;
+            t->id = SetTimer(0, 0, (uint)interval, (TIMERPROC) qt_timer_proc);            
+        }
+    }
 
     if (t->id == 0) {
         qErrnoWarning("QEventDispatcherWin32::registerTimer: Failed to create a timer");
@@ -470,8 +549,9 @@ int QEventDispatcherWin32::registerTimer(int interval, QObject *object)
         return 0;
     }
 
-    d->timerVec.append(t);                        // store in timer vector
-    d->timerDict.insert(t->id, t);                // store in dict
+    d->timerVec.append(t);                      // store in timer vector
+    if (!t->fast)
+        d->timerDict.insert(t->id, t);          // store regular timers in dict
     return t->ind;                              // return index in vector
 }
 
@@ -491,10 +571,18 @@ bool QEventDispatcherWin32::unregisterTimer(int timerId)
     if (!t)
         return false;
 
-    KillTimer(0, t->id);
-    d->timerDict.remove(t->id);
-    d->timerVec.removeAll(t);
-    delete t;
+    if (t->fast) {
+        EnterCriticalSection(&d->fastTimerCriticalSection);
+        d->timerVec.removeAll(t);
+        t->fast = false; // kill timer (and delete t) from callback
+        LeaveCriticalSection(&d->fastTimerCriticalSection);
+    } else {
+        KillTimer(0, t->id);
+        d->timerDict.remove(t->id);
+        d->timerVec.removeAll(t);
+        delete t;
+    }
+
     return true;
 }
 
@@ -507,10 +595,18 @@ bool QEventDispatcherWin32::unregisterTimers(QObject *object)
     for (int i=0; i<d->timerVec.size(); i++) {
         t = d->timerVec.at(i);
         if (t && t->obj == object) {                // object found
-            KillTimer(0, t->id);
-            d->timerDict.remove(t->id);
-            d->timerVec.removeAt(i);
-            delete t;
+            if (t->fast) {
+                EnterCriticalSection(&d->fastTimerCriticalSection);
+                d->timerVec.removeAt(i);
+                t->fast = false; // kill timer (and delete t) from callback
+                LeaveCriticalSection(&d->fastTimerCriticalSection);
+            } else {
+                KillTimer(0, t->id);
+                d->timerDict.remove(t->id);
+                d->timerVec.removeAt(i);
+                delete t;
+            }
+
             --i;
         }
     }
