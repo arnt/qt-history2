@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#350 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#351 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -108,6 +108,7 @@ static bool	sm_cancel;
 
 // one day in the future we will be able to have static objects in libraries....
 static QGuardedPtr<QWidget>* activeBeforePopup = 0; // focus handling with popups
+static bool replayPopupMouseEvent = FALSE; // replay handling when popups close
 
 #if defined(DEBUG)
 static bool	appNoGrab	= FALSE;	// mouse/keyboard grabbing
@@ -1812,6 +1813,9 @@ void QApplication::closePopup( QWidget *popup )
     if ( !popupWidgets )
 	return;
     popupWidgets->removeRef( popup );
+    POINT curPos;
+    GetCursorPos( &curPos );
+    replayPopupMouseEvent = !popup->geometry().contains( QPoint(curPos.x, curPos.y) );
     if ( popupWidgets->count() == 0 ) {		// this was the last popup
 	popupCloseDownMode = TRUE;		// control mouse events
 	delete popupWidgets;
@@ -1819,7 +1823,7 @@ void QApplication::closePopup( QWidget *popup )
 	if ( !qt_nograb() )			// grabbing not disabled
 	    releaseAutoCapture();
 	active_window = (*activeBeforePopup);	// windows does not have
-	// A reasonable focus handling for ours popups => we have
+	// A reasonable focus handling for our popups => we have
 	// to restore the focus manually.
 	if ( active_window ) {
 	    QFocusEvent::setReason( QFocusEvent::ActiveWindow );
@@ -2285,8 +2289,9 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	if ( releaseAfter )
 	    qt_button_down = 0;
 
-	if ( type == QEvent::MouseButtonPress &&
-	     (qApp->activePopupWidget() != activePopupWidget) ){
+	if ( type == QEvent::MouseButtonPress
+	     && qApp->activePopupWidget() != activePopupWidget
+	     && replayPopupMouseEvent ) {
 	    // the popup dissappeared. Replay the event
 	    QWidget* w = QApplication::widgetAt(gpos.x, gpos.y);
 	    if (w && !qt_blocked_modal( w ) ) {
