@@ -257,7 +257,7 @@ void MainWindow::destroy()
 void MainWindow::about()
 {
     static const char *about_text =
-    "<h2>The Qt documentation browser</h2>"
+    "<p><b><font size=+2>Qt Assistant</font></b><br>The Qt documentation browser"
     "<p>Version 2.0</p>"
     "<p>Copyright (C) 2001-2002 Trolltech AS</p>";
     QMessageBox::about( this, tr("Qt Assistant"), tr( about_text ) );
