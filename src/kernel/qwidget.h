@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#6 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#7 $
 **
 ** Definition of QWidget class
 **
@@ -132,6 +132,10 @@ public:
     QWidget *parentWidget()	 const	{ return (QWidget*)QObject::parent(); }
     static QWidget *find( WId );		// find widget by identifier
     bool     testFlag( WFlags n ) const { return (flags & n) != 0; }
+
+#if defined(_WS_X11_)
+    GC	     getGC()  const { return gc; }
+#endif
 
 protected:
     void     setFlag( WFlags n )	{ flags |= n; }
