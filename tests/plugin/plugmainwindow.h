@@ -6,7 +6,7 @@
 
 #include <qapplication.h>
 #include <qguardedptr.h>
-#include "qapplicationinterface.h"
+#include <qapplicationinterface.h>
 
 class QHBox;
 class QScrollView;

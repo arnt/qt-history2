@@ -80,12 +80,8 @@ void PlugMainWindow::fileOpen()
     } else if ( ( plugin = actionManager->addLibrary( file ) ) ) {
 	statusBar()->message( tr("Action-Plugin \"%1\" loaded").arg( plugin->name() ), 3000 );
 	QStringList al = plugin->featureList();
-	for ( uint a = 0; a < al.count(); a++ ) {
-	    QAction* action = QActionFactory::create( al[a], this );
-	    if ( !addAction( action ) ) {
-		QMessageBox::information( this, "Error", tr("Couldn't create action\n%1").arg( al[a] ) );
-	    }
-	}
+	for ( uint a = 0; a < al.count(); a++ )
+	    addAction( QActionFactory::create( al[a], this ) );
     } else {
 	QMessageBox::information( this, "Error", tr("Couldn't load plugin\n%1").arg( file ) );
 	return;

@@ -1,6 +1,6 @@
 #include "plugmainwindow.h"
 #include "qwidgetfactory.h"
-#include "qapplicationinterface.h"
+
 #include <qvariant.h>
 
 QApplicationInterface* PlugApplication::requestApplicationInterface( const QCString& request )

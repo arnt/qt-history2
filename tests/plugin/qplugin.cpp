@@ -1,6 +1,6 @@
 #include "qplugin.h"
-#include "qapplicationinterface.h"
 #include <qapplication.h>
+#include <qapplicationinterface.h>
 
 #ifdef _WS_WIN_
 #include <qt_windows.h>
