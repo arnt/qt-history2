@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/nsplugin/src/qnp.cpp#29 $
+** $Id: //depot/qt/main/extensions/nsplugin/src/qnp.cpp#30 $
 **
 ** Implementation of Qt extension classes for Netscape Plugin support.
 **
@@ -870,13 +870,13 @@ public:
 	file.open(IO_WriteOnly, fp);
 	QPDevCmdParam param;
 	param.device = &file;
-	cmd(PDC_SETDEV, 0, &param);
+	cmd(PdcSetdev, 0, &param);
     }
     void end()
     {
 	QPDevCmdParam param;
 	param.device = 0;
-	cmd(PDC_SETDEV, 0, &param);
+	cmd(PdcSetdev, 0, &param);
     }
 };
 #endif
