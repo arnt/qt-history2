@@ -1,40 +1,43 @@
+#define QT_COMPAT
+
 #include "dialog.h"
 
-Dialog::Dialog(QWidget *parent = 0)
+Dialog::Dialog(QWidget *parent)
     : QDialog(parent)
 {
-    setIconFile(qApp->applicationDirPath() + "/fileopen.png");
+    setIconFile(qApp->applicationDirPath() + "/images/fileopen.png");
 
-    QPushButton *iconButton = new QPushButton("&Icon...", this);
-    iconButton->move((100 - iconButton->width()) / 2,
-                     (60 - iconButton->height()) / 2);
+    QPushButton *iconButton = new QPushButton(tr("&Icon..."), this);
+    iconButton->setGeometry(10, 10, 80, 40);
     connect(iconButton, SIGNAL(clicked()), this, SLOT(chooseIcon()));
-}
 
+    setWindowTitle(tr("QIconSet"));
+    setFixedSize(400, 210);
+}
 
 void Dialog::paintEvent(QPaintEvent *)
 {
     QPainter painter(this);
     painter.setPen(Qt::black);
     painter.setFont(QFont("Helvetica", 12, QFont::Bold));
-    QIconSet icon = QIconSet(QPixmap(m_filename));
+    QIconSet icon = QIconSet(QPixmap(m_fileName));
 
     int h = 30;
     int h2 = h * 2;
     int ih = 50;
 
-    painter.fillRect(0, 0, 400, 240, Qt::white);
-    painter.fillRect(0, 0, 100, h2, Qt::lightGray);
+    painter.fillRect(0, 0, 400, 210, Qt::white);
+    painter.fillRect(0, 0, 100, h2, Qt::white);
     painter.fillRect(0, h2 + (ih * 3), 400, h, Qt::lightGray);
-    painter.fillRect(101, 1, 149, 28, Qt::green);
-    painter.fillRect(251, 1, 149, 28, Qt::green);
-    painter.fillRect(101, h, 74, 28, Qt::green);
-    painter.fillRect(176, h, 74, 28, Qt::green);
-    painter.fillRect(251, h, 74, 28, Qt::green);
-    painter.fillRect(326, h, 74, 28, Qt::green);
-    painter.fillRect(0, h2 + (ih * 0), 100, ih - 1, Qt::green);
-    painter.fillRect(0, h2 + (ih * 1), 100, ih - 1, Qt::green);
-    painter.fillRect(0, h2 + (ih * 2), 100, ih - 1, Qt::green);
+    painter.fillRect(101, 1, 149, 28, Qt::lightGray);
+    painter.fillRect(251, 1, 149, 28, Qt::lightGray);
+    painter.fillRect(101, h, 74, 28, Qt::lightGray);
+    painter.fillRect(176, h, 74, 28, Qt::lightGray);
+    painter.fillRect(251, h, 74, 28, Qt::lightGray);
+    painter.fillRect(326, h, 74, 28, Qt::lightGray);
+    painter.fillRect(0, h2 + (ih * 0), 100, ih - 1, Qt::lightGray);
+    painter.fillRect(0, h2 + (ih * 1), 100, ih - 1, Qt::lightGray);
+    painter.fillRect(0, h2 + (ih * 2), 100, ih - 1, Qt::lightGray);
 
     painter.drawText(100, 0, 150, h, Qt::AlignCenter, "Small");
     painter.drawText(250, 0, 150, h, Qt::AlignCenter, "Large");
@@ -45,8 +48,6 @@ void Dialog::paintEvent(QPaintEvent *)
     painter.drawText(0, h2 + (ih * 0), 100, ih, Qt::AlignCenter, "Normal");
     painter.drawText(0, h2 + (ih * 1), 100, ih, Qt::AlignCenter, "Disabled");
     painter.drawText(0, h2 + (ih * 2), 100, ih, Qt::AlignCenter, "Active");
-    painter.drawText(0, h2 + (ih * 3), 400, h, Qt::AlignCenter,
-                     "Active == Normal unless explicitly set");
 
     painter.drawPixmap(100, h2 + (ih * 0),
             icon.pixmap(QIconSet::Small, QIconSet::Normal, QIconSet::On));
@@ -76,14 +77,13 @@ void Dialog::paintEvent(QPaintEvent *)
             icon.pixmap(QIconSet::Large, QIconSet::Active, QIconSet::Off));
 }
 
-
 void Dialog::chooseIcon()
 {
-    QString filename = QFileDialog::getOpenFileName(
-                                this, tr("QIconSet--Choose an Icon"),
+    QString fileName = QFileDialog::getOpenFileName(
+                                this, tr("QIconSet: Choose an Icon"),
                                 iconFile(), "All (*)");
-    if (!filename.isEmpty()) {
-        setIconFile(filename);
+    if (!fileName.isEmpty()) {
+        setIconFile(fileName);
         update();
     }
 }

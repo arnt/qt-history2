@@ -5,13 +5,8 @@
 int main(int argc, char **argv)
 {
     QApplication app(argc, argv);
-
-    Dialog *dialog = new Dialog(0);
-    app.setMainWidget(dialog);
-    dialog->setWindowTitle("QIconSet");
-    dialog->resize(400, 240);
-    dialog->show();
-
+    Dialog dialog;
+    app.setMainWidget(&dialog);
+    dialog.show();
     return app.exec();
 }
-
