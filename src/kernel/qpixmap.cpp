@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#86 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#87 $
 **
 ** Implementation of QPixmap class
 **
@@ -34,10 +34,16 @@
 
   \ingroup drawing
   \ingroup shared
+  
+  It is one of the two classes Qt provides for dealing with images,
+  the other being QImage.  QPixmap is designed and optimized for
+  drawing; QImage is designed and optimized for I/O and for direct
+  pixel access/manipulation.  There are (slow) functions to convert
+  between QImage and QPixmp; convertToImage() and convertFromImage().
 
-  A common use of the QPixmap class is to enable smooth updating of
+  One common use of the QPixmap class is to enable smooth updating of
   widgets.  Whenever something complex needs to be drawn, you can use
-  a pixmap to obtain flicker-free drawing.
+  a pixmap to obtain flicker-free drawing, like this:
 
   <ol plain>
   <li> Create a pixmap with the same size as the widget.
@@ -45,35 +51,19 @@
   <li> Paint the pixmap.
   <li> bitBlt() the pixmap contents onto the widget.
   </ol>
+  
+  Pixel data in a pixmap is internal and managed by the underlying
+  window system.  Pixels can only be accessed through QPainter
+  functions, through bitBlt(), and by converting the QPixmap to a
+  QImage.
 
-  Example of flicker-free update:
-  \code
-    void MyWidget::paintEvent( QPaintEvent * )
-    {
-	QPixmap	 pm( size() );			// create pixmap
-	QPainter p;				// our painter
-	pm.fill( backgroundColor() );		// initialize pixmap
-	p.begin( &pm );				// start painting pixmap
-	...					// draw something
-	p.end();				// painting done
-	bitBlt( this, 0,0, &pm );		// copy pixmap to widget
-    }
-  \endcode
-
-  The bitBlt() function has quite a few arguments that are not used in
-  this example.
-
-  Pixel data in a pixmap is internal and managed by the underlying window
-  system.  Pixels can only be accessed through QImage, QPainter functions
-  and the bitBlt().
-
-  You can \link load() load\endlink and \link save() save\endlink
-  pixmaps using several image formats.	You can display a QPixmap on
-  the screen easily using QLabel::setPixmap(), and all the \link
-  QButton button classes \endlink support pixmap use.
-
-  A pixmap can be converted to a QImage to get direct access to the pixels.
-  A QImage can also be converted back to a pixmap.
+  You can display a QPixmap on the screen easily using
+  e.g. QLabel::setPixmap(), and all the \link QButton button classes
+  \endlink support pixmap use.
+  
+  There are also convenience functions to get and set single pixels
+  and to load and save the entire pixmap; these work by converting the
+  pixmap to a QImage internally.
 
   The QPixmap class is optimized by the use of \link shclass.html implicit
   sharing\endlink, so it is very efficient to pass QPixmap objects as

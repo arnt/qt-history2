@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#172 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#173 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -37,13 +37,17 @@
 
 /*!
   \class QImage qimage.h
-  \brief The QImage class provides a hardware-independent pixmap representation
-  with direct access to the pixel data.
+  \brief The QImage class provides a hardware-independent pixmap
+  representation with direct access to the pixel data.
 
   \ingroup images
 
-  The direct pixel access functionality of QImage makes it very suitable
-  for image processing and for pixmap archiving.
+  It is one of the two classes Qt provides for dealing with images,
+  the other being QPixmap.  QImage is designed and optimized for I/O
+  and for direct pixel access/manipulation, QPixmap is designed and
+  optimized for drawing.  There are (slow) functions to convert
+  between QImage and QPixmp; QPixmap::convertToImage() and
+  QPixmap::convertFromImage().
 
   An image has the parameters \link width() width\endlink, \link height()
   height\endlink and \link depth() depth\endlink (bits per pixel, bpp), a
