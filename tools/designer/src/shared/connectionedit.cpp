@@ -42,6 +42,8 @@ static double sqr(double x)
     return x*x;
 }
 
+// #include <algorithm> and use std::swap
+/*
 template <typename T>
 static void swap(T &t1, T &t2)
 {
@@ -49,6 +51,7 @@ static void swap(T &t1, T &t2)
     t1 = t2;
     t2 = tmp;
 }
+*/
 
 class SignalDumper : public QObject
 {
