@@ -693,7 +693,6 @@ void QGLWidget::init( const QGLFormat& format, const QGLWidget* shareWidget )
 				    this, olwName );
 	if ( olw->isValid() ) {
 	    olw->setAutoBufferSwap( FALSE );
-	    olw->setGeometry( rect() );
 	    olw->setFocusProxy( this );
 	}
 	else {
