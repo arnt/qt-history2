@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#46 $
+** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#47 $
 **
 ** Implementation of asynchronous image/movie loading classes
 **
@@ -29,20 +29,6 @@
 #include "qt_gif.h"
 #include <stdlib.h>
 
-
-/*!
-  Returns TRUE if Qt was compiled with built-in GIF reading support,
-  otherwise FALSE.
-*/
-
-bool qt_builtin_gif_reader()
-{
-#if defined(QT_BUILTIN_GIF_READER)
-    return TRUE;
-#else
-    return FALSE;
-#endif
-}
 
 
 /*!
@@ -134,6 +120,93 @@ bool qt_builtin_gif_reader()
 
 static const int max_header = 32;
 
+
+
+
+
+// See qt_gif.h for important information regarding this option
+#if defined(QT_BUILTIN_GIF_READER) && QT_BUILTIN_GIF_READER == 1
+class Q_EXPORT QGIFFormat : public QImageFormat {
+public:
+    QGIFFormat();
+    virtual ~QGIFFormat();
+
+    int decode(QImage& img, QImageConsumer* consumer,
+	    const uchar* buffer, int length);
+
+private:
+    void fillRect(QImage&, int x, int y, int w, int h, uchar col);
+
+    // GIF specific stuff
+    QRgb* globalcmap;
+    QImage backingstore;
+    unsigned char hold[16];
+    bool gif89;
+    int count;
+    int ccount;
+    int expectcount;
+    enum State {
+	Header,
+	LogicalScreenDescriptor,
+	GlobalColorMap,
+	LocalColorMap,
+	Introducer,
+	ImageDescriptor,
+	TableImageLZWSize,
+	ImageDataBlockSize,
+	ImageDataBlock,
+	ExtensionLabel,
+	GraphicControlExtension,
+	ApplicationExtension,
+	NetscapeExtensionBlockSize,
+	NetscapeExtensionBlock,
+	SkipBlockSize,
+	SkipBlock,
+	Done,
+	Error
+    } state;
+    int gncols;
+    int ncols;
+    int lzwsize;
+    bool lcmap;
+    int swidth, sheight;
+    int left, top, right, bottom;
+    enum Disposal { NoDisposal, DoNotChange, RestoreBackground, RestoreImage };
+    Disposal disposal;
+    bool disposed;
+    int trans;
+    bool preserve_trans;
+    bool gcmap;
+    int bgcol;
+    int interlace;
+    int accum;
+    int bitcount;
+
+    enum { max_lzw_bits=12 }; // (poor-compiler's static const int)
+
+    int code_size, clear_code, end_code, max_code_size, max_code;
+    int firstcode, oldcode, incode;
+    short table[2][1<< max_lzw_bits];
+    short stack[(1<<(max_lzw_bits))*2];
+    short *sp;
+    bool needfirst;
+    int x, y;
+    int frame;
+    bool out_of_bounds;
+    bool digress;
+    void nextY(QImage& img, QImageConsumer* consumer);
+    void disposePrevious( QImage& img, QImageConsumer* consumer );
+};
+#endif
+
+class Q_EXPORT QGIFFormatType : public QImageFormatType
+{
+    QImageFormat* decoderFor(const uchar* buffer, int length);
+    const char* formatName() const;
+};
+
+
+
 struct QImageDecoderPrivate {
     QImageDecoderPrivate()
     {
@@ -146,7 +219,8 @@ struct QImageDecoderPrivate {
     {
 	if ( !factories ) {
 	    factories = new QList<QImageFormatType>;
-#ifdef USE_GIF
+// See qt_gif.h for important information regarding this option
+#if defined(QT_BUILTIN_GIF_READER) && QT_BUILTIN_GIF_READER == 1
 	    gif_decoder_factory = new QGIFFormatType;
 #endif
 	    qAddPostRoutine( cleanup );
@@ -155,8 +229,8 @@ struct QImageDecoderPrivate {
 
     static QList<QImageFormatType> * factories;
 
-    // Builtins...
-#ifdef USE_GIF
+// See qt_gif.h for important information regarding this option
+#if defined(QT_BUILTIN_GIF_READER) && QT_BUILTIN_GIF_READER == 1
     static QGIFFormatType * gif_decoder_factory;
 #endif
 
@@ -165,7 +239,8 @@ struct QImageDecoderPrivate {
 };
 
 QList<QImageFormatType> * QImageDecoderPrivate::factories = 0;
-#ifdef USE_GIF
+// See qt_gif.h for important information regarding this option
+#if defined(QT_BUILTIN_GIF_READER) && QT_BUILTIN_GIF_READER == 1
 QGIFFormatType * QImageDecoderPrivate::gif_decoder_factory = 0;
 #endif
 
@@ -174,7 +249,8 @@ void QImageDecoderPrivate::cleanup()
 {
     delete factories;
     factories = 0;
-#ifdef USE_GIF
+// See qt_gif.h for important information regarding this option
+#if defined(QT_BUILTIN_GIF_READER) && QT_BUILTIN_GIF_READER == 1
     delete gif_decoder_factory;
     gif_decoder_factory = 0;
 #endif
@@ -436,8 +512,21 @@ QImageFormatType::~QImageFormatType()
 }
 
 
+/*!
+  Returns TRUE if Qt was compiled with built-in GIF reading support,
+  otherwise FALSE.
+*/
+bool qt_builtin_gif_reader()
+{
+#if defined(QT_BUILTIN_GIF_READER)
+    return QT_BUILTIN_GIF_READER == 1;
+#else
+    return 0;
+#endif
+}
 
-#ifdef USE_GIF
+// See qt_gif.h for important information regarding this option
+#if defined(QT_BUILTIN_GIF_READER) && QT_BUILTIN_GIF_READER == 1
 
 /* -- NOTDOC
   \class QGIFFormat qasyncimageio.h
@@ -1084,4 +1173,4 @@ void QGIFFormat::nextY(QImage& img, QImageConsumer* consumer)
     if (y >= sheight) out_of_bounds=TRUE; //y=bottom;
 }
 
-#endif // USE_GIF
+#endif // QT_BUILTIN_GIF_READER

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncimageio.h#20 $
+** $Id: //depot/qt/main/src/kernel/qasyncimageio.h#21 $
 **
 **		      ***   INTERNAL HEADER FILE   ***
 **
@@ -83,85 +83,6 @@ private:
     QImageConsumer* consumer;
     QImage img;
     QImageDecoderPrivate *d;
-};
-
-
-class Q_EXPORT QGIFFormat : public QImageFormat {
-public:
-    QGIFFormat();
-    virtual ~QGIFFormat();
-
-    int decode(QImage& img, QImageConsumer* consumer,
-	    const uchar* buffer, int length);
-
-private:
-    void fillRect(QImage&, int x, int y, int w, int h, uchar col);
-
-    // GIF specific stuff
-    QRgb* globalcmap;
-    QImage backingstore;
-    unsigned char hold[16];
-    bool gif89;
-    int count;
-    int ccount;
-    int expectcount;
-    enum State {
-	Header,
-	LogicalScreenDescriptor,
-	GlobalColorMap,
-	LocalColorMap,
-	Introducer,
-	ImageDescriptor,
-	TableImageLZWSize,
-	ImageDataBlockSize,
-	ImageDataBlock,
-	ExtensionLabel,
-	GraphicControlExtension,
-	ApplicationExtension,
-	NetscapeExtensionBlockSize,
-	NetscapeExtensionBlock,
-	SkipBlockSize,
-	SkipBlock,
-	Done,
-	Error
-    } state;
-    int gncols;
-    int ncols;
-    int lzwsize;
-    bool lcmap;
-    int swidth, sheight;
-    int left, top, right, bottom;
-    enum Disposal { NoDisposal, DoNotChange, RestoreBackground, RestoreImage };
-    Disposal disposal;
-    bool disposed;
-    int trans;
-    bool preserve_trans;
-    bool gcmap;
-    int bgcol;
-    int interlace;
-    int accum;
-    int bitcount;
-
-    enum { max_lzw_bits=12 }; // (poor-compiler's static const int)
-
-    int code_size, clear_code, end_code, max_code_size, max_code;
-    int firstcode, oldcode, incode;
-    short table[2][1<< max_lzw_bits];
-    short stack[(1<<(max_lzw_bits))*2];
-    short *sp;
-    bool needfirst;
-    int x, y;
-    int frame;
-    bool out_of_bounds;
-    bool digress;
-    void nextY(QImage& img, QImageConsumer* consumer);
-    void disposePrevious( QImage& img, QImageConsumer* consumer );
-};
-
-class Q_EXPORT QGIFFormatType : public QImageFormatType
-{
-    QImageFormat* decoderFor(const uchar* buffer, int length);
-    const char* formatName() const;
 };
 
 
