@@ -42,7 +42,8 @@ public:
     void init(bool doMainWindowConnections);
     void popupPressed();
     void popupTimerDone();
-    QPointer<QMenu> menu, popupMenu;
+    QPointer<QMenu> menu; //the menu set by the user (setMenu)
+    QPointer<QMenu> popupMenu; //the menu being displayed (could be the same as menu above)
     QBasicTimer popupTimer;
     int delay;
     Qt::ArrowType arrow;
@@ -805,6 +806,7 @@ void QToolButtonPrivate::popupTimerDone()
     popupMenu->removeEventFilter(q);
     if (popupMenu != menu)
         delete popupMenu;
+    popupMenu = 0; //no longer a popup menu
     if (!that)
         return;
 
