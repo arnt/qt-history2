@@ -180,7 +180,7 @@ QLayoutItem *QDockWindowLayout::takeAt(int index)
     return 0;
 }
 
-/*! reimp */
+/*! \reimp */
 void QDockWindowLayout::addItem(QLayoutItem *layoutitem)
 {
     if (relayout_type == QInternal::RelayoutDropped && layoutitem->layout()) {
@@ -192,7 +192,7 @@ void QDockWindowLayout::addItem(QLayoutItem *layoutitem)
     invalidate();
 }
 
-/*! reimp */
+/*! \reimp */
 void QDockWindowLayout::setGeometry(const QRect &rect)
 {
     VDEBUG("QDockWindowLayout::setGeometry: width %4d height %4d", rect.width(), rect.height());
@@ -329,7 +329,7 @@ void QDockWindowLayout::setGeometry(const QRect &rect)
     VDEBUG("END");
 }
 
-/*! reimp */
+/*! \reimp */
 QSize QDockWindowLayout::minimumSize() const
 {
     VDEBUG("QDockWindow::minimumSize");
@@ -359,7 +359,7 @@ QSize QDockWindowLayout::minimumSize() const
     return (orientation == Qt::Horizontal) ? QSize(size, perp) : QSize(perp, size);
 }
 
-/*! reimp */
+/*! \reimp */
 QSize QDockWindowLayout::sizeHint() const
 {
     VDEBUG("QDockWindow::sizeHint");
