@@ -19,12 +19,9 @@ SOURCES	 = main.cpp configureapp.cpp \
            $$QT_SOURCE_TREE/src/core/io/qdir.cpp \
            $$QT_SOURCE_TREE/src/core/io/qfile.cpp \
            $$QT_SOURCE_TREE/src/core/io/qfileinfo.cpp \
-           $$QT_SOURCE_TREE/src/core/io/qfsdirengine.cpp \
-           $$QT_SOURCE_TREE/src/core/io/qfsdirengine_win.cpp \
-           $$QT_SOURCE_TREE/src/core/io/qfsfileengine.cpp \
-           $$QT_SOURCE_TREE/src/core/io/qfsfileengine_win.cpp \
-           $$QT_SOURCE_TREE/src/core/io/qfsfileinfoengine.cpp \
-           $$QT_SOURCE_TREE/src/core/io/qfsfileinfoengine_win.cpp \
+           $$QT_SOURCE_TREE/src/core/io/qfileengine.cpp \
+           $$QT_SOURCE_TREE/src/core/io/qfileengine_win.cpp \
+           $$QT_SOURCE_TREE/src/core/io/qioengine.cpp \
            $$QT_SOURCE_TREE/src/core/io/qiodevice.cpp \
            $$QT_SOURCE_TREE/src/core/io/qtextstream.cpp \
            $$QT_SOURCE_TREE/src/core/plugin/qlibrary.cpp \
