@@ -110,7 +110,7 @@ class QEventLoopPrivate : public QObjectPrivate
     Q_DECL_PUBLIC(QEventLoop);
 public:
     QEventLoopPrivate()
-	: QObjectPrivate(), xfd(-1)
+	: QObjectPrivate()
     {
 	reset();
     }
@@ -121,6 +121,9 @@ public:
 	quitnow = FALSE;
 	exitloop = FALSE;
 	shortcut = FALSE;
+#if defined(Q_WS_X11)
+	xfd = -1;
+#endif // Q_WS_X11
     }
 
     int looplevel;
