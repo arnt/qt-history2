@@ -97,7 +97,8 @@ void QPainterSubpath::arcTo(const QRectF &rect, float startAngle, float sweepLen
     float a = rect.width() / 2.0;
     float b = rect.height() / 2.0;
 
-    int iterations = int((abs(sweepLength) + 89) / 90);
+    float absSweepLength = (sweepLength < 0 ? -sweepLength : sweepLength);
+    int iterations = int((absSweepLength + 89) / 90);
     float clength = sweepLength / iterations;
     float cosangle1, sinangle1, cosangle2, sinangle2;
     for (int i=0; i<iterations; ++i) {
