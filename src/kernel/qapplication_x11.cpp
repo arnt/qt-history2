@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#27 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#28 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -22,7 +22,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#27 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#28 $";
 #endif
 
 
@@ -39,6 +39,12 @@ static int	appScreen;			// X11 screen number
 static Window	appRootWin;			// X11 root window
 static QWidget *desktopWidget = 0;		// root window widget
 Atom		q_wm_delete_window;		// delete window protocol
+
+static Window	mouseActWindow = 0;		// window where mouse is
+static int	mouseButtonPressed = 0;		// last mouse button pressed
+static int	mouseButtonState = 0;		// mouse button state
+static Time	mouseButtonPressTime = 0;	// when was a button pressed
+static short	mouseXPos, mouseYPos;		// mouse position in act window
 
 typedef void  (*VFPTR)();
 typedef void  (*VFPTR_ARG)( int, char ** );
@@ -964,11 +970,8 @@ int translateButtonState( int s )		// translate button state
 
 bool QETWidget::translateMouseEvent( const XEvent *event )
 {
-    static Window lastWindow = 0;		// keep state; get doubleclicks
     static bool buttonDown = FALSE;
-    static uint lastButton;
-    static Time lastTime;
-    static int lastX, lastY;
+    static bool manualGrab = FALSE;
     int	   type;				// event parameters
     QPoint pos;
     int	   button = 0;
@@ -985,7 +988,7 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	if ( !buttonDown ) {
 	    state &= ~(LeftButton|MidButton|RightButton);
 	    if ( !testFlag(WMouseTracking) )
-		return FALSE;			// unexpected event
+		type = 0;			// don't send event
 	}
     }
     else {					// button press or release
@@ -999,29 +1002,37 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	state = translateButtonState( event->xbutton.state );
 	if ( event->type == ButtonPress ) {	// mouse button pressed
 	    buttonDown = TRUE;
-	    if ( lastWindow == event->xbutton.window &&
-		 lastButton == button &&
-		 (int)event->xbutton.time - lastTime < 400 &&
-		 ABS(event->xbutton.x - lastX) < 5 &&
-		 ABS(event->xbutton.y - lastY) < 5 ) {
+	    if ( mouseActWindow == event->xbutton.window &&
+		 mouseButtonPressed == button &&
+		 (int)event->xbutton.time - mouseButtonPressTime < 400 &&
+		 ABS(event->xbutton.x - mouseXPos) < 5 &&
+		 ABS(event->xbutton.y - mouseYPos) < 5 ) {
 		type = Event_MouseButtonDblClick;
 	    }
 	    else
 		type = Event_MouseButtonPress;
-	    lastWindow = event->xbutton.window; // save state
-	    lastButton = button;
-	    lastTime = event->xbutton.time;
-	    lastX = event->xbutton.x;
-	    lastY = event->xbutton.y;
+	    mouseButtonPressTime = event->xbutton.time;
 	}
 	else {					// mouse button released
+	    if ( manualGrab ) {			// release manual grab
+		debug( "grab released" );
+		manualGrab = FALSE;
+		XUngrabPointer( display(), CurrentTime );
+	    }
 	    if ( !buttonDown )			// unexpected event
 		return FALSE;
 	    type = Event_MouseButtonRelease;
 	    if ( (state & (LeftButton|MidButton|RightButton)) == 0 )
-		buttonDown = FALSE;
+		buttonDown = FALSE;	    
 	}
     }
+    mouseActWindow = id();			// save mouse event params
+    mouseButtonPressed = button;
+    mouseButtonState = state;
+    mouseXPos = pos.x();
+    mouseYPos = pos.y();
+    if ( type == 0 )				// don't send event
+	return FALSE;
     if ( popupWidgets ) {			// oops, in popup mode
 	QWidget *popup = popupWidgets->last();
 	if ( popup != this ) {
@@ -1034,6 +1045,17 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	QApplication::sendEvent( popup, &e );
 	if ( popupWidgets )			// still in popup mode
 	    XAllowEvents( appDpy, SyncPointer, CurrentTime );
+	else {					// left popup mode
+	    if ( type != Event_MouseButtonRelease && state != 0 ) {
+		manualGrab = TRUE;		// need to manually grab
+		XGrabPointer( display(), mouseActWindow, FALSE,
+			      ButtonPressMask | ButtonReleaseMask |
+			      ButtonMotionMask |
+			      EnterWindowMask | LeaveWindowMask,
+			      GrabModeAsync, GrabModeAsync,
+			      None, None, CurrentTime );
+	    }
+	}
     }
     else {
 	QMouseEvent e( type, pos, button, state );
