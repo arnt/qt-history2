@@ -135,14 +135,14 @@ QModelIndex QListModel::index(int row, int column, const QModelIndex &parent) co
 
 QVariant QListModel::data(const QModelIndex &index, int role) const
 {
-    if (!index.isValid() || index.row() >= (int)lst.count())
+    if (!index.isValid() || index.row() >= lst.count())
         return QVariant();
     return lst.at(index.row())->data(role);
 }
 
 bool QListModel::setData(const QModelIndex &index, int role, const QVariant &value)
 {
-    if (!index.isValid() || index.row() >= (int)lst.count())
+    if (!index.isValid() || index.row() >= lst.count())
         return false;
     lst.at(index.row())->setData(role, value);
     emit dataChanged(index, index);
