@@ -187,7 +187,6 @@ void QTabWidgetPrivate::init()
     q->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     q->setFocusPolicy(Qt::TabFocus);
     q->setFocusProxy(tabs);
-    q->setAttribute(Qt::WA_ContentsPropagated);
 }
 
 /*!
@@ -584,7 +583,8 @@ void QTabWidget::setUpLayout(bool onlyCheck)
     }
     d->tabs->setGeometry(tabx, taby, t.width(), t.height());
 
-    d->stack->setGeometry(0, stacky, width(), height() - (exth-overlap) -
+    const int BORDER = 2;
+    d->stack->setGeometry(BORDER, stacky, width() - 2 * BORDER, height() - (exth-overlap) -
                            t.height()+qMax(0, lw-2));
 
     d->dirty = false;

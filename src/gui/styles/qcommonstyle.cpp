@@ -249,16 +249,9 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
     case PE_MenuFrame:
     case PE_Panel:
     case PE_PanelPopup:
-        if (const QStyleOptionFrame *frame = qt_cast<const QStyleOptionFrame *>(opt)) {
-            p->save();
-            if (frame->state & Style_Bottom) {
-                p->scale(1, -1);
-                p->translate(0, -frame->rect.height());
-            }
+        if (const QStyleOptionFrame *frame = qt_cast<const QStyleOptionFrame *>(opt))
             qDrawShadePanel(p, frame->rect, frame->palette, frame->state & Style_Sunken,
                             frame->lineWidth);
-            p->restore();
-        }
         break;
     case PE_MenuBarFrame:
     case PE_PanelMenuBar:
@@ -506,13 +499,13 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
         p->setPen(oldPen);
         break; }
     case PE_PanelTabWidget: {
-        QStyleOptionFrame frOpt;
-        frOpt.rect = opt->rect;
-        frOpt.state = opt->state;
-        frOpt.palette = opt->palette;
-        frOpt.lineWidth = 1;
-        frOpt.midLineWidth = 0;
-        drawPrimitive(PE_Panel, &frOpt, p, widget);
+        p->save();
+        if (opt->state & Style_Bottom) {
+            p->scale(1, -1);
+            p->translate(0, -opt->rect.height());
+        }
+        qDrawShadePanel(p, opt->rect, opt->palette, opt->state & Style_Sunken, 2);
+        p->restore();
         break; }
     case PE_PanelLineEdit:
     case PE_WindowFrame:
