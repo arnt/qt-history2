@@ -50,16 +50,6 @@ void CodeMarker::terminate()
     }
 }
 
-QString CodeMarker::functionBeginRegExp( const QString& /* funcName */ )
-{
-    return "";
-}
-
-QString CodeMarker::functionEndRegExp( const QString& /* funcName */ )
-{
-    return "";
-}
-
 CodeMarker *CodeMarker::markerForCode( const QString& code )
 {
     CodeMarker *defaultMarker = markerForLanguage( defaultLang );
@@ -160,4 +150,40 @@ QString CodeMarker::taggedNode( const Node *node )
 QString CodeMarker::linkTag( const Node *node, const QString& body )
 {
     return "<@link node=\"" + stringForNode( node ) + "\">" + body + "</@link>";
+}
+
+QString CodeMarker::sortName( const Node *node )
+{
+    if ( node->type() == Node::Function ) {
+	FunctionNode *func = (FunctionNode *) node;
+	QString sortNo = func->isConstructor() ? "1"
+			 : func->isDestructor() ? "2" : "3";
+	return sortNo + func->name() + " " +
+	       QString::number( func->overloadNumber(), 36 );
+    } else {
+	return node->name();
+    }
+}
+
+void CodeMarker::insert( FastClassSection& fastSection, Node *node )
+{
+    fastSection.memberMap.insert( sortName(node), node );
+}
+
+void CodeMarker::append( QValueList<ClassSection>& sectionList,
+			 const FastClassSection& fastSection )
+{
+    if ( !fastSection.memberMap.isEmpty() ) {
+	ClassSection section( fastSection.name );
+#if QT_VERSION >= 0x030100
+	section.members = fastSection.memberMap.values();
+#else
+	QMap<QString, Node *>::ConstIterator m = fastSection.memberMap.begin();
+	while ( m != fastSection.memberMap.end() ) {
+	    section.members.append( *m );
+	    ++m;
+	}
+#endif
+	sectionList.append( section );
+    }
 }

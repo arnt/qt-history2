@@ -46,7 +46,7 @@ QString QsCodeMarker::markedUpSynopsis( const Node *node,
     QString name;
 
     name = taggedNode( node );
-    if ( style == Overview )
+    if ( style == Summary )
         name = linkTag( node, name );
     name = "<@name>" + name + "</@name>";
     if ( style == Detailed && !node->parent()->name().isEmpty() )
@@ -58,7 +58,7 @@ QString QsCodeMarker::markedUpSynopsis( const Node *node,
         break;
     case Node::Function:
         func = (const FunctionNode *) node;
-	if ( style == Overview )
+	if ( style == Summary )
 	    synopsis = "function ";
 	synopsis += name + " (";
         if ( !func->parameters().isEmpty() ) {
@@ -87,7 +87,7 @@ QString QsCodeMarker::markedUpSynopsis( const Node *node,
         break;
     case Node::Property:
         property = (const PropertyNode *) node;
-	if ( style == Overview )
+	if ( style == Summary )
 	    synopsis = "var ";
 	synopsis += name + " : " + property->dataType();
 	if ( property->setter().isEmpty() )
@@ -100,7 +100,7 @@ QString QsCodeMarker::markedUpSynopsis( const Node *node,
         synopsis = name;
     }
 
-    if ( style == Overview ) {
+    if ( style == Summary ) {
         if ( node->status() == Node::Preliminary ) {
             extras << "(preliminary)";
         } else if ( node->status() == Node::Deprecated ) {
@@ -155,6 +155,41 @@ QString QsCodeMarker::functionBeginRegExp( const QString& funcName )
 QString QsCodeMarker::functionEndRegExp( const QString& /* funcName */ )
 {
     return "^}";
+}
+
+QValueList<ClassSection> QsCodeMarker::classSections( const ClassNode *classe,
+						      SynopsisStyle style )
+{
+    QValueList<ClassSection> sections;
+    QString suffix;
+    if ( style == Detailed )
+	suffix += "' Documentation";
+    FastClassSection enums( "Enums" + suffix );
+    FastClassSection functions( "Functions" + suffix );
+    FastClassSection properties( "Properties" + suffix );
+    FastClassSection signalz( "Signals" + suffix );
+
+    NodeList::ConstIterator c = classe->childNodes().begin();
+    while ( c != classe->childNodes().end() ) {
+	if ( (*c)->type() == Node::Enum ) {
+	    insert( enums, *c );
+	} else if ( (*c)->type() == Node::Function ) {
+	    const FunctionNode *func = (const FunctionNode *) *c;
+	    if ( func->metaness() == FunctionNode::Signal ) {
+		insert( signalz, *c );
+	    } else {
+		insert( functions, *c );
+	    }
+	} else if ( (*c)->type() == Node::Property ) {
+	    insert( properties, *c );
+	}
+	++c;
+    }
+    append( sections, enums );
+    append( sections, properties );
+    append( sections, functions );
+    append( sections, signalz );
+    return sections;
 }
 
 const Node *QsCodeMarker::resolveTarget( const QString& /* target */,

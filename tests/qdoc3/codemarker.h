@@ -7,13 +7,33 @@
 
 #include <qregexp.h>
 
+#include "node.h"
+
 class Config;
-class Node;
+
+struct ClassSection
+{
+    QString name;
+    NodeList members;
+
+    ClassSection() { }
+    ClassSection( const QString& name0 )
+	: name( name0 ) { }
+};
+
+struct FastClassSection
+{
+    QString name;
+    QMap<QString, Node *> memberMap;
+
+    FastClassSection( const QString& name0 )
+	: name( name0 ) { }
+};
 
 class CodeMarker
 {
 public:
-    enum SynopsisStyle { Overview, Detailed };
+    enum SynopsisStyle { Summary, Detailed };
 
     CodeMarker();
     virtual ~CodeMarker();
@@ -31,8 +51,10 @@ public:
     virtual QString markedUpFullName( const Node *node,
 				      const Node *relative ) = 0;
     virtual QString markedUpIncludes( const QStringList& includes ) = 0;
-    virtual QString functionBeginRegExp( const QString& funcName );
-    virtual QString functionEndRegExp( const QString& funcName );
+    virtual QString functionBeginRegExp( const QString& funcName ) = 0;
+    virtual QString functionEndRegExp( const QString& funcName ) = 0;
+    virtual QValueList<ClassSection> classSections( const ClassNode *classe,
+						    SynopsisStyle style ) = 0;
     virtual const Node *resolveTarget( const QString& target,
 				       const Node *relative ) = 0;
 
@@ -45,9 +67,13 @@ public:
     static QString stringForNode( const Node *node );
 
 protected:
+    virtual QString sortName( const Node *node );
     QString protect( const QString& string );
     QString taggedNode( const Node *node );
     QString linkTag( const Node *node, const QString& body );
+    void insert( FastClassSection& fastSection, Node *node );
+    void append( QValueList<ClassSection>& sectionList,
+		 const FastClassSection& fastSection );
 
 private:
     QRegExp amp;

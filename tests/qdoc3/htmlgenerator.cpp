@@ -296,16 +296,16 @@ void HtmlGenerator::generateClassNode( const ClassNode *classe,
     out() << "<p><a href=\"foo\">" << "List of all member functions."
 	  << "</a></p>\n";
 
-    sections = classe->overviewSections();
+    sections = marker->classSections( classe, CodeMarker::Summary );
     s = sections.begin();
     while ( s != sections.end() ) {
-	out() << "<h2>" << protect( (*s).name ) << "</h2>\n";
+	out() << "<h3>" << protect( (*s).name ) << "</h3>\n";
 	out() << "<ul>\n";
 
 	m = (*s).members.begin();
 	while ( m != (*s).members.end() ) {
 	    out() << "<li><div class=\"fn\"/>";
-	    generateSynopsis( *m, classe, marker, CodeMarker::Overview );
+	    generateSynopsis( *m, classe, marker, CodeMarker::Summary );
 	    out() << "</li>\n";
 	    ++m;
 	}
@@ -321,7 +321,7 @@ void HtmlGenerator::generateClassNode( const ClassNode *classe,
 	generateAlsoList( classe, marker );
     }
 
-    sections = classe->detailedSections();
+    sections = marker->classSections( classe, CodeMarker::Detailed );
     s = sections.begin();
     while ( s != sections.end() ) {
 	out() << "<hr>\n";
@@ -472,7 +472,7 @@ void HtmlGenerator::generateSynopsis( const Node *node,
     QString marked = marker->markedUpSynopsis( node, relative, style );
     marked.replace( QRegExp("</?@param>"), "" );
 
-    if ( style == CodeMarker::Overview ) {
+    if ( style == CodeMarker::Summary ) {
 	if ( node->status() == Node::Commendable ||
 	     node->status() == Node::Preliminary ) {
 	    marked.replace( QRegExp("@name>"), "b>" );
@@ -489,7 +489,7 @@ void HtmlGenerator::generateSynopsis( const Node *node,
     if ( node->type() == Node::Property ) {
 	Text brief = node->doc().body().subText( Atom::BriefLeft,
 						 Atom::BriefRight );
-	if ( style == CodeMarker::Overview ) {
+	if ( style == CodeMarker::Summary ) {
 	    if ( !brief.isEmpty() ) {
 		out() << " - ";
 		generateText( brief, node, marker );

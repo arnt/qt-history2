@@ -57,6 +57,22 @@ QString PlainCodeMarker::markedUpIncludes( const QStringList& /* includes */ )
     return "";
 }
 
+QString PlainCodeMarker::functionBeginRegExp( const QString& /* funcName */ )
+{
+    return "";
+}
+
+QString PlainCodeMarker::functionEndRegExp( const QString& /* funcName */ )
+{
+    return "";
+}
+
+QValueList<ClassSection> PlainCodeMarker::classSections(
+	const ClassNode * /* classe */, SynopsisStyle /* style */ )
+{
+    return QValueList<ClassSection>();
+}
+
 const Node *PlainCodeMarker::resolveTarget( const QString& /* target */,
 					    const Node * /* relative */ )
 {

@@ -130,16 +130,6 @@ struct RelatedClass
 	: access( access0 ), node( node0 ), templateArgs( templateArgs0 ) { }
 };
 
-struct ClassSection
-{
-    QString name;
-    NodeList members;
-
-    ClassSection() { }
-    ClassSection( const QString& name0 )
-	: name( name0 ) { }
-};
-
 class ClassNode : public InnerNode
 {
 public:
@@ -150,14 +140,8 @@ public:
 
     const QValueList<RelatedClass>& baseClasses() const { return bas; }
     const QValueList<RelatedClass>& derivedClasses() const { return der; }
-    QValueList<ClassSection> overviewSections() const;
-    QValueList<ClassSection> detailedSections() const;
 
 private:
-    static void append( QValueList<ClassSection> *sectionList,
-			const ClassSection& section );
-    static NodeList nodeList( const QMap<QString, Node *>& map );
-
     QValueList<RelatedClass> bas;
     QValueList<RelatedClass> der;
 };

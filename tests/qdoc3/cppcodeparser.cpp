@@ -18,7 +18,6 @@
 #define COMMAND_FILE         Doc::alias( "file" )
 #define COMMAND_FN           Doc::alias( "fn" )
 #define COMMAND_GROUP        Doc::alias( "group" )
-#define COMMAND_IMPORTANT    Doc::alias( "important" )
 #define COMMAND_INHEADERFILE Doc::alias( "inheaderfile" )
 #define COMMAND_MODULE       Doc::alias( "module" )
 #define COMMAND_NAMESPACE    Doc::alias( "namespace" )
@@ -210,9 +209,8 @@ Node *CppCodeParser::processTopicCommand( const Doc& doc,
 
 Set<QString> CppCodeParser::otherMetaCommands()
 {
-    return commonMetaCommands() << COMMAND_IMPORTANT << COMMAND_INHEADERFILE
-				<< COMMAND_OVERLOAD << COMMAND_REIMP
-				<< COMMAND_RELATED;
+    return commonMetaCommands() << COMMAND_INHEADERFILE << COMMAND_OVERLOAD
+				<< COMMAND_REIMP << COMMAND_RELATED;
 }
 
 void CppCodeParser::processOtherMetaCommand( const Doc& doc,
@@ -220,9 +218,7 @@ void CppCodeParser::processOtherMetaCommand( const Doc& doc,
 					     const QString& arg,
 					     Node *node )
 {
-    if ( command == COMMAND_IMPORTANT ) {
-	/* ... */
-    } else if ( command == COMMAND_INHEADERFILE ) {
+    if ( command == COMMAND_INHEADERFILE ) {
 	if ( node != 0 && node->isInnerNode() ) {
 	    ((InnerNode *) node)->addInclude( arg );
 	} else if ( node != 0 && node->parent()->parent() == 0 ) {
