@@ -30,7 +30,7 @@
     \skipto QTableView *view = new
     \printuntil setItemDelegate
 
-    The \c{sql/relationaltablemodel} example (shown below)
+    The \l{sql/relationaltablemodel} example (shown below)
     illustrates how to use QSqlRelationalDelegate in conjunction with
     QSqlRelationalTableModel to provide tables with foreigh key
     support.

@@ -174,8 +174,7 @@ static bool isRowSelection(Q3Table::SelectionMode selMode)
     \brief The Q3TableSelection class provides access to a selected area in a
     Q3Table.
 
-    \ingroup advanced
-    \module table
+    \compat
 
     The selection is a rectangular set of cells in a Q3Table. One of
     the rectangle's cells is called the anchor cell; this is the cell
@@ -382,8 +381,7 @@ int Q3TableSelection::numCols() const
     \class Q3TableItem
     \brief The Q3TableItem class provides the cell content for Q3Table cells.
 
-    \ingroup advanced
-    \module table
+    \compat
 
     For many applications Q3TableItems are ideal for presenting and
     editing the contents of Q3Table cells. In situations where you need
@@ -1128,8 +1126,7 @@ bool Q3TableItem::isEnabled() const
     \brief The Q3ComboTableItem class provides a means of using
     comboboxes in Q3Tables.
 
-    \ingroup advanced
-    \module table
+    \compat
 
     A Q3ComboTableItem is a table item which looks and behaves like a
     combobox. The advantage of using Q3ComboTableItems rather than real
@@ -1446,8 +1443,7 @@ QSize Q3ComboTableItem::sizeHint() const
     \class Q3CheckTableItem
     \brief The Q3CheckTableItem class provides checkboxes in Q3Tables.
 
-    \ingroup advanced
-    \module table
+    \compat
 
     A Q3CheckTableItem is a table item which looks and behaves like a
     checkbox. The advantage of using Q3CheckTableItems rather than real
@@ -1632,9 +1628,8 @@ QSize Q3CheckTableItem::sizeHint() const
 /*!
     \class Q3Table
     \brief The Q3Table class provides a flexible editable table widget.
-    \mainclass
-    \ingroup advanced
-    \module table
+
+    \compat
 
     Q3Table is easy to use, although it does have a large API because
     of the comprehensive functionality that it provides. Q3Table
@@ -6383,9 +6378,7 @@ void Q3Table::setEnabled(bool b)
     \brief The Q3TableHeader class allows for creation and manipulation
     of table headers.
 
-    \ingroup advanced
-    \module table
-
+    \compat
 
    Q3Table uses this subclass of Q3Header for its headers. Q3Table has a
    horizontalHeader() for displaying column labels, and a

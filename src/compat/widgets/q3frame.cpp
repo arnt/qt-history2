@@ -19,7 +19,6 @@
 /*! \class Q3Frame
 
     \compat
-
 */
 
 /*!

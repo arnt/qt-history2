@@ -30,10 +30,7 @@ using namespace Qt;
     \class Q3GroupBox qgroupbox.h
     \brief The Q3GroupBox widget provides a group box frame with a title.
 
-    \ingroup organizers
-    \ingroup geomanagement
-    \ingroup appearance
-    \mainclass
+    \compat
 
     A group box provides a frame, a title and a keyboard shortcut, and
     displays various other widgets inside itself. The title is on top,

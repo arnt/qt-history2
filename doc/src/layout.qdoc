@@ -40,7 +40,7 @@
     The disadvantage of hand-written layout code is that it isn't very
     convenient when you're experimenting with the design of a form and you
     have to go through the compile, link and run cycle for each change.
-    Our solution is \link designer-manual.book Qt Designer\endlink, a GUI
+    Our solution is \link designer-manual.html Qt Designer\endlink, a GUI
     visual design tool which makes it fast and easy to experiment with
     layouts and which generates the C++ layout code for you.
 
@@ -260,8 +260,8 @@
     own. Just make a subclass of \l QLayout that handles resizing and
     size calculations.
 
-    The \c layouts/borderlayout and \c layouts/flowlayout examples in
-    Qt's \c examples directory show how to do this.
+    The \l layouts/borderlayout and \l layouts/flowlayout examples
+    show how to do this.
 
     Here we present an example in detail. The class CardLayout is inspired
     by the Java layout manager of the same name. It lays out the items

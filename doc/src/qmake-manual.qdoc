@@ -1581,7 +1581,7 @@
     \section3 FORMS
 
     This variable specifies the .ui files (see \link
-    designer-manual.book Qt Designer \endlink) to be processed through \c uic
+    designer-manual.html Qt Designer \endlink) to be processed through \c uic
     before compiling.  All dependencies, headers and source files required
     to build these .ui files will automatically be added to the project.
 

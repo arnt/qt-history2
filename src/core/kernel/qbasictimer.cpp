@@ -16,8 +16,8 @@
 #include "qabstracteventdispatcher.h"
 
 /*!
-    \class QBasicTimer qbasictimer.h
-    \brief The QBasicTimer class provides timer events for QObjects.
+    \class QBasicTimer
+    \brief The QBasicTimer class provides timer events for \l{QObject}s.
 
     \ingroup time
     \ingroup events
@@ -35,6 +35,12 @@
     i.e. it has been started, has not reached the timeout time, and
     has not been stopped. The timer's ID can be retrieved using
     timerId().
+
+    The \l{widgets/digitalclock} example uses QBasicTimer to update
+    its LCD display every second. See \l{Timers} for an overview of
+    different approaches to timers.
+
+    \sa QTimer, QTimerEvent, QObject::timerEvent()
 */
 
 

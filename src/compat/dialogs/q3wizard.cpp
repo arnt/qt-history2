@@ -26,6 +26,7 @@ using namespace Qt;
 
 /*!
     \class Q3Wizard
+    \compat
     \brief The Q3Wizard class provides a framework for wizard dialogs.
 
     A wizard is a special type of input dialog that consists of a

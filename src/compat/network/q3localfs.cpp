@@ -32,9 +32,7 @@
     \brief The Q3LocalFs class is an implementation of a
     QNetworkProtocol that works on the local file system.
 
-    \module network
-
-    \ingroup io
+    \compat
 
     This class is derived from QNetworkProtocol. Q3LocalFs is not
     normally used directly, but rather through a QUrlOperator, for

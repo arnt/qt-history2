@@ -67,9 +67,7 @@ public:
 
     \brief The Q3UrlOperator class provides common operations on URLs.
 
-    \ingroup io
-    \ingroup misc
-    \mainclass
+    \compat
 
     \module network
 

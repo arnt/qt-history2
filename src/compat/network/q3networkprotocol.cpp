@@ -76,10 +76,7 @@ public:
     \class Q3NetworkProtocol q3networkprotocol.h
     \brief The Q3NetworkProtocol class provides a common API for network protocols.
 
-    \module network
-    \ingroup io
-    \module network
-    \mainclass
+    \compat
 
     This is a base class which should be used for network protocols
     implementations that can then be used in Qt (e.g. in the file
@@ -652,14 +649,6 @@ void Q3NetworkProtocol::processOperation( Q3NetworkOperation *op )
     reimplemented if the protocol supports listing children (files);
     this method should then process this Q3NetworkOperation.
 
-    When you reimplement this method it's very important that you emit
-    the correct signals at the correct time (especially the finished()
-    signal after processing an operation). Take a look at the \link
-    network.html Qt Network Documentation\endlink which describes in
-    detail how to reimplement this method. You may also want to look
-    at the example implementation in
-    examples/network/networkprotocol/nntp.cpp.
-
     \a op is the pointer to the operation object which contains all
     the information on the operation that has finished, including the
     state, etc.
@@ -673,14 +662,6 @@ void Q3NetworkProtocol::operationListChildren( Q3NetworkOperation * )
     When implementing a new network protocol, this method should be
     reimplemented if the protocol supports making directories; this
     method should then process this Q3NetworkOperation.
-
-    When you reimplement this method it's very important that you emit
-    the correct signals at the correct time (especially the finished()
-    signal after processing an operation). Take a look at the \link
-    network.html Qt Network Documentation\endlink which describes in
-    detail how to reimplement this method. You may also want to look
-    at the example implementation in
-    examples/network/networkprotocol/nntp.cpp.
 
     \a op is the pointer to the operation object which contains all
     the information on the operation that has finished, including the
@@ -696,14 +677,6 @@ void Q3NetworkProtocol::operationMkDir( Q3NetworkOperation * )
     reimplemented if the protocol supports removing children (files);
     this method should then process this Q3NetworkOperation.
 
-    When you reimplement this method it's very important that you emit
-    the correct signals at the correct time (especially the finished()
-    signal after processing an operation). Take a look at the \link
-    network.html Qt Network Documentation\endlink which is describes
-    in detail how to reimplement this method. You may also want to
-    look at the example implementation in
-    examples/network/networkprotocol/nntp.cpp.
-
     \a op is the pointer to the operation object which contains all
     the information on the operation that has finished, including the
     state, etc.
@@ -717,14 +690,6 @@ void Q3NetworkProtocol::operationRemove( Q3NetworkOperation * )
     When implementing a new newtork protocol, this method should be
     reimplemented if the protocol supports renaming children (files);
     this method should then process this Q3NetworkOperation.
-
-    When you reimplement this method it's very important that you emit
-    the correct signals at the correct time (especially the finished()
-    signal after processing an operation). Take a look at the \link
-    network.html Qt Network Documentation\endlink which describes in
-    detail how to reimplement this method. You may also want to look
-    at the example implementation in
-    examples/network/networkprotocol/nntp.cpp.
 
     \a op is the pointer to the operation object which contains all
     the information on the operation that has finished, including the
@@ -740,14 +705,6 @@ void Q3NetworkProtocol::operationRename( Q3NetworkOperation * )
     reimplemented if the protocol supports getting data; this method
     should then process the Q3NetworkOperation.
 
-    When you reimplement this method it's very important that you emit
-    the correct signals at the correct time (especially the finished()
-    signal after processing an operation). Take a look at the \link
-    network.html Qt Network Documentation\endlink which describes in
-    detail how to reimplement this method. You may also want to look
-    at the example implementation in
-    examples/network/networkprotocol/nntp.cpp.
-
     \a op is the pointer to the operation object which contains all
     the information on the operation that has finished, including the
     state, etc.
@@ -761,14 +718,6 @@ void Q3NetworkProtocol::operationGet( Q3NetworkOperation * )
     When implementing a new network protocol, this method should be
     reimplemented if the protocol supports putting (uploading) data;
     this method should then process the Q3NetworkOperation.
-
-    When you reimplement this method it's very important that you emit
-    the correct signals at the correct time (especially the finished()
-    signal after processing an operation). Take a look at the \link
-    network.html Qt Network Documentation\endlink which describes in
-    detail how to reimplement this method. You may also want to look
-    at the example implementation in
-    examples/network/networkprotocol/nntp.cpp.
 
     \a op is the pointer to the operation object which contains all
     the information on the operation that has finished, including the
@@ -950,8 +899,7 @@ public:
 
     \brief The Q3NetworkOperation class provides common operations for network protocols.
 
-    \module network
-    \ingroup io
+    \compat
 
     An object is created to describe the operation and the current
     state for each operation that a network protocol should process.

@@ -1041,8 +1041,7 @@ static void delete_d( const Q3Ftp* foo )
     \class Q3Ftp q3ftp.h
     \brief The Q3Ftp class provides an implementation of the FTP protocol.
 
-    \ingroup io
-    \module network
+    \compat
 
     This class provides two different interfaces: one is the
     QNetworkProtocol interface that allows you to use FTP through the

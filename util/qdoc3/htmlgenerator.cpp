@@ -81,7 +81,7 @@ QString HtmlGenerator::format()
 void HtmlGenerator::generateTree(const Tree *tree, CodeMarker *marker)
 {
     tre = tree;
-    allClasses.clear();
+    nonCompatClasses.clear();
     mainClasses.clear();
     compatClasses.clear();
     funcIndex.clear();
@@ -224,11 +224,11 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
 	break;
     case Atom::GeneratedList:
 	if (atom->string() == "annotatedclasses") {
-	    generateAnnotatedList(relative, marker, allClasses);
+	    generateAnnotatedList(relative, marker, nonCompatClasses);
 	} else if (atom->string() == "classes") {
-	    generateCompactList(relative, marker, allClasses);
+	    generateCompactList(relative, marker, nonCompatClasses);
 	} else if (atom->string() == "classhierarchy") {
-	    generateClassHierarchy(relative, marker, allClasses);
+	    generateClassHierarchy(relative, marker, nonCompatClasses);
 	} else if (atom->string() == "compatclasses") {
 	    generateCompactList(relative, marker, compatClasses);
 	} else if (atom->string() == "functionindex") {
@@ -1688,7 +1688,7 @@ void HtmlGenerator::findAllClasses(const InnerNode *node)
                 if ((*c)->status() == Node::Compat) {
                     compatClasses.insert((*c)->name(), *c);
                 } else {
-	            allClasses.insert((*c)->name(), *c);
+	            nonCompatClasses.insert((*c)->name(), *c);
                     if ((*c)->status() == Node::Main)
 		        mainClasses.insert((*c)->name(), *c);
                 }

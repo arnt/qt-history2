@@ -1558,8 +1558,7 @@ void Q3DnsSocket::answer()
     \class Q3Dns q3dns.h
     \brief The Q3Dns class provides asynchronous DNS lookups.
 
-    \module network
-    \ingroup io
+    \compat
 
     Both Windows and Unix provide synchronous DNS lookups; Windows
     provides some asynchronous support too. At the time of writing
@@ -1997,8 +1996,6 @@ Q3ValueList<QHostAddress> Q3Dns::addresses() const
     \class Q3Dns::MailServer
     \brief The Q3Dns::MailServer class is  described in Q3Dns::mailServers().
 
-    \ingroup io
-
     \internal
 */
 
@@ -2049,8 +2046,6 @@ Q3ValueList<Q3Dns::MailServer> Q3Dns::mailServers() const
 /*!
     \class Q3Dns::Server
     \brief The Q3Dns::Server class is described in Q3Dns::servers().
-
-    \ingroup io
 
     \internal
 */

@@ -81,7 +81,7 @@
     commands based on the result of a previous command. It also
     enables you to provide detailed feedback to the user.
 
-    The \c network/http and \c network/ftp examples illustrate how to
+    The \l network/http and \l network/ftp examples illustrate how to
     write an HTTP and an FTP client.
 
     Writing your own HTTP or FTP server is possible using the
@@ -152,9 +152,9 @@
     socket, and QTcpSocket::waitForReadyRead() to get the
     QTcpSocket::readyRead() signal.
 
-    The \c network/fortuneclient and \c network/fortuneserver
+    The \l network/fortuneclient and \l network/fortuneserver
     examples show how to use QTcpSocket and QTcpServer to write TCP
-    client-server applications. See also \c
+    client-server applications. See also \l
     network/blockingfortuneclient for an example on how to use a
     synchronous QTcpSocket in a separate thread, without using an
     event loop.
@@ -196,7 +196,7 @@
     \l{QUdpSocket::readyRead()}{readyRead()} signal. Call
     QUdpSocket::readDatagram() to read the datagram.
 
-    The \c network/broadcastsender and \c network/broadcastreceiver
+    The \l network/broadcastsender and \l network/broadcastreceiver
     examples show how to write a UDP sender and a UDP receiver using
     Qt.
 

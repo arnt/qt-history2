@@ -385,7 +385,7 @@ QWidget * Q3DragObject::source()
     \brief The Q3DragObject class encapsulates MIME-based data
     transfer.
 
-    \ingroup draganddrop
+    \compat
 
     Q3DragObject is the base class for all data that needs to be
     transferred between and within applications, both for drag and
@@ -420,7 +420,7 @@ void stripws(QByteArray& s)
     \brief The Q3TextDrag class is a drag and drop object for
     transferring plain and Unicode text.
 
-    \ingroup draganddrop
+    \compat
 
     Plain text is passed in a QString which may contain multiple lines
     (i.e. may contain newline characters). The drag target will receive
@@ -709,7 +709,7 @@ bool Q3TextDrag::decode(const QMimeSource* e, QString& str)
     \brief The Q3ImageDrag class provides a drag and drop object for
     transferring images.
 
-    \ingroup draganddrop
+    \compat
 
     Images are offered to the receiving application in multiple
     formats, determined by Qt's \link QImage::outputFormats() output
@@ -909,7 +909,7 @@ bool Q3ImageDrag::decode(const QMimeSource* e, QPixmap& pm)
     \class Q3StoredDrag qdragobject.h
     \brief The Q3StoredDrag class provides a simple stored-value drag object for arbitrary MIME data.
 
-    \ingroup draganddrop
+    \compat
 
     When a block of data has only one representation, you can use a
     Q3StoredDrag to hold it.
@@ -995,7 +995,7 @@ QByteArray Q3StoredDrag::encodedData(const char* m) const
     \class Q3UriDrag qdragobject.h
     \brief The Q3UriDrag class provides a drag object for a list of URI references.
 
-    \ingroup draganddrop
+    \compat
 
     URIs are a useful way to refer to files that may be distributed
     across multiple machines. A URI will often refer to a file on a
@@ -1424,7 +1424,7 @@ bool Q3UriDrag::decodeToUnicodeUris(const QMimeSource* e, QStringList& l)
     \brief The Q3ColorDrag class provides a drag and drop object for
     transferring colors between widgets.
 
-    \ingroup draganddrop
+    \compat
 
     This class provides a drag object which can be used to transfer data
     about colors for drag and drop and in the clipboard. For example, it

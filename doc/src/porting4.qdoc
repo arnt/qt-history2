@@ -3361,7 +3361,7 @@
     a QStackedBox with a QDialog and provide \l{QPushButton}s
     yourself.
 
-    The dialogs/simplewizard and dialogs/complexwizard examples show
+    The \l dialogs/simplewizard and \l dialogs/complexwizard examples show
     how to create wizards without using QWizard.
 
     \target virtual.functions

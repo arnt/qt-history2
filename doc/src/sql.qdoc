@@ -451,7 +451,7 @@
 
     You can use the same model as a data source for multiple views.
     If the user edits the model through one of the views, the other
-    views will reflect the changes immediately. The \c sql/tablemodel
+    views will reflect the changes immediately. The \l sql/tablemodel
     example shows how it works.
 
     View classes display a header at the top to label the columns. To
@@ -507,7 +507,7 @@
     \skipto ::setFirstName(
     \printuntil /^\}/
 
-    The setLastName() function is similar. See the \c sql/querymodel
+    The setLastName() function is similar. See the \l sql/querymodel
     example for the complete source code.
 
     Subclassing a model makes it possible to customize it in many
@@ -524,7 +524,7 @@
 
     \image relationaltable.png Editing a foreign key in a relational table
 
-    The \c{sql/relationaltablemodel} example illustrates how to use
+    The \l{sql/relationaltablemodel} example illustrates how to use
     QSqlRelationalTableModel in conjunction with
     QSqlRelationalDelegate to provide tables with foreign key
     support.

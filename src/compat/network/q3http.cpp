@@ -311,8 +311,7 @@ void Q3HttpCloseRequest::start( Q3Http *http )
     \class Q3HttpHeader q3http.h
     \brief The Q3HttpHeader class contains header information for HTTP.
 
-    \ingroup io
-    \module network
+    \compat
 
     In most cases you should use the more specialized derivatives of
     this class, Q3HttpResponseHeader and Q3HttpRequestHeader, rather
@@ -650,8 +649,7 @@ void Q3HttpHeader::setContentType( const QString& type )
     \class Q3HttpResponseHeader q3http.h
     \brief The Q3HttpResponseHeader class contains response header information for HTTP.
 
-    \ingroup io
-    \module network
+    \compat
 
     This class is used by the Q3Http class to report the header
     information that the client received from the server.
@@ -811,8 +809,7 @@ QString Q3HttpResponseHeader::toString() const
     \brief The Q3HttpRequestHeader class contains request header information for
     HTTP.
 
-    \ingroup io
-    \module network
+    \compat
 
     This class is used in the Q3Http class to report the header
     information if the client requests something from the server.
@@ -978,8 +975,7 @@ QString Q3HttpRequestHeader::toString() const
     \class Q3Http q3http.h
     \brief The Q3Http class provides an implementation of the HTTP protocol.
 
-    \ingroup io
-    \module network
+    \compat
 
     This class provides two different interfaces: one is the
     Q3NetworkProtocol interface that allows you to use HTTP through the

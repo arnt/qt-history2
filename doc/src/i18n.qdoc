@@ -286,7 +286,7 @@ Kopierer nu somefile.txt. Av totalt 10 filer er 5 kopiert.
 Once you are using tr() throughout an application, you can start
 producing translations of the user-visible text in your program.
 
-\link linguist-manual.book Qt Linguist\endlink's manual provides
+\link linguist-manual.html Qt Linguist\endlink's manual provides
 further information about Qt's translation tools, \e{Qt Linguist}, \e
 lupdate and \e lrelease.
 
@@ -337,7 +337,7 @@ When you run \e lupdate or \e lrelease, you must give the name of the
 project file as a command-line argument.
 
 In this example, four exotic languages are supported: Danish, Finnish,
-Norwegian and Swedish. If you use \link qmake-manual.book
+Norwegian and Swedish. If you use \link qmake-manual.html
 qmake\endlink, you usually don't need an extra project
 file for \e lupdate; your \c qmake project file will work fine once
 you add the \c TRANSLATIONS entry.

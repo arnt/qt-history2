@@ -51,8 +51,6 @@
 
 /*!
   \class QShared qshared.h
-  \reentrant
-  \ingroup shared
   \brief The QShared class is used internally for implementing shared classes.
 
   \internal
@@ -69,8 +67,6 @@
 /*!
   \class Q3GArray qgarray.h
   \reentrant
-  \ingroup shared
-  \ingroup collection
   \brief The Q3GArray class is an internal class for implementing the QMemArray class.
 
   \internal

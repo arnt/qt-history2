@@ -105,7 +105,7 @@
     \skipto cutAct = new QAction(QPixmap(":/images/cut.png
     \printline cutAct =
 
-    See the \c mainwindows/application example for an actual
+    See the \l mainwindows/application example for an actual
     application that uses Qt's resource system to store its icons.
 
     In memory, resources are represented by a tree of QResource

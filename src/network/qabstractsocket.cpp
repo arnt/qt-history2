@@ -110,7 +110,7 @@
     require an event loop and typically leads to simpler code.
     However, in a GUI application, blocking sockets should only be
     used in non-GUI threads, to avoid freezing the user interface.
-    See the network/fortuneclient and network/blockingfortuneclient
+    See the \l network/fortuneclient and \l network/blockingfortuneclient
     examples for an overview of both approaches.
 
     QAbstractSocket can be used with QTextStream and QDataStream's

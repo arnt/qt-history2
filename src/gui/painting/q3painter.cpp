@@ -21,6 +21,8 @@
 
     \brief Q3Painter is the compat version of QPainter.
 
+    \compat
+
     Prior to Qt 4, QPainter specialized the pen drawing for rectangle
     based functions (in particular: drawRect, drawEllipse,
     drawRoundRect, drawArc, drawChord and drawPie). When stroking a

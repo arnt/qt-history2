@@ -210,8 +210,8 @@ void MainWindow::readSettings()
     QSettings settings("doc.trolltech.com", "Application");
     QPoint pos = settings.value("pos", QPoint(200, 200)).toPoint();
     QSize size = settings.value("size", QSize(400, 400)).toSize();
-    move(pos);
     resize(size);
+    move(pos);
 }
 
 void MainWindow::writeSettings()

@@ -325,8 +325,7 @@ void Q3ScrollViewData::viewportResized(int w, int h)
     \class Q3ScrollView qscrollview.h
     \brief The Q3ScrollView widget provides a scrolling area with on-demand scroll bars.
 
-    \ingroup abstractwidgets
-    \mainclass
+    \compat
 
     The Q3ScrollView is a large canvas - potentially larger than the
     coordinate system normally supported by the underlying window

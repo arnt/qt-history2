@@ -105,7 +105,7 @@ where you choose to install Qt.
     a license file.
 
 \i  Compile the Qt library, and build the example programs,
-    the tutorial and the tools (e.g. \link designer-manual.book Qt
+    the tutorial and the tools (e.g. \link designer-manual.html Qt
     Designer\endlink) as follows.
 
     Type:

@@ -77,8 +77,8 @@ public:
 /*!
   \class Q3ProgressDialog qprogressdialog.h
   \brief The Q3ProgressDialog class provides feedback on the progress of a slow operation.
-  \ingroup dialogs
-  \mainclass
+
+  \compat
 
   A progress dialog is used to give the user an indication of how long
   an operation is going to take, and to demonstrate that the

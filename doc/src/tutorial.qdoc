@@ -160,14 +160,14 @@ You should now try to compile and run this program.
 
 To compile a C++ application you need to create a makefile. The
 easiest way to create a makefile for Qt is to use the \link
-qmake-manual.book qmake\endlink build tool supplied with Qt. If you've
+qmake-manual.html qmake\endlink build tool supplied with Qt. If you've
 saved \c main.cpp in its own directory, all you have to do is:
 \code
 qmake -project
 qmake
 \endcode
 
-The first command tells \link qmake-manual.book qmake\endlink to
+The first command tells \link qmake-manual.html qmake\endlink to
 create a \c .pro (project) file. The second command tells it to create
 a (platform-specific) makefile based on the project file. You should
 now be able to type \c make (or \c nmake if you're using Visual
@@ -808,7 +808,7 @@ qmake -project
 qmake
 \endcode
 
-The first command tells \link qmake-manual.book qmake\endlink to
+The first command tells \link qmake-manual.html qmake\endlink to
 create a \c .pro (project) file. The second command tells it to create
 a (platform-specific) makefile based on the project file. You should
 now be able to type \c make (or \c nmake if you're using Visual

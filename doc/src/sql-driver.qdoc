@@ -122,7 +122,7 @@
     \c{libmysqlclient.so}. Depending on your Linux distribution you may
     need to install a package which is usually called "mysql-devel".
 
-    Tell \link qmake-manual.book qmake\endlink where to find the MySQL
+    Tell \link qmake-manual.html qmake\endlink where to find the MySQL
     header files and shared libraries (here it is assumed that MySQL is
     installed in \c{/usr/local}) and run \c{make}:
 
@@ -173,8 +173,8 @@
     (see QSqlQuery::setForwardOnly()).
 
     Inserting BLOBs should be done using either a prepared query where the
-    BLOBs are bound to placeholders, or QSqlCursor which uses a prepared
-    query to do this internally (see $QTDIR/examples/sql/blob).
+    BLOBs are bound to placeholders or QSqlTableModel, which uses a prepared
+    query to do this internally.
 
     \section3 How to Build the Plugin on Unix and Mac OS X
 

@@ -26,7 +26,7 @@ using namespace Qt;
 
 /*!
     \class Q3TabDialog
-
+    \compat
     \brief The Q3TabDialog class provides a stack of tabbed widgets.
 
     A tabbed dialog is one in which several "tab pages" are available.

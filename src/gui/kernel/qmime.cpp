@@ -93,6 +93,8 @@ QVariant QMimeDataPrivate::getData(const QString &format) const
     \class QMimeData
     \brief The QMimeData class provides a container that organizes data by
     MIME type.
+
+    \compat
 */
 
 /*!

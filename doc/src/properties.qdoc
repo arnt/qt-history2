@@ -38,7 +38,7 @@
 
     \o An attribute "designable" that indicates whether it makes sense to
     make the property available in a GUI builder (e.g. \link
-    designer-manual.book Qt Designer\endlink). For most properties this 
+    designer-manual.html Qt Designer\endlink). For most properties this 
     makes sense, but not for all, e.g. \l QAbstractButton::down. The user can
     press buttons, and the application programmer can make the program
     press its own buttons, but a GUI design tool can't press buttons.

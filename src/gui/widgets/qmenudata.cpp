@@ -39,6 +39,15 @@ public:
 };
 #include "qmenudata.moc"
 
+/*!
+    \class QMenuItem
+    \brief The QMenuItem class represents an item in a menu.
+
+    \compat
+
+    Use QAction instead.
+*/
+
 QMenuItem::QMenuItem() : QAction((QWidget*)0)
 {
 }

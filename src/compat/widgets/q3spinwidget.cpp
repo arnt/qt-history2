@@ -54,7 +54,6 @@ public:
     \brief The Q3SpinWidget class is an internal range control related class.
 
     \internal
-    \compat
 
     Constructs an empty range control widget with parent \a parent
     called \a name.

@@ -102,7 +102,7 @@ style explicitly in code. To apply a style, use code like this:
 \endcode
 
 Some plugin classes require additional functions to be implemented.
-See the \link designer-manual.book Qt Designer manual's\endlink,
+See the \link designer-manual.html Qt Designer manual's\endlink,
 'Creating Custom Widgets' section in the 'Creating Custom Widgets'
 chapter, for a complete example of a QWidgetPlugin, which implements
 extra functions to integrate the plugin into \e{Qt Designer}. The
@@ -136,9 +136,9 @@ other library. If you want the plugin to be loadable then one approach
 is to create a subdirectory under the application, e.g. \c
 appdir/plugins/designer, and place the plugin in that directory.
 
-For \link designer-manual.book Qt Designer\endlink, you may need to
+For \link designer-manual.html Qt Designer\endlink, you may need to
 call QApplication::addLibraryPath("QTDIR/plugins/designer") to load
-your \link designer-manual.book Qt Designer\endlink plugins.
+your \link designer-manual.html Qt Designer\endlink plugins.
 
 \section1 Loading and Verifying Plugins
 

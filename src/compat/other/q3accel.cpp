@@ -30,7 +30,7 @@ using namespace Qt;
     \class Q3Accel qaccel.h
     \brief The Q3Accel class handles keyboard accelerator and shortcut keys.
 
-    \ingroup misc
+    \compat
 
     A keyboard accelerator triggers an action when a certain key
     combination is pressed. The accelerator handles all keyboard

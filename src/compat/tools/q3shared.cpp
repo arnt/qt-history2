@@ -17,24 +17,23 @@
 
 /*!
     \class Q3Shared
+    \brief The QShared class is used internally for implementing shared classes.
+    \compat
+
+    Use QSharedData and QSharedDataPointer instead.
 */
 
 
 /*!
     \fn Q3Shared::Q3Shared()
 
-    Use QSharedData and QSharedDataPointer instead.
+    Constructs a Q3Shared object with a reference count of 1.
 */
 
 /*!
     \fn void Q3Shared::ref()
-
-    Use QSharedDataPointer instead.
 */
 
 /*!
     \fn bool Q3Shared::deref()
-
-    Use QSharedDataPointer instead.
 */
-

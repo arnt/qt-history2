@@ -165,7 +165,7 @@ void QSqlRelationalTableModelPrivate::clearChanges()
     \skipto QTableView *view = new
     \printuntil setItemDelegate
 
-    The \c{sql/relationaltablemodel} example illustrates how to use
+    The \l{sql/relationaltablemodel} example illustrates how to use
     QSqlRelationalTableModel in conjunction with
     QSqlRelationalDelegate to provide tables with foreigh key
     support.

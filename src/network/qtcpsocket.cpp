@@ -27,8 +27,8 @@
     allows you to establish a TCP connection and transfer streams of
     data. See the QAbstractSocket documentation for details.
 
-    The network/fortuneserver, network/fortuneclient, and
-    network/blockingfortuneclient examples illustrate how to use
+    The \l network/fortuneserver, \l network/fortuneclient, and
+    \l network/blockingfortuneclient examples illustrate how to use
     QTcpSocket in applications.
 
     \sa QTcpServer, QUdpSocket, QFtp, QHttp

@@ -91,7 +91,7 @@ QSqlQueryModelPrivate::~QSqlQueryModelPrivate()
     option is to use QSqlTableModel, which provides a read-write
     model based on a single database table.
 
-    The \c{sql/querymodel} example illustrates how to use
+    The \l{sql/querymodel} example illustrates how to use
     QSqlQueryModel to display the result of a query. It also shows
     how to subclass QSqlQueryModel to customize the contents of the
     data before showing it to the user, and how to create a

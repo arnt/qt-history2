@@ -50,11 +50,7 @@
     \brief The Q3Workspace widget provides a workspace window that be
     used in an MDI application.
 
-    \module workspace
-
-    \ingroup application
-    \ingroup organizers
-    \mainclass
+    \compat
 
     Multiple Document Interface (MDI) applications are typically
     composed of a main window containing a menu bar, a toolbar, and

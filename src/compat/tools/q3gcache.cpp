@@ -17,10 +17,8 @@
 #include "qstring.h"
 
 /*!
-  \class Q3GCache qgcache.h
+  \class Q3GCache
   \reentrant
-  \ingroup shared
-  \ingroup collection
   \brief The Q3GCache class is an internal class for implementing Q3Cache
   template classes.
 
@@ -647,8 +645,6 @@ void Q3GCache::statistics() const
 /*!
   \class Q3GCacheIterator qgcache.h
   \reentrant
-  \ingroup shared
-  \ingroup collection
   \brief The Q3GCacheIterator class is an internal class for implementing Q3CacheIterator and
   QIntCacheIterator.
 

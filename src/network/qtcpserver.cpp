@@ -49,7 +49,7 @@
     use waitForNewConnection(), which blocks until either a
     connection is available or a timeout expires.
 
-    The network/fortuneserver example illustrates how to use
+    The \l network/fortuneserver example illustrates how to use
     QTcpServer in an application.
 
     \sa QTcpSocket

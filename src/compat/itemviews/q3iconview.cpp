@@ -468,9 +468,7 @@ void Q3IconViewItemLineEdit::focusOutEvent(QFocusEvent *e)
 
 /*!
     \class Q3IconDragItem qiconview.h
-
     \brief The Q3IconDragItem class encapsulates a drag item.
-
     \compat
 
     The Q3IconDrag class uses a list of Q3IconDragItems to support drag
@@ -554,7 +552,6 @@ bool Q3IconDragData::operator==(const Q3IconDragData &i) const
 
 /*!
     \class Q3IconDrag qiconview.h
-
     \brief The Q3IconDrag class supports drag and drop operations
     within a Q3IconView.
 

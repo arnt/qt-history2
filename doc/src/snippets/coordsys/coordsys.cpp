@@ -20,7 +20,7 @@ void MyWidget::paintEvent(QPaintEvent *)
 {
     QPainter painter(this);
     painter.setPen(Qt::darkGray);
-    painter.drawRect(1, 2, 5, 4);
+    painter.drawRect(1, 2, 4, 3);
     painter.setPen(Qt::lightGray);
     painter.drawLine(9, 2, 7, 7);
 }

@@ -29,8 +29,7 @@
     \class Q3ProgressBar q3progressbar.h
     \brief The Q3ProgressBar widget provides a horizontal progress bar.
 
-    \ingroup advanced
-    \mainclass
+    \compat
 
     A progress bar is used to give the user an indication of the
     progress of an operation and to reassure them that the application

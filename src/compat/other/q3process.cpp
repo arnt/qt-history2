@@ -31,9 +31,7 @@
     \brief The Q3Process class is used to start external programs and
     to communicate with them.
 
-    \ingroup io
-    \ingroup misc
-    \mainclass
+    \compat
 
     You can write to the started program's standard input, and can
     read the program's standard output and standard error. You can

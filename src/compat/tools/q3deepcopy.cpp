@@ -21,8 +21,7 @@
 
     \reentrant
 
-    \ingroup tools
-    \ingroup shared
+    \compat
 
     Normally, shared copies reference the same data to optimize memory
     use and for maximum speed. In the example below, \c s1, \c s2, \c

@@ -108,7 +108,7 @@ private:
     QString project;
     QString navigationLinks;
     const Tree *tre;
-    QMap<QString, const Node *> allClasses;
+    QMap<QString, const Node *> nonCompatClasses;
     QMap<QString, const Node *> mainClasses;
     QMap<QString, const Node *> compatClasses;
     QMap<QString, QMap<QString, const Node *> > funcIndex;

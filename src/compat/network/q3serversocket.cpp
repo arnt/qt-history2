@@ -30,8 +30,7 @@ public:
     \class Q3ServerSocket qserversocket.h
     \brief The Q3ServerSocket class provides a TCP-based server.
 
-    \ingroup io
-    \module network
+    \compat
 
     This class is a convenience class for accepting incoming TCP
     connections. You can specify the port or have Q3ServerSocket pick

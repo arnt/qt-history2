@@ -30,56 +30,68 @@
     to the appropriate slots, and call start(). From then on it will
     emit the timeout() signal at constant intervals.
 
-    Example for a five second (5000 millisecond) timer:
-    \code
-        QTimer *timer = new QTimer(this);
-        connect(timer, SIGNAL(timeout()), this, SLOT(timerDone()));
-        timer->start(5000);
+    Example for a five second, or 5000 millisecond, timer (from the
+    \l widgets/analogclock example):
+
+    \quotefromfile widgets/analogclock/analogclock.cpp
+    \skipto = new QTimer
+    \printline = new
+    \printline connect
+    \printline start(5000)
     \endcode
 
-   From then on the \c timerDone() slot is called every five seconds.
+    From then on, the \c update() slot is called every five seconds.
 
     You can set a timer to time out only once by calling
-    setSingleShot(true). You can also use the static singleShot()
-    function to call a slot after a specified interval:
+    setSingleShot(true). You can also use the static
+    QTimer::singleShot() function to call a slot after a specified
+    interval:
 
-    \code
-        QTimer::singleShot(5000, this, SLOT(timerDone()));
-    \endcode
+    \quotefromfile snippets/timers/timers.cpp
+    \skipto singleShot
+    \printline singleShot
 
     As a special case, a QTimer with a timeout of 0 will time out as
     soon as all the events in the window system's event queue have
     been processed. This can be used to do heavy work while providing
     a snappy user interface:
-    \code
-        QTimer *timer = new QTimer(this);
-        connect(timer, SIGNAL(timeout()), this, SLOT(processOneThing()));
-        timer->start();
-    \endcode
 
-    \c processOneThing() will be called repeatedly and should
-    return quickly (typically after processing one data item) so that
-    Qt can deliver events to widgets and stop the timer as soon as it
-    has done all its work. This is the traditional way of
-    implementing heavy work in GUI applications; multithreading is
-    now becoming available on more and more platforms, and we expect
-    that null events will eventually be replaced by threading.
+    \skipto ZERO-CASE
+    \skipline ZERO
+    \printline = new QTimer
+    \printline connect
+    \printline start
+
+    \c processOneThing() will from then on be called repeatedly. It
+    should be written in such a way that it always returns quickly
+    (typically after processing one data item) so that Qt can deliver
+    events to widgets and stop the timer as soon as it has done all
+    its work. This is the traditional way of implementing heavy work
+    in GUI applications; multithreading is now becoming available on
+    more and more platforms, and we expect that zero-milliseconds
+    \l{QTimer}s will gradually be replaced by \l{QThread}s.
 
     Note that QTimer's accuracy depends on the underlying operating
-    system and hardware. Most platforms support an accuracy of 20ms;
-    some provide more. If Qt is unable to deliver the requested
-    number of timer clicks, it will silently discard some.
+    system and hardware. Most platforms support an accuracy of 1
+    milliseconds, but Windows 95 and 98 support only 55. If Qt is
+    unable to deliver the requested number of timer clicks, it will
+    silently discard some.
 
     An alternative to using QTimer is to call QObject::startTimer()
     for your object and reimplement the QObject::timerEvent() event
-    handler in your class (which must inherit QObject).  The
-    disadvantage is that timerEvent() does not support such high-level
-    features as single-shot timers or signals.
+    handler in your class (which must inherit QObject). The
+    disadvantage is that timerEvent() does not support such
+    high-level features as single-shot timers or signals.
+
+    Another alternative to using QTimer is to use QBasicTimer. It is
+    typically less cumbersome than using QObject::startTimer()
+    directly. See \l{timers.html}{Timers} for an overview of all
+    three approaches.
 
     Some operating systems limit the number of timers that may be
     used; Qt tries to work around these limitations.
 
-    \sa QTimerEvent
+    \sa QBasicTimer, QTimerEvent, QObject::timerEvent()
 */
 
 

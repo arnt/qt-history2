@@ -132,7 +132,6 @@
     \printuntil SLOT
     \printline a.setValue
     \printline b.setValue
-    \endcode
 
     Calling \c{a.setValue(12)} makes \c{a} emit a
     \c{valueChanged(12)} signal, which \c{b} will receive in its

@@ -18,8 +18,7 @@
     \reentrant
     \brief The Q3PtrCollection class is the base class of most pointer-based Qt collections.
 
-    \ingroup collection
-    \ingroup tools
+    \compat
 
     The Q3PtrCollection class is an abstract base class for the Qt
     \link collection.html collection classes\endlink QDict, Q3PtrList,

@@ -21,7 +21,7 @@ using namespace Qt;
   \brief The Q3GridView class provides an abstract base for
   fixed-size grids.
 
-  \ingroup abstractwidgets
+  \compat
 
   A grid view consists of a number of abstract cells organized in
   rows and columns. The cells have a fixed size and are identified

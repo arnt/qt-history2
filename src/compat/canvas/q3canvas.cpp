@@ -306,6 +306,7 @@ private:
 
 /*!
     \class Q3CanvasItemList
+    \compat
     \brief The Q3CanvasItemList class is a list of Q3CanvasItems.
 
     Q3CanvasItemList is a Q3ValueList of pointers to \l{Q3CanvasItem}s.
@@ -420,6 +421,7 @@ static int scm(int a, int b)
 
 /*!
     \class Q3Canvas qcanvas.h
+    \compat
     \brief The Q3Canvas class provides a 2D area that can contain Q3CanvasItem objects.
 
     The Q3Canvas class manages its 2D graphic area and all the canvas
@@ -1823,6 +1825,7 @@ class Q3CanvasItemExtra {
 
 /*!
     \class Q3CanvasItem qcanvas.h
+    \compat
     \brief The Q3CanvasItem class provides an abstract graphic object on a Q3Canvas.
 
     A variety of Q3CanvasItem subclasses provide immediately usable
@@ -2449,6 +2452,7 @@ static bool collision_double_dispatch(const Q3CanvasSprite* s1,
 
 /*!
     \class Q3CanvasSprite qcanvas.h
+    \compat
     \brief The Q3CanvasSprite class provides an animated canvas item on a Q3Canvas.
 
     A canvas sprite is an object which can contain any number of images
@@ -2759,6 +2763,7 @@ QRect Q3CanvasItem::boundingRectAdvanced() const
 
 /*!
     \class Q3CanvasPixmap qcanvas.h
+    \compat
     \brief The Q3CanvasPixmap class provides pixmaps for Q3CanvasSprites.
 
     If you want to show a single pixmap on a Q3Canvas use a
@@ -2882,6 +2887,7 @@ Q3CanvasPixmap::~Q3CanvasPixmap()
 
 /*!
     \class Q3CanvasPixmapArray qcanvas.h
+    \compat
     \brief The Q3CanvasPixmapArray class provides an array of Q3CanvasPixmaps.
 
     This class is used by Q3CanvasSprite to hold an array of pixmaps.
@@ -3396,6 +3402,7 @@ void Q3CanvasSprite::draw(QPainter& painter)
 
 /*!
     \class Q3CanvasView qcanvas.h
+    \compat
     \brief The Q3CanvasView class provides an on-screen view of a Q3Canvas.
 
     A Q3CanvasView is widget which provides a view of a Q3Canvas.
@@ -3654,6 +3661,7 @@ QSize Q3CanvasView::sizeHint() const
 
 /*!
     \class Q3CanvasPolygonalItem qcanvas.h
+    \compat
     \brief The Q3CanvasPolygonalItem class provides a polygonal canvas item
     on a Q3Canvas.
 
@@ -4043,6 +4051,7 @@ void Q3CanvasPolygonalItem::setBrush(QBrush b)
 
 /*!
     \class Q3CanvasPolygon qcanvas.h
+    \compat
     \brief The Q3CanvasPolygon class provides a polygon on a Q3Canvas.
 
     Paints a polygon with a QBrush. The polygon's points can be set in
@@ -4129,6 +4138,7 @@ void Q3CanvasPolygon::moveBy(double dx, double dy)
 
 /*!
     \class Q3CanvasSpline qcanvas.h
+    \compat
     \brief The Q3CanvasSpline class provides multi-bezier splines on a Q3Canvas.
 
     A Q3CanvasSpline is a sequence of 4-point bezier curves joined
@@ -4279,6 +4289,7 @@ QPointArray Q3CanvasPolygon::areaPoints() const
 
 /*!
     \class Q3CanvasLine qcanvas.h
+    \compat
     \brief The Q3CanvasLine class provides a line on a Q3Canvas.
 
     The line inherits functionality from Q3CanvasPolygonalItem, for
@@ -4416,6 +4427,7 @@ void Q3CanvasLine::moveBy(double dx, double dy)
 
 /*!
     \class Q3CanvasRectangle qcanvas.h
+    \compat
     \brief The Q3CanvasRectangle class provides a rectangle on a Q3Canvas.
 
     This item paints a single rectangle which may have any pen() and
@@ -4547,6 +4559,7 @@ void Q3CanvasRectangle::drawShape(QPainter & p)
 
 /*!
     \class Q3CanvasEllipse qcanvas.h
+    \compat
     \brief The Q3CanvasEllipse class provides an ellipse or ellipse segment on a Q3Canvas.
 
     A canvas item that paints an ellipse or ellipse segment with a QBrush.
@@ -4727,6 +4740,7 @@ void Q3CanvasEllipse::drawShape(QPainter & p)
 
 /*!
     \class Q3CanvasText
+    \compat
     \brief The Q3CanvasText class provides a text object on a Q3Canvas.
 
     A canvas text item has text with font, color and alignment
