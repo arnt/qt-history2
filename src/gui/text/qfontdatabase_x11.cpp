@@ -849,22 +849,20 @@ static void loadXft()
 	family->rawName = rawName;
 	family->hasXft = TRUE;
 
-	if (! family->xftScriptCheck) {
-	    FcCharSet *charset = 0;
-	    FcResult res = FcPatternGetCharSet(fonts->fonts[i], FC_CHARSET, 0, &charset);
-	    if (res == FcResultMatch) {
-		for (int i = 0; i < QFont::LastPrivateScript; ++i) {
-		    QChar ch = sampleCharacter((QFont::Script) i);
+	FcCharSet *charset = 0;
+	FcResult res = FcPatternGetCharSet(fonts->fonts[i], FC_CHARSET, 0, &charset);
+	if (res == FcResultMatch) {
+	    for (int i = 0; i < QFont::LastPrivateScript; ++i) {
+		QChar ch = sampleCharacter((QFont::Script) i);
 
-		    if (ch.unicode() != 0 &&
-			FcCharSetHasChar(charset, ch.unicode())) {
-			family->scripts[i] = QtFontFamily::Supported;
-		    } else {
-			family->scripts[i] |= QtFontFamily::UnSupported_Xft;
-		    }
+		if (ch.unicode() != 0 &&
+		    FcCharSetHasChar(charset, ch.unicode())) {
+		    family->scripts[i] = QtFontFamily::Supported;
+		} else {
+		    family->scripts[i] |= QtFontFamily::UnSupported_Xft;
 		}
-		family->xftScriptCheck = TRUE;
 	    }
+	    family->xftScriptCheck = TRUE;
 	}
 
 	QByteArray file(file_value);
@@ -1092,7 +1090,7 @@ static void initializeDb()
 #define MAXFONTSIZE_XLFD 128
 #ifndef QT_NO_XFTFREETYPE
 static double addPatternProps(XftPattern *pattern, const QtFontStyle::Key &key, bool fakeOblique,
-			      const QFontPrivate *fp, const QFontDef &request)
+			      const QFontPrivate *fp, const QFontDef &request, QFont::Script script)
 {
     int weight_value = XFT_WEIGHT_BLACK;
     if ( key.weight == 0 )
@@ -1153,6 +1151,14 @@ static double addPatternProps(XftPattern *pattern, const QtFontStyle::Key &key, 
 			  !(request.styleStrategy & QFont::NoAntialias));
     }
 
+    FcCharSet *cs = FcCharSetCreate();
+    QChar sample = sampleCharacter(script);
+    FcCharSetAddChar(cs, sample.unicode());
+    if (script == QFont::Latin)
+	// add Euro character
+	FcCharSetAddChar(cs, 0x20ac);
+    FcPatternAddCharSet(pattern, FC_CHARSET, cs);
+
     return scale;
 }
 #endif // QT_NO_XFTFREETYPE
@@ -1205,7 +1211,7 @@ QFontEngine *loadEngine( QFont::Script script,
 			     ( encoding->pitch == 'm' ? XFT_MONO : XFT_PROPORTIONAL ) );
 	XftPatternAddInteger( pattern, XFT_SPACING, pitch_value );
 
-	double scale = addPatternProps(pattern, style->key, style->fakeOblique, fp, request);
+	double scale = addPatternProps(pattern, style->key, style->fakeOblique, fp, request, script);
 
 	XftResult res;
 	XftPattern *result =
@@ -1364,7 +1370,7 @@ static QFontEngine *loadFontConfigFont(const QFontPrivate *fp, const QFontDef &r
     key.weight = request.weight;
     key.stretch = request.stretch;
 
-    double scale = addPatternProps(pattern, key, false, fp, request);
+    double scale = addPatternProps(pattern, key, false, fp, request, script);
 #ifdef FONT_MATCH_DEBUG
     qDebug("original pattern contains:");
     FcPatternPrint(pattern);
