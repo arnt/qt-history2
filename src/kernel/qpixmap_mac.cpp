@@ -207,7 +207,7 @@ QImage QPixmap::convertToImage() const
     }
 #endif
 
-    QImage * image=new QImage( w, h, d, ncols, QImage::LittleEndian );
+    QImage * image=new QImage( w, h, d, ncols, QImage::BigEndian );
 
     //first we copy the clut
     //handle bitmap case, what about other indexed depths?
@@ -601,20 +601,20 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 #undef IWX
 #define IWX(b)  if ( trigx < maxws && trigy < maxhs ) {                       \
 		    if ( *(sptr+sbpl*(trigy>>16)+(trigx>>19)) &               \
-			 (1 << ((trigx>>16)&7)) )                             \
+			 (1 << (7-((trigx>>16)&7))) )                             \
 			*p |= b;                                              \
 		}                                                             \
 		trigx += m11;                                                 \
 		trigy += m12;
 		// END OF MACRO
-		IWX(1)
-		IWX(2)
-		IWX(4)
-		IWX(8)
-		IWX(16)
-		IWX(32)
-		IWX(64)
 		IWX(128)
+		IWX(64)
+		IWX(32)
+		IWX(16)
+		IWX(8)
+		IWX(4)
+		IWX(2)
+		IWX(1)
 		p++;
 	    }
 	}
