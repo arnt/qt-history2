@@ -576,6 +576,8 @@ QFontMetrics QPainter::fontMetrics() const
 //         return QFontMetrics(cfont);
 
 //     return QFontMetrics(this);
+    if (d->engine)
+        d->engine->updateState(d->state);
     return QFontMetrics(d->state->pfont ? *d->state->pfont : d->state->font);
 }
 
@@ -596,6 +598,8 @@ QFontInfo QPainter::fontInfo() const
 //         return QFontInfo(cfont);
 
 //     return QFontInfo(this);
+    if (d->engine)
+        d->engine->updateState(d->state);
     return QFontInfo(d->state->pfont ? *d->state->pfont : d->state->font);
 }
 
@@ -1519,6 +1523,8 @@ void QPainter::setFont(const QFont &font)
 
 const QFont &QPainter::font() const
 {
+    if (d->engine)
+        d->engine->updateState(d->state);
     return d->state->pfont ? *d->state->pfont : d->state->font;
 }
 /*! \fn void QPainter::drawRoundRect(int x, int y, int w, int h, int xRnd, int yRnd)
