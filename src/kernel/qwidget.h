@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#20 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#21 $
 **
 ** Definition of QWidget class
 **
@@ -66,8 +66,6 @@ public:
 
   // Widget attribute functions
 
-    bool    setMouseMoveEvents( bool );
-
     QColor  backgroundColor() const;
     QColor  foregroundColor() const;
     virtual void setBackgroundColor( const QColor & );
@@ -79,6 +77,8 @@ public:
     QCursor cursor() const;			// get/set cursor
     void    setCursor( const QCursor & );
 
+    bool    setMouseTracking( bool enable );
+
   // Keyboard focus functions
 
     bool    hasFocus() const { return testFlag(WState_FocusA); }
@@ -87,10 +87,11 @@ public:
 
   // Grab functions
 
+    void    grabMouse();
+    void    grabMouse( const QCursor & );
+    void    releaseMouse();
     void    grabKeyboard();
     void    releaseKeyboard();
-    void    grabMouse( bool exclusive=TRUE );
-    void    releaseMouse();
 
   // Update/refresh functions
 
