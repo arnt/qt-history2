@@ -137,22 +137,24 @@
   the the contains() function is what you are looking for. In addition count()
   tells you how many keys there are currently in the map.
 
-  Another method for traversing a map is to use the functions begin() and end().
-  With a simple for loop as shown in the example you can iterate over the complete map.
-  It is save to have multiple iterators at the same time. If some member of the map is
-  removed then only iterators pointing to the removed member become invalid. Inserting in
-  the map does not invalidate any iterator.
+  Another method for traversing a map is to use the functions begin()
+  and end().  With a simple for loop as shown in the example you can
+  iterate over the complete map.  It is save to have multiple
+  iterators at the same time. If some member of the map is removed
+  then only iterators pointing to the removed member become
+  invalid. Inserting in the map does not invalidate any iterator.
 
-  Since QMap is value based there is no need to care about deleting elements in the
-  list. The list holds its own copies and will free them if the corresponding member or
-  the list itself is deleted. You can force the list to free all of its item with clear().
+  Since QMap is value based there is no need to care about deleting
+  elements in the list. The list holds its own copies and will free
+  them if the corresponding member or the list itself is deleted. You
+  can force the list to free all of its item with clear().
 
-  QMap is implicitly shared. This means you can just make copies of the
-  map in time O(1). If multiple QMap instances share the same data and
-  one is modifying the map's data then this modifying
-  instance makes a copy and modifies its private copy - thus it does not
-  affect other instances.  From a developer's point of view you can
-  think that a QMap and a copy of this map have nothing to do with each
+  QMap is implicitly shared. This means you can just make copies of
+  the map in time O(1). If multiple QMap instances share the same data
+  and one is modifying the map's data then this modifying instance
+  makes a copy and modifies its private copy - thus it does not affect
+  other instances.  From a developer's point of view you can think
+  that a QMap and a copy of this map have nothing to do with each
   other.
 
   There are two ways of inserting new elements in a list. One uses the
@@ -163,10 +165,11 @@
 	map["Weis"] = "Torben";
   \endcode;
 
-  Items can be removed from the map in two ways. The first is to pass an iterator to
-  the remove(). The other possibility is to pass a key value to remove() which will
-  delete the entry with the requested key. In addition you can clear the entire
-  map using the clear() method.
+  Items can be removed from the map in two ways. The first is to pass
+  an iterator to the remove(). The other possibility is to pass a key
+  value to remove() which will delete the entry with the requested
+  key. In addition you can clear the entire map using the clear()
+  method.
 
   \sa QMapIterator
 */
@@ -181,27 +184,29 @@
   \fn QMap::QMap( const QMap<Key,T>& m )
   Constructs a copy of \e m.
 
-  This operation costs O(1) time since QMap is implicit shared.
-  The first instance applying modifications to a shared list will create
-  a copy which takes in turn O(n) time. However returning a QMap from
-  a function is very fast.
+  This operation costs O(1) time since QMap is implicit shared.  The
+  first instance applying modifications to a shared list will create a
+  copy which takes in turn O(n) time. However returning a QMap from a
+  function is very fast.
 */
 
 /*!
   \fn QMap::~QMap()
-  Destroys the map. References to the values in the map and all iterators
-  of this map become invalidated. Since QMap is highly tuned for performance
-  you won't see warnings if you use invalid iterators,
-  because it is impossible for
-  an iterator to check whether it is valid or not.
+
+  Destroys the map. References to the values in the map and all
+  iterators of this map become invalidated. Since QMap is highly tuned
+  for performance you won't see warnings if you use invalid iterators,
+  because it is impossible for an iterator to check whether it is
+  valid or not.
 */
 
 /*!
   \fn QMap<Key,T>& QMap::operator= ( const QMap<Key,T>& m )
   Assigns \e m to this map and returns a reference to this map.
 
-  All iterators of the current map become invalidated by this operation.
-  The cost of such an assignment is O(1) since QMap is implicitly shared.
+  All iterators of the current map become invalidated by this
+  operation.  The cost of such an assignment is O(1) since QMap is
+  implicitly shared.
 */
 
 /*!
@@ -216,7 +221,8 @@
   key is present then en empty item is inserted with this key
   and a reference to the item is returned.
 
-  You can use this operator in two directions: For reading and for writing:
+  You can use this operator in two directions: For reading and for
+  writing:
 
   \code
   	QMap<QString,QString> map;
@@ -334,10 +340,11 @@
 
 /*!
   \fn void QMap::detach()
-  If the map does not share its data with another QMap instance, then nothing
-  happens, otherwise the function creates a new copy of this data and detaches
-  from the shared one. This function is called whenever the map is modified.
-  The implicit sharing mechanism is implemented this way.
+  If the map does not share its data with another QMap instance, then
+  nothing happens, otherwise the function creates a new copy of this
+  data and detaches from the shared one. This function is called
+  whenever the map is modified.  The implicit sharing mechanism is
+  implemented this way.
 */
 
 /*!
@@ -457,68 +464,83 @@
 
 /*!
   \fn QMapIterator<K,T>& QMapIterator::operator++()
-  Prefix ++ makes the succeeding item current and returns
-  an iterator pointing to the new current item.
-  The iterator can not check whether it reached the end of the map. Incrementing
-  the iterator as returned by end() causes undefined results.
+
+  Prefix ++ makes the succeeding item current and returns an iterator
+  pointing to the new current item.  The iterator can not check
+  whether it reached the end of the map. Incrementing the iterator as
+  returned by end() causes undefined results.
 */
 
 /*!
   \fn QMapIterator<K,T> QMapIterator::operator++(int)
-  Postfix ++ makes the succeeding item current and returns
-  an iterator pointing to the new current item.
-  The iterator can not check whether it reached the end of the map. Incrementing
-  the iterator as returned by end() causes undefined results.
+
+  Postfix ++ makes the succeeding item current and returns an iterator
+  pointing to the new current item.  The iterator can not check
+  whether it reached the end of the map. Incrementing the iterator as
+  returned by end() causes undefined results.
 */
 
 /*!
   \fn QMapIterator<K,T>& QMapIterator::operator--()
-  Prefix -- makes the previous item current and returns
-  an iterator pointing to the new current item.
-  The iterator can not check whether it reached the beginning of the map. Decrementing
-  the iterator as returned by begin() causes undefined results.
+
+  Prefix -- makes the previous item current and returns an iterator
+  pointing to the new current item.  The iterator can not check
+  whether it reached the beginning of the map. Decrementing the
+  iterator as returned by begin() causes undefined results.
 */
 
 /*!
   \fn QMapIterator<K,T> QMapIterator::operator--(int)
-  Postfix -- makes the previoius item current and returns
-  an iterator pointing to the new current item.
-  The iterator can not check whether it reached the beginning of the map. Decrementing
-  the iterator as returned by begin() causes undefined results.
+
+  Postfix -- makes the previoius item current and returns an iterator
+  pointing to the new current item.  The iterator can not check
+  whether it reached the beginning of the map. Decrementing the
+  iterator as returned by begin() causes undefined results.
 */
 
 /*!
   \fn T& QMapIterator::operator*()
-  Asterix operator. Returns a reference to the current item. The same as data().
+
+  Asterix operator. Returns a reference to the current item. The same
+  as data().
 */
 
 /*!
   \fn const T& QMapIterator::operator*() const
-  Asterix operator. Returns a const reference to the current item. The same as data().
+
+  Asterix operator. Returns a const reference to the current item. The
+  same as data().
 */
 
 /*!
   \fn bool QMapIterator::operator==( const QMapIterator<K,T>& it ) const
-  Compares both iterators and returns TRUE if they point to the same item.
+
+  Compares both iterators and returns TRUE if they point to the same
+  item.
 */
 
 /*!
   \fn bool QMapIterator::operator!=( const QMapIterator<K,T>& it ) const
-  Compares both iterators and returns TRUE if they point to different items.
+
+  Compares both iterators and returns TRUE if they point to different
+  items.
 */
 
 /*!
   \fn T& QMapIterator::data()
+
   Returns a reference to the current item.
 */
 
 /*!
   \fn const T& QMapIterator::data() const
+
   Returns a const reference to the data of the current item.
 */
 
 /*!
   \fn const K& QMapIterator::key() const
+
   Returns a const reference to the data of the current key.
 */
 
@@ -533,9 +555,9 @@
   \ingroup qtl
   \ingroup tools
 
-  In contrast to QMapIterator this class is used to iterate over a const
-  map. It does not allow to modify the values of the map since this would
-  break the const semantics.
+  In contrast to QMapIterator this class is used to iterate over a
+  const map. It does not allow to modify the values of the map since
+  this would break the const semantics.
 
   For more informations on QMap iterators see QMapIterator.
 
@@ -564,49 +586,59 @@
 
 /*!
   \fn QMapConstIterator<K,T>& QMapConstIterator::operator++()
-  Prefix ++ makes the succeeding item current and returns
-  an iterator pointing to the new current item.
-  The iterator can not check whether it reached the end of the map. Incrementing
-  the iterator as returned by end() causes undefined results.
+
+  Prefix ++ makes the succeeding item current and returns an iterator
+  pointing to the new current item.  The iterator can not check
+  whether it reached the end of the map. Incrementing the iterator as
+  returned by end() causes undefined results.
 */
 
 /*!
   \fn QMapConstIterator<K,T> QMapConstIterator::operator++(int)
-  Postfix ++ makes the succeeding item current and returns
-  an iterator pointing to the new current item.
-  The iterator can not check whether it reached the end of the map. Incrementing
-  the iterator as returned by end() causes undefined results.
+
+  Postfix ++ makes the succeeding item current and returns an iterator
+  pointing to the new current item.  The iterator can not check
+  whether it reached the end of the map. Incrementing the iterator as
+  returned by end() causes undefined results.
 */
 
 /*!
   \fn QMapConstIterator<K,T>& QMapConstIterator::operator--()
-  Prefix -- makes the previous item current and returns
-  an iterator pointing to the new current item.
-  The iterator can not check whether it reached the beginning of the map. Decrementing
-  the iterator as returned by begin() causes undefined results.
+
+  Prefix -- makes the previous item current and returns an iterator
+  pointing to the new current item.  The iterator can not check
+  whether it reached the beginning of the map. Decrementing the
+  iterator as returned by begin() causes undefined results.
 */
 
 /*!
   \fn QMapConstIterator<K,T> QMapConstIterator::operator--(int)
-  Postfix -- makes the previoius item current and returns
-  an iterator pointing to the new current item.
-  The iterator can not check whether it reached the beginning of the map. Decrementing
-  the iterator as returned by begin() causes undefined results.
+
+  Postfix -- makes the previoius item current and returns an iterator
+  pointing to the new current item.  The iterator can not check
+  whether it reached the beginning of the map. Decrementing the
+  iterator as returned by begin() causes undefined results.
 */
 
 /*!
   \fn const T& QMapConstIterator::operator*() const
-  Asterix operator. Returns a const reference to the current item. The same as data().
+
+  Asterix operator. Returns a const reference to the current item. The
+  same as data().
 */
 
 /*!
   \fn bool QMapConstIterator::operator==( const QMapConstIterator<K,T>& it ) const
-  Compares both iterators and returns TRUE if they point to the same item.
+
+  Compares both iterators and returns TRUE if they point to the same
+  item.
 */
 
 /*!
   \fn bool QMapConstIterator::operator!=( const QMapConstIterator<K,T>& it ) const
-  Compares both iterators and returns TRUE if they point to different items.
+
+  Compares both iterators and returns TRUE if they point to different
+  items.
 */
 
 /*!
