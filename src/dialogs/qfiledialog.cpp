@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#378 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#379 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1758,6 +1758,7 @@ void QFileDialog::init()
     connect( cancelB, SIGNAL(clicked()), this, SLOT(cancelClicked()) );
 
     d->paths = new QComboBox( TRUE, this, "directory history/editor" );
+    d->paths->setEnableMultipleInsertion( FALSE );
     const QFileInfoList * rootDrives = QDir::drives();
     QFileInfoListIterator it( *rootDrives );
     QFileInfo *fi;
@@ -1775,6 +1776,7 @@ void QFileDialog::init()
 
     d->geometryDirty = TRUE;
     d->types = new QComboBox( TRUE, this, "file types" );
+    d->types->setEnableMultipleInsertion( FALSE );
     connect( d->types, SIGNAL(activated(const QString&)),
 	     this, SLOT(setFilter(const QString&)) );
 

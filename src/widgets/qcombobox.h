@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.h#71 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.h#72 $
 **
 ** Definition of QComboBox class
 **
@@ -103,6 +103,9 @@ public:
 
     bool	eventFilter( QObject *object, QEvent *event );
 
+    void setEnableMultipleInsertion( bool enable );
+    bool enableMultipleInsertion() const;
+    
 public slots:
     void	clearValidator();
     void	clearEdit();

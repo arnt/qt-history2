@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#231 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#232 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -187,7 +187,7 @@
 
 struct QComboData
 {
-    QComboData(): usingLBox( FALSE ), pop( 0 ), lBox( 0 ) {}
+    QComboData(): usingLBox( FALSE ), pop( 0 ), lBox( 0 ) { multipleInsertion = TRUE; }
     ~QComboData()
     {
 	delete pop;
@@ -217,7 +217,8 @@ struct QComboData
     bool	useCompletion;
     bool	completeNow;
     int		completeAt;
-
+    bool multipleInsertion;
+    
     QLineEdit * ed;  // /bin/ed rules!
 private:
     bool	usingLBox;
@@ -399,6 +400,38 @@ QComboBox::~QComboBox()
 }
 
 
+/*!
+  If the combobox is editable and the user enters some text in
+  the lineedit of the combox and presses return (and the insertionPolicy()
+  is different from \c NoInsertion), the entered text is inserted into the
+  list of this combobox. Now, if you set \a enable to TRUE here,
+  this new text is always inserted, else it's only inserted if it
+  doesn't already exist in the list. If you set \a enable to FALSE
+  and the text exists already in the list, the item which contains
+  the same text like which should be inserted, this item
+  gets the new current item.
+  
+  This setting only applies when the user want's to insert a text
+  with pressing the return key. It does \em not affect methods like
+  insertItem() and similar.
+*/
+
+void QComboBox::setEnableMultipleInsertion( bool enable )
+{
+   d->multipleInsertion = enable; 
+}
+
+/*!
+  Returns TRUE if the same text can be inserted multiple times
+  into the list of the combobox, else FALSE.
+  
+  \sa setEnableMultipleInsertion();
+*/
+
+bool QComboBox::enableMultipleInsertion() const
+{
+    return d->multipleInsertion;
+}
 
 /* #### this may have to move to styleChange
 void QComboBox::setStyle( GUIStyle s )
@@ -1674,7 +1707,20 @@ void QComboBox::returnPressed()
     }
     if ( count() == d->maxCount )
 	removeItem( count() - 1 );
-    insertItem( s, c );
+
+    bool doInsert = TRUE;
+    if ( !d->multipleInsertion ) {
+	for ( int i = 0; i < count(); ++i ) {
+	    if ( s == text( i ) ) {
+		doInsert = FALSE;
+		c = i;
+		break;
+	    }
+	}
+    }
+    
+    if ( doInsert )
+	insertItem( s, c );
     setCurrentItem( c );
     emit activated( c );
     emit activated( s );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.h#76 $
+** $Id: //depot/qt/main/src/widgets/qiconview.h#77 $
 **
 ** Definition of QIconView widget class
 **
@@ -435,7 +435,8 @@ protected:
     virtual void keyPressEvent( QKeyEvent *e );
     virtual void focusInEvent( QFocusEvent *e );
     virtual void focusOutEvent( QFocusEvent *e );
-
+    virtual void enterEvent( QEvent *e );
+    
     virtual void drawRubber( QPainter *p );
     virtual QDragObject *dragObject();
     virtual void startDrag();
