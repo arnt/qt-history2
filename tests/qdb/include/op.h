@@ -712,17 +712,18 @@ public:
 
 
 /* Push field description information of the field identified by
-'name' in the file identified by 'id onto the top of the stack.  The
-field must exist in the file.
+'nameOrNumber' in the file identified by 'id onto the top of the
+stack.  'nameOrNumber' can be the name of the field or the number of
+the field within the file.  The field must exist in the file.
 */
 
 class PushFieldDesc : public Label
 {
 public:
     PushFieldDesc( const QVariant& id,
-		   const QVariant& name,
+		   const QVariant& nameOrNumber,
 		   const QString& label = QString::null )
-	: Label( id, name, label ) {}
+	: Label( id, nameOrNumber, label ) {}
     QString name() const { return "PushFieldDesc"; }
     int exec( qdb::Environment* env )
     {
@@ -732,9 +733,16 @@ public:
 	    return 0;
 	}
 	QVariant v;
-	if ( !drv->fieldDescription( p2.toString(), v ) ) {
-	    env->setLastError("PushFieldDesc: unable to get field description!");
-	    return FALSE;
+	if ( p2.type() == QVariant::String || QVariant::CString ) {
+	    if ( !drv->fieldDescription( p2.toString(), v ) ) {
+		env->setLastError("PushFieldDesc: unable to get field description!");
+		return FALSE;
+	    }
+	} else {
+	    if ( !drv->fieldDescription( p2.toInt(), v ) ) {
+		env->setLastError("PushFieldDesc: unable to get field description!");
+		return FALSE;
+	    }
 	}
 	env->stack()->push( v );
 	return TRUE;
