@@ -40,6 +40,10 @@ struct TimerInfo {                              // internal timer info
 typedef QList<TimerInfo*>  TimerVec;            // vector of TimerInfo structs
 typedef QHash<int,TimerInfo*> TimerDict;        // fast dict of timers
 
+#ifndef DWORD_PTR
+#define DWORD_PTR DWORD
+#endif
+
 typedef MMRESULT(WINAPI *ptimeSetEvent)(UINT, UINT, LPTIMECALLBACK, DWORD_PTR, UINT);
 typedef MMRESULT(WINAPI *ptimeKillEvent)(UINT);
 
