@@ -25,6 +25,7 @@ embedded {
 		    embedded/qwsdisplay_qws.h \
 		    embedded/qwsevent_qws.h \
 		    embedded/qwsmanager_qws.h \
+		    embedded/qwsmanager_p.h \
 		    embedded/qwsproperty_qws.h \
 		    embedded/qwsregionmanager_qws.h \
 		    embedded/qwssocket_qws.h \

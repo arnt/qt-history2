@@ -677,7 +677,6 @@ QImage::QImage(uchar* data, int w, int h, int depth, int bpl, const QRgb* colort
         for (int i = 0; i < numColors; ++i)
             d->colortable[i] = colortable[i];
     }
-    d->bitordr = bitOrder;
 }
 #endif // Q_WS_QWS
 
@@ -772,7 +771,7 @@ QImage QImage::copy(const QRect& r) const
 #ifdef Q_WS_QWS
         // Qt/Embedded can create images with non-default bpl
         // make sure we don't crash.
-        if (image.d->numBytes != d->numBytes) {
+        if (image.d->nbytes != d->nbytes) {
             int bpl = image.bytesPerLine();
             for (int i = 0; i < height(); i++)
                 memcpy(image.scanLine(i), scanLine(i), bpl);

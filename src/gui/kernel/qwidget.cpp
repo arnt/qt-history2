@@ -927,7 +927,6 @@ void QWidgetPrivate::createTLExtra()
 #if defined(Q_WS_QWS)
         x->inPaintTransaction = false;
 #if !defined(QT_NO_QWS_MANAGER)
-        x->decor_allocated_region = QRegion();
         x->qwsManager = 0;
 #endif
 #endif
@@ -1043,7 +1042,7 @@ bool QWidgetPrivate::isBackgroundInherited() const
  */
 void QWidgetPrivate::updateInheritedBackground()
 {
-#ifndef Q_WS_MAC
+#if !defined(Q_WS_MAC) && !defined(Q_WS_QWS)
     Q_Q(QWidget);
     if (!q->isVisible() || !isBackgroundInherited())
         return;
@@ -1067,7 +1066,7 @@ void QWidgetPrivate::updateInheritedBackground()
  */
 void QWidgetPrivate::updatePropagatedBackground(const QRegion *reg)
 {
-#ifndef Q_WS_MAC
+#if !defined(Q_WS_MAC) && !defined(Q_WS_QWS)
     for (int i = 0; i < children.size(); ++i) {
         if (QWidget *w = qobject_cast<QWidget*>(children.at(i))) {
             if (reg && !reg->boundingRect().intersects(w->geometry()))

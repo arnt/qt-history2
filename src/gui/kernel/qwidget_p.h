@@ -96,7 +96,7 @@ struct QTLWExtra {
     uint resizer : 4;
 #endif
 #if defined(Q_WS_QWS) && !defined (QT_NO_QWS_MANAGER)
-    QRegion decor_allocated_region; // decoration allocated region
+//    QRegion decor_allocated_region; // decoration allocated region
     QWSManager *qwsManager;
 #endif
 #if defined Q_WS_QWS
@@ -245,8 +245,6 @@ public:
 #ifndef QT_NO_CURSOR
     void updateCursor(const QRegion &r) const;
 #endif
-    // used to accumulate dirty region when children moved/resized.
-    bool isSettingGeometry;
     friend class QWSManager;
     friend class QWSManagerPrivate;
     friend class QDecoration;

@@ -37,49 +37,12 @@
 
 #include "qlayout.h"
 
+#include "qwsmanager_p.h"
+
 #define d d_func()
 #define q q_func()
 
 
-class QWSManagerPrivate : public QObjectPrivate
-{
-    Q_DECLARE_PUBLIC(QWSManager)
-public:
-    QWSManagerPrivate();
-
-    int activeRegion;
-    QWidget *managed;
-    QMenu *popup;
-
-    enum MenuAction {
-        NormalizeAction,
-        TitleAction,
-        BottomRightAction,
-        MinimizeAction,
-        MaximizeAction,
-        CloseAction,
-        LastMenuAction
-    };
-    QAction *menuActions[LastMenuAction];
-
-    static QWidget *active;
-    static QPoint mousePos;
-
-    // Region caching to avoid getting a regiontype's
-    // QRegion for each mouse move event
-    int previousRegionType;
-    bool previousRegionRepainted; // Hover/Press handled
-    struct RegionCaching {
-        int regionType;
-        QRegion region;
-        Qt::WFlags windowFlags;
-        QRect windowGeometry;
-    } cached_region;
-
-    bool newCachedRegion(const QPoint &pos);
-    int cachedRegionAt()
-    { return cached_region.regionType; }
-};
 
 QWidget *QWSManagerPrivate::active = 0;
 QPoint QWSManagerPrivate::mousePos;
@@ -379,7 +342,7 @@ void QWSManager::paintEvent(QPaintEvent *)
     repaintRegion(QDecoration::All, QDecoration::Normal);
 }
 
-bool QWSManager::repaintRegion(int decorationRegion, QDecoration::DecorationState state)
+bool QWSManagerPrivate:: doPaint(int decorationRegion, QDecoration::DecorationState state )
 {
     bool result = false;
     if (!d->managed->isVisible())
@@ -387,7 +350,7 @@ bool QWSManager::repaintRegion(int decorationRegion, QDecoration::DecorationStat
     QDecoration &dec = QApplication::qwsDecoration();
     if (d->managed->testAttribute(Qt::WA_WState_InPaintEvent))
         qWarning("QWSManager::paintEvent() recursive paint event detected");
-    d->managed->setAttribute(Qt::WA_WState_InPaintEvent);
+//    d->managed->setAttribute(Qt::WA_WState_InPaintEvent);
 
     QTLWExtra *topextra = d->managed->d->extra->topextra;
     QPixmap *buf = &topextra->backingStore;
@@ -404,8 +367,20 @@ bool QWSManager::repaintRegion(int decorationRegion, QDecoration::DecorationStat
     result = dec.paint(&painter, d->managed, decorationRegion, state);
     painter.end();
 
-    d->managed->d->bltToScreen(dec.region(d->managed, d->managed->geometry()) & topextra->decor_allocated_region);
     d->managed->setAttribute(Qt::WA_WState_InPaintEvent, false);
+
+}
+
+bool QWSManager::repaintRegion(int decorationRegion, QDecoration::DecorationState state)
+{
+    bool result = d->doPaint(decorationRegion, state);
+
+    QTLWExtra *topextra = d->managed->d->extra->topextra;
+    QDecoration &dec = QApplication::qwsDecoration();
+    //### copies too much, but we don't know here what has actually been changed
+    if (result) {
+        d->managed->d->bltToScreen(dec.region(d->managed, d->managed->geometry()));
+    }
     return result;
 }
 

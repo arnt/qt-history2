@@ -47,21 +47,6 @@ static QPaintEngine::PaintEngineFeatures qt_decide_paintengine_features()
     return commonFeatures;
 }
 
-void qwsUpdateActivePainters()
-{
-    /* ##############
-    if (widgetPainterList) {
-        for (int i = 0; i < widgetPainterList->size(); ++i) {
-            QPainter *ptr = widgetPainterList->at(i);
-            ptr->save();
-            delete ptr->gfx;
-            ptr->gfx = ptr->device()->graphicsContext();
-            ptr->setf(QPainter::VolatileDC);
-            ptr->restore();
-        }
-    }
-    */
-}
 
 void qt_draw_background(QPaintEngine * /*pe*/, int/* x*/, int /*y*/, int /*w*/,  int /*h*/)
 {
@@ -79,7 +64,7 @@ void qt_draw_background(QPaintEngine * /*pe*/, int/* x*/, int /*y*/, int /*w*/, 
 QWSPaintEngine::QWSPaintEngine(QPaintEnginePrivate &dptr)
     : QPaintEngine(dptr, qt_decide_paintengine_features())
 {
-    qWarning("QWSPaintEngine: do not use this class");
+//    qWarning("QWSPaintEngine: do not use this class");
 }
 
 QWSPaintEngine::QWSPaintEngine()
@@ -110,6 +95,8 @@ bool QWSPaintEngine::begin(QPaintDevice *pdev)
     d->pdev = pdev;
 
     if (d->pdev->devType() == QInternal::Widget) {
+        qWarning("QWSPaintEngine::begin no longer supports QWidget");
+#if 0
         QWidget *w =  static_cast<QWidget *>(d->pdev) ;
 
         d->gfx=qt_screen->screenGfx();
@@ -150,6 +137,7 @@ bool QWSPaintEngine::begin(QPaintDevice *pdev)
          else
 #endif
              d->gfx->setClipRegion(QRegion(), Qt::NoClip);
+#endif
     } else if (d->pdev->devType() == QInternal::Pixmap) {
         QPixmap *p = static_cast<QPixmap*>(d->pdev);
         if(p->isNull()) {
@@ -193,6 +181,9 @@ bool QWSPaintEngine::begin(QPaintDevice *pdev)
 
 bool QWSPaintEngine::begin(QImage *img)
 {
+    //qWarning("QWSPaintEngine::begin(QImage *) should definitely not be called anymore");
+#if 1
+
     if (isActive()) {                         // already active painting
         qWarning("QWSPaintEngine::begin: Painter is already active."
                  "\n\tYou must end() the painter before a second begin()");
@@ -210,8 +201,9 @@ bool QWSPaintEngine::begin(QImage *img)
     //###??? QSize s = qt_screen->mapToDevice(QSize(img->width(),img->height()));
     d->gfx = QGfx::createGfx(img->depth(), img->bits(), img->width(), img->height(), img->bytesPerLine());
     if(img->depth()<=8) {
-        QRgb * tmp=img->colorTable();
+        QVector<QRgb> ctbl=img->colorTable();
         int nc=img->numColors();
+        QRgb * tmp=const_cast<QRgb*>(ctbl.constData()); //#### die die die
         if(tmp==0) {
             static QRgb table[2] = { qRgb(255,255,255), qRgb(0,0,0) };
             tmp=table;
@@ -224,6 +216,7 @@ bool QWSPaintEngine::begin(QImage *img)
     setActive(true);
 
     return true;
+#endif
 }
 
 
@@ -508,8 +501,8 @@ void QWSPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const QR
                 alphaType = QGfx::DestinationAlpha;
         }
 #endif
+        d->gfx->setAlphaType(alphaType);
     }
-    d->gfx->setAlphaType(alphaType);
     if (sw == w && sh == h)
         d->gfx->blt(x,y,sw,sh,sx,sy);
     else

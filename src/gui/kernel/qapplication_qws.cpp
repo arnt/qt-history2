@@ -97,7 +97,6 @@ static bool servermaxrect=false; // set to true once.
 
 extern QApplication::Type qt_appType;
 extern bool qt_app_has_font;
-extern void qwsUpdateActivePainters();
 
 //these used to be environment variables, they are initialized from
 //environment variables in
@@ -123,7 +122,6 @@ static int mouse_y_root = -1;
 static int mouse_state = 0;
 
 bool qws_overrideCursor = false;
-static bool qws_regionRequest = false;
 #ifndef QT_NO_QWS_MANAGER
 #include "qdecorationfactory_qws.h"
 static QDecoration *qws_decoration = 0;
@@ -243,7 +241,6 @@ public:
     bool translateKeyEvent(const QWSKeyEvent *, bool grab);
     bool translateRegionModifiedEvent(const QWSRegionModifiedEvent *);
     bool translateWheelEvent(const QWSMouseEvent *me);
-    void repaintHierarchy(QRegion r, bool post);
     void repaintDecoration(QRegion r, bool post);
     void updateRegion();
 
@@ -1008,7 +1005,6 @@ void QWSDisplay::nameRegion(int winId, const QString& n, const QString &c)
 
 void QWSDisplay::requestRegion(int winId, QRegion r)
 {
-    qws_regionRequest = true;
     if (d->directServerConnection()) {
         qwsServer->request_region(winId, r);
     } else {
@@ -2055,7 +2051,7 @@ void QApplication::restoreOverrideCursor()
     int cursor_handle = Qt::ArrowCursor;
     if (qApp->d->cursor_list.isEmpty()) {
         qws_overrideCursor = false;
-        QWidget *upw = widgetAt_sys(*qt_last_x, *qt_last_y);
+        QWidget *upw = QApplicationPrivate::widgetAt_sys(*qt_last_x, *qt_last_y);
         if (upw)
             cursor_handle = upw->cursor().handle();
     } else {
@@ -2074,7 +2070,7 @@ void QApplication::restoreOverrideCursor()
 /*!
     \internal
 */
-QWidget *QApplication::findWidget(const QObjectList& list,
+QWidget *QApplicationPrivate::findWidget(const QObjectList& list,
                                    const QPoint &pos, bool rec)
 {
     QWidget *w;
@@ -2083,7 +2079,7 @@ QWidget *QApplication::findWidget(const QObjectList& list,
         if (list.at(i)->isWidgetType()) {
           w = static_cast<QWidget*>(list.at(i));
             if (w->isVisible() && !w->testAttribute(Qt::WA_TransparentForMouseEvents) &&  w->geometry().contains(pos)
-                 && w->d->requestedRegion().contains(qt_screen->mapToDevice(w->mapToGlobal(w->mapFromParent(pos)), QSize(qt_screen->width(), qt_screen->height())))) {
+                && (!w->d->extra || w->d->extra->mask.isEmpty() ||  w->d->extra->mask.contains(pos - w->geometry().topLeft()) )) {
                 if (!rec)
                     return w;
                 QWidget *c = findChildWidget(w, w->mapFromParent(pos));
@@ -2098,29 +2094,32 @@ QWidget *QApplication::findWidget(const QObjectList& list,
     Recursively searches all of \a p's child widgets and returns the
     most nested widget that contains point \a pos.
 */
-QWidget *QApplication::findChildWidget(const QWidget *p, const QPoint &pos)
+QWidget *QApplicationPrivate::findChildWidget(const QWidget *p, const QPoint &pos)
 {
     return findWidget(p->children(), pos, true);
 }
 
 QWidget *QApplication::topLevelAt(const QPoint &pos)
 {
+
+#warning "allocatedRegion problem"
     QWidgetList list = topLevelWidgets();
 
     for (int i = list.size()-1; i >= 0; --i) {
         QWidget *w = list[i];
         if (w != QApplication::desktop() &&
              w->isVisible() && w->geometry().contains(pos)
-             && w->d->allocatedRegion().contains(qt_screen->mapToDevice(w->mapToGlobal(w->mapFromParent(pos)), QSize(qt_screen->width(), qt_screen->height()))))
+            // && w->d->allocatedRegion().contains(qt_screen->mapToDevice(w->mapToGlobal(w->mapFromParent(pos)), QSize(qt_screen->width(), qt_screen->height())))
+            )
             return w;
     }
     return 0;
 }
 
-QWidget *QApplication::widgetAt_sys(int x, int y)
+QWidget *QApplicationPrivate::widgetAt_sys(int x, int y)
 {
     // XXX not a fast function...
-    QWidget *tlw = topLevelAt(x, y);
+    QWidget *tlw = QApplication::topLevelAt(x, y);
     if (!tlw)
         return 0;
     QPoint pos(x,y);
@@ -2245,9 +2244,11 @@ int QApplication::qwsProcessEvent(QWSEvent* event)
             w = widget; // w is the widget the cursor is in.
             QSize s(qt_screen->width(), qt_screen->height());
             QPoint dp = qt_screen->mapToDevice(p, s);
-            if (widget->data->alloc_region.contains(dp)) {
+#warning "more alloc_region trouble"
+            //#### why should we get events outside alloc_region ????
+            if (1 /*widget->data->alloc_region.contains(dp) */) {
                 // Find the child widget that the cursor is in.
-                w = static_cast<QETWidget*>(findChildWidget(widget, widget->mapFromParent(p)));
+                w = static_cast<QETWidget*>(QApplicationPrivate::findChildWidget(widget, widget->mapFromParent(p)));
                 w = w ? static_cast<QETWidget*>(w) : widget;
 #ifndef QT_NO_CURSOR
                 // Update Cursor.
@@ -2398,7 +2399,7 @@ int QApplication::qwsProcessEvent(QWSEvent* event)
         if ((static_cast<QWSFocusEvent*>(event))->simpleData.get_focus) {
             if (widget == static_cast<QWidget *>(desktop()))
                 return true; // not interesting
-            if (inPopupMode()) {
+            if (d->inPopupMode()) {
                //  just some delayed focus event to ignore
                 break;
             }
@@ -2423,7 +2424,7 @@ int QApplication::qwsProcessEvent(QWSEvent* event)
         } else {        // lost focus
             if (widget == static_cast<QWidget *>(desktop()))
                 return true; // not interesting
-            if (QApplicationPrivate::focus_widget && !inPopupMode()) {
+            if (QApplicationPrivate::focus_widget && !d->inPopupMode()) {
                 QETWidget *old = static_cast<QETWidget *>(QApplicationPrivate::active_window);
                 setActiveWindow(0);
                 qt_last_cursor = 0xffffffff;
@@ -2655,59 +2656,59 @@ static bool qt_try_modal(QWidget *widget, QWSEvent *event)
 }
 
 static int openPopupCount = 0;
-void QApplication::openPopup(QWidget *popup)
+void QApplicationPrivate::openPopup(QWidget *popup)
 {
     openPopupCount++;
-    if (!QApplicationPrivate::popupWidgets) {                        // create list
-        QApplicationPrivate::popupWidgets = new QWidgetList;
+    if (!popupWidgets) {                        // create list
+        popupWidgets = new QWidgetList;
 
         /* only grab if you are the first/parent popup */
         QPaintDevice::qwsDisplay()->grabMouse(popup,true);
         QPaintDevice::qwsDisplay()->grabKeyboard(popup,true);
         popupGrabOk = true;
     }
-    QApplicationPrivate::popupWidgets->append(popup);                // add to end of list
+    popupWidgets->append(popup);                // add to end of list
 
     // popups are not focus-handled by the window system (the first
     // popup grabbed the keyboard), so we have to do that manually: A
     // new popup gets the focus
     if (popup->focusWidget()) {
         popup->focusWidget()->setFocus(Qt::PopupFocusReason);
-    } else if (QApplicationPrivate::popupWidgets->count() == 1) { // this was the first popup
-        if (QWidget *fw = focusWidget()) {
+    } else if (popupWidgets->count() == 1) { // this was the first popup
+        if (QWidget *fw = QApplication::focusWidget()) {
             QFocusEvent e(QEvent::FocusOut, Qt::PopupFocusReason);
-            sendEvent(fw, &e);
+            QApplication::sendEvent(fw, &e);
         }
     }
 }
 
-void QApplication::closePopup(QWidget *popup)
+void QApplicationPrivate::closePopup(QWidget *popup)
 {
-    if (!QApplicationPrivate::popupWidgets)
+    if (!popupWidgets)
         return;
 
-    QApplicationPrivate::popupWidgets->removeAll(popup);
+    popupWidgets->removeAll(popup);
     if (popup == popupOfPopupButtonFocus) {
         popupButtonFocus = 0;
         popupOfPopupButtonFocus = 0;
     }
-    if (QApplicationPrivate::popupWidgets->count() == 0) {                // this was the last popup
+    if (popupWidgets->count() == 0) {                // this was the last popup
         popupCloseDownMode = true;                // control mouse events
-        delete QApplicationPrivate::popupWidgets;
-        QApplicationPrivate::popupWidgets = 0;
+        delete popupWidgets;
+        popupWidgets = 0;
         if (popupGrabOk) {        // grabbing not disabled
             QPaintDevice::qwsDisplay()->grabMouse(popup,false);
             QPaintDevice::qwsDisplay()->grabKeyboard(popup,false);
             popupGrabOk = false;
             // XXX ungrab keyboard
         }
-        if (QApplicationPrivate::active_window) {
-            if (QWidget *fw = QApplicationPrivate::active_window->focusWidget()) {
-                if (fw != focusWidget()) {
+        if (active_window) {
+            if (QWidget *fw = active_window->focusWidget()) {
+                if (fw != QApplication::focusWidget()) {
                     fw->setFocus(Qt::PopupFocusReason);
                 } else {
                     QFocusEvent e(QEvent::FocusIn, Qt::PopupFocusReason);
-                    sendEvent(fw, &e);
+                    QApplication::sendEvent(fw, &e);
                 }
             }
         }
@@ -2716,7 +2717,7 @@ void QApplication::closePopup(QWidget *popup)
         // first popup grabbed the keyboard), so we have to do that
         // manually: A popup was closed, so the previous popup gets
         // the focus.
-        QWidget* aw = QApplicationPrivate::popupWidgets->last();
+        QWidget* aw = popupWidgets->last();
         if (QWidget *fw = aw->focusWidget())
             fw->setFocus(Qt::PopupFocusReason);
     }
@@ -2822,7 +2823,7 @@ bool QETWidget::translateMouseEvent(const QWSMouseEvent *event, int prevstate)
 
 #endif
                 if (mouse.state&button) { //button press
-                    qt_button_down = QApplication::findChildWidget(this, pos);        //magic for masked widgets
+                    qt_button_down = QApplicationPrivate::findChildWidget(this, pos);        //magic for masked widgets
                     if (!qt_button_down || !qt_button_down->testAttribute(Qt::WA_MouseNoMask))
                         qt_button_down = this;
                     if (/*XXX mouseActWindow == this &&*/
@@ -2858,23 +2859,23 @@ bool QETWidget::translateMouseEvent(const QWSMouseEvent *event, int prevstate)
         return false; //EXIT in the normal case
     }
 
-    if (qApp->inPopupMode()) {                        // in popup mode
+    if (qApp->d->inPopupMode()) {                        // in popup mode
         QWidget *popup = qApp->activePopupWidget();
         // in X11, this would be the window we are over.
         // in QWS this is the top level popup.  to allow mouse
         // events to other widgets, need to go through qApp->QApplicationPrivate::popupWidgets.
         QSize s(qt_screen->width(), qt_screen->height());
-        QPoint dp = qt_screen->mapToDevice(globalPos, s);
         for (int i = 0; i < QApplicationPrivate::popupWidgets->size(); ++i) {
             QWidget *w = QApplicationPrivate::popupWidgets->at(i);
-            if ((w->windowType() == Qt::Popup) && w->data->alloc_region.contains(dp)) {
+#warning "even more alloc_region trouble"
+            if ((w->windowType() == Qt::Popup) && w->d->localRequestedRegion().contains(globalPos - w->geometry().topLeft())) { //was alloc_region
                 popup = w;
                 break;
             }
         }
         pos = popup->mapFromGlobal(globalPos);
         bool releaseAfter = false;
-        QWidget *popupChild  = QApplication::findChildWidget(popup, pos);
+        QWidget *popupChild  = QApplicationPrivate::findChildWidget(popup, pos);
         QWidget *popupTarget = popupChild ? popupChild : popup;
 
         if (popup != popupOfPopupButtonFocus){
@@ -3030,28 +3031,6 @@ bool QETWidget::translateKeyEvent(const QWSKeyEvent *event, bool grab) /* grab i
     return QApplication::sendSpontaneousEvent(this, &e);
 }
 
-void QETWidget::repaintHierarchy(QRegion r, bool post)
-{
-    r &= geometry();
-    if (r.isEmpty())
-        return;
-    r.translate(-data->crect.x(),-data->crect.y());
-
-    if (post)
-        QApplication::postEvent(this,new QWSUpdateEvent(r));
-    else
-        repaint(r);
-
-    QObjectList childList = children();
-    for (int i = 0; i < childList.size(); ++i) {
-        register QObject *obj=childList.at(i);
-        if (obj->isWidgetType()) {
-            QETWidget* w = static_cast<QETWidget*>(obj);
-            if (w->isVisible())
-                w->repaintHierarchy(r, post);
-        }
-    }
-}
 
 void QETWidget::repaintDecoration(QRegion r, bool post)
 {
@@ -3060,8 +3039,7 @@ void QETWidget::repaintDecoration(QRegion r, bool post)
     //therefore, normal ways of painting do not work.
     // However, it does listen to paint events.
 
-    if (isWindow() && d->topData()->qwsManager
-        && !d->topData()->decor_allocated_region.isEmpty()) {
+    if (isWindow() && d->topData()->qwsManager) {
         r &= d->topData()->qwsManager->region();
         if (!r.isEmpty()) {
             r.translate(-data->crect.x(),-data->crect.y());
@@ -3081,30 +3059,24 @@ void QETWidget::updateRegion()
 {
     if ((windowType() == Qt::Desktop))
        return;
+    if (!isVisible())
+        return;
+    QRegion r;
     if (d->extra && !d->extra->mask.isEmpty()) {
-       data->req_region = d->extra->mask;
-       data->req_region.translate(data->crect.x(),data->crect.y());
-       data->req_region &= data->crect;
+       r = d->extra->mask;
+       r &= rect();
+       r.translate(data->crect.x(),data->crect.y());
     } else {
-       data->req_region = data->crect;
+       r = data->crect;
     }
-    data->req_region = qt_screen->mapToDevice(data->req_region, QSize(qt_screen->width(), qt_screen->height()));
-    d->updateRequestedRegion(mapToGlobal(QPoint(0,0)));
-    QRegion r(data->req_region);
 #ifndef QT_NO_QWS_MANAGER
-    QRegion wmr;
-    if (d->extra && d->extra->topextra && d->extra->topextra->qwsManager) {
-        wmr = d->extra->topextra->qwsManager->region();
-        wmr = qt_screen->mapToDevice(wmr, QSize(qt_screen->width(), qt_screen->height()));
-        r += wmr;
-    }
+    if (d->extra && d->extra->topextra && d->extra->topextra->qwsManager)
+        r += d->extra->topextra->qwsManager->region();;
 #endif
-    if (isVisible())
-        qwsDisplay()->requestRegion(winId(), r);
 
-    d->setChildrenAllocatedDirty();
-    data->paintable_region_dirty = true;
-    qwsUpdateActivePainters();
+    r = qt_screen->mapToDevice(r, QSize(qt_screen->width(), qt_screen->height()));
+
+    qwsDisplay()->requestRegion(winId(), r);
 }
 
 bool QETWidget::translateRegionModifiedEvent(const QWSRegionModifiedEvent *event)
@@ -3117,47 +3089,6 @@ bool QETWidget::translateRegionModifiedEvent(const QWSRegionModifiedEvent *event
         if (data->alloc_region_index < 0) {
             return false;
         }
-    }
-
-#ifndef QT_NO_QWS_MANAGER
-    QRegion extraExposed;
-#endif
-
-    QWSDisplay::grab();
-    int revision = *rgnMan->revision(data->alloc_region_index);
-    if (revision != data->alloc_region_revision) {
-        data->alloc_region_revision = revision;
-        QRegion newRegion = rgnMan->region(data->alloc_region_index);
-        QWSDisplay::ungrab();
-#ifndef QT_NO_QWS_MANAGER
-        if (isWindow() && d->topData()->qwsManager) {
-            if (event->simpleData.nrectangles && qws_regionRequest) {
-                extraExposed = d->topData()->decor_allocated_region;
-                QSize s(qt_screen->deviceWidth(), qt_screen->deviceHeight());
-                extraExposed = qt_screen->mapFromDevice(extraExposed, s);
-                extraExposed &= geometry();
-            }
-
-            QRegion mr(d->topData()->qwsManager->region());
-            mr = qt_screen->mapToDevice(mr, QSize(qt_screen->width(), qt_screen->height()));
-            d->topData()->decor_allocated_region = newRegion & mr;
-            newRegion -= mr;
-        }
-#endif
-        data->alloc_region = newRegion;
-
-        // set children's allocated region dirty
-        QObjectList childList = children();
-        for (int i = 0; i < childList.size(); ++i) {
-            QObject* ch = childList.at(i);
-            if (ch->isWidgetType()) {
-                static_cast<QWidget*>(ch)->data->alloc_region_dirty = true;
-            }
-        }
-
-        data->paintable_region_dirty = true;
-    } else {
-        QWSDisplay::ungrab();
     }
 
     if (event->simpleData.nrectangles)
@@ -3174,16 +3105,17 @@ bool QETWidget::translateRegionModifiedEvent(const QWSRegionModifiedEvent *event
                 event->rectangles[i].width(),
                 event->rectangles[i].height());
 */
-        qwsUpdateActivePainters();
-        repaintDecoration(exposed, false);
+        /////////// repaintDecoration(exposed, false);
 
-#ifndef QT_NO_QWS_MANAGER
-        exposed |= extraExposed;
-#endif
+//### change 25062: don't leave WM decorations behind when resizing
+//#ifndef QT_NO_QWS_MANAGER
+//        exposed |= extraExposed;
+//#endif
+//### change 53580: but only for resizes
+//    qws_regionRequest = false;
 
         d->bltToScreen(exposed);
     }
-    qws_regionRequest = false;
     return true;
 }
 

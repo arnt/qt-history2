@@ -328,7 +328,10 @@ static QPolygon convertThickPolylineToPolygon(const QPolygon &points,int index, 
 extern bool qws_sw_cursor;
 static QGfx * graphicsContext(QImage *img)
 {
+    qWarning("graphicsContext(QImage*) should not be called");
     QGfx * ret=0;
+#if 1
+
     if(img->depth()) {
         int w = qt_screen->mapToDevice(QSize(img->width(),img->height())).width();
         int h = qt_screen->mapToDevice(QSize(img->width(),img->height())).height();
@@ -338,7 +341,7 @@ static QGfx * graphicsContext(QImage *img)
         return 0;
     }
     if(img->depth()<=8) {
-        QRgb * tmp=img->colorTable();
+        QRgb * tmp=const_cast<QRgb*>(img->colorTable().constData());
         int nc=img->numColors();
         if(tmp==0) {
             static QRgb table[2] = { qRgb(255,255,255), qRgb(0,0,0) };
@@ -347,7 +350,9 @@ static QGfx * graphicsContext(QImage *img)
         }
         ret->setClut(tmp,nc);
     }
+#endif
     return ret;
+
 }
 
 /*!
@@ -1180,6 +1185,7 @@ void QGfxRaster<depth,type>::setSource(const QPaintDevice *p)
 template <const int depth, const int type>
 void QGfxRaster<depth,type>::setSource(const QImage *i)
 {
+    //qWarning("QGfxRaster::setSource(const QImage*)");
     srctype=SourceImage;
     srcpixeltype=QScreen::NormalPixel;
     srclinestep=i->bytesPerLine();
@@ -1196,7 +1202,7 @@ void QGfxRaster<depth,type>::setSource(const QImage *i)
     if (srcdepth == 1)
         buildSourceClut(0, 0);
     else  if(srcdepth<=8)
-        buildSourceClut(i->colorTable(),i->numColors());
+        buildSourceClut(const_cast<QRgb*>(i->colorTable().constData()),i->numColors());
 }
 
 /*!

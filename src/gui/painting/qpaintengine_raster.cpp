@@ -388,7 +388,7 @@ QRasterPaintEngine::QRasterPaintEngine()
     : QPaintEngine(*(new QRasterPaintEnginePrivate),
                    QPaintEngine::PaintEngineFeatures(AllFeatures
 #ifdef Q_WS_QWS
-                                                     & (~UsesFontEngine) // QWS hack
+                                                     & (~QwsPaintEngine) // QWS hack
 #endif
                                                      ))
 {

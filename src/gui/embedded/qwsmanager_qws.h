@@ -63,6 +63,12 @@ protected:
     bool repaintRegion(int region, QDecoration::DecorationState state);
 
     void menu(const QPoint &);
+
+private:
+    friend class QWidget;
+    friend class QWidgetPrivate;
+    friend class QApplication;
+    friend class QApplicationPrivate;
 };
 
 #include "QtGui/qdecorationdefault_qws.h"
