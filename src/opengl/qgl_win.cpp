@@ -15,7 +15,6 @@
 
 #include <qgl.h>
 #include <qlist.h>
-#include <qshared.h>
 #include <qmap.h>
 #include <qpixmap.h>
 #include <qevent.h>
