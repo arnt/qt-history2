@@ -47,7 +47,7 @@
 #ifndef QT_NO_PROCESS
 
 class Q3ProcessPrivate;
-class QMembuf;
+class Q3Membuf;
 
 class Q_COMPAT_EXPORT Q3Process : public QObject
 {
@@ -131,8 +131,8 @@ private:
 #if defined(Q_OS_WIN32)
     uint readStddev( Qt::HANDLE dev, char *buf, uint bytes );
 #endif
-    QMembuf* membufStdout();
-    QMembuf* membufStderr();
+    Q3Membuf* membufStdout();
+    Q3Membuf* membufStderr();
 
 private slots:
     void socketRead( int fd );

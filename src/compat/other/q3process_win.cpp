@@ -35,7 +35,7 @@
 #include "q3ptrqueue.h"
 #include "qtimer.h"
 #include "qregexp.h"
-#include "private/qinternal_p.h"
+#include "private/q3membuf_p.h"
 #include "qt_windows.h"
 
 //#define QT_Q3PROCESS_DEBUG
@@ -122,8 +122,8 @@ public:
 	memset( pid, 0, sizeof(PROCESS_INFORMATION) );
     }
 
-    QMembuf bufStdout;
-    QMembuf bufStderr;
+    Q3Membuf bufStdout;
+    Q3Membuf bufStderr;
 
     Q3PtrQueue<QByteArray> stdinBuf;
 
@@ -160,14 +160,14 @@ void Q3Process::reset()
     d->bufStderr.clear();
 }
 
-QMembuf* Q3Process::membufStdout()
+Q3Membuf* Q3Process::membufStdout()
 {
     if( d->pipeStdout[0] != 0 )
 	socketRead( 1 );
     return &d->bufStdout;
 }
 
-QMembuf* Q3Process::membufStderr()
+Q3Membuf* Q3Process::membufStderr()
 {
     if( d->pipeStderr[0] != 0 )
 	socketRead( 2 );
@@ -517,7 +517,7 @@ void Q3Process::socketRead( int fd )
     unsigned long i = 1000;
 #endif
     if ( i > 0 ) {
-	QMembuf *buffer;
+	Q3Membuf *buffer;
 	if ( fd == 1 )
 	    buffer = &d->bufStdout;
 	else

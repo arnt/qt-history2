@@ -54,7 +54,7 @@
 #include "qtimer.h"
 #include "qcleanuphandler.h"
 #include "qregexp.h"
-#include "private/qinternal_p.h"
+#include "private/q3membuf_p.h"
 
 #include <stdlib.h>
 #include <errno.h>
@@ -94,8 +94,8 @@ public:
     void closeOpenSocketsForChild();
     void newProc( pid_t pid, Q3Process *process );
 
-    QMembuf bufStdout;
-    QMembuf bufStderr;
+    Q3Membuf bufStdout;
+    Q3Membuf bufStderr;
 
     Q3PtrQueue<QByteArray> stdinBuf;
 
@@ -593,7 +593,7 @@ void Q3Process::reset()
     d->bufStderr.clear();
 }
 
-QMembuf* Q3Process::membufStdout()
+Q3Membuf* Q3Process::membufStdout()
 {
     if ( d->proc && d->proc->socketStdout ) {
 	/*
@@ -618,7 +618,7 @@ QMembuf* Q3Process::membufStdout()
     return &d->bufStdout;
 }
 
-QMembuf* Q3Process::membufStderr()
+Q3Membuf* Q3Process::membufStderr()
 {
     if ( d->proc && d->proc->socketStderr ) {
 	/*
@@ -1221,7 +1221,7 @@ void Q3Process::socketRead( int fd )
 	return;
     if ( !d->proc )
 	return;
-    QMembuf *buffer = 0;
+    Q3Membuf *buffer = 0;
     int n;
     if ( fd == d->proc->socketStdout ) {
 	buffer = &d->bufStdout;

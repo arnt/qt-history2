@@ -41,7 +41,7 @@
 #include "qtimer.h"
 #include "q3socketdevice.h"
 #include "q3dns.h"
-#include "private/qinternal_p.h"
+#include "private/q3membuf_p.h"
 
 #include <string.h>
 #ifndef NO_ERRNO_H
@@ -123,7 +123,7 @@ public:
     Q_UINT16		port;			// host port
     Q3SocketDevice      *socket;			// connection socket
     QSocketNotifier     *rsn, *wsn;		// socket notifiers
-    QMembuf		rba;			// read buffer
+    Q3Membuf		rba;			// read buffer
     Q_ULONG		readBufferSize;		// limit for the read buffer size
     Q3PtrList<QByteArray> wba;			// list of write bufs
     QHostAddress	addr;			// connection address

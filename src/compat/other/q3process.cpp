@@ -43,7 +43,7 @@
 #ifndef QT_NO_PROCESS
 
 #include "qapplication.h"
-#include "private/qinternal_p.h"
+#include "private/q3membuf_p.h"
 
 
 //#define QT_Q3PROCESS_DEBUG
@@ -457,7 +457,7 @@ QByteArray Q3Process::readStdout()
 	return QByteArray();
     }
     readStdoutCalled = TRUE;
-    QMembuf *buf = membufStdout();
+    Q3Membuf *buf = membufStdout();
     readStdoutCalled = FALSE;
 
     return buf->readAll();
@@ -479,7 +479,7 @@ QByteArray Q3Process::readStderr()
 	return QByteArray();
     }
     readStderrCalled = TRUE;
-    QMembuf *buf = membufStderr();
+    Q3Membuf *buf = membufStderr();
     readStderrCalled = FALSE;
 
     return buf->readAll();
@@ -499,7 +499,7 @@ QByteArray Q3Process::readStderr()
 QString Q3Process::readLineStdout()
 {
     QByteArray a( 256 );
-    QMembuf *buf = membufStdout();
+    Q3Membuf *buf = membufStdout();
     if ( !buf->scanNewline( &a ) ) {
       if ( !canReadLineStdout() )
 	return QString::null;
@@ -535,7 +535,7 @@ QString Q3Process::readLineStdout()
 QString Q3Process::readLineStderr()
 {
     QByteArray a( 256 );
-    QMembuf *buf = membufStderr();
+    Q3Membuf *buf = membufStderr();
     if ( !buf->scanNewline( &a ) ) {
       if ( !canReadLineStderr() )
 	return QString::null;

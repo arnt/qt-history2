@@ -34,46 +34,6 @@ class QWidget;
 class QPainter;
 class QPixmap;
 
-class Q_CORE_EXPORT QMembuf
-{
-public:
-    QMembuf();
-    ~QMembuf();
-
-    void append(QByteArray *ba);
-    void clear();
-
-    bool consumeBytes(Q_ULONG nbytes, char *sink);
-    QByteArray readAll();
-    bool scanNewline(QByteArray *store);
-    bool canReadLine() const;
-
-    int ungetch(int ch);
-
-    Q_LONGLONG size() const;
-
-private:
-
-    QList<QByteArray *> buf;
-    Q_LONGLONG _size;
-    Q_LONGLONG _index;
-};
-
-inline void QMembuf::append(QByteArray *ba)
-{ buf.append(ba); _size += ba->size(); }
-
-inline void QMembuf::clear()
-{ buf.clear(); _size=0; _index=0; }
-
-inline QByteArray QMembuf::readAll()
-{ QByteArray ba; ba.resize(_size); consumeBytes(_size,ba.data()); return ba; }
-
-inline bool QMembuf::canReadLine() const
-{ return const_cast<QMembuf*>(this)->scanNewline(0); }
-
-inline Q_LONGLONG QMembuf::size() const
-{ return _size; }
-
 class QCircularBuffer {
     QByteArray buf[2];
     uint curr_used, start_off, start_buff, curr_buff, buff_growth;
