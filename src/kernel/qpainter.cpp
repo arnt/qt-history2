@@ -2251,6 +2251,7 @@ void qt_format_text( const QFont& font, const QRect &r,
 	QString parStr = str;
 	// need to build paragraph
 	parag = new QTextParag( 0, 0, 0, FALSE );
+	parag->setNewLinesAllowed( TRUE );
 	QTextFormatter *formatter;
 	formatter = new QTextFormatterBreakWords;
 	if ( !wordbreak )

@@ -604,7 +604,7 @@ public:
     struct LineStart {
 	LineStart() : y( 0 ), baseLine( 0 ), h( 0 ), bidicontext( 0 ) {}
 	LineStart( ushort y_, ushort bl, ushort h_ ) : y( y_ ), baseLine( bl ), h( h_ ),
-	    bidicontext(0) {}
+	    w( 0 ), bidicontext( 0 ) {}
 	LineStart( QTextBidiContext *c, QTextBidiStatus s ) : y(0), baseLine(0), h(0),
 	    status( s ), bidicontext( c ) { if ( bidicontext ) bidicontext->ref(); }
 	~LineStart() { if ( bidicontext ) bidicontext->deref(); }
@@ -622,7 +622,8 @@ public:
     public:
 	ushort y, baseLine, h;
 	QTextBidiStatus status;
-
+	int w;
+	
     private:
 	QTextBidiContext *bidicontext;
 
@@ -752,6 +753,9 @@ public:
     void setPainter( QPainter *p );
     QPainter *painter() const { return pntr; }
 
+    void setNewLinesAllowed( bool b );
+    bool isNewLinesAllowed() const;
+    
 private:
     void drawLabel( QPainter* p, int x, int y, int w, int h, int base, const QColorGroup& cg );
     void drawParagBuffer( QPainter &painter, const QString &buffer, int startX,
@@ -769,11 +773,14 @@ private:
     QRect r;
     QTextParag *p, *n;
     QTextDocument *doc;
-    bool changed;
-    bool firstFormat, firstPProcess;
+    bool changed : 1;
+    bool firstFormat : 1;
+    bool firstPProcess : 1;
+    bool needPreProcess : 1;
+    bool fullWidth : 1;
+    bool newLinesAllowed : 1;
     QMap<int, Selection> selections;
     int state, id;
-    bool needPreProcess;
     QTextString *str;
     int align;
     QVector<QStyleSheetItem> styleSheetItemsVec;
@@ -782,7 +789,6 @@ private:
     int tm, bm, lm, rm;
     QTextFormat *defFormat;
     QList<QTextCustomItem> floatingItems;
-    bool fullWidth;
     QTextTableCell *tc;
     int numCustomItems;
     QRect docRect;
@@ -2317,6 +2323,16 @@ inline void QTextParag::setExtraData( void *data )
 inline void *QTextParag::extraData() const
 {
     return eData;
+}
+
+inline void QTextParag::setNewLinesAllowed( bool b )
+{
+    newLinesAllowed = b;
+}
+
+inline bool QTextParag::isNewLinesAllowed() const
+{
+    return newLinesAllowed;
 }
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

@@ -2329,6 +2329,7 @@ QTextParag::QTextParag( QTextDocument *d, QTextParag *pr, QTextParag *nx, bool u
       numCustomItems( 0 ), pFormatter( 0 ),
       tabArray( 0 ), tabStopWidth( 0 ), eData( 0 ), pntr( 0 )
 {
+    newLinesAllowed = FALSE;
     defFormat = formatCollection()->defaultFormat();
     if ( !doc )
 	tabStopWidth = defFormat->width( 'x' ) * 8;
@@ -2542,6 +2543,14 @@ void QTextParag::format( int start, bool doMove )
 	r.setWidth( c->x + c->format()->width( c->c ) );
     }
 
+    if ( newLinesAllowed ) {
+	it = lineStarts.begin();
+	int usedw = 0;
+	for ( ; it != lineStarts.end(); ++it )
+	    usedw = QMAX( usedw, (*it)->w );
+	r.setWidth( QMIN( usedw, r.width() ) );
+    }
+    
     if ( y != r.height() )
 	r.setHeight( y );
 
@@ -3167,7 +3176,6 @@ QTextParag::LineStart *QTextFormatter::formatLine( QTextString *string, QTextPar
 {
     if( string->isBidi() )
 	return bidiReorderLine( string, line, startChar, lastChar, align, space );
-
     space = QMAX( space, 0 ); // #### with nested tables this gets negative because of a bug I didn't find yet, so workaround for now. This also means non-left aligned nested tables do not work at the moment
     int start = (startChar - &string->at(0));
     int last = (lastChar - &string->at(0) );
@@ -3195,7 +3203,12 @@ QTextParag::LineStart *QTextFormatter::formatLine( QTextString *string, QTextPar
 	    string->at( k ).x += toAdd;
 	}
     }	
-
+    
+    if ( last >= 0 && last < string->length() )
+	line->w = string->at( last ).x + string->at( last ).format()->width( string->at( last ).c ); // #### Lars, I guess this breaks for Bidi
+    else 
+	line->w = 0;
+    
     return new QTextParag::LineStart();
 }
 
@@ -3858,7 +3871,10 @@ int QTextFormatterBreakInWords::format( QTextDocument *doc,QTextParag *parag,
 
     int col = 0;
     int ww = 0;
+    QChar lastChr;
     for ( ; i < len; ++i, ++col ) {
+	if ( c )
+	    lastChr = c->c;
 	c = &parag->string()->at( i );
 	if ( i > 0 ) {
 	    c->lineStart = 0;
@@ -3899,7 +3915,7 @@ int QTextFormatterBreakInWords::format( QTextDocument *doc,QTextParag *parag,
 	if ( isWrapEnabled() &&
 	     ( wrapAtColumn() == -1 && x + ww > w ||
 	       wrapAtColumn() != -1 && col >= wrapAtColumn() ) ||
-	       c->c == '\n' ) {
+	       parag->isNewLinesAllowed() && lastChr == '\n' ) {
 	    x = doc ? parag->document()->flow()->adjustLMargin( y + parag->rect().y(), left, 4 ) : left;
 	    if ( x != left )
 		fullWidth = FALSE;
@@ -3987,7 +4003,10 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 
     int col = 0;
     int ww = 0;
+    QChar lastChr;
     for ( ; i < len; ++i, ++col ) {
+	if ( c )
+	    lastChr = c->c;
 	c = &string->at( i );
 	if ( i > 0 && x > curLeft || lastWasNonInlineCustom ) {
 	    c->lineStart = 0;
@@ -4042,7 +4061,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 	if ( isWrapEnabled() &&
 	     ( wrapAtColumn() == -1 && x + ww > w ||
 	       wrapAtColumn() != -1 && col >= wrapAtColumn() ) ||
-	       c->c == '\n' ) {
+	       parag->isNewLinesAllowed() && lastChr == '\n' ) {
 	    if ( lastBreak == -1 ) {
 		if ( lineStart ) {
 		    lineStart->baseLine = QMAX( lineStart->baseLine, tmpBaseLine );
