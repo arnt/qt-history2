@@ -262,7 +262,7 @@ public:
 
 private:
     bool active;
-    int maxlen;
+    unsigned int maxlen;
     QMap<QString,QString> map;
     QString soFar;
 };
@@ -296,27 +296,38 @@ SimpleIM::SimpleIM( const QString &fn )
 
 
 
-static void fakeKey( int unicode, int keycode )
+static void sendKey( int unicode, int keycode )
 {
     QWSServer::sendKeyEvent( unicode, keycode, 0, TRUE, FALSE );
     QWSServer::sendKeyEvent( unicode, keycode, 0, FALSE, FALSE );
 }
 
-static void fakeKey( const QString &s )
+static void sendString( const QString &s )
 {
-    for ( int i = 0; i < s.length(); i++ )
-	fakeKey( s[i].unicode(), 0 );
+    for ( int i = 0; i < int(s.length()); i++ )
+	sendKey( s[i].unicode(), 0 );
 }
 
+
+/*
+  Watch all keypresses. Toggle active mode when shift+space is seen.
+
+  In active mode: Put each key pressed into the buffer soFar. When the
+  contents of soFar match an entry in map, send backspace keypresses
+  to remove the source characters and then send the mapped string.
+  
+  This is just a simple example. Production code would have to handle
+  key releases as well. In some cases the backspace count will be wrong,
+  if the substitution map contains multiple overlapping characters.
+  (Eg. if "aa"->"A", "bb"->"B" and "aabb"->"XYZ".)
+ */
 bool SimpleIM::filter(int unicode, int keycode, int modifiers, bool isPress,
-		       bool autoRepeat)
+		      bool /*autoRepeat*/ )
 {
     if ( modifiers == Qt::ShiftButton && keycode == Qt::Key_Space ) {
 	if ( !isPress ) {
 	    active = !active;
 	}
-	//qDebug( "Shift+space, IM is %d", active );
-
 	return TRUE; //filter
     }
     if ( active  && !(modifiers&~Qt::ShiftButton) ) {
@@ -327,21 +338,19 @@ bool SimpleIM::filter(int unicode, int keycode, int modifiers, bool isPress,
 	    int n = soFar.length();
 	    while ( n > 0 ) {
 		QString candidate = soFar.right( n );
-		//qDebug( "trying %s", candidate.latin1() );
 		if ( map.contains( candidate ) ) {
 		    for ( int i = 0; i < n-1; i++ )
-			fakeKey( 0, Qt::Key_Backspace);
-		    fakeKey( map[candidate] );
-		    return TRUE;
+			sendKey( 0, Qt::Key_Backspace);
+		    sendString( map[candidate] );
+		    return TRUE; //filter
 		}
 		n--;
 	    }
 	}
-	QWSServer::sendKeyEvent( unicode, keycode,  modifiers, isPress, autoRepeat );
-	return TRUE;
+	return FALSE; //don't filter
     }
     soFar = "";
-    return FALSE;
+    return FALSE; //don't filter
 }
 
 #endif
