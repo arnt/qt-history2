@@ -1323,8 +1323,8 @@ void QPrinter::margins( uint *top, uint *left, uint *bottom, uint *right ) const
 {
     int lpx = GetDeviceCaps( hdc, LOGPIXELSX );
     int lpy = GetDeviceCaps( hdc, LOGPIXELSY );
-    *top = GetDeviceCaps( hdc, PHYSICALOFFSETX ) * res / lpx
-    *left = GetDeviceCaps( hdc, PHYSICALOFFSETY ) * res / lpy
+    *top = GetDeviceCaps( hdc, PHYSICALOFFSETX ) * res / lpx;
+    *left = GetDeviceCaps( hdc, PHYSICALOFFSETY ) * res / lpy;
     *bottom = ( GetDeviceCaps( hdc, PHYSICALWIDTH ) - 
 		GetDeviceCaps( hdc, HORZRES ) - 
 		GetDeviceCaps( handle(), PHYSICALOFFSETX ) ) * res / lpx;
