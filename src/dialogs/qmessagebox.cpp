@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#43 $
+** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#44 $
 **
 ** Implementation of QMessageBox class
 **
@@ -16,7 +16,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#43 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#44 $");
 
 // Message box icons, from page 210 of the Windows style guide.
 
@@ -157,7 +157,7 @@ static const unsigned char critical_gif_data[] = {
     switch( QMessageBox::warning( this, "Application name here",
                                   "Could not connect to the <mumble> server.\n"
 				  "This program can't function correctly "
-				  "without the server.\n\n"
+				  "without the server.\n\n",
 				  "Try again", "Quit",
 				  0, 1 );
     case 0: // Try again or Enter
@@ -169,8 +169,8 @@ static const unsigned char critical_gif_data[] = {
     }
   \endcode
 
-  Disk full errors are (hopefully) unusual and they certainly can be
-  hard to correct:
+  Disk full errors are unusual (in a perfetct world, they are) and
+  they certainly can be hard to correct:
 
   \code
     switch( QMessageBox::warning( this, "Application name here",
@@ -197,8 +197,8 @@ static const unsigned char critical_gif_data[] = {
     QMessageBox::critical( 0, "Application name here",
                            QString("An internal error occured. Please call ") +
 			   "technical support at 123456789 and report these\n"+
-			   "numbers:\n\n" + errorDetails + "\n\n<Application>"+
-			   " will now exit." );
+			   "numbers:\n\n" + errorDetails +
+			   "\n\n<Application> will now exit." );
   \endcode
 
   QMessageBox provides a very simple About box, which displays an
@@ -661,7 +661,9 @@ const QPixmap *QMessageBox::iconPixmap() const
 }
 
 /*!
-  Sets the icon of the message box to a custom \a pixmap.
+  Sets the icon of the message box to a custom \a pixmap.  Note that
+  it's often hard to draw one pixmap which looks appropriate in both
+  Motif and Windoes GUI styles.  You may want to draw two.
 
   \sa iconPixmap(), setIcon()
 */
@@ -1017,6 +1019,8 @@ void QMessageBox::about( QWidget *parent, const char *caption,
     delete mb;
 }
 
+
+/*! Reimplemented for implementational reasons. */
 
 void QMessageBox::setStyle( GUIStyle s )
 {
