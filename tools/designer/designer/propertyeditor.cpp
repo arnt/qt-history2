@@ -498,7 +498,8 @@ void PropertyItem::setFocus( QWidget *w )
 {
     if ( !qApp->focusWidget() ||
 	 listview->propertyEditor()->formWindow() &&
-	 !listview->propertyEditor()->formWindow()->mainWindow()->isAFormWindowChild( qApp->focusWidget() ) )
+	 ( !MainWindow::self->isAFormWindowChild( qApp->focusWidget() ) &&
+	   !qApp->focusWidget()->inherits( "Editor" ) ) )
 	w->setFocus();
 }
 
