@@ -68,6 +68,7 @@ signals:
     void collapsed(const QModelIndex &index);
 
 public slots:
+    void dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
     void hideColumn(int column);
     void showColumn(int column);
     void open(const QModelIndex &index);
@@ -78,7 +79,7 @@ public slots:
 protected slots:
     void columnWidthChanged(int column, int oldSize, int newSize);
     void columnCountChanged(int oldCount, int newCount);
-    void dataChanged();
+    void columnIndexesChanged();
     void reopen();
 
 protected:
@@ -95,7 +96,8 @@ protected:
     QRect selectionViewportRect(const QItemSelection &selection) const;
 
     void paintEvent(QPaintEvent *e);
-    virtual void drawRow(QPainter *painter, const QStyleOptionViewItem &options,
+    virtual void drawRow(QPainter *painter,
+                         const QStyleOptionViewItem &options,
                          const QModelIndex &index) const;
     virtual void drawBranches(QPainter *painter, const QRect &rect, const QModelIndex &index) const;
 
@@ -105,6 +107,7 @@ protected:
     void updateGeometries();
 
     int columnSizeHint(int column) const;
+    int rowSizeHint(const QModelIndex &left) const;
  
     bool isIndexHidden(const QModelIndex &index) const;
 };

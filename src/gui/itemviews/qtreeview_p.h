@@ -18,11 +18,12 @@
 
 struct QTreeViewItem
 {
-    QTreeViewItem() : open(false), total(0), level(0) {}
+    QTreeViewItem() : open(false), total(0), level(0), height(0) {}
     QModelIndex index;
     uint open : 1;
     uint total : 30; // total number of children visible
     uint level : 16; // indentation
+    uint height : 16; // row height
 };
 
 class QTreeViewPrivate: public QAbstractItemViewPrivate
@@ -46,7 +47,13 @@ public:
     inline int above(int item) const
         { return (--item < 0 ? 0 : item); }
     inline int below(int item) const
-        { return (++item >= items.count() ? items.count() - 1 : item); }
+        { return (++item >= viewItems.count() ? viewItems.count() - 1 : item); }
+
+    inline int height(int item) const {
+        if (viewItems.at(item).height == 0)
+            viewItems[item].height = q_func()->rowSizeHint(viewItems.at(item).index);
+        return viewItems.at(item).height;
+    }       
 
     int indentation(int item) const;
     int coordinate(int item) const;
@@ -72,7 +79,7 @@ public:
     QHeaderView *header;
     int indent;
 
-    QVector<QTreeViewItem> items;
+    mutable QVector<QTreeViewItem> viewItems;
     int itemHeight; // this is just a number; contentsHeight() / numItems
     bool rootDecoration;
 
@@ -82,11 +89,11 @@ public:
     int current;
 
     // used when opening and closing items
-    QVector<QModelIndex> opened;
+    QVector<QModelIndex> openedIndexes;
     int reopen;
 
     // used when hiding and showing items
-    QVector<QPersistentModelIndex> hidden;
+    QVector<QPersistentModelIndex> hiddenIndexes;
 
     // used for hidden items
     int hiddenItemsCount;
