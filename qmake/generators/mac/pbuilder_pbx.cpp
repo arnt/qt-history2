@@ -25,7 +25,7 @@
 #  include <sys/stat.h>
 #endif
 
-//#ifdef GENERATE_AGGREGRATE_SUBDIR
+//#define GENERATE_AGGREGRATE_SUBDIR
 
 // Note: this is fairly hacky, but it does the job...
 
@@ -188,7 +188,7 @@ ProjectBuilderMakefileGenerator::writeSubDirs(QTextStream &t)
                               << "\t\t\t" << "sourceTree = \"<group>\";" << "\n"
                               << "\t\t" << "};" << "\n";
                         }
-#if GENERATE_AGGREGRATE_SUBDIR
+#ifdef GENERATE_AGGREGRATE_SUBDIR
                         //TARGET (for aggregate)
                         {
                             //container
@@ -253,7 +253,7 @@ nextfile:
           << "\t\t" << "};" << "\n";
     }
 
-#if GENERATE_AGGREGRATE_SUBDIR
+#ifdef GENERATE_AGGREGRATE_SUBDIR
     //target
     t << "\t\t" << keyFor("QMAKE_SUBDIR_PBX_AGGREGATE_TARGET") << " = {" << "\n"
       << "\t\t\t" << "buidPhases = (" << "\n"
@@ -307,7 +307,7 @@ nextfile:
     }
     t << "\t\t\t" << ");" << "\n"
       << "\t\t\t" << "targets = (" << "\n"
-#if GENERATE_AGGREGRATE_SUBDIR
+#ifdef GENERATE_AGGREGRATE_SUBDIR
       << "\t\t\t\t" << keyFor("QMAKE_SUBDIR_PBX_AGGREGATE_TARGET") << "\n"
 #endif
       << "\t\t\t" << ");" << "\n"
