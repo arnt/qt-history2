@@ -1176,7 +1176,7 @@ void QSocket::sn_read( bool force )
 		memcpy(a->data(),buf,nread);
 	    }
 	}
-	if ( nread < 0 ) {
+	if ( nread <= 0 ) {
 	    if ( d->socket->error() == QSocketDevice::NoError ) {
 		// all is fine
 		QSocketPrivate::sn_read_alreadyCalled.removeRef( this );
