@@ -610,7 +610,7 @@ QString valueCheck(uint actual, ...)
 
 // Returns a "human readable" string representation of the MSG and the
 // information it points to
-Q_CORE_EXPORT QString decodeMSG(const MSG& msg)
+QString decodeMSG(const MSG& msg)
 {
     const WPARAM wParam = msg.wParam;
     const LPARAM lParam = msg.lParam;
@@ -1013,7 +1013,7 @@ Q_CORE_EXPORT QString decodeMSG(const MSG& msg)
     return message;
 }
 
-Q_CORE_EXPORT QDebug operator<<(QDebug dbg, const MSG &msg)
+QDebug operator<<(QDebug dbg, const MSG &msg)
 {
     dbg << decodeMSG(msg);
     return dbg.nospace();
