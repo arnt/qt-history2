@@ -2397,18 +2397,20 @@ static void doResInit()
 
     nameServer = nameServer.simplifyWhiteSpace();
     int first, last;
-    first = 0;
-    do {
-	last = nameServer.find( separator, first );
-	if ( last < 0 )
-	    last = nameServer.length();
-	QDns tmp( nameServer.mid( first, last-first ), QDns::A );
-	QValueList<QHostAddress> address = tmp.addresses();
-	Q_LONG i = address.count();
-	while( i )
-	    ns->append( new QHostAddress(address[--i]) );
-	first = last+1;
-    } while( first < (int)nameServer.length() );
+    if ( !nameServer.isEmpty() ) {
+	first = 0;
+	do {
+	    last = nameServer.find( separator, first );
+	    if ( last < 0 )
+		last = nameServer.length();
+	    QDns tmp( nameServer.mid( first, last-first ), QDns::A );
+	    QValueList<QHostAddress> address = tmp.addresses();
+	    Q_LONG i = address.count();
+	    while( i )
+		ns->append( new QHostAddress(address[--i]) );
+	    first = last+1;
+	} while( first < (int)nameServer.length() );
+    }
 
     searchList = searchList + " " + domainName;
     searchList = searchList.simplifyWhiteSpace().lower();
