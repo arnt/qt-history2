@@ -316,9 +316,8 @@ void QAquaStyle::polish( QWidget * w )
             w->setBackgroundOrigin( QWidget::WindowOrigin );
     }
 
-    if( w->inherits("QFrame") && w->parentWidget() &&
-	!w->inherits("QSpinBox") && !w->topLevelWidget()->inherits("QPopupMenu") &&
-	!w->inherits("QMenuBar") && !w->inherits("QTable")) {
+    if( w->parentWidget() && 
+	(w->inherits("QLineEdit") || (w->inherits("QTextEdit") && !w->inherits("QTextView")))) {
 	QObject::connect(w, SIGNAL(destroyed(QObject*)), d, SLOT(objDestroyed(QObject*)));
 	w->installEventFilter( this );
     }
@@ -384,17 +383,14 @@ void QAquaStyle::timerEvent( QTimerEvent * te )
 /*! \reimp */
 bool QAquaStyle::eventFilter( QObject * o, QEvent * e )
 {
-    if(d->focusWidget && d->focusWidget->widget()  &&
+    if(d->focusWidget && d->focusWidget->widget() &&
+       (o->inherits("QLineEdit") || (o->inherits("QTextEdit") && !o->inherits("QTextView"))) &&
        ((e->type() == QEvent::FocusOut && d->focusWidget->widget() == o) ||
 	(e->type() == QEvent::FocusIn && d->focusWidget->widget() != o)))  { //restore it
-	/* I do this game with inherits() & className() because once the QFrame is destructed it
-	   becomes a QWidget. Then in ~QWidget() it does clearFocus() so by the time this gets
-	   called inherits("QFrame") returns TRUE, but classname will be wrong. Hackyness. */
-	if(o != d->focusWidget->widget() || (o->inherits("QFrame") && strcmp(o->className(), "QWidget")))
-	    d->focusWidget->setFocusWidget( NULL );
+	d->focusWidget->setFocusWidget( NULL );
     }
     if( o && e->type() == QEvent::FocusIn ) {
-	if( o != d->focusWidget && o->inherits("QFrame") ) {
+	if( (o->inherits("QLineEdit") || (o->inherits("QTextEdit") && !o->inherits("QTextView")))) {
 	    if (!d->focusWidget)
 		d->focusWidget = new QAquaFocusWidget();
 	    d->focusWidget->setFocusWidget( (QWidget*)o );
