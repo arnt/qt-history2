@@ -1481,21 +1481,24 @@ void QX11PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const Q
         XSetClipOrigin(d->dpy, d->gc, 0, 0);
     } else {
 #if !defined(QT_NO_XFT) && !defined(QT_NO_XRENDER)
-        ::Picture pict = d->xft_hd ? XftDrawPicture(d->xft_hd) : 0;
-        if (mode == Qt::ComposePixmap && pict && pixmap.xftPictureHandle()) {
-            const QBitmap *mask = pixmap.mask();
-            XRenderComposite(d->dpy, ((pixmap.data->alpha || mask) ? PictOpOver : PictOpSrc),
-                             pixmap.xftPictureHandle(),
-                             mask ? mask->xftPictureHandle() : 0,
-                             pict, sx, sy, sx, sy, x, y, sw, sh);
+        ::Picture src_pict = pixmap.xftPictureHandle();
+        ::Picture dst_pict = d->xft_hd ? XftDrawPicture(d->xft_hd) : 0;
+        if (src_pict && dst_pict) {
+            ::Picture msk_pict = ((mode == Qt::ComposePixmap
+                                   && !pixmap.data->alpha
+                                   && pixmap.data->mask)
+                                  ? pixmap.data->mask->xftPictureHandle()
+                                  : XNone);
+            XRenderComposite(d->dpy, mode == Qt::ComposePixmap ? PictOpOver : PictOpSrc,
+                             src_pict, msk_pict, dst_pict, sx, sy, sx, sy, x, y, sw, sh);
+            if (mode == Qt::CopyPixmap && d->pdev->devType() == QInternal::Pixmap) {
+                QPixmap *px = static_cast<QPixmap *>(d->pdev);
+                px->data->alpha = pixmap.data->alpha;
+            }
         } else
 #endif // !QT_NO_XFT && !QT_NO_XRENDER
             {
                 XCopyArea(d->dpy, pixmap.handle(), d->hd, d->gc, sx, sy, sw, sh, x, y);
-                if (mode == Qt::CopyPixmap && d->pdev->devType() == QInternal::Pixmap) {
-                    QPixmap *px = static_cast<QPixmap *>(d->pdev);
-                    px->data->alpha = pixmap.data->alpha;
-                }
             }
     }
 
