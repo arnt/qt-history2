@@ -1,3 +1,17 @@
+/****************************************************************************
+**
+** Definition of the QPicturePrivate class.
+**
+** Copyright (C) 1992-2004 Trolltech AS. All rights reserved.
+**
+** This file is part of the kernel module of the Qt GUI Toolkit.
+** EDITIONS: FREE, PROFESSIONAL, ENTERPRISE
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
 #ifndef QPICTURE_P_H
 #define QPICTURE_P_H
 
@@ -41,8 +55,8 @@ public:
 	PdcDrawText2Formatted = 20, // rect,ival,str
 	PdcDrawTextItem = 21,
 	PdcDrawLast = PdcDrawTextItem,
-	PdcDrawPoints = 22,
-	PdcDrawWinFocusRect = 23,
+	PdcDrawPoints = 22, // ptarr,ival,ival
+	PdcDrawWinFocusRect = 23, // rect,color
 
 	// no painting commands below PdcDrawLast.
 
