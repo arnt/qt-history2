@@ -15,6 +15,7 @@ contains(CONFIG, "debug") {
 DESTDIR     = $(QTDIR)/plugins/designer   
 HEADERS     = analogclock.h \
               plugin.h
+QT          += xml
 SOURCES     = analogclock.cpp \
               plugin.cpp
 TEMPLATE    = lib

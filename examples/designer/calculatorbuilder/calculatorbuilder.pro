@@ -12,6 +12,7 @@ contains(CONFIG, "debug") {
 }
    
 HEADERS     = calculatorform.h
+QT          += xml
 SOURCES     = calculatorform.cpp \
               main.cpp
 RESOURCES   = calculatorbuilder.qrc

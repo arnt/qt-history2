@@ -15,6 +15,7 @@ contains(CONFIG, "debug") {
 DESTDIR     = $(QTDIR)/plugins/designer   
 HEADERS     = worldtimeclock.h \
               plugin.h
+QT          += xml
 SOURCES     = worldtimeclock.cpp \
               plugin.cpp
 TEMPLATE    = lib
