@@ -14,11 +14,10 @@
 #define INDEX_H
 
 #include <qstringlist.h>
-#include <qptrlist.h>
-#include <qdict.h>
+#include <qhash.h>
 #include <qdatastream.h>
 #include <qobject.h>
-#include <qvaluelist.h>
+#include <qlist.h>
 
 struct Document {
     Document( int d, int f ) : docNumber( d ), frequency( f ) {}
@@ -48,12 +47,12 @@ class Index : public QObject
 public:
     struct Entry {
 	Entry( int d ) { documents.append( Document( d, 1 ) ); }
-	Entry( QValueList<Document> l ) : documents( l ) {}
-	QValueList<Document> documents;
+	Entry( QList<Document> l ) : documents( l ) {}
+	QList<Document> documents;
     };
     struct PosEntry {
 	PosEntry( int p ) { positions.append( p ); }
-	QValueList<uint> positions;
+	QList<uint> positions;
     };
 
     Index( const QString &dp, const QString &hp );
@@ -80,32 +79,17 @@ private:
     void readDocumentList();
     QStringList getWildcardTerms( const QString& );
     QStringList split( const QString& );
-    QValueList<Document> setupDummyTerm( const QStringList& );
+    QList<Document> setupDummyTerm( const QStringList& );
     bool searchForPattern( const QStringList&, const QStringList&, const QString& );
     void buildMiniDict( const QString& );
     QStringList docList;
-    QDict<Entry> dict;
-    QDict<PosEntry> miniDict;
+    QHash<QString, Entry*> dict;
+    QHash<QString, PosEntry*> miniDict;
     uint wordNum;
     QString docPath;
     QString dictFile, docListFile;
     bool alreadyHaveDocList;
     bool lastWindowClosed;
-};
-
-struct Term {
-    Term( const QString &t, int f, QValueList<Document> l )
-	: term( t ), frequency( f ), documents( l ) {}
-    QString term;
-    int frequency;
-    QValueList<Document>documents;
-};
-
-class TermList : public QPtrList<Term>
-{
-public:
-    TermList() : QPtrList<Term>() {}
-    int compareItems( QPtrCollection::Item i1, QPtrCollection::Item i2 );
 };
 
 #endif

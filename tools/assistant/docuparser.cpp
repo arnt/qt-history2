@@ -84,13 +84,13 @@ QString DocuParser::errorProtocol() const
 }
 
 
-QValueList<ContentItem> DocuParser::getContentItems()
+QList<ContentItem> DocuParser::getContentItems()
 {
     return contentList;
 }
 
 
-QPtrList<IndexItem> DocuParser::getIndexItems()
+QList<IndexItem*> DocuParser::getIndexItems()
 {
     return indexList;
 }

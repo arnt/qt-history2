@@ -544,7 +544,7 @@
     <include location="global" impldecl="in implementation">qsettings.h</include>
     <include location="global" impldecl="in implementation">qcheckbox.h</include>
     <include location="local" impldecl="in implementation">tabbedbrowser.h</include>
-    <include location="global" impldecl="in declaration">qptrlist.h</include>
+    <include location="global" impldecl="in declaration">qlist.h</include>
     <include location="global" impldecl="in declaration">qguardedptr.h</include>
     <include location="global" impldecl="in declaration">qmap.h</include>
     <include location="local" impldecl="in declaration">finddialog.h</include>
@@ -558,7 +558,7 @@
     <forward>class TabbedBrowser;</forward>
 </forwards>
 <variables>
-    <variable>QPtrList&lt;QAction&gt; *goActions;</variable>
+    <variable>QList&lt;QAction*&gt; *goActions;</variable>
     <variable>int setupCompleted:1;</variable>
     <variable>TabbedBrowser *tabs;</variable>
     <variable>SettingsDialog * settingsDia;</variable>
@@ -566,7 +566,7 @@
     <variable>HelpDialog *helpDock;</variable>
     <variable>QDockWindow *dw;</variable>
     <variable>QGuardedPtr&lt;FindDialog&gt; findDialog;</variable>
-    <variable>static QPtrList&lt;MainWindow&gt; *windows;</variable>
+    <variable>static QList&lt;MainWindow*&gt; *windows;</variable>
     <variable>QMap&lt;QAction*,QString&gt; *goActionDocFiles;</variable>
 </variables>
 <slots>

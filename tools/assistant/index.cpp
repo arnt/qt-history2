@@ -15,19 +15,18 @@
 #include <qfile.h>
 #include <qdir.h>
 #include <qstringlist.h>
-#include <qdict.h>
 #include <qapplication.h>
 #include <qcstring.h>
 #include <ctype.h>
 
-int TermList::compareItems( QPtrCollection::Item i1, QPtrCollection::Item i2 )
-{
-    if( ( (Term*)i1 )->frequency == ( (Term*)i2 )->frequency )
-	return 0;
-    if( ( (Term*)i1 )->frequency < ( (Term*)i2 )->frequency )
-	return -1;
-    return 1;
-}
+struct Term {
+    Term() : frequency(-1) {}
+    Term( const QString &t, int f, QList<Document> l ) : term( t ), frequency( f ), documents( l ) {}
+    QString term;
+    int frequency;
+    QList<Document>documents;
+    bool operator<( const Term &i2 ) { return frequency < i2.frequency; }
+};
 
 QDataStream &operator>>( QDataStream &s, Document &l )
 {
@@ -44,7 +43,7 @@ QDataStream &operator<<( QDataStream &s, const Document &l )
 }
 
 Index::Index( const QString &dp, const QString &hp )
-    : QObject( 0, 0 ), dict( 8999 ), docPath( dp )
+    : QObject( 0, 0 ), docPath( dp )
 {
     alreadyHaveDocList = FALSE;
     lastWindowClosed = FALSE;
@@ -53,7 +52,7 @@ Index::Index( const QString &dp, const QString &hp )
 }
 
 Index::Index( const QStringList &dl, const QString &hp )
-    : QObject( 0, 0 ), dict( 8999 )
+    : QObject( 0, 0 )
 {
     docList = dl;
     alreadyHaveDocList = TRUE;
@@ -179,15 +178,13 @@ void Index::parseDocument( const QString &filename, int docNum )
 
 void Index::writeDict()
 {
-    QDictIterator<Entry> it( dict );
     QFile f( dictFile );
     if ( !f.open( IO_WriteOnly ) )
 	return;
     QDataStream s( &f );
-    for( ; it.current(); ++it ) {
-        Entry *e = it.current();
-	s << it.currentKey();
-	s << e->documents;
+    for(QHash<QString, Entry *>::Iterator it = dict.begin(); it != dict.end(); ++it) {
+	s << it.key();
+	s << it.value()->documents;
     }
     f.close();
     writeDocumentList();
@@ -211,7 +208,7 @@ void Index::readDict()
     dict.clear();
     QDataStream s( &f );
     QString key;
-    QValueList<Document> docs;
+    QList<Document> docs;
     while ( !s.atEnd() ) {
 	s >> key;
 	s >> docs;
@@ -232,62 +229,54 @@ void Index::readDocumentList()
 
 QStringList Index::query( const QStringList &terms, const QStringList &termSeq, const QStringList &seqWords )
 {
-    TermList termList;
-
-    QStringList::ConstIterator it = terms.begin();
-    for ( it = terms.begin(); it != terms.end(); ++it ) {
+    QList<Term> termList;
+    for (QStringList::ConstIterator it = terms.begin(); it != terms.end(); ++it ) {
 	Entry *e = 0;
 	if ( (*it).contains( '*' ) ) {
-	    QValueList<Document> wcts = setupDummyTerm( getWildcardTerms( *it ) );
-	    termList.append( new Term( "dummy", wcts.count(), wcts ) );
+	    QList<Document> wcts = setupDummyTerm( getWildcardTerms( *it ) );
+	    termList.append( Term( "dummy", wcts.count(), wcts ) );
 	} else if ( dict[ *it ] ) {
 	    e = dict[ *it ];
-	    termList.append( new Term( *it, e->documents.count(), e->documents ) );
+	    termList.append( Term( *it, e->documents.count(), e->documents ) );
 	} else {
 	    return QStringList();
 	}
     }
-    termList.sort();
-
-    Term *minTerm = termList.first();
     if ( !termList.count() )
 	return QStringList();
-    termList.removeFirst();
+    qHeapSort(termList);
 
-    QValueList<Document> minDocs = minTerm->documents;
-    QValueList<Document>::iterator C;
-    QValueList<Document>::ConstIterator It;
-    Term *t = termList.first();
-    for ( ; t; t = termList.next() ) {
-	QValueList<Document> docs = t->documents;
-	C = minDocs.begin();
-	while ( C != minDocs.end() ) {
+    QList<Document> minDocs = termList.takeFirst().documents;
+    for(QList<Term>::Iterator it = termList.begin(); it != termList.end(); ++it) {
+	Term *t = &(*it);
+	QList<Document> docs = t->documents;
+	for(QList<Document>::Iterator minDoc_it = minDocs.begin(); minDoc_it != minDocs.end(); ) {
 	    bool found = FALSE;
-	    for ( It = docs.begin(); It != docs.end(); ++It ) {
-		if ( (*C).docNumber == (*It).docNumber ) {
-		    (*C).frequency += (*It).frequency;
+	    for (QList<Document>::ConstIterator doc_it = docs.begin(); doc_it != docs.end(); ++doc_it ) {
+		if ( (*minDoc_it).docNumber == (*doc_it).docNumber ) {
+		    (*minDoc_it).frequency += (*doc_it).frequency;
 		    found = TRUE;
 		    break;
 		}
 	    }
 	    if ( !found )
-		C = minDocs.remove( C );
+		minDoc_it = minDocs.remove( minDoc_it );
 	    else
-		++C;
+		++minDoc_it;
 	}
     }
 
     QStringList results;
     qHeapSort( minDocs );
     if ( termSeq.isEmpty() ) {
-	for ( C = minDocs.begin(); C != minDocs.end(); ++C )
-	    results << docList[ (int)(*C).docNumber ];
+	for(QList<Document>::Iterator it = minDocs.begin(); it != minDocs.end(); ++it) 
+	    results << docList[ (int)(*it).docNumber ];
 	return results;
     }
 
     QString fileName;
-    for ( C = minDocs.begin(); C != minDocs.end(); ++C ) {
-	fileName =  docList[ (int)(*C).docNumber ];
+    for(QList<Document>::Iterator it = minDocs.begin(); it != minDocs.end(); ++it) {
+	fileName =  docList[ (int)(*it).docNumber ];
 	if ( searchForPattern( termSeq, seqWords, fileName ) )
 	    results << fileName;
     }
@@ -317,11 +306,10 @@ QStringList Index::getWildcardTerms( const QString &term )
     QStringList terms = split( term );
     QStringList::Iterator iter;
 
-    QDictIterator<Entry> it( dict );
-    for( ; it.current(); ++it ) {
+    for(QHash<QString, Entry*>::Iterator it = dict.begin(); it != dict.end(); ++it) {
 	int index = 0;
 	bool found = FALSE;
-	QString text( it.currentKey() );
+	QString text( it.key() );
 	for ( iter = terms.begin(); iter != terms.end(); ++iter ) {
 	    if ( *iter == "*" ) {
 		found = TRUE;
@@ -377,35 +365,29 @@ QStringList Index::split( const QString &str )
     return lst;
 }
 
-QValueList<Document> Index::setupDummyTerm( const QStringList &terms )
+QList<Document> Index::setupDummyTerm( const QStringList &terms )
 {
-    TermList termList;
-    QStringList::ConstIterator it = terms.begin();
-    for ( ; it != terms.end(); ++it ) {
+    QList<Term> termList;
+    for (QStringList::ConstIterator it = terms.begin(); it != terms.end(); ++it) {
 	Entry *e = 0;
 	if ( dict[ *it ] ) {
 	    e = dict[ *it ];
-	    termList.append( new Term( *it, e->documents.count(), e->documents ) );
+	    termList.append( Term( *it, e->documents.count(), e->documents ) );
 	}
     }
-    termList.sort();
-
-    QValueList<Document> maxList;
-
+    QList<Document> maxList;
     if ( !termList.count() )
 	return maxList;
-    maxList = termList.last()->documents;
-    termList.removeLast();
+    qHeapSort(termList);
 
-    QValueList<Document>::iterator docIt;
-    Term *t = termList.first();
-    while ( t ) {
-	QValueList<Document> docs = t->documents;
-	for ( docIt = docs.begin(); docIt != docs.end(); ++docIt ) {
+    maxList = termList.takeLast().documents;
+    for(QList<Term>::Iterator it = termList.begin(); it != termList.end(); ++it) {
+	Term *t = &(*it);
+	QList<Document> docs = t->documents;
+	for (QList<Document>::iterator docIt = docs.begin(); docIt != docs.end(); ++docIt ) {
 	    if ( maxList.findIndex( *docIt ) == -1 )
 		maxList.append( *docIt );
 	}
-	t = termList.next();
     }
     return maxList;
 }
@@ -473,8 +455,8 @@ bool Index::searchForPattern( const QStringList &patterns, const QStringList &wo
 
     QStringList::ConstIterator patIt = patterns.begin();
     QStringList wordLst;
-    QValueList<uint> a, b;
-    QValueList<uint>::iterator aIt;
+    QList<uint> a, b;
+    QList<uint>::iterator aIt;
     for ( ; patIt != patterns.end(); ++patIt ) {
 	wordLst = QStringList::split( ' ', *patIt );
 	a = miniDict[ wordLst[0] ]->positions;

@@ -23,18 +23,18 @@
 #include <qeventloop.h>
 #include <qdesktopwidget.h>
 
-QPtrList<MainWindow> *MainWindow::windows = 0;
+QList<MainWindow*> *MainWindow::windows = 0;
 
 void MainWindow::init()
 {
     setupCompleted = FALSE;
 
-    goActions = new QPtrList<QAction>;
+    goActions = new QList<QAction*>;
     goActionDocFiles = new QMap<QAction*,QString>;
     goActions->setAutoDelete( TRUE );
 
     if ( !windows )
-	windows = new QPtrList<MainWindow>;
+	windows = new QList<MainWindow*>;
     windows->append( this );
     tabs = new TabbedBrowser( this, "qt_assistant_tabbedbrowser" );
     setCentralWidget( tabs );
@@ -149,11 +149,10 @@ void MainWindow::setupGoActions()
 
     static bool separatorInserted = FALSE;
 
-    QAction *cur = goActions->first();
-    while( cur ) {
+    for(QList<QAction*>::Iterator it = goActions->begin(); it != goActions->end(); ++it) {
+	QAction *cur = (*it);
 	cur->removeFrom( goMenu );
 	cur->removeFrom( goActionToolbar );
-	cur = goActions->next();
     }
     goActions->clear();
     goActionDocFiles->clear();
@@ -206,11 +205,8 @@ void MainWindow::setObjectsEnabled( bool b )
 	QObject *obj = l.at(i);
         ((QAction*)obj)->setEnabled( b );
     }
-    QPtrListIterator<QAction> ait( *goActions );
-    while ( ait.current() != 0 ) {
-	(*ait)->setEnabled( b );
-        ++ait;
-    }
+    for(QList<QAction*>::Iterator it = goActions->begin(); it != goActions->end(); ++it)
+	(*it)->setEnabled( b );
     menubar->setEnabled( b );
     helpDock->setEnabled( b );
 }
@@ -223,7 +219,7 @@ bool MainWindow::close( bool alsoDelete )
 
 void MainWindow::destroy()
 {
-    windows->removeRef( this );
+    windows->remove( this );
     if ( windows->isEmpty() ) {
 	delete windows;
 	windows = 0;
@@ -338,8 +334,8 @@ void MainWindow::print()
 
 void MainWindow::updateBookmarkMenu()
 {
-    for ( MainWindow *mw = windows->first(); mw; mw = windows->next() )
-	mw->setupBookmarkMenu();
+    for(QList<MainWindow*>::Iterator it = windows->begin(); it != windows->end(); ++it) 
+	(*it)->setupBookmarkMenu();
 }
 
 void MainWindow::setupBookmarkMenu()

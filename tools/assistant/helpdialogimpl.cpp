@@ -32,8 +32,8 @@
 #include <qmessagebox.h>
 #include <qpixmap.h>
 #include <qprogressbar.h>
-#include <qptrlist.h>
-#include <qptrstack.h>
+#include <qlist.h>
+#include <qstack.h>
 #include <qregexp.h>
 #include <qsettings.h>
 #include <qstatusbar.h>
@@ -268,7 +268,7 @@ void HelpDialog::loadIndexFile()
     bar->setProgress( 0 );
 
 
-    QValueList<IndexKeyword> lst;
+    QList<IndexKeyword> lst;
     QFile indexFile( cacheFilesPath + "indexdb." +
 		     Config::configuration()->profileName() );
     if ( !indexFile.open( IO_ReadOnly ) ) {
@@ -302,7 +302,7 @@ void HelpDialog::loadIndexFile()
     listIndex->clear();
     HelpNavigationListItem *lastItem = 0;
     QString lastKeyword = QString::null;
-    QValueList<IndexKeyword>::ConstIterator it = lst.begin();
+    QList<IndexKeyword>::ConstIterator it = lst.begin();
     for ( ; it != lst.end(); ++it ) {
 	if ( lastKeyword.lower() != (*it).keyword.lower() )
 	    lastItem = new HelpNavigationListItem( listIndex, (*it).keyword );
@@ -343,7 +343,7 @@ void HelpDialog::buildKeywordDB()
     progressPrepare->setProgress( 0 );
     processEvents();
 
-    QValueList<IndexKeyword> lst;
+    QList<IndexKeyword> lst;
     Q_UINT32 fileAges = 0;
     for( i = addDocuFiles.begin(); i != addDocuFiles.end(); i++ ){
 	QFile file( *i );
@@ -366,11 +366,10 @@ void HelpDialog::buildKeywordDB()
 	    continue;
 	}
 
-	QPtrList<IndexItem> indLst = handler->getIndexItems();
-	QPtrListIterator<IndexItem> it( indLst );
-	IndexItem *indItem;
+	QList<IndexItem*> indLst = handler->getIndexItems();
 	int counter = 0;
-	while ( ( indItem = it.current() ) != 0 ) {
+	for(QList<IndexItem*>::Iterator it = indLst.begin(); it != indLst.end(); ++it) {
+	    IndexItem *indItem = (*it);
 	    QFileInfo fi( indItem->reference );
 	    lst.append( IndexKeyword( indItem->keyword, fi.absFilePath() ) );
 	    if ( progressPrepare )
@@ -383,7 +382,6 @@ void HelpDialog::buildKeywordDB()
 		    return;
 		}
 	    }
-	    ++it;
 	}
 	delete handler;
     }
@@ -413,11 +411,9 @@ void HelpDialog::setupTitleMap()
 
     titleMapDone = TRUE;
     titleMap.clear();
-    QDictIterator<ContentList> lstIt( contentList );
-    for ( ; lstIt.current(); ++lstIt ) {
-	QValueList<ContentItem> &lst = *(lstIt.current());
-	QValueListConstIterator<ContentItem> it;
-	for ( it = lst.begin(); it != lst.end(); ++it ) {
+    for(QHash<QString, ContentList*>::Iterator it = contentList.begin(); it != contentList.end(); ++it) {
+	ContentList *lst = it.value();
+	for(ContentList::Iterator it = lst->begin(); it != lst->end(); ++it) {
 	    QFileInfo link( (*it).reference.simplifyWhiteSpace() );
 	    titleMap[ link.absFilePath() ] = (*it).title.stripWhiteSpace();
 	}
@@ -443,11 +439,11 @@ void HelpDialog::getAllContents()
 	return;
     }
     QString key;
-    QValueList<ContentItem> lst;
+    QList<ContentItem> lst;
     while ( !ds.atEnd() ) {
 	ds >> key;
 	ds >> lst;
-	contentList.insert( key, new QValueList<ContentItem>( lst ) );
+	contentList.insert( key, new QList<ContentItem>( lst ) );
     }
     contentFile.close();
     processEvents();
@@ -478,7 +474,7 @@ void HelpDialog::buildContentDict()
 	bool ok = handler->parse( &file );
 	file.close();
 	if( ok ) {
-	    contentList.insert( *it, new QValueList<ContentItem>( handler->getContentItems() ) );
+	    contentList.insert( *it, new QList<ContentItem>( handler->getContentItems() ) );
 	    delete handler;
 	} else {
 	    QString msg = QString( "In file %1:\n%2" )
@@ -493,10 +489,9 @@ void HelpDialog::buildContentDict()
     if ( contentOut.open( IO_WriteOnly ) ) {
 	QDataStream s( &contentOut );
 	s << fileAges;
-	QDictIterator<ContentList> it( contentList );
-	for ( ; it.current(); ++it ) {
-	    s << it.currentKey();
-	    s << *(it.current());
+	for(QHash<QString, ContentList*>::Iterator it = contentList.begin(); it != contentList.end(); ++it) {
+	    s << it.key();
+	    s << *(it.value());
 	}
 	contentOut.close();
     }
@@ -744,12 +739,11 @@ void HelpDialog::insertContents()
 
     listContents->setSorting( -1 );
 
-    QDictIterator<ContentList> lstIt( contentList );
-    for ( ; lstIt.current(); ++lstIt ) {
+    for(QHash<QString, ContentList*>::Iterator it = contentList.begin(); it != contentList.end(); ++it) {
 	HelpNavigationContentsItem *newEntry;
 
 	HelpNavigationContentsItem *contentEntry;
-	QPtrStack<HelpNavigationContentsItem> stack;
+	QStack<HelpNavigationContentsItem*> stack;
 	stack.clear();
 	int depth = 0;
 	bool root = FALSE;
@@ -758,10 +752,8 @@ void HelpDialog::insertContents()
 	for( int j = 0; j < 64; ++j )
 	    lastItem[j] = 0;
 
-
-	QValueList<ContentItem> &lst = *(lstIt.current());
-	QValueListConstIterator<ContentItem> it;
-	for( it = lst.begin(); it != lst.end(); ++it ){
+	ContentList *lst = it.value();
+	for(ContentList::Iterator it = lst->begin(); it != lst->end(); ++it) {
 	    ContentItem item = *it;
 	    if( item.depth == 0 ){
 		newEntry = new HelpNavigationContentsItem( listContents, 0 );

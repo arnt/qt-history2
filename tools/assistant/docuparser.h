@@ -14,12 +14,10 @@
 #define DOCUPARSER_H
 
 #include <qxml.h>
-#include <qptrlist.h>
+#include <qlist.h>
 #include <qmap.h>
 
 class Profile;
-
-#include <qvaluelist.h>
 
 struct ContentItem {
     ContentItem()
@@ -57,8 +55,8 @@ public:
 
     virtual bool parse( QFile *file );
     
-    QValueList<ContentItem> getContentItems();
-    QPtrList<IndexItem> getIndexItems();
+    QList<ContentItem> getContentItems();
+    QList<IndexItem*> getIndexItems();
 
     QString errorProtocol() const;
     QString contentsURL() const { return conURL; }
@@ -74,8 +72,8 @@ protected:
     
     QString contentRef, indexRef, errorProt, conURL;
     QString docTitle, title, iconName;
-    QValueList<ContentItem> contentList;
-    QPtrList<IndexItem> indexList;
+    QList<ContentItem> contentList;
+    QList<IndexItem*> indexList;
     QString fname;
 };
 

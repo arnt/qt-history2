@@ -16,7 +16,6 @@
 #include "settingsdialog.h"
 
 #include <qstringlist.h>
-#include <qptrlist.h>
 #include <qlistview.h>
 
 class SettingsDialog : public SettingsDialogBase

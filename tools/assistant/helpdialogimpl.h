@@ -24,7 +24,7 @@
 #include <qstringlist.h>
 #include <qvalidator.h>
 #include <qpopupmenu.h>
-#include <qdict.h>
+#include <qhash.h>
 #include <qpopupmenu.h>
 
 class QProgressBar;
@@ -117,7 +117,7 @@ private slots:
     void processEvents();
 
 private:
-    typedef QValueList<ContentItem> ContentList;
+    typedef QList<ContentItem> ContentList;
     void removeOldCacheFiles();
     void buildKeywordDB();
     Q_UINT32 getFileAges();
@@ -138,7 +138,7 @@ private:
     QStringList terms, foundDocs;
     bool initDoneMsgShown;
     void getAllContents();
-    QDict<ContentList> contentList;
+    QHash<QString, ContentList*> contentList;
     QPopupMenu *itemPopup;
     QString cacheFilesPath;
 };
