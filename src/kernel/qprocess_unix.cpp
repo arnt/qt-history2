@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#41 $
+** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#42 $
 **
 ** Implementation of QProcess class for Unix
 **
@@ -152,6 +152,8 @@ public:
 #if defined(QT_QPROCESS_DEBUG)
 	qDebug( "QProc: Destructor for pid %d and QProcess %p", pid, process );
 #endif
+	if ( process != 0 )
+	    process->d->proc = 0;
     }
 
     pid_t pid;
@@ -187,6 +189,7 @@ public:
 QProcessManager::QProcessManager()
 {
     procList = new QList<QProc>;
+    procList->setAutoDelete( TRUE );
 
     // The SIGCHLD handler writes to a socket to tell the manager that
     // something happened. This is done to get the processing in sync with the
@@ -266,15 +269,14 @@ void QProcessManager::append( QProc *p )
 
 void QProcessManager::remove( QProc *p )
 {
-    if ( p->process != 0 )
-	p->process->d->proc = 0;
     procList->remove( p );
-    delete p;
 #if defined(QT_QPROCESS_DEBUG)
     qDebug( "QProcessManager: remove process (procList.count(): %d)", procList->count() );
 #endif
     if ( procList->count() == 0 ) {
-	// ### delete process manager
+	// ### this looks dangerous: do that better with a single shot timer
+	QProcessPrivate::procManager = 0;
+	delete this;
     }
 }
 
@@ -305,12 +307,6 @@ void QProcessManager::sigchldHnd( int fd )
 		    emit process->processExited();
 
 		removeProc = TRUE;
-#if 0
-		// ### take a close look at this
-		// the slot might have deleted the last process...
-		if ( !procManager )
-		    return;
-#endif
 	    }
 	} else {
 	    int status;
@@ -485,7 +481,6 @@ void QProcess::init()
 */
 void QProcess::reset()
 {
-    // ### close stdin? what about stdout, stderr?
     delete d;
     d = new QProcessPrivate();
     exitStat = 0;
@@ -525,7 +520,7 @@ QProcess::~QProcess()
   deletes pending data - you loose all control over that process, but the
   process is not terminated.
 
-  \sa launch()
+  \sa launch() closeStdin()
 */
 bool QProcess::start()
 {

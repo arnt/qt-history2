@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess.h#21 $
+** $Id: //depot/qt/main/src/kernel/qprocess.h#22 $
 **
 ** Implementation of QProcess class
 **
@@ -130,6 +130,7 @@ private:
     friend class QProcessPrivate;
 #if defined(Q_OS_UNIX)
     friend class QProcessManager;
+    friend class QProc;
 #endif
 };
 
