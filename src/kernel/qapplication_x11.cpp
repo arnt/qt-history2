@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#176 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#177 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -43,7 +43,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #include <bstring.h> // bzero
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#176 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#177 $");
 
 
 #if !defined(XlibSpecificationRelease)
@@ -98,7 +98,7 @@ static QWidgetList *popupWidgets = 0;		// list of popup widgets
 static bool	    popupCloseDownMode = FALSE;
 
 typedef void  (*VFPTR)();
-typedef declare(QListM,void) QVFuncList;
+typedef Q_DECLARE(QListM,void) QVFuncList;
 static QVFuncList *postRList = 0;		// list of post routines
 
 static int	qt_x_errhandler( Display *, XErrorEvent * );
@@ -563,7 +563,7 @@ QWidget *QApplication::desktop()
   QApplication cursor stack
  *****************************************************************************/
 
-typedef declare(QListM,QCursor) QCursorList;
+typedef Q_DECLARE(QListM,QCursor) QCursorList;
 
 static QCursorList *cursorStack = 0;
 
@@ -820,7 +820,7 @@ struct QPostEvent {
     QEvent   *event;
 };
 
-declare(QListM,QPostEvent);
+Q_DECLARE(QListM,QPostEvent);
 static QListM(QPostEvent) *postedEvents = 0;	// list of posted events
 
 /*!
@@ -955,8 +955,8 @@ struct QSockNot {
     int	     fd;
 };
 
-typedef declare(QListM,QSockNot)	 QSNList;
-typedef declare(QListIteratorM,QSockNot) QSNListIt;
+typedef Q_DECLARE(QListM,QSockNot)	 QSNList;
+typedef Q_DECLARE(QListIteratorM,QSockNot) QSNListIt;
 
 static int	sn_highest = -1;
 static QSNList *sn_read	  = 0;
@@ -1047,8 +1047,8 @@ bool qt_set_socket_handler( int sockfd, int type, QObject *obj, bool enable )
 }
 
 
-typedef declare(QIntDictM,QObject)	   QObjRndDict;
-typedef declare(QIntDictIteratorM,QObject) QObjRndDictIt;
+typedef Q_DECLARE(QIntDictM,QObject)	   QObjRndDict;
+typedef Q_DECLARE(QIntDictIteratorM,QObject) QObjRndDictIt;
 
 static QObjRndDict *sn_rnd_dict = 0;
 
@@ -1583,7 +1583,7 @@ struct TimerInfo {				// internal timer info
     QObject *obj;				// - object to receive event
 };
 
-typedef declare(QListM,TimerInfo) TimerList;	// list of TimerInfo structs
+typedef Q_DECLARE(QListM,TimerInfo) TimerList;	// list of TimerInfo structs
 
 static const int MaxTimers	= 256;		// max number of timers
 static const int TimerBitVecLen = MaxTimers/8+1;// size of timer bit vector

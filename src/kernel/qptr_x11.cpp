@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#196 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#197 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -25,7 +25,7 @@
 #define QXFontStruct XFontStruct
 #include "qfontdta.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#196 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#197 $");
 
 
 /*****************************************************************************
@@ -390,7 +390,7 @@ void QPainter::cleanup()
 }
 
 
-typedef declare(QIntDictM,QPaintDevice) QPaintDeviceDict;
+typedef Q_DECLARE(QIntDictM,QPaintDevice) QPaintDeviceDict;
 static QPaintDeviceDict *pdev_dict = 0;
 
 /*!

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.cpp#32 $
+** $Id: //depot/qt/main/src/kernel/qaccel.cpp#33 $
 **
 ** Implementation of QAccel class
 **
@@ -16,7 +16,7 @@
 #include "qlist.h"
 #include "qsignal.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qaccel.cpp#32 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qaccel.cpp#33 $");
 
 
 /*!
@@ -59,7 +59,7 @@ struct QAccelItem {				// internal accelerator item
     QSignal    *signal;
 };
 
-typedef declare(QListM,QAccelItem) QAccelList;	// internal accelerator list
+typedef Q_DECLARE(QListM,QAccelItem) QAccelList;	// internal accelerator list
 
 
 static QAccelItem *find_id( QAccelList *list, int id )

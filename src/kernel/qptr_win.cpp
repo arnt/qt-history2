@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_win.cpp#56 $
+** $Id: //depot/qt/main/src/kernel/qptr_win.cpp#57 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -29,7 +29,7 @@
 
 extern WindowsVersion qt_winver;		// defined in qapp_win.cpp
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_win.cpp#56 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_win.cpp#57 $");
 
 
 #define COLOR_VALUE(c) ((flags & RGBColor) ? c.rgb() : c.pixel())
@@ -281,7 +281,7 @@ void QPainter::cleanup()
 }
 
 
-typedef declare(QIntDictM,QPaintDevice) QPaintDeviceDict;
+typedef Q_DECLARE(QIntDictM,QPaintDevice) QPaintDeviceDict;
 static QPaintDeviceDict *pdev_dict = 0;
 
 

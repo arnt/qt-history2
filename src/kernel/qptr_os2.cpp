@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_os2.cpp#13 $
+** $Id: //depot/qt/main/src/kernel/qptr_os2.cpp#14 $
 **
 ** Implementation of QPainter class for OS/2 PM
 **
@@ -17,7 +17,7 @@
 #define	 INCL_PM
 #include <os2.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_os2.cpp#13 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_os2.cpp#14 $");
 
 
 /*****************************************************************************
@@ -283,7 +283,7 @@ bool QBrush::update( HPS hps )			// update brush params
 
 #include "qlist.h"
 
-typedef declare(QListM,QPainter) QPnList;
+typedef Q_DECLARE(QListM,QPainter) QPnList;
 
 QPnList *QPainter::list = 0;
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#28 $
+** $Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#29 $
 **
 ** Implementation of QButtonGroup class
 **
@@ -14,7 +14,7 @@
 #include "qbutton.h"
 #include "qlist.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#28 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#29 $");
 
 
 /*!
@@ -55,7 +55,7 @@ struct QButtonItem
     int	     id;
 };
 
-declare(QListM,QButtonItem);
+Q_DECLARE(QListM,QButtonItem);
 
 
 /*!

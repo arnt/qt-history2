@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_os2.cpp#15 $
+** $Id: //depot/qt/main/src/kernel/qapp_os2.cpp#16 $
 **
 ** Implementation of OS/2 PM startup routines and event handling
 **
@@ -19,7 +19,7 @@
 #define	 INCL_PM
 #include <os2.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_os2.cpp#15 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_os2.cpp#16 $");
 
 
 /*****************************************************************************
@@ -218,7 +218,7 @@ struct QWinConfigRequest {
     int	 x, y, w, h;				// request parameters
 };
 
-declare(QQueueM,QWinConfigRequest);
+Q_DECLARE(QQueueM,QWinConfigRequest);
 static QQueue(QWinConfigRequest) *configRequests = 0;
 
 void qWinRequestConfig( WId id, int req, int x, int y, int w, int h )
@@ -443,8 +443,8 @@ struct TimerInfo {				// internal timer info
     uint     countdown;				// - countdown variable
     QObject *obj;				// - object to receive events
 };
-typedef declare(QVectorM,TimerInfo) TimerVec;	// vector of TimerInfo structs
-typedef declare(QIntDictM,TimerInfo) TimerDict; // fast dict of timers
+typedef Q_DECLARE(QVectorM,TimerInfo) TimerVec;	// vector of TimerInfo structs
+typedef Q_DECLARE(QIntDictM,TimerInfo) TimerDict; // fast dict of timers
 
 static const int MaxTimers  = 64;		// max number of timers
 static TimerVec	 *timerVec  = 0;		// timer vector

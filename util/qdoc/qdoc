@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#122 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#123 $
 #
 # this is a massive hack, written very quickly
 #
@@ -979,14 +979,14 @@ sub readh {
 	#print "saw ", $3, ": ", $declared{$3}, "\n";
     }
 
-    while ($h =~ /\bdeclare\s*\(\s*(\S+?)\s*,\s*(\S+?)\s*\)\s*;
+    while ($h =~ /\bQ_DECLARE\s*\(\s*(\S+?)\s*,\s*(\S+?)\s*\)\s*;
 	   \s+\#define\s+(\S+)\s+(\S+)\s*\(\s*(\S+)\s*\)\s/gsx ) {
 	next if ( ($1 ne $4) || ($2 ne $5) );
 	$declared{$3} = $1 . " " . $2 . " " . $filename;
 	#print $3, " -> ", $declared{$3}, "\n";
     }
 
-    while ($h =~ /\bdeclare\s*\(\s*(\S+?)\s*,\s*(\S+?)\s*\)\s*;
+    while ($h =~ /\bQ_DECLARE\s*\(\s*(\S+?)\s*,\s*(\S+?)\s*\)\s*;
 	   \s+\typedef\s+(\S+)\s*\(\s*(\S+)\s*\)\s+(\S+)\s;/gsx ) {
 	next if ( ($1 ne $3) || ($2 ne $4) );
 	$declared{$5} = $1 . " " . $2 . " " . $filename;

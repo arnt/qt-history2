@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qarray.doc,v 2.0 1996/09/24 10:15:15 agulbra Exp $
+** $Id: qarray.doc,v 2.1 1996/10/06 19:13:33 agulbra Exp $
 **
 ** QArray class documentation
 **
@@ -87,7 +87,7 @@
   Macro expansion:
   \code
       ...
-    declare(QArrayM,X);			// declares the array
+    Q_DECLARE(QArrayM,X);			// declares the array
 
     void main()
     {
@@ -104,7 +104,7 @@
     #if defined(USE_TEMPLATECLASS)	// defined in qglobal.h
     typedef QArrayT<X>	       XArray;
     #else
-    typedef declare(QArrayM,X) XArray;
+    typedef Q_DECLARE(QArrayM,X) XArray;
     #endif
 
     void main()

@@ -49,7 +49,7 @@ struct FileInfo {
     QStrList *incl;				// list of include files
 };
 
-typedef declare(QDict,FileInfo) FilesDict;
+typedef Q_DECLARE(QDict,FileInfo) FilesDict;
 FilesDict *fdict = 0;
 QStrList  *flist = 0;
 

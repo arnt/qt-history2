@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#61 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#62 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -24,7 +24,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#61 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#62 $");
 
 
 /*****************************************************************************
@@ -54,7 +54,7 @@ static QWidgetList *popupWidgets= 0;		// list of popup widgets
 static bool	    popupCloseDownMode = FALSE;
 
 typedef void  (*VFPTR)();
-typedef declare(QListM,void) QVFuncList;
+typedef Q_DECLARE(QListM,void) QVFuncList;
 static QVFuncList *postRList = 0;		// list of post routines
 
 static void	msgHandler( QtMsgType, const char * );
@@ -95,7 +95,7 @@ public:
 };
 
 
-typedef declare(QArrayM,pchar) ArgV;
+typedef Q_DECLARE(QArrayM,pchar) ArgV;
 
 
 /*****************************************************************************
@@ -387,7 +387,7 @@ QWidget *QApplication::desktop()
   QApplication cursor stack
  *****************************************************************************/
 
-typedef declare(QListM,QCursor) QCursorList;
+typedef Q_DECLARE(QListM,QCursor) QCursorList;
 
 static QCursorList *cursorStack = 0;
 
@@ -475,7 +475,7 @@ struct QPostEvent {
     QEvent   *event;
 };
 
-declare(QListM,QPostEvent);
+Q_DECLARE(QListM,QPostEvent);
 static QListM(QPostEvent) *postedEvents = 0;	// list of posted events
 
 
@@ -558,7 +558,7 @@ struct QWinConfigRequest {
     int	 x, y, w, h;				// request parameters
 };
 
-declare(QQueueM,QWinConfigRequest);
+Q_DECLARE(QQueueM,QWinConfigRequest);
 static QQueueM(QWinConfigRequest) *configRequests = 0;
 
 void qWinRequestConfig( WId id, int req, int x, int y, int w, int h )
@@ -1071,8 +1071,8 @@ struct TimerInfo {				// internal timer info
     bool     zero;				// - zero timing
     QObject *obj;				// - object to receive events
 };
-typedef declare(QVectorM,TimerInfo)  TimerVec;	// vector of TimerInfo structs
-typedef declare(QIntDictM,TimerInfo) TimerDict; // fast dict of timers
+typedef Q_DECLARE(QVectorM,TimerInfo)  TimerVec;	// vector of TimerInfo structs
+typedef Q_DECLARE(QIntDictM,TimerInfo) TimerDict; // fast dict of timers
 
 static const int MaxTimers  = 256;		// max number of timers
 static TimerVec *timerVec   = 0;		// timer vector

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#71 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#72 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -19,7 +19,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#71 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#72 $");
 
 
 /*!
@@ -611,8 +611,8 @@ void QImage::freeBits()
 // as RRRGGGBB.
 //
 
-declare(QIntDictM,char);
-declare(QIntDictIteratorM,char);
+Q_DECLARE(QIntDictM,char);
+Q_DECLARE(QIntDictIteratorM,char);
 
 static bool convert_32_to_8( const QImage *src, QImage *dst )
 {
@@ -1083,7 +1083,7 @@ QImageHandler::QImageHandler( const char *f, const char *h, bool t,
     write_image = w;
 }
 
-typedef declare(QListM,QImageHandler) QIHList;	// list of image handlers
+typedef Q_DECLARE(QListM,QImageHandler) QIHList;	// list of image handlers
 static QIHList *imageHandlers = 0;
 
 static void cleanup_image_handlers()		// cleanup image handler list

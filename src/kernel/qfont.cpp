@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#56 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#57 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -19,7 +19,7 @@
 #include "qstrlist.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#56 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#57 $");
 
 
 /*!
@@ -734,8 +734,8 @@ void  QFont::setDefaultFont( const QFont &f )
   QFont substitution management
  *****************************************************************************/
 
-typedef declare(QDictM,char)	     QFontSubst;
-typedef declare(QDictIteratorM,char) QFontSubstIt;
+typedef Q_DECLARE(QDictM,char)	     QFontSubst;
+typedef Q_DECLARE(QDictIteratorM,char) QFontSubstIt;
 static QFontSubst *fontSubst = 0;
 
 static void cleanupFontSubst()			// cleanup substitution dict
@@ -924,7 +924,7 @@ QDataStream &operator>>( QDataStream &s, QFont &f )
   QFontMetrics member functions
  *****************************************************************************/
 
-typedef declare(QListM,QFontMetrics) QFontMetricsList;
+typedef Q_DECLARE(QListM,QFontMetrics) QFontMetricsList;
 static QFontMetricsList *fm_list = 0;
 
 static void insertFontMetrics( QFontMetrics *fm )
@@ -1132,7 +1132,7 @@ const QFont &QFontMetrics::font() const
   QFontInfo member functions
  *****************************************************************************/
 
-typedef declare(QListM,QFontInfo) QFontInfoList;
+typedef Q_DECLARE(QListM,QFontInfo) QFontInfoList;
 static QFontInfoList *fi_list = 0;
 
 static void insertFontInfo( QFontInfo *fi )

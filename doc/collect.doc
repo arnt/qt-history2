@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: collect.doc,v 2.0 1996/09/24 10:15:13 agulbra Exp $
+** $Id: collect.doc,v 2.1 1996/10/06 19:13:33 agulbra Exp $
 **
 ** Qt collection classes documentation
 **
@@ -178,7 +178,7 @@ This is necessary only for compilers that do not support templates.
 
 Macro instantiation:
 \code
-  declare(QListM,Employee);	// declare once (for instance in a .h file)
+  Q_DECLARE(QListM,Employee);	// declare once (for instance in a .h file)
     ...
   QListM(Employee) list;	// wherever the list is used
 \endcode
@@ -192,7 +192,7 @@ can use \c typedef:
   #if defined(USE_TEMPLATECLASS)
   typedef QListT<Employee>	   EmployeeList;
   #else
-  typedef declare(QListM,Employee) EmployeeList;
+  typedef Q_DECLARE(QListM,Employee) EmployeeList;
   #endif
 
   void main()

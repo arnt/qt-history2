@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#44 $
+** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#45 $
 **
 ** Implementation of QColor class for X11
 **
@@ -16,7 +16,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#44 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#45 $");
 
 
 /*****************************************************************************
@@ -31,8 +31,8 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#44 $");
 
 #include "qintdict.h"
 
-typedef declare(QIntDictM,QColor) QColorDict;
-typedef declare(QIntDictIteratorM,QColor) QColorDictIt;
+typedef Q_DECLARE(QIntDictM,QColor) QColorDict;
+typedef Q_DECLARE(QIntDictIteratorM,QColor) QColorDictIt;
 static QColorDict *colorDict = 0;		// dict of allocated colors
 static bool	   colorAvail = TRUE;		// X colors available
 

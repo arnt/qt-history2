@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.h#38 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.h#39 $
 **
 ** Definition of QMenuData class
 **
@@ -62,8 +62,8 @@ private:	// Disabled copy constructor and operator=
 };
 
 #include "qlist.h"
-typedef declare(QListM,QMenuItem)	  QMenuItemList;
-typedef declare(QListIteratorM,QMenuItem) QMenuItemListIt;
+typedef Q_DECLARE(QListM,QMenuItem)	  QMenuItemList;
+typedef Q_DECLARE(QListIteratorM,QMenuItem) QMenuItemListIt;
 
 #else
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#66 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#67 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -23,7 +23,7 @@
 #define QXFontStruct XFontStruct
 #include "qfontdta.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfont_x11.cpp#66 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfont_x11.cpp#67 $");
 
 
 static const int fontFields = 14;
@@ -91,10 +91,10 @@ static const int reserveCost   = 1024*100;
 static const int fontCacheSize = 1024*1024*4;
 
 
-declare(QCacheM,QXFontData);			// inherited by QFontCache
-typedef declare(QCacheIteratorM,QXFontData) QFontCacheIt;
-typedef declare(QDictM,QXFontData)	    QFontDict;
-typedef declare(QDictIteratorM,QXFontData)  QFontDictIt;
+Q_DECLARE(QCacheM,QXFontData);			// inherited by QFontCache
+typedef Q_DECLARE(QCacheIteratorM,QXFontData) QFontCacheIt;
+typedef Q_DECLARE(QDictM,QXFontData)	    QFontDict;
+typedef Q_DECLARE(QDictIteratorM,QXFontData)  QFontDictIt;
 
 
 class QFontCache : public QCacheM(QXFontData)
@@ -119,7 +119,7 @@ struct QXFontName {
     bool    exactMatch;
 };
 
-typedef declare(QDictM,QXFontName) QFontNameDict;
+typedef Q_DECLARE(QDictM,QXFontName) QFontNameDict;
 
 static QFontCache    *fontCache	     = 0;	// cache of loaded fonts
 static QFontDict     *fontDict	     = 0;	// dict of all loaded fonts

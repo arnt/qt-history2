@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpntarry.h#23 $
+** $Id: //depot/qt/main/src/kernel/qpntarry.h#24 $
 **
 ** Definition of QPointArray class
 **
@@ -63,7 +63,7 @@ private:
   QPointArray class
  *****************************************************************************/
 
-declare(QArrayM,QPointData);
+Q_DECLARE(QArrayM,QPointData);
 
 class QPointArray : public QArrayM(QPointData)
 {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobjcoll.h#8 $
+** $Id: //depot/qt/main/src/kernel/qobjcoll.h#9 $
 **
 ** Definition of QObject and QMetaObject collections
 **
@@ -19,15 +19,15 @@
 
 // QObject collections
 
-declare(QListM,QObject);
-declare(QListIteratorM,QObject);
+Q_DECLARE(QListM,QObject);
+Q_DECLARE(QListIteratorM,QObject);
 typedef QListM(QObject) QObjectList;		// object list
 typedef QListIteratorM(QObject) QObjectListIt;	// object list iterator
 
 
 // QMetaObject collections
 
-declare(QDictM,QMetaObject);
+Q_DECLARE(QDictM,QMetaObject);
 typedef QDictM(QMetaObject) QObjectDictionary;	// meta object dictionary
 
 extern QObjectDictionary *objectDict;		// global object dictionary

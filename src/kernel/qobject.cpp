@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#107 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#108 $
 **
 ** Implementation of QObject class
 **
@@ -14,7 +14,7 @@
 #include "qregexp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#107 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#108 $");
 
 
 /*!
@@ -174,10 +174,10 @@ bool  qKillTimer( QObject *obj );
 void  qRemovePostedEvents( QObject * );
 
 
-declare(QListM,QConnection);			// dictionary of connections
-declare(QListIteratorM,QConnection);		// dictionary iterator
-declare(QDictM,QListM(QConnection));
-declare(QDictIteratorM,QListM(QConnection));
+Q_DECLARE(QListM,QConnection);			// dictionary of connections
+Q_DECLARE(QListIteratorM,QConnection);		// dictionary iterator
+Q_DECLARE(QDictM,QListM(QConnection));
+Q_DECLARE(QDictIteratorM,QListM(QConnection));
 
 QMetaObject *QObject::metaObj = 0;
 

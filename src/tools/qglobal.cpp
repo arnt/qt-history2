@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.cpp#41 $
+** $Id: //depot/qt/main/src/tools/qglobal.cpp#42 $
 **
 ** Global functions
 **
@@ -16,7 +16,7 @@
 #include <stdarg.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qglobal.cpp#41 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qglobal.cpp#42 $");
 
 
 #define QT_VERSION "1.0"
@@ -329,7 +329,7 @@ bool chk_pointer( bool c, const char *n, int l )
 }
 
 
-declare(QDictM,int);
+Q_DECLARE(QDictM,int);
 
 static bool firstObsoleteWarning(const char *obj, const char *oldfunc )
 {

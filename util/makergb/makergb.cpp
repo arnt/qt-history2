@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/makergb/makergb.cpp#2 $
+** $Id: //depot/qt/main/util/makergb/makergb.cpp#3 $
 **
 ** makergb - Utility to generate X11 RGB color lookup function
 **
@@ -31,7 +31,7 @@ struct Color {					// data read from rgb.txt
     int     r,g,b;
 };
 
-declare(QVector,Color);
+Q_DECLARE(QVector,Color);
 
 class ColorVector : public QVector(Color)	// vector of Color data
 {

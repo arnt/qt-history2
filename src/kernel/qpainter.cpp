@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#85 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#86 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -19,7 +19,7 @@
 #include "qstack.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#85 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#86 $");
 
 
 /*!
@@ -132,7 +132,7 @@ struct QPState {				// painter state
     int	       *ta;
 };
 
-declare(QStackM,QPState);
+Q_DECLARE(QStackM,QPState);
 typedef QStackM(QPState) QPStateStack;
 
 

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#79 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#80 $
 **
 ** Implementation of QListBox widget class
 **
@@ -17,10 +17,10 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#79 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#80 $");
 
 
-declare(QListM, QListBoxItem);
+Q_DECLARE(QListM, QListBoxItem);
 
 class QLBItemList : public QListM(QListBoxItem) // internal class
 {

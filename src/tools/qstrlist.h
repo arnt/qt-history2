@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstrlist.h#12 $
+** $Id: //depot/qt/main/src/tools/qstrlist.h#13 $
 **
 ** Definition of QStrList, QStrIList and QStrListIterator classes
 **
@@ -23,8 +23,8 @@
 typedef QListT<char>			QStrListBase;
 typedef QListIteratorT<char>		QStrListIterator;
 #else
-typedef declare(QListM,char)		QStrListBase;
-typedef declare(QListIteratorM,char)	QStrListIterator;
+typedef Q_DECLARE(QListM,char)		QStrListBase;
+typedef Q_DECLARE(QListIteratorM,char)	QStrListIterator;
 #endif
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmetaobject.cpp#21 $
+** $Id: //depot/qt/main/src/kernel/qmetaobject.cpp#22 $
 **
 ** Implementation of QMetaObject class
 **
@@ -13,7 +13,7 @@
 #include "qobjcoll.h"
 #include "qstrlist.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qmetaobject.cpp#21 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qmetaobject.cpp#22 $");
 
 /* not documented
   \class QMetaObject qmetaobj.h
@@ -38,7 +38,7 @@ QObjectDictionary *objectDict = 0;		// global object dictionary
   Internal dictionary for fast access to class members
  *****************************************************************************/
 
-declare(QDictM,QMetaData);
+Q_DECLARE(QDictM,QMetaData);
 
 
 /*****************************************************************************

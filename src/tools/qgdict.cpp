@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.cpp#41 $
+** $Id: //depot/qt/main/src/tools/qgdict.cpp#42 $
 **
 ** Implementation of QGDict and QGDictIterator classes
 **
@@ -15,7 +15,7 @@
 #include "qdstream.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qgdict.cpp#41 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qgdict.cpp#42 $");
 
 
 /*!
@@ -36,7 +36,7 @@ RCSTAG("$Id: //depot/qt/main/src/tools/qgdict.cpp#41 $");
 */
 
 
-declare(QListM,QGDictIterator);			// list of iterators: QGDItList
+Q_DECLARE(QListM,QGDictIterator);			// list of iterators: QGDItList
 
 /*****************************************************************************
   Default implementation of virtual functions

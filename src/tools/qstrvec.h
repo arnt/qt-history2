@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstrvec.h#9 $
+** $Id: //depot/qt/main/src/tools/qstrvec.h#10 $
 **
 ** Definition of QStrVec and QStrIVec classes
 **
@@ -22,7 +22,7 @@
 #if defined(DEFAULT_TEMPLATECLASS)
 typedef QVectorT<char>			QStrVecBase;
 #else
-typedef declare(QVectorM,char)		QStrVecBase;
+typedef Q_DECLARE(QVectorM,char)		QStrVecBase;
 #endif
 
 
