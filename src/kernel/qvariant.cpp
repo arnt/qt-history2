@@ -174,6 +174,9 @@ QVariant::Private::Private( Private* d )
 	case QVariant::Double:
 	    value.d = d->value.d;
 	    break;
+	case QVariant::SizePolicy:
+	    value.ptr = new QSizePolicy( *((QSizePolicy*)d->value.ptr) );
+	    break;
 	default:
 	    Q_ASSERT( 0 );
 	}
