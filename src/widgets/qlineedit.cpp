@@ -1169,11 +1169,14 @@ void QLineEdit::cut()
   Qt::AlignRight and Qt::Align(H)Center - see Qt::AlignmentFlags.
   \sa alignment()
 */
-void QLineEdit::setAlignment( int flag ){
-     if ( flag == d->parag->alignment() )
+void QLineEdit::setAlignment( int flag )
+{
+    if ( flag == d->parag->alignment() )
 	return;
-    if ( !(flag & Qt::AlignVertical_Mask ) ) {
+    if ( !(flag & Qt::AlignVertical_Mask ) || flag & Qt::AlignCenter ) {
 	d->parag->setAlignment( flag );
+	d->parag->invalidate( 0 );
+	d->parag->format();
 	updateOffset();
 	update();
     }
@@ -1694,16 +1697,7 @@ void QLineEdit::updateOffset()
 	else if ( cursorPos > d->offset + w )
 	    d->offset = cursorPos - w;
     } else {
-// 	if ( alignmentFlag == Qt::AlignRight ) {
-// 	    // right-aligned text, space for all of it
-// 	    offset = w - textWidth;
-// 	} else if ( alignmentFlag == Qt::AlignCenter || alignmentFlag == Qt::AlignHCenter ) {
-// 	    // center-aligned text, space for all of it
-// 	    offset = (w - textWidth)/2;
-// 	} else {
-	    // default: left-aligned, space for all of it
 	d->offset = 0;
-//	}
     }
 }
 
