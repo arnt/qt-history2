@@ -19,7 +19,7 @@
 **********************************************************************/
 
 #include <qvariant.h> // HP-UX compiler need this here
-
+#include <iostream.h>
 #include "widgetfactory.h"
 #include <widgetdatabase.h>
 #include "metadatabase.h"
@@ -85,6 +85,18 @@
 
 #include <globaldefs.h>
 
+FormWindow *find_formwindow( QWidget *w )
+{
+    if ( !w )
+	return 0;
+    while ( TRUE ) {
+	if ( w->inherits( "FormWindow" ) )
+	    return (FormWindow*)w;
+	if ( !w->parentWidget() )
+	    return 0;
+	w = w->parentWidget();
+    }
+}
 
 void QLayoutWidget::paintEvent( QPaintEvent* )
 {
@@ -171,7 +183,23 @@ bool QDesignerTabWidget::eventFilter( QObject *o, QEvent *e )
                 QString text;
                 QTextDrag::decode( de, text );
                 if ( text == "tab move" ) {
-                    moveCurrentPage( de->pos() );
+
+                    int newIndex = 0;
+                    for ( ; newIndex < tabBar()->count(); newIndex++ ) {
+                        if ( tabBar()->tabAt( newIndex )->r.contains( de->pos() ) )
+                            break;
+                    }
+                    int oldIndex = 0;
+                    for ( ; oldIndex < tabBar()->count(); oldIndex++ ) {
+                        if ( tabBar()->tabAt( oldIndex )->r.contains( pressPoint ) )
+                            break;
+                    }
+
+                    FormWindow *fw = find_formwindow( this );
+                    MoveTabPageCommand *cmd = new MoveTabPageCommand( "Move Tab Page",fw, this,
+                                                                      QTabWidget::currentPage(), newIndex, oldIndex );
+                    fw->commandHistory()->addCommand( cmd );
+                    cmd->execute();
                     de->accept();
                 }
             }
@@ -181,21 +209,13 @@ bool QDesignerTabWidget::eventFilter( QObject *o, QEvent *e )
     return FALSE;
 }
 
-void QDesignerTabWidget::moveCurrentPage( QPoint newpos )
+void QDesignerTabWidget::movePage( QWidget* page, int newIndex )
 {
-    int index = 0;
-    for ( ; index < tabBar()->count(); index++ ) {
-        if ( tabBar()->tabAt( index )->r.contains( newpos ) )
-            break;
-    }
+    if ( !page ) return ;
 
-    // move current page
-    QWidget *p = QTabWidget::currentPage();
-    if ( !p ) return;
-
-    QString l = QTabWidget::tabLabel( QTabWidget::currentPage() );
-    removePage( p );
-    insertTab( p, l, index );
+    QString l = QTabWidget::tabLabel( page );
+    removePage( page );
+    insertTab( page, l, newIndex );
 }
 
 int QDesignerWizard::currentPageNum() const
@@ -514,19 +534,6 @@ void WidgetFactory::deleteLayout( QWidget *widget )
     if ( widget->inherits( "QWidgetStack" ) )
 	widget = ((QWidgetStack*)widget)->visibleWidget();
     delete widget->layout();
-}
-
-FormWindow *find_formwindow( QWidget *w )
-{
-    if ( !w )
-	return 0;
-    while ( TRUE ) {
-	if ( w->inherits( "FormWindow" ) )
-	    return (FormWindow*)w;
-	if ( !w->parentWidget() )
-	    return 0;
-	w = w->parentWidget();
-    }
 }
 
 /*!  Factory functions for creating a widget of the type \a className

@@ -125,8 +125,7 @@ public:
 
     bool eventFilter( QObject*, QEvent* );
 
-protected:
-    void moveCurrentPage( QPoint newpos );
+    void movePage( QWidget *page, int newIndex );
 
 private:
     QPoint pressPoint;

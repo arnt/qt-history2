@@ -69,7 +69,8 @@ public:
 	BreakLayout,
 	Macro,
 	AddTabPage,
-	DeleteTabPage,
+              DeleteTabPage,
+              MoveTabPage,
 	AddWizardPage,
 	DeleteWizardPage,
 	AddConnection,
@@ -390,6 +391,23 @@ private:
     int index;
     QWidget *tabPage;
     QString tabLabel;
+
+};
+
+class MoveTabPageCommand : public Command
+{
+public:
+    MoveTabPageCommand(const QString &n, FormWindow *fw,
+                       QTabWidget *tw, QWidget *page,  int nIndex, int oIndex );
+
+    void execute();
+    void unexecute();
+    Type type() const { return MoveTabPage; }
+
+private:
+    QTabWidget *tabWidget;
+    int newIndex, oldIndex;
+    QWidget *tabPage;
 
 };
 
