@@ -2824,6 +2824,12 @@ void QIconView::insertItem( QIconViewItem *item, QIconViewItem *after )
     if ( !item )
 	return;
 
+    if ( d->firstItem == item || item->prev || item->next)
+	return;
+    
+    if ( !item->view )
+	item->view = this;
+
     if ( !d->firstItem ) {
 	d->firstItem = d->lastItem = item;
 	item->prev = 0;
@@ -3019,6 +3025,7 @@ void QIconView::takeItem( QIconViewItem *item )
     if ( !d->clearing )
 	repaintContents( r.x(), r.y(), r.width(), r.height(), TRUE );
 
+    item->view = 0;
     d->count--;
 
     blockSignals( block );
