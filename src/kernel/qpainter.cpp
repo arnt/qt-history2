@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#195 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#196 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -166,7 +166,7 @@ typedef QStack<QWMatrix> QWMatrixStack;
   <li> \c WordBreak - Do line breaking at at appropriate points.
 
   </ul>
-  
+
   You can only use one of the horizontal flags at a time, and one of
   the vertical flags.  \c AlignCenter counts as both horizontal and
   vertical.  You can use as many modifier flags as you want, except
@@ -176,6 +176,28 @@ typedef QStack<QWMatrix> QWMatrixStack;
   QGridLayout::addWidget()) are ignored.
 
   Conflicting combinations of flags have undefined meanings.
+*/
+
+/*! \enum Qt::PenStyle
+
+  This enum type defines the pen styles supported by Qt; ie. that
+  sorts of lines that can be drawn using QPainter.  The current styles
+  are: <ul>
+
+  <li> \c NoPen - no line at all.  For example, QPainter::drawRect()
+  fills but does not draw any explicit boundary line.
+  
+  <li> \c SolidLine - a simple line.
+
+  <li> \c DashLine - dashes, separated by a few pixels.
+
+  <li> \c DotLine - dots, separated by a few pixels.
+
+  <li> \c DashDotLine - alternately dots and dashes.
+
+  <li> \c DashDotDotLine - one dash, two dots, one dash, two dots...
+
+  </ul>
 */
 
 /*!
@@ -2641,16 +2663,6 @@ QPen QPen::copy() const
 /*!
   Sets the pen style to \e s.
 
-  The pen styles are:
-  <ul>
-  <li> \c NoPen  no outline is drawn.
-  <li> \c SolidLine  solid line (default).
-  <li> \c DashLine  - - - (dashes) line.
-  <li> \c DotLine  * * * (dots) line.
-  <li> \c DashDotLine  - * - * line.
-  <li> \c DashDotDotLine  - ** - ** line.
-  </ul>
-
   \sa style()
 */
 
@@ -2703,8 +2715,9 @@ void QPen::setColor( const QColor &c )
 
 /*!
   \fn bool QPen::operator!=( const QPen &p ) const
-  Returns TRUE if the pen is different from \e p, or FALSE if the pens are
-  equal.
+
+  Returns TRUE if the pen is different from \e p, or FALSE if the pens
+  are equal.
 
   Two pens are different if they have different styles, widths or colors.
 

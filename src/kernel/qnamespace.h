@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnamespace.h#35 $
+** $Id: //depot/qt/main/src/kernel/qnamespace.h#36 $
 **
 ** Definition of Qt namespace (as class for compiler compatibility)
 **
@@ -110,7 +110,7 @@ public:
 	WState_Reparented	= 0x00000200,
 	WState_ConfigPending	= 0x00000400,
 	WState_Resized		= 0x00000800,
-	WState_AutoMask	= 0x00001000,
+	WState_AutoMask		= 0x00001000,
 	WState_Polished		= 0x00002000,
 	WState_DND		= 0x00004000,
 	WState_USPositionX	= 0x00008000,
@@ -194,11 +194,11 @@ public:
 
     enum PaintUnit {				// paint unit
 	PixelUnit,
-	LoMetricUnit,
-	HiMetricUnit,
-	LoEnglishUnit,
-	HiEnglishUnit,
-	TwipsUnit
+	LoMetricUnit, // OBSOLETE
+	HiMetricUnit, // OBSOLETE
+	LoEnglishUnit, // OBSOLETE
+	HiEnglishUnit, // OBSOLETE
+	TwipsUnit // OBSOLETE
     };
 
     enum GUIStyle {
@@ -486,6 +486,7 @@ public:
 	NorROP,	LastROP=NorROP
     };
 
+    // documented in qpainter.cpp
     enum PenStyle { // pen style
 	NoPen,
 	SolidLine,
