@@ -901,7 +901,8 @@ void SetupWizardImpl::doIDEIntegration()
 {
 #if defined(Q_OS_WIN32)
     QDir installDir( optionsPage->installPath->text() );
-    if ( optionsPage->installIDEIntegration->isChecked() && optionsPage->installIDEIntegration->isEnabled() ) {
+    if ( optionsPage->installIDEIntegration->isChecked() && optionsPage->installIDEIntegration->isEnabled() 
+	 && !foldersPage->devSysPath->text().isEmpty() ) {
 	// install the precompiled MS integration
 	if ( globalInformation.sysId() == GlobalInformation::MSVC ) {
 	    QDir addinsDir( foldersPage->devSysPath->text() );
