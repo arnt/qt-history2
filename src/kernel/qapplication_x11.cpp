@@ -3991,6 +3991,8 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	    break;
 	case Button4:
 	case Button5:
+	case 6:
+	case 7:
 	    // the fancy mouse wheel.
 
 	    // take care about grabbing. We do this here since it
@@ -4022,8 +4024,10 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 		// indicates forward rotation, a negative one
 		// backward rotation respectively.
 		int btn = event->xbutton.button;
-		delta *= 120 * ( (btn == Button4) ? 1 : -1 );
-		translateWheelEvent( globalPos.x(), globalPos.y(), delta, state, (state&AltButton)?Horizontal:Vertical );
+		delta *= 120 * ( (btn == Button4 || btn == 6) ? 1 : -1 );
+		bool hor = ( (btn == Button4 || btn == Button5) && (state&AltButton) ||
+			     (btn == 6 || btn == 7) );
+		translateWheelEvent( globalPos.x(), globalPos.y(), delta, state, (hor)?Horizontal:Vertical );
 	    }
 	    return TRUE;
 	}
