@@ -9,7 +9,6 @@ widgets {
 		  $$WIDGETS_H/qcombobox.h \
 		  $$WIDGETS_P/qwidgetresizehandler_p.h \
 		  $$WIDGETS_H/qdial.h \
-		  $$WIDGETS_H/qdialog.h \
 		  $$WIDGETS_H/qdockarea.h \
 		  $$WIDGETS_H/qdockwindow.h \
 		  $$WIDGETS_H/qframe.h \
@@ -36,7 +35,6 @@ widgets {
 		  $$WIDGETS_H/qrangecontrol.h \
 		  $$WIDGETS_H/qscrollbar.h \
 		  $$WIDGETS_H/qscrollview.h \
-		  $$WIDGETS_H/qsemimodal.h \
 		  $$WIDGETS_H/qslider.h \
 		  $$WIDGETS_H/qspinbox.h \
 		  $$WIDGETS_H/qsplitter.h \
@@ -64,7 +62,6 @@ widgets {
 		  $$WIDGETS_CPP/qcombobox.cpp \
 		  $$WIDGETS_CPP/qwidgetresizehandler.cpp \
 		  $$WIDGETS_CPP/qdial.cpp \
-		  $$WIDGETS_CPP/qdialog.cpp \
 		  $$WIDGETS_CPP/qdockarea.cpp \
 		  $$WIDGETS_CPP/qdockwindow.cpp \
 		  $$WIDGETS_CPP/qframe.cpp \

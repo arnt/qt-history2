@@ -4,11 +4,13 @@ dialogs {
 	DIALOGS_P	= dialogs
 
 	HEADERS	+= $$DIALOGS_H/qcolordialog.h \
+		  $$DIALOGS_H/qdialog.h \
 		  $$DIALOGS_H/qerrormessage.h \
 		  $$DIALOGS_H/qfiledialog.h \
 		  $$DIALOGS_H/qfontdialog.h \
 		  $$DIALOGS_H/qmessagebox.h \
 		  $$DIALOGS_H/qprogressdialog.h \
+		  $$DIALOGS_H/qsemimodal.h \
 		  $$DIALOGS_H/qtabdialog.h \
 		  $$DIALOGS_H/qwizard.h \
 		  $$DIALOGS_H/qinputdialog.h
@@ -19,6 +21,7 @@ dialogs {
 	unix:HEADERS   += $$DIALOGS_H/qprintdialog.h 
 
 	SOURCES += $$DIALOGS_CPP/qcolordialog.cpp \
+		  $$DIALOGS_CPP/qdialog.cpp \
 		  $$DIALOGS_CPP/qerrormessage.cpp \
 		  $$DIALOGS_CPP/qfiledialog.cpp \
 		  $$DIALOGS_CPP/qfontdialog.cpp \
