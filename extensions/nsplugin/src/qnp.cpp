@@ -1599,7 +1599,7 @@ const char* QNPInstance::arg(const char* name) const
 {
     for (int i=0; i<pi->argc; i++) {
 	// SGML: names are case insensitive
-	if ( stricmp( name, pi->argn[i] ) == 0 ) {
+	if ( qstricmp( name, pi->argn[i] ) == 0 ) {
 	    if (pi->argv[i].isEmpty())
 		return "";
 	    else

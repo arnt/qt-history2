@@ -158,7 +158,7 @@ void Graph::timerEvent(QTimerEvent*)
 void Graph::setStyle(const char* stext)
 {
     for ( Style s = Pie; styleName[s]; s = Style(s+1) ) {
-	if ( stricmp(stext,styleName[s])==0 ) {
+	if ( qstricmp(stext,styleName[s])==0 ) {
 	    setStyle(s);
 	    return;
 	}
