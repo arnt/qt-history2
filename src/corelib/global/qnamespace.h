@@ -148,15 +148,15 @@ public:
     Q_DECLARE_FLAGS(Alignment, AlignmentFlag)
 
     enum TextFlag {
-        TextSingleLine = 0x0080,
-        TextDontClip = 0x0100,
-        TextExpandTabs = 0x0200,
-        TextShowMnemonic = 0x0400,
-        TextWordWrap = 0x0800,
-        TextWrapAnywhere = 0x1000,
-        TextDontPrint = 0x2000,
+        TextSingleLine = 0x0100,
+        TextDontClip = 0x0200,
+        TextExpandTabs = 0x0400,
+        TextShowMnemonic = 0x0800,
+        TextWordWrap = 0x1000,
+        TextWrapAnywhere = 0x2000,
+        TextDontPrint = 0x4000,
         TextIncludeTrailingSpaces = 0x08000000,
-        TextHideMnemonic = 0x4000
+        TextHideMnemonic = 0x8000
 
 #if defined(QT3_SUPPORT) && !defined(Q_MOC_RUN)
         ,SingleLine = TextSingleLine,
