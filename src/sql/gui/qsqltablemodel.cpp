@@ -118,12 +118,47 @@ void QSqlTableModelPrivate::setPrimaryValues(int index)
     }
 }
 
+/*!
+  \class QSqlTableModel
+  \brief The QSqlModel class provides an editable data model
+  for a single database table.
+
+  \ingroup database
+  \mainclass
+  \module sql
+
+  QSqlTableModel is a data model that provides data from a database
+  table. By default, the model can be edited.
+
+  \code
+  QSqlTableModel model;
+  model.setTable("mytable");
+  model.select();
+  \endcode
+
+  Before the table can be used, a table name has to be set. After
+  that, it is possible to set filters with setFilter() or modify
+  the sort order with setSort().
+
+  After all the desired options have been set, select() has to be
+  called to populate the model with data.
+*/
+
+
+/*!
+  Creates an empty QSqlTableModel and sets the parent to \a parent
+  and the database connection to \a db. If \a db is not valid, the
+  default database connection will be used.
+ */
 QSqlTableModel::QSqlTableModel(QObject *parent, QSqlDatabase db)
     : QSqlModel(*new QSqlTableModelPrivate, parent)
 {
     d->db = db.isValid() ? db : QSqlDatabase::database();
 }
 
+/*!
+  Destroys the object and frees any allocated resources.
+ */
 QSqlTableModel::~QSqlTableModel()
 {
 }
@@ -169,7 +204,7 @@ bool QSqlTableModel::select()
     return q.isActive();
 }
 
-/*! \reimp
+/*!
     Returns the data for the item at position \a idx for the role \a role.
     Returns an invalid variant if \a idx is out of bounds.
  */
@@ -215,7 +250,7 @@ QVariant QSqlTableModel::data(const QModelIndex &idx, int role) const
     return QSqlModel::data(item, role);
 }
 
-/*! \reimp
+/*!
     Sets the data for the item \a index for the role \a role to \a value.
     Depending on the edit strategy, the value might be applied to the database at once or
     cached in the model.
@@ -463,7 +498,7 @@ bool QSqlTableModel::isSortable() const
     return true;
 }
 
-/*! \reimp
+/*!
     Sorts the data by \a column with the sort order \a order.
     This will immediately select data, use setSort()
     to set a sort order without populating the model with data.
@@ -674,7 +709,7 @@ void QSqlTableModel::setFilter(const QString &filter)
         select();
 }
 
-/*! \reimp
+/*!
     Returns true if \a item is a valid model index and the database field
     is not read-only.
  */

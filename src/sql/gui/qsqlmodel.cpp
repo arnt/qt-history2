@@ -60,11 +60,11 @@ void QSqlModelPrivate::prefetch(int limit)
 
     \code
     QSqlModel model;
-    model.setQuery(QSqlQuery("SELECT * FROM TEST"));
+    model.setQuery("SELECT * FROM TEST");
     \endcode
 
     The model is read-only by default, to make it read-write, it is
-    neccessary to reimplement the setData() method.
+    neccessary to reimplement the setData() and isEditable() methods.
 
     QSqlTableModel is a convenience subclass which allows manipulating
     a database table.
@@ -116,8 +116,6 @@ int QSqlModel::columnCount(const QModelIndex &) const
 }
 
 /*!
-    \reimp
-
     Returns the value for the specified \a item and \a role.
 
     For items with type \c QModelIndex::HorizontalHeader, the name of
@@ -199,8 +197,6 @@ void QSqlModel::setQuery(const QSqlQuery &query)
 }
 
 /*!
-    \reimp
-
     This function is used to set the caption for the horizontal
     header of a column to \a value.
 
@@ -266,8 +262,6 @@ QSqlRecord QSqlModel::record() const
 }
 
 /*!
-    \reimp
-
     Inserts \a count columns into the model at position \a column. The
     \a parent parameter must always be an invalid QModelIndex, since
     the model does not support parent-child relationships.
@@ -311,8 +305,6 @@ bool QSqlModel::insertColumn(int column, const QModelIndex &parent, int count)
 }
 
 /*!
-    \reimp
-
     Removes \a count columns from the model starting from position \a
     column. The \a parent parameter must always be an invalid
     QModelIndex, since the model does not support parent-child
