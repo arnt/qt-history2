@@ -1200,6 +1200,7 @@ HWND QAxServerBase::create(HWND hWndParent, RECT& rcPos )
 	    rcPos.left, rcPos.top, rcPos.right - rcPos.left,
 	    rcPos.bottom - rcPos.top, hWndParent, 0, hInst, this );
     } );
+    this->rcPos = rcPos;
 
     Q_ASSERT(m_hWnd == hWnd);
 
