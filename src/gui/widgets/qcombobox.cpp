@@ -38,11 +38,11 @@ QComboBoxPrivate::QComboBoxPrivate()
       shownOnce(false),
       autoCompletion(true),
       duplicatesEnabled(false),
-      arrowDown(false),
       skipCompletion(false),
       frame(true),
       maxVisibleItems(10),
       maxCount(INT_MAX),
+      arrowState(QStyle::State_None),
       hoverControl(QStyle::SC_None)
 {
 }
@@ -74,6 +74,17 @@ QStyleOptionMenuItem MenuDelegate::getStyleOption(const QStyleOptionViewItem &op
     extern QHash<QByteArray, QFont> *qt_app_fonts_hash();
     menuOption.font = qt_app_fonts_hash()->value("QComboMenuItem", mCombo->font());
     return menuOption;
+}
+
+void QComboBoxPrivate::updateArrow(QStyle::StateFlag state)
+{
+    Q_Q(QComboBox);
+    if (arrowState == state)
+        return;
+    arrowState = state;
+    QStyleOptionComboBox opt = getStyleOption();
+    q->update(QStyle::visualRect(opt.direction, opt.rect, q->style()->subControlRect(
+                                     QStyle::CC_ComboBox, &opt, QStyle::SC_ComboBoxArrow)));
 }
 
 /*!
@@ -339,7 +350,7 @@ bool ItemViewContainer::eventFilter(QObject *o, QEvent *e)
 */
 void ItemViewContainer::hideEvent(QHideEvent *)
 {
-    emit containerDisappearing();
+    emit resetButton();
 }
 
 void ItemViewContainer::mousePressEvent(QMouseEvent *e)
@@ -359,6 +370,12 @@ void ItemViewContainer::mousePressEvent(QMouseEvent *e)
     if (ignoreRect.contains(e->globalPos()))
         setAttribute(Qt::WA_NoMouseReplay);
     QFrame::mousePressEvent(e);
+}
+
+void ItemViewContainer::mouseReleaseEvent(QMouseEvent *e)
+{
+    Q_UNUSED(e);
+    emit resetButton();
 }
 
 /*!
@@ -596,14 +613,14 @@ ItemViewContainer* QComboBoxPrivate::viewContainer()
     QObject::connect(container->itemView()->selectionModel(),
                      SIGNAL(currentChanged(QModelIndex,QModelIndex)),
                      q, SLOT(emitHighlighted(QModelIndex)));
-    QObject::connect(container, SIGNAL(containerDisappearing()), q, SLOT(resetButton()));
+    QObject::connect(container, SIGNAL(resetButton()), q, SLOT(resetButton()));
     return container;
 }
 
 
 void QComboBoxPrivate::resetButton()
 {
-    arrowDown = false;
+    updateArrow(QStyle::State_None);
 }
 
 void QComboBoxPrivate::dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
@@ -683,9 +700,9 @@ QStyleOptionComboBox QComboBoxPrivate::getStyleOption() const
     if (q->isEditable() && q->lineEdit()->hasFocus())
         opt.state |= QStyle::State_HasFocus;
     opt.subControls = QStyle::SC_All;
-    if (arrowDown) {
+    if (arrowState == QStyle::State_Sunken) {
         opt.activeSubControls = QStyle::SC_ComboBoxArrow;
-        opt.state |= QStyle::State_Sunken;
+        opt.state |= arrowState;
     } else {
         opt.activeSubControls = hoverControl;
     }
@@ -1755,7 +1772,7 @@ void QComboBox::mousePressEvent(QMouseEvent *e)
     if ((sc == QStyle::SC_ComboBoxArrow || !isEditable())
         && !d->viewContainer()->isVisible()) {
         if (sc == QStyle::SC_ComboBoxArrow)
-            d->arrowDown = true;
+            d->updateArrow(QStyle::State_Sunken);
         showPopup();
     }
 }
@@ -1767,10 +1784,7 @@ void QComboBox::mouseReleaseEvent(QMouseEvent *e)
 {
     Q_D(QComboBox);
     Q_UNUSED(e);
-    d->arrowDown = false;
-    QStyleOptionComboBox opt = d->getStyleOption();
-    update(QStyle::visualRect(opt.direction, opt.rect, style()->subControlRect(
-                                  QStyle::CC_ComboBox, &opt, QStyle::SC_ComboBoxArrow)));
+    d->updateArrow(QStyle::State_None);
 }
 
 /*!

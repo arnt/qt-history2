@@ -111,12 +111,13 @@ public slots:
 protected:
     bool eventFilter(QObject *o, QEvent *e);
     void mousePressEvent(QMouseEvent *e);
+    void mouseReleaseEvent(QMouseEvent *e);
     void hideEvent(QHideEvent *e);
     QStyleOptionComboBox comboStyleOption() const;
 
 signals:
     void itemSelected(const QModelIndex &);
-    void containerDisappearing();
+    void resetButton();
 
 private:
     QComboBox *combo;
@@ -174,6 +175,7 @@ public:
     void dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
     void rowsInserted(const QModelIndex & parent, int start, int end);
     void rowsAboutToBeRemoved(const QModelIndex & parent, int start, int end);
+    void updateArrow(QStyle::StateFlag state);
     bool updateHoverControl(const QPoint &pos);
     QStyle::SubControl newHoverControl(const QPoint &pos);
 
@@ -187,13 +189,13 @@ public:
     uint shownOnce : 1;
     uint autoCompletion : 1;
     uint duplicatesEnabled : 1;
-    uint arrowDown : 1;
     uint skipCompletion : 1;
     uint frame : 1;
     uint padding : 26;
     int maxVisibleItems;
     int maxCount;
     mutable QSize sizeHint;
+    QStyle::StateFlag arrowState;
     QStyle::SubControl hoverControl;
     QRect hoverRect;
     QPersistentModelIndex currentIndex;
