@@ -148,6 +148,14 @@ zlib {
    win32:LIBS += libz.lib
 }
 
+unix:xftfreetype {
+	INCLUDEPATH += 3rdparty/opentype
+	SOURCES += 3rdparty/opentype/ftxgsub.c \
+		3rdparty/opentype/ftxgpos.c \
+		3rdparty/opentype/ftxgdef.c \
+		3rdparty/opentype/ftxopen.c
+}
+
 #use Qt gif
 gif:DEFINES += QT_BUILTIN_GIF_READER=1
 
