@@ -56,7 +56,7 @@ HEADERS		= $$DIALOGS_H/qdeveloper.h \
 		  $$KERNEL_H/qkeycode.h \
 		  $$KERNEL_H/qlayout.h \
 		  $$KERNEL_H/qlayoutengine.h \
-		  $$KERNEL_H/qmessagefile.h \
+		  $$KERNEL_H/qtranslator.h \
 		  $$KERNEL_H/qmetaobject.h \
 		  $$KERNEL_H/qmime.h \
 		  $$KERNEL_H/qmotifstyle.h \
@@ -258,7 +258,7 @@ SOURCES	       += tools/qbitarray.cpp \
 		  kernel/qimage.cpp \
 		  kernel/qlayout.cpp \
 		  kernel/qlayoutengine.cpp \
-		  kernel/qmessagefile.cpp \
+		  kernel/qtranslator.cpp \
 		  kernel/qmetaobject.cpp \
 		  kernel/qmime.cpp \
 		  kernel/qmotifstyle.cpp \

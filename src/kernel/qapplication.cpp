@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#188 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#189 $
 **
 ** Implementation of QApplication class
 **
@@ -34,7 +34,7 @@
 #include "qmotifstyle.h"
 #include "qplatinumstyle.h"
 #include "qcdestyle.h"
-#include "qmessagefile.h"
+#include "qtranslator.h"
 
 #include "qutfcodec.h"
 #include "qeuccodec.h"
@@ -226,6 +226,8 @@ void process_cmdline( int* argcptr, char ** argv )
        are \c motif, \c windows, and \c platinum.
   <li> \c -qdevel activates the Application Builder window, which allows
        run-time inspection of the program.
+  <li> \c -qtranslate activates the Application Translator window, which allows
+       translation of the texts shown in the program.
   </ul>
 
   The X11 version of Qt also supports some traditional X11
@@ -1193,13 +1195,13 @@ void QApplication::noteTopLevel( QWidget* tlw )
   localization.  Message files are searched starting with the most
   recently added file.
 
-  \sa removeMessageFile() translate() QObject::tr()
+  \sa removeTranslator() translate() QObject::tr()
 */
 
-void QApplication::installMessageFile( QMessageFile * mf )
+void QApplication::installTranslator( QTranslator * mf )
 {
     if ( !messageFiles )
-	messageFiles = new QList<QMessageFile>;
+	messageFiles = new QList<QTranslator>;
     if ( mf )
 	messageFiles->insert( 0, mf );
 }
@@ -1208,10 +1210,10 @@ void QApplication::installMessageFile( QMessageFile * mf )
 /*!  Removes \a mf from the list of message files used by this
   application.  Does not, of course, delete mf.
 
-  \sa installMessageFile() translate(), QObject::tr()
+  \sa installTranslator() translate(), QObject::tr()
 */
 
-void QApplication::removeMessageFile( QMessageFile * mf )
+void QApplication::removeTranslator( QTranslator * mf )
 {
     if ( !messageFiles || !mf )
 	return;
@@ -1236,9 +1238,9 @@ void QApplication::removeMessageFile( QMessageFile * mf )
   scope, this function returns \a key.
 
   This function is not virtual, but you can add alternative translation
-  techniques by installing subclasses of QMessageFile.
+  techniques by installing subclasses of QTranslator.
 
-  \sa QObject::tr() installMessageFile() removeMessageFile() QMessageFile
+  \sa QObject::tr() installTranslator() removeTranslator() QTranslator
 */
 
 QString QApplication::translate( const char * scope, const char * key ) const
@@ -1248,9 +1250,9 @@ QString QApplication::translate( const char * scope, const char * key ) const
     // scope can be null, for global stuff
 
     if ( messageFiles ) {
-	uint h = QMessageFile::hash( scope, key );
-	QListIterator<QMessageFile> it( *messageFiles );
-	QMessageFile * mf;
+	uint h = QTranslator::hash( scope, key );
+	QListIterator<QTranslator> it( *messageFiles );
+	QTranslator * mf;
 	QString result;
 	while( (mf=it.current()) != 0 ) {
 	    ++it;

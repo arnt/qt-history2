@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.h#105 $
+** $Id: //depot/qt/main/src/kernel/qapplication.h#106 $
 **
 ** Definition of QApplication class
 **
@@ -29,7 +29,8 @@
 #ifndef QT_H
 #include "qwidget.h"
 #include "qlist.h"
-#include "qmessagefile.h"
+
+#include "qtranslator.h"
 #include "qdict.h"
 #include "qpalette.h"
 #endif // QT_H
@@ -127,8 +128,8 @@ public:
 
     static void	     beep();
 
-    void	     installMessageFile( QMessageFile * );
-    void	     removeMessageFile( QMessageFile * );
+    void	     installTranslator( QTranslator * );
+    void	     removeTranslator( QTranslator * );
     QString	     translate( const char * scope, const char * key ) const;
 
     static void      setWinStyleHighlightColor( const QColor & );
@@ -181,7 +182,7 @@ private:
     static QWidget  *main_widget;
     static QWidget  *focus_widget;
     static QWidget  *active_window;
-    QList<QMessageFile> * messageFiles;
+    QList<QTranslator> * messageFiles;
 
     static QDict<QPalette>* app_palettes;
     static QDict<QFont>* app_fonts;
