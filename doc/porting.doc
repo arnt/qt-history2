@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: porting.doc,v 1.23 1999/01/30 13:06:47 aavit Exp $
+** $Id: porting.doc,v 1.24 1999/02/03 05:39:11 aavit Exp $
 **
 ** Help with porting from Qt 1.x to Qt 2.0
 **
@@ -400,6 +400,8 @@ operator>>(QTextStream&, char&) does, as was the case with Qt 1.x.
 <p> The GrayText painter flag has been removed. Use setPen(
 palette().disabled().foreground() ) instead.
 
+<p> The RasterOp enum is now part of the Qt namespace class.
+ 
 
 <h3>QPixmap</h3>
 
