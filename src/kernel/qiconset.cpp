@@ -518,10 +518,10 @@ QPixmap QIconSet::pixmap( Size size, Mode mode, State state ) const
 	    case Disabled:
 		if ( !p->largeDisabled.pm ) {
 		    QBitmap tmp;
-		    if ( p->vlarge.generated && !p->smallDisabled.generated &&
+		    if ( ( !p->vlarge.pm || p->vlarge.generated ) && !p->smallDisabled.generated &&
 			 p->smallDisabled.pm && !p->smallDisabled.pm->isNull() ) {
 			// if there's a hand-drawn disabled small image,
-			// but the normal big one is generated, use the
+			// but the normal big one is NULL or generated, use the
 			// hand-drawn one to generate this one.
 			i = p->smallDisabled.pm->convertToImage();
 			i = i.smoothScale( i.width() * 3 / 2, i.height() * 3 / 2 );
@@ -569,7 +569,7 @@ QPixmap QIconSet::pixmap( Size size, Mode mode, State state ) const
 		pm = p->largeDisabled.pm;
 		break;
 	    }
-	} else {
+	} else { // size == Small
 	    switch( mode ) {
 	    case Normal:
 		if ( !p->vsmall.pm ) {
@@ -598,10 +598,10 @@ QPixmap QIconSet::pixmap( Size size, Mode mode, State state ) const
 	    case Disabled:
 		if ( !p->smallDisabled.pm ) {
 		    QBitmap tmp;
-		    if ( p->vsmall.generated && !p->largeDisabled.generated &&
+		    if ( ( !p->vsmall.pm || p->vsmall.generated ) && !p->largeDisabled.generated &&
 			 p->largeDisabled.pm && !p->largeDisabled.pm->isNull() ) {
 			// if there's a hand-drawn disabled large image,
-			// but the normal small one is generated, use the
+			// but the normal small one is NULL or generated, use the
 			// hand-drawn one to generate this one.
 			i = p->largeDisabled.pm->convertToImage();
 			i = i.smoothScale( i.width() * 3 / 2, i.height() * 3 / 2 );
@@ -658,7 +658,8 @@ QPixmap QIconSet::pixmap( Size size, Mode mode, State state ) const
 		if ( !p->on_vlarge.pm ) {
 		    QPixmap *fallback = 0;
 		    if ( !(fallback = p->on_vsmall.pm ) ) {
-			pm = p->on_vlarge.pm = new QPixmap( Large, Normal, Off );
+			pm = p->on_vlarge.pm = new QPixmap( pixmap( Large, Normal, Off ) );
+			p->on_vlarge.generated = TRUE;
 			break;
 		    }
 		    Q_ASSERT( fallback );
@@ -684,15 +685,25 @@ QPixmap QIconSet::pixmap( Size size, Mode mode, State state ) const
 		pm = p->on_largeActive.pm;
 		break;
 	    case Disabled:
-		if ( !p->on_largeDisabled.pm ) {
+		if ( !p->on_largeDisabled.pm ) { // have to generate
 		    QBitmap tmp;
-		    if ( p->on_vlarge.generated && !p->on_smallDisabled.generated &&
-			 p->on_smallDisabled.pm && !p->on_smallDisabled.pm->isNull() ) {
-			// if there's a hand-drawn disabled small image,
-			// but the normal big one is generated, use the
-			// hand-drawn one to generate this one.
-			i = p->on_smallDisabled.pm->convertToImage();
-			i = i.smoothScale( i.width() * 3 / 2, i.height() * 3 / 2 );
+		    QPixmap *disBase = 0;
+		    bool mustScale = FALSE;
+		    // use any non-generated disabled pixmap we have
+		    if ( p->largeDisabled.pm && !p->largeDisabled.pm->isNull() && !p->largeDisabled.generated ) {
+			disBase = p->largeDisabled.pm;
+		    } else if ( p->on_smallDisabled.pm && !p->on_smallDisabled.pm->isNull() && !p->on_smallDisabled.generated ) {
+			disBase = p->on_smallDisabled.pm;
+			mustScale = TRUE;
+		    } else if ( p->smallDisabled.pm && !p->smallDisabled.pm->isNull() && !p->smallDisabled.generated ) {
+			disBase = p->smallDisabled.pm;
+			mustScale = TRUE;
+		    }
+
+		    if ( disBase ) {
+			i = disBase->convertToImage();
+			if ( mustScale )
+			    i = i.smoothScale( i.width() * 3 / 2, i.height() * 3 / 2 );
 			p->on_largeDisabled.pm = new QPixmap;
 			p->on_largeDisabled.pm->convertFromImage( i );
 			if ( !p->on_largeDisabled.pm->mask() ) {
@@ -737,13 +748,14 @@ QPixmap QIconSet::pixmap( Size size, Mode mode, State state ) const
 		pm = p->on_largeDisabled.pm;
 		break;
 	    }
-	} else {
+	} else { // on, small
 	    switch( mode ) {
 	    case Normal:
 		if ( !p->on_vsmall.pm ) {
 		    QPixmap *fallback = 0;
 		    if ( !( fallback = p->on_vlarge.pm ) ) {
 			pm = p->on_vsmall.pm = new QPixmap( pixmap( Small, Normal, Off ) );
+			p->on_vsmall.generated =TRUE;
 			break;
 		    }
 		    Q_ASSERT( fallback );
@@ -769,15 +781,25 @@ QPixmap QIconSet::pixmap( Size size, Mode mode, State state ) const
 		pm = p->on_smallActive.pm;
 		break;
 	    case Disabled:
-		if ( !p->on_smallDisabled.pm ) {
+		if ( !p->on_smallDisabled.pm ) { // must generate
 		    QBitmap tmp;
-		    if ( p->on_vsmall.generated && !p->on_largeDisabled.generated &&
-			 p->on_largeDisabled.pm && !p->on_largeDisabled.pm->isNull() ) {
-			// if there's a hand-drawn disabled large image,
-			// but the normal small one is generated, use the
-			// hand-drawn one to generate this one.
-			i = p->on_largeDisabled.pm->convertToImage();
-			i = i.smoothScale( i.width() * 3 / 2, i.height() * 3 / 2 );
+		    QPixmap *disBase = 0;
+		    bool mustScale = FALSE;
+		    // use any non-generated disabled pixmap we have
+		    if ( p->smallDisabled.pm && !p->smallDisabled.pm->isNull() && !p->smallDisabled.generated ) {
+			disBase = p->smallDisabled.pm;
+		    } else if ( p->on_largeDisabled.pm && !p->on_largeDisabled.pm->isNull() && !p->on_largeDisabled.generated ) {
+			disBase = p->on_largeDisabled.pm;
+			mustScale = TRUE;
+		    } else if ( p->largeDisabled.pm && !p->largeDisabled.pm->isNull() && !p->largeDisabled.generated ) {
+			disBase = p->largeDisabled.pm;
+			mustScale = TRUE;
+		    }
+
+		    if ( disBase ) {
+			i = disBase->convertToImage();
+			if ( mustScale )
+			    i = i.smoothScale( i.width() * 2 / 3, i.height() * 2 / 3 );
 			p->on_smallDisabled.pm = new QPixmap;
 			p->on_smallDisabled.pm->convertFromImage( i );
 			if ( !p->on_smallDisabled.pm->mask() ) {
