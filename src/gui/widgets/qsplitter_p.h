@@ -53,8 +53,8 @@ public:
     QSplitterLayoutStruct *findWidget(QWidget *);
     QSplitterLayoutStruct *addWidget(QWidget *, bool prepend = false);
     void recalcId();
-    void doMove(bool backwards, int pos, int id, int delta, bool upLeft,
-                 bool mayCollapse);
+    void doMove(bool backwards, int pos, int id, int delta,
+                bool mayCollapse, int *positions, int *widths);
     void setGeo(QSplitterLayoutStruct *s, int pos, int size, bool splitterMoved);
     int findWidgetJustBeforeOrJustAfter(int id, int delta, int &collapsibleSize);
     void updateHandles();

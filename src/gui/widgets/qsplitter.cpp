@@ -522,7 +522,8 @@ void QSplitterPrivate::setGeo(QSplitterLayoutStruct *sls, int p, int s, bool spl
     w->setGeometry(r);
 }
 
-void QSplitterPrivate::doMove(bool backwards, int pos, int id, int delta, bool upLeft, bool mayCollapse)
+void QSplitterPrivate::doMove(bool backwards, int pos, int id, int delta, bool mayCollapse,
+                              int *positions, int *widths)
 {
     if (id < 0 || id >= list.count())
         return;
@@ -533,14 +534,14 @@ void QSplitterPrivate::doMove(bool backwards, int pos, int id, int delta, bool u
     int nextId = backwards ? id - delta : id + delta;
 
     if (w->isHidden()) {
-        doMove(backwards, pos, nextId, delta, upLeft, true);
+        doMove(backwards, pos, nextId, delta, true, positions, widths);
     } else {
         if (s->isHandle) {
             int dd = s->getSizer(d->orient);
             int nextPos = backwards ? pos - dd : pos + dd;
-            int left = backwards ? pos - dd : pos;
-            setGeo(s, left, dd, true);
-            doMove(backwards, nextPos, nextId, delta, upLeft, mayCollapse);
+            positions[id] = backwards ? pos - dd : pos;
+            widths[id] = dd;
+            doMove(backwards, nextPos, nextId, delta, mayCollapse, positions, widths);
         } else {
             int dd = backwards ? pos - pick(s->rect.topLeft())
                                : pick(s->rect.bottomRight()) - pos + 1;
@@ -550,9 +551,10 @@ void QSplitterPrivate::doMove(bool backwards, int pos, int id, int delta, bool u
             } else {
                 dd = 0;
             }
-            setGeo(s, backwards ? pos - dd : pos, dd, true);
+            positions[id] = backwards ? pos - dd : pos;
+            widths[id] = dd;
             doMove(backwards, backwards ? pos - dd : pos + dd, nextId, delta,
-                    upLeft, true);
+                   true, positions, widths);
         }
     }
 }
@@ -1004,13 +1006,33 @@ void QSplitter::moveSplitter(QCOORD p, int id)
     p = d->adjustPos(p, id, &farMin, &min, &max, &farMax);
     int oldP = d->pick(s->rect.topLeft());
 
+    int poss[d->list.count()];
+    int ws[d->list.count()];
+    bool upLeft;
+
     if (isRightToLeft() && d->orient == Qt::Horizontal) {
         int qs = p + s->rect.width();
-        d->doMove(false, qs, id - 1, -1, (qs > oldP), (p > max));
-        d->doMove(true, qs, id, -1, (qs > oldP), (p < min));
+        d->doMove(false, qs, id - 1, -1, (p > max), poss, ws);
+        d->doMove(true, qs, id, -1, (p < min), poss, ws);
+        upLeft = (qs > oldP);
     } else {
-        d->doMove(false, p, id, +1, (p < oldP), (p > max));
-        d->doMove(true, p, id - 1, +1, (p < oldP), (p < min));
+        d->doMove(false, p, id, +1, (p > max), poss, ws);
+        d->doMove(true, p, id - 1, +1, (p < min), poss, ws);
+        upLeft = (p < oldP);
+    }
+
+    int wid, delta, count = d->list.count();
+    if (upLeft) {
+        wid = 0;
+        delta = 1;
+    } else {
+        wid = count - 1;
+        delta = -1;
+    }
+    for (; wid >= 0 && wid < count; wid += delta) {
+        QSplitterLayoutStruct *sls = d->list.at( wid );
+        if (!sls->wid->isHidden())
+            d->setGeo(sls, poss[wid], ws[wid], true);
     }
     d->storeSizes();
 }
