@@ -107,6 +107,23 @@ bool QEnvironment::recordUninstall( QString displayName, QString cmdString )
     return false;
 }
 
+bool QEnvironment::removeUninstall( QString displayName )
+{
+    HKEY key;
+    
+    if( int( qWinVersion ) & int( Qt::WV_NT_based ) ) {
+	if( RegOpenKeyExW( HKEY_LOCAL_MACHINE, (WCHAR*)qt_winTchar( QString( "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall" ), true ), 0, KEY_WRITE, &key ) == ERROR_SUCCESS )
+	    RegDeleteKeyW( key, (WCHAR*)qt_winTchar( QString( displayName ), true ) );
+	return true;
+    }
+    else {
+	if( RegOpenKeyEx( HKEY_LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall", 0, KEY_WRITE, &key ) == ERROR_SUCCESS )
+	    RegDeleteKey( key, displayName.local8Bit() );
+	return true;
+    }
+    return false;
+}
+
 QString QEnvironment::getRegistryString( QString keyName, QString valueName, int scope )
 {
     QString value;
