@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/msg2qm/msg2qm.cpp#2 $
+** $Id: //depot/qt/main/util/msg2qm/msg2qm.cpp#3 $
 **
 ** This is a utility program for converting findtr msgfiles to
 ** qtranslator messagefiles
@@ -15,6 +15,7 @@
 #include <qtextstream.h>
 #include <qtranslator.h>
 
+static QString* defaultScope = 0;
 
 bool hasHandle( const QString& line, const QString& handle)
 {
@@ -72,15 +73,24 @@ QString extractContents( const QString& line )
 void addTranslation( QTranslator* translator, const QString& msgid, const QString& msgstr)
 {
     if (!msgid.isNull() && !msgstr.isNull() ) {
-	//#### add codec crap here for unicode. Beware of the segfaults.
-	QString scope = msgid.left( msgid.find("::") );
-	QString id = msgid.right( msgid.length() - scope.length() - 2 );
+	//#### add codec crap here for unicode. Beware of the segfaults ;)
+	QString scope = "";
+	QString id = msgid;
+	int coloncolon = msgid.find("::"); 
+	if (coloncolon != -1) {
+	    scope = msgid.left( coloncolon );
+	    id = msgid.right( msgid.length() - scope.length() - 2 );
+	}
+	else if (defaultScope)
+	    scope = *defaultScope;
+
 	int hash = translator->hash( scope.ascii(), id.ascii() );
 	if (translator->contains( hash, scope.ascii(), id.ascii() ) ) {
 	    debug("Error: \"%s\" already in use", msgid.ascii() );
 	}
 	else {
 	    translator->insert( hash, msgstr.ascii() );
+	    //debug("'%s':'%s'-->'%s'", scope.ascii(), msgid.ascii(), msgstr.ascii() );
 	}
     }
 }
@@ -150,9 +160,19 @@ void translate( const QString& filename, const QString& qmfile )
 
 int main( int argc, char* argv[] )
 {
-    if ( argc < 2 ) {
-	debug("usage: %s infile [outfile]", argv[0]);
+
+    int infile = 1;
+    if (argc > 1) {
+	if ( QString("-scope") == argv[1] ) {
+	    defaultScope = new QString(argv[2]);
+	    infile += 2;
+	}
+    }
+    
+    if ( argc <= infile ) {
+	debug("usage: %s [-scope default] infile [outfile]", argv[0]);
 	exit(1);
     }
-    translate(argv[1], argc > 2 ? argv[2] : "tr.qm");
+    
+    translate(argv[infile], argc > infile+1 ? argv[infile+1] : "tr.qm");
 }
