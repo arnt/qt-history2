@@ -2961,7 +2961,7 @@ void PropertyList::setupCusWidgetProperties( MetaDataBase::CustomWidget *cw,
     if ( !cw )
 	return;
 
-    for ( QValueList<MetaDataBase::Property>::Iterator it = 
+    for ( QValueList<MetaDataBase::Property>::Iterator it =
 	  cw->lstProperties.begin(); it != cw->lstProperties.end(); ++it ) {
 	if ( unique.contains( QString( (*it).property ) ) )
 	    continue;
@@ -2988,6 +2988,7 @@ bool PropertyList::addPropertyItem( PropertyItem *&item, const QCString &name, Q
 	    }
 	    ++it;
 	}
+	l.sort();
 	itm->setValue( l );
 	item = itm;
 	return TRUE;
