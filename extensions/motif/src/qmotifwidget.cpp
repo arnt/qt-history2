@@ -144,7 +144,10 @@ QMotifWidget::QMotifWidget( QWidget *parent, WidgetClass widgetclass,
         motifparent = d->shell;
     }
 
-    d->widget = XtCreateWidget( name, widgetclass, motifparent, args, argcount );
+    if ( widgetclass == applicationShellWidgetClass )
+	d->widget = d->shell;
+    else
+	d->widget = XtCreateWidget( name, widgetclass, motifparent, args, argcount );
 }
 
 QMotifWidget::~QMotifWidget()
