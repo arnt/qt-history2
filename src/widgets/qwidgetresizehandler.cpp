@@ -181,11 +181,17 @@ void QWidgetResizeHandler::mouseMoveEvent( QMouseEvent *e )
     QPoint p = globalPos + invertedMoveOffset;
     QPoint pp = globalPos - moveOffset;
 
-    int fw = widget->inherits( "QFrame" ) ? ( (QFrame*)widget )->frameWidth() : 0;
+    int fw = 0;
     int mw = QMAX( childWidget->minimumSizeHint().width(),
-		  childWidget->minimumWidth()) + 2 * fw;
+		   childWidget->minimumWidth() );
     int mh = QMAX( childWidget->minimumSizeHint().height(),
-		   childWidget->minimumHeight()) +  2 * fw + extrahei + 1;
+		   childWidget->minimumHeight() );
+    if ( childWidget != widget ) {
+	if ( widget->inherits( "QFrame" ) )
+	    fw = ( (QFrame *) widget )->frameWidth();
+	mw += 2 * fw;
+	mh += 2 * fw + extrahei;
+    }
 
     QSize mpsize( widget->geometry().right() - pp.x() + 1,
 		  widget->geometry().bottom() - pp.y() + 1 );
@@ -197,28 +203,28 @@ void QWidgetResizeHandler::mouseMoveEvent( QMouseEvent *e )
 
     switch ( mode ) {
     case TopLeft:
-	geom =  QRect( mp, widget->geometry().bottomRight() ) ;
+	geom = QRect( mp, widget->geometry().bottomRight() ) ;
 	break;
     case BottomRight:
-	geom =  QRect( widget->geometry().topLeft(), p ) ;
+	geom = QRect( widget->geometry().topLeft(), p ) ;
 	break;
     case BottomLeft:
-	geom =  QRect( QPoint(mp.x(), widget->geometry().y() ), QPoint( widget->geometry().right(), p.y()) ) ;
+	geom = QRect( QPoint(mp.x(), widget->geometry().y() ), QPoint( widget->geometry().right(), p.y()) ) ;
 	break;
     case TopRight:
-	geom =  QRect( QPoint( widget->geometry().x(), mp.y() ), QPoint( p.x(), widget->geometry().bottom()) ) ;
+	geom = QRect( QPoint( widget->geometry().x(), mp.y() ), QPoint( p.x(), widget->geometry().bottom()) ) ;
 	break;
     case Top:
-	geom =  QRect( QPoint( widget->geometry().left(), mp.y() ), widget->geometry().bottomRight() ) ;
+	geom = QRect( QPoint( widget->geometry().left(), mp.y() ), widget->geometry().bottomRight() ) ;
 	break;
     case Bottom:
-	geom =  QRect( widget->geometry().topLeft(), QPoint( widget->geometry().right(), p.y() ) ) ;
+	geom = QRect( widget->geometry().topLeft(), QPoint( widget->geometry().right(), p.y() ) ) ;
 	break;
     case Left:
-	geom =  QRect( QPoint( mp.x(), widget->geometry().top() ), widget->geometry().bottomRight() ) ;
+	geom = QRect( QPoint( mp.x(), widget->geometry().top() ), widget->geometry().bottomRight() ) ;
 	break;
     case Right:
-	geom =  QRect( widget->geometry().topLeft(), QPoint( p.x(), widget->geometry().bottom() ) ) ;
+	geom = QRect( widget->geometry().topLeft(), QPoint( p.x(), widget->geometry().bottom() ) ) ;
 	break;
     case Center:
 	if ( isMovingEnabled() || moveResizeMode )
@@ -228,8 +234,14 @@ void QWidgetResizeHandler::mouseMoveEvent( QMouseEvent *e )
 	break;
     }
 
-    geom = QRect( geom.topLeft(), geom.size().expandedTo( widget->minimumSize() ).expandedTo( QSize(mw,mh) ).
-		  boundedTo( childWidget->maximumSize() + QSize( 2*fw, 2*fw + extrahei +1 ) ) );
+    QSize maxsize( childWidget->maximumSize() );
+    if ( childWidget != widget )
+	maxsize += QSize( 2 * fw, 2 * fw + extrahei );
+
+    geom = QRect( geom.topLeft(),
+		  geom.size().expandedTo( widget->minimumSize() )
+			     .expandedTo( QSize(mw, mh) )
+			     .boundedTo( maxsize ) );
 
     if ( geom != widget->geometry() &&
 	( widget->isTopLevel() || widget->parentWidget()->rect().intersects( geom ) ) ) {

@@ -1929,7 +1929,7 @@ QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
     widgetResizeHandler->setSizeProtection( !parent->scrollBarsEnabled() );
     connect( widgetResizeHandler, SIGNAL( activate() ),
 	     this, SLOT( activate() ) );
-    widgetResizeHandler->setExtraHeight( th + 1 );
+    widgetResizeHandler->setExtraHeight( th + 2 );
     if(parent->windowMode() == QWorkspace::WS_TopLevel && isTopLevel()) {
 	move(0, 0);
 	widgetResizeHandler->setActive( FALSE );

@@ -126,6 +126,7 @@ void QDockWindowResizeHandle::setOrientation( Qt::Orientation o )
 	setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Expanding ) );
     }
 }
+
 void QDockWindowResizeHandle::mousePressEvent( QMouseEvent *e )
 {
     e->ignore();
@@ -1074,7 +1075,6 @@ void QDockWindow::updateGui()
 	vHandleRight->hide();
 	setLineWidth( 2 );
 	widgetResizeHandler->setActive( isResizeEnabled() );
-	widgetResizeHandler->setExtraHeight( titleBar->height() );
     } else {
 	hbox->setMargin( isResizeEnabled() ? 0 : 2 );
 	titleBar->hide();
@@ -1572,15 +1572,7 @@ QSize QDockWindow::minimumSizeHint() const
     return msh;
 }
 
-/*!
-  Undocks the QDockWindow from its current dock area, if it is
-  docked; otherwise does nothing.
-
-  Do not pass any \a w paramenter, it is for internal use only.
-
-  \sa dock() QDockArea::moveDockWindow(), QDockArea::removeDockWindow(),
-  QMainWindow::moveDockWindow(), QMainWindow::removeDockWindow()
-*/
+/*! \internal */
 void QDockWindow::undock( QWidget *w )
 {
     if ( place() == OutsideDock && !w )
@@ -1623,7 +1615,12 @@ void QDockWindow::undock( QWidget *w )
 
 /*!
   \fn void QDockWindow::undock()
-  \internal
+
+  Undocks the QDockWindow from its current dock area if it is docked;
+  otherwise does nothing.
+
+  \sa dock() QDockArea::moveDockWindow(), QDockArea::removeDockWindow(),
+  QMainWindow::moveDockWindow(), QMainWindow::removeDockWindow()
 */
 
 void QDockWindow::removeFromDock( bool fixNewLines )
