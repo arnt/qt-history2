@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtablevw.cpp#76 $
+** $Id: //depot/qt/main/src/widgets/qtablevw.cpp#77 $
 **
 ** Implementation of QTableView class
 **
@@ -20,7 +20,7 @@
 #include "qdrawutl.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtablevw.cpp#76 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtablevw.cpp#77 $");
 
 
 const int sbDim = 16;
@@ -1509,7 +1509,7 @@ void QTableView::setVerScrollBar( bool on, bool update )
 {
     if ( on ) {
 	tFlags |= Tbl_vScrollBar;
-	horizontalScrollBar(); // created
+	verticalScrollBar(); // created
 	if ( update )
 	    updateScrollBars( verMask | horMask );
 	else
