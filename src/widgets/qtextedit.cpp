@@ -83,9 +83,11 @@ class QTextEditPrivate
 {
 public:
     QTextEditPrivate()
-	:preeditStart(-1),preeditLength(-1),ensureCursorVisibleInShowEvent(FALSE), mouseInternalPress(FALSE),
-	ensureCursorVisibleInShowEvent(FALSE),
-	allowTabs(FALSE)
+	:preeditStart(-1),preeditLength(-1),ensureCursorVisibleInShowEvent(FALSE), 
+	allowTabs(FALSE), mouseInternalPress(FALSE)
+#ifdef QT_TEXTEDIT_OPTIMIZATION
+	, od(0), optimMode( FALSE)
+#endif
     {
 	for ( int i=0; i<7; i++ )
 	    id[i] = 0;
@@ -778,10 +780,6 @@ QTextEdit::~QTextEdit()
 void QTextEdit::init()
 {
     d = new QTextEditPrivate;
-#ifdef QT_TEXTEDIT_OPTIMIZATION
-    d->od = 0;
-    d->optimMode = FALSE;
-#endif
     doc->formatCollection()->setPaintDevice( this );
     undoEnabled = TRUE;
     readonly = TRUE;
