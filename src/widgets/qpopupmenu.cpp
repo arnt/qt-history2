@@ -897,7 +897,7 @@ QRect QPopupMenu::itemGeometry( int index )
     int x = contentsRect().x();
     int y = contentsRect().y();
     QMenuItemListIt it( *mitems );
-    if(d->scroll.scrollable) {
+    if(d->scroll.scrollable & QPopupMenuPrivate::Scroll::ScrollUp) {
 	scrollh = style().pixelMetric(QStyle::PM_PopupMenuScrollerHeight, this);
 	y += scrollh;
 	if(d->scroll.topScrollableIndex) {
@@ -1382,14 +1382,16 @@ void QPopupMenu::drawContents( QPainter* p )
 		it.toFirst();
 	}
 	if(d->scroll.scrollable & QPopupMenuPrivate::Scroll::ScrollUp) {
-	    QStyle::SFlags flags = QStyle::Style_Up;
-	    if (isEnabled())
-		flags |= QStyle::Style_Enabled;
-	    int sh = style().pixelMetric(QStyle::PM_PopupMenuScrollerHeight, this);
-	    style().drawControl(QStyle::CE_PopupMenuScroller, p, this,
-				QRect(x, y, contentsRect().width(), sh),
-				colorGroup(), flags, QStyleOption(maxPMWidth));
-	    y += sh;
+	    QRect rect(x, y, contentsRect().width(), 
+		       style().pixelMetric(QStyle::PM_PopupMenuScrollerHeight, this));
+	    if(!p->hasClipping() || p->clipRegion().contains(rect)) {
+		QStyle::SFlags flags = QStyle::Style_Up;
+		if (isEnabled())
+		    flags |= QStyle::Style_Enabled;
+		style().drawControl(QStyle::CE_PopupMenuScroller, p, this, rect,
+				    colorGroup(), flags, QStyleOption(maxPMWidth));
+	    }
+	    y += rect.height();
 	}
     }
 
@@ -1412,13 +1414,14 @@ void QPopupMenu::drawContents( QPainter* p )
 
 	if ( ncols > 1 && y + itemh > contentsRect().bottom() ) {
 	    if ( y < contentsRect().bottom() ) {
-		flags = QStyle::Style_Default;
-		if (isEnabled() && mi->isEnabled())
-		    flags |= QStyle::Style_Enabled;
-
-		style().drawControl(QStyle::CE_PopupMenuItem, p, this,
-				    QRect(x, y, itemw, contentsRect().bottom() - y),
-				    colorGroup(), flags, QStyleOption((QMenuItem*)0,maxPMWidth));
+		QRect rect(x, y, itemw, contentsRect().bottom() - y);
+		if(!p->hasClipping() || p->clipRegion().contains(rect)) {
+		    flags = QStyle::Style_Default;
+		    if (isEnabled() && mi->isEnabled())
+			flags |= QStyle::Style_Enabled;
+		    style().drawControl(QStyle::CE_PopupMenuItem, p, this, rect,
+					colorGroup(), flags, QStyleOption((QMenuItem*)0,maxPMWidth));
+		}
 	    }
 	    y = contentsRect().y();
 	    x +=itemw;
@@ -1428,21 +1431,25 @@ void QPopupMenu::drawContents( QPainter* p )
 	++row;
     }
     if ( y < contentsRect().bottom() && count() ) {
-	flags = QStyle::Style_Default;
-	if ( isEnabled() )
-	    flags |= QStyle::Style_Enabled;
-	style().drawControl(QStyle::CE_PopupMenuItem, p, this,
-			    QRect(x, y, itemw, contentsRect().bottom() - y),
-			    colorGroup(), flags, QStyleOption((QMenuItem*)0,maxPMWidth));
+	QRect rect(x, y, itemw, contentsRect().bottom() - y);
+	if(!p->hasClipping() || p->clipRegion().contains(rect)) {
+	    flags = QStyle::Style_Default;
+	    if ( isEnabled() )
+		flags |= QStyle::Style_Enabled;
+	    style().drawControl(QStyle::CE_PopupMenuItem, p, this, rect,
+				colorGroup(), flags, QStyleOption((QMenuItem*)0,maxPMWidth));
+	}
     }
     if( d->scroll.scrollable & QPopupMenuPrivate::Scroll::ScrollDown ) {
-	QStyle::SFlags flags = QStyle::Style_Down;
-	if (isEnabled())
-	    flags |= QStyle::Style_Enabled;
 	int sh = style().pixelMetric(QStyle::PM_PopupMenuScrollerHeight, this);
-	style().drawControl(QStyle::CE_PopupMenuScroller, p, this,
-			    QRect(x, contentsRect().height() - sh, contentsRect().width(), sh),
-			    colorGroup(), flags, QStyleOption(maxPMWidth));
+	QRect rect(x, contentsRect().height() - sh, contentsRect().width(), sh);
+	if(!p->hasClipping() || p->clipRegion().contains(rect)) {
+	    QStyle::SFlags flags = QStyle::Style_Down;
+	    if (isEnabled())
+		flags |= QStyle::Style_Enabled;
+	    style().drawControl(QStyle::CE_PopupMenuScroller, p, this, rect,
+				colorGroup(), flags, QStyleOption(maxPMWidth));
+	}
     }
 }
 
