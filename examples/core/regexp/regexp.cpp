@@ -1,21 +1,28 @@
 #include "regexp.h"
 
 const QString RESULT_TABLE =
-    "<table bgcolor=\"white\" border=\"1\" cellspacing=\"1\" cellpadding=\"2\">"
-    "<tr><td>Regexp</td><td align=\"right\" colspan=\"2\"><b>%1</b></td></tr>"
-    "<tr><td>Offset</td><td align=\"right\" colspan=\"2\"><b>%2</b></td></tr>"
-    "<tr><td>Captures</td><td align=\"right\" colspan=\"2\"><b>%3</b></td></tr>"
-    "<tr><td></td><td align=\"center\">Text</td>"
-    "<td align=\"center\">Characters</td></tr>";
+    QObject::tr("<table bgcolor=\"white\" border=\"1\" "
+                "cellspacing=\"1\" cellpadding=\"1\">"
+                "<tr><td>Regexp</td>"
+                "<td align=\"right\" colspan=\"2\"><b>%1</b></td></tr>"
+                "<tr><td>Offset</td>"
+                "<td align=\"right\" colspan=\"2\"><b>%2</b></td></tr>"
+                "<tr><td>Captures</td>"
+                "<td align=\"right\" colspan=\"2\"><b>%3</b></td></tr>");
+
+const QString SUBHEADING =
+    QObject::tr("<tr><td></td><td align=\"center\">Text</td>"
+                "<td align=\"center\">Characters</td></tr>");
 
 const QString MATCH =
-    "<tr><td>Match</td><td><b>%1</b></td><td align=\"right\"><b>%2</b></td></tr>";
+    QObject::tr("<tr><td>Match</td><td><b>%1</b></td>"
+                "<td align=\"right\"><b>%2</b></td></tr>");
 
 const QString CAPTURE_ROW =
-    "<tr><td>Capture #%1</td><td align=\"right\"><b>%2</b></td>"
-    "<td align=\"right\"><b>%3</b></td></tr>";
+    QObject::tr("<tr><td>Capture #%1</td><td align=\"right\"><b>%2</b></td>"
+                "<td align=\"right\"><b>%3</b></td></tr>");
 
-const QString TABLE_END = "</table>";
+const QString TABLE_END = QObject::tr("</table>");
 
 
 
@@ -131,7 +138,7 @@ void Regexp::execute()
 	QString escaped = regex.replace("\\", "\\\\");
         result = result.arg(escaped);
 	if (offset != -1) {
-            result = result.arg(offset);
+            result = result.arg(offset) + SUBHEADING;
 	    if (syntax != QRegExp::RegExp)
                 captures = 0;
             result = result.arg(captures);
