@@ -621,23 +621,26 @@ bool QSpinBox::eventFilter( QObject* /* obj */, QEvent* ev )
     if ( ev->type() == QEvent::KeyPress ) {
 	QKeyEvent* k = (QKeyEvent*)ev;
 
+	bool retval = FALSE; // workaround for MSVC++ optimization bug
 	if( (k->key() == Key_Tab) || (k->key() == Key_BackTab) ){
 	    if ( k->state() & Qt::ControlButton )
 		return FALSE;
 	    if ( edited )
 		interpretText();
 	    qApp->sendEvent( this, ev );
-	    return TRUE;
+	    retval = TRUE;
 	} if ( k->key() == Key_Up ) {
 	    stepUp();
-	    return TRUE;
+	    retval = TRUE;
 	} else if ( k->key() == Key_Down ) {
 	    stepDown();
-	    return TRUE;
+	    retval = TRUE;
 	} else if ( k->key() == Key_Return ) {
 	    interpretText();
 	    return FALSE;
 	}
+	if ( retval )
+	    return retval;
     } else if ( ev->type() == QEvent::FocusOut || ev->type() == QEvent::Leave || ev->type() == QEvent::Hide ) {
 	if ( edited ) {
 	    interpretText();
