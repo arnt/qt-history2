@@ -136,7 +136,7 @@ public:
     virtual void setData( const QString& dat );
     virtual void setData( const QByteArray& dat );
     virtual void fetchData();
-    virtual QString data();
+    virtual QString data() const;
     virtual QChar next();
     virtual void reset();
 
@@ -369,10 +369,10 @@ public:
     QXmlLocator();
     virtual ~QXmlLocator();
 
-    virtual int columnNumber() = 0;
-    virtual int lineNumber() = 0;
-//    QString getPublicId()
-//    QString getSystemId()
+    virtual int columnNumber() const = 0;
+    virtual int lineNumber() const = 0;
+//    QString getPublicId() const
+//    QString getSystemId() const
 };
 
 //
@@ -393,7 +393,7 @@ public:
     virtual bool ignorableWhitespace( const QString& ch ) = 0;
     virtual bool processingInstruction( const QString& target, const QString& data ) = 0;
     virtual bool skippedEntity( const QString& name ) = 0;
-    virtual QString errorString() = 0;
+    virtual QString errorString() const = 0;
 };
 
 class QM_EXPORT_XML QXmlErrorHandler
@@ -402,7 +402,7 @@ public:
     virtual bool warning( const QXmlParseException& exception ) = 0;
     virtual bool error( const QXmlParseException& exception ) = 0;
     virtual bool fatalError( const QXmlParseException& exception ) = 0;
-    virtual QString errorString() = 0;
+    virtual QString errorString() const = 0;
 };
 
 class QM_EXPORT_XML QXmlDTDHandler
@@ -410,14 +410,14 @@ class QM_EXPORT_XML QXmlDTDHandler
 public:
     virtual bool notationDecl( const QString& name, const QString& publicId, const QString& systemId ) = 0;
     virtual bool unparsedEntityDecl( const QString& name, const QString& publicId, const QString& systemId, const QString& notationName ) = 0;
-    virtual QString errorString() = 0;
+    virtual QString errorString() const = 0;
 };
 
 class QM_EXPORT_XML QXmlEntityResolver
 {
 public:
     virtual bool resolveEntity( const QString& publicId, const QString& systemId, QXmlInputSource*& ret ) = 0;
-    virtual QString errorString() = 0;
+    virtual QString errorString() const = 0;
 };
 
 class QM_EXPORT_XML QXmlLexicalHandler
@@ -430,7 +430,7 @@ public:
     virtual bool startCDATA() = 0;
     virtual bool endCDATA() = 0;
     virtual bool comment( const QString& ch ) = 0;
-    virtual QString errorString() = 0;
+    virtual QString errorString() const = 0;
 };
 
 class QM_EXPORT_XML QXmlDeclHandler
@@ -439,7 +439,7 @@ public:
     virtual bool attributeDecl( const QString& eName, const QString& aName, const QString& type, const QString& valueDefault, const QString& value ) = 0;
     virtual bool internalEntityDecl( const QString& name, const QString& value ) = 0;
     virtual bool externalEntityDecl( const QString& name, const QString& publicId, const QString& systemId ) = 0;
-    virtual QString errorString() = 0;
+    virtual QString errorString() const = 0;
 };
 
 
@@ -482,7 +482,7 @@ public:
     bool internalEntityDecl( const QString& name, const QString& value );
     bool externalEntityDecl( const QString& name, const QString& publicId, const QString& systemId );
 
-    QString errorString();
+    QString errorString() const;
 
 private:
     QXmlDefaultHandlerPrivate *d;

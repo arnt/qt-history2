@@ -82,7 +82,7 @@ public:
     bool operator!= ( const QDomImplementation& ) const;
 
     // functions
-    virtual bool hasFeature( const QString& feature, const QString& version );
+    virtual bool hasFeature( const QString& feature, const QString& version ) const;
     virtual QDomDocumentType createDocumentType( const QString& qName, const QString& publicId, const QString& systemId );
     virtual QDomDocument createDocument( const QString& nsURI, const QString& qName, const QDomDocumentType& doctype );
 

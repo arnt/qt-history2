@@ -286,14 +286,14 @@ QXmlLocator::~QXmlLocator()
 }
 
 /*!
-    \fn int QXmlLocator::columnNumber()
+    \fn int QXmlLocator::columnNumber() const
 
     Returns the column number (starting at 1) or -1 if there is no
     column number available.
 */
 
 /*!
-    \fn int QXmlLocator::lineNumber()
+    \fn int QXmlLocator::lineNumber() const
 
     Returns the line number (starting at 1) or -1 if there is no line
     number available.
@@ -1019,7 +1019,7 @@ void QXmlInputSource::reset()
 
     \sa setData() QXmlInputSource() fetchData()
 */
-QString QXmlInputSource::data()
+QString QXmlInputSource::data() const
 {
     return str;
 }
@@ -1414,7 +1414,7 @@ QString QXmlInputSource::fromRawData( const QByteArray &data, bool beginning )
 */
 
 /*!
-    \fn QString QXmlContentHandler::errorString()
+    \fn QString QXmlContentHandler::errorString() const
 
     The reader calls this function to get an error string, e.g. if any
     of the handler functions returns FALSE.
@@ -1487,7 +1487,7 @@ QString QXmlInputSource::fromRawData( const QByteArray &data, bool beginning )
 */
 
 /*!
-    \fn QString QXmlErrorHandler::errorString()
+    \fn QString QXmlErrorHandler::errorString() const
 
     The reader calls this function to get an error string if any of
     the handler functions returns FALSE.
@@ -1552,7 +1552,7 @@ QString QXmlInputSource::fromRawData( const QByteArray &data, bool beginning )
 */
 
 /*!
-    \fn QString QXmlDTDHandler::errorString()
+    \fn QString QXmlDTDHandler::errorString() const
 
     The reader calls this function to get an error string if any of
     the handler functions returns FALSE.
@@ -1606,7 +1606,7 @@ QString QXmlInputSource::fromRawData( const QByteArray &data, bool beginning )
 */
 
 /*!
-    \fn QString QXmlEntityResolver::errorString()
+    \fn QString QXmlEntityResolver::errorString() const
 
     The reader calls this function to get an error string if any of
     the handler functions returns FALSE.
@@ -1755,7 +1755,7 @@ QString QXmlInputSource::fromRawData( const QByteArray &data, bool beginning )
 */
 
 /*!
-    \fn QString QXmlLexicalHandler::errorString()
+    \fn QString QXmlLexicalHandler::errorString() const
 
     The reader calls this function to get an error string if any of
     the handler functions returns FALSE.
@@ -1840,7 +1840,7 @@ QString QXmlInputSource::fromRawData( const QByteArray &data, bool beginning )
 */
 
 /*!
-    \fn QString QXmlDeclHandler::errorString()
+    \fn QString QXmlDeclHandler::errorString() const
 
     The reader calls this function to get an error string if any of
     the handler functions returns FALSE.
@@ -2063,7 +2063,7 @@ bool QXmlDefaultHandler::resolveEntity( const QString&, const QString&,
 
     Returns the default error string.
 */
-QString QXmlDefaultHandler::errorString()
+QString QXmlDefaultHandler::errorString() const
 {
     return QString( XMLERR_ERRORBYCONSUMER );
 }

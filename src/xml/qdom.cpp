@@ -697,7 +697,7 @@ QDomImplementation::~QDomImplementation()
     \row \i XML \i 1.0
     \endtable
 */
-bool QDomImplementation::hasFeature( const QString& feature, const QString& version )
+bool QDomImplementation::hasFeature( const QString& feature, const QString& version ) const
 {
     if ( feature == "XML" ) {
 	if ( version.isEmpty() || version == "1.0" ) {
