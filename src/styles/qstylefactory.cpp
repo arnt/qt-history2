@@ -46,6 +46,7 @@
 #include "qsgistyle.h"
 #include "qcompactstyle.h"
 #include "qapplication.h"
+#include "qaquastyle.h"
 #include <stdlib.h>
 
 
@@ -54,19 +55,19 @@ static QInterfaceManager<QStyleInterface> *manager = 0;
 
 static void ensureManager() {
         if ( !manager ) {
-	manager = new QInterfaceManager<QStyleInterface>( "QStyleInterface" );
+        manager = new QInterfaceManager<QStyleInterface>( "QStyleInterface" );
 
-	QString defpath(getenv("QTDIR"));
-	if (! defpath.isNull() && ! defpath.isEmpty()) {
-	    manager->addLibraryPath(defpath + "/plugins");
-	}
+        QString defpath(getenv("QTDIR"));
+        if (! defpath.isNull() && ! defpath.isEmpty()) {
+            manager->addLibraryPath(defpath + "/plugins");
+        }
 
-	QStringList paths(QApplication::libraryPaths());
-	QStringList::Iterator it = paths.begin();
-	while (it != paths.end()) {
-	    manager->addLibraryPath(*it);
-	    it++;
-	}
+        QStringList paths(QApplication::libraryPaths());
+        QStringList::Iterator it = paths.begin();
+        while (it != paths.end()) {
+            manager->addLibraryPath(*it);
+            it++;
+        }
     }
 }
 
@@ -78,43 +79,47 @@ QStyle *QStyleFactory::create( const QString& s )
     QStyleInterface *iface = manager->queryInterface( s );
 
     if ( iface )
-	return iface->create( s );
+        return iface->create( s );
 
     QString style = s.lower();
 #ifndef QT_NO_STYLE_WINDOWS
     if ( style == "windows" )
-	return new QWindowsStyle;
+        return new QWindowsStyle;
     else
 #endif
 #ifndef QT_NO_STYLE_MOTIF
     if ( style == "motif" )
-	return new QMotifStyle;
+        return new QMotifStyle;
     else
 #endif
 #ifndef QT_NO_STYLE_CDE
     if ( style == "cde" )
-	return new QCDEStyle;
+        return new QCDEStyle;
     else
 #endif
 #ifndef QT_NO_STYLE_MOTIFPLUS
     if ( style == "motifplus" )
-	return new QMotifPlusStyle;
+        return new QMotifPlusStyle;
     else
 #endif
 #ifndef QT_NO_STYLE_PLATINUM
     if ( style == "platinum" )
-	return new QPlatinumStyle;
+        return new QPlatinumStyle;
     else
 #endif
 #ifndef QT_NO_STYLE_SGI
     if ( style == "sgi")
-	return new QSGIStyle;
+        return new QSGIStyle;
     else
 #endif
 #ifndef QT_NO_STYLE_COMPACT
     if ( style == "compact" )
-	return new QCompactStyle;
+        return new QCompactStyle;
     else
+#endif
+#ifndef QT_NO_STYLE_AQUA
+    if ( style == "aqua" )
+        return new QAquaStyle;
 #endif
 
     return 0;
@@ -147,6 +152,9 @@ QStringList QStyleFactory::styles()
 #endif
 #ifndef QT_NO_STYLE_COMPACT
     list << "Compact";
+#endif
+#ifndef QT_NO_STYLE_AQUA
+    list << "Aqua";
 #endif
 
     return list;
