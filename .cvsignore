@@ -1,2 +1,3 @@
 propagate variables
 .previous-changelog
+*.debug

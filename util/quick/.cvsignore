@@ -5,3 +5,4 @@ moc_quickpad.cpp
 moc_qdolistbox.cpp
 quick
 .cvsignore
+*.debug

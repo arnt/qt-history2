@@ -1,3 +1,4 @@
 .cvsignore
 t7
 mlcdrang.cpp
+*.debug

@@ -2,3 +2,4 @@
 t10
 mlcdrang.cpp
 mcannon.cpp
+*.debug

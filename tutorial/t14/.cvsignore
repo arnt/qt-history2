@@ -3,3 +3,4 @@ t14
 mlcdrang.cpp
 mcannon.cpp
 mgamebr.cpp
+*.debug

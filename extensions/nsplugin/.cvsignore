@@ -1,2 +1,3 @@
 .qdoc-links
 html
+*.debug

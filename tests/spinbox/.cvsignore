@@ -2,3 +2,4 @@ Makefile
 spin
 spin.moc
 
+*.debug
