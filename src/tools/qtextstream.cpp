@@ -1565,11 +1565,13 @@ QString QTextStream::readLine()
 	return QString::null;
     }
 #endif
+    bool readCharByChar = TRUE;
     QString result( "" );
     if ( !doUnicodeHeader && (
 	    (latin1) || 
 	    (mapper != 0 && mapper->mibEnum() == 106 ) // UTF 8
        ) ) {
+	readCharByChar = FALSE;
 	// use optimized read line
 	const int buf_size = 256;
 	QChar c[buf_size];
@@ -1579,12 +1581,15 @@ QString QTextStream::readLine()
 	while ( TRUE ) {
 	    pos = ts_getline( c, buf_size );
 	    if ( pos == 0 ) {
+		// something went wrong; try fallback
+		readCharByChar = TRUE;
+		//dev->resetStatus();
 		break;
 	    }
 	    if ( c[pos-1] == QEOF || c[pos-1] == '\n' ) {
-		if ( pos>=2 && c[pos-1]==QEOF && c[pos-2]=='\n' ) {
+		if ( pos>2 && c[pos-1]==QEOF && c[pos-2]=='\n' ) {
 		    result += QString( c, pos-2 );
-		} else if ( pos >= 1 ) {
+		} else if ( pos > 1 ) {
 		    result += QString( c, pos-1 );
 		}
 		if ( pos == 1 && c[pos-1] == QEOF )
@@ -1596,15 +1601,17 @@ QString QTextStream::readLine()
 	}
 	if ( eof && result.isEmpty() )
 	    return QString::null;
-    } else {
+    }
+    if (readCharByChar ) {
 	// read character by character
 	const int buf_size = 256;
 	QChar c[buf_size];
 	int pos = 0;
 
 	c[pos] = ts_getc();
-	if ( c[pos] == QEOF )
+	if ( c[pos] == QEOF ) {
 	    return QString::null;
+	}
 
 	while ( c[pos] != QEOF && c[pos] != '\n' ) {
 	    pos++;
