@@ -150,7 +150,7 @@ public:
     void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected)
         { QListView::selectionChanged(selected, deselected); }
     void currentChanged(const QModelIndex &current, const QModelIndex &previous)
-        { QListView::currentChanged(current, previous); }
+        { QListView::currentChanged(current, previous); }
     void ensureVisible(const QModelIndex &index)
         { QListView::ensureVisible(index); }
 #else
