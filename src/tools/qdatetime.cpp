@@ -91,8 +91,10 @@ static QString getFmtString( const QString& f, const QTime* dt = 0, const QDate*
 	    else
 		buf = QString::number( dt->hour() );
         } else if ( f == "hh" ) {
-	    if ( ( am_pm ) && ( dt->hour() >= 12 ) )
+	    if ( ( am_pm ) && ( dt->hour() > 12 ) )
 		buf = QString::number( dt->hour() - 12 ).rightJustify( 2, '0', TRUE );
+	    else if ( ( am_pm ) && ( dt->hour() == 0 ) )
+		buf = "12";
 	    else
 		buf = QString::number( dt->hour() ).rightJustify( 2, '0', TRUE );
 	} else if ( f == "m" ) {
