@@ -179,19 +179,6 @@ void Project::removeUiFile( const QString &f, FormWindow *fw )
     save();
 }
 
-bool Project::isFormLoaded( const QString &form )
-{
-    return loadedForms.find( form ) != loadedForms.end();
-}
-
-void Project::setFormLoaded( const QString &form, bool loaded )
-{
-    if ( loaded && !isFormLoaded( form ) )
-	loadedForms << form;
-    else if ( !loaded )
-	loadedForms.remove( form );
-}
-
 void Project::setDatabaseDescription( const QString &db )
 {
     dbFile = db;
@@ -507,4 +494,9 @@ void Project::closeDatabase( const QString &connection )
     if ( !conn )
 	return;
     conn->close();
+}
+
+void Project::formClosed( FormWindow *fw )
+{
+    formWindows.remove( fw );
 }

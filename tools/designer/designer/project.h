@@ -66,10 +66,8 @@ public:
     void addUiFile( const QString &f, FormWindow *fw );
     void removeUiFile( const QString &f, FormWindow *fw );
     void setUiFiles( const QStringList &lst );
-
-    bool isFormLoaded( const QString &form );
-    void setFormLoaded( const QString &form, bool loaded );
-
+    void formClosed( FormWindow *fw );
+    
     bool isValid() const;
 
     void setFormWindow( const QString &f, FormWindow *fw );

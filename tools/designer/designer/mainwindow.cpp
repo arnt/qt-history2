@@ -3111,6 +3111,10 @@ bool MainWindow::closeForm( FormWindow *fw )
 	    break;
 	}
     }
+    
+    for ( QMap<QAction*, Project* >::Iterator it = projects.begin(); it != projects.end(); ++it )
+	(*it)->formClosed( fw );
+    
     return TRUE;
 }
 
