@@ -46,7 +46,6 @@
 
 #if defined (Q_WS_WIN) && !defined(Q_CC_GNU)
 #   define isnan(d) _isnan(d)
-#   define isinf(d) (!_finite(d) && !_isnan(d))
 #endif
 
 // mingw defines NAN and INFINITY to 0/0 and x/0
@@ -55,13 +54,8 @@
 #   undef INFINITY
 #endif
 
-#if defined (Q_OS_IRIX)
-#   define isinf(d) (!finite(d) && !isnan(d))
-#endif
-
 #if defined (Q_OS_SOLARIS)
 #   include <ieeefp.h>
-#   define isinf(d) (!finite(d) && !isnan(d))
 #endif
 
 enum {
@@ -2773,7 +2767,7 @@ QString QLocalePrivate::doubleToString(double d,
     QString num_str;
 
     // Detect special numbers (nan, +/-inf)
-    if (isinf(d)) {
+    if (d == INFINITY || d == -INFINITY) {
     	num_str = infinity();
 	special_number = true;
         negative = d < 0;
