@@ -1942,7 +1942,6 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 
 #ifndef Q_OS_TEMP
 	    case WM_MOUSEACTIVATE:
-#if 0 // This code cause corrupted docwindow behaviour when they contain widgets with ClickFocus policy.
 		{
 		    const QWidget *tlw = widget->topLevelWidget();
 		    // Do not change activation if the clicked widget is inside a floating dock window
@@ -1950,7 +1949,6 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 			 && !qApp->activeWindow()->inherits("QDockWindow") )
 			RETURN(MA_NOACTIVATE);
 		}
-#endif // 0
 		result = FALSE;
 		break;
 #endif
