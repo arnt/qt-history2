@@ -3078,13 +3078,13 @@ void EventList::showRMBMenu( QListViewItem *i, const QPoint &pos )
 	    conn.receiver = formWindow->mainContainer();
 	    conn.signal = i->parent()->text( 0 );
 	    conn.slot = i->text( 0 );
+	    delete i;
 	    RemoveConnectionCommand *cmd = new RemoveConnectionCommand( tr( "Remove connection" ),
 									formWindow,
 									conn );
 	    formWindow->commandHistory()->addCommand( cmd );
 	    cmd->execute();
 	    editor->formWindow()->mainWindow()->objectHierarchy()->updateFunctionList();
-	    delete i;
 	}
     }
 }
