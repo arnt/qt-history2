@@ -16,7 +16,6 @@
 #include <qapplication.h>
 #include <qcheckbox.h>
 #include <qcombobox.h>
-#include <qdatetimeedit.h>
 #include <qevent.h>
 #include <qpointer.h>
 #include <qheader.h>
@@ -419,7 +418,7 @@ bool QAquaAnimate::focusable(const QWidget *w) const
     else if(fp == QMacStyle::FocusDisabled)
         return false;
     return (w && !w->isTopLevel() && w->parentWidget() &&
-            (::qt_cast<QSpinWidget *>(w) || ::qt_cast<QDateTimeEdit *>(w)
+            (::qt_cast<QSpinWidget *>(w) /*|| ::qt_cast<QDateTimeEdit *>(w)*/
              || ::qt_cast<QComboBox *>(w)|| ::qt_cast<QListBox *>(w) || ::qt_cast<QListView *>(w)
              || (::qt_cast<QLineEdit *>(w) && ::qt_cast<QSpinWidget *>(w->parentWidget()))
 //           || (w->inherits("QTextEdit") && wstatic_cast<const QTextEdit *>(w)->isReadOnly())
