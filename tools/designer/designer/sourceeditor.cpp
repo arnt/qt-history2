@@ -161,6 +161,8 @@ void SourceEditor::setClass( const QString &clss )
 void SourceEditor::closeEvent( QCloseEvent *e )
 {
     e->accept();
+    if ( !obj )
+	return;
     if ( obj->inherits( "FormWindow" ) ) {
 	save();
 	MainWindow::self->updateFunctionList();

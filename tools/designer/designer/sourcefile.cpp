@@ -57,14 +57,18 @@ bool SourceFile::save()
 {
     if ( fileNameTemp )
 	return saveAs();
+    if ( !isModified() )
+	return TRUE;
     if ( ed )
 	ed->save();
-    QFile f( filename );
+    QFile f( pro->makeAbsolute( filename ) );
     if ( !f.open( IO_WriteOnly ) )
-	return FALSE;
+	return saveAs();
+
     QTextStream ts( &f );
     ts << txt;
     timeStamp.update();
+    setModified( FALSE );
     return TRUE;
 }
 
@@ -81,7 +85,7 @@ bool SourceFile::saveAs()
 	}
     }
 
-    QString fn = QFileDialog::getSaveFileName( filename, filter );
+    QString fn = QFileDialog::getSaveFileName( pro->makeAbsolute( filename ), filter );
     if ( fn.isEmpty() )
 	return FALSE;
     fileNameTemp = FALSE;
@@ -90,13 +94,13 @@ bool SourceFile::saveAs()
     timeStamp.setFileName( pro->makeAbsolute( filename ) );
     if ( ed )
 	ed->setCaption( tr( "Edit %1" ).arg( filename ) );
-    save();
-    return TRUE;
+    setModified( TRUE );
+    return save();
 }
 
 bool SourceFile::load()
 {
-    QFile f( filename );
+    QFile f( pro->makeAbsolute( filename ) );
     if ( !f.open( IO_ReadOnly ) )
 	return FALSE;
     QTextStream ts( &f );
@@ -168,6 +172,7 @@ bool SourceFile::closeEvent()
 	    return FALSE;
 	break;
     case 1: // don't save
+	load();
 	break;
     case 2: // cancel
 	return FALSE;
