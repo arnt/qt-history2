@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Compatibility file - should only be included by legacy code.
 ** It #includes the file which obsoletes this one.

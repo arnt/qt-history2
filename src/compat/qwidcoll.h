@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Compatibility file - should only be included by legacy code.
 ** It #includes the file which obsoletes this one.
@@ -20,21 +20,8 @@
 ** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
-/****************************************************************************
-** $Id: $
-**
-** Definition of QWidget collections
-**
-** Created : 950116
-**
-** Copyright (C) 1995-1997 by Trolltech AS.  All rights reserved.
-**
-*****************************************************************************/
-
 #ifndef QWIDCOLL_H
 #define QWIDCOLL_H
-
 #include "qwidgetlist.h"
 #include "qwidgetintdict.h"
-
-#endif // QWIDCOLL_H
+#endif

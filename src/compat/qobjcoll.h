@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Compatibility file - should only be included by legacy code.
 ** It #includes the file which obsoletes this one.
@@ -20,21 +20,8 @@
 ** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
-/****************************************************************************
-** $Id: $
-**
-** Definition of QObject and QMetaObject collections
-**
-** Created : 940807
-**
-** Copyright (C) 1994-1997 by Trolltech AS.  All rights reserved.
-**
-*****************************************************************************/
-
 #ifndef QOBJCOLL_H
 #define QOBJCOLL_H
-
 #include <qobjectlist.h>
 #include <qobjectdict.h>
-
-#endif // QOBJCOLL_H
+#endif
