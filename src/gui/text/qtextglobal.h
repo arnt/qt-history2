@@ -14,7 +14,7 @@ namespace QText
 {
     enum HitTestAccuracy { ExactHit, FuzzyHit };
 
-};
+}
 
 struct QTextDocumentConfig
 {
