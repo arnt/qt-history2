@@ -1503,7 +1503,7 @@ public:
 
     bool operator==( const QTextFormat &f ) const;
     QTextFormatCollection *parent() const;
-    QString key() const;
+    const QString &key() const;
 
     static QString getKey( const QFont &f, const QColor &c, bool misspelled, VerticalAlignment vAlign );
 
@@ -1523,6 +1523,7 @@ protected:
 
 private:
     void update();
+    static void applyFont( const QFont &f );
 
 private:
     QFont fn;
@@ -1541,6 +1542,8 @@ private:
     int logicalFontSize;
     int stdSize;
     static QPainter *pntr;
+    static QFontMetrics *pntr_fm;
+    static int pntr_asc, pntr_hei, pntr_ldg, pntr_dsc;
 
 };
 
@@ -1851,7 +1854,7 @@ inline void QTextFormat::removeRef()
 	collection->remove( this );
 }
 
-inline QString QTextFormat::key() const
+inline const QString &QTextFormat::key() const
 {
     return k;
 }

@@ -321,6 +321,11 @@ void QTextFormat::update()
 
 
 QPainter* QTextFormat::pntr = 0;
+QFontMetrics* QTextFormat::pntr_fm = 0;
+int QTextFormat::pntr_ldg=-1;
+int QTextFormat::pntr_asc=-1;
+int QTextFormat::pntr_hei=-1;
+int QTextFormat::pntr_dsc=-1;
 
 void QTextFormat::setPainter( QPainter *p )
 {
@@ -332,54 +337,67 @@ QPainter*  QTextFormat::painter()
     return pntr;
 }
 
+void QTextFormat::applyFont( const QFont &f )
+{
+    if ( pntr->font() != f || !pntr_fm ) {
+	pntr->setFont( f );
+	delete pntr_fm;
+	pntr_fm = new QFontMetrics( pntr->fontMetrics() );
+	pntr_ldg = pntr_fm->leading();
+	pntr_asc = pntr_fm->ascent()+(pntr_ldg+1)/2;
+	pntr_hei = pntr_fm->lineSpacing();
+	pntr_dsc = -1;
+    }
+}
 
 int QTextFormat::minLeftBearing() const
 {
     if ( !pntr || !pntr->isActive() )
 	return leftBearing;
-    pntr->setFont( fn );
-    return pntr->fontMetrics().minLeftBearing();
+    applyFont( fn );
+    return pntr_fm->minLeftBearing();
 }
 
 int QTextFormat::minRightBearing() const
 {
     if ( !pntr || !pntr->isActive() )
 	return rightBearing;
-    pntr->setFont( fn );
-    return pntr->fontMetrics().minRightBearing();
+    applyFont( fn );
+    return pntr_fm->minRightBearing();
 }
 
 int QTextFormat::height() const
 {
     if ( !pntr || !pntr->isActive() )
 	return hei;
-    pntr->setFont( fn );
-    return pntr->fontMetrics().lineSpacing();
+    applyFont( fn );
+    return pntr_hei;
 }
 
 int QTextFormat::ascent() const
 {
     if ( !pntr || !pntr->isActive() )
 	return asc;
-    pntr->setFont( fn );
-    const QFontMetrics &fm = pntr->fontMetrics();
-    return fm.ascent() + (fm.leading()+1)/2;
+    applyFont( fn );
+    return pntr_asc;
 }
 
 int QTextFormat::descent() const
 {
     if ( !pntr || !pntr->isActive() )
 	return dsc;
-    pntr->setFont( fn );
-    return pntr->fontMetrics().descent();
+    applyFont( fn );
+    if ( pntr_dsc < 0 )
+	pntr_dsc = pntr_fm->descent();
+    return pntr_dsc;
 }
 
 int QTextFormat::leading() const
 {
     if ( !pntr || !pntr->isActive() )
 	return fm.leading();
-    pntr->setFont( fn );
-    return pntr->fontMetrics().leading();
+    applyFont( fn );
+    return pntr_ldg;
 }
 
 void QTextFormat::generateKey()
