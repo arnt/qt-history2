@@ -389,6 +389,7 @@ public:
     int fullHeight, currHeight;
 
     QLineEdit * ed;  // /bin/ed rules!
+    QTimer *completionTimer;
 
     QSize sizeHint;
 
@@ -485,6 +486,7 @@ QComboBox::QComboBox( QWidget *parent, const char *name )
     d->useCompletion = FALSE;
     d->completeAt = 0;
     d->completeNow = FALSE;
+    d->completionTimer = new QTimer( this );
 
     setFocusPolicy( TabFocus );
     setBackgroundMode( PaletteButton );
@@ -521,6 +523,9 @@ QComboBox::QComboBox( bool rw, QWidget *parent, const char *name )
     d->discardNextMousePress = FALSE;
     d->shortClick = FALSE;
     d->useCompletion = FALSE;
+    d->completeAt = 0;
+    d->completeNow = FALSE;
+    d->completionTimer = new QTimer( this );
 
     setFocusPolicy( StrongFocus );
 
@@ -1355,7 +1360,7 @@ void QComboBox::mouseDoubleClickEvent( QMouseEvent *e )
 
 void QComboBox::keyPressEvent( QKeyEvent *e )
 {
-    int c;
+    int c = currentItem();
     if ( ( e->key() == Key_F4 && e->state() == 0 ) ||
 	 ( e->key() == Key_Down && (e->state() & AltButton) ) ||
 	 ( !d->ed && e->key() == Key_Space ) ) {
@@ -1366,29 +1371,38 @@ void QComboBox::keyPressEvent( QKeyEvent *e )
 	}
 	return;
     } else if ( d->usingListBox() && e->key() == Key_Up ) {
-	c = currentItem();
 	if ( c > 0 )
 	    setCurrentItem( c-1 );
     } else if ( d->usingListBox() && e->key() == Key_Down ) {
-	c = currentItem();
 	if ( ++c < count() )
 	    setCurrentItem( c );
     } else if ( d->usingListBox() && e->key() == Key_Home && ( !d->ed || !d->ed->hasFocus() ) ) {
 	setCurrentItem( 0 );
     } else if ( d->usingListBox() && e->key() == Key_End && ( !d->ed || !d->ed->hasFocus() ) ) {
 	setCurrentItem( count()-1 );
-    } else if ( !d->ed && e->text().length() && e->ascii() >= 32 && !e->text().isEmpty() ) {
-	// strictly speaking, we should test for useCompletion, but
-	// the code is a pure win, so let's do it anyway.
-	QString ct = currentText().left( d->completeAt ) + e->text();
-	int i = completionIndex( ct, currentItem() );
-	if ( i < 0 && d->completeAt > 0 )
-	    i = completionIndex( e->text(), 0 );
-	d->completeAt = 0;
-	if ( i >= 0 ) {
-	    setCurrentItem( i );
-	    d->completeAt = ct.length();
+    } else if ( !d->ed && e->ascii() >= 32 && !e->text().isEmpty() ) {
+	if ( !d->completionTimer->isActive() ) {
+	    d->completeAt = 0;
+	    c = completionIndex( e->text(), ++c );
+	    if ( c >= 0 ) {
+		setCurrentItem( c );
+		d->completeAt = e->text().length();
+	    }
+	} else {
+	    d->completionTimer->stop();
+	    QString ct = currentText().left( d->completeAt ) + e->text();
+	    c = completionIndex( ct, c );
+	    if ( c < 0 && d->completeAt > 0 ) {
+		c = completionIndex( e->text(), 0 );
+		ct = e->text();
+	    }
+	    d->completeAt = 0;
+	    if ( c >= 0 ) {
+		setCurrentItem( c );
+		d->completeAt = ct.length();
+	    }
 	}
+	d->completionTimer->start( 400, TRUE );
     } else {
 	e->ignore();
 	return;
@@ -1397,7 +1411,6 @@ void QComboBox::keyPressEvent( QKeyEvent *e )
     c = currentItem();
     if ( count() && !text( c ).isNull() )
 	emit activated( text( c ) );
-    //emit highlighted( c ); ###VOHI when doing this, we emit the signal twice, previously in setCurrentItem
     emit activated( c );
 }
 
@@ -1791,8 +1804,6 @@ int QComboBox::completionIndex( const QString & prefix,
     int start = startingAt;
     if ( start < 0 || start >= count() )
 	start = 0;
-    if ( start >= count() )
-	return -1;
     QString match = prefix.lower();
     if ( match.length() < 1 )
 	return start;
@@ -1800,12 +1811,9 @@ int QComboBox::completionIndex( const QString & prefix,
     QString current;
     int i = start;
     do {
-	current = text( i );
-	if ( current.length() >= match.length() ) {
-	    current.truncate( match.length() );
-	    if ( current.lower() == match.lower() )
-		return i;
-	}
+	current = text( i ).lower();
+	if ( current.startsWith( match ) )
+	    return i;
 	i++;
 	if ( i == count() )
 	    i = 0;

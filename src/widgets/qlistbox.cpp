@@ -79,7 +79,7 @@ public:
 	variableHeight( TRUE /* !!! ### FALSE */ ),
 	variableWidth( FALSE )
     {}
-    void findItemByName( const QString &text );
+    int findItemByName( int item, const QString &text );
     ~QListBoxPrivate();
 
     QListBoxItem * head, *last, *cache;
@@ -990,8 +990,6 @@ QListBox::QListBox( QWidget *parent, const char *name, WFlags f )
 	     this, SLOT(refreshSlot()) );
     connect( d->visibleTimer, SIGNAL(timeout()),
 	     this, SLOT(ensureCurrentVisible()) );
-    connect( d->inputTimer, SIGNAL( timeout() ),
-	     this, SLOT( clearInputString() ) );
     connect( d->resizeTimer, SIGNAL( timeout() ),
 	     this, SLOT( adjustItems() ) );
     viewport()->setBackgroundMode( PaletteBase );
@@ -2568,15 +2566,47 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 	    break;
 	default:
 	    {
-		if ( !e->text().isEmpty() && e->text()[ 0 ].isPrint() ) {
-		    d->findItemByName( e->text() );
+		if ( !e->text().isEmpty() && e->text()[ 0 ].isPrint() && count() ) {
+		    int curItem = currentItem();
+		    if ( curItem == -1 )
+			curItem = 0;
+		    if ( !d->inputTimer->isActive() ) {
+			d->currInputString = e->text();
+			curItem = d->findItemByName( ++curItem, d->currInputString );
+		    } else {
+			d->inputTimer->stop();
+			d->currInputString += e->text();
+			curItem = d->findItemByName( curItem, d->currInputString );
+			if ( curItem < 0 ) {
+			    curItem = d->findItemByName( 0, e->text() );
+			    d->currInputString = e->text();
+			}
+		    }
+		    if ( curItem >= 0 )
+			setCurrentItem( curItem );
+		    if ( curItem >= 0 && selectionMode() == QListBox::Extended ) {
+			bool changed = FALSE;
+			bool block = signalsBlocked();
+			blockSignals( TRUE );
+			selectAll( FALSE );
+			blockSignals( block );
+			QListBoxItem *i = item( curItem );
+			if ( !i->s && i->isSelectable() ) {
+			    changed = TRUE;
+			    i->s = TRUE;
+			    updateItem( i );
+			}
+			if ( changed )
+			    emit selectionChanged();
+		    }
+		    d->inputTimer->start( 400, TRUE );
 		} else {
 		    d->currInputString = QString::null;
 		    if ( e->state() & ControlButton ) {
 			switch ( e->key() ) {
-	case Key_A:
-	    selectAll( TRUE );
-	    break;
+			    case Key_A:
+				selectAll( TRUE );
+				break;
 			}
 		    } else {
 			e->ignore();
@@ -4129,62 +4159,31 @@ void QListBox::takeItem( const QListBoxItem * item )
 
 /*!
   \internal
-  Finds the first item beginning with \a text and makes
-  it the current one.
+  Finds the next item after start beginning with \a text.
 */
 
-void QListBoxPrivate::findItemByName( const QString &text )
+int QListBoxPrivate::findItemByName( int start, const QString &text )
 {
-    if ( inputTimer->isActive() )
-	inputTimer->stop();
-    inputTimer->start( 500, TRUE );
-    currInputString += text.lower();
-
-    QListBoxItem *item = listBox->findItem( currInputString );
-
-    if ( item == 0 && currInputString.length() >= 2 &&
-	 currInputString.left(1) == currInputString.right(1) &&
-	 listBox->currentItem() != -1 ) {
-	QListBoxItem *current = listBox->item( listBox->currentItem() );
-	if ( current != 0 &&
-	     current->text()[0].lower() == currInputString[0] ) {
-	    QListBoxItem *next = listBox->item( listBox->currentItem() + 1 );
-	    if ( next && next->text()[0].lower() == currInputString[0] ) {
-		item = next;
-		currInputString.truncate( 1 );
-	    } else {
-		int originalCurrentItem = listBox->currentItem();
-		listBox->setCurrentItem( 0 );
-		item = listBox->findItem( currInputString.left(1) );
-		if ( item ) {
-		    currInputString.truncate( 1 );
-		} else {
-		    listBox->setCurrentItem( originalCurrentItem );
-		}
-	    }
-	}
-    }
-    if ( item ) {
-	listBox->setCurrentItem( item );
-	if ( selectionMode == QListBox::Extended ) {
-	    bool changed = FALSE;
-	    bool block = listBox->signalsBlocked();
-	    listBox->blockSignals( TRUE );
-	    listBox->selectAll( FALSE );
-	    listBox->blockSignals( block );
-	    if ( !item->s && item->isSelectable() ) {
-		changed = TRUE;
-		item->s = TRUE;
-		listBox->updateItem( item );
-	    }
-	    if ( changed )
-		emit listBox->selectionChanged();
-	}
-    }
+    if ( start < 0 || (uint)start >= listBox->count() )
+	start = 0;
+    QString match = text.lower();
+    if ( match.length() < 1 )
+	return start;
+    QString curText;
+    int item = start;
+    do {
+	curText = listBox->text( item ).lower();
+	if ( curText.startsWith( match ) )
+	    return item;
+	item++;
+	if ( (uint)item == listBox->count() )
+	    item = 0;
+    } while ( item != start );
+    return -1;
 }
 
 /*!
-  \internal
+  \internal --- obsolete!
 */
 
 void QListBox::clearInputString()
