@@ -1140,11 +1140,12 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
       n_bits(green_mask) == gbits &&
        n_bits(blue_mask) == bbits;
 	bool dither_tc =
-	    // Want it
+	    // Want it?
+	    (conversion_flags & Dither_Mask) != ThresholdDither &&
 	    (conversion_flags & DitherMode_Mask) != AvoidDither &&
-	    // Need it
+	    // Need it?
 	    bppc < 24 && !d8 &&
-	    // Contiguous bits?
+	    // Can do it? (Contiguous bits?)
 	    contig_bits;
 
 	static bool init=FALSE;
