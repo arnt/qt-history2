@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#252 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#253 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -494,7 +494,7 @@ int QPopupMenu::itemAtPos( const QPoint &pos ) const
     int x = contentsRect().x();
     int y = contentsRect().y();
     int itemw = contentsRect().width() / ncols;
-    
+
     QMenuItem *mi;
     QMenuItemListIt it( *mitems );
     while ( (mi=it.current()) ) {
@@ -623,10 +623,10 @@ void QPopupMenu::updateSize()
     else
 	max_width -= fontMetrics().minRightBearing();
 
-    
+
     if ( ncols == 1 ) {
 	resize( max_width + tab + 2*frameWidth(), height + 2*frameWidth() );
-    }    
+    }
     else {
 	resize( (ncols*(max_width + tab)) + 2*frameWidth(), dh );
     }
@@ -1031,13 +1031,6 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 	break;
 
     case Key_Left:
-	if ( parentMenu && parentMenu->isPopupMenu ) {
-	    ((QPopupMenu *)parentMenu)->hidePopups();
-	    if ( singleSingleShot )
-		singleSingleShot->stop();
-	    break;
-	} 
-
 	if ( ncols > 1 && actItem >= 0 ) {
 	    QRect r( itemGeometry( actItem ) );
 	    int newActItem = itemAtPos( QPoint( r.left() - 1, r.center().y() ) );
@@ -1046,6 +1039,13 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 		break;
 	    }
 	}
+	if ( parentMenu && parentMenu->isPopupMenu ) {
+	    ((QPopupMenu *)parentMenu)->hidePopups();
+	    if ( singleSingleShot )
+		singleSingleShot->stop();
+	    break;
+	}
+
 	ok_key = FALSE;
     	break;
 
@@ -1057,7 +1057,7 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 	    popup->setFirstItemActive();
 	    subMenuTimer();
 	    break;
-	} 
+	}
 	if ( ncols > 1 && actItem >= 0 ) {
 	    QRect r( itemGeometry( actItem ) );
 	    int newActItem = itemAtPos( QPoint( r.right() + 1, r.center().y() ) );
@@ -1242,7 +1242,7 @@ void QPopupMenu::subMenuTimer() {
     QRect r( itemGeometry( actItem ) );
     QPoint p( r.right() - motifArrowHMargin, r.top() + motifArrowVMargin );
     p = mapToGlobal( p );
-    
+
     QSize ps = popup->sizeHint();
     if (p.y() + ps.height() > QApplication::desktop()->height()
 	&& p.y() - ps.height()
