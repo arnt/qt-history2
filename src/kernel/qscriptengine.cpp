@@ -285,27 +285,25 @@ static void convertToCMap( const QChar *chars, int len, QTextEngine *engine, QSc
 static void basic_shape( int /*script*/, const QString &string, int from, int len, QTextEngine *engine, QScriptItem *si )
 {
     convertToCMap( string.unicode() + from, len, engine, si );
-#if 0 // the optimization fails in some cases. No idea why.
-    f ( !engine->widthOnly ) {
-#endif
+    if ( !engine->widthOnly ) {
 	heuristicSetGlyphAttributes( string, from, len, engine, si );
 	q_heuristicPosition( engine, si );
-#if 0
     } else {
 	const QChar *uc = string.unicode() + from;
 	const QChar *end = uc + len;
 	advance_t *advances = engine->advances( si );
 	GlyphAttributes *ga = engine->glyphAttributes( si );
 	while ( uc < end ) {
-	    ++advances;
-	    (++ga)->mark = FALSE;
-	    if ( ::category( (++uc)->unicode() ) == QChar::Mark_NonSpacing ) {
+	    bool m = (::category(uc->unicode()) == QChar::Mark_NonSpacing);
+	    ga->mark = m;
+	    ga->clusterStart = !m;
+	    if ( m )
 		*advances = 0;
-		ga->mark = TRUE;
-	    }
+	    ++advances;
+	    ++uc;
+	    ++ga;
 	}
     }
-#endif
 }
 
 static void basic_attributes( int /*script*/, const QString &text, int from, int len, QCharAttributes *attributes )

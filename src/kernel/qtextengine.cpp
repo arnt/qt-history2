@@ -153,38 +153,52 @@ static void appendItems(QScriptItemArray &items, int &start, int &stop, BidiCont
     item.analysis.reserved = 0;
 
     items.append( item );
-    for ( int i = start+1; i <= stop; i++ ) {
+    if ( control.singleLine ) {
+	for ( int i = start+1; i <= stop; i++ ) {
 
-	unsigned short uc = text[i].unicode();
-	QFont::Script s = (QFont::Script)scriptForChar( uc );
+	    unsigned short uc = text[i].unicode();
+	    QFont::Script s = (QFont::Script)scriptForChar( uc );
 
-	QChar::Category category = ::category( uc );
-	if ( !control.singleLine && uc == 0xfffcU || uc == 0x2028U ) {
-	    item.analysis.bidiLevel = level;
-	    item.analysis.script = QFont::Latin;
-	    item.isObject = TRUE;
-	    s = QFont::NoScript;
-	} else if ( !control.singleLine && ( (uc >= 9 && uc <=13) ||
-			  (category >= QChar::Separator_Space && category <= QChar::Separator_Paragraph ) ) ) {
-	    item.analysis.script = QFont::Latin;
-	    item.isSpace = TRUE;
-	    item.isTab = ( uc == '\t' );
-	    item.analysis.bidiLevel = item.isTab ? control.baseLevel() : level;
-	    s = QFont::NoScript;
-	} else if ( s != script && category != QChar::Mark_NonSpacing ) {
-	    item.analysis.script = s;
-	    item.analysis.bidiLevel = level;
-	} else {
-	    continue;
+	    if ( s != script && ::category( uc ) != QChar::Mark_NonSpacing ) {
+		item.analysis.script = s;
+		item.analysis.bidiLevel = level;
+		item.position = i;
+		items.append( item );
+		script = s;
+	    }
 	}
+    } else {
+	for ( int i = start+1; i <= stop; i++ ) {
 
-	item.position = i;
-	items.append( item );
-	script = s;
-	start = i+1;
-	item.isSpace = item.isTab = item.isObject = FALSE;
+	    unsigned short uc = text[i].unicode();
+	    QFont::Script s = (QFont::Script)scriptForChar( uc );
+
+	    QChar::Category category = ::category( uc );
+	    if ( !control.singleLine && uc == 0xfffcU || uc == 0x2028U ) {
+		item.analysis.bidiLevel = level;
+		item.analysis.script = QFont::Latin;
+		item.isObject = TRUE;
+		s = QFont::NoScript;
+	    } else if ( !control.singleLine && ( (uc >= 9 && uc <=13) ||
+						 (category >= QChar::Separator_Space && category <= QChar::Separator_Paragraph ) ) ) {
+		item.analysis.script = QFont::Latin;
+		item.isSpace = TRUE;
+		item.isTab = ( uc == '\t' );
+		item.analysis.bidiLevel = item.isTab ? control.baseLevel() : level;
+		s = QFont::NoScript;
+	    } else if ( s != script && category != QChar::Mark_NonSpacing ) {
+		item.analysis.script = s;
+		item.analysis.bidiLevel = level;
+	    } else {
+		continue;
+	    }
+
+	    item.position = i;
+	    items.append( item );
+	    script = s;
+	    item.isSpace = item.isTab = item.isObject = FALSE;
+	}
     }
-
     ++stop;
     start = stop;
 }
