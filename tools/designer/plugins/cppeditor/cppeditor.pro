@@ -13,8 +13,7 @@ INCLUDEPATH	+= ../../interfaces ../../editor $$QT_BUILD_TREE/tools/designer/edit
 win32{
     LIBS	+= $$QT_BUILD_TREE/lib/editor.lib
 } else {
-    !hpux-acc:LIBS	+= -L$$QT_BUILD_TREE/lib -leditor
-    hpux-acc:LIBS += -L$$QT_BUILD_TREE/lib -Wl,-a,default -leditor
+    LIBS	+= -L$$QT_BUILD_TREE/lib -leditor
 }
 
 target.path += $$plugins.path/designer
