@@ -1452,7 +1452,7 @@ ideas:
 entered as values.
 \i Adding more chart types, e.g. line graph, area graph and hi-lo
 graph.
-\i Allowing the user to set top, bottom left and right margins.
+\i Allowing the user to set top, bottom, left and right margins.
 \i Allowing the user to specify a title which they can drag into
 position like the labels.
 \i Providing an axis drawing and labelling option.

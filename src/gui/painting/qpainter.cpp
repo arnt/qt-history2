@@ -2302,7 +2302,8 @@ void QPainter::drawCubicBezier(const QPointArray &a, int index)
     be masked to QPixmap::mask()
 */
 
-/*! \fn void QPainter::drawPixmap(int x, int y, const QPixmap &pixmap, int sx, int sy, int sw, int sh,
+/*! 
+    \fn void QPainter::drawPixmap(int x, int y, const QPixmap &pixmap, int sx, int sy, int sw, int sh,
                                   Qt::BlendMode mode)
 
     \overload
@@ -2315,7 +2316,7 @@ void QPainter::drawCubicBezier(const QPointArray &a, int index)
     pixmap that is to be drawn. The default is (0, 0).
 
     \a (sw, sh) specifies the size of the pixmap that is to be drawn.
-    The default, (-1, -1), means all the way to the bottom right of
+    The default, (-1, -1), means all the way to the bottom-right of
     the pixmap.
 
     \sa QPixmap::setMask()

@@ -23,7 +23,7 @@ paint devices. A \l QPainter is an object which can draw on such
 devices.
 
 The default coordinate system of a paint device has its origin at the
-top left corner. X increases to the right and Y increases downwards.
+top-left corner. X increases to the right and Y increases downwards.
 The unit is one pixel on pixel-based devices and one point on
 printers.
 
@@ -38,13 +38,12 @@ The rectangle and the line were drawn by this code (with the grid
 added and colors touched up in the illustration):
 
 \code
-    void MyWidget::paintEvent( QPaintEvent * )
-    {
-	QPainter p( this );
-	p.setPen( darkGray );
-	p.drawRect( 1,2, 5,4 );
-	p.setPen( lightGray );
-	p.drawLine( 9,2, 7,7 );
+    void MyWidget::paintEvent( QPaintEvent * ) {
+	QPainter p(this);
+	p.setPen(darkGray);
+	p.drawRect(1,2, 5,4);
+	p.setPen(lightGray);
+	p.drawLine(9,2, 7,7);
     }
 \endcode
 

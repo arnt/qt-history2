@@ -95,10 +95,10 @@
 
   This enum type specifies a corner in a rectangle:
 
-  \value TopLeftCorner top left corner
-  \value TopRightCorner top right corner
-  \value BottomLeftCorner bottom left corner
-  \value BottomRightCorner bottom right corner
+  \value TopLeftCorner     The top-left corner of the rectangle.
+  \value TopRightCorner    The top-right corner of the rectangle.
+  \value BottomLeftCorner  The bottom-left corner of the rectangle.
+  \value BottomRightCorner The bottom-right corner of the rectangle.
 */
 
 /*!

@@ -817,16 +817,16 @@ Studio) to build your application.
 \section1 Behavior
 
 On startup, the program's appearance is identical to the previous one.
-Try operating the slider to the bottom right...
+Try operating the slider to the bottom-right...
 
 \section1 Exercises
 
-Use the bottom right slider to set all LCDs to 50. Then set the top
+Use the bottom-right slider to set all LCDs to 50. Then set the top
 half to 40 by clicking once to the left of the slider handle. Now,
 use the one to the left of the last one operated to set the first
 seven LCDs back to 50.
 
-Click to the left of the handle on the bottom right slider. What
+Click to the left of the handle on the bottom-right slider. What
 happens?  Why is this the correct behavior?
 
 You're now ready for \link tutorial1-08.html Chapter 8.\endlink
@@ -1400,11 +1400,11 @@ bottom, and the code is 100% flicker-free.
 
 This function returns the rectangle enclosing the cannon in widget
 coordinates. First we create a rectangle with the size 50x50 and then
-move it so its bottom left corner is equal to the widget's own bottom-
+move it so its bottom-left corner is equal to the widget's own bottom-
 left corner.
 
 The \l QWidget::rect() function returns the widget's enclosing
-rectangle in the widget's own coordinates (where the top left corner
+rectangle in the widget's own coordinates (where the top-left corner
 is 0, 0).
 
 \section2 \l t10/main.cpp

@@ -428,14 +428,14 @@ QAbstractItemModel::~QAbstractItemModel()
 /*!
     \fn QModelIndex QAbstractItemModel::topLeft(const QModelIndex &parent = 0) const
 
-    Returns the index of the top left item for the given \a parent.
+    Returns the index of the top-left item for the given \a parent.
 */
 
 
 /*!
     \fn QModelIndex QAbstractItemModel::bottomRight(const QModelIndex &parent = 0) const
 
-    Returns the index of the bottom right item for the given \a parent.
+    Returns the index of the bottom-right item for the given \a parent.
 */
 
 

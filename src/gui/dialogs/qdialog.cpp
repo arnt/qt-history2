@@ -184,7 +184,7 @@
   \property QDialog::sizeGripEnabled
   \brief whether the size grip is enabled
 
-  A QSizeGrip is placed in the bottom right corner of the dialog when this
+  A QSizeGrip is placed in the bottom-right corner of the dialog when this
   property is enabled. By default, the size grip is disabled.
 */
 
