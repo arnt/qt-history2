@@ -79,8 +79,8 @@ QVFbView::QVFbView( int display_id, int w, int h, int d, QWidget *parent,
     keyboardPipe = QString(QT_VFB_KEYBOARD_PIPE).arg(display_id);
 
     unlink( mousePipe.latin1() );
-    mkfifo( mousePipe.latin1(), 0666 ); 
-    
+    mkfifo( mousePipe.latin1(), 0666 );
+
     mouseFd = open( mousePipe.latin1(), O_RDWR | O_NDELAY );
     if ( mouseFd == -1 ) {
 	qFatal( "Cannot open mouse pipe" );
@@ -100,7 +100,7 @@ QVFbView::QVFbView( int display_id, int w, int h, int d, QWidget *parent,
 	bpl = (w*d+7)/8;
     else
 	bpl = ((w*actualdepth+31)/32)*4;
-    
+
     int dataSize = bpl * h + sizeof( QVFbHeader );
     shmId = shmget( key, dataSize, IPC_CREAT|0666);
     if ( shmId != -1 )
@@ -228,8 +228,6 @@ int QVFbView::displayDepth() const
     return viewdepth;
 }
 
-
-
 void QVFbView::setZoom( double z )
 {
     if ( zm != z ) {
@@ -268,7 +266,7 @@ void QVFbView::lock()
 
 void QVFbView::unlock()
 {
-    if ( qwslock ) 
+    if ( qwslock )
 	qwslock->unlock();
 }
 
@@ -331,8 +329,16 @@ QImage QVFbView::getBuffer( const QRect &r, int &leading ) const
 	    QRgb *dptr = (QRgb*)img.scanLine( row );
 	    ushort *sptr = (ushort*)(data + hdr->dataoffset + (r.y()+row)*hdr->linestep);
 	    sptr += r.x();
-	    for ( int col=0; col < r.width(); col++ ) {
+#ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
+	    for ( int col=0; col < r.width()/2; col++ ) {
+#else
+	    for ( int col=0; col < r.width(); col++ ) {	
+#endif
 		ushort s = *sptr++;
+#ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS		
+		ushort s2 = *sptr++;
+		*dptr++ = qRgb(qRed(gammatable[(s2>>rsh)&rmax]),qGreen(gammatable[(s2>>gsh)&gmax]),qBlue(gammatable[(s2>>bsh)&bmax]));
+#endif
 		*dptr++ = qRgb(qRed(gammatable[(s>>rsh)&rmax]),qGreen(gammatable[(s>>gsh)&gmax]),qBlue(gammatable[(s>>bsh)&bmax]));
 		//*dptr++ = qRgb(((s>>rsh)&rmax)*255/rmax,((s>>gsh)&gmax)*255/gmax,((s>>bsh)&bmax)*255/bmax);
 	    }
@@ -485,14 +491,14 @@ void QVFbView::contentsMouseMoveEvent( QMouseEvent *e )
 
 void QVFbView::keyPressEvent( QKeyEvent *e )
 {
-    sendKeyboardData(e->text()[0].unicode(), e->key(), 
+    sendKeyboardData(e->text()[0].unicode(), e->key(),
 		     e->state()&(ShiftButton|ControlButton|AltButton),
 		     TRUE, e->isAutoRepeat());
 }
 
 void QVFbView::keyReleaseEvent( QKeyEvent *e )
 {
-    sendKeyboardData(e->ascii(), e->key(), 
+    sendKeyboardData(e->ascii(), e->key(),
 		     e->state()&(ShiftButton|ControlButton|AltButton),
 		     FALSE, e->isAutoRepeat());
 }
