@@ -57,7 +57,6 @@ Client::Client(QWidget *parent)
 
 void Client::requestNewFortune()
 {
-    qDebug("Client::requestNewFortune()");
     getFortuneButton->setEnabled(false);
     blockSize = 0;
     tcpSocket->abort();
@@ -67,7 +66,6 @@ void Client::requestNewFortune()
 
 void Client::readFortune()
 {
-    qDebug("Client::readFortune()");
     QDataStream in(tcpSocket);
     in.setVersion(QDataStream::Qt_4_0);
 
@@ -86,11 +84,8 @@ void Client::readFortune()
 
     if (nextFortune == currentFortune) {
         QTimer::singleShot(0, this, SLOT(requestNewFortune()));
-        qDebug("Client::readFortune() restarting requestNewFortune");
         return;
     }
-
-    qDebug("Client::readFortune() got new fortune");
 
     currentFortune = nextFortune;
     statusLabel->setText(currentFortune);
