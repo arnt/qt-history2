@@ -907,7 +907,7 @@ bool QApplication::x11_apply_settings()
 	    while (it != fontsubs.end()) {
 		fam = (*it++).latin1();
 		skey = "/qt/Font Substitutions/" + fam;
-		subs = settings.readListEntry(skey, ',');
+		subs = settings.readListEntry(skey);
 		QFont::insertSubstitutions(fam, subs);
 	    }
 	}
