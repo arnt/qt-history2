@@ -505,6 +505,7 @@ class QFontEngineMac : public QFontEngine
 
 public:
     QFontEngineMac() : QFontEngine(), info(NULL), fnum(-1), internal_fi(NULL), width_cache(NULL) { }
+    ~QFontEngineMac();
 
     Error stringToCMap( const QChar *str, int len, glyph_t *glyphs, advance_t *advances, int *nglyphs, bool mirrored ) const;
 

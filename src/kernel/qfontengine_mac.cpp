@@ -32,7 +32,6 @@ unsigned char * p_str(const QString &); //qglobal.cpp
 //Generic engine
 QFontEngine::~QFontEngine()
 {
-
 }
 
 int QFontEngine::lineThickness() const
@@ -55,6 +54,12 @@ int QFontEngine::underlinePosition() const
 }
 
 //Mac (ATSUI) engine
+QFontEngineMac::~QFontEngineMac()
+{
+    if(width_cache)
+	delete width_cache;
+}
+
 QFontEngine::Error
 QFontEngineMac::stringToCMap(const QChar *str, int len, glyph_t *glyphs, advance_t *advances, int *nglyphs,
 			     bool /*mirrored*/) const
