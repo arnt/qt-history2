@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qwindowsstyle.cpp#56 $
+** $Id: //depot/qt/main/src/styles/qwindowsstyle.cpp#57 $
 **
 ** Implementation of Windows-like style class
 **
@@ -55,6 +55,7 @@
 #include "qwidget.h"
 #include "qrangecontrol.h"
 #include "qscrollbar.h"
+#include "qslider.h"
 #include "qtabbar.h"
 #include "qlistview.h"
 #include "qbitmap.h"
@@ -313,10 +314,41 @@ int QWindowsStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
 	ret = 1;
 	break;
 
+    case PM_SliderMaximumDragDistance:
     case PM_ScrollBarMaximumDragDistance:
 	ret = 20;
 	break;
+	
+    case PM_SliderLength:
+	ret = 11;
+	break;
+	
+    // Returns the number of pixels to use for the business part of the
+    // slider (i.e., the non-tickmark portion). The remaining space is shared
+    // equally between the tickmark regions.
+    case PM_SliderControlThickness: {
+	QSlider * sl = (QSlider *) widget;
+	int space = (sl->orientation() == Horizontal) ? sl->height() 
+	            : sl->width();
+	int ticks = sl->tickmarks();
+	int n = 0;
+	if ( ticks & QSlider::Above ) n++;
+	if ( ticks & QSlider::Below ) n++;
+	if ( !n ) {
+	    ret = space;
+	    break;
+	}
 
+	int thick = 6;	// Magic constant to get 5 + 16 + 5
+	if ( ticks != QSlider::Both && ticks != QSlider::NoMarks )
+	    thick += pixelMetric( PM_SliderLength, sl ) / 4;
+
+	space -= thick;
+	//### the two sides may be unequal in size
+	if ( space > 0 )
+	    thick += (space * 2) / (n + 2);
+	ret = thick;
+	break; }
     default:
 	ret = QCommonStyle::pixelMetric(metric, widget);
 	break;
@@ -739,16 +771,16 @@ int QWindowsStyle::sliderLength() const
     return 11;
 }
 
-enum  SliderDir { SlUp, SlDown, SlLeft, SlRight };
-
 /*!\reimp
  */
+enum  SliderDir { SlUp, SlDown, SlLeft, SlRight };
+
 void QWindowsStyle::drawSlider( QPainter *p,
                              int x, int y, int w, int h,
                              const QColorGroup &g,
                              Orientation orient, bool tickAbove, bool tickBelow )
 {
-#ifndef QT_NO_SLIDER
+#if 1 //QT_NO_SLIDER
     // 4444440
     // 4333310
     // 4322210
@@ -1851,18 +1883,29 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter * p,
 	}
 	break; }
 
-       case CC_ComboBox: {
-            if ( sub != SC_None ) {
-                drawSubControl( sub, p, w, r, cg, flags, subActive, data );
-            } else {
-                drawSubControl( SC_ComboBoxArrow, p, w, r, cg, flags,
-                                subActive, data );
-                drawSubControl( SC_ComboBoxEditField, p, w, r, cg, flags,
-                                subActive, data );
-                drawSubControl( SC_ComboBoxFocusRect, p, w, r, cg, flags,
-                                subActive, data );
-            }
-            break; }
+    case CC_ComboBox: {
+	if ( sub != SC_None ) {
+	    drawSubControl( sub, p, w, r, cg, flags, subActive, data );
+	} else {
+	    drawSubControl( SC_ComboBoxArrow, p, w, r, cg, flags,
+			    subActive, data );
+	    drawSubControl( SC_ComboBoxEditField, p, w, r, cg, flags,
+			    subActive, data );
+	    drawSubControl( SC_ComboBoxFocusRect, p, w, r, cg, flags,
+			    subActive, data );
+	}
+	break; }
+       
+    case CC_Slider: {
+	if ( sub != SC_None ) {
+	    drawSubControl( sub, p, w, r, cg, flags, subActive, data );
+	} else {
+	    drawSubControl( SC_SliderGroove, p, w, r, cg, flags,
+			    subActive, data );
+	    drawSubControl( SC_SliderHandle, p, w, r, cg, flags,
+			    subActive, data );
+	}
+	break; }
 
     default:
 	QCommonStyle::drawComplexControl( ctrl, p, w, r, cg, flags, sub,
@@ -1933,14 +1976,14 @@ void QWindowsStyle::drawSubControl( SCFlags subCtrl, QPainter * p,
 	    qDrawWinPanel( p, ar, cg, FALSE,
 			   &cg.brush( QColorGroup::Button ) );
 
-	QRect ra( ar.x()+2, ar.y()+2, ar.width()-4, ar.width()-4 );
+	ar.addCoords( 2, 2, -2, -2 );
 	if ( w->isEnabled() )
 	    flags |= PStyle_Enabled;
 
 	if ( subActive & PStyle_Sunken ) {
 	    flags |= PStyle_Sunken;
 	}
-	drawPrimitive( PO_ArrowDown, p, ra, cg, flags );
+	drawPrimitive( PO_ArrowDown, p, ar, cg, flags );
 	break; }
 
     case SC_ComboBoxEditField: {
@@ -1966,10 +2009,223 @@ void QWindowsStyle::drawSubControl( SCFlags subCtrl, QPainter * p,
 	if ( cb->hasFocus() && !cb->editable() ) {
 	    QRect re = querySubControlMetrics( CC_ComboBox, w,
 					       SC_ComboBoxFocusRect );
-	    drawPrimitive(PO_FocusRect, p, re, cg );
+	    drawPrimitive( PO_FocusRect, p, re, cg );
 	}
-	break;}
+	break; }
+	
+    case SC_SliderGroove: {
+	QSlider * sl = (QSlider *) w;
+	int x = r.x(), y = r.y(), w = r.width(), h = r.height();
+	int c = pixelMetric( PM_SliderThickness, sl ) + 
+		pixelMetric( PM_SliderLength, sl ) / 8;
+	p->setPen( cg.shadow() );
+	if ( sl->orientation() == Horizontal ) {
+	    qDrawWinPanel( p, x, y + c - 2,  w, 4, cg, TRUE );
+	    p->drawLine( x+1, y + c - 1, x + w - 3, y + c - 1 );
+	} else {
+	    qDrawWinPanel( p, x + c - 2, y, 4, h, cg, TRUE );
+	    p->drawLine( x + c - 1, y + 1, x + c - 1, y + h - 3 );
+	}
+	break; }
 
+    case SC_SliderHandle: {
+	// 4444440
+	// 4333310
+	// 4322210
+	// 4322210
+	// 4322210
+	// 4322210
+	// *43210*
+	// **410**
+	// ***0***
+
+	const QColor c0 = cg.shadow();
+	const QColor c1 = cg.dark();
+	//    const QColor c2 = g.button();
+	const QColor c3 = cg.midlight();
+	const QColor c4 = cg.light();
+
+	int x = r.x(), y = r.y(), wi = r.width(), he = r.height();
+
+	int x1 = x;
+	int x2 = x+wi-1;
+	int y1 = y;
+	int y2 = y+he-1;
+
+	bool reverse = QApplication::reverseLayout();
+	
+	QSlider * sl = (QSlider *) w;
+	Orientation orient = sl->orientation();
+	bool tickAbove = sl->tickmarks() == QSlider::Above;
+	bool tickBelow = sl->tickmarks() == QSlider::Below;
+
+	p->fillRect( x, y, wi, he, cg.brush( QColorGroup::Background ) );
+
+	if ( (tickAbove && tickBelow) || (!tickAbove && !tickBelow) ) {
+	    qDrawWinButton( p, QRect(x,y,wi,he), cg, FALSE,
+			    &cg.brush( QColorGroup::Button ) );
+	    return;
+	}
+
+	SliderDir dir;
+
+	if ( orient == Horizontal )
+	    if ( tickAbove )
+		dir = SlUp;
+	    else
+		dir = SlDown;
+	else
+	    if ( tickAbove )
+		dir = SlLeft;
+	    else
+		dir = SlRight;
+
+	QPointArray a;
+
+	int d = 0;
+	switch ( dir ) {
+	case SlUp:
+	    y1 = y1 + wi/2;
+	    d =  (wi + 1) / 2 - 1;
+	    a.setPoints(5, x1,y1, x1,y2, x2,y2, x2,y1, x1+d,y1-d );
+	    break;
+	case SlDown:
+	    y2 = y2 - wi/2;
+	    d =  (wi + 1) / 2 - 1;
+	    a.setPoints(5, x1,y1, x1,y2, x1+d,y2+d, x2,y2, x2,y1 );
+	    break;
+	case SlLeft:
+	    d =  (he + 1) / 2 - 1;
+	    x1 = x1 + he/2;
+	    a.setPoints(5, x1,y1, x1-d,y1+d, x1,y2, x2,y2, x2,y1);
+	    break;
+	case SlRight:
+	    d =  (he + 1) / 2 - 1;
+	    x2 = x2 - he/2;
+	    a.setPoints(5, x1,y1, x1,y2, x2,y2, x2+d,y1+d, x2,y1 );
+	    break;
+	}
+
+	QBrush oldBrush = p->brush();
+	p->setBrush( cg.brush( QColorGroup::Button ) );
+	p->setPen( NoPen );
+	p->drawRect( x1, y1, x2-x1+1, y2-y1+1 );
+	p->drawPolygon( a );
+	p->setBrush( oldBrush );
+
+	if ( dir != SlUp ) {
+	    p->setPen( c4 );
+	    p->drawLine( x1, y1, x2, y1 );
+	    p->setPen( c3 );
+	    p->drawLine( x1, y1+1, x2, y1+1 );
+	}
+	if ( dir != SlLeft ) {
+	    if ( reverse )
+		p->setPen( c1 );
+	    else
+		p->setPen( c3 );
+	    p->drawLine( x1+1, y1+1, x1+1, y2 );
+	    if ( reverse )
+		p->setPen( c0 );
+	    else
+		p->setPen( c4 );
+	    p->drawLine( x1, y1, x1, y2 );
+	}
+	if ( dir != SlRight ) {
+	    if ( reverse )
+		p->setPen( c4 );
+	    else
+		p->setPen( c0 );
+	    p->drawLine( x2, y1, x2, y2 );
+	    if ( reverse )
+		p->setPen( c3 );
+	    else
+		p->setPen( c1 );
+	    p->drawLine( x2-1, y1+1, x2-1, y2-1 );
+	}
+	if ( dir != SlDown ) {
+	    p->setPen( c0 );
+	    p->drawLine( x1, y2, x2, y2 );
+	    p->setPen( c1 );
+	    p->drawLine( x1+1, y2-1, x2-1, y2-1 );
+	}
+
+	switch ( dir ) {
+        case SlUp:
+            if ( reverse )
+                p->setPen( c0 );
+            else
+                p->setPen( c4 );
+            p->drawLine( x1, y1, x1+d, y1-d);
+            if ( reverse )
+                p->setPen( c4 );
+            else
+                p->setPen( c0 );
+            d = wi - d - 1;
+            p->drawLine( x2, y1, x2-d, y1-d);
+            d--;
+            if ( reverse )
+                p->setPen( c1 );
+            else
+                p->setPen( c3 );
+            p->drawLine( x1+1, y1, x1+1+d, y1-d );
+            if ( reverse )
+                p->setPen( c3 );
+            else
+                p->setPen( c1 );
+            p->drawLine( x2-1, y1, x2-1-d, y1-d);
+            break;
+        case SlDown:
+            if ( reverse )
+                p->setPen( c0 );
+            else
+                p->setPen( c4 );
+            p->drawLine( x1, y2, x1+d, y2+d);
+            if ( reverse )
+                p->setPen( c4 );
+            else
+                p->setPen( c0 );
+            d = wi - d - 1;
+            p->drawLine( x2, y2, x2-d, y2+d);
+            d--;
+            if ( reverse )
+                p->setPen( c1 );
+            else
+                p->setPen( c3 );
+            p->drawLine( x1+1, y2, x1+1+d, y2+d );
+            if ( reverse )
+                p->setPen( c3 );
+            else
+                p->setPen( c1 );
+            p->drawLine( x2-1, y2, x2-1-d, y2+d);
+            break;
+        case SlLeft:
+            p->setPen( c4 );
+            p->drawLine( x1, y1, x1-d, y1+d);
+            p->setPen( c0 );
+            d = he - d - 1;
+            p->drawLine( x1, y2, x1-d, y2-d);
+            d--;
+            p->setPen( c3 );
+            p->drawLine( x1, y1+1, x1-d, y1+1+d );
+            p->setPen( c1 );
+            p->drawLine( x1, y2-1, x1-d, y2-1-d);
+            break;
+        case SlRight:
+            p->setPen( c4 );
+            p->drawLine( x2, y1, x2+d, y1+d);
+            p->setPen( c0 );
+            d = he - d - 1;
+            p->drawLine( x2, y2, x2+d, y2-d);
+            d--;
+            p->setPen( c3 );
+            p->drawLine(  x2, y1+1, x2+d, y1+1+d );
+            p->setPen( c1 );
+            p->drawLine( x2, y2-1, x2+d, y2-1-d);
+            break;
+	}
+	break; }
+    
     default:
 	break;
     }

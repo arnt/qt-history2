@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.cpp#147 $
+** $Id: //depot/qt/main/src/widgets/qslider.cpp#148 $
 **
 ** Implementation of QSlider class
 **
@@ -345,27 +345,35 @@ void QSlider::setOrientation( Orientation orientation )
 
 QRect QSlider::sliderRect() const
 {
-    QRect r;
-    switch ( (GUIStyle)style() ) {
-    case WindowsStyle:
-	if (orient == Horizontal )
-	    r.setRect( sliderPos, tickOffset,
-		       style().sliderLength(), thickness()  );
-	else
-	    r.setRect ( tickOffset, sliderPos,
-			thickness(), style().sliderLength()  );
-	break;
-    default:
-    case MotifStyle:
-	if (orient == Horizontal )
-	    r.setRect ( sliderPos + motifBorder, tickOffset + motifBorder,
-			style().sliderLength(), thickness() - 2 * motifBorder );
-	else
-	    r.setRect ( tickOffset + motifBorder, sliderPos + motifBorder,
-			thickness() - 2 * motifBorder, style().sliderLength() );
-	break;
-    }
-    return r;
+    // ### The motif style will also need the motifBorder const..
+    void * data[2];
+    
+    data[0] = (void *) &sliderPos;
+    data[1] = (void *) &tickOffset;
+    
+    return style().querySubControlMetrics( QStyle::CC_Slider, this, 
+					   QStyle::SC_SliderHandle, data );
+//     QRect r;
+//     switch ( (GUIStyle)style() ) {
+//     case WindowsStyle:
+// 	if (orient == Horizontal )
+// 	    r.setRect( sliderPos, tickOffset,
+// 		       style().sliderLength(), thickness()  );
+// 	else
+// 	    r.setRect ( tickOffset, sliderPos,
+// 			thickness(), style().sliderLength()  );
+// 	break;
+//     default:
+//     case MotifStyle:
+// 	if (orient == Horizontal )
+// 	    r.setRect ( sliderPos + motifBorder, tickOffset + motifBorder,
+// 			style().sliderLength(), thickness() - 2 * motifBorder );
+// 	else
+// 	    r.setRect ( tickOffset + motifBorder, sliderPos + motifBorder,
+// 			thickness() - 2 * motifBorder, style().sliderLength() );
+// 	break;
+//     }
+//     return r;
 }
 
 
@@ -494,8 +502,10 @@ void QSlider::paintEvent( QPaintEvent * )
 	else
 	    style().drawFocusRect(&p, r, g);
     }
-    paintSlider( &p, g, sliderR );
-
+    style().drawComplexControl( QStyle::CC_Slider, &p, this, sliderR, g,
+				QStyle::CStyle_Default, 
+				QStyle::SC_SliderHandle );
+    //paintSlider( &p, g, sliderR );
 }
 
 
@@ -547,9 +557,10 @@ void QSlider::mouseMoveEvent( QMouseEvent *e )
 
     if ( style() == WindowsStyle ) {
 	QRect r = rect();
-	int m = style().maximumSliderDragDistance();
+	int m = style().pixelMetric( QStyle::PM_SliderMaximumDragDistance,
+				     this );
 	if ( m >= 0 ) {
-	    if ( orientation() == Horizontal )
+	    if ( orientation() == Horizontal ) 
 		r.setRect( r.x() - m, r.y() - 2*m/3,
 			   r.width() + 2*m, r.height() + 3*m );
 	    else
@@ -714,13 +725,14 @@ void QSlider::keyPressEvent( QKeyEvent *e )
 
 int QSlider::slideLength() const
 {
-    switch ( (GUIStyle)style() ) {
-    case WindowsStyle:
-	return style().sliderLength();
-    default:
-    case MotifStyle:
-	return style().sliderLength();
-    }
+    return style().pixelMetric( QStyle::PM_SliderLength, this );
+//     switch ( (GUIStyle)style() ) {
+//     case WindowsStyle:
+// 	return style().sliderLength();
+//     default:
+//     case MotifStyle:
+// 	return style().sliderLength();
+//     }
 }
 
 
@@ -785,7 +797,7 @@ QSize QSlider::sizeHint() const
     constPolish();
     const int length = 84;
     //    int thick = style() == MotifStyle ? 24 : 16;
-    int thick = style().sliderThickness();
+    int thick = style().pixelMetric( QStyle::PM_SliderThickness, this );
     const int tickSpace = 5;
 
     if ( ticks & Above )
@@ -793,7 +805,7 @@ QSize QSlider::sizeHint() const
     if ( ticks & Below )
 	thick += tickSpace;
     if ( style() == WindowsStyle && ticks != Both && ticks != NoMarks )
-	thick += style().sliderLength() / 4;	    // pointed slider
+	thick += style().pixelMetric( QStyle::PM_SliderLength, this ) / 4; // pointed slider
     if ( orient == Horizontal )
 	return QSize( length, thick ).expandedTo( QApplication::globalStrut() );
     else
@@ -841,24 +853,25 @@ QSizePolicy QSlider::sizePolicy() const
 
 int QSlider::thickness() const
 {
-    int space = (orient == Horizontal) ? height() : width();
-    int n = 0;
-    if ( ticks & Above )
-	n++;
-    if ( ticks & Below )
-	n++;
-    if ( !n )
-	return space;
+    return style().pixelMetric( QStyle::PM_SliderControlThickness, this );
+//     int space = (orient == Horizontal) ? height() : width();
+//     int n = 0;
+//     if ( ticks & Above )
+// 	n++;
+//     if ( ticks & Below )
+// 	n++;
+//     if ( !n )
+// 	return space;
 
-    int thick = 6;	// Magic constant to get 5 + 16 + 5
-    if ( style() == WindowsStyle && ticks != Both && ticks != NoMarks ) {
-	thick += style().sliderLength() / 4;
-    }
-    space -= thick;
-    //### the two sides may be unequal in size
-    if ( space > 0 )
-	thick += ( space * 2 ) / ( n + 2 );
-    return thick;
+//     int thick = 6;	// Magic constant to get 5 + 16 + 5
+//     if ( style() == WindowsStyle && ticks != Both && ticks != NoMarks ) {
+// 	thick += style().sliderLength() / 4;
+//     }
+//     space -= thick;
+//     //### the two sides may be unequal in size
+//     if ( space > 0 )
+// 	thick += ( space * 2 ) / ( n + 2 );
+//     return thick;
 }
 
 /*!

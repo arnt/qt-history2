@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qcommonstyle.cpp#47 $
+** $Id: //depot/qt/main/src/styles/qcommonstyle.cpp#48 $
 **
 ** Implementation of the QCommonStyle class
 **
@@ -53,6 +53,7 @@
 #include "qspinbox.h"
 #include "qrangecontrol.h"
 #include "qgroupbox.h"
+#include "qslider.h"
 #include "qlistview.h"
 #include "qcheckbox.h"
 #include "qradiobutton.h"
@@ -774,15 +775,15 @@ QRect QCommonStyle::subRect(SubRect r, const QWidget *widget) const
 /*!
   Draws a complex control.
 */
-void QCommonStyle::drawComplexControl( ComplexControl control,
-				       QPainter* p,
-				       const QWidget *w,
-				       const QRect &r,
-				       const QColorGroup &cg,
-				       CFlags flags,
-				       SCFlags sub,
-				       SCFlags subActive,
-				       void *data ) const
+void QCommonStyle::drawComplexControl( ComplexControl,
+				       QPainter* ,
+				       const QWidget *,
+				       const QRect &,
+				       const QColorGroup &,
+				       CFlags,
+				       SCFlags,
+				       SCFlags,
+				       void * ) const
 {
 }
 
@@ -951,6 +952,35 @@ QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
 
 	break; }
 
+    case CC_Slider: {
+	switch ( sc ) {
+	case SC_SliderHandle: {
+	    QSlider * sl = (QSlider *) w;
+	    void ** sdata = (void **) data;
+	    int sliderPos = 0, tickOffset = 0, 
+		thickness = pixelMetric( PM_SliderControlThickness, sl );
+	    int len   = pixelMetric( PM_SliderLength, sl );
+	    int space = (sl->orientation() == Horizontal) ? sl->height() : 
+		        sl->width();
+	    int ticks = sl->tickmarks();
+		
+	    if ( sdata ) {
+		sliderPos = *((int *) sdata[0]);
+		tickOffset = *((int *) sdata[1]);
+	    }
+
+	    if ( sl->orientation() == Horizontal )
+		rect.setRect( sliderPos, tickOffset, len, thickness );
+	    else
+		rect.setRect( tickOffset, sliderPos, thickness, len );
+	    break; }
+	
+	case SC_SliderGroove:
+	    break;
+	default: 
+	    break;
+	}
+	break; }
     default:
 	break;
     }
@@ -1030,10 +1060,15 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QWidget *widget) const
 	ret = 16;
 	break;
 
+    case PM_SliderMaximumDragDistance:
     case PM_ScrollBarMaximumDragDistance:
 	ret = -1;
 	break;
 
+    case PM_SliderThickness:
+	ret = 16;
+	break;
+		
     default:
 	ret = 0;
 	break;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.h#99 $
+** $Id: //depot/qt/main/src/kernel/qstyle.h#100 $
 **
 ** Definition of QStyle class
 **
@@ -215,10 +215,9 @@ public:
     enum ComplexControl{
 	CC_SpinWidget,
 	CC_ComboBox,
-	CC_ScrollBar
-
+	CC_ScrollBar,
+	CC_Slider
 	/*
-	  CC_Slider,
 	  CC_MenuItem,
 	*/
     };
@@ -243,7 +242,10 @@ public:
 
 	SC_ComboBoxEditField =		0x00000020,
 	SC_ComboBoxArrow =		0x00000021,
-	SC_ComboBoxFocusRect =		0x00000022
+	SC_ComboBoxFocusRect =		0x00000022,
+	
+	SC_SliderGroove =		0x00000030,
+	SC_SliderHandle = 		0x00000031
 
 	/*
 	  SC_MenuItemCheck =		0x00000001,
@@ -286,7 +288,12 @@ public:
 	PM_SpinBoxFrameWidth,
 
 	PM_ScrollBarExtent,
-	PM_ScrollBarMaximumDragDistance
+	PM_ScrollBarMaximumDragDistance,
+	
+	PM_SliderThickness,	       	// total slider thickness
+	PM_SliderControlThickness,    	// thickness of the business part
+	PM_SliderLength,
+	PM_SliderMaximumDragDistance
 
 	/*
 	  PM_PopupFrameWidth,
