@@ -1,5 +1,157 @@
-/*! 
+/*!
     \example widgets/wiggly
     \title Wiggly Example
 
+    The Wiggly example shows how to use signals and slots to implement
+    real time text editing. The example also shows how to use
+    QBasicTimer combined with the trigonometric sine function to make
+    a widget move.  In addition this example demonstrates how to
+    reimplement the standard \l {QWidget::paintEvent()}{paintEvent()}
+    and \l {QObject::timerEvent()}{timerEvent()} to draw and update
+    the widget.
+
+
+    \image wiggly-example.png Screenshot of the Wiggly example
+
+    The example consists of two classes:
+
+    \list
+
+    \i \c Dialog is the dialog widget allowing the user to enter a
+    text. It is composed by a line edit widget and a wiggly widget.
+
+    \i \c WigglyWidget is the custom widget displaying the text
+    colored in a wiggly line.
+
+    \endlist
+
+    We will first take a quick look at the \c Dialog class, then we
+    will review the \c WigglyWidget class.
+
+    \section1 Dialog Class Definition
+
+    \quotefromfile widgets/wiggly/dialog.h
+    \skipto class Dialog
+    \printuntil };
+
+    The \c Dialog class provides a dialog widget that allows the user
+    to enter a text. The text is then displayed, colored, in a wiggly
+    line in real time. The \c Dialog class inherits from the QDialog
+    class and customize the \l {QDialog::QDialog()}{constructor}.
+
+    \section1 Dialog Class Implementation
+
+    \quotefromfile widgets/wiggly/dialog.cpp
+    \skipto Dialog
+    \printuntil /^\}/
+
+    In the constructor we create a wiggly widget along with a
+    \l{QLineEdit}{line edit}, and we align the two widgets vertically
+    using QVBoxLayout. We connect the line edit's \l
+    {QLineEdit::textChanged()}{textChanged()} signal to the wiggly
+    widget's \c setText() slot to obtain the real time interaction
+    with the wiggly widget. The widget's default text is "Hello
+    world!".
+
+    In the end we set the window's title and resize the widget so that
+    it is displayed at a reasonable size.
+
+    \section1 WigglyWidget Class Definition
+
+    \quotefromfile widgets/wiggly/wigglywidget.h
+    \skipto class WigglyWidget
+    \printuntil };
+
+    The \c WigglyWidget class provides the wiggly line displaying the
+    text. We subclass QWidget and reimplement the standard \l
+    {QWidget::paintEvent()}{paintEvent()} and \l
+    {QObject::timerEvent()}{timerEvent()} functions to draw and update
+    the widget. In addition we implement a public \c setText() slot
+    setting the widget's text to whatever text the user enters.
+
+    We need the QBasicTimer \c timer to update the widget at regular
+    intervals making the widget move, \c text to store the currently
+    displayed text and \c step to calculate position and color for
+    each character on the wiggly line.
+
+    \section1 WigglyWidget Class Implementation
+
+    \quotefromfile widgets/wiggly/wigglywidget.cpp
+    \skipto WigglyWidget
+    \printuntil /^\}/
+
+    In the constructor, we make the widget's background sligthly
+    lighter than the dialog's main background using the
+    QPalette::ColorRole \c Midlight. The background role defines the
+    brush from the widget's palette that is used to render the
+    background. Then we enlarge the widget's default font with 20
+    points. We initialize \c step to zero to position the first
+    character in the center of the widget.
+
+    Finally we start the timer; the call to QBasicTimer::start() makes
+    sure that \e this particular wiggly widget will receive the
+    timer events emitted when the \c timer times out every \e {60
+    milliseconds}.
+
+    \printline paintEvent
+    \printuntil QColor
+
+    The \c paintEvent() function is called whenever a QPaintEvent is
+    sent to the widget. Paint events are sent to widgets that need to
+    update themselves, for instance when part of a widget is exposed
+    because a covering widget was moved. For the wiggly widget, a
+    paint event will also be generated every 60 milliseconds due to
+    the \c timerEvent() slot.
+
+    The \c sineTable is created the first time \c paintEvent is
+    called; it represents some y-values of the sine curve, multiplied
+    by 100. It is used to make the wiggly widget move along the sine
+    curve.
+
+    The \c {QFontMetrics metrics(font())} call returns a QFontMetrics
+    object holding information about the widget's font. We create two
+    coordinates, \c x and \c y, representing the beginning of the
+    displayed text's base line.
+
+    We want to center the displayed text taking the size of the
+    characters into account: First we center the text horisontally by
+    setting \c x to be half of the widget's width minus half of the
+    width of the text. Second, we center the text vertically by
+    setting \c y to be half of the widget's heigth plus half of the
+    heigth of the font. But since QPainter::drawText() expects the
+    coordinates of the \e base line of the text, we must take away the
+    descent of the font; that is the distance from the base line to
+    the lowest point characters extend to.
+
+    \printline QPainter
+    \printuntil /^\}/
+
+    Every time the \c paintEvent() function is called we create a
+    QPainter object \c painter to draw the contents of the widget. For
+    each character in \c text, we determine the color and the position
+    on the wiggly line. In addition, \c x is incremented by the
+    character's width.
+
+    This way of incrementing \c x will, however, mean that the displayed
+    text might no longer be centered. The reason is that some
+    characters fit closer together than others. While the initial
+    calculation of \c x take this into account using the entire width
+    of the text; incrementing \c x by a single character's width don't. This
+    could be avoided by taking the time to recalculate \c x for each
+    character, based on the width of the text displayed so far.
+
+    \printline timerEvent
+    \printto /^\}/
+
+    The \c timerEvent() function will receive all the timer events
+    that occur. If a timer event is sent from the widget's own timer,
+    we will call the QWidget::update() slot to refresh the wiggly
+    widget. These updates make the widget move. Any other timer event
+    is passed on to the base class' implementation of the \l
+    {QWidget::timerEvent()}{timerEvent()} function.
+
+    The \c update() slot does not cause an immediate repaint; instead
+    the slot schedules a paint event for processing when Qt returns to
+    the main event loop. The paint events are then handled by the \l
+    {QWidget::paintEvent()}{paintEvent()} function.
 */
