@@ -1211,6 +1211,7 @@ void QTreeViewPrivate::close(int i)
     idx = i;
     QModelIndex tmp = index;
     while (tmp.isValid() && tmp != d->root) {
+        Q_ASSERT(idx > -1);
         viewItems[idx].total -= total;
         tmp = tmp.parent();
         idx = viewIndex(tmp);
@@ -1252,7 +1253,8 @@ void QTreeViewPrivate::layout(int i)
         qCollapse<QTreeViewItem>(viewItems, last, hidden);
 
     QModelIndex root = q->root();
-    while (parent != root && i > -1) {
+    while (parent != root) {
+        Q_ASSERT(i > -1);
         viewItems[i].total += count;
         parent = parent.parent();
         i = viewIndex(parent);
