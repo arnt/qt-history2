@@ -8,10 +8,10 @@ DEFINES += QT_FORMEDITOR_LIBRARY
 
 DESTDIR = ../../../lib
 
-INCLUDEPATH += ../../sdk \
+INCLUDEPATH += ../../lib/sdk \
     ../../shared \
     ../../uilib \
-    ../../extension \
+    ../../lib/extension \
     ../propertyeditor \
     ../signalsloteditor
 

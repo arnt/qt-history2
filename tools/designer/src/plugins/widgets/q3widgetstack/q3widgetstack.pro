@@ -7,11 +7,11 @@ TEMPLATE = lib
 QT += compat
 
 IDEDIR = ../../../..
-DESTDIR = $$IDEDIR/plugins
+DESTDIR = ../../../../../../plugins/designer
 
 INCLUDEPATH += \
-    $$IDEDIR/src/sdk \
-    $$IDEDIR/src/extension \
+    ../../../lib/sdk \
+    ../../../lib/extension \
     $$IDEDIR/src/uilib
 
 # Input

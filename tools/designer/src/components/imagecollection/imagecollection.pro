@@ -3,8 +3,8 @@ QT += xml
 CONFIG += qt
 CONFIG += staticlib
 INCLUDEPATH += \
-    ../../uilib \
-    ../../sdk
+    ../../lib/uilib \
+    ../../lib/sdk
 
 TARGET = imagecollection
 DESTDIR = ../../../lib

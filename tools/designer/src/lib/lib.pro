@@ -6,5 +6,5 @@ DLLDESTDIR = ../../../../bin
 DEFINES += QT_SDK_LIBRARY
 DEFINES += QT_EXTENSION_LIBRARY
 
-include(../extension/extension.pri)
-include(../sdk/sdk.pri)
+include(extension/extension.pri)
+include(sdk/sdk.pri)

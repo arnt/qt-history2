@@ -8,10 +8,10 @@ DEFINES += QT_SIGNALSLOTEDITOR_LIBRARY
 
 DESTDIR = ../../../lib
 
-INCLUDEPATH += ../../sdk \
+INCLUDEPATH += ../../lib/sdk \
     ../../shared \
     ../../uilib \
-    ../../extension
+    ../../lib/extension
 
 HEADERS += default_membersheet.h signalsloteditor.h membersheet.h signalsloteditor_global.h
 

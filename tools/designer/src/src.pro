@@ -2,7 +2,7 @@ TEMPLATE = subdirs
 CONFIG += ordered
 
 SUBDIRS = \
-    libqtdesigner \
+    lib \
     uilib \
     shared \    
     components \

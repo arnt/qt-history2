@@ -15,6 +15,6 @@ HEADERS += propertyeditor.h
 SOURCES += propertyeditor.cpp
 
 INCLUDEPATH += \
-    ../../sdk \
+    ../../lib/sdk \
     ../../uilib \
-    ../../extension
+    ../../lib/extension

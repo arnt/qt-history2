@@ -5,8 +5,8 @@ DEFINES += QT_OBJECTINSPECTOR_LIBRARY
 CONFIG += staticlib
 
 INCLUDEPATH += \
-    ../../sdk \
-    ../../extension \
+    ../../lib/sdk \
+    ../../lib/extension \
     ../../uilib \
     ../../shared
 

@@ -11,7 +11,7 @@ mac:TARGETDEPS += ../../../../lib/libQtDesigner.dylib \
     ../../lib/libspecialeditor.dylib \
     ../../lib/libsignalsloteditor.dylib
 
-unix:!mac:TARGETDEPS += ../../../../lib/libQtDesigner.a \
+unix:!mac:TARGETDEPS += ../../../../lib/libQtDesigner.so \
     ../../lib/libformeditor.a \
     ../../lib/libobjectinspector.a \
     ../../lib/libwidgetbox.a \
@@ -30,8 +30,8 @@ win32:TARGETDEPS += ../../../../lib/QtDesigner.lib \
     ../../lib/signalsloteditor.lib
 
 INCLUDEPATH += ../uilib \
-    ../sdk \
-    ../extension \
+    ../lib/sdk \
+    ../lib/extension \
     ../shared \
     ../components \
     ../components/formeditor \
@@ -42,7 +42,6 @@ INCLUDEPATH += ../uilib \
     ../components/propertyeditor
 
 LIBS += -L../../lib \
-    -lshared \
     -lformeditor \
     -lobjectinspector \
     -lpropertyeditor \
@@ -51,6 +50,7 @@ LIBS += -L../../lib \
     -lspecialeditor \
     -luilib \
     -lsignalsloteditor \
+    -lshared \
     -L../../../../lib \
     -lQtDesigner
 

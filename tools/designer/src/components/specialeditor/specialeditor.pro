@@ -4,8 +4,8 @@ CONFIG += qt
 CONFIG += staticlib
 
 INCLUDEPATH += \
-    ../../sdk \
-    ../../extension \
+    ../../lib/sdk \
+    ../../lib/extension \
 
 TARGET = specialeditor
 

@@ -1,6 +1,6 @@
 TEMPLATE = lib
 DEPENDPATH += .
-INCLUDEPATH += .
+INCLUDEPATH += . 
 DESTDIR= ../../lib
 CONFIG += qt
 QT += xml
