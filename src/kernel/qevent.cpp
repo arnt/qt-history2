@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#105 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#106 $
 **
 ** Implementation of event classes
 **
@@ -727,62 +727,35 @@ Qt::ButtonState QKeyEvent::stateAfter() const
 
   \ingroup event
 
-
   Close events are sent to widgets that the user wants to close, usually
   by choosing "Close" from the window menu. They are also sent when you
   call QWidget::close() to close a widget from inside the program.
 
   Close events contain a special accept flag which tells whether the
-  receiver wants the widget to be closed.  When a widget accepts the close
-  event, it is \link QWidget::hide() hidden\endlink. If it refuses to
-  accept the close event, nothing happens.
+  receiver wants the widget to be closed.  When a widget accepts the
+  close event, it is hidden. If it refuses to accept the close event,
+  either nothing happens or it is forcibly closed, if the sender of
+  the close event really wants to.
 
-  The \link QApplication::setMainWidget() main widget\endlink of the
-  application is a special case. When it accepts the close event, Qt
-  leaves the \link QApplication::exec() main event loop\endlink and
-  the application is immediately \link QApplication::quit() terminated\endlink
-  (i.e. it returns back from the call to QApplication::exec() in your
-  main() function).
+  The main widget of the application - QApplication::mainWidget() - is
+  a special case. When it accepts the close event, Qt leaves the main
+  event loop and the application is immediately terminated (i.e. it
+  returns back from the call to QApplication::exec() in your main()
+  function).
 
-  The event handler QWidget::closeEvent() receives close events.
-
-  The default implementation of this event handler accepts the close event.
-  This makes Qt \link QWidget::hide() hide\endlink the widget.
-
-  \code
-    void QWidget::closeEvent( QCloseEvent *e )
-    {
-	e->accept();				// hides the widget
-    }
-  \endcode
-
-  If you do not want your widget to be hidden, you should reimplement the
-  event handler.
-
-  \code
-    void MyWidget::closeEvent( QCloseEvent *e )
-    {
-	e->ignore();				// does not hide the widget
-    }
-  \endcode
-
-  A typical reimplementation of a close event handler is shown in the
-  qwerty/qwerty.cpp example: If the document was not changed, the close
-  event is accepted with \a e->accept(). If there are unsaved changes,
-  it asks the user whether she wants to save the data. This is done
-  with QMessageBox::warning(). The close event is only accepted if the
-  data was either saved successfully or if the user explicitely stated
-  that the modifications shall be discarded.
+  The event handler QWidget::closeEvent() receives close events.  The
+  default implementation of this event handler accepts the close
+  event.  If you do not want your widget to be hidden, or want some
+  special handing, you need to reimplement the event handler.
+  
+  The <a href="simple-application.html#closeEvent">closeEvent() in the
+  Application Walkthrough</a> shows a close event handler that asks
+  whether to save the document before closing.
 
   If you want your widget also to be deleted when it is closed, simply
   create it with the \c WDestructiveClose widget flag.  This is very
   useful for the independent top-level windows of a multi window
-  application. The qwerty/qwerty.cpp example also makes use of this.
-
-  \warning Be careful. Destructive close implies that the widget was created
-  on the heap using the \c new operator. Even when the widget has been
-  created by new doing this is a tricky operation. Be sure that you cannot
-  have any other pointers to the widget hanging around.
+  application. The Application Walkthrough example uses this too.
 
   QObject emits the \link QObject::destroyed() destroyed()\endlink signal
   when it is deleted.  This is a useful signal if a widget needs to know
@@ -817,8 +790,8 @@ Qt::ButtonState QKeyEvent::stateAfter() const
   The accept flag is not set by default.
 
   If you choose to accept in QWidget::closeEvent(), the widget will be
-  hidden. If the widget was created with the WDestructiveClose widget
-  flag, it is also destroyed.
+  hidden.  If the widget's WDestructiveClose flag is set, it is also
+  destroyed.
 
   \sa ignore(), QWidget::hide()
 */
