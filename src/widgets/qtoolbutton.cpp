@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#1 $
+** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#2 $
 **
 ** Implementation of something useful.
 **
@@ -20,7 +20,7 @@
 #include "qtoolbar.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#1 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#2 $");
 
 
 static QToolButton * threeDeeButton = 0;
@@ -59,7 +59,7 @@ void QToolButton::init()
     d = 0;
     bpID = bp.serialNumber();
     spID = sp.serialNumber();
-    
+
     utl = FALSE;
     ubp = TRUE;
 }
@@ -67,7 +67,7 @@ void QToolButton::init()
 
 /*!  Creates a tool button that is a child of \a parent (which must be
   a QToolBar) and named \a name.
-  
+
   The tool button will display \a pm, with text label or tool tip \a
   textLabel and status-bar message \a grouptext, connected to \a slot
   in object \a receiver, and returns the button.
@@ -193,6 +193,19 @@ QPixmap QToolButton::smallPixmap()
     return sp;
 }
 
+
+/* \fn bool QToolButton::usesBigPixmap() const
+ 
+  Returns TRUE or FALSE.
+ 
+*/
+
+
+/* \fn bool QToolButton::usesTextLabel() const
+ 
+  Returns TRUE or FALSE.
+ 
+*/
 
 /*!
 
