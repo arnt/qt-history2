@@ -34,6 +34,8 @@ class DesignerApplication : public QApplication
 #endif
 {
 public:
+    const char *className() const { return "DesignerApplication"; }
+
 #if defined(HAVE_KDE)
     DesignerApplication( int &argc, char **argv, const QCString &rAppName );
 #else
