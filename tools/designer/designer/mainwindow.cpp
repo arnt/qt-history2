@@ -527,6 +527,8 @@ QObjectList *MainWindow::runProject()
 			if ( it == qwf_functions->end() )
 			    continue;
 			if ( !piface->check( *it, error, line ) && !error.isEmpty() && !error[ 0 ].isEmpty() ) {
+			    if ( !isVisible() )
+				show();
 			    showSourceLine( it.key(), line[ 0 ] - 1, Error );
 			    oWindow->setErrorMessages( error, line );
 			    piface->release();
@@ -3016,6 +3018,8 @@ void MainWindow::showStackFrame( QObject *o, int line )
 
 void MainWindow::showErrorMessage( QObject *o, int errorLine, const QString &errorMessage )
 {
+    if ( !isVisible() )
+	show();
     errorLine--; // ######
     QValueList<int> l;
     l << errorLine;
