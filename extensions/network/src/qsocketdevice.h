@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qsocketdevice.h#6 $
+** $Id: //depot/qt/main/extensions/network/src/qsocketdevice.h#7 $
 **
 ** Implementation of Network Extension Library
 **
@@ -34,7 +34,7 @@
 #include "qhostaddress.h"
 
 
-class Q_EXPORT QSocketDevice: public QIODevice
+class  QSocketDevice: public QIODevice
 {
 friend class QSocket;
 

@@ -6,5 +6,6 @@ SOURCES	= ftpmainwindow.cpp \
 		ftpview.cpp \
 		  main.cpp
 TARGET		= ftpclient
-LIBS		= -lqnetwork
+unix:LIBS	= -lqnetwork
+win32:LIBS	= $(QTDIR)/qnetwork.lib
 

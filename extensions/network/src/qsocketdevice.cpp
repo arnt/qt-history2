@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qsocketdevice.cpp#7 $
+** $Id: //depot/qt/main/extensions/network/src/qsocketdevice.cpp#8 $
 **
 ** Implementation of Network Extension Library
 **
@@ -729,7 +729,7 @@ int QSocketDevice::writeBlock( const char * data, uint len,
 #else
 #error "This OS is not supported"
 #endif
-    
+
 }
 
 
