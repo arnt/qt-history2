@@ -9,7 +9,7 @@
             <x>0</x>
             <y>0</y>
             <width>431</width>
-            <height>308</height>
+            <height>384</height>
         </rect>
     </property>
     <property name="caption">
@@ -27,7 +27,7 @@
         </property>
         <widget class="QLayoutWidget">
             <property name="name">
-                <cstring>layout10</cstring>
+                <cstring>layout11</cstring>
             </property>
             <vbox>
                 <property name="name">
@@ -105,6 +105,9 @@
                             </property>
                             <property name="text">
                                 <string>Build &amp;Examples</string>
+                            </property>
+                            <property name="accel">
+                                <string>Alt+E</string>
                             </property>
                             <property name="checked">
                                 <bool>true</bool>
@@ -305,11 +308,104 @@
                                 <string>Alt+V</string>
                             </property>
                         </widget>
+                        <widget class="QRadioButton">
+                            <property name="name">
+                                <cstring>sysMinGW</cstring>
+                            </property>
+                            <property name="text">
+                                <string>MinGW</string>
+                            </property>
+                        </widget>
+                        <widget class="QLayoutWidget">
+                            <property name="name">
+                                <cstring>layout17</cstring>
+                            </property>
+                            <hbox>
+                                <property name="name">
+                                    <cstring>unnamed</cstring>
+                                </property>
+                                <widget class="QRadioButton">
+                                    <property name="name">
+                                        <cstring>sysOther</cstring>
+                                    </property>
+                                    <property name="sizePolicy">
+                                        <sizepolicy>
+                                            <hsizetype>0</hsizetype>
+                                            <vsizetype>0</vsizetype>
+                                            <horstretch>0</horstretch>
+                                            <verstretch>0</verstretch>
+                                        </sizepolicy>
+                                    </property>
+                                    <property name="text">
+                                        <string>Other</string>
+                                    </property>
+                                </widget>
+                                <widget class="QComboBox">
+                                    <item>
+                                        <property name="text">
+                                            <string>win32-icc</string>
+                                        </property>
+                                    </item>
+                                    <item>
+                                        <property name="text">
+                                            <string>win32-visage</string>
+                                        </property>
+                                    </item>
+                                    <item>
+                                        <property name="text">
+                                            <string>win32-watcom</string>
+                                        </property>
+                                    </item>
+                                    <property name="name">
+                                        <cstring>sysOtherCombo</cstring>
+                                    </property>
+                                    <property name="enabled">
+                                        <bool>false</bool>
+                                    </property>
+                                    <property name="sizePolicy">
+                                        <sizepolicy>
+                                            <hsizetype>3</hsizetype>
+                                            <vsizetype>0</vsizetype>
+                                            <horstretch>0</horstretch>
+                                            <verstretch>0</verstretch>
+                                        </sizepolicy>
+                                    </property>
+                                    <property name="duplicatesEnabled">
+                                        <bool>false</bool>
+                                    </property>
+                                </widget>
+                                <spacer>
+                                    <property name="name">
+                                        <cstring>spacer7</cstring>
+                                    </property>
+                                    <property name="orientation">
+                                        <enum>Horizontal</enum>
+                                    </property>
+                                    <property name="sizeType">
+                                        <enum>Expanding</enum>
+                                    </property>
+                                    <property name="sizeHint">
+                                        <size>
+                                            <width>141</width>
+                                            <height>21</height>
+                                        </size>
+                                    </property>
+                                </spacer>
+                            </hbox>
+                        </widget>
+                        <widget class="QLabel">
+                            <property name="name">
+                                <cstring>textLabel1_2</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Note: These compilers are not supported by Trolltech</string>
+                            </property>
+                        </widget>
                     </vbox>
                 </widget>
                 <spacer>
                     <property name="name">
-                        <cstring>Spacer1</cstring>
+                        <cstring>spacer6</cstring>
                     </property>
                     <property name="orientation">
                         <enum>Vertical</enum>
@@ -320,7 +416,7 @@
                     <property name="sizeHint">
                         <size>
                             <width>20</width>
-                            <height>18</height>
+                            <height>16</height>
                         </size>
                     </property>
                 </spacer>
@@ -333,5 +429,13 @@
         <data format="XPM.GZ" length="379">789c5d8ec10ac2300c86ef7d8ad0dc8a6cad4e3b101f41f1288887b43ae6610a3a0f22bebb766de6e65f4af27f247f9b2bd86dd7a072716fa93d7bf035dd401d1f4df3dc1f562f21cd02cc0ce660e444c80c3c6cae9753e8f1dba3d6bad03a581f6c5994d36829d8ca56365ac7b6b25d0e0b11431932ec2e8e589a8d2cedf07af71772845119e7a1a374068c11fdcde14f7d9e6721cf0d51ca1ba1c8c628b15ef1ddf7527c00b6995250</data>
     </image>
 </images>
+<connections>
+    <connection>
+        <sender>sysOther</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>sysOtherCombo</receiver>
+        <slot>setEnabled(bool)</slot>
+    </connection>
+</connections>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

@@ -97,6 +97,10 @@ int main( int argc, char** argv )
 		globalInformation.setSysId( GlobalInformation::MSVC );
 	    } else if ( qmakespec == "win32-borland" ) {
 		globalInformation.setSysId( GlobalInformation::Borland );
+	    } else if ( qmakespec == "win32-mingw" ) {
+		globalInformation.setSysId( GlobalInformation::MinGW );
+	    } else {
+		globalInformation.setSysId( GlobalInformation::Other );
 	    }
 
 	    if ( ++i < app.argc() ) {

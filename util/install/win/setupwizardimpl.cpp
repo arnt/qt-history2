@@ -51,6 +51,8 @@
 #define MSVCNET_BUTTON 0
 #define MSVC_BUTTON    2
 #define BORLAND_BUTTON 3
+#define MINGW_BUTTON   4
+#define OTHER_BUTTON   5
 
 static const char* const logo_data[] = {
 "32 32 238 2",
@@ -673,6 +675,12 @@ void SetupWizardImpl::clickedSystem( int sys )
 	case BORLAND_BUTTON:
 	    globalInformation.setSysId( GlobalInformation::Borland );
 	    break;
+	case MINGW_BUTTON:
+	    globalInformation.setSysId( GlobalInformation::MinGW );
+	    break;
+	case OTHER_BUTTON:
+	    globalInformation.setSysId( GlobalInformation::Other );
+	    break;
 	default:
 	    break;
     }
@@ -1246,7 +1254,7 @@ void SetupWizardImpl::showPageOptions()
 
 void SetupWizardImpl::showPageFolders()
 {
-    QStringList makeCmds = QStringList::split( ' ', "nmake.exe make.exe gmake.exe make nmake.exe" );
+    QStringList makeCmds = QStringList::split( ' ', "nmake.exe make.exe gmake.exe make nmake.exe mingw32-make.exe make.exe" );
     QString makeCmd = makeCmds[ globalInformation.sysId() ];
     if ( optionsPage->skipBuild->isChecked() && optionsPage->skipBuild->isEnabled() ) {
 	if( !findFile( makeCmd ) ) {
@@ -1276,7 +1284,7 @@ void SetupWizardImpl::showPageFolders()
 	}
     }
 
-    QStringList devSys = QStringList::split( ';',"Microsoft Visual Studio 6.0 path;Borland C++ Builder path;GNU C++ path;MAC X buildtool path;Microsoft Visual Studio .NET path" );
+    QStringList devSys = QStringList::split( ';',"Microsoft Visual Studio 6.0 path;Borland C++ Builder path;GNU C++ path;MAC X buildtool path;Microsoft Visual Studio .NET path;MinGW C++ path;Other compiler path" );
 
     foldersPage->devSysLabel->setText( devSys[ globalInformation.sysId() ] );
     foldersPage->devSysPath->setEnabled( (globalInformation.sysId() == GlobalInformation::MSVC) || (globalInformation.sysId() == GlobalInformation::MSVCNET) );
@@ -1708,8 +1716,11 @@ void SetupWizardImpl::setStaticEnabled( bool se )
 		tdsPlugin->setOn( false );
 		tdsDirect->setOn( true );
 	    }
+	    if ( db2Plugin->isOn() ) {
+		db2Plugin->setOn( false );
+		db2Direct->setOn( true );
+	    }
 	}
-
 	accOn->setEnabled( false );
 	bigCodecsOff->setEnabled( false );
 	mngPlugin->setEnabled( false );
@@ -1728,6 +1739,7 @@ void SetupWizardImpl::setStaticEnabled( bool se )
 	    odbcPlugin->setEnabled( false );
 	    psqlPlugin->setEnabled( false );
 	    tdsPlugin->setEnabled( false );
+	    db2Plugin->setEnabled( false );
 	}
     } else {
 	accOn->setEnabled( true );
@@ -1747,6 +1759,7 @@ void SetupWizardImpl::setStaticEnabled( bool se )
 	    odbcPlugin->setEnabled( true );
 	    psqlPlugin->setEnabled( true );
 	    tdsPlugin->setEnabled( true );
+	    db2Plugin->setEnabled( true );
 	}
     }
     setJpegDirect( mngDirect->isOn() );
@@ -1827,6 +1840,16 @@ void SetupWizardImpl::optionClicked( QListViewItem *i )
 	}
     } else if ( item==mngDirect || item==mngPlugin || item==mngOff ) {
 	setJpegDirect( mngDirect->isOn() );
+    } else if ( item==db2Direct && odbcDirect->isOn() ) {
+	if ( odbcPlugin->isEnabled() )
+	    odbcPlugin->setOn(TRUE);
+	else 
+	    odbcOff->setOn(TRUE);
+    } else if ( item==odbcDirect && db2Direct->isOn() ) {
+	if ( db2Plugin->isEnabled() )
+	    db2Plugin->setOn(TRUE);
+	else 
+	    db2Off->setOn(TRUE);
     }
 }
 

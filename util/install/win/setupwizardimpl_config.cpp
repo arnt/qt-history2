@@ -53,7 +53,7 @@ void SetupWizardImpl::cleanDone()
 		outStream << installDir.absPath().left(2) << endl;
 	    outStream << "cd %QTDIR%" << endl;
 	    if( !globalInformation.reconfig() ) {
-		QStringList makeCmds = QStringList::split( ' ', "nmake make gmake" );
+		QStringList makeCmds = QStringList::split( ' ', "nmake make gmake make nmake mingw32-make make" );
 		outStream << makeCmds[ globalInformation.sysId() ].latin1() << endl;
 	    }
 	    outFile.close();
@@ -296,7 +296,7 @@ void SetupWizardImpl::cleanDone()
 	    args += "-vcproj";
 	else if ( entry == "Off" )
 	    args += "-no-vcproj";
-    } else if ( globalInformation.sysId() == GlobalInformation::Borland ) {
+    } else if ( globalInformation.sysId() != GlobalInformation::MSVC && globalInformation.sysId() == GlobalInformation::MSVCNET ) {
 	args += "-no-dsp";
 	args += "-no-vcproj";
     }
@@ -383,7 +383,7 @@ void SetupWizardImpl::cleanDone()
 
 void SetupWizardImpl::prepareEnvironment()
 {
-    QStringList mkSpecs = QStringList::split( ' ', "win32-msvc win32-borland win32-g++ macx-g++ win32-msvc.net" );
+    QStringList mkSpecs = QStringList::split( ' ', "win32-msvc win32-borland win32-g++ macx-g++ win32-msvc.net win32-g++" );
     QByteArray pathBuffer;
     QStringList path;
     QString qtDir;
@@ -449,8 +449,10 @@ void SetupWizardImpl::prepareEnvironment()
 #endif
 
     QEnvironment::putEnv( "QTDIR", qtDir, envSpec );
-    QEnvironment::putEnv( "QMAKESPEC", mkSpecs[ globalInformation.sysId() ], envSpec );
-
+    if ( globalInformation.sysId() != GlobalInformation::Other )
+	QEnvironment::putEnv( "QMAKESPEC", mkSpecs[ globalInformation.sysId() ], envSpec );
+    else
+	QEnvironment::putEnv( "QMAKESPEC", optionsPage->sysOtherCombo->currentText(), envSpec );
 #if defined(Q_OS_WIN32)
     // MSVC 6.0 stuff --------------------------------------------------
     if( globalInformation.sysId() == GlobalInformation::MSVC ) {
