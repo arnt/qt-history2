@@ -334,6 +334,22 @@ void QMainWindow::addToolBar(QToolBar *toolbar)
 { addToolBar(Qt::TopToolBarArea, toolbar); }
 
 /*!
+    \overload
+
+    Creates a QToolBar object, setting its window title to \a title,
+    and inserts it into the top toolbar area.
+
+    \sa setWindowTitle()
+*/
+QToolBar *QMainWindow::addToolBar(const QString &title)
+{
+    QToolBar *toolBar = new QToolBar(this);
+    toolBar->setWindowTitle(title);
+    addToolBar(toolBar);
+    return toolBar;
+}
+
+/*!
     Inserts the \a toolbar into the area occupied by the \a before toolbar
     so that it appears before it. For example, in normal left-to-right
     layout operation, this means that \a toolbar will appear to the left
