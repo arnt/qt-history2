@@ -128,23 +128,28 @@ extern "C" {
 		qic->text.replace(drawstruct->chg_first, UINT_MAX, s);
 	    else
 		qic->text.replace(drawstruct->chg_first, drawstruct->chg_length, s);
-
-	    qic->lastcompose = qic->text;
 	} else {
 	    qic->text.remove(drawstruct->chg_first, drawstruct->chg_length);
 
 	    if (drawstruct->chg_length == 0 ||
 		(qic->text.isEmpty() && drawstruct->chg_length > 1)) {
-		// user pressed return, the keyEvent handler will receive
-		// the complete text in a keyevent, which we will detect and
-		// send an end/start pair
+       		// user pressed return, send an IMEnd...
 		QIMEvent endevent(QEvent::IMEnd, qic->lastcompose, -1);
 		QApplication::sendEvent(qic->focusWidget, &endevent);
 		qic->focusWidget = 0;
-
+		return 0;
+	    } else if ( qic->text.isEmpty() &&
+			drawstruct->chg_first == 0 &&
+			drawstruct->chg_length == 1 ) {
+		// last char deleted, send an IMEnd with null string...
+		QIMEvent endevent(QEvent::IMEnd, QString::null, -1);
+		QApplication::sendEvent(qic->focusWidget, &endevent);
+		qic->focusWidget = 0;
 		return 0;
 	    }
 	}
+
+	qic->lastcompose = qic->text;
 
 	QIMEvent event(QEvent::IMCompose, qic->text, drawstruct->caret);
 	QApplication::sendEvent(qic->focusWidget, &event);
@@ -301,6 +306,10 @@ void QInputContext::reset()
 #if !defined(QT_NO_XIM)
     if (focusWidget && composing && ! text.isNull()) {
 	// qDebug("QInputContext::reset: composing - sending IMEnd");
+
+	QIMEvent endevent(QEvent::IMEnd, lastcompose, -1);
+	QApplication::sendEvent(focusWidget, &endevent);
+	focusWidget = 0;
 
 	char *mb = XmbResetIC((XIC) ic);
 	if (mb)
