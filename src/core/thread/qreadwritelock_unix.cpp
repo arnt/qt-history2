@@ -73,7 +73,7 @@ static void report_error(int code, const char *where, const char *what)
     \endcode
 
     To ensure that writers aren't blocked forever by readers, readers
-    attempting to obtain a lock will not succeed if there is blocked 
+    attempting to obtain a lock will not succeed if there is a blocked 
     writer waiting for access, even if the lock is currently only
     accessed by other readers. Also, if the lock is accessed by a
     writer and another writer comes in, that writer will have
