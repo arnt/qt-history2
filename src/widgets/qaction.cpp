@@ -140,11 +140,13 @@ public:
     int accelid;
 #endif
     uint enabled : 1;
+    uint visible : 1;
     uint toggleaction :1;
     uint on : 1;
 #ifndef QT_NO_TOOLTIP
     QToolTipGroup tipGroup;
 #endif
+    QActionGroupPrivate* d_group;
 
     struct MenuItem {
 	MenuItem():popup(0),id(0){}
@@ -163,8 +165,8 @@ public:
     QPtrList<QToolButton> toolbuttons;
     QPtrList<ComboItem> comboitems;
 
-    enum Update { Everything, Icons, State }; // Everything means everything but icons and state
-    void update( Update upd = Everything );
+    enum Update { Icons = 0, Visibility = 1, State = 2, EverythingElse = 4 }; // EverythingElse means everything but icons, state and Visibility.
+    void update( uint upd = EverythingElse );
 
     QString menuText() const;
     QString toolTip() const;
@@ -172,17 +174,13 @@ public:
 };
 
 QActionPrivate::QActionPrivate()
-   : tipGroup( 0 )
-{
-    iconset = 0;
+    : iconset( 0 ),
 #ifndef QT_NO_ACCEL
-    accel = 0;
-    accelid = 0;
-    key = 0;
+      key( 0 ), accel( 0 ), accelid( 0 ),
 #endif
-    enabled = 1;
-    toggleaction  = 0;
-    on = 0;
+      enabled( TRUE ), visible( TRUE ), toggleaction( FALSE ), on( FALSE ),
+      tipGroup( 0 ), d_group( 0 )
+{
     menuitems.setAutoDelete( TRUE );
     comboitems.setAutoDelete( TRUE );
 #ifndef QT_NO_TOOLTIP
@@ -215,7 +213,31 @@ QActionPrivate::~QActionPrivate()
     delete iconset;
 }
 
-void QActionPrivate::update( Update upd )
+class QActionGroupPrivate
+{
+public:
+    uint exclusive: 1;
+    uint dropdown: 1;
+    QPtrList<QAction> actions;
+    QAction* selected;
+    QAction* separatorAction;
+
+    struct MenuItem {
+	MenuItem():popup(0),id(0){}
+	QPopupMenu* popup;
+	int id;
+    };
+
+    QPtrList<QComboBox> comboboxes;
+    QPtrList<QToolButton> menubuttons;
+    QPtrList<MenuItem> menuitems;
+    QPtrList<QPopupMenu> popupmenus;
+
+    void update( const QActionGroup * );
+};
+
+
+void QActionPrivate::update( uint upd )
 {
     for ( QPtrListIterator<MenuItem> it( menuitems); it.current(); ++it ) {
 	MenuItem* mi = it.current();
@@ -224,17 +246,18 @@ void QActionPrivate::update( Update upd )
 	if ( key )
 	    t += '\t' + QAccel::keyToString( key );
 #endif
-	switch ( upd ) {
-	case State:
+	if ( upd & State ) {
 	    mi->popup->setItemEnabled( mi->id, enabled );
 	    if ( toggleaction )
 		mi->popup->setItemChecked( mi->id, on );
-	    break;
-	case Icons:
+	}
+	if ( upd & Visibility )
+	    mi->popup->setItemVisible( mi->id, visible );
+	
+	if ( upd & Icons )
 	    if ( iconset )
 		mi->popup->changeItem( mi->id, *iconset, t );
-	    break;
-	default:
+	if ( upd & EverythingElse ) {
 	    mi->popup->changeItem( mi->id, t );
 	    if ( !whatsthis.isEmpty() )
 		mi->popup->setWhatsThis( mi->id, whatsthis );
@@ -246,17 +269,17 @@ void QActionPrivate::update( Update upd )
     }
     for ( QPtrListIterator<QToolButton> it2( toolbuttons); it2.current(); ++it2 ) {
 	QToolButton* btn = it2.current();
-	switch ( upd ) {
-	case State:
+	if ( upd & State ) {
 	    btn->setEnabled( enabled );
 	    if ( toggleaction )
 		btn->setOn( on );
-	    break;
-	case Icons:
+	}
+	if ( upd & Visibility )
+	    visible ? btn->show() : btn->hide();
+	if ( upd & Icons )
 	    if ( iconset )
 		btn->setIconSet( *iconset );
-	    break;
-	default:
+	if ( upd & EverythingElse ) {
 	    btn->setToggleButton( toggleaction );
 	    if ( !text.isEmpty() )
 		btn->setTextLabel( text, FALSE );
@@ -271,6 +294,13 @@ void QActionPrivate::update( Update upd )
 #endif
 	}
     }
+#ifndef QT_NO_ACCEL
+    if ( accel ) {
+	accel->setEnabled( enabled && visible );
+	if ( !whatsthis.isEmpty() )
+	    accel->setWhatsThis( accelid, whatsthis );
+    }
+#endif
     // Only used by actiongroup
     for ( QPtrListIterator<ComboItem> it3( comboitems ); it3.current(); ++it3 ) {
 	ComboItem *ci = it3.current();
@@ -548,10 +578,6 @@ void QAction::setWhatsThis( const QString& whatsThis )
     if ( d->whatsthis == whatsThis )
 	return;
     d->whatsthis = whatsThis;
-#ifndef QT_NO_ACCEL
-    if ( !d->whatsthis.isEmpty() && d->accel )
-	d->accel->setWhatsThis( d->accelid, d->whatsthis );
-#endif
     d->update();
 }
 
@@ -592,11 +618,8 @@ void QAction::setAccel( const QKeySequence& key )
     }
     if ( p ) {
 	d->accel = new QAccel( (QWidget*)p, this, "qt_action_accel" );
-	d->accel->setEnabled( d->enabled );
 	d->accelid = d->accel->insertItem( d->key );
 	d->accel->connectItem( d->accelid, this, SLOT( internalActivation() ) );
-	if ( !d->whatsthis.isEmpty() )
-	    d->accel->setWhatsThis( d->accelid, d->whatsthis );
     }
 #if defined(QT_CHECK_STATE)
     else
@@ -709,17 +732,39 @@ bool QAction::isOn() const
 */
 void QAction::setEnabled( bool enable )
 {
+    if ( d->enabled == enable )
+	return;
     d->enabled = enable;
-#ifndef QT_NO_ACCEL
-    if ( d->accel )
-	d->accel->setEnabled( enable );
-#endif
     d->update( QActionPrivate::State );
 }
 
 bool QAction::isEnabled() const
 {
     return d->enabled;
+}
+
+/*! \property QAction::visible
+  \brief whether the action is visible
+
+  Invisible actions can't be seen (or chosen) by the user. They don't
+  disappear from the menu/tool bar's item list, but are not displayed.
+*/
+void QAction::setVisible( bool visible )
+{
+    if ( d->visible == visible )
+	return;
+    d->visible = visible;
+    d->update( QActionPrivate::Visibility );
+#if (QT_VERSION-0 >= 0x040000)
+#error "QAction::setVisible function wants to be virtual. Also add virtual change() function"
+#endif
+    if ( d->d_group ) //### this function wants to be virtual in 4.0
+	d->d_group->update( (QActionGroup*) this );
+}
+
+bool QAction::isVisible() const
+{
+    return d->visible;
 }
 
 /*! \internal
@@ -768,8 +813,7 @@ bool QAction::addTo( QWidget* w )
 	    d->toolbuttons.append( btn );
 	    if ( d->iconset )
 		btn->setIconSet( *d->iconset );
-	    d->update( QActionPrivate::State );
-	    d->update( QActionPrivate::Everything );
+	    d->update( QActionPrivate::State | QActionPrivate::Visibility | QActionPrivate::EverythingElse ) ;
 	    connect( btn, SIGNAL( clicked() ), this, SIGNAL( activated() ) );
 	    connect( btn, SIGNAL( toggled(bool) ), this, SLOT( toolButtonToggled(bool) ) );
 	    connect( btn, SIGNAL( destroyed() ), this, SLOT( objectDestroyed() ) );
@@ -794,8 +838,7 @@ bool QAction::addTo( QWidget* w )
 	    addedTo( mi->popup->indexOf( mi->id ), mi->popup );
 	    mi->popup->connectItem( mi->id, this, SLOT(internalActivation()) );
 	    d->menuitems.append( mi );
-	    d->update( QActionPrivate::State );
-	    d->update( QActionPrivate::Everything );
+	    d->update( QActionPrivate::State | QActionPrivate::Visibility | QActionPrivate::EverythingElse ) ;
 	    w->topLevelWidget()->className();
 	    connect( mi->popup, SIGNAL(highlighted( int )), this, SLOT(menuStatusText( int )) );
 	    connect( mi->popup, SIGNAL(aboutToHide()), this, SLOT(clearStatusText()) );
@@ -1031,33 +1074,11 @@ void QAction::objectDestroyed()
 
 
 
-class QActionGroupPrivate
-{
-public:
-    uint exclusive: 1;
-    uint dropdown: 1;
-    QPtrList<QAction> actions;
-    QAction* selected;
-    QAction* separatorAction;
-
-    struct MenuItem {
-	MenuItem():popup(0),id(0){}
-	QPopupMenu* popup;
-	int id;
-    };
-
-    QPtrList<QComboBox> comboboxes;
-    QPtrList<QToolButton> menubuttons;
-    QPtrList<MenuItem> menuitems;
-    QPtrList<QPopupMenu> popupmenus;
-
-    void update( const QActionGroup * );
-};
-
 void QActionGroupPrivate::update( const QActionGroup* that )
 {
     for ( QPtrListIterator<QAction> it( actions ); it.current(); ++it ) {
 	it.current()->setEnabled( that->isEnabled() );
+	it.current()->setVisible( that->isVisible() );
     }
     for ( QPtrListIterator<QComboBox> cb( comboboxes ); cb.current(); ++cb ) {
 	cb.current()->setEnabled( that->isEnabled() );
@@ -1188,6 +1209,7 @@ QActionGroup::QActionGroup( QObject* parent, const char* name, bool exclusive )
     d->dropdown = FALSE;
     d->selected = 0;
     d->separatorAction = 0;
+    QAction::d->d_group = d;
 
     connect( this, SIGNAL(selected(QAction*)), SLOT(internalToggle(QAction*)) );
 }

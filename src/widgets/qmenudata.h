@@ -79,9 +79,12 @@ public:
     bool	isEnabled()	const	{ return is_enabled; }
     bool	isChecked()	const	{ return is_checked; }
     bool	isDirty()	const	{ return is_dirty; }
+    bool	isVisible()	const	{ return is_visible; }
+    bool	isEnabledAndVisible() const { return is_enabled && is_visible; }
 
     void	setText( const QString &text ) { text_data = text; }
     void	setDirty( bool dirty )	       { is_dirty = dirty; }
+    void	setVisible( bool visible )	       { is_visible = visible; }
     void	setWhatsThis( const QString &text ) { whatsthis_data = text; }
 
 private:
@@ -100,6 +103,7 @@ private:
     uint	is_enabled   : 1;		// disabled flag
     uint	is_checked   : 1;		// checked flag
     uint	is_dirty     : 1;		// dirty (update) flag
+    uint	is_visible     : 1;		// visibility flag
     QMenuItemData* d;
 
     QMenuItemData* extra();
@@ -219,6 +223,9 @@ public:
 
     bool	isItemChecked( int id ) const;
     void	setItemChecked( int id, bool check );
+
+    bool	isItemVisible( int id ) const;
+    void	setItemVisible( int id, bool visible );
 
     virtual void updateItem( int id );
 

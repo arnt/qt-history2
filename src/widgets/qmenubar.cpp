@@ -96,7 +96,8 @@ static bool inMenu = FALSE;
   own geometry to the top of the parent widget and changes it
   appropriately whenever the parent is resized.
 
-  \important insertItem removeItem clear insertSeparator setItemEnabled isItemEnabled
+  \important insertItem removeItem clear insertSeparator
+  setItemEnabled isItemEnabled setItemVisible isItemVisible
 
     Example of creating a menu bar with menu items (from \l menu/menu.cpp):
     \quotefile menu/menu.cpp
@@ -862,13 +863,13 @@ int QMenuBar::calculateRects( int max_width )
 	QMenuItem *mi = mitems->at(i);
 
 	int w=0, h=0;
+	if ( !mi->isVisible()
 #if defined(Q_WS_MAC) && !defined(QMAC_QMENUBAR_NO_NATIVE)
-	if(mac_eaten_menubar && !mi->custom() && !mi->widget()) {
-	    w = 0;
-	    h = 0;
-	} else
+				  ||  (mac_eaten_menubar && !mi->custom() && !mi->widget() )
 #endif
-	if ( mi->widget() ) {
+	     ) {
+	    ; // empty rectangle
+	} else if ( mi->widget() ) {
 	    if ( mi->widget()->parentWidget() != this ) {
 		mi->widget()->reparent( this, QPoint(0,0) );
 	    }
@@ -1056,7 +1057,7 @@ void QMenuBar::drawContents( QPainter *p )
 	    QRect r = irects[i];
 	    if(r.isEmpty())
 		continue;
-	    e = mi->isEnabled();
+	    e = mi->isEnabledAndVisible();
 	    if ( e )
 		g = isEnabled() ? ( isActiveWindow() ? palette().active() :
 				    palette().inactive() ) : palette().disabled();
@@ -1069,7 +1070,7 @@ void QMenuBar::drawContents( QPainter *p )
 	    buffer.painter()->setBrush( p->brush() );
 
 	    QStyle::SFlags flags = QStyle::Style_Default;
-	    if (isEnabled() && mi->isEnabled())
+	    if (isEnabled() && mi->isEnabledAndVisible())
 		flags |= QStyle::Style_Enabled;
 	    if ( i == actItem )
 		flags |= QStyle::Style_Active;
@@ -1127,8 +1128,8 @@ void QMenuBar::mouseReleaseEvent( QMouseEvent *e )
 	return;
     mouseBtDn = FALSE;				// mouse button up
     int item = itemAtPos( e->pos() );
-    if ( item >= 0 && !mitems->at(item)->isEnabled() ||
-	 actItem >= 0 && !mitems->at(actItem)->isEnabled() ) {
+    if ( item >= 0 && !mitems->at(item)->isEnabledAndVisible() ||
+	 actItem >= 0 && !mitems->at(actItem)->isEnabledAndVisible() ) {
 	hidePopups();
 	setActiveItem( -1 );
 	return;
@@ -1231,7 +1232,7 @@ void QMenuBar::keyPressEvent( QKeyEvent *e )
 	    mi = mitems->at( i );
 	    // ### fix windows-style traversal - currently broken due to
 	    // QMenuBar's reliance on QPopupMenu
-	    if ( /* (style() == WindowsStyle || */ mi->isEnabled() /* ) */
+	    if ( /* (style() == WindowsStyle || */ mi->isEnabledAndVisible() /* ) */
 		 && !mi->isSeparator() )
 		break;
 	}
@@ -1311,7 +1312,7 @@ void QMenuBar::setActiveItem( int i, bool show, bool activate_first_item )
     QMenuItem* mi = 0;
     if ( i >= 0 )
 	mi = mitems->at( i );
-    if ( mi && !mi->isEnabled() )
+    if ( mi && !mi->isEnabledAndVisible() )
 	return;
 
     popupvisible = i >= 0 ? (show) : 0;
@@ -1407,7 +1408,7 @@ void QMenuBar::setupAccelerators()
     register QMenuItem *mi;
     while ( (mi=it.current()) ) {
 	++it;
-	if ( !mi->isEnabled() ) // ### when we have a good solution for the accel vs. focus widget problem, remove that. That is only a workaround
+	if ( !mi->isEnabledAndVisible() ) // ### when we have a good solution for the accel vs. focus widget problem, remove that. That is only a workaround
 	    continue;
 	QString s = mi->text();
 	if ( !s.isEmpty() ) {
@@ -1455,7 +1456,7 @@ void QMenuBar::focusInEvent( QFocusEvent * )
 	int i = -1;
 	while ( actItem < 0 && ++i < (int) mitems->count() ) {
 	    QMenuItem* mi = mitems->at( i );
-	    if ( mi && mi->isEnabled() && !mi->isSeparator() )
+	    if ( mi && mi->isEnabledAndVisible() && !mi->isSeparator() )
 		setActiveItem( i, FALSE );
 	}
     } else if ( !popupvisible ) {

@@ -196,9 +196,11 @@ static QMenuItem* whatsThisItem = 0;
   \link menu-example.html menu/menu.cpp\endlink is an example of
   QMenuBar and QPopupMenu use.
 
-  \important insertItem removeItem removeItemAt clear text pixmap iconSet  insertSeparator
-  changeItem whatsThis setWhatsThis accel setAccel setItemEnabled isItemEnabled
-  setItemChecked isItemChecked connectItem disconnectItem setItemParameter itemParameter
+  \important insertItem removeItem removeItemAt clear text pixmap
+  iconSet insertSeparator changeItem whatsThis setWhatsThis accel
+  setAccel setItemEnabled isItemEnabled setItemVisible isItemVisible
+  setItemChecked isItemChecked connectItem disconnectItem
+  setItemParameter itemParameter
 
   <img src=qpopmenu-m.png> <img src=qpopmenu-w.png>
 
@@ -655,7 +657,7 @@ static bool fromAccel = FALSE;
 void QPopupMenu::accelActivated( int id )
 {
     QMenuItem *mi = findItem( id );
-    if ( mi && mi->isEnabled() ) {
+    if ( mi && mi->isEnabledAndVisible() ) {
 	QGuardedPtr<QSignal> signal = mi->signal();
 	fromAccel = TRUE;
 	actSig( mi->id() );
@@ -862,6 +864,8 @@ int QPopupMenu::itemAtPos( const QPoint &pos, bool ignoreSeparator ) const
 	   y >= contentsRect().height() - style().pixelMetric(QStyle::PM_PopupMenuScrollerHeight, this))
 	    return -1;
 	++it;
+	if ( !mi->isVisible() )
+	    continue;
 	int itemh = itemHeight( mi );
 
 	sz = style().sizeFromContents(QStyle::CT_PopupMenuItem, this,
@@ -917,6 +921,8 @@ QRect QPopupMenu::itemGeometry( int index )
 	   y >= contentsRect().height() - scrollh)
 	    break;
 	++it;
+	if ( !mi->isVisible() )
+	    continue;
 	int itemh = itemHeight( mi );
 
 	sz = style().sizeFromContents(QStyle::CT_PopupMenuItem, this,
@@ -925,8 +931,8 @@ QRect QPopupMenu::itemGeometry( int index )
 	sz = sz.expandedTo(QSize(itemw, sz.height()));
 	itemw = sz.width();
 	itemh = sz.height();
-	if(d->scroll.scrollable & QPopupMenuPrivate::Scroll::ScrollDown && 
-	   (y + itemh > contentsRect().height() - scrollh)) 
+	if(d->scroll.scrollable & QPopupMenuPrivate::Scroll::ScrollDown &&
+	   (y + itemh > contentsRect().height() - scrollh))
 	    itemh -= (y + itemh) - (contentsRect().height() - scrollh);
 	if ( ncols > 1 && y + itemh > contentsRect().bottom() ) {
 	    y = contentsRect().y();
@@ -987,6 +993,8 @@ void QPopupMenu::updateSize()
 
     for ( QMenuItemListIt it2( *mitems ); it2.current(); ++it2 ) {
 	mi = it2.current();
+	if ( !mi->isVisible() )
+	    continue;
 	int w = 0;
 	int itemHeight = QPopupMenu::itemHeight( mi );
 
@@ -1345,11 +1353,11 @@ int QPopupMenu::itemHeight( QMenuItem *mi ) const
 void QPopupMenu::drawItem( QPainter* p, int tab_, QMenuItem* mi,
 			   bool act, int x, int y, int w, int h)
 {
-    bool dis = !mi->isEnabled();
+    bool dis = !mi->isEnabledAndVisible();
     const QColorGroup &cg = (dis ? palette().disabled() : colorGroup() );
 
     QStyle::SFlags flags = QStyle::Style_Default;
-    if (isEnabled() && mi->isEnabled())
+    if (isEnabled() && mi->isEnabledAndVisible())
 	flags |= QStyle::Style_Enabled;
     if (act)
 	flags |= QStyle::Style_Active;
@@ -1385,7 +1393,7 @@ void QPopupMenu::drawContents( QPainter* p )
 		it.toFirst();
 	}
 	if(d->scroll.scrollable & QPopupMenuPrivate::Scroll::ScrollUp) {
-	    QRect rect(x, y, contentsRect().width(), 
+	    QRect rect(x, y, contentsRect().width(),
 		       style().pixelMetric(QStyle::PM_PopupMenuScrollerHeight, this));
 	    if(!p->hasClipping() || p->clipRegion().contains(rect)) {
 		QStyle::SFlags flags = QStyle::Style_Up;
@@ -1406,6 +1414,8 @@ void QPopupMenu::drawContents( QPainter* p )
 	   y >= contentsRect().height() - style().pixelMetric(QStyle::PM_PopupMenuScrollerHeight, this))
 	    break;
 	++it;
+	if ( !mi->isVisible() )
+	    continue;
 	int itemh = itemHeight( mi );
 	sz = style().sizeFromContents(QStyle::CT_PopupMenuItem, this,
 				      QSize(0, itemh),
@@ -1420,7 +1430,7 @@ void QPopupMenu::drawContents( QPainter* p )
 		QRect rect(x, y, itemw, contentsRect().bottom() - y);
 		if(!p->hasClipping() || p->clipRegion().contains(rect)) {
 		    flags = QStyle::Style_Default;
-		    if (isEnabled() && mi->isEnabled())
+		    if (isEnabled() && mi->isEnabledAndVisible())
 			flags |= QStyle::Style_Enabled;
 		    style().drawControl(QStyle::CE_PopupMenuItem, p, this, rect,
 					colorGroup(), flags, QStyleOption((QMenuItem*)0,maxPMWidth));
@@ -1563,7 +1573,7 @@ void QPopupMenu::mouseReleaseEvent( QMouseEvent *e )
 #else
 	    const bool b = FALSE;
 #endif
-	if ( !mi->isEnabled() ) {
+	if ( !mi->isEnabledAndVisible() ) {
 #ifndef QT_NO_WHATSTHIS
 	    if ( b ) {
 		actItem = -1;
@@ -1576,7 +1586,7 @@ void QPopupMenu::mouseReleaseEvent( QMouseEvent *e )
 	    popup->setFirstItemActive();
 	} else {				// normal menu item
 	    byeMenuBar();			// deactivate menu bar
-	    if ( mi->isEnabled() ) {
+	    if ( mi->isEnabledAndVisible() ) {
 		actItem = -1;
 		updateItem( mi->id() );
 		active_popup_menu = this;
@@ -1767,7 +1777,7 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
     	break;
 
     case Key_Right:
-	if ( actItem >= 0 && ( mi=mitems->at(actItem) )->isEnabled() && (popup=mi->popup()) ) {
+	if ( actItem >= 0 && ( mi=mitems->at(actItem) )->isEnabledAndVisible() && (popup=mi->popup()) ) {
 	    hidePopups();
 	    if ( singleSingleShot )
 		singleSingleShot->stop();
@@ -1815,7 +1825,7 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 #else
 	    const bool b = FALSE;
 #endif
-	    if ( mi->isEnabled() || b ) {
+	    if ( mi->isEnabledAndVisible() || b ) {
 		active_popup_menu = this;
 		QGuardedPtr<QSignal> signal = mi->signal();
 		actSig( mi->id(), b );
@@ -1891,7 +1901,7 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 #else
 		const bool b = FALSE;
 #endif
-		if ( mi->isEnabled() || b ) {
+		if ( mi->isEnabledAndVisible() || b ) {
 		    active_popup_menu = this;
 		    QGuardedPtr<QSignal> signal = mi->signal();
 		    actSig( mi->id(), b );
@@ -1941,7 +1951,7 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 	    mi = mitems->at( i );
 	    if ( !mi->isSeparator() &&
 		 ( style().styleHint(QStyle::SH_PopupMenu_AllowActiveAndDisabled, this)
-		   || mi->isEnabled() ) )
+		   || mi->isEnabledAndVisible() ) )
 		break;
 	}
 	if ( i != actItem )
@@ -2103,7 +2113,7 @@ void QPopupMenu::subMenuTimer() {
 	return;
 
     QMenuItem *mi = mitems->at(actItem);
-    if ( !mi || !mi->isEnabled() )
+    if ( !mi || !mi->isEnabledAndVisible() )
 	return;
 
     QPopupMenu *popup = mi->popup();
@@ -2393,7 +2403,7 @@ bool QPopupMenu::focusNextPrevChild( bool next )
 	    mi = mitems->at( i );
 	    if ( !mi->isSeparator() &&
 		 ( style().styleHint(QStyle::SH_PopupMenu_AllowActiveAndDisabled, this)
-		   || mi->isEnabled() ) )
+		   || mi->isEnabledAndVisible() ) )
 		break;
 	}
 	if ( i != actItem )
@@ -2531,7 +2541,7 @@ void QPopupMenu::activateItemAt( int index )
 #else
 	    const bool b = FALSE;
 #endif
-	    if ( !mi->isEnabled() ) {
+	    if ( !mi->isEnabledAndVisible() ) {
 #ifndef QT_NO_WHATSTHIS
 		if ( b ) {
 		    actItem = -1;
@@ -2542,7 +2552,7 @@ void QPopupMenu::activateItemAt( int index )
 #endif
 	    } else {
 		byeMenuBar();			// deactivate menu bar
-		if ( mi->isEnabled() ) {
+		if ( mi->isEnabledAndVisible() ) {
 		    actItem = -1;
 		    updateItem( mi->id() );
 		    active_popup_menu = this;

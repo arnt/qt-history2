@@ -145,7 +145,7 @@ public:
 	WState_Reserved0	= 0x00008000,
 	WState_Reserved1	= 0x00010000,
 	WState_Reserved2	= 0x00020000,
-	WState_Reserved3	= 0x00040000,
+	WState_CreatedHidden	= 0x00040000,
 	WState_Maximized	= 0x00080000,
 	WState_Minimized	= 0x00100000,
 	WState_ForceDisabled	= 0x00200000,

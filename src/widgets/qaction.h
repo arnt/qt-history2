@@ -100,6 +100,7 @@ public:
     bool isToggleAction() const;
     bool isOn() const;
     bool isEnabled() const;
+    bool isVisible() const;
     virtual bool addTo( QWidget* );
     virtual bool removeFrom( QWidget* );
 
@@ -111,6 +112,7 @@ public slots:
     void toggle();
     virtual void setOn( bool );
     virtual void setEnabled( bool );
+    void setVisible( bool );
 
 signals:
     void activated();
@@ -127,6 +129,7 @@ private slots:
 private:
     void init();
 
+    friend class QActionGroup;
     QActionPrivate* d;
 
 };

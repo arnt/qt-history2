@@ -723,7 +723,7 @@ inline bool QWidgetMapper::remove( WId id )
     \value WState_Reserved0
     \value WState_Reserved1
     \value WState_Reserved2
-    \value WState_Reserved3
+    \value WState_CreatedHidden
     \value WState_Maximized
     \value WState_Minimized
     \value WState_ForceDisabled
@@ -805,7 +805,7 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
     QApplication::postEvent( this, new QResizeEvent(crect.size(),
 						    crect.size()) );
     if ( isTopLevel() ) {
-	setWState( WState_ForceHide );
+	setWState( WState_ForceHide | WState_CreatedHidden );
 	QFocusData *fd = focusData( TRUE );
 	if ( fd->focusWidgets.findRef(this) < 0 )
 	    fd->focusWidgets.append( this );
@@ -815,7 +815,7 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
 	    setWState( WState_Disabled );
 	// new widgets do not show up in already visible parents
 	if ( parentWidget()->isVisibleTo( 0 ) )
-	    setWState( WState_ForceHide );
+	    setWState( WState_ForceHide | WState_CreatedHidden );
     }
     if ( ++instanceCounter > maxInstances )
     	maxInstances = instanceCounter;
@@ -3538,7 +3538,7 @@ void QWidget::setUpdatesEnabled( bool enable )
 void QWidget::show()
 {
     bool sendLayoutHint = !isTopLevel() && isHidden();
-    clearWState( WState_ForceHide );
+    clearWState( WState_ForceHide | WState_CreatedHidden );
 
     if ( testWState(WState_Visible) )
 	return; // nothing to do
@@ -3715,6 +3715,7 @@ void QWidget::show()
 
 void QWidget::hide()
 {
+    clearWState( WState_CreatedHidden );
     if ( testWState(WState_ForceHide) )
 	return;
 

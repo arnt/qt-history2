@@ -86,7 +86,8 @@ QMenuDataData::QMenuDataData()
   Checkable items can be checked or unchecked with setItemChecked().
   Items can be enabled or disabled using setItemEnabled() and
   connected and disconnected with connectItem() and disconnectItem()
-  respectively.
+  respectively. By default, newly created menu items are visible. They
+  can be hidden (and shown again) with setItemVisible().
 
   Menu items are stored in a list. Use findItem() to find an item by
   its list position or by its menu identifier.
@@ -100,22 +101,10 @@ QMenuDataData::QMenuDataData()
  *****************************************************************************/
 
 QMenuItem::QMenuItem()
-{
-    ident	 = -1;
-    is_separator = FALSE;
-    is_checked   = FALSE;
-    is_enabled	 = TRUE;
-    is_dirty	 = TRUE;
-    iconset_data	 = 0;
-    pixmap_data	 = 0;
-    popup_menu	 = 0;
-    widget_item	 = 0;
-#ifndef QT_NO_ACCEL
-    accel_key	 = 0;
-#endif
-    signal_data	 = 0;
-    d = 0;
-}
+    :ident( -1 ), iconset_data( 0 ), pixmap_data( 0 ), popup_menu( 0 ),
+     widget_item( 0 ), signal_data( 0 ), is_separator( FALSE ), is_enabled( TRUE ),
+     is_checked( FALSE ), is_dirty( TRUE ), is_visible( TRUE ), d( 0)
+{}
 
 QMenuItem::~QMenuItem()
 {
@@ -1028,8 +1017,9 @@ void QMenuData::changeItemIconSet( int id, const QIconSet &icon )
 
 /*!
   Returns TRUE if the item with identifier \a id is enabled; otherwise
-  returns FALSE
-  \sa setItemEnabled()
+  returns FALSE.
+
+  \sa setItemEnabled(), isItemVisible()
 */
 
 bool QMenuData::isItemEnabled( int id ) const
@@ -1102,6 +1092,36 @@ void QMenuData::setItemChecked( int id, bool check )
 	    ((QPopupMenu *)parent)->setCheckable( TRUE );
 #endif
 	parent->menuStateChanged();
+    }
+}
+
+/*!
+  Returns TRUE if the menu item with the id \a id is  visible;
+  otherwise returns FALSE.
+
+  \sa setItemVisible()
+*/
+
+bool QMenuData::isItemVisible( int id ) const
+{
+    QMenuItem *mi = findItem( id );
+    return mi ? mi->isVisible() : FALSE;
+}
+
+/*!
+  If \a visible is TRUE, shows the menu item with id \a id; otherwise
+  hides the menu item with id \a id.
+
+  \sa isItemVisible(), isItemEnabled()
+*/
+
+void QMenuData::setItemVisible( int id, bool visible )
+{
+    QMenuData *parent;
+    QMenuItem *mi = findItem( id, &parent );
+    if ( mi && (bool)mi->is_visible != visible ) {
+	mi->is_visible = visible;
+	parent->menuContentsChanged();
     }
 }
 
