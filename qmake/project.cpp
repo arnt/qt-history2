@@ -435,6 +435,7 @@ QMakeProject::doProjectTest(QString func, const QStringList &args, QMap<QString,
 	}
 
 	QString file = args.first();
+	Option::fixPathToLocalOS(file);
 	file.replace(QRegExp("\""), "");
 
 	int rep, rep_len;
