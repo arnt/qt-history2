@@ -884,8 +884,8 @@ to be modified.
 
 
 
-\target QMAKE_EXTENTION_SHLIB
-<dt>\c QMAKE_EXTENTION_SHLIB
+\target QMAKE_EXTENSION_SHLIB
+<dt>\c QMAKE_EXTENSION_SHLIB
 
 <dd>This variable contains the extention for shared libraries.  The value of this 
 variable is typically handled by \e qmake or \link #QMAKESPEC qmake.conf \endlink 

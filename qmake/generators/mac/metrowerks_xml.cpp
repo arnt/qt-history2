@@ -305,8 +305,8 @@ MetrowerksMakefileGenerator::init()
     }
     if( !project->isEmpty("QMAKE_LIBS") )
 	project->variables()["LIBS"] += project->variables()["QMAKE_LIBS"];
-    if( project->variables()["QMAKE_EXTENTION_SHLIB"].isEmpty() )
-	project->variables()["QMAKE_EXTENTION_SHLIB"].append( "lib" );
+    if( project->variables()["QMAKE_EXTENSION_SHLIB"].isEmpty() )
+	project->variables()["QMAKE_EXTENSION_SHLIB"].append( "lib" );
 
     if ( project->isActiveConfig("moc") ) {
 	project->variables()["MOCS"].append(project->variables()["TARGET"].first() + ".mocs");
@@ -383,7 +383,7 @@ MetrowerksMakefileGenerator::init()
 		project->variables()["INCLUDEPATH"].append(dir);
 	} else if((*val_it).left(2) == "-l") {
 	    QString lib("lib" + (*val_it).right((*val_it).length() - 2)  + "." + 
-			project->first("QMAKE_EXTENTION_SHLIB"));
+			project->first("QMAKE_EXTENSION_SHLIB"));
 	    if(project->variables()["LIBRARIES"].findIndex(lib) == -1)
 		project->variables()["LIBRARIES"].append(lib);
 	} else if((*val_it) == "-framework") {
@@ -425,7 +425,7 @@ MetrowerksMakefileGenerator::init()
 	    project->variables()["TARGET"].first() =  "lib" + project->first("TARGET") + ".lib";
 	else
 	    project->variables()["TARGET"].first() =  "lib" + project->first("TARGET") + "." +
-						      project->first("QMAKE_EXTENTION_SHLIB");
+						      project->first("QMAKE_EXTENSION_SHLIB");
     }
 }
 
