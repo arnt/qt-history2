@@ -30,17 +30,19 @@ public:
 
     QStringList registeredPlugins() const;
 
-    QStringList pluginPaths() const;
-    void disablePlugin(const QString &path, bool disabled);
-    void addPluginPath(const QString &path);
-    void removePluginPath(const QString &path);
+    QStringList findPlugins(const QString &path);
     
+    void setPluginPaths(const QStringList &plugin_paths);
+    QStringList pluginPaths() const;
+    void setDisabledPlugins(const QStringList &disabled_plugins);
+    QStringList disabledPlugins() const;
+        
     bool syncSettings();
 
 private:
+    void updateRegisteredPlugins();
     void registerPath(const QString &path);
     void registerPlugin(const QString &plugin);
-    void unregisterPlugin(const QString &plugin);
     
     QStringList m_pluginPaths;
     QStringList m_registeredPlugins;

@@ -35,8 +35,7 @@ static QStringList unique(const QStringList &list)
 
 static QString fixPath(const QString path)
 {
-    QFileInfo fi(path);
-    return fi.absoluteFilePath();
+    return QFileInfo(path).absoluteFilePath();
 }
 
 static QStringList fixPathList(const QStringList &pathList)
@@ -61,15 +60,13 @@ PluginManager::PluginManager(QObject *parent)
         settings.setValue(QLatin1String("PluginPaths"), QStringList() << path);
     }
     
-    m_disabledPlugins
+    m_pluginPaths 
+        = unique(settings.value(QLatin1String("PluginPaths")).toStringList());
+    m_registeredPlugins
         = unique(settings.value(QLatin1String("DisabledPlugins")).toStringList());
-    m_pluginPaths = fixPathList(unique(
-            settings.value(QLatin1String("PluginPaths")).toStringList()));
-                            
-    settings.endGroup();
+    updateRegisteredPlugins();                    
 
-    foreach (QString path, m_pluginPaths)
-        registerPath(path);
+    settings.endGroup();
 }
 
 PluginManager::~PluginManager()
@@ -77,8 +74,14 @@ PluginManager::~PluginManager()
     syncSettings();
 }
 
-void PluginManager::registerPath(const QString &path)
+QStringList PluginManager::findPlugins(const QString &path)
 {
+    QStringList result;
+
+    QDir dir(path);
+    if (!dir.exists())
+        return result;
+
     QStringList filters;
 #if defined(Q_OS_WIN32)
     filters << QLatin1String("*.dll");
@@ -90,33 +93,67 @@ void PluginManager::registerPath(const QString &path)
     filters << QLatin1String("*.so");
 #endif
 
-    QDir dir(path);
-    if (!dir.exists()) {
-        qWarning("invalid plugin path: %s", path.toLatin1().constData());
-        return;
-    }
-
     QStringList candidates = dir.entryList(filters);
     foreach (QString plugin, candidates) {
         QString fileName = dir.absoluteFilePath(plugin);
-        registerPlugin(fileName);
+        result.append(fileName);
     }
+    
+    return result;
 }
 
-void PluginManager::disablePlugin(const QString &path, bool disabled)
+void PluginManager::setDisabledPlugins(const QStringList &disabled_plugins)
 {
-    if (disabled) {
-        m_registeredPlugins.removeAll(path);
-        if (!m_disabledPlugins.contains(path))
-            m_disabledPlugins.append(path);
-    } else {
-        m_disabledPlugins.removeAll(path);
-    }
+    m_disabledPlugins = disabled_plugins;
+    updateRegisteredPlugins();
+}
+
+void PluginManager::setPluginPaths(const QStringList &plugin_paths)
+{
+    m_pluginPaths = plugin_paths;
+    updateRegisteredPlugins();
+}
+
+QStringList PluginManager::disabledPlugins() const
+{
+    return m_disabledPlugins;
 }
 
 QStringList PluginManager::registeredPlugins() const
 {
     return m_registeredPlugins;
+}
+
+QStringList PluginManager::pluginPaths() const
+{
+    return m_pluginPaths;
+}
+
+QObject *PluginManager::instance(const QString &plugin) const
+{
+    if (m_disabledPlugins.contains(plugin))
+        return 0;
+        
+    QPluginLoader loader(plugin);
+    if (loader.load())
+        return loader.instance();
+
+    return 0;
+}
+
+void PluginManager::updateRegisteredPlugins()
+{
+    m_registeredPlugins.clear();
+    foreach (QString path,  m_pluginPaths)
+        registerPath(path);
+}
+
+void PluginManager::registerPath(const QString &path)
+{
+    QStringList candidates = findPlugins(path);
+    
+    foreach (QString plugin, candidates)
+        registerPlugin(plugin);
 }
 
 void PluginManager::registerPlugin(const QString &plugin)
@@ -130,51 +167,10 @@ void PluginManager::registerPlugin(const QString &plugin)
         m_registeredPlugins += plugin;
 }
 
-void PluginManager::unregisterPlugin(const QString &plugin)
-{
-    if (!m_registeredPlugins.contains(plugin))
-        return;
-    m_registeredPlugins.removeAll(plugin);
-}
-
-QStringList PluginManager::pluginPaths() const
-{
-    return m_pluginPaths;
-}
-
-void PluginManager::addPluginPath(const QString &path)
-{
-    QString fixedPath = fixPath(path);
-    if (m_pluginPaths.contains(fixedPath))
-        return;
-    m_pluginPaths.append(fixedPath);
-    registerPath(fixedPath);
-}
-
-void PluginManager::removePluginPath(const QString &path)
-{
-    QString fixedPath = fixPath(path);
-    if (!m_pluginPaths.contains(fixedPath))
-        return;
-    m_pluginPaths.removeAll(fixedPath);
-    foreach (QString plugin, m_registeredPlugins) {
-        QFileInfo fi(plugin);
-        if (fi.absolutePath() == fixedPath)
-            unregisterPlugin(plugin);
-    }
-}
-
-QObject *PluginManager::instance(const QString &plugin) const
-{
-    QPluginLoader loader(plugin);
-    if (loader.load())
-        return loader.instance();
-
-    return 0;
-}
-
 bool PluginManager::syncSettings()
 {
+    qDebug() << "PluginManager::syncSettings()";
+
     QSettings settings;
     settings.beginGroup("PluginManager");
     settings.setValue("PluginPaths", m_pluginPaths);
