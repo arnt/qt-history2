@@ -211,13 +211,6 @@ QGList::~QGList()
 	i = (QGListIterator*)iterators->next();
     }
     delete iterators;
-#if __GNUC__ == 2 && __GNUC_MINOR__ <= 7
-    // Dirty workaround for GCC 2.7.* bug. Compiler constructs 'static'
-    // QGList instances twice on the same address and therefore tries to
-    // destruct twice on the same address! This is insane but let's try
-    // not to crash here.
-    iterators = 0;
-#endif
 }
 
 
