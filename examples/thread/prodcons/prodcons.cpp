@@ -79,6 +79,7 @@ void ProdThread::run()
     uchar *buffer = new uchar[BUFSIZE];
     int pos = 0, oldpos = 0;
     int loop = 1;
+    int lastpostedpos = 0;
 
     ProdEvent *pe = new ProdEvent(pos, done);
     QThread::postEvent(receiver, pe);
@@ -109,8 +110,11 @@ void ProdThread::run()
 
 	mutex->unlock();
 
-	ProdEvent *pe = new ProdEvent(pos, stop);
-	QThread::postEvent(receiver, pe);
+	if ( pos - lastpostedpos > PRGSTEP || stop ) {
+	    lastpostedpos = pos;
+	    ProdEvent *pe = new ProdEvent(pos, stop);
+	    QThread::postEvent(receiver, pe);
+	}
 
 	loop++;
     }
@@ -177,6 +181,7 @@ void ConsThread::run()
     file.open(IO_WriteOnly);
 
     long size = 0;
+    long lastsize = 0;
 
     ConsEvent *ce = new ConsEvent(size);
     QThread::postEvent(receiver, ce);
@@ -201,8 +206,11 @@ void ConsThread::run()
 
 	mutex->unlock();
 
-	ConsEvent *ce = new ConsEvent(size);
-	QThread::postEvent(receiver, ce);
+	if ( size - lastsize > 1000 || stop ) {
+	    lastsize = size;
+	    ConsEvent *ce = new ConsEvent(size);
+	    QThread::postEvent(receiver, ce);
+	}
     }
 
     file.flush();
