@@ -65,6 +65,7 @@ public:
 
 QPrinter::QPrinter(PrinterMode m) : QPaintDevice(QInternal::Printer | QInternal::ExternalDevice)
 {
+    d = new QPrinterPrivate;
     if(PMCreateSession(&psession) != noErr)
 	psession = NULL;
 
@@ -74,21 +75,22 @@ QPrinter::QPrinter(PrinterMode m) : QPaintDevice(QInternal::Printer | QInternal:
 	// fall through
     case PrinterResolution:
     case HighResolution: {
-#if 0
 	bool found = FALSE;
-	PMPrinter printer;
-	if(psession && PMSessionGetCurrentPrinter(psession, &printer) == noErr) {
+	PMPrinter printer = 0;
+        if(psession && PMSessionGetCurrentPrinter(psession, &printer) == noErr) {
 	    PMResolution pres;
-	    if(PMPrinterGetPrinterResolution(printer, kPMMaximumValue, &pres) == noErr) {
-		found = TRUE;
-		res = (int)pres.vRes; //obviously I need to divide this by SOMETHING, but what at this point? FIXME!
-		qDebug("Qt: internal: %d", res);
-	    }
+	    UInt32 count = 0, maxRes = 0;
+	    if (PMPrinterGetPrinterResolutionCount( printer, &count ) == noErr && count)
+		for( ; count > 0; --count )
+		    if (PMPrinterGetIndexedPrinterResolution( printer, count, &pres ) == noErr) {
+			found = TRUE;
+			maxRes = QMAX( (uint)pres.vRes, maxRes );
+			res = maxRes;
+		    }
 	}
 	if(!found)
 	    res = 600; //just to have something
 	break;
-#endif
     }
     case ScreenResolution: {
 	short vr, hr;
@@ -190,6 +192,10 @@ QPrinter::prepare(PMPageFormat *f)
             return FALSE;
     }
     PMSetOrientation(*f, orientation() == Portrait ? kPMPortrait : kPMLandscape, TRUE);
+    PMResolution pres;
+    pres.hRes = res;
+    pres.vRes = res;
+    PMSetResolution(*f, &pres); 
     return TRUE;
 }
 
@@ -247,9 +253,6 @@ bool QPrinter::setup(QWidget *)
             setOrientation(o == kPMPortrait ? Portrait : Landscape);
 
 	//Finally we update the scale so the resolution is effected by it
-	double oldscale=0;
-	PMGetScale(pformat, &oldscale);
-	PMSetScale(pformat, (((double)7200.0) / res) * (oldscale / 100));
 	PMSessionValidatePageFormat(psession, pformat, kPMDontWantBoolean);
         return TRUE;
     } else if(QPrintDialog::getPrinterSetup(this)) {
