@@ -26,12 +26,12 @@ class MDIWindow: public QMainWindow
 public:
     MDIWindow( QWidget* parent, const char* name, int wflags );
     ~MDIWindow();
-    
+
     void load( const QString& fn );
     void save();
     void saveAs();
     void print( QPrinter* );
-    
+
 signals:
     void message(const QString&, int );
 
@@ -54,7 +54,7 @@ private slots:
     void save();
     void saveAs();
     void print();
-    void closeClient();
+    void closeWindow();
 
     void about();
     void aboutQt();

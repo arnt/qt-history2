@@ -60,7 +60,7 @@ ApplicationWindow::ApplicationWindow()
 
     fileTools = new QToolBar( this, "file operations" );
     addToolBar( fileTools, tr( "File Operations" ), Top, TRUE );
-    
+
     openIcon = QPixmap( fileopen );
     QToolButton * fileOpen
 	= new QToolButton( openIcon, "Open File", QString::null,
@@ -101,7 +101,7 @@ ApplicationWindow::ApplicationWindow()
 			   this, SLOT(print()), CTRL+Key_P );
     file->setWhatsThis( id, filePrintText );
     file->insertSeparator();
-    file->insertItem( "&Close", this, SLOT(closeClient()), CTRL+Key_W );
+    file->insertItem( "&Close", this, SLOT(closeWindow()), CTRL+Key_W );
     file->insertItem( "&Quit", qApp, SLOT( closeAllWindows() ), CTRL+Key_Q );
 
     windowsMenu = new QPopupMenu( this );
@@ -142,7 +142,8 @@ MDIWindow* ApplicationWindow::newDoc()
     connect( w, SIGNAL( message(const QString&, int) ), statusBar(), SLOT( message(const QString&, int )) );
     w->setCaption("unnamed document");
     w->setIcon( QPixmap("document.xpm") );
-    if ( ws->clientList().isEmpty() ) // show the very first window in maximized mode
+    // show the very first window in maximized mode
+    if ( ws->windowList().isEmpty() )
 	w->showMaximized();
     else
 	w->show();
@@ -162,7 +163,7 @@ void ApplicationWindow::load()
 
 void ApplicationWindow::save()
 {
-    MDIWindow* m = (MDIWindow*)ws->activeClient();
+    MDIWindow* m = (MDIWindow*)ws->activeWindow();
     if ( m )
 	m->save();
 }
@@ -170,7 +171,7 @@ void ApplicationWindow::save()
 
 void ApplicationWindow::saveAs()
 {
-    MDIWindow* m = (MDIWindow*)ws->activeClient();
+    MDIWindow* m = (MDIWindow*)ws->activeWindow();
     if ( m )
 	m->saveAs();
 }
@@ -178,15 +179,15 @@ void ApplicationWindow::saveAs()
 
 void ApplicationWindow::print()
 {
-    MDIWindow* m = (MDIWindow*)ws->activeClient();
+    MDIWindow* m = (MDIWindow*)ws->activeWindow();
     if ( m )
 	m->print( printer );
 }
 
 
-void ApplicationWindow::closeClient()
+void ApplicationWindow::closeWindow()
 {
-    MDIWindow* m = (MDIWindow*)ws->activeClient();
+    MDIWindow* m = (MDIWindow*)ws->activeWindow();
     if ( m )
 	m->close();
 }
@@ -210,23 +211,23 @@ void ApplicationWindow::windowsMenuAboutToShow()
     windowsMenu->clear();
     int cascadeId = windowsMenu->insertItem("&Cascade", ws, SLOT(cascade() ) );
     int tileId = windowsMenu->insertItem("&Tile", ws, SLOT(tile() ) );
-    if ( ws->clientList().isEmpty() ) {
+    if ( ws->windowList().isEmpty() ) {
 	windowsMenu->setItemEnabled( cascadeId, FALSE );
 	windowsMenu->setItemEnabled( tileId, FALSE );
     }
     windowsMenu->insertSeparator();
-    QWidgetList windows = ws->clientList();
+    QWidgetList windows = ws->windowList();
     for ( int i = 0; i < int(windows.count()); ++i ) {
 	int id = windowsMenu->insertItem(windows.at(i)->caption(),
 					 this, SLOT( windowsMenuActivated( int ) ) );
 	windowsMenu->setItemParameter( id, i );
-	windowsMenu->setItemChecked( id, ws->activeClient() == windows.at(i) );
+	windowsMenu->setItemChecked( id, ws->activeWindow() == windows.at(i) );
     }
 }
 
 void ApplicationWindow::windowsMenuActivated( int id )
 {
-    QWidget* w = ws->clientList().at( id );
+    QWidget* w = ws->windowList().at( id );
     if ( w )
 	w->setFocus();
 }
