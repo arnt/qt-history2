@@ -1152,7 +1152,7 @@ void QMotifStyle::drawComplexControl( ComplexControl control,
 	break;
 
     case CC_ComboBox:
-	if ( sub == SC_All || sub & SC_ComboBoxArrow ) {
+	if ( sub & SC_ComboBoxArrow ) {
 	    QComboBox * cb = (QComboBox *) widget;
 	    int awh, ax, ay, sh, sy, dh, ew;
 	    int fw = pixelMetric( PM_DefaultFrameWidth, cb);
@@ -1180,7 +1180,7 @@ void QMotifStyle::drawComplexControl( ComplexControl control,
 	    }
 	}
 
-	if ( sub == SC_All || sub & SC_ComboBoxEditField ) {
+	if ( sub & SC_ComboBoxEditField ) {
 	    QComboBox * cb = (QComboBox *) widget;
 	    if ( cb->editable() ) {
 		QRect er = QStyle::visualRect( querySubControlMetrics( CC_ComboBox, cb,

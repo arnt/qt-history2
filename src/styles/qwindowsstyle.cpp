@@ -1314,7 +1314,7 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 
 	    QRect ar = QStyle::visualRect( querySubControlMetrics( CC_ComboBox, w,
 								   SC_ComboBoxArrow ), w );
-	    if ( subActive & PStyle_Sunken ) {
+	    if ( subActive == SC_ComboBoxArrow ) {
 		p->setPen( cg.dark() );
 		p->setBrush( cg.brush( QColorGroup::Button ) );
 		p->drawRect( ar );
