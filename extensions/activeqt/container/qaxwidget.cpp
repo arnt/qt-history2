@@ -22,6 +22,7 @@
 #include <qlayout.h>
 #include <qmenubar.h>
 #include <qmetaobject.h>
+#include <qpainter.h>
 #include <qpaintdevicemetrics.h>
 #include <qregexp.h>
 #include <qwhatsthis.h>
@@ -101,6 +102,7 @@ protected:
     void resizeEvent( QResizeEvent *e );
     void focusInEvent( QFocusEvent *e );
     void focusOutEvent( QFocusEvent *e );
+    void paintEvent( QPaintEvent *e );
     void windowActivationChange( bool oldActive );
     bool focusNextPrevChild( bool next );
 
@@ -1260,6 +1262,37 @@ void QAxHostWidget::windowActivationChange( bool oldActive )
 {
     if ( axhost )
 	axhost->windowActivationChange( oldActive );
+}
+
+
+void QAxHostWidget::paintEvent( QPaintEvent *e )
+{
+    QPaintDevice *grabber = QPainter::redirect( this );
+    if ( !grabber )
+	return;
+    
+    IViewObject *view = 0;
+    axhost->widget->queryInterface( IID_IViewObject, (void**)&view );
+    if ( !view )
+	return;
+
+    // somebody tries to grab us!
+    QPixmap pm( size() );
+    pm.fill();
+    QPainter painter( &pm );
+    HDC hdc = painter.handle();
+
+    RECTL bounds;
+    bounds.left = 0;
+    bounds.right = pm.width();
+    bounds.top = 0;
+    bounds.bottom = pm.height();
+    HRESULT res = view->Draw( DVASPECT_CONTENT, -1, 0, 0, 0, hdc, &bounds, 0, 0 /*fptr*/, 0 );
+    view->Release();
+    painter.end();
+
+    painter.begin( this );
+    painter.drawPixmap( 0, 0, pm );
 }
 
 
