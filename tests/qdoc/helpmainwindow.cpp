@@ -170,13 +170,14 @@ HelpMainWindow::HelpMainWindow()
     edit->insertSeparator();
     edit->insertItem( tr( "&Find in this Topic..." ), this, SLOT( slotEditFind() ), CTRL + Key_F );
 
-    QPopupMenu *view = new QPopupMenu( this );
+    view = new QPopupMenu( this );
+    view->setCheckable( TRUE );
     menuBar()->insertItem( tr( "&View" ), view );
 
-    view->insertItem( tr( "&Contents" ), this, SLOT( slotViewContents() ), ALT + Key_C );
-    view->insertItem( tr( "&Index" ), this, SLOT( slotViewIndex() ), ALT + Key_I );
-    view->insertItem( tr( "&Search" ), this, SLOT( slotViewSearch() ), ALT + Key_S );
-    view->insertItem( tr( "&Bookmarks" ), this, SLOT( slotViewBookmarks() ), ALT + Key_B );
+    contents_id = view->insertItem( tr( "&Contents" ), this, SLOT( slotViewContents() ), ALT + Key_C );
+    index_id = view->insertItem( tr( "&Index" ), this, SLOT( slotViewIndex() ), ALT + Key_I );
+    bookmarks_id = view->insertItem( tr( "&Bookmarks" ), this, SLOT( slotViewBookmarks() ), ALT + Key_B );
+    search_id = view->insertItem( tr( "&Search" ), this, SLOT( slotViewSearch() ), ALT + Key_S );
 
     go = new QPopupMenu( this );
     menuBar()->insertItem( tr( "&Go" ), go );
@@ -241,6 +242,8 @@ HelpMainWindow::HelpMainWindow()
 	     this, SLOT( forwardAvailable( bool ) ) );
     connect( viewer, SIGNAL( backwardAvailable( bool ) ),
 	     this, SLOT( backwardAvailable( bool ) ) );
+    connect( navigation, SIGNAL( tabChanged() ),
+	     this, SLOT( updateViewMenu() ) ); 
 }
 
 void HelpMainWindow::slotFilePrint()
@@ -473,4 +476,16 @@ void HelpMainWindow::backwardAvailable( bool b )
 {
     backward->setEnabled( b );
     go->setItemEnabled( backward_id, b );
+}
+
+void HelpMainWindow::updateViewMenu()
+{
+    view->setItemChecked( contents_id, 
+			  navigation->viewMode() == HelpNavigation::Contents );
+    view->setItemChecked( index_id, 
+			  navigation->viewMode() == HelpNavigation::Index );
+    view->setItemChecked( bookmarks_id, 
+			  navigation->viewMode() == HelpNavigation::Bookmarks );
+    view->setItemChecked( search_id, 
+			  navigation->viewMode() == HelpNavigation::Search );
 }

@@ -57,6 +57,8 @@ private slots:
 
     void forwardAvailable( bool );
     void backwardAvailable( bool );
+
+    void updateViewMenu();
     
 private:
     QPopupMenu *history;
@@ -65,9 +67,9 @@ private:
     QProgressBar *bar;
     QLabel *label;
     QToolButton *forward, *backward;
-    int forward_id, backward_id;
-    QPopupMenu *go;
-    
+    int forward_id, backward_id, contents_id, index_id, bookmarks_id, search_id;
+    QPopupMenu *go, *view;
+
 };
 
 #endif

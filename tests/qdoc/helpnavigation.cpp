@@ -196,6 +196,9 @@ HelpNavigation::HelpNavigation( QWidget *parent, const QString &dd )
 
     searchCombo->setFocus();
 
+    
+    connect( tabWidget, SIGNAL( selected( const QString & ) ),
+	     this, SIGNAL( tabChanged() ) );
 }
 
 
@@ -581,4 +584,16 @@ QListViewItem *HelpNavigation::doSearch( const QString &fn, const QStringList &q
     i->setText( 0, titleOfLink( fn ) );
     i->setLink( QUrl( fn ).fileName() );
     return i;
+}
+
+HelpNavigation::ViewMode HelpNavigation::viewMode() const
+{
+    if ( tabWidget->currentPage() == contentsTab )
+	return Contents;
+    else if ( tabWidget->currentPage() == indexTab )
+	return Index;
+    else if ( tabWidget->currentPage() == bookmarkTab )
+	return Bookmarks;
+    else
+	return Search;
 }

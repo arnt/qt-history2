@@ -56,6 +56,7 @@ public:
 
     HelpNavigation( QWidget *parent, const QString &dd );
     void setViewMode( ViewMode m );
+    ViewMode viewMode() const;
     QString titleOfLink( const QString &link );
 
     bool eventFilter( QObject *, QEvent * );
@@ -74,7 +75,8 @@ signals:
     void preparePorgress( int );
     void incProcess();
     void finishProgress();
-
+    void tabChanged();
+    
 private slots:
     void searchInIndexLine( const QString &s );
     void showTopic( QListBoxItem * );
