@@ -118,8 +118,7 @@ public:
 					 QWidget *parent = 0,
 					 const char* name = 0,
 					 const QString &caption = QString::null,
-					 bool dirOnly = TRUE,
-					 QString *selectedFilter = 0 );
+					 bool dirOnly = TRUE );
     static QStringList getOpenFileNames( const QString &filter= QString::null,
 					 const QString &dir = QString::null,
 					 QWidget *parent = 0,

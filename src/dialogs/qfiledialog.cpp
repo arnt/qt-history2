@@ -3095,7 +3095,8 @@ void QFileDialog::rereadDir()
   The file dialog's working directory will be set to \a startWith. If \a
   startWith includes a file name, the file will be selected. The filter
   is set to \a filter so that only those files which match the filter
-  are shown. Both \a startWith and \a filter may be QString::null.
+  are shown.  The filter selected is set to \a selectedFilter. The parameters 
+  \a startWith, \a selectedFilter and \a filter may be QString::null.
 
     The dialog's caption is set to \a caption. If \a caption is not
     specified then a default caption will be used.
@@ -3200,7 +3201,8 @@ QString QFileDialog::getOpenFileName( const QString & startWith,
   The file dialog's working directory will be set to \a startWith. If \a
   startWith includes a file name, the file will be selected. The filter
   is set to \a filter so that only those files which match the filter
-  are shown. Both \a startWith and \a filter may be QString::null.
+  are shown.  The filter selected is set to \a selectedFilter. The parameters 
+  \a startWith, \a selectedFilter and \a filter may be QString::null.
 
     The dialog's caption is set to \a caption. If \a caption is not
     specified then a default caption will be used.
@@ -4073,8 +4075,7 @@ QString QFileDialog::getExistingDirectory( const QString & dir,
 					   QWidget *parent,
 					   const char* name,
 					   const QString& caption,
-					   bool dirOnly,
-					   QString *selectedFilter )
+					   bool dirOnly )
 {
     makeVariables();
     QString wd;
@@ -4091,8 +4092,6 @@ QString QFileDialog::getExistingDirectory( const QString & dir,
     dialog->d->types->clear();
     dialog->d->types->insertItem( QFileDialog::tr("Directories") );
     dialog->d->types->setEnabled( FALSE );
-    if ( selectedFilter )
-	dialog->setFilter( *selectedFilter );
 
     QString dir_( dir );
     dir_ = dir_.simplifyWhiteSpace();
@@ -4136,8 +4135,6 @@ QString QFileDialog::getExistingDirectory( const QString & dir,
     if ( dialog->exec() == QDialog::Accepted ) {
 	result = dialog->selectedFile();
 	wd = result;
-	if ( selectedFilter )
-	    *selectedFilter = dialog->selectedFilter();
     }
     delete dialog;
 
@@ -5003,19 +5000,15 @@ void QFileDialog::modeButtonsDestroyed()
 						   "Select one or more files!" );
   \endcode
 
+  The function creates a modal file dialog with parent \a parent, and
+  name \a name.  If a parent is specified, then the dialog will be shown
+  centered over the parent.
 
-  It creates a modal file dialog with the parent \a parent, and the name \a name.  If
-  a parent is specified, then the dialog will be shown centered over the parent.
-
-  If a directory is specified at \a dir then the file dialog will start in this
-  directory.  If an existing file is specified at \a dir then the file dialog starts
-  in the directory specified and the file name is selected.
-
-  If a filter is specified at \a filter, then this filter is applied to the directory and
-  only files matching this file filter will be shown.
-
-  If a caption is specified at \a caption, then the caption is set to the text at \a caption.
-  If a caption is not specified then a default caption will be used.
+  The file dialog's working directory will be set to \a dir. If \a
+  dir includes a file name, the file will be selected. The filter
+  is set to \a filter so that only those files which match the filter
+  are shown.  The filter selected is set to \a selectedFilter. The parameters 
+  \a dir, \a selectedFilter and \a filter may be QString::null.
 
   Note: In the Windows version of Qt, this static function will use the native Windows file
   dialog and not a QFileDialog, unless the style of the application is set to something other
