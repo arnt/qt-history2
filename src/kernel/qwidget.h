@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#371 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#372 $
 **
 ** Definition of QWidget class
 **
@@ -537,6 +537,8 @@ private:
     uint    own_id : 1; //owns the winid
     //mac event functions
     void propagateUpdates();
+    friend void qt_paint_children(QWidget *,QRegion &, uchar ops);
+    friend void qt_event_request_updates(QWidget *, QRegion &);
     friend QMAC_PASCAL OSStatus macSpecialErase(GDHandle, GrafPtr, WindowRef, RgnHandle, RgnHandle, void *);
     friend class QDragManager;
 #endif
@@ -901,11 +903,14 @@ struct Q_EXPORT QWExtra {
 #endif
 #if defined(Q_WS_MAC)
     QMacDndExtra *macDndExtra;
+    bool clip_dirty, child_dirty;
+    QRegion clip_saved, clip_sibs, clip_children;
+
+    bool has_dirty_area;
+    QRegion dirty_area;
 #endif
 #if defined(Q_WS_QWS) || defined(Q_WS_MAC)
     QRegion mask;				// widget mask
-    bool clip_dirty, child_dirty;
-    QRegion clip_saved, clip_sibs, clip_children;
 #endif
     char     bg_mode;				// background mode
 #ifndef QT_NO_STYLE

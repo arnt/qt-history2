@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_mac.cpp#255 $
+** $Id: //depot/qt/main/src/kernel/qwidget_mac.cpp $
 **
 ** Implementation of QWidget and QWindow classes for mac
 **
@@ -65,9 +65,6 @@ static bool no_move_blt = FALSE;
 static WId serial_id = 0;
 QWidget *mac_mouse_grabber = 0;
 QWidget *mac_keyboard_grabber = 0;
-#ifdef Q_WS_MACX 
-static bool qt_mac_noflush = FALSE;
-#endif
 int mac_window_count = 0;
 
 
@@ -76,6 +73,7 @@ int mac_window_count = 0;
   Externals
  *****************************************************************************/
 void qt_event_request_updates();
+void qt_event_request_updates(QWidget *w, QRegion &r);
 bool qt_nograb();
 
 /*****************************************************************************
@@ -117,29 +115,17 @@ static inline void debug_wndw_rgn(const char *where, QWidget *w, const QRegion &
     for(int i = 0; i < (int)rs.size(); i++) 
 	qDebug("%d %d %d %d", rs[i].x()+offx, rs[i].y()+offy, rs[i].width(), rs[i].height());
 }
-tatic inline void debug_wndw_rgn(const char *where, QWidget *w, const Rect *r, bool paint=FALSE) {
+static inline void debug_wndw_rgn(const char *where, QWidget *w, const Rect *r, bool paint=FALSE) {
     debug_wndw_rgn(where, w, QRegion(r->left, r->top, r->right - r->left, r->bottom - r->top), paint);
 }
-inline void qt_dirty_wndw_rgn(const char *where, QWidget *w, const Rect *r)
-{
-    debug_wndw_rgn(where, w, r, FALSE);
-    InvalWindowRect((WindowPtr)w->handle(), r);
-    qt_event_request_updates();
-}
-inline void qt_dirty_wndw_rgn(const char *where, QWidget *w, const QRegion &r)
-{
-    if(r.data->is_rect) {
-	qt_dirty_wndw_rgn_internal(p, mac_rect(r.data->rect));
-	return;
-    }
-
-    debug_wndw_rgn(where, w, r, FALSE);
-    InvalWindowRgn((WindowPtr)w->handle(), (RgnHandle)r.handle());
-    qt_event_request_updates();
-}
-
 #define clean_wndw_rgn(x, y, z) debug_wndw_rgn(x, y, z, TRUE);
+#define qt_dirty_wndw_rgn(x, who, where) do { debug_wndw_rgn(x, who, where); \
+	qt_dirty_wndw_rgn_internal(who, where); } while(0); 
 #else
+#define clean_wndw_rgn(w, x, y)
+#define debug_wndw_rgn(w, x, y)
+#define qt_dirty_wndw_rgn(x, who, where) qt_dirty_wndw_rgn_internal(who, where);
+#endif
 static inline void qt_dirty_wndw_rgn_internal(const QWidget *p, const Rect *r) 
 { 
     InvalWindowRect((WindowPtr)p->handle(), r); 
@@ -151,14 +137,9 @@ inline void qt_dirty_wndw_rgn_internal(const QWidget *p, const QRegion &r)
 	qt_dirty_wndw_rgn_internal(p, mac_rect(r.data->rect));
 	return;
     }
-
     InvalWindowRgn((WindowPtr)p->handle(), (RgnHandle)r.handle()); 
     qt_event_request_updates();
 }
-#define qt_dirty_wndw_rgn(x, who, where) qt_dirty_wndw_rgn_internal(who, where)
-#define clean_wndw_rgn(x, y, z)
-#define debug_wndw_rgn(w, x, y)
-#endif
 
 // Paint event clipping magic
 extern void qt_set_paintevent_clipping( QPaintDevice* dev, const QRegion& region);
@@ -171,9 +152,9 @@ enum paint_children_ops {
     PC_NoPaint = 0x04,
     PC_NoErase = 0x08
 };
-static void paint_children(QWidget * p,QRegion r, uchar ops = PC_ForceErase)
+void qt_paint_children(QWidget * p,QRegion &r, uchar ops = PC_ForceErase)
 {
-    if(!p || r.isEmpty() || !p->isVisible() || qApp->closingDown() || qApp->startingUp())
+    if(!p || !p->isVisible() || r.isEmpty() || qApp->closingDown() || qApp->startingUp())
 	return;
     QPoint point(posInWindow(p));
     r.translate(point.x(), point.y());
@@ -187,15 +168,14 @@ static void paint_children(QWidget * p,QRegion r, uchar ops = PC_ForceErase)
 	for(it.toLast(); it.current(); --it) {
 	    if( (*it)->isWidgetType() ) {
 		QWidget *w = (QWidget *)(*it);
-		if ( !w->isTopLevel() && w->isVisible() ) {
+		QRect br = r.boundingRect();
+		if ( !w->isTopLevel() && w->isVisible() && w->clippedRegion(FALSE).contains(br) ) {
 		    QRegion wr = w->clippedRegion(FALSE) & r;
-		    if ( !wr.isEmpty() ) {
-			r -= wr;
-			wr.translate( -(point.x() + w->x()), -(point.y() + w->y()) );
-			paint_children(w, wr, ops);
-			if((r_is_empty = r.isEmpty()))
-			    break;
-		    }
+		    r -= wr;
+		    wr.translate( -(point.x() + w->x()), -(point.y() + w->y()) );
+		    qt_paint_children(w, wr, ops);
+		    if((r_is_empty = r.isEmpty()))
+			break;
 		}
 	    }
 	}
@@ -203,6 +183,8 @@ static void paint_children(QWidget * p,QRegion r, uchar ops = PC_ForceErase)
 
     if(!r_is_empty) {
 	r.translate(-point.x(), -point.y());
+	if(p->extra && p->extra->has_dirty_area) 
+	    p->extra->dirty_area -= r;
 	bool erase = !(ops & PC_NoErase) && ((ops & PC_ForceErase) || !p->testWFlags(QWidget::WRepaintNoErase));
 	if((ops & PC_NoPaint)) {
 	    if(erase)
@@ -267,9 +249,9 @@ QMAC_PASCAL OSStatus qt_erase(GDHandle, GrafPtr, WindowRef window, RgnHandle rgn
 	//this is the solution to weird things on demo example (white areas), need
 	//to examine why this happens FIXME!
 	Q_UNUSED(rgn);
-	QRect reg(0, 0, widget->width(), widget->height());
+	QRegion reg(0, 0, widget->width(), widget->height());
 #endif
-	paint_children(widget, reg, PC_Now | PC_ForceErase );
+	qt_paint_children(widget, reg, PC_Now | PC_ForceErase );
     }
     return 0;
 }
@@ -811,8 +793,13 @@ void QWidget::update( int x, int y, int w, int h )
 	if ( h < 0 )
 	    h = crect.height() - y;
 	if ( w && h ) {
+#if 0
+	    QRegion r(x, y, w, h);
+	    qt_event_request_updates(this, r);
+#else
 	    QPoint p(posInWindow(this));
 	    qt_dirty_wndw_rgn("update",this, mac_rect(QRect(p.x() + x, p.y() + y, w, h)));
+#endif
 	}
     }
 }
@@ -1430,6 +1417,7 @@ int QWidget::metric( int m ) const
 
 void QWidget::createSysExtra()
 {
+    extra->has_dirty_area = FALSE;
     extra->child_dirty = extra->clip_dirty = TRUE;
     extra->macDndExtra = 0;
 }
@@ -1530,27 +1518,16 @@ void QWidget::setName( const char *name )
 void QWidget::propagateUpdates()
 {
     QMacSavedPortInfo savedInfo(this);
-    RgnHandle r = NewRgn();
-    GetWindowRegion((WindowPtr)hd, kWindowUpdateRgn, r);
-    if(!EmptyRgn(r)) {
-#ifdef Q_WS_MACX //don't flush every widget that paints
-	qt_mac_noflush = TRUE;
-#endif
-
-	QRegion rgn(r);
+    QRegion rgn(false);
+    GetWindowRegion((WindowPtr)hd, kWindowUpdateRgn, (RgnHandle)rgn.handle());
+    if(!rgn.isEmpty()) {
 	rgn.translate(-topLevelWidget()->geometry().x(), -topLevelWidget()->geometry().y());
 	debug_wndw_rgn("*****propagatUpdates", topLevelWidget(), rgn);
 	BeginUpdate((WindowPtr)hd);
-	paint_children( this, rgn );
+	qt_paint_children( this, rgn );
 	EndUpdate((WindowPtr)hd);
-
-#ifdef Q_WS_MACX //now we do a flush of the whole region
-	qt_mac_noflush = FALSE;
 	QMacSavedPortInfo::flush(this, rgn, TRUE);
-#endif
-
     }
-    DisposeRgn(r);
 }
 
 void QWidget::dirtyClippedRegion(bool dirty_myself)

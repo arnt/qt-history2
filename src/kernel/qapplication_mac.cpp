@@ -270,6 +270,22 @@ enum {
 #endif
     kEventQtRequestTimer = 14
 };
+void qt_event_request_updates(QWidget *w, QRegion &r)
+{
+    w->createExtra();
+    if(w->extra->has_dirty_area) {
+	w->extra->dirty_area |= r;	
+	return;
+    }
+    w->extra->has_dirty_area = TRUE;
+    w->extra->dirty_area = r;
+
+    EventRef upd = NULL;
+    CreateEvent(NULL, kEventClassQt, kEventQtRequestPropagate, GetCurrentEventTime(),
+		kEventAttributeUserEvent, &upd);
+    SetEventParameter(upd, kEventParamQWidget, typeQWidget, sizeof(w), &w);
+    PostEventToQueue( GetCurrentEventQueue(), upd, kEventPriorityStandard );
+}
 static bool request_updates_pending = FALSE;
 void qt_event_request_updates()
 {
@@ -375,24 +391,25 @@ void qt_init( int* argcptr, char **argv, QApplication::Type )
     }
 #endif
 
+    qApp->setName( appName );
     if ( qt_is_gui_used ) {
-	qApp->setName( appName );
 	QColor::initialize();
 	QFont::initialize();
 	QCursor::initialize();
 	QPainter::initialize();
 
-    { //create an empty widget on startup and this can be used for a port anytime
+	{ //create an empty widget on startup and this can be used for a port anytime
 	    QWidget *tlw = new QWidget(NULL, "empty_widget", Qt::WDestructiveClose);
 	    tlw->hide();
 	    qt_mac_safe_pdev = tlw;
+	}
     }
 
-	if(!app_proc_handler) {
-	    app_proc_handlerUPP = NewEventHandlerUPP(QApplication::globalEventProcessor);
-	    InstallEventHandler( GetApplicationEventTarget(), app_proc_handlerUPP,
-				 GetEventTypeCount(events), events, (void *)qApp, &app_proc_handler);
-	}
+
+    if(!app_proc_handler) {
+	app_proc_handlerUPP = NewEventHandlerUPP(QApplication::globalEventProcessor);
+	InstallEventHandler( GetApplicationEventTarget(), app_proc_handlerUPP,
+			     GetEventTypeCount(events), events, (void *)qApp, &app_proc_handler);
     }
 }
 
@@ -402,15 +419,13 @@ void qt_init( int* argcptr, char **argv, QApplication::Type )
 
 void qt_cleanup()
 {
-    if ( qt_is_gui_used ) {
-	if(app_proc_handler) {
-	    RemoveEventHandler(app_proc_handler);
-	    app_proc_handler = NULL;
-	}
-	if(app_proc_handlerUPP) {
-	    DisposeEventHandlerUPP(app_proc_handlerUPP);
-	    app_proc_handlerUPP = NULL;
-	}
+    if(app_proc_handler) {
+	RemoveEventHandler(app_proc_handler);
+	app_proc_handler = NULL;
+    }
+    if(app_proc_handlerUPP) {
+	DisposeEventHandlerUPP(app_proc_handlerUPP);
+	app_proc_handlerUPP = NULL;
     }
 
     if ( postRList ) {
@@ -605,14 +620,12 @@ void QApplication::beep()
   Main event loop
  *****************************************************************************/
 
-extern bool qt_gui_is_used;
-
 int QApplication::exec()
 {
     quit_now = FALSE;
     quit_code = 0;
 #if defined(QT_THREAD_SUPPORT)
-    if( qt_gui_is_used )
+    if( qt_is_gui_used )
 	qApp->unlock();
 #endif
     enter_loop();
@@ -903,9 +916,8 @@ bool qt_set_socket_handler( int sockfd, int type, QObject *obj, bool enable )
 	}
 
     } else {					// disable notifier
-
 	if ( list == 0 ) {
-	    if(mac_select_timer) {
+	    if(sn_highest == -1 && mac_select_timer) {
 		RemoveEventLoopTimer(mac_select_timer);
 		mac_select_timer = NULL;
 	    }
@@ -1029,8 +1041,7 @@ bool QApplication::processNextEvent( bool canWait )
 	}
 
 	sendPostedEvents();
-	//try to send null timers..
-	activateNullTimers();
+	activateNullTimers(); //try to send null timers..
 
 	EventRef event;
 	OSStatus ret;
@@ -1047,6 +1058,21 @@ bool QApplication::processNextEvent( bool canWait )
 	} while(GetNumEventsInQueue(GetCurrentEventQueue()));
     } else {
 	sendPostedEvents();
+	activateNullTimers(); //try to send null timers..
+
+	EventRef event;
+	OSStatus ret;
+	do {
+	    do {
+		ret = ReceiveNextEvent( 0, 0, QMAC_EVENT_NOWAIT, TRUE, &event );
+		if(ret != noErr)
+		    break;
+		if(SendEventToApplication(event))
+		    nevents++;
+		ReleaseEvent(event);
+	    } while(GetNumEventsInQueue(GetCurrentEventQueue()));
+	    sendPostedEvents();
+	} while(GetNumEventsInQueue(GetCurrentEventQueue()));
     }
 
     if( quit_now || app_exit_loop ) {
@@ -1056,7 +1082,7 @@ bool QApplication::processNextEvent( bool canWait )
 	return FALSE;
     }
 
-    if(qt_is_gui_used && canWait && !zero_timer_count) {
+    if(canWait && !zero_timer_count) {
 	EventRef event;
 	ReceiveNextEvent( 0, 0, kEventDurationForever, FALSE, &event );
     }
@@ -1436,15 +1462,25 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
     case kEventClassQt:
 	remove_context_timer = FALSE;
 	if(ekind == kEventQtRequestPropagate) {
-	    request_updates_pending = FALSE;
-	    QApplication::sendPostedEvents();
-	    if(QWidgetList *list   = qApp->topLevelWidgets()) {
-		for ( QWidget     *widget = list->first(); widget; widget = list->next() ) {
-		    if ( !widget->isHidden() )
-			widget->propagateUpdates();
+	    QWidget *widget = NULL;
+	    GetEventParameter(event, kEventParamQWidget, typeQWidget, NULL,
+			      sizeof(widget), NULL, &widget);
+	    if(widget && widget->extra && widget->extra->has_dirty_area && 
+	       !widget->extra->dirty_area.isEmpty()) {
+		widget->extra->has_dirty_area = FALSE;
+		widget->repaint(widget->extra->dirty_area);
+	    } else {
+		request_updates_pending = FALSE;
+		QApplication::sendPostedEvents();
+		if(QWidgetList *list   = qApp->topLevelWidgets()) {
+		    for ( QWidget     *widget = list->first(); widget; widget = list->next() ) {
+			if ( !widget->isHidden() )
+			    widget->propagateUpdates();
+		    }
+		    delete list;
 		}
-		delete list;
 	    }
+
 #if !defined(QMAC_QMENUBAR_NO_NATIVE)
 	} else if(ekind == kEventQtRequestMenubarUpdate) {
 	    request_menubarupdate_pending = FALSE;
