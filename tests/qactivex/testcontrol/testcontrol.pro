@@ -4,10 +4,7 @@ TARGET	    = testcontrol
 
 RC_FILE	    = $$QT_SOURCE_TREE/extensions/activeqt/control/qaxserver.rc
 
-outproc {
-  TEMPLATE    = app
-}
-inproc {
+!outproc {
   TEMPLATE    = lib
   CONFIG     += dll
   DEF_FILE    = $$QT_SOURCE_TREE/extensions/activeqt/control/qaxserver.def
