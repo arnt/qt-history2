@@ -1213,6 +1213,7 @@ static QGLWidgetPrivate * qgl_d( const QGLWidget * w )
     if ( !qgl_d_ptr ) {
 	qgl_d_ptr = new QPtrDict<QGLWidgetPrivate>;
 	qgl_cleanup_d_ptr.set( &qgl_d_ptr );
+	qgl_d_ptr->setAutoDelete( TRUE );
     }
     QGLWidgetPrivate * ret = qgl_d_ptr->find( (void *) w );
     if ( !ret ) {

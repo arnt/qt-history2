@@ -31,14 +31,12 @@
 #include <qstyle.h>
 
 StyledButton::StyledButton(QWidget* parent, const char* name)
-    : QButton( parent, name ), pix( 0 ), spix( 0 ), s( 0 ), mousePressed( FALSE )
+    : QButton( parent, name ), pix( 0 ), spix( 0 ), edit( ColorEditor ), s( 0 ), mousePressed( FALSE )
 {
     setMinimumSize( minimumSizeHint() );
     setAcceptDrops( TRUE );
 
     connect( this, SIGNAL(clicked()), SLOT(onEditor()));
-
-    setEditor( ColorEditor );
 }
 
 StyledButton::StyledButton( const QBrush& b, QWidget* parent, const char* name, WFlags f )
@@ -51,6 +49,8 @@ StyledButton::StyledButton( const QBrush& b, QWidget* parent, const char* name, 
 
 StyledButton::~StyledButton()
 {
+    delete pix;
+    delete spix;
 }
 
 void StyledButton::setEditor( EditorType e )
