@@ -3,6 +3,9 @@ DEFINES  = QT_NODLL QT_NO_CODECS QT_NO_TEXTCODEC QT_NO_UNICODETABLES QT_LITE_COM
 
 PRECOMPILED_HEADER = configure_pch.h
 
+INCPATH += $$QT_SOURCE_TREE/src/core/arch/generic \
+           $$QT_SOURCE_TREE/include $$QT_SOURCE_TREE/include/QtCore \
+
 HEADERS	 = configureapp.h \
 	   $$QT_SOURCE_TREE/src/core/tools/qbytearray.h \
 	   $$QT_SOURCE_TREE/src/core/tools/qbytearraymatcher.h \
@@ -14,6 +17,7 @@ HEADERS	 = configureapp.h \
            $$QT_SOURCE_TREE/src/core/codecs/qtextcodec.h \
            $$QT_SOURCE_TREE/src/core/global/qglobal.h \
            $$QT_SOURCE_TREE/src/core/io/qbuffer.h \
+	   $$QT_SOURCE_TREE/src/core/io/qbufferedfsfileengine.h \
            $$QT_SOURCE_TREE/src/core/io/qdatastream.h \
            $$QT_SOURCE_TREE/src/core/io/qdir.h \
            $$QT_SOURCE_TREE/src/core/io/qfile.h \
@@ -43,6 +47,7 @@ SOURCES	 = main.cpp configureapp.cpp \
            $$QT_SOURCE_TREE/src/core/codecs/qtextcodec.cpp \
            $$QT_SOURCE_TREE/src/core/global/qglobal.cpp \
            $$QT_SOURCE_TREE/src/core/io/qbuffer.cpp \
+	   $$QT_SOURCE_TREE/src/core/io/qbufferedfsfileengine.cpp \
            $$QT_SOURCE_TREE/src/core/io/qdatastream.cpp \
            $$QT_SOURCE_TREE/src/core/io/qdir.cpp \
            $$QT_SOURCE_TREE/src/core/io/qfile.cpp \
