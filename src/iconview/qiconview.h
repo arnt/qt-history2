@@ -74,12 +74,6 @@ class QStringList;
 
 #ifndef QT_NO_DRAGANDDROP
 
-/*****************************************************************************
- *
- * Class QIconDragItem
- *
- *****************************************************************************/
-
 class QM_EXPORT QIconDragItem
 {
 public:
@@ -93,13 +87,6 @@ private:
     QByteArray ba;
 
 };
-
-
-/*****************************************************************************
- *
- * Class QIconDrag
- *
- *****************************************************************************/
 
 class QM_EXPORT QIconDrag : public QDragObject
 {
@@ -115,8 +102,8 @@ public:
     virtual QByteArray encodedData( const char* mime ) const;
 
 private:
-    class QIconDragPrivate;
-    QIconDragPrivate *d;
+    class Private;
+    Private *d;
     QChar endMark;
 
     friend class QIconView;
@@ -124,12 +111,6 @@ private:
 };
 
 #endif
-
-/*****************************************************************************
- *
- * Class QIconViewItem
- *
- *****************************************************************************/
 
 class QIconViewToolTip;
 
@@ -260,19 +241,12 @@ private:
     QIconViewItemLineEdit *renameBox;
     QRect oldRect;
 
-    class QIconViewItemPrivate;
-    QIconViewItemPrivate *d;
+    class Private;
+    Private *d;
 
 };
 
-
-/*****************************************************************************
- *
- * Class QIconView
- *
- *****************************************************************************/
-
-class QIconViewPrivate;
+class QIconViewPrivate;          /* don't touch */
 
 class QM_EXPORT QIconView : public QScrollView
 {

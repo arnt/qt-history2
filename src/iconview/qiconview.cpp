@@ -151,14 +151,6 @@ static QPixmap *get_qiv_buffer_pixmap( const QSize &s )
     return qiv_buffer_pixmap;
 }
 
-
-
-/*****************************************************************************
- *
- * Class QIconViewPrivate
- *
- *****************************************************************************/
-
 #ifndef QT_NO_DRAGANDDROP
 
 class QIconDragData
@@ -189,7 +181,7 @@ public:
     bool operator== ( const QIconDragDataItem& ) const;
 };
 
-class QIconDrag::QIconDragPrivate
+class QIconDrag::Private
 {
 public:
     QValueList<QIconDragDataItem> items;
@@ -291,11 +283,6 @@ static int cmpIconViewItems( const void *n1, const void *n2 )
 }
 #endif
 
-/*****************************************************************************
- *
- * Class QIconViewToolTip
- *
- *****************************************************************************/
 
 class QIconViewToolTip : public QToolTip
 {
@@ -330,23 +317,13 @@ void QIconViewToolTip::maybeTip( const QPoint &pos )
     tip( r, r2, item->itemText );
 }
 
-/*****************************************************************************
- *
- * Class QIconViewItemPrivate
- *
- *****************************************************************************/
 
-class QIconViewItem::QIconViewItemPrivate
+class QIconViewItem::Private
 {
 public:
     QIconViewPrivate::ItemContainer *container1, *container2;
 };
 
-/*****************************************************************************
- *
- * Class QIconViewItemLineEdit
- *
- *****************************************************************************/
 
 class QIconViewItemLineEdit : public QTextEdit
 {
@@ -409,11 +386,6 @@ void QIconViewItemLineEdit::focusOutEvent( QFocusEvent * )
 
 #ifndef QT_NO_DRAGANDDROP
 
-/*****************************************************************************
- *
- * Class QIconDragItem
- *
- *****************************************************************************/
 
 /*!
   \class QIconDragItem qiconview.h
@@ -501,11 +473,6 @@ bool QIconDragData::operator==( const QIconDragData &i ) const
     return key_ == i.key_;
 }
 
-/*****************************************************************************
- *
- * Class QIconDrag
- *
- *****************************************************************************/
 
 /*!
   \class QIconDrag qiconview.h
@@ -555,7 +522,7 @@ bool QIconDragData::operator==( const QIconDragData &i ) const
 QIconDrag::QIconDrag( QWidget * dragSource, const char* name )
     : QDragObject( dragSource, name )
 {
-    d = new QIconDragPrivate;
+    d = new Private;
 }
 
 /*!
@@ -652,7 +619,7 @@ bool QIconDrag::canDecode( QMimeSource* e )
   TRUE if there was some data, FALSE otherwise.
 */
 
-bool QIconDrag::QIconDragPrivate::decode( QMimeSource* e, QValueList<QIconDragDataItem> &lst )
+bool QIconDrag::Private::decode( QMimeSource* e, QValueList<QIconDragDataItem> &lst )
 {
     QByteArray ba = e->encodedData( "application/x-qiconlist" );
     if ( ba.size() ) {
@@ -732,11 +699,6 @@ void QIconDragData::setTextRect( const QRect &r )
 
 #endif
 
-/*****************************************************************************
- *
- * Class QIconViewItem
- *
- *****************************************************************************/
 
 /*!
   \class QIconViewItem qiconview.h
@@ -895,7 +857,7 @@ void QIconViewItem::init( QIconViewItem *after
 #endif
 			  )
 {
-    d = new QIconViewItemPrivate;
+    d = new Private;
     d->container1 = 0;
     d->container2 = 0;
     prev = next = 0;
@@ -2083,11 +2045,7 @@ void QIconViewItem::checkRect()
 	itemRect.setRect( x, y, w, h );
 }
 
-/*****************************************************************************
- *
- * Class QIconView
- *
- *****************************************************************************/
+
 /*! \file iconview/simple_dd/main.h */
 /*! \file iconview/simple_dd/main.cpp */
 
@@ -4454,7 +4412,7 @@ void QIconView::contentsDropEvent( QDropEvent *e )
 	QValueList<QIconDragItem> lst;
 	if ( QIconDrag::canDecode( e ) ) {
 	    QValueList<QIconDragDataItem> l;
-	    QIconDrag::QIconDragPrivate::decode( e, l );
+	    QIconDrag::Private::decode( e, l );
 	    QValueList<QIconDragDataItem>::Iterator it = l.begin();
 	    for ( ; it != l.end(); ++it )
 		lst << ( *it ).data;
@@ -4464,7 +4422,7 @@ void QIconView::contentsDropEvent( QDropEvent *e )
 	QValueList<QIconDragItem> lst;
 	if ( QIconDrag::canDecode( e ) ) {
 	    QValueList<QIconDragDataItem> l;
-	    QIconDrag::QIconDragPrivate::decode( e, l );
+	    QIconDrag::Private::decode( e, l );
 	    QValueList<QIconDragDataItem>::Iterator it = l.begin();
 	    for ( ; it != l.end(); ++it )
 		lst << ( *it ).data;
@@ -5047,7 +5005,7 @@ void QIconView::drawDragShapes( const QPoint &pos )
 void QIconView::initDragEnter( QDropEvent *e )
 {
     if ( QIconDrag::canDecode( e ) ) {
-	QIconDrag::QIconDragPrivate::decode( e, d->iconDragData );
+	QIconDrag::Private::decode( e, d->iconDragData );
 	d->isIconDrag = TRUE;
     } else if ( QUriDrag::canDecode( e ) ) {
 	QStrList lst;
