@@ -1836,16 +1836,29 @@ inline unsigned int QGfxRaster<depth,type>::get_value(int destdepth,
 		(*srcdata)+=2;
 	    }
 	} else if(sdepth==8) {
-	    unsigned char val=*(*srcdata);
+	    unsigned char val=*((*srcdata));
 #if defined(QWS_DEPTH_8GRAYSCALE)
-	    ret=(val << 16) | (val << 8) | val;
+	    if(src_normal_palette) {
+		ret=((val >> 5) << 16)  | ((val >> 6) << 8) | (val >> 5);
+	    } else {
 #elif defined(QWS_DEPTH_8DIRECT)
-	    ret=(((val & 0xe0) >> 5) << (16+5)) |
-		(((val & 0x18) >> 3) << (8+6)) |
-		(val & 0x07) << 5;
+	    if(src_normal_palette) {
+	    r=((val & 0xe0) >> 5) << 5;
+	    g=((val & 0x18) >> 3) << 6;
+	    b=((val & 0x07)) << 5;
+	    ret=(r << 16) | (g << 8) | b;
+	    } else {
 #else
-	    ret=srcclut[val];
+	    if(true) {
 #endif
+		unsigned int hold=srcclut[val];
+		r=(hold & 0xff0000) >> 16;
+		g=(hold & 0x00ff00) >> 8;
+		b=(hold & 0x0000ff);
+		r=r << 16;
+		g=g << 8;
+		ret=r | g | b;
+	    }
 	    if(reverse) {
 		(*srcdata)--;
 	    } else {
@@ -2584,7 +2597,7 @@ inline void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 	    r = (srcval & 0xff0000) >> 16;
 	    g = (srcval & 0xff00) >> 8;
 	    b = srcval & 0xff;
-	    
+	
 	    unsigned char * tmp=(unsigned char *)&alphabuf[loopc];
 	    if(av==255) {
 	      // Do nothing - we already have source values in r,g,b
