@@ -93,6 +93,7 @@ struct Option
 	static bool do_cache;
 	static bool do_deps;
 	static bool do_dep_heuristics;
+	static bool do_preprocess;
 	static QString cachefile;
 	static QStringList project_files;
     };

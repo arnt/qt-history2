@@ -155,7 +155,7 @@ QMakeProject::parse(QString file, QString t, QMap<QString, QStringList> &place)
     SKIP_WS(d);
     QString vals(d); /* vals now contains the space separated list of values */
     if(vals.right(1) == "}") {
-	debug_msg(1, "Project Parser: %s:%d : xxx Leaving block %d", file.latin1(), line_count, scope_block);
+	debug_msg(1, "Project Parser: %s:%d : Leaving block %d", file.latin1(), line_count, scope_block);
 	scope_block--;
 	vals.truncate(vals.length()-1);
     }
@@ -182,9 +182,13 @@ QMakeProject::parse(QString file, QString t, QMap<QString, QStringList> &place)
 	    vals.replace(rep, rep_len, replacement);
 	}
     }
+    var = var.stripWhiteSpace();
 #undef SKIP_WS
 
-    var = UN_TMAKEIFY(var.stripWhiteSpace()); //backwards compatability
+    if(!var.isEmpty() && Option::mkfile::do_preprocess) 
+	debug_msg(0, "%s:%d :: %s %s %s",  file.latin1(), line_count, var.latin1(), op.latin1(), vals.latin1());
+
+    var = UN_TMAKEIFY(var); //backwards compatability
     char sep = ' ';
     if(var == "DEPENDPATH")
 	sep = ':';

@@ -81,6 +81,7 @@ QStringList Option::projfile::project_dirs;
 QString Option::mkfile::qmakespec;
 bool Option::mkfile::do_deps = TRUE;
 bool Option::mkfile::do_dep_heuristics = TRUE;
+bool Option::mkfile::do_preprocess = FALSE;
 bool Option::mkfile::do_cache = TRUE;
 QString Option::mkfile::cachefile;
 QStringList Option::mkfile::project_files;
@@ -177,6 +178,8 @@ Option::parseCommandLine(int argc, char **argv)
 			Option::mkfile::do_cache = FALSE;
 		    } else if(opt == "nodependheuristics") {
 			Option::mkfile::do_dep_heuristics = FALSE;
+		    } else if(opt == "E") {
+			Option::mkfile::do_preprocess = TRUE;
 		    } else if(opt == "mkcache") {
 			Option::mkfile::cachefile = argv[++x];
 		    } else if(opt == "spec") {

@@ -93,6 +93,8 @@ int main(int argc, char **argv)
 		exit_val = 2;
 		continue;
 	    }
+	    if(Option::mkfile::do_preprocess) 
+		continue;
 
 	    /* let Option post process */
 	    if(!Option::postProcessProject(&proj)) {
