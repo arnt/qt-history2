@@ -1332,6 +1332,11 @@ MakefileGenerator::writeExtraCompilerTargets(QTextStream &t)
         QString tmp_cmd = project->variables()[(*it) + ".commands"].join(" ");
         QString tmp_dep = project->variables()[(*it) + ".depends"].join(" ");
         QString tmp_dep_cmd = project->variables()[(*it) + ".depend_command"].join(" ");
+        if(!tmp_dep_cmd.isEmpty()) {
+            QString argv0 = Option::fixPathToLocalOS(tmp_dep_cmd.split(' ').first());
+            if(!QFile::exists(argv0)) 
+                tmp_dep_cmd = QString();
+        }
         QStringList &vars = project->variables()[(*it) + ".variables"];
         if(tmp_out.isEmpty() || tmp_cmd.isEmpty())
             continue;
