@@ -31,7 +31,8 @@ public:
 			QPainter *p,
 			const QRect &r,
 			const QColorGroup &cg,
-			SFlags flags = Style_Default ) const;
+			SFlags flags = Style_Default,
+			void **data = 0 ) const;
 
     void drawControl( ControlElement element,
 		      QPainter *p,

@@ -919,7 +919,7 @@ void NorwegianWoodStyle::drawPrimitive( PrimitiveElement pe,
 					QPainter *p,
 					const QRect &r,
 					const QColorGroup &cg,
-					SFlags flags ) const
+					SFlags flags, void **data ) const
 {
     int x, y, w, h;
     r.rect( &x, &y, &w, &h );
@@ -944,14 +944,14 @@ void NorwegianWoodStyle::drawPrimitive( PrimitiveElement pe,
 	    QPoint p3( x + e, y + h - 1 - e );
 	
 	    QPointArray a;
-	    a.setPoints( 5, x,y, x+w-1, y, p2.x(), p2.y(), p3.x(), p3.y(), 
+	    a.setPoints( 5, x,y, x+w-1, y, p2.x(), p2.y(), p3.x(), p3.y(),
 			 x, y + h - 1 );
 	    p->setClipRegion( QRegion(a) - internR );
 	
 	    p->fillRect( r, (flags & Style_Sunken ? QBrush( cg.dark(), *sunkenDark)
 			                     : cg.brush(QColorGroup::Light)) );
 
-	    // A little inversion is needed the buttons 
+	    // A little inversion is needed the buttons
 	    // ( but not flat)
 	    if ( flags & Style_Raised || flags & Style_Sunken ) {
 		a.setPoint( 0, x + w - 1, y + w - 1 );
@@ -967,7 +967,6 @@ void NorwegianWoodStyle::drawPrimitive( PrimitiveElement pe,
 	    break;
 	}
 	
-	// I'm leaving these here, but they aren't working.
     case PE_ScrollBarAddLine:
 	if ( flags & Style_Horizontal )
 	    drawSemicircleButton( p, r, PointRight, flags & Style_Down, cg );
@@ -981,7 +980,7 @@ void NorwegianWoodStyle::drawPrimitive( PrimitiveElement pe,
 	    drawSemicircleButton( p, r, PointUp, flags & Style_Down, cg );
 	break;
     default:
-	QWindowsStyle::drawPrimitive( pe, p, r, cg, flags );
+	QWindowsStyle::drawPrimitive( pe, p, r, cg, flags, data );
 	break;
     }
 }
@@ -1153,7 +1152,7 @@ void NorwegianWoodStyle::drawComplexControl( ComplexControl cc,
 	    p->drawLine( ax + 1, sy + sh - 1, ax + awh - 1, sy + sh - 1 );
 	    p->drawLine( ax + awh - 1, sy + 1, ax + awh - 1, sy + sh - 1 );
 	    p->setPen( oldPen );
-	    
+	
 	    if ( cmb->editable() ) {
 		QRect r( querySubControlMetrics(CC_ComboBox, widget,
 						SC_ComboBoxEditField, data) );
@@ -1295,9 +1294,6 @@ static void drawroundrect( QPainter *p, QCOORD x, QCOORD y,
     int ry = (200*d)/h;
     p->drawRoundRect( x, y, w, h, rx, ry );
 }
-
-
-
 
 static QRegion roundRectRegion( const QRect& g, int r )
 {

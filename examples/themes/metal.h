@@ -31,16 +31,33 @@ public:
 			QPainter *p,
 			const QRect &r,
 			const QColorGroup &cg,
-			SFlags flags = Style_Default ) const;
+			SFlags flags = Style_Default,
+			void **data = 0) const;
 
-    void drawControl( ControlElement ce,
+    void drawControl( ControlElement element,
 		      QPainter *p,
 		      const QWidget *widget,
 		      const QRect &r,
 		      const QColorGroup &cg,
 		      SFlags how = Style_Default,
 		      void **data = 0 ) const;
+    void drawComplexControl( ComplexControl cc,
+			     QPainter *p,
+			     const QWidget *widget,
+			     const QRect &r,
+			     const QColorGroup &cg,
+			     SFlags how = Style_Default,
+			     SCFlags sub = SC_All,
+			     SCFlags subActive = SC_None,
+			     void **data = 0 ) const;
+    QRect querySubControlMetrics( ComplexControl cc,
+				  const QWidget *widget,
+				  SubControl sc,
+				  void **data ) const;
+
 private:
+    void drawMetalButton( QPainter *p, int x, int y, int w, int h,
+			  bool sunken, bool horz, bool flat=FALSE ) const;
     QPalette oldPalette;
 };
 
