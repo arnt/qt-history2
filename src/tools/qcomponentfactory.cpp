@@ -226,15 +226,15 @@ bool QComponentFactory::unregisterComponent( const QString &cid )
 	cidStr = uuid.toString();
     } else {
 	name = settings.readEntry( "/CLSID/" + cidStr + "/ProgID/Default", QString::null, &ok );
-	settings.removeEntry( "/" + name + "/CLSID/Default" );
-	settings.removeEntry( "/" + name + "/Default" );
+	ok = settings.removeEntry( "/" + name + "/CLSID/Default" );
+	ok = ok && settings.removeEntry( "/" + name + "/Default" );
     }
 
     if ( cidStr.isEmpty() )
 	return FALSE;
 
     settings.readEntry( "/CLSID/" + cidStr + "/InprocServer32/Default", QString::null, &ok );
-    ok = ok && settings.removeEntry( "/CLSID/" + cidStr + "/ProgID/Default" );
+    ok = settings.removeEntry( "/CLSID/" + cidStr + "/ProgID/Default" );
     ok = ok && settings.removeEntry( "/CLSID/" + cidStr + "/InprocServer32/Default" );
     ok = ok && settings.removeEntry( "/CLSID/" + cidStr + "/Default" );
 

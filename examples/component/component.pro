@@ -1,3 +1,3 @@
 TEMPLATE    =	subdirs
 
-SUBDIRS	=	regsvr
+SUBDIRS	=	regsvr component client
