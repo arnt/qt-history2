@@ -288,7 +288,7 @@ QMAC_PASCAL OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventR
             if(GetEventParameter(event, kEventParamHIObjectInstance, typeHIObjectRef, 
 				 NULL, sizeof(view), NULL, &view) == noErr) {
 #if QT_MACOSX_VERSION >= 0x1030
-		HIViewChangeFeatures(view, kHIViewAllowsSubviews|kHIViewIsOpaque, 0); //all opaque for now..
+		HIViewChangeFeatures(view, kHIViewAllowsSubviews, 0);
 #endif
 	    }
 	} else if(ekind == kEventHIObjectDestruct) {
@@ -340,7 +340,8 @@ QMAC_PASCAL OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventR
 		    qt_set_paintevent_clipping(widget, qrgn);
 
 		    if(!widget->testAttribute(QWidget::WA_NoBackground) && 
-		       (1 || widget->testAttribute(QWidget::WA_ContentsPropagated) || widget->isTopLevel())) {
+		       //#### FIXME, I can do something smarter here, I just know it!! --SAM
+		       (true || widget->testAttribute(QWidget::WA_ContentsPropagated) || widget->isTopLevel())) {
 			QBrush bg = widget->palette().brush(widget->d->bg_role);
 			QRect rr = qrgn.boundingRect();
 			bool was_unclipped = widget->testWFlags(Qt::WPaintUnclipped);
@@ -369,10 +370,10 @@ QMAC_PASCAL OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventR
 		widget->hd = 0;
 	    }
 	} else if(ekind == kEventControlInitialize) {
-#if QT_MACOSX_VERSION < 0x1030
-	    UInt32 features = kControlSupportsEmbedding;
+	    UInt32 features = kControlSupportsDragAndDrop;
+	    if(QSysInfo::MacintoshVersion < QSysInfo::MV_PANTHER)
+		features |= (kControlSupportsEmbedding|kControlSupportsGetRegion);
 	    SetEventParameter(event, kEventControlInitialize, typeUInt32, sizeof(features), &features);
-#endif
 	} else if(ekind == kEventControlGetPartRegion) {
 	    handled_event = false;
 	    if(widget && !widget->isTopLevel()) {
@@ -388,22 +389,17 @@ QMAC_PASCAL OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventR
 	    }
 	} else if(ekind == kEventControlDragEnter || ekind == kEventControlDragWithin ||
 		  ekind == kEventControlDragLeave || ekind == kEventControlDragReceive) {
-	    qDebug("some drag thingie..");
 	    handled_event = false;
 	    if(widget) {
 		//these are really handled in qdnd_mac.cpp just to modularize the code a little..
-		if(ekind == kEventControlDragEnter) {
-		    Boolean accept_drops = widget->acceptDrops() ? true : false;
-#if QT_MACOSX_VERSION >= 0x1030
-		    SetEventParameter(event, kEventParamControlWouldAcceptDrop, typeBoolean, sizeof(accept_drops), &accept_drops);
-#endif
-		    if(!accept_drops)
-			break;
-		}
 		DragRef drag;
 		GetEventParameter(event, kEventParamDragRef, typeDragRef, NULL, sizeof(drag), NULL, &drag);
-		if(widget->d->qt_mac_dnd_event(ekind, drag))
+		if(widget->d->qt_mac_dnd_event(ekind, drag)) 
 		    handled_event = true;
+#if QT_MACOSX_VERSION >= 0x1030
+		if(ekind == kEventControlDragEnter) 
+		    SetEventParameter(event, kEventParamControlWouldAcceptDrop, typeBoolean, sizeof(handled_event), &handled_event);
+#endif
 	    }
 	}
 	break; }
@@ -851,9 +847,11 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 	if(OSStatus ret = qt_mac_create_window(wclass, wattr, &r, &window))
 	    qDebug("Qt: internal: %s:%d If you reach this error please contact Trolltech and include the\n"
 		   "      WidgetFlags used in creating the widget (%ld)", __FILE__, __LINE__, ret);
-	if(!desktop) //setup an event callback handler on the window
+	if(!desktop) { //setup an event callback handler on the window
+	    SetAutomaticControlDragTrackingEnabledForWindow(window, true);
 	    InstallWindowEventHandler(window, make_win_eventUPP(), GetEventTypeCount(window_events),
 				      window_events, static_cast<void *>(qApp), &d->window_event);
+	}
 #if QT_MACOSX_VERSION >= 0x1020
 	if(qt_mac_is_macdrawer(this))
 	    SetDrawerParent(window, qt_mac_window_for((HIViewRef)parentWidget()->winId()));
@@ -1841,6 +1839,7 @@ void QWidget::setAcceptDrops(bool on)
     if(on == d->macDropEnabled)
 	return;
     d->macDropEnabled = on;
+    SetControlDragTrackingEnabled((HIViewRef)winId(), on);
 }
 
 void QWidget::setMask(const QRegion &region)

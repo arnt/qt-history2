@@ -36,15 +36,15 @@
 /*****************************************************************************
   QWidget globals
  *****************************************************************************/
-bool qt_mac_in_drag = FALSE;
-static bool drag_received = FALSE;
+bool qt_mac_in_drag = false;
+static bool drag_received = false;
 static QDragObject::DragMode set_drag_mode; //passed in drag mode
 static QDropEvent::Action current_drag_action; //current active drag action
 static QDragObject *global_src = 0;
 static QWidget *current_drag_widget = 0;
 static DragReference current_dropobj = 0;
-static bool acceptfmt = FALSE;
-static bool acceptact = FALSE;
+static bool acceptfmt = false;
+static bool acceptact = false;
 
 
 /*****************************************************************************
@@ -176,11 +176,11 @@ bool QDropEvent::provides(const char *mime) const
 {
     ItemReference ref = NULL;
     if(GetDragItemReferenceNumber(current_dropobj, 1, &ref))
-	return FALSE;
+	return false;
 
     UInt16 cnt = 0;
     if(CountDragItemFlavors(current_dropobj, ref, &cnt))
-	return FALSE;
+	return false;
 
     FlavorType flav;
     QMacMime::QMacMimeType qmt = QMacMime::MIME_DND;
@@ -191,10 +191,10 @@ bool QDropEvent::provides(const char *mime) const
     for(int x = 1; x <= (int)cnt; x++) {
 	if(GetFlavorType(current_dropobj, ref, x, &flav) == noErr) {
 	    if(QMacMime::convertor(qmt, mime, flav))
-		return TRUE;
+		return true;
 	}
     }
-    return FALSE;
+    return false;
 }
 
 QByteArray QDropEvent::encodedData(const char *mime) const
@@ -253,7 +253,7 @@ const char* QDropEvent::format(int n) const
 	    return 0;
 
 	FlavorType flav;
-	bool sawSBText = FALSE;
+	bool sawSBText = false;
 	QMacMime::QMacMimeType qmt = QMacMime::MIME_DND;
 	{
 	    Size sz;
@@ -264,7 +264,7 @@ const char* QDropEvent::format(int n) const
 	for(int x = 1; x <= (int)cnt; x++) {
 	    if(GetFlavorType(current_dropobj, ref, x, &flav) == noErr) {
 		if(flav == kScrapFlavorTypeText) {
-		    sawSBText = TRUE;
+		    sawSBText = true;
 		} else if(const char *m = QMacMime::flavorToMime(qmt, flav)) {
 		    if(!n) {
 			mime = m;
@@ -286,7 +286,7 @@ void QDragManager::timerEvent(QTimerEvent*)
 
 bool QDragManager::eventFilter(QObject *, QEvent *)
 {
-    return FALSE;
+    return false;
 }
 
 void QDragManager::updateMode(ButtonState)
@@ -300,7 +300,7 @@ void QDragManager::updateCursor()
 void QDragManager::cancel(bool)
 {
     if(object) {
-	beingCancelled = TRUE;
+	beingCancelled = true;
 	object = 0;
     }
 }
@@ -316,7 +316,6 @@ void QDragManager::drop()
 
 bool QWidgetPrivate::qt_mac_dnd_event(uint kind, DragRef drag)
 {
-    qDebug("got a %d", kind);
     return true;
 }
 
@@ -324,22 +323,22 @@ bool QDragManager::drag(QDragObject *o, QDragObject::DragMode mode)
 {
     if(qt_mac_in_drag) {     //just make sure..
 	qDebug("Qt: internal: WH0A, unexpected condition reached.");
-	return FALSE;
+	return false;
     }
     if(object == o)
-	return FALSE;
+	return false;
 #if QT_MACOSX_VERSION >= 0x1020
     /* At the moment it seems clear that Mac OS X does not want to drag with a non-left button
        so we just bail early to prevent it, however we need to find a better solution! FIXME! */
     if(!(GetCurrentEventButtonState() & kEventMouseButtonPrimary))
-	return FALSE;
+	return false;
 #endif
 
     if(object) {
 	cancel();
 	if(dragSource)
 	    dragSource->removeEventFilter(this);
-	beingCancelled = FALSE;
+	beingCancelled = false;
     }
 
 #if 0
@@ -450,26 +449,26 @@ bool QDragManager::drag(QDragObject *o, QDragObject::DragMode mode)
     QRegion dragRegion(boundsPoint.h, boundsPoint.v, pix.width(), pix.height()), pixRegion;
     if(!pix.isNull()) {
 	pixRegion = QRegion(0, 0, pix.width(), pix.height());
-	SetDragImage(theDrag, GetGWorldPixMap((GWorldPtr)pix.handle()), pixRegion.handle(TRUE), boundsPoint, 0);
+	SetDragImage(theDrag, GetGWorldPixMap((GWorldPtr)pix.handle()), pixRegion.handle(true), boundsPoint, 0);
     }
 
     QWidget *widget = QApplication::widgetAt(fakeEvent.where.h, fakeEvent.where.v);
     if(!widget) {
 	dragSource = 0;
-	return FALSE;
+	return false;
     }
-    acceptfmt = FALSE;
-    acceptact = FALSE;
-    drag_received = FALSE;
-    qt_mac_in_drag = TRUE;
+    acceptfmt = false;
+    acceptact = false;
+    drag_received = false;
+    qt_mac_in_drag = true;
     set_drag_mode = mode;
     updateDragMode(theDrag);
     {
 	QMacBlockingFunction block;
-	result = TrackDrag(theDrag, &fakeEvent, dragRegion.handle(TRUE));
+	result = TrackDrag(theDrag, &fakeEvent, dragRegion.handle(true));
     }
     DisposeDrag(theDrag);
-    qt_mac_in_drag = FALSE;
+    qt_mac_in_drag = false;
     dragSource = 0;
 
     return ((result == noErr) && (current_drag_action == QDropEvent::Move) &&
@@ -518,7 +517,7 @@ static QMAC_PASCAL OSErr qt_mac_receive_handler(WindowPtr, void *handlerRefCon, 
     macDndExtra->acceptfmt = de.isAccepted();
     acceptact = macDndExtra->acceptact;
     acceptfmt = macDndExtra->acceptfmt;
-    drag_received = TRUE;
+    drag_received = true;
     current_drag_widget = NULL;
     return macDndExtra->acceptfmt ? (OSErr)noErr : (OSErr)dragNotAcceptedErr;
 }
@@ -581,10 +580,10 @@ static QMAC_PASCAL OSErr qt_mac_tracking_handler(DragTrackingMessage theMessage,
 	acceptfmt = macDndExtra->acceptfmt;
 	acceptact = macDndExtra->acceptact;
     } else {
-	if(current_drag_widget && ((theMessage == kDragTrackingLeaveWindow) ||
-				     (widget != current_drag_widget))) {
-	    macDndExtra->acceptfmt = FALSE;
-	    acceptfmt = FALSE;
+	if(current_drag_widget && 
+	   ((theMessage == kDragTrackingLeaveWindow) || (widget != current_drag_widget))) {
+	    macDndExtra->acceptfmt = false;
+	    acceptfmt = false;
 	    current_dropobj = 0;
 	    QDragLeaveEvent de;
 	    QApplication::sendEvent(current_drag_widget, &de);
