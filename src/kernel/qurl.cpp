@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurl.cpp#67 $
+** $Id: //depot/qt/main/src/kernel/qurl.cpp#68 $
 **
 ** Implementation of QUrl class
 **
@@ -460,7 +460,7 @@ bool QUrl::parse( const QString& url )
      /* None       InputAlpha  InputDigit  InputSlash  InputColon  InputAt     InputHash   InputQuery */ 	
 	{ 0,       Protocol,   0,          Path,       0,          0,          0,          0,         }, // Init
 	{ 0,       Protocol,   0,          0,          Separator1, 0,          0,          0,         }, // Protocol
-	{ 0,       0,          0,          Separator2, 0,          0,          0,          0,         }, // Separator1
+	{ 0,       Path,          Path,          Separator2, 0,          0,          0,          0,         }, // Separator1
 	{ 0,       Path,       0,          Separator3, 0,          0,          0,          0,         }, // Separator2
 	{ 0,       User,       User,          Separator3, Pass,       Host,       0,          0,         }, // Separator3
 	{ 0,       User,       User,       User,       Pass,       Host,       User,       User,      }, // User
@@ -485,7 +485,8 @@ bool QUrl::parse( const QString& url )
     int cs = url_.find( ":/" );
     table[ 4 ][ 1 ] = User;
     table[ 4 ][ 2 ] = User;
-    if ( cs == -1 || forceRel ) { // we have a relative file (no path, host, protocol, etc.)
+    if ( ( cs == -1 && url.left( 6 ) != "mailto" ) 
+	 || forceRel ) { // we have a relative file (no path, host, protocol, etc.)
 	table[ 0 ][ 1 ] = Path;
 	relPath = TRUE;
     } else { // some checking
@@ -620,7 +621,7 @@ bool QUrl::parse( const QString& url )
     if ( !d->path.isEmpty() ) {
 	if ( d->path[ 0 ] == '@' || d->path[ 0 ] == ':' )
 	    d->path.remove( 0, 1 );
-	if ( d->path[ 0 ] != '/' && !relPath && d->path[ 1 ] != ':' )
+	if ( d->path[ 0 ] != '/' && !relPath && d->path[ 1 ] != ':' && d->protocol != "mailto" )
 	    d->path.prepend( "/" );
     }
     if ( !d->refEncoded.isEmpty() && d->refEncoded[ 0 ] == '#' )
