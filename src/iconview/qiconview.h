@@ -334,6 +334,7 @@ public:
     virtual void invertSelection();
 
     virtual void repaintItem( QIconViewItem *item );
+    void repaintSelectedItems();
 
     void ensureItemVisible( QIconViewItem *item );
     QIconViewItem* findFirstVisibleItem( const QRect &r ) const;

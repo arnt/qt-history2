@@ -3728,6 +3728,33 @@ void QIconView::repaintItem( QIconViewItem *item )
 }
 
 /*!
+    Repaints the selected items.
+*/
+void QIconView::repaintSelectedItems()
+{
+    if ( selectionMode() == NoSelection )
+	return;
+
+    if ( selectionMode() == Single ) {
+	if ( !currentItem() || !currentItem()->isSelected() )
+	    return;
+	QRect itemRect = currentItem()->rect(); //rect in contents coordinates
+	itemRect.moveBy( -contentsX(), -contentsY() );
+	viewport()->update( itemRect );
+    } else {
+	// check if any selected items are visible
+	QIconViewItem *item = firstItem();
+	const QRect vr = QRect( contentsX(), contentsY(), visibleWidth(), visibleHeight() );
+
+	while ( item ) {
+	    if ( item->isSelected() && item->rect().intersects( vr ) )
+		repaintItem( item );
+	    item = item->nextItem();
+	}
+    }
+}
+
+/*!
     Makes sure that \a item is entirely visible. If necessary,
     ensureItemVisible() scrolls the icon view.
 
@@ -3756,8 +3783,8 @@ void QIconView::ensureItemVisible( QIconViewItem *item )
 
     If you want to find all items that touch \a r, you will need to
     use this function and nextItem() in a loop ending at
-    findLastVisibleItem() and test QItem::rect() for each of these
-    items.
+    findLastVisibleItem() and test QIconViewItem::rect() for each of 
+    these items.
 
     \sa findLastVisibleItem() QIconViewItem::rect()
 */
@@ -5036,6 +5063,8 @@ void QIconView::keyPressEvent( QKeyEvent *e )
 	ensureItemVisible( d->currentItem );
 }
 
+
+
 /*!
     \reimp
 */
@@ -5052,13 +5081,8 @@ void QIconView::focusInEvent( QFocusEvent *e )
 	repaintItem( d->currentItem );
     }
 
-    if ( style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus, this ) ) {
-	QRect r = visibleRect();
-	for ( QIconViewItem *item = firstItem(); item; item = item->nextItem() ) {
-	    if ( item->isSelected() && item->rect().intersects( r ) )
-		repaintItem( item );
-	}
-    }
+    if ( style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus, this ) )
+	repaintSelectedItems();
 
     if ( d->currentItem )
 	setMicroFocusHint( d->currentItem->x(), d->currentItem->y(), d->currentItem->width(), d->currentItem->height(), FALSE );
@@ -5075,13 +5099,8 @@ void QIconView::focusOutEvent( QFocusEvent *e )
 	repaintItem( d->currentItem );
 
     if ( style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus, this )
-	&& e->reason() != QFocusEvent::Popup ) {
-	QRect r = visibleRect();
-	for ( QIconViewItem *item = firstItem(); item; item = item->nextItem() ) {
-	    if ( item->isSelected() && item->rect().intersects( r ) )
-		repaintItem( item );
-	}
-    }
+	 && e->reason() != QFocusEvent::Popup )
+	repaintSelectedItems();
 }
 
 /*!
@@ -6067,8 +6086,10 @@ void QIconView::windowActivationChange( bool oldActive )
     if ( !isVisible() )
 	return;
 
-    if ( palette().active() != palette().inactive() )
-	viewport()->update();
+    if ( palette().active() == palette().inactive() )
+	return;
+    
+    repaintSelectedItems();
 }
 
 /*!
