@@ -29,7 +29,7 @@
         </rect>
     </property>
     <property name="caption">
-        <string>Mainwindow Wizard</string>
+        <string>Main Window Wizard</string>
     </property>
     <property name="layoutMargin" stdset="0">
     </property>
@@ -581,7 +581,7 @@
                     <cstring>TextLabel1_5</cstring>
                 </property>
                 <property name="text">
-                    <string>Press Finish to populate the Mainwindow.</string>
+                    <string>Press Finish to populate the main window.</string>
                 </property>
             </widget>
             <spacer row="0" column="1">
