@@ -1717,6 +1717,22 @@ void qt_init(QApplicationPrivate *priv, int,
 
 #if !defined(QT_NO_XFTFREETYPE)
         X11->has_xft = XftInit(0) && XftInitFtLibrary();
+
+        if (X11->has_xft) {
+            char *dpi_str = XGetDefault(X11->display, "Xft", "dpi");
+            if (dpi_str) {
+                // use a custom DPI
+                char *end = 0;
+                int dpi = strtol(dpi_str, &end, 0);
+                if (dpi_str != end) {
+                    for (int s = 0; s < ScreenCount(X11->display); ++s) {
+                        QX11Info::setAppDpiX(dpi, s);
+                        QX11Info::setAppDpiY(dpi, s);
+                    }
+                }
+            }
+        }
+
 #endif // QT_NO_XFTFREETYPE
 
         // look at the modifier mapping, and get the correct masks for alt/meta
