@@ -42,27 +42,12 @@ NewForm::NewForm(QDesignerWorkbench *workbench, QWidget *parentWidget)
     ui.treeWidget->header()->hide();
     ui.treeWidget->header()->setStretchLastSection(true);
 
-    QTreeWidgetItem *trolltech = new QTreeWidgetItem(ui.treeWidget);
-    trolltech->setText(0, tr("Trolltech"));
+    loadFrom(":/trolltech/designer/templates/forms");
 
-    QTreeWidgetItem *item = 0;
-
-    QStringList trolltechFormTemplates;
-    trolltechFormTemplates.append(QString::fromUtf8(":/trolltech/designer/templates/forms/dialog.ui"));
-    trolltechFormTemplates.append(QString::fromUtf8(":/trolltech/designer/templates/forms/mainwindow.ui"));
-    trolltechFormTemplates.append(QString::fromUtf8(":/trolltech/designer/templates/forms/widget.ui"));
-
-    foreach (QString formTemplateName, trolltechFormTemplates) {
-        item = new QTreeWidgetItem(trolltech);
-        item->setText(0, QFileInfo(formTemplateName).baseName());
-        item->setData(0, TemplateNameRole, formTemplateName);
-        item->setIcon(0, formPreviewIcon(formTemplateName));
-    }
     QDesignerSettings settings;
     foreach(QString path, settings.formTemplatePaths())
         loadFrom(path);
 
-    ui.treeWidget->setItemExpanded(trolltech, true);
     ui.closeButton->setDefault(false);
     ui.createButton->setDefault(true);
 }
@@ -73,7 +58,8 @@ NewForm::~NewForm()
 
 void NewForm::on_treeWidget_itemActivated(QTreeWidgetItem *item)
 {
-    ui.createButton->animateClick(0);
+    if (item->data(0, TemplateNameRole).isValid())
+        ui.createButton->animateClick(0);
 }
 
 void NewForm::on_createButton_clicked()
