@@ -6,7 +6,7 @@ SUBDIRS     = arthur \
               mainwindow \
               pimelim \
               plasmatable \
-              spreadsheet
+              spreadsheet \
               sqlbrowser \
               textedit \
               widgetview \
