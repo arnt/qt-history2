@@ -126,6 +126,7 @@ private:
     QWidget *invisibleParent;
     QAssistantClient *assistant;
     QComboBox *m_editModeSelector;
+    QList<QAction*> m_formActionList;
 };
 
 #endif // MAINWINDOW_H

@@ -85,6 +85,21 @@ MainWindow::MainWindow()
     connect(core->propertyEditor(), SIGNAL(propertyChanged(const QString&, const QVariant&)),
             this, SLOT(propertyChanged(const QString&, const QVariant&)));
 
+#ifndef IDE_NO_DEBUGVIEWS
+    QWidget *dbShell = new QVBoxWidget(this, Qt::WType_Dialog);
+    dbShell->setWindowTitle(tr("Widget DB"));
+    WidgetDataBaseView *dbView = new WidgetDataBaseView(dbShell);
+    dbView->setWidgetDataBase(core->widgetDataBase());
+    connect(core->widgetDataBase(), SIGNAL(changed()), dbView, SLOT(refresh()));
+    dbShell->show();
+
+    QWidget *mdbShell = new QVBoxWidget(this, Qt::WType_Dialog);
+    mdbShell->setWindowTitle(tr("Meta DB"));
+    MetaDataBaseView *mdbView = new MetaDataBaseView(mdbShell);
+    mdbView->setMetaDataBase(core->metaDataBase());
+    connect(core->metaDataBase(), SIGNAL(changed()), mdbView, SLOT(refresh()));
+    mdbShell->show();
+#endif
     readSettings();
 
     statusBar()->show();
@@ -273,10 +288,10 @@ void MainWindow::setupMenuBar()
     QMenu *menu = mb->addMenu(tr("&File"));
     QAction *act = menu->addAction(tr("&New Form..."), this,
                                         SLOT(newForm()), Qt::CTRL + Qt::Key_N);
-    act->setShortcutContext(Qt::ShortcutOnApplication);
+    m_formActionList.append(act);
     act = menu->addAction(tr("&Open Form..."), this, SLOT(openForm()),
                                         Qt::CTRL + Qt::Key_O);
-    act->setShortcutContext(Qt::ShortcutOnApplication);
+    m_formActionList.append(act);
     QMenu *recentFilesMenu = menu->addMenu(tr("&Recent Forms"));
     for (int i = 0; i < MaxRecentFiles; ++i) {
         recentFilesActs[i] = new QAction(this);
@@ -287,17 +302,17 @@ void MainWindow::setupMenuBar()
     updateRecentFileActions();
     recentFilesMenu->addSeparator();
     act = recentFilesMenu->addAction(tr("Clear &Menu"), this, SLOT(clearRecentFiles()));
-    act->setShortcutContext(Qt::ShortcutOnApplication);
+    m_formActionList.append(act);
     menu->addSeparator();
     m_actionSave = menu->addAction(tr("&Save Form"), this, SLOT(saveForm()), Qt::CTRL + Qt::Key_S);
-    m_actionSave->setShortcutContext(Qt::ShortcutOnApplication);
+    m_formActionList.append(m_actionSave);
     m_actionSaveAs = menu->addAction(tr("Save Form &As..."), this, SLOT(saveFormAs()),
                                      Qt::CTRL | Qt::SHIFT + Qt::Key_S);
-    m_actionSaveAs->setShortcutContext(Qt::ShortcutOnApplication);
+    m_formActionList.append(m_actionSaveAs);
     menu->addSeparator();
     m_actionClose = menu->addAction(tr("&Close Form"), this, SLOT(closeForm()),
                                     Qt::CTRL + Qt::Key_W);
-    m_actionClose->setShortcutContext(Qt::ShortcutOnApplication);
+    m_formActionList.append(m_actionClose);
 #ifndef Q_WS_MAC
     menu->addSeparator();
     menu->addAction(tr("&Quit"), this, SLOT(close()), Qt::CTRL + Qt::Key_Q);
@@ -306,34 +321,34 @@ void MainWindow::setupMenuBar()
     menu = mb->addMenu(tr("&Edit"));
     act = m_formWindowManager->actionUndo();
     act->setShortcut(Qt::CTRL + Qt::Key_Z);
-    act->setShortcutContext(Qt::ShortcutOnApplication);
+    m_formActionList.append(act);
     menu->addAction(act);
     act = m_formWindowManager->actionRedo();
-    act->setShortcut(Qt::CTRL | Qt::SHIFT + Qt::Key_Z);
-    act->setShortcutContext(Qt::ShortcutOnApplication);
+    act->setShortcut(Qt::CTRL + Qt::SHIFT + Qt::Key_Z);
+    m_formActionList.append(act);
     menu->addAction(act);
     menu->addSeparator();
     act = m_formWindowManager->actionCut();
     act->setShortcut(Qt::CTRL + Qt::Key_X);
-    act->setShortcutContext(Qt::ShortcutOnApplication);
+    m_formActionList.append(act);
     menu->addAction(act);
     act = m_formWindowManager->actionCopy();
     act->setShortcut(Qt::CTRL + Qt::Key_C);
-    act->setShortcutContext(Qt::ShortcutOnApplication);
+    m_formActionList.append(act);
     menu->addAction(act);
     act = m_formWindowManager->actionPaste();
     act->setShortcut(Qt::CTRL + Qt::Key_V);
-    act->setShortcutContext(Qt::ShortcutOnApplication);
+    m_formActionList.append(act);
     menu->addAction(act);
     act = m_formWindowManager->actionDelete();
     act->setShortcut(Qt::Key_Delete);
-    act->setShortcutContext(Qt::ShortcutOnApplication);
+    m_formActionList.append(act);
     menu->addAction(act);
     menu->addAction(m_formWindowManager->actionLower());
     menu->addAction(m_formWindowManager->actionRaise());
     act = m_formWindowManager->actionSelectAll();
     act->setShortcut(Qt::CTRL + Qt::Key_A);
-    act->setShortcutContext(Qt::ShortcutOnApplication);
+    m_formActionList.append(act);
     menu->addAction(act);
     act = new QAction(tr("Preferences..."), this);
     act->setEnabled(true);
@@ -345,20 +360,14 @@ void MainWindow::setupMenuBar()
 
 
     menu = mb->addMenu(tr("F&orm"));
-    m_formWindowManager->actionHorizontalLayout()
-        ->setShortcutContext(Qt::ShortcutOnApplication);
-    m_formWindowManager->actionVerticalLayout()
-        ->setShortcutContext(Qt::ShortcutOnApplication);
-    m_formWindowManager->actionSplitHorizontal()
-        ->setShortcutContext(Qt::ShortcutOnApplication);
-    m_formWindowManager->actionSplitVertical()
-        ->setShortcutContext(Qt::ShortcutOnApplication);
-    m_formWindowManager->actionGridLayout()
-        ->setShortcutContext(Qt::ShortcutOnApplication);
-    m_formWindowManager->actionBreakLayout()
-        ->setShortcutContext(Qt::ShortcutOnApplication);
-    m_formWindowManager->actionAdjustSize()
-        ->setShortcutContext(Qt::ShortcutOnApplication);
+    m_formActionList.append(m_formWindowManager->actionHorizontalLayout());
+    m_formActionList.append(m_formWindowManager->actionVerticalLayout());
+    m_formActionList.append(m_formWindowManager->actionSplitHorizontal());
+    m_formActionList.append(m_formWindowManager->actionSplitVertical());
+    m_formActionList.append(m_formWindowManager->actionGridLayout());
+    m_formActionList.append(m_formWindowManager->actionBreakLayout());
+    m_formActionList.append(m_formWindowManager->actionAdjustSize());
+    
     menu->addAction(m_formWindowManager->actionHorizontalLayout());
     menu->addAction(m_formWindowManager->actionVerticalLayout());
     menu->addAction(m_formWindowManager->actionSplitHorizontal());
@@ -369,26 +378,26 @@ void MainWindow::setupMenuBar()
     menu->addSeparator();
     m_actionPreviewForm = menu->addAction(tr("&Preview"), this, SLOT(previewForm()),
                                           Qt::CTRL + Qt::Key_R);
-    m_actionPreviewForm->setShortcutContext(Qt::ShortcutOnApplication);
+    m_formActionList.append(m_actionPreviewForm);
     menu->addSeparator();
     m_showGrid = menu->addAction(tr("Show Grid"));
     m_showGrid->setCheckable(true);
-    m_showGrid->setShortcutContext(Qt::ShortcutOnApplication);
+    m_formActionList.append(m_showGrid);
     connect(m_showGrid, SIGNAL(checked(bool)), this, SLOT(showGrid(bool)));
 
     menu->addSeparator();
     m_widgetEditMode = menu->addAction(tr("Edit Widgets"));
     m_widgetEditMode->setCheckable(true);
     m_widgetEditMode->setShortcut(Qt::Key_F2);
-    m_widgetEditMode->setShortcutContext(Qt::ShortcutOnApplication);
+    m_formActionList.append(m_widgetEditMode);
     m_connectionEditMode = menu->addAction(tr("Edit Connections"));
     m_connectionEditMode->setCheckable(true);
     m_connectionEditMode->setShortcut(Qt::Key_F3);
-    m_connectionEditMode->setShortcutContext(Qt::ShortcutOnApplication);
+    m_formActionList.append(m_connectionEditMode);
     m_tabOrderEditMode = menu->addAction(tr("Edit Tab order"));
     m_tabOrderEditMode->setCheckable(true);
     m_tabOrderEditMode->setShortcut(Qt::Key_F4);
-    m_tabOrderEditMode->setShortcutContext(Qt::ShortcutOnApplication);
+    m_formActionList.append(m_tabOrderEditMode);
     m_editModeGrp = new QActionGroup(this);
     m_editModeGrp->setExclusive(true);
     m_editModeGrp->addAction(m_widgetEditMode);
@@ -399,14 +408,14 @@ void MainWindow::setupMenuBar()
     m_readOnly = menu->addAction(tr("Read-Only"));
     m_readOnly->setCheckable(true);
     m_readOnly->setVisible(false);
-    m_readOnly->setShortcutContext(Qt::ShortcutOnApplication);
+    m_formActionList.append(m_readOnly);
     connect(m_readOnly, SIGNAL(checked(bool)), this, SLOT(readOnly(bool)));
 
     menu = mb->addMenu(tr("&Tools"));
 
     m_actionPE = menu->addAction(tr("&Property Editor"));
     m_actionPE->setShortcut(Qt::CTRL + Qt::Key_I);
-    m_actionPE->setShortcutContext(Qt::ShortcutOnApplication);
+    m_formActionList.append(m_actionPE);
     m_actionPE->setCheckable(true);
 
     PropertyEditorView *tmpPE = qt_cast<PropertyEditorView *>(core->propertyEditor()->topLevelWidget());
@@ -416,7 +425,7 @@ void MainWindow::setupMenuBar()
 
     m_actionOI = menu->addAction(tr("&Object Inspector"));
     m_actionOI->setCheckable(true);
-    m_actionOI->setShortcutContext(Qt::ShortcutOnApplication);
+    m_formActionList.append(m_actionOI);
     ObjectInspectorView *tmpOI = qt_cast<ObjectInspectorView *>(core->objectInspector()->topLevelWidget());
     Q_ASSERT(tmpOI);
     connect(m_actionOI, SIGNAL(checked(bool)), this, SLOT(showObjectInspector(bool)));
@@ -430,7 +439,7 @@ void MainWindow::setupMenuBar()
 #else
     m_actionMaximize = m_menuWindow->addAction(tr("M&aximize"), this, SLOT(maximizeForm()));
 #endif
-    m_actionMinimize->setShortcutContext(Qt::ShortcutOnApplication);
+    m_formActionList.append(m_actionMinimize);
 
     menu = mb->addMenu(tr("&Help"));
     act = menu->addAction(tr("Qt Designer Help"), this, SLOT(showDesignerHelp()),
@@ -440,19 +449,18 @@ void MainWindow::setupMenuBar()
                     Qt::Key_F1
 #endif
                    );
-    act->setShortcutContext(Qt::ShortcutOnApplication);
+    m_formActionList.append(act);
     menu->addSeparator();
 #if 0  // Need special help page first.
     act = menu->addAction(tr("What's New in Designer?"), this, SLOT(showTheNewStuff()));
-    act->setShortcutContext(Qt::ShortcutOnApplication);
 #endif
 #ifndef Q_WS_MAC // No need to show this on the mac since it is merged away.
     menu->addSeparator();
 #endif
     act = menu->addAction(tr("About Qt Designer"), this, SLOT(aboutDesigner()));
-    act->setShortcutContext(Qt::ShortcutOnApplication);
+    m_formActionList.append(act);
     act = menu->addAction(tr("About Qt"), qApp, SLOT(aboutQt()));
-    act->setShortcutContext(Qt::ShortcutOnApplication);
+    m_formActionList.append(act);
 }
 
 void MainWindow::setupToolBar()
@@ -777,7 +785,7 @@ void MainWindow::previewForm()
         QBuffer stream(&contents);
 
         QDesignerFormBuilder formBuilder(core);
-        QWidget *shell = new QVBoxWidget(this, Qt::WType_TopLevel | Qt::WType_Dialog);
+        QWidget *shell = new QVBoxWidget(this, Qt::WType_TopLevel);
         shell->setAttribute(Qt::WA_DeleteOnClose, true);
         QWidget *w = formBuilder.load(&stream, shell);
         if (QDialog *dlg = qt_cast<QDialog *>(w)) {
@@ -896,15 +904,7 @@ void MainWindow::saveSettings()
 
 void MainWindow::setupFormWindow(AbstractFormWindow *fw)
 {
-    fw->addAction(m_formWindowManager->actionUndo());
-    fw->addAction(m_formWindowManager->actionRedo());
-    fw->addAction(m_formWindowManager->actionCut());
-    fw->addAction(m_formWindowManager->actionCopy());
-    fw->addAction(m_formWindowManager->actionPaste());
-    fw->addAction(m_formWindowManager->actionDelete());
-
-    fw->addAction(m_actionPreviewForm);
-    // ### more
+    fw->addActions(m_formActionList);
 
     connect(fw, SIGNAL(selectionChanged()), this, SLOT(selectionChanged()));
     connect(fw, SIGNAL(activated(QWidget *)), this, SLOT(onActivated(QWidget *)));
@@ -1079,9 +1079,9 @@ void MainWindow::showTheNewStuff()
 
 void MainWindow::showHelp(const QString &url)
 {
-    if (!assistant)
+    if (!assistant) 
         assistant = new QAssistantClient(qInstallPathBins(), this);
-    assistant->showPage(QString(qInstallPathDocs()) + "/html/" + url);
+    assistant->showPage(QString(qInstallPathDocs()) + "/html/" + url);    
 }
 
 void MainWindow::aboutDesigner()
