@@ -12,6 +12,11 @@ class MatchCursor : public QSqlCursor
 {
 public:
     MatchCursor();
+    
+protected:
+    QVariant calculateField( uint fieldNumber );
+    
+    QSqlCursor * teamCr;
 };
 
 class PingPongApp : public QMainWindow
@@ -28,6 +33,7 @@ protected slots:
     void insertMatch();
     void deleteMatch();
     
+private:
     QSqlTable * matchTable;
     MatchCursor matchCr;
 };

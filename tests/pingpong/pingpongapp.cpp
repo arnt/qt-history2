@@ -20,6 +20,8 @@
 MatchCursor::MatchCursor()
     : QSqlCursor( "match" )
 {
+    teamCr = new QSqlCursor( "team" );
+
     field("winnerid")->setVisible( FALSE );
     field("loserid")->setVisible( FALSE );
 
@@ -27,6 +29,35 @@ MatchCursor::MatchCursor()
     field("wins")->setDisplayLabel( "Wins" );
     field("date")->setDisplayLabel( "Date" );
     field("sets")->setDisplayLabel( "Sets" );
+    
+    // add lookup field
+
+    QSqlField loser("loser", QVariant::String );
+    loser.setDisplayLabel("Loser");
+    loser.setCalculated( TRUE );
+    prepend( loser );    
+
+    QSqlField winner("winner", QVariant::String );
+    winner.setDisplayLabel("Winner");
+    winner.setCalculated( TRUE );
+    prepend( winner );
+}
+
+QVariant MatchCursor::calculateField( uint fieldNumber )
+{    
+    qDebug("here? %s, %s", (const char *)field(0)->value().toString(), 
+       (const char *)field(1)->value().toString());
+    
+    if( field( fieldNumber )->name() == "winner" ){ // Winner team
+	teamCr->setValue( "id", field("winnerid")->value() );
+    } else if( field( fieldNumber )->name() == "loser" ){ // Looser team
+	teamCr->setValue( "id", field("loserid")->value() );
+    }
+    teamCr->select( teamCr->primaryIndex(), teamCr->primaryIndex() );
+    if( teamCr->next() )
+	return teamCr->value( "name" );
+    else
+	return QVariant( QString::null );
 }
 
 PingPongApp::PingPongApp( QWidget * parent, const char * name )
@@ -102,7 +133,6 @@ void PingPongApp::init()
     matchTable->setConfirmEdits( TRUE );
     matchTable->setConfirmCancels( TRUE );
     matchTable->setCursor( &matchCr );
-
 }
 
 void PingPongApp::insertMatch()
@@ -120,7 +150,7 @@ void PingPongApp::updateMatch()
 {
      QSqlCursor * cr = matchTable->cursor();
 
-     GenericDialog dlg( cr->updateBuffer(), GenericDialog::Update, this );
+     UpdateMatchDialog dlg( cr->updateBuffer(), this );
      if( dlg.exec() == QDialog::Accepted ){
  	cr->update();
  	matchTable->refresh();

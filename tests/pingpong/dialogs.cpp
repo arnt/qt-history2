@@ -68,3 +68,55 @@ void GenericDialog::execute()
     form->writeRecord();
     accept();
 }
+
+
+
+//
+//  UpdateMatchDialog class
+//
+
+UpdateMatchDialog::UpdateMatchDialog( QSqlRecord* buf, QWidget * parent,
+				      const char * name )
+    : QDialog( parent, name, TRUE )
+{
+    QWidget *     w = new QWidget( this );
+    QVBoxLayout * g = new QVBoxLayout( this );
+    QHBoxLayout * h = new QHBoxLayout;
+
+    setCaption( "Update match results" );
+
+    form = new QSqlForm( w, buf, 2, this);
+    g->setMargin( 3 );
+
+    QLabel * label = new QLabel( "Update match results", this );
+    QFont f = font();
+    f.setBold( TRUE );
+    label->setFont( f );
+    g->addWidget( label );
+
+    h->addItem( new QSpacerItem( 0, 0, QSizePolicy::Expanding,
+				 QSizePolicy::Minimum ) );
+
+    QPushButton * button = new QPushButton( "&Update", this );
+    button->setDefault( TRUE );
+    connect( button, SIGNAL( clicked() ), SLOT( execute() ) );
+    h->addWidget( button );
+
+    button = new QPushButton( "&Close", this );
+    connect( button, SIGNAL( clicked() ), SLOT( close() ) );
+    h->addWidget( button );
+
+    g->addWidget( w );
+    g->addLayout( h );
+}
+
+void UpdateMatchDialog::close()
+{
+    reject();
+}
+
+void UpdateMatchDialog::execute()
+{
+    form->writeRecord();
+    accept();
+}
