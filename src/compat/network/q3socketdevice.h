@@ -61,23 +61,23 @@ public:
     int		 sendBufferSize() const;
     virtual void setSendBufferSize( uint );
 
-    virtual bool connect( const QHostAddress &, quint16 );
+    virtual bool connect( const QHostAddress &, Q_UINT16 );
 
-    virtual bool bind( const QHostAddress &, quint16 );
+    virtual bool bind( const QHostAddress &, Q_UINT16 );
     virtual bool listen( int backlog );
     virtual int	 accept();
 
     qint64	 bytesAvailable() const;
-    qint64	 waitForMore( int msecs, bool *timeout=0 ) const;
-    virtual qint64  writeBlock( const char *data, Q_ULONG len,
-			    const QHostAddress & host, quint16 port );
-    inline qint64 writeBlock(const char *data, Q_ULONG len)
+    Q_LONG	 waitForMore( int msecs, bool *timeout=0 ) const;
+    virtual Q_LONG  writeBlock( const char *data, Q_ULONG len,
+			    const QHostAddress & host, Q_UINT16 port );
+    inline Q_LONG writeBlock(const char *data, Q_ULONG len)
         { return qint64(write(data, qint64(len))); }
     inline qint64 readBlock(char *data, Q_ULONG maxlen)
         { return qint64(read(data, qint64(maxlen))); }
 
-    quint16	 port() const;
-    quint16	 peerPort() const;
+    Q_UINT16	 port() const;
+    Q_UINT16	 peerPort() const;
     QHostAddress address() const;
     QHostAddress peerAddress() const;
 
@@ -106,9 +106,9 @@ protected:
 private:
     int fd;
     Type t;
-    quint16 p;
+    Q_UINT16 p;
     QHostAddress a;
-    quint16 pp;
+    Q_UINT16 pp;
     QHostAddress pa;
     Q3SocketDevice::Error e;
     Q3SocketDevicePrivate * d;
