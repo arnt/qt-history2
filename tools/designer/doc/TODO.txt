@@ -28,6 +28,11 @@ Dynamic creating of dialogs from XML (Reggie, Volker)
     customwidget stuff ready for that, so that customwidgets can be used. Access to
     the widgets by name is available through QObject::child( const char * ).
 
+Add splitter support (Reggie)
+    Same concept as tabwidgets
+    (widgetOfContainer/containerOfWidget/passiveInteractor). Will be
+    easy to do.
+
 Extending existing functionality
 --------------------------------
 
