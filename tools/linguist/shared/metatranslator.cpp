@@ -61,42 +61,58 @@ bool TsHandler::startElement( const QString& /* namespaceURI */,
 			      const QString& qName,
 			      const QXmlAttributes& atts )
 {
-    if ( qName == QString("context") ) {
-	context.truncate( 0 );
-	source.truncate( 0 );
-	comment.truncate( 0 );
-	translation.truncate( 0 );
+    if ( qName == QString("byte") ) {
+	for ( int i = 0; i < atts.length(); i++ ) {
+	    if ( atts.qName(i) == QString("value") ) {
+		QString value = atts.value( i );
+		int base = 10;
+		if ( value.startsWith("x") ) {
+		    base = 16;
+		    value = value.mid( 1 );
+		}
+		int n = value.toUInt( 0, base );
+		if ( n != 0 )
+		    accum += QChar( n );
+	    }
+	}	
+    } else {
+	if ( qName == QString("context") ) {
+	    context.truncate( 0 );
+	    source.truncate( 0 );
+	    comment.truncate( 0 );
+	    translation.truncate( 0 );
 
-	contextIsUtf8 = FALSE;
-	for ( int i = 0; i < atts.length(); i++ ) {
-	    if ( atts.qName(i) == QString("utf8") )
-		contextIsUtf8 = ( atts.value(i) == QString("true") );
-	}
-    } else if ( qName == QString("message") ) {
-	inMessage = TRUE;
-	type = MetaTranslatorMessage::Finished;
-	source.truncate( 0 );
-	comment.truncate( 0 );
-	translation.truncate( 0 );
+	    contextIsUtf8 = FALSE;
+	    for ( int i = 0; i < atts.length(); i++ ) {
+		if ( atts.qName(i) == QString("utf8") )
+		    contextIsUtf8 = ( atts.value(i) == QString("true") );
+	    }
+	} else if ( qName == QString("message") ) {
+	    inMessage = TRUE;
+	    type = MetaTranslatorMessage::Finished;
+	    source.truncate( 0 );
+	    comment.truncate( 0 );
+	    translation.truncate( 0 );
 
-	messageIsUtf8 = FALSE;
-	for ( int i = 0; i < atts.length(); i++ ) {
-	    if ( atts.qName(i) == QString("utf8") )
-		messageIsUtf8 = ( atts.value(i) == QString("true") );
-	}
-    } else if ( qName == QString("translation") ) {
-	for ( int i = 0; i < atts.length(); i++ ) {
-	    if ( atts.qName(i) == QString("type") ) {
-		if ( atts.value(i) == QString("unfinished") )
-		    type = MetaTranslatorMessage::Unfinished;
-		else if ( atts.value(i) == QString("obsolete") )
-		    type = MetaTranslatorMessage::Obsolete;
-		else
-		    type = MetaTranslatorMessage::Finished;
+	    messageIsUtf8 = FALSE;
+	    for ( int i = 0; i < atts.length(); i++ ) {
+		if ( atts.qName(i) == QString("utf8") )
+		    messageIsUtf8 = ( atts.value(i) == QString("true") );
+	    }
+	} else if ( qName == QString("translation") ) {
+	    for ( int i = 0; i < atts.length(); i++ ) {
+		if ( atts.qName(i) == QString("type") ) {
+		    if ( atts.value(i) == QString("unfinished") )
+			type = MetaTranslatorMessage::Unfinished;
+		    else if ( atts.value(i) == QString("obsolete") )
+			type = MetaTranslatorMessage::Obsolete;
+		    else
+			type = MetaTranslatorMessage::Finished;
+		}
 	    }
 	}
+	accum.truncate( 0 );
     }
-    accum.truncate( 0 );
     return TRUE;
 }
 
@@ -104,8 +120,6 @@ bool TsHandler::endElement( const QString& /* namespaceURI */,
 			    const QString& /* localName */,
 			    const QString& qName )
 {
-    accum.replace( QRegExp(QString("\r\n")), "\n" );
-
     if ( qName == QString("codec") ) {
 	tor->setCodec( accum );
     } else if ( qName == QString("name") ) {
@@ -143,7 +157,9 @@ bool TsHandler::endElement( const QString& /* namespaceURI */,
 
 bool TsHandler::characters( const QString& ch )
 {
-    accum += ch;
+    QString t = ch;
+    t.replace( QRegExp(QChar('\r')), "" );
+    accum += t;
     return TRUE;
 }
 
@@ -163,33 +179,39 @@ bool TsHandler::fatalError( const QXmlParseException& exception )
     return FALSE;
 }
 
+static QString numericEntity( int ch )
+{
+    return QString( ch <= 0x20 ? "<byte value=\"x%1\"/>" : "&#x%1;" )
+	   .arg( ch, 0, 16 );
+}
+
 static QString protect( const QCString& str )
 {
-    int k = 0;
-    int l = (int) str.length();
     QString result;
-    while( k < l ) {
+    int len = (int) str.length();
+    for ( int k = 0; k < len; k++ ) {
 	switch( str[k] ) {
 	case '\"':
-	    result += QString::fromLatin1( "&quot;" );
+	    result += QString( "&quot;" );
 	    break;
 	case '&':
-	    result += QString::fromLatin1( "&amp;" );
+	    result += QString( "&amp;" );
 	    break;
 	case '>':
-	    result += QString::fromLatin1( "&gt;" );
+	    result += QString( "&gt;" );
 	    break;
 	case '<':
-	    result += QString::fromLatin1( "&lt;" );
+	    result += QString( "&lt;" );
 	    break;
 	case '\'':
-	    result += QString::fromLatin1( "&apos;" );
+	    result += QString( "&apos;" );
 	    break;
 	default:
-	    result += str[k];
-	    break;
+	    if ( (uchar) str[k] < 0x20 && str[k] != '\n' )
+		result += numericEntity( (uchar) str[k] );
+	    else
+		result += str[k];
 	}
-	k++;
     }
     return result;
 }
@@ -199,19 +221,14 @@ static QString evilBytes( const QCString& str, bool utf8 )
     if ( utf8 ) {
 	return protect( str );
     } else {
-	// not very efficient
-	int k = 0;
 	QString result;
-	QCString tmp = protect( str ).ascii();
-	int l = (int) tmp.length();
-	while( k < l ) {
-	    if ( (uchar)tmp[k] >= 128 )
-		result += ( QString::fromLatin1( "&#x" ) +
-		            QString::number( (uint)(uchar)tmp[k], 16 ) +
-			    QChar(';') );
+	QCString t = protect( str ).latin1();
+	int len = (int) t.length();
+	for ( int k = 0; k < len; k++ ) {
+	    if ( (uchar) t[k] >= 0x7f )
+		result += numericEntity( (uchar) t[k] );
 	    else
-		result += QChar( tmp[k] );
-	    k++;
+		result += QChar( t[k] );
 	}
 	return result;
     }
@@ -455,7 +472,7 @@ QString MetaTranslator::toUnicode( const char *str, bool utf8 ) const
     if ( utf8 )
 	return QString::fromUtf8( str );
     else if ( codec == 0 )
-	return QString::fromLatin1( str );
+	return QString( str );
     else
 	return codec->toUnicode( str );
 }
