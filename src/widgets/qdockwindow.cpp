@@ -1784,23 +1784,24 @@ void QDockWindow::updateSplitterVisibility( bool visible )
 /*! \reimp */
 bool QDockWindow::eventFilter( QObject *o, QEvent *e )
 {
-    if ( parent() == o ) {
-	if ( (e->type() == QEvent::WindowDeactivate ||
-	      e->type() == QEvent::WindowActivate )
-	     && place() == OutsideDock && isTopLevel() )
-	    event( e );
-    } else if ( e->type() == QEvent::KeyPress ) {
+    if ( e->type() == QEvent::KeyPress && 
+	( horHandle->mousePressed || 
+	  verHandle->mousePressed || 
+	  titleBar->mousePressed ) ) {
 	QKeyEvent *ke = (QKeyEvent*)e;
 	if ( ke->key() == Key_Escape ) {
-	    horHandle->mousePressed = FALSE;
-	    verHandle->mousePressed = FALSE;
-	    titleBar->mousePressed = FALSE;
+	    horHandle->mousePressed = 
+		verHandle->mousePressed = 
+		    titleBar->mousePressed = FALSE;
 	    endRectDraw( !opaque );
 	    qApp->removeEventFilter( this );
 	    return TRUE;
 	}
+    } else if ( place() == OutsideDock && isTopLevel() ) {
+	if ( (e->type() == QEvent::WindowDeactivate ||
+	    e->type() == QEvent::WindowActivate ) )
+	    event( e );
     }
-
     return FALSE;
 }
 
