@@ -1152,6 +1152,20 @@ QTextFrame *QTextCursor::insertFrame(const QTextFrameFormat &format)
     return d->pieceTable->insertFrame(selectionStart(), selectionEnd(), format);
 }
 
+/*!
+    Returns a pointer to the current frame, returns a
+    null pointer if the cursor is invalid.
+
+    \sa insertFrame()
+*/
+QTextFrame *QTextCursor::currentFrame() const
+{
+    if(!d)
+        return 0;
+
+    return d->pieceTable->frameAt(d->position);
+}
+
 
 /*!
     Inserts the text \a fragment at the current position().
