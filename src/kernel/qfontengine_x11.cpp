@@ -418,7 +418,7 @@ void QFontEngineXLFD::draw( QPainter *p, int x, int y, const QTextEngine *engine
 	    XSync( dpy, FALSE );
 	    XSetErrorHandler( old_handler );
 	    if ( x_font_load_error ) {
-		qDebug( "couldn't load transformed font" );
+		//qDebug( "couldn't load transformed font" );
 		font_id = _fs->fid;
 		xlfd_transformations = XlfdTrUnsupported;
 	    }
@@ -446,7 +446,7 @@ void QFontEngineXLFD::draw( QPainter *p, int x, int y, const QTextEngine *engine
                 QBitmap bm( aw, ah, TRUE );     // create bitmap
                 QPainter paint;
                 paint.begin( &bm );             // draw text in bitmap
-		draw( &paint, -si->x, -si->y-si->ascent, engine, si, textFlags );
+		draw( &paint, 0, si->ascent, engine, si, textFlags );
                 paint.end();
                 wx_bm = new QBitmap( bm.xForm(mat2) ); // transform bitmap
                 if ( wx_bm->isNull() ) {
@@ -454,7 +454,7 @@ void QFontEngineXLFD::draw( QPainter *p, int x, int y, const QTextEngine *engine
                     return;
                 }
             }
-            double fx=x + si->x, fy=y + si->y - si->ascent, nfx, nfy;
+            double fx=x, fy=y - si->ascent, nfx, nfy;
             mat1.map( fx,fy, &nfx,&nfy );
             double tfx=tx, tfy=ty, dx, dy;
             mat2.map( tfx, tfy, &dx, &dy );     // compute position of bitmap
@@ -463,7 +463,7 @@ void QFontEngineXLFD::draw( QPainter *p, int x, int y, const QTextEngine *engine
             XSetFillStyle( dpy, gc, FillStippled );
             XSetStipple( dpy, gc, wx_bm->handle() );
             XSetTSOrigin( dpy, gc, x, y );
-            XFillRectangle( dpy, hd, gc, x, y,wx_bm->width(),wx_bm->height() );
+            XFillRectangle( dpy, hd, gc, x, y, wx_bm->width(), wx_bm->height() );
             XSetTSOrigin( dpy, gc, 0, 0 );
             XSetFillStyle( dpy, gc, FillSolid );
 #if 0
