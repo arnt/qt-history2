@@ -2778,7 +2778,8 @@ void QETWidget::updateRegion()
 	r += wmr;
     }
 #endif
-    qwsDisplay()->requestRegion(winId(), r);
+    if ( isVisible() )
+	qwsDisplay()->requestRegion(winId(), r);
 
     setChildrenAllocatedDirty();
     paintable_region_dirty = TRUE;
