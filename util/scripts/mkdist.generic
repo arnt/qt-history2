@@ -71,7 +71,7 @@ if [ "$local" = "yes" ]; then
     tar cfT - - | (cd ${DISTDIR} ; tar xf - )
 else
   echo "Exporting the entire Qt archive..." >&2
-  cvs -Q export -Dnow qt
+  cvs -Q export -rHEAD qt
 fi
 
 echo "Removing internal files..." >&2
