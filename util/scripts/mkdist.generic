@@ -92,7 +92,25 @@ fi
 
 echo "Removing internal files..." >&2
 cd ${DISTDIR}/qt/src
-tmake qtinternal.pro -e "Expand('INTERNAL')" | xargs rm -fv
+###tmake qtinternal.pro -e "Expand('INTERNAL')" | xargs rm -fv
+rm 	  dialogs/qdeveloper.h \
+	  dialogs/qtranslatordialog.h \
+	  kernel/qproperty.h \
+	  kernel/qsocket.h \
+	  kernel/qsocketdevice.h \
+	  widgets/qdial.h \
+	  widgets/qworkspace.h \
+	  widgets/qworkspacechild.h \
+	  kernel/qproperty.cpp \
+	  kernel/qsocket.cpp \
+	  kernel/qsocketdevice.cpp \
+	  widgets/qdial.cpp \
+	  widgets/qworkspace.cpp \
+	  widgets/qworkspacechild.cpp \
+	  dialogs/qdeveloper.cpp \
+	  dialogs/qtranslatordialog.cpp \
+
+
 
 # Replace Netscape-owned code with dummies (direct user to PluginSDK)
 for i in ${DISTDIR}/qt/extensions/nsplugin/src/np* ${DISTDIR}/qt/extensions/nsplugin/src/jri*
