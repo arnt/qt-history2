@@ -1323,6 +1323,10 @@ int QApplication::macProcessEvent(MSG * m)
 	    setActiveWindow(widget);
     } else if( er->what == mouseDown  || er->what == mouseUp ) {
 
+	if( (er->what == mouseDown && mouse_button_state ) ||
+	    (er->what == mouseUp && !mouse_button_state) )
+	    return 0;
+
 	QEvent::Type etype = QEvent::None;
 	int keys = get_modifiers(er->modifiers);
 	int button, state=0;
@@ -1413,7 +1417,11 @@ int QApplication::macProcessEvent(MSG * m)
 		QPoint p( er->where.h, er->where.v );
 		QPoint plocal(widget->mapFromGlobal( p ));
 		QMouseEvent qme( etype, plocal, p, button, state );
-//		qDebug("Would send (button) event to %s %s", widget->name(), widget->className());
+#if 0
+		qDebug("Would send (%s) event to %s %s", etype == QEvent::MouseButtonPress ? "Press" :
+		       etype == QEvent::MouseButtonRelease ? "Release" : "Double-click",
+		       widget->name(), widget->className());
+#endif
 		QApplication::sendEvent( widget, &qme );
 	    }
 	}
