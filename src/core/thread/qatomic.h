@@ -99,7 +99,7 @@ struct QBasicAtomicPointer
     inline T *operator->() const
     { return const_cast<T *>(pointer); }
 
-    inline QBasicAtomicPointer &operator=(T *t)
+    inline QBasicAtomicPointer<T> &operator=(T *t)
     {
         (void) q_atomic_set_ptr(&pointer, t);
         return *this;
