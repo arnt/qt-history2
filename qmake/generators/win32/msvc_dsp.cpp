@@ -465,6 +465,10 @@ DspMakefileGenerator::init()
 	    project->variables()["MSVCDSP_DEBUG_OPT"] = "/GZ /Zi";
     }
 
+    QString msvcdsp_project;
+    if ( project->variables()["TARGET"].count() )
+	msvcdsp_project = project->variables()["TARGET"].first();
+
     project->variables()["TARGET"].first() += project->first("TARGET_EXT");
     if ( project->isActiveConfig("moc") ) {
 	setMocAware(TRUE);
@@ -480,9 +484,12 @@ DspMakefileGenerator::init()
     }
 
     MakefileGenerator::init();
-    QString msvcdsp_project = Option::output.name();
+    if ( msvcdsp_project.isEmpty() )
+	msvcdsp_project = Option::output.name();
+
     msvcdsp_project = msvcdsp_project.right( msvcdsp_project.length() - msvcdsp_project.findRev( "\\" ) - 1 );
     msvcdsp_project = msvcdsp_project.left( msvcdsp_project.findRev( "." ) );
+    msvcdsp_project.replace(QRegExp("-"), "");
 
     project->variables()["MSVCDSP_PROJECT"].append(msvcdsp_project);
     QStringList &proj = project->variables()["MSVCDSP_PROJECT"];
