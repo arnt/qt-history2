@@ -375,7 +375,7 @@ public:
 
     // Reimplemented from QDomNodePrivate
     QDomNamedNodeMapPrivate* attributes() { return m_attr; }
-    bool hasAttributes() { return ( m_attr != 0 ); }
+    bool hasAttributes() { return ( m_attr->length() > 0 ); }
     bool isElement() { return TRUE; }
     QDomNode::NodeType nodeType() const { return QDomNode::ElementNode; }
     QDomNodePrivate* cloneNode( bool deep = TRUE );
