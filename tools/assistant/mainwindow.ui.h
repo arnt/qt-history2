@@ -29,6 +29,7 @@
 #include <qfontinfo.h>
 #include <qaccel.h>
 #include <qmetaobject.h>
+#include <qeventloop.h>
 
 QPtrList<MainWindow> *MainWindow::windows = 0;
 
@@ -305,6 +306,9 @@ void MainWindow::print()
 	if ( !p.begin( &printer ) )
 	    return;
 
+	qApp->setOverrideCursor( QCursor( Qt::WaitCursor ) );
+	qApp->eventLoop()->processEvents( QEventLoop::ExcludeUserInput );
+
 	QPaintDeviceMetrics metrics(p.device());
 	QTextBrowser *browser = tabs->currentBrowser();
 	int dpix = metrics.logicalDpiX();
@@ -320,6 +324,8 @@ void MainWindow::print()
 	QRect view( body );
 	int page = 1;
 	do {
+	    qApp->eventLoop()->processEvents( QEventLoop::ExcludeUserInput );
+
 	    richText.draw( &p, body.left(), body.top(), view, colorGroup() );
 	    view.moveBy( 0, body.height() );
 	    p.translate( 0 , -body.height() );
@@ -330,6 +336,9 @@ void MainWindow::print()
 	    printer.newPage();
 	    page++;
 	} while (TRUE);
+
+	qApp->eventLoop()->processEvents( QEventLoop::ExcludeUserInput );
+	qApp->restoreOverrideCursor();
     }
 }
 
@@ -502,7 +511,7 @@ void MainWindow::saveSettings()
     config->setLinkColor( tabs->palette().color( QPalette::Active, QColorGroup::Link ).name() );
     config->setSource( tabs->currentBrowser()->source() );
     config->setSideBarPage( helpDock->tabWidget->currentPageIndex() );
-    config->setGeometry( geometry() );
+    config->setGeometry( QRect( x(), y(), width(), height() ) );
     config->setMaximized( isMaximized() );
     config->save();
 }
