@@ -37,7 +37,7 @@ class QSessionManager;
 class QStyle;
 class QTranslator;
 #if defined(_WS_QWS_)
-class QWSDecorator;
+class QWSDecoration;
 #endif
 template <class type> class QList;
 
@@ -194,8 +194,8 @@ public:
     virtual bool     qwsEventFilter( QWSEvent * );
     int              qwsProcessEvent( QWSEvent* );
 #ifndef QT_NO_QWS_MANAGER
-    static QWSDecorator &qwsDecorator();
-    static void      qwsSetDecorator( QWSDecorator *);
+    static QWSDecoration &qwsDecoration();
+    static void      qwsSetDecoration( QWSDecoration *);
 #endif
 #endif
 

@@ -109,7 +109,7 @@ bool qws_savefonts = FALSE;
 bool qws_shared_memory = FALSE;
 bool qws_sw_cursor = TRUE;
 #ifndef QT_NO_QWS_MANAGER
-static QWSDecorator *qws_decorator = 0;
+static QWSDecoration *qws_decoration = 0;
 #endif
 #undef gettimeofday
 extern "C" int gettimeofday( struct timeval *, struct timezone * );
@@ -872,7 +872,7 @@ static void init_display()
     QPainter::initialize();
     QFontManager::initialize();
 #ifndef QT_NO_QWS_MANAGER
-    qws_decorator = new QWSDefaultDecorator;
+    qws_decoration = new QWSDefaultDecoration;
 #endif
 
     qApp->setName( appName );
@@ -1857,7 +1857,16 @@ int QApplication::qwsProcessEvent( QWSEvent* event )
     return 0;
 }
 
-
+/*!
+  This virtual does the core processing of individual Qt/Embedded events,
+  normally by dispatching Qt events to the right destination.
+ 
+  It returns 1 if the event was consumed by special handling, 0 if the
+  event was consumed by normal handling, and -1 if the event was for an
+  unrecognized widget.
+  
+  \sa qwsEventFilter()
+*/
 void QApplication::processEvents( int maxtime )
 {
     QTime start = QTime::currentTime();
@@ -1868,23 +1877,50 @@ void QApplication::processEvents( int maxtime )
 	    break;
     }
 }
+   
 
-
+/*!
+  This virtual function is only implemented under Qt/Embedded.
+ 
+  If you create an application that inherits QApplication and
+  reimplement this function, you get direct access to all QWS
+  (Q Window System) events that the are received from the QWS
+  master process.
+        
+  Return TRUE if you want to stop the event from being processed, or
+  return FALSE for normal event dispatching.
+*/
 bool QApplication::qwsEventFilter( QWSEvent * )
 {
     return FALSE;
 }
+
 #ifndef QT_NO_QWS_MANAGER
-QWSDecorator &QApplication::qwsDecorator()
+/*!
+  Return the QWSDecoration used for decorating windows.
+
+  This method is non-portable.  It is available \e only in Qt/Embedded.
+
+  \sa QWSDecoration
+*/
+QWSDecoration &QApplication::qwsDecoration()
 {
-    return *qws_decorator;
+    return *qws_decoration;
 }
 
-void QApplication::qwsSetDecorator( QWSDecorator *d )
+/*!
+  Set the QWSDecoration derived class to use for decorating the Qt/Embedded
+  windows.
+
+  This method is non-portable.  It is available \e only in Qt/Embedded.
+
+  \sa QWSDecoration
+*/
+void QApplication::qwsSetDecoration( QWSDecoration *d )
 {
     if ( d ) {
-	delete qws_decorator;
-	qws_decorator = d;
+	delete qws_decoration;
+	qws_decoration = d;
     }
 }
 #endif

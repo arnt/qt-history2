@@ -265,7 +265,7 @@ void QWidget::create( WId window, bool initializeWindow, bool /*destroyOldWindow
 	     || testWFlags(WStyle_NormalBorder))
 	{
 	    // get size of wm decoration
-	    QRegion r = QApplication::qwsDecorator().region(this, crect);
+	    QRegion r = QApplication::qwsDecoration().region(this, crect);
 	    QRect br( r.boundingRect() );
 	    crect.moveBy( crect.x() - br.x(), crect.y() - br.y() );
 	    topData()->qwsManager = new QWSManager(this);

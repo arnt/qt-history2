@@ -32,6 +32,32 @@ class QMouseEvent;
 class QWSButton;
 class QTimer;
 
+/*
+ Implements decoration styles
+*/
+class QWSDecoration
+{
+public:
+    QWSDecoration() {}
+    virtual ~QWSDecoration() {}
+
+    enum Region { None=0, All=1, Title=2, Top=3, Bottom=4, Left=5, Right=6,
+		TopLeft=7, TopRight=8, BottomLeft=9, BottomRight=10,
+		Close=11, Minimize=12, Maximize=13, Normalize=14,
+		Menu=15, LastRegion=Menu };
+
+    virtual QRegion region(const QWidget *, const QRect &rect, Region r=All) = 0;
+    virtual void close( QWidget * );
+    virtual void minimize( QWidget * );
+    virtual void maximize( QWidget * );
+#ifndef QT_NO_COMPLEXWIDGETS
+    virtual QPopupMenu *menu(const QWidget *, const QPoint &);
+#endif
+    virtual void paint(QPainter *, const QWidget *) = 0;
+    virtual void paintButton(QPainter *, const QWidget *, Region, int state) = 0;
+};
+
+
 class QWSManager : public QObject
 {
     Q_OBJECT
@@ -46,17 +72,12 @@ public:
 
     static QWidget *grabbedMouse() { return active; }
 
-    enum Region { None=0, All=1, Title=2, Top=3, Bottom=4, Left=5, Right=6,
-		TopLeft=7, TopRight=8, BottomLeft=9, BottomRight=10,
-		Close=11, Minimize=12, Maximize=13, Normalize=14,
-		Menu=15, LastRegion=Menu };
-
 protected slots:
     void menuActivated(int);
     void handleMove();
 
 protected:
-    virtual Region pointInRegion(const QPoint &);
+    virtual QWSDecoration::Region pointInRegion(const QPoint &);
 
     virtual bool event(QEvent *e);
     virtual void mouseMoveEvent(QMouseEvent *);
@@ -70,7 +91,7 @@ protected:
     void minimize();
     void toggleMaximize();
 
-    Region activeRegion;
+    QWSDecoration::Region activeRegion;
     QWidget *managed;
     QPopupMenu *popup;
     QRect   normalSize;
@@ -91,7 +112,7 @@ protected:
 class QWSButton
 {
 public:
-    QWSButton(QWSManager *m, QWSManager::Region t, bool tb = false);
+    QWSButton(QWSManager *m, QWSDecoration::Region t, bool tb = false);
 
     enum State { MouseOver = 0x01, Clicked = 0x02, On = 0x04 };
     int state() { return flags; }
@@ -105,39 +126,22 @@ protected:
 private:
     int  flags;
     bool toggle;
-    QWSManager::Region type;
+    QWSDecoration::Region type;
     QWSManager *manager;
 };
 
-/*
- Implements decoration styles
-*/
-class QWSDecorator
+class QWSDefaultDecoration : public QWSDecoration
 {
 public:
-    QWSDecorator() {}
-    virtual ~QWSDecorator() {}
-
-    virtual QRegion region(const QWidget *, const QRect &rect, QWSManager::Region r=QWSManager::All) = 0;
-#ifndef QT_NO_COMPLEXWIDGETS
-    virtual QPopupMenu *menu(const QWidget *, const QPoint &);
-#endif
-    virtual void paint(QPainter *, const QWidget *) = 0;
-    virtual void paintButton(QPainter *, const QWidget *, QWSManager::Region, int state) = 0;
-};
-
-class QWSDefaultDecorator : public QWSDecorator
-{
-public:
-    QWSDefaultDecorator();
-    virtual ~QWSDefaultDecorator();
+    QWSDefaultDecoration();
+    virtual ~QWSDefaultDecoration();
     
-    virtual QRegion region(const QWidget *, const QRect &rect, QWSManager::Region);
+    virtual QRegion region(const QWidget *, const QRect &rect, Region);
     virtual void paint(QPainter *, const QWidget *);
-    virtual void paintButton(QPainter *, const QWidget *, QWSManager::Region, int state);
+    virtual void paintButton(QPainter *, const QWidget *, Region, int state);
 
 protected:
-    virtual const QPixmap* pixmapFor(const QWidget*,QWSManager::Region,bool,int&,int&);
+    virtual const QPixmap* pixmapFor(const QWidget*, Region, bool, int&, int&);
 };
 
 #endif //QT_NO_QWS_MANAGER

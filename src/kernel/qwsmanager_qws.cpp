@@ -147,20 +147,176 @@ static const char * const normalize_xpm[] = {
 "                "};
 #endif
 
+
+/*!
+  \class QWSDecoration qwsmanager_qws.h
+  \brief The QWSDecoration allows the appearance of the Qt/Embedded Window
+  Manager to be customised.
+
+  Qt/Embedded provides window management to top level windows.  The
+  appearance of the borders and buttons (the decoration) around the
+  managed windows can be customized by creating your own class derived
+  from QWSDecoration and overriding a few methods.
+
+  This class is non-portable.  It is available \e only in Qt/Embedded.
+
+  \sa QApplication::qwsSetDecoration()
+*/
+
+/*!
+  \fn QWSDecoration::QWSDecoration()
+
+  Constructs a decorator.
+*/
+
+/*!
+  \fn QWSDecoration::~QWSDecoration()
+
+  Destructs a decorator.
+*/
+
+/*!
+  \enum QWSDecoration::Region
+
+  This enum describes the regions in the window decorations.
+
+  <ul>
+  <li> \c None - used internally.
+  <li> \c All - the entire region used by the window decoration.
+  <li> \c Title - Displays the window title and allows the window to be
+	  moved by dragging.
+  <li> \c Top - allows the top of the window to be resized.
+  <li> \c Bottom - allows the bottom of the window to be resized.
+  <li> \c Left - allows the left edge of the window to be resized.
+  <li> \c Right - allows the right edge of the window to be resized.
+  <li> \c TopLeft - allows the top-left of the window to be resized.
+  <li> \c TopRight - allows the top-right of the window to be resized.
+  <li> \c BottomLeft - allows the bottom-left of the window to be resized.
+  <li> \c BottomRight - allows the bottom-right of the window to be resized.
+  <li> \c Close - clicking in this region closes the window.
+  <li> \c Minimize - clicking in this region minimizes the window.
+  <li> \c Maximize - clicking in this region maximizes the window.
+  <li> \c Normalize - returns a maximized window to previous size.
+  <li> \c Menu - clicking in this region opens the window operations menu.
+  </ul>
+*/
+
+/*!
+  \fn QRegion QWSDecoration::region( const QWidget *widget, const QRect &rect, Region type )
+
+  Returns the requested region \a type which will contain \a widget
+  with geometry \a rect.
+*/
+
+/*!
+  Called when the user clicks in the \c Close region.
+
+  \a widget is the QWidget to be closed.
+
+  The default behaviour is to close the widget.
+*/
+void QWSDecoration::close( QWidget *widget )
+{
+    widget->close(FALSE);
+}
+
+/*!
+  Called when the user clicks in the \c Minimize region.
+
+  \a widget is the QWidget to be minimized.
+
+  The default behaviour is to ignore this action.
+*/
+void QWSDecoration::minimize( QWidget *widget )
+{
+    qDebug("No minimize functionality provided");
+}
+
+
+/*!
+  Called when the user clicks in the \c Maximize region.
+
+  \a widget is the QWidget to be maximized.
+
+  The default behaviour is to resize the widget to be full-screen.
+  This method can be overridden to, e.g. avoid launch panels.
+*/
+void QWSDecoration::maximize( QWidget *widget )
+{
+    QRect desk = QApplication::desktop()->rect();
+    // find out how much space the decoration needs
+    QRegion r = region(widget, QApplication::desktop()->rect());
+    QRect rect = r.boundingRect();
+    QRect nr;
+    nr.setLeft(-rect.x());
+    nr.setTop(-rect.y());
+    nr.setRight(desk.right() - rect.right() + desk.right() );
+    nr.setBottom(desk.bottom() - rect.bottom() + desk.bottom() );
+    widget->setGeometry(nr);
+}
+
+/*!
+  Called to create a QPopupMenu containing the valid menu operations.
+
+  The default implementation adds all possible window operations.
+*/
+
+#ifndef QT_NO_COMPLEXWIDGETS
+QPopupMenu *QWSDecoration::menu(const QWidget *, const QPoint &)
+{
+    QPopupMenu *m = new QPopupMenu();
+
+    m->insertItem(QObject::tr("&Restore"), (int)Normalize);
+    m->insertItem(QObject::tr("&Move"), (int)Title);
+    m->insertItem(QObject::tr("&Size"), (int)BottomRight);
+    m->insertItem(QObject::tr("Mi&nimize"), (int)Minimize);
+    m->insertItem(QObject::tr("Ma&ximize"), (int)Maximize);
+    m->insertSeparator();
+    m->insertItem(QObject::tr("Close"), (int)Close);
+
+    return m;
+}
+#endif
+
+/*!
+  \fn void QWSDecoration::paint( QPainter *painter, const QWidget *widget )
+
+  Override to paint the border and title decoration around \a widget using
+  \a painter.
+
+*/
+
+/*!
+  \fn void QWSDecoration::paintButton( QPainter *painter, const QWidget *widget, Region type, int state )
+
+  Override to paint a button \a type using \a painter.
+
+  \a widget is the widget whose button is to be drawn.
+  \a state is the state of the button.  It can be a combination of the
+  following ORed together:
+  <ul>
+  <li> \c QWSButton::MouseOver
+  <li> \c QWSButton::Clicked
+  <li> \c QWSButton::On
+  </ul>
+*/
+
+
 QWidget *QWSManager::active = 0;
 QPoint QWSManager::mousePos;
 
 QWSManager::QWSManager(QWidget *w)
-    : QObject(), activeRegion(None), managed(w), popup(0), timer(0)
+    : QObject(), activeRegion(QWSDecoration::None), managed(w), popup(0),
+      timer(0)
 {
     dx = 0;
     dy = 0;
     skipCount = 0;
 
-    menuBtn = new QWSButton(this, Menu);
-    closeBtn = new QWSButton(this, Close);
-    minimizeBtn = new QWSButton(this, Minimize);
-    maximizeBtn = new QWSButton(this, Maximize, TRUE);
+    menuBtn = new QWSButton(this, QWSDecoration::Menu);
+    closeBtn = new QWSButton(this, QWSDecoration::Close);
+    minimizeBtn = new QWSButton(this, QWSDecoration::Minimize);
+    maximizeBtn = new QWSButton(this, QWSDecoration::Maximize, TRUE);
 
     timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), SLOT(handleMove()));
@@ -180,20 +336,20 @@ QWSManager::~QWSManager()
 
 QRegion QWSManager::region()
 {
-    return QApplication::qwsDecorator().region(managed, managed->geometry());
+    return QApplication::qwsDecoration().region(managed, managed->geometry());
 }
 
-QWSManager::Region QWSManager::pointInRegion(const QPoint &p)
+QWSDecoration::Region QWSManager::pointInRegion(const QPoint &p)
 {
-    QWSDecorator &dec = QApplication::qwsDecorator();
+    QWSDecoration &dec = QApplication::qwsDecoration();
     QRect rect(managed->geometry());
 
-    for (int i = Title; i <= LastRegion; i++) {
-	if (dec.region(managed, rect, (QWSManager::Region)i).contains(p))
-	    return (QWSManager::Region)i;
+    for (int i = QWSDecoration::Title; i <= QWSDecoration::LastRegion; i++) {
+	if (dec.region(managed, rect, (QWSDecoration::Region)i).contains(p))
+	    return (QWSDecoration::Region)i;
     }
 
-    return None;
+    return QWSDecoration::None;
 }
 
 bool QWSManager::event(QEvent *e)
@@ -235,27 +391,29 @@ void QWSManager::mousePressEvent(QMouseEvent *e)
 	dy = 0;
 	activeRegion = pointInRegion(mousePos);
 	switch (activeRegion) {
-	    case Menu:
+	    case QWSDecoration::Menu:
 		menu(managed->pos());
 		break;
-	    case Close:
+	    case QWSDecoration::Close:
 		closeBtn->setClicked(TRUE);
 		break;
-	    case Minimize:
+	    case QWSDecoration::Minimize:
 		minimizeBtn->setClicked(TRUE);
 		break;
-	    case Maximize:
+	    case QWSDecoration::Maximize:
 		maximizeBtn->setClicked(TRUE);
 		break;
 	    default:
 		break;
 	}
-	if (activeRegion != None) {
+	if (activeRegion != QWSDecoration::None) {
 	    active = managed;
 	    managed->grabMouse();
 	}
-	if (activeRegion != None && activeRegion != Close
-		&& activeRegion != Minimize && activeRegion != Menu) {
+	if ( activeRegion != QWSDecoration::None &&
+	     activeRegion != QWSDecoration::Close &&
+	     activeRegion != QWSDecoration::Minimize &&
+	     activeRegion != QWSDecoration::Menu) {
 	    managed->raise();
 	    managed->setActiveWindow();
 	}
@@ -270,33 +428,33 @@ void QWSManager::mouseReleaseEvent(QMouseEvent *e)
     if (e->button() == Qt::LeftButton) {
 	handleMove();
 	mousePos = e->globalPos();
-	Region rgn = pointInRegion(e->globalPos());
+	QWSDecoration::Region rgn = pointInRegion(e->globalPos());
 	switch (activeRegion) {
-	    case Close:
+	    case QWSDecoration::Close:
 		closeBtn->setClicked(FALSE);
-		if (rgn == Close) {
+		if (rgn == QWSDecoration::Close) {
 		    close();
 		    return;
 		}
 		break;
-	    case Minimize:
+	    case QWSDecoration::Minimize:
 		minimizeBtn->setClicked(FALSE);
-		if (rgn == Minimize)
+		if (rgn == QWSDecoration::Minimize)
 		    minimize();
 		break;
-	    case Maximize:
+	    case QWSDecoration::Maximize:
 		maximizeBtn->setClicked(FALSE);
-		if (rgn == Maximize)
+		if (rgn == QWSDecoration::Maximize)
 		    toggleMaximize();
 		break;
 	    default:
 		break;
 	}
 
-	activeRegion = None;
+	activeRegion = QWSDecoration::None;
     }
 
-    if (activeRegion == None)
+    if (activeRegion == QWSDecoration::None)
 	active = 0;
 }
 
@@ -311,10 +469,10 @@ void QWSManager::mouseMoveEvent(QMouseEvent *e)
 
     // cursor
     QWSDisplay *qwsd = QApplication::desktop()->qwsDisplay();
-    if (activeRegion == None)
+    if (activeRegion == QWSDecoration::None)
     {
 	if ( !QWidget::mouseGrabber() ) {
-	    Region r = pointInRegion(e->globalPos());
+	    QWSDecoration::Region r = pointInRegion(e->globalPos());
 	    qwsd->selectCursor(managed, shape[r]);
 	}
     } else
@@ -324,7 +482,7 @@ void QWSManager::mouseMoveEvent(QMouseEvent *e)
     dx = e->globalX() - mousePos.x();
     dy = e->globalY() - mousePos.y();
 
-    if ( ( activeRegion == Title && skipCount > 5 ) || skipCount > 10 )
+    if ( ( activeRegion == QWSDecoration::Title && skipCount > 5 ) || skipCount > 10 )
 	handleMove();
     else {
 	timer->start(10);
@@ -332,11 +490,11 @@ void QWSManager::mouseMoveEvent(QMouseEvent *e)
     }
 
     // button regions
-    Region r = pointInRegion(e->globalPos());
-    menuBtn->setMouseOver(r == Menu);
-    closeBtn->setMouseOver(r == Close);
-    minimizeBtn->setMouseOver(r == Minimize);
-    maximizeBtn->setMouseOver(r == Maximize);
+    QWSDecoration::Region r = pointInRegion(e->globalPos());
+    menuBtn->setMouseOver(r == QWSDecoration::Menu);
+    closeBtn->setMouseOver(r == QWSDecoration::Close);
+    minimizeBtn->setMouseOver(r == QWSDecoration::Minimize);
+    maximizeBtn->setMouseOver(r == QWSDecoration::Maximize);
 }
 
 void QWSManager::handleMove()
@@ -355,31 +513,31 @@ void QWSManager::handleMove()
     QRect geom(managed->geometry());
 
     switch (activeRegion) {
-	case Title:
+	case QWSDecoration::Title:
 	    geom = QRect(x + dx, y + dy, w, h);
 	    break;
-	case Top:
+	case QWSDecoration::Top:
 	    geom = QRect(x, y + dy, w, h - dy);
 	    break;
-	case Bottom:
+	case QWSDecoration::Bottom:
 	    geom = QRect(x, y, w, h + dy);
 	    break;
-	case Left:
+	case QWSDecoration::Left:
 	    geom = QRect(x + dx, y, w - dx, h);
 	    break;
-	case Right:
+	case QWSDecoration::Right:
 	    geom = QRect(x, y, w + dx, h);
 	    break;
-	case TopRight:
+	case QWSDecoration::TopRight:
 	    geom = QRect(x, y + dy, w + dx, h - dy);
 	    break;
-	case TopLeft:
+	case QWSDecoration::TopLeft:
 	    geom = QRect(x + dx, y + dy, w - dx, h - dy);
 	    break;
-	case BottomLeft:
+	case QWSDecoration::BottomLeft:
 	    geom = QRect(x + dx, y, w - dx, h + dy);
 	    break;
-	case BottomRight:
+	case QWSDecoration::BottomRight:
 	    geom = QRect(x, y, w + dx, h + dy);
 	    break;
 	default:
@@ -413,26 +571,26 @@ void QWSManager::handleMove()
 
 void QWSManager::paintEvent(QPaintEvent *)
 {
-    QWSDecorator &dec = QApplication::qwsDecorator();
+    QWSDecoration &dec = QApplication::qwsDecoration();
     QPainter painter(managed);
     painter.setClipRegion(dec.region(managed, managed->rect()));
     dec.paint(&painter, managed);
     painter.setClipRegion(dec.region(managed, managed->rect()));
-    dec.paintButton(&painter, managed, Menu, menuBtn->state());
-    dec.paintButton(&painter, managed, Close, closeBtn->state());
-    dec.paintButton(&painter, managed, Minimize, minimizeBtn->state());
-    dec.paintButton(&painter, managed, Maximize, maximizeBtn->state());
+    dec.paintButton(&painter, managed, QWSDecoration::Menu, menuBtn->state());
+    dec.paintButton(&painter, managed, QWSDecoration::Close, closeBtn->state());
+    dec.paintButton(&painter, managed, QWSDecoration::Minimize, minimizeBtn->state());
+    dec.paintButton(&painter, managed, QWSDecoration::Maximize, maximizeBtn->state());
 }
 
 void QWSManager::menu(const QPoint &pos)
 {
 #ifndef QT_NO_COMPLEXWIDGETS
     if (!popup) {
-	popup = QApplication::qwsDecorator().menu(managed, managed->pos());
+	popup = QApplication::qwsDecoration().menu(managed, managed->pos());
 	connect(popup, SIGNAL(activated(int)), SLOT(menuActivated(int)));
     }
-    popup->setItemEnabled(Maximize, normalSize.isNull());
-    popup->setItemEnabled(Normalize, !normalSize.isNull());
+    popup->setItemEnabled(QWSDecoration::Maximize, normalSize.isNull());
+    popup->setItemEnabled(QWSDecoration::Normalize, !normalSize.isNull());
     popup->popup(pos);
 #endif
 }
@@ -440,25 +598,25 @@ void QWSManager::menu(const QPoint &pos)
 void QWSManager::menuActivated(int id)
 {
     switch (id) {
-	case Close:
+	case QWSDecoration::Close:
 	    close();
 	    return;
-	case Minimize:
+	case QWSDecoration::Minimize:
 	    minimize();
 	    break;
-	case Maximize:
-	case Normalize:
+	case QWSDecoration::Maximize:
+	case QWSDecoration::Normalize:
 	    toggleMaximize();
 	    break;
-	case Title:
+	case QWSDecoration::Title:
 	    mousePos = QCursor::pos();
-	    activeRegion = Title;
+	    activeRegion = QWSDecoration::Title;
 	    active = managed;
 	    managed->grabMouse();
 	    break;
-	case BottomRight:
+	case QWSDecoration::BottomRight:
 	    mousePos = QCursor::pos();
-	    activeRegion = BottomRight;
+	    activeRegion = QWSDecoration::BottomRight;
 	    active = managed;
 	    managed->grabMouse();
 	    break;
@@ -470,27 +628,18 @@ void QWSManager::menuActivated(int id)
 void QWSManager::close()
 {
     active = 0;
-    managed->close(FALSE);
+    QApplication::qwsDecoration().close(managed);
 }
 
 void QWSManager::minimize()
 {
-    qDebug("Minimize? What's that?");
+    QApplication::qwsDecoration().minimize(managed);
 }
 
 
 void QWSManager::maximize()
 {
-    QRect desk = QApplication::desktop()->rect();
-    // find out how much space the decoration needs
-    QRegion r = QApplication::qwsDecorator().region(managed, QApplication::desktop()->rect());
-    QRect rect = r.boundingRect();
-    QRect nr;
-    nr.setLeft(-rect.x());
-    nr.setTop(-rect.y());
-    nr.setRight(desk.right() - rect.right() + desk.right() );
-    nr.setBottom(desk.bottom() - rect.bottom() + desk.bottom() );
-    managed->setGeometry(nr);
+    QApplication::qwsDecoration().maximize(managed);
 }
 
 void QWSManager::toggleMaximize()
@@ -508,7 +657,7 @@ void QWSManager::toggleMaximize()
 
 /*
 */
-QWSButton::QWSButton(QWSManager *m, QWSManager::Region t, bool tb)
+QWSButton::QWSButton(QWSManager *m, QWSDecoration::Region t, bool tb)
     : flags(0), toggle(tb), type(t), manager(m)
 {
 }
@@ -542,26 +691,13 @@ void QWSButton::setOn(bool o)
 
 void QWSButton::paint()
 {
-    QWSDecorator &dec = QApplication::qwsDecorator();
+    QWSDecoration &dec = QApplication::qwsDecoration();
     QPainter painter(manager->widget());
     painter.setClipRegion(dec.region(manager->widget(), manager->widget()->rect()));
     dec.paintButton(&painter, manager->widget(), type, state());
 }
 
-/*!
-  \class QWSDecorator qwsmanager_qws.h
-  \brief The QWSDecorator allows the appearance of the Qt/Embedded Window
-  Manager to be customised.
-
-  Qt/Embedded provides window management to top level windows.  The
-  appearance of the borders and buttons (the decoration) around the
-  managed windows can be customized by creating your own class derived
-  from QWSDecorator and overriding a few methods.
-
-  This class is non-portable.  It is available \e only in Qt/Embedded.
-*/
-
-const QPixmap* QWSDefaultDecorator::pixmapFor(const QWidget* w, QWSManager::Region type, bool on, int& xoff, int& /*yoff*/)
+const QPixmap* QWSDefaultDecoration::pixmapFor(const QWidget* w, QWSDecoration::Region type, bool on, int& xoff, int& /*yoff*/)
 {
 #ifndef QT_NO_IMAGEIO_XPM
     static QPixmap *menuPixmap=0;
@@ -578,23 +714,23 @@ const QPixmap* QWSDefaultDecorator::pixmapFor(const QWidget* w, QWSManager::Regi
     }
     const QPixmap* pm=0;
     switch (type) {
-	case QWSManager::Menu:
+	case Menu:
 	    pm = w->icon();
 	    if ( !pm ) {
 		xoff = 1;
 		pm = menuPixmap;
 	    }
 	    break;
-	case QWSManager::Close:
+	case Close:
 	    pm = closePixmap;
 	    break;
-	case QWSManager::Maximize:
+	case Maximize:
 	    if (on)
 		pm = normalizePixmap;
 	    else
 		pm = maximizePixmap;
 	    break;
-	case QWSManager::Minimize:
+	case Minimize:
 	    pm = minimizePixmap;
 	    break;
 	default:
@@ -606,39 +742,23 @@ const QPixmap* QWSDefaultDecorator::pixmapFor(const QWidget* w, QWSManager::Regi
 #endif    
 }
 
-/*!
-  \fn QWSDecorator::QWSDecorator()
 
-  Constructs a decorator.
-*/
-
-QWSDefaultDecorator::QWSDefaultDecorator()
-    : QWSDecorator()
+QWSDefaultDecoration::QWSDefaultDecoration()
+    : QWSDecoration()
 {
 }
 
-/*!
-  \fn QWSDecorator::~QWSDecorator()
 
-  Destructs a decorator.
-*/
-
-QWSDefaultDecorator::~QWSDefaultDecorator()
+QWSDefaultDecoration::~QWSDefaultDecoration()
 {
 }
 
-/*!
-  \fn QWSDecorator::region( const QRect &rect, QWSManager::Region type )
-
-  Returns the requested region \a type which will contain \a rect.
-*/
-
-QRegion QWSDefaultDecorator::region(const QWidget *, const QRect &rect, QWSManager::Region type)
+QRegion QWSDefaultDecoration::region(const QWidget *, const QRect &rect, QWSDecoration::Region type)
 {
     QRegion region;
 
     switch (type) {
-	case QWSManager::All: {
+	case All: {
 		QRect r(rect.left() - BORDER_WIDTH,
 			rect.top() - TITLE_HEIGHT - BORDER_WIDTH,
 			rect.width() + 2 * BORDER_WIDTH,
@@ -648,7 +768,7 @@ QRegion QWSDefaultDecorator::region(const QWidget *, const QRect &rect, QWSManag
 	    }
 	    break;
 
-	case QWSManager::Title: {
+	case Title: {
 		QRect r(rect.left() + TITLE_HEIGHT, rect.top() - TITLE_HEIGHT,
 			rect.width() - 4*TITLE_HEIGHT, TITLE_HEIGHT);
 		if (r.width() > 0)
@@ -656,7 +776,7 @@ QRegion QWSDefaultDecorator::region(const QWidget *, const QRect &rect, QWSManag
 	    }
 	    break;
 
-	case QWSManager::Top: {
+	case Top: {
 		QRect r(rect.left() + CORNER_GRAB,
 			rect.top() - TITLE_HEIGHT - BORDER_WIDTH,
 			rect.width() - 2 * CORNER_GRAB,
@@ -665,7 +785,7 @@ QRegion QWSDefaultDecorator::region(const QWidget *, const QRect &rect, QWSManag
 	    }
 	    break;
 
-	case QWSManager::Left: {
+	case Left: {
 		QRect r(rect.left() - BORDER_WIDTH,
 			rect.top() - TITLE_HEIGHT + CORNER_GRAB,
 			BORDER_WIDTH,
@@ -674,7 +794,7 @@ QRegion QWSDefaultDecorator::region(const QWidget *, const QRect &rect, QWSManag
 	    }
 	    break;
 
-	case QWSManager::Right: {
+	case Right: {
 		QRect r(rect.right() + 1,
 			rect.top() - TITLE_HEIGHT + CORNER_GRAB,
 			BORDER_WIDTH,
@@ -683,7 +803,7 @@ QRegion QWSDefaultDecorator::region(const QWidget *, const QRect &rect, QWSManag
 	    }
 	    break;
 
-	case QWSManager::Bottom: {
+	case Bottom: {
 		QRect r(rect.left() + CORNER_GRAB,
 			rect.bottom() + 1,
 			rect.width() - 2 * CORNER_GRAB,
@@ -692,7 +812,7 @@ QRegion QWSDefaultDecorator::region(const QWidget *, const QRect &rect, QWSManag
 	    }
 	    break;
 
-	case QWSManager::TopLeft: {
+	case TopLeft: {
 		QRect r1(rect.left() - BORDER_WIDTH,
 			rect.top() - BORDER_WIDTH - TITLE_HEIGHT,
 			CORNER_GRAB + BORDER_WIDTH,
@@ -707,7 +827,7 @@ QRegion QWSDefaultDecorator::region(const QWidget *, const QRect &rect, QWSManag
 	    }
 	    break;
 
-	case QWSManager::TopRight: {
+	case TopRight: {
 		QRect r1(rect.right() - CORNER_GRAB,
 			rect.top() - BORDER_WIDTH - TITLE_HEIGHT,
 			CORNER_GRAB + BORDER_WIDTH,
@@ -722,7 +842,7 @@ QRegion QWSDefaultDecorator::region(const QWidget *, const QRect &rect, QWSManag
 	    }
 	    break;
 
-	case QWSManager::BottomLeft: {
+	case BottomLeft: {
 		QRect r1(rect.left() - BORDER_WIDTH,
 			rect.bottom() + 1,
 			CORNER_GRAB + BORDER_WIDTH,
@@ -736,7 +856,7 @@ QRegion QWSDefaultDecorator::region(const QWidget *, const QRect &rect, QWSManag
 	    }
 	    break;
 
-	case QWSManager::BottomRight: {
+	case BottomRight: {
 		QRect r1(rect.right() - CORNER_GRAB,
 			rect.bottom() + 1,
 			CORNER_GRAB + BORDER_WIDTH,
@@ -750,14 +870,14 @@ QRegion QWSDefaultDecorator::region(const QWidget *, const QRect &rect, QWSManag
 	    }
 	    break;
 
-	case QWSManager::Menu: {
+	case Menu: {
 		QRect r(rect.left(), rect.top() - TITLE_HEIGHT,
 			TITLE_HEIGHT, TITLE_HEIGHT);
 		region = r;
 	    }
 	    break;
 
-	case QWSManager::Close: {
+	case Close: {
 		QRect r(rect.right() - TITLE_HEIGHT, rect.top() - TITLE_HEIGHT,
 			TITLE_HEIGHT, TITLE_HEIGHT);
 		if (r.left() > rect.left() + TITLE_HEIGHT)
@@ -765,7 +885,7 @@ QRegion QWSDefaultDecorator::region(const QWidget *, const QRect &rect, QWSManag
 	    }
 	    break;
 
-	case QWSManager::Maximize: {
+	case Maximize: {
 		QRect r(rect.right() - 2*TITLE_HEIGHT, rect.top() - TITLE_HEIGHT,
 			TITLE_HEIGHT, TITLE_HEIGHT);
 		if (r.left() > rect.left() + TITLE_HEIGHT)
@@ -773,7 +893,7 @@ QRegion QWSDefaultDecorator::region(const QWidget *, const QRect &rect, QWSManag
 	    }
 	    break;
 
-	case QWSManager::Minimize: {
+	case Minimize: {
 		QRect r(rect.right() - 3*TITLE_HEIGHT, rect.top() - TITLE_HEIGHT,
 			TITLE_HEIGHT, TITLE_HEIGHT);
 		if (r.left() > rect.left() + TITLE_HEIGHT)
@@ -788,31 +908,7 @@ QRegion QWSDefaultDecorator::region(const QWidget *, const QRect &rect, QWSManag
     return region;
 }
 
-#ifndef QT_NO_COMPLEXWIDGETS
-QPopupMenu *QWSDecorator::menu(const QWidget *, const QPoint &)
-{
-    QPopupMenu *m = new QPopupMenu();
-
-    m->insertItem(QObject::tr("&Restore"), (int)QWSManager::Normalize);
-    m->insertItem(QObject::tr("&Move"), (int)QWSManager::Title);
-    m->insertItem(QObject::tr("&Size"), (int)QWSManager::BottomRight);
-    m->insertItem(QObject::tr("Mi&nimize"), (int)QWSManager::Minimize);
-    m->insertItem(QObject::tr("Ma&ximize"), (int)QWSManager::Maximize);
-    m->insertSeparator();
-    m->insertItem(QObject::tr("Close"), (int)QWSManager::Close);
-
-    return m;
-}
-#endif
-
-/*!
-  \fn QWSDecorator::paint( QPainter *painter, const QWidget *widget )
-
-  Paints the border and title decoration around \a widget using \a painter.
-
-*/
-
-void QWSDefaultDecorator::paint(QPainter *painter, const QWidget *widget)
+void QWSDefaultDecoration::paint(QPainter *painter, const QWidget *widget)
 {
 #ifndef QT_NO_COMPLEXWIDGETS // implies style    
     QStyle &style = QApplication::style();
@@ -869,18 +965,8 @@ void QWSDefaultDecorator::paint(QPainter *painter, const QWidget *widget)
 
 }
 
-/*!
-  \fn QWSDecorator::paintButton( QPainter *painter, const QRect &rect,
-                        QWSManager::Region type, int state )
-
-  Paints a button \a type using \a painter.
-  \a rect contains the widget whose button is to be drawn.
-  \a state is the state of the button.
-
-*/
-
-void QWSDefaultDecorator::paintButton(QPainter *painter, const QWidget *w,
-			QWSManager::Region type, int state)
+void QWSDefaultDecoration::paintButton(QPainter *painter, const QWidget *w,
+			QWSDecoration::Region type, int state)
 {
 #ifndef QT_NO_PALETTE    
 #ifndef QT_NO_COMPLEXWIDGETS
