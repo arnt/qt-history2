@@ -39,6 +39,7 @@ XNS5
 	superset and LP64-clean derivative of XNS4 included in SUSv2/XPG5
 
 
+
 System V default system interfaces
 ----------------------------------
 
@@ -215,18 +216,31 @@ Irix
 
 Solaris		
 
+	Nothing needs to be defined on Solaris. Will try to
+	document this later.
+
 
 Tru64
 
 	By default Tru64 defines user-space feature test macros:
 
-      		Tru64		_AES_SOURCE			<standards.h>
-
-      		Tru64		_AES_SOURCE			<standards.h>
+		Tru64 4.0F	_AES_SOURCE			<standards.h>
 				_XOPEN_SOURCE
 				_POSIX_C_SOURCE 199506L
 				_POSIX_SOURCE
 				_OSF_SOURCE
+
+		Tru64 5.0A	_AES_SOURCE			<standards.h>
+				_XOPEN_SOURCE   400
+				_POSIX_C_SOURCE 199506L
+				_POSIX_SOURCE
+				_OSF_SOURCE
+
+	If any feature test macro is explicitly defined by the
+	user, such as _POSIX_C_SOURCE set to 199506L or
+	_XOPEN_SOURCE set to 500, then _all_ the above must be
+	defined to recover the default environment. There's no
+	shortcut on Tru64.
 
 
 QNX
@@ -234,8 +248,6 @@ QNX
 	This a macro I am not yet sure what it specifies:
 
 		QNX 6.00	_QNX_SOURCE			<sys/platform.h>
-
-
 
 
 
