@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qintdict.h#2 $
+** $Id: //depot/qt/main/src/tools/qintdict.h#3 $
 **
 ** Definition of QIntDict template/macro class
 **
 ** Author  : Haavard Nord
 ** Created : 940624
 **
-** Copyright (C) 1994 by Troll Tech as.	 All rights reserved.
+** Copyright (C) 1994 by Troll Tech AS.	 All rights reserved.
 **
 *****************************************************************************/
 
@@ -35,9 +35,10 @@
 class QIntDictM(type) : public QGDict					      \
 {									      \
 public:									      \
-    QIntDictM(type)(int size=15):QGDict(size,0,0,TRUE) {}		      \
+    QIntDictM(type)(int size=17):QGDict(size,0,0,TRUE) {}		      \
    ~QIntDictM(type)()		{ clear(); }				      \
     uint  count()   const	{ return QGDict::count(); }		      \
+    uint  size()    const	{ return QGDict::size(); }		      \
     bool  isEmpty() const	{ return QGDict::count() == 0; }	      \
     bool  insert( long k, const type *d )				      \
 			{ return QGDict::look((const char*)k,(GCI)d,1)!=0;}   \
@@ -69,8 +70,9 @@ public:									      \
     int	  count()   const     { return dict->count(); }			      \
     bool  isEmpty() const     { return dict->count() == 0; }		      \
     type *toFirst()	      { return (type *)QGDictIterator::toFirst(); }   \
-    operator type *() const   { return (type *)QGDictIterator::get(); }	      \
-    type *current()   const   { return (type *)QGDictIterator::get(); }	      \
+    operator type *()  const  { return (type *)QGDictIterator::get(); }	      \
+    type *current()    const  { return (type *)QGDictIterator::get(); }	      \
+    long  currentKey() const  { return (long)QGDictIterator::getKey(); }      \
     type *operator()()	      { return (type *)QGDictIterator::operator()();} \
     type *operator++()	      { return (type *)QGDictIterator::operator++(); }\
     type *operator+=(uint j)  { return (type *)QGDictIterator::operator+=(j);}\
@@ -89,9 +91,10 @@ public:									      \
 template<class type> class QIntDictT : public QGDict
 {
 public:
-    QIntDictT(int size=15) : QGDict(size,0,0,TRUE) {}
+    QIntDictT(int size=17) : QGDict(size,0,0,TRUE) {}
    ~QIntDictT()			{ clear(); }
     uint  count()   const	{ return QGDict::count(); }
+    uint  size()    const	{ return QGDict::size(); }
     bool  isEmpty() const	{ return QGDict::count() == 0; }
     bool  insert( long k, const type *d )
 			{ return QGDict::look((const char*)k,(GCI)d,1)!=0; }
@@ -120,8 +123,9 @@ public:
     int	  count()   const     { return dict->count(); }
     bool  isEmpty() const     { return dict->count() == 0; }
     type *toFirst()	      { return (type *)QGDictIterator::toFirst(); }
-    operator type *() const   { return (type *)QGDictIterator::get(); }
-    type *current()   const   { return (type *)QGDictIterator::get(); }
+    operator type *()  const  { return (type *)QGDictIterator::get(); }
+    type *current()    const  { return (type *)QGDictIterator::get(); }
+    long  currentKey() const  { return (long)QGDictIterator::getKey(); }
     type *operator()()	      { return (type *)QGDictIterator::operator()();}
     type *operator++()	      { return (type *)QGDictIterator::operator++(); }
     type *operator+=(uint j)  { return (type *)QGDictIterator::operator+=(j);}
