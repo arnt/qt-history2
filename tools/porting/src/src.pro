@@ -77,5 +77,5 @@ INSTALLS += target
 
 RULESXML = q3porting.xml
 RULESXML.files = q3porting.xml
-RULESXML.path = $$[QT_INSTALL_DATA]/qt3to4
+RULESXML.path = $$[QT_INSTALL_DATA]
 INSTALLS += RULESXML
