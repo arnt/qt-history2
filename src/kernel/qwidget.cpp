@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#178 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#179 $
 **
 ** Implementation of QWidget class
 **
@@ -19,7 +19,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#178 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#179 $");
 
 
 /*!
@@ -587,6 +587,11 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
     create();					// platform-dependent init
     deferMove( frect.topLeft() );
     deferResize( crect.size() );    
+    if ( testWFlags( WState_TabToFocus ) {	// focus was set using WFlags
+	QFocusData * f = focusData( TRUE );
+	if ( f->focusWidgets.findRef( this ) < 0 )
+ 	    f->focusWidgets.append( this );
+    }
 }
 
 /*!
@@ -1612,10 +1617,20 @@ void QWidget::setFocus()
     QFocusData * f = focusData(TRUE);
     if ( f->it.current() )
 	f->it.current()->clearFocus();
-    f->it.toFirst();
-    while ( f->it.current() != this && !f->it.atLast() )
-	++f->it;
-    ASSERT( f->it.current() == this );
+    if ( testWFlags( WState_TabToFocus ) ) {
+	// move the tab focus pointer only if this widget can be
+	// tabbed to or from.
+	f->it.toFirst();
+	while ( f->it.current() != this && !f->it.atLast() )
+	    ++f->it;
+	// at this point, the iterator should point to 'this'.  if it
+	// does not, 'this' must not be in the list - an error, but
+	// perhaps possible.  fix it.
+	if ( f->it.current() != this ) {
+	    f->focuswidgts.append( this );
+	    f->it.toLast();
+	}
+    }
     setWFlags( WFocusSet );
 
     if ( isActiveWindow() ) {
@@ -1908,10 +1923,14 @@ void QWidget::setFocusPolicy( FocusPolicy policy )
 
 void QWidget::setAcceptFocus( bool enable )
 {
-    if ( enable )
+    if ( enable ) {
+	QFocusData * f = focusData( TRUE );
+	if ( f->focusWidgets.findRef( this ) < 0 )
+ 	    f->focusWidgets.append( this );
 	setWFlags( WState_TabToFocus | WState_ClickToFocus );
-    else
+    } else {
 	clearWFlags( WState_TabToFocus | WState_ClickToFocus );
+    }
 }
 
 
