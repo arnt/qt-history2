@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdialog.cpp#32 $
+** $Id: //depot/qt/main/src/kernel/qdialog.cpp#33 $
 **
 ** Implementation of QDialog class
 **
@@ -15,7 +15,7 @@
 #include "qkeycode.h"
 #include "qobjcoll.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qdialog.cpp#32 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qdialog.cpp#33 $");
 
 
 /*!
@@ -42,7 +42,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qdialog.cpp#32 $");
     Modal::Modal( QWidget *parent, const char *name )
 	: QDialog( parent, name, TRUE )
     {
-	QPushButton *ok, cancel;
+	QPushButton *ok, *cancel;
 	ok = new QPushButton( "Ok" );
 	ok->setGeometry( 10,10, 100,30 );
 	connect( ok, SIGNAL(clicked()), SLOT(accept()) );
