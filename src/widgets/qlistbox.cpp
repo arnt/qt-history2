@@ -1502,18 +1502,11 @@ int QListBox::currentItem() const
 
 /*! \overload
 
-  This is a bit slower than the QListBoxItem * version.  If you specify -1 
-  as the \a index the it will set the current item to be a null value.
+  This is a bit slower than the QListBoxItem * version.  
 */
 
 void QListBox::setCurrentItem( int index )
 {
-    if ( index == -1 ) {
-        updateItem( d->current );
-        clearSelection();
-        d->current = NULL;
-        return;
-    }
     setCurrentItem( item( index ) );
 }
 
