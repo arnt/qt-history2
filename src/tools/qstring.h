@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#14 $
+** $Id: //depot/qt/main/src/tools/qstring.h#15 $
 **
 ** Definition of extended char array operations, and QByteArray and
 ** QString classes
@@ -218,8 +218,8 @@ public:
     QString    &setNum( uint );			// set string from uint
     QString    &setNum( long );			// set string from long
     QString    &setNum( ulong );		// set string from ulong
-    QString    &setNum( float, char f='g', int prec=-1 );
-    QString    &setNum( double, char f='g', int prec=-1 );
+    QString    &setNum( float, char f='g', int prec=6 );
+    QString    &setNum( double, char f='g', int prec=6 );
 
     bool	setExpand( uint index, char c );// set and expand if necessary
 
