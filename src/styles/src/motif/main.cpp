@@ -1,45 +1,69 @@
+#define Q_INITGUID
 #include <qstyleinterface.h>
-#include <qcomponentinterface.h>
+#undef Q_INITGUID
 #include <qmotifstyle.h>
 
-class MotifStyleInterface : public QStyleInterface
+class MotifStyle : public QStyleInterface
 {
 public:
-    MotifStyleInterface( QUnknownInterface *parent );
+    MotifStyle();
+
+    QUnknownInterface *queryInterface( const QGuid& );
+    unsigned long addRef();
+    unsigned long release();
 
     QStringList featureList() const;
     QStyle *create( const QString& );
+
+private:
+    unsigned long ref;
 };
 
-MotifStyleInterface::MotifStyleInterface( QUnknownInterface *parent )
-: QStyleInterface( parent )
+MotifStyle::MotifStyle()
+: ref( 0 )
 {
 }
 
-QStringList MotifStyleInterface::featureList() const
+QUnknownInterface *MotifStyle::queryInterface( const QGuid &guid )
+{
+    QUnknownInterface *iface = 0;
+    if ( guid == IID_QUnknownInterface )
+	iface = (QUnknownInterface*)this;
+    else if ( guid == IID_QStyleInterface )
+	iface = (QStyleInterface*)this;
+
+    if ( iface )
+	iface->addRef();
+    return iface;
+}
+
+unsigned long MotifStyle::addRef()
+{
+    return ref++;
+}
+
+unsigned long MotifStyle::release()
+{
+    if ( !--ref ) {
+	delete this;
+	return 0;
+    }
+
+    return ref;
+}
+
+QStringList MotifStyle::featureList() const
 {
     QStringList list;
     list << "Motif";
     return list;
 }
 
-QStyle* MotifStyleInterface::create( const QString& style )
+QStyle* MotifStyle::create( const QString& style )
 {
     if ( style == "Motif" )
 	return new QMotifStyle();
     return 0;
 }
 
-class PlugInInterface : public QUnknownInterface
-{
-public:
-    PlugInInterface();
-};
-
-PlugInInterface::PlugInInterface()
-: QUnknownInterface()
-{
-    new MotifStyleInterface( this );
-}
-
-Q_EXPORT_INTERFACE(PlugInInterface)
+Q_EXPORT_INTERFACE(MotifStyle)

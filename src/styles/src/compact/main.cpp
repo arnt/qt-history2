@@ -1,45 +1,69 @@
+#define Q_INITGUID
 #include <qstyleinterface.h>
-#include <qcomponentinterface.h>
+#undef Q_INITGUID
 #include <qcompactstyle.h>
 
-class CompactStyleInterface : public QStyleInterface
+class CompactStyle : public QStyleInterface
 {
 public:
-    CompactStyleInterface( QUnknownInterface *parent );
+    CompactStyle();
+
+    QUnknownInterface *queryInterface( const QGuid& );
+    unsigned long addRef();
+    unsigned long release();
 
     QStringList featureList() const;
     QStyle *create( const QString& );
+
+private:
+    unsigned long ref;
 };
 
-CompactStyleInterface::CompactStyleInterface( QUnknownInterface *parent )
-: QStyleInterface( parent )
+CompactStyle::CompactStyle()
+: ref( 0 )
 {
 }
 
-QStringList CompactStyleInterface::featureList() const
+QUnknownInterface *CompactStyle::queryInterface( const QGuid &guid )
+{
+    QUnknownInterface *iface = 0;
+    if ( guid == IID_QUnknownInterface )
+	iface = (QUnknownInterface*)this;
+    else if ( guid == IID_QStyleInterface )
+	iface = (QStyleInterface*)this;
+
+    if ( iface )
+	iface->addRef();
+    return iface;
+}
+
+unsigned long CompactStyle::addRef()
+{
+    return ref++;
+}
+
+unsigned long CompactStyle::release()
+{
+    if ( !--ref ) {
+	delete this;
+	return 0;
+    }
+
+    return ref;
+}
+
+QStringList CompactStyle::featureList() const
 {
     QStringList list;
     list << "Compact";
     return list;
 }
 
-QStyle* CompactStyleInterface::create( const QString& style )
+QStyle* CompactStyle::create( const QString& style )
 {
     if ( style == "Compact" )
-	return new QCompactStyle();
+        return new QCompactStyle();
     return 0;
 }
 
-class PlugInInterface : public QUnknownInterface
-{
-public:
-    PlugInInterface();
-};
-
-PlugInInterface::PlugInInterface()
-: QUnknownInterface()
-{
-    new CompactStyleInterface( this );
-}
-
-Q_EXPORT_INTERFACE(PlugInInterface)
+Q_EXPORT_INTERFACE(CompactStyle)

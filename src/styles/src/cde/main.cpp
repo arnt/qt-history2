@@ -1,45 +1,69 @@
+#define Q_INITGUID
 #include <qstyleinterface.h>
-#include <qcomponentinterface.h>
+#undef Q_INITGUID
 #include <qcdestyle.h>
 
-class CDEStyleInterface : public QStyleInterface
+class CDEStyle : public QStyleInterface
 {
 public:
-    CDEStyleInterface( QUnknownInterface *parent );
+    CDEStyle();
+
+    QUnknownInterface *queryInterface( const QGuid& );
+    unsigned long addRef();
+    unsigned long release();
 
     QStringList featureList() const;
     QStyle *create( const QString& );
+
+private:
+    unsigned long ref;
 };
 
-CDEStyleInterface::CDEStyleInterface( QUnknownInterface *parent )
-: QStyleInterface( parent )
+CDEStyle::CDEStyle()
+: ref( 0 )
 {
 }
 
-QStringList CDEStyleInterface::featureList() const
+QUnknownInterface *CDEStyle::queryInterface( const QGuid &guid )
+{
+    QUnknownInterface *iface = 0;
+    if ( guid == IID_QUnknownInterface )
+	iface = (QUnknownInterface*)this;
+    else if ( guid == IID_QStyleInterface )
+	iface = (QStyleInterface*)this;
+
+    if ( iface )
+	iface->addRef();
+    return iface;
+}
+
+unsigned long CDEStyle::addRef()
+{
+    return ref++;
+}
+
+unsigned long CDEStyle::release()
+{
+    if ( !--ref ) {
+	delete this;
+	return 0;
+    }
+
+    return ref;
+}
+
+QStringList CDEStyle::featureList() const
 {
     QStringList list;
     list << "CDE";
     return list;
 }
 
-QStyle* CDEStyleInterface::create( const QString& style )
+QStyle* CDEStyle::create( const QString& style )
 {
     if ( style == "CDE" )
-	return new QCDEStyle();
+        return new QCDEStyle();
     return 0;
 }
 
-class PlugInInterface : public QUnknownInterface
-{
-public:
-    PlugInInterface();
-};
-
-PlugInInterface::PlugInInterface()
-: QUnknownInterface()
-{
-    new CDEStyleInterface( this );
-}
-
-Q_EXPORT_INTERFACE(PlugInInterface)
+Q_EXPORT_INTERFACE(CDEStyle)
