@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurl.cpp#44 $
+** $Id: //depot/qt/main/src/kernel/qurl.cpp#45 $
 **
 ** Implementation of QFileDialog class
 **
@@ -42,6 +42,9 @@ struct QUrlPrivate
 /*!
   \class QUrl qurl.h
 
+  \brief This class provides mainly an URL parser and 
+  simplifies working with URLs.
+  
   The QUrl class is provided for a easy working with URLs.
   It does all parsing, decoding, encoding and so on.
 
@@ -59,7 +62,7 @@ struct QUrlPrivate
   If you want to use an URL to work on a hirachical filesystem
   (locally or remote) the class QUrlOperator, which is derived
   fro QUrl, may be of interest.
-  
+
   \sa QUrlOperator::QUrlOperator()
 */
 
@@ -700,7 +703,7 @@ void QUrl::setEncodedPathAndQuery( const QString& path )
 
 /*!
   Returns the path of the URL. If \a correct is TRUE,
-  the path is cleaned (dealing with too many or few 
+  the path is cleaned (dealing with too many or few
   slashes, etc). Else exactly the path which was parsed
   or set is returned.
 */
