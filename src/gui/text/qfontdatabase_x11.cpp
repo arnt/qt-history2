@@ -1025,6 +1025,7 @@ static void initializeDb()
                 // let's fake one...
                 equiv = foundry->style(key, true);
                 equiv->smoothScalable = true;
+		equiv->fakeOblique = true;
 
                 QtFontSize *equiv_size = equiv->pixelSize(SMOOTH_SCALABLE, true);
                 QtFontEncoding *equiv_enc = equiv_size->encodingID(-1, 0, 0, 0, 0, true);
@@ -1114,7 +1115,7 @@ static double addPatternProps(XftPattern *pattern, const QtFontStyle::Key &key, 
     int slant_value = XFT_SLANT_ROMAN;
     if (key.italic)
         slant_value = XFT_SLANT_ITALIC;
-    else if (key.oblique)
+    else if (key.oblique && !fakeOblique)
         slant_value = XFT_SLANT_OBLIQUE;
     XftPatternAddInteger(pattern, XFT_SLANT, slant_value);
 

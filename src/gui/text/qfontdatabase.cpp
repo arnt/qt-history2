@@ -671,10 +671,10 @@ unsigned int bestFoundry(QFont::Script script, unsigned int score, int styleStra
 
             if (styleKey.italic) {
                 if (!style->key.italic)
-                    d += style->key.oblique ? 0x0800 : 0x1000;
+                    d += style->key.oblique ? 0x0001 : 0x1000;
             } else if (styleKey.oblique) {
                 if (!style->key.oblique)
-                    d += style->key.italic ? 0x0800 : 0x1000;
+                    d += style->key.italic ? 0x0001 : 0x1000;
             } else if (style->key.italic || style->key.oblique) {
                 d += 0x1000;
             }
