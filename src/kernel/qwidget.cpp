@@ -1055,7 +1055,7 @@ QWidget *QWidget::find( WId id )
 
 /*!
   \fn void QWidget::setWFlags( WFlags f )
-
+  \internal
   Sets the widget flags \a f.
 
   Widget flags are a combination of Qt::WidgetFlags.
@@ -1065,7 +1065,7 @@ QWidget *QWidget::find( WId id )
 
 /*!
   \fn void QWidget::clearWFlags( WFlags f )
-
+  \internal
   Clears the widget flags \a f.
 
   Widget flags are a combination of Qt::WidgetFlags.
