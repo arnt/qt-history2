@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qresizecorner.cpp#1 $
+** $Id: //depot/qt/main/src/widgets/qresizecorner.cpp#2 $
 **
 ** Implementation of QResizeCorner class
 **
@@ -40,27 +40,44 @@
   one provided by the system; we hope to reduce this difference in the
   future.  
 
+  Put this widget anywhere in a tree and the user can use it to resize
+  the top-level window.  Generally this should be in the lower right-hand
+  corner.  Note that QStatusBar already uses this widget, so if you have
+  a status bar (eg. you are using QMainWindow), then you don't need to
+  use this widget explicitly.
+
   <img src=qresizecorner-m.gif> <img src=qresizecorner-w.gif>
 
   \sa QStatusBar
 */
 
 
-QResizeCorner::QResizeCorner( QWidget * parent )
-    : QWidget( parent, 0)
+/*!
+  Construct a resize corner as a child widget of \a parent.
+*/
+QResizeCorner::QResizeCorner( QWidget * parent, const char* name )
+    : QWidget( parent, name )
 {
     setCursor( sizeFDiagCursor );
     setSizeGrip( TRUE );
 }
 
+/*!
+  Returns a small size.
+*/
 QSize QResizeCorner::sizeHint() const
 {
     return QSize( 13, 13 );
 }
 
-void QResizeCorner::paintEvent( QPaintEvent * )
+/*!
+  Paints the resize grip - small diagonal textured lines in the
+  lower righthand corner.
+*/
+void QResizeCorner::paintEvent( QPaintEvent *e )
 {
     QPainter painter( this );
+    e->setClipRegion(e->region());
     painter.translate( width()-13, height()-13 ); // paint in the corner
     QPointArray a;
     a.setPoints( 3, 1,12, 12,1, 12,12 );
@@ -76,7 +93,9 @@ void QResizeCorner::paintEvent( QPaintEvent * )
     painter.drawLine(  9, 12, 12,  9 );
 }
 
-
+/*!
+  Primes the resize operation.
+*/
 void QResizeCorner::mousePressEvent( QMouseEvent * e )
 {
     p = e->globalPos();
@@ -84,6 +103,9 @@ void QResizeCorner::mousePressEvent( QMouseEvent * e )
 }
 
 
+/*!
+  Resizes the top-level widget containing this widget.
+*/
 void QResizeCorner::mouseMoveEvent( QMouseEvent * e )
 {
     if ( e->state() != LeftButton )

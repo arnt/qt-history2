@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qresizecorner.h#1 $
+** $Id: //depot/qt/main/src/widgets/qresizecorner.h#2 $
 **
 ** Definition of QResizeCorner class
 **
@@ -34,7 +34,7 @@
 class QResizeCorner: public QWidget
 {
 public:
-    QResizeCorner( QWidget * parent );
+    QResizeCorner( QWidget *parent, const char* name=0 );
 
     QSize sizeHint() const;
     
