@@ -59,14 +59,7 @@ unsigned long PreferenceInterfaceImpl::release()
     return ref;
 }
 
-QStringList PreferenceInterfaceImpl::featureList() const
-{
-    QStringList lst;
-    lst << "C++ Editor";
-    return lst;
-}
-
-PreferenceInterface::Preference *PreferenceInterfaceImpl::globalPreference( const QString &feature )
+PreferenceInterface::Preference *PreferenceInterfaceImpl::globalPreference()
 {
     if ( !cppEditorSyntax ) {
 	cppEditorSyntax = new PreferencesBase( 0 );
@@ -74,14 +67,12 @@ PreferenceInterface::Preference *PreferenceInterfaceImpl::globalPreference( cons
 	cppEditorSyntax->hide();
     }
     Preference *pf = 0;
-    if ( feature == "C++ Editor" ) {
-	pf = new Preference;
-	pf->tab = cppEditorSyntax;
-	pf->title = feature;
-	pf->receiver = pf->tab;
-	pf->init_slot = SLOT( reInit() );
-	pf->accept_slot = SLOT( save() );
-    }
+    pf = new Preference;
+    pf->tab = cppEditorSyntax;
+    pf->title = "C++ Editor";
+    pf->receiver = pf->tab;
+    pf->init_slot = SLOT( reInit() );
+    pf->accept_slot = SLOT( save() );
     return pf;
 }
 

@@ -28,15 +28,14 @@ class PreferenceInterfaceImpl : public PreferenceInterface
 {
 public:
     PreferenceInterfaceImpl();
-    virtual ~PreferenceInterfaceImpl();
+    ~PreferenceInterfaceImpl();
 
     QUnknownInterface *queryInterface( const QUuid& );
     unsigned long addRef();
     unsigned long release();
 
-    QStringList featureList() const;
-    Preference *globalPreference( const QString &feature );
-    Preference *projectSetting( const QString & ) { return 0; }
+    Preference *globalPreference();
+    Preference *projectSetting() { return 0; }
     QStringList projectSettings() const { return QStringList(); }
     void connectTo( QUnknownInterface * ) {}
     void deletePreferenceObject( Preference * );

@@ -23,7 +23,7 @@
 #include "languageinterfaceimpl.h"
 #include "preferenceinterfaceimpl.h"
 
-class CommonInterface : public QUnknownInterface
+class CommonInterface : public QComponentInterface
 {
 public:
     CommonInterface();
@@ -32,6 +32,11 @@ public:
     QUnknownInterface *queryInterface( const QUuid& );
     unsigned long addRef();
     unsigned long release();
+
+    QString name() const { return "C++"; }
+    QString description() const { return "C++ Integration"; }
+    QString version() const { return "0.1"; }
+    QString author() const { return "Trolltech AS"; }
 
 private:
     unsigned long ref;
@@ -42,7 +47,7 @@ private:
 };
 
 CommonInterface::CommonInterface()
-    : QUnknownInterface(), ref( 0 )
+    : QComponentInterface(), ref( 0 )
 {
     editorIface = new EditorInterfaceImpl;
     editorIface->addRef();
@@ -64,6 +69,8 @@ QUnknownInterface *CommonInterface::queryInterface( const QUuid &uuid )
     QUnknownInterface *iface = 0;
     if ( uuid == IID_QUnknownInterface )
 	iface = (QUnknownInterface*)this;
+    if ( uuid == IID_QComponentInterface )
+	iface = (QComponentInterface*)this;
     else if ( uuid == IID_EditorInterface )
 	iface = editorIface;
     else if ( uuid == IID_LanguageInterface )

@@ -32,7 +32,6 @@ public:
     unsigned long addRef();
     unsigned long release();
 
-    QStringList featureList() const;
     void functions( const QString &code, QValueList<Function> *funcs ) const;
     QString createFunctionStart( const QString &className, const QString &func );
     QStringList definitions() const;

@@ -234,13 +234,6 @@ void EditorInterfaceImpl::scrollTo( const QString &txt )
     ( (CppEditor*)viewManager->currentView() )->setFocus();
 }
 
-QStringList EditorInterfaceImpl::featureList() const
-{
-    QStringList list;
-    list << "C++";
-    return list;
-}
-
 void EditorInterfaceImpl::setContext( QObjectList *toplevels, QObject *this_ )
 {
     if ( !viewManager || !viewManager->currentView() )

@@ -54,13 +54,6 @@ unsigned long LanguageInterfaceImpl::release()
     return ref;
 }
 
-QStringList LanguageInterfaceImpl::featureList() const
-{
-    QStringList lst;
-    lst << "C++";
-    return lst;
-}
-
 class NormalizeObject : public QObject
 {
 public:

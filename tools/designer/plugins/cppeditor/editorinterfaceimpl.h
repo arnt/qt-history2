@@ -40,7 +40,6 @@ public:
     unsigned long addRef();
     unsigned long release();
 
-    QStringList featureList() const;
     QWidget *editor( QWidget *parent, QUnknownInterface *designerIface );
 
     void setText( const QString &txt );
