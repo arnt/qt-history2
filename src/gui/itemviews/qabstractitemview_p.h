@@ -39,8 +39,8 @@ public:
     mutable QAbstractItemModel *model;
     mutable QAbstractItemDelegate *delegate;
     mutable QItemSelectionModel *selectionModel;
-    int selectionMode;
-    int selectionBehavior;
+    QAbstractItemView::SelectionMode selectionMode;
+    QAbstractItemView::SelectionBehavior selectionBehavior;
 
     QMap<QPersistentModelIndex, QWidget*> editors;
     QList<QWidget*> persistent;

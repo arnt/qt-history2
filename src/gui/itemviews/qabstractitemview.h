@@ -36,6 +36,8 @@ class Q_GUI_EXPORT QAbstractItemView : public QViewport
     Q_PROPERTY(bool alternatingRowColors READ alternatingRowColors WRITE setAlternatingRowColors)
     Q_PROPERTY(QColor oddRowColor READ oddRowColor WRITE setOddRowColor)
     Q_PROPERTY(QColor evenRowColor READ evenRowColor WRITE setEvenRowColor)
+    Q_PROPERTY(SelectionMode selectionMode READ selectionMode WRITE setSelectionMode)
+    Q_PROPERTY(SelectionBehavior selectionBehavior READ selectionBehavior WRITE setSelectionBehavior)
     Q_ENUMS(SelectionMode SelectionBehaviour)
     Q_FLAGS(BeginEditActions)
 
@@ -78,11 +80,11 @@ public:
     void setItemDelegate(QAbstractItemDelegate *delegate);
     QAbstractItemDelegate *itemDelegate() const;
 
-    void setSelectionMode(int mode); // FIXME: make property
-    int selectionMode() const;
+    void setSelectionMode(QAbstractItemView::SelectionMode mode);
+    QAbstractItemView::SelectionMode selectionMode() const;
 
-    void setSelectionBehavior(int behavior); // FIXME: make property
-    int selectionBehavior() const;
+    void setSelectionBehavior(QAbstractItemView::SelectionBehavior behavior);
+    QAbstractItemView::SelectionBehavior selectionBehavior() const;
 
     QModelIndex currentIndex() const;
     QModelIndex root() const;

@@ -576,42 +576,42 @@ QAbstractItemDelegate *QAbstractItemView::itemDelegate() const
     return d->delegate;
 }
 
+// ###DOC: this has to be explained in a better way
 /*!
-    Sets the \l{SelectionMode} flags to \a mode.
+  \property QAbstractItemView::selectionMode
+  \brief which selection mode the view operates in.
 
-    \sa selectionMode() SelectionBehavior
+  This property holds whether the user can select
+  only one item or several items.
+
+  \sa SelectionMode SelectionBehavior
 */
-void QAbstractItemView::setSelectionMode(int mode)
+void QAbstractItemView::setSelectionMode(SelectionMode mode)
 {
     d->selectionMode = mode;
 }
 
-/*!
-    Returns the \l{SelectionMode} flags.
-
-    \sa setSelectionMode() SelectionBehavior
-*/
-int QAbstractItemView::selectionMode() const
+QAbstractItemView::SelectionMode QAbstractItemView::selectionMode() const
 {
     return d->selectionMode;
 }
 
 /*!
-    Sets the \l{SelectionBehavior} flags to \a behavior.
+  \property QAbstractItemView::selectionBehavior
+  \brief which selection behavior the view uses.
 
-    \sa selectionBehavior() SelectionMode
+  This property holds whether selections are done
+  in terms of single items, rows or columns.
+
+  \sa SelectionMode SelectionBehavior
 */
-void QAbstractItemView::setSelectionBehavior(int behavior)
+
+void QAbstractItemView::setSelectionBehavior(QAbstractItemView::SelectionBehavior behavior)
 {
     d->selectionBehavior = behavior;
 }
 
-/*!
-    Returns the \l{SelectionBehavior} flags.
-
-    \sa setSelectionBehavior() SelectionMode
-*/
-int QAbstractItemView::selectionBehavior() const
+QAbstractItemView::SelectionBehavior QAbstractItemView::selectionBehavior() const
 {
     return d->selectionBehavior;
 }
@@ -1843,6 +1843,8 @@ QItemSelectionModel::SelectionFlags QAbstractItemView::selectionCommand(Qt::Butt
         break;
     case SelectColumns:
         behavior = QItemSelectionModel::Columns;
+        break;
+    case SelectItems:
         break;
     }
 

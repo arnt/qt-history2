@@ -820,7 +820,7 @@ QFileDialog::ViewMode QFileDialog::viewMode() const
 void QFileDialog::setFileMode(FileMode mode)
 {
     d->fileMode = mode;
-    int selectionMode = d->selectionMode(mode);
+    QAbstractItemView::SelectionMode selectionMode = d->selectionMode(mode);
     d->lview->setSelectionMode(selectionMode);
     d->tview->setSelectionMode(selectionMode);
     d->model->setFilter(d->filterSpec(mode));
@@ -1405,7 +1405,7 @@ void QFileDialogPrivate::setup(const QString &directory,
     // Model
     int filter = filterSpec(fileMode);
     int sorting = QDir::Name|QDir::IgnoreCase|QDir::DirsFirst;
-    int selMode = selectionMode(fileMode);
+    QAbstractItemView::SelectionMode selMode = selectionMode(fileMode);
     QStringList cleanedFilter = qt_clean_filter_list(nameFilter.first());
     model = new QDirModel(QString::null, cleanedFilter, filter, sorting, q);
     selections = new QItemSelectionModel(model, model);
