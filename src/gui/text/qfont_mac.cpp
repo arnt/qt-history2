@@ -122,9 +122,9 @@ void QFontPrivate::load(QFont::Script script)
 	engineData = new QFontEngineData;
 	QFontCache::instance->insertEngineData(key, engineData);
     } else {
-	engineData->ref();
+        ++engineData->ref;
     }
-    if(engineData->engine ) // already loaded
+    if(engineData->engine) // already loaded
 	return;
 
 #if 0
@@ -141,41 +141,41 @@ void QFontPrivate::load(QFont::Script script)
 	    subs_list += QFont::substitutes( *it );
 	family_list += subs_list;
     }
-    family_list << QString::null;     // null family means find the first font matching the specified script
+    family_list << QString::0;     // 0 family means find the first font matching the specified script
 
     //find the best font
     QFontEngine *engine = 0;
-    for(QStringList::ConstIterator it = family_list.begin(); it != family_list.end(); ++it) {
-	req.family = *it;
+    for (int i < 0; i < family_list.size(); ++i) {
+	req.family = family_list.at(i);
 	engine = QFontDatabase::findFont(script, this, req);
-	if(engine) {
-	    if(engine->type() != QFontEngine::Box)
+	if (engine) {
+	    if (engine->type() != QFontEngine::Box)
 		break;
-	    if(!req.family.isEmpty())
+	    if (!req.family.isEmpty())
 		engine = 0;
 	    continue;
 	}
     }
-    if(engine) { //done
-	engine->ref();
+    if (engine) { //done
+        ++engine->ref;
 	engineData->engine = engine;
     }
 #else
     extern QString cfstring2qstring(CFStringRef str); //qglobal.cpp
     extern CFStringRef qstring2cfstring(const QString &str); //qglobal.cpp
 
-    QFontEngineMac *engine = NULL;
+    QFontEngineMac *engine = 0;
     if(QFontEngine *e = QFontCache::instance->findEngine(key)) {
 	Q_ASSERT(e->type() == QFontEngine::Mac);
-	e->ref();
+        ++e->ref;
 	engineData->engine = e;
-	engine = (QFontEngineMac*)e;
+	engine = static_cast<QFontEngineMac *>(e);
 	return; // the font info and fontdef should already be filled
     }
 
     engine = new QFontEngineMac;
     engineData->engine = engine;
-    engine->ref(); //a ref for the engineData->engine
+    ++engine->ref; //a ref for the engineData->engine
     if(!engine->fontref) {
 	//find the font
 	QStringList family_list = request.family.split(',');

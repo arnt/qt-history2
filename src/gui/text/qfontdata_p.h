@@ -27,23 +27,24 @@
 //
 //
 
-#include "qobject.h"
 #include "qfont.h"
-#include "qshared.h"
 #include "qmap.h"
+#include "qobject.h"
 
 // forwards
 class QFontEngine;
 class QPaintDevice;
-
 
 struct QFontDef
 {
     inline QFontDef()
 	: pointSize( -1 ), pixelSize( -1 ),
 	  styleHint( QFont::AnyStyle ), styleStrategy( QFont::PreferDefault ),
-	  weight( 50 ), italic( FALSE ), fixedPitch( FALSE ), stretch( 100 ),
-	  ignorePitch(TRUE)
+	  weight( 50 ), italic( false ), fixedPitch( false ), stretch( 100 ),
+	  ignorePitch(true)
+#ifdef Q_WS_MAC
+          ,fixedPitchComputed(false)
+#endif
     {
     }
 
@@ -71,15 +72,16 @@ struct QFontDef
     bool exactMatch(const QFontDef &other) const;
     bool operator==( const QFontDef &other ) const
     {
-	return pixelSize == other.pixelSize
-			  && weight == other.weight
-			  && italic == other.italic
-			  && stretch == other.stretch
-			  && styleHint == other.styleHint
-			  && styleStrategy == other.styleStrategy
-			  && family == other.family
+	return  pointSize == other.pointSize
+                    && pixelSize == other.pixelSize
+                    && weight == other.weight
+                    && italic == other.italic
+                    && stretch == other.stretch
+                    && styleHint == other.styleHint
+                    && styleStrategy == other.styleStrategy
+                    && family == other.family
 #ifdef Q_WS_X11
-			  && addStyle == other.addStyle
+                    && addStyle == other.addStyle
 #endif
 			  ;
     }
@@ -97,16 +99,17 @@ struct QFontDef
 	if ( addStyle != other.addStyle ) return addStyle < other.addStyle;
 #endif // Q_WS_X11
 
-	return FALSE;
+	return false;
     }
 };
 
-class QFontEngineData : public QShared
+class QFontEngineData
 {
 public:
     QFontEngineData();
     ~QFontEngineData();
 
+    QAtomic ref;
     uint lineWidth;
 
 #if defined(Q_WS_X11) || defined(Q_WS_WIN)
@@ -121,7 +124,7 @@ public:
 };
 
 
-class QFontPrivate : public QShared
+class QFontPrivate
 {
 public:
     static QFont::Script defaultScript;
@@ -147,7 +150,7 @@ public:
         return engineData->engine;
 #endif // Q_WS_X11 || Q_WS_WIN
     }
-
+    QAtomic ref;
     QFontDef request;
     QFontEngineData *engineData;
     QPaintDevice *paintdevice;

@@ -14,10 +14,10 @@
 #define QFONTENGINE_P_H
 
 #ifndef QT_H
+#include "qatomic.h"
 #include "qglobal.h"
-#include "qshared.h"
-#include "qtextengine_p.h"
 #include "qfontdata_p.h"
+#include "qtextengine_p.h"
 #endif // QT_H
 
 #ifdef Q_WS_WIN
@@ -34,7 +34,7 @@ class QOpenType;
 class QTextEngine;
 struct QGlyphLayout;
 
-class QFontEngine : public QShared
+class QFontEngine
 {
 public:
 
@@ -65,11 +65,12 @@ public:
     };
     Q_DECLARE_FLAGS(FECaps, Capabilities);
 
-    QFontEngine() {
-	count = 0; cache_count = 0;
-	_scale = 1;
+    inline QFontEngine::QFontEngine() {
+        ref = 0;
+        cache_count = 0;
+        _scale = 1;
     }
-
+    
     virtual ~QFontEngine();
 
     virtual FECaps capabilites() const = 0;
@@ -109,6 +110,7 @@ public:
 
     virtual Type type() const = 0;
 
+    QAtomic     ref;
     QFontDef fontDef;
     uint cache_cost; // amount of mem used in kb by the font
     int cache_count;
@@ -139,6 +141,7 @@ public:
 #endif // Q_WS_WIN
     Q26Dot6 _scale;
 };
+
 
 #if defined(Q_WS_QWS)
 

@@ -30,10 +30,10 @@
 #endif
 
 #include <private/qunicodetables_p.h>
-#include "qfontdata_p.h"
-#include "qfontengine_p.h"
+#include <private/qfontdata_p.h>
+#include <private/qfontengine_p.h>
 #include <private/qpainter_p.h>
-#include "qtextengine_p.h"
+#include <private/qtextengine_p.h>
 
 #ifdef Q_WS_X11
 #include "qx11info_x11.h"
@@ -116,6 +116,7 @@ QFontPrivate::QFontPrivate()
     : engineData( 0 ), paintdevice( 0 ),
       rawMode( false ), underline( false ), overline( false ), strikeOut( false ), kerning(false)
 {
+    ref = 1;
 #ifdef Q_WS_X11
     screen = QX11Info::appScreen();
 #else
@@ -124,17 +125,18 @@ QFontPrivate::QFontPrivate()
 }
 
 QFontPrivate::QFontPrivate( const QFontPrivate &other )
-    : QShared(), request( other.request ), engineData( 0 ),
+    : request( other.request ), engineData( 0 ),
       paintdevice( other.paintdevice ), screen( other.screen ),
       rawMode( other.rawMode ), underline( other.underline ), overline( other.overline ),
       strikeOut( other.strikeOut ), kerning(other.kerning)
 {
+    ref = 1;
 }
 
 QFontPrivate::~QFontPrivate()
 {
-    if ( engineData )
-	engineData->deref();
+    if (engineData)
+        --engineData->ref;
     engineData = 0;
 }
 
@@ -190,6 +192,7 @@ void QFontPrivate::resolve(uint mask, const QFontPrivate *other)
 QFontEngineData::QFontEngineData()
     : lineWidth( 1 )
 {
+    ref = 1;
 #if defined(Q_WS_X11) || defined(Q_WS_WIN)
     memset( engines, 0, QFont::LastPrivateScript * sizeof( QFontEngine * ) );
 #else
@@ -204,13 +207,13 @@ QFontEngineData::~QFontEngineData()
 {
 #if defined(Q_WS_X11) || defined(Q_WS_WIN)
     for ( int i = 0; i < QFont::LastPrivateScript; i++ ) {
-	if ( engines[i] )
-	    engines[i]->deref();
+	if (engines[i])
+            --engines[i]->ref;
 	engines[i] = 0;
     }
 #else
-    if ( engine )
-	engine->deref();
+    if (engine)
+        --engine->ref;
     engine = 0;
 #endif // Q_WS_X11 || Q_WS_WIN
 }
@@ -517,14 +520,11 @@ QFontEngineData::~QFontEngineData()
 QFont::QFont( QFontPrivate *data, QPaintDevice *pd )
 {
     if (pd != data->paintdevice) {
-	d = new QFontPrivate( *data );
+	d = new QFontPrivate(*data);
 	d->paintdevice = pd;
-
-	// now a single reference
-	d->count = 1;
     } else {
 	d = data;
-	++d->count;
+        ++d->ref;
     }
 }
 
@@ -533,19 +533,17 @@ QFont::QFont( QFontPrivate *data, QPaintDevice *pd )
 */
 void QFont::detach()
 {
-    if (d->count == 1) {
-	if ( d->engineData )
-	    d->engineData->deref();
+    if (d->ref == 1) {
+	if (d->engineData)
+            --d->engineData->ref;
 	d->engineData = 0;
-
 	return;
     }
 
-    QFontPrivate *old_d = d;
-    d = new QFontPrivate( *old_d );
-
-    if ( old_d->deref() )
-	delete old_d;
+    QFontPrivate *x = new QFontPrivate(*d);
+    x = qAtomicSetPtr(&d, x);
+    if (!--x->ref)
+        delete x;
 }
 
 /*!
@@ -554,10 +552,9 @@ void QFont::detach()
     \sa QApplication::setFont(), QApplication::font()
 */
 QFont::QFont()
-    :d(QApplication::font().d),
-     resolve_mask(0)
+    :d(QApplication::font().d), resolve_mask(0)
 {
-    d->ref();
+    ++d->ref;
 }
 
 /*!
@@ -577,8 +574,8 @@ QFont::QFont()
     \sa Weight, setFamily(), setPointSize(), setWeight(), setItalic(),
     setStyleHint() QApplication::font()
 */
-QFont::QFont( const QString &family, int pointSize, int weight, bool italic )
-    :d( new QFontPrivate)
+QFont::QFont(const QString &family, int pointSize, int weight, bool italic)
+    :d(new QFontPrivate)
 {
     resolve_mask = QFontPrivate::Family;
 
@@ -604,11 +601,11 @@ QFont::QFont( const QString &family, int pointSize, int weight, bool italic )
 /*!
     Constructs a font that is a copy of \a font.
 */
-QFont::QFont( const QFont &font )
+QFont::QFont(const QFont &font)
 {
     d = font.d;
+    ++d->ref;
     resolve_mask = font.resolve_mask;
-    d->ref();
 }
 
 /*!
@@ -616,24 +613,21 @@ QFont::QFont( const QFont &font )
 */
 QFont::~QFont()
 {
-    if ( d->deref() )
+    if (!--d->ref)
 	delete d;
-    d = 0;
 }
 
 /*!
     Assigns \a font to this font and returns a reference to it.
 */
-QFont &QFont::operator=( const QFont &font )
+QFont &QFont::operator=(const QFont &font)
 {
-    if ( font.d != d ) {
-	if ( d->deref() )
-	    delete d;
-	resolve_mask = font.resolve_mask;
-	d = font.d;
-	d->ref();
-    }
-
+    QFontPrivate *x = font.d;
+    ++x->ref;
+    x = qAtomicSetPtr(&d, x);
+    if (!--x->ref)
+        delete x;
+    resolve_mask = font.resolve_mask;
     return *this;
 }
 
@@ -706,10 +700,7 @@ int QFont::pointSize() const
 */
 void QFont::setPointSize( int pointSize )
 {
-    if ( pointSize <= 0 ) {
-	qWarning( "QFont::setPointSize: Point size <= 0 (%d)", pointSize );
-	return;
-    }
+    Q_ASSERT_X (pointSize > 0, "QFont::setPointSize", "point size must be greater than 0");
 
     detach();
 
@@ -728,10 +719,7 @@ void QFont::setPointSize( int pointSize )
 */
 void QFont::setPointSizeFloat( float pointSize )
 {
-    if ( pointSize <= 0.0 ) {
-	qWarning( "QFont::setPointSize: Point size <= 0 (%f)", pointSize );
-	return;
-    }
+    Q_ASSERT_X(pointSize > 0.0, "QFont::setPointSizeFloat", "point size must be greater than 0");
 
     detach();
 
@@ -857,10 +845,7 @@ int QFont::weight() const
 */
 void QFont::setWeight( int weight )
 {
-    if ( weight < 0 || weight > 99 ) {
-	qWarning( "QFont::setWeight: Value out of range (%d)", weight );
-	return;
-    }
+    Q_ASSERT_X(weight >= 0 && weight <= 99, "QFont::setWeight", "Weight must be between 0 and 99");
 
     detach();
 
@@ -1752,7 +1737,8 @@ QDataStream &operator<<( QDataStream &s, const QFont &font )
 */
 QDataStream &operator>>( QDataStream &s, QFont &font )
 {
-    if (font.d->deref()) delete font.d;
+    if (!--font.d->ref)
+        delete font.d;
 
     font.d = new QFontPrivate;
     font.resolve_mask = QFontPrivate::Complete;
@@ -1884,7 +1870,7 @@ QDataStream &operator>>( QDataStream &s, QFont &font )
 QFontMetrics::QFontMetrics( const QFont &font )
     : d( font.d ), painter( 0 ), fscript( QFont::NoScript )
 {
-    d->ref();
+    ++d->ref;
 }
 
 /*!
@@ -1896,7 +1882,7 @@ QFontMetrics::QFontMetrics( const QFont &font )
 QFontMetrics::QFontMetrics( const QFont &font, QFont::Script script )
     : d( font.d ), painter( 0 ), fscript( script )
 {
-    d->ref();
+    ++d->ref;
 }
 
 /*! \internal
@@ -1927,7 +1913,7 @@ QFontMetrics::QFontMetrics( const QPainter *p )
 // 	d->count = 1;
 //     } else
 
-    d->ref();
+    ++d->ref;
 }
 
 /*!
@@ -1936,7 +1922,7 @@ QFontMetrics::QFontMetrics( const QPainter *p )
 QFontMetrics::QFontMetrics( const QFontMetrics &fm )
     : d( fm.d ), painter( 0 ),  fscript( fm.fscript )
 {
-    d->ref();
+    ++d->ref;
 }
 
 /*!
@@ -1945,7 +1931,7 @@ QFontMetrics::QFontMetrics( const QFontMetrics &fm )
 */
 QFontMetrics::~QFontMetrics()
 {
-    if ( d->deref() )
+    if ( !--d->ref )
 	delete d;
 }
 
@@ -1954,12 +1940,11 @@ QFontMetrics::~QFontMetrics()
 */
 QFontMetrics &QFontMetrics::operator=( const QFontMetrics &fm )
 {
-    if ( d != fm.d ) {
-	if ( d->deref() )
-	    delete d;
-	d = fm.d;
-	d->ref();
-    }
+    QFontPrivate *x = fm.d;
+    ++x->ref;
+    x = qAtomicSetPtr(&d, x);
+    if (!--x->ref)
+        delete x;
     painter = fm.painter;
     return *this;
 }
@@ -2556,7 +2541,7 @@ int QFontMetrics::lineWidth() const
 QFontInfo::QFontInfo( const QFont &font )
     : d( font.d ), painter( 0 ), fscript( QFont::NoScript )
 {
-    d->ref();
+    ++d->ref;
 }
 
 /*!
@@ -2566,7 +2551,7 @@ QFontInfo::QFontInfo( const QFont &font )
 QFontInfo::QFontInfo( const QFont &font, QFont::Script script )
     : d( font.d ), painter( 0 ), fscript( script )
 {
-    d->ref();
+    ++d->ref;
 }
 
 /*! \internal
@@ -2593,8 +2578,8 @@ QFontInfo::QFontInfo( const QPainter *p )
 //     else
 // 	d = painter->cfont.d;
 // #else
-    d = painter->font().d;
-    d->ref();
+    d = painter->font().d;  
+    ++d->ref;
 }
 
 /*!
@@ -2603,7 +2588,7 @@ QFontInfo::QFontInfo( const QPainter *p )
 QFontInfo::QFontInfo( const QFontInfo &fi )
     : d(fi.d), painter(0), fscript( fi.fscript )
 {
-    d->ref();
+    ++d->ref;
 }
 
 /*!
@@ -2611,7 +2596,7 @@ QFontInfo::QFontInfo( const QFontInfo &fi )
 */
 QFontInfo::~QFontInfo()
 {
-    if ( d->deref() )
+    if (!--d->ref)
 	delete d;
 }
 
@@ -2620,12 +2605,11 @@ QFontInfo::~QFontInfo()
 */
 QFontInfo &QFontInfo::operator=( const QFontInfo &fi )
 {
-    if ( d != fi.d ) {
-	if ( d->deref() )
-	    delete d;
-	d = fi.d;
-	d->ref();
-    }
+    QFontPrivate *x = fi.d;
+    ++x->ref;
+    x = qAtomicSetPtr(&d, x);
+    if (--x->ref)
+        delete x;
     painter = 0;
     fscript = fi.fscript;
     return *this;
@@ -2847,18 +2831,18 @@ QFontCache::~QFontCache()
 	EngineDataCache::Iterator it = engineDataCache.begin(),
 				 end = engineDataCache.end();
 	while ( it != end ) {
-	    if ( it.value()->count == 0 )
+	    if ( it.value()->ref == 0 )
 		delete it.value();
 	    else
 		FC_DEBUG("QFontCache::~QFontCache: engineData %p still has refcount %d",
-			 it.value(), it.value()->count);
+			 it.value(), it.value()->ref);
 	    ++it;
 	}
     }
     EngineCache::Iterator it = engineCache.begin(),
 			 end = engineCache.end();
     while ( it != end ) {
-	if ( it.value().data->count == 0 ) {
+	if ( it.value().data->ref == 0 ) {
 	    if ( --it.value().data->cache_count == 0 ) {
 		FC_DEBUG("QFontCache::~QFontCache: deleting engine %p key=(%d / %d %d %d %d %d)",
 			 it.value().data, it.key().script, it.key().def.pointSize,
@@ -2869,7 +2853,7 @@ QFontCache::~QFontCache()
 	    }
 	} else {
 	    FC_DEBUG("QFontCache::~QFontCache: engine = %p still has refcount %d",
-		     it.value().data, it.value().data->count);
+		     it.value().data, it.value().data->ref);
 	}
 	++it;
     }
@@ -2884,8 +2868,8 @@ void QFontCache::clear()
 				 end = engineDataCache.end();
 	while ( it != end ) {
 	    QFontEngineData *data = it.value();
-	    if ( data->engine )
-		data->engine->deref();
+	    if (data->engine)
+                !--d->engine->ref;
 	    data->engine = 0;
 	    ++it;
 	}
@@ -2942,7 +2926,7 @@ QFontEngine *QFontCache::findEngine( const Key &key )
     FC_DEBUG( "QFontCache: found font engine\n"
 	    "  %p: timestamp %4u hits %3u ref %2d/%2d, type '%s'",
 	    it.value().data, it.value().timestamp, it.value().hits,
-	    it.value().data->count, it.value().data->cache_count,
+	    it.value().data->ref, it.value().data->cache_count,
 	    it.value().data->name() );
 
     return it.value().data;
@@ -3018,13 +3002,13 @@ void QFontCache::cleanupPrinterFonts()
 #ifdef Q_WS_WIN
 		for(int i = 0; i < QFont::LastPrivateScript; ++i) {
 		    if( it.value()->engines[i] ) {
-			it.value()->engines[i]->deref();
-			it.value()->engines[i] = 0;
+                        --it.value()->engines[i]->ref;
+                        it.value()->engines[i] = 0;
 		    }
 		}
 #else
-		if ( it.value()->engine ) {
-		    it.value()->engine->deref();
+		if (it.value()->engine) {
+                    --it.value()->engine->ref;
 		    it.value()->engine = 0;
 		}
 #endif
@@ -3108,7 +3092,7 @@ void QFontCache::timerEvent( QTimerEvent * )
 #  endif // Q_WS_X11 || Q_WS_WIN
 #endif // QFONTCACHE_DEBUG
 
-	    if ( it.value()->count > 0 )
+	    if ( it.value()->ref != 0 )
 		in_use_cost += engine_data_cost;
 	}
     }
@@ -3121,10 +3105,10 @@ void QFontCache::timerEvent( QTimerEvent * )
 	for ( ; it != end; ++it ) {
 	    FC_DEBUG( "    %p: timestamp %4u hits %2u ref %2d/%2d, cost %u bytes",
 		      it.value().data, it.value().timestamp, it.value().hits,
-		      it.value().data->count, it.value().data->cache_count,
+		      it.value().data->ref, it.value().data->cache_count,
 		      it.value().data->cache_cost );
 
-	    if ( it.value().data->count > 0 )
+	    if ( it.value().data->ref != 0 )
 		in_use_cost += it.value().data->cache_cost / it.value().data->cache_count;
 	}
 
@@ -3174,7 +3158,7 @@ void QFontCache::timerEvent( QTimerEvent * )
 	EngineDataCache::Iterator it = engineDataCache.begin(),
 				 end = engineDataCache.end();
 	while ( it != end ) {
-	    if ( it.value()->count > 0 ) {
+	    if ( it.value()->ref != 0 ) {
 		++it;
 		continue;
 	    }
@@ -3202,7 +3186,8 @@ void QFontCache::timerEvent( QTimerEvent * )
 	uint least_popular = ~0;
 
 	for ( ; it != end; ++it ) {
-	    if ( it.value().data->count > 0 ) continue;
+	    if ( it.value().data->ref != 0 )
+                continue;
 
 	    if ( it.value().timestamp < oldest &&
 		 it.value().hits <= least_popular ) {
@@ -3214,7 +3199,7 @@ void QFontCache::timerEvent( QTimerEvent * )
 	FC_DEBUG( "    oldest %u least popular %u", oldest, least_popular );
 
 	for ( it = engineCache.begin(); it != end; ++it ) {
-	    if ( it.value().data->count == 0 &&
+	    if ( it.value().data->ref == 0 &&
 		 it.value().timestamp == oldest &&
 		 it.value().hits == least_popular)
 		break;
@@ -3223,7 +3208,7 @@ void QFontCache::timerEvent( QTimerEvent * )
 	if ( it != end ) {
 	    FC_DEBUG( "    %p: timestamp %4u hits %2u ref %2d/%2d, type '%s'",
 		      it.value().data, it.value().timestamp, it.value().hits,
-		      it.value().data->count, it.value().data->cache_count,
+		      it.value().data->ref, it.value().data->cache_count,
 		      it.value().data->name() );
 
 	    if ( --it.value().data->cache_count == 0 ) {

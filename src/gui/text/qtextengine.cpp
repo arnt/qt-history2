@@ -844,7 +844,9 @@ QTextEngine::QTextEngine(const QString &str, QFontPrivate *f )
     : fnt(f)
 {
     init(this);
-    setText(str); if (fnt) fnt->ref();
+    setText(str);
+    if (fnt)
+        ++fnt->ref;
 }
 
 
@@ -868,7 +870,7 @@ void QTextEngine::setText(const QString &str)
 
 QTextEngine::~QTextEngine()
 {
-    if ( fnt && fnt->deref())
+    if ( fnt && !--fnt->ref)
 	delete fnt;
     free( memory );
     allocated = 0;
