@@ -45,7 +45,6 @@ public:
 
     QCleanUpHandler<QAction> actions;
     QCleanUpHandler<QWidget> widgets;
-    QStrList queryInterfaceList() const;
 
 public slots:
     void openDialog();
@@ -96,15 +95,6 @@ QStringList TestInterface::featureList()
     list << "Show Text";
     list << "Set central Widget";
     list << "Toggle Menu";
-
-    return list;
-}
-
-QStrList TestInterface::queryInterfaceList() const
-{
-    QStrList list;
-
-    list.append( "PlugMainWindowInterface" );
 
     return list;
 }
