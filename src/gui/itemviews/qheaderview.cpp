@@ -92,7 +92,7 @@ static const int default_height = 30;
     \ingroup model-view
 
     A QHeaderView displays the headers used in item views such as the
-    QGenericTableView and QGenericTreeView classes. It takes the place of
+    QTableView and QTreeView classes. It takes the place of
     the \c QHeader class previously used for the same purpose, but uses
     the Qt's model/view architecture for consistency with the item view
     classes.
@@ -123,7 +123,7 @@ static const int default_height = 30;
     functions. Note that the index can change if a section is moved.
 
     \sa \link model-view-programming.html Model/View Programming\endlink
-        QGenericListView QGenericTableView QGenericTreeView
+        QListView QTableView QTreeView
 
 */
 

@@ -234,8 +234,7 @@ QModelIndexList QItemSelectionRange::items(const QAbstractItemModel *model) cons
   Use merge() to merge two item selections, split() to 
    that include merging (), splitting (split()) (select())
 
-  \sa \link model-view-programming.html Model/View Programming\endlink
-      QAbstractItemModel
+  \sa \link model-view-programming.html Model/View Programming\endlink QItemSelectionModel
 
 */
 
@@ -304,8 +303,8 @@ QModelIndexList QItemSelection::items(QAbstractItemModel *model) const
   Merges the \a other selection with this QItemSelection using the
   \a command given. This method guarantees that no ranges are overlapping.
 
-  Note that only QItemSelectionModel::Select,
-  QItemSelectionModel::Deselect, and QItemSelectionModel::Toggle are
+  Note that only \c QItemSelectionModel::Select,
+  \c QItemSelectionModel::Deselect, and \c QItemSelectionModel::Toggle are
   supported.
 
   \sa split()
@@ -451,7 +450,7 @@ QItemSelection QItemSelectionModelPrivate::expandSelection(const QItemSelection 
   selection. All functions operate on both layers; for example,
   selectedItems() will return items from both layers.
 
-  \sa \link model-view-programming.html Model/View Programming\endlink
+  \sa \link model-view-programming.html Model/View Programming\endlink QAbstractItemModel
 */
 
 /*!

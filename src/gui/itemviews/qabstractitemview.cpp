@@ -115,15 +115,18 @@ void QAbstractItemViewPrivate::init()
     columnsInserted(), columnsRemoved(),
     selectionChanged(), and currentChanged().
 
-    The ``root'' item is returned by root(), and the current item by
+    The root item is returned by root(), and the current item by
     currentItem(). To make sure that an item is visible use
     ensureItemVisible().
 
     Some of QAbstractItemView's functions are concerned with
     scrolling, for example setHorizontalFactor() and
     setVerticalFactor(). Several other functions are concerned with
-    selection control, for example, setSelectionModel(),
-    setSelectionMode(), and setSelectionBehavior().
+    selection control; for example setSelectionMode(), and
+    setSelectionBehavior(). This class provides a default selection
+    model to work with (selectionModel()), but this can be replaced
+    by using setSelectionModel() with an instance of
+    QItemSelectionModel.
 
     For complete control over the display and editing of items you can
     specify a delegate with setItemDelegate().
@@ -133,7 +136,8 @@ void QAbstractItemViewPrivate::init()
     currentEditor(), whilst others are keyboard and mouse event
     handlers.
 
-    \sa \link model-view-programming.html Model/View Programming\endlink
+    \sa \link model-view-programming.html Model/View Programming\endlink QAbstractItemModel
+
 */
 
 /*!

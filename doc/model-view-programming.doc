@@ -55,7 +55,7 @@ For example, all item models are based on the \l QAbstractItemModel
 class. This class can be used to provide models to views that represent
 data in the form of tables and lists. However, the \l QAbstractListModel
 and \l QAbstractTableModel classes are better starting points for new list
-and table models because they provide default implementations for common
+and table models because they provide default implementations of common
 functions. Each of these classes could be subclassed to provide models
 that support specialized kinds of lists and tables.
 
@@ -111,7 +111,7 @@ See also \link model-view.html the Model/View classes\endlink
 
 For example, the following diagram shows the relationship between the Model/View
 classes that can be used to display a directory structure in a tree view.
-In this scheme, we could use the \c QGenericTreeView to display the contents
+In this scheme, we could use the \c QTreeView to display the contents
 of a \c QDirModel, or possibly populate a \c QTreeView with items from the model.
 
 \img treeview-hierarchy.png
@@ -174,17 +174,17 @@ will report that it is still valid because it has not been updated by the model.
 This is the super class for all itemviews. It implements navigation, selecting and dragging
 and dropping of items.
 
-\section2 QGenericListView
+\section2 QListView
 
 This view shows the model as a one dimensional list of items. This means that it only shows
 one column of one table. The items can be layed out top-to-bottom or left-to-right, with or
 without wrapping the layout.
 
-\section2 QGenericTableView
+\section2 QTableView
 
 This view renders the model as a two dimensional table of items. It shows one table in the model.
 
-\section2 QGenericTreeView
+\section2 QTreeView
 
 This view shows the model as a tree of rows. It shows the hieararchy in the first column in the model.
 
@@ -206,7 +206,7 @@ All selections in the item views are stored as ranges. A range is defined by a t
 
 \section2 QItemSelectionModel
 
-QGenericListView, QGenericTreeView and QGenericTableView all have a QItemSelectionModel. The selection model is responsible for storing a views selection, and its current item. Whenever these change the selection model sends out selectionChanged and currentChanged signals.
+QListView, QTreeView and QTableView all have a QItemSelectionModel. The selection model is responsible for storing a views selection, and its current item. Whenever these change the selection model sends out selectionChanged and currentChanged signals.
 
 The QItemSelectionModel is always connected to a model. This means that the top left and bottom right positions the each range consist of are QModelIndexes. Any view sharing the same model can then also share the same selection model as well.
 
@@ -441,9 +441,9 @@ widget, and runs the application's event loop:
 \printuntil }
 
 In the above example, we neglected to mention how to handle selections of
-items. This subject is covered in more detail in the
-\l{model-view-selection.html}{Handling Selections} section of this
-document.
+items. This subject is covered in more detail in the section of this
+document that deals with
+\l{model-view-selection.html}{handling selections}.
 
 \section2 Using model indices
 
@@ -531,13 +531,27 @@ separation of content and presentation is achieved by the use of a
 an interface provided by the \l QAbstractItemView class, and
 the use of model indices that represent model items in a general way.
 
-A view may be constructed without a model to use, but it must be set up
-with a model before it can display useful information. Once it is ready
-to use, it may provide default editing facilities for items, or it may
+As well as presenting data, views handle navigation between items,
+and some aspects of item selection. The views also implement basic
+user interface features, such as context menus and drag and drop.
+A view may provide default editing facilities for items, or it may
 work with a \l{model-view-delegate.html}{delegate} to provide a custom
-editor. Views keep track of the items that the user has selected
-through the use of \l{model-view-selection.html}{selections} which can
-be maintained for a single view, or shared between many views.
+editor.
+
+A view may be constructed without a model to use, but a model must be
+provided before it can display useful information. Views keep track of
+the items that the user has selected through the use of
+\l{model-view-selection.html}{selections} which can be maintained for
+a single view, or shared between many views.
+
+Some views, such as \l QTableView and \l QTreeView, display headers
+as well as items. These are also implemented by a view class,
+\l QHeaderView. Headers usually share the same model with the view
+that they are displayed in. They retrieve a different
+\l{QModelIndex::Type}{type} of data to that shown in the rest of
+the view, and usually display it in the form of a label. New headers
+can be subclassed from the \l QHeaderView class to provide more
+specialized labelling for views.
 
 \omit
 Views depend on models for the data that they present to the user, but
@@ -555,9 +569,14 @@ these may be text labels or icons. \l QTreeView displays items from a
 model as a hierarchy of lists, allowing deeply nested structures to be
 represented in a compact way. \l QTableView presents items from a model
 in the form of a table, much like the layout of a spreadsheet
-application. These are presented in the following image.
+application.
 
 \img standard-views.png
+
+The default behavior of the standard views shown above should be
+sufficient for use in most applications. They provide basic editing
+facilities, and can be customized to suit the needs of more specialized
+user interfaces.
 
 \section3 Using a model 
 
@@ -571,59 +590,99 @@ be performed within a single function:
 \printuntil QAbstractItemModel
 
 The list view provided by \l QListView is sufficient for presenting
-the items in the string list model. We construct the view, and set
-the model using the 
+the items in the string list model. We construct the view, and set up
+the model using the following lines of code:
 
 \skipto QAbstractItemView
 \printuntil QAbstractItemView
 \skipto view->setModel
 \printuntil view->setModel
 
-The view renders the contents of a model, accessing data via the model's
-interfaces, and sends user gestures to the controller. This is handled in Qt by QAbstractItemView and its
-generic (list, tree, or table) subclasses.
+The view is shown in the normal way:
 
+\skipto view->show
+\printuntil }
+
+The view renders the contents of a model, accessing data via the model's
+interfaces. When the user tries to edit an item, the view uses a default
+delegate to provide an editor widget.
 
 \img stringlistmodel.png
 
+The above image shows how a \l QListView represents the data in the
+string list model. Each item in the list can be edited with the default
+delegate.
 
-The views in the Model-View architecture is responsible for presenting
-the data in the model. It handles item layout, navigation and some
-aspects of item selection.
-In addition to the Model/View related functionality, the views also
-implement more user interface related functionality, like context menus
-and drag and drop.
+\section3 Using multiple views onto the same model
 
-\section2 Creating a view onto a model
-\quotefile view01.cpp
+Providing multiple views onto the same model is simply a matter of
+setting the same model for each view. In the following code, we create
+two table views, each using the same simple table model:
 
-\skipto view->setModel(model)
-\printuntil view->setModel(model)
+\quotefile sharedtablemodel/main.cpp
+\skipto QTableView *first
+\printuntil QTableView *second
+\skipto firstTableView->
+\printuntil secondTableView->
 
-To view the contents of a model, simply call setModel() with the model
-pointer as argument. The view will listen to the models signals and update
-itself when the model changes.
+The use of signals and slots in the Model/View architecture means that
+changes to the model can be propagated to all the attached views,
+ensuring that we can always access the same data regardless of the
+view being used.
 
-\section2 Creating Multiple Views on a Model
-\quotefile view02.cpp
+\img sharedmodel-tableviews.png
 
-\skipto table->setModel(model)
-\printuntil list->setModel(model)
+The above image shows two different views onto the same model, each
+containing a number of selected items. Although the data from the model
+is shown consistently across view, each view maintains its own internal
+selection model. This can be useful in certain situations but, for
+many applications, a shared selection model is desirable.
 
-The same model can be viewed in several different views. What you see of the
-model depends on the view. 
-Note that the model does not know about the views, and that the views don't
-know about each other.
+\section2 Handling selections of items
 
-\section2 Sharing Selections
-\quotefile view03.cpp
+The mechanism for handling selections of items within views is provided
+by the \l QItemSelectionModel class. Each of the standard views construct
+their own selection models by default, and will interact with them in the
+normal way. The selection model being used by a view can be obtained
+through the \l{QAbstractItemView::selectionModel()}{selectionModel()}
+function, and a replacement selection model can be specified with
+\l{QAbstractItemView::setSelectionModel()}{setSelectionModel()}.
+The ability to control the selection model used by a view is useful
+when we want to provide multiple consistent views onto the same model
+data.
 
-\skipto QItemSelectionModel
-\printto hbox.show();
+Generally, unless you are subclassing a model or view, you will not
+need to manipulate the contents of selections directly. However, the
+interface to the selection model can be accessed, if required, and
+this is explored in the section on
+\l{model-view-selection.html}{handling selections}.
 
-Selections are stored in the QItemSelectionModel. They are stored in model
-indexes, and are independent of the views. Sharing selections between views
-can be very useful when the views are operating on the same model.
+\section2 Sharing selections between views
+
+Although it is convenient that the view classes provide their own
+selection models by default, when we use more than one view onto the
+same model it is often desirable that both the model's data and the
+user's selection are shown consistently in all views.
+Since the view classes allow their internal selection models to be
+replaced, we can achieve a unified selection between views with the
+following line:
+
+\quotefile sharedtablemodel/main.cpp
+\skipto secondTableView->setSelectionModel
+\printuntil secondTableView->setSelectionModel
+
+The second view is given the selection model for the first view.
+Both views now operate on the same selection model, keeping both
+the data and the selected items synchronized.
+
+\img sharedselection-tableviews.png
+
+In the example shown above, two views of the same type were used to
+display the same model's data. However, if two different types of view
+were used, the selected items may be represented very differently in
+each view; for example, a contiguous selection in a table view may be
+represented as a fragmented set of highlighted items in a tree view.
+
 
 */
 
@@ -761,9 +820,9 @@ elements in the item.
 /*!
 \page model-view-selection.html
 
-\title More Selections
+\title Handling Selections
 
-\section1 The Selection Model
+\section1 Concepts
 
 The selection model used in the new item view classes offers many
 improvements over the selection model used in Qt 3. It provides a
@@ -773,8 +832,77 @@ manipulating selections are sufficient for the item views provided,
 the selection model allows you to create specialized selection models
 to suit the requirements for your own models and views.
 
-\section2 Creating a selection
+Information about the items selected in a view is stored in an instance
+of the \l QItemSelectionModel class. This maintains model indices for
+items in a single model, and is independent of any views. Since there
+can be many views onto a model, it is possible to share selections
+between views, allowing applications to show multiple views in a
+consistent way.
 
+Selections are made up of \e{selection ranges}. These efficiently
+maintain information about large selections of items by recording
+only the starting and ending model indices for each range of selected
+items. Non-contiguous selections of items are constructed by using
+more than one selection range to describe the selection.
+
+
+\section1 Setting up a selection model
+
+The standard view classes provide default selection models that can
+be used in most applications. A selection model belonging to one view
+can be shared between many views, so the construction of new selection
+models is generally not required.
+
+
+
+\section1 Creating a selection
+
+A selection is created by specifying a model, and a pair of model
+indices to a \l QItemSelection. This utility class treats the indices
+as the top-left and bottom-right locations of items in the given model
+and records them for later use. To apply the selection to items in a
+model requires the selection to be submitted to a selection model;
+this may be achieved in a number of ways, each having a different
+effect on the selections already present in the selection model.
+
+To demonstrate some of the principal features of selections, we create
+a table model with 64 items in total, and open a table view onto its
+data:
+
+\quotefile itemselection/main.cpp
+\skipto int main
+\printuntil QItemSelectionModel
+
+The table view's default selection model is retrieved for later use.
+We will not modify any items in the model, but instead select a few
+items that the view displays in the centre of the table. To do this,
+we need to retrieve a model index corresponding to the top-left of
+the region to be selected:
+
+\skipto QModelIndex topLeft
+\printuntil QModelIndex topLeft
+
+We have chosen an item close to the centre of the table. An index
+corresponding to the bottom-right item is retrieved in the same way:
+
+\skipto QModelIndex bottomRight
+\printuntil QModelIndex bottomRight
+
+To select these items in the model, and see the corresponding change
+in the table view, we need to construct a selection object, and apply
+it to the selection model. We also have to specify the model that the
+indices belong to since the model indices do not contain this
+information:
+
+\skipto QItemSelection
+\printuntil selectionModel->select
+
+The selection is applied to the selection model using a
+\l{QItemSelectionModel::SelectionFlag}{selection flag} that selects the
+items in the selection model regardless of their previous state. The
+resulting selection is shown by the view in the following way:
+
+\img selected-items1.png
 
 
 \section2 Updating a selection
@@ -931,7 +1059,10 @@ function and the resulting SelectionFlags they return.
 
     The model implemented here is a simple, non-hierarchical, read-only data
     model. It has a \l QStringList as its internal data source, and implements
-    only what is needed for a functional model.
+    only what is needed for a functional model. To make the implementation
+    easier, we subclass \l QAbstractListModel because it provides default
+    behavior for list models, and it exposes a simpler interface than the
+    \l QAbstractItemModel class.
 
     \skipto class
     \printto isEditable
@@ -976,6 +1107,9 @@ function and the resulting SelectionFlags they return.
     An item can have several roles, giving out different data depending on the
     role specified. The items in our model only have one role, \c DisplayRole,
     so we will return the data for items irrespective of the role specified.
+    However, we could reuse the data we provide for the \c DisplayRole in
+    other roles, such as the \c ToolTipRole that views can use to display
+    information about items in a tooltip.
 
     \section1 An editable model
 
@@ -1028,7 +1162,7 @@ function and the resulting SelectionFlags they return.
 
     \quotefile stringlistmodel/model.h
     \skipto bool insertRows
-    \printto removeRows
+    \printuntil bool removeRows
 
     We implement a function to allow rows to be inserted into the model:
 
@@ -1047,7 +1181,8 @@ function and the resulting SelectionFlags they return.
     in the list, and return false to indicate failure.
 
     The model emits the \l{QAbstractItemModel::rowsInserted()}{rowsInserted()}
-    signal to inform other components that the number of rows has changed.
+    signal to inform other components that the number of rows has changed,
+    specifying the first and last rows that were inserted.
     Note that the signal is always emitted after the rows are inserted,
     allowing other components to immediately access the new rows.
 
@@ -1063,8 +1198,9 @@ function and the resulting SelectionFlags they return.
     We ignore the parent index to simplify our implementation, and just
     remove the corresponding items from the string list.
     The \l{QAbstractItemModel::rowsRemoved()}{rowsRemoved()} signal is
-    always emitted before the rows are removed. This is to allow other
-    components to access the data before it is removed.
+    always emitted before the rows are removed, specifying the first and
+    last rows to be removed. This is to allow other components to access the
+    data before it is removed.
 
     \section1 Next steps
 

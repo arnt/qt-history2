@@ -167,8 +167,7 @@ void QPersistentModelIndexData::destroy(QPersistentModelIndexData *data)
   to data will continue to be valid as long as that data exists within
   the model.
 
-  \sa QModelIndex
-      \link model-view-programming.html Model/View Programming\endlink
+  \sa \link model-view-programming.html Model/View Programming\endlink QModelIndex QAbstractItemModel
 */
 
 
@@ -365,7 +364,7 @@ bool QPersistentModelIndex::operator!=(const QModelIndex &other) const
     at the index position.
     \endomit
 
-    \sa \link model-view-programming.html Model/View Programming\endlink
+    \sa \link model-view-programming.html Model/View Programming\endlink QPersistentModelIndex QAbstractItemModel
 */
 
 /*!
@@ -501,8 +500,10 @@ bool QPersistentModelIndex::operator!=(const QModelIndex &other) const
     dataChanged(), rowsInserted(), columnsInserted(), rowsRemoved()
     and columnsRemoved().
 
-    \sa \link model-view-programming.html Model/View Programming\endlink
-        QModelIndex
+    When subclassing QAbstractItemModel, you must implement index(),
+    parent(), rowCount(), columnCount(), and data().
+
+    \sa \link model-view-programming.html Model/View Programming\endlink QModelIndex QAbstractItemView
 
 */
 
@@ -1093,26 +1094,29 @@ QDebug operator<<(QDebug dbg, const QModelIndex &idx)
 /*!
     \class QAbstractTableModel
     \brief The QAbstractTableModel class provides a default model to use with
-    the QGenericTableView class.
+    the QTableView class.
 
     \ingroup model-view
 
     A QAbstractTableModel is a ready-made model for use with the generic view
-    widgets. In particular, it is intended for use with QGenericTableView.
+    widgets. In particular, it is intended for use with QTableView.
     The model provides a two-dimensional model in which data can be stored,
     containing a number of rows and columns.
 
     If you need to represent a simple list of items, and only need a model to
     contain a single column of data, the QAbstractListModel may be more
-    appropriate. For hierarchical lists, for use with QGenericTreeView, it is
+    appropriate. For hierarchical lists, for use with QTreeView, it is
     necessary to subclass QAbstractItemModel.
 
     The rowCount() and columnCount() functions return the dimensions of the
     table. To retrieve a model index corresponding to an item in the mode, use
     index() and provide only the row and column numbers.
 
-    \sa \link model-view-programming.html Model/View Programming\endlink
-        QAbstractItemModel QAbstractListModel
+    When subclassing QAbstractTableModel, you must implement rowCount(),
+    columnCount(), and data(). Default implementations of the index() and
+    parent() functions are provided.
+
+    \sa \link model-view-programming.html Model/View Programming\endlink QAbstractItemModel QAbstractListModel
 
 */
 
@@ -1220,7 +1224,7 @@ int QAbstractTableModel::columnCount(const QModelIndex &parent) const
 /*!
     \class QAbstractListModel
     \brief The QAbstractListModel class provides a default model to use with the
-    QGenericListView class.
+    QListView class.
 
     \ingroup model-view
 
@@ -1234,18 +1238,22 @@ int QAbstractTableModel::columnCount(const QModelIndex &parent) const
 
     QAbstractListModel is not used directly, but must be subclassed. For example,
     we can implement a simple QStringList-based model that provides a list of
-    strings to a QGenericListView widget. In such a case, we only need to
+    strings to a QListView widget. In such a case, we only need to
     implement the rowCount() function to return the number of items in the list,
     and the data() function to retrieve items from the list.
 
 
     Since the model represents a one-dimensional structure, the rowCount()
     function returns the number of items in the model. The columnCount() function
-    is implemented for interoperability with all kinds of generic views, but
+    is implemented for interoperability with all kinds of views, but
     by default informs views that the model contains only one column.
 
-    \sa \link model-view-programming.html Model/View Programming\endlink
-        QAbstractItemView QAbstractTableView
+    When subclassing QAbstractListModel, you must provide an implementation
+    of the rowCount() function. A default implementation of columnCount()
+    is provided that informs views that there is only a single column of
+    items in this model.
+
+    \sa \link model-view-programming.html Model/View Programming\endlink QAbstractItemView QAbstractTableView
 
 */
 
