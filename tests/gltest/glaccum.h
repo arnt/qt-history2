@@ -26,7 +26,8 @@ class GLAccum : public GLControlWidget
 public:
 
     GLAccum( QWidget* parent = 0, const char* name = 0, WFlags f = 0, 
-	   QGLFormat form = QGLFormat ( AlphaChannel ) );
+	   QGLFormat form = QGLFormat ( AccumBuffer | SingleBuffer |
+					DepthBuffer | Rgba ));
     ~GLAccum();
 
 protected:
@@ -47,6 +48,12 @@ private:
 				       GLdouble eyedx, GLdouble eyedy, 
 				       GLdouble focus);
     void                displayObjects(void);
+    void                renderTeapot (GLfloat x, GLfloat y, GLfloat z,
+				      GLfloat ambr, GLfloat ambg, 
+				      GLfloat ambb, GLfloat difr, 
+				      GLfloat difg, GLfloat difb,
+				      GLfloat specr, GLfloat specg, 
+				      GLfloat specb, GLfloat shine);
 };
 
 
