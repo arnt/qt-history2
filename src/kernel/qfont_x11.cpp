@@ -651,7 +651,7 @@ void QFontPrivate::load( QFont::Script script, bool )
 	// familylist << ... ; // default fallback font for the specified script
 	familylist << QString::null;
 
-	int px = (int) pixelSize( request, paintdevice, x11Screen );
+	int px = (int) (pixelSize( request, paintdevice, x11Screen )+.5);
 	char pitch = request.fixedPitch ? 'm' : 'p';
 
 	QStringList::ConstIterator it = familylist.begin(),
