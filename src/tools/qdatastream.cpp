@@ -53,62 +53,66 @@
   \ingroup io
 
   A data stream is a binary stream of encoded information which is 100%
-  independent of the host computer operation system, CPU or byte order.	 A
-  stream that is written by a PC under DOS/Windows can be read by a
-  Sun SPARC running Solaris.
-
+  independent of the host computer's operating system, CPU or byte
+  order. For example a data stream that is written by a PC under Windows
+  can be read by a Sun SPARC running Solaris. 
+  
+  You can also use a data stream to read/write <a href="#raw">raw
+  unencoded binary data</a>. If you want a "parsing" input stream, see
+  QTextStream. 
+  
   The QDataStream class implements serialization of primitive types, like
   \c char, \c short, \c int, \c char* etc.  Serialization of more complex
   data is accomplished by breaking up the data into primitive units.
-
-  The programmer can select which byte order to use when serializing data.
-  The default setting is big endian (MSB first). Changing it to little
-  endian breaks the portability (unless the reader also changes to little
-  endian).  We recommend keeping this setting unless you have
-  special requirements.
 
   A data stream cooperates closely with a QIODevice. A QIODevice
   represents an input/output medium one can read data from and write data
   to.  The QFile class is an example of an IO device.
 
-  Example (write data to a stream):
+  Example (write binary data to a stream):
   \code
     QFile f( "file.dta" );
-    f.open( IO_WriteOnly );			// open file for writing
-    QDataStream s( &f );			// serialize using f
-    s << "the answer is";			// serialize string
-    s << (Q_INT32)42;				// serialize integer
+    f.open( IO_WriteOnly );
+    QDataStream s( &f );    // we will serialize the data into file f
+    s << "the answer is";   // serialize a string
+    s << (Q_INT32)42;       // serialize an integer
   \endcode
 
-  Example (read data from a stream):
+  Example (read binary data from a stream):
   \code
     QFile f( "file.dta" );
-    f.open( IO_ReadOnly );			// open file for reading
-    QDataStream s( &f );			// serialize using f
-    char   *str;
+    f.open( IO_ReadOnly );
+    QDataStream s( &f );    // read the data serialized from file f
+    QString str;
     Q_INT32 a;
-    s >> str >> a;				// "the answer is" and 42
-    delete[] str;				// delete string
+    s >> str >> a;          // extract "the answer is" and 42
   \endcode
 
-  In the last example, if you read into a QString instead of a \c char*
-  you do not have to delete it.
+  Each item written to the stream is written in a predefined binary
+  format that varies depending on the item's type. Supported Qt types
+  include QBrush, QColor, QDateTime, QFont, QPixmap, QString, QVariant
+  and many others. For the complete list of all Qt types supporting data
+  streaming see \link datastreamformat.html Format of the QDataStream
+  operators \endlink .
 
-  Normally, each item written to the stream is written in a fixed
-  binary format.  For example, a \c char* is written as a 32-bit
-  integer equal to the length of the string including the NUL byte,
-  followed by all the characters of the string including the NUL
-  byte. Similarly when reading a string, 4 bytes are read to create
-  the 32-bit length value, then that many characters for the string
-  including the NUL. For a complete description of all Qt types
-  supporting data streaming see \link datastreamformat.html Format of
-  the QDataStream operators \endlink .
+  To take one example, a \c char* string is written as a 32-bit integer
+  equal to the length of the string including the NUL byte, followed by
+  all the characters of the string including the NUL byte. When reading
+  a \c char* string, 4 bytes are read to create the 32-bit length value,
+  then that many characters for the \c char* string including the NUL
+  are read. 
 
-  If you want a "parsing" input stream, see QTextStream. If you just want the
-  data to be human-readable to aid in debugging, you can set the data
-  stream into printable data mode with setPrintableData(). The data is
-  then written slower, in a human readable bloated form that is sufficient
-  for debugging.
+  The initial IODevice is usually set in the constructor, but can be
+  changed with setDevice(). If you've reached the end of the data (or if
+  there is no IODevice set) atEnd() will return TRUE. 
+
+  If you want the data to be compatible with an earlier version of Qt
+  use setVersion().
+ 
+  If you want the data to be human-readable, e.g. for debugging, you can
+  set the data stream into printable data mode with setPrintableData().
+  The data is then written slower, in a bloated but human readable
+  format. 
 
   If you are producing a new binary data format, such as a file format
   for documents created by your application, you could use a QDataStream
@@ -117,14 +121,13 @@
   yourself room for future expansion. For example:
 
   \code
-    // Open the file.
     QFile f( "file.xxx" );
     f.open( IO_WriteOnly );
     QDataStream s( &f );
 
     // Write a header with a "magic number" and a version
-    s << 0xa0b0c0d0;
-    s << 123;
+    s << (Q_UINT32)0xa0b0c0d0;
+    s << (Q_INT32)123;
 
     // Write the data
     s << [lots of interesting data]
@@ -133,7 +136,6 @@
   Then read it in with:
 
   \code
-    // Open the file.
     QFile f( "file.xxx" );
     f.open( IO_ReadOnly );
     QDataStream s( &f );
@@ -161,7 +163,40 @@
     s >> [other interesting data];
   \endcode
 
+  You can select which byte order to use when serializing data. The
+  default setting is big endian (MSB first). Changing it to little
+  endian breaks the portability (unless the reader also changes to
+  little endian).  We recommend keeping this setting unless you have
+  special requirements.
+
+  <b>Reading and writing raw binary data</b>
+  <a name="raw">
+
+    You may wish to read/write your own raw binary data to/from the
+    data stream directly. Data may be read from the stream into a
+    preallocated char* using readRawBytes(). Similarly data can be
+    written to the stream using writeRawBytes(). Notice that any
+    encoding/decoding of the data must be done by you. 
+
+    A similar pair of functions is readBytes() and writeBytes(). These
+    differ from their \e raw counterparts as follows: readBytes() reads
+    a Q_UINT32 which is taken to be the length of the data to be read,
+    then that number of bytes is read into the preallocated char*;
+    writeBytes() writes a Q_UINT32 containing the length of the data,
+    followed by the data. Notice that any encoding/decoding of the data
+    (apart from the length Q_UINT32) must be done by you. 
+
+
   \sa QTextStream QVariant
+*/
+
+/*!
+    \enum QDataStream::ByteOrder
+
+    The byte order used for reading/writing the data. 
+
+    \value BigEndian the default
+    \value LittleEndian
 */
 
 
@@ -188,7 +223,7 @@ static const int DefaultStreamVersion = 4;
 // 1 is the Qt 1.x format
 
 /*!
-  Constructs a data stream that has no IO device.
+  Constructs a data stream that has no IO device. 
 
   \sa setDevice()
 */
@@ -224,20 +259,21 @@ QDataStream::QDataStream( QIODevice *d )
 }
 
 /*!
-  Constructs a data stream that operates on a byte array through an
-  internal QBuffer device.
+  Constructs a data stream that operates on a byte array, \a a, through
+  an internal QBuffer device. The \a mode is a QIODevice::mode(),
+  usually either \c IO_ReadOnly or \c IO_WriteOnly.
 
   Example:
   \code
     static char bindata[] = { 231, 1, 44, ... };
-    QByteArray	a;
+    QByteArray a;
     a.setRawData( bindata, sizeof(bindata) );	// a points to bindata
     QDataStream s( a, IO_ReadOnly );		// open on a's data
     s >> [something];				// read raw bindata
     a.resetRawData( bindata, sizeof(bindata) ); // finished
   \endcode
 
-  The QArray::setRawData() function is not for the inexperienced.
+  The QByteArray::setRawData() function is not for the inexperienced.
 */
 
 QDataStream::QDataStream( QByteArray a, int mode )
@@ -257,7 +293,8 @@ QDataStream::QDataStream( QByteArray a, int mode )
   Destroys the data stream.
 
   The destructor will not affect the current IO device, unless it
-  is an internal IO device processing a QByteArray passed in the constructor.
+  is an internal IO device processing a QByteArray passed in the
+  \e constructor, in which case the internal IO device is destroyed.
 */
 
 QDataStream::~QDataStream()
@@ -301,11 +338,10 @@ void QDataStream::unsetDevice()
 
 /*!
   \fn bool QDataStream::atEnd() const
-  Returns TRUE if the IO device has reached the end position (end of
-  stream or file) or if there is no IO device set.
-
-  Returns FALSE if the current position of the read/write head of the IO
-  device is somewhere before the end position.
+  Returns TRUE if the IO device has reached the end position (end of the
+  stream or file) or if there is no IO device set; otherwise returns
+  FALSE, i.e. if the current position of the IO device is before the end
+  position.
 
   \sa QIODevice::atEnd()
 */
@@ -325,7 +361,7 @@ void QDataStream::unsetDevice()
 
 /*!
   \fn int QDataStream::byteOrder() const
-  Returns the current byte order setting - either \c BigEndian or
+  Returns the current byte order setting -- either \c BigEndian or
   \c LittleEndian.
 
   \sa setByteOrder()
@@ -337,8 +373,8 @@ void QDataStream::unsetDevice()
   The \a bo parameter can be \c QDataStream::BigEndian or
   \c QDataStream::LittleEndian.
 
-  The default setting is big endian.  We recommend leaving this setting unless
-  you have special requirements.
+  The default setting is big endian.  We recommend leaving this setting
+  unless you have special requirements.
 
   \sa byteOrder()
 */
@@ -361,7 +397,7 @@ void QDataStream::setByteOrder( int bo )
 
 /*!
   \fn void QDataStream::setPrintableData( bool enable )
-  Sets or clears the printable data flag.
+  Sets (if \a enable is TRUE) or clears the printable data flag.
 
   If this flag is set, the write functions will generate output that
   consists of printable characters (7 bit ASCII).
@@ -374,7 +410,7 @@ void QDataStream::setByteOrder( int bo )
 /*!
   \fn int QDataStream::version() const
   Returns the version number of the data serialization format.
-  In Qt 3.0, this number is by default 4.
+  In Qt 3.0, this number is 4.
   \sa setVersion()
 */
 
@@ -382,19 +418,23 @@ void QDataStream::setByteOrder( int bo )
   \fn void QDataStream::setVersion( int v )
   Sets the version number of the data serialization format.
 
-  In order to accomodate for new functionality, the datastream
-  serialization format of some Qt classes has changed in some versions of
-  Qt. If you want to read data that was created by an earlier version of
-  Qt, or write data that can be read by a program that was compiled with
-  an earlier version of Qt, use this function to modify the serialization
-  format of QDataStream.
+    You don't need to set a version if you are using the current
+    version of Qt.
 
-  For Qt 1.x compatibility, use \a v == 1.
+  In order to accommodate new functionality, the datastream
+  serialization format of some Qt classes has changed in some versions
+  of Qt. If you want to read data that was created by an earlier version
+  of Qt, or write data that can be read by a program that was compiled
+  with an earlier version of Qt, use this function to modify the
+  serialization format of QDataStream.
 
-  For Qt 2.0.x compatibility, use \a v == 2 (not required for reading in
-  Qt 2.1).
+    \list
+    \i For Qt 3.0 compatibility, use \a v == 4.
+    \i For Qt 2.1.x and Qt 2.2.x compatibility, use \a v == 3.
+    \i For Qt 2.0.x compatibility, use \a v == 2.
+    \i For Qt 1.x compatibility, use \a v == 1.
+    \endlist
 
-  For Qt 2.1.x and Qt 2.2.x compatibility, use \a v == 3.
 
   \sa version()
 */
@@ -420,13 +460,15 @@ static Q_INT32 read_int_ascii( QDataStream *s )
 
 
 /*!
+    \overload
   \fn QDataStream &QDataStream::operator>>( Q_UINT8 &i )
-  Reads an unsigned byte from the stream and returns a reference to
-  the stream.
+  Reads an unsigned byte from the stream into \a i, and returns a
+  reference to the stream.
 */
 
 /*!
-  Reads a signed byte from the stream.
+  Reads a signed byte from the stream into \a i, and returns a reference
+  to the stream.
 */
 
 QDataStream &QDataStream::operator>>( Q_INT8 &i )
@@ -447,14 +489,16 @@ QDataStream &QDataStream::operator>>( Q_INT8 &i )
 
 
 /*!
+    \overload
   \fn QDataStream &QDataStream::operator>>( Q_UINT16 &i )
-  Reads an unsigned 16-bit integer from the stream and returns a reference to
-  the stream.
+  Reads an unsigned 16-bit integer from the stream into \a i, and returns
+  a reference to the stream.
 */
 
 /*!
-  Reads a signed 16-bit integer from the stream and returns a reference to
-  the stream.
+    \overload
+  Reads a signed 16-bit integer from the stream into \a i, and returns a
+  reference to the stream.
 */
 
 QDataStream &QDataStream::operator>>( Q_INT16 &i )
@@ -476,14 +520,16 @@ QDataStream &QDataStream::operator>>( Q_INT16 &i )
 
 
 /*!
+    \overload
   \fn QDataStream &QDataStream::operator>>( Q_UINT32 &i )
-  Reads an unsigned 32-bit integer from the stream and returns a reference to
-  the stream.
+  Reads an unsigned 32-bit integer from the stream into \a i, and
+  returns a reference to the stream.
 */
 
 /*!
-  Reads a signed 32-bit integer from the stream and returns a reference to
-  the stream.
+    \overload
+  Reads a signed 32-bit integer from the stream into \a i, and returns a
+  reference to the stream.
 */
 
 QDataStream &QDataStream::operator>>( Q_INT32 &i )
@@ -506,14 +552,16 @@ QDataStream &QDataStream::operator>>( Q_INT32 &i )
 }
 
 /*!
+    \overload
   \fn QDataStream &QDataStream::operator>>( Q_ULONG &i )
-  Reads an unsigned integer of the systems word length
-  from the stream and returns a reference to the stream.
+  Reads an unsigned integer of the system's word length from the stream,
+  into \a i, and returns a reference to the stream.
 */
 
 /*!
-  Reads a signed integer of the systems word length
-  from the stream and returns a reference to the stream.
+    \overload
+  Reads a signed integer of the system's word length
+  from the stream into \a i, and returns a reference to the stream.
 */
 
 QDataStream &QDataStream::operator>>( Q_LONG &i )
@@ -549,8 +597,9 @@ static double read_double_ascii( QDataStream *s )
 
 
 /*!
-  Reads a 32-bit floating point number from the stream using the standard
-  IEEE754 format. Returns a reference to the stream.
+    \overload
+  Reads a 32-bit floating point number from the stream into \a f, using
+  the standard IEEE754 format. Returns a reference to the stream.
 */
 
 QDataStream &QDataStream::operator>>( float &f )
@@ -574,8 +623,9 @@ QDataStream &QDataStream::operator>>( float &f )
 
 
 /*!
-  Reads a 64-bit floating point number from the stream using the standard
-  IEEE754 format. Returns a reference to the stream.
+    \overload
+  Reads a 64-bit floating point number from the stream into \a f, using
+  the standard IEEE754 format. Returns a reference to the stream.
 */
 
 QDataStream &QDataStream::operator>>( double &f )
@@ -603,11 +653,12 @@ QDataStream &QDataStream::operator>>( double &f )
 
 
 /*!
+    \overload
   Reads the '\0'-terminated string \a s from the stream and returns
   a reference to the stream.
 
-  Space for the string is allocated using \c new - the caller must
-  eventually call delete[] on the value.
+  Space for the string is allocated using \c new -- the caller must
+  destroy it with delete[].
 */
 
 QDataStream &QDataStream::operator>>( char *&s )
@@ -627,8 +678,8 @@ QDataStream &QDataStream::operator>>( char *&s )
 
   The \a l parameter will be set to the length of the buffer.
 
-  The serialization format is an Q_UINT32 length specifier first, then the
-  data (\a l bytes).
+  The serialization format is a Q_UINT32 length specifier first, then \a
+  l bytes of data. Note that the data is \e not encoded.
 
   \sa readRawBytes(), writeBytes()
 */
@@ -656,7 +707,7 @@ QDataStream &QDataStream::readBytes( char *&s, uint &l )
   Reads \a len bytes from the stream into \a s and returns a reference to
   the stream.
 
-  The buffer \a s must be preallocated.
+  The buffer \a s must be preallocated. The data is \e not encoded.
 
   \sa readBytes(), QIODevice::readBlock(), writeRawBytes()
 */
@@ -681,13 +732,15 @@ QDataStream &QDataStream::readRawBytes( char *s, uint len )
 
 
 /*!
+    \overload
   \fn QDataStream &QDataStream::operator<<( Q_UINT8 i )
-  Writes an unsigned byte to the stream and returns a reference to
-  the stream.
+  Writes an unsigned byte, \a i, to the stream and returns a reference
+  to the stream.
 */
 
 /*!
-  Writes a signed byte to the stream.
+  Writes a signed byte, \a i, to the stream and returns a reference
+  to the stream.
 */
 
 QDataStream &QDataStream::operator<<( Q_INT8 i )
@@ -709,14 +762,16 @@ QDataStream &QDataStream::operator<<( Q_INT8 i )
 
 
 /*!
+    \overload
   \fn QDataStream &QDataStream::operator<<( Q_UINT16 i )
-  Writes an unsigned 16-bit integer to the stream and returns a reference
-  to the stream.
+  Writes an unsigned 16-bit integer, \a i, to the stream and returns a
+  reference to the stream.
 */
 
 /*!
-  Writes a signed 16-bit integer to the stream and returns a reference to
-  the stream.
+    \overload
+  Writes a signed 16-bit integer, \a i, to the stream and returns a
+  reference to the stream.
 */
 
 QDataStream &QDataStream::operator<<( Q_INT16 i )
@@ -739,8 +794,9 @@ QDataStream &QDataStream::operator<<( Q_INT16 i )
 }
 
 /*!
-  Writes a signed 32-bit integer to the stream and returns a reference to
-  the stream.
+    \overload
+  Writes a signed 32-bit integer, \a i, to the stream and returns a
+  reference to the stream.
 */
 
 QDataStream &QDataStream::operator<<( Q_INT32 i )
@@ -765,14 +821,16 @@ QDataStream &QDataStream::operator<<( Q_INT32 i )
 }
 
 /*!
+    \overload
   \fn QDataStream &QDataStream::operator<<( Q_ULONG i )
-  Writes an unsigned integer of system word length to the
+  Writes an unsigned integer, \a i, of the system's word length to the
   stream and returns a reference to the stream.
 */
 
 /*!
-  Writes a signed integer of system word length to the stream and
-  returns a reference to the stream.
+    \overload
+  Writes a signed integer, \a i, of the system's word length to the
+  stream and returns a reference to the stream.
 */
 
 QDataStream &QDataStream::operator<<( Q_LONG i )
@@ -795,15 +853,16 @@ QDataStream &QDataStream::operator<<( Q_LONG i )
 }
 
 /*!
+    \overload
   \fn QDataStream &QDataStream::operator<<( Q_UINT32 i )
-  Writes an unsigned integer to the stream as a 32-bit unsigned integer
-  (Q_UINT32).
-  Returns a reference to the stream.
+  Writes an unsigned integer, \a i, to the stream as a 32-bit unsigned
+  integer (Q_UINT32). Returns a reference to the stream.
 */
 
 /*!
-  Writes a 32-bit floating point number to the stream using the standard
-  IEEE754 format.  Returns a reference to the stream.
+    \overload
+  Writes a 32-bit floating point number, \a f, to the stream using the
+  standard IEEE754 format.  Returns a reference to the stream.
 */
 
 QDataStream &QDataStream::operator<<( float f )
@@ -832,8 +891,9 @@ QDataStream &QDataStream::operator<<( float f )
 
 
 /*!
-  Writes a 64-bit floating point number to the stream using the standard
-  IEEE754 format.  Returns a reference to the stream.
+    \overload
+  Writes a 64-bit floating point number, \a f, to the stream using the
+  standard IEEE754 format.  Returns a reference to the stream.
 */
 
 QDataStream &QDataStream::operator<<( double f )
@@ -863,6 +923,7 @@ QDataStream &QDataStream::operator<<( double f )
 
 
 /*!
+    \overload
   Writes the '\0'-terminated string \a s to the stream and returns
   a reference to the stream.
 
@@ -885,8 +946,8 @@ QDataStream &QDataStream::operator<<( const char *s )
   Writes the length specifier \a len and the buffer \a s to the stream and
   returns a reference to the stream.
 
-  The \a len is serialized as an Q_UINT32, followed by \a len bytes from
-  \a s.
+  The \a len is serialized as a Q_UINT32, followed by \a len bytes from
+  \a s. Note that the data is \e not encoded.
 
   \sa writeRawBytes(), readBytes()
 */
@@ -903,7 +964,7 @@ QDataStream &QDataStream::writeBytes(const char *s, uint len)
 
 /*!
   Writes \a len bytes from \a s to the stream and returns a reference to the
-  stream.
+  stream. The data is \e not encoded.
 
   \sa writeBytes(), QIODevice::writeBlock(), readRawBytes()
 */
