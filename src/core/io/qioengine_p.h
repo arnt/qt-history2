@@ -23,7 +23,7 @@ protected:
     Q_DECLARE_PUBLIC(QIOEngine)
 protected:
     inline QIOEnginePrivate() : q_ptr(0) { }
-    ~QIOEnginePrivate() { q_ptr = 0; }
+    virtual ~QIOEnginePrivate() { q_ptr = 0; }
 };
 
 #endif // QIOENGINE_P_H
