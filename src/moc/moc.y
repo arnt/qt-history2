@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#255 $
+** $Id: //depot/qt/main/src/moc/moc.y#256 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -2164,10 +2164,10 @@ void generateFuncs( FuncList *list, const char *functype, int num )
 	bool hasReturnValue = FALSE;
 
 	if ( ( f->type != "void" && validUType( f->type ) ) || !f->args->isEmpty() ) {
-	    fprintf( out, "    static const UParameter param_%s_%d[] = {\n", functype, list->at() );
+	    fprintf( out, "    static const QUParameter param_%s_%d[] = {\n", functype, list->at() );
 	    if ( f->type != "void" ) {
 		hasReturnValue = TRUE;
-		fprintf( out, "\t{ 0, pUType_%s, %s, UParameter::Out }", uType(f->type).data(), uTypeExtra(f->type).data() );
+		fprintf( out, "\t{ 0, pQUType_%s, %s, QUParameter::Out }", uType(f->type).data(), uTypeExtra(f->type).data() );
 		if ( !f->args->isEmpty() )
 		    fprintf( out, ",\n" );
 	    }
@@ -2176,11 +2176,11 @@ void generateFuncs( FuncList *list, const char *functype, int num )
 		QCString type = a->leftType + ' ' + a->rightType;
 		type = type.simplifyWhiteSpace();
 		if( a->name.isEmpty() )
-		    fprintf( out, "\t{ 0, pUType_%s, %s, UParameter::%s }",
+		    fprintf( out, "\t{ 0, pQUType_%s, %s, QUParameter::%s }",
 			     uType( type ).data(), uTypeExtra( type ).data(),
 			     isInOut( type ) ? "InOut" : "In" );
 		else
-		    fprintf( out, "\t{ %s, pUType_%s, %s, UParameter::%s }",
+		    fprintf( out, "\t{ %s, pQUType_%s, %s, QUParameter::%s }",
 			     (QCString("\"")+a->name + "\"").data(),
 			     uType( type ).data(), uTypeExtra( type ).data(),
 			     isInOut( type ) ? "InOut" : "In" );
@@ -2191,7 +2191,7 @@ void generateFuncs( FuncList *list, const char *functype, int num )
 	    fprintf( out, "\n    };\n");
 	}
 
-	fprintf( out, "    static const UMethod %s_%d = {", functype, list->at() );
+	fprintf( out, "    static const QUMethod %s_%d = {", functype, list->at() );
 	int n = f->args->count();
 	if ( hasReturnValue )
 	    n++;
@@ -2640,7 +2640,7 @@ void generateClass()		      // generate C++ source code for a class
     const char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     const char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#255 $)\n**\n";
+		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#256 $)\n**\n";
     const char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     const char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
@@ -2686,7 +2686,6 @@ void generateClass()		      // generate C++ source code for a class
 	    fprintf( out, "#include \"%s\"\n", (const char*)g->includeFile );
 	fprintf( out, "#include <%sqmetaobject.h>\n", (const char*)g->qtPath );
 	fprintf( out, "#include <%sqapplication.h>\n\n", (const char*)g->qtPath );
-	fprintf( out, "#include <%sqcom.h>\n", (const char*)g->qtPath );
 	fprintf( out, "#include <%squcom.h>\n", (const char*)g->qtPath );
 	fprintf( out, "#if !defined(Q_MOC_OUTPUT_REVISION) || (Q_MOC_OUTPUT_REVISION != %d)\n", formatRevision );
 	fprintf( out, "#error \"This file was generated using the moc from %s."
@@ -2894,7 +2893,7 @@ void generateClass()		      // generate C++ source code for a class
 	fprintf( out, "    QConnectionList *clist = receivers( staticMetaObject()->signalOffset() + %d );\n",
 		 sigindex );
 	fprintf( out, "    if ( !clist )\n\treturn;\n" );
-	fprintf( out, "    UObject o[%d];\n", f->args->count() + 1 );
+	fprintf( out, "    QUObject o[%d];\n", f->args->count() + 1 );
 	if ( !f->args->isEmpty() ) {
 	    offset = 0;
 	    Argument* a = f->args->first();
@@ -2903,12 +2902,9 @@ void generateClass()		      // generate C++ source code for a class
 		type = type.simplifyWhiteSpace();
 		if ( validUType( type ) ) {
 		    QCString utype = uType( type );
-		    if ( utype == "iface" || utype == "idisp" )
-			fprintf( out, "    pUType_%s->set(o+%d,(U%s)t%d);\n", utype.data(), offset+1, type.data()+1, offset );
-		    else
-			fprintf( out, "    pUType_%s->set(o+%d,t%d);\n", utype.data(), offset+1, offset );
+		    fprintf( out, "    pQUType_%s->set(o+%d,t%d);\n", utype.data(), offset+1, offset );
 		} else {
-		    fprintf( out, "    pUType_ptr->set(o+%d,&t%d);\n", offset+1, offset );
+		    fprintf( out, "    pQUType_ptr->set(o+%d,&t%d);\n", offset+1, offset );
 		}
 		a = f->args->next();
 		offset++;
@@ -2925,7 +2921,7 @@ void generateClass()		      // generate C++ source code for a class
 //
 // Generate internal qt_invoke()  function
 //
-    fprintf( out, "\nbool %s::qt_invoke( int _id, UObject* _o )\n{\n", qualifiedClassName().data() );
+    fprintf( out, "\nbool %s::qt_invoke( int _id, QUObject* _o )\n{\n", qualifiedClassName().data() );
 
 
     if( !g->slots.isEmpty() ) {
@@ -2942,7 +2938,7 @@ void generateClass()		      // generate C++ source code for a class
 	    bool hasReturn = FALSE;
 	    if ( f->type != "void" && validUType( f->type )) {
 		hasReturn = TRUE;
-		fprintf( out, "pUType_%s->set(_o,", uType(f->type).data() );
+		fprintf( out, "pQUType_%s->set(_o,", uType(f->type).data() );
 	    }
 	    int offset = 0;
 	    fprintf( out, "%s(", f->name.data() );
@@ -2952,12 +2948,12 @@ void generateClass()		      // generate C++ source code for a class
 		type = type.simplifyWhiteSpace();
 		if ( validUType( type ) ) {
 		    QCString utype = uType( type );
-		    if ( utype == "ptr" || utype == "iface" || utype == "idisp" || utype == "enum" )
-			fprintf( out, "(%s)pUType_%s->get(_o+%d)", type.data(), utype.data(), offset+1 );
+		    if ( utype == "ptr" || utype == "enum" )
+			fprintf( out, "(%s)pQUType_%s->get(_o+%d)", type.data(), utype.data(), offset+1 );
 		    else
-			fprintf( out, "pUType_%s->get(_o+%d)", utype.data(), offset+1 );
+			fprintf( out, "pQUType_%s->get(_o+%d)", utype.data(), offset+1 );
 		} else {
-		    fprintf( out, "*((%s*)pUType_ptr->get(_o+%d))", referencePlainUType( type) .data(), offset+1 );
+		    fprintf( out, "*((%s*)pQUType_ptr->get(_o+%d))", referencePlainUType( type) .data(), offset+1 );
 		}
 		a = f->args->next();
 		if ( a )
@@ -2987,7 +2983,7 @@ void generateClass()		      // generate C++ source code for a class
 //
 // Generate internal qt_emit()  function
 //
-    fprintf( out, "\nbool %s::qt_emit( int _id, UObject* _o )\n{\n", qualifiedClassName().data() );
+    fprintf( out, "\nbool %s::qt_emit( int _id, QUObject* _o )\n{\n", qualifiedClassName().data() );
     if ( !g->signals.isEmpty() ) {
 	fprintf( out, "    switch ( _id - staticMetaObject()->signalOffset() ) {\n" );
 	int signalindex = -1;
@@ -3002,7 +2998,7 @@ void generateClass()		      // generate C++ source code for a class
 	    bool hasReturn = FALSE;
 	    if ( f->type != "void" && validUType( f->type )) {
 		hasReturn = TRUE;
-		fprintf( out, "pUType_%s->set(_o,", uType(f->type).data() );
+		fprintf( out, "pQUType_%s->set(_o,", uType(f->type).data() );
 	    }
 	    int offset = 0;
 	    fprintf( out, "%s(", f->name.data() );
@@ -3012,12 +3008,12 @@ void generateClass()		      // generate C++ source code for a class
 		type = type.simplifyWhiteSpace();
 		if ( validUType( type ) ) {
 		    QCString utype = uType( type );
-		    if ( utype == "ptr" || utype == "iface" || utype == "idisp" || utype == "enum" )
-			fprintf( out, "(%s)pUType_%s->get(_o+%d)", type.data(), utype.data(), offset+1 );
+		    if ( utype == "ptr" || utype == "enum" )
+			fprintf( out, "(%s)pQUType_%s->get(_o+%d)", type.data(), utype.data(), offset+1 );
 		    else
-			fprintf( out, "pUType_%s->get(_o+%d)", utype.data(), offset+1 );
+			fprintf( out, "pQUType_%s->get(_o+%d)", utype.data(), offset+1 );
 		} else {
-		    fprintf( out, "*((%s*)pUType_ptr->get(_o+%d))", referencePlainUType( type) .data(), offset+1 );
+		    fprintf( out, "*((%s*)pQUType_ptr->get(_o+%d))", referencePlainUType( type) .data(), offset+1 );
 		}
 		a = f->args->next();
 		if ( a )
