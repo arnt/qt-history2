@@ -1,21 +1,21 @@
-#ifndef Q4MAINWINDOWLAYOUT_P_H
-#define Q4MAINWINDOWLAYOUT_P_H
+#ifndef QMAINWINDOWLAYOUT_P_H
+#define QMAINWINDOWLAYOUT_P_H
 
 #include "q4mainwindow.h"
 
 #include <qlayout.h>
 
-class Q4ToolBar;
-class Q4DockWindow;
-class Q4DockWindowLayout;
+class QToolBar;
+class QDockWindow;
+class QDockWindowLayout;
 
-class Q4MainWindowLayout : public QLayout
+class QMainWindowLayout : public QLayout
 {
     Q_OBJECT
 
  public:
-    Q4MainWindowLayout(Q4MainWindow *mainwindow);
-    ~Q4MainWindowLayout();
+    QMainWindowLayout(QMainWindow *mainwindow);
+    ~QMainWindowLayout();
 
     QLayoutItem *statusbar;
     QStatusBar *statusBar() const;
@@ -24,10 +24,10 @@ class Q4MainWindowLayout : public QLayout
     QWidget *centerWidget() const;
     void setCenterWidget(QWidget *cw);
 
-    Q4DockWindowLayout *layoutForArea(DockWindowArea area);
+    QDockWindowLayout *layoutForArea(DockWindowArea area);
 
-    void add(Q4ToolBar *toolbar, ToolBarArea area, bool linebreak);
-    void add(Q4ToolBar *toolbar, int where, bool linebreak, const QPoint &offset = QPoint());
+    void add(QToolBar *toolbar, ToolBarArea area, bool linebreak);
+    void add(QToolBar *toolbar, int where, bool linebreak, const QPoint &offset = QPoint());
 
     // QLayout interface
     void addItem(QLayoutItem *item);
@@ -40,7 +40,7 @@ class Q4MainWindowLayout : public QLayout
 
     void invalidate();
 
-    void removeRecursive(Q4DockWindow *dockwindow);
+    void removeRecursive(QDockWindow *dockwindow);
 
 
 
@@ -56,30 +56,30 @@ class Q4MainWindowLayout : public QLayout
 
     void beginConstrain();
     void endConstrain();
-    int constrain(Q4DockWindowLayout *dock, int delta);
+    int constrain(QDockWindowLayout *dock, int delta);
 
-    int locateDockWindow(Q4DockWindow *dockwindow, const QPoint &mouse) const;
-    QRect placeDockWindow(Q4DockWindow *dockwindow, const QRect &r, const QPoint &mouse);
-    void dropDockWindow(Q4DockWindow *dockwindow, const QRect &r, const QPoint &mouse);
+    int locateDockWindow(QDockWindow *dockwindow, const QPoint &mouse) const;
+    QRect placeDockWindow(QDockWindow *dockwindow, const QRect &r, const QPoint &mouse);
+    void dropDockWindow(QDockWindow *dockwindow, const QRect &r, const QPoint &mouse);
 
     int locateToolBar(const QPoint &mouse) const;
-    QRect placeToolBar(Q4ToolBar *toolbar, const QPoint &mouse, const QPoint &offset);
-    void dropToolBar(Q4ToolBar *toolbar, const QPoint &mouse, const QPoint &offset);
+    QRect placeToolBar(QToolBar *toolbar, const QPoint &mouse, const QPoint &offset);
+    void dropToolBar(QToolBar *toolbar, const QPoint &mouse, const QPoint &offset);
 
     struct ToolBarLayoutInfo;
     void placeToolBarInfo(const ToolBarLayoutInfo &newinfo);
-    void removeToolBarInfo(Q4ToolBar *toolbar);
+    void removeToolBarInfo(QToolBar *toolbar);
 
     // dock/center-widget layout data
     DockWindowArea corners[4];
-    struct Q4MainWindowLayoutInfo
+    struct QMainWindowLayoutInfo
     {
 	QLayoutItem *item;
 	QLayoutItem *sep;
 	QSize size;
 	uint is_dummy : 1;
     };
-    QVector<Q4MainWindowLayoutInfo> layout_info, *save_layout_info;
+    QVector<QMainWindowLayoutInfo> layout_info, *save_layout_info;
 
     // toolbar layout data
     struct ToolBarLayoutInfo
@@ -98,4 +98,4 @@ class Q4MainWindowLayout : public QLayout
     QList<ToolBarLineInfo> tb_layout_info, *save_tb_layout_info;
 };
 
-#endif // Q4MAINWINDOWLAYOUT_P_H
+#endif // QMAINWINDOWLAYOUT_P_H

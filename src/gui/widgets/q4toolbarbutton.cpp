@@ -13,14 +13,14 @@
 #define q q_func()
 
 
-class Q4ToolBarButtonPrivate : public QAbstractButtonPrivate
+class QToolBarButtonPrivate : public QAbstractButtonPrivate
 {
-    Q_DECLARE_PUBLIC(Q4ToolBarButton);
+    Q_DECLARE_PUBLIC(QToolBarButton);
 
 public:
     QPointer<QMenu> menu;
 
-    Q4ToolBarButtonPrivate()
+    QToolBarButtonPrivate()
     { menu = 0; }
 
     // ### these should be done in the style, eventually
@@ -79,14 +79,14 @@ public:
 };
 
 
-Q4ToolBarButton::Q4ToolBarButton(QWidget *parent)
-    : QAbstractButton(*new Q4ToolBarButtonPrivate, parent)
+QToolBarButton::QToolBarButton(QWidget *parent)
+    : QAbstractButton(*new QToolBarButtonPrivate, parent)
 { setFocusPolicy(NoFocus); }
 
-Q4ToolBarButton::~Q4ToolBarButton()
+QToolBarButton::~QToolBarButton()
 { }
 
-void Q4ToolBarButton::setMenu(QMenu *menu)
+void QToolBarButton::setMenu(QMenu *menu)
 {
     d->menu = menu;
     if (autoMask())
@@ -95,17 +95,17 @@ void Q4ToolBarButton::setMenu(QMenu *menu)
     updateGeometry();
 }
 
-QMenu *Q4ToolBarButton::menu() const
+QMenu *QToolBarButton::menu() const
 { return d->menu; }
 
-void Q4ToolBarButton::showMenu()
+void QToolBarButton::showMenu()
 {
     update();
     d->menu->exec(mapToGlobal(q->rect().bottomLeft() + QPoint(0, 1)));
     update();
 }
 
-QSize Q4ToolBarButton::sizeHint() const
+QSize QToolBarButton::sizeHint() const
 {
     QRect iconRect, textRect;
     d->subRects(iconRect, textRect);
@@ -113,10 +113,10 @@ QSize Q4ToolBarButton::sizeHint() const
                  iconRect.height() + 2);
 }
 
-QSize Q4ToolBarButton::minimumSizeHint() const
+QSize QToolBarButton::minimumSizeHint() const
 { return sizeHint(); }
 
-bool Q4ToolBarButton::hitButton(const QPoint &pos) const
+bool QToolBarButton::hitButton(const QPoint &pos) const
 {
     QRect buttonRect = q->rect();
     QRect menuRect;
@@ -129,7 +129,7 @@ bool Q4ToolBarButton::hitButton(const QPoint &pos) const
     return buttonRect.contains(pos);
 }
 
-void Q4ToolBarButton::mousePressEvent(QMouseEvent *event)
+void QToolBarButton::mousePressEvent(QMouseEvent *event)
 {
     if (event->button() == LeftButton) {
         QRect buttonRect = q->rect();
@@ -148,27 +148,27 @@ void Q4ToolBarButton::mousePressEvent(QMouseEvent *event)
     QAbstractButton::mousePressEvent(event);
 }
 
-void Q4ToolBarButton::mouseReleaseEvent(QMouseEvent *event)
+void QToolBarButton::mouseReleaseEvent(QMouseEvent *event)
 {
     QAbstractButton::mouseReleaseEvent(event);
 }
 
-void Q4ToolBarButton::enterEvent(QEvent *)
+void QToolBarButton::enterEvent(QEvent *)
 {
     actions()[0]->activate(QAction::Hover);
     update();
 }
 
-void Q4ToolBarButton::leaveEvent(QEvent *)
+void QToolBarButton::leaveEvent(QEvent *)
 { update(); }
 
-void Q4ToolBarButton::paintEvent(QPaintEvent *)
+void QToolBarButton::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
     d->drawButton(&p);
 }
 
-void Q4ToolBarButton::actionEvent(QActionEvent *event)
+void QToolBarButton::actionEvent(QActionEvent *event)
 {
     QAction *action = event->action();
 

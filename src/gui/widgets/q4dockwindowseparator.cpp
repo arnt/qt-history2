@@ -10,7 +10,7 @@
 
 
 
-Q4DockWindowSeparator::Q4DockWindowSeparator(Q4DockWindowLayout *l, QWidget *parent)
+QDockWindowSeparator::QDockWindowSeparator(QDockWindowLayout *l, QWidget *parent)
     : QWidget(parent), layout(l), state(0)
 {
     setCursor(layout->orientation == Horizontal ? SplitHCursor : SplitVCursor);
@@ -21,7 +21,7 @@ Q4DockWindowSeparator::Q4DockWindowSeparator(Q4DockWindowLayout *l, QWidget *par
     orientation is used to calculate a rectangle that is appropriate
     for use while the user is moving the separator.
  */
-QRect Q4DockWindowSeparator::calcRect(const QPoint &point)
+QRect QDockWindowSeparator::calcRect(const QPoint &point)
 {
     int pos = pick(layout->orientation, point);
     int ext = pick(layout->orientation, size());
@@ -31,7 +31,7 @@ QRect Q4DockWindowSeparator::calcRect(const QPoint &point)
 	    QRect(0, pos - (ext/2), sz, ext));
 }
 
-void Q4DockWindowSeparator::mousePressEvent(QMouseEvent *event)
+void QDockWindowSeparator::mousePressEvent(QMouseEvent *event)
 {
     if (event->button() != LeftButton) return;
 
@@ -47,7 +47,7 @@ void Q4DockWindowSeparator::mousePressEvent(QMouseEvent *event)
     layout->saveLayoutInfo();
 }
 
-void Q4DockWindowSeparator::mouseReleaseEvent(QMouseEvent *event)
+void QDockWindowSeparator::mouseReleaseEvent(QMouseEvent *event)
 {
     if (event->button() != LeftButton) return;
 
@@ -62,7 +62,7 @@ void Q4DockWindowSeparator::mouseReleaseEvent(QMouseEvent *event)
     state = 0;
 }
 
-void Q4DockWindowSeparator::mouseMoveEvent(QMouseEvent *event)
+void QDockWindowSeparator::mouseMoveEvent(QMouseEvent *event)
 {
     Q_ASSERT(state != 0);
 
@@ -78,7 +78,7 @@ void Q4DockWindowSeparator::mouseMoveEvent(QMouseEvent *event)
     layout->relayout();
 }
 
-void Q4DockWindowSeparator::paintEvent(QPaintEvent *)
+void QDockWindowSeparator::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
 

@@ -3,10 +3,10 @@
 
 #include <qframe.h>
 
-class Q4MainWindow;
-class Q4DockWindowPrivate;
+class QMainWindow;
+class QDockWindowPrivate;
 
-class Q_GUI_EXPORT Q4DockWindow : public QFrame
+class Q_GUI_EXPORT QDockWindow : public QFrame
 {
     Q_OBJECT
 
@@ -16,15 +16,15 @@ class Q_GUI_EXPORT Q4DockWindow : public QFrame
     Q_PROPERTY(DockWindowAreaFlags allowedAreas READ allowedAreas WRITE setAllowedAreas)
     Q_PROPERTY(DockWindowArea currentArea READ currentArea WRITE setCurrentArea)
 
-    Q_DECLARE_PRIVATE(Q4DockWindow)
+    Q_DECLARE_PRIVATE(QDockWindow)
 
 public:
-    Q4DockWindow(Q4MainWindow *parent, WFlags flags = 0);
-    Q4DockWindow(Q4MainWindow *parent, DockWindowArea area, WFlags flags = 0);
-    ~Q4DockWindow();
+    QDockWindow(QMainWindow *parent, WFlags flags = 0);
+    QDockWindow(QMainWindow *parent, DockWindowArea area, WFlags flags = 0);
+    ~QDockWindow();
 
-    void setParent(Q4MainWindow *parent);
-    Q4MainWindow *mainWindow() const;
+    void setParent(QMainWindow *parent);
+    QMainWindow *mainWindow() const;
 
     void setClosable(bool closable = true);
     bool isClosable() const;
@@ -49,7 +49,7 @@ public:
     void setCurrentArea(DockWindowArea area); // always extends
     void setCurrentArea(DockWindowArea area, Qt::Orientation direction, bool extend = false);
 
-    void setCurrentArea(Q4DockWindow *after, Qt::Orientation direction); // always splits
+    void setCurrentArea(QDockWindow *after, Qt::Orientation direction); // always splits
 
 protected:
     void changeEvent(QEvent *event);

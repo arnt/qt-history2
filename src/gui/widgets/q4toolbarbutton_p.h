@@ -1,19 +1,19 @@
-#ifndef Q4TOOLBUTTON_H
-#define Q4TOOLBUTTON_H
+#ifndef QTOOLBARBUTTON_H
+#define QTOOLBARBUTTON_H
 
 #include <qabstractbutton.h>
 
 class QMenu;
-class Q4ToolBarButtonPrivate;
+class QToolBarButtonPrivate;
 
-class Q4ToolBarButton : public QAbstractButton
+class QToolBarButton : public QAbstractButton
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(Q4ToolBarButton);
+    Q_DECLARE_PRIVATE(QToolBarButton);
 
 public:
-    Q4ToolBarButton(QWidget *parent);
-    ~Q4ToolBarButton();
+    QToolBarButton(QWidget *parent);
+    ~QToolBarButton();
 
     void setMenu(QMenu *menu);
     QMenu *menu() const;
@@ -32,4 +32,4 @@ protected:
     void actionEvent(QActionEvent *event);
 };
 
-#endif // Q4TOOLBUTTON_H
+#endif // QTOOLBARBUTTON_H

@@ -3,20 +3,20 @@
 
 #include <qframe.h>
 
-class Q4ToolBarPrivate;
+class QToolBarPrivate;
 
 class QAction;
 class QIconSet;
-class Q4MainWindow;
+class QMainWindow;
 
-class Q_GUI_EXPORT Q4ToolBar : public QFrame
+class Q_GUI_EXPORT QToolBar : public QFrame
 {
-    Q_DECLARE_PRIVATE(Q4ToolBar);
+    Q_DECLARE_PRIVATE(QToolBar);
     Q_OBJECT
 
 public:
-    Q4ToolBar(Q4MainWindow *parent);
-    ~Q4ToolBar();
+    QToolBar(QMainWindow *parent);
+    ~QToolBar();
 
     inline void addAction(QAction *action)
     { QWidget::addAction(action); }

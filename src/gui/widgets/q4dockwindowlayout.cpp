@@ -40,13 +40,13 @@ static inline bool canGrow(Qt::Orientation o, const QSizePolicy &sp)
 
 
 
-class Q4DockWindowSeparator;
+class QDockWindowSeparator;
 
 
-class Q4DockWindowLayoutItem : public QWidgetItem
+class QDockWindowLayoutItem : public QWidgetItem
 {
 public:
-    inline Q4DockWindowLayoutItem(QWidget *w, const QRect &r)
+    inline QDockWindowLayoutItem(QWidget *w, const QRect &r)
 	: QWidgetItem(w), rect(r) { }
 
     inline QSize sizeHint() const
@@ -60,20 +60,20 @@ public:
     QRect rect;
 };
 
-Q4DockWindowLayout::Q4DockWindowLayout(QWidget *widget, Orientation o)
+QDockWindowLayout::QDockWindowLayout(QWidget *widget, Orientation o)
     : QLayout(widget), orientation(o), save_layout_info(0),
       relayout_type(QInternal::RelayoutNormal)
 { }
 
-Q4DockWindowLayout::Q4DockWindowLayout(QLayout *layout, Orientation o)
+QDockWindowLayout::QDockWindowLayout(QLayout *layout, Orientation o)
     : QLayout(layout), orientation(o), save_layout_info(0),
       relayout_type(QInternal::RelayoutNormal)
 { }
 
-QLayoutItem *Q4DockWindowLayout::find(QWidget *widget)
+QLayoutItem *QDockWindowLayout::find(QWidget *widget)
 {
     for (int i = 0; i < layout_info.count(); ++i) {
-	const Q4DockWindowLayoutInfo &info = layout_info.at(i);
+	const QDockWindowLayoutInfo &info = layout_info.at(i);
 	if (info.is_sep) continue;
 	if (widget == info.item->widget())
 	    return info.item;
@@ -81,13 +81,13 @@ QLayoutItem *Q4DockWindowLayout::find(QWidget *widget)
     return 0;
 }
 
-QLayoutItem *Q4DockWindowLayout::itemAt(int index) const
+QLayoutItem *QDockWindowLayout::itemAt(int index) const
 {
-    VDEBUG("Q4DockWindowLayout::itemAt: index %d (%d)", index, layout_info.count());
+    VDEBUG("QDockWindowLayout::itemAt: index %d (%d)", index, layout_info.count());
 
     int x = 0;
     for (int i = 0; i < layout_info.count(); ++i) {
-	const Q4DockWindowLayoutInfo &info = layout_info.at(i);
+	const QDockWindowLayoutInfo &info = layout_info.at(i);
 	if (info.is_sep) continue;
 	if (x++ == index) {
 	    VDEBUG("END, widget:    pos %3d index %3d", i, x);
@@ -100,23 +100,23 @@ QLayoutItem *Q4DockWindowLayout::itemAt(int index) const
     return 0;
 }
 
-QLayoutItem *Q4DockWindowLayout::takeAt(int index)
+QLayoutItem *QDockWindowLayout::takeAt(int index)
 {
-    DEBUG("Q4DockWindowLayout::takeAt: index %d", index);
+    DEBUG("QDockWindowLayout::takeAt: index %d", index);
 
     int x = 0;
     for (int i = 0; i < layout_info.count(); ++i) {
-	const Q4DockWindowLayoutInfo &info = layout_info.at(i);
+	const QDockWindowLayoutInfo &info = layout_info.at(i);
 	if (info.is_sep) continue;
 	if (x++ == index) {
 	    QLayoutItem *layoutitem = info.item;
 
-	    VDEBUG("Q4DockWindowLayout::takeAt: layoutitem '%s'",
+	    VDEBUG("QDockWindowLayout::takeAt: layoutitem '%s'",
 		   layoutitem->widget() ? layoutitem->widget()->objectName().latin1() : "dummy");
 
 	    int prev_separator = -1;
 	    for (int it = 0; it < layout_info.count(); ++it) {
-		const Q4DockWindowLayoutInfo &info = layout_info.at(it);
+		const QDockWindowLayoutInfo &info = layout_info.at(it);
 		if (info.is_sep) {
 		    prev_separator = it;
 		    continue;
@@ -141,7 +141,7 @@ QLayoutItem *Q4DockWindowLayout::takeAt(int index)
 		}
 
 		if (it != -1) {
-		    Q4DockWindowLayoutInfo &sep_info = layout_info[it];
+		    QDockWindowLayoutInfo &sep_info = layout_info[it];
 		    Q_ASSERT(sep_info.is_sep);
 
 		    if (!save_layout_info) {
@@ -181,7 +181,7 @@ QLayoutItem *Q4DockWindowLayout::takeAt(int index)
 }
 
 /*! reimp */
-void Q4DockWindowLayout::addItem(QLayoutItem *layoutitem)
+void QDockWindowLayout::addItem(QLayoutItem *layoutitem)
 {
     if (relayout_type == QInternal::RelayoutDropped && layoutitem->layout()) {
         // dropping a nested layout!
@@ -193,16 +193,16 @@ void Q4DockWindowLayout::addItem(QLayoutItem *layoutitem)
 }
 
 /*! reimp */
-void Q4DockWindowLayout::setGeometry(const QRect &rect)
+void QDockWindowLayout::setGeometry(const QRect &rect)
 {
-    VDEBUG("Q4DockWindowLayout::setGeometry: width %4d height %4d", rect.width(), rect.height());
+    VDEBUG("QDockWindowLayout::setGeometry: width %4d height %4d", rect.width(), rect.height());
 
     QLayout::setGeometry(rect);
 
     if (relayout_type == QInternal::RelayoutNormal) {
         bool first = true;
         for (int i = 0; i < layout_info.count(); ++i) {
-            const Q4DockWindowLayoutInfo &info = layout_info.at(i);
+            const QDockWindowLayoutInfo &info = layout_info.at(i);
             if (info.is_sep) continue;
             if (info.is_dummy) continue;
 
@@ -224,7 +224,7 @@ void Q4DockWindowLayout::setGeometry(const QRect &rect)
 
 	VDEBUG("  PASS %d", pass);
 	for (x = 0; x < layout_info.count(); ++x) {
-	    const Q4DockWindowLayoutInfo &info = layout_info.at(x);
+	    const QDockWindowLayoutInfo &info = layout_info.at(x);
 
 	    QLayoutStruct &ls = a[x];
 	    ls.init();
@@ -299,7 +299,7 @@ void Q4DockWindowLayout::setGeometry(const QRect &rect)
 	const QLayoutStruct &ls = a.at(i);
         if (ls.empty) continue;
 
-	Q4DockWindowLayoutInfo &info = layout_info[i];
+	QDockWindowLayoutInfo &info = layout_info[i];
 
 	if (info.is_sep) {
 	    VDEBUG("    separator  cur %4d", ls.size);
@@ -330,16 +330,16 @@ void Q4DockWindowLayout::setGeometry(const QRect &rect)
 }
 
 /*! reimp */
-QSize Q4DockWindowLayout::minimumSize() const
+QSize QDockWindowLayout::minimumSize() const
 {
-    VDEBUG("Q4DockWindow::minimumSize");
+    VDEBUG("QDockWindow::minimumSize");
 
     int size = 0, perp = 0;
     const int sep_extent =
 	QApplication::style().pixelMetric(QStyle::PM_DockWindowSeparatorExtent);
 
     for (int it = 0; it < layout_info.count(); ++it) {
-	const Q4DockWindowLayoutInfo &info = layout_info.at(it);
+	const QDockWindowLayoutInfo &info = layout_info.at(it);
 	int s, p;
 	if (info.is_sep) {
             s = p = (!info.is_dummy && info.item->widget()->isHidden()) ? 0 : sep_extent;
@@ -361,16 +361,16 @@ QSize Q4DockWindowLayout::minimumSize() const
 }
 
 /*! reimp */
-QSize Q4DockWindowLayout::sizeHint() const
+QSize QDockWindowLayout::sizeHint() const
 {
-    VDEBUG("Q4DockWindow::sizeHint");
+    VDEBUG("QDockWindow::sizeHint");
 
     int size = 0, perp = 0;
     const int sep_extent =
 	QApplication::style().pixelMetric(QStyle::PM_DockWindowSeparatorExtent);
 
     for (int it = 0; it < layout_info.count(); ++it) {
-	const Q4DockWindowLayoutInfo &info = layout_info.at(it);
+	const QDockWindowLayoutInfo &info = layout_info.at(it);
 	int s, p;
 	if (info.is_sep) {
             s = p = (!info.is_dummy && info.item->widget()->isHidden()) ? 0 : sep_extent;
@@ -391,16 +391,16 @@ QSize Q4DockWindowLayout::sizeHint() const
 	    layout_info.count() * QSize(spacing(), spacing()));
 }
 
-void Q4DockWindowLayout::invalidate()
+void QDockWindowLayout::invalidate()
 {
     if (relayout_type != QInternal::RelayoutDragging)
         QLayout::invalidate();
 }
 
-bool Q4DockWindowLayout::isEmpty() const
+bool QDockWindowLayout::isEmpty() const
 {
     for (int i = 0; i < layout_info.count(); ++i) {
-        const Q4DockWindowLayoutInfo &info = layout_info.at(i);
+        const QDockWindowLayoutInfo &info = layout_info.at(i);
         if (info.is_sep) continue;
 
         if (!info.item->isEmpty())
@@ -409,7 +409,7 @@ bool Q4DockWindowLayout::isEmpty() const
     return true;
 }
 
-void Q4DockWindowLayout::setOrientation(Qt::Orientation o)
+void QDockWindowLayout::setOrientation(Qt::Orientation o)
 {
     orientation = o;
     invalidate();
@@ -417,9 +417,9 @@ void Q4DockWindowLayout::setOrientation(Qt::Orientation o)
 
 /*!
  */
-Q4DockWindowLayoutInfo &Q4DockWindowLayout::insert(int index, QLayoutItem *layoutitem, bool dummy)
+QDockWindowLayoutInfo &QDockWindowLayout::insert(int index, QLayoutItem *layoutitem, bool dummy)
 {
-    DEBUG("Q4DockWindowLayout::insert: index %d, layoutitem '%s'",
+    DEBUG("QDockWindowLayout::insert: index %d, layoutitem '%s'",
           index < 0 ? layout_info.count() : index,
           ((layoutitem->widget() || layoutitem->layout()) && !dummy
            ? (layoutitem->layout()
@@ -456,7 +456,7 @@ Q4DockWindowLayoutInfo &Q4DockWindowLayout::insert(int index, QLayoutItem *layou
 
 	    // insert the dockwindow
 	    VDEBUG("    inserting dockwindow at %d", it);
-	    Q4DockWindowLayoutInfo dockwindow_info(layoutitem);
+	    QDockWindowLayoutInfo dockwindow_info(layoutitem);
 	    dockwindow_info.is_dummy = dummy;
 	    int save_it = it;
 	    layout_info.insert(it++, dockwindow_info);
@@ -464,10 +464,10 @@ Q4DockWindowLayoutInfo &Q4DockWindowLayout::insert(int index, QLayoutItem *layou
 	    // insert a separator
 	    QLayoutItem *sep_item = 0;
 	    if (!dummy) {
-		Q4DockWindowLayoutInfo &next_info = layout_info[it];
+		QDockWindowLayoutInfo &next_info = layout_info[it];
                 Q_ASSERT(!next_info.is_sep);
 
-		Q4DockWindowSeparator *sep = new Q4DockWindowSeparator(this, parentWidget());
+		QDockWindowSeparator *sep = new QDockWindowSeparator(this, parentWidget());
 		if (parentWidget()->isVisible())
 		    QTimer::singleShot(0, sep, SLOT(show()));
 		sep_item = new QWidgetItem(sep);
@@ -478,7 +478,7 @@ Q4DockWindowLayoutInfo &Q4DockWindowLayout::insert(int index, QLayoutItem *layou
 					   QSizePolicy::Fixed, QSizePolicy::Fixed);
 	    }
 
-	    Q4DockWindowLayoutInfo sep_info(sep_item);
+	    QDockWindowLayoutInfo sep_info(sep_item);
 	    sep_info.is_sep = 1;
             sep_info.is_dummy = dummy;
 	    VDEBUG("    inserting separator at %d", it);
@@ -492,13 +492,13 @@ Q4DockWindowLayoutInfo &Q4DockWindowLayout::insert(int index, QLayoutItem *layou
 
     // append the dockwindow
     if (!layout_info.isEmpty()) {
-	Q4DockWindowLayoutInfo &info = layout_info.last();
+	QDockWindowLayoutInfo &info = layout_info.last();
 	Q_ASSERT(!info.is_sep);
 
 	// insert a separator before the dockwindow
 	QLayoutItem *sep_item = 0;
 	if (!dummy) {
-	    Q4DockWindowSeparator *sep = new Q4DockWindowSeparator(this, parentWidget());
+	    QDockWindowSeparator *sep = new QDockWindowSeparator(this, parentWidget());
 	    if (parentWidget()->isVisible())
 		QTimer::singleShot(0, sep, SLOT(show()));
 	    sep_item = new QWidgetItem(sep);
@@ -509,31 +509,31 @@ Q4DockWindowLayoutInfo &Q4DockWindowLayout::insert(int index, QLayoutItem *layou
 				       QSizePolicy::Fixed, QSizePolicy::Fixed);
 	}
 
-	Q4DockWindowLayoutInfo sep_info(sep_item);
+	QDockWindowLayoutInfo sep_info(sep_item);
 	sep_info.is_sep = 1;
         sep_info.is_dummy = dummy;
 	layout_info.append(sep_info);
     }
 
-    Q4DockWindowLayoutInfo dockwindow_info(layoutitem);
+    QDockWindowLayoutInfo dockwindow_info(layoutitem);
     dockwindow_info.is_dummy = dummy;
     layout_info.append(dockwindow_info);
 
     return layout_info.last();
 }
 
-void Q4DockWindowLayout::dump()
+void QDockWindowLayout::dump()
 {
-    DEBUG("Q4DockWindowLayout::dump");
+    DEBUG("QDockWindowLayout::dump");
     for (int i = 0; i < layout_info.count(); ++i) {
-	const Q4DockWindowLayoutInfo &info = layout_info.at(i);
+	const QDockWindowLayoutInfo &info = layout_info.at(i);
 
 	if (info.is_sep) {
 	    DEBUG("  index %3d pos %4d size %4d SEPARATOR", i, info.cur_pos, info.cur_size);
 	} else if (info.item->layout()) {
             DEBUG("  index %3d pos %4d size %4d %s", i, info.cur_pos, info.cur_size,
 		  info.item->layout() ? info.item->layout()->objectName().latin1() : "dummy");
-            Q4DockWindowLayout *l = qt_cast<Q4DockWindowLayout *>(info.item->layout());
+            QDockWindowLayout *l = qt_cast<QDockWindowLayout *>(info.item->layout());
             Q_ASSERT(l != 0);
             l->dump();
         } else {
@@ -544,59 +544,59 @@ void Q4DockWindowLayout::dump()
     DEBUG("END of dump");
 }
 
-void Q4DockWindowLayout::saveLayoutInfo()
+void QDockWindowLayout::saveLayoutInfo()
 {
     Q_ASSERT(save_layout_info == 0);
-    save_layout_info = new QList<Q4DockWindowLayoutInfo>(layout_info);
+    save_layout_info = new QList<QDockWindowLayoutInfo>(layout_info);
 
     for (int i = 0; i < layout_info.count(); ++i) {
-	const Q4DockWindowLayoutInfo &info = layout_info.at(i);
+	const QDockWindowLayoutInfo &info = layout_info.at(i);
         if (info.is_sep) continue;
         if (!info.item->layout()) continue;
 
-        Q4DockWindowLayout *l = qt_cast<Q4DockWindowLayout *>(info.item->layout());
+        QDockWindowLayout *l = qt_cast<QDockWindowLayout *>(info.item->layout());
         Q_ASSERT(l != 0);
         l->saveLayoutInfo();
     }
 }
 
-void Q4DockWindowLayout::resetLayoutInfo()
+void QDockWindowLayout::resetLayoutInfo()
 {
     Q_ASSERT(save_layout_info != 0);
     layout_info = *save_layout_info;
 
     for (int i = 0; i < layout_info.count(); ++i) {
-	const Q4DockWindowLayoutInfo &info = layout_info.at(i);
+	const QDockWindowLayoutInfo &info = layout_info.at(i);
         if (info.is_sep) continue;
         if (!info.item->layout()) continue;
 
-        Q4DockWindowLayout *l = qt_cast<Q4DockWindowLayout *>(info.item->layout());
+        QDockWindowLayout *l = qt_cast<QDockWindowLayout *>(info.item->layout());
         Q_ASSERT(l != 0);
         l->resetLayoutInfo();
     }
 }
 
-void Q4DockWindowLayout::discardLayoutInfo()
+void QDockWindowLayout::discardLayoutInfo()
 {
     Q_ASSERT(save_layout_info != 0);
     delete save_layout_info;
     save_layout_info = 0;
 
     for (int i = 0; i < layout_info.count(); ++i) {
-	const Q4DockWindowLayoutInfo &info = layout_info.at(i);
+	const QDockWindowLayoutInfo &info = layout_info.at(i);
         if (info.is_sep) continue;
         if (!info.item->layout()) continue;
 
-        Q4DockWindowLayout *l = qt_cast<Q4DockWindowLayout *>(info.item->layout());
+        QDockWindowLayout *l = qt_cast<QDockWindowLayout *>(info.item->layout());
         Q_ASSERT(l != 0);
         l->discardLayoutInfo();
     }
 }
 
-QPoint Q4DockWindowLayout::constrain(Q4DockWindowSeparator *sep, int delta)
+QPoint QDockWindowLayout::constrain(QDockWindowSeparator *sep, int delta)
 {
-    VDEBUG("Q4DockWindowLayout::constrain: delta %4d", delta);
-    QList<Q4DockWindowLayoutInfo> local_list;
+    VDEBUG("QDockWindowLayout::constrain: delta %4d", delta);
+    QList<QDockWindowLayoutInfo> local_list;
 
     for (int pass = 0; pass < 2; ++pass) {
 	VDEBUG("  PASS %d", pass);
@@ -608,22 +608,22 @@ QPoint Q4DockWindowLayout::constrain(Q4DockWindowSeparator *sep, int delta)
 
 	// find 'sep'
 	local_list = save_layout_info ? *save_layout_info : layout_info;
-	QListMutableIterator<Q4DockWindowLayoutInfo> f_it(local_list), b_it(local_list);
+	QListMutableIterator<QDockWindowLayoutInfo> f_it(local_list), b_it(local_list);
 	while (f_it.hasNext()) {
-	    const Q4DockWindowLayoutInfo &info = f_it.peekNext();
-	    if (info.is_sep && qt_cast<Q4DockWindowSeparator*>(info.item->widget()) == sep) break;
+	    const QDockWindowLayoutInfo &info = f_it.peekNext();
+	    if (info.is_sep && qt_cast<QDockWindowSeparator*>(info.item->widget()) == sep) break;
 	    (void)f_it.next();
 	    (void)b_it.next();
 	}
 	// at this point, the iterator is just before 'sep'
 
 	// get info for 'sep->prev' and move to just after sep->prev
-	Q4DockWindowLayoutInfo &info1 = b_it.previous(); // move to just after previous separator
+	QDockWindowLayoutInfo &info1 = b_it.previous(); // move to just after previous separator
 
 	(void)f_it.next(); // move to before sep->next
 
 	 // get info for 'sep->next' and move to just before next separator
-	Q4DockWindowLayoutInfo &info2 = f_it.next();
+	QDockWindowLayoutInfo &info2 = f_it.next();
 
 	// subtract delta to the current size of sep->next
 	int x = info2.cur_size;
@@ -646,7 +646,7 @@ QPoint Q4DockWindowLayout::constrain(Q4DockWindowSeparator *sep, int delta)
 		while (remain != 0) {
 		    (void)f_it.next(); // skip separator
 
-		    Q4DockWindowLayoutInfo &f_info = f_it.next();
+		    QDockWindowLayoutInfo &f_info = f_it.next();
 
 		    // subtract delta to the current size
 		    x = f_info.cur_size;
@@ -688,7 +688,7 @@ QPoint Q4DockWindowLayout::constrain(Q4DockWindowSeparator *sep, int delta)
 		while (remain != 0) {
 		    // (void)b_it.prev(); // skip separator
 
-		    Q4DockWindowLayoutInfo &b_info = b_it.previous();
+		    QDockWindowLayoutInfo &b_info = b_it.previous();
 
 		    // add delta from current size of sep->next
 		    x = b_info.cur_size;
@@ -720,7 +720,7 @@ QPoint Q4DockWindowLayout::constrain(Q4DockWindowSeparator *sep, int delta)
     return orientation == Horizontal ? QPoint(delta, 0) : QPoint(0, delta);
 }
 
-void Q4DockWindowLayout::relayout(QInternal::RelayoutType type)
+void QDockWindowLayout::relayout(QInternal::RelayoutType type)
 {
     QInternal::RelayoutType save_type = relayout_type;
     relayout_type = type;
@@ -730,7 +730,7 @@ void Q4DockWindowLayout::relayout(QInternal::RelayoutType type)
 
 /*!
  */
-Q4DockWindowLayout::Location Q4DockWindowLayout::locate(const QPoint &mouse) const
+QDockWindowLayout::Location QDockWindowLayout::locate(const QPoint &mouse) const
 {
     // figure out where the dockwindow goes in the layout
     const QPoint p = parentWidget()->mapFromGlobal(mouse) - geometry().topLeft();
@@ -741,7 +741,7 @@ Q4DockWindowLayout::Location Q4DockWindowLayout::locate(const QPoint &mouse) con
 
     Location ret;
     for (int i = 0; i < layout_info.count(); ++i) {
-        const Q4DockWindowLayoutInfo &info = layout_info.at(i);
+        const QDockWindowLayoutInfo &info = layout_info.at(i);
         if (info.is_sep) continue;
 
         if (pos < (info.cur_pos + info.cur_size - 1)) {
@@ -827,23 +827,23 @@ static QRect trySplit(Qt::Orientation orientation,
 
 /*!
  */
-QRect Q4DockWindowLayout::place(Q4DockWindow *dockwindow, const QRect &r, const QPoint &mouse)
+QRect QDockWindowLayout::place(QDockWindow *dockwindow, const QRect &r, const QPoint &mouse)
 {
-    DEBUG("Q4DockWindowLayout::place");
+    DEBUG("QDockWindowLayout::place");
 
     QRect target;
     Location location = locate(mouse);
 
     {
-        const Q4DockWindowLayoutInfo &info = layout_info.at(location.index);
+        const QDockWindowLayoutInfo &info = layout_info.at(location.index);
 
         if (info.item->layout()) {
             // forward the place to the nested layout
-            Q4DockWindowLayout *l = qt_cast<Q4DockWindowLayout *>(info.item->layout());
+            QDockWindowLayout *l = qt_cast<QDockWindowLayout *>(info.item->layout());
             Q_ASSERT(l != 0);
             DEBUG("  forwarding...");
             target = l->place(dockwindow, r, mouse);
-            DEBUG("END of Q4MainWindowLayout::place (forwarded)");
+            DEBUG("END of QMainWindowLayout::place (forwarded)");
             return target;
         } else if (dockwindow == info.item->widget()) {
             if (orientation == Qt::Horizontal) {
@@ -898,8 +898,8 @@ QRect Q4DockWindowLayout::place(Q4DockWindow *dockwindow, const QRect &r, const 
         return target;
     }
 
-    Q4MainWindowLayout *layout =
-        qt_cast<Q4MainWindowLayout *>(parentWidget()->layout());
+    QMainWindowLayout *layout =
+        qt_cast<QMainWindowLayout *>(parentWidget()->layout());
     Q_ASSERT(layout != 0);
     layout->removeRecursive(dockwindow);
 
@@ -917,8 +917,8 @@ QRect Q4DockWindowLayout::place(Q4DockWindow *dockwindow, const QRect &r, const 
     int index = location.index / 2; // :)
     if (location.area == Qt::DockWindowAreaRight || location.area == Qt::DockWindowAreaBottom)
         ++index;
-    Q4DockWindowLayoutItem layoutitem(dockwindow, r);
-    Q4DockWindowLayoutInfo &info = insert(index, &layoutitem, true);
+    QDockWindowLayoutItem layoutitem(dockwindow, r);
+    QDockWindowLayoutInfo &info = insert(index, &layoutitem, true);
     const QSize new_min = minimumSize();
 
     info.cur_size = pick(orientation, r.size());
@@ -946,22 +946,22 @@ QRect Q4DockWindowLayout::place(Q4DockWindow *dockwindow, const QRect &r, const 
 
 /*!
  */
-void Q4DockWindowLayout::drop(Q4DockWindow *dockwindow, const QRect &r, const QPoint &mouse)
+void QDockWindowLayout::drop(QDockWindow *dockwindow, const QRect &r, const QPoint &mouse)
 {
-    DEBUG("Q4DockWindowLayout::drop");
+    DEBUG("QDockWindowLayout::drop");
 
     Location location = locate(mouse);
 
     {
-        const Q4DockWindowLayoutInfo &info = layout_info.at(location.index);
+        const QDockWindowLayoutInfo &info = layout_info.at(location.index);
 
         if (info.item->layout()) {
             // forward the drop to the nested layout
-            Q4DockWindowLayout *l = qt_cast<Q4DockWindowLayout *>(info.item->layout());
+            QDockWindowLayout *l = qt_cast<QDockWindowLayout *>(info.item->layout());
             Q_ASSERT(l != 0);
             DEBUG("  forwarding...");
             l->drop(dockwindow, r, mouse);
-            DEBUG("END of Q4MainWindowLayout::drop (forwarded)");
+            DEBUG("END of QMainWindowLayout::drop (forwarded)");
             return;
         } else if (dockwindow == info.item->widget()) {
             // placed back at original position
@@ -969,8 +969,8 @@ void Q4DockWindowLayout::drop(Q4DockWindow *dockwindow, const QRect &r, const QP
             return;
         }
 
-        Q4MainWindowLayout *layout =
-            qt_cast<Q4MainWindowLayout *>(parentWidget()->layout());
+        QMainWindowLayout *layout =
+            qt_cast<QMainWindowLayout *>(parentWidget()->layout());
         Q_ASSERT(layout != 0);
         layout->removeRecursive(dockwindow);
 
@@ -988,7 +988,7 @@ void Q4DockWindowLayout::drop(Q4DockWindow *dockwindow, const QRect &r, const QP
         DEBUG() << "  splitting" << sz1 << sz2 << "into" << r;
         QRect target = ::trySplit(orientation, location.area, r, sz1, sz2);
         if (target.isValid()) {
-            split(qt_cast<Q4DockWindow *>(info.item->widget()), dockwindow, location.area);
+            split(qt_cast<QDockWindow *>(info.item->widget()), dockwindow, location.area);
 
             DEBUG("END of drop (nested window dock)");
             return;
@@ -1006,7 +1006,7 @@ void Q4DockWindowLayout::drop(Q4DockWindow *dockwindow, const QRect &r, const QP
     int index = location.index / 2; // :)
     if (location.area == Qt::DockWindowAreaRight || location.area == Qt::DockWindowAreaBottom)
         ++index;
-    Q4DockWindowLayoutInfo &info = insert(index, new QWidgetItem(dockwindow));
+    QDockWindowLayoutInfo &info = insert(index, new QWidgetItem(dockwindow));
     info.is_dropped = true;
     info.cur_size = pick(orientation, r.size());
 
@@ -1022,7 +1022,7 @@ void Q4DockWindowLayout::drop(Q4DockWindow *dockwindow, const QRect &r, const QP
     DEBUG("END of drop");
 }
 
-void Q4DockWindowLayout::extend(Q4DockWindow *dockwindow, Orientation direction)
+void QDockWindowLayout::extend(QDockWindow *dockwindow, Orientation direction)
 {
     if (direction == orientation) {
         addWidget(dockwindow);
@@ -1030,11 +1030,11 @@ void Q4DockWindowLayout::extend(Q4DockWindow *dockwindow, Orientation direction)
         Q_ASSERT(relayout_type == QInternal::RelayoutNormal);
         relayout_type = QInternal::RelayoutDropped;
 
-        Q4DockWindowLayout *nestedLayout = new Q4DockWindowLayout(this, orientation);
+        QDockWindowLayout *nestedLayout = new QDockWindowLayout(this, orientation);
         nestedLayout->setObjectName(objectName() + QLatin1String("_nestedCopy"));
 
         for (int i = 0; i < layout_info.count(); ++i) {
-            const Q4DockWindowLayoutInfo &info = layout_info.at(i);
+            const QDockWindowLayoutInfo &info = layout_info.at(i);
             if (info.is_sep) {
                 delete info.item->widget();
                 delete info.item;
@@ -1053,24 +1053,24 @@ void Q4DockWindowLayout::extend(Q4DockWindow *dockwindow, Orientation direction)
     }
 }
 
-void Q4DockWindowLayout::split(Q4DockWindow *dockwindow, Orientation direction)
+void QDockWindowLayout::split(QDockWindow *dockwindow, Orientation direction)
 {
     int last = layout_info.count() - 1;
     if (last < 0) {
         addWidget(dockwindow);
     } else {
-        const Q4DockWindowLayoutInfo &info =layout_info.at(last);
+        const QDockWindowLayoutInfo &info =layout_info.at(last);
         if (info.item->widget() && direction == orientation) {
             addWidget(dockwindow);
         } else {
             if (info.item->widget()) {
-                split(qt_cast<Q4DockWindow *>(info.item->widget()), dockwindow,
+                split(qt_cast<QDockWindow *>(info.item->widget()), dockwindow,
                       (direction == Horizontal
                        ? Qt::DockWindowAreaRight
                        : Qt::DockWindowAreaBottom));
             } else {
-                Q4DockWindowLayout *nestedLayout =
-                    qt_cast<Q4DockWindowLayout *>(info.item->layout());
+                QDockWindowLayout *nestedLayout =
+                    qt_cast<QDockWindowLayout *>(info.item->layout());
                 nestedLayout->setObjectName(objectName() + QLatin1String("_nestedLayout"));
                 Q_ASSERT(nestedLayout != 0);
                 nestedLayout->split(dockwindow, direction);
@@ -1079,17 +1079,17 @@ void Q4DockWindowLayout::split(Q4DockWindow *dockwindow, Orientation direction)
     }
 }
 
-void Q4DockWindowLayout::split(Q4DockWindow *existing, Q4DockWindow *with, Qt::DockWindowArea area)
+void QDockWindowLayout::split(QDockWindow *existing, QDockWindow *with, Qt::DockWindowArea area)
 {
     int which = -1;
     for (int i = 0; which == -1 && i < layout_info.count(); ++i) {
-	const Q4DockWindowLayoutInfo &info = layout_info.at(i);
+	const QDockWindowLayoutInfo &info = layout_info.at(i);
 	if (info.is_sep) continue;
 	if (existing == info.item->widget())
             which = i;
     }
     Q_ASSERT(which != -1);
-    const Q4DockWindowLayoutInfo &info = layout_info.at(which);
+    const QDockWindowLayoutInfo &info = layout_info.at(which);
 
     Q_ASSERT(relayout_type == QInternal::RelayoutNormal);
     relayout_type = QInternal::RelayoutDropped;
@@ -1099,8 +1099,8 @@ void Q4DockWindowLayout::split(Q4DockWindow *existing, Q4DockWindow *with, Qt::D
     // note: info is invalid from now on
 
     // create a nested window dock in place of the current widget
-    Q4DockWindowLayout *nestedLayout =
-        new Q4DockWindowLayout(this, orientation == Horizontal ? Vertical : Horizontal);
+    QDockWindowLayout *nestedLayout =
+        new QDockWindowLayout(this, orientation == Horizontal ? Vertical : Horizontal);
     nestedLayout->setObjectName(objectName() + "_nestedLayout");
     insert(which / 2, nestedLayout).cur_size = save_size;
     invalidate();

@@ -1,23 +1,23 @@
-#ifndef Q4DOCKSEPARATOR_P_H
-#define Q4DOCKSEPARATOR_P_H
+#ifndef QDOCKSEPARATOR_P_H
+#define QDOCKSEPARATOR_P_H
 
 #include <qwidget.h>
 
-class Q4DockWindowLayout;
+class QDockWindowLayout;
 
-class Q4DockSeparator : public QWidget
+class QDockSeparator : public QWidget
 {
 public:
-    Q4DockSeparator(Q4DockWindowLayout *dock, QWidget *parent);
+    QDockSeparator(QDockWindowLayout *dock, QWidget *parent);
 
-    void setDock(Q4DockWindowLayout *d);
+    void setDock(QDockWindowLayout *d);
 
     void mousePressEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *event);
     void paintEvent(QPaintEvent *event);
 
-    Q4DockWindowLayout *dock;
+    QDockWindowLayout *dock;
     Orientation orientation;
 
     struct DragState {
@@ -26,4 +26,4 @@ public:
     } *state;
 };
 
-#endif // Q4DOCKSEPARATOR_P_H
+#endif // QDOCKSEPARATOR_P_H

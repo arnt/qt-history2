@@ -3,20 +3,20 @@
 
 #include <qwidget.h>
 
-class Q4DockWindow;
-class Q4MainWindowPrivate;
+class QDockWindow;
+class QMainWindowPrivate;
 class QMenuBar;
 class QStatusBar;
-class Q4ToolBar;
+class QToolBar;
 
-class Q_GUI_EXPORT Q4MainWindow : public QWidget
+class Q_GUI_EXPORT QMainWindow : public QWidget
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(Q4MainWindow);
+    Q_DECLARE_PRIVATE(QMainWindow);
 
 public:
-    Q4MainWindow(QWidget *parent = 0, WFlags flags = 0);
-    ~Q4MainWindow();
+    QMainWindow(QWidget *parent = 0, WFlags flags = 0);
+    ~QMainWindow();
 
     QMenuBar *menuBar() const;
     void setMenuBar(QMenuBar *menubar);

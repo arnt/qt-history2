@@ -25,10 +25,10 @@ static inline QCOORD pick(Qt::Orientation o, const QSize &s)
 { return o == Qt::Horizontal ? s.width() : s.height(); }
 
 // ## this should be styled and not inherit from QFrame
-class Q4ToolBarSeparator : public QFrame
+class QToolBarSeparator : public QFrame
 {
 public:
-    Q4ToolBarSeparator(Q4ToolBar *parent, Qt::Orientation new_ori) : QFrame(parent)
+    QToolBarSeparator(QToolBar *parent, Qt::Orientation new_ori) : QFrame(parent)
     {
 	setOrientation(new_ori);
     }
@@ -56,10 +56,10 @@ private:
     Qt::Orientation ori;
 };
 
-class Q4ToolBarHandle : public QWidget
+class QToolBarHandle : public QWidget
 {
 public:
-    Q4ToolBarHandle(Q4ToolBar *parent) : QWidget(parent), state(0)
+    QToolBarHandle(QToolBar *parent) : QWidget(parent), state(0)
     {
 	setCursor(SizeAllCursor);
     }
@@ -87,7 +87,7 @@ public:
 };
 
 
-void Q4ToolBarHandle::paintEvent(QPaintEvent *e)
+void QToolBarHandle::paintEvent(QPaintEvent *e)
 {
     QPainter p(this);
     QStyle::SFlags flags = QStyle::Style_Default;
@@ -102,7 +102,7 @@ void Q4ToolBarHandle::paintEvent(QPaintEvent *e)
     QWidget::paintEvent(e);
 }
 
-void Q4ToolBarHandle::mousePressEvent(QMouseEvent *event)
+void QToolBarHandle::mousePressEvent(QMouseEvent *event)
 {
     if (event->button() != LeftButton) return;
 
@@ -113,7 +113,7 @@ void Q4ToolBarHandle::mousePressEvent(QMouseEvent *event)
     state->offset = mapTo(parentWidget(), event->pos());
 }
 
-void Q4ToolBarHandle::mouseReleaseEvent(QMouseEvent *event)
+void QToolBarHandle::mouseReleaseEvent(QMouseEvent *event)
 {
     if (event->button() != LeftButton) return;
 
@@ -121,7 +121,7 @@ void Q4ToolBarHandle::mouseReleaseEvent(QMouseEvent *event)
     state = 0;
 }
 
-void Q4ToolBarHandle::mouseMoveEvent(QMouseEvent *event)
+void QToolBarHandle::mouseMoveEvent(QMouseEvent *event)
 {
     Q_ASSERT(state != 0);
 
@@ -129,12 +129,12 @@ void Q4ToolBarHandle::mouseMoveEvent(QMouseEvent *event)
     // the tool bar accordingly
     QWidget *widget = QApplication::widgetAt(event->globalPos());
     if (widget) {
-	while (widget && (!qt_cast<Q4MainWindow *>(widget)))
+	while (widget && (!qt_cast<QMainWindow *>(widget)))
 	    widget = widget->parentWidget();
 
 	if (widget) {
- 	    Q4MainWindowLayout *layout = qt_cast<Q4MainWindowLayout *>(widget->layout());
-	    Q_ASSERT_X(layout != 0, "Q4MainWindow", "must have a layout");
+ 	    QMainWindowLayout *layout = qt_cast<QMainWindowLayout *>(widget->layout());
+	    Q_ASSERT_X(layout != 0, "QMainWindow", "must have a layout");
 	    QPoint p = parentWidget()->mapFromGlobal(event->globalPos()) - state->offset;
 
 	    // ### the offset is measured from the widget origin
@@ -144,12 +144,12 @@ void Q4ToolBarHandle::mouseMoveEvent(QMouseEvent *event)
 		p.setY(state->offset.y() + p.y());
 
 	    // try re-positioning toolbar
-	    layout->dropToolBar(qt_cast<Q4ToolBar *>(parentWidget()), event->globalPos(), p);
+	    layout->dropToolBar(qt_cast<QToolBar *>(parentWidget()), event->globalPos(), p);
 	}
     }
 }
 
-Qt::Orientation Q4ToolBarHandle::orientation()
+Qt::Orientation QToolBarHandle::orientation()
 {
     QBoxLayout *box = qt_cast<QBoxLayout *>(parentWidget()->layout());
     if (box->direction() == QBoxLayout::LeftToRight || box->direction() == QBoxLayout::RightToLeft)
@@ -187,10 +187,10 @@ static const char * const arrow_h_xpm[] = {
     "+..++..++",
     "..++..+++"};
 
-class Q4ToolBarExtension : public QToolButton
+class QToolBarExtension : public QToolButton
 {
 public:
-    Q4ToolBarExtension(QWidget *parent);
+    QToolBarExtension(QWidget *parent);
 
     void setOrientation(Orientation o);
     QSize sizeHint() const{ return QSize(14, 14); }
@@ -201,14 +201,14 @@ private:
     Orientation orientation;
 };
 
-Q4ToolBarExtension::Q4ToolBarExtension(QWidget *parent)
+QToolBarExtension::QToolBarExtension(QWidget *parent)
     : QToolButton(parent)
 {
     setAutoRaise(true);
     setOrientation(Horizontal);
 }
 
-void Q4ToolBarExtension::setOrientation(Orientation o)
+void QToolBarExtension::setOrientation(Orientation o)
 {
     if (o == Horizontal) {
         setIcon(QPixmap((const char **)arrow_h_xpm));
@@ -217,59 +217,59 @@ void Q4ToolBarExtension::setOrientation(Orientation o)
    }
 }
 
-class Q4ToolBarPrivate : public QFramePrivate
+class QToolBarPrivate : public QFramePrivate
 {
-    Q_DECLARE_PUBLIC(Q4ToolBar);
+    Q_DECLARE_PUBLIC(QToolBar);
 public:
     void actionTriggered();
     ToolBarArea currentArea;
-    Q4ToolBarExtension *extension;
-    Q4ToolBarHandle *handle;
+    QToolBarExtension *extension;
+    QToolBarHandle *handle;
 };
 
-void Q4ToolBarPrivate::actionTriggered()
+void QToolBarPrivate::actionTriggered()
 {
     QAction *action = qt_cast<QAction *>(q->sender());
-    Q_ASSERT_X(action != 0, "Q4ToolBar::actionTriggered", "internal error");
+    Q_ASSERT_X(action != 0, "QToolBar::actionTriggered", "internal error");
     emit q->actionTriggered(action);
 }
 
 
-Q4ToolBar::Q4ToolBar(Q4MainWindow *parent)
-    : QFrame(*new Q4ToolBarPrivate, parent)
+QToolBar::QToolBar(QMainWindow *parent)
+    : QFrame(*new QToolBarPrivate, parent)
 {
-    Q_ASSERT_X(parent != 0, "Q4MainWindow", "parent cannot be zero");
+    Q_ASSERT_X(parent != 0, "QMainWindow", "parent cannot be zero");
 
     setFrameStyle(QFrame::Panel | QFrame::Raised);
 
     QBoxLayout *layout = new QBoxLayout(QBoxLayout::LeftToRight, this);
     layout->setSpacing(2);
-    d->handle = new Q4ToolBarHandle(this);
-    d->extension = new Q4ToolBarExtension(this);
+    d->handle = new QToolBarHandle(this);
+    d->extension = new QToolBarExtension(this);
     d->extension->hide();
     layout->removeWidget(d->extension);
     setCurrentArea(ToolBarAreaTop);
 }
 
-Q4ToolBar::~Q4ToolBar()
+QToolBar::~QToolBar()
 {
 }
 
-QAction *Q4ToolBar::addAction(const QString &text)
+QAction *QToolBar::addAction(const QString &text)
 {
     QAction *action = new QAction(text, this);
     addAction(action);
     return action;
 }
 
-QAction *Q4ToolBar::addAction(const QIconSet &icon, const QString &text)
+QAction *QToolBar::addAction(const QIconSet &icon, const QString &text)
 {
     QAction *action = new QAction(icon, text, this);
     addAction(action);
     return action;
 }
 
-QAction *Q4ToolBar::addAction(const QString &text,
+QAction *QToolBar::addAction(const QString &text,
                               const QObject *receiver, const char* member)
 {
     QAction *action = new QAction(text, this);
@@ -278,7 +278,7 @@ QAction *Q4ToolBar::addAction(const QString &text,
     return action;
 }
 
-QAction *Q4ToolBar::addAction(const QIconSet &icon, const QString &text,
+QAction *QToolBar::addAction(const QIconSet &icon, const QString &text,
                               const QObject *receiver, const char* member)
 {
     QAction *action = new QAction(icon, text, this);
@@ -287,21 +287,21 @@ QAction *Q4ToolBar::addAction(const QIconSet &icon, const QString &text,
     return action;
 }
 
-QAction *Q4ToolBar::insertAction(QAction *before, const QString &text)
+QAction *QToolBar::insertAction(QAction *before, const QString &text)
 {
     QAction *action = new QAction(text, this);
     insertAction(before, action);
     return action;
 }
 
-QAction *Q4ToolBar::insertAction(QAction *before, const QIconSet &icon, const QString &text)
+QAction *QToolBar::insertAction(QAction *before, const QIconSet &icon, const QString &text)
 {
     QAction *action = new QAction(icon, text, this);
     insertAction(before, action);
     return action;
 }
 
-QAction *Q4ToolBar::insertAction(QAction *before, const QString &text,
+QAction *QToolBar::insertAction(QAction *before, const QString &text,
 				 const QObject *receiver, const char* member)
 {
     QAction *action = new QAction(text, this);
@@ -310,7 +310,7 @@ QAction *Q4ToolBar::insertAction(QAction *before, const QString &text,
     return action;
 }
 
-QAction *Q4ToolBar::insertAction(QAction *before, const QIconSet &icon, const QString &text,
+QAction *QToolBar::insertAction(QAction *before, const QIconSet &icon, const QString &text,
 				 const QObject *receiver, const char* member)
 {
     QAction *action = new QAction(icon, text, this);
@@ -319,7 +319,7 @@ QAction *Q4ToolBar::insertAction(QAction *before, const QIconSet &icon, const QS
     return action;
 }
 
-QAction *Q4ToolBar::addSeparator()
+QAction *QToolBar::addSeparator()
 {
     QAction *action = new QAction(this);
     action->setSeparator(true);
@@ -327,7 +327,7 @@ QAction *Q4ToolBar::addSeparator()
     return action;
 }
 
-QAction *Q4ToolBar::insertSeparator(QAction *before)
+QAction *QToolBar::insertSeparator(QAction *before)
 {
     QAction *action = new QAction(this);
     action->setSeparator(true);
@@ -335,7 +335,7 @@ QAction *Q4ToolBar::insertSeparator(QAction *before)
     return action;
 }
 
-void Q4ToolBar::childEvent(QChildEvent *event)
+void QToolBar::childEvent(QChildEvent *event)
 {
     QWidget *widget = qt_cast<QWidget *>(event->child());
     if (!widget) return;
@@ -343,7 +343,7 @@ void Q4ToolBar::childEvent(QChildEvent *event)
     else if (event->removed()) layout()->removeWidget(widget);
 }
 
-void Q4ToolBar::actionEvent(QActionEvent *event)
+void QToolBar::actionEvent(QActionEvent *event)
 {
     QAction *action = event->action();
 
@@ -353,11 +353,11 @@ void Q4ToolBar::actionEvent(QActionEvent *event)
 	    QBoxLayout *box = qt_cast<QBoxLayout *>(layout());
 	    if (box->direction() == QBoxLayout::LeftToRight
 		|| box->direction() == QBoxLayout::RightToLeft)
-		(void) new Q4ToolBarSeparator(this, Horizontal);
+		(void) new QToolBarSeparator(this, Horizontal);
 	    else
-		(void) new Q4ToolBarSeparator(this, Vertical);
+		(void) new QToolBarSeparator(this, Vertical);
 	} else {
-	    Q4ToolBarButton *button = new Q4ToolBarButton(this);
+	    QToolBarButton *button = new QToolBarButton(this);
 	    button->addAction(action);
 
             QObject::connect(action, SIGNAL(triggered()),
@@ -384,11 +384,11 @@ void Q4ToolBar::actionEvent(QActionEvent *event)
 	break;
 
     default:
-	Q_ASSERT_X(false, "Q4ToolBar::actionEvent", "internal error");
+	Q_ASSERT_X(false, "QToolBar::actionEvent", "internal error");
     }
 }
 
-void Q4ToolBar::resizeEvent(QResizeEvent *event)
+void QToolBar::resizeEvent(QResizeEvent *event)
 {
     QList<int> hidden;
     Orientation o;
@@ -401,7 +401,7 @@ void Q4ToolBar::resizeEvent(QResizeEvent *event)
     int i = 1; // tb handle is always the first item in the layout
     while (layout()->itemAt(i)) {
 	QWidget *w = layout()->itemAt(i)->widget();
-	if (!qt_cast<Q4ToolBarExtension *>(w)) {
+	if (!qt_cast<QToolBarExtension *>(w)) {
 	    if (pick(o, w->pos()) + pick(o, w->size())
 		> (pick(o, size()) - (d->extension->isShown() ? pick(o, d->extension->size()) : 0)))
 	    {
@@ -444,15 +444,15 @@ void Q4ToolBar::resizeEvent(QResizeEvent *event)
     }
 }
 
-Qt::ToolBarArea Q4ToolBar::currentArea() const
+Qt::ToolBarArea QToolBar::currentArea() const
 {
     return d->currentArea;
 }
 
-void Q4ToolBar::setCurrentArea(Qt::ToolBarArea area, bool linebreak)
+void QToolBar::setCurrentArea(Qt::ToolBarArea area, bool linebreak)
 {
-    Q_ASSERT(parentWidget() && qt_cast<Q4MainWindowLayout *>(parentWidget()->layout()));
-    Q4MainWindowLayout *mainwin_layout = qt_cast<Q4MainWindowLayout *>(parentWidget()->layout());
+    Q_ASSERT(parentWidget() && qt_cast<QMainWindowLayout *>(parentWidget()->layout()));
+    QMainWindowLayout *mainwin_layout = qt_cast<QMainWindowLayout *>(parentWidget()->layout());
     mainwin_layout->add(this, area, linebreak);
 
     int pos;
@@ -467,7 +467,7 @@ void Q4ToolBar::setCurrentArea(Qt::ToolBarArea area, bool linebreak)
     }
 
     QBoxLayout *box = qt_cast<QBoxLayout *>(layout());
-    Q_ASSERT_X(box != 0, "Q4ToolBar::setCurrentArea", "internal error");
+    Q_ASSERT_X(box != 0, "QToolBar::setCurrentArea", "internal error");
 
     switch (pos) {
     case 0: // Left
@@ -487,14 +487,14 @@ void Q4ToolBar::setCurrentArea(Qt::ToolBarArea area, bool linebreak)
 	break;
 
     default:
-	Q_ASSERT_X(false, "Q4ToolBar::setCurrentArea", "internal error");
+	Q_ASSERT_X(false, "QToolBar::setCurrentArea", "internal error");
     }
 
     // change the orientation of any separators
     QLayoutItem *item = 0;
     int i = 0;
     while ((item = box->itemAt(i++))) {
-	Q4ToolBarSeparator *sep = qt_cast<Q4ToolBarSeparator *>(item->widget());
+	QToolBarSeparator *sep = qt_cast<QToolBarSeparator *>(item->widget());
 	if (sep) {
 	    if (box->direction() == QBoxLayout::LeftToRight
 		|| box->direction() == QBoxLayout::RightToLeft)

@@ -11,13 +11,13 @@
 #include <qstyle.h>
 
 
-Q4DockSeparator::Q4DockSeparator(Q4DockWindowLayout *d, QWidget *parent)
+QDockSeparator::QDockSeparator(QDockWindowLayout *d, QWidget *parent)
     : QWidget(parent), state(0)
 {
     setDock(d);
 }
 
-void Q4DockSeparator::setDock(Q4DockWindowLayout *d)
+void QDockSeparator::setDock(QDockWindowLayout *d)
 {
     Q_ASSERT(d != 0);
     dock = d;
@@ -25,7 +25,7 @@ void Q4DockSeparator::setDock(Q4DockWindowLayout *d)
     setCursor((orientation == Horizontal) ? SplitVCursor : SplitHCursor);
 }
 
-void Q4DockSeparator::mousePressEvent(QMouseEvent *event)
+void QDockSeparator::mousePressEvent(QMouseEvent *event)
 {
     if (event->button() != LeftButton) return;
 
@@ -40,29 +40,29 @@ void Q4DockSeparator::mousePressEvent(QMouseEvent *event)
     state->prevFocus = qApp->focusWidget();
     if (state->prevFocus) state->prevFocus->clearFocus();
 
-    qt_cast<Q4MainWindowLayout*>(parentWidget()->layout())->saveLayoutInfo();
+    qt_cast<QMainWindowLayout*>(parentWidget()->layout())->saveLayoutInfo();
 }
 
-void Q4DockSeparator::mouseMoveEvent(QMouseEvent *event)
+void QDockSeparator::mouseMoveEvent(QMouseEvent *event)
 {
     Q_ASSERT(state != 0);
 
     // we map from global coordinates to avoid nasty effects when
     // event compression kicks in
-    Q4MainWindow *mw = qt_cast<Q4MainWindow *>(parentWidget());
+    QMainWindow *mw = qt_cast<QMainWindow *>(parentWidget());
     QPoint p = mw->mapFromGlobal(event->globalPos());
     int delta = pick_perp(orientation, p - state->origin);
 
     // constrain the mouse move event
-    if (qt_cast<Q4MainWindowLayout *>(mw->layout())->constrain(dock, delta) != 0)
-	qt_cast<Q4MainWindowLayout *>(mw->layout())->relayout();
+    if (qt_cast<QMainWindowLayout *>(mw->layout())->constrain(dock, delta) != 0)
+	qt_cast<QMainWindowLayout *>(mw->layout())->relayout();
 }
 
-void Q4DockSeparator::mouseReleaseEvent(QMouseEvent *event)
+void QDockSeparator::mouseReleaseEvent(QMouseEvent *event)
 {
     if (event->button() != LeftButton) return;
 
-    Q4MainWindowLayout *l = qt_cast<Q4MainWindowLayout*>(parentWidget()->layout());
+    QMainWindowLayout *l = qt_cast<QMainWindowLayout*>(parentWidget()->layout());
     Q_ASSERT(l != 0);
     l->relayout();
     l->discardLayoutInfo();
@@ -74,7 +74,7 @@ void Q4DockSeparator::mouseReleaseEvent(QMouseEvent *event)
     state = 0;
 }
 
-void Q4DockSeparator::paintEvent(QPaintEvent *)
+void QDockSeparator::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
 

@@ -11,79 +11,79 @@
 #define d d_func()
 
 
-class Q4MainWindowPrivate : public QWidgetPrivate
+class QMainWindowPrivate : public QWidgetPrivate
 {
 public:
-    Q4MainWindowLayout *layout;
+    QMainWindowLayout *layout;
 };
 
 
-Q4MainWindow::Q4MainWindow(QWidget *parent, WFlags flags)
-    : QWidget(*(new Q4MainWindowPrivate()), parent, flags)
-{ d->layout = new Q4MainWindowLayout(this); }
+QMainWindow::QMainWindow(QWidget *parent, WFlags flags)
+    : QWidget(*(new QMainWindowPrivate()), parent, flags)
+{ d->layout = new QMainWindowLayout(this); }
 
-Q4MainWindow::~Q4MainWindow()
+QMainWindow::~QMainWindow()
 { }
 
-QMenuBar *Q4MainWindow::menuBar() const
+QMenuBar *QMainWindow::menuBar() const
 {
     QMenuBar *menubar = d->layout->menuBar();
     if (!menubar) {
-	Q4MainWindow *self = const_cast<Q4MainWindow *>(this);
+	QMainWindow *self = const_cast<QMainWindow *>(this);
 	menubar = new QMenuBar(self);
 	self->setMenuBar(menubar);
     }
     return menubar;
 }
 
-void Q4MainWindow::setMenuBar(QMenuBar *menubar)
+void QMainWindow::setMenuBar(QMenuBar *menubar)
 {
     Q_ASSERT_X(menubar != 0,
-	       "Q4MainWindow::setMenuBar()", "parameter cannot be zero");
+	       "QMainWindow::setMenuBar()", "parameter cannot be zero");
     Q_ASSERT_X(!d->layout->menuBar(),
-	       "Q4MainWindow::setMenuBar()", "menu bar already set");
+	       "QMainWindow::setMenuBar()", "menu bar already set");
     Q_ASSERT_X(menubar->parentWidget() == this,
-	       "Q4MainWindow::setMenuBar()", "menu bar parent must be the main window");
+	       "QMainWindow::setMenuBar()", "menu bar parent must be the main window");
     layout()->setMenuBar(menubar);
 }
 
-QStatusBar *Q4MainWindow::statusBar() const
+QStatusBar *QMainWindow::statusBar() const
 {
     QStatusBar *statusbar = d->layout->statusBar();
     if (!statusbar) {
-	Q4MainWindow *self = const_cast<Q4MainWindow *>(this);
+	QMainWindow *self = const_cast<QMainWindow *>(this);
 	statusbar = new QStatusBar(self);
 	self->setStatusBar(statusbar);
     }
     return statusbar;
 }
 
-void Q4MainWindow::setStatusBar(QStatusBar *statusbar)
+void QMainWindow::setStatusBar(QStatusBar *statusbar)
 {
     Q_ASSERT_X(statusbar != 0,
-	       "Q4MainWindow::setStatusBar()", "parameter cannot be zero");
+	       "QMainWindow::setStatusBar()", "parameter cannot be zero");
     Q_ASSERT_X(!d->layout->statusBar(),
-	       "Q4MainWindow::setStatusBar()", "status bar already set");
+	       "QMainWindow::setStatusBar()", "status bar already set");
     Q_ASSERT_X(statusbar->parentWidget() == this,
-	       "Q4MainWindow::setStatusBar()", "status bar parent must be the main window");
+	       "QMainWindow::setStatusBar()", "status bar parent must be the main window");
     d->layout->setStatusBar(statusbar);
 }
 
-QWidget *Q4MainWindow::centerWidget() const
+QWidget *QMainWindow::centerWidget() const
 { return d->layout->centerWidget(); }
 
-void Q4MainWindow::setCenterWidget(QWidget *widget)
+void QMainWindow::setCenterWidget(QWidget *widget)
 {
     Q_ASSERT_X(widget != 0,
-	       "Q4MainWindow::setCenterWidget()", "parameter cannot be zero");
+	       "QMainWindow::setCenterWidget()", "parameter cannot be zero");
     Q_ASSERT_X(!d->layout->centerWidget(),
-	       "Q4MainWindow::setCenterWidget()", "center widget already set");
+	       "QMainWindow::setCenterWidget()", "center widget already set");
     Q_ASSERT_X(widget->parentWidget() == this,
-	       "Q4MainWindow::setCenterWidget()", "center widget parent must be the main window");
+	       "QMainWindow::setCenterWidget()", "center widget parent must be the main window");
     d->layout->setCenterWidget(widget);
 }
 
-void Q4MainWindow::setCorner(Corner corner, DockWindowArea area)
+void QMainWindow::setCorner(Corner corner, DockWindowArea area)
 {
     bool valid = false;
     switch (corner) {
@@ -100,26 +100,26 @@ void Q4MainWindow::setCorner(Corner corner, DockWindowArea area)
         valid = (area == DockWindowAreaBottom || area == DockWindowAreaRight);
         break;
     }
-    Q_ASSERT_X(valid, "Q4MainWindow::setCorner", "'area' is not valid for 'corner'");
+    Q_ASSERT_X(valid, "QMainWindow::setCorner", "'area' is not valid for 'corner'");
     d->layout->corners[corner] = area;
 }
 
-Qt::DockWindowArea Q4MainWindow::corner(Corner corner) const
+Qt::DockWindowArea QMainWindow::corner(Corner corner) const
 { return d->layout->corners[corner]; }
 
-void Q4MainWindow::setDockWindowState(const QString &state)
+void QMainWindow::setDockWindowState(const QString &state)
 {
-    Q_ASSERT_X(false, "Q4MainWindow::setDockWindowState", "unimplemented");
+    Q_ASSERT_X(false, "QMainWindow::setDockWindowState", "unimplemented");
 }
 
-QString Q4MainWindow::dockWindowState() const
+QString QMainWindow::dockWindowState() const
 {
-    Q_ASSERT_X(false, "Q4MainWindow::dockWindowState", "unimplemented");
+    Q_ASSERT_X(false, "QMainWindow::dockWindowState", "unimplemented");
     return QString();
 }
 
 /*! \reimp */
-void Q4MainWindow::childEvent(QChildEvent *event)
+void QMainWindow::childEvent(QChildEvent *event)
 {
     if (event->polished()) {
 	QMenuBar *menubar;
@@ -137,5 +137,5 @@ void Q4MainWindow::childEvent(QChildEvent *event)
 }
 
 /*! \reimp */
-bool Q4MainWindow::event(QEvent *event)
+bool QMainWindow::event(QEvent *event)
 { return QWidget::event(event); }

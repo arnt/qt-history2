@@ -1,13 +1,13 @@
-#ifndef Q4DOCKWINDOWLAYOUT_P_H
-#define Q4DOCKWINDOWLAYOUT_P_H
+#ifndef QDOCKWINDOWLAYOUT_P_H
+#define QDOCKWINDOWLAYOUT_P_H
 
 #include <qlayout.h>
 #include <qlist.h>
 
-class Q4DockWindow;
-class Q4DockWindowSeparator;
+class QDockWindow;
+class QDockWindowSeparator;
 
-struct Q4DockWindowLayoutInfo
+struct QDockWindowLayoutInfo
 {
     QLayoutItem *item;
 
@@ -21,23 +21,23 @@ struct Q4DockWindowLayoutInfo
     uint is_dropped : 1;
     uint is_act     : 1; // active tab?
 
-    inline Q4DockWindowLayoutInfo(QLayoutItem *i)
+    inline QDockWindowLayoutInfo(QLayoutItem *i)
 	: item(i), cur_pos(-1), cur_size(-1), min_size(1), max_size(~0u),
 	  is_sep(0), is_dummy(0), is_dropped(0), is_act(0)
     { }
 };
 
-class Q4DockWindowLayout : public QLayout
+class QDockWindowLayout : public QLayout
 {
     Q_OBJECT
 
  public:
     Qt::Orientation orientation;
-    QList<Q4DockWindowLayoutInfo> layout_info;
-    QList<Q4DockWindowLayoutInfo> *save_layout_info;
+    QList<QDockWindowLayoutInfo> layout_info;
+    QList<QDockWindowLayoutInfo> *save_layout_info;
 
-    Q4DockWindowLayout(QWidget *widget, Orientation o);
-    Q4DockWindowLayout(QLayout *layout, Orientation o);
+    QDockWindowLayout(QWidget *widget, Orientation o);
+    QDockWindowLayout(QLayout *layout, Orientation o);
 
     // QLayout interface
     void addItem(QLayoutItem *layoutitem);
@@ -54,7 +54,7 @@ class Q4DockWindowLayout : public QLayout
 
     void setOrientation(Qt::Orientation o);
     QLayoutItem *find(QWidget *widget);
-    Q4DockWindowLayoutInfo &insert(int index, QLayoutItem *layoutitem, bool dummy = false);
+    QDockWindowLayoutInfo &insert(int index, QLayoutItem *layoutitem, bool dummy = false);
 
     void dump();
 
@@ -62,20 +62,20 @@ class Q4DockWindowLayout : public QLayout
     void resetLayoutInfo();
     void discardLayoutInfo();
 
-    QPoint constrain(Q4DockWindowSeparator *sep, int delta);
+    QPoint constrain(QDockWindowSeparator *sep, int delta);
 
     struct Location {
         int index;
         DockWindowArea area;
     };
     Location locate(const QPoint &mouse) const;
-    QRect place(Q4DockWindow *dockwindow, const QRect &r, const QPoint &mouse);
-    void drop(Q4DockWindow *dockwindow, const QRect &r, const QPoint &mouse);
+    QRect place(QDockWindow *dockwindow, const QRect &r, const QPoint &mouse);
+    void drop(QDockWindow *dockwindow, const QRect &r, const QPoint &mouse);
 
-    void extend(Q4DockWindow *dockwindow, Orientation direction);
-    void split(Q4DockWindow *dockwindow, Orientation direction);
+    void extend(QDockWindow *dockwindow, Orientation direction);
+    void split(QDockWindow *dockwindow, Orientation direction);
 
-    void split(Q4DockWindow *existing, Q4DockWindow *with, DockWindowArea area);
+    void split(QDockWindow *existing, QDockWindow *with, DockWindowArea area);
 };
 
 static inline QCOORD pick(Qt::Orientation o, const QPoint &p)
@@ -87,4 +87,4 @@ static inline QCOORD pick_perp(Qt::Orientation o, const QPoint &p)
 static inline QCOORD pick_perp(Qt::Orientation o, const QSize &s)
 { return o == Qt::Vertical ? s.width() : s.height(); }
 
-#endif // Q4DOCKWINDOWLAYOUT_P_H
+#endif // QDOCKWINDOWLAYOUT_P_H

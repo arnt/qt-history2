@@ -24,14 +24,14 @@
   Tool window title
 */
 
-class Q4DockWindowTitle;
+class QDockWindowTitle;
 
-class Q4DockWindowTitleButton : public QAbstractButton
+class QDockWindowTitleButton : public QAbstractButton
 {
     Q_OBJECT
 
 public:
-    Q4DockWindowTitleButton(Q4DockWindowTitle *title);
+    QDockWindowTitleButton(QDockWindowTitle *title);
 
     QSize sizeHint() const;
     inline QSize minimumSizeHint() const
@@ -42,12 +42,12 @@ public:
     void paintEvent(QPaintEvent *event);
 };
 
-class Q4DockWindowTitle : public QWidget
+class QDockWindowTitle : public QWidget
 {
     Q_OBJECT
 
 public:
-    Q4DockWindowTitle(Q4DockWindow *tw);
+    QDockWindowTitle(QDockWindow *tw);
 
     void styleChange(QStyle &);
 
@@ -59,11 +59,11 @@ public:
     void updateButtons();
     void updateWindowTitle();
 
-    Q4DockWindow *dockwindow;
+    QDockWindow *dockwindow;
 
     QSpacerItem *spacer;
-    Q4DockWindowTitleButton *floatButton;
-    Q4DockWindowTitleButton *closeButton;
+    QDockWindowTitleButton *floatButton;
+    QDockWindowTitleButton *closeButton;
 
     QBoxLayout *box;
 
@@ -81,11 +81,11 @@ public slots:
     void toggleFloated();
 };
 
-Q4DockWindowTitleButton::Q4DockWindowTitleButton(Q4DockWindowTitle *title)
+QDockWindowTitleButton::QDockWindowTitleButton(QDockWindowTitle *title)
     : QAbstractButton(title)
 { }
 
-QSize Q4DockWindowTitleButton::sizeHint() const
+QSize QDockWindowTitleButton::sizeHint() const
 {
     ensurePolished();
 
@@ -98,19 +98,19 @@ QSize Q4DockWindowTitleButton::sizeHint() const
     return QSize(dim + 4, dim + 4);
 }
 
-void Q4DockWindowTitleButton::enterEvent(QEvent *event)
+void QDockWindowTitleButton::enterEvent(QEvent *event)
 {
     update();
     QAbstractButton::enterEvent(event);
 }
 
-void Q4DockWindowTitleButton::leaveEvent(QEvent *event)
+void QDockWindowTitleButton::leaveEvent(QEvent *event)
 {
     update();
     QAbstractButton::leaveEvent(event);
 }
 
-void Q4DockWindowTitleButton::paintEvent(QPaintEvent *event)
+void QDockWindowTitleButton::paintEvent(QPaintEvent *event)
 {
     QPainter p(this);
 
@@ -135,7 +135,7 @@ void Q4DockWindowTitleButton::paintEvent(QPaintEvent *event)
     p.drawPixmap(r.x() + (r.width() - pm.width()) / 2, r.y() + (r.height() - pm.height()) / 2, pm);
 }
 
-Q4DockWindowTitle::Q4DockWindowTitle(Q4DockWindow *tw)
+QDockWindowTitle::QDockWindowTitle(QDockWindow *tw)
     : QWidget(tw), dockwindow(tw), floatButton(0), closeButton(0), state(0)
 {
     setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
@@ -151,7 +151,7 @@ Q4DockWindowTitle::Q4DockWindowTitle(Q4DockWindow *tw)
     updateWindowTitle();
 }
 
-void Q4DockWindowTitle::styleChange(QStyle &)
+void QDockWindowTitle::styleChange(QStyle &)
 {
     box->setMargin(style().pixelMetric(QStyle::PM_DockWindowFrameWidth));
 
@@ -164,7 +164,7 @@ void Q4DockWindowTitle::styleChange(QStyle &)
         closeButton->setIcon(style().stylePixmap(QStyle::SP_TitleBarCloseButton));
 }
 
-void Q4DockWindowTitle::mousePressEvent(QMouseEvent *event)
+void QDockWindowTitle::mousePressEvent(QMouseEvent *event)
 {
     if (event->button() != LeftButton) return;
 
@@ -176,8 +176,8 @@ void Q4DockWindowTitle::mousePressEvent(QMouseEvent *event)
 
     state = new DragState;
 
-    Q4MainWindowLayout *layout =
-        qt_cast<Q4MainWindowLayout *>(dockwindow->mainWindow()->layout());
+    QMainWindowLayout *layout =
+        qt_cast<QMainWindowLayout *>(dockwindow->mainWindow()->layout());
     Q_ASSERT(layout != 0);
     layout->saveLayoutInfo();
 
@@ -203,7 +203,7 @@ void Q4DockWindowTitle::mousePressEvent(QMouseEvent *event)
     state->rubberband->show();
 }
 
-void Q4DockWindowTitle::mouseMoveEvent(QMouseEvent *event)
+void QDockWindowTitle::mouseMoveEvent(QMouseEvent *event)
 {
     if (!state) return;
 
@@ -212,7 +212,7 @@ void Q4DockWindowTitle::mouseMoveEvent(QMouseEvent *event)
     // see if there is a main window under us, and ask it to place the tool window
     QWidget *widget = QApplication::widgetAt(event->globalPos());
     if (widget) {
-	while (widget && !qt_cast<Q4MainWindow *>(widget)) {
+	while (widget && !qt_cast<QMainWindow *>(widget)) {
 	    if (widget->isTopLevel()) {
 		widget = 0;
 		break;
@@ -222,10 +222,10 @@ void Q4DockWindowTitle::mouseMoveEvent(QMouseEvent *event)
 
 	if (widget) {
 
-            Q4MainWindow *mainwindow = qt_cast<Q4MainWindow *>(widget);
+            QMainWindow *mainwindow = qt_cast<QMainWindow *>(widget);
             if (mainwindow && mainwindow == dockwindow->mainWindow()) {
-		Q4MainWindowLayout *layout =
-                    qt_cast<Q4MainWindowLayout *>(dockwindow->mainWindow()->layout());
+		QMainWindowLayout *layout =
+                    qt_cast<QMainWindowLayout *>(dockwindow->mainWindow()->layout());
                 Q_ASSERT(layout != 0);
                 QRect request = state->origin;
                 request.moveTopLeft(event->globalPos() - state->offset);
@@ -260,7 +260,7 @@ void Q4DockWindowTitle::mouseMoveEvent(QMouseEvent *event)
     state->current = target;
 }
 
-void Q4DockWindowTitle::mouseReleaseEvent(QMouseEvent *event)
+void QDockWindowTitle::mouseReleaseEvent(QMouseEvent *event)
 {
     if (event->button() != LeftButton) return;
 
@@ -268,8 +268,8 @@ void Q4DockWindowTitle::mouseReleaseEvent(QMouseEvent *event)
 
     delete state->rubberband;
 
-    Q4MainWindowLayout *layout =
-        qt_cast<Q4MainWindowLayout *>(dockwindow->mainWindow()->layout());
+    QMainWindowLayout *layout =
+        qt_cast<QMainWindowLayout *>(dockwindow->mainWindow()->layout());
     Q_ASSERT(layout != 0);
     layout->discardLayoutInfo();
 
@@ -283,7 +283,7 @@ void Q4DockWindowTitle::mouseReleaseEvent(QMouseEvent *event)
     QWidget *widget = QApplication::widgetAt(event->globalPos());
     bool dropped = false;
     if (state->canDrop && widget) {
-        while (widget && !qt_cast<Q4MainWindow *>(widget)) {
+        while (widget && !qt_cast<QMainWindow *>(widget)) {
             if (widget->isTopLevel()) {
                 widget = 0;
                 break;
@@ -292,10 +292,10 @@ void Q4DockWindowTitle::mouseReleaseEvent(QMouseEvent *event)
         }
 
         if (widget) {
-            Q4MainWindow *mainwindow = qt_cast<Q4MainWindow *>(widget);
+            QMainWindow *mainwindow = qt_cast<QMainWindow *>(widget);
             if (mainwindow && mainwindow == dockwindow->mainWindow()) {
-                Q4MainWindowLayout *layout =
-                    qt_cast<Q4MainWindowLayout *>(dockwindow->mainWindow()->layout());
+                QMainWindowLayout *layout =
+                    qt_cast<QMainWindowLayout *>(dockwindow->mainWindow()->layout());
                 Q_ASSERT(layout != 0);
                 QRect request = state->origin;
                 request.moveTopLeft(event->globalPos() - state->offset);
@@ -327,7 +327,7 @@ void Q4DockWindowTitle::mouseReleaseEvent(QMouseEvent *event)
     state = 0;
 }
 
-void Q4DockWindowTitle::paintEvent(QPaintEvent *)
+void QDockWindowTitle::paintEvent(QPaintEvent *)
 {
     // ### this should be done through the style
 
@@ -350,11 +350,11 @@ void Q4DockWindowTitle::paintEvent(QPaintEvent *)
     }
 }
 
-void Q4DockWindowTitle::updateButtons()
+void QDockWindowTitle::updateButtons()
 {
     if (dockwindow->isFloatable()) {
         if (!floatButton) {
-            floatButton = new Q4DockWindowTitleButton(this);
+            floatButton = new QDockWindowTitleButton(this);
             floatButton->setIcon(style().stylePixmap(QStyle::SP_TitleBarMaxButton));
             connect(floatButton, SIGNAL(clicked()), SLOT(toggleFloated()));
 
@@ -367,7 +367,7 @@ void Q4DockWindowTitle::updateButtons()
 
     if (dockwindow->isClosable()) {
         if (!closeButton) {
-            closeButton = new Q4DockWindowTitleButton(this);
+            closeButton = new QDockWindowTitleButton(this);
             closeButton->setIcon(style().stylePixmap(QStyle::SP_TitleBarCloseButton));
             connect(closeButton, SIGNAL(clicked()), dockwindow, SLOT(close()));
 
@@ -379,7 +379,7 @@ void Q4DockWindowTitle::updateButtons()
     }
 }
 
-void Q4DockWindowTitle::updateWindowTitle()
+void QDockWindowTitle::updateWindowTitle()
 {
     const QFontMetrics fm(font());
     spacer->changeSize(fm.width(dockwindow->windowTitle()) + box->margin() * 2, fm.lineSpacing(),
@@ -388,7 +388,7 @@ void Q4DockWindowTitle::updateWindowTitle()
     update();
 }
 
-void Q4DockWindowTitle::toggleFloated()
+void QDockWindowTitle::toggleFloated()
 {
     dockwindow->setFloated(!dockwindow->isFloated(),
                            dockwindow->mapToGlobal(QPoint(height(), height())));
@@ -402,12 +402,12 @@ void Q4DockWindowTitle::toggleFloated()
   Private class
 */
 
-class Q4DockWindowPrivate : public QFramePrivate
+class QDockWindowPrivate : public QFramePrivate
 {
-    Q_DECLARE_PUBLIC(Q4DockWindow);
+    Q_DECLARE_PUBLIC(QDockWindow);
 
     public:
-    inline Q4DockWindowPrivate(Q4MainWindow *parent)
+    inline QDockWindowPrivate(QMainWindow *parent)
 	: QFramePrivate(), mainWindow(parent), closable(true), movable(true), floatable(true),
           currentArea(Qt::DockWindowAreaLeft), allowedAreas(~0u & Qt::DockWindowAreaMask),
           grid(0), box(0), title(0)
@@ -416,7 +416,7 @@ class Q4DockWindowPrivate : public QFramePrivate
     void init();
     void place(Qt::DockWindowArea area, Qt::Orientation direction, bool extend);
 
-    Q4MainWindow *mainWindow;
+    QMainWindow *mainWindow;
 
     bool closable;
     bool movable;
@@ -426,27 +426,27 @@ class Q4DockWindowPrivate : public QFramePrivate
 
     QGridLayout *grid;
     QBoxLayout *box;
-    Q4DockWindowTitle *title;
+    QDockWindowTitle *title;
 };
 
-void Q4DockWindowPrivate::init() {
+void QDockWindowPrivate::init() {
     q->setFrameStyle(QFrame::Panel | QFrame::Raised);
 
     d->grid = new QGridLayout(q, 2, 1);
     d->grid->setMargin(2);
     d->grid->setSpacing(2);
 
-    d->title = new Q4DockWindowTitle(q);
+    d->title = new QDockWindowTitle(q);
     d->grid->addWidget(d->title, 0, 0);
 
     d->box = new QVBoxLayout(d->grid);
 }
 
-void Q4DockWindowPrivate::place(Qt::DockWindowArea area, Qt::Orientation direction, bool extend)
+void QDockWindowPrivate::place(Qt::DockWindowArea area, Qt::Orientation direction, bool extend)
 {
-    Q4MainWindowLayout *mwl = qt_cast<Q4MainWindowLayout *>(d->mainWindow->layout());
+    QMainWindowLayout *mwl = qt_cast<QMainWindowLayout *>(d->mainWindow->layout());
     Q_ASSERT(mwl != 0);
-    Q4DockWindowLayout *dwl = mwl->layoutForArea(area);
+    QDockWindowLayout *dwl = mwl->layoutForArea(area);
     Q_ASSERT(dwl != 0);
 
     if (extend)
@@ -462,58 +462,58 @@ void Q4DockWindowPrivate::place(Qt::DockWindowArea area, Qt::Orientation directi
   Tool window
  */
 
-Q4DockWindow::Q4DockWindow(Q4MainWindow *parent, WFlags flags)
-    : QFrame(*(new Q4DockWindowPrivate(parent)), parent,
+QDockWindow::QDockWindow(QMainWindow *parent, WFlags flags)
+    : QFrame(*(new QDockWindowPrivate(parent)), parent,
              flags | WStyle_Customize | WStyle_NoBorder)
 {
     d->init();
 }
 
-Q4DockWindow::Q4DockWindow(Q4MainWindow *parent, Qt::DockWindowArea area, WFlags flags)
-    : QFrame(*(new Q4DockWindowPrivate(parent)), parent,
+QDockWindow::QDockWindow(QMainWindow *parent, Qt::DockWindowArea area, WFlags flags)
+    : QFrame(*(new QDockWindowPrivate(parent)), parent,
              flags | WStyle_Customize | WStyle_NoBorder)
 {
     d->init();
     setCurrentArea(area);
 }
 
-Q4DockWindow::~Q4DockWindow()
+QDockWindow::~QDockWindow()
 { }
 
-void Q4DockWindow::setParent(Q4MainWindow *parent)
+void QDockWindow::setParent(QMainWindow *parent)
 { QFrame::setParent(parent); }
 
-Q4MainWindow *Q4DockWindow::mainWindow() const
+QMainWindow *QDockWindow::mainWindow() const
 { return d->mainWindow; }
 
-void Q4DockWindow::setClosable(bool closable)
+void QDockWindow::setClosable(bool closable)
 {
     d->closable = closable;
     d->title->updateButtons();
 }
 
-bool Q4DockWindow::isClosable() const
+bool QDockWindow::isClosable() const
 { return d->closable; }
 
-void Q4DockWindow::setMovable(bool movable)
+void QDockWindow::setMovable(bool movable)
 {
     d->movable = movable;
     d->title->updateButtons();
 }
 
-bool Q4DockWindow::isMovable() const
+bool QDockWindow::isMovable() const
 { return d->movable; }
 
-void Q4DockWindow::setFloatable(bool floatable)
+void QDockWindow::setFloatable(bool floatable)
 {
     d->floatable = floatable;
     d->title->updateButtons();
 }
 
-bool Q4DockWindow::isFloatable() const
+bool QDockWindow::isFloatable() const
 { return d->floatable; }
 
-void Q4DockWindow::setFloated(bool floated, const QPoint &pos)
+void QDockWindow::setFloated(bool floated, const QPoint &pos)
 {
     bool visible = isVisible();
 
@@ -530,23 +530,23 @@ void Q4DockWindow::setFloated(bool floated, const QPoint &pos)
         show();
 }
 
-bool Q4DockWindow::isFloated() const
+bool QDockWindow::isFloated() const
 { return isTopLevel(); }
 
-void Q4DockWindow::setAllowedAreas(Qt::DockWindowAreaFlags areas)
+void QDockWindow::setAllowedAreas(Qt::DockWindowAreaFlags areas)
 { d->allowedAreas = (areas & Qt::DockWindowAreaMask); }
 
-Qt::DockWindowAreaFlags Q4DockWindow::allowedAreas() const
+Qt::DockWindowAreaFlags QDockWindow::allowedAreas() const
 { return d->allowedAreas; }
 
-Qt::DockWindowArea Q4DockWindow::currentArea() const
+Qt::DockWindowArea QDockWindow::currentArea() const
 { return d->currentArea; }
 
 // add a window to an area using a hueristic to determine direction
-void Q4DockWindow::setCurrentArea(Qt::DockWindowArea area)
+void QDockWindow::setCurrentArea(Qt::DockWindowArea area)
 {
     Q_ASSERT_X(((d->allowedAreas & area) == area),
-               "Q4DockWindow::setCurrentArea", "specified 'area' is not an allowed area");
+               "QDockWindow::setCurrentArea", "specified 'area' is not an allowed area");
 
 #ifdef Q_WS_MAC
     extern bool qt_mac_is_macdrawer(QWidget *); //qwidget_mac.cpp
@@ -596,10 +596,10 @@ void Q4DockWindow::setCurrentArea(Qt::DockWindowArea area)
 }
 
 // add a window to an area, placing done relative to the previous
-void Q4DockWindow::setCurrentArea(Qt::DockWindowArea area, Qt::Orientation direction, bool extend)
+void QDockWindow::setCurrentArea(Qt::DockWindowArea area, Qt::Orientation direction, bool extend)
 {
     Q_ASSERT_X(((d->allowedAreas & area) == area),
-               "Q4DockWindow::setCurrentArea", "specified 'area' is not an allowed area");
+               "QDockWindow::setCurrentArea", "specified 'area' is not an allowed area");
 
     d->currentArea = area;
 
@@ -608,18 +608,18 @@ void Q4DockWindow::setCurrentArea(Qt::DockWindowArea area, Qt::Orientation direc
 }
 
 // splits the specified dockwindow
-void Q4DockWindow::setCurrentArea(Q4DockWindow *after, Qt::Orientation direction)
+void QDockWindow::setCurrentArea(QDockWindow *after, Qt::Orientation direction)
 {
     Qt::DockWindowArea area = after->currentArea();
     Q_ASSERT_X(((d->allowedAreas & area) == area),
-               "Q4DockWindow::setCurrentArea", "specified 'area' is not an allowed area");
+               "QDockWindow::setCurrentArea", "specified 'area' is not an allowed area");
 
     d->currentArea = area;
 
-    Q_ASSERT_X(false, "Q4DockWindow::place", "place after specified dock window is unimplemented");
+    Q_ASSERT_X(false, "QDockWindow::place", "place after specified dock window is unimplemented");
 }
 
-void Q4DockWindow::changeEvent(QEvent *event)
+void QDockWindow::changeEvent(QEvent *event)
 {
     switch (event->type()) {
     case QEvent::WindowTitleChange:
@@ -630,7 +630,7 @@ void Q4DockWindow::changeEvent(QEvent *event)
     }
 }
 
-void Q4DockWindow::childEvent(QChildEvent *event)
+void QDockWindow::childEvent(QChildEvent *event)
 {
     QWidget *child = qt_cast<QWidget *>(event->child());
     if (!child || child->isTopLevel()) return;
@@ -643,16 +643,16 @@ void Q4DockWindow::childEvent(QChildEvent *event)
     }
 }
 
-bool Q4DockWindow::event(QEvent *event)
+bool QDockWindow::event(QEvent *event)
 {
     switch (event->type()) {
     case QEvent::Reparent:
 	{
 	    QWidget *parent = parentWidget();
-            Q4MainWindow *mainWindow = qt_cast<Q4MainWindow *>(parent);
+            QMainWindow *mainWindow = qt_cast<QMainWindow *>(parent);
 
-	    Q_ASSERT_X(!parent || mainWindow, "Q4DockWindow::setParent",
-                       "Q4DockWindow must have Q4MainWindow as a parent");
+	    Q_ASSERT_X(!parent || mainWindow, "QDockWindow::setParent",
+                       "QDockWindow must have QMainWindow as a parent");
 
             if (mainWindow)
                 d->mainWindow = mainWindow;
