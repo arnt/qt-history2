@@ -85,28 +85,26 @@ QMakeProject::parse(QString file, QString t, QMap<QString, QStringList> &place)
 	    scope = var.stripWhiteSpace();
 	    var = "";
 
-	    if(scope_failed) 
-		continue;
-
 	    bool test = FALSE, invert_test = (scope.left(1) == "!");
 	    if(invert_test)
 		scope = scope.right(scope.length()-1);
 
 	    int lparen = scope.find('(');
 	    if(lparen != -1) { /* if there is an lparen in the scope, it IS a function */
-
-		int rparen = scope.find(')', lparen);
-		if(rparen == -1) {
-		    QCString error;
-		    error.sprintf("Function missing right paren: %s", scope.latin1());
-		    yyerror(error);
-		    return FALSE; 
+		if(!scope_failed) {
+		    int rparen = scope.find(')', lparen);
+		    if(rparen == -1) {
+			QCString error;
+			error.sprintf("Function missing right paren: %s", scope.latin1());
+			yyerror(error);
+			return FALSE; 
+		    }
+		    QString func = scope.left(lparen);
+		    QStringList args = QStringList::split(',', scope.mid(lparen+1, rparen - lparen - 1));
+		    for(QStringList::Iterator arit = args.begin(); arit != args.end(); ++arit)
+			(*arit) = (*arit).stripWhiteSpace(); /* blah, get rid of space */
+		    test = doProjectTest(func, args, place);
 		}
-		QString func = scope.left(lparen);
-		QStringList args = QStringList::split(',', scope.mid(lparen+1, rparen - lparen - 1));
-		for(QStringList::Iterator arit = args.begin(); arit != args.end(); ++arit)
-		    (*arit) = (*arit).stripWhiteSpace(); /* blah, get rid of space */
-		test = doProjectTest(func, args, place);
 	    }
 	    else test = isActiveConfig(scope.stripWhiteSpace());
 
