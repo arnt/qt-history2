@@ -1376,6 +1376,10 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 	    }
 	    p->setClipRegion( tickreg );
 	    if ( sub & SC_SliderTickmarks ) {
+		QWindowsStyle::drawComplexControl( control, p, w, r, cg, flags, sub, subActive, opt );
+		// Reenable XP style tickmarks when the
+		// styles actually have usable pixmaps!
+		/*
 		int tickOffset = pixelMetric( PM_SliderTickmarkOffset, sl );
 		int ticks = sl->tickmarks();
 		int thickness = pixelMetric( PM_SliderControlThickness, sl );
@@ -1443,6 +1447,7 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 			v += interval;
 		    }
 		}
+		*/
 	    }
 	    if ( sub & SC_SliderHandle ) {
 		theme.rec = querySubControlMetrics( CC_Slider, w, SC_SliderHandle, opt );
