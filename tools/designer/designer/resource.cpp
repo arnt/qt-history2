@@ -2508,6 +2508,9 @@ void Resource::loadExtraSource()
     }
     MetaDataBase::setFunctionBodies( formwindow, bodies, QString::null, QString::null );
 
+    MetaDataBase::removeSlot( formwindow, "init()", "protected", lang, "void" );
+    MetaDataBase::removeSlot( formwindow, "destroy()", "protected", lang, "void" );
+
     QStringList v = MetaDataBase::variables( formwindow );
     QStringList::Iterator vit;
     for ( vit = vars.begin(); vit != vars.end(); ++vit )
