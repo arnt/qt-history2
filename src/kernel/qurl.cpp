@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurl.cpp#57 $
+** $Id: //depot/qt/main/src/kernel/qurl.cpp#58 $
 **
 ** Implementation of QUrl class
 **
@@ -877,7 +877,7 @@ void QUrl::encode( QString& url )
     url = newUrl;
 }
 
-static ushort hex2int( ushort c )
+static ushort hex_to_int( ushort c )
 {
     if ( c >= 'A' && c <='F')
 	return c - 'A' + 10;
@@ -906,7 +906,7 @@ void QUrl::decode( QString& url )
     while ( i < oldlen ) {
 	ushort c = url[ i++ ].unicode();
 	if ( c == '%' ) {
-	    c = hex2int( url[ i ].unicode() ) * 16 + hex2int( url[ i + 1 ].unicode() );
+	    c = hex_to_int( url[ i ].unicode() ) * 16 + hex_to_int( url[ i + 1 ].unicode() );
 	    i += 2;
 	}
 	newUrl [ newlen++ ] = c;
