@@ -5350,6 +5350,8 @@ QTextFormat *QTextFormatCollection::format( const QFont &f, const QColor &c )
     cachedFormat = createFormat( f, c );
     cachedFormat->collection = this;
     cKey.insert( cachedFormat->key(), cachedFormat );
+    if ( cachedFormat->key() != key )
+	qAssert("keys for format not identical: '%s '%s'", cachedFormat->key().latin1(), key.latin1() );
 #ifdef DEBUG_COLLECTION
     qDebug( "format of font and col '%s' - worst case", cachedFormat->key().latin1() );
 #endif
