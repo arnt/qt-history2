@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtstream.h#10 $
+** $Id: //depot/qt/main/src/tools/qtstream.h#11 $
 **
 ** Definition of QTextStream class
 **
@@ -119,7 +119,7 @@ inline QIODevice *QTextStream::device() const
 { return dev; }
 
 inline bool QTextStream::eof() const
-{ return dev ? dev->atEnd() : TRUE; }
+{ return dev ? dev->atEnd() : FALSE; }
 
 inline long QTextStream::flags() const
 { return fflags; }
