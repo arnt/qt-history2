@@ -1,11 +1,24 @@
 #include <qmainwindow.h>
 #include <qmap.h>
 #include <qstringlist.h>
+#include <qtextbrowser.h>
 
 class ChoiceItem;
 class QListViewItem;
 class QListView;
 class QLabel;
+
+class Info : public QTextBrowser {
+    Q_OBJECT
+public:
+    Info( QWidget* Q_PARENT, const char* Q_NAME );
+
+signals:
+    void idClicked(const QString& name);
+
+public slots:
+    void setSource(const QString& name);
+};
 
 class Main : public QMainWindow {
     Q_OBJECT
@@ -26,11 +39,12 @@ private:
     QMap<QString,QListViewItem*> sectionitem;
     QStringList choices;
     QListView* lv;
-    QLabel* info;
+    QTextBrowser* info;
 
 private slots:
     void updateAvailability(QListViewItem* i);
     void showInfo(QListViewItem* i);
+    void selectId(const QString&);
     void open();
     void save();
     void testAll();

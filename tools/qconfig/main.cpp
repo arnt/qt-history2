@@ -10,6 +10,7 @@
 #include <qmessagebox.h>
 #include <qpopupmenu.h>
 #include <qmenubar.h>
+#include <qtoolbutton.h>
 #include <qstatusbar.h>
 #include <qsplitter.h>
 #include <qregexp.h>
@@ -21,6 +22,55 @@
 
 
 #define FIXED_LAYOUT
+
+static const char*back_xpm[]={
+"16 16 5 1",
+"# c #000000",
+"a c #ffffff",
+"c c #808080",
+"b c #c0c0c0",
+". c None",
+"................",
+".......#........",
+"......##........",
+".....#a#........",
+"....#aa########.",
+"...#aabaaaaaaa#.",
+"..#aabbbbbbbbb#.",
+"...#abbbbbbbbb#.",
+"...c#ab########.",
+"....c#a#ccccccc.",
+".....c##c.......",
+"......c#c.......",
+".......cc.......",
+"........c.......",
+"................",
+"......................"};
+
+static const char*forward_xpm[]={
+"16 16 5 1",
+"# c #000000",
+"a c #ffffff",
+"c c #808080",
+"b c #c0c0c0",
+". c None",
+"................",
+"................",
+".........#......",
+".........##.....",
+".........#a#....",
+"..########aa#...",
+"..#aaaaaaabaa#..",
+"..#bbbbbbbbbaa#.",
+"..#bbbbbbbbba#..",
+"..########ba#c..",
+"..ccccccc#a#c...",
+"........c##c....",
+"........c#c.....",
+"........cc......",
+"........c.......",
+"................",
+"................"};
 
 class ChoiceItem : public QCheckListItem {
 public:
@@ -53,6 +103,7 @@ public:
     {
 	QCheckListItem::setOn(y);
 	setOpen(y);
+/*
 	for (QListViewItem* i=firstChild(); i; i = i->nextSibling() ) {
 	    ChoiceItem* ci = (ChoiceItem*)i; // all are ChoiceItem
 	    if ( ci->isSelectable() != y ) {
@@ -60,6 +111,7 @@ public:
 		listView()->repaintItem(ci);
 	    }
 	}
+*/
     }
 
     void paintBranches( QPainter * p, const QColorGroup & cg,
@@ -71,13 +123,9 @@ public:
     void paintCell( QPainter * p, const QColorGroup & cg,
                                int column, int width, int align )
     {
-	if ( !isSelectable() ) {
+	if ( !isSelectable() || !isAvailable() ) {
 	    QColorGroup c = cg;
-	    c.setColor(QColorGroup::Text, gray);
-	    QCheckListItem::paintCell(p,c,column,width,align);
-	} else if ( !isAvailable() ) {
-	    QColorGroup c = cg;
-	    c.setColor(QColorGroup::Text, darkGray);
+	    c.setColor(QColorGroup::Text, lightGray);
 	    QCheckListItem::paintCell(p,c,column,width,align);
 	} else {
 	    QCheckListItem::paintCell(p,cg,column,width,align);
@@ -116,11 +164,14 @@ Main::Main()
     lv->setRootIsDecorated(TRUE);
     lv->addColumn("ID");
 
-    info = new QLabel(horizontal);
+    info = new Info(horizontal);
     info->setBackgroundMode(PaletteBase);
     info->setMargin(10);
     info->setFrameStyle(QFrame::WinPanel|QFrame::Sunken);
     info->setAlignment(AlignTop);
+
+    connect(info, SIGNAL(idClicked(const QString&)),
+	    this, SLOT(selectId(const QString&)));
 
 #ifdef FIXED_LAYOUT
     horizontal->setStretchFactor(info,2);
@@ -132,6 +183,13 @@ Main::Main()
 	    this, SLOT(showInfo(QListViewItem*)));
 
     setCentralWidget(horizontal);
+
+    QToolBar* tb = new QToolBar( this, "browser controls" );
+    tb->setLabel( "Browser Controls" );
+    (void)new QToolButton( QPixmap(back_xpm), "Back", QString::null,
+                           info, SLOT(back()), tb, "back" );
+    (void)new QToolButton( QPixmap(forward_xpm), "Forward", QString::null,
+                           info, SLOT(forward()), tb, "forward" );
 
     QPopupMenu* file = new QPopupMenu( menuBar() );
     file->insertItem( "&Open",  this, SLOT(open()), CTRL+Key_O );
@@ -446,6 +504,8 @@ qDebug("%s: %d",choice->id.latin1(),choice->isAvailable());
 
 void Main::showInfo(QListViewItem* i)
 {
+    if ( !i )
+	return;
     if ( !i->parent() ) {
 	// section. do nothing for now
     } else {
@@ -462,7 +522,7 @@ void Main::showInfo(QListViewItem* i)
 		    bool got = d->isAvailable() && !d->isDefined();
 		    i += "<li>";
 		    if ( !got ) i += "<font color=red>";
-		    i += d->label;
+		    i += "<a href=id://"+d->id+">"+d->label+"</a>";
 		    if ( !got ) i += "</font>";
 		}
 	    }
@@ -476,7 +536,7 @@ void Main::showInfo(QListViewItem* i)
 	    {
 		ChoiceItem* d = item[*it];
 		if ( d )
-		    i += "<li>"+d->label;
+		    i += "<li><a href=id://"+d->id+">"+d->label+"</a>";
 	    }
 	    i += "</ul>";
 	}
@@ -484,6 +544,28 @@ void Main::showInfo(QListViewItem* i)
     }
 }
 
+void Main::selectId(const QString& id)
+{
+    QListViewItem* it = item[id];
+    if ( it ) {
+	lv->setSelected(it,TRUE);
+	lv->ensureItemVisible(it);
+    }
+}
+
+Info::Info( QWidget* parent, const char* name ) : 
+    QTextBrowser(parent, name)
+{
+}
+
+void Info::setSource(const QString& name)
+{
+    if ( name.left(5) == "id://" ) {
+	emit idClicked(name.mid(5,name.length()-6)); // skip trailing "/" too
+    } else {
+	QTextBrowser::setSource(name);
+    }
+}
 
 int main(int argc, char** argv)
 {
@@ -508,3 +590,4 @@ int main(int argc, char** argv)
     m.show();
     return app.exec();
 }
+
