@@ -55,6 +55,7 @@
 #include <qlabel.h>
 #include <qwizard.h>
 #include <qtextcodec.h>
+#include <qregexp.h>
 #include <zlib.h>
 
 static QString makeIndent( int indent )

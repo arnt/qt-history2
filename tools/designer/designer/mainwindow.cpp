@@ -92,6 +92,7 @@
 #include <qlistbox.h>
 #include <stdlib.h>
 #include <qdockwidget.h>
+#include <qregexp.h>
 
 static int forms = 0;
 
