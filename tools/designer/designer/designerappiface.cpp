@@ -286,6 +286,16 @@ void DesignerProjectImpl::breakPoints( QMap<QString, QValueList<int> > &bps ) co
     }
 }
 
+QString DesignerProjectImpl::breakPointCondition( QObject *o, int line ) const
+{
+    return MetaDataBase::breakPointCondition( MainWindow::self->findRealObject( o ), line );
+}
+
+void DesignerProjectImpl::setBreakPointCondition( QObject *o, int line, const QString &condition )
+{
+    MetaDataBase::setBreakPointCondition( MainWindow::self->findRealObject( o ), line, condition );
+}
+
 void DesignerProjectImpl::clearAllBreakpoints() const
 {
     QValueList<int> empty;

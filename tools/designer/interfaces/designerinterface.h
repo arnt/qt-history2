@@ -109,6 +109,8 @@ struct DesignerProject
     virtual QString customSetting( const QString &key ) const = 0;
     virtual DesignerPixmapCollection *pixmapCollection() const = 0;
     virtual void breakPoints( QMap<QString, QValueList<int> > &bps ) const = 0;
+    virtual QString breakPointCondition( QObject *o, int line ) const = 0;
+    virtual void setBreakPointCondition( QObject *o, int line, const QString &condition ) = 0;
     virtual void clearAllBreakpoints() const = 0;
     virtual void setIncludePath( const QString &platform, const QString &path ) = 0;
     virtual void setLibs( const QString &platform, const QString &path ) = 0;

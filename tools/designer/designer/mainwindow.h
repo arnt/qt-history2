@@ -168,6 +168,7 @@ public:
     void createNewProject( const QString &lang );
 
     void popupProjectMenu( const QPoint &pos );
+    QObject *findRealObject( QObject *o );
 
 public slots:
     void showProperties( QObject *w );

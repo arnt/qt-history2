@@ -3166,6 +3166,22 @@ QWidget *MainWindow::findRealForm( QWidget *wid )
     return 0;
 }
 
+QObject *MainWindow::findRealObject( QObject *o )
+{
+    QWidgetList windows = qWorkspace()->windowList();
+    for ( QWidget *w = windows.first(); w; w = windows.next() ) {
+	if ( w->inherits( "FormWindow" ) && QString( w->name() ) == QString( o->name() ) )
+	    return w;
+	else if ( w->inherits( "SourceEditor" ) && ( (SourceEditor*)w )->formWindow() &&
+		  QString( ( (SourceEditor*)w )->formWindow()->name() ) == QString( o->name() ) )
+	    return w;
+	else if ( w->inherits( "SourceFile" ) && ( (SourceEditor*)w )->sourceFile() &&
+		  ( (SourceEditor*)w )->sourceFile() == o )
+	    return o;
+    }
+    return 0;
+}
+
 void MainWindow::formNameChanged( FormWindow *fw )
 {
     for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() ) {

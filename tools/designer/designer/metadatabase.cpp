@@ -81,6 +81,7 @@ public:
     QMap<QString, QString> functionBodies;
     QMap<QString, QString> functionComments;
     QValueList<int> breakPoints;
+    QMap<int, QString> breakPointConditions;
     QString exportMacro;
 };
 
@@ -1534,6 +1535,14 @@ void MetaDataBase::setBreakPoints( QObject *o, const QValueList<int> &l )
     }
 
     r->breakPoints = l;
+
+    QMap<int, QString>::Iterator it = r->breakPointConditions.begin();
+    while ( it != r->breakPointConditions.end() ) {
+	int line = it.key();
+	++it;
+	if ( r->breakPoints.find( line ) == r->breakPoints.end() )
+	    r->breakPointConditions.remove( r->breakPointConditions.find( line ) );
+    }
 }
 
 QValueList<int> MetaDataBase::breakPoints( QObject *o )
@@ -1549,6 +1558,37 @@ QValueList<int> MetaDataBase::breakPoints( QObject *o )
     }
 
     return r->breakPoints;
+}
+
+void MetaDataBase::setBreakPointCondition( QObject *o, int line, const QString &condition )
+{
+    if ( !o )
+	return;
+    setupDataBase();
+    MetaDataBaseRecord *r = db->find( (void*)o );
+    if ( !r ) {
+	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
+		  o, o->name(), o->className() );
+	return;
+    }
+    r->breakPointConditions.replace( line, condition );
+}
+
+QString MetaDataBase::breakPointCondition( QObject *o, int line )
+{
+    if ( !o )
+	return QString::null;
+    setupDataBase();
+    MetaDataBaseRecord *r = db->find( (void*)o );
+    if ( !r ) {
+	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
+		  o, o->name(), o->className() );
+	return QString::null;
+    }
+    QMap<int, QString>::Iterator it = r->breakPointConditions.find( line );
+    if ( it == r->breakPointConditions.end() )
+	return QString::null;
+    return *it;
 }
 
 bool MetaDataBase::hasEventFunctions( QObject *o )
