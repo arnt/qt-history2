@@ -3347,7 +3347,8 @@ bool QTable::eventFilter( QObject *o, QEvent *e )
 		return TRUE;
 	    }
 
-	    if ( ke->key() == Key_Return || ke->key() == Key_Enter ) {
+	    if ( ( ke->state() == NoButton || ke->state() == Keypad )
+		&& ( ke->key() == Key_Return || ke->key() == Key_Enter ) ) {
 		if ( !itm || itm->editType() == QTableItem::OnTyping )
 		    endEdit( editRow, editCol, TRUE, edMode != Editing );
 		activateNextCell();
