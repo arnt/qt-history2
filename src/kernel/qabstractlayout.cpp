@@ -1304,82 +1304,134 @@ taller than the sizeHint().
   treated by the \link QLayout layout engine\endlink.
 
   If \a hfw is TRUE, the preferred height of the widget is dependent on the
-  width of the widget (for example, a QLabel with automatic word-breaking).
+  width of the widget (for example, a QLabel with line wrapping).
+
+  \sa horData() verData() hasHeightForWidth()
+*/
+
+/*!
+  \fn QSizePolicy::QSizePolicy( SizeType hor, SizeType ver,
+				uchar horStretch, uchar verStretch,
+				bool hfw )
+
+  Constructs a QSizePolicy with independent horizontal and vertical
+  sizing types \a hor and \a ver, and stretch factors \a horStretch
+  and \a verStretch.
+
+  If \a hfw is TRUE, the preferred height of the widget is dependent on the
+  width of the widget.
+
+  \sa horStretch() verStretch()
 */
 
 /*! \fn QSizePolicy::SizeType QSizePolicy::horData() const
 Returns the horizontal component of the size policy.
+
+  \sa setHorData() verData() horStretch()
 */
 
 /*! \fn QSizePolicy::SizeType QSizePolicy::verData() const
 Returns the vertical component of the size policy.
+
+  \sa setVerData() horData() verStretch()
 */
 
 /*! \fn bool QSizePolicy::mayShrinkHorizontally() const
 Returns TRUE if the widget can sensibly be narrower than its
 sizeHint(); otherwise returns FALSE.
+
+  \sa mayShrinkVertically() mayGrowHorizontally()
 */
 
 /*! \fn bool QSizePolicy::mayShrinkVertically() const
 Returns TRUE if the widget can sensibly be shorter than its sizeHint();
 otherwise returns FALSE.
+
+  \sa mayShrinkHorizontally() mayGrowVertically()
 */
 
 /*! \fn bool QSizePolicy::mayGrowHorizontally() const
 Returns TRUE if the widget can sensibly be wider than its sizeHint();
 otherwise returns FALSE.
+
+  \sa mayGrowVectically() mayShrinkHorizontally()
 */
 
 /*! \fn bool QSizePolicy::mayGrowVertically() const
 Returns TRUE if the widget can sensibly be taller than its sizeHint();
 otherwise returns FALSE.
+
+  \sa mayGrowHorizontally() mayShrinkVertically()
 */
 
 /*! \fn QSizePolicy::ExpandData QSizePolicy::expanding() const
 Returns a value indicating whether the widget can make use of extra space
 (i.e. if it "wants" to grow) horizontally and/or vertically.
+
+  \sa mayShrinkHorizontally() mayGrowHorizontally()
+      mayShrinkVertically() mayGrowVertically()
 */
 
 /*! \fn void QSizePolicy::setHorData( SizeType d )
 Sets the horizontal component of the size policy to size type \a d.
+
+  \sa horData() setVerData()
 */
 
 /*! \fn void QSizePolicy::setVerData( SizeType d )
 Sets the vertical component of the size policy to size type \a d.
+
+  \sa verData() setHorData()
 */
 
 /*! \fn bool QSizePolicy::hasHeightForWidth() const
 Returns TRUE if the widget's preferred height depends on its width;
 otherwise returns FALSE.
+
+  \sa setHeightForWidth()
 */
 
 /*! \fn void QSizePolicy::setHeightForWidth( bool b )
 Sets the hasHeightForWidth() flag to \a b.
+
+  \sa hasHeightForWidth()
 */
 
 /*! \fn uint QSizePolicy::horStretch() const
 Returns the horizontal stretch factor of the size policy.
+
+  \sa setHorStretch() verStretch()
 */
 
 /*! \fn uint QSizePolicy::verStretch() const
 Returns the vertical stretch factor of the size policy.
+
+  \sa setVerStretch() horStretch()
 */
 
 /*! \fn void QSizePolicy::setHorStretch( uchar sf )
 Sets the horizontal stretch factor of the size policy to \a sf.
+
+  \sa horStretch() setVerStretch()
 */
 
 /*! \fn void QSizePolicy::setVerStretch( uchar sf )
 Sets the vertical stretch factor of the size policy to \a sf.
+
+  \sa verStretch() setHorStretch()
 */
 
 
 /*! \fn bool QSizePolicy::operator==( const QSizePolicy &s ) const
   Returns TRUE if this policy is equal to \a s; otherwise returns FALSE.
+
+  \sa operator!=()
 */
 
 /*! \fn bool QSizePolicy::operator!=( const QSizePolicy &s ) const
   Returns TRUE if this policy is different from \a s; otherwise returns FALSE.
+
+  \sa operator==()
 */
 
 /*!
