@@ -820,6 +820,7 @@ int QToolButton::popupDelay() const
 
     \value InstantPopup The menu is displayed, without delay, when
     the tool button is pressed. In this mode, the button's own action
+    is not triggered.
 */
 
 /*!
