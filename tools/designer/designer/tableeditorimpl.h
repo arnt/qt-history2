@@ -30,6 +30,10 @@ protected slots:
     void rowTextChanged( const QString & );
     void rowUpClicked();
     void applyClicked();
+    void chooseRowPixmapClicked();
+    void deleteRowPixmapClicked();
+    void chooseColPixmapClicked();
+    void deleteColPixmapClicked();
 
 private:
     QTable *editTable;

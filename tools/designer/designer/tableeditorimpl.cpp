@@ -128,3 +128,18 @@ void TableEditor::applyClicked()
     qWarning( "TableEditor::applyClicked() not yet implemented!" );
 }
 
+void TableEditor::chooseRowPixmapClicked()
+{
+}
+
+void TableEditor::deleteRowPixmapClicked()
+{
+}
+
+void TableEditor::chooseColPixmapClicked()
+{
+}
+
+void TableEditor::deleteColPixmapClicked()
+{
+}
