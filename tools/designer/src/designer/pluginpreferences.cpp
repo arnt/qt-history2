@@ -124,7 +124,7 @@ void PluginPreferenceWidget::handleItemChanged(QTreeWidgetItem *item, int column
 {
     if (!item || column != 0)
         return;
-    emit setPluginPathEnabled(item->text(2) + "/" + item->text(1), item->checkedState(0) == QCheckBox::On);
+    emit setPluginPathEnabled(item->text(2) + "/" + item->text(1), item->checkState(0) == Qt::Checked);
 }
 
 void PluginPreferenceWidget::changeButtonStatus(QTreeWidgetItem *item)
