@@ -1535,7 +1535,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
     border of the window. If \a h is negative, the function copies
     everything to the bottom of the window.
 
-    Note that grabWindows() grabs pixels from the screen, not from the
+    Note that grabWindow() grabs pixels from the screen, not from the
     window. If there is another window partially or entirely over the
     one you grab, you get pixels from the overlying window, too.
 
@@ -1553,25 +1553,37 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 
 QPixmap QPixmap::grabWindow( WId window, int x, int y, int w, int h )
 {
+    if ( w == 0 || h == 0 )
+	return QPixmap();
+
     Display *dpy = x11AppDisplay();
-    if ( w <= 0 || h <= 0 ) {
-	if ( w == 0 || h == 0 ) {
-	    QPixmap nullPixmap;
-	    return nullPixmap;
-	}
-	XWindowAttributes a;
-	XGetWindowAttributes( dpy, window, &a );
-	if ( w < 0 )
-	    w = a.width - x;
-	if ( h < 0 )
-	    h = a.height - y;
+    XWindowAttributes a;
+    if ( ! XGetWindowAttributes( dpy, window, &a ) )
+	return QPixmap();
+
+    if ( w < 0 )
+	w = a.width - x;
+    if ( h < 0 )
+	h = a.height - y;
+
+    // determine the screen
+    int scr;
+    for ( scr = 0; scr < ScreenCount( dpy ); ++scr ) {
+	if ( a.root == RootWindow( dpy, scr ) )	// found it
+	    break;
     }
+    if ( scr >= ScreenCount( dpy ) )		// sanity check
+	return QPixmap();
+
     QPixmap pm( w, h );				// create new pixmap
     pm.data->uninit = FALSE;
-    GC gc = qt_xget_temp_gc( QPaintDevice::x11AppScreen(), FALSE );
+    pm.x11SetScreen( scr );
+
+    GC gc = qt_xget_temp_gc( scr, FALSE );
     XSetSubwindowMode( dpy, gc, IncludeInferiors );
     XCopyArea( dpy, window, pm.handle(), gc, x, y, w, h, 0, 0 );
     XSetSubwindowMode( dpy, gc, ClipByChildren );
+
     return pm;
 }
 
