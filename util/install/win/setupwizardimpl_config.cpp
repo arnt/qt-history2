@@ -477,26 +477,26 @@ void SetupWizardImpl::prepareEnvironment()
 
 	    // Adding
 	    QStringList path = QStringList::split( ';', QEnvironment::getEnv( "PATH", envSpec ) );
-	    path.prepend( FrameworkSDKDir + "\\bin" );
-	    path.prepend( VS7CommonBinDir + "\\bin" );
-	    path.prepend( VS7CommonBinDir + "\\bin\\prerelease" );
+	    path.prepend( FrameworkSDKDir + "bin" );
+	    path.prepend( VS7CommonBinDir + "bin" );
+	    path.prepend( VS7CommonBinDir + "bin\\prerelease" );
 	    path.prepend( VS7CommonBinDir );
-	    path.prepend( MSVCDir + "\\Bin" );
+	    path.prepend( MSVCDir + "Bin" );
 	    path.prepend( devEnvDir );
 
 	    QStringList incl = QStringList::split( ';', QEnvironment::getEnv( "INCLUDE", envSpec ) );
-	    incl.prepend( FrameworkSDKDir + "\\include" );
-	    incl.prepend( MSVCDir + "\\PlatformSDK\\include" );
-	    incl.prepend( MSVCDir + "\\PlatformSDK\\include\\prerelease" );
-	    incl.prepend( MSVCDir + "\\Include" );
-	    incl.prepend( MSVCDir + "\\ATLMFC\\INCLUDE" );
+	    incl.prepend( FrameworkSDKDir + "include" );
+	    incl.prepend( MSVCDir + "PlatformSDK\\include" );
+	    incl.prepend( MSVCDir + "PlatformSDK\\include\\prerelease" );
+	    incl.prepend( MSVCDir + "Include" );
+	    incl.prepend( MSVCDir + "ATLMFC\\INCLUDE" );
 
 	    QStringList lib = QStringList::split( ';', QEnvironment::getEnv( "LIB", envSpec ) );
-	    lib.prepend( FrameworkSDKDir + "\\lib" );
-	    lib.prepend( MSVCDir + "\\PlatformSDK\\lib" );
-	    lib.prepend( MSVCDir + "\\PlatformSDK\\lib\\prerelease" );
-	    lib.prepend( MSVCDir + "\\LIB" );
-	    lib.prepend( MSVCDir + "\\ATLMFC\\LIB" );
+	    lib.prepend( FrameworkSDKDir + "lib" );
+	    lib.prepend( MSVCDir + "PlatformSDK\\lib" );
+	    lib.prepend( MSVCDir + "PlatformSDK\\lib\\prerelease" );
+	    lib.prepend( MSVCDir + "LIB" );
+	    lib.prepend( MSVCDir + "ATLMFC\\LIB" );
 
 	    // Commiting
 	    QEnvironment::putEnv( "VSINSTALLDIR", vsInstallDir, envSpec );
