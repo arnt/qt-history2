@@ -692,11 +692,11 @@ QTextFrame::iterator QTextFrame::iterator::operator--()
 
     \ingroup text
 
-    A QTextBlock is an object that provides read-only access to the
-    block/paragraph structure of QTextDocuments. It is mainly
-    of use if you want to implement your own layouts for the
-    visual representation of a QTextDocument, or if you want to
-    iterate over a document and write the contents in your own custom
+    A text block encapsulates a block or paragraph of text in a QTextDocument.
+    QTextBlock provides read-only access to the block/paragraph structure of
+    QTextDocuments. It is mainly of use if you want to implement your own
+    layouts for the visual representation of a QTextDocument, or if you want to
+    iterate over a document and write out the contents in your own custom
     format.
 
     Text blocks are created by their parent documents. If you need to create

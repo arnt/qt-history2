@@ -32,6 +32,10 @@
     The table orders cells into particular rows and columns; cells can
     also span multiple columns and rows.
 
+    Cells are usually created when a table is inserted into a document with
+    QTextCursor::insertTable(), but they are also created and destroyed when
+    a table is resized.
+
     Cells contain information about their location in a table; you can
     obtain the row() and column() numbers of a cell, and its rowSpan()
     and columnSpan(). 
@@ -359,15 +363,29 @@ void QTextTablePrivate::update() const
     \ingroup text
 
     A table is a group of cells ordered into rows and columns. Each table
-    contains at least one row and one column. Each cell contains a block.
+    contains at least one row and one column. Each cell contains a block, and
+    is surrounded by a frame.
 
-    Tables can be created and inserted into a document with the
-    QTextCursor::createTable() function. The table currently being edited by
-    the cursor is found with QTextCursor::currentTable().
+    Tables are usually created and inserted into a document with the
+    QTextCursor::insertTable() function.
+    For example, we can insert a table with three rows and two columns at the
+    current cursor position in an editor using the following lines of code:
+
+    \quotefromfile snippets/textdocument-tables
+    \skipto QTextCursor cursor(editor
+    \printuntil cursor.movePosition(QTextCursor::Start);
+    \skipto QTextTable *table = cursor
+    \printuntil QTextTable *table = cursor
+
+    The table format is either defined when the table is created or changed
+    later with setFormat().
+
+    The table currently being edited by the cursor is found with
+    QTextCursor::currentTable(). This allows its format or dimensions to be
+    changed after it has been inserted into a document.
 
     A table's size can be changed with resize(), or by using
     insertRows(), insertColumns(), removeRows(), or removeColumns().
-    The overall format of the table can be changed with setFormat().
     Use cellAt() to retrieve table cells.
 
     The starting and ending positions of table rows can be found by moving
