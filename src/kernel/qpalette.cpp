@@ -69,7 +69,6 @@
     \sa QColor QPalette QWidget::colorGroup()
 */
 
-
 /*!
     \enum QColorGroup::ColorRole
 
@@ -144,48 +143,31 @@
     \img palette.png Color Roles
 */
 
+QColorGroup::QColorGroupData *QColorGroup::shared_default = 0;
 
-class QColorGroupPrivate : public QShared
-{
-public:
-    QBrush br[QColorGroup::NColorRoles];
-    QColorGroupPrivate* detach() {
-	if ( count > 1 ) {
-	    deref();
-	    QColorGroupPrivate* d = new QColorGroupPrivate;
-	    for (int i=0; i<QColorGroup::NColorRoles; i++)
-		d->br[i] = br[i];
-	    return d;
-	}
-	return this;
-    }
-};
 
 /*!
     Constructs a color group with all colors set to black.
 */
-
 QColorGroup::QColorGroup()
 {
-    static QColorGroupPrivate* defColorGroupData = 0;
-    if ( !defColorGroupData ) {
-	static QSharedCleanupHandler<QColorGroupPrivate> defColorGroupCleanup;
-	defColorGroupData = new QColorGroupPrivate;
-	defColorGroupCleanup.set( &defColorGroupData );
+    if (!shared_default) {
+	static QCleanupHandler<QColorGroup::QColorGroupData> defColorGroupCleanup;
+	shared_default = new QColorGroupData;
+	shared_default->ref = 1;
+	defColorGroupCleanup.add(&shared_default);
     }
-    d = defColorGroupData;
-    br = d->br;
-    d->ref();
+    d = shared_default;
+    ++d->ref;
 }
 
 /*!
     Constructs a color group that is an independent copy of \a other.
 */
-QColorGroup::QColorGroup( const QColorGroup& other )
+QColorGroup::QColorGroup(const QColorGroup &other)
 {
     d = other.d;
-    d->ref();
-    br = d->br;
+    ++d->ref;
 }
 
 /*!
@@ -193,19 +175,17 @@ QColorGroup::QColorGroup( const QColorGroup& other )
 */
 QColorGroup& QColorGroup::operator =(const QColorGroup& other)
 {
-    if ( d != other.d ) {
-	if ( d->deref() )
-	    delete d;
-	d = other.d;
-	br = d->br;
-	d->ref();
-    }
+    QColorGroupData *x = other.d;
+    ++x->ref;
+    x = qAtomicSetPtr(&d, x);
+    if (!--x->ref)
+	delete x;
     return *this;
 }
 
-static QColor qt_mix_colors( QColor a, QColor b)
+static QColor qt_mix_colors(const QColor &a, const QColor &b)
 {
-    return QColor( (a.red() + b.red()) / 2, (a.green() + b.green()) / 2, (a.blue() + b.blue()) / 2 );
+    return QColor((a.red() + b.red()) / 2, (a.green() + b.green()) / 2, (a.blue() + b.blue()) / 2);
 }
 
 
@@ -216,30 +196,30 @@ static QColor qt_mix_colors( QColor a, QColor b)
 
     \sa QBrush
 */
- QColorGroup::QColorGroup( const QBrush &foreground, const QBrush &button,
-			   const QBrush &light, const QBrush &dark,
-			   const QBrush &mid, const QBrush &text,
-			   const QBrush &bright_text, const QBrush &base,
-			   const QBrush &background)
+ QColorGroup::QColorGroup(const QBrush &foreground, const QBrush &button,
+			  const QBrush &light, const QBrush &dark,
+			  const QBrush &mid, const QBrush &text,
+			  const QBrush &bright_text, const QBrush &base,
+			  const QBrush &background)
 {
-    d = new QColorGroupPrivate;
-    br = d->br;
-    br[Foreground]      = foreground;
-    br[Button]		= button;
-    br[Light]		= light;
-    br[Dark]		= dark;
-    br[Mid]		= mid;
-    br[Text]		= text;
-    br[BrightText]	= bright_text;
-    br[ButtonText]	= text;
-    br[Base]		= base;
-    br[Background]	= background;
-    br[Midlight]	= qt_mix_colors( br[Button].color(), br[Light].color() );
-    br[Shadow]          = Qt::black;
-    br[Highlight]       = Qt::darkBlue;
-    br[HighlightedText] = Qt::white;
-    br[Link]            = Qt::blue;
-    br[LinkVisited]     = Qt::magenta;
+    d = new QColorGroupData;
+    d->ref = 1;
+    d->br[Foreground] = foreground;
+    d->br[Button] = button;
+    d->br[Light] = light;
+    d->br[Dark] = dark;
+    d->br[Mid] = mid;
+    d->br[Text] = text;
+    d->br[BrightText] = bright_text;
+    d->br[ButtonText] = text;
+    d->br[Base] = base;
+    d->br[Background] = background;
+    d->br[Midlight] = qt_mix_colors(d->br[Button].color(), d->br[Light].color());
+    d->br[Shadow] = Qt::black;
+    d->br[Highlight] = Qt::darkBlue;
+    d->br[HighlightedText] = Qt::white;
+    d->br[Link] = Qt::blue;
+    d->br[LinkVisited] = Qt::magenta;
 }
 
 
@@ -248,82 +228,69 @@ static QColor qt_mix_colors( QColor a, QColor b)
   Constructs a color group with the specified colors. The button
   color will be set to the background color.
 */
-
-QColorGroup::QColorGroup( const QColor &foreground, const QColor &background,
-			  const QColor &light, const QColor &dark,
-			  const QColor &mid,
-			  const QColor &text, const QColor &base )
+QColorGroup::QColorGroup(const QColor &foreground, const QColor &background,
+			 const QColor &light, const QColor &dark,
+			 const QColor &mid, const QColor &text, const QColor &base)
 {
-    d = new QColorGroupPrivate;
-    br = d->br;
-    br[Foreground]      = QBrush(foreground);
-    br[Button]          = QBrush(background);
-    br[Light]           = QBrush(light);
-    br[Dark]            = QBrush(dark);
-    br[Mid]             = QBrush(mid);
-    br[Text]            = QBrush(text);
-    br[BrightText]      = br[Light];
-    br[ButtonText]      = br[Text];
-    br[Base]            = QBrush(base);
-    br[Background]      = QBrush(background);
-    br[Midlight]	= qt_mix_colors( br[Button].color(), br[Light].color() );
-    br[Shadow]          = Qt::black;
-    br[Highlight]       = Qt::darkBlue;
-    br[HighlightedText] = Qt::white;
-    br[Link]            = Qt::blue;
-    br[LinkVisited]     = Qt::magenta;
+    d = new QColorGroupData;
+    d->ref = 1;
+    d->br[Foreground] = QBrush(foreground);
+    d->br[Button] = QBrush(background);
+    d->br[Light] = QBrush(light);
+    d->br[Dark] = QBrush(dark);
+    d->br[Mid] = QBrush(mid);
+    d->br[Text] = QBrush(text);
+    d->br[BrightText] = d->br[Light];
+    d->br[ButtonText] = d->br[Text];
+    d->br[Base] = QBrush(base);
+    d->br[Background] = QBrush(background);
+    d->br[Midlight] = qt_mix_colors(d->br[Button].color(), d->br[Light].color());
+    d->br[Shadow] = Qt::black;
+    d->br[Highlight] = Qt::darkBlue;
+    d->br[HighlightedText] = Qt::white;
+    d->br[Link] = Qt::blue;
+    d->br[LinkVisited] = Qt::magenta;
 }
 
 /*!
     Destroys the color group.
 */
-
 QColorGroup::~QColorGroup()
 {
-    if ( d->deref() )
+    if (!--d->ref)
 	delete d;
 }
 
 /*!
+   \fn const QColor &QColorGroup::color( ColorRole r ) const
     Returns the color that has been set for color role \a r.
 
     \sa brush() ColorRole
  */
-const QColor &QColorGroup::color( ColorRole r ) const
-{
-    return br[r].color();
-}
 
 /*!
+    \fn const QBrush &QColorGroup::brush( ColorRole r ) const
     Returns the brush that has been set for color role \a r.
 
     \sa color() setBrush() ColorRole
 */
-const QBrush &QColorGroup::brush( ColorRole r ) const
-{
-    return br[r];
-}
 
 /*!
+    \fn void QColorGroup::setColor( ColorRole r, const QColor &c )
     Sets the brush used for color role \a r to a solid color \a c.
 
     \sa brush() setColor() ColorRole
 */
-void QColorGroup::setColor( ColorRole r, const QColor &c )
-{
-    setBrush( r, QBrush(c) );
-}
 
 /*!
     Sets the brush used for color role \a r to \a b.
 
     \sa brush() setColor() ColorRole
 */
-void QColorGroup::setBrush( ColorRole r, const QBrush &b )
+void QColorGroup::setBrush(ColorRole r, const QBrush &b)
 {
-    d = d->detach();
-    br = d->br;
-    br[r] = b;
+    detach();
+    d->br[r] = b;
 }
 
 
@@ -461,27 +428,35 @@ void QColorGroup::setBrush( ColorRole r, const QBrush &b )
     Returns TRUE if this color group is different from \a g; otherwise
     returns  FALSE.
 
-    \sa operator!=()
+    \sa operator==()
 */
 
 /*!
     Returns TRUE if this color group is equal to \a g; otherwise
     returns FALSE.
 
-    \sa operator==()
+    \sa operator!=()
 */
-
 bool QColorGroup::operator==( const QColorGroup &g ) const
 {
     if ( d == g.d )
-	return TRUE;
-    for( int r = 0 ; r < NColorRoles ; r++ )
-	if ( br[r] != g.br[r] )
-	    return FALSE;
-    return TRUE;
+	return true;
+    for (int r = 0; r < NColorRoles; ++r)
+	if (d->br[r] != g.d->br[r])
+	    return false;
+    return true;
 }
 
-
+void QColorGroup::detach_helper()
+{
+    QColorGroupData *x = new QColorGroupData;
+    x->ref = 1;
+    for (int i = 0; i < NColorRoles; ++i)
+	x->br[i] = d->br[i];
+    x = qAtomicSetPtr(&d, x);
+    if (!--x->ref)
+	delete x;
+}
 /*****************************************************************************
   QPalette member functions
  *****************************************************************************/
@@ -566,24 +541,24 @@ bool QColorGroup::operator==( const QColorGroup &g ) const
 */
 
 
-static int palette_count = 1;
+int QPalette::palette_count = 0;
+QPalette::QPaletteData *QPalette::shared_default = 0;
 
 /*!
     Constructs a palette that consists of color groups with only black
     colors.
 */
-
 QPalette::QPalette()
 {
-    static QPalData *defPalData = 0;
-    if ( !defPalData ) {                // create common palette data
-	defPalData = new QPalData;      //   for the default palette
-	static QSharedCleanupHandler<QPalData> defPalCleanup;
-	defPalCleanup.set( &defPalData );
-	defPalData->ser_no = palette_count++;
+    if (!shared_default) {
+	shared_default = new QPaletteData;
+	shared_default->ref = 1;
+	shared_default->ser_no = palette_count++;
+	static QCleanupHandler<QPaletteData> defPalCleanup;
+	defPalCleanup.add(&shared_default);
     }
-    data = defPalData;
-    data->ref();
+    d = shared_default;
+    ++d->ref;
 }
 
 /*!\obsolete
@@ -591,28 +566,32 @@ QPalette::QPalette()
   automatically calculated, based on this color. Background will be
   the button color as well.
 */
-
 QPalette::QPalette( const QColor &button )
 {
-    data = new QPalData;
-    data->ser_no = palette_count++;
-    QColor bg = button, btn = button, fg, base, disfg;
+    d = new QPaletteData;
+    d->ref = 1;
+    d->ser_no = palette_count++;
+    QColor bg = button,
+	   btn = button,
+	   fg,
+	   base,
+	   disfg;
     int h, s, v;
     bg.hsv( &h, &s, &v );
-    if ( v > 128 ) {				// light background
+    if ( v > 128 ) {
 	fg   = Qt::black;
 	base = Qt::white;
 	disfg = Qt::darkGray;
-    } else {					// dark background
+    } else {
 	fg   = Qt::white;
 	base = Qt::black;
 	disfg = Qt::darkGray;
     }
-    data->active   = QColorGroup( fg, btn, btn.light(150), btn.dark(),
-				  btn.dark(150), fg, Qt::white, base, bg );
-    data->disabled = QColorGroup( disfg, btn, btn.light(150), btn.dark(),
-				  btn.dark(150), disfg, Qt::white, base, bg );
-    data->inactive = data->active;
+    d->active   = QColorGroup(fg, btn, btn.light(150), btn.dark(), btn.dark(150), fg,
+			      Qt::white, base, bg );
+    d->disabled = QColorGroup(disfg, btn, btn.light(150), btn.dark(), btn.dark(150), disfg,
+			      Qt::white, base, bg );
+    d->inactive = d->active;
 }
 
 /*!
@@ -620,28 +599,32 @@ QPalette::QPalette( const QColor &button )
     The other colors are automatically calculated, based on these
     colors.
 */
-
 QPalette::QPalette( const QColor &button, const QColor &background )
 {
-    data = new QPalData;
-    data->ser_no = palette_count++;
-    QColor bg = background, btn = button, fg, base, disfg;
+    d = new QPaletteData;
+    d->ref = 1;
+    d->ser_no = palette_count++;
+    QColor bg = background,
+	   btn = button,
+	   fg,
+	   base,
+	   disfg;
     int h, s, v;
-    bg.hsv( &h, &s, &v );
-    if ( v > 128 ) {				// light background
+    bg.hsv(&h, &s, &v);
+    if ( v > 128 ) {
 	fg   = Qt::black;
 	base = Qt::white;
 	disfg = Qt::darkGray;
-    } else {					// dark background
+    } else {
 	fg   = Qt::white;
 	base = Qt::black;
 	disfg = Qt::darkGray;
     }
-    data->active   = QColorGroup( fg, btn, btn.light(150), btn.dark(),
-				  btn.dark(150), fg, Qt::white, base, bg );
-    data->disabled = QColorGroup( disfg, btn, btn.light(150), btn.dark(),
-				  btn.dark(150), disfg, Qt::white, base, bg );
-    data->inactive = data->active;
+    d->active   = QColorGroup(fg, btn, btn.light(150), btn.dark(), btn.dark(150), fg,
+			      Qt::white, base, bg );
+    d->disabled = QColorGroup(disfg, btn, btn.light(150), btn.dark(), btn.dark(150), disfg,
+			      Qt::white, base, bg );
+    d->inactive = d->active;
 }
 
 /*!
@@ -653,15 +636,15 @@ QPalette::QPalette( const QColor &button, const QColor &background )
 
     \sa QColorGroup QColorGroup::ColorRole QPalette
 */
-
-QPalette::QPalette( const QColorGroup &active, const QColorGroup &disabled,
-		    const QColorGroup &inactive )
+QPalette::QPalette(const QColorGroup &active, const QColorGroup &disabled,
+		   const QColorGroup &inactive)
 {
-    data = new QPalData;
-    data->ser_no = palette_count++;
-    data->active = active;
-    data->disabled = disabled;
-    data->inactive = inactive;
+    d = new QPaletteData;
+    d->ref = 1;
+    d->ser_no = palette_count++;
+    d->active = active;
+    d->disabled = disabled;
+    d->inactive = inactive;
 }
 
 /*!
@@ -669,21 +652,19 @@ QPalette::QPalette( const QColorGroup &active, const QColorGroup &disabled,
 
     This constructor is fast (it uses copy-on-write).
 */
-
-QPalette::QPalette( const QPalette &p )
+QPalette::QPalette(const QPalette &p)
 {
-    data = p.data;
-    data->ref();
+    d = p.d;
+    ++d->ref;
 }
 
 /*!
     Destroys the palette.
 */
-
 QPalette::~QPalette()
 {
-    if ( data->deref() )
-	delete data;
+    if (!--d->ref)
+	delete d;
 }
 
 /*!
@@ -694,48 +675,37 @@ QPalette::~QPalette()
 
     \sa copy()
 */
-
-QPalette &QPalette::operator=( const QPalette &p )
+QPalette &QPalette::operator=(const QPalette &p)
 {
-    p.data->ref();
-    if ( data->deref() )
-	delete data;
-    data = p.data;
+    QPaletteData *x = p.d;
+    ++x->ref;
+    x = qAtomicSetPtr(&d, x);
+    if (!--x->ref)
+	delete x;
     return *this;
 }
 
-
 /*!
+    \fn const QColor &QPalette::color(ColorGroup gr, QColorGroup::ColorRole r) const
     Returns the color in color group \a gr, used for color role \a r.
 
     \sa brush() setColor() QColorGroup::ColorRole
 */
-const QColor &QPalette::color( ColorGroup gr, QColorGroup::ColorRole r ) const
-{
-    return directBrush( gr, r ).color();
-}
 
 /*!
+    \fn const QBrush &QPalette::brush( ColorGroup gr, QColorGroup::ColorRole r ) const
     Returns the brush in color group \a gr, used for color role \a r.
 
     \sa color() setBrush() QColorGroup::ColorRole
 */
-const QBrush &QPalette::brush( ColorGroup gr, QColorGroup::ColorRole r ) const
-{
-    return directBrush( gr, r );
-}
 
 /*!
+    \fn void QPalette::setColor( ColorGroup gr, QColorGroup::ColorRole r, const QColor &c)
     Sets the brush in color group \a gr, used for color role \a r, to
     the solid color \a c.
 
     \sa setBrush() color() QColorGroup::ColorRole
 */
-void QPalette::setColor( ColorGroup gr, QColorGroup::ColorRole r,
-			 const QColor &c)
-{
-    setBrush( gr, r, QBrush(c) );
-}
 
 /*!
     Sets the brush in color group \a gr, used for color role \a r, to
@@ -747,22 +717,19 @@ void QPalette::setBrush( ColorGroup gr, QColorGroup::ColorRole r,
 			 const QBrush &b)
 {
     detach();
-    data->ser_no = palette_count++;
-    directSetBrush( gr, r, b);
+    d->ser_no = palette_count++;
+    directSetBrush(gr, r, b);
 }
 
 /*!
     \overload
 
+    \fn void QPalette::setColor( QColorGroup::ColorRole r, const QColor &c )
     Sets the brush color used for color role \a r to color \a c in all
     three color groups.
 
     \sa color() setBrush() QColorGroup::ColorRole
 */
-void QPalette::setColor( QColorGroup::ColorRole r, const QColor &c )
-{
-    setBrush( r, QBrush(c) );
-}
 
 /*!
     \overload
@@ -772,31 +739,26 @@ void QPalette::setColor( QColorGroup::ColorRole r, const QColor &c )
 
     \sa brush() setColor() QColorGroup::ColorRole active() inactive() disabled()
 */
-void QPalette::setBrush( QColorGroup::ColorRole r, const QBrush &b )
+void QPalette::setBrush(QColorGroup::ColorRole r, const QBrush &b)
 {
     detach();
-    data->ser_no = palette_count++;
-    directSetBrush( Active, r, b );
-    directSetBrush( Disabled, r, b );
-    directSetBrush( Inactive, r, b );
+    d->ser_no = palette_count++;
+    directSetBrush(Active, r, b);
+    directSetBrush(Disabled, r, b);
+    directSetBrush(Inactive, r, b);
 }
 
-
 /*!
+    \fn QPalette QPalette::copy() const
+    \obsolete
     Returns a deep copy of this palette.
 
     \warning This is slower than the copy constructor and assignment
     operator and offers no benefits.
 */
 
-QPalette QPalette::copy() const
-{
-    QPalette p( data->active, data->disabled, data->inactive );
-    return p;
-}
-
-
 /*!
+    \fn void QPalette::detach()
     Detaches this palette from any other QPalette objects with which
     it might implicitly share QColorGroup objects. In essence, does
     the copying part of copy-on-write.
@@ -804,11 +766,17 @@ QPalette QPalette::copy() const
     Calling this should generally not be necessary; QPalette calls it
     itself when necessary.
 */
-
-void QPalette::detach()
+void QPalette::detach_helper()
 {
-    if ( data->count != 1 )
-	*this = copy();
+    QPaletteData *x = new QPaletteData;
+    x->ref = 1;
+    x->disabled = d->disabled;
+    x->active = d->active;
+    x->inactive = d->inactive;
+    x->ser_no = palette_count++;
+    x = qAtomicSetPtr(&d, x);
+    if (!--x->ref)
+	delete x;
 }
 
 /*!
@@ -825,11 +793,11 @@ void QPalette::detach()
     \sa disabled() setActive() setInactive()
 */
 
-void QPalette::setDisabled( const QColorGroup &g )
+void QPalette::setDisabled(const QColorGroup &g)
 {
     detach();
-    data->ser_no = palette_count++;
-    data->disabled = g;
+    d->ser_no = palette_count++;
+    d->disabled = g;
 }
 
 /*!
@@ -846,11 +814,11 @@ void QPalette::setDisabled( const QColorGroup &g )
     \sa active() setDisabled() setInactive() QColorGroup
 */
 
-void QPalette::setActive( const QColorGroup &g )
+void QPalette::setActive(const QColorGroup &g)
 {
     detach();
-    data->ser_no = palette_count++;
-    data->active = g;
+    d->ser_no = palette_count++;
+    d->active = g;
 }
 
 /*!
@@ -867,13 +835,12 @@ void QPalette::setActive( const QColorGroup &g )
     \sa active() setDisabled() setActive() QColorGroup
 */
 
-void QPalette::setInactive( const QColorGroup &g )
+void QPalette::setInactive(const QColorGroup &g)
 {
     detach();
-    data->ser_no = palette_count++;
-    data->inactive = g;
+    d->ser_no = palette_count++;
+    d->inactive = g;
 }
-
 
 /*!
     \fn bool QPalette::operator!=( const QPalette &p ) const
@@ -887,13 +854,10 @@ void QPalette::setInactive( const QColorGroup &g )
     otherwise returns FALSE (slowly).
 */
 
-bool QPalette::operator==( const QPalette &p ) const
+bool QPalette::operator==(const QPalette &p) const
 {
-    return data->active == p.data->active &&
-	   data->disabled == p.data->disabled &&
-	   data->inactive == p.data->inactive;
+    return d->active == p.d->active && d->disabled == p.d->disabled && d->inactive == p.d->inactive;
 }
-
 
 /*!
     \fn int QPalette::serialNumber() const
@@ -909,7 +873,6 @@ bool QPalette::operator==( const QPalette &p ) const
     \sa QPixmap QPixmapCache QCache
 */
 
-
 /*****************************************************************************
   QColorGroup/QPalette stream functions
  *****************************************************************************/
@@ -923,10 +886,9 @@ bool QPalette::operator==( const QPalette &p ) const
     \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 
-QDataStream &operator<<( QDataStream &s, const QColorGroup &g )
+QDataStream &operator<<(QDataStream &s, const QColorGroup &g)
 {
-    if ( s.version() == 1 ) {
-	// Qt 1.x
+    if (s.version() == 1) {
 	s << g.foreground()
 	  << g.background()
 	  << g.light()
@@ -936,11 +898,10 @@ QDataStream &operator<<( QDataStream &s, const QColorGroup &g )
 	  << g.base();
     } else {
 	int max = QColorGroup::NColorRoles;
-	if ( s.version() <= 3) // Qt 2.x
+	if (s.version() <= 3)
 	    max = 14;
-
-	for( int r = 0 ; r < max ; r++ )
-	    s << g.brush( (QColorGroup::ColorRole)r);
+	for (int r = 0 ; r < max ; ++r)
+	    s << g.brush((QColorGroup::ColorRole)r);
     }
     return s;
 }
@@ -953,35 +914,33 @@ QDataStream &operator<<( QDataStream &s, const QColorGroup &g )
     \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 
-QDataStream &operator>>( QDataStream &s, QColorGroup &g )
+QDataStream &operator>>(QDataStream &s, QColorGroup &g)
 {
-    if ( s.version() == 1 ) {
-	// Qt 1.x
+    if (s.version() == 1) {
 	QColor fg, bg, light, dark, mid, text, base;
 	s >> fg >> bg >> light >> dark >> mid >> text >> base;
-	QPalette p( bg );
-	QColorGroup n( p.active() );
-	n.setColor( QColorGroup::Foreground, fg );
-	n.setColor( QColorGroup::Light, light );
-	n.setColor( QColorGroup::Dark, dark );
-	n.setColor( QColorGroup::Mid, mid );
-	n.setColor( QColorGroup::Text, text );
-	n.setColor( QColorGroup::Base, base );
+	QPalette p(bg);
+	QColorGroup n(p.active());
+	n.setColor(QColorGroup::Foreground, fg);
+	n.setColor(QColorGroup::Light, light);
+	n.setColor(QColorGroup::Dark, dark);
+	n.setColor(QColorGroup::Mid, mid);
+	n.setColor(QColorGroup::Text, text);
+	n.setColor(QColorGroup::Base, base);
 	g = n;
     } else {
 	int max = QColorGroup::NColorRoles;
-	if (s.version() <= 3) // Qt 2.x
+	if (s.version() <= 3)
 	    max = 14;
 
 	QBrush tmp;
-	for( int r = 0 ; r < max; r++ ) {
+	for(int r = 0 ; r < max; ++r) {
 	    s >> tmp;
-	    g.setBrush( (QColorGroup::ColorRole)r, tmp);
+	    g.setBrush((QColorGroup::ColorRole)r, tmp);
 	}
     }
     return s;
 }
-
 
 /*!
     \relates QPalette
@@ -992,41 +951,38 @@ QDataStream &operator>>( QDataStream &s, QColorGroup &g )
     \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 
-QDataStream &operator<<( QDataStream &s, const QPalette &p )
+QDataStream &operator<<(QDataStream &s, const QPalette &p)
 {
     return s << p.active()
 	     << p.disabled()
 	     << p.inactive();
 }
 
-
-static void readV1ColorGroup( QDataStream &s, QColorGroup &g,
-		       QPalette::ColorGroup r )
+static void readV1ColorGroup(QDataStream &s, QColorGroup &g, QPalette::ColorGroup r)
 {
     QColor fg, bg, light, dark, mid, text, base;
     s >> fg >> bg >> light >> dark >> mid >> text >> base;
-    QPalette p( bg );
+    QPalette p(bg);
     QColorGroup n;
-    switch ( r ) {
-	case QPalette::Disabled:
-	    n = p.disabled();
-	    break;
-	case QPalette::Inactive:
-	    n = p.inactive();
-	    break;
-	default:
-	    n = p.active();
-	    break;
+    switch (r) {
+    case QPalette::Disabled:
+	n = p.disabled();
+	break;
+    case QPalette::Inactive:
+	n = p.inactive();
+	break;
+    default:
+	n = p.active();
+	break;
     }
-    n.setColor( QColorGroup::Foreground, fg );
-    n.setColor( QColorGroup::Light, light );
-    n.setColor( QColorGroup::Dark, dark );
-    n.setColor( QColorGroup::Mid, mid );
-    n.setColor( QColorGroup::Text, text );
-    n.setColor( QColorGroup::Base, base );
+    n.setColor(QColorGroup::Foreground, fg);
+    n.setColor(QColorGroup::Light, light);
+    n.setColor(QColorGroup::Dark, dark);
+    n.setColor(QColorGroup::Mid, mid);
+    n.setColor(QColorGroup::Text, text);
+    n.setColor(QColorGroup::Base, base);
     g = n;
 }
-
 
 /*!
     \relates QPalette
@@ -1037,17 +993,17 @@ static void readV1ColorGroup( QDataStream &s, QColorGroup &g,
     \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 
-QDataStream &operator>>( QDataStream &s, QPalette &p )
+QDataStream &operator>>(QDataStream &s, QPalette &p)
 {
     QColorGroup active, disabled, inactive;
     if ( s.version() == 1 ) {
-	readV1ColorGroup( s, active, QPalette::Active );
-	readV1ColorGroup( s, disabled, QPalette::Disabled );
-	readV1ColorGroup( s, inactive, QPalette::Inactive );
+	readV1ColorGroup(s, active, QPalette::Active);
+	readV1ColorGroup(s, disabled, QPalette::Disabled);
+	readV1ColorGroup(s, inactive, QPalette::Inactive);
     } else {
 	s >> active >> disabled >> inactive;
     }
-    QPalette newpal( active, disabled, inactive );
+    QPalette newpal(active, disabled, inactive);
     p = newpal;
     return s;
 }
@@ -1062,67 +1018,44 @@ QDataStream &operator>>( QDataStream &s, QPalette &p )
     \sa operator=() operator==()
 */
 
-bool QPalette::isCopyOf( const QPalette & p )
+bool QPalette::isCopyOf(const QPalette &p)
 {
-    return data && data == p.data;
+    return d == p.d;
 }
 
-const QBrush &QPalette::directBrush( ColorGroup gr, QColorGroup::ColorRole r ) const
+const QBrush &QPalette::directBrush(ColorGroup gr, QColorGroup::ColorRole r) const
 {
-    if ( (uint)gr > (uint)QPalette::NColorGroups ) {
-	qWarning( "QPalette::directBrush: colorGroup(%i) out of range", gr );
-	return data->active.br[QColorGroup::Foreground];
-    }
-    if ( (uint)r >= (uint)QColorGroup::NColorRoles ) {
-	qWarning( "QPalette::directBrush: colorRole(%i) out of range", r );
-	return data->active.br[QColorGroup::Foreground];
-    }
-    switch( gr ) {
+    switch (gr) {
     case Active:
-	return data->active.br[r];
-	//break;
+	return d->active.d->br[r];
     case Disabled:
-	return data->disabled.br[r];
-	//break;
+	return d->disabled.d->br[r];
     case Inactive:
-	return data->inactive.br[r];
-	//break;
+	return d->inactive.d->br[r];
+    default:
+	return d->active.d->br[QColorGroup::Foreground];
+    }
+}
+
+void QPalette::directSetBrush(ColorGroup gr, QColorGroup::ColorRole r, const QBrush& b)
+{
+    switch (gr) {
+    case Active:
+	d->active.setBrush(r, b);
+	break;
+    case Disabled:
+	d->disabled.setBrush(r, b);
+	break;
+    case Inactive:
+	d->inactive.setBrush(r, b);
+	break;
     default:
 	break;
     }
-    qWarning( "QPalette::directBrush: colorGroup(%i) internal error", gr );
-    return data->active.br[QColorGroup::Foreground]; // Satisfy compiler
 }
-
-void QPalette::directSetBrush( ColorGroup gr, QColorGroup::ColorRole r, const QBrush& b)
-{
-    if ( (uint)gr > (uint)QPalette::NColorGroups ) {
-	qWarning( "QPalette::directBrush: colorGroup(%i) out of range", gr );
-	return;
-    }
-    if ( (uint)r >= (uint)QColorGroup::NColorRoles ) {
-	qWarning( "QPalette::directBrush: colorRole(%i) out of range", r );
-	return;
-    }
-    switch( gr ) {
-    case Active:
-	data->active.setBrush(r,b);
-	break;
-    case Disabled:
-	data->disabled.setBrush(r,b);
-	break;
-    case Inactive:
-	data->inactive.setBrush(r,b);
-	break;
-    default:
-	qWarning( "QPalette::directBrush: colorGroup(%i) internal error", gr );
-	break;
-    }
-}
-
 
 /*!\internal*/
-QColorGroup::ColorRole QPalette::foregroundRoleFromMode( Qt::BackgroundMode mode )
+QColorGroup::ColorRole QPalette::foregroundRoleFromMode(Qt::BackgroundMode mode)
 {
     switch (mode) {
     case Qt::PaletteButton:
@@ -1141,7 +1074,7 @@ QColorGroup::ColorRole QPalette::foregroundRoleFromMode( Qt::BackgroundMode mode
 }
 
 /*!\internal*/
-QColorGroup::ColorRole QPalette::backgroundRoleFromMode( Qt::BackgroundMode mode)
+QColorGroup::ColorRole QPalette::backgroundRoleFromMode(Qt::BackgroundMode mode)
 {
     switch (mode) {
     case Qt::PaletteForeground:
@@ -1179,5 +1112,4 @@ QColorGroup::ColorRole QPalette::backgroundRoleFromMode( Qt::BackgroundMode mode
 	return QColorGroup::Background;
     }
 }
-
 #endif // QT_NO_PALETTE
