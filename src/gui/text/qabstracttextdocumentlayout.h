@@ -43,7 +43,7 @@ public:
     virtual void drawObject(QPainter *p, const QPoint &position, QTextObject item, const QTextFormat &format, QTextLayout::SelectionType selType);
 
     virtual void setPageSize(const QSize &size);
-    QSize pageSize() const;
+    virtual QSize pageSize() const;
 
 protected:
     void invalidate(const QRect &r);
