@@ -863,16 +863,17 @@ NPP_DestroyStream(NPP instance, NPStream *stream, NPError reason)
 	This = (_NPInstance*) instance->pdata;
 
 	QNPStream* qnps = (QNPStream*)stream->pdata;
-	switch (reason) {
-	  case NPRES_DONE:
-	    qnps->setComplete(TRUE);
-	    break;
-	  case NPRES_USER_BREAK:
-	    break;
-	  case NPRES_NETWORK_ERR:
-	    qnps->setOkay(FALSE);
-	    break;
-	}
+	if ( qnps )
+	    switch (reason) {
+		case NPRES_DONE:
+		    qnps->setComplete(TRUE);
+		    break;
+		case NPRES_USER_BREAK:
+		    break;
+		case NPRES_NETWORK_ERR:
+		    qnps->setOkay(FALSE);
+		    break;
+	    }
 
 	if (This) {
 	    // Give the instance a chance to do something
