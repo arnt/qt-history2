@@ -409,7 +409,7 @@ static const int LastButton = QMessageBox::Ignore;
   NOTE: The table of button texts correspond to the button enum.
 */
 
-static const char *mb_texts[] = {
+static const char * const mb_texts[] = {
     0,
     QT_TRANSLATE_NOOP("QMessageBox","OK"),
     QT_TRANSLATE_NOOP("QMessageBox","Cancel"),
