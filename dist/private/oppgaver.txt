@@ -134,6 +134,8 @@ Ferdigstilling:
 
     Debug utskrifter fjernes (evt. warning)
 
+    Scrollbars/knapper og tastaturfokus
+
 Eksempler:
 ----------
     sheet.h
