@@ -200,6 +200,9 @@ void QAbstractItemView::setSelectionModel(QItemSelectionModel *selectionModel)
             this, SLOT(selectionChanged(QItemSelection,QItemSelection)));
     connect(d->selectionModel, SIGNAL(currentChanged(QModelIndex,QModelIndex)),
             this, SLOT(currentChanged(QModelIndex,QModelIndex)));
+
+    if (!selectionModel->currentItem().isValid())
+        selectionModel->setCurrentItem(model()->index(0, 0, root()), QItemSelectionModel::NoUpdate);
 }
 
 QItemSelectionModel* QAbstractItemView::selectionModel() const
@@ -240,6 +243,7 @@ QModelIndex QAbstractItemView::currentItem() const
 void QAbstractItemView::setRoot(const QModelIndex &index)
 {
     d->root = index;
+    setCurrentItem(model()->index(0, 0, index));
 //    if (isVisible())
     startItemsLayout();
     update();
@@ -463,10 +467,12 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
         break;
     case Key_Return:
         emit returnPressed(currentItem());
-        break;
+        e->accept();
+        return;
     case Key_Space:
         d->selectionModel->select(currentItem(), selectionCommand(e->state(), currentItem(), e->type(),(Key)e->key()));
         emit spacePressed(currentItem());
+        e->accept();
         return;
     case Key_F2:
         if (startEdit(currentItem(), QAbstractItemDelegate::EditKeyPressed, e))
@@ -647,7 +653,7 @@ void QAbstractItemView::currentChanged(const QModelIndex &old, const QModelIndex
     // make the view look slow, but since repaintItem does not update the rect
     // immediately we get drawing errors because the contentview might be shifted
 
-    if (current.isValid())
+    if (current.isValid() && isVisible())
         ensureItemVisible(current);
 
     if (old.isValid())

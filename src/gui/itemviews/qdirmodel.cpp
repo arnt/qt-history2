@@ -491,6 +491,16 @@ QFileInfo QDirModel::fileInfo(const QModelIndex &index) const
     return node->info;
 }
 
+bool QDirModel::isDir(const QModelIndex &index)
+{
+    QDirModelPrivate::QDirNode *node = static_cast<QDirModelPrivate::QDirNode*>(index.data());
+    if (!node) {
+        qWarning("isDir: the node does not exist");
+        return false;
+    }
+    return node->info.isDir();
+}
+
 QModelIndex QDirModel::mkdir(const QModelIndex &parent, const QString &name)
 {
     QDirModelPrivate::QDirNode *p = static_cast<QDirModelPrivate::QDirNode*>(parent.data());

@@ -65,7 +65,8 @@ public:
     QString path(const QModelIndex &index) const;
     QString name(const QModelIndex &index) const;
     QFileInfo fileInfo(const QModelIndex &index) const;
-    
+
+    bool isDir(const QModelIndex &index);
     QModelIndex mkdir(const QModelIndex &parent, const QString &name);
     bool rmdir(const QModelIndex &index);
 
