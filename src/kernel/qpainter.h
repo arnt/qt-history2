@@ -231,9 +231,18 @@ public:
 
   // Text drawing functions
 
-    void	drawText( int x, int y, const QString &, int len = -1 );
-    void        drawText( int x, int y, const QString &, int pos, int len);
-    void	drawText( const QPoint &, const QString &, int len = -1 );
+    enum TextDirection {
+	Auto,
+	RTL,
+	LTR
+    };
+    
+    void	drawText( int x, int y, const QString &, int len = -1, TextDirection dir = Auto );
+    void	drawText( const QPoint &, const QString &, int len = -1, TextDirection dir = Auto );
+    
+    void     drawText( int x, int y, const QString &, int pos, int len, TextDirection dir = Auto );
+    void     drawText( const QPoint &p, const QString &, int pos, int len, TextDirection dir = Auto );
+    
     void	drawText( int x, int y, int w, int h, int flags,
 			  const QString&, int len = -1, QRect *br=0,
 			  QTextParag **intern=0 );
@@ -634,9 +643,14 @@ inline void QPainter::eraseRect( const QRect &r )
     fillRect( r.x(), r.y(), r.width(), r.height(), backgroundColor() );
 }
 
-inline void QPainter::drawText( const QPoint &p, const QString &s, int len )
+inline void QPainter::drawText( const QPoint &p, const QString &s, int len, TextDirection dir )
 {
-    drawText( p.x(), p.y(), s, len );
+    drawText( p.x(), p.y(), s, 0, len, dir );
+}
+
+inline void QPainter::drawText( const QPoint &p, const QString &s, int pos, int len, TextDirection dir )
+{
+    drawText( p.x(), p.y(), s, pos, len, dir );
 }
 
 inline void QPainter::drawText( int x, int y, int w, int h, int tf,

@@ -1121,7 +1121,7 @@ private:
     void drawParagString( QPainter &painter, const QString &str, int start, int len, int startX,
 			  int lastY, int baseLine, int bw, int h, bool drawSelections,
 			  QTextFormat *lastFormat, int i, int *selectionStarts,
-			  int *selectionEnds, const QColorGroup &cg  );
+			  int *selectionEnds, const QColorGroup &cg, bool rightToLeft  );
 
 private:
     struct Selection {

@@ -2088,13 +2088,13 @@ static void ins_text_bitmap( const QString &key, QBitmap *bm )
 }
 
 
-void QPainter::drawText( int x, int y, const QString &str, int pos, int len )
+void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPainter::TextDirection dir )
 {
-    QString shaped = QComplexText::shapedString( str, pos, len );
-    drawText( x, y, shaped, shaped.length() );
+    QString shaped = QComplexText::shapedString( str, pos, len, dir );
+    drawText( x, y, shaped, shaped.length(), dir );
 }
 
-void QPainter::drawText( int x, int y, const QString &str, int len )
+void QPainter::drawText( int x, int y, const QString &str, int len, QPainter::TextDirection )
 {
     if ( !isActive() )
 	return;

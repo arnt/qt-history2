@@ -466,14 +466,30 @@ static const ushort arabicUnicodeLamAlefMapping[6][4] = {
     { 0xfffd, 0xfffd, 0xfefb, 0xfefc } // 0x627         R       Alef
 };
 
-QString QComplexText::shapedString(const QString& uc, int from, int len )
+QString QComplexText::shapedString(const QString& uc, int from, int len, QPainter::TextDirection dir )
 {
     if( len < 0 )
         len = uc.length() - from;
     if( len == 0 ) {
         return QString::null;
     }
-
+    
+    // we have to ignore NSMs at the beginning and add at the end.
+    int num = uc.length() - from - len;
+    const QChar *ch = uc.unicode() + from + len;
+    while ( num && ch->combiningClass() != 0 ) {
+	ch++;
+	num--;
+	len++;
+    }
+    ch = uc.unicode() + from;
+    while ( len > 0 && ch->combiningClass() != 0 ) {
+	ch++;
+	len--;
+	from++;
+    }
+    if ( len == 0 ) return QString::null;
+    
     if( !shapeBuffer || len > shapeBufSize ) {
       if( shapeBuffer ) free( (void *) shapeBuffer );
       shapeBuffer = (QChar *) malloc( len*sizeof( QChar ) );
@@ -484,22 +500,26 @@ QString QComplexText::shapedString(const QString& uc, int from, int len )
 
     int lenOut = 0;
     QChar *data = shapeBuffer;
-    const QChar *ch = uc.unicode() + from;
+    if ( dir == QPainter::RTL )
+	ch += len - 1; 
     for ( int i = 0; i < len; i++ ) {
         uchar r = ch->row();
         uchar c = ch->cell();
         if ( r != 0x06 ) {
             *data = *ch;
-            data++;
+	    data++;
             lenOut++;
         } else {
-            int shape = glyphVariant( uc, i+from );
+	    int pos = i + from;
+	    if ( dir == QPainter::RTL )
+		pos = from + len - 1 - i;
+            int shape = glyphVariantLogical( uc, pos );
             //qDebug("mapping U+%x to shape %d glyph=0x%x", ch->unicode(), shape, arabicUnicodeMapping[ch->cell()][shape]);
             // take care of lam-alef ligatures (lam right of alef)
             ushort map;
             switch ( c ) {
                 case 0x44: { // lam
-                    const QChar *pch = prevChar( uc, i+from );
+                    const QChar *pch = nextChar( uc, pos );
                     if ( pch->row() == 0x06 ) {
                         switch ( pch->cell() ) {
                             case 0x22:
@@ -519,7 +539,7 @@ QString QComplexText::shapedString(const QString& uc, int from, int len )
                 case 0x23: // alef with hamza above
                 case 0x25: // alef with hamza below
                 case 0x27: // alef
-                    if ( nextChar( uc, i+from )->unicode() == 0x0644 ) {
+                    if ( prevChar( uc, pos )->unicode() == 0x0644 ) {
                         // have a lam alef ligature
                         //qDebug(" alef of lam-alef ligature");
                         goto skip;
@@ -530,12 +550,52 @@ QString QComplexText::shapedString(const QString& uc, int from, int len )
             map = arabicUnicodeMapping[c][0] + shape;
         next:
             *data = map;
-            data++;
+	    data++;
             lenOut++;
         }
     skip:
-        ch++;
+	if ( dir == QPainter::RTL )
+	    ch--;
+	else
+	    ch++;
     }
+
+    
+    if ( dir == QPainter::RTL ) {
+	// reverses the non spacing marks to be again after the base char
+	QChar *s = shapeBuffer;
+	int i = 0;
+	while ( i < lenOut ) {
+	    if ( s->combiningClass() != 0 ) {
+		// non spacing marks
+		int clen = 1;
+		QChar *ch = s;
+		do {
+		    ch++;
+		    clen++;
+		} while ( ch->combiningClass() != 0 );
+
+		int j = 0;
+		QChar *cp = s;
+		while ( j < clen/2 ) {
+		    QChar tmp = *cp;
+		    *cp = *ch;
+		    *ch = tmp;
+		    cp++;
+		    ch--;
+		    j++;
+		}
+		s += clen;
+		i += clen;
+	    } else {
+		s++;
+		i++;
+	    }
+	}
+    }
+    
+
+    
     return QConstString( shapeBuffer, lenOut ).string();
 }
 
@@ -646,7 +706,7 @@ void QComplexText::glyphPositions( QTextString *str )
     //qDebug("---- end string ---");
 }
 
-QPointArray QComplexText::positionMarks( QFontPrivate *f, const QString &str, int pos )
+QPointArray QComplexText::positionMarks( QFontPrivate *f, const QString &str, int pos, QRect *boundingRect )
 {
     int len = str.length();
     int nmarks = 0;
@@ -665,6 +725,8 @@ QPointArray QComplexText::positionMarks( QFontPrivate *f, const QString &str, in
     int i;
     unsigned char lastCmb = 0;
     QRect attachmentRect;
+    if ( boundingRect )
+	*boundingRect = baseRect;
     for( i = 0; i < nmarks; i++ ) {
         QChar mark = str[pos+i+1];
         unsigned char cmb = mark.combiningClass();
@@ -729,7 +791,9 @@ QPointArray QComplexText::positionMarks( QFontPrivate *f, const QString &str, in
         //qDebug( "char=%x combiningClass = %d offset=%d/%d", mark.unicode(), cmb, p.x(), p.y() );
         markRect.moveBy( p.x(), p.y() );
         p += QPoint( - baseRect.width(), 0 );
-        attachmentRect = attachmentRect | markRect;
+        attachmentRect |= markRect;
+	if ( boundingRect )
+	    *boundingRect |= markRect;
         lastCmb = cmb;
         pa.setPoint( i, p );
     }

@@ -1495,14 +1495,14 @@ static void ins_text_bitmap( const QString &key, QBitmap *bm )
 
 #endif // QT_NO_TRANSFORMATIONS
 
-void QPainter::drawText( int x, int y, const QString &s, int from, int len)
+void QPainter::drawText( int x, int y, const QString &s, int from, int len, QPainter::TextDirection dir)
 {
     int lenOut;
     QChar *shaped = (QChar *)QComplexText::shapedString( s, from, len, &lenOut );
-    drawText( x, y, QConstString( shaped, lenOut ).string(), lenOut );
+    drawText( x, y, QConstString( shaped, lenOut ).string(), lenOut, dir );
 }
 
-void QPainter::drawText( int x, int y, const QString &str, int len )
+void QPainter::drawText( int x, int y, const QString &str, int len, QPainter::TextDirection )
 {
     if(memorymanager->fontAscent(cfont.handle())==0) {
 	return;

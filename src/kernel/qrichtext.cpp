@@ -2967,9 +2967,6 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
     int tw = 0;
 
     QString qstr = str->toString();
-    QString revstr;
-    if( str->isBidi() )
-	revstr = str->toReverseString();
 
     int selectionStarts[ numSelections ];
     int selectionEnds[ numSelections ];
@@ -3061,7 +3058,7 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 
 	//if something (format, etc.) changed, draw what we have so far
 	if ( ( ( ( alignment() & Qt::AlignJustify ) == Qt::AlignJustify && at(paintEnd)->c.isSpace() ) ||
-	       lastDirection != (bool)chr->rightToLeft || chr->type != lastType ||
+	       lastDirection != (bool)chr->rightToLeft || //chr->type != lastType ||
 	       lastY != cy || chr->format() != lastFormat ||
 	       (paintEnd != -1 && at(paintEnd)->c =='\t') || chr->c == '\t' ||
 	       selectionChange || chr->isCustom() ) ) {
@@ -3074,14 +3071,9 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 		    else if ( i > 1 )
 			x -= str->at(i - 1).d.mark->xoff + str->width( i - 2 );
 		}
-		if ( lastDirection ) // right to left
-		    drawParagString( painter, revstr, length()- paintEnd - 1, paintEnd - paintStart + 1, x, lastY,
-				     lastBaseLine, bw, lasth, drawSelections,
-				     lastFormat, i, selectionStarts, selectionEnds, cg );
-		else
-		    drawParagString( painter, qstr, paintStart, paintEnd - paintStart + 1, x, lastY,
-				     lastBaseLine, bw, lasth, drawSelections,
-				     lastFormat, i, selectionStarts, selectionEnds, cg );
+		drawParagString( painter, qstr, paintStart, paintEnd - paintStart + 1, x, lastY,
+				 lastBaseLine, bw, lasth, drawSelections,
+				 lastFormat, i, selectionStarts, selectionEnds, cg, lastDirection );
 	    }
 	    if ( !str->isBidi() && is_printer( &painter ) ) { // ### fix our broken ps-printer
 		if ( !chr->lineStart ) {
@@ -3156,14 +3148,9 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 	    else if ( i > 1 )
 		x -= str->at(i - 1).d.mark->xoff + str->width( i - 2 );
 	}
-	if ( lastDirection ) // right to left
-	    drawParagString( painter, revstr, length() - paintEnd - 1, paintEnd-paintStart+1, x, lastY,
-			     lastBaseLine, bw, h, drawSelections,
-			     lastFormat, i, selectionStarts, selectionEnds, cg );
-	else
-	    drawParagString( painter, qstr, paintStart, paintEnd-paintStart+1, x, lastY,
-			     lastBaseLine, bw, h, drawSelections,
-			     lastFormat, i, selectionStarts, selectionEnds, cg );
+	drawParagString( painter, qstr, paintStart, paintEnd-paintStart+1, x, lastY,
+			 lastBaseLine, bw, h, drawSelections,
+			 lastFormat, i, selectionStarts, selectionEnds, cg, lastDirection );
     }
 	
     // if we should draw a cursor, draw it now
@@ -3190,7 +3177,7 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 void QTextParag::drawParagString( QPainter &painter, const QString &str, int start, int len, int startX,
 				      int lastY, int baseLine, int bw, int h, bool drawSelections,
 				      QTextFormat *lastFormat, int i, int *selectionStarts,
-				      int *selectionEnds, const QColorGroup &cg )
+				      int *selectionEnds, const QColorGroup &cg, bool rightToLeft )
 {
     painter.setPen( QPen( lastFormat->color() ) );
     painter.setFont( lastFormat->font() );
@@ -3213,8 +3200,11 @@ void QTextParag::drawParagString( QPainter &painter, const QString &str, int sta
 	    }
 	}
     }
+    QPainter::TextDirection dir = QPainter::LTR;
+    if ( rightToLeft )
+	dir = QPainter::RTL;
     if ( str[start] != "\t" )
-	painter.drawText( startX, lastY + baseLine, str, start, len );
+	painter.drawText( startX, lastY + baseLine, str, start, len, dir );
     if ( lastFormat->isMisspelled() ) {
 	painter.save();
 	painter.setPen( QPen( Qt::red, 1, Qt::DotLine ) );
@@ -4369,8 +4359,8 @@ QTextFormatterBreakWords::QTextFormatterBreakWords()
 int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 				      int start, const QMap<int, QTextParag::LineStart*> & )
 {
-    if ( parag->string() )
-	QComplexText::glyphPositions( parag->string() );
+//     if ( parag->string() )
+// 	QComplexText::glyphPositions( parag->string() );
 
     QTextString::Char *c = 0;
     QTextString::Char *firstChar = 0;

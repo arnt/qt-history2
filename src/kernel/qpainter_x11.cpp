@@ -2726,13 +2726,13 @@ static void ins_text_bitmap( const QString &key, QBitmap *bm )
   \a (x,y) is the base line position.  Note that the meaning of \a y
   is not the same for the two drawText() varieties.
 */
-void QPainter::drawText( int x, int y, const QString &str, int len )
+void QPainter::drawText( int x, int y, const QString &str, int len, QPainter::TextDirection dir )
 {
     if (len < 0)
 	len = str.length();
     if (len == 0)
 	return;
-    drawText( x, y, str, 0, len );
+    drawText( x, y, str, 0, len, dir );
 }
 
 
@@ -2743,7 +2743,7 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
   \a (x,y) is the base line position.  Note that the meaning of \a y
   is not the same for the two drawText() varieties.
 */
-void QPainter::drawText( int x, int y, const QString &str, int pos, int len )
+void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPainter::TextDirection dir )
 {
     if ( !isActive() )
 	return;
@@ -2873,10 +2873,10 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len )
 
     // step 1
 
-    QString shaped = QComplexText::shapedString( str,  pos, len );
+    QString shaped = QComplexText::shapedString( str,  pos, len, dir );
     len = shaped.length();
-    QFontPrivate::TextRun *cache = new QFontPrivate::TextRun();
 
+    QFontPrivate::TextRun *cache = new QFontPrivate::TextRun();
     int width = cfont.d->textWidth( shaped, 0, len, cache );
     cfont.d->drawText( dpy, hd, gc, x, y, cache );
 

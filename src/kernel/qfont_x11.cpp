@@ -2855,6 +2855,9 @@ int QFontMetrics::lineSpacing() const
 int QFontMetrics::width(QChar ch) const
 {
     qObsolete( "QFontMetrics", "width" );
+
+    if ( ch.combiningClass() > 0 ) return 0;
+    
     QFontPrivate::Script script = d->scriptForChar(ch);
 
     if (script == QFontPrivate::UnknownScript) {
@@ -2885,6 +2888,8 @@ int QFontMetrics::width(QChar ch) const
 int QFontMetrics::charWidth( const QString &str, int pos ) const
 {
     QChar ch = str[pos];
+    if ( ch.combiningClass() > 0 ) return 0;
+
     QFontPrivate::Script script = d->scriptForChar(ch);
 
     if (script == QFontPrivate::UnknownScript) {
