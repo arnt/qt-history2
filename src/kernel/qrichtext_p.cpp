@@ -595,7 +595,9 @@ int QTextParag::numberOfSubParagraph() const
 
 void QTextParag::setFormat( QTextFormat *fm )
 {
-    bool doUpdate = (bool)defFormat && defFormat != formatCollection()->defaultFormat();
+    bool doUpdate = FALSE;
+    if (defFormat && (defFormat != formatCollection()->defaultFormat()))
+       doUpdate = TRUE;
     defFormat = formatCollection()->format( fm );
     if ( !doUpdate )
 	return;

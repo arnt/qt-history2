@@ -211,7 +211,7 @@ public:
     QMemArray<QTextStringChar> rawData() const { return data; }
 
     void operator=( const QString &s ) { clear(); insert( 0, s, 0 ); }
-    void operator+=( const QString &s ) { insert( length(), s, 0 ); }
+    void operator+=( const QString &s );
     void prepend( const QString &s ) { insert( 0, s, 0 ); }
 
 private:
@@ -820,6 +820,8 @@ public:
     void clear( bool createEmptyParag = FALSE );
 
     virtual QTextParag *createParag( QTextDocument *d, QTextParag *pr = 0, QTextParag *nx = 0, bool updateIds = TRUE );
+    void insertChild( QObject *o ) { QObject::insertChild( o ); }
+    void removeChild( QObject *o ) { QObject::removeChild( o ); }
     void insertChild( QTextDocument *d ) { childList.append( d ); }
     void removeChild( QTextDocument *d ) { childList.removeRef( d ); }
     QPtrList<QTextDocument> children() const { return childList; }
@@ -1463,6 +1465,26 @@ private:
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+inline int QTextString::length() const
+{
+    return data.size();
+}
+
+inline void QTextString::operator+=( const QString &s ) 
+{ 
+    insert( length(), s, 0 ); 
+}
+
+inline int QTextParag::length() const
+{
+    return str->length();
+}
+
+inline QRect QTextParag::rect() const
+{
+    return r;
+}
+
 inline QTextParag *QTextCursor::parag() const
 {
     return string;
@@ -1750,21 +1772,11 @@ inline QString QTextString::toString() const
     return toString( data );
 }
 
-inline int QTextString::length() const
-{
-    return data.size();
-}
-
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 inline QTextStringChar *QTextParag::at( int i ) const
 {
     return &str->at( i );
-}
-
-inline int QTextParag::length() const
-{
-    return str->length();
 }
 
 inline bool QTextParag::isValid() const
@@ -1792,11 +1804,6 @@ inline void QTextParag::append( const QString &s, bool reallyAtEnd )
 	insert( str->length(), s );
     else
 	insert( QMAX( str->length() - 1, 0 ), s );
-}
-
-inline QRect QTextParag::rect() const
-{
-    return r;
 }
 
 inline QTextParag *QTextParag::prev() const
