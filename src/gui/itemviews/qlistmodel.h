@@ -33,7 +33,7 @@ public:
     inline bool operator !=(const QListModelItem &other) const { return !operator==(other); }
 
 private:
-    QListModelItem(const QVariant &values);
+    QListModelItem(const QVariantList &elements);
     QString txt;
     QIconSet icn;
     uint edit : 1;
@@ -65,9 +65,9 @@ public:
     int columnCount(const QModelIndex &parent = 0) const;
 
     QVariant data(const QModelIndex &index, int element) const;
-    void setData(const QModelIndex &index, int element, const QVariant &variant);
-    void insertDataList(const QModelIndex &index, const QVariant &variant);
-    void appendDataList(const QVariant &variant);
+    void setData(const QModelIndex &index, int element, const QVariant &value);
+    void insertData(const QModelIndex &index, const QVariantList &elements);
+    void appendData(const QVariantList &elements);
 
     QVariant::Type type(const QModelIndex &index, int element) const;
     int element(const QModelIndex &index, QVariant::Type type) const;

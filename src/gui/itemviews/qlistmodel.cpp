@@ -8,14 +8,11 @@ QListModelItem::QListModelItem(QListModel *model)
 	model->append(this);
 }
 
-QListModelItem::QListModelItem(const QVariant &values)
+QListModelItem::QListModelItem(const QVariantList &elements)
     : edit(true), select(true)
 {
-    if (values.type() != QVariant::List)
-	return;
-    QList<QVariant> elementList = *reinterpret_cast< QList<QVariant> *>(&values.toList());
-    QList<QVariant>::ConstIterator it = elementList.begin();
-    for (int e = 0; e < elementList.count(); ++it, ++e) {
+    QVariantList::ConstIterator it = elements.begin();
+    for (int e = 0; e < elements.count(); ++it, ++e) {
 	if ((*it).type() == QVariant::String)
 	    setText((*it).toString());
 	else if ((*it).type() == QVariant::IconSet)
@@ -104,26 +101,26 @@ QVariant QListModel::data(const QModelIndex &index, int element) const
     return QVariant();
 }
 
-void QListModel::setData(const QModelIndex &index, int element, const QVariant &variant)
+void QListModel::setData(const QModelIndex &index, int element, const QVariant &value)
 {
     if (!index.isValid() || index.row() >= (int)lst.count())
 	return;
     if (element == 0)
-	lst[index.row()]->setText(variant.toString());
+	lst[index.row()]->setText(value.toString());
     else if (element == 1)
-	lst[index.row()]->setIconSet(variant.toIconSet());
+	lst[index.row()]->setIconSet(value.toIconSet());
     emit contentsChanged(index, index);
 }
 
-void QListModel::insertDataList(const QModelIndex &index, const QVariant &variant)
+void QListModel::insertData(const QModelIndex &index, const QVariantList &elements)
 {
-    lst.insert(index.row(), new QListModelItem(variant));
+    lst.insert(index.row(), new QListModelItem(elements));
 }
 
-void QListModel::appendDataList(const QVariant &variant)
+void QListModel::appendData(const QVariantList &elements)
 {
     (void)new QListModelItem(this);
-    setDataList(index(rowCount() - 1, 0, 0), variant);
+    QGenericItemModel::setData(index(rowCount() - 1, 0, 0), elements);
 }
 
 QVariant::Type QListModel::type(const QModelIndex &index, int element) const

@@ -66,11 +66,11 @@ public:
     virtual bool decode(QMimeSource *src);
 
     virtual QVariant data(const QModelIndex &index, int element) const = 0;
-    virtual QVariant dataList(const QModelIndex &index) const;
+    virtual QVariantList data(const QModelIndex &index) const;
     virtual void setData(const QModelIndex &index, int element, const QVariant &value);
-    virtual void setDataList(const QModelIndex &index, const QVariant &values);
-    virtual void insertDataList(const QModelIndex &index, const QVariant &values);
-    virtual void appendDataList(const QVariant &values);
+    virtual void setData(const QModelIndex &index, const QVariantList &elements);
+    virtual void insertData(const QModelIndex &index, const QVariantList &elements);
+    virtual void appendData(const QVariantList &elements);
 
     virtual QVariant::Type type(const QModelIndex &index, int element) const = 0;
     virtual int element(const QModelIndex &index, QVariant::Type type) const = 0;

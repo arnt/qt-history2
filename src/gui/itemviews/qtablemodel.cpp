@@ -1,13 +1,10 @@
 #include "qtablemodel.h"
 #include <qtl.h>
 
-QTableModelItem::QTableModelItem(const QVariant &values)
+QTableModelItem::QTableModelItem(const QVariantList &elements)
 {
-    if (values.type() != QVariant::List)
-	return;
-    QList<QVariant> elementList = *reinterpret_cast< QList<QVariant> *>(&values.toList());
-    QList<QVariant>::ConstIterator it = elementList.begin();
-    for (int e = 0; e < elementList.count(); ++it, ++e) {
+    QVariantList::ConstIterator it = elements.begin();
+    for (int e = 0; e < elements.count(); ++it, ++e) {
 	if ((*it).type() == QVariant::String)
 	    setText((*it).toString());
 	else if ((*it).type() == QVariant::IconSet)
@@ -84,6 +81,30 @@ void QTableModel::setColumnCount(int columns)
 	emit contentsInserted(topLeft, bottomRight);
     else
 	emit contentsRemoved(0, topLeft, bottomRight);
+}
+
+void QTableModel::insertRow(int at)
+{
+// FIXME: not implemented
+    qDebug("insertRow: not implemented");
+}
+
+void QTableModel::insertColumn(int at)
+{
+// FIXME: not implemented
+    qDebug("insertColumn: not implemented");
+}
+
+void QTableModel::removeRow(int at)
+{
+// FIXME: not implemented
+    qDebug("removeRow: not implemented");
+}
+
+void QTableModel::removeColumn(int at)
+{
+// FIXME: not implemented
+    qDebug("removeColumn: not implemented");
 }
 
 void QTableModel::setText(int row, int column, const QString &text)
@@ -236,7 +257,7 @@ QVariant QTableModel::data(const QModelIndex &index, int element) const
     return QVariant();
 }
 
-void QTableModel::setData(const QModelIndex &index, int element, const QVariant &variant)
+void QTableModel::setData(const QModelIndex &index, int element, const QVariant &value)
 {
     QTableModelItem *itm = item(index);
     if (!itm)
@@ -244,13 +265,13 @@ void QTableModel::setData(const QModelIndex &index, int element, const QVariant 
     if (!itm->isEditable())
 	return;
     if (element == 0)
-	itm->setText(variant.toString());
+	itm->setText(value.toString());
     else if (element == 1)
-	itm->setIconSet(variant.toIconSet());
+	itm->setIconSet(value.toIconSet());
     emit contentsChanged(index, index);
 }
 
-void QTableModel::insertDataList(const QModelIndex &index, const QVariant &variant)
+void QTableModel::insertData(const QModelIndex &index, const QVariantList &elements)
 {
     // inserts row
     int ti = tableIndex(index.row(), 0) - 1;
@@ -265,13 +286,13 @@ void QTableModel::insertDataList(const QModelIndex &index, const QVariant &varia
     leftHeader.insert(index.row(), 1, item);
     ++r;
 
-    setDataList(index, variant);
+    QGenericItemModel::setData(index, elements);
 }
 
-void QTableModel::appendDataList(const QVariant &variant)
+void QTableModel::appendData(const QVariantList &elements)
 {
     setRowCount(rowCount() + 1);
-    setDataList(index(rowCount() - 1, 0, 0), variant);
+    QGenericItemModel::setData(index(rowCount() - 1, 0, 0), elements);
 }
 
 QVariant::Type QTableModel::type(const QModelIndex &index, int element) const

@@ -5,15 +5,11 @@ QTreeModelItem::QTreeModelItem()
 {
 }
 
-QTreeModelItem::QTreeModelItem(const QVariant &values)
+QTreeModelItem::QTreeModelItem(const QVariantList &elements)
     : par(0), mod(0), c(0), edit(true), select(true)
 {
-    if (values.type() != QVariant::List)
-	return;
-    QList<QCoreVariant> lst = values.toList();
-    QList<QVariant> elementList = *reinterpret_cast< QList<QVariant> *>(&lst);
-    QList<QVariant>::ConstIterator it = elementList.begin();
-    for (int e = 0; e < elementList.count(); ++it, ++e) {
+    QVariantList::ConstIterator it = elements.begin();
+    for (int e = 0; e < elements.count(); ++it, ++e) {
 	if ((*it).type() == QVariant::String)
 	    setText(0, (*it).toString());
 	else if ((*it).type() == QVariant::IconSet)
@@ -239,7 +235,7 @@ QVariant QTreeModel::data(const QModelIndex &index, int element) const
     return QVariant();
 }
 
-void QTreeModel::setData(const QModelIndex &index, int element, const QVariant &variant)
+void QTreeModel::setData(const QModelIndex &index, int element, const QVariant &value)
 {
     if (!index.isValid())
 	return;
@@ -247,17 +243,17 @@ void QTreeModel::setData(const QModelIndex &index, int element, const QVariant &
     if (!itm)
 	return;
     if (element == 0)
-	itm->setText(index.column(), variant.toString());
+	itm->setText(index.column(), value.toString());
     else if (element == 1)
-	itm->setIconSet(index.column(), variant.toIconSet());
+	itm->setIconSet(index.column(), value.toIconSet());
     emit contentsChanged(index, index);
 }
 
-void QTreeModel::insertDataList(const QModelIndex &index, const QVariant &variant)
+void QTreeModel::insertData(const QModelIndex &index, const QVariantList &elements)
 {
     QTreeModelItem *sibling = item(index);
     QTreeModelItem *parent = (QTreeModelItem *)sibling->parent();
-    QTreeModelItem *itm = new QTreeModelItem(variant);
+    QTreeModelItem *itm = new QTreeModelItem(elements);
     if (parent) {
 	itm->par = parent;
 	itm->mod = this;
@@ -271,9 +267,9 @@ void QTreeModel::insertDataList(const QModelIndex &index, const QVariant &varian
     emitContentsInserted(itm);
 }
 
-void QTreeModel::appendDataList(const QVariant &variant)
+void QTreeModel::appendData(const QVariantList &elements)
 {
-    append(new QTreeModelItem(variant));
+    append(new QTreeModelItem(elements));
 }
 
 QVariant::Type QTreeModel::type(const QModelIndex &index, int element) const

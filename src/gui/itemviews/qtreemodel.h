@@ -45,7 +45,7 @@ public:
 
 private:
     QTreeModelItem();
-    QTreeModelItem(const QVariant &values);
+    QTreeModelItem(const QVariantList &elements);
     QTreeModelItem *par;
     QList<QTreeModelItem*> children;
     QVector<QString> txt;
@@ -89,9 +89,9 @@ public:
     int columnCount(const QModelIndex &parent) const;
 
     QVariant data(const QModelIndex &index, int element) const;
-    void setData(const QModelIndex &index, int element, const QVariant &variant);
-    void insertDataList(const QModelIndex &index, const QVariant &variant);
-    void appendDataList(const QVariant &variant);
+    void setData(const QModelIndex &index, int element, const QVariant &value);
+    void insertData(const QModelIndex &index, const QVariantList &elements);
+    void appendData(const QVariantList &elements);
 
     QVariant::Type type(const QModelIndex &index, int element) const;
     int element(const QModelIndex &index, QVariant::Type type) const;

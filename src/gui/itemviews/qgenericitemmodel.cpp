@@ -112,7 +112,7 @@ QByteArray QGenericItemModel::encodedData(const char *mime, const QModelIndexLis
     QVariantList variants;
     QModelIndexList::ConstIterator it = indices.begin();
     for (; it != indices.end(); ++it)
-	variants << dataList(*it);
+	variants << QVariant(data(*it)); // data returns a QVariantList
     QByteArray encoded;
     QDataStream stream(encoded, IO_WriteOnly);
     stream << QVariant(variants);
@@ -137,16 +137,16 @@ bool QGenericItemModel::decode(QMimeSource *src)
     QCoreVariantList variants = variant.toList();
     QCoreVariantList::ConstIterator it = variants.begin();
     for (int i = 0; it != variants.end(); ++it, ++i)
-	appendDataList(*it);
+	appendData(*reinterpret_cast< QList<QVariant> *>(&(*it).toList()));
     return true;
 }
 
-QVariant QGenericItemModel::dataList(const QModelIndex &index) const
+QVariantList QGenericItemModel::data(const QModelIndex &index) const
 {
-    QVariantList elementList;
+    QVariantList elements;
     for (int e = 0; e < elementCount(index); ++e)
-	elementList << data(index, e);
-    return QVariant(elementList);
+	elements << data(index, e);
+    return elements;
 }
 
 void QGenericItemModel::setData(const QModelIndex &, int, const QVariant &)
@@ -154,22 +154,19 @@ void QGenericItemModel::setData(const QModelIndex &, int, const QVariant &)
     // do nothing - read only
 }
 
-void QGenericItemModel::setDataList(const QModelIndex &index, const QVariant &values)
+void QGenericItemModel::setData(const QModelIndex &index, const QVariantList &elements)
 {
-    if (values.type() != QVariant::List)
-	return;
-    QCoreVariantList elementList = values.toList();
-    QCoreVariantList::ConstIterator it = elementList.begin();
-    for (int e = 0; it != elementList.end() && e < elementCount(index); ++it)
+    QVariantList::ConstIterator it = elements.begin();
+    for (int e = 0; it != elements.end() && e < elementCount(index); ++it)
 	setData(index, e++, *it);
 }
 
-void QGenericItemModel::insertDataList(const QModelIndex &, const QVariant &)
+void QGenericItemModel::insertData(const QModelIndex &, const QVariantList &)
 {
     // do nothing - read only
 }
 
-void QGenericItemModel::appendDataList(const QVariant &)
+void QGenericItemModel::appendData(const QVariantList &)
 {
     // do nothing - read only
 }
