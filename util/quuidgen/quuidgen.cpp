@@ -8,7 +8,9 @@
 #if defined(Q_WS_WIN32)
 #include <objbase.h>
 #else
+extern "C" {
 #include <uuid/uuid.h>
+}
 #endif
 
 QUuidGen::QUuidGen()
