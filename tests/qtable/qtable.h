@@ -41,8 +41,7 @@ class QPaintEvent;
 class QTimer;
 class QResizeEvent;
 
-class QTableItem : public Qt,
-		   public QShared
+class QTableItem : public Qt, public QShared
 {
     friend class QTable;
 
@@ -76,7 +75,7 @@ public:
     virtual void setSpan( int rs, int cs );
     int rowSpan() const;
     int colSpan() const;
-    
+
 protected:
     virtual void paint( QPainter *p, const QColorGroup &cg, const QRect &cr, bool selected );
 
@@ -90,7 +89,7 @@ private:
     QGuardedPtr<QWidget> lastEditor;
     int row, col;
     int rowspan, colspan;
-    
+
 };
 
 class QTable : public QScrollView
