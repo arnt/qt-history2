@@ -25,9 +25,9 @@
 IntroScreen::IntroScreen(QWidget *widget)
     : DemoWidget(widget), mouseDown(false)
 {
-    QFile textFile(":/res/text.html");
+    QFile textFile(":/res/html/qt4-arthur.html");
     if (!textFile.open(IO_ReadOnly))
-        text = "Unable to load text file: 'text.html'";
+        text = "Unable to load resource file: 'qt4-arthur.html'";
     else
         text = textFile.readAll();
 
