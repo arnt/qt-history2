@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qstatusbar.cpp#36 $
+** $Id: //depot/qt/main/src/widgets/qstatusbar.cpp#37 $
 **
 ** Implementation of QStatusBar class
 **
@@ -300,11 +300,12 @@ void QStatusBar::hideOrShow()
 
 /*!  Shows the temporary message, if appropriate. */
 
-void QStatusBar::paintEvent( QPaintEvent * )
+void QStatusBar::paintEvent( QPaintEvent * event )
 {
     QStatusBarPrivate::StatusBarPrivateItem * i;
     bool b = (d->temporary.length() == 0);
     QPainter p( this );
+    p.setClipRegion( event->region() );
     d->items.first();
     while( (i=d->items.current()) != 0 ) {
 	d->items.next();
