@@ -912,13 +912,9 @@ bool QApplication::x11_apply_settings()
 
     // read new QStyle
     QString stylename = settings.readEntry("/qt/style");
-    if (! stylename.isNull() && ! stylename.isEmpty()) {
-	QStyle *style = QStyleFactory::create(stylename);
-	if (style)
-	    QApplication::setStyle(style);
-	else
-	    stylename = "default";
-    } else
+    if (! stylename.isNull() && ! stylename.isEmpty())
+	QApplication::setStyle(stylename);
+    else
 	stylename = "default";
 
     num =
