@@ -203,47 +203,47 @@ static void setMaxWindowRect(const QRect& r)
  *****************************************************************************/
 
 
-static const char *appName;                        // application name
-static const char *appFont        = 0;                // application font
-static const char *appBGCol        = 0;                // application bg color
-static const char *appFGCol        = 0;                // application fg color
-static const char *appBTNCol        = 0;                // application btn color
-static const char *mwGeometry        = 0;                // main widget geometry
-static const char *mwTitle        = 0;                // main widget title
-//static bool        mwIconic        = false;        // main widget iconified
+static QString appName;                          // application name
+static const char *appFont = 0;                  // application font
+static const char *appBGCol = 0;                 // application bg color
+static const char *appFGCol = 0;                 // application fg color
+static const char *appBTNCol = 0;                // application btn color
+static const char *mwGeometry = 0;               // main widget geometry
+static const char *mwTitle = 0;                  // main widget title
+//static bool mwIconic = false;                  // main widget iconified
 
-static bool        app_do_modal        = false;        // modal mode
-QWSDisplay*        qt_fbdpy = 0;                        // QWS `display'
+static bool app_do_modal = false;                // modal mode
+QWSDisplay *qt_fbdpy = 0;                        // QWS `display'
 QLock *QWSDisplay::lock = 0;
 
-static int        mouseButtonPressed   = 0;        // last mouse button pressed
-static int        mouseButtonPressTime = 0;        // when was a button pressed
-static short        mouseXPos, mouseYPos;                // mouse position in act window
+static int mouseButtonPressed = 0;               // last mouse button pressed
+static int mouseButtonPressTime = 0;             // when was a button pressed
+static short mouseXPos, mouseYPos;               // mouse position in act window
 
-extern QWidgetList *qt_modal_stack;                // stack of modal widgets
+extern QWidgetList *qt_modal_stack;              // stack of modal widgets
 
-static QWidget     *popupButtonFocus = 0;
-static QWidget     *popupOfPopupButtonFocus = 0;
-static bool            popupCloseDownMode = false;
-static bool            popupGrabOk;
+static QWidget *popupButtonFocus = 0;
+static QWidget *popupOfPopupButtonFocus = 0;
+static bool popupCloseDownMode = false;
+static bool popupGrabOk;
 static QPointer<QWidget> *mouseInWidget = 0;
 
-static bool sm_blockUserInput = false;                // session management
-static QPointer<QWidget>* activeBeforePopup = 0; // focus handling with popu
+static bool sm_blockUserInput = false;           // session management
+static QPointer<QWidget> *activeBeforePopup = 0; // focus handling with popu
 
-QWidget               *qt_button_down         = 0;                // widget got last button-down
-WId qt_last_cursor = 0xffffffff;  // Was -1, but WIds are unsigned
+QWidget *qt_button_down = 0;                     // widget got last button-down
+WId qt_last_cursor = 0xffffffff;                 // Was -1, but WIds are unsigned
 
 class QWSMouseEvent;
 class QWSKeyEvent;
 
-class QETWidget : public QWidget                // event translator widget
+class QETWidget : public QWidget                 // event translator widget
 {
 public:
-    void setWState(Qt::WState f)                { QWidget::setWState(f); }
-    void clearWState(Qt::WState f)        { QWidget::clearWState(f); }
-    void setWFlags(Qt::WFlags f)                { QWidget::setWFlags(f); }
-    void clearWFlags(Qt::WFlags f)        { QWidget::clearWFlags(f); }
+    void setWState(Qt::WState f) { QWidget::setWState(f); }
+    void clearWState(Qt::WState f) { QWidget::clearWState(f); }
+    void setWFlags(Qt::WFlags f) { QWidget::setWFlags(f); }
+    void clearWFlags(Qt::WFlags f) { QWidget::clearWFlags(f); }
     bool translateMouseEvent(const QWSMouseEvent *, int oldstate);
     bool translateKeyEvent(const QWSKeyEvent *, bool grab);
     bool translateRegionModifiedEvent(const QWSRegionModifiedEvent *);
@@ -1665,7 +1665,7 @@ void qt_cleanup()
   Platform specific global and internal functions
  *****************************************************************************/
 
-const char *qAppName()                                // get application name
+QString qAppName() // get application name
 {
     return appName;
 }
@@ -2940,7 +2940,7 @@ void QETWidget::repaintDecoration(QRegion r, bool post)
             r.translate(-data->crect.x(),-data->crect.y());
             if (post) {
                 //### why not use r here as well?
-                QApplication::postEvent(d->topData()->qwsManager, new QPaintEvent(clipRegion()));
+                QApplication::postEvent(d->topData()->qwsManager, new QPaintEvent(visibleRegion()));
             } else {
                 QPaintEvent e(r&visibleRegion());
                 QApplication::sendEvent(d->topData()->qwsManager, &e);
