@@ -599,6 +599,11 @@ void QDialog::adjustPosition( QWidget* w)
 
 void QDialog::adjustPositionInternal( QWidget*w, bool useRelPos)
 {
+    /* need to make sure these events are already sent to be sure
+       our information below is correct --sam */
+    QApplication::sendPostedEvents(this, QEvent::LayoutHint);
+    QApplication::sendPostedEvents(this, QEvent::Resize);
+
     QPoint p( 0, 0 );
     int extraw = 0, extrah = 0;
     if ( w )

@@ -38,11 +38,16 @@ QRgb macGetRgba( QRgb initial, bool *ok, QWidget *parent, const char* )
 {
     Point p = { -1, -1 };
     const uchar *pstr = p_str("Choose a color");
-    static const int sw = 200, sh = 350;
+    static const int sw = 420, sh = 300;
     if(parent) {
 	parent = parent->topLevelWidget();
 	p.h = (parent->x() + (parent->width() / 2)) - (sw / 2);
 	p.v = (parent->y() + (parent->height() / 2)) - (sh / 2);
+	QRect r = QApplication::desktop()->screenGeometry(QApplication::desktop()->screenNumber(parent));
+	if(p.h + sw > r.right())
+	    p.h -= (p.h + sw) - r.right() + 10;
+	if(p.v + sh > r.bottom())
+	    p.v -= (p.v + sh) - r.bottom() + 10;
     } else if(QWidget *w = qApp->mainWidget()) {
 	static int last_screen = -1;
 	int scr = QApplication::desktop()->screenNumber(w);
