@@ -1801,9 +1801,10 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
                     } else {
                         dirs.append(QDir::currentDirPath());
                     }
+
                     const QRegExp regex(r, QString::CaseSensitive, QRegExp::Wildcard);
-                    for(QStringList::Iterator it = dirs.begin(); it != dirs.end(); ++it) {
-                        QString dir = *it;
+                    for(int d = 0; d < dirs.count(); d++) {
+                        QString dir = dirs[d];
                         if(!dir.endsWith(Option::dir_sep))
                            dir += "/";
                         QDir qdir(dir);
@@ -1812,7 +1813,7 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
                                 continue;
                             QString fname = dir + qdir[i];
                             if(QFileInfo(fname).isDir()) {
-                                if(recursive)
+                                if(recursive) 
                                     dirs.append(fname);
                             } else if(regex.exactMatch(fname)) {
                                 if(!replacement.isEmpty())
