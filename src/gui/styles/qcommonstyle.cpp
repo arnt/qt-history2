@@ -29,9 +29,7 @@
 #include "qtoolbutton.h"
 #include "private/qcommonstylepixmaps_p.h"
 
-#ifndef QT_NO_DEBUG
 #include <QtCore/qdebug.h>
-#endif
 
 #include <limits.h>
 
@@ -1999,9 +1997,9 @@ QStyle::SubControl QCommonStyle::hitTestComplexControl(ComplexControl cc, const 
     case CC_TitleBar:
         if (const QStyleOptionTitleBar *tb = qstyleoption_cast<const QStyleOptionTitleBar *>(opt)) {
             QRect r;
-            uint ctrl = SC_TitleBarLabel;
+            uint ctrl = SC_TitleBarSysMenu;
 
-            while (ctrl <= SC_TitleBarUnshadeButton) {
+            while (ctrl <= SC_TitleBarLabel) {
                 r = visualRect(opt->direction, opt->rect,
                                subControlRect(cc, tb, QStyle::SubControl(ctrl), widget));
                 if (r.isValid() && r.contains(pt)) {

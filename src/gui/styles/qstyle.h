@@ -290,7 +290,7 @@ public:
         SC_SpinBoxDown =           0x00000002,
         SC_SpinBoxFrame =          0x00000004,
         SC_SpinBoxEditField =      0x00000008,
-        
+
         SC_ComboBoxFrame =         0x00000001,
         SC_ComboBoxEditField =     0x00000002,
         SC_ComboBoxArrow =         0x00000004,
@@ -303,15 +303,15 @@ public:
         SC_ToolButton =            0x00000001,
         SC_ToolButtonMenu =        0x00000002,
 
-        SC_TitleBarLabel =         0x00000001,
-        SC_TitleBarSysMenu =       0x00000002,
-        SC_TitleBarMinButton =     0x00000004,
-        SC_TitleBarMaxButton =     0x00000008,
-        SC_TitleBarCloseButton =   0x00000010,
-        SC_TitleBarNormalButton =  0x00000020,
-        SC_TitleBarShadeButton =   0x00000040,
-        SC_TitleBarUnshadeButton = 0x00000080,
-        SC_TitleBarContextHelpButton = 0x00000100,
+        SC_TitleBarSysMenu =       0x00000001,
+        SC_TitleBarMinButton =     0x00000002,
+        SC_TitleBarMaxButton =     0x00000004,
+        SC_TitleBarCloseButton =   0x00000008,
+        SC_TitleBarNormalButton =  0x00000010,
+        SC_TitleBarShadeButton =   0x00000020,
+        SC_TitleBarUnshadeButton = 0x00000040,
+        SC_TitleBarContextHelpButton = 0x00000080,
+        SC_TitleBarLabel =         0x00000100,
 
         SC_Q3ListView =            0x00000001,
         SC_Q3ListViewBranch =      0x00000002,

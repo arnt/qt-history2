@@ -429,17 +429,13 @@ void Q3TitleBar::paintEvent(QPaintEvent *)
     if(autoRaise() && underMouse()) {
         under_mouse = style()->hitTestComplexControl(QStyle::CC_TitleBar, &opt,
                                                      mapFromGlobal(QCursor::pos()), this);
-        opt.subControls ^= under_mouse;
+        opt.activeSubControls |= under_mouse;
+        opt.state |= QStyle::State_MouseOver;
     }
     opt.palette.setCurrentColorGroup(usesActiveColor() ? QPalette::Active : QPalette::Inactive);
 
     QPainter p(this);
     style()->drawComplexControl(QStyle::CC_TitleBar, &opt, &p, this);
-    if (under_mouse != QStyle::SC_None) {
-        opt.state |= QStyle::State_MouseOver;
-        opt.subControls = under_mouse;
-        style()->drawComplexControl(QStyle::CC_TitleBar, &opt, &p, this);
-    }
 }
 
 void Q3TitleBar::mouseDoubleClickEvent(QMouseEvent *e)
