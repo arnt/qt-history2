@@ -42,7 +42,7 @@ public:
     QFileInfo( const QDir &, const QString &fileName );
 #endif
     QFileInfo( const QFileInfo & );
-   ~QFileInfo();
+    ~QFileInfo();
 
     QFileInfo  &operator=( const QFileInfo & );
 

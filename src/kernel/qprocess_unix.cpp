@@ -24,8 +24,7 @@
 #ifndef QT_NO_PROCESS
 
 #include "qapplication.h"
-#include "qptrqueue.h"
-#include "qptrlist.h"
+#include "qlist.h"
 #include "qsocketnotifier.h"
 #include "qtimer.h"
 #include "qcleanuphandler.h"
@@ -73,7 +72,7 @@ public:
     QMembuf bufStdout;
     QMembuf bufStderr;
 
-    QPtrQueue<QByteArray> stdinBuf;
+    QList<QByteArray *> stdinBuf;
 
     QSocketNotifier *notifierStdin;
     QSocketNotifier *notifierStdout;
@@ -156,9 +155,6 @@ public:
     QProcessManager();
     ~QProcessManager();
 
-    void append( QProc *p );
-    void remove( QProc *p );
-
     void cleanup();
 
 public slots:
@@ -168,7 +164,7 @@ public slots:
 public:
     struct sigaction oldactChld;
     struct sigaction oldactPipe;
-    QPtrList<QProc> *procList;
+    QList<QProc *> procList;
     int sigchldFd[2];
 
 private:
@@ -228,8 +224,7 @@ int qnx6SocketPairReplacement (int socketFD[2]) {
 
 QProcessManager::QProcessManager() : sn(0)
 {
-    procList = new QPtrList<QProc>;
-    procList->setAutoDelete( TRUE );
+    procList.setAutoDelete( TRUE );
 
     // The SIGCHLD handler writes to a socket to tell the manager that
     // something happened. This is done to get the processing in sync with the
@@ -281,8 +276,6 @@ QProcessManager::QProcessManager() : sn(0)
 
 QProcessManager::~QProcessManager()
 {
-    delete procList;
-
     if ( sigchldFd[0] != 0 )
 	::close( sigchldFd[0] );
     if ( sigchldFd[1] != 0 )
@@ -302,33 +295,16 @@ QProcessManager::~QProcessManager()
 	qWarning( "Error restoring SIGPIPE handler" );
 }
 
-void QProcessManager::append( QProc *p )
-{
-    procList->append( p );
-#if defined(QT_QPROCESS_DEBUG)
-    qDebug( "QProcessManager: append process (procList.count(): %d)", procList->count() );
-#endif
-}
-
-void QProcessManager::remove( QProc *p )
-{
-    procList->remove( p );
-#if defined(QT_QPROCESS_DEBUG)
-    qDebug( "QProcessManager: remove process (procList.count(): %d)", procList->count() );
-#endif
-    cleanup();
-}
-
 void QProcessManager::cleanup()
 {
-    if ( procList->count() == 0 ) {
+    if ( procList.count() == 0 ) {
 	QTimer::singleShot( 0, this, SLOT(removeMe()) );
     }
 }
 
 void QProcessManager::removeMe()
 {
-    if ( procList->count() == 0 ) {
+    if ( procList.count() == 0 ) {
 	qprocess_cleanup_procmanager.remove( &QProcessPrivate::procManager );
 	QProcessPrivate::procManager = 0;
 	delete this;
@@ -353,11 +329,11 @@ void QProcessManager::sigchldHnd( int fd )
 #if defined(QT_QPROCESS_DEBUG)
     qDebug( "QProcessManager::sigchldHnd()" );
 #endif
-    QProc *proc;
     QProcess *process;
     bool removeProc;
-    proc = procList->first();
-    while ( proc != 0 ) {
+    int i = 0;
+    while (i < procList.count()) {
+	QProc *proc = procList.at(i);
 	removeProc = FALSE;
 	process = proc->process;
 	if ( process != 0 ) {
@@ -420,17 +396,16 @@ void QProcessManager::sigchldHnd( int fd )
 		removeProc = TRUE;
 	    }
 	}
-	if ( removeProc ) {
-	    QProc *oldproc = proc;
-	    proc = procList->next();
-	    remove( oldproc );
-	} else {
-	    proc = procList->next();
-	}
+	if ( removeProc )
+	    procList.removeAt(i);
+	else
+	    i++;
     }
+    cleanup();
     if ( sn )
 	sn->setEnabled( TRUE );
 }
+
 
 #include "qprocess_unix.moc"
 
@@ -448,6 +423,7 @@ QProcessPrivate::QProcessPrivate()
     qDebug( "QProcessPrivate: Constructor" );
 #endif
     stdinBufRead = 0;
+    stdinBuf.setAutoDelete(true);
 
     notifierStdin = 0;
     notifierStdout = 0;
@@ -473,9 +449,6 @@ QProcessPrivate::~QProcessPrivate()
 	proc->process = 0;
     }
 
-    while ( !stdinBuf.isEmpty() ) {
-	delete stdinBuf.dequeue();
-    }
     delete notifierStdin;
     delete notifierStdout;
     delete notifierStderr;
@@ -495,7 +468,9 @@ void QProcessPrivate::closeOpenSocketsForChild()
 	    ::close( procManager->sigchldFd[1] );
 
 	// close also the sockets from other QProcess instances
-	for ( QProc *p=procManager->procList->first(); p!=0; p=procManager->procList->next() ) {
+        for (int i =0; i < procManager->procList.count(); ++i) {
+            QProc *p = procManager->procList.at(i);
+
 	    ::close( p->socketStdin );
 	    ::close( p->socketStdout );
 	    ::close( p->socketStderr );
@@ -511,7 +486,7 @@ void QProcessPrivate::newProc( pid_t pid, QProcess *process )
 	qprocess_cleanup_procmanager.add( &procManager );
     }
     // the QProcessManager takes care of deleting the QProc instances
-    procManager->append( proc );
+    procManager->procList.append(proc);
 }
 
 /***********************************************************************
@@ -1133,7 +1108,7 @@ void QProcess::writeToStdin( const QByteArray& buf )
 #if defined(QT_QPROCESS_DEBUG)
 //    qDebug( "QProcess::writeToStdin(): write to stdin (%d)", d->socketStdin );
 #endif
-    d->stdinBuf.enqueue( new QByteArray(buf) );
+    d->stdinBuf.append( new QByteArray(buf) );
     if ( d->notifierStdin != 0 )
 	d->notifierStdin->setEnabled( TRUE );
 }
@@ -1152,9 +1127,7 @@ void QProcess::closeStdin()
     if ( d->proc == 0 )
 	return;
     if ( d->proc->socketStdin !=0 ) {
-	while ( !d->stdinBuf.isEmpty() ) {
-	    delete d->stdinBuf.dequeue();
-	}
+	d->stdinBuf.clear();
 	delete d->notifierStdin;
 	d->notifierStdin = 0;
 	if ( ::close( d->proc->socketStdin ) != 0 ) {
@@ -1295,17 +1268,17 @@ void QProcess::socketWrite( int fd )
 	    return;
 	}
 	ssize_t ret = ::write( fd,
-		d->stdinBuf.head()->data() + d->stdinBufRead,
-		d->stdinBuf.head()->size() - d->stdinBufRead );
+		d->stdinBuf.first()->data() + d->stdinBufRead,
+		d->stdinBuf.first()->size() - d->stdinBufRead );
 #if defined(QT_QPROCESS_DEBUG)
 	qDebug( "QProcess::socketWrite(): wrote %d bytes to stdin (%d)", ret, fd );
 #endif
 	if ( ret == -1 )
 	    return;
 	d->stdinBufRead += ret;
-	if ( d->stdinBufRead == (ssize_t)d->stdinBuf.head()->size() ) {
+	if ( d->stdinBufRead == (ssize_t)d->stdinBuf.first()->size() ) {
 	    d->stdinBufRead = 0;
-	    delete d->stdinBuf.dequeue();
+	    d->stdinBuf.removeFirst();
 	    if ( wroteToStdinConnected && d->stdinBuf.isEmpty() )
 		emit wroteToStdin();
 	}

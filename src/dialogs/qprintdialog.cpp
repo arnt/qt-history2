@@ -241,18 +241,16 @@ static int parsePrintcap( QListView * printers, const QString& fileName )
 static void parseEtcLpPrinters( QListView * printers )
 {
     QDir lp( QString::fromLatin1("/etc/lp/printers") );
-    const QFileInfoList * dirs = lp.entryInfoList();
+    QFileInfoList dirs = lp.entryInfoList();
     if ( !dirs )
 	return;
 
-    QFileInfoListIterator it( *dirs );
-    QFileInfo *printer;
     QString tmp;
-    while ( (printer = it.current()) != 0 ) {
-	++it;
-	if ( printer->isDir() ) {
+    for (int i = 0; i < dirs.size(); ++i) {
+	QFileInfo printer = dirs.at(i);
+	if ( printer.isDir() ) {
 	    tmp.sprintf( "/etc/lp/printers/%s/configuration",
-			 printer->fileName().ascii() );
+			 printer.fileName().ascii() );
 	    QFile configuration( tmp );
 	    char * line = new char[1025];
 	    QString remote( QString::fromLatin1("Remote:") );
@@ -299,7 +297,7 @@ static void parseEtcLpPrinters( QListView * printers )
 		    }
 		}
 		if ( canPrintPostscript )
-		    perhapsAddPrinter( printers, printer->fileName(),
+		    perhapsAddPrinter( printers, printer.fileName(),
 				       printerHost, QString::fromLatin1("") );
 	    }
 	    delete[] line;
@@ -583,21 +581,19 @@ static void parseEtcLpMember( QListView * printers )
     QDir lp( QString::fromLatin1("/etc/lp/member") );
     if ( !lp.exists() )
 	return;
-    const QFileInfoList * dirs = lp.entryInfoList();
+    QFileInfoList dirs = lp.entryInfoList();
     if ( !dirs )
 	return;
 
-    QFileInfoListIterator it( *dirs );
-    QFileInfo *printer;
     QString tmp;
-    while ( (printer = it.current()) != 0 ) {
-	++it;
+    for (int i = 0; i < dirs.size(); ++i) {
+	QFileInfo printer = dirs.at(i);
 	// I haven't found any real documentation, so I'm guessing that
 	// since lpstat uses /etc/lp/member rather than one of the
 	// other directories, it's the one to use.  I did not find a
 	// decent way to locate aliases and remote printers.
-	if ( printer->isFile() )
-	    perhapsAddPrinter( printers, printer->fileName(),
+	if ( printer.isFile() )
+	    perhapsAddPrinter( printers, printer.fileName(),
 			       QPrintDialog::tr("unknown"),
 			       QString::fromLatin1("") );
     }
@@ -609,20 +605,18 @@ static void parseSpoolInterface( QListView * printers )
     QDir lp( QString::fromLatin1("/usr/spool/lp/interface") );
     if ( !lp.exists() )
 	return;
-    const QFileInfoList * files = lp.entryInfoList();
+    QFileInfoList files = lp.entryInfoList();
     if( !files )
 	return;
 
-    QFileInfoListIterator it( *files );
-    QFileInfo *printer;
-    while ( (printer = it.current()) != 0) {
-	++it;
+    for (int i = 0; i < files.size(); ++i) {
+	QFileInfo printer = files.at(i);
 
-	if ( !printer->isFile() )
+	if ( !printer.isFile() )
 	    continue;
 
 	// parse out some information
-	QFile configFile( printer->filePath() );
+	QFile configFile( printer.filePath() );
 	if ( !configFile.open( IO_ReadOnly ) )
 	    continue;
 
@@ -665,7 +659,7 @@ static void parseSpoolInterface( QListView * printers )
 	    namePrinter.remove( ii, 1 );
 
 	if ( hostName.isEmpty() || hostPrinter.isEmpty() ) {
-	    perhapsAddPrinter( printers, printer->fileName(),
+	    perhapsAddPrinter( printers, printer.fileName(),
 			       QString::fromLatin1(""), namePrinter );
 	} else {
 	    QString comment;
@@ -673,7 +667,7 @@ static void parseSpoolInterface( QListView * printers )
 	    comment += " (";
 	    comment += hostPrinter;
 	    comment += ")";
-	    perhapsAddPrinter( printers, printer->fileName(),
+	    perhapsAddPrinter( printers, printer.fileName(),
 			       hostName, comment );
 	}
     }

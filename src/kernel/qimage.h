@@ -29,7 +29,7 @@ class QPixmap;
 
 class QImageDataMisc; // internal
 #ifndef QT_NO_IMAGE_TEXT
-class Q_KERNEL_EXPORT QImageTextKeyLang {
+class Q_GUI_EXPORT QImageTextKeyLang {
 public:
     QImageTextKeyLang(const char* k, const char* l) : key(k), lang(l) { }
     QImageTextKeyLang() { }
@@ -45,7 +45,7 @@ public:
 #endif //QT_NO_IMAGE_TEXT
 
 
-class Q_KERNEL_EXPORT QImage
+class Q_GUI_EXPORT QImage
 {
 public:
     enum Endian { IgnoreEndian, BigEndian, LittleEndian };
@@ -232,7 +232,7 @@ private:
 #ifndef QT_NO_IMAGEIO
     bool doImageIO( QImageIO* io, int quality ) const;
 #endif
-    friend Q_KERNEL_EXPORT void bitBlt( QImage* dst, int dx, int dy,
+    friend Q_GUI_EXPORT void bitBlt( QImage* dst, int dx, int dy,
 				 const QImage* src, int sx, int sy,
 				 int sw, int sh, int conversion_flags );
 };
@@ -241,8 +241,8 @@ private:
 // QImage stream functions
 
 #if !defined(QT_NO_DATASTREAM) && !defined(QT_NO_IMAGEIO)
-Q_KERNEL_EXPORT QDataStream &operator<<( QDataStream &, const QImage & );
-Q_KERNEL_EXPORT QDataStream &operator>>( QDataStream &, QImage & );
+Q_GUI_EXPORT QDataStream &operator<<( QDataStream &, const QImage & );
+Q_GUI_EXPORT QDataStream &operator>>( QDataStream &, QImage & );
 #endif
 
 #ifndef QT_NO_IMAGEIO
@@ -253,7 +253,7 @@ typedef void (*image_io_handler)( QImageIO * ); // image IO handler
 struct QImageIOData;
 
 
-class Q_KERNEL_EXPORT QImageIO
+class Q_GUI_EXPORT QImageIO
 {
 public:
     QImageIO();
@@ -323,10 +323,10 @@ private:	// Disabled copy constructor and operator=
 #  if defined(Q_WS_WIN)
 #    define QT_XFORM_TYPE_WINDOWSPIXMAP 2
 #  endif
-Q_KERNEL_EXPORT bool qt_xForm_helper( const QWMatrix&, int, int, int, uchar*, int, int, int, uchar*, int, int, int );
+Q_GUI_EXPORT bool qt_xForm_helper( const QWMatrix&, int, int, int, uchar*, int, int, int, uchar*, int, int, int );
 #endif
 
-Q_KERNEL_EXPORT void bitBlt( QImage* dst, int dx, int dy, const QImage* src,
+Q_GUI_EXPORT void bitBlt( QImage* dst, int dx, int dy, const QImage* src,
 		      int sx=0, int sy=0, int sw=-1, int sh=-1,
 		      int conversion_flags=0 );
 

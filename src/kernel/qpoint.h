@@ -20,7 +20,7 @@
 #endif // QT_H
 
 
-class Q_EXPORT QPoint
+class Q_GUI_EXPORT QPoint
 {
 public:
     QPoint();
@@ -73,8 +73,8 @@ private:
   QPoint stream functions
  *****************************************************************************/
 #ifndef QT_NO_DATASTREAM
-Q_EXPORT QDataStream &operator<<( QDataStream &, const QPoint & );
-Q_EXPORT QDataStream &operator>>( QDataStream &, QPoint & );
+Q_GUI_EXPORT QDataStream &operator<<( QDataStream &, const QPoint & );
+Q_GUI_EXPORT QDataStream &operator>>( QDataStream &, QPoint & );
 #endif
 
 /*****************************************************************************

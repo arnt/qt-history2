@@ -24,7 +24,7 @@
 // don't just silently undo people's defines: #undef topLeft
 #endif
 
-class Q_EXPORT QRect					// rectangle class
+class Q_GUI_EXPORT QRect					// rectangle class
 {
 public:
     QRect()	{ x1 = y1 = 0; x2 = y2 = -1; }
@@ -106,8 +106,8 @@ public:
     QRect  intersect( const QRect &r ) const;
     bool   intersects( const QRect &r ) const;
 
-    friend Q_EXPORT bool operator==( const QRect &, const QRect & );
-    friend Q_EXPORT bool operator!=( const QRect &, const QRect & );
+    friend Q_GUI_EXPORT bool operator==( const QRect &, const QRect & );
+    friend Q_GUI_EXPORT bool operator!=( const QRect &, const QRect & );
 
 private:
 #if defined(Q_WS_X11) || defined(Q_OS_TEMP)
@@ -126,16 +126,16 @@ private:
 #endif
 };
 
-Q_EXPORT bool operator==( const QRect &, const QRect & );
-Q_EXPORT bool operator!=( const QRect &, const QRect & );
+Q_GUI_EXPORT bool operator==( const QRect &, const QRect & );
+Q_GUI_EXPORT bool operator!=( const QRect &, const QRect & );
 
 
 /*****************************************************************************
   QRect stream functions
  *****************************************************************************/
 #ifndef QT_NO_DATASTREAM
-Q_EXPORT QDataStream &operator<<( QDataStream &, const QRect & );
-Q_EXPORT QDataStream &operator>>( QDataStream &, QRect & );
+Q_GUI_EXPORT QDataStream &operator<<( QDataStream &, const QRect & );
+Q_GUI_EXPORT QDataStream &operator>>( QDataStream &, QRect & );
 #endif
 
 /*****************************************************************************

@@ -21,7 +21,7 @@
 #endif // QT_H
 
 
-class Q_EXPORT QPointArray : public QVector<QPoint>
+class Q_GUI_EXPORT QPointArray : public QVector<QPoint>
 {
 public:
     inline QPointArray() {}
@@ -67,8 +67,8 @@ public:
   QPointArray stream functions
  *****************************************************************************/
 #ifndef QT_NO_DATASTREAM
-Q_EXPORT QDataStream &operator<<(QDataStream &stream, const QPointArray &array);
-Q_EXPORT QDataStream &operator>>(QDataStream &stream, QPointArray &array);
+Q_GUI_EXPORT QDataStream &operator<<(QDataStream &stream, const QPointArray &array);
+Q_GUI_EXPORT QDataStream &operator>>(QDataStream &stream, QPointArray &array);
 #endif
 
 /*****************************************************************************

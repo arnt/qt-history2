@@ -111,8 +111,7 @@ void QLocalFs::operationListChildren( QNetworkOperation *op )
 	return;
     }
 
-    const QFileInfoList *filist = dir.entryInfoList( QDir::All | QDir::Hidden | QDir::System );
-    if ( !filist ) {
+    if (!dir.isReadable()) {
 	QString msg = tr( "Could not read directory\n%1" ).arg( url()->path() );
 	op->setState( StFailed );
 	op->setProtocolDetail( msg );
@@ -123,14 +122,13 @@ void QLocalFs::operationListChildren( QNetworkOperation *op )
 
     emit start( op );
 
-    QFileInfoListIterator it( *filist );
-    QFileInfo *fi;
+    QFileInfoList filist = dir.entryInfoList( QDir::All | QDir::Hidden | QDir::System );
     QList<QUrlInfo> infos;
-    while ( ( fi = it.current() ) != 0 ) {
-	++it;
-	infos << QUrlInfo( fi->fileName(), convertPermissions(fi), fi->owner(), fi->group(),
-			   fi->size(), fi->lastModified(), fi->lastRead(), fi->isDir(), fi->isFile(),
-			   fi->isSymLink(), fi->isWritable(), fi->isReadable(), fi->isExecutable() );
+    for (int i = 0; i < filist.size(); ++i) {
+	QFileInfo fi = filist.at(i);
+	infos << QUrlInfo( fi.fileName(), convertPermissions(&fi), fi.owner(), fi.group(),
+			   fi.size(), fi.lastModified(), fi.lastRead(), fi.isDir(), fi.isFile(),
+			   fi.isSymLink(), fi.isWritable(), fi.isReadable(), fi.isExecutable() );
     }
     emit newChildren( infos, op );
     op->setState( StDone );

@@ -27,7 +27,7 @@
 #ifndef QT_NO_WMATRIX
 
 
-class Q_EXPORT QWMatrix					// 2D transform matrix
+class Q_GUI_EXPORT QWMatrix					// 2D transform matrix
 {
 public:
     QWMatrix();
@@ -92,15 +92,15 @@ private:
     double	_dx,  _dy;
 };
 
-Q_EXPORT QWMatrix operator*( const QWMatrix &, const QWMatrix & );
+Q_GUI_EXPORT QWMatrix operator*( const QWMatrix &, const QWMatrix & );
 
 
 /*****************************************************************************
   QWMatrix stream functions
  *****************************************************************************/
 
-Q_EXPORT QDataStream &operator<<( QDataStream &, const QWMatrix & );
-Q_EXPORT QDataStream &operator>>( QDataStream &, QWMatrix & );
+Q_GUI_EXPORT QDataStream &operator<<( QDataStream &, const QWMatrix & );
+Q_GUI_EXPORT QDataStream &operator>>( QDataStream &, QWMatrix & );
 
 
 #endif // QT_NO_WMATRIX

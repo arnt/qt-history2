@@ -21,7 +21,6 @@
 #include "qmap.h"
 #include "../tools/qhash.h"
 #include "qdir.h"
-#include "qptrdict.h"
 #include "qguardedptr.h"
 
 //#define QURLOPERATOR_DEBUG
@@ -1127,12 +1126,12 @@ void QUrlOperator::stop()
     for (; it != d->getOpPutProtMap.end(); ++it)
 	(*it)->stop();
     d->getOpPutProtMap.clear();
-    
+
     it = d->getOpGetProtMap.begin();
     for (; it != d->getOpGetProtMap.end(); ++it)
 	(*it)->stop();
     d->getOpGetProtMap.clear();
-    
+
     if ( d->currPut ) {
 	d->currPut->stop();
 	delete (QNetworkProtocol *) d->currPut;

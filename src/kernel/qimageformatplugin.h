@@ -24,7 +24,7 @@
 class QImageFormat;
 class QImageFormatPluginPrivate;
 
-class Q_EXPORT QImageFormatPlugin : public QGPlugin
+class Q_GUI_EXPORT QImageFormatPlugin : public QGPlugin
 {
     Q_OBJECT
 public:

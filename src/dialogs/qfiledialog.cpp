@@ -2470,14 +2470,12 @@ void QFileDialog::init()
     d->paths = new QComboBox( TRUE, this, "directory history/editor" );
     d->paths->setDuplicatesEnabled( FALSE );
     d->paths->setInsertionPolicy( QComboBox::NoInsertion );
-    const QFileInfoList * rootDrives = QDir::drives();
-    QFileInfoListIterator it( *rootDrives );
-    QFileInfo *fi;
     makeVariables();
 
-    while ( (fi = it.current()) != 0 ) {
-	++it;
-	d->paths->insertItem( *openFolderIcon, fi->absFilePath() );
+    QFileInfoList rootDrives = QDir::drives();
+    for (int i = 0; i < rootDrives.size(); ++i) {
+	QFileInfo fi = rootDrives.at(i);
+	d->paths->insertItem( *openFolderIcon, fi.absFilePath() );
     }
 
     if ( !!QDir::homeDirPath() ) {

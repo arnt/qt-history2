@@ -17,14 +17,14 @@
 
 #ifndef QT_H
 #include "qglobal.h"
-#include "qstrlist.h"
+#include "qlist.h"
 #include "qfileinfo.h"
+#include "qstringlist.h"
 #endif // QT_H
 
 
 #ifndef QT_NO_DIR
-typedef QPtrList<QFileInfo> QFileInfoList;
-typedef QPtrListIterator<QFileInfo> QFileInfoListIterator;
+typedef QList<QFileInfo> QFileInfoList;
 class QStringList;
 
 
@@ -66,79 +66,74 @@ public:
 	  int sortSpec = Name | IgnoreCase, int filterSpec = All );
     QDir( const QDir & );
 
-    virtual ~QDir();
+    ~QDir();
 
     QDir       &operator=( const QDir & );
     QDir       &operator=( const QString &path );
 
-    virtual void setPath( const QString &path );
-    virtual QString path()		const;
-    virtual QString absPath()	const;
-    virtual QString canonicalPath()	const;
+    void setPath( const QString &path );
+    QString path()		const;
+    QString absPath()	const;
+    QString canonicalPath()	const;
 
-    virtual QString dirName() const;
-    virtual QString filePath( const QString &fileName,
+    QString dirName() const;
+    QString filePath( const QString &fileName,
 			      bool acceptAbsPath = TRUE ) const;
-    virtual QString absFilePath( const QString &fileName,
+    QString absFilePath( const QString &fileName,
 				 bool acceptAbsPath = TRUE ) const;
 
     static QString convertSeparators( const QString &pathName );
 
-    virtual bool cd( const QString &dirName, bool acceptAbsPath = TRUE );
-    virtual bool cdUp();
+    bool cd( const QString &dirName, bool acceptAbsPath = TRUE );
+    bool cdUp();
 
     QString	nameFilter() const;
-    virtual void setNameFilter( const QString &nameFilter );
+    void setNameFilter( const QString &nameFilter );
     FilterSpec filter() const;
-    virtual void setFilter( int filterSpec );
+    void setFilter( int filterSpec );
     SortSpec sorting() const;
-    virtual void setSorting( int sortSpec );
+    void setSorting( int sortSpec );
 
     bool	matchAllDirs() const;
-    virtual void setMatchAllDirs( bool );
+    void setMatchAllDirs( bool );
 
     uint count() const;
     QString	operator[]( int ) const;
 
-    virtual QStrList encodedEntryList( int filterSpec = DefaultFilter,
-				       int sortSpec   = DefaultSort  ) const;
-    virtual QStrList encodedEntryList( const QString &nameFilter,
-				       int filterSpec = DefaultFilter,
-				       int sortSpec   = DefaultSort   ) const;
-    virtual QStringList entryList( int filterSpec = DefaultFilter,
+    QStringList entryList( int filterSpec = DefaultFilter,
 				   int sortSpec   = DefaultSort  ) const;
-    virtual QStringList entryList( const QString &nameFilter,
+    QStringList entryList( const QString &nameFilter,
 				   int filterSpec = DefaultFilter,
 				   int sortSpec   = DefaultSort   ) const;
 
-    virtual const QFileInfoList *entryInfoList( int filterSpec = DefaultFilter,
+    QFileInfoList entryInfoList( int filterSpec = DefaultFilter,
 						int sortSpec = DefaultSort ) const;
-    virtual const QFileInfoList *entryInfoList( const QString &nameFilter,
+    QFileInfoList entryInfoList( const QString &nameFilter,
 						int filterSpec = DefaultFilter,
 						int sortSpec = DefaultSort ) const;
 
-    static const QFileInfoList *drives();
+    static QFileInfoList drives();
 
-    virtual bool mkdir( const QString &dirName,
+    bool mkdir( const QString &dirName,
 			bool acceptAbsPath = TRUE ) const;
-    virtual bool rmdir( const QString &dirName,
+    bool rmdir( const QString &dirName,
 			bool acceptAbsPath = TRUE ) const;
 
-    virtual bool isReadable() const;
-    virtual bool exists()   const;
-    virtual bool isRoot()   const;
+    bool isReadable() const;
+    bool exists()   const;
+    bool isRoot()   const;
 
-    virtual bool isRelative() const;
-    virtual void convertToAbs();
+    bool isRelative() const;
+    void convertToAbs();
 
-    virtual bool operator==( const QDir & ) const;
-    virtual bool operator!=( const QDir & ) const;
+    bool operator==( const QDir & ) const;
+    bool operator!=( const QDir & ) const;
 
-    virtual bool remove( const QString &fileName,
+    bool remove( const QString &fileName,
 			 bool acceptAbsPath = TRUE );
-    virtual bool rename( const QString &name, const QString &newName,
+    bool rename( const QString &name, const QString &newName,
 			 bool acceptAbsPaths = TRUE  );
-    virtual bool exists( const QString &name,
+    bool exists( const QString &name,
 			 bool acceptAbsPath = TRUE );
 
     static char separator();
@@ -163,22 +158,19 @@ private:
     static FSSpec *make_spec(const QString &);
 #endif
     void init();
-    virtual bool readDirEntries( const QString &nameFilter,
-				 int FilterSpec, int SortSpec  );
+    void readDirEntries(const QString &nameFilter,
+			int FilterSpec, int SortSpec) const;
 
     static void slashify( QString & );
 
     QString	dPath;
-    QStringList   *fList;
-    QFileInfoList *fiList;
-    QString	nameFilt;
-    FilterSpec	filtS;
-    SortSpec	sortS;
-    uint	dirty	: 1;
+    mutable QStringList   fList;
+    mutable QFileInfoList fiList;
+    mutable QString	nameFilt;
+    mutable FilterSpec	filtS;
+    mutable SortSpec	sortS;
+    mutable uint	dirty	: 1;
     uint	allDirs : 1;
-
-public:
-    void detach();
 };
 
 
@@ -215,7 +207,7 @@ inline bool QDir::operator!=( const QDir &d ) const
 
 struct QDirSortItem {
     QString filename_cache;
-    QFileInfo* item;
+    QFileInfo item;
 };
 
 #endif // QT_NO_DIR

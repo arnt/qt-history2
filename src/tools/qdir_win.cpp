@@ -398,12 +398,7 @@ bool QDir::readDirEntries( const QString &nameFilter,
 	// if it is a floppy disk drive, it might just not have a file on it
 	if ( plen > 1 && p[1] == ':' &&
 		( p[0]=='A' || p[0]=='a' || p[0]=='B' || p[0]=='b' ) ) {
-	    if ( !fiList ) {
-		fiList = new QFileInfoList;
-		fiList->setAutoDelete( TRUE );
-	    } else {
-		fiList->clear();
-	    }
+	    fiList->clear();
 	    return TRUE;
 	}
 	qWarning( "QDir::readDirEntries: Cannot read the directory: %s (UTF-8)",
@@ -411,12 +406,7 @@ bool QDir::readDirEntries( const QString &nameFilter,
 	return FALSE;
     }
 
-    if ( !fiList ) {
-	fiList = new QFileInfoList;
-	fiList->setAutoDelete( TRUE );
-    } else {
-	fiList->clear();
-    }
+    fiList->clear();
 
     for ( ;; ) {
 	if ( first )
@@ -475,7 +465,7 @@ bool QDir::readDirEntries( const QString &nameFilter,
 	    if ( !doSystem && isSystem )
 		continue;
 	    fi.setFile( *this, name );
-	    fiList->append( new QFileInfo( fi ) );
+	    fiList.append(fi);
 	}
     }
     FindClose( ff );
@@ -489,22 +479,18 @@ bool QDir::readDirEntries( const QString &nameFilter,
 
     // Sort...
     QDirSortItem* si= new QDirSortItem[fiList->count()];
-    QFileInfo* itm;
     i=0;
-    for (itm = fiList->first(); itm; itm = fiList->next())
-	si[i++].item = itm;
+    for (int i = 0; i < fiList.size(); ++i)
+	si[i++].item = fiList.at(i);
     qt_cmp_si_sortSpec = sortSpec;
     qsort( si, i, sizeof(si[0]), qt_cmp_si );
-    // put them back in the list
-    fiList->setAutoDelete( FALSE );
     fiList->clear();
     int j;
     for ( j=0; j<i; j++ ) {
-	fiList->append( si[j].item );
-	fList->append( si[j].item->fileName() );
+	fiList.append( si[j].item );
+	fList.append( si[j].item->fileName() );
     }
     delete [] si;
-    fiList->setAutoDelete( TRUE );
 
     if ( filterSpec == (FilterSpec)filtS && sortSpec == (SortSpec)sortS &&
 	 nameFilter == nameFilt )
@@ -529,43 +515,43 @@ const QFileInfoList * QDir::drives()
 {
     // at most one instance of QFileInfoList is leaked, and this variable
     // points to that list
-    static QFileInfoList * knownMemoryLeak = 0;
+    static QFileInfoList drives;
+    bool initialized = false;
 
+    if (!intialized) {
 #ifdef QT_THREAD_SUPPORT
-    QMutexLocker locker( qt_global_mutexpool ?
-			 qt_global_mutexpool->get( &knownMemoryLeak ) : 0 );
+	QMutexLocker locker( qt_global_mutexpool ?
+			     qt_global_mutexpool->get( &drives ) : 0 );
 #endif // QT_THREAD_SUPPORT
 
-    if ( !knownMemoryLeak ) {
-	knownMemoryLeak = new QFileInfoList;
-	knownMemoryLeak->setAutoDelete( TRUE );
-    }
+	if ( !initialized ) {
+	    drives.ensure_constructed();
+	    initialized = true;
 
-    if ( !knownMemoryLeak->count() ) {
 #if defined(Q_OS_WIN32)
-	Q_UINT32 driveBits = (Q_UINT32) GetLogicalDrives() & 0x3ffffff;
+	    Q_UINT32 driveBits = (Q_UINT32) GetLogicalDrives() & 0x3ffffff;
 #elif defined(Q_OS_OS2EMX)
-	Q_UINT32 driveBits, cur;
-	if (DosQueryCurrentDisk(&cur,&driveBits) != NO_ERROR)
-	    exit(1);
-	driveBits &= 0x3ffffff;
+	    Q_UINT32 driveBits, cur;
+	    if (DosQueryCurrentDisk(&cur,&driveBits) != NO_ERROR)
+		exit(1);
+	    driveBits &= 0x3ffffff;
 #endif
 
-	char driveName[4];
+	    char driveName[4];
 
 #ifndef Q_OS_TEMP
-	qstrcpy( driveName, "A:/" );
+	    qstrcpy( driveName, "A:/" );
 #else
-	qstrcpy( driveName, "/" );
+	    qstrcpy( driveName, "/" );
 #endif
 
-	while( driveBits ) {
-	    if ( driveBits & 1 )
-		knownMemoryLeak->append( new QFileInfo( QString::fromLatin1(driveName).upper() ) );
-	    driveName[0]++;
-	    driveBits = driveBits >> 1;
+	    while( driveBits ) {
+		if ( driveBits & 1 )
+		    drives.append(QString::fromLatin1(driveName).upper());
+		driveName[0]++;
+		driveBits = driveBits >> 1;
+	    }
 	}
     }
-
     return knownMemoryLeak;
 }

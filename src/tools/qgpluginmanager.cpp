@@ -17,6 +17,7 @@
 #include "qcomlibrary_p.h"
 #include "qmap.h"
 #include "qdir.h"
+#include "qlist.h"
 
 /*
   The following co-occurrence code is borrowed from Qt Linguist.
@@ -266,7 +267,7 @@ static int similarity( const QString& s1, const QString& s2 )
 #include <qptrlist.h>
 
 QGPluginManager::QGPluginManager( const QUuid& id, const QStringList& paths, const QString &suffix, bool cs )
-    : interfaceId( id ), plugDict( 17, cs ), casesens( cs ), autounload( TRUE )
+    : interfaceId( id ), casesens( cs ), autounload( TRUE )
 {
     // Every QLibrary object is destroyed on destruction of the manager
     libDict.setAutoDelete( TRUE );
@@ -279,10 +280,9 @@ QGPluginManager::QGPluginManager( const QUuid& id, const QStringList& paths, con
 QGPluginManager::~QGPluginManager()
 {
     if ( !autounload ) {
-	QDictIterator<QLibrary> it( libDict );
-	while ( it.current() ) {
-	    QLibrary *lib = it.current();
-	    ++it;
+	QHash<QString, QLibrary *>::ConstIterator it = libDict.constBegin();
+	for (; it != libDict.constEnd(); ++it) {
+	    QLibrary *lib = *it;
 	    lib->setAutoUnload( FALSE );
 	}
     }
@@ -312,10 +312,14 @@ void QGPluginManager::addLibraryPath( const QString& path )
     }
 }
 
-const QLibrary* QGPluginManager::library( const QString& feature ) const
+const QLibrary* QGPluginManager::library( const QString& _feature ) const
 {
-    if ( !enabled() || feature.isEmpty() )
+    if ( !enabled() || _feature.isEmpty() )
 	return 0;
+
+    QString feature = _feature;
+    if (!casesens)
+	feature.toLower();
 
     // We already have a QLibrary object for this feature
     QLibrary *library = 0;
@@ -366,20 +370,21 @@ const QLibrary* QGPluginManager::library( const QString& feature ) const
 	    if ( sameBasename.isEmpty() ) {
 		that->addLibrary( new QComLibrary( lib ) );
 	    } else {
-		QPtrList<QComLibrary> same;
+		QList<QComLibrary *> same;
 		same.setAutoDelete( TRUE );
 		for ( QStringList::ConstIterator bit = sameBasename.begin();
 		      bit != sameBasename.end(); ++bit )
 		    same.append( new QComLibrary( *bit ) );
 		QComLibrary* bestMatch = 0;
-		for ( QComLibrary* candidate = same.first(); candidate; candidate = same.next() )
+		for ( QList<QComLibrary *>::ConstIterator sit = same.constBegin();
+		      sit != same.constEnd(); ++sit) {
+		    QComLibrary* candidate = *sit;
 		    if ( candidate->qtVersion() && candidate->qtVersion() <= QT_VERSION
 			 && ( !bestMatch || candidate->qtVersion() > bestMatch->qtVersion() ) )
 			bestMatch = candidate;
-		if ( bestMatch ) {
-		    same.find( bestMatch );
-		    that->addLibrary( same.take() );
 		}
+		if ( bestMatch )
+		    that->addLibrary( same.takeAt(same.indexOf(bestMatch)) );
 	    }
 
 	    if ( ( library = that->plugDict[feature] ) )
@@ -422,8 +427,9 @@ QStringList QGPluginManager::featureList() const
 	if ( !phase2Deny.contains( QFileInfo( *it ).baseName() ) )
 	    that->addLibrary( new QComLibrary( *it ) );
 
-    for ( QDictIterator<QLibrary> pit( plugDict ); pit.current(); ++pit )
-	features << pit.currentKey();
+    QHash<QString, QLibrary *>::ConstIterator pit = plugDict.constBegin();
+    for (; pit != plugDict.constEnd(); ++pit)
+	features << pit.key();
 
     return features;
 }
@@ -457,10 +463,13 @@ bool QGPluginManager::addLibrary( QLibrary* lib )
 	    fl << cpiFace->name();
 
 	for ( QStringList::Iterator f = fl.begin(); f != fl.end(); ++f ) {
-	    QLibrary *old = plugDict[*f];
+	    QString feature = *f;
+	    if (!casesens)
+		feature.toLower();
+	    QLibrary *old = plugDict[feature];
 	    if ( !old ) {
 		useful = TRUE;
-		plugDict.replace( *f, plugin );
+		plugDict.insert( feature, plugin );
 	    } else {
 		// we have old *and* plugin, which one to pick?
 		QComLibrary* first = (QComLibrary*)old;
@@ -475,15 +484,15 @@ bool QGPluginManager::addLibrary( QLibrary* lib )
 		}
 		if ( !takeFirst ) {
 		    useful = TRUE;
-		    plugDict.replace( *f, plugin );
+		    plugDict.insert( feature, plugin );
 		    qWarning("%s: Discarding feature %s in %s!",
 			     (const char*) QFile::encodeName( plugin->library()),
-			     (*f).latin1(),
+			     feature.latin1(),
 			     (const char*) QFile::encodeName( old->library() ) );
 		} else {
 		    qWarning("%s: Feature %s already defined in %s!",
 			     (const char*) QFile::encodeName( old->library() ),
-			     (*f).latin1(),
+			     feature.latin1(),
 			     (const char*) QFile::encodeName( plugin->library() ) );
 		}
 	    }
@@ -496,7 +505,7 @@ bool QGPluginManager::addLibrary( QLibrary* lib )
     }
 
     if ( useful ) {
-	libDict.replace( plugin->library(), plugin );
+	libDict.insert( plugin->library(), plugin );
 	if ( !libList.contains( plugin->library() ) )
 	    libList.append( plugin->library() );
 	return TRUE;

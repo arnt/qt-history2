@@ -16,7 +16,7 @@
 #define QGPLUGINMANAGER_P_H
 
 #ifndef QT_H
-#include "qdict.h"
+#include "qhash.h"
 #include "qlibrary.h"
 #include "quuid.h"
 #include "qstringlist.h"
@@ -57,8 +57,8 @@ protected:
     QRESULT queryUnknownInterface(const QString& feature, QUnknownInterface** iface) const;
 
     QUuid interfaceId;
-    QDict<QLibrary> plugDict;	    // Dict to match feature with library
-    QDict<QLibrary> libDict;	    // Dict to match library file with library
+    QHash<QString, QLibrary *> plugDict;	    // Hash to match feature with library
+    QHash<QString, QLibrary *> libDict;	    // Hash to match library file with library
     QStringList libList;
 
     uint casesens : 1;

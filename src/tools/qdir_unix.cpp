@@ -149,18 +149,12 @@ bool QDir::isRelativePath( const QString &path )
     return path[0] != '/';
 }
 
-bool QDir::readDirEntries( const QString &nameFilter,
-			   int filterSpec, int sortSpec )
+void QDir::readDirEntries( const QString &nameFilter,
+			   int filterSpec, int sortSpec ) const
 {
     int i;
-    if ( !fList ) {
-	fList  = new QStringList;
-	fiList = new QFileInfoList;
-	fiList->setAutoDelete( TRUE );
-    } else {
-	fList->clear();
-	fiList->clear();
-    }
+    fList.clear();
+    fiList.clear();
 
     QList<QRegExp> filters = qt_makeFilterList( nameFilter );
 
@@ -179,7 +173,7 @@ bool QDir::readDirEntries( const QString &nameFilter,
 
     dir = opendir( QFile::encodeName(dPath) );
     if ( !dir )
-	return FALSE; // cannot read the directory
+	return; // cannot read the directory
 
 #if defined(QT_THREAD_SUPPORT) && defined(_POSIX_THREAD_SAFE_FUNCTIONS) && !defined(Q_OS_CYGWIN)
     union {
@@ -208,7 +202,7 @@ bool QDir::readDirEntries( const QString &nameFilter,
 	         fn != QString::fromLatin1(".")
 	         && fn != QString::fromLatin1("..") )
 	        continue;
-	    fiList->append( new QFileInfo( fi ) );
+	    fiList.append(fi);
 	}
     }
     if ( closedir(dir) != 0 ) {
@@ -217,24 +211,19 @@ bool QDir::readDirEntries( const QString &nameFilter,
     }
 
     // Sort...
-    if(fiList->count()) {
-	QDirSortItem* si= new QDirSortItem[fiList->count()];
-	QFileInfo* itm;
-	i=0;
-	for (itm = fiList->first(); itm; itm = fiList->next())
-	    si[i++].item = itm;
+    if(fiList.count()) {
+	QDirSortItem* si= new QDirSortItem[fiList.count()];
+	for (i = 0; i < fiList.size(); ++i)
+	    si[i].item = fiList.at(i);
 	qt_cmp_si_sortSpec = sortSpec;
 	qsort( si, i, sizeof(si[0]), qt_cmp_si );
 	// put them back in the list
-	fiList->setAutoDelete( FALSE );
-	fiList->clear();
-	int j;
-	for ( j=0; j<i; j++ ) {
-	    fiList->append( si[j].item );
-	    fList->append( si[j].item->fileName() );
+	fiList.clear();
+	for (int j = 0; j<i; j++) {
+	    fiList.append( si[j].item );
+	    fList.append( si[j].item.fileName() );
 	}
 	delete [] si;
-	fiList->setAutoDelete( TRUE );
     }
 
     if ( filterSpec == (FilterSpec)filtS && sortSpec == (SortSpec)sortS &&
@@ -242,29 +231,30 @@ bool QDir::readDirEntries( const QString &nameFilter,
 	dirty = FALSE;
     else
 	dirty = TRUE;
-    return TRUE;
 }
 
-const QFileInfoList * QDir::drives()
+QFileInfoList QDir::drives()
 {
     // at most one instance of QFileInfoList is leaked, and this variable
     // points to that list
-    static QFileInfoList * knownMemoryLeak = 0;
+    static QFileInfoList drives;
+    static bool initialized = false;
 
-    if ( !knownMemoryLeak ) {
+    if ( !initialized ) {
 
 #ifdef QT_THREAD_SUPPORT
 	QMutexLocker locker( qt_global_mutexpool ?
-			     qt_global_mutexpool->get( &knownMemoryLeak ) : 0 );
+			     qt_global_mutexpool->get( &drives ) : 0 );
 #endif // QT_THREAD_SUPPORT
 
-	if ( !knownMemoryLeak ) {
-	    knownMemoryLeak = new QFileInfoList;
+	if ( !initialized ) {
+	    initialized = true;
+	    drives.ensure_constructed();
 	    // non-win32 versions both use just one root directory
-	    knownMemoryLeak->append( new QFileInfo( rootDirPath() ) );
+	    drives.append(rootDirPath());
 	}
     }
 
-    return knownMemoryLeak;
+    return drives;
 }
 #endif //QT_NO_DIR

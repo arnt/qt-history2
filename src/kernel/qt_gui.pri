@@ -22,6 +22,9 @@ kernel {
 		  $$KERNEL_H/qgif.h \
 		  $$KERNEL_H/qguieventloop.h\
 		  $$KERNEL_H/qiconset.h \
+		  $$KERNEL_H/qimage.h \
+		  $$KERNEL_H/qimageformatplugin.h \
+		  $$KERNEL_P/qimageformatinterface_p.h \
 		  $$KERNEL_H/qkeycode.h \
 		  $$KERNEL_H/qkeysequence.h \
 		  $$KERNEL_H/qlayout.h \
@@ -38,7 +41,11 @@ kernel {
 		  $$KERNEL_H/qpictureformatplugin.h \
 		  $$KERNEL_H/qpixmap.h \
 		  $$KERNEL_H/qpixmapcache.h \
+		  $$KERNEL_H/qpoint.h \
+		  $$KERNEL_H/qpointarray.h \
+		  $$KERNEL_H/qpolygonscanner.h \
 		  $$KERNEL_H/qprinter.h \
+		  $$KERNEL_H/qrect.h \
 		  $$KERNEL_H/qregion.h \
 		  $$KERNEL_H/qsessionmanager.h \
 		  $$KERNEL_H/qsize.h \
@@ -49,7 +56,9 @@ kernel {
 		  $$KERNEL_H/qstylesheet.h \
 		  $$KERNEL_H/qwidget.h \
 		  $$KERNEL_H/qwindowdefs.h \
+		  $$KERNEL_H/qwmatrix.h \
 		  $$KERNEL_P/qapplication_p.h \
+	 	  $$KERNEL_H/qcolor_p.h \
 		  $$KERNEL_P/qfontdata_p.h \
 		  $$KERNEL_P/qguieventloop_p.h \
 		  $$KERNEL_P/qlayoutengine_p.h \
@@ -139,11 +148,13 @@ kernel {
 
 	SOURCES += \
 		  $$KERNEL_CPP/qabstractlayout.cpp \
+		  $$KERNEL_CPP/qasyncimageio.cpp \
 		  $$KERNEL_CPP/qaccel.cpp \
 		  $$KERNEL_CPP/qapplication.cpp \
 		  $$KERNEL_CPP/qbitmap.cpp \
 		  $$KERNEL_CPP/qclipboard.cpp \
 		  $$KERNEL_CPP/qcolor.cpp \
+		  $$KERNEL_CPP/qcolor_p.cpp \
 		  $$KERNEL_CPP/qcursor.cpp \
 		  $$KERNEL_CPP/qdragobject.cpp \
 		  $$KERNEL_CPP/qdrawutil.cpp \
@@ -153,6 +164,8 @@ kernel {
 		  $$KERNEL_CPP/qfontdatabase.cpp \
 		  $$KERNEL_CPP/qguieventloop.cpp \
 		  $$KERNEL_CPP/qiconset.cpp \
+		  $$KERNEL_CPP/qimage.cpp \
+		  $$KERNEL_CPP/qimageformatplugin.cpp \
 		  $$KERNEL_CPP/qimage_gui.cpp \
 		  $$KERNEL_CPP/qkeysequence.cpp \
 		  $$KERNEL_CPP/qlayout.cpp \
@@ -166,12 +179,17 @@ kernel {
 		  $$KERNEL_CPP/qpictureformatplugin.cpp \
 		  $$KERNEL_CPP/qpixmap.cpp \
 		  $$KERNEL_CPP/qpixmapcache.cpp \
+		  $$KERNEL_CPP/qpoint.cpp \
+		  $$KERNEL_CPP/qpointarray.cpp \
+		  $$KERNEL_CPP/qpolygonscanner.cpp \
 		  $$KERNEL_CPP/qprinter.cpp \
+		  $$KERNEL_CPP/qrect.cpp \
 		  $$KERNEL_CPP/qregion.cpp \
 		  $$KERNEL_CPP/qrichtext.cpp \
 		  $$KERNEL_CPP/qrichtext_p.cpp \
 		  $$KERNEL_CPP/qscriptengine.cpp \
 		  $$KERNEL_CPP/qsimplerichtext.cpp \
+		  $$KERNEL_CPP/qsize.cpp \
 		  $$KERNEL_CPP/qsizegrip.cpp \
 		  $$KERNEL_CPP/qsound.cpp \
 		  $$KERNEL_CPP/qstyle.cpp \
@@ -179,7 +197,8 @@ kernel {
 		  $$KERNEL_CPP/qtextengine.cpp \
 		  $$KERNEL_CPP/qtextlayout.cpp \
 		  $$KERNEL_CPP/qvariant.cpp \
-		  $$KERNEL_CPP/qwidget.cpp 
+		  $$KERNEL_CPP/qwidget.cpp \
+		  $$KERNEL_CPP/qwmatrix.cpp 
 
 	unix:HEADERS   += $$KERNEL_P/qpsprinter_p.h \
 			  $$KERNEL_H/qfontdatabase.h

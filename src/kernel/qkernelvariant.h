@@ -28,7 +28,6 @@ class QBitArray;
 class QDataStream;
 class QDate;
 class QDateTime;
-class QImage;
 class QKernelVariant;
 class QPoint;
 class QRect;

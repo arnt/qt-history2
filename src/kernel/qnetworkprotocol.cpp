@@ -20,16 +20,14 @@
 #include "qurloperator.h"
 #include "qtimer.h"
 #include "qmap.h"
-#include "qptrqueue.h"
+#include "qhash.h"
 
 //#define QNETWORKPROTOCOL_DEBUG
 #define NETWORK_OP_DELAY 1000
 
-typedef QDict< QNetworkProtocolFactoryBase > QNetworkProtocolDict;
+typedef QHash<QString, QNetworkProtocolFactoryBase *> QNetworkProtocolDict;
 
-extern Q_EXPORT QNetworkProtocolDict *qNetworkProtocolRegister;
-
-QNetworkProtocolDict *qNetworkProtocolRegister = 0;
+static QNetworkProtocolDict *qNetworkProtocolRegister = 0;
 
 class QNetworkProtocolPrivate
 {
@@ -66,7 +64,7 @@ public:
     }
 
     QUrlOperator *url;
-    QList<QNetworkOperation *> operationQueue;    
+    QList<QNetworkOperation *> operationQueue;
     QNetworkOperation *opInProgress;
     QTimer *opStartTimer, *removeTimer;
     int removeInterval;
@@ -583,7 +581,7 @@ QNetworkProtocol *QNetworkProtocol::getNetworkProtocol( const QString &protocol 
     if ( protocol.isNull() )
 	return 0;
 
-    QNetworkProtocolFactoryBase *factory = qNetworkProtocolRegister->find( protocol );
+    QNetworkProtocolFactoryBase *factory = *qNetworkProtocolRegister->find( protocol );
     if ( factory )
 	return factory->createObject();
 
@@ -601,9 +599,10 @@ bool QNetworkProtocol::hasOnlyLocalFileSystem()
     if ( !qNetworkProtocolRegister )
 	return FALSE;
 
-    QDictIterator< QNetworkProtocolFactoryBase > it( *qNetworkProtocolRegister );
-    for ( ; it.current(); ++it )
-	if ( it.currentKey() != "file" )
+    QHash<QString, QNetworkProtocolFactoryBase *>::ConstIterator it
+	= qNetworkProtocolRegister->constBegin();
+    for ( ; it != qNetworkProtocolRegister->constEnd(); ++it )
+	if ( it.key() != "file" )
 	    return FALSE;
     return TRUE;
 }

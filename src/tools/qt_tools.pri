@@ -10,7 +10,6 @@ tools {
 		  $$TOOLS_H/qcache.h \
 		  $$TOOLS_H/qchar.h \
 		  $$TOOLS_H/qcleanuphandler.h \
-		  $$TOOLS_P/qcomponentfactory_p.h \
 		  $$TOOLS_P/qcomlibrary_p.h \
 		  $$TOOLS_H/qdatastream.h \
 		  $$TOOLS_H/qdatetime.h \
@@ -70,7 +69,6 @@ tools {
 		  $$TOOLS_CPP/qbytearray.cpp \
 		  $$TOOLS_CPP/qbuffer.cpp \
 		  $$TOOLS_CPP/qchar.cpp \
-		  $$TOOLS_CPP/qcomponentfactory.cpp \
 		  $$TOOLS_CPP/qcomlibrary.cpp \
 		  $$TOOLS_CPP/qdatastream.cpp \
 		  $$TOOLS_CPP/qdatetime.cpp \

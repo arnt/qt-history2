@@ -130,14 +130,11 @@ const bool CaseSensitiveFS = TRUE;
 	d.setFilter( QDir::Files | QDir::Hidden | QDir::NoSymLinks );
 	d.setSorting( QDir::Size | QDir::Reversed );
 
-	const QFileInfoList *list = d.entryInfoList();
-	QFileInfoListIterator it( *list );
-	QFileInfo *fi;
-
+	QFileInfoList list = d.entryInfoList();
 	printf( "     Bytes Filename\n" );
-	while ( (fi = it.current()) != 0 ) {
-	    printf( "%10li %s\n", fi->size(), fi->fileName().latin1() );
-	    ++it;
+	for(int i = ; i < list.size(); ++i) {
+	    QFileInfo fi = list.at(i);
+	    printf( "%10li %s\n", fi.size(), fi.fileName().latin1() );
 	}
 	return 0;
     }
@@ -208,7 +205,6 @@ QDir::QDir( const QDir &d )
 {
     dPath = d.dPath;
     fList = 0;
-    fiList = 0;
     nameFilt = d.nameFilt;
     dirty = TRUE;
     allDirs = d.allDirs;
@@ -228,7 +224,6 @@ void QDir::refresh() const
 void QDir::init()
 {
     fList = 0;
-    fiList = 0;
     nameFilt = QString::fromLatin1("*");
     dirty = TRUE;
     allDirs = FALSE;
@@ -242,8 +237,6 @@ void QDir::init()
 
 QDir::~QDir()
 {
-    delete fList;
-    delete fiList;
 }
 
 
@@ -713,51 +706,8 @@ uint QDir::count() const
 QString QDir::operator[]( int index ) const
 {
     entryList();
-    return fList && index >= 0 && index < (int)fList->count() ?
-	(*fList)[index] : QString();
+    return fList.value(index, QString());
 }
-
-
-/*!
-    \obsolete
-  This function is included to easy porting from Qt 1.x to Qt 2.0,
-  it is the same as entryList(), but encodes the filenames as 8-bit
-  strings using QFile::encodedName().
-
-  It is more efficient to use entryList().
-*/
-QStrList QDir::encodedEntryList( int filterSpec, int sortSpec ) const
-{
-    QStrList r;
-    QStringList l = entryList(filterSpec,sortSpec);
-    for ( QStringList::Iterator it = l.begin(); it != l.end(); ++it ) {
-	r.append( QFile::encodeName(*it) );
-    }
-    return r;
-}
-
-/*!
-    \obsolete
-    \overload
-  This function is included to easy porting from Qt 1.x to Qt 2.0,
-  it is the same as entryList(), but encodes the filenames as 8-bit
-  strings using QFile::encodedName().
-
-  It is more efficient to use entryList().
-*/
-QStrList QDir::encodedEntryList( const QString &nameFilter,
-			   int filterSpec,
-			   int sortSpec ) const
-{
-    QStrList r;
-    QStringList l = entryList(nameFilter,filterSpec,sortSpec);
-    for ( QStringList::Iterator it = l.begin(); it != l.end(); ++it ) {
-	r.append( QFile::encodeName(*it) );
-    }
-    return r;
-}
-
-
 
 /*!
     \overload
@@ -779,7 +729,7 @@ QStringList QDir::entryList( int filterSpec, int sortSpec ) const
 {
     if ( !dirty && filterSpec == (int)DefaultFilter &&
 		   sortSpec   == (int)DefaultSort )
-	return *fList;
+	return fList;
     return entryList( nameFilt, filterSpec, sortSpec );
 }
 
@@ -804,12 +754,9 @@ QStringList QDir::entryList( const QString &nameFilter,
 	filterSpec = filtS;
     if ( sortSpec == (int)DefaultSort )
 	sortSpec = sortS;
-    QDir *that = (QDir*)this;			// mutable function
-    if ( that->readDirEntries(nameFilter, filterSpec, sortSpec) ) {
-	if ( that->fList )
-	    return *that->fList;
-    }
-    return QStringList();
+
+    readDirEntries(nameFilter, filterSpec, sortSpec);
+    return fList;
 }
 
 /*!
@@ -823,18 +770,12 @@ QStringList QDir::entryList( const QString &nameFilter,
     The filter and sorting specifications can be overridden using the
     \a filterSpec and \a sortSpec arguments.
 
-    Returns 0 if the directory is unreadable or does not exist.
+    Returns an empty list if the directory is unreadable or does not exist.
 
-    The returned pointer is a const pointer to a QFileInfoList. The
-    list is owned by the QDir object and will be reused on the next
-    call to entryInfoList() for the same QDir instance. If you want to
-    keep the entries of the list after a subsequent call to this
-    function you must copy them.
-
-    \sa entryList(), setNameFilter(), setSorting(), setFilter()
+    \sa entryList(), setNameFilter(), setSorting(), setFilter(), isReadable(), exists()
 */
 
-const QFileInfoList *QDir::entryInfoList( int filterSpec, int sortSpec ) const
+QFileInfoList QDir::entryInfoList( int filterSpec, int sortSpec ) const
 {
     if ( !dirty && filterSpec == (int)DefaultFilter &&
 		   sortSpec   == (int)DefaultSort )
@@ -851,29 +792,19 @@ const QFileInfoList *QDir::entryInfoList( int filterSpec, int sortSpec ) const
     The filter and sorting specifications can be overridden using the
     \a nameFilter, \a filterSpec and \a sortSpec arguments.
 
-    Returns 0 if the directory is unreadable or does not exist.
-
-    The returned pointer is a const pointer to a QFileInfoList. The
-    list is owned by the QDir object and will be reused on the next
-    call to entryInfoList() for the same QDir instance. If you want to
-    keep the entries of the list after a subsequent call to this
-    function you must copy them.
-
-    \sa entryList(), setNameFilter(), setSorting(), setFilter()
+    \sa entryList(), setNameFilter(), setSorting(), setFilter(), isReadable(), exists()
 */
 
-const QFileInfoList *QDir::entryInfoList( const QString &nameFilter,
+QFileInfoList QDir::entryInfoList( const QString &nameFilter,
 					  int filterSpec, int sortSpec ) const
 {
     if ( filterSpec == (int)DefaultFilter )
 	filterSpec = filtS;
     if ( sortSpec == (int)DefaultSort )
 	sortSpec = sortS;
-    QDir *that = (QDir*)this;			// mutable function
-    if ( that->readDirEntries(nameFilter, filterSpec, sortSpec) )
-	return that->fiList;
-    else
-	return 0;
+
+    readDirEntries(nameFilter, filterSpec, sortSpec);
+    return fiList;
 }
 
 /*!
@@ -924,12 +855,10 @@ void QDir::convertToAbs()
 QDir &QDir::operator=( const QDir &d )
 {
     dPath    = d.dPath;
-    delete fList;
-    fList    = 0;
-    delete fiList;
-    fiList   = 0;
+    fList    = d.fList;
+    fiList   = d.fiList;
     nameFilt = d.nameFilt;
-    dirty    = TRUE;
+    dirty    = d.dirty;
     allDirs  = d.allDirs;
     filtS    = d.filtS;
     sortS    = d.sortS;
@@ -1274,18 +1203,18 @@ int qt_cmp_si( const void *n1, const void *n2 )
     QDirSortItem* f2 = (QDirSortItem*)n2;
 
     if ( qt_cmp_si_sortSpec & QDir::DirsFirst )
-	if ( f1->item->isDir() != f2->item->isDir() )
-	    return f1->item->isDir() ? -1 : 1;
+	if ( f1->item.isDir() != f2->item.isDir() )
+	    return f1->item.isDir() ? -1 : 1;
 
     int r = 0;
     int sortBy = qt_cmp_si_sortSpec & QDir::SortByMask;
 
     switch ( sortBy ) {
       case QDir::Time:
-	r = f1->item->lastModified().secsTo(f2->item->lastModified());
+	r = f1->item.lastModified().secsTo(f2->item.lastModified());
 	break;
       case QDir::Size:
-	r = f2->item->size() - f1->item->size();
+	r = f2->item.size() - f1->item.size();
 	break;
       default:
 	;
@@ -1296,11 +1225,11 @@ int qt_cmp_si( const void *n1, const void *n2 )
 	bool ic = qt_cmp_si_sortSpec & QDir::IgnoreCase;
 
 	if ( f1->filename_cache.isNull() )
-	    f1->filename_cache = ic ? f1->item->fileName().lower()
-				    : f1->item->fileName();
+	    f1->filename_cache = ic ? f1->item.fileName().lower()
+				    : f1->item.fileName();
 	if ( f2->filename_cache.isNull() )
-	    f2->filename_cache = ic ? f2->item->fileName().lower()
-				    : f2->item->fileName();
+	    f2->filename_cache = ic ? f2->item.fileName().lower()
+				    : f2->item.fileName();
 
 	r = f1->filename_cache.compare(f2->filename_cache);
     }
@@ -1319,17 +1248,5 @@ int qt_cmp_si( const void *n1, const void *n2 )
 #if defined(Q_C_CALLBACKS)
 }
 #endif
-
-/*! \internal
-    Detaches all internal data.
-*/
-void QDir::detach()
-{
-    if ( fiList ) {
-	QFileInfoList *newlist = new QFileInfoList( *fiList );
-	delete fiList;
-	fiList = newlist;
-    }
-}
 
 #endif // QT_NO_DIR

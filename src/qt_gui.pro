@@ -23,6 +23,7 @@ include($$ICONVIEW_CPP/qt_iconview.pri)
 include($$WORKSPACE_CPP/qt_workspace.pri)
 include($$STYLES_CPP/qt_styles.pri)
 include($$ACCESSIBLE_CPP/qt_accessible.pri)
+include($$KERNEL_CPP/qt_gfx.pri)
 embedded:include($$EMBEDDED_CPP/qt_embedded.pri)
 qt_one_lib { #for compat
    #qnetwork
