@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#266 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#267 $
 **
 ** Implementation of QWidget class
 **
@@ -2954,7 +2954,7 @@ void QWidget::mouseMoveEvent( QMouseEvent * )
 
 void QWidget::mousePressEvent( QMouseEvent *e )
 {
-    if (isPopup) {
+    if ( isPopup() ) {
 	QWidget* w;
 	while ( (w = qApp->activePopupWidget() ) && w != this ){
 	    w->close();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#333 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#334 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -2022,7 +2022,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
     break;
 
     case FocusOut:				// lost focus
-	if ( focus_widget && !inPopupMode) {
+	if ( focus_widget && !inPopupMode() ) {
 	    QFocusEvent out( Event_FocusOut );
 	    QWidget *widget = focus_widget;
 	    focus_widget = 0;
