@@ -1,7 +1,7 @@
 REQUIRES        = network
 TEMPLATE	= app
 CONFIG		+= qt warn_on release
-HEADERS		= nntp.h http.h view.h
+HEADERS		= nntp.h view.h
 SOURCES		= main.cpp \
-		  nntp.cpp http.cpp view.cpp
+		  nntp.cpp view.cpp
 TARGET		= networkprotocol
