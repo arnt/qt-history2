@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#56 $
+** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#57 $
 **
 ** Implementation of QWhatsThis class
 **
@@ -697,7 +697,7 @@ QWhatsThis::QWhatsThis( QWidget * widget)
 
 QWhatsThis::~QWhatsThis()
 {
-
+    delete whatsThat;
 }
 
 
