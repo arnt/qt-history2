@@ -331,7 +331,14 @@ QStringList QSqlDatabase::drivers()
 #endif
 #ifndef QT_NO_COMPONENT
     QInterfaceManager<QSqlDriverInterface> *plugIns;
-    plugIns = new QInterfaceManager<QSqlDriverInterface>( IID_QSqlDriverInterface, QString((char*)getenv( "QTDIR" )) + "/plugins" );
+    plugIns = new QInterfaceManager<QSqlDriverInterface>( IID_QSqlDriverInterface );
+    plugIns->addLibraryPath( QString((char*)getenv( "QTDIR" )) + "/plugins/sqldrivers" );
+    QStringList paths(QApplication::libraryPaths());
+    QStringList::Iterator it = paths.begin();
+    while (it != paths.end()) {
+	plugIns->addLibraryPath(*it + "/sqldrivers");
+	it++;
+    }
     l += plugIns->featureList();
     delete plugIns;
 #endif
@@ -408,7 +415,16 @@ void QSqlDatabase::init( const QString& type, const QString&  )
 
 #ifndef QT_NO_COMPONENT
     if ( !d->driver ) {
-	d->plugIns = new QInterfaceManager<QSqlDriverInterface>( IID_QSqlDriverInterface, QString((char*)getenv( "QTDIR" )) + "/plugins" );
+	d->plugIns =
+	    new QInterfaceManager<QSqlDriverInterface>( IID_QSqlDriverInterface );
+	d->plugIns->addLibraryPath( QString((char*)getenv( "QTDIR" )) +
+				    "/plugins/sqldrivers" );
+	QStringList paths(QApplication::libraryPaths());
+	QStringList::Iterator it = paths.begin();
+	while (it != paths.end()) {
+	    d->plugIns->addLibraryPath(*it + "/sqldrivers");
+	    it++;
+	}
 	QSqlDriverInterface *iface = d->plugIns->queryInterface( type );
 	if( iface ){
 	    d->driver = iface->create( type );

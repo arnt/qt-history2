@@ -75,8 +75,10 @@ QTextCodecFactoryPrivate::QTextCodecFactoryPrivate()
 
     QStringList paths(QApplication::libraryPaths());
     QStringList::Iterator it = paths.begin();
-    while (it != paths.end())
-	manager->addLibraryPath(*it++);
+    while (it != paths.end()) {
+	manager->addLibraryPath(*it + "/codecs");
+	it++;
+    }
 }
 
 

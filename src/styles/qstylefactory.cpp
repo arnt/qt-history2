@@ -80,7 +80,7 @@ QStyleFactoryPrivate::QStyleFactoryPrivate()
     QStringList paths(QApplication::libraryPaths());
     QStringList::Iterator it = paths.begin();
     while (it != paths.end()) {
-        manager->addLibraryPath(*it);
+        manager->addLibraryPath(*it + "/styles");
         it++;
     }
 }

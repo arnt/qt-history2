@@ -281,12 +281,36 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
 
 	QString dir = getenv( "QTDIR" );
 	dir += "/plugins/designer";
-	if ( !eventInterfaceManager )
+	if ( !eventInterfaceManager ) {
 	    eventInterfaceManager = new QInterfaceManager<EventInterface>( IID_EventInterface, dir );
-	if ( !interpreterInterfaceManager )
+
+	    QStringList paths(QApplication::libraryPaths());
+	    QStringList::Iterator it = paths.begin();
+	    while (it != paths.end()) {
+		eventInterfaceManager->addLibraryPath(*it + "/designer");
+		it++;
+	    }
+	}
+
+	if ( !interpreterInterfaceManager ) {
 	    interpreterInterfaceManager = new QInterfaceManager<InterpreterInterface>( IID_InterpreterInterface, dir );
-	if ( !languageInterfaceManager )
+	    QStringList paths(QApplication::libraryPaths());
+	    QStringList::Iterator it = paths.begin();
+	    while (it != paths.end()) {
+		interpreterInterfaceManager->addLibraryPath(*it + "/designer");
+		it++;
+	    }
+	}
+
+	if ( !languageInterfaceManager ) {
 	    languageInterfaceManager = new QInterfaceManager<LanguageInterface>( IID_LanguageInterface, dir );
+	    QStringList paths(QApplication::libraryPaths());
+	    QStringList::Iterator it = paths.begin();
+	    while (it != paths.end()) {
+		languageInterfaceManager->addLibraryPath(*it + "/designer");
+		it++;
+	    }
+	}
 
 	if ( eventInterfaceManager && interpreterInterfaceManager && languageInterfaceManager ) {
 	    QStringList langs = languageInterfaceManager->featureList();
@@ -492,6 +516,12 @@ QWidget *QWidgetFactory::createWidget( const QString &className, QWidget *parent
 	QString dir = getenv( "QTDIR" );
 	dir += "/plugins/designer";
 	widgetInterfaceManager = new QInterfaceManager<WidgetInterface>( IID_WidgetInterface, dir );
+	QStringList paths(QApplication::libraryPaths());
+	QStringList::Iterator it = paths.begin();
+	while (it != paths.end()) {
+	    widgetInterfaceManager->addLibraryPath(*it + "/designer");
+	    it++;
+	}
     }
     WidgetInterface *iface = widgetInterfaceManager->queryInterface( className );
     if ( iface ) {

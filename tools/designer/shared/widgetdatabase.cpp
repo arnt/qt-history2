@@ -26,6 +26,7 @@
 
 #include "../integration/kdevelop/kdewidgets.h"
 
+#include <qapplication.h>
 #include <globaldefs.h>
 #include <qstrlist.h>
 #include <qdict.h>
@@ -804,6 +805,13 @@ QInterfaceManager<WidgetInterface> *widgetManager()
 	QString dir = getenv( "QTDIR" );
 	dir += "/plugins/designer";
 	widgetPluginManager = new QInterfaceManager<WidgetInterface>( IID_WidgetInterface, dir );
+	QStringList paths(QApplication::libraryPaths());
+	QStringList::Iterator it = paths.begin();
+	while (it != paths.end()) {
+	    widgetPluginManager->addLibraryPath(*it + "/designer");
+	    it++;
+	}
+
 	cleanup_manager.add( widgetPluginManager );
     }
     return widgetPluginManager;

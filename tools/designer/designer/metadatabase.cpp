@@ -25,6 +25,7 @@
 #include "formwindow.h"
 #include "../shared/parser.h"
 
+#include <qapplication.h>
 #include <qobject.h>
 #include <qlayout.h>
 #include <qptrdict.h>
@@ -1167,7 +1168,7 @@ bool MetaDataBase::setEventFunctions( QObject *o, QObject *form, const QString &
 
 	if ( needAddSlot )
 	    slotExists = FALSE;
-	
+
 	if ( needAddSlot && addIfNotExisting )
 	    addSlot( form, fName.latin1(), "public", lang, "void" );
     }
@@ -1298,9 +1299,24 @@ void MetaDataBase::setupInterfaceManagers()
     dir += "/plugins/designer";
     if ( !eventInterfaceManager ) {
 	eventInterfaceManager = new QInterfaceManager<EventInterface>( IID_EventInterface, dir );
+
+	QStringList paths(QApplication::libraryPaths());
+	QStringList::Iterator it = paths.begin();
+	while (it != paths.end()) {
+	    eventInterfaceManager->addLibraryPath(*it + "/designer");
+	    it++;
+	}
+
     }
     if ( !languageInterfaceManager ) {
 	languageInterfaceManager = new QInterfaceManager<LanguageInterface>( IID_LanguageInterface, dir );
+	QStringList paths(QApplication::libraryPaths());
+	QStringList::Iterator it = paths.begin();
+	while (it != paths.end()) {
+	    languageInterfaceManager->addLibraryPath(*it + "/designer");
+	    it++;
+	}
+
 	langList = languageInterfaceManager->featureList();
 	langList.remove( "C++" );
 	langList << "C++";

@@ -1455,6 +1455,13 @@ void MainWindow::fileOpen( bool onlyForms )
     statusBar()->message( tr( "Select a file...") );
 
     QInterfaceManager<ImportFilterInterface> manager( IID_ImportFilterInterface, pluginDir );
+    QStringList paths(QApplication::libraryPaths());
+    QStringList::Iterator it = paths.begin();
+    while (it != paths.end()) {
+	manager.addLibraryPath(*it + "/designer");
+	it++;
+    }
+
     {
 	QString filename;
 	QStringList filterlist;
@@ -4256,6 +4263,12 @@ void MainWindow::showDialogHelp()
 void MainWindow::setupActionManager()
 {
     actionPluginManager = new QInterfaceManager<ActionInterface>( IID_ActionInterface, pluginDir );
+    QStringList paths(QApplication::libraryPaths());
+    QStringList::Iterator it = paths.begin();
+    while (it != paths.end()) {
+	actionPluginManager->addLibraryPath(*it + "/designer");
+	it++;
+    }
 
     QStringList lst = actionPluginManager->featureList();
     for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it ) {
@@ -4399,16 +4412,53 @@ TemplateWizardInterface * MainWindow::templateWizardInterface( const QString& cl
 void MainWindow::setupPluginManagers()
 {
     editorPluginManager = new QInterfaceManager<EditorInterface>( IID_EditorInterface, pluginDir );
+    QStringList paths(QApplication::libraryPaths());
+    QStringList::Iterator it = paths.begin();
+    while (it != paths.end()) {
+	editorPluginManager->addLibraryPath(*it + "/designer");
+	it++;
+    }
+
     MetaDataBase::setEditor( editorPluginManager->featureList() );
     templateWizardPluginManager = new QInterfaceManager<TemplateWizardInterface>( IID_TemplateWizardInterface, pluginDir );
+    it = paths.begin();
+    while (it != paths.end()) {
+	templateWizardPluginManager->addLibraryPath(*it + "/designer");
+	it++;
+    }
+
     MetaDataBase::setupInterfaceManagers();
     programPluginManager = new QInterfaceManager<ProgramInterface>( IID_ProgramInterface, pluginDir );
+    it = paths.begin();
+    while (it != paths.end()) {
+	programPluginManager->addLibraryPath(*it + "/designer");
+	it++;
+    }
+
     interpreterPluginManager = new QInterfaceManager<InterpreterInterface>( IID_InterpreterInterface, pluginDir );
+    it = paths.begin();
+    while (it != paths.end()) {
+	interpreterPluginManager->addLibraryPath(*it + "/designer");
+	it++;
+    }
+
     preferencePluginManager = new QInterfaceManager<PreferenceInterface>( IID_PreferenceInterface, pluginDir );
+    it = paths.begin();
+    while (it != paths.end()) {
+	preferencePluginManager->addLibraryPath(*it + "/designer");
+	it++;
+    }
+
     projectSettingsPluginManager = new QInterfaceManager<ProjectSettingsInterface>( IID_ProjectSettingsInterface, pluginDir );
+    it = paths.begin();
+    while (it != paths.end()) {
+	projectSettingsPluginManager->addLibraryPath(*it + "/designer");
+	it++;
+    }
+
     if ( preferencePluginManager ) {
 	QStringList lst = preferencePluginManager->featureList();
-	for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it ) {
+	for ( it = lst.begin(); it != lst.end(); ++it ) {
 	    PreferenceInterface *i = preferencePluginManager->queryInterface( *it );
 	    i->connectTo( designerInterface() );
 	    if ( !i )
@@ -4576,7 +4626,7 @@ void MainWindow::showSourceLine( QObject *o, int line, bool error )
 		eiface->release();
 		return;
 	    }
-	
+
 	    fw->setFocus();
 	    lastActiveFormWindow = fw;
 	    qApp->processEvents();
