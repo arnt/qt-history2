@@ -52,6 +52,74 @@
 #include <stdlib.h>
 #include <limits.h>
 
+class Q_EXPORT QTableHeader : public QHeader
+{
+    Q_OBJECT
+public:
+    enum SectionState {
+	Normal,
+	Bold,
+	Selected
+    };
+
+    QTableHeader( int, QTable *t, QWidget *parent=0, const char *name=0 );
+    ~QTableHeader() {};
+    void addLabel( const QString &s , int size );
+
+    void setSectionState( int s, SectionState state );
+    SectionState sectionState( int s ) const;
+
+    int sectionSize( int section ) const;
+    int sectionPos( int section ) const;
+    int sectionAt( int section ) const;
+
+    void setSectionStretchable( int s, bool b );
+    bool isSectionStretchable( int s ) const;
+
+signals:
+    void sectionSizeChanged( int s );
+
+protected:
+    void paintEvent( QPaintEvent *e );
+    void paintSection( QPainter *p, int index, const QRect& fr );
+    void mousePressEvent( QMouseEvent *e );
+    void mouseMoveEvent( QMouseEvent *e );
+    void mouseReleaseEvent( QMouseEvent *e );
+    void mouseDoubleClickEvent( QMouseEvent *e );
+    void resizeEvent( QResizeEvent *e );
+
+private slots:
+    void doAutoScroll();
+    void sectionWidthChanged( int col, int os, int ns );
+    void indexChanged( int sec, int oldIdx, int newIdx );
+    void updateStretches();
+    void updateWidgetStretches();
+
+private:
+    void updateSelections();
+    void saveStates();
+    void setCaching( bool b );
+    void swapSections( int oldIdx, int newIdx );
+    bool doSelection( QMouseEvent *e );
+
+private:
+    QArray<int> states, oldStates;
+    QArray<bool> stretchable;
+    QArray<int> sectionSizes, sectionPoses;
+    bool mousePressed;
+    int pressPos, startPos, endPos;
+    QTable *table;
+    QTimer *autoScrollTimer;
+    QWidget *line1, *line2;
+    bool caching;
+    int resizedSection;
+    bool isResizing;
+    int numStretches;
+    QTimer *stretchTimer, *widgetStretchTimer;
+    QTableHeaderPrivate *d;
+
+};
+
 struct QTablePrivate
 {
 };
@@ -279,7 +347,7 @@ QString QTableItem::text() const
     return txt;
 }
 
-/*!  Sets the item pixmap to \a p. 
+/*!  Sets the item pixmap to \a p.
 
   QTableItem::setPixmap(), however, does not repaint the cell.
 */
@@ -687,9 +755,9 @@ void QComboTableItem::setCurrentItem( int i )
     table()->updateCell( row(), col() );
 }
 
-/*! \overload 
+/*! \overload
   Sets the string \a s to be the current one, of the list of entries
-  contains this. 
+  contains this.
 */
 
 void QComboTableItem::setCurrentItem( const QString &s )
@@ -932,8 +1000,8 @@ bool QCheckTableItem::isChecked() const
 */
 
 /*! \enum QTable::EditMode
-  
-  
+
+
   \value NotEditing  the cell is not being now
   \value Editing  the cell is being edited, from its old contents
   \value Replacing  the cell is being edited, and was cleared when
@@ -941,7 +1009,7 @@ bool QCheckTableItem::isChecked() const
 */
 /*! \enum QTable::SelectionMode
 
-  
+
   \value NoSelection  No cell can be selected by the user.
   \value Single  The user may select one range of cells only.
   \value Multi  Multi-range selections are possible.
@@ -993,7 +1061,7 @@ QTable::QTable( QWidget *parent, const char *name )
 
 /*!
   Constructs a table named \a name with a range of \a numRows * \a numCols cells.
-  The new table object is a child of \a parent. 
+  The new table object is a child of \a parent.
 
   Performance is boosted by modifying the widget flags so that only part of
   the QTableItem children is redrawn.  This may be unsuitable for custom
@@ -1619,7 +1687,7 @@ void QTable::paintFocus( QPainter *p, const QRect &cr )
 }
 
 /*!  This function fills the rectangular \a cx, \a cy, \a cw, \a ch with the
-  background color using the painter \a p. 
+  background color using the painter \a p.
 
   paintEmptyArea() is invoked by drawContents() to erase
   or fill unused areas.
@@ -1653,7 +1721,7 @@ QTableItem *QTable::item( int row, int col ) const
     return contents[ indexOf( row, col ) ];	// contents array lookup
 }
 
-/*!  Sets the content for the cell \a row, \a col to \a item. 
+/*!  Sets the content for the cell \a row, \a col to \a item.
   If a cell item
   already exists in that position, the old one is deleted.
 
@@ -2607,7 +2675,7 @@ void QTable::updateColWidgets( int col )
 //ed: the end...
 
 /*!  This function is called when the column order is to be changed, i.e.
-  the user moved the column header \a section 
+  the user moved the column header \a section
   from \a fromIndex to \a toIndex.
 
   If you want to change it programmatically, call
@@ -2625,7 +2693,7 @@ void QTable::columnIndexChanged( int, int, int )
 
 /*!  This function is called when the order of the rows is to be
   changed, i.e. the user moved the row header \a section
-  from \a fromIndex to \a toIndex. 
+  from \a fromIndex to \a toIndex.
 
   If you want to change the order programmatically, call
   QHeader::moveSection() on the horizontalHeader() or
@@ -3614,7 +3682,7 @@ void QTable::setCellWidget( int row, int col, QWidget *e )
     viewport()->setFocus();
 }
 
-/*!  Inserts the widget \a w at the table coordinates \a row, \a col 
+/*!  Inserts the widget \a w at the table coordinates \a row, \a col
   into the internal datastructure. See the
   documentation of setCellWidget() for further details.
 */
@@ -3692,11 +3760,11 @@ bool QTable::dragEnabled() const
 
 #ifndef QT_NO_DRAGANDDROP
 
-/*! \reimp 
+/*! \reimp
 
-  This event handler is called whenever a QTable object receives a 
+  This event handler is called whenever a QTable object receives a
   \l QDragEnterEvent \a e, i.e. when the user pressed the mouse
-  button to drag something. 
+  button to drag something.
 
   The focus is moved to the cell where the QDragEnterEvent occured.
 */
@@ -3713,7 +3781,7 @@ void QTable::contentsDragEnterEvent( QDragEnterEvent *e )
     e->accept();
 }
 
-/*! \reimp 
+/*! \reimp
 
   This event handler is called whenever a QTable object receives a
   \l QDragMoveEvent \a e, i.e. when the user actually drags the mouse.
@@ -3731,7 +3799,7 @@ void QTable::contentsDragMoveEvent( QDragMoveEvent *e )
     e->accept();
 }
 
-/*! \reimp 
+/*! \reimp
 
  This event handler is called when a drag activity leaves \e this
  QTable object.
@@ -3743,7 +3811,7 @@ void QTable::contentsDragLeaveEvent( QDragLeaveEvent * )
     setCurrentCell( oldCurrentRow, oldCurrentCol );
 }
 
-/*! \reimp 
+/*! \reimp
 
   This event handler is called when the user ends a drag-and-drop
   activity by dropping something onto \e this QTable.
@@ -4412,4 +4480,8 @@ void QTableHeader::indexChanged( int sec, int oldIdx, int newIdx )
     table->repaintContents( table->contentsX(), table->contentsY(),
 			    table->visibleWidth(), table->visibleHeight() );
 }
+
+#include "qtable.moc"
+
 #endif // QT_NO_TABLE
+
