@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#36 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#37 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -27,7 +27,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#36 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#37 $";
 #endif
 
 
@@ -347,12 +347,20 @@ void QApplication::restoreCursor()		// restore application cursor
 }
 
 
-void QApplication::setFont( const QFont &f )	// set application font
-{
+void QApplication::setFont( const QFont &f,  bool forceAllWidgets )
+{						// set application font
     if ( appFont )
 	delete appFont;
     appFont = new QFont( f );
-    warning( "QApplication::setFont: NOT IMPLEMENTED" );
+    QFont::setDefaultFont( *appFont );
+    if ( forceAllWidgets ) {			// set for all widgets now
+	QWidgetIntDictIt it( *((QWidgetIntDict*)QWidget::mapper) );
+	register QWidget *w;
+	while ( (w=it.current()) ) {		// for all widgets...
+	    w->setFont( *appFont );
+	    ++it;
+	}
+    }
 }
 
 

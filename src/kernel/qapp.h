@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp.h#15 $
+** $Id: //depot/qt/main/src/kernel/qapp.h#16 $
 **
 ** Definition of QApplication class
 **
@@ -35,7 +35,7 @@ public:
     static void	    restoreCursor();
 
     static QFont   *font();			// get/set application font
-    static void	    setFont( const QFont & );
+    static void	    setFont( const QFont &, bool forceAllWidgets=FALSE );
 
     int		    exec( QWidget *mainWidget );// start event handing
     static void	    quit( int retcode = 0 );	// quit application
