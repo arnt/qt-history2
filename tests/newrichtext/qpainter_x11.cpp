@@ -3126,7 +3126,7 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 	assert( shaped );
 
 	int xpos = x + si.x;
-	int ypos = y + si.y + ascent;
+	int ypos = y + si.y - ascent;
 
 	bool rightToLeft = si.analysis.bidiLevel % 2;
 
