@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#199 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#200 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -64,14 +64,14 @@
   QComboBox provides two different constructors.  The simplest one
   creates an old-style combo box in Motif style:
   \code
-      QComboBox * c = new QCombBox( this, "read-only combo" );
+      QComboBox * c = new QComboBox( this, "read-only combo" );
   \endcode
 
   The other one creates a new-style combo box in Motif style, and can
   create both read-only and read-write combo boxes:
   \code
-      QComboBox * c1 = new QCombBox( FALSE, this, "read-only combo" );
-      QComboBox * c2 = new QCombBox( TRUE, this, "read-write combo" );
+      QComboBox * c1 = new QComboBox( FALSE, this, "read-only combo" );
+      QComboBox * c2 = new QComboBox( TRUE, this, "read-write combo" );
   \endcode
 
   New-style combo boxes use a list box in both Motif and Windows
