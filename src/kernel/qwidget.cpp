@@ -1457,7 +1457,7 @@ bool QWidget::isMinimized() const
 */
 void QWidget::showMinimized()
 {
-    setWindowState(windowState() | WindowMinimized);
+    setWindowState((windowState() & ~WindowActive) | WindowMinimized);
     show();
     QEvent e(QEvent::ShowMinimized);
     QApplication::sendEvent(this, &e);
@@ -1590,7 +1590,7 @@ void QWidget::showFullScreen()
 */
 void QWidget::showMaximized()
 {
-    setWindowState(windowState() | WindowMaximized);
+    setWindowState((windowState() & ~WindowMinimized) | WindowMaximized);
     show();
     QEvent e(QEvent::ShowMaximized);
     QApplication::sendEvent(this, &e);

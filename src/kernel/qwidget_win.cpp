@@ -922,8 +922,17 @@ void QWidget::setWindowState(uint newstate)
 
     if (isTopLevel()) {
 	if ((oldstate & WindowMaximized) != (newstate & WindowMaximized)) {
-	    if (isVisible())
+	    if (isVisible() && !(newstate & WindowMinimized)) {
 		ShowWindow(winId(), (newstate & WindowMaximized) ? max : normal);
+		QRect r = d->topData()->normalGeometry;
+		if (!(newstate & WindowMaximized) && r.width() >= 0) {
+		    if (pos() != r.topLeft() || size() !=r.size()) {
+			d->topData()->normalGeometry = QRect(0,0,-1,-1);
+			r.addCoords(d->topData()->fleft, d->topData()->ftop, d->topData()->fleft, d->topData()->ftop);
+			setGeometry(r);
+		    }
+		}
+	    }
 	}
 
 	if ((oldstate & WindowFullScreen) != (newstate & WindowFullScreen)) {
@@ -947,22 +956,20 @@ void QWidget::setWindowState(uint newstate)
 		if (isVisible())
 		    style |= WS_VISIBLE;
 		SetWindowLongA(winId(), GWL_STYLE, style);
-		QRect r = d->topData()->normalGeometry;
-
 		UINT swpf = SWP_FRAMECHANGED | SWP_NOZORDER | SWP_NOSIZE | SWP_NOMOVE;
 		if (newstate & WindowActive)
 		    swpf |= SWP_NOACTIVATE;
 		SetWindowPos(winId(), 0, 0, 0, 0, 0, swpf);
 		updateFrameStrut();
 
-		// the widget had been maximized
-		if ( r.width() >= 0 ) {
+		// the widget is still maximized
+		if ( newstate & WindowMaximized ) {
+		    if (isVisible())
+			ShowWindow(winId(), max);
+		} else {
+		    QRect r = d->topData()->normalGeometry;
 		    d->topData()->normalGeometry = QRect(0,0,-1,-1);
 		    r.addCoords(d->topData()->fleft, d->topData()->ftop, d->topData()->fleft, d->topData()->ftop);
-		    setGeometry(r);
-		} else {
-		    r = qApp->desktop()->availableGeometry(this);
-		    r.addCoords(-(int)d->topData()->fleft, -(int)d->topData()->ftop, -(int)d->topData()->fleft, -(int)d->topData()->ftop);
 		    setGeometry(r);
 		}
 	    }
@@ -970,7 +977,8 @@ void QWidget::setWindowState(uint newstate)
 
 	if ((oldstate & WindowMinimized) != (newstate & WindowMinimized)) {
 	    if (isVisible())
-		ShowWindow(winId(), (newstate & WindowMinimized) ? min : normal);
+		ShowWindow(winId(), (newstate & WindowMinimized) ? min : 
+				    (newstate & WindowMaximized) ? max : normal);
 	}
     }
 
