@@ -2113,7 +2113,7 @@ void QPainter::drawPixmap( const QRect &r, const QPixmap &pm )
 	pdev->cmd( QPaintDevice::PdcDrawPixmap, this, param );
 	return;
 #elif defined(Q_WS_MAC)
-	if ( !pdev->cmd( QPaintDevice::PdcDrawPixmap, this, param ))
+	if ( !pdev->cmd( QPaintDevice::PdcDrawPixmap, this, param ) || !pdev->handle())
 	    return;
 #else
 	if ( !pdev->cmd( QPaintDevice::PdcDrawPixmap, this, param ) || !hd )
@@ -2253,9 +2253,12 @@ void QPainter::drawImage( int x, int y, const QImage & image,
 #if defined(Q_WS_WIN)
 	if ( !pdev->cmd( QPaintDevice::PdcDrawImage, this, param ) || !hdc )
 	    return;
-#elif defined(Q_WS_MAC) || defined (Q_WS_QWS)
+#elif defined (Q_WS_QWS)
 	pdev->cmd( QPaintDevice::PdcDrawImage, this, param );
 	return;
+#elif defined(Q_WS_MAC)
+	if(!pdev->cmd( QPaintDevice::PdcDrawImage, this, param ) || !pdev->handle() )
+	    return;
 #else
 	if ( !pdev->cmd( QPaintDevice::PdcDrawImage, this, param ) || !hd )
 	    return;
@@ -2311,7 +2314,7 @@ void QPainter::drawImage( const QRect &r, const QImage &i )
 	pdev->cmd( QPaintDevice::PdcDrawImage, this, param );
 	return;
 #elif defined(Q_WS_MAC)
-	if ( !pdev->cmd( QPaintDevice::PdcDrawImage, this, param ))
+	if ( !pdev->cmd( QPaintDevice::PdcDrawImage, this, param ) || !pdev->handle() )
 	    return;
 #else
 	if ( !pdev->cmd( QPaintDevice::PdcDrawImage, this, param ) || !hd )
@@ -2522,7 +2525,8 @@ void QPainter::drawText( const QRect &r, int tf,
 		pdev->cmd( QPaintDevice::PdcDrawText2Formatted, this, param);
 		return;
 #elif defined(Q_WS_MAC)
-		if ( !pdev->cmd( QPaintDevice::PdcDrawText2Formatted, this, param))
+		if ( !pdev->cmd( QPaintDevice::PdcDrawText2Formatted, this, param) ||
+		    !pdev->handle())
 		    return;			// QPrinter wants PdcDrawText2
 #else
 		if ( !pdev->cmd( QPaintDevice::PdcDrawText2Formatted,
