@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpalette.cpp#36 $
+** $Id: //depot/qt/main/src/kernel/qpalette.cpp#37 $
 **
 ** Implementation of QColorGroup and QPalette classes
 **
@@ -84,7 +84,7 @@ QColorGroup::QColorGroup()
 */
 QColorGroup::QColorGroup(const QColorGroup& other)
 {
-    for (int i=0; i<MaxColorRole; i++)
+    for (int i=0; i<=MaxColorRole; i++)
 	br[i] = other.br[i];
 }
 
@@ -93,7 +93,7 @@ QColorGroup::QColorGroup(const QColorGroup& other)
 */
 QColorGroup& QColorGroup::operator =(const QColorGroup& other)
 {
-    for (int i=0; i<MaxColorRole; i++)
+    for (int i=0; i<=MaxColorRole; i++)
 	br[i] = other.br[i];
 }
 
