@@ -154,6 +154,8 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$TOOLS_H/qtextstream.h \
 		  $$TOOLS_H/qutfcodec.h \
 		  $$TOOLS_H/qvector.h \
+		  $$TOOLS_H/qvaluelist.h \
+		  $$TOOLS_H/qmap.h \
 		  $$WIDGETS_H/qbuttongroup.h \
 		  $$WIDGETS_H/qbutton.h \
 		  $$WIDGETS_H/qcheckbox.h \
@@ -266,6 +268,7 @@ SOURCES	       += tools/qbitarray.cpp \
 		  tools/qtextcodec.cpp \
 		  tools/qtextstream.cpp \
 		  tools/qutfcodec.cpp \
+		  tools/qmap.cpp \
 		  kernel/qabstractlayout.cpp \
 		  kernel/qaccel.cpp \
 		  kernel/qapplication.cpp \
