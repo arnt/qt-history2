@@ -12,7 +12,7 @@
 
 #include "launcher.h"
 #include "quickbutton.h"
-#include "sourceviewer.h"
+//#include "sourceviewer.h"
 #include "infotext.h"
 #include "commands.h"
 #include "qprocess.h"
@@ -22,7 +22,6 @@ static QColor qtgreen(0xa1,0xc4,0x10);
 Launcher::Launcher() : QHBox( 0, 0, WStyle_NoBorder | WStyle_Maximize | WStyle_Customize )
 {
     int i;
-//    QWidget *d = QApplication::desktop();
     QPushButton *pb;
     QuickButton *qb;
 
@@ -37,10 +36,10 @@ Launcher::Launcher() : QHBox( 0, 0, WStyle_NoBorder | WStyle_Maximize | WStyle_C
      setFont( QFont( "monofonto", 22 ) );
 
     // set images for later use in the info text
-//    for ( i=0; images[i].label!=0; i++ ) {
-//	QMimeSourceFactory::defaultFactory()
-//	    ->setImage( QString(images[i].label), QString(images[i].file) );
-//    }
+    for ( i=0; images[i].label!=0; i++ ) {
+	QMimeSourceFactory::defaultFactory()
+	    ->setImage( QString(images[i].label), QString(images[i].file) );
+    }
 
     // layout stuff
     QVBox* vb;
@@ -108,11 +107,7 @@ void Launcher::run( const char*path, const char* cmd )
     p.cd( path );
     p.cd( suffixDir );
     if ( list.count() > 0 )
-	list[0] = p.absFilePath( list[0 ]);
-// ###
-//    QString command = list.first();
-//    list.remove( list.begin() );
-//    QProcess proc( p.absFilePath(command), list );
+	list[0] = p.absFilePath( list[0] );
     list.append( "-style" );
     list.append( "windows" );
 
@@ -140,9 +135,9 @@ void Launcher::showSource( const char* path )
 {
     QDir p( baseDir );
     p.cd( path );
-    SourceViewer *sv = new SourceViewer( p );
-    sv->resize( 650, 700 );
-    sv->show();
+//    SourceViewer *sv = new SourceViewer( p );
+//    sv->resize( 650, 700 );
+//    sv->show();
 }
 
 void Launcher::source()
