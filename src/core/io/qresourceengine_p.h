@@ -39,6 +39,7 @@ public:
 
     virtual bool remove();
     virtual bool rename(const QString &newName);
+    virtual bool link(const QString &newName);
 
     virtual bool isSequential() const;
 

@@ -50,6 +50,12 @@ QFSFileEngine::rename(const QString &newName)
     return ::rename(QFile::encodeName(d->file), QFile::encodeName(newName)) == 0;
 }
 
+bool
+QFSFileEngine::link(const QString &newName)
+{
+    return ::symlink(QFile::encodeName(d->file), QFile::encodeName(newName)) == 0;
+}
+
 QFile::Offset
 QFSFileEngine::size() const
 {

@@ -455,6 +455,46 @@ QFile::rename(const QString &oldName, const QString &newName)
     return QFile(oldName).rename(newName);
 }
 
+/*!
+    Creates a link from the file currently specified by fileName() to
+    \a newName. What a link is depends on the underlying filesystem
+    (be it a shortcut on Windows or a symbolic link on Unix). Returns
+    true if successful; otherwise returns false.
+
+    \sa setFileName()
+*/
+
+bool
+QFile::link(const QString &newName)
+{
+    if (d->fileName.isEmpty()) {
+        qWarning("QFile::link: Empty or null file name");
+        return false;
+    }
+    if(d->getFileEngine()->link(newName)) {
+        resetStatus();
+        return true;
+    }
+    setStatus(QIODevice::RenameError, errno);
+    return false;
+}
+
+/*!
+    \overload
+
+    Creates a link from \a oldName to \a newName. What a link is
+    depends on the underlying filesystem (be it a shortcut on Windows
+    or a symbolic link on Unix). Returns true if successful; otherwise
+    returns false.
+
+    \sa link()
+*/
+
+bool
+QFile::link(const QString &oldName, const QString &newName)
+{
+    return QFile(oldName).link(newName);
+}
 
 /*!
     Copies the file currently specified by fileName() to \a newName.

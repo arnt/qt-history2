@@ -1063,3 +1063,8 @@ QFSFileEngine::setSize(QIODevice::Offset size)
     return false;
 }
 
+bool
+QFSFileEngine::link(const QString &newName)
+{
+    return false;
+}

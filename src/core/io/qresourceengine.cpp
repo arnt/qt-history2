@@ -190,6 +190,12 @@ QResourceFileEngine::rename(const QString &)
     return false;
 }
 
+bool
+QResourceFileEngine::link(const QString &)
+{
+    return false;
+}
+
 QFile::Offset
 QResourceFileEngine::size() const
 {
@@ -254,7 +260,7 @@ QResourceFileEngine::fileFlags(uint type) const
 }
 
 bool
-QResourceFileEngine::chmod(uint perms) 
+QResourceFileEngine::chmod(uint) 
 {
     return false;
 }

@@ -29,6 +29,7 @@ public:
 
     virtual bool remove() = 0;
     virtual bool rename(const QString &newName) = 0;
+    virtual bool link(const QString &newName) = 0;
 
     virtual bool mkdir(const QString &dirName, QDir::Recursion recurse) const = 0;
     virtual bool rmdir(const QString &dirName, QDir::Recursion recurse) const = 0;
@@ -122,6 +123,7 @@ public:
 
     virtual bool remove();
     virtual bool rename(const QString &newName);
+    virtual bool link(const QString &newName);
 
     virtual bool isSequential() const;
 

@@ -62,6 +62,9 @@ public:
     bool rename(const QString &newName);
     static bool rename(const QString &oldName, const QString &newName);
 
+    bool link(const QString &newName);
+    static bool link(const QString &oldname, const QString &newName);
+
     bool copy(const QString &newName);
     static bool copy(const QString &fileName, const QString &newName);
 
