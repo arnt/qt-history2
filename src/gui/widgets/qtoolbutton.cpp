@@ -301,7 +301,7 @@ QSize QToolButton::sizeHint() const
         }
     }
 
-    if ((d->menu || actions().count() > 1) && ! popupDelay())
+    if ((d->menu || !actions().isEmpty()) && ! popupDelay())
         w += style().pixelMetric(QStyle::PM_MenuButtonIndicator, this);
     return (style().sizeFromContents(QStyle::CT_ToolButton, this, QSize(w, h)).
             expandedTo(QApplication::globalStrut()));
@@ -390,7 +390,7 @@ void QToolButton::drawBevel(QPainter * p)
     if (isDown())
         active |= QStyle::SC_ToolButton;
 
-    if ((d->menu || actions().count() > 1) && !d->delay) {
+    if ((d->menu || !actions().isEmpty()) && !d->delay) {
         controls |= QStyle::SC_ToolButtonMenu;
         if (d->instantPopup || isDown())
             active |= QStyle::SC_ToolButtonMenu;
@@ -536,7 +536,7 @@ void QToolButton::mousePressEvent(QMouseEvent *e)
         return;
     }
     if (e->button() == LeftButton && d->delay <= 0 && d->instantPopup && !d->popupMenu
-        && (d->menu || actions().count())) {
+        && (d->menu || !actions().isEmpty()())) {
         showMenu();
         return;
     }
@@ -719,7 +719,7 @@ QMenu* QToolButton::menu() const
 */
 void QToolButton::showMenu()
 {
-    if (!d->menu || actions().count() < 2)
+    if (!d->menu && actions().isEmpty())
         return;
 
     d->instantPopup = true;
@@ -744,17 +744,17 @@ void QToolButtonPrivate::popupPressed()
 void QToolButtonPrivate::popupTimerDone()
 {
     popupTimer.stop();
-    if ((!q->isDown() && delay > 0) || (!menu && q->actions().count() < 2))
+    if ((!q->isDown() && delay > 0) || (!menu && q->actions().isEmpty()))
         return;
 
     if(menu) {
         popupMenu = menu;
-        if(q->actions().count() > 1)
+        if(!q->actions().isEmpty())
             qWarning("QToolButton: menu in setMenu() overriding actions set in addAction!");
     } else {
         popupMenu = new QMenu(q);
         QList<QAction*> actions = q->actions();
-        for(int i = 1; i < actions.size(); i++) //skip the first
+        for(int i = 0; i < actions.size(); i++) //skip the first
             popupMenu->addAction(actions[i]);
     }
     repeat = q->autoRepeat();

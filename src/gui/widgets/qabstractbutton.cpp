@@ -378,8 +378,6 @@ void QAbstractButtonPrivate::click()
     }
     refresh();
     emit q->released();
-    if(!q->actions().isEmpty())
-        q->actions()[0]->activate(QAction::Trigger);
     emit q->clicked();
 }
 
@@ -673,8 +671,6 @@ void QAbstractButton::click()
     if (d->checkable)
         nextCheckState();
     emit released();
-    if(!actions().isEmpty())
-        actions()[0]->activate(QAction::Trigger);
     emit clicked();
 }
 
@@ -858,8 +854,6 @@ void QAbstractButton::timerEvent(QTimerEvent *e)
     if (e->timerId() == d->repeatTimer.timerId()) {
         d->repeatTimer.start(AUTO_REPEAT_PERIOD, this);
         if (d->mlbDown && d->down) {
-            if(!actions().isEmpty())
-                actions()[0]->activate(QAction::Trigger);
             emit released();
             emit clicked();
             emit pressed();
