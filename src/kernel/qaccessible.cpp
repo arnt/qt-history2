@@ -566,14 +566,6 @@ QRESULT QAccessibleObject::queryInterface( const QUuid &uuid, QUnknownInterface 
 }
 
 /*!
-  \reimp ulong QAccessibleObject::addRef()
-*/
-
-/*!
-  \reimp ulong QAccessibleObject::release()
-*/
-
-/*!
   Returns the QObject for which this QAccessibleInterface implementation provides information.
   Use isValid() to make sure the object pointer is safe to use.
 */
