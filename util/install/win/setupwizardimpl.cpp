@@ -1749,7 +1749,7 @@ void SetupWizardImpl::optionSelected( QListViewItem *i )
     } else if ( i == pngPlugin ) {
 	explainOption->setText( "Support for PNG images is provided by a plugin that is loaded on demand." );
     } else if ( i == pngOff ) {
-	explainOption->setText( "<p>Turn off support for PNG images.<\p>"
+	explainOption->setText( "<p>Turn off support for PNG images.</p>"
 				"<p><font color=\"red\">Qt Designer, Qt Assistant and Qt Linguist use "
 				"the imageformat PNG. If you choose this option, the images in these "
 				"programs will be missing.</font></p>" );
