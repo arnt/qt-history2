@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.cpp#45 $
+** $Id: //depot/qt/main/src/kernel/qcolor.cpp#46 $
 **
 ** Implementation of QColor class
 **
@@ -13,7 +13,7 @@
 #include "qcolor.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor.cpp#45 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor.cpp#46 $")
 
 
 /*----------------------------------------------------------------------------
@@ -348,9 +348,13 @@ void QColor::setHsv( int h, int s, int v )
 
 
 /*----------------------------------------------------------------------------
-  \fn ulong QColor::rgb() const
-  Returns the composed RGB value.
+  \fn QRgb QColor::rgb() const
+  Returns the RGB value.
+
   Bits 0-7 = red, bits 8-15 = green, bits 16-23 = blue.
+
+  The return type \e QRgb is equivalent to \c unsigned \c int.
+
   \sa setRgb(), hsv()
  ----------------------------------------------------------------------------*/
 
@@ -372,10 +376,12 @@ void QColor::rgb( int *r, int *g, int *b ) const
 
   Bits 0-7 = red, bits 8-15 = green, bits 16-23 = blue.
 
+  The type \e QRgb is equivalent to \c unsigned \c int.
+
   \sa rgb(), setHsv()
  ----------------------------------------------------------------------------*/
 
-void QColor::setRgb( ulong rgb )
+void QColor::setRgb( QRgb rgb )
 {
     int r = (int)(rgb & 0xff);
     int g = (int)((rgb >> 8) & 0xff);
@@ -549,38 +555,40 @@ QDataStream &operator>>( QDataStream &s, QColor &c )
  *****************************************************************************/
 
 /*----------------------------------------------------------------------------
-  \fn int QRED( ulong rgb )
+  \fn int qRed( QRgb rgb )
   \relates QColor
-  Returns the red component of an encoded RGB value \e rgb.
-  \sa QRGB(), QColor::red()
+  Returns the red component of the RGB triplet \e rgb.
+  \sa qRgb(), QColor::red()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
-  \fn int QGREEN( ulong rgb )
+  \fn int qGreen( QRgb rgb )
   \relates QColor
-  Returns the green component of an encoded RGB value \e rgb.
-  \sa QRGB(), QColor::green()
+  Returns the green component of the RGB triplet \e rgb.
+  \sa qRgb(), QColor::green()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
-  \fn int QBLUE( ulong rgb )
+  \fn int qBlue( QRgb rgb )
   \relates QColor
-  Returns the blue component of an encoded RGB value \e rgb.
-  \sa QRGB(), QColor::blue()
+  Returns the blue component of the RGB triplet \e rgb.
+  \sa qRgb(), QColor::blue()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
-  \fn ulong QRGB( int r, int g, int b )
+  \fn QRgb qRgb( int r, int g, int b )
   \relates QColor
-  Returns an encoded RGB value from the \e (r,g,b) triplet.
+  Returns the RGB triplet \e (r,g,b).
 
-  Bits 0-7 = \e r, bits 8-15 = \e g, bits 16-23 = \e b.
+  Bits 0-7 = \e r (red), bits 8-15 = \e g (green), bits 16-23 = \e b (blue).
 
-  \sa QRED(), QGREEN(), QBLUE()
+  The return type \e QRgb is equivalent to \c unsigned \c int.
+
+  \sa qRed(), qGreen(), qBlue()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
-  \fn int QGRAY( int r, int g, int b )
+  \fn int qGray( int r, int g, int b )
   \relates QColor
   Returns a gray value 0..255 from the \e (r,g,b) triplet.
 
@@ -589,7 +597,7 @@ QDataStream &operator>>( QDataStream &s, QColor &c )
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
-  \fn int QGRAY( ulong rgb )
+  \fn int QGRAY( qRgb rgb )
   \relates QColor
-  Returns a gray value 0..255 from the composite \e rgb value.
+  Returns a gray value 0..255 from the \e rgb value.
  ----------------------------------------------------------------------------*/

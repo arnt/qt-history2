@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.h#26 $
+** $Id: //depot/qt/main/src/kernel/qcolor.h#27 $
 **
 ** Definition of QColor class
 **
@@ -16,29 +16,50 @@
 #include "qwindefs.h"
 
 
-const ulong RGB_DIRTY	= 0x80000000;		// flags unset color
-const ulong RGB_INVALID = 0x40000000;		// flags invalid color
-const ulong RGB_DIRECT	= 0x20000000;		// flags directly set pixel
-const ulong RGB_MASK	= 0x00ffffff;		// masks RGB values
+const QRgb  RGB_DIRTY	= 0x80000000;		// flags unset color
+const QRgb  RGB_INVALID = 0x40000000;		// flags invalid color
+const QRgb  RGB_DIRECT	= 0x20000000;		// flags directly set pixel
+const QRgb  RGB_MASK	= 0x00ffffff;		// masks RGB values
 
 
-inline int   QRED( ulong rgb )			// get red part of RGB
+inline int qRed( QRgb rgb )			// get red part of RGB
 { return (int)(rgb & 0xff); }
 
-inline int   QGREEN( ulong rgb )		// get green part of RGB
+inline int qGreen( QRgb rgb )			// get green part of RGB
 { return (int)((rgb >> 8) & 0xff); }
 
-inline int   QBLUE( ulong rgb )			// get blue part of RGB
+inline int qBlue( QRgb rgb )			// get blue part of RGB
 { return (int)((rgb >> 16) & 0xff); }
 
-inline ulong QRGB( int r, int g, int b )	// set RGB value
-{ return (uchar)r | ((ushort)g << 8) | ((ulong)b << 16); }
+inline QRgb qRgb( int r, int g, int b )		// set RGB value
+{ return (uchar)r | ((ushort)g << 8) | ((uint)b << 16); }
+
+inline int qGray( int r, int g, int b )		// convert R,G,B to gray 0..255
+{ return (r*11+g*16+b*5)/32; }
+
+inline int qGray( QRgb rgb )			// convert RGB to gray 0..255
+{ return qGray( qRed(rgb), qGreen(rgb), qBlue(rgb) ); }
+
+
+#if defined(OBSOLETE)
+inline int   QRED( QRgb rgb )			// get red part of RGB
+{ return (int)(rgb & 0xff); }
+
+inline int   QGREEN( QRgb rgb )			// get green part of RGB
+{ return (int)((rgb >> 8) & 0xff); }
+
+inline int   QBLUE( QRgb rgb )			// get blue part of RGB
+{ return (int)((rgb >> 16) & 0xff); }
+
+inline QRgb QRGB( int r, int g, int b )		// set RGB value
+{ return (uchar)r | ((ushort)g << 8) | ((uint)b << 16); }
 
 inline int QGRAY( int r, int g, int b )		// convert R,G,B to gray 0..255
 { return (r*11+g*16+b*5)/32; }
 
-inline int QGRAY( ulong rgb )			// convert RGB to gray 0..255
+inline int QGRAY( QRgb rgb )			// convert RGB to gray 0..255
 { return QGRAY( QRED(rgb), QGREEN(rgb), QBLUE(rgb) ); }
+#endif
 
 
 class QColor					// color class
@@ -49,7 +70,7 @@ public:
     QColor();
     QColor( int r, int g, int b );
     QColor( int x, int y, int z, Spec );
-    QColor( ulong rgb, ulong pixel=0xffffffff);
+    QColor( QRgb rgb, uint pixel=0xffffffff);
     QColor( const char *name );
     QColor( const QColor & );
     QColor &operator=( const QColor & );
@@ -60,9 +81,9 @@ public:
     void   setNamedColor( const char *name );
 
     void   rgb( int *r, int *g, int *b ) const;
-    ulong  rgb()    const;
+    QRgb   rgb()    const;
     void   setRgb( int r, int g, int b );
-    void   setRgb( ulong rgb );
+    void   setRgb( QRgb rgb );
 
     int	   red()    const;
     int	   green()  const;
@@ -79,8 +100,8 @@ public:
 
     static bool lazyAlloc();
     static void setLazyAlloc( bool );
-    ulong  alloc();
-    ulong  pixel()  const;
+    uint   alloc();
+    uint   pixel()  const;
 
     static int maxColors();
     static int numBitPlanes();
@@ -100,8 +121,8 @@ private:
 #if defined(_WS_WIN_)
     static HANDLE hpal;
 #endif
-    ulong  pix;
-    ulong  rgbVal;
+    uint   pix;
+    QRgb   rgbVal;
 };
 
 
@@ -117,19 +138,19 @@ inline bool QColor::isValid() const
 inline bool QColor::isDirty() const
 { return (rgbVal & RGB_DIRTY) != 0; }
 
-inline ulong QColor::rgb() const
+inline QRgb QColor::rgb() const
 { return rgbVal & RGB_MASK; }
 
 inline int QColor::red() const
-{ return QRED(rgbVal); }
+{ return qRed(rgbVal); }
 
 inline int QColor::green() const
-{ return QGREEN(rgbVal); }
+{ return qGreen(rgbVal); }
 
 inline int QColor::blue() const
-{ return QBLUE(rgbVal); }
+{ return qBlue(rgbVal); }
 
-inline ulong QColor::pixel() const
+inline uint QColor::pixel() const
 { return (rgbVal & RGB_DIRTY) == 0 ? pix : ((QColor*)this)->alloc(); }
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcol_x11.cpp#39 $
+** $Id: //depot/qt/main/src/kernel/qcol_x11.cpp#40 $
 **
 ** Implementation of QColor class for X11
 **
@@ -17,7 +17,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcol_x11.cpp#39 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcol_x11.cpp#40 $")
 
 
 /*****************************************************************************
@@ -61,10 +61,10 @@ void qt_reset_color_avail()			// OOPS: called from event loop
   QColor misc internal functions
  *****************************************************************************/
 
-static int highest_bit( ulong v )
+static int highest_bit( uint v )
 {
     int i;
-    ulong b = (uint)1 << 31;			// get pos of highest bit in v
+    uint b = (uint)1 << 31;			// get pos of highest bit in v
     for ( i=31; ((b & v) == 0) && i>=0;	 i-- )
 	b >>= 1;
     return i;
@@ -136,9 +136,9 @@ void QColor::initialize()
 
   // Initialize global color objects
 
-    ((QColor*)(&black))->rgbVal = QRGB( 0, 0, 0 );
+    ((QColor*)(&black))->rgbVal = qRgb( 0, 0, 0 );
     ((QColor*)(&black))->pix = BlackPixel( dpy, screen );
-    ((QColor*)(&white))->rgbVal = QRGB( 255, 255, 255 );
+    ((QColor*)(&white))->rgbVal = qRgb( 255, 255, 255 );
     ((QColor*)(&white))->pix = WhitePixel( dpy, screen );
 
 #if 0 /* 0 == allocate colors on demand */
@@ -190,7 +190,7 @@ void QColor::cleanup()
   be set directly to \e pix (skips the standard allocation procedure).
  ----------------------------------------------------------------------------*/
 
-QColor::QColor( ulong rgb, ulong pixel )
+QColor::QColor( QRgb rgb, uint pixel )
 {
     if ( pixel == 0xffffffff )
 	setRgb( rgb );
@@ -212,10 +212,10 @@ QColor::QColor( ulong rgb, ulong pixel )
   the color was not already allocated.
  ----------------------------------------------------------------------------*/
 
-ulong QColor::alloc()
+uint QColor::alloc()
 {
     if ( (rgbVal & RGB_INVALID) || !colorDict ) { // invalid color or state
-	rgbVal = QRGB( 0, 0, 0 );
+	rgbVal = qRgb( 0, 0, 0 );
 	pix = BlackPixel( qt_xdisplay(), qt_xscreen() );
 	return pix;
     }
@@ -246,10 +246,9 @@ ulong QColor::alloc()
     col.green = g << 8;
     col.blue  = b << 8;
     if ( colorAvail && XAllocColor(dpy, g_cmap, &col) ) {
-	pix = col.pixel;			// allocated X11 color
+	pix = (uint)col.pixel;			// allocated X11 color
 	rgbVal &= RGB_MASK;
-    }
-    else {					// get closest color
+    } else {					// get closest color
 	int mincol = -1;
 	int mindist = 200000;
 	int rx, gx, bx, dist;
@@ -334,7 +333,7 @@ void QColor::setRgb( int r, int g, int b )
     if ( (uint)r > 255 || (uint)g > 255 || (uint)b > 255 )
 	warning( "QColor::setRgb: RGB parameter(s) out of range" );
 #endif
-    rgbVal = QRGB(r,g,b);
+    rgbVal = qRgb(r,g,b);
     if ( lalloc || g_cmap == 0 ) {
 	rgbVal |= RGB_DIRTY;			// alloc later
 	pix = 0;

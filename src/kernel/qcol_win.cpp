@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcol_win.cpp#19 $
+** $Id: //depot/qt/main/src/kernel/qcol_win.cpp#20 $
 **
 ** Implementation of QColor class for Win32
 **
@@ -21,7 +21,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcol_win.cpp#19 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcol_win.cpp#20 $")
 
 
 /*****************************************************************************
@@ -133,7 +133,7 @@ uint QColor::realizePal( QWidget *widget )	// realize palette
   QColor member functions
  *****************************************************************************/
 
-QColor::QColor( ulong rgb, ulong pixel )
+QColor::QColor( QRgb rgb, uint pixel )
 {
     if ( pixel == 0xffffffff )
 	setRgb( rgb );
@@ -145,7 +145,7 @@ QColor::QColor( ulong rgb, ulong pixel )
 }
 
 
-ulong QColor::alloc()
+uint QColor::alloc()
 {
     rgbVal &= RGB_MASK;
     if ( hpal )
@@ -161,7 +161,7 @@ void QColor::setNamedColor( const char * )
 #if defined(DEBUG)
     warning( "QColor::setNamedColor: Named colors not supported" );
 #endif
-    pix = rgbVal = QRGB(0,0,0);
+    pix = rgbVal = qRgb(0,0,0);
 }
 
 
@@ -171,7 +171,7 @@ void QColor::setRgb( int r, int g, int b )
     if ( (uint)r > 255 || (uint)g > 255 || (uint)b > 255 )
 	warning( "QColor::setRgb: RGB parameter(s) out of range" );
 #endif
-    rgbVal = QRGB(r,g,b);
+    rgbVal = qRgb(r,g,b);
     if ( lalloc ) {
 	rgbVal |= RGB_DIRTY;			// alloc later
 	pix = 0;
