@@ -639,6 +639,7 @@ typedef int QNoImplicitIntegralCast;
 #ifdef QT_COMPAT  // make sure QT_COMPAT is defined to be void
 #  undef QT_COMPAT
 #  define QT_COMPAT
+#  define QT_COMPAT_CONSTRUCTOR
 #endif
 
 #ifdef QT_MOC_COMPAT //for marking signals/slots
@@ -654,14 +655,20 @@ typedef int QNoImplicitIntegralCast;
 #  ifdef QT_COMPAT
 #    undef QT_COMPAT
 #  endif
+#  ifdef QT_COMPAT_CONSTRUCTOR
+#    undef QT_COMPAT_CONSTRUCTOR
+#  endif
 #  if defined(Q_MOC_RUN)
 #    define QT_COMPAT QT_COMPAT
 #  elif defined(Q_CC_GNU) && (__GNUC__ - 0 > 3 || (__GNUC__ - 0 == 3 && __GNUC_MINOR__ - 0 >= 2))
 #    define QT_COMPAT __attribute__ ((__deprecated__))
+#    define QT_COMPAT_CONSTRUCTOR explicit __attribute__ ((__deprecated__))
 #  elif defined(Q_CC_MSVC) && (_MSC_VER >= 1300)
 #    define QT_COMPAT __declspec(deprecated)
+#    define QT_COMPAT_CONSTRUCTOR
 #  else
 #    define QT_COMPAT
+#    define QT_COMPAT_CONSTRUCTOR
 #  endif
 #endif
 
