@@ -743,9 +743,8 @@ public:
 };
 
 typedef QCache<int, QGLTexture> QGLTextureCache;
-#define QGL_TX_CACHE_MAX 64*1024 // cache ~64 MB worth of textures - this is not accurate though
-
-static QGLTextureCache *qt_txCache = 0;
+static int qt_max_tex_cache_size = 64*1024; // cache ~64 MB worth of textures - this is not accurate though
+static QGLTextureCache *qt_tex_cache = 0;
 
 // DDS format structure
 struct DDSFormat {
@@ -862,17 +861,17 @@ QGLContext::QGLContext(const QGLFormat &format)
 QGLContext::~QGLContext()
 {
     // remove any textures cached in this context
-    if (qt_txCache) {
-	QList<int> keys = qt_txCache->keys();
+    if (qt_tex_cache) {
+	QList<int> keys = qt_tex_cache->keys();
 	for (int i = 0; i < keys.size(); ++i) {
 	    int key = keys.at(i);
-	    if (qt_txCache->find(key)->context == this)
-		qt_txCache->remove(key);
+	    if (qt_tex_cache->find(key)->context == this)
+		qt_tex_cache->remove(key);
 	}
 	// ### thread safety
-	if (qt_txCache->size() == 0) {
-	    delete qt_txCache;
-	    qt_txCache = 0;
+	if (qt_tex_cache->size() == 0) {
+	    delete qt_tex_cache;
+	    qt_tex_cache = 0;
 	}
     }
 
@@ -929,11 +928,11 @@ GLuint QGLContext::bindTexture(const QString &fname)
     if (!glCompressedTexImage2DARB)
 	return 0;
 
-    if (!qt_txCache)
-	qt_txCache = new QGLTextureCache(QGL_TX_CACHE_MAX);
+    if (!qt_tex_cache)
+	qt_tex_cache = new QGLTextureCache(qt_max_tex_cache_size);
 
     int key = scramble(fname);
-    QGLTexture *texture = qt_txCache->find(key);
+    QGLTexture *texture = qt_tex_cache->find(key);
 
     if (texture && texture->context == this) {
 	glBindTexture(GL_TEXTURE_2D, texture->id);
@@ -1018,7 +1017,7 @@ GLuint QGLContext::bindTexture(const QString &fname)
     free(pixels);
 
     int cost = bufferSize/1024;
-    qt_txCache->insert(key, new QGLTexture(this, tx_id), cost);
+    qt_tex_cache->insert(key, new QGLTexture(this, tx_id), cost);
     return tx_id;
 }
 
@@ -1051,10 +1050,10 @@ GLuint QGLContext::bindTexture(const QPixmap &pm, GLint format)
 	init_extensions = false;
     }
 
-    if (!qt_txCache)
-	qt_txCache = new QGLTextureCache(QGL_TX_CACHE_MAX);
+    if (!qt_tex_cache)
+	qt_tex_cache = new QGLTextureCache(qt_max_tex_cache_size);
 
-    QGLTexture *texture = qt_txCache->find(pm.serialNumber());
+    QGLTexture *texture = qt_tex_cache->find(pm.serialNumber());
     if (texture && texture->context == this) {
 	glBindTexture(GL_TEXTURE_2D, texture->id);
 	return texture->id;
@@ -1084,7 +1083,7 @@ GLuint QGLContext::bindTexture(const QPixmap &pm, GLint format)
 
     // this assumes the size of a texture is always smaller than the max cache size
     int cost = tx.width()*tx.height()*4/1024;
-    qt_txCache->insert(pm.serialNumber(), new QGLTexture(this, tx_id), cost);
+    qt_tex_cache->insert(pm.serialNumber(), new QGLTexture(this, tx_id), cost);
     return tx_id;
 }
 
@@ -1096,17 +1095,36 @@ GLuint QGLContext::bindTexture(const QPixmap &pm, GLint format)
 */
 void QGLContext::deleteTexture(GLuint id)
 {
-    if (!qt_txCache)
+    if (!qt_tex_cache)
 	return;
 
-    QList<int> keys = qt_txCache->keys();
+    QList<int> keys = qt_tex_cache->keys();
     for (int i = 0; i < keys.size(); ++i) {
-	QGLTexture *tex = qt_txCache->find(keys.at(i));
+	QGLTexture *tex = qt_tex_cache->find(keys.at(i));
 	if (tex->id == id && tex->context == this) {
-	    qt_txCache->remove(keys.at(i));
+	    qt_tex_cache->remove(keys.at(i));
 	    break;
 	}
     }
+}
+
+/*!
+    This function sets the max size for the texture cache. The size is
+    in KB.
+*/
+void QGLContext::setMaxTextureCacheSize(int size)
+{
+    qt_max_tex_cache_size = size;
+    if (qt_tex_cache)
+	qt_tex_cache->setMaxCost(qt_max_tex_cache_size);
+}
+
+/*!
+    Returns the current max texture cache size in KB.
+*/
+int QGLContext::maxTextureCacheSize()
+{
+    return qt_max_tex_cache_size;
 }
 
 /*!

@@ -161,6 +161,9 @@ public:
     GLuint bindTexture(const QString &fname);
     void deleteTexture(GLuint tx_id);
 
+    void setMaxTextureCacheSize(int kb);
+    int maxTextureCacheSize();
+
     void *getProcAddress(const QString &proc) const;
     QPaintDevice* device() const;
     QColor overlayTransparentColor() const;
