@@ -71,12 +71,12 @@ template <typename T> class QList;
 class Q_CORE_EXPORT QByteArray
 {
 public:
-    QByteArray();
+    inline QByteArray();
     QByteArray(const char *);
     QByteArray(const char *, int size);
     QByteArray(int size, char c);
     QByteArray(const QByteArray &);
-    ~QByteArray();
+    inline ~QByteArray();
 
     QByteArray &operator=(const QByteArray &);
     QByteArray &operator=(const char *str);
@@ -294,6 +294,8 @@ private:
     friend class QString;
 };
 
+inline QByteArray::QByteArray(): d(&shared_null) { ++d->ref; }
+inline QByteArray::~QByteArray() { if (!--d->ref) qFree(d); }
 inline int QByteArray::size() const
 { return d->size; }
 inline const char QByteArray::at(int i) const

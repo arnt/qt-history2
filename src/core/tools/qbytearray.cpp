@@ -692,16 +692,9 @@ QByteArray::Data QByteArray::shared_empty = { Q_ATOMIC_INIT(1), 0, 0, shared_emp
     \sa operator=()
 */
 
-/*!
+/*! \fn QByteArray::~QByteArray()
     Destroys the byte array.
 */
-QByteArray::~QByteArray()
-{
-    if (!d)
-        return;
-    if (!--d->ref)
-        qFree(d);
-}
 
 /*!
     Assigns \a other to this byte array and returns a reference to
@@ -1112,11 +1105,6 @@ void QByteArray::chop(int n)
 
     \sa isEmpty()
 */
-
-QByteArray::QByteArray() : d(&shared_null)
-{
-    ++d->ref;
-}
 
 /*! \fn QByteArray::QByteArray(const char *str)
 

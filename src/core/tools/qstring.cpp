@@ -654,17 +654,10 @@ QString::QString(QChar ch)
 */
 
 /*!
+  \fn QString::~QString()
 
     Destroys the string.
 */
-
-QString::~QString()
-{
-    if (!d)
-        return;
-    if (!--d->ref)
-        free(d);
-}
 
 
 /*! \fn void QString::detach()
