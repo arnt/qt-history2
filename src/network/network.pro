@@ -6,9 +6,6 @@ DEFINES += QT_BUILD_NETWORK_LIB
 include(../qbase.pri)
 QCONFIG = core 
 
-# Don't link against gui
-win32:QCONFIG+=gui
-
 # Qt network module
 
 network {
