@@ -8,7 +8,7 @@ EOF
 TOP=`pwd`
 
 # configure xbase
-cd xdb-1.2.0 && ./configure --enable-static --without-index-ntx --without-expressions --without-ui-html --without-xbase-locking --without-xbase-debug --without-memo-fields --quiet --libdir $TOP/lib
+cd xdb-1.2.0 && ./configure --without-index-ntx --without-ui-html --without-xbase-locking --without-xbase-debug --without-memo-fields --quiet
 
 echo creating src/Makefile
 cd ../src && qmake -o Makefile src.pro
