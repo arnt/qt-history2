@@ -463,7 +463,7 @@ public:
     void clearWFlags( WFlags f )	{ QWidget::clearWFlags(f); }
     bool translateMouseEvent( const XEvent * );
     bool translateKeyEventInternal( const XEvent *, int& count, QString& text, int& state, char& ascii, int &code,
-				    QEvent::Type &type );
+				    QEvent::Type &type, bool willRepeat=FALSE );
     bool translateKeyEvent( const XEvent *, bool grab );
     bool translatePaintEvent( const XEvent * );
     bool translateConfigEvent( const XEvent * );
@@ -4723,7 +4723,7 @@ static QChar keysymToUnicode(unsigned char byte3, unsigned char byte4)
 bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count,
 					   QString& text,
 					   int& state,
-					   char& ascii, int& code, QEvent::Type &type )
+					   char& ascii, int& code, QEvent::Type &type, bool willRepeat )
 {
     QTextCodec *mapper = input_mapper;
     // some XmbLookupString implementations don't return buffer overflow correctly,
@@ -4850,7 +4850,8 @@ bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count,
     } else {
 	key = (int)(long)keyDict->find( keycode );
 	if ( key )
-	    keyDict->take( keycode );
+	    if( !willRepeat ) // Take out key of dictionary only if this call.
+		keyDict->take( keycode );
 	long s = (long)textDict->find( keycode );
 	if ( s ) {
 	    textDict->take( keycode );
@@ -5004,7 +5005,8 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
     bool    autor = FALSE;
     QString text;
 
-    translateKeyEventInternal( event, count, text, state, ascii, code, type );
+    translateKeyEventInternal( event, count, text, state, ascii, code, type,
+			       qt_mode_switch_remove_mask != 0 );
 
     // once chained accelerators are possible in Qt, the accelavailable code should
     // be removed completely from Qt, and instead we should use an internal
