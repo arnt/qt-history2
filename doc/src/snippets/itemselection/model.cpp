@@ -66,12 +66,15 @@ int TableModel::columnCount() const
     string to be returned.
 */
 
-QVariant TableModel::data(const QModelIndex &index, int /* role */) const
+QVariant TableModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid())
         return QVariant();
 
-    return rowList[index.row()][index.column()];
+    if (role == DisplayRole)
+        return rowList[index.row()][index.column()];
+    else
+        return QVariant();
 }
 
 /*!
@@ -93,12 +96,16 @@ QVariant TableModel::headerData(int section, Qt::Orientation orientation,
 }
 
 /*!
-    Returns true so that all items in the model can be edited.
+    Returns an appropriate value for the item's flags. Valid items are
+    enabled, selectable, and editable.
 */
 
-bool TableModel::isEditable(const QModelIndex &/*index*/) const
+QAbstractItemModel::ItemFlags TableModel::flags(const QModelIndex &index) const
 {
-    return true; // all items in the model are editable
+    if (!index.isValid())
+        return ItemIsEnabled;
+
+    return ItemIsEnabled | ItemIsSelectable | ItemIsEditable;
 }
 
 /*!
