@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qftp.cpp#18 $
+** $Id: //depot/qt/main/src/network/qftp.cpp#19 $
 **
 ** Implementation of QFtp class.
 **
@@ -324,7 +324,7 @@ void QFtp::parseDir( const QString &buffer, QUrlInfo &info )
     static int writable = 1;
     static int executable = 2;
 
-    bool perms[ 3 ][ 3 ]; 
+    bool perms[ 3 ][ 3 ];
     perms[0][0] = (tmp[ 1 ] == 'r');
     perms[0][1] = (tmp[ 2 ] == 'w');
     perms[0][2] = (tmp[ 3 ] == 'x');

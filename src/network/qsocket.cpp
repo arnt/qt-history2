@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocket.cpp#27 $
+** $Id: //depot/qt/main/src/network/qsocket.cpp#28 $
 **
 ** Implementation of QSocket class.
 **
@@ -882,12 +882,8 @@ int QSocket::writeBlock( const char *data, uint len )
     // try to buffer up since system calls are expensive, and nagle's
     // algorithm is even more expensive.  but if anything even
     // remotely large is being written, try to issue a write at once.
-    // so, we try a write immediately if there isn't data queued up
-    // already, and the write notifier is off, and this blob of data
-    // isn't ridiculously small.
 
-    bool writeNow = ( d->wsize == 0 && len > 512 &&
-		      d->wsn && d->wsn->isEnabled() == FALSE );
+    bool writeNow = ( d->wsize + len >= 1400 || len > 512 );
 
     if ( a && a->size() + len < 128 ) {
 	// small buffer, resize
@@ -1185,7 +1181,7 @@ void QSocket::setSocketIntern( int socket )
     if ( state() != Idle )
 	close();
     d->state = Idle;
- 
+
     d->socket->setSocket(socket, QSocketDevice::Stream );
     delete d->rsn;
     d->rsn = new QSocketNotifier( d->socket->socket(), QSocketNotifier::Read,
@@ -1197,19 +1193,19 @@ void QSocket::setSocketIntern( int socket )
     d->rsn->setEnabled( FALSE );
     connect( d->wsn, SIGNAL(activated(int)), SLOT(sn_write()) );
     d->wsn->setEnabled( FALSE );
- 
+
     // Initialize the IO device flags
     setFlags( IO_Direct );
     setStatus( IO_Ok );
     open( IO_ReadWrite );
- 
+
     // hm... this is not very nice.
     d->host = QString::null;
     d->port = 0;
 #ifndef QT_NO_DNS
     delete d->dns;
     d->dns = 0;
-#endif                                                                                                                                                                                
+#endif
 }
 
 
