@@ -1673,7 +1673,6 @@ bool QOCIDriver::beginTransaction()
 #endif
 	return FALSE;
     }
-    qWarning("transaction started");
     d->transaction = TRUE;
     int r = OCITransStart ( d->svc,
 			    d->err,
