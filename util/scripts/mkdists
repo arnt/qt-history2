@@ -23,6 +23,7 @@ BRANCH=auto
 #paths
 OUT_TREE=`pwd`
 LOCAL_TREE=
+LOG=/dev/null #by default we do not log
 QDOC_PATH=$QTDIR/util/qdoc/qdoc
 QPKG_PATH=$QTDIR/util/install/package/package
 QMAKE_PATH=$QTDIR/bin/qmake
@@ -126,6 +127,11 @@ showhelp()
 
 while [ -n "$1" ]; do
    case $1 in
+   -log)
+        shift
+	VAR=log
+	VAL=$1
+	;;
    -manifest)
 	shift
 	VAR=manifest
@@ -206,6 +212,7 @@ while [ -n "$1" ]; do
    qnx6) DO_QNX6=$VAL ;;
    embedded) DO_EMBEDDED=$VAL ;;
    #paths
+   log) LOG=$VAL; rm -f $LOG ;;
    qpkg_path)  QPKG_PATH=$VAL  ;;
    qmake_path) QMAKE_PATH=$VAL ;;
    qdoc_path) QDOC_PATH=$VAL;;
@@ -219,7 +226,7 @@ while [ -n "$1" ]; do
    type) TYPE=$VAL ;;
    branch) BRANCH=$VAL ;;
    version)
-       expr "$VAL" : ".*\.\d*" >/dev/null 2>&1 || die "Can't figure out version from $VAL"
+       expr "$VAL" : ".*\.\d*" >>$LOG 2>&1 || die "Can't figure out version from $VAL"
        LABEL="qt/$VAL"
        TMP_TYPE=`echo $VAL | sed "s,\([0-9\.]*\)\(-*.*\),\2,"`
        if [ -z "$TMP_TYPE" ]; then
@@ -256,21 +263,21 @@ if [ "$DO_ID" = "auto" ]; then
     fi
 fi
 if [ "$DO_GZIP" = "auto" ]; then
-    if which gzip >/dev/null 2>&1; then
+    if which gzip >>$LOG 2>&1; then
 	DO_GZIP=yes
     else
 	DO_GZIP=no
     fi
 fi
 if [ "$DO_BZIP" = "auto" ]; then
-    if which bzip2 >/dev/null 2>&1; then
+    if which bzip2 >>$LOG 2>&1; then
 	DO_BZIP=yes
     else
 	DO_BZIP=no
     fi
 fi
 if [ "$DO_STUFF" = "auto" ]; then
-    if which stuff >/dev/null 2>&1; then
+    if which stuff >>$LOG 2>&1; then
 	DO_STUFF=yes
     else
 	DO_STUFF=no
@@ -290,7 +297,7 @@ if [ "x$DO_DOC" = "xyes" ]; then
     QDOC_SRC="`dirname $QDOC_PATH`"
     if [ -d  "$QDOC_SRC" ]; then
 	status "Building qdoc.."
-    	(cd "$QDOC_SRC"; "$QMAKE_PATH" qdoc.pro; make >/dev/null ) || die "Cannot build qdoc (${QDOC_SRC})"
+    	(cd "$QDOC_SRC"; "$QMAKE_PATH" qdoc.pro; make >>$LOG ) || die "Cannot build qdoc (${QDOC_SRC})"
     else
 	echo "Cannot find qdoc source, hopefully you have made sure it is up-to-date"
     fi
@@ -302,14 +309,14 @@ if [ "x$DO_PKG" = "xyes" ]; then
     QPKG_SRC=`dirname $QPKG_SRC`
     if [ -d  "$QPKG_SRC" ]; then
 	status "Building qpkg.."
-    	(cd "$QPKG_SRC"; make qmake; make >/dev/null ) || die "Cannot build qpkg (${QPKG_SRC})"
+    	(cd "$QPKG_SRC"; make qmake; make >>$LOG ) || die "Cannot build qpkg (${QPKG_SRC})"
     else
 	echo "Cannot find qpkg source, hopefully you have made sure it is up-to-date"
     fi
     [ ! -x "$QPKG_PATH" ] && die "qpkg not found, failed (${QPKG_PATH})"
 fi
 rm -f "$TMP_FILE" && { [ -e "$TMP_FILE" ] && die "Could not remove tmp file, failed (${TMP_FILE})" ; }
-[ ! -d "$OUT_TREE" ] && { mkdir -p $OUT_TREE >/dev/null 2>&1 || die "Could not create outdir, failed (${OUT_TREE})" ; }
+[ ! -d "$OUT_TREE" ] && { mkdir -p $OUT_TREE >>$LOG 2>&1 || die "Could not create outdir, failed (${OUT_TREE})" ; }
 
 
 DISTDIR="${TMP_DIR}/qt-$BRANCH-$MYNAME-$$"
@@ -318,15 +325,15 @@ DISTDIR="${TMP_DIR}/qt-$BRANCH-$MYNAME-$$"
 if [ -z $LOCAL_TREE ]; then
     export P4PORT
     checkoutlabel=""
-    if ! $P4 fstat //depot/qt/$BRANCH/util/qdoc/qdoc.conf 2>&1 | grep " depotFile " >/dev/null 2>&1 ; then
+    if ! $P4 fstat //depot/qt/$BRANCH/util/qdoc/qdoc.conf 2>&1 | grep " depotFile " >>$LOG 2>&1 ; then
 	die "//depot/qt/$BRANCH/... is not in the depot, stopped"
     fi
     if [ ! -z $LABEL ]; then
-	if ! $P4 labels 2>&1 | grep "^Label $LABEL" >/dev/null 2>&1 ; then
+	if ! $P4 labels 2>&1 | grep "^Label $LABEL" >>$LOG 2>&1 ; then
 	    die "Label $LABEL does not exist, stopped"
 	fi
 
-	if $P4 label -o $LABEL | grep '^Options:.*locked' >/dev/null 2>&1; then
+	if $P4 label -o $LABEL | grep '^Options:.*locked' >>$LOG 2>&1; then
 	    checkoutlabel="@${LABEL}"
 	fi
     fi
@@ -336,9 +343,9 @@ if [ -z $LOCAL_TREE ]; then
     $P4 client -t qt-release-3x -o $tmpclient >${TMP_FILE}
     sed ${TMP_FILE} -e "s,^Root:.*,Root: $DISTDIR," -e "s,/qt/X.Y/,/qt/$BRANCH/,g" \
 	    -e "s,^\(Client: \).*,\1qt-release-tmp-$$," -e "s,\bnomodtime\b,modtime," | \
-      $P4 -s client -i >/dev/null 2>&1
+      $P4 -s client -i >>$LOG 2>&1
 
-    $P4 -s -c $tmpclient sync -f $DISTDIR/qt/...${checkoutlabel} >/dev/null 2>&1
+    $P4 -s -c $tmpclient sync -f $DISTDIR/qt/...${checkoutlabel} >>$LOG 2>&1
 else
     status "Copying Qt depot.."
     [ ! -d $DISTDIR/qt ] && mkdir -p $DISTDIR/qt
@@ -370,13 +377,13 @@ done
 
 #pregenerate moc files
 status "Creating moc files.."
-pushd $DISTDIR/qt/src/moc >/dev/null 2>&1
+pushd $DISTDIR/qt/src/moc >>$LOG 2>&1
 $QMAKE_PATH -spec $QTDIR/mkspecs/linux-g++ moc.pro -o Makefile
 
-status `make moc_lex.cpp >/dev/null`
-status `make moc_yacc.cpp >/dev/null`
+status "make moc_lex.cpp >>$LOG"
+status "make moc_yacc.cpp >>$LOG"
 rm -f Makefile
-popd >/dev/null 2>&1
+popd >>$LOG 2>&1
 
 #cleanup documentation directories
 mkdir -p "$DISTDIR/qt/doc"
@@ -427,7 +434,7 @@ for a in `find $DISTDIR/qt/dist/ -name "changes-$REL_VERSION*"`; do
 done
 
 myexpr () {
-    echo "$1" | egrep "$3" >/dev/null 2>&1
+    echo "$1" | egrep "$3" >>$LOG 2>&1
     return
 }
 
@@ -439,9 +446,9 @@ if [ "$TYPE" = "auto" ]; then
 	die "The TYPE is ${TYPE}, which confuses me terribly";
     fi
 fi
-if echo "$TYPE" | grep "^beta" >/dev/null 2>&1; then
+if echo "$TYPE" | grep "^beta" >>$LOG 2>&1; then
     TYPE=`echo $TYPE | sed 's,^beta\([0-9]\)$,b\1,'`
-elif echo "$TYPE" | grep "^alpha" >/dev/null 2>&1; then
+elif echo "$TYPE" | grep "^alpha" >>$LOG 2>&1; then
     TYPE=`echo $TYPE | sed 's,^alpha\([0-9]\)$,a\1,'`
 fi
 VERSION_STR="$REL_VERSION"
@@ -453,7 +460,7 @@ if [ ! -z "$TYPE" ] && ! myexpr "$REL_VERSION" : "${TYPE}$"; then
     fi
 fi
 [ "$TYPE" = "snapshot" ] && VERSION_STR=`date "+${VERSION_STR}-%Y%m%d"`
-[ "$DO_WIN" = "yes" ] && ! strings $DISTDIR/qt/dist/win/bin/moc.exe | grep "$VERSION_STR" >/dev/null 2>&1 && status "!! Warning: qt/dist/win/bin/moc.exe might not match !!"
+[ "$DO_WIN" = "yes" ] && ! strings $DISTDIR/qt/dist/win/bin/moc.exe | grep "$VERSION_STR" >>$LOG 2>&1 && status "!! Warning: qt/dist/win/bin/moc.exe might not match !!"
 sed -e "s,^\(\#define  *QT_VERSION  *\)[0-9]*$,\1${BRANCH_DIGITS},g" \
     -e "s,^\(\#define  *QT_VERSION_STR  *\)\".*\"$,\1\"${VERSION_STR}\",g" $qglobal >${TMP_FILE}
 mv ${TMP_FILE} $qglobal
@@ -471,7 +478,7 @@ if [ "x$DO_ID" = "xyes" ]; then
 	    dll|gif|png|mng|jpg|bmp|any|pic|ppm|exe|zip|qm|ico) continue ;;
 
 	    *)
-		if [ -f $a ] && [ ! -x $a ] && [ ! -L $a ] && grep '\$Id.*\$' $a >/dev/null 2>&1; then
+		if [ -f $a ] && [ ! -x $a ] && [ ! -L $a ] && grep '\$Id.*\$' $a >>$LOG 2>&1; then
 		    execut=444
 		    [ -x $a ] && execut=555
 
@@ -682,7 +689,7 @@ copy_platform_files() {
 		[ $o_file = "LICENSE-US" ] && o_file=".LICENSE-US"
 	    fi
 	else
-	    echo $o_file | grep '.qws$' >/dev/null 2>&1 && continue
+	    echo $o_file | grep '.qws$' >>$LOG 2>&1 && continue
 	fi
 	[ "$platform" = "mac" ] && [ `basename $a` = "README.outside" ] && continue
 
@@ -797,7 +804,7 @@ for plat in mac win x11 qnx6 embedded; do
 	    for a in `find $DISTDIR/qt`; do
 		[ -d "$a" ] && continue
 		if public_file "$a"; then
-		    echo "$a" | sed "s,^${DISTDIR}/qt,," >>${MANIFEST_FILE} 2>/dev/null || \
+		    echo "$a" | sed "s,^${DISTDIR}/qt,," >>${MANIFEST_FILE} 2>>$LOG || \
 			    die "Could not write to manifest file";
 		fi
 	    done
@@ -920,18 +927,18 @@ for plat in mac win x11 qnx6 embedded; do
 	    for a in $includefiles; do
 		FILE=$PLATDIR/include/`basename $a`
 		rm -f $FILE
-		[ -e $PLATDIR/$a ] && mv $PLATDIR/$a $FILE >/dev/null 2>&1
+		[ -e $PLATDIR/$a ] && mv $PLATDIR/$a $FILE >>$LOG 2>&1
 	    done
 	    for a in $privincludefiles; do
 		FILE=$PLATDIR/include/private/`basename $a`
 		rm -f $FILE
-		[ -e $PLATDIR/$a ] && cp $PLATDIR/$a $FILE >/dev/null 2>&1
+		[ -e $PLATDIR/$a ] && cp $PLATDIR/$a $FILE >>$LOG 2>&1
 	    done
 	    mv "$PLATDIR/xxx" "$PLATDIR/src/tools/qconfig-dist.h"
 	fi
 	#don't need empty directories
 	status "Pruning empty directories.."
-	find $PLATDIR/ -type d -exec rmdir {} \; >/dev/null 2>&1
+	find $PLATDIR/ -type d -exec rmdir {} \; >>$LOG 2>&1
 
 	#do the documentation
 	if [ "x$DO_DOC" = "xyes" ]; then
@@ -942,10 +949,10 @@ for plat in mac win x11 qnx6 embedded; do
 		fi
             done
 	    status "Running qdoc.."
-	    QTDIR=$PLATDIR $QDOC_PATH $DISTDIR/qt/util/qdoc/qdoc.conf --warning-level=0 >/dev/null 2>&1 || die "could not run qdoc, stopped"
-	    find $PLATDIR/gif -exec mv {} $PLATDIR/doc/html/ \; >/dev/null 2>&1
+	    QTDIR=$PLATDIR $QDOC_PATH $DISTDIR/qt/util/qdoc/qdoc.conf --warning-level=0 >>$LOG 2>&1 || die "could not run qdoc, stopped"
+	    find $PLATDIR/gif -exec mv {} $PLATDIR/doc/html/ \; >>$LOG 2>&1
 	    if [ "$plat" = "x11" ] || [ "$plat" = "embedded" ] || [ "$plat" = "qnx6" ]; then
-		QTDIR=$PLATDIR/ $DISTDIR/qt/util/qdoc/man  $PLATDIR/ >/dev/null 2>&1 || die "could not run man, stopped"
+		QTDIR=$PLATDIR/ $DISTDIR/qt/util/qdoc/man  $PLATDIR/ >>$LOG 2>&1 || die "could not run man, stopped"
 	    fi
 	    for tdir in $DISTDIR/qt/tutorial/t*; do
 	        tutorial=`basename $a`
@@ -1182,7 +1189,7 @@ fi
 status "(mkdists cleanup..)"
 rm -rf $DISTDIR
 rm -f ${TMP_FILE}
-cp -a $MANIFEST_FILE $OUT_TREE/manifest >/dev/null 2>&1
+cp -a $MANIFEST_FILE $OUT_TREE/manifest >>$LOG 2>&1
 [ "x$CREATED_MANIFEST" = "xyes" ] && rm -f ${MANIFEST_FILE}
 status "mkdists done"
 exit 0
