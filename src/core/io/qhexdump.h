@@ -62,13 +62,7 @@ public:
     }
 
     // Output hexdump to a QString
-    QString output() {
-        QString result;
-        QTextStream strm(&result, IO_WriteOnly);
-        outstrm = &strm;
-        hexDump();
-        return result;
-    }
+    QString output();
 
 protected:
     void init()

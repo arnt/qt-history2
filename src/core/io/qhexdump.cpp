@@ -13,6 +13,16 @@
 
 #include "qdebug.h"
 #include "qhexdump.h"
+#include "qfile.h"
+
+// Output hexdump to a QString
+QString QHexDump::output() {
+    QString result;
+    QTextStream strm(&result, QFile::WriteOnly);
+    outstrm = &strm;
+    hexDump();
+    return result;
+}
 
 #ifndef QT_NO_DEBUG
 QDebug &operator<<(QDebug &dbg, QHexDump *hd) {
