@@ -114,7 +114,7 @@ void QTextPieceTable::insert_string(int pos, uint strPos, uint length, int forma
     adjustDocumentChanges(pos, length);
 }
 
-void QTextPieceTable::insert_block(int pos, uint strPos, int format, int blockFormat, UndoCommand::Operation op)
+void QTextPieceTable::insert_block(int pos, uint strPos, int format, int blockFormat, UndoCommand::Operation op, int command)
 {
     // ##### optimise when only appending to the fragment!
     split(pos);
@@ -129,18 +129,22 @@ void QTextPieceTable::insert_block(int pos, uint strPos, int format, int blockFo
     Q_ASSERT(text.at(strPos) == QTextParagraphSeparator);
     Q_ASSERT(blocks.length()+1 == fragments.length());
 
-    int n = blocks.findNode(pos);
-    Q_ASSERT(n || (!n && !pos));
+    int block_pos = pos;
     int size = 1;
+    int n = blocks.findNode(pos);
     int key = n ? blocks.position(n) : 0;
-    if (key != pos) {
-        Q_ASSERT(key < pos);
-        int oldSize = blocks.size(n);
-        blocks.setSize(n, pos-key+1);
-        size += oldSize - (pos-key+1);
-    }
 
-    int b = blocks.insert_single(pos+1, size);
+    if (command == UndoCommand::BlockRemoved || key != pos) {
+	Q_ASSERT(n || (!n && !pos));
+	if (key != pos) {
+	    Q_ASSERT(key < pos);
+	    int oldSize = blocks.size(n);
+	    blocks.setSize(n, pos-key+1);
+	    size += oldSize - (pos-key+1);
+	}
+	++block_pos;
+    }
+    int b = blocks.insert_single(block_pos, size);
     QTextBlock *B = blocks.fragment(b);
     B->format = blockFormat;
 
@@ -149,7 +153,7 @@ void QTextPieceTable::insert_block(int pos, uint strPos, int format, int blockFo
     QTextFormatGroup *group = formats->format(blockFormat).group();
     if (group)
         group->insertBlock(QTextBlockIterator(this, b));
-    emit blockChanged(pos+1, QText::Insert);
+    emit blockChanged(block_pos, QText::Insert);
 
     emit textChanged(pos, 1);
     for (int i = 0; i < cursors.size(); ++i)
@@ -169,7 +173,7 @@ void QTextPieceTable::insertBlock(int pos, int blockFormat, int charFormat)
 
     int strPos = text.length();
     text.append(QTextParagraphSeparator);
-    insert_block(pos, strPos, charFormat, blockFormat, UndoCommand::MoveCursor);
+    insert_block(pos, strPos, charFormat, blockFormat, UndoCommand::MoveCursor, UndoCommand::BlockRemoved);
 
     Q_ASSERT(blocks.length() == fragments.length());
 
@@ -237,7 +241,7 @@ int QTextPieceTable::remove_string(int pos, uint length)
     return fragments.erase_single(x);
 }
 
-int QTextPieceTable::remove_block(int pos, int *blockFormat)
+int QTextPieceTable::remove_block(int pos, int *blockFormat, int command)
 {
     Q_ASSERT(pos >= 0);
     Q_ASSERT(blocks.length() == fragments.length());
@@ -253,7 +257,7 @@ int QTextPieceTable::remove_block(int pos, int *blockFormat)
     Q_ASSERT(text.at(fragments.fragment(x)->stringPosition) == QTextParagraphSeparator);
     Q_ASSERT(b);
 
-    if (blocks.size(b) == 1) {
+    if (blocks.size(b) == 1 && command == UndoCommand::BlockAdded) {
 	Q_ASSERT((int)blocks.position(b) == pos);
 // 	qDebug("removing empty block");
 	// empty block remove the block itself
@@ -265,8 +269,8 @@ int QTextPieceTable::remove_block(int pos, int *blockFormat)
 	blocks.setSize(b, blocks.size(b) + blocks.size(n) - 1);
 	b = n;
     }
-
     *blockFormat = blocks.fragment(b)->format;
+
     QTextFormatGroup *group = formats->format(blocks.fragment(b)->format).group();
     if (group)
         group->removeBlock(QTextBlockIterator(this, b));
@@ -321,8 +325,8 @@ void QTextPieceTable::remove(int pos, int length, UndoCommand::Operation op)
         } else {
 // 	    qDebug("remove_block at %d", key);
             Q_ASSERT(X->size == 1 && text.at(X->stringPosition) == QTextParagraphSeparator);
-            c.command = UndoCommand::BlockRemoved;
-            w = remove_block(key, &c.blockFormat);
+            c.command = UndoCommand::BlockDeleted;
+            w = remove_block(key, &c.blockFormat, UndoCommand::BlockAdded);
         }
         appendUndoItem(c);
         x = n;
@@ -539,14 +543,22 @@ void QTextPieceTable::undoRedo(bool undo)
             c.command = UndoCommand::Inserted;
 	    break;
 	case UndoCommand::BlockInserted:
-            remove(c.pos, 1, (UndoCommand::Operation)c.operation);
+	case UndoCommand::BlockAdded:
+            remove_block(c.pos, &c.blockFormat, c.command);
             PMDEBUG("   blockremove: from %d", c.pos);
-            c.command = UndoCommand::BlockRemoved;
+	    if (c.command == UndoCommand::BlockInserted)
+		c.command = UndoCommand::BlockRemoved;
+	    else
+		c.command = UndoCommand::BlockDeleted;
 	    break;
 	case UndoCommand::BlockRemoved:
+	case UndoCommand::BlockDeleted:
             PMDEBUG("   blockinsert: charformat %d blockformat %d (pos %d, strpos=%d)", c.format, c.blockFormat, c.pos, c.strPos);
-            insert_block(c.pos, c.strPos, c.format, c.blockFormat, (UndoCommand::Operation)c.operation);
-            c.command = UndoCommand::BlockInserted;
+            insert_block(c.pos, c.strPos, c.format, c.blockFormat, (UndoCommand::Operation)c.operation, c.command);
+	    if (c.command == UndoCommand::BlockRemoved)
+		c.command = UndoCommand::BlockInserted;
+	    else
+		c.command = UndoCommand::BlockAdded;
 	    break;
 	case UndoCommand::CharFormatChanged: {
             PMDEBUG("   charFormat: format %d (from %d, length %d)", c.format, c.pos, c.length);

@@ -69,14 +69,16 @@ public:
         BlockFormatChanged = 3,
         BlockInserted = 4,
         BlockRemoved = 5,
-        GroupFormatChange = 6,
-        Custom = 8
+        BlockAdded = 6,
+        BlockDeleted = 7,
+        GroupFormatChange = 8,
+        Custom = 256
     };
     enum Operation {
         KeepCursor = 0,
         MoveCursor = 1
     };
-    Q_UINT16 command : 16;
+    Q_UINT16 command;
     Q_UINT16 block : 1;
     Q_UINT16 operation : 2;
     int format;
@@ -172,9 +174,9 @@ private:
     void removeBlocks(int pos, int length);
 
     void insert_string(int pos, uint strPos, uint length, int format, UndoCommand::Operation op);
-    void insert_block(int pos, uint strPos, int format, int blockformat, UndoCommand::Operation op);
+    void insert_block(int pos, uint strPos, int format, int blockformat, UndoCommand::Operation op, int command);
     int remove_string(int pos, uint length);
-    int remove_block(int pos, int *blockformat);
+    int remove_block(int pos, int *blockformat, int command);
 
     void adjustDocumentChanges(int from, int addedOrRemoved);
 
