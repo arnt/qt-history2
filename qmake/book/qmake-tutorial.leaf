@@ -3,7 +3,7 @@
 \section1 Introduction to the qmake tutorial
 
 This tutorial teaches you how to use \e qmake.  We recommend that
-you read the \e qmake manual after completing this tutorial.
+you read the \e qmake user guide after completing this tutorial.
 
 \section1 Starting off simple
 
@@ -116,7 +116,7 @@ After a few hours of coding, you might have made a start on the
 platform specific part of your application, and decided to keep the
 platform dependent code separate.  So you now have two new files to
 include into your project file - \e hello_win.cpp and \e
-hello_x11.cpp.  We can't just add these to the \e SOURCES
+hello_unix.cpp.  We can't just add these to the \e SOURCES
 variable since this will put both files in the makefile.  So what we
 need to do here is to use a scope which will be processed depending on
 which platform \e qmake is run on.
@@ -133,7 +133,7 @@ Windows looks like this:
 So if \e qmake is run on Windows, it will add \e hello_win.cpp to the
 list of source files.  If \e qmake is run on any other platform, it
 will simply ignore it.  Now all that is left to be done is to create a
-scope for the x11 dependent file.
+scope for the unix dependent file.
 
 When you have done that, your project file should now look
 something like this:
@@ -146,8 +146,8 @@ something like this:
     win32 {
 	SOURCES += hello_win.cpp
     }
-    x11 {
-	SOURCES += hello_x11.cpp
+    unix {
+	SOURCES += hello_unix.cpp
     }
 \endcode
 
@@ -179,8 +179,8 @@ file doesn't exist.
     win32 {
 	SOURCES += hello_win.cpp
     }
-    x11 {
-	SOURCES += hello_x11.cpp
+    unix {
+	SOURCES += hello_unix.cpp
     }
     !exists( main.cpp ) {
 	error( "No main.cpp file found" )
@@ -223,8 +223,8 @@ project file looks like this:
     win32 {
 	SOURCES += hello_win.cpp
     }
-    x11 {
-	SOURCES += hello_x11.cpp
+    unix {
+	SOURCES += hello_unix.cpp
     }
     !exists( main.cpp ) {
 	error( "No main.cpp file found" )

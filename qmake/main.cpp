@@ -132,7 +132,7 @@ int main(int argc, char **argv)
 		if(!Option::output.name().isEmpty() && Option::output.name() != "-") {
 		    QFileInfo fi(Option::output);
 		    if(fi.isDir()) { 
-			default_makefile.prepend(Option::output.name() + Option::dir_sep);
+			default_makefile.prepend(Option::output.name() + QDir::separator());
 			Option::output.setName("");
 		    }
 		}
