@@ -1302,6 +1302,46 @@ static QFont::CharSet getCharSet( const QString &name )
     return QFont::AnyCharSet;
 }
 
+static const QString getCharSet( QFont::CharSet set)
+{
+    if ( set == QFont::ISO_8859_1 )
+        return "iso8859-1";
+    if ( set == QFont::ISO_8859_2 )
+        return "iso8859-2";
+    if ( set == QFont::ISO_8859_3 )
+        return "iso8859-3";
+    if ( set == QFont::ISO_8859_4 )
+        return "iso8859-4";
+    if ( set == QFont::ISO_8859_5 )
+        return "iso8859-5";
+    if ( set == QFont::ISO_8859_6 )
+        return "iso8859-6";
+    if ( set == QFont::ISO_8859_7 )
+        return "iso8859-7";
+    if ( set == QFont::ISO_8859_8 )
+        return "iso8859-8";
+    if ( set == QFont::ISO_8859_9 )
+        return "iso8859-9";
+    if ( set == QFont::ISO_8859_10 )
+        return "iso8859-10";
+    if ( set == QFont::ISO_8859_11 )
+        return "iso8859-11";
+    if ( set == QFont::ISO_8859_12 )
+        return "iso8859-12";
+    if ( set == QFont::ISO_8859_13 )
+        return "iso8859-13";
+    if ( set == QFont::ISO_8859_14 )
+        return "iso8859-14";
+    if ( set == QFont::ISO_8859_15 )
+        return "iso8859-15";
+    if ( set == QFont::KOI8R )
+        return "koi8-r";
+    if ( set == QFont::Unicode )
+        return "iso10646-1";
+
+    return "Unknown";
+}
+
 static QString getCharSetName( const char * registry, const char *encoding )
 {
     QString tmp = registry;
@@ -1754,7 +1794,10 @@ QValueList<int> QFontDatabase::pointSizes( const QString &family,
 QFont QFontDatabase::font( const QString family, const QString &style,
 			   int pointSize, const QString charSet )
 {
-    const QtFontStyle *sty = getStyle( d, family, style, charSet );
+    const QtFontStyle *sty;
+
+    sty =  charSet ? getStyle( d, family, style, charSet ) :
+                     getStyle( d, family, style, getCharSet(qApp->font().charSet()) );
     if ( !sty ) {
 	qWarning( "QFontDatabase::font: Style not found for\n"
 		  "%s, %s, %s", (const char*)family,

@@ -1767,6 +1767,7 @@ void QMultiLineEdit::delAux()
 	    r->w = textWidth( r->s );
 	    cursorX  = markBeginX;
 	    cursorY  = markBeginY;
+
 	    if (autoUpdate() )
 		updateCell( cursorY, 0, FALSE );
 	    if ( recalc )
@@ -2265,13 +2266,11 @@ bool QMultiLineEdit::partiallyInvisible( int line )
     int y;
     if ( !rowYPos( line, &y ) )
 	return TRUE;
-    if ( y < 0 ) {
-	//debug( "line %d occluded at top", line );
+    if ( y < 0 )
 	return TRUE;
-    } else if ( y + cellHeight() - 2 > viewHeight() ) {
-	//debug( "line %d occluded at bottom", line );
+    else if ( y + cellHeight() - 2 > viewHeight() )
 	return TRUE;
-    }
+
     return FALSE;
 }
 
@@ -2381,7 +2380,6 @@ void QMultiLineEdit::updateCellWidth()
 
 void QMultiLineEdit::setBottomCell( int line )
 {
-    //debug( "setBottomCell %d", line );
     int rowY = cellHeight() * line;
     int newYPos = rowY +  cellHeight() - viewHeight();
     setYOffset( QMAX( newYPos, 0 ) );
@@ -2395,7 +2393,6 @@ void QMultiLineEdit::paste()
 {
     addUndoCmd( new QBeginCommand );
 
-    //debug( "paste" );
     if ( hasMarkedText() )
 	del();
     QString t = QApplication::clipboard()->text();

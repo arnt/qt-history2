@@ -585,6 +585,8 @@ void QLCDNumber::setBinMode()
 void QLCDNumber::setMode( Mode m )
 {
     base = m;
+
+    repaint( contentsRect() );
 }
 
 

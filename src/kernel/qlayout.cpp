@@ -939,7 +939,7 @@ QGridLayout::QGridLayout( int nRows, int nCols,
 
 
 /*!
-  Destroys the grid layout. Geometry management is terminated if
+  Destructs the grid layout. Geometry management is terminated if
   this is a top-level grid.
 */
 
@@ -1634,7 +1634,7 @@ QBoxLayout::QBoxLayout( Direction d,
 }
 
 /*!
-  Destroys this box.
+  Destructs this box.
 */
 
 QBoxLayout::~QBoxLayout()
@@ -1714,7 +1714,7 @@ int QBoxLayout::heightForWidth( int w ) const
 	QBoxLayout *that = (QBoxLayout*)this;
 	if ( data->dirty )
 	    that->setupGeom();
-	return that->calcHfw( w );
+	return that->calcHfw( w ) + 2*margin();
     }
     return data->hfwHeight + 2*margin();
 }
@@ -2387,7 +2387,7 @@ QHBoxLayout::QHBoxLayout( int space, const char *name )
 
 
 /*!
-  Destroys this box.
+  Destructs this box.
 */
 
 QHBoxLayout::~QHBoxLayout()
@@ -2448,7 +2448,7 @@ QVBoxLayout::QVBoxLayout( int space, const char *name )
 }
 
 /*!
-  Destroys this box.
+  Destructs this box.
 */
 
 QVBoxLayout::~QVBoxLayout()

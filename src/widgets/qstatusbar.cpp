@@ -410,7 +410,15 @@ void QStatusBar::paintEvent( QPaintEvent * )
     }
 }
 
-
+/*! \reimp
+*/
+void QStatusBar::resizeEvent( QResizeEvent * )
+{
+    for ( QStatusBarPrivate::SBItem* item = d->items.first(); item; item = d->items.next() )
+    {
+        item->w->setMaximumWidth( width() - d->box->totalMinimumSize().width() );
+    }
+}
 
 /*!
   \reimp

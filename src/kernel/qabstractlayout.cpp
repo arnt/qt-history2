@@ -1115,9 +1115,8 @@ QSize QLayout::totalMaximumSize() const
 
 
 /*!
-  Destroys the layout,
-  deleting all child layouts. Geometry management stops when
-  a toplevel layout is deleted.
+  Destructs the layout, deleting all child layouts.
+  Geometry management stops when a toplevel layout is deleted.
   \internal
   The layout classes will probably be fatally confused if you delete
   a sublayout.

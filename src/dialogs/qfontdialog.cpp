@@ -307,7 +307,7 @@ QFontDialog::QFontDialog( QWidget *parent, const char *name,
     d->familyEdit->setFocus();
 }
 
-/*! Destroys the font dialog and frees up its storage. */
+/*! Destructs the font dialog and frees up its storage. */
 
 QFontDialog::~QFontDialog()
 {

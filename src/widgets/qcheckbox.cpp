@@ -84,7 +84,7 @@
 */
 
 QCheckBox::QCheckBox( QWidget *parent, const char *name )
-	: QButton( parent, name, WResizeNoErase | WMouseNoMask )
+	: QButton( parent, name, WRepaintNoErase | WResizeNoErase | WMouseNoMask )
 {
     setToggleButton( TRUE );
 }
@@ -96,7 +96,7 @@ QCheckBox::QCheckBox( QWidget *parent, const char *name )
 */
 
 QCheckBox::QCheckBox( const QString &text, QWidget *parent, const char *name )
-	: QButton( parent, name, WResizeNoErase | WMouseNoMask )
+	: QButton( parent, name, WRepaintNoErase | WResizeNoErase | WMouseNoMask )
 {
     setText( text );
     setToggleButton( TRUE );

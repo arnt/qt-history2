@@ -83,7 +83,7 @@ static const int margin = 2; // to right of text
 */
 
 QRadioButton::QRadioButton( QWidget *parent, const char *name )
-	: QButton( parent, name, WResizeNoErase | WMouseNoMask )
+	: QButton( parent, name, WRepaintNoErase | WResizeNoErase | WMouseNoMask )
 {
     init();
 }
@@ -96,7 +96,7 @@ QRadioButton::QRadioButton( QWidget *parent, const char *name )
 
 QRadioButton::QRadioButton( const QString &text, QWidget *parent,
 			    const char *name )
-	: QButton( parent, name, WResizeNoErase | WMouseNoMask )
+	: QButton( parent, name, WRepaintNoErase | WResizeNoErase | WMouseNoMask )
 {
     init();
     setText( text );

@@ -1807,14 +1807,14 @@ void QRichTextFormatter::drawLine( QPainter* p, int ox, int oy,
     while ( !atEndOfLine() ) {
 	QTextCharFormat *fmt  = format();
 	if ( !fmt->anchorHref().isEmpty() ) {
-	    p->setPen( to.linkColor );
+	    p->setPen( ( QPaintDeviceMetrics(p->device()).depth() > 1) ? to.linkColor : cg.text() );
 	    if ( to.linkUnderline ) {
 		QFont f = fmt->font();
 		f.setUnderline( TRUE );
 		p->setFont( f );
 	    }
 	} else {
-	    if ( fmt->color().isValid() )
+	    if ( fmt->color().isValid() && ( QPaintDeviceMetrics(p->device()).depth() > 1) )
 		p->setPen( fmt->color() );
 	    else
 		p->setPen( cg.text() );
@@ -1877,7 +1877,7 @@ void QRichTextFormatter::drawLine( QPainter* p, int ox, int oy,
 	    }
 	}
 	if ( selected )
-	    p->setPen( fmt->color() );
+	    p->setPen( ( QPaintDeviceMetrics(p->device()).depth() > 1) ? fmt->color() : cg.text() );
 	gotoNextItem( p );
 	gy = y();
     }

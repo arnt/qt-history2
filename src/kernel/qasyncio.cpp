@@ -42,7 +42,7 @@
 
 
 /*!
-  Destroys the async IO object.
+  Destructs the async IO object.
 */
 QAsyncIO::~QAsyncIO()
 {
@@ -213,7 +213,7 @@ QIODeviceSource::QIODeviceSource(QIODevice* device, int buffer_size) :
 }
 
 /*!
-  Destroys the QIODeviceSource, deleting the QIODevice from which it was
+  Destructs the QIODeviceSource, deleting the QIODevice from which it was
   constructed.
 */
 QIODeviceSource::~QIODeviceSource()

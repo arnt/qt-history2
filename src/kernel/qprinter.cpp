@@ -467,7 +467,7 @@ void QPrinter::setColorMode( ColorMode newColorMode )
 }
 
 
-/*!  Returns the current color mode.  The default color more is \c
+/*!  Returns the current color mode.  The default color mode is \c
   Color.
 
   \sa setColorMode()

@@ -121,7 +121,7 @@ QSGIStyle::polish( QApplication* app)
     QApplication::setPalette( pal, TRUE );
 
     // different basecolor and highlighting in Q(Multi)LineEdit
-//    pal.setColor( QColorGroup::Base, QColor(211,181,181) );
+    pal.setColor( QColorGroup::Base, QColor(211,181,181) );
     pal.setColor( QPalette::Active, QColorGroup::Highlight, pal.active().midlight() );
     pal.setColor( QPalette::Active, QColorGroup::HighlightedText, pal.active().text() );
     pal.setColor( QPalette::Inactive, QColorGroup::Highlight, pal.inactive().midlight() );
@@ -150,6 +150,8 @@ QSGIStyle::polish( QWidget* w )
     if ( w->inherits("QButton") || w->inherits("QSlider") || w->inherits("QScrollBar") ) {
 	w->installEventFilter( this );
 	w->setMouseTracking( TRUE );
+	if ( w->inherits("QScrollBar") )
+	    w->setBackgroundMode( QWidget::NoBackground );
     } else if ( w->inherits("QMenuBar") ) {
 	((QFrame*) w)->setFrameStyle(QFrame::StyledPanel | QFrame::Raised);
     } else if ( w->inherits("QPopupMenu") ) {
@@ -178,7 +180,8 @@ QSGIStyle::polish( QPalette& pal )
 
     // check this on SGI-Boxes
     pal.setColor( QColorGroup::Background, pal.active().midlight() );
-    pal.setColor( QColorGroup::Button, pal.active().mid() );
+    if (pal.active().button() == pal.active().background())
+	pal.setColor( QColorGroup::Button, pal.active().button().dark(120) );
 }
 
 /*!
@@ -389,16 +392,16 @@ QSGIStyle::drawCheckMark( QPainter* p, int x, int y, int /*w*/, int /*h*/,
 {
     static QCOORD check_mark[] = {
 	14,0,  10,0,  11,1,  8,1,  9,2,	 7,2,  8,3,  6,3,
-	    7,4,  1,4,  6,5,  1,5,	6,6,  3,6,  5,7,  4,7,
-	    5,8,  5,8,  4,3,  2,3,	3,2,  3,2 };
+	7,4,  1,4,  6,5,  1,5,	6,6,  3,6,  5,7,  4,7,
+	5,8,  5,8,  4,3,  2,3,	3,2,  3,2 };
 
     QPen oldPen = p->pen();
 
     int x1 = x;
     int y1 = y;
     if ( act ) {			// shift check mark
-	    x1++;
-	    y1++;
+	x1++;
+	y1++;
     }
     QPointArray amark;
     amark = QPointArray( sizeof(check_mark)/(sizeof(QCOORD)*2), check_mark );
@@ -420,11 +423,11 @@ QSGIStyle::drawCheckMark( QPainter* p, int x, int y, int /*w*/, int /*h*/,
 void
 QSGIStyle::drawIndicatorMask( QPainter* p, int x, int y, int w, int h, int s )
 {
-	QPen oldPen = p->pen();
-	QBrush oldBrush = p->brush();
+    QPen oldPen = p->pen();
+    QBrush oldBrush = p->brush();
 
-	p->setPen( color1 );
-	p->setBrush( color1 );
+    p->setPen( color1 );
+    p->setBrush( color1 );
     p->fillRect( x, y, w, h, QBrush(color0) );   
     p->fillRect( x+2, y+5, w-7, h-7, QBrush(color1) );
 
@@ -442,8 +445,8 @@ QSGIStyle::drawIndicatorMask( QPainter* p, int x, int y, int w, int h, int s )
         p->drawLineSegments( amark );
     }
 
-	p->setBrush( oldBrush );
-	p->setPen( oldPen );
+    p->setBrush( oldBrush );
+    p->setPen( oldPen );
 }
 
 /*! \reimp
@@ -501,20 +504,21 @@ void QSGIStyle::drawExclusiveIndicator( QPainter* p,
   Draws the mask of a mark indicating the state of an exclusive choice
 */
 void
-QSGIStyle::drawExclusiveIndicatorMask( QPainter *p, int x, int y, int w, int h, bool on )
+QSGIStyle::drawExclusiveIndicatorMask( QPainter *p, int x, int y,
+                int /* w*/, int /*h*/, bool /*on*/ )
 {
-	QPen oldPen = p->pen();
-	QBrush oldBrush = p->brush();
+    QPen oldPen = p->pen();
+    QBrush oldBrush = p->brush();
 
-	p->setPen( color1 );
-	p->setBrush( color1 );
-	QPointArray a;
-    a.setPoints( 8, 0,5, 5,0, 6,0, 11,5, 11,6, 6,11, 5,11, 0,6 ); 
-	a.translate( x, y );
+    p->setPen( color1 );
+    p->setBrush( color1 );
+    QPointArray a;
+    a.setPoints( 8, 0,5, 5,0, 6,0, 11,5, 11,6, 6,11, 5,11, 0,6 );
+    a.translate( x, y );
     p->drawPolygon( a );
 
-	p->setBrush( oldBrush );
-	p->setPen( oldPen );
+    p->setBrush( oldBrush );
+    p->setPen( oldPen );
 }
 
 static int get_combo_extra_width( int h, int *return_awh=0 )
@@ -656,6 +660,7 @@ void
 QSGIStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb,
 				  int sliderStart, uint controls, uint activeControl )
 {
+    sb->setBackgroundMode( QWidget::PaletteButton );
     QColorGroup g = sb->colorGroup();
 
     QColor lazyButton;
@@ -906,25 +911,25 @@ QSGIStyle::drawSplitter( QPainter *p, int x, int y, int w, int h,
     const int motifOffset = 10;
     int sw = splitterWidth();
     if ( orient == Horizontal ) {
-	    int xPos = x + w/2;
-	    int kPos = motifOffset;
-	    int kSize = sw - 2;
+	int xPos = x + w/2;
+	int kPos = motifOffset;
+	int kSize = sw - 2;
 
-	    qDrawShadeLine( p, xPos, kPos + kSize - 1 ,
-			    xPos, h, g );
-	    drawBevelButton( p, xPos-sw/2+1, kPos,
-			     kSize, kSize+2, g,  FALSE, &g.brush( QColorGroup::Button ));
-	    qDrawShadeLine( p, xPos+2, 0, xPos, kPos, g );
-	} else {
-	    int yPos = y + h/2;
-	    int kPos = w - motifOffset - sw;
-	    int kSize = sw - 2;
+	qDrawShadeLine( p, xPos, kPos + kSize - 1 ,
+		xPos, h, g );
+	drawBevelButton( p, xPos-sw/2+1, kPos,
+		kSize, kSize+2, g,  FALSE, &g.brush( QColorGroup::Button ));
+	qDrawShadeLine( p, xPos+2, 0, xPos, kPos, g );
+    } else {
+	int yPos = y + h/2;
+	int kPos = w - motifOffset - sw;
+	int kSize = sw - 2;
 
-	    qDrawShadeLine( p, 0, yPos, kPos, yPos, g );
-	    drawBevelButton( p, kPos, yPos-sw/2+1,
-			     kSize+2, kSize, g, FALSE, &g.brush( QColorGroup::Button ));
-	    qDrawShadeLine( p, kPos + kSize+1, yPos, w, yPos, g );
-	}
+	qDrawShadeLine( p, 0, yPos, kPos, yPos, g );
+	drawBevelButton( p, kPos, yPos-sw/2+1,
+		kSize+2, kSize, g, FALSE, &g.brush( QColorGroup::Button ));
+	qDrawShadeLine( p, kPos + kSize+1, yPos, w, yPos, g );
+    }
 }
 
 /*! \reimp
@@ -1112,7 +1117,7 @@ QSGIStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, int tab, 
 
 /*! 
     Reimplemented to enable the SGI-like effekt
-    of glowing widgets.
+    of "glowing" widgets.
 */
 bool
 QSGIStyle::eventFilter( QObject* o, QEvent* e )
@@ -1145,10 +1150,13 @@ QSGIStyle::eventFilter( QObject* o, QEvent* e )
 	{
 	    if (o->inherits("QButton")) {
 		QWidget* w = (QWidget*) o;
-		QPalette pal = w->palette();
-		lastWidget = w;
-		pal.setColor( QPalette::Active, QColorGroup::Button, pal.active().midlight() );
-		lastWidget->setPalette( pal );
+		if (w->isEnabled())
+		{
+		    QPalette pal = w->palette();
+		    lastWidget = w;
+		    pal.setColor( QPalette::Active, QColorGroup::Button, pal.active().midlight() );
+		    lastWidget->setPalette( pal );
+		}
 	    } else if ( o->isWidgetType() ) {
 	        deviceUnderMouse = (QPaintDevice*)(QWidget*)o;
 	        ((QWidget*) o)->repaint( FALSE );
@@ -1157,7 +1165,6 @@ QSGIStyle::eventFilter( QObject* o, QEvent* e )
 	break;
     case QEvent::Leave:
 	{
-	    
 	    if ((QPaintDevice*)(QWidget*)o == deviceUnderMouse) {
 		deviceUnderMouse = 0;
 	        ((QWidget*) o)->repaint( FALSE );

@@ -597,9 +597,11 @@ void QTableView::setCellWidth( int cellWidth )
     }
 #endif
     cellW = (short)cellWidth;
+
+    updateScrollBars( horSteps | horRange );
     if ( autoUpdate() && isVisible() )
 	repaint();
-    updateScrollBars( horSteps | horRange );
+
 }
 
 /*!
@@ -1279,9 +1281,6 @@ void QTableView::setupPainter( QPainter * )
 void QTableView::paintEvent( QPaintEvent *e )
 {
     QRect updateR = e->rect();			// update rectangle
-    //debug("Update rect = ( %i, %i, %i, %i )",
-    //updateR.x(),updateR.y(), updateR.width(), updateR.height() );
-
     if ( sbDirty ) {
 	bool e = eraseInPaint;
 	updateScrollBars();
@@ -1922,6 +1921,7 @@ void QTableView::doAutoScrollBars()
 
     setHorScrollBar( hScrollOn, FALSE );
     setVerScrollBar( vScrollOn, FALSE );
+    updateFrameSize();
 }
 
 
@@ -2037,16 +2037,16 @@ void QTableView::updateFrameSize()
 	rw = 0;
     if ( rh < 0 )
 	rh = 0;
-    int fh = frameRect().height();
-    int fw = frameRect().width();
-
-    setFrameRect( QRect(0,0,rw,rh) );
 
     if ( autoUpdate() ) {
+        int fh = frameRect().height();
+	int fw = frameRect().width();
+	setFrameRect( QRect(0,0,rw,rh) );
+
 	if ( rw != fw )
-	    update( QMIN(fw,rw) - frameWidth(), 0, frameWidth(), rh );
+	    update( QMIN(fw,rw) - frameWidth() - 2, 0, frameWidth()+4, rh );
 	if ( rh != fh )
-	    update( 0, QMIN(fh,rh) - frameWidth(), rw, frameWidth() );
+	    update( 0, QMIN(fh,rh) - frameWidth() - 2, rw, frameWidth()+4 );
     }
 }
 

@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#92 $
 **
-** Implementation of QTabBar class
+** Implementation of QTab and QTabBar classes
 **
 ** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
 **
@@ -45,24 +45,22 @@
 */
 
 
-/*! Destructs the tab and frees all allocated resource */
+/*! \fn QTab::QTab( const QString& text )
+  Constructs a tab with a \a text.
+*/
+
+
+/*! \fn QTab::QTab( const QIconSet& icon, const QString& text )
+  Constructs a tab with an \a icon and a \a text.
+*/
+
+
+/*! Destructs the tab and frees up all allocated resources */
 
 QTab::~QTab()
 {
     delete iconset;
 }
-
-// this struct can be expanded without breaking binary compatibility
-struct QTabPrivate {
-    int id;
-    int focus;
-    QAccel * a;
-    QTabBar::Shape s;
-    QToolButton* rightB;
-    QToolButton* leftB;
-    bool  scrolls;
-};
-
 
 
 /*!
@@ -125,6 +123,18 @@ struct QTabPrivate {
   </ul>
 */
 
+
+struct QTabPrivate {
+    int id;
+    int focus;
+    QAccel * a;
+    QTabBar::Shape s;
+    QToolButton* rightB;
+    QToolButton* leftB;
+    bool  scrolls;
+};
+
+
 /*!
   \fn void QTabBar::selected( int id )
 
@@ -135,6 +145,7 @@ struct QTabPrivate {
   show() is guaranteed to emit this signal, so that you can display
   your page in a slot connected to this signal.
 */
+
 
 /*!
   Constructs a new, empty tab bar.

@@ -12257,7 +12257,7 @@ QString &QString::operator=( const char *str )
   Example:
   \code
     QString a;		// a.unicode() == 0,  a.length() == 0
-    QString b == "";	// b.unicode() == "", b.length() == 0
+    QString b = "";	// b.unicode() == "", b.length() == 0
     a.isNull();		// TRUE, because a.unicode() == 0
     a.isEmpty();	// TRUE, because a.length() == 0
     b.isNull();		// FALSE, because b.unicode() != 0

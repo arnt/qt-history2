@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id: //depot/qt/main/src/widgets/qtabbar.h#33 $
 **
-** Definition of QTabBar class
+** Definition of QTab and QTabBar classes
 **
 ** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
 **
@@ -31,20 +31,18 @@
 #include "qiconset.h"
 #endif // QT_H
 
-struct QTabPrivate;
-
 
 class Q_EXPORT QTab
 {
 public:
-    QTab():  enabled( TRUE ), id( 0 ), iconset(0) {}
+    QTab(): enabled( TRUE ), id( 0 ), iconset( 0 ) {}
     virtual ~QTab();
+    QTab( const QString& text )
+	: label( text ), enabled( TRUE ), id( 0 ), iconset( 0 ) {}
+    QTab( const QIconSet& icon, const QString& text = QString::null )
+	: label( text ), enabled( TRUE ), id( 0 ), iconset( new QIconSet(icon) ) {}
 #if 1
-    QTab( const QString& s):  label(s), enabled( TRUE ), id( 0 ), iconset(0) {}
-    QTab( const QIconSet& icon, const QString& s = QString::null )
-	:label(s), enabled( TRUE ), id( 0 ), iconset(new QIconSet(icon)) {}
-
-    void setText( const QString& s) { label = s;}
+    void setText( const QString& text) { label = text; }
     QString text() const { return label; }
     void setIconSet( const QIconSet& icon ) { iconset = new QIconSet( icon ); }
     QIconSet* iconSet() const { return iconset; }
@@ -55,13 +53,16 @@ public:
     void setIdentifier( int i ) { id = i; }
     int identitifer() const { return id; }
 #endif
-    // private: ( public for compatibility)
+// private: (public for compatibility, ### change 3.0)
     QString label;
     QRect r;    // the bounding rectangle of this - may overlap with others
     bool enabled;
     int id;
-    QIconSet* iconset;     // an optional iconset
+    QIconSet* iconset;     // optional iconset
 };
+
+
+struct QTabPrivate;
 
 
 class Q_EXPORT QTabBar: public QWidget
@@ -74,7 +75,7 @@ class Q_EXPORT QTabBar: public QWidget
     Q_PROPERTY( int keyboardFocusTab READ keyboardFocusTab )
 
 public:
-    QTabBar( QWidget * parent = 0, const char *name = 0 );
+    QTabBar( QWidget *parent = 0, const char *name = 0 );
    ~QTabBar();
 
     enum Shape { RoundedAbove, RoundedBelow,

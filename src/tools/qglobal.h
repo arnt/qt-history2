@@ -171,6 +171,7 @@
 #endif
 #elif defined(__xlC__)
 #define _CC_XLC_
+#define Q_FULL_TEMPLATE_INSTANTIATION
 #elif defined(como40)
 #define _CC_EDG_
 #define _CC_COMEAU_

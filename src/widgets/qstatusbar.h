@@ -54,6 +54,7 @@ public slots:
 
 protected:
     void paintEvent( QPaintEvent * );
+    void resizeEvent( QResizeEvent * );
 
     void reformat();
     void hideOrShow();

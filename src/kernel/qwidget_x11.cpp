@@ -513,6 +513,7 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 	setWState( WState_ForceHide );	// new widgets do not show up in already visible parents
     create();
     const QObjectList *chlist = children();
+    QWidget* dndchild = 0; // remember one of the children accepting drops
     if ( chlist ) {				// reparent children
 	QObjectListIt it( *chlist );
 	QObject *obj;
@@ -522,6 +523,8 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 		if ( !w->isTopLevel() ) {
 		    XReparentWindow( x11Display(), w->winId(), winId(),
 				     w->geometry().x(), w->geometry().y() );
+		    if ( w->acceptDrops() )
+			dndchild = w ;
 		} else if ( w->isPopup()
 			    || w->testWFlags(WStyle_DialogBorder)
 			    || w->testWFlags(WStyle_Dialog)
@@ -558,7 +561,10 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 
     if ( accept_drops )
 	setAcceptDrops( TRUE );
-
+    else if ( dndchild ) {
+	dndchild->clearWState(WState_DND); // reset this widget
+	dndchild->setAcceptDrops( TRUE ); // the new top-level will accept drops
+    }
     QCustomEvent e( QEvent::Reparent, 0 );
     QApplication::sendEvent( this, &e );
 }
