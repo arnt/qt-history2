@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetm.cpp#18 $
+** $Id: //depot/qt/main/src/tools/qdatetm.cpp#19 $
 **
 ** Implementation of date and time classes
 **
@@ -24,7 +24,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qdatetm.cpp#18 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qdatetm.cpp#19 $";
 #endif
 
 
@@ -353,10 +353,11 @@ void QDate::jul2greg( ulong jd, int &y, int &m, int &d )
 
   \brief The QTime class provides time functions 24 hours a day.
 
-  The time resolution of QTime is down to a millisecond, although this
+  The time resolution of QTime is a millisecond, although the accuracy
   depends on the underlying operating system. Some operating systems
   (e.g. Linux) support a one-millisecond resolution, while others
-  (i.e. MS-DOS and Windows) support only a 55 millisecond resolution.*/
+  (i.e. MS-DOS and Windows) support only a 55 millisecond
+  resolution.*/
 
 /*!
 \fn QTime::QTime()
