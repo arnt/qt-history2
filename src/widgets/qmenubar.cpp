@@ -534,7 +534,7 @@ bool QMenuBar::eventFilter( QObject *object, QEvent *event )
 		ke->accept();
 		return TRUE;
 	    // Start waiting for Alt release on focus widget
-	    } else if ( ke->state() == AltButton ) {
+	    } else if ( ke->stateAfter() == AltButton ) {
 		waitforalt = 1;
 #if defined(Q_WS_X11)
 		QMenuData::d->aInt = qt_xfocusout_grab_counter;

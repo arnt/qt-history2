@@ -2913,7 +2913,6 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
     if ( (GetKeyState(VK_LWIN) < 0) ||
 	 (GetKeyState(VK_RWIN) < 0) )
  	state |= Qt::MetaButton;
-    //TODO: if it is a pure shift/ctrl/alt keydown, invert state logic, like X
 
     if ( msg.message == WM_CHAR ) {
 	// a multi-character key not found by our look-ahead
@@ -2976,6 +2975,14 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 	}
 
 	int code = translateKeyCode( msg.wParam );
+	// Invert state logic
+	if ( code == Key_Alt )
+	    state = state^AltButton;
+	else if ( code == Key_Control )
+	    state = state^ControlButton;
+	else if ( code == Key_Shift )
+	    state = state^ShiftButton;
+
 	// If the bit 24 of lParm is set you received a enter,
 	// otherwise a Return. (This is the extended key bit)
 	if ((code == Qt::Key_Return) && (msg.lParam & 0x1000000)) {
