@@ -59,8 +59,6 @@ class Q_EXPORT QDateTimeEditBase : public QFrame
 public:
     QDateTimeEditBase( QWidget * parent = 0,
 		       const char * name = "QDateTimeEditBase" );
-    QSize sizeHint() const;
-    QSize minimumSizeHint() const;
 
 public slots:
     void stepUp();
@@ -95,6 +93,8 @@ public:
     QDate   date() const;
     void    setDateSeparator( const QString & separator );
     QString dateSeparator() const;
+    QSize sizeHint() const;
+    QSize minimumSizeHint() const;
 
 signals:
     void valueChanged( const QDate& );
@@ -127,6 +127,8 @@ public:
     QTime   time() const;
     void    setTimeSeparator( const QString & separator );
     QString timeSeparator() const;
+    QSize sizeHint() const;
+    QSize minimumSizeHint() const;
 
 signals:
     void valueChanged( const QTime& );

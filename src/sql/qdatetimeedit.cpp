@@ -151,37 +151,6 @@ void QDateTimeEditBase::init()
     setFocusPolicy( StrongFocus );
 }
 
-QSize QDateTimeEditBase::sizeHint() const
-{
-    constPolish();
-    QFontMetrics fm = fontMetrics();
-    int h = fm.height();
-    if ( h < 12 )       // ensure enough space for the button pixmaps
-	h = 12;
-    int w = 55; // minimum width for the value
-    int wx = fm.width( 'x' )*9;
-    QString s;
-    s = ed[0]->text() + sep[0]->text() +ed[1]->text() + sep[1]->text() +
-	ed[2]->text();
-    w = QMAX( w, fm.width( s ) + wx);
-    QSize r( h // buttons AND frame both sides - see resizeevent()
-	     + 6 // right/left margins
-	     + w, // widest value
-	     frameWidth() * 2 // top/bottom frame
-	     + 4 // top/bottom margins
-	     + h // font height
-	     );
-    return r.expandedTo( QApplication::globalStrut() );
-}
-
-QSize QDateTimeEditBase::minimumSizeHint() const
-{
-    int w = 55 // minimum for value
-	    + 6; // arrows
-    int h = 12; // arrow pixmaps
-    return QSize( w, h );
-}
-
 /*!
   \reimp
 */
@@ -437,7 +406,7 @@ QDateEdit::QDateEdit( QWidget * parent, const char * name )
   Constructs a QDateEdit widget and initializes it with the QDate \a d.
  */
 QDateEdit::QDateEdit( const QDate & d, QWidget * parent, const char * name )
-    : QDateTimeEditBase( parent, name )
+    : QDateTimeEditBase( parent, name ), oldDate(d)
 {
     init();
     setDate( d );
@@ -449,9 +418,44 @@ QDateEdit::QDateEdit( const QDate & d, QWidget * parent, const char * name )
 void QDateEdit::init()
 {
     setDateSeparator( "-" );
-    setOrder( "YMD" ); // ## ISO default?
-    connect( this, SIGNAL( valueChanged() ), this, SLOT( someValueChanged() ) );
+    setOrder( "YMD" ); // ## ISO default
+    //    connect( this, SIGNAL( valueChanged() ), this, SLOT( someValueChanged() ) ); ## why?
 }
+
+/*! \reimp
+*/
+QSize QDateEdit::sizeHint() const
+{
+    constPolish();
+    QFontMetrics fm = fontMetrics();
+    int h = fm.height();
+    if ( h < 12 )       // ensure enough space for the button pixmaps
+	h = 12;
+    int w = 85; // minimum width for the value
+    QString s;
+    s = ed[0]->text() + sep[0]->text() +ed[1]->text() + sep[1]->text() +
+	ed[2]->text();
+    w = QMAX( w, fm.width( s ) );
+    QSize r( h // buttons AND frame both sides - see resizeevent()
+	     + 6 // right/left margins
+	     + w, // widest value
+	     frameWidth() * 2 // top/bottom frame
+	     + 4 // top/bottom margins
+	     + h // font height
+	     );
+    return r;
+}
+
+/*! \reimp
+*/
+QSize QDateEdit::minimumSizeHint() const
+{
+    int w = 85 // minimum for value
+	    + 6; // arrows
+    int h = 12; // arrow pixmaps
+    return QSize( w, h );
+}
+
 
 /*! \internal
  */
@@ -461,14 +465,21 @@ void QDateEdit::someValueChanged()
     emit valueChanged( date() );
 }
 
+/*!  Set the date in the editor to \a d.
 
-/*!
+*/
 
-  Set the date in this QDateEdit to \a d.
- */
 void QDateEdit::setDate( const QDate & d )
 {
-    QDate oldDate = date();
+    if ( !d.isValid() ) {
+	/* invalid */
+	ed[0]->setText( "" );
+	ed[1]->setText( "" );
+	ed[2]->setText( "" );
+	oldDate = d;
+	return;
+    }
+
     QIntValidator * v[3];
     int yy = d.year();
     int mm = d.month();
@@ -480,33 +491,37 @@ void QDateEdit::setDate( const QDate & d )
 
     if( (yy > v[yearPos]->top()) || (yy < v[yearPos]->bottom()) ||
 	(mm > v[monthPos]->top()) || (mm < v[monthPos]->bottom()) ||
-	(dd > v[dayPos]->top()) || (dd < v[dayPos]->bottom()) )
-    {
-	// Date out of range - leave it blank
+	(dd > v[dayPos]->top()) || (dd < v[dayPos]->bottom()) ) {
+	/* Date out of range - leave blank */
 	ed[0]->setText( "" );
 	ed[1]->setText( "" );
 	ed[2]->setText( "" );
+	/* do not touch oldDate, since it is our fallback */
     } else {
 	ed[yearPos]->setText( QString::number( yy ) );
 	ed[monthPos]->setText( QString::number( mm ) );
 	ed[dayPos]->setText( QString::number( dd ) );
+	if ( oldDate != d ) {
+	    oldDate = d;
+	    emit valueChanged( d ); /* our new value */
+	}
     }
-    if ( oldDate != date() )
-	emit valueChanged( d );
-//    ed[0]->setFocus();
-//    ed[0]->selectAll();
 }
 
-/*!
-
-  Returns the date in this QDateEdit.
+/*! Returns the date in editor.
  */
 QDate QDateEdit::date() const
 {
-    ((QDateEdit *) this)->fixup(); // Fix invalid dates
+    int yy = ed[yearPos]->text().toInt();
+    int mm = ed[monthPos]->text().toInt();
+    int dd = ed[dayPos]->text().toInt();
 
-    return QDate( ed[yearPos]->text().toInt(), ed[monthPos]->text().toInt(),
-		  ed[dayPos]->text().toInt() );
+    if ( !QDate::isValid( yy, mm, dd ) )
+	return QDate();
+
+    //    ((QDateEdit *) this)->fixup(); // Fix invalid dates
+
+    return QDate( yy, mm, dd );
 }
 
 /*! \fn void QDateEdit::valueChanged( const QDate& )
@@ -590,39 +605,49 @@ QString QDateEdit::dateSeparator() const
     return separator;
 }
 
-/*!
-  \internal
+/*!  \internal
+
   Post-process the edited date. This will guarantee that a date is
-  valid.
+  valid.  If not, it will be reverted to its last state.
+
 */
 void QDateEdit::fixup()
 {
-    int yy, mm, dd;
     QIntValidator * v[3];
     v[0] = (QIntValidator *) ed[0]->validator();
     v[1] = (QIntValidator *) ed[1]->validator();
     v[2] = (QIntValidator *) ed[2]->validator();
 
-    yy = ed[yearPos]->text().toInt();
-    mm = ed[monthPos]->text().toInt();
-    dd = ed[dayPos]->text().toInt();
+    int yy = ed[yearPos]->text().toInt();
+    int mm = ed[monthPos]->text().toInt();
+    int dd = ed[dayPos]->text().toInt();
 
     if( !QDate::isValid( yy, mm, dd) ){
-	if( !QDate::isValid( yy, 1, 1 ) )
-	    if( yy > v[yearPos]->top() ) yy = v[yearPos]->top();
-	    else if( yy < v[yearPos]->bottom() ) yy = v[yearPos]->bottom();
-	if( !QDate::isValid( yy, mm, 1 ) )
-	    if( mm > v[monthPos]->top() ) mm = v[monthPos]->top();
-	    else if( mm < v[monthPos]->bottom() ) mm = v[monthPos]->bottom();
-	if( dd > v[dayPos]->top() ) dd = v[dayPos]->top();
-	else if( dd < v[dayPos]->bottom() ) dd = v[dayPos]->bottom();
 
-	while( !QDate::isValid( yy, mm, dd ) ){
-	    dd--;
+	if( !QDate::isValid( yy, 1, 1 ) ) {
+	    if( yy > v[yearPos]->top() )
+		yy = v[yearPos]->top();
+	    else if( yy < v[yearPos]->bottom() )
+		yy = v[yearPos]->bottom();
 	}
+	if( !QDate::isValid( yy, mm, 1 ) ) {
+	    if( mm > v[monthPos]->top() )
+		mm = v[monthPos]->top();
+	    else if( mm < v[monthPos]->bottom() )
+		mm = v[monthPos]->bottom();
+	}
+	if( dd > v[dayPos]->top() )
+	    dd = v[dayPos]->top();
+	else if( dd < v[dayPos]->bottom() )
+	    dd = v[dayPos]->bottom();
+
+	while( !QDate::isValid( yy, mm, dd ) )
+	    dd--;
+
 	ed[yearPos]->setText( QString::number( yy ) );
 	ed[monthPos]->setText( QString::number( mm ) );
 	ed[dayPos]->setText( QString::number( dd ) );
+
     }
 }
 
@@ -634,13 +659,14 @@ bool QDateEdit::event( QEvent* e )
     case QEvent::KeyPress: {
 	QKeyEvent *ke = (QKeyEvent*)e;
 	QDate newDate = date();
-	if ( ke->key() == Key_Tab || ke->key() == Key_BackTab ) {
-	    if ( newDate != oldDate ) {
-		emit valueChanged( newDate );
+	if ( newDate.isValid() ) {
+	    if ( ke->key() == Key_Tab || ke->key() == Key_BackTab ) {
+		if ( newDate != oldDate )
+		    emit valueChanged( newDate );
+	    } else if ( ke->key() == Key_Return || ke->key() == Key_Enter ) {
+		if ( newDate != oldDate )
+		    emit valueChanged( newDate );
 	    }
-	} else if ( ke->key() == Key_Return || ke->key() == Key_Enter ) {
-	    if ( newDate != oldDate )
-		emit valueChanged( newDate );
 	}
     }
     break;
@@ -747,6 +773,38 @@ void QTimeEdit::init()
     ed[2]->setRange( 0, 59 );
     setTimeSeparator( ":" );
     connect( this, SIGNAL( valueChanged() ), this, SLOT( someValueChanged() ) );
+}
+
+QSize QTimeEdit::sizeHint() const
+{
+    constPolish();
+    QFontMetrics fm = fontMetrics();
+    int h = fm.height();
+    if ( h < 12 )       // ensure enough space for the button pixmaps
+	h = 12;
+    int w = 65; // minimum width for the value
+    QString s;
+    s = ed[0]->text() + sep[0]->text() +ed[1]->text() + sep[1]->text() +
+	ed[2]->text();
+    w = QMAX( w, fm.width( s ) );
+    QSize r( h // buttons AND frame both sides - see resizeevent()
+	     + 6 // right/left margins
+	     + w, // widest value
+	     frameWidth() * 2 // top/bottom frame
+	     + 4 // top/bottom margins
+	     + h // font height
+	     );
+    return r;
+}
+
+/*! \reimp
+*/
+QSize QTimeEdit::minimumSizeHint() const
+{
+    int w = 65 // minimum for value
+	    + 6; // arrows
+    int h = 12; // arrow pixmaps
+    return QSize( w, h );
 }
 
 /*!
