@@ -154,7 +154,13 @@ QMAC_PASCAL OSStatus macSpecialErase(GDHandle, GrafPtr, WindowRef window, RgnHan
 
     if ( widget ) {
         QRegion reg(rgn);
-        reg.translate(-widget->x(), -widget->y());
+        {
+                Point px = { 0, 0 };
+                QMacSavedPortInfo si;
+                SetPortWindowPort((WindowPtr)widget->handle());
+                LocalToGlobal(&px);
+                reg.translate(-px.h, -px.v);
+        }
   	paint_children(widget, reg, TRUE);
     }
     return 0;
