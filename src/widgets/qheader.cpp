@@ -951,7 +951,7 @@ QString QHeader::label( int section ) const
     if ( d->labels[ section ] )
 	return *( d->labels[ section ] );
     else
-	return QString::null;
+	return QString::number( section + 1 );
 }
 
 /*!
