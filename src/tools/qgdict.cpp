@@ -281,6 +281,8 @@ QGDict::~QGDict()
 
 QGDict &QGDict::operator=( const QGDict &dict )
 {
+    if ( &dict == this )
+	return *this;
     clear();
     QGDictIterator it( dict );
     while ( it.get() ) {			// copy from other dict
