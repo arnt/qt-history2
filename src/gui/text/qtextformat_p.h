@@ -41,7 +41,7 @@ public:
     typedef QVector<QTextFormat> FormatVector;
 
     FormatVector formats;
-    QVector<int> objFormats;
+    QVector<Q_INT32> objFormats;
 };
 
 QDataStream &operator<<(QDataStream &stream, const QTextFormatCollection &collection);
