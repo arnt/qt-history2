@@ -32,7 +32,7 @@ HEADERS        += finddialog.h \
         ../shared/metatranslator.h
 
 DEFINES        += QT_KEYWORDS
-QT += xml
+QT += xml network
 include( ../../../src/qt_professional.pri )
 
 DESTDIR                = ../../../bin
