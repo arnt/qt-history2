@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#67 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#68 $
 **
 ** Implementation of QObject class
 **
@@ -15,7 +15,7 @@
 #include "qregexp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#67 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#68 $")
 
 
 /*----------------------------------------------------------------------------
@@ -450,19 +450,42 @@ void QObject::setName( const char *name )
 
 
 /*----------------------------------------------------------------------------
-  This virtual function receives events to an object and must
-  return TRUE if the event was recognized and processed.
+  This virtual function receives events to an object and should return
+  TRUE if the event was recognized and processed.
 
-  The event() function can be reimplemented to customize the behavior
-  of an object.
+  The event() function can be reimplemented to customize the behavior of
+  an object.
 
-  \sa QWidget::event(), installEventFilter()
+  \sa installEventFilter(), timerEvent(), QApplication::sendEvent(),
+  QApplication::postEvent(), QWidget::event()
  ----------------------------------------------------------------------------*/
 
 bool QObject::event( QEvent *e )
 {
-    return eventFilters ? activate_filters(e) : FALSE;
+    if ( eventFilters ) {			// try filters
+	if ( activate_filters(e) )		// stopped by a filter
+	    return TRUE;
+    }
+    if ( e->type() == Event_Timer ) {		// timer event
+	timerEvent( (QTimerEvent*)e );
+	return TRUE;
+    }
+    return FALSE;
 }
+
+/*----------------------------------------------------------------------------
+  This event handler can be reimplemented in a subclass to receive
+  timer events for the object.
+
+  The default implementation does nothing.
+
+  \sa startTimer(), killTimer(), killTimers(), event()
+ ----------------------------------------------------------------------------*/
+
+void QObject::timerEvent( QTimerEvent * )
+{
+}
+
 
 /*----------------------------------------------------------------------------
   Filters events if this object has been installed as an event filter for
@@ -528,17 +551,47 @@ void QObject::blockSignals( bool block )
   or killTimers() is called.
   If \e interval is 0, then timer event occurs as often as possible.
 
-  The virtual event() function is called with the QTimerEvent event parameter
-  class when a timer event occurs.
-  Widgets dispatch timer events to the QWidget::timerEvent() event handler.
-  Reimplement this virtual function to get timer events if your object is
-  a widget.  If your object is not a widget, you must reimplement the event()
-  function to get timer events.
+  The virtual timerEvent() function is called with the QTimerEvent event
+  parameter class when a timer event occurs.  Reimplement this function to
+  get timer events.
 
-  The QTimer class provides a high-level programming interface with one-shot
-  timers and timer signals instead of events.
+  If multiple timers are running, the QTimerEvent::timerId() can be
+  used to find out which timer was activated.
 
-  \sa QTimerEvent, killTimer(), killTimers(), QWidget::timerEvent()
+  Example:
+  \code
+    class MyObject : public QObject
+    {
+    public:
+	MyObject( QObject *parent=0, const char *name=0 );
+    protected:
+	void  timerEvent( QTimerEvent * );
+    };
+
+    MyObject::MyObject( QObject *parent, const char *name )
+        : QObject( parent, name )
+    {
+        startTimer( 50 );			// 50 millisec timer
+        startTimer( 1000 );			// 1 second timer
+	startTimer( 60000 );			// 1 minute timer
+    }
+
+    void MyObject::timerEvent( QTimerEvent *e )
+    {
+        debug( "timer event, id=%d", e->timerId() );
+    }
+  \endcode
+  
+  There is practically no upper limit for the interval value (more than
+  one year).  The accuracy depends on the underlying operating system.
+  Windows 3.1 has 55 millisecond (18.2 times per second) accuracy; other
+  systems that we have tested (UNIX X-Windows, Windows NT and OS/2) can
+  handle 1 millisecond intervals.
+
+  The QTimer class provides a high-level programming interface with
+  one-shot timers and timer signals instead of events.
+
+  \sa timerEvent(), killTimer(), killTimers()
  ----------------------------------------------------------------------------*/
 
 int QObject::startTimer( long interval )
@@ -550,24 +603,23 @@ int QObject::startTimer( long interval )
 /*----------------------------------------------------------------------------
   Kills the timer with the identifier \e id.
 
-  The timer identifer is returned by startTimer() when a
-  timer event is started.
+  The timer identifier is returned by startTimer() when a timer event is
+  started.
 
-  \sa startTimer(), killTimers(), QWidget::timerEvent()
+  \sa timerEvent(), startTimer(), killTimers()
  ----------------------------------------------------------------------------*/
 
-void QObject::killTimer( int id )		// kill timer events
+void QObject::killTimer( int id )
 {
     qKillTimer( id );
 }
 
 /*----------------------------------------------------------------------------
   Kills all timers that this object has started.
-
-  \sa killTimer(), startTimer(), QWidget::timerEvent()
+  \sa timerEvent(), startTimer(), killTimer()
  ----------------------------------------------------------------------------*/
 
-void QObject::killTimers()			// kill all timers for object
+void QObject::killTimers()
 {
     qKillTimer( this );
 }
