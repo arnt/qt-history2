@@ -40,7 +40,7 @@ TextOutline::TextOutline(QWidget *parent)
     }
 
     // Increase the bounds a bit to avoid close to zero calculation problems...
-    basePathBounds.addCoords(-5, -5, 5, 5);
+    basePathBounds.adjust(-5, -5, 5, 5);
     pul = pur = pbl = pbr = QPoint(-1, -1);
     dragLocation = TopLeft;
 }

@@ -86,7 +86,7 @@ public:
             break;
         case Path:
             r = path->boundingRect().toRect();
-            r.addCoords(-1, -1, 1, 1);
+            r.adjust(-1, -1, 1, 1);
             r.translate(trans);
             break;
         }
