@@ -24,6 +24,7 @@
 #include "qapplication.h"
 #include "qapplication_p.h"
 #include <private/qcolor_p.h>
+#include <private/qcursor_p.h>
 #include "qcursor.h"
 #include "qwidget.h"
 #include "qbitarray.h"
@@ -1572,7 +1573,7 @@ void qt_init(QApplicationPrivate *priv, int,
         QSegfaultHandler::initialize(priv->argv, priv->argc);
 #endif
         QFont::initialize();
-        QCursor::initialize();
+        QCursorData::initialize();
         QX11PaintEngine::initialize();
     }
 
@@ -1871,7 +1872,7 @@ void qt_cleanup()
     if (qt_is_gui_used) {
         QPixmapCache::clear();
         QX11PaintEngine::cleanup();
-        QCursor::cleanup();
+        QCursorData::cleanup();
         QFont::cleanup();
         QColormap::cleanup();
     }

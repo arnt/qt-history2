@@ -162,7 +162,7 @@ void qt_mac_set_cursor(const QCursor *c, const Point *p)
 
 static int nextCursorId = Qt::BitmapCursor;
 
-QCursorData::QCursorData(int s)
+QCursorData::QCursorData(Qt::CursorShape s)
     : cshape(s), bm(0), bmm(0), hx(-1), hy(-1), id(s), type(TYPE_None)
 {
     ref = 1;
@@ -199,8 +199,8 @@ QCursorData::~QCursorData()
 
 void QCursor::setBitmap(const QBitmap &bitmap, const QBitmap &mask, int hotX, int hotY)
 {
-    if (!initialized)
-        initialize();
+    if (!QCursorData::initialized)
+        QCursorData::initialize();
     if (bitmap.depth() != 1 || mask.depth() != 1 || bitmap.size() != mask.size()) {
         qWarning("Qt: QCursor: Cannot create bitmap cursor; invalid bitmap(s)");
         QCursorData *c = qt_cursorTable[0];
@@ -228,8 +228,8 @@ void QCursor::setBitmap(const QBitmap &bitmap, const QBitmap &mask, int hotX, in
 
 Qt::HANDLE QCursor::handle() const
 {
-    if(!initialized)
-        initialize();
+    if(!QCursorData::initialized)
+        QCursorData::initialize();
     if(d->type == QCursorData::TYPE_None)
         update();
     return (Qt::HANDLE)d->id;
@@ -261,8 +261,8 @@ void QCursor::setPos(int x, int y)
 
 void QCursor::update() const
 {
-    if(!initialized)
-        initialize();
+    if(!QCursorData::initialized)
+        QCursorData::initialize();
     if(d->type != QCursorData::TYPE_None)
         return;
 

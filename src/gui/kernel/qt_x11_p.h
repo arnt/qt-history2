@@ -481,7 +481,8 @@ enum {
     XKeyRelease = KeyRelease,
     XNone = None,
     XRevertToParent = RevertToParent,
-    XGrayScale = GrayScale
+    XGrayScale = GrayScale,
+    XCursorShape = CursorShape
 };
 #undef FocusOut
 #undef FocusIn
@@ -490,6 +491,7 @@ enum {
 #undef None
 #undef RevertToParent
 #undef GrayScale
+#undef CursorShape
 
 #ifdef FontChange
 #undef FontChange

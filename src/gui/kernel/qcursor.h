@@ -49,19 +49,24 @@ class Q_GUI_EXPORT QCursor
 {
 public:
     QCursor();
-    QCursor(int shape);
+    QCursor(Qt::CursorShape shape);
     QCursor(const QBitmap &bitmap, const QBitmap &mask, int hotX=-1, int hotY=-1);
     QCursor(const QPixmap &pixmap, int hotX=-1, int hotY=-1);
     QCursor(const QCursor &cursor);
     ~QCursor();
     QCursor &operator=(const QCursor &cursor);
 
-    int shape() const;
-    void setShape(int newShape);
+    Qt::CursorShape shape() const;
+    void setShape(Qt::CursorShape newShape);
 
     const QBitmap *bitmap() const;
     const QBitmap *mask() const;
     QPoint hotSpot() const;
+
+    static QPoint pos();
+    static void setPos(int x, int y);
+    inline static void setPos(const QPoint &p) { setPos(p.x(), p.y()); }
+
 #if defined(Q_WS_WIN)
     HCURSOR handle() const;
     QCursor(HCURSOR cursor);
@@ -74,18 +79,10 @@ public:
 #elif defined(Q_WS_QWS)
     Qt::HANDLE handle() const;
 #endif
-    static QPoint pos();
-    static void setPos(int x, int y);
-    inline static void setPos(const QPoint &p) { setPos(p.x(), p.y()); }
-    static void initialize();
-    static void cleanup();
 private:
-    void setBitmap(const QBitmap &bitmap, const QBitmap &mask, int hotX, int hotY);
     void update() const;
-    static QCursorData *find_cur(int);
-
+    void setBitmap(const QBitmap &bitmap, const QBitmap &mask, int hotX, int hotY);
     QCursorData *d;
-    static bool initialized;
 #if defined(Q_WS_MAC)
     friend void qt_mac_set_cursor(const QCursor *c, const Point *p);
 #endif

@@ -37,6 +37,7 @@
 #endif
 
 #include <private/qpaintengine_win_p.h>
+#include <private/qcursor_p.h>
 
 #ifdef QT_THREAD_SUPPORT
 #include "qmutex.h"
@@ -608,7 +609,7 @@ void qt_init(QApplicationPrivate *priv, int)
     QWindowsMime::initialize();
     QColormap::initialize();
     QFont::initialize();
-    QCursor::initialize();
+    QCursorData::initialize();
     QWin32PaintEngine::initialize();
     qApp->setObjectName(appName);
 
@@ -654,7 +655,7 @@ void qt_cleanup()
     QPixmapCache::clear();
     QWin32PaintEngine::cleanup();
 
-    QCursor::cleanup();
+    QCursorData::cleanup();
     QFont::cleanup();
     QColormap::cleanup();
     if (displayDC) {

@@ -41,6 +41,7 @@
 #include "qwidget.h"
 #include "qcolormap.h"
 #include <private/qpaintengine_mac_p.h>
+#include <private/qcursor_p.h>
 
 #include "private/qapplication_p.h"
 #include "private/qcolor_p.h"
@@ -936,7 +937,7 @@ void qt_init(QApplicationPrivate *priv, QApplication::Type)
     if(qt_is_gui_used) {
         QColormap::initialize();
         QFont::initialize();
-        QCursor::initialize();
+        QCursorData::initialize();
 #if !defined(QMAC_NO_COREGRAPHICS)
         QCoreGraphicsPaintEngine::initialize();
 #endif
@@ -992,7 +993,7 @@ void qt_cleanup()
         QAccessible::cleanup();
 #endif
         QQuickDrawPaintEngine::cleanup();
-        QCursor::cleanup();
+        QCursorData::cleanup();
         QFont::cleanup();
         QColormap::cleanup();
         if(qt_mac_safe_pdev) {

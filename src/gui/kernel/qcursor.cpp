@@ -198,7 +198,7 @@ QDataStream &operator>>(QDataStream &s, QCursor &c)
         qWarning("No Image Cursor I/O");
 #endif
     } else {
-        c.setShape((int)shape);                // create cursor with shape
+        c.setShape((Qt::CursorShape)shape);                // create cursor with shape
     }
     return s;
 }
@@ -288,37 +288,32 @@ QCursor::QCursor(const QBitmap &bitmap, const QBitmap &mask, int hotX, int hotY)
 }
 
 QCursorData *qt_cursorTable[Qt::LastCursor + 1];
-bool QCursor::initialized = false;
+bool QCursorData::initialized = false;
 
 /*! \internal */
-void QCursor::cleanup()
+void QCursorData::cleanup()
 {
-    if(!initialized)
+    if(!QCursorData::initialized)
         return;
 
     for (int shape = 0; shape <= Qt::LastCursor; ++shape) {
         delete qt_cursorTable[shape];
         qt_cursorTable[shape] = 0;
     }
-    initialized = false;
+    QCursorData::initialized = false;
 }
 
 /*! \internal */
-void QCursor::initialize()
+void QCursorData::initialize()
 {
-    if (initialized)
+    if (QCursorData::initialized)
         return;
 #ifdef Q_WS_MAC
     InitCursor();
 #endif
     for (int shape = 0; shape <= Qt::LastCursor; ++shape)
-        qt_cursorTable[shape] = new QCursorData(shape);
-    initialized = true;
-}
-
-QCursorData *QCursor::find_cur(int shape)
-{
-    return uint(shape) <= Qt::LastCursor ? qt_cursorTable[shape] : 0;
+        qt_cursorTable[shape] = new QCursorData((Qt::CursorShape)shape);
+    QCursorData::initialized = true;
 }
 
 /*!
@@ -326,12 +321,12 @@ QCursorData *QCursor::find_cur(int shape)
 */
 QCursor::QCursor()
 {
-    if (!initialized) {
+    if (!QCursorData::initialized) {
         if (qApp->startingUp()) {
             d = 0;
             return;
         }
-        initialize();
+        QCursorData::initialize();
     }
     QCursorData *c = qt_cursorTable[0];
     ++c->ref;
@@ -345,11 +340,11 @@ QCursor::QCursor()
 
     \sa setShape()
 */
-QCursor::QCursor(int shape)
+QCursor::QCursor(Qt::CursorShape shape)
     : d(0)
 {
-    if (!initialized)
-        initialize();
+    if (!QCursorData::initialized)
+        QCursorData::initialize();
     setShape(shape);
 }
 
@@ -360,10 +355,10 @@ QCursor::QCursor(int shape)
 
     \sa setShape()
 */
-int QCursor::shape() const
+Qt::CursorShape QCursor::shape() const
 {
-    if (!initialized)
-        initialize();
+    if (!QCursorData::initialized)
+        QCursorData::initialize();
     return d->cshape;
 }
 
@@ -374,11 +369,11 @@ int QCursor::shape() const
 
     \sa shape()
 */
-void QCursor::setShape(int shape)
+void QCursor::setShape(Qt::CursorShape shape)
 {
-    if (!initialized)
-        initialize();
-    QCursorData *c = find_cur(shape);
+    if (!QCursorData::initialized)
+        QCursorData::initialize();
+    QCursorData *c = uint(shape) <= Qt::LastCursor ? qt_cursorTable[shape] : 0;
     if (!c)
         c = qt_cursorTable[0];
     ++c->ref;
@@ -397,8 +392,8 @@ void QCursor::setShape(int shape)
 */
 const QBitmap *QCursor::bitmap() const
 {
-    if (!initialized)
-        initialize();
+    if (!QCursorData::initialized)
+        QCursorData::initialize();
     return d->bm;
 }
 
@@ -409,8 +404,8 @@ const QBitmap *QCursor::bitmap() const
 
 const QBitmap *QCursor::mask() const
 {
-    if (!initialized)
-        initialize();
+    if (!QCursorData::initialized)
+        QCursorData::initialize();
     return d->bmm;
 }
 
@@ -421,8 +416,8 @@ const QBitmap *QCursor::mask() const
 
 QPoint QCursor::hotSpot() const
 {
-    if (!initialized)
-        initialize();
+    if (!QCursorData::initialized)
+        QCursorData::initialize();
     return QPoint(d->hx, d->hy);
 }
 
@@ -432,8 +427,8 @@ QPoint QCursor::hotSpot() const
 
 QCursor::QCursor(const QCursor &c)
 {
-    if (!initialized)
-        initialize();
+    if (!QCursorData::initialized)
+        QCursorData::initialize();
     d = c.d;
     ++d->ref;
 }
@@ -456,8 +451,8 @@ QCursor::~QCursor()
 
 QCursor &QCursor::operator=(const QCursor &c)
 {
-    if (!initialized)
-        initialize();
+    if (!QCursorData::initialized)
+        QCursorData::initialize();
     qAtomicAssign(d, c.d);
     return *this;
 }

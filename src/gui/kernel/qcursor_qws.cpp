@@ -24,7 +24,7 @@ static int nextCursorId = Qt::BitmapCursor;
   Internal QCursorData class
  *****************************************************************************/
 
-QCursorData::QCursorData(int s)
+QCursorData::QCursorData(Qt::CursorShape s)
     : cshape(s), bm(0), bmm(0), hx(0), hy(0), id(s)
 {
     ref = 1;
@@ -51,8 +51,8 @@ Qt::HANDLE QCursor::handle() const
 
 void QCursor::setBitmap(const QBitmap &bitmap, const QBitmap &mask, int hotX, int hotY)
 {
-    if (!initialized)
-        initialize();
+    if (!QCursorData::initialized)
+        QCursorData::initialize();
     if (bitmap.depth() != 1 || mask.depth() != 1 || bitmap.size() != mask.size()) {
         qWarning("QCursor: Cannot create bitmap cursor; invalid bitmap(s)");
         QCursorData *c = qt_cursorTable[0];
@@ -73,8 +73,8 @@ void QCursor::setBitmap(const QBitmap &bitmap, const QBitmap &mask, int hotX, in
 
 void QCursor::update() const
 {
-    if (!initialized)
-        initialize();
+    if (!QCursorData::initialized)
+        QCursorData::initialize();
     if (d->cshape == Qt::BitmapCursor) {
         // XXX
         return;

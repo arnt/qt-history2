@@ -26,6 +26,8 @@
 //
 #include <qatomic.h>
 #include <qglobal.h>
+#include <qnamespace.h>
+
 # if defined (Q_WS_MAC)
 #  include <private/qt_mac_p.h>
 #  if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
@@ -43,10 +45,14 @@
 
 class QBitmap;
 struct QCursorData {
-    QCursorData(int s = 0);
+    QCursorData(Qt::CursorShape s = Qt::ArrowCursor);
     ~QCursorData();
+
+    static void initialize();
+    static void cleanup();
+
     QAtomic ref;
-    int cshape;
+    Qt::CursorShape cshape;
     QBitmap  *bm, *bmm;
     short     hx, hy;
 #if defined (Q_WS_MAC) || defined(Q_WS_QWS)
@@ -81,6 +87,7 @@ struct QCursorData {
         } tc;
     } curs;
 #endif
+    static bool initialized;
 };
 
 #endif

@@ -53,6 +53,7 @@
 #include "qhash.h"
 #include "qdesktopwidget.h"
 #include "qcolormap.h"
+#include <private/qcursor_p.h>
 
 //### convert interlace style
 //#include "qinterlacestyle.h"
@@ -1476,7 +1477,7 @@ static void init_display()
     QColormap::initialize();
     QFont::initialize();
 #ifndef QT_NO_CURSOR
-    QCursor::initialize();
+    QCursorData::initialize();
 #endif
     QWSPaintEngine::initialize();
 
@@ -1649,7 +1650,7 @@ void qt_cleanup()
     QPixmapCache::clear();
     QWSPaintEngine::cleanup();
 #ifndef QT_NO_CURSOR
-    QCursor::cleanup();
+    QCursorData::cleanup();
 #endif
     QFont::cleanup();
     QColormap::cleanup();

@@ -33,6 +33,7 @@
 #include "qdebug.h"
 
 #include "qwidget_p.h"
+#include "qcursor_p.h"
 
 // #define DND_DEBUG
 #ifdef DND_DEBUG
@@ -274,7 +275,7 @@ Atom QX11Data::xdndStringToAtom(const char *mimeType)
 
 
 void QX11Data::xdndSetup() {
-    QCursor::initialize();
+    QCursorData::initialize();
     qAddPostRoutine(qt_xdnd_cleanup);
 }
 

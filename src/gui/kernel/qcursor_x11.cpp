@@ -33,7 +33,7 @@ extern QCursorData *qt_cursorTable[Qt::LastCursor + 1]; // qcursor.cpp
   Internal QCursorData class
  *****************************************************************************/
 
-QCursorData::QCursorData(int s)
+QCursorData::QCursorData(Qt::CursorShape s)
     : cshape(s), bm(0), bmm(0), hx(0), hy(0), hcurs(0), pm(0), pmm(0)
 {
     ref = 1;
@@ -65,8 +65,8 @@ QCursorData::~QCursorData()
 */
 QCursor::QCursor(Qt::HANDLE cursor)
 {
-    if (!initialized)
-        initialize();
+    if (!QCursorData::initialized)
+        QCursorData::initialize();
     d = new QCursorData;
     d->hcurs = cursor;
 }
@@ -75,8 +75,8 @@ QCursor::QCursor(Qt::HANDLE cursor)
 
 void QCursor::setBitmap(const QBitmap &bitmap, const QBitmap &mask, int hotX, int hotY)
 {
-    if (!initialized)
-        initialize();
+    if (!QCursorData::initialized)
+        QCursorData::initialize();
     if (bitmap.depth() != 1 || mask.depth() != 1 || bitmap.size() != mask.size()) {
         qWarning("QCursor: Cannot create bitmap cursor; invalid bitmap(s)");
         QCursorData *c = qt_cursorTable[0];
@@ -104,8 +104,8 @@ void QCursor::setBitmap(const QBitmap &bitmap, const QBitmap &mask, int hotX, in
 
 Qt::HANDLE QCursor::handle() const
 {
-    if (!initialized)
-        initialize();
+    if (!QCursorData::initialized)
+        QCursorData::initialize();
     if (!d->hcurs)
         update();
     return d->hcurs;
@@ -223,8 +223,8 @@ void QCursor::setPos(int x, int y)
 
 void QCursor::update() const
 {
-    if (!initialized)
-        initialize();
+    if (!QCursorData::initialized)
+        QCursorData::initialize();
     if (d->hcurs)
         return;
 
