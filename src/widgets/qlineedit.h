@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.h#63 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.h#64 $
 **
 ** Definition of QLineEdit widget class
 **
@@ -104,8 +104,8 @@ protected:
     void	timerEvent( QTimerEvent * );
     void	resizeEvent( QResizeEvent * );
     void	leaveEvent( QEvent * );
-
-    bool	event( QEvent * );
+    void	dragEnterEvent( QDragEnterEvent * );
+    void	dropEvent( QDropEvent * );
 
     bool	hasMarkedText() const;
     QString	markedText() const;

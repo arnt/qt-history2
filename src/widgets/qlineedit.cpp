@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#169 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#170 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -168,7 +168,7 @@ QLineEdit::QLineEdit( QWidget *parent, const char *name )
     setBackgroundMode( PaletteBase );
     alignmentFlag = Qt::AlignLeft;
     alignOffset = 0;
-    //setAcceptDrops( TRUE );
+    setAcceptDrops( TRUE );
 }
 
 /*!
@@ -715,17 +715,15 @@ void QLineEdit::mousePressEvent( QMouseEvent *e )
 	    insert( QApplication::clipboard()->text() );
 #endif
 	return;
-#if 0 // it works, but it's wait until we have an API
     } else if ( hasMarkedText() &&
 		e->button() == LeftButton &&
 		( (markAnchor > cursorPos && markDrag < cursorPos) ||
 		  (markAnchor < cursorPos && markDrag > cursorPos) ) ) {
-	QTextDrag * tdo = new QTextDrag( this );
-	tdo->setText( markedText() );
-	tdo->dragCopy();
-	delete tdo;
+	QTextDrag *tdo = new QTextDrag( markedText(), this );
+	if ( tdo->drag() ) {
+	    // ##### Delete original (but check if it went to me)
+	}
 	return;
-#endif
     }
 
     int m1 = minMark();
@@ -1334,41 +1332,30 @@ void QLineEdit::clearValidator()
 }
 
 
-/*!  Don't use it if you don't mean it. */
 
-bool QLineEdit::event( QEvent * e )
+void QLineEdit::dragEnterEvent( QDragEnterEvent *e )
 {
-#if 0 // it works, but we'll wait with enabling it.
-    if ( !e )
-	return QWidget::event( e );
+    if ( QTextDrag::canDecode(e) )
+	e->accept( rect() );
+}
 
-    if ( e->type() == QEvent::DragEnter ) {
-	if ( ((QDragEnterEvent *) e)->provides( "text/plain" ) ) {
-	    ((QDragEnterEvent *) e)->accept( rect() );
-	    return TRUE;
-	}
-    } else if ( e->type() == QEvent::DragLeave ) {
-	return TRUE;
-    } else if ( e->type() == QEvent::Drop ) {
-	QDropEvent * de = (QDropEvent *) e;
-	QString str;
-	if ( QTextDrag::decode( de, str ) ) {
-	    if ( !hasMarkedText() ) {
-		int margin = frame() ? 2 : 0;
-		setCursorPosition( xPosToCursorPos( &tbuf[(int)offset],
-						    fontMetrics(),
-						    de->pos().x() - margin,
-						    width() - 2*margin ) );
-	    }
-	    insert( str );
-	    de->accept();
-	} else {
-	    de->ignore();
-	}
-	return TRUE;
+void QLineEdit::dropEvent( QDropEvent *e )
+{
+    QString str;
+    if ( QTextDrag::decode( e, str ) ) {
+	if ( !hasMarkedText() ) {
+	    int margin = frame() ? 2 : 0;
+	    setCursorPosition(
+		xPosToCursorPos( tbuf, offset, fontMetrics(),
+				 e->pos().x() - margin - alignOffset,
+				 width() - 2*margin ) );
+	 }
+	insert( str );
+	e->accept();
+    } else {
+	e->ignore();
     }
-#endif
-    return QWidget::event( e );
+    return TRUE;
 }
 
 
