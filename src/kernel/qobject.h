@@ -51,7 +51,8 @@ public:
     QObject( QObject *parent=0, const char *name=0 );
     virtual ~QObject();
 
-    static QString tr(const char*);
+    static QString tr( const char * );
+    static QString tr( const char *, const char * );
 
     virtual bool event( QEvent * );
     virtual bool eventFilter( QObject *, QEvent * );
@@ -81,10 +82,11 @@ public:
 
     static const QObjectList *objectTrees();
 
+    //### make queryList const in 3.0
     QObjectList	      *queryList( const char *inheritsClass = 0,
 				  const char *objName = 0,
 				  bool regexpMatch = TRUE,
-				  bool recursiveSearch = TRUE ); //### const in 3.0
+				  bool recursiveSearch = TRUE );
 
     virtual void insertChild( QObject * );
     virtual void removeChild( QObject * );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#178 $
+** $Id: //depot/qt/main/src/moc/moc.y#179 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -288,7 +288,7 @@ int	   tmpYYStart;				// Used to store the lexers current mode
 int	   tmpYYStart2;				// Used to store the lexers current mode
 						// (if tmpYYStart is already used)
 
-const int  formatRevision = 8;			// moc output format revision
+const int  formatRevision = 9;			// moc output format revision
 
 %}
 
@@ -1837,7 +1837,7 @@ void generateFuncs( FuncList *list, char *functype, int num )
 		 functype, list->at(), (const char*)f->type );
 	fprintf( out, "    %s_tbl[%d].ptr = *((QMember*)&v%d_%d);\n",
 		 functype, list->at(), num, list->at() );
-	
+
 /* ### do this in 3.0:
 	fprintf( out, "    %s_tbl[%d].access = QMetaData::%s;\n",
 		 functype, list->at(), f->accessAsString() );
@@ -2436,7 +2436,7 @@ void generateClass()		      // generate C++ source code for a class
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#178 $)\n**\n";
+		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#179 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
@@ -2524,12 +2524,18 @@ void generateClass()		      // generate C++ source code for a class
     fprintf( out, "}\n\n");
 
 //
-// Generate tr member function
+// Generate tr member function ### 3.0 one function
 //
-    fprintf( out, "#ifndef QT_NO_TRANSLATION\n" );
-    fprintf( out, "QString %s::tr(const char* s)\n{\n", (const char*)qualifiedClassName() );
-    fprintf( out, "    return ((QNonBaseApplication*)qApp)->translate(\"%s\",s);\n}\n\n", (const char*)qualifiedClassName() );
-    fprintf( out, "#endif // QT_NO_TRANSLATION\n" );
+    fprintf( out, "#ifndef QT_NO_TRANSLATION\n\n" );
+    fprintf( out, "QString %s::tr(const char* s)\n{\n",
+	     (const char*)qualifiedClassName() );
+    fprintf( out, "    return ((QNonBaseApplication*)qApp)->translate"
+	     "( \"%s\", s, 0 );\n}\n\n", (const char*)qualifiedClassName() );
+    fprintf( out, "QString %s::tr(const char* s, const char * c)\n{\n",
+	     (const char*)qualifiedClassName() );
+    fprintf( out, "    return ((QNonBaseApplication*)qApp)->translate"
+	     "( \"%s\", s, c );\n}\n\n", (const char*)qualifiedClassName() );
+    fprintf( out, "#endif // QT_NO_TRANSLATION\n\n" );
 
 //
 // Generate staticMetaObject member function

@@ -1294,7 +1294,7 @@ static void err_info_about_candidates( int code,
   other cases as well.  However, its value may change during any function
   call, depending on what signal-slot connections are activated during
   that call.  In Qt 3.0 the value will change more often than in 2.x.
-  
+
   \warning
   This function violates the object-oriented principle of modularity,
   However, getting access to the sender might be practical when many
@@ -1815,11 +1815,13 @@ QMetaObject *QObject::queryMetaObject() const
 
 #ifndef QT_NO_TRANSLATION // Otherwise we have a simple inline version
 
-/*!
-  Returns a translated version of \a text, or \a text if there is
-  no appropriate translated version.  All QObject subclasses which use the
-  \link metaobjects.html Q_OBJECT macro\endlink have an overridden
-  version of this.
+/*! \overload
+  
+  Returns a translated version of \a text in context QObject and with
+  no comment, or \a text if there is no appropriate translated
+  version.  All QObject subclasses which use the Q_OBJECT macro have a
+  reimplementation of this function which uses the relevant class name
+  as context.
 
   \sa QApplication::translate()
 */
@@ -1827,7 +1829,25 @@ QMetaObject *QObject::queryMetaObject() const
 QString QObject::tr( const char *text )
 {
     if ( qApp )
-	return qApp->translate( "QObject", text );
+	return qApp->translate( "QObject", text, 0 );
+    else
+	return QString::fromLatin1(text);
+}
+
+/*!
+  Returns a translated version of \a text in context QObject and and
+  with \a comment, or \a text if there is no appropriate translated
+  version.  All QObject subclasses which use the Q_OBJECT macro have a
+  reimplementation of this function which uses the relevant class name
+  as context.
+
+  \sa QApplication::translate()
+*/
+
+QString QObject::tr( const char *text, const char * comment )
+{
+    if ( qApp )
+	return qApp->translate( "QObject", text, comment );
     else
 	return QString::fromLatin1(text);
 }
