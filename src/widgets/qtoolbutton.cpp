@@ -614,11 +614,12 @@ bool QToolButton::eventFilter( QObject *o, QEvent *e )
 
 bool QToolButton::uses3D() const
 {
-    return !autoRaise() || ( hasMouse() && isEnabled() )
+    return style().styleHint(QStyle::SH_ToolButton_Uses3D)
+	&& (!autoRaise() || ( hasMouse() && isEnabled() )
 #ifndef QT_NO_POPUPMENU
-	|| ( d->popup && d->popup->isVisible() && d->delay <= 0 ) || d->instantPopup
+	    || ( d->popup && d->popup->isVisible() && d->delay <= 0 ) || d->instantPopup
 #endif
-	;
+	    );
 }
 
 

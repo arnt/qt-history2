@@ -2657,6 +2657,10 @@ int QCommonStyle::styleHint(StyleHint sh, const QWidget * w, const QStyleOption 
 	ret = 1;
 	break;
 
+    case SH_ToolButton_Uses3D:
+	ret = 1;
+	break;
+
     default:
 	ret = 0;
 	break;

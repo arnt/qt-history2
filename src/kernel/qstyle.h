@@ -664,6 +664,10 @@ public:
 	//bool - if underline for accelerators
 	SH_UnderlineAccelerator,
 
+	// bool - QToolButton - if tool buttons should use a 3D frame
+	// when the mouse is over the button
+	SH_ToolButton_Uses3D,
+
 	// do not add any values below/greater than this
 	SH_CustomBase =		0xf0000000
     };
