@@ -246,21 +246,12 @@ void QSize::scale(const QSize &s, Qt::AspectRatioMode mode)
 */
 
 /*!
-    \fn QSize &QSize::operator*=(int c)
-
-    Multiplies both the width and height by \a c and returns a
-    reference to the size.
-
-    \sa scale()
-*/
-
-/*!
-    \fn QSize &QSize::operator*=(double c)
+    \fn QSize &QSize::operator*=(qreal coeff)
 
     \overload
 
-    Multiplies both the width and height by \a c and returns a reference to
-    the size.
+    Multiplies both the width and height by \a coeff and returns a
+    reference to the size.
 
     Note that the result is truncated.
 */
@@ -303,64 +294,33 @@ void QSize::scale(const QSize &s, Qt::AspectRatioMode mode)
 */
 
 /*!
-    \fn const QSize operator*(const QSize &s, int c)
+    \fn const QSize operator*(const QSize &size, qreal coeff)
 
     \relates QSize
 
-    Multiplies \a s by \a c and returns the result.
+    Multiplies \a size by \a coeff and returns the result.
 
     \sa scale()
 */
 
 /*!
-    \fn const QSize operator*(int c, const QSize &s)
+    \fn const QSize operator*(qreal coeff, const QSize &size)
 
     \overload
     \relates QSize
 
-    Multiplies \a s by \a c and returns the result.
+    Multiplies \a size by \a coeff and returns the result.
 
     \sa scale()
 */
 
 /*!
-    \fn const QSize operator*(const QSize &s, double c)
-
-    \overload
-    \relates QSize
-
-    Multiplies \a s by \a c and returns the result.
-
-    \sa scale()
-*/
-
-/*!
-    \fn const QSize operator*(double c, const QSize &s)
-
-    \overload
-    \relates QSize
-
-    Multiplies \a s by \a c and returns the result.
-
-    \sa scale()
-*/
-
-/*!
-    \fn QSize &QSize::operator/=(int c)
-
-    Divides both the width and height by \a c and returns a reference
-    to the size.
-
-    \sa scale()
-*/
-
-/*!
-    \fn QSize &QSize::operator/=(double c)
+    \fn QSize &QSize::operator/=(qreal coeff)
 
     \overload
 
-    Divides both the width and height by \a c and returns a reference to the
-    size.
+    Divides both the width and height by \a coeff and returns a
+    reference to the size.
 
     Note that the result is truncated.
 
@@ -368,22 +328,12 @@ void QSize::scale(const QSize &s, Qt::AspectRatioMode mode)
 */
 
 /*!
-    \fn const QSize operator/(const QSize &s, int c)
-
-    \relates QSize
-
-    Divides \a s by \a c and returns the result.
-
-    \sa scale()
-*/
-
-/*!
-    \fn const QSize operator/(const QSize &s, double c)
+    \fn const QSize operator/(const QSize &size, qreal divisor)
 
     \relates QSize
     \overload
 
-    Divides \a s by \a c and returns the result.
+    Divides \a size by \a divisor and returns the result.
 
     Note that the result is truncated.
 
@@ -715,21 +665,12 @@ void QSizeF::scale(const QSizeF &s, Qt::AspectRatioMode mode)
 */
 
 /*!
-    \fn QSizeF &QSizeF::operator*=(int c)
-
-    Multiplies both the width and height by \a c and returns a
-    reference to the size.
-
-    \sa scale()
-*/
-
-/*!
-    \fn QSizeF &QSizeF::operator*=(qreal c)
+    \fn QSizeF &QSizeF::operator*=(qreal coef)
 
     \overload
 
-    Multiplies both the width and height by \a c and returns a reference to
-    the size.
+    Multiplies both the width and height by \a coeff and returns a
+    reference to the size.
 
     Note that the result is truncated.
 */
@@ -772,33 +713,12 @@ void QSizeF::scale(const QSizeF &s, Qt::AspectRatioMode mode)
 */
 
 /*!
-    \fn const QSizeF operator*(const QSizeF &s, int c)
-
-    \relates QSizeF
-
-    Multiplies \a s by \a c and returns the result.
-
-    \sa scale()
-*/
-
-/*!
-    \fn const QSizeF operator*(int c, const QSizeF &s)
+    \fn const QSizeF operator*(const QSizeF &size, qreal coeff)
 
     \overload
     \relates QSizeF
 
-    Multiplies \a s by \a c and returns the result.
-
-    \sa scale()
-*/
-
-/*!
-    \fn const QSizeF operator*(const QSizeF &s, qreal c)
-
-    \overload
-    \relates QSizeF
-
-    Multiplies \a s by \a c and returns the result.
+    Multiplies \a size by \a coeff and returns the result.
 
     \sa scale()
 */
@@ -815,20 +735,11 @@ void QSizeF::scale(const QSizeF &s, Qt::AspectRatioMode mode)
 */
 
 /*!
-    \fn QSizeF &QSizeF::operator/=(int c)
-
-    Divides both the width and height by \a c and returns a reference
-    to the size.
-
-    \sa scale()
-*/
-
-/*!
-    \fn QSizeF &QSizeF::operator/=(qreal c)
+    \fn QSizeF &QSizeF::operator/=(qreal divisor)
 
     \overload
 
-    Divides both the width and height by \a c and returns a reference to the
+    Divides both the width and height by \a divisor and returns a reference to the
     size.
 
     Note that the result is truncated.
@@ -837,22 +748,12 @@ void QSizeF::scale(const QSizeF &s, Qt::AspectRatioMode mode)
 */
 
 /*!
-    \fn const QSizeF operator/(const QSizeF &s, int c)
-
-    \relates QSizeF
-
-    Divides \a s by \a c and returns the result.
-
-    \sa scale()
-*/
-
-/*!
-    \fn const QSizeF operator/(const QSizeF &s, qreal c)
+    \fn const QSizeF operator/(const QSizeF &size, qreal divisor)
 
     \relates QSizeF
     \overload
 
-    Divides \a s by \a c and returns the result.
+    Divides \a size by \a divisor and returns the result.
 
     Note that the result is truncated.
 
