@@ -3285,7 +3285,7 @@ void Q3FileDialog::rereadDir()
   \sa selectedFilter()
 */
 
-extern Q_CORE_EXPORT bool qt_resolve_symlinks; // defined in qapplication.cpp
+extern Q_CORE_EXPORT bool qt_resolve_symlinks; // defined in q3url.cpp
 bool qt_use_native_dialogs = true;
 
 /*!

@@ -356,8 +356,6 @@ extern bool qt_xdnd_dragging;
 extern bool qt_is_gui_used;
 extern bool qt_app_has_font;
 
-extern bool qt_resolve_symlinks; // from qapplication.cpp
-
 // Paint event clipping magic
 extern void qt_set_paintevent_clipping(QPaintDevice* dev, const QRegion& region);
 extern void qt_clear_paintevent_clipping();
@@ -768,9 +766,6 @@ bool QApplication::x11_apply_settings()
 
     qt_broken_wm =
         settings.value(QLatin1String("brokenWindowManager"), qt_broken_wm).toBool();
-
-    qt_resolve_symlinks =
-        settings.value(QLatin1String("resolveSymlinks"), true).toBool();
 
     qt_use_rtl_extensions =
         settings.value(QLatin1String("useRtlExtensions"), false).toBool();
@@ -1823,9 +1818,6 @@ void qt_init(QApplicationPrivate *priv, int,
                 if (codec)
                     qApp->setDefaultCodec(codec);
             }
-
-            qt_resolve_symlinks =
-                settings.value(QLatin1String("resolveSymlinks"), true).toBool();
 
             settings.endGroup(); // Qt
         }

@@ -102,7 +102,6 @@ static int tablet_button_state = 0;
 static bool app_do_modal = false;       // modal mode
 extern QWidgetList *qt_modal_stack;     // stack of modal widgets
 extern bool qt_mac_in_drag;             // from qdnd_mac.cpp
-extern bool qt_resolve_symlinks;        // from qapplication.cpp
 extern bool qt_tab_all_widgets;         // from qapplication.cpp
 extern bool qt_app_has_font;
 bool qt_mac_app_fullscreen = false;
@@ -2883,8 +2882,6 @@ bool QApplicationPrivate::qt_mac_apply_settings()
         if(codec)
             qApp->setDefaultCodec(codec);
     }
-
-    qt_resolve_symlinks = settings.value(QLatin1String("resolveSymlinks"), true).toBool();
 
     if(qt_is_gui_used) {
         QString str;

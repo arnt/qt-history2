@@ -106,11 +106,6 @@
 
 //#define QURL_DEBUG
 
-// used by qfiledialog.cpp, qapplication_mac.cpp,
-// qapplication_x11.cpp, q3filedialog.cpp and compat/other/q3url.cpp.
-// needs to be in core, but is otherwise unrelated to QUrl.
-Q_CORE_EXPORT bool qt_resolve_symlinks = true;
-
 // needed by the punycode encoder/decoder
 #define Q_MAXINT ((uint)((uint)(-1)>>1))
 static const uint base = 36;

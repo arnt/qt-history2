@@ -20,6 +20,9 @@
 
 #include <stdlib.h>
 
+// also used in q3filedialog.cpp
+Q_COMPAT_EXPORT bool qt_resolve_symlinks = true;
+
 class Q3UrlPrivate
 {
 public:
