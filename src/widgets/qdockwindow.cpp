@@ -676,6 +676,9 @@ QDockWindow::QDockWindow( Place p, QWidget *parent, const char *name, WFlags f )
 void QDockWindow::setOrientation( Orientation o )
 {
     boxLayout()->setDirection( o == Horizontal ? QBoxLayout::LeftToRight : QBoxLayout::TopToBottom );
+    QApplication::sendPostedEvents( this, QEvent::LayoutHint );
+    QEvent *e = new QEvent( QEvent::LayoutHint );
+    QApplication::postEvent( this, e );
 }
 
 
@@ -867,7 +870,6 @@ void QDockWindow::updatePosition( const QPoint &globalPos )
 		    updateGui();
 		}
 		emit orientationChanged( tmpDockArea->orientation() );
-		QApplication::sendPostedEvents();
 		doOrientationChange = FALSE;
 	    }
 	    dockArea->moveDockWindow( this, globalPos, currRect, startOrientation != oo );
