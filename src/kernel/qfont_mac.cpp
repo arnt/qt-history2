@@ -290,7 +290,7 @@ inline bool QMacSetFontInfo::setMacFont(const QFontPrivate *d, QMacSetFontInfo *
 	arr++;
 	tags[arr] = kATSUFontTag;  //font
 	ATSUFontID fond;
-	ATSUFONDtoFontID(d->fin->fnum, normal, &fond);
+	ATSUFONDtoFontID(d->fin->fnum, NULL, &fond);
 	valueSizes[arr] = sizeof(fond);
 	values[arr] = &fond;
 	arr++;
