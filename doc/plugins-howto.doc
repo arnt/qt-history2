@@ -17,12 +17,6 @@
 
 Qt provides a simple plugin interface which makes it easy to create
 custom database drivers, image formats, text codecs, styles and
-widgets as stand-alone components.
-\footnote Qt 3.0.5 introduces changes into some aspects of plugins, in
-particular regarding loading, path handling and library versions. As
-a result of this change, <b>\e{no}</b> plugins compiled with Qt 3.0.4 and
-earlier will work with Qt 3.0.5 and later: they must be recompiled.
-\endfootnote
 
 Writing a plugin is achieved by subclassing the appropriate plugin
 base clase, implementing a few functions, and adding a macro. 
@@ -97,11 +91,7 @@ implemented in the plugin. (We've just implemented one class in the
 example above.) The second is a function that returns an object of the
 required class (or 0 if the plugin is asked to create an object of a
 class that it doesn't implement). For QStylePlugin, this second
-function is called create(). 
-
-It is possible to implement any number of plugin subclasses in a
-single plugin, providing they are all derived from the same base
-class, e.g. QStylePlugin.
+function is called create().
 
 For database drivers, image formats, custom widgets and text codecs,
 no explicit object creation is required. Qt will find and create them
@@ -171,35 +161,11 @@ the Qt library installed side by side.
    releases, which is why this test only looks at the major and minor
    version numbers, and not at the patchlevel version number.
 
-\i Plugins linked against a Qt library \e with thread support can only be
-   loaded by libraries that are built \e with thread support.
-
-   \e Rationale:
-
-   The threaded and non-threaded Qt libraries have different names.
-   A library \e with thread support that loads a plugin linked against a
-   Qt library \e without thread support will cause two versions of the same
-   library to be in memory at the same time. On UNIX systems, this
-   causes the non-threaded Qt library to be loaded. When this
-   happens, the constructors for all static objects in the Qt library
-   will be called a second time, but they will operate on the objects
-   already in memory. There is no way to work around this, as this is
-   a feature of the object binary format: the static symbols already
-   defined by the threaded Qt library cannot be replaced or copied
-   when the non-threaded Qt library is loaded.
-
-\i Plugins linked against a Qt library \e without thread support can only
-   be loaded by libraries that are built \e without thread support.
-
-   \e Rationale: 
-
-   See the Rationale above.
-
-\i Starting with Qt 3.0.5, both the Qt library and all plugins are
-   built using a \e {build key}. The build key in the Qt library is
-   examined against the build key in the plugin, and if they match,
-   the plugin is loaded. If the build keys do not match, then the Qt
-   library refuses to load the plugin.
+\i The Qt library and all plugins are built using a \e {build
+   key}. The build key in the Qt library is examined against the build
+   key in the plugin, and if they match, the plugin is loaded. If the
+   build keys do not match, then the Qt library refuses to load the
+   plugin.
 
    \e Rationale:
 
@@ -250,25 +216,5 @@ The build key contains the following information:
    plugins that can only be loaded by the library with which the
    plugins were linked.
 \endlist
-
-\section1 Plugins and Threaded Applications
-
-If you want to build a plugin which you want to use with a threaded Qt
-library (whether or not the plugin itself uses threads) you must use a
-threaded environment. Specifically, you must link the plugin with a
-threaded Qt library, and you must build \link designer-manual.book Qt
-Designer\endlink with that library. Your \c{.pro} file for your plugin
-must include the line:
-\code
-    CONFIG += thread
-\endcode
-
-\warning Do not mix the normal Qt library and the threaded Qt library in
-an application. If your application uses the threaded Qt library, you
-should not link your plugin with the normal Qt library. Nor should you
-dynamically load the normal Qt library or dynamically load another library,
-e.g. a plugin, that depends on the normal Qt library. On some systems,
-mixing threaded and non-threaded libraries or plugins will corrupt the
-static data used in the Qt library.
 
 */
