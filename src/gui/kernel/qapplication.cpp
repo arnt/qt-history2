@@ -3269,7 +3269,7 @@ QSessionManager* qt_session_manager_self = 0;
 QSessionManager::QSessionManager(QApplication * app, QString &id, QString &key)
     : QObject(*new QSessionManagerPrivate, app)
 {
-    setObjectNameConst("qt_sessionmanager");
+    setObjectName("qt_sessionmanager");
     qt_session_manager_self = this;
 #if defined(Q_WS_WIN) && !defined(Q_OS_TEMP)
     wchar_t guidstr[40];
