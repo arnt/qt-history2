@@ -13,7 +13,7 @@
 #ifndef DIRVIEW_H
 #define DIRVIEW_H
 
-#include <qlistview.h>
+#include <q3listview.h>
 #include <qstring.h>
 #include <qfile.h>
 #include <qfileinfo.h>
@@ -25,15 +25,15 @@ class QDragMoveEvent;
 class QDragLeaveEvent;
 class QDropEvent;
 
-class FileItem : public QListViewItem
+class FileItem : public Q3ListViewItem
 {
 public:
-    FileItem( QListViewItem *parent, const QString &s1, const QString &s2 )
-	: QListViewItem( parent, s1, s2 ), pix( 0 ) {}
+    FileItem( Q3ListViewItem *parent, const QString &s1, const QString &s2 )
+	: Q3ListViewItem( parent, s1, s2 ), pix( 0 ) {}
 
     const QPixmap *pixmap( int i ) const;
 #if !defined(Q_NO_USING_KEYWORD)
-    using QListViewItem::setPixmap;
+    using Q3ListViewItem::setPixmap;
 #endif
     void setPixmap( QPixmap *p );
 
@@ -42,12 +42,12 @@ private:
 
 };
 
-class Directory : public QListViewItem
+class Directory : public Q3ListViewItem
 {
 public:
-    Directory( QListView * parent, const QString& filename );
+    Directory( Q3ListView * parent, const QString& filename );
     Directory( Directory * parent, const QString& filename, const QString &col2 )
-	: QListViewItem( parent, filename, col2 ), pix( 0 ) {}
+	: Q3ListViewItem( parent, filename, col2 ), pix( 0 ) {}
     Directory( Directory * parent, const QString& filename );
 
     QString text( int column ) const;
@@ -59,7 +59,7 @@ public:
 
     const QPixmap *pixmap( int i ) const;
 #if !defined(Q_NO_USING_KEYWORD)
-    using QListViewItem::setPixmap;
+    using Q3ListViewItem::setPixmap;
 #endif
     void setPixmap( QPixmap *p );
 
@@ -72,7 +72,7 @@ private:
 
 };
 
-class DirectoryView : public QListView
+class DirectoryView : public Q3ListView
 {
     Q_OBJECT
 
@@ -87,7 +87,7 @@ signals:
     void folderSelected( const QString & );
 
 protected slots:
-    void slotFolderSelected( QListViewItem * );
+    void slotFolderSelected( Q3ListViewItem * );
     void openFolder();
 
 protected:
@@ -100,10 +100,10 @@ protected:
     void contentsMouseReleaseEvent( QMouseEvent *e );
 
 private:
-    QString fullPath(QListViewItem* item);
+    QString fullPath(Q3ListViewItem* item);
     bool dirsOnly;
-    QListViewItem *oldCurrent;
-    QListViewItem *dropItem;
+    Q3ListViewItem *oldCurrent;
+    Q3ListViewItem *dropItem;
     QTimer* autoopen_timer;
     QPoint presspos;
     bool mousePressed;

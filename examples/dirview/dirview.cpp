@@ -24,7 +24,7 @@
 #include <qstrlist.h>
 #include <qstringlist.h>
 #include <qapplication.h>
-#include <qheader.h>
+#include <q3header.h>
 
 static const char* folder_closed_xpm[]={
     "16 16 9 1",
@@ -151,7 +151,7 @@ QPixmap *fileNormal = 0;
  *****************************************************************************/
 
 Directory::Directory( Directory * parent, const QString& filename )
-    : QListViewItem( parent ), f(filename),
+    : Q3ListViewItem( parent ), f(filename),
       showDirsOnly( parent->showDirsOnly ),
       pix( 0 )
 {
@@ -165,8 +165,8 @@ Directory::Directory( Directory * parent, const QString& filename )
 }
 
 
-Directory::Directory( QListView * parent, const QString& filename )
-    : QListViewItem( parent ), f(filename),
+Directory::Directory( Q3ListView * parent, const QString& filename )
+    : Q3ListViewItem( parent ), f(filename),
       showDirsOnly( ( (DirectoryView*)parent )->showDirsOnly() ),
       pix( 0 )
 {
@@ -230,14 +230,14 @@ void Directory::setOpen( bool o )
 	}
 	listView()->setUpdatesEnabled( TRUE );
     }
-    QListViewItem::setOpen( o );
+    Q3ListViewItem::setOpen( o );
 }
 
 
 void Directory::setup()
 {
     setExpandable( TRUE );
-    QListViewItem::setup();
+    Q3ListViewItem::setup();
 }
 
 
@@ -272,7 +272,7 @@ QString Directory::text( int column ) const
  *****************************************************************************/
 
 DirectoryView::DirectoryView( QWidget *parent, const char *name, bool sdo )
-    : QListView( parent, name ), dirsOnly( sdo ), oldCurrent( 0 ),
+    : Q3ListView( parent, name ), dirsOnly( sdo ), oldCurrent( 0 ),
       dropItem( 0 ), mousePressed( FALSE )
 {
     autoopen_timer = new QTimer( this );
@@ -283,10 +283,10 @@ DirectoryView::DirectoryView( QWidget *parent, const char *name, bool sdo )
 	fileNormal = new QPixmap( pix_file );
     }
 
-    connect( this, SIGNAL( doubleClicked( QListViewItem * ) ),
-	     this, SLOT( slotFolderSelected( QListViewItem * ) ) );
-    connect( this, SIGNAL( returnPressed( QListViewItem * ) ),
-	     this, SLOT( slotFolderSelected( QListViewItem * ) ) );
+    connect( this, SIGNAL( doubleClicked( Q3ListViewItem * ) ),
+	     this, SLOT( slotFolderSelected( Q3ListViewItem * ) ) );
+    connect( this, SIGNAL( returnPressed( Q3ListViewItem * ) ),
+	     this, SLOT( slotFolderSelected( Q3ListViewItem * ) ) );
 
     setAcceptDrops( TRUE );
     viewport()->setAcceptDrops( TRUE );
@@ -295,7 +295,7 @@ DirectoryView::DirectoryView( QWidget *parent, const char *name, bool sdo )
 	     this, SLOT( openFolder() ) );
 }
 
-void DirectoryView::slotFolderSelected( QListViewItem *i )
+void DirectoryView::slotFolderSelected( Q3ListViewItem *i )
 {
     if ( !i || !showDirsOnly() )
 	return;
@@ -325,7 +325,7 @@ void DirectoryView::contentsDragEnterEvent( QDragEnterEvent *e )
 
     oldCurrent = currentItem();
 
-    QListViewItem *i = itemAt( contentsToViewport(e->pos()) );
+    Q3ListViewItem *i = itemAt( contentsToViewport(e->pos()) );
     if ( i ) {
 	dropItem = i;
 	autoopen_timer->start( autoopenTime );
@@ -341,7 +341,7 @@ void DirectoryView::contentsDragMoveEvent( QDragMoveEvent *e )
     }
 
     QPoint vp = contentsToViewport( ( (QDragMoveEvent*)e )->pos() );
-    QListViewItem *i = itemAt( vp );
+    Q3ListViewItem *i = itemAt( vp );
     if ( i ) {
 	setSelected( i, TRUE );
 	e->accept();
@@ -387,7 +387,7 @@ void DirectoryView::contentsDropEvent( QDropEvent *e )
 	return;
     }
 
-    QListViewItem *item = itemAt( contentsToViewport(e->pos()) );
+    Q3ListViewItem *item = itemAt( contentsToViewport(e->pos()) );
     if ( item ) {
 
 	QList<QByteArray> lst;
@@ -423,7 +423,7 @@ void DirectoryView::contentsDropEvent( QDropEvent *e )
 	}
 	str += QString( "\nTo\n\n   %1" )
 	    .arg( QDir::convertSeparators(fullPath(item)) );
-	
+
 	QMessageBox::information( this, "Drop target", str, "Not implemented" );
     } else
 	e->ignore();
@@ -431,7 +431,7 @@ void DirectoryView::contentsDropEvent( QDropEvent *e )
 }
 
 
-QString DirectoryView::fullPath(QListViewItem* item)
+QString DirectoryView::fullPath(Q3ListViewItem* item)
 {
     QString fullpath = item->text(0);
     while ( (item=item->parent()) ) {
@@ -446,15 +446,15 @@ QString DirectoryView::fullPath(QListViewItem* item)
 		fullpath = dir.currentDirPath().left(2) + fullpath;
 	}
 #endif
-	
+
     return fullpath;
 }
 
 void DirectoryView::contentsMousePressEvent( QMouseEvent* e )
 {
-    QListView::contentsMousePressEvent(e);
+    Q3ListView::contentsMousePressEvent(e);
     QPoint p( contentsToViewport( e->pos() ) );
-    QListViewItem *i = itemAt( p );
+    Q3ListViewItem *i = itemAt( p );
     if ( i ) {
 	// if the user clicked into the root decoration of the item, don't try to start a drag!
 	if ( p.x() > header()->cellPos( header()->mapToActual( 0 ) ) +
@@ -470,7 +470,7 @@ void DirectoryView::contentsMouseMoveEvent( QMouseEvent* e )
 {
     if ( mousePressed && ( presspos - e->pos() ).manhattanLength() > QApplication::startDragDistance() ) {
 	mousePressed = FALSE;
-	QListViewItem *item = itemAt( contentsToViewport(presspos) );
+	Q3ListViewItem *item = itemAt( contentsToViewport(presspos) );
 	if ( item ) {
 	    QString source = fullPath(item);
 	    if ( QFile::exists(source) ) {
@@ -491,14 +491,14 @@ void DirectoryView::contentsMouseReleaseEvent( QMouseEvent * )
 
 void DirectoryView::setDir( const QString &s )
 {
-    QListViewItemIterator it( this );
+    Q3ListViewItemIterator it( this );
     ++it;
     for ( ; it.current(); ++it ) {
 	it.current()->setOpen( FALSE );
     }
 
     QStringList lst(s.split("/"));
-    QListViewItem *item = firstChild();
+    Q3ListViewItem *item = firstChild();
     QStringList::Iterator it2 = lst.begin();
     for ( ; it2 != lst.end(); ++it2 ) {
 	while ( item ) {
