@@ -2742,6 +2742,11 @@ bool QTextDocument::hasFocusParagraph() const
     return !!focusIndicator.parag;
 }
 
+QString QTextDocument::focusHref() const
+{
+    return focusIndicator.href;
+}
+
 bool QTextDocument::focusNextPrevChild( bool next )
 {
     if ( !focusIndicator.parag ) {
@@ -2790,6 +2795,7 @@ bool QTextDocument::focusNextPrevChild( bool next )
 				    focusIndicator.parag = p;
 				    focusIndicator.start = i;
 				    focusIndicator.len = 0;
+				    focusIndicator.href = c->richText()->focusHref();
 				    return TRUE;
 				} else {
 				    resetCells = FALSE;
@@ -2807,6 +2813,7 @@ bool QTextDocument::focusNextPrevChild( bool next )
 				focusIndicator.parag = p;
 				focusIndicator.start = i;
 				focusIndicator.len = 0;
+				focusIndicator.href = c->richText()->focusHref();
 				return TRUE;
 			    }
 			}
@@ -2852,6 +2859,7 @@ bool QTextDocument::focusNextPrevChild( bool next )
 				    focusIndicator.parag = p;
 				    focusIndicator.start = i;
 				    focusIndicator.len = 0;
+				    focusIndicator.href = c->richText()->focusHref();
 				    return TRUE;
 				} else {
 				    resetCells = FALSE;
@@ -2871,6 +2879,7 @@ bool QTextDocument::focusNextPrevChild( bool next )
 				focusIndicator.parag = p;
 				focusIndicator.start = i;
 				focusIndicator.len = 0;
+				focusIndicator.href = c->richText()->focusHref();
 				return TRUE;
 			    }
 			    if ( cells.at() == 0 )
