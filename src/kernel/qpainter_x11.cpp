@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#72 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#73 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#72 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#73 $";
 #endif
 
 
@@ -249,6 +249,9 @@ const double Q_3PI2 = 4.71238898038468985769;	// 3*pi/2
 
 double qsincos( double a, bool calcCos=FALSE )
 {
+#if defined(_CC_GNU_)
+    return calcCos ? __builtin_cos(a) : __builtin_sin(a);
+#else
     if ( calcCos )				// calculate cosine
 	a -= Q_PI2;
     if ( a >= Q_2PI || a <= -Q_2PI ) {		// fix range: -2*pi < a < 2*pi
@@ -271,6 +274,7 @@ double qsincos( double a, bool calcCos=FALSE )
     double a9  = a7*a2;
     double a11 = a9*a2;
     return (a-a3/6+a5/120-a7/5040+a9/362880-a11/39916800)*sign;
+#endif
 }
 
 inline double qsin( double a ) { return qsincos(a,FALSE); }
