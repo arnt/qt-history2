@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#32 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#33 $
 **
 ** Implementation of QSpinBox widget class
 **
@@ -467,8 +467,7 @@ bool QSpinBox::eventFilter( QObject* obj, QEvent* ev )
 
     if ( ev->type() == Event_FocusOut ) {
 	interpretText();
-    }
-    else if ( ev->type() == Event_KeyPress ) {
+    } else if ( ev->type() == Event_KeyPress ) {
 	QKeyEvent* k = (QKeyEvent*)ev;
 	if ( k->key() == Key_Up ) {
 	    stepUp();
@@ -563,8 +562,7 @@ void QSpinBox::valueChange()
 
 /*!
   This method gets called by QRangeControl whenever the range has
-  changed. Adjusts the default validator of the embedded QLineEdit
-  and updates the display.
+  changed.  It adjusts the default validator and updates the display.
 */
 
 void QSpinBox::rangeChange()
@@ -576,8 +574,8 @@ void QSpinBox::rangeChange()
 
 
 /*!
-  Sets the validator of the embedded QLineEdit to \a v. The default is to use
-  a suitable QIntValidator.
+  Sets the validator to \a v. The default is to use a suitable
+  QIntValidator.
 */
 
 void QSpinBox::setValidator( QValidator* v )
