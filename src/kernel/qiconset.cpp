@@ -50,7 +50,6 @@ enum { NumSizes = 2, NumModes = 3, NumStates = 2 };
 static QIconFactory *defaultFac = 0;
 static short widths[2] = { 22, 32 };
 static short heights[2] = { 22, 32 };
-static int qiconsetCount = 0;
 static QSingleCleanupHandler<QIconFactory> q_cleanup_icon_factory;
 
 enum IconOrigin { SuppliedFileName, SuppliedPixmap, Manufactured, Generated };
@@ -116,8 +115,8 @@ public:
     QPixmap defaultPix;
     QIconFactory *factory;
 
-    QIconSetPrivate() : factory( 0 ) { qiconsetCount++; }
-    ~QIconSetPrivate() { qiconsetCount--; }
+    QIconSetPrivate() : factory( 0 ) {}
+    ~QIconSetPrivate() {}
 
     Icon *icon( const QIconSet *iconSet, QIconSet::Size size,
 		QIconSet::Mode mode, QIconSet::State state ) {
@@ -682,14 +681,13 @@ QIconSet& QIconSet::operator=( const QIconSet& other )
 
   Note that cached icons will not be regenerated, so it is recommended
   that you set the preferred icon sizes before generating any icon sets.
+  Also note that the preferred icon sizes will be ignored for icon sets
+  that have been created using both small and large pixmaps.
 
   \sa iconSize()
 */
 void QIconSet::setIconSize( Size which, const QSize& size )
 {
-    if ( qiconsetCount )
-	qWarning( "QIconSet: setIconSize() called while QIconSets are"
-		  " instantiated" );
     widths[(int) which - 1] = size.width();
     heights[(int) which - 1] = size.height();
 }
