@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#44 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#45 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -21,7 +21,7 @@
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlineedit.cpp#44 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlineedit.cpp#45 $")
 
 
 /*----------------------------------------------------------------------------
@@ -33,10 +33,6 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qlineedit.cpp#44 $")
 
   The default key bindings are described in keyPressEvent(); they cannot
   be customized except by inheriting the class.
-
-  \todo inherit QFrame
-  \todo cleaner focus
-  \todo mark and delete
  ----------------------------------------------------------------------------*/
 
 
@@ -243,6 +239,8 @@ int QLineEdit::maxLength() const
   <dt> Home <dd> Move the cursor to the beginning of the line
   <dt> End <dd>  Move the cursor to the end of the line
   <dt> Delete <dd> Delete the character to the right of the cursor
+  <dt> Shift - Left Arrow <dd> Mark text one character leftwards
+  <dt> Shift - Right Arrow <dd> Mark text one character rightwards
   <dt> Control-A <dd> Move the cursor to the beginning of the line
   <dt> Control-B <dd> Move the cursor one character leftwards
   <dt> Control-C <dd> Copy the marked text to the clipboard.
@@ -258,7 +256,6 @@ int QLineEdit::maxLength() const
 
   All other keys with valid ASCII codes insert themselves into the line.
 
-  \todo shift-arrow stuff
  ----------------------------------------------------------------------------*/
 
 void QLineEdit::keyPressEvent( QKeyEvent *e )
