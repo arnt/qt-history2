@@ -576,7 +576,7 @@ public:
       ts << *mainWindow;
       f.close();
   }
-  /endcode
+  \endcode
 
   To restore the dock window positions and sizes (normally on the next
   start of the applications), do following:
@@ -588,7 +588,7 @@ public:
       ts >> *mainWindow;
       f.close();
   }
-  /endcode
+  \endcode
 
   For multi-document interfaces (MDI), use a QWorkspace as central
   widget.
