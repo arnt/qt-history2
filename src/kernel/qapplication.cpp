@@ -52,14 +52,11 @@
 #include "qstyle.h"
 #include "qstylefactory.h"
 #include "qfile.h"
-#ifdef Q_WS_X11
-#include "qeventloop.h"
-#endif
 #include <stdlib.h>
 
 #if defined(QT_THREAD_SUPPORT)
-#include "qmutex.h"
-#endif
+#  include "qmutex.h"
+#endif // QT_THREAD_SUPPORT
 
 /*!
   \class QApplication qapplication.h
@@ -351,6 +348,10 @@ bool	  QApplication::widgetCount	= FALSE;
 QApplication::Type qt_appType=QApplication::Tty;
 QStringList *QApplication::app_libpaths = 0;
 
+#ifdef QT_THREAD_SUPPORT
+QMutex *QApplication::qt_mutex		 = 0;
+#endif // QT_THREAD_SUPPORT
+
 static QEventLoop *static_eventloop = 0;	// application event loop
 
 
@@ -510,7 +511,6 @@ uint qGlobalPostedEventsCount()
 {
     if (!globalPostedEvents)
 	return 0;
-
     return globalPostedEvents->count();
 }
 
@@ -858,6 +858,10 @@ void QApplication::init_precmdline()
 
 void QApplication::initialize( int argc, char **argv )
 {
+#ifdef QT_THREAD_SUPPORT
+    qt_mutex = new QMutex( TRUE );
+#endif // QT_THREAD_SUPPORT
+
     app_argc = argc;
     app_argv = argv;
     quit_now = FALSE;
@@ -872,6 +876,8 @@ void QApplication::initialize( int argc, char **argv )
     // connect to the session manager
     session_manager = new QSessionManager( qApp, session_id, session_key );
 #endif
+
+
 }
 
 
@@ -1977,6 +1983,11 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
     }
 
     if ( e->type() == QEvent::ChildRemoved && receiver->postedEvents ) {
+
+#ifdef QT_THREAD_SUPPORT
+	QMutexLocker locker( qt_mutex );
+#endif // QT_THREAD_SUPPORT
+
 	// if this is a child remove event and the child insert hasn't been
 	// dispatched yet, kill that insert
 	QPostEventList * l = receiver->postedEvents;
@@ -2019,7 +2030,7 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
 		w = w->parentWidget( TRUE );
 	    }
 	}
-	break;
+    break;
     case QEvent::MouseButtonPress:
     case QEvent::MouseButtonRelease:
     case QEvent::MouseButtonDblClick:
@@ -2051,7 +2062,7 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
 		delete ev;
 	    }
 	}
-	break;
+    break;
 #ifndef QT_NO_WHEELEVENT
     case QEvent::Wheel:
 	{
@@ -2081,7 +2092,7 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
 		delete ev;
 	    }
 	}
-	break;
+    break;
 #endif
     case QEvent::ContextMenu:
 	{
@@ -2103,7 +2114,7 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
 		w = w->parentWidget( TRUE );
 	    }
 	}
-	break;
+    break;
 #if defined (QT_TABLET_SUPPORT)
     case QEvent::TabletMove:
     case QEvent::TabletPress:
@@ -2142,7 +2153,7 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
 #endif
 
 	}
-	break;
+    break;
 #endif
     default:
 	res = internalNotify( receiver, e );
@@ -2265,16 +2276,10 @@ void QApplication::processOneEvent()
   Returns the application event loop.  This function will return
   zero if called during and after destroying QApplication.
 */
-QEventLoop *QApplication::eventLoop()
+QEventLoop *QApplication::eventLoop() const
 {
-
-#ifdef QT_CHECK_STATE
-    if ( ! qApp && ! is_app_closing )
-	qWarning( "Cannot create QEventLoop without a global application object." );
-#endif // QT_CHECK_STATE
-
     if ( ! static_eventloop && ! is_app_closing )
-	QApplication::setEventLoop( new QEventLoop( qApp, "default event loop" ) );
+	qApp->setEventLoop( new QEventLoop( qApp, "default event loop" ) );
     return static_eventloop;
 }
 
@@ -2286,7 +2291,7 @@ void QApplication::setEventLoop( QEventLoop *eventloop )
     delete static_eventloop;
     static_eventloop = eventloop;
     if ( static_eventloop )
-	connect( static_eventloop, SIGNAL(awake()), qApp, SIGNAL(guiThreadAwake()) );
+	connect( static_eventloop, SIGNAL(awake()), this, SIGNAL(guiThreadAwake()) );
 }
 
 /*!
@@ -2333,7 +2338,7 @@ int QApplication::exec()
 */
 void QApplication::exit( int retcode )
 {
-    eventLoop()->exit( retcode );
+    qApp->eventLoop()->exit( retcode );
 }
 
 /*!
@@ -2672,6 +2677,11 @@ QString QApplication::translate( const char * context, const char * sourceText,
 
 void QApplication::postEvent( QObject *receiver, QEvent *event )
 {
+
+#ifdef QT_THREAD_SUPPORT
+    QMutexLocker locker( qt_mutex );
+#endif // QT_THREAD_SUPPORT
+
     if ( !globalPostedEvents ) {			// create list
 	globalPostedEvents = new QPostEventList;
 	Q_CHECK_PTR( globalPostedEvents );
@@ -2739,6 +2749,9 @@ void QApplication::postEvent( QObject *receiver, QEvent *event )
     QPostEvent * pe = new QPostEvent( receiver, event );
     l->append( pe );
     globalPostedEvents->append( pe );
+
+    if (static_eventloop)
+	static_eventloop->wakeUp();
 }
 
 
@@ -2767,6 +2780,13 @@ void QApplication::sendPostedEvents( QObject *receiver, int event_type )
     // to avoid endless loops
     if ( receiver == 0 && event_type == 0 )
 	sendPostedEvents( 0, QEvent::ChildInserted );
+
+    if ( !globalPostedEvents || ( receiver && !receiver->postedEvents ) )
+	return;
+
+#ifdef QT_THREAD_SUPPORT
+    QMutexLocker locker( qt_mutex );
+#endif
 
     bool sent = TRUE;
     while ( sent ) {
@@ -2823,7 +2843,17 @@ void QApplication::sendPostedEvents( QObject *receiver, int event_type )
 			w->repaint( p->reg, p->erase );
 		} else {
 		    sent = TRUE;
+
+#ifdef QT_THREAD_SUPPORT
+		    locker.mutex()->unlock();
+#endif // QT_THREAD_SUPPORT
+
 		    QApplication::sendEvent( r, e );
+
+#ifdef QT_THREAD_SUPPORT
+		    locker.mutex()->lock();
+#endif // QT_THREAD_SUPPORT
+
 		}
 		delete e;
 		// careful when adding anything below this point - the
@@ -2833,7 +2863,7 @@ void QApplication::sendPostedEvents( QObject *receiver, int event_type )
 	}
 
 	// clear the global list, i.e. remove everything that was
-	// delivered yet.
+	// delivered.
 	if ( l == globalPostedEvents ) {
 	    globalPostedEvents->first();
 	    while( (pe=globalPostedEvents->current()) != 0 ) {
@@ -2860,6 +2890,10 @@ void QApplication::removePostedEvents( QObject *receiver )
     if ( !receiver || !receiver->postedEvents )
 	return;
 
+#ifdef QT_THREAD_SUPPORT
+    QMutexLocker locker( qt_mutex );
+#endif // QT_THREAD_SUPPORT
+
     // iterate over the object-specifc list and delete the events.
     // leave the QPostEvent objects; they'll be deleted by
     // sendPostedEvents().
@@ -2876,12 +2910,6 @@ void QApplication::removePostedEvents( QObject *receiver )
 	l->remove();
     }
     delete l;
-
-#ifdef QT_THREAD_SUPPORT
-    // implemented in qthread_*.cpp
-    extern void qthread_removePostedEvents( QObject *receiver );
-    qthread_removePostedEvents( receiver );
-#endif // QT_THREAD_SUPPORT
 }
 
 
@@ -2905,6 +2933,10 @@ void QApplication::removePostedEvent( QEvent *  event )
 	return;
 #endif
     }
+
+#ifdef QT_THREAD_SUPPORT
+    QMutexLocker locker( qt_mutex );
+#endif
 
     QPostEventListIt it( *globalPostedEvents );
     QPostEvent * pe;
@@ -3283,12 +3315,12 @@ bool QApplication::desktopSettingsAware()
 #if defined(QT_THREAD_SUPPORT)
 void QApplication::lock()
 {
-    eventLoop()->mutex()->lock();
+    qt_mutex->lock();
 }
 
 void QApplication::unlock(bool wakeUpGui)
 {
-    eventLoop()->mutex()->unlock();
+    qt_mutex->unlock();
 
     if (wakeUpGui)
 	wakeUpGuiThread();
@@ -3296,12 +3328,12 @@ void QApplication::unlock(bool wakeUpGui)
 
 bool QApplication::locked()
 {
-    return eventLoop()->mutex()->locked();
+    return qt_mutex->locked();
 }
 
 bool QApplication::tryLock()
 {
-    return eventLoop()->mutex()->tryLock();
+    return qt_mutex->tryLock();
 }
 #endif
 

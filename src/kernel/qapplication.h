@@ -55,6 +55,10 @@ class QEventLoop;
 class QWSDecoration;
 #endif
 
+#ifdef QT_THREAD_SUPPORT
+class QMutex;
+#endif // QT_THREAD_SUPPORT
+
 template <class type> class QPtrList;
 
 class QApplication;
@@ -132,8 +136,8 @@ public:
     static QWidget  *widgetAt( int x, int y, bool child=FALSE );
     static QWidget  *widgetAt( const QPoint &, bool child=FALSE );
 
-    static QEventLoop *eventLoop();
-    static void setEventLoop( QEventLoop * );
+    QEventLoop *eventLoop() const;
+    void setEventLoop( QEventLoop * );
 
     int		     exec();
     void	     processEvents();
@@ -307,6 +311,10 @@ private:
     friend void qt_init(int *, char **, QApplication::Type);
 #endif
 
+#ifdef QT_THREAD_SUPPORT
+    static QMutex   *qt_mutex;
+#endif // QT_THREAD_SUPPORT
+
     int		     app_argc;
     char	   **app_argv;
     bool	     quit_now;
@@ -371,6 +379,7 @@ private:
     friend class QETWidget;
     friend class QEvent;
     friend class QTranslator;
+    friend class QEventLoop;
     friend Q_EXPORT void qt_ucm_initialize( QApplication * );
 #if defined(Q_WS_WIN)
     friend bool qt_sendSpontaneousEvent( QObject*, QEvent* );
