@@ -1367,13 +1367,21 @@ QRect QPlatinumStyle::querySubControlMetrics( ComplexControl control,
 
 	switch ( sc ) {
 	case SC_ScrollBarSubLine:
-	    if ( sb->orientation() == Qt::Horizontal )
-		return QRect( sb->width() - 2 * sbextent, 0, sbextent, sbextent );
-	    return QRect( 0, sb->height() - 2 * sbextent, sbextent, sbextent );
+	    if ( sb->orientation() == Qt::Horizontal ) {
+		int buttonw = QMIN( sb->width() / 2, sbextent );
+		return QRect( sb->width() - 2 * buttonw, 0, buttonw, sbextent );
+	    } else {
+		int buttonh = QMIN( sb->height() / 2, sbextent );
+		return QRect( 0, sb->height() - 2 * buttonh, sbextent, buttonh );
+	    }
 	case SC_ScrollBarAddLine:
-	    if ( sb->orientation() == Qt::Horizontal )
-		return QRect( sb->width() - sbextent, 0, sbextent, sbextent);
-	    return QRect(0, sb->height() - sbextent, sbextent, sbextent);
+	    if ( sb->orientation() == Qt::Horizontal ) {
+		int buttonw = QMIN( sb->width() / 2, sbextent );
+		return QRect( sb->width() - buttonw, 0, sbextent, buttonw );
+	    } else {
+		int buttonh = QMIN( sb->height() / 2, sbextent );
+		return QRect(0, sb->height() - buttonh, sbextent, buttonh );
+	    }
 	case SC_ScrollBarSubPage:
 	    if ( sb->orientation() == Qt::Horizontal )
 		return QRect( 1, 0, sliderStart, sbextent );
