@@ -263,7 +263,6 @@ QSplitter::~QSplitter()
 {
     while (!d->list.isEmpty())
 	delete d->list.takeFirst();
-    delete d;
 }
 
 void QSplitter::init()
@@ -314,9 +313,9 @@ void QSplitter::setOrientation( Orientation o )
     recalc( isVisible() );
 }
 
-QSplitter::Orientation QSplitter::orientation() const 
-{ 
-    return d->orient; 
+QSplitter::Orientation QSplitter::orientation() const
+{
+    return d->orient;
 }
 
 /*!
@@ -481,9 +480,9 @@ void QSplitter::setRubberband( int p )
     QRect r = contentsRect();
     const int rBord = 3; // customizable?
     int hw = handleWidth();
-    if(!d->rubber) 
+    if(!d->rubber)
 	d->rubber = new QRubberBand(QRubberBand::Line, this);
-    if(d->orient == Horizontal) 
+    if(d->orient == Horizontal)
 	d->rubber->setGeometry(QRect(mapToGlobal(QPoint(p + hw / 2 - rBord, r.y())), QSize(2 * rBord, r.height())));
     else
 	d->rubber->setGeometry(QRect(mapToGlobal(QPoint(r.x(), p + hw / 2 - rBord)), QSize(r.width(), 2 * rBord)));
