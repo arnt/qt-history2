@@ -86,39 +86,7 @@ public:
 	    ranges.remove(*it);
     }
 
-    inline void split(QItemSelectionRange &range, const QItemSelectionRange &other, QItemSelection *result)
-    {
-	QModelIndex parent = other.parent();
-	int top = range.top();
-	int left = range.left();
-	int bottom = range.bottom();
-	int right = range.right();
-	int other_top = other.top();
-	int other_left = other.left();
-	int other_bottom = other.bottom();
-	int other_right = other.right();
-	if (other_top > top)
-	    result->ranges.append(QItemSelectionRange(parent, top, left, other_top - 1,right));
-	if (other_bottom < bottom)
-	    result->ranges.append(QItemSelectionRange(parent, other_bottom + 1, left, bottom, right));
-	if (other_left > left)
-	    result->ranges.append(QItemSelectionRange(parent, top, left, bottom, other_left - 1));
-	if (other_right < right)
-	    result->ranges.append(QItemSelectionRange(parent, top, other_right + 1, bottom, right));
-    }
-
-    inline QItemSelectionPointer expandRows(const QItemSelection *selection) const
-    {
-	if (selection->ranges.size() == 0)
-	    return QItemSelectionPointer();
-	QModelIndex bottomRight = model->bottomRight(selection->ranges.first().parent());
-	QItemSelectionPointer rows(new QItemSelection);
-	QList<QItemSelectionRange>::const_iterator it = selection->ranges.begin();
-	for (; it != selection->ranges.end(); ++it)
-	    rows->ranges.append(QItemSelectionRange((*it).parent(), (*it).top(), 0,
-						    (*it).bottom(), bottomRight.column()));
-	return rows;
-    }
+    QItemSelectionPointer expandRows(const QItemSelection *selection) const;
 
     QGenericItemModel *model;
     QItemSelectionModel::SelectionMode selectionMode;
@@ -127,6 +95,40 @@ public:
     QList<QItemSelectionRange> ranges;
     bool toggleState;
 };
+
+static void split(QItemSelectionRange &range, const QItemSelectionRange &other, QItemSelection *result)
+{
+    QModelIndex parent = other.parent();
+    int top = range.top();
+    int left = range.left();
+    int bottom = range.bottom();
+    int right = range.right();
+    int other_top = other.top();
+    int other_left = other.left();
+    int other_bottom = other.bottom();
+    int other_right = other.right();
+    if (other_top > top)
+	result->ranges.append(QItemSelectionRange(parent, top, left, other_top - 1,right));
+    if (other_bottom < bottom)
+	result->ranges.append(QItemSelectionRange(parent, other_bottom + 1, left, bottom, right));
+    if (other_left > left)
+	result->ranges.append(QItemSelectionRange(parent, top, left, bottom, other_left - 1));
+    if (other_right < right)
+	result->ranges.append(QItemSelectionRange(parent, top, other_right + 1, bottom, right));
+}
+
+QItemSelectionPointer QItemSelectionModelPrivate::expandRows(const QItemSelection *selection) const
+{
+    if (selection->ranges.size() == 0)
+	return QItemSelectionPointer();
+    QModelIndex bottomRight = model->bottomRight(selection->ranges.first().parent());
+    QItemSelectionPointer rows(new QItemSelection);
+    QList<QItemSelectionRange>::const_iterator it = selection->ranges.begin();
+    for (; it != selection->ranges.end(); ++it)
+	rows->ranges.append(QItemSelectionRange((*it).parent(), (*it).top(), 0,
+						(*it).bottom(), bottomRight.column()));
+    return rows;
+}
 
 #define d d_func()
 #define q q_func()
@@ -291,10 +293,10 @@ bool QItemSelectionModel::isRowSelected(int row, const QModelIndex &parent) cons
 	// intersect and have the same row contained
 	QList<QItemSelectionRange> toggle = d->currentSelection->ranges;
 	for (int i=0; i<toggle.count(); ++i)
-	    if (toggle[i].top() <= row && toggle[i].bottom() >= row)
+	    if (toggle.at(i).top() <= row && toggle.at(i).bottom() >= row)
 		for (int j=0; j<joined.count(); ++j)
-		    if (joined[j].top() <= row && joined[j].bottom() >= row &&
-			toggle[i].intersect(joined[j]).isValid())
+		    if (joined.at(j).top() <= row && joined.at(j).bottom() >= row
+			&& toggle.at(i).intersect(joined.at(j)).isValid())
 			return false;
     }
     QModelIndex item;
@@ -322,10 +324,10 @@ bool QItemSelectionModel::isColumnSelected(int column, const QModelIndex &parent
 	// intersect and have the same column contained
 	QList<QItemSelectionRange> toggle = d->currentSelection->ranges;
 	for (int i=0; i<toggle.count(); ++i)
-	    if (toggle[i].left() <= column && toggle[i].right() >= column)
+	    if (toggle.at(i).left() <= column && toggle.at(i).right() >= column)
 		for (int j=0; j<joined.count(); ++j)
-		    if (joined[j].left() <= column && joined[j].right() >= column &&
-			toggle[i].intersect(joined[j]).isValid())
+		    if (joined.at(j).left() <= column && joined.at(j).right() >= column
+			&& toggle.at(i).intersect(joined.at(j)).isValid())
 			return false;
     }
     QModelIndex item;
@@ -380,14 +382,14 @@ void QItemSelectionModel::exchange(QItemSelectionPointer &oldSelection,
 
 	    for (int n = 0; n < newRange.count(); ++n)
 		for (int o = 0; o < oldRange.count(); ++o)
-		    if (newRange[n].intersects(oldRange[o]))
-			intersections->ranges.append(oldRange[o].intersect(newRange[n]));
+		    if (newRange.at(n).intersects(oldRange.at(o)))
+			intersections->ranges.append(oldRange.at(o).intersect(newRange.at(n)));
 
 	    // Split old selections using the intersections
 	    for (int i = 0; i < intRange.count(); ++i) {
 		for (int o = 0; o < oldRange.count();) {
-		    if (oldRange[o].intersects(intRange[i])) {
-			d->split(oldRange[o], intRange[i], oldSelection);
+		    if (oldRange.at(o).intersects(intRange.at(i))) {
+			split(oldRange[o], intRange.at(i), oldSelection);
 			oldRange.removeAt(o);
 		    } else {
 			++o;
@@ -418,24 +420,24 @@ void QItemSelectionModel::toggle(const QItemSelectionPointer &selection, bool em
     QList<QItemSelectionRange> &intRange = intersections->ranges;
     for (int n = 0; n < newRange.count(); ++n) {
 	for (int o = 0; o < oldRange.count(); ++o) {
-	    if (newRange[n].intersects(oldRange[o]))
-		intRange.append(oldRange[o].intersect(newRange[n]));
+	    if (newRange.at(n).intersects(oldRange.at(o)))
+		intRange.append(oldRange.at(o).intersect(newRange.at(n)));
 	}
     }
 
     //  Split the old and new ranges using the intersections
     for (int i = 0; i < intRange.count(); ++i) { // for each intersection
 	for (int o = 0; o < oldRange.count();) { // splitt each old range
-	    if ( oldRange[o].intersects(intRange[i])) {
-		d->split(oldRange[o], intRange[i], oldSelection);
+	    if (oldRange.at(o).intersects(intRange.at(i))) {
+		split(oldRange[o], intRange.at(i), oldSelection);
 		oldRange.removeAt(o);
 	    } else {
 		++o;
 	    }
 	}
         for (int n = 0; n < newRange.count();) { // splitt each new range
-	    if (newRange[n].intersects(intRange[i])) {
-		d->split(newRange[n], intRange[i], newSelection);
+	    if (newRange[n].intersects(intRange.at(i))) {
+		split(newRange[n], intRange.at(i), newSelection);
 		newRange.removeAt(n);
 	    } else {
 		++n;
