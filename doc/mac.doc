@@ -131,11 +131,11 @@ then ensure that your library path does not have \c libqui libraries or
 symbolic links. If you remove these, then the build will continue.
 
 
-\section1 Macintosh Native API Access
+\section1 Mac OS X Native API Access
 
 \section2 Accessing the Bundle Path
 
-The Macintosh application is actually a directory (ending with \c .app). This
+The Mac OS X application is actually a directory (ending with \c .app). This
 directory has various sub-directories and sources. In case you want
 to place for example the plugin directory, inside this bundle, then you need
 to find out where the bundle resides on the disk. The following code will

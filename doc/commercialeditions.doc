@@ -36,7 +36,7 @@ Qt is supported on the following platforms:
  \i <b>Microsoft Windows</b> -- 95, 98, NT 4.0, ME, 2000, and XP
  \i <b>Unix/X11</b> -- Linux, Sun Solaris, HP-UX, Compaq Tru64 UNIX,
 	    IBM AIX, SGI IRIX and many others
- \i <b>Macintosh</b> -- Mac OS X
+ \i <b>Mac OS X</b> -- Mac OS X 10.2+
  \i <b>\link http://www.trolltech.com/products/embedded/index.html
 Qt/Embedded\endlink</b> -- Linux platforms with framebuffer support.
 \endlist
