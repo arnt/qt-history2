@@ -264,6 +264,7 @@ bool QPicture::save( const QString &fileName, const char *format )
 	QPainter p( &svg );
 	if ( !play( &p ) )
 	    return FALSE;
+	svg.setBoundingRect( boundingRect() );
 	return svg.save( fileName );
     }
 #endif

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#35 $
+** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#36 $
 **
 ** Implementation of the QSvgDevice class
 **
@@ -196,8 +196,26 @@ QString QSvgDevice::toString() const
     return doc.toString();
 }
 
+/*!
+  Saves the current document to \a fileName.
+ */
+
 bool QSvgDevice::save( const QString &fileName )
 {
+    // guess svg id from fileName
+    if ( fileName.endsWith( ".svg" ) )
+	svgName = fileName.left( fileName.length()-4 );
+    else
+	svgName = fileName;
+
+    // now we have the info about name and dimensions available
+    QDomElement root = doc.documentElement();
+    root.setAttribute( "id", svgName );
+    root.setAttribute( "x", brect.x() );
+    root.setAttribute( "y", brect.y() );
+    root.setAttribute( "width", brect.width() );
+    root.setAttribute( "height", brect.height() );
+
     QFile f( fileName );
     if ( !f.open ( IO_WriteOnly ) )
 	return FALSE;
@@ -211,6 +229,15 @@ bool QSvgDevice::save( const QString &fileName )
 /*!  ### fn QRect QSvgDevice::boundingRect() const
   Returns the bounding rectangle of the vector graphic.
  */
+
+/*!
+  Sets the bounding rectangle of the vector graphic.
+ */
+
+void QSvgDevice::setBoundingRect( const QRect &r )
+{
+    brect = r;
+}
 
 /*!
   Internal implementation of the virtual QPaintDevice::metric() function.

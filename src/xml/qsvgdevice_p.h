@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qsvgdevice_p.h#2 $
+** $Id: //depot/qt/main/src/xml/qsvgdevice_p.h#3 $
 **
 ** Definition of the QSvgDevice class
 **
@@ -84,6 +84,7 @@ public:
     bool save( const QString &fileName );
 
     QRect boundingRect() const;
+    void setBoundingRect( const QRect &r );
 
 protected:
     virtual bool cmd ( int, QPainter*, QPDevCmdParam* );
