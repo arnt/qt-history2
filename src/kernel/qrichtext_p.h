@@ -755,6 +755,8 @@ public:
 
     void setNewLinesAllowed( bool b );
     bool isNewLinesAllowed() const;
+
+    QString richText() const;
     
 private:
     void drawLabel( QPainter* p, int x, int y, int w, int h, int base, const QColorGroup& cg );

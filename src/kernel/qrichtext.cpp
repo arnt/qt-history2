@@ -1085,6 +1085,7 @@ struct Tag {
 
 void QTextDocument::setRichText( const QString &text, const QString &context )
 {
+    setTextFormat( Qt::RichText );
     if ( !context.isEmpty() )
 	setContext( context );
     clear();
@@ -1293,84 +1294,42 @@ QString QTextDocument::plainText( QTextParag *p, bool formatted ) const
 
 QString QTextDocument::richText( QTextParag *p, bool formatted ) const
 {
+    QString s;
     if ( !p ) {
-	// #### very poor implementation!
-	QString text;
 	p = fParag;
-	QTextParag *lastParag = 0;
-	QTextFormat *lastFormat = 0;
-	QTextString::Char *c = 0;
-	int listDepth = 0;
-	bool inBulletList = FALSE;
-	bool inOrderedList = FALSE;
+	QVector<QStyleSheetItem> lastItems, items;
 	while ( p ) {
-	    QString s;
-	    if ( inBulletList && ( !p->style()  || p->style()->displayMode() != QStyleSheetItem::DisplayListItem ) ) {
-		text += "</ul>\n";
-		inBulletList = FALSE;
-		listDepth--;
+	    items = p->styleSheetItems();
+	    if ( !items.size() ) {
+		p = p->next();
+		continue;
 	    }
-	    if ( !inBulletList && p->style() && p->style()->displayMode() == QStyleSheetItem::DisplayListItem &&
-		 p->listStyle() == QStyleSheetItem::ListDisc ) {
-		text += "<ul>\n";
-		listDepth++;
-		inBulletList = TRUE;
-	    }
-	    if ( inOrderedList && ( !p->style() || p->style()->displayMode() != QStyleSheetItem::DisplayListItem ) ) {
-		text += "</ol>\n";
-		inOrderedList = FALSE;
-		listDepth--;
-	    }
-	    if ( !inOrderedList && p->style() && p->style()->displayMode() == QStyleSheetItem::DisplayListItem &&
-		 p->listStyle() == QStyleSheetItem::ListDecimal ) {
-		text += "<ol>\n";
-		listDepth++;
-		inOrderedList = TRUE;
-	    }
-	    if ( inOrderedList || inBulletList ) {
-		s = "<li>";
-	    } else if ( !lastParag || lastParag->alignment() != p->alignment() ) {
-		s = "<p align=\"";
-		if ( p->alignment() & Qt::AlignRight )
-		    s += "right";
-		else if ( p->alignment() & Qt::AlignCenter )
-		    s += "center";
-		else
-		    s += "left";
-		s += "\">";
-	    } else {
-		s = "<p>";
-	    }
-	
-	    int len = 0;
-	    for ( int i = 0; i < p->length(); ++i ) {
-		c = &p->string()->at( i );
-		if ( !lastFormat || ( lastFormat->key() != c->format()->key() && c->c != ' ' ) ) {
-		    s += c->format()->makeFormatChangeTags( lastFormat );
-		    lastFormat = c->format();
+	    QStyleSheetItem *item = items[ items.size() - 1 ];
+	    items.resize( items.size() - 1 );
+	    if ( items.size() > lastItems.size() ) {
+		for ( int i = lastItems.size(); i < (int)items.size(); ++i ) {
+		    if ( items[ i ]->name().isEmpty() )
+			continue;
+		    s += "<" + items[ i ]->name() + ">";
 		}
-		if ( c->c == '<' )
-		    s += "&lt;";
-		else if ( c->c == '>' )
-		    s += "&gt;";
-		else
-		    s += c->c;
-		len += c->c != ' ' ? 1 : 0;
+	    } else {
+		QString end;
+		for ( int i = items.size(); i < (int)lastItems.size(); ++i ) {
+		    if ( lastItems[ i ]->name().isEmpty() )
+			continue;
+		    end.prepend( "</" + lastItems[ i ]->name() + ">" );
+		}
+		s += end;
 	    }
-	    if ( !inBulletList && !inOrderedList  )
-		text += s + lastFormat->makeFormatEndTags() + "</p>\n";
-	    else if ( len > 0 )
-		text += s + lastFormat->makeFormatEndTags() + "\n";
-	    lastFormat = 0;
-	    lastParag = p;
+	    lastItems = items;
+	    s += "<" + item->name() + ">" + p->richText() + "</" + item->name() + ">\n";
 	    p = p->next();
 	}
-	text += "\n";
-	return text;
     } else {
-	// #### TODO return really rich text
-	return plainText( p, formatted );
+	s = p->richText();
     }
+
+    return s;
 }
 
 QString QTextDocument::text() const
@@ -3153,6 +3112,26 @@ QTextFormatCollection *QTextParag::formatCollection() const
     if ( !qFormatCollection )
 	qFormatCollection = new QTextFormatCollection;
     return qFormatCollection;
+}
+
+QString QTextParag::richText() const
+{
+    QString s;
+    QTextFormat *lastFormat = 0;
+    for ( int i = 0; i < length(); ++i ) {
+	QTextString::Char *c = &str->at( i );
+	if ( !lastFormat || ( lastFormat->key() != c->format()->key() && c->c != ' ' ) ) {
+	    s += c->format()->makeFormatChangeTags( lastFormat );
+	    lastFormat = c->format();
+	}
+	if ( c->c == '<' )
+	    s += "&lt;";
+	else if ( c->c == '>' )
+	    s += "&gt;";
+	else
+	    s += c->c;
+    }
+    return s;
 }
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
