@@ -390,7 +390,7 @@ class Q_EXPORT QContextMenuEvent : public QEvent
 public:
     enum Reason { Mouse, Keyboard, Other };
     QContextMenuEvent( Reason reason, const QPoint &pos, const QPoint &globalPos, int state )
-	: QEvent( ContextMenu ), p( pos ), gp( globalPos ), accpt( TRUE ), consum( FALSE ),
+	: QEvent( ContextMenu ), p( pos ), gp( globalPos ), accpt( TRUE ), consum( TRUE ),
 	reas( reason ), s((ushort)state) {}
     QContextMenuEvent( Reason reason, const QPoint &pos, int state );
 
