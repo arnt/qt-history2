@@ -1173,11 +1173,48 @@ void QDnsDomain::add( const QString & label, QDnsRR * rr )
 
 QList<QDnsRR> * QDnsDomain::cached( const QDns * r )
 {
+    QList<QDnsRR> * l = new QList<QDnsRR>;
+
+    // test at first if you have to start a query at all
+    if ( r->recordType() == QDns::A ) {
+	if ( r->label().lower() == "localhost" ) {
+	    // undocumented hack:
+	    QDnsRR *rrTmp = new QDnsRR( r->label() );
+	    rrTmp->t = QDns::A;
+	    rrTmp->address = QHostAddress( 0x7f000001 );
+	    rrTmp->current = TRUE;
+	    l->append( rrTmp );
+	    return l;
+	}
+	QHostAddress tmp;
+	if ( tmp.setAddress(r->label()) && tmp.isIp4Addr() ) {
+	    QDnsRR *rrTmp = new QDnsRR( r->label() );
+	    rrTmp->t = QDns::A;
+	    rrTmp->address = tmp;
+	    rrTmp->current = TRUE;
+	    l->append( rrTmp );
+	    return l;
+	}
+    }
+    if ( r->recordType() == QDns::Aaaa ) {
+	QHostAddress tmp;
+	if ( tmp.setAddress(r->label()) && !tmp.isIp4Addr() ) {
+	// ### if ( tmp.setAddress(r->label()) && tmp.isIp6Addr() ) {
+	// ### this would make also sense
+	    QDnsRR *rrTmp = new QDnsRR( r->label() );
+	    rrTmp->t = QDns::Aaaa;
+	    rrTmp->address = tmp;
+	    rrTmp->current = TRUE;
+	    l->append( rrTmp );
+	    return l;
+	}
+    }
+
+    // if you reach this point, you have to do the query
     QDnsManager * m = QDnsManager::manager();
     QStringList n = r->qualifiedNames();
     QValueListIterator<QString> it = n.begin();
     QValueListIterator<QString> end = n.end();
-    QList<QDnsRR> * l = new QList<QDnsRR>;
     bool nxdomain;
     int cnamecount = 0;
     while( it != end ) {
@@ -1612,8 +1649,7 @@ void QDns::setRecordType( RecordType rr )
 */
 void QDns::startQuery()
 {
-//    QList<QDnsRR> *cached = QDnsDomain::cached( this );
-//    delete cached;
+    // isWorking() starts the query (if necessary)
     if ( !isWorking() ) {
 	emit resultsReady();
     }
@@ -1712,54 +1748,6 @@ QValueList<QHostAddress> QDns::addresses() const
     QValueList<QHostAddress> result;
     if ( t != A && t != Aaaa )
 	return result;
-
-    if ( t == A ) {
-	if ( l.lower() == "localhost" ) {
-	    // undocumented hack:
-	    result.append( QHostAddress( 0x7f000001 ) );
-	    return result;
-	}
-	QHostAddress tmp;
-	if ( tmp.setAddress(l) && tmp.isIp4Addr() ) {
-	    result.append( tmp );
-	    return result;
-	}
-#if 0
-	int maybeIP4 = 0;
-	int bytes = 0;
-	QString left = l.simplifyWhiteSpace();
-	while( left.length() && bytes < 4 ) {
-	    QString byteString;
-	    int i = bytes < 3 ? left.find( '.' ) : left.length();
-	    if ( i < 0 ) {
-		left = "";
-	    } else {
-		QString byteString = left.left( i ).simplifyWhiteSpace();
-		left = left.mid( i+1 );
-		bool ok = FALSE;
-		uint byteValue = byteString.toUInt( &ok );
-		if ( ok && byteValue < 256 ) {
-		    maybeIP4 = maybeIP4 * 256 + byteValue;
-		    bytes++;
-		    if ( bytes == 4 && !left.length() ) {
-			result.append( QHostAddress( maybeIP4 ) );
-			return result;
-		    }
-		} else {
-		    left = "";
-		}
-	    }
-	}
-#endif
-    }
-    if ( t == Aaaa ) {
-	QHostAddress tmp;
-	if ( tmp.setAddress(l) && !tmp.isIp4Addr() ) {
-//	if ( tmp.setAddress(l) && tmp.isIp6Addr() ) { // ### this would make also sense
-	    result.append( tmp );
-	    return result;
-	}
-    }
 
     QList<QDnsRR> * cached = QDnsDomain::cached( this );
 
