@@ -81,7 +81,7 @@ bool QArchive::writeFile( const QString& fileName, const QString& localPath )
 	z_stream ztream;
 	bool continueCompressing;
 
-	if(fi.isSymLink()) {
+	if(symbolicLinks() && fi.isSymLink()) {
 	    outStream << (int)ChunkSymlink;
 	    outStream << fi.fileName().latin1();
 	    outStream << fi.readLink().latin1();

@@ -13,6 +13,9 @@ public:
     void setPath( const QString& archivePath );
     void setVerbosity( int verbosity );
 
+    bool symbolicLinks() const { return doSyms; }
+    void setSymbolicLinks(bool b) { doSyms = b; }
+
     bool open( int mode );
     void close();
     bool isOpen() { return arcFile.isOpen(); }
@@ -29,7 +32,7 @@ private:
 
     int bufferSize;
     int verbosityMode;
-    int opened;
+    uint doSyms : 1;
     bool setDirectory( const QString& dirName );
 signals:
     void operationFeedback( const QString& );

@@ -15,12 +15,14 @@ public slots:
 
 int main( int argc, char** argv )
 {
-    bool output = TRUE;
+    bool output = TRUE, doSyms = TRUE;
     QString dest;
     QStringList files;
     for(int i = 1; i < argc; i++) {
 	if(!strcmp(argv[i], "-o")) {
 	    dest = argv[++i];
+	} else if(!strcmp(argv[i], "-n")) {
+	    doSyms = FALSE;
 	} else if(!strcmp(argv[i], "-s")) {
 	    output = FALSE;
 	} else {
@@ -40,6 +42,7 @@ int main( int argc, char** argv )
 	    QObject::connect( &archive, SIGNAL( operationFeedback( const QString& ) ), 
 			      &out, SLOT( updateProgress( const QString& ) ) );
 	}
+	archive.setSymbolicLinks(doSyms);
 	archive.setPath( dest );
 	if( !archive.open( IO_WriteOnly ) ) {
 	    qDebug("Failed to open output %s", dest.latin1());
