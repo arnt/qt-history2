@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdialog.cpp#61 $
+** $Id: //depot/qt/main/src/kernel/qdialog.cpp#62 $
 **
 ** Implementation of QDialog class
 **
@@ -104,7 +104,7 @@
 */
 
 QDialog::QDialog( QWidget *parent, const char *name, bool modal, WFlags f )
-    : QWidget( parent, name, modal ? (f | WType_Modal) : f ) 
+    : QWidget( parent, name, modal ? (f | WType_Modal) : f )
 {
     rescode = 0;
     did_move = did_resize = FALSE;
@@ -235,29 +235,41 @@ void QDialog::keyPressEvent( QKeyEvent *e )
 {
     if ( e->state() == 0 ) {
 	switch ( e->key() ) {
-	    case Key_Enter:
-	    case Key_Return: {
-		QObjectList *list = queryList( "QPushButton" );
-		QObjectListIt it( *list );
-		QPushButton *pb;
-		while ( (pb = (QPushButton*)it.current()) ) {
-		    if ( pb->isDefault() ) {
-			delete list;
-			if ( pb->isEnabled() )
-			    emit pb->clicked();
-			return;
-		    }
-		    ++it;
+	case Key_Enter:
+	case Key_Return: {
+	    QObjectList *list = queryList( "QPushButton" );
+	    QObjectListIt it( *list );
+	    QPushButton *pb;
+	    while ( (pb = (QPushButton*)it.current()) ) {
+		if ( pb->isDefault() ) {
+		    delete list;
+		    if ( pb->isEnabled() )
+			emit pb->clicked();
+		    return;
 		}
-		delete list;
-		}
-		break;
-	    case Key_Escape:
-		reject();
-		break;
-	    default:
-		e->ignore();
-		return;
+		++it;
+	    }
+	    delete list;
+	}
+	break;
+	case Key_Escape:
+	    reject();
+	    break;
+#if 0 // ### we ought to have it but it doesn't compile
+	case Key_Up:
+	case Key_Left:
+	    if ( focusWidget() )
+		(void)focusWidget()->focusNextPrevChild( FALSE );
+	    break;
+	case Key_Down:
+	case Key_Right:
+	    if ( focusWidget() )
+		(void)focusWidget()->focusNextPrevChild( TRUE );
+	    break;
+#endif
+	default:
+	    e->ignore();
+	    return;
 	}
     } else {
 	e->ignore();
