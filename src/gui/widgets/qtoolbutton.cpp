@@ -140,7 +140,36 @@ QToolButton::QToolButton(QWidget * parent, const char *name)
     setObjectName(name);
     d->init(true);
 }
-#endif
+
+/*!
+    Constructs a tool button called \a name, that is a child of \a
+    parent.
+
+    The tool button will display \a iconSet, with its text label and
+    tool tip set to \a textLabel and its status bar message set to \a
+    statusTip. It will be connected to the \a slot in object \a
+    receiver.
+*/
+
+QToolButton::QToolButton(const QIconSet& iconSet, const QString &textLabel,
+                          const QString& statusTip,
+                          QObject * receiver, const char *slot,
+                          QWidget * parent, const char *name)
+    : QAbstractButton(*new QToolButtonPrivate, parent)
+{
+    setObjectName(name);
+    d->init(true);
+    d->autoRaise = true;
+    setIcon(iconSet);
+    setText(textLabel);
+    if (receiver && slot)
+        connect(this, SIGNAL(clicked()), receiver, slot);
+    if (!textLabel.isEmpty())
+        setToolTip(textLabel);
+    if (!statusTip.isEmpty())
+        setStatusTip(statusTip);
+}
+
 
 /*!
     Constructs a tool button as an arrow button. The \c Qt::ArrowType \a
@@ -156,6 +185,27 @@ QToolButton::QToolButton(Qt::ArrowType type, QWidget *parent, const char *name)
     : QAbstractButton(*new QToolButtonPrivate, parent)
 {
     setObjectName(name);
+    d->init(false);
+    setAutoRepeat(true);
+    d->arrow = type;
+    d->hasArrow = true;
+}
+
+#endif
+
+/*!
+    Constructs a tool button as an arrow button. The \c Qt::ArrowType \a
+    type defines the arrow direction. Possible values are \c
+    Qt::LeftArrow, \c Qt::RightArrow, \c Qt::UpArrow and \c Qt::DownArrow.
+
+    An arrow button has auto-repeat turned on by default.
+
+    The \a parent and \a name arguments are sent to the QWidget
+    constructor.
+*/
+QToolButton::QToolButton(Qt::ArrowType type, QWidget *parent)
+    : QAbstractButton(*new QToolButtonPrivate, parent)
+{
     d->init(false);
     setAutoRepeat(true);
     d->arrow = type;
@@ -264,39 +314,6 @@ QStyleOptionToolButton QToolButtonPrivate::getStyleOption() const
     opt.font = q->font();
     return opt;
 }
-#ifndef QT_NO_TOOLBAR
-
-/*!
-    Constructs a tool button called \a name, that is a child of \a
-    parent (which must be a QToolBar).
-
-    The tool button will display \a iconSet, with its text label and
-    tool tip set to \a textLabel and its status bar message set to \a
-    statusTip. It will be connected to the \a slot in object \a
-    receiver.
-*/
-
-QToolButton::QToolButton(const QIconSet& iconSet, const QString &textLabel,
-                          const QString& statusTip,
-                          QObject * receiver, const char *slot,
-                          QToolBar * parent, const char *name)
-    : QAbstractButton(*new QToolButtonPrivate, parent)
-{
-    setObjectName(name);
-    d->init(true);
-    d->autoRaise = true;
-    setIcon(iconSet);
-    setText(textLabel);
-    if (receiver && slot)
-        connect(this, SIGNAL(clicked()), receiver, slot);
-    if (!textLabel.isEmpty())
-        setToolTip(textLabel);
-    if (!statusTip.isEmpty())
-        setStatusTip(statusTip);
-}
-
-#endif
-
 
 /*!
     Destroys the object and frees any allocated resources.

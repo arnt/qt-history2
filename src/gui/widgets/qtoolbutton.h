@@ -22,7 +22,6 @@
 #ifndef QT_NO_TOOLBUTTON
 
 class QToolButtonPrivate;
-class QToolBar;
 class QMenu;
 
 class Q_GUI_EXPORT QToolButton : public QAbstractButton
@@ -47,13 +46,7 @@ public:
     };
     QToolButton(QWidget * parent=0);
 
-#ifndef QT_NO_TOOLBAR
-    QToolButton(const QIconSet& s, const QString &textLabel,
-                 const QString& statusTip,
-                 QObject * receiver, const char* slot,
-                 QToolBar * parent=0, const char* name=0);
-#endif
-    QToolButton(Qt::ArrowType type, QWidget *parent=0, const char* name=0);
+    QToolButton(Qt::ArrowType type, QWidget *parent=0);
     ~QToolButton();
 
     QSize sizeHint() const;
@@ -99,7 +92,12 @@ private:
 
 #ifdef QT_COMPAT
 public:
-    QToolButton(QWidget * parent, const char* name);
+    QT_COMPAT_CONSTRUCTOR QToolButton(QWidget * parent, const char* name);
+    QT_COMPAT_CONSTRUCTOR QToolButton(Qt::ArrowType type, QWidget *parent, const char* name);
+    QT_COMPAT_CONSTRUCTOR QToolButton( const QIconSet& s, const QString &textLabel,
+                                       const QString& grouptext,
+                                       QObject * receiver, const char* slot,
+                                       QWidget * parent, const char* name=0 );
     inline QT_COMPAT void setPixmap(const QPixmap &pixmap) { setIcon(static_cast<QIconSet>(pixmap)); }
     QT_COMPAT void setOnIconSet(const QIconSet&);
     QT_COMPAT void setOffIconSet(const QIconSet&);
