@@ -1473,7 +1473,20 @@ void QX11PaintEngine::updateClipRegion(QPainterState *ps)
     Q_ASSERT(isActive());
 
     clearf(ClipOn);
-    d->crgn = ps->clipRegion;
+    switch (ps->txop) {
+	case QPainter::TxTranslate:
+	    d->crgn = ps->clipRegion;
+	    d->crgn.translate(ps->matrix.dx(), ps->matrix.dy());
+	    break;
+	case QPainter::TxScale:
+	case QPainter::TxRotShear:
+	    d->crgn = ps->matrix * ps->clipRegion;
+	    break;
+	default:
+	    d->crgn = ps->clipRegion;
+	    break;
+    }
+
     if (ps->clipEnabled) {
 	setf(ClipOn);
  	if (d->pdev == paintEventDevice && paintEventClipRegion)
