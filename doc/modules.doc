@@ -65,21 +65,6 @@ Please see the \link qiconview.html class documentation \endlink for
 details.
 */
 
-/*! \page table.html
-
-\title Qt Table Module
-
-The table module provides a  flexible and editable table widget dubbed \l QTable.
-
-<center><a href="qtable.html"><img src="qtable.png" alt="Screenshot of QTable"></a></center>
-
-QTable is the abstract widget of choice whenever you need to present
-spreadsheet data to the user or let the user edit such data.
-
-Please see the \link qtable.html class documentation \endlink for
-details.
-*/
-
 /*! \page canvas.html
 
 \title Qt Canvas Module

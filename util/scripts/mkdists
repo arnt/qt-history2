@@ -601,14 +601,24 @@ for plat in mac win x11 qws; do
 	status "First cleanup.."
 	case $edition in
 	free)
-	    #Remove sql
-	    for sql in src/sql examples/pingpong examples/sqltable examples/sql; do
+	    #remove sql from the main file
+	    sed 's,\(<li>.*<a.*> *SQL</a>\),<!--\1-->,' doc/indices.doc >${TMP_FILE}
+	    mv ${TMP_FILE} doc/indices.doc
+
+	    #Remove all sql's existance
+	    for sql in doc/*sql*.doc src/sql examples/pingpong examples/sqltable examples/sql; do
 		[ -d "$PLATDIR/$sql" ] && rm -rf "$PLATDIR/$sql"
 	    done
 	    ;;
 	professional)
+	    #remove sql & table from the main file
+	    sed -e 's,\(<li>.*<a.*> *SQL</a>\),<!--\1-->,' \
+		-e 's,\(<li>.*<a.*> *Table</a>\),<!--\1-->,' doc/indices.doc >${TMP_FILE}
+	    mv ${TMP_FILE} doc/indices.doc
+
 	    #Remove sql & table
-	    for f in src/sql examples/pingpong examples/sqltable examples/sql src/table examples/table; do
+	    for f in doc/*sql*.doc src/sql examples/pingpong examples/sqltable examples/sql \
+		     doc/table.doc src/table examples/table; do
 		[ -d "$PLATDIR/$f" ] && rm -rf "$PLATDIR/$f"
 	    done
 	    #move xml stuff into designer directory TBD
