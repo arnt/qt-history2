@@ -562,9 +562,16 @@ QPixmap QPixmap::xForm(const QWMatrix &matrix) const
 	if(w==0 || h==0)
 	    return *this;
 
+	QPixmap* save_alpha = data->alphapm;
+	data->alphapm = 0;
 	QPixmap pm(w, h, depth(), NormalOptim);
 	scaledBitBlt(&pm, 0, 0, w, h, this, 0, 0, width(), height(), Qt::CopyROP, TRUE);
-	if(data->mask) {
+	if(save_alpha) {
+	    data->alphapm = save_alpha;
+	    pm.data->alphapm = new QPixmap(w, h, save_alpha->depth(), NormalOptim);
+	    scaledBitBlt(pm.data->alphapm, 0, 0, w, h, save_alpha, 0, 0, width(), height(), 
+			 Qt::CopyROP, TRUE);
+	} else if(data->mask) {
 	    QBitmap bm = data->selfmask ? *((QBitmap*)(&pm)) : data->mask->xForm(matrix);
 	    pm.setMask(bm);
 	}
@@ -632,15 +639,15 @@ QPixmap QPixmap::xForm(const QWMatrix &matrix) const
     UnlockPixels(GetGWorldPixMap((GWorldPtr)pm.handle()));
 #endif
 
-    if(depth() == 1) {
+    if(data->alphapm) {
+	pm.data->alphapm = new QPixmap(data->alphapm->xForm(matrix));
+    } else if(depth() == 1) {
 	if(data->mask) {
 	    if(data->selfmask)               // pixmap == mask
 		pm.setMask(*((QBitmap*)(&pm)));
 	    else
 		pm.setMask(data->mask->xForm(matrix));
 	}
-    } else if(data->alphapm) {
-	pm.data->alphapm = new QPixmap(data->alphapm->xForm(matrix));
     } else if(data->mask) {
 	pm.setMask(data->mask->xForm(matrix));
     }
