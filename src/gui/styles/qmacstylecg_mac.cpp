@@ -1450,6 +1450,9 @@ void QMacStyleCG::drawControl(ControlElement ce, const Q4StyleOption *opt, QPain
                     header->text, -1, penColor);
         }
         break;
+    case CE_ToolBoxTab:
+        QCommonStyle::drawControl(ce, opt, p, w);
+        break;
     default:
         QWindowsStyle::drawControl(ce, opt, p, w);
     }

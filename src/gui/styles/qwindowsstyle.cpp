@@ -374,12 +374,6 @@ void QWindowsStyle::drawControl(ControlElement element,
             break;
         }
 #endif
-    case CE_ToolBoxTab:
-        {
-            qDrawShadePanel(p, r, pal, flags & (Style_Sunken | Style_Down | Style_On) , 1,
-                             &pal.brush(QPalette::Button));
-            break;
-        }
 
     case CE_MenuBarItem: {
         bool active = flags & Style_Active;
@@ -1045,16 +1039,6 @@ QRect QWindowsStyle::subRect(SubRect r, const QWidget *widget) const
     QRect rect;
 
     switch (r) {
-#ifndef QT_NO_SLIDER
-    case SR_SliderFocusRect:
-        {
-            rect = widget->rect();
-            break;
-        }
-#endif // QT_NO_SLIDER
-    case SR_ToolBoxTabContents:
-        rect = widget->rect();
-        break;
     default:
         rect = QCommonStyle::subRect(r, widget);
         break;
@@ -1708,6 +1692,11 @@ void QWindowsStyle::drawControl(ControlElement ce, const Q4StyleOption *opt, QPa
             QCommonStyle::drawControl(ce, &newMbi, p, widget);
         }
         break;
+    case CE_ToolBoxTab:
+        qDrawShadePanel(p, opt->rect, opt->palette,
+                        opt->state & (Style_Sunken | Style_Down | Style_On), 1,
+                        &opt->palette.brush(QPalette::Button));
+        break;
     default:
         QCommonStyle::drawControl(ce, opt, p, widget);
     }
@@ -1718,6 +1707,10 @@ QRect QWindowsStyle::subRect(SubRect sr, const Q4StyleOption *opt, const QWidget
 {
     QRect r;
     switch (sr) {
+    case SR_SliderFocusRect:
+    case SR_ToolBoxTabContents:
+        r = opt->rect;
+        break;
     default:
         r = QCommonStyle::subRect(sr, opt, w);
     }

@@ -725,38 +725,6 @@ void QCommonStyle::drawControl(ControlElement element,
             break;
         }
 #endif
-#ifndef QT_NO_TOOLBOX
-    case CE_ToolBoxTab:
-        {
-            int d = 20 + r.height() - 3;
-            QPointArray a(7);
-            a.setPoint(0, -1, r.height() + 1);
-            a.setPoint(1, -1, 1);
-            a.setPoint(2, r.width() - d, 1);
-            a.setPoint(3, r.width() - 20, r.height() - 2);
-            a.setPoint(4, r.width() - 1, r.height() - 2);
-            a.setPoint(5, r.width() - 1, r.height() + 1);
-            a.setPoint(6, -1, r.height() + 1);
-
-            const QToolBox *tb = (const QToolBox*)widget;
-
-            if (flags & Style_Selected && tb->widget(tb->currentIndex())) {
-                QWidget *tbW = tb->widget(tb->currentIndex());
-                p->setBrush(tbW->palette().brush(tbW->backgroundRole()));
-            } else {
-                p->setBrush(pal.brush(tb->backgroundRole()));
-            }
-
-            p->setPen(pal.mid().color().dark(150));
-            p->drawPolygon(a);
-            p->setPen(pal.light());
-            p->drawLine(0, 2, r.width() - d, 2);
-            p->drawLine(r.width() - d - 1, 2, r.width() - 21, r.height() - 1);
-            p->drawLine(r.width() - 20, r.height() - 1, r.width(), r.height() - 1);
-            p->setBrush(Qt::NoBrush);
-            break;
-        }
-#endif // QT_NO_TOOLBOX
     case CE_MenuTearoff: {
         if(flags & Style_Active)
             p->fillRect(r, pal.brush(QPalette::Highlight));
@@ -1110,6 +1078,34 @@ void QCommonStyle::drawControl(ControlElement ce, const Q4StyleOption *opt,
                     }
                 }
             }
+        }
+        break;
+    case CE_ToolBoxTab:
+        if (const Q4StyleOptionToolBox *tb = qt_cast<const Q4StyleOptionToolBox *>(opt)) {
+            int d = 20 + tb->rect.height() - 3;
+            QPointArray a(7);
+            a.setPoint(0, -1, tb->rect.height() + 1);
+            a.setPoint(1, -1, 1);
+            a.setPoint(2, tb->rect.width() - d, 1);
+            a.setPoint(3, tb->rect.width() - 20, tb->rect.height() - 2);
+            a.setPoint(4, tb->rect.width() - 1, tb->rect.height() - 2);
+            a.setPoint(5, tb->rect.width() - 1, tb->rect.height() + 1);
+            a.setPoint(6, -1, tb->rect.height() + 1);
+
+            if (tb->state & Style_Selected) {
+                p->setBrush(tb->currentWidgetPalette.brush(tb->currentWidgetBGRole));
+            } else {
+                p->setBrush(tb->palette.brush(tb->bgRole));
+            }
+
+            p->setPen(tb->palette.mid().color().dark(150));
+            p->drawPolygon(a);
+            p->setPen(tb->palette.light());
+            p->drawLine(0, 2, tb->rect.width() - d, 2);
+            p->drawLine(tb->rect.width() - d - 1, 2, tb->rect.width() - 21, tb->rect.height() - 1);
+            p->drawLine(tb->rect.width() - 20, tb->rect.height() - 1,
+                        tb->rect.width(), tb->rect.height() - 1);
+            p->setBrush(Qt::NoBrush);
         }
         break;
     default:

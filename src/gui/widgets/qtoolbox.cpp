@@ -175,22 +175,28 @@ void QToolBoxButton::paintEvent(QPaintEvent *)
     QPainter paint(this);
     QString text = QAbstractButton::text();
     QPainter *p = &paint;
-    QStyle::SFlags flags = QStyle::Style_Default;
     const QPalette &pal = palette();
-
-    if (isEnabled())
-        flags |= QStyle::Style_Enabled;
+    Q4StyleOptionToolBox opt(0);
+    opt.init(this);
     if (selected)
-        flags |= QStyle::Style_Selected;
-    if (hasFocus())
-        flags |= QStyle::Style_HasFocus;
+        opt.state |= QStyle::Style_Selected;
     if (isDown())
-        flags |= QStyle::Style_Down;
-    style().drawControl(QStyle::CE_ToolBoxTab, p, parentWidget(), rect(), pal, flags);
+        opt.state |= QStyle::Style_Down;
+    opt.text = text;
+    opt.icon = icon();
+    if (const QToolBox *tool = qt_cast<const QToolBox *>(parentWidget())) {
+        opt.bgRole = tool->backgroundRole();
+        QWidget *w = tool->widget(tool->currentIndex());
+        if (w) {
+            opt.currentWidgetBGRole = w->backgroundRole();
+            opt.currentWidgetPalette = w->palette();
+        }
+    }
+    style().drawControl(QStyle::CE_ToolBoxTab, &opt, p, parentWidget());
 
     QPixmap pm = icon().pixmap(QIconSet::Small, isEnabled() ? QIconSet::Normal : QIconSet::Disabled);
 
-    QRect cr = style().subRect(QStyle::SR_ToolBoxTabContents, this);
+    QRect cr = style().subRect(QStyle::SR_ToolBoxTabContents, &opt, this);
     QRect tr, ir;
     int ih = 0;
     if (pm.isNull()) {

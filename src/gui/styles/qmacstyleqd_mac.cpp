@@ -421,9 +421,6 @@ void QMacStyleQD::drawControl(ControlElement element,
     switch(element) {
     case CE_ProgressBarLabel:
         break; //nothing to be drawn here..
-    case CE_ToolBoxTab:
-        QWindowsStyle::drawControl(element, p, widget, r, pal, how, opt);
-        break;
     case CE_MenuTearoff:
     case CE_MenuScroller: {
         Rect mrect = *qt_glb_mac_rect(widget->rect(), p),
@@ -2325,6 +2322,9 @@ void QMacStyleQD::drawControl(ControlElement ce, const Q4StyleOption *opt, QPain
             drawItem(p, textr, Qt::AlignVCenter, header->palette, header->state & Style_Enabled,
                      header->text, -1, penColor);
         }
+        break;
+    case CE_ToolBoxTab:
+        QCommonStyle::drawControl(ce, opt, p, widget);
         break;
     default:
         QWindowsStyle::drawControl(ce, opt, p, widget);
