@@ -499,6 +499,7 @@ QFile::open(int mode)
         return false;
     }
     if (d->fileName.isEmpty()) {
+	setStatus(IO_OpenError, QT_TR_NOOP("No file name specified"));
         qWarning("QFile::open: No file name specified");
         return false;
     }
