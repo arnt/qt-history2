@@ -121,10 +121,10 @@ EditorCompletion::EditorCompletion( Editor *e )
 {
     enabled = TRUE;
     lastDoc = 0;
-    completionPopup = new QVBox( 0, 0, WType_Popup );
+    completionPopup = new QVBox( e, 0, WType_Popup );
     completionPopup->setFrameStyle( QFrame::Box | QFrame::Plain );
     completionPopup->setLineWidth( 1 );
-    functionLabel = new ArgHintWidget( 0, "editor_function_lbl" );
+    functionLabel = new ArgHintWidget( e, "editor_function_lbl" );
     functionLabel->hide();
     completionListBox = new QListBox( completionPopup, "editor_completion_lb" );
     completionListBox->setFrameStyle( QFrame::NoFrame );
