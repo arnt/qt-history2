@@ -510,10 +510,10 @@ void Dlg2Ui::emitSpacer( int spacing, int stretch )
 
     if ( yyBoxKind == QString("hbox") ) {
 	orientationStr = QString( "Horizontal" );
-	sizeHint = QSize( spacing, 0 );
+	sizeHint = QSize( spacing, 20 );
     } else {
 	orientationStr = QString( "Vertical" );
-	sizeHint = QSize( 0, spacing );
+	sizeHint = QSize( 20, spacing );
     }
     if ( stretch > 0 )
 	sizeType = QString( "Expanding" );
@@ -1237,21 +1237,29 @@ void Dlg2Ui::matchWidgetLayoutCommon( const QDomElement& widgetLayoutCommon )
 {
     QDomNodeList children = widgetLayoutCommon.childNodes();
 
+    /*
+      Since we do not respect the spacing and margins specified in
+      the .dlg file, the specified geometry is slightly wrong (too
+      small). It's better to let Qt Designer determine the geometry
+      itself.
+    */
+#if 0
     QPoint initialPos = getValue( children, QString("InitialPos"),
 				  QString("qpoint") ).toPoint();
     QSize size = getValue( children, QString("Size"), QString("qsize") )
 		 .toSize();
+#endif
     QSize minSize = getValue( children, QString("MinSize"), QString("qsize") )
 		    .toSize();
     QSize maxSize = getValue( children, QString("MaxSize"), QString("qsize") )
 		    .toSize();
 
-    QVariant val = getValue( children, QString("TextTranslated"),
-			     QString("boolean") );
+#if 0
     if ( initialPos == QPoint(-1, -1) )
 	initialPos = QPoint( 0, 0 );
 
     emitProperty( QString("geometry"), QRect(initialPos, size) );
+#endif
     if ( minSize != QSize(-1, -1) )
 	emitProperty( QString("minimumSize"), minSize );
     if ( maxSize != QSize(32767, 32767) )
