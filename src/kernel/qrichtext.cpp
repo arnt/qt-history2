@@ -1562,6 +1562,8 @@ void QTextDocument::setRichTextInternal( const QString &text )
 			depth--;
 		    }
 		    curListStyle = chooseListStyle( nstyle, attr, curListStyle );
+		    if ( tagname == "center" )
+			curAlignment = AlignCenter;
 		}
 
 		if ( !nstyle || nstyle->whiteSpaceMode() != QStyleSheetItem::WhiteSpacePre ) {
