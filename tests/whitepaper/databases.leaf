@@ -147,6 +147,9 @@ used for \c INTEGER fields. The programmer can override the defaults
 by creating a property map for the table, which matches fields
 (columns) to the editor widget type the programmer prefers.
 
+    \img bookform.png
+    \caption A \Class QDataTable
+
 Records can be updated and deleted without writing any code.
 Insertions require some code since most database designs expect new
 records to be created with a unique key. This can easily be achieved
@@ -170,6 +173,9 @@ editing, and can provide ready-made insert, update and delete buttons.
 
 \Class QDataTable and \Class QDataBrowser have both a popup context
 menu and keyboard shortcuts for editing records.
+
+    \img editbooks.png
+    \caption A \Class QDataBrowser
 
   \index foreign keys
 
