@@ -888,42 +888,36 @@ void QPainter::drawRoundRect( int x, int y, int w, int h, int xRnd, int yRnd)
                 return;
         }
         if ( txop == TxRotShear ) {             // rotate/shear polygon
-            QPointArray a;
-            if ( w <= 0 || h <= 0 )
-                fix_neg_rect( &x, &y, &w, &h );
-            w--;
-            h--;
-            int rxx = w*xRnd/200;
-            int ryy = h*yRnd/200;
-            int rxx2 = 2*rxx;
-            int ryy2 = 2*ryy;
-            int xx, yy;
-
-            // ###### WWA: this should use the new makeArc (with xmat)
-            // FIXME: look into above statement
-
-            a.makeEllipse( x, y, rxx2, ryy2 );
-            int s = a.size()/4;
-            int i = 0;
-            while ( i < s ) {
-                a.point( i, &xx, &yy );
-                xx += w - rxx2;
-                a.setPoint( i++, xx, yy );
-            }
-            i = 2*s;
-            while ( i < 3*s ) {
-                a.point( i, &xx, &yy );
-                yy += h - ryy2;
-                a.setPoint( i++, xx, yy );
-            }
-            while ( i < 4*s ) {
-                a.point( i, &xx, &yy );
-                xx += w - rxx2;
-                yy += h - ryy2;
-                a.setPoint( i++, xx, yy );
-            }
-            drawPolyInternal( xForm(a) );
-            return;
+	    if ( w <= 0 || h <= 0 )
+		fix_neg_rect( &x, &y, &w, &h );
+	    w--;
+	    h--;
+	    int rxx = w*xRnd/200;
+	    int ryy = h*yRnd/200;
+	    // were there overflows?
+	    if ( rxx < 0 )
+		rxx = w/200*xRnd;
+	    if ( ryy < 0 )
+		ryy = h/200*yRnd;
+	    int rxx2 = 2*rxx;
+	    int ryy2 = 2*ryy;
+	    QPointArray a[4];
+	    a[0].makeArc( x, y, rxx2, ryy2, 1*16*90, 16*90, xmat );
+	    a[1].makeArc( x, y+h-ryy2, rxx2, ryy2, 2*16*90, 16*90, xmat );
+	    a[2].makeArc( x+w-rxx2, y+h-ryy2, rxx2, ryy2, 3*16*90, 16*90, xmat );
+	    a[3].makeArc( x+w-rxx2, y, rxx2, ryy2, 0*16*90, 16*90, xmat );
+	    // ### is there a better way to join QPointArrays?
+	    QPointArray aa;
+	    aa.resize( a[0].size() + a[1].size() + a[2].size() + a[3].size() );
+	    uint j = 0;
+	    for ( int k=0; k<4; k++ ) {
+		for ( uint i=0; i<a[k].size(); i++ ) {
+		    aa.setPoint( j, a[k].point(i) );
+		    j++;
+		}
+	    }
+	    drawPolyInternal( aa );
+	    return;
         }
         map( x, y, w, h, &x, &y, &w, &h );
     }
