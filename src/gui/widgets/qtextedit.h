@@ -74,6 +74,7 @@ public:
     QTextEdit(const QString &text, QWidget *parent = 0);
     virtual ~QTextEdit();
 
+    void setDocument(QTextDocument *document);
     QTextDocument *document() const;
 
     void setCursor(const QTextCursor &cursor);

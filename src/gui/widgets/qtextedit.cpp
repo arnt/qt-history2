@@ -130,7 +130,8 @@ public:
 
     void createAutoBulletList();
 
-    void init(const QTextDocumentFragment &fragment = QTextDocumentFragment());
+    void init(const QTextDocumentFragment &fragment = QTextDocumentFragment(),
+              QTextDocument *document = 0);
 
     void startDrag();
 
@@ -403,10 +404,13 @@ void QTextEditPrivate::createAutoBulletList()
     cursor.endEditBlock();
 }
 
-void QTextEditPrivate::init(const QTextDocumentFragment &fragment)
+void QTextEditPrivate::init(const QTextDocumentFragment &fragment, QTextDocument *document)
 {
     if (!doc) {
-        doc = new QTextDocument(q);
+        doc = document;
+        if (!doc)
+            doc = new QTextDocument(q);
+
         QObject::connect(doc->documentLayout(), SIGNAL(update(const QRect &)), q, SLOT(update(const QRect &)));
         QObject::connect(doc->documentLayout(), SIGNAL(usedSizeChanged()), q, SLOT(adjustScrollbars()));
         cursor = QTextCursor(doc);
@@ -708,7 +712,30 @@ Qt::Alignment QTextEdit::alignment() const
 }
 
 /*!
+    Makes \a document the new document of the text editor. 
+
+    The parent QObject of the provided document remains the owner
+    of the object. If the current document is a child of the text
+    editor, then it is deleted.
+
+    \sa document()
+*/
+void QTextEdit::setDocument(QTextDocument *document)
+{
+    d->doc->disconnect(this);
+    d->doc->documentLayout()->disconnect(this);
+
+    if (d->doc->parent() == this)
+        delete d->doc;
+
+    d->doc = 0;
+    d->init(QTextDocumentFragment(), document);
+}
+
+/*!
     Returns a pointer to the underlying document.
+
+    \sa setDocument()
 */
 QTextDocument *QTextEdit::document() const
 {
