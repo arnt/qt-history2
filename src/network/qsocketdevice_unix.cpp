@@ -420,7 +420,7 @@ bool QSocketDevice::bind( const QHostAddress &address, Q_UINT16 port )
     aa.sin_port = htons( port );
     aa.sin_addr.s_addr = htonl( address.ip4Addr() );
 
-    int r = ::bind( fd, (struct sockaddr*)&aa,sizeof(struct sockaddr_in) );
+    int r = qt_socket_bind( fd, (struct sockaddr*)&aa, sizeof(struct sockaddr_in) );
     if ( r < 0 ) {
 	switch( errno ) {
 	case EINVAL:
