@@ -468,7 +468,7 @@ class Q_GUI_EXPORT QActionEvent : public QEvent
 {
     QAction *act, *bef;
 public:
-    QActionEvent(int type, QAction *action, QAction *before = 0) 
+    QActionEvent(int type, QAction *action, QAction *before = 0)
         : QEvent((QEvent::Type)type), act(action), bef(before) { }
 
     QAction *action()           const { return act; }
@@ -490,7 +490,7 @@ class Q_GUI_EXPORT QShortcutEvent : public QEvent
 {
 public:
     QShortcutEvent(const QKeySequence &key, int id, bool ambiguous = false)
-	: QEvent(Shortcut), sequence(key), sid(id), ambig(ambiguous) { }
+	: QEvent(Shortcut), sequence(key), ambig(ambiguous), sid(id) { }
     const QKeySequence &key()	{ return sequence; }
     int   shortcutId()		{ return sid; }
     bool  isAmbiguous()		{ return ambig; }

@@ -45,7 +45,8 @@ struct QShortcutEntry
 /*  \internal
     QDebug operator<< for easy debug output of the shortcut entries.
 */
-QDebug operator<<(QDebug dbg, const QShortcutEntry *se) {
+#ifndef QT_NO_DEBUG
+QDebug &operator<<(QDebug &dbg, const QShortcutEntry *se) {
     if (!se)
         return dbg << "QShortcutEntry(0x0)";
     dbg.nospace()
@@ -53,7 +54,7 @@ QDebug operator<<(QDebug dbg, const QShortcutEntry *se) {
         << "), id(" << se->id << "), enabled(" << se->enabled << ") owner(" << se->owner << ")";
     return dbg.space();
 }
-
+#endif // QT_NO_DEBUG
 
 /*  \internal
     Private data for QShortcutMap
@@ -105,7 +106,7 @@ QShortcutMap::~QShortcutMap()
     Q_ASSERT(!key.isEmpty());
 
     QShortcutEntry newEntry(owner, key, --(d->currentId));
-    QList<QShortcutEntry>::iterator it 
+    QList<QShortcutEntry>::iterator it
         = qUpperBound(d->sequences.begin(), d->sequences.end(), newEntry);
     d->sequences.insert(it, newEntry); // Insert sorted
 #if defined(Debug_QShortcutMap)
@@ -184,8 +185,8 @@ int QShortcutMap::setShortcutEnabled(bool enable, const QWidget *owner, const QK
         --i;
     }
 #if defined(Debug_QShortcutMap)
-    qDebug().nospace() 
-        << "QShortcutMap::setShortcutEnabled(" << enable << ", " << owner << ", " 
+    qDebug().nospace()
+        << "QShortcutMap::setShortcutEnabled(" << enable << ", " << owner << ", "
         << key << ", " << id << ") = " << itemsChanged;
 #endif
     return itemsChanged;
@@ -227,6 +228,8 @@ bool QShortcutMap::tryShortcutEvent(QWidget *w, QKeyEvent *e)
     case Qt::Identical:
         dispatchEvent();
         resetState();
+    default:
+	break;
     }
     return true;
 }
@@ -453,9 +456,9 @@ void QShortcutMap::dispatchEvent()
         return;
     // Dispatch next enabled
 #if defined(Debug_QShortcutMap)
-    qDebug().nospace() 
+    qDebug().nospace()
         << "QShortcutMap::dispatchEvent(): Sending QShortcutEvent(\""
-        << (QString)d->currentSequence << "\", " << next->id << ", " 
+        << (QString)d->currentSequence << "\", " << next->id << ", "
         << (bool)(enabledShortcuts>1) << ") to widget(" << next->owner << ")";
 #endif
     QShortcutEvent se(d->currentSequence, next->id, enabledShortcuts>1);

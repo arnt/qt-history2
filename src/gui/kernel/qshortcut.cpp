@@ -197,7 +197,7 @@ bool QShortcut::eventFilter(QObject *o, QEvent *e)
 {
     bool handled = false;
     if (o == parent() && d->sc_enabled && e->type() == QEvent::Shortcut) {
-        QShortcutEvent *se = (QShortcutEvent*)e;
+        QShortcutEvent *se = static_cast<QShortcutEvent *>(e);
         if (se->shortcutId() == d->sc_id
             && se->key() == d->sc_sequence){
 #ifndef QT_NO_WHATSTHIS
