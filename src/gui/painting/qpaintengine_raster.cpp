@@ -946,18 +946,8 @@ void QRasterPaintEngine::alphaPenBlt(const void* src, int bpl, bool mono, int rx
     // Decide on which span func to use
     FillData fillData = d->fillForBrush(d->pen.brush(), 0);
 
-    qt_span_func func = fillData.callback;
-    void *data = fillData.data;
-
-    if (!func)
+    if (!fillData.callback)
         return;
-
-    FillData clipData = { d->rasterBuffer, fillData.callback, fillData.data };
-    if (d->clipEnabled) {
-        func = qt_span_fill_clipped;
-        data = &clipData;
-    }
-
 
     int y0 = (ry < 0) ? -ry : 0;
     int x0 = (rx < 0) ? -rx : 0;
@@ -988,7 +978,7 @@ void QRasterPaintEngine::alphaPenBlt(const void* src, int bpl, bool mono, int rx
                 spans.add(span);
             }
             // Call span func for current set of spans.
-            func(y + ry, spans.size(), spans.data(), data);
+            fillData.callback(y + ry, spans.size(), spans.data(), fillData.data);
 
         } else {
             for (int x = x0; x < w; ) {
@@ -1009,7 +999,7 @@ void QRasterPaintEngine::alphaPenBlt(const void* src, int bpl, bool mono, int rx
             }
         }
         // Call span func for current set of spans.
-        func(y + ry, spans.size(), spans.data(), data);
+        fillData.callback(y + ry, spans.size(), spans.data(), fillData.data);
     }
 }
 #endif
