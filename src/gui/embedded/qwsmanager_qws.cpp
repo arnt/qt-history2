@@ -510,14 +510,12 @@ void QWSManager::menu(const QPoint &pos)
         connect(d->popup, SIGNAL(activated(QAction*)), SLOT(menuActivated(QAction*)));
 
         // Add Style menu
-        QMenu *styleMenu = new QMenu();
+        QMenu *styleMenu = new QMenu("Style");
         for (int i = 0; !WMStyleList[i].WMStyleName.isEmpty(); i++)
             styleMenu->addAction(qApp->translate("QWSDecoration", WMStyleList[i].WMStyleName.latin1()));
-        styleMenu->addSeparator();
-        styleMenu->addAction("foobar");
         connect(styleMenu, SIGNAL(activated(QAction*)), this, SLOT(styleMenuActivated(QAction*)));
         d->popup->addSeparator();
-        d->popup->addMenu(tr("Style"), styleMenu);
+        d->popup->addAction(styleMenu->menuAction());
     }
 
     d->menuActions[QWSManagerPrivate::MaximizeAction]->setEnabled(!d->managed->isMaximized());
