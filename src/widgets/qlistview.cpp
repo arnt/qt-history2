@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#185 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#186 $
 **
 ** Implementation of QListView widget class
 **
@@ -512,7 +512,8 @@ void QListViewItem::insertItem( QListViewItem * newChild )
 
 /*!  Removes \a tbg from this object's list of children and causes an
   update of the screen display.  You should normally not need to call
-  this function, as QListViewItem::~QListViewItem() calls it.
+  this function, as QListViewItem::~QListViewItem() calls it. The normal way
+  to delete an item is \c delete.
 
   \warning This function leaves \a tbg and its children in a state
   where most member functions are unsafe.  Only the few functions that
