@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#229 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#230 $
 **
 ** Implementation of QFileDialog class
 **
@@ -202,7 +202,7 @@ static QPixmap * cdToParentIcon = 0;
 static QPixmap * newFolderIcon = 0;
 static QPixmap * fifteenTransparentPixels = 0;
 static QString * workingDirectory = 0;
-static bool showHiddenFiles = FALSE;
+static bool bShowHiddenFiles = FALSE;
 static QDir::SortSpec sortFilesBy = QDir::Name;
 static bool detailViewMode = FALSE;
 
@@ -240,7 +240,7 @@ static void makeVariables() {
         QBitmap m( fifteenTransparentPixels->width(), 1 );
         m.fill( Qt::color0 );
         fifteenTransparentPixels->setMask( m );
-        showHiddenFiles = FALSE;
+        bShowHiddenFiles = FALSE;
         sortFilesBy = QDir::Name;
         detailViewMode = FALSE;
     }
@@ -1848,6 +1848,28 @@ void QFileDialog::setDir( const QDir &dir )
     rereadDir();
 }
 
+/*!
+  If \a s is TRUE, hidden files are shown in the filedialog, else
+  no hidden files are shown.
+*/
+
+void QFileDialog::setShowHiddenFiles( bool s )
+{
+    if ( s == bShowHiddenFiles )
+        return;
+    
+    bShowHiddenFiles = s;
+    rereadDir();
+}
+
+/*!
+  Returns TRUE if hidden files are shown in the filedialog, else FALSE.
+*/
+
+bool QFileDialog::showHiddenFiles()
+{
+    return bShowHiddenFiles;
+}
 
 /*!
   Re-reads the active directory in the file dialog.
@@ -1878,7 +1900,7 @@ void QFileDialog::rereadDir()
     const QFileInfoList *filist = 0;
 
     while ( !filist ) {
-        filist = cwd.entryInfoList( showHiddenFiles ? QDir::All | QDir::Hidden : QDir::DefaultFilter,
+        filist = cwd.entryInfoList( bShowHiddenFiles ? QDir::All | QDir::Hidden : QDir::DefaultFilter,
                                     QDir::DirsFirst | sortFilesBy );
         if ( !filist &&
              QMessageBox::warning( this, tr("Open File"),
@@ -2433,7 +2455,7 @@ void QFileDialog::popupContextMenu( QListViewItem *item, const QPoint &p,
     else if ( action == PA_Reload )
         rereadDir();
     else if ( action == PA_Hidden ) {
-        showHiddenFiles = !showHiddenFiles;
+        bShowHiddenFiles = !bShowHiddenFiles;
         rereadDir();
     } else if ( action == PA_SortName ) {
         sortFilesBy = QDir::Name;
@@ -2471,7 +2493,7 @@ void QFileDialog::popupContextMenu( QListBoxItem *item, const QPoint & p )
     else if ( action == PA_Reload )
         rereadDir();
     else if ( action == PA_Hidden ) {
-        showHiddenFiles = !showHiddenFiles;
+        bShowHiddenFiles = !bShowHiddenFiles;
         rereadDir();
     } else if ( action == PA_SortName ) {
         sortFilesBy = QDir::Name;
@@ -2537,7 +2559,7 @@ void QFileDialog::popupContextMenu( const QString &filename, bool,
     m.insertSeparator();
 
     int hidden = m.insertItem( tr( "Show &hidden files" ) );
-    m.setItemChecked( hidden, showHiddenFiles );
+    m.setItemChecked( hidden, bShowHiddenFiles );
 
 
     if ( filename.isEmpty() || !QFileInfo( dirPath() ).isWritable() ||

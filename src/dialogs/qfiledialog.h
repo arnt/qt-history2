@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#59 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#60 $
 **
 ** Definition of QFileDialog class
 **
@@ -212,6 +212,9 @@ public:
     void setDir( const QDir & );
     const QDir *dir() const;
 
+    void setShowHiddenFiles( bool s );
+    bool showHiddenFiles();
+    
     void rereadDir();
 
     enum Mode { AnyFile, ExistingFile, Directory, ExistingFiles };
