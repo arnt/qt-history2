@@ -1477,9 +1477,18 @@ void QPopupMenu::mouseMoveEvent( QMouseEvent *e )
 	if ( mi ->widget() ) {
 	    QWidget* widgetAt = QApplication::widgetAt( e->globalPos(), TRUE );
 	    if ( widgetAt && widgetAt != this ) {
+		// Don't send the event to the popupmenu, since this would mean
+		// infinite recursion!
+		WFlags wf = getWFlags();
+		setWFlags( WNoMousePropagation );
+
 		QMouseEvent me( e->type(), widgetAt->mapFromGlobal( e->globalPos() ),
 				e->globalPos(), e->button(), e->state() );
 		QApplication::sendEvent( widgetAt, &me );
+
+		// restore original widget flags
+		clearWFlags( WNoMousePropagation );
+		setWFlags( wf );
 	    }
 	}
 
