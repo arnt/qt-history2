@@ -17,17 +17,22 @@ class QDesignerAction : public QAction
 
 public:
     QDesignerAction( QObject *parent )
-	: QAction( parent ) {}
+	: QAction( parent ), wid( 0 ), idx( -1 ) {}
 
     QWidget *widget() const { return wid; }
+    int index() const { return idx; }
 
 protected:
     void addedTo( QWidget *w, QWidget * ) {
 	wid = w;
     }
+    void addedTo( int index, QPopupMenu * ) {
+	idx = index;
+    }
 
 private:
     QWidget *wid;
+    int idx;
 
 };
 
@@ -98,6 +103,16 @@ protected:
     void dragLeaveEvent( QDragLeaveEvent * );
     void dropEvent( QDropEvent * );
 #endif
+
+private:
+    void drawIndicator( const QPoint &pos );
+    QPoint calcIndicatorPos( const QPoint &pos );
+    void reInsert();
+
+private:
+    QPoint lastIndicatorPos;
+    int insertAt;
+    QList<QAction> actionList;
 
 };
 

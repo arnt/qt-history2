@@ -2736,7 +2736,6 @@ void MainWindow::handleRMBSpecialCommands( int id, QMap<QString, int> &commands,
 	    mw->addToolBar( tb, "Toolbar" );
 	} else if ( id == commands[ "add_menu_item" ] ) {
 	    QDesignerPopupMenu *popup = new QDesignerPopupMenu( mw );
-	    popup->insertItem( "", 42 );
 	    if ( !mw->child( 0, "QMenuBar" ) )
 		(void)new QDesignerMenuBar( (QWidget*)mw );
 	    mw->menuBar()->insertItem( "Menu", popup );

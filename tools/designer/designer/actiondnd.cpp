@@ -232,12 +232,14 @@ QDesignerPopupMenu::QDesignerPopupMenu( QWidget *w )
     : QPopupMenu( w, 0 )
 {
     setAcceptDrops( TRUE );
+    insertAt = -1;
 }
 
 #ifndef QT_NO_DRAGANDDROP
 
 void QDesignerPopupMenu::dragEnterEvent( QDragEnterEvent *e )
 {
+    lastIndicatorPos = QPoint( -1, -1 );
     if ( e->provides( "application/x-designer-actions" ) )
 	e->accept();
 }
@@ -248,11 +250,14 @@ void QDesignerPopupMenu::dragMoveEvent( QDragMoveEvent *e )
 	e->accept();
     else
 	return;
-    // ### draw indicator stuff
+    drawIndicator( calcIndicatorPos( e->pos() ) );
 }
 
 void QDesignerPopupMenu::dragLeaveEvent( QDragLeaveEvent * )
 {
+    if ( lastIndicatorPos != QPoint( -1, -1 ) )
+	drawIndicator( QPoint( -1, -1 ) );
+    insertAt = -1;
 }
 
 void QDesignerPopupMenu::dropEvent( QDropEvent *e )
@@ -264,10 +269,49 @@ void QDesignerPopupMenu::dropEvent( QDropEvent *e )
     QString s( e->encodedData( "application/x-designer-actions" ) );
     QAction *a = (QAction*)s.toLong(); // #### huha, that is evil
     a->addTo( this );
-    if ( indexOf( 42 ) != -1 )
-	removeItem( 42 );
+    actionList.insert( insertAt, a );
     ( (QDesignerMenuBar*)( (QMainWindow*)parentWidget() )->menuBar() )->hidePopups();
     ( (QDesignerMenuBar*)( (QMainWindow*)parentWidget() )->menuBar() )->activateItemAt( -1 );
+    reInsert();
 }
 
 #endif
+
+void QDesignerPopupMenu::reInsert()
+{
+    clear();
+    for ( QAction *a = actionList.first(); a; a = actionList.next() )
+	a->addTo( this );
+}
+
+void QDesignerPopupMenu::drawIndicator( const QPoint &pos )
+{
+    if ( lastIndicatorPos == pos )
+	return;
+    setWFlags( WPaintUnclipped );
+    QPainter p( this );
+    clearWFlags( WPaintUnclipped );
+    p.setPen( QPen( gray, 2 ) );
+    p.setRasterOp( XorROP );
+    if ( lastIndicatorPos != QPoint( -1, -1 ) )
+	p.drawLine( 0, lastIndicatorPos.y(), width(), lastIndicatorPos.y() );
+    lastIndicatorPos = pos;
+    if ( lastIndicatorPos != QPoint( -1, -1 ) )
+	p.drawLine( 0, lastIndicatorPos.y(), width(), lastIndicatorPos.y() );
+}
+
+QPoint QDesignerPopupMenu::calcIndicatorPos( const QPoint &pos )
+{
+    int h = frameWidth();
+    insertAt = count();
+    for ( int i = 0; i < (int)count(); ++i ) {
+	QRect r = itemGeometry( i );
+	if ( pos.y() < h + r.height() / 2 ) {
+	    insertAt = i;
+	    break;
+	}
+	h += r.height();
+    }
+
+    return QPoint( 0, h );
+}
