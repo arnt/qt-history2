@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#165 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#166 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -2354,19 +2354,18 @@ static void swapPixel01( QImage *image )	// 1-bpp: swap 0 and 1 pixels
   that Qt implements.
 
   Qt currently supports the following image file formats:
-    GIF, BMP, XBM and PNM.
+    GIF, BMP, XBM, XPM and PNM.
   The different PNM formats are: PBM (P1), PGM (P2), PPM (P3), PBMRAW (P4),
   PGMRAW (P5) and PPMRAW (P6).
 
   Additional formats are available with the
-  <a href=http://www.troll.no/imageio/>Qt Image IO Extension</a> package.
+  <a href="http://www.troll.no/imageio/">Qt Image IO Extension</a> package.
 
   PBM, PGM, and PPM format output is only supported in PPMRAW format.
 
-  Due to patent restrictions, only GIF \e reading is provided.
-  See the
-    <a href=http://www.lpf.org/Patents/Gif/Gif.html>LPF page on GIF patent</a>
-  for more information.
+  Due to patent restrictions, only GIF \e reading is provided.  Unisys
+  has a patent on one of the algorithms used for GIF writing, and
+  enforces it aggressively.
 
   You will normally not need to use this class, QPixmap::load(),
   QPixmap::save() and QImage contain most of the needed functionality.
@@ -4137,7 +4136,7 @@ static void write_xpm_image( QImageIO * iio )
 	line.resize( cpp*w + 1 );
 	for( x=0; x<w; x++ ) {
 	    int color = (int)(*(yp + x));
-	    const char * chars = xpm_color_name( cpp, 
+	    const char * chars = xpm_color_name( cpp,
 						 (int)(long)colorMap.find(color) );
 	    line[ x*cpp ] = chars[0];
 	    if ( cpp == 2 )
@@ -4233,7 +4232,7 @@ void bitBlt( QImage* dst, int dx, int dy, const QImage* src,
 	// easy to copy
     } else if ( dst->depth() != 32 ) {
 	QImage dstconv = dst->convertDepth( 32 );
-	bitBlt( &dstconv, dx, dy, src, sx, sy, sw, sh, 
+	bitBlt( &dstconv, dx, dy, src, sx, sy, sw, sh,
 	   (conversion_flags&~DitherMode_Mask) | AvoidDither );
 	*dst = dstconv.convertDepthWithPalette( dst->depth(),
 	    dst->colorTable(), dst->numColors() );

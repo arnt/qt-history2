@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#52 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#53 $
 **
 ** Implementation of QDir class
 **
@@ -955,6 +955,12 @@ bool QDir::remove( const char *fileName, bool acceptAbsPath )
   any number of separators at the beginning of \e name will be removed.
 
   Returns TRUE if successful, otherwise FALSE.
+
+  On most file systems, rename() fails only if oldName does not exist
+  or if \a newName and \a oldName are not on the same partition, but
+  there are also other reasons why rename() can fail.  For example, on
+  at least one file system rename() fails if newName points to an open
+  file
 */
 
 bool QDir::rename( const char *name, const char *newName,
