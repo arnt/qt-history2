@@ -537,6 +537,10 @@ void QWSDisplay::Data::init()
 	// Need to zero index count at end of block, might as well zero
 	// the rest too
 	memset(sharedRam,0,sharedRamSize);
+
+	QWSIdentifyCommand cmd;
+	cmd.setId(appName);
+	qt_server_enqueue( &cmd );
     }
     setMaxWindowRect(QRect(0,0,qt_screen->width(),qt_screen->height()));
     int mouseoffset = 0;
@@ -939,6 +943,16 @@ void QWSDisplay::requestFocus(int winId, bool get)
     cmd.simpleData.flag = get;
     if ( d->directServerConnection() )
 	qwsServer->request_focus( &cmd );
+    else
+	d->sendCommand( cmd );
+}
+
+void QWSDisplay::setIdentity(const QString &appName)
+{
+    QWSIdentifyCommand cmd;
+    cmd.setId(appName);
+    if ( d->directServerConnection() )
+	qwsServer->set_identity( &cmd );
     else
 	d->sendCommand( cmd );
 }
@@ -1815,6 +1829,8 @@ void QApplication::restoreOverrideCursor()
     app_cursor = cursorStack->last();
     QWidget *w = QWidget::mouseGrabber();
     if (!w && qt_last_x)
+	w = widgetAt(*qt_last_x, *qt_last_y, FALSE);
+    if ( !w )
 	w = widgetAt(*qt_last_x, *qt_last_y, FALSE);
     if ( !w )
 	w = desktop();

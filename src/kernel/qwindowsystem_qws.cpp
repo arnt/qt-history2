@@ -1518,7 +1518,7 @@ void QWSServer::sendPropertyNotifyEvent( int property, int state )
 	( *it )->sendPropertyNotifyEvent( property, state );
 }
 #endif
-void QWSServer::invokeIdentify( QWSIdentifyCommand *cmd, QWSClient *client )
+void QWSServer::invokeIdentify( const QWSIdentifyCommand *cmd, QWSClient *client )
 {
     client->setIdentity(cmd->id);
 }
@@ -2382,6 +2382,10 @@ void QWSServer::request_focus( const QWSRequestFocusCommand *cmd )
     invokeSetFocus( cmd, client[-1] );
 }
 
+void QWSServer::set_identity( const QWSIdentifyCommand *cmd )
+{
+    invokeIdentify( cmd, client[-1] );
+}
 
 void QWSServer::request_region( int wid, QRegion region )
 {

@@ -71,6 +71,7 @@ public:
 
     QList<QWSWindowInfo*> * windowList();
 
+    void setIdentity(const QString &appName);
     void nameRegion( int winId, const QString& n, const QString &c );
     void requestRegion( int winId, QRegion );
     void moveRegion( int winId, int dx, int dy );

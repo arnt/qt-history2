@@ -300,6 +300,7 @@ private:
     void request_region( int, QRegion );
     void destroy_region( const QWSRegionDestroyCommand * );
     void name_region( const QWSRegionNameCommand * );
+    void set_identity( const QWSIdentifyCommand * );
 #ifndef QT_NO_QWS_IM
     void set_micro_focus( const QWSSetMicroFocusCommand * );
     void reset_im( const QWSResetIMCommand * );
@@ -317,7 +318,7 @@ private:
 #ifndef QT_NO_QWS_MULTIPROCESS
     void newConnection( int socket );
 #endif
-    void invokeIdentify( QWSIdentifyCommand *cmd, QWSClient *client );
+    void invokeIdentify( const QWSIdentifyCommand *cmd, QWSClient *client );
     void invokeCreate( QWSCreateCommand *cmd, QWSClient *client );
     void invokeRegionName( const QWSRegionNameCommand *cmd, QWSClient *client );
     void invokeRegion( QWSRegionCommand *cmd, QWSClient *client );
