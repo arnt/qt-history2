@@ -83,46 +83,49 @@ public:
     inline QT_COMPAT QSqlRecord recordInfo(const QSqlQuery& query) const
     { return query.record(); }
 #endif
-    QSqlQuery                exec(const QString& query = QString()) const;
-    QSqlError                lastError() const;
+    QSqlQuery exec(const QString& query = QString()) const;
+    QSqlError lastError() const;
 
-    bool                transaction();
-    bool                commit();
-    bool                rollback();
+    bool transaction();
+    bool commit();
+    bool rollback();
 
-    virtual void        setDatabaseName(const QString& name);
-    virtual void        setUserName(const QString& name);
-    virtual void        setPassword(const QString& password);
-    virtual void        setHostName(const QString& host);
-    virtual void        setPort(int p);
-    void                 setConnectOptions(const QString& options = QString());
-    QString                databaseName() const;
-    QString                userName() const;
-    QString                password() const;
-    QString                hostName() const;
-    QString                driverName() const;
-    int                 port() const;
-    QString                 connectOptions() const;
+    void setDatabaseName(const QString& name);
+    void setUserName(const QString& name);
+    void setPassword(const QString& password);
+    void setHostName(const QString& host);
+    void setPort(int p);
+    void setConnectOptions(const QString& options = QString());
+    QString databaseName() const;
+    QString userName() const;
+    QString password() const;
+    QString hostName() const;
+    QString driverName() const;
+    int port() const;
+    QString connectOptions() const;
 
-    QSqlDriver*                driver() const;
+    QSqlDriver* driver() const;
 
     static QString defaultConnection;
 
-    static QSqlDatabase* addDatabase(const QString& type, const QString& connectionName = defaultConnection);
-    static QSqlDatabase* addDatabase(QSqlDriver* driver, const QString& connectionName = defaultConnection);
-    static QSqlDatabase* database(const QString& connectionName = defaultConnection, bool open = true);
-    static void          removeDatabase(const QString& connectionName);
-    static void          removeDatabase(QSqlDatabase* db);
-    static bool          contains(const QString& connectionName = defaultConnection);
-    static QStringList   drivers();
-    static void          registerSqlDriver(const QString& name, QSqlDriverCreatorBase* creator);
-    static bool          isDriverAvailable(const QString& name);
+    static QSqlDatabase *addDatabase(const QString& type,
+                                     const QString& connectionName = defaultConnection);
+    static QSqlDatabase *addDatabase(QSqlDriver* driver,
+                                     const QString& connectionName = defaultConnection);
+    static QSqlDatabase *addDatabase(QSqlDatabase *other, const QString& connectionName);
+    static QSqlDatabase *database(const QString& connectionName = defaultConnection,
+                                  bool open = true);
+    static void removeDatabase(const QString& connectionName);
+    static void removeDatabase(QSqlDatabase* db);
+    static bool contains(const QString& connectionName = defaultConnection);
+    static QStringList drivers();
+    static void registerSqlDriver(const QString& name, QSqlDriverCreatorBase* creator);
+    static bool isDriverAvailable(const QString& name);
 
 protected:
     QSqlDatabase(const QString& type, const QString& name, QObject * parent=0);
     QSqlDatabase(QSqlDriver* driver, QObject * parent=0);
 private:
-    void         init(const QString& type, const QString& name);
 #if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
     QSqlDatabase(const QSqlDatabase &);
     QSqlDatabase &operator=(const QSqlDatabase &);

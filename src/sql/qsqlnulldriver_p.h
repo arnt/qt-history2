@@ -63,7 +63,8 @@ protected:
 class Q_SQL_EXPORT QNullDriver : public QSqlDriver
 {
 public:
-    QNullDriver(): QSqlDriver() {}
+    QNullDriver(): QSqlDriver()
+    { QSqlDriver::setLastError(QSqlError("Driver not loaded", "Driver not loaded")); }
     bool hasFeature(DriverFeature) const { return false; }
     bool open(const QString &, const QString & , const QString & ,
               const QString &, int, const QString&)

@@ -132,16 +132,8 @@ QSqlDatabaseManager::QSqlDatabaseManager(QObject * parent)
 
 QSqlDatabaseManager::~QSqlDatabaseManager()
 {
-    QHash<QString, QSqlDatabase *>::ConstIterator it = dbDict.constBegin();
-    while (it != dbDict.constEnd()) {
-        delete it.value();
-        ++it;
-    }
-    QDriverDict::ConstIterator it2 = drDict.constBegin();
-    while (it2 != drDict.constEnd()) {
-        delete it2.value();
-        ++it2;
-    }
+    qDeleteAll(dbDict);
+    qDeleteAll(drDict);
 }
 
 /*!
@@ -282,6 +274,8 @@ public:
     virtual ~QSqlDatabasePrivate()
     {
     }
+    void init(const QString& type, const QString& name);
+    void copy(const QSqlDatabasePrivate *other);
     QSqlDriver* driver;
 #ifndef QT_NO_COMPONENT
     QPluginManager<QSqlDriverFactoryInterface> *plugIns;
@@ -294,6 +288,20 @@ public:
     int port;
     QString connOptions;
 };
+
+/*! \internal
+    Copies the connection data from \a other
+*/
+void QSqlDatabasePrivate::copy(const QSqlDatabasePrivate *other)
+{
+    dbname = other->dbname;
+    uname = other->uname;
+    pword = other->pword;
+    hname = other->hname;
+    drvName = other->drvName;
+    port = other->port;
+    connOptions = other->connOptions;
+}
 
 /*!
     \class QSqlDatabase qsqldatabase.h
@@ -423,8 +431,8 @@ QStringList QSqlDatabase::drivers()
     delete plugIns;
 #endif
 
-    QDriverDict *dict = &QSqlDatabaseManager::driverDict();
-    for (QDriverDict::ConstIterator itd = dict->begin(); itd != dict->end(); ++itd) {
+    QDriverDict dict = QSqlDatabaseManager::driverDict();
+    for (QDriverDict::ConstIterator itd = dict.constBegin(); itd != dict.constEnd(); ++itd) {
         if (!l.contains(itd.key()))
             l << itd.key();
     }
@@ -498,6 +506,7 @@ bool QSqlDatabase::contains(const QString& connectionName)
     return QSqlDatabaseManager::contains(connectionName);
 }
 
+#define d d_func()
 
 /*!
     Creates a QSqlDatabase connection called \a name that uses the
@@ -528,10 +537,8 @@ bool QSqlDatabase::contains(const QString& connectionName)
 QSqlDatabase::QSqlDatabase(const QString &type, const QString &name, QObject *parent)
     : QObject(*new QSqlDatabasePrivate(), parent)
 {
-    init(type, name);
+    d->init(type, name);
 }
-
-#define d d_func()
 
 /*!
     \overload
@@ -555,82 +562,81 @@ QSqlDatabase::QSqlDatabase(QSqlDriver *driver, QObject *parent)
   Create the actual driver instance \a type.
 */
 
-void QSqlDatabase::init(const QString& type, const QString&)
+void QSqlDatabasePrivate::init(const QString& type, const QString&)
 {
-    d->drvName = type;
+    drvName = type;
 
-    if (!d->driver) {
+    if (!driver) {
 
 #ifdef QT_SQL_POSTGRES
         if (type == "QPSQL7")
-            d->driver = new QPSQLDriver();
+            driver = new QPSQLDriver();
 #endif
 
 #ifdef QT_SQL_MYSQL
         if (type == "QMYSQL3")
-            d->driver = new QMYSQLDriver();
+            driver = new QMYSQLDriver();
 #endif
 
 #ifdef QT_SQL_ODBC
         if (type == "QODBC3")
-            d->driver = new QODBCDriver();
+            driver = new QODBCDriver();
 #endif
 
 #ifdef QT_SQL_OCI
         if (type == "QOCI8")
-            d->driver = new QOCIDriver();
+            driver = new QOCIDriver();
 #endif
 
 #ifdef QT_SQL_TDS
         if (type == "QTDS7")
-            d->driver = new QTDSDriver();
+            driver = new QTDSDriver();
 #endif
 
 #ifdef QT_SQL_DB2
         if (type == "QDB2")
-            d->driver = new QDB2Driver();
+            driver = new QDB2Driver();
 #endif
 
 #ifdef QT_SQL_SQLITE
         if (type == "QSQLITE")
-            d->driver = new QSQLiteDriver();
+            driver = new QSQLiteDriver();
 #endif
 
 #ifdef QT_SQL_IBASE
         if (type == "QIBASE")
-            d->driver = new QIBaseDriver();
+            driver = new QIBaseDriver();
 #endif
 
     }
 
-    if (!d->driver) {
-        QDriverDict *dict = &QSqlDatabaseManager::driverDict();
-        for (QDriverDict::ConstIterator it = dict->constBegin();
-             it != dict->constEnd() && !d->driver; ++it) {
+    if (!driver) {
+        QDriverDict dict = QSqlDatabaseManager::driverDict();
+        for (QDriverDict::ConstIterator it = dict.constBegin();
+             it != dict.constEnd() && !driver; ++it) {
             if (type == it.key()) {
-                d->driver = ((QSqlDriverCreatorBase*)(*it))->createObject();
+                driver = ((QSqlDriverCreatorBase*)(*it))->createObject();
             }
         }
     }
 
 #ifndef QT_NO_COMPONENT
-    if (!d->driver) {
-        d->plugIns =
-            new QPluginManager<QSqlDriverFactoryInterface>(IID_QSqlDriverFactory, QCoreApplication::libraryPaths(), "/sqldrivers");
+    if (!driver) {
+        plugIns = new QPluginManager<QSqlDriverFactoryInterface>(IID_QSqlDriverFactory,
+                            QCoreApplication::libraryPaths(), "/sqldrivers");
 
         QInterfacePtr<QSqlDriverFactoryInterface> iface = 0;
-        d->plugIns->queryInterface(type, &iface);
+        plugIns->queryInterface(type, &iface);
         if(iface)
-            d->driver = iface->create(type);
+            driver = iface->create(type);
     }
 #endif
 
-    if (!d->driver) {
+    if (!driver) {
 
         qWarning("QSqlDatabase: %s driver not loaded", type.latin1());
-        qWarning("QSqlDatabase: available drivers: %s", drivers().join(" ").latin1());
-        d->driver = new QNullDriver();
-        d->driver->setLastError(QSqlError("Driver not loaded", "Driver not loaded"));
+        qWarning("QSqlDatabase: available drivers: %s", QSqlDatabase::drivers().join(" ").latin1());
+        driver = new QNullDriver();
     }
 }
 
@@ -1079,13 +1085,7 @@ QString QSqlDatabase::connectOptions() const
 
 bool QSqlDatabase::isDriverAvailable(const QString& name)
 {
-    QStringList l = drivers();
-    QStringList::ConstIterator it = l.begin();
-    for (;it != l.end(); ++it) {
-        if (*it == name)
-            return true;
-    }
-    return false;
+    return drivers().contains(name);
 }
 
 /*! \overload
@@ -1198,5 +1198,17 @@ bool QSqlDatabase::isDriverAvailable(const QString& name)
 QSqlDatabase* QSqlDatabase::addDatabase(QSqlDriver* driver, const QString& connectionName)
 {
     return QSqlDatabaseManager::addDatabase(new QSqlDatabase(driver), connectionName);
+}
+
+QSqlDatabase *QSqlDatabase::addDatabase(QSqlDatabase *other, const QString& connectionName)
+{
+    if (!other)
+        other = database();
+    if (!other)
+        return new QSqlDatabase(QString(), connectionName);
+
+    QSqlDatabase *db = new QSqlDatabase(other->d->drvName, connectionName);
+    db->d->copy(other->d);
+    return db;
 }
 #endif // QT_NO_SQL
