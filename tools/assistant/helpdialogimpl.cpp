@@ -894,6 +894,8 @@ void HelpDialog::setupFullTextIndex()
 	documentList << it.key();
 
     fullTextIndex = new Index( documentList, QDir::homeDirPath() );
+    fullTextIndex->setDictionaryFile( QDir::homeDirPath() + "/.indexdb.dict" );
+    fullTextIndex->setDocListFile( QDir::homeDirPath() + "/.indexdb.doc" );
     connect( fullTextIndex, SIGNAL( indexingProgress( int ) ),
 	     this, SLOT( setIndexingProgress( int ) ) );
     QFile f( QDir::homeDirPath() + "/.indexdb.dict" );

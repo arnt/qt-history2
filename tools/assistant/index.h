@@ -69,6 +69,8 @@ public:
     void makeIndex();
     QStringList query( const QStringList&, const QStringList&, const QStringList& );
     QString getDocumentTitle( const QString& );
+    void setDictionaryFile( const QString& );
+    void setDocListFile( const QString& );
 
 signals:
     void indexingProgress( int );
@@ -80,7 +82,7 @@ private:
     void writeDocumentList();
     void readDocumentList();
     QStringList getWildcardTerms( const QString& );
-    QStringList split( const QString& );
+    QValueList<QCString> split( const QString& );
     QValueList<Document> setupDummyTerm( const QStringList& );
     bool searchForPattern( const QStringList&, const QStringList&, const QString& );
     void buildMiniDict( const char* );
@@ -89,6 +91,7 @@ private:
     QAsciiDict<PosEntry> miniDict;
     uint wordNum;
     QString docPath, homePath;
+    QString dictFile, docListFile;
     bool alreadyHaveDocList;
 };
 

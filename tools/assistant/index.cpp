@@ -63,6 +63,16 @@ Index::Index( const QStringList &dl, const QString &hp )
     alreadyHaveDocList = TRUE;
 }
 
+void Index::setDictionaryFile( const QString &f )
+{
+    dictFile = f;
+}
+
+void Index::setDocListFile( const QString &f )
+{
+    docListFile = f;
+}
+
 void Index::makeIndex()
 {
     if ( !alreadyHaveDocList )
@@ -157,7 +167,7 @@ void Index::parseDocument( const QString &filename, int docNum )
 void Index::writeDict()
 {
     QAsciiDictIterator<Entry> it( dict );
-    QFile f( homePath + "/.indexdb.dict" );
+    QFile f( dictFile );
     if ( !f.open( IO_WriteOnly ) )
 	return;
     QDataStream s( &f );
@@ -172,7 +182,7 @@ void Index::writeDict()
 
 void Index::writeDocumentList()
 {
-    QFile f( homePath + "/.indexdb.docs" );
+    QFile f( docListFile );
     if ( !f.open( IO_WriteOnly ) )
 	return;
     QDataStream s( &f );
@@ -181,7 +191,7 @@ void Index::writeDocumentList()
 
 void Index::readDict()
 {
-    QFile f( homePath + "/.indexdb.dict" );
+    QFile f( dictFile );
     if ( !f.open( IO_ReadOnly ) )
 	return;
 
@@ -200,7 +210,7 @@ void Index::readDict()
 
 void Index::readDocumentList()
 {
-    QFile f( homePath + "/.indexdb.docs" );
+    QFile f( docListFile );
     if ( !f.open( IO_ReadOnly ) )
 	return;
     QDataStream s( &f );
@@ -316,8 +326,8 @@ QString Index::getDocumentTitle( const QString &fileName )
 QStringList Index::getWildcardTerms( const QString &term )
 {
     QStringList lst;
-    QStringList terms = split( term );
-    QStringList::iterator iter;
+    QValueList<QCString> terms = split( term );
+    QValueList<QCString>::iterator iter;
 
     QAsciiDictIterator<Entry> it( dict );
     for( ; it.current(); ++it ) {
@@ -357,10 +367,11 @@ QStringList Index::getWildcardTerms( const QString &term )
     return lst;
 }
 
-QStringList Index::split( const QString &str )
+QValueList<QCString> Index::split( const QString &s )
 {
-    QStringList lst;
+    QValueList<QCString> lst;
     int j = 0;
+    QCString str = s.latin1();
     int i = str.find( '*', j );
 
     while ( i != -1 ) {
