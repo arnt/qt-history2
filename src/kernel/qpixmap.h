@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.h#44 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.h#45 $
 **
 ** Definition of QPixmap class
 **
@@ -55,7 +55,8 @@ public:
 
     static const char *imageFormat( const char *fileName );
     bool	load( const char *fileName, const char *format=0 );
-    bool	loadFromData( const uchar *buf, uint len, const char *format );
+    bool	loadFromData( const uchar *buf, uint len,
+			      const char *format=0 );
     bool	save( const char *fileName, const char *format ) const;
 
 #if defined(_WS_WIN_) || defined(_WS_PM_)
