@@ -6,6 +6,7 @@
 #include <qfiledialog.h>
 #include <qpushbutton.h>
 #include <qlineedit.h>
+#include "qnetwork.h"
 
 Main::Main(QWidget* parent, const char* name, int f) :
     QWidget(parent, name, f)
@@ -91,7 +92,7 @@ void Main::whoosh()
 
 void Main::boom()
 {
-    QFileDialog::getOpenFileName( 
+    QFileDialog::getOpenFileName(
 	 QString::null,
 	 "C++ Files (*.cpp;*.cc;*.C;*.cxx;*.c++);;"
 	 "Header Files (*.h *.hxx *.h++);;"
@@ -121,7 +122,8 @@ void Main::paintEvent(QPaintEvent* e)
 main(int argc, char** argv)
 {
     QApplication app(argc, argv);
-
+    qInitNetworkProtocols();
+    
     Main m;
     m.show();
 
