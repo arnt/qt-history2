@@ -26,9 +26,11 @@
 #ifndef QSETTINGS_H
 #define QSETTINGS_H
 
+#ifndef QT_H
 #include <qstring.h>
 #include <qvariant.h>
 #include <qiodevice.h>
+#endif // QT_H
 
 
 class QSettingsPrivate;

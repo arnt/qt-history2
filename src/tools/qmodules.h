@@ -12,5 +12,4 @@
 #define QT_MODULE_TABLE
 #define QT_MODULE_XML
 #define QT_MODULE_OPENGL
-#define QT_MODULE_SQL
 #define QT_MODULE_STYLES
