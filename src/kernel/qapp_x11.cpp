@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#90 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#91 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -31,7 +31,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#90 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#91 $";
 #endif
 
 
@@ -174,6 +174,10 @@ void qt_init( int *argcptr, char **argv )
 	}
 	else if ( arg == "-iconic" )
 	    mwIconic = !mwIconic;
+	else if ( arg == "-style=windows" )
+	    QApplication::setStyle( WindowsStyle );
+	else if ( arg == "-style=motif" )
+	    QApplication::setStyle( MotifStyle );
 #if defined(DEBUG)
 	else if ( arg == "-sync" )
 	    appSync = !appSync;
