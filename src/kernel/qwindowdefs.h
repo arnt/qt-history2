@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#48 $
+** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#49 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -234,21 +234,21 @@ enum RasterOp					// raster op/transfer mode
 
 // Text formatting flags for QPainter::drawText and QLabel
 
-const AlignLeft		= 0x000;		// text alignment
-const AlignRight	= 0x001;
-const AlignHCenter	= 0x002;
-const AlignTop		= 0x000;
-const AlignBottom	= 0x004;
-const AlignVCenter	= 0x008;
-const AlignCenter	= AlignVCenter | AlignHCenter;
+const int AlignLeft	= 0x0001;		// text alignment
+const int AlignRight	= 0x0002;
+const int AlignHCenter	= 0x0004;
+const int AlignTop	= 0x0008;
+const int AlignBottom	= 0x0010;
+const int AlignVCenter	= 0x0020;
+const int AlignCenter	= AlignVCenter | AlignHCenter;
 
-const SingleLine	= 0x010;		// misc. flags
-const DontClip		= 0x020;
-const ExpandTabs	= 0x040;
-const ShowPrefix	= 0x080;
-const WordBreak		= 0x100;
-const GrayText		= 0x200;
-const DontPrint		= 0x400;
+const int SingleLine	= 0x0040;		// misc. flags
+const int DontClip	= 0x0080;
+const int ExpandTabs	= 0x0100;
+const int ShowPrefix	= 0x0200;
+const int WordBreak	= 0x0400;
+const int GrayText	= 0x0800;
+const int DontPrint	= 0x1000;		// internal
 
 
 #endif // QWINDEFS_H
