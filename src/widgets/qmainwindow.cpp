@@ -1626,6 +1626,13 @@ void QMainWindow::childEvent( QChildEvent* e)
 
 bool QMainWindow::event( QEvent * e )
 {
+    if (e->type() == QEvent::StatusTip) {
+	QStatusBar *sb = statusBar();
+	if (sb) {
+	    sb->message(static_cast<QStatusTipEvent*>(e)->tip());
+	    return true;
+	}
+    }
     if ( e->type() == QEvent::ChildRemoved && ( (QChildEvent*)e )->child() == d->mc ) {
 	d->mc->removeEventFilter( this );
 	d->mc = 0;

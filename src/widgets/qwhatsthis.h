@@ -30,7 +30,6 @@ class QStyleSheet;
 class Q_GUI_EXPORT Q4WhatsThis: public Qt
 {
     Q4WhatsThis();
-    Q4WhatsThis(const Q4WhatsThis &);
 public:
     static void setFont( const QFont &font );
     static QFont font();

@@ -413,11 +413,11 @@ public:
 #endif // QT_NO_DRAGANDDROP
 
 
-class Q_GUI_EXPORT QHelpEvent : public QInputEvent
+class Q_GUI_EXPORT QHelpEvent : public QEvent
 {
 public:
     inline QHelpEvent(Type type, const QPoint &pos, const QPoint &globalPos)
-	: QInputEvent(type), p(pos), gp(globalPos) {}
+	: QEvent(type), p(pos), gp(globalPos) {}
 
     inline int x() const { return p.x(); }
     inline int y() const { return p.y(); }
@@ -427,19 +427,20 @@ public:
     inline const QPoint& pos() const { return p; }
     inline const QPoint& globalPos() const { return gp; }
 
-protected:
+private:
     QPoint  p;
     QPoint  gp;
 };
 
-class Q_GUI_EXPORT QStatusTipEvent : public QInputEvent
+class Q_GUI_EXPORT QStatusTipEvent : public QEvent
 {
 public:
-    inline QStatusTipEvent(const QString &tip):QInputEvent(StatusTip), s(tip){}
-    inline QString tip() const { return s; }
-protected:
+    inline QStatusTipEvent(const QString &tip):QEvent(StatusTip), s(tip){}
+    QString tip() const { return s; }
+private:
     QString s;
 };
+
 
 #ifndef QT_NO_DEBUG
 QDebug operator<<(QDebug, QEvent *);

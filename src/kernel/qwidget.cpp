@@ -40,6 +40,7 @@
 #include "qwsmanager_qws.h"
 #endif
 #include "qpainter.h"
+#include "qtooltip.h"
 
 #include "qwidget_p.h"
 #define d d_func()
@@ -4269,6 +4270,10 @@ bool QWidget::event( QEvent *e )
 
     switch ( e->type() ) {
     case QEvent::MouseMove:
+	// throw away any mouse-tracking-only mouse events
+	if (!hasMouseTracking() &&
+	    (((QMouseEvent*)e)->state()&QMouseEvent::MouseButtonMask) == 0)
+	    break;
 	mouseMoveEvent( (QMouseEvent*)e );
 	if ( ! ((QMouseEvent*)e)->isAccepted() )
 	    return d->compositeEvent(e);
@@ -4386,10 +4391,18 @@ bool QWidget::event( QEvent *e )
 	break;
 
     case QEvent::Enter:
+	if (!!d->statusTip) {
+	    QStatusTipEvent tip(d->statusTip);
+	    QApplication::sendEvent(this, &tip);
+	}
 	enterEvent( e );
 	break;
 
     case QEvent::Leave:
+	if (!!d->statusTip) {
+	    QStatusTipEvent tip(QString::null);
+	    QApplication::sendEvent(this, &tip);
+	}
 	leaveEvent( e );
 	break;
 
@@ -4592,6 +4605,13 @@ bool QWidget::event( QEvent *e )
 	    QObject *o = d->children.at(i);
 	    QApplication::sendEvent( o, e );
 	}
+	break;
+
+    case QEvent::ToolTip:
+	if (!!d->toolTip) {
+	    Q4ToolTip::showText(static_cast<QHelpEvent*>(e)->globalPos(), d->toolTip, this);
+	} else
+	    return false;
 	break;
 
     default:

@@ -1804,6 +1804,15 @@ bool QApplication::event( QEvent *e )
 	    killTimer(qt_double_buffer_timer);
 	    qt_double_buffer_timer = 0;
 	    return TRUE;
+	} else if (te->timerId() == d->toolTipWakeUp.timerId()) {
+	    d->toolTipWakeUp.stop();
+	    d->toolTipFallAsleep.start(2000, this);
+	    if (d->toolTipWidget) {
+		QHelpEvent e(QEvent::ToolTip, d->toolTipPos, d->toolTipGlobalPos);
+		QApplication::sendEvent(d->toolTipWidget, &e);
+	    }
+	} else if (te->timerId() == d->toolTipFallAsleep.timerId()) {
+	    d->toolTipFallAsleep.stop();
 	}
     }
     return QCoreApplication::event(e);
@@ -2509,8 +2518,26 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
     }
 #endif // QT_COMPAT
 
-    bool res;
-    switch ( e->type() ) {
+
+    /* User input and window activation makes tooltips sleep */
+    switch (e->type()) {
+    case QEvent::WindowActivate:
+    case QEvent::WindowDeactivate:
+    case QEvent::KeyPress:
+    case QEvent::KeyRelease:
+    case QEvent::FocusOut:
+    case QEvent::FocusIn:
+	d->toolTipWakeUp.stop();
+	d->toolTipFallAsleep.stop();
+	break;
+    default:
+	break;
+    }
+
+    bool res = false;
+    if (!receiver->isWidgetType()) {
+	res = notify_helper( receiver, e );
+    } else switch ( e->type() ) {
 #ifndef QT_NO_ACCEL
     case QEvent::Accel:
     {
@@ -2577,6 +2604,13 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
 		QFocusEvent::setReason( QFocusEvent::Mouse);
 		w->setFocus();
 		QFocusEvent::resetReason();
+	    }
+
+	    if (e->type() == QEvent::MouseMove) {
+		d->toolTipWidget = w;
+		d->toolTipPos = relpos;
+		d->toolTipGlobalPos = mouse->globalPos();
+		d->toolTipWakeUp.start(d->toolTipFallAsleep.isActive()?1:700, this);
 	    }
 	}
 
@@ -2718,6 +2752,54 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
     }
     break;
 #endif
+
+    case QEvent::ToolTip:
+    case QEvent::WhatsThis:
+    {
+	QWidget* w = (QWidget*)receiver;
+	QHelpEvent *help = (QHelpEvent*) e;
+	QPoint relpos = help->pos();
+	if (e->spontaneous())
+	    while (w->testAttribute(QWidget::WA_CompositeChild)
+		   && w->parentWidget()
+		   && w->parentWidget()->testAttribute(QWidget::WA_CompositeParent)) {
+		relpos += w->pos();
+		w = w->parentWidget();
+	    }
+
+	while ( w ) {
+	    QHelpEvent he(help->type(), relpos, help->globalPos());
+	    he.spont = e->spontaneous();
+	    res = notify_helper( w,  w == receiver ? help : &he );
+	    e->spont = FALSE;
+
+	    if (res || w->isTopLevel()
+		|| (w->testAttribute(QWidget::WA_CompositeChild)
+		    && w->parentWidget()
+		    && w->parentWidget()->testAttribute(QWidget::WA_CompositeParent)))
+		break;
+
+	    relpos += w->pos();
+	    w = w->parentWidget();
+	}
+    }
+    break;
+
+    case QEvent::StatusTip:
+    {
+	QWidget *w = (QWidget*)receiver;
+	while ( w ) {
+	    res = notify_helper(w, e);
+	    if (res || w->isTopLevel()
+		|| (w->testAttribute(QWidget::WA_CompositeChild)
+		    && w->parentWidget()
+		    && w->parentWidget()->testAttribute(QWidget::WA_CompositeParent)))
+		break;
+	    w = w->parentWidget();
+	}
+    }
+    break;
+
     default:
 	res = notify_helper( receiver, e );
 	break;
@@ -2728,7 +2810,15 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
 
 bool QApplication::notify_helper( QObject *receiver, QEvent * e)
 {
+    // send to all application event filters
+    for (int i = 0; i < d->eventFilters.size(); ++i) {
+	register QObject *obj = d->eventFilters.at(i);
+	if ( obj && obj->eventFilter(receiver,e) )
+	    return true;
+    }
+
     bool consumed = false;
+    bool handled = false;
 
     if (receiver->isWidgetType()) {
 	QWidget *widget = (QWidget*)receiver;
@@ -2739,13 +2829,8 @@ bool QApplication::notify_helper( QObject *receiver, QEvent * e)
 	else if ( e->type() == QEvent::Leave || e->type() == QEvent::DragLeave )
 	    widget->setAttribute(QWidget::WA_UnderMouse, false);
 
-	// throw away any mouse-tracking-only mouse events
-	if ( e->type() == QEvent::MouseMove &&
-	     (((QMouseEvent*)e)->state()&QMouseEvent::MouseButtonMask) == 0 &&
-	     !widget->hasMouseTracking() ) {
-	    consumed = true;
-	    goto handled;
-	} else if ( !widget->isEnabled() ) { // throw away mouse events to disabled widgets
+	// throw away mouse events to disabled widgets
+	if ( !widget->isEnabled() ) {
 	    switch(e->type()) {
 	    case QEvent::MouseButtonPress:
 	    case QEvent::MouseButtonRelease:
@@ -2753,29 +2838,33 @@ bool QApplication::notify_helper( QObject *receiver, QEvent * e)
 	    case QEvent::MouseMove:
 		( (QMouseEvent*) e)->ignore();
 		consumed = true;
-		goto handled;
+		handled = true;
+		break;
 #ifndef QT_NO_DRAGANDDROP
 	    case QEvent::DragEnter:
 	    case QEvent::DragMove:
 		( (QDragMoveEvent*) e)->ignore();
-		goto handled;
-
+		handled = true;
+		break;
 	    case QEvent::DragLeave:
 	    case QEvent::DragResponse:
-		goto handled;
-
+		handled = true;
+		break;
 	    case QEvent::Drop:
 		( (QDropEvent*) e)->ignore();
-		goto handled;
+		handled = true;
+		break;
 #endif
 #ifndef QT_NO_WHEELEVENT
 	    case QEvent::Wheel:
 		( (QWheelEvent*) e)->ignore();
-		goto handled;
+		handled = true;
+		break;
 #endif
 	    case QEvent::ContextMenu:
 		( (QContextMenuEvent*) e)->ignore();
-		goto handled;
+		handled = true;
+		break;
 	    default:
 		break;
 	    }
@@ -2783,9 +2872,17 @@ bool QApplication::notify_helper( QObject *receiver, QEvent * e)
 
     }
 
-    consumed = QCoreApplication::notify_helper(receiver, e);
-
- handled:
+    if (!handled) {
+	// send to all receiver event filters
+	if (receiver != this) {
+	    for (int i = 0; i < receiver->d->eventFilters.size(); ++i) {
+		register QObject *obj = receiver->d->eventFilters.at(i);
+		if ( obj && obj->eventFilter(receiver,e) )
+		    return true;
+	    }
+	}
+	consumed = receiver->event(e);
+    }
     e->spont = false;
     return consumed;
 }

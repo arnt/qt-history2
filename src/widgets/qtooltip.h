@@ -24,7 +24,6 @@
 class Q_GUI_EXPORT Q4ToolTip: public Qt
 {
     Q4ToolTip();
-    Q4ToolTip(const Q4ToolTip &);
 public:
     static void setFont( const QFont &font );
     static QFont font();
@@ -34,17 +33,15 @@ public:
 
     static inline void add( QWidget *w, const QString &s) { w->setToolTip(s); } // deprecated
 
-    static void showText(int x, int y, const QString &text);
-    static inline void showText(const QPoint &pos, const QString &text)
-	{ showText(pos.x(), pos.y(), text); }
-};
+    static void showText(int x, int y, const QString &text, QWidget *w = 0);
+    static inline void showText(const QPoint &pos, const QString &text, QWidget *w = 0)
+	{ showText(pos.x(), pos.y(), text, w); }
 
+};
 
 #if 1 // def QT_COMPAT
 
 class QTipManager;
-class QIconViewToolTip;
-class QListViewToolTip;
 
 class Q_GUI_EXPORT QToolTipGroup: public QObject
 {

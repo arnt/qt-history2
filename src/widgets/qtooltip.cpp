@@ -20,6 +20,7 @@
 #include "qguardedptr.h"
 #include "qtimer.h"
 #include "qeffects_p.h"
+#include "qdebug.h"
 
 static bool globally_enabled = TRUE;
 
@@ -208,7 +209,7 @@ void QTipManager::add( const QRect &gm, QWidget *w,
 
     if ( !isApplicationFilter && qApp ) {
 	isApplicationFilter = TRUE;
-	qApp->installEventFilter( tipManager );
+//	qApp->installEventFilter( tipManager );
     }
 
     if ( t->group ) {
@@ -1230,8 +1231,14 @@ void QToolTip::setWakeUpDelay ( int i )
     tipManager->setWakeUpDelay(i);
 }
 
+
 // Dummy implementations to compile on windows..
-void Q4ToolTip::showText(int, int, const QString &) { }
+void Q4ToolTip::showText(int, int, const QString &s, QWidget *w)
+{
+    qDebug() << "Q4ToolTip::showText" << s << "for" << w;
+}
+
 
 #include "qtooltip.moc"
+
 #endif

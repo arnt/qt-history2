@@ -36,6 +36,7 @@
 
 #include "qcoreapplication_p.h"
 #include "qapplication.h"
+#include "qbasictimer.h"
 
 class QWidget;
 class QObject;
@@ -89,6 +90,10 @@ public:
 #ifndef QT_NO_CURSOR
     QList<QCursor> cursor_list;
 #endif
+
+    QBasicTimer toolTipWakeUp, toolTipFallAsleep;
+    QPoint toolTipPos, toolTipGlobalPos;
+    QPointer<QWidget> toolTipWidget;
 };
 
 
