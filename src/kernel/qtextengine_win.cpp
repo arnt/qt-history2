@@ -598,7 +598,7 @@ void QTextEngine::shape( int item ) const
     int from = si.position;
     int len = length( item );
 
-    assert( len > 0 );
+    Q_ASSERT( len > 0 );
 
     si.glyph_data_offset = used;
 
@@ -648,7 +648,7 @@ void QTextEngine::shape( int item ) const
 	    } else if (res == E_OUTOFMEMORY) {
 		l += 32;
 	    } else if ( res != S_OK ) {
-		assert( FALSE );
+		Q_ASSERT( FALSE );
 	    }
 	} while( res != S_OK );
 
