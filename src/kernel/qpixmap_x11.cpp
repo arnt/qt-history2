@@ -625,7 +625,10 @@ QImage QPixmap::convertToImage() const
 
     if ( d > 1 && d <= 8 )			// set to nearest valid depth
 	d = 8;					//   2..8 ==> 8
-    else if ( d > 8 || trucol )
+    // we could run into the situation where d == 8 AND trucol is true, which can
+    // cause problems when converting to and from images.  in this case, always treat
+    // the depth as 32... from Klaus Schmidinger and qt-bugs/arc-15/31333.
+    if ( d > 8 || trucol )
 	d = 32;					//   > 8  ==> 32
 
     XImage *xi = (XImage *)data->ximage;	// any cached ximage?
