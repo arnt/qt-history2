@@ -410,6 +410,23 @@ void QPixmap::fill(const QColor &fillColor)
                 *(dptr + i) = colr;
         }
     }
+    if(fillColor.alpha() == 255) {
+        delete data->alphapm;
+        data->alphapm = 0;
+    } else if(data->alphapm || fillColor.alpha()) { 
+        if(!data->alphapm)
+            data->alphapm = new QPixmap(data->w, data->h, 32);
+        uint *aptr = (uint *)GetPixBaseAddr(GetGWorldPixMap(static_cast<GWorldPtr>(data->alphapm->data->hd)));
+        int abytes = GetPixRowBytes(GetGWorldPixMap(static_cast<GWorldPtr>(data->alphapm->data->hd)))*height();
+        Q_ASSERT_X(aptr && abytes, "QPixmap::fill", "No aptr or no abytes");
+        QRgb colr = qRgba(255-fillColor.alpha(), 255-fillColor.alpha(), 255-fillColor.alpha(), 0);
+        if(!colr) {
+            memset(aptr, colr, abytes);
+        } else {
+            for(int i = 0; i < (int)(abytes/sizeof(uint)); i++)
+                *(aptr + i) = colr;
+        }
+    }
 }
 
 void QPixmap::detach()
@@ -486,13 +503,13 @@ QPixmap QPixmap::transform(const QMatrix &matrix, Qt::TransformationMode mode) c
         return QPixmap(image.transform(matrix, mode));
     }
 
-    int           w, h;                                // size of target pixmap
-    int           ws, hs;                                // size of source pixmap
+    int w, h;                                // size of target pixmap
+    int ws, hs;                                // size of source pixmap
     uchar *dptr;                                // data in target pixmap
-    int           dbpl, dbytes;                        // bytes per line/bytes total
+    int dbpl, dbytes;                        // bytes per line/bytes total
     uchar *sptr;                                // data in original pixmap
-    int           sbpl;                                // bytes per line in original
-    int           bpp;                                        // bits per pixel
+    int sbpl;                                // bytes per line in original
+    int bpp;                                        // bits per pixel
 
     if(isNull())                                // this is a null pixmap
         return copy();
