@@ -333,6 +333,27 @@ MakefileGenerator::generateDependencies(QPtrList<MakefileDependDir> &dirs, QStri
 			    }
 			}
 		    }
+		    if(fqn.isEmpty()) { //is it from a .y?
+			QString rhs = Option::yacc_mod + Option::h_ext.first();
+			if(inc.right(rhs.length()) == rhs) {
+			    QString lhs = inc.left(inc.length() - rhs.length()) + Option::yacc_ext;
+			    QStringList yl = project->variables()["YACCSOURCES"];
+			    for(QStringList::Iterator it = yl.begin(); it != yl.end(); ++it) {
+				QString s = (*it), d;
+				int slsh = s.findRev(Option::dir_sep);
+				if(slsh != -1) {
+				    d = s.left(slsh + 1);
+				    s = s.right(s.length() - slsh - 1);
+				}
+				if(!project->isEmpty("QMAKE_ABSOLUTE_SOURCE_PATH"))
+				    d = project->first("QMAKE_ABSOLUTE_SOURCE_PATH");
+				if(s == lhs) {
+				    fqn = d + inc;
+				    break;
+				}
+			    }
+			}
+		    }
 		}
 		if(!Option::mkfile::do_dep_heuristics || fqn.isEmpty()) //I give up
 		    continue;
