@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsignalslotimp.h#2 $
+** $Id: //depot/qt/main/src/kernel/qsignalslotimp.h#3 $
 **
 ** Definition of signal/slot collections etc.
 **
@@ -31,8 +31,13 @@
 #endif // QT_H
 
 
+#if defined(QT_DLL)
 template class Q_EXPORT QList<QConnection>;
 template class Q_EXPORT QListIterator<QConnection>;
+template class Q_EXPORT QDict<QConnectionList>;
+template class Q_EXPORT QDictIterator<QConnectionList>;
+#endif
+
 
 class Q_EXPORT QConnectionList : public QList<QConnection>
 {
@@ -52,9 +57,6 @@ public:
 	{ return (QConnectionListIt&)QListIterator<QConnection>::operator=(list); }
 };
 
-
-template class Q_EXPORT QDict<QConnectionList>;
-template class Q_EXPORT QDictIterator<QConnectionList>;
 
 class Q_EXPORT QSignalDict : public QDict<QConnectionList>
 {

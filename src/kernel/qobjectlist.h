@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobjectlist.h#4 $
+** $Id: //depot/qt/main/src/kernel/qobjectlist.h#5 $
 **
 ** Definition of QObjectList
 **
@@ -30,10 +30,11 @@
 #endif // QT_H
 
 
-// QObject collections
-
+#if defined(QT_DLL)
 template class Q_EXPORT QList<QObject>;
 template class Q_EXPORT QListIterator<QObject>;
+#endif
+
 
 class Q_EXPORT QObjectList : public QList<QObject>
 {
