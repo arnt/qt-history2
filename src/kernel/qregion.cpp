@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qregion.cpp#3 $
 **
 ** Implementation of QRegion class
 **
@@ -16,7 +16,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qregion.cpp#2 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qregion.cpp#3 $";
 #endif
 
 
@@ -71,7 +71,8 @@ void QRegion::cmd( int id, void *param, const QRegion *r1, const QRegion *r2 )
 	case QRGN_SETELLIPSE:
 	    s << *((QRect*)param);
 	    break;
-	case QRGN_SETPTARRAY:
+	case QRGN_SETPTARRAY_ALT:
+	case QRGN_SETPTARRAY_WIND:
 	    s << *((QPointArray*)param);
 	    break;
 	case QRGN_MOVE:
@@ -114,10 +115,10 @@ void QRegion::exec()
 	    s >> r;
 	    rgn = QRegion( r, id == QRGN_SETRECT ? Rectangle : Ellipse );
 	}
-	else if ( id == QRGN_SETPTARRAY ) {
+	else if ( id == QRGN_SETPTARRAY_ALT || id == QRGN_SETPTARRAY_WIND ) {
 	    QPointArray a;
 	    s >> a;
-	    rgn = QRegion( a );
+	    rgn = QRegion( a, id == QRGN_SETPTARRAY_WIND );
 	}
 	else if ( id == QRGN_MOVE ) {
 	    QPoint p;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion_x11.cpp#11 $
+** $Id: //depot/qt/main/src/kernel/qregion_x11.cpp#12 $
 **
 ** Implementation of QRegion class for X11
 **
@@ -19,7 +19,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qregion_x11.cpp#11 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qregion_x11.cpp#12 $";
 #endif
 
 
@@ -78,12 +78,21 @@ QRegion::QRegion( const QRect &r, RegionType t )
   Constructs a polygon region from the point array \e a.
 */
 
-QRegion::QRegion( const QPointArray &a )	// create region from pt array
+QRegion::QRegion( const QPointArray &a, bool winding )
 {
+    int r, c;
+    if ( winding ) {
+	r = WindingRule;
+	c = QRGN_SETPTARRAY_WIND;
+    }
+    else {
+	r = EvenOddRule;
+	c = QRGN_SETPTARRAY_ALT;
+    }
     data = new QRegionData;
     CHECK_PTR( data );
-    data->rgn = XPolygonRegion( (XPoint*)a.data(), a.size(), EvenOddRule );
-    cmd( QRGN_SETPTARRAY, (QPointArray *)&a );
+    data->rgn = XPolygonRegion( (XPoint*)a.data(), a.size(), r );
+    cmd( c, (QPointArray *)&a );
 }
 
 /*!

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrgn_win.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qrgn_win.cpp#6 $
 **
 ** Implementation of QRegion class for Windows
 **
@@ -16,7 +16,7 @@
 #include <windows.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qrgn_win.cpp#5 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qrgn_win.cpp#6 $";
 #endif
 
 
@@ -52,12 +52,21 @@ QRegion::QRegion( const QRect &r, RegionType t )
     cmd( id, &rr );
 }
 
-QRegion::QRegion( const QPointArray &a )	// create region from pt array
+QRegion::QRegion( const QPointArray &a, bool winding )
 {
+    int r, c;
+    if ( winding ) {
+	r = WINDING;
+	c = QRGN_SETPTARRAY_WIND;
+    }
+    else {
+	r = ALTERNATE;
+	c = QRGN_SETPTARRAY_ALT;
+    }
     data = new QRegionData;
     CHECK_PTR( data );
-    data->rgn = CreatePolygonRgn( (POINT*)a.data(), a.size(), WINDING );
-    cmd( QRGN_SETPTARRAY, (QPointArray *)&a );
+    data->rgn = CreatePolygonRgn( (POINT*)a.data(), a.size(), r );
+    cmd( c, (QPointArray *)&a );
 }
 
 QRegion::QRegion( const QRegion &r )
