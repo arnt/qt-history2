@@ -1,12 +1,12 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlined.cpp#25 $
+** $Id: //depot/qt/main/src/widgets/qlined.cpp#26 $
 **
 ** Implementation of QLineEdit widget class
 **
 ** Author  : Eirik Eng
 ** Created : 941011
 **
-** Copyright (c) 1994,1995 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
 **
 ***********************************************************************/
 
@@ -17,8 +17,9 @@
 #include "qkeycode.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlined.cpp#25 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlined.cpp#26 $";
 #endif
+
 
 /*!
 \class QLineEdit qlined.h
@@ -268,7 +269,6 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 	unknown++;
 
     if ( unknown ) {				// unknown key
-	debug( "unknown" );
 	e->ignore();
 	return;
     }
@@ -298,8 +298,8 @@ void QLineEdit::focusOutEvent( QFocusEvent * )
 {
     killTimers();
     delete pm;
-    pm	     = 0;
-    cursorOn = TRUE;
+    pm = 0;
+    cursorOn = FALSE;
     paint();
 }
 
@@ -382,10 +382,10 @@ Paints the line editor in a pixmap and then blts the pixmap onto the screen.
 
 void QLineEdit::pixmapPaint()
 {
+    pm->fill( backgroundColor() );
     QPainter p;
     p.begin( pm );
     p.setFont( font() );
-    p.fillRect( rect(), backgroundColor() );
     paintText( &p, pm->size() , TRUE );
     p.end();
     bitBlt( this, 0, 0, pm, 0, 0, -1, -1 );
@@ -437,8 +437,8 @@ void QLineEdit::paintText( QPainter *p, const QSize &sz, bool frame)
 			 curPos + 2, sz.height() - BOTTOM_MARGIN );
 	}
 	else if ( hasFocus() ) {
-	    p->drawLine( curPos	  , TOP_MARGIN,
-			 curPos	  , sz.height() - BOTTOM_MARGIN );
+	    p->drawLine( curPos, TOP_MARGIN,
+			 curPos, sz.height() - BOTTOM_MARGIN );
 	}
     }
 }
