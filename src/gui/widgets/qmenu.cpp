@@ -682,8 +682,6 @@ QStyleOptionMenuItem QMenuPrivate::getStyleOption(const QAction *action) const
 
     opt.font = action->font();
 
-    if (defaultAction == action)
-	opt.menuItemType = QStyleOptionMenuItem::DefaultItem;
     if (currentAction && currentAction == action)
         opt.state |= QStyle::State_Selected;
     if (mouseDown)
@@ -699,6 +697,8 @@ QStyleOptionMenuItem QMenuPrivate::getStyleOption(const QAction *action) const
         opt.menuItemType = QStyleOptionMenuItem::SubMenu;
     else if (action->isSeparator())
         opt.menuItemType = QStyleOptionMenuItem::Separator;
+    else if (defaultAction == action)
+	    opt.menuItemType = QStyleOptionMenuItem::DefaultItem;
     else
         opt.menuItemType = QStyleOptionMenuItem::Normal;
     opt.icon = action->icon();

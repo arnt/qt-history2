@@ -1648,7 +1648,10 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                     p->drawText(vShortcutRect, text_flags, s.mid(t + 1));
                     s = s.left(t);
                 }
-                p->setFont(menuitem->font);
+                QFont font = menuitem->font;
+                if (menuitem->menuItemType == QStyleOptionMenuItem::DefaultItem)
+                    font.setBold(true);
+                p->setFont(font);
                 if (dis && !act) {
                     p->setPen(menuitem->palette.light().color());
                     p->drawText(vTextRect.adjusted(1,1,1,1), text_flags, s.left(t));
@@ -2483,6 +2486,16 @@ QSize QWindowsStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
                 w += tabSpacing;
             else if (mi->menuItemType == QStyleOptionMenuItem::SubMenu)
                 w += 2 * windowsArrowHMargin;
+            else if (mi->menuItemType == QStyleOptionMenuItem::DefaultItem) {
+                // adjust the font and add the difference in size.
+                // it would be better if the font could be adjusted in the getStyleOptions qmenu func!! 
+                QFontMetrics fm(mi->font);
+                QFont fontBold = mi->font;
+                fontBold.setBold(true);
+                QFontMetrics fmBold(fontBold);
+                w += fmBold.width(mi->text) - fm.width(mi->text);
+            }
+
             int checkMarkWidth = use2000style ? 20 : windowsCheckMarkWidth;
             if (checkable && maxpmw < checkMarkWidth)
                 w += checkMarkWidth - maxpmw;
