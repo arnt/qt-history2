@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#175 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#176 $
 #
 # this is a massive hack, written very quickly
 #
@@ -677,7 +677,8 @@ sub writepages {
 	    
 	    $doc =~ s!\\classhierarchy!&classhierarchy()!es;
 	    $doc =~ s!\\classlist!&classlist()!es;
-	    $doc =~ s!\\annotatedclasslist!&annotatedclasslist()!es;
+	    $doc =~ s!\\annotatedclasslist\(([^,)]*),([^,)]*),([^,)]*),([^,)]*),([^,)]*)\)!&annotatedclasslist($1,$2,$3,$4,$5)!es;
+	    $doc =~ s!\\annotatedclasslist!&annotatedclasslist("<ul>\n","<li>"," (", ")\n","</ul>")!es;
 	    $doc =~ s!\\headerfilelist!&headerfilelist()!es;
 	    $doc =~ s!\\functionindex!&functionindex()!es;
 	    
@@ -1946,16 +1947,17 @@ sub classlist {
 
 sub annotatedclasslist {
     my $result;
-    $result = "<ul>\n";
+    my ($pre, $preline, $sep, $postline, $post) = @_;
+    $result = $pre;
     foreach $url ( sort keys %type ) {
 	if (($type{$url} eq "class") && defined($documented{$url})) {
-	    $result = join( "", $result,  "<li><strong><a href=\"",
-			   $url, "\">", $name{$url}, "</a></strong> (",
-			   $capt{$url}, ")\n" )
+	    $result = join( "", $result,  "$preline<strong><a href=\"",
+			   $url, "\">", $name{$url}, "</a></strong>$sep",
+			   $capt{$url}, "$postline" )
 		if ( $capt{$url} =~ /\S/ );
 	}
     }
-    $result .= "</ul>";
+    $result .= $post;
     $result;
 }
 
