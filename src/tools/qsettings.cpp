@@ -314,7 +314,13 @@ void QSettingsHeading::parseLine(QTextStream &stream)
 #ifdef Q_WS_WIN
 #include "qt_windows.h"
 #include "qlibrary.h"
-#include <shlobj.h>
+
+#ifndef CSIDL_APPDATA
+#define CSIDL_APPDATA                   0x001a        // <user name>\Application Data
+#endif
+#ifndef CSIDL_COMMON_APPDATA
+#define CSIDL_COMMON_APPDATA            0x0023        // All Users\Application Data
+#endif
 
 class QSettingsWinPrivate
 {
