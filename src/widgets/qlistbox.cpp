@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#114 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#115 $
 **
 ** Implementation of QListBox widget class
 **
@@ -17,7 +17,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#114 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#115 $");
 
 Q_DECLARE(QListM, QListBoxItem);
 
@@ -418,7 +418,7 @@ QListBox::QListBox( QWidget *parent, const char *name, WFlags f )
 	case WindowsStyle:
 	case MotifStyle:
 	    setFrameStyle( QFrame::WinPanel | QFrame::Sunken );
-	    setBackgroundColor( colorGroup().base() );
+	    setBackgroundMode( Base );
 	    break;
 	default:
 	    setFrameStyle( QFrame::Panel | QFrame::Plain );
@@ -1378,7 +1378,9 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 	    bool u = FALSE;
 	    setAutoUpdate( FALSE );
 	    setCurrentItem( currentItem() + 1 );
-	    while ( currentItem() >= lastRowVisible() ) {
+	    while ( currentItem() < (int)count() - 1
+		 && currentItem() >= lastRowVisible() )
+	    {
 		setTopItem( topItem() + currentItem() + 1 - lastRowVisible() );
 		u = TRUE;
 	    }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#192 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#193 $
 **
 ** Implementation of QWidget class
 **
@@ -19,7 +19,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#192 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#193 $");
 
 
 /*!
@@ -123,9 +123,8 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#192 $");
 	setFont(),
 	palette(),
 	setPalette(),
-	backgroundColor(),
-	foregroundColor(),
-	setBackgroundColor(),
+	backgroundMode(),
+	setBackgroundMode(),
 	backgroundPixmap(),
 	setBackgroundPixmap(),
 	colorGroup(),
@@ -770,6 +769,7 @@ void QWidget::createExtra()
 	extra->incw = extra->inch = 0;
 	extra->caption = extra->iconText = 0;
 	extra->icon = extra->bg_pix = 0;
+	extra->bg_mode = 0;
 	extra->focusData = 0;
     }
 }
@@ -977,6 +977,7 @@ void QWidget::setEnabled( bool enable )
     if ( enable ) {
 	if ( testWFlags(WState_Disabled) ) {
 	    clearWFlags( WState_Disabled );
+	    setBackgroundColorFromMode(FALSE);
 	    enabledChange( TRUE );
 	}
     } else {
@@ -984,6 +985,7 @@ void QWidget::setEnabled( bool enable )
 	    if ( focusWidget() == this )
 		clearFocus(); // perhaps we should move the focus?
 	    setWFlags( WState_Disabled );
+	    setBackgroundColorFromMode(FALSE);
 	    enabledChange( FALSE );
 	}
     }
@@ -1286,6 +1288,131 @@ QWidget *QWidget::topLevelWidget() const
     return w;
 }
 
+void QWidget::setBackgroundColorFromMode(bool override_abs)
+{
+    switch (extra ? (BackgroundMode)extra->bg_mode : AbsColor) {
+      case AbsColor:
+      case AbsPixmap:
+      case AbsEmpty:
+	// For compatibility - see setPalette
+	if (override_abs)
+	    setBackgroundColorDirect( colorGroup().background() );
+	break;
+      case Foreground:
+	setBackgroundColorDirect( colorGroup().foreground() );
+	break;
+      case Background:
+	setBackgroundColorDirect( colorGroup().background() );
+	break;
+      case Light:
+	setBackgroundColorDirect( colorGroup().light() );
+	break;
+      case Midlight:
+	setBackgroundColorDirect( colorGroup().midlight() );
+	break;
+      case Dark:
+	setBackgroundColorDirect( colorGroup().dark() );
+	break;
+      case Mid:
+	setBackgroundColorDirect( colorGroup().mid() );
+	break;
+      case Text:
+	setBackgroundColorDirect( colorGroup().text() );
+	break;
+      case Base:
+	setBackgroundColorDirect( colorGroup().base() );
+	break;
+    }
+}
+
+/*!
+  Returns the mode most recently set by setBackgroundMode().
+  The default is \link QWidget::BackgroundMode AbsColor\endlink.
+*/
+QWidget::BackgroundMode QWidget::backgroundMode() const
+{
+    return extra ? (BackgroundMode)extra->bg_mode : AbsColor;
+}
+
+/*!
+  Tells the window system which color to clear this widget to when
+  sending a paint event.
+  Tells the window system which color
+  from the \link QWidget::palette() palette\endlink
+  to use for clearing this widget when sending a paint event.
+
+  In other words, this color is the color of the widget when
+  paintEvent() is called.  To minimize flicker, this should be the
+  most common color in the widget.
+
+  The following values are valid:
+
+  <ul>
+    <li> \c Foreground
+	- use palette() . \link QColorGroup::foreground() foreground()\endlink
+    <li> \c Background
+	- use palette() . \link QColorGroup::background() background()\endlink
+    <li> \c Light
+	- use palette() . \link QColorGroup::light() light()\endlink
+    <li> \c Midlight
+	- use palette() . \link QColorGroup::midlight() midlight()\endlink
+    <li> \c Dark
+	- use palette() . \link QColorGroup::dark() dark()\endlink
+    <li> \c Mid
+	- use palette() . \link QColorGroup::mid() mid()\endlink
+    <li> \c Text
+	- use palette() . \link QColorGroup::text() text()\endlink
+    <li> \c Base
+	- use palette() . \link QColorGroup::base() base()\endlink
+  </ul>
+
+  If setBackgroundPixmap(), setBackgroundEmpty(), or the depricated
+  function setBackgroundColor() is called, the mode will be set to
+  one of:
+  <ul>
+    <li> \c AbsPixmap - the pixmap set by setBackgroundPixmap()
+    <li> \c AbsEmpty - no color, as set by setBackgroundEmpty()
+    <li> \c AbsColor - the color set by setBackgroundColor()
+  </ul>
+
+  These values may not be used as parameters to setBackgroundMode().
+
+  \define QWidget::BackgroundMode
+  For most widgets the default (Background, normally
+  gray) suffices, but some need to use Base (the
+  background color for text output, normally white) and a few need
+  other colors.
+
+  QListBox, which is "sunken" and uses the base color to contrast with
+  its environment, does this:
+
+  \code
+    setBackgroundMode( Base );
+  \endcode
+
+  If you want to change the color scheme of a widget, the setPalette()
+  function is better suited.  Here is how to set \e thatWidget to use a
+  light green (RGB value 80, 255, 80) as background color, with shades
+  of green used for all the 3D effects:
+
+  \code
+    thatWidget->setPalette( QPalette( QColor(80, 255, 80) ) );
+  \endcode
+
+  You can also use QApplication::setPalette() if you want to change
+  the color scheme of your entire application, or of all new widgets.
+*/
+void QWidget::setBackgroundMode( BackgroundMode m )
+{
+    if (m==AbsColor && !extra) return;
+
+    createExtra();
+    if (extra->bg_mode != m) {
+	extra->bg_mode = m;
+	setBackgroundColorFromMode(FALSE);
+    }
+}
+
 
 /*!
   \fn const QColor &QWidget::backgroundColor() const
@@ -1421,7 +1548,9 @@ void QWidget::setPalette( const QPalette &p )
 {
     QPalette old = pal;
     pal = p;
-    setBackgroundColor( colorGroup().background() );
+
+    setBackgroundColorFromMode(TRUE);
+
     paletteChange( old );
 }
 

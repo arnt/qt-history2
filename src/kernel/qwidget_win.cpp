@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#75 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#76 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -26,7 +26,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_win.cpp#75 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_win.cpp#76 $");
 
 
 extern "C" LRESULT CALLBACK WndProc( HWND, UINT, WPARAM, LPARAM );
@@ -342,7 +342,7 @@ QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
 }
 
 
-void QWidget::setBackgroundColor( const QColor &color )
+void QWidget::setBackgroundColorDirect( const QColor &color )
 {
     QColor old = bg_col;
     bg_col = color;
@@ -351,6 +351,12 @@ void QWidget::setBackgroundColor( const QColor &color )
 	extra->bg_pix = 0;
     }
     backgroundColorChange( old );
+}
+
+void QWidget::setBackgroundColor( const QColor &color )
+{
+    setBackgroundMode( AbsColor );
+    setBackgroundColorDirect( color );
 }
 
 
@@ -373,6 +379,7 @@ void QWidget::setBackgroundPixmap( const QPixmap &pixmap )
 	    createExtra();
 	extra->bg_pix = new QPixmap( pixmap );
     }
+    setBackgroundMode( AbsPixmap );
     backgroundPixmapChange( old );
 }
 
@@ -381,6 +388,7 @@ void QWidget::setBackgroundEmpty()
 {
     allow_null_pixmaps++;
     setBackgroundPixmap(QPixmap());
+    setBackgroundMode( AbsEmpty );
     allow_null_pixmaps--;
 }
 

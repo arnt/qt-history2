@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#192 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#193 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#192 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#193 $");
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -487,48 +487,21 @@ QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
 
 
 /*!
-  Tells the window system what color to clear this widget to when
-  sending a paint event.  (See setPalette() for a more powerful and
-  general way of setting colors.)
-
-  In other words, this color is the color of the widget when
-  paintEvent() is called.  To minimize flicker, this should be the
-  most common color in the widget.
-
-  For most widgets the default (colorGroup().background(), normally
-  gray) suffices, but some need to use colorGroup().base() (the
-  background color for text output, normally white) and a few need
-  other colors.
-
-  QListBox, which is "sunken" and uses the base color to contrast with
-  its envirment, does this:
-
-  \code
-    setBackgroundColor( colorGroup().base() );
-  \endcode
-
-  If you want to change the color scheme of a widget, the setPalette()
-  function is better suited.  Here is how to set \e thatWidget to use a
-  light green (RGB value 80, 255, 80) as background color, with shades
-  of green used for all the 3D effects:
-
-  \code
-    thatWidget->setPalette( QPalette( QColor(80, 255, 80) ) );
-  \endcode
-
-  You can also use QApplication::setPalette() if you want to change
-  the color scheme of your entire application, or of all new widgets.
-  
-  The background color is semi-independent of the \link palette()
-  widget palette. \endlink Setting a new palette overwrites the
-  background color, but setting the background color does not change
-  the palette in any way.
+  This function is deprecated.  Use setBackgroundMode() or setPalette(),
+  as they ensure the appropriate clearing color is used when the widget
+  is in the Active, Normal, or Disabled state.
 
   \sa setPalette(), QApplication::setPalette(), backgroundColor(),
-  backgroundColorChange(), setBackgroundPixmap()
+      setBackgroundPixmap(), setBackgroundMode()
 */
 
 void QWidget::setBackgroundColor( const QColor &color )
+{
+    setBackgroundMode( AbsColor );
+    setBackgroundColorDirect( color );
+}
+
+void QWidget::setBackgroundColorDirect( const QColor &color )
 {
     QColor old = bg_col;
     bg_col = color;
@@ -581,6 +554,7 @@ void QWidget::setBackgroundPixmap( const QPixmap &pixmap )
 	if ( testWFlags(WType_Desktop) )	// save rootinfo later
 	    qt_updated_rootinfo();
     }
+    setBackgroundMode( AbsPixmap );
     backgroundPixmapChange( old );
 }
 
@@ -611,6 +585,7 @@ void QWidget::setBackgroundEmpty()
 {
     allow_null_pixmaps++;
     setBackgroundPixmap(QPixmap());
+    setBackgroundMode( AbsEmpty );
     allow_null_pixmaps--;
 }
 

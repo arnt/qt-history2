@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlined.cpp#83 $
+** $Id: //depot/qt/main/src/widgets/qlined.cpp#84 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -21,7 +21,7 @@
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlined.cpp#83 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlined.cpp#84 $");
 
 //### How to provide new member variables while keeping binary compatibility:
 #if QT_VERSION == 200
@@ -176,6 +176,7 @@ QLineEdit::QLineEdit( QWidget *parent, const char *name )
     tbuf	  = "";
     setFocusPolicy( StrongFocus );
     setCursor( ibeamCursor );
+    setBackgroundMode( Base );
 }
 
 /*!
@@ -1211,13 +1212,10 @@ QValidator * QLineEdit::validator() const
 
 
 /*!
-  Sets the line current palette to \a p, and sets the \link
-  setBackgroundColor() window system background color \endlink to
-  p.normal().base() to reduce flickering.
+  Same as QWidget::setPalette().
 */
 
 void QLineEdit::setPalette( const QPalette & p )
 {
     QWidget::setPalette( p );
-    QWidget::setBackgroundColor( p.normal().base() );
 }

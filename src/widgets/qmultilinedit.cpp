@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#65 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#66 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -150,7 +150,7 @@ QMultiLineEdit::QMultiLineEdit( QWidget *parent , const char *name )
 	case WindowsStyle:
 	case MotifStyle:
 	    setFrameStyle( QFrame::WinPanel | QFrame::Sunken );
-	    setBackgroundColor( colorGroup().base() );
+	    setBackgroundMode( Base );
 	    break;
 	default:
 	    setFrameStyle( QFrame::Panel | QFrame::Plain );

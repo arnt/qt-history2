@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#119 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#120 $
 **
 ** Definition of QWidget class
 **
@@ -89,6 +89,11 @@ public:
     QWidget	*topLevelWidget()   const;
 
   // Widget attribute functions
+
+    enum BackgroundMode { AbsColor, AbsPixmap, AbsEmpty,
+	    Foreground, Background, Light, Midlight, Dark, Mid, Text, Base };
+    BackgroundMode backgroundMode() const;
+    void setBackgroundMode( BackgroundMode );
 
     const QColor &backgroundColor() const;
     const QColor &foregroundColor() const;
@@ -282,6 +287,8 @@ private:
     QWidget     *focusWidget() const;
     void 	 reparentFocusWidgets( QWidget *parent );
     QFocusData  *focusData( bool create = FALSE );
+    void	 setBackgroundColorFromMode(bool);
+    void	 setBackgroundColorDirect( const QColor & );
 
     WId		 winid;
     WFlags	 flags;

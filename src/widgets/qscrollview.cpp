@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#4 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#5 $
 **
 ** Implementation of QScrollView class
 **
@@ -27,7 +27,7 @@ struct QScrollViewData {
 	viewed( 0 ),
 	vx( 0 ), vy( 0 ), vwidth( 1 ), vheight( 1 )
     {
-	viewport.setBackgroundColor( darkGray );
+	viewport.setBackgroundMode( QWidget::Dark );
 	vMode = QScrollView::Auto;
 	hMode = QScrollView::Auto;
 	corner = 0;
