@@ -46,7 +46,6 @@
 
 #include <limits.h>
 
-
 static const int windowsItemFrame		=  2; // menu item frame width
 static const int windowsSepHeight		=  2; // separator item height
 static const int windowsItemHMargin		=  3; // menu item hor text margin
@@ -590,6 +589,40 @@ void QWindowsStyle::drawPrimitive( PrimitiveElement pe,
 	    qDrawWinPanel(p, r, popupPal, flags & Style_Sunken);
 	}
 	break;
+
+    case PE_TreeBranch: {
+	static const int decoration_size = 9;
+	int mid_h = r.width() / 2;
+	int mid_v = r.height() / 2;
+  	int bef_h = mid_h;
+  	int bef_v = mid_v;
+ 	int aft_h = mid_h;
+ 	int aft_v = mid_v;
+	if (flags & QStyle::Style_Children) {
+	    int delta = decoration_size / 2;
+	    bef_h -= delta;
+	    bef_v -= delta;
+	    aft_h += delta;
+	    aft_v += delta;
+	    p->drawLine(bef_h + 2, bef_v + 4, bef_h + 6, bef_v + 4);
+	    if (!(flags & QStyle::Style_Open))
+		p->drawLine(bef_h + 4, bef_v + 2, bef_h + 4, bef_v + 6);
+	    QPen oldPen = p->pen();
+	    p->setPen(pal.dark());
+	    p->drawRect(bef_h, bef_v, decoration_size, decoration_size);
+	    p->setPen(oldPen);
+	}
+	// ### BUG: the dotted lines don't follow a the y coordinates (causes drawing errors)
+	QBrush brush(pal.dark(), Qt::Dense4Pattern);
+// 	QPoint org(p->xForm(QPoint(0, 0)));
+// 	p->setBrushOrigin(org);
+	if (flags & QStyle::Style_Item)
+	    p->fillRect(aft_h, mid_v, r.right() - aft_h + 1, 1, brush);
+	if (flags & QStyle::Style_Sibling)
+	    p->fillRect(mid_h, aft_v, 1, r.bottom() - aft_v + 1, brush);
+	if (flags & (QStyle::Style_Open|QStyle::Style_Children|QStyle::Style_Item|QStyle::Style_Sibling))
+	    p->fillRect(mid_h, r.y(), 1, bef_v - r.y(), brush);
+	break; }
 
     default:
 	if (pe >= PE_ArrowUp && pe <= PE_ArrowLeft) {
@@ -1221,6 +1254,7 @@ void QWindowsStyle::polishPopupMenu( QPopupMenu* p)
 }
 
 #ifndef QT_NO_IMAGEIO_XPM
+
 static const char * const qt_close_xpm[] = {
 "12 12 2 1",
 "# c #000000",
@@ -1254,7 +1288,6 @@ static const char * const qt_maximize_xpm[]={
 ".#########..",
 "............",
 "............"};
-
 
 static const char * const qt_minimize_xpm[] = {
 "12 12 2 1",
