@@ -260,7 +260,7 @@ void MainWindow::setupMenuBar()
     QMenuBar *mb = new QMenuBar(0);
 #endif
     QMenu *menu = mb->addMenu(tr("&File"));
-    QAction *act = menu->addAction(tr("&New Form..."), this, 
+    QAction *act = menu->addAction(tr("&New Form..."), this,
                                         SLOT(newForm()), Qt::CTRL + Qt::Key_N);
     act->setShortcutContext(Qt::ShortcutOnApplication);
     act = menu->addAction(tr("&Open Form..."), this, SLOT(openForm()),
@@ -711,12 +711,12 @@ void MainWindow::changeEvent(QEvent *ev)
             core->objectInspector()->topLevelWidget()->raise();
         }
         break;
-    
+
     default:
         break;
     }
-    
-    return QMainWindow::changeEvent(ev);
+
+    QMainWindow::changeEvent(ev);
 }
 
 void MainWindow::previewForm()
