@@ -461,7 +461,7 @@ class QTextTable;
 
 class Q_EXPORT QTextTableCell : public QLayoutItem
 {
-    friend QTextTable;
+    friend class QTextTable;
 
 public:
     QTextTableCell( QTextTable* table,
