@@ -773,7 +773,7 @@ bool QDragManager::eventFilter(QObject * o, QEvent * e)
 
     if (e->type() == QEvent::MouseMove) {
         QMouseEvent* me = (QMouseEvent *)e;
-        updateMode(me->stateAfter());
+        updateMode(me->modifiers());
         move(me->globalPos());
         return true;
     } else if (e->type() == QEvent::MouseButtonRelease) {
@@ -813,7 +813,7 @@ bool QDragManager::eventFilter(QObject * o, QEvent * e)
             beingCancelled = false;
             qApp->exit_loop();
         } else {
-            updateMode(ke->stateAfter());
+            updateMode(ke->modifiers());
             qt_xdnd_source_sameanswer = QRect(); // force move
             move(QCursor::pos());
         }
@@ -843,12 +843,12 @@ bool QDragManager::eventFilter(QObject * o, QEvent * e)
 }
 
 
-static Qt::ButtonState oldstate;
-void QDragManager::updateMode(Qt::ButtonState newstate)
+static Qt::KeyboardModifiers oldstate;
+void QDragManager::updateMode(Qt::KeyboardModifiers newstate)
 {
     if (newstate == oldstate)
         return;
-    const int both = Qt::ShiftButton|Qt::ControlButton;
+    const int both = Qt::ShiftModifier|Qt::ControlModifier;
     if ((newstate & both) == both) {
         global_requested_action = QDropEvent::Link;
     } else {
@@ -864,9 +864,9 @@ void QDragManager::updateMode(Qt::ButtonState newstate)
                 global_requested_action = QDropEvent::Move;
             else
                 global_requested_action = QDropEvent::Copy;
-            if (newstate & Qt::ShiftButton)
+            if (newstate & Qt::ShiftModifier)
                 global_requested_action = QDropEvent::Move;
-            else if (newstate & Qt::ControlButton)
+            else if (newstate & Qt::ControlModifier)
                 global_requested_action = QDropEvent::Copy;
         }
     }
@@ -1517,7 +1517,7 @@ bool QDragManager::drag(QDragObject * o, QDragObject::DragMode mode)
     XSetSelectionOwner(QX11Info::display(), ATOM(XdndSelection),
                         dragSource->topLevelWidget()->winId(),
                         qt_xdnd_source_current_time);
-    oldstate = Qt::ButtonState(-1); // #### Should use state that caused the drag
+    oldstate = Qt::KeyboardModifierMask; // #### Should use state that caused the drag
     drag_mode = mode;
     global_accepted_action = QDropEvent::Copy;
     updateMode(0);
