@@ -1424,13 +1424,13 @@ void Q3DockWindow::startRectDraw(const QPoint &so, bool drawRect)
     if (rubberBand)
         endRectDraw(!opaque);
     rubberBand = new QRubberBand(QRubberBand::Rectangle);
-    rubberBand->show();
     currRect = QRect(realWidgetPos(this), size());
     if (drawRect) {
         rubberBand->setGeometry(currRect);
     }
     startOrientation = orientation();
     startOffset = mapFromGlobal(so);
+    rubberBand->show();
 }
 
 void Q3DockWindow::endRectDraw(bool)
