@@ -1375,9 +1375,9 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
     Users normally expect an application to remember its settings
     (window sizes and positions, options, etc.) across sessions. This
     information is often stored in the system registry on Windows,
-    and in XML preferences files on Mac OS X. On X11, in the absense
-    of a standard, many applications (including the KDE applications)
-    use .ini text files.
+    and in XML preferences files on Mac OS X. On X11 and embedded Linux,
+    in the absense of a standard, many applications (including the KDE
+    applications) use INI text files.
 
     QCoreSettings is an abstraction around these technologies,
     enabling you to save and restore application settings in a
@@ -1454,7 +1454,7 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
     \section1 Key Syntax
 
     Setting keys can contain any Unicode characters. The Windows
-    registry and .ini files use case-insensitive keys, whereas the
+    registry and INI files use case-insensitive keys, whereas the
     Carbon Preferences API on Mac OS X uses case-sensitive keys. To
     avoid portability problems, follow these two simple rules:
 
@@ -1513,13 +1513,14 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
     \i a system-wide location for all applications by software.org
     \endlist
 
-    On Unix with X11, these locations are the following files:
+    On Unix with X11 and on embedded Linux, these locations are the
+    following files:
 
     \list 1
-    \i \c{$HOME/.qt4/software.org/DataMill.ini}
-    \i \c{$HOME/.qt4/software.org.ini}
-    \i \c{$QTDIR/.qt4/software.org/DataMill.ini}
-    \i \c{$QTDIR/.qt4/software.org.ini}
+    \i \c{$HOME/.qt4/software.org/DataMill.conf}
+    \i \c{$HOME/.qt4/software.org.conf}
+    \i \c{$QTDIR/.qt4/software.org/DataMill.conf}
+    \i \c{$QTDIR/.qt4/software.org.conf}
     \endlist
 
     ($QTDIR is the location where Qt is installed.)
@@ -1583,7 +1584,7 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
     without requiring you to specify any file names or registry
     paths.
 
-    If you want to use .ini file on all platforms instead of the
+    If you want to use INI files on all platforms instead of the
     native API, you can pass Qt::IniFormat as the first argument to
     the QCoreSettings constructor, followed by the scope, the
     organization domain name, and the application name:
@@ -1613,7 +1614,8 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
                                Qt::NativeFormat);
     \endcode
 
-    On X11, Qt::IniFormat and Qt::NativeFormat have the same meaning.
+    On X11 and embedded Linux, Qt::IniFormat and Qt::NativeFormat have
+    the same meaning.
 
     \section1 Restoring the State of a GUI Application
 
@@ -1630,7 +1632,7 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
             settings.beginGroup("MainWindow");
             settings.setValue("size", size());
             settings.setValue("pos", pos());
-            settings.endGroup("MainWindow");
+            settings.endGroup();
         }
 
         void MainWindow::readSettings()
@@ -1640,7 +1642,7 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
             settings.beginGroup("MainWindow");
             resize(settings.value("size", QSize(400, 400)));
             move(settings.value("pos", QPoint(200, 200)));
-            settings.endGroup("MainWindow");
+            settings.endGroup();
         }
     \endcode
 
@@ -1721,7 +1723,7 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
 
     \value NoError  No error occurred.
     \value AccessError  An access error occurred (e.g. trying to write to a read-only file).
-    \value FormatError  A format error occurred (e.g. loading a malformed .ini file).
+    \value FormatError  A format error occurred (e.g. loading a malformed INI file).
 
     \sa status()
 */
@@ -1733,7 +1735,7 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
 
     Example:
     \code
-        QCoreSettings settings("www.technopro.co.uk", "Facturo-Pro");
+        QCoreSettings settings("www.technopro.co.jp", "Facturo-Pro");
     \endcode
 
     The scope is Qt::UserScope and the format is Qt::NativeFormat.
@@ -1786,7 +1788,7 @@ QCoreSettings::QCoreSettings(Qt::SettingsScope scope, const QString &organizatio
     settings and provides access to system-wide settings.
 
     If \a format is Qt::NativeFormat, the native API is used for
-    storing settings. If \a format is Qt::IniFormat, the .ini format
+    storing settings. If \a format is Qt::IniFormat, the INI format
     is used.
 
     If no application name is given, the QCoreSettings object will
@@ -1809,10 +1811,10 @@ QCoreSettings::QCoreSettings(Qt::SettingsFormat format, Qt::SettingsScope scope,
 
     If \a format is Qt::NativeFormat, the meaning of \a fileName
     depends on the platform. On Unix/X11, \a fileName is the name of
-    an .ini file. On Mac OS X, \a fileName is the name of a .plist
+    an INI file. On Mac OS X, \a fileName is the name of a .plist
     file. On Windows, \a fileName is a path in the system registry.
 
-    If \a format is Qt::IniFormat, \a fileName is the name of an .ini
+    If \a format is Qt::IniFormat, \a fileName is the name of an INI
     file.
 
     \sa fileName()
@@ -1835,13 +1837,13 @@ QCoreSettings::QCoreSettings(const QString &fileName, Qt::SettingsFormat format,
     The code
 
     \code
-        QCoreSettings settings("www.technopro.co.uk", "Facturo-Pro");
+        QCoreSettings settings("www.technopro.co.jp", "Facturo-Pro");
     \endcode
 
     is equivalent to
 
     \code
-        qApp->setProductInfo("www.technopro.co.uk", "Facturo-Pro");
+        qApp->setProductInfo("www.technopro.co.jp", "Facturo-Pro");
         QCoreSettings settings;
     \endcode
 
