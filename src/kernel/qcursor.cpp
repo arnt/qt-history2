@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor.cpp#10 $
+** $Id: //depot/qt/main/src/kernel/qcursor.cpp#11 $
 **
 ** Implementation of QCursor class
 **
@@ -14,15 +14,15 @@
 #include "qbitmap.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcursor.cpp#10 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcursor.cpp#11 $")
 
 
-/*!
+/*----------------------------------------------------------------------------
   \class QCursor qcursor.h
 
   \brief The QCursor class provides a mouse cursor with an arbitrary shape.
 
-  \ingroup drawing
+  \ingroup guitool
   \ingroup shared
 
   This class is used for mainly two things; to create mouse cursors to be
@@ -50,20 +50,17 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qcursor.cpp#10 $")
   <dt> sizeFDiagCursor <dd> diagonal resize (\)
   <dt> sizeAllCursor <dd> all directions resize
   </dl>
-
-  \todo convert cursor numbers to an enum inside the class
-
-  \sa QPainter QWidget */
+ ----------------------------------------------------------------------------*/
 
 
-// --------------------------------------------------------------------------
-// QCursor stream functions
-//
+/*****************************************************************************
+  QCursor stream functions
+ *****************************************************************************/
 
-/*!
+/*----------------------------------------------------------------------------
   \relates QCursor
   Writes a cursor to the stream.
-*/
+ ----------------------------------------------------------------------------*/
 
 QDataStream &operator<<( QDataStream &s, const QCursor &c )
 {
@@ -75,10 +72,10 @@ QDataStream &operator<<( QDataStream &s, const QCursor &c )
     return s;
 }
 
-/*!
+/*----------------------------------------------------------------------------
   \relates QCursor
   Reads a cursor from the stream.
-*/
+ ----------------------------------------------------------------------------*/
 
 QDataStream &operator>>( QDataStream &s, QCursor &c )
 {
