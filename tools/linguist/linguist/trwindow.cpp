@@ -193,8 +193,10 @@ Action::Action( QPopupMenu *pop, const QString& menuText, QObject *receiver,
     if ( !imageName.isEmpty() ) {
 	QPixmap enabledPix = QPixmap::fromMimeSource( imageName );
 	QIconSet s( enabledPix );
-	QPixmap disabledPix = QPixmap::fromMimeSource( "d_" + imageName );
-	s.setPixmap( disabledPix, QIconSet::Small, QIconSet::Disabled );
+	if ( imageName != "whatsthis.xpm" ) {
+	    QPixmap disabledPix = QPixmap::fromMimeSource( "d_" + imageName );
+	    s.setPixmap( disabledPix, QIconSet::Small, QIconSet::Disabled );
+	}
 	setIconSet( s );
     }
     QAction::addTo( pop );
@@ -1542,13 +1544,13 @@ void TrWindow::setupMenuBar()
 
     // Validation menu
     acceleratorsAct = new Action( validationp, tr("&Accelerators"),
-				  this, SLOT(revalidate()), "accel.xpm", 0, TRUE );
+				  this, SLOT(revalidate()), "accelerator.png", 0, TRUE );
     acceleratorsAct->setOn( TRUE );
     endingPunctuationAct = new Action( validationp, tr("&Ending Punctuation"),
-				       this, SLOT(revalidate()), "endpunct.xpm", 0, TRUE );
+				       this, SLOT(revalidate()), "punctuation.png", 0, TRUE );
     endingPunctuationAct->setOn( TRUE );
     phraseMatchesAct = new Action( validationp, tr("&Phrase Matches"),
-				   this, SLOT(revalidate()), "phrase.xpm", 0, TRUE );
+				   this, SLOT(revalidate()), "phrase.png", 0, TRUE );
     phraseMatchesAct->setOn( TRUE );
 
     // View menu

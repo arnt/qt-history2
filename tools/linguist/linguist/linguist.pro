@@ -22,12 +22,13 @@ SOURCES		= finddialog.cpp \
 		  ../shared/metatranslator.cpp
 FORMS		= about.ui
 
-IMAGES		+= images/accel.xpm \
+IMAGES		+= images/accelerator.png \
 		   images/book.png \
 		   images/check_danger.xpm \
 		   images/check_obs.xpm \
 		   images/check_off.xpm \
 		   images/check_on.xpm \
+		   images/d_accelerator.png \
 		   images/d_book.png \
 		   images/d_doneandnext.png \
 		   images/d_editcopy.png \
@@ -39,7 +40,9 @@ IMAGES		+= images/accel.xpm \
 		   images/d_nextunfinished.png \
 		   images/d_prev.png \
 		   images/d_prevunfinished.png \
+		   images/d_phrase.png \
 		   images/d_print.png \
+		   images/d_punctuation.png \
 		   images/d_redo.png \
 		   images/d_searchfind.png \
 		   images/d_undo.png \
@@ -47,14 +50,14 @@ IMAGES		+= images/accel.xpm \
 		   images/editcopy.png \
 		   images/editcut.png \
 		   images/editpaste.png \
-		   images/endpunct.xpm \
+		   images/punctuation.png \
 		   images/fileopen.png \
 		   images/filesave.png \
 		   images/appicon.png \
 		   images/next.png \
 		   images/nextunfinished.png \
 		   images/pagecurl.png \
-		   images/phrase.xpm \
+		   images/phrase.png \
 		   images/prev.png \
 		   images/prevunfinished.png \
 		   images/print.png \
