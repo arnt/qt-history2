@@ -37,8 +37,17 @@
 
 #include "qplatformdefs.h"
 
-// POSIX Large File Support redefines truncate as truncate64
-#undef truncate
+// POSIX Large File Support redefines open -> open64
+static inline int qt_open(const char *pathname, int flags, mode_t mode)
+{ return ::open(pathname, flags, mode); }
+#if defined(open)
+# undef open
+#endif
+
+// POSIX Large File Support redefines truncate -> truncate64
+#if defined(truncate)
+# undef truncate
+#endif
 
 #include "qtranslator.h"
 
@@ -453,7 +462,7 @@ bool QTranslator::load( const QString & filename, const QString & directory,
 
     int f;
 
-    f = ::open( QFile::encodeName(realname), O_RDONLY );
+    f = qt_open( QFile::encodeName(realname), O_RDONLY, 0666 );
     if ( f < 0 ) {
 	// qDebug( "can't open %s: %s", realname.ascii(), strerror( errno ) );
 	return FALSE;
