@@ -108,6 +108,8 @@ public:
 	Wrapper,
 	// PostScript
 	PostScript,
+	// OpenGL
+	OpenGL,
 
 	User = 50,				// first user type id
 	MaxUser = 100				// last user type id

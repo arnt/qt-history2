@@ -14,8 +14,7 @@
 
 #include "qgl.h"
 #include "qgl_p.h"
-
-#if defined(Q_WS_X11)
+#include "qpaintengine_opengl.h"
 
 #include "qmap.h"
 #include "qapplication.h"
@@ -924,6 +923,12 @@ void QGLWidget::setContext( QGLContext *context,
 			   count );
     delete [] cmw;
 
+    // calling QWidget::create() will always result in a new paint
+    // engine being created - get rid of it and replace it with our
+    // own
+    delete paintEngine;
+    paintEngine = new QOpenGLPaintEngine(this); // deleted in QWidget::destroy()
+
     if ( visible )
 	show();
     XFlush( x11Info()->display() );
@@ -1106,5 +1111,3 @@ void QGLWidget::cleanupColormaps()
 void QGLWidget::macInternalFixBufferRect()
 {
 }
-
-#endif
