@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurl.cpp#36 $
+** $Id: //depot/qt/main/src/kernel/qurl.cpp#37 $
 **
 ** Implementation of QFileDialog class
 **
@@ -648,6 +648,13 @@ void QUrl::parse( const QString& url )
 	{ 0,       0,          Port,       Path,       0,          0,          0,          0,         }  // Port
     };
 
+    bool relPath = FALSE;
+    if ( url.find( ":/" ) == -1 ) {
+	table[ 0 ][ 1 ] = Path;
+	relPath = TRUE;
+    } else
+	table[ 0 ][ 1 ] = Protocol;
+	
     int state = Init; // parse state
     int input; // input token
     bool hasAt = url.find( "@" ) != -1;
@@ -755,7 +762,7 @@ void QUrl::parse( const QString& url )
     if ( !d->path.isEmpty() ) {
 	if ( d->path[ 0 ] == '@' || d->path[ 0 ] == ':' )
 	    d->path.remove( 0, 1 );
-	if ( d->path[ 0 ] != '/' )
+	if ( d->path[ 0 ] != '/' && !relPath )
 	    d->path.prepend( "/" );
     }
     if ( !d->refEncoded.isEmpty() && d->refEncoded[ 0 ] == '#' )
@@ -777,7 +784,7 @@ void QUrl::parse( const QString& url )
     qDebug( "user: %s", d->user.latin1() );
     qDebug( "pass: %s", d->pass.latin1() );
     qDebug( "host: %s", d->host.latin1() );
-    qDebug( "path: %s", d->path.latin1() );
+    qDebug( "path: %s", path().latin1() );
     qDebug( "ref: %s", d->refEncoded.latin1() );
     qDebug( "query: %s", d->queryEncoded.latin1() );
     qDebug( "port: %d\n", d->port );
@@ -920,6 +927,8 @@ QString QUrl::path() const
 {
     if ( isLocalFile() ) {
 	QFileInfo fi( d->path );
+	if ( !fi.exists() )
+	    return d->path;
 	if ( fi.isDir() ) {
 	    QString dir = QDir::cleanDirPath( QDir( d->path ).canonicalPath() ) + "/";
 	    if ( dir == "//" )
@@ -1377,9 +1386,9 @@ QString QUrl::nameFilter() const
 }
 
 /*!
-  Composes a string of the URL and returns it. If \a encodedPath 
+  Composes a string of the URL and returns it. If \a encodedPath
   is TRUE, the path in the returned string will be encoded. If
-  \a forcePrependProtocol is TRUE the file:/ protocol is also 
+  \a forcePrependProtocol is TRUE the file:/ protocol is also
   prepended if no network protocols are reguistered.
 */
 
