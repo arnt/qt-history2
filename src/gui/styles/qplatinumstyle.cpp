@@ -110,8 +110,6 @@ void QPlatinumStyle::drawPrimitive( PrimitiveElement pe,
 				 pal.brush(QPalette::Button) );
 		    // the bright side
 		    p->setPen( pal.dark() );
-		    // the bright side
-		    p->setPen( pal.dark() );
 		    p->drawLine( x, y, x + w - 1, y );
 		    p->drawLine( x, y, x, y + h - 1 );
 
