@@ -4996,6 +4996,60 @@ static char * aqua_cmb_act_right_xpm[] = {
 "c.c.c.c.c.c.c.c.c.c.c.c.c.c.c.c.d.e.f.g.6 = ",
 "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2.6 8.- h."};
 /* XPM */
+static char * aqua_cmb_dis_right_xpm[] = {
+"22 22 29 1",
+"       c None",
+".      c #737373",
+"+      c #6B6B6B",
+"@      c #636363",
+"#      c #5A5A5A",
+"$      c #9C9C9C",
+"%      c #DEDEDE",
+"&      c #E7E7E7",
+"*      c #BDBDBD",
+"=      c #CECECE",
+"-      c #C6C6C6",
+";      c #525252",
+">      c #A5A5A5",
+",      c #D6D6D6",
+"'      c #4A4A4A",
+")      c #848484",
+"!      c #B5B5B5",
+"~      c #ADADAD",
+"{      c #8C8C8C",
+"]      c #292929",
+"^      c #949494",
+"/      c #313131",
+"(      c #000000",
+"_      c #7B7B7B",
+":      c #181818",
+"<      c #EFEFEF",
+"[      c #F7F7F7",
+"}      c #393939",
+"|      c #FFFFFF",
+"..............++@#+$%&",
+"*==============-*$.;>&",
+"=%%%%%%%%%%%%%%%,=>@+&",
+"-%%%%%%%%%%%%%%,,=*.'-",
+"*=,===,,,====,===-*)#!",
+">--------)----***!~{+!",
+"$-******$]$**-**!!>^.-",
+">-------/(/-----*!~$_!",
+"~======)](])====--*>)~",
+"!,%,,%=:(((:=,,,=--~{!",
+"*&%%%%%%%%%&&%%,%,=*^-",
+"-&&&&&&&&&&&&&&&&,,-$!",
+"-&<<<<&:(((:&<<&&,,-$~",
+"=[[[[[[>/(/>[[<<&%%->!",
+"=[[[[[[[}(}[[[[[<<%=~-",
+"%|||||||,},||||||<&,~!",
+"%||||||||~|||||||[<,$~",
+"%|||||||||||||||||[%{*",
+"%|||||||||||||||||[!$,",
+"%||||||||||||||||%>{~,",
+"@@@@@@@@@@@@@@@@+.{>-%",
+"!!!!!!!!!!!!!!!!!*-,&<"};
+/* XPM */
 static char * aqua_gen_back_xpm[] = {
 "90 72 4 1",
 "       c None",
@@ -5669,6 +5723,56 @@ static char * aqua_radio_t_xpm[] = {
 ". a.# ).b.c.3.3.c.b.).# + . ",
 ". . d.a.@ - g g - @ + d.. . ",
 ". . . . a.+ + + + a.. . . . "};
+/* XPM */
+static char * aqua_radio_dis_t_xpm[] = {
+"14 17 30 1",
+"       c None",
+".      c #FFFFFF",
+"+      c #EFEFEF",
+"@      c #DEDEDE",
+"#      c #CECECE",
+"$      c #E7E7E7",
+"%      c #C6C6C6",
+"&      c #6B6B6B",
+"*      c #424242",
+"=      c #313131",
+"-      c #292929",
+";      c #4A4A4A",
+">      c #B5B5B5",
+",      c #ADADAD",
+"'      c #525252",
+")      c #7B7B7B",
+"!      c #949494",
+"~      c #393939",
+"{      c #9C9C9C",
+"]      c #A5A5A5",
+"^      c #D6D6D6",
+"/      c #848484",
+"(      c #737373",
+"_      c #636363",
+":      c #BDBDBD",
+"<      c #000000",
+"[      c #212121",
+"}      c #8C8C8C",
+"|      c #F7F7F7",
+"1      c #5A5A5A",
+"...++@##@++...",
+"..$%&*=-;&>$..",
+".+,;')!!)'~{+.",
+".#&)]#@@^>/'>.",
+"@/)]%@++$^](_^",
+",({>%]__{:>{&{",
+"!!>%%=<<[>#>!}",
+"{>%@%<<<<]$%>}",
+"!:@+^~<<-%+^:}",
+"{,+|$]_1{@+$,}",
+",}+..$^^@|.+!{",
+"^},...||...:}#",
+"^](]......,({#",
+"@:!_){::])_}:@",
+"+$%{)&__&){%@+",
+"..|$#>,,>#@|..",
+"...+$@@@@$+..."};
 /* XPM */
 static char * aqua_sel_back_xpm[] = {
 "11 20 4 1",
@@ -6958,6 +7062,1091 @@ static char * aqua_vsbr_tip_up_xpm[] = {
 "DENGvHOIoJKPAM",
 "DQRSTvUnpAPVWM",
 "DQRSGTxepAXVXM"};
+/* XPM */
+static char * aqua_hsbr_dis_fill_xpm[] = {
+"16 14 11 1",
+"       c None",
+".      c #ADADAD",
+"+      c #949494",
+"@      c #8C8C8C",
+"#      c #E7E7E7",
+"$      c #FFFFFF",
+"%      c #F7F7F7",
+"&      c #DEDEDE",
+"*      c #D6D6D6",
+"=      c #EFEFEF",
+"-      c #5A5A5A",
+"................",
+"+@@@@@@@@@@@@@@@",
+"################",
+"$%%%%%%%%%%%%%%%",
+"$%%%%%%%%%%%%%%%",
+"%%%%%%%%%%%%%%%%",
+"&*&&&&&&&*&&&&&&",
+"################",
+"================",
+"%%%%%$%%%%%%%$%%",
+"$$$$$$$$$$$$$$$$",
+"$$$$$$$$$$$$$$$$",
+"$$$$$$$$$$$$$$$$",
+"----------------"};
+/* XPM */
+static char * aqua_hsbr_tip_dis_left_xpm[] = {
+"10 14 21 1",
+"       c None",
+".      c #BDBDBD",
+"+      c #B5B5B5",
+"@      c #ADADAD",
+"#      c #A5A5A5",
+"$      c #D6D6D6",
+"%      c #8C8C8C",
+"&      c #848484",
+"*      c #949494",
+"=      c #EFEFEF",
+"-      c #9C9C9C",
+";      c #C6C6C6",
+">      c #DEDEDE",
+",      c #E7E7E7",
+"'      c #CECECE",
+")      c #7B7B7B",
+"!      c #F7F7F7",
+"~      c #FFFFFF",
+"{      c #737373",
+"]      c #6B6B6B",
+"^      c #5A5A5A",
+"....+@@#@@",
+"$$+%%&&%**",
+"=.&&*-;>,,",
+"'))-#'=!!~",
+"-)-@+>!!!!",
+"&%@+.$==!!",
+"{-+;;'$$$>",
+"]#.'$$>>,,",
+"]*;$>>,===",
+"&)'$>,==!!",
+"#^->,==!!~",
+",)]@=!!~~~",
+"!;)]*.=~~~",
+"~!;%{]^^^^"};
+/* XPM */
+static char * aqua_hsbr_tip_dis_right_xpm[] = {
+"10 14 20 1",
+"       c None",
+".      c #ADADAD",
+"+      c #B5B5B5",
+"@      c #BDBDBD",
+"#      c #949494",
+"$      c #8C8C8C",
+"%      c #848484",
+"&      c #A5A5A5",
+"*      c #C6C6C6",
+"=      c #E7E7E7",
+"-      c #DEDEDE",
+";      c #9C9C9C",
+">      c #CECECE",
+",      c #F7F7F7",
+"'      c #D6D6D6",
+")      c #EFEFEF",
+"!      c #FFFFFF",
+"~      c #5A5A5A",
+"{      c #636363",
+"]      c #737373",
+"...+++@@@@",
+"##$%$#&@**",
+"==-*&#$;*>",
+",,,,'&;$.>",
+",,,,-+.;;>",
+",,,)'@+.#*",
+"-'''>**+;@",
+"==--''>@&@",
+"))==-''*;@",
+",,))=-'>;>",
+"!!,)==-&;-",
+"!!!,)=.$@)",
+"!!!)@#$+-,",
+"~~~{]#+'),"};
+/* XPM */
+static char * aqua_vsbr_dis_fill_xpm[] = {
+"14 16 9 1",
+"       c None",
+".      c #ADADAD",
+"+      c #8C8C8C",
+"@      c #E7E7E7",
+"#      c #F7F7F7",
+"$      c #DEDEDE",
+"%      c #EFEFEF",
+"&      c #FFFFFF",
+"*      c #5A5A5A",
+".+@###$@%#&&&*",
+".+@###$@%#&&&*",
+".+@###$@%#&&&*",
+".+@###$@%#&&&*",
+".+@###$@%#&&&*",
+".+@###$@%#&&&*",
+".+@###$@%#&&&*",
+".+@###$@%#&&&*",
+".+@###$@%#&&&*",
+".+@###$@%#&&&*",
+".+@###$@%#&&&*",
+".+@###$@%#&&&*",
+".+@###$@%#&&&*",
+".+@###$@%#&&&*",
+".+@###$@%#&&&*",
+".+@###$@%#&&&*"};
+/* XPM */
+static char * aqua_vsbr_tip_dis_down_xpm[] = {
+"14 10 20 1",
+"       c None",
+".      c #ADADAD",
+"+      c #949494",
+"@      c #E7E7E7",
+"#      c #FFFFFF",
+"$      c #F7F7F7",
+"%      c #DEDEDE",
+"&      c #EFEFEF",
+"*      c #5A5A5A",
+"=      c #D6D6D6",
+"-      c #8C8C8C",
+";      c #B5B5B5",
+">      c #848484",
+",      c #C6C6C6",
+"'      c #636363",
+")      c #9C9C9C",
+"!      c #CECECE",
+"~      c #737373",
+"{      c #A5A5A5",
+"]      c #BDBDBD",
+".+@#$$%@&$###*",
+".+@$$$=@&$$##*",
+".-%$$&=%&&$##*",
+";>,&$&=%@&&$&'",
+";-)!%=!=%@&$,~",
+";++{;],=%%@&)+",
+"]{-).;,!==%;-;",
+"]])-).;],!{-;=",
+"],,.)+){)))]%&",
+"],!!!,]]]!%&$$"};
+/* XPM */
+static char * aqua_vsbr_tip_dis_up_xpm[] = {
+"14 11 20 1",
+"       c None",
+".      c #BDBDBD",
+"+      c #C6C6C6",
+"@      c #CECECE",
+"#      c #B5B5B5",
+"$      c #DEDEDE",
+"%      c #EFEFEF",
+"&      c #F7F7F7",
+"*      c #ADADAD",
+"=      c #9C9C9C",
+"-      c #949494",
+";      c #A5A5A5",
+">      c #8C8C8C",
+",      c #D6D6D6",
+"'      c #E7E7E7",
+")      c #737373",
+"!      c #848484",
+"~      c #636363",
+"{      c #FFFFFF",
+"]      c #5A5A5A",
+"..+@@+.#.+$%%&",
+"...*=-=;===.$%",
+"..=>=*#.+@;>#,",
+".;>=*#+@,,$*>#",
+"#--;#.+,,$''--",
+"#>;,$,@,$''%.)",
+"#!+&&%,$'%%&%~",
+"*>$&&&,$'%&{{]",
+"*-'&&&,'%&{{{]",
+"*-'&&&$'%&{{{]",
+"*-%{&&$'%&{{{]"};
+/* XPM */
+static char * aqua_toolbtn_nrm_left_xpm[] = {
+"23 21 18 1",
+"       c None",
+".      c #F7F7F7",
+"+      c #CECECE",
+"@      c #ADADAD",
+"#      c #9C9C9C",
+"$      c #A5A5A5",
+"%      c #737373",
+"&      c #BDBDBD",
+"*      c #B5B5B5",
+"=      c #D6D6D6",
+"-      c #DEDEDE",
+";      c #E7E7E7",
+">      c #EFEFEF",
+",      c #C6C6C6",
+"'      c #FFFFFF",
+")      c #949494",
+"!      c #848484",
+"~      c #7B7B7B",
+".+@#$$$$$$$$$$$$$$$$$$%",
+"&$*+=-----------------&",
+"#@+;;;>>>;>>>>>>>>>>>>+",
+"#&-;>>>>>>>>>>>>>>>>>>,",
+"*,;;>>>;;;;;>;;;;;;>>>&",
+"&=-;;;;;;;;;;;;;;;;;;;$",
+",=;;;;;;;;;;;;;;;;;;;;#",
+",=;;;;;>;;>;>;>;;>;;;;#",
+"+-;;>>>>>>>>>>>>>>>>>>$",
+"=;>>>>>>>>>>>>>>>>>>.>@",
+"=;>>..................*",
+"=;....................&",
+"=>....................,",
+"->..................''+",
+"->.''''...'.''''.'''''+",
+"-.''''''''''''''''''''-",
+"+.''''''''''''''''''''-",
+"@.''''''''''''''''''''-",
+"#+''''''''''''''''''''-",
+"@)*;''''''''''''''''''-",
+"-&#!~%%%%%%%%%%%%%%%%%%"};
+/* XPM */
+static char * aqua_toolbtn_nrm_mid_xpm[] = {
+"23 21 14 1",
+"       c None",
+".      c #A5A5A5",
+"+      c #737373",
+"@      c #DEDEDE",
+"#      c #BDBDBD",
+"$      c #E7E7E7",
+"%      c #EFEFEF",
+"&      c #CECECE",
+"*      c #C6C6C6",
+"=      c #9C9C9C",
+"-      c #F7F7F7",
+";      c #ADADAD",
+">      c #B5B5B5",
+",      c #FFFFFF",
+"......................+",
+"@@@@@@@@@@@@@@@@@@@@@@#",
+"$$%%%%%$%$%%%%$%%%%%%%&",
+"%%%%%%%%%%%%%%%%%%%%%%*",
+"%%%%%$$$$$$$$$$$$%%%%%#",
+"$$$$$$$$$$$$$$$$$$$$$$.",
+"$$$$$$$$$$$$$$$$$$$$$$=",
+"$$$$$$$$$$$$$$$$$$$$$$=",
+"%%%%%%%%%%%%%%%%%%%%%%.",
+"%%%%%%%%%%%%%%%%%%%%--;",
+"----%%%%%%%%%%%%%----->",
+"----------------------#",
+"----------------------*",
+",,,,-------------,,,,,&",
+",,,,,,,,,,,,,,,,,,,,,,&",
+",,,,,-,,,,,,,,,,,,,,,,@",
+",,,,,,,,,,,,,,,,,,,,,,@",
+",,,,,,,,,,,,,,,,,,,,,,@",
+",,,,,,,,,,,,,,,,,,,,,,@",
+",,,,,,,,,,,,,,,,,,,,,,@",
+"+++++++++++++++++++++++"};
+/* XPM */
+static char * aqua_toolbtn_nrm_right_xpm[] = {
+"23 21 18 1",
+"       c None",
+".      c #A5A5A5",
+"+      c #9C9C9C",
+"@      c #ADADAD",
+"#      c #CECECE",
+"$      c #F7F7F7",
+"%      c #DEDEDE",
+"&      c #D6D6D6",
+"*      c #B5B5B5",
+"=      c #BDBDBD",
+"-      c #EFEFEF",
+";      c #E7E7E7",
+">      c #C6C6C6",
+",      c #FFFFFF",
+"'      c #949494",
+")      c #737373",
+"!      c #7B7B7B",
+"~      c #848484",
+"...................+@#$",
+"%%%%%%%%%%%%%%%%%%&#*.=",
+"-------------;---;;;#@+",
+"-------------------;%=+",
+"----;;;;;;;;;;;;;--;;>*",
+";;;;;;;;;;;;;;;;;;;;%&=",
+";;;;;;;;;;;;;;;;;;;;;&>",
+";;;;;;;;;;;;;;;;;;;;;&>",
+"------;---;;--;;-;;;;%#",
+"---------------------;&",
+"$$-------------------;&",
+"$$$----------------$$;&",
+"$$$$$$$----------$$$$-&",
+",,$$$$$$$$$$$$$$$$$$$-%",
+",,,$$$$$$$$$$$$$$$,,$-%",
+",,,,,$$$$$$$$$$$$$,,,$%",
+",,,,,,,,,,,,,,,,,,,,,$#",
+",,,,,,,,,,,,,,,,,,,,,$@",
+",,,,,,,,,,,,,,,,,,,,,#+",
+",,,,,,,,,,,,,,,,,,,;*'@",
+"))))))))))))))))))!~+=%"};
+/* XPM */
+static char * aqua_toolbtn_act_mid_xpm[] = {
+"23 21 33 1",
+"       c None",
+".      c #1052AD",
+"+      c #737373",
+"@      c #9CBDE7",
+"#      c #9CC6E7",
+"$      c #BDBDBD",
+"%      c #BDD6EF",
+"&      c #CECECE",
+"*      c #B5CEEF",
+"=      c #C6C6C6",
+"-      c #A5C6E7",
+";      c #84B5E7",
+">      c #84B5DE",
+",      c #A5A5A5",
+"'      c #73ADE7",
+")      c #9C9C9C",
+"!      c #7BB5EF",
+"~      c #7BB5E7",
+"{      c #84BDF7",
+"]      c #ADADAD",
+"^      c #8CC6FF",
+"/      c #8CC6F7",
+"(      c #B5B5B5",
+"_      c #94CEFF",
+":      c #9CD6FF",
+"<      c #A5DEFF",
+"[      c #ADDEFF",
+"}      c #B5E7FF",
+"|      c #ADE7FF",
+"1      c #DEDEDE",
+"2      c #B5EFFF",
+"3      c #BDF7FF",
+"4      c #BDFFFF",
+"......................+",
+"@#####@#####@#####@###$",
+"%%%%%%%%%%%%%%%%%%%%%%&",
+"**********************=",
+"----------------------$",
+";;;>>>>>>>>>>>>>>>;;;;,",
+"'''''''''''''''''''''')",
+"'''''''''''''''''''''')",
+"!!!~~~~~~~~~~~~~~~!!!!,",
+"{{{{{{{{{{{{{{{{{{{{{{]",
+"^^^^^^^^^^^^^^^^^/^^^^(",
+"______________________$",
+"::::::::::::::::::::::=",
+"<<<<<<<<<<<<<<<<<<<<<<&",
+"[[[[[[[[[[[[[[[[[[[[[[&",
+"}}}|||||||||||||||}}}}1",
+"22222222222222222222221",
+"33333333333333333333331",
+"43333343333343333343331",
+"33333333333333333333331",
+"+++++++++++++++++++++++"};
+/* XPM */
+static char * aqua_tab_sel_dis_left_xpm[] = {
+"8 31 26 1",
+"       c None",
+".      c #EFEFEF",
+"+      c #E7E7E7",
+"@      c #BDBDBD",
+"#      c #7B7B7B",
+"$      c #4A4A4A",
+"%      c #393939",
+"&      c #424242",
+"*      c #DEDEDE",
+"=      c #949494",
+"-      c #5A5A5A",
+";      c #A5A5A5",
+">      c #C6C6C6",
+",      c #B5B5B5",
+"'      c #8C8C8C",
+")      c #CECECE",
+"!      c #737373",
+"~      c #525252",
+"{      c #9C9C9C",
+"]      c #D6D6D6",
+"^      c #636363",
+"/      c #848484",
+"(      c #ADADAD",
+"_      c #6B6B6B",
+":      c #F7F7F7",
+"<      c #FFFFFF",
+"..+@#$%&",
+"+*=-#;@>",
+"*,$'@>))",
+")!~{>))]",
+";&^';,@@",
+"/&!'{;((",
+"#-/=;((,",
+"#_'{(,,,",
+"!!=;(,@@",
+"_#{(,@@@",
+"!#{(@>>>",
+"#/;,@>>>",
+"!'(@>>))",
+"_=(@>)))",
+"!{,@>)]]",
+"#{,>)]]]",
+"!;@)]***",
+"_;>]**++",
+"!(>]*+++",
+"!,)*+...",
+"_,]+.:::",
+"^@*.:<<<",
+"^>+:<<<<",
+"')+<<<<<",
+"**]**+++",
+"++++++++",
+"]]]]]]]]",
+"........",
+"<<<<<<<<",
+"________",
+",,,,,,,,"};
+/* XPM */
+static char * aqua_tab_sel_dis_mid_xpm[] = {
+"4 31 15 1",
+"       c None",
+".      c #424242",
+"+      c #4A4A4A",
+"@      c #C6C6C6",
+"#      c #CECECE",
+"$      c #D6D6D6",
+"%      c #ADADAD",
+"&      c #B5B5B5",
+"*      c #BDBDBD",
+"=      c #DEDEDE",
+"-      c #E7E7E7",
+";      c #EFEFEF",
+">      c #F7F7F7",
+",      c #FFFFFF",
+"'      c #6B6B6B",
+".+++",
+"@###",
+"#$$$",
+"$$$$",
+"@@@@",
+"%%%%",
+"&&&&",
+"****",
+"****",
+"**@*",
+"@@@@",
+"@@@@",
+"####",
+"####",
+"$$$$",
+"$$$$",
+"====",
+"----",
+"--;-",
+">>;;",
+">,>>",
+",,,,",
+",,,,",
+",,,,",
+"----",
+"----",
+"$$$$",
+";;;;",
+",,,,",
+"''''",
+"&&&&"};
+/* XPM */
+static char * aqua_tab_sel_dis_right_xpm[] = {
+"8 31 26 1",
+"       c None",
+".      c #393939",
+"+      c #4A4A4A",
+"@      c #7B7B7B",
+"#      c #BDBDBD",
+"$      c #E7E7E7",
+"%      c #EFEFEF",
+"&      c #C6C6C6",
+"*      c #9C9C9C",
+"=      c #636363",
+"-      c #949494",
+";      c #DEDEDE",
+">      c #CECECE",
+",      c #B5B5B5",
+"'      c #737373",
+")      c #424242",
+"!      c #D6D6D6",
+"~      c #ADADAD",
+"{      c #8C8C8C",
+"]      c #A5A5A5",
+"^      c #848484",
+"/      c #525252",
+"(      c #5A5A5A",
+"_      c #6B6B6B",
+":      c #F7F7F7",
+"<      c #FFFFFF",
+"..+@#$%%",
+"&#*=+-;$",
+">>&,'),;",
+"!>>&*+'>",
+"###~{=.]",
+"~~]*{'.^",
+",~~]-^/@",
+",,,~*{(@",
+"##,~]-_'",
+"###,~*'_",
+"&&##~*''",
+">&&#,]'@",
+">>&&,~@'",
+">>>&#~^_",
+"!!>&&,^'",
+";!!>&#{@",
+";;;!>#-'",
+"$$;;!&*_",
+"%$$;!&*'",
+"%%%$;>]'",
+"::%%$!]_",
+"<<<:%;~=",
+"<<<<:$,=",
+"<<<<<$>{",
+"$$;;;!;;",
+"$$$$$$$$",
+"!!!!!!!!",
+"%%%%%%%%",
+"<<<<<<<<",
+"________",
+",,,,,,,,"};
+/* XPM */
+static char * aqua_tab_usel_dis_left_xpm[] = {
+"8 31 21 1",
+"       c None",
+".      c #EFEFEF",
+"+      c #E7E7E7",
+"@      c #BDBDBD",
+"#      c #949494",
+"$      c #737373",
+"%      c #6B6B6B",
+"&      c #DEDEDE",
+"*      c #9C9C9C",
+"=      c #7B7B7B",
+"-      c #A5A5A5",
+";      c #CECECE",
+">      c #D6D6D6",
+",      c #B5B5B5",
+"'      c #ADADAD",
+")      c #8C8C8C",
+"!      c #848484",
+"~      c #C6C6C6",
+"{      c #F7F7F7",
+"]      c #FFFFFF",
+"^      c #636363",
+"..+@#$%$",
+"+&*=-@;>",
+"&,%'>&&&",
+";)!@>&&+",
+"-%)'~;>>",
+"!%*'@~~~",
+"=)-,~~;;",
+"=#'@~;;;",
+"$*,@;;;>",
+"%-,~;;>>",
+"$-@;>>>>",
+"='~;>>>&",
+"$,~>>&&&",
+"%,;>&&&&",
+"$@;>&+++",
+"=@;&++++",
+"$~>++...",
+"%~&+...{",
+"$;&..{{{",
+"$>+.{]]]",
+"%>.{]]]]",
+"^&.]]]]]",
+"^+{]]]]]",
+"))))))))",
+"&&&&&&&&",
+"++++++++",
+">>>>>>>>",
+"........",
+"]]]]]]]]",
+"%%%%%%%%",
+",,,,,,,,"};
+/* XPM */
+static char * aqua_tab_usel_dis_mid_xpm[] = {
+"4 31 14 1",
+"       c None",
+".      c #737373",
+"+      c #7B7B7B",
+"@      c #DEDEDE",
+"#      c #E7E7E7",
+"$      c #D6D6D6",
+"%      c #C6C6C6",
+"&      c #CECECE",
+"*      c #EFEFEF",
+"=      c #F7F7F7",
+"-      c #FFFFFF",
+";      c #8C8C8C",
+">      c #6B6B6B",
+",      c #B5B5B5",
+"..++",
+"@@@@",
+"@#@#",
+"@###",
+"$$$$",
+"%%%&",
+"&&&&",
+"&&&&",
+"$$$$",
+"$$$$",
+"$$$$",
+"@@@@",
+"@@@@",
+"#@@@",
+"####",
+"##*#",
+"****",
+"*==*",
+"====",
+"----",
+"----",
+"----",
+"----",
+";;;;",
+"@@@@",
+"####",
+"$$$$",
+"****",
+"----",
+">>>>",
+",,,,"};
+/* XPM */
+static char * aqua_tab_usel_dis_right_xpm[] = {
+"8 31 21 1",
+"       c None",
+".      c #737373",
+"+      c #6B6B6B",
+"@      c #949494",
+"#      c #BDBDBD",
+"$      c #E7E7E7",
+"%      c #EFEFEF",
+"&      c #D6D6D6",
+"*      c #9C9C9C",
+"=      c #DEDEDE",
+"-      c #CECECE",
+";      c #A5A5A5",
+">      c #B5B5B5",
+",      c #7B7B7B",
+"'      c #8C8C8C",
+")      c #C6C6C6",
+"!      c #636363",
+"~      c #ADADAD",
+"{      c #848484",
+"]      c #F7F7F7",
+"^      c #FFFFFF",
+".+.@#$%%",
+"&&#@.*=$",
+"===-;+>=",
+"===&#,'-",
+"&&-)>'!;",
+")))#~*+{",
+")-))>;,,",
+"---)#~{,",
+"&---#>'.",
+"&&--)#@+",
+"&&&&-#@.",
+"=&&&-#*,",
+"===&&)*.",
+"====&);+",
+"$$$==-~.",
+"$$$$=&~,",
+"%%%$$&>.",
+"%]%%$=>+",
+"]]]%%=#.",
+"^]^]%$).",
+"^^^^]$)+",
+"^^^^^]-!",
+"^^^^^^&!",
+"''''''''",
+"========",
+"$$$$$$$$",
+"&&&&&&&&",
+"%%%%%%%%",
+"^^^^^^^^",
+"++++++++",
+">>>>>>>>"};
+/* XPM */
+static char * aqua_chk_psh_f_xpm[] = {
+"15 18 27 1",
+"       c None",
+".      c #EFEFEF",
+"+      c #F7F7F7",
+"@      c #DEDEDE",
+"#      c #C6C6C6",
+"$      c #D6D6D6",
+"%      c #292929",
+"&      c #424242",
+"*      c #181818",
+"=      c #BDBDBD",
+"-      c #FFFFFF",
+";      c #949494",
+">      c #848484",
+",      c #A5A5A5",
+"'      c #8C8C8C",
+")      c #4A4A4A",
+"!      c #737373",
+"~      c #7B7B7B",
+"{      c #B5B5B5",
+"]      c #ADADAD",
+"^      c #636363",
+"/      c #9C9C9C",
+"(      c #E7E7E7",
+"_      c #6B6B6B",
+":      c #CECECE",
+"<      c #5A5A5A",
+"[      c #525252",
+"...............",
+"+@##########$++",
+"$%%&&&&&&&&%*=-",
+";&>,,,,,,,,')!+",
+"~!,{]{]]{{],~^.",
+"~~;;///;//;;>^.",
+"~~';;;;;;;;'>^+",
+"!>;//,//,///'^.",
+"!;/]]]]]]]],;^(",
+"!/]{{{{{{{{]/^.",
+"~,{========{,_+",
+"!]#::::::::#]^.",
+"!]:$$$$$$$$:{^(",
+"~,$$$$$$$$$${_(",
+",^';'''''';'_;.",
+"=~<[))))))[<~{(",
+"$];'''''''';]:(",
+"+.(@@@@@@@@((.+"};
+/* XPM */
+static char * aqua_chk_psh_t_xpm[] = {
+"15 18 123 2",
+"       c None",
+".      c #EFEFEF",
+"+      c #BDBDBD",
+"@      c #000000",
+"#      c #424242",
+"$      c #F7F7F7",
+"%      c #DEDEDE",
+"&      c #C6C6C6",
+"*      c #CECECE",
+"=      c #5A5A5A",
+"-      c #ADADAD",
+";      c #D6D6D6",
+">      c #212129",
+",      c #000031",
+"'      c #081052",
+")      c #101852",
+"!      c #101052",
+"~      c #000021",
+"{      c #FFFFFF",
+"]      c #949494",
+"^      c #00085A",
+"/      c #5A6B9C",
+"(      c #8C94BD",
+"_      c #9494BD",
+":      c #949CC6",
+"<      c #848CB5",
+"[      c #737373",
+"}      c #7B7B7B",
+"|      c #10428C",
+"1      c #6B8CBD",
+"2      c #849CC6",
+"3      c #7B9CCE",
+"4      c #7BA5CE",
+"5      c #84A5CE",
+"6      c #84ADD6",
+"7      c #42526B",
+"8      c #63636B",
+"9      c #004294",
+"0      c #2963AD",
+"a      c #296BBD",
+"b      c #2973BD",
+"c      c #296BB5",
+"d      c #2963A5",
+"e      c #00428C",
+"f      c #5A5A6B",
+"g      c #10529C",
+"h      c #00396B",
+"i      c #000829",
+"j      c #1863B5",
+"k      c #105AAD",
+"l      c #105AA5",
+"m      c #186BBD",
+"n      c #001031",
+"o      c #00214A",
+"p      c #295A9C",
+"q      c #3173B5",
+"r      c #295A94",
+"s      c #3973BD",
+"t      c #397BC6",
+"u      c #21528C",
+"v      c #316BB5",
+"w      c #296BA5",
+"x      c #525A63",
+"y      c #4273A5",
+"z      c #5284C6",
+"A      c #315A84",
+"B      c #001029",
+"C      c #5A94CE",
+"D      c #528CC6",
+"E      c #31638C",
+"F      c #4A7BB5",
+"G      c #E7E7E7",
+"H      c #5284B5",
+"I      c #6394C6",
+"J      c #6B9CD6",
+"K      c #000008",
+"L      c #5284AD",
+"M      c #396384",
+"N      c #081831",
+"O      c #5A8CB5",
+"P      c #525A6B",
+"Q      c #638CB5",
+"R      c #739CCE",
+"S      c #7BADD6",
+"T      c #527394",
+"U      c #081821",
+"V      c #638CAD",
+"W      c #6B94BD",
+"X      c #5A6B73",
+"Y      c #73737B",
+"Z      c #739CBD",
+"`      c #8CBDD6",
+" .     c #8CB5D6",
+"..     c #001018",
+"+.     c #314A5A",
+"@.     c #94BDD6",
+"#.     c #5A636B",
+"$.     c #7B9CC6",
+"%.     c #94C6D6",
+"&.     c #9CCED6",
+"*.     c #638C94",
+"=.     c #84A5B5",
+"-.     c #94C6CE",
+";.     c #8CBDCE",
+">.     c #7BA5D6",
+",.     c #7B9CBD",
+"'.     c #ADD6D6",
+").     c #B5D6D6",
+"!.     c #8CBDBD",
+"~.     c #A5CECE",
+"{.     c #A5D6D6",
+"].     c #84ADCE",
+"^.     c #636B73",
+"/.     c #A5A5A5",
+"(.     c #52636B",
+"_.     c #73949C",
+":.     c #7B9CA5",
+"<.     c #7B949C",
+"[.     c #526B73",
+"}.     c #525252",
+"|.     c #4A4A4A",
+"1.     c #B5B5B5",
+"2.     c #8C8C8C",
+". . . . . . . . . . . . + @ # ",
+"$ % & & & & & & & & & * = @ - ",
+"; > , ' ) ) ! ! ) ) ! ~ @ = { ",
+"] ^ / ( ( ( ( ( _ : < @ @ [ $ ",
+"} | 1 2 3 4 3 3 5 6 7 @ ~ 8 . ",
+"} 9 0 a b c c c c d @ @ e f . ",
+"} g h @ i j k l m n @ o l f $ ",
+"[ p q @ @ r s t u @ @ v w x . ",
+"[ y z A @ B C D B @ E z F x G ",
+"[ H I J K @ L M @ N J I O P . ",
+"} Q R S T @ U U @ V 6 R W X $ ",
+"Y Z 6 `  ...@ @ +.@. .6 R #.. ",
+"Y $.` %.&.*.@ @ =.&.-.;.>.#.G ",
+"} ,.'.).).'.!.~.).).).{.].^.G ",
+"/.(._.:._._.:.<._._.:._.[.] . ",
+"+ } = }.|.|.|.|.|.|.}.= } 1.G ",
+"; - ] 2.2.2.2.2.2.2.2.] - * G ",
+"$ . G % % % % % % % % G G . $ "};
+/* XPM */
+static char * aqua_radio_psh_f_xpm[] = {
+"14 17 29 1",
+"       c None",
+".      c #F7F7F7",
+"+      c #E7E7E7",
+"@      c #D6D6D6",
+"#      c #EFEFEF",
+"$      c #CECECE",
+"%      c #737373",
+"&      c #313131",
+"*      c #181818",
+"=      c #101010",
+"-      c #6B6B6B",
+";      c #BDBDBD",
+">      c #ADADAD",
+",      c #393939",
+"'      c #5A5A5A",
+")      c #292929",
+"!      c #9C9C9C",
+"~      c #FFFFFF",
+"{      c #C6C6C6",
+"]      c #525252",
+"^      c #7B7B7B",
+"/      c #8C8C8C",
+"(      c #949494",
+"_      c #A5A5A5",
+":      c #4A4A4A",
+"<      c #DEDEDE",
+"[      c #B5B5B5",
+"}      c #848484",
+"|      c #636363",
+".....+@@+.....",
+"###$%&*=&-;###",
+"..>,&'%%',)!..",
+"~{]]^!>>!/',>~",
+"+%]^(_>>>!^]:<",
+"['%}(!!!((/%:!",
+"(%}(!!!!!!(}%%",
+"//(_>>>>>__(/^",
+"//_[;;;;;[[_(%",
+"(^[;{{$${{;[}^",
+"[-[{$@@@$${[-_",
+"@^}{@@@@@@$/%$",
+"<>'^{@@@@$^'_@",
+"+{(-]-//%]|/{+",
+".#$_}-||-}_$+.",
+"~~.+$[>>[$<.~~",
+"....#++++#...."};
+/* XPM */
+static char * aqua_radio_psh_t_xpm[] = {
+"14 17 120 2",
+"       c None",
+".      c #F7F7F7",
+"+      c #E7E7E7",
+"@      c #D6D6D6",
+"#      c #EFEFEF",
+"$      c #CECECE",
+"%      c #737373",
+"&      c #313131",
+"*      c #080808",
+"=      c #000000",
+"-      c #6B6B6B",
+";      c #BDBDBD",
+">      c #ADADAD",
+",      c #29294A",
+"'      c #18184A",
+")      c #52526B",
+"!      c #6B6B7B",
+"~      c #6B737B",
+"{      c #5A5A6B",
+"]      c #181839",
+"^      c #9C9C9C",
+"/      c #FFFFFF",
+"(      c #C6C6C6",
+"_      c #29295A",
+":      c #08186B",
+"<      c #525A9C",
+"[      c #8C8CBD",
+"}      c #ADA5C6",
+"|      c #B5ADCE",
+"1      c #9C9CBD",
+"2      c #6B73A5",
+"3      c #212973",
+"4      c #52527B",
+"5      c #00216B",
+"6      c #104A94",
+"7      c #4A7BB5",
+"8      c #6B94C6",
+"9      c #849CD6",
+"0      c #84A5D6",
+"a      c #7B9CCE",
+"b      c #5A84BD",
+"c      c #184A9C",
+"d      c #00106B",
+"e      c #31315A",
+"f      c #DEDEDE",
+"g      c #B5B5B5",
+"h      c #10296B",
+"i      c #00428C",
+"j      c #185AA5",
+"k      c #316BB5",
+"l      c #315A94",
+"m      c #183142",
+"n      c #182939",
+"o      c #295284",
+"p      c #316BAD",
+"q      c #185AAD",
+"r      c #00398C",
+"s      c #00105A",
+"t      c #949494",
+"u      c #084284",
+"v      c #2163A5",
+"w      c #3173BD",
+"x      c #3973B5",
+"y      c #000008",
+"z      c #29639C",
+"A      c #003984",
+"B      c #73737B",
+"C      c #8C8C8C",
+"D      c #2963A5",
+"E      c #427BB5",
+"F      c #528CC6",
+"G      c #4A7BAD",
+"H      c #39638C",
+"I      c #528CCE",
+"J      c #215AA5",
+"K      c #396BA5",
+"L      c #5A94CE",
+"M      c #6B9CD6",
+"N      c #638CBD",
+"O      c #000818",
+"P      c #527BAD",
+"Q      c #639CD6",
+"R      c #396BAD",
+"S      c #426B94",
+"T      c #6BA5D6",
+"U      c #7BADD6",
+"V      c #73A5CE",
+"W      c #4A6B8C",
+"X      c #425A7B",
+"Y      c #73A5D6",
+"Z      c #396B9C",
+"`      c #7B7B7B",
+" .     c #4A6373",
+"..     c #8CB5D6",
+"+.     c #7BA5C6",
+"@.     c #6B94AD",
+"#.     c #739CC6",
+"$.     c #84ADD6",
+"%.     c #84B5D6",
+"&.     c #42637B",
+"*.     c #A5A5A5",
+"=.     c #527394",
+"-.     c #8CBDD6",
+";.     c #9CC6D6",
+">.     c #94C6D6",
+",.     c #8CB5CE",
+"'.     c #5A7BA5",
+").     c #5A5A5A",
+"!.     c #527384",
+"~.     c #ADD6D6",
+"{.     c #B5D6D6",
+"].     c #5A7394",
+"^.     c #52525A",
+"/.     c #4A525A",
+"(.     c #5A6B7B",
+"_.     c #738C94",
+":.     c #73949C",
+"<.     c #5A7384",
+"[.     c #636363",
+"}.     c #848484",
+". . . . . + @ @ + . . . . . ",
+"# # # $ % & * = & - ; # # # ",
+". . > , ' ) ! ~ { , ] ^ . . ",
+"/ ( _ : < [ } | 1 2 3 ' > / ",
+"+ 4 5 6 7 8 9 0 a b c d e f ",
+"g h i j k l m n o p q r s ^ ",
+"t u v w x y = = = z w j A B ",
+"C D E F G = = = = H I x J ! ",
+"C K L M N O = = y P Q F R ! ",
+"t S T U V W n n X 8 Y Q Z ` ",
+"g  .V ....+.@.@.#.$.%.M &.*.",
+"@ ` =.-.;.>.,.,.-.>.-.'.% $ ",
+"f > ).!.>.~.{.{.~.>.].^.*.@ ",
+"+ ( t - /.(._.:.<./.[.C ( + ",
+". # $ *.}.- [.[.- }.*.$ + . ",
+"/ / . + $ g > > g $ f . / / ",
+". . . . # + + + + # . . . . "};
 
 
 #include "qapplication.h"
@@ -6973,6 +8162,10 @@ static char * aqua_vsbr_tip_up_xpm[] = {
 #include "qimage.h"
 #include "qbitmap.h"
 #include "qpixmapcache.h"
+#include "qtoolbutton.h"
+#include "qtoolbar.h"
+#include "qobjcoll.h"
+#include "qlayout.h"
 #include <limits.h>
 #define INCLUDE_MENUITEM_DEF
 #include "qpopupmenu.h"
@@ -6989,15 +8182,6 @@ static char * aqua_vsbr_tip_up_xpm[] = {
   perfect yet.
 */
 
-/*
- Handle the pixmap cache - pixmaps are removed from the cache if the
- cache is idle for a certain amount of time
-
- The pixmaps are inserted into the pixmap cache with the following
- key prefix:   $qt_aqua_
-
-*/
-
 static int qAquaGetNum( const QString & s )
 {
     int num = 0;
@@ -7010,9 +8194,26 @@ static int qAquaGetNum( const QString & s )
     return num;
 }
 
+
 /*
-  Handle scaling and caching of pixmaps used in the Aqua style
-  Yes, I know it's ugly!
+  Hackish method of finding out whether the window is active or not
+ */
+static bool qAquaActive( const QColorGroup & g )
+{
+    if( g.buttonText() == QColor( 148,148,148 ) )
+        return FALSE;
+    else
+        return TRUE;
+}
+
+/*
+  Handle scaling and caching of pixmaps used in the Aqua style.
+  Pixmaps are removed from the cache if the cache is idle for a
+  certain amount of time
+
+  The pixmaps are inserted into the pixmap cache with the following
+  key prefix:   $qt_aqua_
+
  */
 
 static void qAquaPixmap( const QString & s, QPixmap & p )
@@ -7020,8 +8221,6 @@ static void qAquaPixmap( const QString & s, QPixmap & p )
     int i, f, size = 0;
 
     QString str = "$qt_aqua_" + s;
-    QPixmap px, tpx;
-    QImage  im;
 
     if( QPixmapCache::find( str, p ) )
         return;
@@ -7035,7 +8234,8 @@ static void qAquaPixmap( const QString & s, QPixmap & p )
     if( s.contains("sel_back" ) )
         QPixmapCache::insert( "$qt_aqua_sel_back",
                               QPixmap((const char **) aqua_sel_back_xpm ) );
-
+    QPixmap px;
+    QImage  im;
     QBitmap left_mask( aqua_btn_mask_left_xbm_width,
                        aqua_btn_mask_left_xbm_height,
                        (const uchar *) aqua_btn_mask_left_xbm_bits, TRUE );
@@ -7169,6 +8369,12 @@ static void qAquaPixmap( const QString & s, QPixmap & p )
                               (const char **) aqua_radio_f_xpm );
         QPixmapCache::insert( "$qt_aqua_radio_t",
                               (const char **) aqua_radio_t_xpm );
+        QPixmapCache::insert( "$qt_aqua_radio_dis_t",
+                              (const char **) aqua_radio_dis_t_xpm );
+        QPixmapCache::insert( "$qt_aqua_radio_psh_t",
+                              (const char **) aqua_radio_psh_t_xpm );
+        QPixmapCache::insert( "$qt_aqua_radio_psh_f",
+                              (const char **) aqua_radio_psh_f_xpm );
     }
 
     // Small bevel buttons
@@ -7211,6 +8417,10 @@ static void qAquaPixmap( const QString & s, QPixmap & p )
                               (const char **) aqua_chk_act_t_xpm);
         QPixmapCache::insert( "$qt_aqua_chk_dis_t",
                               (const char **) aqua_chk_dis_t_xpm);
+        QPixmapCache::insert( "$qt_aqua_chk_psh_t",
+                              (const char **) aqua_chk_psh_t_xpm);
+        QPixmapCache::insert( "$qt_aqua_chk_psh_f",
+                              (const char **) aqua_chk_psh_f_xpm);
     }
 
     // Horizontal scrollbar
@@ -7230,6 +8440,11 @@ static void qAquaPixmap( const QString & s, QPixmap & p )
         QPixmap t_left( (const char **) aqua_hsbr_tip_left_xpm );
         t_left.setMask( left_mask );
         QPixmap fill((const char **) aqua_hsbr_fill_xpm);
+        QPixmap t_right_dis( (const char **) aqua_hsbr_tip_dis_right_xpm );
+        t_right_dis.setMask( right_mask );
+        QPixmap t_left_dis( (const char **) aqua_hsbr_tip_dis_left_xpm );
+        t_left_dis.setMask( left_mask );
+        QPixmap fill_dis((const char **) aqua_hsbr_dis_fill_xpm);
         QPixmap back_fill((const char **) aqua_hsbr_back_fill_xpm);
 
         size = qAquaGetNum( s );
@@ -7256,6 +8471,19 @@ static void qAquaPixmap( const QString & s, QPixmap & p )
         px = im.smoothScale( im.width(), size );
         QPixmapCache::insert( "$qt_aqua_hsbr_fill_" +
                               QString::number( size ), px );
+        im = t_left_dis;
+        px = im.smoothScale( im.width(), size );
+        QPixmapCache::insert( "$qt_aqua_hsbr_tip_dis_left_" +
+                              QString::number( size ), px );
+        im = t_right_dis;
+        px = im.smoothScale( im.width(), size );
+        QPixmapCache::insert( "$qt_aqua_hsbr_tip_dis_right_" +
+                              QString::number( size ), px );
+
+        im = fill_dis;
+        px = im.smoothScale( im.width(), size );
+        QPixmapCache::insert( "$qt_aqua_hsbr_dis_fill_" +
+                              QString::number( size ), px );
         im = back_fill;
         px = im.smoothScale( im.width(), size );
         QPixmapCache::insert( "$qt_aqua_hsbr_back_fill_" +
@@ -7280,6 +8508,11 @@ static void qAquaPixmap( const QString & s, QPixmap & p )
         QPixmap t_up( (const char **) aqua_vsbr_tip_up_xpm );
         t_up.setMask( up_mask );
         QPixmap fill((const char **) aqua_vsbr_fill_xpm);
+        QPixmap t_down_dis( (const char **) aqua_vsbr_tip_dis_down_xpm );
+        t_down_dis.setMask( down_mask );
+        QPixmap t_up_dis( (const char **) aqua_vsbr_tip_dis_up_xpm );
+        t_up_dis.setMask( up_mask );
+        QPixmap fill_dis((const char **) aqua_vsbr_dis_fill_xpm);
         QPixmap back_fill((const char **) aqua_vsbr_back_fill_xpm);
 
         size = qAquaGetNum( s );
@@ -7301,10 +8534,22 @@ static void qAquaPixmap( const QString & s, QPixmap & p )
         px = im.smoothScale( size, im.height() );
         QPixmapCache::insert( "$qt_aqua_vsbr_tip_down_" +
                               QString::number( size ), px );
+        im = t_up_dis;
+        px = im.smoothScale( size, im.height() );
+        QPixmapCache::insert( "$qt_aqua_vsbr_tip_dis_up_" +
+                              QString::number( size ), px );
+        im = t_down_dis;
+        px = im.smoothScale( size, im.height() );
+        QPixmapCache::insert( "$qt_aqua_vsbr_tip_dis_down_" +
+                              QString::number( size ), px );
 
         im = fill;
         px = im.smoothScale( size, im.height() );
         QPixmapCache::insert( "$qt_aqua_vsbr_fill_" +
+                              QString::number( size ), px );
+        im = fill_dis;
+        px = im.smoothScale( size, im.height() );
+        QPixmapCache::insert( "$qt_aqua_vsbr_dis_fill_" +
                               QString::number( size ), px );
         im = back_fill;
         px = im.smoothScale( size, im.height() );
@@ -7331,6 +8576,7 @@ static void qAquaPixmap( const QString & s, QPixmap & p )
         QPixmap left((const char **) aqua_cmb_act_left_xpm);
         QPixmap right((const char **) aqua_cmb_act_right_xpm);
         QPixmap mid((const char **) aqua_cmb_act_mid_xpm);
+        QPixmap right_dis((const char **) aqua_cmb_dis_right_xpm);
 
         size = qAquaGetNum( s );
 
@@ -7341,6 +8587,10 @@ static void qAquaPixmap( const QString & s, QPixmap & p )
         im = right;
         px = im.smoothScale( im.width(), size );
         QPixmapCache::insert( "$qt_aqua_cmb_act_right_" +
+                              QString::number( size ), px );
+        im = right_dis;
+        px = im.smoothScale( im.width(), size );
+        QPixmapCache::insert( "$qt_aqua_cmb_dis_right_" +
                               QString::number( size ), px );
         im = mid;
         px = im.smoothScale( im.width(), size );
@@ -7363,6 +8613,59 @@ static void qAquaPixmap( const QString & s, QPixmap & p )
                               (const char **) aqua_tab_dis_mid_xpm);
         QPixmapCache::insert( "$qt_aqua_tab_dis_right",
                               (const char **) aqua_tab_dis_right_xpm);
+
+        // Pixmaps for the inactive state
+        QPixmapCache::insert( "$qt_aqua_tab_usel_dis_left",
+                              (const char **) aqua_tab_usel_dis_left_xpm);
+        QPixmapCache::insert( "$qt_aqua_tab_usel_dis_mid",
+                              (const char **) aqua_tab_usel_dis_mid_xpm);
+        QPixmapCache::insert( "$qt_aqua_tab_usel_dis_right",
+                              (const char **) aqua_tab_usel_dis_right_xpm);
+
+        QPixmapCache::insert( "$qt_aqua_tab_sel_dis_left",
+                              (const char **) aqua_tab_sel_dis_left_xpm);
+        QPixmapCache::insert( "$qt_aqua_tab_sel_dis_mid",
+                              (const char **) aqua_tab_sel_dis_mid_xpm);
+        QPixmapCache::insert( "$qt_aqua_tab_sel_dis_right",
+                              (const char **) aqua_tab_sel_dis_right_xpm);
+
+    }
+
+    // Tool buttons
+    if( s.contains("toolbtn_") ){
+        QPixmap right((const char **) aqua_toolbtn_nrm_right_xpm);
+        QPixmap left((const char **) aqua_toolbtn_nrm_left_xpm);
+        QPixmap mid((const char **) aqua_toolbtn_nrm_mid_xpm);
+        QPixmap act_mid((const char **) aqua_toolbtn_act_mid_xpm);
+
+        int width = 0, height = 0, j;
+        i = s.findRev( '_' );
+        if( i != -1 ){
+            height = s.right( (s.length() - 1) - i ).toInt();
+        }
+        j = s.findRev( '_', i - 1 );
+        if( j != -1 ){
+            width = s.mid( j + 1, i - j - 1 ).toInt();
+        }
+        QString wstr = QString::number( width );
+        QString hstr = QString::number( height );
+
+        im = left;
+        px = im.smoothScale( width, height );
+        QPixmapCache::insert( "$qt_aqua_toolbtn_nrm_left_" + wstr + "_" + hstr,
+                              px );
+        im = right;
+        px = im.smoothScale( width, height );
+        QPixmapCache::insert( "$qt_aqua_toolbtn_nrm_right_" + wstr + "_" +
+                              hstr, px );
+        im = mid;
+        px = im.smoothScale( width, height );
+        QPixmapCache::insert( "$qt_aqua_toolbtn_nrm_mid_" + wstr + "_" + hstr,
+                              px );
+        im = act_mid;
+        px = im.smoothScale( width, height );
+        QPixmapCache::insert( "$qt_aqua_toolbtn_act_mid_" + wstr + "_" + hstr,
+                              px );
     }
 
     QPixmapCache::find( str, p );
@@ -7401,9 +8704,16 @@ void QAquaStyle::polish( QPalette & pal )
     pal.setBrush( QPalette::Inactive, QColorGroup::Button, background );
     pal.setBrush( QPalette::Disabled, QColorGroup::Button, background );
 
+    pal.setBrush( QPalette::Inactive, QColorGroup::ButtonText,
+                  QColor( 148,148,148 ));
+    pal.setBrush( QPalette::Disabled, QColorGroup::ButtonText,
+                  QColor( 148,148,148 ));
+
     pal.setBrush( QPalette::Active, QColorGroup::Highlight, highlight );
-    pal.setBrush( QPalette::Inactive, QColorGroup::Highlight, highlight );
-    pal.setBrush( QPalette::Disabled, QColorGroup::Highlight, highlight );
+    pal.setBrush( QPalette::Inactive, QColorGroup::Highlight,
+                  QColor( 148,148,148 ));
+    pal.setBrush( QPalette::Disabled, QColorGroup::Highlight,
+                  QColor( 148,148,148 ));
 
     pal.setBrush( QPalette::Active, QColorGroup::HighlightedText, Qt::black);
     pal.setBrush( QPalette::Inactive, QColorGroup::HighlightedText, Qt::black);
@@ -7434,6 +8744,13 @@ void QAquaStyle::polish( QWidget * w )
     if( w->inherits("QToolButton") ){
         QToolButton * btn = (QToolButton *) w;
         btn->setAutoRaise( FALSE );
+    }
+
+    if( w->inherits("QToolBar") ){
+        QToolBar * bar = (QToolBar *) w;
+        QBoxLayout * layout = bar->boxLayout();
+        layout->setSpacing( 0 );
+        layout->setMargin( 0 );
     }
 
     if( w->inherits("QDockWindow") ){
@@ -7699,22 +9016,45 @@ QRect QAquaStyle::buttonRect( int x, int y, int w, int h) const
     return r;
 }
 
-void QAquaStyle::drawToolButton ( QPainter * p, int x, int y, int w, int h,
-                                  const QColorGroup & /*g*/, bool sunken,
-                                  const QBrush * /*fill*/ )
+void QAquaStyle::drawToolButton ( QToolButton * btn, QPainter * p )
 {
-    QPixmap btn;
-    if( !sunken ){
-        qAquaPixmap( "bvlbtn_small_off_" + QString::number(w) + "_" +
-                     QString::number(h), btn );
+    QPixmap px;
+    QObject * obj = btn->parent();
+    int x = 0;
+    int y = 0;
+    int w = btn->width();
+    int h = btn->height();
+
+    if( obj && obj->inherits("QToolBar") ){
+        QToolBar * bar  = (QToolBar *) obj;
+        QObjectList * l = bar->queryList( "QToolButton", 0, FALSE, FALSE );
+        QObjectListIt it( *l );
+        if( it.toFirst() == btn ){
+            qAquaPixmap( "toolbtn_nrm_left_"+ QString::number(w) +
+                         "_" + QString::number(h), px );
+        } else if( it.toLast() == btn ){
+            qAquaPixmap( "toolbtn_nrm_right_" + QString::number(w) +
+                         "_" + QString::number(h), px );
+        } else {
+            if( btn->isDown() || btn->isOn() )
+                qAquaPixmap( "toolbtn_act_mid_" + QString::number(w) +
+                             "_" + QString::number(h), px );
+            else
+                qAquaPixmap( "toolbtn_nrm_mid_" + QString::number(w) +
+                             "_" + QString::number(h), px );
+        }
+        delete l;
     } else {
-        qAquaPixmap( "bvlbtn_small_on_"+QString::number(w) + "_" +
-                     QString::number(h), btn );
+        if( !btn->isDown() ){
+            qAquaPixmap( "bvlbtn_small_off_" + QString::number(w) +
+                         "_" + QString::number(h), px );
+        } else {
+            qAquaPixmap( "bvlbtn_small_on_"+QString::number(w) +
+                         "_" + QString::number(h), px );
+        }
     }
-    p->drawPixmap( x, y, btn );
-
+    p->drawPixmap( x, y, px );
 }
-
 
 /*! \reimp */
 
@@ -7941,7 +9281,7 @@ void QAquaStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p)
         int hh = h+6;
 
         if ( !on ) {
-            p->setPen( g.mid() );
+            p->setPen( g.mid() ); // mid
             p->drawLine(xx, yy+2, xx, yy+hh-3);
             p->setPen( g.button() );
             p->drawLine(xx+1, yy+1, xx+1, yy+hh-2);
@@ -7969,10 +9309,8 @@ void QAquaStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p)
     }
 
     drawItem( p, x, y, w, h,
-              AlignCenter|ShowPrefix,
-              btn->colorGroup(), btn->isEnabled(),
-              btn->pixmap(), btn->text(), -1,
-              on?&btn->colorGroup().brightText():&btn->colorGroup().buttonText());
+              AlignCenter|ShowPrefix, btn->colorGroup(), btn->isEnabled(),
+              btn->pixmap(), btn->text(), -1, &btn->colorGroup().buttonText());
 #endif
 }
 
@@ -8032,6 +9370,7 @@ void QAquaStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb,
 #define ADD_LINE_ACTIVE ( activeControl == AddLine )
 #define SUB_LINE_ACTIVE ( activeControl == SubLine )
     QColorGroup g  = sb->colorGroup();
+    bool active = qAquaActive( g );
 
     int sliderMin, sliderMax, sliderLength, buttonDim;
     scrollBarMetrics( sb, sliderMin, sliderMax, sliderLength, buttonDim );
@@ -8089,20 +9428,38 @@ void QAquaStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb,
     QPixmap arw_l, arw_r, arw_u, arw_d;
     QPixmap tip_l, tip_r, tip_u, tip_d, fill, back_fill;
 
-    if( HORIZONTAL ){
-        qAquaPixmap( "hsbr_tip_right_" + nstr, tip_r );
-        qAquaPixmap( "hsbr_tip_left_" + nstr, tip_l );
-        qAquaPixmap( "hsbr_fill_" + nstr, fill );
-        qAquaPixmap( "hsbr_back_fill_" + nstr, back_fill );
-        qAquaPixmap( "hsbr_arw_left_" + nstr, arw_l );
-        qAquaPixmap( "hsbr_arw_right_" + nstr, arw_r );
+    if( active ){
+        if( HORIZONTAL ){
+            qAquaPixmap( "hsbr_tip_right_" + nstr, tip_r );
+            qAquaPixmap( "hsbr_tip_left_" + nstr, tip_l );
+            qAquaPixmap( "hsbr_fill_" + nstr, fill );
+            qAquaPixmap( "hsbr_back_fill_" + nstr, back_fill );
+            qAquaPixmap( "hsbr_arw_left_" + nstr, arw_l );
+            qAquaPixmap( "hsbr_arw_right_" + nstr, arw_r );
+        } else {
+            qAquaPixmap( "vsbr_tip_up_" + nstr, tip_u );
+            qAquaPixmap( "vsbr_tip_down_" + nstr, tip_d );
+            qAquaPixmap( "vsbr_fill_" + nstr, fill );
+            qAquaPixmap( "vsbr_back_fill_" + nstr, back_fill );
+            qAquaPixmap( "vsbr_arw_up_" + nstr, arw_u );
+            qAquaPixmap( "vsbr_arw_down_" + nstr, arw_d );
+        }
     } else {
-        qAquaPixmap( "vsbr_tip_up_" + nstr, tip_u );
-        qAquaPixmap( "vsbr_tip_down_" + nstr, tip_d );
-        qAquaPixmap( "vsbr_fill_" + nstr, fill );
-        qAquaPixmap( "vsbr_back_fill_" + nstr, back_fill );
-        qAquaPixmap( "vsbr_arw_up_" + nstr, arw_u );
-        qAquaPixmap( "vsbr_arw_down_" + nstr, arw_d );
+        if( HORIZONTAL ){
+            qAquaPixmap( "hsbr_tip_dis_right_" + nstr, tip_r );
+            qAquaPixmap( "hsbr_tip_dis_left_" + nstr, tip_l );
+            qAquaPixmap( "hsbr_dis_fill_" + nstr, fill );
+            qAquaPixmap( "hsbr_back_fill_" + nstr, back_fill );
+            qAquaPixmap( "hsbr_arw_left_" + nstr, arw_l );
+            qAquaPixmap( "hsbr_arw_right_" + nstr, arw_r );
+        } else {
+            qAquaPixmap( "vsbr_tip_dis_up_" + nstr, tip_u );
+            qAquaPixmap( "vsbr_tip_dis_down_" + nstr, tip_d );
+            qAquaPixmap( "vsbr_dis_fill_" + nstr, fill );
+            qAquaPixmap( "vsbr_back_fill_" + nstr, back_fill );
+            qAquaPixmap( "vsbr_arw_up_" + nstr, arw_u );
+            qAquaPixmap( "vsbr_arw_down_" + nstr, arw_d );
+        }
     }
     p->drawTiledPixmap( subPageR, back_fill );
     p->drawTiledPixmap( addPageR, back_fill );
@@ -8129,12 +9486,23 @@ void QAquaStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb,
 /*! \reimp */
 
 void QAquaStyle::drawIndicator( QPainter* p, int x, int y, int /*w*/, int/*h*/,
-                                const QColorGroup &/*g*/, int s, bool /*down*/,
-                                bool /*enabled*/ )
+                                const QColorGroup  & g, int s, bool down,
+                                bool enabled )
 {
     QPixmap px;
-    s == QButton::On ? qAquaPixmap("chk_act_t", px) :
-                       qAquaPixmap("chk_act_f", px);
+    bool on = (s == QButton::On);
+    if( enabled || qAquaActive( g ) ){
+        if( down && on )
+            qAquaPixmap("chk_psh_t", px);
+        else if( on )
+            qAquaPixmap("chk_act_t", px);
+        else if( !on && down )
+            qAquaPixmap("chk_psh_f", px);
+        else
+            qAquaPixmap("chk_act_f", px);
+    } else {
+        on ? qAquaPixmap("chk_dis_t", px) : qAquaPixmap("chk_act_f", px);
+    }
     p->drawPixmap( x, y, px );
 }
 
@@ -8157,15 +9525,24 @@ QAquaStyle::indicatorSize() const
 #define QCOORDARRLEN(x) sizeof(x)/(sizeof(QCOORD)*2)
 /*! \reimp */
 
-void QAquaStyle::drawExclusiveIndicator( QPainter* p, int x, int y, int w,
-                                         int h, const QColorGroup &/*g*/,
-                                         bool on, bool /*down*/,
-                                         bool /* enabled */ )
+void QAquaStyle::drawExclusiveIndicator( QPainter* p, int x, int y, int /*w*/,
+                                         int /*h*/, const QColorGroup & g,
+                                         bool on, bool down,
+                                         bool enabled )
 {
     QPixmap px;
-    on ? qAquaPixmap("radio_t", px) : qAquaPixmap("radio_f", px);
-
-    p->eraseRect( x, y, w, h );
+    if( enabled  || qAquaActive( g ) ){
+        if( down && on )
+            qAquaPixmap("radio_psh_t", px);
+        else if( on )
+            qAquaPixmap("radio_t", px);
+        else if( !on && down )
+            qAquaPixmap("radio_psh_f", px);
+        else
+            qAquaPixmap("radio_f", px);
+    } else {
+        on ? qAquaPixmap("radio_dis_t", px) : qAquaPixmap("radio_f", px);
+    }
     p->drawPixmap( x, y, px );
 }
 
@@ -8191,17 +9568,21 @@ QSize QAquaStyle::exclusiveIndicatorSize() const
 /*! \reimp */
 
 void QAquaStyle::drawComboButton( QPainter *p, int x, int y, int w, int h,
-                                  const QColorGroup &/*g*/, bool /* sunken */,
+                                  const QColorGroup & g, bool /* sunken */,
                                   bool /*editable*/, bool /* enabled */,
                                   const QBrush * /*fill*/ )
 {
 
     QPixmap left, mid, right;
     QString hstr = QString::number( h );
+    bool active = qAquaActive( g );
 
     qAquaPixmap( "cmb_act_left_" + hstr, left );
     qAquaPixmap( "cmb_act_mid_" + hstr, mid );
-    qAquaPixmap( "cmb_act_right_" + hstr, right );
+    if( active )
+        qAquaPixmap( "cmb_act_right_" + hstr, right );
+    else
+        qAquaPixmap( "cmb_dis_right_" + hstr, right );
 
     p->drawPixmap( x, y, left );
     p->drawTiledPixmap( x + left.width(), y, w - left.width()*2, h, mid );
@@ -8235,15 +9616,18 @@ int QAquaStyle::sliderLength() const
 
 /*! \reimp */
 void QAquaStyle::drawSlider( QPainter *p, int x, int y, int /*w*/, int /*h*/,
-                             const QColorGroup &/*g*/,
+                             const QColorGroup & g,
                              Orientation /*orient*/ , bool /* tickAbove */,
                              bool /*tickBelow*/ )
 {
     // ### Orientation
-
     QPixmap px;
 
-    qAquaPixmap( "sldr_act_pty", px );
+    if( qAquaActive( g ) )
+        qAquaPixmap( "sldr_act_pty", px );
+    else
+        qAquaPixmap( "sldr_dis_pty", px );
+
     p->drawPixmap( x, y, px );
 }
 
@@ -8308,6 +9692,7 @@ void QAquaStyle::drawCheckMark( QPainter *p, int x, int y, int w, int h,
     QWindowsStyle::drawCheckMark( p, x, y, w, h, g, act, dis );
 }
 
+static const int aquaSepHeight         = 10;    // separator height
 static const int aquaItemFrame         = 2;    // menu item frame width
 static const int aquaItemHMargin       = 3;    // menu item hor text margin
 static const int aquaItemVMargin       = 2;    // menu item ver text margin
@@ -8360,7 +9745,10 @@ int QAquaStyle::popupMenuItemHeight( bool /*checkable*/, QMenuItem* mi,
 {
 #ifndef QT_NO_POPUPMENU
     int h = 0;
-    if ( mi->pixmap() )         // pixmap height
+
+    if( mi->isSeparator() )
+        h = aquaSepHeight;
+    else if ( mi->pixmap() )         // pixmap height
         h = mi->pixmap()->height() + 2*aquaItemFrame;
     else                                        // text height
         h = fm.height() + 2*aquaItemVMargin + 2*aquaItemFrame;
@@ -8562,21 +9950,33 @@ void QAquaStyle::getButtonShift( int &x, int &y) const
 
 /*!\reimp
  */
-void QAquaStyle::drawTab( QPainter * p,  const QTabBar * /*tb*/, QTab * t,
+void QAquaStyle::drawTab( QPainter * p,  const QTabBar * tb, QTab * t,
                           bool selected )
 {
 #ifndef QT_NO_TABBAR
     QPixmap left, mid, right;
     QRect r( t->rect() );
 
-    if( selected ){
-        qAquaPixmap( "tab_act_left", left );
-        qAquaPixmap( "tab_act_mid", mid );
-        qAquaPixmap( "tab_act_right", right );
+    if( qAquaActive( tb->colorGroup() ) ){
+        if( selected ){
+            qAquaPixmap( "tab_act_left", left );
+            qAquaPixmap( "tab_act_mid", mid );
+            qAquaPixmap( "tab_act_right", right );
+        } else {
+            qAquaPixmap( "tab_dis_left", left );
+            qAquaPixmap( "tab_dis_mid", mid );
+            qAquaPixmap( "tab_dis_right", right );
+        }
     } else {
-        qAquaPixmap( "tab_dis_left", left );
-        qAquaPixmap( "tab_dis_mid", mid );
-        qAquaPixmap( "tab_dis_right", right );
+        if( selected ){
+            qAquaPixmap( "tab_sel_dis_left", left );
+            qAquaPixmap( "tab_sel_dis_mid", mid );
+            qAquaPixmap( "tab_sel_dis_right", right );
+        } else {
+            qAquaPixmap( "tab_usel_dis_left", left );
+            qAquaPixmap( "tab_usel_dis_mid", mid );
+            qAquaPixmap( "tab_usel_dis_right", right );
+        }
     }
 
     p->drawPixmap( r.x(), r.y(), left );

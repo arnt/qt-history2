@@ -71,9 +71,11 @@ public:
     void drawButton( QPainter *p, int x, int y, int w, int h,
                      const QColorGroup &g, bool sunken = FALSE,
                      const QBrush *fill = 0 );
-    void drawToolButton ( QPainter * p, int x, int y, int w, int h,
-                          const QColorGroup & g, bool sunken = FALSE,
-                          const QBrush * fill = 0 );
+//     void drawToolButton ( QPainter * p, int x, int y, int w, int h,
+//                           const QColorGroup & g, bool sunken = FALSE,
+//                           const QBrush * fill = 0 );
+    void drawToolButton( QToolButton * btn, QPainter * p );
+
     QRect buttonRect( int x, int y, int w, int h) const;
     void  drawBevelButton( QPainter *p, int x, int y, int w, int h,
                            const QColorGroup &g, bool sunken = FALSE,
