@@ -573,6 +573,11 @@ void QMultiLineEdit::setReadOnly( bool on )
     if ( readOnly != on ) {
 	readOnly = on;
 	setCursor( on ? arrowCursor : ibeamCursor );
+	if ( style() == WindowsStyle )
+	    if ( on )
+		setBackgroundMode( PaletteBackground );
+	    else
+		setBackgroundMode( PaletteBase );
     }
 }
 
@@ -630,7 +635,8 @@ void QMultiLineEdit::paintCell( QPainter *painter, int row, int )
     QRect updateR = cellUpdateRect();
     QPixmap *buffer = getCacheBuffer( updateR.size() );
     ASSERT(buffer);
-    buffer->fill ( g.base() );
+    buffer->fill ( style() == WindowsStyle && readOnly ? g.background()
+	: g.base() );
 
     QPainter p( buffer );
     p.setFont( painter->font() );
