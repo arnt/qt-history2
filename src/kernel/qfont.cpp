@@ -510,6 +510,11 @@ void QFont::setFamily( const QString &family )
     detach();
     d->request.family = family;
     d->request.dirty  = TRUE;
+
+#if defined(Q_WS_X11)
+    d->request.addStyle = QString::null;
+#endif // Q_WS_X11
+
 }
 
 
@@ -932,7 +937,8 @@ QFont::StyleHint QFont::styleHint() const
 */
 void QFont::setStyleHint( StyleHint hint, StyleStrategy strategy )
 {
-    if ((StyleHint) d->request.styleHint == hint && (StyleStrategy) d->request.styleStrategy == strategy )
+    if ( (StyleHint) d->request.styleHint == hint &&
+	 (StyleStrategy) d->request.styleStrategy == strategy )
 	return;
 
     detach();
@@ -940,6 +946,11 @@ void QFont::setStyleHint( StyleHint hint, StyleStrategy strategy )
     d->request.styleStrategy = strategy;
     d->request.hintSetByUser = TRUE;
     d->request.dirty = TRUE;
+
+#if defined(Q_WS_X11)
+    d->request.addStyle = QString::null;
+#endif // Q_WS_X11
+
 }
 
 /*!
