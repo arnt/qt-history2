@@ -1691,8 +1691,7 @@ void
 QWidget::actionChanged()
 {
     QAction *action = qt_cast<QAction*>(sender());
-    if(!action)
-	qWarning("not possible..");
+    Q_ASSERT_X(action != 0, "QWidget::actionChanged", "internal error");
     QActionEvent e(QEvent::ActionChanged, action);
     QApplication::sendEvent(this, &e);
 }
