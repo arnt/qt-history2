@@ -53,11 +53,6 @@
 #define ULLONG_MAX Q_UINT64_C(18446744073709551615)
 #endif
 
-#ifdef CLEAR_ASCII_CACHE
-#undef CLEAR_ASCII_CACHE
-#endif
-#define CLEAR_ASCII_CACHE(d) if (d->c && d->ref == 1){((QByteArray*)&d->c)->~QByteArray();d->c=0;d->dirty=true;}
-
 static int ucstrcmp(const QString &as, const QString &bs)
 {
     const QChar *a = as.unicode();
@@ -271,8 +266,7 @@ QString::QString(const char *s)
 	d->ref = 1;
 	d->alloc = d->size = len;
 	d->c = 0;
-	d->encoding = d->simpletext = d->righttoleft = 0;
-	d->dirty = 1;
+	d->clean = d->encoding = d->cache = d->simpletext = d->righttoleft = 0;
 	d->data = d->array;
 	ushort *i = d->array;
 	while ((*i++ = (uchar) *s++))
@@ -305,8 +299,7 @@ QString::QString(const QChar *unicode, int size)
 	d->ref = 1;
 	d->alloc = d->size = size;
 	d->c = 0;
-	d->encoding = d->simpletext = d->righttoleft = 0;
-	d->dirty = 1;
+	d->clean = d->encoding = d->cache = d->simpletext = d->righttoleft = 0;
 	d->data = d->array;
 	memcpy(d->array, unicode, size*sizeof(QChar));
 	d->array[size] = '\0';
@@ -327,8 +320,7 @@ QString::QString(int size, QChar c)
 	d->ref = 1;
 	d->alloc = d->size = size;
 	d->c = 0;
-	d->encoding = d->simpletext = d->righttoleft = 0;
-	d->dirty = 1;
+	d->clean = d->encoding = d->cache = d->simpletext = d->righttoleft = 0;
 	d->data = d->array;
 	d->array[size] = '\0';
 	QChar *i = (QChar*)d->array + size;
@@ -347,8 +339,7 @@ QString::QString(QChar c)
     d->ref = 1;
     d->alloc = d->size = 1;
     d->c = 0;
-    d->encoding = d->simpletext = d->righttoleft = 0;
-    d->dirty = 1;
+    d->clean = d->encoding = d->cache = d->simpletext = d->righttoleft = 0;
     d->data = d->array;
     d->array[0] = c.unicode();
     d->array[1] = '\0';
@@ -356,7 +347,8 @@ QString::QString(QChar c)
 
 void QString::free(Data *d)
 {
-    CLEAR_ASCII_CACHE(d)
+    if (d->c)
+	((QByteArray*)&d->c)->~QByteArray();
     qFree(d);
 }
 
@@ -369,7 +361,8 @@ void QString::free(Data *d)
 */
 
 void QString::resize(int size)
-{ CLEAR_ASCII_CACHE(d)
+{
+    d->cache = 0;
     if (size <= 0) {
 	Data *x = &shared_empty;
 	++x->ref;
@@ -435,7 +428,7 @@ void QString::realloc(int alloc)
 	d->alloc = alloc;
 	d->data = d->array;
     } else {
-	Data *x =  (Data*) qMalloc(sizeof(Data)+alloc*sizeof(QChar));
+	Data *x = (Data*) qMalloc(sizeof(Data)+alloc*sizeof(QChar));
 	*x = *d;
 	x->data = x->array;
 	::memcpy(x->data, d->data, QMIN(alloc, d->alloc)*sizeof(QChar));
@@ -493,7 +486,6 @@ QString &QString::operator=(QChar c)
 
 QString &QString::operator=(const char *s)
 {
-    CLEAR_ASCII_CACHE(d)
     Data *x;
     if (!s) {
 	x = &shared_null;
@@ -511,8 +503,7 @@ QString &QString::operator=(const char *s)
 	x->alloc = len;
 	x->size = len;
 	x->c = 0;
-	x->encoding = x->simpletext = x->righttoleft = 0;
-	x->dirty = 1;
+	x->clean = x->encoding = x->cache = x->simpletext = x->righttoleft = 0;
 	ushort *i = x->data;
 	while ((*i++ = (uchar)*s++))
 	    ;
@@ -534,7 +525,8 @@ QString &QString::operator=(const char *s)
 */
 
 QString& QString::insert(int i, QChar c)
-{ CLEAR_ASCII_CACHE(d)
+{
+    d->cache = 0;
     if (i < 0)
 	i += d->size;
     if (i < 0)
@@ -561,9 +553,10 @@ QString& QString::insert(int i, QChar c)
 
 */
 QString& QString::insert(int i, const QString& s)
-{ CLEAR_ASCII_CACHE(d)
+{
     if (i < 0 || s.d->size == 0)
 	return *this;
+    d->cache = 0;
     // protect against s == *this
     QString t = s;
     expand(QMAX(d->size, i) + t.d->size - 1);
@@ -576,7 +569,8 @@ QString& QString::insert(int i, const QString& s)
     Appends \a c to the string and returns a reference to the string.
 */
 QString& QString::append(QChar c)
-{ CLEAR_ASCII_CACHE(d)
+{
+    d->cache = 0;
     if (d->ref != 1 || d->size + 1 > d->alloc)
 	realloc(grow(d->size + 1));
     d->data[d->size++] = c.unicode();
@@ -588,12 +582,13 @@ QString& QString::append(QChar c)
     Appends \a s to the string and returns a reference to the string.
 */
 QString& QString::append(const char *s)
-{ CLEAR_ASCII_CACHE(d)
+{
     if (s) {
 #ifndef QT_NO_TEXTCODEC
 	if (QTextCodec::codecForCStrings())
 	    return append(QString(s));
 #endif
+	d->cache = 0;
 	int len = strlen(s);
 	if (d->ref != 1 || d->size + len > d->alloc)
 	    realloc(grow(d->size + len));
@@ -609,8 +604,9 @@ QString& QString::append(const char *s)
     Appends \a s to the string and returns a reference to the string.
 */
 QString& QString::append(const QString& s)
-{ CLEAR_ASCII_CACHE(d)
+{
     if (s.d != &shared_null) {
+	d->cache = 0;
 	if (d->ref != 1 || d->size + s.d->size > d->alloc)
 	    realloc(grow(d->size + s.d->size));
 	memcpy(d->data + d->size, s.d->data, (s.d->size+1)*sizeof(QChar)); // include null terminator
@@ -652,7 +648,8 @@ QString& QString::prepend(const char *s) { return insert(0, s); }
 */
 
 QString &QString::remove(int i, int len)
-{ CLEAR_ASCII_CACHE(d)
+{
+    d->cache = 0;
     if (i < 0)
 	i += d->size;
     if (i < 0 || i >= d->size) {
@@ -678,7 +675,8 @@ QString &QString::remove(int i, int len)
     This is the same as replace(\a c, ''", \a cs).
 */
 QString &QString::remove(QChar c, QString::CaseSensitivity cs)
-{ CLEAR_ASCII_CACHE(d)
+{
+    d->cache = 0;
     int i = 0;
     if (cs == CaseSensitive) {
 	while (i < d->size)
@@ -708,7 +706,8 @@ QString &QString::remove(QChar c, QString::CaseSensitivity cs)
     This is the same as replace(\a s, "", \a cs).
 */
 QString& QString::remove(const QString & s, QString::CaseSensitivity cs)
-{ CLEAR_ASCII_CACHE(d)
+{
+    d->cache = 0;
     if (s.d->size) {
 	int i = 0;
 	while ((i = find(s, i, cs)) != -1)
@@ -770,7 +769,8 @@ QString& QString::replace(QChar c, const QString & after, QString::CaseSensitivi
     sensitive; otherwise the search is case insensitive.
 */
 QString& QString::replace(QChar before, QChar after, QString::CaseSensitivity cs)
-{ CLEAR_ASCII_CACHE(d)
+{
+    d->cache = 0;
     if (d->size) {
 	QChar *i = data();
 	QChar *e = i + d->size;
@@ -1154,7 +1154,7 @@ QString& QString::replace(const QString & before, const QString & after, QString
 	if (cs == CaseSensitive && before == after)
 	    return *this;
     }
-    CLEAR_ASCII_CACHE(d)
+    d->cache = 0;
     if (d->ref != 1)
 	realloc(d->size);
 
@@ -1275,7 +1275,7 @@ QString& QString::replace(const QRegExp& rx, const QString& after)
     if (isEmpty() && rx2.search(*this) == -1)
 	return *this;
 
-    CLEAR_ASCII_CACHE(d)
+    d->cache = 0;
     realloc();
 
     int index = 0;
@@ -2135,9 +2135,12 @@ bool operator>=(const char *s1, const QString &s2)
 QByteArray QString::toLatin1() const
 {
     QByteArray *ba = (QByteArray*) &d->c;
-    if (!d->c || d->encoding != Data::Latin1) {
+    if (!d->cache || d->encoding != Data::Latin1) {
 	if (!d->c)
 	    new (&d->c) QByteArray;
+	else
+	    ba->clear();
+	d->cache = true;
 	d->encoding = Data::Latin1;
 	if (d->size) {
 	    ba->resize(d->size);
@@ -2158,9 +2161,10 @@ QByteArray QString::toAscii() const
 #ifndef QT_NO_TEXTCODEC
     if ( QTextCodec::codecForCStrings() ) {
 	QByteArray *ba = (QByteArray*) &d->c;
-	if (!d->c || d->encoding != Data::Latin1) {
+	if (!d->cache || d->encoding != Data::Latin1) {
 	    if (!d->c)
 		new (&d->c) QByteArray;
+	    d->cache = true;
 	    d->encoding = Data::Ascii;
 	    *ba = QTextCodec::codecForCStrings()->fromUnicode( *this );
 	}
@@ -2175,9 +2179,10 @@ QByteArray QString::toLocal8Bit() const
 #ifndef QT_NO_TEXTCODEC
     if ( QTextCodec::codecForLocale() ) {
 	QByteArray *ba = (QByteArray*) &d->c;
-	if (!d->c || d->encoding != Data::Local8Bit) {
+	if (!d->cache || d->encoding != Data::Local8Bit) {
 	    if (!d->c)
 		new (&d->c) QByteArray;
+	    d->cache = true;
 	    d->encoding = Data::Local8Bit;
 	    *ba = QTextCodec::codecForLocale()->fromUnicode( *this );
 	}
@@ -2198,9 +2203,10 @@ QByteArray QString::toLocal8Bit() const
 QByteArray QString::toUtf8() const
 {
     QByteArray *ba = (QByteArray*) &d->c;
-    if (!d->c || d->encoding != Data::Utf8) {
+    if (!d->cache || d->encoding != Data::Utf8) {
 	if (!d->c)
 	    new (&d->c) QByteArray;
+	d->cache = true;
 	d->encoding = Data::Utf8;
 	if (d->size) {
 	    int l = d->size;
@@ -2274,8 +2280,7 @@ QString QString::fromLatin1(const char *s, int size)
 	d->ref = 1;
 	d->alloc = d->size = len;
 	d->c = 0;
-	d->encoding = d->simpletext = d->righttoleft = 0;
-	d->dirty = 1;
+	d->clean = d->encoding = d->cache = d->simpletext = d->righttoleft = 0;
 	d->data = d->array;
 	ushort *i = d->data;
 	while(len--)
@@ -4451,7 +4456,7 @@ void QString::updateProperties() const
 	++p;
     }
  end:
-    d->dirty = false;
+    d->clean = true;
     return;
 }
 
@@ -4498,8 +4503,7 @@ QConstString::QConstString(const QChar *unicode, int length)
     d->c = 0;
     d->data = unicode ? (unsigned short *)unicode : d->array;
     *d->array = 0;
-    d->encoding = d->simpletext = d->righttoleft = 0;
-    d->dirty = true;
+    d->clean = d->encoding = d->cache = d->simpletext = d->righttoleft = 0;
 }
 
 /*!

@@ -284,7 +284,10 @@ public:
 
     // compatibility
 #ifndef QT_NO_COMPAT
-    static struct Null {} null;
+    static struct Null {
+	inline bool operator==(const Null&){return true; }
+	inline bool operator!=(const Null&){return false; }
+    } null;
     inline QString(const Null &): d(&shared_null) { ++d->ref; }
     inline QString &operator=(const Null &) { *this = QString(); return *this; }
     inline bool isNull() const { return d == &shared_null; }
@@ -345,8 +348,8 @@ public:
     inline bool ensure_constructed()
     { if (!d) { d = &shared_null; ++d->ref; return false; } return true; }
 
-    bool isSimpleText() const { if ( d->dirty ) updateProperties(); return (bool)d->simpletext; }
-    bool isRightToLeft() const { if ( d->dirty ) updateProperties(); return (bool)d->righttoleft; }
+    bool isSimpleText() const { if (!d->clean) updateProperties(); return (bool)d->simpletext; }
+    bool isRightToLeft() const { if (!d->clean) updateProperties(); return (bool)d->righttoleft; }
 
 private:
 #ifdef QT_NO_CAST_TO_ASCII
@@ -357,11 +360,12 @@ private:
 	int alloc, size;
 	void *c;
 	ushort *data;
+	ushort clean : 1;
  	ushort encoding : 2;
+	ushort cache : 1;
  	ushort simpletext : 1;
  	ushort righttoleft : 1;
-	ushort dirty : 1;
-	ushort reserved : 11;
+	ushort reserved : 10;
 	ushort array[1];
 	enum { Latin1, Ascii, Local8Bit, Utf8 };
     };
