@@ -4863,19 +4863,14 @@ QPSPrinterFont::QPSPrinterFont(const QFont &f, int script, QPSPrinterPrivate *pr
 
 #ifndef QT_NO_XFTFREETYPE
 	if ( X11->has_xft && engine && engine->type() == QFontEngine::Xft ) {
-	    // ### cache filename directly!
 	    XftPattern *pattern = static_cast<QFontEngineXft *>( engine )->pattern();
-	    //qDebug("xfthandle=%p", font);
 	    char *filename = 0;
-	    XftResult res;
-	    XftPattern *f = XftFontMatch(qt_xdisplay(), 0, pattern, &res);
-	    XftPatternGetString (f, XFT_FILE, 0, &filename);
+	    XftPatternGetString (pattern, XFT_FILE, 0, &filename);
 	    //qDebug("filename for font is '%s'", filename);
 	    if ( filename ) {
-		fontfilename = QString::fromLatin1( filename );
+		fontfilename = QString::fromLocal8Bit( filename );
 		xfontname = fontfilename;
 	    }
-	    XftPatternDestroy( f );
 	} else
 #endif
 	{
