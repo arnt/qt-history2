@@ -3096,19 +3096,21 @@ void QFileDialog::okClicked()
 	    d->checkForFilter = FALSE;
 	} else {
 	    if ( !nameEdit->text().contains( "/" ) &&
-		 !nameEdit->text().contains( "\\" ) 
+		 !nameEdit->text().contains( "\\" )
 #if defined(_OS_WIN32_)
-		 && nameEdit->text()[ 1 ] != ':' 
+		 && nameEdit->text()[ 1 ] != ':'
 #endif
 		 )
 		addFilter( nameEdit->text() );
 	    else if ( nameEdit->text()[ 0 ] == '/' ||
-		      nameEdit->text()[ 0 ] == '\\' 
+		      nameEdit->text()[ 0 ] == '\\'
 #if defined(_OS_WIN32_)
-		      || nameEdit->text()[ 1 ] == ':' 
+		      || nameEdit->text()[ 1 ] == ':'
 #endif
 		      )
-		      setDir( nameEdit->text() );
+		setDir( nameEdit->text() );
+	    else if ( nameEdit->text().left( 3 ) == "../" || nameEdit->text().left( 3 ) == "..\\" )
+		setDir( QUrl( d->url.toString(), nameEdit->text() ).toString() );
 	    nameEdit->setText( "" );
 	}
     }
@@ -5184,7 +5186,7 @@ void QFileDialog::resortDir()
 	    item2->setSelectable( FALSE );
 	}
     }
-    
+
     // ##### As the QFileIconProvider only support QFileInfo and no
     // QUrlInfo it can be only used for local files at the moment. In
     // 3.0 we have to change the API of QFileIconProvider to work on
