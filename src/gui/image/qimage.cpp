@@ -560,10 +560,8 @@ QImage::QImage(uchar* yourdata, int w, int h, int depth, int bpl, const QRgb* co
 
 QImage::~QImage()
 {
-    if (data && !--data->ref) {
-        reset();
+    if (data && !--data->ref)
         delete data;
-    }
 }
 
 /*!
@@ -578,10 +576,8 @@ QImage &QImage::operator=(const QImage &image)
     QImageData *x = image.data;
     ++x->ref;
     x = qAtomicSetPtr(&data, x);
-    if (!--x->ref) {
-        reset();
+    if (!--x->ref)
         delete x;
-    }
     return *this;
 }
 
@@ -3930,6 +3926,7 @@ QWSPaintEngine *QImage::paintEngine()
   line of the source data, \a sWidth and \a sHeight are the width and height of
   the source data.
 */
+
 #ifndef QT_NO_PIXMAP_TRANSFORMATION
 #undef IWX_MSB
 #define IWX_MSB(b)        if (trigx < maxws && trigy < maxhs) {                              \
@@ -3960,8 +3957,7 @@ QWSPaintEngine *QImage::paintEngine()
         // END OF MACRO
 bool qt_xForm_helper(const QMatrix &trueMat, int xoffset, int type, int depth,
                      uchar *dptr, int dbpl, int p_inc, int dHeight,
-                     const uchar *sptr, int sbpl, int sWidth, int sHeight
-    )
+                     const uchar *sptr, int sbpl, int sWidth, int sHeight)
 {
     int m11 = int(trueMat.m11()*65536.0 + 1.);
     int m12 = int(trueMat.m12()*65536.0 + 1.);
