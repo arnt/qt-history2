@@ -2582,7 +2582,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                         QApplication::beep();
                     }
                 } else if(cmd.commandID == kHICommandAbout) {
-                    QMessageBox::aboutQt(0);
+                    QMessageBox::showAboutQt(0);
                     HiliteMenu(0);
                     handled_event = true;
                 }
