@@ -197,26 +197,27 @@
     \l{network/broadcastreceiver}{Broadcast Receiver} examples show
     how to write a UDP sender and a UDP receiver using Qt.
 
-    \section1 Resolving Host Names using QDns
+    \section1 Resolving Host Names using QHostInfo
 
     Before establishing a network connection, QTcpSocket and
     QUdpSocket perform a name lookup, translating the host name
-    you're connecting to into an IP address. This operation is known
-    as a DNS (Domain Name Service) lookup.
+    you're connecting to into an IP address. This operation is
+    usually performed using the DNS (Domain Name Service) protocol.
 
-    QDns provides a static function that lets you perform such a
-    lookup yourself. By passing a host name to QDns::getHostByName()
-    with a QObject pointer and a slot signature, QDns will perform
-    the name lookup and invoke the given slot when the results are
-    ready. The actual lookup is done in a separate thread, making use
-    of the operating system's own methods for performing name
-    lookups.
+    QHostInfo provides a static function that lets you perform
+    such a lookup yourself. By passing a host name to
+    QHostInfo::lookupHost() with a host name, a QObject pointer, and
+    a slot signature, QHostInfo will perform the name lookup and
+    invoke the given slot when the results are ready. The actual
+    lookup is done in a separate thread, making use of the operating
+    system's own methods for performing name lookups.
 
-    QDns also provides an overload of the function that takes the
-    host name as argument and returns the results. In this case, the
-    name lookup is performed in the same thread as the caller. This
-    overload is useful for non-GUI applications or for doing name
-    lookups in a separate, non-GUI thread. Calling this function in a
-    GUI thread may cause your user interface to freeze while the
-    function performs the lookup.
+    QHostInfo also provides a static function called
+    QHostInfo::fromName() that takes the host name as argument and
+    returns the results. In this case, the name lookup is performed
+    in the same thread as the caller. This overload is useful for
+    non-GUI applications or for doing name lookups in a separate,
+    non-GUI thread. (Calling this function in a GUI thread may cause
+    your user interface to freeze while the function performs the
+    lookup.)
 */

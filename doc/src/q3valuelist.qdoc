@@ -548,14 +548,14 @@
 */
 
 /*!
-    \fn Q3ValueListIterator::Q3ValueListIterator<T>()
+    \fn Q3ValueListIterator::Q3ValueListIterator()
 
     Constructs an unitialized iterator.
 */
 
 /*!
-    \fn Q3ValueListIterator::Q3ValueListIterator<T>(const Q3ValueListIterator &o)
-    \fn Q3ValueListIterator::Q3ValueListIterator<T>(const typename QLinkedList<T>::iterator &o)
+    \fn Q3ValueListIterator::Q3ValueListIterator(const Q3ValueListIterator &o)
+    \fn Q3ValueListIterator::Q3ValueListIterator(const typename QLinkedList<T>::iterator &o)
 
     Constucts a copy of iterator \a o.
 */
@@ -580,15 +580,15 @@
 */
 
 /*!
-    \fn Q3ValueListConstIterator<T>::Q3ValueListConstIterator<T>()
+    \fn Q3ValueListConstIterator::Q3ValueListConstIterator()
 
     Constructs an unitialized iterator.
 */
 
 /*!
-    \fn Q3ValueListConstIterator::Q3ValueListConstIterator<T>(const Q3ValueListConstIterator &o)
-    \fn Q3ValueListConstIterator::Q3ValueListConstIterator<T>(const typename QLinkedList<T>::const_iterator &o)
-    \fn Q3ValueListConstIterator::Q3ValueListConstIterator<T>(const typename QLinkedList<T>::iterator &o)
+    \fn Q3ValueListConstIterator::Q3ValueListConstIterator(const Q3ValueListConstIterator &o)
+    \fn Q3ValueListConstIterator::Q3ValueListConstIterator(const typename QLinkedList<T>::const_iterator &o)
+    \fn Q3ValueListConstIterator::Q3ValueListConstIterator(const typename QLinkedList<T>::iterator &o)
 
     Constructs a copy of iterator \a o.
 */

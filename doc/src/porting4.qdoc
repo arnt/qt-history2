@@ -445,8 +445,7 @@
     \section1 QAccel
 
     The \c QAccel class has been renamed Q3Accel and moved to the
-    \l{Qt 3 compatibility library}. In new applications, you have
-    three options:
+    Qt3Support module. In new applications, you have three options:
 
     \list 1
     \o You can use QAction and set a key sequence using QAction::setShortcut().
@@ -476,7 +475,7 @@
     \section1 QAccessibleTitleBar
 
     The \c QAccessibleTitleBar has been renamed Q3AccessibleTitleBar
-    and moved to the \l{Qt 3 compatibility library}.
+    and moved to the Qt3Support library.
 
     \target qaction.section
     \section1 QAction
@@ -553,7 +552,7 @@
     \section1 QAsciiCache<T>
 
     \c QAsciiCache<T> has been renamed Q3AsciiCache<T> and moved to
-    the \l{Qt 3 compatibility library}. It has been replaced by
+    the Qt3Support library. It has been replaced by
     QCache<QByteArray, T>.
 
     For details, read the \l{#qcache.section}{section on QCache<T>},
@@ -563,7 +562,7 @@
 
     QAsciiDict<T> and QAsciiDictIterator<T> have been renamed
     Q3AsciiDict<T> and Q3AsciiDictIterator<T> and moved to the
-    \l{Qt 3 compatibility library}. They have been replaced by the
+    Qt3Support library. They have been replaced by the
     more modern QHash<Key, T> and QMultiHash<Key, T> classes and
     their associated iterator classes.
 
@@ -615,7 +614,7 @@
     The \c QButton class has been replaced by QAbstractButton in Qt
     4. Classes like QPushButton and QRadioButton inherit from
     QAbstractButton. As a help when porting older Qt applications,
-    the \l{Qt 3 compatibility library} contains a Q3Button class
+    the Qt3Support library contains a Q3Button class
     implemented in terms of the new QAbstractButton.
 
     If you used the \c QButton class as a base class for your own
@@ -676,7 +675,7 @@
     Q3ButtonGroup and has been moved to the \l{Qt 3 compatibility
     library}. Likewise, the \c QHButtonGroup and \c QVButtonGroup convenience
     subclasses have been renamed \c Q3HButtonGroup and \c Q3VButtonGroup and
-    moved to the \l{Qt 3 compatibility library}.
+    moved to the Qt3Support library.
 
     The old \c QButtonGroup, as well as Q3ButtonGroup, can be used in two ways:
 
@@ -858,13 +857,13 @@
     \endlist
 
     QCacheIterator<T> has been renamed Q3CacheIterator<T> and moved
-    to the \l{Qt 3 compatibility library}. The new QCache class
+    to the Qt3Support library. The new QCache class
     doesn't offer any iterator types.
 
     \section1 QCanvas
 
     The canvas module classes have been
-    renamed and moved to the \l{Qt 3 compatibility library}.
+    renamed and moved to the Qt3Support library.
 
     \table
     \header \o Qt 3 class name \o Compatibility class in Qt 4
@@ -917,7 +916,7 @@
     \section1 QColorDrag
 
     The \c QColorDrag class has been renamed Q3ColorDrag and moved to
-    the \l{Qt 3 compatibility library}. In Qt 4, use QMimeData
+    the Qt3Support library. In Qt 4, use QMimeData
     instead and call QMimeData::setColor() to set the color.
 
     \section1 QComboBox
@@ -952,7 +951,7 @@
         ba.data()[5];          // returns '\0'
     \endcode
 
-    The \l{Qt 3 compatibility library} contains a class called
+    The Qt3Support library contains a class called
     Q3CString that inherits from the new QByteArray class and that
     extends it to provide an API that is as close to the old \c QCString
     class as possible. Note that the following functions aren't
@@ -1060,7 +1059,7 @@
     \section1 QDataBrowser
 
     The \c QDataBrowser class has been renamed Q3DataBrowser and
-    moved to the \l{Qt 3 compatibility library}. It is expected that
+    moved to the Qt3Support library. It is expected that
     Qt 4.1 will offer a replacement class. In the meantime, you can
     use Q3DataBrowser for creating data-aware forms or you can roll
     your own.
@@ -1094,7 +1093,7 @@
     \section1 QDataTable
 
     The \c QDataTable class has been renamed Q3DataTable and moved to
-    the \l{Qt 3 compatibility library}. It is expected that Qt 4.1
+    the Qt3Support library. It is expected that Qt 4.1
     will offer a replacement class. In the meantime, you can use
     Q3DataTable for creating data-aware forms or you can roll your
     own.
@@ -1105,7 +1104,7 @@
     \section1 QDataView
 
     The \c QDataView class has been renamed Q3DataView and moved to
-    the \l{Qt 3 compatibility library}. It is expected that Qt 4.1
+    the Qt3Support library. It is expected that Qt 4.1
     will offer a replacement class. In the meantime, you can use
     Q3DataTable for creating data-aware forms or you can roll your
     own.
@@ -1116,7 +1115,7 @@
     \section1 QDateEdit
 
     The \c QDateEdit class has been renamed Q3DateEdit and moved to
-    the \l{Qt 3 compatibility library}. Use QDateTimeEdit instead.
+    the Qt3Support library. Use QDateTimeEdit instead.
 
     See \l{#virtual.functions}{Virtual Functions} for a list of \c
     QDateEdit virtual member functions in Qt 3 that are no longer
@@ -1147,7 +1146,7 @@
     container classes was done in a thread-unsafe manner.
 
     With Qt 4, \c QDeepCopy<T> has been renamed Q3DeepCopy<T> and
-    moved to the \l{Qt 3 compatibility library}. Removing it from
+    moved to the Qt3Support library. Removing it from
     existing code is straightforward.
 
     \oldcode
@@ -1425,27 +1424,27 @@
     \section1 QDns
 
     Qt 3 used its own implementation of the DNS protocol and provided
-    a low-level \c QDns class. Qt 4 uses the system's \c
+    a low-level \c QDns class. Qt 4's QHostInfo class uses the system's \c
     gethostbyname() function from a thread instead.
 
     The old \c QDns class has been renamed Q3Dns and moved to the
-    \l{Qt 3 compatibility library}. The new QDns class has a
+    Qt3Support library. The new QHostInfo class has a
     radically different API: It consists mainly of two static
-    functions, both called QDns::getHostByName(), one of which is
-    blocking, the other non-blocking. See the QDns class
-    documentation for details.
+    functions, one of which is blocking (QHostInfo::fromName()), the
+    other non-blocking (QHostInfo::lookupHost()). See the QHostInfo
+    class documentation for details.
 
     \section1 QDockArea
 
     The \c QDockArea class has been renamed Q3DockArea and moved to
-    the \l{Qt 3 compatibility library}. In Qt 4, QMainWindow handles
+    the Qt3Support library. In Qt 4, QMainWindow handles
     the dock and toolbar areas itself. See the QMainWindow
     documentation for details.
 
     \section1 QDockWindow
 
     The old \c QDockWindow class has been renamed Q3DockWindow and
-    moved to the \l{Qt 3 compatibility library}. In Qt 4, there is a
+    moved to the Qt3Support library. In Qt 4, there is a
     new QDockWidget class with a different API. See the class
     documentation for details.
 
@@ -1456,14 +1455,14 @@
     \section1 QDragObject
 
     The \c QDragObject class has been renamed Q3DragObject and
-    moved to the \l{Qt 3 compatibility library}. In Qt 4, it has been
+    moved to the Qt3Support library. In Qt 4, it has been
     replaced by the QMimeData class. See the class documentation for
     details.
 
     \section1 QDropSite
 
     The \c QDropSite class has been renamed Q3DropSite and moved to
-    the \l{Qt 3 compatibility library}. 
+    the Qt3Support library. 
 
     The QDropSite class has been obsolete ever since Qt 2.0. The only
     thing it does is call QWidget::setAcceptDrops(true).
@@ -1494,7 +1493,7 @@
     \section1 QEditorFactory
 
     The \c QEditorFactory class has been renamed Q3EditorFactory and
-    moved to the \l{Qt 3 compatibility library}.
+    moved to the Qt3Support library.
 
     See \l{sql.html}{SQL Module} for an overview of the new SQL
     classes.
@@ -1629,7 +1628,7 @@
         QFrame paints itself, reimplement QFrame:paintEvent().
     \endlist
 
-    As an help to porting, the \l{Qt 3 compatibility library}
+    As an help to porting, the Qt3Support library
     contains a Q3Frame class that inherits QFrame and provides a
     similar API to the old QFrame class. If you derived from QFrame
     in your application, you might want to use Q3Frame as a base
@@ -1647,7 +1646,7 @@
     details.
 
     The old \c QFtp class has been renamed Q3Ftp and moved to the
-    \l{Qt 3 compatibility library}.
+    Qt3Support library.
 
     \target qglayoutiterator.section
     \section1 QGLayoutIterator
@@ -1673,7 +1672,7 @@
     \section1 QGridView
 
     The \c QGridView class has been renamed Q3GridView and moved to
-    the \l{Qt 3 compatibility library}. In Qt 4, we recommend that
+    the Qt3Support library. In Qt 4, we recommend that
     you use QTableView or QAbstractItemView for presenting tabular
     data.
 
@@ -1685,7 +1684,7 @@
 
     The QGroupBox class has been redesigned in Qt 4. The old \c
     QGroupBox class has been renamed Q3GroupBox and moved to the
-    \l{Qt 3 compatibility library}.
+    Qt3Support library.
 
     The new QGroupBox is more lightweight. It doesn't attempt to
     duplicate functionality already provided by QGridLayout. For that
@@ -1716,7 +1715,7 @@
     \section1 QHeader
 
     The \c QHeader class has been renamed Q3Header and moved to
-    the \l{Qt 3 compatibility library}. In Qt 4, it is replaced
+    the Qt3Support library. In Qt 4, it is replaced
     by the QHeaderView class.
 
     See \l{model-view-programming.html}{Model/View Programming} for
@@ -1731,7 +1730,7 @@
     The old \c QHttp, \c QHttpHeader, \c QHttpRequestHeader, and \c
     QHttpResponseHeader classes have been renamed Q3Http,
     Q3HttpHeader, Q3HttpRequestHeader, and Q3HttpResponseHeader  and
-    have been moved to the \l{Qt 3 compatibility library}.
+    have been moved to the Qt3Support library.
 
     \section1 QIconFactory
 
@@ -1751,7 +1750,7 @@
     The \c QIconView, \c QIconViewItem, \c QIconDrag, and \c
     QIconDragItem classes has been renamed Q3IconView,
     Q3IconViewItem, Q3IconDrag, and Q3IconDragItem and moved to the
-    \l{Qt 3 compatibility library}. New Qt applications should use
+    Qt3Support library. New Qt applications should use
     QListWidget or its base class QListView instead, and call
     QListView::setViewMode(QListView::IconMode) to obtain an "icon
     view" look.
@@ -1770,7 +1769,7 @@
     \section1 QImageDrag
 
     The \c QImageDrag class has been renamed Q3ImageDrag and moved to
-    the \l{Qt 3 compatibility library}. In Qt 4, use QMimeData
+    the Qt3Support library. In Qt 4, use QMimeData
     instead and call QMimeData::setImage() to set the image.
 
     \section1 QIntCache<T>
@@ -1939,7 +1938,7 @@
     The \c QListBox, \c QListBoxItem, \c QListBoxText, and \c
     QListBoxPixmap classes have been renamed Q3ListBox,
     Q3ListBoxItem, Q3ListBoxText, and Q3ListBoxPixmap and have been
-    moved to the \l{Qt 3 compatibility library}. New Qt applications
+    moved to the Qt3Support library. New Qt applications
     should use QListWidget or its base class QListView instead.
 
     See \l{model-view-programming.html}{Model/View Programming} for
@@ -1950,7 +1949,7 @@
     The \c QListView, \c QListViewItem, \c QCheckListItem, and \c
     QListViewItemIterator classes have been renamed Q3ListView,
     Q3ListViewItem, Q3CheckListItem, and Q3ListViewItemIterator, and
-    have been moved to the \l{Qt 3 compatibility library}. New Qt
+    have been moved to the Qt3Support library. New Qt
     applications should use one of the following four classes
     instead: QTreeView or QTreeWidget for tree-like structures;
     QListWidget or the new QListView class for one-dimensional lists.
@@ -2037,7 +2036,7 @@
     \section1 QMimeSourceFactory
 
     The \c QMimeSourceFactory has been renamed Q3MimeSourceFactory
-    and moved to the \l{Qt 3 compatibility library}. New Qt
+    and moved to the Qt3Support library. New Qt
     applications should use Qt 4's \l{resources.html}{Resource
     System} instead.
 
@@ -2057,7 +2056,7 @@
     longer part of the public Qt API. They have been renamed
     Q3NetworkProtocol, Q3NetworkProtocolFactoryBase,
     Q3NetworkProtocolFactory<T>, and Q3NetworkOperation and have been
-    moved to the \l{Qt 3 compatibility library}.
+    moved to the Qt3Support library.
 
     In Qt 4 applications, you can use classes like QFtp and QHttp
     directly to perform file-related actions on a remote host.
@@ -2140,7 +2139,7 @@
     \l{#qmemarray.section}{section on QMemArray<T>} apply for
     QPointArray as well.
 
-    The \l{Qt 3 compatibility library} contains a Q3PointArray class
+    The Qt3Support library contains a Q3PointArray class
     that inherits from QPolygon and provides a few functions that
     existed in \c QPointArray but no longer exist in QPolygon. These
     functions include Q3PointArray::makeArc(),
@@ -2203,19 +2202,19 @@
     with a QTextStream or a QDataStream.
 
     The old \c QProcess class has been renamed Q3Process and moved to
-    the \l{Qt 3 compatibility library}.
+    the Qt3Support library.
 
     \section1 QProgressBar
 
     The QProgressBar API has been significantly improved in Qt 4. The
     old \c QProgressBar API is available as Q3ProgressBar in the
-    \l{Qt 3 compatibility library}.
+    Qt3Support library.
 
     \section1 QProgressDialog
 
     The QProgressDialog API has been significantly improved in Qt 4.
     The old \c QProgressDialog API is available as Q3ProgressDialog
-    in the \l{Qt 3 compatibility library}.
+    in the Qt3Support library.
 
     See \l{#properties}{Properties} for a list of QProgressDialog
     properties in Qt 3 that have changed in Qt 4.
@@ -2223,7 +2222,7 @@
     \section1 QPtrCollection<T>
 
     The \c QPtrCollection<T> abstract base class has been renamed
-    Q3PtrCollection<T> moved to the \l{Qt 3 compatibility library}.
+    Q3PtrCollection<T> moved to the Qt3Support library.
     There is no direct equivalent in Qt 4.
 
     See \l{containers.html}{Generic Containers} for a list of 
@@ -2232,7 +2231,7 @@
 
     \c QPtrDict<T> and \c QPtrDictIterator<T> have been renamed
     Q3PtrDict<T> and Q3PtrDictIterator<T> and have been moved to the
-    \l{Qt 3 compatibility library}. They have been replaced by the
+    Qt3Support library. They have been replaced by the
     more modern QHash<Key, T> and QMultiHash<Key, T> classes and
     their associated iterator classes.
 
@@ -2256,7 +2255,7 @@
     \section1 QPtrList<T>
 
     QPtrList<T>, QPtrListIterator<T>, and QPtrListStdIterator<T> have
-    been moved to the \l{Qt 3 compatibility library}. They have been
+    been moved to the Qt3Support library. They have been
     replaced by the more modern QList and QLinkedList classes and
     their associated iterator classes.
 
@@ -2526,7 +2525,7 @@
 
     \section1 QPtrQueue<T>
 
-    QPtrQueue has been moved to the \l{Qt 3 compatibility library}.
+    QPtrQueue has been moved to the Qt3Support library.
     It has been replaced by the more modern QQueue class.
 
     The following table summarizes the differences between
@@ -2601,7 +2600,7 @@
 
     \section1 QPtrStack<T>
 
-    QPtrStack has been moved to the \l{Qt 3 compatibility library}.
+    QPtrStack has been moved to the Qt3Support library.
     It has been replaced by the more modern QStack class.
 
     The following table summarizes the differences between
@@ -2845,7 +2844,7 @@
     contain signals, slots, and properties.
 
     The old \c QRangeControl class has been renamed Q3RangeControl
-    and moved to the \l{Qt 3 compatibility library}, together with
+    and moved to the Qt3Support library, together with
     the (undocumented) \c QSpinWidget class.
 
     If you use \c QRangeControl as a base class in your application,
@@ -2900,7 +2899,7 @@
     \section1 QScrollView
 
     The \c QScrollView class has been renamed Q3ScrollView and moved
-    to the \l{Qt 3 compatibility library}. It has been replaced by
+    to the Qt3Support library. It has been replaced by
     the QAbstractScrollArea and QScrollArea classes.
 
     \c QScrollView was designed to work around the 16-bit limitation
@@ -2913,7 +2912,7 @@
     \section1 QServerSocket
 
     The \c QServerSocket class has been renamed Q3ServerSocket and
-    moved to the \l{Qt 3 compatibility library}. In Qt 4, it has been
+    moved to the Qt3Support library. In Qt 4, it has been
     replaced by QTcpServer.
 
     With Q3ServerSocket, connections are accepted by reimplementing a
@@ -2927,7 +2926,7 @@
     The \c QShared class has been obsoleted by the more powerful
     QSharedData and QSharedDataPointer as a means of creating custom
     implicitly shared classes. It has been renamed Q3Shared moved to
-    the \l{Qt 3 compatibility library}.
+    the Qt3Support library.
 
     An easy way of porting to Qt 4 is to include this class into your
     project and to use it instead of \c QShared:
@@ -2952,7 +2951,7 @@
 
     The QSignal class has been completely redesigned in Qt 4. For
     compatibility, the old \c QSignal class has been renamed Q3Signal
-    and has been moved to the \l{Qt 3 compatibility library}.
+    and has been moved to the Qt3Support library.
 
     The new QSignal class is a template class, where the template
     type gives the parameter type of the signal. For example, if you
@@ -2980,7 +2979,7 @@
     \section1 QSimpleRichText
 
     The \c QSimpleRichText class has been renamed Q3SimpleRichText
-    and moved to the \l{Qt 3 compatibility library}.
+    and moved to the Qt3Support library.
 
     See \l{richtext.html}{Rich Text} for an overview of the Qt 4 rich
     text classes.
@@ -2998,14 +2997,14 @@
     \section1 QSocket
 
     The \c QSocket class has been renamed Q3Socket and moved to the
-    \l{Qt 3 compatibility library}. In Qt 4, it has been replaced by
+    Qt3Support library. In Qt 4, it has been replaced by
     the QTcpSocket class, which inherits most of its functionality
     from QAbstractSocket.
 
     \section1 QSocket
 
     The \c QSocketDevice class has been renamed Q3SocketDevice and
-    moved to the \l{Qt 3 compatibility library}. In Qt 4, there is no
+    moved to the Qt3Support library. In Qt 4, there is no
     direct equivalent to Q3SocketDevice:
 
     \list
@@ -3028,7 +3027,7 @@
     \section1 QSortedList
 
     The QSortedList<T> class has been deprecated since Qt 3.0. In Qt
-    4, it has been moved to the \l{Qt 3 compatibility library}.
+    4, it has been moved to the Qt3Support library.
 
     In new code, we recommend that you use QList<T> instead and use
     \l{qSort()} to sort the items.
@@ -3050,7 +3049,7 @@
     \section1 QSqlCursor
 
     The \c QSqlCursor class has been renamed Q3SqlCursor and moved to
-    the \l{Qt 3 compatibility library}. In Qt 4, you can use
+    the Qt3Support library. In Qt 4, you can use
     QSqlQuery, QSqlQueryModel, or QSqlTableModel, depending on
     whether you want a low-level or a high-level interface for
     accessing databases.
@@ -3096,7 +3095,7 @@
     \section1 QSqlForm
 
     The \c QSqlForm class has been renamed Q3SqlForm and moved to the
-    \l{Qt 3 compatibility library}.
+    Qt3Support library.
 
     See \l{sql.html}{SQL Module} for an overview of the new SQL
     classes.
@@ -3104,7 +3103,7 @@
     \section1 QSqlPropertyMap
 
     The \c QSqlPropertyMap class has been renamed Q3SqlPropertyMap
-    moved to the \l{Qt 3 compatibility library}.
+    moved to the Qt3Support library.
 
     See \l{sql.html}{SQL Module} for an overview of the new SQL
     classes.
@@ -3133,7 +3132,7 @@
     \section1 QSqlSelectCursor
 
     The \c QSqlSelectCursor class has been renamed Q3SqlSelectCursor
-    and moved to the \l{Qt 3 compatibility library}.
+    and moved to the Qt3Support library.
 
     See \l{sql.html}{SQL Module} for an overview of the new SQL
     classes.
@@ -3141,14 +3140,14 @@
     \section1 QStoredDrag
 
     The \c QStoredDrag class has been renamed Q3StoredDrag and moved
-    to the \l{Qt 3 compatibility library}. In Qt 4, use QMimeData
+    to the Qt3Support library. In Qt 4, use QMimeData
     instead and call QMimeData::setData() to set the data.
 
     \section1 QStr(I)List
 
     The QStrList and QStrIList convenience classes have been
     deprecated since Qt 2.0. In Qt 4, they have been moved to the
-    \l{Qt 3 compatibility library}. If you used any of these, we
+    Qt3Support library. If you used any of these, we
     recommend that you use QStringList or QList<QByteArray> instead.
 
     \section1 QStr(I)Vec
@@ -3367,7 +3366,7 @@
 
     The QStyleSheet and QStyleSheetItem classes have been renamed
     Q3StyleSheet and Q3StyleSheetItem, and have been moved to the
-    \l{Qt 3 compatibility library}.
+    Qt3Support library.
 
     See \l{richtext.html}{Rich Text} for an overview of the Qt 4 rich
     text classes.
@@ -3375,7 +3374,7 @@
     \section1 QSyntaxHighlighter
 
     The QSyntaxHighlighter class has been renamed Q3SyntaxHighlighter
-    and moved to the \l{Qt 3 compatibility library}.
+    and moved to the Qt3Support library.
 
     See \l{richtext.html}{Rich Text} for an overview of the Qt 4 rich
     text classes.
@@ -3406,7 +3405,7 @@
     The \c QTable, \c QTableItem, \c QComboTableItem, \c
     QCheckTableItem, and \c QTableSelection classes have been renamed
     Q3Table, Q3TableItem, Q3ComboTableItem, Q3CheckTableItem, and
-    Q3TableSelection and moved to the \l{Qt 3 compatibility library}.
+    Q3TableSelection and moved to the Qt3Support library.
     New Qt applications should use the new QTableWidget or QTableView
     class instead.
 
@@ -3416,7 +3415,7 @@
     \section1 QTextDrag
 
     The \c QTextDrag class has been renamed Q3TextDrag and moved to
-    the \l{Qt 3 compatibility library}. In Qt 4, use QMimeData
+    the Qt3Support library. In Qt 4, use QMimeData
     instead and call QMimeData::setText() to set the data.
 
     \section1 QTextEdit
@@ -3439,12 +3438,12 @@
     \section1 QTextView
 
     The \c QTextView class has been renamed Q3TextView and moved to the
-    \l{Qt 3 compatibility library}.
+    Qt3Support library.
 
     \section1 QTimeEdit
 
     The \c QTimeEdit class has been renamed Q3TimeEdit and moved to
-    the \l{Qt 3 compatibility library}. Use QDateTimeEdit instead.
+    the Qt3Support library. Use QDateTimeEdit instead.
 
     See \l{#virtual.functions}{Virtual Functions} for a list of \c
     QTimeEdit virtual member functions in Qt 3 that are no longer
@@ -3466,14 +3465,14 @@
     \section1 QUriDrag
 
     The \c QUriDrag class has been renamed Q3UriDrag and moved to the
-    \l{Qt 3 compatibility library}. In Qt 4, use QMimeData instead
+    Qt3Support library. In Qt 4, use QMimeData instead
     and call QMimeData::setUrl() to set the URL.
 
     \section1 QUrl
 
     The QUrl class has been rewritten from scratch in Qt 4 to be more
     standard-compliant. The old QUrl class has been renamed Q3Url and
-    moved to the \l{Qt 3 compatibility library}.
+    moved to the Qt3Support library.
 
     The new QUrl class provides an extensive list of compatibility
     functions to ease porting from Q3Url to QUrl. A few functions
@@ -3509,7 +3508,7 @@
 
     The QValueList<T> class has been replaced by QList<T> and
     QLinkedList<T> in Qt 4. As a help when porting older Qt
-    applications, the \l{Qt 3 compatibility library} contains a
+    applications, the Qt3Support library contains a
     QValueList<T> class implemented in terms of the new
     QLinkedList<T>. Similarly, it contains QValueListIterator<T> and
     QValueListConstIterator<T> classes implemented in terms of
@@ -3772,7 +3771,7 @@
     \section1 QWorkspace
 
     The \c QWorkspace class has been renamed Q3Workspace and moved to the
-    \l{Qt 3 compatibility library}.
+    Qt3Support library.
 
     Qt 4.1 is expected to provide a replacement for this class, based
     on Qt 4's powerful new 2D paint system. If you need MDI

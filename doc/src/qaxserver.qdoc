@@ -640,8 +640,8 @@
     of a main function. The default implemenation calls QAxFactory::startServer(),
     creates a QApplication instance and calls exec().
 
-    To build the ActiveX server executable run \link qmake-manual.book
-    qmake\endlink to generate the makefile, and use your compiler's
+    To build the ActiveX server executable run \c qmake
+    to generate the makefile, and use your compiler's
     make tool as for any other Qt application. The make process will
     also register the controls in the system registry by calling the
     resulting executable with the \c -regserver command line option.

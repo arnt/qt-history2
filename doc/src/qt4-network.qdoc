@@ -24,7 +24,7 @@
     \o  It is now possible to send and receive UDP datagrams and to
         use synchronous (i.e., blocking) sockets without having to
         use a low-level API (QSocketDevice in Qt 3).
-    \o  QHostAddress and QDns support internationalized domain names
+    \o  QHostAddress and QHostInfo support internationalized domain names
         (RFC 3492).
     \o  QUrl is more lightweight and fully supports the latest URI
         specification draft.
@@ -69,8 +69,8 @@
     (i.e., queue) requests.
 
     The network module contains four helper classes: QHostAddress,
-    QDns, QUrl, and QUrlInfo. QHostAddress stores an IPv4 or IPv6
-    address, QDns resolves host names into addresses, QUrl stores a
+    QHostInfo, QUrl, and QUrlInfo. QHostAddress stores an IPv4 or IPv6
+    address, QHostInfo resolves host names into addresses, QUrl stores a
     URL, and QUrlInfo stores information about a resource pointed to
     by a URL, such as the file size and modification date. (Because
     QUrl is used by QTextBrowser, it is part of the QtCore library and
@@ -185,9 +185,9 @@
     \l{QTcpServer::newConnection()}{newConnection()} signal that you
     can connect to a slot.
 
-    The QDns class has been redesigned to use the operating system's
+    The QHostInfo class has been redesigned to use the operating system's
     getaddrinfo() function instead of implementing the DNS protocol.
-    Internally, QDns simply starts a thread and calls getaddrinfo()
+    Internally, QHostInfo simply starts a thread and calls getaddrinfo()
     in that thread. This wasn't possible in Qt 3 because
     getaddrinfo() is a blocking call and Qt 3 could be configured
     without multithreading support.

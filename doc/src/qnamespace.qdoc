@@ -1343,7 +1343,7 @@
 
     \value NoContextMenu  the widget does not feature a context menu.
     \value DefaultContextMenu  the widget's QWidget::contextMenuEvent() handler is called.
-    \value ActionsContextMenu  the widget displays it's QWidget::actions() as context menu.
+    \value ActionsContextMenu  the widget displays its QWidget::actions() as context menu.
     \value CustomContextMenu  the widget emits the QWidget::customContextMenuRequested() signal.
 */
 
