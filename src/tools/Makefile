@@ -22,7 +22,8 @@ HEADERS	=	qarray.h	qbitarry.h	qbuffer.h	qcache.h      \
 		qintcach.h	qintdict.h	qiodev.h	qlist.h	      \
 		qmemchk.h	qqueue.h	qregexp.h	qshared.h     \
 		qstack.h	qstring.h	qstrlist.h	qstrvec.h     \
-		qtstream.h	qvector.h       qfileinf.h	qdir.h
+		qtstream.h	qvector.h       qfileinf.h	qdir.h	      \
+                qfiledef.h
 SOURCES	=	qbitarry.cpp	qbuffer.cpp	qcollect.cpp	qdatetm.cpp   \
 		qdstream.cpp	qfile.cpp	qgarray.cpp	qgcache.cpp   \
 		qgdict.cpp	qglist.cpp	qglobal.cpp	qgvector.cpp  \
