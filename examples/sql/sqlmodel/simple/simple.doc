@@ -1,0 +1,36 @@
+/*!   
+  \page sqlmodel-example.html
+
+  \ingroup examples
+  \ingroup sql
+  \title Displaying the results of a SQL query 
+
+  This example demonstrates how to display the results of a QSqlQuery
+  in a table.
+
+  \quotefile sql/sqlmodel/simple/main.cpp
+  \skipto main(
+  \printuntil createConnection
+
+  A QApplication object is neccessary in order to use databases.
+  \c createConnection() is just a local function that opens a database
+  connection for us.
+
+  \printto view
+
+  A QSqlModel is created and its parent is set to the QApplication, making
+  sure that it will be deleted when the application exits. Next, a SQL
+  query is executed and the QSqlModel is populated with the results of the
+  query. If the query fails, the model will be empty and nothing is displayed.
+
+  \printto app.exec
+
+  A QGenericTableView is created and our QSqlModel is set as data model. The parent
+  is 0, since the table is our top-level widget.
+
+  \printuntil }
+
+  The application is executed and will display a table with the results
+  of the SQL query.
+*/
+

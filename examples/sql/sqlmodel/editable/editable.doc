@@ -1,0 +1,62 @@
+/*!   
+  \page sqlmodel-editable-example.html
+
+  \ingroup examples
+  \ingroup sql
+  \title  Example for an editable QSqlModel
+
+  This example demonstrates how to create an editable SQL model by 
+  subclassing QSqlModel.
+
+  Note that in real life a QSqlTableModel would have been used to make a
+  single table editable, this example just shows the principles how to
+  subclass QSqlModel if QSqlTableModel is not sufficient enough for your needs.
+
+  \quotefile sql/sqlmodel/editable/main.cpp
+  \skipto class EditableSqlModel
+  \printuntil };
+
+  In order to make a QSqlModel editable, it is neccessary to reimplement
+  \c isEditable() and \c setData(). Nothing is done in the constructor.
+
+  \printuntil }
+
+  The method \c isEditable() indicates whether an item is editable or not.
+  In this model, only the third column is editable.
+  If the item's type is not \c QModelIndex::View, we let the parent class
+  handle the request.
+
+  \printuntil return false
+
+  The same check is done in setData(), we only allow editing of the third column.
+
+  \printuntil int id
+
+  In order to find the value in the database table, we need the primary key, which
+  we know is the first column in the current row. The value of the primary key is
+  saved in the variable \c id.
+
+  \printuntil }
+
+  Finally, the value is written into the database and the query is executed again
+  to reflect the changes to the table. If it was not possible to insert the value,
+  false is returned.
+  
+  \printuntil }
+
+  This is just a convenience method that sets the \c lastname column in the 
+  database table to a new value at the specified position.
+
+  Note that the initial call to \c clear() is a workaround for in-process databases
+  since sqlite is not capable to modify the table that is currently displayed.
+
+  \skipto main(
+  \printuntil }
+
+  The main function is almost identical to the \link sqlmodel-example.html
+  QSqlModel example\endlink. The only difference is that EditableSqlModel is
+  used instead of QSqlModel.
+
+  The application will display the database table and the third column will be editable.
+*/
+

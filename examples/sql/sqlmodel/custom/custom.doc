@@ -1,0 +1,40 @@
+/*!   
+  \page sqlmodel-custom-example.html
+
+  \ingroup examples
+  \ingroup sql
+  \title  Example of subclassing QSqlModel
+
+  This example demonstrates how to display custom values by subclassing
+  QSqlModel.
+
+  \quotefile sql/sqlmodel/custom/main.cpp
+  \skipto class CustomSqlModel
+  \printuntil };
+
+  In order to display custom values, QSqlModel is subclassed. Nothing
+  is done in the constructor, the only method that needs to be reimplemented
+  is \c data().
+
+  \printuntil }
+
+  First, we need to get the value from the database by calling \c QSqlModel::data().
+  If the value in the database is valid and the index points to the first column,
+  the character \c{#} is prepended to the value from the database, otherwise
+  the original value is returned.
+
+  Note that we explicitely check that the role is \c QAbstractItemModel::Role_Display, since
+  we want the additional \c{#} character only when the value is displayed, and not
+  when the user edits the value.
+
+  \skipto main(
+  \printuntil }
+
+  The main function is almost identical to the \link sqlmodel-example.html
+  QSqlModel example\endlink. The only difference is that CustomSqlModel is
+  used instead of QSqlModel.
+
+  The application will display the result of the SQL query but prepend a single \c{#}
+  character for each value in the first column.
+*/
+
