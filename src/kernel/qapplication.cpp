@@ -1967,10 +1967,12 @@ void QApplication::syncX()	{}		// do nothing
   Returns the version of the Windows operating system running:
 
   <ul>
-  <li> \c Qt::WV_95 - Windows 95.
-  <li> \c Qt::WV_98 - Windows 98.
-  <li> \c Qt::WV_NT - Windows NT 4.x.
-  <li> \c Qt::WV_2000 - Windows 2000 (NT5).
+  <li> \c Qt::WV_95 - Windows 95
+  <li> \c Qt::WV_98 - Windows 98
+  <li> \c Qt::WV_ME - Windows ME
+  <li> \c Qt::WV_NT - Windows NT 4.x
+  <li> \c Qt::WV_2000 - Windows 2000 (NT5)
+  <li> \c Qt::WV_XP - Windows XP
   </ul>
 
   Note that this function is implemented for the Windows version

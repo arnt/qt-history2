@@ -371,8 +371,9 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	}
     } else {
 	if ( src_pm && src_pm->data->hasAlpha &&
-		( QApplication::winVersion()==Qt::WV_98 ||
-		  QApplication::winVersion()==Qt::WV_2000 ) ) {
+		( qt_winver == Qt::WV_98 ||
+		  qt_winver == Qt::WV_2000  || 
+		  qt_winver == Qt::WV_XP ) ) {
 	    // try alpha blending
 	    BLENDFUNCTION blend = {
 		AC_SRC_OVER,

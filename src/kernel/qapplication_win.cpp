@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#452 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#453 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -450,7 +450,9 @@ static void qt_set_windows_resources()
     cg.setColor( QColorGroup::HighlightedText,
 		 QColor(qt_colorref2qrgb(GetSysColor(COLOR_HIGHLIGHTTEXT))) );
 
-    if ( QApplication::winVersion() == Qt::WV_2000 || QApplication::winVersion() == Qt::WV_98 ) {
+    if ( qt_winver == Qt::WV_2000 || 
+	 qt_winver == Qt::WV_98 || 
+	 qt_winver == Qt::WV_XP ) {
 	if ( cg.midlight() == cg.button() )
 	    cg.setColor( QColorGroup::Midlight, cg.button().light(110) );
     }
@@ -466,7 +468,9 @@ static void qt_set_windows_resources()
 		  QColor(qt_colorref2qrgb(GetSysColor(COLOR_HIGHLIGHTTEXT))) );
 
     QColorGroup icg = cg;
-    if ( QApplication::winVersion() == Qt::WV_2000 || QApplication::winVersion() == Qt::WV_98 ) {
+    if ( qt_winver == Qt::WV_2000 || 
+	 qt_winver == Qt::WV_98 || 
+	 qt_winver == Qt::WV_XP ) {
 	if ( icg.background() != icg.base() ) {
 	    icg.setColor( QColorGroup::Highlight, icg.background() );
 	    icg.setColor( QColorGroup::HighlightedText, icg.text() );
@@ -496,7 +500,9 @@ static void qt_set_windows_resources()
 		      QColor(qt_colorref2qrgb(GetSysColor(COLOR_HIGHLIGHTTEXT))) );
 
 	icg = cg;
-	if ( qt_winver == Qt::WV_2000 || qt_winver == Qt::WV_98 ) {
+	if ( qt_winver == Qt::WV_2000 || 
+	     qt_winver == Qt::WV_98 || 
+	     qt_winver == Qt::WV_XP ) {
 	    icg.setColor( QColorGroup::ButtonText, icg.dark() );
 	}
 	QPalette menu(cg, dcg, icg);
@@ -3101,7 +3107,7 @@ void QApplication::setEffectEnabled( Qt::UIEffect effect, bool enable )
 	break;
     }
 
-    if ( desktopSettingsAware() && ( qt_winver == WV_98 || qt_winver == WV_2000 ) ) {
+    if ( desktopSettingsAware() && ( qt_winver == WV_98 || qt_winver == WV_2000 || qt_winver == Qt::WV_XP ) ) {
 	// we know that they can be used when we are here
 	UINT api;
 	switch (effect) {
@@ -3109,7 +3115,7 @@ void QApplication::setEffectEnabled( Qt::UIEffect effect, bool enable )
 	    api = SPI_SETMENUANIMATION;
 	    break;
 	case UI_FadeMenu:
-	    if ( qt_winver != WV_2000 )
+	    if ( qt_winver == WV_98 )
 		return;
 	    api = SPI_SETMENUFADE;
 	    break;
@@ -3120,7 +3126,7 @@ void QApplication::setEffectEnabled( Qt::UIEffect effect, bool enable )
 	    api = SPI_SETTOOLTIPANIMATION;
 	    break;
 	case UI_FadeTooltip:
-	    if ( qt_winver != WV_2000 )
+	    if ( qt_winver == WV_98 )
 		return;
 	    api = SPI_SETTOOLTIPFADE;
 	    break;
@@ -3138,7 +3144,7 @@ void QApplication::setEffectEnabled( Qt::UIEffect effect, bool enable )
 
 bool QApplication::isEffectEnabled( Qt::UIEffect effect )
 {
-    if ( desktopSettingsAware() && ( qt_winver == WV_98 || qt_winver == WV_2000 ) ) {
+    if ( desktopSettingsAware() && ( qt_winver == WV_98 || qt_winver == WV_2000 || qt_winver == Qt::WV_XP ) ) {
     // we know that they can be used when we are here
 	BOOL enabled = FALSE;
 	UINT api;
@@ -3147,7 +3153,7 @@ bool QApplication::isEffectEnabled( Qt::UIEffect effect )
 	    api = SPI_GETMENUANIMATION;
 	    break;
 	case UI_FadeMenu:
-	    if ( qt_winver != WV_2000 )
+	    if ( qt_winver == WV_98 )
 		return FALSE;
 	    api = SPI_GETMENUFADE;
 	    break;
@@ -3155,13 +3161,13 @@ bool QApplication::isEffectEnabled( Qt::UIEffect effect )
 	    api = SPI_GETCOMBOBOXANIMATION;
 	    break;
 	case UI_AnimateTooltip:
-	    if ( qt_winver != WV_2000 )
+	    if ( qt_winver == WV_98 )
 		api = SPI_GETMENUANIMATION;
 	    else
 		api = SPI_GETTOOLTIPANIMATION;
 	    break;
 	case UI_FadeTooltip:
-	    if ( qt_winver != WV_2000 )
+	    if ( qt_winver == WV_98 )
 		return FALSE;
 	    api = SPI_GETTOOLTIPFADE;
 	    break;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qdns.cpp#29 $
+** $Id: //depot/qt/main/src/network/qdns.cpp#30 $
 **
 ** Implementation of QDns class.
 **
@@ -2151,7 +2151,8 @@ static void doResInit()
 
     bool gotNetworkParams = FALSE;
     if ( QApplication::winVersion() == Qt::WV_98 ||
-	 QApplication::winVersion() == Qt::WV_2000 ) {
+	 QApplication::winVersion() == Qt::WV_2000 || 
+	 QApplication::winVersion() == Qt::WV_XP ) {
 	// for 98 and 2000 try the API call GetNetworkParams()
 	HINSTANCE hinstLib = LoadLibraryA( "iphlpapi" );
 	if ( hinstLib != 0 ) {

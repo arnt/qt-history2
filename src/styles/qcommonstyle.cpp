@@ -42,6 +42,7 @@
 #define INCLUDE_MENUITEM_DEF
 #include "qmenubar.h"
 #include "qapplication.h"
+#include "../kernel/qapplication_p.h"
 #include "qpainter.h"
 #include "qdrawutil.h"
 #include "qpixmap.h"
@@ -270,13 +271,17 @@ void QCommonStyle::drawToolButton( QToolButton* btn, QPainter *p)
         // WIN2000 is really tricky here!
         bool drawRect = btn->isOn();
         if ( guiStyle() == WindowsStyle && btn->isOn() &&
-             ( QApplication::winVersion() == Qt::WV_2000 || QApplication::winVersion() == Qt::WV_98 ) &&
+             ( qt_winver == Qt::WV_2000 || 
+	       qt_winver == Qt::WV_98 ||
+	       qt_winver == Qt::WV_XP ) &&
              btn->uses3D() ) {
             fill = btn->colorGroup().brush( QColorGroup::Button );
             drawRect = FALSE;
         }
         if ( guiStyle() == WindowsStyle &&
-             ( QApplication::winVersion() == Qt::WV_2000 || QApplication::winVersion() == Qt::WV_98 ) &&
+             ( qt_winver == Qt::WV_2000 || 
+	       qt_winver == Qt::WV_98 || 
+	       qt_winver == Qt::WV_XP ) &&
              btn->autoRaise() ) {
             drawPanel( p, x, y, w, h, g, sunken, 1, &fill );
             if ( drawRect ) {

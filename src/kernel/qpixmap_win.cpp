@@ -611,7 +611,8 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 
     data->hasAlpha = img.hasAlphaBuffer() &&
 	( QApplication::winVersion() == Qt::WV_98 ||
-	  QApplication::winVersion() == Qt::WV_2000 );
+	  QApplication::winVersion() == Qt::WV_2000 || 
+	  QApplication::winVersion() == Qt::WV_XP );
 
     if ( data->hasAlpha && d==32 ) {
 	// ### can we have alpha channel with depth<32bpp?

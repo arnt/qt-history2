@@ -630,7 +630,7 @@ void QTitleBarLabel::getColors()
 #ifndef COLOR_GRADIENTINACTIVECAPTION
 #define COLOR_GRADIENTINACTIVECAPTION 28
 #endif
-    if ( qt_winver == Qt::WV_98 || qt_winver == WV_2000 ) {
+    if ( qt_winver == Qt::WV_98 || qt_winver == WV_2000 || qt_winver == WV_XP ) {
 	if ( QApplication::desktopSettingsAware() ) {
 	    aleftc = qt_colorref2qrgb(GetSysColor(COLOR_ACTIVECAPTION));
 	    ileftc = qt_colorref2qrgb(GetSysColor(COLOR_INACTIVECAPTION));

@@ -8561,6 +8561,7 @@ static char * aqua_tab_usel_dis_right_xpm[] = {
 "========"};
 
 #include "qapplication.h"
+#include "../kernel/qapplication_p.h"
 #include "qpainter.h"
 #include "qdrawutil.h"
 #include "qpixmap.h"
@@ -10327,8 +10328,9 @@ void QAquaStyle::drawPopupMenuItem( QPainter* p, bool checkable,
 
     if ( checkable ) {
 #if defined(Q_WS_WIN)
-        if ( QApplication::winVersion() == Qt::WV_2000 ||
-             QApplication::winVersion() == Qt::WV_98 )
+        if ( qt_winver == Qt::WV_2000 ||
+             qt_winver == Qt::WV_98 || 
+	     qt_winver == Qt::WV_XP )
             maxpmw = QMAX( maxpmw, 16 );
 #endif
         maxpmw = QMAX( maxpmw, 12 ); // space for the checkmarks

@@ -48,6 +48,7 @@
 #include "qtoolbutton.h"
 #include "qmessagebox.h"
 #include "qapplication.h"
+#include "../kernel/qapplication_p.h"
 #include "qlayout.h"
 #include "qbitmap.h"
 #include "qpopupmenu.h"
@@ -2245,7 +2246,7 @@ void QFileDialog::init()
     d->typeL = new QLabel( d->types, tr("File &type:"), this );
 
 #if defined(Q_WS_WIN)
-    if ( QApplication::winVersion() == Qt::WV_2000 ) {
+    if ( qt_winver == Qt::WV_2000 || qt_winver == Qt::WV_XP ) {
 	d->goBack = new QToolButton( this, "go back" );
 	d->goBack->setAutoRaise( TRUE );
 	d->goBack->setEnabled( FALSE );
@@ -2263,7 +2264,7 @@ void QFileDialog::init()
 
     d->cdToParent = new QToolButton( this, "cd to parent" );
 #if defined(Q_WS_WIN)
-    if ( QApplication::winVersion() == Qt::WV_2000 )
+    if ( qt_winver == Qt::WV_2000 || qt_winver == Qt::WV_XP  )
 	d->cdToParent->setAutoRaise( TRUE );
 #endif
     d->cdToParent->setFocusPolicy( TabFocus );
@@ -2274,7 +2275,7 @@ void QFileDialog::init()
 
     d->newFolder = new QToolButton( this, "new folder" );
 #if defined(Q_WS_WIN)
-    if ( QApplication::winVersion() == Qt::WV_2000 )
+    if ( qt_winver == Qt::WV_2000 || qt_winver == Qt::WV_XP  )
 	d->newFolder->setAutoRaise( TRUE );
 #endif
     d->newFolder->setFocusPolicy( TabFocus );
@@ -2294,7 +2295,7 @@ void QFileDialog::init()
 
     d->mcView = new QToolButton( this, "mclistbox view" );
 #if defined(Q_WS_WIN)
-    if ( QApplication::winVersion() == Qt::WV_2000 )
+    if ( qt_winver == Qt::WV_2000 || qt_winver == Qt::WV_XP  )
 	d->mcView->setAutoRaise( TRUE );
 #endif
     d->mcView->setFocusPolicy( TabFocus );
@@ -2304,7 +2305,7 @@ void QFileDialog::init()
     d->stack->addWidget( d->moreFiles, d->modeButtons->insert( d->mcView ) );
     d->detailView = new QToolButton( this, "list view" );
 #if defined(Q_WS_WIN)
-    if ( QApplication::winVersion() == Qt::WV_2000 )
+    if ( qt_winver == Qt::WV_2000 || qt_winver == Qt::WV_XP  )
 	d->detailView->setAutoRaise( TRUE );
 #endif
     d->detailView->setFocusPolicy( TabFocus );
@@ -2315,7 +2316,7 @@ void QFileDialog::init()
 
     d->previewInfo = new QToolButton( this, "preview info view" );
 #if defined(Q_WS_WIN)
-    if ( QApplication::winVersion() == Qt::WV_2000 )
+    if ( qt_winver == Qt::WV_2000 || qt_winver == Qt::WV_XP  )
 	d->previewInfo->setAutoRaise( TRUE );
 #endif
     d->previewInfo->setFocusPolicy( TabFocus );
@@ -2326,7 +2327,7 @@ void QFileDialog::init()
 
     d->previewContents = new QToolButton( this, "preview info view" );
 #if defined(Q_WS_WIN)
-    if ( QApplication::winVersion() == Qt::WV_2000 )
+    if ( qt_winver == Qt::WV_2000 || qt_winver == Qt::WV_XP  )
 	d->previewContents->setAutoRaise( TRUE );
 #endif
     d->previewContents->setFocusPolicy( TabFocus );
