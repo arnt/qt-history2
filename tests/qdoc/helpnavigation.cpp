@@ -196,7 +196,7 @@ HelpNavigation::HelpNavigation( QWidget *parent, const QString &dd )
 
     searchCombo->setFocus();
     searchCombo->setEnableMultipleInsertion( FALSE );
-    
+
 
     connect( tabWidget, SIGNAL( selected( const QString & ) ),
 	     this, SIGNAL( tabChanged() ) );
@@ -283,7 +283,7 @@ void HelpNavigation::loadIndexFile( QProgressBar *bar )
 	QString title = s.left( pipe - 1 );
 	QString link = s.mid( pipe + 1, 0xFFFFFF );
 	link = link.simplifyWhiteSpace();
-	titleMap[ link ] = title;
+	titleMap[ link ] = title.stripWhiteSpace();
     }
     delete lst;
 }
@@ -360,6 +360,7 @@ void HelpNavigation::setupContentsView( QProgressBar * )
     contentsView->header()->hide();
     while ( !ts.atEnd() ) {
 	QString s = ts.readLine();
+	s = s.stripWhiteSpace();
 	int i = s.find( " - " );
 	if ( i == -1 ) {
 	    QListViewItem *oldLast = lastItem;

@@ -2,9 +2,12 @@
 if [  $# -gt 1 ]; then
 	rm -f $1
 	touch $1
-	for i in $@; do  		
-		sed -ne "s/.*<title.*>\([^<]*\)<\/title>.*/\1 | $i/pg"  < $i
-	done | sort > $1
+	for i in $@; do #### many, many hacks :-)
+  		cat $i |
+		tr "\n" " " |
+		sed -ne "s/.*<title.*>\([^<]*\)<\/title>.*/\1 | $i@/pg" |
+		tr "@" "\n" ;
+	done | sort -b > $1
 else
 	echo Usage: $0 indexfile filenames
 fi
