@@ -857,14 +857,11 @@ void QComboBox::setCurrentItem( int index )
 	d->ed->setText( text( index ) );
 	d->updateLinedGeometry();
     }
-    if ( d->poppedUp ) {
-	if ( d->usingListBox() && d->listBox() )
-	    d->listBox()->setCurrentItem( index );
-	else if ( d->popup() )
-	    // the popup will soon send an override, but for the
-	    // moment this is correct
-	    internalHighlight( index );
-    }
+    if ( d->poppedUp && d->usingListBox() && d->listBox() )
+	d->listBox()->setCurrentItem( index );
+    else
+	internalHighlight( index );
+
     currentChanged();
 }
 
