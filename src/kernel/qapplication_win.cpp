@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#248 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#249 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -45,6 +45,11 @@
 #ifndef WM_MOUSEWHEEL
 #define WM_MOUSEWHEEL	0x020A
 #endif
+
+inline QRgb colorref2qrgb(COLORREF col)
+{
+    return qRgb(GetRValue(col),GetGValue(col),GetBValue(col));
+}
 
 
 /*****************************************************************************
@@ -286,33 +291,33 @@ static void qt_set_windows_resources()
 
     QColorGroup cg;
     cg.setColor( QColorGroup::Foreground,
-		 QColor(GetSysColor(COLOR_WINDOWTEXT)) );
+		 QColor(colorref2qrgb(GetSysColor(COLOR_WINDOWTEXT))) );
     cg.setColor( QColorGroup::Button,
-		 QColor(GetSysColor(COLOR_BTNFACE)) );
+		 QColor(colorref2qrgb(GetSysColor(COLOR_BTNFACE))) );
     cg.setColor( QColorGroup::Light,
-		 QColor(GetSysColor(COLOR_BTNHIGHLIGHT)) );
+		 QColor(colorref2qrgb(GetSysColor(COLOR_BTNHIGHLIGHT))) );
     cg.setColor( QColorGroup::Midlight,
-		 QColor(GetSysColor(COLOR_3DLIGHT)) );
+		 QColor(colorref2qrgb(GetSysColor(COLOR_3DLIGHT))) );
     cg.setColor( QColorGroup::Dark,
-		 QColor(GetSysColor(COLOR_BTNSHADOW)) );
+		 QColor(colorref2qrgb(GetSysColor(COLOR_BTNSHADOW))) );
     cg.setColor( QColorGroup::Mid,
-		 QColor(GetSysColor(COLOR_3DDKSHADOW)) );
+		 QColor(colorref2qrgb(GetSysColor(COLOR_3DDKSHADOW))) );
     cg.setColor( QColorGroup::Text,
-		 QColor(GetSysColor(COLOR_WINDOWTEXT)) );
+		 QColor(colorref2qrgb(GetSysColor(COLOR_WINDOWTEXT))) );
     cg.setColor( QColorGroup::BrightText,
-		 QColor(GetSysColor(COLOR_BTNHIGHLIGHT)) );
+		 QColor(colorref2qrgb(GetSysColor(COLOR_BTNHIGHLIGHT))) );
     cg.setColor( QColorGroup::ButtonText,
-		 QColor(GetSysColor(COLOR_WINDOWTEXT)) );
+		 QColor(colorref2qrgb(GetSysColor(COLOR_WINDOWTEXT))) );
     cg.setColor( QColorGroup::Base,
-		 QColor(GetSysColor(COLOR_WINDOW)) );
+		 QColor(colorref2qrgb(GetSysColor(COLOR_WINDOW))) );
     cg.setColor( QColorGroup::Background,
-		 QColor(GetSysColor(COLOR_BTNFACE)) );
+		 QColor(colorref2qrgb(GetSysColor(COLOR_BTNFACE))) );
     cg.setColor( QColorGroup::Shadow,
-		 QColor(GetSysColor(COLOR_3DDKSHADOW)) );
+		 QColor(colorref2qrgb(GetSysColor(COLOR_3DDKSHADOW))) );
     cg.setColor( QColorGroup::Highlight,
-		 QColor(GetSysColor(COLOR_HIGHLIGHT)) );
+		 QColor(colorref2qrgb(GetSysColor(COLOR_HIGHLIGHT))) );
     cg.setColor( QColorGroup::HighlightedText,
-		 QColor(GetSysColor(COLOR_HIGHLIGHTTEXT)) );
+		 QColor(colorref2qrgb(GetSysColor(COLOR_HIGHLIGHTTEXT))) );
 	
     QColor disabled( (cg.foreground().red()+cg.button().red())/2,
 		     (cg.foreground().green()+cg.button().green())/2,
@@ -323,8 +328,8 @@ static void qt_set_windows_resources()
     QPalette pal( cg, dcg, cg );
     QApplication::setPalette( pal, TRUE );
 
-    QColor menu(GetSysColor(COLOR_MENU));
-    QColor menuText(GetSysColor(COLOR_MENUTEXT));
+    QColor menu(colorref2qrgb(GetSysColor(COLOR_MENU)));
+    QColor menuText(colorref2qrgb(GetSysColor(COLOR_MENUTEXT)));
     if (menu != cg.button() || menuText != cg.text()) {
 	// we need a special color group for the menu.
 	cg.setColor( QColorGroup::Button, menu );
@@ -1281,7 +1286,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	case WM_PALETTECHANGED:			// our window changed palette
 	    if ( QColor::hPal() && (WId)wParam == widget->winId() )
 		return 0;			// otherwise: FALL THROUGH!
-
+	    // FALL THROUGH
 	case WM_SETTINGCHANGE:
 	    qt_set_windows_resources();
 	    break;
