@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#40 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#41 $
 **
 ** Implementation of QDir class
 **
@@ -25,12 +25,12 @@
 #endif
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qdir.cpp#40 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qdir.cpp#41 $");
 
 
 #if defined(_OS_FATFS_) || defined(_OS_OS2EMX_)
 
-static void convertSeparators( char *n )
+static void slashify( char *n )
 {
     if ( !n )
 	return;
@@ -43,7 +43,7 @@ static void convertSeparators( char *n )
 
 #elif defined(UNIX)
 
-static void convertSeparators( char * )
+static void slashify( char * )
 {
     return;
 }
@@ -1087,7 +1087,7 @@ QString QDir::currentDirPath()
 	    if ( GETCWD( currentName.data(), PATH_MAX ) != 0 ) {
 		cINode	 = st.st_ino;
 		cDevice	 = st.st_dev;
-		convertSeparators( currentName.data() );
+		slashify( currentName.data() );
 		// forcecwd = FALSE;   ### caching removed, not safe
 	    } else {
 		warning( "QDir::currentDirPath: getcwd() failed" );
@@ -1114,7 +1114,7 @@ QString QDir::homeDirPath()
 {
     QString d( PATH_MAX );
     d = getenv("HOME");
-    convertSeparators( d.data() );
+    slashify( d.data() );
     if ( d.isNull() )
 	d = rootDirPath();
     return d;
@@ -1169,7 +1169,7 @@ QString QDir::cleanDirPath( const char *filePath )
     if ( name.isEmpty() )
 	return name;
 
-    convertSeparators( name.data() );
+    slashify( name.data() );
 
     bool addedSeparator;
     if ( isRelativePath(name) ) {
