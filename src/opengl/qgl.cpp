@@ -1002,6 +1002,10 @@ bool QGLContext::create( const QGLContext* shareContext )
   Makes this context the current OpenGL rendering context.  All GL
   functions you call operate on this context until another context is
   made current.
+
+  Note that under special circumstances the underlying call may fail,
+  in which case this will not be reported back to the caller. However,
+  a message is printed to stderr stating this.
 */
 
 
