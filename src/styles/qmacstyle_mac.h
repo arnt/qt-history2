@@ -42,16 +42,6 @@ public:
     void unPolish( QWidget * w );
     void polish( QApplication* );
 
-    void drawItem( QPainter *p, const QRect &r,
-		   int flags, const QPalette &pal, bool enabled,
-		   const QString &text, int len = -1,
-		   const QColor *penColor = 0 ) const;
-
-    void drawItem( QPainter *p, const QRect &r,
-		   int flags, const QPalette &pal, bool enabled,
-		   const QPixmap &pixmap,
-		   const QColor *penColor = 0 ) const;
-
     void drawPrimitive( PrimitiveElement pe,
 			QPainter *p,
 			const QRect &r,

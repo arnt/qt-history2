@@ -516,105 +516,6 @@ void QMacStyle::unPolish(QWidget* w)
 }
 
 /*! \reimp */
-void QMacStyle::drawItem(QPainter *p, const QRect &r,
-			 int flags, const QPalette &pal, bool,
-			 const QString& text, int len,
-			 const QColor* penColor) const
-{
-    flags |= NoAccel;     //No accelerators drawn here!
-    int x = r.x(), y = r.y(), w = r.width(), h = r.height();
-    p->setPen(penColor ? *penColor : pal.foreground().color());
-    if(!text.isNull())
-	p->drawText(x, y, w, h, flags, text, len);
-}
-
-void QMacStyle::drawItem(QPainter *p, const QRect &r,
-			 int flags, const QPalette &pal, bool enabled,
-			 const QPixmap &pixmap,
-			 const QColor* penColor) const
-{
-    flags |= NoAccel;     //No accelerators drawn here!
-    int x = r.x(), y = r.y(), w = r.width(), h = r.height();
-    p->setPen(penColor ? *penColor : pal.foreground().color());
-    QPixmap  pm(pixmap);
-    bool clip = (flags & Qt::DontClip) == 0;
-    if(clip) {
-	if(pm.width() < w && pm.height() < h)
-	    clip = FALSE;
-	else
-	    p->setClipRect(r);
-    }
-    if((flags & Qt::AlignVCenter) == Qt::AlignVCenter)
-	y += h/2 - pm.height()/2;
-    else if((flags & Qt::AlignBottom) == Qt::AlignBottom)
-	y += h - pm.height();
-    if((flags & Qt::AlignRight) == Qt::AlignRight)
-	x += w - pm.width();
-    else if((flags & Qt::AlignHCenter) == Qt::AlignHCenter)
-	x += w/2 - pm.width()/2;
-    else if(((flags & Qt::AlignLeft) != Qt::AlignLeft) && QApplication::reverseLayout())
-	x += w - pm.width();
-
-     if(!enabled) {
-	 extern bool qt_iconset_gray_disabled; //qiconset.cpp
-	 if(qt_iconset_gray_disabled) {
-	     if(pm.mask()) {			// pixmap with a mask
-		 if(!pm.selfMask()) {		// mask is not pixmap itself
-		     QPixmap pmm(*pm.mask());
-		     pmm.setMask(*((QBitmap *)&pmm));
-		     pm = pmm;
-		 }
-	     } else if(pm.depth() == 1) {	// monochrome pixmap, no mask
-		 pm.setMask(*((QBitmap *)&pm));
-#ifndef QT_NO_IMAGE_HEURISTIC_MASK
-	     } else {				// color pixmap, no mask
-		 QString k;
-		 k.sprintf("$qt-drawitem-%x", pm.serialNumber());
-		 QPixmap *mask = QPixmapCache::find(k);
-		 bool del=FALSE;
-		 if(!mask) {
-		     mask = new QPixmap(pm.createHeuristicMask());
-		     mask->setMask(*((QBitmap*)mask));
-		     del = !QPixmapCache::insert(k, mask);
-		 }
-		 pm = *mask;
-		 if(del) 
-		     delete mask;
-#endif
-	     }
-	     { //do we want the drop thingie for QMacStyle?
-		 p->setPen(pal.light());
-		 p->drawPixmap(x+1, y+1, pm);
-		 p->setPen(pal.text());
-	     }
-	 } else {
-	     QString pmkey;
-	     QTextOStream os(&pmkey);
-	     const int w = pm.width(), h = pm.height();
-	     os << "$qt_mac_style_draw_item_disabled_" << "_" << w << "x" << h << "_" << "_" << pm.serialNumber();
-	     if(QPixmap *dblbuf = QPixmapCache::find(pmkey)) {
-		 pm = *dblbuf;
-	     } else {
-		 QImage img; img = pm;
-		 for(int yy = 0; yy < h; yy++) {
-		     for(int xx = 0; xx < w; xx++)
-			 img.setPixel(xx, yy, QColor(img.pixel(xx, yy)).light().rgb());
-		 }
-		 QPixmap *pix = new QPixmap(img);
-		 if(pm.mask())
-		     pix->setMask(*pm.mask());
-		 pm = *pix;
-		 if(!QPixmapCache::insert(pmkey, pix))
-		     delete pix;
-	     }
-	 }
-    }
-    p->drawPixmap(x, y, pm);
-    if(clip)
-	p->setClipping(FALSE);
-}
-
-/*! \reimp */
 void QMacStyle::drawPrimitive(PrimitiveElement pe,
 			       QPainter *p,
 			       const QRect &r,
@@ -2198,6 +2099,9 @@ int QMacStyle::styleHint(StyleHint sh, const QWidget *w,
     case SH_TabBar_Alignment:
         ret = Qt::AlignHCenter;
         break;
+    case SH_UnderlineAccelerator:
+	ret = FALSE;
+	break;
     default:
         ret = QWindowsStyle::styleHint(sh, w, opt, d);
         break;
