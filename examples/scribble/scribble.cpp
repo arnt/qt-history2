@@ -107,9 +107,10 @@ void Canvas::paintEvent( QPaintEvent *e )
 //------------------------------------------------------
 
 Scribble::Scribble( QWidget *parent, const char *name )
-    : QMainWindow( parent, name ), canvas( this )
+    : QMainWindow( parent, name )
 {
-    setCentralWidget( &canvas );
+    canvas = new Canvas( this );
+    setCentralWidget( canvas );
 
     QToolBar *tools = new QToolBar( this );
 
@@ -155,21 +156,21 @@ void Scribble::slotSave()
 
     QString filename = QFileDialog::getSaveFileName( QString::null, QString( "*.%1" ).arg( format.lower() ), this );
     if ( !filename.isEmpty() )
-        canvas.save( filename, format );
+        canvas->save( filename, format );
 }
 
 void Scribble::slotColor()
 {
-    QColor c = QColorDialog::getColor( canvas.penColor(), this );
-    canvas.setPenColor( c );
+    QColor c = QColorDialog::getColor( canvas->penColor(), this );
+    canvas->setPenColor( c );
 }
 
 void Scribble::slotWidth( int w )
 {
-    canvas.setPenWidth( w );
+    canvas->setPenWidth( w );
 }
 
 void Scribble::slotClear()
 {
-    canvas.clearScreen();
+    canvas->clearScreen();
 }

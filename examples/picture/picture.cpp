@@ -104,7 +104,7 @@ int main( int argc, char **argv )
 {
     QApplication a( argc, argv );		// QApplication required!
 
-    char *fileName = "car.pic";			// default picture file name
+    const char *fileName = "car.pic";			// default picture file name
 
     if ( argc == 2 )				// use argument as file name
 	fileName = argv[1];

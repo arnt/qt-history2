@@ -72,7 +72,7 @@ public:
     Scribble( QWidget *parent = 0, const char *name = 0 );
 
 protected:
-    Canvas canvas;
+    Canvas* canvas;
 
     QSpinBox *bPWidth;
     QToolButton *bPColor, *bSave, *bClear;

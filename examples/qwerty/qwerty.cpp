@@ -261,9 +261,9 @@ void Editor::resizeEvent( QResizeEvent * )
 	e->setGeometry( 0, m->height(), width(), height() - m->height() );
 }
 
-void Editor::closeEvent( QCloseEvent *e )
+void Editor::closeEvent( QCloseEvent *event )
 {
-    e->accept();
+    event->accept();
 
     if ( changed ) { // the text has been changed
 	switch ( QMessageBox::warning( this, "Qwerty",
@@ -274,15 +274,15 @@ void Editor::closeEvent( QCloseEvent *e )
 					0, 2) ) {
 	case 0: // yes
 	    if ( save() )
-		e->accept();
+		event->accept();
 	    else
-		e->ignore();
+		event->ignore();
 	    break;
 	case 1: // no
-	    e->accept();
+	    event->accept();
 	    break;
 	default: // cancel
-	    e->ignore();
+	    event->ignore();
 	    break;
 	}
     }

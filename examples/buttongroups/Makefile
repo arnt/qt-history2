@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/examples/buttongroups/Makefile#1 $
+# $Id: //depot/qt/main/examples/buttongroups/Makefile#2 $
 #
 # Win32 Makefile, requires Microsoft nmake.
 #
@@ -7,6 +7,6 @@
 #
 #############################################################################
 
-PROJECT = buttons_groups
+PROJECT = buttongroups
 
 !INCLUDE $(QTDIR)\Makefile.inc

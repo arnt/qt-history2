@@ -32,14 +32,12 @@ static void addStuff( QWidget * parent, bool image, bool secret = FALSE )
 	d->setText("Drag and Drop");
     }
     d->setFont(QFont("Helvetica",18));
-    d->setMinimumSize( d->sizeHint() );
     if ( secret ) {
 	SecretSource *s = new SecretSource( 42, parent );
 	tll->addWidget( s );
     }
 
-    QLabel * format = new QLabel( "\nNone\n", parent );
-    format->setMinimumSize( format->sizeHint() );
+    QLabel * format = new QLabel( "\n\n\n\nNone\n\n\n\n", parent );
     tll->addWidget( format );
     tll->activate();
     parent->resize( parent->sizeHint() );
@@ -49,7 +47,7 @@ static void addStuff( QWidget * parent, bool image, bool secret = FALSE )
 }
 
 
-int main( int argc, char ** argv ) 
+int main( int argc, char ** argv )
 {
     QApplication a( argc, argv );
 

@@ -64,9 +64,9 @@ void DigitalClock::showDate()
 {
     if ( showDateTimer != -1 )			// already showing date
 	return;
-    QDate d = QDate::currentDate();
+    QDate date = QDate::currentDate();
     QString s;
-    s.sprintf( "%2d %2d", d.month(), d.day() );
+    s.sprintf( "%2d %2d", date.month(), date.day() );
     display( s );				// sets the LCD number/text
     showDateTimer = startTimer( 2000 );		// keep this state for 2 secs
 }

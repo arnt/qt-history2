@@ -62,7 +62,8 @@ int main( int argc, char **argv )
     qiconview.setCaption( "Iconview" );
 
     ListenDND listen_dnd( &qiconview );
-    QObject::connect( &qiconview, SIGNAL( dropped( QDropEvent * ) ), &listen_dnd, SLOT( dropped( QDropEvent * ) ) );
+    QObject::connect( &qiconview, SIGNAL( dropped( QDropEvent *, const QValueList<QIconDragItem> & ) ),
+		      &listen_dnd, SLOT( dropped( QDropEvent * ) ) );
     QObject::connect( &qiconview, SIGNAL( moved() ), &listen_dnd, SLOT( moved() ) );
 
     a.setMainWidget( &qiconview );

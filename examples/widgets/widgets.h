@@ -21,7 +21,6 @@ class QProgressBar;
 class QTabWidget;
 class QGroupBox;
 class QMultiLineEdit;
-class QWellArray;
 
 
 class MyListView : public QListView
@@ -92,8 +91,6 @@ private slots:
     void	dummy();
     void	showProperties();
 
-    void     wellArraySelected(int,int);
-
 private:
     bool	eventFilter( QObject *, QEvent * );
     QLabel     *msg;
@@ -106,7 +103,6 @@ private:
     int progress;
     QTabWidget* tabs;
     QMultiLineEdit* edit;
-    QWellArray* well;
 };
 
 #endif

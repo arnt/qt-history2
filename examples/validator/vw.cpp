@@ -106,7 +106,7 @@ VW::VW( QWidget * parent, const char * name )
     // output box
 
     box = new QGroupBox( this, "output box" );
-    hb->addWidget( box, 0, AlignTop );
+    hb->addWidget( box, 0 );
 
     b = new QVBoxLayout( box, 12 );
 

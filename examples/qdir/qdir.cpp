@@ -240,15 +240,14 @@ CustomFileDialog::CustomFileDialog()
 
 CustomFileDialog::~CustomFileDialog()
 {
-    if ( bookmarkList.isEmpty() )
-	return;
-
-    QFile f( ".bookmarks" );
-    if ( !f.open( IO_WriteOnly ) )
-	return;
-    QDataStream ds( &f );
-    ds << bookmarkList;
-    f.close();
+    if ( !bookmarkList.isEmpty() ) {
+	QFile f( ".bookmarks" );
+	if ( f.open( IO_WriteOnly ) ) {
+	    QDataStream ds( &f );
+	    ds << bookmarkList;
+	    f.close();
+	}
+    }
 }
 
 void CustomFileDialog::setDir2( const QString &s )

@@ -27,7 +27,7 @@ void drawColorWheel( QPainter *p )
 {
     QFont f( "times", 18, QFont::Bold );
     p->setFont( f );
-    p->setPen( Qt::black );				// black pen outline
+    p->setPen( Qt::black );
     p->setWindow( 0, 0, 500, 500 );		// defines coordinate system
 
     for ( int i=0; i<36; i++ ) {		// draws 36 rotated rectangles
@@ -56,7 +56,7 @@ void drawColorWheel( QPainter *p )
 
 void drawFonts( QPainter *p )
 {
-    static char *fonts[] = { "Helvetica", "Courier", "Times", 0 };
+    static const char *fonts[] = { "Helvetica", "Courier", "Times", 0 };
     static int	 sizes[] = { 10, 12, 18, 24, 36, 0 };
     int f = 0;
     int y = 0;
@@ -82,14 +82,14 @@ void drawFonts( QPainter *p )
 
 void drawShapes( QPainter *p )
 {
-    QBrush b1( Qt::blue );				// solid blue brush
+    QBrush b1( Qt::blue );
     QBrush b2( Qt::green, Qt::Dense6Pattern );		// green 12% fill
-    QBrush b3( Qt::NoBrush );			// void brush
+    QBrush b3( Qt::NoBrush );				// void brush
     QBrush b4( Qt::CrossPattern );			// black cross pattern
 
     p->setPen( Qt::red );
     p->setBrush( b1 );
-    p->drawRect( 10, 10, 200, 100 );		// draw some shapes
+    p->drawRect( 10, 10, 200, 100 );
     p->setBrush( b2 );
     p->drawRoundRect( 10, 150, 200, 100, 20, 20 );
     p->setBrush( b3 );
@@ -114,13 +114,13 @@ void drawPathText( QPainter *p )
     a.setPoint( 1, 150,75 );
     a.setPoint( 2, 250,75 );
     a.setPoint( 3, 300,200 );
-    a = a.quadBezier();				// calculate Bezier curve
+    a = a.quadBezier();				// Bezier curve
 
-    p->setPen( Qt::lightGray );			// set light gray pen
-    p->drawPolyline( a );			// draw Bezier point array
+    p->setPen( Qt::lightGray );
+    p->drawPolyline( a );
 
-    p->setFont( QFont( "Times", 24 ) );		// set fast font
-    p->setPen( Qt::black );			// set black pen
+    p->setFont( QFont( "Times", 24 ) );		// fast font
+    p->setPen( Qt::black );
 
     const char *text = "Troll Tech";
 
@@ -153,7 +153,7 @@ typedef void (*draw_func)(QPainter*);
 
 struct DrawThing {
     draw_func	 f;
-    char	*name;
+    const char	*name;
 };
 
 //
@@ -215,7 +215,7 @@ DrawView::DrawView()
     // Calculate the size for the radio buttons
     int maxwidth = 80;
     int i;
-    char *n;
+    const char *n;
     QFontMetrics fm = bgroup->fontMetrics();
     for ( i=0; (n=ourDrawFunctions[i].name) != 0; i++ ) {
         int w = fm.width( n );
@@ -272,7 +272,7 @@ void DrawView::updateIt( int index )
 
 void DrawView::drawIt( QPainter *p )
 {
-    (*ourDrawFunctions[drawindex].f)(p);	// call draw function
+    (*ourDrawFunctions[drawindex].f)(p);
 }
 
 //
@@ -294,7 +294,7 @@ void DrawView::printIt()
 void DrawView::paintEvent( QPaintEvent * )
 {
     QPainter paint( this );
-    drawIt( &paint );				// draw color wheel
+    drawIt( &paint );
 }
 
 //

@@ -96,7 +96,7 @@ private:
     bool dirsOnly;
     QListViewItem *oldCurrent;
     QListViewItem *dropItem;
-    QTimer autoopen_timer;
+    QTimer* autoopen_timer;
     QPoint presspos;
     bool mousePressed;
 

@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/examples/buttongroups/GNUmakefile#1 $
+# $Id: //depot/qt/main/examples/buttongroups/GNUmakefile#2 $
 #
 # Unix Makefile, requires GNU make (gmake).
 #
@@ -7,6 +7,6 @@
 #
 #############################################################################
 
-PROJECT = buttons_groups
+PROJECT = buttongroups
 
 include $(QTDIR)/GNUmakefile.inc

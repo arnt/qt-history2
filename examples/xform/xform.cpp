@@ -66,7 +66,7 @@ private:
     QLCDNumber	 *magLCD;	       // Magnification value LCD display
     QCheckBox	 *mirror;	       // Checkbox for mirror image on/of
     QLineEdit	 *textEd;	       // Inp[ut field for xForm text
-    QPushButton  *f;		       // Select font push button
+    QPushButton  *fpb;		       // Select font push button
     QRadioButton *rb_txt;	       // Radio button for text
     QRadioButton *rb_img;	       // Radio button for image
     QRadioButton *rb_pic;	       // Radio button for picture
@@ -121,7 +121,7 @@ XFormControl::XFormControl( const QFont &initialFont,
     mirror	= new QCheckBox( this, "mirrorCheckBox" );
     textEd	= new QLineEdit( this, "text" );
     textEd->setFocus();
-    f		= new QPushButton( this, "text" );
+    fpb		= new QPushButton( this, "text" );
     rb_txt = new QRadioButton( this, "text" );
     rb_img = new QRadioButton( this, "image" );
     rb_pic = new QRadioButton( this, "picture" );
@@ -165,9 +165,9 @@ XFormControl::XFormControl( const QFont &initialFont,
     connect( textEd, SIGNAL(textChanged(const QString&)),
 		     SLOT(newTxt(const QString&)) );
 
-    f->setGeometry( 10, 305, 100, 20 );
-    f->setText( tr("Select font...") );
-    connect( f, SIGNAL(clicked()), SLOT(selectFont()) );
+    fpb->setGeometry( 10, 305, 100, 20 );
+    fpb->setText( tr("Select font...") );
+    connect( fpb, SIGNAL(clicked()), SLOT(selectFont()) );
 
     magS = new QSlider( QSlider::Horizontal, this,
 			   "magnifySlider" );
@@ -276,12 +276,12 @@ void XFormControl::changeMode(int m)
     if ( mode == Text ) {
 	magS->hide();
 	magLCD->hide();
-	f->show();
+	fpb->show();
 	rb_txt->setChecked(TRUE);
     } else {
 	magS->show();
 	magLCD->show();
-	f->hide();
+	fpb->hide();
 	if ( mode == Image )
 	    rb_img->setChecked(TRUE);
 	else
@@ -352,7 +352,7 @@ void ShowXForm::showIt()
 {
     QPainter p;
     QRect r;	  // rectangle covering new text/pixmap in virtual coordinates
-    QWMatrix m;	  // copy user specified transform
+    QWMatrix um;  // copy user specified transform
     int textYPos = 0; // distance from boundingRect y pos to baseline
     int textXPos = 0; // distance from boundingRect x pos to text start
     QRect br;
@@ -386,9 +386,9 @@ void ShowXForm::showIt()
     pm.fill( backgroundColor() );
 
     p.begin( &pm );
-    m.translate( pw/2, ph/2 );	// 0,0 is center
-    m = mtx * m;
-    p.setWorldMatrix( m );
+    um.translate( pw/2, ph/2 );	// 0,0 is center
+    um = mtx * um;
+    p.setWorldMatrix( um );
     switch ( mode() ) {
       case Text:
 	p.setFont( font() );		// use widget font
@@ -498,7 +498,7 @@ int main( int argc, char **argv )
     QApplication a( argc, argv );
 
     XFormCenter *xfc = new XFormCenter;
-    xfc->setGeometry( 0, 0, 500, 400 );
+    xfc->resize( 500, 400 );
 
     a.setMainWidget( xfc );
     xfc->show();

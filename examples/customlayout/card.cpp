@@ -56,9 +56,9 @@ void CardLayout::addItem(  QLayoutItem *item  )
     list.append( item );
 }
 
-void CardLayout::setGeometry( const QRect &rect )
+void CardLayout::setGeometry( const QRect &rct )
 {
-    QLayout::setGeometry( rect );
+    QLayout::setGeometry( rct );
 
     QListIterator<QLayoutItem> it( list );
     if ( it.count() == 0 )
@@ -68,12 +68,12 @@ void CardLayout::setGeometry( const QRect &rect )
 
     int i = 0;
 
-    int w = rect.width() - ( list.count() - 1 ) * spacing();
-    int h = rect.height() - ( list.count() - 1 ) * spacing();
+    int w = rct.width() - ( list.count() - 1 ) * spacing();
+    int h = rct.height() - ( list.count() - 1 ) * spacing();
 
     while ( ( o=it.current() ) != 0 ) {
         ++it;
-        QRect geom( rect.x() + i * spacing(), rect.y() + i * spacing(),
+        QRect geom( rct.x() + i * spacing(), rct.y() + i * spacing(),
                     w, h  );
         o->setGeometry(  geom  );
         ++i;

@@ -39,7 +39,6 @@ public:
     const char* format( int i ) const;
     QByteArray encodedData( const char* mime ) const;
     static bool canDecode( QMimeSource* e );
-    static bool decode( QMimeSource *e, QStringList &uris );
     void append( const QIconDragItem &item, const QRect &pr, const QRect &tr, const QString &url );
 
 private:
@@ -67,7 +66,7 @@ public:
     void setOpenItem( QtFileIconViewItem *i ) {
 	openItem = i;
     }
-    
+
 public slots:
     void setDirectory( const QString &dir );
     void setDirectory( const QDir &dir );
@@ -113,7 +112,7 @@ protected:
     QPixmap pix;
     ViewMode vm;
     QtFileIconViewItem *openItem;
-    
+
 };
 
 /*****************************************************************************

@@ -218,7 +218,7 @@ int main(int argc, char **argv)
                                   Qt::WDestructiveClose);
         QObject::connect(qApp, SIGNAL(lastWindowClosed()), qApp, SLOT(quit()));
     } else {
-        // GUI mode - open a chooser for movies
+        // "GUI" mode - open a chooser for movies
         //
         MovieStarter* fd = new MovieStarter(".");
         fd->show();
@@ -232,9 +232,8 @@ int main(int argc, char **argv)
             "control-left-click to Step 10,\n"
             "right-click to Unpause\n\n"
             "Windows may be resized to enlarge movie.", 0 );
-        help->setCaption("movies - Help");
-        help->setIndent(10);
-        help->adjustSize();
+        help->setCaption( "movies - Help" );
+        help->setIndent( 10 );
         help->show();
     }
 

@@ -61,3 +61,7 @@ msgstr ""
 msgid "MyWidget::View"
 msgstr ""
 
+#: qaccel.cpp:656
+msgid "QAccel::Ctrl"
+msgstr ""
+

@@ -286,30 +286,6 @@ bool QtFileIconDrag::canDecode( QMimeSource* e )
 	e->provides( "text/uri-list" );
 }
 
-bool QtFileIconDrag::decode( QMimeSource *e, QStringList &uris )
-{
-    QByteArray ba = e->encodedData( "text/uri-list" );
-    if ( ba.size() ) {
-	uris.clear();
-	uint c = 0;
-	char* d = ba.data();
-	while ( c < ba.size() ) {
-	    uint f = c;
-	    while ( c < ba.size() && d[ c ] )
-		c++;
-	    if ( c < ba.size() ) {
-		uris.append( d + f );
-		c++;
-	    } else {
-		QString s( QString(d + f).left(c - f + 1) );
-		uris.append( s );
-	    }
-	}
-	return TRUE;
-    }
-    return FALSE;
-}
-
 void QtFileIconDrag::append( const QIconDragItem &item, const QRect &pr,
 			     const QRect &tr, const QString &url )
 {
@@ -439,7 +415,7 @@ void QtFileIconViewItem::dropped( QDropEvent *e, const QValueList<QIconDragItem>
     }
 
     QStringList lst;
-    QUriDrag::decodeLocalFiles( e, lst );
+    QUriDrag::decodeToUnicodeUris( e, lst );
 
     QString str;
     if ( e->action() == QDropEvent::Copy )
@@ -536,7 +512,7 @@ void QtFileIconView::openFolder()
     if ( !openItem )
 	return;
     if ( openItem->type() != QtFileIconViewItem::Dir ||
-	 openItem->type() == QtFileIconViewItem::Dir && 
+	 openItem->type() == QtFileIconViewItem::Dir &&
 	 !QDir( openItem->itemFileName ).isReadable() )
 	return;
 
@@ -676,13 +652,14 @@ void QtFileIconView::keyPressEvent( QKeyEvent *e )
 
 void QtFileIconView::slotDropped( QDropEvent *e, const QValueList<QIconDragItem> & )
 {
+    openItem->timer.stop();
     if ( !QUriDrag::canDecode( e ) ) {
 	e->ignore();
 	return;
     }
 
     QStringList lst;
-    QUriDrag::decodeLocalFiles( e, lst );
+    QUriDrag::decodeToUnicodeUris( e, lst );
 
     QString str;
     if ( e->action() == QDropEvent::Copy )
@@ -792,10 +769,13 @@ void QtFileIconView::slotRightPressed( QIconViewItem *item )
 	if ( id == -1 )
 	    return;
 
-	if ( id == RENAME_ITEM && item->renameEnabled() )
+	if ( id == RENAME_ITEM && item->renameEnabled() ) {
 	    item->rename();
-	else if ( id == REMOVE_ITEM )
-	    QMessageBox::information( this, "Not implemented!", "Deleting files not implemented yet..." );
+	} else if ( id == REMOVE_ITEM ) {
+	    delete item;
+	    QMessageBox::information( this, "Not implemented!", "Deleting files not implemented yet,\n"
+				      "The item has only been removed from the view! " );
+	}
     }
 }
 

@@ -55,7 +55,7 @@ ApplicationWindow::ApplicationWindow()
 
     fileTools = new QToolBar( this, "file operations" );
     fileTools->setLabel( tr( "File Operations" ) );
-    
+
     openIcon = QPixmap( fileopen );
     QToolButton * fileOpen
 	= new QToolButton( openIcon, "Open File", QString::null,

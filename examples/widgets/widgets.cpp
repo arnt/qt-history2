@@ -46,7 +46,6 @@
 #include <qlistview.h>
 #include <qheader.h>
 #include <qtextview.h>
-#include <qwellarray.h>
 #include <qfiledialog.h>
 #include <qaccel.h>
 #include <qmetaobject.h>
@@ -190,37 +189,22 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
     popup->setAccel( CTRL+Key_T, id );
 
     popup->insertSeparator();
-    QFont fnt = font();
-    fnt.setBold( TRUE );
-    id = popup->insertItem( new MyMenuItem( "&Bold", fnt ) );
+    QFont f = font();
+    f.setBold( TRUE );
+    id = popup->insertItem( new MyMenuItem( "&Bold", f ) );
     popup->setAccel( CTRL+Key_B, id );
-    fnt = font();
-    fnt.setItalic( TRUE );
-    id = popup->insertItem( new MyMenuItem( "&Italic", fnt ) );
+    f = font();
+    f.setItalic( TRUE );
+    id = popup->insertItem( new MyMenuItem( "&Italic", f ) );
     popup->setItemChecked( id, TRUE );
     popup->setAccel( CTRL+Key_I, id );
-    fnt = font();
-    fnt.setUnderline( TRUE );
-    id = popup->insertItem( new MyMenuItem( "&Underline", fnt ) );
+    f = font();
+    f.setUnderline( TRUE );
+    id = popup->insertItem( new MyMenuItem( "&Underline", f ) );
     popup->setAccel( CTRL+Key_U, id );
-    fnt = font();
-    fnt.setStrikeOut( TRUE );
-    id = popup->insertItem( new MyMenuItem( "&Strike", fnt ) );
-    popup->insertSeparator();
-
-    well = new QWellArray(0,0, TRUE );
-    connect( well, SIGNAL( selected(int,int) ), this, SLOT( wellArraySelected(int,int)) );
-    popup->insertItem( well );
-    well->setDimension( 3, 3 );
-    well->setCellBrush( 0, 0, red );
-    well->setCellBrush( 1, 0, green );
-    well->setCellBrush( 2, 0, blue );
-    well->setCellBrush( 0, 1, yellow );
-    well->setCellBrush( 1, 1, cyan );
-    well->setCellBrush( 2, 1, white );
-    well->setCellBrush( 0, 2, black );
-    well->setCellBrush( 1, 2, darkBlue );
-    well->setCellBrush( 2, 2, qApp->palette().normal().background() );
+    f = font();
+    f.setStrikeOut( TRUE );
+    id = popup->insertItem( new MyMenuItem( "&Strike", f ) );
 
     // Create an analog and a digital clock
     AnalogClock  *aclock = new AnalogClock( central );
@@ -461,7 +445,6 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
     split->setOpaqueResize( TRUE );
     topLayout->addWidget( split, 1 );
     QListView *lv = new MyListView( split );
-    connect(lv, SIGNAL(selectionChanged() ), this, SLOT( selectionChanged() ) );
     connect(lv, SIGNAL(selectionChanged() ), this, SLOT( selectionChanged() ) );
     connect(lv, SIGNAL(selectionChanged(QListViewItem*) ), this, SLOT( selectionChanged(QListViewItem*) ) );
     connect(lv, SIGNAL(clicked(QListViewItem*) ), this, SLOT( clicked(QListViewItem*) ) );
@@ -715,13 +698,6 @@ void WidgetView::clicked( QListViewItem* item )
 void WidgetView::mySelectionChanged( QListViewItem* item )
 {
     qDebug("mySelectionChanged %p", item );
-}
-
-void WidgetView::wellArraySelected(int row, int cell)
-{
-    QPalette p( qApp->palette() );
-    p.setBrush( QColorGroup::Background, well->cellBrush(row, cell) );
-    qApp->setPalette( p, TRUE);
 }
 
 void WidgetView::showProperties()

@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/examples/addressbook/Makefile#2 $
+# $Id: //depot/qt/main/examples/addressbook/Makefile#3 $
 #
 # Win32 Makefile, requires Microsoft nmake.
 #
@@ -7,6 +7,6 @@
 #
 #############################################################################
 
-PROJECT = addressbook.pro
+PROJECT = addressbook
 
 !INCLUDE $(QTDIR)\Makefile.inc

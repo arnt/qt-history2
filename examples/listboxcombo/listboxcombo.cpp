@@ -36,17 +36,17 @@ protected:
     
 };
 
-void MyListBoxItem::paint( QPainter *p )
+void MyListBoxItem::paint( QPainter *painter )
 {
     // evil trick: find out whether we are painted onto our listbox
-    bool in_list_box = listBox() && listBox()->viewport() == p->device();
+    bool in_list_box = listBox() && listBox()->viewport() == painter->device();
 
     QRect r ( 0, 0, width( listBox() ), height( listBox() ) );
     if ( in_list_box && selected() )
-	p->eraseRect( r );
-    p->fillRect( 5, 5, width( listBox() ) - 10, height( listBox() ) - 10, Qt::red );
+	painter->eraseRect( r );
+    painter->fillRect( 5, 5, width( listBox() ) - 10, height( listBox() ) - 10, Qt::red );
     if ( in_list_box && current() )
-	listBox()->style().drawFocusRect( p, r, listBox()->colorGroup(), &p->backgroundColor(), TRUE );
+	listBox()->style().drawFocusRect( painter, r, listBox()->colorGroup(), &painter->backgroundColor(), TRUE );
 }
 
 /*

@@ -23,16 +23,19 @@ class QLabel;
 // TicTacButton implements a single tic-tac-toe button
 //
 
-class TicTacButton : public QButton
+class TicTacButton : public QPushButton
 {
     Q_OBJECT
 public:
-    TicTacButton( QWidget *parent=0 );
+    TicTacButton( QWidget *parent );
     enum Type { Blank, Circle, Cross };
     Type	type() const		{ return t; }
     void	setType( Type type )	{ t = type; repaint(); }
+    QSizePolicy sizePolicy() const
+    { return QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred ); }
+    QSize sizeHint() const { return QSize( 32, 32 ); }
 protected:
-    void	drawButton( QPainter * );
+    void	drawButtonLabel( QPainter * );
 private:
     Type t;
 };
@@ -64,8 +67,6 @@ signals:
     void	finished();			// game finished
 private slots:
     void	buttonClicked();
-protected:
-    void	resizeEvent( QResizeEvent * );
 private:
     void        setState( State state ) { st = state; }
     void	updateButtons();

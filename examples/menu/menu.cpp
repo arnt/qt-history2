@@ -156,14 +156,14 @@ MenuExample::MenuExample( QWidget *parent, const char *name )
     options->insertSeparator();
 
     options->polish(); // adjust system settings 
-    QFont fnt = options->font();
-    fnt.setBold( TRUE );
-    boldID = options->insertItem( new MyMenuItem( "&Bold", fnt ) );
+    QFont f = options->font();
+    f.setBold( TRUE );
+    boldID = options->insertItem( new MyMenuItem( "&Bold", f ) );
     options->setAccel( CTRL+Key_B, boldID );
     options->connectItem( boldID, this, SLOT(bold()) );
-    fnt = font();
-    fnt.setUnderline( TRUE );
-    underlineID = options->insertItem( new MyMenuItem( "&Underline", fnt ) );
+    f = font();
+    f.setUnderline( TRUE );
+    underlineID = options->insertItem( new MyMenuItem( "&Underline", f ) );
     options->setAccel( CTRL+Key_U, underlineID );
     options->connectItem( underlineID, this, SLOT(underline()) );
 
