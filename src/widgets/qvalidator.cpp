@@ -37,7 +37,6 @@
 
 #include "qvalidator.h"
 #ifndef QT_NO_VALIDATOR
-#include "qwidget.h"
 
 #include <ctype.h>
 #include <limits.h>
