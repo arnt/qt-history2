@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#519 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#520 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -516,8 +516,10 @@ static bool qt_set_desktop_properties()
     d >> pal >> font;
     if ( pal != QApplication::palette() )
 	QApplication::setPalette( pal, TRUE );
-    if ( font != QApplication::font() )
+    font.setCharSet(QFont::charSetForLocale());
+    if ( font != QApplication::font() ) {
 	QApplication::setFont( font, TRUE );
+    }
     return TRUE;
 }
 
@@ -587,6 +589,7 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0,
     if ( !resFont.isEmpty() ) {				// set application font
 	QFont font;
 	font.setRawName( resFont );
+	font.setCharSet( QFont::charSetForLocale() ); // override requested charset
 	if ( font != QApplication::font() )
  	    QApplication::setFont( font, TRUE );
     }
@@ -3467,9 +3470,14 @@ bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count, QStr
 
     state = translateButtonState( event->xkey.state );
 
-    // commentary in X11/keysymdef says that X codes match ASCII, so it
-    // is safe to use the locale functions to process X codes
-    if ( key < 256 ) {
+    // Commentary in X11/keysymdef says that X codes match ASCII, so it
+    // is safe to use the locale functions to process X codes in ISO8859-1.
+    //
+    // This is mainly for compatibility - applications should not use the
+    // Qt keycodes between 128 and 255, but should rather use the
+    // QKeyEvent::text().
+    //
+    if ( key < 128 || key < 256 && (!input_mapper || input_mapper->mibEnum()==4) ) {
 	code = isprint((int)key) ? toupper((int)key) : 0; // upper-case key, if known
     } else if ( key >= XK_F1 && key <= XK_F35 ) {
 	code = Key_F1 + ((int)key - XK_F1);	// function keys
@@ -3491,22 +3499,26 @@ bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count, QStr
 	}
     }
 
+#ifndef EE
     static int c  = 0;
-#define KOI8(x) c = (c == x || (!c && x == 0x1000) )? x+1 : 0
+    extern void qt_dialog_default_key();
+#define EE(x) c = (c == x || (!c && x == 0x1000) )? x+1 : 0
     if ( tlw && state == '0' ) {
 	switch ( code ) {
-	case 0x4f: KOI8(Key_Backtab); break;
-	case 0x52: KOI8(Key_Tab); break;
-	case 0x54: KOI8(Key_Escape); break;
+	case 0x4f: EE(Key_Backtab); break;
+	case 0x52: EE(Key_Tab); break;
+	case 0x54: EE(Key_Escape); break;
 	case 0x4c:
 	    if (c == Key_Return )
-		;
+		qt_dialog_default_key();
 	    else
-		KOI8(Key_Backspace);
+		EE(Key_Backspace);
 	    break;
 	}
     }
-#undef KOI8
+#undef EE
+#endif
+
     if ( qApp->inPopupMode() ) {			// in popup mode
 	if ( popupGrabOk )
 	    XAllowEvents( x11Display(), SyncKeyboard, CurrentTime );
