@@ -71,7 +71,7 @@
     to exchange datagrams without specifying the receiver for each
     datagram.
 
-    The \l network/broadcastclient and \l network/broadcastserver examples
+    The \l network/broadcastsender and \l network/broadcastreceiver examples
     illustrate how to use QUdpSocket in applications.
 
     \sa QTcpSocket
