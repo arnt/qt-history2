@@ -1323,10 +1323,10 @@ class QBoxLayoutData
 {
 public:
     QBoxLayoutData() :geomArray(0), hfwWidth(-1),dirty(TRUE) {}
-    
-    void setDirty() { 
-	delete geomArray; 
-	geomArray=0; 
+
+    void setDirty() {
+	delete geomArray;
+	geomArray=0;
 	hfwWidth=hfwHeight=-1;
 	dirty = TRUE;
     }
@@ -1426,7 +1426,7 @@ private:
   </ul>
 
   Use insertItem() to insert a layout item at a specified position.
-  
+
   QBoxLayout also includes two margin widths: The border width and the
   inter-box width.  The border width is the width of the reserved
   space along each of the QBoxLayout's four sides.  The intra-widget
@@ -1579,7 +1579,7 @@ int QBoxLayout::heightForWidth( int w ) const
 {
     if ( data->dirty || w != data->hfwWidth ) {
 	QBoxLayout *that = (QBoxLayout*)this;
-	if ( data->dirty ) 
+	if ( data->dirty )
 	    that->setupGeom();
 	return that->calcHfw( w );
     }
@@ -1638,15 +1638,15 @@ void QBoxLayout::setGeometry( const QRect &s )
 	    for ( int i = 0; i < n; i++ ) {
 		QBoxLayoutItem *box = data->list.at(i);	
 		if ( box->item->hasHeightForWidth() )
-		    a[i].sizeHint = a[i].minimumSize = 
+		    a[i].sizeHint = a[i].minimumSize =
 				    box->item->heightForWidth( s.width() );
-	    }	    
+	    }	
 	}
 	
 	qGeomCalc( a, 0, n, pos, space, spacing() );
 	for ( int i = 0; i < n; i++ ) {
 	    QBoxLayoutItem *box = data->list.at(i);	
-	    
+	
 	    switch ( dir ) {
 	    case LeftToRight:
 		box->item->setGeometry( QRect( a[i].pos, s.y(),
@@ -1726,7 +1726,7 @@ void QBoxLayout::addSpacing( int size )
     //hack in QLayoutArray: spacers do not get insideSpacing
 
     QLayoutItem *b;
-    if ( horz( dir ) ) 
+    if ( horz( dir ) )
 	b = new QSpacerItem( size, 0, QSizePolicy::Fixed,
 			     QSizePolicy::Minimum );
     else
@@ -1825,8 +1825,8 @@ void QBoxLayout::addWidget( QWidget *widget, int stretch, int alignment )
 
 
 /*!
-  Searches for \a w in this layout (not including child layouts). 
-  
+  Searches for \a w in this layout (not including child layouts).
+
   Returns the index of \a w, or -1 if \a w is not found.
 */
 
@@ -1837,7 +1837,7 @@ int QBoxLayout::findWidget( QWidget* w )
 	if ( data->list.at(i)->item->widget() == w )
 	    return i;
     }
-    return -1;    
+    return -1;
 }
 
 
@@ -1866,9 +1866,31 @@ bool QBoxLayout::setStretchFactor( QWidget *w, int stretch )
 
 
 /*!
+  Sets the stretch factor for the layout \a l to \a stretch and returns
+  TRUE, if \a l is found in this layout (not including child layouts).
+
+  Returns FALSE if \a l is not found.
+*/
+
+bool QBoxLayout::setStretchFactor( QLayout *l, int stretch )
+{
+    QListIterator<QBoxLayoutItem> it( data->list );
+    QBoxLayoutItem *box;
+    while ( (box=it.current()) != 0 ) {
+	++it;
+	if ( box->item->layout() == l ) {
+	    box->stretch = stretch;
+	    invalidate();
+	    return TRUE;
+	}
+    }
+    return FALSE;
+}
+
+/*!
   Sets the direction of this layout to \a direction.
-  
-  
+
+
 */
 
 void QBoxLayout::setDirection( Direction direction )
@@ -1890,7 +1912,7 @@ void QBoxLayout::setDirection( Direction direction )
 		    if ( sp->expanding() == QSizePolicy::NoDirection ) {
 			//spacing or strut
 			QSize s = sp->sizeHint();
-			sp->changeSize( s.height(), s.width(), 
+			sp->changeSize( s.height(), s.width(),
 		horz(direction) ? QSizePolicy::Fixed:QSizePolicy::Minimum,
 		horz(direction) ? QSizePolicy::Minimum:QSizePolicy::Fixed );
 					
@@ -1940,12 +1962,12 @@ void QBoxLayout::setupGeom()
 
     int space = 0;
     data->hasHfw = FALSE;
-    
+
     delete data->geomArray;
     int n = data->list.count();
     data->geomArray = new QArray<QLayoutStruct>( n );
     QArray<QLayoutStruct> &a = *data->geomArray;
-    
+
     for ( int i = 0; i < n; i++ ) {
 	QBoxLayoutItem *box = data->list.at(i);	
 	QSize max = box->item->maximumSize();
@@ -1991,16 +2013,16 @@ void QBoxLayout::setupGeom()
 	a[i].stretch = box->stretch;
 	data->hasHfw = data->hasHfw || box->item->hasHeightForWidth();
     }
-    
-    data->expanding =  (QSizePolicy::ExpandData) 
+
+    data->expanding =  (QSizePolicy::ExpandData)
 		       (( horexp ? QSizePolicy::Horizontal : 0 )
 			| ( verexp ? QSizePolicy::Vertical : 0 ) );
 
-    
+
     data->minSize = QSize(minw,minh);
     data->maxSize = QSize(maxw,maxh);
     data->sizeHint = QSize(hintw,hinth);
-    
+
     data->maxSize = data->maxSize.expandedTo( data->minSize );
     data->sizeHint = data->sizeHint.expandedTo( data->minSize )
 		     .boundedTo( data->maxSize );

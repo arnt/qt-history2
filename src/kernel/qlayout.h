@@ -126,7 +126,7 @@ public:
 
     Direction direction() const { return dir; }
     void setDirection( Direction );
-    
+
     void addSpacing( int size );
     void addStretch( int stretch = 0 );
     void addWidget( QWidget *, int stretch = 0, int alignment = 0 );
@@ -134,6 +134,7 @@ public:
     void addStrut( int );
 
     bool setStretchFactor( QWidget*, int stretch );
+    bool setStretchFactor( QLayout *l, int stretch );
 
     QSize sizeHint() const;
     QSize minimumSize() const;
