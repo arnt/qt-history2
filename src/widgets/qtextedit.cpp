@@ -4220,8 +4220,6 @@ void QTextEdit::zoomTo( int size )
 }
 
 /*!
-    \internal
-
    QTextEdit is optimized for large amounts text. One of its
    optimizations is to format only the visible text, formatting the rest
    on demand, e.g. as the user scrolls, so you don't usually need to
