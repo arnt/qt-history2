@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#126 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#127 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -20,7 +20,7 @@
 #include "qpmcache.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#126 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#127 $");
 
 
 // Motif style parameters
@@ -337,7 +337,6 @@ static QString accel_str( int k )
 QPopupMenu::QPopupMenu( QWidget *parent, const char *name )
     : QTableView( 0, name, WType_Popup )
 {
-    initMetaObject();
 #if defined(CHECK_RANGE)
     if ( parent != 0 )
 	warning( "QPopupMenu: Parent must be null" );

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtableview.cpp#68 $
+** $Id: //depot/qt/main/src/widgets/qtableview.cpp#69 $
 **
 ** Implementation of QTableView class
 **
@@ -20,7 +20,7 @@
 #include "qdrawutl.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtableview.cpp#68 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtableview.cpp#69 $");
 
 
 const int sbDim = 16;
@@ -133,8 +133,6 @@ void CornerSquare::paintEvent( QPaintEvent * )
 QTableView::QTableView( QWidget *parent, const char *name, WFlags f )
     : QFrame( parent, name, f, FALSE )
 {
-    initMetaObject();
-
     nRows		 = nCols      = 0;	// zero rows/cols
     xCellOffs		 = yCellOffs  = 0;	// zero offset
     xCellDelta		 = yCellDelta = 0;	// zero cell offset

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbt.cpp#100 $
+** $Id: //depot/qt/main/src/widgets/qpushbt.cpp#101 $
 **
 ** Implementation of QPushButton class
 **
@@ -18,7 +18,7 @@
 #include "qpmcache.h"
 #include "qbitmap.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbt.cpp#100 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbt.cpp#101 $");
 
 
 /*!
@@ -66,7 +66,6 @@ QPushButton::QPushButton( const char *text, QWidget *parent,
 
 void QPushButton::init()
 {
-    initMetaObject();
     autoDefButton = defButton = lastDown = lastDef = lastEnabled = FALSE;
 }
 

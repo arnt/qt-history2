@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#220 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#221 $
 **
 ** Implementation of QWidget class
 **
@@ -29,7 +29,7 @@
 #endif
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#220 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#221 $");
 
 
 /*!
@@ -595,7 +595,6 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
     : QObject( parent, name ), QPaintDevice( PDT_WIDGET ),
       pal( *qApp->palette() )			// use application palette
 {
-    initMetaObject();				// initialize meta object
     isWidget = TRUE;				// is a widget
     winid = 0;					// default attributes
     flags = f;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#92 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#93 $
 **
 ** Implementation of QButton widget class
 **
@@ -19,7 +19,7 @@
 #include "qpmcache.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#92 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#93 $");
 
 
 static const int autoRepeatDelay  = 300;
@@ -200,7 +200,6 @@ static int shortcutChar( const char *str )
 QButton::QButton( QWidget *parent, const char *name )
     : QWidget( parent, name )
 {
-    initMetaObject();
     bpixmap    = 0;
     toggleBt   = FALSE;				// button is not on/off
     buttonDown = FALSE;				// button is up

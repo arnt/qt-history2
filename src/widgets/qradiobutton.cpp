@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#67 $
+** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#68 $
 **
 ** Implementation of QRadioButton class
 **
@@ -18,7 +18,7 @@
 #include "qbitmap.h"
 #include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qradiobutton.cpp#67 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qradiobutton.cpp#68 $");
 
 
 /*!
@@ -85,7 +85,6 @@ QRadioButton::QRadioButton( const char *text, QWidget *parent,
 
 void QRadioButton::init()
 {
-    initMetaObject();
     setToggleButton( TRUE );
     noHit = FALSE;
     if ( parentWidget()->inherits("QButtonGroup") ) {

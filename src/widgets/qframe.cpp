@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.cpp#47 $
+** $Id: //depot/qt/main/src/widgets/qframe.cpp#48 $
 **
 ** Implementation of QFrame widget class
 **
@@ -14,7 +14,7 @@
 #include "qdrawutl.h"
 #include "qframe.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qframe.cpp#47 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qframe.cpp#48 $");
 
 
 /*!
@@ -98,7 +98,6 @@ QFrame::QFrame( QWidget *parent, const char *name, WFlags f,
 		bool allowLines )
     : QWidget( parent, name, f )
 {
-    initMetaObject();
     frect  = QRect( 0, 0, 0, 0 );
     fstyle = NoFrame;
     lwidth = 1;

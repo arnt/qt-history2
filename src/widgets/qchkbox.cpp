@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qchkbox.cpp#65 $
+** $Id: //depot/qt/main/src/widgets/qchkbox.cpp#66 $
 **
 ** Implementation of QCheckBox class
 **
@@ -15,7 +15,7 @@
 #include "qpixmap.h"
 #include "qpmcache.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qchkbox.cpp#65 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qchkbox.cpp#66 $");
 
 
 /*!
@@ -56,7 +56,6 @@ static void getSizeOfBitmap( int gs, int *w, int *h )
 QCheckBox::QCheckBox( QWidget *parent, const char *name )
 	: QButton( parent, name )
 {
-    initMetaObject();
     setToggleButton( TRUE );
 }
 
@@ -69,7 +68,6 @@ QCheckBox::QCheckBox( QWidget *parent, const char *name )
 QCheckBox::QCheckBox( const char *text, QWidget *parent, const char *name )
 	: QButton( parent, name )
 {
-    initMetaObject();
     setText( text );
     setToggleButton( TRUE );
 }

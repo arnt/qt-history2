@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#127 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#128 $
 **
 ** Implementation of QListBox widget class
 **
@@ -17,7 +17,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#127 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#128 $");
 
 Q_DECLARE(QListM, QListBoxItem);
 
@@ -397,7 +397,6 @@ static void cleanupListbox()
 QListBox::QListBox( QWidget *parent, const char *name, WFlags f )
     : QTableView( parent, name, f )
 {
-    initMetaObject();
     doDrag	  = TRUE;
     doAutoScroll  = TRUE;
     current	  = -1;
@@ -432,12 +431,20 @@ QListBox::QListBox( QWidget *parent, const char *name, WFlags f )
     }
 }
 
+#if QT_VERSION == 200
+#error "Remove QListBox pointer."
+#endif
+
+static QListBox * changedListBox = 0;
+
 /*!
   Destroys the list box.  Deletes all list box items.
 */
 
 QListBox::~QListBox()
 {
+    if ( changedListBox == this )
+	changedListBox = 0;
     goingDown = TRUE;
     clearList();
     if ( qlb_maxLenDict )
@@ -1842,11 +1849,6 @@ void QListBox::clearSelection()
     
     
 
-#if QT_VERSION == 200
-#error "Remove QListBox pointer."
-#endif
-
-static QListBox * changedListBox = 0;
 
 /*!  If \a lazy is FALSE, maybe emit the changed() signal.  If \a lazy
   is TRUE, note that it's to be sent out at some later time.

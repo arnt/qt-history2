@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#64 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#65 $
 **
 ** Implementation of QLabel widget class
 **
@@ -18,7 +18,7 @@
 #include "qmovie.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlabel.cpp#64 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlabel.cpp#65 $");
 
 
 #if QT_VERSION == 200
@@ -106,7 +106,6 @@ static void cleanupLabel()
 QLabel::QLabel( QWidget *parent, const char *name, WFlags f )
     : QFrame( parent, name, f )
 {
-    initMetaObject();
     lpixmap    = 0;
     align      = AlignLeft | AlignVCenter | ExpandTabs;
     extraMargin= -1;
@@ -127,7 +126,6 @@ QLabel::QLabel( QWidget *parent, const char *name, WFlags f )
 QLabel::QLabel( const char *text, QWidget *parent, const char *name, WFlags f )
 	: QFrame( parent, name, f ), ltext(text)
 {
-    initMetaObject();
     lpixmap    = 0;
     align      = AlignLeft | AlignVCenter | ExpandTabs;
     extraMargin= -1;
@@ -164,7 +162,6 @@ QLabel::QLabel( QWidget *buddy,  const char *text,
 		QWidget *parent, const char *name, WFlags f )
     : QFrame( parent, name, f ), ltext("")
 {
-    initMetaObject();
     lpixmap    = 0;
     align      = ShowPrefix | AlignLeft | AlignVCenter | ExpandTabs;
     extraMargin= -1;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtimer.cpp#27 $
+** $Id: //depot/qt/main/src/kernel/qtimer.cpp#28 $
 **
 ** Implementation of QTimer class
 **
@@ -13,7 +13,7 @@
 #include "qsignal.h"
 #include "qobjcoll.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qtimer.cpp#27 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qtimer.cpp#28 $");
 
 
 /*!
@@ -79,7 +79,6 @@ const int INV_TIMER = -1;			// invalid timer id
 QTimer::QTimer( QObject *parent, const char *name )
     : QObject( parent, name )
 {
-    initMetaObject();
     id = INV_TIMER;
 }
 

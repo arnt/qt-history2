@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindow.cpp#10 $
+** $Id: //depot/qt/main/src/kernel/qwindow.cpp#11 $
 **
 ** Implementation of QWindow class
 **
@@ -12,7 +12,7 @@
 #include "qwindow.h"
 #include "qpixmap.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwindow.cpp#10 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwindow.cpp#11 $");
 
 
 /*!
@@ -37,7 +37,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qwindow.cpp#10 $");
 QWindow::QWindow( QWidget *parent, const char *name, WFlags f )
     : QWidget( parent, name, f )
 {
-    initMetaObject();
+    // nothing
 }
 
 /*!

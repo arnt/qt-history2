@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#97 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#98 $
 **
 ** Implementation of QMenuBar class
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#97 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#98 $");
 
 
 /*!
@@ -106,7 +106,6 @@ static const int motifItemVMargin	= 4;	// menu item ver text margin
 QMenuBar::QMenuBar( QWidget *parent, const char *name )
     : QFrame( parent, name, 0, FALSE )
 {
-    initMetaObject();
     isMenuBar = TRUE;
     autoaccel = 0;
     irects    = 0;

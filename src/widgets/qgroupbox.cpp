@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#28 $
+** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#29 $
 **
 ** Implementation of QGroupBox widget class
 **
@@ -12,7 +12,7 @@
 #include "qgrpbox.h"
 #include "qpainter.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qgroupbox.cpp#28 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qgroupbox.cpp#29 $");
 
 
 /*!
@@ -56,7 +56,6 @@ QGroupBox::QGroupBox( const char *title, QWidget *parent, const char *name )
 
 void QGroupBox::init()
 {
-    initMetaObject();
     int fs;
     switch ( style() ) {
 	case WindowsStyle:

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#106 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#107 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -21,7 +21,7 @@
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlineedit.cpp#106 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlineedit.cpp#107 $");
 
 //### How to provide new member variables while keeping binary compatibility:
 #if QT_VERSION == 200
@@ -163,7 +163,6 @@ static int showLastPartOffset( char *s, const QFontMetrics &fm, int width )
 QLineEdit::QLineEdit( QWidget *parent, const char *name )
     : QWidget( parent, name )
 {
-    initMetaObject();
     pm = new QPixmap( width(), height() );   // used for flicker-free update
     CHECK_PTR( pm );
     cursorPos	  = 0;

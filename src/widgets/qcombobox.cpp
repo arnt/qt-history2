@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#113 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#114 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -23,7 +23,7 @@
 #include "qlined.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#113 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#114 $");
 
 
 /*!
@@ -214,8 +214,7 @@ static inline bool checkIndex( const char *method, int count, int index )
 QComboBox::QComboBox( QWidget *parent, const char *name )
     : QWidget( parent, name )
 {
-    initMetaObject();
-    d		             = new QComboData;
+    d = new QComboData;
     if ( style() == WindowsStyle ) {
 	d->listBox           = new QListBox( 0, 0, WType_Popup );
 	d->listBox->setAutoScrollBar( FALSE );
@@ -262,7 +261,6 @@ QComboBox::QComboBox( QWidget *parent, const char *name )
 QComboBox::QComboBox( bool rw, QWidget *parent, const char *name )
     : QWidget( parent, name )
 {
-    initMetaObject();
     d = new QComboData;
     d->listBox = new QListBox( 0, 0, WType_Popup );
     d->listBox->setAutoScrollBar( FALSE );

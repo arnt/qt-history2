@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnum.cpp#46 $
+** $Id: //depot/qt/main/src/widgets/qlcdnum.cpp#47 $
 **
 ** Implementation of QLCDNumber class
 **
@@ -14,7 +14,7 @@
 #include "qpainter.h"
 #include <stdio.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlcdnum.cpp#46 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlcdnum.cpp#47 $");
 
 
 /*!
@@ -279,7 +279,6 @@ QLCDNumber::QLCDNumber( uint numDigits, QWidget *parent, const char *name )
 
 void QLCDNumber::init()
 {
-    initMetaObject();
     setFrameStyle( QFrame::Box | QFrame::Raised );
     val	       = 0;
     base       = DEC;

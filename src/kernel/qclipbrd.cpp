@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipbrd.cpp#12 $
+** $Id: //depot/qt/main/src/kernel/qclipbrd.cpp#13 $
 **
 ** Implementation of QClipboard class
 **
@@ -13,7 +13,7 @@
 #include "qapp.h"
 #include "qpixmap.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qclipbrd.cpp#12 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qclipbrd.cpp#13 $");
 
 
 /*!
@@ -65,7 +65,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qclipbrd.cpp#12 $");
 QClipboard::QClipboard( QObject *parent, const char *name )
     : QObject( parent, name )
 {
-    initMetaObject();
+    // nothing
 }
 
 /*!

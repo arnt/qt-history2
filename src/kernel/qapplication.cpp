@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#118 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#119 $
 **
 ** Implementation of QApplication class
 **
@@ -15,7 +15,7 @@
 #include "qwidcoll.h"
 #include "qpalette.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication.cpp#118 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication.cpp#119 $");
 
 
 /*!
@@ -208,7 +208,6 @@ QApplication::QApplication( Display* dpy )
 
 void QApplication::initialize( int argc, char **argv )
 {
-    initMetaObject();
     app_argc = argc;
     app_argv = argv;
     quit_now = FALSE;

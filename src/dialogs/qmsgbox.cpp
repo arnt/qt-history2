@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#55 $
+** $Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#56 $
 **
 ** Implementation of QMessageBox class
 **
@@ -16,7 +16,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#55 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#56 $");
 
 
 // Message box icons, from page 210 of the Windows style guide.
@@ -410,7 +410,6 @@ QMessageBox::~QMessageBox()
 
 void QMessageBox::init( int button0, int button1, int button2 )
 {
-    initMetaObject();
     label = new QLabel( this, "text" );
     CHECK_PTR( label );
     label->setAlignment( AlignLeft );
