@@ -1624,12 +1624,21 @@ void QPainter::drawArc( int x, int y, int w, int h, int a, int alen )
 	ra1 = ra2;
 	ra2 = t;
     }
+    if ( cpen.width() > 3 ) {
+	// work around a bug in the windows Arc method that
+	// sometimes draw wrong cap styles.
+	if ( w % 2 )
+	    w += 1;
+	if ( h % 2 )
+	    h += 1;
+    }
+
     double w2 = 0.5*w;
     double h2 = 0.5*h;
-    int xS = qRound(w2 + (cos(ra1)*w) + x);
-    int yS = qRound(h2 - (sin(ra1)*h) + y);
-    int xE = qRound(w2 + (cos(ra2)*w) + x);
-    int yE = qRound(h2 - (sin(ra2)*h) + y);
+    int xS = qRound(w2 + (cos(ra1)*w2) + x);
+    int yS = qRound(h2 - (sin(ra1)*h2) + y);
+    int xE = qRound(w2 + (cos(ra2)*w2) + x);
+    int yE = qRound(h2 - (sin(ra2)*h2) + y);
     if ( QABS(alen) < 90*16 ) {
 	if ( (xS == xE) && (yS == yE) ) {
 	    // don't draw a whole circle
