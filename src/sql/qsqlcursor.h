@@ -54,8 +54,8 @@ class Q_EXPORT QSqlCursor : public QSqlRecord, public QSqlQuery
 {
 public:
     QSqlCursor( const QString & name = QString::null, bool autopopulate = TRUE, QSqlDatabase* db = 0 );
-    QSqlCursor( const QSqlCursor & s );
-    QSqlCursor& operator=( const QSqlCursor& s );
+    QSqlCursor( const QSqlCursor & other );
+    QSqlCursor& operator=( const QSqlCursor& other );
     ~QSqlCursor();
 
     enum Mode {
@@ -101,7 +101,7 @@ public:
 
 protected:
     void              afterSeek();
-    bool              exec( const QString & str );
+    bool              exec( const QString & sql );
 
     virtual void      primeInsert( QSqlRecord* buf );
     virtual void      primeUpdate( QSqlRecord* buf );

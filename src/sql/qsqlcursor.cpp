@@ -68,10 +68,63 @@ QString qOrderByClause( const QSqlIndex & i, const QString& prefix = QString::nu
     return str;
 }
 
-/*!
-  Constructs a cursor on database \a db.  If \a autopopulate is TRUE, the \a name of the cursor
-  must correspond to an existing table or view name in the database so that field information
-  can be automatically created..
+/*! \class QSqlCursor qsqlcursor.h
+
+    \brief Manipulates SQL tables or views.
+
+    \module sql
+    
+    A 'cursor' is a database record (see \l QSqlRecord) which
+    coresponds to a table or view within a SQL database.  Cursors
+    contain a list of fields, whose values can be manipulated directly
+    through code, or indirectly when moving the cursor to different
+    records within the database.
+    
+    To position to a valid record, cursors can be navigated in the
+    same way as a \l QSqlQuery.  Once positioned on a valid record,
+    data can be retrieved from the record fields directly.  In
+    addition, for cursors which correspond to tables or views that
+    contain primary indexes, data can be edited directly using the
+    edit functions insert(), update() and del().
+    
+    To edit a database record, manipulate the cursor's edit buffer
+    (see insertBuffer() and updateBuffer()).  The edit buffer can then
+    be inserted or updated in the database.
+    
+*/
+
+/*! \enum QSqlCursor::Mode
+
+  This enum type describes how QSqlCursor operates on records in the
+  database.
+  
+  The currently defined values are: 
+  <ul>
+
+  <li> \c ReadOnly - the cursor can only select records from the
+  database.
+
+  <li> \c Insert - the cursor can insert records into the database.
+
+  <li> \c Update - the cursor can update records in the database.
+  
+  <li> \c Delete - the cursor can delete records from the database.
+  
+  <li> \c Writable - the cursor can insert, update and delete records
+  in the database.
+
+  </ul>
+
+*/
+
+/*!  Constructs a cursor on database \a db.  If \a autopopulate is
+  TRUE (the default), the \a name of the cursor must correspond to an
+  existing table or view name in the database so that field
+  information can be automatically created.  The cursor is created
+  with an initial mode of QSqlCursor::Writable (meaning that records
+  can be inserted, updated or deleted using the cursor).
+  
+  \sa setName() setMode()
 
 */
 
@@ -85,21 +138,25 @@ QSqlCursor::QSqlCursor( const QString & name, bool autopopulate, QSqlDatabase* d
 }
 
 /*!
-  Constructs a copy of cursor \a s.
+  Constructs a copy of \a other.
 
 */
 
-QSqlCursor::QSqlCursor( const QSqlCursor & s )
-    : QSqlRecord( s ), QSqlQuery( s )
+QSqlCursor::QSqlCursor( const QSqlCursor & other )
+    : QSqlRecord( other ), QSqlQuery( other )
 {
-    d = new QSqlCursorPrivate( s.d->nm );
-    d->lastAt = s.d->lastAt;
-    d->nm = s.d->nm;
-    d->srt = s.d->srt;
-    d->ftr = s.d->ftr;
-    d->priIndx = s.d->priIndx;
-    setMode( s.mode() );
+    d = new QSqlCursorPrivate( other.d->nm );
+    d->lastAt = other.d->lastAt;
+    d->nm = other.d->nm;
+    d->srt = other.d->srt;
+    d->ftr = other.d->ftr;
+    d->priIndx = other.d->priIndx;
+    setMode( other.mode() );
 }
+
+/*! Destroys the object and frees any allocated resources.
+
+*/
 
 QSqlCursor::~QSqlCursor()
 {
@@ -107,23 +164,23 @@ QSqlCursor::~QSqlCursor()
 }
 
 /*!
-  Sets the cursor equal to \a s.
+  Sets the cursor equal to \a other.
 
 */
 
-QSqlCursor& QSqlCursor::operator=( const QSqlCursor& s )
+QSqlCursor& QSqlCursor::operator=( const QSqlCursor& other )
 {
-    QSqlRecord::operator=( s );
-    QSqlQuery::operator=( s );
+    QSqlRecord::operator=( other );
+    QSqlQuery::operator=( other );
     if ( d )
 	delete d;
-    d = new QSqlCursorPrivate( s.d->nm );
-    d->lastAt = s.d->lastAt;
-    d->nm = s.d->nm;
-    d->srt = s.d->srt;
-    d->ftr = s.d->ftr;
-    d->priIndx = s.d->priIndx;
-    setMode( s.mode() );
+    d = new QSqlCursorPrivate( other.d->nm );
+    d->lastAt = other.d->lastAt;
+    d->nm = other.d->nm;
+    d->srt = other.d->srt;
+    d->ftr = other.d->ftr;
+    d->priIndx = other.d->priIndx;
+    setMode( other.mode() );
     return *this;
 }
 
@@ -145,9 +202,9 @@ QString QSqlCursor::filter() const
     return d->ftr;
 }
 
-/*!  Sets the name of the cursor to \a name.  If autopopulate is TRUE,
-  the \a name must correspond to a valid table or view name in the
-  database.
+/*!  Sets the name of the cursor to \a name.  If autopopulate is TRUE
+  (the default), the \a name must correspond to a valid table or view
+  name in the database.
 
 */
 void QSqlCursor::setName( const QString& name, bool autopopulate )
@@ -158,7 +215,7 @@ void QSqlCursor::setName( const QString& name, bool autopopulate )
 	*this = d->editBuffer;
 	d->priIndx = driver()->primaryIndex( name );
 #ifdef QT_CHECK_RANGE
-	if ( !count() )
+	if ( isEmpty() )
 	    qWarning("QSqlCursor::setName: unable to build record, does '%s' exist?", name.latin1() );
 #endif
     }
@@ -173,8 +230,7 @@ QString QSqlCursor::name() const
     return d->nm;
 }
 
-/*
-  \reimpl
+/*! \reimp
 */
 
 QString QSqlCursor::toString( const QString& prefix ) const
@@ -204,10 +260,10 @@ QSqlRecord & QSqlCursor::operator=( const QSqlRecord & list )
     return QSqlRecord::operator=( list );
 }
 
-/*!  Returns the primary index associated with the cursor, or an empty
-  index if there is no primary index.  If \a prime is TRUE, the index
-  fields are set with the current value of the cursor fields they
-  correspond to.
+/*!  Returns the primary index associated with the cursor as defined
+  in the database, or an empty index if there is no primary index.  If
+  \a prime is TRUE, the index fields are set to the current value of
+  the cursor fields they correspond to.
 
 */
 
@@ -222,9 +278,9 @@ QSqlIndex QSqlCursor::primaryIndex( bool prime ) const
     return d->priIndx;
 }
 
-/*!  Sets the primary index associated with the cursor.  Note that this
-  index must be able to identify a unique record within the underlying
-  table or view.
+/*!  Sets the primary index associated with the cursor.  Note that
+  this index must contain fields which identify a unique record within
+  the underlying database table or view.
 
 */
 
@@ -233,10 +289,10 @@ void QSqlCursor::setPrimaryIndex( const QSqlIndex& idx )
     d->priIndx = idx;
 }
 
-/*!  Returns an index compromised of \a fieldNames, or an empty index if
-  the field names do not exist. The index is returned with all field
-  values primed with the values of the cursor fields they correspond to.
 
+/*!  Returns an index composed of \a fieldNames.  Note that all field
+  names must exist in the cursor, otherwise an empty index is
+  returned.
 */
 
 QSqlIndex QSqlCursor::index( const QStringList& fieldNames ) const
@@ -253,10 +309,7 @@ QSqlIndex QSqlCursor::index( const QStringList& fieldNames ) const
     return idx;
 }
 
-/*!  Returns an index compromised of a single \a fieldName, or an empty index if
-  the field name does not exist. The index is returned with the field
-  value primed with the value of the cursor field it corresponds to.
-
+/*!  \overload
 */
 
 QSqlIndex QSqlCursor::index( const QString& fieldName ) const
@@ -268,8 +321,7 @@ QSqlIndex QSqlCursor::index( const QString& fieldName ) const
     return idx;
 }
 
-/*
-
+/*! \overload
 */
 
 QSqlIndex QSqlCursor::index( const char* fieldName ) const
@@ -277,44 +329,24 @@ QSqlIndex QSqlCursor::index( const char* fieldName ) const
     return index( QString( fieldName ) );
 }
 
-/*!
-  Selects all fields in the cursor.  The order in which the rows are returned
-  is database-specific.
-
-*/
-
-bool QSqlCursor::select()
-{
-    return select( "*", QSqlIndex() );
-}
-
-/*!
-  Selects all fields in the cursor.  The data is returned in the order specified
-  by the index \a sort.
-
-*/
-
-bool QSqlCursor::select( const QSqlIndex& sort )
-{
-    return select( "*", sort );
-}
-
-/*!
-  Selects all fields in the cursor matching the filter criteria \a filter.  The
-  data is returned in the order specified by the index \a sort.  Note that the
-  \a filter string will be placed in the generated WHERE clause, but should not
-  include the 'WHERE' keyword.  As a special case, using "*" as the filter string
-  will retrieve all records.  For example:
+/*!  Selects all fields in the cursor from the database matching the
+  filter criteria \a filter.  The data is returned in the order
+  specified by the index \a sort.  Note that the \a filter string will
+  be placed in the generated WHERE clause, but should not include the
+  'WHERE' keyword.  As a special case, using "*" as the filter string
+  will retrieve all records.  The cursor is initially positioned to an
+  invalid row.  To move to a valid row, use seek(), first(), last(),
+  prev() or next(). For example:
 
   \code
-  QSqlCursor myCursor(db, "MyTable");
-  myCursor.select("deptID=10"); // select everything in department 10
+  QSqlCursor myCursor( "Employee" );
+  myCursor.select( "deptno=10" ); // select everything in department 10
   ...
-  myCursor.select("*"); // select all records in cursor
+  myCursor.select( "*" );         // select all records in cursor
   ...
-  myCursor.select("deptID>10");  // select other departments
+  myCursor.select( "deptno>10" ); // select other departments
   ...
-  myCursor.select(); // select all records again
+  myCursor.select();              // select all records again
   \endcode
 
 */
@@ -336,18 +368,48 @@ bool QSqlCursor::select( const QString & filter, const QSqlIndex & sort )
     return exec( str );
 }
 
-/*!
-  Selects all fields in the cursor matching the filter index \a filter.  The
-  data is returned in the order specified by the index \a sort.  Note that the
-  \a filter index fields that are in the cursor will use the current value of the cursor
-  data fields when generating the WHERE clause.  This method is useful, for example,
-  for retrieving data based upon a table's primary index:
+/*!  Selects all fields in the cursor from the database.  The order in
+  which the rows are returned is undefined.  The cursor is initially
+  positioned to an invalid row.  To move to a valid row, use seek(),
+  first(), last(), prev() or next().
+
+*/
+
+bool QSqlCursor::select()
+{
+    return select( "*", QSqlIndex() );
+}
+
+/*!  \overload
+  
+  Selects all fields in the cursor from the database.  The data is
+  returned in the order specified by the index \a sort. The cursor is
+  initially positioned to an invalid row.  To move to a valid row, use
+  seek(), first(), last(), prev() or next().
+
+*/
+
+bool QSqlCursor::select( const QSqlIndex& sort )
+{
+    return select( "*", sort );
+}
+
+/*! \overload
+  
+  Selects all fields in the cursor matching the filter index \a
+  filter.  The data is returned in the order specified by the index \a
+  sort.  Note that the \a filter index fields that are in the cursor
+  will use the current value of the cursor data fields when generating
+  the WHERE clause.  The cursor is initially positioned to an invalid
+  row.  To move to a valid row, use seek(), first(), last(), prev() or
+  next().  This method is useful, for example, for retrieving data
+  based upon a table's primary index:
 
   \code
-  QSqlCursor myCursor(db, "MyTable");
-  QSqlIndex pk = db->primaryIndex("MyTable");
+  QSqlCursor myCursor( "Employee" );
+  QSqlIndex pk = myCursor.primaryIndex();
   myCursor["id"] = 10;
-  myCursor.select( pk ); // generates "select ... from MyTable where id=10;"
+  myCursor.select( pk, pk ); // generates "select ... from Employee where id=10 order by id;"
   ...
   \endcode
 
@@ -357,17 +419,15 @@ bool QSqlCursor::select( const QSqlIndex & filter, const QSqlIndex & sort )
     return select( fieldEqualsValue( this, d->nm, "and", filter ), sort );
 }
 
-/*!
-  Sets the cursor mode to \a mode.  This value can be an OR'ed
-  combination of QSqlCursor Modes.
-
-  For example,
+/*!  Sets the cursor mode to \a mode.  This value can be an OR'ed
+  combination of QSqlCursor::Mode values. The default mode for a
+  cursor is QSqlCursor::Writable.
 
   \code
-  QSqlCursor cursor( "emp" );
+  QSqlCursor cursor( "Employee" );
   cursor.setMode( QSqlCursor::Writeable ); // allow insert/update/delete
   ...
-  cursor.setMode( QSqlCursor::Insert | QSqlCursor::Update ); // allow inserts and updates
+  cursor.setMode( QSqlCursor::Insert | QSqlCursor::Update ); // allow inserts and updates only
   ...
   cursor.setMode( QSqlCursor::ReadOnly ); // no inserts/updates/deletes allowed
 
@@ -379,10 +439,9 @@ void QSqlCursor::setMode( int mode )
     d->md = mode;
 }
 
-/*
-   Returns the current cursor mode.
+/*! Returns the current cursor mode.
 
-   \sa setMode
+   \sa setMode()
 */
 
 int QSqlCursor::mode() const
@@ -390,7 +449,7 @@ int QSqlCursor::mode() const
     return d->md;
 }
 
-/* Sets field \a name to \a calculated.  If the field \a name does not
+/*! Sets field \a name to \a calculated.  If the field \a name does not
   exist, nothing happens.  The value of calculated fields are set by
   the calculateField() virtual function.  Calculated fields are not
   generated in SQL statements sent to the database.
@@ -406,7 +465,7 @@ void QSqlCursor::setCalculated( const QString& name, bool calculated )
     setGenerated( name, !calculated );
 }
 
-/* Returns true if the field \a name is calculated, otherwise FALSE is
+/*! Returns true if the field \a name is calculated, otherwise FALSE is
   returned. If the field \a name does not exist, FALSE is returned.
 */
 
@@ -417,10 +476,11 @@ bool QSqlCursor::isCalculated( const QString& name ) const
     return d->calcFields[ position( name ) ];
 }
 
-/*
-   Returns TRUE if the cursor is read-only, FALSE otherwise.
+/*! Returns TRUE if the cursor is read-only, FALSE otherwise.  The
+  default is FALSE.  Read-only cursors cannot be edited using
+  insert(), update() or del().
 
-   \sa setMode
+   \sa setMode()
 */
 
 bool QSqlCursor::isReadOnly() const
@@ -428,10 +488,9 @@ bool QSqlCursor::isReadOnly() const
     return d->md == 0;
 }
 
-/*
-   Returns TRUE if the cursor will perform inserts, FALSE otherwise.
+/*! Returns TRUE if the cursor will perform inserts, FALSE otherwise.
 
-   \sa setMode
+   \sa setMode()
 */
 
 bool QSqlCursor::canInsert() const
@@ -440,10 +499,9 @@ bool QSqlCursor::canInsert() const
 }
 
 
-/*
-   Returns TRUE if the cursor will perform updates, FALSE otherwise.
+/*! Returns TRUE if the cursor will perform updates, FALSE otherwise.
 
-   \sa setMode
+   \sa setMode()
 */
 
 bool QSqlCursor::canUpdate() const
@@ -451,19 +509,15 @@ bool QSqlCursor::canUpdate() const
     return ( ( d->md & Update ) == Update ) ;
 }
 
-/*
-   Returns TRUE if the cursor will perform updates, FALSE otherwise.
+/*! Returns TRUE if the cursor will perform updates, FALSE otherwise.
 
-   \sa setMode
+   \sa setMode()
 */
-
 
 bool QSqlCursor::canDelete() const
 {
     return ( ( d->md & Update ) == Update ) ;
 }
-
-
 
 QString qMakeFieldValue( const QSqlDriver* driver, const QString& prefix, QSqlField* field, const QString& op = "=" )
 {
@@ -504,13 +558,13 @@ QString QSqlCursor::fieldEqualsValue( QSqlRecord* rec, const QString& prefix, co
     return filter;
 }
 
-/*!  Returns a pointer to the internal record buffer used for
-  inserting records.  All previous pointers returned by insertBuffer()
-  are invalidated, and should not be used.  If \a clearValues is TRUE
-  (the default), the insert record buffer values are cleared,
-  otherwise the buffer will contain the field values of the current
-  cursor buffer.  If \a prime is TRUE (the default), the buffer is
-  primed using primeInsert().
+/*!  Returns a pointer to the internal edit buffer.  All previous
+  pointers returned by insertBuffer() or updateBuffer() are
+  invalidated, and should not be used.  If \a clearValues is TRUE (the
+  default), the insert record buffer values are cleared, otherwise the
+  buffer will contain the field values of the current cursor buffer.
+  If \a prime is TRUE (the default), the buffer is primed using
+  primeInsert().
 
   \sa primeInsert()
 
@@ -526,12 +580,12 @@ QSqlRecord* QSqlCursor::insertBuffer( bool clearValues, bool prime )
     return &d->editBuffer;
 }
 
-/*!
-
-  Protected virtual function provided for derived classes to 'prime'
-  the field values of an insert record buffer (for example, to
+/*!  Protected virtual function provided for derived classes to
+  'prime' the field values of an insert record buffer (for example, to
   correctly initialize auto-incremented numeric fields).  The default
   implementation does nothing.
+  
+  \sa insert()
 
 */
 
@@ -540,14 +594,14 @@ void QSqlCursor::primeInsert( QSqlRecord* )
 
 }
 
-/*!  Inserts the current contents of the cursor's insert record buffer
+/*!  Inserts the current contents of the cursor's edit record buffer
   into the database, if the cursor allows inserts.  If \a invalidate
-  is TRUE, the current cursor can no longer be navigated (i.e., any
-  prior select statements will no longer be active or valid).  Returns
-  the number of rows affected by the insert.  For error information,
-  use lastError().
+  is TRUE (the default), the cursor can no longer be navigated (i.e.,
+  any prior select statements will no longer be active or positioned
+  on a valid record).  Returns the number of rows affected by the
+  insert.  For error information, use lastError().
 
-  \sa setMode
+  \sa setMode() lastError()
 */
 
 int QSqlCursor::insert( bool invalidate )
@@ -576,12 +630,13 @@ int QSqlCursor::insert( bool invalidate )
     return apply( str, invalidate );
 }
 
-/*!  Returns a pointer to the internal record buffer used for updating
-  record.  All previous pointers returned by updateBuffer() are
-  invalidated.  If \a copyCursor is TRUE, the value of the current
-  cursor buffer is copied into the update buffer.  If \a prime is
-  TRUE, the buffer is primed using primeUpdate().
+/*!  Returns a pointer to the internal edit buffer.  All previous
+  pointers returned by updateBuffer() and insertBuffer() are
+  invalidated.  If \a copyCursor is TRUE (the default), the value of
+  the cursor buffer is copied into the edit buffer.  If \a prime is
+  TRUE (the default), the buffer is primed using primeUpdate().
 
+  \sa primeUpdate()
 */
 
 QSqlRecord* QSqlCursor::updateBuffer( bool copyCursor, bool prime )
@@ -595,10 +650,8 @@ QSqlRecord* QSqlCursor::updateBuffer( bool copyCursor, bool prime )
     return &d->editBuffer;
 }
 
-/*!
-
-  Protected virtual function provided for derived classes to 'prime'
-  the field values of an update record buffer.  The default
+/*!  Protected virtual function provided for derived classes to
+  'prime' the field values of an update record buffer.  The default
   implementation does nothing.
 
 */
@@ -608,15 +661,51 @@ void QSqlCursor::primeUpdate( QSqlRecord* )
 
 }
 
+/*!  Updates the database with the current contents of the edit
+  buffer.  Only records which meet the filter criteria specified by
+  the cursor's primary index are updated.  If the cursor does not
+  contain a primary index, no update is performed and 0 is returned.
+  If \a invalidate is TRUE (the default), the current cursor can no
+  longer be navigated (i.e., any prior select statements will no
+  longer be active or positioned on a valid record). Returns the
+  number of records which were updated, or 0 if there was an error
+  (for example, if the cursor has no primary index). For error
+  information, use lastError().  For example:
 
-/*!  Updates the database with the current contents of the update
-  record buffer, using the specified \a filter.  Only records which
-  meet the filter criteria are updated, otherwise all records in the
-  table are updated.  If \a invalidate is TRUE, the current cursor can
-  no longer be navigated (i.e., any prior select statements will no
-  longer be active or valid). Returns the number of records which were
-  updated.  For error information, use lastError().
+  \code
 
+  QSqlCursor empCursor ( "Employee" );
+  empCursor.select( "id=10");
+  if ( empCursor.next() ) {
+      QSqlRecord* buf = empCursor.updateBuffer();
+      buf->setValue( "firstName", "Dave" );
+      empCursor.update();  // update employee name using primary index
+  }
+
+  \endcode
+
+  \sa setMode() lastError()
+*/
+
+int QSqlCursor::update( bool invalidate )
+{
+    if ( !primaryIndex().count() )
+	return 0;
+    return update( fieldEqualsValue( &d->editBuffer, "", "and", primaryIndex() ), invalidate );
+}
+
+/*!  \overload
+  
+  Updates the database with the current contents of the cursor edit
+  buffer, using the specified \a filter.  Only records which meet the
+  filter criteria are updated, otherwise all records in the table are
+  updated.  If \a invalidate is TRUE (the default), the cursor can no
+  longer be navigated (i.e., any prior select statements will no
+  longer be active or positioned on a valid record). Returns the
+  number of records which were updated.  For error information, use
+  lastError().
+
+  \sa setMode() lastError()
 */
 
 int QSqlCursor::update( const QString & filter, bool invalidate )
@@ -635,70 +724,16 @@ int QSqlCursor::update( const QString & filter, bool invalidate )
     return apply( str, invalidate );
 }
 
-/*!  Updates the database with the current contents of the update
-  buffer.  Only records which meet the filter criteria specified by
-  the cursor's primary index are updated.  If the cursor does not
-  contain a primary index, no update is performed.  If \a invalidate
-  is TRUE, the current cursor can no longer be navigated (i.e., any
-  prior select statements will no longer be active or valid). Returns
-  the number of records which were updated, or -1 if there was an
-  error (for example, if the cursor has no primary index). For error
-  information, use lastError().  For example:
-
-  \code
-
-  QSqlCursor empCursor ( "Employee" );
-  empCursor.select( "id=10");
-  if ( empCursor.next() ) {
-      QSqlRecord* buf = empCursor.updateBuffer();
-      buf->setValue( "firstName", "Dave" );
-      empCursor.update();  // update employee name using primary index
-  }
-
-  \endcode
-
-*/
-
-int QSqlCursor::update( bool invalidate )
-{
-    if ( !primaryIndex().count() )
-	return -1;
-    return update( fieldEqualsValue( &d->editBuffer, "", "and", primaryIndex() ), invalidate );
-}
-
-/*!  Deletes the record from the cursor using the filter \a filter.
-  Only records which meet the filter criteria specified by the filter
-  are deleted.  Returns the number of records which were updated. If
-  \a invalidate is TRUE, the current cursor can no longer be navigated
-  (i.e., any prior select statements will no longer be active or
-  valid). For error information, use lastError().
-
-*/
-
-int QSqlCursor::del( const QString & filter, bool invalidate )
-{
-    if ( ( d->md & Delete ) != Delete )
-	return FALSE;
-    int k = count();
-    if( k == 0 ) return 0;
-    QString str = "delete from " + name();
-    if ( filter.length() )
- 	str+= " where " + filter;
-    str += ";";
-    if ( invalidate )
-	clearValues();
-    return apply( str, invalidate );
-}
-
-/*!  Deletes the current record from the cursor using the cursor's
-  primary index.  Only records which meet the filter criteria
-  specified by the cursor's primary index are updated.  If the cursor
+/*!  Deletes the current cursor record from the database using the
+  cursor's primary index.  Only records which meet the filter criteria
+  specified by the cursor's primary index are delete.  If the cursor
   does not contain a primary index, or if the cursor is not positioned
-  on a valid record, no delete is performed. If \a invalidate is TRUE,
-  the current cursor can no longer be navigated (i.e., any prior
-  select statements will no longer be active or valid). Returns the
-  number of records which were deleted.  For error information, use
-  lastError().  For example:
+  on a valid record, no delete is performed and 0 is returned. If \a
+  invalidate is TRUE (the default), the current cursor can no longer
+  be navigated (i.e., any prior select statements will no longer be
+  active or positioned on a valid record). Returns the number of
+  records which were deleted.  For error information, use lastError().
+  For example:
 
   \code
 
@@ -709,13 +744,42 @@ int QSqlCursor::del( const QString & filter, bool invalidate )
 
   \endcode
 
+  \sa setMode() lastError()
 */
 
 int QSqlCursor::del( bool invalidate )
 {
     if ( !isActive() || !isValid() ||  !primaryIndex().count() )
-	return -1;
+	return 0;
     return del( fieldEqualsValue( this, "", "and", primaryIndex() ), invalidate );
+}
+
+/*! \overload
+  
+   Deletes the current cursor record from the database using the
+   filter \a filter.  Only records which meet the filter criteria are
+   deleted.  Returns the number of records which were deleted. If \a
+   invalidate is TRUE (the default), the current cursor can no longer
+   be navigated (i.e., any prior select statements will no longer be
+   active or positioned on a valid record). For error information, use
+   lastError().
+
+   \sa setMode() lastError()
+*/
+
+int QSqlCursor::del( const QString & filter, bool invalidate )
+{
+    if ( ( d->md & Delete ) != Delete )
+	return 0;
+    int k = count();
+    if( k == 0 ) return 0;
+    QString str = "delete from " + name();
+    if ( filter.length() )
+ 	str+= " where " + filter;
+    str += ";";
+    if ( invalidate )
+	clearValues();
+    return apply( str, invalidate );
 }
 
 /*
@@ -737,31 +801,34 @@ int QSqlCursor::apply( const QString& q, bool invalidate )
     return ar;
 }
 
-/*!
-
-  \reimpl
-
-  Executes the SQL query \a str.  Returns TRUE of the cursor is
+/*!  Executes the SQL query \a str.  Returns TRUE of the cursor is
   active, otherwise returns FALSE.
 
 */
-bool QSqlCursor::exec( const QString & str )
+bool QSqlCursor::exec( const QString & sql )
 {
-    QSqlQuery::exec( str );
+    QSqlQuery::exec( sql );
     return isActive();
 }
 
+/*! Protected virtual function which is called whenever a field needs
+  to be calculated.  Derived classes should reimplement this function
+  and return the appropriate value for field \a name.  The default
+  implementation returns and invalid QVariant.
+  
+  \sa setCalculated()
+*/
+  
 QVariant QSqlCursor::calculateField( const QString& )
 {
     return QVariant();
 }
 
-/*
-  \internal
-
-  Ensure fieldlist is synced with query.
+/*! \internal 
+   Ensure fieldlist is synced with query.
 
 */
+
 void QSqlCursor::sync()
 {
     if ( isActive() && isValid() && d->lastAt != at() ) {
@@ -784,8 +851,8 @@ void QSqlCursor::sync()
     }
 }
 
-/*!
-  \reimpl
+/*! \reimp
+  
 */
 
 void QSqlCursor::afterSeek()
@@ -793,8 +860,7 @@ void QSqlCursor::afterSeek()
     sync();
 }
 
-/*!
-  \reimpl
+/*! \reimp
 */
 
 QVariant QSqlCursor::value( int i )
@@ -802,8 +868,7 @@ QVariant QSqlCursor::value( int i )
     return QSqlRecord::value( i );
 }
 
-/*!
-  \reimpl
+/*! \reimp
 */
 
 QVariant QSqlCursor::value( const QString& name )
