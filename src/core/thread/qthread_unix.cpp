@@ -129,9 +129,9 @@ void QThreadPrivate::finish(void *arg)
     Returns the thread handle of the currently executing thread.
 
     \warning The handle returned by this function is used for internal
-    purposes and should \e not be used in any application code. On
-    Windows, the returned value is a pseudo handle for the current
-    thread, and it cannot be used for numerical comparison.
+    purposes and should not be used in any application code. On
+    Windows, the returned value is a pseudo-handle for the current
+    thread that cannot be used for numerical comparison.
 */
 Qt::HANDLE QThread::currentThreadId()
 {
@@ -141,8 +141,8 @@ Qt::HANDLE QThread::currentThreadId()
 
 /*!
     Returns a pointer to the currently executing QThread. If the
-    current thread was not started using the QThread API (e.g. the GUI
-    thread), this function returns zero.
+    current thread was not started using the QThread API (e.g., the
+    GUI thread), this function returns zero.
 */
 QThread *QThread::currentThread()
 {
@@ -171,8 +171,9 @@ static void thread_sleep(struct timespec *ti)
 }
 
 /*!
-    System independent sleep. This causes the current thread to sleep
-    for \a secs seconds.
+    Forces the current thread to sleep for \a secs seconds.
+
+    \sa msleep(), usleep()
 */
 void QThread::sleep(unsigned long secs)
 {
@@ -185,8 +186,9 @@ void QThread::sleep(unsigned long secs)
 }
 
 /*!
-    System independent sleep. This causes the current thread to sleep
-    for \a msecs milliseconds
+    Causes the current thread to sleep for \a msecs milliseconds.
+
+    \sa sleep(), usleep()
 */
 void QThread::msleep(unsigned long msecs)
 {
@@ -201,8 +203,9 @@ void QThread::msleep(unsigned long msecs)
 }
 
 /*!
-    System independent sleep. This causes the current thread to sleep
-    for \a usecs microseconds
+    Causes the current thread to sleep for \a usecs microseconds.
+
+    \sa sleep(), msleep()
 */
 void QThread::usleep(unsigned long usecs)
 {
@@ -218,15 +221,15 @@ void QThread::usleep(unsigned long usecs)
 
 /*!
     Begins execution of the thread by calling run(), which should be
-    reimplemented in a QThread subclass to contain your code.  The
+    reimplemented in a QThread subclass to contain your code. The
     operating system will schedule the thread according to the \a
-    priority argument.
+    priority parameter.
 
     If you try to start a thread that is already running, this
-    function will wait until the thread has finished and then
-    restart the thread.
+    function will wait until the thread has finished and then restart
+    the thread.
 
-    \sa Priority
+    \sa run(), terminate()
 */
 void QThread::start(Priority priority)
 {
@@ -337,27 +340,28 @@ void QThread::start(Priority priority)
 }
 
 /*!
-    This function terminates the execution of the thread. The thread
-    may or may not be terminated immediately, depending on the
-    operating systems scheduling policies. Use QThread::wait()
-    after terminate() for synchronous termination.
+    Terminates the execution of the thread. The thread may or may not
+    be terminated immediately, depending on the operating systems
+    scheduling policies. Use QThread::wait() after terminate() for
+    synchronous termination.
 
     When the thread is terminated, all threads waiting for the thread
     to finish will be woken up.
 
-    \warning This function is dangerous, and its use is discouraged.
-    The thread can be terminate at any point in its code path.  Threads
-    can be terminated while modifying data.  There is no chance for
-    the thread to cleanup after itself, unlock any held mutexes, etc.
-    In short, use this function only if \e absolutely necessary.
+    \warning This function is dangerous and its use is discouraged.
+    The thread can be terminate at any point in its code path.
+    Threads can be terminated while modifying data. There is no
+    chance for the thread to cleanup after itself, unlock any held
+    mutexes, etc. In short, use this function only if absolutely
+    necessary.
 
     Termination can be explicitly enabled or disabled by calling
-    QThread::setTerminationEnabled().  Calling this function while
-    termination is disabled results in the termination being deferred,
-    until termination is re-enabled.  See the documentation of
-    QThread::setTerminationEnabled() for more information.
+    QThread::setTerminationEnabled(). Calling this function while
+    termination is disabled results in the termination being
+    deferred, until termination is re-enabled. See the documentation
+    of QThread::setTerminationEnabled() for more information.
 
-    \sa QThread::setTerminationEnabled()
+    \sa setTerminationEnabled()
 */
 void QThread::terminate()
 {
@@ -376,21 +380,23 @@ void QThread::terminate()
 }
 
 /*!
-    A thread calling this function will block until either of these
-    conditions is met:
+    Blocks the thread until either of these conditions is met:
 
     \list
-    \i The thread associated with this QThread object has finished
+    \o The thread associated with this QThread object has finished
        execution (i.e. when it returns from \l{run()}). This function
        will return true if the thread has finished. It also returns
        true if the thread has not been started yet.
-    \i \a time milliseconds has elapsed. If \a time is ULONG_MAX (the
+    \o \a time milliseconds has elapsed. If \a time is ULONG_MAX (the
         default), then the wait will never timeout (the thread must
         return from \l{run()}). This function will return false if the
         wait timed out.
     \endlist
 
-    This provides similar functionality to the POSIX \c pthread_join() function.
+    This provides similar functionality to the POSIX \c
+    pthread_join() function.
+
+    \sa sleep(), terminate()
 */
 bool QThread::wait(unsigned long time)
 {
@@ -410,7 +416,7 @@ bool QThread::wait(unsigned long time)
 
 /*!
     Enables or disables termination of the current thread based on the
-    \a enabled parameter.  The thread must have been started by
+    \a enabled parameter. The thread must have been started by
     QThread.
 
     When \a enabled is false, termination is disabled.  Future calls
@@ -424,7 +430,7 @@ bool QThread::wait(unsigned long time)
     the calling thread \e immediately.  Note that this function will
     not return in this case.
 
-    \sa QThread::terminate()
+    \sa terminate()
 */
 void QThread::setTerminationEnabled(bool enabled)
 {

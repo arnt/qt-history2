@@ -36,21 +36,24 @@ struct QWaitConditionPrivate {
 
 /*!
     \class QWaitCondition
-    \threadsafe
     \brief The QWaitCondition class provides a condition variable for
     synchronizing threads.
+
+    \threadsafe
 
     \ingroup thread
     \ingroup environment
 
-    QWaitConditions allow a thread to tell other threads that some
+    QWaitCondition allows a thread to tell other threads that some
     sort of condition has been met. One or many threads can block
     waiting for a QWaitCondition to set a condition with wakeOne() or
     wakeAll(). Use wakeOne() to wake one randomly selected event or
-    wakeAll() to wake them all. For example, let's suppose that we
-    have three tasks that should be performed whenever the user
-    presses a key. Each task could be split into a thread, each of
-    which would have a \l{QThread::run()}{run()} body like this:
+    wakeAll() to wake them all.
+
+    For example, let's suppose that we have three tasks that should
+    be performed whenever the user presses a key. Each task could be
+    split into a thread, each of which would have a
+    \l{QThread::run()}{run()} body like this:
 
     \code
         forever {
@@ -72,8 +75,8 @@ struct QWaitConditionPrivate {
         }
     \endcode
 
-    The order the three threads are woken up in is undefined. Also,
-    if some or all of the threads are still in \c do_something() when
+    The order in which the three threads are woken up is undefined.
+    Also, if some of the threads are still in \c do_something() when
     the key is pressed, they won't be woken up (since they're not
     waiting on the condition variable) and so the task will not be
     performed for that key press. This issue can be solve using a

@@ -30,8 +30,9 @@ static void report_error(int code, const char *where, const char *what)
 
 /*!
     \class QMutex
-    \threadsafe
     \brief The QMutex class provides access serialization between threads.
+
+    \threadsafe
 
     \ingroup thread
     \ingroup environment
@@ -125,14 +126,17 @@ static void report_error(int code, const char *where, const char *what)
     lock() in the same place will block until the thread that got the
     lock calls unlock(). A non-blocking alternative to lock() is
     tryLock().
+
+    \sa QMutexLocker, QReadWriteLock, QSemaphore, QWaitCondition
 */
 
 /*!
     Constructs a new mutex. The mutex is created in an unlocked state.
+
     A recursive mutex is created if \a recursive is true (the
-    default); a normal mutex is created if \a recursive is false. With
-    a recursive mutex, a thread can lock the same mutex multiple times
-    and it will not be unlocked until a corresponding number of
+    default); a normal mutex is created if \a recursive is false.
+    With a recursive mutex, a thread can lock the same mutex multiple
+    times and it will not be unlocked until a corresponding number of
     unlock() calls have been made.
 */
 QMutex::QMutex(bool recursive)
@@ -147,8 +151,7 @@ QMutex::QMutex(bool recursive)
 /*!
     Destroys the mutex.
 
-    \warning If you destroy a mutex that still holds a lock the
-    resultant behavior is undefined.
+    \warning Destroying a locked mutex may result in undefined behavior.
 */
 QMutex::~QMutex()
 {
@@ -158,8 +161,8 @@ QMutex::~QMutex()
 }
 
 /*!
-    Attempt to lock the mutex. If another thread has locked the mutex
-    then this call will \e block until that thread has unlocked it.
+    Locks the mutex. If another thread has locked the mutex then this
+    call will block until that thread has unlocked it.
 
     \sa unlock()
 */
@@ -187,10 +190,9 @@ void QMutex::lock()
 }
 
 /*!
-    Attempt to lock the mutex. If the lock was obtained, this function
+    Attempts to lock the mutex. If the lock was obtained, this function
     returns true. If another thread has locked the mutex, this
-    function returns false, instead of waiting for the mutex to become
-    available, i.e. it does not block.
+    function returns false immediately.
 
     If the lock was obtained, the mutex must be unlocked with unlock()
     before another thread can successfully lock it.
@@ -213,8 +215,7 @@ bool QMutex::tryLock()
 /*!
     Unlocks the mutex. Attempting to unlock a mutex in a different
     thread to the one that locked it results in an error. Unlocking a
-    mutex that is not locked results in undefined behavior (varies
-    between different Operating Systems' thread implementations).
+    mutex that is not locked results in undefined behavior.
 
     \sa lock()
 */

@@ -34,27 +34,45 @@ static void report_error(int code, const char *where, const char *what)
 
     \threadsafe
 
-    \group thread
-    \group environment
+    \ingroup thread
+    \ingroup environment
 
-    It is useful for synchronizing multithreaded access to resources
-    that support multiple readers, but only one writer.
+    A read-write lock is a synchronization tool for protecting
+    resources that can be accessed for reading and writing. This type
+    of lock is useful if you want to allow multiple threads to have
+    simultaneous read-only access, but as soon as one thread wants to
+    write to the resource, all other threads must be blocked until
+    the writing is complete.
 
-    The lock is optimized for situations where there are many concurrent
-    reads, and writing occurs infrequently. Writers are prioritized in front
-    of readers, in the sense that readers attemting to optain the lock will
-    yield to writers attemting to optain the lock.
-*/
+    In many cases, QReadWriteLock is a direct competitor to QMutex.
+    QReadWriteLock is a good choice if there are many concurrent
+    reads and writing occurs infrequently.
 
-/*!
-    \enum QReadWriteLock::AccessMode
+    Example:
 
-    This enum describes the different access types that a thread can specify
-    when requesting the mutex.
+    \code
+        QReadWriteLock lock;
 
-    \value ReadAccess The thread wants to perform read-operations.
+        void ReaderThread::run()
+        {
+            ...
+            lock.lockForRead();
+            read_file();
+            lock.unlock();
+            ...
+        }
 
-    \value WriteAccess The thread wants to perform write-operations.
+        void WriterThread::run()
+        {
+            ...
+            lock.lockForWrite();
+            write_file();
+            lock.unlock();
+            ...
+        }
+    \endcode
+
+    \sa QReadLocker, QWriteLocker, QMutex, QSemaphore
 */
 
 /*!
@@ -73,10 +91,10 @@ QReadWriteLock::QReadWriteLock()
 }
 
 /*!
-    Destroys the QReadWriteMutex object.
+    Destroys the QReadWriteLock object.
 
-    \warning If you destroy a read/write mutex that has accesses in use
-    the resultant behavior is undefined.
+    \warning Destroying a read-write lock that is in use may result
+    in undefined behavior.
 */
 QReadWriteLock::~QReadWriteLock()
 {
@@ -87,7 +105,7 @@ QReadWriteLock::~QReadWriteLock()
 }
 
 /*!
-    Attempts to lock for reading. This function will block the current
+    Locks the lock for reading. This function will block the current
     thread if another thread has locked for writing.
 
     \sa unlock() lockForWrite() tryLockForRead()
@@ -115,7 +133,7 @@ void QReadWriteLock::lockForRead()
 }
 
 /*!
-    Attempt to lock for reading. If the lock was obtained, this
+    Attempts to lock for reading. If the lock was obtained, this
     function returns true, otherwise it returns false instead of
     waiting for the lock to become available, i.e. it does not block.
 
@@ -146,7 +164,7 @@ bool QReadWriteLock::tryLockForRead()
 }
 
  /*!
-    Attempts to lock for writing. This function will block the current
+    Locks the lock for writing. This function will block the current
     thread if any thread has locked for reading or writing.
 
     \sa unlock() lockForRead() tryLockForWrite()
@@ -174,9 +192,8 @@ void QReadWriteLock::lockForWrite()
 }
 
 /*!
-    Attempt to lock for write. If the lock was obtained, this function
-    returns true, otherwise it returns false instead of waiting for
-    the lock to become available, i.e. it does not block.
+    Attempts to lock for writing. If the lock was obtained, this
+    function returns true; otherwise, it returns false immediately.
 
     The lock attempt will fail if any thread has locked for reading or
     writing.

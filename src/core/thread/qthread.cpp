@@ -93,8 +93,9 @@ QThread *QThreadPrivate::threadForId(int id)
 
 /*!
     \class QThread
-    \threadsafe
     \brief The QThread class provides platform-independent threads.
+
+    \threadsafe
 
     \ingroup thread
     \ingroup environment
@@ -147,14 +148,14 @@ QThread *QThreadPrivate::threadForId(int id)
     require the event loop, such as QTimer and QTcpSocket, in the
     thread.
 
-    In extreme cases, you may wish to forcibly terminate() an
-    executing thread.  However, doing so is dangerous and discouraged.
+    In extreme cases, you may want to forcibly terminate() an
+    executing thread. However, doing so is dangerous and discouraged.
     Please read the documentation for terminate() and
     setTerminationEnabled() for detailed information.
 
     The static functions currentThreadId() and currentThread() return
     identifiers for the currently executing thread. The former
-    returns a platform specific id for the thread; the latter returns
+    returns a platform specific ID for the thread; the latter returns
     a QThread pointer.
 
     QThread also provides platform independent sleep functions in
@@ -162,25 +163,31 @@ QThread *QThreadPrivate::threadForId(int id)
     msleep() for millisecond resolution, and usleep() for microsecond
     resolution.
 
-    \sa {threads.html}{Thread Support in Qt}
+    \sa {threads.html}{Thread Support in Qt}, QThreadStorage, QMutex, QSemaphore, QWaitCondition
 */
 
 /*!
     \fn void QThread::started()
 
     This signal is emitted when the thread starts executing.
+
+    \sa finished(), terminated()
 */
 
 /*!
     \fn void QThread::finished()
 
     This signal is emitted when the thread has finished executing.
+
+    \sa started(), terminated()
 */
 
 /*!
     \fn void QThread::terminated()
 
     This signal is emitted when the thread is terminated.
+
+    \sa started(), finished()
 */
 
 /*!
@@ -204,12 +211,14 @@ QThread *QThreadPrivate::threadForId(int id)
     \value TimeCriticalPriority scheduled as often as possible.
 
     \value InheritPriority use the same priority as the creating
-           thread.  This is the default.
+           thread. This is the default.
 */
 
 /*!
-    Constructs a new thread with the given \a parent. Note that the
-    thread does not begin executing until start() is called.
+    Constructs a new thread with the given \a parent. The thread does
+    not begin executing until start() is called.
+
+    \sa start()
 */
 QThread::QThread(QObject *parent)
     : QObject(*(new QThreadPrivate), parent)
@@ -223,10 +232,11 @@ QThread::QThread(QObject *parent)
 /*!
     Destroys the thread.
 
-    Note that deleting a QThread object will not stop the execution of
-    the thread it represents. Deleting a running QThread (i.e.
-    finished() returns false) will probably result in a program crash.
-    You can wait() on a thread to make sure that it has finished.
+    Note that deleting a QThread object will not stop the execution
+    of the thread it represents. Deleting a running QThread (i.e.
+    finished() returns false) will probably result in a program
+    crash. You can wait() on a thread to make sure that it has
+    finished.
 */
 QThread::~QThread()
 {
@@ -244,6 +254,8 @@ QThread::~QThread()
 
 /*!
     Returns true is the thread is finished; otherwise returns false.
+
+    \sa isRunning()
 */
 bool QThread::isFinished() const
 {
@@ -254,6 +266,8 @@ bool QThread::isFinished() const
 
 /*!
     Returns true if the thread is running; otherwise returns false.
+
+    \sa isFinished()
 */
 bool QThread::isRunning() const
 {
@@ -263,7 +277,7 @@ bool QThread::isRunning() const
 }
 
 /*!
-    Set the maximum stack size for the thread to \a stackSize. If \a
+    Sets the maximum stack size for the thread to \a stackSize. If \a
     stackSize is greater than zero, the maximum stack size is set to
     \a stackSize bytes, otherwise the maximum stack size is
     automatically determined by the operating system.
@@ -271,6 +285,8 @@ bool QThread::isRunning() const
     \warning Most operating systems place minimum and maximum limits
     on thread stack sizes. The thread will fail to start if the stack
     size is outside these limits.
+
+    \sa stackSize()
 */
 void QThread::setStackSize(uint stackSize)
 {
@@ -284,6 +300,8 @@ void QThread::setStackSize(uint stackSize)
 /*!
     Returns the maximum stack size for the thread (if set with
     setStackSize()); otherwise returns zero.
+
+    \sa setStackSize()
 */
 uint QThread::stackSize() const
 {
@@ -315,7 +333,7 @@ int QThread::exec()
     Tells the thread's event loop to exit with a return code.
 
     After calling this function, the thread leaves the event loop and
-    returns from the call to QEventLoop::exec().  The
+    returns from the call to QEventLoop::exec(). The
     QEventLoop::exec() function returns \a returnCode.
 
     By convention, a \a returnCode of 0 means success, any non-zero value
@@ -356,7 +374,7 @@ void QThread::quit()
 /*!
     \fn void QThread::run()
 
-    This method is pure virtual, and must be implemented in derived
+    This method is pure virtual and must be implemented in derived
     classes in order to do useful work. Returning from this method
     will end the execution of the thread.
 
@@ -365,7 +383,7 @@ void QThread::quit()
 
 
 /*! \internal
-  Initializes the QThread system.
+    Initializes the QThread system.
 */
 void QThread::initialize()
 {
@@ -381,7 +399,7 @@ void QThread::initialize()
 
 
 /*! \internal
-  Cleans up the QThread system.
+    Cleans up the QThread system.
 */
 void QThread::cleanup()
 {
@@ -400,4 +418,3 @@ void QThread::cleanup()
 
     Use isRunning() instead.
 */
-

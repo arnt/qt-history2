@@ -18,8 +18,9 @@
 
 /*!
     \class QSemaphore
-    \threadsafe
     \brief The QSemaphore class provides a general counting semaphore.
+
+    \threadsafe
 
     \ingroup thread
     \ingroup environment
@@ -102,7 +103,7 @@ QSemaphore::QSemaphore(int n)
 /*!
     Destroys the semaphore.
 
-    \warning Destroying a semaphore that is in use results in
+    \warning Destroying a semaphore that is in use may result in
     undefined behavior.
 */
 QSemaphore::~QSemaphore()
@@ -160,7 +161,7 @@ int QSemaphore::available() const
 }
 
 /*!
-    Try to acquire \c n resources guarded by the semaphore and
+    Tries to acquire \c n resources guarded by the semaphore and
     returns true on success. If available() < \a n, this call
     immediately returns false without acquiring any resources.
 
