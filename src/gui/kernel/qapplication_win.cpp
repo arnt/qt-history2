@@ -955,6 +955,7 @@ void QApplicationPrivate::createEventDispatcher()
   Platform specific QApplication members
  *****************************************************************************/
 
+#ifdef QT3_SUPPORT
 void QApplication::setMainWidget(QWidget *mainWidget)
 {
     QApplicationPrivate::main_widget = mainWidget;
@@ -962,6 +963,7 @@ void QApplication::setMainWidget(QWidget *mainWidget)
 	&& QApplicationPrivate::main_widget->testAttribute(Qt::WA_SetWindowIcon))
         setWindowIcon(QApplicationPrivate::main_widget->windowIcon());
 }
+#endif
 
 #ifndef QT_NO_CURSOR
 

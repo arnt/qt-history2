@@ -1860,6 +1860,7 @@ static int parseGeometry(const char* string,
 }
 
 
+#ifdef QT3_SUPPORT
 void QApplication::setMainWidget(QWidget *mainWidget)
 {
     QApplicationPrivate::main_widget = mainWidget;
@@ -1897,7 +1898,7 @@ void QApplication::setMainWidget(QWidget *mainWidget)
         }
     }
 }
-
+#endif
 
 /*****************************************************************************
   QApplication cursor stack

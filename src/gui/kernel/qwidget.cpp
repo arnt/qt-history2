@@ -957,10 +957,12 @@ QWidget::~QWidget()
     w->d_func()->focus_next = d_func()->focus_next;
     d_func()->focus_next = 0;
 
-    if (qApp->mainWidget() == this) {        // reset main widget
-        qApp->setMainWidget(0);
+#ifdef QT3_SUPPORT
+    if (QApplicationPrivate::main_widget == this) {        // reset main widget
+        QApplicationPrivate::main_widget = 0;
         qApp->quit();
     }
+#endif
 
     clearFocus();
 
@@ -4091,6 +4093,11 @@ void QWidget::setVisible(bool visible)
         if (testAttribute(Qt::WA_WState_ExplicitShowHide) && !testAttribute(Qt::WA_WState_Hidden))
             return;
 
+#ifdef Q_WS_X11
+        if (windowType() == Qt::Window)
+            QApplicationPrivate::applyX11SpecificCommandLineArguments(this);
+#endif
+
         bool wasResized = testAttribute(Qt::WA_Resized);
         Qt::WindowStates initialWindowState = windowState();
 
@@ -4218,7 +4225,6 @@ void QWidgetPrivate::hideChildren(bool spontaneous)
     }
 }
 
-
 bool QWidgetPrivate::close_helper(CloseMode mode)
 {
     if (data.is_closing)
@@ -4226,9 +4232,12 @@ bool QWidgetPrivate::close_helper(CloseMode mode)
 
     Q_Q(QWidget);
     data.is_closing = 1;
-    bool isMain = qApp->mainWidget() == q;
-    bool checkLastWindowClosed = q->isWindow() && !(q->windowType() == Qt::Popup);
     bool wasDeleted = false;
+
+#ifdef QT3_SUPPORT
+    bool isMain = (QApplicationPrivate::main_widget == q);
+#endif
+    bool checkLastWindowClosed = (q->isWindow() && q->windowType() != Qt::Popup);
 
     if (mode != CloseNoEvent) {
         QPointer<QWidget> that = q;
@@ -4242,18 +4251,22 @@ bool QWidgetPrivate::close_helper(CloseMode mode)
             data.is_closing = 0;
             return false;
         }
-        if (!wasDeleted && !q->isExplicitlyHidden())
-            q->hide();
     }
 
-    if (checkLastWindowClosed
-         && qApp->receivers(SIGNAL(lastWindowClosed()))) {
-        /* if there is no non-withdrawn top level window left (except
-           the desktop, popups, or dialogs with parents), we emit the
-           lastWindowClosed signal */
-        QWidgetList list = qApp->topLevelWidgets();
-        QWidget *widget = 0;
-        for (int i = 0; !widget && i < list.size(); ++i) {
+    if (!wasDeleted && !q->isExplicitlyHidden())
+        q->hide();
+
+#ifdef QT3_SUPPORT
+    if (isMain)
+        qApp->quit();
+#endif
+    if (checkLastWindowClosed) {
+        /* if there is no non-withdrawn top level window left
+           (except the desktop, popups, or dialogs/tools with
+           parents), we emit the lastWindowClosed signal */
+        QWidgetList list = QApplication::topLevelWidgets();
+        bool lastWindowClosed = true;
+        for (int i = 0; i < list.size(); ++i) {
             QWidget *w = list.at(i);
 #ifdef Q_WS_MAC
             bool qt_mac_is_macsheet(const QWidget *); //qwidget_mac.cpp
@@ -4261,17 +4274,19 @@ bool QWidgetPrivate::close_helper(CloseMode mode)
             if(qt_mac_is_macdrawer(w) || qt_mac_is_macdrawer(w))
                 continue;
 #endif
-            if (!w->isExplicitlyHidden()
-                && !(w->windowType() == Qt::Desktop)
-                && !(w->windowType() == Qt::Popup)
-                && (!((w->windowType() == Qt::Dialog) || (w->windowType() == Qt::Tool)) || !w->parentWidget()))
-                widget = w;
+            if (w->isExplicitlyHidden())
+                continue;
+            Qt::WindowType type = w->windowType();
+            if (type == Qt::Desktop || type == Qt::Popup
+                || ((type == Qt::Dialog || type == Qt::Tool) && !w->parentWidget()))
+                continue;
+            lastWindowClosed = false;
+            break;
         }
-        if (widget == 0)
-            emit qApp->lastWindowClosed();
+        if (lastWindowClosed)
+            QApplicationPrivate::emitLastWindowClosed();
     }
-    if (isMain)
-        qApp->quit();
+
     if (!wasDeleted) {
         data.is_closing = 0;
         if (q->testAttribute(Qt::WA_DeleteOnClose)) {

@@ -59,6 +59,8 @@ static QString *qt_style_override = 0;
 
 QApplication::Type qt_appType=QApplication::Tty;
 
+bool QApplicationPrivate::quitOnLastWindowClosed = true;
+
 QApplicationPrivate::QApplicationPrivate(int &argc, char **argv, QApplication::Type type)
     : QCoreApplicationPrivate(argc, argv)
 {
@@ -67,6 +69,8 @@ QApplicationPrivate::QApplicationPrivate(int &argc, char **argv, QApplication::T
 #ifndef QT_NO_SESSIONMANAGER
     is_session_restored = false;
 #endif
+
+    quitOnLastWindowClosed = true;
 
 #ifdef QT3_SUPPORT
     qt_compat_used = 0;
@@ -155,11 +159,7 @@ QApplicationPrivate::QApplicationPrivate(int &argc, char **argv, QApplication::T
 
   Since it also deals with common command line arguments, it is
   usually a good idea to create it \e before any interpretation or
-  modification of \c argv is done in the application itself. (Note
-  also that for X11, setMainWidget() may change the main widget
-  according to the \c -geometry option. To preserve this
-  functionality, you must set your defaults before setMainWidget() and
-  any overrides after.)
+  modification of \c argv is done in the application itself.
 
   \table
     \header \i21 Groups of functions
@@ -226,8 +226,6 @@ QApplicationPrivate::QApplicationPrivate(int &argc, char **argv, QApplication::T
     \row
      \i Widgets
      \i
-        mainWidget(),
-        setMainWidget(),
         allWidgets(),
         topLevelWidgets(),
         desktop(),
@@ -641,7 +639,7 @@ void QApplication::process_cmdline()
   \list
   \i -display \e display, sets the X display (default is $DISPLAY).
   \i -geometry \e geometry, sets the client geometry of the
-        \link setMainWidget() main widget\endlink.
+        first window that is shown.
   \i -fn or \c -font \e font, defines the application font. The
   font should be specified using an X logical font description.
   \i -bg or \c -background \e color, sets the default background color
@@ -1737,14 +1735,15 @@ QFontMetrics QApplication::fontMetrics()
     QMenu* file = new Menu(this);
     file->addAction("&Quit", qApp, SLOT(closeAllWindows()), Qt::CTRL+Qt::Key_Q);
 
-    // when the last window is closed, the application should quit
-    connect(qApp, SIGNAL(lastWindowClosed()), qApp, SLOT(quit()));
   \endcode
 
   The windows are closed in random order, until one window does not
-  accept the close event.
+  accept the close event. The application quits when the last window
+  was successfully closed. This can be turned of by setting \l
+  quitOnLastWindowClosed to false.
 
-  \sa QWidget::close(), QWidget::closeEvent(), lastWindowClosed(),
+
+  \sa quitOnLastWindowClosed, lastWindowClosed()  QWidget::close(), QWidget::closeEvent(), lastWindowClosed(),
   quit(), topLevelWidgets(), QWidget::isWindow()
 
  */
@@ -1780,7 +1779,7 @@ void QApplication::closeAllWindows()
 void QApplication::aboutQt()
 {
 #ifndef QT_NO_MESSAGEBOX
-    QMessageBox::aboutQt(mainWidget());
+    QMessageBox::aboutQt(activeWindow());
 #endif // QT_NO_MESSAGEBOX
 }
 
@@ -1791,14 +1790,15 @@ void QApplication::aboutQt()
   This signal is emitted when the user has closed the last
   top level window.
 
-  The signal is very useful when your application has many top level
-  widgets but no main widget. You can then connect it to the quit()
-  slot.
+  By default QApplication implicitely quits when this signal is
+  emitted. This feature be turned off by setting \l
+  quitOnLastWindowClosed to false.
 
-  For convenience, this signal is \e not emitted for transient top level
-  widgets such as popup menus and dialogs.
+  For convenience, this signal is \e not emitted for transient top
+  level widgets such as splash screens, popup menus, and dialogs with
+  a parent.
 
-  \sa mainWidget(), topLevelWidgets(), QWidget::isWindow(), QWidget::close()
+  \sa QWidget::close()
 */
 
 #ifndef QT_NO_TRANSLATION
@@ -2610,8 +2610,8 @@ void QApplication::changeOverrideCursor(const QCursor &cursor)
     QTimer with 0 timeout. More advanced idle processing schemes can
     be achieved using processEvents().
 
-    \sa quit(), exit(), processEvents(), QApplication::setMainWidget(),
-        QCoreApplication::exec()
+    \sa quitOnLastWindowClosed, quit(), exit(), processEvents(),
+    QCoreApplication::exec()
 */
 int QApplication::exec()
 {
@@ -3586,14 +3586,45 @@ void QSessionManager::requestPhase2()
     \endcode
 */
 
+#ifdef QT3_SUPPORT
 QWidget *QApplication::mainWidget()
 {
     return QApplicationPrivate::main_widget;
 }
-
+#endif
 bool QApplication::inPopupMode() const
 {
     return QApplicationPrivate::popupWidgets != 0;
+}
+
+/*!
+\property QApplication::quitOnLastWindowClosed
+
+\brief whether the application implicitly quits when the last window
+is closed.
+
+The default is true.
+
+\sa quit(), QWidget::close()
+ */
+
+void QApplication::setQuitOnLastWindowClosed(bool quit)
+{
+    QApplicationPrivate::quitOnLastWindowClosed = quit;
+}
+
+bool QApplication::quitOnLastWindowClosed()
+{
+    return QApplicationPrivate::quitOnLastWindowClosed;
+}
+
+void QApplicationPrivate::emitLastWindowClosed()
+{
+    if (qApp) {
+        if (QApplicationPrivate::quitOnLastWindowClosed)
+            qApp->quit();
+        emit qApp->lastWindowClosed();
+    }
 }
 
 #include "moc_qapplication.cpp"

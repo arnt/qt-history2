@@ -2136,6 +2136,7 @@ GC qt_xget_temp_gc(int scrn, bool monochrome)                // get temporary GC
     \sa mainWidget(), exec(), quit()
 */
 
+#ifdef QT3_SUPPORT
 void QApplication::setMainWidget(QWidget *mainWidget)
 {
 #ifndef QT_NO_DEBUG
@@ -2145,40 +2146,49 @@ void QApplication::setMainWidget(QWidget *mainWidget)
                   mainWidget->metaObject()->className(), mainWidget->objectName().toLocal8Bit().constData());
 #endif
     QApplicationPrivate::main_widget = mainWidget;
-    if (QApplicationPrivate::main_widget) {                        // give WM command line
-        if (windowIcon().isNull()
-	    && QApplicationPrivate::main_widget->testAttribute(Qt::WA_SetWindowIcon)) {
-            setWindowIcon(QApplicationPrivate::main_widget->windowIcon());
-	}
-        XSetWMProperties(X11->display, QApplicationPrivate::main_widget->winId(), 0, 0, qApp->d->argv, qApp->d->argc, 0, 0, 0);
-        if (mwTitle)
-            XStoreName(X11->display, QApplicationPrivate::main_widget->winId(), (char*)mwTitle);
-        if (mwGeometry) {                        // parse geometry
-            int x, y;
-            int w, h;
-            int m = XParseGeometry((char*)mwGeometry, &x, &y, (uint*)&w, (uint*)&h);
-            QSize minSize = QApplicationPrivate::main_widget->minimumSize();
-            QSize maxSize = QApplicationPrivate::main_widget->maximumSize();
-            if ((m & XValue) == 0)
-                x = QApplicationPrivate::main_widget->geometry().x();
-            if ((m & YValue) == 0)
-                y = QApplicationPrivate::main_widget->geometry().y();
-            if ((m & WidthValue) == 0)
-                w = QApplicationPrivate::main_widget->width();
-            if ((m & HeightValue) == 0)
-                h = QApplicationPrivate::main_widget->height();
-            w = qMin(w,maxSize.width());
-            h = qMin(h,maxSize.height());
-            w = qMax(w,minSize.width());
-            h = qMax(h,minSize.height());
-            if ((m & XNegative)) {
-                x = desktop()->width()  + x - w;
-            }
-            if ((m & YNegative)) {
-                y = desktop()->height() + y - h;
-            }
-            QApplicationPrivate::main_widget->setGeometry(x, y, w, h);
+    if (QApplicationPrivate::main_widget) // give WM command line
+        QApplicationPrivate::applyX11SpecificCommandLineArguments(QApplicationPrivate::main_widget);
+}
+#endif
+
+void QApplicationPrivate::applyX11SpecificCommandLineArguments(QWidget *main_widget)
+{
+    static bool beenHereDoneThat = false;
+    if (beenHereDoneThat)
+        return;
+    beenHereDoneThat = true;
+    XSetWMProperties(X11->display, main_widget->winId(), 0, 0, qApp->d->argv, qApp->d->argc, 0, 0, 0);
+    if (mwTitle) {
+        XStoreName(X11->display, main_widget->winId(), (char*)mwTitle);
+        QByteArray net_wm_name = QString::fromLocal8Bit(mwTitle).toUtf8();
+        XChangeProperty(X11->display, main_widget->winId(), ATOM(_NET_WM_NAME), ATOM(UTF8_STRING), 8,
+                        PropModeReplace, (unsigned char *)net_wm_name.data(), net_wm_name.size());
+    }
+    if (mwGeometry) { // parse geometry
+        int x, y;
+        int w, h;
+        int m = XParseGeometry((char*)mwGeometry, &x, &y, (uint*)&w, (uint*)&h);
+        QSize minSize = main_widget->minimumSize();
+        QSize maxSize = main_widget->maximumSize();
+        if ((m & XValue) == 0)
+            x = main_widget->geometry().x();
+        if ((m & YValue) == 0)
+            y = main_widget->geometry().y();
+        if ((m & WidthValue) == 0)
+            w = main_widget->width();
+        if ((m & HeightValue) == 0)
+            h = main_widget->height();
+        w = qMin(w,maxSize.width());
+        h = qMin(h,maxSize.height());
+        w = qMax(w,minSize.width());
+        h = qMax(h,minSize.height());
+        if ((m & XNegative)) {
+            x = QApplication::desktop()->width()  + x - w;
         }
+        if ((m & YNegative)) {
+            y = QApplication::desktop()->height() + y - h;
+        }
+        main_widget->setGeometry(x, y, w, h);
     }
 }
 

@@ -67,7 +67,7 @@ QSize QErrorMessageTextView::sizeHint() const
     return QSize(250, 75);
 }
 
-/*! 
+/*!
     \class QErrorMessage
 
     \brief The QErrorMessage class provides an error message display dialog.
@@ -217,8 +217,7 @@ QErrorMessage * QErrorMessage::qtHandler()
         qtMessageHandler = new QErrorMessage(0);
         qAddPostRoutine(deleteStaticcQErrorMessage); // clean up
 #ifndef QT_NO_WIDGET_TOPEXTRA
-        if (qApp->mainWidget())
-            qtMessageHandler->setWindowTitle(qApp->mainWidget()->windowTitle());
+        qtMessageHandler->setWindowTitle(qApp->applicationName());
 #endif
         qInstallMsgHandler(jump);
     }
@@ -241,7 +240,7 @@ bool QErrorMessagePrivate::nextPending()
 }
 
 
-/*! 
+/*!
     Shows the given \a message, and returns immediately. This function does
     nothing if the user has requested that \a message should not be shown again.
 

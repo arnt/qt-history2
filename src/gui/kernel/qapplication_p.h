@@ -111,7 +111,8 @@ public:
     QApplicationPrivate(int &argc, char **argv, QApplication::Type type);
     ~QApplicationPrivate() {}
 
-    bool lastMousePressAccepted;
+    static bool quitOnLastWindowClosed;
+    static void emitLastWindowClosed();
 
     void createEventDispatcher();
 
@@ -178,6 +179,9 @@ public:
     static bool animate_toolbox;
     static bool widgetCount; // Coupled with -widgetcount switch
 
+#if defined(Q_WS_X11)
+    static void applyX11SpecificCommandLineArguments(QWidget *main_widget);
+#endif
 #ifdef Q_WS_MAC
     bool do_mouse_down(Point *, bool *);
     static OSStatus globalEventProcessor(EventHandlerCallRef,  EventRef, void *);

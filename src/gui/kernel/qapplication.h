@@ -62,6 +62,7 @@ class Q_GUI_EXPORT QApplication : public QCoreApplication
     Q_PROPERTY(QSize globalStrut READ globalStrut WRITE setGlobalStrut)
     Q_PROPERTY(int startDragTime  READ startDragTime WRITE setStartDragTime)
     Q_PROPERTY(int startDragDistance  READ startDragDistance WRITE setStartDragDistance)
+    Q_PROPERTY(bool quitOnLastWindowClosed  READ quitOnLastWindowClosed WRITE setQuitOnLastWindowClosed)
 
 public:
     QApplication(int &argc, char **argv);
@@ -105,8 +106,10 @@ public:
     static const QPixmap &windowIcon();
 
 
-    static QWidget *mainWidget();
-    static void setMainWidget(QWidget *);
+#ifdef QT3_SUPPORT
+    static QT3_SUPPORT QWidget *mainWidget();
+    static QT3_SUPPORT void setMainWidget(QWidget *);
+#endif
 
     static QWidgetList allWidgets();
     static QWidgetList topLevelWidgets();
@@ -215,6 +218,9 @@ public:
     bool notify(QObject *, QEvent *);
 
 
+    static void setQuitOnLastWindowClosed(bool quit);
+    static bool quitOnLastWindowClosed();
+
 signals:
     void lastWindowClosed();
 
@@ -297,7 +303,6 @@ private:
     friend class QWidget;
     friend class QWidgetPrivate;
     friend class QETWidget;
-    friend class QDialog;
     friend class Q3AccelManager;
     friend class QTranslator;
     friend class QShortcut;
