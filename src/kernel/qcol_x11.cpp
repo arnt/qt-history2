@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcol_x11.cpp#57 $
+** $Id: //depot/qt/main/src/kernel/qcol_x11.cpp#58 $
 **
 ** Implementation of QColor class for X11
 **
@@ -18,7 +18,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcol_x11.cpp#57 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcol_x11.cpp#58 $");
 
 
 /*****************************************************************************
@@ -369,9 +369,9 @@ void QColor::cleanup()
 /*!
   Constructs a color with a RGB value and a custom pixel value.
 
-  If the \e pix = 0xffffffff, then the color uses the RGB value in a
-  standard way.	 If \e pix is something else, then the pixel value will
-  be set directly to \e pix (skips the standard allocation procedure).
+  If the \e pixel = 0xffffffff, then the color uses the RGB value in a
+  standard way.	 If \e pixel is something else, then the pixel value will
+  be set directly to \e pixel (skips the standard allocation procedure).
 */
 
 QColor::QColor( QRgb rgb, uint pixel )

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.cpp#63 $
+** $Id: //depot/qt/main/src/kernel/qcolor.cpp#64 $
 **
 ** Implementation of QColor class
 **
@@ -13,7 +13,7 @@
 #include "qdstream.h"
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor.cpp#63 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor.cpp#64 $");
 
 
 /*!
@@ -227,7 +227,7 @@ void QColor::setNamedColor( const char *name )
 	int r = strtol(hex.mid(i,bpc),0,16)*256/(1<<(4*bpc)); i+=bpc;
 	int g = strtol(hex.mid(i,bpc),0,16)*256/(1<<(4*bpc)); i+=bpc;
 	int b = strtol(hex.mid(i,bpc),0,16)*256/(1<<(4*bpc));
-	pix = rgbVal = qRgb(r,g,b);
+	setRgb(r,g,b);
     } else {
 	setSystemNamedColor( name );
     }
