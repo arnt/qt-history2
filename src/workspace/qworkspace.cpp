@@ -896,6 +896,8 @@ void QWorkspace::showEvent( QShowEvent *e )
 			dw->setResizeEnabled(TRUE);
 			dw->setCaption(o->caption());
 			QSize os(w->size());
+			if(w->layout() && w->layout()->hasHeightForWidth()) 
+			    os.setHeight(w->layout()->heightForWidth(os.width()));
 			if(!w->isHidden())
 			    dw->show();
 			w->reparent(dw, QPoint(0, 0));
