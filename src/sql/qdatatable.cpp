@@ -2171,7 +2171,7 @@ void QDataTable::swapColumns( int col1, int col2, bool )
 void QDataTable::drawContents( QPainter * p, int cx, int cy, int cw, int ch )
 {
     QTable::drawContents( p, cx, cy, cw, ch );
-    if ( sqlCursor() )
+    if ( sqlCursor() && currentRow() >= 0 )
 	sqlCursor()->seek( currentRow() );
 }
 
