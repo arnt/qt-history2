@@ -11,6 +11,7 @@ class QImageFormatPluginPrivate;
 
 class Q_EXPORT QImageFormatPlugin : public QGPlugin
 {
+    Q_OBJECT
 public:
     QImageFormatPlugin();
     ~QImageFormatPlugin();

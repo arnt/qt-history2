@@ -49,6 +49,7 @@ class QWidget;
 
 class Q_EXPORT QWidgetPlugin : public QGPlugin
 {
+    Q_OBJECT
 public:
     QWidgetPlugin();
     ~QWidgetPlugin();

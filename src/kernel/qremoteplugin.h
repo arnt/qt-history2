@@ -11,6 +11,7 @@ class QRemotePluginPrivate;
 
 class Q_EXPORT QRemotePlugin : public QGPlugin
 {
+    Q_OBJECT
 public:
     QRemotePlugin();
     ~QRemotePlugin();

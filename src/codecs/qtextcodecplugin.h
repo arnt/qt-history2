@@ -48,6 +48,7 @@ class QTextCodecPluginPrivate;
 
 class Q_EXPORT QTextCodecPlugin : public QGPlugin
 {
+    Q_OBJECT
 public:
     QTextCodecPlugin();
     ~QTextCodecPlugin();

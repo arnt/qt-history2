@@ -48,6 +48,7 @@ class QSqlDriverPluginPrivate;
 
 class Q_EXPORT QSqlDriverPlugin : public QGPlugin
 {
+    Q_OBJECT
 public:
     QSqlDriverPlugin();
     ~QSqlDriverPlugin();

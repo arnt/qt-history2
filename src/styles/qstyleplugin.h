@@ -48,6 +48,7 @@ class QStylePluginPrivate;
 
 class Q_EXPORT QStylePlugin : public QGPlugin
 {
+    Q_OBJECT
 public:
     QStylePlugin();
     ~QStylePlugin();
