@@ -205,7 +205,7 @@ struct QLineEditPrivate : public Qt
     inline void deselect() { selDirty |= (selend > selstart); selstart = selend = 0; }
     void removeSelectedText();
 #ifndef QT_NO_CLIPBOARD
-    void copy( bool clipboard = true ) const;
+    void copy( bool clipboard = TRUE ) const;
 #endif
     inline bool inSelection( int x ) const
     { if ( selstart >= selend ) return FALSE;
@@ -1781,12 +1781,10 @@ void QLineEdit::imEndEvent( QIMEvent *e )
 
 void QLineEdit::focusInEvent( QFocusEvent* e )
 {
-    if ( d->maskData )
-	d->moveCursor( d->nextMaskBlank( 0 ) );
-    else if ( e->reason() == QFocusEvent::Tab ||
-	      e->reason() == QFocusEvent::Backtab  ||
-	      e->reason() == QFocusEvent::Shortcut )
-	selectAll();
+    if ( e->reason() == QFocusEvent::Tab ||
+	 e->reason() == QFocusEvent::Backtab  ||
+	 e->reason() == QFocusEvent::Shortcut )
+	d->maskData ? d->moveCursor( d->nextMaskBlank( 0 ) ) : selectAll();
     if ( !d->cursorTimer ) {
 	int cft = QApplication::cursorFlashTime();
 	d->cursorTimer = cft ? startTimer( cft/2 ) : -1;
@@ -2064,7 +2062,7 @@ void QLineEdit::contextMenuEvent( QContextMenuEvent * e )
     QPoint pos = e->reason() == QContextMenuEvent::Mouse ? e->globalPos() :
 		 mapToGlobal( QPoint(e->pos().x(), 0) ) + QPoint( width() / 2, height() / 2 );
     int r = popup->exec( pos );
-    delete popup;
+    delete (QPopupMenu*)popup;
     if ( that && d->menuId ) {
 	switch ( d->menuId - r ) {
 	case IdClear: clear(); break;
