@@ -1973,8 +1973,6 @@ QMetaObject *QAxBase::metaObject() const
 		QUuid connuuid( conniid );
 		if ( cpointlist.contains( connuuid ) )
 		    break;
-		else
-		    cpointlist.append( connuuid );
 
 #ifndef QAX_NO_CLASSINFO
 		if ( d->useClassInfo ) {
@@ -1998,6 +1996,9 @@ QMetaObject *QAxBase::metaObject() const
 		    typelib->GetTypeInfoOfGuid( conniid, &eventinfo );
 
 		if ( eventinfo ) {
+		    // avoid recursion (see workaround above)
+		    cpointlist.append( connuuid );
+
 		    TYPEATTR *eventattr;
 		    eventinfo->GetTypeAttr( &eventattr );
 		    if ( !eventattr )
