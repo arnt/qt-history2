@@ -281,8 +281,15 @@ void Win32MakefileGenerator::processRcFileVar()
             fprintf(stderr, "Please specify one of them, not both.");
             exit(666);
         }
-        project->variables()["RES_FILE"] = project->variables()["RC_FILE"];
-        project->variables()["RES_FILE"].first().replace(".rc", mingw ? ".o" : ".res");
+        QString resFile;
+        if (!project->variables()["OBJECTS_DIR"].isEmpty()) {
+            resFile += project->variables()["OBJECTS_DIR"].first();
+            if (!resFile.endsWith("\\"))
+                resFile += "\\";
+        }
+        resFile += QFileInfo(project->variables()["RC_FILE"].first()).fileName();
+        resFile.replace(".rc", mingw ? ".o" : ".res");
+        project->variables()["RES_FILE"] += resFile;
         project->variables()["POST_TARGETDEPS"] += project->variables()["RES_FILE"];
         project->variables()["CLEAN_FILES"] += project->variables()["RES_FILE"];
     }
