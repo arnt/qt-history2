@@ -2519,7 +2519,7 @@ bool QApplication::internalNotify( QObject *receiver, QEvent * e)
 		handled = TRUE;
 		consumed = TRUE;
 		break;
-
+#ifndef QT_NO_DRAGANDDROP
 	    case QEvent::DragEnter:
 	    case QEvent::DragMove:
 		( (QDragMoveEvent*) e)->ignore();
@@ -2535,12 +2535,13 @@ bool QApplication::internalNotify( QObject *receiver, QEvent * e)
 		( (QDropEvent*) e)->ignore();
 		handled = TRUE;
 		break;
-
+#endif
+#ifndef QT_NO_WHEELEVENT
 	    case QEvent::Wheel:
 		( (QWheelEvent*) e)->ignore();
 		handled = TRUE;
 		break;
-
+#endif
 	    case QEvent::ContextMenu:
 		( (QContextMenuEvent*) e)->ignore();
 		handled = TRUE;
