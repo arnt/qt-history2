@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id: //depot/qt/main/src/dialogs/qlinedialog.h#5 $
 **
-** Definition of QFileDialog class
+** Definition of QLineDialog class
 **
 ** Created : 950428
 **
