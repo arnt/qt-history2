@@ -362,6 +362,7 @@ private:
     static bool	     animate_combo;
     static bool	     fade_menu;
     static bool	     fade_tooltip;
+    static bool	     animate_toolbox;
     static bool	     widgetCount; // Coupled with -widgetcount switch
     static bool	     metaComposeUnicode;
 

@@ -973,12 +973,13 @@ bool QApplication::x11_apply_settings()
 
     QStringList effects = settings.readListEntry("/qt/GUIEffects");
 
-    QApplication::setEffectEnabled( Qt::UI_General,  effects.contains("general") );
+    QApplication::setEffectEnabled( Qt::UI_General, effects.contains("general") );
     QApplication::setEffectEnabled( Qt::UI_AnimateMenu, effects.contains("animatemenu") );
     QApplication::setEffectEnabled( Qt::UI_FadeMenu, effects.contains("fademenu") );
     QApplication::setEffectEnabled( Qt::UI_AnimateCombo, effects.contains("animatecombo") );
     QApplication::setEffectEnabled( Qt::UI_AnimateTooltip, effects.contains("animatetooltip") );
     QApplication::setEffectEnabled( Qt::UI_FadeTooltip, effects.contains("fadetooltip") );
+    QApplication::setEffectEnabled( Qt::UI_AnimateToolBox, effects.contains("animatetoolbox") );
 
     QStringList fontsubs =
 	settings.entryList("/qt/Font Substitutions");
@@ -1102,6 +1103,7 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0,
     QApplication::setEffectEnabled( Qt::UI_AnimateCombo, FALSE );
     QApplication::setEffectEnabled( Qt::UI_AnimateTooltip, FALSE );
     QApplication::setEffectEnabled( Qt::UI_FadeTooltip, FALSE );
+    QApplication::setEffectEnabled( Qt::UI_AnimateToolBox, FALSE );
 
     if ( QApplication::desktopSettingsAware() && !QApplication::x11_apply_settings()  ) {
 	int format;
@@ -1280,6 +1282,7 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0,
 	QApplication::setEffectEnabled( Qt::UI_AnimateCombo, effects.contains("animatecombo") );
 	QApplication::setEffectEnabled( Qt::UI_AnimateTooltip, effects.contains("animatetooltip") );
 	QApplication::setEffectEnabled( Qt::UI_FadeTooltip, effects.contains("fadetooltip") );
+	QApplication::setEffectEnabled( Qt::UI_AnimateToolBox, effects.contains("animatetoolbox") );
     }
 }
 
@@ -5769,6 +5772,9 @@ void QApplication::setEffectEnabled( Qt::UIEffect effect, bool enable )
 	    animate_tooltip = TRUE;
 	fade_tooltip = enable;
 	break;
+    case UI_AnimateToolBox:
+	animate_toolbox = enable;
+	break;
     default:
 	animate_ui = enable;
 	break;
@@ -5802,6 +5808,8 @@ bool QApplication::isEffectEnabled( Qt::UIEffect effect )
 	return animate_tooltip;
     case UI_FadeTooltip:
 	return fade_tooltip;
+    case UI_AnimateToolBox:
+	return animate_toolbox;
     default:
 	return animate_ui;
     }

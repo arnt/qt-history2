@@ -354,6 +354,7 @@ bool	  QApplication::fade_menu	= FALSE;
 bool	  QApplication::animate_combo	= FALSE;
 bool	  QApplication::animate_tooltip	= FALSE;
 bool	  QApplication::fade_tooltip	= FALSE;
+bool	  QApplication::animate_toolbox	= FALSE;
 bool	  QApplication::widgetCount	= FALSE;
 QApplication::Type qt_appType=QApplication::Tty;
 #ifndef QT_NO_COMPONENT

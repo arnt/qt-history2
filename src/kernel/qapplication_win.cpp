@@ -3636,6 +3636,9 @@ void QApplication::setEffectEnabled( Qt::UIEffect effect, bool enable )
     case UI_FadeTooltip:
 	fade_tooltip = enable;
 	break;
+    case UI_AnimateToolBox:
+	animate_toolbox = enable;
+	break;
     default:
 	animate_ui = enable;
 	break;

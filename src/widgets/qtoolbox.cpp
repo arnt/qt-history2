@@ -94,7 +94,6 @@ public:
 	    lastButton = 0;
 	    categories = new QPtrList<Page>;
 	    categories->setAutoDelete( TRUE );
-	    scrollEffect = TRUE;
 	}
 
     ~QToolBoxPrivate()
@@ -147,7 +146,6 @@ public:
     QVBoxLayout *layout;
     QWidget *currentPage;
     QToolBoxButton *lastButton;
-    bool scrollEffect;
 };
 
 
@@ -247,10 +245,6 @@ static void set_background_mode( QWidget *top, Qt::BackgroundMode bm )
   emitted.
 
   To map a page to its index or vica versa, use page() or pageIndex().
-
-  By default, QToolBox shows a quick animation when the user switches
-  between pages. This effect can be enabled or disabled by calling
-  setScrollEffectEnabled().
 
   \sa QTabWidget
 */
@@ -379,7 +373,7 @@ void QToolBox::buttonClicked()
 	return;
 
 
-    if ( d->scrollEffect ) {
+    if ( qApp->isEffectEnabled( UI_AnimateToolBox ) ) {
 	// ### This implementation can be improved by resizing the old
 	// ### and new current page accordingly. This will improve the
 	// ### visual effect
@@ -676,20 +670,3 @@ QString QToolBox::pageToolTip( QWidget *page ) const
     QToolBoxPrivate::Page *c = d->page( page );
     return c ? c->toolTip : QString::null;
 }
-
-/*! \property QToolBox::scrollEffectEnabled
-
-    \brief whether the toolbox shows a quick visual effect when the
-    user switches between pages
-*/
-
-bool QToolBox::isScrollEffectEnabled() const
-{
-    return d->scrollEffect;
-}
-
-void QToolBox::setScrollEffectEnabled( bool enable )
-{
-    d->scrollEffect = enable;
-}
-

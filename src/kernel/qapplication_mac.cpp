@@ -570,7 +570,7 @@ void qt_mac_set_modal_state(bool b)
 	    DisableMenuItem(mr2, 0);
 	else
 	    EnableMenuItem(mr2, 0);
-    }	
+    }
     ReleaseMenu(mr);
     qt_mac_command_set_enabled(kHICommandQuit, !b);
 }
@@ -699,7 +699,7 @@ void qt_init(int* argcptr, char **argv, QApplication::Type)
 		 "In order to dispatch events correctly Mac OS X may "
 		 "require applications to be run with the *full* path to the "
 		 "executable.", argv[0]);
-		  
+
     //special hack to change working directory to a resource fork when running from finder
     if(p && !QDir::isRelativePath(p) && QDir::currentDirPath() == "/") {
 	QString path = argv[0];
@@ -1261,7 +1261,7 @@ void qt_enter_modal(QWidget *widget)
     }
     qt_modal_stack->insert(0, widget);
 #if !defined(QMAC_QMENUBAR_NO_NATIVE)
-    if(!app_do_modal) 
+    if(!app_do_modal)
 	qt_mac_set_modal_state(TRUE);
 #endif
     app_do_modal = TRUE;
@@ -1285,7 +1285,7 @@ void qt_leave_modal(QWidget *widget)
 #endif
     app_do_modal = (qt_modal_stack != 0);
 #if !defined(QMAC_QMENUBAR_NO_NATIVE)
-    if(!app_do_modal) 
+    if(!app_do_modal)
 	qt_mac_set_modal_state(FALSE);
 #endif
 }
@@ -2543,6 +2543,9 @@ void QApplication::setEffectEnabled(Qt::UIEffect effect, bool enable)
     case UI_AnimateCombo:
 	animate_combo = enable;
 	break;
+    case UI_AnimateToolBox:
+	animate_toolbox = enable;
+	break;
     default:
 	animate_ui = enable;
 	break;
@@ -2565,6 +2568,8 @@ bool QApplication::isEffectEnabled(Qt::UIEffect effect)
 	return animate_tooltip;
     case UI_FadeTooltip:
 	return fade_tooltip;
+    case UI_AnimateToolBox:
+	return animate_toolbox;
     default:
 	return animate_ui;
     }
@@ -2715,6 +2720,8 @@ bool QApplication::qt_mac_apply_settings()
 		QApplication::setEffectEnabled(Qt::UI_AnimateTooltip, TRUE);
 	    if(effects.contains("fadetooltip"))
 		QApplication::setEffectEnabled(Qt::UI_FadeTooltip, TRUE);
+	    if(effects.contains("animatetoolbox"))
+		QApplication::setEffectEnabled(Qt::UI_AnimateToolBox, TRUE);
 	} else {
 	    QApplication::setEffectEnabled(Qt::UI_General, FALSE);
 	}
