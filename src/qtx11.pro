@@ -99,7 +99,6 @@ HEADERS     =	dialogs/qfiledlg.h \
 		widgets/qlcdnum.h \
 		widgets/qlined.h \
 		widgets/qlistbox.h \
-		widgets/qlistview.h \
 		widgets/qmenubar.h \
 		widgets/qmenudta.h \
 		widgets/qmlined.h \
@@ -200,7 +199,6 @@ SOURCES     =	dialogs/qfiledlg.cpp \
 		widgets/qlcdnum.cpp \
 		widgets/qlined.cpp \
 		widgets/qlistbox.cpp \
-		widgets/qlistview.cpp \
 		widgets/qmenubar.cpp \
 		widgets/qmenudta.cpp \
 		widgets/qmlined.cpp \
