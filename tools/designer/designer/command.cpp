@@ -39,7 +39,7 @@
 #include <qmessagebox.h>
 #include <qlistbox.h>
 #include <qiconview.h>
-#include <qmultilineedit.h>
+#include <qtextedit.h>
 #include <qptrstack.h>
 #include <qheader.h>
 #ifndef QT_NO_TABLE
@@ -1646,7 +1646,7 @@ void PopulateListViewCommand::transferItems( QListView *from, QListView *to )
 // ------------------------------------------------------------
 
 PopulateMultiLineEditCommand::PopulateMultiLineEditCommand( const QString &n, FormWindow *fw,
-							    QMultiLineEdit *mle, const QString &txt )
+						    QTextEdit *mle, const QString &txt )
     : Command( n, fw ), newText( txt ), mlined( mle )
 {
     oldText = mlined->text();

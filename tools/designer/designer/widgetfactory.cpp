@@ -1341,7 +1341,7 @@ void WidgetFactory::editWidget( int id, QWidget *parent, QWidget *editWidget, Fo
     }
 
     if ( className == "QMultiLineEdit" || className == "QTextEdit" ) {
-	MultiLineEditor *e = new MultiLineEditor( TRUE, parent, editWidget, fw );
+	MultiLineEditor *e = new MultiLineEditor( FALSE, TRUE, parent, editWidget, fw );
 	e->exec();
 	delete e;
 	return;

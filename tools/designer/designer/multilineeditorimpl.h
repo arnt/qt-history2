@@ -29,7 +29,6 @@
 class FormWindow;
 class QToolBar;
 class QTextDocument;
-class QMultiLineEdit;
 
 class TextEdit : public QTextEdit
 {
@@ -66,7 +65,7 @@ class MultiLineEditor : public MultiLineEditorBase
     Q_OBJECT
 
 public:
-    MultiLineEditor( bool richtextMode, QWidget *parent, QWidget *editWidget,
+    MultiLineEditor( bool call_static, bool richtextMode, QWidget *parent, QWidget *editWidget,
 		     FormWindow *fw, const QString &text = QString::null );
     static QString getText( QWidget *parent, const QString &text, bool richtextMode );
     QString getStaticText();
@@ -84,7 +83,7 @@ protected slots:
 
 private:
     TextEdit *textEdit;
-    QMultiLineEdit *mlined;
+    QTextEdit *mlined;
     FormWindow *formwindow;
     QToolBar *basicToolBar;
     QToolBar *fontToolBar;

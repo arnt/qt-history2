@@ -41,13 +41,13 @@ class FormWindow;
 class PropertyEditor;
 class QListBox;
 class QIconView;
-class QMultiLineEdit;
 class QTable;
 class QAction;
 class QDesignerToolBar;
 class QMainWindow;
 class QDesignerPopupMenu;
 class QDesignerMenuBar;
+class QTextEdit;
 struct LanguageInterface;
 
 class Command : public Qt
@@ -819,14 +819,14 @@ class PopulateMultiLineEditCommand : public Command
 {
 public:
     PopulateMultiLineEditCommand( const QString &n, FormWindow *fw,
-				  QMultiLineEdit *mle, const QString &txt );
+				  QTextEdit *mle, const QString &txt );
     void execute();
     void unexecute();
     Type type() const { return PopulateMultiLineEdit; }
 
 private:
     QString newText, oldText;
-    QMultiLineEdit *mlined;
+    QTextEdit *mlined;
     bool wasChanged;
 
 };

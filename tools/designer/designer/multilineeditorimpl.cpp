@@ -25,7 +25,6 @@
 #include "richtextfontdialog.h"
 #include "syntaxhighlighter_html.h"
 
-#include <qmultilineedit.h>
 #include <qtextedit.h>
 #include <./private/qrichtext_p.h>
 #include <qpushbutton.h>
@@ -70,17 +69,15 @@ QTextParagraph* TextEdit::paragraph()
 }
 
 
-MultiLineEditor::MultiLineEditor( bool richtextMode, QWidget *parent, QWidget *editWidget,
-    FormWindow *fw, const QString &text )
+MultiLineEditor::MultiLineEditor( bool call_static, bool richtextMode, QWidget *parent, QWidget *editWidget,
+				  FormWindow *fw, const QString &text )
     : MultiLineEditorBase( parent, 0,
 	WType_Dialog | WShowModal ), formwindow( fw )
 {
-    callStatic = FALSE;
+    callStatic = call_static;
 
-    if ( !text.isNull() ) {
+    if ( callStatic )
 	applyButton->hide();
-	callStatic = TRUE;
-    }
 
     textEdit = new TextEdit( centralWidget(), "textedit" );
     Layout4->insertWidget( 0, textEdit );
@@ -204,8 +201,8 @@ MultiLineEditor::MultiLineEditor( bool richtextMode, QWidget *parent, QWidget *e
 	textEdit->document()->setUseFormatCollection( FALSE );
 	textEdit->document()->setPreProcessor( new SyntaxHighlighter_HTML );
 
-	if ( !callStatic ) {
-	    mlined = (QMultiLineEdit*)editWidget;
+	if ( !callStatic && editWidget->inherits( "QTextEdit" ) ) {
+	    mlined = (QTextEdit*)editWidget;
 	    mlined->setReadOnly( TRUE );
 	    textEdit->setAlignment( mlined->alignment() );
 	    textEdit->setWordWrap( mlined->wordWrap() );
@@ -330,7 +327,7 @@ QString MultiLineEditor::getStaticText()
 
 QString MultiLineEditor::getText( QWidget *parent, const QString &text, bool richtextMode )
 {
-    MultiLineEditor medit( richtextMode,  parent, 0, 0, text );
+    MultiLineEditor medit( TRUE, richtextMode,  parent, 0, 0, text );
     if ( medit.exec() == QDialog::Accepted )
 	return medit.getStaticText();
 
