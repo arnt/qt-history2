@@ -81,8 +81,8 @@ MainWindow::MainWindow()
     // Use the same forward and backward browser shortcuts as Safari and Internet Explorer do
     // on the Mac. This means that if you have access to one of those cool Intellimice, the thing
     // works just fine, since that's how Microsoft hacked it.
-    actionGoPrevious->setShortcut(QKeySequence(Qt::CTRL|Qt::Key_Left));
-    actionGoNext->setShortcut(QKeySequence(Qt::CTRL|Qt::Key_Right));
+    gui.actionGoPrevious->setShortcut(QKeySequence(Qt::CTRL|Qt::Key_Left));
+    gui.actionGoNext->setShortcut(QKeySequence(Qt::CTRL|Qt::Key_Right));
 #endif
 }
 
