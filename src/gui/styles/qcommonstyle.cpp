@@ -2037,7 +2037,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 ir = visualRect(opt->direction, opt->rect,
                         subControlRect(CC_TitleBar, tb, SC_TitleBarCloseButton, widget));
                 down = tb->activeSubControls & SC_TitleBarCloseButton;
-                if (tb->titleBarFlags & Qt::WStyle_Tool
+                if ((tb->titleBarFlags & Qt::WindowType_Mask) == Qt::Tool
 #ifndef QT_NO_MAINWINDOW
                      || qt_cast<const QDockWidget *>(widget)
 #endif
@@ -2251,7 +2251,7 @@ QStyle::SubControl QCommonStyle::hitTestComplexControl(ComplexControl cc, const 
                 }
                 ctrl <<= 1;
             }
-            if (tb->titleBarFlags & Qt::WStyle_Tool) {
+            if ((tb->titleBarFlags & Qt::WindowType_Mask) == Qt::Tool) {
                 if (sc == SC_TitleBarMinButton || sc == SC_TitleBarMaxButton) {
                     if (isMinimized)
                         sc = SC_TitleBarUnshadeButton;
@@ -2573,7 +2573,7 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const QWid
         break;
     case PM_TitleBarHeight: {
         if (const QStyleOptionTitleBar *tb = qt_cast<const QStyleOptionTitleBar *>(opt)) {
-            if (tb->titleBarFlags & Qt::WStyle_Tool) {
+            if ((tb->titleBarFlags & Qt::WindowType_Mask) == Qt::Tool) {
                 ret = qMax(widget ? widget->fontMetrics().lineSpacing() : 0, 16);
 #ifndef QT_NO_MAINWINDOW
             } else if (qt_cast<const QDockWidget*>(widget)) {
