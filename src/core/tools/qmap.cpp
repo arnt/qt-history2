@@ -967,6 +967,43 @@ void QMapData::dump()
     current item.
 */
 
+/*! \fn QMap::iterator QMap::iterator::operator+(int j) const
+
+    Returns an iterator to the item at \a j positions forward from
+    this iterator. (If \a j is negative, the iterator goes backward.)
+
+    This operation can be slow for large \a j values.
+
+    \sa operator-()
+
+*/
+
+/*! \fn QMap::iterator QMap::iterator::operator-(int j) const
+
+    Returns an iterator to the item at \a j positions backward from
+    this iterator. (If \a j is negative, the iterator goes forward.)
+
+    This operation can be slow for large \a j values.
+
+    \sa operator+()
+*/
+
+/*! \fn QMap::iterator &QMap::iterator::operator+=(int j)
+
+    Advances the iterator by \a j items. (If \a j is negative, the
+    iterator goes backward.)
+
+    \sa operator-=(), operator+()
+*/
+
+/*! \fn QMap::iterator &QMap::iterator::operator-=(int j)
+
+    Makes the iterator go back by \a j items. (If \a j is negative,
+    the iterator goes forward.)
+
+    \sa operator+=(), operator-()
+*/
+
 /*! \class QMap::const_iterator
     \brief The QMap::const_iterator class provides an STL-style const iterator for QMap and QMultiMap.
 
@@ -1022,7 +1059,7 @@ void QMapData::dump()
 
 /*! \fn QMap::const_iterator::const_iterator()
 
-    Creates an uinitialized iterator.
+    Creates an uninitialized iterator.
 
     Functions like key(), value(), and operator++() must not be
     called on an unitialized iterator. Use operator=() to assign a
@@ -1116,6 +1153,46 @@ void QMapData::dump()
     The postfix -- operator (\c{i--}) makes the preceding item
     current and returns an iterator pointing to the previously
     current item.
+*/
+
+/*! \fn QMap::const_iterator QMap::const_iterator::operator+(int j) const
+
+    Returns an iterator to the item at \a j positions forward from
+    this iterator. (If \a j is negative, the iterator goes backward.)
+
+    This operation can be slow for large \a j values.
+
+    \sa operator-()
+*/
+
+/*! \fn QMap::const_iterator QMap::const_iterator::operator-(int j) const
+
+    Returns an iterator to the item at \a j positions backward from
+    this iterator. (If \a j is negative, the iterator goes forward.)
+
+    This operation can be slow for large \a j values.
+
+    \sa operator+()
+*/
+
+/*! \fn QMap::const_iterator &QMap::const_iterator::operator+=(int j)
+
+    Advances the iterator by \a j items. (If \a j is negative, the
+    iterator goes backward.)
+
+    This operation can be slow for large \a j values.
+
+    \sa operator-=(), operator+()
+*/
+
+/*! \fn QMap::const_iterator &QMap::const_iterator::operator-=(int j)
+
+    Makes the iterator go back by \a j items. (If \a j is negative,
+    the iterator goes forward.)
+
+    This operation can be slow for large \a j values.
+
+    \sa operator+=(), operator-()
 */
 
 /*! \fn template <class Key, class T> QDataStream &operator<<(QDataStream &out, const QMap<Key, T> &map)

@@ -1156,6 +1156,43 @@ void QHashData::free()
     current item.
 */
 
+/*! \fn QHash::iterator QHash::iterator::operator+(int j) const
+
+    Returns an iterator to the item at \a j positions forward from
+    this iterator. (If \a j is negative, the iterator goes backward.)
+
+    This operation can be slow for large \a j values.
+
+    \sa operator-()
+
+*/
+
+/*! \fn QHash::iterator QHash::iterator::operator-(int j) const
+
+    Returns an iterator to the item at \a j positions backward from
+    this iterator. (If \a j is negative, the iterator goes forward.)
+
+    This operation can be slow for large \a j values.
+
+    \sa operator+()
+*/
+
+/*! \fn QHash::iterator &QHash::iterator::operator+=(int j)
+
+    Advances the iterator by \a j items. (If \a j is negative, the
+    iterator goes backward.)
+
+    \sa operator-=(), operator+()
+*/
+
+/*! \fn QHash::iterator &QHash::iterator::operator-=(int j)
+
+    Makes the iterator go back by \a j items. (If \a j is negative,
+    the iterator goes forward.)
+
+    \sa operator+=(), operator-()
+*/
+
 /*! \class QHash::const_iterator
     \brief The QHash::const_iterator class provides an STL-style const iterator for QHash and QMultiHash.
 
@@ -1214,7 +1251,7 @@ void QHashData::free()
 
 /*! \fn QHash::const_iterator::const_iterator()
 
-    Creates an uinitialized iterator.
+    Creates an uninitialized iterator.
 
     Functions like key(), value(), and operator++() must not be
     called on an unitialized iterator. Use operator=() to assign a
@@ -1308,6 +1345,46 @@ void QHashData::free()
     The postfix -- operator (\c{i--}) makes the preceding item
     current and returns an iterator pointing to the previously
     current item.
+*/
+
+/*! \fn QHash::const_iterator QHash::const_iterator::operator+(int j) const
+
+    Returns an iterator to the item at \a j positions forward from
+    this iterator. (If \a j is negative, the iterator goes backward.)
+
+    This operation can be slow for large \a j values.
+
+    \sa operator-()
+*/
+
+/*! \fn QHash::const_iterator QHash::const_iterator::operator-(int j) const
+
+    Returns an iterator to the item at \a j positions backward from
+    this iterator. (If \a j is negative, the iterator goes forward.)
+
+    This operation can be slow for large \a j values.
+
+    \sa operator+()
+*/
+
+/*! \fn QHash::const_iterator &QHash::const_iterator::operator+=(int j)
+
+    Advances the iterator by \a j items. (If \a j is negative, the
+    iterator goes backward.)
+
+    This operation can be slow for large \a j values.
+
+    \sa operator-=(), operator+()
+*/
+
+/*! \fn QHash::const_iterator &QHash::const_iterator::operator-=(int j)
+
+    Makes the iterator go back by \a j items. (If \a j is negative,
+    the iterator goes forward.)
+
+    This operation can be slow for large \a j values.
+
+    \sa operator+=(), operator-()
 */
 
 /*! \fn uint qHash(char key)

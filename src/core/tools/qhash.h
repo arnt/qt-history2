@@ -231,6 +231,11 @@ public:
 	    i = QHashData::prevNode(i);
 	    return r;
 	}
+        inline iterator operator+(int j) const
+        { iterator r = *this; if (j > 0) while (j--) ++r; else while (j++) --r; return r; }
+        inline iterator operator-(int j) const { return operator+(-j); }
+        inline iterator &operator+=(int j) { return *this = *this + j; }
+        inline iterator &operator-=(int j) { return *this = *this - j; }
     };
     friend class iterator;
 
@@ -275,6 +280,11 @@ public:
 	    i = QHashData::prevNode(i);
 	    return r;
 	}
+        inline const_iterator operator+(int j) const
+        { const_iterator r = *this; if (j > 0) while (j--) ++r; else while (j++) --r; return r; }
+        inline const_iterator operator-(int j) const { return operator+(-j); }
+        inline const_iterator &operator+=(int j) { return *this = *this + j; }
+        inline const_iterator &operator-=(int j) { return *this = *this - j; }
     };
     friend class const_iterator;
 
