@@ -1887,6 +1887,7 @@ void QWorkspace::cascade()
 void QWorkspace::tile()
 {
     blockSignals(TRUE);
+    QWidget *oldActive = d->active ? d->active->windowWidget() : 0;
     if  ( d->maxWindow )
 	d->maxWindow->showNormal();
 
@@ -1974,6 +1975,8 @@ void QWorkspace::tile()
 	}
     }
     delete [] used;
+
+    activateWindow( oldActive );
     updateWorkspace();
     blockSignals(FALSE);
 }
