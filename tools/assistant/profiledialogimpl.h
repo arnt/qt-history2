@@ -38,7 +38,6 @@ private slots:
     void okClicked();
     void cancelClicked();
     void setProfileIcon();
-    void setDocIcon();
     void addDocFile();
     void removeDocFile();
     void saveProfileInFile();

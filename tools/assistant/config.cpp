@@ -78,7 +78,11 @@ void Config::load( const QString &name )
     fontFam = settings.readEntry( key + "Family", qApp->font().family() );
 
     fontFix = settings.readEntry( key + "FixedFamily", "courier" );
-    fontSiz = settings.readNumEntry( key + "Size", qApp->font().pointSize() );
+    fontSiz = settings.readNumEntry( key + "Size", -1 );
+    if ( fontSiz == -1 ) {
+	QFontInfo fi( qApp->font() );
+	fontSiz = fi.pointSize();
+    }
     linkUnder = settings.readBoolEntry( key + "LinkUnderline", TRUE );
     linkCol = settings.readEntry( key + "LinkColor", "#0000FF" );
     src = settings.readEntry( profkey + "Source", "assistant_about_text" );

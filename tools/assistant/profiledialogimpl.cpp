@@ -36,7 +36,6 @@ ProfileDialog::ProfileDialog( QWidget *parent, QString pN )
     : ProfileDialogBase( parent ), profName( pN )
 {
     changed = FALSE;
-    modifyIconButton->hide();
     initDialog();
 }
 
@@ -62,7 +61,6 @@ void ProfileDialog::initDialog()
 	QStringList docList = profile->docs;
 	QListBoxPixmap *item;
 	for ( QStringList::Iterator it = docList.begin(); it != docList.end(); ++it ) {
-	    //qDebug( "icon: " + profile->icons[ *it ] );
 	    item = new QListBoxPixmap( docListView, QPixmap( profile->icons[ *it ] ), *it );
 	}
     } else {
@@ -119,11 +117,6 @@ void ProfileDialog::setProfileIcon()
     iconName = QFileDialog::getOpenFileName( QDir::homeDirPath(), "*", this, "saveProfileAs",
 	tr( "Qt Assistant - Choose Profile Icon" ) );
     setIcon();
-}
-
-void ProfileDialog::setDocIcon()
-{
-
 }
 
 void ProfileDialog::addDocFile()
@@ -190,7 +183,7 @@ void ProfileDialog::saveProfileInFile()
 	tr( "Qt Assistant - Save Profile As" ) );
     if ( !fileName.isEmpty() ) {
 	profile->props["name"] = leName->text();
-	//profile->props["applicationicon"] = ...
+	profile->props["applicationicon"] = iconName;
 	profile->props["aboutmenutext"] = leAboutMenuText->text();
 	profile->props["abouturl"] = leAboutUrl->text();
 	profile->props["title"] = leTitle->text();

@@ -197,17 +197,6 @@
                                         <string>Alt+R</string>
                                     </property>
                                 </widget>
-                                <widget class="QPushButton">
-                                    <property name="name">
-                                        <cstring>modifyIconButton</cstring>
-                                    </property>
-                                    <property name="text">
-                                        <string>Modify Icon</string>
-                                    </property>
-                                    <property name="accel">
-                                        <string>Alt+R</string>
-                                    </property>
-                                </widget>
                                 <spacer>
                                     <property name="name">
                                         <cstring>spacer1</cstring>
@@ -340,12 +329,6 @@
         <slot>cancelClicked()</slot>
     </connection>
     <connection>
-        <sender>modifyIconButton</sender>
-        <signal>clicked()</signal>
-        <receiver>ProfileDialogBase</receiver>
-        <slot>setDocIcon()</slot>
-    </connection>
-    <connection>
         <sender>iconButton</sender>
         <signal>clicked()</signal>
         <receiver>ProfileDialogBase</receiver>
@@ -385,7 +368,6 @@
     <tabstop>urlButton</tabstop>
     <tabstop>docListView</tabstop>
     <tabstop>addButton</tabstop>
-    <tabstop>modifyIconButton</tabstop>
     <tabstop>removeButton</tabstop>
     <tabstop>okButton</tabstop>
     <tabstop>cancelButton</tabstop>
@@ -395,7 +377,6 @@
     <slot>okClicked()</slot>
     <slot>cancelClicked()</slot>
     <slot>setProfileIcon()</slot>
-    <slot>setDocIcon()</slot>
     <slot>addDocFile()</slot>
     <slot>removeDocFile()</slot>
     <slot>saveProfileInFile()</slot>

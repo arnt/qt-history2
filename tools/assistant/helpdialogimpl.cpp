@@ -32,7 +32,6 @@
 #include <qapplication.h>
 #include <qmessagebox.h>
 #include <qlabel.h>
-#include <qframe.h>
 #include <qtabwidget.h>
 #include <qurl.h>
 #include <qheader.h>
@@ -300,11 +299,11 @@ void HelpDialog::loadIndexFile()
 
 
     QValueList<IndexKeyword> lst;
-
     QFile indexFile( QDir::homeDirPath() + "/.assistant/indexdb." +
 		     Config::configuration()->profileName() );
     if ( !indexFile.open( IO_ReadOnly ) ) {
 	buildKeywordDB();
+	qApp->processEvents();
 	indexFile.open( IO_ReadOnly );
     }
 
@@ -381,7 +380,6 @@ void HelpDialog::buildKeywordDB()
 	    QMessageBox::warning( this, tr( "Warning" ),
 		tr( "Documentation file %1 does not exist!\n"
 		    "Skipping file." ).arg( QFileInfo( file ).absFilePath() ) );
-	    HelpDialog::removeDocFile( *i );
 	    continue;
         }
 	fileAges += QFileInfo( file ).lastModified().toTime_t();
@@ -441,7 +439,7 @@ void HelpDialog::setupTitleMap()
     QDictIterator<ContentList> lstIt( contentList );
     for ( ; lstIt.current(); ++lstIt ) {
 	QValueList<ContentItem> &lst = *(lstIt.current());
-	QValueList<ContentItem>::iterator it;
+	QValueListConstIterator<ContentItem> it;
 	QFileInfo finfo( lstIt.currentKey() );
 	QString dir = finfo.dirPath( TRUE ) + "/";
 	for ( it = lst.begin(); it != lst.end(); ++it ) {
@@ -493,7 +491,6 @@ void HelpDialog::buildContentDict()
 	    QMessageBox::warning( this, tr( "Warning" ),
 	    tr( "Documentation file %1 does not exist!\n"
 	        "Skipping file." ).arg( QFileInfo( file ).absFilePath() ) );
-	    HelpDialog::removeDocFile( *it );
 	    continue;
         }
 	fileAges += QFileInfo( file ).lastModified().toTime_t();
@@ -654,11 +651,11 @@ bool HelpDialog::eventFilter( QObject * o, QEvent * e )
 
 void HelpDialog::addBookmark()
 {
-    /* ###
     if ( !bookmarksInserted )
 	insertBookmarks();
-    QString link = QUrl( viewer->context(), viewer->source() ).path();
-    QString title = viewer->documentTitle();
+    QString link = QUrl(  help->browsers()->currentBrowser()->context(),
+			  help->browsers()->currentBrowser()->source() ).path();
+    QString title = help->browsers()->currentBrowser()->documentTitle();
     if ( title.isEmpty() )
 	title = titleOfLink( link );
     HelpNavigationContentsItem *i = new HelpNavigationContentsItem( listBookmarks, 0 );
@@ -666,7 +663,6 @@ void HelpDialog::addBookmark()
     i->setLink( link );
     saveBookmarks();
     help->updateBookmarkMenu();
-    */
 }
 
 void HelpDialog::removeBookmark()
@@ -776,7 +772,7 @@ void HelpDialog::insertContents()
 
 
 	QValueList<ContentItem> &lst = *(lstIt.current());
-	QValueList<ContentItem>::iterator it;
+	QValueListConstIterator<ContentItem> it;
 	for( it = lst.begin(); it != lst.end(); ++it ){
 	    ContentItem item = *it;
 	    if( item.depth == 0 ){
@@ -804,6 +800,7 @@ void HelpDialog::insertContents()
 		}
 	    }
 	}
+	qApp->processEvents();
     }
     setCursor( arrowCursor );
     showInitDoneMessage();
@@ -862,28 +859,6 @@ void HelpDialog::toggleSearch()
 	parentWidget()->hide();
 }
 
-void HelpDialog::removeDocFile( const QString & /*fileName*/ )
-{
-//     QSettings settings;
-//     settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
-//     QString fileKey = DocuParser::DocumentKey + "AdditionalDocFiles";
-//     QString titleKey = DocuParser::DocumentKey + "AdditionalDocTitles";
-//     QStringList lst = settings.readListEntry( fileKey );
-//     QStringList titleLst = settings.readListEntry( titleKey );
-//     QStringList::iterator it = titleLst.begin();
-//     QStringList::iterator i = lst.begin();
-//     for ( ; i != lst.end() && it != titleLst.end(); ++i, ++it ) {
-// 	if ( *i == fileName ) {
-// 	    titleLst.remove( it );
-// 	    lst.remove( i );
-// 	    break;
-// 	}
-//     }
-//     settings.writeEntry( fileKey, lst );
-//     settings.writeEntry( titleKey, titleLst );
-    qDebug( "HelpDialog::removeDocFile() - not implemented!!" );
-}
-
 void HelpDialog::setupFullTextIndex()
 {
     if ( fullTextIndex )
@@ -893,6 +868,7 @@ void HelpDialog::setupFullTextIndex()
     QStringList documentList;
     for ( ; it != titleMap.end(); ++it )
 	documentList << it.key();
+    qApp->processEvents();
 
     QString pname = Config::configuration()->profileName();
     fullTextIndex = new Index( documentList, QDir::homeDirPath() );

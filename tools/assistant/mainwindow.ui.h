@@ -62,8 +62,6 @@ void MainWindow::init()
     dw->setCaption( "Sidebar" );
     dw->setFixedExtentWidth( 320 );
 
-    setObjectsEnabled( FALSE );
-
     // read geometry configuration
     setupGoActions();
 
@@ -80,6 +78,7 @@ void MainWindow::init()
     QTextStream ts( &mainWindowLayout, IO_ReadOnly );
     ts >> *this;
 
+    setObjectsEnabled( FALSE );
     setup();
 }
 
@@ -345,7 +344,8 @@ void MainWindow::setupBookmarkMenu()
     bookmarks.clear();
     actionAddBookmark->addTo( bookmarkMenu );
 
-    QFile f( QDir::homeDirPath() + "/.bookmarks" );
+    QFile f( QDir::homeDirPath() + "/.assistant/bookmarks." +
+	Config::configuration()->profileName() );
     if ( !f.open( IO_ReadOnly ) )
 	return;
     QTextStream ts( &f );
@@ -481,7 +481,6 @@ void MainWindow::hide()
     saveToolbarSettings();
     QMainWindow::hide();
 }
-
 
 MainWindow* MainWindow::newWindow()
 {

@@ -85,7 +85,6 @@ public:
     QString titleOfLink( const QString &link );
     bool eventFilter( QObject *, QEvent * );
     bool lastWindowClosed() { return lwClosed; }
-    static void removeDocFile( const QString &absFileName );
     QMimeSourceFactory* getContentFactory() const { return contentFactory; }
 
 protected slots:

@@ -71,6 +71,7 @@ bool DocuParser::startElement( const QString &, const QString &,
 	docTitle = attr.value( "title" );
 	title = docTitle;
 	imageDir = attr.value( "imagedir" );
+	iconName = attr.value( "icon" );
 	contentList.append( ContentItem( title, contentRef, depth ) );
     }
     else if( qname == "section" && ( state == StateContent || state == StateSect ) ) {
