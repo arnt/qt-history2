@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#59 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#60 $
 **
 ** Implementation of QScrollView class
 **
@@ -648,7 +648,7 @@ int QScrollView::childY(QWidget* child)
     return d->rec(child)->y;
 }
 
-/*! 
+/*!
   \obsoltete
 
   Returns TRUE if \a child is visible.  This is equivalent
@@ -685,34 +685,33 @@ bool QScrollView::eventFilter( QObject *obj, QEvent *e )
     if (!d) return FALSE; // we are destructing
     if ( obj == &d->viewport ) {
 	switch ( e->type() ) {
-	  case QEvent::Paint:
+	case QEvent::Paint:
 	    viewportPaintEvent( (QPaintEvent*)e );
 	    break;
-	  case QEvent::MouseButtonPress:
+	case QEvent::MouseButtonPress:
 	    viewportMousePressEvent( (QMouseEvent*)e );
 	    break;
-	  case QEvent::MouseButtonRelease:
+	case QEvent::MouseButtonRelease:
 	    viewportMouseReleaseEvent( (QMouseEvent*)e );
 	    break;
-	  case QEvent::MouseButtonDblClick:
+	case QEvent::MouseButtonDblClick:
 	    viewportMouseDoubleClickEvent( (QMouseEvent*)e );
 	    break;
-	  case QEvent::MouseMove:
+	case QEvent::MouseMove:
 	    viewportMouseMoveEvent( (QMouseEvent*)e );
 	    break;
-	  case QEvent::ChildRemoved:
+	case QEvent::ChildRemoved:
 	    removeChild(((QChildEvent*)e)->child());
+	    break;
+	default:
 	    break;
 	}
     } else {
 	// must be a child
 	QSVChildRec* r = d->rec((QWidget*)obj);
 	if (!r) return FALSE; // spurious
-	switch ( e->type() ) {
-	  case QEvent::Resize:
+	if ( e->type() == QEvent::Resize )
 	    d->autoResize(this);
-	    break;
-	}
     }
     return FALSE;  // always continue with standard event processing
 }
