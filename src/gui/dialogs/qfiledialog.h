@@ -21,6 +21,7 @@
 class QMenu;
 class QModelIndex;
 class QFileDialogPrivate;
+class QAbstractItemDelegate;
 
 class Q_GUI_EXPORT QFileDialog : public QDialog
 {
@@ -74,6 +75,9 @@ public:
 
     void setReadOnly(bool enabled);
     bool isReadOnly() const;
+
+    void setItemDelegate(QAbstractItemDelegate *delegate);
+    QAbstractItemDelegate *itemDelegate() const;
 
 signals:
     void filesSelected(const QStringList &);

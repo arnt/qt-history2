@@ -749,6 +749,23 @@ bool QFileDialog::isReadOnly() const
 }
 
 /*!
+  \brief set the item delegate used to render the items in the views in the filedialog.
+*/
+void QFileDialog::setItemDelegate(QAbstractItemDelegate *delegate)
+{
+    d->listView->setItemDelegate(delegate);
+    d->treeView->setItemDelegate(delegate);
+}
+
+/*!
+  \brief returns the item delegate used to render the items in the views in the filedialog.
+*/
+QAbstractItemDelegate *QFileDialog::itemDelegate() const
+{
+    return d->listView->itemDelegate();
+}
+
+/*!
  \reimp*/
 
 void QFileDialog::done(int result)
