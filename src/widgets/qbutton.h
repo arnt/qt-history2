@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.h#67 $
+** $Id: //depot/qt/main/src/widgets/qbutton.h#68 $
 **
 ** Definition of QButton widget class
 **
@@ -108,6 +108,7 @@ private:
     QButtonData *d;
 
     friend class QButtonGroup;
+    friend class QWidgetStack; // ### group() is private - why?
     void          ensureData();
     QButtonGroup *group() const;
     virtual void	  setGroup( QButtonGroup* );
