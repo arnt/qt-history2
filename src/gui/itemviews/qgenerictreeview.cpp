@@ -204,7 +204,12 @@ int QGenericTreeView::contentsX() const
 
 int QGenericTreeView::contentsY() const
 {
-    return -1; // FIXME: invalid
+    // gives an estimate
+    QItemOptions options;
+    getViewOptions(&options);
+    int iheight = d->delegate->sizeHint(fontMetrics(), options, model()->index(0, 0, 0)).height();
+    int item = verticalScrollBar()->value() / d->verticalFactor;
+    return item * iheight;
 }
 
 int QGenericTreeView::contentsWidth() const
@@ -214,7 +219,11 @@ int QGenericTreeView::contentsWidth() const
 
 int QGenericTreeView::contentsHeight() const
 {
-    return -1; // FIXME: invalid
+    // gives an estimate
+    QItemOptions options;
+    getViewOptions(&options);
+    int iheight = d->delegate->sizeHint(fontMetrics(), options, model()->index(0, 0, 0)).height();
+    return d->items.count() * iheight;
 }
 
 void QGenericTreeView::open(const QModelIndex &item)
@@ -308,7 +317,7 @@ void QGenericTreeView::drawRow(QPainter *painter, QItemOptions *options, const Q
 	options->selected = selectionModel()->isSelected(index);
 	options->itemRect.moveLeft(x + pos);
 	options->itemRect.setWidth(width - x);
-	options->focus = (q->viewport()->hasFocus() && selectionModel()->currentItem() == index);
+	options->focus = (hasFocus() && selectionModel()->currentItem() == index);
 	painter->fillRect(pos, y, width - pos, height, base);
 	drawBranches(painter, QRect(pos, y, d->indent, options->itemRect.height()), index);
 	itemDelegate()->paint(painter, *options, index);

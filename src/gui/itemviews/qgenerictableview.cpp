@@ -177,7 +177,8 @@ void QGenericTableView::paintEvent(QPaintEvent *e)
     QItemSelectionModel *sels = selectionModel();
     QGenericHeader *leftHeader = d->leftHeader;
     QGenericHeader *topHeader = d->topHeader;
-    QModelIndex cvi = currentItem();
+    QModelIndex current = currentItem();
+    bool focus = hasFocus() && current.isValid();
 
     for (int r = rowfirst; r <= rowlast; ++r) {
 	if (leftHeader->isSectionHidden(r))
@@ -193,7 +194,7 @@ void QGenericTableView::paintEvent(QPaintEvent *e)
 	    if (item.isValid()) {
 		options.itemRect = QRect(colp, rowp, colw - 1, rowh - 1);
 		options.selected = sels ? sels->isSelected(item) : 0;
-		options.focus = (d->viewport->hasFocus() && item == cvi);
+		options.focus = (focus && item == current);
 		painter.fillRect(colp, rowp, colw, rowh,
 				 (options.selected ? options.palette.highlight() :
 				  options.palette.base()));

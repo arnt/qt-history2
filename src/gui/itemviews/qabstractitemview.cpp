@@ -214,6 +214,7 @@ void QAbstractItemView::mousePressEvent(QMouseEvent *e)
     d->pressedItem = item;
     d->pressedState = e->state();
     d->pressedPosition = pos;
+    d->pressedPosition += QPoint(contentsX(), contentsY());
     
     if (item.isValid())
 	selectionModel()->setCurrentItem(item, QItemSelectionModel::NoUpdate, selectionBehavior());
@@ -241,6 +242,7 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *e)
 	return;
     QPoint bottomRight = e->pos();
     QPoint topLeft = d->pressedPosition;
+    topLeft -= QPoint(contentsX(), contentsY());
     QRect rect = QRect(topLeft, bottomRight).normalize();
     
     d->rubberBand->setGeometry(QRect(d->viewport->mapToGlobal(topLeft),
