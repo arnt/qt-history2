@@ -1765,6 +1765,9 @@ HRESULT WINAPI QAxServerBase::GetIDsOfNames(REFIID riid, LPOLESTR* rgszNames, UI
     if ( !m_spTypeInfo )
 	qAxTypeLibrary->GetTypeInfoOfGuid( qAxFactory()->interfaceID( class_name ), &m_spTypeInfo );
 
+    if ( !m_spTypeInfo )
+	return DISP_E_UNKNOWNNAME;
+
     return m_spTypeInfo->GetIDsOfNames( rgszNames, cNames, rgdispid );
 }
 
@@ -1871,7 +1874,6 @@ HRESULT WINAPI QAxServerBase::Invoke( DISPID dispidMember, REFIID riid,
 	    if ( !emitRequestPropertyChange( dispidMember ) )
 		break;
 
-	    QVariant oldvar = activeqt->property( property->name() );
 	    QVariant var = VARIANTToQVariant( *pDispParams->rgvarg, property->type() );
 	    if ( !var.isValid() ) {
 		if ( puArgErr )
@@ -1884,11 +1886,10 @@ HRESULT WINAPI QAxServerBase::Invoke( DISPID dispidMember, REFIID riid,
 		return DISP_E_TYPEMISMATCH;
 	    }
 	    
-	    if ( oldvar != var )
-		emitPropertyChanged( dispidMember );
+	    emitPropertyChanged( dispidMember );
 	    res = S_OK;
 
-	    if ( m_spAdviseSink && oldvar != var )
+	    if ( m_spAdviseSink )
 		m_spAdviseSink->OnViewChange( DVASPECT_CONTENT, 0 );
 	}
 	break;
