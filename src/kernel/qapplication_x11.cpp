@@ -38,7 +38,6 @@
 // ### needed for solaris-g++ in beta5
 #define QT_CLEAN_NAMESPACE
 
-// Get the system specific includes and defines
 #include "qplatformdefs.h"
 
 // POSIX Large File Support redefines open -> open64

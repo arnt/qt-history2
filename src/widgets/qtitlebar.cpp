@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of some Qt private functions.
 **
 ** Created : 001101
 **
-** Copyright (C) 2000-2001 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the widgets module of the Qt GUI Toolkit.
 **
@@ -35,8 +35,8 @@
 **
 **********************************************************************/
 
-// Get the system specific includes and defines
 #include "qplatformdefs.h"
+
 #include "qtitlebar_p.h"
 
 #ifndef QT_NO_TITLEBAR
