@@ -174,8 +174,12 @@ QSocketDevice::QSocketDevice( Type type )
     QSocketDevice::Datagram for an unreliable UDP socket.
 
     The \a protocol indicates whether the socket should be of type IPv4
-    or IPv6. (The argument \a dummy is necessary for compatibility with some
-    compilers.)
+    or IPv6. Passing \c Unknown is not meaningful in this context and you
+    should avoid using (it creates an IPv4 socket, but your code is not easily
+    readable).
+
+    The argument \a dummy is necessary for compatibility with some
+    compilers.
 
     \sa blocking() protocol()
 */
