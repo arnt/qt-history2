@@ -29,10 +29,10 @@ OpenedList::OpenedList( const Location& location, const QString& hint )
             sty = Numeric;
 	    ini = asNumeric;
 	} else if ( asRoman > 0 && asRoman != 100 && asRoman != 500 ) {
-	    sty = ( hint == hint.lower() ) ? LowerRoman : UpperRoman;
+	    sty = ( hint == hint.toLower() ) ? LowerRoman : UpperRoman;
 	    ini = asRoman;
 	} else {
-	    sty = ( hint == hint.lower() ) ? LowerAlpha : UpperAlpha;
+	    sty = ( hint == hint.toLower() ) ? LowerAlpha : UpperAlpha;
 	    ini = asAlpha;
 	}
 	pref = hintSyntax.cap( 1 );
@@ -72,11 +72,11 @@ QString OpenedList::numberString() const
     case Numeric:
 	return QString::number( number() );
     case UpperAlpha:
-	return toAlpha( number() ).upper();
+	return toAlpha( number() ).toUpper();
     case LowerAlpha:
 	return toAlpha( number() );
     case UpperRoman:
-	return toRoman( number() ).upper();
+	return toRoman( number() ).toUpper();
     case LowerRoman:
 	return toRoman( number() );
     case Bullet:
@@ -103,7 +103,7 @@ int OpenedList::fromAlpha( const QString& str )
     int u;
 
     for ( int i = 0; i < (int) str.length(); i++ ) {
-	u = str[i].lower().unicode();
+	u = str[i].toLower().unicode();
 	if ( u >= 'a' && u <= 'z' ) {
 	    n *= 26;
 	    n += u - 'a' + 1;
@@ -161,7 +161,7 @@ int OpenedList::fromRoman( const QString& str )
     for ( int i = str.length() - 1; i >= 0; i-- ) {
 	j = 0;
 	u = 1000;
-	while ( roman[j] != 'i' && roman[j] != str[i].lower() ) {
+	while ( roman[j] != 'i' && roman[j] != str[i].toLower() ) {
 	    j += 2;
 	    u /= roman[j - 1];
 	}
@@ -173,7 +173,7 @@ int OpenedList::fromRoman( const QString& str )
 	v = u;
     }
 
-    if ( str.lower() == toRoman(n) ) {
+    if ( str.toLower() == toRoman(n) ) {
 	return n;
     } else {
 	return 0;

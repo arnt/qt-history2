@@ -22,9 +22,42 @@ void PageGenerator::generateTree( const Tree *tree, CodeMarker *marker )
     generateInnerNode( tree->root(), marker );
 }
 
+QString PageGenerator::fileBase(const Node *node)
+{
+    if (node->relates())
+	node = node->relates();
+    else if (!node->isInnerNode())
+	node = node->parent();
+
+    QString base = node->doc().baseName();
+    if (base.isEmpty()) {
+	const Node *p = node;
+	forever {
+	    base.prepend(p->name());
+	    if (!p->parent() || p->parent()->name().isEmpty())
+	        break;
+	    base.prepend("-");
+            p = p->parent();
+	}
+
+        if (node->type() == Node::Fake) {
+#ifdef QDOC2_COMPAT
+            if (base.endsWith(".html"))
+	        base.truncate(base.length() - 5);
+#endif
+        }
+
+	base.replace(QRegExp("[^A-Za-z0-9]+"), " ");
+	base = base.trimmed();
+	base.replace(" ", "-");
+	base = base.toLower();
+    }
+    return base;
+}
+
 QString PageGenerator::fileName( const Node *node )
 {
-    return fileBase( node ) + "." + fileExtension( node );
+    return fileBase( node ) + "." + fileExtension();
 }
 
 void PageGenerator::beginSubPage( const Location& location,

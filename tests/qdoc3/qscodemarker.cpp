@@ -28,6 +28,27 @@ bool QsCodeMarker::recognizeLanguage( const QString& lang )
     return lang == "JavaScript" || lang == "Qt Script";
 }
 
+QString QsCodeMarker::plainName( const Node *node )
+{
+    QString name = node->name();
+    if ( node->type() == Node::Function )
+	name += "()";
+    return name;
+}
+
+QString QsCodeMarker::plainFullName( const Node *node, const Node * /* relative */ )
+{
+    QString fullName;
+    for ( ;; ) {
+	fullName.prepend( plainName(node) );
+	if ( node->parent()->name().isEmpty() )
+	    break;
+	node = node->parent();
+	fullName.prepend(".");
+    }
+    return fullName;
+}
+
 QString QsCodeMarker::markedUpCode( const QString& code,
 				    const Node * /* relative */,
 				    const QString& /* dirPath */ )
@@ -131,7 +152,7 @@ QString QsCodeMarker::markedUpSynopsis( const Node *node,
 		    if ( enume->itemAccess((*it).name()) == Node::Public ) {
 			synopsis += comma;
 			synopsis += (*it).name();
-			if ( (*it).value().find(letterRegExp) != -1 )
+			if ( (*it).value().indexOf(letterRegExp) != -1 )
 			    synopsis += " = " + (*it).value();
 			comma = ", ";
 		    }
@@ -199,17 +220,15 @@ QString QsCodeMarker::functionEndRegExp( const QString& /* funcName */ )
     return "^}";
 }
 
-QList<ClassSection> QsCodeMarker::classSections( const ClassNode *classe, SynopsisStyle style )
+QList<Section> QsCodeMarker::classSections( const ClassNode *classe, SynopsisStyle style )
 {
-    QList<ClassSection> sections;
+    QList<Section> sections;
     if ( style == Summary ) {
-	FastClassSection enums(classe, "Enums", "enum", "enums");
-	FastClassSection functions(classe, "Functions", "function", "functions");
-	FastClassSection readOnlyProperties(classe, "Read-Only Properties", "property",
-					    "properties");
-	FastClassSection signalz(classe, "Signals", "signal", "signals");
-	FastClassSection writableProperties(classe, "Writable Properties", "property",
-					    "properties");
+	FastSection enums(classe, "Enums", "enum", "enums");
+	FastSection functions(classe, "Functions", "function", "functions");
+	FastSection readOnlyProperties(classe, "Read-Only Properties", "property", "properties");
+	FastSection signalz(classe, "Signals", "signal", "signals");
+	FastSection writableProperties(classe, "Writable Properties", "property", "properties");
 
 	QStack<const ClassNode *> stack;
 	stack.push( classe );
@@ -254,10 +273,9 @@ QList<ClassSection> QsCodeMarker::classSections( const ClassNode *classe, Synops
 	append( sections, functions );
 	append( sections, signalz );
     } else if ( style == Detailed ) {
-	FastClassSection enums( classe, "Enum Documentation" );
-	FastClassSection functionsAndSignals( classe,
-		"Function and Signal Documentation" );
-	FastClassSection properties( classe, "Property Documentation" );
+	FastSection enums( classe, "Enum Documentation" );
+	FastSection functionsAndSignals( classe, "Function and Signal Documentation" );
+	FastSection properties( classe, "Property Documentation" );
 
 	NodeList::ConstIterator c = classe->childNodes().begin();
 	while ( c != classe->childNodes().end() ) {
@@ -276,7 +294,7 @@ QList<ClassSection> QsCodeMarker::classSections( const ClassNode *classe, Synops
 	append( sections, properties );
 	append( sections, functionsAndSignals );
     } else { // ( style == SeparateList )
-	FastClassSection all( classe );
+	FastSection all( classe );
 
 	QStack<const ClassNode *> stack;
 	stack.push( classe );
@@ -300,6 +318,12 @@ QList<ClassSection> QsCodeMarker::classSections( const ClassNode *classe, Synops
 	append( sections, all );
     }
     return sections;
+}
+
+QList<Section> QsCodeMarker::nonclassSections(const InnerNode * /* innerNode */,
+					      SynopsisStyle /* style */)
+{
+     return QList<Section>();
 }
 
 const Node *QsCodeMarker::resolveTarget( const QString& /* target */,

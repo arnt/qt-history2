@@ -144,7 +144,7 @@ void Location::pop()
 QString Location::fileName() const
 {
     QString fp = filePath();
-    return fp.mid( fp.findRev('/') + 1 );
+    return fp.mid( fp.lastIndexOf('/') + 1 );
 }
 
 /*! \fn int Location::lineNo() const

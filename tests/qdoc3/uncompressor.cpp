@@ -20,7 +20,7 @@ Uncompressor::~Uncompressor()
 Uncompressor *Uncompressor::uncompressorForFileName( const QString& fileName )
 {
     int dot = -1;
-    while ( (dot = fileName.find(".", dot + 1)) != -1 ) {
+    while ( (dot = fileName.indexOf(".", dot + 1)) != -1 ) {
         QString ext = fileName.mid( dot + 1 );
         QList<Uncompressor *>::ConstIterator u = uncompressors.begin();
         while ( u != uncompressors.end() ) {

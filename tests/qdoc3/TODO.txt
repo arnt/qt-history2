@@ -3,10 +3,13 @@ MISC:
   * get rid of spurious 'global' functions
   * make \enum work also for typedefs
 
+  * implement \headerfile
   * implement \ingroup
   * implement \inmodule
   * implement \table
   * implement qbook
+  * implement \stl
+  * implement Q_DECLARE_ITERATOR() hack
 
   * implement \legalesefile
 

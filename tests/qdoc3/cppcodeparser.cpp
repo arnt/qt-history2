@@ -18,6 +18,7 @@
 #define COMMAND_FILE                    Doc::alias("file")
 #define COMMAND_FN                      Doc::alias("fn")
 #define COMMAND_GROUP                   Doc::alias("group")
+#define COMMAND_HEADERFILE              Doc::alias("headerfile")
 #define COMMAND_INHEADERFILE            Doc::alias("inheaderfile")
 #define COMMAND_MODULE                  Doc::alias("module")
 #define COMMAND_NAMESPACE               Doc::alias("namespace")
@@ -138,7 +139,7 @@ const FunctionNode *CppCodeParser::findFunctionNode( const QString& synopsis,
 Set<QString> CppCodeParser::topicCommands()
 {
     return Set<QString>() << COMMAND_CLASS << COMMAND_ENUM << COMMAND_FILE << COMMAND_FN
-			  << COMMAND_GROUP << COMMAND_MODULE
+			  << COMMAND_GROUP << COMMAND_HEADERFILE << COMMAND_MODULE
 #ifdef QDOC2_COMPAT
 			  << COMMAND_OVERLOAD
 #endif
@@ -196,7 +197,7 @@ Node *CppCodeParser::processTopicCommand( const Doc& doc,
 	return func;
     } else if ( nodeTypeMap.contains(command) ) {
 	// ### split(" ") hack is there to support header file syntax
-	QStringList path = QStringList::split("::", QStringList::split(" ", arg)[0]);
+	QStringList path = arg.split(" ")[0].split("::");
 	Node *node = tre->findNode(path
 #ifndef QDOC2_COMPAT
 				   , nodeTypeMap[command]
@@ -212,6 +213,8 @@ Node *CppCodeParser::processTopicCommand( const Doc& doc,
 	return new FakeNode( tre->root(), arg, FakeNode::File );
     } else if ( command == COMMAND_GROUP ) {
 	return new FakeNode( tre->root(), arg, FakeNode::Group );
+    } else if (command == COMMAND_HEADERFILE) {
+	return new FakeNode( tre->root(), arg, FakeNode::HeaderFile );
     } else if ( command == COMMAND_MODULE ) {
 	return new FakeNode( tre->root(), arg, FakeNode::Module );
     } else if ( command == COMMAND_PAGE ) {
@@ -235,11 +238,8 @@ void CppCodeParser::processOtherMetaCommand( const Doc& doc,
     if ( command == COMMAND_INHEADERFILE ) {
 	if ( node != 0 && node->isInnerNode() ) {
 	    ((InnerNode *) node)->addInclude( arg );
-	} else if ( node != 0 && node->parent()->parent() == 0 ) {
-	    /* global function ... */
 	} else {
-	    doc.location().warning( tr("Ignored '\\%1'")
-				    .arg(COMMAND_INHEADERFILE) );
+	    doc.location().warning(tr("Ignored '\\%1'").arg(COMMAND_INHEADERFILE));
 	}
     } else if ( command == COMMAND_OVERLOAD ) {
 	if ( node != 0 && node->type() == Node::Function ) {
@@ -261,7 +261,14 @@ void CppCodeParser::processOtherMetaCommand( const Doc& doc,
 	    doc.location().warning( tr("Ignored '\\%1'").arg(COMMAND_REIMP) );
 	}
     } else if (command == COMMAND_RELATES) {
-	ClassNode *pseudoParent = (ClassNode *)tre->findNode(arg, Node::Class);
+qDebug("RELATES '%s'", arg.latin1());
+	InnerNode *pseudoParent;
+	if (arg.startsWith("<") || arg.startsWith("\"")) {
+	    pseudoParent = static_cast<InnerNode *>(tre->findNode(arg, Node::Fake));
+qDebug(" RESOLVED %s to %p", arg.latin1(), pseudoParent);
+	} else {
+	    pseudoParent = static_cast<InnerNode *>(tre->findNode(arg, Node::Class));
+        }
 	if (!pseudoParent) {
 	    doc.location().warning(tr("Cannot resolve '%1' in '\\%2'")
 				   .arg(arg).arg(COMMAND_RELATES));
@@ -517,8 +524,10 @@ bool CppCodeParser::matchFunctionDecl(InnerNode *parent, QStringList *parentPath
 
     if (tok == Tok_operator &&
 	 (returnType.toString().isEmpty() || returnType.toString().endsWith("::"))) {
+	// ### Doesn't even work
+
 	// 'QString::operator const char *()'
-	parentPath = QStringList::split( sep, returnType.toString() );
+	parentPath = returnType.toString().split(sep);
 	returnType = CodeChunk();
 	readToken();
 
@@ -528,10 +537,10 @@ bool CppCodeParser::matchFunctionDecl(InnerNode *parent, QStringList *parentPath
 	name = "operator " + restOfName.toString();
     } else if ( tok == Tok_LeftParen ) {
 	// constructor or destructor
-	parentPath = QStringList::split( sep, returnType.toString() );
+	parentPath = returnType.toString().split(sep);
 	if ( !parentPath.isEmpty() ) {
 	    name = parentPath.last();
-	    parentPath.remove( parentPath.fromLast() );
+	    parentPath.erase( parentPath.end() - 1 );
 	}
 	returnType = CodeChunk();
     } else {
@@ -635,10 +644,11 @@ bool CppCodeParser::matchBaseSpecifier( ClassNode *classe )
     readToken();
 
     CodeChunk baseClass;
-    bool matches = matchDataType( &baseClass );
-    if ( matches )
-	tre->addBaseClass( classe, access, baseClass.toString(), "" );
-    return matches;
+    if (!matchDataType(&baseClass))
+	return false;
+
+    tre->addBaseClass(classe, access, baseClass.toPath(), baseClass.toString());
+    return true;
 }
 
 bool CppCodeParser::matchBaseList( ClassNode *classe )
@@ -790,9 +800,9 @@ bool CppCodeParser::matchProperty( InnerNode *parent )
 	else if ( key == "WRITE" )
 	    tre->addPropertyFunction(property, value, PropertyNode::Setter);
 	else if ( key == "STORED" )
-	    property->setStored( value.lower() == "true" );
+	    property->setStored( value.toLower() == "true" );
 	else if ( key == "DESIGNABLE" )
-	    property->setDesignable( value.lower() == "true" );
+	    property->setDesignable( value.toLower() == "true" );
 	else if ( key == "RESET" )
 	    tre->addPropertyFunction(property, value, PropertyNode::Resetter);
     }

@@ -23,8 +23,7 @@ protected:
     virtual void generateClassNode( const ClassNode *classe,
 				    CodeMarker *marker );
     virtual void generateFakeNode( const FakeNode *fake, CodeMarker *marker );
-    virtual QString fileBase( const Node *node );
-    virtual QString fileExtension( const Node *node );
+    virtual QString fileExtension();
 
 private:
     void generateHeader( const QString& name );

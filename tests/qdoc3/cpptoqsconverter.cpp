@@ -110,17 +110,17 @@ QString CppToQsConverter::convertedCode( Tree *qsTree, const QString& code,
     QStringList comments;
     int programWidth = 0;
 
-    QStringList originalLines = QStringList::split( "\n", code, TRUE );
+    QStringList originalLines = code.split("\n");
     QStringList::ConstIterator ol = originalLines.begin();
     while ( ol != originalLines.end() ) {
-	QString code = (*ol).stripWhiteSpace();
+	QString code = (*ol).trimmed();
 	QString comment;
 
-	int slashSlash = code.find( "//" );
+	int slashSlash = code.indexOf( "//" );
 	if ( slashSlash != -1 ) {
 	    comment = code.mid( slashSlash );
 	    code.truncate( slashSlash );
-	    code = code.stripWhiteSpace();
+	    code = code.trimmed();
 	}
 
 	code = convertCodeLine( qsTree, program, code, classesWithNoQ );
@@ -147,7 +147,7 @@ QString CppToQsConverter::convertedCode( Tree *qsTree, const QString& code,
 	if ( c != comments.begin() )
 	    result += "\n";
 
-	if ( (*p).stripWhiteSpace().isEmpty() ) {
+	if ( (*p).trimmed().isEmpty() ) {
 	    if ( !(*c).isEmpty() )
 		result += *p;
 	} else {
@@ -217,7 +217,7 @@ QString CppToQsConverter::convertCodeLine( Tree *qsTree,
 	QString returnType = funcPrototypeRegExp.cap( 1 );
 	QString className = funcPrototypeRegExp.cap( 2 );
 	QString funcName = funcPrototypeRegExp.cap( 3 );
-	QString params = funcPrototypeRegExp.cap( 4 ).stripWhiteSpace();
+	QString params = funcPrototypeRegExp.cap( 4 ).trimmed();
 	bool toBeContinued = funcPrototypeRegExp.cap( 5 ).isEmpty();
 
 	className.replace( "::", "." );
@@ -265,7 +265,7 @@ QString CppToQsConverter::convertCodeLine( Tree *qsTree,
     } else if ( ctorVarRegExp.exactMatch(code) ) {
 	QString dataType = ctorVarRegExp.cap( 1 );
 	QString varName = ctorVarRegExp.cap( 2 );
-	QString value = ctorVarRegExp.cap( 3 ).stripWhiteSpace();
+	QString value = ctorVarRegExp.cap( 3 ).trimmed();
 
 	result += "var " + varName + " = ";
 
@@ -295,7 +295,7 @@ QString CppToQsConverter::convertCodeLine( Tree *qsTree,
 		int percent = i;
 		i++;
 		while ( i < (int) fmt.length() &&
-			QString("diouxXeEfFgGaAcsCSpn%\"").find(fmt[i]) == -1 )
+			QString("diouxXeEfFgGaAcsCSpn%\"").indexOf(fmt[i]) == -1 )
 		    i++;
 		if ( fmt[i] == '%' ) {
 		    result += fmt[i++];		
@@ -321,12 +321,11 @@ QString CppToQsConverter::convertCodeLine( Tree *qsTree,
 	}
 	result += ";";
     } else if ( coutRegExp.exactMatch(code) &&
-		program.grep("var cout").isEmpty() ) {
-	QStringList args = QStringList::split( lshiftRegExp,
-					       coutRegExp.cap(1) );
-	args.gres( endlRegExp, "\"\\n\"" );
+		program.find("var cout").isEmpty() ) {
+	QStringList args = coutRegExp.cap(1).split(lshiftRegExp);
+	args.replace( endlRegExp, "\"\\n\"" );
 	if ( args.last() == "\"\\n\"" ) {
-	    args.remove( args.fromLast() );
+	    args.erase( args.end() - 1 );
 	    if ( args.isEmpty() )
 		args << "\"\"";
 	    result += "println ";
@@ -353,7 +352,7 @@ QString CppToQsConverter::convertComment( Tree * /* qsTree */,
     result.replace( gulbrandsenRegExp, "." );
 
     int i = 0;
-    while ( (i = result.find(qClassRegExp, i)) != -1 ) {
+    while ( (i = result.indexOf(qClassRegExp, i)) != -1 ) {
 	if ( classesWithNoQ.contains(qClassRegExp.cap(1)) )
 	    result.remove( i, 1 );
 	i++;

@@ -26,7 +26,7 @@ int editDistance( const QString& s, const QString& t )
 		int x = D( i - 1, j );
 		int y = D( i - 1, j - 1 );
 		int z = D( i, j - 1 );
-		D( i, j ) = 1 + QMIN( QMIN(x, y), z );
+		D( i, j ) = 1 + qMin( qMin(x, y), z );
 	    }
 	}
     }

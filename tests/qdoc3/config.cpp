@@ -243,7 +243,7 @@ Set<QString> Config::subVars( const QString& var ) const
     while ( v != stringValueMap.end() ) {
 	if ( v.key().startsWith(varDot) ) {
 	    QString subVar = v.key().mid( varDot.length() );
-	    int dot = subVar.find( '.' );
+	    int dot = subVar.indexOf( '.' );
 	    if ( dot != -1 )
 		subVar.truncate( dot );
 	    result.insert( subVar );
@@ -280,7 +280,7 @@ QString Config::findFile( const Location& location, const QStringList& files,
     }
 
     QFileInfo fileInfo;
-    QStringList components = QStringList::split( "?", fileName );
+    QStringList components = fileName.split("?");
     QString firstComponent = components.first();
 
     QStringList::ConstIterator f = files.begin();
@@ -310,7 +310,7 @@ QString Config::findFile( const Location& location, const QStringList& files,
 
     QStringList::ConstIterator c = components.begin();
     for ( ;; ) {
-	bool isArchive = ( c != components.fromLast() );
+	bool isArchive = ( c != components.end() - 1 );
 	ArchiveExtractor *extractor = 0;
 	QString userFriendly = *c;
 
@@ -397,7 +397,7 @@ QString Config::copyFile( const Location& location,
     }
 
     QString outFileName = userFriendlySourceFilePath;
-    int slash = outFileName.findRev( "/" );
+    int slash = outFileName.lastIndexOf( "/" );
     if ( slash != -1 )
 	outFileName = outFileName.mid( slash );
 
@@ -421,7 +421,7 @@ int Config::numParams( const QString& value )
     int max = 0;
     for ( int i = 0; i < (int) value.length(); i++ ) {
 	if ( value[i].unicode() > 0 && value[i].unicode() < 8 )
-	    max = QMAX( max, (int)value[i].unicode() );
+	    max = qMax( max, (int)value[i].unicode() );
     }
     return max;
 }
@@ -556,7 +556,7 @@ void Config::load( Location location, const QString& fileName )
 				    text[i].unicode() < '8' ) {
 			    word += QChar( text[i].digitValue() );
 			    SKIP_CHAR();
-			} else if ( (metaCharPos = QString("abfnrtv").find(text[i])) != -1 ) {
+			} else if ( (metaCharPos = QString("abfnrtv").indexOf(text[i])) != -1 ) {
 			    word += "\a\b\f\n\r\t\v"[metaCharPos];
                             SKIP_CHAR();
 			} else {

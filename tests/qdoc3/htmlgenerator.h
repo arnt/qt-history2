@@ -40,8 +40,7 @@ protected:
     virtual void generateClassNode( const ClassNode *classe,
 				    CodeMarker *marker );
     virtual void generateFakeNode( const FakeNode *fake, CodeMarker *marker );
-    virtual QString fileBase( const Node *node );
-    virtual QString fileExtension( const Node *node );
+    virtual QString fileExtension();
 
 private:
     void generateHeader( const QString& title, const Node *node = 0 );
@@ -63,10 +62,11 @@ private:
     void generateLegaleseList(const Node *relative, CodeMarker *marker);
     void generateSynopsis(const Node *node, const InnerNode *relative, CodeMarker *marker,
 			  CodeMarker::SynopsisStyle style);
-    void generateClassSectionList(const ClassSection& section, const ClassNode *relative,
-				  CodeMarker *marker, CodeMarker::SynopsisStyle style);
+    void generateSectionList(const Section& section, const InnerNode *relative,
+			     CodeMarker *marker, CodeMarker::SynopsisStyle style);
     void generateFullName(const Node *apparentNode, const Node *relative, CodeMarker *marker,
 			  const Node *actualNode = 0);
+    void generateDetailedMember(const Node *node, const InnerNode *relative, CodeMarker *marker);
 
     QString cleanRef( const QString& ref );
     QString registerRef( const QString& ref );

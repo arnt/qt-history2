@@ -24,8 +24,8 @@ public:
     virtual void generateTree( const Tree *tree, CodeMarker *marker );
 
 protected:
-    virtual QString fileBase( const Node *node ) = 0;
-    virtual QString fileExtension( const Node *node ) = 0;
+    QString fileBase(const Node *node);
+    virtual QString fileExtension() = 0;
     QString fileName( const Node *node );
     void beginSubPage( const Location& location, const QString& fileName );
     void endSubPage();

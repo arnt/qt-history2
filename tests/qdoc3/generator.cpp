@@ -115,7 +115,7 @@ void Generator::initialize(const Config &config)
 						    " occurrence of '\\1' (found %2)")
 						.arg(*n).arg(numOccs));
 		} else {
-		    int paramPos = def.find( "\1" );
+		    int paramPos = def.indexOf( "\1" );
 		    fmtLeftMaps[*f].insert( *n, def.left(paramPos) );
 		    fmtRightMaps[*f].insert( *n, def.mid(paramPos + 1) );
 		}
@@ -205,8 +205,7 @@ void Generator::generateBody( const Node *node, CodeMarker *marker )
     }
 
     if (node->doc().isEmpty()) {
-	QString name = plainCode( marker->markedUpFullName(node, 0));
-	node->location().warning(tr("No documentation for '%1'").arg(name));
+	node->location().warning(tr("No documentation for '%1'").arg(marker->plainFullName(node)));
     } else {
         generateText(node->doc().body(), node, marker);
 
@@ -313,7 +312,11 @@ void Generator::generateInherits(const ClassNode *classe, CodeMarker *marker)
 	r = classe->baseClasses().begin();
 	index = 0;
 	while ( r != classe->baseClasses().end() ) {
-	    appendFullName( text, (*r).node, classe, marker );
+            text << Atom(Atom::LinkNode, CodeMarker::stringForNode((*r).node))
+	         << Atom(Atom::FormattingLeft, ATOM_FORMATTING_LINK)
+	         << Atom(Atom::String, (*r).dataTypeWithTemplateArgs)
+	         << Atom(Atom::FormattingRight, ATOM_FORMATTING_LINK);
+
 	    if ( (*r).access == Node::Protected ) {
 		text << " (protected)";
 	    } else if ( (*r).access == Node::Private ) {
@@ -641,6 +644,6 @@ void Generator::appendFullName( Text& text, const Node *apparentNode,
 	actualNode = apparentNode;
     text << Atom(Atom::LinkNode, CodeMarker::stringForNode(actualNode))
 	 << Atom(Atom::FormattingLeft, ATOM_FORMATTING_LINK)
-	 << Atom(Atom::String, plainCode(marker->markedUpFullName(apparentNode, relative)))
+	 << Atom(Atom::String, marker->plainFullName(apparentNode, relative))
 	 << Atom(Atom::FormattingRight, ATOM_FORMATTING_LINK);
 }

@@ -27,6 +27,16 @@ bool PlainCodeMarker::recognizeLanguage( const QString& /* lang */ )
     return FALSE;
 }
 
+QString PlainCodeMarker::plainName( const Node * /* node */ )
+{
+    return "";
+}
+
+QString PlainCodeMarker::plainFullName(const Node * /* node */, const Node * /* relative */)
+{
+    return "";
+}
+
 QString PlainCodeMarker::markedUpCode( const QString& code,
 				       const Node * /* relative */,
 				       const QString& /* dirPath */ )
@@ -67,10 +77,16 @@ QString PlainCodeMarker::functionEndRegExp( const QString& /* funcName */ )
     return "";
 }
 
-QList<ClassSection> PlainCodeMarker::classSections(
-	const ClassNode * /* classe */, SynopsisStyle /* style */ )
+QList<Section> PlainCodeMarker::classSections(const ClassNode * /* classe */,
+					      SynopsisStyle /* style */)
 {
-    return QList<ClassSection>();
+    return QList<Section>();
+}
+
+QList<Section> PlainCodeMarker::nonclassSections(const InnerNode * /* innerNode */,
+					         SynopsisStyle /* style */)
+{
+     return QList<Section>();
 }
 
 const Node *PlainCodeMarker::resolveTarget( const QString& /* target */,

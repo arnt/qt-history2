@@ -475,7 +475,7 @@ int Tokenizer::getTokenAfterPreprocessor()
 	    yyCh = getChar();
 	}
 	condition.replace( *comment, "" );
-	condition = condition.simplifyWhiteSpace();
+	condition = condition.simplified();
 
 	/*
 	  The #if, #ifdef, #ifndef, #elif, #else, and #endif
@@ -614,7 +614,7 @@ bool Tokenizer::isTrue(const QString &condition)
 	return isTrue( condition.left(firstAnd) ) &&
 	       isTrue( condition.mid(firstAnd + 2) );
 
-    QString t = condition.simplifyWhiteSpace();
+    QString t = condition.simplified();
     if ( t.isEmpty() )
 	return TRUE;
 

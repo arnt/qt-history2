@@ -69,7 +69,7 @@ CodeMarker *CodeMarker::markerForFileName( const QString& fileName )
 {
     CodeMarker *defaultMarker = markerForLanguage( defaultLang );
     int dot = -1;
-    while ( (dot = fileName.find(".", dot + 1)) != -1 ) {
+    while ((dot = fileName.indexOf(".", dot + 1)) != -1) {
 	QString ext = fileName.mid( dot + 1 );
 	if ( defaultMarker != 0 && defaultMarker->recognizeExtension(ext) )
 	    return defaultMarker;
@@ -159,26 +159,28 @@ QString CodeMarker::sortName( const Node *node )
 	const FunctionNode *func = static_cast<const FunctionNode *>(node);
 	QString sortNo;
 	if ( func->metaness() == FunctionNode::Ctor ) {
-	    sortNo = "1";
+	    sortNo = "C";
 	} else if ( func->metaness() == FunctionNode::Dtor ) {
-	    sortNo = "2";
+	    sortNo = "D";
 	} else {
 	    if (nodeName.startsWith("operator") && nodeName.length() > 8
 		    && !nodeName[8].isLetterOrNumber())
-		sortNo = "4";
+		sortNo = "F";
 	    else
-		sortNo = "3";
+		sortNo = "E";
 	}
 	return sortNo + nodeName + " " + QString::number(func->overloadNumber(), 36);
+    } else if (node->type() == Node::Class) {
+	return "A" + nodeName;
     } else {
-	return "0" + nodeName;
+	return "B" + nodeName;
     }
 }
 
-void CodeMarker::insert(FastClassSection &fastSection, Node *node, SynopsisStyle style)
+void CodeMarker::insert(FastSection &fastSection, Node *node, SynopsisStyle style)
 {
     bool inheritedMember = (!node->relates() &&
-			    (node->parent() != (const InnerNode *)fastSection.classe));
+			    (node->parent() != (const InnerNode *)fastSection.innerNode));
     bool irrelevant = FALSE;
 
     if ( node->access() == Node::Private) {
@@ -188,13 +190,16 @@ void CodeMarker::insert(FastClassSection &fastSection, Node *node, SynopsisStyle
 	irrelevant = (inheritedMember
 		      && (func->metaness() == FunctionNode::Ctor ||
 			  func->metaness() == FunctionNode::Dtor));
-    } else if ( node->type() == Node::Enum || node->type() == Node::Typedef ) {
+    } else if ( node->type() == Node::Class || node->type() == Node::Enum
+		    || node->type() == Node::Typedef ) {
 	irrelevant = ( inheritedMember && style != SeparateList );
     }
 
     if ( !irrelevant ) {
 	if ( !inheritedMember || style == SeparateList ) {
-	    fastSection.memberMap.insert( sortName(node), node );
+	    QString key = sortName(node);
+            if (!fastSection.memberMap.contains(key))
+		fastSection.memberMap.insert(key, node);
 	} else {
 	    if ( node->parent()->type() == Node::Class ) {
 		if (fastSection.inherited.isEmpty()
@@ -208,12 +213,11 @@ void CodeMarker::insert(FastClassSection &fastSection, Node *node, SynopsisStyle
     }
 }
 
-void CodeMarker::append(QList<ClassSection>& sectionList, const FastClassSection& fastSection)
+void CodeMarker::append(QList<Section>& sectionList, const FastSection& fastSection)
 {
     if ( !fastSection.memberMap.isEmpty() ||
 	 !fastSection.inherited.isEmpty() ) {
-	ClassSection section( fastSection.name, fastSection.singularMember,
-			      fastSection.pluralMember );
+	Section section(fastSection.name, fastSection.singularMember, fastSection.pluralMember);
 	section.members = fastSection.memberMap.values();
 	section.inherited = fastSection.inherited;
 	sectionList.append( section );

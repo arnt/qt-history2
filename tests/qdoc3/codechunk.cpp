@@ -2,9 +2,12 @@
   codechunk.cpp
 */
 
+#include <qregexp.h>
+#include <qstringlist.h>
+
 #include "codechunk.h"
 
-enum { Other, Alnum, Gizmo, Comma, LParen, RParen, RAngle };
+enum { Other, Alnum, Gizmo, Comma, LParen, RParen, RAngle, Colon };
 
 // entries 128 and above are Other
 static const int charCategory[256] = {
@@ -19,7 +22,7 @@ static const int charCategory[256] = {
 //  0       1       2       3       4       5       6       7
     Alnum,  Alnum,  Alnum,  Alnum,  Alnum,  Alnum,  Alnum,  Alnum,
 //  8       9       :       ;       <       =       >       ?
-    Alnum,  Alnum,  Other,  Other,  Other,  Gizmo,  RAngle, Gizmo,
+    Alnum,  Alnum,  Colon,  Other,  Other,  Gizmo,  RAngle, Gizmo,
 //  @       A       B       C       D       E       F       G
     Other,  Alnum,  Alnum,  Alnum,  Alnum,  Alnum,  Alnum,  Alnum,
 //  H       I       J       K       L       M       N       O
@@ -38,15 +41,16 @@ static const int charCategory[256] = {
     Alnum,  Alnum,  Alnum,  LParen, Gizmo,  RParen, Other,  Other
 };
 
-static const bool needSpace[7][7] = {
-    /*        a      +      ,      (       )     >      [        */
-    /* [ */ { FALSE, FALSE, FALSE, FALSE, FALSE, TRUE,  FALSE },
-    /* a */ { FALSE, TRUE,  TRUE,  FALSE, TRUE,  TRUE,  FALSE },
-    /* + */ { FALSE, TRUE,  FALSE, FALSE, FALSE, TRUE,  TRUE },
-    /* , */ { TRUE,  TRUE,  TRUE,  TRUE,  TRUE,  TRUE,  TRUE },
-    /* ( */ { TRUE,  TRUE,  TRUE,  FALSE, TRUE,  TRUE,  TRUE },
-    /* ) */ { TRUE,  TRUE,  TRUE,  FALSE, TRUE,  TRUE,  TRUE },
-    /* > */ { TRUE,  TRUE,  TRUE,  FALSE, TRUE,  TRUE,  TRUE }
+static const bool needSpace[8][8] = {
+    /*        [      a      +      ,      (       )     >      :  */
+    /* [ */ { false, false, false, false, false, true,  false, false },
+    /* a */ { false, true,  true,  false, true,  true,  false, false },
+    /* + */ { false, true,  false, false, false, true,  true,  true },
+    /* , */ { true,  true,  true,  true,  true,  true,  true,  true },
+    /* ( */ { true,  true,  true,  false, true,  true,  true,  true },
+    /* ) */ { true,  true,  true,  false, true,  true,  true,  true },
+    /* > */ { true,  true,  true,  false, true,  true,  true,  false },
+    /* : */ { false, false, true,  true,  true,  true,  true,  false }
 };
 
 static int category( QChar ch )
@@ -65,7 +69,7 @@ CodeChunk::CodeChunk( const QString& str )
     /*
       That's good enough for base class names.
     */
-    blen = str.find( QChar('<') );
+    blen = str.indexOf( QChar('<') );
     if ( blen == -1 )
 	blen = str.length();
     b = str.left( blen );
@@ -128,4 +132,11 @@ void CodeChunk::appendHotspot()
 QString CodeChunk::toString() const
 {
     return s;
+}
+
+QStringList CodeChunk::toPath() const
+{
+    QString t = s;
+    t.remove(QRegExp("<([^<>]|<([^<>]|<[^<>]*>)*>)*>"));
+    return t.split("::");
 }

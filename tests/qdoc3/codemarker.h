@@ -12,7 +12,7 @@
 
 class Config;
 
-struct ClassSection
+struct Section
 {
     QString name;
     QString singularMember;
@@ -20,26 +20,25 @@ struct ClassSection
     NodeList members;
     QList<QPair<ClassNode *, int> > inherited;
 
-    ClassSection() { }
-    ClassSection( const QString& name0, const QString& singularMember0,
-		  const QString& pluralMember0 )
+    Section() { }
+    Section( const QString& name0, const QString& singularMember0, const QString& pluralMember0 )
 	: name( name0 ), singularMember( singularMember0 ),
 	  pluralMember( pluralMember0 ) { }
 };
 
-struct FastClassSection
+struct FastSection
 {
-    const ClassNode *classe;
+    const InnerNode *innerNode;
     QString name;
     QString singularMember;
     QString pluralMember;
     QMap<QString, Node *> memberMap;
     QList<QPair<ClassNode *, int> > inherited;
 
-    FastClassSection( const ClassNode *classe0, const QString& name0 = "",
+    FastSection( const InnerNode *innerNode0, const QString& name0 = "",
 		      const QString& singularMember0 = "member",
 		      const QString& pluralMember0 = "members" )
-	: classe( classe0 ), name( name0 ), singularMember( singularMember0 ),
+	: innerNode( innerNode0 ), name( name0 ), singularMember( singularMember0 ),
 	  pluralMember( pluralMember0 ) { }
 };
 
@@ -56,19 +55,21 @@ public:
     virtual bool recognizeCode( const QString& code ) = 0;
     virtual bool recognizeExtension( const QString& ext ) = 0;
     virtual bool recognizeLanguage( const QString& lang ) = 0;
+    virtual QString plainName( const Node *node ) = 0;
+    virtual QString plainFullName( const Node *node, const Node *relative = 0 ) = 0;
     virtual QString markedUpCode( const QString& code, const Node *relative,
 				  const QString& dirPath ) = 0;
     virtual QString markedUpSynopsis( const Node *node, const Node *relative,
 				      SynopsisStyle style ) = 0;
     virtual QString markedUpName( const Node *node ) = 0;
     virtual QString markedUpFullName( const Node *node,
-				      const Node *relative ) = 0;
+				      const Node *relative = 0 ) = 0;
     virtual QString markedUpIncludes( const QStringList& includes ) = 0;
     virtual QString functionBeginRegExp( const QString& funcName ) = 0;
     virtual QString functionEndRegExp( const QString& funcName ) = 0;
-    virtual QList<ClassSection> classSections( const ClassNode *classe, SynopsisStyle style ) = 0;
-    virtual const Node *resolveTarget( const QString& target,
-				       const Node *relative ) = 0;
+    virtual QList<Section> classSections( const ClassNode *classe, SynopsisStyle style ) = 0;
+    virtual QList<Section> nonclassSections(const InnerNode *innerNode, SynopsisStyle style) = 0;
+    virtual const Node *resolveTarget( const QString& target, const Node *relative ) = 0;
 
     static void initialize( const Config& config );
     static void terminate();
@@ -83,8 +84,8 @@ protected:
     QString protect( const QString& string );
     QString taggedNode( const Node *node );
     QString linkTag( const Node *node, const QString& body );
-    void insert(FastClassSection &fastSection, Node *node, SynopsisStyle style);
-    void append( QList<ClassSection>& sectionList, const FastClassSection& fastSection );
+    void insert(FastSection &fastSection, Node *node, SynopsisStyle style);
+    void append( QList<Section>& sectionList, const FastSection& fastSection );
 
 private:
     QRegExp amp;

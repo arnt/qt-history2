@@ -46,8 +46,8 @@ void Quoter::quoteFromFile( const QString& userFriendlyFilePath,
 
       Newlines are preserved because they affect codeLocation.
     */
-    plainLines = QStringList::split( splitPoint, plainCode, TRUE );
-    markedLines = QStringList::split( splitPoint, markedCode, TRUE );
+    plainLines = plainCode.split(splitPoint);
+    markedLines = markedCode.split(splitPoint);
 
     /*
       Squeeze blanks (cat -s).
@@ -144,9 +144,9 @@ bool Quoter::match( const Location& docLocation, const QString& pattern,
 				 .arg(rx.pattern()) );
 	    silent = TRUE;
 	}
-	return str.find( rx ) != -1 || trimWhiteSpace( str ).find( rx ) != -1;
+	return str.indexOf( rx ) != -1 || trimWhiteSpace( str ).indexOf( rx ) != -1;
     } else {
-	return trimWhiteSpace( str ).find( trimWhiteSpace(pattern) ) != -1;
+	return trimWhiteSpace( str ).indexOf( trimWhiteSpace(pattern) ) != -1;
     }
 }
 

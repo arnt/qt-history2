@@ -105,7 +105,7 @@ void QsaKernelParser::parseSourceFile( const Location& location,
 			property->setGetter( member );
 			if ( isWritable ) {
 			    QString setter = member;
-			    setter[0] = setter[0].upper();
+			    setter[0] = setter[0].toUpper();
 			    setter.prepend( "set" );
 			    property->setSetter( setter );
 			}

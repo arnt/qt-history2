@@ -131,12 +131,13 @@ struct RelatedClass
 {
     Node::Access access;
     ClassNode *node;
-    QString templateArgs;
+    QString dataTypeWithTemplateArgs;
 
     RelatedClass() { }
     RelatedClass( Node::Access access0, ClassNode *node0,
-		  const QString& templateArgs0 = "" )
-	: access( access0 ), node( node0 ), templateArgs( templateArgs0 ) { }
+		  const QString& dataTypeWithTemplateArgs0 = "" )
+	: access( access0 ), node( node0 ),
+          dataTypeWithTemplateArgs( dataTypeWithTemplateArgs0 ) { }
 };
 
 class ClassNode : public InnerNode
@@ -144,7 +145,7 @@ class ClassNode : public InnerNode
 public:
     ClassNode( InnerNode *parent, const QString& name );
 
-    void addBaseClass(Access access, ClassNode *node, const QString &templateArgs = "");
+    void addBaseClass(Access access, ClassNode *node, const QString &dataTypeWithTemplateArgs = "");
 
     const QList<RelatedClass> &baseClasses() const { return bas; }
     const QList<RelatedClass> &derivedClasses() const { return der; }
@@ -157,14 +158,15 @@ private:
 class FakeNode : public InnerNode
 {
 public:
-    enum SubType { File, Group, Module, Page };
+    enum SubType { HeaderFile, File, Group, Module, Page };
 
     FakeNode( InnerNode *parent, const QString& name, SubType subType );
 
     void setTitle(const QString &title) { tle = title; }
 
     SubType subType() const { return sub; }
-    const QString &title() const { return tle; }
+    QString title() const { return tle; }
+    QString fullTitle() const;
 
 private:
     SubType sub;
@@ -239,7 +241,7 @@ public:
     enum Metaness { Plain, Signal, Slot, Ctor, Dtor };
     enum Virtualness { NonVirtual, ImpureVirtual, PureVirtual };
 
-    FunctionNode( InnerNode *parent, const QString& name );
+    FunctionNode(InnerNode *parent, const QString &name);
 
     void setReturnType( const QString& returnType ) { rt = returnType; }
     void setMetaness( Metaness metaness ) { met = metaness; }

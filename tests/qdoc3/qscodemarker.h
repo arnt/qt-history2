@@ -13,21 +13,23 @@ public:
     QsCodeMarker();
     ~QsCodeMarker();
 
-    virtual bool recognizeCode( const QString& code );
-    virtual bool recognizeExtension( const QString& ext );
-    virtual bool recognizeLanguage( const QString& lang );
-    virtual QString markedUpCode( const QString& code, const Node *relative,
-				  const QString& dirPath );
-    virtual QString markedUpSynopsis( const Node *node, const Node *relative,
-				      SynopsisStyle style );
-    virtual QString markedUpName( const Node *node );
-    virtual QString markedUpFullName( const Node *node, const Node *relative );
-    virtual QString markedUpIncludes( const QStringList& includes );
-    virtual QList<ClassSection> classSections( const ClassNode *classe, SynopsisStyle style );
-    virtual QString functionBeginRegExp( const QString& funcName );
-    virtual QString functionEndRegExp( const QString& funcName );
-    virtual const Node *resolveTarget( const QString& target,
-				       const Node *relative );
+    bool recognizeCode( const QString& code );
+    bool recognizeExtension( const QString& ext );
+    bool recognizeLanguage( const QString& lang );
+    QString plainName(const Node *node);
+    QString plainFullName(const Node *node, const Node *relative);
+    QString markedUpCode( const QString& code, const Node *relative,
+        		  const QString& dirPath );
+    QString markedUpSynopsis( const Node *node, const Node *relative,
+        		      SynopsisStyle style );
+    QString markedUpName( const Node *node );
+    QString markedUpFullName( const Node *node, const Node *relative );
+    QString markedUpIncludes( const QStringList& includes );
+    QList<Section> classSections( const ClassNode *classe, SynopsisStyle style );
+    QList<Section> nonclassSections(const InnerNode *innerNode, SynopsisStyle style);
+    QString functionBeginRegExp( const QString& funcName );
+    QString functionEndRegExp( const QString& funcName );
+    const Node *resolveTarget( const QString& target, const Node *relative );
 };
 
 #endif

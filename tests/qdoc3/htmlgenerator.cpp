@@ -104,7 +104,7 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
 		skipAhead++;
 		atom = atom->next();
 	    }
-	    str[0] = str[0].lower();
+	    str[0] = str[0].toLower();
 	    if ( str.right(1) == "." )
 		str.truncate( str.length() - 1 );
 	    out() << "This property holds " << str << ".";
@@ -373,10 +373,10 @@ void HtmlGenerator::generateNamespaceNode( const NamespaceNode *namespasse,
 
 void HtmlGenerator::generateClassNode(const ClassNode *classe, CodeMarker *marker)
 {
-    QList<ClassSection> sections;
-    QList<ClassSection>::ConstIterator s;
+    QList<Section> sections;
+    QList<Section>::ConstIterator s;
 
-    QString title = classe->name() + " Class Reference";
+    QString title = marker->plainFullName(classe) + " Class Reference";
     generateHeader(title, classe);
     generateTitle(title);
 
@@ -407,7 +407,7 @@ void HtmlGenerator::generateClassNode(const ClassNode *classe, CodeMarker *marke
 	out() << "<a name=\"" << registerRef((*s).name) << "\"/>\n";
 	out() << "<h3>" << protect((*s).name) << "</h3>\n";
 
-	generateClassSectionList(*s, classe, marker, CodeMarker::Summary);
+	generateSectionList(*s, classe, marker, CodeMarker::Summary);
 
 	if ( !(*s).inherited.isEmpty() ) {
 	    out() << "<ul>\n";
@@ -422,7 +422,7 @@ void HtmlGenerator::generateClassNode(const ClassNode *classe, CodeMarker *marke
 		}
 		out() << " inherited from <a href=\"" << fileName((*p).first)
 		      << "#" << cleanRef((*s).name) << "\">"
-		      << protect(plainCode(marker->markedUpFullName((*p).first, classe)))
+		      << protect(marker->plainFullName((*p).first, classe))
 		      << "</a></li>\n";
 		++p;
 	    }
@@ -447,29 +447,8 @@ void HtmlGenerator::generateClassNode(const ClassNode *classe, CodeMarker *marke
 
 	NodeList::ConstIterator m = (*s).members.begin();
 	while ( m != (*s).members.end() ) {
-	    if ( (*m)->access() != Node::Private ) {
-		out() << "<h3 class=\"fn\">";
-		out() << "<a name=\"" + refForNode( *m ) + "\"/>";
-		generateSynopsis( *m, classe, marker, CodeMarker::Detailed );
-		out() << "</h3>\n";
-		generateStatus(*m, marker);
-		generateBody(*m, marker);
-		generateThreadSafeness(*m, marker);
-                if ((*m)->type() == Node::Property) {
-		    PropertyNode *property = static_cast<PropertyNode *>(*m);
-                    ClassSection section;
-
-		    section.members += property->getters();
-		    section.members += property->setters();
-		    section.members += property->resetters();
-
-		    if (!section.members.isEmpty()) {
-			out() << "<p>Accessor functions:</p>\n";
-			generateClassSectionList(section, classe, marker, CodeMarker::Summary);
-		    }
-                }
-		generateAlsoList( *m, marker );
-	    }
+	    if ( (*m)->access() != Node::Private ) // ### check necessary?
+		generateDetailedMember(*m, classe, marker);
 	    ++m;
 	}
 	++s;
@@ -495,39 +474,56 @@ void HtmlGenerator::generateFakeNode( const FakeNode *fake, CodeMarker *marker )
     generateFooter( fake );
 */
 
-    generateHeader( fake->name(), fake );
-    generateTitle( fake->title() );
-    generateBody( fake, marker );
-    generateAlsoList( fake, marker );
-    generateFooter( fake );
-}
+    QList<Section> sections;
+    QList<Section>::ConstIterator s;
 
-QString HtmlGenerator::fileBase( const Node *node )
-{
-    if (node->relates())
-	node = node->relates();
-    else if (!node->isInnerNode())
-	node = node->parent();
+    generateHeader(fake->fullTitle(), fake);
+    generateTitle(fake->fullTitle());
 
-    QString base = node->doc().baseName();
-    if (base.isEmpty()) {
-	base = node->name();
-        if (node->type() == Node::Fake) {
-#ifdef QDOC2_COMPAT
-            if (base.endsWith(".html"))
-	        base.truncate(base.length() - 5);
-#endif
-        }
-
-	base.replace(QRegExp("[^A-Za-z0-9]+"), " ");
-	base = base.simplified();
-	base.replace(" ", "-");
-	base = base.lower();
+    Text brief = fake->doc().briefText();
+    if (!brief.isEmpty()) {
+	out() << "<p>";
+	generateText( brief, fake, marker );
+	out() << " <a href=\"#" << registerRef( "details" )
+	      << "\">More...</a></p>\n";
     }
-    return base;
+
+    generateStatus(fake, marker);
+
+    sections = marker->nonclassSections(fake, CodeMarker::Summary);
+    s = sections.begin();
+    while (s != sections.end()) {
+	out() << "<a name=\"" << registerRef((*s).name) << "\"/>\n";
+	out() << "<h3>" << protect((*s).name) << "</h3>\n";
+	generateSectionList(*s, fake, marker, CodeMarker::Summary);
+	++s;
+    }
+
+    out() << "<a name=\"" << registerRef("details") << "\"/>\n";
+
+    if (!fake->doc().isEmpty()) {
+	out() << "<hr>\n" << "<h2>" << "Detailed Description" << "</h2>\n";
+	generateBody(fake, marker);
+	generateAlsoList(fake, marker);
+    }
+
+    sections = marker->nonclassSections(fake, CodeMarker::Detailed);
+    s = sections.begin();
+    while (s != sections.end()) {
+	out() << "<hr>\n";
+	out() << "<h2>" << protect((*s).name) << "</h2>\n";
+
+	NodeList::ConstIterator m = (*s).members.begin();
+	while ( m != (*s).members.end() ) {
+	    generateDetailedMember(*m, fake, marker);
+	    ++m;
+	}
+	++s;
+    }
+    generateFooter(fake);
 }
 
-QString HtmlGenerator::fileExtension( const Node * /* node */ )
+QString HtmlGenerator::fileExtension()
 {
     return "html";
 }
@@ -595,17 +591,17 @@ void HtmlGenerator::generateNavigationBar( const NavigationBar& bar,
 
 QString HtmlGenerator::generateListOfAllMemberFile(const ClassNode *classe, CodeMarker *marker)
 {
-    QList<ClassSection> sections = marker->classSections(classe, CodeMarker::SeparateList);
+    QList<Section> sections = marker->classSections(classe, CodeMarker::SeparateList);
     if (sections.size() == 1) {
-        QString fileName = fileBase( classe ) + "-members." + fileExtension( classe );
+        QString fileName = fileBase( classe ) + "-members." + fileExtension();
         beginSubPage( classe->location(), fileName );
         generateHeader( "List of All Members for " + classe->name() );
         out() << "<p>This is the complete list of members for ";
         generateFullName( classe, 0, marker );
         out() << ", including inherited members.</p>\n";
 
-        ClassSection section = sections.first();
-        generateClassSectionList(section, 0, marker, CodeMarker::SeparateList);
+        Section section = sections.first();
+        generateSectionList(section, 0, marker, CodeMarker::SeparateList);
 
         generateFooter();
         endSubPage();
@@ -643,7 +639,7 @@ void HtmlGenerator::generateClassHierarchy(const Node *relative, CodeMarker *mar
 	    out() << "<li>";
             generateFullName(child, relative, marker);
             out() << "\n";
-	    stack.top().remove(stack.top().begin());
+	    stack.top().erase(stack.top().begin());
 
 	    QMap<QString, const Node *> newTop;
 	    foreach (RelatedClass d, child->derivedClasses()) {
@@ -714,12 +710,12 @@ void HtmlGenerator::generateCompactList(const Node *relative, CodeMarker *marker
 
     QMap<QString, const Node *>::ConstIterator c = classMap.begin();
     while (c != classMap.end()) {
-	QString key = c.key().mid( commonPrefixLen ).lower();
+	QString key = c.key().mid( commonPrefixLen ).toLower();
 	int paragraphNo = NumParagraphs - 1;
 
 	if ( key[0].unicode() >= 'a' && key[0].unicode() < 'z' ) {
 	    paragraphNo = key[0].unicode() - 'a';
-	    paragraphName[paragraphNo] = key[0].upper();
+	    paragraphName[paragraphNo] = key[0].toUpper();
 	} else {
 	    paragraphNo = 26;
 	    paragraphName[paragraphNo] = QChar( '?' );
@@ -810,7 +806,7 @@ void HtmlGenerator::generateFunctionIndex(const Node *relative, CodeMarker *mark
     out() << "<p><center><font size=+1><b>";
     for ( int i = 0; i < 26; i++ ) {
 	QChar ch( 'a' + i );
-	out() << QString("<a href=\"#%1\">%2</a> ").arg(ch).arg(ch.upper());
+	out() << QString("<a href=\"#%1\">%2</a> ").arg(ch).arg(ch.toUpper());
     }
     out() << "</b></font></center>\n";
 
@@ -885,8 +881,8 @@ void HtmlGenerator::generateSynopsis(const Node *node, const InnerNode *relative
     out() << highlightedCode( marked, relative );
 }
 
-void HtmlGenerator::generateClassSectionList(const ClassSection& section, const ClassNode *relative,
-					     CodeMarker *marker, CodeMarker::SynopsisStyle style)
+void HtmlGenerator::generateSectionList(const Section& section, const InnerNode *relative,
+					CodeMarker *marker, CodeMarker::SynopsisStyle style)
 {
     if ( !section.members.isEmpty() ) {
 	bool twoColumn = FALSE;
@@ -926,7 +922,7 @@ QString HtmlGenerator::cleanRef( const QString& ref )
     if ( ref.isEmpty() )
 	return clean;
 
-    if ( ref[0].lower() >= 'a' && ref[0].lower() <= 'z' ) {
+    if ( ref[0].toLower() >= 'a' && ref[0].toLower() <= 'z' ) {
 	clean += ref[0];
     } else if ( ref[0] == '~' ) {
 	clean += "dtor-";
@@ -937,7 +933,7 @@ QString HtmlGenerator::cleanRef( const QString& ref )
     }
 
     for ( int i = 1; i < (int) ref.length(); i++ ) {
-	if ( (ref[i].lower() >= 'a' && ref[i].lower() <= 'z') ||
+	if ( (ref[i].toLower() >= 'a' && ref[i].toLower() <= 'z') ||
 	     (ref[i] >= '0' && ref[i] <= '9') || ref[i] == '-' ||
 	     ref[i] == '_' || ref[i] == ':' || ref[i] == '.' ) {
 	    clean += ref[i];
@@ -966,7 +962,7 @@ QString HtmlGenerator::registerRef( const QString& ref )
     QString clean = cleanRef( ref );
 
     for ( ;; ) {
-	QString& prevRef = refMap[clean.lower()];
+	QString& prevRef = refMap[clean.toLower()];
 	if ( prevRef.isEmpty() ) {
 	    prevRef = ref;
 	    break;
@@ -996,7 +992,7 @@ QString HtmlGenerator::highlightedCode(const QString& markedCode, const Node *re
     QString html = markedCode;
 
     int k = 0;
-    while ((k = html.find(linkTag, k)) != -1) {
+    while ((k = html.indexOf(linkTag, k)) != -1) {
 	QString begin;
 	QString end;
 	QString link = linkForNode(CodeMarker::nodeForString(linkTag.cap(2)), relative);
@@ -1120,8 +1116,34 @@ void HtmlGenerator::generateFullName(const Node *apparentNode, const Node *relat
     if ( actualNode == 0 )
 	actualNode = apparentNode;
     out() << "<a href=\"" << linkForNode(actualNode, relative) << "\">"
-	  << protect(plainCode(marker->markedUpFullName(apparentNode, relative)))
+	  << protect(marker->plainFullName(apparentNode, relative))
 	  << "</a>";
+}
+
+void HtmlGenerator::generateDetailedMember(const Node *node, const InnerNode *relative,
+					   CodeMarker *marker)
+{
+    out() << "<h3 class=\"fn\">";
+    out() << "<a name=\"" + refForNode( node ) + "\"/>";
+    generateSynopsis( node, relative, marker, CodeMarker::Detailed );
+    out() << "</h3>\n";
+    generateStatus(node, marker);
+    generateBody(node, marker);
+    generateThreadSafeness(node, marker);
+    if (node->type() == Node::Property) {
+	const PropertyNode *property = static_cast<const PropertyNode *>(node);
+        Section section;
+
+	section.members += property->getters();
+	section.members += property->setters();
+	section.members += property->resetters();
+
+	if (!section.members.isEmpty()) {
+	    out() << "<p>Accessor functions:</p>\n";
+	    generateSectionList(section, relative, marker, CodeMarker::Summary);
+	}
+    }
+    generateAlsoList( node, marker );
 }
 
 void HtmlGenerator::findAllClasses(const InnerNode *node)
@@ -1181,7 +1203,10 @@ int HtmlGenerator::hOffset(const Node *node)
     case Node::Class:
 	return 2;
     case Node::Fake:
-	return 1;
+	if (node->doc().briefText().isEmpty())
+	    return 1;
+	else
+	    return 2;
     case Node::Enum:
     case Node::Typedef:
     case Node::Function:

@@ -20,7 +20,7 @@ void executeCommand( const Location& location, const QString& format,
     }
 
     QString toolName = actualCommand;
-    int space = toolName.find( " " );
+    int space = toolName.indexOf( " " );
     if ( space != -1 )
 	toolName.truncate( space );
 

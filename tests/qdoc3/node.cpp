@@ -66,12 +66,7 @@ InnerNode::~InnerNode()
 
 Node *InnerNode::findNode( const QString& name )
 {
-    QMap<QString, Node *>::ConstIterator c = childMap.find( name );
-    if ( c == childMap.end() ) {
-	return 0;
-    } else {
-	return *c;
-    }
+    return childMap.value(name);
 }
 
 Node *InnerNode::findNode( const QString& name, Type type )
@@ -86,12 +81,7 @@ Node *InnerNode::findNode( const QString& name, Type type )
 
 FunctionNode *InnerNode::findFunctionNode( const QString& name )
 {
-    QMap<QString, Node *>::ConstIterator c = primaryFunctionMap.find( name );
-    if ( c == primaryFunctionMap.end() ) {
-	return 0;
-    } else {
-	return (FunctionNode *) *c;
-    }
+    return static_cast<FunctionNode *>(primaryFunctionMap.value(name));
 }
 
 FunctionNode *InnerNode::findFunctionNode( const FunctionNode *clone )
@@ -243,8 +233,7 @@ bool InnerNode::isSameSignature( const FunctionNode *f1,
     while ( p2 != f2->parameters().end() ) {
 	if ( (*p1).hasType() && (*p2).hasType() ) {
 	    if ( (*p1).leftType() != (*p2).leftType() ||
-		 (*p1).rightType() != (*p2).rightType() ||
-		 (*p1).defaultValue() != (*p2).defaultValue() )
+		 (*p1).rightType() != (*p2).rightType() )
 		return FALSE;
 	}
 	++p1;
@@ -316,16 +305,24 @@ ClassNode::ClassNode( InnerNode *parent, const QString& name )
 {
 }
 
-void ClassNode::addBaseClass( Access access, ClassNode *node,
-			      const QString& templateArgs )
+void ClassNode::addBaseClass(Access access, ClassNode *node,
+			     const QString &dataTypeWithTemplateArgs)
 {
-    bas.append( RelatedClass(access, node, templateArgs) );
-    node->der.append( RelatedClass(access, this) );
+    bas.append(RelatedClass(access, node, dataTypeWithTemplateArgs));
+    node->der.append(RelatedClass(access, this));
 }
 
 FakeNode::FakeNode( InnerNode *parent, const QString& name, SubType subType )
     : InnerNode( Fake, parent, name ), sub( subType )
 {
+}
+
+QString FakeNode::fullTitle() const
+{
+    if (sub == HeaderFile)
+	return name() + " - " + title();
+    else
+	return title();
 }
 
 EnumNode::EnumNode( InnerNode *parent, const QString& name )

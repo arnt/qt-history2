@@ -152,19 +152,7 @@ void ManGenerator::generateFakeNode( const FakeNode *fake, CodeMarker *marker )
     generateFooter();
 }
 
-QString ManGenerator::fileBase( const Node *node )
-{
-    if ( !node->isInnerNode() )
-	node = node->parent();
-
-    QString base = node->name();
-    base.replace( QRegExp("[^A-Za-z0-9]+"), " " );
-    base = base.simplifyWhiteSpace();
-    base.replace( " ", "_" );
-    return "man/" + base;
-}
-
-QString ManGenerator::fileExtension( const Node * /* node */ )
+QString ManGenerator::fileExtension()
 {
     return "3qt";
 }

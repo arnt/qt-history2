@@ -21,7 +21,7 @@ public:
     FunctionNode *findFunctionNode(const QStringList &path);
     FunctionNode *findFunctionNode(const QStringList &parentPath, const FunctionNode *clone);
     void addBaseClass(ClassNode *subclass, Node::Access access, const QStringList &basePath,
-		      const QString &baseTemplateArgs);
+		      const QString &dataTypeWithTemplateArgs);
     void addPropertyFunction(PropertyNode *property, const QString &funcName,
 			     PropertyNode::FunctionRole funcRole);
     void resolveInheritance();

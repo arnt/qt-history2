@@ -238,7 +238,7 @@ Node *QsCodeParser::processTopicCommand( const Doc& doc, const QString& command,
 	}
 	return 0;
     } else if ( nodeTypeMap.contains(command) ) {
-	QStringList subArgs = QStringList::split( " ", arg );
+	QStringList subArgs = arg.split(" ");
 	QString dataType;
 
 	if ( subArgs.count() == 3 && subArgs[1] == ":" ) {
@@ -248,7 +248,7 @@ Node *QsCodeParser::processTopicCommand( const Doc& doc, const QString& command,
 				    .arg(command) );
 	}
 
-	QStringList path = QStringList::split( ".", subArgs[0] );
+	QStringList path = subArgs[0].split(".");
 	Node *quickNode = qsTre->findNode( path, nodeTypeMap[command] );
 	if ( quickNode == 0 ) {
 	    doc.location().warning( tr("Cannot resolve '%1' specified with"
@@ -323,9 +323,8 @@ void QsCodeParser::extractRegExp( const QRegExp& regExp, QString& source,
     QRegExp blankLineRegExp(
 	    "[ \t]*(?:\n(?:[ \t]*\n)+[ \t]*|[ \n\t]*\\\\code|"
 	    "\\\\endcode[ \n\t]*)" );
-    QStringList paras = QStringList::split( blankLineRegExp,
-					    source.stripWhiteSpace() );
-    paras = paras.grep( regExp );
+    QStringList paras = source.trimmed().split(blankLineRegExp);
+    paras = paras.find( regExp );
     if ( paras.count() == 0 ) {
 	doc.location().warning( tr("Cannot find regular expression '%1'")
 				.arg(regExp.pattern()) );
@@ -347,7 +346,7 @@ void QsCodeParser::extractTarget( const QString& target, QString& source,
     targetRegExp.setMinimal( TRUE );
 
     int pos = 0;
-    while ( (pos = source.find(targetRegExp, pos)) != -1 ) {
+    while ( (pos = source.indexOf(targetRegExp, pos)) != -1 ) {
 	if ( targetRegExp.cap(2) == target ) {
 	    source = targetRegExp.cap( 1 ) + "\n\n";
 	    return;
@@ -413,9 +412,9 @@ void QsCodeParser::applyReplacementList( QString& source, const Doc& doc )
 	    "\\\\" + COMMAND_QUICKCODE + "(.*)\\\\" + COMMAND_ENDQUICKCODE );
     quickcodeRegExp.setMinimal( TRUE );
 
-    int quickcodePos = doc.source().find( quickcodeRegExp );
+    int quickcodePos = doc.source().indexOf( quickcodeRegExp );
     if ( quickcodePos != -1 ) {
-	int codePos = source.find( codeRegExp );
+	int codePos = source.indexOf( codeRegExp );
 	if ( codePos == -1 ) {
 	    doc.location().warning(
 		    tr("Cannot find any '\\%1' snippet corresponding to '\\%2'")
@@ -425,11 +424,11 @@ void QsCodeParser::applyReplacementList( QString& source, const Doc& doc )
 			    quickcodeRegExp.cap(1) );
 	    codePos = codeRegExp.pos( 1 ) + quickcodeRegExp.cap( 1 ).length();
 
-	    if ( doc.source().find(quickcodeRegExp, quickcodePos + 1) != -1 ) {
+	    if ( doc.source().indexOf(quickcodeRegExp, quickcodePos + 1) != -1 ) {
 		doc.location().warning(
 			tr("Cannot use '\\%1' twice in a row")
 			.arg(COMMAND_QUICKCODE) );
-	    } else if ( source.find(codeRegExp, codePos + 1) != -1 ) {
+	    } else if ( source.indexOf(codeRegExp, codePos + 1) != -1 ) {
 		doc.location().warning( tr("Ambiguous '\\%1'")
 					.arg(COMMAND_QUICKCODE) );
 	    }
@@ -492,13 +491,12 @@ void QsCodeParser::quickifyClass( ClassNode *quickClass )
     while ( r != qtClass->baseClasses().end() ) {
 	ClassNode *quickBaseClass = cpp2qs.findClassNode( qsTre,
 							  (*r).node->name() );
-	if ( quickBaseClass != 0 )
-	    quickClass->addBaseClass( (*r).access, quickBaseClass );
+	if (quickBaseClass)
+	    quickClass->addBaseClass((*r).access, quickBaseClass);
 	++r;
     }
     if ( quickClass->baseClasses().isEmpty() && quickClass->name() != "Object" )
-	quickClass->addBaseClass( Node::Public,
-				  cpp2qs.findClassNode(qsTre, "Object") );
+	quickClass->addBaseClass(Node::Public, cpp2qs.findClassNode(qsTre, "Object"));
 
     Set<QString> funcBlackList;
     Set<QString> propertyBlackList;
@@ -687,7 +685,7 @@ QString QsCodeParser::quickifiedDoc( const QString& source )
 		} while ( source[i - 1] != '\n' );
 
 		int begin = i;
-		int end = source.find( "\\endcode", i );
+		int end = source.indexOf( "\\endcode", i );
 		if ( end != -1 ) {
 		    QString code = source.mid( begin, end - begin );
 		    result += cpp2qs.convertedCode( qsTre, code,
@@ -735,7 +733,7 @@ void QsCodeParser::setQuickDoc( Node *quickNode, const Doc& doc,
 
     if (doc.metaCommandsUsed().contains(COMMAND_QUICKIFY)) {
 	QString source = doc.source();
-	int pos = source.find( quickifyCommand );
+	int pos = source.indexOf( quickifyCommand );
 	if ( pos != -1 ) {
 	    QString quickifiedSource = quickNode->doc().source();
 	    if ( !qtParams.isEmpty() && qtParams != quickParams )
@@ -745,7 +743,7 @@ void QsCodeParser::setQuickDoc( Node *quickNode, const Doc& doc,
 
 	    do {
 		QString extract = quickifiedSource;
-		QString arg = quickifyCommand.cap( 1 ).simplifyWhiteSpace();
+		QString arg = quickifyCommand.cap( 1 ).simplified();
 		if ( !arg.isEmpty() ) {
 		    if ( arg.startsWith("/") && arg.endsWith("/") &&
 			 arg.length() > 2 ) {
@@ -757,7 +755,7 @@ void QsCodeParser::setQuickDoc( Node *quickNode, const Doc& doc,
 		}
 		source.replace( pos, quickifyCommand.matchedLength(), extract );
 		pos += extract.length();
-	    } while ( (pos = source.find(quickifyCommand, pos)) != -1 );
+	    } while ( (pos = source.indexOf(quickifyCommand, pos)) != -1 );
 
 	    QRegExp quickcodeRegExp(
 		    "\\\\" + COMMAND_QUICKCODE + "(.*)\\\\" +
@@ -800,7 +798,7 @@ bool QsCodeParser::makeFunctionNode( const QString& synopsis,
     bool optional = FALSE;
 
     QString paramStr = funcRegExp.cap( 3 );
-    QStringList params = QStringList::split( ",", paramStr );
+    QStringList params = paramStr.split(",");
     QStringList::ConstIterator p = params.begin();
     while ( p != params.end() ) {
 	if ( paramRegExp.exactMatch(*p) ) {

@@ -811,7 +811,7 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 		append( Atom::FormattingRight, *f );
 		if ( *f == ATOM_FORMATTING_INDEX && indexStartedPara )
 		    skipAllSpaces();
-		pendingFormats.remove( f );
+		pendingFormats.erase( f );
 	    }
 	} else {
 	    if ( paraState == OutsidePara ) {
@@ -1018,7 +1018,7 @@ bool DocParser::openCommand( int command )
 	QList<int> ordering;
 	ordering << CMD_ABSTRACT << CMD_SIDEBAR << CMD_QUOTATION << CMD_TABLE
 		 << CMD_FOOTNOTE;
-	ok = ordering.findIndex( top ) < ordering.findIndex( command );
+	ok = ordering.indexOf( top ) < ordering.indexOf( command );
     }
 
     if ( ok ) {
@@ -1450,7 +1450,7 @@ QString DocParser::getArgument( bool verbatim )
 	    }
 	}
 
-	if ( arg.length() > 1 && QString(".,:;!?").find(in[pos - 1]) != -1 &&
+	if ( arg.length() > 1 && QString(".,:;!?").indexOf(in[pos - 1]) != -1 &&
 	     !arg.endsWith("...") ) {
 	    arg.truncate( arg.length() - 1 );
 	    pos--;
@@ -1460,7 +1460,7 @@ QString DocParser::getArgument( bool verbatim )
 	    pos -= 2;
 	}
     }
-    return arg.simplifyWhiteSpace();
+    return arg.simplified();
 }
 
 QString DocParser::getOptionalArgument()
@@ -1483,7 +1483,7 @@ QString DocParser::getRestOfLine()
     while ( pos < (int) in.length() && in[pos] != '\n' )
 	pos++;
 
-    QString t = in.mid( begin, pos - begin ).simplifyWhiteSpace();
+    QString t = in.mid( begin, pos - begin ).simplified();
     skipSpacesOnLine();
     return t;
 }
@@ -1758,7 +1758,7 @@ Text Doc::trimmedBriefText(const QString &className) const
         QString whats;
         bool standardWording = true;
 
-        QStringList w = QStringList::split(" ", atom->string(), true);
+        QStringList w = atom->string().split(" ");
         if (!w.isEmpty() && w.first() == "The")
 	    w.removeFirst();
         else
@@ -1788,7 +1788,7 @@ Text Doc::trimmedBriefText(const QString &className) const
         if (whats.isEmpty())
 	    standardWording = false;
         else
-	    whats[0] = whats[0].upper();
+	    whats[0] = whats[0].toUpper();
 
 	// ### move this once \brief is abolished for properties
         if (!standardWording) {

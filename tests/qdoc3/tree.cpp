@@ -9,14 +9,14 @@ struct InheritanceBound
 {
     Node::Access access;
     QStringList basePath;
-    QString baseTemplateArgs;
+    QString dataTypeWithTemplateArgs;
 
     InheritanceBound()
-	: access( Node::Public ) { }
+	: access(Node::Public) { }
     InheritanceBound( Node::Access access0, const QStringList& basePath0,
-		      const QString& baseTemplateArgs0 )
-	: access( access0 ), basePath( basePath0 ),
-	  baseTemplateArgs( baseTemplateArgs0 ) { }
+		      const QString &dataTypeWithTemplateArgs0)
+	: access(access0), basePath(basePath0),
+	  dataTypeWithTemplateArgs(dataTypeWithTemplateArgs0) { }
 };
 
 typedef QMap<PropertyNode::FunctionRole, QString> RoleMap;
@@ -67,7 +67,7 @@ Node *Tree::findNode( const QStringList& path, Node::Type type )
 FunctionNode *Tree::findFunctionNode( const QStringList& path )
 {
     QStringList parentPath = path;
-    parentPath.remove( parentPath.fromLast() );
+    parentPath.remove( parentPath.end() - 1 );
     Node *parent = findNode( parentPath );
     if ( parent == 0 || !parent->isInnerNode() ) {
 	return 0;
@@ -88,11 +88,11 @@ FunctionNode *Tree::findFunctionNode( const QStringList& parentPath,
 }
 
 void Tree::addBaseClass( ClassNode *subclass, Node::Access access,
-			 const QStringList& basePath,
-			 const QString& baseTemplateArgs )
+			 const QStringList &basePath,
+			 const QString &dataTypeWithTemplateArgs )
 {
     priv->unresolvedInheritanceMap[subclass].append(
-	    InheritanceBound(access, basePath, baseTemplateArgs) );
+	    InheritanceBound(access, basePath, dataTypeWithTemplateArgs));
 }
 
 
@@ -150,11 +150,9 @@ void Tree::resolveInheritance(int pass, ClassNode *classe)
 	QList<InheritanceBound> bounds = priv->unresolvedInheritanceMap[classe];
 	QList<InheritanceBound>::ConstIterator b = bounds.begin();
 	while ( b != bounds.end() ) {
-	    ClassNode *baseClass =
-		    (ClassNode *) findNode( (*b).basePath, Node::Class );
-	    if ( baseClass != 0 )
-		classe->addBaseClass( (*b).access, baseClass,
-				      (*b).baseTemplateArgs );
+	    ClassNode *baseClass = (ClassNode *)findNode((*b).basePath, Node::Class);
+	    if (baseClass)
+		classe->addBaseClass((*b).access, baseClass, (*b).dataTypeWithTemplateArgs);
 	    ++b;
 	}
     } else {

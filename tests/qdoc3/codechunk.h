@@ -47,6 +47,7 @@ public:
 
     bool isEmpty() const { return s.isEmpty(); }
     QString toString() const;
+    QStringList toPath() const;
     const QString& base() const { return b; }
 
 private:
