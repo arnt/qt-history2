@@ -3714,6 +3714,10 @@ void QWidget::show()
     if( isTopLevel() )
 	QApplication::sendPostedEvents(0, QEvent::LayoutHint);
 
+    // Set up the focus stack before the application has a chance to transfer focus
+    if ( testWFlags(WType_Popup) )
+	qApp->openPopup( this );
+
     QShowEvent showEvent;
     QApplication::sendEvent( this, &showEvent );
 
@@ -3729,9 +3733,6 @@ void QWidget::show()
 	QApplication::postEvent( this, new QEvent( QEvent::ShowWindowRequest ) );
     else
 	showWindow();
-
-    if ( testWFlags(WType_Popup) )
-	qApp->openPopup( this );
 
 #if defined(QT_ACCESSIBILITY_SUPPORT)
     QAccessible::updateAccessibility( this, 0, QAccessible::ObjectShow );
