@@ -134,7 +134,7 @@ HelpMainWindow::HelpMainWindow()
 	exit( 0 );
 	return;
     }
-    
+
     if ( !QFile::exists( docDir + "/titleindex" ) ) {
 	QMessageBox::critical( this, tr( "Error" ), tr( "Couldn't find the Qt documentation title index file!\n"
 							"Use mktitleindex to create it!" ) );
@@ -147,19 +147,19 @@ HelpMainWindow::HelpMainWindow()
     viewer = new HelpView( splitter, docDir );
     splitter->setResizeMode( navigation, QSplitter::KeepSize );
     setCentralWidget( splitter );
-    
+
     connect( navigation, SIGNAL( showLink( const QString &, const QString& ) ),
 	     viewer, SLOT( showLink( const QString &, const QString& ) ) );
-    
+
     QPopupMenu *file = new QPopupMenu( this );
     menuBar()->insertItem( tr( "&File" ), file );
     file->insertItem( tr( "&Print" ), this, SLOT( slotFilePrint() ), CTRL + Key_P );
     file->insertSeparator();
     file->insertItem( tr( "&Quit" ), qApp, SLOT( quit() ), CTRL + Key_Q );
-    
+
     QPopupMenu *edit = new QPopupMenu( this );
     menuBar()->insertItem( tr( "&Edit" ), edit );
-    
+
     edit->insertItem( tr( "&Copy" ), this, SLOT( slotEditCopy() ), CTRL + Key_C );
     edit->insertItem( tr( "Select &All" ), this, SLOT( slotEditSelectAll() ), CTRL + Key_A );
     edit->insertSeparator();
@@ -167,7 +167,7 @@ HelpMainWindow::HelpMainWindow()
 
     QPopupMenu *view = new QPopupMenu( this );
     menuBar()->insertItem( tr( "&View" ), view );
-    
+
     view->insertItem( tr( "&Contents" ), this, SLOT( slotViewContents() ), ALT + Key_C );
     view->insertItem( tr( "&Index" ), this, SLOT( slotViewIndex() ), ALT + Key_I );
     view->insertItem( tr( "&Search" ), this, SLOT( slotViewSearch() ), ALT + Key_S );
@@ -175,14 +175,14 @@ HelpMainWindow::HelpMainWindow()
 
     QPopupMenu *go = new QPopupMenu( this );
     menuBar()->insertItem( tr( "&Go" ), go );
-    
+
     go->insertItem( tr( "&Back" ), this, SLOT( slotGoBack() ), CTRL + Key_Left );
     go->insertItem( tr( "&Forward" ), this, SLOT( slotGoForward() ), CTRL + Key_Right );
     go->insertItem( tr( "&Home" ), this, SLOT( slotGoHome() ), CTRL + Key_Home );
     go->insertSeparator();
     history = new QPopupMenu( this );
     go->insertItem( tr( "History" ), history );
-    
+
     QPopupMenu *help = new QPopupMenu( this );
     menuBar()->insertSeparator();
     menuBar()->insertItem( tr( "&Help" ), help );
@@ -204,6 +204,8 @@ HelpMainWindow::HelpMainWindow()
     tb->setStretchableWidget( new QWidget( tb ) );
     tb->setStretchMode( QToolBar::FullWidth );
     setUsesTextLabel( TRUE );
+
+    navigation->setViewMode( HelpNavigation::Index );
 }
 
 void HelpMainWindow::slotFilePrint()
@@ -221,10 +223,10 @@ void HelpMainWindow::slotFilePrint()
 		   metrics.height()-(margin+30)*dpiy/72*2 );
 	double scale = 0.75;
 	p.scale(scale, scale );
-	body = QRect( int(body.x()/scale), int(body.y()/scale), 
+	body = QRect( int(body.x()/scale), int(body.y()/scale),
 		      int(body.width()/scale), int(body.height()/scale) );
 	QFont font("times");
-	QSimpleRichText richText( viewer->text(), font, viewer->context(), viewer->styleSheet(), 
+	QSimpleRichText richText( viewer->text(), font, viewer->context(), viewer->styleSheet(),
 				  viewer->mimeSourceFactory(), body.height() );
 	richText.setWidth( &p, body.width() );
 	font.setItalic( TRUE );
@@ -235,11 +237,11 @@ void HelpMainWindow::slotFilePrint()
 	do {
 	    richText.draw( &p, body.left(), body.top(), view, colorGroup() );
 	    p.setFont( font );
-	    p.drawText( view.right() - p.fontMetrics().width( viewer->caption() ), 
+	    p.drawText( view.right() - p.fontMetrics().width( viewer->caption() ),
 			view.top() - p.fontMetrics().descent() - 5, viewer->caption() );
 	    p.setPen(1);
 	    p.drawLine( view.left(), view.top()-2, view.right(), view.top()-2 );
-	    p.drawText( view.right() - p.fontMetrics().width( QString::number(page) ), 
+	    p.drawText( view.right() - p.fontMetrics().width( QString::number(page) ),
 			view.bottom() + p.fontMetrics().ascent() + 5, QString::number(page) );
 	    view.moveBy( 0, body.height() );
 	    p.translate( 0 , -body.height() );
@@ -298,7 +300,7 @@ void HelpMainWindow::slotGoHome()
 void HelpMainWindow::slotHelpAbout()
 {
 }
- 
+
 void HelpMainWindow::slotHelpAboutQt()
 {
     QMessageBox::aboutQt( this, "Qt Application Example" );
