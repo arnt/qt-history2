@@ -2554,7 +2554,7 @@ void MainWindow::checkTempFiles()
     QApplication::setOverrideCursor( waitCursor );
     for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it ) {
 	if ( load )
-	    openFile( s + "/" + *it, FALSE );
+	    openFormWindow( s + "/" + *it, FALSE );
 	d.remove( *it );
     }
 }
@@ -3122,7 +3122,7 @@ void MainWindow::showSourceLine( QObject *o, int line, LineMode lm )
     }
 
     mblockNewForms = TRUE;
-    openFile( currentProject->makeAbsolute( *qwf_forms->find( (QWidget*)o ) ) );
+    openFormWindow( currentProject->makeAbsolute( *qwf_forms->find( (QWidget*)o ) ) );
     qApp->processEvents(); // give all views the chance to get the formwindow
     SourceEditor *se = editSource();
     if ( se ) {

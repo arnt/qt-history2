@@ -81,7 +81,7 @@ static void signalHandler( int )
 		fw = (FormWindow*) l->next();
 	    }
 	    if ( !haveit )
-		MainWindow::self->openFile( arg );
+		MainWindow::self->openFormWindow( arg );
 	}
     }
     MainWindow::self->raise();
@@ -152,7 +152,7 @@ int main( int argc, char *argv[] )
 #endif
 
 #if defined (QT_REMOTE_CONTROL)
-    // {9A6A9A56-011B-4FEE-9B83-5BAD85071729} 
+    // {9A6A9A56-011B-4FEE-9B83-5BAD85071729}
     static const QUuid id = QUuid( 0x9a6a9a56, 0x011b, 0x4fee, 0x9b, 0x83, 0x5b, 0xad, 0x85, 0x07, 0x17, 0x29 );
     a.setEnableRemoteControl(TRUE,id);
 #endif

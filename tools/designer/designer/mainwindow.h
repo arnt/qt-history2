@@ -110,7 +110,7 @@ public:
     QPopupMenu *setupNormalHierarchyMenu( QWidget *parent );
     QPopupMenu *setupTabWidgetHierarchyMenu( QWidget *parent, const char *addSlot, const char *removeSlot );
 
-    void openFile( const QString &fn, bool validFileName = TRUE );
+    FormWindow *openFormWindow( const QString &fn, bool validFileName = TRUE );
     bool isCustomWidgetUsed( MetaDataBase::CustomWidget *w );
 
     void setGrid( const QPoint &p );

@@ -1097,7 +1097,7 @@ void MainWindow::fileOpen( const QString &filter, const QString &extension, cons
 		addRecentlyOpened( filename, recentlyProjects );
 		openProject( filename );
 	    } else if ( fi.extension() == "ui" && ( extension.isEmpty() || extension.find( ";ui" ) != -1 ) ) {
-		openFile( filename );
+		openFormWindow( filename );
 		addRecentlyOpened( filename, recentlyFiles );
 	    } else if ( !extension.isEmpty() && extension.find( ";" + fi.extension() ) != -1 ||
 			additionalSources.find( fi.extension() ) != additionalSources.end() ) {
@@ -1131,7 +1131,7 @@ void MainWindow::fileOpen( const QString &filter, const QString &extension, cons
 		}
 		addRecentlyOpened( filename, recentlyFiles );
 		for ( QStringList::Iterator it = list.begin(); it != list.end(); ++it ) {
-		    openFile( *it, FALSE );
+		    openFormWindow( *it, FALSE );
 		    QFile::remove( *it );
 		}
 		statusBar()->clear();
@@ -1140,10 +1140,10 @@ void MainWindow::fileOpen( const QString &filter, const QString &extension, cons
     }
 }
 
-void MainWindow::openFile( const QString &filename, bool validFileName )
+FormWindow *MainWindow::openFormWindow( const QString &filename, bool validFileName )
 {
     if ( filename.isEmpty() )
-	return;
+	return 0;
 
     bool makeNew = FALSE;
     static bool blockCheck = FALSE;
@@ -1163,14 +1163,14 @@ void MainWindow::openFile( const QString &filename, bool validFileName )
 		FormWindow *fw = currentProject->formWindow( currentProject->makeRelative( filename ) );
 		if ( fw ) {
 		    fw->setFocus();
-		    return;
+		    return fw;
 		} else {
 		    blockCheck = TRUE;
-		    // this calls MainWindow::openFile() again
+		    // this calls MainWindow::openFormWindow() again
 		    //wspace->openForm( currentProject->makeRelative( filename ) );
 		    // ##### project should do this
 		    blockCheck = FALSE;
-		    return;
+		    return 0;
 		}
 	    }
 	    QApplication::setOverrideCursor( WaitCursor );
@@ -1186,6 +1186,7 @@ void MainWindow::openFile( const QString &filename, bool validFileName )
 		statusBar()->message( tr( "Failed to load file %1").arg( filename ), 5000 );
 		QMessageBox::information( this, tr("Load File"), tr("Couldn't load file %1").arg( filename ) );
 	    }
+	    return (FormWindow*)resource.widget();
 	} else {
 	    statusBar()->clear();
 	}
@@ -1193,7 +1194,11 @@ void MainWindow::openFile( const QString &filename, bool validFileName )
 	fileNew();
 	if ( formWindow() )
 	    formWindow()->setFileName( filename );
+	if ( !formWindow()->formFile() )
+	    return formWindow();
+	return 0;
     }
+    return 0;
 }
 
 

@@ -20,15 +20,24 @@
 
 #include "formfile.h"
 #include "timestamp.h"
+#include "project.h"
+#include "formwindow.h"
+#include "command.h"
+#include "sourceeditor.h"
+#include "mainwindow.h"
+#include "../interfaces/languageinterface.h"
 
-FormFile::FormFile( Project *p )
-    : pro( p ), fw( 0 ), ed( 0 ), timeStamp( this, "" )
+FormFile::FormFile( const QString &fn, bool temp, Project *p )
+    : filename( fn ), fileNameTemp( temp ), pro( p ), fw( 0 ), ed( 0 ), timeStamp( 0, fn + codeExtension() )
 {
+    pro->addFormFile( this );
 }
 
 void FormFile::setFormWindow( FormWindow *f )
 {
     fw = f;
+    if ( fw )
+	fw->setFormFile( this );
 }
 
 void FormFile::setEditor( SourceEditor *e )
@@ -36,15 +45,9 @@ void FormFile::setEditor( SourceEditor *e )
     ed = e;
 }
 
-void FormFile::setUiFile( const QString &fn )
+void FormFile::setFileName( const QString &fn )
 {
-    uifile = fn;
-}
-
-void FormFile::setCodeFile( const QString &fn )
-{
-    codefile = fn;
-    timeStamp.setFileName( fn );
+    filename = fn;
 }
 
 void FormFile::setCode( const QString &c )
@@ -62,14 +65,14 @@ SourceEditor *FormFile::editor() const
     return ed;
 }
 
-QString FormFile::uiFile() const
+QString FormFile::fileName() const
 {
-    return uifile;
+    return filename;
 }
 
 QString FormFile::codeFile() const
 {
-    return codefile;
+    return filename + codeExtension();
 }
 
 QString FormFile::code() const
@@ -102,12 +105,78 @@ bool FormFile::closeEvent()
     return FALSE;
 }
 
-void FormFile::setModified( bool m )
+void FormFile::setModified( bool m, int who )
 {
+    if ( ( who & WFormWindow ) == WFormWindow )
+	setFormWindowModified( m );
+    if ( ( who & WFormCode ) == WFormCode )
+	setCodeModified( m );
 }
 
-bool FormFile::isModified()
+bool FormFile::isModified( int who )
 {
-    return FALSE;
+    if ( who == WFormWindow )
+	return isFormWindowModified();
+    if ( who == WFormCode )
+	return isCodeModified();
+    return isCodeModified() || isFormWindowModified();
 }
 
+bool FormFile::isFormWindowModified() const
+{
+    if ( !formWindow() )
+	return FALSE;
+    return formWindow()->commandHistory()->isModified();
+}
+
+bool FormFile::isCodeModified() const
+{
+    if ( !editor() )
+	return FALSE;
+    return editor()->isModified();
+}
+
+void FormFile::setFormWindowModified( bool m )
+{
+    if ( !formWindow() )
+	return;
+    formWindow()->commandHistory()->setModified( m );
+}
+
+void FormFile::setCodeModified( bool m )
+{
+    if ( !editor() )
+	return;
+    editor()->setModified( m );
+}
+
+void FormFile::showFormWindow()
+{
+    if ( formWindow() ) {
+	formWindow()->setFocus();
+	return;
+    }
+    FormWindow *fw = MainWindow::self->openFormWindow( filename );
+    if ( fw )
+	setFormWindow( fw );
+}
+
+void FormFile::showEditor()
+{
+    showFormWindow();
+}
+
+QString FormFile::createUnnamedFileName()
+{
+    static int count = 0;
+    ++count;
+    return "unnamed" + QString::number( count ) + ".ui";
+}
+
+QString FormFile::codeExtension() const
+{
+    LanguageInterface *iface = MetaDataBase::languageInterface( pro->language() );
+    if ( iface )
+	return iface->formCodeExtension();
+    return "";
+}

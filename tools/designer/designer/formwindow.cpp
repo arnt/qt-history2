@@ -132,6 +132,7 @@ FormWindow::FormWindow( QWidget *parent, const char *name )
 
 void FormWindow::init()
 {
+    ff = 0;
     iface = 0;
     proj = 0;
     propertyWidget = 0;
@@ -1671,9 +1672,9 @@ void FormWindow::updateUndoInfo()
 bool FormWindow::saveAs()
 {
     mainWindow()->statusBar()->message( tr( "Enter a filename..." ) );
-    QString fn = QFileDialog::getSaveFileName( QString::fromLatin1(name()).lower() + ".ui", 
+    QString fn = QFileDialog::getSaveFileName( QString::fromLatin1(name()).lower() + ".ui",
 					       tr( "Qt User-Interface Files (*.ui)" ) + ";;" +
-					       tr( "All Files (*)" ), mainWindow(), 0, 
+					       tr( "All Files (*)" ), mainWindow(), 0,
 					       tr( "Save form '%1' as ....").arg( name() ),
 					       &mainWindow()->lastSaveFilter );
     if ( fn.isEmpty() )
@@ -2611,3 +2612,12 @@ void FormWindow::setLayoutDefaultMargin( int s )
     defMargin = s;
 }
 
+FormFile *FormWindow::formFile() const
+{
+    return ff;
+}
+
+void FormWindow::setFormFile( FormFile *f )
+{
+    ff = f;
+}

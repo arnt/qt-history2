@@ -136,7 +136,7 @@ bool DesignerApplication::winEventFilter( MSG *msg )
 		
 		if ( !haveit ) {
 		    FlashWindow( MainWindow::self->winId(), TRUE );
-		    MainWindow::self->openFile( arg );
+		    MainWindow::self->openFormWindow( arg );
 		} else if ( totop ) {
 		    totop->setFocus();
 		}

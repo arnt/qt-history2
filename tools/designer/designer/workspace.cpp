@@ -641,7 +641,7 @@ void Workspace::itemClicked( int button, QListViewItem *i )
 	    ( (WorkspaceItem*)i )->formWindow()->setFocus();
 	} else {
 	    blockNewForms = TRUE;
-	    mainWindow->openFile( project->makeAbsolute( ( (WorkspaceItem*)i )->text( 1 ) ) );
+	    mainWindow->openFormWindow( project->makeAbsolute( ( (WorkspaceItem*)i )->text( 1 ) ) );
 	    blockNewForms = FALSE;
 	}
     } else if ( i->rtti() == WorkspaceItem::Source ) {
@@ -835,7 +835,7 @@ void Workspace::openForm( const QString &filename )
 		setCurrentItem( it.current() );
 		setSelected( it.current(), TRUE );
 		blockNewForms = TRUE;
-		mainWindow->openFile( project->makeAbsolute( ( (WorkspaceItem*)it.current() )->text( 1 ) ) );
+		mainWindow->openFormWindow( project->makeAbsolute( ( (WorkspaceItem*)it.current() )->text( 1 ) ) );
 		blockNewForms = FALSE;
 	    }
 	}

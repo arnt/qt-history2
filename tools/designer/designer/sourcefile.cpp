@@ -31,7 +31,7 @@
 #include "workspace.h"
 
 SourceFile::SourceFile( const QString &fn, bool temp, Project *p )
-    : filename( fn ), ed( 0 ), fileNameTemp( temp ), timeStamp( this, p->makeAbsolute( fn ) ), pro( p )
+    : filename( fn ), ed( 0 ), fileNameTemp( temp ), timeStamp( 0, p->makeAbsolute( fn ) ), pro( p )
 {
     load();
     iface = 0;

@@ -37,6 +37,7 @@
 #include "actiondnd.h"
 #include "project.h"
 #include "pixmapcollection.h"
+#include "formfile.h"
 
 #include <qfeatures.h>
 #include <qfile.h>
@@ -180,10 +181,12 @@ bool Resource::load( QIODevice* dev, const QString& filename, bool keepname )
     toplevel = formwindow = new FormWindow( mainwindow->qWorkspace(), 0 );
     formwindow->setMainWindow( mainwindow );
     MetaDataBase::addEntry( formwindow );
+    FormFile *ff = new FormFile( filename, FALSE, MainWindow::self->currProject() );
+    ff->setFormWindow( formwindow );
 
     QDomElement firstWidget = doc.firstChild().toElement().firstChild().toElement();
 
-    langIface = MetaDataBase::languageInterface( mainwindow->self->currProject()->language() );
+    langIface = MetaDataBase::languageInterface( MainWindow::self->currProject()->language() );
     if ( langIface )
 	langIface->addRef();
 
@@ -194,7 +197,7 @@ bool Resource::load( QIODevice* dev, const QString& filename, bool keepname )
     QDomElement includes = firstWidget;
     while ( includes.tagName() != "includes" && !includes.isNull() )
 	includes = includes.nextSibling().toElement();
-    
+
     QDomElement variables = firstWidget;
     while ( variables.tagName() != "variables" && !variables.isNull() )
 	variables = variables.nextSibling().toElement();
@@ -202,7 +205,7 @@ bool Resource::load( QIODevice* dev, const QString& filename, bool keepname )
     QDomElement slots = firstWidget;
     while ( slots.tagName() != "slots" && !slots.isNull() )
 	slots = slots.nextSibling().toElement();
-    
+
     QDomElement connections = firstWidget;
     while ( connections.tagName() != "connections" && !connections.isNull() )
 	connections = connections.nextSibling().toElement();
@@ -277,7 +280,7 @@ bool Resource::load( QIODevice* dev, const QString& filename, bool keepname )
 
 	firstWidget = firstWidget.nextSibling().toElement();
     }
-    
+
     if ( !imageCollection.isNull() )
 	loadImageCollection( imageCollection );
     if ( !customWidgets.isNull() )
@@ -300,7 +303,7 @@ bool Resource::load( QIODevice* dev, const QString& filename, bool keepname )
 	    if ( n.tagName() == "forward" )
 		metaForwards << n.firstChild().toText().data();
     }
-    
+
     if ( !includes.isNull() ) {
 	for ( QDomElement n = includes.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() )
 	    if ( n.tagName() == "include" ) {
@@ -317,7 +320,7 @@ bool Resource::load( QIODevice* dev, const QString& filename, bool keepname )
 		}
 	    }
     }
-    
+
     if ( !variables.isNull() ) {
 	for ( QDomElement n = variables.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() )
 	    if ( n.tagName() == "variable" )
@@ -2176,14 +2179,14 @@ void Resource::saveMetaInfo( QTextStream &ts, int indent )
 	if ( !includes.isEmpty() || needExtensionInclude ) {
 	    ts << makeIndent( indent ) << "<includes>" << endl;
 	    indent++;
-	    
+	
 	    for ( QValueList<MetaDataBase::Include>::Iterator it = includes.begin(); it != includes.end(); ++it ) {
 		ts << makeIndent( indent ) << "<include location=\"" << (*it).location
 		   << "\" impldecl=\"" << (*it).implDecl << "\">" << (*it).header << "</include>" << endl;
 		if ( needExtensionInclude )
 		    needExtensionInclude = (*it).header != extensionInclude;
 	    }
-	    
+	
 	    if ( needExtensionInclude )
 		ts << makeIndent( indent ) << "<include location=\"local\" impldecl=\"in implementation\">"
 		   << extensionInclude << "</include>" << endl;

@@ -49,6 +49,7 @@ class QPixmap;
 class QSizeGrip;
 class Project;
 struct DesignerFormWindow;
+class FormFile;
 
 #if defined(Q_CC_MSVC) || defined(Q_FULL_TEMPLATE_INSTANTIATION)
 #include "orderindicator.h"
@@ -191,6 +192,8 @@ public:
     void setLayoutDefaultMargin( int s );
 
     void initSlots();
+    FormFile *formFile() const;
+    void setFormFile( FormFile *f );
 
 public slots:
     virtual void widgetChanged( QObject *w );
@@ -296,6 +299,7 @@ private:
     QPalette restorePalette;
     bool hadOwnPalette;
     int defSpacing, defMargin;
+    FormFile *ff;
 
 };
 

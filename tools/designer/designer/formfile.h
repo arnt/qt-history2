@@ -18,6 +18,9 @@
 **
 **********************************************************************/
 
+#ifndef FORMFILE_H
+#define FORMFILE_H
+
 #include <qobject.h>
 #include "timestamp.h"
 
@@ -30,18 +33,23 @@ class FormFile : public QObject
     Q_OBJECT
 
 public:
-    FormFile( Project *p );
+    enum Who {
+	WFormWindow = 1,
+	WFormCode = 2,
+	WAnyOrAll = WFormWindow | WFormCode
+    };
+
+    FormFile( const QString &fn, bool temp, Project *p );
 
     void setFormWindow( FormWindow *f );
     void setEditor( SourceEditor *e );
-    void setUiFile( const QString &fn );
-    void setCodeFile( const QString &fn );
+    void setFileName( const QString &fn );
     void setCode( const QString &c );
-    void setModified( bool m );
+    void setModified( bool m, int who = WAnyOrAll );
 
     FormWindow *formWindow() const;
     SourceEditor *editor() const;
-    QString uiFile() const;
+    QString fileName() const;
     QString codeFile() const;
     QString code() const;
 
@@ -50,14 +58,31 @@ public:
     bool saveAs();
     bool close();
     bool closeEvent();
-    bool isModified();
+    bool isModified( int who = WAnyOrAll );
+    bool hasFormCode() const;
+    void createFormCode();
+
+    void showFormWindow();
+    void showEditor();
+
+    static QString createUnnamedFileName();
 
 private:
+    bool isFormWindowModified() const;
+    bool isCodeModified() const;
+    void setFormWindowModified( bool m );
+    void setCodeModified( bool m );
+    QString codeExtension() const;
+
+private:
+    QString filename;
+    bool fileNameTemp;
     Project *pro;
     FormWindow *fw;
     SourceEditor *ed;
-    QString uifile, codefile, cod;
+    QString cod;
     TimeStamp timeStamp;
 
 };
 
+#endif

@@ -66,6 +66,9 @@ void FormItem::insert( Project *pro )
     QString n = "Form" + QString::number( ++forms );
     FormWindow *fw = 0;
     fw = new FormWindow( MainWindow::self, MainWindow::self->qWorkspace(), n );
+    fw->setProject( pro );
+    FormFile *ff = new FormFile( FormFile::createUnnamedFileName(), TRUE, pro );
+    ff->setFormWindow( fw );
     MetaDataBase::addEntry( fw );
     if ( fType == Widget ) {
 	QWidget *w = WidgetFactory::create( WidgetDatabase::idFromClassName( "QWidget" ),
