@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#89 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#90 $
 **
 ** Implementation of QButton widget class
 **
@@ -19,7 +19,7 @@
 #include "qpmcache.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#89 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#90 $");
 
 
 static const int autoRepeatDelay  = 300;
@@ -474,7 +474,7 @@ void QButton::setAutoRepeat( bool enable )
 
   This function does nothing if the button is \link setEnabled()
   disabled\endlink or if it is the enabled toggle button in an
-  exclusive button group (this means, in practicce, a \link
+  exclusive button group (this means, in practice, a \link
   QRadioButton radio button \endlink in a button group).
 
   \sa setAccel()
