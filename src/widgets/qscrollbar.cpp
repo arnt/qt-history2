@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#19 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#20 $
 **
 ** Implementation of QScrollBar class
 **
@@ -14,7 +14,7 @@
 #include "qpainter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qscrollbar.cpp#19 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qscrollbar.cpp#20 $";
 #endif
 
 
@@ -579,14 +579,14 @@ void qDrawMotifArrow( QPainter *p, MotifArrow style, bool down,
     p->setWorldMatrix( matrix );		// set transformation matrix
     p->drawPolygon( bFill );			// fill arrow
 
-    pen.setStyle( SolidLine );			// draw outline
-    brush.setStyle( NoBrush );			// don't fill
+    p->pen().setStyle( SolidLine );		// draw outline
+    p->brush().setStyle( NoBrush );		// don't fill
 
-    pen.setColor( CLEFT );
+    p->pen().setColor( CLEFT );
     p->drawLineSegments( bLeft );
-    pen.setColor( CTOP );
+    p->pen().setColor( CTOP );
     p->drawLineSegments( bTop );
-    pen.setColor( CBOT );
+    p->pen().setColor( CBOT );
     p->drawLineSegments( bBot );
 
     p->setWorldXForm( FALSE );			// turn off xform
