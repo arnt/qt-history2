@@ -1099,7 +1099,7 @@ bool QODBCResult::exec()
 	}
     }
     r = SQLExecute( d->hStmt );
-    if ( r != SQL_SUCCESS ) {
+    if ( r != SQL_SUCCESS && r != SQL_SUCCESS_WITH_INFO ) {
 #ifdef QT_CHECK_RANGE
 	qWarning( "QODBCResult::exec: Unable to execute statement: %s", qODBCWarn( d ).local8Bit().data() );
 #endif
