@@ -128,7 +128,8 @@ QValidator::State SearchValidator::validate( QString &str, int & ) const
 	     ( c >= 'a' && c <= 'z' ) ||
 	     ( c >= 'A' && c <= 'Z' ) ||
 	     c == '\'' || c == '`' ||
-	     c == '\"' || c == ' ' ) )
+	     c == '\"' || c == ' ' ||
+	     c == '*' ) )
 	    return QValidator::Invalid;
     }
     return QValidator::Acceptable;
@@ -1022,6 +1023,7 @@ void HelpDialog::startSearch()
     QString str = termsEdit->text();
     str = str.replace( "\'", "\"" );
     str = str.replace( "`", "\"" );
+    QString buf = str;
     str = str.replace( QRegExp( "\\s[A-Za-z0-9]?\\s" ), " " );
     terms = QStringList::split( " ", str );
     QStringList termSeq;
@@ -1044,14 +1046,17 @@ void HelpDialog::startSearch()
 		s = str.mid( beg, end - beg );
 		s = s.lower();
 		s = s.simplifyWhiteSpace();
-		if ( s.contains( '*' ) )
+		if ( s.contains( '*' ) ) {
+		    QMessageBox::warning( this, tr( "Full Text Search" ),
+			tr( "Using a wildcard within phrases is not allowed." ) );
 		    return;
+		}
 		seqWords += QStringList::split( ' ', s );
 		termSeq << s;
 		beg = str.find( '\"', end + 1);
 	    }
 	} else {
-	    QMessageBox::warning( this, tr( "full text search" ),
+	    QMessageBox::warning( this, tr( "Full Text Search" ),
 		tr( "The closing quotation mark is missing." ) );
 	    return;
 	}
@@ -1064,6 +1069,28 @@ void HelpDialog::startSearch()
     resultBox->clear();
     for ( it = foundDocs.begin(); it != foundDocs.end(); ++it )
 	resultBox->insertItem( fullTextIndex->getDocumentTitle( *it )  );
+
+    terms.clear();
+    bool isPhrase = FALSE;
+    QString s = "";
+    for ( int i = 0; i < buf.length(); ++i ) {
+	if ( buf[i] == '\"' ) {
+	    isPhrase = !isPhrase;
+	    s = s.simplifyWhiteSpace();
+	    if ( !s.isEmpty() )
+		terms << s;
+	    s = "";
+	} else if ( buf[i] == ' ' && !isPhrase ) {
+	    s = s.simplifyWhiteSpace();
+	    if ( !s.isEmpty() )
+		terms << s;
+	    s = "";
+	} else
+	    s += buf[i];
+    }
+    if ( !s.isEmpty() )
+	terms << s;
+
     setCursor( arrowCursor );
 }
 
@@ -1075,7 +1102,10 @@ void HelpDialog::showSearchHelp()
 void HelpDialog::showResultPage( int page )
 {
     viewer->blockScrolling( TRUE );
-    help->showLink( foundDocs[page] );
+    if ( viewer->source() == foundDocs[page] )
+	viewer->reload();
+    else
+	help->showLink( foundDocs[page] );
     viewer->sync();
 
     int minPar = INT_MAX;
