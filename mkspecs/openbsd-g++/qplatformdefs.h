@@ -82,5 +82,10 @@
 #define QT_SNPRINTF		::snprintf
 #define QT_VSNPRINTF		::vsnprintf
 
+// Older OpenBSD versions may still use the a.out format instead of ELF.
+#ifndef __ELF__
+#define QT_AOUT_UNDERSCORE
+#endif
+
 
 #endif // QPLATFORMDEFS_H
