@@ -126,12 +126,12 @@
   To count backslashes in a string:
 
   \code
-    QRegExp rx( "\\\\" );                 // is really \\
+    QRegExp rx( "\\\\" );               // is really \\
     int pos = 0;
     int count = 0;
     do {
-        pos = rx.search( string, pos );   // search for next backslash
-	if ( pos >= 0 ) {                 // and count it if it exists
+	pos = rx.search( string, pos ); // search for next backslash
+	if ( pos >= 0 ) {               // and count it if it exists
 	    pos++;
 	    count++;
 	}
@@ -982,18 +982,9 @@ void QRegExpEngine::addPlusTransitions( const QArray<int>& from,
 */
 int QRegExpEngine::anchorAlternation( int a, int b )
 {
-#ifndef QT_NO_REGEXP_OPTIM
-    if ( a == 0 || b == 0 )
-	return 0;
-    if ( a == b )
-	return a;
-#endif
-    if ( (a & Anchor_Alternation) == 0 && (b & Anchor_Alternation) == 0 ) {
-	if ( (a & b) == a )
-	    return a;
-	else if ( (a & b) == b )
-	    return b;
-    }
+    if ( ((a & b) == a || (a & b) == b) && ((a | b) & Anchor_Alternation) == 0 )
+	return a & b;
+
     int n = aa.size();
     aa.resize( n + 1 );
     aa[n].a = a;
@@ -1006,9 +997,9 @@ int QRegExpEngine::anchorAlternation( int a, int b )
 */
 int QRegExpEngine::anchorConcatenation( int a, int b )
 {
-    if ( (a & Anchor_Alternation) == 0 && (b & Anchor_Alternation) == 0 )
+    if ( ((a | b) & Anchor_Alternation) == 0 )
 	return a | b;
-    if ( (a & Anchor_Alternation) == 0 )
+    if ( (b & Anchor_Alternation) != 0 )
 	qSwap( a, b );
     int aprime = anchorConcatenation( aa[a ^ Anchor_Alternation].a, b );
     int bprime = anchorConcatenation( aa[a ^ Anchor_Alternation].b, b );
@@ -1017,7 +1008,7 @@ int QRegExpEngine::anchorConcatenation( int a, int b )
 #endif
 
 /*
-  Adds anchor a between state from and state to.
+  Adds anchor a on a transition caracterised by its from state and its to state.
 */
 void QRegExpEngine::addAnchors( int from, int to, int a )
 {
@@ -3186,7 +3177,8 @@ int QRegExp::searchRev( const QString& str, int start ) const
     return -1;
 }
 
-/*!  Returns the length of the last matched string, or -1 if there was no match.
+/*!
+  Returns the length of the last matched string, or -1 if there was no match.
 
   \sa match() search()
 */
@@ -3226,9 +3218,9 @@ QStringList QRegExp::capturedTexts()
   the text matched by the entire regular expression.
 
   \code
-    QRegExp rx( "[a-z]+" );           // matches a lower-case word
+    QRegExp rx( "[a-z]+" );             // matches a lower-case word
     int pos = rx.search( "X pizza Y" ); // pos == 2
-    QString t0 = rx.cap();           // pizza - the entire word
+    QString t0 = rx.cap();              // pizza - the entire word
   \endcode
 
   If the subexpression is used several times, cap() returns the text
@@ -3237,7 +3229,7 @@ QStringList QRegExp::capturedTexts()
   \code
     QRegExp rx( "([a-z])+" );           // matches a lower-case word
     int pos = rx.search( "X pizza chianti Y" );
-    QString t0 = rx.cap( 1 );        // a - the last match
+    QString t1 = rx.cap( 1 );           // a - the last match
   \endcode
 
   \sa pos()
