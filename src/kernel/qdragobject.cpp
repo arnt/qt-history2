@@ -46,6 +46,9 @@
 #include "qregexp.h"
 #include <ctype.h>
 
+#ifdef Q_WS_X11
+#include <unistd.h> // gethostname()
+#endif
 
 // both a struct for storing stuff in and a wrapper to avoid polluting
 // the name space
@@ -1370,6 +1373,16 @@ QCString QUriDrag::localFileToUri(const QString& filename)
 	r.insert(0,'/');
     }
 #endif
+#if defined ( Q_WS_X11 ) && 0
+    // URL without the hostname is considered to be errorneous by XDnD.
+    // See: http://www.newplanetsoftware.com/xdnd/dragging_files.html
+    // This feature is not active because this would break dnd between old and new qt apps.
+    char hostname[257];
+    if ( gethostname( hostname, 255 ) == 0 ) {
+	hostname[256] = '\0';
+	r.prepend( QString::fromLatin1( hostname ) );
+    }
+#endif    
     return unicodeUriToUri(QString("file://" + r));
 }
 
@@ -1415,8 +1428,25 @@ QString QUriDrag::uriToLocalFile(const char* uri)
 
     if ( uri && 0==qstrnicmp(uri,"file:/",6) ) {
 	uri += 6;
-	if ( uri[0] != '/' || uri[1] == '/' ) {
-	    // It is local.
+	bool local = uri[0] != '/' || ( uri[0] != '\0' && uri[1] == '/' );
+#ifdef Q_WS_X11
+	// do we have a hostname?
+        if ( !local && uri[0] == '/' && uri[2] != '/' ) {
+	    // then move the pointer to after the 'hostname/' part of the uri
+            const char* hostname_end = strchr( uri+1, '/' );
+            if ( hostname_end != NULL ) {
+                char hostname[ 257 ];
+                if ( gethostname( hostname, 255 ) == 0 ) {
+                    hostname[ 256 ] = '\0';
+                    if ( qstrncmp( uri+1, hostname, hostname_end - ( uri+1 )) == 0 ) {
+                        uri = hostname_end + 1; // point after the slash
+                        local = TRUE;
+                    }
+                }
+            }
+        }
+#endif
+	if ( local ) {	
 	    file = uriToUnicodeUri(uri);
 	    if ( uri[1] == '/' ) {
 		file.remove(0,1);
