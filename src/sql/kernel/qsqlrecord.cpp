@@ -453,8 +453,7 @@ bool QSqlRecord::isGenerated(const QString& name) const
     return isGenerated(indexOf(name));
 }
 
-/*! \obsolete
-    \overload
+/*! \overload
 
     Returns true if the record has a field at position \a index and this
     field is to be generated (the default); otherwise returns false.
