@@ -283,3 +283,19 @@ QSql QMySQLDriver::createResult() const
     return QSql(new QMySQLResult( this ) );
 }
 
+QStringList QMySQLDriver::tables() const
+{
+    MYSQL_RES* tableRes = mysql_list_tables( d->mysql, NULL );
+    MYSQL_ROW 	row;
+    QStringList tl;
+    int i = 0;
+    while ( TRUE ) {
+	mysql_data_seek( tableRes, i );
+	row = mysql_fetch_row( tableRes );
+	if ( !row )
+	    break;
+	tl.append( QString(row[0]) );
+    }
+    mysql_free_result( tableRes );
+    return tl;
+}
