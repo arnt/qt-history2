@@ -2425,7 +2425,7 @@ void MainWindow::closeEvent( QCloseEvent *e )
 	w->close();
     }
 
-    QMapConstIterator<QAction*, Project*> it = projects.begin();
+    QMap<QAction*, Project*>::ConstIterator it = projects.begin();
     while( it != projects.end() ) {
 	Project *pro = it.data();
 	++it;
@@ -2936,7 +2936,7 @@ void MainWindow::setupRecentlyProjectsMenu()
 QPtrList<DesignerProject> MainWindow::projectList() const
 {
     QPtrList<DesignerProject> list;
-    QMapConstIterator<QAction*, Project*> it = projects.begin();
+    QMap<QAction*, Project*>::ConstIterator it = projects.begin();
 
     while( it != projects.end() ) {
 	Project *p = it.data();

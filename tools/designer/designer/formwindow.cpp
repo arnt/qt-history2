@@ -798,7 +798,7 @@ void FormWindow::handleMouseMove( QMouseEvent *e, QWidget *w )
 		}
 
 		// check whether we would have to reparent the selection and highlight the possible new parent container
-		QMapConstIterator<ulong, QPoint> it = moving.begin();
+		QMap<ulong, QPoint>::ConstIterator it = moving.begin();
 		QWidget* wa = containerAt( e->globalPos(), ( (QWidget*)it.key() ) );
 		if ( wa  && !isMainContainer( wa ) && !isCentralWidget( wa ) ) {
 		    wa = WidgetFactory::containerOfWidget( wa );
@@ -935,7 +935,7 @@ void FormWindow::handleMouseRelease( QMouseEvent *e, QWidget *w )
 	    if ( propertyWidget && propertyWidget->isWidgetType() && !isMainContainer( propertyWidget ) )
 		emitUpdateProperties( propertyWidget );
 
-	    QMapConstIterator<ulong,QPoint> it = moving.begin();
+	    QMap<ulong,QPoint>::ConstIterator it = moving.begin();
 	    QWidget *oldParent = ( (QWidget*)it.key() )->parentWidget();
 	    QWidget *newParent = oldParent;
 	    // check whether we have to reparent the selection
