@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.h#22 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.h#23 $
 **
 ** Definition of QListBox widget class
 **
@@ -123,6 +123,7 @@ protected:
     void	mouseDoubleClickEvent( QMouseEvent * );
     void	mouseMoveEvent( QMouseEvent * );
     void	keyPressEvent( QKeyEvent *e );
+    void	focusInEvent( QFocusEvent *e );
     void	resizeEvent( QResizeEvent * );
     void	timerEvent( QTimerEvent * );
 
