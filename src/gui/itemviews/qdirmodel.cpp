@@ -222,8 +222,6 @@ public:
     void savePersistentIndexes();
     void restorePersistentIndexes();
 
-    QFileInfoList rootChildren() const;
-
     inline QIcon rootIcon() const {
         return iconProvider->icon(QFileIconProvider::Computer);
     }
@@ -972,9 +970,8 @@ QModelIndex QDirModel::index(const QString &path, int column) const
             Q_ASSERT(node);
             entries = d->entryList(node->info.absoluteFilePath());
         } else { // parent is "My Computer"
-            QFileInfoList info = d->rootChildren();
-            for (int j = 0; j < info.count(); ++j)
-                entries << QDir::cleanPath(info.at(j).absoluteFilePath());
+            for (int j = 0; j < d->root.children.count(); ++j)
+                entries << QDir::cleanPath(d->root.children.at(j).info.absoluteFilePath());
         }
 
         // find the row of the current path element in the list of children
@@ -1233,7 +1230,7 @@ QVector<QDirModelPrivate::QDirNode> QDirModelPrivate::children(QDirNode *parent)
     Q_D(const QDirModel);
     QFileInfoList info;
     if (!parent) {
-        info = rootChildren();
+        info = QDir::drives();
     } else if (parent->info.isDir()) {
         if (d->resolveSymlinks && parent->info.isSymLink()) {
             QString link = parent->info.readLink();
@@ -1273,7 +1270,7 @@ void QDirModelPrivate::refresh(QDirNode *parent)
 {
     QFileInfoList info;
     if (!parent)
-        info = rootChildren();
+        info = QDir::drives(); 
     else if (parent->info.isDir())
         info = entryInfoList(parent->info.filePath());
 
@@ -1325,7 +1322,4 @@ void QDirModelPrivate::restorePersistentIndexes()
     }
 }
 
-QFileInfoList QDirModelPrivate::rootChildren() const
-{
-    return QDir::drives();
-}
+
