@@ -642,12 +642,14 @@ void QFtp::dataConnected()
 	commandSocket->writeBlock( cmd.latin1(), cmd.length() );
 	if ( operationInProgress()->rawArg2().size() <= QFTP_MAX_BYTES ) {
 	    if ( dataSocket && dataSocket->isOpen() ) {
+		putToWrite = operationInProgress()->rawArg2().size();
+		putWritten = 0;
+		putOffset = 0;
+		emit dataTransferProgress( 0, operationInProgress()->rawArg2().size(),
+					   operationInProgress() );
 		dataSocket->writeBlock( operationInProgress()->rawArg2(),
 					operationInProgress()->rawArg2().size() );
-		emit dataTransferProgress( operationInProgress()->rawArg2().size(),
-					   operationInProgress()->rawArg2().size(),
-					   operationInProgress() );
-		QTimer::singleShot( 0, this, SLOT( dataClosed() ) );
+		putOffset += putToWrite;
 	    }
 	} else {
 	    if ( dataSocket && dataSocket->isOpen() ) {
@@ -766,7 +768,7 @@ void QFtp::dataBytesWritten( int nbytes )
 	} else {
 	    dataSocket->close();
 	    emit dataTransferProgress( ba.size(), ba.size(), operationInProgress() );
-	    QTimer::singleShot( 0, this, SLOT( dataClosed() ) );
+	    QTimer::singleShot( 1, this, SLOT( dataClosed() ) );
 	}
     }
 }
