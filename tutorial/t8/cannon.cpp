@@ -4,42 +4,32 @@
 **
 ****************************************************************/
 
+#include <QPainter>
+
 #include "cannon.h"
-#include <qpainter.h>
 
-
-CannonField::CannonField( QWidget *parent, const char *name )
-        : QWidget( parent, name )
+CannonField::CannonField(QWidget *parent)
+    : QWidget(parent)
 {
     ang = 45;
-    setPalette( QPalette( QColor( 250, 250, 200) ) );
+    setPalette(QPalette(QColor(250, 250, 200)));
 }
 
-
-void CannonField::setAngle( int degrees )
+void CannonField::setAngle(int angle)
 {
-    if ( degrees < 5 )
-	degrees = 5;
-    if ( degrees > 70 )
-	degrees = 70;
-    if ( ang == degrees )
+    if (angle < 5)
+	angle = 5;
+    if (angle > 70)
+	angle = 70;
+    if (ang == angle)
 	return;
-    ang = degrees;
+    ang = angle;
     repaint();
-    emit angleChanged( ang );
+    emit angleChanged(ang);
 }
 
-
-void CannonField::paintEvent( QPaintEvent * )
+void CannonField::paintEvent(QPaintEvent * /* event */)
 {
-    QString s = "Angle = " + QString::number( ang );
-    QPainter p( this );
-    p.drawText( 200, 200, s );
+    QPainter painter(this);
+    painter.drawText(200, 200, "Angle = " + QString::number(ang));
 }
-
-
-QSizePolicy CannonField::sizePolicy() const
-{
-    return QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
-}
-

@@ -4,39 +4,36 @@
 **
 ****************************************************************/
 
-#include <qapplication.h>
-#include <qpushbutton.h>
-#include <qfont.h>
-
+#include <QApplication>
+#include <QFont>
+#include <QPushButton>
 
 class MyWidget : public QWidget
 {
 public:
-    MyWidget( QWidget *parent=0, const char *name=0 );
+    MyWidget(QWidget *parent = 0);
 };
 
-
-MyWidget::MyWidget( QWidget *parent, const char *name )
-        : QWidget( parent, name )
+MyWidget::MyWidget(QWidget *parent)
+        : QWidget(parent)
 {
-    setMinimumSize( 200, 120 );
-    setMaximumSize( 200, 120 );
+    setMinimumSize(200, 120);
+    setMaximumSize(200, 120);
 
-    QPushButton *quit = new QPushButton( "Quit", this, "quit" );
-    quit->setGeometry( 62, 40, 75, 30 );
-    quit->setFont( QFont( "Times", 18, QFont::Bold ) );
+    QPushButton *quit = new QPushButton("Quit", this);
+    quit->setGeometry(62, 40, 75, 30);
+    quit->setFont(QFont("Times", 18, QFont::Bold));
 
-    connect( quit, SIGNAL(clicked()), qApp, SLOT(quit()) );
+    connect(quit, SIGNAL(clicked()), qApp, SLOT(quit()));
 }
 
-
-int main( int argc, char **argv )
+int main(int argc, char *argv[])
 {
-    QApplication a( argc, argv );
+    QApplication app(argc, argv);
 
-    MyWidget w;
-    w.setGeometry( 100, 100, 200, 120 );
-    a.setMainWidget( &w );
-    w.show();
-    return a.exec();
+    MyWidget widget;
+    widget.setGeometry(100, 100, 200, 120);
+    app.setMainWidget(&widget);
+    widget.show();
+    return app.exec();
 }

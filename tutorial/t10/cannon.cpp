@@ -4,78 +4,68 @@
 **
 ****************************************************************/
 
+#include <QPaintEvent>
+#include <QPainter>
+#include <QPixmap>
+
 #include "cannon.h"
-#include <qpainter.h>
-#include <qpixmap.h>
-#include <qevent.h>
 
-
-CannonField::CannonField( QWidget *parent, const char *name )
-        : QWidget( parent, name )
+CannonField::CannonField(QWidget *parent)
+    : QWidget(parent)
 {
     ang = 45;
     f = 0;
-    setPalette( QPalette( QColor( 250, 250, 200) ) );
+    setPalette(QPalette(QColor(250, 250, 200)));
 }
 
-
-void CannonField::setAngle( int degrees )
+void CannonField::setAngle(int angle)
 {
-    if ( degrees < 5 )
-	degrees = 5;
-    if ( degrees > 70 )
-	degrees = 70;
-    if ( ang == degrees )
+    if (angle < 5)
+	angle = 5;
+    if (angle > 70)
+	angle = 70;
+    if (ang == angle)
 	return;
-    ang = degrees;
-    repaint( cannonRect(), false );
-    emit angleChanged( ang );
+    ang = angle;
+    repaint(cannonRect());
+    emit angleChanged(ang);
 }
 
-
-void CannonField::setForce( int newton )
+void CannonField::setForce(int force)
 {
-    if ( newton < 0 )
-	newton = 0;
-    if ( f == newton )
+    if (force < 0)
+	force = 0;
+    if (f == force)
 	return;
-    f = newton;
-    emit forceChanged( f );
+    f = force;
+    emit forceChanged(f);
 }
 
-
-void CannonField::paintEvent( QPaintEvent *e )
+void CannonField::paintEvent(QPaintEvent *event)
 {
-    if ( !e->rect().intersects( cannonRect() ) )
+    if (!event->rect().intersects(cannonRect()))
 	return;
 
-    QRect cr = cannonRect();
-    QPixmap pix( cr.size() );
-    pix.fill( this, cr.topLeft() );
+    QRect rect = cannonRect();
+    QPixmap pixmap(rect.size());
+    pixmap.fill(this, rect.topLeft());
 
-    QPainter p( &pix );
-    p.setBrush( blue );
-    p.setPen( NoPen );
-    p.translate( 0, pix.height() - 1 );
-    p.drawPie( QRect( -35,-35, 70, 70 ), 0, 90*16 );
-    p.rotate( -ang );
-    p.drawRect( QRect(33, -4, 15, 8) );
-    p.end();
+    QPainter painter(&pixmap);
+    painter.setBrush(Qt::blue);
+    painter.setPen(Qt::NoPen);
+    painter.translate(0, pixmap.height() - 1);
+    painter.drawPie(QRect(-35, -35, 70, 70), 0, 90 * 16);
+    painter.rotate(-ang);
+    painter.drawRect(QRect(33, -4, 15, 8));
+    painter.end();
 
-    p.begin( this );
-    p.drawPixmap( cr.topLeft(), pix );
+    painter.begin(this);
+    painter.drawPixmap(rect.topLeft(), pixmap);
 }
-
 
 QRect CannonField::cannonRect() const
 {
-    QRect r( 0, 0, 50, 50 );
-    r.moveBottomLeft( rect().bottomLeft() );
-    return r;
-}
-
-
-QSizePolicy CannonField::sizePolicy() const
-{
-    return QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
+    QRect result(0, 0, 50, 50);
+    result.moveBottomLeft(rect().bottomLeft());
+    return result;
 }

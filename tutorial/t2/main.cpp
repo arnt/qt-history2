@@ -4,22 +4,21 @@
 **
 ****************************************************************/
 
-#include <qapplication.h>
-#include <qpushbutton.h>
-#include <qfont.h>
+#include <QApplication>
+#include <QFont>
+#include <QPushButton>
 
-
-int main( int argc, char **argv )
+int main(int argc, char *argv[])
 {
-    QApplication a( argc, argv );
+    QApplication app(argc, argv);
 
-    QPushButton quit( "Quit", 0 );
-    quit.resize( 75, 30 );
-    quit.setFont( QFont( "Times", 18, QFont::Bold ) );
+    QPushButton quit("Quit");
+    quit.resize(75, 30);
+    quit.setFont(QFont("Times", 18, QFont::Bold));
 
-    QObject::connect( &quit, SIGNAL(clicked()), &a, SLOT(quit()) );
+    QObject::connect(&quit, SIGNAL(clicked()), &app, SLOT(quit()));
 
-    a.setMainWidget( &quit );
+    app.setMainWidget(&quit);
     quit.show();
-    return a.exec();
+    return app.exec();
 }

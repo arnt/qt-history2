@@ -4,25 +4,24 @@
 **
 ****************************************************************/
 
-#include <qapplication.h>
-#include <qpushbutton.h>
-#include <qfont.h>
-#include <qvbox.h>
+#include <QApplication>
+#include <QFont>
+#include <QPushButton>
+#include <QVBoxWidget>
 
-int main( int argc, char **argv )
+int main(int argc, char *argv[])
 {
-    QApplication a( argc, argv );
+    QApplication app(argc, argv);
 
-    QVBox box;
-    box.resize( 200, 120 );
+    QVBoxWidget vbox;
+    vbox.resize(200, 120);
 
-    QPushButton quit( "Quit", &box );
-    quit.setFont( QFont( "Times", 18, QFont::Bold ) );
+    QPushButton quit("Quit", &vbox);
+    quit.setFont(QFont("Times", 18, QFont::Bold));
 
-    QObject::connect( &quit, SIGNAL(clicked()), &a, SLOT(quit()) );
+    QObject::connect(&quit, SIGNAL(clicked()), &app, SLOT(quit()));
 
-    a.setMainWidget( &box );
-    box.show();
-
-    return a.exec();
+    app.setMainWidget(&vbox);
+    vbox.show();
+    return app.exec();
 }

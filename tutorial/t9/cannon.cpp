@@ -4,47 +4,39 @@
 **
 ****************************************************************/
 
+#include <QPainter>
+
 #include "cannon.h"
-#include <qpainter.h>
 
-
-CannonField::CannonField( QWidget *parent, const char *name )
-        : QWidget( parent, name )
+CannonField::CannonField(QWidget *parent)
+    : QWidget(parent)
 {
     ang = 45;
-    setPalette( QPalette( QColor( 250, 250, 200) ) );
+    setPalette(QPalette(QColor(250, 250, 200)));
 }
 
-
-void CannonField::setAngle( int degrees )
+void CannonField::setAngle(int angle)
 {
-    if ( degrees < 5 )
-	degrees = 5;
-    if ( degrees > 70 )
-	degrees = 70;
-    if ( ang == degrees )
-	return;
-    ang = degrees;
+    if (angle < 5)
+        angle = 5;
+    if (angle > 70)
+        angle = 70;
+    if (ang == angle)
+        return;
+    ang = angle;
     repaint();
-    emit angleChanged( ang );
+    emit angleChanged(ang);
 }
 
-
-void CannonField::paintEvent( QPaintEvent * )
+void CannonField::paintEvent(QPaintEvent * /* event */)
 {
-    QPainter p( this );
+    QPainter painter(this);
 
-    p.setBrush( blue );
-    p.setPen( NoPen );
+    painter.setPen(Qt::NoPen);
+    painter.setBrush(Qt::blue);
 
-    p.translate( 0, rect().bottom() );
-    p.drawPie( QRect(-35, -35, 70, 70), 0, 90*16 );
-    p.rotate( -ang );
-    p.drawRect( QRect(33, -4, 15, 8) );
-}
-
-
-QSizePolicy CannonField::sizePolicy() const
-{
-    return QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
+    painter.translate(0, rect().bottom());
+    painter.drawPie(QRect(-35, -35, 70, 70), 0, 90 * 16);
+    painter.rotate(-ang);
+    painter.drawRect(QRect(33, -4, 15, 8));
 }

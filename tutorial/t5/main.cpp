@@ -4,44 +4,42 @@
 **
 ****************************************************************/
 
-#include <qapplication.h>
-#include <qpushbutton.h>
-#include <qslider.h>
-#include <qlcdnumber.h>
-#include <qfont.h>
+#include <QApplication>
+#include <QFont>
+#include <QLCDNumber>
+#include <QPushButton>
+#include <QSlider>
+#include <QVBoxWidget>
 
-#include <qvbox.h>
-
-class MyWidget : public QVBox
+class MyWidget : public QVBoxWidget
 {
 public:
-    MyWidget( QWidget *parent=0, const char *name=0 );
+    MyWidget(QWidget *parent = 0);
 };
 
-
-MyWidget::MyWidget( QWidget *parent, const char *name )
-        : QVBox( parent, name )
+MyWidget::MyWidget(QWidget *parent)
+    : QVBoxWidget(parent)
 {
-    QPushButton *quit = new QPushButton( "Quit", this, "quit" );
-    quit->setFont( QFont( "Times", 18, QFont::Bold ) );
+    QPushButton *quit = new QPushButton("Quit", this);
+    quit->setFont(QFont("Times", 18, QFont::Bold));
 
-    connect( quit, SIGNAL(clicked()), qApp, SLOT(quit()) );
+    connect(quit, SIGNAL(clicked()), qApp, SLOT(quit()));
 
-    QLCDNumber *lcd  = new QLCDNumber( 2, this, "lcd" );
+    QLCDNumber *lcd = new QLCDNumber(2, this);
 
-    QSlider * slider = new QSlider( Horizontal, this, "slider" );
-    slider->setRange( 0, 99 );
-    slider->setValue( 0 );
+    QSlider *slider = new QSlider(Qt::Horizontal, this);
+    slider->setRange(0, 99);
+    slider->setValue(0);
 
-    connect( slider, SIGNAL(valueChanged(int)), lcd, SLOT(display(int)) );
+    connect(slider, SIGNAL(valueChanged(int)),
+            lcd, SLOT(display(int)));
 }
 
-int main( int argc, char **argv )
+int main(int argc, char *argv[])
 {
-    QApplication a( argc, argv );
-
-    MyWidget w;
-    a.setMainWidget( &w );
-    w.show();
-    return a.exec();
+    QApplication app(argc, argv);
+    MyWidget widget;
+    app.setMainWidget(&widget);
+    widget.show();
+    return app.exec();
 }

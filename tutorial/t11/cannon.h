@@ -7,40 +7,38 @@
 #ifndef CANNON_H
 #define CANNON_H
 
+#include <QWidget>
+
 class QTimer;
-
-
-#include <qwidget.h>
-
 
 class CannonField : public QWidget
 {
     Q_OBJECT
-public:
-    CannonField( QWidget *parent=0, const char *name=0 );
 
-    int   angle() const { return ang; }
-    int   force() const { return f; }
-    QSizePolicy sizePolicy() const;
+public:
+    CannonField(QWidget *parent = 0);
+
+    int angle() const { return ang; }
+    int force() const { return f; }
 
 public slots:
-    void  setAngle( int degrees );
-    void  setForce( int newton );
-    void  shoot();
+    void setAngle(int angle);
+    void setForce(int force);
+    void shoot();
 
 private slots:
-    void  moveShot();
+    void moveShot();
 
 signals:
-    void  angleChanged( int );
-    void  forceChanged( int );
+    void angleChanged(int newAngle);
+    void forceChanged(int newForce);
 
 protected:
-    void  paintEvent( QPaintEvent * );
+    void paintEvent(QPaintEvent *event);
 
 private:
-    void  paintShot( QPainter * );
-    void  paintCannon( QPainter * );
+    void paintShot(QPainter &painter);
+    void paintCannon(QPainter &painter);
     QRect cannonRect() const;
     QRect shotRect() const;
 
@@ -48,10 +46,9 @@ private:
     int f;
 
     int timerCount;
-    QTimer * autoShootTimer;
+    QTimer *autoShootTimer;
     float shoot_ang;
     float shoot_f;
 };
-
 
 #endif // CANNON_H

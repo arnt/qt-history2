@@ -1,6 +1,6 @@
 /****************************************************************
 **
-** Qt tutorial 12
+** Implementation of GameBoard class, Qt tutorial 13
 **
 ****************************************************************/
 
@@ -9,19 +9,15 @@
 #include <QGridLayout>
 #include <QHBoxLayout>
 #include <QLCDNumber>
+#include <QLabel>
 #include <QPushButton>
 #include <QVBoxLayout>
 
 #include "cannon.h"
+#include "gameboard.h"
 #include "lcdrange.h"
 
-class MyWidget : public QWidget
-{
-public:
-    MyWidget(QWidget *parent = 0);
-};
-
-MyWidget::MyWidget(QWidget *parent)
+GameBoard::GameBoard(QWidget *parent)
     : QWidget(parent)
 {
     QPushButton *quit = new QPushButton("&Quit", this);
@@ -35,7 +31,7 @@ MyWidget::MyWidget(QWidget *parent)
     LCDRange *force = new LCDRange("FORCE", this);
     force->setRange(10, 50);
 
-    CannonField *cannonField = new CannonField(this);
+    cannonField = new CannonField(this);
 
     connect(angle, SIGNAL(valueChanged(int)),
             cannonField, SLOT(setAngle(int)));
@@ -47,14 +43,38 @@ MyWidget::MyWidget(QWidget *parent)
     connect(cannonField, SIGNAL(forceChanged(int)),
             force, SLOT(setValue(int)));
 
+    connect(cannonField, SIGNAL(hit()),
+            this, SLOT(hit()));
+    connect(cannonField, SIGNAL(missed()),
+            this, SLOT(missed()));
+
     QPushButton *shoot = new QPushButton("&Shoot", this);
     shoot->setFont(QFont("Times", 18, QFont::Bold));
 
-    connect(shoot, SIGNAL(clicked()), cannonField, SLOT(shoot()));
+    connect(shoot, SIGNAL(clicked()),
+            this, SLOT(fire()));
+    connect(cannonField, SIGNAL(canShoot(bool)),
+            shoot, SLOT(setEnabled(bool)));
+
+    QPushButton *restart = new QPushButton("&New Game", this);
+    restart->setFont(QFont("Times", 18, QFont::Bold));
+
+    connect(restart, SIGNAL(clicked()),
+            this, SLOT(newGame()));
+
+    hits = new QLCDNumber(2, this);
+    shotsLeft = new QLCDNumber(2, this);
+    QLabel *hitsLabel = new QLabel("HITS", this);
+    QLabel *shotsLeftLabel = new QLabel("SHOTS LEFT", this);
 
     QHBoxLayout *topLayout = new QHBoxLayout;
     topLayout->addWidget(shoot);
+    topLayout->addWidget(hits);
+    topLayout->addWidget(hitsLabel);
+    topLayout->addWidget(shotsLeft);
+    topLayout->addWidget(shotsLeftLabel);
     topLayout->addStretch(1);
+    topLayout->addWidget(restart);
 
     QVBoxLayout *leftLayout = new QVBoxLayout;
     leftLayout->addWidget(angle);
@@ -70,14 +90,37 @@ MyWidget::MyWidget(QWidget *parent)
     angle->setValue(60);
     force->setValue(25);
     angle->setFocus();
+
+    newGame();
 }
 
-int main(int argc, char *argv[])
+void GameBoard::fire()
 {
-    QApplication app(argc, argv);
-    MyWidget widget;
-    widget.setGeometry(100, 100, 500, 355);
-    app.setMainWidget(&widget);
-    widget.show();
-    return app.exec();
+    if (cannonField->gameOver() || cannonField->isShooting())
+        return;
+    shotsLeft->display(shotsLeft->intValue() - 1);
+    cannonField->shoot();
+}
+
+void GameBoard::hit()
+{
+    hits->display(hits->intValue() + 1);
+    if (shotsLeft->intValue() == 0)
+        cannonField->setGameOver();
+    else
+        cannonField->newTarget();
+}
+
+void GameBoard::missed()
+{
+    if (shotsLeft->intValue() == 0)
+        cannonField->setGameOver();
+}
+
+void GameBoard::newGame()
+{
+    shotsLeft->display(15);
+    hits->display(0);
+    cannonField->restartGame();
+    cannonField->newTarget();
 }

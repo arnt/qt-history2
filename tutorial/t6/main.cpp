@@ -4,58 +4,58 @@
 **
 ****************************************************************/
 
-#include <qapplication.h>
-#include <qpushbutton.h>
-#include <qslider.h>
-#include <qlcdnumber.h>
-#include <qfont.h>
-#include <qvbox.h>
-#include <qgrid.h>
+#include <QApplication>
+#include <QFont>
+#include <QGridWidget>
+#include <QLCDNumber>
+#include <QPushButton>
+#include <QSlider>
+#include <QVBoxWidget>
 
-class LCDRange : public QVBox
+class LCDRange : public QVBoxWidget
 {
 public:
-    LCDRange( QWidget *parent=0, const char *name=0 );
+    LCDRange(QWidget *parent = 0);
 };
 
-LCDRange::LCDRange( QWidget *parent, const char *name )
-        : QVBox( parent, name )
+LCDRange::LCDRange(QWidget *parent)
+    : QVBoxWidget(parent)
 {
-    QLCDNumber *lcd  = new QLCDNumber( 2, this, "lcd"  );
-    QSlider * slider = new QSlider( Horizontal, this, "slider" );
-    slider->setRange( 0, 99 );
-    slider->setValue( 0 );
-    connect( slider, SIGNAL(valueChanged(int)), lcd, SLOT(display(int)) );
+    QLCDNumber *lcd = new QLCDNumber(2, this);
+    QSlider *slider = new QSlider(Qt::Horizontal, this);
+    slider->setRange(0, 99);
+    slider->setValue(0);
+    connect(slider, SIGNAL(valueChanged(int)),
+            lcd, SLOT(display(int)));
 }
 
-class MyWidget : public QVBox
+class MyWidget : public QVBoxWidget
 {
 public:
-    MyWidget( QWidget *parent=0, const char *name=0 );
+    MyWidget(QWidget *parent = 0);
 };
 
-
-MyWidget::MyWidget( QWidget *parent, const char *name )
-        : QVBox( parent, name )
+MyWidget::MyWidget(QWidget *parent)
+    : QVBoxWidget(parent)
 {
-    QPushButton *quit = new QPushButton( "Quit", this, "quit" );
-    quit->setFont( QFont( "Times", 18, QFont::Bold ) );
+    QPushButton *quit = new QPushButton("Quit", this);
+    quit->setFont(QFont("Times", 18, QFont::Bold));
 
-    connect( quit, SIGNAL(clicked()), qApp, SLOT(quit()) );
+    connect(quit, SIGNAL(clicked()), qApp, SLOT(quit()));
 
-    QGrid *grid = new QGrid( 4, this );
-
-    for( int r = 0 ; r < 4 ; r++ )
-	for( int c = 0 ; c < 4 ; c++ )
-	    (void)new LCDRange( grid );
+    QGridWidget *grid = new QGridWidget(4, this);
+    for (int row = 0; row < 4; ++row) {
+        for (int column = 0; column < 4; ++column) {
+            (void) new LCDRange(grid);
+        }
+    }
 }
 
-int main( int argc, char **argv )
+int main(int argc, char *argv[])
 {
-    QApplication a( argc, argv );
-
-    MyWidget w;
-    a.setMainWidget( &w );
-    w.show();
-    return a.exec();
+    QApplication app(argc, argv);
+    MyWidget widget;
+    app.setMainWidget(&widget);
+    widget.show();
+    return app.exec();
 }

@@ -4,92 +4,90 @@
 **
 ****************************************************************/
 
+#include <QDateTime>
+#include <QMouseEvent>
+#include <QPaintEvent>
+#include <QPainter>
+#include <QPixmap>
+#include <QTimer>
+
+#include <cmath>
+#include <cstdlib>
+
 #include "cannon.h"
-#include <qtimer.h>
-#include <qpainter.h>
-#include <qevent.h>
-#include <qpixmap.h>
-#include <qdatetime.h>
 
-#include <math.h>
-#include <stdlib.h>
+using namespace std;
 
-
-CannonField::CannonField( QWidget *parent, const char *name )
-        : QWidget( parent, name )
+CannonField::CannonField(QWidget *parent)
+    : QWidget(parent)
 {
     ang = 45;
     f = 0;
     timerCount = 0;
-    autoShootTimer = new QTimer( this, "movement handler" );
-    connect( autoShootTimer, SIGNAL(timeout()),
-	     this, SLOT(moveShot()) );
+    autoShootTimer = new QTimer(this);
+    connect(autoShootTimer, SIGNAL(timeout()), this, SLOT(moveShot()));
     shoot_ang = 0;
     shoot_f = 0;
-    target = QPoint( 0, 0 );
+    target = QPoint(0, 0);
     gameEnded = false;
     barrelPressed = false;
-    setPalette( QPalette( QColor( 250, 250, 200) ) );
+    setPalette(QPalette(QColor(250, 250, 200)));
     newTarget();
 }
 
-
-void CannonField::setAngle( int degrees )
+void CannonField::setAngle(int angle)
 {
-    if ( degrees < 5 )
-	degrees = 5;
-    if ( degrees > 70 )
-	degrees = 70;
-    if ( ang == degrees )
+    if (angle < 5)
+	angle = 5;
+    if (angle > 70)
+	angle = 70;
+    if (ang == angle)
 	return;
-    ang = degrees;
-    repaint( cannonRect(), false );
-    emit angleChanged( ang );
+    ang = angle;
+    repaint(cannonRect());
+    emit angleChanged(ang);
 }
 
-
-void CannonField::setForce( int newton )
+void CannonField::setForce(int force)
 {
-    if ( newton < 0 )
-	newton = 0;
-    if ( f == newton )
+    if (force < 0)
+	force = 0;
+    if (f == force)
 	return;
-    f = newton;
-    emit forceChanged( f );
+    f = force;
+    emit forceChanged(f);
 }
-
 
 void CannonField::shoot()
 {
-    if ( isShooting() )
+    if (isShooting())
 	return;
     timerCount = 0;
     shoot_ang = ang;
     shoot_f = f;
-    autoShootTimer->start( 50 );
-    emit canShoot( false );
+    autoShootTimer->start(50);
+    emit canShoot(false);
 }
-
 
 void  CannonField::newTarget()
 {
     static bool first_time = true;
-    if ( first_time ) {
+
+    if (first_time) {
 	first_time = false;
-	QTime midnight( 0, 0, 0 );
-	srand( midnight.secsTo(QTime::currentTime()) );
+	QTime midnight(0, 0, 0);
+	srand(midnight.secsTo(QTime::currentTime()));
     }
-    QRegion r( targetRect() );
-    target = QPoint( 200 + rand() % 190,
-		     10  + rand() % 255 );
-    repaint( r.unite( targetRect() ) );
+    QRegion r(targetRect());
+    target = QPoint(200 + rand() % 190, 10 + rand() % 255);
+    repaint(r.unite(targetRect()));
 }
 
 void CannonField::setGameOver()
 {
-    if ( gameEnded )
+    if (gameEnded)
 	return;
-    if ( isShooting() )
+    if (isShooting())
 	autoShootTimer->stop();
     gameEnded = true;
     repaint();
@@ -97,197 +95,179 @@ void CannonField::setGameOver()
 
 void CannonField::restartGame()
 {
-    if ( isShooting() )
+    if (isShooting())
 	autoShootTimer->stop();
     gameEnded = false;
     repaint();
-    emit canShoot( true );
+    emit canShoot(true);
 }
 
 void CannonField::moveShot()
 {
-    QRegion r( shotRect() );
-    timerCount++;
+    QRegion r(shotRect());
+    ++timerCount;
 
     QRect shotR = shotRect();
 
-    if ( shotR.intersects( targetRect() ) ) {
+    if (shotR.intersects(targetRect())) {
 	autoShootTimer->stop();
 	emit hit();
-	emit canShoot( true );
-    } else if ( shotR.x() > width() || shotR.y() > height() ||
-		shotR.intersects(barrierRect()) ) {
+	emit canShoot(true);
+    } else if (shotR.x() > width() || shotR.y() > height()
+               || shotR.intersects(barrierRect())) {
 	autoShootTimer->stop();
 	emit missed();
-	emit canShoot( true );
+	emit canShoot(true);
     } else {
-	r = r.unite( QRegion( shotR ) );
+	r = r.unite(QRegion(shotR));
     }
 
-    repaint( r );
+    repaint(r);
 }
 
-
-void CannonField::mousePressEvent( QMouseEvent *e )
+void CannonField::mousePressEvent(QMouseEvent *event)
 {
-    if ( e->button() != LeftButton )
+    if (event->button() != Qt::LeftButton)
 	return;
-    if ( barrelHit( e->pos() ) )
+    if (barrelHit(event->pos()))
 	barrelPressed = true;
 }
 
-
-void CannonField::mouseMoveEvent( QMouseEvent *e )
+void CannonField::mouseMoveEvent(QMouseEvent *event)
 {
-    if ( !barrelPressed )
+    if (!barrelPressed)
 	return;
-    QPoint pnt = e->pos();
-    if ( pnt.x() <= 0 )
-	pnt.setX( 1 );
-    if ( pnt.y() >= height() )
-	pnt.setY( height() - 1 );
+    QPoint pnt = event->pos();
+    if (pnt.x() <= 0)
+	pnt.setX(1);
+    if (pnt.y() >= height())
+	pnt.setY(height() - 1);
     double rad = atan(((double)rect().bottom()-pnt.y())/pnt.x());
-    setAngle( qRound ( rad*180/3.14159265 ) );
+    setAngle(qRound (rad*180/3.14159265));
 }
 
-
-void CannonField::mouseReleaseEvent( QMouseEvent *e )
+void CannonField::mouseReleaseEvent(QMouseEvent *event)
 {
-    if ( e->button() == LeftButton )
+    if (event->button() == Qt::LeftButton)
 	barrelPressed = false;
 }
 
-
-void CannonField::paintEvent( QPaintEvent *e )
+void CannonField::paintEvent(QPaintEvent *event)
 {
-    QRect updateR = e->rect();
-    QPainter p( this );
+    QRect updateR = event->rect();
+    QPainter painter(this);
 
-    if ( gameEnded ) {
-	p.setPen( black );
-	p.setFont( QFont( "Courier", 48, QFont::Bold ) );
-	p.drawText( rect(), AlignCenter, "Game Over" );
+    if (gameEnded) {
+	painter.setPen(Qt::black);
+	painter.setFont(QFont("Courier", 48, QFont::Bold));
+	painter.drawText(rect(), Qt::AlignCenter, "Game Over");
     }
-    if ( updateR.intersects( cannonRect() ) )
-	paintCannon( &p );
-    if ( updateR.intersects( barrierRect() ) )
-	paintBarrier( &p );
-    if ( isShooting() && updateR.intersects( shotRect() ) )
-	paintShot( &p );
-    if ( !gameEnded && updateR.intersects( targetRect() ) )
-	paintTarget( &p );
+    if (updateR.intersects(cannonRect()))
+	paintCannon(painter);
+    if (updateR.intersects(barrierRect()))
+	paintBarrier(painter);
+    if (isShooting() && updateR.intersects(shotRect()))
+	paintShot(painter);
+    if (!gameEnded && updateR.intersects(targetRect()))
+	paintTarget(painter);
 }
 
-void CannonField::paintShot( QPainter *p )
+void CannonField::paintShot(QPainter &painter)
 {
-    p->setBrush( black );
-    p->setPen( NoPen );
-    p->drawRect( shotRect() );
+    painter.setBrush(Qt::black);
+    painter.setPen(Qt::NoPen);
+    painter.drawRect(shotRect());
 }
 
-
-void CannonField::paintTarget( QPainter *p )
+void CannonField::paintTarget(QPainter &painter)
 {
-    p->setBrush( red );
-    p->setPen( black );
-    p->drawRect( targetRect() );
+    painter.setBrush(Qt::red);
+    painter.setPen(Qt::black);
+    painter.drawRect(targetRect());
 }
 
-void CannonField::paintBarrier( QPainter *p )
+void CannonField::paintBarrier(QPainter &painter)
 {
-    p->setBrush( yellow );
-    p->setPen( black );
-    p->drawRect( barrierRect() );
+    painter.setBrush(Qt::yellow);
+    painter.setPen(Qt::black);
+    painter.drawRect(barrierRect());
 }
 
 const QRect barrelRect(33, -4, 15, 8);
 
-void CannonField::paintCannon( QPainter *p )
+void CannonField::paintCannon(QPainter &painter)
 {
-    QRect cr = cannonRect();
-    QPixmap pix( cr.size() );
-    pix.fill( this, cr.topLeft() );
+    QRect rect = cannonRect();
+    QPixmap pixmap(rect.size());
+    pixmap.fill(this, rect.topLeft());
 
-    QPainter tmp( &pix );
-    tmp.setBrush( blue );
-    tmp.setPen( NoPen );
+    QPainter pixmapPainter(&pixmap);
+    pixmapPainter.setBrush(Qt::blue);
+    pixmapPainter.setPen(Qt::NoPen);
 
-    tmp.translate( 0, pix.height() - 1 );
-    tmp.drawPie( QRect( -35,-35, 70, 70 ), 0, 90*16 );
-    tmp.rotate( -ang );
-    tmp.drawRect( barrelRect );
-    tmp.end();
+    pixmapPainter.translate(0, pixmap.height() - 1);
+    pixmapPainter.drawPie(QRect(-35, -35, 70, 70), 0, 90 * 16);
+    pixmapPainter.rotate(-ang);
+    pixmapPainter.drawRect(barrelRect);
+    pixmapPainter.end();
 
-    p->drawPixmap( cr.topLeft(), pix );
+    painter.drawPixmap(rect.topLeft(), pixmap);
 }
-
 
 QRect CannonField::cannonRect() const
 {
-    QRect r( 0, 0, 50, 50 );
-    r.moveBottomLeft( rect().bottomLeft() );
-    return r;
+    QRect result(0, 0, 50, 50);
+    result.moveBottomLeft(rect().bottomLeft());
+    return result;
 }
-
 
 QRect CannonField::shotRect() const
 {
     const double gravity = 4;
 
-    double time      = timerCount / 4.0;
-    double velocity  = shoot_f;
-    double radians   = shoot_ang*3.14159265/180;
+    double time = timerCount / 4.0;
+    double velocity = shoot_f;
+    double radians = shoot_ang * 3.14159265 / 180;
 
-    double velx      = velocity*cos( radians );
-    double vely      = velocity*sin( radians );
-    double x0        = ( barrelRect.right()  + 5 )*cos(radians);
-    double y0        = ( barrelRect.right()  + 5 )*sin(radians);
-    double x         = x0 + velx*time;
-    double y         = y0 + vely*time - 0.5*gravity*time*time;
+    double velx = velocity * cos(radians);
+    double vely = velocity * sin(radians);
+    double x0 = (barrelRect.right() + 5) * cos(radians);
+    double y0 = (barrelRect.right() + 5) * sin(radians);
+    double x = x0 + velx * time;
+    double y = y0 + vely * time - 0.5 * gravity * time * time;
 
-    QRect r = QRect( 0, 0, 6, 6 );
-    r.moveCenter( QPoint( qRound(x), height() - 1 - qRound(y) ) );
+    QRect r = QRect(0, 0, 6, 6);
+    r.moveCenter(QPoint(qRound(x), height() - 1 - qRound(y)));
     return r;
 }
-
 
 QRect CannonField::targetRect() const
 {
-    QRect r( 0, 0, 20, 10 );
-    r.moveCenter( QPoint(target.x(),height() - 1 - target.y()) );
-    return r;
+    QRect result(0, 0, 20, 10);
+    result.moveCenter(QPoint(target.x(), height() - 1 - target.y()));
+    return result;
 }
-
 
 QRect CannonField::barrierRect() const
 {
-    return QRect( 145, height() - 100, 15, 100 );
+    return QRect(145, height() - 100, 15, 100);
 }
 
-
-bool CannonField::barrelHit( const QPoint &p ) const
+bool CannonField::barrelHit(const QPoint &pos) const
 {
-    QWMatrix mtx;
-    mtx.translate( 0, height() - 1 );
-    mtx.rotate( -ang );
-    mtx = mtx.invert();
-    return barrelRect.contains( mtx.map(p) );
+    QMatrix matrix;
+    matrix.translate(0, height() - 1);
+    matrix.rotate(-ang);
+    matrix = matrix.invert();
+    return barrelRect.contains(matrix.map(pos));
 }
-
 
 bool CannonField::isShooting() const
 {
     return autoShootTimer->isActive();
 }
 
-
 QSize CannonField::sizeHint() const
 {
-    return QSize( 400, 300 );
-}
-
-
-QSizePolicy CannonField::sizePolicy() const
-{
-    return QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
+    return QSize(400, 300);
 }

@@ -4,72 +4,69 @@
 **
 ****************************************************************/
 
-#include <qapplication.h>
-#include <qpushbutton.h>
-#include <qlcdnumber.h>
-#include <qfont.h>
-#include <qlayout.h>
+#include <QApplication>
+#include <QFont>
+#include <QGridLayout>
+#include <QLCDNumber>
+#include <QPushButton>
+#include <QVBoxLayout>
 
-#include "lcdrange.h"
 #include "cannon.h"
+#include "lcdrange.h"
 
-
-class MyWidget: public QWidget
+class MyWidget : public QWidget
 {
 public:
-    MyWidget( QWidget *parent=0, const char *name=0 );
+    MyWidget(QWidget *parent = 0);
 };
 
-
-MyWidget::MyWidget( QWidget *parent, const char *name )
-        : QWidget( parent, name )
+MyWidget::MyWidget(QWidget *parent)
+    : QWidget(parent)
 {
-    QPushButton *quit = new QPushButton( "&Quit", this, "quit" );
-    quit->setFont( QFont( "Times", 18, QFont::Bold ) );
+    QPushButton *quit = new QPushButton("&Quit", this);
+    quit->setFont(QFont("Times", 18, QFont::Bold));
 
-    connect( quit, SIGNAL(clicked()), qApp, SLOT(quit()) );
+    connect(quit, SIGNAL(clicked()), qApp, SLOT(quit()));
 
-    LCDRange *angle = new LCDRange( this, "angle" );
-    angle->setRange( 5, 70 );
+    LCDRange *angle = new LCDRange(this);
+    angle->setRange(5, 70);
 
-    LCDRange *force  = new LCDRange( this, "force" );
-    force->setRange( 10, 50 );
+    LCDRange *force = new LCDRange(this);
+    force->setRange(10, 50);
 
-    CannonField *cannonField = new CannonField( this, "cannonField" );
+    CannonField *cannonField = new CannonField(this);
 
-    connect( angle, SIGNAL(valueChanged(int)),
-	     cannonField, SLOT(setAngle(int)) );
-    connect( cannonField, SIGNAL(angleChanged(int)),
-	     angle, SLOT(setValue(int)) );
+    connect(angle, SIGNAL(valueChanged(int)),
+            cannonField, SLOT(setAngle(int)));
+    connect(cannonField, SIGNAL(angleChanged(int)),
+            angle, SLOT(setValue(int)));
 
-    connect( force, SIGNAL(valueChanged(int)),
-	     cannonField, SLOT(setForce(int)) );
-    connect( cannonField, SIGNAL(forceChanged(int)),
-	     force, SLOT(setValue(int)) );
+    connect(force, SIGNAL(valueChanged(int)),
+            cannonField, SLOT(setForce(int)));
+    connect(cannonField, SIGNAL(forceChanged(int)),
+            force, SLOT(setValue(int)));
 
-    QGridLayout *grid = new QGridLayout( this, 2, 2, 10 );
-    grid->addWidget( quit, 0, 0 );
-    grid->addWidget( cannonField, 1, 1 );
-    grid->setColStretch( 1, 10 );
+    QVBoxLayout *leftLayout = new QVBoxLayout;
+    leftLayout->addWidget(angle);
+    leftLayout->addWidget(force);
 
-    QVBoxLayout *leftBox = new QVBoxLayout;
-    grid->addLayout( leftBox, 1, 0 );
-    leftBox->addWidget( angle );
-    leftBox->addWidget( force );
+    QGridLayout *gridLayout = new QGridLayout(this);
+    gridLayout->addWidget(quit, 0, 0);
+    gridLayout->addLayout(leftLayout, 1, 0);
+    gridLayout->addWidget(cannonField, 1, 1, 2, 1);
+    gridLayout->setColumnStretch(1, 10);
 
-    angle->setValue( 60 );
-    force->setValue( 25 );
+    angle->setValue(60);
+    force->setValue(25);
     angle->setFocus();
 }
 
-int main( int argc, char **argv )
+int main(int argc, char *argv[])
 {
-    QApplication::setColorSpec( QApplication::CustomColor );
-    QApplication a( argc, argv );
-
-    MyWidget w;
-    w.setGeometry( 100, 100, 500, 355 );
-    a.setMainWidget( &w );
-    w.show();
-    return a.exec();
+    QApplication app(argc, argv);
+    MyWidget widget;
+    widget.setGeometry(100, 100, 500, 355);
+    app.setMainWidget(&widget);
+    widget.show();
+    return app.exec();
 }

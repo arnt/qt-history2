@@ -7,49 +7,47 @@
 #ifndef CANNON_H
 #define CANNON_H
 
+#include <QWidget>
+
 class QTimer;
-
-
-#include <qwidget.h>
-
 
 class CannonField : public QWidget
 {
     Q_OBJECT
-public:
-    CannonField( QWidget *parent=0, const char *name=0 );
 
-    int   angle() const { return ang; }
-    int   force() const { return f; }
-    bool  gameOver() const { return gameEnded; }
-    bool  isShooting() const;
-    QSizePolicy sizePolicy() const;
+public:
+    CannonField(QWidget *parent = 0);
+
+    int angle() const { return ang; }
+    int force() const { return f; }
+    bool gameOver() const { return gameEnded; }
+    bool isShooting() const;
 
 public slots:
-    void  setAngle( int degrees );
-    void  setForce( int newton );
-    void  shoot();
-    void  newTarget();
-    void  setGameOver();
-    void  restartGame();
+    void setAngle(int angle);
+    void setForce(int force);
+    void shoot();
+    void newTarget();
+    void setGameOver();
+    void restartGame();
 
 private slots:
-    void  moveShot();
+    void moveShot();
 
 signals:
-    void  hit();
-    void  missed();
-    void  angleChanged( int );
-    void  forceChanged( int );
-    void  canShoot( bool );
+    void hit();
+    void missed();
+    void angleChanged(int newAngle);
+    void forceChanged(int newForce);
+    void canShoot(bool can);
 
 protected:
-    void  paintEvent( QPaintEvent * );
+    void paintEvent(QPaintEvent *event);
 
 private:
-    void  paintShot( QPainter * );
-    void  paintTarget( QPainter * );
-    void  paintCannon( QPainter * );
+    void paintShot(QPainter &painter);
+    void paintTarget(QPainter &painter);
+    void paintCannon(QPainter &painter);
     QRect cannonRect() const;
     QRect shotRect() const;
     QRect targetRect() const;
@@ -58,7 +56,7 @@ private:
     int f;
 
     int timerCount;
-    QTimer * autoShootTimer;
+    QTimer *autoShootTimer;
     float shoot_ang;
     float shoot_f;
 
@@ -66,6 +64,5 @@ private:
 
     bool gameEnded;
 };
-
 
 #endif // CANNON_H

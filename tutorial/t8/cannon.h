@@ -7,30 +7,28 @@
 #ifndef CANNON_H
 #define CANNON_H
 
-#include <qwidget.h>
-
+#include <QWidget>
 
 class CannonField : public QWidget
 {
     Q_OBJECT
+
 public:
-    CannonField( QWidget *parent=0, const char *name=0 );
+    CannonField(QWidget *parent = 0);
 
     int angle() const { return ang; }
-    QSizePolicy sizePolicy() const;
 
 public slots:
-    void setAngle( int degrees );
+    void setAngle(int angle);
 
 signals:
-    void angleChanged( int );
+    void angleChanged(int newAngle);
 
 protected:
-    void paintEvent( QPaintEvent * );
+    void paintEvent(QPaintEvent *event);
 
 private:
     int ang;
 };
-
 
 #endif // CANNON_H

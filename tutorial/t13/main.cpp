@@ -4,19 +4,16 @@
 **
 ****************************************************************/
 
-#include <qapplication.h>
+#include <QApplication>
 
-#include "gamebrd.h"
+#include "gameboard.h"
 
-
-int main( int argc, char **argv )
+int main(int argc, char *argv[])
 {
-    QApplication::setColorSpec( QApplication::CustomColor );
-    QApplication a( argc, argv );
-
-    GameBoard gb;
-    gb.setGeometry( 100, 100, 500, 355 );
-    a.setMainWidget( &gb );
-    gb.show();
-    return a.exec();
+    QApplication app(argc, argv);
+    GameBoard board;
+    board.setGeometry(100, 100, 500, 355);
+    app.setMainWidget(&board);
+    board.show();
+    return app.exec();
 }

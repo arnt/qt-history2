@@ -7,37 +7,35 @@
 #ifndef LCDRANGE_H
 #define LCDRANGE_H
 
-#include <qvbox.h>
+#include <QVBoxWidget>
 
-class QSlider;
 class QLabel;
+class QSlider;
 
-
-class LCDRange : public QVBox
+class LCDRange : public QVBoxWidget
 {
     Q_OBJECT
-public:
-    LCDRange( QWidget *parent=0, const char *name=0 );
-    LCDRange( const char *s, QWidget *parent=0,
-	      const char *name=0 );
 
-    int         value() const;
-    const char *text()  const;
+public:
+    LCDRange(QWidget *parent = 0);
+    LCDRange(const QString &text, QWidget *parent = 0);
+
+    int value() const;
+    QString text() const;
 
 public slots:
-    void setValue( int );
-    void setRange( int minVal, int maxVal );
-    void setText( const char * );
+    void setValue(int value);
+    void setRange(int minValue, int maxValue);
+    void setText(const QString &text);
 
 signals:
-    void valueChanged( int );
+    void valueChanged(int newValue);
 
 private:
     void init();
 
-    QSlider     *slider;
-    QLabel      *label;
+    QSlider *slider;
+    QLabel *label;
 };
-
 
 #endif // LCDRANGE_H

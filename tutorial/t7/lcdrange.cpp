@@ -4,22 +4,22 @@
 **
 ****************************************************************/
 
+#include <QLCDNumber>
+#include <QSlider>
+
 #include "lcdrange.h"
 
-#include <qslider.h>
-#include <qlcdnumber.h>
-
-LCDRange::LCDRange( QWidget *parent, const char *name )
-        : QVBox( parent, name )
+LCDRange::LCDRange(QWidget *parent)
+    : QVBoxWidget(parent)
 {
-    QLCDNumber *lcd  = new QLCDNumber( 2, this, "lcd"  );
-    slider = new QSlider( Horizontal, this, "slider" );
-    slider->setRange( 0, 99 );
-    slider->setValue( 0 );
-    connect( slider, SIGNAL(valueChanged(int)),
-	     lcd, SLOT(display(int)) );
-    connect( slider, SIGNAL(valueChanged(int)),
-	     SIGNAL(valueChanged(int)) );
+    QLCDNumber *lcd = new QLCDNumber(2, this);
+    slider = new QSlider(Qt::Horizontal, this);
+    slider->setRange(0, 99);
+    slider->setValue(0);
+    connect(slider, SIGNAL(valueChanged(int)),
+            lcd, SLOT(display(int)));
+    connect(slider, SIGNAL(valueChanged(int)),
+            this, SIGNAL(valueChanged(int)));
 }
 
 int LCDRange::value() const
@@ -27,7 +27,7 @@ int LCDRange::value() const
     return slider->value();
 }
 
-void LCDRange::setValue( int value )
+void LCDRange::setValue(int value)
 {
-    slider->setValue( value );
+    slider->setValue(value);
 }
