@@ -693,8 +693,11 @@ bool QItemDelegate::editorEvent(QEvent *event,
     // check if the event happened in the right place
     QVariant value = model->data(index, QAbstractItemModel::CheckStateRole);
     QRect checkRect = check(option, value);
-    if (checkRect.contains(static_cast<QMouseEvent*>(event)->pos()))
-        return model->setData(index, !value.toBool(), QAbstractItemModel::CheckStateRole);
+    if (checkRect.contains(static_cast<QMouseEvent*>(event)->pos())) {
+        Qt::CheckState state = static_cast<Qt::CheckState>(value.toInt());
+        return model->setData(index, (state == Qt::Unchecked ? Qt::Checked : Qt::Unchecked),
+                              QAbstractItemModel::CheckStateRole);
+    }
 
     return false;
 }
