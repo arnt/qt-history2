@@ -680,7 +680,8 @@ static void qt_tesselate_polygon(QVarLengthArray<XTrapezoid> *traps, const QPoly
 	    }
 	}
 
-        Q_ASSERT(aet.size()%2 == 0);
+	if (aet.size()%2 != 0)
+	    return;
 
 	// done?
 	if (!aet.size()) {
