@@ -1288,7 +1288,7 @@ if [ "$MAC_PLATFORM" = "yes" ]; then
       echo >&2
       echo >&2
       exit 2
-  fi      
+  fi
 fi
 
 # check specified platforms are supported
@@ -2350,7 +2350,7 @@ g++)
 esac
 
 # QMAKE_CONFIG can contain the following:
-# 
+#
 # Things that affect the Qt API/ABI:
 #
 #   Options:
@@ -2404,7 +2404,7 @@ for config_option in $QMAKE_CONFIG; do
     styles|tools|kernel|widgets|dialogs|iconview|workspace|network|canvas|table|xml|opengl|sql|stl)
 	# these config options affect the Qt API/ABI. they should influence
 	# the generation of the buildkey, so we don't skip them
-   	SKIP="no" 
+   	SKIP="no"
 	;;
 
     *) # skip all other options since they don't affect the Qt API/ABI.
@@ -2487,7 +2487,7 @@ cat >> $outpath/include/qconfig.h.new <<EOF
 
 /* Build key */
 #define QT_BUILD_KEY "$QT_BUILD_KEY"
- 
+
 /* Compile time features */
 EOF
 [ '!' -z "$LicenseKey" ] && echo "#define QT_PRODUCT_LICENSEKEY \"$LicenseKey\"" >>$outpath/include/qconfig.h.new
@@ -2787,7 +2787,7 @@ EOF
   cat .projects.3 >>.projects
   rm -f .projects.3
     fi
-done
+fi
 # don't sort Qt and MOC in with the other project files
 # also work around a segfaulting uniq(1)
 if [ -f .sorted.projects.2 ]; then
