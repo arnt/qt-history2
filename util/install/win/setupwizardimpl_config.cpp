@@ -272,8 +272,8 @@ void SetupWizardImpl::cleanDone()
     else if ( entry == "Off" )
 	args += "-no-style-sgi";
 #  endif
-    if ( ( !globalInformation.reconfig() && !optionsPage->skipBuild->isChecked() )
-	    || ( globalInformation.reconfig() && !configPage->rebuildInstallation->isChecked() )
+    if ( ( ( !globalInformation.reconfig() && !optionsPage->skipBuild->isChecked() )
+	    || ( globalInformation.reconfig() && !configPage->rebuildInstallation->isChecked() ) )
 #  if defined(Q_OS_WIN32)
     && qWinVersion() & WV_NT_based ) {
 #  else

@@ -1491,8 +1491,8 @@ void SetupWizardImpl::showPageFinish()
     autoContTimer.stop();
     nextButton()->setText( "Next >" );
     QString finishMsg;
-    if ( ( !globalInformation.reconfig() && !optionsPage->skipBuild->isChecked() )
-	    || ( globalInformation.reconfig() && !configPage->rebuildInstallation->isChecked() )
+    if ( ( ( !globalInformation.reconfig() && !optionsPage->skipBuild->isChecked() )
+	    || ( globalInformation.reconfig() && !configPage->rebuildInstallation->isChecked() ) )
 #if defined(Q_OS_WIN32)
     && qWinVersion() & WV_NT_based ) {
 #else
