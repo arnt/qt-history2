@@ -335,7 +335,7 @@ using FTP), and includes functionality such as directory and file
 renaming and directory creation. Like most Qt dialogs, \Class
 QFileDialog is resizable, which makes it easy to view long file
 names and large directories. Applications can be set to automatically
-use the native file dialog when compiled for Windows.
+use the native file dialog when compiled for Windows or Macintosh.
 
   \index Progress bar
   \index QProgressDialog
