@@ -86,10 +86,10 @@ public:
     //### remove non const versions in 4.0
     QStringList readListEntry( const QString &, bool * = 0 );
     QStringList readListEntry( const QString &, const QChar& sep, bool * = 0 );
-    QString	readEntry( const QString &, const QString &def = QString::null,  bool * = 0 );
+    QString	readEntry( const QString &, const QString &def = QString::null, bool * = 0 );
     int		readNumEntry( const QString &, int def = 0, bool * = 0 );
     double	readDoubleEntry( const QString &, double def = 0, bool * = 0 );
-    bool	readBoolEntry( const QString &, bool def = 0, bool * = 0 );
+    bool	readBoolEntry( const QString &, bool def = FALSE, bool * = 0 );
 
     //### make those non-inlined in 4.0
     QStringList readListEntry( const QString &key, bool *ok = 0 ) const
@@ -119,7 +119,7 @@ public:
 	QSettings *that = (QSettings*)this;
 	return that->readDoubleEntry( key, def, ok );
     }
-    bool	readBoolEntry( const QString &key, bool def = 0, bool *ok = 0 ) const
+    bool	readBoolEntry( const QString &key, bool def = FALSE, bool *ok = 0 ) const
     {
 	QSettings *that = (QSettings*)this;
 	return that->readBoolEntry( key, def, ok );
