@@ -39,10 +39,16 @@
 #define QDRAWUTIL_H
 
 #ifndef QT_H
-#include "qpainter.h"
-#include "qpalette.h"
 #include "qnamespace.h"
+#include "qstring.h" // char*->QString conversion
 #endif // QT_H
+
+class QPainter;
+class QColorGroup;
+class QPoint;
+class QBrush;
+class QRect;
+class QPixmap;
 
 #ifndef QT_NO_DRAWUTIL
 //

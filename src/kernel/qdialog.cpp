@@ -42,7 +42,6 @@
 #include "qpushbutton.h"
 #include "qapplication.h"
 #include "qobjectlist.h"
-#include "qobjectdict.h"
 #include "qwidgetlist.h"
 #include "qlayout.h"
 #include "qsizegrip.h"

@@ -39,12 +39,8 @@
 
 #include "qdragobject.h"
 #include "qapplication.h"
-#include "qcursor.h"
 #include "qpoint.h"
 #include "qwidget.h"
-#include "qobjectlist.h"
-#include "qobjectdict.h"
-#include "qimage.h"
 #include "qbuffer.h"
 #include "qgif.h"
 #include <ctype.h>

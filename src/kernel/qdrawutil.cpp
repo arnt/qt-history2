@@ -40,6 +40,7 @@
 #include "qbitmap.h"
 #include "qpixmapcache.h"
 #include "qapplication.h"
+#include "qpainter.h"
 
 // REVISED: paul
 
