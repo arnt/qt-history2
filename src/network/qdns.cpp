@@ -694,7 +694,7 @@ void QDnsAnswer::parse()
 #if defined(QDNS_DEBUG)
 	qDebug( "DNS Manager: answer contained no answers" );
 #endif
-	ok = ( aa || rd );
+	ok = ( aa && rd );
     }
 
     // now go through the list and mark all the As that are referenced
