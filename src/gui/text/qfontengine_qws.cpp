@@ -184,7 +184,7 @@ bool QFontEngineFT::stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs
 }
 
 
-void QFontEngineFT::draw(QPaintEngine *p, int x, int y, const QTextItem &si)
+void QFontEngineFT::draw(QPaintEngine *p, int x, int y, const QTextItemInt &si)
 {
     Q_ASSERT(p->painterState()->txop < QPainterPrivate::TxScale);
     if (p->painterState()->txop == QPainterPrivate::TxTranslate) {
@@ -841,7 +841,7 @@ bool QFontEngineQPF::stringToCMap(const QChar *str, int len, QGlyphLayout *glyph
     return true;
 }
 
-void QFontEngineQPF::draw(QPaintEngine *p, int x, int y, const QTextItem &si)
+void QFontEngineQPF::draw(QPaintEngine *p, int x, int y, const QTextItemInt &si)
 {
     Q_ASSERT(p->painterState()->txop < QPainterPrivate::TxScale);
     if (p->painterState()->txop == QPainterPrivate::TxTranslate) {

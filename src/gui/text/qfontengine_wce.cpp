@@ -155,7 +155,7 @@ QFontEngine::Error QFontEngineWin::stringToCMap(const QChar *str, int len, QGlyp
 #define COLOR_VALUE(c) ((p->flags & QPainter::RGBColor) ? RGB(c.red(),c.green(),c.blue()) : c.pixel())
 
 
-void QFontEngineWin::draw(QPainter *p, int x, int y, const QTextItem &si)
+void QFontEngineWin::draw(QPainter *p, int x, int y, const QTextItemInt &si)
 {
     bool force_bitmap = p->rop != QPainter::CopyROP;
     force_bitmap |= p->txop >= QPainterPrivate::TxScale
@@ -475,7 +475,7 @@ QFontEngine::Error QFontEngineBox::stringToCMap(const QChar *,  int len, QGlyphL
     return NoError;
 }
 
-void QFontEngineBox::draw(QPainter *p, int x, int y, const QTextItem &si)
+void QFontEngineBox::draw(QPainter *p, int x, int y, const QTextItemInt &si)
 {
     Q_UNUSED(p);
     Q_UNUSED(x);

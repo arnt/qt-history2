@@ -460,7 +460,7 @@ void Q3SVGPaintEngine::drawTextItem(const QPointF &p, const QTextItem &ti)
 //         e.setAttribute("y", y);
     e.setAttribute("x", p.x());
     e.setAttribute("y", p.y());
-    e.appendChild(d->doc.createTextNode(QString(ti.chars, ti.num_chars)));
+    e.appendChild(d->doc.createTextNode(ti.text()));
 }
 
 void Q3SVGPaintEngine::drawImage(const QRectF &r, const QImage &im,

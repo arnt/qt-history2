@@ -28,6 +28,7 @@ class QPointF;
 class QPolygonF;
 class QRectF;
 struct QGlyphLayout;
+class QTextItemInt;
 
 class QTextItem {
 public:
@@ -40,16 +41,13 @@ public:
         Dummy = 0xffffffff
     };
     Q_DECLARE_FLAGS(RenderFlags, RenderFlag)
-    RenderFlags flags;
-    qreal descent;
-    qreal ascent;
-    qreal width;
+    qreal descent() const;
+    qreal ascent() const;
+    qreal width() const;
 
-    const QChar *chars;
-    int num_chars;
-    QGlyphLayout *glyphs;
-    int num_glyphs;
-    QFontEngine *fontEngine;
+    RenderFlags renderFlags() const;
+    QString text() const;
+    QFont font() const;
 };
 Q_DECLARE_TYPEINFO(QTextItem, Q_PRIMITIVE_TYPE);
 
@@ -132,7 +130,7 @@ public:
 
     virtual void drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr,
                             Qt::PixmapDrawingMode mode = Qt::ComposePixmap) = 0;
-    virtual void drawTextItem(const QPointF &p, const QTextItem &ti);
+    virtual void drawTextItem(const QPointF &p, const QTextItem &textItem);
     virtual void drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPointF &s,
 				 Qt::PixmapDrawingMode mode = Qt::ComposePixmap);
     virtual void drawImage(const QRectF &r, const QImage &pm, const QRectF &sr,

@@ -71,7 +71,7 @@ static void qt_finalize_ft()
 }
 
 #ifdef Q_WS_WIN
-void qt_draw_text_item(const QPointF &point, const QTextItem &ti, HDC hdc,
+void qt_draw_text_item(const QPointF &point, const QTextItemInt &ti, HDC hdc,
                        QRasterPaintEnginePrivate *d);
 #endif
 
@@ -883,8 +883,10 @@ void QRasterPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap,
 }
 
 
-void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &ti)
+void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textItem)
 {
+    const QTextItemInt &ti = static_cast<const QTextItemInt &>(textItem);
+
 #if defined(Q_WS_MAC)
     return;
 #endif
@@ -1989,7 +1991,7 @@ void LinearGradientData::init()
 }
 
 #ifdef Q_WS_WIN
-void qt_draw_text_item(const QPointF &pos, const QTextItem &ti, HDC hdc,
+void qt_draw_text_item(const QPointF &pos, const QTextItemInt &ti, HDC hdc,
                        QRasterPaintEnginePrivate *d)
 {
     QPointF p = pos;

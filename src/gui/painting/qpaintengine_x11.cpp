@@ -1625,7 +1625,7 @@ void QX11PaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, co
     }
 }
 
-static void drawLines(QPaintEngine *p, const QTextItem &ti, int baseline, int x1, int w)
+static void drawLines(QPaintEngine *p, const QTextItemInt &ti, int baseline, int x1, int w)
 {
     int lw = qRound(ti.fontEngine->lineThickness());
     if (ti.flags & QTextItem::Underline) {
@@ -1645,8 +1645,9 @@ static void drawLines(QPaintEngine *p, const QTextItem &ti, int baseline, int x1
 }
 
 
-void QX11PaintEngine::drawTextItem(const QPointF &p, const QTextItem &ti)
+void QX11PaintEngine::drawTextItem(const QPointF &p, const QTextItem &textItem)
 {
+    const QTextItemInt &ti = static_cast<const QTextItemInt &>(textItem);
     if (!ti.num_glyphs)
         return;
 
@@ -1670,7 +1671,7 @@ void QX11PaintEngine::drawTextItem(const QPointF &p, const QTextItem &ti)
     }
 }
 
-void QX11PaintEngine::drawMulti(const QPointF &p, const QTextItem &ti)
+void QX11PaintEngine::drawMulti(const QPointF &p, const QTextItemInt &ti)
 {
     QFontEngineMulti *multi = static_cast<QFontEngineMulti *>(ti.fontEngine);
     QGlyphLayout *glyphs = ti.glyphs;
@@ -1691,10 +1692,11 @@ void QX11PaintEngine::drawMulti(const QPointF &p, const QTextItem &ti)
             glyphs[i].glyph = glyphs[i].glyph & 0xffffff;
 
         // draw the text
-        QTextItem ti2 = ti;
+        QTextItemInt ti2 = ti;
         ti2.glyphs = ti.glyphs + start;
         ti2.num_glyphs = end - start;
         ti2.fontEngine = multi->engine(which);
+        ti2.f = ti.f;
         drawTextItem(QPointF(x, y), ti2);
 
         // reset the high byte for all glyphs and advance to the next sub-string
@@ -1714,10 +1716,11 @@ void QX11PaintEngine::drawMulti(const QPointF &p, const QTextItem &ti)
         glyphs[i].glyph = glyphs[i].glyph & 0xffffff;
 
     // draw the text
-    QTextItem ti2 = ti;
+    QTextItemInt ti2 = ti;
     ti2.glyphs = ti.glyphs + start;
     ti2.num_glyphs = end - start;
     ti2.fontEngine = multi->engine(which);
+    ti2.f = ti.f;
     drawTextItem(QPointF(x,y), ti2);
 
     // reset the high byte for all glyphs
@@ -1726,7 +1729,7 @@ void QX11PaintEngine::drawMulti(const QPointF &p, const QTextItem &ti)
         glyphs[i].glyph = hi | glyphs[i].glyph;
 }
 
-void QX11PaintEngine::drawBox(const QPointF &p, const QTextItem &ti)
+void QX11PaintEngine::drawBox(const QPointF &p, const QTextItemInt &ti)
 {
     int size = qRound(ti.fontEngine->ascent());
     int x = qRound(p.x());
@@ -1767,7 +1770,7 @@ void QX11PaintEngine::drawBox(const QPointF &p, const QTextItem &ti)
 }
 
 
-void QX11PaintEngine::drawXLFD(const QPointF &p, const QTextItem &si)
+void QX11PaintEngine::drawXLFD(const QPointF &p, const QTextItemInt &si)
 {
 
     QFontEngineXLFD *xlfd = static_cast<QFontEngineXLFD *>(si.fontEngine);
@@ -1880,7 +1883,7 @@ void QX11PaintEngine::drawXLFD(const QPointF &p, const QTextItem &si)
 }
 
 #ifndef QT_NO_XFT
-void QX11PaintEngine::drawXft(const QPointF &p, const QTextItem &si)
+void QX11PaintEngine::drawXft(const QPointF &p, const QTextItemInt &si)
 {
     qreal xpos = p.x();
     qreal ypos = p.y();

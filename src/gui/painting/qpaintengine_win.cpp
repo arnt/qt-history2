@@ -774,8 +774,10 @@ void QWin32PaintEngine::drawPixmap(const QRectF &rf, const QPixmap &sourcePm, co
     pm->releaseDC(pm_dc);
 }
 
-void QWin32PaintEngine::drawTextItem(const QPointF &pos, const QTextItem &ti)
+void QWin32PaintEngine::drawTextItem(const QPointF &pos, const QTextItem &textItem)
 {
+    const QTextItemInt &ti = static_cast<const QTextItemInt &>(textItem);
+
 #ifdef QT_DEBUG_DRAW
         printf(" - QWin32PaintEngine::drawTextItem(), (%.2f,%.2f), string=%s\n",
                pos.x(), pos.y(), QString::fromRawData(ti.chars, ti.num_chars).toLatin1().data());

@@ -52,6 +52,22 @@ class QPainter;
 
 class QAbstractTextDocumentLayout;
 
+class QTextItemInt : public QTextItem
+{
+public:
+    qreal descent;
+    qreal ascent;
+    qreal width;
+
+    RenderFlags flags;
+    int num_chars;
+    const QChar *chars;
+    const QFont *f;
+
+    QGlyphLayout *glyphs;
+    int num_glyphs;
+    QFontEngine *fontEngine;
+};
 
 
 // this uses the same coordinate system as Qt, but a different one to freetype and Xft.

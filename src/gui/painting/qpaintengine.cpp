@@ -16,7 +16,46 @@
 #include "qpainter_p.h"
 #include "qpolygon.h"
 #include "qbitmap.h"
+#include "qapplication.h"
 #include <qdebug.h>
+#include <private/qtextengine_p.h>
+
+qreal QTextItem::descent() const
+{
+    const QTextItemInt *ti = static_cast<const QTextItemInt *>(this);
+    return ti->descent;
+}
+
+qreal QTextItem::ascent() const
+{
+    const QTextItemInt *ti = static_cast<const QTextItemInt *>(this);
+    return ti->ascent;
+}
+
+qreal QTextItem::width() const
+{
+    const QTextItemInt *ti = static_cast<const QTextItemInt *>(this);
+    return ti->width;
+}
+
+QTextItem::RenderFlags QTextItem::renderFlags() const
+{
+    const QTextItemInt *ti = static_cast<const QTextItemInt *>(this);
+    return ti->flags;
+}
+
+QString QTextItem::text() const
+{
+    const QTextItemInt *ti = static_cast<const QTextItemInt *>(this);
+    return QString(ti->chars, ti->num_chars);
+}
+
+QFont QTextItem::font() const
+{
+    const QTextItemInt *ti = static_cast<const QTextItemInt *>(this);
+    return ti->f ? *ti->f : QApplication::font();
+}
+
 
 #include <private/qfontengine_p.h>
 
@@ -815,13 +854,14 @@ void QPaintEngine::drawPoint(const QPointF &pf)
 
 
 /*!
-    This function draws the text item \a ti at position \a p. The
+    This function draws the text item \a textItem at position \a p. The
     default implementation of this function converts the text to a
     QPainterPath and paints the resulting path.
 */
 
-void QPaintEngine::drawTextItem(const QPointF &p, const QTextItem &ti)
+void QPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textItem)
 {
+    const QTextItemInt &ti = static_cast<const QTextItemInt &>(textItem);
 #if !defined(Q_WS_X11) && !defined(Q_WS_WIN)
     bool useFontEngine = false;
     if (hasFeature(QPaintEngine::UsesFontEngine)) {

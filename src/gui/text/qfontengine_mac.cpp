@@ -93,7 +93,7 @@ bool QFontEngineMac::stringToCMap(const QChar *str, int len, QGlyphLayout *glyph
 }
 
 void
-QFontEngineMac::draw(QPaintEngine *p, int req_x, int req_y, const QTextItem &si)
+QFontEngineMac::draw(QPaintEngine *p, int req_x, int req_y, const QTextItemInt &si)
 {
     if(p->type() == QPaintEngine::MacPrinter)
         p = static_cast<QMacPrintEngine*>(p)->paintEngine();

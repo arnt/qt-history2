@@ -562,7 +562,7 @@ int QTextLayout::nextCursorPosition(int oldPos, CursorMode mode) const
         while (oldPos < len && attributes[oldPos].whiteSpace)
             oldPos++;
 
-        while (oldPos < len && !attributes[oldPos].wordStop && !attributes[oldPos-1].whiteSpace 
+        while (oldPos < len && !attributes[oldPos].wordStop && !attributes[oldPos-1].whiteSpace
                && !d->atWordSeparator(oldPos))
             oldPos++;
     }
@@ -590,7 +590,7 @@ int QTextLayout::previousCursorPosition(int oldPos, CursorMode mode) const
         while (oldPos && attributes[oldPos].whiteSpace)
             oldPos--;
 
-        while (oldPos && !attributes[oldPos].wordStop && !attributes[oldPos-1].whiteSpace 
+        while (oldPos && !attributes[oldPos].wordStop && !attributes[oldPos-1].whiteSpace
                && !d->atWordSeparator(oldPos - 1))
             oldPos--;
     }
@@ -1217,7 +1217,7 @@ int QTextLine::length() const
     return eng->lines[i].length;
 }
 
-static void drawMenuText(QPainter *p, qreal x, qreal y, const QScriptItem &si, QTextItem &gf, QTextEngine *eng,
+static void drawMenuText(QPainter *p, qreal x, qreal y, const QScriptItem &si, QTextItemInt &gf, QTextEngine *eng,
                          int start, int glyph_start)
 {
     int ge = glyph_start + gf.num_glyphs;
@@ -1354,7 +1354,7 @@ void QTextLine::draw(QPainter *p, const QPointF &pos) const
 
         qreal itemBaseLine = y;
 
-        QTextItem gf;
+        QTextItemInt gf;
         if (si.analysis.bidiLevel %2)
             gf.flags |= QTextItem::RightToLeft;
         gf.ascent = si.ascent;
@@ -1394,6 +1394,7 @@ void QTextLine::draw(QPainter *p, const QPointF &pos) const
         }
 
         gf.fontEngine = f.d->engineForScript(si.analysis.script);
+        gf.font = &f;
         if (f.d->underline)
             gf.flags |= QTextItem::Underline;
         if (f.d->overline)
@@ -1441,7 +1442,7 @@ void QTextLine::draw(QPainter *p, const QPointF &pos) const
                     if (color.isValid())
                         p->setPen(color);
 
-                    QTextItem special_gf = gf;
+                    QTextItemInt special_gf = gf;
                     if (o.format.fontUnderline())
                         special_gf.flags |= QTextItem::Underline;
                     if (o.format.fontOverline())

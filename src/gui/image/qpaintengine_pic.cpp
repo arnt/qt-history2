@@ -404,6 +404,6 @@ void QPicturePaintEngine::drawTextItem(const QPointF &p , const QTextItem &ti)
 #endif
     int pos;
     SERIALIZE_CMD(QPicturePrivate::PdcDrawText2);
-    d->s << p << QString(ti.chars, ti.num_chars);
+    d->s << p << ti.text();
     writeCmdLength(pos, QRectF(p, QSizeF(1,1)), true);
 }

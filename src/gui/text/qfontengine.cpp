@@ -35,7 +35,7 @@ void QFontEngine::addBitmapFontToPath(qreal x, qreal y, const QGlyphLayout *glyp
     p.fillRect(0, 0, qRound(metrics.width), qRound(metrics.height), Qt::color0);
     p.setPen(Qt::color1);
 
-    QTextItem item;
+    QTextItemInt item;
     item.flags = 0;
     item.descent = descent();
     item.ascent = ascent();
@@ -45,6 +45,7 @@ void QFontEngine::addBitmapFontToPath(qreal x, qreal y, const QGlyphLayout *glyp
     item.glyphs = const_cast<QGlyphLayout *>(glyphs);
     item.num_glyphs = numGlyphs;
     item.fontEngine = this;
+    item.f = 0;
 
     p.drawTextItem(QPointF(0, ascent()), item);
     p.end();
@@ -117,7 +118,7 @@ glyph_metrics_t QFontEngineBox::boundingBox(const QGlyphLayout *, int numGlyphs)
 }
 
 #if !defined(Q_WS_X11) && !defined(Q_WS_WIN)
-void QFontEngineBox::draw(QPaintEngine *p, int x, int y, const QTextItem &si)
+void QFontEngineBox::draw(QPaintEngine *p, int x, int y, const QTextItemInt &si)
 {
     Q_UNUSED(p);
     Q_UNUSED(x);

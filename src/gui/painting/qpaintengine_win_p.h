@@ -59,7 +59,7 @@ public:
     void drawPolygon(const QPointF *, int pointCount, PolygonDrawMode mode);
 
     void drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr, Qt::PixmapDrawingMode mode);
-    void drawTextItem(const QPointF &p, const QTextItem &ti);
+    void drawTextItem(const QPointF &p, const QTextItem &textItem);
 
     void drawPath(const QPainterPath &path);
 

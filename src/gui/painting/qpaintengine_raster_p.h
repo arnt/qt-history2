@@ -76,7 +76,7 @@ public:
                     Qt::PixmapDrawingMode mode = Qt::ComposePixmap);
     void drawTiledPixmap(const QRectF &r, const QPixmap &pm, const QPointF &sr,
                          Qt::PixmapDrawingMode mode = Qt::ComposePixmap);
-    void drawTextItem(const QPointF &p, const QTextItem &ti);
+    void drawTextItem(const QPointF &p, const QTextItem &textItem);
 
     void drawRect(const QRectF &rect);
     void drawLine(const QLineF &line);
