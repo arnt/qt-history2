@@ -75,7 +75,12 @@ static QList<QPointF> qBezierCurve(const QPointF &p1, const QPointF &p2,
     QList<QPointF> a;
 
     QLineF ab(p1, p2), bc(p2, p3), cd(p3, p4);
-    double steps = ab.length()/4 + bc.length() / 8 + cd.length() / 4;
+
+    // This rather magic value is determined by testing when lines become visible
+    // and when they seem smooth. For values of 12 and above the lines are visible
+    // when antialiasing is turned on.
+    const double stepFactor = 11;
+    double steps = ab.length()/stepFactor + bc.length() / (stepFactor*2) + cd.length() / stepFactor;
 
     double a_x = p1.x();
     double b_x = 3 * p2.x();
@@ -1142,6 +1147,8 @@ bool QPainterPath::isEmpty() const
 }
 
 /*!
+  \internal
+
     Create an outline for the path with the given \a width.
 */
 QPainterPath QPainterPath::createPathOutline(int width,
