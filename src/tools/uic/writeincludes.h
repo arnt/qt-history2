@@ -51,6 +51,7 @@ private:
 
     QHash<QString, bool> m_includes;
     QHash<QString, bool> m_includeHints;
+    QHash<QString, bool> m_customWidgets;
 };
 
 #endif // WRITEINCLUDES_H

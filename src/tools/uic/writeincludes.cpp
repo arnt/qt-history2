@@ -24,6 +24,7 @@ WriteIncludes::WriteIncludes(Driver *drv)
 void WriteIncludes::accept(DomUI *node)
 {
     m_includes.clear();
+    m_customWidgets.clear();
 
     if (node->elementIncludeHints())
         accept(node->elementIncludeHints());
@@ -93,7 +94,7 @@ void WriteIncludes::add(const QString &className)
     } else if (className == QLatin1String("QDateEdit") // special case for datetime
             || className == QLatin1String("QTimeEdit")) {
         m_includes.insert("qdatetimeedit.h", true);
-    } else if (!m_includes.contains(header)) {
+    } else if (!m_includes.contains(header) && !m_customWidgets.contains(className)) {
         m_includes.insert(header, true);
     }
 
@@ -109,6 +110,7 @@ void WriteIncludes::accept(DomCustomWidget *node)
 
     bool global = node->elementHeader()->attributeLocation().toLower() == QLatin1String("global");
     m_includes.insert(node->elementHeader()->text(), global);
+    m_customWidgets.insert(node->elementClass(), true);
 }
 
 void WriteIncludes::accept(DomCustomWidgets *node)
