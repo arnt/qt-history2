@@ -36,6 +36,7 @@ public:
     ~UnixMakefileGenerator();
 
 protected:
+    virtual bool doPrecompiledHeaders() const { return TRUE; }
     virtual bool doDepends() const { return !include_deps && MakefileGenerator::doDepends(); }
     virtual QString defaultInstall(const QString &);
     virtual void processPrlVariable(const QString &, const QStringList &);

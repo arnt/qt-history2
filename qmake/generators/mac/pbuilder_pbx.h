@@ -41,6 +41,7 @@ public:
 
     virtual bool openOutput(QFile &) const;
 protected:
+    bool doPrecompiledHeaders() const { return FALSE; }
     virtual bool doDepends() const { return FALSE; } //never necesary
 };
 

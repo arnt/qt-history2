@@ -112,7 +112,7 @@ UnixMakefileGenerator::init()
     if ( project->isEmpty("QMAKE_RUN_CXX_IMP") )
 	project->variables()["QMAKE_RUN_CXX_IMP"].append("$(CXX) -c $(CXXFLAGS) $(INCPATH) -o $@ $<");
     project->variables()["QMAKE_FILETAGS"] += QStringList::split("HEADERS SOURCES TARGET DESTDIR", " ");
-    if ( !project->isEmpty("PRECOMPH") ) {
+    if ( doPrecompiledHeaders() && !project->isEmpty("PRECOMPH") ) {
 	initOutPaths(); 	// Need to fix MOC_DIR since we do this before init()
 	QString allmoc = fileFixify(project->first("MOC_DIR") + "/allmoc.cpp", QDir::currentDirPath(), Option::output_dir);
 	project->variables()["SOURCES"].prepend(allmoc);

@@ -833,7 +833,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	  << destdir << "$(TARGET2) $(TARGETA)" << "\n";
     t << endl << endl;
 
-    if ( !project->isEmpty("PRECOMPH") ) {
+    if ( doPrecompiledHeaders() && !project->isEmpty("PRECOMPH") ) {
 	QString outdir = project->first("MOC_DIR");
 	QString qt_dot_h = Option::fixPathToLocalOS(project->first("PRECOMPH"));
 	t << "###### Combined headers" << endl << endl;
