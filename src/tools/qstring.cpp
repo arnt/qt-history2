@@ -3543,7 +3543,7 @@ QString &QString::sprintf( const char* cformat, ... )
 	switch (*c) {
 	    case 'd':
 	    case 'i': {
-	    	Q_LLONG i;
+	    	Q_LLONG i = 0;
 		switch (length_mod) {
 		    case lm_none: i = va_arg(ap, int); break;
 		    case lm_hh: i = va_arg(ap, int); break;
@@ -3563,7 +3563,7 @@ QString &QString::sprintf( const char* cformat, ... )
 	    case 'u':
 	    case 'x':
 	    case 'X': {
-	    	Q_ULLONG u;
+	    	Q_ULLONG u = 0;
 		switch (length_mod) {
 		    case lm_none: u = va_arg(ap, unsigned int); break;
 		    case lm_hh: u = va_arg(ap, unsigned int); break;
@@ -3687,15 +3687,6 @@ QString &QString::sprintf( const char* cformat, ... )
     return *this;
 }
 #endif
-
-static bool ok_in_base(QChar c, int base)
-{
-    if (base <= 10)
-	return c.isDigit() && c.digitValue() < base;
-    else
-	return c.isDigit() || (c >= 'a' && c < char('a'+base-10))
-			   || (c >= 'A' && c < char('A'+base-10));
-}
 
 /*!
     Returns the string converted to a \c long value to the base \a
