@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocketdevice.cpp#5 $
+** $Id: //depot/qt/main/src/network/qsocketdevice.cpp#6 $
 **
 ** Implementation of QSocketDevice class.
 **
@@ -118,7 +118,7 @@ public:
 
 
 /*!
-  Creates a QSocketDevice object for an existing socket.
+  Creates a QSocketDevice object for the existing socket \a socket.
 
   The \a type argument must match the actual socket type;
   \c QSocketDevice::Stream for a reliable, connection-oriented TCP socket, or
@@ -209,7 +209,7 @@ int QSocketDevice::socket() const
 
 
 /*!
-  Sets an existing socket.
+  Sets the socket device to operate on the existing socket \a socket.
 
   The \a type argument must match the actual socket type;
   \c QSocketDevice::Stream for a reliable, connection-oriented TCP socket, or
@@ -491,7 +491,7 @@ QSocketDevice::Error QSocketDevice::error() const
 
 
 /*!
-  Allows subclasses to set the error state.
+  Allows subclasses to set the error state to \a err.
 */
 void QSocketDevice::setError( Error err )
 {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id$
+** $Id:$
 **
 ** Implementation of QServerSocket class.
 **
@@ -75,7 +75,8 @@ public:
 /*!
   Creates a server socket object, that will serve the given \a port on
   all the addresses of this host.  If \a port is 0, QServerSocket
-  picks a suitable port in in a system-dependent manner.
+  picks a suitable port in in a system-dependent manner. With \a backlog you
+  can specify how many pending connections a server can have.
 
   The \a parent and \a name arguments are passed on as usual
   to the QObject constructor.
@@ -92,7 +93,8 @@ QServerSocket::QServerSocket( Q_UINT16 port, int backlog,
 
 /*!
   Creates a server socket object, that will serve the given \a port
-  on just \a address.
+  on just \a address. With \a backlog you can specify how many pending
+  connections a server can have.
 
   The \a parent and \a name arguments are passed on as usual
   to the QObject constructor.
@@ -115,6 +117,9 @@ QServerSocket::QServerSocket( const QHostAddress & address, Q_UINT16 port,
   QServerSocket class as a wrapper for other socket types (e.g. Unix Domain
   Sockets under Unix).
 
+  The \a parent and \a name arguments are passed on as usual
+  to the QObject constructor.
+
   \sa setSocket()
 */
 
@@ -133,8 +138,9 @@ bool QServerSocket::ok() const
     return !!d->s;
 }
 
-/*!  The common bit of the constructors. */
-
+/*
+  The common bit of the constructors.
+ */
 void QServerSocket::init( const QHostAddress & address, Q_UINT16 port, int backlog )
 {
     d->s = new QSocketDevice;
@@ -163,7 +169,6 @@ void QServerSocket::init( const QHostAddress & address, Q_UINT16 port, int backl
   Existing connections continue to exist; this only affects acceptance
   of new connections.
 */
-
 QServerSocket::~QServerSocket()
 {
     delete d;
@@ -195,7 +200,6 @@ void QServerSocket::incomingConnection( int )
 
   \sa address() QSocketDevice::port()
 */
-
 Q_UINT16 QServerSocket::port() const
 {
     if ( !d || !d->s )
@@ -207,7 +211,6 @@ Q_UINT16 QServerSocket::port() const
 /*!
   Returns the operating system socket.
 */
-
 int QServerSocket::socket() const
 {
     if ( !d || !d->s )
@@ -223,7 +226,6 @@ int QServerSocket::socket() const
 
   \sa port() QSocketDevice::address()
 */
-
 QHostAddress QServerSocket::address() const
 {
     if ( !d || !d->s )
@@ -241,7 +243,6 @@ QHostAddress QServerSocket::address() const
   class does all the necessary setup for most client or server socket
   applications.
 */
-
 QSocketDevice *QServerSocket::socketDevice()
 {
     if ( !d )
@@ -258,7 +259,6 @@ QSocketDevice *QServerSocket::socketDevice()
   This allows one to use the QServerSocket class as a wrapper for other socket
   types (e.g. Unix Domain Sockets under Unix).
 */
-
 void QServerSocket::setSocket( int socket )
 {
     delete d;

@@ -162,6 +162,9 @@ void QSocketPrivate::close()
 
 /*!
   Creates a QSocket object in \c QSocket::Idle state.
+
+  The \a parent and \a name arguments are passed on as usual
+  to the QObject constructor.
 */
 
 QSocket::QSocket( QObject *parent, const char *name )
@@ -204,12 +207,12 @@ QSocketDevice *QSocket::socketDevice()
 }
 
 /*!
-  Set the internal socket device.  Setting this to NULL will return
-  it to the default platform socket device, any existing connection
-  will be disconnected before using this new device.
+  Set the internal socket device to \a device. Setting this to NULL will return
+  it to the default platform socket device, any existing connection will be
+  disconnected before using this new device.
 
   The new device should not be connected before being attached to a
-  QSocket, instead use /c connectToHost following this.
+  QSocket, instead use \c connectToHost following this.
 */
 
 void QSocket::setSocketDevice( QSocketDevice *device )
@@ -440,7 +443,7 @@ void QSocket::tryConnecting()
 
 
 /*!
-  Opens the socket using the specified QIODevice file mode.  This function
+  Opens the socket using the specified QIODevice file mode \a m.  This function
   is called automatically when needed and you should not call it yourself.
   \sa close()
 */
@@ -504,8 +507,8 @@ void QSocket::close()
 
 
 /*!
-  This function consumes data from the read buffer and copies
-  it into \a sink.
+  This function consumes \a nbytes bytes of data from the read buffer and
+  copies it into \a sink.
 */
 
 bool QSocket::consumeReadBuf( int nbytes, char *sink )
@@ -544,8 +547,8 @@ bool QSocket::consumeReadBuf( int nbytes, char *sink )
 
 
 /*!
-  This function consumes data from the write buffer.  It is similar
-  to consumeReadBuf() above, except that it does not copy the data
+  This function consumes \a nbytes bytes of data from the write buffer.  It is
+  similar to consumeReadBuf() above, except that it does not copy the data
   into another buffer.
 */
 
@@ -731,8 +734,8 @@ int QSocket::at() const
 }
 
 
-/*!
-  Moves the read index forward and returns TRUE if the operation
+/*!  \overload
+  Moves the read index forward to \a index and returns TRUE if the operation
   was successful.  Moving the index forward means skipping incoming
   data.
 */
@@ -925,9 +928,9 @@ int QSocket::getch()
 
 
 /*!
-  Writes the character \e ch into the output buffer.
+  Writes the character \a ch into the output buffer.
 
-  Returns \e ch, or -1 if some error occurred.
+  Returns \a ch, or -1 if some error occurred.
 
   \sa getch()
 */

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#11 $
+** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#12 $
 **
 ** Implementation of QSocketDevice class.
 **
@@ -290,7 +290,7 @@ void QSocketDevice::setBlocking( bool enable )
 
 
 /*!
-  Returns a socket option.
+  Returns the value of the socket option \a opt.
 */
 int QSocketDevice::option( Option opt ) const
 {
@@ -340,7 +340,7 @@ int QSocketDevice::option( Option opt ) const
 
 
 /*!
-  Sets a socket option.
+  Sets the socket option \a opt to \a v.
 */
 void QSocketDevice::setOption( Option opt, int v )
 {
@@ -382,8 +382,8 @@ void QSocketDevice::setOption( Option opt, int v )
 
 
 /*!
-  Connects to the IP address and port specified by \a addr.  Returns
-  TRUE if it establishes a connection, and FALSE if not.  error()
+  Connects to the IP address and port specified by \a addr and \a port.
+  Returns TRUE if it establishes a connection, and FALSE if not.  error()
   explains why.
 
   Note that error() commonly returns NoError for non-blocking sockets;
@@ -448,9 +448,10 @@ bool QSocketDevice::connect( const QHostAddress &addr, Q_UINT16 port )
 
 
 /*!
-  Assigns a name to an unnamed socket.  If the operation succeeds,
-  bind() returns TRUE.  Otherwise, it returns FALSE without changing
-  what port() and address() return.
+  Assigns a name to an unnamed socket. The name is the host address \a address
+  and the port number \a port. If the operation succeeds, bind() returns TRUE.
+  Otherwise, it returns FALSE without changing what port() and address()
+  return.
 
   bind() is used by servers for setting up incoming connections.
   Call bind() before listen().
@@ -798,7 +799,7 @@ int QSocketDevice::writeBlock( const char *data, uint len )
 }
 
 
-/*!
+/*!  \overload
   Writes \a len bytes to the socket from \a data and returns
   the number of bytes written.  Returns -1 if an error occurred.
 
