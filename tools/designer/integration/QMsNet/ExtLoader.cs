@@ -91,6 +91,7 @@ namespace QMsNet
 		VCLinkerTool       linker = (VCLinkerTool)((IVCCollection)cfg.Tools).Item("VCLinkerTool");
 		VCLibrarianTool librarian = (VCLibrarianTool)((IVCCollection)cfg.Tools).Item("VCLibrarianTool");
 
+		bool   prjDLL  = false;
 		string prjType = "app";
 		switch ( ((VCConfiguration)((IVCCollection)vp.Configurations).Item(1)).ConfigurationType ) {
 		    case ConfigurationTypes.typeApplication:
@@ -99,10 +100,11 @@ namespace QMsNet
 		    case ConfigurationTypes.typeDynamicLibrary:
 		    case ConfigurationTypes.typeStaticLibrary:
 			prjType = "lib";
+			prjDLL  = true;
 			break;
 		}
 		bool   prjDebug  = (linker==null) ? true : linker.GenerateDebugInformation;
-		string prjConfig = "qt warn_on" + (prjDebug ? " debug" : "");
+		string prjConfig = "qt warn_on" + (prjDebug ? " debug" : "") + (prjDLL ? " dll" : "");
 
 		string prjHeaders = "";
 		string prjSources = "";
