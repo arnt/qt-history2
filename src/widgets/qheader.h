@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.h#28 $
+** $Id: //depot/qt/main/src/widgets/qheader.h#29 $
 **
 ** Definition of QHeader widget class (table header)
 **
@@ -72,17 +72,11 @@ signals:
     void	sizeChange( int section, int oldSize, int newSize );
     void	moved( int from, int to );
 protected:
-    //    void	timerEvent( QTimerEvent * );
-
     void	resizeEvent( QResizeEvent * );
     void	paintEvent( QPaintEvent * );
     QRect	sRect( int i );
 
     void	paintSection( QPainter *, int, QRect );
-    //    void	setupPainter( QPainter * );
-
-    //    int		cellHeight( int );
-    //    int		cellWidth( int );
 
     void	mousePressEvent( QMouseEvent * );
     void	mouseReleaseEvent( QMouseEvent * );
@@ -111,9 +105,10 @@ private:
     State	state;
     QCOORD	clickPos;
     bool	trackingIsOn;
-    int       firstSection;
+    int       cachedIdx;
+    int	cachedPos;
     Orientation orient;
-    
+
     QHeaderData *data;
 
 private:	// Disabled copy constructor and operator=

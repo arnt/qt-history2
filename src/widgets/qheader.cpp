@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#70 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#71 $
 **
 ** Implementation of QHeader widget class (table header)
 **
@@ -27,7 +27,7 @@
 #include "qbitmap.h"
 #include "qbitarray.h"
 
-static const int MINSIZE  = 8;
+static const int GRIPMARGIN  = 4;		//half the size of the resize area
 static const int MARKSIZE = 32;
 static const int QH_MARGIN = 4;
 
@@ -138,16 +138,28 @@ int QHeader::cellSize( int i ) const
 
 
 /*!
-  Returns the position in pixels of section \a i of the header.  \a i is the
+  Returns the position in pixels of section \a i of the header. The
+  position is measured from the start of the first header. \a i is the
   actual index.
 */
 
 int QHeader::cellPos( int i ) const
 {
-    /* cvs conflict here */
+    int r = cachedPos;
 
-    int r = pPos( i );
-    return r + offset();
+    if ( i >=  cachedIdx  ) {
+	for ( int j = cachedIdx; j < i; j++ )
+	    r += pSize( j );
+    } else { //### 
+	for ( int j = cachedIdx-1; j >= i; j-- )
+	    r -= pSize( j );
+    }
+    if ( i != cachedIdx ) {
+	QHeader *This = (QHeader*)this;	//mutable
+	This->cachedIdx = i;
+	This->cachedPos = r;
+    }
+    return r;
 }
 
 
@@ -196,6 +208,8 @@ void QHeader::init( int n )
 {
     state = Idle;
     offs = 0;
+    cachedIdx = 0;
+    cachedPos = 0;
     data = new QHeaderData;
 
     data->sizes.resize(n+1);
@@ -344,12 +358,14 @@ void QHeader::unMarkLine( int idx )
 int QHeader::cellAt( int c ) const
 {
     int pos = c + offset();
-    int i = 0;
-    while ( pos > pSize( i ) && i < count() ) {
-	pos -= pSize(i);
-	i++;
+    int i = cachedIdx;
+    if ( pos >= cachedPos ) {
+	while ( i < count() && pos >= cellPos( i+1 ) )
+	    i++;
+    } else {
+	while ( i >= 0 && pos < cellPos( i ) )
+	    i--;
     }
-	
     return i >= count() ? -1 : i;
 }
 
@@ -379,7 +395,17 @@ void QHeader::moveAround( int fromIdx, int toIdx )
     if ( fromIdx == toIdx )
 	return;
     int i;
-
+    if ( (fromIdx < cachedIdx) != (toIdx < cachedIdx ) ) {
+	if ( fromIdx < cachedIdx ) {
+	    //lose one section
+	    cachedIdx--;
+	    cachedPos -= pSize( fromIdx );
+	} else {
+	    //gain one section
+	    cachedIdx++;
+	    cachedPos += pSize( fromIdx );
+	}
+    }
     int idx = data->a2l[fromIdx];
     if ( fromIdx < toIdx ) {
 	for ( i = fromIdx; i < toIdx - 1; i++ ) {
@@ -400,48 +426,35 @@ void QHeader::moveAround( int fromIdx, int toIdx )
     }
 }
 
-#if 0
-/*!
-  sets up the painter
-*/
-
-void QHeader::setupPainter( QPainter *p )
-{
-    p->setPen( colorGroup().buttonText() );
-    p->setFont( font() );
-}
-#endif
-
-
 void QHeader::mousePressEvent( QMouseEvent *m )
 {
     if ( m->button() != LeftButton )
 	return;
     handleIdx = 0;
     int c = orient == Horizontal ? m->pos().x() : m->pos().y();
-    int i = 0;
-    while ( i < (int) count() ) {
-	if ( pPos(i+1) - MINSIZE/2 < c &&
-	     c < pPos(i+1) + MINSIZE/2 ) {
-		handleIdx = i+1;
-		oldHIdxSize = cellSize( i );
-	    if ( data->resize.testBit(i) )
-		state = Sliding;
-	    else
-		state = Blocked;
-	    break;
-	} else if (  pPos(i)  < c && c < pPos( i+1 ) ) {
+
+    int i = cellAt( c );
+    int p = pPos( i ); 
+
+    if (  i != 0 && c < p + GRIPMARGIN || c > p + pSize( i ) - GRIPMARGIN ) {
+	if ( c < p + GRIPMARGIN )
 	    handleIdx = i;
-	    moveToIdx = -1;
-	    if ( data->clicks.testBit(i) )
-		state = Pressed;
-	    else
-		state = Blocked;
-	    clickPos = c;
-	    repaint(sRect( handleIdx ));
-	    break;
-	}
-	i++;
+	else
+	    handleIdx = i+1;
+	oldHIdxSize = cellSize( handleIdx - 1 );
+	if ( data->resize.testBit(handleIdx - 1) )
+	    state = Sliding;
+	else
+	    state = Blocked;
+    } else if ( i >= 0 ) {
+	handleIdx = i;
+	moveToIdx = -1;
+	if ( data->clicks.testBit(i) )
+	    state = Pressed;
+	else
+	    state = Blocked;
+	clickPos = c;
+	repaint(sRect( handleIdx ));
     }
 }
 
@@ -488,28 +501,25 @@ void QHeader::mouseMoveEvent( QMouseEvent *m )
 {
     int s = orient == Horizontal ? m->pos().x() : m->pos().y();
     if ( state == Idle ) {
+	int i = cellAt( s );
+	int p = pPos( i ); 
 	bool hit = FALSE;
-	int i = 0;
-	while ( i <= (int) count() ) {
-	    if ( i && pPos(i) - MINSIZE/2 < s && s < pPos(i) + MINSIZE/2 &&
-		 data->resize.testBit(i-1) ) {
+
+	if (  s < p + GRIPMARGIN || s > p + pSize( i ) - GRIPMARGIN ) {
+	    if ( s < p + GRIPMARGIN )
+		i--;
+	    if ( i >= 0 && data->resize.testBit(i) ) {
 		hit = TRUE;
 		if ( orient == Horizontal )
 		    setCursor( splitHCursor );
 		else
 		    setCursor( splitVCursor );
-		break;
 	    }
-	    i++;
 	}
 	if ( !hit )
 	    setCursor( arrowCursor );
     } else {
 	switch ( state ) {
-	case Idle:
-	    debug( "QHeader::mouseMoveEvent() (%s) Idle state",
-		   name( "unnamed" ) );
-	    break;
 	case Pressed:
 	case Blocked:
 	    if ( QABS( s - clickPos ) > 4 && data->move ) {
@@ -549,14 +559,15 @@ void QHeader::mouseMoveEvent( QMouseEvent *m )
 
 void QHeader::handleColumnResize( int index, int s, bool final )
 {
-    int lim = pPos(index-1) + MINSIZE;
+    int lim = pPos(index-1) + 2*GRIPMARGIN;
     if ( s == lim ) return;
     if ( s < lim ) s = lim;
     int oldPos = pPos( index );
     int delta = s - oldPos;
     int lIdx = mapToLogical(index - 1);
     int oldSize = data->sizes[lIdx];
-    int newSize = data->sizes[lIdx] = oldSize + delta;
+    int newSize = oldSize + delta;
+    setCellSize( lIdx, newSize );
     int repaintPos = QMIN( oldPos, s );
     if ( orient == Horizontal )
         repaint(repaintPos-2, 0, width(), height());
@@ -592,8 +603,9 @@ void QHeader::setLabel( int i, const QString &s, int size )
 	if ( data->labels[i] )
 	    delete data->labels[i];
 	data->labels[i] = new QString( s );
-	if ( size >= 0 )
-	    data->sizes[i] = size;
+	if ( size >= 0 ) {
+	    setCellSize( i, size );
+	}
     }
     repaint();
 }
@@ -726,13 +738,7 @@ void QHeader::setOffset( int x )
  */
 int QHeader::pPos( int i ) const
 {
-    //####### optimizations for headers inside the widget
-    //if ( i >= firstSection ) ...
-    int r = 0;
-    for ( int j = 0; j < i; j++ )
-	r += pSize( j );
-    r -= offset();
-    return r;
+    return cellPos( i ) - offset();
 }
 
 
@@ -756,29 +762,6 @@ int QHeader::offset() const
 {
     return offs;
 }
-
-#if 0
-/*! \reimp */
-
-int QHeader::cellHeight( int row )
-{
-    if ( orient == Vertical )
-	return pSize( row );
-    else
-	return QTableView::cellHeight();
-}
-
-
-/*! \reimp */
-
-int QHeader::cellWidth( int col )
-{
-    if ( orient == Horizontal )
-	return pSize( col );
-    else
-	return QTableView::cellWidth();
-}
-#endif
 
 /*!
   Translates from actual index \a a to logical index.  Returns -1 if
@@ -810,6 +793,8 @@ int QHeader::mapToActual( int l ) const
 
 void QHeader::setCellSize( int i, int s )
 {
+    if ( mapToActual(i) < cachedIdx )
+	cachedPos += s - data->sizes[i];
     data->sizes[i] = s;
 }
 
@@ -913,13 +898,8 @@ void QHeader::paintEvent( QPaintEvent *e )
 	     orient == Vertical && r. bottom() >= e->rect().bottom() )
 	    return;
     }
-    
+
 }
 
-
-//########## We should optimize, using firstSection
-// * cellAt()
-// * mouseMoveEvent()
-// * mousePressEvent()
 
 //#### what about lastSectionCoversAll?
