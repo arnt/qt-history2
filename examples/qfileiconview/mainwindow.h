@@ -34,7 +34,7 @@ public:
 protected:
     void setup();
     void setPathCombo();
-    
+
     QtFileIconView *fileview;
     DirectoryView *dirlist;
     QProgressBar *progress;
@@ -46,11 +46,10 @@ protected slots:
     void slotStartReadDir( int dirs );
     void slotReadNextDir();
     void slotReadDirDone();
-    void slotNumItemsSelected( int num );
     void cdUp();
     void newFolder();
     void changePath( const QString &path );
-    
+
 };
 
 #endif

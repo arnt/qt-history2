@@ -41,9 +41,11 @@
 #include "qmultilineedit.h"
 #include "qmap.h"
 #include "qarray.h"
+#include "qlist.h"
 
 #include <stdlib.h>
 #include <math.h>
+#include <limits.h>
 
 static const char *unknown[] = {
     "32 32 11 1",
@@ -112,7 +114,6 @@ struct QIconViewPrivate
     int rastX, rastY, spacing;
     bool cleared, dropped, clearing;
     int dragItems;
-    int numSelectedItems;
     QPoint oldDragPos;
     QIconView::AlignMode alignMode;
     QIconView::ResizeMode resizeMode;
@@ -141,7 +142,22 @@ struct QIconViewPrivate
     bool singleClick, scUnderline, scHighlighte;
     QCursor scCursor;
     int scInterval;
-
+    bool containerUpdateLocked;
+    
+    struct ItemContainer {
+	ItemContainer( ItemContainer *pr, ItemContainer *nx, const QRect &r )
+	    : p( pr ), n( nx ), rect( r ) { 
+		items.setAutoDelete( FALSE ); 
+		if ( p )
+		    p->n = this;
+		if ( n )
+		    n->p = this;
+	}
+	ItemContainer *p, *n;
+	QRect rect;
+	QList<QIconViewItem> items;
+    } *firstContainer, *lastContainer;
+    
     struct SortableItem {
 	QIconViewItem *item;
     };
@@ -155,6 +171,7 @@ struct QIconViewPrivate
 
 struct QIconViewItemPrivate
 {
+    QIconViewPrivate::ItemContainer *container1, *container2;
 };
 
 /*****************************************************************************
@@ -731,6 +748,8 @@ QIconViewItem::QIconViewItem( QIconView *parent, QIconViewItem *after, const QSt
 void QIconViewItem::init( QIconViewItem *after )
 {
     d = new QIconViewItemPrivate;
+    d->container1 = 0;
+    d->container2 = 0;
     if ( view ) {
 	itemKey = itemText;
 	dirty = TRUE;
@@ -1058,6 +1077,8 @@ void QIconViewItem::repaint()
 void QIconViewItem::move( int x, int y )
 {
     itemRect.setRect( x, y, itemRect.width(), itemRect.height() );
+    if ( view )
+	view->updateItemContainer( this );
 }
 
 /*!
@@ -1067,6 +1088,8 @@ void QIconViewItem::move( int x, int y )
 void QIconViewItem::moveBy( int dx, int dy )
 {
     itemRect.moveBy( dx, dy );
+    if ( view )
+	view->updateItemContainer( this );
 }
 
 /*!
@@ -1377,6 +1400,8 @@ void QIconViewItem::calcRect( const QString &text_ )
 	itemIconRect = QRect( 0, ( height() - itemIconRect.height() ) / 2,
 			      itemIconRect.width(), itemIconRect.height() );
     }
+    if ( view )
+	view->updateItemContainer( this );
 }
 
 /*!
@@ -1519,6 +1544,8 @@ void QIconViewItem::setView( QIconView *v )
 void QIconViewItem::setItemRect( const QRect &r )
 {
     itemRect = r;
+    if ( view )
+	view->updateItemContainer( this );
 }
 
 /*!
@@ -1530,6 +1557,8 @@ void QIconViewItem::setItemRect( const QRect &r )
 void QIconViewItem::setTextRect( const QRect &r )
 {
     itemTextRect = r;
+    if ( view )
+	view->updateItemContainer( this );
 }
 
 /*!
@@ -1541,6 +1570,8 @@ void QIconViewItem::setTextRect( const QRect &r )
 void QIconViewItem::setIconRect( const QRect &r )
 {
     itemIconRect = r;
+    if ( view )
+	view->updateItemContainer( this );
 }
 
 /*!
@@ -1928,7 +1959,6 @@ QIconView::QIconView( QWidget *parent, const char *name, WFlags f )
     d->rastX = d->rastY = -1;
     d->spacing = 5;
     d->cleared = FALSE;
-    d->numSelectedItems = 0;
     d->alignMode = East;
     d->resizeMode = Fixed;
     d->dropped = FALSE;
@@ -1961,7 +1991,9 @@ QIconView::QIconView( QWidget *parent, const char *name, WFlags f )
     d->minLeftBearing = d->fm->minLeftBearing();
     d->minRightBearing = d->fm->minRightBearing();
     d->singleClick = FALSE;
-
+    d->firstContainer = d->lastContainer = 0;
+    d->containerUpdateLocked = FALSE;
+    
     connect( d->adjustTimer, SIGNAL( timeout() ),
 	     this, SLOT( adjustItems() ) );
     connect( d->updateTimer, SIGNAL( timeout() ),
@@ -2182,6 +2214,13 @@ void QIconView::takeItem( QIconViewItem *item )
     if ( !item )
 	return;
 
+    if ( item->d->container1 )
+	item->d->container1->items.removeRef( item );
+    if ( item->d->container2 )
+	item->d->container2->items.removeRef( item );
+    item->d->container2 = 0;
+    item->d->container1 = 0;
+    
     bool block = signalsBlocked();
     blockSignals( TRUE );
 
@@ -2306,7 +2345,6 @@ void QIconView::setCurrentItem( QIconViewItem *item )
     d->currentItem = item;
     emit currentChanged();
     emit currentChanged( d->currentItem );
-    emitNewSelectionNumber();
 
     if ( old )
 	repaintItem( old );
@@ -2360,7 +2398,6 @@ void QIconView::doAutoScroll()
 
     int minx = contentsWidth(), miny = contentsHeight();
     int maxx = 0, maxy = 0;
-    int selected = 0;
     bool changed = FALSE;
     bool block = signalsBlocked();
 
@@ -2368,30 +2405,46 @@ void QIconView::doAutoScroll()
     QRegion region( 0, 0, visibleWidth(), visibleHeight() );
 
     blockSignals( TRUE );
-    QIconViewItem *item = d->firstItem;
     viewport()->setUpdatesEnabled( FALSE );
-    for ( ; item; item = item->next ) {
-	if ( !item->intersects( d->rubber->normalize() ) ) {
-	    if ( item->isSelected() ) {
-		item->setSelected( FALSE );
-		changed = TRUE;
-		rr = rr.unite( item->rect() );
-	    }
-	} else if ( item->intersects( d->rubber->normalize() ) ) {
-	    if ( !item->isSelected() ) {
-		item->setSelected( TRUE, TRUE );
-		changed = TRUE;
-		rr = rr.unite( item->rect() );
-	    } else {
-		region = region.subtract( QRect( contentsToViewport( item->pos() ),
-						 item->size() ) );
-	    }
+    QIconViewPrivate::ItemContainer *c = d->firstContainer;
+    if ( !c ) {
+	qWarning( "ItemContainers are not built - have to do this now!" );
+	( (QIconView*)this )->rebuildContainers();
+	c = d->firstContainer;
+    }
+    bool alreadyIntersected = FALSE;
+    QRect nr = d->rubber->normalize();
+    QRect rubberUnion = nr.unite( oldRubber.normalize() );
+    for ( ; c; c = c->n ) {
+	if ( c->rect.intersects( rubberUnion ) ) {
+	    alreadyIntersected = TRUE;
+	    QIconViewItem *item = c->items.first();
+	    for ( ; item; item = c->items.next() ) {
+		if ( !item->intersects( nr ) ) {
+		    if ( item->isSelected() ) {
+			item->setSelected( FALSE );
+			changed = TRUE;
+			rr = rr.unite( item->rect() );
+		    }
+		} else if ( item->intersects( nr ) ) {
+		    if ( !item->isSelected() ) {
+			item->setSelected( TRUE, TRUE );
+			changed = TRUE;
+			rr = rr.unite( item->rect() );
+		    } else {
+			region = region.subtract( QRect( contentsToViewport( item->pos() ),
+							 item->size() ) );
+		    }
 	
-	    ++selected;
-	    minx = QMIN( minx, item->x() - 1 );
-	    miny = QMIN( miny, item->y() - 1 );
-	    maxx = QMAX( maxx, item->x() + item->width() + 1 );
-	    maxy = QMAX( maxy, item->y() + item->height() + 1 );
+		    minx = QMIN( minx, item->x() - 1 );
+		    miny = QMIN( miny, item->y() - 1 );
+		    maxx = QMAX( maxx, item->x() + item->width() + 1 );
+		    maxy = QMAX( maxy, item->y() + item->height() + 1 );
+		}
+	    }
+	} else {
+ 	    if ( alreadyIntersected )
+ 		break;
 	}
     }
     viewport()->setUpdatesEnabled( TRUE );
@@ -2429,7 +2482,6 @@ void QIconView::doAutoScroll()
 
     if ( changed ) {
 	emit selectionChanged();
-	emit selectionChanged( selected );
 	if ( d->selectionMode == Single )
 	    emit selectionChanged( d->currentItem );
     }
@@ -2458,9 +2510,12 @@ void QIconView::doAutoScroll()
 
 void QIconView::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 {
+    QRect r = QRect( cx, cy, cw, ch );
+
+#if 0 // old slow drawing 
     p->save();
     p->resetXForm();
-    QRect r( contentsToViewport( QPoint( cx, cy ) ), QSize( cw, ch ) );
+    r = QRect( contentsToViewport( QPoint( cx, cy ) ), QSize( cw, ch ) );
     if ( d->drawAllBack )
 	p->setClipRect( r );
     else {
@@ -2473,11 +2528,65 @@ void QIconView::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
     if ( !d->firstItem )
 	return;
 
-    r = QRect( cx, cy, cw, ch );
     QIconViewItem *item = d->firstItem;
     for ( ; item; item = item->next )
-	if ( item->rect().intersects( r ) && !item->dirty )
-	    item->paintItem( p, colorGroup(), font() );
+ 	if ( item->rect().intersects( r ) && !item->dirty )
+ 	    item->paintItem( p, colorGroup(), font() );
+#else // optimized drawing
+    QIconViewPrivate::ItemContainer *c = d->firstContainer;
+    if ( !c ) {
+	qWarning( "ItemContainers are not built - have to do this now!" );
+	rebuildContainers();
+	c = d->firstContainer;
+    }
+    
+    QRegion remaining( QRect( cx, cy, cw, ch ) );
+    
+    bool alreadyIntersected = FALSE;
+    while ( c ) {
+	if ( c->rect.intersects( r ) ) {
+	    
+	    p->save();
+	    p->resetXForm();
+	    QRect r2 = c->rect;
+	    r2 = r2.intersect( r );
+	    QRect r3( contentsToViewport( QPoint( r2.x(), r2.y() ) ), QSize( r2.width(), r2.height() ) );
+	    if ( d->drawAllBack )
+		p->setClipRect( r3 );
+	    else {
+		QRegion reg = d->clipRegion.intersect( r3 );
+		p->setClipRegion( reg );
+	    }
+	    drawBackground( p, r3 );
+	    remaining = remaining.subtract( r3 );
+	    p->restore();
+	    
+	    QIconViewItem *item = c->items.first();
+	    for ( ; item; item = c->items.next() ) {
+		if ( item->rect().intersects( r ) && !item->dirty )
+		    item->paintItem( p, colorGroup(), font() );
+	    }
+	    alreadyIntersected = TRUE;
+	} else { 
+	    if ( alreadyIntersected )
+		break;
+	}
+	c = c->n;
+    }
+    
+    if ( !remaining.isNull() && !remaining.isEmpty() ) {
+	p->save();
+	p->resetXForm();
+	if ( d->drawAllBack ) {
+	    p->setClipRegion( remaining );
+	} else {
+	    remaining = d->clipRegion.intersect( remaining );
+	    p->setClipRegion( remaining );
+	}
+	drawBackground( p, remaining.boundingRect() );
+	p->restore();
+    }
+#endif
 
     if ( ( hasFocus() || viewport()->hasFocus() ) && d->currentItem &&
 	 d->currentItem->rect().intersects( r ) )
@@ -2502,6 +2611,8 @@ void QIconView::alignItemsInGrid( bool update )
     if ( !d->firstItem || !d->lastItem )
 	return;
 
+    d->containerUpdateLocked = FALSE; // ### should be TRUE;
+    
     int w = 0, h = 0, y = d->spacing;
 
     QIconViewItem *item = d->firstItem;
@@ -2527,6 +2638,7 @@ void QIconView::alignItemsInGrid( bool update )
 	    item = item->prev;
 	}
     }
+    d->containerUpdateLocked = FALSE;
 	
     w = QMAX( QMAX( d->cachedW, w ), d->lastItem->x() + d->lastItem->width() );
     h = QMAX( QMAX( d->cachedH, h ), d->lastItem->y() + d->lastItem->height() );
@@ -2540,6 +2652,7 @@ void QIconView::alignItemsInGrid( bool update )
     resizeContents( w, h );
     viewport()->setUpdatesEnabled( TRUE );
     d->dirty = FALSE;
+    //rebuildContainers(); #### enable again later when this method is optimized
     if ( update )
 	repaintContents( contentsX(), contentsY(), viewport()->width(), viewport()->height(), FALSE );
 }
@@ -2556,6 +2669,7 @@ void QIconView::alignItemsInGrid( bool update )
 
 void QIconView::alignItemsInGrid( const QSize &grid, bool update )
 {
+    d->containerUpdateLocked = FALSE; // ### should be TRUE;
     QSize grid_( grid );
     if ( !grid_.isValid() ) {
 	int w = 0, h = 0;
@@ -2580,8 +2694,10 @@ void QIconView::alignItemsInGrid( const QSize &grid, bool update )
 	h = QMAX( h, item->y() + item->height() );
 	item->dirty = FALSE;
     }
+    d->containerUpdateLocked = FALSE;
 
     resizeContents( w, h );
+    //rebuildContainers(); // ##### enable again when this method is optimized
     if ( update )
 	repaintContents( contentsX(), contentsY(), viewport()->width(), viewport()->height(), FALSE );
 }
@@ -2694,10 +2810,20 @@ QIconViewItem *QIconView::findItem( const QPoint &pos ) const
     if ( !d->firstItem )
 	return 0;
 
-    QIconViewItem *item = d->firstItem;
-    for ( ; item; item = item->next )
-	if ( item->contains( pos ) )
-	    return item;
+    QIconViewPrivate::ItemContainer *c = d->firstContainer;
+    if ( !c ) {
+	qWarning( "ItemContainers are not built - have to do this now!" );
+	( (QIconView*)this )->rebuildContainers();
+	c = d->firstContainer;
+    }
+    for ( ; c; c = c->n ) {
+	if ( c->rect.contains( pos ) ) {
+	    QIconViewItem *item = c->items.first();
+	    for ( ; item; item = c->items.next() )
+		if ( item->contains( pos ) )
+		    return item;
+	}
+    }
 
     return 0;
 }
@@ -2816,20 +2942,36 @@ void QIconView::ensureItemVisible( QIconViewItem *item )
 
 QIconViewItem* QIconView::findFirstVisibleItem( const QRect &r ) const
 {
-    QIconViewItem *item = d->firstItem, *i = 0;
-    for ( ; item; item = item->next ) {
-	if ( r.intersects( item->rect() ) ) {
-	    if ( !i ) {
-		i = item;
-	    } else {
-		QRect r2 = item->rect();
-		QRect r3 = i->rect();
-		if ( r2.y() < r3.y() )
-		    i = item;
-		else if ( r2.y() == r3.y() &&
-			  r2.x() < r3.x() )
-		    i = item;
+    QIconViewPrivate::ItemContainer *c = d->firstContainer;
+    if ( !c ) {
+	qWarning( "ItemContainers are not built - have to do this now!" );
+	( (QIconView*)this )->rebuildContainers();
+	c = d->firstContainer;
+    }
+    QIconViewItem *i = 0;
+    bool alreadyIntersected = FALSE;
+    for ( ; c; c = c->n ) {
+	if ( c->rect.intersects( r ) ) {
+	    alreadyIntersected = TRUE;
+	    QIconViewItem *item = c->items.first();
+	    for ( ; item; item = c->items.next() ) {
+		if ( r.intersects( item->rect() ) ) {
+		    if ( !i ) {
+			i = item;
+		    } else {
+			QRect r2 = item->rect();
+			QRect r3 = i->rect();
+			if ( r2.y() < r3.y() )
+			    i = item;
+			else if ( r2.y() == r3.y() &&
+				  r2.x() < r3.x() )
+			    i = item;
+		    }
+		}
 	    }
+	} else {
+	    if ( alreadyIntersected )
+		break;
 	}
     }
 
@@ -2843,23 +2985,39 @@ QIconViewItem* QIconView::findFirstVisibleItem( const QRect &r ) const
 
 QIconViewItem* QIconView::findLastVisibleItem( const QRect &r ) const
 {
-    QIconViewItem *item = d->firstItem, *i = 0;
-    for ( ; item; item = item->next ) {
-	if ( r.intersects( item->rect() ) ) {
-	    if ( !i ) {
-		i = item;
-	    } else {
-		QRect r2 = item->rect();
-		QRect r3 = i->rect();
-		if ( r2.y() > r3.y() )
-		    i = item;
-		else if ( r2.y() == r3.y() &&
-			  r2.x() > r3.x() )
-		    i = item;
+    QIconViewPrivate::ItemContainer *c = d->firstContainer;
+    if ( !c ) {
+	qWarning( "ItemContainers are not built - have to do this now!" );
+	( (QIconView*)this )->rebuildContainers();
+	c = d->firstContainer;
+    }
+    QIconViewItem *i = 0;
+    bool alreadyIntersected = FALSE;
+    for ( ; c; c = c->n ) {
+	if ( c->rect.intersects( r ) ) {
+	    alreadyIntersected = TRUE;
+	    QIconViewItem *item = c->items.first();
+	    for ( ; item; item = c->items.next() ) {
+		if ( r.intersects( item->rect() ) ) {
+		    if ( !i ) {
+			i = item;
+		    } else {
+			QRect r2 = item->rect();
+			QRect r3 = i->rect();
+			if ( r2.y() > r3.y() )
+			    i = item;
+			else if ( r2.y() == r3.y() &&
+				  r2.x() > r3.x() )
+			    i = item;
+		    }
+		}
 	    }
+	} else {
+	    if ( alreadyIntersected )
+		break;
 	}
     }
-
+    
     return i;
 }
 
@@ -2887,7 +3045,14 @@ void QIconView::clear()
 	delete item;
 	item = tmp;
     }
-
+    QIconViewPrivate::ItemContainer *c = d->firstContainer, *tmpc;
+    while ( c ) {
+	tmpc = c->n;
+	delete c;
+	c = tmpc;
+    }
+    d->firstContainer = d->lastContainer = 0;
+    
     d->count = 0;
     d->firstItem = 0;
     d->lastItem = 0;
@@ -3282,6 +3447,9 @@ void QIconView::contentsMousePressEvent( QMouseEvent *e )
 	    item->setSelected( !item->isSelected(), e->state() & ControlButton );
 	else if ( d->selectionMode == Extended ) {
 	    if ( e->state() & ShiftButton ) {
+		bool block = signalsBlocked();
+		blockSignals( TRUE );
+		viewport()->setUpdatesEnabled( FALSE );
 		QRect r;
 		bool select = !item->isSelected();
 		if ( d->currentItem )
@@ -3299,11 +3467,35 @@ void QIconView::contentsMousePressEvent( QMouseEvent *e )
 		else
 		    r.setHeight( d->currentItem->y() - item->y() + d->currentItem->height() );
 		r = r.normalize();
-		for ( QIconViewItem *i = d->firstItem; i; i = i->next ) {
-		    if ( r.intersects( i->rect() ) )
-			i->setSelected( select, TRUE );
+		QIconViewPrivate::ItemContainer *c = d->firstContainer;
+		if ( !c ) {
+		    qWarning( "ItemContainers are not built - have to do this now!" );
+		    ( (QIconView*)this )->rebuildContainers();
+		    c = d->firstContainer;
+		}
+		bool alreadyIntersected = FALSE;
+		QRect redraw;
+		for ( ; c; c = c->n ) {
+ 		    if ( c->rect.intersects( r ) ) {
+			alreadyIntersected = TRUE;
+			QIconViewItem *i = c->items.first();
+			for ( ; i; i = c->items.next() ) {
+ 			    if ( r.intersects( i->rect() ) ) {
+				redraw = redraw.unite( i->rect() );
+ 				i->setSelected( select, TRUE );
+			    }
+			}
+ 		    } else {
+  			if ( alreadyIntersected )
+  			    break;
+ 		    }
 		}
 		item->setSelected( select, TRUE );
+		redraw = redraw.unite( item->rect() );
+		blockSignals( block );
+		viewport()->setUpdatesEnabled( TRUE );
+		repaintContents( redraw, FALSE );
+		emit selectionChanged();
 	    } else if ( e->state() & ControlButton )
 		item->setSelected( !item->isSelected(), e->state() & ControlButton );
 	    else
@@ -4133,26 +4325,6 @@ void QIconView::emitSelectionChanged()
     emit selectionChanged();
     if ( d->selectionMode == Single )
 	emit selectionChanged( d->currentItem );
-    emitNewSelectionNumber();
-}
-
-/*!
-  Emits signals, that indciate the number of selected items
-*/
-
-void QIconView::emitNewSelectionNumber()
-{
-    if ( d->selectionMode != Single ) {
-	int num = 0;
-	QIconViewItem *item = d->firstItem;
-	for ( ; item; item = item->next )
-	    if ( item->isSelected() )
-		++num;
-
-	emit selectionChanged( num );
-	d->numSelectedItems = num;
-    } else
-	d->numSelectedItems = 1;
 }
 
 /*!
@@ -4726,6 +4898,104 @@ void QIconView::enterEvent( QEvent *e )
 {
     QScrollView::enterEvent( e );
     emit onViewport();
+}
+
+void QIconView::updateItemContainer( QIconViewItem *item )
+{
+    if ( !item || d->containerUpdateLocked )
+	return;
+    
+    if ( item->d->container1 ) {
+	item->d->container1->items.removeRef( item );
+	item->d->container1 = 0;
+    }
+    if ( item->d->container2 ) {
+	item->d->container2->items.removeRef( item );
+	item->d->container2 = 0;
+    }
+    
+    QIconViewPrivate::ItemContainer *c = d->firstContainer;
+    if ( !c ) {
+	appendItemContainer();
+	c = d->firstContainer;
+    }
+    
+    bool contains;
+    while ( TRUE ) {
+	if ( c->rect.intersects( item->rect() ) ) {
+	    contains = c->rect.contains( item->rect() );
+	    break;
+	}
+	
+	c = c->n;
+	if ( !c ) {
+	    appendItemContainer();
+	    c = d->lastContainer;
+	}
+    }
+    
+    if ( !c ) {
+	qDebug( "oops, this can't happen!!!!!!!!!" );
+	return;
+    }
+    
+    c->items.append( item );
+    item->d->container1 = c;
+    
+    if ( !contains ) {
+	c = c->n;
+	if ( !c ) {
+	    appendItemContainer();
+	    c = d->lastContainer;
+	}
+	c->items.append( item );
+	item->d->container2 = c;
+    }
+}
+
+void QIconView::appendItemContainer()
+{
+    QSize s;
+    // #### We have to find out which value is best here
+    if ( d->alignMode == East )
+	s = QSize( INT_MAX - 1, 300 );
+    else
+	s = QSize( 300, INT_MAX - 1 );
+    
+    if ( !d->firstContainer ) {
+	d->firstContainer = new QIconViewPrivate::ItemContainer( 0, 0, QRect( QPoint( 0, 0 ), s ) );
+	d->lastContainer = d->firstContainer;
+    } else {
+	if ( d->alignMode == East )
+	    d->lastContainer = new QIconViewPrivate::ItemContainer( 
+		d->lastContainer, 0, QRect( d->lastContainer->rect.bottomLeft(), s ) );
+	else
+	    d->lastContainer = new QIconViewPrivate::ItemContainer( 
+		d->lastContainer, 0, QRect( d->lastContainer->rect.topRight(), s ) );
+    }
+//     qDebug( "new container: %d %d %d %d", d->lastContainer->rect.x(), d->lastContainer->rect.y(),
+// 	    d->lastContainer->rect.width(), d->lastContainer->rect.height() );
+}
+
+void QIconView::rebuildContainers()
+{
+    QIconViewPrivate::ItemContainer *c = d->firstContainer, *tmpc;
+    while ( c ) {
+	tmpc = c->n;
+	delete c;
+	c = tmpc;
+    }
+    d->firstContainer = d->lastContainer = 0;
+
+    QIconViewItem *item = d->firstItem;
+    appendItemContainer();
+    c = d->lastContainer;
+    while ( item ) { // ### bad! it's O( n^2 ) - improve that!!!!!!!!!
+	item->d->container1 = 0;
+	item->d->container2 = 0;
+	updateItemContainer( item );
+	item = item->next;
+    }
 }
 
 #include "qiconview.moc"

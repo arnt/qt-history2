@@ -371,7 +371,6 @@ public slots:
 
 signals:
     void selectionChanged();
-    void selectionChanged( int numItems );
     void selectionChanged( QIconViewItem *item );
     void currentChanged();
     void currentChanged( QIconViewItem *item );
@@ -433,7 +432,6 @@ protected:
     virtual void drawBackground( QPainter *p, const QRect &r );
 
     void emitSelectionChanged();
-    void emitNewSelectionNumber();
     void emitRenamed( QIconViewItem *item );
 
     void setDragObjectIsKnown( QDropEvent *e );
@@ -446,7 +444,10 @@ private:
     void findItemByName( const QString &text );
     int calcGridNum( int w, int x ) const;
     QIconViewItem *rowBegin( QIconViewItem *item ) const;
-
+    void updateItemContainer( QIconViewItem *item );
+    void appendItemContainer();
+    void rebuildContainers();
+    
     QIconViewPrivate *d;
 
 };

@@ -123,8 +123,6 @@ void FileMainWindow::setup()
 	     this, SLOT( slotReadNextDir() ) );
     connect( fileview, SIGNAL( readDirDone() ),
 	     this, SLOT( slotReadDirDone() ) );
-    connect( fileview, SIGNAL( selectionChanged( int ) ),
-	     this, SLOT( slotNumItemsSelected( int ) ) );
 
     label = new QLabel( statusBar() );
     statusBar()->addWidget( label, 2, TRUE );
@@ -176,14 +174,6 @@ void FileMainWindow::slotReadDirDone()
 {
     label->setText( tr( " Reading Directory Done." ) );
     progress->setProgress( progress->totalSteps() );
-}
-
-void FileMainWindow::slotNumItemsSelected( int num )
-{
-    if ( num == 1 )
-	label->setText( tr( " %1 Item Selected" ).arg( num ) );
-    else
-	label->setText( tr( " %1 Items Selected" ).arg( num ) );
 }
 
 void FileMainWindow::cdUp()
