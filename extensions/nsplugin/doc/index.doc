@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: index.doc,v 1.6 1998/03/16 19:30:50 warwick Exp $
+** $Id: index.doc,v 1.7 1998/05/07 19:06:54 agulbra Exp $
 **
 ** Index page
 **
@@ -8,10 +8,10 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: index.doc,v 1.6 1998/03/16 19:30:50 warwick Exp $";
+static char ident[] = "$Id: index.doc,v 1.7 1998/05/07 19:06:54 agulbra Exp $";
 #endif
 
-/*! \page index.html
+/*! \page nsplugin.html
 
 <title>Qt-based LiveConnect Plugins</title>
 </head>

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: examples.doc,v 1.4 1997/09/29 11:10:27 warwick Exp $
+** $Id: examples.doc,v 1.5 1998/05/07 19:06:54 agulbra Exp $
 **
 ** Documentation for the examples
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: examples.doc,v 1.4 1997/09/29 11:10:27 warwick Exp $";
+static char ident[] = "$Id: examples.doc,v 1.5 1998/05/07 19:06:54 agulbra Exp $";
 #endif
 
 
@@ -21,7 +21,7 @@ static char ident[] = "$Id: examples.doc,v 1.4 1997/09/29 11:10:27 warwick Exp $
   and QNPInstance::write() functions.
   <p>
   To build the example, you must first build the
-  <a href=index.html>Qt Netscape Plugin Extension</a> library.
+  <a href=xt.html>Qt Netscape Plugin Extension</a> library.
   Then type <tt>make</tt> in <tt>extensions/nsplugin/examples/grapher/</tt>
   and copy the resulting <tt>grapher.so</tt> or <tt>npgrapher.dll</tt>
   to the Plugins directory of your WWW browser.
@@ -85,7 +85,7 @@ num label
   To build the example, you must first build the
   <a href=http://www.troll.no/qtimage/>Qt Image Extension library</a>
   and of course the
-  <a href=index.html>Qt Netscape Plugin Extension</a> library.
+  <a href=nsplugin.html>Qt Netscape Plugin Extension</a> library.
   Then type <tt>make</tt> in <tt>extensions/nsplugin/examples/qtimage/</tt>
   and copy the resulting <tt>qtimage.so</tt> or <tt>npqtimage.dll</tt>
   to the Plugins directory of your WWW browser.
@@ -557,7 +557,7 @@ A6ADoAOgA+A/A+AfEHi7mjvJcdAAAAAASUVORK5CYII=
   extension.
   <p>
   To build the example, you must first build the
-  <a href=index.html>Qt Netscape Plugin Extension</a> library.
+  <a href=nsplugin.html>Qt Netscape Plugin Extension</a> library.
   Then type <tt>make</tt> in <tt>extensions/nsplugin/examples/trivial/</tt>
   and copy the resulting <tt>trivial.so</tt> or <tt>nptrivial.dll</tt>
   to the Plugins directory of your WWW browser.
