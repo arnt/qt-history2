@@ -72,7 +72,7 @@
 			    check box that is neither checked nor unchecked.
     \value ReadOnly	    The object can usually be edited, but is explicitly set to
 			    read-only.
-    \value Protected	    The object is password protected, e.g. a line edit for entering 
+    \value Protected	    The object is password protected, e.g. a line edit for entering
 			    a Password.
     \value HotTracked	    The object's appearance is sensitive to the mouse cursor position.
     \value DefaultButton    The object represents the default button in a dialog.
@@ -213,7 +213,7 @@
     \endomit
     \value ProgressBar	    The object displays the progress of an operation in progress.
     \value Dial		    The object represents a dial or knob.
-    \value HotkeyField	    A hotkey field that allows the user to enter a key sequence.			    
+    \value HotkeyField	    A hotkey field that allows the user to enter a key sequence.
     \value Slider	    A slider that allows the user to select a value within a
 			    given range.
     \value SpinBox	    A spin box control that allows the user to enter a value within
@@ -249,7 +249,7 @@
     \value Right	    The first object is right from the second object
     \value Covers	    The first object covers the second object
     \value Covered	    The first object is covered by the second object
-    \value GeometryMask	    A mask for geometrical relationships. 
+    \value GeometryMask	    A mask for geometrical relationships.
 			    Geometrical relationships are only relevant between siblings.
 
     \value FocusChild	    The first object is the second object's focus child
@@ -310,6 +310,7 @@
     avoid unnecessary computations.
 */
 
+#endif
 static QPluginManager<QAccessibleFactoryInterface> *qAccessibleManager = 0;
 class InterfaceCache : public QObject, public QHash<QObject*,QAccessibleInterface*>
 {
@@ -345,6 +346,7 @@ inline void InterfaceCache::remove(QObject *object)
 }
 
 #include "qaccessible.moc"
+#ifdef QT_ACCESSIBILITY_SUPPORT
 
 static InterfaceCache *qInterfaceCache = 0;
 static QList<QAccessible::InterfaceFactory> qAccessibleFactories;
@@ -623,7 +625,7 @@ bool QAccessible::isActive()
     The functions childCount() and indexOfChild() return the number
     of children of an accessible object and the index a child object has in its
     parent. The childAt() function returns the index of a child at a given position.
-    
+
     The relationTo() function provides information about how two different objects
     relate to each other, and navigate() allows traversing from one object to another
     object with a given relation.
@@ -636,12 +638,12 @@ bool QAccessible::isActive()
     what kind of interaction the user can perform with the user interface element.
 
     The state() property of an object is a combination of different state flags and
-    can describe both how the object differs from a "normal" state (ie. it might be 
+    can describe both how the object differs from a "normal" state (ie. it might be
     unavailable), but also how it behaves, e.g. it might be selectable.
 
     The text() property provides textual information about the object. An object usually
-    has a name, but can provide extended information like description, help texts or 
-    information about keyboard accelerators is assigned to it. Some objects allow changing 
+    has a name, but can provide extended information like description, help texts or
+    information about keyboard accelerators is assigned to it. Some objects allow changing
     the text() property through the setText() function, but this information is in most
     cases read-only.
 
@@ -723,7 +725,7 @@ bool QAccessible::isActive()
 /*!
     \fn QObject *QAccessibleInterface::object() const
 
-    Returns a pointer to the QObject this interface implementation provides 
+    Returns a pointer to the QObject this interface implementation provides
     information for.
 
     \sa isValid()
@@ -761,7 +763,7 @@ bool QAccessible::isActive()
     The returned value indicates the relation of the called object to the \a other object,
     e.g. if this object is a child of \a other the return value will be \c Child.
 
-    The return value is a combination of the bitflags in the \c QAccessible::Relation 
+    The return value is a combination of the bitflags in the \c QAccessible::Relation
     enumeration.
 
     All objects provide this information.
@@ -800,7 +802,7 @@ bool QAccessible::isActive()
 
     The \a entry parameter has two different meanings:
     \list
-    \i Hierarchical and Logical relations -  if multiple object with the requested 
+    \i Hierarchical and Logical relations -  if multiple object with the requested
     relationship exist \a entry specifies which one to return. \a entry is 1-based,
     e.g. use 1 to get the first (and possibly only) object with the requested relationship.
 
