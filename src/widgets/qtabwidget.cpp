@@ -44,6 +44,7 @@
 #include "qbitmap.h"
 #include "qaccel.h"
 #include "qstyle.h"
+#include "qpainter.h"
 
 /*!
   \class QTabWidget qtabwidget.h

@@ -38,14 +38,13 @@
 
 #ifndef QT_H
 #include "qwidget.h"
-#include "qpainter.h"
 #include "qptrlist.h"
-#include "qiconset.h"
 #endif // QT_H
 
 #ifndef QT_NO_TABBAR
 
 class QTabBar;
+class QIconSet;
 
 class Q_EXPORT QTab : public Qt
 {
@@ -60,7 +59,7 @@ public:
 
     void setText( const QString& text);
     QString text() const { return label; }
-    void setIconSet( const QIconSet& icon ) { iconset = new QIconSet( icon ); }
+    void setIconSet( const QIconSet& icon );
     QIconSet* iconSet() const { return iconset; }
     void setRect( const QRect& rect ) { r = rect; }
     QRect rect() const { return r; }

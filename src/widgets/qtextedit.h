@@ -41,7 +41,6 @@
 #ifndef QT_H
 #include "qscrollview.h"
 #include "qstylesheet.h"
-#include "qpainter.h"
 #include "qptrvector.h"
 #include "qvaluelist.h"
 #endif // QT_H

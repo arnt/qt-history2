@@ -41,6 +41,8 @@
 #include "qtooltip.h"
 #include "qapplication.h"
 #include "qstyle.h"
+#include "qpainter.h"
+#include "qiconset.h"
 
 #include <ctype.h>
 
@@ -98,11 +100,6 @@ QTab::QTab( const QIconSet& icon, const QString& text )
 /*!
   \fn QString QTab::text() const
   Return the text of the QTab label.
-*/
-
-/*!
-  \fn void QTab::setIconSet( const QIconSet &icon )
-  Set the QTab iconset to \a icon
 */
 
 /*!
@@ -1203,7 +1200,7 @@ QString QTabBar::toolTip( int index ) const
 }
 
 /*!
-  \fn void QTab::setText( const QString &text )
+  void QTab::setText( const QString &text )
   Set the text of the Tab to \a text.
  */
 void QTab::setText( const QString& text )
@@ -1217,6 +1214,16 @@ void QTab::setText( const QString& text )
 #endif
         tb->repaint();
     }
+}
+
+/*!
+  void QTab::setIconSet( const QIconSet &icon )
+  Set the QTab iconset to \a icon
+*/
+
+void QTab::setIconSet( const QIconSet &icon )
+{ 
+    iconset = new QIconSet( icon ); 
 }
 
 // this allows us to handle accelerators that are in a QTabBar.
