@@ -25,14 +25,14 @@ Qt Functions
 QSqlDriver
 ----------
 
- - Add new function QSqlDriver::feature( QSqlDriver::DriverFeature ) const
+ - Add new function QSqlDriver::hasFeature( QSqlDriver::DriverFeature ) const
    which allows you to query whether the driver supports features like SQL
    transactions or Binary Large Object fields. The functions
    hasQuerySizeSupport(), canEditBinaryFields() and hasTransactionSupport()
    are therefore obsolete and have been removed.
 
 New function:
-	bool feature( QSqlDriver::DriverFeature ) const;
+	bool hasFeature( QSqlDriver::DriverFeature ) const;
 
 Removed functions:
 	bool hasQuerySizeSupport() const;
