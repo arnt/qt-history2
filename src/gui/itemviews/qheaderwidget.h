@@ -16,6 +16,9 @@
 
 #include <qheaderview.h>
 
+class QHeaderWidget;
+class QHeaderModel;
+
 class Q_GUI_EXPORT QHeaderWidgetItem
 {
     friend class QHeaderWidget;

@@ -50,6 +50,8 @@
 #include <qtreeview.h>
 #include <qtimer.h>
 
+extern QRegion qt_mac_convert_mac_region(RgnHandle); //qregion_mac.cpp
+
 static inline bool isQDPainter(const QPainter *p)
 {
     QPaintEngine *engine = p->device()->paintEngine();
