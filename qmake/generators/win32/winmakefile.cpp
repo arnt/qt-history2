@@ -143,6 +143,9 @@ Win32MakefileGenerator::writeSubDirs(QTextStream &t)
 int
 Win32MakefileGenerator::findHighestVersion(const QString &d, const QString &stem)
 {
+    if(!project->variables()["QMAKE_QTVER_OVERRIDE"].isEmpty()) 
+	return project->variables()["QMAKE_QTVER_OVERRIDE"].first().toInt();
+
     QString bd = d;
     fixEnvVariables(bd);
 
