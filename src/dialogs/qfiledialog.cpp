@@ -54,7 +54,6 @@
 #include "qnetworkprotocol.h"
 #include "qobjectlist.h"
 #include "qpainter.h"
-#include "qplatinumstyle.h"
 #include "qpopupmenu.h"
 #include "qprogressbar.h"
 #include "qptrvector.h"
@@ -69,7 +68,6 @@
 #include "qtooltip.h"
 #include "qvbox.h"
 #include "qwidgetstack.h"
-#include "qwindowsstyle.h"
 
 #ifdef Q_WS_WIN
 #ifdef QT_THREAD_SUPPORT
@@ -2574,7 +2572,7 @@ void QFileDialog::init()
 #if defined(Q_WS_WIN) && !defined(Q_OS_TEMP)
     if ( qt_winver == Qt::WV_2000 || qt_winver == Qt::WV_XP  )
 #else
-    if ( ::qt_cast<QWindowsStyle*>(&style()) && !::qt_cast<QPlatinumStyle*>(&style()) )
+    if ( !qstrcmp(style().className(), "QWindowsStyle") )
 #endif
     {
 	d->goBack->setAutoRaise( TRUE );
