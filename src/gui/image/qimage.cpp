@@ -1164,7 +1164,7 @@ bool QImage::create(int width, int height, int depth, int numColors,
     const int bpl = (width*depth+7)/8;                // bytes per scanline
     const int pad = 0;
 #else
-    const int bpl = ((width*depth+31)/8);        // bytes per scanline
+    const int bpl = ((width*depth+31)/8) & 0xFFFFFFFC; // bytes per scanline (keep it dword aligned)
     const int pad = bpl - (width*depth)/8;        // pad with zeros
 #endif
     if (INT_MAX / bpl < height) { // sanity check for potential overflow
