@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.h#86 $
+** $Id: //depot/qt/main/src/kernel/qevent.h#87 $
 **
 ** Definition of event classes
 **
@@ -281,6 +281,7 @@ public:
 protected:
     bool spont;
 };
+
 
 // This class is rather closed at the moment.  If you need to create your
 // own DND event objects, write to qt-bugs@troll.no and we'll try to

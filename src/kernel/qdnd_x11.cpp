@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#102 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#103 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd/
 **
@@ -1272,6 +1272,27 @@ bool qt_xdnd_handle_badwindow()
 */
 
 
+/*! \fn void QDropEvent::accept (bool y=TRUE) 
+  \reimp
+
+  \warning To accept or reject the drop, call acceptAction(), not this
+  function.
+*/
+
+
+/*! \fn bool QDropEvent::isActionAccepted () const
+
+  Returns TRUE if the drop action was accepted by the drop site, and
+  FALSE if not.
+*/
+
+
+/*! \fn void QDropEvent::setPoint (const QPoint & np) 
+  
+  Sets the drop to happen at \a np.
+*/ // ### here too - what coordinate system?
+
+
 /*!  Returns TRUE if this event provides format \a mimeType or
   FALSE if it does not.
 
@@ -1403,6 +1424,7 @@ static QByteArray qt_xdnd_obtain_data( const char *format )
 
 /*!
   \class QDropEvent qevent.h
+
   \brief Event sent when a drag-and-drop is completed.
 
   When a widget \link QWidget::setAcceptDrops() accepts drop events\endlink,
@@ -1412,6 +1434,13 @@ static QByteArray qt_xdnd_obtain_data( const char *format )
   The widget should use data() to extract data in an
   appropriate format.
 */
+
+
+/*! \fn QDropEvent::QDropEvent (const QPoint & pos, Type typ)
+
+  Constructs a drop event that drops a drop of type \a typ on point \a
+  pos.
+*/ // ### pos is in which coordinate system?
 
 
 /*!  Returns a byte array containing the payload data of this drag, in
