@@ -4388,17 +4388,20 @@ void QTable::rowHeightChanged( int row )
     QSize s( tableSize() );
     int h = contentsHeight();
     resizeContents( s.width(), s.height() );
-    if ( contentsHeight() < h )
+    if ( contentsHeight() < h ) {
 	repaintContents( contentsX(), contentsHeight(),
 			 visibleWidth(), h - s.height() + 1, TRUE );
-    else
+    } else {
 	repaintContents( contentsX(), h,
 			 visibleWidth(), s.height() - h + 1, FALSE );
+    }
 
     // update widgets that are affected by this change
-    if ( widgets.size() )
+    if ( widgets.size() ) {
+	d->lastVisRow = rowAt( contentsY() + visibleHeight() + ( s.height() - h + 1 ) );
 	for ( int r = row; r <= d->lastVisRow; ++r )
 	    updateRowWidgets( r );
+    }
     delayedUpdateGeometries();
 }
 
