@@ -417,7 +417,7 @@ void QTableView::paintEvent(QPaintEvent *e)
             if (index.isValid()) {
                 option.rect = QRect(colp, rowp, colw, rowh);
                 option.state = state;
-                option.state |= (sels->isSelected(index)
+                option.state |= ((sels && sels->isSelected(index))
                                  ? QStyle::Style_Selected : QStyle::Style_None);
                 if ((model()->flags(index) & QAbstractItemModel::ItemIsEnabled) == 0)
                     option.state &= ~QStyle::Style_Enabled;
