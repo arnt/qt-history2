@@ -18,13 +18,14 @@
 **
 **********************************************************************/
 
+#include <qvariant.h> // HP-UX compiler needs this here
+
 #include "pixmapchooser.h"
 #include "formwindow.h"
 #include "pixmapfunction.h"
 #include "metadatabase.h"
 #include "mainwindow.h"
 
-#include <qvariant.h> // HP-UX compiler needs this here
 #include <qapplication.h>
 #include <qimage.h>
 #include <qpainter.h>
