@@ -546,7 +546,9 @@ bool QSettings::readBoolEntry(const QString &key, bool def, bool *ok )
     else if (value.lower() == "false")
 	return FALSE;
 
-    qWarning("QString::readBoolEntry: '%s' is not 'true' or 'false'", value.latin1());
+    if (! value.isEmpty())
+	qWarning("QString::readBoolEntry: '%s' is not 'true' or 'false'",
+		 value.latin1());
     if ( ok )
 	*ok = FALSE;
     return def;
@@ -763,6 +765,7 @@ bool QSettings::writeEntry(const QString &key, const QString &value)
 #ifdef QT_CHECK_STATE
 	if (list.count() < 2) {
 	    qWarning("QSettings::writeEntry: invalid key '%s'", key.latin1());
+
 
 	    return FALSE;
 	}
