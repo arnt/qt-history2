@@ -44,19 +44,58 @@ static const char* open_xpm[]={
 class Streamer: public QWidget
 {
 public:
-    bool writeOut( QIODevice* dev );
-    bool readIn( QIODevice* dev );
+    bool writeOut( QIODevice* dev, int ver );
+    bool readIn( QIODevice* dev, int ver );
 
 };
 
+/*
+void dumpColor( const QColor& c )
+{
+    debug( "   R:%0x G:%0x B:%0x", c.red(), c.green(), c.blue() );
+}
 
-bool Streamer::writeOut( QIODevice* dev )
+
+void dumpColorGroup( const QColorGroup& g )
+{
+    dumpColor( g.foreground() );
+    dumpColor( g.background() );
+    dumpColor( g.light() );
+    dumpColor( g.dark() );
+    dumpColor( g.mid() );
+    dumpColor( g.dark() );
+    dumpColor( g.base() );
+#if QT_VERSION >= 200
+    dumpColor( g.midlight() );
+    dumpColor( g.brightText() );
+    dumpColor( g.buttonText() );
+    dumpColor( g.shadow() );
+    dumpColor( g.highlight() );
+    dumpColor( g.highlightedText() );
+#endif
+}
+
+void dumpPalette( const QPalette& p )
+{
+    debug( "Palette dump:" );
+    //dumpColorGroup( p.normal() );
+    //dumpColorGroup( p.active() );
+    dumpColorGroup( p.disabled() );
+}
+*/
+
+bool Streamer::writeOut( QIODevice* dev, int ver )
 {
     QPixmap* pm = new QPixmap(open_xpm);
     ASSERT( !pm->isNull() );
 
     QDataStream s( dev );
-    
+#if QT_VERSION >= 200
+    s.setVersion( ver );
+#else
+    ver = ver;
+#endif
+
     QBitArray d1( 3 );
     d1.fill( TRUE );
     d1[1] = FALSE;
@@ -100,9 +139,6 @@ bool Streamer::writeOut( QIODevice* dev )
     QColorGroup d14( d13.normal() );
     s << d14;
 
-    QPen d15( blue, 3, DashDotLine );
-    s << d15;
-
     QPixmap d16( *pm );
     s << d16;
 
@@ -115,8 +151,14 @@ bool Streamer::writeOut( QIODevice* dev )
     QPointArray d19( d18, TRUE );
     s << d19;
 
+
+
     QRegion d20( d19 );
     s << d20;
+
+
+    QPen d15( blue, 3, DashDotLine );
+    s << d15;
 
     QSize d21( 567, -568 );
     s << d21;
@@ -134,13 +176,17 @@ bool Streamer::writeOut( QIODevice* dev )
 
 
 
-bool Streamer::readIn( QIODevice* dev )
+bool Streamer::readIn( QIODevice* dev, int ver )
 {
     QPixmap* pm = new QPixmap(open_xpm);
     ASSERT( !pm->isNull() );
 
     QDataStream s( dev );
-    s.setVersion( 1 );
+#if QT_VERSION >= 200
+    s.setVersion( ver );
+#else
+    ver = ver;
+#endif
 
     QBitArray d1;
     s >> d1;
@@ -211,9 +257,6 @@ bool Streamer::readIn( QIODevice* dev )
     s >> d14;
     ASSERT( d14 == QColorGroup( d13.normal() ) );
 
-    QPen d15;
-    s >> d15;
-    ASSERT( d15 == QPen( blue, 3, DashDotLine ) );
 
     QPixmap d16;
     s >> d16;
@@ -224,17 +267,25 @@ bool Streamer::readIn( QIODevice* dev )
     s >> d17;
     ASSERT( d17 == QPoint( -109, 110 ) );
 
+
     QRect d18;
     s >> d18;
     ASSERT( d18 == QRect( 99, -100, 101, 102 ) );
+
 
     QPointArray d19;
     s >> d19;
     ASSERT( d19 == QPointArray( d18, TRUE ) );
 
+
     QRegion d20;
     s >> d20;
     ASSERT( d20 == QRegion( d19 ) );
+
+
+    QPen d15;
+    s >> d15;
+    ASSERT( d15 == QPen( blue, 3, DashDotLine ) );
 
     QSize d21;
     s >> d21;
@@ -262,6 +313,9 @@ bool Streamer::readIn( QIODevice* dev )
 }
 
 
+//Usage: datastream [ -v1 | -v2 ] [-internal] [filename]
+// If filename given, it is read, otherwise output is written to default file
+// If -internal is given, write and read to/from memory is done instead.
 
 int main( int argc, char **argv )
 {
@@ -270,18 +324,78 @@ int main( int argc, char **argv )
 
     Streamer s;
 
-    QFile f( "qdatastream-1.44.out" );
-    //f.open( IO_WriteOnly );
-    //    QByteArray ba( 10000 );
-    //QBuffer b( ba );
-    //b.open( IO_WriteOnly );
-    //s.writeOut( &f );
-    //f.close();
+	
+    int ver = 2;
+    int off = 0;
+    if ( argc > 1 ) {
+	QString arg1( argv[1] );
+	if ( arg1 == "-v1" ) {
+	    ver = 1;
+	    off = 1;
+	}
+	else if ( arg1 == "-v2" ) {
+	    ver = 2;
+	    off = 1;
+	}
+    }
 
-    
-    f.open( IO_ReadOnly );
-    s.readIn( &f );
-    f.close();
+#if QT_VERSION >= 200
+    debug( "Using QDatastream format %i.", ver );
+#endif
+
+    if ( argc > 1 ) {
+	QString arg2( argv[1+off] );
+	if ( arg2 == "-internal" ) {
+	    QByteArray ba(10000);
+	    QBuffer b( ba );
+	    b.open( IO_WriteOnly );
+	    s.writeOut( &b, ver );
+	    b.close();
+	    b.open( IO_ReadOnly );
+	    s.readIn( &b, ver );
+	    b.close();
+	    debug( "%s: Internal write and read done.", argv[0] );
+	    return 0;
+	}
+    }
+
+
+
+    if ( argc-off < 2 ) {
+	// Write file
+	QString fileName = "qdatastream-";
+#if QT_VERSION >= 200
+	QString verString( ver == 1 ? "v1-" : "v2-" );
+	fileName += verString;
+#endif
+	fileName += QT_VERSION_STR;
+	fileName += ".out";
+
+	QFile f( fileName );
+	if ( !f.open( IO_WriteOnly ) ) {
+	    warning( "%s: Could not open %s for writing", argv[0], 
+		     (const char*)fileName );
+	    return 0;
+	}
+	 
+	s.writeOut( &f, ver );
+	f.close();
+	
+	debug( "%s: Output written to %s.", argv[0], (const char*)fileName );
+    }
+    else {
+	QString fileName( argv[1+off] );
+	QFile f( fileName );
+	if ( !f.open( IO_ReadOnly ) ) {
+	    warning( "%s: Could not open %s for reading", argv[0], 
+		     (const char*)fileName );
+	    return 0;
+	}
+	 
+	s.readIn( &f, ver );
+	f.close();
+	debug( "%s: %s read.", argv[0], (const char*)fileName );
+    }
 
     return 0;
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion.h#51 $
+** $Id: //depot/qt/main/src/kernel/qregion.h#52 $
 **
 ** Definition of QRegion class
 **
@@ -83,7 +83,7 @@ private:
 #if defined(_WS_WIN_)
     QRegion winCombine( const QRegion &, int ) const;
 #endif
-    void    exec( const QByteArray & );
+    void    exec( const QByteArray &, int ver = 0 );
     struct QRegionData : public QShared {
 #if defined(_WS_WIN_)
 	HRGN   rgn;

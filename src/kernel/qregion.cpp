@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion.cpp#34 $
+** $Id: //depot/qt/main/src/kernel/qregion.cpp#35 $
 **
 ** Implementation of QRegion class
 **
@@ -104,12 +104,18 @@ void QRegion::detach()
   region.
 
   We do this when we read a region from the data stream.
+
+  If \a ver is non-0, uses the format version \a ver on reading the
+  byte array.
+
 */
 
-void QRegion::exec( const QByteArray &buffer )
+void QRegion::exec( const QByteArray &buffer, int ver )
 {
     QBuffer buf( buffer );
     QDataStream s( &buf );
+    if ( ver )
+	s.setVersion( ver );
     buf.open( IO_ReadOnly );
     QRegion rgn;
 #if defined(CHECK_STATE)
@@ -154,7 +160,8 @@ void QRegion::exec( const QByteArray &buffer )
 		    rgn = r1.eor( r2 );
 		    break;
 	    }
-	} else if ( id == QRGN_RECTS ) {	// ### will appear in Qt 2.0
+	} else if ( id == QRGN_RECTS ) {
+	    // (This is the only form used in Qt 2.0)
 	    Q_UINT32 n;
 	    s >> n;
 	    QRect r;
@@ -184,11 +191,23 @@ QDataStream &operator<<( QDataStream &s, const QRegion &r )
     if ( a.isEmpty() ) {
 	s << (Q_UINT32)0;
     } else {
-	s << (Q_UINT32)(4+4+8*a.size());
-	s << (int)QRGN_RECTS;
-	s << (Q_UINT32)a.size();
-	for ( int i=0; i<(int)a.size(); i++ )
-	    s << a[i];
+	if ( s.version() == 1 ) {
+	    int i;
+	    for ( i=(int)a.size()-1; i>0; i-- ) {
+		s << (Q_UINT32)(12+i*24);
+		s << (int)QRGN_OR;
+	    }
+	    for ( i=0; i<(int)a.size(); i++ ) {
+		s << (Q_UINT32)(4+8) << (int)QRGN_SETRECT << a[i];
+	    }
+	}
+	else {
+	    s << (Q_UINT32)(4+4+16*a.size()); // 16: storage size of QRect
+	    s << (int)QRGN_RECTS;
+	    s << (Q_UINT32)a.size();
+	    for ( int i=0; i<(int)a.size(); i++ )
+		s << a[i];
+	}
     }
     return s;
 }
@@ -202,6 +221,6 @@ QDataStream &operator>>( QDataStream &s, QRegion &r )
 {
     QByteArray b;
     s >> b;
-    r.exec( b );
+    r.exec( b, s.version() );
     return s;
 }

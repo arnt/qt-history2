@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion_x11.cpp#48 $
+** $Id: //depot/qt/main/src/kernel/qregion_x11.cpp#49 $
 **
 ** Implementation of QRegion class for X11
 **
@@ -93,7 +93,8 @@ QRegion::QRegion( const QRect &r, RegionType t )
     } else if ( t == Ellipse ) {		// elliptic region
 	QPointArray a;
 	a.makeEllipse( rr.x(), rr.y(), rr.width(), rr.height() );
-	data->rgn = XPolygonRegion( (XPoint*)a.data(), a.size(), EvenOddRule );
+	data->rgn = XPolygonRegion( (XPoint*)a.shortPoints(), a.size(),
+				    EvenOddRule );
     }
 }
 
@@ -111,7 +112,7 @@ QRegion::QRegion( const QPointArray &a, bool winding )
     data = new QRegionData;
     CHECK_PTR( data );
     data->is_null = FALSE;
-    data->rgn = XPolygonRegion( (XPoint*)a.data(), a.size(),
+    data->rgn = XPolygonRegion( (XPoint*)a.shortPoints(), a.size(),
 				winding ? WindingRule : EvenOddRule );
 }
 

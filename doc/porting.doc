@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: porting.doc,v 1.53 1999/05/20 08:00:50 aavit Exp $
+** $Id: porting.doc,v 1.54 1999/05/20 15:33:31 aavit Exp $
 **
 ** Help with porting from Qt 1.x to Qt 2.0
 **
@@ -111,7 +111,6 @@ in the collective conscious that is the Qt Developer Community!
  <li><b><a href=#QPainter>QPainter</a></b>
  <li><b><a href=#QPoint>QPoint, QPointArray, QSize and QRect</a></b>
  <li><b><a href=#QPixmap>QPixmap</a></b>
- <li><b><a href=#QRegion>QRegion</a></b>
  <li><b><a href=#QRgb>QRgb</a></b>
  <li><b><a href=#QScrollView>QScrollView</a></b>
  <li><b><a href=#QStrList>QStrList</a></b>
@@ -544,16 +543,6 @@ strange color results - use QColor::rgb() if you want a QRgb.
 The QDatastream serialization format of most Qt classes is changed in
 Qt 2.0. Use \code QDataStream::setVersion( 1 )\endcode to get a
 datastream object that can read and write Qt 1.x format data streams.
-(### Todo EAa: QRegion possibly an exception )
-
-
-<h3><a name=QRegion>QRegion</a></h3>
-
-<p>
-QDataStream &operator<<( QDataStream &s, const QRegion &r )
-QRegion data files now write in a more efficient form.  The new form
-cannot be read by Qt 1.x, but Qt 2.0 can still read old 1.x data.
-#### TODO EAa: CHECK about datastream versioning
 
 
 <h3><a name=QWidget>QWidget</a></h3>

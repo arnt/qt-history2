@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpalette.cpp#44 $
+** $Id: //depot/qt/main/src/kernel/qpalette.cpp#45 $
 **
 ** Implementation of QColorGroup and QPalette classes
 **
@@ -857,6 +857,34 @@ QDataStream &operator<<( QDataStream &s, const QPalette &p )
 	     << p.active();
 }
 
+
+void readV1ColorGroup( QDataStream &s, QColorGroup &g, QPalette::ColorGroup r )
+{
+    QColor fg, bg, light, dark, mid, text, base;
+    s >> fg >> bg >> light >> dark >> mid >> text >> base;
+    QPalette p( bg );
+    QColorGroup n;
+    switch ( r ) {
+        case QPalette::Disabled:
+	    n = p.disabled();
+	    break;
+        case QPalette::Active:
+	    n = p.active();
+	    break;
+        default:
+	    n = p.normal();
+	    break;
+    }
+    n.setColor( QColorGroup::Foreground, fg );
+    n.setColor( QColorGroup::Light, light );
+    n.setColor( QColorGroup::Dark, dark );
+    n.setColor( QColorGroup::Mid, mid );
+    n.setColor( QColorGroup::Text, text );
+    n.setColor( QColorGroup::Base, base );
+    g = n;
+}
+
+
 /*!
   \relates QPalette
   Reads a palette from the stream and returns a reference to the stream.
@@ -865,7 +893,14 @@ QDataStream &operator<<( QDataStream &s, const QPalette &p )
 QDataStream &operator>>( QDataStream &s, QPalette &p )
 {
     QColorGroup normal, disabled, active;
-    s >> normal >> disabled >> active;
+    if ( s.version() == 1 ) {
+	readV1ColorGroup( s, normal, QPalette::Normal );
+	readV1ColorGroup( s, disabled, QPalette::Disabled );
+	readV1ColorGroup( s, active, QPalette::Active );
+    }
+    else {
+	s >> normal >> disabled >> active;
+    }
     QPalette newpal( normal, disabled, active );
     p = newpal;
     return s;
