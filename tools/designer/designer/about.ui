@@ -84,7 +84,7 @@
                 <cstring>aboutCopyright</cstring>
             </property>
             <property name="text">
-                <string>Copyright (C) 2000-2002 Trolltech AS. All Rights Reserved</string>
+                <string>Copyright (C) 2000-2002 Trolltech AS. All Rights Reserved.</string>
             </property>
             <property name="alignment">
                 <set>AlignCenter</set>
