@@ -1253,7 +1253,16 @@ void QWidget::erase( const QRegion& rgn )
     } else {
 	tmphdc = FALSE;
     }
-    SelectClipRgn( hdc, rgn.handle() );
+    HRGN oldRegion = CreateRectRgn( 0, 0, 0, 0 );
+    bool hasRegion = GetClipRgn( hdc, oldRegion ) != 0;
+    HRGN newRegion = 0;
+    if ( hasRegion ) {
+	newRegion = CreateRectRgn( 0, 0, 0, 0 );
+	CombineRgn(newRegion, oldRegion, rgn.handle(), RGN_AND );
+    } else {
+	newRegion = rgn.handle();
+    }
+    SelectClipRgn( hdc, newRegion );
 
     QPoint offset = backgroundOffset();
     int ox = offset.x();
@@ -1261,8 +1270,10 @@ void QWidget::erase( const QRegion& rgn )
 
     qt_erase_background( hdc, 0, 0, crect.width(), crect.height(), bg_col,
 			 backgroundPixmap(), ox, oy );
-    
-    SelectClipRgn( hdc, 0 );
+    SelectClipRgn( hdc, hasRegion ? oldRegion : 0 );
+    DeleteObject( oldRegion );
+    if ( hasRegion )
+	DeleteObject( newRegion );
     if ( tmphdc ) {
 	ReleaseDC( winId(), hdc );
 	hdc = 0;
