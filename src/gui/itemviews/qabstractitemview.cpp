@@ -476,8 +476,9 @@ void QAbstractItemView::setSelectionModel(QItemSelectionModel *selectionModel)
     Q_ASSERT(selectionModel);
 
     if (selectionModel->model() != d->model) {
-        qWarning("QAbstractItemView::setSelectionModel() failed: Trying to set a selection model,"
-                 " which works on a different model than the view.");
+        qWarning("QAbstractItemView::setSelectionModel() failed: "
+                 "Trying to set a selection model, which works on "
+                 "a different model than the view.");
         return;
     }
 
