@@ -1573,7 +1573,7 @@ void QWorkspaceChild::resizeEvent( QResizeEvent * )
 	int th = titlebar->sizeHint().height();
 	titlebar->setGeometry( r.x() , r.y(), r.width() - r.x(), th );
 	cr = QRect( r.x(), r.y() + titlebar->height() + (shademode ? 5 : 1),
-	    r.width() - r.x() , r.height() - titlebar->height() - 2 );
+	    r.width(), r.height() - titlebar->height() - 2 );
     } else {
 	cr = r;
     }
@@ -1584,7 +1584,6 @@ void QWorkspaceChild::resizeEvent( QResizeEvent * )
     windowSize = cr.size();
     childWidget->setGeometry( cr );
     ((QWorkspace*) parentWidget() )->updateWorkspace();
-
 }
 
 QSize QWorkspaceChild::baseSize() const
