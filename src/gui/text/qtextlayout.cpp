@@ -358,7 +358,9 @@ QTextLayout::QTextLayout(const QTextBlock &block)
     const QTextDocumentPrivate *p = block.docHandle();
 
     d->formats = p->formatCollection();
-    d->docLayout = p->layout();
+    // creates it on-demand if necessary
+    d->docLayout = p->document()->documentLayout();
+    Q_ASSERT(d->docLayout);
 
     QString txt = block.text();
     setText(txt);
