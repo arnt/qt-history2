@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#73 $
+** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#74 $
 **
 ** Implementation of internal print dialog (X11) used by QPrinter::select().
 **
@@ -509,7 +509,7 @@ static void parseQconfig( QListView * printers )
 		    ( !indented &&
 		      line.contains(
 			QRegExp( QString::fromLatin1("^[0-z][0-z]*:$") ) ) ) ) {
-	    if ( stanzaName.length() > 0 && stanzaName.length() < 21 ) {
+	    if ( up && stanzaName.length() > 0 && stanzaName.length() < 21 ) {
 		if ( remoteHost.length() ) // remote printer
 		    perhapsAddPrinter( printers, stanzaName, remoteHost,
 				       QString::null );
