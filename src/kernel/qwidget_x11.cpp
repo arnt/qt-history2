@@ -692,7 +692,7 @@ void QWidget::reparent_helper( QWidget *parent, WFlags f, const QPoint &p, bool 
     if ( isTopLevel() || !parent ) // we are toplevel, or reparenting to toplevel
         d->topData()->parentWinId = 0;
 
-    QObject::reparent(parent);
+    QObject::setParent_helper(parent);
     bool     enable = isEnabled();		// remember status
     FocusPolicy fp = focusPolicy();
     QSize    s	    = size();

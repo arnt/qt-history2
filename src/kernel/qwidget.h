@@ -357,8 +357,8 @@ public:
 #endif
     void		updateGeometry();
 
-    void reparent(QWidget *parent, WFlags f);
-    void reparent(QWidget *parent);
+    void setParent(QWidget *parent);
+    void setParent(QWidget *parent, WFlags f);
 
     void		scroll( int dx, int dy );
     void		scroll( int dx, int dy, const QRect& );
@@ -635,9 +635,9 @@ public:
     void iconify() { showMinimized(); }
     void constPolish() const { ensurePolished(); }
     void reparent( QWidget *parent, WFlags f, const QPoint &p, bool showIt=false )
-    { reparent(parent, f); move(p); if (showIt) show(); }
+    { setParent(parent, f); move(p); if (showIt) show(); }
     void reparent( QWidget *parent, const QPoint &p, bool showIt=false )
-    { reparent(parent, getWFlags() & ~WType_Mask); move(p); if (showIt) show(); }
+    { setParent(parent, getWFlags() & ~WType_Mask); move(p); if (showIt) show(); }
     void recreate( QWidget *parent, WFlags f, const QPoint & p, bool showIt=false )
     { reparent(parent, f, p, showIt); }
     bool hasMouse() const { return underMouse(); }

@@ -1003,7 +1003,7 @@ void QWidget::reparent_helper(QWidget *parent, WFlags f, const QPoint &p, bool s
     reparentFocusWidgets(parent);		// fix focus chains
 
     setWinId(0);
-    QObject::reparent(parent);
+    QObject::setParent_helper(parent);
     bool     dropable = acceptDrops();
     bool     enable = isEnabled();
     bool     owned = own_id;

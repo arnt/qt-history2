@@ -139,6 +139,8 @@ public:
     QWExtra	*extraData() const;
     QTLWExtra	*topData() const;
 
+    void init(Qt::WFlags f);
+
     void createTLExtra();
     void createExtra();
     void deleteExtra();

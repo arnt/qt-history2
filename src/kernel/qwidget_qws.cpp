@@ -358,7 +358,7 @@ void QWidget::reparent_helper( QWidget *parent, WFlags f, const QPoint &p, bool 
 
     if ( parentObj != parent ) {
 	QWidget *oldparent = parentWidget();
-	QObject::reparent(parent);
+	QObject::setParent_helper(parent);
 	if ( oldparent ) {
 	    oldparent->setChildrenAllocatedDirty();
 	    oldparent->paintable_region_dirty = TRUE;

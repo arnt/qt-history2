@@ -693,150 +693,93 @@ static QPalette qt_naturalWidgetPalette( QWidget* w ) {
     \endcode
 */
 
-QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
-    : QObject( new QWidgetPrivate, parent, name ), QPaintDevice( QInternal::Widget )
+QWidget::QWidget(QWidget *parent, const char *name, WFlags f)
+    : QObject(new QWidgetPrivate, parent, name), QPaintDevice(QInternal::Widget)
 {
-    if ( qApp->type() == QApplication::Tty )
-	qWarning( "QWidget: Cannot create a QWidget when no GUI is being used" );
-
-    fstrut_dirty = 1;
-
-    isWidget = TRUE;				// is a widget
-    winid = 0;					// default attributes
-    widget_attributes = 0;
-#ifndef QT_NO_COMPAT
-    if (f & WNoAutoErase)
-	setAttribute(WA_NoBackground);
-    if (f & WStaticContents)
-	setAttribute(WA_StaticContents);
-#endif
-    widget_state = 0;
-    widget_flags = f;
-
-    focus_policy = 0;
-
-    sizehint_forced = 0;
-    is_closing = 0;
-    in_show = 0;
-    in_show_maximized = 0;
-    im_enabled = FALSE;
-    create();					// platform-dependent init
-    pal = isTopLevel() ? QApplication::palette() : parentWidget()->palette();
-    if ( ! isTopLevel() )
-	fnt = parentWidget()->font();
-#if defined(Q_WS_X11)
-    fnt.x11SetScreen( x11Screen() );
-#endif // Q_WS_X11
-
-    if ( !isDesktop() )
-	d->updateSystemBackground();
-    if ( isTopLevel() ) {
-	setWState(WState_Hidden);
-	d->createTLExtra();
-    } else {
-	// propagate enabled state
-	if ( !parentWidget()->isEnabled() )
-	    setAttribute( WA_Disabled, true );
-	// new widgets do not show up in already visible parents
-	if (parentWidget()->isVisible())
-	    setWState(WState_Hidden);
-    }
-
-    if (isTopLevel()) {
-	d->focus_next = this;
-    } else {
-	// insert at the end of the focus chain
-	QWidget *focus_handler = topLevelWidget();
-	QWidget *w = focus_handler;
-	while (w->d->focus_next != focus_handler)
-	    w = w->d->focus_next;
-	w->d->focus_next = this;
-	d->focus_next = focus_handler;
-    }
-
-    if ( ++instanceCounter > maxInstances )
-    	maxInstances = instanceCounter;
-
-    // send and post remaining QObject events
-    QEvent e( QEvent::Create );
-    QApplication::sendEvent( this, &e );
-    QApplication::postEvent(this, new QEvent(QEvent::PolishRequest));
+    d->init(f);
 }
 
 /*! \internal
-  ######## remove code duplication
 */
-QWidget::QWidget( QWidgetPrivate *dd, QWidget* parent, const char* name, WFlags f)
-    : QObject( dd, parent, name ), QPaintDevice( QInternal::Widget )
+QWidget::QWidget(QWidgetPrivate *dd, QWidget* parent, const char* name, WFlags f)
+    : QObject(dd, parent, name), QPaintDevice(QInternal::Widget)
+{
+    d->init(f);
+}
+
+void QWidgetPrivate::init(Qt::WFlags f)
 {
     if ( qApp->type() == QApplication::Tty )
 	qWarning( "QWidget: Cannot create a QWidget when no GUI is being used" );
 
-    fstrut_dirty = 1;
+    q->fstrut_dirty = 1;
 
-    isWidget = TRUE;				// is a widget
-    winid = 0;					// default attributes
-    widget_attributes = 0;
+    q->winid = 0;
+    q->widget_attributes = 0;
 #ifndef QT_NO_COMPAT
-    if (f & WNoAutoErase)
-	setAttribute(WA_NoBackground);
-    if (f & WStaticContents)
-	setAttribute(WA_StaticContents);
+    if (f & Qt::WNoAutoErase)
+	q->setAttribute(QWidget::WA_NoBackground);
+    if (f & Qt::WStaticContents)
+	q->setAttribute(QWidget::WA_StaticContents);
 #endif
-    widget_state = 0;
-    widget_flags = f;
+    q->widget_state = 0;
+    q->widget_flags = f;
 
-    focus_policy = 0;
+    q->focus_policy = 0;
 
-    sizehint_forced = 0;
-    is_closing = 0;
-    in_show = 0;
-    in_show_maximized = 0;
-    im_enabled = FALSE;
-    create();					// platform-dependent init
-#ifndef QT_NO_PALETTE
-    pal = isTopLevel() ? QApplication::palette() : parentWidget()->palette();
-#endif
-    if ( ! isTopLevel() )
-	fnt = parentWidget()->font();
+    q->sizehint_forced = 0;
+    q->is_closing = 0;
+    q->in_show = 0;
+    q->in_show_maximized = 0;
+    q->im_enabled = FALSE;
+    q->create();					// platform-dependent init
+    q->pal = q->isTopLevel() ? QApplication::palette() : q->parentWidget()->palette();
+    if ( ! q->isTopLevel() )
+	q->fnt = q->parentWidget()->font();
 #if defined(Q_WS_X11)
-    fnt.x11SetScreen( x11Screen() );
+    q->fnt.x11SetScreen( q->x11Screen() );
 #endif // Q_WS_X11
 
-    if ( !isDesktop() )
-	d->updateSystemBackground();
-    if ( isTopLevel() ) {
-	setWState(WState_Hidden);
-	d->createTLExtra();
+    if ( !q->isDesktop() )
+	updateSystemBackground();
+    if ( q->isTopLevel() ) {
+	q->setWState(Qt::WState_Hidden);
+	createTLExtra();
     } else {
 	// propagate enabled state
-	if ( !parentWidget()->isEnabled() )
-	    setAttribute( WA_Disabled, true );
+	if ( !q->parentWidget()->isEnabled() )
+	    q->setAttribute(QWidget::WA_Disabled, true);
 	// new widgets do not show up in already visible parents
-	if (parentWidget()->isVisible())
-	    setWState(WState_Hidden);
+	if (q->parentWidget()->isVisible())
+	    q->setWState(Qt::WState_Hidden);
     }
 
-    if (isTopLevel()) {
-	d->focus_next = this;
+    if (q->isTopLevel()) {
+	focus_next = q;
     } else {
 	// insert at the end of the focus chain
-	QWidget *focus_handler = topLevelWidget();
+	QWidget *focus_handler = q->topLevelWidget();
 	QWidget *w = focus_handler;
 	while (w->d->focus_next != focus_handler)
 	    w = w->d->focus_next;
-	w->d->focus_next = this;
-	d->focus_next = focus_handler;
+	w->d->focus_next = q;
+	focus_next = focus_handler;
     }
 
-    if ( ++instanceCounter > maxInstances )
-    	maxInstances = instanceCounter;
+    if (++QWidget::instanceCounter > QWidget::maxInstances)
+    	QWidget::maxInstances = QWidget::instanceCounter;
 
     // send and post remaining QObject events
-    QEvent e( QEvent::Create );
-    QApplication::sendEvent( this, &e );
-    QApplication::postEvent(this, new QEvent(QEvent::PolishRequest));
-
+    if (q->parent()) {
+	QChildEvent e(QEvent::ChildAdded, q);
+	QApplication::sendEvent(q->parent(), &e);
+#ifndef QT_NO_COMPAT
+	QApplication::postEvent(q->parent(), new QChildEvent(QEvent::ChildInserted, q));
+#endif
+    }
+    QEvent e(QEvent::Create);
+    QApplication::sendEvent(q, &e);
+    QApplication::postEvent(q, new QEvent(QEvent::PolishRequest));
 }
 
 
@@ -3129,15 +3072,6 @@ void QWidget::reparentFocusWidgets( QWidget * oldtlw )
 }
 
 /*!
-  \fn void QWidget::recreate( QWidget *parent, WFlags f, const QPoint & p, bool showIt )
-
-  \obsolete
-
-  This method is provided to aid porting from Qt 1.0 to 2.0. It has
-  been renamed reparent() in Qt 2.0.
-*/
-
-/*!
     \property QWidget::frameSize
     \brief the size of the widget including any window frame
 */
@@ -5096,30 +5030,45 @@ void QWidget::updateGeometry()
 
 
 /*!
-    Reparents the widget. The widget gets a new \a parent, new widget
-    flags (\a f, but as usual, use 0) and is moved to position (0,0)
-    in its new parent.
+    Sets the parent of the widget to \a parent. The widget is moved
+    to position (0,0) in its new parent.
 
     If the new parent widget is in a different top-level widget, the
     reparented widget and its children are appended to the end of the
     \link setFocusPolicy() tab chain \endlink of the new parent
     widget, in the same internal order as before. If one of the moved
-    widgets had keyboard focus, reparent() calls clearFocus() for that
+    widgets had keyboard focus, setParent() calls clearFocus() for that
     widget.
 
     If the new parent widget is in the same top-level widget as the
-    old parent, reparent doesn't change the tab order or keyboard
-    focus.
+    old parent, setting the parent doesn't change the tab order or
+    keyboard focus.
 
     \warning It is extremely unlikely that you will ever need this
     function. If you have a widget that changes its content
     dynamically, it is far easier to use \l QWidgetStack or \l
     QWizard.
 
+*/
+
+
+void QWidget::setParent(QWidget *parent)
+{
+    setParent( parent, getWFlags() & ~WType_Mask);
+}
+
+
+
+
+/*!
+    \overload
+
+    This function also takes widget flags as an argument.
+
     \sa getWFlags()
 */
 
-void QWidget::reparent(QWidget *parent, WFlags f)
+void QWidget::setParent(QWidget *parent, WFlags f)
 {
     reparent_helper( parent, f, QPoint(0,0), false);
     QEvent e( QEvent::Reparent );
@@ -5130,19 +5079,6 @@ void QWidget::reparent(QWidget *parent, WFlags f)
 	setFont_helper( fnt.resolve( qt_naturalWidgetFont( this ) ) );
     if (!testAttribute(WA_SetPalette))
 	unsetPalette();
-}
-
-/*!
-    \overload
-
-    A convenience version of reparent that does not take widget flags
-    as argument.
-
-    Calls reparent(\a parent, getWFlags() \& ~\l WType_Mask).
-*/
-void QWidget::reparent( QWidget *parent)
-{
-    reparent( parent, getWFlags() & ~WType_Mask);
 }
 
 

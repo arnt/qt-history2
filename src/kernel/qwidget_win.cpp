@@ -435,7 +435,7 @@ void QWidget::reparent_helper( QWidget *parent, WFlags f, const QPoint &p, bool 
 	old_winid = 0;
     setWinId( 0 );
 
-    QObject::reparent(parent);
+    QObject::setParent_helper(parent);
     bool     enable = isEnabled();		// remember status
     FocusPolicy fp = focusPolicy();
     QSize    s	    = size();

@@ -250,11 +250,11 @@ QObject::QObject( QObject *parent, const char *name )
     hasPostedEvents( FALSE ),
     hasPostedChildInsertedEvents( FALSE ),
     objname( name ? qstrdup(name) : 0 ),        // set object name
-    parentObj( 0 ),				// no parent yet. It is set by reparent()
+    parentObj( 0 ),				// no parent yet. It is set by setParent()
     d_ptr( new QObjectPrivate )
 {
     d_ptr->q_ptr = this;
-    reparent(parent);
+    setParent(parent);
     QEvent e( QEvent::Create );
     QApplication::sendEvent( this, &e );
     QApplication::postEvent(this, new QEvent(QEvent::PolishRequest));
@@ -272,11 +272,11 @@ QObject::QObject(QObjectPrivate *dd, QObject *parent, const char *name)
     hasPostedEvents( FALSE ),
     hasPostedChildInsertedEvents( FALSE ),
     objname( name ? qstrdup(name) : 0 ),        // set object name
-    parentObj( 0 ),				// no parent yet. It is set by reparent()
+    parentObj( 0 ),				// no parent yet. It is set by setParent()
     d_ptr(dd)
 {
     d_ptr->q_ptr = this;
-    reparent(parent);
+    setParent(parent);
     QEvent e( QEvent::Create );
     QApplication::sendEvent( this, &e );
     QApplication::postEvent(this, new QEvent(QEvent::PolishRequest));
@@ -284,19 +284,24 @@ QObject::QObject(QObjectPrivate *dd, QObject *parent, const char *name)
 
 QObject::QObject(QWidgetPrivate *dd, QObject *parent, const char *name)
     :
-    isSignal( FALSE ),				// assume not a signal object
-    isWidget( TRUE ), 				// assume a widget object
-    pendTimer( FALSE ),				// no timers yet
-    blockSig( FALSE ),      			// not blocking signals
-    wasDeleted( FALSE ),       			// double-delete catcher
-    hasPostedEvents( FALSE ),
-    hasPostedChildInsertedEvents( FALSE ),
-    objname( name ? qstrdup(name) : 0 ),        // set object name
-    parentObj( 0 ),				// no parent yet. It is set by reparent()
+    isSignal(false),
+    isWidget(true),
+    pendTimer(false),
+    blockSig(false),
+    wasDeleted(false),
+    hasPostedEvents(false),
+    hasPostedChildInsertedEvents(false),
+    objname(name ? qstrdup(name) : 0),
+    parentObj(0),
     d_ptr((QObjectPrivate*)dd)
 {
     d_ptr->q_ptr = this;
-    reparent(parent);
+    if (parent) {
+	if (qt_cast<QDesktopWidget*>(parent))
+	    return; // QDesktop widget does not take ownership of widget children
+	parentObj = parent;
+	parentObj->d->children.append(this);
+    }
     // no events sent here, this is done at the end of the QWidget constructor
 }
 
@@ -351,7 +356,7 @@ QObject::~QObject()
     if ( pendTimer )				// might be pending timers
 	qKillTimer( this );
     if ( parentObj )				// remove it from parent object
-	reparent(0);
+	setParent_helper(0);
 
     // disconnect senders
     if (d->senders) {
@@ -967,7 +972,7 @@ static void objSearch( QObjectList &result,
     in the list, and a widget that is lowered becomes the first object
     in the list.
 
-    \sa child(), queryList(), parent(), reparent()
+    \sa child(), queryList(), parent(), setParent()
 */
 QObjectList QObject::children() const
 {
@@ -1049,17 +1054,28 @@ QObjectList QObject::queryList( const char *inheritsClass,
 /*!
     Makes the object a child of \a parent.
 
-    \sa QWidget::reparent()
+    \sa QWidget::setParent()
 */
 
-void QObject::reparent(QObject *parent)
+void QObject::setParent(QObject *parent)
+{
+    if (isWidget) {
+	if (parent && !parent->isWidget) {
+	    qWarning("QObject::setParent: Cannot reparent a widget into an object.");
+	    return;
+	}
+	// DIY virtual table:
+	static_cast<QWidget*>(this)->setParent(static_cast<QWidget*>(parent));
+    } else {
+	setParent_helper(parent);
+    }
+}
+
+
+void QObject::setParent_helper(QObject *parent)
 {
     if (parent == parentObj)
 	return;
-    if ( isWidget && parent && !parent->isWidget) {
-	qWarning("QObject::reparent: Cannot reparent a widget into an object.");
-	return;
-    }
     if (parentObj && parentObj->d->children.remove(this)) {
 	QChildEvent e(QEvent::ChildRemoved, this);
 	QApplication::sendEvent( parentObj, &e);

@@ -85,8 +85,7 @@ public:
 			  bool regexpMatch = true,
 			  bool recursiveSearch = true) const;
 
-  //### make non-virtual
-    void reparent(QObject *);
+    void setParent(QObject *);
     void installEventFilter(const QObject *);
     void removeEventFilter(const QObject *);
 
@@ -149,9 +148,9 @@ protected:
 #ifndef QT_NO_COMPAT
 public:
     inline void insertChild(QObject *o)
-	{ if (o) o->reparent(this); }
+	{ if (o) o->setParent(this); }
     inline void removeChild(QObject *o)
-	{ if (o) o->reparent(0); }
+	{ if (o) o->setParent(0); }
     inline bool isA(const char *classname) const
 	{ return qstrcmp(classname, className() ) == 0; }
     inline bool inherits(const char *classname) const
@@ -169,6 +168,7 @@ protected:
     explicit QObject(QObjectPrivate *d, QObject *parent, const char *name);
 private:
     explicit QObject(QWidgetPrivate *d, QObject *parent, const char *name);
+    void setParent_helper(QObject *);
     uint isSignal : 1;
     uint isWidget : 1;
     uint pendTimer : 1;

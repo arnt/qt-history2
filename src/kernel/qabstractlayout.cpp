@@ -594,7 +594,7 @@ QLayout::QLayout( QWidget *parent, int margin, int spacing, const char *name )
 	    qWarning( "QLayout \"%s\" added to %s \"%s\", which already has a"
 		      " layout", QObject::name(), parent->className(),
 		      parent->name() );
-	    parent->layout()->reparent(0);
+	    parent->layout()->setParent(0);
 	} else {
 	    topLevel = TRUE;
 	    parent->installEventFilter( this );
@@ -1017,7 +1017,7 @@ void QLayout::addChildLayout( QLayout *l )
 	qWarning( "QLayout::addChildLayout: layout already has a parent" );
 	return;
     }
-    l->reparent(this);
+    l->setParent(this);
     if ( l->insideSpacing < 0 ) {
 	l->insideSpacing = insideSpacing;
 	propagateSpacing( l );
