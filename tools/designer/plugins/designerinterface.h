@@ -8,9 +8,9 @@
 
 #include <qcomponentinterface.h>
 #include <qlist.h>
-#include "../designer/actioniface.h"
+#include "../designer/actioninterface.h"
 #include "../shared/widgetinterface.h"
-#include "../designer/filteriface.h"
+#include "../designer/filterinterface.h"
 
 /*
  * Interfaces for MainWindow access

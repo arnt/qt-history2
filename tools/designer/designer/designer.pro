@@ -41,8 +41,8 @@ HEADERS	= command.h \
 		  ../shared/widgetinterface.h \
 		  designerapp.h \
 		  designerappiface.h \
-		  actioniface.h \
-		  filteriface.h \
+		  actioninterface.h \
+		  filterinterface.h \
 		  actioneditorimpl.h
 
 SOURCES	= command.cpp \

@@ -44,7 +44,7 @@
 #include "multilineeditorimpl.h"
 #include "createtemplate.h"
 #include "designerappiface.h"
-#include "filteriface.h"
+#include "filterinterface.h"
 #include <qinputdialog.h>
 #if defined(HAVE_KDE)
 #include <ktoolbar.h>
