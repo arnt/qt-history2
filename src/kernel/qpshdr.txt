@@ -1,5 +1,5 @@
 %
-% $Id: //depot/qt/main/src/kernel/qpshdr.txt#4 $
+% $Id: //depot/qt/main/src/kernel/qpshdr.txt#5 $
 %
 % Postscript routines for QPSPrinter class
 %
@@ -76,7 +76,7 @@ end
     /ang2 ED /ang1 ED /h ED /w ED /y ED /x ED
     tmp CM pop
     x w 2 div add y h 2 div add TR
-    1 h w div scale
+    1 h w div neg scale
     ang2 0 ge 
     {0 0 w 2 div ang1 ang1 ang2 add arc }
     {0 0 w 2 div ang1 ang1 ang2 add arcn} ifelse
@@ -179,7 +179,7 @@ end
     } ifelse
     end
 } D
-       
+
 
 /EDict 5 dict def
 EDict begin
