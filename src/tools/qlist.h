@@ -43,8 +43,7 @@ struct Q_EXPORT QListData {
 template <typename T>
 class QList
 {
-    struct Node { void *v; inline T &t()
-	{ return QTypeInfo<T>::isLarge || QTypeInfo<T>::isStatic ? *(T*)v:*(T*)this; } };
+    struct Node { void *v; T &t(); };
     union { QListData p; QListData::Data *d; };
 
 public:
@@ -206,46 +205,64 @@ private:
     void detach_helper();
     void free(QListData::Data *d);
 
-    inline void node_construct(Node *n, const T &t)
-    {
-	if (QTypeInfo<T>::isLarge || QTypeInfo<T>::isStatic) n->v = new T(t);
-	else if (QTypeInfo<T>::isComplex) new (n) T(t);
-	else *(T*)n = t;
-    }
-    inline void node_destruct(Node *n)
-    {
-	if (QTypeInfo<T>::isLarge || QTypeInfo<T>::isStatic) delete (T*)n->v;
-	else if (QTypeInfo<T>::isComplex) ((T*)n)->~T();
- 	else if (d->autoDelete == this) qDelete(*(T*)n);
-    }
-    inline void node_take(Node *n)
-    {
-	if (QTypeInfo<T>::isLarge || QTypeInfo<T>::isStatic) delete (T*)n->v;
-	else if (QTypeInfo<T>::isComplex) ((T*)n)->~T();
-    }
-    inline void node_copy(Node *from, Node *to, Node *src)
-    {
-	if (QTypeInfo<T>::isLarge || QTypeInfo<T>::isStatic)
-	    while(from != to)
-		(from++)->v = new T(*(T*)(src++)->v);
-	else if (QTypeInfo<T>::isComplex)
-	    while(from != to)
-		new (from++) T(*(T*)src++);
-    }
-    inline void node_destruct(Node *from, Node *to, bool autoDelete )
-    {
-	if (QTypeInfo<T>::isLarge || QTypeInfo<T>::isStatic)
-	    while(from != to) --to, delete (T*) to->v;
-	else if (QTypeInfo<T>::isComplex)
-	    while (from != to) --to, ((T*)to)->~T();
- 	else if (autoDelete)
- 	    while (from != to) { --to; qDelete(*(T*)to); }
-    }
-
+    void node_construct(Node *n, const T &t);
+    void node_destruct(Node *n);
+    void node_take(Node *n);
+    void node_copy(Node *from, Node *to, Node *src);
+    void node_destruct(Node *from, Node *to, bool autoDelete );
 };
 
 template <typename T>
-inline QList<T> &QList<T>::operator=(const QList<T> &l)
+Q_INLINE_TEMPLATE T &QList<T>::Node::t()
+{ return QTypeInfo<T>::isLarge || QTypeInfo<T>::isStatic ? *(T*)v:*(T*)this; }
+
+template <typename T>
+Q_INLINE_TEMPLATE void QList<T>::node_construct(Node *n, const T &t)
+{
+    if (QTypeInfo<T>::isLarge || QTypeInfo<T>::isStatic) n->v = new T(t);
+    else if (QTypeInfo<T>::isComplex) new (n) T(t);
+    else *(T*)n = t;
+}
+
+template <typename T>
+Q_INLINE_TEMPLATE void QList<T>::node_destruct(Node *n)
+{
+    if (QTypeInfo<T>::isLarge || QTypeInfo<T>::isStatic) delete (T*)n->v;
+    else if (QTypeInfo<T>::isComplex) ((T*)n)->~T();
+    else if (d->autoDelete == this) qDelete(*(T*)n);
+}
+
+template <typename T>
+Q_INLINE_TEMPLATE void QList<T>::node_take(Node *n)
+{
+    if (QTypeInfo<T>::isLarge || QTypeInfo<T>::isStatic) delete (T*)n->v;
+    else if (QTypeInfo<T>::isComplex) ((T*)n)->~T();
+}
+
+template <typename T>
+Q_INLINE_TEMPLATE void QList<T>::node_copy(Node *from, Node *to, Node *src)
+{
+    if (QTypeInfo<T>::isLarge || QTypeInfo<T>::isStatic)
+	while(from != to)
+	    (from++)->v = new T(*(T*)(src++)->v);
+    else if (QTypeInfo<T>::isComplex)
+	while(from != to)
+	    new (from++) T(*(T*)src++);
+}
+
+template <typename T>
+Q_INLINE_TEMPLATE void QList<T>::node_destruct(Node *from, Node *to, bool autoDelete )
+{
+    if (QTypeInfo<T>::isLarge || QTypeInfo<T>::isStatic)
+	while(from != to) --to, delete (T*) to->v;
+    else if (QTypeInfo<T>::isComplex)
+	while (from != to) --to, ((T*)to)->~T();
+    else if (autoDelete)
+	while (from != to) { --to; qDelete(*(T*)to); }
+}
+
+template <typename T>
+Q_INLINE_TEMPLATE QList<T> &QList<T>::operator=(const QList<T> &l)
 {
     if (d != l.d) {
 	QListData::Data *x = l.d;
@@ -319,7 +336,7 @@ inline bool QList<T>::autoDelete() const
 { return d->autoDelete == (void*) this; }
 
 template <typename T>
-inline void QList<T>::setAutoDelete(bool enable)
+Q_INLINE_TEMPLATE void QList<T>::setAutoDelete(bool enable)
 {
     Q_ASSERT_X(QTypeInfo<T>::isPointer,
 		 "QList<T>::setAutoDelete", "Cannot delete non pointer types");
@@ -338,7 +355,7 @@ Q_OUTOFLINE_TEMPLATE void QList<T>::detach_helper()
 }
 
 template <typename T>
-inline QList<T>::~QList()
+Q_INLINE_TEMPLATE QList<T>::~QList()
 {
     if (!--d->ref  || (QTypeInfo<T>::isPointer && d->autoDelete == this))
 	free(d);

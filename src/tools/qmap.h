@@ -279,7 +279,7 @@ public:
     inline bool isEmpty() const { return d->node_count == 0; }
     inline size_type count(const key_type& k) const { return find(k) != end() ? 1 : 0; }
 
-    void clear() { *this = QMap<Key, T>(); }
+    void clear();
 
     QPair<Iterator,bool> insert(const value_type& x);
     Iterator insert(const Key& key, const T& value);
@@ -354,6 +354,10 @@ private:
     Node *insertSingle(const Key& k);
     static void free(QMapData::Node *p);
 };
+
+template<class Key, class T>
+Q_INLINE_TEMPLATE void QMap<Key,T>::clear()
+{ *this = QMap<Key, T>(); }
 
 template<class Key, class T>
 Q_OUTOFLINE_TEMPLATE void QMap<Key,T>::detachInternal()

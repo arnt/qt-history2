@@ -223,6 +223,7 @@
 
 #elif defined(__BORLANDC__) || defined(__TURBOC__)
 #  define Q_CC_BOR
+#  define Q_INLINE_TEMPLATE
 #  if __BORLANDC__ < 0x502
 #    define Q_NO_BOOL_TYPE
 #    define Q_NO_EXPLICIT_KEYWORD
@@ -854,6 +855,9 @@ Q_EXPORT int qWinVersion();
 
 #ifndef Q_OUTOFLINE_TEMPLATE
 #  define Q_OUTOFLINE_TEMPLATE
+#endif
+#ifndef Q_INLINE_TEMPLATE
+#  define Q_INLINE_TEMPLATE inline
 #endif
 
 #ifndef Q_TYPENAME
