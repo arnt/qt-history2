@@ -75,8 +75,8 @@ QString qOrderByClause( const QSqlIndex & i, const QString& prefix = QString::nu
 
     \module sql
 
-    A 'cursor' is a database record (see \l QSqlRecord) which
-    coresponds to a table or view within a SQL database.  Cursors
+    A 'cursor' is a reference to a database record (see \l QSqlRecord)
+    that corresponds to a table or view within a SQL database.  Cursors
     contain a list of fields, whose values can be manipulated directly
     through code, or indirectly when moving the cursor to different
     records within the database.
