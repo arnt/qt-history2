@@ -29,24 +29,25 @@ then click the name of the tool dock window you wish to restore.
 @Figure
     @Caption { @I{File Toolbuttons} }
  @IncludeGraphic { "images/rtb-file.eps.gz" }
-@BulletList
-@LI{
-@Option{New}@LLP
+@TaggedList labelwidth { 6f }
+@TagItem{
+@Option{New}}{
 
  Click this toolbar button (or press @Option{Ctrl+N}) to create a new project, form or file. This option invokes the New File Dialog.}
-@LI{
-@Option{Open}@LLP
+@TagItem{
+@Option{Open}}{
 
  Click this toolbar button (or press @Option{Ctrl+O}) to open existing projects, forms or files. This button invokes the File Open Dialog which is used to select files.}
-@LI{
-@Option{Save}@LLP
+@TagItem{
+@Option{Save}}{
 
  Click this toolbar button (or press @Option{Ctrl+S}) to save the project, forms and files. For a new project that has no forms or files, click 'Save' to save the project before exiting. For new forms, click 'Save' and the Save Form As Dialog appears.}
-@LI{
-@Option{Active Project}@LLP
+@TagItem{
+@Option{Active Project}}{
 
  Click the combobox to view the names of the projects that are currently open and select a project name to toggle between the projects.}
 @EndList
+@NP
 @End @Section
 @Section
     @Title { The Edit Toolbar Buttons }
@@ -55,25 +56,25 @@ then click the name of the tool dock window you wish to restore.
 @Figure
     @Caption { @I{Edit Toolbuttons} }
  @IncludeGraphic { "images/rtb-edit.eps.gz" }
-@BulletList
-@LI{
-@Option{Undo}@LLP
+@TaggedList labelwidth { 6f }
+@TagItem{
+@Option{Undo}}{
 
  Click this toolbar button (or press @Option{Ctrl+Z}) to undo an action. The name of the last action that was performed appears after the word 'Undo' in this toolbar button's tooltip.}
-@LI{
-@Option{Redo}@LLP
+@TagItem{
+@Option{Redo}}{
 
  Click this toolbar button (or press @Option{Ctrl+Y}) to redo an action. The name of the last action that was performed appears after the word 'Redo' in this toolbar button's tooltip.}
-@LI{
-@Option{Cut}@LLP
+@TagItem{
+@Option{Cut}}{
 
  Click this toolbar button (or press @Option{Ctrl+X}) to delete the selected item from the current form or file and copy it to the clipboard.}
-@LI{
-@Option{Copy}@LLP
+@TagItem{
+@Option{Copy}}{
 
  Click this toolbar button (or press @Option{Ctrl+C}) to copy the selected item from the current form or file to the clipboard.}
-@LI{
-@Option{Paste}@LLP
+@TagItem{
+@Option{Paste}}{
 
  Click this toolbar button (or press @Option{Ctrl+V}) to paste the selected item (if any) from the clipboard into the current form or file.}
 @EndList
@@ -85,13 +86,13 @@ then click the name of the tool dock window you wish to restore.
 @Figure
     @Caption { @I{Search Toolbuttons} }
  @IncludeGraphic { "images/rtb-search.eps.gz" }
-@BulletList
-@LI{
-@Option{Find}@LLP
+@TaggedList labelwidth { 6f }
+@TagItem{
+@Option{Find}}{
 
  Click this toolbar button (or press @Option{Ctrl+F}) to invoke the Find Text Dialog.}
-@LI{
-@Option{Find Incremental}@LLP
+@TagItem{
+@Option{Find @LLP Incremental}}{
 
  Click this toolbar button (or press @Option{Alt+I}) to place the cursor in the text box located next to the @Option{Find} toolbar button. Type characters into the text box; as you type, @QDR will highlight the first occurrence of the text that it finds in the file. Press the @Option{Enter} key to go to the next occurrence of the text. Press the @Option{Esc} key once you have found the word you are looking for to place the cursor in the editor.}
 @EndList
@@ -137,21 +138,21 @@ button to leave this mode.
 @Figure
     @Caption { @I{Tools} }
  @IncludeGraphic { "images/rtb-tools.eps.gz" }
-@BulletList
-@LI{
-@Option{Pointer}@LLP
+@TaggedList labelwidth { 6f }
+@TagItem{
+@Option{Pointer}}{
 
  Click this toolbar button (or press @Option{F2}) to de-select any selected widget toolbar button. The pointer is also used to stop inserting new widgets if you double clicked a widget toolbar button. Press the @Option{Esc} key to return to the pointer at any time.}
-@LI{
-@Option{Connect Signals and Slots}@LLP
+@TagItem{
+@Option{Connect @LLP Signals and @LLP Slots}}{
 
  Click this toolbar button (or press @Option{F3}) to connect signals and slots. Then click on a widget and drag the connection line to the widget (or the form) that you want to connect to. Release the mouse button and the View and Edit Connections Dialog will appear.}
-@LI{
-@Option{Tab Order}@LLP
+@TagItem{
+@Option{Tab Order}}{
 
  Click this toolbar button (or press @Option{F4}) to set the tab order for all the widgets on the form that can accept keyboard focus. Click this toolbar button and blue circles with numbers on them appear next to the widgets. Click the widget that you want to be first in the tab order, then click the widget that should be next in the tab order, and continue until all the widgets have the tab order numbers you want. If you make a mistake, double click the first widget and start again. Press @Option{Esc} to leave tab order mode. If you want to revert your changes, leave tab order mode, then undo.}
-@LI{
-@Option{Set Buddy}@LLP
+@TagItem{
+@Option{Set Buddy}}{
 
  Click this toolbar button (or press @Option{F5}) to set a buddy to a label. Then click on a label and drag the line to the widget that you want to be the buddy. Release the mouse button and the buddy is set.}
 @EndList
@@ -163,21 +164,21 @@ button to leave this mode.
 @Figure
     @Caption { @I{Buttons} }
  0.5 @Scale @IncludeGraphic { "images/rtb-tbbuttons.eps.gz" }
-@BulletList
-@LI{
-@Option{PushButton}@LLP
+@TaggedList labelwidth { 6f }
+@TagItem{
+@Option{PushButton}}{
 
  Click this toolbar button, then click the form, to place a Pushbutton on the form.}
-@LI{
-@Option{ToolButton}@LLP
+@TagItem{
+@Option{ToolButton}}{
 
  Click this toolbar button, then click the form, to place a Toolbutton on the form.}
-@LI{
-@Option{RadioButton}@LLP
+@TagItem{
+@Option{RadioButton}}{
 
  Click this toolbar button, then click the form, to place a Radiobutton on the form. It is recommended that you place RadioButtons inside ButtonGroups so that Qt will automatically ensure that only one RadioButton in the group is active at any one time.}
-@LI{
-@Option{CheckBox}@LLP
+@TagItem{
+@Option{CheckBox}}{
 
  Click this toolbar button, then click the form, to place a CheckBox on the form.}
 @EndList
@@ -189,24 +190,25 @@ button to leave this mode.
 @Figure
     @Caption { @I{Containers} }
  0.5 @Scale @IncludeGraphic { "images/rtb-tbcontain.eps.gz" }
-@BulletList
-@LI{
-@Option{GroupBox}@LLP
+@TaggedList labelwidth { 6f }
+@TagItem{
+@Option{GroupBox}}{
 
  Click this toolbar button, then click the form, to place a GroupBox on the form.}
-@LI{
-@Option{ButtonGroup}@LLP
+@TagItem{
+@Option{ButtonGroup}}{
 
  Click this toolbar button, then click the form, to place a ButtonGroup on the form.}
-@LI{
-@Option{Frame}@LLP
+@TagItem{
+@Option{Frame}}{
 
  Click this toolbar button, then click the form, to place a Frame on the form.}
-@LI{
-@Option{TabWidget}@LLP
+@TagItem{
+@Option{TabWidget}}{
 
  Click this toolbar button, then click the form, to place a TabWidget on the form. To add or remove tabs, right click the tab widget and choose 'Add Page' or 'Remove Page'.}
 @EndList
+@NP
 @End @SubSection
 @SubSection
     @Title { Views }
@@ -215,21 +217,21 @@ button to leave this mode.
 @Figure
     @Caption { @I{Views} }
  0.5 @Scale @IncludeGraphic { "images/rtb-tbviews.eps.gz" }
-@BulletList
-@LI{
-@Option{ListBox}@LLP
+@TaggedList labelwidth { 6f }
+@TagItem{
+@Option{ListBox}}{
 
  Click this toolbar button, then click the form, to place a ListBox on the form.}
-@LI{
-@Option{ListView}@LLP
+@TagItem{
+@Option{ListView}}{
 
  Click this toolbar button, then click the form, to place a ListView on the form.}
-@LI{
-@Option{Icon View}@LLP
+@TagItem{
+@Option{Icon View}}{
 
  Click this toolbar button, then click the form, to place an IconView on the form.}
-@LI{
-@Option{Table}@LLP
+@TagItem{
+@Option{Table}}{
 
  Click this toolbar button, then click the form to place a Table on the form.}
 @EndList
@@ -241,17 +243,17 @@ button to leave this mode.
 @Figure
     @Caption { @I{Database Toolbuttons} }
  0.5 @Scale @IncludeGraphic { "images/rtb-tbdatabase.eps.gz" }
-@BulletList
-@LI{
-@Option{DataTable}@LLP
+@TaggedList labelwidth { 6f }
+@TagItem{
+@Option{DataTable}}{
 
  Click this toolbar button, then click the form, to place a DataTable on the form.}
-@LI{
-@Option{DataBrowser}@LLP
+@TagItem{
+@Option{DataBrowser}}{
 
  Click this toolbar button, then click the form, to place a DataBrowser on the form.}
-@LI{
-@Option{DataView}@LLP
+@TagItem{
+@Option{DataView}}{
 
  Click this toolbar button, then click the form, to place a DataView on the form.}
 @EndList
@@ -263,45 +265,45 @@ button to leave this mode.
 @Figure
     @Caption { @I{Input Toolbuttons} }
  0.5 @Scale @IncludeGraphic { "images/rtb-tbinput.eps.gz" }
-@BulletList
-@LI{
-@Option{LineEdit}@LLP
+@TaggedList labelwidth { 6f }
+@TagItem{
+@Option{LineEdit}}{
 
  Click this toolbar button, then click the form, to place a LineEdit on the form.}
-@LI{
-@Option{SpinBox}@LLP
+@TagItem{
+@Option{SpinBox}}{
 
  Click this toolbar button, then click the form, to place a SpinBox on the form.}
-@LI{
-@Option{DateEdit}@LLP
+@TagItem{
+@Option{DateEdit}}{
 
  Click this toolbar button, then click the form, to place a DateEdit on the form.}
-@LI{
-@Option{TimeEdit}@LLP
+@TagItem{
+@Option{TimeEdit}}{
 
  Click this toolbar button, then click the form, to place a TimeEdit on the form.}
-@LI{
-@Option{DateTimeEdit}@LLP
+@TagItem{
+@Option{DateTimeEdit}}{
 
  Click this toolbar button, then click the form, to place a DateTimeEdit on the form.}
-@LI{
-@Option{TextEdit}@LLP
+@TagItem{
+@Option{TextEdit}}{
 
  Click this toolbar button, then click the form, to place a TextEdit on the form.}
-@LI{
-@Option{ComboBox}@LLP
+@TagItem{
+@Option{ComboBox}}{
 
  Click this toolbar button, then click the form, to place a ComboBox on the form.}
-@LI{
-@Option{Slider}@LLP
+@TagItem{
+@Option{Slider}}{
 
  Click this toolbar button, then click the form, to place a Slider on the form.}
-@LI{
-@Option{ScrollBar}@LLP
+@TagItem{
+@Option{ScrollBar}}{
 
  Click this toolbar button, then click the form, to place a Scrollbar on the form.}
-@LI{
-@Option{Dial}@LLP
+@TagItem{
+@Option{Dial}}{
 
  Click this toolbar button, then click the form, to place a Dial on the form.}
 @EndList
@@ -313,32 +315,33 @@ button to leave this mode.
 @Figure
     @Caption { @I{Display Toolbuttons} }
  0.5 @Scale @IncludeGraphic { "images/rtb-tbdisplay.eps.gz" }
-@BulletList
-@LI{
-@Option{TextLabel}@LLP
+@TaggedList labelwidth { 6f }
+@TagItem{
+@Option{TextLabel}}{
 
  Click this toolbar button, then click the form, to place a TextLabel on the form.}
-@LI{
-@Option{PixmapLabel}@LLP
+@TagItem{
+@Option{PixmapLabel}}{
 
  Click this toolbar button, then click the form, to place a PixmapLabel on the form.}
-@LI{
-@Option{LCDNumber}@LLP
+@TagItem{
+@Option{LCDNumber}}{
 
  Click this toolbar button, then click the form, to place a LCDNumber on the form.}
-@LI{
-@Option{Line}@LLP
+@TagItem{
+@Option{Line}}{
 
  Click this toolbar button, then click the form, to place a Line on the form.}
-@LI{
-@Option{ProgressBar}@LLP
+@TagItem{
+@Option{ProgressBar}}{
 
  Click this toolbar button, then click the form, to place a ProgressBar on the form.}
-@LI{
-@Option{TextBrowser}@LLP
+@TagItem{
+@Option{TextBrowser}}{
 
  Click this toolbar button, then click the form, to place a TextBrowser on the form.}
 @EndList
+@NP
 @End @SubSection
 @SubSection
     @Title { Custom }
@@ -347,9 +350,9 @@ button to leave this mode.
 @Figure
     @Caption { @I{Custom Widget Toolbutton} }
  0.5 @Scale @IncludeGraphic { "images/rtb-tbcustom.eps.gz" }
-@BulletList
-@LI{
-@Option{My Custom Widget}@LLP
+@TaggedList labelwidth { 6f }
+@TagItem{
+@Option{My Custom @LLP Widget}}{
 
  Click this toolbar button, then click the form, to place a Custom Widget on the form. Note: this toolbar button only appears if you have created a custom widget using @Option{Tools"|"Custom"|"Edit Custom Widgets}.}
 @EndList
@@ -363,37 +366,37 @@ button to leave this mode.
 @Figure
     @Caption { @I{Layout Toolbuttons} }
  @IncludeGraphic { "images/rtb-layout.eps.gz" }
-@BulletList
-@LI{
-@Option{Adjust Size}@LLP
+@TaggedList labelwidth { 6f }
+@TagItem{
+@Option{Adjust Size}}{
 
  Click this toolbar button (or press @Option{Ctrl+J}) to adjust the size of the widget to it's recommended size.}
-@LI{
-@Option{Lay Out Horizontally}@LLP
+@TagItem{
+@Option{Lay Out @LLP Horizontally}}{
 
  Click this toolbar button (or press @Option{Ctrl+H}) to lay out the selected widgets or layouts side by side. Use @Option{Shift+Click} to select each widget or layout, and then choose this toolbar button to group them horizontally. Note that for complex widgets it is sometimes easiest to select widgets and layouts by clicking them in the Widgets tab of the @Win{Object Explorer} Window.}
-@LI{
-@Option{Lay Out Vertically}@LLP
+@TagItem{
+@Option{Lay Out @LLP Vertically}}{
 
  Click this toolbar button (or press @Option{Ctrl+L}) to lay out the selected widgets one above the other. Use @Option{Shift+Click} to select each widget or layout, and then choose this toolbar button to group them vertically. Note that for complex widgets it is sometimes easiest to select widgets and layouts by clicking them in the Widgets tab of the @Win{Object Explorer} Window.}
-@LI{
-@Option{Lay out in a Grid}@LLP
+@TagItem{
+@Option{Lay out in a @LLP Grid}}{
 
  Click the widgets you want and then click this toolbar button (or press @Option{Ctrl+G}) to lay out widgets in a grid.}
-@LI{
-@Option{Lay Out Horizontally (in Splitter)}@LLP
+@TagItem{
+@Option{Lay Out @LLP Horizontally @LLP (in Splitter)}}{
 
  Click this toolbar button to lay out the selected groups of widgets or layouts side by side with a splitter between each group. Use @Option{Shift+Click} to select each widget or layout, and then choose this toolbar button to group them horizontally. Note that for complex widgets it is sometimes easiest to select widgets and layouts by clicking them in the Widgets tab of the @Win{Object Explorer} Window.}
-@LI{
-@Option{Lay Out Vertically (in Splitter)}@LLP
+@TagItem{
+@Option{Lay Out @LLP Vertically @LLP (in Splitter)}}{
 
  Click this toolbar button to lay out the selected groups of widgets or layouts one above the other with a splitter between each group. Use @Option{Shift+Click} to select each widget or layout, and then choose this toolbar button to group them vertically. Note that for complex widgets it is sometimes easiest to select widgets and layouts by clicking them in the Widgets tab of the @Win{Object Explorer} Window.}
-@LI{
-@Option{Break Layout}@LLP
+@TagItem{
+@Option{Break Layout}}{
 
  Click this toolbar button (or press @Option{Ctrl+B}) to break a layout. Click on the layout and select this option; the layout is deleted.}
-@LI{
-@Option{Add Spacer}@LLP
+@TagItem{
+@Option{Add Spacer}}{
 
  Click this toolbar button to add a spacer to widgets that take up too much space on the form. The spacer consumes extra space in the layout.}
 @EndList
@@ -405,9 +408,9 @@ button to leave this mode.
 @Figure
     @Caption { @I{Help Toolbutton} }
  @IncludeGraphic { "images/qd-helptoolbuttons3.eps.gz" }
-@BulletList
-@LI{
-@Option{What's This?}@LLP
+@TaggedList labelwidth { 6f }
+@TagItem{
+@Option{What's This?}}{
 
  Click this menu option to invoke a small question mark that is attached to the mouse pointer. Click on a feature which you would like more information about. A message box appears with information about the feature.}
 @EndList

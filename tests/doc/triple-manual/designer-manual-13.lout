@@ -21,7 +21,7 @@ This chapter describes and explains every @QDR dialog.
     @Tag{qt.designer.new.open.dialog}
 @Begin
 @Figure
-    @Caption { @I{Qt Designer New"/"Open} }
+    @Caption { The New"/"Open dialog }
  0.45 @Scale @IncludeGraphic { "images/mw-startdesign.eps.gz" }
 @LP
 Start up @QDR to invoke the @Win{Qt Designer New"/"Open}
@@ -49,7 +49,7 @@ hide the dialog the next time you start up @QDR.
     @Tag{the.open.file.project.tab}
 @Begin
 @Figure
-    @Caption { @I{Open File"/"Project} }
+    @Caption { The Open File"/"Project dialog }
  0.45 @Scale @IncludeGraphic { "images/rd-startdesigntab2.eps.gz" }
 @LP
 Click this tab to open an already existing file or project. The
@@ -78,6 +78,7 @@ This tab displays all of the recently opened files or projects
 in a window. Select a file or project and then click @OK to
 open it.
 
+@NP
 @End @SubSubSection
 @EndSubSubSections
 @End @SubSection
@@ -88,7 +89,7 @@ open it.
     @Tag { the.file.dialogs }
 @Begin
 @Figure
-    @Caption { @I{New File} }
+    @Caption { The New File dialog }
  0.45 @Scale @IncludeGraphic { "images/mw-newfile.eps.gz" }
 @BeginSubSections
 @SubSection
@@ -258,7 +259,7 @@ creating a project.
     @Tag{configure.main.file.dialog}
 @Begin
 @Figure
-    @Caption { @I{Configure Main-File} }
+    @Caption { The Configure Main-File dialog }
  0.45 @Scale @IncludeGraphic { "images/rd-configmf.eps.gz" }
 @LP
 Click @Option{File"|"New"|"@Cpp Main-File} to invoke the @Win{Configure
@@ -293,7 +294,7 @@ implement your own database connections function.
     @Tag{file.open.dialog}
 @Begin
 @Figure
-    @Caption { @I{File Open} }
+    @Caption { The File Open dialog }
  0.45 @Scale @IncludeGraphic { "images/rd-open.eps.gz" }
 @LP
 Click @Option{File"|"Open} (or press@Option{Ctrl+O}) to invoke the
@@ -324,9 +325,6 @@ Note: For Windows, the System File Dialogs are used.
     @Title { Save As Dialog }
     @Tag{save.as.dialog}
 @Begin
-@Figure
-    @Caption { @I{Save As Dialog} }
- 0.45 @Scale @IncludeGraphic { "images/rd-saveas.eps.gz" }
 @LP
 Click @Option{File"|"Save As} to invoke the @Win{Save As} dialog. Use
 this dialog to save files to a directory.
@@ -344,6 +342,10 @@ names along with their size, type, date, and attributes. Click
 the Size, Type, Date, or Attributes column headers to sort the
 folders or files.
 
+@Figure
+    @Caption { The Save As dialog  }
+ 0.45 @Scale @IncludeGraphic { "images/rd-saveas.eps.gz" }
+
 @LP
 Click @Option{Save} to save the selected file. Click @Cancel to
 leave the dialog without saving the file.
@@ -357,7 +359,7 @@ Note: For Windows, the System File Dialogs are used.
     @Tag{save.form.as.dialog}
 @Begin
 @Figure
-    @Caption { @I{Save Form As} }
+    @Caption { The Save Form As dialog }
  0.45 @Scale @IncludeGraphic { "images/rd-saveformas.eps.gz" }
 @LP
 Click @Option{File"|"Save As} to invoke the @Win{Save Form As} when
@@ -386,7 +388,7 @@ leave the dialog without saving the form.
     @Tag{create.template.dialog}
 @Begin
 @Figure
-    @Caption { @I{Create Template Dialog} }
+    @Caption { The Create Template dialog }
  0.45 @Scale @IncludeGraphic { "images/rd-template.eps.gz" }
 @LP
 Click @Option{File"|"Create Template} to invoke the @Win{Create Template}
@@ -419,9 +421,6 @@ of similar forms, or where you want to 'brand' your forms.
     @Title { Edit Functions Dialog }
     @Tag{edit.functions.dialog}
 @Begin
-@Figure
-    @Caption { @I{Edit Functions} }
- 0.45 @Scale @IncludeGraphic { "images/qs-editfunc.eps.gz" }
 @LP
 Click @Option{Edit"|"Slots} to invoke the @Win{Edit Functions} dialog.
 Use this dialog to edit or create slots and functions which are
@@ -443,6 +442,9 @@ To change the type of a function (function or slot), click the
 Type combobox. To remove a function, click the function you want
 to delete, and then click the @Option{Delete Function} button.
 
+@Figure
+    @Caption { The Edit Functions dialog }
+ 0.45 @Scale @IncludeGraphic { "images/qs-editfunc.eps.gz" }
 @LP
 Click @OK to save all changes made to the functions. Click
 @Cancel to leave the dialog without making any changes to
@@ -454,7 +456,7 @@ the functions.
     @Tag{view.and.edit.connections.dialog}
 @Begin
 @Figure
-    @Caption { @I{View and Edit Connections} }
+    @Caption { The View and Edit Connections dialog }
  0.45 @Scale @IncludeGraphic { "images/qs-editconn1.eps.gz" }
 @LP
 Click @Option{Edit"|"Connections} to invoke the @Win{View and Edit Connections}
@@ -487,7 +489,7 @@ the connections.
     @Tag{form.settings.dialog}
 @Begin
 @Figure
-    @Caption { @I{Form Settings} }
+    @Caption { The Form Settings dialog }
  0.45 @Scale @IncludeGraphic { "images/rd-formset.eps.gz" }
 @LP
 Click @Option{Edit"|"Form Settings} to invoke the @Win{Form Settings}
@@ -569,9 +571,6 @@ the @Cpp Editor plugin, the dialog will also have a tab for the
     @Title {General Tab }
     @Tag{general.tab}
 @Begin
-@Figure
-    @Caption { @I{Preferences- General Tab} }
- 0.45 @Scale @IncludeGraphic { "images/rd-prefgen1.eps.gz" }
 @LP
 The 'General' tab has sections for Background, Grid, General,
 and Toolbars.
@@ -585,6 +584,9 @@ of a pixmap. Click the @Option{Choose a Color} button located to the
 right of the 'Color' radio button to invoke the @Win{Select Color
 Dialog}.
 
+@Figure
+    @Caption { The Preferences dialog's `General' tab }
+ 0.45 @Scale @IncludeGraphic { "images/rd-prefgen1.eps.gz" }
 @LP
 The 'General' section of the General tab has three checkboxes that are
 checked by default. Click the 'Restore last workspace on startup'
@@ -627,7 +629,7 @@ the @QDR toolbar.
     @Tag{c.editor.tab}
 @Begin
 @Figure
-    @Caption { @I{Preferences- @Cpp Editor Tab} }
+    @Caption { The Preferences dialog's @Cpp Editor tab }
  0.45 @Scale @IncludeGraphic { "images/rd-prefedit1.eps.gz" }
 @LP
 The @Cpp Editor tab provides options for customizing the editor.
@@ -666,13 +668,13 @@ Click @OK to accept changes to @Win{Preferences} dialog. Click
     @Title { Add Dialog }
     @Tag{add.dialog}
 @Begin
-@Figure
-    @Caption { @I{Add Dialog} }
- 0.45 @Scale @IncludeGraphic { "images/rd-add.eps.gz" }
 @LP
 Click @Option{Project"|"Add File} to invoke the @Win{Add} dialog. Use
 this dialog to add files to the current project.
 
+@Figure
+    @Caption { The Add dialog }
+ 0.45 @Scale @IncludeGraphic { "images/rd-add.eps.gz" }
 @LP
 The @Win{Add} dialog defaults the directory and file type. To choose
 a different directory, click the 'Look In' combobox. Choose a
@@ -695,7 +697,7 @@ leave the dialog without opening a file.
     @Tag{manage.image.collection.dialog}
 @Begin
 @Figure
-    @Caption { @I{Manage Image Collection} }
+    @Caption { The Manage Image Collection dialog }
  0.45 @Scale @IncludeGraphic { "images/rd-image.eps.gz" }
 @LP
 Click @Option{Project"|"Image Collection} to invoke the @Win{Manage
@@ -736,7 +738,7 @@ Click the @Close button to leave the dialog.
     @Tag{edit.database.connections.dialog}
 @Begin
 @Figure
-    @Caption { @I{Edit Database Connections} }
+    @Caption { The Edit Database Connections dialog }
  0.45 @Scale @IncludeGraphic { "images/rd-dbconn.eps.gz" }
 @LP
 Click @Option{Project"|"Database Connections} to invoke the @Win{Edit
@@ -779,7 +781,7 @@ settings.
     @Tag{settings.tab}
 @Begin
 @Figure
-    @Caption { @I{Project Settings- Settings Tab} }
+    @Caption { The Project Settings dialog's Settings tab }
  0.45 @Scale @IncludeGraphic { "images/rd-projset.eps.gz" }
 @LP
 The 'Settings' tab shows information about the project. The Project
@@ -797,7 +799,7 @@ As Dialog}.
     @Tag{c.tab}
 @Begin
 @Figure
-    @Caption { @I{Project Settings- @Cpp Tab} }
+    @Caption { The Project Settings dialog's @Cpp tab }
  0.45 @Scale @IncludeGraphic { "images/rd-projset2.eps.gz" }
 @LP
 Click the @Cpp Tab [p.~@PageOf{c.tab}] to change the @File{"qmake"} options.
@@ -838,7 +840,7 @@ project settings.
     @Tag{find.text.dialog}
 @Begin
 @Figure
-    @Caption { @I{Find Text} }
+    @Caption { The Find Text dialog }
  0.45 @Scale @IncludeGraphic { "images/rd-find.eps.gz" }
 @LP
 Click @Option{Search"|"Find} (or press @Option{Ctrl+F}) to invoke the
@@ -868,7 +870,7 @@ Click the @Close button to leave the dialog.
     @Tag{replace.text.dialog}
 @Begin
 @Figure
-    @Caption { @I{Replace Text} }
+    @Caption { The Replace Text dialog }
  0.45 @Scale @IncludeGraphic { "images/rd-replace.eps.gz" }
 @LP
 Click @Option{Search"|"Replace} (or press @Option{Ctrl+R}) to invoke the
@@ -903,7 +905,7 @@ Click the @Close button to leave the dialog.
     @Tag{goto.line.dialog}
 @Begin
 @Figure
-    @Caption { @I{Goto Line} }
+    @Caption { The Goto Line dialog }
  0.45 @Scale @IncludeGraphic { "images/rd-goto.eps.gz" }
 @LP
 Click @Option{Search"|"Goto line} (or press @Option{Alt+G}) to invoke the
@@ -966,7 +968,7 @@ Click @Close to leave the Edit Custom Widgets dialog.
     @Tag{the.definition.tab}
 @Begin
 @Figure
-    @Caption { @I{Edit Custom Widgets- Definition Tab} }
+    @Caption { The Edit Custom Widgets dialog's Definition tab }
  0.45 @Scale @IncludeGraphic { "images/rd-cwidgdef.eps.gz" }
 @LP
 To create a custom widget, click @Option{New Widget}. Click the Definition
@@ -996,7 +998,7 @@ widget you are creating should be able to contain other widgets
     @Tag{the.signals.tab}
 @Begin
 @Figure
-    @Caption { @I{Edit Custom Widgets- Signals Tab} }
+    @Caption { The Edit Custom Widgets dialog's Signals tab }
  0.45 @Scale @IncludeGraphic { "images/rd-cwidgsig.eps.gz" }
 @LP
 Click the Signals tab to view a list of all the signals the selected
@@ -1011,9 +1013,6 @@ click the @Option{Delete Signal} button.
     @Title {The Slots Tab }
     @Tag{the.slots.tab}
 @Begin
-@Figure
-    @Caption { @I{Edit Custom Widgets- Slots Tab} }
- 0.45 @Scale @IncludeGraphic { "images/rd-cwidgslot.eps.gz" }
 @LP
 Click the Slots tab to view a list of all the slots for the selected
 custom widget. Click the 'Slot' or 'Access' cloumn headers to
@@ -1023,6 +1022,9 @@ for the slot and give the slot a unique name. Click the 'Access'
 combobox to choose between public or protected access for your
 widget. To delete a slot from the listbox, click the slot and
 then click @Option{Delete Slot}.
+@Figure
+    @Caption { The Edit Custom Widgets dialog's Slots tab }
+ 0.45 @Scale @IncludeGraphic { "images/rd-cwidgslot.eps.gz" }
 
 @End @SubSubSection
 @SubSubSection
@@ -1030,7 +1032,7 @@ then click @Option{Delete Slot}.
     @Tag{the.properties.tab}
 @Begin
 @Figure
-    @Caption { @I{Edit Custom Widgets- Properties Tab} }
+    @Caption { The Edit Custom Widgets dialog's Properties tab }
  0.45 @Scale @IncludeGraphic { "images/rd-cwidgprop.eps.gz" }
 @LP
 Click the Properties tab to view the list of properties for the
@@ -1052,7 +1054,7 @@ Click @Close to leave the @Win{Edit Custom Widgets} dialog.
     @Tag{configure.toolbox}
 @Begin
 @Figure
-    @Caption { @I{Configure Toolbox} }
+    @Caption { The Configure Toolbox dialog }
  0.45 @Scale @IncludeGraphic { "images/rd-configtb.eps.gz"
 }
 @LP
@@ -1119,7 +1121,7 @@ dialog.
     @Tag{edit.text.dialog}
 @Begin
 @Figure
-    @Caption { @I{Edit Text} }
+    @Caption { The Edit Text dialog }
  0.45 @Scale @IncludeGraphic { "images/rd-edittext1.eps.gz" }
 @LP
 The @Win{Edit Text} dialog is invoked by right-clicking the following
@@ -1136,31 +1138,11 @@ to leave the dialog without saving any text or formatting.
 
 @End @SubSection
 @SubSection
-    @Title { Edit Text Dialog }
-    @Tag{edit.text.dialogx}
-@Begin
-@Figure
-    @Caption { @I{Edit Text} }
- 0.45 @Scale @IncludeGraphic { "images/rd-edittext2.eps.gz" }
-@LP
-The @Win{Edit Text} dialog is invoked by right-clicking the following
-widgets: PushButton, RadioButton, CheckBox, and ToolButton and
-selecting @Option{Edit Text}.
-
-@LP
-Use this dialog to change the widget's text.
-
-@LP
-Click @OK to accept changes to the text. Click @Cancel
-to leave the dialog without making changes to the text.
-
-@End @SubSection
-@SubSection
     @Title { Text Dialog }
     @Tag{text.dialog}
 @Begin
 @Figure
-    @Caption { @I{Text Dialog} }
+    @Caption { The Text dialog }
  0.45 @Scale @IncludeGraphic { "images/rd-text.eps.gz" }
 @LP
 The @Win{Text} dialog is invoked by right-clicking the LineEdit
@@ -1179,7 +1161,7 @@ to leave the dialog without making changes to the text.
     @Tag{title.dialog}
 @Begin
 @Figure
-    @Caption { @I{Title Dialog} }
+    @Caption { The Title dialog }
  0.45 @Scale @IncludeGraphic { "images/rd-title.eps.gz" }
 @LP
 The @Win{Title} dialog is invoked by right-clicking the following
@@ -1199,7 +1181,7 @@ to leave the dialog without making changes to the title.
     @Tag{page.title.dialog}
 @Begin
 @Figure
-    @Caption { @I{Page Title Dialog} }
+    @Caption { The Page Title dialog }
  0.45 @Scale @IncludeGraphic { "images/rd-pagetitle.eps.gz" }
 @LP
 The @Win{Page Title} dialog is invoked by right clicking the TabWidget
@@ -1218,7 +1200,7 @@ the dialog without making any changes.
     @Tag{choose.an.image.dialog}
 @Begin
 @Figure
-    @Caption { @I{Choose an Image} }
+    @Caption { The Choose an Image dialog }
  0.45 @Scale @IncludeGraphic { "images/rd-chooseanimage.eps.gz" }
 @LP
 The @Win{Choose an Image} dialog is used to choose an image to
@@ -1240,7 +1222,7 @@ to images.
     @Tag{edit.listbox.dialog}
 @Begin
 @Figure
-    @Caption { @I{Edit Listbox} }
+    @Caption { The Edit Listbox dialog }
  0.45 @Scale @IncludeGraphic { "images/rd-edlistbox.eps.gz" }
 @LP
 The @Win{Edit Listbox} dialog is invoked by right-clicking the
@@ -1285,9 +1267,6 @@ dialog has two tabs, one for items and one for columns.
     @Title {The Items Tab }
     @Tag{the.items.tab}
 @Begin
-@Figure
-    @Caption { @I{Edit Listview: Items Tab} }
- 0.45 @Scale @IncludeGraphic { "images/rd-edlistview.eps.gz" }
 @LP
 The dialog defaults to the Items tab. Use this tab to add, change,
 or remove items in the listview. To add a new item, click the
@@ -1303,6 +1282,9 @@ the item and then click the @Option{Delete} button. To move an item
 up or down within the hierarchy level, click the @Option{Move Up}
 or @Option{Move Down} buttons. To move an item up or down one level,
 click the @Option{Move Left} or @Option{Move Right} buttons.
+@Figure
+    @Caption { The Edit Listview dialog's Items tab }
+ 0.45 @Scale @IncludeGraphic { "images/rd-edlistview.eps.gz" }
 
 @End @SubSubSection
 @SubSubSection
@@ -1310,7 +1292,7 @@ click the @Option{Move Left} or @Option{Move Right} buttons.
     @Tag{the.columns.tab}
 @Begin
 @Figure
-    @Caption { @I{Edit Listview: Columns Tab} }
+    @Caption { The Edit Listview dialog's Columns tab }
  0.45 @Scale @IncludeGraphic { "images/rd-edlistview2.eps.gz" }
 @LP
 Click this tab to change the column configuration of the listview.
@@ -1340,7 +1322,7 @@ Click @Cancel to leave the dialog without saving any changes.
     @Tag{edit.iconview.dialog}
 @Begin
 @Figure
-    @Caption { @I{Edit Iconview} }
+    @Caption { The Edit Iconview dialog }
  0.45 @Scale @IncludeGraphic { "images/rd-ediconview.eps.gz" }
 @LP
 The @Win{Edit Iconview} dialog is invoked by right-clicking the
@@ -1375,11 +1357,11 @@ the table.
 
 @BeginSubSubSections
 @SubSubSection
-    @Title {The Column Tab }
+    @Title {The Columns Tab }
     @Tag{the.column.tab}
 @Begin
 @Figure
-    @Caption { @I{Edit Table- Columns Tab} }
+    @Caption { The Edit Table dialog's Columns tab }
  0.45 @Scale @IncludeGraphic { "images/rd-edtablecol.eps.gz" }
 @LP
 To add a column to the table, click the @Option{New Column} button.
@@ -1398,9 +1380,6 @@ Down} buttons.
     @Title {The Rows Tab }
     @Tag{the.rows.tab}
 @Begin
-@Figure
-    @Caption { @I{Edit Table- Rows Tab} }
- 0.45 @Scale @IncludeGraphic { "images/rd-edtablerow.eps.gz" }
 @LP
 To add a row to the table, click the @Option{New Row} button. To delete
 a row from the table, click the row you want to delete from the
@@ -1418,6 +1397,9 @@ Click @Option{Apply} to accept changes to the table widget. Click
 @OK to leave the dialog once the changes have been accepted.
 Click @Cancel to leave the dialog without saving any changes.
 
+@Figure
+    @Caption { The Edit Table dialog's Rows tab }
+ 0.45 @Scale @IncludeGraphic { "images/rd-edtablerow.eps.gz" }
 @End @SubSubSection
 @EndSubSubSections
 @End @SubSection
@@ -1433,7 +1415,7 @@ Click @Cancel to leave the dialog without saving any changes.
     @Tag{choose.a.pixmap.dialog}
 @Begin
 @Figure
-    @Caption { @I{Choose a Pixmap} }
+    @Caption { The Choose a Pixmap dialog }
  0.45 @Scale @IncludeGraphic { "images/rd-chooseapixmap.eps.gz" }
 @LP
 The @Win{Choose a Pixmap} dialog is invoked by clicking the button
@@ -1473,7 +1455,7 @@ the dialog without choosing a pixmap file.
     @Tag{select.color.dialog}
 @Begin
 @Figure
-    @Caption { @I{Select Color} }
+    @Caption { The Select Color dialog }
  0.45 @Scale @IncludeGraphic { "images/rd-selcolor.eps.gz" }
 @LP
 The @Win{Select Color} dialog is invoked by clicking the button
@@ -1511,7 +1493,7 @@ or adding custom colors.
     @Tag{edit.palette.dialog}
 @Begin
 @Figure
-    @Caption { @I{Edit Palette} }
+    @Caption { The Edit Palette dialog }
  0.45 @Scale @IncludeGraphic { "images/rd-edpalette.eps.gz" }
 @LP
 The @Win{Edit Palette} dialog is invoked by clicking the button
@@ -1540,13 +1522,13 @@ to leave the dialog without making changes to the palette.
     @Title { Tune Palette Dialog }
     @Tag{tune.palette.dialog}
 @Begin
-@Figure
-    @Caption { @I{Tune Palette} }
- 0.45 @Scale @IncludeGraphic { "images/rd-tunepalette.eps.gz" }
 @LP
 The @Win{Tune Palette} dialog is used to choose options for a widget's
 palette.
 
+@Figure
+    @Caption { The Tune Palette dialog }
+ 0.45 @Scale @IncludeGraphic { "images/rd-tunepalette.eps.gz" }
 @LP
 Click the 'Select Palette' combobox to choose options for active,
 inactive, or disabled palettes. If you choose 'Active Palette',
@@ -1575,9 +1557,6 @@ to leave the dialog without making changes to the palette.
     @Title { Select Font Dialog }
     @Tag{select.font.dialog}
 @Begin
-@Figure
-    @Caption { @I{Select Font} }
- 0.45 @Scale @IncludeGraphic { "images/rd-selfont.eps.gz" }
 @LP
 The @Win{Select Font} dialog is invoked by clicking the button
 next to the font property in the property editor.
@@ -1599,6 +1578,9 @@ a 'Strikeout' or 'Underline' effect for the selected font. Click
 the 'Script' and choose a style of writing. View your font selections
 and styles in the 'Sample' listbox.
 
+@Figure
+    @Caption { The Select Font dialog }
+ 0.45 @Scale @IncludeGraphic { "images/rd-selfont.eps.gz" }
 @LP
 Click @OK to accept changes to the font. Click @Cancel
 to leave the dialog without making any changes to the font.
@@ -1612,11 +1594,11 @@ to leave the dialog without making any changes to the font.
 @Begin
 @BeginSubSections
 @SubSection
-    @Title { Save Project Settings Dialog }
+    @Title { Save Project Settings Message Box }
     @Tag{save.project.settings.dialog}
 @Begin
 @Figure
-    @Caption { @I{Save Project Settings} }
+    @Caption { The Save Project Settings message box }
  0.45 @Scale @IncludeGraphic { "images/rd-saveprojset.eps.gz" }
 @LP
 The @Win{Save Project Settings} message box is invoked by clicking
@@ -1631,12 +1613,9 @@ any changes.
 
 @End @SubSection
 @SubSection
-    @Title { Save Form Dialog }
+    @Title { Save Form Message Box }
     @Tag{save.form.dialog}
 @Begin
-@Figure
-    @Caption { @I{Save Form} }
- 0.45 @Scale @IncludeGraphic { "images/rd-saveform.eps.gz" }
 @LP
 The @Win{Save Form} message is invoked in several ways. One way
 is to click @Option{File"|"Close} for a form that has never been saved,
@@ -1651,6 +1630,9 @@ without saving the form if it has not been saved previously.
 Click @Cancel to leave the dialog without closing or exiting
 the form and without saving the form.
 
+@Figure
+    @Caption { The Save Form message box }
+ 0.45 @Scale @IncludeGraphic { "images/rd-saveform.eps.gz" }
 @End @SubSection
 @EndSubSections
 @End @Section
@@ -1668,7 +1650,7 @@ the Object Explorer window.
     @Tag{edit.forward.declarations.dialog}
 @Begin
 @Figure
-    @Caption { @I{Edit Forward Declarations} }
+    @Caption { The Edit Forward Declarations dialog }
  0.45 @Scale @IncludeGraphic { "images/mw-editforw.eps.gz" }
 @LP
 From the Source tab in the @Win{Object Explorer} Window, right click
@@ -1695,7 +1677,7 @@ Click @Close to leave the @Win{Edit Forward Declarations} dialog.
     @Tag{edit.includes.in.declaration.dialog}
 @Begin
 @Figure
-    @Caption { @I{Edit Includes (in Declaration)} }
+    @Caption { The Edit Includes (in Declaration) dialog }
  0.45 @Scale @IncludeGraphic { "images/rd-editincdec.eps.gz" }
 @LP
 From the Source tab in the @Win{Object Explorer} Window, right click
@@ -1722,7 +1704,7 @@ dialog.
     @Tag{edit.includes.in.implementation.dialog}
 @Begin
 @Figure
-    @Caption { @I{Edit Includes (in Implementation)} }
+    @Caption { The Edit Includes (in Implementation) dialog }
  0.45 @Scale @IncludeGraphic { "images/mw-editincimp.eps.gz" }
 @LP
 From the Source tab in the @Win{Object Explorer} Window, right click
@@ -1749,7 +1731,7 @@ dialog.
     @Tag{edit.class.variables.dialog}
 @Begin
 @Figure
-    @Caption { @I{Edit Class Variables} }
+    @Caption { The Edit Class Variables dialog }
  0.45 @Scale @IncludeGraphic { "images/mw-editvar.eps.gz" }
 @LP
 From the Source tab in the @Win{Object Explorer} Window, right click
