@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#89 $
+** $Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#90 $
 **
 ** Implementation of QFileDialog class
 **
@@ -40,7 +40,7 @@
 #endif
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#89 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#90 $");
 
 
 static QFileIconProvider * fileIconProvider = 0;
@@ -964,7 +964,7 @@ void QFileDialog::setFilter( const char * newFilter )
 	newFilter = qstrdup( newFilter );
 	*strchr( newFilter, ')' ) = '\0';
 	cwd.setNameFilter( newFilter );
-	delete[] newFilter;
+	delete[] (char*)newFilter;
     } else {
 	cwd.setNameFilter( newFilter );
     }
