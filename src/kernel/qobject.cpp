@@ -2222,7 +2222,7 @@ bool QObject::setProperty( const char *name, const QVariant& value )
 
     typedef void (QObject::*ProtoSizePolicy)( QSizePolicy );
     typedef void (QObject::*RProtoSizePolicy)( const QSizePolicy& );
-    
+
     typedef void (QObject::*ProtoDate)( QDate );
     typedef void (QObject::*RProtoDate)( const QDate&);
 
@@ -2796,7 +2796,7 @@ bool QObject::setProperty( const char *name, const QVariant& value )
 	    return TRUE;
 	}
 	break;
-	
+
     case QVariant::Time:
 	if ( p->sspec == QMetaProperty::Class ) {
 #ifdef Q_FP_CCAST_BROKEN
@@ -2816,9 +2816,9 @@ bool QObject::setProperty( const char *name, const QVariant& value )
 	    return TRUE;
 	}
 	break;
-	
-	
-	
+
+
+
     default:
 	break;
     }
@@ -2945,6 +2945,14 @@ QVariant QObject::property( const char *name ) const
     typedef QSizePolicy (QObject::*ProtoSizePolicy)() const;
     typedef const QSizePolicy* (QObject::*PProtoSizePolicy)() const;
     typedef const QSizePolicy& (QObject::*RProtoSizePolicy)() const;
+    
+    typedef QDate (QObject::*ProtoDate)() const;
+    typedef const QDate* (QObject::*PProtoDate)() const;
+    typedef const QDate& (QObject::*RProtoDate)() const;
+    
+    typedef QTime (QObject::*ProtoTime)() const;
+    typedef const QTime* (QObject::*PProtoTime)() const;
+    typedef const QTime& (QObject::*RProtoTime)() const;
 
     QMetaObject* meta = metaObject();
 
@@ -3450,6 +3458,46 @@ QVariant QObject::property( const char *name ) const
 	    ASSERT( 0 );
 	}
 	return value;
+	
+    case QVariant::Date:
+	if ( p->gspec == QMetaProperty::Class ) {
+	    ProtoDate m = (ProtoDate)p->get;
+	    value = QVariant( (this->*m)() );
+	} else if ( p->gspec == QMetaProperty::Reference ) {
+	    RProtoDate m = (RProtoDate)p->get;
+	    value = QVariant( (this->*m)() );
+	} else if ( p->gspec == QMetaProperty::Pointer ) {
+	    PProtoDate m = (PProtoDate)p->get;
+	    const QDate* p = (this->*m)();
+	    if ( p )
+		value = QVariant( *p );
+	    else
+		value = QVariant( QDate() );
+	} else {
+	    ASSERT( 0 );
+	}
+	return value;
+
+    case QVariant::Time:
+	if ( p->gspec == QMetaProperty::Class ) {
+	    ProtoTime m = (ProtoTime)p->get;
+	    value = QVariant( (this->*m)() );
+	} else if ( p->gspec == QMetaProperty::Reference ) {
+	    RProtoTime m = (RProtoTime)p->get;
+	    value = QVariant( (this->*m)() );
+	} else if ( p->gspec == QMetaProperty::Pointer ) {
+	    PProtoTime m = (PProtoTime)p->get;
+	    const QTime* p = (this->*m)();
+	    if ( p )
+		value = QVariant( *p );
+	    else
+		value = QVariant( QTime() );
+	} else {
+	    ASSERT( 0 );
+	}
+	return value;
+
+	
     default:
 	break;
     }
