@@ -686,3 +686,170 @@ QDataStream &operator>>(QDataStream &s, QBrush &b)
     return s;
 }
 #endif // QT_NO_DATASTREAM
+
+#if 0
+/*******************************************************************************
+ * QGradient implementations
+ */
+
+
+/*!
+    \class QLinearGradient qbrush.h
+
+    \brief The QLinearGradient class is used together with QBrush to
+    specify a linear gradient brush.
+
+    \sa QBrush
+*/
+
+
+/*!
+    Constructs a linear gradient with interpolation area between \a
+    start and \a finalStop. The positions \a start and \a finalStop
+    are specified using logical coordinates.
+*/
+QLinearGradient::QLinearGradient(const QPointF &start, const QPointF &finalStop)
+{
+    m_type = LinearGradient;
+    m_spread = PadSpread;
+    m_data.linear.x1 = start.x();
+    m_data.linear.y1 = start.y();
+    m_data.linear.x2 = finalStop.x();
+    m_data.linear.y2 = finalStop.y();
+}
+
+
+/*!
+    Returns the start point of this linear gradient in logical
+    coordinates.
+*/
+
+QPointF QLinearGradient::start() const
+{
+    Q_ASSERT(m_type == LinearGradient);
+    return QPointF(m_data.linear.x1, m_data.linear.y1);
+}
+
+
+/*!
+    Returns the final stop point of this linear gradient in logical
+    coordinates.
+*/
+
+QPointF QLinearGradient::finalStop() const
+{
+    Q_ASSERT(m_type == LinearGradient);
+    return QPointF(m_data.linear.x1, m_data.linear.y1);
+}
+
+
+/*!
+    \class QRadialGradient qbrush.h
+
+    \breif The QRadialGradient class is used together with QBrush to
+    specify a radial gradient brush.
+
+    \sa QBrush
+*/
+
+/*!
+    Constructs a radial gradient centered at \a center with radius \a
+    radius.  The \a focalPoint can be used to define the focal point
+    of the gradient inside the circle.
+
+    The default focalPoint is the circle center.
+*/
+
+QRadialGradient::QRadialGradient(const QPointF &center, qreal radius, const QPointF &focalPoint)
+{
+    m_type = RadialGradient;
+    m_spread = PadSpread;
+    m_data.radial.cx = center.x();
+    m_data.radial.cy = center.y();
+    m_data.radial.fx = focalPoint.x();
+    m_data.radial.fy = focalPoint.y();
+    m_data.radial.radius = radius;
+}
+
+
+/*!
+    Returns the center of this radial gradient in logical coordinates.
+*/
+
+QPointF QRadialGradient::center() const
+{
+    Q_ASSERT(m_type == RadialGradient);
+    return QPointF(m_data.radial.cx, m_data.radial.cy);
+}
+
+
+/*!
+    Returns the radius of the radial gradient in logical coordinates.
+*/
+
+qreal QRadialGradient::radius() const
+{
+    Q_ASSERT(m_type == RadialGradient);
+    return m_data.radial.radius;
+}
+
+
+/*!
+    Returns the focal point of this radial gradient in logical
+    coordinates.
+*/
+
+QPointF QRadialGradient::focalPoint() const
+{
+    Q_ASSERT(m_type == RadialGradient);
+    return QPointF(m_data.radial.fx, m_data.radial.fy);
+}
+
+
+/*!
+    \class QConicalGradient qbrush.h
+
+    \brief The QConicalGradient class is used together with QBrush to
+    specify a conical gradient brush.
+
+    \sa QBrush
+*/
+
+
+/*!
+    Constructs a conical centered at \a center and starting at
+    \a angle.
+*/
+
+QConicalGradient::QConicalGradient(const QPointF &center, qreal angle)
+{
+    m_type = ConicalGradient;
+    m_spread = PadSpread;
+    m_data.conical.cx = center.x();
+    m_data.conical.cy = center.y();
+    m_data.conical.angle = angle;
+}
+
+
+/*!
+    Returns the center of the conical gradient in logical coordinates
+*/
+
+QPointF QConicalGradient::center() const
+{
+    Q_ASSERT(m_type == ConicalGradient);
+    return QPointF(m_data.conical.cx, m_data.conical.cy);
+}
+
+
+/*!
+    Returns the start angle of the conical gradient in logical coordinates
+*/
+
+qreal QConicalGradient::angle() const
+{
+    Q_ASSERT(m_type == ConicalGradient);
+    return m_data.conical.angle;
+}
+
+#endif

@@ -14,8 +14,9 @@
 #ifndef QBRUSH_H
 #define QBRUSH_H
 
-#include "QtGui/qcolor.h"
+#include "QtCore/qpair.h"
 #include "QtCore/qpoint.h"
+#include "QtGui/qcolor.h"
 
 struct QBrushData;
 struct QTexturedBrushData;
@@ -106,6 +107,99 @@ inline const QColor &QBrush::color() const { return d->color; }
 
 #ifdef QT3_SUPPORT
 inline QBrush::operator const QColor&() const { return d->color; }
+#endif
+
+
+#if 0
+/*******************************************************************************
+ * QGradients
+ */
+class QGradientPrivate;
+
+typedef QPair<qreal, QColor> QGradientStop;
+typedef QVector<QGradientStop> QGradientStops;
+
+class Q_GUI_EXPORT QGradient
+{
+public:
+    enum Type {
+        LinearGradient,
+        RadialGradient,
+        ConicalGradient
+    };
+
+    enum Spread {
+        PadSpread,
+        ReflectSpread,
+        RepeatSpread
+    };
+
+    Type type() const { return m_type; }
+
+    void setSpread(Spread spread) { m_spread = spread; }
+    Spread spread() const { return m_spread; }
+
+    void appendStop(qreal pos, const QColor &color);
+    void appendStop(const QGradientStop &stop);
+
+    void setStops(const QGradientStop &stops);
+    QGradientStops stops() const { return m_stops; }
+
+private:
+    friend class QLinearGradient;
+    friend class QRadialGradient;
+    friend class QConicalGradient;
+
+    QGradient();
+
+    Type m_type;
+    Spread m_spread;
+    QGradientStops m_stops;
+    union {
+        struct {
+            qreal x1, y1, x2, y2;
+        } linear;
+        struct {
+            qreal cx, cy, fx, fy, radius;
+        } radial;
+        struct {
+            qreal cx, cy, angle;
+        } conical;
+    } m_data;
+    void *dummy;
+};
+
+
+class Q_GUI_EXPORT QLinearGradient : public QGradient
+{
+public:
+    QLinearGradient(const QPointF &start, const QPointF &finalStop);
+
+    QPointF start() const;
+    QPointF finalStop() const;
+};
+
+
+class Q_GUI_EXPORT QRadialGradient : public QGradient
+{
+public:
+    QRadialGradient(const QPointF &center, qreal radius, const QPointF &focalPoint = QPointF());
+
+    QPointF center() const;
+    QPointF focalPoint() const;
+    qreal radius() const;
+};
+
+
+class Q_GUI_EXPORT QConicalGradient : public QGradient
+{
+public:
+    QConicalGradient(const QPointF &center, qreal startAngle);
+
+    QPointF center() const;
+    qreal angle() const;
+};
+
 #endif
 
 #endif // QBRUSH_H
