@@ -446,7 +446,7 @@ void MainWindow::print()
 	QRect body( margin*dpix/72, margin*dpiy/72,
 		    metrics.width()-margin*dpix/72*2,
 		    metrics.height()-margin*dpiy/72*2 );
-	QSimpleRichText richText( browser->text(), browser->font(), browser->context(), browser->styleSheet(),
+	QSimpleRichText richText( browser->text(), browser->QWidget::font(), browser->context(), browser->styleSheet(),
 				  browser->mimeSourceFactory(), body.height(),
 				  Qt::black, FALSE );
 	richText.setWidth( &p, body.width() );
