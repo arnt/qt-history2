@@ -1357,6 +1357,7 @@ int QApplication::macProcessEvent(MSG * m)
 			w->setFocus();
 			QFocusEvent::resetReason();
 		    }
+		    widget->topLevelWidget()->raise();
 		}
 
 		QPoint p( er->where.h, er->where.v );
