@@ -1658,6 +1658,13 @@ void QMainWindow::setDockMenuEnabled( bool b )
 
 QPopupMenu *QMainWindow::createDockWindowMenu( DockWindows dockWindows ) const
 {
+    QObjectList *l = queryList( "QDockWindow" );
+
+    if ( !l || l->isEmpty() )
+	return 0;
+
+    delete l;
+
     QPopupMenu *menu = new QPopupMenu( (QMainWindow*)this );
     menu->setCheckable( TRUE );
     d->dockWindowModes.replace( menu, dockWindows );
@@ -1690,10 +1697,11 @@ void QMainWindow::menuAboutToShow()
 		if ( !label.isEmpty() ) {
 		    int id = menu->insertItem( label, dw, SLOT( toggleVisible() ) );
 		    menu->setItemChecked( id, dw->isVisible() );
-		}
-		empty = FALSE;
+		    empty = FALSE;
+		}		
 	    }
-	    menu->insertSeparator();
+	    if ( !empty )
+		menu->insertSeparator();
 	}
 	
 	if ( dockWindows == AllDockWindows || dockWindows == OnlyToolBars ) {
@@ -1705,8 +1713,8 @@ void QMainWindow::menuAboutToShow()
 		if ( !label.isEmpty() ) {
 		    int id = menu->insertItem( label, dw, SLOT( toggleVisible() ) );
 		    menu->setItemChecked( id, dw->isVisible() );
-		}
-		empty = FALSE;
+		    empty = FALSE;
+		}		
 	    }
 	} else {
 	    empty = TRUE;
@@ -1742,6 +1750,8 @@ bool QMainWindow::showDockMenu( const QPoint &globalPos )
 	return FALSE;
     if ( !d->rmbMenu )
 	d->rmbMenu = createDockWindowMenu();
+    if ( !d->rmbMenu )
+	return FALSE;
 
     d->rmbMenu->exec( globalPos );
     return TRUE;
