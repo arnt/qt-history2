@@ -1660,7 +1660,8 @@ bool QFont::fromString(const QString &descrip)
 
     int count = l.count();
     if (!count || (count > 2 && count < 9) || count > 11) {
-        qWarning("QFont::fromString: invalid description '%s'", descrip.latin1());
+        qWarning("QFont::fromString: invalid description '%s'",
+                 descrip.isEmpty() ? "(empty)" : descrip.latin1());
         return false;
     }
 
