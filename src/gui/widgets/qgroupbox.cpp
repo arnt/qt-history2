@@ -233,7 +233,7 @@ void QGroupBox::paintEvent(QPaintEvent *event)
 
     if (d->title.size() && !d->checkbox) {        // draw title
         QFontMetrics fm = paint.fontMetrics();
-        int h = fm.height() + 4;
+        int h = fm.height();
         int tw = fm.width(d->title + QLatin1Char(' '));
         int x;
         int marg = d->bFlat ? 0 : 8;
@@ -375,7 +375,7 @@ void QGroupBoxPrivate::calculateFrame()
         if(va & Qt::AlignVCenter)
             d->topMargin = fm.height()/2;
         else if(va & Qt::AlignTop)
-            d->topMargin = fm.ascent();
+            d->topMargin = fm.height();
     }
 
     int marg = bFlat ? 0 : 2; // ###NEEDS TO BE A STYLE ATTRIBUTE
