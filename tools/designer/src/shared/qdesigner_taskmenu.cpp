@@ -16,11 +16,12 @@
 #include "qdesigner_promotedwidget.h"
 #include "qtundo.h"
 #include "ui_promotetocustomwidgetdialog.h"
+#include "widgetfactory.h"
+#include "widgetdatabase.h"
 
 #include <abstractformeditor.h>
 #include <abstractformwindow.h>
 #include <abstractformwindowcursor.h>
-#include <abstractwidgetfactory.h>
 
 #include <QtGui/QAction>
 #include <QtGui/QWidget>
@@ -144,14 +145,15 @@ void QDesignerTaskMenu::promoteToCustomWidget()
     AbstractFormEditor *core = fw->core();
     QWidget *wgt = widget();
     QWidget *parent = wgt->parentWidget();
-    AbstractWidgetDataBase *db = fw->core()->widgetDataBase();
+    AbstractWidgetDataBase *db = core->widgetDataBase();
+    WidgetFactory *factory = qt_cast<WidgetFactory*>(core->widgetFactory());
 
     QDialog *dialog = new QDialog(0);
     
     Ui::PromoteToCustomWidgetDialog ui;
     ui.setupUi(dialog);
 
-    QString base_class_name = QLatin1String(wgt->metaObject()->className());
+    QString base_class_name = factory->classNameOf(wgt);
     
     connect(ui.m_ok_button, SIGNAL(clicked()), dialog, SLOT(accept()));
     connect(ui.m_cancel_button, SIGNAL(clicked()), dialog, SLOT(reject()));
@@ -168,12 +170,15 @@ void QDesignerTaskMenu::promoteToCustomWidget()
     AbstractWidgetDataBaseItem *item = 0;
     int idx = db->indexOfClassName(custom_class_name);
     if (idx == -1) {
-        item = new PromotedWidgetDataBaseItem(custom_class_name, include_file);
+        item = new WidgetDataBaseItem(custom_class_name, tr("Promoted Widgets"));
+        item->setCustom(true);
+        item->setPromoted(true);
+        item->setExtends(base_class_name);
         db->append(item);
     } else {
         item = db->item(idx);
-        item->setIncludeFile(include_file);
     }
+    item->setIncludeFile(include_file);
     
     fw->beginCommand(tr("Promote to custom widget"));
 

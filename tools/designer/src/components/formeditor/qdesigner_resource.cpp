@@ -366,7 +366,10 @@ DomWidget *QDesignerResource::createDom(QWidget *widget, DomWidget *ui_parentWid
     else if (m_internal_to_qt.contains(className))
         w->setAttributeClass(m_internal_to_qt.value(className));
 
-    w->setAttributeName(widget->objectName());
+    if (QDesignerPromotedWidget *promoted = qt_cast<QDesignerPromotedWidget*>(widget))
+        w->setAttributeName(promoted->child()->objectName());
+    else
+        w->setAttributeName(widget->objectName());
 
     QList<DomActionRef*> ref_list;
     QStringList action_list = m_formWindow->widgetToActionMap().actions(widget);
