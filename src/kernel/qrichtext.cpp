@@ -1456,8 +1456,7 @@ struct Q_EXPORT QTextDocumentTag {
 		    for ( QValueStack<QTextDocumentTag>::Iterator it = tags.begin(); it != tags.end(); ++it ) \
 			vec->insert( i++, (*it).style ); \
 		    vec->insert( i, curtag.style ); \
-		    }while(FALSE); \
-                    delete vec; vec = 0;
+		    }while(FALSE);
 
 
 void QTextDocument::setRichText( const QString &text, const QString &context )
@@ -1955,7 +1954,7 @@ void QTextDocument::setRichTextInternal( const QString &text, QTextCursor* curso
  	cursor->gotoPreviousLetter();
   	cursor->remove();
      }
-
+    delete vec;
 }
 
 void QTextDocument::setRichTextMarginsInternal( QPtrList< QPtrVector<QStyleSheetItem> >& styles, QTextParagraph* stylesPar )
