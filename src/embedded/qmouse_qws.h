@@ -70,8 +70,8 @@ private:
     int d, e, f;
     int s;
     QPointArray samples;
-    unsigned int currSample;
-    unsigned int numSamples;
+    int currSample;
+    int numSamples;
 };
 
 #endif // QMOUSE_QWS_H

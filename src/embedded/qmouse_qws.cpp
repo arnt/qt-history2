@@ -225,9 +225,9 @@ bool QWSCalibratedMouseHandler::sendFiltered( const QPoint &p, int button )
     numSamples++;
     if ( numSamples >= samples.count() ) {
 	int maxd = 0;
-	unsigned int ignore = 0;
+	int ignore = 0;
 	// throw away the "worst" sample
-	for ( unsigned int i = 0; i < samples.count(); i++ ) {
+	for ( int i = 0; i < samples.count(); i++ ) {
 	    int d = ( mousePos - samples[i] ).manhattanLength();
 	    if ( d > maxd ) {
 		maxd = d;
@@ -237,7 +237,7 @@ bool QWSCalibratedMouseHandler::sendFiltered( const QPoint &p, int button )
 	bool first = TRUE;
 	QPoint pos;
 	// average the rest
-	for ( unsigned int i = 0; i < samples.count(); i++ ) {
+	for ( int i = 0; i < samples.count(); i++ ) {
 	    if ( ignore != i ) {
 		if ( first ) {
 		    pos = samples[i];
