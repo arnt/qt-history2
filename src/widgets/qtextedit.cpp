@@ -49,14 +49,41 @@
   formatting. It is optimized to be able to handle large text
   documents and response quickly to user input.
 
-  As it is derived from QTextView is supports the same functions to
-  set and load plain and HTML text. Using the QTextDocument of the
-  editor, which is not in the public API but can be used,you can work
-  directly on the data structure.
-
   QTextEdit extends QTextView with keyboard and mouse handling for
-  usier input and functions to set/get/modify formatting, text,
-  etc. QTextEdit also implements a command based undo/redo functionality.
+  usier input and functions to set/get/modify formatting, text, etc.
+
+  As it is derived from QTextView it supports the same functions to
+  set and load plain and HTML text. Using the save() function, the
+  current contents can also be saved in HTML.
+
+  QTextEdit internally works on paragraphs. A paragraph is a formatted
+  string which is word-wrapped to fit into the width of the
+  widget. Paragraphs are seperated by hard breaks.
+
+  For user input selections are important. To work with selections use
+  setSelection() and QTextView::getSelection(). To set or get the
+  position of the cursor use setCursorPosition() or
+  getCursorPosition().
+
+  To change the formats of selections or the current cursor position
+  use setBold(), setItalic(), setUnderline(), setFamily(),
+  setPointSize(), setFont() or setColor(). Tho change paragraph
+  formatting use setAlignment() and setParagType(). When the cursor is
+  moved, the signals currentFontChanged(), currentColorChanged() and
+  currentAlignmentChanged() are emitted to inform about the format at
+  the cursor position.
+
+  To insert text at the cursor position use insert(). Also cut(),
+  copy() and paste() can be done through the API. If the text changes,
+  the textChanged() signal is emitted, if the user inserted a new line
+  by pressing return/enter returnPressed() is emitted.
+
+   QTextEdit also implements a command based undo/redo
+   functionality. To set the depth of the command history use
+   setUndoDepth() - it defaults to 100 steps. To undo or redo the last
+   opetation call undo() or redo(). The signals undoAvailable() and
+   redoAvailable() inform about when undo or redo operations can be
+   executed.
 
   Here is a list of key-bindings which are inplemented for editing
 
@@ -105,6 +132,9 @@
 
   All other keys with valid ASCII codes insert themselves into the
   text at the cursor posi.
+
+
+
 */
 
 /*! \enum QTextEdit::KeyboardAction
