@@ -7,7 +7,6 @@ HEADERS += \
 	itemviews/qgenericlistview.h \
 	itemviews/qgenerictableview.h \
 	itemviews/qgenerictreeview.h \
-	itemviews/qgenericvector.h \
 	itemviews/qitemdelegate.h \
 	itemviews/qitemselectionmodel.h \
 	itemviews/qlistmodel.h \
