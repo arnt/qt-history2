@@ -50,12 +50,14 @@ the machine!
 
 \section1  Protocols and support on different platforms
 
-On Mac OS X and MS-Windows, there is nothing like complete session
-management for applications yet, i.e. no restoring of previous
-sessions. They do support graceful logouts where applications
-have the opportunity to cancel the process after getting confirmation
-from the user. This is the functionality that corresponds to the \l
-QApplication::commitData() method.
+On Mac OS X, and Microsoft Windows versions prior to Windows 2000,
+there is nothing like complete session management for applications
+yet, i.e. no restoring of previous sessions. (Windows 2000 and XP
+provide "hibernation" where the entire memory is saved to disk and
+restored when the machine is restarted.) They do support graceful
+logouts where applications have the opportunity to cancel the process
+after getting confirmation from the user. This is the functionality
+that corresponds to the \l QApplication::commitData() method.
 
 X11 has supported complete session management since X11R6.
 
@@ -63,13 +65,13 @@ X11 has supported complete session management since X11R6.
 
 Start by reimplementing \l QApplication::commitData() to
 enable your application to take part in the graceful logout process. If
-you are only targeting the MS-Windows platform, this is all you can
+you are only targeting the Microsoft Windows platform, this is all you can
 and must provide. Ideally, your application should provide a shutdown
 dialog similar to the following:
 
 \img session.png A typical dialog on shutdown
 
-Example code to this dialog can be found in the documentation of \l
+Example code for this dialog can be found in the documentation of \l
 QSessionManager::allowsInteraction().
 
 For complete session management (only supported on X11R6 at present),
@@ -84,7 +86,7 @@ information on saving/restoring the state of a particular Qt
 application.)
 
 Restoration is usually done in the application's main()
-function. Check if \l QApplication::isSessionRestored() is \c TRUE. If
+function. Check if \l QApplication::isSessionRestored() is \c true. If
 that's the case, use the session identifier \l
 QApplication::sessionId() again to access your state data and restore
 the state of the application.

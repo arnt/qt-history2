@@ -308,31 +308,31 @@ TrueType and Type1 support.
 \title Running Qt/Embedded applications
 
 A Qt/Embedded application requires a master application to be running
-or to be a master application itself. The master application is
+or to be the master application itself. The master application is
 primarily responsible for managing top-level window regions, and
 pointer and keyboard input.
 
-Any Qt/Embedded application can be a master application by
+Any Qt/Embedded application can be the master application by
 constructing the QApplication object with the
-\e{QApplication::GuiServer} type, or by being run with the \e{-qws}
+\c{QApplication::GuiServer} type, or by being run with the \c{-qws}
 command line option.
 
 This document assumes you have the Linux framebuffer configured correctly
-and no master process is running. If you do not have a working Linux
+and that no master process is running. If you do not have a working Linux
 framebuffer you can use the
 \link emb-qvfb.html Qt/Embedded virtual framebuffer\endlink, or you can
 run Qt/Embedded as a \link emb-vnc.html VNC server\endlink.
 
 Change to a Linux console and select an example to run, e.g. \c
-examples/widgets. Make sure $QTDIR is set to the directory where you
-installed Qt/Embedded and add the $QTDIR/lib directory to
-$LD_LIBRARY_PATH, e.g.:
+examples/widgets. Make sure \c $QTDIR is set to the directory where you
+installed Qt/Embedded and add the \c $QTDIR/lib directory to
+\c $LD_LIBRARY_PATH, e.g.:
 \code
 export QTDIR=$HOME/qt-VERSION
 export LD_LIBRARY_PATH=$QTDIR/lib:$LD_LIBRARY_PATH
 \endcode
 
-Run the application with the \e{-qws} option:
+Run the application with the \c{-qws} option:
 
 \code
 cd $QTDIR/examples/widgets
@@ -345,15 +345,15 @@ exit the master application at any time using
 <b>Ctrl+Alt+Backspace</b>.
 
 If you wish to run additional applications you should run them as clients
-i.e. without the \e{-qws} option.
+i.e. without the \c{-qws} option.
 
 \section1 Displays
 
 Qt/Embedded allows multiple displays to be used simultaneously by running
-multiple Qt/Embedded master processes. This is achieved using the -display
-command line parameter or the $QWS_DISPLAY environment variable.
+multiple Qt/Embedded master processes. This is achieved using the \c -display
+command line parameter or the \c $QWS_DISPLAY environment variable.
 
-The -display parameter's syntax is:
+The \c -display parameter's syntax is:
 \code
     [gfx driver][:driver specific options][:display number]
 \endcode
@@ -395,8 +395,8 @@ will display the widgets example on dislpay :1 (VC 2).
 Only the master process needs to specify the driver/device part
 explicitly. The clients get the information they need from the master
 when they connect. So once you have a master server running using a
-particular driver, you can just use "client -display :n" to use
-display n.
+particular driver, you can just use \c client \c display \c n to use
+display \c n.
 
 \section1 Mouse Input
 
@@ -433,9 +433,10 @@ using \c #ifdef directives:
 
 \table
 \header \i Platform \i Macro
-\row \i Qt/X11 \i Q_WS_X11
-\row \i Qt/Windows \i Q_WS_WIN
 \row \i Qt/Embedded \i Q_WS_QWS
+\row \i Qt/Mac \i Q_WS_MAC
+\row \i Qt/Windows \i Q_WS_WIN
+\row \i Qt/X11 \i Q_WS_X11
 \endtable
 
 Qt/Embedded also requires the following flags to be defined when compiling
@@ -445,7 +446,8 @@ applications:
 \endcode
 
 Exceptions and RTTI are disabled in Qt/Embedded because they incur a large
-overhead in both size and speed.
+overhead in terms of both size and speed.
+
 */
 
 
@@ -502,12 +504,15 @@ of QMouseHandler in \c kernel/qwsmouse_qws.cpp.
 \title Qt/Embedded Performance Tuning
 
 When building embedded applications on low-powered devices, a number
-of options are available that would not be considered in a desktop
-application environment. These options reduce the memory and/or CPU
-requirements at the cost of other factors.
+of options are available that are not relevant for desktop
+applications. These options reduce the memory and/or CPU requirements
+by making various trade-offs.
+
+The most direct way of saving resources is to avoid compiling in
+features that are not required. See \link emb-features.html The
+Feature Definition File\endlink for details.
 
 \list
-\i \link emb-features.html <b>Tuning the functionality of Qt\endlink
 \i \link #general General programming style\endlink
 \i \link #static Static vs. Dynamic linking\endlink
 \i \link #alloc Alternative memory allocation\endlink
@@ -544,13 +549,13 @@ applications, this may not be an option, but if you are building a
 single application suite for a device with limited CPU power and
 memory, this option could be very beneficial.
 
-To compile Qt as a static library, add the \c -static options when
+To compile Qt as a static library, use the \c -static option when
 you run configure.
 
 To build your application suite as an all-in-one application, design each
 application as a stand-alone widget or set of widgets, with only minimal
-code in the main() function. Then, write an application that gives
-some way to switch between the applications (e.g. a QIconView). The
+code in the main() function. Then, write an application that provides
+a means of switching between the applications (e.g. a QIconView). The
 \link http://www.trolltech.com/products/qt/embedded/qpe.html QPE
 \endlink is an example of this. It can be built either as a set of
 dynamically-linked executables, or as a single static application.
@@ -611,7 +616,7 @@ anywhere on the network.
 
 To use Qt/Embedded in this way, \c configure Qt with the \c -vnc
 option, and ensure that you also enable 16-bit display support. Run
-your application via:
+your application like this:
 \code
     application -display VNC:0
 \endcode
