@@ -1,7 +1,7 @@
 TEMPLATE = lib
 TARGET	 = qgfxvoodoo
 
-CONFIG  += qt warn_off release plugin
+CONFIG  += qt warn_off plugin
 DESTDIR	 = ../../../gfxdrivers
 
 DEFINES	-= QT_NO_QWS_VOODOO3

@@ -1,7 +1,7 @@
 TEMPLATE = lib
 TARGET	 = qgfxmach64
 
-CONFIG  += qt warn_off release plugin
+CONFIG  += qt warn_off plugin
 DESTDIR	 = ../../../gfxdrivers
 
 DEFINES	+= QT_QWS_MACH64
