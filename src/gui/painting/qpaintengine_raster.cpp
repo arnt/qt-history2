@@ -2393,7 +2393,7 @@ void GradientData::initColorTable()
 
     // Up to first point
     while (pos<=begin_pos) {
-        colorTable[pos] = PREMUL(stopColors[0]);
+        colorTable[pos] = stopColors[0];
         ++pos;
     }
 
@@ -2414,7 +2414,7 @@ void GradientData::initColorTable()
                          / (stopPoints[current_stop+1] - stopPoints[current_stop]));
         int idist = 255 - dist;
 
-        colorTable[pos] = PREMUL(INTERPOLATE_PIXEL(current_color, idist, next_color, dist));
+        colorTable[pos] = INTERPOLATE_PIXEL(current_color, idist, next_color, dist);
 
         ++pos;
         dpos += incr;
@@ -2426,7 +2426,7 @@ void GradientData::initColorTable()
 
     // After last point
     while (pos < GRADIENT_STOPTABLE_SIZE) {
-        colorTable[pos] = PREMUL(stopColors[stopCount-1]);
+        colorTable[pos] = stopColors[stopCount-1];
         ++pos;
     }
 }
