@@ -123,6 +123,7 @@ private:
     QCheckListItem *cdeDirect, *cdePlugin, *cdeOff;
     QCheckListItem *motifplusDirect, *motifplusPlugin, *motifplusOff;
     QCheckListItem *platinumDirect, *platinumPlugin, *platinumOff;
+    QCheckListItem *motifDirect, *motifPlugin, *motifOff;
 
     QCheckListItem *mysqlDirect, *mysqlPlugin, *mysqlOff;
     QCheckListItem *ociDirect, *ociPlugin, *ociOff;

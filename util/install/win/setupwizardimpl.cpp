@@ -40,7 +40,7 @@ public:
 	valid = TRUE;
 
 	HMODULE hmodule = GetModuleHandle( 0 );
-	HRSRC resource = FindResource( hmodule, resourceName, RT_RCDATA );
+	HRSRC resource = FindResourceA( hmodule, resourceName, MAKEINTRESOURCEA( 10 ) );
 	HGLOBAL hglobal = LoadResource( hmodule, resource );
 	arSize = SizeofResource( hmodule, resource );
 	if ( arSize == 0 ) {
@@ -735,9 +735,6 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	QCheckListItem *item;
 	QCheckListItem *folder;
 	QStringList::Iterator it;
-	connect( &configure, SIGNAL( processExited() ), this, SLOT( configDone() ) );
-	connect( &configure, SIGNAL( readyReadStdout() ), this, SLOT( readConfigureOutput() ) );
-	connect( &configure, SIGNAL( readyReadStderr() ), this, SLOT( readConfigureError() ) );
 
 	// general
 	folder = new QCheckListItem ( configList, "Modules" );
@@ -981,14 +978,12 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	folder = new QCheckListItem( stfolder, "Motif" );
 	folder->setOpen( true );
 	entry = settings.readEntry( "/Trolltech/Qt/Styles/Motif", "Direct", &settingsOK );
-	item = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton );
-	item->setEnabled( false );
-	item->setOn( entry == "Off" );
-	item = new QCheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
-	item->setEnabled( false );
-	item->setOn( entry == "Plugin" );
-	item = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );
-	item->setOn( entry == "Direct" );
+ 	motifOff = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton );
+ 	motifOff->setOn( entry == "Off" );
+ 	motifPlugin = new QCheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
+ 	motifPlugin->setOn( entry == "Plugin" );
+ 	motifDirect = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );
+ 	motifDirect->setOn( entry == "Direct" );
 
 	folder = new QCheckListItem( stfolder, "Windows" );
 	folder->setOpen( true );
@@ -1389,6 +1384,9 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	    logOutput( "Execute configure...\n" );
 	    logOutput( args.join( " " ) + "\n" );
 
+	    connect( &configure, SIGNAL( processExited() ), this, SLOT( configDone() ) );
+	    connect( &configure, SIGNAL( readyReadStdout() ), this, SLOT( readConfigureOutput() ) );
+	    connect( &configure, SIGNAL( readyReadStderr() ), this, SLOT( readConfigureError() ) );
 	    configure.setWorkingDirectory( QEnvironment::getEnv( "QTDIR" ) );
 	    configure.setArguments( args );
 	    // Start the configure process
@@ -1496,6 +1494,10 @@ void SetupWizardImpl::setStaticEnabled( bool se )
 	    motifplusPlugin->setOn( false );
 	    motifplusDirect->setOn( true );
 	}
+	if ( motifPlugin->isOn() ) {
+	    motifPlugin->setOn( false );
+	    motifDirect->setOn( true );
+	}
 	if ( platinumPlugin->isOn() ) {
 	    platinumPlugin->setOn( false );
 	    platinumDirect->setOn( true );
@@ -1531,6 +1533,7 @@ void SetupWizardImpl::setStaticEnabled( bool se )
 	sgiPlugin->setEnabled( false );
 	cdePlugin->setEnabled( false );
 	motifplusPlugin->setEnabled( false );
+	motifPlugin->setEnabled( false );
 	platinumPlugin->setEnabled( false );
 	if ( enterprise ) {
 	    mysqlPlugin->setEnabled( false );
@@ -1548,6 +1551,7 @@ void SetupWizardImpl::setStaticEnabled( bool se )
 	sgiPlugin->setEnabled( true );
 	cdePlugin->setEnabled( true );
 	motifplusPlugin->setEnabled( true );
+	motifPlugin->setEnabled( true );
 	platinumPlugin->setEnabled( true );
 	if ( enterprise ) {
 	    mysqlPlugin->setEnabled( true );
@@ -1589,6 +1593,7 @@ void SetupWizardImpl::optionClicked( QListViewItem *i )
 	return;
 
     if ( item->text(0) == "Static" && item->isOn() ) {
+        setStaticEnabled( TRUE );
 	if ( !QMessageBox::information( this, "Are you sure?", "It will not be possible to build components "
 				  "or plugins if you select the static build of the Qt library.\n"
 				  "New features, e.g souce code editing in Qt Designer, will not "
@@ -1597,17 +1602,41 @@ void SetupWizardImpl::optionClicked( QListViewItem *i )
 				  "to use all or new features, e.g. new styles.\n\n"
 				  "Are you sure you want to build a static Qt library?",
 				  "No, I want to use the cool new stuff", "Yes" ) ) {
-		item->setOn( false );
+		item->setOn( FALSE );
 		if ( ( item = (QCheckListItem*)configList->findItem( "Shared", 0, 0 ) ) ) {
-		item->setOn( true );
+		item->setOn( TRUE );
 		configList->setCurrentItem( item );
+		setStaticEnabled( FALSE );
 	    }
-	} else {
-	    setStaticEnabled( TRUE );
 	}
 	return;
     } else if ( item->text( 0 ) == "Shared" && item->isOn() ) {
 	setStaticEnabled( FALSE );
+ 	if( ( (QCheckListItem*)configList->findItem( "Non-threaded", 0, 0 ) )->isOn() ) {
+ 	    if( QMessageBox::information( this, "Are you sure?", "Single-threaded, shared configurations "
+ 								 "may cause instabilities because of runtime "
+ 								 "library conflicts.", "OK", "Revert" ) ) {
+ 		item->setOn( FALSE );
+ 		if( ( item = (QCheckListItem*)configList->findItem( "Static", 0, 0 ) ) ) {
+ 		    item->setOn( TRUE );
+ 		    configList->setCurrentItem( item );
+ 		    setStaticEnabled( TRUE );
+ 		}
+ 	    }
+ 	}
+     }
+     else if( item->text( 0 ) == "Non-threaded" && item->isOn() ) {
+ 	if( ( (QCheckListItem*)configList->findItem( "Shared", 0, 0 ) )->isOn() ) {
+ 	    if( QMessageBox::information( this, "Are you sure?", "Single-threaded, shared configurations "
+ 								 "may cause instabilities because of runtime "
+ 								 "library conflicts.", "OK", "Revert" ) ) {
+ 		item->setOn( FALSE );
+ 		if( (item = (QCheckListItem*)configList->findItem( "Threaded", 0, 0 ) ) ) {
+ 		    item->setOn( TRUE );
+ 		    configList->setCurrentItem( item );
+ 		}
+ 	    }
+ 	}
     } else if ( item==mngDirect || item==mngPlugin || item==mngOff ) {
 	setJpegDirect( mngDirect->isOn() );
     }
@@ -1678,10 +1707,18 @@ void SetupWizardImpl::optionSelected( QListViewItem *i )
 	    explainOption->setText("Select this option if you do not need thread support.\n"
 				   "Some classes will not be available without thread support.");
 	}
-    } else if ( i->text(0) == "Build" || i->parent() && i->parent()->text(0) == "Build" ) {
-	explainOption->setText( tr("<p>Use the debug build of the Qt library to enhance "
-				   "debugging of your application. The release build "
-				   "is both smaller and faster.</p>") );
+     } else if ( i->text(0) == "Build" ) {
+   	explainOption->setText( tr("<p>Use the debug build of the Qt library to enhance "
+   				   "debugging of your application. The release build "
+   				   "is both smaller and faster.</p>") );
+     } else if ( i->text(0) == "Debug" ) {
+ 	explainOption->setText( tr("<p>A debug build will include debug information in the "
+ 	                           "Qt library and tools.  This will facilitate debugging "
+ 				   "of your application.</p>") );
+     } else if ( i->text(0) == "Release" ) {
+ 	explainOption->setText( tr("<p>A release build will build the library and tools without "
+ 				   "debugging information.  The resulting code is suited for "
+ 				   "a release, and is both smaller and faster.</p>") );
     } else if ( i->text(0) == "Library" ) {
 	explainOption->setText( "Build a static or a shared Qt library." );
     } else if ( i->parent() && i->parent()->text( 0 ) == "Library" ) {
@@ -1718,7 +1755,7 @@ void SetupWizardImpl::optionSelected( QListViewItem *i )
     } else if ( ( i->parent() && i->parent()->text( 0 ) == "Styles" ) 
 	||  ( i->parent() && i->parent()->parent() && i->parent()->parent()->text( 0 )== "Styles" ) ) {
 	QString styleName = (i->parent()->text( 0 ) == "Styles") ? i->text( 0 ) : i->parent()->text( 0 );
-	if ( styleName == "Windows" || styleName == "Motif" ) {
+	if ( styleName == "Windows" ) {
 	    explainOption->setText( QString("The %1 style is builtin to the Qt library.").arg( styleName ) );
 	} else {
 	    explainOption->setText( QString("Selects support for the %1 style. The style can be built "
@@ -1906,12 +1943,12 @@ void SetupWizardImpl::licenseChanged()
 	static bool alreadyShown = FALSE;
 	if ( !alreadyShown ) {
 	    QMessageBox::warning( this,
-		    tr("Support and upgrade periode has expired"),
+		    tr("Support and upgrade period has expired"),
 		    tr("Your support and upgrade period has expired.\n"
 			"\n"
 			"You may continue to use your last licensed release\n"
 			"of Qt under the terms of your existing license\n"
-			"agreement, but you are not entitled to technical\n"
+			"agreement. But you are not entitled to technical\n"
 			"support, nor are you entitled to use any more recent\n"
 			"Qt releases.\n"
 			"\n"
