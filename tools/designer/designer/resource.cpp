@@ -293,6 +293,7 @@ bool Resource::load( FormFile *ff, QIODevice* dev )
 	loadCustomWidgets( customWidgets, this );
 
 #if defined (QT_NON_COMMERCIAL)
+    bool previewMode = MainWindow::self->isPreviewing();
     QWidget *w = (QWidget*)createObject( widget, !previewMode ? (QWidget*)formwindow : MainWindow::self);
     if ( !w )
 	return FALSE;
