@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qworkspacechild.cpp#9 $
+** $Id: //depot/qt/main/src/widgets/qworkspacechild.cpp#10 $
 **
 ** Implementation of the QWorkspace class
 **
@@ -153,7 +153,7 @@ static const char * normalize_xpm[] = {
 #define BUTTON_SIZE 18
 #define TITLE_HEIGHT 18
 #define BORDER 2
-#define RANGE 6
+#define RANGE 16
 
 
 QWorkspaceChildTitelBar::QWorkspaceChildTitelBar (QWorkspace* w, QWidget* parent, const char* name, bool iconMode )
