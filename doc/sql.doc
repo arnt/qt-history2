@@ -232,7 +232,7 @@ It also has functions for navigating through the result sets of \c SELECT
 queries and for retrieving individual records and fields.
 
 The \l QSqlCursor class described in the next section inherits from \l
-QSqlQuery and provides a higher level interface that composes the SQL
+QSqlQuery and provides a higher level interface that composes SQL
 commands for us. \l QSqlCursor is particularly easy to integrate with
 on-screen widgets. Programmers unfamiliar with SQL can safely skip this
 section and use the \l QSqlCursor class covered in 
@@ -258,7 +258,7 @@ wrote earlier.
 After creating the initial \c SELECT statement we call \l isActive() to
 see if it executed successfully. The \l next() function is used to
 iterate through the query results. The value() function returns the
-contents of fields as a \l QVariant. The insertions are achieved by
+contents of fields as QVariants. The insertions are achieved by
 creating and executing queries against the default database using the \c
 target QSqlQuery.
 
@@ -294,7 +294,7 @@ such as <tt>CREATE TABLE</tt> and <tt>CREATE INDEX</tt>.
 
 <h2><a name="Navigating_Result_Sets">Navigating Result Sets</a></h2> 
 
-Once a \c SELECT query has been executed successfully we will have
+Once a \c SELECT query has been executed successfully we have
 access to the result set of records that matched the query criteria. We
 have already used one of the navigation functions, next(), which can be
 used alone to step sequentially through the records. \l QSqlQuery also
@@ -354,9 +354,9 @@ executed is the one actually being executed.
 
 <h1><a name="Using_QSqlCursor">Using Cursors</a></h1> 
 
-The \l QSqlCursor class provides a high level interface to browsing
-and editing records in SQL databases tables (or views) without the
-need to write your own SQL.
+The \l QSqlCursor class provides a high level interface to browsing and
+editing records in SQL database tables or views without the need to
+write your own SQL.
 
 QSqlCursors can do almost everything that QSqlQuery can, with two
 exceptions. Since cursors represent tables or views within the
@@ -364,9 +364,9 @@ database, by default, \l QSqlCursor objects retrieve all the fields of
 each record in the table or view. If only some fields are relevant
 simply confine your processing to those and ignore the others. Or,
 manually disable the generation of certain fields using
-QSqlQuery::setGenerated().  However, if you really don't want to
+QSqlRecord::setGenerated().  However, if you really don't want to
 retrieve all fields in the cursor then you should use a \l QSqlQuery
-instead, and customize the query to fit your needs.  You can edit
+instead, and customize the query to suit your needs.  You can edit
 records using a \l QSqlCursor providing that the table or view has a
 primary index that uniquely distinguishes each record. If this
 condition is not met then you'll need to use a \l QSqlQuery for edits.
@@ -392,7 +392,7 @@ The \l QSqlCursor class requires the \c qsqlcursor.h header file.
 </h5>
 
 We create the \l QSqlCursor object, specifying the table or view to use.
-If we need to use a database other than the default we can specify that
+If we need to use a database other than the default we can specify it
 in the QSqlCursor constructor.
 
 The SQL executed by the <tt>cur.select()</tt> call is<br> 
@@ -401,8 +401,9 @@ The SQL executed by the <tt>cur.select()</tt> call is<br>
 \endcode
 
 Next, we iterate through the records returned by this select statement
-using cur.next().  Field values are retrieved in the same way as with
-QSqlQuery.
+using cur.next().  Field values are retrieved in in a similar way to
+QSqlQuery, except that we pass field names rather than numeric indexes
+to value() and setValue().
 
 <h3><a name="Sorting_Data">Sorting and Filtering Records</a></h3>
 
@@ -415,7 +416,8 @@ meet the criteria of the filter.
 
 This select() call will execute the SQL<br>
 \code
-    SELECT staff.id, staff.forename, staff.surname, staff.salary FROM staff WHERE id > 100;
+    SELECT staff.id, staff.forename, staff.surname, staff.salary 
+    FROM staff WHERE id > 100;
 \endcode
 
 This will retrieve only those staff whose \c id is greater than 100.
@@ -447,12 +449,13 @@ is straightforward.
 We pass in a criteria string (the WHERE clause), and the \l QSqlIndex
 object to sort by (the ORDER BY clause). This produces
 \code
-    SELECT staff.id, staff.forename, staff.surname, staff.salary  FROM staff WHERE surname LIKE 'A%' ORDER BY surname ASC;
+    SELECT staff.id, staff.forename, staff.surname, staff.salary  
+    FROM staff WHERE surname LIKE 'A%' ORDER BY surname ASC;
 \endcode
 
-To sort by more than one field, an index can be created which is
-compromised of multiple fields.  Ascending and descending ordering can
-also be specified using QSqlIndex::setDescending().
+To sort by more than one field, an index can be created which contains
+multiple fields.  Ascending and descending order can be set using
+QSqlIndex::setDescending(); the default is ascending.
 
 \dontinclude sql/overview/order1/main.cpp
 \skip QSqlCursor
@@ -466,7 +469,8 @@ in the order they are to be used. Then we create a \l QSqlIndex object
 based on these fields, finally executing the select() call using this
 index. This executes
 \code
-    SELECT staff.id, staff.forename, staff.surname, staff.salary from staff ORDER BY surname ASC, forename ASC;
+    SELECT staff.id, staff.forename, staff.surname, staff.salary 
+    FROM staff ORDER BY surname ASC, forename ASC;
 \endcode
 
 If we need to retrieve records with fields that match specific criteria we
@@ -481,13 +485,14 @@ can create a filter based on an index.
 
 This executes
 \code
-    SELECT staff.id, staff.forename, staff.surname, staff.salary FROM staff WHERE surname='Bloggs' ORDER BY id ASC, forename ASC;
+    SELECT staff.id, staff.forename, staff.surname, staff.salary 
+    FROM staff WHERE surname='Bloggs' ORDER BY id ASC, forename ASC;
 \endcode
 
 The "order" \l QSqlIndex contains two fields, "id" and "forename"
 which are used to order the results. The "filter" \l QSqlIndex
 contains a single field, "surname". When an index is passed as a
-filter the select() function, for each field in the filter a
+filter to the select() function, for each field in the filter, a
 <em>fieldname=value</em> subclause is created where the value
 represents the current cursor's value for that field. We use
 setValue() to ensure the value used is the one we want.
@@ -509,8 +514,9 @@ create two \l QSqlIndex objects. The first, "order", is created from the
 the filter, "surname" and "city", to the values we're interested in. Now
 we call select() which generates and executes the following SQL:
 \code
-    SELECT staff.id, staff.forename, staff.surname, staff.salary FROM creditors WHERE surname='Chirac' AND city='Paris' 
-			    ORDER BY surname ASC, forename ASC;
+    SELECT staff.id, staff.forename, staff.surname, staff.salary 
+    FROM creditors WHERE surname='Chirac' AND city='Paris' 
+    ORDER BY surname ASC, forename ASC;
 \endcode
 The filter fields are used in the WHERE clause. Their values are taken
 from the cursor's current values for those fields; we set these values
@@ -569,9 +575,9 @@ calls as shown in this and the following example.
 This example begins with the creation of a cursor over the prices table.
 We select the record we wish to update with the select() call and
 move to it with the next() call. We call primeUpdate() to get a \l
-QSqlRecord pointer whose buffer is populated with the contents of the
-current record. We retrieve the value of the price field, calculate a
-new price, and set the the price field to the newly calculated value.
+QSqlRecord pointer to a buffer which is populated with the contents of
+the current record. We retrieve the value of the price field, calculate
+a new price, and set the the price field to the newly calculated value.
 Finally we call update() to update the record. The update() call returns
 the number of rows updated.
 
@@ -669,9 +675,8 @@ memory cost.
 
 Creating data-aware forms is more involved than using data-aware
 tables because we must take care of each field individually.  Most of
-the code below can be automatically generated for your projects when
-using <em>Qt Designer</em>.  See the <em>Qt Designer</em>
-documentation for more details.
+the code below can be automatically generated by <em>Qt Designer</em>.
+See the <em>Qt Designer</em> documentation for more details.
 
 <h3><a name="Displaying_a_Record">Displaying a Record</a></h3>
 
@@ -713,7 +718,7 @@ differences.
 <h5 align="center">From \l sql/overview/form2/main.h
 </h5>
 
-The save slot will be used for a button that the user can press to
+The slotSave slot will be used for a button that the user can press to
 confirm their update. We also hold pointers to the \l QSqlCursor and \l
 QSqlForm since they will need to be accessed outside the constructor.
 
@@ -767,8 +772,8 @@ constructor. We don't have to worry about the widgets or QSqlForm since
 they are children of the form and will be deleted by Qt at the right
 time.
 
-\skip save
-\line save
+\skip Save
+\line Save
 \until }
 
 Finally we add the save functionality for when the user presses the save
