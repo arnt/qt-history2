@@ -120,6 +120,8 @@ public:
 
     virtual void popup();
 
+    void	hide();
+
 public slots:
     void	clear();
     void	clearValidator();

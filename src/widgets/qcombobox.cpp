@@ -2238,4 +2238,17 @@ void QComboBox::setLineEdit( QLineEdit *edit )
     update();
 }
 
+/*!
+    \reimp
+*/
+void QComboBox::hide()
+{
+    QWidget::hide();
+
+    if (listBox())
+	listBox()->hide();
+    else if (d->popup())
+	d->popup()->hide();
+}
+
 #endif // QT_NO_COMBOBOX
