@@ -746,7 +746,7 @@ MakefileGenerator::writeMocObj(QTextStream &t, const QString &obj)
 	QString dirName;
 	if( !mocdir.isEmpty() )
 	    dirName = mocdir;
-	else if(!fi.dirPath().isEmpty() && fi.dirPath() != ".")
+	else if(!fi.dirPath().isEmpty() && fi.dirPath() != "." && project->isEmpty("OBJECTS_DIR")) 
 	    dirName = Option::fixPathToTargetOS(fi.dirPath(), FALSE) + Option::dir_sep;
 	QString src(dirName + fi.baseName() + Option::cpp_ext );
 
