@@ -229,7 +229,7 @@ public:
   <li> The status of this item - "fully translated", "needs more work" or "not
   currently in use".
   </ul>
-  
+
   The minimum is, for each item, just the information that is
   necessary for find() to return the right text.  This may include the
   source, context and comment, but usually is just a hash value and
@@ -247,28 +247,29 @@ public:
   "Enabled".  In this case, the source text would be "Enabled" in both
   cases and the context would be the dialog's class name, but the two
   items would have disambiguating comments such as "two-sided
-  printing" for one and "binding" for the other.
+  printing" for one and "binding" for the other.  The comment enables
+  the translator to choose the appropriate gender for the Spanish
+  version, and Qt to pick distinguish between translations.
+
+  Note that when QTranslator loads a stripped file, most functions do
+  not work.  The functions that do work with stripped files are
+  explicitly documented as such.
 
   \sa QTranslatorMessage QApplication::installTranslator(), QApplication::removeTranslator() QObject::tr() QApplication::translate()
 */
 
 /*! \enum QTranslator::SaveMode
-  This enum type defines how QTranslator can write translation files.  There are
-  two modes:
+  This enum type defines how QTranslator can write translation files.
+  There are two modes:
 
   <ul>
   <li> \c Everything - files are saved with all contents
   <li> \c Stripped - files are saved with just what's needed for end-users.
   </ul>
 
-  \warning Once stripped, only the following member functions can be relied upon:
-
-  <ul>
-  <li> find() (if the key for which there existed a Finished message in
-       the translator before stripping)
-  <li> clear()
-  <li> load()
-  </ul>
+  Note that when QTranslator loads a stripped file, most functions do
+  not work.  The functions that do work with stripped files are
+  explicitly documented as such.
 */
 
 /*!  Constructs an empty message file, not connected to any file.
@@ -296,6 +297,7 @@ QTranslator::~QTranslator()
 /*!  Loads \a filename, which may be an absolute file name or relative
   to \a directory.  If the full filename does not exist, other filenames
   are tried in the following order:
+
   <ol>
    <li>Filename with \a suffix appended (".qm" if suffix is QString::null)
    <li>Filename with text after a character in \a search_delimiters stripped
@@ -303,7 +305,9 @@ QTranslator::~QTranslator()
    <li>Filename stripped and \a suffix appended.
    <li>Filename stripped further, etc.
   </ol>
+
   For example, load("foo_bar.baz", "/opt/foolib") will search for:
+
   <ol>
    <li>/opt/foolib/foo_bar.baz
    <li>/opt/foolib/foo_bar.baz.qm
@@ -312,6 +316,8 @@ QTranslator::~QTranslator()
    <li>/opt/foolib/foo
    <li>/opt/foolib/foo.qm
   </ol>
+
+  This function works with stripped translator files.
 
   \sa save()
 */
@@ -478,9 +484,9 @@ bool QTranslator::load( const QString & filename, const QString & directory,
 
 
 /*!  Saves this message file to \a filename, overwriting the previous
-  contents of \a filename.  If \a mode is Everything (this is the default), all
-  the information is preserved.  If \a mode is Stripped, the information that is
-  only necessary for translation tools is stripped away.
+  contents of \a filename.  If \a mode is Everything (this is the
+  default), all the information is preserved.  If \a mode is Stripped,
+  all information that is not necessary for find() is stripped away.
 
   \sa load()
 */
@@ -516,6 +522,8 @@ bool QTranslator::save( const QString & filename, SaveMode mode )
 
 
 /*!  Empties this translator of all contents.
+
+  This function works with stripped translator files.
 */
 
 void QTranslator::clear()
@@ -545,8 +553,8 @@ void QTranslator::clear()
 }
 
 
-/*! Converts this message file to the compact format used to store message files
-  on disk.
+/*! Converts this message file to the compact format used to store
+  message files on disk.
 
   You should never need to call this directly; save() and other functions call
   it as necessary.
@@ -609,7 +617,7 @@ void QTranslator::squeeze( SaveMode mode )
 /*! \overload
 
   This function calls squeeze( Everything ).  It is provided for compatibility;
-  in Qt 3.0, it will be replaced by a default argument.
+  in Qt 3.0 it will be replaced by a default argument.
 */
 
 void QTranslator::squeeze()
@@ -649,6 +657,8 @@ void QTranslator::unsqueeze()
 /*!  Returns TRUE if this message file contains a message with the key
   ( \a context, \a sourceText, \a comment ), and FALSE if it does not.
 
+  This function works with stripped translator files.
+
   (This is is a one-liner that calls find().)
 */
 
@@ -662,8 +672,7 @@ bool QTranslator::contains( const char* context, const char* sourceText,
 /*! \overload
   \obsolete
 
-  Returns TRUE if this message file contains a message with the key
-  ( \a context, \a sourceText, "" ), and FALSE if it does not.
+  This version of the function assumes that the comment is "".
 */
 
 bool QTranslator::contains( const char* context, const char* sourceText ) const
@@ -672,6 +681,9 @@ bool QTranslator::contains( const char* context, const char* sourceText ) const
 }
 
 /*!  Inserts \a message into this message file.
+
+  This function does \e not work with stripped translator files.  It
+  may seem to, but that is not dependable.
 
   \sa remove()
 */
@@ -695,6 +707,8 @@ void QTranslator::insert( const char * context, const char * sourceText,
 
 
 /*!  Removes \a message from this translator.
+
+  This function works with stripped translator files.
 
   \sa insert()
 */
@@ -722,6 +736,8 @@ void QTranslator::remove( const char *context, const char *sourceText )
 /*!  Returns the translation for the key ( \a context, \a sourceText,
   \a comment ), or QString::null if there is none in this translator.
 
+  This function works with stripped translator files.
+
   \sa findMessage
 */
 
@@ -748,8 +764,8 @@ QString QTranslator::find( const char* context, const char* sourceText ) const
 }
 
 
-/*!  Returns the \l QTranslatorMessage for the key ( \a context, \a sourceText,
-  \a comment ).
+/*!  Returns the \l QTranslatorMessage for the key
+  ( \a context, \a sourceText, \a comment ).
 */
 
 QTranslatorMessage QTranslator::findMessage( const char* context,
@@ -826,8 +842,8 @@ QValueList<QTranslatorMessage> QTranslator::messages() const
 }
 
 
-/*!  Decodes the 8-bit string \a str using the default codec for the machine on
-  which the translator file was created, if possible.
+/*!  Decodes the 8-bit string \a str using the default codec for the
+  machine on which the translator file was created, if possible.
 
   \sa QTranslatorMessage::sourceText() QTranslatorMessage::comment()
 */
@@ -841,14 +857,16 @@ QString QTranslator::toUnicode( const char * str ) const
 }
 
 
-/*! \class QTranslatorMessage qtranslator.h
+/* NOT DOCUMENTED \class QTranslatorMessage qtranslator.h
 
-  \brief The QTranslatorMessage class contains an extended translator lookup key
-  together with a translation.
-
+  \brief The QTranslatorMessage class contains a translator message and its properties.
+  
   \ingroup environment
 
-  For a \l QTranslator object, a lookup \e key is a triple ( \e context,
+  This class is of no interest to most applications, just for
+  translation tools.
+
+  For a QTranslator object, a lookup \e key is a triple ( \e context,
   \e source \e text, \e comment ) that uniquely identifies a message.  An
   \e extended \e key is a quadruple ( \e hash, \e context, \e source \e text,
   \e comment ), where \a hash is computed from the source text and the comment.
@@ -869,7 +887,7 @@ QString QTranslator::toUnicode( const char * str ) const
   <li> \c Unfinished - the translation is absent or unusable
   <li> \c Finished - the translation is present and useful
   <li> \c Obsolete - the translation is present but useless for the user (it
-       might still be useful for the human translator).
+       may still be useful for the human translator, or may return)
   </ul>
 
   \sa setType() type()
