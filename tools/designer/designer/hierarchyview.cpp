@@ -1158,7 +1158,7 @@ HierarchyView::HierarchyView( QWidget *parent )
 {
     formwindow = 0;
     editor = 0;
-    setIcon( QPixmap::fromMimeSource( "logo.png" ) );
+    setIcon( QPixmap::fromMimeSource( "appicon.png" ) );
     listview = new HierarchyList( this, formWindow() );
     addTab( listview, tr( "Objects" ) );
     setTabToolTip( listview, tr( "List of all widgets and objects of the current form in hierarchical order" ) );
