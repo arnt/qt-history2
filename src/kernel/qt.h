@@ -97,7 +97,6 @@
 #include "qiconset.h"
 #include <qdialog.h>
 #include <qimage.h>
-#include <qinputdialog.h>
 #include <qintcache.h>
 #include "qtranslator.h"
 #include "qbuffer.h"
@@ -134,6 +133,7 @@
 #include <qpaintdevicemetrics.h>
 #include "qpainter.h"
 #include "qlineedit.h"
+#include <qinputdialog.h>
 #include <qwidgetlist.h>
 #include <qpicture.h>
 #include <qheader.h>
