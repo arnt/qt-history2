@@ -1,95 +1,88 @@
-#include "dialog.h"
-#include <stdlib.h>
+#include <QtGui>
+#include <QtNetwork>
 
-Dialog::Dialog(QWidget *parent) : QDialog(parent)
+#include "client.h"
+
+Client::Client(QWidget *parent)
+    : QDialog(parent)
 {
-    setWindowTitle(tr("Fortune client"));
+    hostLabel = new QLabel(tr("Host name:"), this);
+    portLabel = new QLabel(tr("Port:"), this);
 
-    serverHostEdit = new QLineEdit(this);
-    serverHostEdit->setText("Localhost");
-    serverHostEdit->setSelection(0, 9);
-    serverPortEdit = new QLineEdit(this);
-    serverPortEdit->setValidator(new QIntValidator(1, 65535, this));
-
-    QGridLayout *layout = new QGridLayout(this);
+    hostLineEdit = new QLineEdit("Localhost", this);
+    portLineEdit = new QLineEdit(this);
+    portLineEdit->setValidator(new QIntValidator(1, 65535, this));
 
     statusLabel = new QLabel(this);
-    fortuneButton = new QPushButton(tr("Get &Fortune"), this);
+    getFortuneButton = new QPushButton(tr("&Get Fortune"), this);
     quitButton = new QPushButton(tr("&Quit"), this);
-    connect(fortuneButton, SIGNAL(clicked()), SLOT(requestFortune()));
-    connect(quitButton, SIGNAL(clicked()), SLOT(close()));
+    connect(getFortuneButton, SIGNAL(clicked()),
+            this, SLOT(requestNewFortune()));
+    connect(quitButton, SIGNAL(clicked()), this, SLOT(close()));
 
-    layout->addWidget(new QLabel(tr("Hostname:"), this), 0, 0);
-    layout->addWidget(serverHostEdit, 0, 1);
-    layout->addWidget(new QLabel(tr("Port:"), this), 1, 0);
-    layout->addWidget(serverPortEdit, 1, 1);
+    tcpSocket = new QTcpSocket(this);
+
+    connect(tcpSocket, SIGNAL(readyRead()), this, SLOT(readFortune()));
+    connect(tcpSocket, SIGNAL(error(int)), this, SLOT(displayError(int)));
+
+    QGridLayout *layout = new QGridLayout(this);
+    layout->addWidget(hostLabel, 0, 0);
+    layout->addWidget(hostLineEdit, 0, 1);
+    layout->addWidget(portLabel, 1, 0);
+    layout->addWidget(portLineEdit, 1, 1);
     layout->addWidget(statusLabel, 2, 0);
-    layout->addWidget(fortuneButton, 3, 0);
+    layout->addWidget(getFortuneButton, 3, 0);
     layout->addWidget(quitButton, 3, 1);
 
-    fortuneClient = new QTcpSocket(this);
-    connect(fortuneClient, SIGNAL(readyRead()), SLOT(readFortune()));
-    connect(fortuneClient, SIGNAL(error(int)), SLOT(displayError(int)));
+    setWindowTitle(tr("Fortune client"));
 }
 
-void Dialog::requestFortune()
+void Client::requestNewFortune()
 {
-    if (serverHostEdit->text().isEmpty()) {
-        showMessage(tr("Empty host field"),
-                    tr("Please fill in the name of the host running"
-                       " the fortune server."));
+    if (hostLineEdit->text().isEmpty() || portLineEdit->text().isEmpty()) {
+        QMessageBox::information(this, tr("Fortune Client"),
+                                 tr("Enter the host name and the port of the "
+                                    "fortune server."));
         return;
     }
 
-    if (serverPortEdit->text().isEmpty()) {
-        showMessage(tr("Empty port field"),
-                    tr("Please fill in the port of the host running"
-                       " the fortune server."));
-        return;
-    }
-
-    fortuneClient->connectToHost(serverHostEdit->text(),
-                                 serverPortEdit->text().toInt());
+    tcpSocket->connectToHost(hostLineEdit->text(),
+                             portLineEdit->text().toInt());
 }
 
-void Dialog::readFortune()
+void Client::readFortune()
 {
-    QDataStream stream(fortuneClient);
-    QByteArray fortune;
-    stream >> fortune;
+    QString nextFortune;
 
-    if (fortune == lastFortune) {
-        requestFortune();
+    QDataStream in(tcpSocket);
+    in >> nextFortune;
+
+    if (nextFortune == currentFortune) {
+        requestNewFortune();
         return;
     }
-    lastFortune = fortune;
-
-    statusLabel->setText(QString::fromLatin1(fortune.data(), fortune.size()));
+    currentFortune = nextFortune;
+    statusLabel->setText(currentFortune);
 }
 
-
-void Dialog::displayError(int error)
+void Client::displayError(int error)
 {
-    using namespace Qt;
-
     switch (error) {
-    case HostNotFoundError:
-        showMessage(fortuneClient->errorString(),
-                    tr("The host was not found. Please check the "
-                       "host and port settings."));
+    case Qt::HostNotFoundError:
+        QMessageBox::information(this, tr("Fortune Client"),
+                                 tr("The host was not found. Please check the "
+                                    "host name and port settings."));
         break;
-    case ConnectionRefusedError:
-        showMessage(fortuneClient->errorString(),
-                    tr("Make sure the fortune server is running, "
-                    "and check that your host and port settings "
-                    "are correct."));
+    case Qt::ConnectionRefusedError:
+        QMessageBox::information(this, tr("Fortune Client"),
+                                 tr("The connection was refused by the peer. "
+                                    "Make sure the fortune server is running, "
+                                    "and check that the host name and port "
+                                    "settings are correct."));
         break;
     default:
-        break;
-    };
-}
-
-void Dialog::showMessage(const QString &title, const QString &text)
-{
-    QMessageBox::information(this, title, text, QMessageBox::Ok);
+        QMessageBox::information(this, tr("Fortune Client"),
+                                 tr("The following error occurred: %1.")
+                                 .arg(tcpSocket->errorString()));
+    }
 }

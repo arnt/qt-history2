@@ -1,33 +1,37 @@
-#ifndef DIALOG_H_INCLUDED
-#define DIALOG_H_INCLUDED
+#ifndef CLIENT_H
+#define CLIENT_H
 
-#include <QtGui>
-#include <QtNetwork>
+#include <QDialog>
 
-class Dialog : public QDialog
+class QLabel;
+class QLineEdit;
+class QPushButton;
+class QTcpSocket;
+
+class Client : public QDialog
 {
     Q_OBJECT
 
 public:
-    Dialog(QWidget *parent = 0);
+    Client(QWidget *parent = 0);
 
 public slots:
-    void requestFortune();
+    void requestNewFortune();
     void readFortune();
     void displayError(int);
 
 private:
     void showMessage(const QString &title, const QString &text);
 
-    QLineEdit *serverPortEdit;
-    QLineEdit *serverHostEdit;
+    QLabel *portLabel;
+    QLabel *hostLabel;
+    QLineEdit *portLineEdit;
+    QLineEdit *hostLineEdit;
     QLabel *statusLabel;
-    QPushButton *fortuneButton;
+    QPushButton *getFortuneButton;
     QPushButton *quitButton;
-
-    QTcpSocket *fortuneClient;
-
-    QByteArray lastFortune;
+    QTcpSocket *tcpSocket;
+    QString currentFortune;
 };
 
 #endif
