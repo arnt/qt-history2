@@ -2738,6 +2738,55 @@ void PropertyList::resetProperty()
 
 // --------------------------------------------------------------
 
+EventTable::EventTable( PropertyEditor *e )
+    : PropertyList( e )
+{
+    header()->setLabel( 0, tr( "Event" ) );
+    header()->setLabel( 1, tr( "Function" ) );
+}
+
+void EventTable::setupProperties()
+{
+    QValueList<MetaDataBase::EventDescription> events = MetaDataBase::events( editor->widget() );
+    if ( events.isEmpty() )
+	return;
+    for ( QValueList<MetaDataBase::EventDescription>::Iterator it = events.begin(); it != events.end(); ++it ) {
+	PropertyItem *item;
+	addPropertyItem( item, (*it).name.latin1(), QVariant::StringList );
+	setPropertyValue( item );
+    }
+}
+
+void EventTable::setCurrentItem( QListViewItem *i )
+{
+    PropertyList::setCurrentItem( i );
+}
+
+void EventTable::valueChanged( PropertyItem *i )
+{
+    MetaDataBase::setEventFunction( editor->widget(), editor->formWindow(),
+				    i->text( 0 ), ( (PropertyListItem*)i )->currentItem() );
+}
+
+void EventTable::refetchData()
+{
+    PropertyList::refetchData();
+}
+
+void EventTable::setPropertyValue( PropertyItem *i )
+{
+    QString s = MetaDataBase::eventFunction( editor->widget(), i->text( 0 ) );
+    ( (PropertyListItem*)i )->setValue( QStringList( s ) );
+    ( (PropertyListItem*)i )->setCurrentItem( s );
+}
+
+void EventTable::setCurrentProperty( const QString &n )
+{
+    PropertyList::setCurrentProperty( n );
+}
+
+// --------------------------------------------------------------
+
 /*!
   \class PropertyEditor propertyeditor.h
   \brief PropertyEdior toplevel window
@@ -2747,14 +2796,21 @@ void PropertyList::resetProperty()
 */
 
 PropertyEditor::PropertyEditor( QWidget *parent )
-    : QVBox( parent, 0, WStyle_Customize | WStyle_NormalBorder | WStyle_Title |
-			WStyle_StaysOnTop | WStyle_Tool |WStyle_MinMax | WStyle_SysMenu )
+    : QTabWidget( parent, 0, WStyle_Customize | WStyle_NormalBorder | WStyle_Title |
+		  WStyle_StaysOnTop | WStyle_Tool |WStyle_MinMax | WStyle_SysMenu )
 {
     setCaption( tr( "Property Editor" ) );
     setIcon( PixmapChooser::loadPixmap( "logo" ) );
     wid = 0;
     formwindow = 0;
     listview = new PropertyList( this );
+    addTab( listview, tr( "&Properties" ) );
+    eTable = new EventTable( this );
+    if ( MetaDataBase::hasEvents() )
+	addTab( eTable, tr( "&Events" ) );
+    else
+	eTable->hide();
+	
 }
 
 QObject *PropertyEditor::widget() const
@@ -2804,6 +2860,8 @@ void PropertyEditor::clear()
 {
     listview->setContentsPos( 0, 0 );
     listview->clear();
+    eTable->setContentsPos( 0, 0 );
+    eTable->clear();
 }
 
 void PropertyEditor::setup()
@@ -2812,6 +2870,11 @@ void PropertyEditor::setup()
     listview->setupProperties();
     listview->viewport()->setUpdatesEnabled( TRUE );
     listview->updateEditorSize();
+
+    eTable->viewport()->setUpdatesEnabled( FALSE );
+    eTable->setupProperties();
+    eTable->viewport()->setUpdatesEnabled( TRUE );
+    eTable->updateEditorSize();
 }
 
 void PropertyEditor::refetchData()
@@ -2886,4 +2949,9 @@ void PropertyEditor::resetFocus()
 {
     if ( listview->currentItem() )
 	( (PropertyItem*)listview->currentItem() )->showEditor();
+}
+
+EventTable *PropertyEditor::eventTable() const
+{
+    return eTable;
 }

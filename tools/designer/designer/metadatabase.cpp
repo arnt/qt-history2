@@ -47,11 +47,13 @@ public:
     QCursor cursor;
     QMap<int, QString> pixmapArguments;
     QMap<QString, QString> columnFields;
+    QMap<QString, QString> eventFunctions;
 };
 
 static QPtrDict<MetaDataBaseRecord> *db = 0;
 static QList<MetaDataBase::CustomWidget> *cWidgets = 0;
 static bool doUpdate = TRUE;
+static bool haveEvents = FALSE;
 
 /*!
   \class MetaDataBase metadatabase.h
@@ -902,4 +904,126 @@ QMap<QString, QString> MetaDataBase::columnFields( QObject *o )
     }
 
     return r->columnFields;
+}
+
+void MetaDataBase::setEventsEnabled( bool b )
+{
+    haveEvents = b;
+}
+
+bool MetaDataBase::hasEvents()
+{
+    return haveEvents;
+}
+
+QValueList<MetaDataBase::EventDescription> MetaDataBase::events( QObject *o )
+{
+    if ( !o )
+	return QValueList<MetaDataBase::EventDescription>();
+    setupDataBase();
+    MetaDataBaseRecord *r = db->find( (void*)o );
+    if ( !r ) {
+	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
+		  o, o->name(), o->className() );
+	return QValueList<MetaDataBase::EventDescription>();
+    }
+
+    QValueList<MetaDataBase::EventDescription> lst;
+    if ( o->inherits( "QPushButton" ) ) {
+	EventDescription d;
+	d.name = "onClick";
+	d.args << "int button";
+	lst << d;
+	d.name = "onMousePress";
+	d.args << "int x" << "int y" << "int button" << "int state";
+	lst << d;
+	d.name = "onMouseRelelase";
+	d.args << "int x" << "int y" << "int button" << "int state";
+	lst << d;
+	d.name = "onMouseMove";
+	d.args << "int x" << "int y" << "int button" << "int state";
+	lst << d;
+    }
+    return lst;
+}
+
+class NormalizeObject : public QObject
+{
+public:
+    NormalizeObject() : QObject() {}
+    static QCString normalizeSignalSlot( const char *signalSlot ) { return QObject::normalizeSignalSlot( signalSlot ); }
+};
+
+void MetaDataBase::setEventFunction( QObject *o, QObject *form, const QString &event, const QString &function )
+{
+    if ( !o )
+	return;
+    setupDataBase();
+    MetaDataBaseRecord *r = db->find( (void*)o );
+    if ( !r ) {
+	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
+		  o, o->name(), o->className() );
+	return;
+    }
+
+    if ( !form )
+	return;
+    MetaDataBaseRecord *r2 = db->find( (void*)form );
+    if ( !r2 ) {
+	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
+		  form, form->name(), form->className() );
+	return;
+    }
+
+    r->eventFunctions.remove( event );
+    EventDescription ed;
+    ed.name = "<none>";
+    QValueList<EventDescription> eds = events( o );
+    for ( QValueList<EventDescription>::Iterator eit = eds.begin(); eit != eds.end(); ++eit ) {
+	if ( (*eit).name == event ) {
+	    ed = *eit;
+	    break;
+	}
+    }
+		
+    QString fName = function + "(";
+    if ( ed.name != "<none>" ) {
+	for ( QStringList::Iterator it = ed.args.begin(); it != ed.args.end(); ++it ) {
+	    if ( it != ed.args.begin() )
+		fName += ",";
+	    fName += *it;
+	}
+    }
+    fName += ")";
+    NormalizeObject::normalizeSignalSlot( fName );
+
+    bool slotExists = FALSE;
+    for ( QValueList<Slot>::Iterator it = r2->slotList.begin(); it != r2->slotList.end(); ++it ) {
+	Slot s = *it;
+	QString sName = NormalizeObject::normalizeSignalSlot( s.slot );
+	if ( sName == fName ) {
+	    slotExists = TRUE;
+	    break;
+	}
+    }
+
+    if ( !slotExists )
+	addSlot( form, fName.latin1(), "public" );
+
+    r->eventFunctions.insert( event, function );
+}
+
+QString MetaDataBase::eventFunction( QObject *o, const QString &event )
+{
+    if ( !o )
+	return QString::null;
+    setupDataBase();
+    MetaDataBaseRecord *r = db->find( (void*)o );
+    if ( !r ) {
+	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
+		  o, o->name(), o->className() );
+	return QString::null;
+    }
+
+    return *r->eventFunctions.find( event );
 }

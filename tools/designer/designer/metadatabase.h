@@ -115,6 +115,12 @@ public:
 	QString author;
     };
 
+    struct EventDescription
+    {
+	QString name;
+	QStringList args;
+    };
+
     MetaDataBase();
     static void setupDataBase();
 
@@ -178,6 +184,13 @@ public:
 
     static void setColumnFields( QObject *o, const QMap<QString, QString> &columnFields );
     static QMap<QString, QString> columnFields( QObject *o );
+
+    static void setEventsEnabled( bool b );
+    static bool hasEvents();
+
+    static QValueList<EventDescription> events( QObject *o );
+    static void setEventFunction( QObject *o, QObject *form, const QString &event, const QString &function );
+    static QString eventFunction( QObject *o, const QString &event );
 
 };
 

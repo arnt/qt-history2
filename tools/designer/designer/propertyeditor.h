@@ -22,10 +22,10 @@
 #define PROPERTYEDITOR_H
 
 #include <qvariant.h>
-#include <qvbox.h>
 #include <qlistview.h>
 #include <qlist.h>
 #include <qguardedptr.h>
+#include <qtabwidget.h>
 
 class PropertyList;
 class PropertyEditor;
@@ -541,13 +541,13 @@ class PropertyList : public QListView
 public:
     PropertyList( PropertyEditor *e );
 
-    void setupProperties();
+    virtual void setupProperties();
 
-    void setCurrentItem( QListViewItem *i );
-    void valueChanged( PropertyItem *i );
-    void refetchData();
-    void setPropertyValue( PropertyItem *i );
-    void setCurrentProperty( const QString &n );
+    virtual void setCurrentItem( QListViewItem *i );
+    virtual void valueChanged( PropertyItem *i );
+    virtual void refetchData();
+    virtual void setPropertyValue( PropertyItem *i );
+    virtual void setCurrentProperty( const QString &n );
 
     PropertyEditor *propertyEditor() const;
 
@@ -565,14 +565,29 @@ protected:
     void paintEmptyArea( QPainter *p, const QRect &r );
     bool addPropertyItem( PropertyItem *&item, const QCString &name, QVariant::Type t );
 
-private:
+protected:
     PropertyEditor *editor;
 
 };
 
+class EventTable : public PropertyList
+{
+    Q_OBJECT
+
+public:
+    EventTable( PropertyEditor *e );
+
+    void setupProperties();
+    void setCurrentItem( QListViewItem *i );
+    void valueChanged( PropertyItem *i );
+    void refetchData();
+    void setPropertyValue( PropertyItem *i );
+    void setCurrentProperty( const QString &n );
+
+};
 
 
-class PropertyEditor : public QVBox
+class PropertyEditor : public QTabWidget
 {
     Q_OBJECT
 
@@ -591,6 +606,7 @@ public:
 
     PropertyList *propertyList() const;
     FormWindow *formWindow() const;
+    EventTable *eventTable() const;
 
     QString currentProperty() const;
     QString classOfCurrentProperty() const;
@@ -610,6 +626,7 @@ protected:
 private:
     QObject *wid;
     PropertyList *listview;
+    EventTable *eTable;
     FormWindow *formwindow;
 
 };

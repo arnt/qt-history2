@@ -140,6 +140,13 @@ MainWindow::MainWindow( bool asClient )
       grd( 10, 10 ), sGrid( TRUE ), snGrid( TRUE ), restoreConfig( TRUE ), splashScreen( TRUE ),
       docPath( "$QTDIR/doc/html" ), fileFilter( tr( "Qt User-Interface Files (*.ui)" ) ), client( asClient )
 {
+
+    // ### we need a better test to find if we have Quick installed or not
+    QString dir = getenv( "QTDIR" );
+    dir += "/lib";
+    if ( QFile::exists( dir + "/libqscript.so" ) || QFile::exists( dir + "/qscript.dll" ) )
+	MetaDataBase::setEventsEnabled( TRUE );
+
     qApp->setMainWidget( this );
     QWidgetFactory::addWidgetFactory( new CustomWidgetFactory );
     self = this;
