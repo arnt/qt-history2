@@ -38,6 +38,7 @@
 #ifdef Q_SUPERFONT
 
 #include "newfont/qfont_x11.cpp"
+#include "newfont/qfontencodings_x11.cpp"
 
 #else
 
