@@ -23,9 +23,9 @@ keyfeatures40.html key features\endlink offered by Qt 4.x.
 
 The Qt 4.x series is not binary compatible with the 3.x series. This
 means programs compiled for Qt 3.x must be recompiled to work with Qt
-4.x.  Qt 4.x is also not completely \e source compatible with 3.x,
+4.x. Qt 4.x is also not completely \e source compatible with 3.x,
 however all points of incompatibility cause compiler errors or
-run-time messages (rather than mysterious results).  Qt 4.x includes
+run-time messages (rather than mysterious results). Qt 4.x includes
 many additional features and discards obsolete functionality. Porting
 from Qt 3.x to Qt 4.x is straightforward, and once completed makes 
 the considerable additional power and flexibility of Qt 4.x available
@@ -36,9 +36,9 @@ To port code from Qt 3.x to Qt 4.x:
 \list 1
 
 \i Briefly read the porting notes below to get an idea of what to expect.
-\i Be sure your code compiles and runs well on all your target platforms
-   with Qt 3.x.
-\i Recompile with Qt 4.x.  For each error, search below for related
+\i Be sure that your code compiles and runs well on all your target
+   platforms with Qt 3.x.
+\i Recompile with Qt 4.x. For each error, search below for related
    identifiers (e.g. function names, class names). This document 
    mentions all relevant identifiers to help you get the information
    you need at the cost of being a little verbose.
@@ -53,110 +53,122 @@ Table of contents:
 \tableofcontents
 
 
-\secon1 Virtual Functions
+\section1 Virtual Functions
 
-The following functions falsely were marked as virtual:
+The following functions were incorrectly marked as virtual:
 
-QWidget::close( bool alsoDelete );
-QWidget::create( WId, bool, bool);
-QWidget::destroy( bool );
-QWidget::move( int x, int y );
-QWidget::reparent( QWidget *parent, WFlags, const QPoint &, bool);
-QWidget::resize( int w, int h );
-QWidget::setAcceptDrops( bool on );
-QWidget::setActiveWindow();
-QWidget::setAutoMask(bool);
-QWidget::setBackgroundColor( const QColor & );
-QWidget::setBackgroundMode( BackgroundMode );
-QWidget::setBackgroundOrigin( BackgroundOrigin );
-QWidget::setBackgroundPixmap( const QPixmap & );
-QWidget::setCaption( const QString &);
-QWidget::setCursor( const QCursor & );
-QWidget::setEnabled( bool );
-QWidget::setEraseColor( const QColor & );
-QWidget::setErasePixmap( const QPixmap & );
-QWidget::setFocus();
-QWidget::setFocusPolicy( FocusPolicy );
-QWidget::setFocusProxy( QWidget * );
-QWidget::setFont( const QFont & );
-QWidget::setGeometry( const QRect & );
-QWidget::setGeometry( int x, int y, int w, int h );
-QWidget::setIcon( const QPixmap & );
-QWidget::setIconText( const QString &);
-QWidget::setKeyCompression(bool);
-QWidget::setMask( const QBitmap & );
-QWidget::setMask( const QRegion & );
-QWidget::setMaximumSize( int maxw, int maxh );
-QWidget::setMicroFocusHint(int x, int y, int w, int h, bool, QFont *f);
-QWidget::setMinimumSize( int minw, int minh );
-QWidget::setMouseTracking( bool enable );
-QWidget::setPalette( const QPalette & );
-QWidget::setPaletteBackgroundColor( const QColor & );
-QWidget::setPaletteBackgroundPixmap( const QPixmap & );
-QWidget::setSizeIncrement( int w, int h );
-QWidget::setSizePolicy( QSizePolicy );
-QWidget::setUpdatesEnabled( bool enable );
-QWidget::setWFlags( WFlags );
-QWidget::setWState( uint );
-QWidget::showFullScreen();
-QWidget::showMaximized();
-QWidget::showMinimized();
-QWidget::showNormal();
-QWidget::unsetCursor();
+\list
+\i QWidget::close( bool alsoDelete );
+\i QWidget::create( WId, bool, bool);
+\i QWidget::destroy( bool );
+\i QWidget::move( int x, int y );
+\i QWidget::reparent( QWidget *parent, WFlags, const QPoint &, bool);
+\i QWidget::resize( int w, int h );
+\i QWidget::setAcceptDrops( bool on );
+\i QWidget::setActiveWindow();
+\i QWidget::setAutoMask(bool);
+\i QWidget::setBackgroundColor( const QColor & );
+\i QWidget::setBackgroundMode( BackgroundMode );
+\i QWidget::setBackgroundOrigin( BackgroundOrigin );
+\i QWidget::setBackgroundPixmap( const QPixmap & );
+\i QWidget::setCaption( const QString &);
+\i QWidget::setCursor( const QCursor & );
+\i QWidget::setEnabled( bool );
+\i QWidget::setEraseColor( const QColor & );
+\i QWidget::setErasePixmap( const QPixmap & );
+\i QWidget::setFocus();
+\i QWidget::setFocusPolicy( FocusPolicy );
+\i QWidget::setFocusProxy( QWidget * );
+\i QWidget::setFont( const QFont & );
+\i QWidget::setGeometry( const QRect & );
+\i QWidget::setGeometry( int x, int y, int w, int h );
+\i QWidget::setIcon( const QPixmap & );
+\i QWidget::setIconText( const QString &);
+\i QWidget::setKeyCompression(bool);
+\i QWidget::setMask( const QBitmap & );
+\i QWidget::setMask( const QRegion & );
+\i QWidget::setMaximumSize( int maxw, int maxh );
+\i QWidget::setMicroFocusHint(int x, int y, int w, int h, bool, QFont *f);
+\i QWidget::setMinimumSize( int minw, int minh );
+\i QWidget::setMouseTracking( bool enable );
+\i QWidget::setPalette( const QPalette & );
+\i QWidget::setPaletteBackgroundColor( const QColor & );
+\i QWidget::setPaletteBackgroundPixmap( const QPixmap & );
+\i QWidget::setSizeIncrement( int w, int h );
+\i QWidget::setSizePolicy( QSizePolicy );
+\i QWidget::setUpdatesEnabled( bool enable );
+\i QWidget::setWFlags( WFlags );
+\i QWidget::setWState( uint );
+\i QWidget::showFullScreen();
+\i QWidget::showMaximized();
+\i QWidget::showMinimized();
+\i QWidget::showNormal();
+\i QWidget::unsetCursor();
+\endlist
 
 
 \section1 QString
 
-If you specify a negative value for \e len to left() or right() then an empty string is
-returned.
+If you specify a negative value for \e len to left() or right() then
+an empty string is returned.
 
-* local8Bit() now returns a const char *. If you want a QByteArray/QCString
-use toLocal8Bit()
-* utf8() now returns a const char *. If you want a QByteArray/QCString
-use toUtf8()
+\list
+\i local8Bit() now returns a \c const \c{char *}. If you want a
+QByteArray/QCString use toLocal8Bit()
+\i utf8() now returns a \c const \c{char *}. If you want a
+QByteArray/QCString use toUtf8()
+\endlist
 
 \section1 QByteArray
 
 QByteArray is now implicitly shared. It provides most of the
-functionality QCString used to provide and is favored over QCString.
+functionality QCString used to provide and is favored over the
+deprecated QCString.
 
-* at() now returns a copy and not a reference. If you use at() as an
+\list
+\i at() now returns a copy and not a reference. If you use at() as an
 lvalue use the [] operator instead
 
-* sort() and bsearch() have been removed
+\i sort() and bsearch() have been removed
 
-* contains(...) returns a bool and not an integer. If you want to count
-  the number of occurences of a substring use count(...) instead.
+\i contains() returns a bool and not an integer. If you want to count
+  the number of occurences of a substring use count() instead.
 
-* copy() is obsolete, use regular assignment instead.
+\i copy() is obsolete, use regular assignment instead.
+\endlist
 
 \section1 QCString
 
-QCString is deprecated. QByteArray should do everything you need of an
-8bit string class. For text handling use QString instead.
+QCString is deprecated. QByteArray should do everything you need from
+an 8-bit string class. For text handling use QString instead.
 
 The class is now implicitly shared.
 
 Removed methods:
 
-* All methods involving QRegExp as argument have been removed. Use
-QString instead if you need to operate with regular expressions on a
-string.
+\list
+\i All methods involving QRegExp as argument have been removed. Use
+QString instead if you need to use regular expressions on a string.
+\endlist
 
-changed methods:
+Changed methods:
 
-* at() now returns a copy and not a reference. If you use at() as an
+\list
+\i at() now returns a copy and not a reference. If you use at() as an
 lvalue use the [] operator instead
+\endlist
 
 \section1 QStringList
 
-QStringList now inherits from QList<QString> and cannot be converted to
-a QValueList<QString> anymore. Since QValueList inherits QList a
+QStringList now inherits from QList<QString> and can no longer be
+converted to a QValueList<QString>. Since QValueList inherits QList a
 cast will work as expected.
 
 This change implies some API incompatibilities for QStringList:
 
-* at() returns the string, not an iterator
+\list
+\i at() returns the string, not an iterator
+\endlist
 
 \section1 QValueList
 
@@ -172,14 +184,15 @@ killTimers() has been removed.
 
 \section1 QObjectList
 
-QObjectList is a typdef to a QList of QObject pointers and not a QPtrList now.
+QObjectList is a typdef to a QList of QObject pointers (it was a
+QPtrList in Qt3).
 
 \section 1 QPointArray
 
-QPointArray is now implicitly shared and based on QVector.
-The return type for the setPoints() and putPoints() functions is now void instead of bool.
-isNull() is obsolete, use isEmpty() instead.
-copy() is obsolete, use standard assignment instead.
+QPointArray is now implicitly shared and is based on QVector. The
+return type for the setPoints() and putPoints() functions is now void
+instead of bool. isNull() is obsolete; use isEmpty() instead. copy()
+is obsolete, use standard assignment instead.
 
 \section1 QWidgetIntDict
 
@@ -187,12 +200,13 @@ Has been removed.
 
 \section1 QWidgetList
 
-QWidgetList is a typdef to a QList of QWidget pointers and not a QPtrList now.
+QWidgetList is a typdef to a QList of QWidget pointers (it was a
+QPtrList in Qt3).
 
 \section1 QApplication
 
-allWidgets() and topLevelWidgets() return a QWidgetList and not a
-pointer to a QWidgetList now. This resolves some memory management
+Both allWidgets() and topLevelWidgets() return a QWidgetList (it was a
+pointer to a QWidgetList in Qt3). This resolves some memory management
 issues using these methods.
 
 
