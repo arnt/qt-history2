@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#20 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#21 $
 **
 ** Implementation of QScrollBar class
 **
@@ -14,8 +14,17 @@
 #include "qpainter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qscrollbar.cpp#20 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qscrollbar.cpp#21 $";
 #endif
+
+
+/*!
+\class QScrollBar qscrbar.h
+\brief The QScrollBar widget class provides a vertical or horizontal scroll
+bar.
+
+The documentation of the QScrollBar class will be completed later.
+*/
 
 
 enum ScrollControl { ADD_LINE = 0x1 , SUB_LINE = 0x2 , ADD_PAGE = 0x4,
