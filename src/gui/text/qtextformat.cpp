@@ -22,6 +22,7 @@
 
 // remove only when you are sure that the implicit registration via
 // qVariantGet/qVariantSet also registers the streaming operators
+// ... and that the types are registered when operator >> gets called
 static int registerTextLengthType()
 {
     int id = qRegisterMetaType<QTextLength>("Qt/QTextLength");
