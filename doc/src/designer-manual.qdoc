@@ -1,9 +1,9 @@
 /*!
 \page designer-manual.html
+\startpage designer-getting-started.html Getting Started
+\nextpage designer-getting-started.html Getting Started
 
 \title Qt Designer
-
-\section1 Overview
 
 \QD is Trolltech's tool for designing and building graphical user
 interfaces (GUIs) from Qt components. It allows you to design and build
@@ -43,144 +43,124 @@ that they will look and feel exactly as you intended.
  \list
    \i
    \raw HTML
-   <a href="designer-getting-started.html#sec.1">Overview</a>
+   <a href="designer-getting-started.html#sec.1">Launching Designer</a>
    \endraw
    \i
    \raw HTML
-   <a href="designer-getting-started.html#sec.2">Launching Designer</a>
-   \endraw
-   \i
-   \raw HTML
-   <a href="designer-getting-started.html#sec.3">The User Interface</a>
+   <a href="designer-getting-started.html#sec.2">The User Interface</a>
    \endraw
  \endlist
 \i \l{designer-designing-a-component.html}{Designing a Component}
  \list
    \i
    \raw HTML
-   <a href="designer-designing-a-component.html#sec.1">Overview</a>
+   <a href="designer-designing-a-component.html#sec.1">Creating a Dialog</a>
    \endraw
    \i
    \raw HTML
-   <a href="designer-designing-a-component.html#sec.2">Creating a Dialog</a>
+   <a href="designer-designing-a-component.html#sec.2">Composing the Dialog</a>
    \endraw
    \i
    \raw HTML
-   <a href="designer-designing-a-component.html#sec.3">Composing The Dialog</a>
+   <a href="designer-designing-a-component.html#sec.3">Creating a Layout</a>
    \endraw
    \i
    \raw HTML
-   <a href="designer-designing-a-component.html#sec.4">Creating a Layout</a>
-   \endraw
-   \i
-   \raw HTML
-   <a href="designer-designing-a-component.html#sec.5">Signal and Slot Connections</a>
+   <a href="designer-designing-a-component.html#sec.4">Signal and Slot Connections</a>
    \endraw
  \endlist
-\i \l{designer-using-a-component.html}{Using a Component In Your Application}
+\i \l{designer-using-a-component.html}{Using a Component in Your Application}
  \list
    \i
    \raw HTML
-   <a href="designer-using-a-component.html#sec.1">Overview</a>
+   <a href="designer-using-a-component.html#sec.1">The Direct Approach</a>
    \endraw
    \i
    \raw HTML
-   <a href="designer-using-a-component.html#sec.2">A Simple Case</a>
+   <a href="designer-using-a-component.html#sec.2">TheSingleInheritanceApproach</a>
    \endraw
    \i
    \raw HTML
-   <a href="designer-using-a-component.html#sec.3">Using a Private Interface</a>
+   <a href="designer-using-a-component.html#sec.3">The Multiple Inheritance Approach</a>
    \endraw
    \i
    \raw HTML
-   <a href="designer-using-a-component.html#sec.4">Subclassing a Form</a>
+   <a href="designer-using-a-component.html#sec.4">Automatic Connections</a>
    \endraw
  \endlist
 \i \l{designer-editing-mode.html}{Form Editing Mode}
  \list
    \i
    \raw HTML
-   <a href="designer-editing-mode.html#sec.1">Overview</a>
+   <a href="designer-editing-mode.html#sec.1">Managing Forms</a>
    \endraw
    \i
    \raw HTML
-   <a href="designer-editing-mode.html#sec.2">Managing Forms</a>
+   <a href="designer-editing-mode.html#sec.2">Editing a Form</a>
    \endraw
    \i
    \raw HTML
-   <a href="designer-editing-mode.html#sec.3">Editing a Form</a>
+   <a href="designer-editing-mode.html#sec.3">The Property Editor</a>
    \endraw
    \i
    \raw HTML
-   <a href="designer-editing-mode.html#sec.4">The Property Editor</a>
-   \endraw
-   \i
-   \raw HTML
-   <a href="designer-editing-mode.html#sec.5">Layouts</a>
+   <a href="designer-editing-mode.html#sec.4">Layouts</a>
    \endraw
   \list
     \i
     \raw HTML
-    <a href="designer-editing-mode.html#sec.5.1">Applying and Breaking Layouts</a>
+    <a href="designer-editing-mode.html#sec.4.1">Applying and Breaking Layouts</a>
     \endraw
     \i
     \raw HTML
-    <a href="designer-editing-mode.html#sec.5.2">Horizontal and Vertical Layouts</a>
+    <a href="designer-editing-mode.html#sec.4.2">Horizontal and Vertical Layouts</a>
     \endraw
     \i
     \raw HTML
-    <a href="designer-editing-mode.html#sec.5.3">The Grid Layout</a>
+    <a href="designer-editing-mode.html#sec.4.3">The Grid Layout</a>
     \endraw
   \endlist
    \i
    \raw HTML
-   <a href="designer-editing-mode.html#sec.6">Previewing Forms</a>
+   <a href="designer-editing-mode.html#sec.5">Previewing Forms</a>
    \endraw
  \endlist
 \i \l{designer-connection-mode.html}{Connection Editing Mode}
  \list
    \i
    \raw HTML
-   <a href="designer-connection-mode.html#sec.1">Overview</a>
+   <a href="designer-connection-mode.html#sec.1">Connecting Objects</a>
    \endraw
    \i
    \raw HTML
-   <a href="designer-connection-mode.html#sec.2">Connecting Objects</a>
-   \endraw
-   \i
-   \raw HTML
-   <a href="designer-connection-mode.html#sec.3">Editing Connections</a>
+   <a href="designer-connection-mode.html#sec.2">Editing Connections</a>
    \endraw
  \endlist
 \i \l{designer-using-containers.html}{Using Containers}
  \list
    \i
    \raw HTML
-   <a href="designer-using-containers.html#sec.1">Overview</a>
+   <a href="designer-using-containers.html#sec.1">General Features</a>
    \endraw
    \i
    \raw HTML
-   <a href="designer-using-containers.html#sec.2">General Features</a>
+   <a href="designer-using-containers.html#sec.2">Frames</a>
    \endraw
    \i
    \raw HTML
-   <a href="designer-using-containers.html#sec.3">Frames</a>
+   <a href="designer-using-containers.html#sec.3">Group Boxes</a>
    \endraw
    \i
    \raw HTML
-   <a href="designer-using-containers.html#sec.4">Group Boxes</a>
+   <a href="designer-using-containers.html#sec.4">Stacked Widgets</a>
    \endraw
    \i
    \raw HTML
-   <a href="designer-using-containers.html#sec.5">Stacked Widgets</a>
+   <a href="designer-using-containers.html#sec.5">Tab Widgets</a>
    \endraw
    \i
    \raw HTML
-   <a href="designer-using-containers.html#sec.6">Tab Widgets</a>
-   \endraw
-   \i
-   \raw HTML
-   <a href="designer-using-containers.html#sec.7">Toolbox Widgets</a>
+   <a href="designer-using-containers.html#sec.6">Toolbox Widgets</a>
    \endraw
  \endlist
 \endlist
@@ -190,71 +170,71 @@ that they will look and feel exactly as you intended.
 \list
 \i
 \raw HTML
-<b><a href="designer-getting-started.html#sec.3"><i>Qt Designer</i>'s main window</a></b>
+<b><a href="designer-getting-started.html#sec.2"><i>Qt Designer</i>'s main window</a></b>
 \endraw
 \i
 \raw HTML
-<b><a href="designer-designing-a-component.html#sec.2">Choosing a form</a></b>
+<b><a href="designer-designing-a-component.html#sec.1">Choosing a form</a></b>
 \endraw
 \i
 \raw HTML
-<b><a href="designer-designing-a-component.html#sec.3">Editing modes</a></b>
+<b><a href="designer-designing-a-component.html#sec.2">Editing modes</a></b>
 \endraw
 \i
 \raw HTML
-<b><a href="designer-designing-a-component.html#sec.3">Adding widgets to a form</a></b>
+<b><a href="designer-designing-a-component.html#sec.2">Adding widgets to a form</a></b>
 \endraw
 \i
 \raw HTML
-<b><a href="designer-designing-a-component.html#sec.3">The Property Editor</a></b>
+<b><a href="designer-designing-a-component.html#sec.2">The Property Editor</a></b>
 \endraw
 \i
 \raw HTML
-<b><a href="designer-designing-a-component.html#sec.4">Placing widgets in layouts</a></b>
+<b><a href="designer-designing-a-component.html#sec.3">Placing widgets in layouts</a></b>
 \endraw
 \i
 \raw HTML
-<b><a href="designer-designing-a-component.html#sec.5">Connecting widgets</a></b>
+<b><a href="designer-designing-a-component.html#sec.4">Connecting widgets</a></b>
 \endraw
 \i
 \raw HTML
-<b><a href="designer-designing-a-component.html#sec.5">Previewing a form</a></b>
+<b><a href="designer-designing-a-component.html#sec.4">Previewing a form</a></b>
 \endraw
 \i
 \raw HTML
-<b><a href="designer-editing-mode.html#sec.3">Selecting objects</a></b>
+<b><a href="designer-editing-mode.html#sec.2">Selecting objects</a></b>
 \endraw
 \i
 \raw HTML
-<b><a href="designer-editing-mode.html#sec.3">Drag and drop</a></b>
+<b><a href="designer-editing-mode.html#sec.2">Drag and drop</a></b>
 \endraw
 \i
 \raw HTML
-<b><a href="designer-editing-mode.html#sec.4">Editing properties</a></b>
+<b><a href="designer-editing-mode.html#sec.3">Editing properties</a></b>
 \endraw
 \i
 \raw HTML
-<b><a href="designer-editing-mode.html#sec.5.1">Inserting objects into a layout</a></b>
+<b><a href="designer-editing-mode.html#sec.4.1">Inserting objects into a layout</a></b>
 \endraw
 \i
 \raw HTML
-<b><a href="designer-connection-mode.html#sec.2">Highlighted objects</a></b>
+<b><a href="designer-connection-mode.html#sec.1">Highlighted objects</a></b>
 \endraw
 \i
 \raw HTML
-<b><a href="designer-connection-mode.html#sec.2">Making a connection</a></b>
+<b><a href="designer-connection-mode.html#sec.1">Making a connection</a></b>
 \endraw
 \i
 \raw HTML
-<b><a href="designer-connection-mode.html#sec.2">Choosing signals and slots</a></b>
+<b><a href="designer-connection-mode.html#sec.1">Choosing signals and slots</a></b>
 \endraw
 \i
 \raw HTML
-<b><a href="designer-connection-mode.html#sec.3">Editing connection paths</a></b>
+<b><a href="designer-connection-mode.html#sec.2">Editing connection paths</a></b>
 \endraw
 \i
 \raw HTML
-<b><a href="designer-connection-mode.html#sec.3">Deleting connections</a></b>
+<b><a href="designer-connection-mode.html#sec.2">Deleting connections</a></b>
 \endraw
 \endlist
 
@@ -262,13 +242,11 @@ that they will look and feel exactly as you intended.
 
 /*!
 \page designer-getting-started.html
-
-\l{designer-manual.html}{[Qt Designer]}
-\l{designer-designing-a-component.html}{[Designing a Component]}
+\contentspage designer-manual.html Contents
+\previouspage designer-manual.html Qt Designer
+\nextpage designer-designing-a-component.html Designing a Component
 
 \title Getting Started
-
-\section1 Overview
 
 This manual covers the fundamental steps that most users will take when
 creating graphical user interfaces with \QD. We will introduce the
@@ -297,7 +275,7 @@ enter \c{designer} in a terminal window.
 
 \QD provides a multi-window user interface that can be used natively, or
 from within an integrated development environment (IDE). You can arrange
-each of the tool panels to suit your own working style. The main window
+each of the tool panels to suit your working style. The main window
 consists of a menu bar, a tool bar, and a toolbox that contains the
 widgets you can use to create your user interface.
 
@@ -306,10 +284,10 @@ widgets you can use to create your user interface.
 \i \inlineimage designer-main-window.png
 \i \bold{\QD's main window}
 
-The menu bar provides all the standard functions for opening and closing
-forms, editing, and lets you control which of the tool panels are shown.
-When a new component is being designed, the form used to compose its
-user interface can also be managed from \QD's main menu.
+The menu bar provides all the standard actions for managing forms,
+using the clipboard, and accessing application-specific help.
+The current editing mode, the tool panels, and the forms in use can
+also be accessed via the menu bar.
 
 The tool bar displays common actions that are used when editing a form.
 These are also available via the main menu.
@@ -321,7 +299,7 @@ It can also be extended to support user-defined categories.
 \endomit
 \endtable
 
-Most features of \QD are accessible via the menu bar, tool bar, or the
+Most features of \QD are accessible via the menu bar, the tool bar, or the
 toolbox. Some features are also available through context menus that can
 opened over the form windows. On most platforms, the right mouse button is
 used to open context menus.
@@ -333,16 +311,13 @@ used to open context menus.
 
 /*!
 \page designer-designing-a-component.html
-
-\l{designer-getting-started.html}{[Getting Started]}
-\l{designer-manual.html}{[Up]}
-\l{designer-using-a-component.html}{[Using a Component In Your Application]}
+\contentspage designer-manual.html Contents
+\previouspage designer-getting-started.html Getting Started
+\nextpage designer-using-a-component.html Using a Component In Your Application
 
 \title Designing a Component
 
 \tableofcontents
-
-\section1 Overview
 
 In this chapter we will look at the main steps that users will take
 when creating new graphical user interfaces with \QD. Usually,
@@ -366,10 +341,9 @@ may involve many iterations of these steps. However, we present each of the
 activities in the above order, and leave it up to the user to find the
 approach that suits them best.
 
-In this chapter, we show how to use \QD to create a simple dialog
-which we will later use in a simple application. This is not intended
-to be a tutorial; the dialog is just a useful example that will be
-used to illustrate certain features of the tool. General concepts are
+To demonstrate the processes used to create a new component, we will take
+a look at the steps needed to create a simple dialog with \QD. We use the
+dialog to illustrate certain features of the tool. General concepts are
 explained in the gray boxes in each section, and you can follow links
 from some of these to read more about the features being discussed.
 
@@ -381,7 +355,7 @@ and provides different kinds of forms for each of these. The first choice
 that you face when creating a new user interface is to decide which kind of
 form you will be using; for example, you may require a dialog rather than
 a generic custom widget. New forms can be created by opening the \key File
-menu and selecting the \key{New Form...} option, or by pressing \key{Ctrl N}.
+menu and selecting the \key{New Form...} option, or by pressing \key{Ctrl+N}.
 
 \table
 \row \i
@@ -395,17 +369,17 @@ these templates or open an form that was saved earlier.
 
 If your requirements later change so that you need to supply a different
 type of component, you can easily reuse the contents of your existing form.
-For our example, we select the form that is suitable for a dialog, and an
-empty form is created ready for use.
+For our example, we select the \bold{Dialog} template, and an empty form
+is created ready for use.
 
 \omit
 \image designer-empty-form.png
 \endomit
 
 \target ComposingTheDialog
-\section1 Composing The Dialog
+\section1 Composing the Dialog
 
-The empty form is displayed as an empty widget with a grid pattern overlayed
+The empty form is displayed as an empty dialog with a grid pattern overlayed
 on the widget area in a style similar to many drawing packages. 
 \QD provides two different editing modes: In form editing mode, widgets
 and other objects can be arranged, resized, and configured on the form;
@@ -429,10 +403,10 @@ In \l{designer-connection-mode.html}{connection editing mode}, we can connect
 widgets together using Qt's signals and slots mechanism.
 \endtable
 
-For our example, we will create a dialog that lets the user create an image
-with a given size and color depth - these properties can be represented by
-spinboxes and a combobox. We will also provide a line edit so that the user
-can specify a name for the image if they want.
+For our example, we will develop a dialog that lets the user create an
+image with a given size and color depth - these properties can be
+represented by spinboxes and a combobox. We will also provide a line edit
+so that the user can specify a name for the image if they want.
 
 Before we begin adding widgets to the form, it is useful to resize it to
 give us the required amount of space to work with. We can make the form
@@ -441,8 +415,9 @@ larger than necessary because it can be resized later.
 We start composing the dialog by placing some text labels onto the form.
 This is achieved by dragging each \e Label from the \e Display section
 of the toolbox onto the form. We add some spinboxes and a combobox from
-the \e Input section of the toolbox, some spacers from the \e Spacers
-section, and two push buttons from the \e Buttons section.
+the \e Input section of the toolbox, one vertical spacer and one horizontal
+spacer from the \e Spacers section (represented on the form as blue
+springs), and two push buttons from the \e Buttons section.
 
 Widgets and spacers can be moved around on the form by dragging them to
 their new locations. A widget can be resized by dragging the resize handles
@@ -468,7 +443,7 @@ since they have not yet been included in any layouts.
 
 The label text and initial values are changed in the Property Editor.
 This can be accessed by opening the \e Tools menu in \QD's main
-window and selecting \e{Property Editor}, or by pressing \key{Ctrl I}.
+window and selecting \e{Property Editor}, or by pressing \key{Ctrl+I}.
 The Property Editor always shows the properties of the currently selected
 object, so we just need to select each of the widgets in turn to access
 their properties.
@@ -480,10 +455,8 @@ The dialog's window title can also be changed using the Property Editor -
 click on the form itself to access the dialog's properties.
 
 It is usually a good idea to give meaningful names to widgets in case
-you want to connect their signals to slots in other components. Code
-that uses components created with \QD needs to follow certain
-conventions in order to take advantage of \e uic's auto-connection
-facilities.
+you want to connect their signals to slots in other components, or
+refer to the widgets by name in your application.
 
 \table
 \row \i
@@ -514,7 +487,7 @@ layout, making it simple to experiment with different ways of arranging
 components.
 
 At any point during editing, we can experiment with the layout of widgets
-on the form by selecting a group of objects, and applying a layout to them.
+on the form by selecting a group of objects and applying a layout to them.
 Any of the standard Qt layouts (horizontal, vertical, and grid) can be used.
 To apply a layout to a selection of objects, click the appropriate icon
 in \QD's tool bar, or select the layout from the form's context menu.
@@ -532,8 +505,11 @@ buttons into a horizontal layout with the horizontal spacer.
 The widgets and spacers are placed in a grid layout that takes up as
 little space as possible. The horizontal spacer in the lower layout
 reserves some space to the left of the push buttons, and makes the
-layout larger than normal. This will help to position the buttons
-correctly in the dialog.
+layout larger than normal. This will ensure that the buttons are
+positioned on the right hand side of the dialog.
+
+We will examine the use of layouts in more detail in
+\l{designer-editing-mode.html}{Form Editing Mode}.
 \endtable
 
 The Property Editor can be used to change the appearance of layouts on
@@ -541,7 +517,7 @@ the form. To access the properties of a layout, we click inside the layout,
 taking care not to click any of the widgets. The \c margin property
 controls the thickness of the margin around the edges of the
 layout, and \c spacing determines the space between widgets. By default,
-\QD gives each layout a 1 pixel wide \c margin so that it can show a
+\QD gives inner layouts a 1 pixel wide \c margin so that it can show a
 border around each object on the form. If you wish, you can set this to 0.
 
 We can create more complex layouts by selecting the layouts and placing
@@ -581,7 +557,7 @@ become highlighted as the cursor passes over them.
 \i \bold{Connecting widgets}
 
 To connect the line edit to the \key OK button, we click on the widget
-and drag the cursor towards the push button; a line extends from the
+and drag the cursor toward the push button; a line extends from the
 line edit to the cursor.
 \endtable
 
@@ -591,7 +567,7 @@ compatible signals and slots. Since the returnPressed() signal
 and the animateClick() slot have compatible signatures, we can use them
 together to "click" the \key OK button whenever the return key is
 pressed in the line edit. To try this out, we can open a preview of
-the dialog by pressing \key{Ctrl R} or by opening the \key Form menu
+the dialog by pressing \key{Ctrl+T} or by opening the \key Form menu
 and selecting \key Preview.
 
 \table
@@ -613,31 +589,34 @@ the form's design.
 
 /*!
 \page designer-using-a-component.html
+\previouspage designer-designing-a-component.html Designing a Component
+\contentspage designer-manual.html Contents
 
-\l{designer-designing-a-component.html}{[Designing a Component]}
-\l{designer-manual.html}{[Up]}
+\title Using a Component in Your Application
 
-\title Using a Component In Your Application
-
-\section1 Overview
+\tableofcontents
 
 With Qt's integrated build tools, \e qmake and \e uic, the code for user
 interface components created with \QD is automatically generated when the
 rest of of your application is built. Forms can be included and used
-directly from your application or, for extra flexibility, you can
-use them to extend subclasses of standard widgets.
+directly from your application or, and you can use them to extend
+subclasses of standard widgets.
 
-There are two very similar approaches to using form with subclasses.
-In the \l{#UsingAPrivateInterface}{simplest approach}, you subclass
-the form's base class (such as QWidget or QDialog), and include a
-private instance of the form's user interface object that sets up your
-component. Alternatively, you can
-\l{#SubclassingAForm}{use multiple inheritance} to allow the widgets
-defined in the form to be used directly from within the scope of the
-subclass.
+There are three approaches to using a form in your application: the
+direct approach, single inheritance subclassing, and multiple
+inheritance subclassing.
+In the direct approach, you simply construct a widget to use as a
+placeholder for the component, and set up the user interface inside it.
+In the single inheritance approach, you subclass the form's base class
+(QWidget or QDialog, for example), and include a private instance of
+the form's user interface object.
+In the multiple inheritance approach, you subclass from both the
+form's base class and the form's user interface object. This allows the
+widgets defined in the form to be used directly from within the scope of
+the subclass.
 
-\target ASimpleCase
-\section1 A Simple Case
+\target TheDirectApproach
+\section1 The Direct Approach
 
 To demonstrate how user interface components can be used straight from
 \QD, we take the dialog that we created in the chapter on
@@ -683,14 +662,13 @@ components in your applications, but many components created with \QD
 will need to be integrated more closely with the rest of the application
 code. To achieve this, we need to subclass a standard Qt widget.
 
-\target UsingAPrivateInterface
-\section1 Using a Private Interface
+\target TheSingleInheritanceApproach
+\section1 The Single Inheritance Approach
 
 In this approach, we use the \c{Ui::ImageDialog} object as we did in
 the simple case, but instead of setting up the dialog from the
 application's main function, we subclass QDialog and set up the
 user interface from within the constructor.
-
 Components used in this way expose the widgets and layouts used in the
 form to the QDialog subclass, and provide a standard system for
 making signal and slot connections between the user interface and other
@@ -699,7 +677,7 @@ objects in your application.
 To ensure that we can use the user interface, we need to include the
 header file that \e uic generates before referring to \c{Ui::ImageDialog}:
 
-\quotefromfile snippets/designer/privateinterface/imagedialog.h
+\quotefromfile snippets/designer/singleinheritance/imagedialog.h
 \skipto #include "ui_imagedialog.h"
 \printuntil #include "ui_imagedialog.h"
 
@@ -718,49 +696,26 @@ widgets and layouts for the dialog just by calling the \c ui object's
 setupUi() function. Once this has been done, it is possible to modify
 the user interface and create items for the combobox:
 
-\quotefromfile snippets/designer/privateinterface/imagedialog.cpp
+\quotefromfile snippets/designer/singleinheritance/imagedialog.cpp
 \skipto ImageDialog::ImageDialog
 \printuntil /^\}/
 
-The slots we declared in the class definition are automatically
-connected to widgets in the dialog. The names used for the slots
-depend on both the names of the widgets in the form and the signals
-we want to connect to. The naming convention follows a standard
-pattern:
-
-\code
-    void on_<widget name>_<signal name>(<signal parameters>);
-\endcode
-
-Using this convention, we implement the slots that respond to mouse
-clicks on the push buttons:
-
-\skipto void ImageDialog::on_cancelButton
-\printuntil /^\}/
-
-When the cancel button is clicked, we just call the QDialog's reject()
-function to close the dialog and dismiss its contents.
-
-\skipto void ImageDialog::on_okButton
-\printuntil /^\}/
-
-When the OK button is clicked, we call QDialog's accept() function to
-close the dialog and accept its contents.
-
-Note that we could also connect the push buttons to slots with
-different names, but this would require the connections to be made
-manually, using the \l{QObject::connect()}{connect()} function.
-If you are prepared to follow the naming convention, auto-connection
-is usually more convenient to use.
+We can connect signals from the user interface widgets to slots in the
+dialog in the usual way, taking care to prefix the \c ui object to
+each widget used.
 
 The main advantages of this approach are its simple use of inheritance
 to provide a QDialog-based interface, and its encapsulation of the
 user interface widget variables within the \c ui data member.
+We can use this method to define a number of user interfaces within the
+same widget, each of which is contained within its own namespace,
+and overlay (or "compose") them. This approach can be used to create
+individual tabs from existing forms, for example.
 
-\target SubclassingAForm
-\section1 Subclassing a Form
+\target TheMultipleInheritanceApproach
+\section1 The Multiple Inheritance Approach
 
-Components created with \QD can be subclassed along with a standard
+Forms created with \QD can be subclassed along with a standard
 QWidget-based class. This approach makes all the user interface
 components defined in the form directly accessible within the scope of
 the subclass, and enables signal and slot connections to be made in
@@ -769,7 +724,7 @@ the usual way with the \l{QObject::connect()}{connect()} function.
 As before, we need to include the header file that \e uic generates
 from the \c imagedialog.ui file:
 
-\quotefromfile snippets/designer/subclassing/imagedialog.h
+\quotefromfile snippets/designer/multipleinheritance/imagedialog.h
 \skipto #include "ui_imagedialog.h"
 \printuntil #include "ui_imagedialog.h"
 
@@ -778,7 +733,7 @@ interface approach, except that this time we inherit from both QDialog
 and \c{Ui::ImageDialog}:
 
 \skipto class ImageDialog
-\printuntil /^\];/
+\printuntil /^\};/
 
 We inherit \c{Ui::ImageDialog} privately to ensure that the user
 interface objects are private in our subclass. We can also inherit
@@ -788,22 +743,86 @@ we could have made \c ui public or protected in the previous case.
 The constructor for the subclass performs many of the same tasks as
 the constructor used in the private interface example:
 
-\quotefromfile snippets/designer/subclassing/imagedialog.cpp
+\quotefromfile snippets/designer/multipleinheritance/imagedialog.cpp
 \skipto ImageDialog::ImageDialog
 \printuntil /^\}/
 
 In this case, the interface can be set up using a member function,
 and the combobox is accessed in the same way as a widget created
-in code by hand. The only significant change is the addition of
-the connect() functions that are used to connect the push buttons
-to the dialog's accept() and reject() slots. Note that we could
-instead use the auto-connection facilities of \e uic to connect
-signals from the push buttons to slots in our subclass.
+in code by hand. The push buttons are also referred to directly in
+the connect() function calls.
 
-Subclassing using multiple inheritance gives us easier access to
-the contents of the form, and still allows auto-connection to be
-used. However, it is expected that some frameworks may be unable
-to use this approach due to restrictions on multiple inheritance.
+Subclassing using multiple inheritance gives us more direct access
+to the contents of the form, is slightly cleaner than the single
+inheritance approach, but does not conveniently support composition of
+multiple user interfaces.
+
+\target AutomaticConnections
+\section1 Automatic Connections
+
+In the previous sections, we connected the \key OK and \key Cancel
+buttons in the form directly to the dialog's accept() and reject()
+slots because we did not need to perform any processing on the
+contents of the dialog. If we want to process the information entered
+by the user before accepting it, we need to connect the clicked()
+signal from the \key OK button to a custom slot in our dialog.
+
+\target ADialogWithoutAutoConnect
+\section2 A Dialog Without Auto-Connect
+
+We define the dialog in the same way as before, but now include a
+slot in addition to the constructor:
+
+\quotefromfile snippets/designer/noautoconnection/imagedialog.h
+\skipto class
+\printuntil /^\};/
+
+The checkValues() slot will be used to validate the values provided
+by the user.
+
+In the dialog's constructor we set up the widgets as before, and connect
+the \key Cancel button's clicked() signal to the dialog's reject() slot:
+
+\quotefromfile snippets/designer/noautoconnection/imagedialog.cpp
+\skipto ImageDialog::ImageDialog
+\printuntil /^\}/
+
+We connect the \key OK button's clicked() signal to the dialog's
+checkValues() slot which we implement as follows:
+
+\skipto ImageDialog::checkValues()
+\printuntil /^\}/
+
+This custom slot does the minimum necessary to ensure that the data
+entered by the user is valid - it only accepts the input if a name
+was given for the image.
+
+\target ADialogWithAutoConnect
+\section2 A Dialog With Auto-Connect
+
+Although it is easy to implement a custom slot in the dialog and
+connect it in the constructor, we could instead use \e uic's
+auto-connection facilities to connect the \key OK button's clicked()
+signal to a slot in our subclass. To do this, we only need to
+declare and implement a slot with a name that follows a standard
+convention:
+
+\code
+    void on_<widget name>_<signal name>(<signal parameters>);
+\endcode
+
+Using this convention, we can define and implement a slot that responds
+to mouse clicks on the \key OK button:
+
+\quotefromfile snippets/designer/autoconnection/imagedialog.h
+\skipto class
+\printuntil /^\};/
+
+Automatic connection of signals and slots provides both a standard
+naming convention and an explicit interface for widget designers to
+work to. By providing source code that implements a given interface,
+user interface designers can check that their designs actually work
+without having to write code themselves.
 
 \l{designer-designing-a-component.html}{[Designing a Component]}
 \l{designer-manual.html}{[Up]}
@@ -812,15 +831,14 @@ to use this approach due to restrictions on multiple inheritance.
 
 /*!
 \page designer-editing-mode.html
-
-\l{designer-designing-a-component.html}{[Designing a Component]}
-\l{designer-manual.html}{[Up]}
+\contentspage designer-manual.html Contents
+\nextpage designer-using-containers.html Using Containers
 
 \title Form Editing Mode
 
 \image designer-editing-mode.png
 
-\section1 Overview
+\tableofcontents
 
 In \QD's form editing mode, objects can be dragged from the main window's
 toolbox to a form, edited, resized, dragged around on the form, and even
@@ -877,13 +895,13 @@ below.
 
 \table
 \header \i Action       \i Shortcut     \i Description
-\row    \i Cut          \i \key{Ctrl X} \i Cuts the selected objects to the clipboard.
-\row    \i Copy         \i \key{Ctrl C} \i Copies the selected objects to the clipboard.
-\row    \i Paste        \i \key{Ctrl V} \i Pastes the objects in the clipboard onto the form.
+\row    \i Cut          \i \key{Ctrl+X} \i Cuts the selected objects to the clipboard.
+\row    \i Copy         \i \key{Ctrl+C} \i Copies the selected objects to the clipboard.
+\row    \i Paste        \i \key{Ctrl+V} \i Pastes the objects in the clipboard onto the form.
 \row    \i Delete       \i \key Delete  \i Deletes the selected objects.
-\row    \i Clone object \i \key{Ctrl drag} (left mouse button)
+\row    \i Clone object \i \key{Ctrl+drag} (left mouse button)
         \i Makes a copy of the selected object or group of objects.
-\row    \i Preview      \i \key{Ctrl R} \i Shows a preview of the form.
+\row    \i Preview      \i \key{Ctrl+T} \i Shows a preview of the form.
 \endtable
 
 All the above actions (apart from cloning) can be accessed via both the
@@ -952,7 +970,7 @@ Once widgets have been inserted into a layout, it is not possible to
 move and resize them individually because the layout itself controls
 the geometry of each widget within it, taking account of the hints
 provided by spacers. Instead, you must either break the layout
-(\key{Ctrl B} or \key{Break Layout}) and adjust each object's geometry
+(\key{Ctrl+B} or \key{Break Layout}) and adjust each object's geometry
 manually, or you can influence the widget's geometry by resizing the
 layout. You can also add and remove spacers from the layout to influence
 the geometries of the widgets.
@@ -1001,7 +1019,7 @@ suitable than a nested arrangement of horizontal and vertical layouts.
 Although \QD's forms are accurate representations of the components
 being edited, it is useful to preview the final appearance while editing.
 This feature can be activated by opening the \key Form menu and selecting
-\key Preview, or by pressing \key{Ctrl R} when in the form.
+\key Preview, or by pressing \key{Ctrl+T} when in the form.
 
 \image designer-dialog-preview.png
 
@@ -1015,15 +1033,14 @@ used in an application.
 
 /*!
 \page designer-connection-mode.html
-
-\l{designer-designing-a-component.html}{[Designing a Component]}
-\l{designer-manual.html}{[Up]}
+\contentspage designer-manual.html Contents
+\previouspage designer-using-containers.html Using Containers
 
 \title Connection Editing Mode
 
 \image designer-connection-mode.png
 
-\section1 Overview
+\tableofcontents
 
 \QD's connection editing mode allows objects in a form to be connected
 together using Qt's signals and slots mechanism. Both widgets and layout
@@ -1151,14 +1168,11 @@ be set up in the .ui file.
 
 /*!
 \page designer-using-containers.html
-
-\l{designer-designing-a-component.html}{[Designing a Component]}
-\l{designer-editing-mode.html}{[Form Editing Mode]}
-\l{designer-manual.html}{[Up]}
+\contentspage designer-manual.html Contents
+\previouspage designer-editing-mode.html Form Editing Mode
+\nextpage designer-connection-mode.html Connection Editing Mode
 
 \title Using Containers
-
-\section1 Overview
 
 Container widgets provide high level control over groups of objects on a form.
 They can be used to perform a variety of functions, such as managing input
