@@ -52,6 +52,7 @@ ProjectGenerator::init()
 {
     if(init_flag)
 	return;
+    int file_count = 0;
     init_flag = TRUE;
 
     QMap<QString, QStringList> &v = project->variables();
@@ -62,35 +63,77 @@ ProjectGenerator::init()
 	v["TARGET"] = QStringList("unknown");
 
     //the scary stuff
-    if(Option::projfile::do_pwd)
-	Option::projfile::project_dirs.prepend("*.cpp; *.ui; *.c; *.y; *.l; *.h");
-    for(QStringList::Iterator pd = Option::projfile::project_dirs.begin(); pd != Option::projfile::project_dirs.end(); pd++)
-    {
-	QString dir;
-	if(QFile::exists((*pd))) {
-	    QFileInfo fi((*pd));
-	    if(fi.isDir()) {
-		dir = (*pd);
-	    } else {
-		QString file = (*pd);
-		int s = file.findRev(Option::dir_sep);
-		if(s != -1)
-		    dir = file.left(s+1);
-		addFile(file);
+    if(project->first("TEMPLATE_ASSIGN") != "subdirs") {
+	if(Option::projfile::do_pwd)
+	    Option::projfile::project_dirs.prepend("*.cpp; *.ui; *.c; *.y; *.l; *.h");
+	for(QStringList::Iterator pd = Option::projfile::project_dirs.begin(); 
+	    pd != Option::projfile::project_dirs.end(); pd++)
+	{
+	    QString dir;
+	    if(QFile::exists((*pd))) {
+		QFileInfo fi((*pd));
+		if(fi.isDir()) {
+		    dir = (*pd);
+		} else {
+		    QString file = (*pd);
+		    int s = file.findRev(Option::dir_sep);
+		    if(s != -1)
+			dir = file.left(s+1);
+		    if(addFile(file))
+			file_count++;
+		}
+	    } else { //regexp
+		QString regx = (*pd);
+		int s = regx.findRev(Option::dir_sep);
+		if(s != -1) {
+		    dir = regx.left(s+1);
+		    regx = regx.right(regx.length() - (s+1));
+		}
+		QDir d(dir, regx);
+		for(int i = 0; i < (int)d.count(); i++) {
+		    if(addFile(dir + d[i]))
+			file_count++;
+		}
 	    }
-	} else { //regexp
-	    QString regx = (*pd);
-	    int s = regx.findRev(Option::dir_sep);
-	    if(s != -1) {
-		dir = regx.left(s+1);
-		regx = regx.right(regx.length() - (s+1));
-	    }
-	    QDir d(dir, regx);
-	    for(int i = 0; i < (int)d.count(); i++)
-		addFile(dir + d[i]);
+	    if(!dir.isEmpty() && !v["DEPENDPATH"].contains(dir))
+		v["DEPENDPATH"] += dir;
 	}
-	if(!dir.isEmpty() && !v["DEPENDPATH"].contains(dir))
-	    v["DEPENDPATH"] += dir;
+    } 
+    if(!file_count) { //shall we try a subdir?
+	if(Option::projfile::do_pwd)
+	    Option::projfile::project_dirs.prepend(QDir::currentDirPath() + "/*");
+	for(QStringList::Iterator pd = Option::projfile::project_dirs.begin(); 
+	    pd != Option::projfile::project_dirs.end(); pd++) {
+	    if(QFile::exists((*pd))) {
+		QFileInfo fi((*pd));
+		QString prof = fi.filePath() + QDir::separator() + fi.fileName() + ".pro";
+		if(fi.isDir() && fi.fileName() != "." && fi.fileName() != ".." && QFile::exists(prof)) {
+		    QString newdir = (*pd);
+		    fileFixify(newdir);
+		    v["SUBDIRS"].append(newdir);
+		}
+	    } else { //regexp
+		QString regx = (*pd), dir;
+		int s = regx.findRev(Option::dir_sep);
+		if(s != -1) {
+		    dir = regx.left(s+1);
+		    regx = regx.right(regx.length() - (s+1));
+		}
+		QDir d(dir, regx);
+		for(int i = 0; i < (int)d.count(); i++) {
+		    QString newdir(dir + d[i]);
+		    QFileInfo fi(newdir);
+		    QString prof = fi.filePath() + QDir::separator() + fi.fileName() + ".pro";
+		    if(fi.isDir() && fi.fileName() != "." && fi.fileName() != ".." && QFile::exists(prof)) {
+			fileFixify(newdir);
+			v["SUBDIRS"].append(newdir);
+		    }
+		}
+	    }
+	}
+	if(!project->isEmpty("SUBDIRS"))
+	    v["TEMPLATE_ASSIGN"] = "subdirs";
+	return; 
     }
 
     QPtrList<MakefileDependDir> deplist;
@@ -104,7 +147,7 @@ ProjectGenerator::init()
     }
     QStringList &h = v["HEADERS"];
     bool no_qt_files = TRUE;
-    QString srcs[] = { "SOURCES", "YACCSOURCES", "LEXSOURCES", "FORMS", QString::null };
+    QString srcs[] = { "SOURCES", "YACCSOURCES", "LEXSOURCES", "INTERFACES", QString::null };
     for(int i = 0; !srcs[i].isNull(); i++) {
 	QStringList &l = v[srcs[i]];
 	for(QStringList::Iterator val_it = l.begin(); val_it != l.end(); ++val_it) {
@@ -152,7 +195,7 @@ ProjectGenerator::init()
 	addConfig("moc", FALSE);
 
     //if we find a file that matches an forms it needn't be included in the project
-    QStringList &u = v["FORMS"];
+    QStringList &u = v["INTERFACES"];
     QString no_ui[] = { "SOURCES", "HEADERS", QString::null };
     {
 	for(int i = 0; !no_ui[i].isNull(); i++) {
@@ -189,17 +232,22 @@ ProjectGenerator::writeMakefile(QTextStream &t)
     t << "##############################################################" << endl << endl;
 #define WRITE_VAR(x) t << getWritableVar(x)
     WRITE_VAR("TEMPLATE_ASSIGN"); //= rule
-    WRITE_VAR("TARGET");
-    WRITE_VAR("CONFIG");
-    WRITE_VAR("CONFIG_REMOVE"); //-= rule
-    WRITE_VAR("DEPENDPATH");
+    if(project->first("TEMPLATE_ASSIGN") == "subdirs") {
+	t << endl << "# Directories" << endl;
+	WRITE_VAR("SUBDIRS");
+    } else {
+	WRITE_VAR("TARGET");
+	WRITE_VAR("CONFIG");
+	WRITE_VAR("CONFIG_REMOVE"); //-= rule
+	WRITE_VAR("DEPENDPATH");
 
-    t << endl << "# Input" << endl;
-    WRITE_VAR("HEADERS");
-    WRITE_VAR("FORMS");
-    WRITE_VAR("LEXSOURCES");
-    WRITE_VAR("YACCSOURCES");
-    WRITE_VAR("SOURCES");
+	t << endl << "# Input" << endl;
+	WRITE_VAR("HEADERS");
+	WRITE_VAR("INTERFACES");
+	WRITE_VAR("LEXSOURCES");
+	WRITE_VAR("YACCSOURCES");
+	WRITE_VAR("SOURCES");
+    } 
 #undef WRITE_VAR
     QStringList::Iterator it;
     for(it = Option::before_user_vars.begin(); it != Option::before_user_vars.end(); ++it)
@@ -240,7 +288,7 @@ ProjectGenerator::addFile(const QString &file)
 	else
 	    where = "SOURCES";
     } else if(file.right(Option::ui_ext.length()) == Option::ui_ext) {
-	where = "FORMS";
+	where = "INTERFACES";
     } else if(file.right(2) == ".c") {
 	where = "SOURCES";
     } else if(file.right(Option::lex_ext.length()) == Option::lex_ext) {
@@ -250,8 +298,10 @@ ProjectGenerator::addFile(const QString &file)
     } else if(file.right(Option::h_ext.length()) == Option::h_ext) {
 	where = "HEADERS";
     }
+    QString newfile = file;
+    fileFixify(newfile);
     if(!where.isEmpty() && !project->variables()[where].contains(file)) {
-	project->variables()[where] += file;
+	project->variables()[where] += newfile;
 	return TRUE;
     }
     return FALSE;
