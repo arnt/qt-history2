@@ -320,9 +320,12 @@ void QLabel::clear()
 void QLabel::setPixmap( const QPixmap &pixmap )
 {
     QSize osh = sizeHint();
-    clearContents();
-    lpixmap = new QPixmap( pixmap );
 
+    if ( !lpixmap || lpixmap->serialNumber() != pixmap.serialNumber() ) {
+	clearContents();
+	lpixmap = new QPixmap( pixmap );
+    }
+    
     if ( lpixmap->depth() == 1 && !lpixmap->mask() )
 	lpixmap->setMask( *((QBitmap *)lpixmap) );
 
