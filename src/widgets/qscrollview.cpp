@@ -475,11 +475,16 @@ QScrollView::~QScrollView()
     delete d;
 }
 
-void QScrollView::styleChange(QStyle & old)
+
+/*!
+  \reimp
+*/
+void QScrollView::styleChange( QStyle& old )
 {
-    QWidget::styleChange(old);
+    QWidget::styleChange( old );
     updateScrollBars();
 }
+
 
 void QScrollView::hslide( int pos )
 {
@@ -542,7 +547,6 @@ void QScrollView::setVBarGeometry( QScrollBar& vbar,
   the right margin accurately, whether there needs to be a vertical
   scroll bar or not.
 */
-
 
 QSize QScrollView::viewportSize( int x, int y ) const
 {
@@ -1906,7 +1910,9 @@ void QScrollView::drawContents(QPainter*, int, int, int, int)
 {
 }
 
-/*! \reimp
+
+/*!
+  \reimp
 */
 void QScrollView::frameChanged()
 {
@@ -2040,7 +2046,9 @@ int QScrollView::bottomMargin() const
     return d->b_marg;
 }
 
-/*! \reimp
+
+/*!
+  \reimp
 */
 bool QScrollView::focusNextPrevChild( bool next )
 {
@@ -2179,7 +2187,8 @@ void QScrollView::viewportToContents(int vx, int vy, int& x, int& y)
 }
 
 
-/*!\reimp
+/*!
+  \reimp
 */
 QSizePolicy QScrollView::sizePolicy() const
 {
@@ -2214,6 +2223,7 @@ QSize QScrollView::sizeHint() const
 /*!
   \reimp
 */
+
 QSize QScrollView::minimumSizeHint() const
 {
     return QSize(100+frameWidth()*2,
@@ -2242,19 +2252,19 @@ void QScrollView::startDragAutoScroll()
     }
 }
 
+
 /*!
   \internal
 */
-
 void QScrollView::stopDragAutoScroll()
 {
     d->autoscroll_timer.stop();
 }
 
+
 /*!
   \internal
 */
-
 void QScrollView::doDragAutoScroll()
 {
     QPoint p = viewport()->mapFromGlobal( QCursor::pos() );
@@ -2284,6 +2294,7 @@ void QScrollView::doDragAutoScroll()
     }
 }
 
+
 /*!
   If \a b is set to TRUE, the QScrollView automatically scrolles the contents
   in drag move events if the user moves the cursor close to a border of the
@@ -2295,6 +2306,7 @@ void QScrollView::setDragAutoScroll( bool b )
 {
     d->drag_autoscroll = b;
 }
+
 
 /*!
   Returns TRUE if autoscrolling in drag move events is enabled, else
