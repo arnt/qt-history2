@@ -277,15 +277,16 @@ MakefileGenerator::generateDependancies(QList<MakefileDependDir> &dirs, QString 
 
 	if(!inc.isEmpty()) {
 	    QString fqn;
-	    if(!stat(fndir + inc, &fst))
+	    if(project->isEmpty("QMAKE_ABSOLUTE_SOURCE_PATH") &&
+	       !stat(fndir + inc, &fst)) {
 		fqn = fndir + inc;
-	    else {
+	    } else {
 		if((Option::target_mode == Option::TARG_MAC9_MODE && inc.find(':')) ||
 		   (Option::target_mode == Option::TARG_WIN_MODE && inc[1] != ':') ||
 		   ((Option::target_mode == Option::TARG_UNIX_MODE || Option::target_mode == Option::TARG_MACX_MODE) && inc[0] != '/')) {
 		    bool found = FALSE;
 		    for(MakefileDependDir *mdd = dirs.first(); mdd; mdd = dirs.next() ) {
-			if((found = QFile::exists(mdd->local_dir + QDir::separator() + inc))) 
+			if((found = QFile::exists(mdd->local_dir + QDir::separator() + inc)))
 			    fqn = mdd->real_dir + QDir::separator() + inc;
 		    }
 		}
@@ -573,11 +574,11 @@ MakefileGenerator::write()
 	    QStringList exprt;
 	    if(project->first("TEMPLATE") == "app")
 		fprintf(stderr, "Cannot create a prl file for an application!");
-	    else if ( project->isActiveConfig("staticlib") ) 
+	    else if ( project->isActiveConfig("staticlib") )
 		exprt << "LIBS" << "DEFINES" << "CONFIG";
-	    else 
+	    else
 		exprt << "DEFINES" << "CONFIG";
-	    for(QStringList::Iterator it = exprt.begin(); it != exprt.end(); ++it) 
+	    for(QStringList::Iterator it = exprt.begin(); it != exprt.end(); ++it)
 		t << (*it) << " += " << project->variables()[(*it)].join(" ") << endl;
 	    ft.close();
 	}
@@ -1017,8 +1018,8 @@ MakefileGenerator::fileFixify(QString &file) const
     }
 
     QString orig_file = file;
-    file = Option::fixPathToTargetOS(file, FALSE);
     if(project->variables()["QMAKE_ABSOLUTE_SOURCE_PATH"].isEmpty()) { //relative
+	file = Option::fixPathToTargetOS(file, FALSE);
 	if(QDir::isRelativePath(file))
 	    return FALSE;
 	QString match_dir = Option::output_dir;
@@ -1047,6 +1048,7 @@ MakefileGenerator::fileFixify(QString &file) const
 	    }
 	}
     } else { //absoluteify it
+	file = Option::fixPathToTargetOS(file);
 	if(!QDir::isRelativePath(file)) //already absolute
 	    return FALSE;
 	QFileInfo fi(file);
