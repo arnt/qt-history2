@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobutton.h#66 $
+** $Id: //depot/qt/main/src/widgets/qradiobutton.h#67 $
 **
 ** Definition of QRadioButton class
 **
@@ -54,10 +54,12 @@ public:
     QRadioButton( const QString &text, QWidget *parent, const char* name=0 );
 
     bool    isChecked() const;
-    virtual void    setChecked( bool check );
 
     QSize    sizeHint() const;
 
+public slots:
+    virtual void    setChecked( bool check );
+    
 protected:
     bool    hitButton( const QPoint & ) const;
     void    drawButton( QPainter * );

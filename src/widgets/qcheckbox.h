@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qcheckbox.h#55 $
+** $Id: //depot/qt/main/src/widgets/qcheckbox.h#56 $
 **
 ** Definition of QCheckBox class
 **
@@ -55,7 +55,6 @@ public:
     QCheckBox( const QString &text, QWidget *parent, const char* name=0 );
 
     bool    isChecked() const;
-    void    setChecked( bool check );
 
     void    setNoChange();
 
@@ -63,6 +62,9 @@ public:
     bool    isTristate() const;
 
     QSize   sizeHint() const;
+
+public slots:
+    void    setChecked( bool check );
 
 protected:
     void    resizeEvent( QResizeEvent* );
