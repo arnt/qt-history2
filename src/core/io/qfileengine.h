@@ -53,9 +53,9 @@ public:
 
         //flags
         HiddenFlag     = 0x0100000,
+        LocalDiskFlag  = 0x0200000,
         ExistsFlag     = 0x0400000,
         RootFlag       = 0x0800000,
-        LocalDiskFlag  = 0x0F00000,
 
         //masks
         PermsMask  = 0x0000FFFF,
