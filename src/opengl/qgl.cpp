@@ -1170,7 +1170,7 @@ bool QGLContext::create( const QGLContext* shareContext )
 
 QGLWidget::QGLWidget( QWidget *parent, const char *name,
 		      const QGLWidget* shareWidget, WFlags f )
-    : QWidget( parent, name, f | Qt::WWinOwnDC )
+    : QWidget( parent, name, f | Qt::WWinOwnDC | Qt::WRepaintNoErase )
 {
     init( QGLFormat::defaultFormat(), shareWidget );
 }
@@ -1207,7 +1207,7 @@ QGLWidget::QGLWidget( QWidget *parent, const char *name,
 QGLWidget::QGLWidget( const QGLFormat &format, QWidget *parent,
 		      const char *name, const QGLWidget* shareWidget,
 		      WFlags f )
-    : QWidget( parent, name, f | Qt::WWinOwnDC )
+    : QWidget( parent, name, f | Qt::WWinOwnDC | Qt::WRepaintNoErase )
 {
     init( format, shareWidget );
 }
