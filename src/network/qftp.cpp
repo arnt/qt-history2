@@ -1166,8 +1166,9 @@ int QFtpPrivate::addCommand(QFtpCommand *cmd)
 /*!
     \class QFtp
     \brief The QFtp class provides an implementation of the FTP protocol.
+
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
 
     \ingroup io

@@ -308,8 +308,9 @@ Q_DECLARE_TYPEINFO(QCanvasItemPtr, Q_PRIMITIVE_TYPE);
 /*!
     \class QCanvasItemList
     \brief The QCanvasItemList class is a list of QCanvasItems.
+
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
 
     \compat
@@ -426,10 +427,11 @@ static int scm(int a, int b)
 
 
 /*!
-    \class QCanvas qcanvas.h
+    \class QCanvas
     \brief The QCanvas class provides a 2D area that can contain QCanvasItem objects.
+
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
 
     \compat
@@ -1835,10 +1837,11 @@ class QCanvasItemExtra {
 
 
 /*!
-    \class QCanvasItem qcanvas.h
+    \class QCanvasItem
     \brief The QCanvasItem class provides an abstract graphic object on a QCanvas.
+
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
 
     \compat
@@ -2449,10 +2452,11 @@ static bool collision_double_dispatch(const QCanvasSprite* s1,
 
 
 /*!
-    \class QCanvasSprite qcanvas.h
+    \class QCanvasSprite
     \brief The QCanvasSprite class provides an animated canvas item on a QCanvas.
+
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
 
     \compat
@@ -2764,10 +2768,11 @@ QRect QCanvasItem::boundingRectAdvanced() const
 }
 
 /*!
-    \class QCanvasPixmap qcanvas.h
+    \class QCanvasPixmap
     \brief The QCanvasPixmap class provides pixmaps for QCanvasSprites.
+
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
 
     \compat
@@ -2892,10 +2897,11 @@ QCanvasPixmap::~QCanvasPixmap()
 */
 
 /*!
-    \class QCanvasPixmapArray qcanvas.h
+    \class QCanvasPixmapArray
     \brief The QCanvasPixmapArray class provides an array of QCanvasPixmaps.
+
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
 
     \compat
@@ -3380,10 +3386,11 @@ void QCanvasSprite::draw(QPainter& painter)
 }
 
 /*!
-    \class QCanvasView qcanvas.h
+    \class QCanvasView
     \brief The QCanvasView class provides an on-screen view of a QCanvas.
+
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
 
     \compat
@@ -3620,11 +3627,12 @@ QSize QCanvasView::sizeHint() const
 }
 
 /*!
-    \class QCanvasPolygonalItem qcanvas.h
+    \class QCanvasPolygonalItem
     \brief The QCanvasPolygonalItem class provides a polygonal canvas item
     on a QCanvas.
+
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
 
     \compat
@@ -4015,10 +4023,11 @@ void QCanvasPolygonalItem::setBrush(QBrush b)
 
 
 /*!
-    \class QCanvasPolygon qcanvas.h
+    \class QCanvasPolygon
     \brief The QCanvasPolygon class provides a polygon on a QCanvas.
+
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
 
     \compat
@@ -4106,10 +4115,11 @@ void QCanvasPolygon::moveBy(double dx, double dy)
 }
 
 /*!
-    \class QCanvasSpline qcanvas.h
+    \class QCanvasSpline
     \brief The QCanvasSpline class provides multi-bezier splines on a QCanvas.
+
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
 
     \compat
@@ -4262,14 +4272,12 @@ QPointArray QCanvasPolygon::areaPoints() const
     return poly;
 }
 
-// ### mark: Why don't we offer a constructor that lets the user set the
-// points -- that way for some uses just the constructor call would be
-// required?
 /*!
-    \class QCanvasLine qcanvas.h
+    \class QCanvasLine
     \brief The QCanvasLine class provides a line on a QCanvas.
+
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
 
     \compat
@@ -4408,10 +4416,11 @@ void QCanvasLine::moveBy(double dx, double dy)
 }
 
 /*!
-    \class QCanvasRectangle qcanvas.h
+    \class QCanvasRectangle
     \brief The QCanvasRectangle class provides a rectangle on a QCanvas.
+
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
 
     \compat
@@ -4544,10 +4553,11 @@ void QCanvasRectangle::drawShape(QPainter & p)
 
 
 /*!
-    \class QCanvasEllipse qcanvas.h
+    \class QCanvasEllipse
     \brief The QCanvasEllipse class provides an ellipse or ellipse segment on a QCanvas.
+
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
 
     \compat
@@ -4729,10 +4739,11 @@ void QCanvasEllipse::drawShape(QPainter & p)
 
 
 /*!
-    \class QCanvasText qcanvas.h
+    \class QCanvasText
     \brief The QCanvasText class provides a text object on a QCanvas.
+
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
 
     \compat

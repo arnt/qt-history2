@@ -422,10 +422,11 @@ void QHttpCloseRequest::start(QHttp *http)
  ****************************************************/
 
 /*!
-    \class QHttpHeader qhttp.h
+    \class QHttpHeader
     \brief The QHttpHeader class contains header information for HTTP.
+
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
 
     \ingroup io
@@ -765,10 +766,11 @@ void QHttpHeader::setContentType(const QString& type)
  ****************************************************/
 
 /*!
-    \class QHttpResponseHeader qhttp.h
+    \class QHttpResponseHeader
     \brief The QHttpResponseHeader class contains response header information for HTTP.
+
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
 
     \ingroup io
@@ -928,14 +930,11 @@ QString QHttpResponseHeader::toString() const
  ****************************************************/
 
 /*!
-    \class QHttpRequestHeader qhttp.h
-    \brief The QHttpRequestHeader class contains request header information for
+    \class QHttpRequestHeader
+    \brief The QHttpRequestHeader class contains request header information for HTTP.
+
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
-\endif
-    HTTP.
-\if defined(commercial_edition)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
 
     \ingroup io
@@ -1098,12 +1097,13 @@ QString QHttpRequestHeader::toString() const
  *
  ****************************************************/
 /*!
-    \class QHttp qhttp.h
+    \class QHttp
     \reentrant
 
     \brief The QHttp class provides an implementation of the HTTP protocol.
+
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
 
     \ingroup io

@@ -46,11 +46,12 @@ static QCleanupHandler<QGLFormat> qgl_cleanup_format;
 #endif
 
 /*!
-    \class QGL qgl.h
+    \class QGL
     \brief The QGL class is a namespace for miscellaneous identifiers
     in the Qt OpenGL module.
+
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
 
     \module OpenGL
@@ -58,7 +59,12 @@ static QCleanupHandler<QGLFormat> qgl_cleanup_format;
 
 
     Normally you can ignore this class. QGLWidget and the other
-    OpenGL<sup>*</sup> module classes inherit it, so when you make your
+    OpenGL
+    \footnote
+        OpenGL is a trademark of Silicon Graphics, Inc. in the
+        United States and other countries.
+    \endfootnote
+    module classes inherit it, so when you make your
     own QGLWidget subclass you can use the identifiers in the QGL
     namespace without qualification.
 
@@ -66,10 +72,6 @@ static QCleanupHandler<QGLFormat> qgl_cleanup_format;
     need to refer to these identifiers from outside the QGL namespace's
     scope, e.g. in static functions. In such cases, simply write e.g. \c
     QGL::DoubleBuffer instead of just \c DoubleBuffer.
-
-    <sup>*</sup> OpenGL is a trademark of Silicon Graphics, Inc. in the
-    United States and other countries.
-
 */
 
 
@@ -79,11 +81,12 @@ static QCleanupHandler<QGLFormat> qgl_cleanup_format;
 
 
 /*!
-    \class QGLFormat qgl.h
+    \class QGLFormat
     \brief The QGLFormat class specifies the display format of an OpenGL
     rendering context.
+
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
 
     \ingroup multimedia
@@ -104,7 +107,12 @@ static QCleanupHandler<QGLFormat> qgl_cleanup_format;
     \endlist
 
     You create and tell a QGLFormat object what rendering options you
-    want from an OpenGL<sup>*</sup> rendering context.
+    want from an OpenGL
+    \footnote
+        OpenGL is a trademark of Silicon Graphics, Inc. in the
+        United States and other countries.
+    \endfootnote
+    rendering context.
 
     OpenGL drivers or accelerated hardware may or may not support
     advanced features such as alpha channel or stereographic viewing.
@@ -145,9 +153,6 @@ static QCleanupHandler<QGLFormat> qgl_cleanup_format;
         }
     }
     \endcode
-
-    <sup>*</sup> OpenGL is a trademark of Silicon Graphics, Inc. in the
-    United States and other countries.
 
     \sa QGLContext, QGLWidget
 */
@@ -783,17 +788,22 @@ struct DDSFormat {
 #endif
 
 /*!
-    \class QGLContext qgl.h
+    \class QGLContext
     \brief The QGLContext class encapsulates an OpenGL rendering context.
+
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
 
     \ingroup multimedia
     \module OpenGL
 
-    An OpenGL<sup>*</sup> rendering context is a complete set of
-    OpenGL state variables.
+    An OpenGL
+    \footnote
+        OpenGL is a trademark of Silicon Graphics, Inc. in the
+        United States and other countries.
+    \endfootnote
+    rendering context is a complete set of OpenGL state variables.
 
     The context's \link QGL::FormatOption format\endlink is set in the
     constructor or later with setFormat(). The format options that are
@@ -814,10 +824,6 @@ struct DDSFormat {
     with the off-screen buffer using swapBuffers().
 
     Please note that QGLContext is not thread safe.
-
-    <sup>*</sup> OpenGL is a trademark of Silicon Graphics, Inc. in the
-    United States and other countries.
-
 */
 
 
@@ -1494,17 +1500,22 @@ const QGLContext* QGLContext::currentContext()
 
 
 /*!
-    \class QGLWidget qgl.h
+    \class QGLWidget
     \brief The QGLWidget class is a widget for rendering OpenGL graphics.
+
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
 
     \ingroup multimedia
     \mainclass
     \module OpenGL
 
-    QGLWidget provides functionality for displaying OpenGL<sup>*</sup>
+    QGLWidget provides functionality for displaying OpenGL
+    \footnote
+        OpenGL is a trademark of Silicon Graphics, Inc. in the
+        United States and other countries.
+    \endfootnote
     graphics integrated into a Qt application. It is very simple to
     use. You inherit from it and use the subclass like any other
     QWidget, except that instead of drawing the widget's contents
@@ -1617,9 +1628,6 @@ const QGLContext* QGLContext::currentContext()
     On X servers in which the default visual is in an overlay plane,
     non-GL Qt windows can also be used for overlays. See the
     examples/opengl/overlay_x11 example program for details.
-
-    <sup>*</sup> OpenGL is a trademark of Silicon Graphics, Inc. in the
-    United States and other countries.
 */
 
 /*!
@@ -2714,7 +2722,12 @@ OpenGL is a standard API for rendering 3D graphics.
 
 OpenGL only deals with 3D rendering and provides little or no support
 for GUI programming issues. The user interface for an
-OpenGL<sup>*</sup> application must be created with another toolkit,
+OpenGL
+    \footnote
+        OpenGL is a trademark of Silicon Graphics, Inc. in the
+        United States and other countries.
+    \endfootnote
+application must be created with another toolkit,
 such as Motif on the X platform, Microsoft Foundation Classes (MFC)
 under Windows, or Qt on \e both platforms.
 
@@ -2777,10 +2790,6 @@ See also the \link opengl-examples.html OpenGL examples\endlink.
 The QGL documentation assumes that you are familiar with OpenGL
 programming. If you're new to the subject a good starting point is
 \l{http://www.opengl.org/}.
-
-
-<sup>*</sup> OpenGL is a trademark of Silicon Graphics, Inc. in the
-United States and other countries.
 
 */
 

@@ -184,12 +184,13 @@ class QXmlDefaultHandlerPrivate
 };
 
 /*!
-    \class QXmlParseException qxml.h
+    \class QXmlParseException
     \reentrant
     \brief The QXmlParseException class is used to report errors with
     the QXmlErrorHandler interface.
+
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
 
     \module XML
@@ -249,12 +250,13 @@ QString QXmlParseException::systemId() const
 
 
 /*!
-    \class QXmlLocator qxml.h
+    \class QXmlLocator
     \reentrant
     \brief The QXmlLocator class provides the XML handler classes with
     information about the parsing position within a file.
+
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
 
     \module XML
@@ -346,12 +348,13 @@ public:
 };
 
 /*!
-    \class QXmlNamespaceSupport qxml.h
+    \class QXmlNamespaceSupport
     \reentrant
     \brief The QXmlNamespaceSupport class is a helper class for XML
     readers which want to include namespace support.
+
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
 
     \module XML
@@ -617,11 +620,12 @@ void QXmlNamespaceSupport::reset()
  *********************************************/
 
 /*!
-    \class QXmlAttributes qxml.h
+    \class QXmlAttributes
     \reentrant
     \brief The QXmlAttributes class provides XML attributes.
+
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
 
     \module XML
@@ -863,12 +867,13 @@ void QXmlAttributes::append(const QString &qName, const QString &uri, const QStr
  *********************************************/
 
 /*!
-    \class QXmlInputSource qxml.h
+    \class QXmlInputSource
     \reentrant
     \brief The QXmlInputSource class provides the input data for the
     QXmlReader subclasses.
+
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
 
     \module XML
@@ -1179,12 +1184,13 @@ QString QXmlInputSource::fromRawData(const QByteArray &data, bool beginning)
  *********************************************/
 
 /*!
-    \class QXmlContentHandler qxml.h
+    \class QXmlContentHandler
     \reentrant
     \brief The QXmlContentHandler class provides an interface to
     report the logical content of XML data.
+
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
 
     \module XML
@@ -1428,12 +1434,13 @@ QString QXmlInputSource::fromRawData(const QByteArray &data, bool beginning)
 
 
 /*!
-    \class QXmlErrorHandler qxml.h
+    \class QXmlErrorHandler
     \reentrant
     \brief The QXmlErrorHandler class provides an interface to report
     errors in XML data.
+
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
 
     \module XML
@@ -1502,12 +1509,13 @@ events are reported.
 
 
 /*!
-    \class QXmlDTDHandler qxml.h
+    \class QXmlDTDHandler
     \reentrant
     \brief The QXmlDTDHandler class provides an interface to report
     DTD content of XML data.
+
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
 
     \module XML
@@ -1568,12 +1576,13 @@ events are reported.
 
 
 /*!
-    \class QXmlEntityResolver qxml.h
+    \class QXmlEntityResolver
     \reentrant
     \brief The QXmlEntityResolver class provides an interface to
     resolve external entities contained in XML data.
+
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
 
     \module XML
@@ -1623,12 +1632,13 @@ events are reported.
 
 
 /*!
-    \class QXmlLexicalHandler qxml.h
+    \class QXmlLexicalHandler
     \reentrant
     \brief The QXmlLexicalHandler class provides an interface to
     report the lexical content of XML data.
+
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
 
     \module XML
@@ -1773,12 +1783,13 @@ events are reported.
 
 
 /*!
-    \class QXmlDeclHandler qxml.h
+    \class QXmlDeclHandler
     \reentrant
     \brief The QXmlDeclHandler class provides an interface to report declaration
     content of XML data.
+
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
 
     \module XML
@@ -1859,12 +1870,13 @@ events are reported.
 
 
 /*!
-    \class QXmlDefaultHandler qxml.h
+    \class QXmlDefaultHandler
     \reentrant
     \brief The QXmlDefaultHandler class provides a default implementation of all
     the XML handler classes.
+
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
 
     \module XML
@@ -2364,12 +2376,13 @@ private:
  *********************************************/
 
 /*!
-    \class QXmlReader qxml.h
+    \class QXmlReader
     \reentrant
     \brief The QXmlReader class provides an interface for XML readers (i.e.
     parsers).
+
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
 
     \module XML
@@ -2590,8 +2603,9 @@ private:
     \reentrant
     \brief The QXmlSimpleReader class provides an implementation of a
     simple XML parser.
+
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
 
     \module XML

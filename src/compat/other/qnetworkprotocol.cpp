@@ -76,8 +76,9 @@ public:
 /*!
     \class QNetworkProtocol qnetworkprotocol.h
     \brief The QNetworkProtocol class provides a common API for network protocols.
+
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
 
     \compat
@@ -924,7 +925,7 @@ void QNetworkProtocol::removeMe()
 {
     if (d->autoDelete) {
 #ifdef QNETWORKPROTOCOL_DEBUG
-        qDebug("QNetworkOperation:  autodelete of QNetworkProtocol %p", this);
+        qDebug("QNetworkOperation: Autodelete of QNetworkProtocol %p", this);
 #endif
         delete d->url; // destructor deletes the network protocol
     }
@@ -953,8 +954,9 @@ public:
     \class QNetworkOperation
 
     \brief The QNetworkOperation class provides common operations for network protocols.
+
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
 
     \compat
@@ -979,8 +981,8 @@ public:
 */
 
 QNetworkOperation::QNetworkOperation(QNetworkProtocol::Operation operation,
-                                      const QString &arg0, const QString &arg1,
-                                      const QString &arg2)
+                                     const QString &arg0, const QString &arg1,
+                                     const QString &arg2)
 {
     d = new QNetworkOperationPrivate;
     d->deleteTimer = new QTimer(this);
@@ -1000,7 +1002,7 @@ QNetworkOperation::QNetworkOperation(QNetworkProtocol::Operation operation,
 
 /*!
     Constructs a network operation object. \a operation is the type of
-    the operation, and \a arg0, \a arg1 and \a arg2 are the first
+    the operation, and \a arg0, \a arg1, and \a arg2 are the first
     three raw data arguments of the operation. The state is
     initialized to QNetworkProtocol::StWaiting.
 

@@ -151,12 +151,8 @@ void QApplicationPrivate::createEventLoop()
 
   \endlist
 
-  The <a href="simple-application.html">Application walk-through
-  example</a> contains a typical complete main() that does the usual
-  things with QApplication.
-
   Since the QApplication object does so much initialization, it
-  <b>must</b> be created before any other objects related to the user
+  \e{must} be created before any other objects related to the user
   interface are created.
 
   Since it also deals with common command line arguments, it is
@@ -1279,10 +1275,12 @@ int QApplication::colorSpec()
     (e.g. it requires thousands of colors).
     Under X11 the effect is:
     \list
-    \i For 256-color displays which have at best a 256 color true color
-       visual, the default visual is used, and colors are allocated
-       from a color cube. The color cube is the 6x6x6 (216 color) "Web
-       palette"<sup>*</sup>, but the number of colors can be changed
+    \i For 256-color displays which have at best a 256 color true
+       color visual, the default visual is used, and colors are
+       allocated from a color cube. The color cube is the 6x6x6 (216
+       color) "Web palette" (the red, green, and blue components
+       always have one of the following values: 0x00, 0x33, 0x66,
+       0x99, 0xCC, or 0xFF), but the number of colors can be changed
        by the \e -ncols option. The user can force the application to
        use the true color visual with the \link
        QApplication::QApplication() -visual \endlink option.
@@ -1315,10 +1313,6 @@ int QApplication::colorSpec()
   To check what mode you end up with, call QColor::numBitPlanes() once
   the QApplication object exists. A value greater than 8 (typically
   16, 24 or 32) means true color.
-
-  <sup>*</sup> The color cube used by Qt has 216 colors whose red,
-  green, and blue components always have one of the following values:
-  0x00, 0x33, 0x66, 0x99, 0xCC, or 0xFF.
 
   \sa colorSpec(), QColor::numBitPlanes(), QColor::enterAllocContext() */
 
@@ -2093,7 +2087,7 @@ extern QWidget *qt_tryModalHelperMac(QWidget * top); //qapplication_mac.cpp
 
 /*!\internal
 
-  Called from qapplication_<platform>.cpp, returns true
+  Called from qapplication_\e{platform}.cpp, returns true
   if the widget should accept the event.
  */
 bool qt_tryModalHelper(QWidget *widget, QWidget **rettop) {

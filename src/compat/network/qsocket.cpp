@@ -639,8 +639,9 @@ void QSocketPrivate::connectToNextAddress()
     \class QSocket
     \reentrant
     \brief The QSocket class provides a buffered TCP connection.
+
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
 
     \ingroup io

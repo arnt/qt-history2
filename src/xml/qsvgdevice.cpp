@@ -74,8 +74,9 @@ public:
 /*!
     \class QSvgDevice
     \brief The QSvgDevice class provides a paint device for SVG vector graphics.
+
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
 
     \ingroup xml-tools

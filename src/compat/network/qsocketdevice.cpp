@@ -28,8 +28,9 @@ QSocketDevicePrivate::~QSocketDevicePrivate()
 /*!
     \class QSocketDevice
     \brief The QSocketDevice class provides a platform-independent low-level socket API.
+
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
 
     \ingroup io

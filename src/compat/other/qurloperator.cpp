@@ -61,11 +61,12 @@ public:
 };
 
 /*!
-    \class QUrlOperator qurloperator.h
+    \class QUrlOperator
 
     \brief The QUrlOperator class provides common operations on URLs.
+
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
 
     \compat
@@ -75,13 +76,13 @@ public:
     operations:
     \table
     \header \i Operation        \i Function
-    \row \i List files                \i \l listChildren()
-    \row \i Make a directory        \i \l mkdir()
-    \row \i Remove a file        \i \l remove()
-    \row \i Rename a file        \i \l rename()
-    \row \i Get a file                \i \l get()
-    \row \i Put a file                \i \l put()
-    \row \i Copy a file                \i \l copy()
+    \row \i List files          \i \l listChildren()
+    \row \i Make a directory    \i \l mkdir()
+    \row \i Remove a file       \i \l remove()
+    \row \i Rename a file       \i \l rename()
+    \row \i Get a file          \i \l get()
+    \row \i Put a file          \i \l put()
+    \row \i Copy a file         \i \l copy()
     \endtable
 
     You can obtain additional information about the URL with isDir()
@@ -1171,6 +1172,5 @@ void QUrlOperator::slotItemChanged(QNetworkOperation *op)
         break;
     }
 }
-
 
 #endif // QT_NO_NETWORKPROTOCOL

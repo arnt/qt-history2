@@ -34,7 +34,7 @@ Q_GLOBAL_STATIC(QDnsAgent, agent)
     \reentrant
 
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
 
     \module network
@@ -245,7 +245,7 @@ void QDnsAgent::run()
     \reentrant
 
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
 
     \module network

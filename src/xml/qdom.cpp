@@ -574,12 +574,13 @@ QDomImplementationPrivate* QDomImplementationPrivate::clone()
  **************************************************************/
 
 /*!
-    \class QDomImplementation qdom.h
+    \class QDomImplementation
     \reentrant
     \brief The QDomImplementation class provides information about the
     features of the DOM implementation.
+
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
 
     \module XML
@@ -882,11 +883,12 @@ uint QDomNodeListPrivate::length() const
  **************************************************************/
 
 /*!
-    \class QDomNodeList qdom.h
+    \class QDomNodeList
     \reentrant
     \brief The QDomNodeList class is a list of QDomNode objects.
+
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
 
     \module XML
@@ -1495,11 +1497,12 @@ void QDomNodePrivate::save(QTextStream& s, int depth, int indent) const
 #define IMPL ((QDomNodePrivate*)impl)
 
 /*!
-    \class QDomNode qdom.h
+    \class QDomNode
     \reentrant
     \brief The QDomNode class is the base class for all the nodes in a DOM tree.
+
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
 
     \module XML
@@ -2593,12 +2596,13 @@ bool QDomNamedNodeMapPrivate::containsNS(const QString& nsURI, const QString & l
 #define IMPL ((QDomNamedNodeMapPrivate*)impl)
 
 /*!
-    \class QDomNamedNodeMap qdom.h
+    \class QDomNamedNodeMap
     \reentrant
     \brief The QDomNamedNodeMap class contains a collection of nodes
     that can be accessed by name.
+
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
 
     \module XML
@@ -3009,12 +3013,13 @@ void QDomDocumentTypePrivate::save(QTextStream& s, int, int indent) const
 #define IMPL ((QDomDocumentTypePrivate*)impl)
 
 /*!
-    \class QDomDocumentType qdom.h
+    \class QDomDocumentType
     \reentrant
     \brief The QDomDocumentType class is the representation of the DTD
     in the document tree.
+
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
 
     \module XML
@@ -3188,11 +3193,12 @@ QDomNodePrivate* QDomDocumentFragmentPrivate::cloneNode(bool deep)
 #define IMPL ((QDomDocumentFragmentPrivate*)impl)
 
 /*!
-    \class QDomDocumentFragment qdom.h
+    \class QDomDocumentFragment
     \reentrant
     \brief The QDomDocumentFragment class is a tree of QDomNodes which is not usually a complete QDomDocument.
+
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
 
     \module XML
@@ -3327,11 +3333,12 @@ void QDomCharacterDataPrivate::appendData(const QString& arg)
 #define IMPL ((QDomCharacterDataPrivate*)impl)
 
 /*!
-    \class QDomCharacterData qdom.h
+    \class QDomCharacterData
     \reentrant
     \brief The QDomCharacterData class represents a generic string in the DOM.
+
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
 
     \module XML
@@ -3589,11 +3596,12 @@ void QDomAttrPrivate::save(QTextStream& s, int, int) const
 #define IMPL ((QDomAttrPrivate*)impl)
 
 /*!
-    \class QDomAttr qdom.h
+    \class QDomAttr
     \reentrant
     \brief The QDomAttr class represents one attribute of a QDomElement.
+
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
 
     \module XML
@@ -3973,11 +3981,12 @@ void QDomElementPrivate::save(QTextStream& s, int depth, int indent) const
 #define IMPL ((QDomElementPrivate*)impl)
 
 /*!
-    \class QDomElement qdom.h
+    \class QDomElement
     \reentrant
     \brief The QDomElement class represents one element in the DOM tree.
+
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
 
     \module XML
@@ -4513,11 +4522,12 @@ void QDomTextPrivate::save(QTextStream& s, int, int) const
 #define IMPL ((QDomTextPrivate*)impl)
 
 /*!
-    \class QDomText qdom.h
+    \class QDomText
     \reentrant
     \brief The QDomText class represents text data in the parsed XML document.
+
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
 
     \module XML
@@ -4637,11 +4647,12 @@ void QDomCommentPrivate::save(QTextStream& s, int, int) const
 #define IMPL ((QDomCommentPrivate*)impl)
 
 /*!
-    \class QDomComment qdom.h
+    \class QDomComment
     \reentrant
     \brief The QDomComment class represents an XML comment.
+
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
 
     \module XML
@@ -4649,7 +4660,7 @@ void QDomCommentPrivate::save(QTextStream& s, int, int) const
 
     A comment in the parsed XML such as this:
     \code
-    <!-- this is a comment -->
+        <!-- this is a comment -->
     \endcode
     is represented by QDomComment objects in the parsed Dom tree.
 
@@ -4748,11 +4759,12 @@ void QDomCDATASectionPrivate::save(QTextStream& s, int, int) const
 #define IMPL ((QDomCDATASectionPrivate*)impl)
 
 /*!
-    \class QDomCDATASection qdom.h
+    \class QDomCDATASection
     \reentrant
     \brief The QDomCDATASection class represents an XML CDATA section.
+
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
 
     \module XML
@@ -4874,11 +4886,12 @@ void QDomNotationPrivate::save(QTextStream& s, int, int) const
 #define IMPL ((QDomNotationPrivate*)impl)
 
 /*!
-    \class QDomNotation qdom.h
+    \class QDomNotation
     \reentrant
     \brief The QDomNotation class represents an XML notation.
+
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
 
     \module XML
@@ -5066,11 +5079,12 @@ void QDomEntityPrivate::save(QTextStream& s, int, int) const
 #define IMPL ((QDomEntityPrivate*)impl)
 
 /*!
-    \class QDomEntity qdom.h
+    \class QDomEntity
     \reentrant
     \brief The QDomEntity class represents an XML entity.
+
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
 
     \module XML
@@ -5219,11 +5233,12 @@ void QDomEntityReferencePrivate::save(QTextStream& s, int, int) const
 #define IMPL ((QDomEntityReferencePrivate*)impl)
 
 /*!
-    \class QDomEntityReference qdom.h
+    \class QDomEntityReference
     \reentrant
     \brief The QDomEntityReference class represents an XML entity reference.
+
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
 
     \module XML
@@ -5345,12 +5360,13 @@ void QDomProcessingInstructionPrivate::save(QTextStream& s, int, int) const
 #define IMPL ((QDomProcessingInstructionPrivate*)impl)
 
 /*!
-    \class QDomProcessingInstruction qdom.h
+    \class QDomProcessingInstruction
     \reentrant
     \brief The QDomProcessingInstruction class represents an XML processing
     instruction.
+
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
 
     \module XML
@@ -5738,11 +5754,12 @@ void QDomDocumentPrivate::save(QTextStream& s, int, int indent) const
 #define IMPL ((QDomDocumentPrivate*)impl)
 
 /*!
-    \class QDomDocument qdom.h
+    \class QDomDocument
     \reentrant
     \brief The QDomDocument class represents an XML document.
+
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
 
     \module XML

@@ -168,8 +168,9 @@ static bool isRowSelection(QTable::SelectionMode selMode)
     \class QTableSelection
     \brief The QTableSelection class provides access to a selected area in a
     QTable.
+
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
 
     \compat
@@ -384,8 +385,9 @@ int QTableSelection::numCols() const
 /*!
     \class QTableItem
     \brief The QTableItem class provides the cell content for QTable cells.
+
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
 
     \compat
@@ -1101,8 +1103,9 @@ bool QTableItem::isEnabled() const
     \class QComboTableItem
     \brief The QComboTableItem class provides a means of using
     comboboxes in QTables.
+
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
 
     \compat
@@ -1418,8 +1421,9 @@ QSize QComboTableItem::sizeHint() const
 /*!
     \class QCheckTableItem
     \brief The QCheckTableItem class provides checkboxes in QTables.
+
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
 
     \compat
@@ -1607,8 +1611,9 @@ QSize QCheckTableItem::sizeHint() const
 /*!
     \class QTable
     \brief The QTable class provides a flexible editable table widget.
+
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
 
     \compat
@@ -6249,8 +6254,9 @@ void QTable::changeEvent(QEvent *ev)
     \class QTableHeader
     \brief The QTableHeader class allows for creation and manipulation
     of table headers.
+
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
 
     \compat

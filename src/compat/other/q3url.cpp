@@ -61,11 +61,12 @@ static void slashify(QString& s, bool allowMultiple = true)
 
 
 /*!
-    \class Q3Url qurl.h
+    \class Q3Url
 
     \brief The Q3Url class provides a URL parser and simplifies working with URLs.
+
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
 
     \compat

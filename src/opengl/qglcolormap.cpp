@@ -12,11 +12,12 @@
 ****************************************************************************/
 
 /*!
-    \class QGLColormap qglcolormap.h
+    \class QGLColormap
     \brief The QGLColormap class is used for installing custom colormaps into
     QGLWidgets.
+
 \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+    It is part of the \l{commercialeditions.html}{Qt Enterprise Edition}.
 \endif
 
     \module OpenGL
