@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatastream.cpp#48 $
+** $Id: //depot/qt/main/src/tools/qdatastream.cpp#49 $
 **
 ** Implementation of QDataStream class
 **
@@ -537,7 +537,7 @@ QDataStream &QDataStream::readRawBytes( char *s, uint len )
 {
     CHECK_STREAM_PRECOND
     if ( printable ) {				// printable data
-	register char *p = s;
+	register Q_INT8 *p = (Q_INT8*)s;
 	while ( len-- )
 	    *this >> *p++;
     } else {					// read data char array

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#162 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#163 $
 **
 ** Global type declarations and definitions
 **
@@ -339,7 +339,7 @@ inline int qRound( double d )
 // QT_CLEAN_NAMESPACE is not defined by default; it would break too
 // much code.
 #if !defined(QT_CLEAN_NAMESPACE)
-typedef char		INT8;			// 8 bit signed
+typedef signed char	INT8;			// 8 bit signed
 typedef unsigned char	UINT8;			// 8 bit unsigned
 typedef short		INT16;			// 16 bit signed
 typedef unsigned short	UINT16;			// 16 bit unsigned
@@ -347,7 +347,7 @@ typedef int		INT32;			// 32 bit signed
 typedef unsigned int	UINT32;			// 32 bit unsigned
 #endif
 
-typedef char		Q_INT8;			// 8 bit signed
+typedef signed char	Q_INT8;			// 8 bit signed
 typedef unsigned char	Q_UINT8;		// 8 bit unsigned
 typedef short		Q_INT16;		// 16 bit signed
 typedef unsigned short	Q_UINT16;		// 16 bit unsigned
