@@ -5717,7 +5717,10 @@ bool QTableHeader::doSelection( QMouseEvent *e )
 	if ( ( e->state() & ControlButton ) != ControlButton ||
 	     table->selectionMode() == QTable::Single ||
 	     table->selectionMode() == QTable::SingleRow ) {
+	    bool b = table->signalsBlocked();
+	    table->blockSignals( TRUE );
 	    table->clearSelection();
+	    table->blockSignals( b );
 	}
 	saveStates();
 	if ( table->selectionMode() != QTable::NoSelection ) {
