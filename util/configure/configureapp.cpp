@@ -51,15 +51,27 @@ Configure::Configure( int& argc, char** argv )
     dictionary[ "EXCEPTIONS" ]	    = "no";
     dictionary[ "RTTI" ]	    = "no";
 
-    /*
-	Figure out the version number doing:
+    QString version;
+    QFile profile(QString(getenv("QTDIR")) + "/src/qt.pro");
+    if (profile.open(IO_ReadOnly)) {
+	QTextStream read(&profile);
+	QString line;
+	while (!read.eof()) {
+	    line = read.readLine();
+	    if (line.contains("VERSION")) {
+		version = line.mid(line.find('=') + 1);
+		version = version.stripWhiteSpace();
+		if (!version.isEmpty())
+		    break;
+	    }
+	}
+	profile.close();
+    }    
 
-	    QT_MAJOR = QT_VERSION >> 16;
-	    QT_MINOR = ( QT_VERSION >> 8 ) & 0xff;
-	    QT_PATCH = QT_VERSION & 0xff;
-    */
+    if (version.isEmpty())
+	version = QString("%1.%2.%3").arg(QT_VERSION>>16).arg(((QT_VERSION>>8)&0xff)).arg(QT_VERSION&0xff);
 
-    dictionary[ "VERSION" ]	    = QString("%1%2%3").arg(QT_VERSION>>16).arg(((QT_VERSION>>8)&0xff)).arg(QT_VERSION&0xff);
+    dictionary[ "VERSION" ]	    = version;
     dictionary[ "REDO" ]	    = "no";
     dictionary[ "FORCE_PROFESSIONAL" ] = getenv( "FORCE_PROFESSIONAL" );
     dictionary[ "DEPENDENCIES" ]    = "no";
@@ -922,8 +934,11 @@ void Configure::generateOutputVars()
     else if ( dictionary[ "SQL_IBASE" ] == "plugin" )
         qmakeSqlPlugins += "ibase";
 
-    if ( dictionary[ "SHARED" ] == "yes" )
-	qmakeVars += "QMAKE_QT_VERSION_OVERRIDE=" + dictionary[ "VERSION" ];
+    if ( dictionary[ "SHARED" ] == "yes" ) {
+	QString version = dictionary[ "VERSION" ];
+	version.remove('.');
+	qmakeVars += "QMAKE_QT_VERSION_OVERRIDE=" + version;
+    }
 
     if( !dictionary[ "QT_INSTALL_HEADERS" ] )
 	dictionary[ "QT_INSTALL_HEADERS" ] = QDir::convertSeparators( dictionary[ "QT_INSTALL_PREFIX" ] + "/include" );
@@ -1210,18 +1225,17 @@ void Configure::generateConfigfiles()
     if( outFile.open( IO_WriteOnly | IO_Translate ) ) {
 	QTextStream outStream( &outFile );
 
-	int major = QT_VERSION >> 16;
-	int minor = QT_VERSION >> 8 & 0xff;
-	int patch = QT_VERSION&0xff;
-	QString prodVer = "0x" + QString::number(major, 16) + ", " +
-			  "0x" + QString::number(minor, 16) + ", " +
-			  "0x" + QString::number(patch, 16) + ", 0";
+	QString version = dictionary["VERSION"];
 	QString prodFile = "qt";
 	if ( dictionary["THREAD"] == "yes" )
 	    prodFile += "-mt";
-	if ( dictionary["SHARED"] == "yes" )
-	    prodFile += dictionary["VERSION"];
+	if ( dictionary["SHARED"] == "yes" ) {
+	    prodFile += version;
+	    prodFile.remove('.');
+	}
 	prodFile += ".dll";
+	QString prodVer = version;
+	prodVer.replace('.', ',');
 
 	QString internalName = licenseInfo["PRODUCTS"];
 
@@ -1233,7 +1247,7 @@ void Configure::generateConfigfiles()
 	outStream << "# endif" << endl;
 	outStream << "#endif" << endl << endl;
 	outStream << "VS_VERSION_INFO VERSIONINFO" << endl;
-	outStream << "\tFILEVERSION " << major << "," << minor << "," << patch << ",1" << endl;
+	outStream << "\tFILEVERSION " << prodVer << ",1" << endl;
 	outStream << "\tPRODUCTVERSION " << prodVer << endl;
 	outStream << "\tFILEFLAGSMASK 0x3fL" << endl;
 	outStream << "#ifdef _DEBUG" << endl;
@@ -1251,13 +1265,13 @@ void Configure::generateConfigfiles()
 	outStream << "\t\t\tBEGIN" << endl;
 	outStream << "\t\t\t\tVALUE \"CompanyName\", \"Trolltech AS\\0\"" << endl;
 	outStream << "\t\t\t\tVALUE \"FileDescription\", \"Qt\\0\"" << endl;
-	outStream << "\t\t\t\tVALUE \"FileVersion\", \"" << major << "," << minor << "," << patch << ",1\\0\"" << endl;
+	outStream << "\t\t\t\tVALUE \"FileVersion\", \"" << prodVer << ",1\\0\"" << endl;
 	outStream << "\t\t\t\tVALUE \"InternalName\", \"" << internalName << "\\0\"" << endl;
 	outStream << "\t\t\t\tVALUE \"LegalCopyright\", \"Copyright (C) 2003 Trolltech\\0\"" << endl;
 	outStream << "\t\t\t\tVALUE \"LegalTrademarks\", \"\\0\"" << endl;
 	outStream << "\t\t\t\tVALUE \"OriginalFilename\", \"" << prodFile << "\\0\"" << endl;
 	outStream << "\t\t\t\tVALUE \"ProductName\", \"Qt\\0\"" << endl;
-	outStream << "\t\t\t\tVALUE \"ProductVersion\", \"" << major << "." << minor << "." << patch << "\\0\"" << endl;
+	outStream << "\t\t\t\tVALUE \"ProductVersion\", \"" << version << "\\0\"" << endl;
 	outStream << "\t\t\tEND" << endl;
 	outStream << "\t\tEND" << endl;
 	outStream << "\tEND" << endl;
