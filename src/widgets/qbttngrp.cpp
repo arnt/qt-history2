@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbttngrp.cpp#7 $
+** $Id: //depot/qt/main/src/widgets/qbttngrp.cpp#8 $
 **
 ** Implementation of QButtonGroup class
 **
@@ -16,7 +16,7 @@
 #include "qlist.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qbttngrp.cpp#7 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qbttngrp.cpp#8 $";
 #endif
 
 
@@ -85,7 +85,7 @@ void QButtonGroup::init()
     initMetaObject();
     buttons = new QButtonList;
     CHECK_PTR( buttons );
-    buttons->setAutoDelete( FALSE );
+    buttons->setAutoDelete( TRUE );
 }
 
 /*!
