@@ -111,7 +111,7 @@ public:
 };
 
 
-inline void QSettingsHeading::read(const QString &filename)
+void QSettingsHeading::read(const QString &filename)
 {
     if (! QFileInfo(filename).exists())
 	return;
@@ -135,7 +135,7 @@ inline void QSettingsHeading::read(const QString &filename)
 }
 
 
-inline void QSettingsHeading::parseLine(const QString &l)
+void QSettingsHeading::parseLine(const QString &l)
 {
     QString line = l.stripWhiteSpace();
     if (line.isEmpty())
@@ -193,7 +193,7 @@ QSettingsPrivate::QSettingsPrivate()
 }
 
 
-inline QSettingsGroup QSettingsPrivate::readGroup()
+QSettingsGroup QSettingsPrivate::readGroup()
 {
     QSettingsHeading hd;
     QSettingsGroup grp;
@@ -226,7 +226,7 @@ inline QSettingsGroup QSettingsPrivate::readGroup()
 }
 
 
-inline void QSettingsPrivate::removeGroup(const QString &key) {
+void QSettingsPrivate::removeGroup(const QString &key) {
     QSettingsHeading hd;
     QSettingsGroup grp;
     bool found = FALSE;
@@ -269,7 +269,7 @@ inline void QSettingsPrivate::removeGroup(const QString &key) {
 }
 
 
-inline void QSettingsPrivate::writeGroup(const QString &key, const QString &value)
+void QSettingsPrivate::writeGroup(const QString &key, const QString &value)
 {
     QSettingsHeading hd;
     QSettingsGroup grp;
@@ -307,7 +307,7 @@ inline void QSettingsPrivate::writeGroup(const QString &key, const QString &valu
 }
 
 
-inline QDateTime QSettingsPrivate::modificationTime()
+QDateTime QSettingsPrivate::modificationTime()
 {
     QSettingsHeading hd = headings[heading];
     QSettingsGroup grp = hd[group];
