@@ -956,10 +956,8 @@ static QTextFrame *findChildFrame(QTextFrame *f, int pos)
     QList<QTextFrame *> children = f->childFrames();
     for (int i = 0; i < children.size(); ++i) {
         QTextFrame *c = children.at(i);
-        const int firstPos = qMax(c->firstPosition() - 1, 0);
-        if (pos >= firstPos && pos <= c->lastPosition()) {
+        if (pos >= c->firstPosition() && pos <= c->lastPosition())
             return c;
-        }
     }
     return 0;
 }
