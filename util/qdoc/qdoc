@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#153 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#154 $
 #
 # this is a massive hack, written very quickly
 #
@@ -2228,8 +2228,8 @@ sub byfunction {
 
 
 sub functionindex {
-    my( $a, $b, $c, $result );
-    $result = "<ul>\n";
+    my( $a, $b, $c );
+    my $result = "<ul>";
 
     $a = "sex";
 
@@ -2243,19 +2243,21 @@ sub functionindex {
 	    $c =~ s/::.*//;
 	    next if ( $b eq $c );
 	    if ( $c eq "" ) {
-		print O "\n<li><a href=\"",$anchor{$_},"\">",&html($b),"</a>";
+		$result = join("", $result, "\n<li><a href=\"",
+			       $anchor{$_},"\">",&html($b),"</a>" );
 	    } else {
 		if ( $a ne $b ) {
 		    $a = $b;
-		    print O "\n<li>", &html($b), ": ";
+		    $result = join("", $result, "\n<li>", &html($b), ":\n" );
 		} else {
-		    print O ", ";
+		    $result = join( "", $result, ",\n" );
 		}
-		print O "<a href=\"", $anchor{$_}, "\">", $c, "</a>";
+		$result = join("", $result, "<a href=\"", $anchor{$_},
+			       "\">", $c, "</a>" );
 	    }
 	}
     }
-    $result . "\n</ul>";
+    $result .= "\n</ul>";
     $result;
 }
 
@@ -2400,12 +2402,8 @@ while( $moreclassestoprint ) {
 }
 
 &writepages();
-&inheritanceindex();
-&classindex();
-&headerindex();
 &exampleindex();
 &memberlists();
-&functionlist();
 
 if ( $internal ) {
     foreach $c ( keys %doc ) {
