@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#44 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#45 $
 **
 ** Implementation of QTextStream class
 **
@@ -16,7 +16,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qtextstream.cpp#44 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qtextstream.cpp#45 $");
 
 
 /*!
@@ -192,10 +192,20 @@ QTextStream::QTextStream( QIODevice *d )
   \code
     QString str;
     QBuffer buf( str );
-    buf.open( IO_ReadOnly );
-    QTextStream ts( &str, IO_WriteOnly );
+    buf.open( IO_WriteOnly );
+    QTextStream ts( &buf );
     ts << "pi = " << 3.14;			// str == "pi = 3.14"
     buf.close();
+  \endcode
+
+  Note that QStrings created in this way will not have NUL terminators.
+  So unless you are using the string purely as an array of bytes, you
+  should terminate them:
+  \code
+    QString str;
+    ...
+    ts << "pi = " << 3.14;			// str == "pi = 3.14"
+    ts << '\0';
   \endcode
 */
 
