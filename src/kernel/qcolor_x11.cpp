@@ -215,16 +215,6 @@ void QColor::initialize()
 
     int scr = QPaintDevice::x11AppScreen();
 
-    // Initialize global color objects
-    if ( QPaintDevice::x11AppDefaultVisual(scr) &&
-	 QPaintDevice::x11AppDefaultColormap(scr) ) {
-	globalColors()[blackIdx].setPixel((uint) BlackPixel(dpy, scr));
-	globalColors()[whiteIdx].setPixel((uint) WhitePixel(dpy, scr));
-    } else {
-	globalColors()[blackIdx].alloc(scr);
-	globalColors()[whiteIdx].alloc(scr);
-    }
-
     for ( scr = 0; scr < screencount; ++scr ) {
 	screendata[scr] = new QColorScreenData;
         screendata[scr]->g_vis = (Visual *) QPaintDevice::x11AppVisual( scr );
@@ -305,6 +295,18 @@ void QColor::initialize()
 	    }
 	    }
 	}
+    }
+
+    scr = QPaintDevice::x11AppScreen();
+
+    // Initialize global color objects
+    if ( QPaintDevice::x11AppDefaultVisual(scr) &&
+	 QPaintDevice::x11AppDefaultColormap(scr) ) {
+	globalColors()[blackIdx].setPixel((uint) BlackPixel(dpy, scr));
+	globalColors()[whiteIdx].setPixel((uint) WhitePixel(dpy, scr));
+    } else {
+	globalColors()[blackIdx].alloc(scr);
+	globalColors()[whiteIdx].alloc(scr);
     }
 
 #if 0 /* 0 == allocate colors on demand */
