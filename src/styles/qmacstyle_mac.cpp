@@ -1862,11 +1862,9 @@ int QMacStyle::styleHint(StyleHint sh, const QWidget *w,
 {
     SInt32 ret = 0;
     switch(sh) {
-#if 0
     case SH_LineEdit_PasswordCharacter:
-	ret = QChar(0x25E6);
+	ret = 0x25AA;
 	break;
-#endif
     case SH_DialogButtons_DefaultButton:
 	ret = QDialogButtons::Reject;
 	break;
