@@ -17,7 +17,7 @@ public:
     MYSQL 	*mysql;
 };
 
-QSqlError makeError( const QString& err, int type, const QMySQLPrivate* p )
+QSqlError qMakeError( const QString& err, int type, const QMySQLPrivate* p )
 {
     return QSqlError("QMySQL: " + err, QString(mysql_error( p->mysql )), type);
 }
@@ -63,7 +63,7 @@ QVariant::Type qDecodeMYSQLType( int mysqltype )
     return type;
 }
 
-QSqlFieldInfo makeFieldInfo( const MYSQL_FIELD* f )
+QSqlFieldInfo qMakeFieldInfo( const MYSQL_FIELD* f )
 {
     const char* c = (const char*)f->name;
     return QSqlFieldInfo( QString(c), qDecodeMYSQLType(f->type), f->length, f->decimals );
@@ -135,7 +135,7 @@ QVariant QMySQLResult::data( int field )
 	MYSQL_FIELD* f = mysql_fetch_field_direct( d->result, field );
 	if ( f ) {
 	    QString val( ( d->row[field] ) );
-	    QSqlFieldInfo info = makeFieldInfo( f );
+	    QSqlFieldInfo info = qMakeFieldInfo( f );
 	    switch ( info.type ) {
 	    case QVariant::Int:
 		return QVariant( val.toInt() );
@@ -190,12 +190,12 @@ bool QMySQLResult::reset ( const QString& query )
     if ( !driver()-> isOpen() || driver()->isOpenError() )
         return FALSE;
     if ( mysql_real_query( d->mysql, query, query.length() ) ) {
-	setLastError( makeError("Unable to execute query", QSqlError::Statement, d ) );
+	setLastError( qMakeError("Unable to execute query", QSqlError::Statement, d ) );
 	return FALSE;
     }
     d->result = mysql_store_result( d->mysql );
     if ( !d->result ) {
-	setLastError( makeError( "Unable to store result", QSqlError::Statement, d ) );
+	setLastError( qMakeError( "Unable to store result", QSqlError::Statement, d ) );
 	return FALSE;
     }
     setActive( TRUE );
@@ -210,7 +210,7 @@ QMySQLResultInfo::QMySQLResultInfo( QMySQLPrivate* p )
     	for ( ;; ) {
 	    MYSQL_FIELD* f = mysql_fetch_field( p->result );
 	    if ( f )
-		appendField( makeFieldInfo( f ) );
+		appendField( qMakeFieldInfo( f ) );
 	    else
             	break;
     	}
@@ -260,13 +260,13 @@ bool QMySQLDriver::open( const QString & db,
 				0))
     {
 	if ( mysql_select_db( d->mysql, db )) {
-	    setLastError( makeError("Unable to real connect", QSqlError::Connection, d ) );
+	    setLastError( qMakeError("Unable to real connect", QSqlError::Connection, d ) );
 	    mysql_close( d->mysql );
 	    setOpenError( TRUE );
 	    return FALSE;
 	}
     } else {
-    	    setLastError( makeError( "Unable to connect", QSqlError::Connection, d ) );
+    	    setLastError( qMakeError( "Unable to connect", QSqlError::Connection, d ) );
 	    mysql_close( d->mysql ) ;
 	    return FALSE;
     }
