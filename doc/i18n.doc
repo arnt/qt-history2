@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: i18n.doc,v 1.10 1999/03/11 11:53:32 warwick Exp $
+** $Id: i18n.doc,v 1.11 1999/03/11 12:04:42 warwick Exp $
 **
 ** Explanation of moc and the meta object system
 **
@@ -90,7 +90,29 @@ in the following stages:
 	translations of the user-visible text in your program.
 	<p>
 	Provided with Qt is a utility program, findtr, that will extract
-	information about text to be translated.
+	information about text to be translated.  It recognizes the constructs
+	above, plus two additions: qt_tr_noop() and qt_translate_noop(),
+       	for use in code where it is convenient to put the strings
+	outside the tr() parameters:
+	\code
+	QString FriendlyConversation::greeting(int greet_type)
+	{
+	    static const char* greeting_strings[] = {
+		qt_tr_noop("Hello"),
+		qt_tr_noop("Goodbye")
+	    };
+	    return tr(greeting_strings[greet_type]);
+	}
+
+	static const char* greeting_strings[] = {
+	    qt_translate_noop("FriendlyConversation","Hello"),
+	    qt_translate_noop("FriendlyConversation","Goodbye")
+	};
+	QString FriendlyConversation::greeting(int greet_type)
+	{
+	    return tr(greeting_strings[greet_type]);
+	}
+	\endcode
 	<i>The current version is a simple shell script that produces
 	    a .po file, which can be converted to a .qm file that QTranslator
 	    can load.</i>
