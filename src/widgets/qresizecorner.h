@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qresizecorner.h#2 $
+** $Id: //depot/qt/main/src/widgets/qresizecorner.h#3 $
 **
 ** Definition of QResizeCorner class
 **
@@ -31,7 +31,7 @@
 #endif // QT_H
 
 
-class QResizeCorner: public QWidget
+class Q_EXPORT QResizeCorner: public QWidget
 {
 public:
     QResizeCorner( QWidget *parent, const char* name=0 );
