@@ -343,12 +343,12 @@ We start by using two of the \link dialogs.html Qt Standard
 Dialogs\endlink: QFileDialog and QMessageBox. Both of these classes
 provide useful static convenience functions.
 
-\list
-\i QFileDialog::getOpenFileName() -- replacement for the \e Open dialog
-\i QFileDialog::getSaveFileName() -- replacement for the \e {Save As} dialog
-\i QMessageBox::information() -- replacement for \e {Page Delete} dialog
-\i QMessageBox::warning() -- replacement for \e {IO Error} dialog.
-\endlist
+\table
+\row \i QFileDialog::getOpenFileName() \i replacement for the \e Open dialog
+\row \i QFileDialog::getSaveFileName() \i replacement for the \e {Save As} dialog
+\row \i QMessageBox::information() \i replacement for \e {Page Delete} dialog
+\row \i QMessageBox::warning() \i replacement for \e {IO Error} dialog.
+\endtable
 
 Each of these functions takes a \e {QWidget *parent} argument. If we
 pass zero as the \e parent argument, then we will have dialogs that
@@ -570,20 +570,25 @@ After we have replaced the standard dialogs, we move onto the custom
 dialogs.  This project has a single custom dialog: the \e {Page Edit}
 dialog.
 
-Instead of writing the code ourselves, we use the \link
-designer-manual.book Qt Designer\endlink to design our dialog.  The
-steps involved in designing our custom dialog are beyond the scope of
-this walkthrough and will not be discussed here.  The \link
-designer-manual.book Qt Designer Manual\endlink is a complete
-reference on the use of \e {Qt Designer}.
+Instead of writing the code ourselves, we use \link
+designer-manual.book Qt Designer\endlink to design our dialog. 
+Designing a custom dialog is beyond the scope of
+this document: see the \link
+designer-manual.book Qt Designer Manual\endlink if you're unfamiliar
+with Qt's visual design tool.
 
 \section1 Replacing the \e {Page Edit} Dialog
 
 The custom QDialog description for the \e {Page Edit} dialog is saved
-as \c pageeditdialog.ui.  We add this file to the project file and
-regenerate the \c Makefile.  The \e uic utility generates the code for
-our custom QDialog, which is then compiled and linked into our
-application.
+as \c pageeditdialog.ui.  We add this file to the project file by
+adding the line
+\code
+FORMS += pageeditdialog.ui
+\endcode
+to the \c{.pro} file, and regenerate the \c Makefile.  The \e uic
+utility generates the code for our custom QDialog, which is then
+compiled and linked into our application. (\e uic is invoked
+automatically from makefiles generated from \c{.pro} files.)
 
 We need to pass the top-level QMotifWidget as the \e client_data
 argument to the \c EditPage function, which we will use as the parent
@@ -624,7 +629,7 @@ DoEditPage() function completely.
 The \c Page struct defined in \c page.h stores strings in \c {char*}
 arrays.  Since the PageEditDialog and the data it contains will be
 destroyed when we return from this function, we need to convert the
-unicode QString data into a QCString in the locale encoding and
+unicode QString data into a QCString in the local encoding and
 duplicate it with \c qstrdup().
 
 \skipto // pages[currentPage] -> label = XmTextFieldGetString(labelEditW);
@@ -661,11 +666,11 @@ The same process must be done for the minorTab text:
 [ \link motif-walkthrough.html Home\endlink ]
 [ \link motif-walkthrough-6.html Next: Using Qt Main Window Classes\endlink ]
 
-As mentioned above, the \e Print dialog cannot be replaced until we
+As mentioned earlier, the \e Print dialog cannot be replaced until we
 have converted the \e View widget.  The \e Print dialog will be
 removed once we have finished our migration, since we will use
-QPrinter.  Based on this information, we decide that it is not worth
-replacing the \e Print dialog with a custom QDialog replacement.
+QPrinter instead.  Based on this information, we decide that it is not
+worth replacing the \e Print dialog with a custom QDialog replacement.
 Instead, we will keep the Motif based dialog and use QMotifDialog to
 integrate the dialog with the application.
 
@@ -674,8 +679,8 @@ integrate the dialog with the application.
 Modality with QDialog is different from Motif.  The QDialog::exec()
 function does not return until the dialog is finished.  In Motif,
 modality is simply a property of the shell, and the application
-programmer must write QDialog::exec() style functionality if he or she
-desires that behavior.
+programmer must write QDialog::exec() style functionality if they
+want that behavior.
 
 Since we will be using QMotifDialog (which is a QDialog subclass), we
 will need to have an \e accept and a \e reject callback for each
@@ -776,64 +781,59 @@ the \e Print dialog is using QMotifDialog.
 [ \link motif-walkthrough.html Home\endlink ]
 [ \link motif-walkthrough-7.html Next: Refactoring Existing Code\endlink ]
 
-After we have replaced all dialogs, we are ready to begin replacing
+After we have replaced all the dialogs, we are ready to begin replacing
 the \e {Main Window}.  \link motif-walkthrough.html#4 As mentioned
 above\endlink, we will replace the existing \c XmMainWindow and
 popup-menu heirarchy with \link application.html Qt Main Window
 Classes\endlink.
 
 We will use \link designer-manual.book Qt Designer\endlink to design
-our new main window.  The steps involved in designing the \e {Main
-Window} widget are beyond the scope of this walkthrough and will not
-be discussed here.  The \link designer-manual.book Qt Designer
-Manual\endlink is a complete reference on the use of \e {Qt Designer}.
+our new main window. 
 
 \section1 Implementing the \e {Main Window}
 
 The description for the \e {Main Window} is saved as \c mainwindow.ui.
 We add this file to the project file and regenerate the \c Makefile.
 The \e uic utility generates the code for our \e {Main Window}, which
-is then compiled and link into our application.
+is then compiled and linked into our application.
 
 \e {Qt Designer} also created the \c mainwindow.ui.h file.  We need to
 add the implementation for our \e {Main Window} to this skeleton
 implementation.
 
-We begin by adding the necessary includes for QApplication,
-QMessageBox and QMotifWidget.
+We begin by adding the necessary includes for QApplication
+and QMotifWidget.
 
 \quotefile walkthrough/mainwindow/mainwindow.ui.h
 
-\skipto Qt includes
+\skipuntil Qt includes
 \printuntil qmotifwidget.h
 
 We need includes for the Motif callback structs and the \c XmdPrint
 widget.
 
-\skipto Motif includes
-\printuntil Xmd/Print.h
+\skipuntil Motif includes
+\printline
+\skipuntil Demo includes
+\printline
 
 We are now ready to add implementations for the slots in our \e {Main
 Window}.  We have one slot per menu item.  Each slot will call the
 existing callback functions found in \c todo.cpp and \c actions.cpp.
 
-\list
-\i File menu
-    \list
-    \i New - \c MainWindow::fileNew() - calls the \c New() callback
-    \i Open - \c MainWindow::fileOpen() - calls the \c Open() callback
-    \i Save - \c MainWindow::fileSave() - calls the \c SaveIt() callback
-    \i Save As - \c MainWindow::fileSaveAs() - calls the \c Save() callback
-    \i Print - \c MainWindow::filePrint() - calls the \c ShowPrintDialog() callback
-    \i Exit - \c MainWindow::fileExit() - calls QApplication::quit()
-    \endlist
-\i Selected menu
-    \list
-    \i Properties - \c MainWindow::selProperties() - calls the \c EditPage() callback
-    \i New - \c MainWindow::selNewPage() - calls the \c NewPage() callback
-    \i Delete to Trash - \c MainWindow::selDeletePage() - calls the \c DeletePage() callback
-    \endlist
-\endlist
+\table
+\header \i31 File menu
+\row \i New \i \c MainWindow::fileNew() \i calls the \c New() callback
+\row \i Open \i \c MainWindow::fileOpen() \i calls the \c Open() callback
+\row \i Save \i \c MainWindow::fileSave() \i calls the \c SaveIt() callback
+\row \i Save As \i \c MainWindow::fileSaveAs() \i calls the \c Save() callback
+\row \i Print \i \c MainWindow::filePrint() \i calls the \c ShowPrintDialog() callback
+\row \i Exit \i \c MainWindow::fileExit() \i calls QApplication::quit()
+\header \i31 Selected menu
+\row \i Properties \i \c MainWindow::selProperties() \i calls the \c EditPage() callback
+\row \i New \i \c MainWindow::selNewPage() \i calls the \c NewPage() callback
+\row \i Delete to Trash \i \c MainWindow::selDeletePage() \i calls the \c DeletePage() callback
+\endtable
 
 We need to add forward declarations for these callbacks before we can
 use them.
@@ -841,18 +841,18 @@ use them.
 \skipuntil Existing functions/variables found in todo.cpp and action.cpp
 \printuntil // extern "C"
 
-Each of the existing callback functions takes 3 arguments.  We pass
+Each of the existing callback functions takes three arguments.  We pass
 \e NULL to all of the arguments in this example (with a few exceptions,
 see below).  The existing code does not rely on any of the arguments.
 Each slot implementation is a single line calling the related callback
-function. The code is not very interesting and it not shown here due
-to space considerations.
+function. The code is not very interesting and would just take up
+space, so we've omitted it.
 
-There are 4 exceptions to the above.  The \c Open(), \c Save(), \c
+There are four exceptions to the above.  The \c Open(), \c Save(), \c
 EditPage() and \c DeletePage() callbacks accept a pointer to the
 toplevel QWidget as argument 2 (the \e client_data argument).  For
-these 4 functions, we pass \e this as argument 2, which is a toplevel
-\c MainWindow derived from QMainWindow.
+these four functions, we pass \e this as the second argument, which is
+a toplevel \c MainWindow derived from QMainWindow.
 
 \section1 Replacing the \e {Main Window}
 
@@ -864,16 +864,20 @@ First, we add the include for our new \e {Main Window}.
 
 \quotefile walkthrough/mainwindow/todo.cpp
 
-\skipto Qt based Main Window
+\skipuntil Qt based Main Window
 \printuntil mainwindow.h
 
 We can cleanup the Motif includes, since many of them are no longer
 needed.
 
-\skipto Motif include files
-\printuntil } // extern "C"
+\skipuntil Motif include files
+\printuntil Text.h
+\skipto Print.h
+\printline
+\skipto page.h
+\printline
 
-The \c QuitAppl() and \c manageCB() callbacks are not needed anymore,
+The \c QuitAppl() and \c manageCB() callbacks are not needed any more,
 so we remove them.  We do not need the global \c shell variable
 either.  We remove it and all references to it in the \c New(), \c
 Save() and \c Open() callbacks.
@@ -922,11 +926,11 @@ expected.
 [ \link motif-walkthrough.html Home\endlink ]
 [ \link motif-walkthrough-8.html Next: Replacing the View Widget\endlink ]
 
-In the opinion of the author, the existing code is slightly
-disorganized.  Even though the code \e does work, some cleanups and
-reorganization can only help with readability and maintainability.
-The steps described below are not necessary during the migration
-process but are included for completeness.
+In the author's view, the existing code is slightly disorganized.
+Even though the code \e does work, some cleanups and reorganization
+can only help with readability and maintainability. The steps
+described below are not necessary during the migration process but are
+included for completeness.
 
 \section1 Migrating Data Structures to C++
 
@@ -1054,7 +1058,7 @@ reallocate an existing block of data, so we have to do this ourselves.
 \skipto // C++ doesn't have 'renew'
 \printuntil max = newmax;
 
-There is also one occurance in \c ReadDB() where we call \c XtMalloc()
+There is also one occurence in \c ReadDB() where we call \c XtMalloc()
 with an argument of 2.  This was done when a file could not be read.
 Creating an empty string is not necessary, so we remove this code
 instead of using \e new.
@@ -1064,13 +1068,13 @@ instead of using \e new.
 \printuntil }
 
 The \c SaveDB() function in \c io.cpp also needs these changes.  We
-change one occurance of \c XtFree() to \e delete.
+change one occurence of \c XtFree() to \e delete.
 
 \skipto SaveDB(char* filename)
 \skipto Make sure to grab current page
 \printuntil delete [] pages[currentPage] -> page;
 
-Finally, We need to replace 2 occurances of \c XtNewString() in the \c
+Finally, We need to replace two occurences of \c XtNewString() in the \c
 main() function in \c todo.cpp.
 
 \quotefile walkthrough/refactor/todo.cpp
@@ -1088,7 +1092,7 @@ moved accordingly.
 
 \table
 \header \i Function             \i Original File  \i Moved to Function 
-\row    \i \c New()             \i \c todo.cpp    \i \c MainWindow::fileName()
+\row    \i \c New()             \i \c todo.cpp    \i \c MainWindow::fileNew()
 \row    \i \c Open()            \i \c todo.cpp    \i \c MainWindow::fileOpen()
 \row    \i \c SaveIt()          \i \c actions.cpp \i \c MainWindow::fileSave()
 \row    \i \c Save()            \i \c todo.cpp    \i \c MainWindow::fileSaveAs()
@@ -1101,25 +1105,25 @@ moved accordingly.
 The \c Print() callback function is still used by the \e {Print}
 dialog, so we move it into \c mainwindow.ui.h and make it \c static.
 
-Previously, the \c Open(), \c Save(), \c EditPage and \c DeletePage()
+Previously, the \c Open(), \c Save(), \c EditPage() and \c DeletePage()
 functions created dialogs with \e client_data as the parent argument.
 Since we have moved the code directly into the \e {Main Window}
 implementation, we create these dialogs with \e this as the parent
 argument.
 
-The \c PageChange() callback function is moved to from \c actions.cpp
+The \c PageChange() callback function is moved from \c actions.cpp
 to \c todo.cpp and made \c static since it is not used anywhere else.
 
 Earlier modifications to \c actions.cpp caused the \c Trim() function
-to become unused, so we remove it.
+to become redundant, so we remove it.
 
-The \c MIN() and \c MAX() macros in \c todo.cpp are unneeded.  Qt
+The \c MIN() and \c MAX() macros in \c todo.cpp are redundant.  Qt
 provides the \c QMIN() and \c QMAX() macros which we will use.
 
 Earlier modifications caused the \c fallback_resources array to become
-unused, so we remove it. 
+redundant, so we remove it. 
 
-In the near future, our program will not use Motif anymore, and we
+In the near future, our program will not use Motif any more, and we
 will no longer need to use QMotif.  To prepare for this, we remove the
 \c resources and \c optionDesc arrays and create the QMotif instance
 with just the \e APP_CLASS argument.
@@ -1133,32 +1137,42 @@ added to each file.
 Includes for \c actions.cpp:
 
 \quotefile walkthrough/refactor/actions.cpp
-
-\skipto // Motif includes
+\skipuntil // Motif includes
 \printuntil #include "page.h"
 
 Includes for \c io.cpp:
 
 \quotefile walkthrough/refactor/io.cpp
-
-\skipto // Qt includes
-\printuntil #include <Exm/TabB.h>
-\printline
+\skipuntil // Qt includes
+\printto // Motif includes
+\skipline
+\printto // Demo includes
+\skipline
+\printuntil }
 
 Includes for \c todo.cpp:
 
 \quotefile walkthrough/refactor/todo.cpp
-
-\skipto // MainWindow includes
-\printuntil #include "page.h"
+\skipuntil // MainWindow includes
+\printline
+\skipuntil // Qt includes
+\printuntil stdlib
+\skipuntil // Motif includes
+\printuntil page.h
 
 Includes for \c mainwindow.ui.h:
 
 \quotefile walkthrough/refactor/mainwindow.ui.h
-
-\skipto // PageEditDialog includes
-\printuntil #include <Xmd/Print.h>
+\skipuntil // PageEditDialog includes
 \printline
+\skipuntil // Qt includes
+\printuntil unistd
+\skipuntil // X includes
+\printuntil Xatom
+\skipuntil // Motif includes
+\printuntil Text.h
+\skipuntil // Demo includes
+\printuntil // extern
 
 [ \link motif-walkthrough-6.html Previous: Using Qt Main Window Classes\endlink ]
 [ \link motif-walkthrough.html Home\endlink ]
@@ -1183,7 +1197,7 @@ Includes for \c mainwindow.ui.h:
 
 We are ready to start replacing the \e {View} widget.  However, our
 example program uses the \c XmNotebook widget class.  Qt does not
-provide a direct equivalent of this class, so we are faced with 3
+provide a direct equivalent of this class, so we are faced with three
 possibilities, each with several advantages and disadvantages.
 
 \list 1
@@ -1237,12 +1251,8 @@ example project used in this walkthrough, using QTextEdit, QLabel and
 QSpinBox to provide a similar look.  The only difference is that we
 will not have tabs.
 
-We use the \link designer-manual.book Qt Designer\endlink to add the
+We use \link designer-manual.book Qt Designer\endlink to add the
 QTextEdit, QLabel and QSpinBox widgets to the \e {Main Window} widget.
-The steps involved in designing the \e {Main Window} widget are beyond
-the scope of this walkthrough and will not be discussed here.  The
-\link designer-manual.book Qt Designer Manual\endlink is a complete
-reference on the use of \e {Qt Designer}.
 
 \section1 Data Structure Modifications
 
@@ -1259,7 +1269,7 @@ remove them.
 \section1 Code Modifications
 
 Most of the existing functions in our application need to be modified
-to work with the new \e View widget.  The \c MainWindow class has 5
+to work with the new \e View widget.  The \c MainWindow class has five
 new functions that correspond to existing functions.
 
 \table
@@ -1354,8 +1364,10 @@ First, We add \c #include statements for the \c MainWindow, QSpinBox
 and QTextEdit classes.
 
 \quotefile walkthrough/view/io.cpp
-\skipto // Local includes
-\printuntil #include <qtextedit.h>
+\skipuntil // Local includes
+\printuntil page.h
+\skipuntil // Qt includes
+\printuntil qtextedit.h
 
 The new \c MainWindow::readDB() and \c MainWindow::saveDB() functions
 will not use any Xt/Motif functions, so we remove the Xt/Motif \c
@@ -1407,8 +1419,8 @@ We move \c AdjustPages() to \c mainwindow.ui.h and make it \c static,
 since it is only used in this file.  We remove the forward declaration
 from \c page.h as well.
 
-After our modifications, the \c actions.cpp is empty. We remove it
-from our project file and regenerate our \c Makefile.
+After our modifications, the \c actions.cpp file is empty. We remove
+it from our project file and regenerate our \c Makefile.
 
 \target todo-cpp-view-widget-modifications
 
@@ -1419,14 +1431,15 @@ Since we will not be using any Motif widgets, we remove all Motif \c
 #include statements, including \c qmotifwidget.h. 
 
 \quotefile walkthrough/view/todo.cpp
-
-\skipto // Local includes
-\printuntil #include <stdlib.h>
+\skipuntil // Local includes
+\printuntil page.h
+\skipuntil // Qt includes
+\printuntil stdlib.h
 
 We also remove the forward declarations of the \c ReadDB() function
 and the \c notebook, \c textw and \c labelw global variables.
 
-\skipto // Global data
+\skipuntil // Global data
 \printuntil int modified = 0;
 
 Next, we remove the \c center widget, which uses QMotifWidget.  The \e
@@ -1437,9 +1450,9 @@ creating the \c mainwindow widget.
 \skipto int main( int argc, char **argv )
 \printuntil app.setMainWidget( &mainwindow );
 
-Since the \c ReadDB() and \c SetPage() functions have been change into
-the \c MainWindow member functions, we need to call these functions
-using our \c mainwindow instance.
+Since the \c ReadDB() and \c SetPage() functions have been changed into
+\c MainWindow member functions, we need to call them using our \c
+mainwindow instance.
 
 \skipto mainwindow.readDB(options.todoFile);
 \printuntil return app.exec();
@@ -1473,7 +1486,7 @@ The \e {Print} dialog is the last component in our application that
 uses Motif.  The current \c Print() function does nothing more than
 write the plain text to a temporary file, and then executes 'lpr' to
 send the text to the printer.  Since we will use QPrinter, we do not
-this function anymore, so we remove it.  The current \c
+this function any more, so we remove it.  The current \c
 MainWindow::filePrint() implementation is removed as well.  We will
 write a new \c MainWindow::filePrint() implementation in \c
 mainwindow.ui.h.
@@ -1500,7 +1513,7 @@ previous versions.
 
 First, we create the format tags that we will use.
 
-\skipto compose rich text string
+\skipuntil compose rich text string
 \printuntil const QString pagebreak = QString::fromLatin1( "<hr>" );
 
 Next we just loop over all pages, appending the page label, contents
@@ -1528,8 +1541,10 @@ First, we cleanup the \c #include statements in \c mainwindow.ui.h.
 
 \quotefile walkthrough/print/mainwindow.ui.h
 
-\skipto // Local includes
-\printuntil #include <unistd.h>
+\skipuntil // Local includes
+\printuntil page.h
+\skipuntil // Qt includes
+\printuntil unistd.h
 
 The \c MainWindow::fileNew() function uses the \c Boolean and \c False
 keywords from the Xt library.  C++ has these built into the language,
@@ -1568,11 +1583,11 @@ confirm that the application works correctly.
 [ \link motif-walkthrough-9.html Previous: Replacing the Print Dialog\endlink ]
 [ \link motif-walkthrough.html Home\endlink ]
 
-We are not yet done with the migration to Qt, even though our project
-does not use Motif anymore.  Qt provides many useful features that we
-can begin using immediately.  Some some of the interesting ones are
-presented below as a guide for where to start extending your existing
-projects.
+We have not quite finished with the migration to Qt, even though our
+project does not use Motif any more.  Qt provides many useful features
+that we can begin using immediately.  Some of the most interesting
+ones are presented below as a guide for where to start extending your
+existing projects.
 
 \section1 Using Unicode
 
@@ -1617,17 +1632,18 @@ uses \e delete or \c qstrdup() when storing text.
 
 Almost all of the functions in our application are affected by this
 change.  In most cases, we end up removing more code than we are
-adding.  Due to space considerations, we include only a small portion
-of the required changes, since these changes are very similar to the above.
+adding.  To keep the size of this walkthrough reasonable, we've only
+shown a small portion of the required changes, since the changes are
+very similar to those shown above.
 
 \section1 Writing Platform-Independent Code
 
 Qt provides many \link io.html input and output\endlink classes.  We
 can use these in \c MainWindow::readDB() and \c MainWindow::saveDB().
 Currently, these functions use functions only found on UNIX machines.
-Using QFile and friends removes this dependency on UNIX, and we can
+Using QFile and QTextStream removes this dependency on UNIX, and we can
 begin building and testing our application on Microsoft Windows and
-Apple MacOS X.
+Apple Mac OS X.
 
 The platform-independent versions of the \c MainWindow::readDB() and
 \c MainWindow::saveDB() functions can be found in the \c io.cpp file.
