@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.cpp#86 $
+** $Id: //depot/qt/main/src/kernel/qcolor.cpp#87 $
 **
 ** Implementation of QColor class
 **
@@ -305,14 +305,22 @@ void QColor::setNamedColor( const char *name )
 	const char *p = &name[1];
 	int len = strlen(p);
 	int r, g, b;
-	if ( len == 6 ) {
+	if ( len == 12 ) {
+	    r = (hex2int(p[0]) << 4) + hex2int(p[1]);
+	    g = (hex2int(p[4]) << 4) + hex2int(p[5]);
+	    b = (hex2int(p[8]) << 4) + hex2int(p[9]);
+	} else if ( len == 9 ) {
+	    r = (hex2int(p[0]) << 4) + hex2int(p[1]);
+	    g = (hex2int(p[3]) << 4) + hex2int(p[4]);
+	    b = (hex2int(p[6]) << 4) + hex2int(p[7]);
+	} else if ( len == 6 ) {
 	    r = (hex2int(p[0]) << 4) + hex2int(p[1]);
 	    g = (hex2int(p[2]) << 4) + hex2int(p[3]);
 	    b = (hex2int(p[4]) << 4) + hex2int(p[5]);
 	} else if ( len == 3 ) {
-	    r = hex2int(p[0]);
-	    g = hex2int(p[1]);
-	    b = hex2int(p[2]);
+	    r = hex2int(p[0]) << 4;
+	    g = hex2int(p[1]) << 4;
+	    b = hex2int(p[2]) << 4;
 	} else {
 	    r = g = b = 0;
 	}
