@@ -12,61 +12,78 @@
 
     \section1 Overview of The Model/View Architecture
 
-    Model-View-Controller (MVC) is a design pattern originating from
-    Smalltalk that is often used when building user interfaces.
-    In \l{Design Patterns}, Gamma et al. write:
+    The model/view architecture is a variation of the Model-View-Controller
+    (MVC) design pattern, originating from Smalltalk, that is often used when
+    building user interfaces.
 
-    \quote
-    MVC consists of three kinds of objects. The Model is the
-    application object, the View is its screen presentation, and the
-    Controller defines the way the user interface reacts to user
-    input. Before MVC, user interface designs tended to lump these
-    objects together. MVC decouples them to increase flexibility and
-    reuse.
-    \endquote
+    In the model/view architecture, the view and the controller objects are
+    combined. This still separates the way that data is stored from the way
+    that it is presented to the user, but provides a simpler framework based
+    on the same principles. This separation makes it possible to display the
+    same data in several different views, and to implement new types of views,
+    without changing the underlying data structures.
 
-    If the view and the controller objects are combined, the result is
-    the model/view architecture. This still separates the data in the
-    model from its presentation to the user, but simplifies both the
-    design and implementation of a framework based on these
-    principles. In Interview, we also introduce the concept of the \e
-    delegate to provide further user input functionality. The
-    advantage of using a delegate is that it allows custom input
-    widgets to be used instead of the default ones provided by views.
+    User input is handled by \e delegates. The advantage of this approach is
+    that it allows rendering and editing of individual items of data to be
+    customized to suit each data type in use.
 
-    Interview defines the interfaces and common functionality for the
-    models, views, and delegates at the \bold{abstract level}. All
-    implementations subclass the relevant abstract class:
-    QAbstractItemModel, QAbstractItemView, or
-    QAbstractItemDelegate. This approach ensures a common set of
-    interfaces for interoperability between each of the components.
+    \table
+    \row \i \inlineimage modelview-overview.png
+    \i \bold{The model/view architecture}
 
-    Interview provides ready-to-use implementations of views for the
-    common table, tree, and list widgets: QTableView, QTreeView, and
-    QListView. These reimplement and extend the interfaces provided
-    by the abstract views to provide features for particular use
-    cases. 
+    The model communicates with a source of data, providing an \e interface
+    for the other components in the architecture. The nature of the
+    communication depends on the type of data source, and the way the model
+    is implemented.
 
-    Two specialized abstract models are provided for use with the
-    view classes: QAbstractTableModel is a useful starting point for
-    providing a model to use with QTableView; QAbstractListModel
-    can be subclassed to produce a list-based model to use with
-    QListView. In addition, two standard model classes are supplied
-    for use with the view classes: the QStandardItemModel class is a
-    minimal convenience model that developers can use to manage items
-    of data; QDirModel provides directory information for use with
-    QListView and QTreeView.
+    The view obtains \e{model indexes} from the model; these are references
+    to items of data. By supplying model indexes to the model, the view can
+    retrieve items of data from the data source.
 
-    At the \bold{convenience level}, we find classes that are provided
-    to help those who are familiar with the conventional list, tree,
-    and table widgets: QListWidget, QTreeWidget, and
-    QTableWidget. These present a simplified interface to the
-    developer that does not explicitly require a knowledge of the
-    underlying model/view architecture.
+    In standard views, a \e delegate renders the items of data. When an item
+    is edited, the delegate communicates with the model directly using
+    model indexes.
+    \endtable
 
-    The view widgets interact with selection objects to ensure that
-    items are selected in a consistent way, and that selections can be
-    shared between different views of the same model.
+    \section1 Model/View Classes
+
+    On a fundamental level, the Interview classes define the interfaces and
+    common functionality for models, views, and delegates. All implemented
+    components subclass QAbstractItemModel, QAbstractItemView, or
+    QAbstractItemDelegate. The use of a common API ensures a level of
+    interoperability between the components.
+
+    \image standard-views.png
+
+    Interview provides ready-to-use implementations of views for table,
+    tree, and list widgets: QTableView, QTreeView, and QListView.
+    These standard views are suitable for displaying the most common
+    types of data structures used in applications, and can be used with
+    the ready-made models supplied with Qt:
+
+    \list
+    \o QStandardItemModel is a minimal convenience model that developers
+       can use to manage items of data.
+    \o QDirModel provides directory information for use with QListView and
+       QTreeView.
+    \endlist
+
+    Two specialized abstract models are provided that can be subclassed
+    and extended (see the
+    \l{Model/View Programming#related-examples}{Model/View Programming}
+    examples):
+
+    \list
+    \o QAbstractTableModel is a useful starting point for providing a custom
+       model that can be used with QTableView.
+    \o QAbstractListModel can be subclassed to produce a list-based model
+       for use with QListView.
+    \endlist
+
+    Developers who are familiar with the conventional list, tree, and table
+    widgets may find QListWidget, QTreeWidget, and QTableWidget useful.
+    These present a simplified interface to the views that does not require a
+    knowledge of the underlying model/view architecture.
 
     For details about how to use the model/view classes, see the
     \l{model-view-programming.html}{Model/View Programming} document.
@@ -77,10 +94,9 @@
     \section1 Example Code
 
     To illustrate how the Interview classes are used, we present two
-    examples that show different aspects of the model/view
-    architecture.
+    examples that show different aspects of the model/view architecture.
 
-    \section2 Sharing a Model Between Two Views
+    \section2 Sharing a Model Between Views
 
     In this example, we display the contents of a model using two
     different views, and share the user's selection between
@@ -89,21 +105,23 @@
     the views.
 
     The main() function for this example demonstrates all the
-    principles involved in setting up the model, the views, and the
-    selection:
+    principles involved in setting up a model and two views. We also
+    share the selection between the two views:
 
     \quotefromfile snippets/shareddirmodel/main.cpp
     \skipto int main(
     \printuntil }
 
-    In the above function, we constructed a directory model to display
+    In the above function, we construct a directory model to display
     the contents of a default directory. The two views are constructed
     and given the same model to work with. By default, each view will
     maintain and display its own selection of items from the model,
-    but we explicitly share a new selection with both the tree view
-    and the list view. As a result, changes to the selection in either
-    of these views will automatically cause the selection in the other
-    to change.
+    so we explicitly create a new selection that is shared between the
+    tree view and the list view. As a result, changes to the selection
+    in either of these views will automatically cause the selection in
+    the other to change.
+
+    \image interview-shareddirmodel.png
 
     The model/view architecture allows us to replace the QDirModel in
     this example with a completely different model, one that will perhaps
@@ -111,47 +129,44 @@
 
     \section2 Creating a Custom Model
 
-    In this example, we display the contents of a simple read-only
-    model using a ready-made view class.
-
-    Creating a custom model for the existing views requires us
-    to subclass QAbstractListModel and reimplement a standard set
-    of functions. Our model will take a list of strings when
-    constructed, and supply these to a view. Since we only require a
-    simple read-only model, the number of functions we need to provide
-    are very few.
+    In this example, we display items of data obtained from a custom list
+    model using a standard view. The custom model is a subclass of
+    QAbstractListModel and provides implementations of a core set of
+    functions.
 
     The complete declaration of our model is as follows:
 
     \quotefromfile snippets/stringlistmodel/model.h
     \skipto class StringListModel
-    \printuntil };
+    \printuntil headerData
+    \printline
+    \printline
+    \skipto private:
+    \printuntil /^\};/
 
-    Since the underlying data structure contains one row for each
-    string, and one column of strings, only the rowCount() function
-    needs to be implemented; by default, the columnCount() function
-    provided by QAbstractListModel will return a value of 1. The
-    data() function returns the data that corresponds to each model
-    index specified. In this way, the model controls access to the
-    underlying data. We do not need to provide a function to \e set the
-    data in the model because the string list is supplied to the
-    constructor, and this model is read-only.
+    The model takes a list of strings when constructed, and supplies these
+    to views as required. Since this is only a simple read-only model, we
+    only need to implement a few functions.
 
-    These functions are implemented quite simply:
+    The underlying data structure used to hold the strings is a QStringList.
+    Since the model maps each item in the list to a row in the model, the
+    rowCount() function is quite simple:
 
     \quotefromfile snippets/stringlistmodel/model.cpp
     \skipto int StringListModel::rowCount(
     \printuntil }
 
+    The data() function returns an item of data for each model index
+    supplied by a view:
+
     \skipto QVariant StringListModel::data(
     \printuntil }
 
-    The data() function returns a QVariant containing the
-    information referred to by the model index. If the view requests
-    an item from the string list, this is returned to the view, but
-    only after a number of checks are performed on the model index. If
-    the view specified an invalid model index, the model indicates
-    this by returning an invalid QVariant.
+    The data() function returns a QVariant containing the information
+    referred to by the model index. Items of data are returned to the view,
+    but only if a number of checks are satisfied; for example, if the view
+    specifies an invalid model index, the model indicates this by returning
+    an invalid QVariant.
 
     Vertical and horizontal headers are supplied by the headerData()
     function. In this model, the value returned for these items is the row
@@ -160,40 +175,21 @@
     \skipto QVariant StringListModel::headerData(
     \printuntil }
 
-    We only include an excerpt from the main() function for this
+    We only include an excerpt from the main() function for this short
     example:
 
     \quotefromfile snippets/stringlistmodel/main.cpp
     \skipto QStringList numbers;
+    \printuntil QAbstractItemModel
+    \dots
+    \skipto QListView
     \printuntil view->setModel(model);
 
-    We created a string list to use with the model, and this is
-    supplied to the model when it is constructed. The information in
-    the string list is then made available to the view via the model.
+    We create a string list to use with the model, and we supply it to the
+    model when it is constructed. The information in the string list is
+    made available to the view via the model.
 
-    If we require an editable model, we only need to define the following
-    functions in the class declaration:
-
-    \quotefromfile snippets/stringlistmodel/model.h
-    \skipto ItemFlags flags(
-    \printuntil bool setData(
-
-    These are implemented in the following way:
-
-    \quotefromfile snippets/stringlistmodel/model.cpp
-    \skipto QAbstractItemModel::ItemFlags StringListModel::flags(
-    \printuntil }
-
-    \skipto bool StringListModel::setData(
-    \printuntil return false;
-    \printuntil }
-
-    In the flags() function, we ensure that every item in the model is
-    editable by returning the same combination of values for all indexes.
-    The setData() function updates the data in the string list, but
-    only if the specified index refers to an item that is valid, is enabled,
-    and is editable. The dataChanged() signal ensures that the view is
-    kept up-to-date.
+    \image stringlistmodel.png
 
     This example shows that it can be easy to populate views with data
     from a simple model. The standard models and views planned for
@@ -203,55 +199,56 @@
     \section1 What's Changed Since Qt 3?
 
     The table and item view classes in Qt 3 implemented widgets that
-    served both as models and as views onto their contents. These
-    classes were designed to be easy-to-use and consistent. The
-    equivalent classes in Qt 4 are designed to be extensible while
+    both stored data and presented it to the user. These classes were
+    designed to be easy-to-use and consistent, but were sometimes
+    difficult to customize and extend.
+
+    The equivalent classes in Qt 4 are designed to be extensible while
     remaining easy-to-use; the introduction of the model/view
     architecture ensures that they will be more consistent than their
-    predecessors. The view classes provided can be summarized
-    in the following way:
+    predecessors. The view classes provided can be summarized in the
+    following way:
 
     \list
-    \i The QListView class provides a view widget that is
-    similar to Qt 3's QListBox widget, but displays data from a
-    model. It can also be used to display icons in a similar way
-    to Qt 3's QIconView.
-    \i The QTableView class is a view widget that displays
-    data from a model of tabular data, similar to Qt 3's QTable
-    widget.
-    \i The QTreeView class provides a view widget that
-    behaves like Qt 3's QListView widget, except that the data
-    items are provided by a model.
+    \i QListView class provides a view widget that looks similar to
+       Qt 3's QListBox widget, but displays data provided by a model.
+       It can also be used to display icons in a similar way to Qt 3's
+       QIconView.
+    \i The QTableView class is a view widget that displays tabular data
+       like Qt 3's QTable widget, but uses data provided by a model.
+    \i The QTreeView class provides a view widget that behaves like
+       Qt 3's QListView widget, except that it displays data provided
+       by a model.
     \endlist
 
-    Since the model takes responsibility for managing items,
-    and the view takes care of their presentation to the user,
-    we do not require item classes to represent individual items.
-    The delegate now handles the painting and editing of items
-    from the model, and selections of items are stored in selection
-    ranges.
+    Since the model takes responsibility for supplying items of data,
+    and the view takes care of their presentation to the user, we do
+    not require item classes to represent individual items.
+    Delegates handle the painting and editing of data obtained from
+    the model.
 
-    For developers who wish to continue to use old-style item views,
-    there are a number of convenience classes that will provide
-    familiar interfaces without requiring the use of compatibility
-    classes. The QListWidget class provides a widget to display a
-    list of items, as found in Qt 3's QListBox class, and the
-    QTreeWidget class implements the equivalent of Qt 3's QListView
-    class. User's of Qt 3's QTable class will find that
-    QTableWidget provides comparable functionality with a familiar
-    interface. Each of the convenience classes have a corresponding
-    item class: QListWidgetItem, QTreeWidgetItem, and
-    QTableWidgetItem are the Qt 4 equivalents of Qt 3's QListBoxItem,
-    QListViewItem, and QTableItem respectively.
+    Qt continues to provide a number of classic item view widgets with
+    familiar item-based interfaces that are not based on compatibility
+    classes:
 
-    The move towards a model/view architecture presents both
-    challenges and opportunities for developers. Although the approach
-    may appear to be rather powerful for simple applications, it
-    encourages greater reuse of components, both within the library
-    and within applications. For example, QFileDialog now displays
-    the contents of a QDirModel using the QListView and
-    QTreeView widgets.
+    \list
+    \i The QListWidget class provides a widget to display a
+       list of items, as found in Qt 3's QListBox class.
+    \i The QTreeWidget class implements the equivalent of Qt 3's
+       QListView class.
+    \i The QTableWidget class provides comparable functionality to
+       Qt 3's QTable class.
+    \endlist
 
+    Each of the convenience classes have a corresponding item class:
+    QListWidgetItem, QTreeWidgetItem, and QTableWidgetItem are the Qt 4
+    equivalents of Qt 3's QListBoxItem, QListViewItem, and QTableItem
+    respectively.
+
+    The move towards a model/view architecture presents both challenges
+    and opportunities for developers. Although the approach may appear to
+    be rather powerful for simple applications, it encourages greater
+    reuse of components, both within the library and within applications.
 
     \link qt4-intro.html [Back to the Beta page] \endlink
 
