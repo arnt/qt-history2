@@ -822,6 +822,16 @@ QVariant QTableWidgetItem::data(int role) const
 }
 
 /*!
+    Clears all the item's information.
+*/
+void QTableWidgetItem::clear()
+{
+    values.clear();
+    if (model)
+        model->itemChanged(this);
+}
+
+/*!
     Returns true if the item is less than the \a other item; otherwise returns
     false.
 */
@@ -831,13 +841,33 @@ bool QTableWidgetItem::operator<(const QTableWidgetItem &other) const
 }
 
 /*!
-    Clears all the item's information.
+  Writes the item to the \a stream.
 */
-void QTableWidgetItem::clear()
+QDataStream &QTableWidgetItem::operator<<(QDataStream &stream) const
 {
-    values.clear();
-    if (model)
-        model->itemChanged(this);
+    stream << values.count();
+    for (int i = 0; i < values.count(); ++i) {
+        stream << values.at(i).role;
+        stream << values.at(i).value;
+    }
+    return stream;
+}
+
+/*!
+  Reads the item from the \a stream.
+*/
+QDataStream &QTableWidgetItem::operator>>(QDataStream &stream)
+{
+    int count;
+    int role;
+    QVariant value;
+    stream >> count;
+    for (int i = 0; i < count; ++i) {
+        stream >> role;
+        stream >> value;
+        values.append(Data(role, value));
+    }
+    return stream;
 }
 
 /*!

@@ -1026,17 +1026,6 @@ QTreeWidgetItem::~QTreeWidgetItem()
 }
 
 /*!
-  Returns true if the text in the item is less than the text in the
-  \a other item, otherwise returns false.
-*/
-
-bool QTreeWidgetItem::operator<(const QTreeWidgetItem &other) const
-{
-    int column = view->header()->sortIndicatorSection();
-    return text(column) < other.text(column);
-}
-
-/*!
     Sets the value for the item's \a column and \a role to the given
     \a value.
 */
@@ -1081,6 +1070,56 @@ void QTreeWidgetItem::clear()
     values.clear();
     if (model)
         model->emitDataChanged(this, -1);
+}
+
+/*!
+  Returns true if the text in the item is less than the text in the
+  \a other item, otherwise returns false.
+*/
+
+bool QTreeWidgetItem::operator<(const QTreeWidgetItem &other) const
+{
+    int column = view->header()->sortIndicatorSection();
+    return text(column) < other.text(column);
+}
+
+/*!
+  Writes the item to the \a stream.
+*/
+QDataStream &QTreeWidgetItem::operator<<(QDataStream &stream) const
+{
+    stream << values.count(); // column count
+    for (int i = 0; i < values.count(); ++i) {
+        QVector<Data> column = values.at(i);
+        stream << column.count(); // number of values in the column
+        for (int j = 0; j < column.count(); ++j) {
+            stream << column.at(j).role;
+            stream << column.at(j).value;
+        }
+    }
+    return stream;
+}
+
+/*!
+  Reads the item from the \a stream.
+*/
+QDataStream &QTreeWidgetItem::operator>>(QDataStream &stream)
+{
+    int columnCount;
+    int valueCount;
+    int role;
+    QVariant value;
+    stream >> columnCount;
+    for (int i = 0; i < columnCount; ++i) {
+        stream >> valueCount;
+        values.append(QVector<Data>());
+        for (int j = 0; j < valueCount; ++j) {
+            stream >> role;
+            stream >> value;
+            values[i].append(Data(role, value));
+        }
+    }
+    return stream;
 }
 
 /*!

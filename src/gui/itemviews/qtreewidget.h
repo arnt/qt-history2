@@ -87,8 +87,11 @@ public:
 
     virtual QVariant data(int column, int role) const;
     virtual void setData(int column, int role, const QVariant &value);
-    virtual bool operator<(const QTreeWidgetItem &other) const;
     virtual void clear();
+
+    virtual bool operator<(const QTreeWidgetItem &other) const;
+    virtual QDataStream &operator<<(QDataStream &stream) const;
+    virtual QDataStream &operator>>(QDataStream &stream);
 
     inline QTreeWidgetItem *parent() const { return par; }
     inline QTreeWidgetItem *child(int index) const
@@ -102,11 +105,10 @@ public:
     void insertChild(int index, QTreeWidgetItem *child);
     QTreeWidgetItem *takeChild(int index);
 
-protected:
+private:
     QTreeWidgetItem();
     void sortChildren(int column, Qt::SortOrder order, bool climb);
 
-private:
     struct Data {
         Data() : role(-1) {}
         Data(int r, QVariant v) : role(r), value(v) {}

@@ -378,6 +378,16 @@ QVariant QListWidgetItem::data(int role) const
 }
 
 /*!
+  Removes all list items.
+*/
+void QListWidgetItem::clear()
+{
+    values.clear();
+    if (model)
+        model->itemChanged(this);
+}
+
+/*!
   Returns true if this item's text is less then \a other item's text;
   otherwise returns false.
 */
@@ -387,13 +397,33 @@ bool QListWidgetItem::operator<(const QListWidgetItem &other) const
 }
 
 /*!
-  Removes all list items.
+  Writes the item to the \a stream.
 */
-void QListWidgetItem::clear()
+QDataStream &QListWidgetItem::operator<<(QDataStream &stream) const
 {
-    values.clear();
-    if (model)
-        model->itemChanged(this);
+    stream << values.count();
+    for (int i = 0; i < values.count(); ++i) {
+        stream << values.at(i).role;
+        stream << values.at(i).value;
+    }
+    return stream;
+}
+
+/*!
+  Reads the item from the \a stream.
+*/
+QDataStream &QListWidgetItem::operator>>(QDataStream &stream)
+{
+    int count;
+    int role;
+    QVariant value;
+    stream >> count;
+    for (int i = 0; i < count; ++i) {
+        stream >> role;
+        stream >> value;
+        values.append(Data(role, value));
+    }
+    return stream;
 }
 
 /*!
