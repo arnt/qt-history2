@@ -73,7 +73,7 @@ void HelpWindow::setSource( const QString &name )
 		ShellExecuteA( winId(), 0, name.local8Bit(), 0, 0, SW_SHOWNORMAL );
 	    } );
 #else
-	    QMessageBox::information( this, tr( "Help" ), tr( "Currently no webbrowser is selected.\nPlease use the settingsdialog to specify one!\n" ) );
+	    QMessageBox::information( this, tr( "Help" ), tr( "Currently no Web browser is selected.\nPlease use the settings dialog to specify one!\n" ) );
 #endif
 	    return;
 	}
