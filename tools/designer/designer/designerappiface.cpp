@@ -763,6 +763,7 @@ void DesignerFormWindowImpl::addFunction( const QCString &function, const QStrin
 					  const QString &language, const QString &returnType )
 {
     MetaDataBase::addFunction( formWindow, function, specifier, access, type, language, returnType );
+    formWindow->mainWindow()->functionsChanged();
 }
 
 
