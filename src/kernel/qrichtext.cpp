@@ -4333,7 +4333,7 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 		// ### temporary hack until I get the new placement/shaping stuff working
 		int x = startX;
 		if ( ( alignment() & Qt::AlignJustify ) == Qt::AlignJustify && paintEnd != -1 &&
-		     at( paintEnd )->c.isSpace() ) {
+		     paintEnd > 1 && at( paintEnd )->c.isSpace() ) {
 		    int add = str->at(paintEnd).x - str->at(paintEnd-1).x - str->width(paintEnd-1);
 		    bw += ( lastDirection ? 0 : add );
 		}
