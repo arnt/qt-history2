@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.cpp#57 $
+** $Id: //depot/qt/main/src/widgets/qslider.cpp#58 $
 **
 ** Implementation of QSlider class
 **
@@ -385,7 +385,7 @@ static void drawWinPointedSlider( QPainter *p,
 
     QBrush oldBrush = p->brush();
     p->setBrush( c2 );
-    p->setPen( NoPen );
+    p->setPen( g.background() );
     p->drawRect( r );
     p->setBrush( oldBrush );
 
@@ -481,7 +481,7 @@ static void drawWinPointedSlider( QPainter *p,
 }
 
 
-void QSlider::paintSlider( QPainter *p, const QRect &r ) 
+void QSlider::paintSlider( QPainter *p, const QRect &r )
 {
     paintSlider(p, colorGroup(), r);
 }
@@ -656,11 +656,11 @@ void QSlider::paintEvent( QPaintEvent *e )
 }
 
 
-void QSlider::updateMask() 
+void QSlider::updateMask()
 {
     QBitmap bm( size() );
     bm.fill( color0 );
-    
+
     {
 	QPainter p( &bm, this );
 	QRect sliderR = sliderRect();
