@@ -5,7 +5,7 @@
 **
 ** Created : 001018
 **
-** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2003 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -850,7 +850,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 
     setWState(WState_MouseTracking);
     setMouseTracking(FALSE);                  // also sets event mask
-    if(desktop) { //immediatly "show" a "desktop"
+    if(desktop) { //immediately "show" a "desktop"
 	setWState(WState_Visible);
     } else {
 	clearWState(WState_Visible);

@@ -5,7 +5,7 @@
 **
 ** Created : 931029
 **
-** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2003 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -571,7 +571,7 @@ private:
     //mac event functions
     void    propagateUpdates(bool update_rgn=TRUE);
     void    update( const QRegion& );
-    //friends, way too many - fix this immediatly!
+    //friends, way too many - fix this immediately!
     friend void qt_clean_root_win();
     friend bool qt_recreate_root_win();
     friend QPoint posInWindow(QWidget *);
