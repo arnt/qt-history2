@@ -689,16 +689,21 @@ void QWin32PaintEngine::drawEllipse(const QRectF &r)
     }
 #endif // QT_NO_NATIVE_PATH
 
-    // Ellipse sizes differ depending on whether we have been in ADVANCED mode or not
-    // so make sure it is the case.
-    if (!d->ellipseHack) {
-        QPainterPrivate::TransformationCodes txop = d->txop;
-        d->txop = QPainterPrivate::TxScale;
-        d->setNativeMatrix(QMatrix(2, 0, 0, 2, 0, 0));
-        d->txop = txop;
-        d->setNativeMatrix(QMatrix());
-        d->ellipseHack = true;
-    }
+    QRectF rect = r;
+    QT_WA( {
+        // Ellipse sizes differ depending on whether we have been in ADVANCED mode or not
+        // so make sure it is the case.
+        if (!d->ellipseHack) {
+            QPainterPrivate::TransformationCodes txop = d->txop;
+            d->txop = QPainterPrivate::TxScale;
+            d->setNativeMatrix(QMatrix(2, 0, 0, 2, 0, 0));
+            d->txop = txop;
+            d->setNativeMatrix(QMatrix());
+            d->ellipseHack = true;
+        }
+    }, {
+        rect.addCoords(0, 0, 1, 1);
+    });
 
     HGDIOBJ oldPen;
     int reduction = 0;
@@ -708,9 +713,9 @@ void QWin32PaintEngine::drawEllipse(const QRectF &r)
         reduction = 1;
     }
 
-    Ellipse(d->hdc, qRound(r.x()), qRound(r.y()),
-            qRound(r.x() + r.width() - reduction),
-            qRound(r.y() + r.height() - reduction));
+    Ellipse(d->hdc, qRound(rect.x()), qRound(rect.y()),
+            qRound(rect.x() + rect.width() - reduction),
+            qRound(rect.y() + rect.height() - reduction));
 
     // Restore the state and delete the temporary pen.
     if (d->penStyle == Qt::NoPen)
