@@ -1,5 +1,9 @@
+#include <qprocess.h>
+
 #include "setupwizard.h"
 #include "installthread.h"
+
+class QCheckListItem;
 
 class SetupWizardImpl : public SetupWizard
 {
@@ -19,4 +23,15 @@ private:
     QByteArray tmpPath;
 
     InstallThread installer;
+    QProcess configure;
+    QCheckListItem* debugMode;
+    QCheckListItem* buildType;
+    QCheckListItem* threadModel;
+    QCheckListItem* modules;
+    QCheckListItem* sqldrivers;
+
+protected slots:
+    void configDone();
+    void readConfigureOutput();
+
 };

@@ -8,6 +8,8 @@
 #include <qcheckbox.h>
 #include <qlineedit.h>
 #include <zlib\zlib.h>
+#include <windows.h>
+#include <stdlib.h>
 
 #define BUFFERSIZE 65536
 
@@ -77,7 +79,7 @@ void InstallThread::readArchive( QString arcname, QString installPath )
 		
 		if( outFile.open( IO_WriteOnly ) ) {
 		    if( GUI ) {
-			postEvent( GUI, new InstallEvent( outDir.absPath() + QString( "\\" ) + entryName, totalRead ) );
+				postEvent( GUI, new InstallEvent( InstallEvent::updateProgress, outDir.absPath() + QString( "\\" ) + entryName, totalRead ) );
 		    }
 		    outStream.setDevice( &outFile );
 		    inStream >> entryLength;
@@ -156,17 +158,5 @@ void InstallThread::run()
     if( GUI->installTutorials->isChecked() )
 	readArchive( "tutorial.arq", GUI->installPath->text() );
 
-//    GUI->showPage( GUI->configPage );
-/*
-** All the files are installed now, so we can set up the environment
-** and configure the system.
-** We have to both set the persistent environment state in the registry
-** as well as set the variable in our local environment.
-*/
-
-/*
-    setenv( "QTDIR", installPath.latin1() );
-    args << QString( tmpPath.data() ) + "\\configurator.exe";
-    extproc.setWorkingDirectory( installPath );
-*/
+    postEvent( GUI, new InstallEvent( InstallEvent::moveNext ) );
 }

@@ -3,12 +3,18 @@
 class InstallEvent : public QCustomEvent
 {
 public:
-    InstallEvent( QString, int );
+    InstallEvent( int, QString message = QString::null, int progress = 0 );
 
     QString fileName;
     int progress;
+	int eType;
+
+	enum {
+		updateProgress,
+		moveNext
+	} eventType;
 
     enum {
-	eventID = QEvent::User
+		eventID = QEvent::User
     };
 };

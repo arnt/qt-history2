@@ -24,9 +24,6 @@ public:
     SetupWizardImpl* GUI;
 
     int totalRead;
-
-private:
-//    QProcess extproc;
 };
 
 #endif

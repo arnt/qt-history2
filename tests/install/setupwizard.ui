@@ -8,7 +8,7 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>437</width>
+            <width>429</width>
             <height>340</height>
         </rect>
     </property>
@@ -293,36 +293,151 @@
                 <property name="title">
                     <string>Copying files</string>
                 </property>
-                <vbox>
-                    <property name="margin">
-                        <number>11</number>
+                <widget class="QProgressBar">
+                    <property name="name">
+                        <cstring>operationProgress</cstring>
                     </property>
-                    <property name="spacing">
-                        <number>6</number>
+                    <property name="geometry">
+                        <rect>
+                            <x>11</x>
+                            <y>17</y>
+                            <width>271</width>
+                            <height>21</height>
+                        </rect>
                     </property>
-                    <widget class="QProgressBar">
+                    <property name="progress">
+                        <number>0</number>
+                    </property>
+                    <property name="centerIndicator">
+                        <bool>false</bool>
+                    </property>
+                    <property name="indicatorFollowsStyle">
+                        <bool>true</bool>
+                    </property>
+                </widget>
+                <widget class="QLineEdit">
+                    <property name="name">
+                        <cstring>filesDisplay</cstring>
+                    </property>
+                    <property name="geometry">
+                        <rect>
+                            <x>10</x>
+                            <y>40</y>
+                            <width>270</width>
+                            <height>22</height>
+                        </rect>
+                    </property>
+                </widget>
+            </widget>
+        </hbox>
+    </widget>
+    <widget class="QWidget">
+        <property name="name">
+            <cstring>configPage</cstring>
+        </property>
+        <attribute name="title">
+            <string>Configuration</string>
+        </attribute>
+        <hbox>
+            <property name="name">
+                <cstring>unnamed</cstring>
+            </property>
+            <property name="margin">
+                <number>11</number>
+            </property>
+            <property name="spacing">
+                <number>6</number>
+            </property>
+            <widget class="QLabel">
+                <property name="name">
+                    <cstring>page4Pixmap</cstring>
+                </property>
+                <property name="pixmap">
+                    <pixmap>image1</pixmap>
+                </property>
+                <property name="scaledContents">
+                    <bool>false</bool>
+                </property>
+                <property name="alignment">
+                    <set>AlignAuto|AlignTop</set>
+                </property>
+                <property name="vAlign" stdset="0">
+                </property>
+            </widget>
+            <widget class="QTabWidget">
+                <property name="name">
+                    <cstring>configTabs</cstring>
+                </property>
+                <widget class="QWidget">
+                    <property name="name">
+                        <cstring>generalTab</cstring>
+                    </property>
+                    <attribute name="title">
+                        <string>General</string>
+                    </attribute>
+                    <grid>
                         <property name="name">
-                            <cstring>operationProgress</cstring>
+                            <cstring>unnamed</cstring>
                         </property>
-                        <property name="progress">
-                            <number>0</number>
+                        <property name="margin">
+                            <number>11</number>
                         </property>
-                        <property name="centerIndicator">
-                            <bool>false</bool>
+                        <property name="spacing">
+                            <number>6</number>
                         </property>
-                        <property name="indicatorFollowsStyle">
-                            <bool>true</bool>
-                        </property>
-                    </widget>
-                    <widget class="QLabel">
+                        <widget class="QListView" row="0" column="0">
+                            <column>
+                                <property name="text">
+                                    <string>Qt Library configuration</string>
+                                </property>
+                                <property name="clickable">
+                                    <bool>true</bool>
+                                </property>
+                                <property name="resizeable">
+                                    <bool>false</bool>
+                                </property>
+                            </column>
+                            <property name="name">
+                                <cstring>configList</cstring>
+                            </property>
+                        </widget>
+                    </grid>
+                </widget>
+                <widget class="QWidget">
+                    <property name="name">
+                        <cstring>advancedTab</cstring>
+                    </property>
+                    <attribute name="title">
+                        <string>Advanced</string>
+                    </attribute>
+                    <hbox>
                         <property name="name">
-                            <cstring>filesDisplay</cstring>
+                            <cstring>unnamed</cstring>
                         </property>
-                        <property name="text">
-                            <string></string>
+                        <property name="margin">
+                            <number>11</number>
                         </property>
-                    </widget>
-                </vbox>
+                        <property name="spacing">
+                            <number>6</number>
+                        </property>
+                        <widget class="QListView">
+                            <column>
+                                <property name="text">
+                                    <string>Advanced options</string>
+                                </property>
+                                <property name="clickable">
+                                    <bool>true</bool>
+                                </property>
+                                <property name="resizeable">
+                                    <bool>true</bool>
+                                </property>
+                            </column>
+                            <property name="name">
+                                <cstring>advancedList</cstring>
+                            </property>
+                        </widget>
+                    </hbox>
+                </widget>
             </widget>
         </hbox>
     </widget>
