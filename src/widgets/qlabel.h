@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.h#14 $
+** $Id: //depot/qt/main/src/widgets/qlabel.h#15 $
 **
 ** Definition of QLabel widget class
 **
@@ -26,7 +26,6 @@ public:
 
     const char *text()		const	{ return ltext; }
     QPixmap    *pixmap()	const	{ return lpixmap; }
-    void	setPixmap( const QPixmap & );
 
     int		alignment()	const	{ return align; }
     void	setAlignment( int );
@@ -41,6 +40,7 @@ public slots:
     void	setNum( long );
     void	setNum( float );
     void	setNum( double );
+    void	setPixmap( const QPixmap & );
 
 protected:
     void	drawContents( QPainter * );
