@@ -2006,7 +2006,10 @@ void QX11PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const Q
         XSetClipOrigin(d->dpy, d->gc, 0, 0);
         int num;
         XRectangle *rects = (XRectangle *)qt_getClipRects(d->crgn, num);
-        XSetClipRectangles(d->dpy, d->gc, 0, 0, rects, num, Unsorted);
+        if (num == 0)
+            XSetClipMask(d->dpy, d->gc, XNone);
+        else
+            XSetClipRectangles(d->dpy, d->gc, 0, 0, rects, num, Unsorted);
         delete mask;                            // delete comb, created above
     }
 }
