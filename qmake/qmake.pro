@@ -7,7 +7,7 @@ CONFIG += console
 CONFIG -= opengl qt shared
 DESTIR = ../bin/
 DEPENDPATH += generators generators/unix generators/win32 \
-              generators/mac $(QTDIR)/include $(QTDIR)/qmake
+              generators/mac $$QT_SOURCE_TREE/include $$QT_SOURCE_TREE/qmake
 INCLUDEPATH += $$DEPENDPATH
 DEFINES += QT_NO_TEXTCODEC QT_LITE_COMPONENT QT_NO_STL
 
@@ -37,7 +37,7 @@ unix {
    SOURCES += qfile_unix.cpp qfileinfo_unix.cpp qdir_unix.cpp 
 }
 win32 {
-   VPATH = $(QTDIR)/src/tools
+   VPATH = $$QT_SOURCE_TREE/src/tools
    SOURCES += qfile_win.cpp qfileinfo_win.cpp qdir_win.cpp 
    *-msvc:LIBS += ole32.lib
 }
@@ -48,11 +48,11 @@ qnx {
 }
 #installation
 target.path=$$bin.path
-isEmpty(target.path):target.path=$$QT_PREFIX/bin
+
 INSTALLS        += target
 
 
-isEmpty(data.path):data.path=$$QT_PREFIX
+
 mkspecs.path=$$data.path/mkspecs
-mkspecs.files=$(QTDIR)/mkspecs
+mkspecs.files=$$QT_SOURCE_TREE/mkspecs
 INSTALLS        += mkspecs
