@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbasic.h#1 $
+** $Id: //depot/qt/main/src/kernel/qbasic.h#2 $
 **
 **   Geometry Management
 **
@@ -26,7 +26,7 @@ public:
     void setBorder( int b ) { border = b; } 
 
     enum Direction { LeftToRight, RightToLeft, Down, Up };
-    const int unlimited = 16383;
+    enum { unlimited = 16383 };
 
     QChain *newSerChain( Direction );
     QChain *newParChain( Direction );
