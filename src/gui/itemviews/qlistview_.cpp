@@ -11,9 +11,9 @@ public:
     QString text(int row) const;
     QIconSet iconSet(int row) const;
 
-    QListModelItem item(int row) const;
-    void setItem(int row, const QListModelItem &item);
-    void append(const QListModelItem &item);
+    QListView_Item item(int row) const;
+    void setItem(int row, const QListView_Item &item);
+    void append(const QListView_Item &item);
 
 private:
     QModelIndex index(int row, int column, const QModelIndex &parent = 0,
@@ -31,7 +31,7 @@ private:
     bool isEditable(const QModelIndex &index) const;
 
 private:
-    QList<QListModelItem> lst;
+    QList<QListView_Item> lst;
 };
 
 QListModel::QListModel(QObject *parent)
@@ -65,15 +65,15 @@ QIconSet QListModel::iconSet(int row) const
     return QIconSet();
 }
 
-QListModelItem QListModel::item(int row) const
+QListView_Item QListModel::item(int row) const
 {
     if (row >= 0 && row < (int)lst.count())
 	return lst[row];
     else
-	return QListModelItem(); // FIXME we need invalid?
+	return QListView_Item(); // FIXME we need invalid?
 }
 
-void QListModel::setItem(int row, const QListModelItem &item)
+void QListModel::setItem(int row, const QListView_Item &item)
 {
     if (row >= 0 && row < (int)lst.count())
 	lst[row] = item;
@@ -113,7 +113,7 @@ void QListModel::setData(const QModelIndex &index, int role, const QVariant &val
 
 QModelIndex QListModel::insertItem(const QModelIndex &index)
 {
-    QListModelItem item;
+    QListView_Item item;
     QModelIndex insert = index;
     if (insert.isValid() && insert.row() < rowCount()) {
  	lst.insert(insert.row(), item);
@@ -138,11 +138,47 @@ bool QListModel::isEditable(const QModelIndex &index) const
     return lst[index.row()].isEditable();
 }
 
-void QListModel::append(const QListModelItem &item)
+void QListModel::append(const QListView_Item &item)
 {
     lst.append(item);
     QModelIndex idx(lst.count() - 1, 0);
     emit contentsInserted(idx, idx);
+}
+
+bool QListView_Item::operator ==(const QListView_Item &other) const
+{
+    if (values.count() != other.values.count()
+	|| edit != other.edit
+	|| select != other.select)
+	return false;
+
+    for (int i=0; values.count(); ++i)
+	if (values.at(i).role != other.values.at(i).role
+	    || values.at(i).value != other.values.at(i).value)
+	    return false;
+
+    return true;
+}
+
+QVariant QListView_Item::data(int role) const
+{
+    for (int i=0; i<values.count(); ++i) {
+	if (values.at(i).role == role)
+	    return values.at(i).value;
+    }
+    return QVariant();
+}
+
+void QListView_Item::setData(int role, const QVariant &value)
+{
+    for (int i=0; i<values.count(); ++i) {
+	if (values.at(i).role == role) {
+	    values[i].value = value;
+	    return;
+	}
+    }
+    values.append(Data(role, value));
+    return;
 }
 
 class QListView_Private : public QGenericListViewPrivate
@@ -186,15 +222,15 @@ QIconSet QListView_::iconSet(int row) const
     return d->model()->iconSet(row);
 }
 
-QListModelItem QListView_::item(int row) const
+QListView_Item QListView_::item(int row) const
 {
     return d->model()->item(row);
 }
 
-void QListView_::setItem(int row, const QListModelItem &item) {
+void QListView_::setItem(int row, const QListView_Item &item) {
     d->model()->setItem(row, item);
 }
 
-void QListView_::appendItem(const QListModelItem &item) {
+void QListView_::appendItem(const QListView_Item &item) {
     d->model()->append(item);
 }
