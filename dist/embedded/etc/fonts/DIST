@@ -1,0 +1,3 @@
+unlink "unifont.bdf";
+unlink "verdana.ttf";
+1;

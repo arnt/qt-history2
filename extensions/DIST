@@ -1,0 +1,9 @@
+if ( $platform ne "x11" ) {
+    rmrf "xt";
+}
+if ( $platform eq "qws" ) {
+    rmrf "opengl";
+    rmrf "nsplugin";
+    rmrf "imageio";
+}
+1;

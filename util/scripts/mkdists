@@ -381,8 +381,13 @@ for $platform ( "x11", "qws" ) {
 
     find(
 	sub {
-	    unlink $_ if ( ( /_[a-z][a-z1]+.cpp$/ && !/_$platform.cpp$/ && !/_unix.cpp$/ ) ||
+	    if ( $_ eq "DIST" ) {
+		eval `cat $_` || die "processing $File::Find::dir/$_";
+		unlink $_;
+	    } else {
+		unlink $_ if ( ( /_[a-z][a-z1]+.cpp$/ && !/_$platform.cpp$/ && !/_unix.cpp$/ ) ||
 		   ( /_[a-z][a-z1]+.h$/ && !/_$platform.h$/ ) );
+	    }
 	}, $qtdir
     );
 
@@ -413,11 +418,6 @@ for $platform ( "x11", "qws" ) {
 	    }
 	}
 	closedir( D );
-
-	# Remove unifont.bdf - it's too big to both shipping, and the
-	# fontdir points to the source.
-	unlink "$distdir/$platform-$freedom/qt-$version$type/etc/fonts/unifont.bdf";
-	unlink "$distdir/$platform-$freedom/qt-$version$type/etc/fonts/verdana.ttf";
     }
 
     link( "$distdir/qt/util/scripts/configure", "$qtdir/configure" );
@@ -458,20 +458,6 @@ for $platform ( "x11", "qws" ) {
     # lose util well and truly
 
     &rmrf( "$qtdir/util" );
-
-    # delete some examples
-
-    &rmrf( "$qtdir/examples/kiosk" );
-    &rmrf( "$qtdir/examples/biff" ) unless $platform eq "x11";
-    &rmrf( "$qtdir/examples/desktop" ) unless $platform eq "x11";
-    &rmrf( "$qtdir/examples/sound" ) unless $platform eq "x11";
-    &rmrf( "$qtdir/examples/winmanager" ); # unless $platform eq "qws";
-    &rmrf( "$qtdir/extensions/opengl" ) unless $platform eq "x11";
-    &rmrf( "$qtdir/extensions/xembed" ) unless $platform eq "x11";
-    &rmrf( "$qtdir/extensions/imageio" ) unless $platform eq "x11";
-    &rmrf( "$qtdir/extensions/nsplugin" ) unless $platform eq "x11";
-    &rmrf( "$qtdir/extensions/sound" ) unless $platform eq "x11";
-    &rmrf( "$qtdir/extensions/xt" ) unless $platform eq "x11";
 
     # lose empty directories
 
