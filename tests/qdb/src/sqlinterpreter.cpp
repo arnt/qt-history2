@@ -474,7 +474,10 @@ bool ResultSet::sort( const qdb::List& index )
 	case QVariant::DateTime:
 	    continue;
 	default:
-	    env->setLastError( "internal error:ResultSet::sort: invalid sort field type" );
+	    QVariant v;
+	    v.cast( sortIndex.fields[i].type );
+	    env->setLastError( "internal error:ResultSet::sort: invalid sort field type" +
+			       QString( v.typeName() ) );
 	    return FALSE;
 	}
 	int sortField = head->position( sortIndex.fields[i].name );
@@ -558,23 +561,5 @@ bool ResultSet::sort( const qdb::List& index )
 		reverse( sortKey, data.count() );
 	}
     }
-
-#if 0
-    qDebug("number of fields in result set:" + QString::number(head.count()) );
-    qDebug("number of result records:" + QString::number( data.count() ) );
-
-    if ( size() > 0 ) {
-	qDebug("sorted results set:");
-	first();
-	do {
-	    Record& rec = currentRecord();
-	    for ( uint j = 0; j < rec.count(); ++j )
-		cout << rec[j].toString().rightJustify(10).latin1();
-	    cout << endl;
-	} while ( next() );
-    }
-
-#endif
-
     return TRUE;
 }
