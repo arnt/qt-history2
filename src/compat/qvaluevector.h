@@ -28,10 +28,9 @@ template <typename T>
 class QValueVector : public QVector<T>
 {
 public:
-
     inline QValueVector() : QVector<T>() {}
     inline QValueVector( const QValueVector<T>& v ) : QVector<T>(v) {}
-    inline QValueVector( typename QValueVector<T>::size_type n,
+    inline QValueVector( typename QVector<T>::size_type n,
 			 const T& val = T() ) : QVector<T>(n, val) {}
 
 #ifndef QT_NO_STL
