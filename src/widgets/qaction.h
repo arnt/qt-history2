@@ -29,6 +29,7 @@ class QActionGroupPrivate;
 class QStatusBar;
 class QPopupMenu;
 class QToolTipGroup;
+class QWidget;
 
 class Q_GUI_EXPORT QAction : public QObject
 {
