@@ -554,11 +554,19 @@ bool QODBCResult::fetch(int i)
 	return FALSE;
     }
     SQLRETURN r;
-    r = SQLFetchScroll( d->hStmt,
-			SQL_FETCH_ABSOLUTE,
-			actualIdx );
-    if ( r != SQL_SUCCESS )
+    if ( isForwardOnly() ) {
+	bool ok = TRUE;
+	while ( ok && i > at() )
+	    ok = fetchNext();
+	return ok;
+    } else {
+	r = SQLFetchScroll( d->hStmt,
+			    SQL_FETCH_ABSOLUTE,
+			    actualIdx );
+    }
+    if ( r != SQL_SUCCESS ){
 	return FALSE;
+    }
     setAt( i );
     return TRUE;
 }
@@ -584,6 +592,9 @@ bool QODBCResult::fetchFirst()
     SQLRETURN r;
     fieldCache.clear();
     nullCache.clear();
+    if ( isForwardOnly() ) {
+	return fetchNext();
+    }
     r = SQLFetchScroll( d->hStmt,
 		       SQL_FETCH_FIRST,
 		       0 );
