@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#110 $
+** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#111 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -27,7 +27,7 @@
 #include <X11/extensions/XShm.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#110 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#111 $");
 
 
 /*****************************************************************************
@@ -1154,6 +1154,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 
     return TRUE;
 }
+
 
 /*!
   Grabs the contents of a window and makes a pixmap out of it.
