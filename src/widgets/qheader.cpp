@@ -211,7 +211,7 @@ QHeader::~QHeader()
 
 void QHeader::showEvent( QShowEvent *e )
 {
-    d->calculatePositions();
+    calculatePositions();
     QWidget::showEvent( e );
 }
 
@@ -354,13 +354,15 @@ int QHeader::count() const
 void QHeader::init( int n )
 {
     state = Idle;
-    offs = 0;
     cachedIdx = 0; // unused
     cachedPos = 0; // unused
     d = new QHeaderData(n);
     for ( int i = 0; i < n ; i ++ ) {
 	d->heights[i] = fontMetrics().lineSpacing()+6;
     }
+    offs = 0;
+    if( reverse() )
+	offs = d->lastPos - width();
     handleIdx = 0;
 
     setMouseTracking( TRUE );
@@ -474,9 +476,8 @@ int QHeader::cellAt( int pos ) const
  */
 int QHeader::findLine( int c )
 {
-    int lastpos = d->positions[d->count-1] + d->sizes[d->i2s[d->count-1]];
     int i = 0;
-    if ( c > lastpos ) {
+    if ( c > d->lastPos ) {
 	return d->count;
     } else {
 	int section = sectionAt( c );
@@ -521,7 +522,7 @@ void QHeader::mousePressEvent( QMouseEvent *e )
     int c = orient == Horizontal ? e->pos().x() : e->pos().y();
     c += offset();
     if( reverse() ) 
-	c = width() - c;
+	c = d->lastPos - c;
 
     int section = sectionAt( c );
     if ( section < 0 )
@@ -569,7 +570,7 @@ void QHeader::mouseReleaseEvent( QMouseEvent *e )
 	int c = orient == Horizontal ? e->pos().x() : e->pos().y();
 	c += offset();
 	if( reverse() ) 
-	    c = width() - c;
+	    c = d->lastPos - c;
 	handleColumnResize( handleIdx, c, TRUE );
 	} break;
     case Moving: {
@@ -614,7 +615,7 @@ void QHeader::mouseMoveEvent( QMouseEvent *e )
     c += offset();
 
     if( reverse() ) 
-	c = width() - c;
+	c = d->lastPos - c;
     
     switch( state ) {
     case Idle:
@@ -694,7 +695,7 @@ void QHeader::handleColumnResize( int index, int c, bool final )
     int newSize = c - d->positions[index];
     d->sizes[section] = newSize;
 
-    d->calculatePositions();
+    calculatePositions();
 
     int pos = d->positions[index]-offset();
     if( reverse() ) // repaint the whole thing. Could be optimized (lars)
@@ -722,7 +723,7 @@ QRect QHeader::sRect( int index )
 	return rect(); // ### eeeeevil
 
     if ( reverse() )
-	return QRect(  width() - d->positions[index] - d->sizes[index] -offset(), 0, d->sizes[section], height() );
+	return QRect(  d->lastPos - d->positions[index] - d->sizes[index] -offset(), 0, d->sizes[section], height() );
     else if ( orient == Horizontal )
 	return QRect(  d->positions[index]-offset(), 0, d->sizes[section], height() );
     else
@@ -764,7 +765,7 @@ void QHeader::setLabel( int section, const QString &s, int size )
     if ( size >= 0 )
 	d->sizes[section] = size;
     if ( isUpdatesEnabled() )
-	d->calculatePositions();
+	calculatePositions();
     update();
 }
 
@@ -854,7 +855,7 @@ void QHeader::removeLabel( int section )
     }
 
     if ( isUpdatesEnabled() )
-	d->calculatePositions();
+	calculatePositions();
     update();
 }
 
@@ -868,9 +869,6 @@ void QHeader::removeLabel( int section )
 
 int QHeader::addLabel( const QString &s, int size )
 {
-    int lastpos = 0;
-    if ( d->count )
-	lastpos = d->positions[d->count-1] + d->sizes[d->i2s[d->count-1]];
     int n = ++d->count;
     d->labels.resize( n );
     if ( int( d->iconsets.size() ) < n  )
@@ -900,7 +898,7 @@ int QHeader::addLabel( const QString &s, int size )
 
     int index = section;
     d->sizes[section] = size;
-    d->positions[index] = lastpos;
+    d->positions[index] = d->lastPos;
     // we abuse the heights as widths for vertical layout
     d->heights[section] = orient == Horizontal ? height : width;
 
@@ -913,6 +911,7 @@ int QHeader::addLabel( const QString &s, int size )
     d->clicks.setBit( section, d->clicks_default );
     d->resize.setBit( section, d->resize_default );
 
+    calculatePositions();
     update();
     return index;
 }
@@ -953,6 +952,7 @@ void QHeader::setOffset( int x )
 {
     int oldOff = offs;
     offs = x;
+    //qDebug("setOffset %d", offs);
     if ( orient == Horizontal )
 	scroll( oldOff-offs, 0 );
     else
@@ -1075,7 +1075,7 @@ void QHeader::setCellSize( int section, int s )
 	return;
     d->sizes[ section ] = s;
     if ( isUpdatesEnabled() )
-	d->calculatePositions();
+	calculatePositions();
 }
 
 
@@ -1294,8 +1294,6 @@ void QHeader::paintEvent( QPaintEvent *e )
 	    return;
 	else
 	    id = 0;
-    int start = id;
-    int last = count();
     if ( reverse() ) {
 	for ( int i = count()-1; i >= id; i-- ) {
 	    QRect r = sRect( i );
@@ -1364,7 +1362,7 @@ int QHeader::sectionSize( int section ) const
 int QHeader::sectionPos( int section ) const
 {
     if ( d->positionsDirty )
-	d->calculatePositions();
+	((QHeader *)this)->calculatePositions();
     if ( section < 0 || section >= count()  )
 	return 0;
     return d->positions[ d->s2i[section] ];
@@ -1431,7 +1429,7 @@ void QHeader::moveSection( int section, int toIndex )
 	d->i2s[toIndex] = idx;
 	d->s2i[idx] = toIndex;
     }
-    d->calculatePositions();
+    calculatePositions();
 }
 
 /*!
@@ -1488,12 +1486,12 @@ bool QHeader::isMovingEnabled() const
     return d->move;
 }
 
-/*! reimp */
+/*! \reimp */
 
 void QHeader::setUpdatesEnabled( bool enable )
 {
     if ( enable )
-	d->calculatePositions();
+	calculatePositions();
     QWidget::setUpdatesEnabled( enable );
 }
 
@@ -1502,13 +1500,32 @@ bool QHeader::reverse () const {
     return ( orient == Qt::Horizontal && QApplication::reverseLayout() );
 }
 
-void QHeader::resize( int w, int h)
+/*! \reimp */
+void QHeader::resizeEvent( QResizeEvent *e )
 {
-    QWidget::resize( w, h );
     if( reverse() )
-	d->calculatePositions();
+	offs -= e->size().width() - e->oldSize().width();
+    //qDebug("resize: width = %d, oldWidth=%d, offset = %d", e->size().width(), e->oldSize().width(), offs );
+    QWidget::resizeEvent( e );
 }
 
+/*!
+  returns the total width of all Header columns.
+*/
+int QHeader::headerWidth() const
+{
+    return d->lastPos;
+}
+
+void QHeader::calculatePositions()
+{
+    int oldWidth = d->lastPos;
+    d->calculatePositions();
+    
+    if( reverse() )
+	offs -= oldWidth - d->lastPos;
+    //qDebug("offset = %d", offs);
+}
 
 //#### what about lastSectionCoversAll?
 #endif // QT_NO_HEADER

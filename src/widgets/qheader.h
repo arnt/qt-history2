@@ -83,13 +83,13 @@ public:
     bool isResizeEnabled( int section = -1 ) const;
     bool isMovingEnabled() const;
 
-    void 	resize( int w, int h);
     void 	resizeSection( int section, int s );
     int		sectionSize( int section ) const;
     int		sectionPos( int section ) const;
     int		sectionAt( int pos ) const;
     int		count() const;
-
+    int headerWidth() const;
+    
     virtual void setCellSize( int , int ); // obsolete, do not use
     int		cellSize( int ) const; // obsolete, do not use
     int		cellPos( int ) const; // obsolete, do not use
@@ -125,6 +125,7 @@ signals:
 protected:
     void	paintEvent( QPaintEvent * );
     void	showEvent( QShowEvent *e );
+    void 	resizeEvent( QResizeEvent *e );
     QRect	sRect( int index );
 
     virtual void	paintSection( QPainter *p, int index, const QRect& fr);
@@ -146,6 +147,7 @@ private:
     void	setPHeight( int i, int h );
     int 	findLine( int );
     bool reverse() const;
+    void calculatePositions();
     
     void	handleColumnResize(int, int, bool);
 
