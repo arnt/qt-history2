@@ -881,7 +881,7 @@ inline bool QWidget::ownPalette() const
 }
 #endif
 
-inline void QWidget::setSizePolicy( QSizePolicy::SizeType hor, QSizePolicy::SizeType ver, bool hfw = FALSE )
+inline void QWidget::setSizePolicy( QSizePolicy::SizeType hor, QSizePolicy::SizeType ver, bool hfw )
 {
     setSizePolicy( QSizePolicy( hor, ver, hfw) );
 }
