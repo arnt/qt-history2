@@ -143,8 +143,8 @@ void PhraseBookBox::save()
     pb.clear();
     QListViewItem *item = lv->firstChild();
     while ( item != 0 ) {
-	if ( !item->text(PhraseLVI::SourceText).isEmpty() &&
-	     item->text(PhraseLVI::SourceText) != NewPhrase )
+	if ( !item->text(PhraseLVI::SourceTextShown).isEmpty() &&
+	     item->text(PhraseLVI::SourceTextShown) != NewPhrase )
 	    pb.append( Phrase(((PhraseLVI *) item)->phrase()) );
 	item = item->nextSibling();
     }
@@ -156,7 +156,7 @@ void PhraseBookBox::save()
 void PhraseBookBox::sourceChanged( const QString& source )
 {
     if ( lv->currentItem() != 0 ) {
-	lv->currentItem()->setText( PhraseLVI::SourceText, source );
+	lv->currentItem()->setText( PhraseLVI::SourceTextShown, source );
 	lv->sort();
     }
 }
@@ -164,7 +164,7 @@ void PhraseBookBox::sourceChanged( const QString& source )
 void PhraseBookBox::targetChanged( const QString& target )
 {
     if ( lv->currentItem() != 0 )
-	lv->currentItem()->setText( PhraseLVI::TargetText, target );
+	lv->currentItem()->setText( PhraseLVI::TargetTextShown, target );
 }
 
 void PhraseBookBox::definitionChanged( const QString& definition )

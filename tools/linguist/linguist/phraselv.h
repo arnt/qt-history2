@@ -30,7 +30,8 @@ class PhraseLV;
 class PhraseLVI : public QListViewItem
 {
 public:
-    enum { SourceText, TargetText, DefinitionText };
+    enum { SourceTextShown, TargetTextShown, DefinitionText, SourceTextOriginal,
+           TargetTextOriginal };
 
     PhraseLVI( PhraseLV *parent, const Phrase& phrase );
 

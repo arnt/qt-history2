@@ -655,10 +655,8 @@ void MessageEditor::showMessage( const QString& text,
 							   sourceText.latin1(),
 							   MaxCandidates );
 	QValueList<Candidate>::Iterator it = cl.begin();
-	// ### if there are LF's or CR's in one of the strings, it will also
-	// ### appear in the list..
 	while ( it != cl.end() ) {
-	    (void) new QListViewItem( phraseLv, (*it).source, (*it).target, "Guess" );
+	    (void) new PhraseLVI( phraseLv, Phrase( (*it).source, (*it).target, "Guess" ) );
 	    ++it;
 	}
     }

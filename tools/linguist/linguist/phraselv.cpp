@@ -54,10 +54,10 @@ QString WhatPhrase::text( const QPoint& p )
 	return QString( PhraseLV::tr("<p><u>%1:</u>&nbsp;&nbsp;%2</p>"
 				     "<p><u>%3:</u>&nbsp;&nbsp;%4</p>"
 				     "<p><u>%5:</u>&nbsp;&nbsp;%6</p>") )
-	       .arg( parent->columnText(PhraseLVI::SourceText) )
-	       .arg( item->text(PhraseLVI::SourceText) )
-	       .arg( parent->columnText(PhraseLVI::TargetText) )
-	       .arg( item->text(PhraseLVI::TargetText) )
+	       .arg( parent->columnText(PhraseLVI::SourceTextShown) )
+	       .arg( item->text(PhraseLVI::SourceTextShown) )
+	       .arg( parent->columnText(PhraseLVI::TargetTextShown) )
+	       .arg( item->text(PhraseLVI::TargetTextShown) )
 	       .arg( parent->columnText(PhraseLVI::DefinitionText) )
 	       .arg( item->text(PhraseLVI::DefinitionText) );
 }
@@ -74,7 +74,7 @@ QString PhraseLVI::key( int column, bool ascending ) const
 	// always first
 	return ascending ? QString( "" ) : QString::null;
     } else {
-	// see Section 5, Exercice 4 in The Art of Computer Programming
+	// see Section 5, Exercise 4 in The Art of Computer Programming
 	QString k = text( column ).lower();
 	k.replace( QRegExp(QString("&")), QString("") );
 	k += QChar::null;
@@ -85,14 +85,16 @@ QString PhraseLVI::key( int column, bool ascending ) const
 
 void PhraseLVI::setPhrase( const Phrase& phrase )
 {
-    setText( SourceText, phrase.source() );
-    setText( TargetText, phrase.target() );
+    setText( SourceTextShown, phrase.source().simplifyWhiteSpace() );
+    setText( TargetTextShown, phrase.target().simplifyWhiteSpace() );
     setText( DefinitionText, phrase.definition() );
+    setText( SourceTextOriginal, phrase.source() );
+    setText( TargetTextOriginal, phrase.target() );
 }
 
 Phrase PhraseLVI::phrase() const
 {
-    return Phrase( text(SourceText), text(TargetText), text(DefinitionText) );
+    return Phrase( text(SourceTextOriginal), text(TargetTextOriginal), text(DefinitionText) );
 }
 
 PhraseLV::PhraseLV( QWidget *parent, const char *name )
@@ -102,8 +104,8 @@ PhraseLV::PhraseLV( QWidget *parent, const char *name )
     setShowSortIndicator( TRUE );
     for ( int i = 0; i < 3; i++ )
 	addColumn( QString::null, 120 );
-    setColumnText( PhraseLVI::SourceText, tr("Source phrase") );
-    setColumnText( PhraseLVI::TargetText, tr("Translation") );
+    setColumnText( PhraseLVI::SourceTextShown, tr("Source phrase") );
+    setColumnText( PhraseLVI::TargetTextShown, tr("Translation") );
     setColumnText( PhraseLVI::DefinitionText, tr("Definition") );
     header()->setStretchEnabled( TRUE, -1 );
     what = new WhatPhrase( this );
