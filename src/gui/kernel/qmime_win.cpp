@@ -608,14 +608,14 @@ QByteArray QWindowsMimeImage::convertToMime(QByteArray data, const char* mime, i
         return QByteArray();
 #ifndef QT_NO_IMAGEIO_BMP
     QImage img;  // Convert from DIB to chosen image format
-    QBuffer iod(data);
+    QBuffer iod(&data);
     iod.open(IO_ReadOnly);
     QDataStream s(&iod);
     s.setByteOrder(QDataStream::LittleEndian);// Intel byte order ####
     if (qt_read_dib(s, img)) { // ##### encaps "-14"
         QByteArray ofmt(mime+6);
         QByteArray ba;
-        QBuffer iod(ba);
+        QBuffer iod(&ba);
         iod.open(IO_WriteOnly);
         QImageIO iio(&iod, ofmt.toUpper());
         iio.setImage(img);
@@ -641,7 +641,7 @@ QByteArray QWindowsMimeImage::convertFromMime(QByteArray data, const char* mime,
         return QByteArray();
 
     QByteArray ba;
-    QBuffer iod(ba);
+    QBuffer iod(&ba);
     iod.open(IO_WriteOnly);
     QDataStream s(&iod);
     s.setByteOrder(QDataStream::LittleEndian);// Intel byte order ####
