@@ -96,6 +96,7 @@ public:
     QT_COMPAT QByteArray fromUnicode(const QString& uc, int& lenInOut) const;
     QT_COMPAT QString toUnicode(const QByteArray&, int len) const;
     QT_COMPAT QByteArray mimeName() const { return name(); }
+    static QT_COMPAT QTextCodec *codecForIndex(int i) { return codecForName(availableCodecs().at(i)); }
 #endif
 
 private:
