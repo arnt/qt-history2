@@ -307,8 +307,8 @@ int QDockAreaLayout::widthForHeight( int h ) const
 
 
 
-QDockArea::QDockArea( Orientation o, QWidget *parent, const char *name )
-    : QWidget( parent, name ), orient( o ), layout( 0 )
+QDockArea::QDockArea( Orientation o, Gravity g, QWidget *parent, const char *name )
+    : QWidget( parent, name ), orient( o ), layout( 0 ), grav( g )
 {
     dockWidgets = new QList<QDockWidget>;
     layout = new QDockAreaLayout( this, o, dockWidgets, -1, -1, "toollayout" );

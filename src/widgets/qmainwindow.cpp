@@ -377,16 +377,16 @@ QMainWindow::QMainWindow( QWidget * parent, const char * name, WFlags f )
     d = new QMainWindowPrivate;
     d->opaque = FALSE;
     installEventFilter( this );
-    d->topDock = new QDockArea( Horizontal, this, "qt_top_dock" );
+    d->topDock = new QDockArea( Horizontal, QDockArea::Normal, this, "qt_top_dock" );
     connect( d->topDock, SIGNAL( rightButtonPressed( const QPoint & ) ),
 	     this, SLOT( showDockMenu( const QPoint & ) ) );
-    d->bottomDock = new QDockArea( Horizontal, this, "qt_bottom_dock" );
+    d->bottomDock = new QDockArea( Horizontal, QDockArea::Reverse, this, "qt_bottom_dock" );
     connect( d->bottomDock, SIGNAL( rightButtonPressed( const QPoint & ) ),
 	     this, SLOT( showDockMenu( const QPoint & ) ) );
-    d->leftDock = new QDockArea( Vertical, this, "qt_left_dock" );
+    d->leftDock = new QDockArea( Vertical, QDockArea::Normal, this, "qt_left_dock" );
     connect( d->leftDock, SIGNAL( rightButtonPressed( const QPoint & ) ),
 	     this, SLOT( showDockMenu( const QPoint & ) ) );
-    d->rightDock = new QDockArea( Vertical, this, "qt_right_dock" );
+    d->rightDock = new QDockArea( Vertical, QDockArea::Reverse, this, "qt_right_dock" );
     connect( d->rightDock, SIGNAL( rightButtonPressed( const QPoint & ) ),
 	     this, SLOT( showDockMenu( const QPoint & ) ) );
 }

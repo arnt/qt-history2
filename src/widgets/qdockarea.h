@@ -66,7 +66,9 @@ class Q_EXPORT QDockArea : public QWidget
     Q_OBJECT
 
 public:
-    QDockArea( Orientation o, QWidget *parent = 0, const char *name = 0 );
+    enum Gravity { Normal, Reverse };
+
+    QDockArea( Orientation o, Gravity g = Normal, QWidget *parent = 0, const char *name = 0 );
     ~QDockArea();
 
     void moveDockWidget( QDockWidget *w, const QPoint &globalPos, const QRect &rect, bool swap );
@@ -77,6 +79,7 @@ public:
     void invalidNextOffset( QDockWidget *dw );
 
     Orientation orientation() const { return orient; }
+    Gravity gravity() const { return grav; }
 
     bool eventFilter( QObject *, QEvent * );
     bool isEmpty() const;
@@ -98,6 +101,7 @@ private:
     Orientation orient;
     QList<QDockWidget> *dockWidgets;
     QDockAreaLayout *layout;
+    Gravity grav;
 
 };
 

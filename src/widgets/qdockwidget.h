@@ -69,7 +69,7 @@ public:
 signals:
     void orientationChanged( Orientation o );
     void positionChanged();
-    
+
 protected:
     void resizeEvent( QResizeEvent *e );
     QBoxLayout *boxLayout();
@@ -100,7 +100,7 @@ private:
     int offs;
     QSize fExtend;
     bool nl;
-    QDockWidgetResizeHandle *hHandle, *vHandle;
+    QDockWidgetResizeHandle *hHandleTop, *hHandleBottom, *vHandleLeft, *vHandleRight;
     QVBoxLayout *hbox;
     QHBoxLayout *vbox;
     QBoxLayout *layout;
