@@ -86,8 +86,10 @@ static QString getFmtString( const QString& f, const QTime* dt = 0, const QDate*
 
     if ( dt ) {
 	if ( f == "h" ) {
-	    if ( ( am_pm ) && ( dt->hour() >= 12 ) )
+	    if ( ( am_pm ) && ( dt->hour() > 12 ) )
 		buf = QString::number( dt->hour() - 12 );
+	    else if ( ( am_pm ) && ( dt->hour() == 0 ) )
+		buf = "12";
 	    else
 		buf = QString::number( dt->hour() );
         } else if ( f == "hh" ) {
