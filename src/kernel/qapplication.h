@@ -286,6 +286,7 @@ private:
     static QMAC_PASCAL void qt_trap_context_mouse(EventLoopTimerRef, void *);
     static QMAC_PASCAL void qt_select_timer_callbk(EventLoopTimerRef, void *);
     friend class QMacInputMethod;
+    friend bool qt_set_socket_handler( int, int, QObject *, bool);
     friend void qt_mac_destroy_widget(QWidget *);
     friend void qt_init(int *, char **, QApplication::Type);
 #endif

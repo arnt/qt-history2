@@ -103,7 +103,7 @@
 
 //for qt_mac.h
 QPaintDevice *qt_mac_safe_pdev = 0;
-QList<QMacSavedPortInfo> QMacSavedPortInfo::gports;
+QPtrList<QMacSavedPortInfo> QMacSavedPortInfo::gports;
 
 /*****************************************************************************
   Internal variables and functions
@@ -124,61 +124,25 @@ static EventLoopTimerRef mac_select_timer = NULL;
 static EventLoopTimerUPP mac_select_timerUPP = NULL;
 static EventHandlerRef app_proc_handler = NULL;
 static EventHandlerUPP app_proc_handlerUPP = NULL;
+//popup variables
+static QGuardedPtr<QWidget>* activeBeforePopup = 0; // focus handling with popups
+static QWidget     *popupButtonFocus = 0;
+static QWidget     *popupOfPopupButtonFocus = 0;
+static bool	    popupCloseDownMode = FALSE;
+
+/*****************************************************************************
+  External functions
+ *****************************************************************************/
+// Paint event clipping magic - qpainter_mac.cpp
+extern void qt_set_paintevent_clipping( QPaintDevice* dev, const QRegion& region);
+extern void qt_clear_paintevent_clipping(QPaintDevice *dev);
+extern void qt_mac_set_cursor(const QCursor *); //Cursor switching - qcursor_mac.cpp
+QCString p2qstring(const unsigned char *); //qglobal.cpp
 
 //special case popup handlers - look where these are used, they are very hacky,
 //and very special case, if you plan on using these variables be VERY careful!!
 static bool qt_closed_popup = FALSE;
 EventRef qt_replay_event = NULL;
-
-//Input Method stuff
-class QMacInputMethod {
-    bool composing;
-    QWidget *widget;
-    TSMDocumentID id;
-public:
-    QMacInputMethod() : composing(FALSE), widget(NULL), id(0) { }
-    ~QMacInputMethod() { endCompose(); }
-
-    QWidget *getWidget() const { return composing ? widget : NULL; }
-    void endCompose();
-    void startCompose(QWidget *);
-};
-void QMacInputMethod::endCompose()
-{
-    if(!composing)
-	return;
-    if(id) {
-	DeleteTSMDocument(id);
-	DeactivateTSMDocument(id);
-    }
-    id = 0;
-    if(widget) {
-	QIMEvent event(QEvent::IMEnd, QString::null, -1);
-	QApplication::sendSpontaneousEvent(widget, &event);
-    }
-    widget = NULL;
-}
-void QMacInputMethod::startCompose(QWidget *w)
-{
-    if(composing && w == widget)
-	return;
-    endCompose();
-    composing = TRUE;
-    widget = w;
-    OSType doc = kUnicodeDocument;
-    OSErr err = NewTSMDocument(1, &doc, &id, (long int)w);
-    if(err != noErr) {
-	qDebug("%s:%d %d", __FILE__, __LINE__, err);
-    } else {
-	UseInputWindow(id, TRUE); //non-inline
-	err = ActivateTSMDocument(id);
-	if(err != noErr)
-	    qDebug("%s:%d %d", __FILE__, __LINE__, err);
-	else
-	    qDebug("all systems go..");
-    }
-}
-static QMacInputMethod qt_app_im;
 
 void qt_mac_destroy_widget(QWidget *w)
 {
@@ -186,8 +150,6 @@ void qt_mac_destroy_widget(QWidget *w)
 	qt_button_down = NULL;
     if(qt_mouseover == w)
 	qt_mouseover = NULL;
-    if(w == qt_app_im.getWidget())
-	qt_app_im.endCompose();
 }
 
 bool qt_nograb()				// application no-grab option
@@ -199,21 +161,10 @@ bool qt_nograb()				// application no-grab option
 #endif
 }
 
-// Paint event clipping magic - qpainter_mac.cpp
-extern void qt_set_paintevent_clipping( QPaintDevice* dev, const QRegion& region);
-extern void qt_clear_paintevent_clipping(QPaintDevice *dev);
-//Cursor switching - qcursor_mac.cpp
-extern void qt_mac_set_cursor(const QCursor *);
-
-static QGuardedPtr<QWidget>* activeBeforePopup = 0; // focus handling with popups
-static QWidget     *popupButtonFocus = 0;
-static QWidget     *popupOfPopupButtonFocus = 0;
-static bool	    popupCloseDownMode = FALSE;
-
+//pre/post select callbacks
 typedef void (*VFPTR)();
 typedef QValueList<VFPTR> QVFuncList;
 static QVFuncList *postRList = 0;		// list of post routines
-
 void qt_install_preselect_handler( VFPTR );
 void qt_remove_preselect_handler( VFPTR );
 static QVFuncList *qt_preselect_handler = 0;
@@ -269,7 +220,10 @@ enum {
     kEventQtRequestPropagate = 10,
     kEventQtRequestSelect = 11,
     kEventQtRequestContext = 12,
-    kEventQtRequestTimer = 13
+#ifndef QMAC_QMENUBAR_NO_NATIVE
+    kEventQtRequestMenubarUpdate = 13,
+#endif
+    kEventQtRequestTimer = 14
 };
 static bool request_updates_pending = FALSE;
 void qt_event_request_updates()
@@ -283,6 +237,20 @@ void qt_event_request_updates()
 		kEventAttributeUserEvent, &upd);
     PostEventToQueue( GetCurrentEventQueue(), upd, kEventPriorityHigh );
 }
+#ifndef QMAC_QMENUBAR_NO_NATIVE
+static bool request_menubarupdate_pending = FALSE;
+void qt_event_request_menubarupdate()
+{
+    if(request_menubarupdate_pending)
+	return;
+    request_menubarupdate_pending = TRUE;
+
+    EventRef upd = NULL;
+    CreateEvent(NULL, kEventClassQt, kEventQtRequestMenubarUpdate, GetCurrentEventTime(),
+		kEventAttributeUserEvent, &upd);
+    PostEventToQueue( GetCurrentEventQueue(), upd, kEventPriorityHigh );
+}
+#endif
 
 static EventTypeSpec events[] = {
     { kEventClassWindow, kEventWindowUpdate },
@@ -313,6 +281,7 @@ static EventTypeSpec events[] = {
     { kEventClassMenu, kEventMenuOpening },
     { kEventClassMenu, kEventMenuTargetItem },
 
+    { kEventClassTextInput, kEventTextInputUnicodeForKeyEvent },
     { kEventClassCommand, kEventCommandProcess }
 };
 
@@ -374,11 +343,6 @@ void qt_init( int* argcptr, char **argv, QApplication::Type )
 	    InstallEventHandler( GetApplicationEventTarget(), app_proc_handlerUPP,
 				 GetEventTypeCount(events), events, (void *)qApp, &app_proc_handler);
 	}
-	if(!mac_select_timer) {
-	    mac_select_timerUPP = NewEventLoopTimerUPP(QApplication::qt_select_timer_callbk);
-	    InstallEventLoopTimer(GetMainEventLoop(), 0.1, 0.1,
-				  mac_select_timerUPP, (void *)qApp, &mac_select_timer);
-	}
     }
 }
 
@@ -396,14 +360,6 @@ void qt_cleanup()
 	if(app_proc_handlerUPP) {
 	    DisposeEventHandlerUPP(app_proc_handlerUPP);
 	    app_proc_handlerUPP = NULL;
-	}
-	if(mac_select_timer) {
-	    RemoveEventLoopTimer(mac_select_timer);
-	    mac_select_timer = NULL;
-	}
-	if(mac_select_timerUPP) {
-	    DisposeEventLoopTimerUPP(mac_select_timerUPP);
-	    mac_select_timerUPP = NULL;
 	}
     }
 
@@ -819,6 +775,14 @@ static void sn_cleanup()
 	delete *sn_vec[i].list;
 	*sn_vec[i].list = 0;
     }
+    if(mac_select_timer) {
+	RemoveEventLoopTimer(mac_select_timer);
+	mac_select_timer = NULL;
+    }
+    if(mac_select_timerUPP) {
+	DisposeEventLoopTimerUPP(mac_select_timerUPP);
+	mac_select_timerUPP = NULL;
+    }
 }
 
 
@@ -881,10 +845,22 @@ bool qt_set_socket_handler( int sockfd, int type, QObject *obj, bool enable )
 	FD_SET( sockfd, fds );
 	sn_highest = QMAX(sn_highest,sockfd);
 
+	if(!mac_select_timer) {
+	    if(!mac_select_timerUPP)
+		mac_select_timerUPP = NewEventLoopTimerUPP(QApplication::qt_select_timer_callbk);
+	    InstallEventLoopTimer(GetMainEventLoop(), 0.1, 0.1,
+				  mac_select_timerUPP, (void *)qApp, &mac_select_timer);
+	}
+
     } else {					// disable notifier
 
-	if ( list == 0 )
+	if ( list == 0 ) {
+	    if(mac_select_timer) {
+		RemoveEventLoopTimer(mac_select_timer);
+		mac_select_timer = NULL;
+	    }
 	    return FALSE;			// no such fd set
+	}
 	QSockNot *sn = list->first();
 	while ( sn && !(sn->obj == obj && sn->fd == sockfd) )
 	    sn = list->next();
@@ -903,8 +879,11 @@ bool qt_set_socket_handler( int sockfd, int type, QObject *obj, bool enable )
 				      (*sn_vec[i].list)->getFirst()->fd);
 	    }
 	}
+	if(sn_highest == -1 && mac_select_timer) {
+	    RemoveEventLoopTimer(mac_select_timer);
+	    mac_select_timer = NULL;
+	}
     }
-
     return TRUE;
 }
 
@@ -977,7 +956,6 @@ QApplication::qt_select_timer_callbk(EventLoopTimerRef, void *)
 bool QApplication::processNextEvent( bool canWait )
 {
     int	   nevents = 0;
-    bool broke_early = FALSE;
 
 #if defined(QT_THREAD_SUPPORT)
     qApp->lock();
@@ -1001,10 +979,8 @@ bool QApplication::processNextEvent( bool canWait )
 	do {
 	    do {
 		ret = ReceiveNextEvent( 0, 0, QMAC_EVENT_NOWAIT, TRUE, &event );
-		if(ret != noErr) {
-		    broke_early = TRUE;
+		if(ret != noErr) 
 		    break;
-		}
 
 //#define PLAY_EVENT_GAMES
 #ifdef PLAY_EVENT_GAMES
@@ -1022,17 +998,18 @@ bool QApplication::processNextEvent( bool canWait )
 	    } while(GetNumEventsInQueue(GetCurrentEventQueue()));
 	    sendPostedEvents();
 	} while(GetNumEventsInQueue(GetCurrentEventQueue()));
-#if !defined(QMAC_QMENUBAR_NO_NATIVE)
-	QMenuBar::macUpdateMenuBar();
-#endif
+    } else {
+	sendPostedEvents();
     }
 
     //if there are no events in the queue, this is a good time to do "stuff"
-    sendPostedEvents();
 #ifndef QT_NO_CLIPBOARD
     if(qt_clipboard) { //manufacture an event so the clipboard can see if it has changed
-	QEvent ev(QEvent::Clipboard);
-	QApplication::sendSpontaneousEvent(qt_clipboard, &ev);
+	static int clipboard_tst = 0;
+	if(!(clipboard_tst = (clipboard_tst + 1) % 20)) {
+	    QEvent ev(QEvent::Clipboard);
+	    QApplication::sendSpontaneousEvent(qt_clipboard, &ev);
+	}
     }
 #endif
 
@@ -1043,7 +1020,7 @@ bool QApplication::processNextEvent( bool canWait )
 	return FALSE;
     }
 
-    if(!broke_early && canWait && !zero_timer_count) {
+    if(qt_is_gui_used && canWait && !zero_timer_count) {
 	EventRef event;
 	ReceiveNextEvent( 0, 0, kEventDurationForever, FALSE, &event );
     }
@@ -1238,13 +1215,21 @@ bool QApplication::do_mouse_down( Point *pt )
     case inGrow:
     {
 	Rect limits;
+	SetRect( &limits, -2, 0, 0, 0 );
 	if( widget ) {
 	    if ( widget->extra ) {
-		SetRect( &limits, widget->extra->minw, widget->extra->minh,
-			 widget->extra->maxw, widget->extra->maxh);
+		if(widget->fstrut_dirty)
+		    widget->updateFrameStrut();
+		QTLWExtra *tlextra = widget->topData();
+		QWExtra   *extra = widget->extraData();
+		int wstrut = tlextra->fleft + tlextra->fright;
+		int hstrut = tlextra->ftop + tlextra->fbottom;
+		SetRect( &limits, extra->minw+wstrut, extra->minh+hstrut,
+			 extra->maxw+wstrut < QWIDGETSIZE_MAX ? extra->maxw+wstrut : QWIDGETSIZE_MAX, 
+			 extra->maxh+hstrut < QWIDGETSIZE_MAX ? extra->maxh+hstrut : QWIDGETSIZE_MAX);
 	    }
 	}
-	int growWindowSize = GrowWindow( wp, *pt, &limits);
+	int growWindowSize = GrowWindow( wp, *pt, limits.left == -2 ? NULL : &limits);
 	if( growWindowSize) {
 	    // nw/nh might not match the actual size if setSizeIncrement is used
 	    int nw = LoWord( growWindowSize );
@@ -1252,7 +1237,7 @@ bool QApplication::do_mouse_down( Point *pt )
 	    if(nw != widget->width() || nh != widget->height()) {
 		if( nw < desktop()->width() && nw > 0 && nh < desktop()->height() && nh > 0 && widget)
 			widget->resize(nw, nh);
-		}
+	    }
 	}
 	break;
     }
@@ -1427,8 +1412,14 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 			widget->propagateUpdates();
 		}
 		delete list;
-	    }
+	    } 
+#if !defined(QMAC_QMENUBAR_NO_NATIVE)
+	} else if(ekind == kEventQtRequestMenubarUpdate) {
+	    request_menubarupdate_pending = FALSE;
+	    QMenuBar::macUpdateMenuBar();
+#endif
 	} else if(ekind == kEventQtRequestSelect) {
+
 	    request_select_pending = FALSE;
 	    if ( qt_preselect_handler ) {
 		QVFuncList::Iterator end = qt_preselect_handler->end();
@@ -1724,13 +1715,12 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 		switch(ekind) {
 		case kEventMouseDown: desc = "MouseButtonPress"; break;
 		case kEventMouseUp: desc = "MouseButtonRelease"; break;
-		case kEventMouseDragged:
-		case kEventMouseMoved: desc = "MouseMove"; break;
+		case kEventMouseDragged: case kEventMouseMoved: desc = "MouseMove"; break;
 		case kEventMouseWheelMoved: desc = "MouseWheelMove"; break;
 		}
-		qDebug("%d %d - Would send (%s) event to %s %s (%d %d %d)", p.x(), p.y(), desc,
-		       widget->name(), widget->className(), button|keys, state|keys,
-		       wheel_delta);
+		qDebug("%d %d (%d %d) - Would send (%s) event to %s %s (%d %d %d)", p.x(), p.y(), 
+		       plocal.x(), plocal.y(), desc, widget->name(), widget->className(), 
+		       button|keys, state|keys, wheel_delta);
 #endif
 		if(wheel_delta) {
 		    QWheelEvent qwe( plocal, p, wheel_delta, state | keys);
@@ -1756,6 +1746,25 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	}
 	break;
     }
+    case kEventClassTextInput:
+	if(!(widget=focus_widget))
+	    return 1; //no use to me!
+	if(ekind == kEventTextInputUnicodeForKeyEvent) {
+	    QIMEvent imstart(QEvent::IMStart, QString::null, -1);
+	    QApplication::sendSpontaneousEvent(widget, &imstart);
+	    if(!imstart.isAccepted()) //doesn't want the event
+		return 1; 
+	    EventRef key_ev;
+	    GetEventParameter(event, kEventParamTextInputSendKeyboardEvent, typeEventRef, NULL, 
+			      sizeof(key_ev), NULL, &key_ev);
+	    UniChar unicode;
+	    GetEventParameter(key_ev, kEventParamKeyUnicodes, typeUnicodeText, NULL, 
+			      sizeof(unicode), NULL, &unicode);
+	    QString text = QChar(unicode);
+	    QIMEvent imend(QEvent::IMEnd, text, 1);
+	    QApplication::sendSpontaneousEvent(widget, &imend);
+	}
+	break;
     case kEventClassKeyboard:
     {
 	UInt32 modif;
@@ -1807,23 +1816,14 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 		}
 	    }
 	    if(!isAccel) {
-		if((modifiers & Qt::ControlButton) && mychar == Key_Space) { //eat it
-		    if(etype == QEvent::KeyPress) {
-			QIMEvent event(QEvent::IMStart, QString::null, -1);
-			QApplication::sendSpontaneousEvent(widget, &event);
-			if(event.isAccepted())
-			    qt_app_im.startCompose(widget);
-		    }
-		} else {
-		    if((modifiers & (Qt::ControlButton | Qt::AltButton)) ||
-		       (mychar > 127 || mychar < 0)) {
-			mystr = QString();
-			chr = 0;
-		    }
-		    QKeyEvent ke(etype,mychar, chr, modifiers,
-				 mystr, ekind == kEventRawKeyRepeat, mystr.length());
-		    QApplication::sendSpontaneousEvent(widget,&ke);
+		if((modifiers & (Qt::ControlButton | Qt::AltButton)) ||
+		   (mychar > 127 || mychar < 0)) {
+		    mystr = QString();
+		    chr = 0;
 		}
+		QKeyEvent ke(etype,mychar, chr, modifiers,
+			     mystr, ekind == kEventRawKeyRepeat, mystr.length());
+		QApplication::sendSpontaneousEvent(widget,&ke);
 	    }
 	}
 	break;
@@ -1860,16 +1860,20 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	    if((flags & kWindowBoundsChangeOriginChanged)) {
 		int ox = widget->crect.x(), oy = widget->crect.y();
 		int nx = nr.left, ny = nr.top;
-		widget->crect.setRect( nx, ny, widget->width(), widget->height() );
-		QMoveEvent qme( widget->crect.topLeft(), QPoint( ox, oy) );
-		QApplication::sendSpontaneousEvent( widget, &qme );
+		if(nx != ox ||  ny != oy) {
+		    widget->crect.setRect( nx, ny, widget->width(), widget->height() );
+		    QMoveEvent qme( widget->crect.topLeft(), QPoint( ox, oy) );
+		    QApplication::sendSpontaneousEvent( widget, &qme );
+		}
 	    }
 	    if((flags & kWindowBoundsChangeSizeChanged)) {
 		// nw/nh might not match the actual size if setSizeIncrement is used
 		int nw = nr.right - nr.left, nh = nr.bottom - nr.top;
-		widget->resize(nw, nh);
-		if(widget->isVisible())
-		    widget->propagateUpdates();
+		if(widget->width() != nw || widget->height() != nh) {
+		    widget->resize(nw, nh);
+		    if(widget->isVisible())
+			widget->propagateUpdates();
+		}
 	    }
 	} else if(ekind == kEventWindowActivated) {
 	    if(widget) {
