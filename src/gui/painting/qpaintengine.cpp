@@ -452,16 +452,22 @@ void QPaintEngine::updateInternal(QPainterState *s, bool updateGC)
         updateBackground(s->bgMode, s->bgBrush);
         clearDirty(DirtyBackground);
     }
+    if (testDirty(DirtyClip)) {
+        if (hasFeature(ClipTransform)) {
+            updateXForm(s->clipRegionMatrix);
+            updateClipRegion(s->clipRegion, s->clipEnabled);
+            setDirty(DirtyTransform);
+        } else {
+            updateClipRegion(s->txop > QPainter::TxNone
+                             ? s->clipRegionMatrix * s->clipRegion
+                             : s->clipRegion,
+                             s->clipEnabled);
+        }
+        clearDirty(DirtyClip);
+    }
     if (testDirty(DirtyTransform)) {
         updateXForm(s->matrix);
         clearDirty(DirtyTransform);
-    }
-    if (testDirty(DirtyClip)) {
-        updateClipRegion(s->txop > QPainter::TxNone && !hasFeature(ClipTransform)
-                         ? s->clipRegionMatrix * s->clipRegion
-                         : s->clipRegion,
-                         s->clipEnabled);
-        clearDirty(DirtyClip);
     }
     if (testDirty(DirtyHints)) {
         updateRenderHints(d->renderhints);
