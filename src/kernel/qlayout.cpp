@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#108 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#109 $
 **
 ** Implementation of layout classes
 **
@@ -57,7 +57,8 @@ public:
     void setGeometry( const QRect &r ) { item_->setGeometry( r ); }
     int alignment() const { return item_->alignment(); }
     QLayoutItem *item() { return item_; }
-
+    QLayoutItem *takeItem() { QLayoutItem *i=item_; item_=0; return i; }
+    
 private:
     friend class QLayoutArray;
     QLayoutItem *item_;
@@ -70,7 +71,9 @@ class QMultiBox
 public:
     QMultiBox( QLayoutBox *box, int toRow, int toCol )
 	:box_(box), torow(toRow), tocol(toCol) {}
+    ~QMultiBox() { delete box_; }
     QLayoutBox *box() { return box_; }
+    QLayoutItem *takeItem() { return box_->takeItem(); }
 private:
     friend class QLayoutArray;
     QLayoutBox *box_;
@@ -176,7 +179,6 @@ void QLayoutArray::init()
     hfwData = 0;
     things.setAutoDelete( TRUE );
     hReversed = vReversed = FALSE;
-    things.setAutoDelete(TRUE);
 }
 
 bool QLayoutArray::hasHeightForWidth( int spacing )
@@ -460,7 +462,7 @@ static void distributeMultiBox( QArray<QLayoutStruct> &chain, int spacing,
     //distribute the sizes somehow.
     //### sizeHint calculation disabled, to big a change just before
     // the release
-    
+
     int i;
     int w = 0;
     //    int wh = 0;
@@ -721,15 +723,25 @@ public:
 	}
 	return current();
     }
-    void removeCurrent() {
-	if ( multi ) array->multi->remove( idx );
-	else array->things.remove( idx );
+    QLayoutItem *takeCurrent() {
+	QLayoutItem *item = 0;
+	if ( multi ) {
+	    QMultiBox *b = array->multi->take( idx );
+	    item = b ? b->takeItem() : 0;
+	    delete b;
+	} else {
+	    QLayoutBox *b = array->things.take( idx );
+	    item = b? b->takeItem() : 0;
+	    delete b;
+	}
+	return item;
     }
 private:
     QLayoutArray *array;
     bool multi;
     int idx;
 };
+
 
 /*!
   \class QGridLayout qlayout.h

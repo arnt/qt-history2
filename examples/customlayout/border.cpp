@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/customlayout/border.cpp#2 $
+** $Id: //depot/qt/main/examples/customlayout/border.cpp#3 $
 **
 ** Implementing your own layout: flow example
 **
@@ -21,7 +21,7 @@ public:
     BorderLayout::BorderLayoutStruct *currentStruct();
     void toFirst();
     QLayoutItem *next();
-    void removeCurrent();
+    QLayoutItem *takeCurrent();
     BorderLayoutIterator &operator++();
 
 private:
@@ -31,55 +31,59 @@ private:
 };
 
 uint BorderLayoutIterator::count() const
-{ 
-    return list->count(); 
+{
+    return list->count();
 }
 
 QLayoutItem *BorderLayoutIterator::current()
-{ 
-    return idx < (int)count() ? list->at( idx )->item : 0; 
+{
+    return idx < (int)count() ? list->at( idx )->item : 0;
 }
 
 BorderLayout::BorderLayoutStruct *BorderLayoutIterator::currentStruct()
-{ 
-    return idx < (int)count() ? list->at( idx ) : 0; 
+{
+    return idx < (int)count() ? list->at( idx ) : 0;
 }
 
 void BorderLayoutIterator::toFirst()
-{ 
-    idx = 0; 
+{
+    idx = 0;
 }
 
 QLayoutItem *BorderLayoutIterator::next()
-{ 
-    idx++;  
-    return current(); 
+{
+    idx++;
+    return current();
 }
 
-void BorderLayoutIterator::removeCurrent()
-{ 
-    list->remove(  idx  ); 
+QLayoutItem *BorderLayoutIterator::takeCurrent()
+{
+    BorderLayout::BorderLayoutStruct *b 
+	= idx < int( list->count() ) ? list->take(  idx  ) : 0;
+    QLayoutItem *item =  b ? b->item : 0;
+    delete b;
+    return item;
 }
 
 BorderLayoutIterator &BorderLayoutIterator::operator++()
-{ 
-    next();  
-    return *this; 
+{
+    next();
+    return *this;
 }
 
 
 
 void BorderLayout::addItem( QLayoutItem *item )
 {
-    add( item, West ); 
+    add( item, West );
 }
 
 void BorderLayout::addWidget( QWidget *widget, Position pos )
-{ 
-    add( new BorderWidgetItem( widget ), pos ); 
+{
+    add( new BorderWidgetItem( widget ), pos );
 }
 
-void BorderLayout::add( QLayoutItem *item, Position pos ) 
+void BorderLayout::add( QLayoutItem *item, Position pos )
 {
     list.append( new BorderLayoutStruct( item, pos ) );
     sizeDirty = TRUE; msizeDirty = TRUE;
@@ -92,19 +96,19 @@ bool BorderLayout::hasHeightForWidth() const
 }
 
 QSize BorderLayout::sizeHint() const
-{ 
-    return cached; 
+{
+    return cached;
 }
 
 QSize BorderLayout::minimumSize() const
-{ 
-    return cached; 
+{
+    return cached;
 }
 
 QSizePolicy::ExpandData BorderLayout::expanding() const
-    
-{ 
-    return QSizePolicy::BothDirections; 
+
+{
+    return QSizePolicy::BothDirections;
 }
 
 QLayoutIterator BorderLayout::iterator()

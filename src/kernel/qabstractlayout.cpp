@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#58 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#59 $
 **
 ** Implementation of the abstract layout base class
 **
@@ -877,7 +877,7 @@ static bool removeWidget( QLayoutItem *lay, QWidget *w )
     QLayoutItem *child;
     while ( (child = it.current() ) ) {
 	if ( child->widget() == w ) {
-	    it.removeCurrent();
+	    it.deleteCurrent();
 	    lay->invalidate();
 	    return TRUE;
 	} else if ( removeWidget( child, w ) ) {
@@ -1038,14 +1038,15 @@ QLayout::~QLayout()
 	setWidgetLayout( (QWidget*)parent(), 0 );
 }
 
+/*!
+  Removes and deletes all items in this layout.
+ */
 void QLayout::deleteAllItems()
 {
     QLayoutIterator it = iterator();
     QLayoutItem *l;
-    while ( (l=it.current()) ) {
-	it.removeCurrent();
+    while ( (l=it.takeCurrent()) )
 	delete l;
-    }
 }
 
 /*!
@@ -1346,7 +1347,7 @@ Sets the hasHeightForWidth() flag to \a b.
   \brief The abstract base class of internal layout iterators.
 
   To be subclassed by custom layout implementors. The functions that
-  need to be implemented are next(), current() and removeCurrent().
+  need to be implemented are next(), current() and takeCurrent().
 
   The QGLayoutIterator implements the functionality of
   QLayoutIterator. Each subclass of QLayout needs a
@@ -1364,9 +1365,10 @@ Sets the hasHeightForWidth() flag to \a b.
   is no current item.
  */
 
-/*! \fn void QGLayoutIterator::removeCurrent()
-  Implemented in subclasses to remove the current item and move
-  the iterator to the next item.
+/*! \fn QLayoutItem *QGLayoutIterator::takeCurrent()
+  Implemented in subclasses to remove the current item from the layout
+  without deleting it, move the iterator to the next item and return
+  the removed item, or 0 if no item was removed.
  */
 
 
@@ -1395,8 +1397,9 @@ QGLayoutIterator::~QGLayoutIterator()
   invalid layout. Any other access may lead to an illegal memory
   reference, and the abnormal termination of the program.
 
-  Calling removeCurrent() leaves the iterator in a valid state, but
-  may invalidate any other iterators that access the same layout.
+  Calling takeCurrent() or deleteCurrent() leaves the iterator in a
+  valid state, but may invalidate any other iterators that access the
+  same layout.
 
   The following code will draw a rectangle for each layout item
   in the layout structure of the widget.
@@ -1459,8 +1462,17 @@ QGLayoutIterator::~QGLayoutIterator()
   Returns the current item, or 0 if there is no current item.
 */
 
-/*! \fn void QLayoutIterator::removeCurrent()
-  Removes the current child item from the layout and moves the
+/*! \fn QLayoutItem *QLayoutIterator::takeCurrent()
+  Removes the current child item from the layout without deleting it
+  and moves the iterator to the next item. Returns the removed item, or 
+  0 if there was no item to be removed. This iterator will still be
+  valid, but any other iterator over the same layout may become
+  invalid.
+*/
+
+
+/*! \fn void QLayoutIterator::deleteCurrent()
+  Removes and deletes the current child item from the layout and moves the
   iterator to the next item. This iterator will still be valid, but any
   other iterator over the same layout may become invalid.
 */

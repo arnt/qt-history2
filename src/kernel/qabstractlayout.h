@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.h#24 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.h#25 $
 **
 ** Definition of the abstract layout base class
 **
@@ -45,7 +45,7 @@ public:
     virtual ~QGLayoutIterator();
     virtual QLayoutItem *next() = 0;
     virtual QLayoutItem *current() = 0;
-    virtual void removeCurrent() = 0;
+    virtual QLayoutItem *takeCurrent() = 0;
 };
 
 class Q_EXPORT QLayoutIterator
@@ -64,10 +64,12 @@ public:
     }
     QLayoutItem *operator++() { return it ? it->next() : 0; }
     QLayoutItem *current() { return it ? it->current() : 0; }
-    void removeCurrent() { if ( it ) it->removeCurrent(); }
+    QLayoutItem *takeCurrent() { return it ? it->takeCurrent() : 0; }
+    void deleteCurrent();
 private:
     QGLayoutIterator *it;
 };
+
 
 class Q_EXPORT QLayoutItem
 {
@@ -89,7 +91,7 @@ public:
     virtual QLayoutIterator iterator();
     virtual QLayout *layout();
     virtual QSpacerItem *spacerItem();
-    
+
     int alignment() const { return align; }
     virtual void setAlignment( int a );
 protected:
@@ -100,12 +102,12 @@ protected:
 class Q_EXPORT QSpacerItem : public QLayoutItem
 {
  public:
-    QSpacerItem( int w, int h, 
+    QSpacerItem( int w, int h,
 		 QSizePolicy::SizeType hData=QSizePolicy::Minimum,
 		 QSizePolicy::SizeType vData= QSizePolicy::Minimum )
 	:width(w), height(h), sizeP(hData, vData )
 	{}
-    void changeSize( int w, int h, 
+    void changeSize( int w, int h,
 		QSizePolicy::SizeType hData=QSizePolicy::Minimum,
 		QSizePolicy::SizeType vData=QSizePolicy::Minimum );
     QSize sizeHint() const ;
@@ -222,5 +224,9 @@ private:	// Disabled copy constructor and operator=
 
 };
 
+inline void QLayoutIterator::deleteCurrent()
+{
+    delete takeCurrent(); 
+}
 
 #endif

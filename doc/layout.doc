@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: layout.doc,v 2.16 1999/06/03 16:40:52 warwick Exp $
+** $Id: layout.doc,v 2.17 1999/06/16 15:49:26 paul Exp $
 **
 ** Explanation of the layout subsystem
 **
@@ -305,7 +305,7 @@ In this case, we choose a simple implementation: we store an integer
 index into the list and a pointer to the list. Every QGLayoutIterator
 subclass must implement \link QGLayoutIterator::current() current()\endlink,
 \link QGLayoutIterator::next() next()\endlink and
-\link QGLayoutIterator::removeCurrent() removeCurrent()\endlink, as well as
+\link QGLayoutIterator::takeCurrent() takeCurrent()\endlink, as well as
 a constructor. In our example we do not need a destructor.
 
 \code
@@ -321,8 +321,8 @@ public:
   QLayoutItem *next()
   { idx++; return current(); }
 
-  void removeCurrent()
-  { list->remove( idx ); }
+  QLayoutItem *takeCurrent()
+  { return list->take( idx ); }
 
 private:
   int idx;
@@ -366,7 +366,7 @@ uses the iterator we defined above to delete all items in the layout.
 \code
 CardLayout::~CardLayout()
 {
-    deleteChildren();
+    deleteAllItems();
 }
 \endcode
 

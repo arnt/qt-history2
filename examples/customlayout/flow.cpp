@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/customlayout/flow.cpp#2 $
+** $Id: //depot/qt/main/examples/customlayout/flow.cpp#3 $
 **
 ** Implementing your own layout: flow example
 **
@@ -16,7 +16,7 @@ public:
     uint count() const;
     QLayoutItem *current();
     QLayoutItem *next();
-    void removeCurrent();
+    QLayoutItem *takeCurrent();
 
 private:
     int idx;
@@ -24,26 +24,30 @@ private:
 
 };
 
-uint SimpleFlowIterator::count() const 
-{ 
-    return list->count(); 
+uint SimpleFlowIterator::count() const
+{
+    return list->count();
 }
 
-QLayoutItem *SimpleFlowIterator::current() 
-{ 
-    return idx < (int)count() ? list->at(idx) : 0;  
+QLayoutItem *SimpleFlowIterator::current()
+{
+    return idx < int(count()) ? list->at(idx) : 0;
 }
 
-QLayoutItem *SimpleFlowIterator::next() 
-{ 
-    idx++; return current(); 
+QLayoutItem *SimpleFlowIterator::next()
+{
+    idx++; return current();
 }
 
-void SimpleFlowIterator::removeCurrent() 
-{ 
-    list->remove( idx ); 
+QLayoutItem *SimpleFlowIterator::takeCurrent()
+{
+    return idx < int(count()) ? list->take( idx ) : 0;
 }
 
+SimpleFlow::~SimpleFlow()
+{
+    deleteAllItems();
+}
 
 
 int SimpleFlow::heightForWidth( int w ) const
@@ -63,19 +67,19 @@ void SimpleFlow::addItem( QLayoutItem *item)
     list.append( item );
 }
 
-bool SimpleFlow::hasHeightForWidth() const 
-{ 
-    return TRUE; 
+bool SimpleFlow::hasHeightForWidth() const
+{
+    return TRUE;
 }
 
-QSize SimpleFlow::sizeHint() const 
-{ 
-    return minimumSize(); 
+QSize SimpleFlow::sizeHint() const
+{
+    return minimumSize();
 }
 
 QSizePolicy::ExpandData SimpleFlow::expanding() const
-{ 
-    return QSizePolicy::NoDirection; 
+{
+    return QSizePolicy::NoDirection;
 }
 
 QLayoutIterator SimpleFlow::iterator()
@@ -124,3 +128,4 @@ QSize SimpleFlow::minimumSize() const
     }
     return s;
 }
+

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#68 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#69 $
 **
 ** Implementation of QMainWindow class
 **
@@ -336,7 +336,7 @@ public:
     uint count() const { return list->count(); }
     QLayoutItem *current() { return idx < (int)count() ? list->at(idx) : 0;  }
     QLayoutItem *next() { idx++; return current(); }
-    void removeCurrent() { list->remove( idx ); }
+    QLayoutItem *takeCurrent() { return list->take( idx ); }
 private:
     int idx;
     QList<QLayoutItem> *list;

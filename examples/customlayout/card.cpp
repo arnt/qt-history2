@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/customlayout/card.cpp#2 $
+** $Id: //depot/qt/main/examples/customlayout/card.cpp#3 $
 **
 ** Implementing your own layout: flow example
 **
@@ -17,7 +17,7 @@ public:
 
     QLayoutItem *current();
     QLayoutItem *next();
-    void removeCurrent();
+    QLayoutItem *takeCurrent();
 
 private:
     int idx;
@@ -25,18 +25,18 @@ private:
 };
 
 QLayoutItem *CardLayoutIterator::current()
-{ 
-    return idx < int( list->count() ) ? list->at( idx ) : 0;  
+{
+    return idx < int( list->count() ) ? list->at( idx ) : 0;
 }
 
 QLayoutItem *CardLayoutIterator::next()
-{ 
-    idx++; return current(); 
+{
+    idx++; return current();
 }
 
-void CardLayoutIterator::removeCurrent()
-{ 
-    list->remove(  idx  ); 
+QLayoutItem *CardLayoutIterator::takeCurrent()
+{
+    return idx < int( list->count() ) ?list->take( idx ) : 0;
 }
 
 
