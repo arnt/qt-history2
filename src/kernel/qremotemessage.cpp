@@ -69,12 +69,6 @@
 
 uint QRemoteMessage::next_msg_id = 1;
 
-/*! \enum QRemoteMessage::RetValue
-
-    \value Accepted
-    \value Rejected
-*/
-
 /*!
    \internal
 

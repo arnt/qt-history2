@@ -64,7 +64,7 @@ struct Q_EXPORT QUuid
     {
 	memset( this, 0, sizeof(QUuid) );
     }
-    QUuid( ulong l, ushort w1, ushort w2, uchar b1, uchar b2, uchar b3, uchar b4, uchar b5, uchar b6, uchar b7, uchar b8 )
+    QUuid( uint l, ushort w1, ushort w2, uchar b1, uchar b2, uchar b3, uchar b4, uchar b5, uchar b6, uchar b7, uchar b8 )
     {
 	data1 = l;
 	data2 = w1;
@@ -154,7 +154,7 @@ struct Q_EXPORT QUuid
     }
 #endif
 
-    ulong   data1; // ### should be uint instead of ulong (64-bit platforms)
+    uint    data1;
     ushort  data2;
     ushort  data3;
     uchar   data4[ 8 ];

@@ -30,10 +30,295 @@
     </property>
     <widget class="QWidget">
         <property name="name">
+            <cstring>licensePage</cstring>
+        </property>
+        <attribute name="title">
+            <string>License information</string>
+        </attribute>
+        <hbox>
+            <property name="name">
+                <cstring>unnamed</cstring>
+            </property>
+            <property name="margin">
+                <number>11</number>
+            </property>
+            <property name="spacing">
+                <number>6</number>
+            </property>
+            <widget class="QLabel">
+                <property name="name">
+                    <cstring>page1Pixmap_4</cstring>
+                </property>
+                <property name="sizePolicy">
+                    <sizepolicy>
+                        <hsizetype>0</hsizetype>
+                        <vsizetype>1</vsizetype>
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                    </sizepolicy>
+                </property>
+                <property name="pixmap">
+                    <pixmap>image1</pixmap>
+                </property>
+                <property name="scaledContents">
+                    <bool>false</bool>
+                </property>
+                <property name="alignment">
+                    <set>AlignTop</set>
+                </property>
+                <property name="vAlign" stdset="0">
+                </property>
+            </widget>
+            <widget class="QLayoutWidget">
+                <property name="name">
+                    <cstring>Layout11</cstring>
+                </property>
+                <grid>
+                    <property name="name">
+                        <cstring>unnamed</cstring>
+                    </property>
+                    <property name="margin">
+                        <number>0</number>
+                    </property>
+                    <property name="spacing">
+                        <number>6</number>
+                    </property>
+                    <spacer row="8" column="2">
+                        <property name="name" stdset="0">
+                            <cstring>Spacer7</cstring>
+                        </property>
+                        <property name="orientation">
+                            <enum>Vertical</enum>
+                        </property>
+                        <property name="sizeType">
+                            <enum>Expanding</enum>
+                        </property>
+                        <property name="sizeHint">
+                            <size>
+                                <width>20</width>
+                                <height>20</height>
+                            </size>
+                        </property>
+                    </spacer>
+                    <widget class="QLabel" row="5" column="0">
+                        <property name="name">
+                            <cstring>expiryLabel</cstring>
+                        </property>
+                        <property name="text">
+                            <string>Expiry date</string>
+                        </property>
+                    </widget>
+                    <widget class="QLabel" row="2" column="0">
+                        <property name="name">
+                            <cstring>licenseIDLabel</cstring>
+                        </property>
+                        <property name="text">
+                            <string>License ID</string>
+                        </property>
+                    </widget>
+                    <widget class="QLineEdit" row="6" column="1" rowspan="1" colspan="2">
+                        <property name="name">
+                            <cstring>productKey</cstring>
+                        </property>
+                        <property name="sizePolicy">
+                            <sizepolicy>
+                                <hsizetype>7</hsizetype>
+                                <vsizetype>0</vsizetype>
+                                <horstretch>0</horstretch>
+                                <verstretch>0</verstretch>
+                            </sizepolicy>
+                        </property>
+                    </widget>
+                    <widget class="QComboBox" row="4" column="1">
+                        <item>
+                            <property name="text">
+                                <string>qt-professional</string>
+                            </property>
+                        </item>
+                        <item>
+                            <property name="text">
+                                <string>qt-enterprise</string>
+                            </property>
+                        </item>
+                        <property name="name">
+                            <cstring>productsString</cstring>
+                        </property>
+                    </widget>
+                    <widget class="QLineEdit" row="2" column="1" rowspan="1" colspan="2">
+                        <property name="name">
+                            <cstring>licenseID</cstring>
+                        </property>
+                        <property name="sizePolicy">
+                            <sizepolicy>
+                                <hsizetype>7</hsizetype>
+                                <vsizetype>0</vsizetype>
+                                <horstretch>0</horstretch>
+                                <verstretch>0</verstretch>
+                            </sizepolicy>
+                        </property>
+                    </widget>
+                    <widget class="QLayoutWidget" row="7" column="0" rowspan="1" colspan="3">
+                        <property name="name">
+                            <cstring>Layout5</cstring>
+                        </property>
+                        <hbox>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
+                            <property name="margin">
+                                <number>0</number>
+                            </property>
+                            <property name="spacing">
+                                <number>6</number>
+                            </property>
+                            <spacer>
+                                <property name="name" stdset="0">
+                                    <cstring>Spacer5</cstring>
+                                </property>
+                                <property name="orientation">
+                                    <enum>Horizontal</enum>
+                                </property>
+                                <property name="sizeType">
+                                    <enum>Expanding</enum>
+                                </property>
+                                <property name="sizeHint">
+                                    <size>
+                                        <width>20</width>
+                                        <height>20</height>
+                                    </size>
+                                </property>
+                            </spacer>
+                            <widget class="QPushButton">
+                                <property name="name">
+                                    <cstring>readLicenseButton</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>Read from file...</string>
+                                </property>
+                            </widget>
+                            <spacer>
+                                <property name="name" stdset="0">
+                                    <cstring>Spacer6</cstring>
+                                </property>
+                                <property name="orientation">
+                                    <enum>Horizontal</enum>
+                                </property>
+                                <property name="sizeType">
+                                    <enum>Expanding</enum>
+                                </property>
+                                <property name="sizeHint">
+                                    <size>
+                                        <width>20</width>
+                                        <height>20</height>
+                                    </size>
+                                </property>
+                            </spacer>
+                        </hbox>
+                    </widget>
+                    <widget class="QLabel" row="0" column="0" rowspan="1" colspan="3">
+                        <property name="name">
+                            <cstring>licenseInfoHeader</cstring>
+                        </property>
+                        <property name="sizePolicy">
+                            <sizepolicy>
+                                <hsizetype>7</hsizetype>
+                                <vsizetype>1</vsizetype>
+                                <horstretch>0</horstretch>
+                                <verstretch>0</verstretch>
+                            </sizepolicy>
+                        </property>
+                        <property name="text">
+                            <string>Enter the supplied license information here, all fields except Licensee are mandatory.
+Alternatively, the installation wizard may read them from a license file.</string>
+                        </property>
+                        <property name="alignment">
+                            <set>WordBreak|AlignVCenter</set>
+                        </property>
+                    </widget>
+                    <widget class="QLineEdit" row="1" column="1" rowspan="1" colspan="2">
+                        <property name="name">
+                            <cstring>customerID</cstring>
+                        </property>
+                        <property name="sizePolicy">
+                            <sizepolicy>
+                                <hsizetype>7</hsizetype>
+                                <vsizetype>0</vsizetype>
+                                <horstretch>0</horstretch>
+                                <verstretch>0</verstretch>
+                            </sizepolicy>
+                        </property>
+                    </widget>
+                    <widget class="QLineEdit" row="3" column="1" rowspan="1" colspan="2">
+                        <property name="name">
+                            <cstring>licenseeName</cstring>
+                        </property>
+                        <property name="sizePolicy">
+                            <sizepolicy>
+                                <hsizetype>7</hsizetype>
+                                <vsizetype>0</vsizetype>
+                                <horstretch>0</horstretch>
+                                <verstretch>0</verstretch>
+                            </sizepolicy>
+                        </property>
+                    </widget>
+                    <widget class="QLabel" row="1" column="0">
+                        <property name="name">
+                            <cstring>customerIDLabel</cstring>
+                        </property>
+                        <property name="text">
+                            <string>Customer ID</string>
+                        </property>
+                    </widget>
+                    <widget class="QLabel" row="4" column="0">
+                        <property name="name">
+                            <cstring>productsLabel</cstring>
+                        </property>
+                        <property name="text">
+                            <string>Products</string>
+                        </property>
+                        <property name="buddy" stdset="0">
+                            <cstring>productsString</cstring>
+                        </property>
+                    </widget>
+                    <widget class="QLineEdit" row="5" column="1" rowspan="1" colspan="2">
+                        <property name="name">
+                            <cstring>expiryDate</cstring>
+                        </property>
+                        <property name="sizePolicy">
+                            <sizepolicy>
+                                <hsizetype>7</hsizetype>
+                                <vsizetype>0</vsizetype>
+                                <horstretch>0</horstretch>
+                                <verstretch>0</verstretch>
+                            </sizepolicy>
+                        </property>
+                    </widget>
+                    <widget class="QLabel" row="6" column="0">
+                        <property name="name">
+                            <cstring>expiryLabel_2</cstring>
+                        </property>
+                        <property name="text">
+                            <string>Product key</string>
+                        </property>
+                    </widget>
+                    <widget class="QLabel" row="3" column="0">
+                        <property name="name">
+                            <cstring>LicenseeLabel</cstring>
+                        </property>
+                        <property name="text">
+                            <string>Licensee</string>
+                        </property>
+                    </widget>
+                </grid>
+            </widget>
+        </hbox>
+    </widget>
+    <widget class="QWidget">
+        <property name="name">
             <cstring>introPage</cstring>
         </property>
         <attribute name="title">
-            <string>Introduction</string>
+            <string>License agreement</string>
         </attribute>
         <grid>
             <property name="name">
@@ -358,291 +643,6 @@
                 </property>
             </spacer>
         </grid>
-    </widget>
-    <widget class="QWidget">
-        <property name="name">
-            <cstring>licensePage</cstring>
-        </property>
-        <attribute name="title">
-            <string>License information</string>
-        </attribute>
-        <hbox>
-            <property name="name">
-                <cstring>unnamed</cstring>
-            </property>
-            <property name="margin">
-                <number>11</number>
-            </property>
-            <property name="spacing">
-                <number>6</number>
-            </property>
-            <widget class="QLabel">
-                <property name="name">
-                    <cstring>page1Pixmap_4</cstring>
-                </property>
-                <property name="sizePolicy">
-                    <sizepolicy>
-                        <hsizetype>0</hsizetype>
-                        <vsizetype>1</vsizetype>
-                        <horstretch>0</horstretch>
-                        <verstretch>0</verstretch>
-                    </sizepolicy>
-                </property>
-                <property name="pixmap">
-                    <pixmap>image1</pixmap>
-                </property>
-                <property name="scaledContents">
-                    <bool>false</bool>
-                </property>
-                <property name="alignment">
-                    <set>AlignTop</set>
-                </property>
-                <property name="vAlign" stdset="0">
-                </property>
-            </widget>
-            <widget class="QLayoutWidget">
-                <property name="name">
-                    <cstring>Layout11</cstring>
-                </property>
-                <grid>
-                    <property name="name">
-                        <cstring>unnamed</cstring>
-                    </property>
-                    <property name="margin">
-                        <number>0</number>
-                    </property>
-                    <property name="spacing">
-                        <number>6</number>
-                    </property>
-                    <spacer row="8" column="2">
-                        <property name="name" stdset="0">
-                            <cstring>Spacer7</cstring>
-                        </property>
-                        <property name="orientation">
-                            <enum>Vertical</enum>
-                        </property>
-                        <property name="sizeType">
-                            <enum>Expanding</enum>
-                        </property>
-                        <property name="sizeHint">
-                            <size>
-                                <width>20</width>
-                                <height>20</height>
-                            </size>
-                        </property>
-                    </spacer>
-                    <widget class="QLabel" row="5" column="0">
-                        <property name="name">
-                            <cstring>expiryLabel</cstring>
-                        </property>
-                        <property name="text">
-                            <string>Expiry date</string>
-                        </property>
-                    </widget>
-                    <widget class="QLabel" row="2" column="0">
-                        <property name="name">
-                            <cstring>licenseIDLabel</cstring>
-                        </property>
-                        <property name="text">
-                            <string>License ID</string>
-                        </property>
-                    </widget>
-                    <widget class="QLineEdit" row="6" column="1" rowspan="1" colspan="2">
-                        <property name="name">
-                            <cstring>productKey</cstring>
-                        </property>
-                        <property name="sizePolicy">
-                            <sizepolicy>
-                                <hsizetype>7</hsizetype>
-                                <vsizetype>0</vsizetype>
-                                <horstretch>0</horstretch>
-                                <verstretch>0</verstretch>
-                            </sizepolicy>
-                        </property>
-                    </widget>
-                    <widget class="QComboBox" row="4" column="1">
-                        <item>
-                            <property name="text">
-                                <string>qt-professional</string>
-                            </property>
-                        </item>
-                        <item>
-                            <property name="text">
-                                <string>qt-enterprise</string>
-                            </property>
-                        </item>
-                        <property name="name">
-                            <cstring>productsString</cstring>
-                        </property>
-                    </widget>
-                    <widget class="QLineEdit" row="2" column="1" rowspan="1" colspan="2">
-                        <property name="name">
-                            <cstring>licenseID</cstring>
-                        </property>
-                        <property name="sizePolicy">
-                            <sizepolicy>
-                                <hsizetype>7</hsizetype>
-                                <vsizetype>0</vsizetype>
-                                <horstretch>0</horstretch>
-                                <verstretch>0</verstretch>
-                            </sizepolicy>
-                        </property>
-                    </widget>
-                    <widget class="QLayoutWidget" row="7" column="0" rowspan="1" colspan="3">
-                        <property name="name">
-                            <cstring>Layout5</cstring>
-                        </property>
-                        <hbox>
-                            <property name="name">
-                                <cstring>unnamed</cstring>
-                            </property>
-                            <property name="margin">
-                                <number>0</number>
-                            </property>
-                            <property name="spacing">
-                                <number>6</number>
-                            </property>
-                            <spacer>
-                                <property name="name" stdset="0">
-                                    <cstring>Spacer5</cstring>
-                                </property>
-                                <property name="orientation">
-                                    <enum>Horizontal</enum>
-                                </property>
-                                <property name="sizeType">
-                                    <enum>Expanding</enum>
-                                </property>
-                                <property name="sizeHint">
-                                    <size>
-                                        <width>20</width>
-                                        <height>20</height>
-                                    </size>
-                                </property>
-                            </spacer>
-                            <widget class="QPushButton">
-                                <property name="name">
-                                    <cstring>readLicenseButton</cstring>
-                                </property>
-                                <property name="text">
-                                    <string>Read from file...</string>
-                                </property>
-                            </widget>
-                            <spacer>
-                                <property name="name" stdset="0">
-                                    <cstring>Spacer6</cstring>
-                                </property>
-                                <property name="orientation">
-                                    <enum>Horizontal</enum>
-                                </property>
-                                <property name="sizeType">
-                                    <enum>Expanding</enum>
-                                </property>
-                                <property name="sizeHint">
-                                    <size>
-                                        <width>20</width>
-                                        <height>20</height>
-                                    </size>
-                                </property>
-                            </spacer>
-                        </hbox>
-                    </widget>
-                    <widget class="QLabel" row="0" column="0" rowspan="1" colspan="3">
-                        <property name="name">
-                            <cstring>licenseInfoHeader</cstring>
-                        </property>
-                        <property name="sizePolicy">
-                            <sizepolicy>
-                                <hsizetype>7</hsizetype>
-                                <vsizetype>1</vsizetype>
-                                <horstretch>0</horstretch>
-                                <verstretch>0</verstretch>
-                            </sizepolicy>
-                        </property>
-                        <property name="text">
-                            <string>Enter the supplied license information here, all fields except Licensee are mandatory.
-Alternatively, the installation wizard may read them from a license file.</string>
-                        </property>
-                        <property name="alignment">
-                            <set>WordBreak|AlignVCenter</set>
-                        </property>
-                    </widget>
-                    <widget class="QLineEdit" row="1" column="1" rowspan="1" colspan="2">
-                        <property name="name">
-                            <cstring>customerID</cstring>
-                        </property>
-                        <property name="sizePolicy">
-                            <sizepolicy>
-                                <hsizetype>7</hsizetype>
-                                <vsizetype>0</vsizetype>
-                                <horstretch>0</horstretch>
-                                <verstretch>0</verstretch>
-                            </sizepolicy>
-                        </property>
-                    </widget>
-                    <widget class="QLineEdit" row="3" column="1" rowspan="1" colspan="2">
-                        <property name="name">
-                            <cstring>licenseeName</cstring>
-                        </property>
-                        <property name="sizePolicy">
-                            <sizepolicy>
-                                <hsizetype>7</hsizetype>
-                                <vsizetype>0</vsizetype>
-                                <horstretch>0</horstretch>
-                                <verstretch>0</verstretch>
-                            </sizepolicy>
-                        </property>
-                    </widget>
-                    <widget class="QLabel" row="1" column="0">
-                        <property name="name">
-                            <cstring>customerIDLabel</cstring>
-                        </property>
-                        <property name="text">
-                            <string>Customer ID</string>
-                        </property>
-                    </widget>
-                    <widget class="QLabel" row="4" column="0">
-                        <property name="name">
-                            <cstring>productsLabel</cstring>
-                        </property>
-                        <property name="text">
-                            <string>Products</string>
-                        </property>
-                        <property name="buddy" stdset="0">
-                            <cstring>productsString</cstring>
-                        </property>
-                    </widget>
-                    <widget class="QLineEdit" row="5" column="1" rowspan="1" colspan="2">
-                        <property name="name">
-                            <cstring>expiryDate</cstring>
-                        </property>
-                        <property name="sizePolicy">
-                            <sizepolicy>
-                                <hsizetype>7</hsizetype>
-                                <vsizetype>0</vsizetype>
-                                <horstretch>0</horstretch>
-                                <verstretch>0</verstretch>
-                            </sizepolicy>
-                        </property>
-                    </widget>
-                    <widget class="QLabel" row="6" column="0">
-                        <property name="name">
-                            <cstring>expiryLabel_2</cstring>
-                        </property>
-                        <property name="text">
-                            <string>Product key</string>
-                        </property>
-                    </widget>
-                    <widget class="QLabel" row="3" column="0">
-                        <property name="name">
-                            <cstring>LicenseeLabel</cstring>
-                        </property>
-                        <property name="text">
-                            <string>Licensee</string>
-                        </property>
-                    </widget>
-                </grid>
-            </widget>
-        </hbox>
     </widget>
     <widget class="QWidget">
         <property name="name">
@@ -1370,7 +1370,7 @@ Alternatively, the installation wizard may read them from a license file.</strin
                     <cstring>progressBox</cstring>
                 </property>
                 <property name="title">
-                    <string>Copying files</string>
+                    <string>Installing files</string>
                 </property>
                 <vbox>
                     <property name="name">

@@ -1,9 +1,8 @@
-#CONFIG += staticlib 
+CONFIG += staticlib 
 CONFIG += qt x11
 CONFIG -= dll
 TARGET = arq
 TEMPLATE = lib
-INCLUDEPATH += $(QTDIR)/src/3rdparty $(QTDIR)/util/install/keygen
 
 SOURCES += qarchive.cpp ../keygen/keyinfo.cpp
 HEADERS += qarchive.h

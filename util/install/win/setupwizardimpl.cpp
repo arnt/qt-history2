@@ -22,7 +22,12 @@
 #include <qarchive.h>
 #include <qvalidator.h>
 
+#if defined(MD4_KEYS)
 #include "../md4/qrsync.h"
+#endif
+#if defined(USE_ARCHIVES)
+#include <keyinfo.h>
+#endif
 
 #define FILESTOCOPY 4582
 
@@ -68,27 +73,11 @@ SetupWizardImpl::SetupWizardImpl( QWidget* pParent, const char* pName, bool moda
     setNextEnabled( buildPage, false );
     setFinishEnabled( finishPage, true );
     setBackEnabled( finishPage, false );
-#if defined (USE_ARCHIVES)
-    readArchive( "sys.arq", tmpPath );
-#endif
+
     triedToIntegrate = false;
 
     connect( &autoContTimer, SIGNAL( timeout() ), this, SLOT( timerFired() ) );
 
-    // Intropage
-#ifdef USE_ARCHIVES
-    QFile licenseFile( tmpPath + "/LICENSE" );
-#else
-    QFile licenseFile( "LICENSE" );
-#endif
-    if( licenseFile.open( IO_ReadOnly ) ) {
-	QFileInfo fi( licenseFile );
-	QByteArray fileData( fi.size() + 2 );
-	licenseFile.readBlock( fileData.data(), fi.size() );
-	fileData.data()[ fi.size() ] = 0;
-	fileData.data()[ fi.size() + 1 ] = 0;
-	introText->setText( QString( fileData.data() ) );
-    }
     // Optionspage
     installPath->setText( QString( "C:\\Qt\\" ) + QString(QT_VERSION_STR).replace( QRegExp("-"), "" ) );
     sysGroup->setButton( 0 );
@@ -539,11 +528,7 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 {
     SetupWizard::showPage( newPage );
 
-    if( newPage == introPage ) {
-	setInstallStep( 1 );
-    } else if( newPage == optionsPage ) {
-	setInstallStep( 2 );
-    } else if( newPage == licensePage ) {
+    if( newPage == licensePage ) {
 	QStringList makeCmds = QStringList::split( ' ', "nmake.exe make.exe gmake.exe" );
 	QStringList paths = QStringList::split( QRegExp("[;,]"), QEnvironment::getEnv( "PATH" ) );
 	if( !findFileInPaths( makeCmds[ sysID ], paths ) ) {
@@ -557,6 +542,11 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	} else {
 	    licenseChanged();
 	}
+	setInstallStep( 1 );
+    } else if( newPage == introPage ) {
+	readLicenseAgreement();
+	setInstallStep( 2 );
+    } else if( newPage == optionsPage ) {
 	setInstallStep( 3 );
     } else if( newPage == foldersPage ) {
 	QStringList devSys = QStringList::split( ';',"Microsoft Visual Studio path;Borland C++ Builder path;GNU C++ path" );
@@ -1009,37 +999,22 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	    createDir( installPath->text() );
 	    filesDisplay->append( "Starting copy process\n" );
 #if defined (USE_ARCHIVES)
+	    // install the right LICENSE file
+	    readArchive( "sys.arq", installPath->text() );
+	    QDir installDir( installPath->text() );
+	    if ( usLicense ) {
+		installDir.remove( "LICENSE" );
+		installDir.rename( "LICENSE-US", "LICENSE" );
+	    } else {
+		installDir.remove( "LICENSE-US" );
+	    }
+
 	    fi.setFile( "qt.arq" );
 	    if( fi.exists() )
 		totalSize = fi.size();
-
-	    if( installDocs->isChecked() ) {
-		fi.setFile( "docs.arq" );
-		if( fi.exists() ) 
-		    totalSize += fi.size();
-	    }
-
-	    if( installExamples->isChecked() ) {
-		fi.setFile( "examples.arq" );
-		if( fi.exists() )
-		    totalSize += fi.size();
-	    }
-
-	    if( installTutorials->isChecked() ) {
-		fi.setFile( "tutorial.arq" );
-		if( fi.exists() )
-		    totalSize += fi.size();
-	    }
-
 	    operationProgress->setTotalSteps( totalSize );
 
 	    readArchive( "qt.arq", installPath->text() );
-	    if( installDocs->isChecked() )
-		readArchive( "docs.arq", installPath->text() );
-	    if( installExamples->isChecked() )
-		readArchive( "examples.arq", installPath->text() );
-	    if( installTutorials->isChecked() )
-		readArchive( "tutorial.arq", installPath->text() );
 #else
 	    operationProgress->setTotalSteps( FILESTOCOPY );
 	    copySuccessful = copyFiles( QDir::currentDirPath(), installPath->text(), true );
@@ -1780,6 +1755,9 @@ void SetupWizardImpl::configPageChanged()
 
 void SetupWizardImpl::licenseChanged()
 {
+    // ### at the moment MD4_KEYS and USE_ARCHIVES exclude each other -- maybe
+    // we should change that for compatibility
+#if defined(MD4_KEYS)
     QString proKey = productKey->text();
     if ( proKey.length() < 19 ) {
 	setNextEnabled( licensePage, FALSE );
@@ -1804,6 +1782,38 @@ void SetupWizardImpl::licenseChanged()
     QString keyString = customer + license + products + date + platforms;
     QMd4Sum sum( keyString );
     setNextEnabled( licensePage, sum.scrambled() == proKey.mid( i+1, 17 ) );
+#endif
+#if defined (USE_ARCHIVES)
+    QString proKey = productKey->text();
+    if ( proKey.length() != 9 ) {
+	setNextEnabled( licensePage, FALSE );
+	return;
+    }
+    uint features = featuresForKey( proKey.upper() );
+    if ( !(features&Feature_Windows) ) {
+	if ( features & (Feature_Unix|Feature_Windows|Feature_Mac|Feature_Embedded) ) {
+	    int ret = QMessageBox::information( this,
+		    tr("No Windows license"),
+		    tr("You don't have a valid Windows license.\n"
+		       "Please contact sales@trolltech.com if you have further questions."),
+		    tr("Try again"),
+		    tr("Abort installation")
+		    );
+	    if ( ret == 1 ) {
+		QApplication::exit();
+	    } else {
+		productKey->setText( "" );
+	    }
+	}
+	setNextEnabled( licensePage, FALSE );
+	return;
+    }
+    if ( features & Feature_US )
+	usLicense = TRUE;
+    else
+	usLicense = FALSE;
+    setNextEnabled( licensePage, TRUE );
+#endif
 }
 
 void SetupWizardImpl::logFiles( const QString& entry, bool close )
@@ -1844,10 +1854,6 @@ void SetupWizardImpl::archiveMsg( const QString& msg )
 {
 #if defined (USE_ARCHIVES)
     qApp->processEvents();
-    if( msg.find(QRegExp("Read \\d*")) == 0 ) { //progress message
-	operationProgress->setProgress( msg.right( msg.findRev(' ') + 1).toInt() );
-	return;
-    } 
     logFiles( msg );
 #else
     Q_UNUSED(msg)
@@ -1859,11 +1865,12 @@ void SetupWizardImpl::archiveMsg( const QString& msg )
 void SetupWizardImpl::readArchive( const QString& arcname, const QString& installPath )
 {
     QArchive ar;
-    archive.setVerbosity( QArchive::Destination | QArchive::Verbose | QArchive::Progress );
+    ar.setVerbosity( QArchive::Destination | QArchive::Verbose | QArchive::Progress );
     connect( &ar, SIGNAL( operationFeedback( const QString& ) ), this, SLOT( archiveMsg( const QString& ) ) );
+    connect( &ar, SIGNAL( operationFeedback( int ) ), operationProgress, SLOT( setProgress( int ) ) );
     ar.setPath( arcname );
     if(ar.open( IO_ReadOnly ) ) 
-	ar.readArchive( installPath );
+	ar.readArchive( installPath, productKey->text() );
 }
 
 #else
@@ -2007,6 +2014,7 @@ void SetupWizardImpl::writeLicense( QString filePath )
 	    licenseInfo[ "PRODUCTS" ] = "qt-enterprise";
 
 	licenseInfo[ "EXPIRYDATE" ] = expiryDate->text();
+	licenseInfo[ "PRODUCTKEY" ] = productKey->text();
 
 	licStream << "# Toolkit license file" << endl;
 	licStream << "CustomerID=\"" << licenseInfo[ "CUSTOMERID" ].latin1() << "\"" << endl;
@@ -2014,6 +2022,7 @@ void SetupWizardImpl::writeLicense( QString filePath )
 	licStream << "Licensee=\"" << licenseInfo[ "LICENSEE" ].latin1() << "\"" << endl;
 	licStream << "Products=\"" << licenseInfo[ "PRODUCTS" ].latin1() << "\"" << endl;
 	licStream << "ExpiryDate=" << licenseInfo[ "EXPIRYDATE" ].latin1() << endl;
+	licStream << "ProductKey=" << licenseInfo[ "PRODUCTKEY" ].latin1() << endl;
 
 	licenseFile.close();
     }
@@ -2036,4 +2045,32 @@ bool SetupWizardImpl::findFileInPaths( QString fileName, QStringList paths )
 		return true;
 	}
 	return false;
+}
+
+void SetupWizardImpl::readLicenseAgreement()
+{
+    // Intropage
+#ifdef USE_ARCHIVES
+    readArchive( "sys.arq", tmpPath );
+    QFile licenseFile;
+    if ( usLicense )
+	licenseFile.setName( tmpPath + "/LICENSE-US" );
+    else
+	licenseFile.setName( tmpPath + "/LICENSE" );
+#else
+    QFile licenseFile( "LICENSE" );
+#endif
+    if( licenseFile.open( IO_ReadOnly ) ) {
+	QFileInfo fi( licenseFile );
+	QByteArray fileData( fi.size() + 2 );
+	licenseFile.readBlock( fileData.data(), fi.size() );
+	fileData.data()[ fi.size() ] = 0;
+	fileData.data()[ fi.size() + 1 ] = 0;
+	introText->setText( QString( fileData.data() ) );
+    }
+#ifdef USE_ARCHIVES
+    QDir tmpDir( tmpPath );
+    tmpDir.remove( "LICENSE-US" );
+    tmpDir.remove( "LICENSE" );
+#endif
 }

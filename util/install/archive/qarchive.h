@@ -37,6 +37,7 @@ private:
     bool setDirectory( const QString& dirName );
 signals:
     void operationFeedback( const QString& );
+    void operationFeedback( int );
 
 public:
     enum {

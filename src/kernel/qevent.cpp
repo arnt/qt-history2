@@ -2028,7 +2028,6 @@ QCustomEvent::QCustomEvent( int type )
 /*!
   \fn void QDropEvent::accept(bool y=TRUE)
 
-  \reimp
 
   Call this function to indicate whether the event provided data which
   your widget processed.  To get the data, use encodedData(), or

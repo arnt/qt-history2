@@ -66,6 +66,7 @@ private:
     bool findFileInPaths( QString fileName, QStringList paths );
     void setStaticEnabled( bool se );
     void setJpegDirect( bool jd );
+    void readLicenseAgreement();
 
 #if defined (USE_ARCHIVES)
     void readArchive( const QString& arcname, const QString& installPath );
@@ -79,6 +80,7 @@ private:
     int filesToCompile;
     int filesCompiled;
     bool reconfigMode;
+    bool usLicense;
 
     QString currentOLine;
     QString currentELine;

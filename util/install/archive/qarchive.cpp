@@ -3,8 +3,8 @@
 #include <qfileinfo.h>
 #include <qdir.h>
 #include <qapplication.h>
-#include <zlib/zlib.h>
-#include <keyinfo.h>
+#include "../../../src/3rdparty/zlib/zlib.h"
+#include "../keygen/keyinfo.h"
 #ifdef Q_OS_UNIX
 #  include <unistd.h>
 #  include <sys/types.h>
@@ -238,7 +238,6 @@ bool QArchive::readArchive( const QString &outpath, const QString &key )
     QByteArray inBuffer;
     QByteArray outBuffer( bufferSize );
     z_stream ztream;
-    int totalOut, totalRead;
     bool continueDeCompressing;
     QString entryName, dirName, symName;
     int entryLength, chunktype;
@@ -267,13 +266,10 @@ bool QArchive::readArchive( const QString &outpath, const QString &key )
     while(  !inStream.atEnd()  ) {
 	//get our type
 	inStream >> chunktype;
-	totalRead += sizeof( entryLength ) + entryLength;
 	if(chunktype == ChunkDirectory) {
 	    inStream >> entryLength;
-	    totalRead += sizeof( entryLength );
 	    inBuffer.resize( entryLength );
 	    inStream.readRawBytes( inBuffer.data(), entryLength );
-	    totalRead += entryLength;
 	    entryName = inBuffer.data();
 
 	    if( verbosityMode & Source )
@@ -294,15 +290,12 @@ bool QArchive::readArchive( const QString &outpath, const QString &key )
 	    }
 	} else if(chunktype == ChunkFile) {
 	    inStream >> entryLength;
-	    totalRead += sizeof( entryLength );
 	    inBuffer.resize( entryLength );
 	    inStream.readRawBytes( inBuffer.data(), entryLength );
-	    totalRead += entryLength;
 	    entryName = inBuffer.data();
 
 	    QDateTime timeStamp;
 	    QString fileName = QDir::convertSeparators( outDir.absPath() + QString( "/" ) + entryName );
-	    totalOut = 0;
 	    outFile.setName( fileName );
 	    if( outFile.open( IO_WriteOnly ) ) {
 		// Get timestamp from the archive
@@ -313,10 +306,8 @@ bool QArchive::readArchive( const QString &outpath, const QString &key )
 		    emit operationFeedback( "Deflating " + entryName + "... " );
 		else if( verbosityMode & Destination )
 		    emit operationFeedback( "Deflating " + fileName + "... " );
-		totalRead += sizeof( entryLength ) + 8; // Use size 8 bytes for timeStamp
 		inBuffer.resize( entryLength );
 		inStream.readRawBytes( inBuffer.data(), entryLength );
-		totalRead += entryLength;
 		ztream.next_in = (unsigned char*)inBuffer.data();
 		ztream.avail_in = entryLength;
 		ztream.total_in = 0;
@@ -333,7 +324,6 @@ bool QArchive::readArchive( const QString &outpath, const QString &key )
 		    ztream.total_out = 0;
 		    continueDeCompressing = ( inflate( &ztream, Z_NO_FLUSH ) == Z_OK );
 		    outStream.writeRawBytes( outBuffer.data(), ztream.total_out );
-		    totalOut += ztream.total_out;
 		}
 		inflateEnd( &ztream );
 		outFile.close();
@@ -346,18 +336,14 @@ bool QArchive::readArchive( const QString &outpath, const QString &key )
 	    }
 	} else if(chunktype == ChunkSymlink) {
 	    inStream >> entryLength;
-	    totalRead += sizeof( entryLength );
 	    inBuffer.resize( entryLength );
 	    inStream.readRawBytes( inBuffer.data(), entryLength );
-	    totalRead += entryLength;
 	    entryName = inBuffer.data();
 	    QString fileName = QDir::convertSeparators( outDir.absPath() + QString( "/" ) + entryName );
 
 	    inStream >> entryLength;
-	    totalRead += sizeof( entryLength );
 	    inBuffer.resize( entryLength );
 	    inStream.readRawBytes( inBuffer.data(), entryLength );
-	    totalRead += entryLength;
 	    symName = inBuffer.data();
 	    if( verbosityMode & Source )
 		emit operationFeedback( "Linking " + symName + "... " );
@@ -373,7 +359,7 @@ bool QArchive::readArchive( const QString &outpath, const QString &key )
 		emit operationFeedback( QString("Unknown chunk: %d") .arg(chunktype) );
 	}
 	if( verbosityMode & Progress ) 
-	    emit operationFeedback( QString("Read %1").arg(totalRead) );
+	    emit operationFeedback( arcFile.at() );
     }
     return TRUE;
 }
