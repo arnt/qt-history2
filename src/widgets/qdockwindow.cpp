@@ -140,6 +140,37 @@ void QDockWindowResizeHandle::mouseMoveEvent( QMouseEvent *e )
 {
     if ( !mousePressed )
 	return;
+    if ( !dockWindow->opaqueMoving() ) {
+	if ( orientation() != dockWindow->area()->orientation() ) {
+	    if ( orientation() == Horizontal ) {
+		int minpos = dockWindow->area()->mapToGlobal( QPoint( 0, 0 ) ).y();
+		int maxpos = dockWindow->area()->mapToGlobal( QPoint( 0, 0 ) ).y() + dockWindow->area()->height();
+		if ( e->globalPos().y() < minpos || e->globalPos().y() > maxpos )
+		    return;
+	    } else {
+		int minpos = dockWindow->area()->mapToGlobal( QPoint( 0, 0 ) ).x();
+		int maxpos = dockWindow->area()->mapToGlobal( QPoint( 0, 0 ) ).x() + dockWindow->area()->width();
+		if ( e->globalPos().x() < minpos || e->globalPos().x() > maxpos )
+		    return;
+	    }
+	} else {
+	    QWidget *w = dockWindow->area()->topLevelWidget();
+	    if ( w ) {
+		if ( orientation() == Horizontal ) {
+		    int minpos = w->mapToGlobal( QPoint( 0, 0 ) ).y();
+		    int maxpos = w->mapToGlobal( QPoint( 0, 0 ) ).y() + w->height();
+		    if ( e->globalPos().y() < minpos || e->globalPos().y() > maxpos )
+			return;
+		} else {
+		    int minpos = w->mapToGlobal( QPoint( 0, 0 ) ).x();
+		    int maxpos = w->mapToGlobal( QPoint( 0, 0 ) ).x() + w->width();
+		    if ( e->globalPos().x() < minpos || e->globalPos().x() > maxpos )
+			return;
+		}
+	    }
+	}
+    }
+
     if ( !dockWindow->opaqueMoving() )
 	drawLine( lastPos );
     lastPos = e->globalPos();
@@ -586,7 +617,7 @@ void QDockWindowTitleBar::mouseDoubleClickEvent( QMouseEvent * )
 
 /*!
   \enum QDockWindow::Place
-  
+
   This enum specifies the possible locations for a QDockWindow:
 
   \value InDock  inside a QDockArea
