@@ -1169,6 +1169,8 @@ FormWindow *MainWindow::openFormWindow( const QString &filename, bool validFileN
 	    }
 	    QApplication::setOverrideCursor( WaitCursor );
 	    Resource resource( this );
+	    if ( !ff )
+		ff = new FormFile( filename, FALSE, currentProject );
 	    bool b = resource.load( ff ) && (FormWindow*)resource.widget();
 	    if ( !validFileName && resource.widget() )
 		( (FormWindow*)resource.widget() )->setFileName( QString::null );
