@@ -226,11 +226,11 @@ public:
             ++i;
         }
 
-        sigs.insert(memid, name);
+        sigs.insert(memid, signalname);
         QMap<DISPID,QByteArray>::ConstIterator it;
         DISPID id = -1;
         for (it = propsigs.constBegin(); it!= propsigs.constEnd(); ++it) {
-            if (it.value() == name) {
+            if (it.value() == signalname) {
                 id = it.key();
                 break;
             }
