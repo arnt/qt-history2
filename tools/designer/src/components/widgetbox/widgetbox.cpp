@@ -39,7 +39,7 @@ public:
     virtual ~WidgetBoxDnDItem();
     virtual QPoint hotSpot() const;
 
-protected:    
+protected:
     inline AbstractFormEditor *core() const
     { return m_core; }
 
@@ -145,10 +145,10 @@ class WidgetBoxResource : public QDesignerFormBuilder
 public:
     WidgetBoxResource(AbstractFormEditor *core)
         : QDesignerFormBuilder(core) {}
-        
+
     virtual QWidget *createWidget(DomWidget *ui_widget, QWidget *parentWidget)
         { return QDesignerFormBuilder::createWidget(ui_widget, parentWidget); }
-    
+
 protected:
     virtual QWidget *create(DomWidget *ui_widget, QWidget *parents);
     virtual QWidget *createWidget(const QString &widgetName, QWidget *parentWidget, const QString &name);
@@ -193,7 +193,7 @@ public:
     int columnCount(const QModelIndex &parent) const;
     bool hasChildren(const QModelIndex &parent) const
     { return rowCount(parent) > 0; }
-    
+
     QVariant data(const QModelIndex &index, int role = DisplayRole) const;
     ItemFlags flags(const QModelIndex &index) const;
 
@@ -268,7 +268,7 @@ WidgetCollectionModel::WidgetCollectionModel(AbstractFormEditor *core, QObject *
                     name.latin1(), line, error_msg.latin1());
         return;
     }
-    
+
     loadCustomClasses(core);
     loadModelFromXml();
 }
@@ -282,7 +282,7 @@ void WidgetCollectionModel::loadCustomClasses(AbstractFormEditor *core)
 {
     AbstractWidgetDataBase *db = core->widgetDataBase();
     int cnt = db->count();
-    
+
     QList<DomWidget*> widget_list;
     for (int i = 0; i < cnt; ++i) {
         AbstractWidgetDataBaseItem *item = db->item(i);
@@ -293,21 +293,21 @@ void WidgetCollectionModel::loadCustomClasses(AbstractFormEditor *core)
         dom_widget->setAttributeName(item->name());
         widget_list.append(dom_widget);
     }
-    
+
     if (!widget_list.isEmpty()) {
         QDomElement cat_elt = m_widget_xml.createElement("category");
         cat_elt.setAttribute("name", tr("Custom Widgets"));
         cat_elt.setAttribute("widgetboxicon", "");
         m_widget_xml.firstChild().appendChild(cat_elt);
-        
+
         DomUI dom_ui;
         DomWidget *root = new DomWidget;
         dom_ui.setElementWidget(root);
         root->setElementWidget(widget_list);
-        
+
         QDomElement ui_elt = dom_ui.write(m_widget_xml, QLatin1String("ui"));
         cat_elt.appendChild(ui_elt);
-        
+
         ElementList list = childElementList(cat_elt, "widget", "name");
         foreach (QDomElement elt, list)
             elt.setAttribute("widgetboxicon", "");
@@ -431,10 +431,10 @@ int WidgetCollectionModel::addCategory(const QString &name, const QString &icon_
         qDebug("WidgetCollectionModel::addCategory(): missing <widgetbox> element");
         return -1;
     }
-    
+
     QDomElement cat_elt = m_widget_xml.createElement("category");
     root_elt.appendChild(cat_elt);
-    
+
     QDomElement elt = ui->write(m_widget_xml, QLatin1String("ui"));
     elt.setAttribute("name", name);
     elt.setAttribute("widgetboxicon", icon_file);
@@ -481,7 +481,7 @@ QDomElement WidgetCollectionModel::widgetElt(const QModelIndex &index) const
     if (!index.isValid())
         return QDomElement();
 
-    int d = reinterpret_cast<int>(index.data());
+    int d = reinterpret_cast<long>(index.data());
 
     if (d == -1)
         return QDomElement();
@@ -504,7 +504,7 @@ QModelIndex WidgetCollectionModel::index(int row, int column,
         return createIndex(row, 0, reinterpret_cast<void*>(-1));
     }
 
-    int d = reinterpret_cast<int>(parent.data());
+    int d = reinterpret_cast<long>(parent.data());
     if (d == -1) {
         Q_ASSERT(parent.row() < categoryCount());
         if (row >= widgetCount(parent.row()))
@@ -520,7 +520,7 @@ QModelIndex WidgetCollectionModel::parent(const QModelIndex &index) const
     if (!index.isValid())
         return QModelIndex();
 
-    int d = reinterpret_cast<int>(index.data());
+    int d = reinterpret_cast<long>(index.data());
 
     if (d == -1)
         return QModelIndex();
@@ -534,7 +534,7 @@ int WidgetCollectionModel::rowCount(const QModelIndex &parent) const
     if (!parent.isValid())
         return categoryCount();
 
-    int d = reinterpret_cast<int>(parent.data());
+    int d = reinterpret_cast<long>(parent.data());
 
     if (d == -1) {
         Q_ASSERT(parent.row() < categoryCount());
@@ -549,7 +549,7 @@ int WidgetCollectionModel::columnCount(const QModelIndex &parent) const
     if (!parent.isValid())
         return 1;
 
-    int d = reinterpret_cast<int>(parent.data());
+    int d = reinterpret_cast<long>(parent.data());
 
     if (d == -1) {
         Q_ASSERT(parent.row() < categoryCount());
@@ -564,7 +564,7 @@ QVariant WidgetCollectionModel::data(const QModelIndex &index, int role) const
     if (!index.isValid())
         return QVariant();
 
-    int d = reinterpret_cast<int>(index.data());
+    int d = reinterpret_cast<long>(index.data());
 
     ModelKey key;
     if (d == -1) {
@@ -644,7 +644,7 @@ public:
 
 private slots:
     void fixSize();
-    
+
 private:
     WidgetCollectionModel *m_model;
 };
@@ -782,13 +782,13 @@ static QSize domWidgetSize(DomWidget *dw)
     QSize size = geometryProp(dw);
     if (size.isValid())
         return size;
-    
+
     foreach (DomWidget *child, dw->elementWidget()) {
         size = geometryProp(child);
         if (size.isValid())
             return size;
     }
-    
+
     foreach (DomLayout *dl, dw->elementLayout()) {
         foreach (DomLayoutItem *item, dl->elementItem()) {
             DomWidget *child = item->elementWidget();
@@ -799,7 +799,7 @@ static QSize domWidgetSize(DomWidget *dw)
                 return size;
         }
     }
-    
+
     return QSize();
 }
 
@@ -814,7 +814,7 @@ WidgetBoxDnDItem::WidgetBoxDnDItem(AbstractFormEditor *core, DomWidget *dom_widg
     m_dom_ui->setElementWidget(root_dom_widget);
 
     QLabel *label = new QLabel(0, Qt::WStyle_ToolTip);
-    
+
     WidgetBoxResource builder(m_core);
     QWidget *w = builder.createWidget(dom_widget, label);
     QSize size = domWidgetSize(dom_widget);
@@ -822,17 +822,17 @@ WidgetBoxDnDItem::WidgetBoxDnDItem(AbstractFormEditor *core, DomWidget *dom_widg
         size = w->sizeHint();
     w->setGeometry(QRect(QPoint(), size));
     label->resize(size);
-    
+
     label->setWindowOpacity(0.8);
     m_decoration = label;
-        
+
     QPoint pos = QCursor::pos();
-    
+
     if (geometry.isValid())
         m_decoration->setGeometry(geometry);
     else
         m_decoration->move(pos - QPoint(size.width(), size.height())/2);
-    
+
     m_hot_spot = pos - m_decoration->geometry().topLeft();
 }
 
@@ -880,10 +880,10 @@ WidgetBox::WidgetBox(AbstractFormEditor *core, ViewMode mode, QWidget *parent, Q
     m_tree_mode_action->setCheckable(true);
     m_form_mode_action = new QAction(tr("Form View"), m_mode_action_group);
     m_form_mode_action->setCheckable(true);
-    
+
     addAction(m_tree_mode_action);
     addAction(m_form_mode_action);
-    
+
     connect(m_mode_action_group, SIGNAL(triggered(QAction*)),
                 this, SLOT(setViewMode(QAction*)));
 #else
@@ -891,9 +891,9 @@ WidgetBox::WidgetBox(AbstractFormEditor *core, ViewMode mode, QWidget *parent, Q
     m_tree_mode_action = 0;
     m_form_mode_action = 0;
 #endif
-    
+
     QSettings settings;
-    
+
 #if 0 // ### disabled for now
     setViewMode(WidgetBox::ViewMode(settings.value("widgetbox/boxmode",
                                                    WidgetBox::TreeMode).toInt()));
@@ -921,7 +921,7 @@ void WidgetBox::handleMousePress(const QDomElement &wgt_elt, const QRect &geomet
     if (button == Qt::LeftButton) {
         DomWidget *dom_widget = new DomWidget();
         dom_widget->read(wgt_elt);
-        QList<AbstractDnDItem*> item_list;        
+        QList<AbstractDnDItem*> item_list;
         item_list.append(new WidgetBoxDnDItem(core(), dom_widget, geometry));
         m_core->formWindowManager()->dragItems(item_list, 0);
     }
@@ -943,17 +943,17 @@ void WidgetBox::setViewMode(ViewMode mode)
     switch (m_mode) {
         case TreeMode:
             m_view = new WidgetBoxListView(m_model, this);
-            // ### disabled for now 
+            // ### disabled for now
             // m_tree_mode_action->setChecked(true);
             break;
-            
+
         case FormMode:
             Q_ASSERT(0); // ### not implemented yet!
     }
 
     connect(m_view, SIGNAL(pressed(const QDomElement&, const QRect&, Qt::MouseButton)),
             this, SLOT(handleMousePress(const QDomElement&, const QRect&, Qt::MouseButton)));
-            
+
     layout()->addWidget(m_view);
     m_view->show();
 }
