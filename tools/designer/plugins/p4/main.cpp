@@ -329,7 +329,7 @@ private:
 };
 
 P4Interface::P4Interface()
-: appInterface( 0 ), ref( 0 ), outputPage( 0 ), outputView( 0 )
+    : outputPage( 0 ), outputView( 0 ), appInterface( 0 ), ref( 0 )
 {
     aware = TRUE;
 }
@@ -428,7 +428,7 @@ QAction* P4Interface::create( const QString& actionname, QObject* parent )
     connect( a, SIGNAL( activated() ), this, SLOT( p4Refresh() ) );
 
     actions.add( ag );
-    
+
     actionSync->setEnabled( FALSE );
     actionEdit->setEnabled( FALSE );
     actionSubmit->setEnabled( FALSE );
@@ -514,7 +514,7 @@ void P4Interface::p4Add()
 {
     if ( !appInterface )
 	return;
-    
+
     DesignerFormWindow *fwIface = appInterface->currentForm();
     if ( !fwIface )
 	return;
@@ -537,7 +537,7 @@ void P4Interface::p4Delete()
     P4Delete *del = new P4Delete( fwIface->fileName() );
     connect( del, SIGNAL(finished(const QString&, P4Info*)), this, SLOT(p4Info(const QString&,P4Info*)) );
     connect( del, SIGNAL( showStatusBarMessage( const QString & ) ), this, SLOT( statusMessage( const QString & ) ) );
-    del->execute();    
+    del->execute();
 }
 
 void P4Interface::p4Diff()
@@ -681,7 +681,7 @@ void P4Interface::p4Info( const QString& filename, P4Info* p4i )
 	    default:
 		break;
 	    }
-	    
+	
 	    actionSync->setEnabled( FALSE );
 	    actionEdit->setEnabled( FALSE );
 	    actionSubmit->setEnabled( TRUE );
@@ -750,7 +750,7 @@ bool P4Interface::init()
     return TRUE;
 }
 
-void P4Interface::cleanup() 
+void P4Interface::cleanup()
 {
     actions.clear();
     delete outputPage;
