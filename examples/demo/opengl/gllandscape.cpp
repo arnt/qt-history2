@@ -6,6 +6,7 @@
 #include <math.h>
 
 #include "fbm.h"
+using namespace Qt;
 
 #ifndef PI
 #define PI 3.14159
@@ -130,7 +131,7 @@ void GLLandscape::drawAxis()
     renderText(1.1f, 0, 0, "x");
     renderText(0, 1.1f, 0, "y");
     renderText(0, 0, 1.1f, "z");
-    
+
     glPopMatrix();
     glMatrixMode(GL_PROJECTION);
     glPopMatrix();

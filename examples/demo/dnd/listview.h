@@ -1,15 +1,15 @@
 #ifndef LISTVIEW_H
 #define LISTVIEW_H
 
-#include <qlistview.h>
+#include <q3listview.h>
 
-class ListViewItem : public QListViewItem
+class ListViewItem : public Q3ListViewItem
 {
 public:
-    ListViewItem ( QListView * parent, const QString& name, const QString& tag )
-        : QListViewItem( parent, name ), _tag( tag ) {}
-    ListViewItem ( QListView * parent, QListViewItem * after, const QString& name, const QString& tag )
-        : QListViewItem( parent, after, name ), _tag( tag ) {}
+    ListViewItem ( Q3ListView * parent, const QString& name, const QString& tag )
+        : Q3ListViewItem( parent, name ), _tag( tag ) {}
+    ListViewItem ( Q3ListView * parent, Q3ListViewItem * after, const QString& name, const QString& tag )
+        : Q3ListViewItem( parent, after, name ), _tag( tag ) {}
     virtual ~ListViewItem() {}
 
     QString tag() { return _tag; }
@@ -18,7 +18,7 @@ private:
     QString _tag;
 };
 
-class ListView : public QListView
+class ListView : public Q3ListView
 {
     Q_OBJECT
 

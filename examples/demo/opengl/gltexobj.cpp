@@ -21,7 +21,7 @@
 
 #include "gltexobj.h"
 #include <qimage.h>
-
+using namespace Qt;
 /*!
   Create a GLTexobj widget
 */
@@ -66,7 +66,7 @@ void GLTexobj::paintGL()
 	glVertex3f( 0.98f, 0.98f, 0.98f );
     }
     glEnd();
-    renderText( 1.0, 1.0, 1.0, "Can", QFont( "helvetica", 12, QFont::Bold, TRUE ) );    
+    renderText( 1.0, 1.0, 1.0, "Can", QFont( "helvetica", 12, QFont::Bold, TRUE ) );
     glPopAttrib();
     glPopMatrix();
 }
@@ -196,7 +196,7 @@ void GLTexobj::animate()
     impY -= impY * 0.05;
     impZ -= impZ * 0.05;
 
-    if ( impX > 0.1 || impY > 0.1 || impZ > 0.1 || 
+    if ( impX > 0.1 || impY > 0.1 || impZ > 0.1 ||
 	 impX < -0.1 || impY < -0.1 || impZ < -0.1 )
 	updateGL();
 }

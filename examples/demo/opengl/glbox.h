@@ -27,7 +27,7 @@ class GLBox : public GLControlWidget
 
 public:
 
-    GLBox( QWidget* parent = 0, const char* name = 0, WFlags f = 0 );
+    GLBox( QWidget* parent = 0, const char* name = 0, Qt::WFlags f = 0 );
     ~GLBox();
 
 protected:

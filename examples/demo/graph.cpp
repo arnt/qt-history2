@@ -12,6 +12,7 @@
 #include <qevent.h>
 
 #include <stdlib.h>
+using namespace Qt;
 
 const int bounce_rtti = 1234;
 

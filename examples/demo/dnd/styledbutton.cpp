@@ -30,6 +30,7 @@
 #include <qapplication.h>
 #include <qdragobject.h>
 #include <qstyle.h>
+using namespace Qt;
 
 StyledButton::StyledButton(QWidget* parent, const char* name)
     : QAbstractButton( parent, name ), pix( 0 ), spix( 0 ), edit( ColorEditor ), s( 0 ), mousePressed( FALSE )
@@ -150,14 +151,14 @@ void StyledButton::resizeEvent( QResizeEvent* e )
 
 void StyledButton::drawButton( QPainter *paint )
 {
-    style().drawPrimitive(QStyle::PE_ButtonBevel, paint, rect(), palette(),
-                          isDown() ? QStyle::Style_Sunken : QStyle::Style_Default);
+//     style().drawPrimitive(QStyle::PE_ButtonBevel, paint, rect(), palette(),
+//                           isDown() ? QStyle::Style_Sunken : QStyle::Style_Default);
     drawButtonLabel(paint);
 
-    if (hasFocus())
-        style().drawPrimitive(QStyle::PE_FocusRect, paint,
-                              style().subRect(QStyle::SR_PushButtonFocusRect, this),
-                              palette(), QStyle::Style_Default);
+//     if (hasFocus())
+//         style().drawPrimitive(QStyle::PE_FocusRect, paint,
+//                               style().subRect(QStyle::SR_PushButtonFocusRect, this),
+//                               palette(), QStyle::Style_Default);
 }
 
 void StyledButton::drawButtonLabel( QPainter *paint )

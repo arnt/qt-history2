@@ -26,7 +26,7 @@ class GLTexobj : public GLControlWidget
     Q_OBJECT
 
 public:
-    GLTexobj( QWidget* parent, const char* name = 0, WFlags f = 0 );
+    GLTexobj( QWidget* parent, const char* name = 0, Qt::WFlags f = 0 );
     ~GLTexobj();
 
 protected:

@@ -28,7 +28,7 @@ public:
     QDragObject *dragObject();
 
 public slots:
-    void slotNewItem( QDropEvent *t, const QList<QIconDragItem>& );
+    void slotNewItem( QDropEvent *t, const QValueList<QIconDragItem>& );
 };
 
 #endif // ICONVIEW_H

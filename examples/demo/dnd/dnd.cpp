@@ -7,6 +7,7 @@
 #include "styledbutton.h"
 #include "listview.h"
 #include "iconview.h"
+using namespace Qt;
 
 DnDDemo::DnDDemo( QWidget* parent, const char* name )
     : DnDDemoBase( parent, name )
@@ -84,7 +85,7 @@ DnDDemo::DnDDemo( QWidget* parent, const char* name )
     items.insert( tr("home"), IconItem( tr("Home"), "home.png" ));
 
     listView->addColumn( tr("Actions"), 240 );
-    listView->setColumnWidthMode( 0, QListView::Maximum );
+    listView->setColumnWidthMode( 0, Q3ListView::Maximum );
 
     QMap<QString,IconItem>::Iterator it;
     for( it = items.begin(); it != items.end(); ++it ) {
@@ -92,7 +93,7 @@ DnDDemo::DnDDemo( QWidget* parent, const char* name )
 
         QIconViewItem *iitem = new IconViewItem( iconView, item.name(), *item.pixmap(), it.key() );
         iitem->setRenameEnabled( TRUE );
-        QListViewItem *litem = new ListViewItem( listView, item.name(), it.key() );
+        Q3ListViewItem *litem = new ListViewItem( listView, item.name(), it.key() );
         litem->setPixmap( 0, *item.pixmap() );
     }
 }

@@ -5,7 +5,7 @@
   documentation of the different functions please refer to the book:
   "Texturing and modeling: a procedural approach"
   by David S. Ebert et. al.
-  
+
 ******************************************************************/
 
 #ifndef _fbm_h
@@ -17,17 +17,19 @@
 extern "C" {
 #endif
 
+#ifndef TRUE
 #define TRUE    1
 #define FALSE   0
+#endif
 
 typedef struct {
     double x;
     double y;
     double z;
 } Vector;
-    
+
 float noise3(float vec[]);
-double fBm( Vector point, double H, double lacunarity, double octaves, 
+double fBm( Vector point, double H, double lacunarity, double octaves,
 	    int init );
 #endif
 

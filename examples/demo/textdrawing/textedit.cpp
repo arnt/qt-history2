@@ -12,7 +12,7 @@
 
 #include "textedit.h"
 
-#include <qtextedit.h>
+#include <q3textedit.h>
 #include <q3action.h>
 #include <qmenubar.h>
 #include <qpopupmenu.h>
@@ -31,9 +31,10 @@
 #include <qcolordialog.h>
 #include <qpainter.h>
 #include <qvaluelist.h>
+using namespace Qt;
 
 TextEdit::TextEdit( QWidget *parent, const char *name )
-    : QMainWindow( parent, name, 0 )
+    : Q3MainWindow( parent, name, 0 )
 {
     setupFileActions();
     setupEditActions();
@@ -47,7 +48,7 @@ TextEdit::TextEdit( QWidget *parent, const char *name )
 
 void TextEdit::setupFileActions()
 {
-    QToolBar *tb = new QToolBar( this );
+    Q3ToolBar *tb = new Q3ToolBar( this );
     QPopupMenu *menu = new QPopupMenu( this );
     menuBar()->insertItem( tr( "&File" ), menu );
 
@@ -80,7 +81,7 @@ void TextEdit::setupFileActions()
 
 void TextEdit::setupEditActions()
 {
-    QToolBar *tb = new QToolBar( this );
+    Q3ToolBar *tb = new Q3ToolBar( this );
     QPopupMenu *menu = new QPopupMenu( this );
     menuBar()->insertItem( tr( "&Edit" ), menu );
 
@@ -110,7 +111,7 @@ void TextEdit::setupEditActions()
 
 void TextEdit::setupTextActions()
 {
-    QToolBar *tb = new QToolBar( this );
+    Q3ToolBar *tb = new Q3ToolBar( this );
     QPopupMenu *menu = new QPopupMenu( this );
     menuBar()->insertItem( tr( "For&mat" ), menu );
 
@@ -193,7 +194,7 @@ void TextEdit::load( const QString &f )
 {
     if ( !QFile::exists( f ) )
 	return;
-    QTextEdit *edit = new QTextEdit( tabWidget );
+    Q3TextEdit *edit = new Q3TextEdit( tabWidget );
     doConnections( edit );
     tabWidget->addTab( edit, QFileInfo( f ).fileName() );
 
@@ -209,15 +210,15 @@ void TextEdit::load( const QString &f )
     edit->setTextFormat( Qt::RichText );
 }
 
-QTextEdit *TextEdit::currentEditor() const
+Q3TextEdit *TextEdit::currentEditor() const
 {
     if ( tabWidget->currentPage() &&
-	 tabWidget->currentPage()->inherits( "QTextEdit" ) )
-	return (QTextEdit*)tabWidget->currentPage();
+	 tabWidget->currentPage()->inherits( "Q3TextEdit" ) )
+	return (Q3TextEdit*)tabWidget->currentPage();
     return 0;
 }
 
-void TextEdit::doConnections( QTextEdit *e )
+void TextEdit::doConnections( Q3TextEdit *e )
 {
     connect( e, SIGNAL( currentFontChanged( const QFont & ) ),
 	     this, SLOT( fontChanged( const QFont & ) ) );
@@ -229,7 +230,7 @@ void TextEdit::doConnections( QTextEdit *e )
 
 void TextEdit::fileNew()
 {
-    QTextEdit *edit = new QTextEdit( tabWidget );
+    Q3TextEdit *edit = new Q3TextEdit( tabWidget );
     doConnections( edit );
     tabWidget->addTab( edit, tr( "noname" ) );
     tabWidget->showPage( edit );

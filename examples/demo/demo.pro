@@ -3,10 +3,10 @@ TARGET           = demo
 
 DEFINES         += QT_MODULE_CANVAS
 
-QT              += compat xml network canvas
+QT              += compat xml network opengl
 CONFIG          += network warn_on release uic3
 unix:LIBS       += -lm
-INCLUDEPATH     += .
+INCLUDEPATH     += . ./dnd ./i18n ./opengl ./qasteroids ./sql ./textdrawing ./widgets
 
 HEADERS                = frame.h \
                   categoryinterface.h \

@@ -8,7 +8,7 @@
 **
 *****************************************************************************/
 
-#include <qmainwindow.h>
+#include <q3mainwindow.h>
 #include <qintdict.h>
 #include <qptrlist.h>
 #include "categoryinterface.h"
@@ -17,7 +17,7 @@ class QToolBox;
 class QStyle;
 class QWidgetStack;
 
-class Frame : public QMainWindow
+class Frame : public Q3MainWindow
 {
     Q_OBJECT
 

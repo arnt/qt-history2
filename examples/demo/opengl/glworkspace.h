@@ -1,16 +1,16 @@
 #ifndef GLWORKSPACE_H
 #define GLWORKSPACE_H
 
-#include <qmainwindow.h>
+#include <q3mainwindow.h>
 
 class QWorkspace;
 class QPrinter;
 
-class GLWorkspace : public QMainWindow
+class GLWorkspace : public Q3MainWindow
 {
     Q_OBJECT
 public:
-    GLWorkspace( QWidget *parent = 0, const char *name = 0, WFlags f = 0 );
+    GLWorkspace( QWidget *parent = 0, const char *name = 0, Qt::WFlags f = 0 );
     ~GLWorkspace();
 
 protected:

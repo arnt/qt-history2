@@ -19,6 +19,7 @@
 #include "glgear.h"
 
 #include <math.h>
+using namespace Qt;
 
 #if defined(Q_CC_MSVC)
 #pragma warning(disable:4305) // init: truncation from const double to float
@@ -249,7 +250,7 @@ void GLGear::paintGL()
     transform();
     draw();
     drawText();
-    
+
     glPushAttrib( GL_LIGHTING_BIT | GL_TEXTURE_BIT );
     glDisable( GL_LIGHTING );
     glDisable( GL_TEXTURE_2D );

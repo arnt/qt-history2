@@ -14,7 +14,7 @@
 #include <qiconset.h>
 #include <qapplication.h>
 #include <qlabel.h>
-#include <qtextedit.h>
+#include <q3textedit.h>
 
 
 static int windowIdNumber = 5000;

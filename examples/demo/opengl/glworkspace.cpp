@@ -15,10 +15,10 @@
 #include <qvbox.h>
 #include <qimage.h>
 #include "printpreview.h"
-
+using namespace Qt;
 
 GLWorkspace::GLWorkspace( QWidget *parent, const char *name, WFlags f )
-: QMainWindow( parent, name, f ), printer( 0 )
+: Q3MainWindow( parent, name, f ), printer( 0 )
 {
     setupSceneActions();
 
@@ -38,7 +38,7 @@ GLWorkspace::~GLWorkspace()
 
 void GLWorkspace::setupSceneActions()
 {
-    QToolBar *tb = new QToolBar( "Scene", this );
+    Q3ToolBar *tb = new Q3ToolBar( "Scene", this );
     QPopupMenu *menu = new QPopupMenu( this );
     menuBar()->insertItem( tr( "&Scene" ), menu );
 

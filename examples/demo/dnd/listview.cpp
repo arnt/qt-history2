@@ -5,7 +5,7 @@
 #include "dnd.h"
 
 ListView::ListView( QWidget* parent, const char* name )
-    : QListView( parent, name )
+    : Q3ListView( parent, name )
 {
     setAcceptDrops( TRUE );
     setSorting( -1, FALSE );
@@ -32,7 +32,7 @@ void ListView::dropEvent( QDropEvent *e )
 
     if ( QTextDrag::decode( e, tag ) ) {
         IconItem item = ((DnDDemo*) parentWidget())->findItem( tag );
-        QListViewItem *after = itemAt( viewport()->mapFromParent( e->pos() ) );
+        Q3ListViewItem *after = itemAt( viewport()->mapFromParent( e->pos() ) );
         ListViewItem *litem = new ListViewItem( this, after, item.name(), tag );
         litem->setPixmap( 0, *item.pixmap() );
     }
@@ -40,14 +40,14 @@ void ListView::dropEvent( QDropEvent *e )
 
 void ListView::contentsMousePressEvent( QMouseEvent *e )
 {
-    QListView::contentsMousePressEvent( e );
+    Q3ListView::contentsMousePressEvent( e );
     dragging = TRUE;
     pressPos = e->pos();
 }
 
 void ListView::contentsMouseMoveEvent( QMouseEvent *e )
 {
-    QListView::contentsMouseMoveEvent( e );
+    Q3ListView::contentsMouseMoveEvent( e );
 
     if ( ! dragging ) return;
 
@@ -67,7 +67,7 @@ void ListView::contentsMouseMoveEvent( QMouseEvent *e )
 
 void ListView::contentsMouseReleaseEvent( QMouseEvent *e )
 {
-    QListView::contentsMouseReleaseEvent( e );
+    Q3ListView::contentsMouseReleaseEvent( e );
     dragging = FALSE;
 }
 

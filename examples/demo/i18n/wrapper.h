@@ -3,7 +3,7 @@
 
 #include <qvbox.h>
 #include <qtranslator.h>
-
+using namespace Qt;
 
 class Wrapper : public QVBox
 {

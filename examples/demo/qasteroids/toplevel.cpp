@@ -15,7 +15,7 @@
 
 #include "toplevel.h"
 #include "ledmeter.h"
-
+using namespace Qt;
 
 #define SB_SCORE	1
 #define SB_LEVEL	2

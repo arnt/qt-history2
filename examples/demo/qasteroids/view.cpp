@@ -36,6 +36,7 @@
 #ifndef M_PI
 #define M_PI 3.141592654
 #endif
+using namespace Qt;
 
 struct
 {

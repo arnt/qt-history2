@@ -23,6 +23,7 @@
 
 static const double m_pi = 3.14159265358979323846;
 static const double rad_factor = 180.0 / m_pi;
+using namespace Qt;
 
 QThumbWheel::QThumbWheel( QWidget *parent, const char *name )
     : Q3Frame( parent, name )

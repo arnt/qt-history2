@@ -13,22 +13,22 @@
 #ifndef TEXTEDIT_H
 #define TEXTEDIT_H
 
-#include <qmainwindow.h>
+#include <q3mainwindow.h>
 #include <qmap.h>
 
 class Q3Action;
 class QComboBox;
 class QTabWidget;
-class QTextEdit;
+class Q3TextEdit;
 
-class TextEdit : public QMainWindow
+class TextEdit : public Q3MainWindow
 {
     Q_OBJECT
 
 public:
     TextEdit( QWidget *parent = 0, const char *name = 0 );
 
-    QTextEdit *currentEditor() const;
+    Q3TextEdit *currentEditor() const;
     void load( const QString &f );
 
 
@@ -66,7 +66,7 @@ private:
     void setupFileActions();
     void setupEditActions();
     void setupTextActions();
-    void doConnections( QTextEdit *e );
+    void doConnections( Q3TextEdit *e );
 
     Q3Action *actionTextBold,
 	*actionTextUnderline,
@@ -80,7 +80,7 @@ private:
 	*comboFont,
 	*comboSize;
     QTabWidget *tabWidget;
-    QMap<QTextEdit*, QString> filenames;
+    QMap<Q3TextEdit*, QString> filenames;
 
 };
 

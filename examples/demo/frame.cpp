@@ -27,12 +27,14 @@
 #include <stdlib.h>
 #include <q3buttongroup.h>
 #include <qtoolbutton.h>
+#include <q3dockwindow.h>
+using namespace Qt;
 
 static QTranslator *translator = 0;
 static QTranslator *qt_translator = 0;
 
 Frame::Frame( QWidget *parent, const char *name )
-    : QMainWindow( parent, name )
+    : Q3MainWindow( parent, name )
 {
     QMenuBar *mainMenu = menuBar();
     QPopupMenu *fileMenu = new QPopupMenu( this, "file" );
@@ -83,13 +85,13 @@ Frame::Frame( QWidget *parent, const char *name )
 void Frame::setCategories( const QPtrList<CategoryInterface> &l )
 {
     categories = l;
-    QDockWindow *dw = new QDockWindow( QDockWindow::InDock, this );
+    Q3DockWindow *dw = new Q3DockWindow( Q3DockWindow::InDock, this );
     dw->setResizeEnabled( TRUE );
     dw->setVerticalStretchable( TRUE );
     addDockWindow( dw, DockLeft );
     setDockEnabled( dw, DockTop, FALSE );
     setDockEnabled( dw, DockBottom, FALSE );
-    dw->setCloseMode( QDockWindow::Always );
+    dw->setCloseMode( Q3DockWindow::Always );
 
     toolBox = new QToolBox( dw );
     dw->setWidget( toolBox );
@@ -149,5 +151,5 @@ bool Frame::event( QEvent *e )
     if ( e->type() == QEvent::LocaleChange )
         updateTranslators();
 
-    return QMainWindow::event( e );
+    return Q3MainWindow::event( e );
 }

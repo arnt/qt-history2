@@ -16,7 +16,7 @@
 #define QTHUMBWHEEL_H
 
 #ifndef QT_H
-#include "qframe.h"
+#include "q3frame.h"
 #include "qrangecontrol.h"
 #endif // QT_H
 
@@ -30,8 +30,8 @@ public:
     QThumbWheel( QWidget *parent=0, const char *name=0 );
     ~QThumbWheel();
 
-    virtual void 	setOrientation( Orientation );
-    Orientation  	orientation() const;
+    virtual void 	setOrientation( Qt::Orientation );
+    Qt::Orientation  	orientation() const;
     virtual void	setTracking( bool enable );
     bool		tracking() const;
     virtual void	setTransmissionRatio( double r );
@@ -65,7 +65,7 @@ private:
 
     double 	rat;
     int		pressedAt;
-    Orientation orient;
+    Qt::Orientation orient;
     uint	track : 1;
     uint	mousePressed : 1;
 
@@ -73,7 +73,7 @@ private:
     QThumbWheelPrivate *d;
 };
 
-inline QThumbWheel::Orientation QThumbWheel::orientation() const
+inline Qt::Orientation QThumbWheel::orientation() const
 {
     return orient;
 }

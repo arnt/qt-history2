@@ -13,7 +13,7 @@
 #ifndef HELPWINDOW_H
 #define HELPWINDOW_H
 
-#include <qmainwindow.h>
+#include <q3mainwindow.h>
 #include <qtextbrowser.h>
 #include <qstringlist.h>
 #include <qmap.h>
@@ -22,7 +22,7 @@
 class QComboBox;
 class QPopupMenu;
 
-class HelpWindow : public QMainWindow
+class HelpWindow : public Q3MainWindow
 {
     Q_OBJECT
 public:
@@ -44,11 +44,11 @@ private slots:
     void histChosen( int );
     void bookmChosen( int );
     void addBookmark();
-    
+
 private:
     void readHistory();
     void readBookmarks();
-    
+
     QTextBrowser* browser;
     QComboBox *pathCombo;
     int backwardId, forwardId;
@@ -56,7 +56,7 @@ private:
     QStringList history, bookmarks;
     QMap<int, QString> mHistory, mBookmarks;
     QPopupMenu *hist, *bookm;
-    
+
 };
 
 

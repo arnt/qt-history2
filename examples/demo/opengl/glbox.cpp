@@ -20,6 +20,7 @@
 ****************************************************************************/
 
 #include "glbox.h"
+using namespace Qt;
 
 #if defined(Q_CC_MSVC)
 #pragma warning(disable:4305) // init: truncation from const double to float
@@ -107,7 +108,7 @@ void GLBox::resizeGL( int w, int h )
 */
 
 GLuint GLBox::makeObject()
-{	
+{
     GLuint list;
 
     list = glGenLists( 1 );

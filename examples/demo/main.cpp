@@ -25,7 +25,7 @@
 #endif
 
 #include "qasteroids/toplevel.h"
-#include "widgets/widgetsbase.h"
+#include "widgetsbase.h"
 
 #include <stdlib.h>
 

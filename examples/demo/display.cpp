@@ -24,6 +24,7 @@
 #include <qevent.h>
 
 #include <math.h>
+using namespace Qt;
 
 Screen::Screen(  QWidget *parent, const char *name )
     : QFrame( parent, name )
