@@ -502,12 +502,12 @@ void QApplication::create_xim()
 	XIMCallback destroy;
 	destroy.callback = (XIMProc) xim_destroy_callback;
 	destroy.client_data = 0;
-	if ( XSetIMValues( qt_xim, XNDestroyCallback, &destroy, 0 ) != 0 )
+	if ( XSetIMValues( qt_xim, XNDestroyCallback, &destroy, (char *) 0 ) != 0 )
 	    qWarning( "Xlib dosn't support destroy callback");
 #endif // USE_X11R6_XIM
 
 	XIMStyles *styles = 0;
-	XGetIMValues(qt_xim, XNQueryInputStyle, &styles, 0, 0);
+	XGetIMValues(qt_xim, XNQueryInputStyle, &styles, (char *) 0, (char *) 0);
 	if ( styles ) {
 	    int i;
 	    for ( i = 0; !qt_xim_style && i < styles->count_styles; i++ ) {

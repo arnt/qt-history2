@@ -181,14 +181,14 @@ QInputContext::QInputContext(QWidget *widget)
 
 	preedit_attr = XVaCreateNestedList(0,
 					   XNArea, &rect,
-					   0);
+					   (char *) 0);
     } else if (qt_xim_style & XIMPreeditPosition) {
 	spot.x = 1;
 	spot.y = 1;
 
 	preedit_attr = XVaCreateNestedList(0,
 					   XNSpotLocation, &spot,
-					   0);
+					   (char *) 0);
     } else if (qt_xim_style & XIMPreeditCallbacks) {
 	startcallback.client_data = (XPointer) this;
 	startcallback.callback = (XIMProc) xic_start_callback;
@@ -204,7 +204,7 @@ QInputContext::QInputContext(QWidget *widget)
 					   XNPreeditDrawCallback, &drawcallback,
 					   XNPreeditDoneCallback, &donecallback,
 					   XNPreeditCaretCallback, &caretcallback,
-					   0);
+					   (char *) 0);
     }
 
     if (preedit_attr)
@@ -212,12 +212,12 @@ QInputContext::QInputContext(QWidget *widget)
 		       XNInputStyle, qt_xim_style,
 		       XNClientWindow, widget->winId(),
 		       XNPreeditAttributes, preedit_attr,
-		       0);
+		       (char *) 0);
     else
 	ic = XCreateIC(qt_xim,
 		       XNInputStyle, qt_xim_style,
 		       XNClientWindow, widget->winId(),
-		       0);
+		       (char *) 0);
 #endif // !NO_XIM
 }
 
@@ -260,8 +260,9 @@ void QInputContext::setComposePosition(int x, int y)
 	point.x = x;
 	point.y = y;
 
-	XVaNestedList preedit_attr = XVaCreateNestedList(0, XNSpotLocation, &point, 0);
-	XSetICValues((XIC) ic, XNPreeditAttributes, preedit_attr, 0);
+	XVaNestedList preedit_attr =
+	    XVaCreateNestedList(0, XNSpotLocation, &point, (char *) 0);
+	XSetICValues((XIC) ic, XNPreeditAttributes, preedit_attr, (char *) 0);
 	XFree(preedit_attr);
     }
 #endif // !NO_XIM
@@ -278,8 +279,8 @@ void QInputContext::setComposeArea(int x, int y, int w, int h)
 	rect.width = w;
 	rect.height = h;
 
-	XVaNestedList preedit_attr = XVaCreateNestedList(0, XNArea, &rect, 0);
-	XSetICValues((XIC) ic, XNPreeditAttributes, preedit_attr, 0);
+	XVaNestedList preedit_attr = XVaCreateNestedList(0, XNArea, &rect, (char *) 0);
+	XSetICValues((XIC) ic, XNPreeditAttributes, preedit_attr, (char *) 0);
 	XFree(preedit_attr);
     }
 #endif
