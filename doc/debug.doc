@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: debug.doc,v 2.4 1998/03/31 09:05:35 aavit Exp $
+** $Id: debug.doc,v 2.5 1998/10/31 04:04:27 agulbra Exp $
 **
 ** Qt Debugging Techniques
 **
@@ -32,7 +32,7 @@ gdb debugger under Linux.
 over -nograb even when -nograb is last on the command line.
 <li>-sync Runs the application in X synchronous mode.  Synchronous
 mode forces the X server perform each X client request immediately and
-not use a buffer optimizaton. It makes the program easier to debug and
+not use a buffer optimization. It makes the program easier to debug and
 often much slower.  The -sync option is only valid for the X11
 version of Qt.
 </ul>

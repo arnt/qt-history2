@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#118 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#119 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -1029,7 +1029,7 @@ static QString getOneLine( const QString &txt, uint& offset )
   If \a txt contains newline characters, new lines are inserted.
 
   The cursor position is adjusted. If the insertion position is equal to
-  the cursor poition, the cursor is placed after the end of the new text.
+  the cursor position, the cursor is placed after the end of the new text.
 
  */
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#190 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#191 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -2692,7 +2692,7 @@ void QImageIO::setFileName( const QString &fileName )
   special parameters.
 
   Although all image formats supported by Qt ignore the parameters string,
-  it will be useful for future extentions or contributions (like JPEG).
+  it will be useful for future extensions or contributions (like JPEG).
 */
 
 void QImageIO::setParameters( const char *parameters )

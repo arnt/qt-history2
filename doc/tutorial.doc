@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: tutorial.doc,v 2.16 1998/10/31 03:19:41 agulbra Exp $
+** $Id: tutorial.doc,v 2.17 1998/10/31 04:04:28 agulbra Exp $
 **
 ** Tutorial
 **
@@ -1171,7 +1171,7 @@ widget.
 \skip angle
 \until setGeometry
 
-In the contructor, we create and set up our LCDRange with a range 5..70
+In the constructor, we create and set up our LCDRange with a range 5..70
 and put it 10 pixels below the quit button and fix its size to 75x130.
 
 \skip cannonField

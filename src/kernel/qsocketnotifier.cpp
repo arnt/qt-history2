@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsocketnotifier.cpp#20 $
+** $Id: //depot/qt/main/src/kernel/qsocketnotifier.cpp#21 $
 **
 ** Implementation of QSocketNotifier class
 **
@@ -53,7 +53,7 @@ extern bool qt_set_socket_handler( int, int, QObject *, bool );
   <ol>
   <li> \c QSocketNotifier::Read: There is data to be read (socket read event).
   <li> \c QSocketNotifier::Write: Data can be written (socket write event).
-  <li> \c QSocketNofifier::Exception: An exception has ocurred (socket
+  <li> \c QSocketNofifier::Exception: An exception has occured (socket
   exception event).  We recommend against using this.
   </ol>
 
@@ -156,7 +156,7 @@ QSocketNotifier::~QSocketNotifier()
   <ol>
   <li> \c QSocketNotifier::Read: There is data to be read (socket read event).
   <li> \c QSocketNotifier::Write: Data can be written (socket write event).
-  <li> \c QSocketNofifier::Exception: An exception has ocurred (socket
+  <li> \c QSocketNofifier::Exception: An exception has occured (socket
   exception event).
   </ol>
 

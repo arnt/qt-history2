@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#170 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#171 $
 **
 ** Implementation of QListView widget class
 **
@@ -646,7 +646,7 @@ void QListViewItem::sortChildItems( int column, bool ascending )
 /*!  Sets this item's own height to \a height pixels.  This implicitly
   changes totalHeight() too.
 
-  Note that e.g. a font change causes this height to be overwitten
+  Note that e.g. a font change causes this height to be overwritten
   unless you reimplement setup().
 
   \sa ownHeight() totalHeight() isOpen();
@@ -3265,7 +3265,7 @@ void QCheckListItem::turnOffChild()
 }
 
 /*!
-  Toggle checkbox, or set radiobutton on.
+  Toggle checkbox, or set radio button on.
  */
 void QCheckListItem::activate()
 {
@@ -3277,7 +3277,7 @@ void QCheckListItem::activate()
 }
 
 /*!
-  Sets this button on if \a b is TRUE, off otherwise. Maintains radiobutton
+  Sets this button on if \a b is TRUE, off otherwise. Maintains radio button
   exclusivity.
  */
 void QCheckListItem::setOn( bool b  )
@@ -3399,7 +3399,7 @@ void QCheckListItem::paintCell( QPainter * p, const QColorGroup & cg,
 		p->drawLineSegments( a );
 	    }
 	    ////////////////////////
-	} else { //radiobutton look
+	} else { //radio button look
 	    if ( winStyle ) {
 #define QCOORDARRLEN(x) sizeof(x)/(sizeof(QCOORD)*2)
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#75 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#76 $
 **
 ** Implementation of event classes
 **
@@ -127,7 +127,7 @@ void QEvent::peErrMsg()				// posted event error message
   QWidget::keyPressEvent() and QWidget::mouseMoveEvent().
 
   The basic QEvent only contains an event type parameter.  Subclasses
-  of QEvent contain additional parameters that descripe the particular
+  of QEvent contain additional parameters that describe the particular
   event.
 
   \sa QObject::event() QObject::installEventFilter() QWidget::event()
@@ -715,7 +715,7 @@ QMouseEvent::QMouseEvent( Type type, const QPoint &pos, int button, int state )
 
   \warning Be careful.  The code below assumes that the widget was created
   on the heap using the \c new operator. Even when the widget has been
-  created by new doing this is a tricky opreation. Be sure that you cannot
+  created by new doing this is a tricky operation. Be sure that you cannot
   have any other pointers to the widget hanging around.
 
   \code
@@ -877,7 +877,7 @@ QMouseEvent::QMouseEvent( Type type, const QPoint &pos, int button, int state )
   \fn void   QDragMoveEvent::accept()
 
   Call this to indicate that the event provides data which your widget
-  can process.  Use provides(), or preferrably, the canDecode() methods
+  can process.  Use provides(), or preferably, the canDecode() methods
   of existing QDragObject subclasses, such as
   QTextDrag::canDecode(), or your own subclasses.
 */
@@ -937,7 +937,7 @@ QMouseEvent::QMouseEvent( Type type, const QPoint &pos, int button, int state )
   \fn void QDropEvent::accept()
 
   Call this to indicate that the event provided data which your widget
-  processed.  Use data(), or preferrably, the decode() methods
+  processed.  Use data(), or preferably, the decode() methods
   of existing QDragObject subclasses, such as
   QTextDrag::decode(), or your own subclasses.
 */

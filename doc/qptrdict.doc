@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qptrdict.doc,v 2.3 1998/10/31 03:19:40 agulbra Exp $
+** $Id: qptrdict.doc,v 2.4 1998/10/31 04:04:28 agulbra Exp $
 **
 ** QPtrDict and QPtrDictIterator class documentation
 **
@@ -43,7 +43,7 @@
 
 	QPtrDict<char> dict;		   // maps void* -> char*
 
-	dict.insert( a, "a is int[12]" );  // descripe pointers
+	dict.insert( a, "a is int[12]" );  // describe pointers
 	dict.insert( b, "b is int[10]" );
 	dict.insert( c, "c is int[18]" );
 
@@ -358,7 +358,7 @@
 
 	QPtrDict<char> dict;		   // maps void* -> char*
 
-	dict.insert( a, "a is int[12]" );  // descripe pointers
+	dict.insert( a, "a is int[12]" );  // describe pointers
 	dict.insert( b, "b is int[10]" );
 	dict.insert( c, "c is int[18]" );
 

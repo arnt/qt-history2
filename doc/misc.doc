@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: misc.doc,v 2.31 1998/10/31 02:27:24 agulbra Exp $
+** $Id: misc.doc,v 2.32 1998/10/31 04:04:28 agulbra Exp $
 **
 ** Miscellaneous documentation that doesn't fit anywhere else
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: misc.doc,v 2.31 1998/10/31 02:27:24 agulbra Exp $";
+static char ident[] = "$Id: misc.doc,v 2.32 1998/10/31 04:04:28 agulbra Exp $";
 #endif
 
 
@@ -311,7 +311,7 @@ It probably originates on USENET somewhere, but I don't know where.
 <blockquote>
 <p>
 It sounds like there may be a near-term need for a new
-newsgroup in the alt.recovery heirarchy.
+newsgroup in the alt.recovery hierarchy.
 <p>
 "Hi, my name is Geoff and I was a N*tscapeaholic."
 <p>
@@ -349,7 +349,7 @@ It probably originates on USENET somewhere, but I don't know where.
 <blockquote><blink>
 <p>
 It sounds like there may be a near-term need for a new
-newsgroup in the alt.recovery heirarchy.
+newsgroup in the alt.recovery hierarchy.
 <p>
 "Hi, my name is Geoff and I was a N*tscapeaholic."
 <p>

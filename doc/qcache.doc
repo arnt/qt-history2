@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qcache.doc,v 2.11 1998/10/31 03:19:40 agulbra Exp $
+** $Id: qcache.doc,v 2.12 1998/10/31 04:04:28 agulbra Exp $
 **
 ** QCache and QCacheIterator class documentation
 **
@@ -307,7 +307,7 @@
 /*!
   \fn uint QCacheIterator::count() const
 
-  Returns the number of items in the cache on whichthis iterator operates.
+  Returns the number of items in the cache on which this iterator operates.
   \sa isEmpty()
 */
 

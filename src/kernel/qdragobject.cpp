@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#57 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#58 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -216,7 +216,7 @@ QDragObject::~QDragObject()
   Set the pixmap \a pm to display while dragging the object.
   The platform-specific
   implementation will use this in a loose fashion - so provide a small masked
-  pixmap, but do not require that the user ever sees it in all its splendour.
+  pixmap, but do not require that the user ever sees it in all its splendor.
   In particular, cursors on Windows 95 are of limited size.
 
   The \a hotspot is the point on (or off) the pixmap that should be under the

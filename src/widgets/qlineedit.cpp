@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#166 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#167 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -1073,7 +1073,7 @@ void QLineEdit::markWord( int pos )
 
 
 /*!
-  Copies the marked text to the clipboard.  Please use copy() instad.
+  Copies the marked text to the clipboard.  Please use copy() instead.
 */
 
 void QLineEdit::copyText()
@@ -1133,7 +1133,7 @@ void QLineEdit::cut()
 }
 
 /*!
-  Sets the alignment of the lineeditor. Possible Values are Qt::AlignLeft,
+  Sets the alignment of the line editor. Possible Values are Qt::AlignLeft,
   Qt::AlignRight and Qt::AlignCenter
   '\sa alignment()
 */
@@ -1146,7 +1146,7 @@ void QLineEdit::setAlignment(int flag){
 }
 
 /*!
-  Returns the current alignment of the lineeditor. Possible Values are Qt::AlignLeft,
+  Returns the current alignment of the line editor. Possible Values are Qt::AlignLeft,
   Qt::AlignRight and Qt::AlignCenter
   '\sa setAlignment()
 */

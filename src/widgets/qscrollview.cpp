@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#64 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#65 $
 **
 ** Implementation of QScrollView class
 **
@@ -770,7 +770,7 @@ void QScrollView::viewportMouseMoveEvent( QMouseEvent* )
 /*!
  Returns the component horizontal scrollbar.  It is made available to allow
  accelerators, autoscrolling, etc., and to allow changing
- of arrow scrollrates: bar->setSteps( rate, bar->pageStep() ).
+ of arrow scroll rates: bar->setSteps( rate, bar->pageStep() ).
 
  It should not be otherwise manipulated.
 */
@@ -779,7 +779,7 @@ QScrollBar* QScrollView::horizontalScrollBar() { return &d->hbar; }
 /*!
  Returns the component vertical scrollbar.  It is made available to allow
  accelerators, autoscrolling, etc., and to allow changing
- of arrow scrollrates: bar->setSteps( rate, bar->pageStep() ).
+ of arrow scroll rates: bar->setSteps( rate, bar->pageStep() ).
 
  It should not be otherwise manipulated.
 */

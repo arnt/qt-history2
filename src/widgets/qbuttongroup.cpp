@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#50 $
+** $Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#51 $
 **
 ** Implementation of QButtonGroup class
 **
@@ -48,7 +48,7 @@
   There are two ways of using a button group:
   <ol>
   <li>The button group is a parent widget of a number of buttons,
-  i.e. the button group is the parent argument in the button contructor.
+  i.e. the button group is the parent argument in the button constructor.
   The buttons are assigned identifiers 0, 1, 2 etc. in the order they are
   created. A QButtonGroup can display a frame and a title because it inherits
   QGroupBox.

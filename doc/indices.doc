@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: indices.doc,v 2.22 1998/09/09 22:16:54 warwick Exp $
+** $Id: indices.doc,v 2.23 1998/10/31 04:04:27 agulbra Exp $
 **
 ** Miscellaneous index pages
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: indices.doc,v 2.22 1998/09/09 22:16:54 warwick Exp $";
+static char ident[] = "$Id: indices.doc,v 2.23 1998/10/31 04:04:27 agulbra Exp $";
 #endif
 
 /*! \page index.html
@@ -260,7 +260,7 @@ be passed around as arguments, even though they may seem heavyweight.
 
 <h1 align="center">Time and Date</h1><br clear="all">
 
-These classes provide system-independent date and time abtractions.
+These classes provide system-independent date and time abstractions.
 
 <p>Also available: <a href="y2k.html">Qt Year 2000 Compliance Statement</a>. 
 */
