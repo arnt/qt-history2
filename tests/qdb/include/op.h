@@ -892,4 +892,34 @@ public:
     }
 };
 
+/* Pops the top of the stack (which must be a list, see 'PushList')
+and uses it as a list of file ids.  An attempt is made to find
+'fieldname'.  If it fails (e.g., if 'fieldname' is ambiguous), goto
+the instruction at P3, else use 'alias' (which must be a negative
+number) as an alias for the field.
+*/
+
+class LookupUnique : public Op
+{
+public:
+    LookupUnique( const QString& fieldname, int alias, int P3 )
+	: Op( fieldname, alias, P3 ) {}
+    QString name() const { return "lookupunique"; }
+    int exec( localsql::Environment* env )
+    {
+	localsql::FileDriver* drv = env->fileDriver( p1.toInt() );
+	QVariant v;
+	if ( p2.type() == QVariant::String || p2.type() == QVariant::CString ) {
+	    if ( !drv->field( p2.toString(), v ) )
+		return FALSE;
+	} else {
+	    if ( !drv->field( p2.toInt(), v ) )
+		return FALSE;
+	}
+	env->stack()->push( v );
+	return TRUE;
+    }
+};
+
+
 #endif

@@ -223,6 +223,7 @@ namespace localsql {
 	virtual Program* program() = 0;
 	virtual void addFileDriver( int id, const QString& fileName ) = 0;
 	virtual int addFileDriver( const QString& fileName ) = 0;
+	virtual bool addFileDriverAlias( const List& drivers, const QString fieldname, int alias ) = 0;
 	virtual void removeFileDriver( int id ) = 0;
 	virtual void addResultSet( int id ) = 0;
 	virtual FileDriver* fileDriver( int id ) = 0;

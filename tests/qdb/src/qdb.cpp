@@ -55,6 +55,7 @@ public:
     }
     QMap<int,FileDriver> drivers;
     QMap<int,ResultSet> results;
+    QMap<int,int> driverAlias;
     localsql::Stack stck;
     Program pgm;
     Parser prs;
@@ -147,6 +148,8 @@ void LocalSQL::addResultSet( int id )
 
 localsql::FileDriver* LocalSQL::fileDriver( int id )
 {
+    if ( id < 0 )
+	id = d->driverAlias[id];
     return &d->drivers[id];
 }
 
@@ -282,4 +285,34 @@ void LocalSQL::setLastError( const QString& error )
 QString LocalSQL::lastError() const
 {
     return d->err;
+}
+
+bool LocalSQL::addFileDriverAlias( const localsql::List& drivers, const QString fieldname, int alias )
+{
+    if ( alias >= 0 ) {
+	setLastError( "Internal error: bad alias:" + QString::number( alias ) );
+	return FALSE;
+    }
+    int aliasedFile = -1;
+    for ( uint i = 0; i < drivers.count(); ++i ) {
+	localsql::FileDriver* drv = fileDriver( drivers[i].toInt() );
+	if ( !drv ) {
+	    setLastError( "Internal error: unknown file id:" + drivers[i].toString() );
+	    return FALSE;
+	}
+	QStringList names = drv->columnNames();
+	if ( names.contains( fieldname ) ) {
+	    if ( aliasedFile > 0 ) {
+		setLastError( "Ambiguous column name:" + fieldname );
+		return FALSE;
+	    }
+	    aliasedFile = drivers[i].toInt();
+	}
+    }
+    if ( aliasedFile < 0 ) {
+	setLastError( "Unknown column:" + fieldname );
+	return FALSE;
+    }
+    d->driverAlias[alias] = aliasedFile;
+    return TRUE;
 }

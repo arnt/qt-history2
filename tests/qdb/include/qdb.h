@@ -57,6 +57,7 @@ public:
     void reset();
     void addFileDriver( int id, const QString& fileName );
     int addFileDriver( const QString& fileName );
+    bool addFileDriverAlias( const localsql::List& drivers, const QString fieldname, int alias );
     void removeFileDriver( int id );
     void addResultSet( int id );
     localsql::FileDriver* fileDriver( int id );
@@ -65,6 +66,7 @@ public:
     localsql::ResultSet* resultSet( int id );
     void setLastError( const QString& error );
     QString lastError() const;
+
 
 private:
     class Private;
