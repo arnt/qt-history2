@@ -1005,12 +1005,12 @@ void QMessageBox::keyPressEvent(QKeyEvent *e)
     }
 #ifndef QT_NO_ACCEL
     if (!(e->modifiers() & Qt::AltModifier)) {
-        int key = e->key() & ~(Qt::MODIFIER_MASK|Qt::UNICODE_ACCEL);
+        int key = e->key() & ~((int)Qt::MODIFIER_MASK|(int)Qt::UNICODE_ACCEL);
         if (key) {
             QList<QPushButton *> list = qFindChildren<QPushButton *>(this);
             for (int i = 0; i < list.size(); ++i) {
                 QPushButton *pb = list.at(i);
-                int acc = pb->shortcut() & ~(Qt::MODIFIER_MASK|Qt::UNICODE_ACCEL);
+                int acc = pb->shortcut() & ~((int)Qt::MODIFIER_MASK|(int)Qt::UNICODE_ACCEL);
                 if (acc == key) {
                     emit pb->animateClick();
                     return;

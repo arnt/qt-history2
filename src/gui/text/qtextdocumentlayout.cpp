@@ -1337,7 +1337,7 @@ void QTextDocumentLayoutPrivate::layoutBlock(const QTextBlock &bl, LayoutStruct 
     LDEBUG << "layoutBlock from=" << layoutFrom << "to=" << layoutTo;
 
     Qt::LayoutDirection dir = blockFormat.layoutDirection();
-    if (d->blockTextFlags & (QTextDocumentLayout::LTR|QTextDocumentLayout::RTL)) {
+    if (d->blockTextFlags & ((int)QTextDocumentLayout::LTR|(int)QTextDocumentLayout::RTL)) {
         if (!blockFormat.hasProperty(QTextFormat::LayoutDirection))
             dir = d->blockTextFlags & QTextDocumentLayout::LTR ? Qt::LeftToRight : Qt::RightToLeft;
     }

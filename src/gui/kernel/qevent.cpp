@@ -141,7 +141,7 @@ QMouseEvent::QMouseEvent(Type type, const QPoint &pos, Qt::ButtonState button, i
 {
     g = QCursor::pos();
     mouseState = Qt::MouseButtons(state & Qt::MouseButtonMask);
-    modState = Qt::KeyboardModifiers(state & Qt::KeyButtonMask);
+    modState = Qt::KeyboardModifiers(state & (int)Qt::KeyButtonMask);
 }
 
 /*!
@@ -155,7 +155,7 @@ QMouseEvent::QMouseEvent(Type type, const QPoint &pos, const QPoint &globalPos,
     : QInputEvent(type), p(pos), g(globalPos), b((Qt::MouseButton)button)
 {
     mouseState = Qt::MouseButtons(state & Qt::MouseButtonMask);
-    modState = Qt::KeyboardModifiers(state & Qt::KeyButtonMask);
+    modState = Qt::KeyboardModifiers(state & (int)Qt::KeyButtonMask);
 }
 #endif
 
@@ -418,7 +418,7 @@ QWheelEvent::QWheelEvent(const QPoint &pos, int delta, int state, Qt::Orientatio
 {
     g = QCursor::pos();
     mouseState = Qt::MouseButtons(state & Qt::MouseButtonMask);
-    modState = Qt::KeyboardModifiers(state & Qt::KeyButtonMask);
+    modState = Qt::KeyboardModifiers(state & (int)Qt::KeyButtonMask);
 }
 #endif
 
@@ -445,7 +445,7 @@ QWheelEvent::QWheelEvent(const QPoint &pos, const QPoint& globalPos, int delta, 
     : QInputEvent(Wheel), p(pos), g(globalPos), d(delta), o(orient)
 {
     mouseState = Qt::MouseButtons(state & Qt::MouseButtonMask);
-    modState = Qt::KeyboardModifiers(state & Qt::KeyButtonMask);
+    modState = Qt::KeyboardModifiers(state & (int) Qt::KeyButtonMask);
 }
 #endif
 #endif // QT_NO_WHEELEVENT
