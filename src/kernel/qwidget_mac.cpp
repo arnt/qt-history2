@@ -1519,7 +1519,7 @@ void QWidget::propagateUpdates()
     QRegion rgn(false);
     GetWindowRegion((WindowPtr)hd, kWindowUpdateRgn, (RgnHandle)rgn.handle());
     if(!rgn.isEmpty()) {
-	rgns.translate(-topLevelWidget()->geometry().x(), 
+	rgn.translate(-topLevelWidget()->geometry().x(), 
 			    -topLevelWidget()->geometry().y());
 	debug_wndw_rgn("*****propagatUpdates", topLevelWidget(), rgn );
 	BeginUpdate((WindowPtr)hd);
