@@ -140,6 +140,8 @@ private:
     QStringList n;
     RecordType t;
     QDnsPrivate * d;
+
+    friend class QDnsAnswer;
 };
 
 

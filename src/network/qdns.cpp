@@ -111,7 +111,7 @@ static void doResInit();
 
 class QDnsPrivate {
 public:
-    QDnsPrivate() : queryTimer( 0 )
+    QDnsPrivate() : queryTimer( 0 ), noNames(FALSE)
     {
 #if defined(Q_DNS_SYNCHRONOUS)
 #if defined(Q_OS_UNIX)
@@ -127,11 +127,13 @@ public:
     }
 private:
     QTimer * queryTimer;
+    bool noNames;
 #if defined(Q_DNS_SYNCHRONOUS)
     bool noEventLoop;
 #endif
 
     friend class QDns;
+    friend class QDnsAnswer;
 };
 
 
@@ -800,6 +802,7 @@ void QDnsAnswer::notify()
 #if defined(QDNS_DEBUG)
 		qDebug( "DNS Manager: found no answers!" );
 #endif
+		dns->d->noNames = TRUE;
 		((QDnsUgleHack*)dns)->ugle( TRUE );
 	    } else {
 		QStringList n = dns->qualifiedNames();
@@ -1613,6 +1616,7 @@ QDns::~QDns()
 void QDns::setLabel( const QString & label )
 {
     l = label;
+    d->noNames = FALSE;
 
     // construct a list of qualified names
     n.clear();
@@ -1743,6 +1747,7 @@ void QDns::setLabel( const QHostAddress & address )
 void QDns::setRecordType( RecordType rr )
 {
     t = rr;
+    d->noNames = FALSE;
     setStartQueryTimer(); // start query the next time we enter event loop
 }
 
@@ -1847,6 +1852,8 @@ bool QDns::isWorking() const
     delete ll;
 
     if ( queries <= 0 )
+	return FALSE;
+    if ( d->noNames )
 	return FALSE;
     return TRUE;
 }
