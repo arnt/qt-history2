@@ -545,9 +545,11 @@ void QFrame::drawFrame( QPainter *p )
     const QColorGroup & g = colorGroup();
 
 #ifndef QT_NO_STYLE
-    int fw = frameWidth();
-    void *data[1];
-    data[0] = (void *) &fw;
+    int lw = lineWidth();
+    int mlw = midLineWidth();
+    void *data[2];
+    data[0] = (void *) &lw;
+    data[1] = (void *) &mlw;
 
     QStyle::SFlags flags = QStyle::Style_Default;
     if (isEnabled())
