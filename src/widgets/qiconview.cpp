@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#83 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#84 $
 **
 ** Definition of QIconView widget class
 **
@@ -123,10 +123,10 @@ struct QIconViewPrivate
     int maxItemWidth, maxItemTextLength;
     QPoint dragStart;
     bool drawDragShade;
-    QMap< QString, QIconViewItem* > nameMap;
     QString currInputString;
     bool dirty, rearrangeEnabled;
     QIconView::ItemTextPos itemTextPos;
+    bool reorderItemsWhenInsert;
 };
 
 /*****************************************************************************
@@ -604,7 +604,6 @@ void QIconViewItem::init()
 	itemViewMode = view->viewMode();
 
 	calcRect();
-
 	view->insertItem( this );
     }
 }
@@ -1518,7 +1517,8 @@ QIconView::QIconView( QWidget *parent, const char *name )
     d->dirty = FALSE;
     d->rearrangeEnabled = TRUE;
     d->itemTextPos = Bottom;
-
+    d->reorderItemsWhenInsert = TRUE;
+    
     connect ( d->adjustTimer, SIGNAL( timeout() ),
 	      this, SLOT( adjustItems() ) );
     connect ( d->updateTimer, SIGNAL( timeout() ),
@@ -1597,17 +1597,20 @@ void QIconView::insertItem( QIconViewItem *item, QIconViewItem *after )
 	}
     }
 
-    d->nameMap[ item->text() ] = item;
-
     if ( isVisible() ) {
-	if ( d->updateTimer->isActive() )
-	    d->updateTimer->stop();
-	insertInGrid( item );
+	if ( d->reorderItemsWhenInsert ) {
+	    if ( d->updateTimer->isActive() )
+		d->updateTimer->stop();
+	    // #### uncomment this ASA insertInGrid uses cached values and is efficient
+	    //insertInGrid( item );
 	
-	d->cachedW = QMAX( d->cachedW, item->x() + item->width() );
-	d->cachedH= QMAX( d->cachedH, item->y() + item->height() );
+	    d->cachedW = QMAX( d->cachedW, item->x() + item->width() );
+	    d->cachedH= QMAX( d->cachedH, item->y() + item->height() );
 
-	d->updateTimer->start( 100, TRUE );
+	    d->updateTimer->start( 100, TRUE );
+	} else {
+	    insertInGrid( item );
+	}
     }
 
     d->count++;
@@ -1625,8 +1628,23 @@ void QIconView::slotUpdate()
 {
     d->updateTimer->stop();
 
-    resizeContents( QMAX( contentsWidth(), d->cachedW ),
-		    QMAX( contentsHeight(), d->cachedH ) );
+    // #### remove that ASA insertInGrid uses cached values and is efficient
+    int y = d->spacing;
+    QIconViewItem *item = d->firstItem;
+    while ( item ) {
+	item = makeRowLayout( item, y );
+
+	if ( !item || !item->next )
+	    break;
+
+	item = item->next;
+    }
+
+    int w = QMAX( d->cachedW, d->lastItem->x() + d->lastItem->width() );
+    int h = QMAX( d->cachedH, d->lastItem->y() + d->lastItem->height() );
+    
+    resizeContents( QMAX( contentsWidth(), w ),
+		    QMAX( contentsHeight(), h ) );
 
     viewport()->repaint( FALSE );
 
@@ -2265,6 +2283,28 @@ void QIconView::setRearrangeEnabled( bool b )
 bool QIconView::rearrangeEnabled() const
 {
     return d->rearrangeEnabled;
+}
+
+/*!
+  If \a b is TRUE, all items are reordered in the grid if a new one is inserted. Else,
+  the best fitting place for the new item is searched and the other ones are not touched.
+  
+  This setting only applies if the iconview is visible. If you insert items and the iconview is not
+  visible, the icons are reordered whe it gets visible.
+*/
+
+void QIconView::setReorderItemsWhenInsert( bool b )
+{
+    d->reorderItemsWhenInsert = b;
+}
+
+/*!
+  Returns TRUE if all items are reordered in the grid if a new one is inserted, else FALSE.
+*/
+
+bool QIconView::reorderItemsWhenInsert() const
+{
+    return d->reorderItemsWhenInsert;
 }
 
 /*!
@@ -2972,134 +3012,42 @@ void QIconView::insertInGrid( QIconViewItem *item )
     if ( !item )
 	return;
 
-    int xpos = 0;
-    int ypos = 0;
-
-    if ( d->alignMode == East ) {
-	int px = 0;
-	int py = d->spacing;
-	int pw = d->rastX == -1 ? 1 : d->rastX / 2;
-	int ph = d->rastY == -1 ? 1 : d->rastY / 2;
-	bool isFirst = item == d->firstItem;
-
-	if ( item->prev ) {
-	    px = item->prev->x();
-	    py = item->prev->y();
-	    pw = item->prev->width();
-	    ph = item->prev->height();
-	    if ( d->rastX != - 1 && pw > d->rastX - 1 ) {
-		px = px + pw - d->rastX;
-		pw = d->rastX - 1;
-	    }
-	    if ( d->rastY != - 1 && ph > d->rastY - 1 ) {
-		py = py + ph - d->rastY;
-		ph = d->rastY - 1;
-	    }
+    if ( d->reorderItemsWhenInsert ) {
+	// #### make this efficient - but it's not too dramatic
+	int y = d->spacing;
+    
+	if ( item == d->firstItem ) {
+	    makeRowLayout( item, y );
+	    return;
 	}
+    
+	QIconViewItem *begin = rowBegin( item );
+	y = begin->y();
+	while ( begin ) {
+	    begin = makeRowLayout( begin, y );
 
-	bool nextRow = FALSE;
+	    if ( !begin || !begin->next )
+		break;
 
-	if ( d->rastX == -1 ) {
-	    xpos = px + pw + d->spacing;
-	    if ( xpos + item->width() >= viewport()->width() ) {
-		xpos = d->spacing;
-		nextRow = TRUE;
-	    }
-	} else {
-	    int fact = px / d->rastX;
-
-	    if ( !isFirst )
-		xpos = ( fact + 1 ) * d->rastX;
-	    else
-		xpos = fact * d->rastX;
-
-	    if ( xpos + d->rastX >= viewport()->width() ) {
-		xpos = d->spacing;
-		nextRow = TRUE;
-	    }
-	    if ( d->itemTextPos == Bottom )
-		xpos += ( d->rastX - item->width() ) / 2 + d->spacing;
-	    else
-		xpos += d->spacing;
-	}
-
-	if ( d->rastY == -1 ) {
-	    if ( !nextRow )
-		ypos = py;
-	    else
-		ypos = py + ph + d->spacing;
-	} else {
-	    int fact = py / d->rastY;
-
-	    if ( !nextRow )
-		ypos = fact * d->rastY;
-	    else
-		ypos = ( fact + 1 ) * d->rastY;
-	    ypos += ( d->rastY - item->height() ) / 2;
+	    begin = begin->next;
 	}
     } else {
-	int px = d->spacing;
-	int py = 0;
-	int pw = d->rastX == -1 ? 1 : d->rastX / 2;
-	int ph = d->rastY == -1 ? 1 : d->rastY / 2;
-	bool isFirst = item == d->firstItem;
-
-	if ( item->prev ) {
-	    px = item->prev->x();
-	    py = item->prev->y();
-	    pw = item->prev->width();
-	    ph = item->prev->height();
-	    if ( d->rastX != - 1 && pw > d->rastX - 1 ) {
-		px = px + pw - d->rastX;
-		pw = d->rastX - 1;
-	    }
-	    if ( d->rastY != - 1 && ph > d->rastY - 1 ) {
-		py = py + ph - d->rastY;
-		ph = d->rastY - 1;
-	    }
+	// ### todo find a good place for the new item
+	QIconViewItem *i = d->lastItem;
+	if ( !i || !i->prev) {
+	    item->move( d->spacing, d->spacing );
+	    return;
 	}
-
-	bool nextCol = FALSE;
-
-	if ( d->rastY == -1 ) {
-	    ypos = py + ph + d->spacing;
-	    if ( ypos + item->height() >= viewport()->height() ) {
-		ypos = d->spacing;
-		nextCol = TRUE;
-	    }
-	} else {
-	    int fact = py / d->rastY;
-
-	    if ( !isFirst )
-		ypos = ( fact + 1 ) * d->rastY;
-	    else
-		ypos = fact * d->rastY;
-
-	    if ( ypos + d->rastY >= viewport()->height() ) {
-		ypos = d->spacing;
-		nextCol = TRUE;
-	    }
-	    ypos += ( d->rastY - item->height() ) / 2 + d->spacing;
-	}
-
-	if ( d->rastX == -1 ) {
-	    if ( !nextCol )
-		xpos = px;
-	    else
-		xpos = px + pw + d->spacing;
-	} else {
-	    int fact = px / d->rastX;
-
-	    if ( !nextCol )
-		xpos = fact * d->rastX;
-	    else
-		xpos = ( fact + 1 ) * d->rastX;
-	    if ( d->itemTextPos == Bottom )
-		xpos += ( d->rastX - item->width() ) / 2;
-	}
+	
+	i = i->prev;
+	
+	int w = i->x() + i->width();
+	item->move( w + d->spacing, i->y() );
+	
+	w = QMAX( contentsWidth(), item->x() + item->width() );
+	int h = QMAX( contentsHeight(), item->y() + item->height() );
+	resizeContents( w, h );
     }
-
-    item->move( xpos, ypos );
 }
 
 /*!
@@ -3410,7 +3358,7 @@ QIconViewItem *QIconView::makeRowLayout( QIconViewItem *begin, int &y )
     return end;
 }
 
-int QIconView::calcGridNum( int w, int x )
+int QIconView::calcGridNum( int w, int x ) const
 {
     float r = (float)w / (float)x;
     if ( ( w / x ) * x != w )
@@ -3418,12 +3366,10 @@ int QIconView::calcGridNum( int w, int x )
     return (int)r;
 }
 
+QIconViewItem *QIconView::rowBegin( QIconViewItem * ) const
+{
+    // #### todo
+    return d->firstItem;
+}
+
 #include "qiconview.moc"
-
-
-
-
-
-
-
-

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.h#37 $
+** $Id: //depot/qt/main/src/widgets/qiconview.h#38 $
 **
 ** Definition of QIconView widget class
 **
@@ -315,7 +315,9 @@ public:
     int maxItemWidth() const;
     virtual void setMaxItemTextLength( int w );
     int maxItemTextLength() const;
-
+    void setReorderItemsWhenInsert( bool b );
+    bool reorderItemsWhenInsert() const;
+    
     virtual void setRearrangeEnabled( bool b );
     bool rearrangeEnabled() const;
 
@@ -377,7 +379,8 @@ protected:
 
 private:
     void findItemByName( const QString text );
-    int calcGridNum( int w, int x );
+    int calcGridNum( int w, int x ) const;
+    QIconViewItem *rowBegin( QIconViewItem *item ) const;
     
     QIconViewPrivate *d;
 
