@@ -122,7 +122,7 @@ public:
 */
 
 QLabel::QLabel( QWidget *parent, const char *name, WFlags f )
-    : QFrame( parent, name, f | WMouseNoMask | WResizeNoErase )
+    : QFrame( parent, name, f | WMouseNoMask  )
 {
     init();
 }
@@ -139,7 +139,7 @@ QLabel::QLabel( QWidget *parent, const char *name, WFlags f )
 
 QLabel::QLabel( const QString &text, QWidget *parent, const char *name,
 		WFlags f )
-	: QFrame( parent, name, f | WMouseNoMask | WResizeNoErase )
+	: QFrame( parent, name, f | WMouseNoMask  )
 {
     init();
     setText( text );
@@ -574,32 +574,31 @@ QSizePolicy QLabel::sizePolicy() const
     return QWidget::sizePolicy();
 }
 
-
-static bool resizeEventCalled = FALSE; // binary compatibility ### remove 3.0
 /*!
   \reimp
 */
 void QLabel::resizeEvent( QResizeEvent* e )
 {
-    resizeEventCalled = TRUE;
     QFrame::resizeEvent( e );
 
     // optimize for standard labels
     if ( frameShape() == NoFrame && (align & WordBreak) == 0 && !doc &&
 	 ( e->oldSize().width() == e->size().width() || (align & AlignLeft ) == AlignLeft )
-	 && ( e->oldSize().height() == e->size().height() || (align & AlignTop ) == AlignTop ) )
+	 && ( e->oldSize().height() == e->size().height() || (align & AlignTop ) == AlignTop ) ) {
+	setWFlags( WResizeNoErase );
 	return;
-    
+    }
+
+    clearWFlags( WResizeNoErase );
     QRect cr = contentsRect();
     if ( !lpixmap ||  !cr.isValid() ||
 	 // masked pixmaps can only reduce flicker when being top/left
 	 // aligned and when we do not perform scaled contents
-	 ( lpixmap->mask() && ( ( align & (AlignLeft|AlignTop) ) != (AlignLeft|AlignTop)   || scaledcontents ) ) ) {
-	erase();
+	 ( lpixmap->mask() && ( scaledcontents || ( ( align & (AlignLeft|AlignTop) ) != (AlignLeft|AlignTop) ) ) ) )
 	return;
-    }
 
     // don't we all love QFrame? Reduce pixmap flicker
+    setWFlags( WResizeNoErase );
     QRegion reg = QRect( QPoint(0, 0), e->size() );
     reg = reg.subtract( cr );
     if ( !scaledcontents ) {
@@ -637,9 +636,6 @@ void QLabel::resizeEvent( QResizeEvent* e )
 void QLabel::drawContents( QPainter *p )
 {
     QRect cr = contentsRect();
-
-    if ( !resizeEventCalled )
-	erase( cr );  //### binary compatibility, remove 3.0
 
     int m = indent();
     if ( m < 0 ) {
