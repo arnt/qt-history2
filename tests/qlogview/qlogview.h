@@ -69,7 +69,7 @@ protected:
 private:
     void 	init();
     QStringList lineRange( int startLine, int numLines ) const;
-    QColor 	lineColor( int line ) const;
+    QColor 	lineColor( QString & str ) const;
     
     QLogViewPrivate * d;
 };

@@ -9,7 +9,7 @@
    efficient way of storing large blocks of text. This widget will
    typically only need to allocate the number of bytes used to store
    the actual text - there is very little overhead involved.
- */
+*/
 
 class QLogViewPrivate
 {
@@ -23,6 +23,8 @@ public:
 };
 
 /*! 
+  Construct a QLogView object, initialising the text content to \a
+  text.
 */
 QLogView::QLogView( const QString & text, QWidget * parent, 
 		    const char * name )
@@ -32,7 +34,8 @@ QLogView::QLogView( const QString & text, QWidget * parent,
     setText( text );
 }
 
-/*! 
+/*!
+  Construct a QLogView object.
 */
 QLogView::QLogView( QWidget * parent, const char * name )
     : QScrollView( parent, name )
@@ -40,25 +43,25 @@ QLogView::QLogView( QWidget * parent, const char * name )
     init();
 }
 
-/*! 
+/*! \internal
 */
 QLogView::~QLogView()
 {
     delete d;
 }
 
-/*! 
+/*! \internal
 */
 void QLogView::init()
 {
     d =  new QLogViewPrivate;
     d->index.resize( 100 );
     d->index.data()[ 0 ] = 0;
-    
-    viewport()->setBackgroundMode( PaletteBase );
+    viewport()->setBackgroundMode( PaletteBackground );
 }
 
 /*! 
+  Returns the widget text.
 */
 QString QLogView::text() const
 {
@@ -67,7 +70,8 @@ QString QLogView::text() const
     return QString();
 }
 
-/*! 
+/*!
+  Sets the widget text to \a str.
 */
 void QLogView::setText( const QString & str )
 {
@@ -86,7 +90,7 @@ void QLogView::setText( const QString & str )
 	i++;
     }
     
-    // allocate 50% more space than the text needs - save # mallocs
+    // allocate 20% more space than needed - save # mallocs
     d->text.resize( utf8.length() * 1.2 );
     d->len = utf8.length();
     qmemmove( d->text.data(), (const char *) utf8, utf8.length() );
@@ -99,6 +103,7 @@ void QLogView::setText( const QString & str )
 }
 
 /*! 
+  Appends \a str to the widget contents.
 */
 void QLogView::append( const QString & str )
 {
@@ -117,7 +122,7 @@ void QLogView::append( const QString & str )
     }
     
     int tlen = d->len;
-    // allocate 50% more space than the text needs - save # mallocs
+    // allocate 20% more space than needed - save # mallocs
     if ( d->text.size() < utf8.length() + d->len )
 	d->text.resize( (utf8.length() + d->len) * 1.2 );
     d->len = utf8.length() + tlen;
@@ -136,13 +141,14 @@ int QLogView::find( const QRegExp & reg )
 }
 
 /*! 
+  Returns the text length.
 */
 int QLogView::length()
 {
     return QString::fromUtf8( d->text.data() ).length();
 }
 
-/*! 
+/*! \reimp
 */
 void QLogView::drawContents( QPainter * p, int clipx, int clipy, int clipw,
 			     int cliph )
@@ -152,9 +158,18 @@ void QLogView::drawContents( QPainter * p, int clipx, int clipy, int clipw,
     int startLine = clipy / fm.lineSpacing();
 
     QStringList strs = lineRange( startLine, (cliph / fm.lineSpacing()) + 2 );
-    for ( QStringList::Iterator it = strs.begin(); it != strs.end(); ++it )
+    QColor col;
+    QString str;
+    for ( QStringList::Iterator it = strs.begin(); it != strs.end(); ++it ) {
+	str = *it;
+	col = lineColor( str );
+	if ( col != QColor() )
+	    p->setPen( col );
+	else
+	    p->setPen( colorGroup().text() );
 	p->drawText( contentsX(), (startLine + lines++ + 1) * fm.lineSpacing(),
-		     *it );
+		     str );
+    }
 }
 
 /*! \internal
@@ -214,10 +229,22 @@ void QLogView::fontChange( const QFont & oldFont )
 
 /*! \internal
   
-  Returns the color for line \a line.
+  Returns the color for the line \a str.
 */
-QColor QLogView::lineColor( int line ) const
+QColor QLogView::lineColor( QString & str ) const
 {
-    if ( line > d->numLines )
+    if ( str.isNull() || str.isEmpty() )
 	return QColor();
+ 
+    int e = 0;
+    int s = str.find( "\\" );
+    if ( s == -1 )
+	return QColor();
+    
+    if ( (e = str.find( " ", s )) != -1 ) {
+	QString cstr = str.mid( s+1, e-s-1);
+	str.remove( s, e+1 );
+	return QColor( cstr );
+    }
+    return QColor();
 }

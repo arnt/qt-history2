@@ -9,12 +9,13 @@ int main( int argc, char ** argv )
     QLogView log;
     app.setMainWidget( &log );
     
-      log.setText( "Per Kåre bottolfson jr.\n" );
-// //      log.append( "per kåre knutsen\noddvar brå\n\n\nTrond Kjernåsen\n\n" );
-     log.setFont( QFont("Times",18) );
+      log.setText( "\\indianred Per Kåre bottolfson jr.\n" );
+      log.setPaletteBackgroundColor( Qt::black );
+      log.append( "\\green per kåre æøå knutsen\n\\blue oddvar brå\n\n\nTrond Kjernåsen\n\n" );
+//     log.setFont( QFont("Times",18) );
      QString str;
      for ( int i = 0; i < 30000; i++ ) {
-	 str.sprintf("%06d: 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890\n", i);
+	 str.sprintf("\\gray%d %06d: 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890\n", i%100, i);
 	 log.append( str );
 	 if ( (i % 10000) == 0 )
 	     fprintf(stderr,"\rLines done: %08d", i );
