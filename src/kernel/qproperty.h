@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qproperty.h#1 $
+** $Id: //depot/qt/main/src/kernel/qproperty.h#2 $
 **
 ** Definition of QProperty class
 **
@@ -65,6 +65,7 @@ public:
   
     QProperty();
     QProperty( const QProperty& );
+    virtual ~QProperty();
   
     QProperty& operator= ( const QProperty& );
     

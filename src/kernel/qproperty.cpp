@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qproperty.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qproperty.cpp#2 $
 **
 ** Implementation of QProperty class
 **
@@ -36,9 +36,26 @@
 
 #include "qproperty.h"
 
+/*!
+  \class QProperty qproperty.h
+  \brief The class needs documentation.
+
+  Not documented.
+*/
+
 QProperty::QProperty()
 {
   typ = Empty;
+}
+
+/*!
+  Subclasses which re-implement clear() should reimplement the
+  destructor to call clear() - so that the overridden clear() is
+  called.
+*/
+QProperty::~QProperty()
+{
+    clear();
 }
 
 QProperty::QProperty( const QProperty& p )
@@ -209,6 +226,9 @@ void QProperty::setValue( double _value )
   val.d = _value;
 }
 
+/*!
+  De-allocate, based on the type, producing an Empty property.
+*/
 void QProperty::clear()
 {
   switch( typ )
@@ -254,6 +274,7 @@ void QProperty::clear()
     default:
       ASSERT( 0 );
     }  
+  typ = Empty;
 }
 
 QString QProperty::typeToName( QProperty::Type _typ )
