@@ -40,6 +40,7 @@ class QOCIDriver;
 class QOCIResult : public QSqlResult
 {
     friend class QOCIDriver;
+    friend class QOCIPrivate;
 public:
     QOCIResult( const QOCIDriver * db, QOCIPrivate* p );
     ~QOCIResult();
@@ -59,12 +60,8 @@ protected:
     int         numRowsAffected();
 
 private:
-    typedef QMap< uint, QSqlField > RowCache; // ### not used - remove in 4.0
-    typedef QMap< uint, RowCache > RowsetCache; // ### not used - remove in 4.0
-
     QOCIPrivate*	d;
     QOCIResultPrivate*  cols;
-    RowsetCache	        rowCache; // ### not used - remove in 4.0
     QSqlRecord          fs;
     bool                cached;
     bool                cacheNext();
@@ -73,6 +70,7 @@ private:
 #ifdef QOCI_USES_VERSION_9
 class QOCI9Result : public QSqlResult
 {
+    friend class QOCIPrivate;
     friend class QOCIDriver;
 public:
     QOCI9Result( const QOCIDriver * db, QOCIPrivate* p );
@@ -112,7 +110,8 @@ public:
 			      const QString & user = QString::null,
 			      const QString & password = QString::null,
 			      const QString & host = QString::null,
-			      int port = -1 );
+			      int port = -1,
+			      const QString& connOpts = QString::null );
     void	        close();
     QSqlQuery	        createQuery() const;
     QStringList         tables( const QString& user ) const;

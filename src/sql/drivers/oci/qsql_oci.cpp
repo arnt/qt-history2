@@ -34,13 +34,12 @@ void qOraWarning( const char* msg, const QOCIPrivate* d );
 class QOCIPrivate
 {
 public:
-    QOCIPrivate( QOCIResult* qd )
-	: q(qd), env(0), err(0), svc(0), sql(0), transaction( FALSE ), serverVersion(-1),
+    QOCIPrivate()
+	: env(0), err(0), svc(0), sql(0), transaction( FALSE ), serverVersion(-1),
 	  utf8( FALSE ), nutf8( FALSE ), utf16bind( FALSE )
     {
 	rowCache.setAutoDelete( TRUE );
     }
-    QOCIResult* q;
     OCIEnv *env;
     OCIError *err;
     OCISvcCtx *svc;
@@ -55,36 +54,6 @@ public:
     typedef QPtrVector<QSqlField> RowCache;
     typedef QPtrVector<RowCache> RowsetCache;
     RowsetCache rowCache;
-
-    void setCharset( OCIBind* hbnd )
-    {
-	return; //####
-	int r = 0;
-
-#ifdef QOCI_USES_VERSION_9
-	if ( serverVersion > 8 ) {
-
-	    r = OCIAttrSet( (void*)hbnd,
-			    OCI_HTYPE_BIND,
-			    (void*) &CSID_NCHAR,
-			    (ub4) 0,
-			    (ub4) OCI_ATTR_CHARSET_FORM,
-			    err );
-
-	    if ( r != 0 )
-		qOraWarning( "QOCIPrivate::setCharset: Couldn't set OCI_ATTR_CHARSET_FORM: ", this );
-	}
-#endif //QOCI_USES_VERSION_9
-
-	r = OCIAttrSet( (void*)hbnd,
-			OCI_HTYPE_BIND,
-			(void*) &CSID_UTF8,
-			(ub4) 0,
-			(ub4) OCI_ATTR_CHARSET_ID,
-			err );
-	if ( r != 0 )
-	    qOraWarning( "QOCIPrivate::setCharset: Couldn't set OCI_ATTR_CHARSET_ID: ", this );
-    }
     
     text* oraText( const QString& str ) const
     {
@@ -106,373 +75,131 @@ public:
 	    return (sb4)((str.length()) * sizeof( QChar ));
 	return (sb4)str.length();
     }
-    
-    int bindValues( QPtrList<QVirtualDestructor> & tmpStorage )
+
+    int bindValues( QVector<QVariant>& values, QPtrList<QVirtualDestructor> & tmpStorage )
     {
-	qDebug( "bindValues()" );
-	int r = OCI_SUCCESS;
-	QMap<QString, QVariant> valueMap( q->boundValues() );
-	if ( q->bindMethod() == QSqlResult::BindByName ) {
-	    QMap<QString, QVariant>::Iterator it;
-	    for ( it = valueMap.begin(); it != valueMap.end(); ++it ) {
-		OCIBind * hbnd = 0; // Oracle handles these automatically
-		sb2 * indPtr = new sb2(0);
-		tmpStorage.append( qAutoDeleter(indPtr) );
-		if ( it.data().value.isNull() ) {
-		    *indPtr = -1;
-		}
-		QString pHolder = it.key();
-		qDebug( "%s %d", QVariant::typeToName( it.data().value.type() ), utf16bind );
-		switch ( it.data().value.type() ) {
-		    case QVariant::ByteArray:
-			//qDebug( "Binding ByteArray1" );
-			// this is for RAW, LONG RAW and BLOB fields..
-			r = OCIBindByName( sql, &hbnd, err,
-					   oraText( pHolder ),
-					   oraByteLength( pHolder ),
-					   (dvoid *) it.data().value.asByteArray().data(),
-					   it.data().value.asByteArray().size(),
-					   SQLT_BIN, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
-					   (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
-			break;
-/*
-		    case QVariant::CString:
-			qDebug( "Binding CString1" );
-			// ..while this is for CLOB and LONG fields that needs an SQLT_LNG binding
-			r = OCIBindByName( sql, &hbnd, err,
-					   (text *) pHolder.ucs2(),
-					   pHolder.length() * sizeof( QChar ),
-					   (dvoid *) it.data().value.asCString().data(),
-					   it.data().value.asCString().length(),
-					   SQLT_LNG, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
-					   (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
-			if ( r == 0 )
-			    setCharset( hbnd );
-			break;
-*/
-		    case QVariant::Time:
+	int r = OCI_SUCCESS;	
+	int i;
+	for ( i = 0; i < values.count(); ++i ) {
+	    QVariant val( values.at( i ) );
+	    OCIBind * hbnd = 0; // Oracle handles these automatically
+	    sb2 * indPtr = new sb2(0);
+	    tmpStorage.append( qAutoDeleter(indPtr) );
+	    if ( val.isNull() )
+		*indPtr = -1;
+//	    qDebug( "Binding: type: %s utf16: %d holder: %i value: %s", QVariant::typeToName( val.type() ), utf16bind, i, val.toString().ascii() );
+	    switch ( val.type() ) {
+		case QVariant::ByteArray:
+		    r = OCIBindByPos( sql, &hbnd, err,
+				      i + 1,
+				      (dvoid *) val.asByteArray().data(),
+				      val.asByteArray().size(),
+				      SQLT_BIN, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
+				      (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
+		break;
+		case QVariant::Time:
 		    case QVariant::Date:
 		    case QVariant::DateTime: {
-			QByteArray * ba = new QByteArray( qMakeOraDate( it.data().value.toDateTime() ) );
-			tmpStorage.append( qAutoDeleter(ba) );
-			r = OCIBindByName( sql, &hbnd, err,
-					   oraText( pHolder ),
-					   oraByteLength( pHolder ),
-					   (dvoid *) ba->data(),
-					   ba->size(),
-					   SQLT_DAT, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
-					   (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
-			break; }
-		    case QVariant::Int:
-			r = OCIBindByName( sql, &hbnd, err,
-					   oraText( pHolder ),
-					   oraByteLength( pHolder ),
-					   (dvoid *) &it.data().value.asInt(),
-					   sizeof(int),
-					   SQLT_INT, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
-					   (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
-			break;
-		    case QVariant::Double:
-			r = OCIBindByName( sql, &hbnd, err,
-					   oraText( pHolder ),
-					   oraByteLength( pHolder ),
-					   (dvoid *) &it.data().value.asDouble(),
-					   sizeof(double),
-					   SQLT_FLT, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
-					   (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
-			break;
-		    case QVariant::String: {
-			qDebug( "binding String1 " + it.data().value.asString() );
-			QString * str = new QString( it.data().value.asString() );
-			tmpStorage.append( qAutoDeleter( str ) );
-			r = OCIBindByName( sql, &hbnd, err,
-					   oraText( pHolder ),
-					   oraByteLength( pHolder ),
-					   (dvoid *) oraText( *str ),
-					   oraTextLength( *str ),
-					   SQLT_STR, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
-					   (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
-			if ( r == 0 )
-			    setCharset( hbnd );
-			break; }
-		    default: {
-			//qDebug( "binding Default 1" );
-			QString * str = new QString( it.data().value.toString() );
-			tmpStorage.append( qAutoDeleter( str ) );
-			r = OCIBindByName( sql, &hbnd, err,
-					   oraText( pHolder ),
-					   oraByteLength( pHolder ),
-					   (dvoid *) oraText( *str ),
-					   oraTextLength( *str ),
-					   SQLT_STR, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
-					   (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
-			if ( r == 0 )
-			    setCharset( hbnd );
-			break; }
-		}
-		if ( r != OCI_SUCCESS ) {
-		    return r;
-		}
-	    }
-	} else { // ..do positional binding
-	    QMap<int, QString>::Iterator it;
-	    for ( it = ext->index.begin(); it != ext->index.end(); ++it ) {
-		qDebug( "%s %d", QVariant::typeToName( ext->values[ it.data() ].value.type() ), utf16bind );
-		OCIBind * hbnd = 0; // Oracle handles these automatically
-		QVariant val( ext->values[ it.data() ].value );
-		sb2 * indPtr = new sb2(0);
-		tmpStorage.append( qAutoDeleter(indPtr) );
-		if ( val.isNull() ) {
-		    *indPtr = -1;
-		}
-		switch ( val.type() ) {
-		    case QVariant::ByteArray:
-			// this is for RAW, LONG RAW and BLOB fields..
-			//qDebug( "Binding ByteArray2" );
-			r = OCIBindByPos( sql, &hbnd, err,
-					  it.key() + 1,
-					  (dvoid *) val.asByteArray().data(),
-					  val.asByteArray().size(),
-					  SQLT_BIN, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
-					  (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
-			break;
-/*
-		    case QVariant::CString:
-			// ..while this is for CLOB and LONG fields that needs an SQLT_LNG binding
-			qDebug( "binding CString2" );
-			r = OCIBindByPos( sql, &hbnd, err,
-					  it.key() + 1,
-					  (dvoid *) val.asCString().data(),
-					  val.asCString().length(),
-					  SQLT_LNG, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
-					  (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
-			if ( r == 0 )
-			    setCharset( hbnd );
-			break;
-*/
-		    case QVariant::Time:
-		    case QVariant::Date:
-		    case QVariant::DateTime: {
-			QByteArray * ba = new QByteArray( qMakeOraDate( val.toDateTime() ) );
-			tmpStorage.append( qAutoDeleter(ba) );
-			r = OCIBindByPos( sql, &hbnd, err,
-					  it.key() + 1,
-					  (dvoid *) ba->data(),
-					  ba->size(),
-					  SQLT_DAT, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
-					  (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
-			break; }
-		    case QVariant::Int:
-			r = OCIBindByPos( sql, &hbnd, err,
-					  it.key() + 1,
-					  (dvoid *) &ext->values[ it.data() ].value.asInt(), // avoid deep cpy
-					  sizeof(int),
-					  SQLT_INT, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
-					  (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
-			break;
-		    case QVariant::Double:
-			r = OCIBindByPos( sql, &hbnd, err,
-					  it.key() + 1,
-					  (dvoid *) &ext->values[ it.data() ].value.asDouble(), // avoid deep cpy
-					  sizeof(double),
-					  SQLT_FLT, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
-					  (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
-			break;
-		    case QVariant::String: {
-			qDebug( "binding String2 " + val.asString() );
-			QString * str = new QString( val.asString() );
-			tmpStorage.append( qAutoDeleter( str ) );
-			r = OCIBindByPos( sql, &hbnd, err,
-					  it.key() + 1,
-					  (dvoid *) oraText( *str ),
-					  oraTextLength( *str ),
-					  SQLT_STR, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
-					  (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
-			if ( r == 0 )
-			    setCharset( hbnd );
-			break; }
-		    default: {
-			//qDebug( "binding Default2: " + val.toString() );
-			QString * str = new QString( val.toString() );
-			tmpStorage.append( qAutoDeleter( str ) );
-			r = OCIBindByPos( sql, &hbnd, err,
-					  it.key() + 1,
-					  (dvoid *) oraText( *str ),
-					  oraTextLength( *str ),
-					  SQLT_STR, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
-					  (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
-			if ( r == 0 )
-			    setCharset( hbnd );
-			break; }
-		}
-		if ( r != OCI_SUCCESS ) {
-		    return r;
-		}
+		    QByteArray * ba = new QByteArray( qMakeOraDate( val.toDateTime() ) );
+		    tmpStorage.append( qAutoDeleter(ba) );
+		    r = OCIBindByPos( sql, &hbnd, err,
+				      i + 1,
+				      (dvoid *) ba->data(),
+				      ba->size(),
+				      SQLT_DAT, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
+				      (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
+		    break; }
+		case QVariant::Int:
+		    r = OCIBindByPos( sql, &hbnd, err,
+				      i + 1,
+				      (dvoid *) &values[ i ].asInt(), // avoid deep cpy
+				      sizeof(int),
+				      SQLT_INT, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
+				      (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
+		break;
+		case QVariant::Double:
+		    r = OCIBindByPos( sql, &hbnd, err,
+				      i + 1,
+				      (dvoid *) &values[ i ].asDouble(), // avoid deep cpy
+				      sizeof(double),
+				      SQLT_FLT, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
+				      (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
+		break;
+		default: {
+		    QString* str = new QString( val.toString() );
+		    tmpStorage.append( qAutoDeleter(str) );
+		    r = OCIBindByPos( sql, &hbnd, err,
+				      i + 1,
+				      (dvoid *)str->ucs2(),
+				      (str->length() + 1) * sizeof(QChar), // number of bytes + 0 term. scan limit
+				      SQLT_STR, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
+				      (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
+		    ub2 csid = OCI_UTF16ID;
+		    r = OCIAttrSet( (dvoid*)hbnd,
+				    OCI_HTYPE_BIND,
+				    (dvoid*) &csid,
+				    (ub4) 0,
+				    (ub4) OCI_ATTR_CHARSET_ID,
+				    err );
+		    break; }
 	    }
 	}
 	return r;
     }
     
-    void outValues( QPtrList<QVirtualDestructor> & tmpStorage )
+    void outValues( QVector<QVariant> &values, QPtrList<QVirtualDestructor> & tmpStorage )
     {
-	if ( bindMethod() == BindByName ) {
-	    QSqlExtension::ValueMap::Iterator it;
-	    for ( it = ext->values.begin(); it != ext->values.end(); ++it ) {
-		sb2* indPtr = qAutoDeleterData( (QAutoDeleter<sb2>*)tmpStorage.getFirst() );
-		if ( !indPtr )
-		    return;
-		bool isNull = (*indPtr == -1);
-		tmpStorage.removeFirst();
-
-		if ( isNull ) {
-		    QVariant v;
-		    v.cast( it.data().value.type() );
-		    it.data().value = v;
+	int i;
+	for ( i = 0; i < values.count(); ++i ) {
+	    QVariant::Type typ = values[i].type();
+	    sb2* indPtr = qAutoDeleterData( (QAutoDeleter<sb2>*)tmpStorage.getFirst() );
+	    if ( !indPtr )
+		return;
+	    bool isNull = (*indPtr == -1);
+	    tmpStorage.removeFirst();
+	    
+	    if ( isNull ) {
+		QVariant v;
+		v.cast( typ );
+		values[ i ] = v;
+		if ( typ != QVariant::ByteArray && typ != QVariant::Int && typ != QVariant::Double )
+		    tmpStorage.removeFirst();
+		continue;
+	    }	    
+	    
+	    switch ( typ ) {
+		case QVariant::ByteArray:
+		case QVariant::Int:
+		case QVariant::Double:
+		break;
+		case QVariant::Time:
+		case QVariant::Date:
+		case QVariant::DateTime: {
+		    QByteArray* ba = qAutoDeleterData( (QAutoDeleter<QByteArray>*)tmpStorage.getFirst() );
+		    if ( !ba )
+			return;
+		    QDateTime dt = qMakeDate( ba->data() );
+		    if ( typ == QVariant::DateTime )
+			values[ i ] = dt;
+		    else if ( typ == QVariant::Date )
+			values[ i ] = dt.date();
+		    else if ( typ == QVariant::Time )
+			values[ i ] = dt.time();
+		    tmpStorage.removeFirst();
 		}
-
-		switch ( it.data().value.type() ) {
-		    case QVariant::ByteArray:
-//		    case QVariant::CString:
-		    case QVariant::Int:
-		    case QVariant::Double:
-			break;
-		    case QVariant::Time:
-		    case QVariant::Date:
-		    case QVariant::DateTime:
-			if ( !isNull ) {
-			    QByteArray* ba = qAutoDeleterData( (QAutoDeleter<QByteArray>*)tmpStorage.getFirst() );
-			    if ( !ba )
-				return;
-			    QDateTime dt = qMakeDate( ba->data() );
-			    switch ( it.data().value.type() ) {
-				case QVariant::DateTime:
-				    it.data().value = dt;
-				    break;
-				case QVariant::Date:
-				    it.data().value = dt.date();
-				    break;
-				case QVariant::Time:
-				    it.data().value = dt.time();
-				    break;
-				default:
-				    break;
-			    }
-			}
-			tmpStorage.removeFirst();
-			break;
-		    case QVariant::String:
-		    default: {
-			if ( !isNull ) {
-			    QString* str = qAutoDeleterData( (QAutoDeleter<QString>*)tmpStorage.getFirst() );
-			    if ( !str )
-				return;
-			    it.data().value = *str;
-			}
-			tmpStorage.removeFirst();
-			break; }
-		}
-	    }
-	} else {
-	    QMap<int, QString>::Iterator it;
-	    for ( it = ext->index.begin(); it != ext->index.end(); ++it ) {
-		QVariant::Type typ = ext->values[ it.data() ].value.type();
-		sb2* indPtr = qAutoDeleterData( (QAutoDeleter<sb2>*)tmpStorage.getFirst() );
-		if ( !indPtr )
-		    return;
-		bool isNull = (*indPtr == -1);
-		tmpStorage.removeFirst();
-
-		if ( isNull ) {
-		    QVariant v;
-		    v.cast( typ );
-		    ext->values[ it.data() ].value = v;
-		}
-
-		switch ( typ ) {
-		    case QVariant::ByteArray:
-//		    case QVariant::CString:
-		    case QVariant::Int:
-		    case QVariant::Double:
-			break;
-		    case QVariant::Time:
-		    case QVariant::Date:
-		    case QVariant::DateTime:
-			if ( !isNull ) {
-			    QByteArray* ba = qAutoDeleterData( (QAutoDeleter<QByteArray>*)tmpStorage.getFirst() );
-			    if ( !ba )
-				return;
-			    QDateTime dt = qMakeDate( ba->data() );
-			    switch ( typ ) {
-				case QVariant::DateTime:
-				    ext->values[ it.data() ].value = dt;
-				    break;
-				case QVariant::Date:
-				    ext->values[ it.data() ].value = dt.date();
-				    break;
-				case QVariant::Time:
-				    ext->values[ it.data() ].value = dt.time();
-				    break;
-				default:
-				    break;
-			    }
-			}
-			tmpStorage.removeFirst();
-			break;
-		    case QVariant::String:
-		    default: {
-			if ( !isNull ) {
-			    QString* str = qAutoDeleterData( (QAutoDeleter<QString>*)tmpStorage.getFirst() );
-			    if ( !str )
-				return;
-			    ext->values[ it.data() ].value = *str;
-			}
-			tmpStorage.removeFirst();
-			break; }
-		}
-	    }
+		break;
+		default: {
+		    QString* str = qAutoDeleterData( (QAutoDeleter<QString>*)tmpStorage.getFirst() );
+		    if ( !str )
+			return;
+//		    qDebug( "received: %d, '%s'", str->length(), QString::fromUcs2( str->ucs2() ).ascii() );
+		    values[ i ] = QString::fromUcs2( str->ucs2() );
+		    tmpStorage.removeFirst();
+		    break; }
+	    }			
 	}
     }
 };
-
-class QOCIPreparedExtension : public QSqlExtension
-{
-public:
-    QOCIPreparedExtension( QOCIResult * r )
-	: result( r ) {}
-
-    bool prepare( const QString& query )
-    {
-	return result->prepare( query );
-    }
-
-    bool exec()
-    {
-	return result->exec();
-    }
-    
-    QOCIResult * result;
-};
-
-#ifdef QOCI_USES_VERSION_9
-class QOCI9PreparedExtension : public QSqlExtension
-{
-public:
-    QOCI9PreparedExtension( QOCI9Result * r )
-	: result( r ) {}
-
-    bool prepare( const QString& query )
-    {
-	return result->prepare( query );
-    }
-
-    bool exec()
-    {
-	return result->exec();
-    }
-    
-    QOCI9Result * result;
-};
-#endif 
 
 struct OraFieldInfo
 {
@@ -661,7 +388,7 @@ OraFieldInfo qMakeOraField( const QOCIPrivate* p, OCIParam* param )
 	qOraWarning( "qMakeOraField:", p );
 
     r = OCIAttrGet( (dvoid*) param,
-		    OCI_DTYPE_PARAM,
+    OCI_DTYPE_PARAM,
 		    &colLength,
 		    0,
 		    OCI_ATTR_DATA_SIZE, /* in bytes */
@@ -736,16 +463,6 @@ OraFieldInfo qMakeOraField( const QOCIPrivate* p, OCIParam* param )
     ofi.oraScale = colScale;
     ofi.oraPrecision = colPrecision;
     ofi.oraIsNull = colIsNull;
-
-//    qDebug("field name:" + ofi.name);
-//    qDebug("field type:" + QString::number(ofi.type));
-//    qDebug("field oratype:" + QString::number(ofi.oraType));
-//    qDebug("field length (bytes):" + QString::number(colLength));
-//    qDebug("field length (chars):" + QString::number(colFieldLength));
-//    qDebug("field scale:" + QString::number(colScale));
-//    qDebug("field prec:" + QString::number(colPrecision));
-//    qDebug("field isNull:" + QString::number(colIsNull));
-//    qDebug("---------------");
 
     return ofi;
 }
@@ -869,6 +586,7 @@ public:
 	    case QVariant::ByteArray:
 		// RAW and LONG RAW fields can't be bound to LOB locators
 		if ( ofi.oraType == SQLT_BIN ) {
+//		    qDebug( "binding SQLT_BIN" );
 		    r = OCIDefineByPos( d->sql,
 					&dfn,
 					d->err,
@@ -879,6 +597,7 @@ public:
 					(dvoid *) createInd( count-1 ),
 					0, 0, OCI_DYNAMIC_FETCH );
 		} else if ( ofi.oraType == SQLT_LBI ) {
+//		    qDebug( "binding SQLT_LBI" );
 		    r = OCIDefineByPos( d->sql,
 					&dfn,
 					d->err,
@@ -889,6 +608,7 @@ public:
 					(dvoid *) createInd( count-1 ),
 					0, 0, OCI_DYNAMIC_FETCH );
 		} else {
+//		    qDebug( "binding SQLT_BLOB" );
 		    r = OCIDefineByPos( d->sql,
 					&dfn,
 					d->err,
@@ -1199,7 +919,8 @@ public:
 	    break;
 	case QVariant::ByteArray: {
 	    QByteArray ba;
-	    ba.duplicate( at(i), length(i) );
+	    if ( len[i] && length(i) > 0 )
+		ba.duplicate( at(i), length(i) );
 	    return QVariant( ba );
 	    break;
 	}
@@ -1264,7 +985,6 @@ QOCIResult::QOCIResult( const QOCIDriver * db, QOCIPrivate* p )
 {
     d = new QOCIPrivate();
     (*d) = (*p);
-    setExtension( new QOCIPreparedExtension( this ) );
 }
 
 QOCIResult::~QOCIResult()
@@ -1499,8 +1219,8 @@ bool QOCIResult::exec()
     tmpStorage.setAutoDelete( TRUE );
     
     // bind placeholders
-    if ( extension()->values.count() > 0 && 
-	d->bindValues( extension(), tmpStorage ) != OCI_SUCCESS ) {
+    if ( boundValueCount() > 0
+	 && d->bindValues( boundValues(), tmpStorage ) != OCI_SUCCESS ) {
 	qOraWarning( "QOCIResult::exec: unable to bind value: ", d );
 	setLastError( qMakeError( "Unable to bind value", QSqlError::Statement, d ) );
 	return FALSE;
@@ -1567,7 +1287,8 @@ bool QOCIResult::exec()
     setAt( QSql::BeforeFirst );
     setActive( TRUE );
     
-    d->outValues( extension(), tmpStorage );
+    if ( hasOutValues() )
+	d->outValues( boundValues(), tmpStorage );
     
     return TRUE;
 }
@@ -1581,7 +1302,6 @@ QOCI9Result::QOCI9Result( const QOCIDriver * db, QOCIPrivate* p )
 {
     d = new QOCIPrivate();
     (*d) = (*p);
-    setExtension( new QOCI9PreparedExtension( this ) );
 }
 
 QOCI9Result::~QOCI9Result()
@@ -1817,9 +1537,11 @@ bool QOCI9Result::exec()
     QPtrList<QVirtualDestructor> tmpStorage;
     tmpStorage.setAutoDelete( TRUE );
     
+//    qDebug( "QOCI9Result::exec: %s", executedQuery().ascii() );
+    
     // bind placeholders
-    if ( extension()->values.count() > 0 && 
-	 d->bindValues( extension(), tmpStorage ) != OCI_SUCCESS ) {
+    if ( boundValueCount() > 0
+	 && d->bindValues( boundValues(), tmpStorage ) != OCI_SUCCESS ) {
 	qOraWarning( "QOCIResult::exec: unable to bind value: ", d );
 	setLastError( qMakeError( "Unable to bind value", QSqlError::Statement, d ) );
 	return FALSE;
@@ -1890,7 +1612,8 @@ bool QOCI9Result::exec()
     setAt( QSql::BeforeFirst );
     setActive( TRUE);
     
-    d->outValues( extension(), tmpStorage );
+    if ( hasOutValues() )
+	d->outValues( boundValues(), tmpStorage );
     
     return TRUE;
 }
@@ -1996,7 +1719,8 @@ bool QOCIDriver::open( const QString & db,
 		       const QString & user,
 		       const QString & password,
 		       const QString & ,
-		       int )
+		       int,
+		       const QString &)
 {
     if ( isOpen() )
 	close();
