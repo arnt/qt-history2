@@ -199,13 +199,6 @@ void  QSignal::activate()
 #endif    
 }
 
-/*!
-  \fn int QSignal::parameter() const
-  \obsolete
-
-  Returns the signal's parameter.
-*/
-
 #ifndef QT_NO_VARIANT
 /*!
   Sets the signal's parameter to \a value
@@ -222,8 +215,12 @@ QVariant QSignal::value() const
 {
     return val;
 }
-/*! \internal void signal( const QVariant & ) */
-/*! \internal void intSignal( int ) */
+/*! \fn void QSignal::signal( const QVariant & ) 
+    \internal
+*/
+/*! \fn void QSignal::intSignal( int ) 
+    \internal
+*/
 
 #ifndef QT_NO_COMPAT
 /*! \obsolete */

@@ -110,7 +110,7 @@ public:
 	AlignCenter		= AlignVCenter | AlignHCenter
     };
 
-    // ### document me!!!
+    // documented in qpainter.cpp
     enum TextFlags {
 	SingleLine	= 0x0080,		// misc. flags
 	DontClip	= 0x0100,

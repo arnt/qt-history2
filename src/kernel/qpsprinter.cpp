@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#206 $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#207 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -35,7 +35,7 @@
 **
 **********************************************************************/
 /*!
-  \mustquote
+  \legalese
 
   True type font embedding for Qt's post script driver:
 

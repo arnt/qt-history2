@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#306 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#307 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -259,7 +259,7 @@ typedef QPtrStack<QWMatrix> QWMatrixStack;
 /*! \enum Qt::AlignmentFlags
 
   This enum type is used to describe alignment.  It contains
-  horizontal, vertical, and modifying flags.  The horizontal flags
+  horizontal and vertical flags.  The horizontal flags
   are:
 
   \value AlignAuto Aligns according to the language. Left for most,
@@ -285,7 +285,15 @@ typedef QPtrStack<QWMatrix> QWMatrixStack;
   This counts both as a horizontal and a vertical flag; it cannot be
   combined with any other horizontal or vertical flags.
 
-  There are also some modifier flags.  All of them apply only to
+  You can use at most one horizontal and one vertical flags at a time.  \c
+  AlignCenter counts as both horizontal and vertical.  
+
+  Conflicting combinations of flags have undefined meanings.
+*/
+
+/*! \enum Qt::TextFlags
+
+  This enum type is used to define some modifier flags.  All of them apply only to
   printing:
 
   \value SingleLine Treats all whitespace as space and prints just
@@ -298,17 +306,13 @@ typedef QPtrStack<QWMatrix> QWMatrixStack;
     (see QButton for an example).  For an ampersand, use "\&\&".
   \value WordBreak Breaks lines at appropriate points.
 
-  You can use at most one horizontal and one vertical flags at a time.  \c
-  AlignCenter counts as both horizontal and vertical.  You can use as many
-  modifier flags as you want, except that \c SingleLine and \c WordBreak
-  cannot be combined.
+  You can use as many modifier flags as you want, except that \c 
+  SingleLine and \c WordBreak cannot be combined.
 
   Flags that are inappropriate for a given use (e.g., ShowPrefix to
   QGridLayout::addWidget()) are generally ignored.
 
-  Conflicting combinations of flags have undefined meanings.
 */
-
 
 /*! \enum Qt::PenStyle
 
