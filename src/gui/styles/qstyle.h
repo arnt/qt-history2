@@ -495,6 +495,7 @@ public:
 	PM_MenuFrameHorizontalExtra,
 	PM_MenuFrameVerticalExtra,
 	PM_MenuTearoffHeight,
+	PM_MenuDesktopFrameWidth,
 
 	PM_IndicatorWidth,
 	PM_IndicatorHeight,
@@ -621,14 +622,14 @@ public:
 	SH_FontDialog_SelectAssociatedText,
 
 	// bool - allows disabled menu items to be active
-	SH_PopupMenu_AllowActiveAndDisabled,
+	SH_Menu_AllowActiveAndDisabled,
 
 	// bool - pressing space activates item, ala Motif
-	SH_PopupMenu_SpaceActivatesItem,
+	SH_Menu_SpaceActivatesItem,
 
 	// int - number of milliseconds to wait before opening a submenu
 	// 256 on windows, 96 on motif
-	SH_PopupMenu_SubMenuPopupDelay,
+	SH_Menu_SubMenuPopupDelay,
 
 	// bool - should scrollviews draw their frame only around contents (ala Motif),
 	// or around contents, scrollbars and corner widgets (ala Windows) ?
@@ -642,7 +643,7 @@ public:
 	SH_ComboBox_ListMouseTracking,
 
 	// bool - mouse tracking in popupmenus
-	SH_PopupMenu_MouseTracking,
+	SH_Menu_MouseTracking,
 
 	// bool - mouse tracking in menubars
 	SH_MenuBar_MouseTracking,
@@ -672,7 +673,7 @@ public:
 	SH_RichText_FullWidthSelection,
 
 	//bool - popupmenu supports scrolling instead of multicolumn mode
-	SH_PopupMenu_Scrollable,
+	SH_Menu_Scrollable,
 
 	// Qt::AlignmentFlags - text label vertical alignment in groupboxes
 	// Center on windows, Auto|VCenter otherwize
@@ -682,7 +683,7 @@ public:
 	SH_GroupBox_TextLabelColor,
 
 	// bool - popupmenu supports sloppy submenus
-	SH_PopupMenu_SloppySubMenus,
+	SH_Menu_SloppySubMenus,
 
 	// Qt::QRgb - table grid color
 	SH_Table_GridLineColor,
@@ -708,18 +709,33 @@ public:
 	//bool - if underline for accelerators
 	SH_UnderlineAccelerator,
 
-	// bool - QToolButton - if tool buttons should use a 3D frame
+	// bool - if tool buttons should use a 3D frame
 	// when the mouse is over the button
 	SH_ToolButton_Uses3D,
 
 	SH_ScrollBar_BackgroundRole,
 
-	// bool - QSpinBox - animate a click when up or down is pressed in a spin box
-	SH_SpinBoxAnimateButton,
-	// int - QSpinBox - autorepeat interval for keyboard on spinboxes
-	SH_SpinBoxKeyPressAutoRepeatrate,
-	// int - QSpinBox - autorepeat interval for mouse clicks on spinboxes
-	SH_SpinBoxClickAutoRepeatrate,
+	//bool - animate a click when up or down is pressed in a spin box
+	SH_SpinBox_AnimateButton,
+
+	//int - autorepeat interval for keyboard on spinboxes
+	SH_SpinBox_KeyPressAutoRepeatRate,
+
+	//int - autorepeat interval for mouse clicks on spinboxes
+	SH_SpinBox_ClickAutoRepeatRate,
+
+	//bool - small scrolling popups should fill the screen as scrolled
+	SH_Menu_FillScreenWithScroll,
+
+#ifdef QT_COMPAT
+	SH_Q3PopupMenu_SpaceActivatesItem = SH_Menu_SpaceActivatesItem,
+	SH_Q3PopupMenu_SubMenuPopupDelay = SH_Menu_SubMenuPopupDelay,
+	SH_Q3PopupMenu_AllowActiveAndDisabled = SH_Menu_AllowActiveAndDisabled,
+	SH_Q3PopupMenu_MouseTracking = SH_Menu_MouseTracking,
+	SH_Q3PopupMenu_SloppySubMenus = SH_Menu_SloppySubMenus,
+	SH_Q3PopupMenu_Scrollable = SH_Menu_Scrollable,
+#endif
+
 	// do not add any values below/greater than this
 	SH_CustomBase =		0xf0000000
     };

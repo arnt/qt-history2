@@ -1670,7 +1670,7 @@ int QMotifPlusStyle::styleHint(StyleHint hint,
 {
     int ret;
     switch (hint) {
-    case SH_PopupMenu_MouseTracking:
+    case SH_Menu_MouseTracking:
 	ret = 1;
 	break;
     default:

@@ -1710,6 +1710,9 @@ int QMacStyleQD::pixelMetric(PixelMetric metric, const QWidget *widget) const
 	else
 	    ret = sz.width();
 	break; }
+    case PM_MenuDesktopFrameWidth:
+	ret = 15;
+	break;
     case PM_MenuScrollerHeight:
 #if 0
 	SInt16 ash, asw;
@@ -2163,10 +2166,10 @@ int QMacStyleQD::styleHint(StyleHint sh, const QWidget *w,
 {
     SInt32 ret = 0;
     switch(sh) {
-    case SH_PopupMenu_AllowActiveAndDisabled:
+    case SH_Menu_AllowActiveAndDisabled:
 	ret = FALSE;
 	break;
-    case SH_PopupMenu_SubMenuPopupDelay:
+    case SH_Menu_SubMenuPopupDelay:
 	ret = 100;
 	break;
     case SH_ScrollBar_LeftClickAbsolutePosition:
@@ -2185,7 +2188,7 @@ int QMacStyleQD::styleHint(StyleHint sh, const QWidget *w,
     case SH_GroupBox_TextLabelColor:
 	ret = (int) ( w ? w->palette().foreground().color().rgb() : 0 );
 	break;
-    case SH_PopupMenu_SloppySubMenus:
+    case SH_Menu_SloppySubMenus:
 	ret = TRUE;
 	break;
     case SH_GroupBox_TextLabelVerticalAlignment:
@@ -2198,7 +2201,10 @@ int QMacStyleQD::styleHint(StyleHint sh, const QWidget *w,
 	else
 	    ret = QWindowsStyle::styleHint(sh, w, opt, d);
 	break;
-    case SH_PopupMenu_Scrollable:
+    case SH_Menu_FillScreenWithScroll:
+	ret = (QSysInfo::MacintoshVersion < QSysInfo::MV_PANTHER);
+	break;
+    case SH_Menu_Scrollable:
 	ret = TRUE;
 	break;
     case SH_RichText_FullWidthSelection:

@@ -2275,10 +2275,10 @@ int QWindowsStyle::styleHint(StyleHint hint,
     case SH_PrintDialog_RightAlignButtons:
     case SH_MainWindow_SpaceBelowMenuBar:
     case SH_FontDialog_SelectAssociatedText:
-    case SH_PopupMenu_AllowActiveAndDisabled:
+    case SH_Menu_AllowActiveAndDisabled:
     case SH_MenuBar_AltKeyNavigation:
     case SH_MenuBar_MouseTracking:
-    case SH_PopupMenu_MouseTracking:
+    case SH_Menu_MouseTracking:
     case SH_ComboBox_ListMouseTracking:
     case SH_ScrollBar_StopMouseOverSlider:
 	ret = 1;

@@ -780,7 +780,7 @@ int QPocketPCStyle::styleHint(StyleHint	          stylehint,
     // usually only the case when you use a mouse with three buttons.
     case SH_ScrollBar_MiddleClickAbsolutePosition:
     // PopupMenus must support scrolling, since the screen is so small
-    case SH_PopupMenu_Scrollable:
+    case SH_Menu_Scrollable:
     // Cursor blinks when text is selected
     case SH_BlinkCursorWhenTextSelected:
     // RichText selections extend the full width of the document
@@ -798,7 +798,7 @@ int QPocketPCStyle::styleHint(StyleHint	          stylehint,
     case SH_PrintDialog_RightAlignButtons:
     case SH_MainWindow_SpaceBelowMenuBar:
     case SH_FontDialog_SelectAssociatedText:
-    case SH_PopupMenu_AllowActiveAndDisabled:
+    case SH_Menu_AllowActiveAndDisabled:
     case SH_MenuBar_AltKeyNavigation:
     case SH_Workspace_FillSpaceOnMaximize:
 	ret = 1;
@@ -844,7 +844,7 @@ int QPocketPCStyle::styleHint(StyleHint	          stylehint,
 	break;
 
     // Delay Sub Popupmenus for 256ms
-    case SH_PopupMenu_SubMenuPopupDelay:
+    case SH_Menu_SubMenuPopupDelay:
 	ret = 256;
 	break;
 
@@ -866,7 +866,7 @@ int QPocketPCStyle::styleHint(StyleHint	          stylehint,
     // Scrollviews draws frame around whole view
     case SH_ScrollView_FrameOnlyAroundContents:
     // PopupMenus are not sloppy on CE
-    case SH_PopupMenu_SloppySubMenus:
+    case SH_Menu_SloppySubMenus:
     // Widgets do not share activation with floating modeless dialogs
     case SH_Widget_ShareActivation:
     // Selected items are not grayed out when the widget looses focus
@@ -883,7 +883,7 @@ int QPocketPCStyle::styleHint(StyleHint	          stylehint,
     case SH_ComboBox_Popup:
     // Menus and popups do not use mousetracking
     case SH_MenuBar_MouseTracking:
-    case SH_PopupMenu_MouseTracking:
+    case SH_Menu_MouseTracking:
     // Workspace children have borders
     case SH_TitleBar_NoBorder:
 	break;

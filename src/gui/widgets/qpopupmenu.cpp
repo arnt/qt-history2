@@ -275,7 +275,7 @@ QPopupMenu::QPopupMenu( QWidget *parent, const char *name )
     tab = 0;
     ncols = 1;
     setFrameStyle( Q3Frame::PopupPanel | Q3Frame::Raised );
-    setMouseTracking(style().styleHint(QStyle::SH_PopupMenu_MouseTracking, this));
+    setMouseTracking(style().styleHint(QStyle::SH_Q3PopupMenu_MouseTracking, this));
     setBackgroundRole( QPalette::Button );
     connectModalRecursionSafety = 0;
 
@@ -552,7 +552,7 @@ void QPopupMenu::popup( const QPoint &pos, int indexAtPoint )
 	    y = sy;
     }
 
-    if(style().styleHint(QStyle::SH_PopupMenu_Scrollable, this)) {
+    if(style().styleHint(QStyle::SH_Q3PopupMenu_Scrollable, this)) {
 	int off_top = 0, off_bottom = 0;
 	if(y+h > sy+sh)
 	    off_bottom = (y+h) - (sy+sh);
@@ -754,7 +754,7 @@ void QPopupMenu::setFirstItemActive()
     for (int i = ai; i < mitems->size(); ++i) {
 	QMenuItem *mi = mitems->at(i);
 	if ( !mi->isSeparator() && mi->id() != QMenuData::d->aInt &&
-	   ( style().styleHint( QStyle::SH_PopupMenu_AllowActiveAndDisabled, this ) || mi->isEnabledAndVisible() )) {
+	   ( style().styleHint( QStyle::SH_Q3PopupMenu_AllowActiveAndDisabled, this ) || mi->isEnabledAndVisible() )) {
 	    setActiveItem( ai );
 	    return;
 	}
@@ -802,7 +802,7 @@ void QPopupMenu::hidePopups()
 	    mi->popup()->hide();
     }
     popupActive = -1;				// no active sub menu
-    if(style().styleHint(QStyle::SH_PopupMenu_SubMenuPopupDelay, this))
+    if(style().styleHint(QStyle::SH_Q3PopupMenu_SubMenuPopupDelay, this))
 	d->mouseMoveBuffer = QRegion();
 
     QRect mfrect = itemGeometry( actItem );
@@ -1092,7 +1092,7 @@ QSize QPopupMenu::updateSize(bool force_update, bool do_resize)
 			      objectName( "unnamed" ) );
 	    }
 	    height += itemHeight;
-	    if(style().styleHint(QStyle::SH_PopupMenu_Scrollable, this)) {
+	    if(style().styleHint(QStyle::SH_Q3PopupMenu_Scrollable, this)) {
 		if(scrheight && height >= d->scroll.scrollableSize)
 		    break;
 	    } else if( height + 2*frameWidth() >= dh ) {
@@ -1106,7 +1106,7 @@ QSize QPopupMenu::updateSize(bool force_update, bool do_resize)
 	if( ncols == 1 && !max_height )
 	    max_height = height;
 
-	if(style().styleHint(QStyle::SH_PopupMenu_Scrollable, this)) {
+	if(style().styleHint(QStyle::SH_Q3PopupMenu_Scrollable, this)) {
 	    height += scrheight;
 	    setMouseTracking(TRUE);
 	}
@@ -1316,7 +1316,7 @@ void QPopupMenu::show()
     updateSize(TRUE);
     QWidget::show();
     popupActive = -1;
-    if(style().styleHint(QStyle::SH_PopupMenu_SubMenuPopupDelay, this))
+    if(style().styleHint(QStyle::SH_Q3PopupMenu_SubMenuPopupDelay, this))
 	d->mouseMoveBuffer = QRegion();
 }
 
@@ -1338,7 +1338,7 @@ void QPopupMenu::hide()
     emit aboutToHide();
 
     actItem = popupActive = -1;
-    if(style().styleHint(QStyle::SH_PopupMenu_SubMenuPopupDelay, this))
+    if(style().styleHint(QStyle::SH_Q3PopupMenu_SubMenuPopupDelay, this))
 	d->mouseMoveBuffer = QRegion();
     mouseBtDn = FALSE;				// mouse button up
 #if defined(QT_ACCESSIBILITY_SUPPORT)
@@ -1509,7 +1509,7 @@ void QPopupMenu::drawContents( QPainter* p )
 	}
     }
 #if defined( DEBUG_SLOPPY_SUBMENU )
-    if ( style().styleHint(QStyle::SH_PopupMenu_SloppySubMenus, this )) {
+    if ( style().styleHint(QStyle::SH_Q3PopupMenu_SloppySubMenus, this )) {
 	p->setClipRegion( d->mouseMoveBuffer );
 	p->fillRect( d->mouseMoveBuffer.boundingRect(), palette().brush( QPalette::Highlight ) );
     }
@@ -1702,7 +1702,7 @@ void QPopupMenu::mouseMoveEvent( QMouseEvent *e )
 	if ( p->actItem != myIndex && !p->rect().contains( pPos ) )
 	    p->setActiveItem( myIndex );
 
-	if ( style().styleHint(QStyle::SH_PopupMenu_SloppySubMenus, this )) {
+	if ( style().styleHint(QStyle::SH_Q3PopupMenu_SloppySubMenus, this )) {
 	    p->d->mouseMoveBuffer = QRegion();
 #ifdef DEBUG_SLOPPY_SUBMENU
 	    p->repaint();
@@ -1731,7 +1731,7 @@ void QPopupMenu::mouseMoveEvent( QMouseEvent *e )
 		d->scroll.scrolltimer->start(40);
 	} else if ( lastActItem > 0 ||
 		    ( !rect().contains( e->pos() ) && !tryMenuBar( e ) ) ) {
-	    popupSubMenuLater(style().styleHint(QStyle::SH_PopupMenu_SubMenuPopupDelay,
+	    popupSubMenuLater(style().styleHint(QStyle::SH_Q3PopupMenu_SubMenuPopupDelay,
 						this), this);
 	}
     } else {					// mouse on valid item
@@ -1753,16 +1753,16 @@ void QPopupMenu::mouseMoveEvent( QMouseEvent *e )
 	if ( actItem == item )
 	    return;
 
-	if ( style().styleHint(QStyle::SH_PopupMenu_SloppySubMenus, this) &&
+	if ( style().styleHint(QStyle::SH_Q3PopupMenu_SloppySubMenus, this) &&
 	     d->mouseMoveBuffer.contains( e->pos() ) ) {
 	    actItem = item;
-	    popupSubMenuLater( style().styleHint(QStyle::SH_PopupMenu_SubMenuPopupDelay, this) * 6,
+	    popupSubMenuLater( style().styleHint(QStyle::SH_Q3PopupMenu_SubMenuPopupDelay, this) * 6,
 			       this );
 	    return;
 	}
 
 	if ( mi->popup() || ( popupActive >= 0 && popupActive != item ))
-	    popupSubMenuLater( style().styleHint(QStyle::SH_PopupMenu_SubMenuPopupDelay, this),
+	    popupSubMenuLater( style().styleHint(QStyle::SH_Q3PopupMenu_SubMenuPopupDelay, this),
 			       this );
 	else if ( singleSingleShot )
 	    singleSingleShot->stop();
@@ -1894,7 +1894,7 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 	break;
 
     case Key_Space:
-	if (! style().styleHint(QStyle::SH_PopupMenu_SpaceActivatesItem, this))
+	if (! style().styleHint(QStyle::SH_Q3PopupMenu_SpaceActivatesItem, this))
 	    break;
 	// for motif, fall through
 
@@ -2073,7 +2073,7 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 		continue;
 
 	    if ( !mi->isSeparator() &&
-		 ( style().styleHint(QStyle::SH_PopupMenu_AllowActiveAndDisabled, this)
+		 ( style().styleHint(QStyle::SH_Q3PopupMenu_AllowActiveAndDisabled, this)
 		   || mi->isEnabledAndVisible() ) )
 		break;
 	}
@@ -2138,7 +2138,7 @@ void QPopupMenu::timerEvent( QTimerEvent *e )
 */
 void QPopupMenu::leaveEvent( QEvent * )
 {
-    if ( testWFlags( WStyle_Tool ) && style().styleHint(QStyle::SH_PopupMenu_MouseTracking, this) ) {
+    if ( testWFlags( WStyle_Tool ) && style().styleHint(QStyle::SH_Q3PopupMenu_MouseTracking, this) ) {
 	int lastActItem = actItem;
 	actItem = -1;
 	if ( lastActItem >= 0 )
@@ -2152,7 +2152,7 @@ void QPopupMenu::leaveEvent( QEvent * )
 void QPopupMenu::changeEvent( QEvent *ev )
 {
     if(ev->type() == QEvent::StyleChange) {
-	setMouseTracking(style().styleHint(QStyle::SH_PopupMenu_MouseTracking, this));
+	setMouseTracking(style().styleHint(QStyle::SH_Q3PopupMenu_MouseTracking, this));
 	updateSize(TRUE);
     } else if(ev->type() == QEvent::EnabledChange) {
 	if ( QMenuData::d->aPopup ) // torn-off menu
@@ -2297,7 +2297,7 @@ void QPopupMenu::subMenuTimer() {
 	p.y() - ps.height() + (QCOORD) pr.height() >= 0)
 	p.setY( p.y() - ps.height() + (QCOORD) pr.height());
 
-    if ( style().styleHint(QStyle::SH_PopupMenu_SloppySubMenus, this )) {
+    if ( style().styleHint(QStyle::SH_Q3PopupMenu_SloppySubMenus, this )) {
 	 QPoint cur = QCursor::pos();
 	 if ( r.contains( mapFromGlobal( cur ) ) ) {
 	     QPoint pts[4];
@@ -2495,7 +2495,7 @@ void QPopupMenu::setActiveItem( int i )
 QSize QPopupMenu::sizeHint() const
 {
     ensurePolished();
-    if(style().styleHint(QStyle::SH_PopupMenu_Scrollable, this))
+    if(style().styleHint(QStyle::SH_Q3PopupMenu_Scrollable, this))
 	return minimumSize(); //can be any size..
 
     QPopupMenu* that = (QPopupMenu*) this;
@@ -2547,7 +2547,7 @@ bool QPopupMenu::focusNextPrevChild( bool next )
 		i = c - 1;
 	    mi = mitems->at( i );
 	    if ( mi && !mi->isSeparator() &&
-		 ( style().styleHint(QStyle::SH_PopupMenu_AllowActiveAndDisabled, this)
+		 ( style().styleHint(QStyle::SH_Q3PopupMenu_AllowActiveAndDisabled, this)
 		   || mi->isEnabledAndVisible() ) )
 		break;
 	}
@@ -2736,7 +2736,7 @@ QPopupMenu::updateScrollerState()
 {
     uint old_scrollable = d->scroll.scrollable;
     d->scroll.scrollable = QPopupMenuPrivate::Scroll::ScrollNone;
-    if(!style().styleHint(QStyle::SH_PopupMenu_Scrollable, this))
+    if(!style().styleHint(QStyle::SH_Q3PopupMenu_Scrollable, this))
 	return;
 
     int row = 0;

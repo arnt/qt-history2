@@ -2496,12 +2496,12 @@ int QMotifStyle::styleHint(StyleHint hint,
     case SH_ScrollBar_MiddleClickAbsolutePosition:
     case SH_Slider_SloppyKeyEvents:
     case SH_ProgressDialog_CenterCancelButton:
-    case SH_PopupMenu_SpaceActivatesItem:
+    case SH_Menu_SpaceActivatesItem:
     case SH_ScrollView_FrameOnlyAroundContents:
 	ret = 1;
 	break;
 
-    case SH_PopupMenu_SubMenuPopupDelay:
+    case SH_Menu_SubMenuPopupDelay:
 	ret = 96;
 	break;
 

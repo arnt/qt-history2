@@ -2465,6 +2465,7 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QWidget *widget) const
 	ret = 6;
 	break;
 
+    case PM_MenuDesktopFrameWidth:
     case PM_MenuScrollerHeight:
     case PM_MenuFrameHorizontalExtra:
     case PM_MenuFrameVerticalExtra:
@@ -2748,7 +2749,7 @@ int QCommonStyle::styleHint(StyleHint sh, const QWidget * w, const QStyleOption 
 	ret = Qt::AlignLeft;
 	break;
 
-    case SH_PopupMenu_SubMenuPopupDelay:
+    case SH_Menu_SubMenuPopupDelay:
 	ret = 256;
 	break;
 
@@ -2780,12 +2781,16 @@ int QCommonStyle::styleHint(StyleHint sh, const QWidget * w, const QStyleOption 
 	ret = 1;
 	break;
 
-    case SH_SpinBoxClickAutoRepeatrate:
+    case SH_SpinBox_ClickAutoRepeatRate:
 	ret = 150;
 	break;
 
-    case SH_SpinBoxKeyPressAutoRepeatrate:
+    case SH_SpinBox_KeyPressAutoRepeatRate:
 	ret = 75;
+	break;
+
+    case SH_Menu_FillScreenWithScroll:
+	ret = true;
 	break;
 
     default:

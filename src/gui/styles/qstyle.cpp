@@ -1672,19 +1672,19 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 	line edit, or when selecting an item from the listbox, or when
 	the line edit receives focus, like Windows.
 
-    \value SH_PopupMenu_AllowActiveAndDisabled  allows disabled menu
+    \value SH_Menu_AllowActiveAndDisabled  allows disabled menu
 	items to be active.
 
-    \value SH_PopupMenu_SpaceActivatesItem  pressing Space activates
+    \value SH_Menu_SpaceActivatesItem  pressing Space activates
 	the item, like Motif.
 
-    \value SH_PopupMenu_SubMenuPopupDelay  the number of milliseconds
+    \value SH_Menu_SubMenuPopupDelay  the number of milliseconds
 	to wait before opening a submenu; 256 on windows, 96 on Motif.
 
-    \value SH_PopupMenu_Scrollable whether popupmenu's must support
+    \value SH_Menu_Scrollable whether popupmenu's must support
 	scrolling.
 
-    \value SH_PopupMenu_SloppySubMenus whether popupmenu's must support
+    \value SH_Menu_SloppySubMenus whether popupmenu's must support
 	sloppy submenu; as implemented on Mac OS.
 
     \value SH_ScrollView_FrameOnlyAroundContents  whether scrollviews
@@ -1698,7 +1698,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
     \value SH_ComboBox_ListMouseTracking  mouse tracking in combobox
 	dropdown lists.
 
-    \value SH_PopupMenu_MouseTracking  mouse tracking in popup menus.
+    \value SH_Menu_MouseTracking  mouse tracking in popup menus.
 
     \value SH_MenuBar_MouseTracking  mouse tracking in menubars.
 
