@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#71 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#72 $
 **
 ** Implementation of QDir class
 **
@@ -640,20 +640,19 @@ void QDir::setMatchAllDirs( bool enable )
 
 /*!
   Returns the number of files that was found.
-  Equivalent to entryList()->count().
+  Equivalent to entryList().count().
   \sa operator[], entryList()
 */
 
 uint QDir::count() const
 {
-    entryList();
-    return fList->count();
+    return entryList().count();
 }
 
 /*!
   Returns the file name at position \e index in the list of found file
   names.
-  Equivalent to entryList()->at(index).
+  Equivalent to entryList().at(index).
 
   Returns null if the \e index is out of range or if the entryList()
   function failed.
@@ -671,51 +670,39 @@ QString QDir::operator[]( int index ) const
 
 /*!
   Returns a list of the names of all files and directories in the directory
-  pointed to using the setSorting(), setFilter() and setNameFilter()
+  indicated by the setSorting(), setFilter() and setNameFilter()
   specifications.
 
   The the filter and sorting specifications can be overridden using the
   \e filterSpec and \e sortSpec arguments.
 
-  Returns 0 if the directory is unreadable or does not exist.
-
-  The returned pointer is a const pointer to a QStringList. The list is
-  owned by the QDir object and will be reused on the next call to
-  entryList() for the same QDir instance. If you want to keep the
-  entries of the list after a subsequent call to this function you will
-  need to copy them.
+  Returns an empty list if the directory is unreadable or does not exist.
 
   \sa entryInfoList(), setNameFilter(), setSorting(), setFilter()
 */
 
-const QStringList *QDir::entryList( int filterSpec, int sortSpec ) const
+QStringList QDir::entryList( int filterSpec, int sortSpec ) const
 {
     if ( !dirty && filterSpec == (int)DefaultFilter &&
 		   sortSpec   == (int)DefaultSort )
-	return fList;
+	return *fList;
     return entryList( nameFilt, filterSpec, sortSpec );
 }
 
 /*!
   Returns a list of the names of all files and directories in the directory
-  pointed to using the setSorting(), setFilter() and setNameFilter()
+  indicated by the setSorting(), setFilter() and setNameFilter()
   specifications.
 
   The the filter and sorting specifications can be overridden using the
   \e nameFilter, \e filterSpec and \e sortSpec arguments.
 
-  The returned pointer is a const pointer to a QStringList. The list is
-  owned by the QDir object and will be reused on the next call to
-  entryList() for the same QDir instance. If you want to keep the
-  entries of the list after a subsequent call to this function you will
-  need to copy them.
-
-  Returns 0 if the directory is unreadable or does not exist.
+  Returns and empty list if the directory is unreadable or does not exist.
 
   \sa entryInfoList(), setNameFilter(), setSorting(), setFilter()
 */
 
-const QStringList *QDir::entryList( const QString &nameFilter,
+QStringList QDir::entryList( const QString &nameFilter,
 				 int filterSpec, int sortSpec ) const
 {
     if ( filterSpec == (int)DefaultFilter )
@@ -724,9 +711,9 @@ const QStringList *QDir::entryList( const QString &nameFilter,
 	sortSpec = sortS;
     QDir *that = (QDir*)this;			// mutable function
     if ( that->readDirEntries(nameFilter, filterSpec, sortSpec) )
-	return that->fList;
+	return *that->fList;
     else
-	return 0;
+	return QStringList();
 }
 
 /*!

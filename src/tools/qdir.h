@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.h#37 $
+** $Id: //depot/qt/main/src/tools/qdir.h#38 $
 **
 ** Definition of QDir class
 **
@@ -105,9 +105,9 @@ public:
     uint count() const;
     QString	operator[]( int ) const;
 
-    const QStringList *entryList( int filterSpec = DefaultFilter,
+    QStringList entryList( int filterSpec = DefaultFilter,
         		       int sortSpec   = DefaultSort  ) const;
-    const QStringList *entryList( const QString &nameFilter,
+    QStringList entryList( const QString &nameFilter,
         		       int filterSpec = DefaultFilter,
         		       int sortSpec   = DefaultSort   ) const;
     
