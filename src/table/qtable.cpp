@@ -176,7 +176,7 @@ static bool isRowSelection( QTable::SelectionMode selMode )
 }
 
 /*!
-    \class QTableSelection qtable.h
+    \class QTableSelection
     \brief The QTableSelection class provides access to a selected area in a
     QTable.
 
@@ -215,7 +215,7 @@ QTableSelection::QTableSelection()
 
 /*!
     Creates an active selection, starting at \a start_row and \a
-    start_col, ending at \a end_row and \a end_col;
+    start_col, ending at \a end_row and \a end_col.
 */
 
 QTableSelection::QTableSelection( int start_row, int start_col, int end_row, int end_col )
@@ -376,9 +376,16 @@ int QTableSelection::numCols() const
     active after init() \e and expandTo() have been called.
 */
 
+/*!
+    \fn bool QTableSelection::isEmpty() const
+
+    Returns whether the selection is empty or not.
+
+    \sa numRows(), numCols()
+*/
 
 /*!
-    \class QTableItem qtable.h
+    \class QTableItem
     \brief The QTableItem class provides the cell content for QTable cells.
 
     \ingroup advanced
@@ -835,7 +842,6 @@ QTableItem::EditType QTableItem::editType() const
 void QTableItem::setReplaceable( bool b )
 {
     tcha = b;
-//ed: what the heck does tcha stand for?
 }
 
 /*!
@@ -1075,7 +1081,7 @@ bool QTableItem::isEnabled() const
 }
 
 /*!
-    \class QComboTableItem qtable.h
+    \class QComboTableItem
     \brief The QComboTableItem class provides a means of using
     comboboxes in QTables.
 
@@ -1363,7 +1369,7 @@ QSize QComboTableItem::sizeHint() const
 }
 
 /*!
-    \class QCheckTableItem qtable.h
+    \class QCheckTableItem
     \brief The QCheckTableItem class provides checkboxes in QTables.
 
     \ingroup advanced
@@ -1549,7 +1555,7 @@ QSize QCheckTableItem::sizeHint() const
 /*! \file table/statistics/statistics.cpp */
 
 /*!
-    \class QTable qtable.h
+    \class QTable
     \brief The QTable class provides a flexible editable table widget.
 
     \mainclass
@@ -1728,14 +1734,14 @@ QSize QCheckTableItem::sizeHint() const
 
     This approach requires that you reimplement various functions.
     Reimplement paintCell() to display your data, and createEditor()
-    and setCellContentFromEditor() to facilitate in-place editing. It
+    and setCellContentFromEditor() to support in-place editing. It
     is very important to reimplement resizeData() to have no
     functionality, to prevent QTable from attempting to create a huge
     array. You will also need to reimplement item(), setItem(),
     clearCell(), and insertWidget(), cellWidget() and
     clearCellWidget(). In almost every circumstance (for sorting,
-    removing and inserting columns and rows, etc.,) you must also
-    reimplement swapRows(), swapCells() and swapColumns(), including
+    removing and inserting columns and rows, etc.), you also need
+    to reimplement swapRows(), swapCells() and swapColumns(), including
     header handling.
 
     If you represent active cells with a dictionary of QTableItems and
@@ -1754,12 +1760,12 @@ QSize QCheckTableItem::sizeHint() const
     cell is selected, and isRowSelected() and isColumnSelected() to
     see if a row or column is selected.
 
-    QTable's support multiple selections. You can programmatically
-    select cells with addSelection(). The number of selections is
-    given by numSelections(). The current selection is returned by
-    currentSelection(). You can remove a selection with
-    removeSelection() and remove all selections with clearSelection().
-    Selections are QTableSelection objects.
+    QTable's support many simultaneous selections. You can
+    programmatically select cells with addSelection(). The number of
+    selections is given by numSelections(). The current selection is
+    returned by currentSelection(). You can remove a selection with
+    removeSelection() and remove all selections with
+    clearSelection(). Selections are QTableSelection objects.
 
     To easily add a new selection use selectCells(), selectRow() or
     selectColumn().
@@ -3389,7 +3395,7 @@ void QTable::selectCells( int start_row, int start_col, int end_row, int end_col
     addSelection( sel );
 }
 
-/*! Selects the row \a row
+/*! Selects the row \a row.
 
   \sa QTableSelection
 */
@@ -3406,7 +3412,7 @@ void QTable::selectRow( int row )
     }
 }
 
-/*! Selects the column \a col
+/*! Selects the column \a col.
 
   \sa QTableSelection
 */
@@ -4182,7 +4188,7 @@ static bool inUpdateCell = FALSE;
 
 void QTable::updateCell( int row, int col )
 {
-    if ( inUpdateCell || row == -1 || col == -1 )
+    if ( inUpdateCell || row < 0 || col < 0 )
 	return;
     inUpdateCell = TRUE;
     QRect cg = cellGeometry( row, col );
@@ -4870,10 +4876,8 @@ QWidget *QTable::beginEdit( int row, int col, bool replace )
     new one for the cell). Otherwise (if possible) the content of the
     editor should just be set to the existing QTableItem of this cell.
 
-    If the cell contents should be replaced or if no QTableItem exists
-    for the cell, setCellContentFromEditor() is called. Otherwise
-    QTableItem::setContentFromEditor() is called on the QTableItem of
-    the cell.
+    setCellContentFromEditor() is called to replace the contents of
+    the cell with the contents of the cell's editor.
 
     Finally clearCellWidget() is called to remove the editor widget.
 
@@ -4896,16 +4900,10 @@ void QTable::endEdit( int row, int col, bool accept, bool replace )
 	return;
     }
 
-    QTableItem *i = item( row, col );
-    if ( replace && i ) {
+    if ( replace && item( row, col ) )
 	clearCell( row, col );
-	i = 0;
-    }
 
-    if ( !i )
-	setCellContentFromEditor( row, col );
-    else
-	i->setContentFromEditor( editor );
+    setCellContentFromEditor( row, col );
 
     if ( row == editRow && col == editCol )
 	setEditMode( NotEditing, -1, -1 );
@@ -4920,11 +4918,12 @@ void QTable::endEdit( int row, int col, bool accept, bool replace )
 
 /*!
     This function is called to replace the contents of the cell at \a
-    row, \a col with the contents of the cell's editor. If a
-    QTableItem already exists for this cell, it is removed first (see
-    clearCell()).
+    row, \a col with the contents of the cell's editor.
 
-    If for example, you want to create different \l{QTableItem}s
+    If there already exists a QTableItem for the cell,
+    it calls QTableItem::setContentFromEditor() on this QTableItem.
+   
+    If, for example, you want to create different \l{QTableItem}s
     depending on the contents of the editor, you might reimplement
     this function.
 
@@ -4940,9 +4939,14 @@ void QTable::setCellContentFromEditor( int row, int col )
     QWidget *editor = cellWidget( row, col );
     if ( !editor )
 	return;
-    clearCell( row, col );
-    if ( editor->inherits( "QLineEdit" ) )
-	setText( row, col, ( (QLineEdit*)editor )->text() );
+
+    QTableItem *i = item( row, col );
+    if ( i ) {
+	i->setContentFromEditor( editor );
+    } else {
+	if ( editor->inherits( "QLineEdit" ) )
+	    setText( row, col, ( (QLineEdit*)editor )->text() );
+    }
 }
 
 /*!
@@ -4996,7 +5000,7 @@ int QTable::currEditCol() const
 
 int QTable::indexOf( int row, int col ) const
 {
-    return ( row * numCols() ) + col; // mapping from 2D table to 1D array
+    return ( row * numCols() ) + col;
 }
 
 /*! \internal
@@ -5607,9 +5611,9 @@ bool QTable::isRowStretchable( int row ) const
 
 void QTable::takeItem( QTableItem *i )
 {
-    QRect rect = cellGeometry( i->row(), i->col() );
     if ( !i )
 	return;
+    QRect rect = cellGeometry( i->row(), i->col() );
     contents.setAutoDelete( FALSE );
     int bottom = i->row() + i->rowSpan();
     if ( bottom > numRows() )
@@ -6073,7 +6077,7 @@ void QTable::setEnabled( bool b )
 }
 
 
-/* \class QTableHeader qtable.h
+/* \class QTableHeader
     \ingroup advanced
   \mainclass
   module table
