@@ -1144,7 +1144,12 @@ QDataStream &operator<<(QDataStream &s, const QPainterPath &p)
     s << p.elementCount();
     for (int i=0; i<p.d->elements.size(); ++i) {
         const QPainterPath::Element &e = p.d->elements.at(i);
-        s << int(e.type) << e.x << e.y;
+        s << int(e.type);
+#ifdef QT_USE_FIXED_POINT
+        s << e.x.toDouble() << e.y.toDouble();
+#else
+        s << e.x << e.y;
+#endif
     }
     s << p.d->cStart;
     s << int(p.d->fillRule);
@@ -1166,8 +1171,10 @@ QDataStream &operator>>(QDataStream &s, QPainterPath &p)
     p.d->elements.reserve(p.d->elements.size() + size);
     for (int i=0; i<size; ++i) {
         int type;
-        qreal x, y;
-        s >> type >> x >> y;
+        double x, y;
+        s >> type;
+        s >> x;
+        s >> y;
         Q_ASSERT(type >= 0 && type <= 3);
         QPainterPath::Element elm = { x, y, QPainterPath::ElementType(type) };
         p.d->elements.append(elm);

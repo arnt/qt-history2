@@ -1724,7 +1724,14 @@ bool QRectF::intersects(const QRectF &r) const
 
 QDataStream &operator<<(QDataStream &s, const QRectF &r)
 {
-    s << (double)r.x() << (double)r.y() << (double)r.width() << (double) r.height();
+#ifdef QT_USE_FIXED_POINT
+    s << r.x().toDouble()
+      << r.y().toDouble()
+      << r.width().toDouble()
+      << r.height().toDouble();
+#else
+    s << r.x() << r.y() << r.width() << r.height();
+#endif
     return s;
 }
 
@@ -1742,7 +1749,10 @@ QDataStream &operator<<(QDataStream &s, const QRectF &r)
 QDataStream &operator>>(QDataStream &s, QRectF &r)
 {
     double x, y, w, h;
-    s >> x; s >> y; s >> w; s >> h;
+    s >> x;
+    s >> y;
+    s >> w;
+    s >> h;
     r.setRect(x, y, w, h);
     return s;
 }

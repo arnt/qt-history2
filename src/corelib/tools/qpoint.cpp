@@ -584,7 +584,11 @@ QDebug operator<<(QDebug d, const QPointF &p)
 
 QDataStream &operator<<(QDataStream &s, const QPointF &p)
 {
+#ifdef QT_USE_FIXED_POINT
+    s << p.x().toDouble() << p.toDouble();
+#else
     s << p.x() << p.y();
+#endif
     return s;
 }
 
@@ -599,8 +603,11 @@ QDataStream &operator<<(QDataStream &s, const QPointF &p)
 
 QDataStream &operator>>(QDataStream &s, QPointF &p)
 {
-    s >> p.rx();
-    s >> p.ry();
+    double x, y;
+    s >> x;
+    s >> y;
+    p.setX(x);
+    p.setY(y);
     return s;
 }
 #endif // QT_NO_DATASTREAM
