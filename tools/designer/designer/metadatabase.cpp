@@ -474,7 +474,8 @@ void MetaDataBase::addSlot( QObject *o, const QCString &slot, const QString &acc
     s.slot = slot;
     s.access = access;
     s.language = language;
-    r->slotList.append( s );
+    if ( r->slotList.find( s ) == r->slotList.end() )
+	r->slotList.append( s );
 }
 
 void MetaDataBase::removeSlot( QObject *o, const QCString &slot, const QString &access, const QString &language )

@@ -73,6 +73,7 @@ static const char* const ignore_slots[] = {
     "showExtension(bool)",
     "setUpLayout()",
     "showDockMenu(const QPoint&)",
+    "init()",
     0
 };
 

@@ -623,6 +623,33 @@ void Uic::createFormImpl( const QDomElement &e )
     QStringList globalIncludes, localIncludes;
     QStringList::Iterator it;
 
+    QMap<QString, QString> functionImpls;
+    // find additional slots and functions
+    QStringList publicSlots, protectedSlots;
+    for ( n = e; !n.isNull(); n = n.nextSibling().toElement() ) {
+	if ( n.tagName()  == "connections" ) {
+	    for ( QDomElement n2 = n.firstChild().toElement(); !n2.isNull(); n2 = n2.nextSibling().toElement() ) {
+		if ( n2.tagName() == "slot" ) {
+		    if ( n2.attribute( "language", "C++" ) == "C++" ) {
+			QString access = n2.attribute( "access" );
+			if ( access == "protected" )
+			    protectedSlots += n2.firstChild().toText().data();
+			else
+			    publicSlots += n2.firstChild().toText().data();
+		    }
+		}
+	    }
+	} else if ( n.tagName() == "functions" ) {
+	    for ( QDomElement n2 = n.firstChild().toElement(); !n2.isNull(); n2 = n2.nextSibling().toElement() ) {
+		if ( n2.tagName() == "function" ) {
+		    QString fname = n2.attribute( "name" );
+		    fname = fname.left( fname.find( "(" ) );
+		    functionImpls.insert( fname, n2.firstChild().toText().data() );
+		}
+	    }
+	}
+    }
+
     // additional includes (local or global ) and forward declaractions
     nl = e.parentNode().toElement().elementsByTagName( "include" );
     for ( i = 0; i < (int) nl.length(); i++ ) {
@@ -1079,6 +1106,9 @@ void Uic::createFormImpl( const QDomElement &e )
 
     }
 
+    if ( protectedSlots.find( "init()" ) != protectedSlots.end() )
+	out << indent << "init()" << endl;
+
     // end of constructor
     out << "}" << endl;
     out << endl;
@@ -1219,33 +1249,6 @@ void Uic::createFormImpl( const QDomElement &e )
 	out << endl;
     }
 
-
-    QMap<QString, QString> functionImpls;
-    // find additional slots and functions
-    QStringList publicSlots, protectedSlots;
-    for ( n = e; !n.isNull(); n = n.nextSibling().toElement() ) {
-	if ( n.tagName()  == "connections" ) {
-	    for ( QDomElement n2 = n.firstChild().toElement(); !n2.isNull(); n2 = n2.nextSibling().toElement() ) {
-		if ( n2.tagName() == "slot" ) {
-		    if ( n2.attribute( "language", "C++" ) == "C++" ) {
-			QString access = n2.attribute( "access" );
-			if ( access == "protected" )
-			    protectedSlots += n2.firstChild().toText().data();
-			else
-			    publicSlots += n2.firstChild().toText().data();
-		    }
-		}
-	    }
-	} else if ( n.tagName() == "functions" ) {
-	    for ( QDomElement n2 = n.firstChild().toElement(); !n2.isNull(); n2 = n2.nextSibling().toElement() ) {
-		if ( n2.tagName() == "function" ) {
-		    QString fname = n2.attribute( "name" );
-		    fname = fname.left( fname.find( "(" ) );
-		    functionImpls.insert( fname, n2.firstChild().toText().data() );
-		}
-	    }
-	}
-    }
 
     // create public additional slots as pure-virtual functions
     if ( !publicSlots.isEmpty() ) {

@@ -165,6 +165,10 @@ void FormWindow::init()
     QWidget *w = WidgetFactory::create( WidgetDatabase::idFromClassName( "QFrame" ), this );
     setMainContainer( w );
     propertyWidget = w;
+    MetaDataBase::addEntry( this );
+    if ( !MetaDataBase::hasSlot( this, "init()" ) ) {// ###### need a default language
+	MetaDataBase::addSlot( this, "init()", "protected", "C++" );
+    }
 }
 
 void FormWindow::setMainWindow( MainWindow *w )
