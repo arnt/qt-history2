@@ -430,9 +430,12 @@ public:
 
 	int ret;
 	if (time != ULONG_MAX) {
+	    struct timeval tv;
+	    gettimeofday(&tv, 0);
+
 	    timespec ti;
-	    ti.tv_sec = (time / 1000);
-	    ti.tv_nsec = (time % 1000) * 1000000;
+	    ti.tv_sec = tv.tv_sec + (time / 1000);
+	    ti.tv_nsec = (tv.tv_usec * 1000) + (time % 1000) * 1000000;
 
 	    ret = pthread_cond_timedwait(&(cond), &(mutex.d->mutex), &ti);
 	} else {
@@ -487,9 +490,12 @@ public:
 
 	int ret;
 	if (time != ULONG_MAX) {
+	    struct timeval tv;
+	    gettimeofday(&tv, 0);
+
 	    timespec ti;
-	    ti.tv_sec = (time / 1000);
-	    ti.tv_nsec = (time % 1000) * 1000000;
+	    ti.tv_sec = tv.tv_sec + (time / 1000);
+	    ti.tv_nsec = (tv.tv_usec * 1000) + (time % 1000) * 1000000;
 
 	    ret = pthread_cond_timedwait(&(cond), &(mtx->d->mutex), &ti);
 	} else {
@@ -830,9 +836,12 @@ public:
 
 	int ret;
 	if (time != ULONG_MAX) {
+	    struct timeval tv;
+	    gettimeofday(&tv, 0);
+
 	    timespec ti;
-	    ti.tv_sec = (time / 1000);
-	    ti.tv_nsec = (time % 1000) * 1000000;
+	    ti.tv_sec = tv.tv_sec + (time / 1000);
+	    ti.tv_nsec = (tv.tv_usec * 1000) + (time % 1000) * 1000000;
 
 	    ret = cond_timedwait(&(cond), &(mutex.d->mutex), &ti);
 	} else {
@@ -886,9 +895,12 @@ public:
 
 	int ret;
 	if (time != ULONG_MAX) {
+	    struct timeval tv;
+	    gettimeofday(&tv, 0);
+
 	    timespec ti;
-	    ti.tv_sec = (time / 1000);
-	    ti.tv_nsec = (time % 1000) * 1000000;
+	    ti.tv_sec = tv.tv_sec + (time / 1000);
+	    ti.tv_nsec = (tv.tv_usec * 1000) + (time % 1000) * 1000000;
 
 	    ret = cond_timedwait(&(cond), &(mtx->d->mutex), &ti);
 	} else {
