@@ -1025,11 +1025,12 @@ QDebug operator<<(QDebug dbg, const QWMatrix &m)
 {
     dbg.nospace() << "QWMatrix("
 		  << "11=" << m.m11()
-		  << "12=" << m.m12()
-		  << "21=" << m.m21()
-		  << "22=" << m.m22()
-		  << "dx=" << m.dx()
-		  << "dy=" << m.dy();
+		  << " 12=" << m.m12()
+		  << " 21=" << m.m21()
+		  << " 22=" << m.m22()
+		  << " dx=" << m.dx()
+		  << " dy=" << m.dy()
+		  << ")";
     return dbg.space();
 }
 #endif
