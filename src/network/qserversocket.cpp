@@ -153,7 +153,13 @@ bool QServerSocket::ok() const
 void QServerSocket::init( const QHostAddress & address, Q_UINT16 port, int backlog )
 {
     d->s = new QSocketDevice;
+#if !defined(Q_OS_WIN32)
+    // Under Unix, we want to be able to use the port, even if a socket on the
+    // same address-port is in TIME_WAIT. Under Windows this is possible anyway
+    // -- furthermore, the meaning of reusable is different: it means that you
+    // can use the same address-port for multiple listening sockets.
     d->s->setAddressReusable( TRUE );
+#endif
     if ( d->s->bind( address, port )
       && d->s->listen( backlog ) )
     {
