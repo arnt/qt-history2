@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#389 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#390 $
 **
 ** Implementation of QObject class
 **
@@ -1829,8 +1829,7 @@ void QObject::cleanupEventFilter()
 }
 
 /*!
-  \internal
-  ###
+  \preliminary
 
   This signal is emitted when an object's accessibility information is
   changed.
@@ -1858,8 +1857,7 @@ extern bool qt_notify_accessibility( QObject *, int );
 #endif
 
 /*!
-  \internal
-  ###
+  \preliminary
 
   This slot is connected to the accessibilityChanged() signal and
   notifies the platform dependent accessibility system of the change.
@@ -1874,8 +1872,7 @@ void QObject::notifyAccessibility( int reason )
 }
 
 /*!
-  \internal
-  ###
+  \preliminary
 
   Reimplement this function for QObject subclasses that are accessible,
   and return a new object that implements the QAccessibleInterface. Do
