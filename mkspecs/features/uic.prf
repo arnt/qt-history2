@@ -4,7 +4,7 @@ isEmpty(QMAKE_UIC3) {
     else:QMAKE_UIC3 = $(QTDIR)/bin/uic3
 }
 
-isEmpty(QMAKE_UIC) {  ### uncomment me!
+isEmpty(QMAKE_UIC) {
    win32:QMAKE_UIC = $(QTDIR)\bin\uic.exe
    else:QMAKE_UIC = $(QTDIR)/bin/uic
 }
