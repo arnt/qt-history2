@@ -282,7 +282,7 @@ QDragManager::~QDragManager()
 #endif
 
 
-/*!  
+/*!
     Constructs a drag object called \a name, which is a child of \a
     dragSource.
 
@@ -418,7 +418,7 @@ void QDragObject::dragLink()
 
 /*! \enum QDragObject::DragMode
 
-  This enum describes the possible drag modes. 
+  This enum describes the possible drag modes.
 
    \value DragDefault  The mode is determined heuristically.
    \value DragCopy  The data is copied, never moved.
@@ -447,7 +447,7 @@ void QDragObject::dragLink()
   Normally one of the simpler drag(), dragMove(), or dragCopy() functions
   would be used instead.
 
-  \warning in Qt 1.x, drag operations all return FALSE.  
+  \warning in Qt 1.x, drag operations all return FALSE.
 */
 bool QDragObject::drag( DragMode mode )
 { // ### In Qt 1.x?  huh?
@@ -493,7 +493,7 @@ QWidget * QDragObject::source()
   dragMove() or dragLink(). The drag source where the data originated is
   retrieved with source(). If the data was dropped on a widget within the
   application target() will return a pointer to that widget. Specify the
-  pixmap to display during the drag with setPixmap(). 
+  pixmap to display during the drag with setPixmap().
 */
 
 static
@@ -709,7 +709,7 @@ bool QTextDrag::canDecode( const QMimeSource* e )
 
 /*!
   \overload
-    
+
   Attempts to decode the dropped information in \a e
   into \a str, returning TRUE if successful.  If \a subtype is null,
   any text subtype is accepted; otherwise only that specified is
@@ -911,11 +911,20 @@ QByteArray QImageDrag::encodedData(const char* fmt) const
   Returns TRUE if the information in mime source \a e can be decoded
   into an image. \sa decode()
 */
-bool QImageDrag::canDecode( const QMimeSource* e ) { QStrList
-fileFormats = QImageIO::inputFormats(); fileFormats.first(); while (
-fileFormats.current() ) { QCString format = fileFormats.current();
-QCString type = "image/" + format.lower(); if ( e->provides(
-type.data() ) ) return TRUE; fileFormats.next(); } return FALSE; }
+bool QImageDrag::canDecode( const QMimeSource* e ) {
+    QStrList fileFormats = QImageIO::inputFormats();
+
+    fileFormats.first();
+    while ( fileFormats.current()) {
+	QCString format = fileFormats.current();
+	QCString type = "image/" + format.lower();
+	if ( e->provides(type.data()))
+	    return TRUE;
+	fileFormats.next();
+    }
+
+    return FALSE;
+}
 
 /*!
   Attempts to decode the dropped information in mime source \a e
@@ -963,7 +972,7 @@ bool QImageDrag::decode( const QMimeSource* e, QImage& img )
 
 /*!
   \overload
-  
+
   Attempts to decode the dropped information in mime source \a e into
   pixmap \a pm. Returns TRUE if successful; otherwise returns FALSE.
 
