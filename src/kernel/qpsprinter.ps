@@ -216,9 +216,9 @@
 	pop
 	languagelevel 2 ge 
       } { false } ifelse
-    } if
-    pop false
-    pstack
+    } { 
+      false 
+    } ifelse
     {
       % languagelevel2, we can use image mask and dicts
       /ma exch d
@@ -235,30 +235,30 @@
       /height exch def
       /width exch def
       /Image
-      7 dict begin
-	/ImageType 1
-	/Width		width
-	/Height		height
-	/ImageMatrix matrix
-	/DataSource		im
-	/BitsPerComponent	8
-	/Decode		decode
+      7 dict dup begin
+	/ImageType 1 d
+	/Width		width d
+	/Height		height d
+	/ImageMatrix matrix d
+	/DataSource		im d
+	/BitsPerComponent	8 d
+	/Decode		decode d
       end d
       /Mask
-      7 dict begin
-	/ImageType		1
-	/Width		width
-	/Height		height
-	/ImageMatrix matrix
-	/DataSource		ma
-	/BitsPerComponent	1
-	/Decode		[0 1]
+      7 dict dup begin
+	/ImageType		1 d
+	/Width		width d
+	/Height		height d
+	/ImageMatrix matrix d
+	/DataSource		ma d
+	/BitsPerComponent	1 d
+	/Decode		[0 1] d
       end d
-      4 dict begin
-	/ImageType 3
-	/DataDict Image
-	/MaskDict Mask
-	/InterleaveType 3
+      4 dict dup begin
+	/ImageType 3 d
+	/DataDict Image d
+	/MaskDict Mask d
+	/InterleaveType 3 d
       end 
       image
     } {
@@ -270,7 +270,6 @@
       } {
 	8 % width height image 8|24 8 matrix
 	4 1 roll
-	pstack
 	8 eq { % grayscale
 	  image
 	} { %color
@@ -280,6 +279,7 @@
     } ifelse
   grestore    
 } d
+
 
 
 /defM matrix d
