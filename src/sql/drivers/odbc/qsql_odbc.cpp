@@ -1020,7 +1020,7 @@ bool QODBCResult::exec()
 					      qParamType[ (int)extension()->values[ it.data() ].typ ],
 					      SQL_C_WCHAR,
 					      SQL_WVARCHAR,
-					      SQL_NTS,
+					      0, // god knows... don't change this!
 					      0,
 					      (void *) str->unicode(),
 					      len,
