@@ -615,6 +615,17 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 }
 
 /*!
+    \fn void QStyle::drawItem(QPainter *p, const QRect &r, int flags,
+			      const QPalette &pal, bool enabled,
+			      const QPixmap *pixmap, const QString &text,
+			      int len, const QColor *penColor) const
+    \overload
+
+    Draws the \a pixmap in rectangle \a r using painter \a p and color
+    group \a pal.
+*/
+
+/*!
     \enum QStyle::PrimitiveElement
 
     This enum represents the PrimitiveElements of a style. A
@@ -1788,23 +1799,27 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
   \sa stylePixmap()
 */
 
-/*
-    \fn QPixmap QStyle::stylePixmap( PixmapType pixmaptype, const QPixmap &pixmap, 
-                                     const QPalette &pal, const QStyleOption& = QStyleOption::Default ) const;
+/*!
+    \fn QPixmap QStyle::stylePixmap(PixmapType pixmaptype, const QPixmap &pixmap,
+				    const QPalette &pal,
+				    const QStyleOption&) const
 
-    Returns a pixmap styled to conform to \a pixmaptype description out of \a pixmap.
+    Returns a pixmap styled to conform to \a pixmaptype description
+    out of \a pixmap.
 
     The \a opt argument can be used to pass extra information required
     when drawing the ControlElement. Note that \a opt may be the
     default value even for StylePixmaps that can make use of the extra
     options. Currently, the \a opt argument is unused.
-   
+
     Not all types of pixmaps will change from their input - and the
     result will simply be the pixmap passed in.
 */
 
 /*!
-    \fn QPixmap QStyle::stylePixmap( StylePixmap stylepixmap, const QWidget *widget = 0, const QStyleOption& opt = QStyleOption::Default ) const;
+    \fn QPixmap QStyle::stylePixmap(StylePixmap stylepixmap,
+				    const QWidget *widget,
+				    const QStyleOption& opt) const
 
     Returns a pixmap for \a stylepixmap.
 

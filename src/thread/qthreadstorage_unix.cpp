@@ -344,3 +344,9 @@ bool QThreadStorageData::ensure_constructed(void (*func)(void *))
 
     \sa localData() hasLocalData()
 */
+
+/*!
+    \fn bool QThreadStorage::ensure_constructed()
+
+    \internal
+*/

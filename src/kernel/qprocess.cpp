@@ -631,6 +631,12 @@ bool QProcess::launch( const QString& buf, QStringList *env )
     }
 }
 
+/*!
+    \fn bool QProcess::launch( const char * buf, QStringList *env=0  )
+
+    \overload
+*/
+
 /*
   This private slot is used by the launch() functions to close standard input.
 */

@@ -540,6 +540,19 @@ void QRect::moveCenter( const QPoint &p )
 
 
 /*!
+    \fn void QRect::moveBy( const QPoint &p )
+
+    \overload
+
+    Moves the rectangle \a p.x() along the x axis and \a p.y() along the y
+    axis, relative to the current position. Positive values move the
+    rectangle to the right and down.
+
+    \sa moveTopLeft()
+*/
+
+
+/*!
   \fn  void QRect::setRect( int x, int y, int w, int h )
 
   Sets the coordinates of the rectangle's top-left corner to \a (x,

@@ -340,12 +340,12 @@ old header-file names are still supported.
 \table
 \header \i Old Name \i New Name \i New Header File
 \row \i QArray \i \l QMemArray \i \c <qmemarray.h>
-\row \i QCollection \i \l QPtrCollection \i \c <qptrcollection.h>
-\row \i QList \i \l QPtrList \i \c <qptrlist.h>
-\row \i QListIterator \i \l QPtrListIterator \i \c <qptrlist.h>
-\row \i QQueue \i \l QPtrQueue \i \c <qptrqueue.h>
-\row \i QStack \i \l QPtrStack \i \c <qptrstack.h>
-\row \i QVector \i \l QPtrVector \i \c <qptrvector.h>
+\row \i QCollection \i QPtrCollection \i \c <qptrcollection.h>
+\row \i QList \i QPtrList \i \c <qptrlist.h>
+\row \i QListIterator \i QPtrListIterator \i \c <qptrlist.h>
+\row \i QQueue \i QPtrQueue \i \c <qptrqueue.h>
+\row \i QStack \i QPtrStack \i \c <qptrstack.h>
+\row \i QVector \i QPtrVector \i \c <qptrvector.h>
 \endtable
 
 \section1 QButtonGroup

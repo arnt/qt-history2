@@ -685,24 +685,49 @@ const QVariant::Handler qt_gui_variant_handler = {
     applications.
 */
 
+/*!
+    \fn QVariant::QVariant()
 
+    Constructs an invalid variant.
+*/
+
+/*!
+    \fn QVariant::QVariant(Type type, void *v)
+
+    \internal
+
+    Constructs a variant of type \a type, and initializes with \a v if
+    \a v is not 0.
+*/
+
+/*!
+    \fn QVariant::QVariant(const QVariant &other)
+
+    Constructs a variant with the value of \a other.
+*/
+
+/*!
+    \fn QVariant::QVariant(const QCoreVariant &other)
+
+    Constructs a variant with the value of \a other.
+*/
 
 /*!
   \fn QVariant::QVariant(const QFont &val)
 
-    Constructs a new variant with a font value, \a val.
+    Constructs a new variant with a font value of \a val.
 */
 
 /*!
   \fn QVariant::QVariant(const QPixmap &val)
 
-    Constructs a new variant with a pixmap value, \a val.
+    Constructs a new variant with a pixmap value of \a val.
 */
 
 /*!
   \fn QVariant::QVariant(const QImage &val)
 
-    Constructs a new variant with an image value, \a val.
+    Constructs a new variant with an image value of \a val.
 
     Because QImage is explicitly shared, you may need to pass a deep
     copy to the variant using QImage::copy(), e.g. if you intend
@@ -712,66 +737,72 @@ const QVariant::Handler qt_gui_variant_handler = {
 /*!
   \fn QVariant::QVariant(const QBrush &val)
 
-    Constructs a new variant with a brush value, \a val.
+    Constructs a new variant with a brush value of \a val.
 */
 
 /*!
   \fn QVariant::QVariant(const QPoint &val)
 
-    Constructs a new variant with a point value, \a val.
+    Constructs a new variant with a point value of \a val.
 */
 
 /*!
   \fn QVariant::QVariant(const QRect &val)
 
-    Constructs a new variant with a rect value, \a val.
+    Constructs a new variant with a rect value of \a val.
 */
 
 /*!
   \fn QVariant::QVariant(const QSize &val)
 
-    Constructs a new variant with a size value, \a val.
+    Constructs a new variant with a size value of \a val.
+*/
+
+/*!
+  \fn QVariant::QVariant(const QSizePolicy &val)
+
+    Constructs a new variant with a size policy value of \a val.
 */
 
 /*!
   \fn QVariant::QVariant(const QColor &val)
 
-    Constructs a new variant with a color value, \a val.
+    Constructs a new variant with a color value of \a val.
 */
 
 /*!
   \fn QVariant::QVariant(const QPalette &val)
 
-    Constructs a new variant with a color palette value, \a val.
+    Constructs a new variant with a color palette value of \a val.
 */
 
 /*!
   \fn QVariant::QVariant(const QIconSet &val)
 
-    Constructs a new variant with an icon set value, \a val.
+    Constructs a new variant with an icon set value of \a val.
 */
 /*!
   \fn QVariant::QVariant(const QRegion &val)
 
-    Constructs a new variant with a region value, \a val.
+    Constructs a new variant with a region value of \a val.
 */
 
 /*!
   \fn QVariant::QVariant(const QBitmap& val)
 
-    Constructs a new variant with a bitmap value, \a val.
+    Constructs a new variant with a bitmap value of \a val.
 */
 
 /*!
   \fn QVariant::QVariant(const QCursor &val)
 
-    Constructs a new variant with a cursor value, \a val.
+    Constructs a new variant with a cursor value of \a val.
 */
 
 /*!
   \fn QVariant::QVariant(const QPointArray &val)
 
-    Constructs a new variant with a point array value, \a val.
+    Constructs a new variant with a point array value of \a val.
 
     Because QPointArray is explicitly shared, you may need to pass a
     deep copy to the variant using QPointArray::copy(), e.g. if you
@@ -781,13 +812,125 @@ const QVariant::Handler qt_gui_variant_handler = {
 /*!
   \fn QVariant::QVariant(const QKeySequence &val)
 
-    Constructs a new variant with a key sequence value, \a val.
+    Constructs a new variant with a key sequence value of \a val.
 */
 
 /*!
   \fn QVariant::QVariant(const QPen &val)
 
-    Constructs a new variant with a pen value, \a val.
+    Constructs a new variant with a pen value of \a val.
+*/
+
+/*!
+    \fn QVariant::QVariant(int val)
+
+    Constructs a new variant with an integer value of \a val.
+*/
+
+/*!
+    \fn QVariant::QVariant(uint val)
+
+    Constructs a new variant with an unsigned integer value of \a val.
+*/
+
+/*!
+    \fn QVariant::QVariant(Q_LLONG val)
+
+    Constructs a new variant with a long integer value of \a val.
+*/
+
+/*!
+    \fn QVariant::QVariant(Q_ULLONG val)
+
+    Constructs a new variant with an unsigned long integer value of \a val.
+*/
+
+/*!
+    \fn QVariant::QVariant(double val)
+
+    Constructs a new variant with a double value of \a val.
+*/
+
+/*!
+    \fn QVariant::QVariant(bool val)
+
+    Constructs a new variant with a boolean value of \a val.
+*/
+
+/*!
+    \fn QVariant::QVariant(const char *val)
+
+    Constructs a new variant with a byte array value of \a val.
+*/
+
+/*!
+    \fn QVariant::QVariant(const QByteArray &val)
+
+    Constructs a new variant with a byte array value of \a val.
+*/
+
+/*!
+    \fn QVariant::QVariant(const QBitArray &val)
+
+    Constructs a new variant with a bit array value of \a val.
+*/
+
+/*!
+    \fn QVariant::QVariant(const QString &val)
+
+    Constructs a new variant with a string value of \a val.
+*/
+
+/*!
+    \fn QVariant::QVariant(const QStringList &val)
+
+    Constructs a new variant with a string list value of \a val.
+*/
+
+/*!
+    \fn QVariant::QVariant(const QDate &val)
+
+    Constructs a new variant with a date value of \a val.
+*/
+
+/*!
+    \fn QVariant::QVariant(const QTime &val)
+
+    Constructs a new variant with a time value of \a val.
+*/
+
+/*!
+    \fn QVariant::QVariant(const QDateTime &val)
+
+    Constructs a new variant with a date/time value of \a val.
+*/
+
+/*!
+    \fn QVariant::QVariant(const QList<QVariant> &val)
+
+    Constructs a new variant that holds the list of variants given in
+    \a val.
+*/
+
+/*!
+    \fn QVariant::QVariant(const QList<QCoreVariant> &val)
+
+    Constructs a new variant that holds the list of variants given in
+    \a val.
+*/
+
+/*!
+    \fn QVariant::QVariant(const QMap<QString, QVariant> &val)
+
+    Constructs a new variant that holds a map whose keys are strings
+    and whose values are variants, as given in \a val.
+*/
+
+/*!
+    \fn QVariant::QVariant(const QMap<QString, QCoreVariant> &val)
+
+    Constructs a new variant that holds a map whose keys are strings
+    and whose values are variants, as given in \a val.
 */
 
 /*!
@@ -823,6 +966,85 @@ const QVariant::Handler qt_gui_variant_handler = {
 
     Returns the variant as a QColor if the variant has type() Color;
     otherwise returns an invalid color.
+*/
+
+/*!
+    \fn QPalette QVariant::toPalette() const
+
+    Returns the variant as a QPalette if the variant has type()
+    Palette; otherwise returns a copy of the application's default
+    palette.
+*/
+
+/*!
+    \fn QIconSet QVariant::toIconSet() const
+
+    Returns the variant as a QIconSet if the variant has type()
+    IconSet; otherwise returns a null QIconSet.
+*/
+
+/*!
+    \fn QPointArray QVariant::toPointArray() const
+
+    Returns the variant as a QPointArray if the variant has type()
+    PointArray; otherwise returns a null QPointArray.
+*/
+
+/*!
+    \fn QBitmap QVariant::toBitmap() const
+
+    Returns the variant as a QBitmap if the variant has type()
+    Bitmap; otherwise returns a null QBitmap.
+*/
+
+/*!
+    \fn QRegion QVariant::toRegion() const
+
+    Returns the variant as a QRegion if the variant has type()
+    Region; otherwise returns an empty QRegion.
+*/
+
+/*!
+    \fn QCursor QVariant::toCursor() const
+
+    Returns the variant as a QCursor if the variant has type()
+    Cursor; otherwise returns the default arrow cursor.
+*/
+
+/*!
+    \fn QPen QVariant::toPen() const
+
+    Returns the variant as a QPen if the variant has type()
+    Pen; otherwise returns a default pen that will draw 1-pixel wide
+    solid black lines.
+*/
+
+/*!
+    \fn QSizePolicy QVariant::toSizePolicy() const
+
+    Returns the variant as a QSizePolicy if the variant has type()
+    SizePolicy; otherwise returns a minimally initialized QSizePolicy.
+*/
+
+/*!
+    \fn QPoint QVariant::toPoint() const
+
+    Returns the variant as a QPoint if the variant has type()
+    Point; otherwise returns a null QPoint.
+*/
+
+/*!
+    \fn QRect QVariant::toRect() const
+
+    Returns the variant as a QRect if the variant has type()
+    Rect; otherwise returns an invalid QRect.
+*/
+
+/*!
+    \fn QSize QVariant::toSize() const
+
+    Returns the variant as a QSize if the variant has type()
+    Size; otherwise returns an invalid QSize.
 */
 
 #ifndef QT_NO_ACCEL
