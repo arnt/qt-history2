@@ -798,6 +798,7 @@ void QHeaderView::mousePressEvent(QMouseEvent *e)
         d->state = QHeaderViewPrivate::MoveSection;
         d->setupSectionIndicator();
         d->updateSectionIndicator();
+        d->viewport->grabMouse();
     } else {
         int handle = d->sectionHandleAt(pos + offset());
         while (handle > -1 && isSectionHidden(handle)) handle--;
@@ -809,6 +810,7 @@ void QHeaderView::mousePressEvent(QMouseEvent *e)
             d->state = QHeaderViewPrivate::ResizeSection;
             d->lastPos = (orientation() == Qt::Horizontal ? e->x() : e->y());
             d->section = handle;
+            d->viewport->grabMouse();
         }
     }
 }
@@ -869,10 +871,12 @@ void QHeaderView::mouseReleaseEvent(QMouseEvent *)
         moveSection(index(d->section), index(d->target));
         d->section = d->target = -1;
         d->updateSectionIndicator();
+        d->viewport->releaseMouse();
         break;
     case QHeaderViewPrivate::NoState:
         break;
     case QHeaderViewPrivate::ResizeSection:
+        d->viewport->releaseMouse();
         break;
     case QHeaderViewPrivate::SelectSection:
         qDebug("SelectSection is not implemented");
