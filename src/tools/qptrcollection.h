@@ -65,7 +65,7 @@ protected:
     bool del_item;				// default FALSE
 
     virtual Item     newItem( Item );		// create object
-    virtual void     deleteItem( Item );	// delete object
+    virtual void     deleteItem( Item ) = 0;	// delete object
 };
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qptrcollection.cpp#7 $
+** $Id: //depot/qt/main/src/tools/qptrcollection.cpp#8 $
 **
 ** Implementation of base class for all pointer based collection classes
 **
@@ -152,11 +152,9 @@ QPtrCollection::Item QPtrCollection::newItem( Item d )
   Virtual function that deletes an item that is about to be removed from
   the collection.
 
-  The default implementation deletes \e d pointer if and only if
-  auto-delete has been enabled.
-
-  This function is always reimplemented in the collection template
-  classes.
+  This function has to reimplemented in the collection template
+  classes, and should delete \a d if and only if auto-delete has been
+  enabled.
 
   \warning If you reimplement this function you must also reimplement
   the destructor and call the virtual function clear() from your
@@ -168,13 +166,3 @@ QPtrCollection::Item QPtrCollection::newItem( Item d )
 
   \sa newItem(), setAutoDelete()
 */
-
-void QPtrCollection::deleteItem( Item d )
-{
-    if ( del_item )
-#if defined(Q_DELETING_VOID_UNDEFINED)
-	delete (char *)d;			// default operation
-#else
-	delete d;				// default operation
-#endif
-}

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgcache.cpp#66 $
+** $Id: //depot/qt/main/src/tools/qgcache.cpp#67 $
 **
 ** Implementation of QGCache and QGCacheIterator classes
 **
@@ -189,6 +189,9 @@ class QCDict : public QGDict
 public:
     QCDict( uint size, uint kt, bool caseSensitive, bool copyKeys )
 	: QGDict( size, (KeyType)kt, caseSensitive, copyKeys ) {}
+    ~QCDict() { clear(); }
+
+    void clear() { QGDict::clear(); }
 
     QCacheItem *find_string(const QString &key) const
 	{ return (QCacheItem*)((QCDict*)this)->look_string(key, 0, 0); }
@@ -219,6 +222,10 @@ public:
 	{ return QGDict::remove_int((long)item->key,item);}
 
     void  statistics()			{ QGDict::statistics(); }
+
+private:
+    void deleteItem( void *item ) 
+	{ if ( del_item ) { QCacheItem *d = (QCacheItem*)item; delete d; } }
 };
 
 
