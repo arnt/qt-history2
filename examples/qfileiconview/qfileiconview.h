@@ -44,7 +44,7 @@ public:
 
 private:
     QStringList urls;
-    
+
 };
 
 /*****************************************************************************
@@ -79,7 +79,7 @@ signals:
 
 protected slots:
     void itemDoubleClicked( QIconViewItem *i );
-    void slotDropped( QDropEvent *e );
+    void slotDropped( QDropEvent *e, const QValueList<QIconDragItem> & );
 
     void viewLarge();
     void viewSmall();
@@ -148,7 +148,7 @@ public:
     void paintItem( QPainter *p, const QColorGroup &cg );
 
 protected:
-    virtual void dropped( QDropEvent *e );
+    virtual void dropped( QDropEvent *e, const QValueList<QIconDragItem> & );
 
     QString itemFileName;
     QFileInfo *itemFileInfo;

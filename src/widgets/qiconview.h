@@ -73,7 +73,7 @@ public:
 
 private:
     QByteArray ba;
-    
+
 };
 
 /*****************************************************************************
@@ -126,7 +126,7 @@ private:
 
     QValueList<Item> items;
     QChar endMark;
-    
+
     friend class QIconView;
 };
 
@@ -238,7 +238,7 @@ protected:
     virtual void calcRect( const QString &text_ = QString::null );
     virtual void paintItem( QPainter *p, const QColorGroup &cg );
     virtual void paintFocus( QPainter *p, const QColorGroup &cg );
-    virtual void dropped( QDropEvent *e );
+    virtual void dropped( QDropEvent *e, const QValueList<QIconDragItem> &lst );
     virtual void dragEntered();
     virtual void dragLeft();
     virtual void init( QIconViewItem *after = 0 );
@@ -418,7 +418,7 @@ signals:
     void mouseButtonPressed( int button, QIconViewItem* item, const QPoint& pos );
     void mouseButtonClicked( int button, QIconViewItem* item, const QPoint& pos );
 
-    void dropped( QDropEvent *e );
+    void dropped( QDropEvent *e, const QValueList<QIconDragItem> &lst );
     void moved();
     void onItem( QIconViewItem *item );
     void onViewport();
@@ -467,7 +467,7 @@ private:
     virtual void drawDragShapes( const QPoint &pnt );
     virtual void initDragEnter( QDropEvent *e );
     void findItemByName( const QString &text );
-    
+
     int calcGridNum( int w, int x ) const;
     QIconViewItem *rowBegin( QIconViewItem *item ) const;
     void updateItemContainer( QIconViewItem *item );

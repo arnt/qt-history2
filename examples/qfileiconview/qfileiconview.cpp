@@ -263,7 +263,7 @@ const char* QtFileIconDrag::format( int i ) const
 	return "application/x-qiconlist";
     else if ( i == 1 )
 	return "text/uri-list";
-    else 
+    else
 	return 0;
 }
 
@@ -310,7 +310,7 @@ bool QtFileIconDrag::decode( QMimeSource *e, QStringList &uris )
     return FALSE;
 }
 
-void QtFileIconDrag::append( const QIconDragItem &item, const QRect &pr, 
+void QtFileIconDrag::append( const QIconDragItem &item, const QRect &pr,
 			     const QRect &tr, const QString &url )
 {
     QIconDrag::append( item, pr, tr );
@@ -429,7 +429,7 @@ bool QtFileIconViewItem::acceptDrop( const QMimeSource *e ) const
     return FALSE;
 }
 
-void QtFileIconViewItem::dropped( QDropEvent *e )
+void QtFileIconViewItem::dropped( QDropEvent *e, const QValueList<QIconDragItem> & )
 {
     timer.stop();
 
@@ -528,8 +528,8 @@ QtFileIconView::QtFileIconView( const QString &dir, QWidget *parent, const char 
 	     this, SLOT( itemDoubleClicked( QIconViewItem * ) ) );
     connect( this, SIGNAL( returnPressed( QIconViewItem * ) ),
 	     this, SLOT( itemDoubleClicked( QIconViewItem * ) ) );
-    connect( this, SIGNAL( dropped( QDropEvent * ) ),
-	     this, SLOT( slotDropped( QDropEvent * ) ) );
+    connect( this, SIGNAL( dropped( QDropEvent *, const QValueList<QIconDragItem> & ) ),
+	     this, SLOT( slotDropped( QDropEvent *, const QValueList<QIconDragItem> & ) ) );
     connect( this, SIGNAL( rightButtonPressed( QIconViewItem *, const QPoint & ) ),
 	     this, SLOT( slotRightPressed( QIconViewItem * ) ) );
 
@@ -670,7 +670,7 @@ void QtFileIconView::keyPressEvent( QKeyEvent *e )
 	QIconView::keyPressEvent( e );
 }
 
-void QtFileIconView::slotDropped( QDropEvent *e )
+void QtFileIconView::slotDropped( QDropEvent *e, const QValueList<QIconDragItem> & )
 {
     if ( !QUriDrag::canDecode( e ) ) {
 	e->ignore();

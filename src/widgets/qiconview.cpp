@@ -274,27 +274,21 @@ void QIconViewItemLineEdit::focusOutEvent( QFocusEvent * )
 
   \brief The QIconDragItem is the internal data structure of a QIconDrag
 
-  This class is used internally in the QIconDrag to store the data (in fact,
-  a list of QIconDragItems is used by QIconDrag). Such an item stores
-  the data about the geometry of an item of the iconview which is dragged
-  around, so that drag shapes can be drawn correctly.
-
-  If you extend the DnD functionality of a QIconView, you should use a class
-  derived from QIconDrag as dragobject. This class again should contain
-  a list of objects which are derived from this class.
+  This class is used internally in the QIconDrag to store the data of each item
+  (in fact, a list of QIconDragItems is used by QIconDrag).
 
   So, normally for each iconview item which is dragged, a QIconDragItem
   class (or a class derived from QIconDragItem) is created and stored
   in the QIconDrag object.
 
-  So, in a class derived from that you should reimplement
-  QIconDragItem::makeKey(), so that a key containing the data of this
-  object + the geometry of the dragged item is created and returned.
-
-  You also may add methods to add/get the data you store here.
-
+  See QIconView::dragObject() for more information.
+  
   An example, how to implement this, is in the QtFileIconView example.
   (qt/examples/qfileiconview/qfileiconview.h and qt/examples/qfileiconview/qfileiconview.cpp)
+*/
+
+/*!
+  Constructs a QIconDragItem with no data.
 */
 
 QIconDragItem::QIconDragItem()
@@ -303,14 +297,26 @@ QIconDragItem::QIconDragItem()
     memcpy( ba.data(), "no data", strlen( "no data" ) );
 }
 
+/*!
+  Destructor.
+*/
+
 QIconDragItem::~QIconDragItem()
 {
 }
+
+/*!
+  Returns the data of this QIconDragItem.
+*/
 
 QByteArray QIconDragItem::data() const
 {
     return ba;
 }
+
+/*!
+  Sets the data of this QIconDragItem.
+*/
 
 void QIconDragItem::setData( const QByteArray &d )
 {
@@ -331,14 +337,13 @@ void QIconDragItem::setData( const QByteArray &d )
   The QIconDrag is the drag object which is used for moving items in the
   iconview. The QIconDrag stores exact informations about the positions of
   the items, which are dragged, so that each iconview is able to draw drag
-  shapes in correct positions.
+  shapes in correct positions. Also the data of each dragged item is stored here.
 
-  It's suggested that, if you write a drag object for own QIconViewItems,
-  you derive the drag object class from QIconDrag and just (re)implement the
-  methods which are needed for encoding/decoding your data and the mimetype
-  handling. Because if you do this, the position information will be stored
-  in the drag object too.
-
+  If you want to use extended DnD functionality of the QIconView, normally it's
+  enough to just create a QIconDrag object in QIconView::dragObject(). Then
+  create for each item which should be dragged a QIconDragItem and set the
+  data it represents with QIconDragItem::setData(). 
+  
   An example, how to implement this, is in the QtFileIconView example
   (qt/examples/qfileiconview/qfileiconview.h and qt/examples/qfileiconview/qfileiconview.cpp)
 */
@@ -442,19 +447,19 @@ bool QIconDrag::decode( QMimeSource* e, QValueList<Item> &lst )
 	for ( ; it != l.end(); ++it ) {
 	    if ( i == 0 ) {
 		ir.setX( ( *it ).toInt() );
-	    } else if ( i == 1 ) { 
+	    } else if ( i == 1 ) {
 		ir.setY( ( *it ).toInt() );
-	    } else if ( i == 2 ) { 
+	    } else if ( i == 2 ) {
 		ir.setWidth( ( *it ).toInt() );
-	    } else if ( i == 3 ) { 
+	    } else if ( i == 3 ) {
 		ir.setHeight( ( *it ).toInt() );
-	    } else if ( i == 4 ) { 
+	    } else if ( i == 4 ) {
 		tr.setX( ( *it ).toInt() );
-	    } else if ( i == 5 ) { 
+	    } else if ( i == 5 ) {
 		tr.setY( ( *it ).toInt() );
-	    } else if ( i == 6 ) { 
+	    } else if ( i == 6 ) {
 		tr.setWidth( ( *it ).toInt() );
-	    } else if ( i == 7 ) { 
+	    } else if ( i == 7 ) {
 		tr.setHeight( ( *it ).toInt() );
 	    } else if ( i == 8 ) {
 		d.resize( ( *it ).length() );
@@ -1454,16 +1459,21 @@ void QIconViewItem::paintFocus( QPainter *p, const QColorGroup &cg )
 }
 
 /*!
-  \fn void QIconViewItem::dropped( QDropEvent *e )
+  \fn void QIconViewItem::dropped( QDropEvent *e, const QValueList<QIconDragItem> & )
 
   This method is called, when something was dropped on the item. \a e
-  gives you all information about the drop.
+  gives you all information about the drop. If the drag object of the drop was
+  a QIconDrag, \a lst contains the list of the dropped items. You can get the data
+  using QIconDragItem::data() of each item then.
+  
+  So, if \a lst is not empty, use this data for further operations, else the drag
+  was not a QIconDrag, so you have to decode \a e yourself and work with that.
 
   The default implementation does nothing, subclasses should reimplement this
   method.
 */
 
-void QIconViewItem::dropped( QDropEvent * )
+void QIconViewItem::dropped( QDropEvent *, const QValueList<QIconDragItem> & )
 {
 }
 
@@ -1750,7 +1760,14 @@ void QIconViewItem::calcTmpText()
 
 /*! \fn void  QIconView::dropped (QDropEvent * e)
   This signal is emitted, when a drop event occured onto the viewport (not onto an icon),
-  which the iconview itself can't handle
+  which the iconview itself can't handle.
+  
+  \a e gives you all information about the drop. If the drag object of the drop was
+  a QIconDrag, \a lst contains the list of the dropped items. You can get the data
+  using QIconDragItem::data() of each item then.
+  
+  So, if \a lst is not empty, use this data for further operations, else the drag
+  was not a QIconDrag, so you have to decode \a e yourself and work with that.
 */
 
 /*! \fn void  QIconView::moved ()
@@ -3638,10 +3655,28 @@ void QIconView::contentsDropEvent( QDropEvent *e )
 	    repaintContents( 0, oldh, contentsWidth(), contentsHeight() - oldh, FALSE );
 	}
 	e->acceptAction();
-    } else if ( !i && e->source() != viewport() || d->cleared )
-	emit dropped( e );
-    else if ( i )
-	i->dropped( e );
+    } else if ( !i && e->source() != viewport() || d->cleared ) {
+	QValueList<QIconDragItem> lst;
+	if ( QIconDrag::canDecode( e ) ) {
+	    QValueList<QIconDrag::Item> l;
+	    QIconDrag::decode( e, l );
+	    QValueList<QIconDrag::Item>::Iterator it = l.begin();
+	    for ( ; it != l.end(); ++it )
+		lst << ( *it ).data;
+	}
+	emit dropped( e, lst );
+    } else if ( i ) {
+	QValueList<QIconDragItem> lst;
+	if ( QIconDrag::canDecode( e ) ) {
+	    QValueList<QIconDrag::Item> l;
+	    QIconDrag::decode( e, l );
+	    QValueList<QIconDrag::Item>::Iterator it = l.begin();
+	    for ( ; it != l.end(); ++it )
+		lst << ( *it ).data;
+	}
+	i->dropped( e, lst );
+    }
+    d->isIconDrag = FALSE;
 }
 
 /*!
@@ -4079,7 +4114,7 @@ QDragObject *QIconView::dragObject()
 				 item->textRect().width(), item->textRect().height() ) );
 	}
     }
-    
+
     return drag;
 }
 
