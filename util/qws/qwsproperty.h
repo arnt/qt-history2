@@ -42,15 +42,15 @@ public:
     };
 
     QWSPropertyManager();
-    
+
     int atom( const QString &name );
     bool setProperty( int winId, int property, int mode, const QByteArray &data );
     bool hasProperty( int winId, int property );
     bool removeProperty( int winId, int property );
     bool addProperty( int winId, int property );
-    
+
 private:
-    struct PropertyKey 
+    struct PropertyKey
     {
 	PropertyKey() : winId( -1 ), property( -1 ) {}
 	PropertyKey( int w, int p ) : winId( w ), property( p ) {}
@@ -77,7 +77,7 @@ private:
 
     QMap<QString, int> atoms;
     QMap<PropertyKey, QByteArray> properties;
-    
+
 };
 
 /*********************************************************************
@@ -98,6 +98,46 @@ public:
 private:
     int winId, property, mode;
     QByteArray data;
+
+};
+
+/*********************************************************************
+ *
+ * Class: QWSAddPropertyCommand
+ *
+ *********************************************************************/
+
+class QWSAddPropertyCommand : public QWSCommand
+{
+public:
+    QWSAddPropertyCommand( QWSServer *s, QWSClient *c );
+    virtual ~QWSAddPropertyCommand();
+
+    virtual void readData();
+    virtual void execute();
+
+private:
+    int winId, property;
+
+};
+
+/*********************************************************************
+ *
+ * Class: QWSRemovePropertyCommand
+ *
+ *********************************************************************/
+
+class QWSRemovePropertyCommand : public QWSCommand
+{
+public:
+    QWSRemovePropertyCommand( QWSServer *s, QWSClient *c );
+    virtual ~QWSRemovePropertyCommand();
+
+    virtual void readData();
+    virtual void execute();
+
+private:
+    int winId, property;
 
 };
 

@@ -36,7 +36,7 @@
 QWSPropertyManager::QWSPropertyManager()
 {
 }
-    
+
 int QWSPropertyManager::atom( const QString &name )
 {
     if ( atoms.contains( name ) )
@@ -49,7 +49,7 @@ bool QWSPropertyManager::setProperty( int winId, int property, int mode, const Q
     PropertyKey k( winId, property );
     if ( !properties.contains( k ) )
 	return FALSE;
-    
+
     Mode m = (Mode)mode;
     switch ( m ) {
     case PropReplace:
@@ -70,7 +70,7 @@ bool QWSPropertyManager::setProperty( int winId, int property, int mode, const Q
 	properties[ k ] = newData;
     } break;
     }
-    
+
     return TRUE;
 }
 
@@ -95,7 +95,7 @@ bool QWSPropertyManager::addProperty( int winId, int property )
     PropertyKey k( winId, property );
     if ( properties.contains( k ) )
 	return FALSE;
-    
+
     properties[ k ] = QByteArray();
     return TRUE;
 }
@@ -107,8 +107,10 @@ bool QWSPropertyManager::addProperty( int winId, int property )
  *********************************************************************/
 
 /*
+  Command character: S
+  
   The format of a set property command is:
-  A,B,C,D:data
+  A,B,C,D;data
 
   A .... winId
   B .... property
@@ -131,7 +133,7 @@ void QWSSetPropertyCommand::readData()
     QString s;
     QStringList lst;
     char c;
-    while ( ( c = client->getch() ) != ':' ) {
+    while ( ( c = client->getch() ) != ';' ) {
 	qDebug( "got: %c", c );
 	if ( c == ',' ) {
 	    lst.append( s );
@@ -152,8 +154,6 @@ void QWSSetPropertyCommand::readData()
     mode = lst[ 2 ].toInt();
     len = lst[ 3 ].toInt();
 
-    qDebug( "%d %d %d %d", winId, property, mode, len );
-
     if ( len > 0 ) {
 	data.resize( len );
 	client->readBlock( data.data(), len );
@@ -162,6 +162,120 @@ void QWSSetPropertyCommand::readData()
 
 void QWSSetPropertyCommand::execute()
 {
-    qDebug( "QWSSetPropertyCommand::execute: set data:" );
-    server->properties()->setProperty( winId, property, mode, data );
+    if ( server->properties()->setProperty( winId, property, mode, data ) )
+	qDebug( "set property successful" );
+    else
+	qDebug( "setting property failed" );
+}
+
+/*********************************************************************
+ *
+ * Class: QWSAddPropertyCommand
+ *
+ *********************************************************************/
+
+/*
+  Command character: A
+  
+  The format of a add property command is:
+  A,B;
+
+  A .... winId
+  B .... property
+*/
+
+QWSAddPropertyCommand::QWSAddPropertyCommand( QWSServer *s, QWSClient *c )
+    : QWSCommand( s, c )
+{
+}
+
+QWSAddPropertyCommand::~QWSAddPropertyCommand()
+{
+}
+
+void QWSAddPropertyCommand::readData()
+{
+    QString s;
+    QStringList lst;
+    char c;
+    while ( ( c = client->getch() ) != ';' ) {
+	qDebug( "got: %c", c );
+	if ( c == ',' ) {
+	    lst.append( s );
+	    s = QString::null;
+	    continue;
+	}
+	s += c;
+    }
+    lst.append( s );
+
+    if ( lst.count() != 2 )
+	qFatal( "QWSAddPropertyCommand::readData: Protocol error" );
+
+    winId = lst[ 0 ].toInt();
+    property = lst[ 1 ].toInt();
+}
+
+void QWSAddPropertyCommand::execute()
+{
+    if ( server->properties()->addProperty( winId, property ) )
+	qDebug( "add property successful" );
+    else
+	qDebug( "adding property failed" );
+}
+
+/*********************************************************************
+ *
+ * Class: QWSRemovePropertyCommand
+ *
+ *********************************************************************/
+
+/*
+  Command character: R
+  
+  The format of a add property command is:
+  A,B;
+
+  A .... winId
+  B .... property
+*/
+
+QWSRemovePropertyCommand::QWSRemovePropertyCommand( QWSServer *s, QWSClient *c )
+    : QWSCommand( s, c )
+{
+}
+
+QWSRemovePropertyCommand::~QWSRemovePropertyCommand()
+{
+}
+
+void QWSRemovePropertyCommand::readData()
+{
+    QString s;
+    QStringList lst;
+    char c;
+    while ( ( c = client->getch() ) != ';' ) {
+	qDebug( "got: %c", c );
+	if ( c == ',' ) {
+	    lst.append( s );
+	    s = QString::null;
+	    continue;
+	}
+	s += c;
+    }
+    lst.append( s );
+
+    if ( lst.count() != 2 )
+	qFatal( "QWSRemovePropertyCommand::readData: Protocol error" );
+
+    winId = lst[ 0 ].toInt();
+    property = lst[ 1 ].toInt();
+}
+
+void QWSRemovePropertyCommand::execute()
+{
+    if ( server->properties()->removeProperty( winId, property ) )
+	qDebug( "remove property successful" );
+    else
+	qDebug( "removing property failed" );
 }

@@ -34,6 +34,8 @@ void qwsRegisterCommands()
 {
     QWSCommand::registerCommand( 'N', new QWSCommandFactory< QWSNewWindowCommand > );
     QWSCommand::registerCommand( 'S', new QWSCommandFactory< QWSSetPropertyCommand > );
+    QWSCommand::registerCommand( 'A', new QWSCommandFactory< QWSAddPropertyCommand > );
+    QWSCommand::registerCommand( 'R', new QWSCommandFactory< QWSRemovePropertyCommand > );
 }
 
 /*********************************************************************
