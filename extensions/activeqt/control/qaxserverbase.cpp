@@ -26,6 +26,7 @@
 #include <qpainter.h>
 #include <qpaintdevicemetrics.h>
 #include <qpixmap.h>
+#include <qsignal.h>
 #include <qstatusbar.h>
 #include <qwhatsthis.h>
 #include <ocidl.h>
@@ -1159,11 +1160,6 @@ HRESULT QAxServerBase::InternalQueryInterface( REFIID iid, void **iface )
     return S_OK;
 }
 
-class HackWidget : public QWidget
-{
-    friend class QAxServerBase;
-};
-
 /*!
     Detects and initilaizes implementation of QAxBindable in objects.
 */
@@ -1191,12 +1187,12 @@ void QAxServerBase::internalConnect()
     if ( !eventsID.isNull() ) {
 	if (!points[eventsID])
 	    points[eventsID] = new QAxConnection( this, eventsID );
+
 	// connect the generic slot to all signals of qt.object
-/* XXX
 	const QMetaObject *mo = qt.object->metaObject();
-	for ( int isignal = mo->numSignals( TRUE )-1; isignal >= 0; --isignal )
-	    connectInternal( qt.object, isignal, this, 2, isignal );
-*/
+	for (int isignal = mo->signalCount()-1; isignal >= 0; --isignal)
+	    ;
+	    // XXX connectInternal( qt.object, isignal, this, 2, isignal );
     }
 }
 
@@ -1225,13 +1221,8 @@ bool QAxServerBase::internalCreate()
     internalBind();
     if ( isWidget ) {
 	if ( !stayTopLevel ) {
-	    ((HackWidget*)qt.widget)->clearWFlags( WStyle_NormalBorder | WStyle_Title | WStyle_MinMax | WStyle_SysMenu );
-/* XXX
-	    ((HackWidget*)qt.widget)->topData()->ftop = 0;
-	    ((HackWidget*)qt.widget)->topData()->fright = 0;
-	    ((HackWidget*)qt.widget)->topData()->fleft = 0;
-	    ((HackWidget*)qt.widget)->topData()->fbottom = 0;
-*/
+	    QEvent e(QEvent::EmbeddingControl);
+	    QApplication::sendEvent(qt.widget, &e);
 	    QT_WA( {
 		::SetWindowLongW( qt.widget->winId(), GWL_STYLE, WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS );
 	    }, {
@@ -1386,17 +1377,13 @@ LRESULT CALLBACK QAxServerBase::ActiveXProc(HWND hWnd, UINT uMsg, WPARAM wParam,
 	    that->currentPopup = that->menuMap[(HMENU)wParam];
 	    if ( !that->currentPopup )
 		break;
-/* XXX
 	    const QMetaObject *mo = that->currentPopup->metaObject();
-	    int index = mo->findSignal( "aboutToShow()", TRUE );
-	    if ( index < 0 )
+	    int index = mo->indexOfSignal("aboutToShow()");
+	    if (index < 0)
 		break;
 
-	    QUObject o;
-	    that->currentPopup->qt_emit( index, &o );
-
-	    that->createPopup( that->currentPopup, (HMENU)wParam );
-*/
+	    that->currentPopup->qt_metacall(QMetaObject::EmitSignal, index, 0);
+	    that->createPopup(that->currentPopup, (HMENU)wParam);
 	    return 0;
 	}
 	break;
@@ -1434,28 +1421,25 @@ LRESULT CALLBACK QAxServerBase::ActiveXProc(HWND hWnd, UINT uMsg, WPARAM wParam,
 	    if ( menuObject && ( menuClosed || qitem ) ) {
 		const QMetaObject *mo = menuObject->metaObject();
 		int index = -1;
-/* XXX
-		if ( uMsg == WM_COMMAND )
-		    index = mo->findSignal( "activated(int)", TRUE );
-		else if ( menuClosed )
-		    index = mo->findSignal( "aboutToHide()", TRUE );
+
+		if (uMsg == WM_COMMAND)
+		    index = mo->indexOfSignal("activated(int)");
+		else if (menuClosed)
+		    index = mo->indexOfSignal("aboutToHide()");
 		else
-		    index = mo->findSignal( "highlighted(int)", TRUE );
+		    index = mo->indexOfSignal("highlighted(int)");
 
 		if ( index < 0 )
 		    break;
 
 		if ( menuClosed ) {
-		    QUObject o;
-		    menuObject->qt_emit( index, &o );
+		    menuObject->qt_metacall(QMetaObject::EmitSignal, index, 0);
 		} else {
-		    QUObject o[2];
-		    static_QUType_int.set( o+1, qtid );
-		    if ( uMsg == WM_COMMAND && qitem->signal() )	    // activate signal
+		    void *argv[] = {0, &qtid};
+		    if (uMsg == WM_COMMAND && qitem->signal())	    // activate signal
 			qitem->signal()->activate();
-		    menuObject->qt_emit( index, o );
+		    menuObject->qt_metacall(QMetaObject::EmitSignal, index, argv);
 		}
-*/
 		return 0;
 	    }
 	}
