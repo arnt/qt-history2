@@ -1637,9 +1637,9 @@ QCoreGraphicsGC::drawPolyline(const QPointArray &pa, int index, int npoints)
     Q_ASSERT(isActive());
 
     float cg_x, cg_y;
-    d->mac_point(pa[0].x(), pa[0].y(), &cg_x, &cg_y);
+    d->mac_point(pa[index].x(), pa[index].y(), &cg_x, &cg_y);
     CGContextMoveToPoint((CGContextRef)d->hd, cg_x, cg_y);
-    for(int x = 1; x < pa.size(); x++) {
+    for(int x = index+1; x < index+npoints; x++) {
 	d->mac_point(pa[x].x(), pa[x].y(), &cg_x, &cg_y);
 	CGContextAddLineToPoint((CGContextRef)d->hd, cg_x, cg_y);
     }
@@ -1719,7 +1719,7 @@ QCoreGraphicsGC::cleanup()
 }
 
 void 
-QCoreGraphicsGC::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &p, bool optim)
+QCoreGraphicsGC::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &p, bool)
 {
     Q_ASSERT(isActive());
 
