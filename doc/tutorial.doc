@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: tutorial.doc,v 2.5 1996/11/25 20:43:07 agulbra Exp $
+** $Id: tutorial.doc,v 2.6 1997/02/26 14:42:58 hanord Exp $
 **
 ** Tutorial
 **
@@ -1390,8 +1390,9 @@ We tell Qt that we want a different color allocation strategy for this
 program.  There is no single correct color allocation strategy.  Some
 strategies look good for some programs, some look bad.
 
-Note that \c CustomColors and \c NormalColors behave in the same way
-on X11.  Only Windows has these problems.
+\c CustomColor gives Qt applications better colors on Windows. It has no
+effect under X11. There are several options. You can read about them in
+the \link QApplication::setColorSpec() documentation\endlink.
 
 <h2>Behavior</h2>
 
