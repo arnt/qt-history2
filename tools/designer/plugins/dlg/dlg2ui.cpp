@@ -299,12 +299,15 @@ QString Dlg2Ui::getTextValue( const QDomNode& node )
     if ( node.childNodes().count() == 0 )
 	return QString::null;
 
-    QDomText t = node.firstChild().toText();
-    if ( t.isNull() ) {
+    QDomText child = node.firstChild().toText();
+    if ( child.isNull() ) {
 	syntaxError();
 	return QString::null;
     }
-    return t.data().stripWhiteSpace();
+    QString t = child.data().stripWhiteSpace();
+    t.replace( "\\\\", "\\" );
+    t.replace( "\\n", "\n" );
+    return t;
 }
 
 QVariant Dlg2Ui::getValue( const QDomNodeList& children, const QString& tagName,
