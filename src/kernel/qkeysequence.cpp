@@ -384,8 +384,7 @@ int QKeySequence::decodeString( const QString& str )
     int ret = 0;
     QString accel = str;
 
-// Only MSVC 6 has a problem with this
-#if !defined(Q_CC_MSVC) || !defined(Q_OS_TEMP) || defined(Q_CC_MSVC_NET)
+#if !defined(Q_WS_WIN)
     struct {
 	int qt_key;
 	QString name;
