@@ -11,13 +11,13 @@ class QDocMainWindow : public QDialog
 {
     Q_OBJECT
 public:
-    QDocMainWindow( const QString &qtdir, QStringList defines,
-		    QWidget* parent=0, const char* name=0 );
+    QDocMainWindow(const QString &qtdir, QStringList defines,
+		   QWidget* parent=0, const char* name=0);
     ~QDocMainWindow();
 
 public slots:
     void readOutput();
-    void activateEditor( QListViewItem* );
+    void activateEditor(QListViewItem*);
     void populateListView();
     void editorFinished();
     void finished();
@@ -45,6 +45,8 @@ private:
     QPushButton *commercial;
     QPushButton *version;
     QPushButton *stop;
+    int prevCurrentIndex;
+    QString prevCurrentFile;
     QString findText;
     int msgCount;
     QString editor;
@@ -56,10 +58,10 @@ private:
 class QDocListItem : public QListViewItem
 {
 public:
-    QDocListItem( QListViewItem* after, QString text, QString lineNumber );
+    QDocListItem(QListViewItem* after, QString text, QString lineNumber);
     ~QDocListItem();
 
-    QString key( int column, bool ascending ) const;
+    QString key(int column, bool ascending) const;
 
 private:
     QString line;
