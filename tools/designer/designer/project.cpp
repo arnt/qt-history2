@@ -28,6 +28,8 @@
 #include "dbconnectionimpl.h"
 #endif
 #include "resource.h"
+#include "../uilib/qwidgetfactory.h"
+#include "outputwindow.h"
 
 #include <qfile.h>
 #include <qtextstream.h>
@@ -49,6 +51,27 @@
 
 #include <stdlib.h>
 
+#include <private/qpluginmanager_p.h>
+#include "../interfaces/programinterface.h"
+#include "../interfaces/interpreterinterface.h"
+
+static QPluginManager<ProgramInterface> *programPluginManager = 0;
+static QPluginManager<InterpreterInterface> *interpreterPluginManager = 0;
+
+static void setupProjectPluginManagers()
+{
+    if ( programPluginManager )
+	return;
+
+    programPluginManager =
+	new QPluginManager<ProgramInterface>( IID_Program,
+					      QApplication::libraryPaths(),
+					      "/qsa" );
+    interpreterPluginManager =
+	new QPluginManager<InterpreterInterface>( IID_Interpreter,
+						  QApplication::libraryPaths(),
+						  "/qsa" );
+}
 
 #ifndef QT_NO_SQL
 DatabaseConnection::~DatabaseConnection()
@@ -1420,3 +1443,234 @@ QWidget *Project::messageBoxParent() const
 {
     return MainWindow::self;
 }
+
+extern QMap<QWidget*, QString> *qwf_functions;
+extern QMap<QWidget*, QString> *qwf_forms;
+extern QString *qwf_language;
+extern bool qwf_execute_code;
+extern bool qwf_stays_on_top;
+extern QObject* qwf_form_object;
+extern QString *qwf_plugin_dir;
+
+QObjectList *Project::run()
+{
+
+    setupProjectPluginManagers();
+
+    static QWidget *invisibleGroupLeader = 0;
+    if ( !invisibleGroupLeader ) {
+	invisibleGroupLeader =
+	    new QWidget( 0, "designer_invisible_group_leader", WGroupLeader );
+	invisibleGroupLeader->hide();
+    }
+
+    if ( MainWindow::self )
+	MainWindow::self->runProjectPrecondition();
+
+    QApplication::setOverrideCursor( WaitCursor );
+
+    delete qwf_functions;
+    qwf_functions = 0;
+    delete qwf_forms;
+    qwf_forms = 0;
+    delete qwf_language;
+    qwf_language = new QString( language() );
+    qwf_execute_code = FALSE;
+
+    for ( QPtrListIterator<FormFile> it = formFiles(); it.current(); ++it ) {
+	if ( (*it)->isFake() )
+	    qwf_form_object = objectForFakeFormFile( *it );
+	else
+	    qwf_form_object = 0;
+	QWidget *w = QWidgetFactory::create( makeAbsolute( (*it)->fileName() ), 0,
+					     invisibleGroupLeader );
+
+	if ( w ) {
+	    if ( !(*it)->isFake() )
+		w->hide();
+	    if ( programPluginManager ) {
+		QString lang = language();
+		ProgramInterface *piface = 0;
+		programPluginManager->queryInterface( lang, &piface);
+		if ( piface ) {
+		    QStringList error;
+		    QValueList<int> line;
+		    if ( qwf_functions ) {
+			QMap<QWidget*, QString>::Iterator it = qwf_functions->find( w );
+			if ( it == qwf_functions->end() )
+			    continue;
+			if ( !piface->check( *it, error, line ) &&
+			     !error.isEmpty() && !error[ 0 ].isEmpty() ) {
+			    if ( MainWindow::self ) {
+				MainWindow::self->
+				    showSourceLine( it.key(), line[ 0 ] - 1,
+						    MainWindow::Error );
+				QStringList l;
+				QObjectList l2;
+				for ( int i = 0; i < (int)error.count(); ++i ) {
+				    if ( qwf_form_object )
+					l << QString( QString( qwf_form_object->
+							       name() ) +
+						      " [Source]" );
+				    else
+					l << QString( QString( w->name() ) +
+						      " [Source]" );
+				    l2.append( w );
+				}
+				MainWindow::self->outputWindow()->
+				    setErrorMessages( error, line, FALSE, l, l2 );
+			    }
+			    emit runtimeError( error[0] );
+			    piface->release();
+			    QApplication::restoreOverrideCursor();
+			    return 0;
+			}
+		    }
+		    for ( QPtrListIterator<SourceFile> sources = sourceFiles();
+			  sources.current(); ++sources ) {
+			SourceFile* f = sources.current();
+			QStringList error;
+			QValueList<int> line;
+			if ( !piface->check( f->text(), error, line ) &&
+			     !error.isEmpty() && !error[ 0 ].isEmpty() ) {
+			    if ( MainWindow::self ) {
+				MainWindow::self->
+				    showSourceLine( f, line[ 0 ] - 1, MainWindow::Error );
+				QStringList l;
+				QObjectList l2;
+				for ( int i = 0; i < (int)error.count(); ++i ) {
+				    l << f->fileName();
+				    l2.append( f );
+				}
+				MainWindow::self->outputWindow()->
+				    setErrorMessages( error, line, FALSE, l, l2 );
+			    }
+			    emit runtimeError( error[0] );
+			    piface->release();
+			    QApplication::restoreOverrideCursor();
+			    return 0;
+			}
+		    }
+		    piface->release();
+		}
+	    }
+	}
+    }
+
+    delete qwf_functions;
+    qwf_functions = 0;
+    delete qwf_forms;
+    qwf_forms = 0;
+    delete qwf_language;
+    qwf_language = new QString( language() );
+    qwf_execute_code = TRUE;
+    qwf_stays_on_top = TRUE;
+
+    InterpreterInterface *iiface = 0;
+    if ( interpreterPluginManager ) {
+	QString lang = language();
+	iiface = 0;
+	interpreterPluginManager->queryInterface( lang, &iiface );
+	if ( iiface && MainWindow::self ) { // ########### do we need to catch that also without a mainwindow?
+	    iiface->onShowDebugStep( MainWindow::self,
+				     SLOT( showDebugStep( QObject *, int ) ) );
+	    iiface->onShowStackFrame( MainWindow::self,
+				      SLOT( showStackFrame( QObject *, int ) ) );
+	    iiface->onShowError( MainWindow::self,
+				 SLOT( showErrorMessage( QObject *, int,
+							 const QString & ) ) );
+	    iiface->onFinish( MainWindow::self, SLOT( finishedRun() ) );
+	}
+
+	if ( iiface )
+	    iiface->init();
+	for ( QPtrListIterator<SourceFile> sources = sourceFiles();
+	      sources.current(); ++sources ) {
+	    SourceFile* f = sources.current();
+	    iiface->exec( f, f->text() );
+	}
+    }
+
+    QObjectList *l = new QObjectList;
+    if ( iiface ) {
+	for ( QPtrListIterator<FormFile> forms = formFiles();
+	      forms.current(); ++forms ) {
+	    FormFile* f = forms.current();
+	    if ( !f->formWindow() )
+		continue;
+	    FormWindow* fw = f->formWindow();
+	    QValueList<int> bps = MetaDataBase::breakPoints( fw );
+	    if ( MainWindow::self && !bps.isEmpty() && MainWindow::self->isVisible() )
+		iiface->setBreakPoints( fw, bps );
+	}
+
+	for ( QPtrListIterator<SourceFile> sources = sourceFiles();
+	      sources.current(); ++sources ) {
+	    SourceFile* f = sources.current();
+	    QValueList<int> bps = MetaDataBase::breakPoints( f );
+	    if ( MainWindow::self && !bps.isEmpty() && MainWindow::self->isVisible() )
+		iiface->setBreakPoints( f, bps );
+	}
+
+	for ( QPtrListIterator<FormFile> it2 = formFiles(); it2.current(); ++it2 ) {
+	    if ( (*it2)->isFake() )
+		qwf_form_object = objectForFakeFormFile( *it2 );
+	    else
+		qwf_form_object = 0;
+	    QWidget *w = QWidgetFactory::create( (*it2)->absFileName(), 0,
+						 invisibleGroupLeader );
+	    if ( w ) {
+		if ( !qwf_form_object )
+		    l->append( w );
+		else
+		    l->append( qwf_form_object );
+		if ( !(*it2)->isFake() )
+		    w->hide();
+	    } else {
+		l->append( qwf_form_object );
+	    }
+	}
+
+	for ( QObject *o = l->first(); o; o = l->next() ) {
+	    FormWindow *fw = (FormWindow*)findRealForm( (QWidget*)o );
+	    if ( !fw )
+		continue;
+	    QValueList<int> bps = MetaDataBase::breakPoints( fw );
+	    if ( MainWindow::self && !bps.isEmpty() && MainWindow::self->isVisible() )
+		iiface->setBreakPoints( o, bps );
+	}
+
+	iiface->release();
+    }
+
+    QApplication::restoreOverrideCursor();
+    qwf_stays_on_top = FALSE;
+
+    if ( MainWindow::self )
+	MainWindow::self->runProjectPostcondition( l );
+
+    return l;
+}
+
+QWidget *Project::findRealForm( QWidget *wid )
+{
+    if ( MainWindow::self ) {
+	QWidgetList windows = MainWindow::self->qWorkspace()->windowList();
+	for ( QWidget *w = windows.first(); w; w = windows.next() ) {
+	    if ( QString( w->name() ) == QString( wid->name() ) )
+		return w;
+	}
+    }
+
+    for ( QPtrListIterator<FormFile> it = formFiles(); it.current(); ++it ) {
+	if ( (*it)->formWindow() &&
+	     qstrcmp( (*it)->formWindow()->mainContainer()->name(), wid->name() ) == 0 )
+	    return (*it)->formWindow();
+    }
+
+    if ( fakeFormFor( wid ) )
+	return fakeFormFor( wid );
+
+    return 0;
+}
+

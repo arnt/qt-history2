@@ -149,7 +149,8 @@ public:
     void functionsChanged();
     void updateFunctionList();
     void updateWorkspace();
-    QObjectList *runProject( bool execMain );
+    void runProjectPrecondition();
+    void runProjectPostcondition( QObjectList *l );
 
     void formNameChanged( FormWindow *fw );
 
@@ -426,7 +427,6 @@ private:
     QPluginManager<ActionInterface> *actionPluginManager;
     QPluginManager<EditorInterface> *editorPluginManager;
     QPluginManager<TemplateWizardInterface> *templateWizardPluginManager;
-    QPluginManager<ProgramInterface> *programPluginManager;
     QPluginManager<InterpreterInterface> *interpreterPluginManager;
     QPluginManager<PreferenceInterface> *preferencePluginManager;
     QPluginManager<ProjectSettingsInterface> *projectSettingsPluginManager;

@@ -277,7 +277,6 @@ MainWindow::~MainWindow()
     delete preferencePluginManager;
     delete projectSettingsPluginManager;
     delete interpreterPluginManager;
-    delete programPluginManager;
     delete templateWizardPluginManager;
     delete editorPluginManager;
     delete sourceTemplatePluginManager;
@@ -500,14 +499,8 @@ int MainWindow::currentTool() const
     return QString::fromLatin1(actionCurrentTool->name()).toInt();
 }
 
-QObjectList *MainWindow::runProject( bool execMain )
+void MainWindow::runProjectPrecondition()
 {
-    static QWidget *invisibleGroupLeader = 0;
-    if ( !invisibleGroupLeader ) {
-	invisibleGroupLeader = new QWidget( 0, "designer_invisible_group_leader", WGroupLeader );
-	invisibleGroupLeader->hide();
-    }
-
     for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() ) {
 	e->save();
 	e->saveBreakPoints();
@@ -516,202 +509,24 @@ QObjectList *MainWindow::runProject( bool execMain )
 
     if ( currentTool() == ORDER_TOOL )
 	resetTool();
-    if ( !currentProject )
-	return 0;
     //oWindow->parentWidget()->show();
     oWindow->clearErrorMessages();
     oWindow->clearDebug();
     oWindow->showDebugTab();
-    QApplication::setOverrideCursor( WaitCursor );
-
-    delete qwf_functions;
-    qwf_functions = 0;
-    delete qwf_forms;
-    qwf_forms = 0;
-    delete qwf_language;
-    qwf_language = new QString( currentProject->language() );
-    qwf_execute_code = FALSE;
-
     previewing = TRUE;
+    connect( this, SIGNAL( runtimeError( const QString & ) ),
+	     currentProject, SIGNAL( runtimeError( const QString & ) ) );
+}
 
-    for ( QPtrListIterator<FormFile> it = currentProject->formFiles(); it.current(); ++it ) {
-	if ( (*it)->isFake() )
-	    qwf_form_object = currentProject->objectForFakeFormFile( *it );
-	else
-	    qwf_form_object = 0;
-	QWidget *w = QWidgetFactory::create( currentProject->makeAbsolute( (*it)->fileName() ), 0, invisibleGroupLeader );
-
-	if ( w ) {
-	    if ( !(*it)->isFake() )
-		w->hide();
-	    if ( programPluginManager ) {
-		QString lang = currentProject->language();
-		ProgramInterface *piface = 0;
-		programPluginManager->queryInterface( lang, &piface);
-		if ( piface ) {
-		    QStringList error;
-		    QValueList<int> line;
-		    if ( qwf_functions ) {
-			QMap<QWidget*, QString>::Iterator it = qwf_functions->find( w );
-			if ( it == qwf_functions->end() )
-			    continue;
-			if ( !piface->check( *it, error, line ) && !error.isEmpty() && !error[ 0 ].isEmpty() ) {
-			    showSourceLine( it.key(), line[ 0 ] - 1, Error );
-			    emit runtimeError( error[0] );
-			    QStringList l;
-			    QObjectList l2;
-			    for ( int i = 0; i < (int)error.count(); ++i ) {
-				if ( qwf_form_object )
-				    l << QString( QString( qwf_form_object->name() ) + " [Source]" );
-				else
-				    l << QString( QString( w->name() ) + " [Source]" );
-				l2.append( w );
-			    }
-			    oWindow->setErrorMessages( error, line, FALSE,
-						       l, l2 );
-			    piface->release();
-			    QApplication::restoreOverrideCursor();
-			    return 0;
-			}
-		    }
-		    for ( QPtrListIterator<SourceFile> sources = currentProject->sourceFiles();
-			  sources.current(); ++sources ) {
-			SourceFile* f = sources.current();
-			QStringList error;
-			QValueList<int> line;
-			if ( !piface->check( f->text(), error, line ) && !error.isEmpty() && !error[ 0 ].isEmpty() ) {
-			    showSourceLine( f, line[ 0 ] - 1, Error );
-			    emit runtimeError( error[0] );
-			    QStringList l;
-			    QObjectList l2;
-			    for ( int i = 0; i < (int)error.count(); ++i ) {
-				l << f->fileName();
-				l2.append( f );
-			    }
-			    oWindow->setErrorMessages( error, line, FALSE,
-						       l, l2 );
-			    piface->release();
-			    QApplication::restoreOverrideCursor();
-			    return 0;
-			}
-		    }
-		    piface->release();
-		}
-	    }
-	}
-    }
-
-    delete qwf_functions;
-    qwf_functions = 0;
-    delete qwf_forms;
-    qwf_forms = 0;
-    delete qwf_language;
-    qwf_language = new QString( currentProject->language() );
-    qwf_execute_code = TRUE;
-    qwf_stays_on_top = TRUE;
-
-    InterpreterInterface *iiface = 0;
-    if ( interpreterPluginManager ) {
-	QString lang = currentProject->language();
-	iiface = 0;
-	interpreterPluginManager->queryInterface( lang, &iiface );
-	if ( iiface ) {
-	    iiface->onShowDebugStep( this, SLOT( showDebugStep( QObject *, int ) ) );
-	    iiface->onShowStackFrame( this, SLOT( showStackFrame( QObject *, int ) ) );
-	    iiface->onShowError( this, SLOT( showErrorMessage( QObject *, int, const QString & ) ) );
-	    iiface->onFinish( this, SLOT( finishedRun() ) );
-	}
-
-	if ( iiface )
-	    iiface->init();
-	for ( QPtrListIterator<SourceFile> sources = currentProject->sourceFiles();
-	      sources.current(); ++sources ) {
-	    SourceFile* f = sources.current();
-	    iiface->exec( f, f->text() );
-	}
-    }
-
-    QObjectList *l = new QObjectList;
-    if ( iiface ) {
-	// ####
-//	bool hasForms = FALSE;
-	for ( QPtrListIterator<FormFile> forms = currentProject->formFiles();
-	      forms.current(); ++forms ) {
-	    FormFile* f = forms.current();
-	    // ####
-//	    hasForms = TRUE;
-	    if ( !f->formWindow() )
-		continue;
-	    FormWindow* fw = f->formWindow();
-	    QValueList<int> bps = MetaDataBase::breakPoints( fw );
-	    if ( !bps.isEmpty() && isVisible() )
-		iiface->setBreakPoints( fw, bps );
-	}
-
-	for ( QPtrListIterator<SourceFile> sources = currentProject->sourceFiles();
-	      sources.current(); ++sources ) {
-	    SourceFile* f = sources.current();
-	    QValueList<int> bps = MetaDataBase::breakPoints( f );
-	    if ( !bps.isEmpty() && isVisible() )
-		iiface->setBreakPoints( f, bps );
-	}
-
-	// #### to make db connections working (as they are normally
-	// created in main()), main() has to be called _before_ the
-	// forms are created. But this means in main(), the forms
-	// would not be available. So maybe we should have a special
-	// function like dbInit() or so for that
-// 	if ( hasForms )
-// 	    iiface->exec( 0, "main" );
-
-	for ( QPtrListIterator<FormFile> it2 = currentProject->formFiles(); it2.current(); ++it2 ) {
-	    if ( (*it2)->isFake() )
-		qwf_form_object = currentProject->objectForFakeFormFile( *it2 );
-	    else
-		qwf_form_object = 0;
-	    QWidget *w = QWidgetFactory::create( (*it2)->absFileName(), 0, invisibleGroupLeader );
-	    if ( w ) {
-		if ( !qwf_form_object )
-		    l->append( w );
-		else
-		    l->append( qwf_form_object );
-		if ( !(*it2)->isFake() )
-		    w->hide();
-	    } else {
-		l->append( qwf_form_object );
-	    }
-	}
-
-	if ( execMain )
-	    iiface->exec( 0, "main" );
-
-	for ( QObject *o = l->first(); o; o = l->next() ) {
-	    FormWindow *fw = (FormWindow*)findRealForm( (QWidget*)o );
-	    if ( !fw )
-		continue;
-	    QValueList<int> bps = MetaDataBase::breakPoints( fw );
-	    if ( !bps.isEmpty() && isVisible() )
-		iiface->setBreakPoints( o, bps );
-	}
-
-	iiface->release();
-    }
-
-    QApplication::restoreOverrideCursor();
+void MainWindow::runProjectPostcondition( QObjectList *l )
+{
     inDebugMode = TRUE;
-
     debuggingForms = *l;
-
     enableAll( FALSE );
-
-    qwf_stays_on_top = FALSE;
-
     for ( SourceEditor *e2 = sourceEditors.first(); e2; e2 = sourceEditors.next() ) {
 	if ( e2->project() == currentProject )
 	    e2->editorInterface()->setMode( EditorInterface::Debugging );
     }
-
-    return l;
 }
 
 QWidget* MainWindow::previewFormInternal( QStyle* style, QPalette* palet )
@@ -3094,10 +2909,6 @@ void MainWindow::setupPluginManagers()
 	new QPluginManager<TemplateWizardInterface>( IID_TemplateWizard, QApplication::libraryPaths(), pluginDirectory() );
 
     MetaDataBase::setupInterfaceManagers();
-    programPluginManager =
-	new QPluginManager<ProgramInterface>( IID_Program, QApplication::libraryPaths(), pluginDirectory() );
-    interpreterPluginManager =
-	new QPluginManager<InterpreterInterface>( IID_Interpreter, QApplication::libraryPaths(), pluginDirectory() );
     preferencePluginManager =
 	new QPluginManager<PreferenceInterface>( IID_Preference, QApplication::libraryPaths(), pluginDirectory() );
     projectSettingsPluginManager =
@@ -3267,6 +3078,8 @@ void MainWindow::finishedRun()
 	    e->editorInterface()->setMode( EditorInterface::Editing );
 	e->clearStackFrame();
     }
+    disconnect( this, SIGNAL( runtimeError( const QString & ) ),
+		currentProject, SIGNAL( runtimeError( const QString & ) ) );
     emit runFinished();
 }
 
@@ -3410,22 +3223,7 @@ void MainWindow::showSourceLine( QObject *o, int line, LineMode lm )
 
 QWidget *MainWindow::findRealForm( QWidget *wid )
 {
-    QWidgetList windows = qWorkspace()->windowList();
-    for ( QWidget *w = windows.first(); w; w = windows.next() ) {
-	if ( QString( w->name() ) == QString( wid->name() ) )
-	    return w;
-    }
-
-    for ( QPtrListIterator<FormFile> it = currentProject->formFiles(); it.current(); ++it ) {
-	if ( (*it)->formWindow() &&
-	     qstrcmp( (*it)->formWindow()->mainContainer()->name(), wid->name() ) == 0 )
-	    return (*it)->formWindow();
-    }
-
-    if ( currentProject->fakeFormFor( wid ) )
-	return currentProject->fakeFormFor( wid );
-
-    return 0;
+    return currentProject->findRealForm( wid );;
 }
 
 QObject *MainWindow::findRealObject( QObject *o )
