@@ -199,7 +199,7 @@ else
 		read LicenseKey
 	    fi
 	fi
-	if echo $LicenseKey | grep -q "....-....-...." >/dev/null 2>&1
+	if echo $LicenseKey | grep "....-....-...." >/dev/null 2>&1
 	then
 	    # get the first character of the key
 	    keyTest=`echo $LicenseKey | cut -b1`
@@ -637,7 +637,7 @@ do
 	if [ -n $MODULE -a -d "$relpath/src/$MODULE" ]
 	then
 
-	    if echo "${MODULES}" | grep -q $MODULE >/dev/null 2>&1
+	    if echo "${MODULES}" | grep $MODULE >/dev/null 2>&1
 	    then
 		MODULES="$MODULES $MODULE"
 	    fi
@@ -779,7 +779,7 @@ then
     UNAME_VERSION=`(uname -v) 2>/dev/null` || UNAME_VERSION=unknown
 
     ARCH=""
-    if echo $QMAKE_CONFIG | grep -q embedded >/dev/null 2>&1
+    if echo $QMAKE_CONFIG | grep embedded >/dev/null 2>&1
     then
 	# This is a Qt/Embedded distribution
 	SM=no
@@ -916,7 +916,7 @@ if [ "$LAZY_DEPS_ALLOWED" = "yes" ]; then
     ${MAKE} --version | grep GNU >/dev/null 2>&1 && QMAKE_CONFIG="$QMAKE_CONFIG GNUmake"
 fi
 
-if [ "x$CONCURRENT" = "x0" ] && echo $MAKEFLAGS | grep -q '.* *-j[0-9]* *.*' >/dev/null 2>&1; then
+if [ "x$CONCURRENT" = "x0" ] && echo $MAKEFLAGS | grep '.* *-j[0-9]* *.*' >/dev/null 2>&1; then
     CONCURRENT=`echo $MAKEFLAGS | sed "s,.* *-j\([0-9]*\) *.*,\1,"`
 fi
 
@@ -975,7 +975,7 @@ fi
 echo "$XQMAKESPEC" | grep mkspecs/qws >/dev/null 2>&1 && QWS_PLATFORM=yes
 
 # Find default thread option for target
-if grep -q >/dev/null '^QMAKE_LIBS_THREAD' $XQMAKESPEC/qmake.conf
+if grep >/dev/null '^QMAKE_LIBS_THREAD' $XQMAKESPEC/qmake.conf
 then
     AUTOTHREAD=yes
     AUTOTHREAD=no  ####### leave off for now
@@ -1002,7 +1002,7 @@ fi
 unixtests=$relpath/config.tests/unix
 
 # Auto-detect SQL-modules support
-if echo $MODULES | grep -q sql >/dev/null
+if echo $MODULES | grep sql >/dev/null
 then
     SQL_AVAIL=`find $relpath/plugins/src/sqldrivers/* -prune -type d -print | awk -F/ '{print $NF}'`
     SQL_AVAIL=`echo $SQL_AVAIL`
@@ -1045,7 +1045,7 @@ then
     x11tests=$relpath/config.tests/x11
 
     # Auto-detect OpenGL support
-    if echo $MODULES | grep -q opengl >/dev/null
+    if echo $MODULES | grep opengl >/dev/null
     then
 	$x11tests/opengl.test $XQMAKESPEC $THREAD $VERBOSE $L_FLAGS $I_FLAGS && MODULES=`echo $MODULES | sed -e 's/opengl//'`
     fi
@@ -1855,7 +1855,7 @@ if [ '!' -z "$l_FLAGS" ] || [ '!' -z "$L_FLAGS" ]; then
     QMAKE_VARS="$QMAKE_VARS \"LIBS+=$L_FLAGS $l_FLAGS\""
 fi
 if [ '!' -z "$R_FLAGS" ]; then
-    if grep -q QMAKE_RPATH $XQMAKESPEC/qmake.conf >/dev/null
+    if grep QMAKE_RPATH $XQMAKESPEC/qmake.conf >/dev/null
     then
 	echo # Using -R/-rpath, so no need to warn
     else
@@ -2077,13 +2077,23 @@ BEGIN {
     files = 0
     target_file = ""
     input_file = ""
+
+    first = "./.projects.1.tmp"
+    second = "./.projects.2.tmp"
+    third = "./.projects.3.tmp"
+    fast = "$CONFIG_FAST"
+    fastfile = "./.projects.fast.tmp"
 }
 
 FNR == 1 {
     if ( input_file ) {
-	if ( ! target_file )
-	    target_file = fast == "yes" ? fastfile : third
-	printf "%s\n", input_file > target_file
+	if ( ! target_file ) {
+	    if ( fast == "yes" )
+		target_file = fastfile 
+	    else
+		target_file = third
+	}
+	print input_file >target_file
     }
 
     matched_target = 0
@@ -2099,31 +2109,65 @@ FNR == 1 {
     }
 }
 
-matched_target == 0 && /^(TEMPLATE[[:space:]]*?=[[:space:]])/ {
-    if ( \$3 == "subdirs" ) 
+matched_target == 0 && /^(TEMPLATE.*=)/ {
+    if ( \$3 == "subdirs" )
 	target_file = second
     else if ( \$3 == "lib" ) 
 	template_lib = 1
-    else 
-	target_file = ( fast == "yes" ) ? fastfile : third
+    else if ( fast == "yes" )
+	target_file = fastfile
+    else
+	target_file = third
 }
 
-matched_target == 0 && template_lib == 1 && /^(CONFIG.*=.*)/ {
-    if ( \$0 ~ /plugin/ )
-	target_file = ( fast == "yes" ) ? fastfile : third
-    else 
+matched_target == 0 && template_lib == 1 && /^(CONFIG.*=)/ {
+    if ( \$0 ~ /plugin/ ) {
+	if ( fast == "yes" )
+	    target_file = fastfile
+	else
+	    target_file = third
+    } else 
 	target_file = second
 }
 
 END {
     if ( input_file ) {
-	if ( ! target_file )
-	    target_file = fast == "yes" ? fastfile : third
-	printf "%s\n", input_file > target_file
+	if ( ! target_file ) {
+	    if ( fast == "yes" )
+		target_file = fastfile
+	    else
+		target_file = third
+	}
+	print input_file >target_file
     }
 }
 
 EOF
+
+# find out which awk we want to use, prefer gawk, then nawk, then try regular awk
+AWK=
+for d in `echo $PATH | sed -e "s,:, ,g"`
+do
+    if [ -x $d/gawk ]
+    then
+	AWK=$d/gawk
+	break;
+    else
+	if [ -x $d/nawk ]
+	then
+	    AWK=$d/nawk
+	    break;
+	else
+	    if [ -x $d/awk ]
+	    then
+		AWK=$d/awk
+		break;
+	    fi
+	fi
+    fi
+done
+# fallback - configure will probably fail here
+[ -z "$AWK" ] && AWK=awk
 
 rm -f .projects.all
 for p in `echo $QMAKE_PROJECTS`
@@ -2136,7 +2180,7 @@ done
 split -l 600 .projects.all .projects.all.
 for p in .projects.all.*
 do
-    awk -f projects.awk first=.projects.1.tmp second=.projects.2.tmp third=.projects.3.tmp fast=$CONFIG_FAST fastfile=.projects.fast.tmp `cat $p`
+    $AWK -f projects.awk `cat $p`
     [ -f .projects.1.tmp ]    && cat .projects.1.tmp >> .projects.1
     [ -f .projects.2.tmp ]    && cat .projects.2.tmp >> .projects.2
     [ -f .projects.3.tmp ]    && cat .projects.3.tmp >> .projects.3
@@ -2186,6 +2230,13 @@ FAST_PROJECTS=0
 echo "  `expr $NORM_PROJECTS + $FAST_PROJECTS` projects found."
 echo
 
+TEST_NT=test
+if echo $PLATFORM | grep -i solaris >/dev/null 2>&1
+then
+    # the shell's builtin [ and test don't understand -nt, but /usr/bin/test does, so use that
+    TEST_NT=/usr/bin/test
+fi
+
 echo "Creating makefiles. Please wait..."
 # these need to be processed *now*
 for a in `cat .projects`
@@ -2206,7 +2257,7 @@ do
     dir=`dirname $a | sed -e "s;$sepath;.;g"`
     test -d $dir || mkdir -p $dir
     N=$outpath/$dir/Makefile
-    if [ "$CONFIG_FAST" = "yes" ] && [ $N -nt $a ]
+    if [ "$CONFIG_FAST" = "yes" ] && $TEST_NT $N -nt $a
     then
 	# fast configure - the makefile exists and is newer than the .pro file,
 	# skip it
@@ -2237,7 +2288,7 @@ do
 	fi
     fi
 
-    if echo '\c' | grep -q '\c' >/dev/null
+    if echo '\c' | grep '\c' >/dev/null
     then
 	echo -n "  for $a"
     else
@@ -2295,7 +2346,7 @@ then
 	    QMAKE_EXTRA_ARGS="-spec $SPEC $QMAKE_EXTRA_ARGS"
 	fi
 
-	if [ $N -nt $a ]
+	if $TEST_NT $N -nt $a
 	then
 	    # fast configure - the makefile exists and is newer than the .pro file,
 	    # skip it
