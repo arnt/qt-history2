@@ -997,11 +997,11 @@ Installation options:
 			 See src/kernel/qgif.h
 
  *  -qt-zlib ........... Use the zlib bundled with Qt.
-    -system-zlib ....... Use a zlib from the operating system
+    -system-zlib ....... Use zlib from the operating system
 			 See http://www.info-zip.org/pub/infozip/zlib
 
  *  -qt-libpng ......... Use the libpng bundled with Qt.
-    -system-libpng ..... Use a libpng from the operating system.
+    -system-libpng ..... Use libpng from the operating system.
 			 See http://www.libpng.org/pub/png
 
  *  -no-mng ............ Do not compile in MNG I/O support.
