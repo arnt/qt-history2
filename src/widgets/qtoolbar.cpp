@@ -217,7 +217,7 @@ void QToolBarSeparator::paintEvent( QPaintEvent * )
   QToolBar is a specialization of QDockWindow, and so provides 
   all the functionality of a QDockWindow.
 
-  To use QToolBar you simply create a QToolBar as child of a
+  To use QToolBar you simply create a QToolBar as a child of a
   QMainWindow, create a number of QToolButton widgets (or other widgets)
   in left to right (or top to bottom) order and call addSeparator() when
   you want a separator. When a toolbar is floated the caption used is
@@ -232,7 +232,7 @@ void QToolBarSeparator::paintEvent( QPaintEvent * )
   creation of a new toolbar as a child of a QMainWindow and adding two
   QActions.
 
-  You may use any kind of widget within a toolbar, with QToolButton
+  You may use most widgets within a toolbar, with QToolButton
   and QComboBox being the most common.
 
   QToolBars, like QDockWindows, are located in QDockAreas or float as
@@ -244,13 +244,13 @@ void QToolBarSeparator::paintEvent( QPaintEvent * )
 
   If the main window is resized so that the area occupied by the toolbar
   is too small to show all its widgets a little arrow button (which
-  looks like a right-pointing chevron) will appear at the right or
-  bottom of the toolbar. Clicking this button pops up a menu that shows
-  the 'overflowing' items.
+  looks like a right-pointing chevron, '&#187;') will appear at the right or
+  bottom of the toolbar depending on its orientation. Clicking this
+  button pops up a menu that shows the 'overflowing' items.
 
-  Usually a toolbar gets just the space it needs. However, with
+  Usually a toolbar will get precisely the space it needs. However, with
   setHorizontalStretchable(), setVerticalStretchable() or
-  setStretchableWidget() you can advise the main window to expand the
+  setStretchableWidget() you can tell the main window to expand the
   toolbar to fill all available space in the specified orientation.
 
   The toolbar arranges its buttons either horizontally or vertically (see
@@ -263,7 +263,7 @@ void QToolBarSeparator::paintEvent( QPaintEvent * )
 
   \sa QToolButton QMainWindow
   <a href="http://www.iarchitect.com/visual.htm">Parts of Isys on Visual Design</a>
-  <a href="guibooks.html#fowler">GUI Design Handbook: Tool Bar.</a>
+  <a href="guibooks.html#fowler">GUI Design Handbook: Tool Bar</a>.
 */
 
 
@@ -288,7 +288,10 @@ QToolBar::QToolBar( const QString &label,
 }
 
 
-/*!  Constructs an empty horizontal toolbar.
+/*!  
+    \overload
+
+    Constructs an empty horizontal toolbar.
 
     The toolbar is a child of \a parent and is managed by \a mainWindow.
     The \a label and \a newLine parameters are passed straight to
@@ -312,8 +315,12 @@ QToolBar::QToolBar( const QString &label, QMainWindow * mainWindow,
 }
 
 
-/*!  Constructs an empty toolbar in its parent's top dock area,
-  without any label and without requiring a newline.
+/*!  
+    \overload
+    
+    Constructs an empty toolbar, with parent \a parent and name \a name,
+    in its \a parent's top dock area, without any label and without
+    requiring a newline.
 */
 
 QToolBar::QToolBar( QMainWindow * parent, const char * name )
@@ -429,13 +436,14 @@ QMainWindow * QToolBar::mainWindow()
 }
 
 
-/*! Sets \a w to be expanded if this toolbar is requested to stretch.
+/*! Sets the widget \a w to be expanded if this toolbar is requested to
+ stretch.
 
     The request to stretch might occur because QMainWindow
     right-justifies the dock it's in, or because this toolbar's
     isVerticalStretchable() or isHorizontalStretchable() is set to TRUE.
 
-  If you call setStretchableWidget() and the toolbar is not yet
+  If you call this function and the toolbar is not yet
   stretchable, setStretchable() is called.
 
   \sa QMainWindow::setRightJustification(), setVerticalStretchable(),
@@ -483,7 +491,7 @@ bool QToolBar::event( QEvent * e )
 
 /*!  Sets the label of this toolbar to \a label.
 
-If the toolbar is floated this label becomes the toolbar window's
+If the toolbar is floated the label becomes the toolbar window's
 caption.
 
 \sa label()
