@@ -502,6 +502,8 @@ QWidget *SignalSlotEditor::widgetByName(QWidget *topLevel, const QString &name)
 
 void SignalSlotEditor::fromUi(DomConnections *connections, QWidget *parent)
 {
+    if (connections == 0)
+        return;
     QList<DomConnection*> list = connections->elementConnection();
     foreach (DomConnection *dom_con, list) {
         QWidget *source = widgetByName(parent, dom_con->elementSender());

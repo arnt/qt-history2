@@ -40,8 +40,8 @@ public:
     virtual void activated() = 0;
     virtual void deactivated() = 0;
 
-    virtual void saveToDom(DomUI *) {}
-    virtual void loadFromDom(DomUI *) {}
+    virtual void saveToDom(DomUI*, QWidget*) {}
+    virtual void loadFromDom(DomUI*, QWidget*) {}
 
     virtual bool handleEvent(QWidget *widget, QWidget *managedWidget, QEvent *event) = 0;
 };

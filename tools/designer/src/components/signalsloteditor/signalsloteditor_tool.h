@@ -44,6 +44,9 @@ public:
 
     virtual bool handleEvent(QWidget *widget, QWidget *managedWidget, QEvent *event);
 
+    virtual void saveToDom(DomUI *ui, QWidget *mainContainer);
+    virtual void loadFromDom(DomUI *ui, QWidget *mainContainer);
+    
 private:
     AbstractFormWindow *m_formWindow;
     mutable QPointer<SignalSlotEditor> m_editor;

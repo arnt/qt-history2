@@ -102,7 +102,7 @@ void QDesignerResource::saveDom(DomUI *ui, QWidget *widget)
         for (int index = 0; index < m_formWindow->toolCount(); ++index) {
             AbstractFormWindowTool *tool = m_formWindow->tool(index);
             Q_ASSERT(tool != 0);
-            tool->saveToDom(ui);
+            tool->saveToDom(ui, widget);
         }
     }
 }
@@ -124,16 +124,20 @@ QWidget *QDesignerResource::create(DomUI *ui, QWidget *parentWidget)
         extra->saveExtraInfo(ui, m_formWindow);
     }
 
+    m_isMainWidget = true;
+    QWidget *mainWidget = Resource::create(ui, parentWidget);
+    if (mainWidget == 0)
+        return 0;
+    
     if (m_formWindow) {
         for (int index = 0; index < m_formWindow->toolCount(); ++index) {
             AbstractFormWindowTool *tool = m_formWindow->tool(index);
             Q_ASSERT(tool != 0);
-            tool->loadFromDom(ui);
+            tool->loadFromDom(ui, mainWidget);
         }
     }
 
-    m_isMainWidget = true;
-    return Resource::create(ui, parentWidget);
+    return mainWidget;
 }
 
 static ActionListElt createActionListElt(DomAction *action)

@@ -16,6 +16,7 @@
 
 #include <abstractformwindow.h>
 #include <abstractformeditor.h>
+#include <ui4.h>
 
 #include <QtGui/QAction>
 #include <QtCore/qdebug.h>
@@ -79,4 +80,12 @@ void SignalSlotEditorTool::deactivated()
                 m_editor, SLOT(updateBackground()));
 }
 
+void SignalSlotEditorTool::saveToDom(DomUI *ui, QWidget*)
+{
+    ui->setElementConnections(m_editor->toUi());    
+}
 
+void SignalSlotEditorTool::loadFromDom(DomUI *ui, QWidget *mainContainer)
+{
+    m_editor->fromUi(ui->elementConnections(), mainContainer);
+}
