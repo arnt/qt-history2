@@ -584,7 +584,8 @@ bool QPSQLDriver::open(const QString & db,
 void QPSQLDriver::close()
 {
     if (isOpen()) {
-        PQfinish(d->connection);
+        if (d->connection)
+            PQfinish(d->connection);
         d->connection = 0;
         setOpen(false);
         setOpenError(false);
