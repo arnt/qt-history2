@@ -122,7 +122,6 @@ kernel {
 			  $$KERNEL_CPP/qcursor_x11.cpp \
 			  $$KERNEL_CPP/qdnd_x11.cpp \
 			  $$KERNEL_CPP/qdesktopwidget_x11.cpp \
-			  $$KERNEL_CPP/qeventloop.cpp \
 			  $$KERNEL_CPP/qeventloop_x11.cpp \
 			  $$KERNEL_CPP/qfont_x11.cpp \
 			  $$KERNEL_CPP/qinputcontext_x11.cpp \
@@ -133,7 +132,6 @@ kernel {
 			  $$KERNEL_CPP/qregion_x11.cpp \
 			  $$KERNEL_CPP/qsound_x11.cpp \
 			  $$KERNEL_CPP/qwidget_x11.cpp \
-			  $$KERNEL_CPP/qnpsupport.cpp \
 			  $$KERNEL_CPP/qwidgetcreate_x11.cpp
 	      HEADERS += $$KERNEL_H/qeventloop.h \
                          $$KERNEL_H/qeventloop_p.h
@@ -159,7 +157,8 @@ kernel {
 	else:unix:SOURCES += $$KERNEL_CPP/qprinter_unix.cpp
 	unix:SOURCES += $$KERNEL_CPP/qpsprinter.cpp \
 		    $$KERNEL_CPP/qprocess_unix.cpp \
-		    $$KERNEL_CPP/qthread_unix.cpp
+		    $$KERNEL_CPP/qthread_unix.cpp \
+		    $$KERNEL_CPP/qeventloop_unix.cpp
 
 	SOURCES += $$KERNEL_CPP/qabstractlayout.cpp \
 		  $$KERNEL_CPP/qucomextra.cpp \
@@ -178,6 +177,7 @@ kernel {
 		  $$KERNEL_CPP/qdrawutil.cpp \
 		  $$KERNEL_CPP/qdropsite.cpp \
 		  $$KERNEL_CPP/qevent.cpp \
+		  $$KERNEL_CPP/qeventloop.cpp \
 		  $$KERNEL_CPP/qfocusdata.cpp \
 		  $$KERNEL_CPP/qfont.cpp \
 		  $$KERNEL_CPP/qfontdatabase.cpp \

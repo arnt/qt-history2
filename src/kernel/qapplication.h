@@ -55,9 +55,7 @@
 class QSessionManager;
 class QStyle;
 class QTranslator;
-#if defined(Q_WS_X11)
 class QEventLoop;
-#endif // Q_WS_X11
 #if defined(Q_WS_QWS)
 class QWSDecoration;
 #endif
@@ -66,10 +64,6 @@ template <class type> class QPtrList;
 
 class QApplication;
 extern Q_EXPORT QApplication *qApp;		// global application object
-
-#if defined(QT_THREAD_SUPPORT)
-class QMutex;
-#endif
 
 
 class Q_EXPORT QApplication : public QObject
@@ -143,11 +137,8 @@ public:
     static QWidget  *widgetAt( int x, int y, bool child=FALSE );
     static QWidget  *widgetAt( const QPoint &, bool child=FALSE );
 
-#if defined(Q_WS_X11)
-    // on X11, we use a new QEventLoop class
     static QEventLoop *eventLoop();
     static void setEventLoop( QEventLoop * );
-#endif // Q_WS_X11
 
     int		     exec();
     void	     processEvents();
@@ -317,10 +308,6 @@ private:
     friend bool qt_set_socket_handler( int, int, QObject *, bool);
     friend void qt_mac_destroy_widget(QWidget *);
     friend void qt_init(int *, char **, QApplication::Type);
-#endif
-
-#if defined(QT_THREAD_SUPPORT)
-    static QMutex * qt_mutex;
 #endif
 
     int		     app_argc;

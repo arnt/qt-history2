@@ -43,7 +43,7 @@
 #include <X11/Xos.h>
 #include <limits.h>
 
-int		qt_activate_timers();	      // in qapplication_x11.cpp
+// int		qt_activate_timers();	      // in qapplication_x11.cpp
 timeval	       *qt_wait_timer();	      // in qapplication_x11.cpp
 
 typedef int (*SameAsXtEventDispatchProc)(XEvent*);
@@ -157,7 +157,7 @@ int qt_event_handler( XEvent* event )
 		XLeaveWindowEvent* e = (XLeaveWindowEvent*)event;
 		qt_np_leave_cb(e);
 	    }
-	qt_activate_timers();
+	// qt_activate_timers();
 	qt_np_enable_timers();
 	qt_reset_color_avail();
 	QApplication::sendPostedEvents();

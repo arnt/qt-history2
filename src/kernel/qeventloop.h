@@ -2,8 +2,11 @@
 #define QEVENTLOOP_H
 
 #include <qobject.h>
+#include <qsocketnotifier.h>
 
 class QEventLoopPrivate;
+class QSocketNotifier;
+class QTimer;
 
 #if defined(QT_THREAD_SUPPORT)
 class QMutex;
@@ -39,6 +42,7 @@ public:
 
       DONE  - XtAppAddInput
       DONE  - XtRemoveInput
+
       DONE  - XtAppNextEvent
 
       DONE  - XtAppPending
@@ -52,40 +56,63 @@ public:
       NOEQ  - XtAppAddSignal
       NOEQ  - XtRemoveSignal
 
-            - XtAppAddBlockHook
-	    - XtAppRemoveBlockHook
+      NOEQ  - XtAppAddBlockHook
+      NOEQ  - XtAppRemoveBlockHook
 
-	    - XtAppAddWorkProc
-	    - XtAppRemoveWorkProc
-
+      NOEQ  - XtAppAddWorkProc
+      NOEQ  - XtAppRemoveWorkProc
     */
 
-    enum EventType {
-	User		= 1, // timers and user input events (button/key/wheel
-	                     // events)
-
-	System		= 2, // system events - timers and all other gui
-	                     // (paint, configure, etc.) events
-
-	External	= 4, // timers and socket notifiers and other input
-	                     // events (uses file descriptors)
-
-	All		= 7  // all event types
+    enum ProcessEvents {
+	AllEvents              = 0x00,
+	ExcludeUserInput       = 0x01,
+	ExcludeSocketNotifiers = 0x02,
+	ExcludePOSIXSignals    = 0x04
     };
+    typedef uint ProcessEventsFlags;
 
-    // returns the number of milliseconds that Qt needs to handle it's timers.
-    // event loop reimplementations that do their own timer handling need to
-    // use this to make sure that Qt's timers continue to work. returns -1 if
-    // Qt has no timers running
-    int timeToWait();
+    // process one, and exactly one event, waiting for an event if necessary
+    // calls processNextEvent( flags, TRUE );
+    virtual void processOneEvent( ProcessEventsFlags flags );
+
+    // process pending events that match \a eventTypes for a maximum of
+    // \a maxtime milliseconds, or until there are no more events to process,
+    // which ever is shorter. if this function is called without any
+    // arguments, then all event types are processed for a maximum of 3
+    // seconds (3000 milliseconds).
+    //
+    // no Xt equivalent
+    virtual void processEvents( ProcessEventsFlags flags, int maxtime = 3000 );
+
+    // returns true if there is an event waiting, otherwise it returns false.
+    //
+    // this is XtAppPending, but does not use the Xt input masks
+    virtual bool hasPendingEvents();
+
+    // registers the given socket notifier with the event loop.  subclasses
+    // need to reimplement this method to tie a socket notifier into another
+    // event loop.  reimplementations MUST call the base implementation.
+    virtual void registerSocketNotifier( QSocketNotifier * );
+    // unregisters the given socket notifier from the event loop.  subclasses
+    // need to reimplement this method to tie a socket notifier into another
+    // event loop.  reimplementations MUST call the base implementation.
+    virtual void unregisterSocketNotifier( QSocketNotifier * );
+    // marks the given socket notifier as pending.  the socket notifier will
+    // be activated the next time activateSocketNotifiers() is called.
+    void setSocketNotifierPending( QSocketNotifier * );
+    // activate all pending socket notifiers.
+    int activateSocketNotifiers();
 
     // activate all Qt timers and return the number of timers that were activated.
     // event loop reimplementations that do their own timer handling need to call
     // this after the time returned by timeToWait() has elapsed.
     int activateTimers();
 
-    virtual void addExternal( int fd );
-    virtual void removeExternal( int fd );
+    // returns the number of milliseconds that Qt needs to handle its timers.
+    // event loop reimplementations that do their own timer handling need to
+    // use this to make sure that Qt's timers continue to work. returns -1 if
+    // Qt has no timers running
+    int timeToWait();
 
     // main event loop - QApplication calls this function from its exec()
     //
@@ -102,29 +129,6 @@ public:
     int enterLoop();
     void exitLoop();
     int loopLevel() const;
-
-    // process one, and exactly one event that matches \a eventTypes.  The
-    // passed eventTypes can be any combination of theif there are no events
-    // available, this function waits for the next event.
-    //
-    // calls processNextEvent( eventTypes, TRUE )
-    virtual void processOneEvent( int eventTypes );
-
-    // process pending events that match \a eventTypes for a maximum of
-    // \a maxtime milliseconds, or until there are no more events to process,
-    // which ever is shorter. if this function is called without any
-    // arguments, then all event types are processed for a maximum of 3
-    // seconds (3000 milliseconds).
-    //
-    // no Xt equivalent
-    virtual void processEvents( int eventTypes = All , int maxtime = 3000 );
-
-    // returns true if there is an event waiting that matches \a eventTypes,
-    // otherwise it returns false.
-    //
-    // this is XtAppPending, but checking the Qt event types, not the Xt
-    // input masks
-    virtual bool hasPendingEvents( int eventTypes );
 
     // this function wakes up the event loop
     virtual void wakeUp();
@@ -154,33 +158,7 @@ protected:
     // functionality is encompased in this one function.  behavior similar
     // to the above Xt functions can be somewhat acheived by the \a eventTypes
     // argument.
-    //
-    // if ( eventTypes == All ) {
-    //    XtAppNextEvent
-    //    XtDispatchEvent
-    // } else {
-    //     if ( eventTypes & User ) {
-    //         XtPeekEvent or get queued event - order undefined
-    //         if ( event->type matches User ) {
-    //             XtDispatchEvent
-    //         } else {
-    //             queue event for later processing
-    //         }
-    //     }
-    //     if ( eventTypes & System ) {
-    //         XtPeekEvent or get queued event - order undefined
-    //         if ( event->type matches System ) {
-    //             XtDispatchEvent
-    //         } else {
-    //             queue for later processing
-    //         }
-    //         XtProcessEvent mask = ( XtIMTimer | XtIMSignal )
-    //     }
-    //     if ( eventTypes & External ) {
-    //         XtProcessEvent mask = XtIMAlternateInput
-    //     }
-    // }
-    virtual bool processNextEvent( int eventType, bool canWait );
+    virtual bool processNextEvent( ProcessEventsFlags flags, bool canWait );
 
 
 #if defined(Q_WS_X11)
@@ -208,29 +186,10 @@ protected:
     virtual bool x11ProcessEvent( XEvent *event );
 #endif
 
+#if defined(Q_WS_QWS)
+    virtual bool qwsProcessEvent( QWSEvent *event );
+#endif // Q_WS_QWS
 
-    //
-    // This is the current QApplication event API:
-    //
-    // got it - int exec(); // platform dependent for some gui thread  stuff
-    // got it - void processEvents(); // cross platform, calls processEvents( 3000 )
-    // got it - void processOneEvent(); // cross platform, calls processNextEvent( TRUE )
-    // got it - int enter_loop(); // cross platform, starts a new loop around
-    //                            // processNextEvent( TRUE )
-    // got it - void exit_loop(); // cross platform, sets the app_exit_loop flag
-    // got it - int loopLevel() const; // cross platforms, returns loop_level
-    // got it - static void exit( int retcode=0 ); // cross platforms, sets
-    //                                             // app_exit_loop, quit_now and
-    //                                             // quit_code
-
-    // got it - void processEvents( int maxtime ); // platform dependent (to get the
-    //                                             // time faster on windows), calls
-    //                                             // processNextEvent( FALSE )
-    // got it - bool hasPendingEvents(); // platform dependent, winodow system events
-    //                                   // plus posted events, does not care about
-    //                                   // socket notifiers
-    // private:
-    // got it - bool processNextEvent( bool ); // platform dependent
 
 private:
     // internal initialization/cleanup - implemented in various platform specific files

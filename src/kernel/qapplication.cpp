@@ -37,6 +37,7 @@
 
 #include "qobjectlist.h"
 #include "qapplication.h"
+#include "qeventloop.h"
 #include "qwidget.h"
 #include "qwidgetlist.h"
 #include "qwidgetintdict.h"
@@ -357,6 +358,9 @@ bool	  QApplication::widgetCount	= FALSE;
 QApplication::Type qt_appType=QApplication::Tty;
 QStringList *QApplication::app_libpaths = 0;
 
+static QEventLoop *static_eventloop = 0;	// application event loop
+
+
 // two globals required for remote control
 static QRemoteControl *remote_control = 0;
 QUuid application_id = QUuid(0,0,0,0,0,0,0,0,0,0,0);
@@ -470,12 +474,6 @@ Q_EXPORT void qRemovePostRoutine( QtCleanUpFunction p )
 	}
     }
 }
-
-#ifdef QT_THREAD_SUPPORT
-#  if defined(Q_WS_WIN) || defined(Q_WS_MAC) || defined(Q_WS_QWS)
-QMutex * QApplication::qt_mutex=0;
-#  endif
-#endif
 
 // Default application palettes and fonts (per widget type)
 QAsciiDict<QPalette> *QApplication::app_palettes = 0;
@@ -790,13 +788,6 @@ void QApplication::construct( int &argc, char **argv, Type type )
     }
     qt_init( &argc, argv, type );   // Must be called before initialize()
     process_cmdline( &argc, argv );
-
-#if defined(QT_THREAD_SUPPORT)
-#  if defined(Q_WS_WIN) || defined(Q_WS_MAC) || defined(Q_WS_QWS)
-    qt_mutex = new QMutex(TRUE);
-#  endif
-#endif
-
     initialize( argc, argv );
     if ( qt_is_gui_used )
 	qt_maxWindowRect = desktop()->rect();
@@ -833,12 +824,6 @@ QApplication::QApplication( Display* dpy, HANDLE visual, HANDLE colormap )
     // ... no command line.
     qt_init( dpy, visual, colormap );
 
-#if defined(QT_THREAD_SUPPORT)
-#  if defined(Q_WS_WIN) || defined(Q_WS_MAC) || defined(Q_WS_QWS)
-    qt_mutex = new QMutex(TRUE);
-#  endif
-#endif
-
     initialize( aargc, aargv );
 }
 
@@ -857,13 +842,6 @@ QApplication::QApplication(Display *dpy, int argc, char **argv,
     qt_is_gui_used = TRUE;
     init_precmdline();
     qt_init(dpy, visual, colormap);
-
-#if defined(QT_THREAD_SUPPORT)
-#  if defined(Q_WS_WIN) || defined(Q_WS_MAC) || defined(Q_WS_QWS)
-    qt_mutex = new QMutex(TRUE);
-#  endif
-#endif
-
     initialize(argc, argv);
 }
 
@@ -1110,16 +1088,16 @@ QApplication::~QApplication()
 #endif
 
     qt_cleanup();
+
+    delete static_eventloop;
+    static_eventloop = 0;
+
+    delete app_libpaths;
+    app_libpaths = 0;
+
     if( qApp == this )
 	qApp = 0;
     is_app_running = FALSE;
-
-#if defined(QT_THREAD_SUPPORT)
-#  if defined(Q_WS_WIN) || defined(Q_WS_MAC) || defined(Q_WS_QWS)
-    delete qt_mutex;
-    qt_mutex = 0;
-#  endif
-#endif
 
     if ( widgetCount ) {
 	qDebug( "Widgets left: %i    Max widgets: %i \n", QWidget::instanceCounter, QWidget::maxInstances );
@@ -1900,34 +1878,6 @@ QFontMetrics QApplication::fontMetrics()
 }
 
 
-/*!
-  Tells the application to exit with a return code.
-
-  After this function has been called, the application leaves the main
-  event loop and returns from the call to exec(). The exec() function
-  returns \a retcode.
-
-  By convention, a \a retcode of 0 means success, and any non-zero
-  value indicates an error.
-
-  Note that unlike the C library function of the same name, this
-  function \e does return to the caller -- it is event processing that
-  stops.
-
-  \sa quit(), exec()
-*/
-#  if defined(Q_WS_WIN) || defined(Q_WS_MAC) || defined(Q_WS_QWS)
-void QApplication::exit( int retcode )
-{
-    if ( !qApp )				// no global app object
-	return;
-    if ( ((QApplication*)qApp)->quit_now )	// don't overwrite quit code...
-	return;
-    ((QApplication*)qApp)->quit_code = retcode;	// here
-    ((QApplication*)qApp)->quit_now = TRUE;
-    ((QApplication*)qApp)->app_exit_loop = TRUE;
-}
-#  endif
 
 /*!
   Tells the application to exit with return code 0 (success).
@@ -2394,6 +2344,116 @@ void QApplication::processOneEvent()
     processNextEvent(TRUE);
 }
 
+/*****************************************************************************
+  Main event loop wrappers
+ *****************************************************************************/
+
+/*!
+  Returns the event loop object set for the application object.
+*/
+QEventLoop *QApplication::eventLoop()
+{
+    if ( ! qApp )
+	qWarning( "Cannot create QEventLoop without a global application object." );
+    if ( ! static_eventloop )
+	QApplication::setEventLoop( new QEventLoop( qApp, "default event loop" ) );
+    return static_eventloop;
+}
+
+/*!
+   Sets the application event loop object to \a eventloop.
+*/
+void QApplication::setEventLoop( QEventLoop *eventloop )
+{
+    delete static_eventloop;
+    static_eventloop = eventloop;
+    if ( static_eventloop )
+	connect( static_eventloop, SIGNAL(awake()), qApp, SIGNAL(guiThreadAwake()) );
+}
+
+/*!
+    Enters the main event loop and waits until exit() is called or the
+    main widget is destroyed, and returns the value that was set to
+    exit() (which is 0 if exit() is called via quit()).
+
+    It is necessary to call this function to start event handling. The
+    main event loop receives events from the window system and
+    dispatches these to the application widgets.
+
+    Generally speaking, no user interaction can take place before
+    calling exec(). As a special case, modal widgets like QMessageBox
+    can be used before calling exec(), because modal widgets call
+    exec() to start a local event loop.
+
+    To make your application perform idle processing, i.e. executing a
+    special function whenever there are no pending events, use a
+    QTimer with 0 timeout. More advanced idle processing schemes can
+    be achieved using processEvents().
+
+    \sa quit(), exit(), processEvents(), setMainWidget()
+*/
+int QApplication::exec()
+{
+    return eventLoop()->exec();
+}
+
+/*!
+  Tells the application to exit with a return code.
+
+  After this function has been called, the application leaves the main
+  event loop and returns from the call to exec(). The exec() function
+  returns \a retcode.
+
+  By convention, a \a retcode of 0 means success, and any non-zero
+  value indicates an error.
+
+  Note that unlike the C library function of the same name, this
+  function \e does return to the caller -- it is event processing that
+  stops.
+
+  \sa quit(), exec()
+*/
+void QApplication::exit( int retcode )
+{
+    eventLoop()->exit( retcode );
+}
+
+int QApplication::enter_loop()
+{
+    return eventLoop()->enterLoop();
+}
+
+void QApplication::exit_loop()
+{
+    eventLoop()->exitLoop();
+}
+
+int QApplication::loopLevel() const
+{
+    return eventLoop()->loopLevel();
+}
+
+/*!
+    Processes the next event and returns TRUE if there was an event
+    (excluding posted events or zero-timer events) to process;
+    otherwise returns FALSE.
+
+    This function returns immediately if \a canWait is FALSE. It might
+    go into a sleep/wait state if \a canWait is TRUE.
+
+    \sa processEvents()
+*/
+
+bool QApplication::processNextEvent( bool canWait )
+{
+    return eventLoop()->processNextEvent( canWait, FALSE );
+}
+
+
+void QApplication::wakeUpGuiThread()
+{
+    eventLoop()->wakeUp();
+}
 
 #if !defined(Q_WS_X11)
 
@@ -3212,70 +3272,6 @@ bool QApplication::desktopSettingsAware()
     return obey_desktop_settings;
 }
 
-
-#if !defined(Q_WS_X11)
-
-/*!
-  This function enters the main event loop (recursively). Do not call
-  it unless you really know what you are doing.
-
-  \sa exit_loop(), loopLevel()
-*/
-
-int QApplication::enter_loop()
-{
-    loop_level++;
-
-    bool old_app_exit_loop = app_exit_loop;
-    app_exit_loop = FALSE;
-
-    while ( !app_exit_loop ) {
-	processNextEvent( TRUE );
-    }
-
-    app_exit_loop = old_app_exit_loop || quit_now;
-
-    if ( loop_level <= 1 ) {
-	quit_now = FALSE;
-	emit aboutToQuit();
-
-	// send deferred deletes
-	sendPostedEvents( 0, QEvent::DeferredDelete );
-    }
-
-    loop_level--;
-
-    return 0;
-}
-
-
-/*!
-  This function exits from a recursive call to the main event loop.
-  Do not call it unless you are an expert.
-
-  \sa enter_loop(), loopLevel()
-*/
-
-void QApplication::exit_loop()
-{
-    app_exit_loop = TRUE;
-}
-
-
-/*!
-  Returns the current loop level.
-
-  \sa enter_loop(), exit_loop()
-*/
-
-int QApplication::loopLevel() const
-{
-    return loop_level;
-}
-
-#endif // Q_WS_X11
-
-
 /*! \fn void QApplication::lock()
 
   Lock the Qt library mutex. If another thread has already locked the
@@ -3329,30 +3325,6 @@ int QApplication::loopLevel() const
 
 
 #if defined(QT_THREAD_SUPPORT)
-#  if defined(Q_WS_WIN) || defined(Q_WS_MAC) || defined(Q_WS_QWS)
-void QApplication::lock()
-{
-    qt_mutex->lock();
-}
-
-void QApplication::unlock(bool wakeUpGui)
-{
-    qt_mutex->unlock();
-
-    if (wakeUpGui)
-	wakeUpGuiThread();
-}
-
-bool QApplication::locked()
-{
-    return qt_mutex->locked();
-}
-
-bool QApplication::tryLock()
-{
-    return qt_mutex->tryLock();
-}
-#  else
 void QApplication::lock()
 {
     eventLoop()->mutex()->lock();
@@ -3375,7 +3347,6 @@ bool QApplication::tryLock()
 {
     return eventLoop()->mutex()->tryLock();
 }
-#  endif
 #endif
 
 

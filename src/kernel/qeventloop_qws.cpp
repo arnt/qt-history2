@@ -37,22 +37,14 @@
 #include "qeventloop.h"
 #include "qapplication.h"
 #include "qbitarray.h"
-#include "qcolor_p.h"
-#include "qt_x11.h"
+#include "qwscommand_qws.h"
+#include "qwsdisplay_qws.h"
+#include "qwsevent_qws.h"
+#include "qwindowsystem_qws.h"
+#include <qptrqueue.h>
 
 #include <errno.h>
 
-
-// resolve the conflict between X11's FocusIn and QEvent::FocusIn
-static const int XFocusOut = FocusOut;
-static const int XFocusIn = FocusIn;
-#undef FocusOut
-#undef FocusIn
-
-static const int XKeyPress = KeyPress;
-static const int XKeyRelease = KeyRelease;
-#undef KeyPress
-#undef KeyRelease
 
 // from qapplication.cpp
 extern bool qt_is_gui_used;
@@ -61,17 +53,18 @@ extern bool qt_is_gui_used;
 extern timeval *qt_wait_timer();
 extern void cleanupTimers();
 
+// from qapplication_qws.cpp
+extern QWSDisplay* qt_fbdpy; // QWS `display'
+QLock *QWSDisplay::lock = 0;
+
+bool qt_disable_lowpriority_timers=FALSE;
+
 
 void QEventLoop::init()
 {
     // initialize the common parts of the event loop
     pipe( d->thread_pipe );
     d->sn_highest = -1;
-
-    // intitialize the X11 parts of the event loop
-    d->xfd = -1;
-    if ( qt_is_gui_used )
-        d->xfd = XConnectionNumber( QPaintDevice::x11AppDisplay() );
 }
 
 void QEventLoop::cleanup()
@@ -80,20 +73,16 @@ void QEventLoop::cleanup()
     close( d->thread_pipe[0] );
     close( d->thread_pipe[1] );
     cleanupTimers();
-
-    // cleanup the X11 parts of the event loop
-    d->xfd = -1;
 }
 
-bool QEventLoop::x11ProcessEvent( XEvent *event )
+bool QEventLoop::qwsProcessEvent( QWSEvent *event )
 {
-    return qApp->x11ProcessEvent( event );
+    return qApp->qwsProcessEvent( event );
 }
 
 bool QEventLoop::processNextEvent( ProcessEventsFlags flags, bool canWait )
 {
-    // process events from the X server
-    XEvent event;
+    // process events from the QWS server
     int	   nevents = 0;
 
 #if defined(QT_THREAD_SUPPORT)
@@ -107,48 +96,28 @@ bool QEventLoop::processNextEvent( ProcessEventsFlags flags, bool canWait )
     if (qt_is_gui_used ) {
 	QApplication::sendPostedEvents();
 
-	// Two loops so that posted events accumulate
-	while ( XPending(QPaintDevice::x11AppDisplay()) ) {
-	    // also flushes output buffer
-	    while ( XPending(QPaintDevice::x11AppDisplay()) ) {
-		if ( d->exitloop ) {          // quit between events
-		    return FALSE;
-		}
-
-		XNextEvent( QPaintDevice::x11AppDisplay(), &event );	// get next event
-		nevents++;
-
-		if ( flags & ExcludeUserInput ) {
-		    bool block_event = FALSE;
-		    switch ( event.type ) {
-		    case ButtonPress:
-		    case ButtonRelease:
-		    case MotionNotify:
-		    case XKeyPress:
-		    case XKeyRelease:
-		    case EnterNotify:
-		    case LeaveNotify:
-			block_event = TRUE;
-			break;
-
-		    default: break;
-		    }
-
-		    if ( block_event )
-			continue;
-		}
-
-		if ( x11ProcessEvent( &event ) == 1 ) {
-		    return TRUE;
-		}
+	while ( qt_fbdpy->eventPending() ) {	// also flushes output buffer
+	    if ( d->exitloop ) {		// quit between events
+		return FALSE;
 	    }
+	    QWSEvent *event = qt_fbdpy->getEvent();	// get next event
+	    nevents++;
 
-	    QApplication::sendPostedEvents();
+	    bool ret = qwsProcessEvent( event ) == 1;
+	    delete event;
+	    if ( ret ) {
+		return TRUE;
+	    }
 	}
     }
 
     if ( d->exitloop ) {			// break immediately
 	return FALSE;
+    }
+
+    extern QPtrQueue<QWSCommand> *qt_get_server_queue();
+    if ( !qt_get_server_queue()->isEmpty() ) {
+	QWSServer::processEventQueue();
     }
 
     QApplication::sendPostedEvents();
@@ -157,7 +126,7 @@ bool QEventLoop::processNextEvent( ProcessEventsFlags flags, bool canWait )
 
     // return the maximum time we can wait for an event.
     static timeval zerotm;
-    timeval *tm = qt_wait_timer();		// wait for timer or X event
+    timeval *tm = qt_wait_timer();		// wait for timer or event
     if ( !canWait ) {
 	if ( !tm )
 	    tm = &zerotm;
@@ -182,12 +151,6 @@ bool QEventLoop::processNextEvent( ProcessEventsFlags flags, bool canWait )
 	}
 
 	highest = d->sn_highest;
-    }
-
-    if ( qt_is_gui_used ) {
-	// select for events on the event socket - only on X11
-	FD_SET( d->xfd, &d->sn_vec[0].select_fds );
-	highest = QMAX( highest, d->xfd );
     }
 
     FD_SET( d->thread_pipe[0], &d->sn_vec[0].select_fds );
@@ -251,6 +214,7 @@ bool QEventLoop::processNextEvent( ProcessEventsFlags flags, bool canWait )
 
 
 
+
     /*
       ### TODO - a cleaner way to do postselect handlers should be invented...
       virtual functions?
@@ -289,9 +253,6 @@ bool QEventLoop::processNextEvent( ProcessEventsFlags flags, bool canWait )
     // activate timers
     nevents += activateTimers();
 
-    // color approx. optimization - only on X11
-    qt_reset_color_avail();
-
     // return true if we handled events, false otherwise
     return (nevents > 0);
 }
@@ -299,5 +260,5 @@ bool QEventLoop::processNextEvent( ProcessEventsFlags flags, bool canWait )
 bool QEventLoop::hasPendingEvents()
 {
     extern uint qGlobalPostedEventsCount(); // from qapplication.cpp
-    return ( qGlobalPostedEventsCount() || XPending( QPaintDevice::x11AppDisplay() ) );
+    return qGlobalPostedEventsCount() || qt_fbdpy->eventPending();
 }

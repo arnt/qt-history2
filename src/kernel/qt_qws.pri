@@ -44,6 +44,7 @@ embedded {
 		    $$KERNEL_CPP/qdesktopwidget_qws.cpp \
 		    $$KERNEL_CPP/qdirectpainter_qws.cpp \
 		    $$KERNEL_CPP/qdnd_qws.cpp \
+		    $$KERNEL_CPP/qeventloop_qws.cpp \
 		    $$KERNEL_CPP/qfont_qws.cpp \
 		    $$KERNEL_CPP/qfontfactorybdf_qws.cpp \
 		    $$KERNEL_CPP/qfontfactoryttf_qws.cpp \

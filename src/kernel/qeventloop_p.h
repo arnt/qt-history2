@@ -1,9 +1,38 @@
 #ifndef QEVENTLOOP_P_H
 #define QEVENTLOOP_P_H
 
+#include "qplatformdefs.h"
+
 #if defined(QT_THREAD_SUPPORT)
 #include "qmutex.h"
 #endif // QT_THREAD_SUPPORT
+
+class QSocketNotifier;
+
+#if defined(Q_OS_UNIX)
+#include <qptrlist.h>
+
+struct QSockNot
+{
+    QSocketNotifier *obj;
+    int fd;
+    fd_set *queue;
+};
+
+class QSockNotType
+{
+public:
+    QSockNotType();
+    ~QSockNotType();
+
+    QPtrList<QSockNot> *list;
+    fd_set select_fds;
+    fd_set enabled_fds;
+    fd_set pending_fds;
+
+};
+#endif // Q_OS_UNIX
+
 
 class QEventLoopPrivate
 {
@@ -38,6 +67,13 @@ public:
 
 #if defined(Q_OS_UNIX)
     int thread_pipe[2];
+
+    // pending socket notifiers list
+    QPtrList<QSockNot> sn_pending_list;
+    // highest fd for all socket notifiers
+    int sn_highest;
+    // 3 socket notifier types - read, write and exception
+    QSockNotType sn_vec[3];
 #endif
 };
 

@@ -36,10 +36,9 @@
 **********************************************************************/
 
 #include "qsocketnotifier.h"
+#include "qapplication.h"
 #include "qevent.h"
-
-
-extern bool qt_set_socket_handler( int, int, QObject *, bool );
+#include "qeventloop.h"
 
 
 /*!
@@ -163,7 +162,7 @@ QSocketNotifier::QSocketNotifier( int socket, Type type, QObject *parent,
     sockfd = socket;
     sntype = type;
     snenabled = TRUE;
-    qt_set_socket_handler( sockfd, sntype, this, TRUE );
+    QApplication::eventLoop()->registerSocketNotifier( this );
 }
 
 /*!
@@ -246,7 +245,10 @@ void QSocketNotifier::setEnabled( bool enable )
     if ( snenabled == enable )			// no change
 	return;
     snenabled = enable;
-    qt_set_socket_handler( sockfd, sntype, this, snenabled );
+    if ( snenabled )
+        QApplication::eventLoop()->registerSocketNotifier( this );
+    else
+	QApplication::eventLoop()->unregisterSocketNotifier( this );
 }
 
 

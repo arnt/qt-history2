@@ -1,5 +1,6 @@
+#include "qeventloop_p.h" // includes qplatformdefs.h
 #include "qeventloop.h"
-#include "qeventloop_p.h"
+#include "qdatetime.h"
 
 static QEventLoop *INSTANCE = 0;
 
@@ -66,7 +67,7 @@ int QEventLoop::enterLoop()
 
     d->looplevel++;
     while ( ! d->exitloop )
-	processNextEvent( All, TRUE );
+	processNextEvent( AllEvents, TRUE );
     d->looplevel--;
 
     // restore the exitloop state, but if quitnow is true, we need to keep
@@ -86,7 +87,18 @@ int QEventLoop::loopLevel() const
     return d->looplevel;
 }
 
-void QEventLoop::processOneEvent( int eventType )
+void QEventLoop::processOneEvent( ProcessEventsFlags flags )
 {
-    (void) processNextEvent( eventType, TRUE );
+    (void) processNextEvent( flags, TRUE );
+}
+
+void QEventLoop::processEvents( ProcessEventsFlags flags, int maxTime )
+{
+    QTime start = QTime::currentTime();
+    QTime now;
+    while ( ! d->quitnow && processNextEvent( flags, FALSE ) ) {
+	now = QTime::currentTime();
+	if ( start.msecsTo( now ) > maxTime )
+	    break;
+    }
 }

@@ -77,7 +77,6 @@
 #include "qsettings.h"
 #include "qstylefactory.h"
 #include "qfileinfo.h"
-#include "qeventloop.h"
 
 // Input method stuff - UNFINISHED
 #include "qinputcontext_p.h"
@@ -170,7 +169,6 @@ const int XKeyRelease = KeyRelease;
 /*****************************************************************************
   Internal variables and functions
  *****************************************************************************/
-
 static const char *appName;			// application name
 static const char *appFont	= 0;		// application font
 static const char *appBGCol	= 0;		// application bg color
@@ -1696,11 +1694,6 @@ void qt_init_internal( int *argcptr, char **argv,
 	    QPaintDevice::x_appcells_arr[ screen ] = DisplayCells(appDpy, screen);
 	    QPaintDevice::x_approotwindow_arr[ screen ] = RootWindow(appDpy, screen);
 
-	    // work around a bug in vnc where DisplayCells returns 8 when Xvnc is run
-	    // with depth 8
-	    if (QPaintDevice::x_appdepth_arr[ screen ] == 8)
-		QPaintDevice::x_appcells_arr[ screen ] = 256;
-
 	    // ### TODO - make Qt obey -visual -cmap and -ncols options for all screens
 	    if ( screen != appScreen ) {
 		// for now, just take the defaults for all screens other than the
@@ -1802,6 +1795,13 @@ void qt_init_internal( int *argcptr, char **argv,
 	// with depth 8
 	if (QPaintDevice::x_appdepth == 8)
 	    QPaintDevice::x_appcells = 256;
+
+	for ( screen = 0; screen < appScreenCount; screen++ ) {
+	    // work around a bug in vnc where DisplayCells returns 8 when Xvnc is run
+	    // with depth 8
+	    if (QPaintDevice::x_appdepth_arr[ screen ] == 8)
+		QPaintDevice::x_appcells_arr[ screen ] = 256;
+	}
 
 	if (! colormap) {
 	    if ( vis->c_class == TrueColor ) {
@@ -2318,10 +2318,6 @@ void qt_cleanup()
 {
     if ( app_save_rootinfo )			// root window must keep state
 	qt_save_rootinfo();
-
-    // from qeventloop_x11.cpp
-    extern void cleanupTimers();
-    cleanupTimers();
 
     if ( qt_is_gui_used ) {
 	QPixmapCache::clear();
@@ -3043,104 +3039,6 @@ QETWidget *qPRFindWidget( Window oldwin )
     return wPRmapper ? (QETWidget*)wPRmapper->find((long)oldwin) : 0;
 }
 
-/*****************************************************************************
-  Main event loop wrappers
- *****************************************************************************/
-
-static QEventLoop *static_eventloop = 0;
-
-/*!
-  Returns the event loop object set for the application object.
-*/
-QEventLoop *QApplication::eventLoop()
-{
-    if ( ! qApp )
-	qWarning( "Cannot create QEventLoop without a global application object." );
-    if ( ! static_eventloop )
-	QApplication::setEventLoop( new QEventLoop( qApp, "default event loop" ) );
-    return static_eventloop;
-}
-
-/*!
-   Sets the application event loop object to \a eventloop.
-*/
-void QApplication::setEventLoop( QEventLoop *eventloop )
-{
-    delete static_eventloop;
-    static_eventloop = eventloop;
-    if ( static_eventloop )
-	connect( static_eventloop, SIGNAL(awake()), qApp, SIGNAL(guiThreadAwake()) );
-}
-
-/*!
-    Enters the main event loop and waits until exit() is called or the
-    main widget is destroyed, and returns the value that was set to
-    exit() (which is 0 if exit() is called via quit()).
-
-    It is necessary to call this function to start event handling. The
-    main event loop receives events from the window system and
-    dispatches these to the application widgets.
-
-    Generally speaking, no user interaction can take place before
-    calling exec(). As a special case, modal widgets like QMessageBox
-    can be used before calling exec(), because modal widgets call
-    exec() to start a local event loop.
-
-    To make your application perform idle processing, i.e. executing a
-    special function whenever there are no pending events, use a
-    QTimer with 0 timeout. More advanced idle processing schemes can
-    be achieved using processEvents().
-
-    \sa quit(), exit(), processEvents(), setMainWidget()
-*/
-
-int QApplication::exec()
-{
-    return eventLoop()->exec();
-}
-
-void QApplication::exit( int retcode )
-{
-    eventLoop()->exit( retcode );
-}
-
-int QApplication::enter_loop()
-{
-    return eventLoop()->enterLoop();
-}
-
-void QApplication::exit_loop()
-{
-    eventLoop()->exitLoop();
-}
-
-int QApplication::loopLevel() const
-{
-    return eventLoop()->loopLevel();
-}
-
-/*!
-    Processes the next event and returns TRUE if there was an event
-    (excluding posted events or zero-timer events) to process;
-    otherwise returns FALSE.
-
-    This function returns immediately if \a canWait is FALSE. It might
-    go into a sleep/wait state if \a canWait is TRUE.
-
-    \sa processEvents()
-*/
-
-bool QApplication::processNextEvent( bool canWait )
-{
-    return eventLoop()->processNextEvent( QEventLoop::All, canWait );
-}
-
-
-void QApplication::wakeUpGuiThread()
-{
-    eventLoop()->wakeUp();
-}
-
 /*!
     \internal
 */
@@ -3194,10 +3092,6 @@ int QApplication::x11ClientMessage(QWidget* w, XEvent* event, bool passive_only)
 
     return 0;
 }
-
-
-
-
 
 /*!
     This virtual function does the core processing of individual X
@@ -3466,15 +3360,6 @@ int QApplication::x11ProcessEvent( XEvent* event )
 		} while ( (popup = qApp->activePopupWidget()) );
 		return 1;
 	    }
-	} else {
-	    void qt_np_process_foreign_event(XEvent*); // in qnpsupport.cpp
-	    if ( !activeModalWidget() ||
-		 ( event->type != ButtonRelease &&
-		   event->type != ButtonPress &&
-		   event->type != MotionNotify &&
-		   event->type != XKeyPress &&
-		   event->type != XKeyRelease ) )
-		qt_np_process_foreign_event( event );
 	}
 	return -1;
     }
@@ -3662,8 +3547,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 
     case MapNotify:				// window shown
 	if ( widget->isTopLevel() && !widget->isVisible()
-	     && !widget->isHidden() ) {
-	    widget->setWState( WState_Visible );
+	     && !widget->isHidden() ) {	    widget->setWState( WState_Visible );
 	    widget->sendShowEventsToChildren( TRUE );
 	    QShowEvent e;
 	    QApplication::sendSpontaneousEvent( widget, &e );
