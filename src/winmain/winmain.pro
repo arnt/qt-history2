@@ -13,6 +13,5 @@ win32 {
 	CONFIG		-= jpeg
 	INCLUDEPATH	+= tmp
 }
-win32-borland:INCLUDEPATH += kernel
 
 !win32-*:!wince-*:error("${QMAKE_FILE} is intended only for Windows!")
