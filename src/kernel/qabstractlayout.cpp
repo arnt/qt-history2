@@ -855,16 +855,12 @@ void QLayout::invalidate()
     rect = QRect();
 }
 
-// ###
-
-// this is an ugly workaround. for some reason, the layout system
-// would add TWO QWidgetItems for some QWidgets, and can then later
-// delete one and derefence the other. the scope of this bug is
-// unknown. I submit this hack so that we can work while I look for
-// the 'double-add' bug.
-
-// ###
-
+/*
+  Arnt wrote: This is an ugly workaround. For some reason, the layout
+  system would add two QWidgetItems for some QWidgets, and can then
+  later delete one and derefence the other. The scope of this bug is
+  unknown.
+*/
 static bool removeWidget( QLayoutItem *lay, QWidget *w )
 {
     bool foo = FALSE;
@@ -974,9 +970,10 @@ void QLayout::childEvent( QChildEvent *e )
 	    if ( item == (QLayout*)c->child() ) {
 		it.takeCurrent();
 		invalidate();
-		return;
+		break;
+	    } else {
+		++it;
 	    }
-	    ++it;
 	}
     }
 }
