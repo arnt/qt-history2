@@ -663,7 +663,7 @@ void QPixmap::init(int w, int h, int d, bool bitmap, Optimization optim)
     if(e != noErr) {
 	data->w = data->h = 0;
 	hd=0; //just to be sure
-	qDebug("QPixmap::init Something went wrong");
+	qDebug("QPixmap::init Something went wrong (%ld) (%d %d %d %d)", e, rect.left, rect.top, rect.right, rect.bottom);
 	Q_ASSERT(0);
     } else {
 #ifdef QMAC_ONE_PIXEL_LOCK
