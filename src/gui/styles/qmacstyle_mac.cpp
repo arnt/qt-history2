@@ -2219,6 +2219,9 @@ QRect QMacStylePrivate::HIThemeSubRect(QStyle::SubRect sr, const QStyleOption *o
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
     QRect r;
     switch (sr) {
+    case QStyle::SR_ToolBoxTabContents:
+        r = q->QCommonStyle::subRect(sr, opt, widget);
+        break;
     case QStyle::SR_PushButtonContents:
         if (const QStyleOptionButton *btn = qt_cast<const QStyleOptionButton *>(opt)) {
             HIRect inRect = CGRectMake(btn->rect.x(), btn->rect.y(),
@@ -3820,6 +3823,9 @@ QRect QMacStylePrivate::AppManSubRect(QStyle::SubRect sr, const QStyleOption *op
 {
     QRect r = QRect();
     switch (sr) {
+    case QStyle::SR_ToolBoxTabContents:
+        r = q->QCommonStyle::subRect(sr, opt, widget);
+        break;
     case QStyle::SR_PushButtonContents:
         if (const QStyleOptionButton *btn = qt_cast<const QStyleOptionButton *>(opt)) {
             Rect macRect, myRect;
