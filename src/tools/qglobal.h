@@ -470,6 +470,8 @@ const bool TRUE = !0;
 
 #if !defined(Q_NO_EXPLICIT_KEYWORD)
 #  define Q_EXPLICIT explicit
+#else
+#  define Q_EXPLICIT
 #endif
 
 
