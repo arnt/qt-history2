@@ -48,6 +48,13 @@ struct QAxMetaObject : public QMetaObject
         delete [] (int*)d.data;
         delete [] (char*)d.stringdata;
     }
+   
+    int numParameter(const QByteArray &prototype);
+    QByteArray paramType(const QByteArray &signature, int index, bool *out = 0);
+    void parsePrototype(const QByteArray &prototype);
+
+private:
+    friend class MetaObjectGenerator;
     // save information about QAxEventSink connections, and connect when found in cache
     QList<QUuid> connectionInterfaces;
     // DISPID -> signal name
@@ -59,14 +66,7 @@ struct QAxMetaObject : public QMetaObject
     
     // Prototype -> member info
     QHash<QByteArray, QList<QByteArray> > memberInfo;
-    
-    int numParameter(const QByteArray &prototype);
-    QByteArray paramType(const QByteArray &signature, int index, bool *out = 0);
-
     QMap<QByteArray, QByteArray> realPrototype;
-
-private:
-    void parsePrototype(const QByteArray &prototype);
 };
 
 void QAxMetaObject::parsePrototype(const QByteArray &prototype)
