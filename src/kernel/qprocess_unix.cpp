@@ -42,7 +42,14 @@
 #ifndef QT_NO_PROCESS
 
 #include "qplatformdefs.h"
+
+// Solaris redefines connect -> __xnet_connect with _XOPEN_SOURCE_EXTENDED.
+#if defined(connect)
+#undef connect
+#endif
+
 #include "qprocess.h"
+
 #include "qapplication.h"
 #include "qptrqueue.h"
 #include "qptrlist.h"
