@@ -86,7 +86,6 @@ void QRichTextString::insert( int index, const QString &s, QRichTextFormat *f )
     }
     for ( int i = 0; i < (int)s.length(); ++i ) {
 	data[ (int)index + i ].x = 0;
-	data[ (int)index + i ].lineStart = 0;
 #if defined(_WS_X11_)
 	//### workaround for broken courier fonts on X11
 	if ( s[ i ] == QChar( 0x00a0U ) )
@@ -96,7 +95,7 @@ void QRichTextString::insert( int index, const QString &s, QRichTextFormat *f )
 #else
 	data[ (int)index + i ].c = s[ i ];
 #endif
-	data[ (int)index + i ].format = f;
+	data[ (int)index + i ].setFormat( f );
     }
     cache.insert( index, s );
     len += s.length();
@@ -120,9 +119,22 @@ void QRichTextString::remove( int index, int length )
 
 void QRichTextString::setFormat( int index, QRichTextFormat *f, bool useCollection )
 {
-    if ( useCollection && data[ index ].format )
-	data[ index ].format->removeRef();
-    data[ index ].format = f;
+    data[ index ].setFormat( f );
+}
+
+QRichTextString::Char::~Char()
+{
+    if ( f )
+	f->removeRef();
+}
+
+void QRichTextString::Char::setFormat(QRichTextFormat *fmt)
+{
+    if ( f )
+	f->removeRef();
+    f = fmt;
+    if ( f )
+	f->addRef();
 }
 
 // ====================================================================
@@ -132,40 +144,62 @@ void QRichTextString::setFormat( int index, QRichTextFormat *f, bool useCollecti
   used internally.
   Represents one line of text in a Rich Text drawing area
 */
-QTextRow::QTextRow(const QRichTextString &t, int from, int length, QTextRow *previous, int base, int w)
+QTextRow::QTextRow(QRichTextString *t, int from, int length, QTextRow *previous, int base, int w)
     :  start(from), len(length), text(t), reorderedText(), p(previous)
 {
-    baseline = base;
+    bl = base;
     tw = w;
     n = 0;
+    startEmbed = endEmbed = 0;
 
+    layout();
+}
+
+QTextRow::QTextRow( QRichTextString *t, QTextRow *prev )
+{
+    text = t;
+    p = prev;
+    startEmbed = 0;
     endEmbed = 0;
-    if ( p ) {
-	bidiStatus = p->bidiStatus;
-	startEmbed = p->startEmbedding();
-    } else {
-	if( basicDirection(text) == QChar::DirL )
-	    startEmbed = new QBidiContext( 0, QChar::DirL );
-	else
-	    startEmbed = new QBidiContext( 1, QChar::DirR );
-    }
-    startEmbed->ref();
-    hasComplexText();
-    // ### only reorder when needed
-    bidiReorderLine();
+    n = 0;
+    start = 0;
+    len = 0;
+    tw = 0;
 }
 
 QTextRow::~QTextRow()
 {
     // ### care about previous/next????
 
-    startEmbed->deref();
-    endEmbed->deref();
+    if(startEmbed) startEmbed->deref();
+    if(endEmbed) endEmbed->deref();
 }
+
+void QTextRow::layout()
+{
+    if(endEmbed) endEmbed->deref();
+    endEmbed = 0;
+    if(startEmbed) startEmbed->deref();
+    if ( p ) {
+	bidiStatus = p->bidiStatus;
+	startEmbed = p->endEmbedding();
+    } else {
+	if( basicDirection(*text) == QChar::DirL )
+	    startEmbed = new QBidiContext( 0, QChar::DirL );
+	else
+	    startEmbed = new QBidiContext( 1, QChar::DirR );
+    }
+    startEmbed->ref();
+    checkComplexText();
+    // ### only reorder when needed
+    bidiReorderLine();
+}
+
+
 
 void QTextRow::paint(QPainter &painter, int _x, int _y, QTextAreaCursor *cursor, HAlignment hAlign)
 {
-    //    printf("QTextRow::paint\n");
+    //        printf("QTextRow::paint reorderedText.length() = %d\n", reorderedText.length());
 
     QRichTextString::Char *chr;
     int cw;
@@ -191,10 +225,10 @@ void QTextRow::paint(QPainter &painter, int _x, int _y, QTextAreaCursor *cursor,
 
     for ( i = 0 ; i < reorderedText.length(); i++ ) {
 	chr = &reorderedText.at( i );
-	cw = chr->format->width( chr->c );
+	cw = chr->format()->width( chr->c );
 
 	if(!lastFormat) {
-	    lastFormat = chr->format;
+	    lastFormat = chr->format();
 	    int startX = chr->x;
 	    QString buffer = chr->c;
 	    bw = cw;
@@ -203,7 +237,9 @@ void QTextRow::paint(QPainter &painter, int _x, int _y, QTextAreaCursor *cursor,
 	// check for cursor mark
 	if ( cursor && this == cursor->row() && i == cursor->index() ) {
 	    curx = chr->x;
-	    curh = chr->format->height();
+	    if(cursor->paragraph()->basicDirection() == QChar::DirR)
+		curx += chr->format()->width(chr->c);
+	    curh = chr->format()->height();
 	}
 
 #if 0
@@ -219,12 +255,12 @@ void QTextRow::paint(QPainter &painter, int _x, int _y, QTextAreaCursor *cursor,
 #endif	
 	QColorGroup cg;
 	// if something (format, etc.) changed, draw what we have so far
-	if ( chr->format != lastFormat || buffer == "\t" || chr->c == '\t' ) { // ### || selectionChange ) {
+	if ( chr->format() != lastFormat || buffer == "\t" || chr->c == '\t' ) { // ### || selectionChange ) {
 	    drawBuffer( painter, _x, _y, buffer, startX, bw, false, //drawSelections,
 			     lastFormat, i, 0, 0, cg );
 			     //			     lastFormat, i, selectionStarts, selectionEnds, cg );
 	    buffer = chr->c;
-	    lastFormat = chr->format;
+	    lastFormat = chr->format();
 	    startX = chr->x;
 	    bw = cw;
 	} else {
@@ -275,9 +311,9 @@ void QTextRow::drawBuffer( QPainter &painter, int x, int y, const QString &buffe
 	}
     }
 #endif
-    //printf("painting %s to %d/%d\n", buffer.latin1(), startX, bRect.y() );
+    //    printf("painting %s to %d/%d\n", buffer.latin1(), x + startX + bRect.x(), bRect.y() );
     if ( buffer != "\t" )
-	painter.drawText( x + startX + bRect.x(), y + bRect.y() + baseline, buffer );
+	painter.drawText( x + startX + bRect.x(), y + bRect.y() + bl, buffer );
 }
 
 	
@@ -307,7 +343,7 @@ bool QTextRow::checkComplexText()
 
     int i = len;
     while(i) {
-	if(text.at(i).c.row() > 0x04) {
+	if(text->at(i).c.row() > 0x04) {
 	    complexText = true;
 	    return true;
 	}
@@ -317,6 +353,12 @@ bool QTextRow::checkComplexText()
     endEmbed->ref();
     return false;
 }
+
+int QTextRow::logicalPosition(int visualPosition) const
+{
+    return visualPosition;
+}
+
 
 struct QBidiRun {
     QBidiRun(int _start, int _stop, QBidiContext *context, QChar::Direction dir) {
@@ -368,13 +410,13 @@ void QTextRow::bidiReorderLine()
     int current = start;
     while(current < start + len - 1) {
 	QChar::Direction dirCurrent;
-	if(current == text.length()) {
+	if(current == text->length()) {
 	    QBidiContext *c = context;
 	    while ( c->parent )
 		c = c->parent;
 	    dirCurrent = c->dir;
 	} else
-	    dirCurrent = text.at(current).c.direction();
+	    dirCurrent = text->at(current).c.direction();
 
 	
 #if BIDI_DEBUG > 1
@@ -718,7 +760,7 @@ void QTextRow::bidiReorderLine()
 
 	//cout << "     after: dir=" << //        dir << " current=" << dirCurrent << " last=" << status.last << " eor=" << status.eor << " lastStrong=" << status.lastStrong << " embedding=" << context->dir << endl;
 
-	if(current >= text.length()) break;
+	if(current >= text->length()) break;
 	
 	// set status.last as needed.
 	switch(dirCurrent)
@@ -763,6 +805,8 @@ void QTextRow::bidiReorderLine()
     if(endEmbed)
 	endEmbed->deref();
     endEmbed = context;
+    // #### segfaults without this call. There must be a hole in the refounting somewhere!!!
+    endEmbed->ref();
     // both commands below together give a noop...
     //endEmbed->ref();
     //context->deref();
@@ -847,18 +891,18 @@ void QTextRow::bidiReorderLine()
 	    // odd level, need to reverse the string
 	    int pos = r->stop;
 	    while(pos >= r->start) {
-		QRichTextString::Char c = text.at(pos);
+		QRichTextString::Char c = text->at(pos);
 		c.x = x;
-		x += c.format->width(c.c);
+		x += c.format()->width(c.c);
 		reorderedText.append( c );
 		pos--;
 	    }
 	} else {
 	    int pos = r->start;
 	    while(pos <= r->stop) {
-		QRichTextString::Char c = text.at(pos);
+		QRichTextString::Char c = text->at(pos);
 		c.x = x;
-		x += c.format->width(c.c);
+		x += c.format()->width(c.c);
 		reorderedText.append( c );
 		pos++;
 	    }
@@ -903,7 +947,7 @@ void QTextArea::appendParagraph(const QRichTextString &str)
     QParagraph *p = createParagraph( str, last );
     if(!first)
 	first = last = p;	
-    if(last) last->setNext(p);
+    else if(last) last->setNext(p);
     last = p;
 }
 
@@ -963,13 +1007,12 @@ QParagraph *QTextArea::lastParagraph() const
 QTextAreaCursor::QTextAreaCursor( QTextArea *a )
     : area( a )
 {
-    logicalIdx = 0;
     leftToRight = true;
     parag = area->firstParagraph();
     line = parag->first();
     if( line->hasComplexText() ) {
 	if( parag->basicDirection() == QChar::DirR ) {
-	    idx = line->length();
+	    idx = line->length() - 1;
 	    leftToRight = false;
 	} else
 	    idx = 0;
@@ -980,15 +1023,19 @@ QTextAreaCursor::QTextAreaCursor( QTextArea *a )
 
 void QTextAreaCursor::insert( const QString &s, bool checkNewLine )
 {
-#if 0
     tmpIndex = -1;
     bool justInsert = TRUE;
     if ( checkNewLine )
 	justInsert = ( s.find( '\n' ) == -1 );
     if ( justInsert ) {
-	parag->insert( idx, s );
-	idx += s.length();
+	int logicalIdx = line->logicalPosition(idx);
+	idx = parag->insert( logicalIdx, s );
+	while( idx > line->length() ) {
+	    idx -= line->length();
+	    line = line->next();
+	}
     } else {
+#if 0
 	QStringList lst = QStringList::split( '\n', s, TRUE );
 	QStringList::Iterator it = lst.begin();
 	int y = parag->rect().y() + parag->rect().height();
@@ -1014,8 +1061,8 @@ void QTextAreaCursor::insert( const QString &s, bool checkNewLine )
 	    p->setEndState( -1 );
 	    p = p->next();
 	}
-    }
 #endif
+    }
 }
 
 void QTextAreaCursor::gotoLeft()
@@ -1237,7 +1284,7 @@ void QTextAreaCursor::splitAndInsertEmtyParag( bool ind, bool updateIds )
     tmpIndex = -1;
     QTextEditFormat *f = 0;
     if ( !doc->syntaxHighlighter() )
-	f = parag->at( idx )->format;
+	f = parag->at( idx )->format();
 
     if ( atParagStart() ) {
 	QTextEditParag *p = parag->prev();
@@ -1494,7 +1541,7 @@ QParagraph::QParagraph(const QRichTextString &t, QTextArea *a, QParagraph *lastP
 
     hAlign = AlignAuto;
     basicDir = QChar::DirON;
-    
+
     // get last paragraph so we know where we want to place the next line
     if ( lastPar ) {
 	QPoint p = lastPar->nextLine();
@@ -1511,9 +1558,9 @@ QParagraph::~QParagraph()
 {
 }
 
-QChar::Direction QParagraph::basicDirection() const 
+QChar::Direction QParagraph::basicDirection() const
 {
-    if(basicDir == QChar::DirON) 
+    if(basicDir == QChar::DirON)
 	basicDir = ::basicDirection(text);
     return basicDir;
 }
@@ -1554,6 +1601,16 @@ void QParagraph::paint(QPainter &p, int x, int y, QTextAreaCursor *c)
     }
 }
 
+int QParagraph::insert(int idx, const QString &str)
+{
+    string()->insert(idx, str, string()->at(idx).format());
+    QRichTextFormatterBreakWords formatter(area);
+    formatter.format(this, idx);
+    return idx + str.length();
+}
+
+
+
 // ======================================================================
 
 
@@ -1574,7 +1631,6 @@ QRichTextFormat *QRichTextFormatCollection::format( QRichTextFormat *f )
 	qDebug( "need '%s', best case!", f->key().latin1() );
 #endif
 	lastFormat = f;
-	lastFormat->addRef();
 	return lastFormat;
     }
 
@@ -1582,7 +1638,6 @@ QRichTextFormat *QRichTextFormatCollection::format( QRichTextFormat *f )
 #ifdef DEBUG_COLLECTION
 	qDebug( "need '%s', good case!", f->key().latin1() );
 #endif
-	lastFormat->addRef();
 	return lastFormat;
     }
 
@@ -1592,7 +1647,6 @@ QRichTextFormat *QRichTextFormatCollection::format( QRichTextFormat *f )
 	qDebug( "need '%s', normal case!", f->key().latin1() );
 #endif
 	lastFormat = fm;
-	lastFormat->addRef();
 	return lastFormat;
     }
 
@@ -1611,7 +1665,6 @@ QRichTextFormat *QRichTextFormatCollection::format( QRichTextFormat *of, QRichTe
 #ifdef DEBUG_COLLECTION
 	qDebug( "mix of '%s' and '%s, best case!", of->key().latin1(), nf->key().latin1() );
 #endif
-	cres->addRef();
 	return cres;
     }
 
@@ -1646,7 +1699,6 @@ QRichTextFormat *QRichTextFormatCollection::format( QRichTextFormat *of, QRichTe
 #endif
 	delete cres;
 	cres = fm;
-	cres->addRef();
     }
 					
     return cres;
@@ -1658,7 +1710,6 @@ QRichTextFormat *QRichTextFormatCollection::format( const QFont &f, const QColor
 #ifdef DEBUG_COLLECTION
 	qDebug( "format of font and col '%s' - best case", cachedFormat->key().latin1() );
 #endif
-	cachedFormat->addRef();
 	return cachedFormat;
     }
 
@@ -1671,7 +1722,6 @@ QRichTextFormat *QRichTextFormatCollection::format( const QFont &f, const QColor
 #ifdef DEBUG_COLLECTION
 	qDebug( "format of font and col '%s' - good case", cachedFormat->key().latin1() );
 #endif
-	cachedFormat->addRef();
 	return cachedFormat;
     }
 
@@ -1857,31 +1907,62 @@ QRichTextFormatter::QRichTextFormatter( QTextArea *a )
 {
 }
 
-void QRichTextFormatter::addLine(QParagraph *p, int from, int to, int height, int baseline, int width)
+QTextRow *QRichTextFormatter::newLine( QParagraph *p, QTextRow *previous )
 {
-    printf("addline %d %d\n", from, to - from);
-    QTextRow *line = new QTextRow(*p->string(), from, to - from, p->last(), baseline, width);
+    printf("allocating new line\n");
+    QTextRow *r = new QTextRow(p->string(), previous);
+    if(previous)
+	previous->setNext(r);
+    else {
+	p->setFirst(r);
+	p->setLast(r);
+    }
+    if( previous == p->last() ) {
+	p->setLast(r);
+    }
+    return r;
+}
+
+QRect QRichTextFormatter::openLine(QParagraph *p, QTextRow *line, int from, int height)
+{
+    printf("open line at %d\n", from);
+    line->setFrom(from);
+    int x = p->x();
+    int y = p->y();
+    QTextRow *prev = line->prev();
+    if ( prev ) {
+	x += prev->x();
+	y += prev->y() + prev->height();
+    }
+    return area->lineRect( x, y );
+}
+
+bool QRichTextFormatter::closeLine(QParagraph *p, QTextRow *line, int to, int height, int baseline, int width)
+{
+    printf("closeLine %d %d\n", line->from(), to - line->from());
+
+    line->setLength( to - line->from() );
+    line->setTextWidth(width);
+    line->setBaseline(baseline);
 
     int x = p->x();
     int y = p->y();
-    if ( p->last() ) {
-	x += p->last()->x();
-	y += p->last()->y() + p->last()->height();
+    QTextRow *prev = line->prev();
+    if ( prev ) {
+	x += prev->x();
+	y += prev->y() + prev->height();
     }
     QRect r = area->lineRect(x, y, height);
-    // ####
-    //bRect |= r;
+
+    printf("positioning line at %d/%d width=%d height=%d\n", r.x(), r.y(), r.width(), r.height() );
+    // #### check for overflow because of too big height
+
     // make is relative to the paragraph
     r.moveBy( - p->x(), -p->y() );
 
     line->setBoundingRect(r);
-
-    if( !p->first() )
-	p->setFirst(line);
-    if ( p->last() )
-	p->last()->setNext(line);
-    p->setLast( line );
-
+    line->layout();
+    return true;
 }
 
 // ============================================================================
@@ -1896,44 +1977,45 @@ int QRichTextFormatterBreakWords::format( QParagraph *parag, int start )
 {
     QRichTextString::Char *c = 0;
 
-    // #########################################
-    // Should be optimized so that we start formatting
-    // really at start (this means the last line begin before start)
-    // and not always at the beginnin of the parag!
-    start = 0;
-    if ( start == 0 ) {
-	c = &parag->string()->at( 0 );
+    QTextRow *current = parag->last();
+    if(!current) {
+	// first time we layout the line.
+	current = newLine(parag, 0);
+	start = 0;
     }
-    // #########################################
+    // find first line to layout.
+    if(start != 0) {
+	while(1) {
+	    if(current->from() < start) {
+		start = current->from();
+		break;
+	    }
+	    current = current->prev();
+	}
+    } else {
+	current = parag->first();
+    }
 
     int i = start;
     int lastSpace = -1;
     int tmpBaseLine = 0, tmph = 0;
     int baseline = 0, width = 0;
 
-    QRect lineRect = area->lineRect(parag->x() ,parag->y());
+    QRect lineRect = openLine( parag, current, start, 0 );
     int w = lineRect.width();
-    printf("new line at %d/%d width=%d\n", lineRect.x(), lineRect.y(), w);
     int h = 0;
     int x = 0;
 
     for ( ; i < parag->string()->length(); ++i ) {
-
 	
 	c = &parag->string()->at( i );
-#if 0
-	// ####
-	if ( i > 0 && x > left ) {
-	    c->lineStart = 0;
-	} else {
-	    c->lineStart = 1;
-	}
-#endif
+
 	int ww = 0;
+	// ### add support for object replacement character.
 	if ( c->c.unicode() >= 32 || c->c == '\t' ) {
-	    ww = c->format->width( c->c );
+	    ww = c->format()->width( c->c );
 	} else {
-	    ww = c->format->width( ' ' );
+	    ww = c->format()->width( ' ' );
 	}
 	
 	if ( x + ww > w ) {
@@ -1944,17 +2026,14 @@ int QRichTextFormatterBreakWords::format( QParagraph *parag, int start )
 		baseline = QMAX( baseline, tmpBaseLine );
 		width = x;
 	    }
-	    addLine(parag, start, i, h, baseline, width);
+	    closeLine(parag, current, i, h, baseline, width);
 	    start = i;
-	    int xPos = parag->x();
-	    int yPos = parag->y();
-	    if ( parag->last() ) {
-		xPos += parag->last()->x();
-		yPos += parag->last()->y() + parag->last()->height();	
-	    }
-	    lineRect = area->lineRect(xPos, yPos);
+	    if(!current->next())
+		current = newLine(parag, current);
+	    else
+		current = current->next();
+	    lineRect = openLine(parag, current, start, 0);
 	    w = lineRect.width();
-	    printf("new line at %d/%d width=%d\n", lineRect.x(), lineRect.y(), w);
 	    h = 0;
 	    tmph = 0;
 	    tmpBaseLine = 0;
@@ -1963,21 +2042,25 @@ int QRichTextFormatterBreakWords::format( QParagraph *parag, int start )
 	    lastSpace = -1;
 	    continue;
 	} else if ( c->c == ' ' ) {
-	    tmpBaseLine = QMAX( tmpBaseLine, c->format->ascent() );
-	    tmph = QMAX( tmph, c->format->height() );
+	    tmpBaseLine = QMAX( tmpBaseLine, c->format()->ascent() );
+	    tmph = QMAX( tmph, c->format()->height() );
 	    h = QMAX( h, tmph );
 	    baseline = QMAX( baseline, tmpBaseLine );
-	    lastSpace = i;
+	    lastSpace = i+1;
 	    width = x;
 	    // ### cache lineheight and baseline for the chars up to here!!!
 	} else {
-	    tmpBaseLine = QMAX( tmpBaseLine, c->format->ascent() );
-	    tmph = QMAX( tmph, c->format->height() );
+	    tmpBaseLine = QMAX( tmpBaseLine, c->format()->ascent() );
+	    tmph = QMAX( tmph, c->format()->height() );
 	}
 	
 	c->x = x;
 	x += ww;
     }
+    width = x;
+    h = QMAX( h, tmph );
+    baseline = QMAX( baseline, tmpBaseLine );
+    closeLine(parag, current, i, h, baseline, width);
 
 #if 0
     // ############## unefficient!!!!!!!!!!!!!!!!!!!!!! - rewrite that!!!!
@@ -1992,7 +2075,7 @@ int QRichTextFormatterBreakWords::format( QParagraph *parag, int start )
 	    else
 		i = it.key() - 1;
 	    c = &parag->string()->at( i );
-	    int lw = c->x + c->format->width( c->c );
+	    int lw = c->x + c->format()->width( c->c );
 	    int diff = w - lw;
 	    if ( parag->alignment() & Qt::AlignHCenter )
 		diff /= 2;

@@ -35,6 +35,7 @@ public:
 
     QBidiContext *parent;
 
+
     // refcounting....
     mutable int count;
 };
@@ -59,12 +60,14 @@ class QRichTextString
 public:
     struct Char {
     public:
-	Char() : format( 0 ), lineStart( 0 ) {}
-	~Char() { format = 0; }
+	Char() : f( 0 ) {}
+	~Char();
 	QChar c;
 	ushort x;
-	QRichTextFormat *format;
-	uint lineStart : 1;
+	void setFormat(QRichTextFormat *fmt);
+	QRichTextFormat *format() const { return f; }
+    private:
+	QRichTextFormat *f;
     };
 
     QRichTextString();
@@ -98,8 +101,11 @@ private:
 
 class QTextRow {
 public:
-    QTextRow(const QRichTextString &text, int from, int length, QTextRow *previous, int baseline, int width);
+    QTextRow(QRichTextString *text, int from, int length, QTextRow *previous, int baseline, int width);
+    QTextRow(QRichTextString *text, QTextRow *previous);
     virtual ~QTextRow();
+
+    void layout();
 
     QTextRow *prev() const { return p; }
     QTextRow *next() const { return n; }
@@ -108,8 +114,11 @@ public:
 
     QBidiContext *startEmbedding() { return startEmbed; }
     QBidiContext *endEmbedding() { return endEmbed; }
-    int from() { return start; }
-    int length() { return len; }
+
+    void setFrom( int f ) { start = f; }
+    int from() const { return start; }
+    void setLength( int l ) { len = l; }
+    int length() const { return len; }
 
     virtual void paint(QPainter &p, int x, int y, QTextAreaCursor *, HAlignment = AlignAuto);
 
@@ -119,13 +128,19 @@ public:
     int x() const { return bRect.x(); }
     int y() const { return bRect.y(); }
 
+    void setTextWidth( int w ) { tw = w; }
     int textWidth() const { return tw; }
+
+    void setBaseline( int b ) { bl = b; }
+    int baseline() const { return bl; }
 
     void setBoundingRect(const QRect &r);
     QRect boundingRect();
 
     bool hasComplexText() const { return complexText; }
 
+    int logicalPosition(int visualPosition) const;
+    
 private:
     bool checkComplexText();
     void bidiReorderLine();
@@ -142,9 +157,9 @@ private:
     int start;
     short len;
     QRect bRect;
-    short baseline;
+    short bl;
     short tw;
-    QRichTextString text;
+    QRichTextString *text;
     QRichTextString reorderedText;
 
     QTextRow *p, *n;
@@ -179,8 +194,9 @@ public:
     HAlignment hAlignment() const { return hAlign; }
 
     QChar::Direction basicDirection() const;
+
+    int insert(int idx, const QString &str);
     
-protected:
     virtual void layout();
 
 private:
@@ -191,7 +207,7 @@ private:
 
     QRichTextString text;
     mutable QChar::Direction basicDir;
-    
+
     int xPos;
     int yPos;
     QRect bRect;
@@ -251,7 +267,6 @@ public:
     void gotoWordLeft();
     void gotoWordRight();
 
-    // ### do that in the cursor? why not move it to the paragraph/TextArea???
     void insert( const QString &s, bool checkNewLine );
     void splitAndInsertEmtyParag( bool ind = TRUE, bool updateIds = TRUE );
     bool remove();
@@ -273,7 +288,6 @@ private:
     QParagraph *parag;
     QTextArea *area;
     int idx, tmpIndex;
-    int logicalIdx;
     bool leftToRight;
 };
 
@@ -381,7 +395,9 @@ public:
     QRichTextFormatter( QTextArea *a );
     virtual ~QRichTextFormatter() {}
     virtual int format( QParagraph *parag, int start ) = 0;
-    void addLine(QParagraph *p, int from, int to, int height, int baseline, int width);
+    virtual QTextRow *newLine(QParagraph *p, QTextRow *previous);
+    QRect openLine(QParagraph *p, QTextRow *line, int from, int height = 0);
+    bool closeLine(QParagraph *p, QTextRow *line, int to, int height, int baseline, int width);
 
 protected:
     QTextArea *area;
@@ -461,6 +477,7 @@ inline void QRichTextString::clear()
 {
     delete [] data;
     data = 0;
+    len = maxLen = 0;
 }
 
 // ========================================================================
@@ -477,7 +494,6 @@ inline QRichTextFormat::QRichTextFormat( const QFont &f, const QColor &c )
     for ( int i = 0; i < 65536; ++i )
 	widths[ i ] = 0;
     generateKey();
-    addRef();
 }
 
 inline QRichTextFormat::QRichTextFormat( const QRichTextFormat &f )
@@ -493,7 +509,6 @@ inline QRichTextFormat::QRichTextFormat( const QRichTextFormat &f )
     asc = f.asc;
     dsc = f.dsc;
     generateKey();
-    addRef();
 }
 
 inline void QRichTextFormat::update()
@@ -587,7 +602,7 @@ inline void QRichTextFormat::removeRef()
 #ifdef DEBUG_COLLECTION
     qDebug( "remove ref of '%s' to %d (%p)", k.latin1(), ref, this );
 #endif
-    if ( ref == 0 )
+    if ( ref <= 0 )
 	collection->remove( this );
 }
 
