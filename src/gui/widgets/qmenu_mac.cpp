@@ -1,8 +1,8 @@
 /****************************************************************************
 **
-** Implementation of QWidget and QWindow classes for mac.
+** Implementation of QMenu and QMenuBar classes for mac.
 **
-** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
+** Copyright (C) 2004-$THISYEAR$ Trolltech AS. All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 ** EDITIONS: FREE, PROFESSIONAL, ENTERPRISE
