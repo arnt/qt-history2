@@ -339,7 +339,7 @@ static void init_gc_cache()
 }
 
 
-#define GC_CACHE_STAT
+// #define GC_CACHE_STAT
 #if defined(GC_CACHE_STAT)
 #include "qtextstream.h"
 #include "qbuffer.h"
