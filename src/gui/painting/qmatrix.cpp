@@ -316,11 +316,11 @@ QRect QMatrix::mapRect(const QRect &rect) const
         int h = qRound(_m22*rect.height());
         if (w < 0) {
             w = -w;
-            x -= w-1;
+            x -= w;
         }
         if (h < 0) {
             h = -h;
-            y -= h-1;
+            y -= h;
         }
         result = QRect(x, y, w, h);
     } else {
@@ -596,39 +596,10 @@ QRegion QMatrix::map(const QRegion &r) const
         return copy;
     }
 
-    QVector<QRect> rects = r.rects();
-    QRegion result;
-    register QRect *rect = rects.data();
-    register int i = rects.size();
-    if (m12() == 0.0F && m21() == 0.0F) {
-        // simple case, no rotation
-        while (i) {
-            int x = qRound(m11()*rect->x() + dx());
-            int y = qRound(m22()*rect->y() + dy());
-            int w = qRound(m11()*rect->width());
-            int h = qRound(m22()*rect->height());
-            if (w < 0) {
-                w = -w;
-                x -= w-1;
-            }
-            if (h < 0) {
-                h = -h;
-                y -= h-1;
-            }
-            *rect = QRect(x, y, w, h);
-            rect++;
-            i--;
-        }
-        result.setRects(rects.data(), rects.size());
-    } else {
-        while (i) {
-            result |= mapToRegion(*rect);
-            rect++;
-            i--;
-        }
-    }
-
-    return result;
+    QPainterPath p;
+    p.addRegion(r);
+    p = map(p);
+    return p.toFillPolygon().toPointArray();
 }
 
 /*
@@ -664,6 +635,7 @@ QPainterPath QMatrix::map(const QPainterPath &path) const
 
     \sa QMatrix::mapRect()
 */
+#ifdef QT_COMPAT
 QRegion QMatrix::mapToRegion(const QRect &rect) const
 {
     QRegion result;
@@ -689,7 +661,7 @@ QRegion QMatrix::mapToRegion(const QRect &rect) const
     return result;
 
 }
-
+#endif
 /*!
     Returns the transformed rectangle \a rect as a polygon.
 
@@ -703,67 +675,31 @@ QPointArray QMatrix::mapToPolygon(const QRect &rect) const
     QPointArray a(4);
     double x[4], y[4];
     if (_m12 == 0.0F && _m21 == 0.0F) {
-        x[0] = qRound(_m11*rect.x() + _dx);
-        y[0] = qRound(_m22*rect.y() + _dy);
-        double w = qRound(_m11*rect.width());
-        double h = qRound(_m22*rect.height());
+        x[0] = _m11*rect.x() + _dx;
+        y[0] = _m22*rect.y() + _dy;
+        double w = _m11*rect.width();
+        double h = _m22*rect.height();
         if (w < 0) {
             w = -w;
-            x[0] -= w - 1.;
+            x[0] -= w;
         }
         if (h < 0) {
             h = -h;
-            y[0] -= h - 1.;
+            y[0] -= h;
         }
-        x[1] = x[0]+w-1;
+        x[1] = x[0]+w;
         x[2] = x[1];
         x[3] = x[0];
         y[1] = y[0];
-        y[2] = y[0]+h-1;
+        y[2] = y[0]+h;
         y[3] = y[2];
     } else {
-        MAPINT(rect.left(), rect.top(), x[0], y[0]);
-        MAPINT(rect.right() + 1, rect.top(), x[1], y[1]);
-        MAPINT(rect.right() + 1, rect.bottom() + 1, x[2], y[2]);
-        MAPINT(rect.left(), rect.bottom() + 1, x[3], y[3]);
-
-        /*
-        Including rectangles as we have are evil.
-
-        We now have a rectangle that is one pixel to wide and one to
-        high. the tranformed position of the top-left corner is
-        correct. All other points need some adjustments.
-
-        Doing this mathematically exact would force us to calculate some square roots,
-        something we don't want for the sake of speed.
-
-        Instead we use an approximation, that converts to the correct
-        answer when m12 -> 0 and m21 -> 0, and accept smaller
-        errors in the general transformation case.
-
-        The solution is to calculate the width and height of the
-        bounding rect, and scale the points 1/2/3 by (xp-x0)/xw pixel direction
-        to point 0.
-        */
-
-        double xmin = x[0];
-        double ymin = y[0];
-        double xmax = x[0];
-        double ymax = y[0];
-        int i;
-        for(i = 1; i< 4; i++) {
-            xmin = qMin(xmin, x[i]);
-            ymin = qMin(ymin, y[i]);
-            xmax = qMax(xmax, x[i]);
-            ymax = qMax(ymax, y[i]);
-        }
-        double w = xmax - xmin;
-        double h = ymax - ymin;
-
-        for(i = 1; i < 4; i++) {
-            x[i] -= (x[i] - x[0])/w;
-            y[i] -= (y[i] - y[0])/h;
-        }
+        double right = rect.x() + rect.width();
+        double bottom = rect.y() + rect.height();
+        MAPDOUBLE(rect.x(), rect.y(), x[0], y[0]);
+        MAPDOUBLE(right, rect.y(), x[1], y[1]);
+        MAPDOUBLE(right, bottom, x[2], y[2]);
+        MAPDOUBLE(rect.x(), bottom, x[3], y[3]);
     }
 #if 0
     int i;

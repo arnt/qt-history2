@@ -56,7 +56,6 @@ public:
     QPointArray map(const QPointArray &a) const;
     QRegion map(const QRegion &r) const;
     QPainterPath map(const QPainterPath &p) const;
-    QRegion mapToRegion(const QRect &r) const;
     QPointArray mapToPolygon(const QRect &r) const;
 
     void reset();
@@ -82,6 +81,7 @@ public:
 
 #ifdef QT_COMPAT
     inline QT_COMPAT QRect map(const QRect &r) const { return mapRect(r); }
+    QT_COMPAT QRegion mapToRegion(const QRect &r) const;
 #endif
 
 private:
