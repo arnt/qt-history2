@@ -1021,7 +1021,7 @@ void QTextCursor::gotoHome()
 void QTextCursor::gotoEnd()
 {
     if ( doc && !doc->lastParag()->isValid() )
-	doc->lastParag()->format();
+	return;
 
     tmpIndex = -1;
     if ( doc )

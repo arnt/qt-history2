@@ -400,6 +400,7 @@ private:
     void clearUndoRedo();
     void paintDocument( bool drawAll, QPainter *p, int cx = -1, int cy = -1, int cw = -1, int ch = -1 );
     void moveCursor( CursorAction action );
+    void ensureFormatted( QTextParag *p );
 
 private:
     QTextDocument *doc;

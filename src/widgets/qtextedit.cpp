@@ -1410,6 +1410,7 @@ void QTextEdit::moveCursor( CursorAction action )
 	cursor->gotoLineEnd();
 	break;
     case MoveEnd:
+	ensureFormatted( doc->lastParag() );
 	cursor->gotoEnd();
 	break;
     }
@@ -3415,6 +3416,7 @@ void QTextEdit::append( const QString &text )
     }
     if ( f == PlainText ) {
 	QTextCursor oldc( *cursor );
+	ensureFormatted( doc->lastParag() );
 	cursor->gotoEnd();
 	if ( cursor->index() > 0 )
 	    cursor->splitAndInsertEmptyParag();
@@ -4350,6 +4352,15 @@ bool QTextEdit::isUndoAvailable() const
 bool QTextEdit::isRedoAvailable() const
 {
     return doc->commands()->isRedoAvailable();
+}
+
+void QTextEdit::ensureFormatted( QTextParag *p )
+{
+    while ( !p->isValid() ) {
+	if ( !lastFormatted )
+	    return;
+	formatMore();
+    }
 }
 
 #endif //QT_NO_TEXTEDIT
