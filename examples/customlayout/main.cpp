@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/customlayout/main.cpp#1 $
+** $Id: //depot/qt/main/examples/customlayout/main.cpp#2 $
 **
 ** Main for custom layout example
 **
@@ -84,5 +84,7 @@ int main( int argc, char **argv )
     a.setMainWidget( f );
     f->show();
 
-    return a.exec();
+    int result = a.exec();
+    delete f;
+    return result;
 }
