@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: tutorial.doc,v 1.8 1995/12/22 11:08:24 hanord Exp $
+** $Id: tutorial.doc,v 1.9 1995/12/28 15:24:18 hanord Exp $
 **
 ** Tutorial
 **
@@ -43,6 +43,7 @@ Tutorial chapters:
 <li>\link t13.html Game Over\endlink
 <li>\link t14.html Facing the Wall\endlink
 <ol>
+
 */
 
 
@@ -685,6 +686,32 @@ You may now go on to \link t7.html chapter seven. \endlink
 ------------------------------------------------------------------------------
 
 
+/*! \page t7_lcdrange_h.html
+<h2>Source code for \link t7.html tutorial 7\endlink: lcdrange.h</h2>
+<hr>
+\include t7/lcdrange.h
+*/
+
+/*! \page t7_lcdrange_cpp.html
+<h2>Source code for \link t7.html tutorial 7\endlink: lcdrange.cpp</h2>
+<hr>
+\include t7/lcdrange.cpp
+*/
+
+/*! \page t7_main_cpp.html
+<h2>Source code for \link t7.html tutorial 7\endlink: main.cpp</h2>
+<hr>
+\include t7/main.cpp
+*/
+
+/*! \page t7_makefile.html
+<h2>UNIX Makefile for \link t7.html tutorial 7\endlink</h2>
+<hr>
+\include t7/Makefile
+*/
+
+
+
 /*! \page t7.html
 
 <title>
@@ -699,16 +726,13 @@ This example shows how to create custom widgets with signals and
 slots, and how to connect them together in more complex ways.  For the
 first time, the source is split among several files.
 
-\header t7/lcdrange.h
-\link TEST!!!\endlink
-
 <ul>
-<li> \link t7/lcdrange.h lcdrange.h \endlink contains the LCDRange
+<li>\link t7_lcdrange_h.html lcdrange.h\endlink contains the LCDRange
 class definition
-<li> \link t7/lcdrange.cpp lcdrange.cpp \endlink contains the LCDRange
+<li>\link t7_lcdrange_cpp.html lcdrange.cpp\endlink contains the LCDRange
 implementation
-<li> \link t7/main.cpp main.cpp \endlink contains MyWidget and main.
-<li> \link t7/Makefile Makefile \endlink contains some rules for
+<li>\link t7_main_cpp.html main.cpp\endlink contains MyWidget and main.
+<li>\link t7_makefile.html Makefile\endlink contains some rules for
 generating the metaobject information necessary for <a
 href=metaobjects.html>signal/slot creation.</a>
 </ul>
@@ -854,6 +878,44 @@ You may now go on to \link t8.html chapter eight. \endlink
 ------------------------------------------------------------------------------
 
 
+/*! \page t8_lcdrange_h.html
+<h2>Source code for \link t8.html tutorial 8\endlink: lcdrange.h</h2>
+<hr>
+\include t8/lcdrange.h
+*/
+
+/*! \page t8_lcdrange_cpp.html
+<h2>Source code for \link t8.html tutorial 8\endlink: lcdrange.cpp</h2>
+<hr>
+\include t8/lcdrange.cpp
+*/
+
+/*! \page t8_cannon_h.html
+<h2>Source code for \link t8.html tutorial 8\endlink: cannon.h</h2>
+<hr>
+\include t8/cannon.h
+*/
+
+/*! \page t8_cannon_cpp.html
+<h2>Source code for \link t8.html tutorial 8\endlink: cannon.cpp</h2>
+<hr>
+\include t8/cannon.cpp
+*/
+
+/*! \page t8_main_cpp.html
+<h2>Source code for \link t8.html tutorial 8\endlink: main.cpp</h2>
+<hr>
+\include t8/main.cpp
+*/
+
+/*! \page t8_makefile.html
+<h2>UNIX Makefile for \link t8.html tutorial 8\endlink</h2>
+<hr>
+\include t8/Makefile
+*/
+
+
+
 /*! \page t8.html
 
 <title>
@@ -868,16 +930,16 @@ In this example, we introduce the first custom widget that can paint
 itself.
 
 <ul>
-<li> \link t8/lcdrange.h lcdrange.h \endlink contains the LCDRange
+<li>\link t8_lcdrange_h.html lcdrange.h\endlink contains the LCDRange
 class definition
-<li> \link t8/lcdrange.cpp lcdrange.cpp \endlink contains the LCDRange
+<li>\link t8_lcdrange_cpp.html lcdrange.cpp\endlink contains the LCDRange
 implementation
-<li> \link t8/cannon.h cannon.h \endlink contains the CannonField
-class definition
-<li> \link t8/cannon.cpp cannon.cpp \endlink contains the CannonField
+<li>\link t8_cannon_h.html cannon.h\endlink contains the CannonField class
+definition
+<li>\link t8_cannon_cpp.html cannon.cpp\endlink contains the CannonField
 implementation
-<li> \link t8/main.cpp main.cpp \endlink contains MyWidget and main.
-<li> \link t8/Makefile Makefile \endlink contains some rules for
+<li>\link t8_main_cpp.html main.cpp\endlink contains MyWidget and main.
+<li>\link t8_makefile.html Makefile\endlink contains some rules for
 generating the metaobject information necessary for <a
 href=metaobjects.html>signal/slot creation.</a>
 </ul>
@@ -1087,6 +1149,44 @@ You may now go on to \link t9.html chapter nine. \endlink
 ------------------------------------------------------------------------------
 
 
+/*! \page t9_lcdrange_h.html
+<h2>Source code for \link t9.html tutorial 9\endlink: lcdrange.h</h2>
+<hr>
+\include t9/lcdrange.h
+*/
+
+/*! \page t9_lcdrange_cpp.html
+<h2>Source code for \link t9.html tutorial 9\endlink: lcdrange.cpp</h2>
+<hr>
+\include t9/lcdrange.cpp
+*/
+
+/*! \page t9_cannon_h.html
+<h2>Source code for \link t9.html tutorial 9\endlink: cannon.h</h2>
+<hr>
+\include t9/cannon.h
+*/
+
+/*! \page t9_cannon_cpp.html
+<h2>Source code for \link t9.html tutorial 9\endlink: cannon.cpp</h2>
+<hr>
+\include t9/cannon.cpp
+*/
+
+/*! \page t9_main_cpp.html
+<h2>Source code for \link t9.html tutorial 9\endlink: main.cpp</h2>
+<hr>
+\include t9/main.cpp
+*/
+
+/*! \page t9_makefile.html
+<h2>UNIX Makefile for \link t9.html tutorial 9\endlink</h2>
+<hr>
+\include t9/Makefile
+*/
+
+
+
 /*! \page t9.html
 
 <title>
@@ -1102,16 +1202,16 @@ It is used to draw a cute little blue cannon.
 Only cannon.cpp differs from the previous chapter.
 
 <ul>
-<li> \link t9/lcdrange.h lcdrange.h \endlink contains the LCDRange
+<li>\link t9_lcdrange_h.html lcdrange.h\endlink contains the LCDRange
 class definition
-<li> \link t9/lcdrange.cpp lcdrange.cpp \endlink contains the LCDRange
+<li>\link t9_lcdrange_cpp.html lcdrange.cpp\endlink contains the LCDRange
 implementation
-<li> \link t9/cannon.h cannon.h \endlink contains the CannonField
-class definition
-<li> \link t9/cannon.cpp cannon.cpp \endlink contains the CannonField
+<li>\link t9_cannon_h.html cannon.h\endlink contains the CannonField class
+definition
+<li>\link t9_cannon_cpp.html cannon.cpp\endlink contains the CannonField
 implementation
-<li> \link t9/main.cpp main.cpp \endlink contains MyWidget and main.
-<li> \link t9/Makefile Makefile \endlink contains some rules for
+<li>\link t9_main_cpp.html main.cpp\endlink contains MyWidget and main.
+<li>\link t9_makefile.html Makefile\endlink contains some rules for
 generating the metaobject information necessary for <a
 href=metaobjects.html>signal/slot creation.</a>
 </ul>
@@ -1222,6 +1322,44 @@ You may now go on to \link t10.html chapter ten. \endlink
 ------------------------------------------------------------------------------
 
 
+/*! \page t10_lcdrange_h.html
+<h2>Source code for \link t10.html tutorial 10\endlink: lcdrange.h</h2>
+<hr>
+\include t10/lcdrange.h
+*/
+
+/*! \page t10_lcdrange_cpp.html
+<h2>Source code for \link t10.html tutorial 10\endlink: lcdrange.cpp</h2>
+<hr>
+\include t10/lcdrange.cpp
+*/
+
+/*! \page t10_cannon_h.html
+<h2>Source code for \link t10.html tutorial 10\endlink: cannon.h</h2>
+<hr>
+\include t10/cannon.h
+*/
+
+/*! \page t10_cannon_cpp.html
+<h2>Source code for \link t10.html tutorial 10\endlink: cannon.cpp</h2>
+<hr>
+\include t10/cannon.cpp
+*/
+
+/*! \page t10_main_cpp.html
+<h2>Source code for \link t10.html tutorial 10\endlink: main.cpp</h2>
+<hr>
+\include t10/main.cpp
+*/
+
+/*! \page t10_makefile.html
+<h2>UNIX Makefile for \link t10.html tutorial 10\endlink</h2>
+<hr>
+\include t10/Makefile
+*/
+
+
+
 /*! \page t10.html
 
 <title>
@@ -1236,16 +1374,16 @@ In this example, we introduce painting in a pixmap to remove flickering.
 We also add a force control.
 
 <ul>
-<li> \link t10/lcdrange.h lcdrange.h \endlink contains the LCDRange
+<li>\link t10_lcdrange_h.html lcdrange.h\endlink contains the LCDRange
 class definition
-<li> \link t10/lcdrange.cpp lcdrange.cpp \endlink contains the LCDRange
+<li>\link t10_lcdrange_cpp.html lcdrange.cpp\endlink contains the LCDRange
 implementation
-<li> \link t10/cannon.h cannon.h \endlink contains the CannonField
-class definition
-<li> \link t10/cannon.cpp cannon.cpp \endlink contains the CannonField
+<li>\link t10_cannon_h.html cannon.h\endlink contains the CannonField class
+definition
+<li>\link t10_cannon_cpp.html cannon.cpp\endlink contains the CannonField
 implementation
-<li> \link t10/main.cpp main.cpp \endlink contains MyWidget and main.
-<li> \link t10/Makefile Makefile \endlink contains some rules for
+<li>\link t10_main_cpp.html main.cpp\endlink contains MyWidget and main.
+<li>\link t10_makefile.html Makefile\endlink contains some rules for
 generating the metaobject information necessary for <a
 href=metaobjects.html>signal/slot creation.</a>
 </ul>
@@ -1429,6 +1567,44 @@ You may now go on to \link t11.html chapter eleven. \endlink
 ------------------------------------------------------------------------------
 
 
+/*! \page t11_lcdrange_h.html
+<h2>Source code for \link t11.html tutorial 11\endlink: lcdrange.h</h2>
+<hr>
+\include t11/lcdrange.h
+*/
+
+/*! \page t11_lcdrange_cpp.html
+<h2>Source code for \link t11.html tutorial 11\endlink: lcdrange.cpp</h2>
+<hr>
+\include t11/lcdrange.cpp
+*/
+
+/*! \page t11_cannon_h.html
+<h2>Source code for \link t11.html tutorial 11\endlink: cannon.h</h2>
+<hr>
+\include t11/cannon.h
+*/
+
+/*! \page t11_cannon_cpp.html
+<h2>Source code for \link t11.html tutorial 11\endlink: cannon.cpp</h2>
+<hr>
+\include t11/cannon.cpp
+*/
+
+/*! \page t11_main_cpp.html
+<h2>Source code for \link t11.html tutorial 11\endlink: main.cpp</h2>
+<hr>
+\include t11/main.cpp
+*/
+
+/*! \page t11_makefile.html
+<h2>UNIX Makefile for \link t11.html tutorial 11\endlink</h2>
+<hr>
+\include t11/Makefile
+*/
+
+
+
 /*! \page t11.html
 
 <title>
@@ -1442,16 +1618,16 @@ Qt Tutorial - Chapter 11
 In this example, we introduce timer events to implement shooting.
 
 <ul>
-<li> \link t11/lcdrange.h lcdrange.h \endlink contains the LCDRange
+<li>\link t11_lcdrange_h.html lcdrange.h\endlink contains the LCDRange
 class definition
-<li> \link t11/lcdrange.cpp lcdrange.cpp \endlink contains the LCDRange
+<li>\link t11_lcdrange_cpp.html lcdrange.cpp\endlink contains the LCDRange
 implementation
-<li> \link t11/cannon.h cannon.h \endlink contains the CannonField
-class definition
-<li> \link t11/cannon.cpp cannon.cpp \endlink contains the CannonField
+<li>\link t11_cannon_h.html cannon.h\endlink contains the CannonField class
+definition
+<li>\link t11_cannon_cpp.html cannon.cpp\endlink contains the CannonField
 implementation
-<li> \link t11/main.cpp main.cpp \endlink contains MyWidget and main.
-<li> \link t11/Makefile Makefile \endlink contains some rules for
+<li>\link t11_main_cpp.html main.cpp\endlink contains MyWidget and main.
+<li>\link t11_makefile.html Makefile\endlink contains some rules for
 generating the metaobject information necessary for <a
 href=metaobjects.html>signal/slot creation.</a>
 </ul>
@@ -1653,6 +1829,44 @@ You may now go on to \link t12.html chapter twelve. \endlink
 ------------------------------------------------------------------------------
 
 
+/*! \page t12_lcdrange_h.html
+<h2>Source code for \link t12.html tutorial 12\endlink: lcdrange.h</h2>
+<hr>
+\include t12/lcdrange.h
+*/
+
+/*! \page t12_lcdrange_cpp.html
+<h2>Source code for \link t12.html tutorial 12\endlink: lcdrange.cpp</h2>
+<hr>
+\include t12/lcdrange.cpp
+*/
+
+/*! \page t12_cannon_h.html
+<h2>Source code for \link t12.html tutorial 12\endlink: cannon.h</h2>
+<hr>
+\include t12/cannon.h
+*/
+
+/*! \page t12_cannon_cpp.html
+<h2>Source code for \link t12.html tutorial 12\endlink: cannon.cpp</h2>
+<hr>
+\include t12/cannon.cpp
+*/
+
+/*! \page t12_main_cpp.html
+<h2>Source code for \link t12.html tutorial 12\endlink: main.cpp</h2>
+<hr>
+\include t12/main.cpp
+*/
+
+/*! \page t12_makefile.html
+<h2>UNIX Makefile for \link t12.html tutorial 12\endlink</h2>
+<hr>
+\include t12/Makefile
+*/
+
+
+
 /*! \page t12.html
 
 <title>
@@ -1667,16 +1881,16 @@ In this example, we extend our LCDRange class to include a text label.
 We also provide something to shoot at.
 
 <ul>
-<li> \link t12/lcdrange.h lcdrange.h \endlink contains the LCDRange
+<li>\link t12_lcdrange_h.html lcdrange.h\endlink contains the LCDRange
 class definition
-<li> \link t12/lcdrange.cpp lcdrange.cpp \endlink contains the LCDRange
+<li>\link t12_lcdrange_cpp.html lcdrange.cpp\endlink contains the LCDRange
 implementation
-<li> \link t12/cannon.h cannon.h \endlink contains the CannonField
-class definition
-<li> \link t12/cannon.cpp cannon.cpp \endlink contains the CannonField
+<li>\link t12_cannon_h.html cannon.h\endlink contains the CannonField class
+definition
+<li>\link t12_cannon_cpp.html cannon.cpp\endlink contains the CannonField
 implementation
-<li> \link t12/main.cpp main.cpp \endlink contains MyWidget and main.
-<li> \link t12/Makefile Makefile \endlink contains some rules for
+<li>\link t12_main_cpp.html main.cpp\endlink contains MyWidget and main.
+<li>\link t12_makefile.html Makefile\endlink contains some rules for
 generating the metaobject information necessary for <a
 href=metaobjects.html>signal/slot creation.</a>
 </ul>
@@ -1975,6 +2189,56 @@ You may now go on to \link t13.html chapter thirteen. \endlink
 ------------------------------------------------------------------------------
 
 
+/*! \page t13_lcdrange_h.html
+<h2>Source code for \link t13.html tutorial 13\endlink: lcdrange.h</h2>
+<hr>
+\include t13/lcdrange.h
+*/
+
+/*! \page t13_lcdrange_cpp.html
+<h2>Source code for \link t13.html tutorial 13\endlink: lcdrange.cpp</h2>
+<hr>
+\include t13/lcdrange.cpp
+*/
+
+/*! \page t13_cannon_h.html
+<h2>Source code for \link t13.html tutorial 13\endlink: cannon.h</h2>
+<hr>
+\include t13/cannon.h
+*/
+
+/*! \page t13_cannon_cpp.html
+<h2>Source code for \link t13.html tutorial 13\endlink: cannon.cpp</h2>
+<hr>
+\include t13/cannon.cpp
+*/
+
+/*! \page t13_gamebrd_h.html
+<h2>Source code for \link t13.html tutorial 13\endlink: gamebrd.h</h2>
+<hr>
+\include t13/gamebrd.h
+*/
+
+/*! \page t13_gamebrd_cpp.html
+<h2>Source code for \link t13.html tutorial 13\endlink: gamebrd.cpp</h2>
+<hr>
+\include t13/gamebrd.cpp
+*/
+
+/*! \page t13_main_cpp.html
+<h2>Source code for \link t13.html tutorial 13\endlink: main.cpp</h2>
+<hr>
+\include t13/main.cpp
+*/
+
+/*! \page t13_makefile.html
+<h2>UNIX Makefile for \link t13.html tutorial 13\endlink</h2>
+<hr>
+\include t13/Makefile
+*/
+
+
+
 /*! \page t13.html
 
 <title>
@@ -1993,20 +2257,20 @@ We put the definition in gamebrd.h and the implementation in gamebrd.cpp.
 The CannonField now has a game over state.
 
 <ul>
-<li> \link t13/lcdrange.h lcdrange.h \endlink contains the LCDRange
+<li>\link t13_lcdrange_h.html lcdrange.h\endlink contains the LCDRange
 class definition
-<li> \link t13/lcdrange.cpp lcdrange.cpp \endlink contains the LCDRange
+<li>\link t13_lcdrange_cpp.html lcdrange.cpp\endlink contains the LCDRange
 implementation
-<li> \link t13/cannon.h cannon.h \endlink contains the CannonField
+<li>\link t13_cannon_h.html cannon.h\endlink contains the CannonField class
+definition
+<li>\link t13_cannon_cpp.html cannon.cpp\endlink contains the CannonField
+implementation
+<li>\link t13_gamebrd_h.html gamebrd.h\endlink contains the GameBoard
 class definition
-<li> \link t13/cannon.cpp cannon.cpp \endlink contains the CannonField
+<li>\link t13_gamebrd_cpp.html gamebrd.cpp\endlink contains the GameBoard
 implementation
-<li> \link t13/gamebrd.h gamebrd.h \endlink contains the GameBoard
-class definition
-<li> \link t13/gamebrd.cpp gamebrd.cpp \endlink contains the GameBoard
-implementation
-<li> \link t13/main.cpp main.cpp \endlink contains main.
-<li> \link t13/Makefile Makefile \endlink contains some rules for
+<li>\link t13_main_cpp.html main.cpp\endlink contains MyWidget and main.
+<li>\link t13_makefile.html Makefile\endlink contains some rules for
 generating the metaobject information necessary for <a
 href=metaobjects.html>signal/slot creation.</a>
 </ul>
@@ -2222,6 +2486,56 @@ You may now go on to \link t14.html chapter fourteen. \endlink
 ------------------------------------------------------------------------------
 
 
+/*! \page t14_lcdrange_h.html
+<h2>Source code for \link t14.html tutorial 14\endlink: lcdrange.h</h2>
+<hr>
+\include t14/lcdrange.h
+*/
+
+/*! \page t14_lcdrange_cpp.html
+<h2>Source code for \link t14.html tutorial 14\endlink: lcdrange.cpp</h2>
+<hr>
+\include t14/lcdrange.cpp
+*/
+
+/*! \page t14_cannon_h.html
+<h2>Source code for \link t14.html tutorial 14\endlink: cannon.h</h2>
+<hr>
+\include t14/cannon.h
+*/
+
+/*! \page t14_cannon_cpp.html
+<h2>Source code for \link t14.html tutorial 14\endlink: cannon.cpp</h2>
+<hr>
+\include t14/cannon.cpp
+*/
+
+/*! \page t14_gamebrd_h.html
+<h2>Source code for \link t14.html tutorial 14\endlink: gamebrd.h</h2>
+<hr>
+\include t14/gamebrd.h
+*/
+
+/*! \page t14_gamebrd_cpp.html
+<h2>Source code for \link t14.html tutorial 14\endlink: gamebrd.cpp</h2>
+<hr>
+\include t14/gamebrd.cpp
+*/
+
+/*! \page t14_main_cpp.html
+<h2>Source code for \link t14.html tutorial 14\endlink: main.cpp</h2>
+<hr>
+\include t14/main.cpp
+*/
+
+/*! \page t14_makefile.html
+<h2>UNIX Makefile for \link t14.html tutorial 14\endlink</h2>
+<hr>
+\include t14/Makefile
+*/
+
+
+
 /*! \page t14.html
 
 <title>
@@ -2239,20 +2553,20 @@ We put a frame around the CannonField and add a barrier (wall) to
 make the game more playable.
 
 <ul>
-<li> \link t14/lcdrange.h lcdrange.h \endlink contains the LCDRange
+<li>\link t14_lcdrange_h.html lcdrange.h\endlink contains the LCDRange
 class definition
-<li> \link t14/lcdrange.cpp lcdrange.cpp \endlink contains the LCDRange
+<li>\link t14_lcdrange_cpp.html lcdrange.cpp\endlink contains the LCDRange
 implementation
-<li> \link t14/cannon.h cannon.h \endlink contains the CannonField
+<li>\link t14_cannon_h.html cannon.h\endlink contains the CannonField class
+definition
+<li>\link t14_cannon_cpp.html cannon.cpp\endlink contains the CannonField
+implementation
+<li>\link t14_gamebrd_h.html gamebrd.h\endlink contains the GameBoard
 class definition
-<li> \link t14/cannon.cpp cannon.cpp \endlink contains the CannonField
+<li>\link t14_gamebrd_cpp.html gamebrd.cpp\endlink contains the GameBoard
 implementation
-<li> \link t14/gamebrd.h gamebrd.h \endlink contains the GameBoard
-class definition
-<li> \link t14/gamebrd.cpp gamebrd.cpp \endlink contains the GameBoard
-implementation
-<li> \link t14/main.cpp main.cpp \endlink contains main.
-<li> \link t14/Makefile Makefile \endlink contains some rules for
+<li>\link t14_main_cpp.html main.cpp\endlink contains MyWidget and main.
+<li>\link t14_makefile.html Makefile\endlink contains some rules for
 generating the metaobject information necessary for <a
 href=metaobjects.html>signal/slot creation.</a>
 </ul>
