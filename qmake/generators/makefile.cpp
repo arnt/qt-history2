@@ -289,9 +289,8 @@ MakefileGenerator::generateDependancies(QList<MakefileDependDir> &dirs, QString 
 		if((Option::target_mode == Option::TARG_MAC9_MODE && inc.find(':')) ||
 		   (Option::target_mode == Option::TARG_WIN_MODE && inc[1] != ':') ||
 		   ((Option::target_mode == Option::TARG_UNIX_MODE || Option::target_mode == Option::TARG_MACX_MODE) && inc[0] != '/')) {
-		    bool found = FALSE;
 		    for(MakefileDependDir *mdd = dirs.first(); mdd; mdd = dirs.next() ) {
-			if((found = QFile::exists(mdd->local_dir + QDir::separator() + inc)))
+			if(QFile::exists(mdd->local_dir + QDir::separator() + inc))
 			    fqn = mdd->real_dir + QDir::separator() + inc;
 		    }
 		}
