@@ -4,27 +4,27 @@
 
 #include <cstdlib>
 
-#include "dialog.h"
+#include "server.h"
 
 static const int NumFortunes = 8;
 
-Dialog::Dialog(QWidget *parent)
+Server::Server(QWidget *parent)
     : QDialog(parent)
 {
     statusLabel = new QLabel(this);
     quitButton = new QPushButton(tr("&Quit"), this);
 
-    fortuneServer = new QTcpServer(this);
-    if (!fortuneServer->listen()) {
+    tcpServer = new QTcpServer(this);
+    if (!tcpServer->listen()) {
         QMessageBox::critical(this, tr("Fortune Server"),
                               tr("Unable to start the server: %1.")
-                              .arg(fortuneServer->errorString()));
+                              .arg(tcpServer->errorString()));
         close();
         return;
     }
 
     statusLabel->setText(tr("The server is running on port %1")
-                         .arg(fortuneServer->serverPort()));
+                         .arg(tcpServer->serverPort()));
 
     fortunes << tr("You've been leading a dog's life. Stay off the furniture.")
              << tr("You've got to think about tomorrow.")
@@ -34,9 +34,8 @@ Dialog::Dialog(QWidget *parent)
              << tr("You cannot kill time without injuring eternity.")
              << tr("Computers are not intelligent. They only think they are.");
 
-    connect(quitButton, SIGNAL(clicked()), SLOT(close()));
-    connect(fortuneServer, SIGNAL(newConnection()),
-            this, SLOT(sendFortune()));
+    connect(quitButton, SIGNAL(clicked()), this, SLOT(close()));
+    connect(tcpServer, SIGNAL(newConnection()), this, SLOT(sendFortune()));
 
     QHBoxLayout *buttonLayout = new QHBoxLayout;
     buttonLayout->addStretch(1);
@@ -50,10 +49,9 @@ Dialog::Dialog(QWidget *parent)
     srand(QDateTime::currentDateTime().toTime_t());
 }
 
-void Dialog::sendFortune()
+void Server::sendFortune()
 {
-    QTcpSocket *clientConnection =
-            fortuneServer->nextPendingConnection();
+    QTcpSocket *clientConnection = tcpServer->nextPendingConnection();
 
     QDataStream out(clientConnection);
     out.setVersion(7);

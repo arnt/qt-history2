@@ -1,5 +1,5 @@
-#ifndef DIALOG_H
-#define DIALOG_H
+#ifndef SERVER_H
+#define SERVER_H
 
 #include <QDialog>
 
@@ -7,12 +7,12 @@ class QLabel;
 class QPushButton;
 class QTcpServer;
 
-class Dialog : public QDialog
+class Server : public QDialog
 {
     Q_OBJECT
 
 public:
-    Dialog(QWidget *parent = 0);
+    Server(QWidget *parent = 0);
 
 private slots:
     void sendFortune();
@@ -20,7 +20,7 @@ private slots:
 private:
     QLabel *statusLabel;
     QPushButton *quitButton;
-    QTcpServer *fortuneServer;
+    QTcpServer *tcpServer;
     QStringList fortunes;
 };
 

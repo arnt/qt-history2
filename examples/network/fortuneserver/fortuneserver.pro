@@ -1,4 +1,4 @@
-HEADERS += dialog.h
-SOURCES += dialog.cpp
+HEADERS += server.h
+SOURCES += server.cpp
 SOURCES += main.cpp
 QT += network
