@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#184 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#185 $
 **
 ** Definition of QWidget class
 **
@@ -41,6 +41,7 @@
 class QLayout;
 struct QWExtra;
 class QFocusData;
+
 
 class Q_EXPORT QWidget : public QObject, public QPaintDevice
 {

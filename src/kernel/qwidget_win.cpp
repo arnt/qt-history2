@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#149 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#150 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -40,11 +40,11 @@
 #define WS_EX_TOOLWINDOW 0x00000080
 #endif
 
-const char* qt_reg_winclass( int type );	// defined in qapplication_win.cpp
+const char* qt_reg_winclass( int );		// defined in qapplication_win.cpp
 void	    qt_enter_modal( QWidget * );
 void	    qt_leave_modal( QWidget * );
 bool	    qt_modal_state();
-void qt_olednd_unregister( QWidget* widget, QOleDropTarget *dst ); // dnd_win
+void	    qt_olednd_unregister( QWidget* widget, QOleDropTarget *dst ); // dnd_win
 QOleDropTarget* qt_olednd_register( QWidget* widget );
 
 
@@ -79,9 +79,10 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     bool   modal    = testWFlags(WType_Modal);
     bool   desktop  = testWFlags(WType_Desktop);
     HANDLE appinst  = qWinAppInst();
-    const char* wcln = qt_reg_winclass( tool ? 1 : 0 );
     HANDLE parentw, destroyw = 0;
     WId	   id;
+
+    const char *windowClassName = qt_reg_winclass( getWFlags() );
 
     if ( !window )				// always initialize
 	initializeWindow = TRUE;
@@ -188,12 +189,12 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     } else if ( topLevel ) {			// create top-level widget
 	// WWA: I cannot get the Unicode versions to work.
 	if ( exsty )
-	    id = CreateWindowExA( exsty, wcln, title, style,
+	    id = CreateWindowExA( exsty, windowClassName, title, style,
 				 CW_USEDEFAULT, CW_USEDEFAULT,
 				 CW_USEDEFAULT, CW_USEDEFAULT,
 				 parentw, 0, appinst, 0 );
 	else
-	    id = CreateWindowA(	 wcln, title, style,
+	    id = CreateWindowA(	 windowClassName, title, style,
 				 CW_USEDEFAULT, CW_USEDEFAULT,
 				 CW_USEDEFAULT, CW_USEDEFAULT,
 				 parentw, 0, appinst, 0 );
@@ -202,7 +203,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	    SetWindowPos( id, HWND_TOPMOST, 0, 0, 100, 100, SWP_NOACTIVATE );
     } else {					// create child widget
 	// WWA: I cannot get the Unicode versions to work.
-	id = CreateWindowA( wcln, title, style, 0, 0, 100, 30,
+	id = CreateWindowA( windowClassName, title, style, 0, 0, 100, 30,
 			   parentw, NULL, appinst, NULL );
 	SetWindowPos( id, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE );
 	setWinId( id );

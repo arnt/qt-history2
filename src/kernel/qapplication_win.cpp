@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#203 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#204 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -537,61 +537,58 @@ bool qt_nograb()				// application no-grab option
 }
 
 
-static bool widget_class_registered = FALSE;
-static bool popup_class_registered = FALSE;
+static QDict<int> *winclassNames = 0;
 
-const char* qt_reg_winclass( int type )		// register window class
+const char* qt_reg_winclass( int flags )	// register window class
 {
-    static const char *className;
+    if ( !winclassNames ) {
+	winclassNames = new QDict<int>;
+	CHECK_PTR( winclassNames );
+    }
     uint style = 0;
-    if ( type == 0 ) {
+    bool icon  = FALSE;
+    QString className;
+    if ( (flags & (WType_Popup|WStyle_Tool)) == 0 ) {
 	className = "QWidget";
-	if ( !widget_class_registered ) {
-	    widget_class_registered = TRUE;
-	    style = CS_DBLCLKS;
-	}
-    } else if ( type == 1 ) {
-	className = "QPopup";
-	if ( !popup_class_registered ) {
-	    popup_class_registered = TRUE;
-	    style = CS_DBLCLKS | CS_SAVEBITS;
-	}
+	style = CS_DBLCLKS;
+	icon  = TRUE;
     } else {
-#if defined(DEBUG)
-	warning( "Qt internal error: Invalid window class type", type );
-#endif
-	className = "";
+	className = "QPopup";
+	style = CS_DBLCLKS | CS_SAVEBITS;
     }
-    const TCHAR* tcn = className
-			? (const TCHAR*)qt_winTchar(className,TRUE)
-			: 0;
-    if ( style != 0 ) {
-	WNDCLASS wc;
-	wc.style	 = style;
-	wc.lpfnWndProc	 = (WNDPROC)WndProc;
-	wc.cbClsExtra	 = 0;
-	wc.cbWndExtra	 = 0;
-	wc.hInstance	 = qWinAppInst();
-	wc.hIcon	 = type == 0 ? LoadIcon(0,IDI_APPLICATION) : 0;
-	wc.hCursor	 = 0;
-	wc.hbrBackground = 0;
-	wc.lpszMenuName	 = 0;
-	wc.lpszClassName = tcn;
-	RegisterClass( &wc );
-    }
-    return className;
+
+    const char *cname = className.ascii();
+    if ( winclassNames->find(cname) )		// already registered
+	return cname;
+
+    WNDCLASS wc;
+    wc.style		= style;
+    wc.lpfnWndProc	= (WNDPROC)WndProc;
+    wc.cbClsExtra	= 0;
+    wc.cbWndExtra	= 0;
+    wc.hInstance	= qWinAppInst();
+    wc.hIcon		= icon ? LoadIcon(0,IDI_APPLICATION) : 0;
+    wc.hCursor		= 0;
+    wc.hbrBackground	= 0;
+    wc.lpszMenuName	= 0;
+    wc.lpszClassName	= (TCHAR*)qt_winTchar(cname,TRUE);
+    RegisterClass( &wc );
+
+    winclassNames->insert( cname, (int*)1 );
+    return cname;
 }
 
 static void unregWinClasses()
 {
-    if ( widget_class_registered ) {
-	widget_class_registered = FALSE;
-	UnregisterClass( (TCHAR*)qt_winTchar("QWidget",TRUE), qWinAppInst() );
+    if ( !winclassNames )
+	return;
+    QDictIterator<int> it(*winclassNames);
+    while ( it.currentKey() ) {
+	UnregisterClass( (TCHAR*)qt_winTchar(it.currentKey(),TRUE), qWinAppInst() );
+	++it;
     }
-    if ( popup_class_registered ) {
-	popup_class_registered = FALSE;
-	UnregisterClass( (TCHAR*)qt_winTchar("QPopup",TRUE), qWinAppInst() );
-    }
+    delete winclassNames;
+    winclassNames = 0;
 }
 
 
