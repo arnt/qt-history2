@@ -113,6 +113,7 @@ class QSocketPrivate {
 public:
     QSocketPrivate();
    ~QSocketPrivate();
+    void closeSocket();
     void close();
     void connectionClosed();
 
@@ -153,7 +154,7 @@ QSocketPrivate::~QSocketPrivate()
 #endif
 }
 
-void QSocketPrivate::close()
+void QSocketPrivate::closeSocket()
 {
     // Order is important here - the socket notifiers must go away
     // before the socket does, otherwise libc or the kernel will
@@ -163,6 +164,11 @@ void QSocketPrivate::close()
     delete wsn;
     wsn = 0;
     socket->close();
+}
+
+void QSocketPrivate::close()
+{
+    closeSocket();
     wsize = 0;
     rba.clear(); wba.clear();
     windex = 0;
@@ -172,11 +178,7 @@ void QSocketPrivate::connectionClosed()
 {
     // We keep the open state in case there's unread incoming data
     state = QSocket::Idle;
-    if ( rsn )
-	rsn->setEnabled( FALSE );
-    if ( wsn )
-	wsn->setEnabled( FALSE );
-    socket->close();
+    closeSocket();
     wba.clear();
     windex = wsize = 0;
 }
