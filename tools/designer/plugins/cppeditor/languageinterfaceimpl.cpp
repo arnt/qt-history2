@@ -162,7 +162,7 @@ bool LanguageInterfaceImpl::supports( Support s ) const
     if ( s == ConnectionsToCustomSlots )
 	return TRUE;
     if ( s == AdditionalFiles )
-	return TRUE;
+	return FALSE;
     if ( s == SaveFormCodeExternal )
 	return TRUE;
     if ( s == StoreFormCodeSeperate )
