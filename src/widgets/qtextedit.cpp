@@ -4397,6 +4397,7 @@ void QTextEdit::setDocument( QTextDocument *dc )
     delete cursor;
     cursor = new QTextCursor( doc );
     clearUndoRedo();
+    undoRedoInfo.doc = doc;
     lastFormatted = 0;
 }
 
