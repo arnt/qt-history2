@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontdatabase.cpp#19 $
+** $Id: //depot/qt/main/src/kernel/qfontdatabase.cpp#20 $
 **
 ** Implementation of font database class.
 **
@@ -1574,7 +1574,7 @@ const QStringList &QFontDatabase::families( bool onlyForLocale ) const
 }
 
 
-const QStringList &QFontDatabase::styles( const QString &family,
+QStringList QFontDatabase::styles( const QString &family,
 					  const QString &charSet ) const
 {
     const QtFontFamily *fam = d->family( family );
