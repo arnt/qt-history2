@@ -388,10 +388,10 @@ int QPrinter::metric( int m ) const
 	    val -= 2*margins().height();
 	break;
     case QPaintDeviceMetrics::PdmDpiX:
-	val = 72;
+	val = res;
 	break;
     case QPaintDeviceMetrics::PdmDpiY:
-	val = 72;
+	val = res;
 	break;
     case QPaintDeviceMetrics::PdmWidthMM:
 	// double rounding error here.  hooray.

@@ -104,7 +104,7 @@
 
 extern bool qt_has_xft;
 
-static bool qt_gen_epsf = true;
+static bool qt_gen_epsf = false;
 
 void qt_generate_epsf( bool b )
 {
@@ -6511,12 +6511,15 @@ void QPSPrinter::emitHeader( bool finished )
     stream.setDevice( d->realDevice );
     stream << "%!PS-Adobe-1.0";
     QPaintDeviceMetrics m( printer );
+    float scale = 72. / ((float) m.logicalDpiY());
+    int dpi = printer->resolution();
+    printer->setResolution( 72 );
     if ( finished && pageCount == 1 && printer->numCopies() == 1 &&
 	 printer->fullPage() && qt_gen_epsf ) {
-	QPaintDeviceMetrics m( printer );
 	if ( !d->boundingBox.isValid() )
 	    d->boundingBox.setRect( 0, 0, m.width(), m.height() );
 	if ( printer->orientation() == QPrinter::Landscape )
+	    // ### fixme: won't work with resolution != 72
 	    stream << " EPSF-3.0\n%%BoundingBox: "
 		   << m.height() - d->boundingBox.bottom() << " " // llx
 		   << m.width() - d->boundingBox.right() << " " // lly
@@ -6529,15 +6532,17 @@ void QPSPrinter::emitHeader( bool finished )
 		   << d->boundingBox.right() + 1 << " "
 		   << m.height() - d->boundingBox.top();
     } else {
+	int w = m.width();
+	int h = m.height();
+	if ( !printer->fullPage() ) {
+	    w += 2*printer->margins().width();
+	    h += 2*printer->margins().height();
+	}
 	// set a bounding box according to the DSC
 	if ( printer->orientation() == QPrinter::Landscape )	      
-	    stream << "\n%%BoundingBox: 0 0 "
-		   << ( m.height() + 2*printer->margins().height() ) << " " 
-		   << ( m.width() + 2*printer->margins().width() );
+	    stream << "\n%%BoundingBox: 0 0 " << h << " " << w;
 	else
-	    stream << "\n%%BoundingBox: 0 0 "
-		   << ( m.width() + 2*printer->margins().width() ) << " " 
-		   << ( m.height() + 2*printer->margins().height() );
+	    stream << "\n%%BoundingBox: 0 0 " << w << " " << h;
     }
     stream << "\n%%Creator: " << creator;
     if ( !!title )
@@ -6592,14 +6597,12 @@ void QPSPrinter::emitHeader( bool finished )
 		   << printer->margins().width() << " translate\n";
     }
     if ( printer->orientation() == QPrinter::Portrait ) {
-	QPaintDeviceMetrics m( printer );
 	stream << "% " << m.widthMM() << "*" << m.heightMM()
 	       << "mm (portrait)\n0 " << m.height()
-	       << " translate 1 -1 scale/defM matrix CM d } d\n";
+	       << " translate " << scale << " -" << scale << " scale/defM matrix CM d } d\n";
     } else {
-	QPaintDeviceMetrics m( printer );
 	stream << "% " << m.heightMM() << "*" << m.widthMM()
-	       << " mm (landscape)\n 90 rotate 1 -1 scale/defM matrix CM d } d\n";
+	       << " mm (landscape)\n 90 rotate " << scale << " -" << scale << " scale/defM matrix CM d } d\n";
     }
 
     if ( d->fontBuffer->buffer().size() ) {
@@ -6625,6 +6628,7 @@ void QPSPrinter::emitHeader( bool finished )
     d->fontStream.unsetDevice();
     delete d->fontBuffer;
     d->fontBuffer = 0;
+    printer->setResolution( dpi );
 }
 
 

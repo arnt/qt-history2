@@ -196,12 +196,15 @@ void TextEdit::load( const QString &f )
     doConnections( edit );
     tabWidget->addTab( edit, QFileInfo( f ).fileName() );
 
-    if ( !f.contains( "bidi" ) && !f.contains( "utf8" ) ) { // ### hack, Lars please
-	edit->load( f );
-    } else {
+//     if ( !f.contains( "bidi" ) && !f.contains( "utf8" ) ) { // ### hack, Lars please
+// 	edit->load( f );
+//     } else 
+    {
 	QFile fl( f );
 	fl.open( IO_ReadOnly );
 	QByteArray array = fl.readAll();
+	array.resize( array.size() +1 );
+	array[ array.size() - 1 ] = '\0';
 	QString text = QString::fromUtf8( array.data() );
 	edit->setText( text );
     }
@@ -275,6 +278,8 @@ void TextEdit::filePrint()
     if ( printer.setup( this ) ) {
 	QPainter p( &printer );
 	QPaintDeviceMetrics metrics( p.device() );
+	QPaintDeviceMetrics screen( this );
+	printer.setResolution( screen.logicalDpiY() );
 	int dpix = metrics.logicalDpiX();
 	int dpiy = metrics.logicalDpiY();
 	const int margin = 72; // pt
