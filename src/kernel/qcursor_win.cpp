@@ -354,37 +354,37 @@ void QCursor::update() const
     unsigned short *sh;
     switch ( data->cshape ) {			// map to windows cursor
     case ArrowCursor:
-	sh = IDC_ARROW;
+	sh = (unsigned short*)IDC_ARROW;
 	break;
     case UpArrowCursor:
-	sh = IDC_UPARROW;
+	sh = (unsigned short*)IDC_UPARROW;
 	break;
     case CrossCursor:
-	sh = IDC_CROSS;
+	sh = (unsigned short*)IDC_CROSS;
 	break;
     case WaitCursor:
-	sh = IDC_WAIT;
+	sh = (unsigned short*)IDC_WAIT;
 	break;
     case IbeamCursor:
-	sh = IDC_IBEAM;
+	sh = (unsigned short*)IDC_IBEAM;
 	break;
     case SizeVerCursor:
-	sh = IDC_SIZENS;
+	sh = (unsigned short*)IDC_SIZENS;
 	break;
     case SizeHorCursor:
-	sh = IDC_SIZEWE;
+	sh = (unsigned short*)IDC_SIZEWE;
 	break;
     case SizeBDiagCursor:
-	sh = IDC_SIZENESW;
+	sh = (unsigned short*)IDC_SIZENESW;
 	break;
     case SizeFDiagCursor:
-	sh = IDC_SIZENWSE;
+	sh = (unsigned short*)IDC_SIZENWSE;
 	break;
     case SizeAllCursor:
-	sh = IDC_SIZEALL;
+	sh = (unsigned short*)IDC_SIZEALL;
 	break;
     case ForbiddenCursor:
-	sh = IDC_NO;
+	sh = (unsigned short*)IDC_NO;
 	break;
     case BlankCursor:
     case SplitVCursor:
