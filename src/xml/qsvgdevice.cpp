@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#30 $
+** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#31 $
 **
 ** Implementation of the QSvgDevice class
 **
@@ -52,7 +52,9 @@
 #include <math.h>
 
 const double deg2rad = 0.017453292519943295769;	// pi/180
-const char piData[] = "version=\"1.0\" standalone=\"yes\"";
+const char piData[] = "version=\"1.0\" standalone=\"no\"";
+const char publicId[] = "-//W3C//DTD SVG 20001102//EN";
+const char systemId[] = "http://www.w3.org/TR/2000/CR-SVG-20001102/DTD/svg-20001102.dtd";
 
 class QSvgDevice::Private {
 };
@@ -267,11 +269,13 @@ bool QSvgDevice::cmd ( int c, QPainter *painter, QPDevCmdParam *p )
 
     if ( c == PdcBegin ) {
 	svgName = "test";	// ###
-	doc = QDomDocument( "svg" );
+	QDomImplementation domImpl;
+	QDomDocumentType docType = domImpl.createDocumentType( "svg",
+							       publicId,
+							       systemId );
+	doc = QDomDocumentType( docType );
 	QDomProcessingInstruction pi =
 	    doc.createProcessingInstruction( "xml", QString( piData ) );
-	// ### need some QDom method to set SystemLiteral
-	//	QDomDocumentType dt = doc.doctype();
         QDomElement svg = doc.createElement( "svg" );
 	doc.appendChild( pi );
 	doc.appendChild( svg );
