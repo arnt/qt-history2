@@ -430,10 +430,9 @@ bool QLibrary::load()
 
   Any component referenced by the QLibrary object is being released before
   the library is unloaded. If the component implements the QLibraryInterface, 
-  the \link QLibraryInterface::canUnload() canUnload() \endlink is called,
-  and unloaing will be cancelled if this function returns FALSE. If the call to
-  canUnload() returns TRUE, \link QLibraryInterface::cleanup() cleanup() \endlink 
-  gets called.
+  the \link QLibraryInterface::cleanup() cleanup() \endlink function is called. if
+  the subsequent call to \link QLibraryInterface::canUnload() canUnload() \endlink
+  return FALSE, unloading will be cancelled.
 
   This function is called by the destructor if the policy is not Manual.
 
@@ -446,9 +445,8 @@ bool QLibrary::unload()
 
     if ( entry ) {
 	if ( d->libIface ) {
+	    d->libIface->cleanup();
 	    bool can = d->libIface->canUnload();
-	    if ( can )
-		d->libIface->cleanup();
 	    can = ( d->libIface->release() <= 1 ) && can;
 	    // the "entry" member must be the last reference to the component
 	    if ( can ) {

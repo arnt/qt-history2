@@ -192,9 +192,8 @@
   If the component exported by a component server implements this interface, QLibrary calls the function init()
   after loading the library, and the loading is stopped if this function call rerturns FALSE. 
 
-  Before the component server is unloaded, QLibrary calls the canUnload() function which has to return FALSE if
-  the component wants to prevent being unloaded. If canUnload() returns TRUE, the cleanup() function is called 
-  so that any resources allocated in the library can be cleaned up properly.
+  Before the component server is unloaded, QLibrary calls the cleanup() function so that the library can free
+  all allocated resources. If the following call to canUnload() returns FALSE, the unloading will be cancelled.
 */
 
 /*!
@@ -207,8 +206,8 @@
 /*!
   \fn void QLibraryInterface::cleanup()
 
-  This function is called by QLibrary before unloading the the component server. Implement this function
-  to free any resources allocated by the component, e.g. memory, file handles or sockets.
+  This function is called by QLibrary while unloading the component server. Implement this function
+  to free any resources allocated inside the component, e.g. memory, file handles or sockets.
 */
 
 /*!
