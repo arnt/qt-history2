@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#123 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#124 $
 **
 ** Implementation of QWidget class
 **
@@ -20,7 +20,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#123 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#124 $")
 
 
 /*----------------------------------------------------------------------------
@@ -149,7 +149,7 @@ inline bool QWidgetMapper::remove( WId id )
   <li> \c WStyle_Maximize adds a maximize button.
   <li> \c WStyle_MinMax is equal to <code>(WStyle_Minimize | WStyle_Maximize)
   </code>.
-  <li> \c WStyle_Tool makes the window a tool window. This is usually
+  <li> \c WStyle_Tool makes the window a tool window, usually
     combined with \c WStyle_NoBorder. A tool window is a small window that
     lives for a short time and it is typically used for creating popup
     windows.
