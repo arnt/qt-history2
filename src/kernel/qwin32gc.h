@@ -51,8 +51,6 @@ public:
 
     HDC handle() const; // ### Still not liking this...
 
-    bool hasCapability(Capability cap) const;
-
     static void initialize();
 
     enum { IsActive=0x01, ExtDev=0x02, IsStartingUp=0x04, NoCache=0x08,
@@ -65,6 +63,8 @@ private:
     void drawPolyInternal( const QPointArray &a, bool close );
 
 protected:
+    friend class QPainter;
+
     QWin32GCPrivate *d;
 };
 

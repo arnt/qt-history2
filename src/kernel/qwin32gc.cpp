@@ -252,7 +252,11 @@ static inline bool obtain_brush(void **ref, HBRUSH *brush, uint pix)
 #define release_brush	release_obj
 
 QWin32GC::QWin32GC(const QPaintDevice *target)
-    : d(new QWin32GCPrivate)
+    :
+#ifndef NO_NATIVE_XFORM
+      QAbstractGC( GCCaps(CoordTransform | PenWidthTransform | PixmapTransform) ),
+#endif
+      d(new QWin32GCPrivate)
 {
     // ### below is temp hack to survive pixmap gc construction
     d->hwnd = target ? ((QWidget*)target)->winId() : 0;
@@ -265,34 +269,13 @@ QWin32GC::~QWin32GC()
 }
 
 
-bool QWin32GC::hasCapability(Capability cap) const
-{
-    switch(cap) {
-#ifdef NO_NATIVE_XFORM
-    case CoordTransform:	return false;
-    case PenWidthTransform: 	return false;
-    case PatternTransform: 	return false;
-    case PixmapTransform:       return false;
-#else
-    case CoordTransform:	return true;
-    case PenWidthTransform:   	return true;
-    case PatternTransform: 	return false;
-    case PixmapTransform:       return true;
-#endif
-    default:
-	qWarning("QWin32GC::hasCapability(), invalid capability %d\n", cap);
-    }
-    return false;
-}
-
-
 bool QWin32GC::begin(const QPaintDevice *pdev, QPainterState *state, bool clipEnabled)
 {
     Q_ASSERT(pdev->devType()==QInternal::Widget);
     if (isActive()) {				// already active painting
-// 	qWarning("QWin32GC::begin: Painter is already active."
-// 	       "\n\tYou must end() the painter before a second begin()\n");
-	return true;
+	qWarning("QWin32GC::begin: Painter is already active."
+	       "\n\tYou must end() the painter before a second begin()\n");
+// 	return true;
     }
 
     setActive(true);

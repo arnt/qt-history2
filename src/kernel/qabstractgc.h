@@ -19,7 +19,15 @@ struct QAbstractGCPrivate {
 class QAbstractGC : public Qt
 {
 public:
-    QAbstractGC();
+    enum Capability {
+	CoordTransform          = 0x0001,		// Points are transformed
+	PenWidthTransform	= 0x0002, 		// Pen width is transformed
+	PatternTransform        = 0x0004,		// Brush patterns
+	PixmapTransform         = 0x0008                // Pixmap transforms
+    };
+    typedef QFlags<QAbstractGC::Capability> GCCaps;
+
+    QAbstractGC(GCCaps devcaps=0);
     virtual ~QAbstractGC() { delete d_ptr; }
 
     bool isActive() const { return d_ptr->active; }
@@ -74,14 +82,7 @@ public:
     inline void fix_neg_rect( int *x, int *y, int *w, int *h );
     inline bool hasClipping() const { return testf(ClipOn); }
 
-    enum Capability {
-	CoordTransform,		// Points are transformed
-	PenWidthTransform,	// Pen width is transformed
-	PatternTransform,	// Brush patterns
-	PixmapTransform         //
-    };
-
-    virtual bool hasCapability(Capability) const { return 0; }
+    bool hasCapability(Capability cap) const { return gccaps&cap; }
 
     inline void setState(QPainterState *state);
 
@@ -90,6 +91,7 @@ private:
 
 protected:
     QPainterState *state;
+    GCCaps gccaps;
 
 private:
     QAbstractGCPrivate *d_ptr;

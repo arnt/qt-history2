@@ -1,8 +1,8 @@
 #include "qabstractgc.h"
 
-QAbstractGC::QAbstractGC()
-    :
-    state(0)
+QAbstractGC::QAbstractGC(GCCaps caps)
+    : state(0),
+      gccaps(caps)
 {
     d_ptr = new QAbstractGCPrivate;
 }
