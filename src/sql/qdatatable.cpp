@@ -163,27 +163,27 @@ void qt_debug_buffer( const QString& msg, QSqlRecord* cursor )
     control the behaviour of the table when the user edits a record and
     then navigates. (Note that setAutoDelete() is unrelated; it is used
     to set whether the QSqlCursor is deleted when the table is deleted.)
- 
+
   QDataTable creates editors using the default \l QSqlEditorFactory.
   Different editor factories can be used by calling
   installEditorFactory(). A property map is used to map between the
   cell's value and the editor. You can use your own property map with
-  installPropertyMap(). 
+  installPropertyMap().
 
     The contents of a cell is available as a QString with text() or as a
     QVariant with value(). The current record is returned by
     currentRecord(). Use the find() function to search for a string in
     the table.
- 
+
     Editing actions can be applied programatically. For example, the
     insertCurrent() function reads the fields from the current record
     into the cursor and performs the insert. The updateCurrent() and
     deleteCurrent() functions perform similarly to update and delete the
-    current record respectively. 
- 
+    current record respectively.
+
   Columns in the table can be created automatically based on the
   cursor (see setCursor()). Columns can be manipulated manually using
-  addColumn(), removeColumn() and setColumn().  
+  addColumn(), removeColumn() and setColumn().
 
   The table automatically copies many of the properties of the cursor to
   format the display of data within cells (alignment, visibility, etc.).
@@ -191,8 +191,8 @@ void qt_debug_buffer( const QString& msg, QSqlRecord* cursor )
   The filter (see setFilter()) and sort defined within the table
   are used instead of the filter and sort set on the cursor. For sorting
   options see setSort(), sortColumn(), sortAscending() and
-  sortDescending(). 
-  
+  sortDescending().
+
     The text used to represent NULL, TRUE and FALSE values can be
     changed with setNullText(), setTrueText() and setFalseText()
     respectively. You can change the appearance of cells by
@@ -931,7 +931,7 @@ bool QDataTable::insertCurrent()
 	emit beforeInsert( d->editBuffer );
 	b = sqlCursor()->insert();
 	QApplication::restoreOverrideCursor();
-	if ( !b || !sqlCursor()->isActive() ) {
+	if ( ( !b && !sqlCursor()->isActive() ) || !sqlCursor()->isActive() ) {
 	    handleError( sqlCursor()->lastError() );
 	    refresh();
 	    if ( QTable::beginEdit( currentRow(), currentColumn(), FALSE ) )
@@ -1009,7 +1009,7 @@ bool QDataTable::updateCurrent()
 	emit beforeUpdate( d->editBuffer );
 	b = sqlCursor()->update();
 	QApplication::restoreOverrideCursor();
-	if ( !b || !sqlCursor()->isActive() ) {
+	if ( ( !b && !sqlCursor()->isActive() ) || !sqlCursor()->isActive() ) {
 	    handleError( sqlCursor()->lastError() );
 	    refresh();
 	    setCurrentCell( d->editRow, d->editCol );
@@ -1831,7 +1831,7 @@ void QDataTable::sortDescending( int col )
 }
 
 /*! Refreshes the table.  If there is no currently defined cursor (see
-  setCursor()), nothing happens. The \a mode parameter determines which 
+  setCursor()), nothing happens. The \a mode parameter determines which
   type of refresh will take place.
 
   \sa Refresh setCursor() addColumn()
