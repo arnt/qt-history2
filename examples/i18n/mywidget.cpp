@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/i18n/mywidget.cpp#2 $
+** $Id: //depot/qt/main/examples/i18n/mywidget.cpp#3 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -34,7 +34,7 @@ MyWidget::MyWidget( QWidget* parent, const char* name )
 
     QPopupMenu* file = new QPopupMenu(this);
     file->insertItem( tr("E&xit..."), qApp, SLOT(quit()),
-            QAccel::stringAccel(tr("Ctrl+Q")) );
+            QAccel::stringToKey(tr("Ctrl+Q")) );
     menuBar()->insertItem( tr("&File"), file );
 
     setCaption( tr( "Internationalization Example" ) ); 
