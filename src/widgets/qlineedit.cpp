@@ -145,8 +145,11 @@ struct QLineEditPrivate {
 
 	switch( mode ) {
 	    case QLineEdit::Normal:
-		res = parag->string()->toString( FALSE ); // with FALSE we don't fix spaces (nbsp)
-		res.remove( res.length() - 1, 1 );
+		{
+		    const QTextString *ts = parag->string(); // workaround Borland
+		    res = ts->toString( FALSE ); // with FALSE we don't fix spaces (nbsp)
+		    res.remove( res.length() - 1, 1 );
+		}
 		break;
 	    case QLineEdit::NoEcho:
 		res = QString::fromLatin1("");
