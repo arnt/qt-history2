@@ -53,6 +53,7 @@
 #include "qmutex.h"
 #ifdef Q_OS_UNIX
 #include "qwaitcondition.h"
+#include "qplatformdefs.h" // need pthread_t def. on IRIX
 #endif // Q_OS_UNIX
 #ifdef Q_OS_WIN32
 #include <windows.h>
