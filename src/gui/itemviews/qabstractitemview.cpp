@@ -1048,9 +1048,10 @@ void QAbstractItemView::contextMenuEvent(QContextMenuEvent *e)
     QPoint position = e->pos();
     QModelIndex index = itemAt(position);
     QMenu contextMenu(this);
+    contextMenu.move(e->globalPos());
     emit aboutToShowContextMenu(&contextMenu, index);
     if (contextMenu.actions().count() > 0)
-        contextMenu.exec(e->globalPos());
+        contextMenu.exec();
 }
 
 /*!
