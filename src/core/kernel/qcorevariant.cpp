@@ -533,10 +533,10 @@ static void load(QCoreVariant::Private *d, QDataStream &s)
         s >> d->data.u;
         break;
     case QCoreVariant::LongLong:
-        s >> *v_cast<Q_LONGLONG>(d);
+        s >> *v_cast<Q_LONGLONG>(d, 0);
         break;
     case QCoreVariant::ULongLong:
-        s >> *v_cast<Q_ULONGLONG>(d);
+        s >> *v_cast<Q_ULONGLONG>(d, 0);
         break;
     case QCoreVariant::Bool: {
         Q_INT8 x;
@@ -545,7 +545,7 @@ static void load(QCoreVariant::Private *d, QDataStream &s)
     }
         break;
     case QCoreVariant::Double:
-        s >> *v_cast<double>(d);
+        s >> *v_cast<double>(d, 0);
         break;
     case QCoreVariant::Date:
         s >> *v_cast<QDate>(d);
@@ -612,16 +612,16 @@ static void save(const QCoreVariant::Private *d, QDataStream &s)
         s << d->data.u;
         break;
     case QCoreVariant::LongLong:
-        s << *v_cast<Q_LONGLONG>(d);
+        s << *v_cast<Q_LONGLONG>(d, 0);
         break;
     case QCoreVariant::ULongLong:
-        s << *v_cast<Q_ULONGLONG>(d);
+        s << *v_cast<Q_ULONGLONG>(d, 0);
         break;
     case QCoreVariant::Bool:
         s << (Q_INT8)d->data.b;
         break;
     case QCoreVariant::Double:
-        s << *v_cast<double>(d);
+        s << *v_cast<double>(d, 0);
         break;
     case QCoreVariant::Date:
         s << *v_cast<QDate>(d);
@@ -694,13 +694,13 @@ static bool compare(const QCoreVariant::Private *a, const QCoreVariant::Private 
     case QCoreVariant::UInt:
         return a->data.u == b->data.u;
     case QCoreVariant::LongLong:
-        return *v_cast<Q_LONGLONG>(a) == *v_cast<Q_LONGLONG>(b);
+        return *v_cast<Q_LONGLONG>(a, 0) == *v_cast<Q_LONGLONG>(b, 0);
     case QCoreVariant::ULongLong:
-        return *v_cast<Q_ULONGLONG>(a) == *v_cast<Q_ULONGLONG>(b);
+        return *v_cast<Q_ULONGLONG>(a, 0) == *v_cast<Q_ULONGLONG>(b, 0);
     case QCoreVariant::Bool:
         return a->data.b == b->data.b;
     case QCoreVariant::Double:
-        return *v_cast<double>(a) == *v_cast<double>(b);
+        return *v_cast<double>(a, 0) == *v_cast<double>(b, 0);
     case QCoreVariant::Date:
         return *v_cast<QDate>(a) == *v_cast<QDate>(b);
     case QCoreVariant::Time:
@@ -738,13 +738,13 @@ static void cast(const QCoreVariant::Private *d, QCoreVariant::Type t, void *res
             *str = QString::number(d->data.u);
             break;
         case QCoreVariant::LongLong:
-            *str = QString::number(*v_cast<Q_LONGLONG>(d));
+            *str = QString::number(*v_cast<Q_LONGLONG>(d, 0));
             break;
         case QCoreVariant::ULongLong:
-            *str = QString::number(*v_cast<Q_ULONGLONG>(d));
+            *str = QString::number(*v_cast<Q_ULONGLONG>(d, 0));
             break;
         case QCoreVariant::Double:
-            *str = QString::number(*v_cast<double>(d), 'g', DBL_DIG);
+            *str = QString::number(*v_cast<double>(d, 0), 'g', DBL_DIG);
             break;
 #if !defined(QT_NO_SPRINTF) && !defined(QT_NO_DATESTRING)
         case QCoreVariant::Date:
@@ -867,13 +867,13 @@ static void cast(const QCoreVariant::Private *d, QCoreVariant::Type t, void *res
             *i = int(d->data.u);
             break;
         case QCoreVariant::LongLong:
-            *i = int(*v_cast<Q_LONGLONG>(d));
+            *i = int(*v_cast<Q_LONGLONG>(d, 0));
             break;
         case QCoreVariant::ULongLong:
-            *i = int(*v_cast<Q_ULONGLONG>(d));
+            *i = int(*v_cast<Q_ULONGLONG>(d, 0));
             break;
         case QCoreVariant::Double:
-            *i = qRound(*v_cast<double>(d));
+            *i = qRound(*v_cast<double>(d, 0));
             break;
         case QCoreVariant::Bool:
             *i = (int)d->data.b;
@@ -903,13 +903,13 @@ static void cast(const QCoreVariant::Private *d, QCoreVariant::Type t, void *res
             *u = d->data.u;
             break;
         case QCoreVariant::LongLong:
-            *u = uint(*v_cast<Q_LONGLONG>(d));
+            *u = uint(*v_cast<Q_LONGLONG>(d, 0));
             break;
         case QCoreVariant::ULongLong:
-            *u = uint(*v_cast<Q_ULONGLONG>(d));
+            *u = uint(*v_cast<Q_ULONGLONG>(d, 0));
             break;
         case QCoreVariant::Double:
-            *u = qRound(*v_cast<double>(d));
+            *u = qRound(*v_cast<double>(d, 0));
             break;
         case QCoreVariant::Bool:
             *u = uint(d->data.b);
@@ -939,13 +939,13 @@ static void cast(const QCoreVariant::Private *d, QCoreVariant::Type t, void *res
             *l = Q_LONGLONG(d->data.u);
             break;
         case QCoreVariant::LongLong:
-            *l = *v_cast<Q_LONGLONG>(d);
+            *l = *v_cast<Q_LONGLONG>(d, 0);
             break;
         case QCoreVariant::ULongLong:
-            *l = Q_LONGLONG(*v_cast<Q_ULONGLONG>(d));
+            *l = Q_LONGLONG(*v_cast<Q_ULONGLONG>(d, 0));
             break;
         case QCoreVariant::Double:
-            *l = qRoundLL(*v_cast<double>(d));
+            *l = qRoundLL(*v_cast<double>(d, 0));
             break;
         case QCoreVariant::Bool:
             *l = Q_LONGLONG(d->data.b);
@@ -966,13 +966,13 @@ static void cast(const QCoreVariant::Private *d, QCoreVariant::Type t, void *res
             *l = Q_ULONGLONG(d->data.u);
             break;
         case QCoreVariant::LongLong:
-            *l = Q_ULONGLONG(*v_cast<Q_LONGLONG>(d));
+            *l = Q_ULONGLONG(*v_cast<Q_LONGLONG>(d, 0));
             break;
         case QCoreVariant::ULongLong:
-            *l = *v_cast<Q_ULONGLONG>(d);
+            *l = *v_cast<Q_ULONGLONG>(d, 0);
             break;
         case QCoreVariant::Double:
-            *l = qRoundLL(*v_cast<double>(d));
+            *l = qRoundLL(*v_cast<double>(d, 0));
             break;
         case QCoreVariant::Bool:
             *l = Q_ULONGLONG(d->data.b);
@@ -1005,10 +1005,10 @@ static void cast(const QCoreVariant::Private *d, QCoreVariant::Type t, void *res
             *b = d->data.u != 0;
             break;
         case QCoreVariant::LongLong:
-            *b = *v_cast<Q_LONGLONG>(d) != Q_INT64_C(0);
+            *b = *v_cast<Q_LONGLONG>(d, 0) != Q_INT64_C(0);
             break;
         case QCoreVariant::ULongLong:
-            *b = *v_cast<Q_ULONGLONG>(d) != Q_UINT64_C(0);
+            *b = *v_cast<Q_ULONGLONG>(d, 0) != Q_UINT64_C(0);
             break;
         case QCoreVariant::String:
         {
@@ -1035,7 +1035,7 @@ static void cast(const QCoreVariant::Private *d, QCoreVariant::Type t, void *res
             *f = v_cast<QByteArray>(d)->toDouble(ok);
             break;
         case QCoreVariant::Double:
-            *f = *v_cast<double>(d);
+            *f = *v_cast<double>(d, 0);
             break;
         case QCoreVariant::Int:
             *f = double(d->data.i);
@@ -1047,13 +1047,13 @@ static void cast(const QCoreVariant::Private *d, QCoreVariant::Type t, void *res
             *f = double(d->data.u);
             break;
         case QCoreVariant::LongLong:
-            *f = double(*v_cast<Q_LONGLONG>(d));
+            *f = double(*v_cast<Q_LONGLONG>(d, 0));
             break;
         case QCoreVariant::ULongLong:
 #if defined(Q_CC_MSVC) && !defined(Q_CC_MSVC_NET)
             *f = (double)(Q_LONGLONG)*v_cast<Q_ULONGLONG>(d);
 #else
-            *f = double(*v_cast<Q_ULONGLONG>(d));
+            *f = double(*v_cast<Q_ULONGLONG>(d, 0));
 #endif
             break;
         default:
@@ -2099,7 +2099,7 @@ Q_LONGLONG QCoreVariant::toLongLong(bool *ok) const
     if (d.type == LongLong) {
         if (ok)
             *ok = true;
-        return *v_cast<Q_LONGLONG>(&d);
+        return *v_cast<Q_LONGLONG>(&d, 0);
     }
 
     bool c = canCast(LongLong);
@@ -2127,7 +2127,7 @@ Q_ULONGLONG QCoreVariant::toULongLong(bool *ok) const
     if (d.type == ULongLong) {
         if (ok)
             *ok = true;
-        return *v_cast<Q_ULONGLONG>(&d);
+        return *v_cast<Q_ULONGLONG>(&d, 0);
     }
 
     bool c = canCast(ULongLong);
@@ -2171,7 +2171,7 @@ double QCoreVariant::toDouble(bool *ok) const
     if (d.type == Double) {
         if (ok)
         *ok = true;
-        return *v_cast<double>(&d);
+        return *v_cast<double>(&d, 0);
     }
 
     bool c = canCast(Double);
@@ -2304,11 +2304,11 @@ const void *QCoreVariant::constData() const
     case Bool:
         return &d.data;
     case LongLong:
-        return v_cast<Q_LONGLONG>(&d);
+        return v_cast<Q_LONGLONG>(&d, 0);
     case ULongLong:
-        return v_cast<Q_ULONGLONG>(&d);
+        return v_cast<Q_ULONGLONG>(&d, 0);
     case Double:
-        return v_cast<double>(&d);
+        return v_cast<double>(&d, 0);
     case String:
         return v_cast<QString>(&d);
     case Char:
