@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#357 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#358 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -1065,6 +1065,11 @@ void QPopupMenu::show()
 
 void QPopupMenu::hide()
 {
+    if ( syncMenu == this && qApp ) {
+	qApp->exit_loop();
+	syncMenu = 0;
+    }
+
     if ( !isVisible() ) {
 	QWidget::hide();
   	return;
@@ -1078,10 +1083,6 @@ void QPopupMenu::hide()
 #endif
     hidePopups();
     QWidget::hide();
-    if ( syncMenu == this && qApp ) {
-	qApp->exit_loop();
-	syncMenu = 0;
-    }
 }
 
 

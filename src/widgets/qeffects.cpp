@@ -133,6 +133,8 @@ void QAlphaWidget::paintEvent( QPaintEvent* )
 */
 void QAlphaWidget::run( int time )
 {
+    grabMouse();
+
     duration = time;
 
     if ( duration < 0 )
@@ -237,6 +239,11 @@ void QAlphaWidget::render()
     if ( alpha >= 1 || !showWidget) {
 	anim.stop();
 	widget->removeEventFilter( this );
+	widget->clearWState( WState_Visible );
+	widget->setWState( WState_ForceHide );
+	if ( QWidget::mouseGrabber() == this )
+	    releaseMouse();
+
 	if ( showWidget ) {
 	    BackgroundMode bgm = widget->backgroundMode();
 	    widget->setBackgroundMode( NoBackground );
@@ -245,6 +252,8 @@ void QAlphaWidget::render()
 	    widget->clearWState( WState_Visible ); // prevent update in setBackgroundMode
 	    widget->setBackgroundMode( bgm );
 	    widget->setWState( WState_Visible );
+	} else {
+	    widget->hide();
 	}
 	q_blend = 0;
 	QTimer::singleShot( 10, this, SLOT(goodBye()) );
@@ -456,6 +465,8 @@ void QRollEffect::run( int time )
     if ( !widget )
 	return;
 
+    grabMouse();
+
     duration  = time;
     elapsed = 0;
 
@@ -538,9 +549,14 @@ void QRollEffect::scroll()
 	BackgroundMode bgm = widget->backgroundMode();
 	widget->clearWState( WState_Visible );
 	widget->setWState( WState_ForceHide );
+	if ( QWidget::mouseGrabber() == this )
+	    releaseMouse();
+
 	if ( showWidget ) {
 	    widget->setBackgroundMode( NoBackground );
 	    widget->show();
+	} else {
+	    widget->hide();
 	}
 	hide();
 	if ( showWidget) {
