@@ -2258,7 +2258,9 @@ QString QTextDocument::richText() const
     }
     int pastListDepth = 0;
     int listDepth = 0;
+#if 0
     int futureListDepth = 0;
+#endif
     QMemArray<int> listStyles(10);
 
     while ( p ) {
@@ -2284,10 +2286,12 @@ QString QTextDocument::richText() const
 
 	QString ps = p->richText();
 
+#if 0
 	  // for the bottom margin we need to know whether we are at the end of a list
 	futureListDepth = 0;
 	if ( listDepth > 0 && p->next() )
 	    futureListDepth = p->next()->listDepth();
+#endif
 
 	if ( richTextExportStart && richTextExportStart->paragraph() ==p &&
 	     richTextExportStart->index() == 0 )
