@@ -1591,8 +1591,6 @@ void QTable::init( int rows, int cols )
     roCols.setAutoDelete( TRUE );
     setSorting( FALSE );
 
-    viewport()->setFocusProxy( this );
-    viewport()->setFocusPolicy( WheelFocus );
     mousePressed = FALSE;
 
     selMode = Multi;
@@ -1602,6 +1600,10 @@ void QTable::init( int rows, int cols )
 
     // Enable clipper and set background mode
     enableClipper( TRUE );
+
+    viewport()->setFocusProxy( this );
+    viewport()->setFocusPolicy( WheelFocus );
+
     viewport()->setBackgroundMode( PaletteBase );
     setBackgroundMode( PaletteBackground, PaletteBase );
     setResizePolicy( Manual );
@@ -2150,6 +2152,22 @@ void QTable::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
     if ( collast == -1 )
 	collast = numCols() - 1;
 
+    bool currentInSelection = FALSE;
+
+    QPtrListIterator<QTableSelection> it( selections );
+    QTableSelection *s;
+    while ( ( s = it.current() ) != 0 ) {
+	++it;
+	if ( s->isActive() &&
+	     curRow >= s->topRow() &&
+	     curRow <= s->bottomRow() &&
+	     curCol >= s->leftCol() &&
+	     curCol <= s->rightCol() ) {
+	    currentInSelection = TRUE;
+	    break;
+	}
+    }
+
     // Go through the rows
     for ( int r = rowfirst; r <= rowlast; ++r ) {
 	// get row position and height
@@ -2188,7 +2206,10 @@ void QTable::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 
 	    // Translate painter and draw the cell
 	    p->translate( colp, rowp );
-	    paintCell( p, r, c, QRect( colp, rowp, colw, rowh ), isSelected( r, c ) );
+	    bool selected = isSelected( r, c );
+	    if ( selected && !currentInSelection && r == curRow && c == curCol  )
+		selected = FALSE;
+	    paintCell( p, r, c, QRect( colp, rowp, colw, rowh ), selected );
 	    p->translate( -colp, -rowp );
 
 	    rowp = oldrp;

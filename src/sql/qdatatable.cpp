@@ -171,7 +171,7 @@ void qt_debug_buffer( const QString& msg, QSqlRecord* cursor )
   ensure that a unique record is inserted, updated or deleted within
   the database otherwise the database may be changed to an
   inconsistent state.
-  
+
   QDataTable creates editors using the default \l QSqlEditorFactory.
   Different editor factories can be used by calling
   installEditorFactory(). A property map is used to map between the
@@ -253,8 +253,6 @@ QDataTable::QDataTable ( QSqlCursor* cursor, bool autoPopulate, QWidget * parent
 void QDataTable::init()
 {
     d = new QDataTablePrivate();
-    setFocusProxy( viewport() );
-    viewport()->setFocusPolicy( StrongFocus );
     setAutoEdit( FALSE );
     setSelectionMode( NoSelection );
     d->trueTxt = tr( "True" );
@@ -1880,7 +1878,7 @@ void QDataTable::sortDescending( int col )
     sortColumn( col, FALSE );
 }
 
-/*! 
+/*!
     \overload void QDataTable::refresh( Refresh mode )
     Refreshes the table.  If there is no currently defined cursor (see
   setCursor()), nothing happens. The \a mode parameter determines which
