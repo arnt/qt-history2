@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#22 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#23 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QString classes
@@ -21,7 +21,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qstring.cpp#22 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qstring.cpp#23 $";
 #endif
 
 
@@ -337,27 +337,27 @@ QString &QString::sprintf( const char *format, ... )
 /*! Strips white space from the beginning and the end of the string.
   \sa simplifyWhiteSpace(). */
 
-void QString::stripWhiteSpace()			// strip white space
+QString & QString::stripWhiteSpace()		// strip white space
 {
     if ( isEmpty() )				// nothing to do
-	return;
+	return *this;
     register char *s = data();
     if ( !isspace(s[0]) && !isspace(s[length()-1]) )
-	return;
+	return *this;
     int start = 0;
-    int end = length()-1;
+    int end = length() - 1;
     while ( isspace(s[start]) )			// skip white space from start
 	start++;
     if ( s[start] == '\0' ) {			// only white space
 	resize( 1 );
-	return;
+	return *this;
     }
     while ( end && isspace(s[end]) )		// skip white space from end
 	end--;
     end -= start - 1;
     memmove( data(), &s[start], end );
     resize( end + 1 );
-    return;
+    return *this;
 }
 
 
@@ -372,14 +372,14 @@ void QString::stripWhiteSpace()			// strip white space
 
   \sa stripWhiteSpace(). */
 
-void QString::simplifyWhiteSpace()
+QString &QString::simplifyWhiteSpace()
 {
     char *from;
     char *to;
     bool finalspace;
 
     if ( isEmpty() )
-	return;
+	return *this;
     from = to = data();
     finalspace = FALSE;
 
@@ -396,6 +396,7 @@ void QString::simplifyWhiteSpace()
 
     *to = '\0';
     resize( (long)to + 1 - (long)(data()) );
+    return *this;
 }
 
 
@@ -1076,23 +1077,6 @@ bool QString::setExpand( uint index, char c )	// set and expand if necessary
 /*! \fn bool QString::operator!() const
   Returns TRUE if it is a null string, otherwise FALSE.*/
 
-
-/*! Appends \e s to this string and returns a reference to the string.*/
-
-QString& QString::operator+=( const QString &s )// append QString s to this
-{
-    uint len2 = s.length();			// length of other string
-    if ( !len2 )
-	return *this;				// nothing to append
-
-    int len1 = length();			// length of this string
-    if ( !QByteArray::resize( len1 + len2 + 1 ) )
-	return *this;				// no memory
-
-    memcpy( data() + len1, s.data(), len2 + 1 );
-
-    return *this;
-}
 
 /*! Appends \e str to this string and returns a reference to the string.*/
 
