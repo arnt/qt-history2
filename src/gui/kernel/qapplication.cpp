@@ -1952,6 +1952,7 @@ void QApplication::setActiveWindow(QWidget* act)
         return;
 
     // first the activation/deactivation events
+    QEvent ae(QEvent::ActivationChange);
     if (QApplicationPrivate::active_window) {
         QWidgetList deacts;
 #ifndef QT_NO_STYLE
@@ -1970,6 +1971,7 @@ void QApplication::setActiveWindow(QWidget* act)
         for(int i = 0; i < deacts.size(); ++i) {
             QWidget *w = deacts.at(i);
             sendSpontaneousEvent(w, &e);
+            sendSpontaneousEvent(w, &ae);
         }
     }
 
@@ -1991,6 +1993,7 @@ void QApplication::setActiveWindow(QWidget* act)
         for (int i = 0; i < acts.size(); ++i) {
             QWidget *w = acts.at(i);
             sendSpontaneousEvent(w, &e);
+            sendSpontaneousEvent(w, &ae);
         }
     }
 
@@ -2628,8 +2631,7 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
 
     // User input and window activation makes tooltips sleep
     switch (e->type()) {
-    case QEvent::WindowActivate:
-    case QEvent::WindowDeactivate:
+    case QEvent::ActivationChange:
     case QEvent::KeyPress:
     case QEvent::KeyRelease:
     case QEvent::FocusOut:

@@ -2048,16 +2048,43 @@ QDebug operator<<(QDebug dbg, const QEvent *e) {
         n = "Timer";
         break;
     case QEvent::MouseButtonPress:
-        n = "MouseButtonPress";
-        break;
     case QEvent::MouseButtonRelease:
-        n = "MouseButtonRelease";
-        break;
     case QEvent::MouseButtonDblClick:
-        n = "MouseButtonDblClick";
-        break;
+    {
+        const QMouseEvent *me = static_cast<const QMouseEvent*>(e);
+        switch(me->type()) {
+        case QEvent::MouseButtonPress:
+            n = "MouseButtonPress";
+            break;
+        case QEvent::MouseButtonRelease:
+            n = "MouseButtonRelease";
+            break;
+        case QEvent::MouseButtonDblClick:
+        default:
+            n = "MouseButtonDblClick";
+            break;
+        }
+        dbg.nospace() << "QMouseEvent("  << n
+                      << ", " << me->button()
+                      << ", " << hex << (int)me->buttons()
+                      << ", " << hex << (int)me->modifiers()
+                      << ")";
+    }
+    return dbg.space();
     case QEvent::MouseMove:
         n = "MouseMove";
+        break;
+    case QEvent::ToolTip:
+        n = "ToolTip";
+        break;
+    case QEvent::WindowActivate:
+        n = "WindowActivate";
+        break;
+    case QEvent::WindowDeactivate:
+        n = "WindowDeactivate";
+        break;
+    case QEvent::ActivationChange:
+        n = "ActivationChange";
         break;
 #ifndef QT_NO_WHEELEVENT
     case QEvent::Wheel:
@@ -2083,7 +2110,7 @@ QDebug operator<<(QDebug dbg, const QEvent *e) {
             }
             dbg.nospace() << "QKeyEvent("  << n
                         << ", " << ke->key()
-                        << ", " << hex << ke->modifiers()
+                        << ", " << hex << (int)ke->modifiers()
                         << ", \"" << ke->text()
                         << "\", " << ke->isAutoRepeat()
                         << ", " << ke->count()

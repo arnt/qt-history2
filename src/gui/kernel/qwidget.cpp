@@ -4724,10 +4724,6 @@ bool QWidget::event(QEvent *e)
 
     case QEvent::WindowActivate:
     case QEvent::WindowDeactivate: {
-        {
-            QEvent ae(QEvent::ActivationChange);
-            QApplication::sendEvent(this, &ae);
-        }
 #ifdef QT_COMPAT
         windowActivationChange(e->type() != QEvent::WindowActivate);
 #endif
