@@ -556,6 +556,9 @@ bool QVariantToVARIANT(const QVariant &var, VARIANT &arg, const char *type, bool
 */
 bool QVariantToVoidStar(const QVariant &var, void *data)
 {
+    if (!data)
+        return true;
+
     switch (var.type()) {
     case QVariant::String:
         *(QString*)data = var.toString();
