@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: porting.doc,v 1.16 1999/01/15 16:21:51 warwick Exp $
+** $Id: porting.doc,v 1.17 1999/01/15 16:30:52 warwick Exp $
 **
 ** Help with porting from Qt 1.x to Qt 2.0
 **
@@ -342,6 +342,12 @@ within the entire application. If your code depends on generated ids
 equal to the item's index, a quick fix is to use QMenuData::indexOf(
 int id) in the handling function instead. You may as well pass
 QMenuData::count() as identifier when you insert the items.
+
+<h3>QWindow</h3>
+
+This class (which was just QWidget under a different name) has been
+removed.  If you used it, do a global search-and-replace or the word
+"QWindow" by "QWidget".  
 
 <h3>QEvent</h3>
 
