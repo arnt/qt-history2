@@ -1,8 +1,12 @@
 #include "qaccessiblemenu.h"
 
+#include <qaccel.h>
 #include <qpopupmenu.h>
 #include <qmenubar.h>
 #include <qstyle.h>
+
+QString Q_EXPORT qacc_stripAmp(const QString &text);
+QString Q_EXPORT qacc_hotKey(const QString &text);
 
 class MyPopupMenu : public QPopupMenu
 {
@@ -72,29 +76,18 @@ QString QAccessiblePopup::text(Text t, int child) const
 	return tx;
 
     int id;
-    QMenuItem *item = 0;
-    if (child) {
+    if (child)
 	id = popupMenu()->idAt(child - 1);
-	item = popupMenu()->findItem(id);
-    }
 
     switch (t) {
     case Name:
 	if (!child)
 	    return popupMenu()->caption();
-	return stripAmp(popupMenu()->text(id));
+	return qacc_stripAmp(popupMenu()->text(id));
     case Help:
 	return popupMenu()->whatsThis(id);
     case Accelerator:
-	return hotKey(popupMenu()->text(id));
-/*
-    case DefaultAction:
-	if (!item || item->isSeparator() || !item->isEnabled())
-	    break;
-	if (item->popup())
-	    return QPopupMenu::tr("Open");
-	return QPopupMenu::tr("Execute");
-*/
+	return QAccel::keyToString(popupMenu()->accel(id));
     default:
 	break;
     }
@@ -231,30 +224,23 @@ int QAccessibleMenuBar::navigate(NavDirection direction, int startControl) const
 
 QString QAccessibleMenuBar::text(Text t, int child) const
 {
-    QString tx = QAccessibleWidget::text(t, child);
-    if (!!tx)
-	return tx;
-    if (!child)
-	return tx;
+    QString str;
 
-    int id = menuBar()->idAt(child - 1);
-    switch (t) {
+    int id = child ? menuBar()->idAt(child - 1) : -1;
+
+    if (id != -1) switch (t) {
     case Name:
-	return stripAmp(menuBar()->text(id));
+	return qacc_stripAmp(menuBar()->text(id));
     case Accelerator:
-	tx = hotKey(menuBar()->text(id));
-	if (!!tx)
-	    return "Alt + "+tx;
+	str = qacc_hotKey(menuBar()->text(id));
 	break;
-/*
-    case DefaultAction:
-	return QMenuBar::tr("Open");
-*/
     default:
 	break;
     }
 
-    return tx;
+    if (str.isEmpty())
+	str = QAccessibleWidget::text(t, child);
+    return str;
 }
 
 QAccessible::Role QAccessibleMenuBar::role(int child) const

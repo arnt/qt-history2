@@ -8,10 +8,14 @@ REQUIRES += accessibility
 SOURCES  += main.cpp \
 	    simplewidgets.cpp \
 	    rangecontrols.cpp \
+	    containers.cpp \
+	    complexwidgets.cpp \
 	    qaccessiblewidgets.cpp \
 	    qaccessiblemenu.cpp
 
 HEADERS  += qaccessiblewidgets.h \
 	    simplewidgets.h \
 	    rangecontrols.h \
+	    containers.h \
+	    complexwidgets.h \
 	    qaccessiblemenu.h

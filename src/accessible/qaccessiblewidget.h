@@ -26,32 +26,34 @@ class QAccessibleWidgetPrivate;
 class Q_EXPORT QAccessibleWidget : public QAccessibleObject
 {
 public:
-    QAccessibleWidget( QWidget *o, Role r = Client, QString name = QString(), 
-	QString description = QString(), QString value = QString(), 
-	QString help = QString(), int defAction = SetFocus, QString defActionName = QString(),
-	QString accelerator = QString(), State s = Normal );
-
-    void	addControllingSignal(const QString &signal);
+    QAccessibleWidget(QWidget *o, Role r = Client, QString name = QString());
 
     int		childCount() const;
-    int		indexOfChild(const QAccessibleInterface*) const;
-    int		relationTo(int, const QAccessibleInterface *, int) const;
+    int		indexOfChild(const QAccessibleInterface *child) const;
+    int		relationTo(int child, const QAccessibleInterface *other, int otherChild) const;
 
     int		childAt(int x, int y) const;
-    QRect	rect(int control) const;
-    int		navigate(Relation, int, QAccessibleInterface **) const;
+    QRect	rect(int child) const;
+    int		navigate(Relation rel, int entry, QAccessibleInterface **target) const;
 
-    QString	text(Text t, int control) const;
-    Role	role(int control) const;
-    State	state(int control) const;
+    QString	text(Text t, int child) const;
+    Role	role(int child) const;
+    State	state(int child) const;
 
-    int		defaultAction(int control) const;
-    bool	doAction(int action, int control);
-    QString	actionText(int action, Text t, int control) const;
+    int		defaultAction(int child) const;
+    bool	doAction(int action, int child);
+    QString	actionText(int action, Text t, int child) const;
 
 protected:
     ~QAccessibleWidget();
     QWidget *widget() const;
+
+    void	addControllingSignal(const QString &signal);
+    void	setValue(const QString &value);
+    void	setDescription(const QString &desc);
+    void	setHelp(const QString &help);
+    void	setAccelerator(const QString &accel);
+    void	setDefaultAction(int defAction, const QString &name);
 
 private:
     QAccessibleWidgetPrivate *d;

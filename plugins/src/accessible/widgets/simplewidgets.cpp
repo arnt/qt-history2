@@ -7,6 +7,8 @@
 #include <qlcdnumber.h>
 #include <qlineedit.h>
 
+QString Q_EXPORT qacc_stripAmp(const QString &text);
+
 /*!
   \class QAccessibleButton qaccessible.h
   \brief The QAccessibleButton class implements the QAccessibleInterface for button type widgets.
@@ -16,9 +18,8 @@
   Creates a QAccessibleButton object for \a w.
   \a role, \a description and \a help are propagated to the QAccessibleWidget constructor.
 */
-QAccessibleButton::QAccessibleButton(QWidget *w, Role role, QString description,
-				     QString help)
-: QAccessibleWidget(w, role, QString(), description)
+QAccessibleButton::QAccessibleButton(QWidget *w, Role role)
+: QAccessibleWidget(w, role)
 {
     Q_ASSERT(button());
     if (button()->isToggleButton())
@@ -52,9 +53,7 @@ bool QAccessibleButton::doAction(int action, int child)
 /*! \reimp */
 QString QAccessibleButton::text(Text t, int child) const
 {
-    QString tx = QAccessibleWidget::text(t, child);
-    if (!!tx)
-	return tx;
+    QString str;
 
     switch (t) {
 /*
@@ -71,7 +70,6 @@ QString QAccessibleButton::text(Text t, int child) const
 	default:
 	    return QButton::tr("Press");
 	}
-*/
     case Accelerator:
 	tx = hotKey(button()->text());
 	if (!!tx) {
@@ -90,10 +88,13 @@ QString QAccessibleButton::text(Text t, int child) const
 	    tx = buddyString(widget());
 
 	return stripAmp(tx);
+*/
     default:
 	break;
     }
-    return tx;
+    if (str.isEmpty())
+	str = QAccessibleWidget::text(t, child);;
+    return qacc_stripAmp(str);
 }
 
 /*! \reimp */
@@ -123,12 +124,11 @@ QAccessible::State QAccessibleButton::state(int child) const
 */
 
 /*!
-  Constructs a QAccessibleDisplay object for \a o.
-  \a role, \a description, \a value, \a help, \a defAction and \a accelerator
-  are propagated to the QAccessibleWidget constructor.
+  Constructs a QAccessibleDisplay object for \a w.
+  \a role is propagated to the QAccessibleWidget constructor.
 */
-QAccessibleDisplay::QAccessibleDisplay(QWidget *o, Role role, QString description, QString value, QString help, QString defAction, QString accelerator)
-: QAccessibleWidget(o, role, QString(), description, value, help, NoAction, defAction, accelerator)
+QAccessibleDisplay::QAccessibleDisplay(QWidget *w, Role role)
+: QAccessibleWidget(w, role)
 {
 }
 
@@ -154,10 +154,7 @@ QAccessible::Role QAccessibleDisplay::role(int child) const
 /*! \reimp */
 QString QAccessibleDisplay::text(Text t, int child) const
 {
-    QString str = QAccessibleWidget::text(t, child);
-    if (!!str)
-	return str;
-
+    QString str;
     switch (t) {
     case Name:
 	if (qt_cast<QLabel*>(object())) {
@@ -175,7 +172,9 @@ QString QAccessibleDisplay::text(Text t, int child) const
     default:
 	break;
     }
-    return stripAmp(str);
+    if (str.isEmpty())
+	str = QAccessibleWidget::text(t, child);;
+    return qacc_stripAmp(str);
 }
 
 /*! \reimp */
@@ -199,52 +198,49 @@ int QAccessibleDisplay::relationTo(int child, const QAccessibleInterface *other,
 }
 
 /*!
-  \class QAccessibleText qaccessiblewidget.h
-  \brief The QAccessibleText class implements the QAccessibleInterface for widgets with editable text.
+  \class QAccessibleLineEdit qaccessiblewidget.h
+  \brief The QAccessibleLineEdit class implements the QAccessibleInterface for widgets with editable text.
 */
 
 /*!
-  Constructs a QAccessibleText object for \a o.
-  \a role, \a name, \a description, \a help, \a defAction and \a accelerator
-  are propagated to the QAccessibleWidget constructor.
+  Constructs a QAccessibleLineEdit object for \a w.
+  \a name is propagated to the QAccessibleWidget constructor.
 */
-QAccessibleText::QAccessibleText(QWidget *o, Role role, QString name, QString description, QString help, QString defAction, QString accelerator)
-: QAccessibleWidget(o, role, name, description, QString(), help, SetFocus, defAction, accelerator)
+QAccessibleLineEdit::QAccessibleLineEdit(QWidget *w, const QString &name)
+: QAccessibleWidget(w, EditableText, name)
 {
     addControllingSignal("textChanged(const QString&)");
     addControllingSignal("returnPressed()");
 }
 
-/*! \reimp */
-QString QAccessibleText::text(Text t, int child) const
+/*! Returns the line edit. */
+QLineEdit *QAccessibleLineEdit::lineEdit() const
 {
-    QString str = QAccessibleWidget::text(t, child);
-    if (!!str)
-	return str;
+    return qt_cast<QLineEdit*>(object());
+}
+
+/*! \reimp */
+QString QAccessibleLineEdit::text(Text t, int child) const
+{
+    QString str;
     switch (t) {
-    case Name:
-	return stripAmp(buddyString(widget()));
-    case Accelerator:
-	str = hotKey(buddyString(widget()));
-	if (!!str)
-	    return "Alt + "+str;
-	break;
     case Value:
-	if (widget()->inherits("QLineEdit"))
-	    return ((QLineEdit*)widget())->text();
+	str = lineEdit()->text();
 	break;
     default:
 	break;
     }
-    return str;
+    if (str.isEmpty())
+	str = QAccessibleWidget::text(t, child);;
+    return qacc_stripAmp(str);
 }
 
 /*! \reimp */
-QAccessible::State QAccessibleText::state(int child) const
+QAccessible::State QAccessibleLineEdit::state(int child) const
 {
     int state = QAccessibleWidget::state(child);
 
-    QLineEdit *l = qt_cast<QLineEdit*>(object());
+    QLineEdit *l = lineEdit();
     if (l) {
 	if (l->isReadOnly())
 	    state |= ReadOnly;

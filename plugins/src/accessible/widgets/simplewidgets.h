@@ -1,15 +1,15 @@
 #ifndef SIMPLEWIDGETS_H
 #define SIMPLEWIDGETS_H
 
-#include "qaccessiblewidgets.h"
+#include <qaccessiblewidgets.h>
 
 class QButton;
+class QLineEdit;
 
 class QAccessibleButton : public QAccessibleWidget
 {
 public:
-    QAccessibleButton(QWidget *o, Role r, QString description = QString(),
-	QString help = QString());
+    QAccessibleButton(QWidget *o, Role r);
 
     QString	text(Text t, int child) const;
     State	state(int child) const;
@@ -23,9 +23,7 @@ protected:
 class QAccessibleDisplay : public QAccessibleWidget
 {
 public:
-    QAccessibleDisplay(QWidget *o, Role role, QString description = QString(), 
-	QString value = QString(), QString help = QString(), 
-	QString defAction = QString(), QString accelerator = QString());
+    QAccessibleDisplay(QWidget *o, Role role);
 
     QString	text(Text t, int child) const;
     Role	role(int child) const;
@@ -33,15 +31,16 @@ public:
     int		relationTo(int child, const QAccessibleInterface *other, int otherChild) const;
 };
 
-class QAccessibleText : public QAccessibleWidget
+class QAccessibleLineEdit : public QAccessibleWidget
 {
 public:
-    QAccessibleText(QWidget *o, Role role, QString name = QString(), 
-	QString description = QString(), QString help = QString(), 
-	QString defAction = QString(), QString accelerator = QString());
+    QAccessibleLineEdit(QWidget *o, const QString &name = QString());
 
     QString	text(Text t, int child) const;
     State	state(int child) const;
+
+protected:
+    QLineEdit *lineEdit() const;
 };
 
 #endif // SIMPLEWIDGETS_H

@@ -16,22 +16,83 @@
 
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 
+#include "qaccel.h"
 #include "qapplication.h"
+#include "qgroupbox.h"
+#include "qlabel.h"
 #include "qtooltip.h"
 #include "qwhatsthis.h"
 #include "qwidget.h"
 
 #include <math.h>
 
+QString buddyString(const QWidget *widget)
+{
+    const QWidget *parent = widget->parentWidget();
+    QObjectList ol = parent->queryList("QLabel", 0, FALSE, FALSE);
+    for (int i = 0; i < ol.count(); ++i) {
+	QLabel *label = static_cast<QLabel*>(ol.at(i));
+	if (label->buddy() == widget)
+	    return label->text();
+    }
+
+    QGroupBox *groupbox = qt_cast<QGroupBox*>(parent);
+    if (groupbox) {
+	qDebug(c"%s", groupbox->title().latin1());
+	return groupbox->title();
+    }
+
+    return QString();
+}
+
+QString Q_EXPORT qacc_stripAmp(const QString &text)
+{
+    if (text.isEmpty())
+	return text;
+
+    const QChar *ch = text.unicode();
+    int length = text.length();
+    QString str;
+    str.setLength(length);
+    while (length > 0) {
+	if (*ch == '&') {
+	    ++ch;
+	    if (!ch)
+		--ch;
+	}
+	str += *ch;
+	++ch;
+	--length;
+    }
+    return str;
+}
+
+QString Q_EXPORT qacc_hotKey(const QString &text)
+{
+    if (text.isEmpty())
+	return text;
+
+    int fa = 0;
+    QChar ac;
+    while ((fa = text.find('&', fa)) != -1) {
+	if (fa == text.length() - 1 || text.at(fa+1) != '&') {
+	    ac = text.at(fa+1);
+	    break;
+	}
+    }
+    if (ac.isNull())
+	return QString();
+    return QAccel::keyToString(Qt::Key_Alt) + QString(ac.lower());
+}
+
 class QAccessibleWidgetPrivate : public QAccessible
 {
 public:
     QAccessibleWidgetPrivate()
-	:role(Client), state(Normal)
+	:role(Client), defAction(0)
     {}
 
     Role role;
-    State state;
     QString name;
     QString description;
     QString value;
@@ -53,26 +114,16 @@ public:
 
 /*!
     Creates a QAccessibleWidget object for \a w.
-    \a role, \a name, \a description, \a value, \a help, \a defAction, \a defActionName,
-    \a accelerator and \a state are optional parameters for static values
-    of the object's property.
+    \a role and \a name are optional parameters for static values
+    of the object's respective property.
 */
-QAccessibleWidget::QAccessibleWidget(QWidget *w, Role role, QString name,
-    QString description, QString value, QString help, int defAction, QString defActionName, 
-    QString accelerator, State state)
+QAccessibleWidget::QAccessibleWidget(QWidget *w, Role role, QString name)
 : QAccessibleObject(w)
 {
     Q_ASSERT(widget());
     d = new QAccessibleWidgetPrivate();
     d->role = role;
-    d->state = state;
     d->name = name;
-    d->description = description;
-    d->value = value;
-    d->help = help;
-    d->defAction = SetFocus;
-    d->defActionName = defAction;
-    d->accelerator = accelerator;
 }
 
 /*!
@@ -99,11 +150,11 @@ int QAccessibleWidget::childAt(int x, int y) const
     if (!QRect(gp.x(), gp.y(), w->width(), w->height()).contains(x, y))
 	return -1;
 
-    QObjectList list = w->queryList( "QWidget", 0, FALSE, FALSE );
+    QObjectList list = w->queryList("QWidget", 0, FALSE, FALSE);
     int ccount = childCount();
 
-    // a complex control
-    if ( list.count() < ccount ) {
+    // a complex child
+    if (list.count() < ccount) {
 	for (int i = 1; i <= ccount; ++i) {
 	    if (rect(i).contains(x, y))
 		return i;
@@ -129,10 +180,10 @@ int QAccessibleWidget::childAt(int x, int y) const
 }
 
 /*! \reimp */
-QRect	QAccessibleWidget::rect( int control ) const
+QRect	QAccessibleWidget::rect(int child) const
 {
-    if (control)
-	qWarning( "QAccessibleWidget::rect: This implementation does not support subelements! (ID %d unknown for %s)", control, widget()->className() );
+    if (child)
+	qWarning("QAccessibleWidget::rect: This implementation does not support subelements! (ID %d unknown for %s)", child, widget()->className());
 
     QWidget *w = widget();
     QPoint wpos = w->mapToGlobal(QPoint(0, 0));
@@ -140,13 +191,18 @@ QRect	QAccessibleWidget::rect( int control ) const
     return QRect(wpos.x(), wpos.y(), w->width(), w->height());
 }
 
+
+// ### I don't like this at all. QObject or QMetaObject
+// should have a better API for something like this.
+// Introspection is a Qt feature - hiding it in obscure
+// privat headers makes this very difficult to use
+#include <private/qobject_p.h>
+
 class FindConnectionObject : public QObject
 {
 public:
     bool isConnected(const QObject *receiver, const char *signal);
 };
-
-#include <private/qobject_p.h>
 
 bool FindConnectionObject::isConnected(const QObject *receiver, const char *signal)
 {
@@ -179,6 +235,72 @@ void QAccessibleWidget::addControllingSignal(const QString &signal)
     d->primarySignals << s;
 }
 
+/*!
+    Sets the value of this interface implementation to \a value. 
+    
+    The default implementation of text() return the set value for 
+    the Value text.
+
+    Note that the object wrapped by this interface is not modified.
+*/
+void QAccessibleWidget::setValue(const QString &value)
+{
+    d->value = value;
+}
+
+/*!
+    Sets the description of this interface implementation to \a desc.
+    
+    The default implementation of text() return the set value for 
+    the Description text.
+
+    Note that the object wrapped by this interface is not modified.
+*/
+void QAccessibleWidget::setDescription(const QString &desc)
+{
+    d->description = desc;
+}
+
+/*!
+    Sets the help of this interface implementation to \a help.
+    
+    The default implementation of text() return the set value for 
+    the Help text.
+
+    Note that the object wrapped by this interface is not modified.
+*/
+void QAccessibleWidget::setHelp(const QString &help)
+{
+    d->help = help;
+}
+
+/*!
+    Sets the accelerator of this interface implementation to \a accel.
+    
+    The default implementation of text() return the set value for 
+    the Accelerator text.
+
+    Note that the object wrapped by this interface is not modified.
+*/
+void QAccessibleWidget::setAccelerator(const QString &accelerator)
+{
+    d->accelerator = accelerator;
+}
+
+/*!
+    Sets the default action of this interface implementation to \a defAction,
+    and the name of that action to \a name.
+    
+    The default implementation of defaultAction() return the set
+    default action, and the default implementation of actionText() returns the
+    set name for the Name text of the default action.
+
+    Note that the object wrapped by this interface is not modified.
+*/
+void QAccessibleWidget::setDefaultAction(int defAction, const QString &name)
+{
+    d->defAction = defAction;
+}
 
 /*! \reimp */
 int QAccessibleWidget::relationTo(int child, const QAccessibleInterface *other, int otherChild) const
@@ -265,10 +387,11 @@ int QAccessibleWidget::navigate(Relation relation, int entry, QAccessibleInterfa
     *target = 0;
     QObject *targetObject = 0;
 
-    QObjectList childList = widget()->queryList( "QWidget", 0, FALSE, FALSE );
+    QObjectList childList = widget()->queryList("QWidget", 0, FALSE, FALSE);
     bool complexWidget = childList.count() < childCount();
 
     switch (relation) {
+    // Hierarchical
     case Self:
 	const_cast<QAccessibleWidget*>(this)->queryInterface(IID_QAccessible, (QUnknownInterface**)target);
 	return 0;
@@ -302,23 +425,8 @@ int QAccessibleWidget::navigate(Relation relation, int entry, QAccessibleInterfa
 		targetObject = ol.at(entry - 1);
 	}
 	break;
-    case FocusChild:
-	{
-	    if (widget()->hasFocus())
-		return 0;
 
-	    QWidget *fw = widget()->focusWidget();
-	    if ( !fw )
-		return -1;
-
-	    QWidget *parent = fw;
-	    while (parent && !targetObject) {
-		parent = parent->parentWidget();
-		if (parent == widget())
-		    targetObject = fw;
-	    }
-	}
-	break;
+    // Geometrical
     case QAccessible::Left:
 	if (complexWidget && entry) {
 	    if (entry < 2 || widget()->height() > widget()->width() + 20) // looks vertical
@@ -396,8 +504,8 @@ int QAccessibleWidget::navigate(Relation relation, int entry, QAccessibleInterfa
 		    break;
 		}
 
-		int dist = (int)sqrt( distp.x() * distp.x() + distp.y() * distp.y() );
-		if (dist < mindist ) {
+		int dist = (int)sqrt(distp.x() * distp.x() + distp.y() * distp.y());
+		if (dist < mindist) {
 		    QWidget *oldcandidate = candidate;
 		    candidate = sibling;
 		    if (candidate && candidate != oldcandidate)
@@ -405,6 +513,43 @@ int QAccessibleWidget::navigate(Relation relation, int entry, QAccessibleInterfa
 		}
 	    }
 	    targetObject = candidate;
+	}
+	break;
+
+    // Logical
+    case FocusChild:
+	{
+	    if (widget()->hasFocus())
+		return 0;
+
+	    QWidget *fw = widget()->focusWidget();
+	    if (!fw)
+		return -1;
+
+	    QWidget *parent = fw;
+	    while (parent && !targetObject) {
+		parent = parent->parentWidget();
+		if (parent == widget())
+		    targetObject = fw;
+	    }
+	}
+	break;
+    case Label:
+	{
+	    // Tricky one - either our parent is a groupbox
+	    // or we have to go through all labels and check
+	    // their buddies.
+	    // Ideally we would go through all objects and
+	    // check if they are a label to us, but that might
+	    // be very expensive
+	}
+	break;
+    case Controller:
+	{
+	    // Need some sort of "controllingSlot" or
+	    // "controllingProperty" here, then we can check
+	    // all senders we are connected to, and see if they
+	    // are a controller to us.
 	}
 	break;
     default:
@@ -417,14 +562,14 @@ int QAccessibleWidget::navigate(Relation relation, int entry, QAccessibleInterfa
 /*! \reimp */
 int QAccessibleWidget::childCount() const
 {
-    QObjectList cl = widget()->queryList( "QWidget", 0, FALSE, FALSE );
+    QObjectList cl = widget()->queryList("QWidget", 0, FALSE, FALSE);
     return cl.count();
 }
 
 /*! \reimp */
 int QAccessibleWidget::indexOfChild(const QAccessibleInterface *child) const
 {
-    QObjectList cl = widget()->queryList( "QWidget", 0, FALSE, FALSE );
+    QObjectList cl = widget()->queryList("QWidget", 0, FALSE, FALSE);
     int index = cl.indexOf(child->object());
     if (index != -1)
 	++index;
@@ -432,12 +577,12 @@ int QAccessibleWidget::indexOfChild(const QAccessibleInterface *child) const
 }
 
 /*! \reimp */
-bool QAccessibleWidget::doAction(int action, int control)
+bool QAccessibleWidget::doAction(int action, int child)
 {
-    if ( control )
-	qWarning( "QAccessibleWidget::doAction: This implementation does not support subelements! (ID %d unknown for %s)", control, widget()->className() );
+    if (child)
+	qWarning("QAccessibleWidget::doAction: This implementation does not support subelements! (ID %d unknown for %s)", child, widget()->className());
 
-    if (action == SetFocus && widget()->focusPolicy() != QWidget::NoFocus ) {
+    if (action == SetFocus && widget()->focusPolicy() != QWidget::NoFocus) {
 	widget()->setFocus();
 	return TRUE;
     }
@@ -445,85 +590,93 @@ bool QAccessibleWidget::doAction(int action, int control)
 }
 
 /*! \reimp */
-int QAccessibleWidget::defaultAction(int control) const
+int QAccessibleWidget::defaultAction(int child) const
 {
-    if ( control )
-	qWarning( "QAccessibleWidget::defaultAction: This implementation does not support subelements! (ID %d unknown for %s)", control, widget()->className() );
+    if (child)
+	qWarning("QAccessibleWidget::defaultAction: This implementation does not support subelements! (ID %d unknown for %s)", child, widget()->className());
 
     return SetFocus;
 }
 
 /*! \reimp */
-QString QAccessibleWidget::text( Text t, int control ) const
+QString QAccessibleWidget::text(Text t, int child) const
 {
-    switch ( t ) {
-    case Description:
-	if ( !control && d->description.isEmpty() ) {
-	    QString desc = QToolTip::textFor(widget());
-	    return desc;
-	}
-	return d->description;
-    case Help:
-	if ( !control && d->help.isEmpty() ) {
-	    QString help = QWhatsThis::textFor( widget() );
-	    return help;
-	}
-	return d->help;
-    case Accelerator:
-	return d->accelerator;
+    QString str;
+
+    switch (t) {
     case Name:
-	{
-	    if ( !control && d->name.isEmpty() && widget()->isTopLevel() )
-		return widget()->caption();
-	    return d->name;
-	}
+	if (!d->name.isEmpty())
+	    str = d->name;
+	else if (!child && widget()->isTopLevel())
+	    str = widget()->caption();
+	else
+	    str = qacc_stripAmp(buddyString(widget()));
+	break;
+    case Description:
+	if (!d->description.isEmpty())
+	    str = d->description;
+	else
+	    str = QToolTip::textFor(widget());
+	break;
+    case Help:
+	if (!d->help.isEmpty())
+	    str = d->help;
+	else
+	    str = QWhatsThis::textFor(widget());
+	break;
+    case Accelerator:
+	if (!d->accelerator.isEmpty())
+	    str = d->accelerator;
+	else
+	    str = qacc_hotKey(buddyString(widget()));
+	break;
     case Value:
-	return d->value;
+	str = d->value;
+	break;
     default:
 	break;
     }
-    return QString();
+    qDebug("%s", str.ascii());
+    return str;
 }
 
 /*! \reimp */
-QString QAccessibleWidget::actionText(int action, Text t, int control) const
+QString QAccessibleWidget::actionText(int action, Text t, int child) const
 {
-    if (action != d->defAction || t != Name || control)
+    if (child || t != Name || action != defaultAction(0))
 	return QString();
     return d->defActionName;
 }
 
 /*! \reimp */
-QAccessible::Role QAccessibleWidget::role( int control ) const
+QAccessible::Role QAccessibleWidget::role(int child) const
 {
-    if ( !control )
+    if (!child)
 	return d->role;
     return NoRole;
 }
 
 /*! \reimp */
-QAccessible::State QAccessibleWidget::state( int control ) const
+QAccessible::State QAccessibleWidget::state(int child) const
 {
-    if ( control )
+    if (child)
 	return Normal;
-
-    if ( d->state != Normal )
-	return d->state;
 
     int state = Normal;
 
     QWidget *w = widget();
-    if ( w->isHidden() )
+    if (w->isHidden())
 	state |= Invisible;
-    if ( w->focusPolicy() != QWidget::NoFocus && w->isActiveWindow() )
+    if (w->focusPolicy() != QWidget::NoFocus && w->isActiveWindow())
 	state |= Focusable;
-    if ( w->hasFocus() )
+    if (w->hasFocus())
 	state |= Focused;
-    if ( !w->isEnabled() )
+    if (!w->isEnabled())
 	state |= Unavailable;
-    if ( w->isTopLevel() ) {
-	state |= Moveable;
-	if ( w->minimumSize() != w->maximumSize() )
+    if (w->isTopLevel()) {
+	if (w->testWFlags(WStyle_Title))
+	    state |= Moveable;
+	if (w->minimumSize() != w->maximumSize())
 	    state |= Sizeable;
     }
 

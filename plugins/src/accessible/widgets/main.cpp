@@ -2,6 +2,8 @@
 #include "qaccessiblemenu.h"
 #include "simplewidgets.h"
 #include "rangecontrols.h"
+#include "complexwidgets.h"
+#include "containers.h"
 
 #include <qaccessibleplugin.h>
 #include <qtoolbutton.h>
@@ -78,9 +80,8 @@ QAccessibleInterface *AccessibleFactory::create(const QString &classname, QObjec
     QWidget *widget = static_cast<QWidget*>(object);
 
     if (classname == "QLineEdit") {
-	iface = new QAccessibleText(widget, EditableText);
-    }
-    else if (classname == "QComboBox") {
+	iface = new QAccessibleLineEdit(widget);
+    } else if (classname == "QComboBox") {
 	iface = new QAccessibleComboBox(widget);
     } else if (classname == "QSpinBox") {
 	iface = new QAccessibleRangeControl(widget, SpinBox);
@@ -89,11 +90,11 @@ QAccessibleInterface *AccessibleFactory::create(const QString &classname, QObjec
     } else if (classname == "QDial") {
 	iface = new QAccessibleRangeControl(widget, Dial);
     } else if (classname == "QScrollBar") {
-	iface = new QAccessibleScrollBar(widget);
+	iface = new QAccessibleScrollBar(widget );
     } else if (classname == "QSlider") {
 	iface = new QAccessibleSlider(widget);
     } else if (classname == "QToolButton") {
-	QToolButton *tb = (QToolButton*)widget;
+	QToolButton *tb = qt_cast<QToolButton*>(widget);
 	if (!tb->popup())
 	    iface = new QAccessibleButton(widget, PushButton);
 	else if (!tb->popupDelay())
@@ -154,21 +155,13 @@ QAccessibleInterface *AccessibleFactory::create(const QString &classname, QObjec
     } else if (classname == "QSizeGrip") {
 	iface = new QAccessibleWidget(widget, Grip);
     } else if (classname == "QSplitterHandle") {
-	iface = new QAccessibleWidget(widget, Separator, QString::null, 
-					QString::null, QString::null, QString::null, NoAction,
-					QString::null, QString::null, Moveable);
+	iface = new QAccessibleWidget(widget, Grip);
     } else if (classname == "QToolBarSeparator") {
-	iface = new QAccessibleWidget(widget, QAccessible::Separator, QString::null, 
-					QString::null, QString::null, QString::null, NoAction,
-					QString::null, QString::null, Unavailable);
+	iface = new QAccessibleWidget(widget, Separator);
     } else if (classname == "QDockWindowHandle") {
-	iface = new QAccessibleWidget(widget, QAccessible::Grip, widget->property( "caption").toString(),
-					QString::null, QString::null, QString::null, NoAction,
-					QString::null, QString::null, Moveable);
+	iface = new QAccessibleWidget(widget, Grip);
     } else if (classname == "QDockWindowResizeHandle") {
-	iface = new QAccessibleWidget(widget, QAccessible::Separator, QString::null,
-					QString::null, QString::null, QString::null, NoAction,
-					QString::null, QString::null, Moveable);
+	iface = new QAccessibleWidget(widget, Grip);
     } else if (classname == "QTipLabel") {
 	iface = new QAccessibleWidget(widget, ToolTip);
     } else if (classname == "QFrame") {

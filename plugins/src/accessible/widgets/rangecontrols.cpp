@@ -9,19 +9,19 @@
 #include <qrangecontrol.h>
 #include <qstyle.h>
 
+QString Q_EXPORT qacc_stripAmp(const QString &text);
+
 /*!
   \class QAccessibleRangeControl qaccessiblewidget.h
   \brief The QAccessibleRangeControl class implements the QAccessibleInterface for range controls.
 */
 
 /*!
-  Constructs a QAccessibleRangeControl object for \a o.
-  \a role, \a name, \a description, \a help, \a defAction and \a accelerator
-  are propagated to the QAccessibleWidget constructor.
+  Constructs a QAccessibleRangeControl object for \a w.
+  \a role and \a name.
 */
-QAccessibleRangeControl::QAccessibleRangeControl(QWidget *w, Role role, QString name,
-						 QString description, QString help, QString defAction, QString accelerator)
-: QAccessibleWidget(w, role, name, description, QString(), help, SetFocus, defAction, accelerator)
+QAccessibleRangeControl::QAccessibleRangeControl(QWidget *w, Role role, const QString &name)
+: QAccessibleWidget(w, role, name)
 {
     addControllingSignal("valueChanged(int)");
 }
@@ -29,18 +29,9 @@ QAccessibleRangeControl::QAccessibleRangeControl(QWidget *w, Role role, QString 
 /*! \reimp */
 QString QAccessibleRangeControl::text(Text t, int child) const
 {
-    QString tx = QAccessibleWidget::text(t, child);
-    if (!!tx)
-	return stripAmp(tx);
+    QString str;
 
     switch (t) {
-    case Name:
-	return stripAmp(buddyString(widget()));
-    case Accelerator:
-	tx = hotKey(buddyString(widget()));
-	if (!!tx)
-	    return "Alt + "+tx;
-	break;
     case Value:
 	{
 	    int value = 0;
@@ -54,12 +45,15 @@ QString QAccessibleRangeControl::text(Text t, int child) const
 		return qt_cast<QSpinBox*>(object())->text();
 	    else if (qt_cast<QProgressBar*>(object()))
 		value = qt_cast<QProgressBar*>(object())->progress();
-	    return QString::number(value);
+	    str = QString::number(value);
 	}
+	break;
     default:
 	break;
     }
-    return tx;
+    if (str.isEmpty())
+	str = QAccessibleWidget::text(t, child);;
+    return qacc_stripAmp(str);
 }
 
 /*!
@@ -132,17 +126,6 @@ QString QAccessibleSpinWidget::text(Text t, int child) const
 	    break;
 	}
 	break;
-/*
-    case DefaultAction:
-	switch(child) {
-	case 1:
-	case 2:
-	    return QSpinWidget::tr("Press");
-	default:
-	    break;
-	}
-	break;
-*/
     default:
 	break;
     }
@@ -209,12 +192,10 @@ bool QAccessibleSpinWidget::doAction(int action, int child)
 
 /*!
   Constructs a QAccessibleScrollBar object for \a w.
-  \a name, \a description, \a help, \a defAction and \a accelerator
-  are propagated to the QAccessibleRangeControl constructor.
+  \a name is propagated to the QAccessibleRangeControl constructor.
 */
-QAccessibleScrollBar::QAccessibleScrollBar(QWidget *w, QString name,
-    QString description, QString help, QString defAction, QString accelerator)
-: QAccessibleRangeControl(w, ScrollBar, name, description, help, defAction, accelerator)
+QAccessibleScrollBar::QAccessibleScrollBar(QWidget *w, const QString &name)
+: QAccessibleRangeControl(w, ScrollBar, name)
 {
     Q_ASSERT(scrollBar());
 }
@@ -295,12 +276,6 @@ QString	QAccessibleScrollBar::text(Text t, int child) const
 	    return QScrollBar::tr("Line down");
 	}
 	break;
-/*
-    case DefaultAction:
-	if (child != 3)
-	    return QScrollBar::tr("Press");
-	break;
-*/
     default:
 	break;
 
@@ -351,12 +326,10 @@ bool QAccessibleScrollBar::doAction(int action, int child)
 
 /*!
   Constructs a QAccessibleScrollBar object for \a w.
-  \a name, \a description, \a help, \a defAction and \a accelerator
-  are propagated to the QAccessibleRangeControl constructor.
+  \a name is propagated to the QAccessibleRangeControl constructor.
 */
-QAccessibleSlider::QAccessibleSlider(QWidget *w, QString name,
-    QString description, QString help, QString defAction, QString accelerator)
-: QAccessibleRangeControl(w, ScrollBar, name, description, help, defAction, accelerator)
+QAccessibleSlider::QAccessibleSlider(QWidget *w, const QString &name)
+: QAccessibleRangeControl(w, Slider, name)
 {
     Q_ASSERT(slider());
 }
@@ -426,12 +399,6 @@ QString	QAccessibleSlider::text(Text t, int child) const
 	    return QSlider::tr("Page up");
 	}
 	break;
-/*
-    case DefaultAction:
-	if (child != 2)
-	    return QSlider::tr("Press");
-	break;
-*/
     default:
 	break;
     }

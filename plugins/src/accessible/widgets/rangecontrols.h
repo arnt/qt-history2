@@ -1,7 +1,7 @@
 #ifndef RANGECONTROLS_H
 #define RANGECONTROLS_H
 
-#include "qaccessiblewidgets.h"
+#include <qaccessiblewidget.h>
 
 class QScrollBar;
 class QSlider;
@@ -9,9 +9,7 @@ class QSlider;
 class QAccessibleRangeControl : public QAccessibleWidget
 {
 public:
-    QAccessibleRangeControl(QWidget *o, Role role, QString name = QString(), 
-	QString description = QString(), QString help = QString(), 
-	QString defAction = QString(), QString accelerator = QString());
+    QAccessibleRangeControl(QWidget *o, Role role, const QString &name = QString());
 
     QString	text(Text t, int child) const;
 };
@@ -19,7 +17,7 @@ public:
 class QAccessibleSpinWidget : public QAccessibleRangeControl
 {
 public:
-    QAccessibleSpinWidget(QWidget *o);
+    QAccessibleSpinWidget(QWidget *w);
 
     int		childCount() const;
     QRect	rect(int child) const;
@@ -36,9 +34,7 @@ public:
 class QAccessibleScrollBar : public QAccessibleRangeControl
 {
 public:
-    QAccessibleScrollBar(QWidget *o, QString name = QString(), 
-	QString description = QString(), QString help = QString(), 
-	QString defAction = QString(), QString accelerator = QString());
+    QAccessibleScrollBar(QWidget *w, const QString &name = QString());
 
     int		childCount() const;
 
@@ -55,9 +51,7 @@ protected:
 class QAccessibleSlider : public QAccessibleRangeControl
 {
 public:
-    QAccessibleSlider(QWidget *o, QString name = QString(), 
-	QString description = QString(), QString help = QString(), 
-	QString defAction = QString(), QString accelerator = QString());
+    QAccessibleSlider(QWidget *w, const QString &name = QString());
 
     int		childCount() const;
     int		relationTo(int child, const QAccessibleInterface *other, int otherChild);
