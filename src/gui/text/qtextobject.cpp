@@ -97,6 +97,12 @@ QTextFormat QTextObject::format() const
     return d->pieceTable->formatCollection()->objectFormat(d->objectIndex);
 }
 
+int QTextObject::formatIndex() const
+{
+    return d->pieceTable->formatCollection()->objectFormatIndex(d->objectIndex);
+}
+
+
 /*!
     Sets the text object's \a format.
 
@@ -940,6 +946,13 @@ QTextBlockFormat QTextBlock::blockFormat() const
     return p->formatCollection()->blockFormat(p->blockMap().fragment(n)->format);
 }
 
+int QTextBlock::blockFormatIndex() const
+{
+    if (!p || !n)
+        return -1;
+
+    return p->blockMap().fragment(n)->format;
+}
 
 /*!
     Returns the QTextCharFormat that describes the block's character
@@ -958,6 +971,18 @@ QTextCharFormat QTextBlock::charFormat() const
     if (pos > 0)
         --pos;
     return p->formatCollection()->charFormat(fm.find(pos)->format);
+}
+
+int QTextBlock::charFormatIndex() const
+{
+    if (!p || !n)
+        return -1;
+
+    const QTextDocumentPrivate::FragmentMap &fm = p->fragmentMap();
+    int pos = p->blockMap().position(n);
+    if (pos > 0)
+        --pos;
+    return fm.find(pos)->format;
 }
 
 /*!

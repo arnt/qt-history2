@@ -39,6 +39,7 @@ protected:
 public:
     int formatType() const;
     QTextFormat format() const;
+    int formatIndex() const;
 
     QTextDocument *document() const;
 
@@ -170,7 +171,9 @@ public:
 
     QTextLayout *layout() const;
     QTextBlockFormat blockFormat() const;
+    int blockFormatIndex() const;
     QTextCharFormat charFormat() const;
+    int charFormatIndex() const;
 
     QString text() const;
 
