@@ -56,7 +56,7 @@
 extern int line_count;
 extern "C" void yyerror(const char *foo)
 {
-    printf("%d: %s\n", line_count, foo);
+    fprintf(stderr, "%d: %s\n", line_count, foo);
 }
 
 // for Borland, main is defined to qMain which breaks qmake
