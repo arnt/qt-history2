@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: debug.doc,v 1.2 1995/08/02 14:24:09 hanord Exp $
+** $Id: debug.doc,v 1.3 1995/12/11 14:00:01 agulbra Exp $
 **
 ** Qt Debugging Techniques
 **
@@ -10,8 +10,9 @@
 /*!
 \page debug.html
 
-<title>Qt Debugging Techniques</title>  <a name=debuggingtechniques>
+<title>Qt Debugging Techniques</title>
 </head><body>
+<a name=debuggingtechniques></a>
 <h1>Qt Debugging Techniques</h1>
 <hr>
 
@@ -22,7 +23,7 @@ for debugging purposes.
 <p>
 Notice that these options are only available in the development version of
 the Qt library, not in the production version.
-Currently, <a href=file:troll.html> Troll Tech</a> only supports a
+Currently, <a href=troll.html>Troll Tech</a> only supports a
 development version of the Qt library.
 <p>
 <a href=#memorychecking> Memory checking</a> (includes memory leak detection)
@@ -36,7 +37,7 @@ Other debugging options: <ul>
 <li>-nograb The application should never grab \link QWidget::grabMouse the
 mouse\endlink or \link QWidget::grabKeyboard() the keyboard \endlink.
 <li>-sync Runs the application in X synchronous mode.
-Synchronous mode forces the X server perform each X client request immediatly
+Synchronous mode forces the X server perform each X client request immediately
 and not use a buffer optimizaton. It makes the program easier to debug.
 The -sync option is only valid for the X-Windows version of Qt.
 </ul>
@@ -44,7 +45,7 @@ The -sync option is only valid for the X-Windows version of Qt.
 <p>
 
 <hr>
-<h2>Memory Checking</h2> <a name=memorychecking>
+<h2>Memory Checking</h2> <a name=memorychecking></a>
 
 The Qt development library provides built-in memory checking.  It detects
 memory leaks (pointers that are never deleted) and attempts to delete
