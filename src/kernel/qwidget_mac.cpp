@@ -1605,8 +1605,13 @@ void QWidget::scroll( int dx, int dy, const QRect& r )
 
     if ( dx == 0 && dy == 0 )
 	return;
+    QRegion clp = clippedRegion(valid_rect);
+    dirtyClippedRegion(TRUE);
     if ( w > 0 && h > 0 ) {
-	QMacSavedPortInfo pi(this, clippedRegion(FALSE));
+	QRegion clp_trans = clp;
+	clp_trans.translate(dx, dy);
+	clp_trans &= clp;
+	QMacSavedPortInfo pi(this, clp_trans);
 	unclippedBitBlt(this,x2,y2,this,x1,y1,w,h,Qt::CopyROP,TRUE);
     }
     if ( !valid_rect && children() ) {	// scroll children
@@ -1633,8 +1638,6 @@ void QWidget::scroll( int dx, int dy, const QRect& r )
     update_rgn.translate(-topLevelWidget()->geometry().x(), -topLevelWidget()->geometry().y());
     update_rgn.translate(-p.x(), -p.y());
     update_rgn.translate(dx,dy);
-    dirtyClippedRegion(TRUE);
-    QRegion clp = clippedRegion(FALSE);
     clp.translate(-p.x(), -p.y());
     QRegion newarea(clp - QRegion(x2,y2,w,h) - update_rgn);
     debug_wndw_rgn("*****scroll", this, newarea);
