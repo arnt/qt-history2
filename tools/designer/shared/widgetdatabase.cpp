@@ -853,12 +853,20 @@ void WidgetDatabase::loadWhatsThis( const QString &docPath )
 #if defined(UIC)
 bool dbnounload = FALSE;
 QStringList *dbpaths = 0;
+#else
+extern QString *qwf_plugin_dir;
 #endif
+
 
 QPluginManager<WidgetInterface> *widgetManager()
 {
     if ( !widgetPluginManager ) {
-	widgetPluginManager = new QPluginManager<WidgetInterface>( IID_Widget, QApplication::libraryPaths(), "/designer" );
+	QString pluginDir = "/designer";
+#if !defined(UIC)
+	if ( qwf_plugin_dir )
+	    pluginDir = *qwf_plugin_dir;
+#endif
+	widgetPluginManager = new QPluginManager<WidgetInterface>( IID_Widget, QApplication::libraryPaths(), pluginDir );
 	cleanup_manager.add( &widgetPluginManager );
 #if defined(UIC)
 	if ( dbnounload )
