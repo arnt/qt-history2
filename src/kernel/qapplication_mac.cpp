@@ -1333,7 +1333,6 @@ int QApplication::macProcessEvent(MSG * m)
 		    while ( w->focusProxy() )
 			w = w->focusProxy();
 		    if ( w->focusPolicy() & QWidget::ClickFocus ) {
-			qDebug("Fuck..");
 			QFocusEvent::setReason( QFocusEvent::Mouse);
 			w->setFocus();
 			QFocusEvent::resetReason();
