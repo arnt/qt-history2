@@ -62,6 +62,11 @@ public:
         AnyKeyPressed = 16
     };
 
+    enum EndEditAction {
+        Accepted = 1,
+        Cancelled = 2
+    };
+
     // painting
     virtual void paint(QPainter *painter, const QItemOptions &options, const QModelIndex &item) const = 0;
     virtual QSize sizeHint(const QFontMetrics &fontMetrics, const QItemOptions &options,
@@ -74,6 +79,7 @@ public:
     virtual void setContentFromEditor(QWidget *editor, const QModelIndex &item) const;
     virtual void updateEditorContents(QWidget *editor, const QModelIndex &item) const;
     virtual void updateEditorGeometry(QWidget *editor, const QItemOptions &options, const QModelIndex &item) const;
+    virtual void removeEditor(EndEditAction action, QWidget *editor, const QModelIndex &item);
 
 protected:
     QAbstractItemDelegate(QAbstractItemDelegatePrivate &, QAbstractItemModel* model, QObject *parent = 0);

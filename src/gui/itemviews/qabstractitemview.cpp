@@ -496,22 +496,25 @@ void QAbstractItemView::endEdit(const QModelIndex &item, bool accept)
     if (!item.isValid())
         return ;
 
+    QAbstractItemDelegate::EndEditAction endAction = accept ? QAbstractItemDelegate::Accepted
+                                                            : QAbstractItemDelegate::Cancelled;
+
     if (!model()->isEditable(item)) {
-        delete d->currentEditor;
+        itemDelegate()->removeEditor(endAction, d->currentEditor, item);
         setFocus();
         return;
     }
 
     QAbstractItemDelegate::EditType editType = itemDelegate()->editType(item);
     if (editType == QAbstractItemDelegate::PersistentWidget || editType == QAbstractItemDelegate::NoWidget) {
-        delete d->currentEditor;
+        itemDelegate()->removeEditor(endAction, d->currentEditor, item);
         setFocus();
         return;
     }
 
     if (accept)
         itemDelegate()->setContentFromEditor(d->currentEditor, item);
-    delete d->currentEditor;
+    itemDelegate()->removeEditor(endAction, d->currentEditor, item);
     setFocus();
 }
 

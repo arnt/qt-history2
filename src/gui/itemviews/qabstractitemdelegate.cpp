@@ -56,10 +56,15 @@ QAbstractItemDelegate::EditType QAbstractItemDelegate::editType(const QModelInde
     return QAbstractItemDelegate::NoEditType;
 }
 
-QWidget *QAbstractItemDelegate::createEditor(StartEditAction, QWidget *,
-                                             const QItemOptions &, const QModelIndex &) const
+QWidget *QAbstractItemDelegate::createEditor(StartEditAction, QWidget *, const QItemOptions&,
+                                             const QModelIndex &) const
 {
     return 0;
+}
+
+void QAbstractItemDelegate::removeEditor(EndEditAction, QWidget *, const QModelIndex &)
+{
+    // do nothing
 }
 
 void QAbstractItemDelegate::setContentFromEditor(QWidget *, const QModelIndex &) const

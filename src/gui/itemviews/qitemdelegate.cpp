@@ -69,6 +69,11 @@ QWidget *QItemDelegate::createEditor(StartEditAction action, QWidget *parent,
     return 0;
 }
 
+void QItemDelegate::removeEditor(EndEditAction, QWidget *editor, const QModelIndex &)
+{
+    delete editor;
+}
+
 void QItemDelegate::setContentFromEditor(QWidget *editor, const QModelIndex &item) const
 {
     QLineEdit *lineEdit = ::qt_cast<QLineEdit*>(editor);

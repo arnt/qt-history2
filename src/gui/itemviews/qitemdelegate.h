@@ -22,6 +22,7 @@ public:
     void setContentFromEditor(QWidget *editor, const QModelIndex &item) const;
     void updateEditorContents(QWidget *editor, const QModelIndex &item) const;
     void updateEditorGeometry(QWidget *editor, const QItemOptions &options, const QModelIndex &item) const;
+    void removeEditor(EndEditAction action, QWidget *editor, const QModelIndex &item);
 
 protected:
     void drawText(QPainter *painter, const QItemOptions &options, const QRect &rect, const QString &text) const;
