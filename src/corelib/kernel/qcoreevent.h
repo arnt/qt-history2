@@ -192,6 +192,7 @@ private:
     friend class QCoreApplicationPrivate;
     friend class QThreadData;
     friend class QApplication;
+    friend class QApplicationPrivate;
     friend class Q3AccelManager;
     friend class QShortcutMap;
     friend class QETWidget;

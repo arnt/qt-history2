@@ -263,27 +263,6 @@ public:
 #endif // QT3_SUPPORT
 
 private:
-    static QWidget *widgetAt_sys(int x, int y);
-    bool notify_helper(QObject *receiver, QEvent * e);
-
-    void construct();
-    void initialize();
-    void process_cmdline();
-#if defined(Q_WS_QWS)
-    static QWidget *findChildWidget(const QWidget *p, const QPoint &pos);
-    static QWidget *findWidget(const QObjectList&, const QPoint &, bool rec);
-#endif
-
-#if defined(Q_WS_X11) && !defined (QT_NO_STYLE)
-    static void x11_initialize_style();
-#endif
-
-    bool inPopupMode() const;
-    void closePopup(QWidget *popup);
-    void openPopup(QWidget *popup);
-    static void setFocusWidget(QWidget *focus, Qt::FocusReason reason);
-
-private:
     Q_DISABLE_COPY(QApplication)
     Q_DECLARE_PRIVATE(QApplication)
 

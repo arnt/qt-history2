@@ -162,7 +162,7 @@ private:
 
     static void activateRecursiveHelper(QLayoutItem *item);
 
-    friend class QApplication;
+    friend class QApplicationPrivate;
 
 #ifdef QT3_SUPPORT
 public:

@@ -135,6 +135,8 @@ public:
     static void reset_instance_pointer();
 #elif defined(Q_WS_QWS)
     static bool qws_apply_settings();
+    static QWidget *findChildWidget(const QWidget *p, const QPoint &pos);
+    static QWidget *findWidget(const QObjectList&, const QPoint &, bool rec);
 #endif
     static bool quitOnLastWindowClosed;
     static void emitLastWindowClosed();
@@ -149,8 +151,22 @@ public:
 #ifdef Q_WS_MAC
     static QWidget *tryModalHelperMac(QWidget *top);
 #endif
+    static QWidget *widgetAt_sys(int x, int y);
 
+    bool notify_helper(QObject *receiver, QEvent * e);
 
+    void construct();
+    void initialize();
+    void process_cmdline();
+
+#if defined(Q_WS_X11) && !defined (QT_NO_STYLE)
+    static void x11_initialize_style();
+#endif
+
+    bool inPopupMode() const;
+    void closePopup(QWidget *popup);
+    void openPopup(QWidget *popup);
+    static void setFocusWidget(QWidget *focus, Qt::FocusReason reason);
 
 #ifndef QT_NO_SESSIONMANAGER
     QSessionManager *session_manager;

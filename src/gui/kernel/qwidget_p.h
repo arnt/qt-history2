@@ -102,6 +102,9 @@ struct QTLWExtra {
 #if defined Q_WS_QWS
     QPixmap backingStore;
     QPoint backingStoreOffset;
+
+    QRegion dirtyRegion;
+    bool inPaintTransaction;
 #endif
 #if defined(Q_WS_WIN)
     HICON winIconBig; // internal big Windows icon
@@ -230,25 +233,19 @@ public:
     void updateFrameStrut() const;
 
 #if defined(Q_WS_QWS)
-    void updateOverlappingChildren() const;
-    void setChildrenAllocatedDirty();
-    void setChildrenAllocatedDirty(const QRegion &r, const QWidget *dirty=0);
-    bool isAllocatedRegionDirty() const;
-    void updateRequestedRegion(const QPoint &gpos);
-    QRegion requestedRegion() const;
-    QRegion allocatedRegion() const;
-    QRegion paintableRegion() const;
+//    void updateRequestedRegion(const QPoint &gpos);
+//    QRegion requestedRegion() const;
+    QRegion localRequestedRegion() const;
     void requestWindowRegion(const QRegion &r);
 
     void doPaint(const QRegion &rgn);
 
-    void bltToScreen(const QRegion &rgn);
-    void paintHierarchy();
+    void bltToScreen(const QRegion &globalrgn);
+    void paintHierarchy(const QRegion &rgn );
 #ifndef QT_NO_CURSOR
     void updateCursor(const QRegion &r) const;
 #endif
     // used to accumulate dirty region when children moved/resized.
-    QRegion dirtyChildren;
     bool isSettingGeometry;
     friend class QWSManager;
     friend class QWSManagerPrivate;

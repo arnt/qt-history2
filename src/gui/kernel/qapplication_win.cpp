@@ -1024,11 +1024,11 @@ static QWidget *findChildWidget(const QWidget *p, const QPoint &pos)
 
 QWidget *QApplication::topLevelAt(const QPoint &p)
 {
-    QWidget *c = widgetAt_sys(p.x(), p.y());
+    QWidget *c = QApplicationPrivate::widgetAt_sys(p.x(), p.y());
     return c ? c->window() : 0;
 }
 
-QWidget *QApplication::widgetAt_sys(int x, int y)
+QWidget *QApplicationPrivate::widgetAt_sys(int x, int y)
 {
     POINT p;
     HWND  win;
@@ -1123,7 +1123,7 @@ extern uint qGlobalPostedEventsCount();
 */
 void QApplication::winFocus(QWidget *widget, bool gotFocus)
 {
-    if (inPopupMode()) // some delayed focus event to ignore
+    if (d->inPopupMode()) // some delayed focus event to ignore
         return;
     if (gotFocus) {
         setActiveWindow(widget);
@@ -1303,7 +1303,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
                 QApplication::sendEvent(qt_desktopWidget, &rs);
             } else {
                 qt_desktopWidget->resize(x, y);
-            }            
+            }
         }
         break;
 #endif
@@ -2189,7 +2189,7 @@ bool qt_try_modal(QWidget *widget, MSG *msg, int& ret)
             QWidget *widget        The popup widget to be removed
  *****************************************************************************/
 
-void QApplication::openPopup(QWidget *popup)
+void QApplicationPrivate::openPopup(QWidget *popup)
 {
     if (!QApplicationPrivate::popupWidgets)
         QApplicationPrivate::popupWidgets = new QWidgetList;
@@ -2207,7 +2207,7 @@ void QApplication::openPopup(QWidget *popup)
     } else if (QApplicationPrivate::popupWidgets->count() == 1) { // this was the first popup
         if (QWidget *fw = focusWidget()) {
             QFocusEvent e(QEvent::FocusOut, Qt::PopupFocusReason);
-            sendEvent(fw, &e);
+            q->sendEvent(fw, &e);
         }
     }
 }
@@ -2477,7 +2477,7 @@ bool QETWidget::translateMouseEvent(const MSG &msg)
                 trackMouseEventLookup = true;
                 ptrTrackMouseEvent = (PtrTrackMouseEvent)QLibrary::resolve("comctl32", "_TrackMouseEvent");
             }
-            if (ptrTrackMouseEvent && !qApp->inPopupMode()) {
+            if (ptrTrackMouseEvent && !qApp->d->inPopupMode()) {
                 // We always have to set the tracking, since
                 // Windows detects more leaves than we do..
                 TRACKMOUSEEVENT tme;
@@ -2514,7 +2514,7 @@ bool QETWidget::translateMouseEvent(const MSG &msg)
 
     bool res = false;
 
-    if (qApp->inPopupMode()) {                        // in popup mode
+    if (qApp->d->inPopupMode()) {                        // in popup mode
         replayPopupMouseEvent = false;
         QWidget* activePopupWidget = qApp->activePopupWidget();
         QWidget *popup = activePopupWidget;

@@ -1883,7 +1883,7 @@ void qt_init(QApplicationPrivate *priv, int,
 /*!
     \internal
 */
-void QApplication::x11_initialize_style()
+void QApplicationPrivate::x11_initialize_style()
 {
     Atom type;
     int format;
@@ -2293,11 +2293,11 @@ Window QX11Data::findClientWindow(Window win, Atom property, bool leaf)
 
 QWidget *QApplication::topLevelAt(const QPoint &p)
 {
-    QWidget *c = widgetAt_sys(p.x(), p.y());
+    QWidget *c = QApplicationPrivate::widgetAt_sys(p.x(), p.y());
     return c ? c->window() : 0;
 }
 
-QWidget *QApplication::widgetAt_sys(int x, int y)
+QWidget *QApplicationPrivate::widgetAt_sys(int x, int y)
 {
     int screen = QCursor::x11Screen();
     int unused;
@@ -2323,7 +2323,7 @@ QWidget *QApplication::widgetAt_sys(int x, int y)
         if (!w) {
             // Perhaps the widget at (x,y) is inside a foreign application?
             // Search all toplevel widgets to see if one is within target
-            QWidgetList list = topLevelWidgets();
+            QWidgetList list = QApplication::topLevelWidgets();
             for (int i = 0; i < list.count(); ++i) {
                 QWidget *widget = list.at(i);
                 Window ctarget = target;
@@ -2553,7 +2553,7 @@ int QApplication::x11ProcessEvent(XEvent* event)
         if (keywidget) {
             grabbed = true;
         } else if (!keywidget) {
-            if (inPopupMode()) // no focus widget, see if we have a popup
+            if (d->inPopupMode()) // no focus widget, see if we have a popup
                 keywidget = (QETWidget*) (activePopupWidget()->focusWidget() ? activePopupWidget()->focusWidget() : activePopupWidget());
             else if (QApplicationPrivate::focus_widget)
                 keywidget = (QETWidget*)QApplicationPrivate::focus_widget;
@@ -2689,7 +2689,7 @@ int QApplication::x11ProcessEvent(XEvent* event)
     switch (event->type) {
 
     case ButtonRelease:                        // mouse event
-	if (!inPopupMode() && !QWidget::mouseGrabber() && pressed_window != widget->winId())
+	if (!d->inPopupMode() && !QWidget::mouseGrabber() && pressed_window != widget->winId())
             break;
         // fall through intended
     case ButtonPress:
@@ -2739,7 +2739,7 @@ int QApplication::x11ProcessEvent(XEvent* event)
     case XFocusIn: {                                // got focus
         if ((widget->windowType() == Qt::Desktop))
             break;
-        if (inPopupMode()) // some delayed focus event to ignore
+        if (d->inPopupMode()) // some delayed focus event to ignore
             break;
         if (!widget->isWindow())
             break;
@@ -2770,14 +2770,14 @@ int QApplication::x11ProcessEvent(XEvent* event)
             event->xfocus.detail != NotifyNonlinearVirtual &&
             event->xfocus.detail != NotifyNonlinear)
             break;
-        if (!inPopupMode() && widget == QApplicationPrivate::active_window)
+        if (!d->inPopupMode() && widget == QApplicationPrivate::active_window)
             setActiveWindow(0);
         break;
 
     case EnterNotify: {                        // enter window
         if (QWidget::mouseGrabber()  && widget != QWidget::mouseGrabber())
             break;
-        if (inPopupMode() && widget->window() != activePopupWidget())
+        if (d->inPopupMode() && widget->window() != activePopupWidget())
             break;
         if (event->xcrossing.mode != NotifyNormal ||
             event->xcrossing.detail == NotifyVirtual  ||
@@ -3138,7 +3138,7 @@ bool qt_try_modal(QWidget *widget, XEvent *event)
 
 
 static int openPopupCount = 0;
-void QApplication::openPopup(QWidget *popup)
+void QApplicationPrivate::openPopup(QWidget *popup)
 {
     openPopupCount++;
     if (!QApplicationPrivate::popupWidgets) {                        // create list
@@ -3165,14 +3165,14 @@ void QApplication::openPopup(QWidget *popup)
     if (popup->focusWidget()) {
         popup->focusWidget()->setFocus(Qt::PopupFocusReason);
     } else if (QApplicationPrivate::popupWidgets->count() == 1) { // this was the first popup
-        if (QWidget *fw = focusWidget()) {
+        if (QWidget *fw = QApplication::focusWidget()) {
             QFocusEvent e(QEvent::FocusOut, Qt::PopupFocusReason);
-            sendEvent(fw, &e);
+            q->sendEvent(fw, &e);
         }
     }
 }
 
-void QApplication::closePopup(QWidget *popup)
+void QApplicationPrivate::closePopup(QWidget *popup)
 {
     if (!QApplicationPrivate::popupWidgets)
         return;
@@ -3200,11 +3200,11 @@ void QApplication::closePopup(QWidget *popup)
         }
         if (QApplicationPrivate::active_window) {
             if (QWidget *fw = QApplicationPrivate::active_window->focusWidget()) {
-                if (fw != focusWidget()) {
+                if (fw != QApplication::focusWidget()) {
                     fw->setFocus(Qt::PopupFocusReason);
                 } else {
                     QFocusEvent e(QEvent::FocusIn, Qt::PopupFocusReason);
-                    sendEvent(fw, &e);
+                    q->sendEvent(fw, &e);
                 }
             }
         }
@@ -3452,7 +3452,7 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
     if (type == 0)                                // don't send event
         return false;
 
-    if (qApp->inPopupMode()) {                        // in popup mode
+    if (qApp->d->inPopupMode()) {                        // in popup mode
         QWidget *activePopupWidget = qApp->activePopupWidget();
         QWidget *popup = qApp->activePopupWidget();
         if (popup != this) {
@@ -3526,7 +3526,7 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
             qt_button_down = 0;
             qt_popup_down = 0;
         }
-        if (!qApp->inPopupMode()) {
+        if (!qApp->d->inPopupMode()) {
              if (type != QEvent::MouseButtonRelease && !buttons &&
                  QWidget::find((WId)mouseActWindow)) {
                  manualGrab = true;                // need to manually grab

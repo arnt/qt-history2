@@ -924,9 +924,12 @@ void QWidgetPrivate::createTLExtra()
         x->ussize = 0;
 #endif
         x->savedFlags = 0;
-#if defined(Q_WS_QWS) && !defined(QT_NO_QWS_MANAGER)
+#if defined(Q_WS_QWS)
+        x->inPaintTransaction = false;
+#if !defined(QT_NO_QWS_MANAGER)
         x->decor_allocated_region = QRegion();
         x->qwsManager = 0;
+#endif
 #endif
         createTLSysExtra();
     }
@@ -1081,6 +1084,16 @@ void QWidgetPrivate::updatePropagatedBackground(const QRegion *reg)
 void QWidgetPrivate::composeBackground(const QRect &crect)
 {
     Q_Q(QWidget);
+#if 0 //DEBUG
+    static int ii = 0;
+    //QColor bgCol = QColor::fromHsv(double(ii%5)/5.0, double(ii%33+22)/55.0, double(ii%17+33)/50.0);
+    QColor bgCol = QColor::fromHsv((ii%5*360)/5, (255*(ii%33+22))/55, (255*(ii%17+33)/50));
+    QPainter bgPainter(q);
+    bgPainter.fillRect(crect, bgCol);
+    ii = (ii+1) % 4095;
+    return;
+#endif
+
 
     QPoint offset;
     QVector<QWidget*> layers;
@@ -3109,7 +3122,7 @@ void QWidget::setFocus(Qt::FocusReason reason)
 	    }
         }
 
-        QApplication::setFocusWidget(f, reason);
+        QApplicationPrivate::setFocusWidget(f, reason);
         f->d_func()->focusInputContext();
 
 #if defined(Q_WS_WIN)
@@ -3152,7 +3165,7 @@ void QWidget::clearFocus()
         Q_D(QWidget);
 	d->unfocusInputContext();
 #endif
-        QApplication::setFocusWidget(0, Qt::OtherFocusReason);
+        QApplicationPrivate::setFocusWidget(0, Qt::OtherFocusReason);
 #if defined(Q_WS_WIN)
         if (!(windowType() == Qt::Popup) && GetFocus() == winId())
             SetFocus(0);
@@ -3778,7 +3791,7 @@ void QWidgetPrivate::show_helper()
     // showevent
 #if defined(Q_WS_WIN)
     if ((q->windowType() == Qt::Popup))
-        qApp->openPopup(q);
+        qApp->d->openPopup(q);
 #endif
 
     // send the show event before showing the window
@@ -3795,7 +3808,7 @@ void QWidgetPrivate::show_helper()
 
 #if !defined(Q_WS_WIN)
     if ((q->windowType() == Qt::Popup))
-        qApp->openPopup(q);
+        qApp->d_func()->openPopup(q);
 #endif
 
 #ifndef QT_NO_ACCESSIBILITY
@@ -3819,7 +3832,7 @@ void QWidgetPrivate::hide_helper()
 {
     Q_Q(QWidget);
     if ((q->windowType() == Qt::Popup))
-        qApp->closePopup(q);
+        qApp->d_func()->closePopup(q);
 
     // Move test modal here.  Otherwise, a modal dialog could get
     // destroyed and we lose all access to its parent because we haven't

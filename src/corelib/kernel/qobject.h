@@ -250,6 +250,7 @@ protected:
 
     friend struct QMetaObject;
     friend class QApplication;
+    friend class QApplicationPrivate;
     friend class QCoreApplication;
     friend class QCoreApplicationPrivate;
     friend class QWidget;

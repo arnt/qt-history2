@@ -81,15 +81,15 @@ public:
     mutable QPalette pal;
     QFont fnt;
 #if defined(Q_WS_QWS)
-    QRegion req_region;                 // Requested region
-    mutable QRegion paintable_region;   // Paintable region
-    mutable bool paintable_region_dirty;// needs to be recalculated
-    mutable QRegion alloc_region;       // Allocated region
-    mutable bool alloc_region_dirty;    // needs to be recalculated
-    mutable int overlapping_children;   // Handle overlapping children
+//    QRegion req_region;                 // Requested region
+//     mutable QRegion paintable_region;   // Paintable region
+//     mutable bool paintable_region_dirty;// needs to be recalculated
+//     mutable QRegion alloc_region;       // Allocated region
+//     mutable bool alloc_region_dirty;    // needs to be recalculated
+//     mutable int overlapping_children;   // Handle overlapping children
 
     int alloc_region_index;
-    int alloc_region_revision;
+//    int alloc_region_revision;
 #endif
     QRect wrect;
 };
