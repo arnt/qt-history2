@@ -1249,6 +1249,12 @@ void QActionGroup::childEvent( QChildEvent *e )
 		continue;
 	    action->addTo( popup );
 	}
+	for ( QListIterator<QActionGroupPrivate::MenuItem> mi( d->menuitems ); mi.current(); ++mi ) {
+	    QPopupMenu* popup = mi.current()->popup;
+	    if ( !popup )
+		continue;
+	    action->addTo( popup );
+	}
     } else if ( e->removed() ) {
 	for ( QListIterator<QComboBox> cb( d->comboboxes ); cb.current(); ++cb ) {
 	    for ( int i = 0; i < cb.current()->count(); i++ ) {
@@ -1260,6 +1266,12 @@ void QActionGroup::childEvent( QChildEvent *e )
 	}
 	for ( QListIterator<QToolButton> mb( d->menubuttons ); mb.current(); ++mb ) {
 	    QPopupMenu* popup = mb.current()->popup();
+	    if ( !popup )
+		continue;
+	    action->removeFrom( popup );
+	}
+	for ( QListIterator<QActionGroupPrivate::MenuItem> mi( d->menuitems ); mi.current(); ++mi ) {
+	    QPopupMenu* popup = mi.current()->popup;
 	    if ( !popup )
 		continue;
 	    action->removeFrom( popup );
