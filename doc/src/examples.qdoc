@@ -25,7 +25,7 @@
     \list
     \o \l{widgets/analogclock}{Analog Clock}\raisedaster
     \o \l{widgets/charactermap}{Character Map}\raisedaster
-    \o \l{widgets/digitalclock}{Digital Clock}
+    \o \l{widgets/digitalclock}{Digital Clock}\raisedaster
     \o \l{widgets/groupbox}{Group Box}\raisedaster
     \o \l{widgets/lineedits}{Line Edits}
     \o \l{widgets/sliders}{Sliders}

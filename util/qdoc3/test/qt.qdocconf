@@ -20,8 +20,7 @@ exampledirs		= $QTDIR/doc/src \
                           $QTDIR/extensions/motif/examples \
 			  $QTDIR/qmake/examples \
 			  $QTDIR/tools/linguist/tutorial
-imagedirs		= $QTDIR/doc/src/images \
-			  $QTDIR/doc/src/examples/images
+imagedirs		= $QTDIR/doc/src/images
 outputdir		= $QTDIR/doc/html
 base			= file:$QTDIR/doc/html
 versionsym		= QT_VERSION_STR
