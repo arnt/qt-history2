@@ -29,6 +29,8 @@ public:
 
     QString	text(Text t, int child) const;
     Role	role(int child) const;
+
+    int		relationTo(int child, const QAccessibleInterface *other, int otherChild) const;
 };
 
 class QAccessibleText : public QAccessibleWidget

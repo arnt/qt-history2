@@ -174,6 +174,25 @@ QString QAccessibleDisplay::text(Text t, int child) const
     return stripAmp(str);
 }
 
+/*! \reimp */
+int QAccessibleDisplay::relationTo(int child, const QAccessibleInterface *other, int otherChild) const
+{
+    int relation = QAccessibleWidget::relationTo(child, other, otherChild);
+    if (child || otherChild)
+	return relation;
+
+    QObject *o = other->object();
+    QLabel *label = qt_cast<QLabel*>(object());
+    QGroupBox *groupbox = qt_cast<QGroupBox*>(object());
+    if (label) {
+	if (o == label->buddy())
+	    relation |= Label;
+    } else if (groupbox) {
+	if (groupbox->children().contains(o))
+	    relation |= Label;
+    }
+    return relation;
+}
 
 /*!
   \class QAccessibleText qaccessiblewidget.h
