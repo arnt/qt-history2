@@ -151,6 +151,7 @@ QWidgetFactory::QWidgetFactory()
 */
 QWidgetFactory::~QWidgetFactory()
 {
+#if 0 // #### Volker, please test your changes!!!
     delete widgetInterfaceManager;
     widgetInterfaceManager = 0;
     delete languageInterfaceManager;
@@ -159,6 +160,7 @@ QWidgetFactory::~QWidgetFactory()
     interpreterInterfaceManager = 0;
     delete eventInterfaceManager;
     eventInterfaceManager = 0;
+#endif
 }
 
 /*!
