@@ -137,7 +137,7 @@ BOOL CCustom2Dlg::OnDismiss()
 	}
 	else
 	{
-		QtWizardaw.m_Dictionary[ "QT_CENTRAL_WIDGET_TYPE" ] = CQtWizardAppWiz::m_WidgetTypes[ CQtWizardAppWiz::WIDGET_TEXTVIEW ];
+		QtWizardaw.m_Dictionary[ "QT_CENTRAL_WIDGET_TYPE" ] = CQtWizardAppWiz::m_WidgetTypes[ CQtWizardAppWiz::WIDGET_CUSTOM ];
 	}
 	if ( m_bMenuBar )
 	{
@@ -179,6 +179,15 @@ BOOL CCustom2Dlg::OnDismiss()
 	else
 	{
 		QtWizardaw.m_Dictionary.RemoveKey( "QT_BACKGROUND" );
+	}
+
+	if ( QtWizardaw.m_Dictionary[ "QT_CENTRAL_WIDGET_TYPE" ] == CQtWizardAppWiz::m_WidgetTypes[ CQtWizardAppWiz::WIDGET_CUSTOM ] )
+	{
+		QtWizardaw.m_Dictionary[ "QT_CUSTOMWIDGET" ] = "Yes";
+	}
+	else
+	{
+		QtWizardaw.m_Dictionary.RemoveKey( "QT_CUSTOMWIDGET" );
 	}
 
 	return TRUE;	// return FALSE if the dialog shouldn't be dismissed

@@ -12,7 +12,11 @@ $$ENDIF
 $$IF(QT_STATUSBAR)
 #include <QStatusbar.h>
 $$ENDIF
+$$IF(QT_CUSTOMWIDGET)
+#include "$$Root$$Widget.h"
+$$ELSE
 #include <$$QT_CENTRAL_WIDGET_TYPE$$.h>
+$$ENDIF
 
 class C$$Root$$Window : public QMainWindow
 {
@@ -33,5 +37,10 @@ $$ENDIF
 $$IF(QT_BACKGROUND)
 	QPixmap* m_pBackground;
 $$ENDIF
+
+$$IF(QT_CUSTOMWIDGET)
+	C$$Root$$Widget* m_pCentralWidget;
+$$ELSE
 	$$QT_CENTRAL_WIDGET_TYPE$$* m_pCentralWidget;
+$$ENDIF
 };

@@ -25,9 +25,18 @@ toolbar.h	.\$$Root$$Toolbar.h
 toolbar.cpp	.\$$Root$$Toolbar.cpp
 $$ENDIF
 
+$$IF(QT_CUSTOMWIDGET)
+custom.h	.\$$Root$$Widget.h
+custom.cpp	.\$$Root$$Widget.cpp
+$$ENDIF
+
 $$IF(QT_TOOLBAR)
 :=filenew.bmp	.\filenew.bmp
 :=fileopen.bmp	.\fileopen.bmp
 :=filesave.bmp	.\filesave.bmp
 :=fileprint.bmp	.\fileprint.bmp
+$$ENDIF
+
+$$IF(QT_BACKGROUND)
+:=background.png	.\background.png
 $$ENDIF

@@ -11,7 +11,11 @@
 C$$Root$$Window::C$$Root$$Window( QApplication* pApp ) :
 	QMainWindow( 0, 0, WDestructiveClose )
 {
+$$IF(QT_CUSTOMWIDGET)
+	m_pCentralWidget = new C$$Root$$Widget( this );
+$$ELSE
 	m_pCentralWidget = new $$QT_CENTRAL_WIDGET_TYPE$$( this );
+$$ENDIF
 $$IF(QT_MENUBAR)
 	m_pMenu = new C$$Root$$Menu( this, pApp );
 $$ENDIF
@@ -25,7 +29,6 @@ $$ENDIF
 $$IF(QT_BACKGROUND)
 	m_pBackground = new QPixmap( QString( "$$QT_BACKGROUND$$" ) );
 	m_pCentralWidget->setBackgroundPixmap( *m_pBackground );
-	m_pCentralWidget->setBackgroundMode( QWidget::FixedPixmap );
 $$ENDIF
 	setCentralWidget( m_pCentralWidget );
 

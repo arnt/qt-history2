@@ -128,7 +128,8 @@ const CString CQtWizardAppWiz::m_WidgetTypes[] =
 	"QMultiLineEdit",
 	"QProgressBar",
 	"QTextBrowser",
-	"QWorkspace"
+	"QWorkspace",
+	"Custom widget (QWidget)"
 };
 
 const bool CQtWizardAppWiz::m_bSupportsetText[] =
@@ -143,5 +144,6 @@ const bool CQtWizardAppWiz::m_bSupportsetText[] =
 	1,
 	0,
 	1,
+	0,
 	0
 };

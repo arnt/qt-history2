@@ -151,6 +151,8 @@ FILEOPEN.BMP            TEMPLATE DISCARDABLE    "Template\\fileopen.bmp"
 FILEPRINT.BMP           TEMPLATE DISCARDABLE    "Template\\fileprint.bmp"
 FILENEW.BMP             TEMPLATE DISCARDABLE    "Template\\filenew.bmp"
 BACKGROUND.PNG          TEMPLATE DISCARDABLE    "Template\\background.png"
+CUSTOM.CPP              TEMPLATE DISCARDABLE    "Template\\custom.cpp"
+CUSTOM.H                TEMPLATE DISCARDABLE    "Template\\custom.h"
 
 /////////////////////////////////////////////////////////////////////////////
 //
