@@ -133,6 +133,8 @@ public:
     static void setIconProvider( QFileIconProvider * );
     static QFileIconProvider * iconProvider();
 
+    static QString resolveShortcut( const QString& );
+
     // non-static function for special needs
 
     QString selectedFile() const;
@@ -299,6 +301,7 @@ private:
 					    QWidget *parent = 0,
 					    const char* name = 0,
 					    const QString& caption = QString::null);
+    static QString resolveLinkFile( const QString& linkfile );
 #endif
 #if defined(Q_WS_MACX) || defined(Q_WS_MAC9)
     static QString macGetOpenFileName( const QString &initialSelection,

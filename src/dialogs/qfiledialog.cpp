@@ -3135,6 +3135,14 @@ QString QFileDialog::getSaveFileName( const QString & startWith,
 void QFileDialog::okClicked()
 {
     QString fn( nameEdit->text() );
+    
+#if defined(Q_WS_WIN)
+    if ( fn.length() > 3 && fn.right( 4 ) == ".lnk" ) {
+        fn = resolveShortcut( d->url.path() + fn );
+        nameEdit->setText( fn );
+    }
+#endif
+
     if ( fn.contains( "*") ) {
 	addFilter( fn );
 	nameEdit->blockSignals( TRUE );
@@ -3532,12 +3540,22 @@ void QFileDialog::fileNameEditDone()
 
 void QFileDialog::selectDirectoryOrFile( QListViewItem * newItem )
 {
+
     *workingDirectory = d->url;
     detailViewMode = files->isVisible();
     *lastSize = size();
 
     if ( !newItem )
 	return;
+
+#if defined(Q_WS_WIN)
+    if ( newItem->text(0).length() > 3 && newItem->text(0).right( 4 ) == ".lnk" ) {
+        QString fn = resolveShortcut( d->url.path() + newItem->text(0) );
+        nameEdit->setText( fn );
+        okClicked();
+        return;
+    }
+#endif
 
     QFileDialogPrivate::File * i = (QFileDialogPrivate::File *)newItem;
 
@@ -3567,6 +3585,7 @@ void QFileDialog::selectDirectoryOrFile( QListBoxItem * newItem )
 {
     if ( !newItem )
 	return;
+    
     QFileDialogPrivate::MCItem * i = (QFileDialogPrivate::MCItem *)newItem;
     i->i->listView()->setSelected( i->i, i->selected() );
     selectDirectoryOrFile( i->i );
@@ -5467,6 +5486,18 @@ void QFileDialog::goBack()
     if ( d->history.count() < 2 )
 	d->goBack->setEnabled( FALSE );
     setUrl( d->history.last() );
+}
+
+/*!
+  This static function can be used to resolve a Windows shortcut file (.lnk).
+  It is only available for Windows users.
+*/
+
+QString QFileDialog::resolveShortcut( const QString& linkfile )
+{
+#if defined(Q_WS_WIN)
+    return resolveLinkFile( linkfile );
+#endif
 }
 
 // a class with wonderfully inflexible flexibility. why doesn't it

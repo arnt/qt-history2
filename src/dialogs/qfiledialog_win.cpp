@@ -37,6 +37,9 @@
 #include "qregexp.h"
 #include "qbuffer.h"
 #include "qstringlist.h"
+#include <objbase.h>
+#include <shlobj.h>
+#include <initguid.h>
 
 extern const char qt_file_dialog_filter_reg_exp[]; // defined in qfiledialog.cpp
 
@@ -222,6 +225,49 @@ static void cleanUpOFN( OPENFILENAME** ofn )
     tInitDir = 0;
     delete tInitSel;
     tInitSel = 0;
+}
+
+QString QFileDialog::resolveLinkFile( const QString &linkFile )
+{
+    IShellLink *psl;                            // pointer to IShellLink i/f
+    HRESULT hres;
+    WIN32_FIND_DATA wfd;
+    QString fileLinked;
+    char szGotPath[MAX_PATH];
+    // Get pointer to the IShellLink interface.
+
+    hres = CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER,
+                                IID_IShellLink, (LPVOID *)&psl);
+
+    if (SUCCEEDED(hres)) {    // Get pointer to the IPersistFile interface.
+        IPersistFile *ppf;
+        hres = psl->QueryInterface(IID_IPersistFile, (LPVOID *)&ppf);
+        if (SUCCEEDED(hres))  {
+            WORD wsz[MAX_PATH];
+
+            // Ensure string is Unicode.
+            MultiByteToWideChar(CP_ACP, 0, linkFile.latin1(), -1, wsz, MAX_PATH);
+
+            hres = ppf->Load(wsz, STGM_READ);
+            if (SUCCEEDED(hres)) {        // Resolve the link.
+
+                hres = psl->Resolve(0, SLR_ANY_MATCH);
+
+                if (SUCCEEDED(hres)) {
+                    qstrcpy(szGotPath, linkFile.latin1());
+
+                    hres = psl->GetPath((TCHAR*)szGotPath, MAX_PATH,
+                                (WIN32_FIND_DATA *)&wfd, SLGP_SHORTPATH);
+
+                    fileLinked = qt_winQString(szGotPath);
+                    
+                }
+            }
+            ppf->Release();
+        }
+        psl->Release();
+    }
+    return fileLinked;
 }
 
 QString QFileDialog::winGetOpenFileName( const QString &initialSelection,
