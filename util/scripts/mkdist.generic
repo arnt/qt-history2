@@ -81,7 +81,7 @@ else
   cvs -Q export -rHEAD qt
   echo "Exporting the latest tmake" >&2
   cvs -Q export -rHEAD tmake
-  TMAKEDIR={$DISTDIR}/tmake export TMAKEDIR
+  TMAKEDIR=$DISTDIR/tmake export TMAKEDIR
   unset TMAKEPATH
 fi
 
