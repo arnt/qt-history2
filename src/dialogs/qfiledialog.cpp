@@ -58,7 +58,6 @@
 #include "qmap.h"
 #include "qnetworkprotocol.h"
 #include "qsemimodal.h"
-#include "qsizegrip.h"
 
 #include <time.h>
 #include <ctype.h>
@@ -951,7 +950,6 @@ struct QFileDialogPrivate {
     bool checkForFilter;
     bool ignoreReturn;
     bool ignoreStop;
-    QSizeGrip *sizeGrip;
 
     QTimer *mimeTypeTimer;
     const QNetworkOperation *currListChildren;
@@ -2055,6 +2053,7 @@ QFileDialog::QFileDialog( const QString& dirName, const QString & filter,
 
 void QFileDialog::init()
 {
+    setSizeGripEnabled( TRUE );
     d = new QFileDialogPrivate();
     d->mode = AnyFile;
     d->last = 0;
@@ -2351,9 +2350,6 @@ void QFileDialog::init()
     d->rightLayout = new QHBoxLayout( lay, 5 );
     d->topLevelLayout->setStretchFactor( d->mcView, 1 );
     d->topLevelLayout->setStretchFactor( files, 1 );
-
-    d->sizeGrip = new QSizeGrip( this );
-    d->sizeGrip->lower();
 
     updateGeometries();
 
@@ -3291,8 +3287,6 @@ r.setHeight( QMAX(r.height(),t.height()) )
     cancelB->setFixedSize( r );
 
     d->topLevelLayout->activate();
-
-    d->sizeGrip->setGeometry( width() - 13, height() - 13, 13, 13 );
 
 #undef RM
 }
@@ -4379,9 +4373,7 @@ bool QFileDialog::eventFilter( QObject * o, QEvent * e )
     if ( !o || !e )
 	return TRUE;
 
-    if ( e->type() == QEvent::Resize ) {
-	d->sizeGrip->setGeometry( width() - 13, height() - 13, 13, 13 );
-    } else if ( e->type() == QEvent::KeyPress && ( (QKeyEvent*)e )->key() == Key_F5 ) {
+    if ( e->type() == QEvent::KeyPress && ( (QKeyEvent*)e )->key() == Key_F5 ) {
 	rereadDir();
 	((QKeyEvent *)e)->accept();
 	return TRUE;

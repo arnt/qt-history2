@@ -1040,6 +1040,7 @@ void QColorDialogPrivate::addCustom()
 QColorDialog::QColorDialog(QWidget* parent, const char* name, bool modal) :
     QDialog(parent, name, modal )
 {
+    setSizeGripEnabled( TRUE );
     d = new QColorDialogPrivate( this );
 }
 

@@ -149,13 +149,14 @@ QFontDialog::QFontDialog( QWidget *parent, const char *name,
 			  bool modal, WFlags f )
     : QDialog( parent, name, modal, f )
 {
+    setSizeGripEnabled( TRUE );
     d = new QFontDialogPrivate;
     // grid
     d->familyEdit = new QExpandingLineEdit( this, "font family I", TRUE );
     d->familyEdit->setFocusPolicy( StrongFocus );
     d->familyList = new QListBox( this, "font family II" );
     d->familyList->viewport()->setFocusProxy( d->familyEdit );
-    
+
     d->familyAccel
 	= new QLabel( d->familyEdit, tr("&Font"), this, "family accelerator" );
     d->familyAccel->setIndent( 2 );
@@ -194,7 +195,7 @@ QFontDialog::QFontDialog( QWidget *parent, const char *name,
     d->sample = new QHGroupBox( tr("Sample"), this, "sample text" );
     d->sampleEdit = new QExpandingLineEdit( d->sample, "r/w sample text", FALSE );
     d->sampleEdit->setFixedHeight( 75 );
-    
+
     // Note that the sample text is *not* translated with tr(), as the
     // characters used depend on the charset encoding.
     d->sampleEdit->setText( "AaBbYyZz" );
