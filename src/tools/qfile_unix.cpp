@@ -248,6 +248,10 @@ bool QFile::open( int m )
 	    length = LLONG_MAX;
 	    ioIndex = 0;
 	} else {
+#if defined(QT_LARGEFILE_SUPPORT) && !defined(QT_ABI_QT4)
+	    length = st.st_size > UINT_MAX ? UINT_MAX : (Offset)st.st_size;
+#else
+
 	    length = st.st_size;
 	    ioIndex = (flags() & IO_Append) == 0 ? Offset(0) : length;
 	    if ( !(flags()&IO_Truncate) && length == 0 && isReadable() ) {
@@ -316,7 +320,14 @@ bool QFile::open( int m, FILE *f )
     struct stat st;
     ::fstat( fileno(fh), &st );
 #if defined(QT_LARGEFILE_SUPPORT)
+#if !defined(QT_ABI_QT4)
+    off_t tmp = ftello( fh );
+    ioIndex = tmp > UINT_MAX ? UINT_MAX : (Offset)tmp;
+#else
+
     ioIndex = ftello( fh );
+
+#endif
 #else
     ioIndex = ftell( fh );
 #endif
@@ -326,7 +337,13 @@ bool QFile::open( int m, FILE *f )
 	length = LLONG_MAX;
 	ioIndex = 0;
     } else {
+#if defined(QT_LARGEFILE_SUPPORT) && !defined(QT_ABI_QT4)
+	length = st.st_size > UINT_MAX ? UINT_MAX : (Offset)st.st_size;
+#else
+
 	length = st.st_size;
+
+#endif
 	if ( !(flags()&IO_Truncate) && length == 0 && isReadable() ) {
 	    // try if you can read from it (if you can, it's a sequential
 	    // device; e.g. a file in the /proc filesystem)
@@ -376,14 +393,27 @@ bool QFile::open( int m, int f )
     ext_f = TRUE;
     struct stat st;
     ::fstat( fd, &st );
+#if defined(QT_LARGEFILE_SUPPORT) && !defined(QT_ABI_QT4)
+    off_t tmp = ::lseek(fd, 0, SEEK_CUR);
+    ioIndex = tmp > UINT_MAX ? UINT_MAX : (Offset)tmp;
+#else
+
     ioIndex = ::lseek(fd, 0, SEEK_CUR);
+
+#endif
     if ( (st.st_mode & S_IFMT) != S_IFREG || f == 0 ) { // stdin is not seekable...
 	// non-seekable
 	setType( IO_Sequential );
 	length = LLONG_MAX;
 	ioIndex = 0;
     } else {
+#if defined(QT_LARGEFILE_SUPPORT) && !defined(QT_ABI_QT4)
+	length = st.st_size > UINT_MAX ? UINT_MAX : (Offset)st.st_size;
+#else
+
 	length = st.st_size;
+
+#endif
 	if ( length == 0 && isReadable() ) {
 	    // try if you can read from it (if you can, it's a sequential
 	    // device; e.g. a file in the /proc filesystem)
@@ -465,7 +495,12 @@ bool QFile::at( Offset pos )
 #endif
     }
     if ( ok )
-	ioIndex = pos;
+#if defined(QT_LARGEFILE_SUPPORT) !defined(QT_ABI_QT4)
+	ioIndex = pos > UINT_MAX ? UINT_MAX : (Offset)pos;
+#else
+	ioIndex = (Offset)pos;
+#endif
+
     else
 	qWarning( "QFile::at: Cannot set file position %lld", pos );
     return ok;
@@ -574,10 +609,24 @@ Q_LONG QFile::writeBlock( const char *p, Q_ULONG len )
 	setErrorStringErrno( errno );
 	if ( !isSequentialAccess() ) {
 	    if ( isRaw() )			// recalc file position
+#if defined(QT_LARGEFILE_SUPPORT) && !defined(QT_ABI_QT4)
+		off_t tmp = ::lseek( fd, 0, SEEK_CUR );
+		ioIndex = tmp > UINT_MAX ? UINT_MAX : (Offset)tmp;
+#else
+
 		ioIndex = ::lseek( fd, 0, SEEK_CUR );
+
+#endif
 	    else
 #if defined(QT_LARGEFILE_SUPPORT)
+#if !defined(QT_ABI_QT4)
+		off_t tmp = (Offset)::fseeko( fh, 0, SEEK_CUR );
+		ioIndex = tmp > UINT_MAX ? UINT_MAX : (Offset)tmp;
+#else
+
 		ioIndex = ::fseeko( fh, 0, SEEK_CUR );
+
+#endif
 #else
 		ioIndex = ::fseek( fh, 0, SEEK_CUR );
 #endif

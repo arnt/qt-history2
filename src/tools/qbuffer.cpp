@@ -470,4 +470,3 @@ int QBuffer::ungetch( int ch )
     }
     return ch;
 }
-
