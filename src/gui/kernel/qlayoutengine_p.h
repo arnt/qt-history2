@@ -31,9 +31,6 @@
 //
 //
 
-
-#include "qabstractlayout.h"
-
 #ifndef QT_NO_LAYOUT
 
 template <typename T> class QVector;
