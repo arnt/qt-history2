@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnpsupport.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qnpsupport.cpp#2 $
 **
 ** Low-level support for Netscape Plugins.
 ** This has to go in the dynamic library, because otherwise it may
@@ -18,7 +18,7 @@
 #include <X11/Xos.h>
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qnpsupport.cpp#1 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qnpsupport.cpp#2 $");
 
 
 void            qt_reset_color_avail();       // defined in qcol_x11.cpp
@@ -127,12 +127,20 @@ int qt_event_handler( XEvent* event )
     qt_x11SendPostedEvents();
     if ( qApp->x11ProcessEvent( event ) == -1 ) {
         // Qt did not recognize the event
-        int result = qt_np_cascade_event_handler[event->type]( event );
-        return result;
+	if ( !QApplication::activePopupWidget()
+	  && !QApplication::activeModalWidget() )
+	{
+	    return qt_np_cascade_event_handler[event->type]( event );
+	} else {
+	    return True;
+	}
     } else {
         // Qt recognized the event (it may not have actually used it
         // in a widget, but that is irrelevant here).
-	if ( event->type == LeaveNotify && qt_np_leave_cb ) {
+	if ( event->type == LeaveNotify && qt_np_leave_cb
+	  && !QApplication::activePopupWidget()
+          && !QApplication::activeModalWidget())
+	{
 	    XLeaveWindowEvent* e = (XLeaveWindowEvent*)event;
 	    qt_np_leave_cb(e);
 	}
