@@ -4871,8 +4871,10 @@ void QTextEdit::placeCursor( const QPoint &pos, QTextCursor *c )
 
 void QTextEdit::clipboardChanged()
 {
+#ifndef QT_NO_CLIPBOARD
     // don't listen to selection changes
     disconnect( QApplication::clipboard(), SIGNAL(selectionChanged()), this, 0);
+#endif
     selectAll(FALSE);
 }
 
