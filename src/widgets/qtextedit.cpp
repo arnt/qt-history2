@@ -1347,7 +1347,9 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
     default: {
 	    if ( e->text().length() &&
 		( !( e->state() & ControlButton ) &&
+#ifndef Q_OS_MACX
 		  !( e->state() & AltButton ) &&
+#endif
 		  !( e->state() & MetaButton ) ||
 		 ( ( (e->state()&ControlButton) | AltButton ) == (ControlButton|AltButton) ) ) &&
 		 ( !e->ascii() || e->ascii() >= 32 || e->text() == "\t" ) ) {
