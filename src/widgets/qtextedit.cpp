@@ -740,7 +740,7 @@ bool QTextEdit::event( QEvent *e )
 {
     if ( e->type() == QEvent::AccelOverride && !isReadOnly() ) {
 	QKeyEvent* ke = (QKeyEvent*) e;
-	if ( ke->state() == NoButton ) {
+	if ( ke->state() == NoButton || ke->state() == Keypad ) {
 	    if ( ke->key() < Key_Escape ) {
 		ke->accept();
 	    } else {

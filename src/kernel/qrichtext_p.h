@@ -108,7 +108,7 @@ public:
     ~QTextStringChar();
 
     QChar c;
-    enum Type { Regular, Custom, Mark, Shaped };
+    enum Type { Regular, Custom };
     uint lineStart : 1;
     uint rightToLeft : 1;
     uint hasCursor : 1;
@@ -151,24 +151,9 @@ public:
     }
 #endif
 
-     struct MarkData
-    {
-	QTextFormat *format;
-	short xoff; // x offset for painting the Mark
-	short yoff; // y offset for painting the Mark
-    };
-
-    struct ShapedData
-    {
-	QTextFormat *format;
-	QChar shapedGlyph;
-    };
-
     union {
 	QTextFormat* format;
 	CustomData* custom;
-	MarkData *mark;
-	ShapedData *shaped;
     } d;
 
 private:

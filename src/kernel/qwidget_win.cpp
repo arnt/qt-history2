@@ -420,23 +420,6 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 
 #if defined(QT_NON_COMMERCIAL)
     QT_NC_WIDGET_CREATE
-    if ( menu ) {
-#  ifdef Q_OS_TEMP
-	AppendMenuW( menu, MF_SEPARATOR, NULL, NULL );
-	AppendMenuW( menu, MF_STRING, IDM_ABOUTQT, L"About Qt" );
-#  else
-#if defined(UNICODE)
-	if ( qt_winver & WV_NT_based ) {
-	    AppendMenuW( menu, MF_SEPARATOR, NULL, NULL );
-	    AppendMenuW( menu, MF_STRING, IDM_ABOUTQT, L"About Qt" );
-	} else 
-#endif
-	{
-	    AppendMenuA( menu, MF_SEPARATOR, NULL, NULL );
-	    AppendMenuA( menu, MF_STRING, IDM_ABOUTQT, "About Qt" );
-	}
-#  endif
-    }
 #endif
 
     if ( destroyw ) {

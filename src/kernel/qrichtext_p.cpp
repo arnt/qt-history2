@@ -690,10 +690,6 @@ QTextStringChar::~QTextStringChar()
     switch ( type ) {
 	case Custom:
 	    delete d.custom; break;
-	case Mark:
-	    delete d.mark; break;
-	case Shaped:
-	    delete d.shaped; break;
 	default:
 	    break;
     }

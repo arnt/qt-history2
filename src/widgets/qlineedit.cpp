@@ -668,7 +668,7 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 #ifndef QT_NO_CLIPBOARD
 	case Key_V:
 	    if ( !d->readonly )
-		insert( QApplication::clipboard()->text() );
+		paste(); 
 	    break;
 	case Key_X:
 	    if ( !d->readonly && hasSelectedText() && echoMode() == Normal ) {
@@ -763,7 +763,7 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 	    break;
 	case Key_F18: // Paste key on Sun keyboards
 	    if ( !d->readonly )
-		insert( QApplication::clipboard()->text() );
+		paste(); 
 	    break;
 	case Key_F20: // Cut key on Sun keyboards
 	    if ( !d->readonly && hasSelectedText() && echoMode() == Normal ) {
@@ -946,7 +946,7 @@ bool QLineEdit::event( QEvent * e )
 {
     if ( e->type() == QEvent::AccelOverride && !d->readonly ) {
 	QKeyEvent* ke = (QKeyEvent*) e;
-	if ( ke->state() == NoButton ) {
+	if ( ke->state() == NoButton || ke->state() == Keypad ) {
 	    if ( ke->key() < Key_Escape ) {
 		ke->accept();
 	    } else {
@@ -1180,7 +1180,7 @@ void QLineEdit::mouseReleaseEvent( QMouseEvent * e )
     if ( !d->readonly && e->button() == MidButton ) {
 	if (QApplication::clipboard()->supportsSelection()) {
 	    QApplication::clipboard()->setSelectionMode( TRUE );
-	    insert( QApplication::clipboard()->text() );
+	    paste();	
 	    QApplication::clipboard()->setSelectionMode( FALSE );
 	}
 	return;
