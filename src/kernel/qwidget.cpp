@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#181 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#182 $
 **
 ** Implementation of QWidget class
 **
@@ -19,7 +19,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#181 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#182 $");
 
 
 /*!
@@ -1569,7 +1569,8 @@ const char *QWidget::iconText() const
   If mouse tracking is enabled, this widget receives mouse move events
   even if no buttons are pressed down.
 
-  \sa hasMouseTracking(), mouseMoveEvent()
+  \sa hasMouseTracking(), mouseMoveEvent(),
+    QApplication::setGlobalMouseTracking()
 */
 
 #if !defined(_WS_X11_)

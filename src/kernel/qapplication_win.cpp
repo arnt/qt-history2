@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#97 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#98 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -26,7 +26,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#97 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#98 $");
 
 
 /*****************************************************************************
@@ -441,6 +441,16 @@ void qt_set_cursor( QWidget *w, QCursor *c )
 {
     if ( w->winId() == curWin )			// set immediately
 	SetCursor( c->handle() );
+}
+
+
+void QApplication::setGlobalMouseTracking( bool enable )
+{
+    if ( enable ) {
+	++app_tracking;
+    } else {
+	--app_tracking;
+    }
 }
 
 
@@ -1601,7 +1611,7 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	    QEvent enter( Event_Enter );	// send enter event
 	    QApplication::sendEvent( this, &enter );
 	}
-	if ( !(state && autoCaptureWnd) && !testWFlags(WState_TrackMouse) )
+	if ( !(state && autoCaptureWnd) )
 	    return TRUE;			// no button
 	POINT curPos;
 	GetCursorPos( &curPos );		// compress mouse move

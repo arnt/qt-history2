@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#226 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#227 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -67,7 +67,7 @@ extern "C" int select( int, void *, void *, void *, struct timeval * );
 extern "C" void bzero(void *, size_t len);
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#226 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#227 $");
 
 #if !defined(XlibSpecificationRelease)
 typedef char *XPointer;				// X11R4
@@ -805,7 +805,7 @@ void QApplication::restoreOverrideCursor()
   e.g. tool tips.
 
   Global mouse tracking does not affect widgets and their
-  mouesMoveEvent().  For a widget to get mouse move events when no button
+  mouseMoveEvent().  For a widget to get mouse move events when no button
   is depressed, it must do QWidget::setMouseTracking(TRUE).
 
   This function has an internal counter.  Each
@@ -932,10 +932,8 @@ QWidget *QApplication::widgetAt( int x, int y, bool child )
     c = QWidget::find( target );
     if ( !c ) {
 	if ( !w ) {
-	    // Perhaps the widgets at (x,y) is inside a foreign application?!
-
-	    // Search all toplevel widgets to see if one is within target?
-
+	    // Perhaps the widgets at (x,y) is inside a foreign application?
+	    // Search all toplevel widgets to see if one is within target
 	    QWidgetList *list   = topLevelWidgets();
 	    QWidget     *widget = list->first();
 	    while ( widget && !w ) {
@@ -2312,11 +2310,8 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	pos.rx() = xevent->xmotion.x;
 	pos.ry() = xevent->xmotion.y;
 	state = translateButtonState( xevent->xmotion.state );
-	if ( !buttonDown ) {
+	if ( !buttonDown )
 	    state &= ~(LeftButton|MidButton|RightButton);
-	    if ( !testWFlags(WState_TrackMouse) )
-		type = 0;			// don't send event
-	}
     } else {					// button press or release
 	pos.rx() = event->xbutton.x;
 	pos.ry() = event->xbutton.y;
