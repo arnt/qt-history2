@@ -179,8 +179,8 @@ void MainForm::processExited()
     QString command = process.arguments()[1];
 
     if ( command == "labels" ) {
-	changesTo->insertItem( "#have", 0 );
 	changesTo->insertItem( "#head", 0 );
+	changesTo->insertItem( "#have", 0 );
 
 	QStringList args;
 	args << "p4" << "dirs" << "//depot/qt/*";
