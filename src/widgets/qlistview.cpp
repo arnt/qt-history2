@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#88 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#89 $
 **
 ** Implementation of QListView widget class
 **
@@ -26,7 +26,7 @@
 #include <stdlib.h> // qsort
 #include <ctype.h> // tolower
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#88 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#89 $");
 
 
 const int Unsorted = 32767;
@@ -1696,16 +1696,16 @@ bool QListView::eventFilter( QObject * o, QEvent * e )
 	switch( e->type() ) {
 	case Event_MouseButtonPress:
 	    mousePressEvent( me );
-	    break;
+	    return TRUE;
 	case Event_MouseButtonDblClick:
 	    mouseDoubleClickEvent( me );
-	    break;
+	    return TRUE;
 	case Event_MouseMove:
 	    mouseMoveEvent( me );
-	    break;
+	    return TRUE;
 	case Event_MouseButtonRelease:
 	    mouseReleaseEvent( me );
-	    break;
+	    return TRUE;
 	case Event_FocusIn:
 	    focusInEvent( fe );
 	    return TRUE;
@@ -1924,7 +1924,7 @@ void QListView::mousePressEvent( QMouseEvent * e )
     QListViewItem * i = itemAt( e->pos() );
     if ( !i )
 	return;
-
+    
     if ( (i->isExpandable() || i->children()) &&
 	 d->h->mapToLogical( d->h->cellAt( e->pos().x() ) ) == 0 ) {
 	int x1 = e->pos().x() +
@@ -2341,7 +2341,7 @@ void QListView::setSelected( QListViewItem * item, bool selected )
 	d->currentSelected = selected ? item : 0;
 	repaintItem( item );
     }
-    
+
     if ( item && !isMultiSelection() && selected && d->focusItem != item )
 	setCurrentItem( item );
 
