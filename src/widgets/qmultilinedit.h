@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.h#22 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.h#23 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -36,6 +36,7 @@ public:
     void	setFont( const QFont &font );
     virtual void insertLine( const char *s, int line = -1 );
     virtual void insertAt( const char *s, int line, int col );
+    virtual void removeLine( int line );
 
     void	setCursorPosition( int line, int col );
     void	getCursorPosition( int *line, int *col );
@@ -56,6 +57,7 @@ public slots:
 
 signals:
     void	textChanged();
+    void	returnPressed();
 
 protected:
     void	paintCell( QPainter *, int row, int col );
@@ -75,7 +77,6 @@ protected:
     int		textWidth( QString * );
 
 protected:
-    virtual void remove( int );
     virtual void insertChar( char );
     virtual void newLine();
     virtual void killLine();

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmlined.cpp#33 $
+** $Id: //depot/qt/main/src/widgets/qmlined.cpp#34 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -130,13 +130,13 @@ QMultiLineEdit::QMultiLineEdit( QWidget *parent , const char *name )
 
 
 /*!
-  \fn int QMultiLineEdit::lineLength( int row ) const
-  Returns the number of characters at line number \a row.
+  \fn int QMultiLineEdit::lineLength( int line ) const
+  Returns the number of characters at line number \a line.
 */
 
-/*! \fn QString *QMultiLineEdit::getString( int row ) const
+/*! \fn QString *QMultiLineEdit::getString( int line ) const
 
-  Returns a pointer to the text at line \a row.
+  Returns a pointer to the text at line \a line.
 */
 
 /*! \fn void QMultiLineEdit::textChanged()
@@ -144,6 +144,16 @@ QMultiLineEdit::QMultiLineEdit( QWidget *parent , const char *name )
   This signal is emitted when the text is changed by  
   an event or by a slot. Not that the signal is not emitted when 
   you call a non-slot function such as insertLine().
+
+  \sa returnPressed()
+*/
+
+/*! \fn void QMultiLineEdit::returnPressed()
+
+  This signal is emitted when the user presses the return or enter
+  key. It is not emitted if isReadOnly() is TRUE.
+
+  \sa textChanged()
 */
 
 
@@ -362,16 +372,16 @@ int QMultiLineEdit::textWidth( QString *s )
 
 
 /*!
-  Returns the width in pixels of the text at line \a row.
+  Returns the width in pixels of the text at line \a line.
 */
 
-int QMultiLineEdit::textWidth( int row )
+int QMultiLineEdit::textWidth( int line )
 {
     //possibilities of caching...
-    QString *s = contents->at( row );
+    QString *s = contents->at( line );
     if ( !s ) {
 	warning( 
-	  "QMultiLineEdit::textWidth: Couldn't find contents at row %d", row );
+	  "QMultiLineEdit::textWidth: Couldn't find contents at line %d", line );
 	return 0;
     }
     return textWidth( s );
@@ -492,16 +502,22 @@ QString QMultiLineEdit::markedText() const
 }
 
 
+
+static const char* emptyLine = "";
+
 /*!
-  Returns the text at line number \a row, or 0 if row is invalid.
+  Returns the text at line number \a line, or 0 if \a line is invalid.
 */
 
 const char * QMultiLineEdit::textLine( int line ) const
 {
     QString *s = contents->at( line );
-    if ( s )
-	return *s;
-    else
+    if ( s ) {
+	if ( s->isNull() )
+	    return emptyLine;
+	else
+	    return *s;
+    } else
 	return 0;
 }
 
@@ -737,6 +753,7 @@ void QMultiLineEdit::keyPressEvent( QKeyEvent *e )
 	case Key_Enter:
 	case Key_Return:
 	    newLine();
+	    emit returnPressed();
 	    break;
 	default:
 	    unknown++;
@@ -841,7 +858,7 @@ void QMultiLineEdit::pageUp( bool mark )
 
 
 /*!
-  Inserts \a txt at line number \a row, after character number \a col
+  Inserts \a txt at line number \a line, after character number \a col
   in the line. 
   If \a txt contains newline characters, new lines are inserted.
 */
@@ -899,7 +916,7 @@ void QMultiLineEdit::insertAt( const char *txt, int line, int col )
 
 
 /*!
-  Inserts \a s at line number \a row. If \a row is less than zero, or
+  Inserts \a s at line number \a line. If \a line is less than zero, or
   larger than the number of rows, the new text is put at the end.
   If \a s contains newline characters, several lines are inserted.
 */
@@ -951,21 +968,23 @@ void QMultiLineEdit::insertLine( const char *txt, int line )
 	t.resetRawData( txt, strlen(txt) + 1 );
 }
 
+
+
 /*!
-  Deletes the line at line number \a row. If \a
-  row is less than zero, or larger than the number of rows, 
+  Deletes the line at line number \a line. If \a
+  line is less than zero, or larger than the number of lines, 
   no line is deleted.
 */
 
-void QMultiLineEdit::remove( int row )
+void QMultiLineEdit::removeLine( int line )
 {
-    if ( row >= numLines()  )
+    if ( line >= numLines()  )
 	return;
-    if ( cursorY >= row && cursorY > 0 )
+    if ( cursorY >= line && cursorY > 0 )
 	cursorY--;
-    bool updt = autoUpdate() && rowIsVisible( row );
-    bool recalc = textWidth( row ) == cellWidth();
-    contents->remove( row );
+    bool updt = autoUpdate() && rowIsVisible( line );
+    bool recalc = textWidth( line ) == cellWidth();
+    contents->remove( line );
     if ( contents->count() == 0 ) {
 	//debug( "remove: last one gone, inserting dummy" );
 	insertLine( "", -1 );
@@ -1308,7 +1327,7 @@ void QMultiLineEdit::del()
 		*s += *getString( cursorY + 1 );
 		int w = textWidth( s );
 		setWidth( QMAX( cellWidth(), w ) );
-		remove( cursorY + 1 );
+		removeLine( cursorY + 1 );
 	    } else {
 		bool recalc = textWidth( s ) == cellWidth();
 		s->remove( cursorX, 1 );
@@ -1492,19 +1511,19 @@ void QMultiLineEdit::mouseDoubleClickEvent( QMouseEvent *m )
 
 
 /*!
-  Returns TRUE if line \a row is invisible or partially invisible.
+  Returns TRUE if line \a line is invisible or partially invisible.
 */
 
-bool QMultiLineEdit::partiallyInvisible( int row )
+bool QMultiLineEdit::partiallyInvisible( int line )
 {
     int y;
-    if ( !rowYPos( row, &y ) )
+    if ( !rowYPos( line, &y ) )
 	return TRUE;
     if ( y < 0 ) {
-	//debug( "row %d occluded at top", row );
+	//debug( "line %d occluded at top", line );
 	return TRUE;
     } else if ( y + cellHeight() - 2 > viewHeight() ) {
-	//debug( "row %d occluded at bottom", row );
+	//debug( "line %d occluded at bottom", line );
 	return TRUE;
     }
     return FALSE;
@@ -1539,13 +1558,13 @@ void QMultiLineEdit::makeVisible()
 }
 
 /*!
-  Computes the character position in line \a row which corresponds 
+  Computes the character position in line \a line which corresponds 
   to pixel \a xPos
 */
 
-int QMultiLineEdit::mapFromView( int xPos, int row )
+int QMultiLineEdit::mapFromView( int xPos, int line )
 {
-    QString *s = getString( row );
+    QString *s = getString( line );
     if ( !s )
 	return 0;
     int index = xPosToCursorPos( *s, fontMetrics(),
@@ -1555,13 +1574,13 @@ int QMultiLineEdit::mapFromView( int xPos, int row )
 }
 
 /*!
-  Computes the pixel position in line \a row which corresponds to 
+  Computes the pixel position in line \a line which corresponds to 
   character position \a xIndex
 */
 
-int QMultiLineEdit::mapToView( int xIndex, int row )
+int QMultiLineEdit::mapToView( int xIndex, int line )
 {
-    QString *s = getString( row );
+    QString *s = getString( line );
     xIndex = QMIN( (int)s->length(), xIndex );
     int curXPos   = BORDER +
 		    fontMetrics().width( *s, xIndex ) - 1;
@@ -1590,13 +1609,13 @@ void QMultiLineEdit::updateCellWidth()
 
 
 /*!
-  Sets the bottommost visible line to \a row.
+  Sets the bottommost visible line to \a line.
 */
 
-void QMultiLineEdit::setBottomCell( int row )
+void QMultiLineEdit::setBottomCell( int line )
 {
-    //debug( "setBottomCell %d", row );
-    int rowY = cellHeight() * row;
+    //debug( "setBottomCell %d", line );
+    int rowY = cellHeight() * line;
     int newYPos = rowY +  cellHeight() - viewHeight();
     setYOffset( QMAX( newYPos, 0 ) );
 }
@@ -1824,3 +1843,4 @@ void QMultiLineEdit::setAutoUpdate( bool enable )
 {
     QTableView::setAutoUpdate( enable );
 }
+
