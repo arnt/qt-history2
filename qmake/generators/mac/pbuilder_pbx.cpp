@@ -130,25 +130,8 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	tmp = project->variables()[srcs[i]];
 	for(QStringList::Iterator it = tmp.begin(); it != tmp.end(); ++it) {
 	    QString file = (*it);
-	    if(file.right(Option::moc_ext.length()) == Option::moc_ext) {
+	    if(file.right(Option::moc_ext.length()) == Option::moc_ext) 
 		continue;
-	    } else if(!project->isEmpty("YACCIMPLS")) {
-		QStringList yaccs = project->variables()["YACCIMPLS"];
-		for(QStringList::Iterator yit = yaccs.begin(); yit != yaccs.end(); yit++) {
-		    if((*yit) == (*it)) {
-			file = project->first("YACCSOURCES");
-			break;
-		    }
-		}
-	    } else if(!project->isEmpty("LEXIMPLS") && !project->isActiveConfig("lex_included")) {
-		QStringList lexs = project->variables()["LEXIMPLS"];
-		for(QStringList::Iterator lit = lexs.begin(); lit != lexs.end(); lit++) {
-		    if((*lit) == (*it)) {
-			file = project->first("LEXSOURCES");
-			break;
-		    }
-		}
-	    }
 	    fileFixify(file);
 	    QString key = keyFor(file);
 	    project->variables()["QMAKE_PBX_" + srcs[i]].append(key);
@@ -193,7 +176,8 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	}
     }
     //PREPROCESS BUILDPHASE (just a makefile)
-    if(!project->isEmpty("UICIMPLS") || !project->isEmpty("SRCMOC")) {
+    if(!project->isEmpty("UICIMPLS") || !project->isEmpty("SRCMOC") ||
+	!project->isEmpty("YACCSOURCES") || !project->isEmpty("LEXSOURCES")) {
 	QString mkfile = Option::output_dir + Option::dir_sep + "qt_preprocess.mak";
 	QFile mkf(mkfile);
 	if(mkf.open(IO_WriteOnly | IO_Translate)) {
@@ -201,21 +185,51 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	    debug_msg(1, "Creating file: %s", mkfile.latin1());
 	    QTextStream mkt(&mkf);
 	    writeHeader(mkt);
-	    mkt << "MOC = " << var("QMAKE_MOC") << endl;
-	    mkt << "UIC = " << var("QMAKE_UIC") << endl << endl;
+	    mkt << "MOC       = " << var("QMAKE_MOC") << endl;
+	    mkt << "UIC       = " << var("QMAKE_UIC") << endl;
+	    mkt << "LEX       = " << var("QMAKE_LEX") << endl;
+	    mkt << "LEXFLAGS  = " << var("QMAKE_LEXFLAGS") << endl;
+	    mkt << "YACC      = " << var("QMAKE_YACC") << endl;
+	    mkt << "YACCFLAGS = " << var("QMAKE_YACCFLAGS") << endl;
+	    mkt << "DEL_FILE  = " << var("QMAKE_DEL_FILE") << endl;
+	    mkt << "MOVE      = " << var("QMAKE_MOVE") << endl << endl;
 	    mkt << "FORMS = " << varList("UICIMPLS") << endl;
 	    mkt << "MOCS = " << varList("SRCMOC") << endl;
-	    mkt << "preprocess: $(FORMS) $(MOCS)" << endl << endl;
+	    mkt << "PARSERS =";
+	    if(!project->isEmpty("YACCSOURCES")) {
+		QStringList &yaccs = project->variables()["YACCSOURCES"];
+		for(QStringList::Iterator yit = yaccs.begin(); yit != yaccs.end(); ++yit) {
+		    QFileInfo fi((*yit));
+		    mkt << " " << fi.dirPath() << Option::dir_sep << fi.baseName(TRUE)
+			<< Option::yacc_mod << Option::cpp_ext.first();
+		}
+	    }
+	    if(!project->isEmpty("LEXSOURCES")) {
+		QStringList &lexs = project->variables()["LEXSOURCES"];
+		for(QStringList::Iterator lit = lexs.begin(); lit != lexs.end(); ++lit) {
+		    QFileInfo fi((*lit));
+		    mkt << " " << fi.dirPath() << Option::dir_sep << fi.baseName(TRUE)
+			<< Option::lex_mod << Option::cpp_ext.first();
+		}
+	    }
+	    mkt << "\n";
+	    mkt << "preprocess: $(FORMS) $(MOCS) $(PARSERS)" << endl;
+	    mkt << "preprocess_clean: mocclean uiclean parser_clean" << endl << endl;
 	    mkt << "mocclean:" << "\n";
 	    if(!project->isEmpty("SRCMOC"))
-		mkt << "\t-rm -f $(MOCS)" << '\n';
+		mkt << "\t-rm -f $(MOCS)" << "\n";
 	    mkt << "uiclean:" << "\n";
 	    if(!project->isEmpty("UICIMPLS"))
-		mkt << "\t-rm -f $(FORMS)" << '\n';
+		mkt << "\t-rm -f $(FORMS)" << "\n";
+	    mkt << "parser_clean:" << "\n";
+	    if(!project->isEmpty("YACCSOURCES") || !project->isEmpty("LEXSOURCES"))
+		mkt << "\t-rm -f $(PARSERS)" << "\n";
 	    writeUicSrc(mkt, "FORMS");
 	    writeMocSrc(mkt, "HEADERS");
 	    writeMocSrc(mkt, "SOURCES");
 	    writeMocSrc(mkt, "UICDECLS");
+	    writeYaccSrc(mkt, "YACCSOURCES");
+	    writeLexSrc(mkt, "LEXSOURCES");
 	    mkf.close();
 	}
 	QString phase_key = keyFor("QMAKE_PBX_PREPROCESST_BUILDPHASE");
@@ -665,14 +679,15 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	debug_msg(1, "Creating file: %s", mkwrap.latin1());
 	QTextStream mkwrapt(&mkwrapf);
 	writeHeader(mkwrapt);
+	const char *cleans = "uiclcean mocclean preprocess_clean";
 	mkwrapt << "#This is a makefile wrapper for PROJECT BUILDER\n"
 		<< "all:" << "\n\t" 
 		<< "cd " << (project->first("QMAKE_ORIG_TARGET") + ".pbproj/ && pbxbuild") << "\n"
-		<< "distclean clean: " << (did_preprocess ? "uiclcean mocclean" : "") << "\n\t" 
+		<< "distclean clean: preprocess_clean" << "\n\t" 
 		<< "cd " << (project->first("QMAKE_ORIG_TARGET") + ".pbproj/ && pbxbuild clean") << "\n"
-		<< (!did_preprocess ? "uiclcean mocclean " : "") << "install:" << "\n";
+		<< (!did_preprocess ? cleans : "") << "install:" << "\n";
 	if(did_preprocess) 
-	    mkwrapt << "uiclean mocclean:" << "\n\t"
+	    mkwrapt << cleans << ":" << "\n\t"
 		    << "make -f " 
 		    << Option::output_dir << Option::dir_sep << "qt_preprocess.mak $@" << endl;
     }
