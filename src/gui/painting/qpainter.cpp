@@ -354,15 +354,20 @@ void QPainterPrivate::draw_helper(const QPainterPath &path, DrawOperation op,
                 q->setPen(Qt::NoPen);
             else
                 outlineMode = None;
-            Q_ASSERT_X(engine->hasFeature(QPaintEngine::PainterPaths), "draw_helper",
-                       "PathShape is only used when engine supports painterpaths.");
-            QPainterPath pathCopy = path;
-            if (emulationSpecifier & QPaintEngine::CoordTransform)
-                pathCopy = pathCopy * state->matrix;
-            q->resetMatrix();
-            engine->updateState(state);
-            engine->drawPath(pathCopy);
-            q->restore();
+            if (engine->hasFeature(QPaintEngine::PainterPaths)) {
+                QPainterPath pathCopy = path;
+                if (emulationSpecifier & QPaintEngine::CoordTransform)
+                    pathCopy = pathCopy * state->matrix;
+                q->resetMatrix();
+                engine->updateState(state);
+                engine->drawPath(pathCopy);
+            } else {
+                QPolygonF xformed = path.toFillPolygon(state->matrix);
+                q->resetMatrix();
+                engine->updateState(state);
+                engine->drawPolygon(xformed.data(), xformed.size(),
+                                    QPaintEngine::PolygonDrawMode(path.fillRule()));
+            }
 
         // Normal fills, custom outlining only, which is done later.
         } else {
