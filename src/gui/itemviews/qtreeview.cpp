@@ -121,8 +121,6 @@ void QTreeView::initialize()
     setSelectionMode(QAbstractItemView::SingleSelection);
 
     QHeaderView *header = new QHeaderView(Qt::Horizontal, this);
-    header->setModel(model());
-    header->setSelectionModel(selectionModel());
     header->setMovable(true);
     setHeader(header);
 }

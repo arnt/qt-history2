@@ -192,10 +192,7 @@ void QHeaderView::initialize()
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setFrameStyle(NoFrame);
     d->viewport->setMouseTracking(true);
-
-    QAbstractItemDelegate *delegate = itemDelegate();
-    setItemDelegate(0);
-    delete delegate;
+    delete d->delegate;
 }
 
 /*!
