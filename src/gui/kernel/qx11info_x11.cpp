@@ -162,7 +162,7 @@ Display *QX11Info::appDisplay()
 
 int QX11Info::appScreen()
 {
-    return X11->defaultScreen;
+    return X11 ? X11->defaultScreen : 0;
 }
 
 Qt::HANDLE QX11Info::appColormap(int screen)
