@@ -387,7 +387,7 @@ void QItemDelegate::drawCheck(QPainter *painter,
     switch (state) {
     case Qt::Unchecked: {
         static QPixmap checked(QApplication::style()->standardPixmap(
-                                   QStyle::SP_ItemChecked, &option));
+                                   QStyle::SP_ItemUnchecked, &option));
         painter->drawPixmap(rect, checked);
         return; }
     case Qt::PartiallyChecked: {
@@ -397,7 +397,7 @@ void QItemDelegate::drawCheck(QPainter *painter,
         return; }
     case Qt::Checked: {
         static QPixmap unchecked(QApplication::style()->standardPixmap(
-                                     QStyle::SP_ItemUnchecked, &option));
+                                     QStyle::SP_ItemChecked, &option));
         painter->drawPixmap(rect, unchecked);
         return; }
     }
@@ -481,8 +481,10 @@ void QItemDelegate::doLayout(const QStyleOptionViewItem &option,
         }
 
         if (!hint) { // we only need to do the internal layout if we are going to paint
-            *checkRect = QStyle::alignedRect(option.direction, Qt::AlignCenter, checkRect->size(), check);
-            *pixmapRect = QStyle::alignedRect(option.direction, option.decorationAlignment, pixmapRect->size(), decoration);
+            *checkRect = QStyle::alignedRect(option.direction, Qt::AlignCenter,
+                                             checkRect->size(), check);
+            *pixmapRect = QStyle::alignedRect(option.direction, option.decorationAlignment,
+                                              pixmapRect->size(), decoration);
         } else {
             *checkRect = check;
             *pixmapRect = decoration;
