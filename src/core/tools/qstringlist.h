@@ -56,6 +56,11 @@ public:
     QStringList &replace(const QString &before, const QString &after, QString::CaseSensitivity cs = QString::CaseSensitive);
     QStringList &replace(const QRegExp &rx, const QString &after);
 
+    QStringList operator+(const QStringList &other) const
+    { QStringList n = *this; n += other; return n; }
+    inline QStringList &operator<<(const QString &str)
+    { append(str); return *this; }
+
 #ifdef QT_COMPAT
     inline QT_COMPAT QStringList grep(const QString &str, bool cs = true) const
         { return find(str, cs ? QString::CaseSensitive : QString::CaseInsensitive); }
