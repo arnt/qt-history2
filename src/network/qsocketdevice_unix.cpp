@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#14 $
+** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#15 $
 **
 ** Implementation of QSocketDevice class.
 **
@@ -48,7 +48,7 @@
 #include <sys/select.h>
 #endif
 
-#if defined(_OS_OSF_) && defined(_XOPEN_SOURCE_EXTENDED)
+#if defined(Q_OS_OSF) && defined(_XOPEN_SOURCE_EXTENDED)
 // Tru64 redefines accept() to _accept() when XNS4 is specified using
 // _XOPEN_SOURCE_EXTENDED.  Avoid it as it breaks our sources.
 #undef _XOPEN_SOURCE_EXTENDED
@@ -129,7 +129,7 @@
 #  undef SOCKLEN_T
 #endif
 
-#if defined(Q_OS_LINUX_) && defined(__GLIBC__) && ( __GLIBC__ >= 2 )
+#if defined(Q_OS_LINUX) && defined(__GLIBC__) && ( __GLIBC__ >= 2 )
 // new linux is Single Unix 1998, not old linux
 #  define SOCKLEN_T socklen_t
 #elif defined(Q_OS_MACX)
