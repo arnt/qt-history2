@@ -603,7 +603,7 @@ void QMenu::clear()
     qWarning("Must implement QMenu::clear()");
 }
 
-QAction *QMenu::itemAtPos(const QPoint &pt, bool ignoreSeparator)
+QAction *QMenu::actionAtPos(const QPoint &pt, bool ignoreSeparator)
 {
     d->updateActions();
     if(QMenuAction *ret = d->actionAt(pt)) {
@@ -613,7 +613,7 @@ QAction *QMenu::itemAtPos(const QPoint &pt, bool ignoreSeparator)
     return 0;
 }
 
-QRect QMenu::itemGeometry(QAction *act)
+QRect QMenu::actionGeometry(QAction *act)
 {
     d->updateActions();
     for(QList<QMenuAction*>::Iterator it = d->actionItems.begin(); it != d->actionItems.end(); ++it) {
@@ -1894,7 +1894,7 @@ Q4MenuBar::eventFilter(QObject *object, QEvent *event)
     return false;
 }
 
-QAction *Q4MenuBar::itemAtPos(const QPoint &pt)
+QAction *Q4MenuBar::actionAtPos(const QPoint &pt)
 {
     d->updateActions();
     if(QMenuAction *ret = d->actionAt(pt)) 
@@ -1902,7 +1902,7 @@ QAction *Q4MenuBar::itemAtPos(const QPoint &pt)
     return 0;
 }
 
-QRect Q4MenuBar::itemGeometry(QAction *act)
+QRect Q4MenuBar::actionGeometry(QAction *act)
 {
     d->updateActions();
     for(QList<QMenuAction*>::Iterator it = d->actionItems.begin(); it != d->actionItems.end(); ++it) {

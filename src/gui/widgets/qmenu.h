@@ -67,8 +67,8 @@ public:
 
     QSize sizeHint() const;
 
-    QRect itemGeometry(QAction *); 
-    QAction *itemAtPos(const QPoint &, bool ignoreSeparator = true);
+    QRect actionGeometry(QAction *); 
+    QAction *actionAtPos(const QPoint &, bool ignoreSeparator = true);
 
 #ifdef Q_WS_MAC
     MenuRef macMenu(MenuRef merge=0);
@@ -189,8 +189,13 @@ public:
     inline QT_COMPAT void setItemVisible(int id, bool visible) { findActionForId(id)->setVisible(visible); }
     inline QT_COMPAT QRect itemGeometry(int index) { 
         verifyPlatformCanCastPointerToInt();
-        return itemGeometry(findActionForIndex(index)); 
+        return actionGeometry(findActionForIndex(index)); 
     }
+    inline QT_COMPAT int itemAtPos(const QPoint &p, bool ignoreSeparator = true) { 
+        verifyPlatformCanCastPointerToInt();
+        return (int)actionAtPos(p, ignoreSeparator); 
+    }
+
     inline QT_COMPAT int indexOf(int id) const { return actions().indexOf(findActionForId(id)); }
     inline QT_COMPAT int idAt(int index) const { 
         verifyPlatformCanCastPointerToInt();
@@ -309,8 +314,8 @@ public:
     QSize minimumSizeHint() const;
     int heightForWidth(int) const;
 
-    QAction *itemAtPos(const QPoint &);
-    QRect itemGeometry(QAction *); 
+    QRect actionGeometry(QAction *); 
+    QAction *actionAtPos(const QPoint &);
 
 #ifdef QT_COMPAT
     inline QT_COMPAT uint count() const { return actions().count(); }
@@ -425,7 +430,11 @@ public:
     inline QT_COMPAT void setItemVisible(int id, bool visible) { findActionForId(id)->setVisible(visible); }
     inline QT_COMPAT QRect itemRect(int index) { 
         verifyPlatformCanCastPointerToInt();
-        return itemGeometry(findActionForIndex(index)); 
+        return actionGeometry(findActionForIndex(index)); 
+    }
+    inline QT_COMPAT int itemAtPos(const QPoint &p) { 
+        verifyPlatformCanCastPointerToInt();
+        return (int)actionAtPos(p); 
     }
     inline QT_COMPAT int indexOf(int id) const { return actions().indexOf(findActionForId(id)); }
     inline QT_COMPAT int idAt(int index) const { 
