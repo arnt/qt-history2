@@ -3135,7 +3135,7 @@ void QIconView::doAutoScroll()
 			rr = rr.unite( item->rect() );
 		    }
 		} else if ( item->intersects( nr ) ) {
-		    if ( !item->isSelected() ) {
+		    if ( !item->isSelected() && item->isSelectable() ) {
 			item->setSelected( TRUE, TRUE );
 			changed = TRUE;
 			rr = rr.unite( item->rect() );
