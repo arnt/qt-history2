@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#4 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#5 $
 **
 ** Definition of QIconView widget class
 **
@@ -104,6 +104,9 @@ struct QIconViewPrivate
     int rastX, rastY, spacing;
     bool cleared;
     int newItems;
+    int dragItems;
+    int numSelectedItems;
+    QPoint oldDragPos;
 };
 
 /*****************************************************************************
@@ -741,6 +744,7 @@ QIconView::QIconView( QWidget *parent, const char *name )
     d->cleared = FALSE;
     d->insertTimer = new QTimer( this );
     d->newItems = 0;
+    d->numSelectedItems = 0;
     connect( d->insertTimer, SIGNAL( timeout() ),
              this, SLOT( itemsInserted() ) );
 
@@ -1223,13 +1227,18 @@ void QIconView::contentsMouseDoubleClickEvent( QMouseEvent *e )
     }
 }
 
-void QIconView::contentsDragEnterEvent( QDragEnterEvent * )
+void QIconView::contentsDragEnterEvent( QDragEnterEvent *e )
 {
     d->tmpCurrentItem = 0;
+    d->dragItems = dragItems( e );
+    d->oldDragPos = contentsToViewport( e->pos() );
+    drawDragShape( e->pos() );
 }
 
 void QIconView::contentsDragMoveEvent( QDragMoveEvent *e )
 {
+    drawDragShape( d->oldDragPos );
+
     if ( d->tmpCurrentItem )
         repaintItem( d->tmpCurrentItem );
 
@@ -1261,10 +1270,15 @@ void QIconView::contentsDragMoveEvent( QDragMoveEvent *e )
         if ( old )
             old->dragLeft();
     }
+
+    d->oldDragPos = contentsToViewport( e->pos() );
+    drawDragShape( e->pos() );
 }
 
 void QIconView::contentsDragLeaveEvent( QDragLeaveEvent * )
 {
+    drawDragShape( d->oldDragPos );
+
     if ( d->tmpCurrentItem ) {
         repaintItem( d->tmpCurrentItem );
         d->tmpCurrentItem->dragLeft();
@@ -1275,6 +1289,8 @@ void QIconView::contentsDragLeaveEvent( QDragLeaveEvent * )
 
 void QIconView::contentsDropEvent( QDropEvent *e )
 {
+    drawDragShape( d->oldDragPos );
+
     if ( d->tmpCurrentItem )
         repaintItem( d->tmpCurrentItem );
 
@@ -1641,4 +1657,44 @@ void QIconView::emitNewSelectionNumber()
             ++num;
 
     emit selectionChanged( num );
+    d->numSelectedItems = num;
+}
+
+void QIconView::drawDragShape( const QPoint &pos )
+{
+    if ( d->dragItems > 0 ) {
+        QPainter p;
+        p.begin( viewport() );
+        p.setRasterOp( NotROP );
+        QRect r = QIconSet( QPixmap( unknown ), viewMode() ).pixmap().rect();
+        r.setWidth( r.width() + 10 );
+        int num = viewport()->width() / ( r.width() + 10 );
+        
+        QPoint coord( 0, 0 );
+        
+        for ( int i = 0; i < d->dragItems; ++i ) {
+            style().drawFocusRect( &p, QRect( pos.x() + 5 + coord.x() * ( r.width() + 10 ) + 5 ,
+                                              pos.y() + 5 + coord.y() * ( r.height() + 30 ), 
+                                              r.width(), r.height() ), colorGroup() );
+            style().drawFocusRect( &p, QRect( pos.x() + 5 + coord.x() * ( r.width() + 10 ),
+                                              pos.y() + 5 + coord.y() * ( r.height() + 30 ) + r.height() + 5, 
+                                              r.width() + 10, 20 ), colorGroup() );
+            if ( coord.x() == num ) {
+                coord.setX( 0 );
+                coord.setY( coord.y() + 1 );
+            } else {
+                coord.setX( coord.x() + 1 );
+            }
+                
+        }
+        
+        p.end();
+    }
+}
+
+int QIconView::dragItems( QDropEvent *e )
+{
+    if ( e->source() == viewport() )
+        return d->numSelectedItems;
+    return -1;
 }

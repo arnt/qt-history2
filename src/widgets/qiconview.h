@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.h#3 $
+** $Id: //depot/qt/main/src/widgets/qiconview.h#4 $
 **
 ** Definition of QIconView widget class
 **
@@ -64,12 +64,18 @@ public:
     QIconViewItemDrag( QWidget *source = 0, const char *name = 0 )
         : QDragObject( source, name )  {}
 
-    virtual const char *format( int )  const
-    { return 0L; }
+    virtual const char *format( int ) const
+    { return 0; }
 
-    virtual QByteArray encodedData( const char * )  const
+    virtual QByteArray encodedData( const char * ) const
     { return QByteArray(); }
 
+    virtual bool provides( const char *mime ) const { 
+        if ( QString( mime ) == "application/iconview-items" )
+            return TRUE;
+        return FALSE;
+    }
+       
 };
 
 /*****************************************************************************
@@ -201,7 +207,7 @@ protected:
     QIconSet::Size viewMode;
     QIconViewItemLineEdit *renameBox;
     bool isReady;
-    
+
 };
 
 
@@ -279,7 +285,7 @@ signals:
 protected slots:
     virtual void doAutoScroll();
     virtual void itemsInserted();
-    
+
 protected:
     virtual void drawContents( QPainter *p, int cx, int cy, int cw, int ch );
     virtual void contentsMousePressEvent( QMouseEvent *e );
@@ -297,7 +303,9 @@ protected:
     virtual QDragObject *dragObject();
     virtual void startDrag( bool move = FALSE );
     virtual void insertInGrid( QIconViewItem *item );
-
+    virtual void drawDragShape( const QPoint &pnt );
+    virtual int dragItems( QDropEvent *e );
+    
     void emitSelectionChanged();
     void emitNewSelectionNumber();
 
