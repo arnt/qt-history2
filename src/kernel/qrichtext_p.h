@@ -859,7 +859,6 @@ private:
     bool withoutDoubleBuffer;
     QTextCursor *tmpCursor;
     bool underlLinks;
-    QColor linkC;
     QBrush *backBrush;
     QPixmap *buf_pixmap;
     bool nextDoubleBuffered;

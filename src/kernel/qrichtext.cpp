@@ -1210,7 +1210,6 @@ QTextDocument::QTextDocument( QTextDocument *p )
     contxt = QString::null;
     fCollection->setStyleSheet( sheet_ );
 
-    linkC = Qt::blue;
     underlLinks = TRUE;
     backBrush = 0;
     buf_pixmap = 0;
