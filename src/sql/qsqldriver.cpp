@@ -136,7 +136,7 @@ bool QSqlDriver::isOpenError() const
 
 /*! \enum QSqlDriver::DriverFeature
 
-  This enum contains a list of features a driver may support. Use feature()
+  This enum contains a list of features a driver may support. Use hasFeature()
   to query whether a feature is supported or not.
 
   The currently defined values are:
@@ -147,11 +147,11 @@ bool QSqlDriver::isOpenError() const
   (i.e. number of rows returned) of a query, in which case QSqlQuery::size() will return -1
   \value BLOB  checks whether the driver supports Binary Large Object fields
 
-  \sa feature
+  \sa hasFeature()
 
 */
 
-/*! \fn bool QSqlDriver::feature( DriverFeature f ) const
+/*! \fn bool QSqlDriver::hasFeature( DriverFeature f ) const
 
   Returns TRUE if the driver supports the feature \a f, otherwise FALSE.
 
@@ -390,7 +390,7 @@ QString QSqlDriver::formatValue( const QSqlField* field, bool trimStrings ) cons
 	    break;
 	}
 	case QVariant::ByteArray : {
-	    if ( feature( BLOB ) ) {
+	    if ( hasFeature( BLOB ) ) {
 		QByteArray ba = field->value().toByteArray();
 		QString res;
 		static const char hexchars[] = "0123456789abcdef";

@@ -594,7 +594,7 @@ QODBCDriver::~QODBCDriver()
     delete d;
 }
 
-bool QODBCDriver::feature( DriverFeature f ) const
+bool QODBCDriver::hasFeature( DriverFeature f ) const
 {
     switch ( f ) {
     case Transactions: {

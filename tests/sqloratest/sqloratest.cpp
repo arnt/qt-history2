@@ -13,7 +13,7 @@ QSqlDatabase* database;
 
 void TestInsert()
 {
-    if ( database->driver()->feature( QSqlDriver::Transactions ) ) {
+    if ( database->driver()->hasFeature( QSqlDriver::Transactions ) ) {
 	database->transaction();
     }
     for ( int i=0; i<TEST_RECS; ++i ) {
@@ -22,7 +22,7 @@ void TestInsert()
     }
     QSqlQuery r = database->exec( "insert into qsql_test values (NULL,NULL,'should have nulls',NULL,NULL);");
     Q_ASSERT( r.numRowsAffected() == 1);
-    if ( database->driver()->feature( QSqlDriver::Transactions ) )
+    if ( database->driver()->hasFeature( QSqlDriver::Transactions ) )
 	database->commit();
 }
 
@@ -79,18 +79,18 @@ void TestSelect()
 void TestDelete()
 {
     qDebug("Deleting records...");
-    if ( database->driver()->feature( QSqlDriver::Transactions ) )
+    if ( database->driver()->hasFeature( QSqlDriver::Transactions ) )
 	database->transaction();
     for ( int i=0; i<TEST_RECS; ++i ) {
 	database->exec( "delete from qsql_test where id=" + QString::number(i) + ";" );
     }
-    if ( database->driver()->feature( QSqlDriver::Transactions ) )
+    if ( database->driver()->hasFeature( QSqlDriver::Transactions ) )
 	database->commit();
 }
 
 void TestTrans()
 {
-    if ( database->driver()->feature( QSqlDriver::Transactions ) ) {
+    if ( database->driver()->hasFeature( QSqlDriver::Transactions ) ) {
 	qDebug("Testing transaction...");
 	database->transaction();
 	for ( int i=0; i<TEST_RECS; ++i ) {

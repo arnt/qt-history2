@@ -269,7 +269,7 @@ QMYSQLDriver::~QMYSQLDriver()
     delete d;
 }
 
-bool QMYSQLDriver::feature( DriverFeature f ) const
+bool QMYSQLDriver::hasFeature( DriverFeature f ) const
 {
     switch ( f ) {
     case Transactions:

@@ -406,7 +406,7 @@ PGconn* QPSQLDriver::connection()
 }
 
 
-bool QPSQLDriver::feature( DriverFeature f ) const
+bool QPSQLDriver::hasFeature( DriverFeature f ) const
 {
     switch ( f ) {
     case Transactions:

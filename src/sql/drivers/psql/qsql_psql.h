@@ -78,7 +78,7 @@ public:
 
     QPSQLDriver( QObject * parent=0, const char * name=0 );
     ~QPSQLDriver();
-    bool		feature( DriverFeature f ) const;
+    bool		hasFeature( DriverFeature f ) const;
     bool		open( const QString & db,
 				const QString & user = QString::null,
 				const QString & password = QString::null,

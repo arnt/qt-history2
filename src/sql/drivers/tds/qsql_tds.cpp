@@ -474,7 +474,7 @@ QTDSDriver::~QTDSDriver()
     delete d;
 }
 
-bool QTDSDriver::feature( DriverFeature f ) const
+bool QTDSDriver::hasFeature( DriverFeature f ) const
 {
     switch ( f ) {
     case Transactions:

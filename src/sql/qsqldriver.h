@@ -83,7 +83,7 @@ public:
     virtual QString       formatValue( const QSqlField* field, bool trimStrings = FALSE ) const;
     QSqlError	          lastError() const;
 
-    virtual bool          feature( DriverFeature f ) const = 0;
+    virtual bool          hasFeature( DriverFeature f ) const = 0;
     virtual bool          open( const QString & db,
 				const QString & user = QString::null,
 				const QString & password = QString::null,
