@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#86 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#87 $
 **
 ** Implementation of QMenuBar class
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#86 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#87 $");
 
 
 /*!
@@ -734,7 +734,7 @@ void QMenuBar::mousePressEvent( QMouseEvent *e )
 
     QPopupMenu *popup = mi->popup();
     if ( popup && mi->isEnabled() ) {
-	setWindowsAltMode( FALSE, actItem );
+	setWindowsAltMode( FALSE, item );
 	if ( popup->isVisible() ) {	// sub menu already open
 	    popup->hidePopups();
 	    popup->repaint( FALSE );
@@ -1009,14 +1009,16 @@ void QMenuBar::setWindowsAltMode( bool enable, int index )
     if ( enable ) {
 	if ( !windowsaltactive ) {
 	    windowsaltactive = 1;
-	    setFocus();
+	    if ( style() == WindowsStyle ) 
+		setFocus();
 	}
 	if ( index == actItem ) // work around setActItem overoptimization
 	    actItem = -1;
 	setActItem( index, FALSE );
     } else {
 	if ( windowsaltactive ) {
-	    focusWidget()->setFocus();
+	    if ( style() == WindowsStyle ) 
+		focusWidget()->setFocus();
 	    windowsaltactive = 0;
 	}
 	if ( index == actItem ) // work around setActItem overoptimization
