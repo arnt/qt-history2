@@ -1354,13 +1354,13 @@ bool QLayout::activate()
 
     Widgets that reimplement QWidget::sizePolicy() return a QSizePolicy
     that describes the horizontal and vertical resizing policy they
-    prefer when being laid out. Only \link #interesting one of the
-    constructors\endlink is of interest in most applications.
+    prefer when being laid out.
 
-    QSizePolicy contains two independent SizeType objects; one describes
-    the widgets's horizontal size policy, and the other describes its
-    vertical size policy. It also contains a flag to indicate whether the
-    height and width of its preferred size are related.
+    QSizePolicy contains two independent SizeType objects and two
+    stretch factors; one describes the widgets's horizontal size
+    policy, and the other describes its vertical size policy. It also
+    contains a flag to indicate whether the height and width of its
+    preferred size are related.
 
     The horizontal and vertical \l{SizeType}s are set in the usual constructor
     and can be queried using a variety of functions.
@@ -1436,52 +1436,35 @@ bool QLayout::activate()
 */
 
 /*!
-    \fn QSizePolicy::QSizePolicy(SizeType hor, SizeType ver, bool hfw)
-
-    \target interesting
-    This is the constructor normally used to return a value in the
-    overridden \l QWidget::sizePolicy() function of a QWidget
-    subclass.
+    \fn QSizePolicy::QSizePolicy(SizeType hor, SizeType ver)
 
     It constructs a QSizePolicy with independent horizontal and
     vertical sizing types, \a hor and \a ver respectively. These \link
     QSizePolicy::SizeType sizing types\endlink affect how the widget
     is treated by the \link QLayout layout engine\endlink.
 
-    If \a hfw is true, the preferred height of the widget is dependent
+    Use setHeightForWidth() if the preferred height of the widget is dependent
     on the width of the widget (for example, a QLabel with line
     wrapping).
 
-    \sa horData() verData() hasHeightForWidth()
+    \sa horizontalData() verticalData() setHeightForWidth()
 */
 
-/*!
-    \fn QSizePolicy::QSizePolicy(SizeType hor, SizeType ver, uchar horStretch, uchar verStretch, bool hfw)
-
-    Constructs a QSizePolicy with independent horizontal and vertical
-    sizing types \a hor and \a ver, and stretch factors \a horStretch
-    and \a verStretch.
-
-    If \a hfw is true, the preferred height of the widget is dependent on the
-    width of the widget.
-
-    \sa horStretch() verStretch()
-*/
 
 /*!
-    \fn QSizePolicy::SizeType QSizePolicy::horData() const
+    \fn QSizePolicy::SizeType QSizePolicy::horizontalData() const
 
     Returns the horizontal component of the size policy.
 
-    \sa setHorData() verData() horStretch()
+    \sa setHorizontalData() verticalData() horizontalStretch()
 */
 
 /*!
-    \fn QSizePolicy::SizeType QSizePolicy::verData() const
+    \fn QSizePolicy::SizeType QSizePolicy::verticalData() const
 
     Returns the vertical component of the size policy.
 
-    \sa setVerData() horData() verStretch()
+    \sa setVerticalData() horizontalData() verticalStretch()
 */
 
 /*!
@@ -1533,20 +1516,20 @@ bool QLayout::activate()
 */
 
 /*!
-    \fn void QSizePolicy::setHorData(SizeType d)
+    \fn void QSizePolicy::setHorizontalData(SizeType d)
 
     Sets the horizontal component of the size policy to size type \a
     d.
 
-    \sa horData() setVerData()
+    \sa horizontalData() setVerticalData()
 */
 
 /*!
-    \fn void QSizePolicy::setVerData(SizeType d)
+    \fn void QSizePolicy::setVerticalData(SizeType d)
 
     Sets the vertical component of the size policy to size type \a d.
 
-    \sa verData() setHorData()
+    \sa verticalData() setHorizontalData()
 */
 
 /*!
@@ -1567,35 +1550,35 @@ bool QLayout::activate()
 */
 
 /*!
-    \fn uint QSizePolicy::horStretch() const
+    \fn uint QSizePolicy::horizontalStretch() const
 
     Returns the horizontal stretch factor of the size policy.
 
-    \sa setHorStretch() verStretch()
+    \sa setHorizontalStretch() verticalStretch()
 */
 
 /*!
-    \fn uint QSizePolicy::verStretch() const
+    \fn uint QSizePolicy::verticalStretch() const
 
     Returns the vertical stretch factor of the size policy.
 
-    \sa setVerStretch() horStretch()
+    \sa setVerticalStretch() horizontalStretch()
 */
 
 /*!
-    \fn void QSizePolicy::setHorStretch(uchar sf)
+    \fn void QSizePolicy::setHorizontalStretch(uchar sf)
 
     Sets the horizontal stretch factor of the size policy to \a sf.
 
-    \sa horStretch() setVerStretch()
+    \sa horizontalStretch() setVerticalStretch()
 */
 
 /*!
-    \fn void QSizePolicy::setVerStretch(uchar sf)
+    \fn void QSizePolicy::setVerticalStretch(uchar sf)
 
     Sets the vertical stretch factor of the size policy to \a sf.
 
-    \sa verStretch() setHorStretch()
+    \sa verticalStretch() setHorizontalStretch()
 */
 
 /*!
