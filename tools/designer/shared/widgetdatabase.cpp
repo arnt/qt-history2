@@ -50,6 +50,7 @@ static QStrList *wGroups;
 static QStrList *invisibleGroups;
 static bool whatsThisLoaded = FALSE;
 static QPluginManager<WidgetInterface> *widgetPluginManager = 0;
+static bool plugins_set_up = FALSE;
 
 QCleanupHandler<QPluginManager<WidgetInterface> > cleanup_manager;
 
@@ -95,10 +96,19 @@ WidgetDatabase::WidgetDatabase()
   exists, the functions returns immediately.
 */
 
-void WidgetDatabase::setupDataBase()
+void WidgetDatabase::setupDataBase( int id )
 {
+#ifndef UIC
     if ( dbcount )
 	return;
+#else
+    if ( dbcount && id < dbcount && id != -2 )
+	return;
+    if ( dbcount && !plugins_set_up ) {
+	setupPlugins();
+	return;
+    }
+#endif
 
     wGroups = new QStrList;
     invisibleGroups = new QStrList;
@@ -501,11 +511,21 @@ void WidgetDatabase::setupDataBase()
 
     qt_init_kde_widget_database();
 
+#ifndef UIC
+    setupPlugins();
+#endif
+}
+
+void WidgetDatabase::setupPlugins()
+{
+    if ( plugins_set_up )
+	return;
+    plugins_set_up = TRUE;
     QStringList widgets = widgetManager()->featureList();
     for ( QStringList::Iterator it = widgets.begin(); it != widgets.end(); ++it ) {
 	if ( hasWidget( *it ) )
 	    continue;
-	r = new WidgetDatabaseRecord;
+	WidgetDatabaseRecord *r = new WidgetDatabaseRecord;
 	WidgetInterface *iface = 0;
 	widgetManager()->queryInterface( *it, &iface );
 	if ( !iface )
@@ -536,7 +556,7 @@ void WidgetDatabase::setupDataBase()
 
 int WidgetDatabase::count()
 {
-    setupDataBase();
+    setupDataBase( -1 );
     return dbcount;
 }
 
@@ -546,7 +566,7 @@ int WidgetDatabase::count()
 
 int WidgetDatabase::startCustom()
 {
-    setupDataBase();
+    setupDataBase( -1 );
     return dbcustom;
 }
 
@@ -556,7 +576,7 @@ int WidgetDatabase::startCustom()
 
 QIconSet WidgetDatabase::iconSet( int id )
 {
-    setupDataBase();
+    setupDataBase( id );
     WidgetDatabaseRecord *r = at( id );
     if ( !r )
 	return QIconSet();
@@ -576,7 +596,7 @@ QIconSet WidgetDatabase::iconSet( int id )
 
 QString WidgetDatabase::className( int id )
 {
-    setupDataBase();
+    setupDataBase( id );
     WidgetDatabaseRecord *r = at( id );
     if ( !r )
 	return QString::null;
@@ -589,7 +609,7 @@ QString WidgetDatabase::className( int id )
 
 QString WidgetDatabase::group( int id )
 {
-    setupDataBase();
+    setupDataBase( id );
     WidgetDatabaseRecord *r = at( id );
     if ( !r )
 	return QString::null;
@@ -602,7 +622,7 @@ QString WidgetDatabase::group( int id )
 
 QString WidgetDatabase::toolTip( int id )
 {
-    setupDataBase();
+    setupDataBase( id );
     WidgetDatabaseRecord *r = at( id );
     if ( !r )
 	return QString::null;
@@ -615,7 +635,7 @@ QString WidgetDatabase::toolTip( int id )
 
 QString WidgetDatabase::whatsThis( int id )
 {
-    setupDataBase();
+    setupDataBase( id );
     WidgetDatabaseRecord *r = at( id );
     if ( !r )
 	return QString::null;
@@ -628,7 +648,7 @@ QString WidgetDatabase::whatsThis( int id )
 
 QString WidgetDatabase::includeFile( int id )
 {
-    setupDataBase();
+    setupDataBase( id );
     WidgetDatabaseRecord *r = at( id );
     if ( !r )
 	return QString::null;
@@ -641,7 +661,7 @@ QString WidgetDatabase::includeFile( int id )
 */
 bool WidgetDatabase::isForm( int id )
 {
-    setupDataBase();
+    setupDataBase( id );
     WidgetDatabaseRecord *r = at( id );
     if ( !r )
 	return FALSE;
@@ -657,7 +677,7 @@ bool WidgetDatabase::isForm( int id )
 
 bool WidgetDatabase::isContainer( int id )
 {
-    setupDataBase();
+    setupDataBase( id );
     WidgetDatabaseRecord *r = at( id );
     if ( !r )
 	return FALSE;
@@ -666,7 +686,7 @@ bool WidgetDatabase::isContainer( int id )
 
 QString WidgetDatabase::createWidgetName( int id )
 {
-    setupDataBase();
+    setupDataBase( id );
     QString n = className( id );
     if ( n == "QLayoutWidget" )
 	n = "Layout";
@@ -683,7 +703,7 @@ QString WidgetDatabase::createWidgetName( int id )
  */
 int WidgetDatabase::idFromClassName( const QString &name )
 {
-    setupDataBase();
+    setupDataBase( -1 );
     if ( name.isEmpty() )
 	return 0;
     int *i = className2Id->find( name );
@@ -691,6 +711,12 @@ int WidgetDatabase::idFromClassName( const QString &name )
 	return *i;
     if ( name == "FormWindow" )
 	return idFromClassName( "QLayoutWidget" );
+#ifdef UIC
+    setupDataBase( -2 );
+    i = className2Id->find( name );
+    if ( i )
+	return *i;
+#endif
     return -1;
 }
 
@@ -746,7 +772,7 @@ bool WidgetDatabase::isGroupEmpty( const QString &grp )
 
 QString WidgetDatabase::widgetGroup( int i )
 {
-    setupDataBase();
+    setupDataBase( -1 );
     if ( i >= 0 && i < (int)wGroups->count() )
 	return wGroups->at( i );
     return QString::null;
@@ -754,13 +780,13 @@ QString WidgetDatabase::widgetGroup( int i )
 
 int WidgetDatabase::numWidgetGroups()
 {
-    setupDataBase();
+    setupDataBase( -1 );
     return wGroups->count();
 }
 
 bool WidgetDatabase::isGroupVisible( const QString &g )
 {
-    setupDataBase();
+    setupDataBase( -1 );
     return invisibleGroups->find( g ) == -1;
 }
 

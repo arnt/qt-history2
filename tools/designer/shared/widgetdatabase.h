@@ -44,7 +44,8 @@ class WidgetDatabase : public Qt
 {
 public:
     WidgetDatabase();
-    static void setupDataBase();
+    static void setupDataBase( int id );
+    static void setupPlugins();
 
     static int count();
     static int startCustom();
