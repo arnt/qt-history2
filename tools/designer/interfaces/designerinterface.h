@@ -60,11 +60,11 @@ struct DesignerInterface : public QUnknownInterface
     virtual void showStatusMessage( const QString & ) const = 0;
     virtual DesignerDock *createDock() const = 0;
     virtual DesignerOutputDock *outputDock() const = 0;
+    virtual void setModified( bool b, QWidget *window ) = 0;
 };
 
 struct DesignerProject
 {
-    virtual DesignerFormWindow *currentForm() const = 0;
     virtual QList<DesignerFormWindow> formList() const = 0;
     virtual void addForm( DesignerFormWindow * ) = 0;
     virtual void removeForm( DesignerFormWindow * ) = 0;

@@ -22,11 +22,15 @@
 #define EDITORINTERFACEIMPL_H
 
 #include <editorinterface.h>
+#include <qobject.h>
 
 class ViewManager;
+class DesignerInterface;
 
-class EditorInterfaceImpl : public EditorInterface
+class EditorInterfaceImpl : public QObject, public EditorInterface
 {
+    Q_OBJECT
+
 public:
     EditorInterfaceImpl();
     virtual ~EditorInterfaceImpl();
@@ -54,11 +58,15 @@ public:
     void readSettings();
 
     void setError( int line );
+    void setModified( bool m );
+
+private slots:
+    void modificationChanged();
 
 private:
     ViewManager *viewManager;
-
     unsigned long ref;
+    DesignerInterface *dIface;
 };
 
 #endif

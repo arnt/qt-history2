@@ -1476,8 +1476,12 @@ void MainWindow::openFile( const QString &filename, bool validFileName )
 
 bool MainWindow::fileSave()
 {
-    if ( sourceEditors.first() )
-	sourceEditors.first()->save();
+    for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() ) {
+	if ( e->form() == formWindow() ) {
+	    e->save();
+	    e->setModified( FALSE );
+	}
+    }
     if ( !formWindow() )
 	return FALSE;
     if ( formWindow()->fileName().isEmpty() ) {
@@ -1519,6 +1523,10 @@ void MainWindow::fileSaveAll()
 	w->setFocus();
 	qApp->processEvents();
 	fileSave();
+    }
+    for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() ) {
+	e->save();
+	e->setModified( FALSE );
     }
 }
 
@@ -4004,6 +4012,21 @@ void MainWindow::addPreferencesTab( QWidget *tab, const QString &title, QObject 
     t.init_slot = init_slot;
     t.accept_slot = accept_slot;
     preferenceTabs << t;
+}
+
+void MainWindow::setModified( bool b, QWidget *window )
+{
+    QWidget *w = window;
+    while ( w ) {
+	if ( w->inherits( "FormWindow" ) ) {
+	    ( (FormWindow*)w )->modificationChanged( b );
+	    return;
+	} else if ( w->inherits( "SourceEditor" ) ) {
+	    ( (SourceEditor*)w )->form()->commandHistory()->setModified( b );
+	    ( (SourceEditor*)w )->form()->modificationChanged( b );
+	}
+	w = w->parentWidget();
+    }
 }
 
 #include "mainwindow.moc"

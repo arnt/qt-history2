@@ -37,8 +37,10 @@ public:
     ~SourceEditor();
 
     void setForm( FormWindow *fw );
+    FormWindow *form() const { return formWindow; }
     void setFunction( const QString &func );
     void save();
+    void setModified( bool b );
 
     static QString sourceOfForm( FormWindow *fw, const QString &lang, EditorInterface *iface, LanguageInterface *lIface );
 

@@ -184,6 +184,7 @@ public slots:
     virtual void widgetChanged( QObject *w );
     virtual void currentToolChanged();
     virtual void visibilityChanged();
+    virtual void modificationChanged( bool m );
 
 signals:
     void showProperties( QObject *w );
@@ -237,7 +238,6 @@ private slots:
     virtual void updatePropertiesTimerDone();
     virtual void showPropertiesTimerDone();
     virtual void selectionChangedTimerDone();
-    virtual void modificationChanged( bool m );
     virtual void windowsRepaintWorkaroundTimerTimeout();
 
 private:

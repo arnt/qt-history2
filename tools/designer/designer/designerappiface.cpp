@@ -95,6 +95,10 @@ DesignerOutputDock *DesignerInterfaceImpl::outputDock() const
     return 0;
 }
 
+void DesignerInterfaceImpl::setModified( bool b, QWidget *window )
+{
+    mainWindow->setModified( b, window );
+}
 
 
 
@@ -103,11 +107,6 @@ DesignerOutputDock *DesignerInterfaceImpl::outputDock() const
 DesignerProjectImpl::DesignerProjectImpl( Project *pr )
     : project( pr )
 {
-}
-
-DesignerFormWindow *DesignerProjectImpl::currentForm() const
-{
-    return 0;
 }
 
 QList<DesignerFormWindow> DesignerProjectImpl::formList() const

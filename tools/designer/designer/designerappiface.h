@@ -40,6 +40,7 @@ public:
     void showStatusMessage( const QString & ) const;
     DesignerDock *createDock() const;
     DesignerOutputDock *outputDock() const;
+    void setModified( bool b, QWidget *window );
 
     QUnknownInterface *queryInterface( const QUuid &uuid );
     ulong addRef();
@@ -56,7 +57,6 @@ class DesignerProjectImpl: public DesignerProject
 public:
     DesignerProjectImpl( Project *pr );
 
-    DesignerFormWindow *currentForm() const;
     QList<DesignerFormWindow> formList() const;
     void addForm( DesignerFormWindow * );
     void removeForm( DesignerFormWindow * );

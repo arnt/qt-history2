@@ -129,6 +129,7 @@ public:
     QUnknownInterface* designerInterface() const { return desInterface; }
     OutputWindow *outputWindow() const { return oWindow; }
     void addPreferencesTab( QWidget *tab, const QString &title, QObject *receiver, const char *init_slot, const char *accept_slot );
+    void setModified( bool b, QWidget *window );
 
 public slots:
     void showProperties( QObject *w );

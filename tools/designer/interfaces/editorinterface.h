@@ -55,6 +55,7 @@ public:
     virtual void setContext( QObjectList *toplevels, QObject *this_ ) = 0;
     virtual void setError( int line ) = 0;
     virtual void readSettings() = 0;
+    virtual void setModified( bool m ) = 0;
 
 };
 

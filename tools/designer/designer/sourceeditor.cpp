@@ -132,3 +132,8 @@ void SourceEditor::configChanged()
 {
     iFace->readSettings();
 }
+
+void SourceEditor::setModified( bool b )
+{
+    iFace->setModified( b );
+}

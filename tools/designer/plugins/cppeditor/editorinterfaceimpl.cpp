@@ -27,13 +27,15 @@
 #include <designerinterface.h>
 
 EditorInterfaceImpl::EditorInterfaceImpl()
-    : EditorInterface(), viewManager( 0 ), ref( 0 )
+    : EditorInterface(), viewManager( 0 ), ref( 0 ), dIface( 0 )
 {
 }
 
 EditorInterfaceImpl::~EditorInterfaceImpl()
 {
     delete viewManager;
+    if ( dIface )
+	dIface->release();
 }
 
 QUnknownInterface *EditorInterfaceImpl::queryInterface( const QUuid &uuid )
@@ -63,11 +65,12 @@ unsigned long EditorInterfaceImpl::release()
     return ref;
 }
 
-QWidget *EditorInterfaceImpl::editor( QWidget *parent, QUnknownInterface * )
+QWidget *EditorInterfaceImpl::editor( QWidget *parent, QUnknownInterface *iface )
 {
     if ( !viewManager ) {
 	( (EditorInterfaceImpl*)this )->viewManager = new ViewManager( parent, 0 );
 	(void)new CppEditor( QString::null, viewManager, "editor" );
+	dIface = (DesignerInterface*)iface->queryInterface( IID_DesignerInterface );
     }
     return viewManager->currentView();
 }
@@ -76,7 +79,11 @@ void EditorInterfaceImpl::setText( const QString &txt )
 {
     if ( !viewManager || !viewManager->currentView() )
 	return;
-    ( (CppEditor*)viewManager->currentView() )->setText( txt );
+    CppEditor *e = (CppEditor*)viewManager->currentView();
+    disconnect( e, SIGNAL( modificationChanged( bool ) ), this, SLOT( modificationChanged() ) );
+    e->setText( txt );
+    e->setModified( FALSE );
+    connect( e, SIGNAL( modificationChanged( bool ) ), this, SLOT( modificationChanged() ) );
 }
 
 QString EditorInterfaceImpl::text() const
@@ -194,4 +201,17 @@ void EditorInterfaceImpl::readSettings()
     if ( !viewManager )
 	return;
     ( (CppEditor*)viewManager->currentView() )->configChanged();
+}
+
+void EditorInterfaceImpl::modificationChanged()
+{
+    if ( viewManager && dIface )
+	dIface->setModified( TRUE, viewManager->currentView() );
+}
+
+void EditorInterfaceImpl::setModified( bool m )
+{
+    if ( !viewManager )
+	return;
+    ( (CppEditor*)viewManager->currentView() )->setModified( m );
 }
