@@ -46,6 +46,7 @@
 
 class QFontPrivate;                                     /* don't touch */
 class QStringList;
+class QTextFormatCollection;
 
 class Q_EXPORT QFont
 {
