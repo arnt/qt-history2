@@ -168,7 +168,7 @@ MenuExample::MenuExample( QWidget *parent, const char *name )
     options->setAccel( CTRL+Key_U, underlineID );
     options->connectItem( underlineID, this, SLOT(underline()) );
 #else
-#warning "Do we want something like this?!"    
+#warning "Do we want something like this?!"
 #endif
 
     isBold = FALSE;
@@ -217,7 +217,7 @@ MenuExample::MenuExample( QWidget *parent, const char *name )
 class MyFancyMenu : public QMenu
 {
     const int margin;
-    QFont myFont() {
+    QFont myFont() const {
         QFont ret = font();
         ret.setPixelSize(30);
         ret.setBold(true);
@@ -255,7 +255,7 @@ void MenuExample::contextMenuEvent( QContextMenuEvent * )
     contextMenu.addAction("&New",  this, SLOT(news()), CTRL+Key_N);
     contextMenu.addAction("&Open...", this, SLOT(open()), CTRL+Key_O);
     contextMenu.addAction("&Save", this, SLOT(save()), CTRL+Key_S);
-    QPopupMenu *submenu = new QMenu(this);
+    QMenu *submenu = new QMenu(this);
     submenu->addAction("&Print to printer", this, SLOT(printer()));
     submenu->addAction("Print to &file", this, SLOT(file()));
     submenu->addAction("Print to fa&x", this, SLOT(fax()));
