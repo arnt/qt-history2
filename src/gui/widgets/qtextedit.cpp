@@ -149,7 +149,7 @@ bool QTextEditPrivate::cursorMoveKeyEvent(QKeyEvent *e)
            == (Qt::ControlModifier | Qt::AltModifier))
         || ((e->modifiers() & (Qt::ControlModifier | Qt::MetaModifier))
             == (Qt::ControlModifier | Qt::MetaModifier))
-        || ((e->modifiers() & (Qt::AltModifier | Qt::MetaModifier)) 
+        || ((e->modifiers() & (Qt::AltModifier | Qt::MetaModifier))
             == (Qt::AltModifier | Qt::MetaModifier));
 #endif
     switch (e->key()) {
@@ -161,22 +161,22 @@ bool QTextEditPrivate::cursorMoveKeyEvent(QKeyEvent *e)
             op = QTextCursor::Down;
             break;
         case Qt::Key_Left:
-            op = e->state() & Qt::ControlButton
+            op = e->modifiers() & Qt::ControlModifier
                  ? QTextCursor::WordLeft
                  : QTextCursor::Left;
             break;
         case Qt::Key_Right:
-            op = e->state() & Qt::ControlButton
+            op = e->modifiers() & Qt::ControlModifier
                  ? QTextCursor::WordRight
                  : QTextCursor::Right;
             break;
         case Qt::Key_Home:
-            op = e->state() & Qt::ControlButton
+            op = e->modifiers() & Qt::ControlModifier
                  ? QTextCursor::Start
                  : QTextCursor::StartOfLine;
             break;
         case Qt::Key_End:
-            op = e->state() & Qt::ControlButton
+            op = e->modifiers() & Qt::ControlModifier
                  ? QTextCursor::End
                  : QTextCursor::EndOfLine;
             break;

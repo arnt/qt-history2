@@ -1390,7 +1390,7 @@ void QLineEdit::keyPressEvent(QKeyEvent * e)
             break;
 #endif
         case Qt::Key_D:
-            if (!d->readOnly) 
+            if (!d->readOnly)
                 del();
             break;
         case Qt::Key_E:
@@ -1400,7 +1400,7 @@ void QLineEdit::keyPressEvent(QKeyEvent * e)
             cursorForward(e->modifiers() & Qt::ShiftModifier, 1);
             break;
         case Qt::Key_H:
-            if (!d->readOnly) 
+            if (!d->readOnly)
                 backspace();
             break;
         case Qt::Key_K:
@@ -1452,14 +1452,14 @@ void QLineEdit::keyPressEvent(QKeyEvent * e)
             if (d->isRightToLeft() == (e->key() == Qt::Key_Right)) {
 #ifndef Q_WS_MAC
                 if (echoMode() == Normal)
-                    cursorWordBackward(e->state() & Qt::ShiftButton);
+                    cursorWordBackward(e->modifiers() & Qt::ShiftModifier);
                 else
 #endif
                     home(e->modifiers() & Qt::ShiftModifier);
             } else {
 #ifndef Q_WS_MAC
                 if (echoMode() == Normal)
-                    cursorWordForward(e->state() & Qt::ShiftButton);
+                    cursorWordForward(e->modifiers() & Qt::ShiftModifier);
                 else
 #endif
                     end(e->modifiers() & Qt::ShiftModifier);
@@ -1507,7 +1507,7 @@ void QLineEdit::keyPressEvent(QKeyEvent * e)
         }
         break;
         case Qt::Key_Backspace:
-            if (!d->readOnly) 
+            if (!d->readOnly)
                 backspace();
             break;
         case Qt::Key_Home:
