@@ -43,8 +43,8 @@
 #include "../pics/images.h"
 
 #if defined(Q_WS_MACX)
-//logo is 40x40 on the mac, if it changes - please notify the Qt/Mac team
-static const char * const logo_xpm[] = {
+//icon is 40x40 on the mac, if it changes - please notify the Qt/Mac team
+static const char * const icon_xpm[] = {
 "40 40 543 2",
 "  	c None",
 ". 	c #C9D98D",
@@ -804,8 +804,8 @@ QPixmap PixmapChooser::loadPixmap( const QString &name, Size size )
 	pixmapChooser = new PixmapChooser;
 
 #if defined(Q_WS_MACX)
-    if ( name == "logo" )
-	return QPixmap( logo_xpm );
+    if ( name == "icon" )
+	return QPixmap( icon_xpm );
 #endif
 
     if ( name[ 0 ] == '/' || name[ 0 ] == '\\' || name[ 1 ] == ':' )
