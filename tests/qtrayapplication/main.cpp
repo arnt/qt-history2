@@ -45,7 +45,7 @@ static const char * const edit2_xpm[]={
 ".bb........bb...",
 "..b........b...."};
 
-#include "qtraywidget.h"
+#include "qtrayicon.h"
 
 #include <qapplication.h>
 #include <qpixmap.h>
@@ -59,26 +59,27 @@ int main( int argc, char **argv )
 	QMainWindow mw;
 	app.setMainWidget( &mw );
 
-	QTrayWidget widget( &mw );
-	widget.setIcon( QPixmap( (const char**)edit_xpm ) );
-	widget.setToolTip( "QTrayWidget" );
+	QTrayIcon tray( &app );
+	tray.setIcon( QPixmap( (const char**)edit_xpm ) );
+	tray.setToolTip( "QTrayWidget" );
 
 	QPopupMenu menu;
-	menu.insertItem( "&Hide in System Tray", &widget, SLOT( hide() ) );
+	menu.insertItem( "Test 1" );
 	menu.insertSeparator();
-	menu.insertItem( "&Quit", &app, SLOT(quit()), Qt::CTRL+Qt::Key_Q );
-	widget.setPopup( &menu );
+	menu.insertItem( "&Quit", &app, SLOT(quit()) );
+	tray.setPopup( &menu );
 
-	QTrayWidget widget2( &mw );
-	widget2.setIcon( QPixmap( (const char**)edit2_xpm ) );
-	widget2.setToolTip( "QTrayWidget2" );
+	QTrayIcon tray2( &app );
+	tray2.setIcon( QPixmap( (const char**)edit2_xpm ) );
+	tray2.setToolTip( "QTrayWidget2" );
 
-	QPopupMenu menu2( &widget );
-	menu2.insertItem( "&Show the other guy", &widget, SLOT( show() ) );
-	widget2.setPopup( &menu2 );
+	QPopupMenu menu2;
+	menu2.insertItem( "Test 2" );
+	tray2.setPopup( &menu2 );
 
-	widget.show();
-	widget2.show();
+	QObject::connect(&tray,SIGNAL(clicked(const QPoint&)),&mw,SLOT(hide()));
+	QObject::connect(&tray2,SIGNAL(clicked(const QPoint&)),&mw,SLOT(show()));
+
 	mw.show();
 
 	return app.exec();
