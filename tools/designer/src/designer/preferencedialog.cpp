@@ -87,13 +87,18 @@ PreferenceDialog::PreferenceDialog(QWidget *parent)
     QBoxLayout *layout = new QHBoxLayout();
     mainLayout->addLayout(layout);
     layout->addStretch();
-    QPushButton *btn = new QPushButton(tr("OK"), this);
-    btn->setDefault(true);
-    connect(btn, SIGNAL(clicked()), this, SLOT(accept()));
-    layout->addWidget(btn);
-    btn = new QPushButton(tr("Cancel"), this);
-    connect(btn, SIGNAL(clicked()), this, SLOT(reject()));
-    layout->addWidget(btn);
+    QPushButton *cmdOK = new QPushButton(tr("OK"), this);
+    cmdOK->setDefault(true);
+    connect(cmdOK, SIGNAL(clicked()), this, SLOT(accept()));
+    QPushButton *cmdCancel = new QPushButton(tr("Cancel"), this);
+    connect(cmdCancel, SIGNAL(clicked()), this, SLOT(reject()));
+#ifdef Q_WS_MAC
+    layout->addWidget(cmdCancel);
+    layout->addWidget(cmdOK);
+#else
+    layout->addWidget(cmdOK);
+    layout->addWidget(cmdCancel);
+#endif
 }
 
 PreferenceDialog::~PreferenceDialog()
