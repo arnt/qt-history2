@@ -109,6 +109,7 @@ public:
     void    hideTipAndSleep();
 
     QString find( QWidget *, const QPoint& );
+    void setWakeUpDelay(int);
 
 public slots:
     void    hideTip();
@@ -121,6 +122,7 @@ private slots:
 
 private:
     QTimer  wakeUp;
+    int wakeUpDelay;
     QTimer  fallAsleep;
 
     QPtrDict<Tip> *tips;
@@ -151,6 +153,7 @@ static void initTipManager()
 QTipManager::QTipManager()
     : QObject( qApp, "toolTipManager" )
 {
+    wakeUpDelay = 700;
     tips = new QPtrDict<QTipManager::Tip>( 313 );
     currentTip = 0;
     previousTip = 0;
@@ -429,7 +432,7 @@ bool QTipManager::eventFilter( QObject *obj, QEvent *e )
 			wakeUp.start( 1, TRUE );
 		    } else {
 			previousTip = 0;
-			wakeUp.start( 700, TRUE );
+			wakeUp.start( wakeUpDelay, TRUE );
 		    }
 		    if ( t->group && t->group->ena &&
 			 !t->group->del && !t->groupText.isEmpty() ) {
@@ -603,6 +606,11 @@ QString QTipManager::find( QWidget *w, const QPoint& pos )
 	t = t->next;
 
     return t ? t->text : QString::null;
+}
+
+void QTipManager::setWakeUpDelay ( int i )
+{
+    wakeUpDelay = i;
 }
 
 /*!
@@ -1143,6 +1151,16 @@ bool QToolTip::isGloballyEnabled()
 {
     return globally_enabled;
 }
+
+/*!
+  Sets the wakeup delay for all tooltips
+*/
+void QToolTip::setWakeUpDelay ( int i )
+{
+    initTipManager();
+    tipManager->setWakeUpDelay(i);
+}
+
 
 #include "qtooltip.moc"
 #endif

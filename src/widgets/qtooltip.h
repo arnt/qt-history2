@@ -112,6 +112,7 @@ public:
 #endif
     static void	    setGloballyEnabled( bool );
     static bool	    isGloballyEnabled();
+    static void	    setWakeUpDelay(int);
 
 protected:
     virtual void maybeTip( const QPoint & ) = 0;
