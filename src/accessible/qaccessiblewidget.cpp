@@ -214,7 +214,7 @@ int QAccessibleWidget::navigate(Relation relation, int entry, QAccessibleInterfa
 	if (complexWidget) {
 	    return entry;
 	}else {
-	    if (childList.count() >= entry)
+	    if (entry > 0 && childList.count() >= entry)
 		targetObject = childList.at(entry - 1);
 	}
 	break;
@@ -234,7 +234,7 @@ int QAccessibleWidget::navigate(Relation relation, int entry, QAccessibleInterfa
 	    if (!parentWidget)
 		return -1;
 	    QObjectList ol = parentWidget->queryList("QWidget", 0, 0, FALSE);
-	    if (ol.count() >= entry)
+	    if (entry > 0 && ol.count() >= entry)
 		targetObject = ol.at(entry - 1);
 	}
 	break;
