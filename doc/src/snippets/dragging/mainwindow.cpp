@@ -40,36 +40,39 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
 
 void MainWindow::mouseMoveEvent(QMouseEvent *event)
 {
-    if (clicked && (event->pos() - dragStartPosition).manhattanLength() > 16) {
-        QDrag *drag = new QDrag(this);
-        QMimeData *mimeData = new QMimeData;
+    if (!clicked)
+        return;
+    if ((event->pos() - dragStartPosition).manhattanLength() <= 16)
+        return;
 
-        mimeData->setText(commentEdit->toPlainText());
-        drag->setMimeData(mimeData);
-        drag->setPixmap(iconPixmap);
+    QDrag *drag = new QDrag(this);
+    QMimeData *mimeData = new QMimeData;
 
-        QDrag::DropAction dropAction = drag->start();
-        QString actionText;
-        switch (dropAction) {
-            case QDrag::CopyAction:
-                actionText = tr("The text was copied.");
-                break;
-            case QDrag::MoveAction:
-                actionText = tr("The text was moved.");
-                break;
-            case QDrag::LinkAction:
-                actionText = tr("The text was linked.");
-                break;
-            case QDrag::IgnoreAction:
-                actionText = tr("The drag was ignored.");
-                break;
-            default:
-                actionText = tr("Unknown action.");
-                break;
-        }
-        statusBar()->message(actionText);
-        clicked = false;
+    mimeData->setText(commentEdit->toPlainText());
+    drag->setMimeData(mimeData);
+    drag->setPixmap(iconPixmap);
+
+    QDrag::DropAction dropAction = drag->start();
+    QString actionText;
+    switch (dropAction) {
+        case QDrag::CopyAction:
+            actionText = tr("The text was copied.");
+            break;
+        case QDrag::MoveAction:
+            actionText = tr("The text was moved.");
+            break;
+        case QDrag::LinkAction:
+            actionText = tr("The text was linked.");
+            break;
+        case QDrag::IgnoreAction:
+            actionText = tr("The drag was ignored.");
+            break;
+        default:
+            actionText = tr("Unknown action.");
+            break;
     }
+    statusBar()->message(actionText);
+    clicked = false;
 }
 
 void MainWindow::mouseReleaseEvent(QMouseEvent *event)
