@@ -355,21 +355,25 @@ void SqlFormWizard::accept()
 		QPushButton *pb = create_widget( widget, "PushButtonFirst", "|< &First",
 						 QRect( SPACING * 10, SPACING, SPACING * 3, SPACING ), mdbIface, fIface, wfIface );
 		mdbIface->addConnection( fw, pb, "clicked()", widget, "firstRecord()" );
+		mdbIface->addConnection( fw, widget, "firstRecordAvailable(bool)", pb, "setEnabled(bool)" );
 	    }
 	    if ( checkBoxPrev->isChecked() ) {
 		QPushButton *pb = create_widget( widget, "PushButtonPrev", "<< &Prev",
 						 QRect( SPACING * 13, SPACING, SPACING * 3, SPACING ), mdbIface, fIface, wfIface );
 		mdbIface->addConnection( fw, pb, "clicked()", widget, "prevRecord()" );
+		mdbIface->addConnection( fw, widget, "prevRecordAvailable(bool)", pb, "setEnabled(bool)" );
 	    }
 	    if ( checkBoxNext->isChecked() ) {
 		QPushButton *pb = create_widget( widget, "PushButtonNext", "&Next >>",
 						 QRect( SPACING * 16, SPACING, SPACING * 3, SPACING ), mdbIface, fIface, wfIface );
 		mdbIface->addConnection( fw, pb, "clicked()", widget, "nextRecord()" );
+		mdbIface->addConnection( fw, widget, "nextRecordAvailable(bool)", pb, "setEnabled(bool)" );
 	    }
 	    if ( checkBoxLast->isChecked() ) {
 		QPushButton *pb = create_widget( widget, "PushButtonLast", "&Last >|",
 						 QRect( SPACING * 19, SPACING, SPACING * 3, SPACING ), mdbIface, fIface, wfIface );
 		mdbIface->addConnection( fw, pb, "clicked()", widget, "lastRecord()" );
+		mdbIface->addConnection( fw, widget, "lastRecordAvailable(bool)", pb, "setEnabled(bool)" );
 	    }
 	}
 
