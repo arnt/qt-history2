@@ -849,8 +849,8 @@ void QListView::paintEvent(QPaintEvent *e)
     const QItemSelectionModel *selections = selectionModel();
     const bool focus = q->hasFocus() && current.isValid();
     const bool alternate = d->alternatingColors;
-    const QColor oddColor = d->oddColor;
-    const QColor evenColor = d->evenColor;
+    const QColor oddColor = d->oddRowColor();
+    const QColor evenColor = d->evenRowColor();
     const QStyle::State state = option.state;
     QVector<QModelIndex>::iterator it = d->intersectVector.begin();
     for (; it != d->intersectVector.end(); ++it) {

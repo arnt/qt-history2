@@ -540,8 +540,8 @@ void QTreeView::paintEvent(QPaintEvent *e)
 
     const QStyle::State state = option.state;
     const bool alternate = d->alternatingColors;
-    const QColor oddColor = d->oddColor;
-    const QColor evenColor = d->evenColor;
+    const QColor oddColor = d->oddRowColor();
+    const QColor evenColor = d->evenRowColor();
     const int t = area.top();
     const int b = area.bottom() + 1;
     const int v = verticalScrollBar()->value();

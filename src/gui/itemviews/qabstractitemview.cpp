@@ -80,9 +80,6 @@ void QAbstractItemViewPrivate::init()
     viewport->setBackgroundRole(QPalette::Base);
     viewport->setAttribute(Qt::WA_NoBackground);
 
-    oddColor = q->palette().color(QPalette::Midlight);
-    evenColor = q->palette().color(QPalette::Base);
-
     q->setHorizontalFactor(64);
     q->setVerticalFactor(64);
 

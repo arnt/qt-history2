@@ -82,6 +82,16 @@ public:
         return On;
     }
 
+    inline QColor oddRowColor() const {
+        if (oddColor.isValid()) return oddColor;
+        return q_func()->palette().color(QPalette::Midlight);
+    }
+
+    inline QColor evenRowColor() const {
+        if (evenColor.isValid()) return evenColor;
+        return q_func()->palette().color(QPalette::Base);
+    }
+
     void removeSelectedRows();
 
     QPointer<QAbstractItemModel> model;

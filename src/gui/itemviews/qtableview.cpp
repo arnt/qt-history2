@@ -366,8 +366,8 @@ void QTableView::paintEvent(QPaintEvent *e)
     const bool focus = hasFocus() && current.isValid();
     const QStyle::State state = option.state;
     const bool alternate = d->alternatingColors;
-    const QColor oddColor = d->oddColor;
-    const QColor evenColor = d->evenColor;
+    const QColor oddColor = d->oddRowColor();
+    const QColor evenColor = d->evenRowColor();
 
     // do the actual painting
 

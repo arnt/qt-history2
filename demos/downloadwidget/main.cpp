@@ -113,7 +113,6 @@ int main(int argc, char *argv[])
 
   QTreeWidget *view = new QTreeWidget;
   view->setAlternatingRowColors(true);
-  view->setOddRowColor(0x00f3f3f3);
   view->setRootIsDecorated(false);
   view->setItemDelegate(new DownloadDelegate(view));
   view->setSortingEnabled(true);
