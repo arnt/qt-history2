@@ -16,10 +16,15 @@ class Q_GUI_EXPORT QGenericComboBox : public QWidget
     Q_OBJECT
     Q_DECLARE_PRIVATE(QGenericComboBox)
     Q_ENUMS(InsertionPolicy)
+    Q_PROPERTY(bool editable READ isEditable WRITE setEditable)
+    Q_PROPERTY(int count READ count)
+    Q_PROPERTY(QString currentText READ currentText WRITE setCurrentText DESIGNABLE false)
+    Q_PROPERTY(int currentItem READ currentItem WRITE setCurrentItem)
     Q_PROPERTY(int sizeLimit READ sizeLimit WRITE setSizeLimit)
+    Q_PROPERTY(int maxCount READ maxCount WRITE setMaxCount)
+    Q_PROPERTY(InsertionPolicy insertionPolicy READ insertionPolicy WRITE setInsertionPolicy)
     Q_PROPERTY(bool autoCompletion READ autoCompletion WRITE setAutoCompletion)
     Q_PROPERTY(bool duplicatesEnabled READ duplicatesEnabled WRITE setDuplicatesEnabled)
-    Q_PROPERTY(int maxCount READ maxCount WRITE setMaxCount)
 
 public:
 
@@ -67,8 +72,8 @@ public:
     QModelIndex root() const;
     void setRoot(const QModelIndex &index);
 
-    QModelIndex currentItem() const;
-    void setCurrentItem(const QModelIndex &index);
+    int currentItem() const;
+    void setCurrentItem(int row);
 
     QString currentText() const;
     void setCurrentText(const QString&);
@@ -77,15 +82,21 @@ public:
     QPixmap pixmap (int row) const;
 
     void insertStringList(const QStringList &list, int row = -1);
-    QModelIndex insertItem(const QString &text, int row = -1);
-    QModelIndex insertItem(const QIconSet &icon, int row = -1);
-    QModelIndex insertItem(const QString &text, const QIconSet &icon, int row = -1);
+    void insertItem(const QString &text, int row = -1);
+    void insertItem(const QIconSet &icon, int row = -1);
+    void insertItem(const QString &text, const QIconSet &icon, int row = -1);
 
     void removeItem(int row);
 
-    QModelIndex changeItem(const QString &text, int row);
-    QModelIndex changeItem(const QIconSet &icon, int row);
-    QModelIndex changeItem(const QString &text, const QIconSet &icon, int row);
+    void setItemText(const QString &text, int row);
+    void setItemIcon(const QIconSet &icon, int row);
+    void setItem(const QString &text, const QIconSet &icon, int row);
+#ifdef QT_COMPAT
+    QT_COMPAT void changeItem(const QString &text, int row) { setItemText(text, row); }
+    QT_COMPAT void changeItem(const QIconSet &icon, int row) { setItemIcon(icon, row); }
+    QT_COMPAT void changeItem(const QString &text, const QIconSet &icon, int row)
+        { setItem(text, icon, row); }
+#endif
 
     QGenericListView *listView() const;
 
@@ -118,6 +129,7 @@ protected:
 
 private:
     Q_PRIVATE_SLOT(void itemSelected(const QModelIndex &item))
+    Q_PRIVATE_SLOT(void emitHighlighted(const QModelIndex&))
     Q_PRIVATE_SLOT(void returnPressed())
     Q_PRIVATE_SLOT(void complete())
 };

@@ -176,6 +176,9 @@ public:
         }
         return false;
     }
+    bool isEditable(const QModelIndex &) const {
+        return true;
+    }
     bool insertRows(int row, const QModelIndex &parent, int count) {
         // this model only allows a 1D list
         if (parent.isValid() || count < 1 || row < 0 || row > rowCount(QModelIndex()))
