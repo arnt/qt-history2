@@ -63,6 +63,11 @@ End Sub
   \skipto QAXFACTORY
   \printto int main
 
+  The implementation of \c main returns an error code when 
+  \c QAxFactory::isServer() returns FALSE, otherwise a QApplication
+  object is created and the event loop entered.
+  \printto }
+
   To build the example you must first build the \link qaxserver.html
   QAxServer \endlink library. Then run qmake and your make tool in 
   \c examples/simple.
