@@ -4218,6 +4218,11 @@ QTextFormatCollection::QTextFormatCollection()
     cachedFormat = 0;
 }
 
+QTextFormatCollection::~QTextFormatCollection()
+{
+    delete defFormat;
+}
+
 QTextFormat *QTextFormatCollection::format( QTextFormat *f )
 {
     if ( f->parent() == this ) {

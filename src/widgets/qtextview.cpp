@@ -175,6 +175,8 @@ QTextView::QTextView( const QString& text, const QString& context,
 
 QTextView::~QTextView()
 {
+    delete cursor;
+    delete doc;
     delete buf_pixmap;
 }
 

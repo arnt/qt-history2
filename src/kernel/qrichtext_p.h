@@ -1235,7 +1235,8 @@ class QTextFormatCollection
 
 public:
     QTextFormatCollection();
-
+    ~QTextFormatCollection();
+    
     void setDefaultFormat( QTextFormat *f );
     QTextFormat *defaultFormat() const;
     QTextFormat *format( QTextFormat *f );
