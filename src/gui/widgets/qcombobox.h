@@ -225,6 +225,9 @@ public:
         { setItemIcon(index, QIcon(pix)); setItemText(index, text); }
     inline QT3_SUPPORT void clearValidator() { setValidator(0); }
     inline QT3_SUPPORT void clearEdit() { clearEditText(); }
+
+signals:
+    QT_MOC_COMPAT void textChanged(const QString &);
 #endif
 
 private:

@@ -549,7 +549,7 @@ QComboBox::QComboBox(bool rw, QWidget *parent, const char *name) :
     QString argument and one with an \c int argument. If the user
     highlights or activates a pixmap, only the \c int signals are
     emitted. Whenever the text of an editable combobox is changed the
-    textChanged() signal is emitted.
+    editTextChanged() signal is emitted.
 
     When the user enters a new string in an editable combobox, the
     widget may or may not insert it, and it can insert it in several
@@ -1110,6 +1110,10 @@ void QComboBox::setLineEdit(QLineEdit *edit)
 	d->lineEdit->setParent(this);
     connect(d->lineEdit, SIGNAL(returnPressed()), this, SLOT(returnPressed()));
     connect(d->lineEdit, SIGNAL(textChanged(QString)), this, SLOT(complete()));
+    connect(d->lineEdit, SIGNAL(textChanged(QString)), this, SIGNAL(editTextChanged(QString)));
+#ifdef QT3_SUPPORT
+    connect(d->lineEdit, SIGNAL(textChanged(QString)), this, SIGNAL(textChanged(QString)));
+#endif
     d->lineEdit->setFrame(false);
     d->lineEdit->setContextMenuPolicy(Qt::NoContextMenu);
     d->lineEdit->setFocusProxy(this);
