@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombo.cpp#129 $
+** $Id: //depot/qt/main/src/widgets/qcombo.cpp#130 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -23,7 +23,7 @@
 #include "qlined.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#129 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#130 $");
 
 
 /*!
@@ -320,12 +320,11 @@ QComboBox::QComboBox( bool rw, QWidget *parent, const char *name )
 
     if ( rw ) {
 	d->ed = new QComboData::ComboEdit( this );
-	if ( style() == WindowsStyle ) {
+	d->ed->setFrame( FALSE );
+	if ( style() == WindowsStyle )
 	    d->ed->setGeometry( 2, 2, width() - 2 - 2 - 16, height() - 2 - 2 );
-	    d->ed->setFrame( FALSE );
-	} else {
+	else
 	    d->ed->setGeometry( 3, 3, width() - 3 - 3 - 21, height() - 3 - 3 );
-	}
 	d->ed->installEventFilter( this );
 	setFocusProxy( d->ed );
 
@@ -979,7 +978,7 @@ void QComboBox::paintEvent( QPaintEvent *event )
 	if ( ax + awh + 2 < width() )
 	    ax += ( width() - 2 - ax - awh ) / 2;
 
-	qDrawShadePanel( &p, rect(), g, FALSE, 2, &fill );
+	qDrawShadePanel( &p, rect(), g, FALSE, d->ed ? 1 : 2, &fill );
 
 	qDrawArrow( &p, DownArrow, MotifStyle, FALSE,
 		    ax, ay, awh, awh, g );
@@ -991,17 +990,23 @@ void QComboBox::paintEvent( QPaintEvent *event )
 	p.drawLine( ax+1, sy+sh-1, ax+awh-1, sy+sh-1 );
 	p.drawLine( ax+awh-1, sy+1, ax+awh-1, sy+sh-1 );
 
-	QRect clip( 3, 3, width() - 3 - 3 - 21, height() - 3 - 3 );
-	const char *str = d->listBox->text( d->current );
-	if ( str ) {
-	    p.setPen( g.foreground() );
-	    p.drawText( clip, AlignCenter | SingleLine, str );
+	if ( d->ed ) {
+	    QRect r( d->ed->geometry() );
+	    r.setRect( r.left()-1, r.top()-1, r.width()+2, r.height()+2 );
+	    qDrawShadePanel( &p, r, g, TRUE, d->ed ? 1 : 2, &fill );
 	} else {
-	    const QPixmap *pix = d->listBox->pixmap( d->current );
-	    if ( pix ) {
-		p.setClipRect( clip );
-		p.drawPixmap( 4, (height()-pix->height())/2, *pix );
-		p.setClipping( FALSE );
+	    QRect clip( 3, 3, width() - 3 - 3 - 21, height() - 3 - 3 );
+	    const char *str = d->listBox->text( d->current );
+	    if ( str ) {
+		p.setPen( g.foreground() );
+		p.drawText( clip, AlignCenter | SingleLine, str );
+	    } else {
+		const QPixmap *pix = d->listBox->pixmap( d->current );
+		if ( pix ) {
+		    p.setClipRect( clip );
+		    p.drawPixmap( 4, (height()-pix->height())/2, *pix );
+		    p.setClipping( FALSE );
+		}
 	    }
 	}
 
@@ -1027,9 +1032,9 @@ void QComboBox::paintEvent( QPaintEvent *event )
 	if ( hasFocus() ) {
 	    QBrush fill( QApplication::winStyleHighlightColor() );
 	    p.fillRect( textR.x()-1, textR.y(),
-		textR.width(), textR.height(), fill );
+			textR.width(), textR.height(), fill );
 	    p.drawWinFocusRect( textR.x()-2, textR.y()-1,
-		textR.width()+2, textR.height()+2, backgroundColor() );
+				textR.width()+2, textR.height()+2, backgroundColor() );
 	}
 
 	p.setClipRect( textR );
