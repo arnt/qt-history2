@@ -756,7 +756,7 @@ void SetupWizardImpl::logFiles( const QString& entry, bool close )
     }
     QTextStream outstream( &fileLog );
 
-    filesDisplay->append( entry );
+    filesDisplay->append( entry + "\n" );
 //    filesDisplay->setText( filesDisplay->text() + entry );
     outstream << entry;
 
