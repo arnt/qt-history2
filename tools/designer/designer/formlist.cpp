@@ -29,6 +29,8 @@
 #include <qdragobject.h>
 #include <qfileinfo.h>
 #include <qapplication.h>
+#include <qpainter.h>
+#include <qpen.h>
 
 FormListItem::FormListItem( QListView *parent, const QString &form, const QString &file, FormWindow *fw )
     : QListViewItem( parent, form, file ), formwindow( fw )

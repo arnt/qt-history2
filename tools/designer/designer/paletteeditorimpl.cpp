@@ -34,6 +34,7 @@
 #include <qfiledialog.h>
 #include <qstring.h>
 #include <qscrollview.h>
+#include <qpainter.h>
 
 #include "mainwindow.h"
 #include "formwindow.h"

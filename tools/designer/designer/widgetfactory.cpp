@@ -67,6 +67,7 @@
 #include <qwidgetstack.h>
 #include <qwizard.h>
 #include <qvaluelist.h>
+#include <qtimer.h>
 
 #include <globaldefs.h>
 

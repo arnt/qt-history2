@@ -36,6 +36,7 @@
 #include <qiconset.h>
 #include <qstylesheet.h>
 #include <qprinter.h>
+#include <qpainter.h>
 #include <qsimplerichtext.h>
 #include <qpaintdevicemetrics.h>
 #include <qtextbrowser.h>

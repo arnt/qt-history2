@@ -40,6 +40,7 @@
 #include <qurl.h>
 #include <qheader.h>
 #include <qtextbrowser.h>
+#include <qtimer.h>
 
 class MyString : public QString
 {
