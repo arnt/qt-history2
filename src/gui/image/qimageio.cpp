@@ -1998,11 +1998,11 @@ static void write_xbm_image(QImageIO *iio)
 {
     QIODevice *d = iio->ioDevice();
     QImage     image = iio->image();
-    int               w = image.width();
-    int               h = image.height();
-    int               i;
-    QString    s = fbname(iio->fileName());        // get file base name
-    char       buf[100];
+    int	       w = image.width();
+    int	       h = image.height();
+    int	       i;
+    QString    s = fbname(iio->fileName());	// get file base name
+    char *buf = new char[s.length() + 100];
 
     sprintf(buf, "#define %s_width %d\n", s.ascii(), w);
     d->write(buf, qstrlen(buf));
@@ -2014,56 +2014,55 @@ static void write_xbm_image(QImageIO *iio)
     iio->setStatus(0);
 
     if (image.depth() != 1)
-        image = image.convertDepth(1);        // dither
+	image = image.convertDepth(1);	// dither
     if (image.bitOrder() != QImage::LittleEndian)
         image = image.convertBitOrder(QImage::LittleEndian);
 
     bool invert = qGray(image.color(0)) < qGray(image.color(1));
     char hexrep[16];
     for (i=0; i<10; i++)
-        hexrep[i] = '0' + i;
+	hexrep[i] = '0' + i;
     for (i=10; i<16; i++)
-        hexrep[i] = 'a' -10 + i;
+	hexrep[i] = 'a' -10 + i;
     if (invert) {
-        char t;
-        for (i=0; i<8; i++) {
-            t = hexrep[15-i];
-            hexrep[15-i] = hexrep[i];
-            hexrep[i] = t;
-        }
+	char t;
+	for (i=0; i<8; i++) {
+	    t = hexrep[15-i];
+	    hexrep[15-i] = hexrep[i];
+	    hexrep[i] = t;
+	}
     }
     int bcnt = 0;
     register char *p = buf;
-    uchar *b = image.scanLine(0);
-    int         x=0, y=0;
-    w = (w+7)/8;
-    while (y < h && x < w) {                        // write all bytes
-        *p++ = '0';  *p++ = 'x';
-        *p++ = hexrep[(*b) >> 4];
-        *p++ = hexrep[(*b) & 0xf];
-        ++b;
-        if (++x == w && y < h-1) {
-            b = image.scanLine(++y);
-            x = 0;
-        }
-        if (y < h && x < w) {
-            *p++ = ',';
-            if (++bcnt > 14) {
-                *p++ = '\n';
-                *p++ = ' ';
-                *p   = '\0';
-                if ((int)qstrlen(buf) != d->write(buf, qstrlen(buf))) {
-                    iio->setStatus(1);
-                    return;
+    int bpl = (w+7)/8;
+    for (int y = 0; y < h; ++y) {
+        uchar *b = image.scanLine(y);
+        for (i = 0; i < bpl; ++i) {
+            *p++ = '0'; *p++ = 'x';
+            *p++ = hexrep[*b >> 4];
+            *p++ = hexrep[*b++ & 0xf];
+
+            if (i < bpl - 1 || y < h - 1) {
+                *p++ = ',';
+                if (++bcnt > 14) {
+                    *p++ = '\n';
+                    *p++ = ' ';
+                    *p   = '\0';
+                    if ((int)qstrlen(buf) != d->write(buf, qstrlen(buf))) {
+                        iio->setStatus(1);
+                        delete [] buf;
+                        return;
+                    }
+                    p = buf;
+                    bcnt = 0;
                 }
-                p = buf;
-                bcnt = 0;
             }
         }
     }
     strcpy(p, " };\n");
     if ((int)qstrlen(buf) != d->write(buf, qstrlen(buf)))
-        iio->setStatus(1);
+	iio->setStatus(1);
+    delete [] buf;
 }
 
 #endif // QT_NO_IMAGEIO_XBM
