@@ -24,7 +24,7 @@ public:
 	mwIface = 0;
     }
 
-    QApplicationInterface* requestInterface( const QCString& request );
+    QApplicationInterface* requestApplicationInterface( const QCString& request );
 
 protected:
     PlugMainWindowInterface* mwIface;
