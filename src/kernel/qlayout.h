@@ -186,7 +186,7 @@ public:
     QMenuBar *menuBar() const { return menubar; }
 #endif
 
-    QWidget *mainWidget();
+    QWidget *parentWidget() const;
     bool isTopLevel() const { return topLevel; }
 
     virtual void setAutoAdd( bool );
@@ -197,7 +197,7 @@ public:
     bool activate();
     void update();
 
-    void add( QWidget *w ) { addItem( new QWidgetItem(w)); }
+    void add( QWidget *w );
     virtual void addItem( QLayoutItem * ) = 0;
 
     void remove( QWidget *w );
@@ -257,6 +257,11 @@ private:
 #endif
 
     static void propagateSpacing( QLayout *layout );
+#ifndef QT_NO_COMPAT
+public:
+    inline QWidget *mainWidget() const { return parentWidget(); }
+
+#endif
 };
 
 inline void QLayoutIterator::deleteCurrent()
@@ -313,9 +318,6 @@ public:
     void addLayout( QLayout *layout, int row, int col);
     void addMultiCellLayout( QLayout *layout, int fromRow, int toRow,
 			     int fromCol, int toCol, int align = 0 );
-    void addRowSpacing( int row, int minsize );
-    void addColSpacing( int col, int minsize );
-
     void expand( int rows, int cols );
 
     enum Corner { TopLeft, TopRight, BottomLeft, BottomRight };
@@ -336,6 +338,11 @@ private:
 
     void init( int rows, int cols );
     QGridLayoutData *data;
+#ifndef QT_NO_COMPAT
+public:
+    void addRowSpacing( int row, int minsize ) { add(new QSpacerItem(0,minsize), row, 0); }
+    void addColSpacing( int col, int minsize ) { add(new QSpacerItem(minsize,0), 0, col); }
+#endif
 };
 
 class QBoxLayoutData;

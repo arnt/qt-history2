@@ -684,12 +684,14 @@ QLayout::QLayout( int spacing, const char *name )
 */
 
 /*!
-    \fn void QLayout::add( QWidget *w )
-
     Adds widget \a w to this layout in a manner specific to the
     layout. This function uses addItem().
 */
-
+void QLayout::add( QWidget *w )
+{
+    addChildWidget(w);
+    addItem( new QWidgetItem(w));
+}
 /*!
     \fn QMenuBar* QLayout::menuBar () const
 
@@ -739,15 +741,15 @@ void QLayout::setSpacing( int spacing )
 }
 
 /*!
-    Returns the main widget (parent widget) of this layout, or 0 if
+    Returns the parent widget of this layout, or 0 if
     this layout is a sub-layout that is not yet inserted.
 */
-QWidget * QLayout::mainWidget()
+QWidget * QLayout::parentWidget() const
 {
     if ( !topLevel ) {
 	if ( parent() ) {
 	    Q_ASSERT( qt_cast<QLayout*>(parent()) );
-	    return static_cast<QLayout*>(parent())->mainWidget();
+	    return static_cast<QLayout*>(parent())->parentWidget();
 	} else {
 	    return 0;
 	}
@@ -1032,7 +1034,7 @@ void QLayout::addChildLayout( QLayout *l )
 */
 void QLayout::addChildWidget(QWidget *w)
 {
-    QWidget *mw = mainWidget();
+    QWidget *mw = parentWidget();
     QWidget *pw = w->parentWidget();
 
     //WA_Layouted is never reset. It only means that the widget at some point has
@@ -1079,7 +1081,7 @@ void QLayout::freeze( int w, int h )
 	setResizeMode( Fixed );
     } else {
 	setResizeMode( FreeResize ); // layout will not change min/max size
-	mainWidget()->setFixedSize( w, h );
+	parentWidget()->setFixedSize( w, h );
     }
 }
 
@@ -1153,7 +1155,7 @@ void QLayout::activateRecursiveHelper(QLayoutItem *item)
 }
 
 /*!
-  Updates the layout for mainWidget().
+  Updates the layout for parentWidget().
 
   You should generally not need to call this because it is
   automatically called at the most appropriate times.
@@ -1178,7 +1180,7 @@ void QLayout::update()
 }
 
 /*!
-    Redoes the layout for mainWidget() if necessary.
+    Redoes the layout for parentWidget() if necessary.
 
     You should generally not need to call this because it is
     automatically called at the most appropriate times.
@@ -1734,10 +1736,10 @@ QLayout::ResizeMode QLayout::resizeMode() const
     \fn bool QLayout::autoAdd() const
 
     Returns TRUE if this layout automatically grabs all new
-    mainWidget()'s new children and adds them as defined by addItem();
+    parentWidget()'s new children and adds them as defined by addItem();
     otherwise returns FALSE. This has effect only for top-level
     layouts, i.e. layouts that are direct children of their
-    mainWidget().
+    parentWidget().
 
     autoAdd() is disabled by default.
 

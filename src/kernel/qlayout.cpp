@@ -1357,38 +1357,6 @@ void QGridLayout::setColStretch( int col, int stretch )
     data->setColStretch( col, stretch );
 }
 
-#if QT_VERSION >= 0x040000
-#  ifdef Q_CC_GNU
-#    warning "Make add{Row,Col}Spacing() inline QT_NO_COMPAT functions defined in terms of set{Row,Col}Spacing()"
-#  endif
-#endif
-
-/*!
-    \obsolete
-
-    Sets the minimum height of row \a row to \a minsize pixels.
-
-    Use setRowSpacing() instead.
-*/
-void QGridLayout::addRowSpacing( int row, int minsize )
-{
-    QLayoutItem *b = new QSpacerItem( 0, minsize );
-    add( b, row, 0 );
-}
-
-/*!
-    \obsolete
-
-    Sets the minimum width of column \a col to \a minsize pixels.
-
-    Use setColSpacing() instead.
-*/
-void QGridLayout::addColSpacing( int col, int minsize )
-{
-    QLayoutItem *b = new QSpacerItem( minsize, 0 );
-    add( b, 0, col );
-}
-
 /*!
     Sets the minimum height of row \a row to \a minSize pixels.
 
