@@ -1841,8 +1841,9 @@ bool QCoreVariant::operator==(const QCoreVariant &v) const
  */
 void *QCoreVariant::rawAccess(void *ptr, Type typ, bool deepCopy)
 {
+    Q_ASSERT(d->type == Invalid);
     if (ptr) {
-	clear();
+	detach();
 	d->type = typ;
 	d->value.ptr = ptr;
 	d->is_null = false;
