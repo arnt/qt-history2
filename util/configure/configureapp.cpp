@@ -682,31 +682,6 @@ void Configure::generateCachefile()
 	    configStream << "DEFINES+= QT_NO_STL"; 
 	configFile.close();
     }
-
-    // Generate shadow .qmake.cache file in src/
-    // This is to avoid problems on Windows
-    QStringList srcConfig = qmakeConfig;
-    if( dictionary[ "SHARED" ] == "yes" )
-	srcConfig += "dll";
-    else
-	srcConfig += "staticlib";
-    
-    cacheFile.setName( qtDir + "\\src\\.qmake.cache" );
-    if( cacheFile.open( IO_WriteOnly | IO_Translate ) ) { // Truncates any existing file.
-	QTextStream cacheStream( &cacheFile );
-	for( QStringList::Iterator var = qmakeVars.begin(); var != qmakeVars.end(); ++var ) {
-	    cacheStream << (*var) << endl;
-	}
-	cacheStream << "CONFIG+=" << srcConfig.join( " " ) << endl;
-	cacheStream << "QMAKESPEC=" << dictionary[ "QMAKESPEC" ] << endl;
-	if( !qmakeIncludes.isEmpty() ) {
-	    cacheStream << "INCLUDEPATH=";
-	    for( QStringList::Iterator incs = qmakeIncludes.begin(); incs != qmakeIncludes.end(); ++incs )
-		cacheStream << (*incs);
-	    cacheStream << endl;
-	}
-	cacheFile.close();
-    }
 }
 
 void Configure::generateConfigfiles()
