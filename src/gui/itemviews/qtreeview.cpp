@@ -851,7 +851,8 @@ QRect QTreeView::selectionViewportRect(const QItemSelection &selection) const
     int bottomPos = d->coordinate(bottom) + bottomHeight;
     int topPos = d->coordinate(top);
 
-    return QRect(0, topPos, d->viewport->width(), bottomPos - topPos); // always the width of a row
+    QRect rect(0, topPos, d->viewport->width(), bottomPos - topPos); // always the width of a row
+    return rect.normalize();
 }
 
 /*!
@@ -1044,8 +1045,6 @@ void QTreeView::updateGeometries()
     setViewportMargins(0, hint.height(), 0, 0);
 
     QRect vg = d->viewport->geometry();
-//     if (QApplication::reverseLayout())
-//         d->header->setOffset(vg.width() - hint.width());
     QRect geometryRect(vg.left(), vg.top() - hint.height(), vg.width(), hint.height());
     d->header->setGeometry(geometryRect);
 

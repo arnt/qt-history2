@@ -559,8 +559,8 @@ QRect QTableView::selectionViewportRect(const QItemSelection &selection) const
     int bottom = 0;
     int right = 0;
     int rangeTop, rangeLeft, rangeBottom, rangeRight;
-    int i;
-    for (i = 0; i < selection.count(); ++i) {
+
+    for (int i = 0; i < selection.count(); ++i) {
         QItemSelectionRange r = selection.at(i);
         if (r.parent().isValid())
             continue;
@@ -588,8 +588,9 @@ QRect QTableView::selectionViewportRect(const QItemSelection &selection) const
     int topPos = rowViewportPosition(topRow);
     int rightPos = columnViewportPosition(rightCol) + columnWidth(rightCol);
     int bottomPos = rowViewportPosition(bottomRow) + rowHeight(bottomRow);
-
-    return QRect(leftPos, topPos, rightPos - leftPos, bottomPos - topPos);
+    
+    QRect rect(leftPos, topPos, rightPos - leftPos, bottomPos - topPos);
+    return rect.normalize();
 }
 
 
@@ -645,8 +646,6 @@ void QTableView::updateGeometries()
     setViewportMargins(reverse ? 0 : width, height, reverse ? width : 0, 0);
 
     QRect vg = d->viewport->geometry();
-//    if (QApplication::reverseLayout())
-//        d->horizontalHeader->setOffset(vg.width() - topHint.width());
 
     int verticalLeft = reverse ? vg.right() : (vg.left() - width);
     d->verticalHeader->setGeometry(verticalLeft, vg.top(), width, vg.height());
