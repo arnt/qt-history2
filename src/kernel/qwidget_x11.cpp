@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#92 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#93 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#92 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#93 $")
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -542,10 +542,25 @@ QWidget *QWidget::keyboardGrabber()
 
 
 /*!
+  Sets the window this widget is part of to be the active window.
+  An active window is a top level window that has the keyboard
+  input focus.
+
+  This function performs the same operation as clicking the mouse on
+  the title bar of a top level window.
+*/
+
+void QWidget::setActiveWindow()
+{
+    XSetInputFocus( dpy, topLevelWidget()->id(), RevertToNone, CurrentTime );
+}
+
+
+/*!
   Gives the keyboard input focus to the widget.
 */
 
-void QWidget::setFocus()			// set keyboard input focus
+void QWidget::setFocus()
 {
     QWidget *oldFocus = qApp->focusWidget();
     if ( this == oldFocus )			// has already focus

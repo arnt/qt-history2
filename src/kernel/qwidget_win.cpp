@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#13 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#14 $
 **
 ** Implementation of QWidget and QWindow classes for Windows
 **
@@ -19,7 +19,7 @@
 #include "qobjcoll.h"
 #include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_win.cpp#13 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_win.cpp#14 $")
 
 
 const char *qt_reg_winclass( int type );	// defined in qapp_win.cpp
@@ -319,7 +319,13 @@ QWidget *QWidget::keyboardGrabber()
 }
 
 
-void QWidget::setFocus()			// set keyboard input focus
+void QWidget::setActiveWindow()
+{
+    SetActiveWindow( topLevelWidget()->id() );
+}
+
+
+void QWidget::setFocus()
 {
     QWidget *oldFocus = qApp->focusWidget();
     if ( this == oldFocus )			// has already focus
