@@ -19,7 +19,7 @@
 
 #include "../shared/qaxtypes.h"
 
-static QString docuFromName(ITypeInfo *typeInfo, const QString &name)
+QString qax_docuFromName(ITypeInfo *typeInfo, const QString &name)
 {
     QString docu;
     if (!typeInfo)
@@ -38,7 +38,6 @@ static QString docuFromName(ITypeInfo *typeInfo, const QString &name)
         SysFreeString(docStringBstr);
         SysFreeString(helpFileBstr);
         if (hres == S_OK) {
-            docu += "<p>";
             if (!docString.isEmpty())
                 docu += docString + "\n";
             if (!helpFile.isEmpty())
@@ -47,6 +46,11 @@ static QString docuFromName(ITypeInfo *typeInfo, const QString &name)
     }
 
     return docu;
+}
+
+static inline QString docuFromName(ITypeInfo *typeInfo, const QString &name)
+{
+    return QString("<p>") + qax_docuFromName(typeInfo, name);
 }
 
 static QByteArray namedPrototype(const QList<QByteArray> &parameterTypes, const QList<QByteArray> &parameterNames, int numDefArgs = 0)
