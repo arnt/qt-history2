@@ -3,7 +3,7 @@
    NOTICE */
 
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayoutengine.cpp#3 $
+** $Id: //depot/qt/main/src/kernel/qlayoutengine.cpp#4 $
 **
 ** Implementation of QLayout functionality
 **
@@ -75,6 +75,7 @@ void qGeomCalc( QArray<QLayoutStruct> &chain, int count, int pos,
 	wannaGrow = wannaGrow ||  chain[i].expansive;
     }
 
+    int extraspace = 0;
     if ( spacerCount )
 	spacerCount -= 1; //only spacers between things
     if ( space < cMin + spacerCount*spacer ) {
@@ -138,6 +139,8 @@ void qGeomCalc( QArray<QLayoutStruct> &chain, int count, int pos,
 		n--;
 	    }
 	}
+	extraspace =  space_left;
+
 	bool finished = n == 0;
 	while ( !finished ) {
 	    finished = TRUE;
@@ -147,6 +150,7 @@ void qGeomCalc( QArray<QLayoutStruct> &chain, int count, int pos,
 	    for ( i = 0; i < count; i++ ) {
 		if ( chain[i].done )
 		    continue;
+		extraspace = 0;
 		if ( sumStretch <= 0 )
 		    fp_w += fp_space / n;
 		else
@@ -167,11 +171,16 @@ void qGeomCalc( QArray<QLayoutStruct> &chain, int count, int pos,
 	}
     }
 
-    int p = pos;
+    //as a last resort, we distribute the unwanted space equally 
+    //among the spacers (counting the start and end of the chain).
+
+    //fixed delta = 0; ### should do a sub-pixel allocation of extra space
+    int extra = extraspace / ( spacerCount + 2 );
+    int p = pos+extra;
     for ( i = 0; i < count; i++ ) {
 	chain[i].pos = p;
 	p = p + chain[i].size;
 	if ( !chain[i].empty )
-	    p += spacer;
+	    p += spacer+extra;
     }
 }
