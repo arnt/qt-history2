@@ -32,4 +32,4 @@ depend:
 	set -e; for i in $(SUBDIRS); do ( cd $$i ; $(MAKE) depend ) ; done
 
 clean:
-	set -e; for i in $(SUBDIRS); do ( cd $$ i ; $(MAKE) clean ) ; done
+	set -e; for i in $(SUBDIRS); do ( cd $$i ; $(MAKE) clean ) ; done
