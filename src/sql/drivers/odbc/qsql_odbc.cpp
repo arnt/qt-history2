@@ -22,6 +22,7 @@
 #include <qdatetime.h>
 #include <qsqlfield.h>
 #include <qmap.h>
+#include <qvector.h>
 #include <private/qinternal_p.h>
 
 // undefine this to prevent initial check of the ODBC driver
@@ -75,9 +76,9 @@ public:
 	unicode = FALSE;
     }
 
-    inline void clearValues() 
+    inline void clearValues()
     { fieldCache.fill(QCoreVariant()); }
-    
+
     SQLHANDLE hEnv;
     SQLHANDLE hDbc;
     SQLHANDLE hStmt;
@@ -218,7 +219,7 @@ static QString qGetStringData( SQLHANDLE hStmt, int column, int colSize, bool un
 
     if ( colSize <= 0 ) {
 	colSize = 255;
-    } else if ( colSize > 65536 ) { // limit buffer size to 64 KB 
+    } else if ( colSize > 65536 ) { // limit buffer size to 64 KB
 	colSize = 65536;
     } else {
 	colSize++; // make sure there is room for more than the 0 termination
@@ -465,7 +466,7 @@ bool QODBCDriverPrivate::setConnectionOptions( const QString& connOpts )
 		} else if ( val == "SQL_MODE_READ_WRITE" ) {
 		    v = SQL_MODE_READ_WRITE;
 		} else {
-		    qWarning( QString( "QODBCDriver::open: Unknown option value '%1'" ).arg( *it ) );
+		    qWarning("QODBCDriver::open: Unknown option value '%s'", it.value().local8Bit());
 		    continue;
 		}
 		r = SQLSetConnectAttr( hDbc, SQL_ATTR_ACCESS_MODE, (SQLPOINTER) v, 0 );
@@ -490,7 +491,7 @@ bool QODBCDriverPrivate::setConnectionOptions( const QString& connOpts )
 		} else if ( val == "SQL_FALSE" ) {
 		    v = SQL_FALSE;
 		} else {
-		    qWarning( QString( "QODBCDriver::open: Unknown option value '%1'" ).arg( *it ) );
+		    qWarning("QODBCDriver::open: Unknown option value '%s'", it.value().local8Bit());
 		    continue;
 		}
 		r = SQLSetConnectAttr( hDbc, SQL_ATTR_METADATA_ID, (SQLPOINTER) v, 0 );
@@ -512,7 +513,7 @@ bool QODBCDriverPrivate::setConnectionOptions( const QString& connOpts )
 		} else if ( val == "SQL_OPT_TRACE_ON" ) {
 		    v = SQL_OPT_TRACE_ON;
 		} else {
-		    qWarning( QString( "QODBCDriver::open: Unknown option value '%1'" ).arg( val ) );
+		    qWarning("QODBCDriver::open: Unknown option value '%s'", val.local8Bit());
 		    continue;
 		}
 		r = SQLSetConnectAttr( hDbc, SQL_ATTR_TRACE, (SQLPOINTER) v, 0 );
@@ -527,7 +528,7 @@ bool QODBCDriverPrivate::setConnectionOptions( const QString& connOpts )
 		else if (val == "SQL_CP_DEFAULT")
 		    v = SQL_CP_DEFAULT;
 		else {
-		    qWarning( QString( "QODBCDriver::open: Unknown option value '%1'" ).arg( val ) );
+		    qWarning("QODBCDriver::open: Unknown option value '%s'", val.local8Bit());
 		    continue;
 		}
 		r = SQLSetConnectAttr(hDbc, SQL_ATTR_CONNECTION_POOLING, (SQLPOINTER)v, 0);
@@ -539,13 +540,13 @@ bool QODBCDriverPrivate::setConnectionOptions( const QString& connOpts )
 		else if (val == "SQL_CP_MATCH_DEFAULT")
 		    v = SQL_CP_MATCH_DEFAULT;
 		else {
-		    qWarning(QString("QODBCDriver::open: Unknown option value '%1'").arg(val));
+		    qWarning("QODBCDriver::open: Unknown option value '%s'", val.local8Bit());
                     continue;
 		}
 		r = SQLSetConnectAttr(hDbc, SQL_ATTR_CP_MATCH, (SQLPOINTER)v, 0);
 #endif
 	    } else {
-		  qWarning( QString("QODBCDriver::open: Unknown connection attribute '%1'").arg( opt ) );
+		  qWarning("QODBCDriver::open: Unknown connection attribute '%s'", opt.local8Bit());
 	    }
 	    if ( r != SQL_SUCCESS && r != SQL_SUCCESS_WITH_INFO )
 		qSqlWarning( QString("QODBCDriver::open: Unable to set connection attribute '%1'").arg( opt ), this );
@@ -765,7 +766,7 @@ bool QODBCResult::fetchLast()
 {
     SQLRETURN r;
     d->clearValues();
-    
+
     if ( isForwardOnly() ) {
 	// cannot seek to last row in forwardOnly mode, so we have to use brute force
 	int i = at();
@@ -773,7 +774,7 @@ bool QODBCResult::fetchLast()
 	    return FALSE;
 	if ( i == QSql::BeforeFirst )
 	    i = 0;
-	while ( fetchNext() ) 
+	while ( fetchNext() )
 	    ++i;
 	setAt( i );
 	return TRUE;
@@ -807,7 +808,7 @@ QCoreVariant QODBCResult::data( int field )
 	return d->fieldCache.at(field);
     SQLRETURN r(0);
     SQLINTEGER lengthIndicator = 0;
-    
+
     const QSqlField *info = d->rInf.field(field);
     switch (info->type()) {
 	case QCoreVariant::LongLong:
@@ -871,7 +872,7 @@ QCoreVariant QODBCResult::data( int field )
 	    break;
 	// ###	case QCoreVariant::CString:
 	default:
-	    d->fieldCache[field] = QCoreVariant( qGetStringData( d->hStmt, field, 
+	    d->fieldCache[field] = QCoreVariant( qGetStringData( d->hStmt, field,
 							      info->length(), false ) );
 	    break;
     }
@@ -920,7 +921,7 @@ bool QODBCResult::prepare( const QString& query )
 	    qSqlWarning( "QODBCResult::prepare: Unable to close statement", d );
 	    return FALSE;
 	}
-    } 
+    }
     r  = SQLAllocHandle( SQL_HANDLE_STMT,
 	    		 d->hDbc,
 			 &d->hStmt );
@@ -959,7 +960,7 @@ bool QODBCResult::prepare( const QString& query )
     if ( r != SQL_SUCCESS ) {
 	qSqlWarning( "QODBCResult::prepare: Unable to prepare statement", d );
 	return FALSE;
-    }    
+    }
     return TRUE;
 }
 
@@ -1156,11 +1157,11 @@ bool QODBCResult::exec()
 	setSelect( FALSE );
     }
     setActive( TRUE );
-    
+
     //get out parameters
     if ( hasOutValues() ) {
-	for ( i = 0; i < values.count(); ++i ) {    
-	
+	for ( i = 0; i < values.count(); ++i ) {
+
 	    SQLINTEGER* indPtr = qAutoDeleterData( (QAutoDeleter<SQLINTEGER>*)tmpStorage.first() );
 	    if ( !indPtr )
 		return FALSE;
@@ -1185,7 +1186,7 @@ bool QODBCResult::exec()
 		    break; }
 		case QCoreVariant::DateTime: {
 		    TIMESTAMP_STRUCT * dt = qAutoDeleterData( (QAutoDeleter<TIMESTAMP_STRUCT>*)tmpStorage.first() );
-		    values[i] = QCoreVariant( QDateTime( QDate( dt->year, dt->month, dt->day ), 
+		    values[i] = QCoreVariant( QDateTime( QDate( dt->year, dt->month, dt->day ),
 								       QTime( dt->hour, dt->minute, dt->second ) ) );
 		    break; }
 	        case QCoreVariant::Int: {
@@ -1323,7 +1324,7 @@ bool QODBCDriver::open( const QString & db,
 
     if ( !d->setConnectionOptions( connOpts ) )
 	return FALSE;
-    
+
     // Create the connection string
     QString connQStr;
     // support the "DRIVER={SQL SERVER};SERVER=blah" syntax
@@ -1417,7 +1418,7 @@ void QODBCDriverPrivate::checkUnicode()
     SQLUINTEGER fFunc;
 
     unicode = FALSE;
-    r = SQLGetInfo( hDbc, 
+    r = SQLGetInfo( hDbc,
 		    SQL_CONVERT_CHAR,
 		    (SQLPOINTER)&fFunc,
 		    sizeof(fFunc),
@@ -1427,7 +1428,7 @@ void QODBCDriverPrivate::checkUnicode()
 	unicode = TRUE;
     }
 
-    r = SQLGetInfo( hDbc, 
+    r = SQLGetInfo( hDbc,
 		    SQL_CONVERT_VARCHAR,
 		    (SQLPOINTER)&fFunc,
 		    sizeof(fFunc),
@@ -1453,7 +1454,7 @@ bool QODBCDriverPrivate::checkDriver() const
 #ifdef ODBC_CHECK_DRIVER
     // do not query for SQL_API_SQLFETCHSCROLL because it can't be used at this time
     static const SQLUSMALLINT reqFunc[] = {
-		SQL_API_SQLDESCRIBECOL, SQL_API_SQLGETDATA, SQL_API_SQLCOLUMNS, 
+		SQL_API_SQLDESCRIBECOL, SQL_API_SQLGETDATA, SQL_API_SQLCOLUMNS,
 		SQL_API_SQLGETSTMTATTR, SQL_API_SQLGETDIAGREC, SQL_API_SQLEXECDIRECT,
 		SQL_API_SQLGETINFO, SQL_API_SQLTABLES, 0
     };
@@ -1466,7 +1467,7 @@ bool QODBCDriverPrivate::checkDriver() const
     SQLRETURN r;
     SQLUSMALLINT sup;
 
-    
+
     int i;
     // check the required functions
     for ( i = 0; reqFunc[ i ] != 0; ++i ) {
@@ -1508,7 +1509,7 @@ void QODBCDriverPrivate::checkSchemaUsage()
     SQLRETURN   r;
     SQLUINTEGER val;
 
-    r = SQLGetInfo(hDbc, 
+    r = SQLGetInfo(hDbc,
 		   SQL_SCHEMA_USAGE,
 		   (SQLPOINTER) &val,
 		   sizeof(val),
@@ -1690,7 +1691,7 @@ QSqlIndex QODBCDriver::primaryIndex( const QString& tablename ) const
 			(SQLCHAR*)table.latin1(),
 #endif
 			table.length() /* in characters, not in bytes */);
-    
+
     // if the SQLPrimaryKeys() call does not succeed (e.g the driver
     // does not support it) - try an alternative method to get hold of
     // the primary index (e.g MS Access and FoxPro)
@@ -1714,7 +1715,7 @@ QSqlIndex QODBCDriver::primaryIndex( const QString& tablename ) const
 #else
 				   (SQLCHAR*)table.latin1(),
 #endif
-				   
+
 				   table.length(),
 				   SQL_SCOPE_CURROW,
 				   SQL_NULLABLE );
@@ -1834,7 +1835,7 @@ QString QODBCDriver::formatValue( const QSqlField* field,
 	// Use an escape sequence for the datetime fields
 	if ( field->value().toDateTime().isValid() ){
 	    QDate dt = field->value().toDateTime().date();
-	    QTime tm = field->value().toDateTime().time();	
+	    QTime tm = field->value().toDateTime().time();
 	    // Dateformat has to be "yyyy-MM-dd hh:mm:ss", with leading zeroes if month or day < 10
 	    r = "{ ts '" +
 		QString::number(dt.year()) + "-" +
@@ -1844,7 +1845,7 @@ QString QODBCDriver::formatValue( const QSqlField* field,
 		"' }";
 	} else
 	    r = nullText();
-    } else if ( field->type() == QCoreVariant::ByteArray ) {	
+    } else if ( field->type() == QCoreVariant::ByteArray ) {
 	QByteArray ba = field->value().toByteArray();
 	QString res;
 	static const char hexchars[] = "0123456789abcdef";
