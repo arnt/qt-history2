@@ -138,7 +138,10 @@ QSqlQuery::QSqlQuery( const QString& query, QSqlDatabase* db )
     QSqlDatabase* database = db;
     if ( !database )
 	database = QSqlDatabase::database();
-    *this = database->driver()->createQuery();
+    if ( database )
+	*this = database->driver()->createQuery();
+    else
+	d = new QSqlResultShared( 0 );
     if ( !query.isNull() )
 	exec( query );
 }
@@ -167,13 +170,16 @@ QSqlQuery& QSqlQuery::operator=( const QSqlQuery& other )
 
 bool QSqlQuery::isNull( int field ) const
 {
+    if ( !d->sqlResult )
+	return FALSE;
     if ( d->sqlResult->isActive() && d->sqlResult->isValid() )
 	return d->sqlResult->isNull( field );
     return FALSE;
 }
 
-/*! Applies the SQL \a query.  The \a query string must use SQL syntax
-    appropriate for the SQL database being queried.
+/*! Applies the SQL \a query.  Returns TRUE if the query was
+    successful, otherwise FALSE is returned.  The \a query string must
+    use SQL syntax appropriate for the SQL database being queried.
 
     If the query was successful, the object is set to an active state,
     otherwise it is set to an inactive state.  In either case, the
@@ -186,10 +192,14 @@ bool QSqlQuery::isNull( int field ) const
 
 bool QSqlQuery::exec ( const QString& query )
 {
-    if ( d->count > 1 )
-	*this = driver()->createQuery();
+    if ( !d->sqlResult )
+	return FALSE;
     d->sqlResult->setActive( FALSE );
     d->sqlResult->setAt( QSqlResult::BeforeFirst );
+    if ( !driver() )
+	return FALSE;
+    if ( d->count > 1 )
+	*this = driver()->createQuery();
     d->sqlResult->setQuery( query.stripWhiteSpace() );
     if ( !driver()->isOpen() || driver()->isOpenError() )
 	return FALSE;
@@ -213,6 +223,8 @@ bool QSqlQuery::exec ( const QString& query )
 
 QVariant QSqlQuery::value( int i ) const
 {
+    if ( !d->sqlResult )
+	return QVariant();
     if ( isActive() && isValid() && ( i > QSqlResult::BeforeFirst ) ) {
 	return d->sqlResult->data( i );
     }
@@ -229,6 +241,8 @@ QVariant QSqlQuery::value( int i ) const
 
 int QSqlQuery::at() const
 {
+    if ( !d->sqlResult )
+	return QSqlResult::BeforeFirst;
     return d->sqlResult->at();
 }
 
@@ -240,6 +254,8 @@ int QSqlQuery::at() const
 
 QString QSqlQuery::lastQuery() const
 {
+    if ( !d->sqlResult )
+	return QString::null;
     return d->sqlResult->lastQuery();
 }
 
@@ -250,6 +266,8 @@ QString QSqlQuery::lastQuery() const
 
 const QSqlDriver* QSqlQuery::driver() const
 {
+    if ( !d->sqlResult )
+	return 0;
     return d->sqlResult->driver();
 }
 
@@ -522,6 +540,8 @@ bool QSqlQuery::last()
 */
 int QSqlQuery::size() const
 {
+    if ( !d->sqlResult )
+	return -1;
     if ( isActive() && d->sqlResult->driver()->hasQuerySizeSupport() )
 	return d->sqlResult->size();
     return -1;
@@ -538,6 +558,8 @@ int QSqlQuery::size() const
 
 int QSqlQuery::numRowsAffected() const
 {
+    if ( !d->sqlResult )
+	return -1;
     if ( isActive() )
 	return d->sqlResult->numRowsAffected();
     return -1;
@@ -552,6 +574,8 @@ occurred.
 
 QSqlError QSqlQuery::lastError() const
 {
+    if ( !d->sqlResult )
+	return QSqlError();
     return d->sqlResult->lastError();
 }
 
@@ -561,6 +585,8 @@ QSqlError QSqlQuery::lastError() const
 
 bool QSqlQuery::isValid() const
 {
+    if ( !d->sqlResult )
+	return FALSE;
     return d->sqlResult->isValid();
 }
 
@@ -570,6 +596,8 @@ bool QSqlQuery::isValid() const
 
 bool QSqlQuery::isActive() const
 {
+    if ( !d->sqlResult )
+	return FALSE;
     return d->sqlResult->isActive();
 }
 
@@ -580,6 +608,8 @@ bool QSqlQuery::isActive() const
 
 bool QSqlQuery::isSelect() const
 {
+    if ( !d->sqlResult )
+	return FALSE;
     return d->sqlResult->isSelect();
 }
 
@@ -601,7 +631,7 @@ void QSqlQuery::deref()
 
 bool QSqlQuery::checkDetach()
 {
-    if ( d->count > 1 ) {
+    if ( d->count > 1 && d->sqlResult ) {
 	QString sql = d->sqlResult->lastQuery();
 	*this = driver()->createQuery();
 	exec( sql );
