@@ -18,7 +18,7 @@ struct {
 } command[] = {
     { "Desktop-in-an-application", "( cd ../multidoc; exec ./multidoc )" },
     { "Info Kiosk - MPEGs", "( cd ../kiosk; exec ./kiosk)" },
-    { "Help Text Browser", "exec ../helpviewer/helpviewer" },
+    { "Help Text Browser", "(cd ../helpviewer; exec ../helpviewer/helpviewer)" },
     { "Canvas - alpha-blending", "( cd ../canvas; exec ./canvas )" },
     { "Text Editor", "exec ../qwerty/qwerty ../qwerty/unicode.txt" },
     { "Scribble Editor", "exec ../scribble/scribble" },
@@ -49,6 +49,7 @@ struct {
     { "lineedits", "( cd ../lineedits; exec ./lineedits; )" },
     { "listbox", "( cd ../listbox; exec ./listbox; )" },
     { "listboxcombo", "( cd ../listboxcombo; exec ./listboxcombo; )" },
+    { "mdi", "( cd ../mdi; exec ./mdi; )" },
     { "menu", "( cd ../menu; exec ./menu; )" },
     { "movies", "( cd ../movies; exec ./movies; )" },
     //{ "picture", "( cd ../picture; exec ./picture; )" },
