@@ -23,14 +23,6 @@
 #include <limits.h>
 
 
-class QStylePrivate
-{
-public:
-    QStylePrivate()
-    {
-    }
-};
-
 /*!
     \class QStyleOption qstyle.h
     \brief The QStyleOption class specifies optional parameters for QStyle functions.
@@ -368,18 +360,13 @@ public:
     Constructs a QStyle.
 */
 QStyle::QStyle()
-{
-    d = new QStylePrivate;
-}
+{ }
 
 /*!
     Destroys the style and frees all allocated resources.
 */
 QStyle::~QStyle()
-{
-    delete d;
-    d = 0;
-}
+{ }
 
 /*
   \fn GUIStyle QStyle::guiStyle() const

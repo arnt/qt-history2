@@ -24,7 +24,6 @@
 #ifndef QT_NO_STYLE
 
 class QPopupMenu;
-class QStylePrivate;
 class QMenuItem;
 class QTab;
 class QListViewItem;
@@ -761,10 +760,6 @@ private:
 			     SCFlags sub = SC_All, SCFlags subActive = SC_None,
 			     const QStyleOption& = QStyleOption::Default ) const;
 #endif // QT_NO_COMPAT
-
-
-
-    QStylePrivate * d;
 
 #if defined(Q_DISABLE_COPY)
     QStyle( const QStyle & );
