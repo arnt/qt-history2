@@ -951,7 +951,8 @@ void SetupWizardImpl::doIDEIntegration()
 	    } else {
 		// First try to open the file to search for existing installations
 		autoexp->open( IO_ReadOnly );
-		autoExpContents = QString::fromLatin1(autoexp->readAll().data());
+		QByteArray bytes = autoexp->readAll();
+		autoExpContents = QString::fromLatin1(bytes.data(), bytes.size());
 		autoexp->close();
 		if ( autoExpContents.find( "; Trolltech Qt" ) == -1 )
 		    autoexp->open(IO_WriteOnly | IO_Translate);
