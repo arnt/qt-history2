@@ -22,6 +22,7 @@ public:
 
     inline const QTreeModelItem *parent() const { return par; }
     inline const QTreeModelItem *child(int index) const { return children.at(index); }
+    inline QTreeModelItem *child(int index) { return children.at(index); }
     inline int childCount() const { return children.count(); }
     inline int columnCount() const { return c; }
 
@@ -35,7 +36,7 @@ public:
     virtual void setIconSet(int column, const QIconSet &iconSet);
     virtual void setEditable(bool editable) { edit = editable; }
     virtual void setSelectable(bool selectable) { select = selectable; }
-    
+
     inline bool operator ==(const QTreeModelItem &other) const
 	{ return par == other.par && children == other.children; }
     inline bool operator !=(const QTreeModelItem &other) const { return !operator==(other); }
