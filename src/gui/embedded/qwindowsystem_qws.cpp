@@ -1612,11 +1612,6 @@ void QWSServer::setCurrentInputMethod(QWSInputMethod *im)
     \internal
 */
 
-/*!
-    \fn static void QWSServer::setMicroFocus(int x, int y)
-
-    \internal
-*/
 #endif //QT_NO_QWS_IM
 
 #ifndef QT_NO_QWS_PROPERTIES

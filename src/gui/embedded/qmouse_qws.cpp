@@ -33,6 +33,23 @@
     event to Qt/Embedded for relaying to clients.
 */
 
+
+/*!
+  \fn void QWSMouseHandler::suspend()
+
+  Must be implemented in subclasses to suspend reading and handling of mouse events.
+
+  \sa resume
+*/
+
+/*!
+  \fn void QWSMouseHandler::resume()
+
+  Must be implemented in subclasses to resume handling mouse events.
+
+  \sa suspend
+*/
+
 /*!
     \fn virtual void QWSMouseHandler::getCalibration(QWSPointerCalibrationData *) const
 
@@ -82,7 +99,7 @@ void QWSMouseHandler::limitToScreen(QPoint &pt)
 
 /*!
     When a mouse event occurs this function is called with the mouse's
-    position in \a pos, and the state of its buttons in \a bstate.
+    position in \a pos, the state of its buttons in \a bstate, and the wheel motion in \a wheel.
 */
 void QWSMouseHandler::mouseChanged(const QPoint &pos, int bstate, int wheel)
 {

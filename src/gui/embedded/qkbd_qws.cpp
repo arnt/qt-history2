@@ -126,8 +126,8 @@ void QWSKeyboardHandler::processKeyEvent(int unicode, int keycode, Qt::KeyboardM
 }
 
 /*!
-    Transforms an arrow key (\c Qt::Key_Left, \c Qt::Key_Up, \c Qt::Key_Right, \c
-    Qt::Key_Down) to the orientation of the display.
+    Transforms an arrow key with keycode \a key (\c Qt::Key_Left, \c Qt::Key_Up, \c Qt::Key_Right, \c
+    Qt::Key_Down) to the orientation of the display and returns the transformed keycode.
  */
 int QWSKeyboardHandler::transformDirKey(int key)
 {
@@ -156,6 +156,8 @@ int QWSKeyboardHandler::transformDirKey(int key)
     Begin auto repeating the specified key press. After a short delay
     the key sequence will be sent periodically until endAutoRepeat()
     is called.
+
+    \a uni is the unicode value, \a code is the keycode and \a mod is the modifier state of the key sequence.
 
     \sa endAutoRepeat()
 */

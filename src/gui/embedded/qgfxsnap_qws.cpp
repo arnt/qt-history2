@@ -65,7 +65,7 @@ static int mixTable[] = {
     GA_R2_NOTMERGESRC,  // DSon - NorROP
     };
 #endif
-/*!
+/*
 \struct QGfxSNAP_State
 \brief The QGfxSNAP_State class manages the shared rendering state
 
@@ -82,7 +82,7 @@ struct QGfxSNAP_State {
     GA_buffer   drawBuf;
     };
 
-/*!
+/*
 \class QGfxSNAP
 \brief The QGfxSNAP class manages rendering to SNAP Graphics devices
 
@@ -132,7 +132,7 @@ private:
     GA_2DRenderFuncs    &draw2d;
 };
 
-/*!
+/*
 Constructor for the QGfxSNAP class
 */
 
@@ -153,7 +153,7 @@ QGfxSNAP<depth,type>::QGfxSNAP(
 {
 }
 
-/*!
+/*
 Internal function to check that the destination buffer is in graphics
 memory or not. If it is in graphics memory, we go ahead and set the
 destination draw buffer to that location.
@@ -174,7 +174,7 @@ inline bool QGfxSNAP<depth,type>::checkDest()
     return true;
 }
 
-/*!
+/*
 Internal function to check that the source and destination buffers are
 in graphics memory. If they are, we set up for drawing and return true.
 
@@ -191,7 +191,7 @@ inline bool QGfxSNAP<depth,type>::checkSourceDest()
     return gfx_screen->onCard(srcbits,srcOffset);
 }
 
-/*!
+/*
 This is called to draw a rectangle. We try and draw the rectangle
 in hardware if possible.
 */
@@ -263,7 +263,7 @@ void QGfxSNAP<depth,type>::fillRect(
     QWSDisplay::ungrab();
 }
 
-/*!
+/*
 Function to sort rectangle clip list for down and right blit operations.
 Since the rectangles are always guaranteed to be non-overlapping, we can
 make this fast by only comparing the (top,left) coordinates of the
@@ -289,7 +289,7 @@ static int cmp_down_right(
         }
 }
 
-/*!
+/*
 Function to sort rectangle clip list for down and left blit operations
 */
 
@@ -312,7 +312,7 @@ static int cmp_down_left(
         }
 }
 
-/*!
+/*
 Function to sort rectangle clip list for up and right blit operations
 */
 
@@ -335,7 +335,7 @@ static int cmp_up_right(
         }
 }
 
-/*!
+/*
 Function to sort rectangle clip list for up and left blit operations
 */
 
@@ -358,7 +358,7 @@ static int cmp_up_left(
         }
 }
 
-/*!
+/*
 Function to handle the common case of blting a rectangle a small distance
 within the same drawing surface (for example when scrolling a listbox).
 */
@@ -465,7 +465,7 @@ void QGfxSNAP<depth,type>::scroll(
     QWSDisplay::ungrab();
 }
 
-/*!
+/*
 This is called to copy a bitmap from one place to another. We try and perform the blit
 in hardware if possible.
 
@@ -564,7 +564,7 @@ inline void QGfxSNAP<depth,type>::blt(
     QWSDisplay::ungrab();
 }
 
-/*!
+/*
 Function to handle drawing a line from (x1,y1) to (x2,y2)
 */
 
@@ -634,7 +634,7 @@ void QGfxSNAP<depth,type>::drawLine(
     QWSDisplay::ungrab();
 }
 
-/*!
+/*
 This is called by the software renderer when it's about to draw
 something - it needs to be sure that the hardware engine has finished
 drawing since otherwise the two graphics operations could collide
@@ -647,7 +647,7 @@ void QGfxSNAP<depth,type>::sync()
         hwState2d.WaitTillIdle();
 }
 
-/*!
+/*
 \fn QSNAPScreen::QSNAPScreen( int display_id )
 Constructs a QSNAPScreen; passes \a display_id to the QScreen
 constructor.
@@ -658,7 +658,7 @@ QSNAPScreen::QSNAPScreen( int display_id )
 {
 }
 
-/*!
+/*
 \fn QSNAPScreen::~QSNAPScreen()
 Destroys a QSNAPScreen.
 */
@@ -667,7 +667,7 @@ QSNAPScreen::~QSNAPScreen()
 {
 }
 
-/*!
+/*
 Internal function called to clean up on fatal errors so that the console and
 display mode will be properly restored.
 */
@@ -683,7 +683,7 @@ void QSNAPScreen::fatalCleanup()
         GA_unloadDriver(dc);
 }
 
-/*!
+/*
 \fn N_uint16 QSNAPScreen::findMode()
 Internal function to search for a particular display mode to see if it is
 supported by the SNAP drivers.
@@ -716,7 +716,7 @@ N_uint16 QSNAPScreen::findMode(
     return 0xFFFF;
 }
 
-/*!
+/*
 Main function to initialise the software rasteriser module and the internal
 library helper functions.
 */
@@ -758,7 +758,7 @@ int QSNAPScreen::initSoftwareRasterizer(void)
     return true;
 }
 
-/*!
+/*
 Sets the framebuffer to a new resolution and bit depth. The width is
 in \a nw, the height is in \a nh, and the depth is \a nd. After doing
 this any currently-existing gfx's will be invalid and the screen
@@ -823,7 +823,7 @@ void QSNAPScreen::setMode(
     size = h * lstep;
 }
 
-/*!
+/*
 This is called by Qt/Embedded clients to connect to the shared SNAP Graphics driver.
 The \a displaySpec parameter is ignored for SNAP Graphics.
 
@@ -912,7 +912,7 @@ bool QSNAPScreen::connect(
     return true;
 }
 
-/*!
+/*
 This function is called after the connect() function has been called
 but before initDevice(), and allows our driver to steal some shared
 memory for our own internal state management code.
@@ -933,7 +933,7 @@ int QSNAPScreen::sharedRamSize(
     return sizeof(QGfxSNAP_State);
 }
 
-/*!
+/*
 \fn bool QSNAPScreen::initDevice()
 This is called by the Qt/Embedded server at startup time. We don't
 do much in here as we do most of the fun stuff up above in the connect()
@@ -1012,7 +1012,7 @@ bool QSNAPScreen::initDevice()
     return true;
 }
 
-/*!
+/*
 This is used to initialize the software cursor - \a end_of_location
 points to the address after the area where the cursor image can be stored.
 \a init is true for the first application this method is called from
@@ -1027,7 +1027,7 @@ int QSNAPScreen::initCursor(
     return QScreen::initCursor(end_of_location,init);
 }
 
-/*!
+/*
 \fn void QSNAPScreen::disconnect()
 This simply disconnects this client from the shared SNAP Graphics driver.
 */
@@ -1043,7 +1043,7 @@ void QSNAPScreen::disconnect()
     GA_unloadDriver(dc);
 }
 
-/*!
+/*
 \fn void QSNAPScreen::shutdownDevice()
 This is called by the Qt/Embedded server when it shuts down. Here we
 unload the SNAP graphics driver and restore the Linux console back to
@@ -1064,7 +1064,7 @@ void QSNAPScreen::shutdownDevice()
     free(stateBuf);
 }
 
-/*!
+/*
 The offscreen memory manager's list of entries is stored at the bottom
 of the offscreen memory area and consistes of a series of QPoolEntry's,
 each of which keep track of a block of allocated memory. Unallocated memory
@@ -1104,7 +1104,7 @@ void QSNAPScreen::delete_entry(
     memmove(&entries[pos], &entries[pos+1], size * sizeof(QPoolEntry));
 }
 
-/*!
+/*
 Insert an entry into the offscreen memory pool.
 */
 
@@ -1139,7 +1139,7 @@ void QSNAPScreen::insert_entry(
     (*entryp)++;
 }
 
-/*!
+/*
 Initialise the offscreen memory manager variables.
 */
 
@@ -1170,7 +1170,7 @@ void QSNAPScreen::setupOffScreen()
         }
 }
 
-/*!
+/*
 Requests a block of offscreen graphics card memory from the memory
 manager; it will be aligned at pixmapOffsetAlignment(). If no memory
 is free 0 will be returned, otherwise a pointer to the data within
@@ -1246,7 +1246,7 @@ uchar * QSNAPScreen::cache(
     return data + newlowest;
 }
 
-/*!
+/*
 Delete a block of memory \a c allocated from graphics card memory.
 */
 
@@ -1270,7 +1270,7 @@ void QSNAPScreen::uncache(
     qDebug("Attempt to delete unknown offset %ld",pos);
 }
 
-/*!
+/*
 \fn QGfx * QSNAPScreen::createGfx
 This is called to create the graphics rendering object for the
 specific resolution and color depth.
@@ -1315,7 +1315,7 @@ QGfx * QSNAPScreen::createGfx(
     return QScreen::createGfx(b,w,h,d,linestep);
 }
 
-/*!
+/*
 \fn void QSNAPScreen::save()
 Save the state of the graphics card. It's called by the Qt/Embedded server
 when the virtual console is switched.
@@ -1326,7 +1326,7 @@ void QSNAPScreen::save()
     // TODO: We may need to do stuff in here to save the screen
 }
 
-/*!
+/*
 \fn void QSNAPScreen::restore()
 This is called when the virtual console is switched back to Qt/Embedded
 and restores the graphics screen.
@@ -1337,7 +1337,7 @@ void QSNAPScreen::restore()
     // TODO: We may need to do stuff in here to restore the screen
 }
 
-/*!
+/*
 \fn void QSNAPScreen::blank()
 This is to power down the display monitor using DPMS.
 */
@@ -1349,7 +1349,7 @@ void QSNAPScreen::blank(
         dpms.DPMSsetState(on ? DPMS_on : DPMS_off);
 }
 
-/*!
+/*
 \fn void QSNAPScreen::set()
 In paletted graphics modes, this sets color index \a i to the specified RGB
 value, (\a r, \a g, \a b).

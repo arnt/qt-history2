@@ -486,13 +486,6 @@ void QWidget::unsetCursor()
 }
 #endif //QT_NO_CURSOR
 
-/*!
-    \property QWidget::windowModified
-    \brief whether the window's surface has been modified
-
-    \internal
-*/
-
 void QWidget::setWindowModified(bool mod)
 {
     setAttribute(Qt::WA_WindowModified, mod);

@@ -83,7 +83,7 @@
 */
 
 /*!
-    \fn QRegion QDecoration::region(const QWidget *widget, const QRect &rect, DecorationRegion type)
+    \fn QRegion QDecoration::region(const QWidget *widget, const QRect &rect, int type)
 
     Returns the requested region \a type which will contain \a widget
     with geometry \a rect.
@@ -96,21 +96,6 @@
 
     Override to paint the border and title decoration around \a widget
     using \a painter.
-*/
-
-/*!
-    \fn void QDecoration::paintButton(QPainter *painter, const QWidget *widget, DecorationRegion type, int state)
-
-    Override to paint a button of type \a type using \a painter.
-
-    \a widget is the widget whose button is to be drawn.
-    \a state is the state of the button. It can be a combination of the
-    following OR-ed together:
-    \list
-    \i \c QWSButton::MouseOver
-    \i \c QWSButton::Clicked
-    \i \c QWSButton::On
-    \endlist
 */
 
 /*!
