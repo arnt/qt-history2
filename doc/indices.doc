@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: indices.doc,v 2.31 1999/04/28 09:53:56 aavit Exp $
+** $Id: indices.doc,v 2.32 1999/05/04 09:19:05 warwick Exp $
 **
 ** Miscellaneous index pages
 **
@@ -22,7 +22,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: indices.doc,v 2.31 1999/04/28 09:53:56 aavit Exp $";
+static char ident[] = "$Id: indices.doc,v 2.32 1999/05/04 09:19:05 warwick Exp $";
 #endif
 
 /*! \page index.html
@@ -41,6 +41,7 @@ Reference Documentation
 <td width="50%" valign="top">
 
 <strong>The Qt API:</strong><ul>
+<li><a href="porting.html"><b>Porting from Qt 1.x to Qt 2.0</b></a>
 <li><a href="classes.html">Alphabetical Class List</a>
 <li><a href="annotated.html">Annotated Class List</a>
 <li><a href="topicals.html">Structure Overview</a>
@@ -56,11 +57,11 @@ Reference Documentation
 <li><a href="tutorial.html">Tutorial</a>
 <li><a href="examples.html">Example Programs</a>
 <li><a href="metaobjects.html">Introduction to Signals and Slots</a>
-<li><a href="moc.html">Using the Meta Object Compiler (moc)</a>
-<li><a href="debug.html">Debugging Techniques</a>
-<li><a href="porting.html">Porting from Qt 1.x to Qt 2.0</a>
-<li><a href="i18n.html">Internationalization (I18n)</a>
+<li><a href="moc.html">Using the Meta Object Compiler (the moc)</a>
 <li><a href="layout.html">Geometry Management (layout)</a>
+<li><a href="dnd.html">Drag and Drop (D'n'D)</a>
+<li><a href="i18n.html">Internationalization (I18n)</a>
+<li><a href="debug.html">Debugging Techniques</a>
 </ul>
 
 </td></tr><tr><td width="50%" valign="top">
