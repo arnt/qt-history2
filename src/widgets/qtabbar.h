@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.h#6 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.h#7 $
 **
 ** Definition of QTabBar class
 **
@@ -67,9 +67,13 @@ protected:
     void mouseReleaseEvent ( QMouseEvent * );
     void keyPressEvent( QKeyEvent * );
 
+    QListT<QTab> * tabList();
+
 private:
     QListT<QTab> * l;
     QTabPrivate * d;
+
+    void paintLabel( QPainter*, const QRect&, QTab*, bool ) const;
 };
 
 

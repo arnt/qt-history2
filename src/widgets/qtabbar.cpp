@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#23 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#24 $
 **
 ** Implementation of QTabBar class
 **
@@ -13,7 +13,7 @@
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtabbar.cpp#23 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtabbar.cpp#24 $");
 
 
 QTab::~QTab()
@@ -149,17 +149,17 @@ void QTabBar::setTabEnabled( int id, bool enabled )
 		if ( !enabled && id == currentTab() ) {
 		    QPoint p1( t->r.center() ), p2;
 		    int m = 2147483647;
-		    int d;
+		    int distance;
 		    // look for the closest enabled tab - measure the
 		    // distance between the centers of the two tabs
 		    for( QTab * n = l->first(); n; n = l->next() ) {
 			if ( n->enabled ) {
 			    p2 = n->r.center();
-			    d = (p2.x() - p1.x())*(p2.x() - p1.x()) +
-				(p2.y() - p1.y())*(p2.y() - p1.y());
-			    if ( d < m ) {
+			    distance = (p2.x() - p1.x())*(p2.x() - p1.x()) +
+				       (p2.y() - p1.y())*(p2.y() - p1.y());
+			    if ( distance < m ) {
 				t = n;
-				d = m;
+				distance = m;
 			    }
 			}
 		    }
@@ -224,7 +224,6 @@ QSize QTabBar::sizeHint() const
 
 void QTabBar::paint( QPainter * p, QTab * t, bool selected ) const
 {
-
     QRect r( t->r );
     if ( selected ) {
 	p->setPen( colorGroup().background() );
@@ -259,6 +258,15 @@ void QTabBar::paint( QPainter * p, QTab * t, bool selected ) const
 		br.width() + 5,
 		br.height() + 2 );
 
+    paintLabel( p, br, t, t->id == keyboardFocusTab() );
+}
+
+/*!
+  QT_VERSION == 200 - this should be virtual.
+*/
+void QTabBar::paintLabel( QPainter* p, const QRect& br,
+                          QTab* t, bool has_focus ) const
+{
     if ( t->enabled ) {
 	p->setPen( palette().normal().text() );
 	p->drawText( br, AlignCenter | ShowPrefix, t->label );
@@ -274,7 +282,7 @@ void QTabBar::paint( QPainter * p, QTab * t, bool selected ) const
 	p->drawText( br, AlignCenter | ShowPrefix, t->label );
     }
 
-    if ( t->id != keyboardFocusTab() )
+    if ( has_focus )
 	return;
     if ( style() == WindowsStyle )
 	p->drawWinFocusRect( br );
@@ -538,4 +546,12 @@ QTab * QTabBar::tab( int id )
 	if ( t && t->id == id )
 	    return t;
     return 0;
+}
+
+/*!
+  The list of QTab objects added.
+*/
+QListT<QTab> * QTabBar::tabList()
+{
+    return l;
 }
