@@ -1682,10 +1682,31 @@ QString Doc::htmlFunctionIndex()
     QString hook( "QIntDict::operator=()" );
     QString gulbrandsen( "::" );
 
-    QString html = QString( "<ul>\n" );
+    QString html;
+
+    html += QString( "<center><font size=+1><b>" );
+    for ( int i = 0; i < 26; i++ ) {
+	QChar ch( 'a' + i );
+	html += QString( "<a href=\"#%1\">%2</a> " )
+		.arg( ch ).arg( ch.upper() );
+    }
+    html += QString( "</b></font></center>\n" );
+
+    char nextLetter = 'a';
+    char currentLetter;
+
+    html += QString( "<ul>\n" );
     QMap<QString, StringSet>::ConstIterator f = findex.begin();
     while ( f != findex.end() ) {
-	html += QString( "<li>%1:\n" ).arg( htmlProtect(f.key()) );
+	html += QString( "<li>" );
+
+	currentLetter = f.key()[0].unicode();
+	while ( islower(currentLetter) && currentLetter >= nextLetter ) {
+	    html += QString( "<a name=\"%1\"></a>\n" ).arg( nextLetter );
+	    nextLetter++;
+	}
+
+	html += QString( "%1:\n" ).arg( htmlProtect(f.key()) );
 	StringSet::ConstIterator s = (*f).begin();
 	while ( s != (*f).end() ) {
 	    QString t = *s + gulbrandsen + f.key() + parenParen;
@@ -1694,8 +1715,8 @@ QString Doc::htmlFunctionIndex()
 		html += QChar( ' ' );
 	    html += y;
 	    if ( t == hook )
-		html += QString(" <a href=\"http://www.kbuxton.com/discordia/"
-				"fnord.html\">fnord</a>" );
+		html += QString( " <a href=\"http://www.kbuxton.com/discordia/"
+				 "fnord.html\">fnord</a>" );
 	    ++s;
 	}
 	++f;
