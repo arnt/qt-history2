@@ -94,9 +94,10 @@ the directories where you choose to install Qt.
 
         ./configure -libdir /usr/local/lib -bindir /usr/local/bin -headerdir /usr/local/include/qt
 
-    Then after a successfull make you can:
+    If you supplied a custom install directory using the -prefix
+    parameter in step 2, you can:
 
-        make install 
+	make install
 
     This will install Qt onto your machine using the paths you've set.
     (See ./configure -help for more information). If you choose to
