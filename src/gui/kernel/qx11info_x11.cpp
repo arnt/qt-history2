@@ -212,7 +212,7 @@ Display *QX11Info::display()
 }
 
 /*!
-*/
+        Returns the number of the screen where the application is being displayed.*/
 
 int QX11Info::appScreen()
 {
