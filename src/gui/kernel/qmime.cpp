@@ -138,7 +138,7 @@ void QMimeData::setUrls(const QList<QUrl> &urls)
     QList<QCoreVariant> list;
     for (int i = 0; i < urls.size(); ++i)
         list.append(urls.at(i));
-    
+
     d->setData("text/uri-list", list);
 }
 
@@ -268,7 +268,7 @@ QImage QMimeData::image() const
     if (data.type() == QVariant::Image)
         return data.toImage();
     else if (data.type() == QVariant::Pixmap)
-        return data.toPixmap();
+        return data.toPixmap().toImage();
     // try any other image formats
     QStringList available = formats();
     for (int i=0; i<available.size(); i++) {
@@ -277,7 +277,7 @@ QImage QMimeData::image() const
             if (data.type() == QVariant::Image)
                 return data.toImage();
             else if (data.type() == QVariant::Pixmap)
-                return data.toPixmap();
+                return data.toPixmap().toImage();
         }
     }
     return QImage();
@@ -375,7 +375,7 @@ bool QMimeData::hasFormat(const QString &mimetype) const
 /*!
     Returns a list of formats supported by the object. This is a list of
     MIME types for which the object can return suitable data. The formats in
-    the list are in a priority order. 
+    the list are in a priority order.
 */
 QStringList QMimeData::formats() const
 {
@@ -450,7 +450,7 @@ QVariant QMimeData::retrieveData(const QString &mimetype, QVariant::Type type) c
     case QVariant::Image: {
         QImage image;
         if (QVariant::Pixmap)
-            image = data.toPixmap();
+            image = data.toPixmap().toImage();
         else
             image = data.toImage();
         QString format;
