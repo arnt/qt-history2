@@ -51,7 +51,7 @@ TARGET	=	#$ Expand("TARGET");
 all: $(TARGET) #$ Expand("ALL_DEPS");
 
 $(TARGET): $(OBJECTS) $(OBJMOC)
-	$(CC) $(OBJECTS) $(OBJMOC) -o $(TARGET) $(LFLAGS) #$ Expand("UNIXLIBS");
+	$(CC) $(OBJECTS) $(OBJMOC) -o $(TARGET) $(LFLAGS)
 
 moc: $(SRCMOC)
 
