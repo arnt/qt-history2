@@ -38,27 +38,53 @@
 /*!
   \class QColormap qcolormap.h
   \brief The QColormap class is used for installing custom colormaps into
-  QGLWidgets.
+  widgets.
   
-  \module OpenGL
-    
-  This class is used to install custom colormaps in QGLWidgets that
-  use the OpenGL color-index mode. You can only install one colormap
-  in each top-level widget. QColormap tries to allocate all the
-  colorcells in a colormap for exclusive use. This will most likely
-  result in colormap flashing when running in 8 bit color mode.
+  QColormap provides a platform independent way of specifying and
+  installing custom colormaps into top-level widgets. QColormap was
+  originally designed to make it easier to create colormaps for use in
+  the OpenGL color-index mode.
   
   Under X11 you will have to use an X server that supports either a
-  PseudoColor or DirectColor visual class.  If your X server currently
-  only provides a TrueColor, StaticColor or StaticGray visual, you
-  will not be able to allocate colorcells for writing. The QColormap
-  will then be invalid. Hint: Try setting up your X server in 8 bit
-  mode, and it will most likely provide a PseudoColor visual.
+  GrayScale, PseudoColor or DirectColor visual class.  If your X
+  server currently only provides a TrueColor, StaticColor or
+  StaticGray visual, you will not be able to allocate colorcells for
+  writing. If you can't get this to work, then try to set up your X
+  server in 8 bit mode. It should then provide a PseudoColor
+  visual. You may also experience colormap flashing if your X server
+  is running in 8 bit mode.
     
+  Under Windows the size of the colormap is always set to 256 colors.
+  
   This class uses implicit sharing (see \link shclass.html Shared
   Classes\endlink).
-    
-  \sa QGLWidget::setColormap()
+  
+  Example of use:
+  \code
+  #include <qapplication.h>
+  #include <qcolormap.h>
+  
+  int main() 
+  {
+      QApplication a( argc, argv );
+      
+      MySuperGLWidget widget( 0 );
+          
+      // Do not worry about deleting the colormap, as it will
+      // be deleted by the widget that it is installed in.
+      QColormap * colormap = new QColormap( &widget );
+      
+      // This will create a colormap with colors ranging from
+      // black to white.
+      for ( int i = 0; i < colormap->size(); i++ )
+          colormap->setRgb( i, qRgb( i, i, i ) );
+	  
+      widget.show();
+      return a.exec();
+  }
+  \endcode
+  
+  \sa QGLWidget()
  */
 
 /*!
@@ -73,6 +99,13 @@
   The most common reason for a colormap to be invalid under X11, is
   that the X server does not support the visual class that is needed
   for a read/write colormap.
+*/
+
+/*!
+  \fn void QColormap::setRgb( int base, int count, const QRgb *colors )
+  Set an array of cells in this colormap. \a base is the starting
+  index, \a count is the number of colors that should be set, and \a
+  colors is the array of colors.
 */
 
 /*!
@@ -96,8 +129,8 @@
 */
 
 /*!
-  \fn Qt::HANDLE QColormap::colormap() const
-  Returns the system specific colormap handle.
+  \fn void QColormap::install( QWidget * w )
+  Install this colormap into widget \a w.
 */
 
 /*!
