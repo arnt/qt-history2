@@ -2482,11 +2482,8 @@ void PropertyList::setupProperties()
 	    item->setChanged( TRUE, FALSE );
     }
 
- if ( editor->widget()->inherits( "QDataTable" ) || editor->widget()->inherits( "QDataBrowser" ) || editor->widget()->inherits( "QDataView" ) ) {
-	if ( editor->widget()->inherits( "QDataTable" ) )
-	    item = new PropertyDatabaseItem( this, item, 0, "database", FALSE );
-	else
-	    item = new PropertyDatabaseItem( this, item, 0, "database", editor->formWindow()->mainContainer() != w );
+    if ( editor->widget()->inherits( "QDataTable" ) || editor->widget()->inherits( "QDataBrowser" ) || editor->widget()->inherits( "QDataView" ) ) {
+	item = new PropertyDatabaseItem( this, item, 0, "database", FALSE );
 	setPropertyValue( item );
 	if ( MetaDataBase::isPropertyChanged( editor->widget(), "database" ) )
 	    item->setChanged( TRUE, FALSE );
