@@ -376,7 +376,11 @@ SetupWizardImpl::SetupWizardImpl( QWidget* pParent, const char* pName, bool moda
 	QArchive ar;
 	QString archiveName = "qt.arq";
 # if defined(Q_OS_MACX)
-	archiveName  = "install.app/Contents/Qt/qtmac.arq";
+	QString appDir = qApp->argv()[0];
+	int truncpos = appDir.findRev( "/Contents/MacOS/" );
+	if (truncpos != -1)
+	    appDir.truncate( truncpos );
+	archiveName  = appDir + "/Contents/Qt/qtmac.arq";
 # endif
 	ar.setPath( archiveName );
 	if( ar.open( IO_ReadOnly ) )  {
@@ -1173,7 +1177,11 @@ void SetupWizardImpl::showPageProgress()
 	    // from qt.arq in the current directory instead.
 	    QString archiveName = "qt.arq";
 #if defined(Q_OS_MACX)
-	    archiveName  = "install.app/Contents/Qt/qtmac.arq";
+	    QString appDir = qApp->argv()[0];
+	    int truncpos = appDir.findRev( "/Contents/MacOS/" );
+	    if (truncpos != -1)
+	    appDir.truncate( truncpos );
+	    archiveName  = appDir + "/Contents/Qt/qtmac.arq";
 #endif
 	    fi.setFile( archiveName );
 	    if( fi.exists() )
@@ -1183,19 +1191,6 @@ void SetupWizardImpl::showPageProgress()
 	    ar.setPath( archiveName );
 	    if( ar.open( IO_ReadOnly ) )  {
 		ar.readArchive( optionsPage->installPath->text(), licenseKey );
-#if defined(Q_OS_MACX)
- 		QString srcName  = "install.app/Contents/Qt/LICENSE";
-    		QString destName = "/.LICENSE";
-    		QString srcName2 = srcName;
-    		if (featuresForKeyOnUnix( licenseKey ) & Feature_US)
-        	    srcName2 += "-US";
-    		if((!copyFile( srcName, optionsPage->installPath->text() + destName )) ||
-       		   (!copyFile( srcName + "-US", optionsPage->installPath->text() + destName + "-US" )) ||
-       		   (!copyFile( srcName2, optionsPage->installPath->text() + "/LICENSE" ))) {
-		    QMessageBox::critical( this, "Installation Error",
-					   "License files could not be copied." );
-		}
-#endif
 	    } else {
 		// We were not able to find any qt.arq -- so assume we have
 		// the old fashioned zip archive and simply copy the files
@@ -1269,7 +1264,7 @@ void SetupWizardImpl::showPageProgress()
 #	if !defined(Q_OS_MAC)
 	    QStringList qtDlls = lib.entryList( "qt*.dll" );
 #	else
-	    QStringList qtDlls = lib.entryList( "libqt*.dylib" );
+ 	    QStringList qtDlls = lib.entryList( "libqt-mt-eval.dylib" );
 #	endif
 	    if ( qtDlls.count() == 0 ) {
 		copySuccessful = FALSE;
@@ -1375,7 +1370,14 @@ void SetupWizardImpl::showPageFinish()
 		finishMsg = "Qt has been reconfigured and rebuilt, and is ready for use.";
 	}
 	else {
+#if defined(Q_OS_MACX)
+            finishMsg = QString( "Qt has been installed to " ) + optionsPage->installPath->text() + 
+                        " and is ready to use.\n\nPlease try out the developer tools in the bin folder and example "
+                        "programs in the examples folder.\n\nFor further information please consult the "
+			"README.txt file included in the installation folder.";
+#else
 	    finishMsg = QString( "Qt has been installed to " ) + optionsPage->installPath->text() + " and is ready to use.";
+#endif
 	}
     } else {
 	if( globalInformation.reconfig() ) {

@@ -1,6 +1,7 @@
 #include "resource.h"
 #include <qfile.h>
 #include <qfileinfo.h>
+#include <qapplication.h>
 
 #ifdef Q_OS_WIN32
 #include <windows.h>
@@ -40,7 +41,11 @@ ResourceLoader::ResourceLoader( char *resourceName, int minimumSize )
     arSize = 0;
     arData = 0;
     QFile f;
-    QString path = "install.app/Contents/Qt/";
+    QString appDir = qApp->argv()[0];
+    int truncpos = appDir.findRev( "/Contents/MacOS/" );
+    if (truncpos != -1)
+	appDir.truncate( truncpos );
+    QString path = appDir + "/Contents/Qt/";
     path += resourceName;
     f.setName( path );
     if (!f.open( IO_ReadOnly ))
