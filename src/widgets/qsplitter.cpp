@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#7 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#8 $
 **
 **  Splitter widget
 **
@@ -43,11 +43,128 @@ static unsigned char splitm_bits[] = {
   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, };
 
+#define vsplit_width 32
+#define vsplit_height 32
+static unsigned char vsplit_bits[] = {
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+  0x00, 0x80, 0x00, 0x00, 0x00, 0xc0, 0x01, 0x00, 0x00, 0xe0, 0x03, 0x00,
+  0x00, 0x80, 0x00, 0x00, 0x00, 0x80, 0x00, 0x00, 0x00, 0x80, 0x00, 0x00,
+  0x00, 0x80, 0x00, 0x00, 0x00, 0x80, 0x00, 0x00, 0x00, 0xff, 0x7f, 0x00,
+  0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0x7f, 0x00, 0x00, 0x80, 0x00, 0x00,
+  0x00, 0x80, 0x00, 0x00, 0x00, 0x80, 0x00, 0x00, 0x00, 0x80, 0x00, 0x00,
+  0x00, 0x80, 0x00, 0x00, 0x00, 0xe0, 0x03, 0x00, 0x00, 0xc0, 0x01, 0x00,
+  0x00, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, };
+
+#define vsplitm_width 32
+#define vsplitm_height 32
+static unsigned char vsplitm_bits[] = {
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80, 0x00, 0x00,
+  0x00, 0xc0, 0x01, 0x00, 0x00, 0xe0, 0x03, 0x00, 0x00, 0xf0, 0x07, 0x00,
+  0x00, 0xf8, 0x0f, 0x00, 0x00, 0xc0, 0x01, 0x00, 0x00, 0xc0, 0x01, 0x00,
+  0x00, 0xc0, 0x01, 0x00, 0x80, 0xff, 0xff, 0x00, 0x80, 0xff, 0xff, 0x00,
+  0x80, 0xff, 0xff, 0x00, 0x80, 0xff, 0xff, 0x00, 0x80, 0xff, 0xff, 0x00,
+  0x00, 0xc0, 0x01, 0x00, 0x00, 0xc0, 0x01, 0x00, 0x00, 0xc0, 0x01, 0x00,
+  0x00, 0xf8, 0x0f, 0x00, 0x00, 0xf0, 0x07, 0x00, 0x00, 0xe0, 0x03, 0x00,
+  0x00, 0xc0, 0x01, 0x00, 0x00, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, };
 
 
 static QCursor *vSplitterCur = 0;
 static QCursor *hSplitterCur = 0;
 
+
+
+class QInternalSplitter : public QWidget
+{
+public:
+    QInternalSplitter( QSplitter::Orientation o, 
+		       QSplitter *parent, const char *name=0 );
+    void setOrientation( QSplitter::Orientation o );
+    QSplitter::Orientation orientation() const { return orient; }
+
+protected:
+    //    void resizeEvent( QResizeEvent * );
+    void paintEvent( QPaintEvent * );
+    void mouseMoveEvent( QMouseEvent * );
+    void mousePressEvent( QMouseEvent * );
+    void mouseReleaseEvent( QMouseEvent * );
+
+
+private:
+    QSplitter::Orientation orient;
+    QSplitter *s;
+};
+
+QInternalSplitter::QInternalSplitter( QSplitter::Orientation o, 
+				      QSplitter *parent, const char *name=0 )
+    : QWidget( parent, name ) 
+{ 
+    if ( !hSplitterCur )
+	hSplitterCur = new QCursor( QBitmap( split_width, split_height,
+					     split_bits, TRUE),
+				 QBitmap( split_width, split_height,
+					  splitm_bits, TRUE) );
+    if ( !vSplitterCur )
+	vSplitterCur = new QCursor( QBitmap( vsplit_width, vsplit_height,
+					     vsplit_bits, TRUE),
+				 QBitmap( vsplit_width, vsplit_height,
+					  vsplitm_bits, TRUE) );
+    orient = o;
+    s = parent; 
+    if ( o == QSplitter::Horizontal )
+	setCursor( *hSplitterCur );
+    else
+	setCursor( *vSplitterCur );
+}
+
+#if 0
+int QSplitter::hit( QPoint pnt )
+{
+    //### fancy 2-dim hit for Motif...
+    QCOORD p = pick(pnt);
+    if ( w1 && p > pick( w1->geometry().bottomRight() ) &&
+	 w2 && p < pick( w2->pos() ) )
+	return 1;
+    else
+	return 0;
+}
+#endif
+
+
+void QInternalSplitter::setOrientation( QSplitter::Orientation o )
+{
+    orient = o; 
+    if ( o == QSplitter::Horizontal )
+	setCursor( *hSplitterCur );
+    else if ( vSplitterCur )
+	setCursor( *vSplitterCur );
+}
+
+void QInternalSplitter::mouseMoveEvent( QMouseEvent *e )
+{
+    s->moveTo( mapToParent( e->pos() ));
+}
+void QInternalSplitter::mousePressEvent( QMouseEvent *e )
+{
+    if ( e->button() == LeftButton )
+	s->startMoving();
+}
+void QInternalSplitter::mouseReleaseEvent( QMouseEvent *e )
+{
+    if ( e->button() == LeftButton )
+	s->stopMoving();
+}
+
+void QInternalSplitter::paintEvent( QPaintEvent * )
+{
+    QPainter p( this );
+    s->drawSplitter( &p, 0, 0, width(), height() ); 
+}
 
 
 
@@ -99,15 +216,12 @@ QSplitter::setBorder2( int b )
 
 void QSplitter::init()
 {
-    if ( !hSplitterCur )
-	hSplitterCur = new QCursor( QBitmap( split_width, split_height, split_bits, TRUE),
-				 QBitmap( split_width, split_height, splitm_bits, TRUE)
-				 );
-    
 
     ratio = -1;
     fixedWidget = 0;
     opaque = 0;
+
+    d = new QInternalSplitter( orient, this );
 
    setMouseTracking( TRUE );
     moving = 0;
@@ -157,6 +271,7 @@ void QSplitter::setOrientation( Orientation o )
     if ( orient == o )
 	return;
     orient = o;
+    d->setOrientation( o );
     recalc();
 }
 
@@ -259,7 +374,7 @@ void QSplitter::layoutHintEvent( QEvent * )
 
 
 
-void QSplitter::mouseReleaseEvent( QMouseEvent * )
+void QSplitter::stopMoving()
 {
     moving = 0;
     if ( !opaque && opaqueOldPos >= 0 ) {
@@ -269,39 +384,22 @@ void QSplitter::mouseReleaseEvent( QMouseEvent * )
     }
 }
 
-void QSplitter::mousePressEvent( QMouseEvent *m )
+void QSplitter::startMoving()
 {
-    if ( m->button() == LeftButton )
-	moving = hit( m->pos() );
+    moving = TRUE;
 }
 
-void QSplitter::mouseMoveEvent( QMouseEvent *m )
+void QSplitter::moveTo( QPoint mp )
 {
     if ( moving ) {
-	int p = adjustPos( pick( m->pos() ) );
+	int p = adjustPos( pick( mp ) );
 	if ( opaque )
 	    moveSplitter( p );
 	else
 	    setRubberband( p );
     } else {
-	if ( hit( m->pos() ) )
-	    setCursor( *hSplitterCur );
-	else
-	    setCursor( arrowCursor );
     }
 }
-
-int QSplitter::hit( QPoint pnt )
-{
-    //### fancy 2-dim hit for Motif...
-    QCOORD p = pick(pnt);
-    if ( w1 && p > pick( w1->geometry().bottomRight() ) &&
-	 w2 && p < pick( w2->pos() ) )
-	return 1;
-    else
-	return 0;
-}
-
 
 /*!
   Draws the splitter handle in the rectangle described by \a x, \a y,
@@ -337,24 +435,6 @@ void QSplitter::drawSplitter( QPainter *p, QCOORD x, QCOORD y, QCOORD w, QCOORD 
     }
 }
 
-
-void QSplitter::drawContents( QPainter *p )
-{
-    if ( !w1 || !w2 )
-	return;
-
-    QRect r = contentsRect();
-
-    if ( orient == Horizontal ) {
-	QCOORD xPos = w2->x() - bord*2;
-	drawSplitter( p, xPos, r.y(), bord*2, r.height() );
-    } else {
-	QCOORD yPos = w2->y() - bord*2;
-	drawSplitter( p, r.x(), yPos, r.width(), bord*2 );
-
-    }
-}
-
 /*!
   Moves the center of the splitter handle as close as possible to
   \a p which is the distance from the left (or top) edge of the widget.
@@ -371,12 +451,12 @@ void QSplitter::moveSplitter( QCOORD p )
 	w1->setGeometry( r.x(), r.y(), p, r.height() );
 	p += 2*bord;
 	w2->setGeometry( p, r.y(), r.width() - p + 1, r.height() );
-	repaint( p - 2*bord , r.y(), 2*bord, r.height() );
+	d->setGeometry( p - 2*bord , r.y(), 2*bord, r.height() );
     } else {
 	w1->setGeometry( r.x(), r.y(), r.width(), p );
 	p += 2*bord;
 	w2->setGeometry( r.x(), p, r.width(), r.height() - p + 1 );
-	repaint( r.x(), p - 2*bord, r.width(), 2*bord );
+	d->setGeometry( r.x(), p - 2*bord, r.width(), 2*bord );
     }
 }
 
@@ -576,4 +656,9 @@ void QSplitter::setFixed( int w, int size )
 void QSplitter::setOpaqueResize( bool on )
 {
     opaque = on;
+}
+
+QWidget * QSplitter::splitterWidget()
+{
+    return (QWidget*)d;
 }

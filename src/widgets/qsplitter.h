@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.h#5 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.h#6 $
 **
 ** Defintion of  QSplitter class
 **
@@ -14,6 +14,8 @@
 #ifndef QT_H
 #include "qframe.h"
 #endif // QT_H
+
+class QInternalSplitter;
 
 class QSplitter : public QFrame
 {
@@ -44,11 +46,6 @@ protected:
     void layoutHintEvent( QEvent * );
     void leaveEvent( QEvent * );
     void resizeEvent( QResizeEvent * );
-    //    void paintEvent( QPaintEvent * );
-    void drawContents( QPainter * );
-    void mouseMoveEvent( QMouseEvent * );
-    void mousePressEvent( QMouseEvent * );
-    void mouseReleaseEvent( QMouseEvent * );
 
     void moveSplitter( QCOORD pos );
     virtual void drawSplitter( QPainter*, QCOORD x, QCOORD y, 
@@ -67,6 +64,12 @@ private:
     void recalc();
     int hit( QPoint p );
     void doResize();
+    QWidget *splitterWidget();
+
+    void startMoving();
+    void moveTo( QPoint );
+    void stopMoving( );
+
 
 
     QCOORD pick( const QPoint &p ) const
@@ -87,11 +90,12 @@ private:
     int moving;
     int ratio;
     int fixedWidget;
-    void *d;
+    QInternalSplitter *d;
     bool opaque;
 
     Orientation orient;
     QCOORD bord; //half border
+    friend QInternalSplitter;
 };
 
 
