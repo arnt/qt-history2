@@ -358,11 +358,17 @@ static QPoint activatedP;
     \endcode
 
     There is also an interator class to traverse a tree of list view
-    items. To iterate over all items of a list view, do the following:
+    items. To iterate over all selected items of a list view, do the 
+    following:
     \code
 	QListViewItemIterator it( listview );
-	for ( ; it.current(); ++it )
-	    doSomething( it.current() ); // it.current() is a QListViewItem*
+	while ( it.current() ) {
+	    QListViewItem *item = it.current();
+	    ++it;
+
+	    if ( item->isSelected() )
+		doSomething( item );
+	}
     \endcode
 
     Note that the order of the children will change when the sorting
