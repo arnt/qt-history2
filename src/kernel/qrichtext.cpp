@@ -4818,7 +4818,7 @@ void QTextParagraph::writeStyleInformation( QDataStream& stream ) const
 
 void QTextParagraph::setListItem( bool li )
 {
-    if ( litem == li )
+    if ( (bool)litem == li )
 	return;
     litem = li;
     changed = TRUE;
