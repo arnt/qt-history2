@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#142 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#143 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -683,8 +683,11 @@ void QWidget::showWindow()
 	SetWindowPos( winId(), 0,
 		      fpos.x(), fpos.y(), crect.width(), crect.height(),
 		      SWP_NOACTIVATE | SWP_SHOWWINDOW );
-    else
+    else {
+	if ( testWFlags(WType_TopLevel) )
+	    ShowWindow( winId(), SW_RESTORE );
 	ShowWindow( winId(), SW_SHOW );
+    }
     setWFlags( WState_Visible );
     clearWFlags( WState_DoHide );
 
