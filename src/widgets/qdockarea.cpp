@@ -344,12 +344,14 @@ int QDockAreaLayout::layoutItems( const QRect &rect, bool testonly )
     QValueList<DockData> lastLine;
     int tbstrut = -1;
     int maxsize = size_extent( rect.size(), orientation() );
+    int visibleWindows = 0;
 
     // go through all widgets in the dock
     while ( ( dw = it.current() ) != 0 ) {
 	++it;
 	if ( !dw->isVisibleTo( parentWidget ) )
 	    continue;
+	++visibleWindows;
 	// find position for the widget: This is the maximum of the
 	// end of the previous widget and the offset of the widget. If
 	// the position + the width of the widget dosn't fit into the
@@ -417,7 +419,7 @@ int QDockAreaLayout::layoutItems( const QRect &rect, bool testonly )
 	if ( !dw->isVisibleTo( parentWidget ) )
 	    continue;
 	hadResizable = hadResizable || dw->isResizeEnabled();
-	dw->updateSplitterVisibility( dockWindows->count() > 1 ); //!dw->area()->isLastDockWindow( dw ) );
+	dw->updateSplitterVisibility( visibleWindows > 1 ); //!dw->area()->isLastDockWindow( dw ) );
     }
     return sectionpos + linestrut;
 }

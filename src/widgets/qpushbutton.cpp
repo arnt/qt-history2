@@ -155,10 +155,19 @@
 /*! \property QPushButton::autoDefault
     \brief whether the push button is the auto default button
 
-  If this property is set to TRUE then the push button will be the focused
-  item in a dialog when the dialog is first shown.
+    If this property is set to TRUE then the push button is the auto
+    default button in a dialog.
 
-  This property's default is TRUE.
+    An auto-default button automatically becomes the default push button
+    in a dialog when it receives the keyboard input focus.
+
+    In some GUI styles a default button is drawn with an extra frame
+    around it, up to 3 pixels or more. Qt automatically keeps this space
+    free around auto-default buttons, i.e., auto-default buttons may have
+    a slightly larger size hint.
+
+  This property's default is TRUE  for buttons that have a QDialog parent,
+  else FALSE.
 */
 
 /*! \property QPushButton::autoMask
@@ -172,6 +181,16 @@
 
   If this property is set to TRUE then the push button will be pressed if the
   user hits the Enter key in a dialog.
+
+    The current default button gets clicked when the user presses the
+    Enter key, independently of which widget in the dialog currently
+    has the keyboard input focus.  Only one push button can at any time
+    be the default button.  This button is then displayed with an
+    additional frame (depending on the GUI style).
+
+    The default button behavior is provided only in dialogs. Buttons
+    can always be clicked from the keyboard by pressing Return or the
+    spacebar when the button has focus.
 
   This property's default is FALSE.
 */
