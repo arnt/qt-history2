@@ -1008,7 +1008,7 @@ QPaintDevice *QPaintEngine::paintDevice() const
     return d->pdev;
 }
 
-
+#ifdef Q_WS_WIN
 /*!
     \internal
 
@@ -1030,4 +1030,4 @@ HDC QPaintEngine::getDC() const
 void QPaintEngine::releaseDC(HDC) const
 {
 }
-
+#endif
