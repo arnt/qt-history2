@@ -153,8 +153,8 @@ of QMainWindow and QToolBar is source compatible with Qt 2.x, so
 existing code which uses these classes continues to work.
 
 
-Regular Expresions
-------------------
+Regular Expressions
+-------------------
 
 Qt has always provided regular expression support, but that support
 was pretty much limited to what was required in common GUI control
@@ -1011,6 +1011,9 @@ New functions:
 	QGLFormat requestedFormat() const;
 	QImage grabFrameBuffer( bool withAlpha = FALSE );
 
+QGLColormap - new class for manipulating colormaps in GL index mode.
+
+
 
 QWorkspace Module
 -----------------
@@ -1098,6 +1101,7 @@ QDockArea
 QDockWindow
 QErrorMessage
 QFeatureListInterface
+QGLColormap
 QGridView
 QHttp [network]
 QInterfaceListInterface
