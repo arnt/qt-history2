@@ -21,7 +21,9 @@ WidgetInfo::WidgetInfo()
 
 const QMetaObject *WidgetInfo::metaObject(const QString &widgetName)
 {
-    if (widgetName == QLatin1String("QPushButton"))
+    if (widgetName == QLatin1String("QObject"))
+        return &QObject::staticMetaObject;
+    else if (widgetName == QLatin1String("QPushButton"))
         return &QPushButton::staticMetaObject;
     else if (widgetName == QLatin1String("QToolButton"))
         return &QToolButton::staticMetaObject;
@@ -156,8 +158,13 @@ bool WidgetInfo::checkEnumerator(const QMetaEnum &metaEnum, const char *name)
 QString WidgetInfo::resolveEnumerator(const QString &className, const char *name)
 {
     const QMetaObject *meta = metaObject(className);
-    if (!meta)
+    if (!meta) {
+        QString e = resolveEnumerator("QObject", QLatin1String("Qt::") + name);
+        if (e.size())
+            return e;
+
         return QLatin1String(name);
+    }
 
     return resolveEnumerator(meta, name);
 }
@@ -176,9 +183,16 @@ QString WidgetInfo::resolveEnumerator(const QMetaObject *meta, const char *name)
 QString WidgetInfo::resolveEnumerator(const QMetaEnum &metaEnum, const char *name)
 {
     QString scope = metaEnum.scope();
+
     int idx = metaEnum.keyToValue(name);
-    if (idx != -1)
-        return scope + QLatin1String("::") + name;
+    if (idx != -1) {
+        QString enumerator = name;
+        int i = enumerator.indexOf("::");
+        if (i != -1)
+            enumerator = enumerator.mid(i + 2);
+
+        return scope + QLatin1String("::") + enumerator;
+    }
 
     return QString::null;
 }
