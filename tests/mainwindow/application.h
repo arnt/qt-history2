@@ -45,8 +45,8 @@ private slots:
     void aboutQt();
 
 private:
-    QToolBar *createToolbar( const QString &name );
-    
+    QToolBar *createToolbar( const QString &name, bool nl );
+
     QMultiLineEdit *e;
     QString filename;
 

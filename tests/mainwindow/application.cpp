@@ -59,10 +59,12 @@ ApplicationWindow::ApplicationWindow()
     bool tbconfig = f.open( IO_ReadOnly );
     QMap< QString, int > docks;
     QMap< QString, int > indices;
+    QMap< QString, int > nls;
     if ( tbconfig ) {
 	QDataStream s( &f );
 	s >> docks;
 	s >> indices;
+	s >> nls;
     }
 
     QString toolBars[] = {
@@ -74,15 +76,17 @@ ApplicationWindow::ApplicationWindow()
 
     if ( tbconfig ) {
 	QMap< QString, int >::Iterator dit, iit;
+	QMap< QString, int >::Iterator nit;
 	dit = docks.begin();
 	iit = indices.begin();
-	for ( ; dit != docks.end(); ++dit, ++iit ) {
-	    QToolBar *tb = createToolbar( dit.key().mid( 1, 0xFFFFFF ) );
-	    moveToolBar( tb, (ToolBarDock)*dit, *iit );
+	nit = nls.begin();
+	for ( ; dit != docks.end(); ++dit, ++iit, ++nit ) {
+	    QToolBar *tb = createToolbar( dit.key().mid( 1, 0xFFFFFF ), FALSE );
+	    moveToolBar( tb, (ToolBarDock)*dit, (bool)*nit, *iit );
 	}
     } else {
 	for ( unsigned int i = 0; i < 4; ++i )
-	    createToolbar( toolBars[ i ] );
+	    createToolbar( toolBars[ i ], TRUE );
     }
 
     // Menus:
@@ -146,7 +150,7 @@ ApplicationWindow::ApplicationWindow()
     resize( 450, 600 );
 }
 
-QToolBar* ApplicationWindow::createToolbar( const QString &name )
+QToolBar* ApplicationWindow::createToolbar( const QString &name, bool nl )
 {
     QPixmap openIcon, saveIcon, printIcon;
     QPixmap openIcon2, saveIcon2, printIcon2;
@@ -212,7 +216,7 @@ QToolBar* ApplicationWindow::createToolbar( const QString &name )
 	(void)new QToolButton( printIcon2, "Print File", QString::null,
 			       this, SLOT(print2()), fileTools3, "print file2" );
 
-	addToolBar( fileTools3, "FILETOOLS2", Top, FALSE );
+	addToolBar( fileTools3, "FILETOOLS2", Top, nl );
 	return fileTools3;
     } else if ( name == "file4 operations" ) {
 	QToolBar* fileTools4 = new QToolBar( this, "file4 operations" );
@@ -245,6 +249,7 @@ ApplicationWindow::~ApplicationWindow()
     ToolBarDock da[] = { Left, Right, Top, Bottom };
     QMap< QString, int > docks;
     QMap< QString, int > indices;
+    QMap< QString, int > nls;
     int j = 0;
     for ( unsigned int i = 0; i < 4; ++i ) {
 	lst = toolBarsOnDock( da[ i ] );
@@ -252,9 +257,11 @@ ApplicationWindow::~ApplicationWindow()
 	while ( tb ) {
 	    ToolBarDock dock;
 	    int index;
-	    if ( findDockAndIndexOfToolbar( tb, dock, index ) ) {
+	    bool nl;
+	    if ( findDockAndIndexOfToolbar( tb, dock, index, nl ) ) {
 		docks[ QString::number( j ) + tb->name() ] = dock;
 		indices[ QString::number( j ) + tb->name() ] = index;
+		nls[ QString::number( j ) + tb->name() ] = nl;
 		++j;
 	    }
 	    tb = lst.next();
@@ -265,6 +272,7 @@ ApplicationWindow::~ApplicationWindow()
     QDataStream s( &file );
     s << docks;
     s << indices;
+    s << nls;
 }
 
 

@@ -63,7 +63,7 @@ public:
     void addToolBar( QToolBar *, const QString &label,
 		     ToolBarDock = Top, bool newLine = FALSE );
     void moveToolBar( QToolBar *, ToolBarDock = Top );
-    void moveToolBar( QToolBar *, ToolBarDock, int index );
+    void moveToolBar( QToolBar *, ToolBarDock, bool nl, int index );
 
     void removeToolBar( QToolBar * );
 
@@ -77,10 +77,10 @@ public:
 
     bool eventFilter( QObject*, QEvent* );
 
-    bool findDockAndIndexOfToolbar( QToolBar *tb, ToolBarDock &dock, int &index ) const;
+    bool findDockAndIndexOfToolbar( QToolBar *tb, ToolBarDock &dock, int &index, bool &nl ) const;
 
     QList<QToolBar> toolBarsOnDock( ToolBarDock dock ) const;
-    
+
 public slots:
     virtual void setRightJustification( bool );
     virtual void setUsesBigPixmaps( bool );

@@ -762,7 +762,7 @@ QMainWindowPrivate::ToolBar * QMainWindowPrivate::takeToolBarFromDock( QToolBar 
   \a relative if \a after is TRUE.
 
   If \a toolBar is already managed by some main window, it is moved from
-  that window to this and set to \e not start a new line.
+  that window to this.
 */
 
 void QMainWindow::moveToolBar( QToolBar *toolBar, ToolBarDock edge, QToolBar *relative, bool after  )
@@ -770,6 +770,9 @@ void QMainWindow::moveToolBar( QToolBar *toolBar, ToolBarDock edge, QToolBar *re
     if ( !toolBar )
 	return;
 
+    if ( relative == toolBar )
+	return;
+    
     bool nl = FALSE;
     QValueList<int> dd;
     if ( toolBar->mw && toolBar->mw != this ) {
@@ -853,7 +856,7 @@ void QMainWindow::moveToolBar( QToolBar *toolBar, ToolBarDock edge, QToolBar *re
   Moves \a toolBar to this the end of \a edge.
 
   If \a toolBar is already managed by some main window, it is moved from
-  that window to this and set to \e not start a new line.
+  that window to this.
 */
 
 void QMainWindow::moveToolBar( QToolBar * toolBar, ToolBarDock edge )
@@ -865,10 +868,10 @@ void QMainWindow::moveToolBar( QToolBar * toolBar, ToolBarDock edge )
   Moves \a toolBar to the position \a index of \a edge.
 
   If \a toolBar is already managed by some main window, it is moved from
-  that window to this and set to \e not start a new line.
+  that window to this.
 */
 
-void QMainWindow::moveToolBar( QToolBar * toolBar, ToolBarDock edge, int index )
+void QMainWindow::moveToolBar( QToolBar * toolBar, ToolBarDock edge, bool nl, int index )
 {
     QMainWindowPrivate::ToolBarDock * dl = 0;
     switch ( edge ) {
@@ -892,6 +895,10 @@ void QMainWindow::moveToolBar( QToolBar * toolBar, ToolBarDock edge, int index )
 	break;
     }
 	
+    QMainWindowPrivate::ToolBarDock *dummy;
+    QMainWindowPrivate::ToolBar *tt = d->findToolbar( toolBar, dummy );
+    if ( nl && tt )
+	tt->nl = nl;
     if ( !dl ) {
 	moveToolBar( toolBar, edge, 0, TRUE );
     } else {
@@ -1725,13 +1732,14 @@ void QMainWindow::styleChange( QStyle& old )
 /*!
   Finds and gives back the \a dock and the \a index there of the toolbar \a tb. \a dock is
   set to the dock of the mainwindow in which \a tb is and \a index is set to the
-  position of the toolbar in this dock.
+  position of the toolbar in this dock. If the toolbar has a new line, \a nl is set to TRUE, 
+  else to FALSE.
 
   This method returns TRUE if the information could be found out, otherwise FALSE
   (e.g. because the toolbar \a tb was not found in this mainwindow)
 */
 
-bool QMainWindow::findDockAndIndexOfToolbar( QToolBar *tb, ToolBarDock &dock, int &index ) const
+bool QMainWindow::findDockAndIndexOfToolbar( QToolBar *tb, ToolBarDock &dock, int &index, bool &nl ) const
 {
     if ( !tb )
 	return FALSE;
@@ -1756,7 +1764,8 @@ bool QMainWindow::findDockAndIndexOfToolbar( QToolBar *tb, ToolBarDock &dock, in
 	dock = TornOff;
 
     index = td->findRef( t );
-
+    nl = t->nl;
+    
     return TRUE;
 }
 
