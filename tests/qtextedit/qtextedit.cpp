@@ -611,11 +611,11 @@ void QTextEdit::contentsMouseMoveEvent( QMouseEvent *e )
 
 void QTextEdit::contentsMouseReleaseEvent( QMouseEvent * )
 {
-    if ( dragStartTimer->isActive() )
-	dragStartTimer->stop();
     if ( scrollTimer->isActive() )
 	scrollTimer->stop();
 #ifndef QT_NO_DRAGANDDROP
+    if ( dragStartTimer->isActive() )
+	dragStartTimer->stop();
     if ( mightStartDrag ) {
 	selectAll( FALSE );
 	mousePressed = FALSE;
