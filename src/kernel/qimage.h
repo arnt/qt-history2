@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.h#36 $
+** $Id: //depot/qt/main/src/kernel/qimage.h#37 $
 **
 ** Definition of QImage and QImageIO classes
 **
@@ -57,6 +57,8 @@ public:
     bool	create( int width, int height, int depth, int numColors=0,
 			QImage::Endian bitOrder=IgnoreEndian );
     void	reset();
+
+    void	fill( uint pixel );
 
     QImage	convertDepth( int )	const;
     QImage	convertBitOrder( QImage::Endian )	const;

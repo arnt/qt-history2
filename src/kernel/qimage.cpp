@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#89 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#90 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -22,7 +22,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#89 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#90 $");
 
 
 /*!
@@ -412,6 +412,50 @@ void QImage::reset()
     data->w = data->h = data->d = 0;
     data->nbytes = 0;
     data->bitordr = IgnoreEndian;
+}
+
+
+/*!
+  Fills the entire image with the pixel value \a pixel.
+
+  If the \link depth() depth\endlink of this image is 1, only
+  the lowest bit is used. If you say fill(0), fill(2) etc., the image
+  is filled with 0s. If you say fill(1), fill(3) etc., the image
+  is filled with 1s. If the depth is 8, the lowest 8 bits are used.
+
+  If the depth is 32 and the image has no alpha buffer, the \a pixel
+  value is written to each pixel in the image. If the image has an
+  alpha buffer, only the 24 RGB bits are set and the upper 8 bits (alpha
+  value) are left unchanged.
+*/
+
+void QImage::fill( uint pixel )
+{
+    if ( depth() == 1 ) {
+	if ( pixel & 1 )
+	    pixel = 0xffffffff;
+	else
+	    pixel = 0;
+    } else if ( depth() == 8 ) {
+	uint c = pixel & 0xff;
+	pixel = c | ((c << 8) & 0xff00) | ((c << 16) & 0xff0000) |
+	        ((c << 24) & 0xff000000);
+    }
+    int bpl = bytesPerLine();
+    if ( depth() == 32 && 0 /* hasAlphaBuffer() */ ) {
+	pixel &= 0x00ffffff;
+	for ( int i=0; i<height(); i++ ) {
+	    uint *p = (uint *)scanLine(i);
+	    uint *end = p + width();
+	    while ( p < end ) {
+		*p = (*p & 0xff000000) | pixel;
+		p++;
+	    }
+	}
+    } else {
+	for ( int i=0; i<height(); i++ )
+	    memset( scanLine(i), pixel, bpl );
+    }
 }
 
 
@@ -1580,7 +1624,8 @@ const char *QImageIO::imageFormat( QIODevice *d )
 	if ( buf[n] == '\0' )
 	    buf[n] = '\001';
     const char *format = 0;
-    if ( d->status() == IO_Ok && rdlen == buflen ) {
+    if ( d->status() == IO_Ok && rdlen > 0 ) {
+	buf[rdlen-1] = '\0';
 	QImageHandler *p = imageHandlers->first();
 	while ( p ) {
 	    if ( p->header.match(buf) != -1 ) { // try match with headers
@@ -1626,15 +1671,14 @@ bool QImageIO::read()
 
     if ( iodev ) {				// read from io device
 	// ok, already open
-    }
-    else if ( !fname.isEmpty() ) {		// read from file
+    } else if ( !fname.isEmpty() ) {		// read from file
 	file.setName( fname );
 	if ( !file.open(IO_ReadOnly) )
 	    return FALSE;			// cannot open file
 	iodev = &file;
-    }
-    else					// no file name or io device
+    } else {					// no file name or io device
 	return FALSE;
+    }
     image_format = imageFormat( iodev );	// get image format
     if ( !image_format ||
 	 !(frmt.isEmpty() || frmt == image_format) ) {
