@@ -75,6 +75,8 @@ Uic::Uic( QTextStream &outStream, QDomDocument doc, bool decl, bool subcl, const
     : out( outStream ), trmacro( trm )
 {
 
+    indent = "    "; // default indent
+    
     item_used = cg_used = pal_used = 0;
 
     layouts << "hbox" << "vbox" << "grid";
@@ -89,7 +91,6 @@ Uic::Uic( QTextStream &outStream, QDomDocument doc, bool decl, bool subcl, const
 
     if ( nameOfClass.isEmpty() )
 	nameOfClass = getObjectName( firstWidget );
-
 
     if ( subcl ) {
 	if ( decl )
@@ -165,6 +166,24 @@ QString Uic::getLayoutName( const QDomElement& e )
     return e.tagName();
 }
 
+/*! Extracts a connection name from \a e.
+ */
+
+QString Uic::getConnectionName( const QDomElement& e )
+{
+    QDomElement n;
+    for ( n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
+	if ( n.tagName() == "property" ) {
+	    QDomElement n2 = n.firstChild().toElement();
+	    if ( n2.tagName() == "name" && n2.firstChild().toText().data() == "database" ) {
+		return n2.nextSibling().toElement().firstChild().toText().data();
+	    }
+	}
+    }
+    return QString::null;
+}
+    
+
 /*! Extracts a table name from \a e.
  */
 
@@ -239,8 +258,6 @@ void Uic::createFormDecl( const QDomElement &e )
 	return;
     QString objName = getObjectName( e );
 
-    indent = "    "; // default indent for child properties
-
     QStringList typeDefs;
 
     QMap<QString, CustomInclude> customWidgetIncludes;
@@ -250,7 +267,7 @@ void Uic::createFormDecl( const QDomElement &e )
     if ( objClass == "QSqlDialog" || objClass == "QSqlWidget" ) {
 	dbAware = TRUE;
     }
-    
+
     // at first the images, we need to ensure the names are unique
     QStringList forwardDecl;
     QStringList forwardDecl2;
@@ -307,7 +324,7 @@ void Uic::createFormDecl( const QDomElement &e )
 		localIncludes += (*it).header;
 	}
     }
-    
+
     nl = e.parentNode().toElement().elementsByTagName( "include" );
     for ( i = 0; i < (int) nl.length(); i++ ) {
 	QDomElement n2 = nl.item(i).toElement();
@@ -325,7 +342,7 @@ void Uic::createFormDecl( const QDomElement &e )
     }
 
     QStringList::Iterator it;
-    
+
     globalIncludes = unique( globalIncludes );
     for ( it = globalIncludes.begin(); it != globalIncludes.end(); ++it ) {
 	if ( !(*it).isEmpty() )
@@ -354,7 +371,7 @@ void Uic::createFormDecl( const QDomElement &e )
 	    forwardDecl += "QSqlForm";
 	}
     }
-    
+
     for ( it = tags.begin(); it != tags.end(); ++it ) {
 	nl = e.elementsByTagName( *it );
 	for ( i = 0; i < (int) nl.length(); i++ ) {
@@ -419,24 +436,24 @@ void Uic::createFormDecl( const QDomElement &e )
     out << endl;
     out << "public:" << endl;
 
-    // constructors
-    if ( objClass == "QDialog" || objClass == "QWizard" ) {
+    // constructors // ## db finish
+    if ( objClass == "QDialog" || objClass == "QWizard" || objClass == "QSqlDialog" ) {
 	out << "    " << nameOfClass << "( QWidget* parent = 0, const char* name = 0, bool modal = FALSE, WFlags fl = 0 );" << endl;
 	if ( dbAware ) {
-	    //	    out << "    " << nameOfClass << "( QSqlCursor* cursor, QWidget* parent = 0, const char* name = 0, bool modal = FALSE, WFlags fl = 0 );" << endl;	    
+	    //	    out << "    " << nameOfClass << "( QSqlCursor* cursor, QWidget* parent = 0, const char* name = 0, bool modal = FALSE, WFlags fl = 0 );" << endl;
 	}
-    } else if ( objClass == "QWidget" ) { // standard QWidget
+    } else if ( objClass == "QWidget" || objClass == "QSqlWidget" ) {
 	out << "    " << nameOfClass << "( QWidget* parent = 0, const char* name = 0, WFlags fl = 0 );" << endl;
 	if ( dbAware ) {
-	    //	    out << "    " << nameOfClass << "( QSqlCursor* cursor, QWidget* parent = 0, const char* name = 0, WFlags fl = 0 );" << endl;	    
+	    //	    out << "    " << nameOfClass << "( QSqlCursor* cursor, QWidget* parent = 0, const char* name = 0, WFlags fl = 0 );" << endl;
 	}
     } else {
 	out << "    " << nameOfClass << "( QWidget* parent = 0, const char* name = 0 );" << endl;
-	if ( dbAware ) {	
-	    //	    out << "    " << nameOfClass << "( QSqlCursor* cursor, QWidget* parent = 0, const char* name = 0 );" << endl;	    	    
+	if ( dbAware ) {
+	    //	    out << "    " << nameOfClass << "( QSqlCursor* cursor, QWidget* parent = 0, const char* name = 0 );" << endl;
 	}
     }
-    
+
     // destructor
     out << "    ~" << nameOfClass << "();" << endl;
     out << endl;
@@ -444,12 +461,13 @@ void Uic::createFormDecl( const QDomElement &e )
     // database support
     if ( dbAware ) {
 	out << "    " << "virtual bool setCursor( QSqlCursor* cursor );" << endl;
-	out << "    " << "virtual QSqlCursor* createCursor( const QString& name );" << endl;	
-	out << "    " << "QSqlCursor* defaultCursor();" << endl;		
-	out << "    " << "QSqlForm* defaultForm();" << endl;			
-	out << endl;	
+	out << "    " << "virtual QSqlCursor* createCursor( const QString& name );" << endl;
+	out << "    " << "QSqlCursor* defaultCursor();" << endl;
+	if ( dbForm )
+	    out << "    " << "QSqlForm* defaultForm();" << endl;
+	out << endl;
     }
-    
+
     // children
     nl = e.elementsByTagName( "widget" );
     bool needEventHandler = FALSE;
@@ -458,34 +476,39 @@ void Uic::createFormDecl( const QDomElement &e )
 	createObjectDecl( n );
 	needEventHandler = needEventHandler ||
 			   !DomTool::propertiesOfType( n, "font" ).isEmpty() ;
+	QString s = getClassName( n );
+	if ( s == "QSqlTable" ) 
+	    needEventHandler = TRUE;
     }
-    
-    out << endl;    
-    
+
+    out << endl;
+
     if ( dbAware ) {
 	dbConnections = unique( dbConnections );
 	for ( it = dbConnections.begin(); it != dbConnections.end(); ++it ) {
 	    if ( !(*it).isEmpty() ) {
 		if ( (*it) == "(default)" )
-		    out << "    QSqlDatabase* defaultConnection;" << endl;			    
+		    out << "    QSqlDatabase* defaultConnection;" << endl;
 		else
 		    out << "    QSqlDatabase* " << *it << "Connection;" << endl;
 		QStringList::Iterator it2;
 		dbCursors[ (*it) ] = unique( dbCursors[ (*it) ] );
-		for( it2 = dbCursors[ (*it) ].begin(); 
+		for( it2 = dbCursors[ (*it) ].begin();
 		      it2 != dbCursors[ (*it) ].end();
 		      ++it2 ) {
 		    out << "    QSqlCursor* " << (*it2) << "Cursor;" << endl;
 		}
-		dbForms[ (*it) ] = unique( dbForms[ (*it) ] );
-		for ( it2 = dbForms[ (*it) ].begin(); 
-		      it2 != dbForms[ (*it) ].end();
-		      ++it2 ) {
-		    out << "    QSqlForm* " << (*it2) << "Form;" << endl;
+		if ( dbForm ) {
+		    dbForms[ (*it) ] = unique( dbForms[ (*it) ] );
+		    for ( it2 = dbForms[ (*it) ].begin();
+			  it2 != dbForms[ (*it) ].end();
+			  ++it2 ) {
+			out << "    QSqlForm* " << (*it2) << "Form;" << endl;
+		    }
 		}
 	    }
 	}
-	out << "    QVector< QSqlCursor > autoDeleteCursors;" << endl;;		    	
+	out << "    QVector< QSqlCursor > autoDeleteCursors;" << endl;;
     }
 
     out << endl;
@@ -566,8 +589,6 @@ void Uic::createFormImpl( const QDomElement &e )
 	return;
     QString objName = getObjectName( e );
 
-    indent = "    "; // default indent for child properties
-
     // generate local and local includes required
     QStringList globalIncludes, localIncludes;
     QStringList::Iterator it;
@@ -597,7 +618,7 @@ void Uic::createFormImpl( const QDomElement &e )
 	    globalIncludes += "qsqlrecord.h";
 	}
     }
-    
+
     // do the local includes afterwards, since global includes have priority on clashes
     for ( i = 0; i < (int) nl.length(); i++ ) {
 	QDomElement n2 = nl.item(i).toElement();
@@ -712,7 +733,7 @@ void Uic::createFormImpl( const QDomElement &e )
 
 
     // constructor
-    if ( objClass == "QDialog" || objClass == "QWizard" ) {
+    if ( objClass == "QDialog" || objClass == "QWizard" || objClass == "QSqlDialog" ) {
 	out << "/* " << endl;
 	out << " *  Constructs a " << nameOfClass << " which is a child of 'parent', with the " << endl;
 	out << " *  name 'name' and widget flags set to 'f' " << endl;
@@ -722,7 +743,7 @@ void Uic::createFormImpl( const QDomElement &e )
 	out << " */" << endl;
 	out << nameOfClass << "::" << nameOfClass << "( QWidget* parent,  const char* name, bool modal, WFlags fl )" << endl;
 	out << "    : " << objClass << "( parent, name, modal, fl )" << endl;
-    } else if ( objClass == "QWidget" )  { // standard QWidget
+    } else if ( objClass == "QWidget" || objClass == "QSqlWidget" )  {
 	out << "/* " << endl;
 	out << " *  Constructs a " << nameOfClass << " which is a child of 'parent', with the " << endl;
 	out << " *  name 'name' and widget flags set to 'f' " << endl;
@@ -825,37 +846,37 @@ void Uic::createFormImpl( const QDomElement &e )
 		createObjectImpl( n, objName, "this" );
 	}
     }
-    
+
     // database support
+
     if ( dbAware ) {
+	QString defaultTable = getTableName( e );	
 	out << endl << indent << "// database support" << endl;
 	int dbFormCount = 0;
 	dbConnections = unique( dbConnections );
 	for ( it = dbConnections.begin(); it != dbConnections.end(); ++it ) {
 	    if ( !(*it).isEmpty() ) {
 		if ( (*it) == "(default)" )
-		    out << indent << "defaultConnection = QSqlDatabase::database();" << endl;		    
+		    out << indent << "defaultConnection = QSqlDatabase::database();" << endl;
 		else
 		    out << indent << (*it) << "Connection = QSqlDatabase::database( \"" <<(*it) << "\" );" << endl;
  		QStringList::Iterator it2;
  		dbCursors[ (*it) ] = unique( dbCursors[ (*it) ] );
- 		for( it2 = dbCursors[ (*it) ].begin(); 
+ 		for( it2 = dbCursors[ (*it) ].begin();
  		      it2 != dbCursors[ (*it) ].end();
  		      ++it2 ) {
- 		    out << indent << (*it2) << "Cursor = 0;";
-		    if ( (*it) == "(default)" )
-			out << " // default cursor";
-		    out << endl;
+		    if ( (*it2) == defaultTable )
+			out << indent << " // default cursor" << endl;
+ 		    out << indent << (*it2) << "Cursor = 0;" << endl;
  		}
  		dbForms[ (*it) ] = unique( dbForms[ (*it) ] );
- 		for ( it2 = dbForms[ (*it) ].begin(); 
+ 		for ( it2 = dbForms[ (*it) ].begin();
  		      it2 != dbForms[ (*it) ].end();
  		      ++it2 ) {
 		    dbFormCount++;
- 		    out << indent << (*it2) << "Form = new QSqlForm( this, \"" << (*it2) << "\" );";
-		    if ( (*it) == "(default)" )
-			out << " // default form";
-		    out << endl;
+		    if ( (*it2) == defaultTable )
+			out << indent << " // default form" << endl;
+ 		    out << indent << (*it2) << "Form = new QSqlForm( this, \"" << (*it2) << "\" );" << endl;
  		}
 	    }
 	}
@@ -941,32 +962,69 @@ void Uic::createFormImpl( const QDomElement &e )
     out << "}" << endl;
     out << endl;
 
-    // handle application font changes if required
-    nl = e.elementsByTagName( "widget" );
-    bool needEventHandler = FALSE;
+    // handle application events if required
+    bool needFontEventHandler = FALSE;
+    bool needSqlTableEventHandler = FALSE;    
+    nl = e.elementsByTagName( "widget" );    
     for ( i = 0; i < (int) nl.length(); i++ ) {
-	if ( !DomTool::propertiesOfType( nl.item(i).toElement() , "font" ).isEmpty() ) {
-	    needEventHandler = TRUE;
+	if ( !DomTool::propertiesOfType( nl.item(i).toElement() , "font" ).isEmpty() ) 
+	    needFontEventHandler = TRUE;
+	QString s = getClassName( nl.item(i).toElement() );
+	if ( s == "QSqlTable" ) 
+	    needSqlTableEventHandler = TRUE;
+	if ( needFontEventHandler && needSqlTableEventHandler )
 	    break;
-	}
     }
-    if ( needEventHandler ) {
-	indent = "\t"; // increase indentation for if-clause below
+    if ( needFontEventHandler || needSqlTableEventHandler ) {
+	//	indent = "\t"; // increase indentation for if-clause below
 	out << "/*  " << endl;
-	out << " *  Main event handler. Reimplemented to handle application" << endl;
-	out << " *  font changes" << endl;
+	out << " *  Main event handler. Reimplemented to handle";
+	if ( needFontEventHandler )
+	    out << " application font changes";
+	if ( needSqlTableEventHandler ) {
+	    if ( needFontEventHandler )
+		out << " and" << endl;
+	    else
+		out << endl;
+	    out << " *  default SQL table initialization." << endl;
+	}
 	out << " */" << endl;
 	out << "bool " << nameOfClass  << "::event( QEvent* ev )" << endl;
 	out << "{" << endl;
 	out << "    bool ret = " << objClass << "::event( ev ); " << endl;
-	out << "    if ( ev->type() == QEvent::ApplicationFontChange ) {" << endl;
-	for ( i = 0; i < (int) nl.length(); i++ ) {
-	    n = nl.item(i).toElement();
-	    QStringList list = DomTool::propertiesOfType( n, "font" );
-	    for ( it = list.begin(); it != list.end(); ++it )
-		createExclusiveProperty( n, *it );
+	if ( needFontEventHandler ) {
+	    indent += "\t";
+	    out << "    if ( ev->type() == QEvent::ApplicationFontChange ) {" << endl;
+	    for ( i = 0; i < (int) nl.length(); i++ ) {
+		n = nl.item(i).toElement();
+		QStringList list = DomTool::propertiesOfType( n, "font" );
+		for ( it = list.begin(); it != list.end(); ++it )
+		    createExclusiveProperty( n, *it );
+	    }
+	    out << "    }" << endl;
+	    indent = "    ";
 	}
-	out << "    }" << endl;
+	if ( needSqlTableEventHandler ) {
+	    out << indent << "if ( ev->type() == QEvent::Show ) {" << endl;
+	    for ( i = 0; i < (int) nl.length(); i++ ) {
+		QString s = getClassName( nl.item(i).toElement() );
+		if ( s == "QSqlTable" ) {
+		    n = nl.item(i).toElement();
+		    QString c = getObjectName( n );
+		    QString conn = getConnectionName( n );
+		    QString tab = getTableName( n );		    
+		    out << indent << indent << "if ( !" << c << "->cursor() ) {" << endl;
+		    if ( conn == "(default)" ) 
+			out << indent << indent << indent << "QSqlCursor* c = new QSqlCursor( \"" << tab << "\" );" << endl;
+		    else
+			out << indent << indent << indent << "QSqlCursor* c = new QSqlCursor( \"" << tab << "\", " << conn << "Connection );" << endl;
+		    out << indent << indent << indent << c << "->setCursor( c );" << endl;
+		    out << indent << indent << indent << c << "->setAutoDelete( TRUE );" << endl;
+		    out << indent << indent << "}" << endl;
+		}
+	    }
+	    out << "    }" << endl;
+	}
 	out << "    return ret;" << endl;
 	out << "}" << endl;
 	out << endl;
@@ -1010,7 +1068,7 @@ void Uic::createFormImpl( const QDomElement &e )
 	    out << endl;
 	}
     }
-    
+
     // database support
     if ( dbAware ) {
 	createDatabaseImpl( e );
@@ -1031,19 +1089,19 @@ QString Uic::getInclude( const QString& className )
 
 /*! Creates form support implementation code for the widgets given
   in \a e.
-  
+
   Traverses recursively over all children.
  */
 
 void Uic::createFormImpl( const QDomElement& e, const QString& form, const QString& connection, const QString& table )
 {
     if ( e.tagName() == "widget" ) {
-	if ( isWidgetInTable( e, connection, table ) ) 
+	if ( isWidgetInTable( e, connection, table ) )
 	    out << indent << indent << form << "Form->insert( " << getObjectName( e ) << ", buf->field( \"" << getFieldName( e ) << "\" ) );" << endl;
     }
-    QDomElement n;    
+    QDomElement n;
     for ( n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
-	createFormImpl( n, form, connection, table );		    
+	createFormImpl( n, form, connection, table );
     }
 }
 
@@ -1055,42 +1113,50 @@ void Uic::createDatabaseImpl( const QDomElement& e )
 {
     QStringList::Iterator it;
     QDomElement n;
+    QString objClass = getClassName( e );
+    if ( objClass.isEmpty() )
+	return;
+    QString objName = getObjectName( e );
+    bool dbForm = ( dbForms[ "(default)" ].count() != 0 );    
     int i;
+    
     out << "/*  " << endl;
     out << " *  Sets the cursor identified by 'cursor' to be used" << endl;
-    out << " *  by the database form.  Returns TRUE if 'cursor' was recognized" << endl;
-    out << " *  by the form, otherwise FALSE is returned.  If the cursor is recognized," << endl;    
-    out << " *  and it is used by a form, the appropriate form fields are mapped to the" << endl;        
-    out << " *  cursor." << endl;            
+    out << " *  by the " << objName << ".  Returns TRUE if 'cursor' was recognized," << endl;
+    out << " *  otherwise FALSE is returned." << endl;
+    if ( dbForm ) {
+	out << " *  If the cursor is recognized, the appropriate form fields are" << endl;
+	out << " *  mapped to the cursor." << endl;    
+    }
     out << " */" << endl;
     out << "bool " << nameOfClass << "::setCursor( QSqlCursor* cursor )" << endl;
-    out << "{" << endl;	
+    out << "{" << endl;
     out << indent << "QString n = cursor->name();" << endl;
     out << indent << "bool recognized = FALSE;" << endl;
     for ( it = dbConnections.begin(); it != dbConnections.end(); ++it ) {
 	if ( !(*it).isEmpty() ) {
 	    QStringList::Iterator it2;
 	    dbCursors[ (*it) ] = unique( dbCursors[ (*it) ] );
-	    for( it2 = dbCursors[ (*it) ].begin(); 
+	    for( it2 = dbCursors[ (*it) ].begin();
 		 it2 != dbCursors[ (*it) ].end();
 		 ++it2 ) {
 		out << indent << "if ( n == \"" << (*it2) << "\" ) {" << endl;
 		out << indent << indent << (*it2) << "Cursor = cursor;" << endl;
-		out << indent << indent << "recognized = TRUE;" << endl;		    
+		out << indent << indent << "recognized = TRUE;" << endl;
 		QStringList::Iterator it3;
 		dbForms[ (*it) ] = unique( dbForms[ (*it) ] );
-		for ( it3 = dbForms[ (*it) ].begin(); 
+		for ( it3 = dbForms[ (*it) ].begin();
 		      it3 != dbForms[ (*it) ].end();
 		      ++it3 ) {
 		    if ( (*it3) == (*it2) ) { // form for table
 			out << indent << indent << "QSqlRecord* buf = " << (*it2) << "Cursor->editBuffer();" << endl;
 			for ( n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
-			    createFormImpl( n, (*it3), (*it), (*it2) );			    
+			    createFormImpl( n, (*it3), (*it), (*it2) );
 			}
 		    }
 		    out << indent << indent << (*it3) << "Form->readFields();" << endl;
 		}
-		out << indent << "}" << endl;		    		    
+		out << indent << "}" << endl;
 	    }
 	}
     }
@@ -1099,17 +1165,18 @@ void Uic::createDatabaseImpl( const QDomElement& e )
     out << indent << "return recognized;" << endl;
     out << "}" << endl;
     out << endl;
-	
+
     QString defaultTable = getTableName( e );
-    
+
     out << "/*  " << endl;
-    out << " *  Returns a pointer to the default cursor.  Reimplemented from" << endl;
-    out << " *  QSqlNavigator which relies on a default cursor.  If the default" << endl;
-    out << " *  cursor does not exist, it is first created with " << endl;
-    out << " *  " << nameOfClass << "::createCursor()." << endl;    
+    out << " *  Returns a pointer to the default cursor." << endl;
+    if ( dbForm ) 
+	out << " *  Reimplemented from QSqlNavigator which relies on a default cursor" << endl;
+    out << " *  If the default cursor does not exist, it is first created with " << endl;
+    out << " *  " << nameOfClass << "::createCursor()." << endl;
     out << " */" << endl;
     out << "QSqlCursor* " << nameOfClass << "::defaultCursor()" << endl;
-    out << "{" << endl;	
+    out << "{" << endl;
     out << indent << "if ( !" << defaultTable << "Cursor ) {" << endl;
     out << indent << indent << defaultTable << "Cursor = createCursor( \"" << defaultTable << "\" );" << endl;
     out << indent << indent << "setCursor( " << defaultTable << "Cursor );" << endl;
@@ -1118,25 +1185,24 @@ void Uic::createDatabaseImpl( const QDomElement& e )
     out << "}" << endl;
     out << endl;
 
+    if ( dbForm ) {    
+	out << "/*  " << endl;
+	out << " *  Returns a pointer to the default form.  Reimplemented from" << endl;
+	out << " *  QSqlNavigator which relies on a default form." << endl;
+	out << " */" << endl;
+	out << "QSqlForm* " << nameOfClass << "::defaultForm()" << endl;
+	out << "{" << endl;
+	out << indent << "return " << defaultTable << "Form;" << endl;
+	out << "}" << endl;
+	out << endl;
+    }
+
     out << "/*  " << endl;
-    out << " *  Returns a pointer to the default form.  Reimplemented from" << endl;
-    out << " *  QSqlNavigator which relies on a default form." << endl;
-    out << " */" << endl;
-    out << "QSqlForm* " << nameOfClass << "::defaultForm()" << endl;
-    out << "{" << endl;	
-    out << indent << "return " << defaultTable << "Form;" << endl;
-    out << "}" << endl;
-    out << endl;
-    
-    out << "/*  " << endl;
-    out << " *  Virtual function which returns a pointer to a" << endl;
-    out << " *  new cursor based on 'name'.  If 'name' is not recognized," << endl;
-    out << " *  0 is returned.  This function is called if it is necessary" << endl;
-    out << " *  to create a cursor for use in the form." << endl;
-    out << " *  Also see setCursor()." << endl;		
+    out << " *  Returns a pointer to a new cursor based on 'name'." << endl;
+    out << " *  If 'name' is not recognized, 0 is returned." << endl;
     out << " */" << endl;
     out << "QSqlCursor* " << nameOfClass << "::createCursor( const QString& name  )" << endl;
-    out << "{" << endl;	
+    out << "{" << endl;
     out << indent << "bool recognized = FALSE;" << endl;
     out << indent << "QSqlCursor*  cursor = 0;" << endl;
     for ( it = dbConnections.begin(); it != dbConnections.end(); ++it ) {
@@ -1144,19 +1210,18 @@ void Uic::createDatabaseImpl( const QDomElement& e )
 	    QStringList::Iterator it2;
 	    dbCursors[ (*it) ] = unique( dbCursors[ (*it) ] );
 	    i = 0;
-	    for( it2 = dbCursors[ (*it) ].begin(); 
+	    for( it2 = dbCursors[ (*it) ].begin();
 		 it2 != dbCursors[ (*it) ].end();
 		 ++it2, ++i ) {
 		out << indent << "if ( name == \"" << (*it2) << "\" ) {" << endl;
-		if ( (*it) == "(default)" ) {
+		if ( (*it) == "(default)" ) 
 		    out << indent << indent << "cursor = new QSqlCursor( name );" << endl;
-		    out << indent << indent << "cursor->select();" << endl;
-		    out << indent << indent << "autoDeleteCursors.insert( " << i << ", cursor );" << endl;
-		} else {
+		else 
 		    out << indent << indent <<  "cursor = new QSqlCursor( name, " << (*it) << "Connection );" << endl;
-		}
+		out << indent << indent << "cursor->select();" << endl;
+		out << indent << indent << "autoDeleteCursors.insert( " << i << ", cursor );" << endl;
 		out << indent << indent << "recognized = TRUE;" << endl;
-		out << indent << "}" << endl;		    
+		out << indent << "}" << endl;
 	    }
 	}
     }
@@ -1164,7 +1229,7 @@ void Uic::createDatabaseImpl( const QDomElement& e )
     out << indent << indent << "qWarning(\"" << nameOfClass << "::createCursor: unknown cursor:'\" + name + \"'\");" << endl;
     out << indent << "return cursor;" << endl;
     out << "}" << endl;
-    out << endl;	
+    out << endl;
 }
 
 /*!
@@ -1683,7 +1748,7 @@ void Uic::createExclusiveProperty( const QDomElement & e, const QString& exclusi
 		QString value = setObjectProperty( objClass, objName, prop, n2.nextSibling().toElement(), stdset );
 		if ( value.isEmpty() )
 		    continue;
-		out << indent << objName << "->setProperty( \"" << prop << "\", " << value << " );" << endl;
+		out << indent << indent << objName << "->setProperty( \"" << prop << "\", " << value << " );" << endl;
 	    }
 	}
     }
@@ -1992,9 +2057,9 @@ bool Uic::isWidgetInTable( const QDomElement& e, const QString& connection, cons
 {
     QDomElement n;
     for ( n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
-	QDomElement n2;	
+	QDomElement n2;
 	if ( n.tagName() == "property" ) {
-	    QDomElement n2 = n.firstChild().toElement();     
+	    QDomElement n2 = n.firstChild().toElement();
 	    if ( n2.tagName() == "name" ) {
 		QString prop = n2.firstChild().toText().data();
 		if ( prop == "database" ) {
@@ -2004,7 +2069,7 @@ bool Uic::isWidgetInTable( const QDomElement& e, const QString& connection, cons
 			if ( con != connection )
 			    return FALSE;
 			n2 = n2.nextSibling().toElement();
-			if ( n2.tagName() == "table" ) { 
+			if ( n2.tagName() == "table" ) {
 			    QString tab = n2.firstChild().toText().data();
 			    if ( tab == table )
 				return TRUE;
@@ -2027,7 +2092,7 @@ void Uic::registerDatabases( const QDomElement& e )
 {
     QDomElement n;
     QDomNodeList nl;
-    int i;	
+    int i;
     nl = e.parentNode().toElement().elementsByTagName( "widget" );
     for ( i = 0; i < (int) nl.length(); ++i ) {
 	QDomNodeList nl2 = nl.item(i).toElement().elementsByTagName( "property" );
@@ -2043,7 +2108,7 @@ void Uic::registerDatabases( const QDomElement& e )
 			    QString con = n2.text();
 			    dbConnections += con;
 			    n2 = n2.nextSibling().toElement();
-			    if ( n2.tagName() == "table" ) { 
+			    if ( n2.tagName() == "table" ) {
 				QString tab = n2.text();
 				dbCursors[con] += tab;
 				n2 = n2.nextSibling().toElement();

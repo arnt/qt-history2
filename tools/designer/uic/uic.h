@@ -109,6 +109,7 @@ private:
     bool isWidgetInTable( const QDomElement& e, const QString& connection, const QString& table );
     QString getFieldName( const QDomElement& e );
     QString getTableName( const QDomElement& e );
+    QString getConnectionName( const QDomElement& e );    
     void createDatabaseImpl( const QDomElement& e );
     void createFormImpl( const QDomElement& e, const QString& form, const QString& connection, const QString& table );
     QStringList                  dbConnections;
