@@ -34,13 +34,26 @@ const char* _GUIDTranslationFiles      = "{639EADAA-A684-42e4-A9AD-28FC9BCB8F7C}
 const char* _GUIDFormFiles             = "{99349809-55BA-4b9d-BF79-8FDBB0286EB3}";
 const char* _GUIDExtraCompilerFiles    = "{E0D8C965-CC5F-43d7-AD63-FAEF0BBC0F85}";
 
+enum DotNET {
+    NETUnknown = 0,
+    NET2002 = 0x70,
+    NET2003 = 0x71,
+    NET2005 = 0x80,
+};
+
 #ifdef Q_OS_WIN32
 #include <qt_windows.h>
 
-// Registry keys for .NET version detection -------------------------
-const char* _regNet2002                = "Software\\Microsoft\\VisualStudio\\7.0\\Setup\\VC\\ProductDir";
-const char* _regNet2003                = "Software\\Microsoft\\VisualStudio\\7.1\\Setup\\VC\\ProductDir";
-
+struct {
+    DotNET version;
+    const char *versionStr;
+    const char *regKey;
+} dotNetCombo[] = {
+    {NET2005, "MSVC.NET 2005 (8.0)", "Software\\Microsoft\\VisualStudio\\8.0\\Setup\\VC\\ProductDir"},
+    {NET2003, "MSVC.NET 2003 (7.1)", "Software\\Microsoft\\VisualStudio\\7.1\\Setup\\VC\\ProductDir"},
+    {NET2002, "MSVC.NET 2002 (7.0)", "Software\\Microsoft\\VisualStudio\\7.0\\Setup\\VC\\ProductDir"},
+    {NETUnknown, "", ""},
+};
 
 static QString keyPath(const QString &rKey)
 {
@@ -169,51 +182,61 @@ static QString readRegistryKey(HKEY parentHandle, const QString &rSubkey)
 }
 #endif
 
-bool use_net2003_version()
+DotNET which_dotnet_version()
 {
 #ifndef Q_OS_WIN32
-    return false; // Always generate 7.0 versions on other platforms
+    return NET2002; // Always generate 7.0 versions on other platforms
 #else
     // Only search for the version once
-    static int current_version = -1;
-    if(current_version != -1)
-        return (current_version == 71);
+    static DotNET current_version = NETUnknown;
+    if(current_version != NETUnknown)
+        return current_version;
 
     // Fallback to .NET 2002
-    current_version = 70;
+    current_version = NET2002;
 
-    // Get registry entries for both versions
-    QString path2002 = readRegistryKey(HKEY_LOCAL_MACHINE, _regNet2002);
-    QString path2003 = readRegistryKey(HKEY_LOCAL_MACHINE, _regNet2003);
+    int installed = 0;
+    int i = 0;
+    for(; dotNetCombo[i].version; ++i) {
+        QString path = readRegistryKey(HKEY_LOCAL_MACHINE, dotNetCombo[i].regKey);
+        if(!path.isEmpty()) {
+            ++installed;
+            current_version = dotNetCombo[i].version;
+        }
+    }
 
-    if(path2002.isNull() || path2003.isNull()) {
-        // Only have one MSVC, so use that one
-        current_version = (path2003.isNull() ? 70 : 71);
-    } else {
-        // Have both, so figure out the current
-        QString paths = qgetenv("PATH");
-        QStringList pathlist = paths.toLower().split(";");
+    if (installed < 2)
+        return current_version;
 
-        path2003 = path2003.toLower();
+    // More than one version installed, search directory path
+    QString warnPath;
+    QString paths = qgetenv("PATH");
+    QStringList pathlist = paths.toLower().split(";");
+    
+    i = installed = 0;
+    for(; dotNetCombo[i].version; ++i) {
+        QString productPath = readRegistryKey(HKEY_LOCAL_MACHINE, dotNetCombo[i].regKey).toLower();
         QStringList::iterator it;
-        for(it=pathlist.begin(); it!=pathlist.end(); ++it) {
-            if((*it).contains(path2003)) {
-                current_version = 71;
-            } else if((*it).contains(path2002)
-                       && current_version == 71) {
-                fprintf(stderr, "Both .NET 2002 & .NET 2003 directories for VC found in you PATH variable!\nFallback to .NET 2002 project generation");
-                current_version = 70;
+        for(it = pathlist.begin(); it != pathlist.end(); ++it) {
+            if((*it).contains(productPath)) {
+                ++installed;
+                current_version = dotNetCombo[i].version;
+                warnPath += QString("%1 in path. ").arg(dotNetCombo[i].versionStr);
                 break;
             }
         }
     }
-    return (current_version==71);
+    if (installed > 1)
+        warn_msg(WarnLogic, "Generator: MSVC.NET: Found more than one version of Visual Studio in"
+                 " your path! Fallback to lowest version (%s)", warnPath.latin1());
+    return current_version;
 #endif
 };
 
 // Flatfile Tags ----------------------------------------------------
 const char* _slnHeader70        = "Microsoft Visual Studio Solution File, Format Version 7.00";
 const char* _slnHeader71        = "Microsoft Visual Studio Solution File, Format Version 8.00";
+const char* _slnHeader80        = "Microsoft Visual Studio Solution File, Format Version 9.00";
                                   // The following UUID _may_ change for later servicepacks...
                                   // If so we need to search through the registry at
                                   // HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\VisualStudio\7.0\Projects
@@ -381,7 +404,21 @@ void VcprojGenerator::writeSubDirs(QTextStream &t)
         return;
     }
 
-    t << (use_net2003_version() ? _slnHeader71 : _slnHeader70);
+    switch(which_dotnet_version()) {
+    case NET2005:
+        t << _slnHeader80;
+        break;
+    case NET2003:
+        t << _slnHeader71;
+        break;
+    case NET2002:
+        t << _slnHeader70;
+        break;
+    default:
+        t << _slnHeader70;
+        warn_msg(WarnLogic, "Generator: MSVC.NET: Unknown version (%d) of MSVC detected for .sln", which_dotnet_version());
+        break;
+    }
 
     QHash<QString, VcsolutionDepend*> solution_depends;
     QList<VcsolutionDepend*> solution_cleanup;
@@ -661,7 +698,22 @@ void VcprojGenerator::initProject()
 
     // Own elements -----------------------------
     vcProject.Name = project->first("QMAKE_ORIG_TARGET");
-    vcProject.Version = use_net2003_version() ? "7.10" : "7.00";
+    switch(which_dotnet_version()) {
+    case NET2005:
+        vcProject.Version = "8.00";
+        break;
+    case NET2003:
+        vcProject.Version = "7.10";
+        break;
+    case NET2002:
+        vcProject.Version = "7.00";
+        break;
+    default:
+        vcProject.Version = "7.00";
+        warn_msg(WarnLogic, "Generator: MSVC.NET: Unknown version (%d) of MSVC detected for .vcproj", which_dotnet_version());
+        break;
+    }
+
     vcProject.ProjectGUID = getProjectUUID().toString().toUpper();
     vcProject.Keyword = project->first("VCPROJ_KEYWORD");
     vcProject.PlatformName = (vcProject.Configuration.idl.TargetEnvironment == midlTargetWin64 ? "Win64" : "Win32");
