@@ -1089,11 +1089,7 @@ bool QApplication::do_mouse_down( EventRecord* es )
     switch( windowPart ) {
     case inGoAway:
 	if( widget ) {
-	    if( widget->close( FALSE ) ) {
-		widget->hide();
-	    } else {
-		qDebug( "do_mouse_down: widget not found" );
-	    }
+	    widget->close();
 	} else {
 	    qWarning("Close for unknown widget");
 	}
@@ -1414,7 +1410,7 @@ int QApplication::macProcessEvent(MSG * m)
 		QPoint p( er->where.h, er->where.v );
 		QPoint plocal(widget->mapFromGlobal( p ));
 		QMouseEvent qme( etype, plocal, p, button, state );
-//		qDebug("Would send event to %s %s", widget->name(), widget->className());
+//		qDebug("Would send (button) event to %s %s", widget->name(), widget->className());
 		QApplication::sendEvent( widget, &qme );
 	    }
 	}
@@ -1461,6 +1457,7 @@ int QApplication::macProcessEvent(MSG * m)
 		QPoint plocal(widget->mapFromGlobal( p ));
 		QMouseEvent qme( QEvent::MouseMove, plocal, p,
 				 QMouseEvent::NoButton, mouse_button_state);
+//		qDebug("Would send (move) event to %s %s", widget->name(), widget->className());
 		QApplication::sendEvent( widget, &qme );
 	    }
 	}
