@@ -3101,6 +3101,16 @@ int QApplication::doubleClickInterval()
     return QApplicationPrivate::mouse_double_click_time;
 }
 
+void QApplication::setKeyboardInputInterval(int ms)
+{
+    QApplicationPrivate::keyboard_input_time = ms;
+}
+
+int QApplication::keyboardInputInterval()
+{
+    return QApplicationPrivate::keyboard_input_time;
+}
+
 #ifndef QT_NO_WHEELEVENT
 void QApplication::setWheelScrollLines(int lines)
 {
