@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdialog.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qdialog.cpp#6 $
 **
 ** Implementation of QDialog class
 **
@@ -17,7 +17,7 @@
 #include "qobjcoll.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qdialog.cpp#5 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qdialog.cpp#6 $";
 #endif
 
 
@@ -38,7 +38,7 @@ are doing.
 */
 
 QDialog::QDialog( QWidget *parent, const char *name, WFlags f )
-    : QView( parent, name, f | WType_Modal )
+    : QView( parent, name, f )
 {
     rescode = 0;
     did_move = did_resize = FALSE;
