@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#85 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#86 $
 **
 ** Implementation of layout classes
 **
@@ -406,28 +406,37 @@ static void distributeMultiBox( QArray<QLayoutStruct> &chain,
 				int start, int end,
 				int minSize, int /*sizeHint*/ )
 {
-    //###distribute the sizes somehow.
+    //distribute the sizes somehow.
     //####we ignore sizeHint, for now
     int i;
     int w = 0;
     bool exp = FALSE;
-
     for ( i = start; i <= end; i++ ) {
 	w += chain[i].minimumSize;
 	exp = exp || chain[i].expansive;
 	chain[i].empty = FALSE;
     }
     if ( w < minSize ) {
-	//	debug( "Big multicell" );
-	//##### We must distribute excess space better!
+	//debug( "Big multicell" );
+	int stretch = 0;
+	int n = 0;
 	int diff = minSize - w;
 	for ( i = start; i <= end; i++ ) {
 	    if ( chain[i].maximumSize > chain[i].minimumSize
 		 && ( chain[i].expansive || !exp ) ) {
-		chain[i].minimumSize += diff; //#####
+		stretch += chain[i].stretch;
+		n++;
+	    }
+	}
+	for ( i = start; i <= end; i++ ) {
+	    if ( chain[i].maximumSize > chain[i].minimumSize
+		 && ( chain[i].expansive || !exp ) ) {
+		if ( stretch > 0 )
+		    chain[i].minimumSize += (diff*chain[i].stretch)/stretch;
+		else
+		    chain[i].minimumSize += diff/n;
 		if ( chain[i].sizeHint < chain[i].minimumSize )
 		     chain[i].sizeHint = chain[i].minimumSize;
-		break;
 	    }
 	}
     }
@@ -694,13 +703,12 @@ private:
   set using setColStretch() and determines how much of the available
   space the column will get, over and above its necessary minimum.
 
-  Normally, each managed widget or layout is put into a cell of its own
-  using addWidget() or addLayout(), but you can also put widget into
-  multiple cells using addMultiCellWidget().  However, if you do that,
-  QGridLayout does not take the managed widget's minimum size into
-  consideration (because it cannot know what column the minimum
-  width should belong to).  Thus you must set the minimum width of
-  each column using addColSpacing().
+  Normally, each managed widget or layout is put into a cell of its
+  own using addWidget() or addLayout(), but you can also put widget
+  into multiple cells using addMultiCellWidget().  If you do that,
+  QGridLayout will make a guess at how to distribute the size over the
+  columns/rows (based on the stretch factors). You can adjust the
+  minimum width of each column/row using addColSpacing()/addRowSpacing().
 
   This illustration shows a fragment of a dialog with a five-column,
   three-row grid (the grid is shown overlaid in magenta):
@@ -1403,7 +1411,7 @@ void QBoxLayout::addLayout( QLayout *layout, int stretch )
 */
 void QBoxLayout::addSpacing( int size )
 {
-    //### hack in QGridLayout: spacers do not get insideSpacing
+    //hack in QGridLayout: spacers do not get insideSpacing
 
     if ( horz( dir ) ) {
 	int n = numCols();
@@ -1428,7 +1436,7 @@ void QBoxLayout::addSpacing( int size )
 */
 void QBoxLayout::addStretch( int stretch )
 {
-    //### hack in QGridLayout: spacers do not get insideSpacing
+    //hack in QGridLayout: spacers do not get insideSpacing
 
     if ( horz( dir ) ) {
 	int n = numCols();
