@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#28 $
+** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#29 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -222,7 +222,7 @@ enum RasterOp					// raster op/transfer mode
       NotCopyROP, NotOrROP, NotXorROP, NotEraseROP, NotROP };
 
 
-// Text formatting flags for QPainter::drawText and QLabel::setFormat
+// Text formatting flags for QPainter::drawText and QLabel
 
 const AlignLeft		= 0x000;		// text alignment
 const AlignRight	= 0x001;
