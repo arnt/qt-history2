@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#72 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#73 $
 **
 ** Implementation of QListBox widget class
 **
@@ -18,7 +18,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#72 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#73 $");
 
 
 declare(QListM, QListBoxItem);
@@ -72,78 +72,86 @@ static inline bool checkIndex( const char *method, int count, int index )
   The following shows how to define a list box item which shows a
   pixmap and a text:
   \code
-class MyListBoxItem : public QListBoxItem
-{
-public:
-    MyListBoxItem( const char *s, const QPixmap p ) : QListBoxItem(), pm(p)
-    { setText( s ); }
+    class MyListBoxItem : public QListBoxItem
+    {
+    public:
+        MyListBoxItem( const char *s, const QPixmap p )
+	    : QListBoxItem(), pm(p)
+	    { setText( s ); }
 
-protected:
-    virtual void paint( QPainter * );
-    virtual int height( const QListBox * ) const;
-    virtual int width( const QListBox * ) const;
-    virtual const QPixmap *pixmap() { return &pm; }
+    protected:
+        virtual void paint( QPainter * );
+	virtual int height( const QListBox * ) const;
+	virtual int width( const QListBox * ) const;
+	virtual const QPixmap *pixmap() { return &pm; }
 
-private:
-    QPixmap pm;
-};
+    private:
+        QPixmap pm;
+    };
 
-void MyListBoxItem::paint( QPainter *p )
-{
-    p->drawPixmap( 3, 0, pm );
-    QFontMetrics fm = p->fontMetrics();
-    int yPos;				// vertical text position
-    if ( pm.height() < fm.height() )
-	yPos = fm.ascent() + fm.leading()/2;
-    else
-	yPos = pm.height()/2 - fm.height()/2 + fm.ascent();
-    p->drawText( pm.width() + 5, yPos, text() );
-}
+    void MyListBoxItem::paint( QPainter *p )
+    {
+        p->drawPixmap( 3, 0, pm );
+	QFontMetrics fm = p->fontMetrics();
+	int yPos;			// vertical text position
+	if ( pm.height() < fm.height() )
+	    yPos = fm.ascent() + fm.leading()/2;
+	else
+	    yPos = pm.height()/2 - fm.height()/2 + fm.ascent();
+	p->drawText( pm.width() + 5, yPos, text() );
+    }
 
-int MyListBoxItem::height(const QListBox *lb ) const
-{
-    return QMAX( pm.height(), lb->fontMetrics().lineSpacing() + 1 );
-}
+    int MyListBoxItem::height(const QListBox *lb ) const
+    {
+        return QMAX( pm.height(), lb->fontMetrics().lineSpacing() + 1 );
+    }
 
-int MyListBoxItem::width(const QListBox *lb ) const
-{
-    return pm.width() + lb->fontMetrics().width( text() ) + 6;
-}
+    int MyListBoxItem::width(const QListBox *lb ) const
+    {
+        return pm.width() + lb->fontMetrics().width( text() ) + 6;
+    }
   \endcode
+
   \sa QListBox
 */
 
-/*!
-  \fn QListBoxItem::QListBoxItem()
 
+/*!
   Constructs an empty list box item.
 */
 
-/*!
-  \fn QListBoxItem::~QListBoxItem()
+QListBoxItem::QListBoxItem()
+{
+    selected = FALSE;
+}
 
-  Destroys the item.
+/*!
+  Destroys the list box item.
 */
+
+QListBoxItem::~QListBoxItem()
+{
+}
 
 
 /*!
   \fn void QListBoxItem::paint( QPainter *p )
 
-   Implement this function to draw your item.
+  Implement this function to draw your item.
 
-   \sa height(), width()
+  \sa height(), width()
 */
 
 /*!
   \fn int QListBoxItem::height( const QListBox * ) const
 
-   Implement this function to return the height of your item
+  Implement this function to return the height of your item
 
-   \sa paint(), width()
+  \sa paint(), width()
 */
 
 /*!
-  \fn int QListBoxItem::width(	const QListBox* ) const
+  \fn int QListBoxItem::width(	const QListBox * ) const
 
   Implement this function to return the width of your item
 
@@ -161,14 +169,14 @@ int MyListBoxItem::width(const QListBox *lb ) const
 /*!
   \fn const QPixmap *QListBoxItem::pixmap() const
 
-   Returns the pixmap connected with the item, if any.
+  Returns the pixmap connected with the item, if any.
 
-   The default implementation of this function returns a null pointer.
+  The default implementation of this function returns a null pointer.
 */
 
 
 /*!
-  \fn void QListBoxItem::setText( const char *s )
+  \fn void QListBoxItem::setText( const char *text )
 
   Sets the text of the widget, which is used for sorting.
   The text is not shown unless explicitly drawn in paint().
@@ -191,6 +199,7 @@ int MyListBoxItem::width(const QListBox *lb ) const
 /*!
   Constructs a list box item showing the text \e text.
 */
+
 QListBoxText::QListBoxText( const char *text )
     :QListBoxItem()
 {
@@ -200,6 +209,7 @@ QListBoxText::QListBoxText( const char *text )
 /*!
   Destroys the item.
 */
+
 QListBoxText::~QListBoxText()
 {
 }
@@ -220,12 +230,9 @@ void QListBoxText::paint( QPainter *p )
   \sa paint(), width()
 */
 
-int QListBoxText::height(const QListBox *lb ) const
+int QListBoxText::height( const QListBox *lb ) const
 {
-    if (!lb) {
-	return -1;
-    }
-    return lb->fontMetrics().lineSpacing() + 2;
+    return lb ? lb->fontMetrics().lineSpacing() + 2 : -1;
 }
 
 /*!
@@ -234,10 +241,11 @@ int QListBoxText::height(const QListBox *lb ) const
   \sa paint(), height()
 */
 
-int QListBoxText::width(const QListBox *lb ) const
+int QListBoxText::width( const QListBox *lb ) const
 {
     return lb ? lb->fontMetrics().width( text() ) + 6 : -1;
 }
+
 
 /*!
   \class QListBoxPixmap qlistbox.h
