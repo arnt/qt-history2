@@ -29,7 +29,9 @@
     \class QAccessible
     \brief The QAccessible class provides enums and static functions
     relating to accessibility.
+
     \ingroup accessibility
+    \mainclass
 
     Accessible applications can be used by people who are not able to
     use applications by conventional means.

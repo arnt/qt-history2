@@ -54,6 +54,10 @@ QString QDoubleSpinBoxPrivate::delimiter = "."; // ### this should probably come
     \ingroup basic
     \mainclass
 
+    QSpinBox is designed to handle integers and discrete sets of
+    values (such as \l{#monthexample}{month names}); use QDoubleSpinBox
+    for floating point values.
+
     QSpinBox allows the user to choose a value by clicking the
     up/down buttons or pressing up/down on the keyboard to
     increase/decrease the value currently displayed. The user can also
@@ -101,49 +105,50 @@ QString QDoubleSpinBoxPrivate::delimiter = "."; // ### this should probably come
 
     Here's an example QSpinBox subclass that provides a month picker.
 
+    \target monthexample
     \code
-        class monthSpin : public QSpinBox
+    class monthSpin : public QSpinBox
+    {
+        Q_OBJECT
+    public:
+        monthSpin(QWidget *parent = 0)
+            : QSpinBox(0, 12, 1, parent)
         {
-            Q_OBJECT
-        public:
-            monthSpin(QWidget *parent = 0)
-                : QSpinBox(0, 12, 1, parent)
-            {
-		setSpecialValueText("None");
-		setValue(0);
-            }
+            setSpecialValueText("None");
+            setValue(0);
+        }
 
-            QString mapValueToText(int v) const
-            {
-		return QDate::longMonthName(v);
-            }
+        QString mapValueToText(int v) const
+        {
+            return QDate::longMonthName(v);
+        }
 
-            double mapTextToValue(const QString &text, QValidator::State *state) const
-            {
-		for (int i=1; i<=12; ++i) {
-		    if (text == QDate::longMonthName(i) || text == QDate::shortMonthName(i)) {
-			if (state)
-			    *state = QValidator::Acceptable;
-			return i;
-		    }
-		}
-		if (state)
-		    *state = QValidator::Invalid;
-		return 0;
+        int mapTextToValue(const QString &text, QValidator::State *state) const
+        {
+            for (int i = 1; i <= 12; ++i) {
+                if (text == QDate::longMonthName(i) || text == QDate::shortMonthName(i)) {
+                    if (state)
+                        *state = QValidator::Acceptable;
+                    return i;
+                }
             }
+            if (state)
+                *state = QValidator::Invalid;
+            return 0;
+        }
 
-            void keyPressEvent(QKeyEvent *e)
-            {
-		if (e->key() == Qt::Key_P) {
-		    stepBy(1);
-		    e->accept();
-		} else if (e->key() == Qt::Key_N) {
-		    stepBy(-1);
-		    e->accept();
-		} else {
-		    QSpinBox::keyPressEvent(e);
-		}
+        void keyPressEvent(QKeyEvent *e)
+        {
+            if (e->key() == Qt::Key_P) {
+                stepBy(1);
+                e->accept();
+            } else if (e->key() == Qt::Key_N) {
+                stepBy(-1);
+                e->accept();
+            } else {
+                QSpinBox::keyPressEvent(e);
             }
+        }
     \endcode
 */
 

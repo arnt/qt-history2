@@ -39,6 +39,7 @@ QFramePrivate::QFramePrivate()
     \brief The QFrame class is the base class of widgets that can have a frame.
 
     \ingroup abstractwidgets
+    \mainclass
 
     QPopupMenu uses this to "raise" the menu above the surrounding
     screen. QProgressBar has a "sunken" look. QLabel has a flat look.

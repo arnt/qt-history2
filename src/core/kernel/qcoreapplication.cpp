@@ -116,6 +116,7 @@ QCoreApplicationPrivate::QCoreApplicationPrivate(int &aargc,  char **aargv)
     applications.
 
     \ingroup application
+    \mainclass
 
     This class is used by non-GUI applications to provide their event
     loop. For GUI applications see QApplication.

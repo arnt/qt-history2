@@ -52,7 +52,6 @@ void QSqlModelPrivate::prefetch(int limit)
     result sets.
 
     \ingroup database
-    \mainclass
     \module sql
 
     QSqlModel is a data model that provides data from a QSqlQuery.

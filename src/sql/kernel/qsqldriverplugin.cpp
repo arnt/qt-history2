@@ -20,7 +20,6 @@
     \brief The QSqlDriverPlugin class provides an abstract base for custom QSqlDriver plugins.
 
     \ingroup plugins
-    \mainclass
 
     The SQL driver plugin is a simple plugin interface that makes it
     easy to create your own SQL driver plugins that can be loaded

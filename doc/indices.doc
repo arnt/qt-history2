@@ -115,11 +115,11 @@ Overviews
 </td>
 <td valign="top">
 <ul>
-<li><a href="tulip-overview.html">Tulip: Tool Classes</a>
-<li><a href="interview-overview.html">Interview: Item View Classes</a>
 <li><a href="arthur-overview.html">Arthur: Paint Engine</a>
-<li><a href="scribe-overview.html">Scribe: Text-Rendering Engine</a>
+<li><a href="interview-overview.html">Interview: Item View Classes</a>
 <li><a href="mainwindow-overview.html">Mainwindow: Main Window Classes</a>
+<li><a href="scribe-overview.html">Scribe: Text-Rendering Engine</a>
+<li><a href="tulip-overview.html">Tulip: Tool Classes</a>
 </ul>
 </td>
 <td valign="top">

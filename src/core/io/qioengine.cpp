@@ -25,7 +25,6 @@
     \brief The QIOEngine class provides an abstraction for block reading and writing.
 
     \ingroup io
-    \mainclass
 
     The QIOEngine class is used to directly read and write to the
     backing store for a QIODevice. All read/write operations are

@@ -1504,6 +1504,7 @@ void QDomNodePrivate::save(QTextStream& s, int depth, int indent) const
 
     \module XML
     \ingroup xml-tools
+    \mainclass
 
     Many functions in the DOM return a QDomNode.
 

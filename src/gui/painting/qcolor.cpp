@@ -30,6 +30,7 @@
 
     \ingroup multimedia
     \ingroup appearance
+    \mainclass
 
     A color is normally specified in terms of RGB (red, green, and blue)
     components, but it is also possible to specify HSV (hue, saturation,

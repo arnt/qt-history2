@@ -23,7 +23,6 @@ QRect::RectangleMode QRect::static_rect_mode = QRect::InclusiveRectangles;
     \brief The QRect class defines a rectangle in the plane.
 
     \ingroup multimedia
-    \mainclass
 
     A rectangle is internally represented as an upper-left corner and
     a bottom-right corner, but it is normally expressed as an

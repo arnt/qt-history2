@@ -51,7 +51,6 @@
     plugged into Qt.
 
     \ingroup io
-    \mainclass
 
     You can create your own QFileEngine subclass to handle the files
     in particular paths. To make Qt aware of your QFileEngine

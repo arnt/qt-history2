@@ -1161,6 +1161,7 @@ int QFtpPrivate::addCommand(QFtpCommand *cmd)
 
     \ingroup io
     \module network
+    \mainclass
 
     This class provides a client for the FTP protocol.
 
