@@ -1183,10 +1183,11 @@ QMakeProject::doProjectTest(const QString& func, const QString &params, QMap<QSt
 /* If including a feature it will look in:
 
    1) environment variable QMAKEFEATURES (as separated by colons)
-   2) <project_root> (where .qmake.cache lives) + FEATURES_DIR
-   3) environment variable QMAKEPATH (as separated by colons) + /mkspecs/ + FEATURES_DIR
-   4) your QMAKESPEC/features dir
-   5) environment variable QTDIR + /mkspecs/ + FEATURES_DIR
+   2) property variable QMAKEFEATURES (as separated by colons)
+   3) <project_root> (where .qmake.cache lives) + FEATURES_DIR
+   4) environment variable QMAKEPATH (as separated by colons) + /mkspecs/ + FEATURES_DIR
+   5) your QMAKESPEC/features dir
+   6) environment variable QTDIR + /mkspecs/ + FEATURES_DIR
 
    FEATURES_DIR is defined as:
 
@@ -1197,7 +1198,6 @@ QMakeProject::IncludeStatus
 QMakeProject::doProjectInclude(QString file, bool feature, QMap<QString, QStringList> &place,
                                const QString &seek_var)
 {
-
     if(feature) {
         if(!file.endsWith(Option::prf_ext))
             file += Option::prf_ext;
@@ -1236,6 +1236,15 @@ QMakeProject::doProjectInclude(QString file, bool feature, QMap<QString, QString
                     feature_roots += (*it).split(':');
 #else
                 feature_roots += QString(mkspec_path).split(':');
+#endif
+            }
+            if(prop) {
+#ifdef Q_OS_WIN
+                QStringList lst = prop->value("QMAKEFEATURES").split(';');
+                for(QStringList::Iterator it = lst.begin(); it != lst.end(); ++it)
+                    feature_roots += (*it).split(':');
+#else
+                feature_roots += prop->value("QMAKEFEATURES").split(':');
 #endif
             }
             if(!Option::mkfile::cachefile.isEmpty()) {
