@@ -586,7 +586,7 @@ static const psfont Garamond [] = {
     { "Garamond-KursivHalbfett", 0, 78.13 }
 };
 
-static const psfont GillSans [] = { // ### some estimated value for xstretch
+static const psfont GillSans [] = { // estimated value for xstretch
     { "GillSans", 0, 82 },
     { "GillSans-Italic", 0, 82 },
     { "GillSans-Bold", 0, 82 },
@@ -663,7 +663,7 @@ static const psfont Verdana [] = {
     { "Verdana-BoldItalic", 0, 107.10 }
 };
 
-static const psfont Utopia [] = { // ###
+static const psfont Utopia [] = {
     { "Utopia-Regular", 0, 84.70 },
     { "Utopia-Regular", 0.2, 84.70 },
     { "Utopia-Bold", 0, 88.01 },
@@ -698,7 +698,7 @@ static const struct {
     { "bookman", Bookman, SerifReplacements },
     { "charter", Charter, SansSerifReplacements },
     { "bitstreamcharter", Charter, SansSerifReplacements },
-        { "bitstreamcyberbit", Times, SerifReplacements }, // ###
+    { "bitstreamcyberbit", Times, SerifReplacements },
     { "courier", Courier, 0 },
     { "couriernew", Courier, 0 },
     { "fixed", Courier, 0 },
@@ -3741,6 +3741,7 @@ void QPSPrintEngineFontAsian::download(QTextStream& s, bool)
 
 void QPSPrintEngineFontAsian::drawText(QTextStream &stream, QPSPrintEnginePrivate *d, const QPoint &p, const QTextItem &ti, int textflags)
 {
+    // ###
 #if 0
     int len = engine->length(item);
     QScriptItem &si = engine->items[item];
@@ -3911,15 +3912,6 @@ static const psfont SMGothic [] = {
 };
 
 // serif
-#if 0 // ### this is never used?
-static const psfont SMMyungjo [] = {
-    { "SMMyungjo-Light-KSC-EUC-H", 0, 100. },
-    { "SMMyungjo-Light-KSC-EUC-H", 0.2, 100. },
-    { "SMMyungjo-Bold-KSC-EUC-H", 0, 100. },
-    { "SMMyungjo-Bold-KSC-EUC-H", 0.2, 100. }
-};
-#endif
-
 static const psfont MKai [] = {
     { "MingMT-Light-KSC-EUC-H", 0, 100. },
     { "MingMT-Light-KSC-EUC-H", 0.2, 100. },
@@ -4047,16 +4039,6 @@ static const psfont YenRound [] = {
     { "YenRound-Light-BoldItalic-ETen-B5-H", 0.2, 100. },
 };
 
-// Dr. Wang Hann-Tzong's GPL'ed Big5 TrueType fonts
-#if 0 // ### this is never used?
-static const psfont HtWFangSong [] = {
-    { "HtW-FSong-Light-ETen-B5-H", 0, 100. },
-    { "HtW-FSong-Light-Italic-ETen-B5-H", 0.2, 100. },
-    { "HtW-FSong-Light-Bold-ETen-B5-H", 0, 100. },
-    { "HtW-FSong-Light-BoldItalic-ETen-B5-H", 0.2, 100. },
-};
-#endif
-
 static const psfont MingB5 [] = {
     { "Ming-Light-ETen-B5-H", 0, 100. },
     { "Ming-Light-Italic-ETen-B5-H", 0.2, 100. },
@@ -4091,26 +4073,6 @@ static const psfont * const TraditionalReplacements[] = {
     LinGothic, YenRound, MOEKai, Helvetica, 0
         };
 
-#if 0 // ### these are never used?
-static const psfont * const SongB5Replacements[] = {
-    SongB5, ShanHeiSun, MingB5, MSung, MOESung, Helvetica, 0
-        };
-
-static const psfont * const FangSongB5Replacements[] = {
-    FangSongB5, HtWFangSong, Courier, 0
-        };
-static const psfont * const KaiB5Replacements[] = {
-    KaiB5, ZenKai, Times, 0
-        };
-static const psfont * const HeiB5Replacements[] = {
-    HeiB5, LinGothic, YenRound, LucidaSans, 0
-        };
-static const psfont * const YuanB5Replacements[] = {
-    YenRound, LinGothic, HeiB5, LucidaSans, 0
-        };
-#endif
-
-
 class QPSPrintEngineFontTraditionalChinese
   : public QPSPrintEngineFontAsian {
 public:
@@ -4134,16 +4096,6 @@ QString QPSPrintEngineFontTraditionalChinese::extension() const
 }
 
 // ----------- simplified chinese ------------
-
-#if 0
-// GB18030 fonts on XteamLinux (?)
-static const psfont SimplifiedGBK2K [] = {
-    { "MSung-Light-GBK2K-H", 0, 100. },
-    { "MSung-Light-GBK2K-H", 0.2, 100. },
-    { "MKai-Medium-GBK2K-H", 0, 100. },
-    { "MKai-Medium-GBK2K-H", 0.2, 100. },
-};
-#endif
 
 // GB18030 fonts on Turbolinux
 static const psfont SongGBK2K [] = {
@@ -4524,7 +4476,7 @@ QPSPrintEngineFont::QPSPrintEngineFont(const QFont &f, int script, QPSPrintEngin
 
 #define d d_func()
 
-QPSPrintEnginePrivate::QPSPrintEnginePrivate(QPrinter::PrinterMode m)
+QPSPrintEnginePrivate::QPSPrintEnginePrivate(QPrinter::PrinterMode /*m*/)
     : buffer(0), outDevice(0), fd(-1), pageBuffer(0), fontBuffer(0), savedImage(0),
       bkMode(Qt::TransparentMode),
 #ifndef QT_NO_TEXTCODEC
@@ -4534,8 +4486,8 @@ QPSPrintEnginePrivate::QPSPrintEnginePrivate(QPrinter::PrinterMode m)
       pageSize(QPrinter::A4), pageOrder(QPrinter::FirstPageFirst), colorMode(QPrinter::GrayScale),
       printerState(QPrinter::Idle)
 {
-    // #####################
     firstPage = true;
+    // ### we need correct rectangles here
     paperRect = QRect(0, 0, 595, 842);
     pageRect = QRect(0, 0, 595, 842);
     printer = 0;
@@ -4562,9 +4514,9 @@ QPSPrintEnginePrivate::QPSPrintEnginePrivate(QPrinter::PrinterMode m)
                 bool finished = false;
                 QFile f("/etc/X11/fs/config");
                 if (!f.exists())
-                    f.setName("/usr/X11R6/lib/X11/fs/config");
+                    f.setFileName("/usr/X11R6/lib/X11/fs/config");
                 if (!f.exists())
-                    f.setName("/usr/X11/lib/X11/fs/config");
+                    f.setFileName("/usr/X11/lib/X11/fs/config");
                 if (f.exists()) {
                     f.open(IO_ReadOnly);
                     while(f.status()==IO_Ok && !finished) {
@@ -5147,7 +5099,7 @@ static QByteArray compress(const QImage & image, bool gray) {
                         WIDTH (r.width()) << ' ' << HEIGHT(r.height()) << ' '
 #define INT_ARG(x)  x << ' '
 
-static QByteArray color(const QColor &c, QPSPrintEnginePrivate *printer)
+static QByteArray color(const QColor &c)
 {
     QByteArray retval;
     retval += '[';
@@ -5632,17 +5584,17 @@ void QPSPrintEngine::updatePen(const QPen &pen)
     if (d->cpen.style() == Qt::SolidLine && d->cpen.width() == 0 &&
         d->cpen.capStyle() == Qt::FlatCap &&
         d->cpen.joinStyle() == Qt::MiterJoin)
-        d->pageStream << color(d->cpen.color(), d) << "P1\n";
+        d->pageStream << color(d->cpen.color()) << "P1\n";
     else
     d->pageStream << (int)d->cpen.style() << ' ' << d->cpen.width()
-                  << ' ' << color(d->cpen.color(), d)
+                  << ' ' << color(d->cpen.color())
                   << psCap(d->cpen.capStyle())
                   << psJoin(d->cpen.joinStyle()) << "PE\n";
 }
 
-void QPSPrintEngine::updateBrush(const QBrush &brush, const QPoint &origin)
+void QPSPrintEngine::updateBrush(const QBrush &brush, const QPoint &/*origin*/)
 {
-    // ################ use bruch origin!
+    // ### use brush origin!
     if (brush.style() == Qt::CustomPattern) {
 #if defined(CHECK_RANGE)
         qWarning("QPrinter: Pixmap brush not supported");
@@ -5659,7 +5611,7 @@ void QPSPrintEngine::updateBrush(const QBrush &brush, const QPoint &origin)
         d->pageStream << "WB\n";
     else
         d->pageStream << (int)d->cbrush.style() << ' '
-                      << color(d->cbrush.color(), d) << "BR\n";
+                      << color(d->cbrush.color()) << "BR\n";
 }
 
 void QPSPrintEngine::updateFont(const QFont &font)
@@ -5678,7 +5630,7 @@ void QPSPrintEngine::updateBackground(Qt::BGMode bgMode, const QBrush &bgBrush)
     d->bkColor = bgBrush;
     d->bkMode = bgMode;
 
-    d->pageStream << color(d->bkColor, d) << "BC\n";
+    d->pageStream << color(d->bkColor) << "BC\n";
 
     if (d->bkMode == Qt::TransparentMode)
         d->pageStream << "/OMo false d\n";
@@ -5721,8 +5673,8 @@ void QPSPrintEngine::updateClipRegion(const QRegion &region, bool clipEnabled)
         d->clipOn = true;
     }
 #if 0
+    // ###
     else {
-    // ################ What's this for?
         // if we're painting without clipping, the bounding box must
         // be everything.  NOTE: this assumes that this function is
         // only ever called when something is to be painted.
@@ -5788,10 +5740,10 @@ void QPSPrintEngine::drawChord(const QRect &r, int a, int alen)
 void QPSPrintEngine::drawLineSegments(const QPointArray &a, int index, int nlines)
 {
     d->pageStream << "NP\n";
-    for (int i = index; i < index+nlines; i ++) {
+    for (int i = index; i < index+nlines; ++i) {
         QPoint pt = a.point(2*i);
         d->pageStream << XCOORD(pt.x()) << ' '
-                      << YCOORD(pt.y()) << " MT\n";
+                      << YCOORD(pt.y()) << " MT ";
         pt = a.point(2*i+1);
         d->pageStream << XCOORD(pt.x()) << ' '
                       << YCOORD(pt.y()) << " LT\n";
@@ -5832,10 +5784,9 @@ void QPSPrintEngine::drawPolygon(const QPointArray &a, bool winding, int index, 
 
 void QPSPrintEngine::drawConvexPolygon(const QPointArray &, int index, int npoints)
 {
-    // ####################
+    // ### Implement me
 }
 
-#ifndef QT_NO_BEZIER
 void QPSPrintEngine::drawCubicBezier(const QPointArray &a, int index)
 {
     d->pageStream << "NP\n";
@@ -5847,7 +5798,6 @@ void QPSPrintEngine::drawCubicBezier(const QPointArray &a, int index)
     }
     d->pageStream << "BZ\n";
 }
-#endif
 
 void QPSPrintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr,
                                 Qt::BlendMode mode)
@@ -5873,22 +5823,7 @@ void QPSPrintEngine::drawTextItem(const QPoint &p, const QTextItem &ti, int text
 
 void QPSPrintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &p)
 {
-    // ####################
-#if 0
- case PdcDrawImage: {
-        if (p[1].image->isNull())
-            break;
-        QRect r = *(p[0].rect);
-        QImage img = *(p[1].image);
-        QImage mask;
-#ifndef QT_NO_IMAGE_DITHER_TO_1
-        if (img.hasAlphaBuffer())
-            mask = img.createAlphaMask();
-#endif
-        d->drawImage(r.x(), r.y(), r.width(), r.height(), img, mask);
-        break;
-    }
-#endif
+    // ### Implement me
 }
 
 
@@ -6105,7 +6040,7 @@ int QPSPrintEngine::numCopies() const
 int  QPSPrintEngine::metric(int metricType) const
 {
     int val;
-    int res = 72; // ##### d->resolution;
+    int res = 72; // ### d->resolution;
     switch (metricType) {
     case QPaintDeviceMetrics::PdmWidth:
         val = d->paperRect.width();

@@ -56,9 +56,7 @@ public:
     virtual void drawPolyline(const QPointArray &pa, int index = 0, int npoints = -1);
     virtual void drawPolygon(const QPointArray &pa, bool winding = false, int index = 0, int npoints = -1);
     virtual void drawConvexPolygon(const QPointArray &, int index = 0, int npoints = -1);
-#ifndef QT_NO_BEZIER
     virtual void drawCubicBezier(const QPointArray &, int index = 0);
-#endif
 
     virtual void drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, Qt::BlendMode mode);
     virtual void drawTextItem(const QPoint &p, const QTextItem &ti, int textflags);
