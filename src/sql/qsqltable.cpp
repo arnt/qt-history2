@@ -508,18 +508,18 @@ QWidget* QSqlTable::beginEdit ( int row, int col, bool replace )
 	return 0;
     if ( d->mode == QSqlTable::Update && !d->cursor->canUpdate() )
 	return 0;
-    qDebug("beginEdit row:" + QString::number(row) + " col:" + QString::number(col));
-    qDebug("continuousEdit:" + QString::number(d->continuousEdit));
+    //    qDebug("beginEdit row:" + QString::number(row) + " col:" + QString::number(col));
+    //    qDebug("continuousEdit:" + QString::number(d->continuousEdit));
     d->editRow = row;
     d->editCol = col;
     if ( d->continuousEdit ) {
 	QWidget* w = QTable::beginEdit( row, col, replace );
-	qDebug("QTable::beginEdit returned:" + QString::number((int)w));
+	//	qDebug("QTable::beginEdit returned:" + QString::number((int)w));
 	return w;
     }
     if ( d->mode == QSqlTable::None && d->cursor->canUpdate() && d->cursor->primaryIndex().count() > 0 )
 	return beginUpdate( row, col, replace );
-    qDebug("NO EDIT, returning 0");
+    //    qDebug("NO EDIT, returning 0");
     return 0;
 }
 
@@ -529,14 +529,14 @@ QWidget* QSqlTable::beginEdit ( int row, int col, bool replace )
 */
 void QSqlTable::endEdit( int row, int col, bool accept, bool )
 {
-    qDebug("QSqlTable::endEdit");
+    //    qDebug("QSqlTable::endEdit");
     QWidget *editor = cellWidget( row, col );
     if ( !editor )
 	return;
     if ( d->cancelMode )
 	return;
     if ( !accept ) {
-	qDebug("!accept");
+	//	qDebug("!accept");
 	setEditMode( NotEditing, -1, -1 );
 	clearCellWidget( row, col );
 	updateCell( row, col );
@@ -561,16 +561,16 @@ void QSqlTable::endEdit( int row, int col, bool accept, bool )
 	    }
 	}
     } else {
-	qDebug("turning off editmode");
+	//	qDebug("turning off editmode");
 	setEditMode( NotEditing, -1, -1 );
     }
     if ( d->mode == QSqlTable::None ) {
-	qDebug("QSqlTable::endEdit: done, setting focus to viewport");
+	//	qDebug("QSqlTable::endEdit: done, setting focus to viewport");
 	viewport()->setFocus();
     }
     updateCell( row, col );
     emit valueChanged( row, col );
-    qDebug("QSqlTable::endEdit DONE");
+    //    qDebug("QSqlTable::endEdit DONE");
 }
 
 void QSqlTable::activateNextCell()
@@ -613,7 +613,7 @@ void QSqlTable::endUpdate()
 
 bool QSqlTable::beginInsert()
 {
-    qDebug("QSqlTable::beginInsert");
+    //    qDebug("QSqlTable::beginInsert");
     if ( !d->cursor || isReadOnly() || ! numCols() )
 	return FALSE;
     if ( !d->cursor->canInsert() )
@@ -658,7 +658,7 @@ bool QSqlTable::beginInsert()
 
 QWidget* QSqlTable::beginUpdate ( int row, int col, bool replace )
 {
-    qDebug("QSqlTable::beginUpdate");
+    //    qDebug("QSqlTable::beginUpdate");
     if ( !d->cursor || isReadOnly() )
 	return 0;
     ensureCellVisible( row, col );
