@@ -168,6 +168,12 @@ QStringList Project::uiFiles() const
     return uifiles;
 }
 
+QString Project::imageFile() const
+{
+    return imgFile;
+}
+
+
 QString Project::databaseDescription() const
 {
     return dbFile;
@@ -249,7 +255,13 @@ void Project::parse()
 	dbFile = "";
 	QString part = contents.mid( i + QString( "DBFILE" ).length() );
 	dbFile = parse_part( part );
-	dbFile = dbFile;
+    }
+
+    i = contents.find( "IMAGEFILE" );
+    if ( i != -1 ) {
+	imgFile = "";
+	QString part = contents.mid( i + QString( "IMAGEFILE" ).length() );
+	imgFile = parse_part( part );
     }
 
     i = contents.find( "PROJECTNAME" );
@@ -279,12 +291,14 @@ void Project::parse()
     }
 
     loadConnections();
+    loadImages();
 }
 
 void Project::clear()
 {
     uifiles.clear();
     dbFile = "";
+    imgFile = "";
     proName = "unnamed";
     loadedForms.clear();
     desc = "";
@@ -308,6 +322,11 @@ void Project::removeUiFile( const QString &f, FormWindow *fw )
 void Project::setDatabaseDescription( const QString &db )
 {
     dbFile = db;
+}
+
+void Project::setImageFile( const QString &f )
+{
+    imgFile = f;
 }
 
 void Project::setDescription( const QString &s )
@@ -437,6 +456,8 @@ void Project::save()
     remove_contents( contents, "LANGUAGE" );
     if ( !dbFile.isEmpty() )
 	contents += "DBFILE\t= " + dbFile + "\n";
+    if ( !imgFile.isEmpty() )
+	contents += "IMAGEFILE\t= " + imgFile + "\n";
 
     if ( !proName.isEmpty() )
 	contents += "PROJECTNAME\t= " + proName + "\n";
@@ -461,6 +482,7 @@ void Project::save()
     f.close();
 
     saveConnections();
+    saveImages();
 }
 
 #ifndef QT_NO_SQL
@@ -801,4 +823,12 @@ void Project::updateCustomSettings()
     csList = iface->projectSettings();
     customSettings.clear();
     iface->release();
+}
+
+void Project::saveImages()
+{
+}
+
+void Project::loadImages()
+{
 }

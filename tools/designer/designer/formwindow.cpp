@@ -110,7 +110,7 @@ static void flickerfree_update( QWidget *w )
 
 FormWindow::FormWindow( MainWindow *mw, QWidget *parent, const char *name )
     : QWidget( parent, name, WDestructiveClose ), mainwindow( mw ),
-      commands( 100 ), pixInline( TRUE )
+      commands( 100 ), pixInline( TRUE ), pixProject( FALSE )
 {
     init();
     MetaDataBase::addEntry( this );
@@ -309,7 +309,7 @@ void FormWindow::insertWidget()
 	iface->release();
     }
 
-    if ( !savePixmapInline() && currTool == WidgetDatabase::idFromClassName( "PixmapLabel" ) )
+    if ( !savePixmapInline() && currTool == WidgetDatabase::idFromClassName( "PixmapLabel" ) ) // ### what to do for pixmaps in project
 	( (QLabel*)w )->setPixmap( PixmapChooser::loadPixmap( "image.xpm" ) );
     int id = WidgetDatabase::idFromClassName( WidgetFactory::classNameOf(w) );
     if ( WidgetDatabase::isCustomWidget( id ) ) {
@@ -2343,6 +2343,11 @@ bool FormWindow::savePixmapInline() const
     return pixInline;
 }
 
+bool FormWindow::savePixmapInProject() const
+{
+    return pixProject;
+}
+
 QString FormWindow::pixmapLoaderFunction() const
 {
     return pixLoader;
@@ -2351,6 +2356,15 @@ QString FormWindow::pixmapLoaderFunction() const
 void FormWindow::setSavePixmapInline( bool b )
 {
     pixInline = b;
+    if ( b )
+	pixProject = FALSE;
+}
+
+void FormWindow::setSavePixmapInProject( bool b )
+{
+    pixProject = b;
+    if ( b )
+	pixInline = FALSE;
 }
 
 void FormWindow::setPixmapLoaderFunction( const QString &func )

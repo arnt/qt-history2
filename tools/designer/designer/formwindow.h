@@ -167,6 +167,9 @@ public:
     void setSavePixmapInline( bool b );
     void setPixmapLoaderFunction( const QString &func );
 
+    bool savePixmapInProject() const;
+    void setSavePixmapInProject( bool b );
+
     void setToolFixed() { toolFixed = TRUE; }
 
     void setActiveObject( QObject *o );
@@ -274,7 +277,7 @@ private:
     QWidgetList orderedWidgets;
     QWidgetList stackedWidgets;
     QWidget *mContainer;
-    bool pixInline;
+    bool pixInline, pixProject;
     QString pixLoader;
     bool toolFixed;
     QList<QAction> actions;

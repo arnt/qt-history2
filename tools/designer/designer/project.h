@@ -142,6 +142,8 @@ public:
 #endif
     void saveConnections();
     void loadConnections();
+    void saveImages();
+    void loadImages();
 
     bool openDatabase( const QString &connection );
     void closeDatabase( const QString &connection );
@@ -154,6 +156,9 @@ public:
 
     void setCustomSetting( const QString &key, const QString &value );
     QString customSetting( const QString &key ) const;
+
+    void setImageFile( const QString &f );
+    QString imageFile() const;
 
 private:
     void parse();
@@ -176,6 +181,8 @@ private:
     QMap<QString, QString> customSettings;
     QStringList csList;
     QInterfaceManager<ProjectSettingsInterface> *projectSettingsPluginManager;
+    QString imgFile;
+
 };
 
 #endif

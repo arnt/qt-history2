@@ -48,9 +48,12 @@ FormSettings::FormSettings( QWidget *parent, FormWindow *fw )
 
     if ( formwindow->savePixmapInline() )
 	radioPixmapInline->setChecked( TRUE );
+    else if ( formwindow->savePixmapInProject() )
+	radioProjectImageFile->setChecked( TRUE );
     else
 	radioPixmapFunction->setChecked( TRUE );
     editPixmapFunction->setText( formwindow->pixmapLoaderFunction() );
+    radioProjectImageFile->setEnabled( fw->project() != fw->mainWindow()->emptyProject() );
 }
 
 void FormSettings::okClicked()
@@ -67,7 +70,17 @@ void FormSettings::okClicked()
     if ( formwindow->savePixmapInline() != radioPixmapInline->isChecked() )
 	MetaDataBase::clearPixmapArguments( formwindow );
 
-    formwindow->setSavePixmapInline( radioPixmapInline->isChecked() );
+    if ( radioPixmapInline->isChecked() ) {
+	formwindow->setSavePixmapInline( TRUE );
+	formwindow->setSavePixmapInProject( FALSE );
+    } else if ( radioProjectImageFile->isChecked() ){
+	formwindow->setSavePixmapInline( FALSE );
+	formwindow->setSavePixmapInProject( TRUE );
+    } else {
+	formwindow->setSavePixmapInline( FALSE );
+	formwindow->setSavePixmapInProject( FALSE );
+    }
+
     formwindow->setPixmapLoaderFunction( editPixmapFunction->text() );
 
     accept();

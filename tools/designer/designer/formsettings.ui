@@ -27,8 +27,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>418</width>
-            <height>332</height>
+            <width>414</width>
+            <height>386</height>
         </rect>
     </property>
     <property name="caption">
@@ -53,6 +53,12 @@
         <widget class="QGroupBox">
             <property name="name">
                 <cstring>GroupBox1</cstring>
+            </property>
+            <property name="frameShape">
+                <enum>Box</enum>
+            </property>
+            <property name="frameShadow">
+                <enum>Sunken</enum>
             </property>
             <property name="title">
                 <string>&amp;Settings</string>
@@ -177,18 +183,19 @@
                         <string>&lt;b&gt;Save Inline&lt;/b&gt;&lt;p&gt;Saves the pixmaps you choose as binary data into the .ui files. &lt;em&gt;This is the suggested option!&lt;/em&gt;</string>
                     </property>
                 </widget>
-                <widget class="QRadioButton" row="1" column="0">
+                <widget class="QRadioButton" row="2" column="0">
                     <property name="name">
-                        <cstring>radioPixmapFunction</cstring>
+                        <cstring>radioProjectImageFile</cstring>
                     </property>
                     <property name="text">
-                        <string>Use &amp;Function</string>
+                        <string>&amp;Project Imagefile</string>
                     </property>
                     <property name="toolTip" stdset="0">
-                        <string>Use a defined function to load pixmaps</string>
+                        <string>Use the Project's Image file to load pixmaps</string>
                     </property>
                     <property name="whatsThis" stdset="0">
-                        <string>&lt;b&gt;Use a defined function to open pixmaps&lt;/b&gt;&lt;p&gt;If you choose this option you have to define a function in the lineedit at the right which will be used in the generated code for loading pixmaps. When choosing a pixmap in the Qt Designer you will be asked then to specify the arguments which will be passed to that function in the generated code.&lt;p&gt; This way makes it possible to use an own icon-loader function for loading pixmaps, but of course the preview in the Qt Designer can't show the correct image.</string>
+                        <string>&lt;b&gt;Use the Project's Image file to open pixmaps&lt;/b&gt;
+&lt;p&gt;Each project has a collection of pixmaps. If you use a project, it is the best (and suggested) sloution to use only pixmaps of this collection. This is the fastest and most efficient way to use pixmaps in your forms.&lt;/p&gt;</string>
                     </property>
                 </widget>
                 <widget class="QLineEdit" row="1" column="1">
@@ -203,6 +210,20 @@
                     </property>
                     <property name="whatsThis" stdset="0">
                         <string>&lt;b&gt;Specify Pixmap-Loader function&lt;/b&gt;&lt;p&gt;Specify the function which should be used for loading a pixmap in the generated code. &lt;em&gt;Only enter the function-name, no parentheses!&lt;/em&gt;</string>
+                    </property>
+                </widget>
+                <widget class="QRadioButton" row="1" column="0">
+                    <property name="name">
+                        <cstring>radioPixmapFunction</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Use &amp;Function:</string>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>Use a defined function to load pixmaps</string>
+                    </property>
+                    <property name="whatsThis" stdset="0">
+                        <string>&lt;b&gt;Use a defined function to open pixmaps&lt;/b&gt;&lt;p&gt;If you choose this option you have to define a function in the lineedit at the right which will be used in the generated code for loading pixmaps. When choosing a pixmap in the Qt Designer you will be asked then to specify the arguments which will be passed to that function in the generated code.&lt;p&gt; This way makes it possible to use an own icon-loader function for loading pixmaps, but of course the preview in the Qt Designer can't show the correct image.</string>
                     </property>
                 </widget>
             </grid>
@@ -303,9 +324,9 @@
         <receiver>editPixmapFunction</receiver>
         <slot>setEnabled(bool)</slot>
     </connection>
+    <slot access="protected" language="C++">init()</slot>
     <slot access="protected" language="C++">destroy()</slot>
     <slot access="protected" language="C++">okClicked()</slot>
-    <slot access="protected" language="C++">init()</slot>
 </connections>
 <tabstops>
     <tabstop>editClassName</tabstop>

@@ -74,6 +74,7 @@ ProjectSettings::ProjectSettings( Project *pro, QWidget* parent,  const char* na
     listInterfaces->header()->setFullSize( TRUE );
 
     editDatabaseFile->setText( pro->databaseDescription() );
+    editImageFile->setText( pro->imageFile() );
 
     comboLanguage->insertStringList( MetaDataBase::languages() );
     for ( int j = 0; j < (int)comboLanguage->count(); ++j ) {
@@ -93,10 +94,18 @@ ProjectSettings::~ProjectSettings()
 
 void ProjectSettings::chooseDatabaseFile()
 {
-    QString fn = QFileDialog::getSaveFileName( QString::null, tr( "Project Files (*.db);;All Files (*)" ), this );
+    QString fn = QFileDialog::getSaveFileName( QString::null, tr( "Database Files (*.db);;All Files (*)" ), this );
     if ( fn.isEmpty() )
 	return;
     editDatabaseFile->setText( fn );
+}
+
+void ProjectSettings::chooseImageFile()
+{
+    QString fn = QFileDialog::getSaveFileName( QString::null, tr( "Header Files (*.db);;All Files (*)" ), this );
+    if ( fn.isEmpty() )
+	return;
+    editImageFile->setText( fn );
 }
 
 void ProjectSettings::chooseProjectFile()
@@ -119,6 +128,7 @@ void ProjectSettings::okClicked()
     project->setFileName( editProjectFile->text(), FALSE );
     project->setDescription( editProjectDescription->text() );
     project->setDatabaseDescription( editDatabaseFile->text() );
+    project->setImageFile( editImageFile->text() );
     project->setLanguage( comboLanguage->text( comboLanguage->currentItem() ) );
     project->save();
     accept();

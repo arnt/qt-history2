@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>406</width>
-            <height>367</height>
+            <width>402</width>
+            <height>365</height>
         </rect>
     </property>
     <property name="caption">
@@ -184,54 +184,6 @@
                             <cstring>listInterfaces</cstring>
                         </property>
                     </widget>
-                    <widget class="QLayoutWidget" row="4" column="1">
-                        <property name="name">
-                            <cstring>Layout1_2</cstring>
-                        </property>
-                        <hbox>
-                            <property name="name">
-                                <cstring>unnamed</cstring>
-                            </property>
-                            <property name="margin">
-                                <number>0</number>
-                            </property>
-                            <property name="spacing">
-                                <number>6</number>
-                            </property>
-                            <widget class="QLineEdit">
-                                <property name="name">
-                                    <cstring>editDatabaseFile</cstring>
-                                </property>
-                            </widget>
-                            <widget class="QToolButton">
-                                <property name="name">
-                                    <cstring>buttonDatabaseFile</cstring>
-                                </property>
-                                <property name="text">
-                                    <string>...</string>
-                                </property>
-                            </widget>
-                        </hbox>
-                    </widget>
-                    <widget class="QLabel" row="4" column="0">
-                        <property name="name">
-                            <cstring>TextLabel1_2_2</cstring>
-                        </property>
-                        <property name="text">
-                            <string>&amp;Database File:</string>
-                        </property>
-                        <property name="buddy" stdset="0">
-                            <cstring>editDatabaseFile</cstring>
-                        </property>
-                    </widget>
-                    <widget class="Line" row="3" column="0" rowspan="1" colspan="2">
-                        <property name="name">
-                            <cstring>Line1</cstring>
-                        </property>
-                        <property name="orientation">
-                            <enum>Horizontal</enum>
-                        </property>
-                    </widget>
                     <spacer row="1" column="0">
                         <property name="name" stdset="0">
                             <cstring>Spacer2</cstring>
@@ -288,6 +240,86 @@
                         </property>
                         <property name="allColumnsShowFocus">
                             <bool>true</bool>
+                        </property>
+                    </widget>
+                    <widget class="QLabel" row="3" column="0">
+                        <property name="name">
+                            <cstring>TextLabel1_2_2</cstring>
+                        </property>
+                        <property name="text">
+                            <string>&amp;Database File:</string>
+                        </property>
+                        <property name="buddy" stdset="0">
+                            <cstring>editDatabaseFile</cstring>
+                        </property>
+                    </widget>
+                    <widget class="QLayoutWidget" row="3" column="1">
+                        <property name="name">
+                            <cstring>Layout1_2</cstring>
+                        </property>
+                        <hbox>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
+                            <property name="margin">
+                                <number>0</number>
+                            </property>
+                            <property name="spacing">
+                                <number>6</number>
+                            </property>
+                            <widget class="QLineEdit">
+                                <property name="name">
+                                    <cstring>editDatabaseFile</cstring>
+                                </property>
+                            </widget>
+                            <widget class="QToolButton">
+                                <property name="name">
+                                    <cstring>buttonDatabaseFile</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>...</string>
+                                </property>
+                            </widget>
+                        </hbox>
+                    </widget>
+                    <widget class="QLayoutWidget" row="4" column="1">
+                        <property name="name">
+                            <cstring>Layout1_2_2</cstring>
+                        </property>
+                        <hbox>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
+                            <property name="margin">
+                                <number>0</number>
+                            </property>
+                            <property name="spacing">
+                                <number>6</number>
+                            </property>
+                            <widget class="QLineEdit">
+                                <property name="name">
+                                    <cstring>editImageFile</cstring>
+                                </property>
+                            </widget>
+                            <widget class="QToolButton">
+                                <property name="name">
+                                    <cstring>buttonImageFile</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>...</string>
+                                </property>
+                            </widget>
+                        </hbox>
+                    </widget>
+                    <widget class="QLabel" row="4" column="0">
+                        <property name="name">
+                            <cstring>TextLabel1_2_2_2</cstring>
+                        </property>
+                        <property name="text">
+                            <string>&amp;Image File:</string>
+                        </property>
+                        <property name="buddy" stdset="0">
+                            <cstring>editDatabaseFile</cstring>
                         </property>
                     </widget>
                 </grid>
@@ -407,13 +439,20 @@
         <receiver>ProjectSettingsBase</receiver>
         <slot>removeProject()</slot>
     </connection>
-    <slot access="protected" language="C++">init()</slot>
-    <slot access="protected" language="C++">destroy()</slot>
+    <connection>
+        <sender>buttonImageFile</sender>
+        <signal>clicked()</signal>
+        <receiver>ProjectSettingsBase</receiver>
+        <slot>chooseImageFile()</slot>
+    </connection>
     <slot access="protected" language="C++">chooseDatabaseFile()</slot>
     <slot access="protected" language="C++">chooseProjectFile()</slot>
+    <slot access="protected" language="C++">destroy()</slot>
     <slot access="protected" language="C++">helpClicked()</slot>
+    <slot access="protected" language="C++">chooseImageFile()</slot>
     <slot access="protected" language="C++">okClicked()</slot>
     <slot access="protected" language="C++">removeProject()</slot>
+    <slot access="protected" language="C++">init()</slot>
 </connections>
 <tabstops>
     <tabstop>tabWidget</tabstop>

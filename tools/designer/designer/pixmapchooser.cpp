@@ -336,6 +336,7 @@ QPixmap qChoosePixmap( QWidget *parent, FormWindow *fw, const QPixmap &old )
 	    MetaDataBase::setPixmapArgument( fw, pix.serialNumber(), fd.selectedFile() );
 	    return pix;
 	}
+    } else if ( fw && fw->savePixmapInProject() ) { // ##### todo choosing when pixmaps in project
     } else {
 	PixmapFunction dia( parent, 0, TRUE );
 	QObject::connect( dia.helpButton, SIGNAL( clicked() ), MainWindow::self, SLOT( showDialogHelp() ) );

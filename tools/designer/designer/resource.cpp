@@ -185,7 +185,13 @@ bool Resource::load( QIODevice* dev, const QString& filename, bool keepname )
 	} else if ( firstWidget.tagName() == "pixmapfunction" ) {
 	    if ( formwindow ) {
 		formwindow->setSavePixmapInline( FALSE );
+		formwindow->setSavePixmapInProject( FALSE );
 		formwindow->setPixmapLoaderFunction( firstWidget.firstChild().toText().data() );
+	    }
+	} else if ( firstWidget.tagName() == "pixmapinproject" ) {
+	    if ( formwindow ) {
+		formwindow->setSavePixmapInline( FALSE );
+		formwindow->setSavePixmapInProject( TRUE );
 	    }
 	}
 
@@ -663,16 +669,21 @@ void Resource::savePixmap( const QPixmap &p, QTextStream &ts, int indent )
 	return;
     }
 
-    if ( formwindow && !formwindow->savePixmapInline() )
-	ts << makeIndent( indent ) << "<pixmap>" << MetaDataBase::pixmapArgument( formwindow, p.serialNumber() ) << "</pixmap>" << endl;
-    else
+    if ( formwindow && formwindow->savePixmapInline() )
 	ts << makeIndent( indent ) << "<pixmap>" << saveInCollection( p ) << "</pixmap>" << endl;
+    else if ( formwindow && formwindow->savePixmapInProject() )
+	; // ##### pixmap in project file
+    else
+	ts << makeIndent( indent ) << "<pixmap>" << MetaDataBase::pixmapArgument( formwindow, p.serialNumber() ) << "</pixmap>" << endl;
 }
 
 QPixmap Resource::loadPixmap( const QDomElement &e )
 {
     QString arg = e.firstChild().toText().data();
-    if ( formwindow && !formwindow->savePixmapInline() ) {
+    if ( formwindow && formwindow->savePixmapInline() ) {
+    } else if ( formwindow && formwindow->savePixmapInProject() ) {
+	// #### pixmap in project file
+    } else {
 	QPixmap pix = PixmapChooser::loadPixmap( "image.xpm" );
 	MetaDataBase::setPixmapArgument( formwindow, pix.serialNumber(), arg );
 	return pix;
@@ -1962,7 +1973,11 @@ void Resource::saveMetaInfo( QTextStream &ts, int indent )
 	ts << makeIndent( indent ) << "<forward>" << entitize( *it2 ) << "</forward>" << endl;
     for ( QStringList::Iterator it3 = vars.begin(); it3 != vars.end(); ++it3 )
 	ts << makeIndent( indent ) << "<variable>" << entitize( *it3 ) << "</variable>" << endl;
-    if ( formwindow && !formwindow->savePixmapInline() )
+    if ( formwindow && formwindow->savePixmapInline() )
+	;
+    else if ( formwindow && formwindow->savePixmapInProject() )
+	ts << makeIndent( indent ) << "<pixmapinproject/>" << endl;
+    else
 	ts << makeIndent( indent ) << "<pixmapfunction>" << formwindow->pixmapLoaderFunction() << "</pixmapfunction>" << endl;
 }
 

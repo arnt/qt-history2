@@ -39,6 +39,7 @@ public:
 protected slots:
     void chooseDatabaseFile();
     void chooseProjectFile();
+    void chooseImageFile();
     void helpClicked();
     void okClicked();
     void removeProject();
