@@ -2296,12 +2296,12 @@ static void khmer_shape_syllable( const QString &string, int from, int syllableL
 	memcpy( reordered, string.unicode() + from, len*sizeof(unsigned short) );
     }
 
-//#ifdef KHMER_DEBUG
+#ifdef KHMER_DEBUG
     qDebug("original:");
     for (i = 0; i < len; i++) {
 	qDebug("    %d: %4x", i, reordered[i]);
     }
-//#endif
+#endif
 
     if (len > 1) {
 	// rule 2, move COENG+Ro to front
