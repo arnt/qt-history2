@@ -933,11 +933,6 @@ then
        XINERAMA=yes
        $x11tests/xinerama.test $XQMAKESPEC $VERBOSE && XINERAMA=no
    fi
-
-   if [ $XINERAMA = yes ] || [ $XRENDER = yes ] || [ $XFTFREETYPE = yes ]
-   then
-       QMAKE_VARS="\"LIBS+=-L\$\$QMAKE_LIBDIR_X11\" $QMAKE_VARS"
-   fi
 fi
 
 #unix
@@ -1418,12 +1413,12 @@ then
     if [ "x$XINERAMA" = "xyes" ]
     then
 	QMAKE_CONFIG="$QMAKE_CONFIG xinerama"
-	QMAKE_VARS="$QMAKE_VARS \"LIBS+=-lXinerama\""
+	QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_X11+=-lXinerama\""
     fi
     if [ "x$XRENDER" = "xyes" ]
     then
 	QMAKE_CONFIG="$QMAKE_CONFIG xrender"
-	QMAKE_VARS="$QMAKE_VARS \"LIBS+=-lXrender\""
+	QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_X11+=-lXrender\""
     fi
     if [ "x$XFTFREETYPE" = "xyes" ]
     then
@@ -1431,7 +1426,7 @@ then
 	# libXft uses libfreetype to do all the work, BUT libfreetype isn't picked
 	# up as a dependency if libXft isn't a shared library, so we have to add
 	# libfreetype as well as libXt to the program/lib link command
-	QMAKE_VARS="$QMAKE_VARS \"LIBS+=-lXft -lfreetype\""
+	QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_X11+=-lXft -lfreetype\""
     fi
 fi
 [ "x$GIF" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG gif"
