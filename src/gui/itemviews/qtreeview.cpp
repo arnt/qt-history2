@@ -1109,7 +1109,7 @@ int QTreeView::columnSizeHint(int column) const
 
     const QVector<QTreeViewItem> viewItems = d->viewItems;
     int v = verticalScrollBar()->value();
-    int h = d->viewport->height();
+    int h = viewport()->height();
     int i = d->itemAt(v);
     int c = viewItems.count();
     int s = d->height(i);
@@ -1119,7 +1119,7 @@ int QTreeView::columnSizeHint(int column) const
 
     while (y < h && i < c) {
         index = viewItems.at(i).index;
-        index = d->model->sibling(index.row(), column, index);
+        index = model()->sibling(index.row(), column, index);
         size = delegate->sizeHint(option, index);
         w = qMax(w, size.width() + (column == 0 ? d->indentation(i) : 0));
         y += size.height();
@@ -1141,7 +1141,7 @@ int QTreeView::indexRowSizeHint(const QModelIndex &left) const
 
     QStyleOptionViewItem option = viewOptions();
     QAbstractItemDelegate *delegate = itemDelegate();
-    int width = d->viewport->width();
+    int width = viewport()->width();
     int height = 0;
     // only check the visible columns - FIXME: is this ok ?
     int start = d->header->visualIndexAt(0);
@@ -1411,7 +1411,6 @@ void QTreeViewPrivate::reopenChildren(const QModelIndex &parent)
 
 void QTreeViewPrivate::updateVerticalScrollbar()
 {
-    int factor = q->verticalFactor();
     int viewHeight = viewport->height();
     int itemCount = viewItems.count();
 
@@ -1429,10 +1428,10 @@ void QTreeViewPrivate::updateVerticalScrollbar()
     int i = itemCount; // FIXME: wrong
     while (y > 0 && i > 0)
         y -= height(--i);
-    int max = i * factor;
+    int max = i * verticalFactor;
 
     if (y < 0) { // if the first item starts above the viewport, we have to backtrack
-        int backtracking = factor * -y;
+        int backtracking = verticalFactor * -y;
         int itemSize = height(i);
         if (itemSize > 0) // avoid division by zero
             max += (backtracking / itemSize) + 1;
@@ -1441,9 +1440,8 @@ void QTreeViewPrivate::updateVerticalScrollbar()
     q->verticalScrollBar()->setRange(0, max);
 }
 
-void  QTreeViewPrivate::updateHorizontalScrollbar()
+void QTreeViewPrivate::updateHorizontalScrollbar()
 {
-    int factor = q->horizontalFactor();
     int width = viewport->width();
     int count = header->count();
 
@@ -1457,16 +1455,16 @@ void  QTreeViewPrivate::updateHorizontalScrollbar()
     int x = width;
     while (x > 0 && count > 0)
         x -= header->sectionSize(--count);
-    int max = count * factor;
+    int max = count * horizontalFactor;
 
     // set page step size
     int visibleCount = header->count() - count - 1;
-    q->horizontalScrollBar()->setPageStep(visibleCount * factor);
+    q->horizontalScrollBar()->setPageStep(visibleCount * horizontalFactor);
 
     if (x < 0) { // if the first item starts left of the viewport, we have to backtrack
         int sectionSize = header->sectionSize(count);
         if (sectionSize > 0) // avoid division by zero
-            max += ((-x * factor) / sectionSize) + 1;
+            max += ((-x * horizontalFactor) / sectionSize) + 1;
     }
 
     q->horizontalScrollBar()->setRange(0, max);
@@ -1499,12 +1497,12 @@ void QTreeViewPrivate::select(int start, int stop, QItemSelectionModel::Selectio
         QModelIndex parent = index.parent();
         if (previous.isValid() && parent == previous.parent()) {
             // same parent
-            QModelIndex tl = q->model()->index(currentRange.top(),
-                                               currentRange.left(),
-                                               currentRange.parent());
+            QModelIndex tl = model->index(currentRange.top(),
+                                          currentRange.left(),
+                                          currentRange.parent());
             currentRange = QItemSelectionRange(tl, index);
         } else if (previous.isValid()
-                   && parent == q->model()->sibling(previous.row(), 0, previous)) {
+                   && parent == model->sibling(previous.row(), 0, previous)) {
             // item is child of prevItem
             rangeStack.push(currentRange);
             currentRange = QItemSelectionRange(index);
@@ -1516,9 +1514,9 @@ void QTreeViewPrivate::select(int start, int stop, QItemSelectionModel::Selectio
             } else {
                 currentRange = rangeStack.pop();
                 if (parent == currentRange.parent()) {
-                    QModelIndex tl = q->model()->index(currentRange.top(),
-                                                       currentRange.left(),
-                                                       currentRange.parent());
+                    QModelIndex tl = model->index(currentRange.top(),
+                                                  currentRange.left(),
+                                                  currentRange.parent());
                     currentRange = QItemSelectionRange(tl, index);
                 } else {
                     selection.append(currentRange);
