@@ -24,7 +24,7 @@
 #endif
 
 #include "widgetdatabase.h"
-#include "widgetplugin.h"
+#include "widgetinterface.h"
 
 #include "../integration/kdevelop/kdewidgets.h"
 
@@ -49,9 +49,9 @@ static int dbcustomcount = 200;
 static QStrList *wGroups;
 static QStrList *invisibleGroups;
 static bool whatsThisLoaded = FALSE;
-static WidgetPlugInManager *widgetPluginManager = 0;
+static QInterfaceManager<WidgetInterface> *widgetPluginManager = 0;
 
-QCleanupHandler<WidgetPlugInManager> cleanup_manager;
+QCleanupHandler<QInterfaceManager<WidgetInterface> > cleanup_manager;
 
 WidgetDatabaseRecord::WidgetDatabaseRecord()
 {
@@ -433,15 +433,19 @@ void WidgetDatabase::setupDataBase()
 	if ( hasWidget( *it ) )
 	    continue;
 	r = new WidgetDatabaseRecord;
-	r->iconSet = widgetManager()->iconSet( *it );
-	QString grp = widgetManager()->group( *it );
+	WidgetInterface *iface = widgetManager()->queryInterface( *it );
+	if ( !iface )
+	    continue;
+
+	r->iconSet = iface->iconSet( *it );
+	QString grp = iface->group( *it );
 	if ( grp.isEmpty() )
 	    grp = "3rd party widgets";
 	r->group = widgetGroup( grp );
-	r->toolTip = widgetManager()->toolTip( *it );
-	r->whatsThis = widgetManager()->whatsThis( *it );
-	r->includeFile = widgetManager()->includeFile( *it );
-	r->isContainer = widgetManager()->isContainer( *it );
+	r->toolTip = iface->toolTip( *it );
+	r->whatsThis = iface->whatsThis( *it );
+	r->includeFile = iface->includeFile( *it );
+	r->isContainer = iface->isContainer( *it );
 	r->name = *it;
 	append( r );
     }
@@ -703,12 +707,12 @@ void WidgetDatabase::loadWhatsThis( const QString &docPath )
     whatsThisLoaded = TRUE;
 }
 
-WidgetPlugInManager *widgetManager()
+QInterfaceManager<WidgetInterface> *widgetManager()
 {
     QString dir = getenv( "QTDIR" );
     dir += "/plugins";
     if ( !widgetPluginManager ) {
-	widgetPluginManager = new WidgetPlugInManager( dir );
+	widgetPluginManager = new QInterfaceManager<WidgetInterface>( "WidgetInterface", dir );
 	cleanup_manager.add( widgetPluginManager );
     }
     return widgetPluginManager;

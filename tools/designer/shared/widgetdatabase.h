@@ -24,9 +24,11 @@
 #include <qiconset.h>
 #include <qstring.h>
 #include <qstringlist.h>
+#include <qinterfacemanager.h>
 
-class WidgetPlugInManager;
-extern WidgetPlugInManager *widgetManager();
+class WidgetInterface;
+
+extern QInterfaceManager<WidgetInterface> *widgetManager();
 
 struct WidgetDatabaseRecord
 {
