@@ -919,7 +919,7 @@
       {
         min = middle + 1;
       }
-    } while ( min < max );
+    } while ( min <= max );
 
     return TTO_Err_Not_Covered;
   }
@@ -957,7 +957,7 @@
       {
         min = middle + 1;
       }
-    } while ( min < max );
+    } while ( min <= max );
 
     return TTO_Err_Not_Covered;
   }
@@ -1265,8 +1265,7 @@
       if ( glyphID >= crr[middle].Start && glyphID <= crr[middle].End )
       {
         *klass = crr[middle].Class;
-        error  = TT_Err_Ok;
-        break;
+        return TT_Err_Ok;
       }
       else if ( glyphID < crr[middle].Start )
       {
@@ -1276,8 +1275,9 @@
       {
         min = middle + 1;
       }
-    } while ( min < max );
+    } while ( min <= max );
 
+    *klass = 0;
     if ( index )
       *index = middle;
 
