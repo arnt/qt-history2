@@ -1,26 +1,23 @@
 #include <qstring.h>
-#include <qsql.h>
+#include <qsqlquery.h>
 #include <qsqldatabase.h>
 #include <qsqlindex.h>
 #include <qsqlfield.h>
-#include <qsqlrowset.h>
-#include <qsqlview.h>
+#include <qsqlcursor.h>
 #include <qvariant.h>
 #include <qapplication.h>
-
-
 
 int main( int argc, char** argv )
 {
     qDebug("Qt SQL Catalog Test");
     QApplication app( argc, argv, FALSE );
-
-    QSqlConnection::addDatabase( qApp->argv()[1],
-				 qApp->argv()[2],
-				 qApp->argv()[3],
-				 qApp->argv()[4],
-				 qApp->argv()[5]);
-    QSqlDatabase* database = QSqlConnection::database();
+    
+    QSqlDatabase* database = QSqlDatabase::addDatabase( qApp->argv()[1] );
+    database->setDatabaseName( qApp->argv()[2] );
+    database->setUserName( qApp->argv()[3] );
+    database->setPassword( qApp->argv()[4] );
+    database->setHostName( qApp->argv()[5] );
+    database->open();
     
     uint i;
     qDebug("Getting list of tables and fields...");
@@ -28,26 +25,23 @@ int main( int argc, char** argv )
     qDebug("Table count:" + QString::number( tables.count()) );
     for ( i = 0; i < tables.count(); ++i ) {
 	qDebug( "..." + tables[i] );
-	QSqlFieldList fil = database->fields( tables[i] );
-	for ( uint j = 0; j < fil.count(); ++j )
-	    qDebug("......" + fil.field(j).name() );
-    }
-
-    qDebug("Getting list of table primary index...");
-    for ( i = 0; i < tables.count(); ++i ) {
-	QSqlIndex pk = database->primaryIndex( tables[i] );
-	qDebug( "..." + tables[i] );
-	for ( uint j = 0; j < pk.count(); ++j )
-	    qDebug("......" + pk.field(j).name() );
+	QSqlRecord fil = database->record( tables[i] );
+	for ( uint j = 0; j < fil.count(); ++j ) {
+	    qDebug("......" + fil.field(j)->name() );
+	    if ( fil.field(j)->isPrimaryIndex() )
+		qDebug(".........PRIMARY INDEX" );
+	}
     }
 
     qDebug("Creating rowset...");
-    QSqlView v( "key_test" );
+    QSqlCursor v( "key_test" );
 
     // insert a value
+    v.clearValues( TRUE );
     v["id"] = 999;
     v["name"] = "xxxx";
-    ASSERT( v.insert() == 1 );
+    if ( v.insert() != 1 )
+	qDebug("ERROR:" + v.lastError().databaseText());
     qDebug("after insert, ID:" + v["id"].toString() );
     qDebug("after insert, name:" + v["name"].toString() );
 
@@ -61,14 +55,14 @@ int main( int argc, char** argv )
     qDebug("name:" + v["name"].toString());
 
     // put back a new value
-    v["name"] = "Kaja";
+    v["name"] = "barf";
     ASSERT( v.update( v.primaryIndex() ) == 1 );
     v.select( v.primaryIndex(), v.primaryIndex() );
     ASSERT( v.next() );
     qDebug("after next, ID:" + v["id"].toString() );
     qDebug("after next, name:" + v["name"].toString() );
     ASSERT( v["id"].toInt() == 999 );
-    ASSERT( v["name"].toString() == "Kaja" );
+    ASSERT( v["name"].toString() == "barf" );
 
     // delete the record
     v["id"] = 999;
