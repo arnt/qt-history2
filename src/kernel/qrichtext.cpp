@@ -1856,7 +1856,10 @@ void QTextDocument::draw( QPainter *p, const QRegion &reg, const QColorGroup &cg
 	if ( !parag->isValid() )
 	    parag->format();
 	int y = parag->rect().y();
-	if ( !reg.isNull() && !cr.isNull() && !cr.intersects( parag->rect() ) ) {
+	QRect pr( parag->rect() );
+	pr.setX( 0 );
+	pr.setWidth( QWIDGETSIZE_MAX );
+	if ( !reg.isNull() && !cr.isNull() && !cr.intersects( pr ) ) {
 	    parag = parag->next();
 	    continue;
 	}
