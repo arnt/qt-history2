@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrgn_x11.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qrgn_x11.cpp#3 $
 **
 ** Implementation of QRegion class for X11
 **
 ** Author  : Haavard Nord
 ** Created : 940729
 **
-** Copyright (C) 1994 by Troll Tech as.  All rights reserved.
+** Copyright (C) 1994 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -18,7 +18,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qrgn_x11.cpp#2 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qrgn_x11.cpp#3 $";
 #endif
 
 
@@ -29,30 +29,15 @@ QRegion::QRegion()				// create empty region
     data->rgn = XCreateRegion();
 }
 
-QRegion::QRegion( const QRect &r, RegionType t )
+QRegion::QRegion( const QRect &rr, RegionType t )
 {						// create region from rect
+    QRect r = rr;
     data = new QRegionData;
     CHECK_PTR( data );
     QPointArray a;
-    if ( t == Ellipse ) {			// elliptic region
-	double qsincos( double, bool );
-	int x=r.left(), y=r.top(), w=r.width(), h=r.height();
-	int npts = w+h;
-	double ang = 0.0;
-	double inc = 6.28318530717958620/npts;
-	int xx, yy;
-	a.resize( npts );
-	w /= 2;
-	h /= 2;
-	x += w;
-	y += h;
-	for ( int i=0; i<npts; i++ ) {		// make elliptic point array
-	    xx = x + (int)(qsincos(ang,TRUE)*w);
-	    yy = y - (int)(qsincos(ang,FALSE)*h);
-	    a.setPoint( i, xx, yy );
-	    ang += inc;
-	}
-    }
+    r.fixup();
+    if ( t == Ellipse )				// elliptic region
+	a.makeEllipse( r.x(), r.y(), r.width(), r.height() );
     else {					// rectangular region
 	a.resize( 4 );
 	a.setPoint( 0, r.topLeft() );
