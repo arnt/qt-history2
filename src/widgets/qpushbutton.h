@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.h#7 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.h#8 $
 **
 ** Definition of QPushButton class
 **
@@ -32,9 +32,12 @@ public:
     void    resizeFitLabel();
 
   // Reimplemented move,resize etc. because of auto-sized default push buttons
-    void    move( int, int );
-    void    resize( int, int );
-    void    changeGeometry( int, int, int, int );
+    void    move( int x, int y );		// move push button
+    void    move( const QPoint &p );
+    void    resize( int w, int h );		// resize push button
+    void    resize( const QSize & );
+    void    changeGeometry( int x, int y, int w, int h );
+    void    changeGeometry( const QRect & );	// move and resize
 
 signals:
     void    becameDefault();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#9 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#10 $
 **
 ** Implementation of QPushButton class
 **
@@ -17,7 +17,7 @@
 #include "qpixmap.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#9 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#10 $";
 #endif
 
 
@@ -128,6 +128,11 @@ void QPushButton::move( int x, int y )
     QWidget::move( x-wx/2, y-hx/2 );
 }
 
+void QPushButton::move( const QPoint &p )
+{
+    move( p.x(), p.y() );
+}
+
 void QPushButton::resize( int w, int h )
 {
     int wx, hx;
@@ -135,11 +140,21 @@ void QPushButton::resize( int w, int h )
     QWidget::resize( w+wx, h+hx );
 }
 
+void QPushButton::resize( const QSize &s )
+{
+    resize( s.width(), s.height() );
+}
+
 void QPushButton::changeGeometry( int x, int y, int w, int h )
 {
     int wx, hx;
     extraSize( this, wx, hx, TRUE );
     QWidget::changeGeometry( x-wx/2, y-hx/2, w+wx, h+hx );
+}
+
+void QPushButton::changeGeometry( const QRect &r )
+{
+    changeGeometry( r.x(), r.y(), r.width(), r.height() );
 }
 
 
