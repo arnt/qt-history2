@@ -47,7 +47,7 @@ TextEdit::TextEdit( QWidget *parent, const char *name )
 	    load( qApp->argv()[ i ] );
     }
 }
-    
+
 void TextEdit::setupFileActions()
 {
     QToolBar *tb = new QToolBar( this );
@@ -130,14 +130,14 @@ void TextEdit::setupTextActions()
     comboStyle->insertItem( "Ordered List (Alpha upper)" );
     connect( comboStyle, SIGNAL( activated( int ) ),
 	     this, SLOT( textStyle( int ) ) );
-    
+
     comboFont = new QComboBox( TRUE, tb );
     QFontDatabase db;
     comboFont->insertStringList( db.families() );
     connect( comboFont, SIGNAL( activated( const QString & ) ),
 	     this, SLOT( textFamily( const QString & ) ) );
     comboFont->lineEdit()->setText( QApplication::font().family() );
-    
+
     comboSize = new QComboBox( TRUE, tb );
     QValueList<int> sizes = db.standardSizes();
     QValueList<int>::Iterator it = sizes.begin();
@@ -146,7 +146,7 @@ void TextEdit::setupTextActions()
     connect( comboSize, SIGNAL( activated( const QString & ) ),
 	     this, SLOT( textSize( const QString & ) ) );
     comboSize->lineEdit()->setText( QString::number( QApplication::font().pointSize() ) );
-    
+
     actionTextBold = new QAction( tr( "Bold" ), QPixmap( "textbold.xpm" ), tr( "&Bold" ), CTRL + Key_B, this, "textBold" );
     connect( actionTextBold, SIGNAL( activated() ), this, SLOT( textBold() ) );
     actionTextBold->addTo( tb );
@@ -167,7 +167,7 @@ void TextEdit::setupTextActions()
     QActionGroup *grp = new QActionGroup( this );
     grp->setExclusive( TRUE );
     connect( grp, SIGNAL( selected( QAction* ) ), this, SLOT( textAlign( QAction* ) ) );
-    
+
     actionAlignLeft = new QAction( tr( "Left" ), QPixmap( "textleft.xpm" ), tr( "&Left" ), CTRL + Key_L, grp, "textLeft" );
     actionAlignLeft->addTo( tb );
     actionAlignLeft->addTo( menu );
@@ -186,7 +186,7 @@ void TextEdit::setupTextActions()
     actionAlignJustify->setToggleAction( TRUE );
 
     menu->insertSeparator();
-    
+
     QPixmap pix( 16, 16 );
     pix.fill( black );
     actionTextColor = new QAction( tr( "Color" ), pix, tr( "&Color..." ), 0, this, "textColor" );
@@ -209,7 +209,7 @@ void TextEdit::load( const QString &f )
 
 QTextEdit *TextEdit::currentEditor() const
 {
-    if ( tabWidget->currentPage() && 
+    if ( tabWidget->currentPage() &&
 	 tabWidget->currentPage()->inherits( "QTextEdit" ) )
 	return (QTextEdit*)tabWidget->currentPage();
     return 0;	
@@ -312,7 +312,7 @@ void TextEdit::fileExit()
 {
     qApp->quit();
 }
-    
+
 void TextEdit::editUndo()
 {
     if ( !currentEditor() )
@@ -390,7 +390,7 @@ void TextEdit::textStyle( int i )
     if ( !currentEditor() )
 	return;
     if ( i == 0 )
-	currentEditor()->setParagType( QStyleSheetItem::DisplayBlock, -1 );
+	currentEditor()->setParagType( QStyleSheetItem::DisplayBlock, QStyleSheetItem::ListDisc );
     else if ( i == 1 )
 	currentEditor()->setParagType( QStyleSheetItem::DisplayListItem, QStyleSheetItem::ListDisc );
     else if ( i == 2 )

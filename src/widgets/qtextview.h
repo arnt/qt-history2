@@ -206,7 +206,7 @@ private:
 	QTextDocument *doc;
     };
 
-    enum KeyboardAction { // keep in sync with QTextEdit
+    enum KeyboardActionPrivate { // keep in sync with QTextEdit
 	ActionBackspace,
 	ActionDelete,
 	ActionReturn,
@@ -281,7 +281,7 @@ private: // these are functions which actually do editing stuff, but
     void setColor( const QColor &c );
     void setFontInternal( const QFont &f );
     void setAlignment( int );
-    void setParagType( QStyleSheetItem::DisplayMode, int listStyle );
+    void setParagType( QStyleSheetItem::DisplayMode, QStyleSheetItem::ListStyle listStyle );
     void setCursorPosition( int parag, int index );
     void setSelection( int parag_from, int index_from,
 			       int parag_to, int index_to );
@@ -291,10 +291,10 @@ private: // these are functions which actually do editing stuff, but
     void setFormat( QTextFormat *f, int flags );
     void ensureCursorVisible();
     void placeCursor( const QPoint &pos, QTextCursor *c = 0 );
-    void moveCursor( int direction, bool shift, bool control );
-    void moveCursor( int direction, bool control );
+    void moveCursor( MoveDirectionPrivate direction, bool shift, bool control );
+    void moveCursor( MoveDirectionPrivate direction, bool control );
     void removeSelectedText();
-    void doKeyboardAction( int action );
+    void doKeyboardAction( KeyboardActionPrivate action );
     void insert( const QString &text, bool indent = FALSE, bool checkNewLine = TRUE );
     void save( const QString &fn = QString::null );
 

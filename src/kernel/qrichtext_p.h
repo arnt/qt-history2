@@ -165,7 +165,7 @@ public:
 
     int x() const;
     int y() const;
-    
+
 private:
     enum Operation { EnterBegin, EnterEnd, Next, Prev, Up, Down };
 
@@ -626,12 +626,6 @@ public:
     private:
 	QTextBidiContext *bidicontext;
 
-    };
-
-    enum Type {
-	Normal = 0,
-	BulletList,
-	EnumList
     };
 
     QTextParag( QTextDocument *d, QTextParag *pr = 0, QTextParag *nx = 0, bool updateIds = TRUE );

@@ -528,7 +528,7 @@ void QTextView::keyPressEvent( QKeyEvent *e )
     changeIntervalTimer->start( 100, TRUE );
 }
 
-void QTextView::doKeyboardAction( int action )
+void QTextView::doKeyboardAction( KeyboardActionPrivate action )
 {
     if ( isReadOnly() )
 	return;
@@ -638,7 +638,7 @@ void QTextView::removeSelectedText()
     emit textChanged();
 }
 
-void QTextView::moveCursor( int direction, bool shift, bool control )
+void QTextView::moveCursor( MoveDirectionPrivate direction, bool shift, bool control )
 {
     drawCursor( FALSE );
     if ( shift ) {
@@ -676,7 +676,7 @@ void QTextView::moveCursor( int direction, bool shift, bool control )
     updateCurrentFormat();
 }
 
-void QTextView::moveCursor( int direction, bool control )
+void QTextView::moveCursor( MoveDirectionPrivate direction, bool control )
 {
     switch ( direction ) {
     case MoveLeft: {
@@ -1316,7 +1316,7 @@ void QTextView::setFormat( QTextFormat *f, int flags )
     }
 }
 
-void QTextView::setParagType( QStyleSheetItem::DisplayMode dm, int listStyle )
+void QTextView::setParagType( QStyleSheetItem::DisplayMode dm, QStyleSheetItem::ListStyle listStyle )
 {
     if ( isReadOnly() )
 	return;
@@ -1822,7 +1822,7 @@ void QTextView::UndoRedoInfo::clear()
 void QTextView::resetFormat()
 {
     setAlignment( Qt::AlignAuto );
-    setParagType( QStyleSheetItem::DisplayBlock, -1 );
+    setParagType( QStyleSheetItem::DisplayBlock, QStyleSheetItem::ListDisc );
     setFormat( doc->formatCollection()->defaultFormat(), QTextFormat::Format );
 }
 
