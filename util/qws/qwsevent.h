@@ -69,6 +69,14 @@ struct QWSPropertyNotifyEvent {
     int state;
 };
 
+struct QWSPropertyReplyEvent {
+    int type;
+    int window;
+    int property;
+    int len;
+    char *data;
+};
+
 union QWSEvent {
     enum Type {
 	NoEvent,
@@ -76,6 +84,7 @@ union QWSEvent {
 	RegionAdd, RegionRemove,
 	Creation,
 	PropertyNotify,
+	PropertyReply,
 	NEvent
     };
 
@@ -83,7 +92,7 @@ union QWSEvent {
 	PropertyNewValue,
 	PropertyDeleted
     };
-    
+
     int type;
     QWSAnyEvent any;
     QWSMouseEvent mouse;
@@ -92,6 +101,7 @@ union QWSEvent {
     QWSRegionAddEvent region_add;
     QWSRegionRemoveEvent region_remove;
     QWSPropertyNotifyEvent property_notify;
+    QWSPropertyReplyEvent property_reply;
 };
 
 struct EventRec {

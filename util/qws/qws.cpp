@@ -111,6 +111,18 @@ void QWSClient::sendPropertyNotifyEvent( int property, int state )
     writeBlock( (char*)&event, sizeof( event ) );
 }
 
+void QWSClient::sendPropertyReplyEvent( int property, int len, char *data )
+{
+    QWSPropertyReplyEvent event;
+    event.type = QWSEvent::PropertyReply;
+    event.window = 0; // not used yet
+    event.property = property;
+    event.len = len;
+    writeBlock( (char*)&event, sizeof( event ) - sizeof( event.data ) );
+    if ( len > 0 )
+	writeBlock( data, len );
+}
+
 /*********************************************************************
  *
  * Class: QWSServer
@@ -176,6 +188,9 @@ QWSCommand* QWSClient::readMoreCommand()
 		break;
 	    case QWSCommand::RemoveProperty:
 		command = new QWSRemovePropertyCommand;
+		break;
+	    case QWSCommand::GetProperty:
+		command = new QWSGetPropertyCommand;
 		break;
 	    default:
 		qDebug( "QWSClient::readMoreCommand() : Protocol error - got %08x!", command_type );
@@ -328,11 +343,12 @@ void QWSServer::invokeGetProperty( QWSGetPropertyCommand *cmd, QWSClient *client
 				    cmd->simpleData.property,
 				    data, len ) ) {
  	qDebug( "get property successful" );
-	client->writeBlock( (char*)&len, sizeof( len ) );
-	client->writeBlock( data, len );
+	client->sendPropertyReplyEvent( cmd->simpleData.property, len, data );
+	delete [] data;
     } else {
  	qDebug( "get property failed" );
-	client->writeBlock( (char*)&len, sizeof( len ) );
+	client->sendPropertyReplyEvent( cmd->simpleData.property, -1, 0 );
+	delete [] data;
     }
 }
 

@@ -113,6 +113,7 @@ private:
 
 class QWSClient : public QSocket
 {
+    friend class QWSServer;
 public:
     QWSClient( int socket, int shmid );
 
@@ -120,6 +121,7 @@ public:
 
     void sendMouseEvent(const QPoint& pos, int state);
     void sendPropertyNotifyEvent( int property, int state );
+    void sendPropertyReplyEvent( int property, int len, char *data );
     QWSCommand* readMoreCommand();
     void writeRegion( QRegion reg );
 
