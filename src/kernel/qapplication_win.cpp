@@ -2042,22 +2042,10 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 
 	    case WM_ERASEBKGND:			// erase window background
 		{
-		    int ox = 0;
-		    int oy = 0;
 		    RECT r;
-		    if ( !widget->isTopLevel() ) {
-			if ( widget->backgroundOrigin() == QWidget::ParentOrigin ) {
-			    ox = widget->x();
-			    oy = widget->y();
-			} else if ( widget->backgroundOrigin() == QWidget::WindowOrigin ) {
-			    QWidget *topl = widget;
-			    while(!topl->isTopLevel() && !topl->testWFlags(Qt::WSubWindow))
-				topl = topl->parentWidget(TRUE);
-			    QPoint p = widget->mapTo( topl, QPoint(0,0) );
-			    ox = p.x();
-			    oy = p.y();
-			}
-		    }
+		    QPoint offset = widget->backgroundOffset();
+		    int ox = offset.x();
+		    int oy = offset.y();
 		    GetClientRect( hwnd, &r );
 		    qt_erase_background
 			( (HDC)wParam, r.left, r.top,

@@ -571,45 +571,10 @@ void QPixmap::fill( const QWidget *widget, int xofs, int yofs )
     const QPixmap* bgpm = widget->backgroundPixmap();
     if ( bgpm ) {
 	if ( !bgpm->isNull() ) {
-	    if ( !widget->isTopLevel() ) {
-		switch ( widget->backgroundOrigin() ) {
-		case QWidget::ParentOrigin:
-		    xofs += widget->x();
-		    yofs += widget->y();
-		    break;
-		case QWidget::WindowOrigin: {
-		    const QWidget *topl = widget;
-		    while(!topl->isTopLevel() && !topl->testWFlags(WSubWindow))
-			topl = topl->parentWidget(TRUE);
-		    QPoint p = widget->mapTo( ((QWidget *)topl), QPoint(0,0) );
-		    xofs += p.x();
-		    yofs += p.y();
-		    } break;
-		case QWidget::AncestorOrigin: {
-		    const QWidget *topl = widget;
-		    bool ancestorIsWindowOrigin = FALSE;
-		    while(!topl->isTopLevel() && !topl->testWFlags(Qt::WSubWindow)) {
-			if (!ancestorIsWindowOrigin) {
-			    if (topl->backgroundOrigin() == QWidget::WidgetOrigin)
-				break;
-			    if (topl->backgroundOrigin() == QWidget::ParentOrigin) {
-				topl = topl->parentWidget(TRUE);
-				break;
-			    }
-			    if (topl->backgroundOrigin() == QWidget::WindowOrigin)
-				ancestorIsWindowOrigin = TRUE;
-			}
-			topl = topl->parentWidget(TRUE);
-		    }
+	    QPoint ofs = widget->backgroundOffset();
+	    xofs += ofs.x();
+	    yofs += ofs.y();
 
-		    QPoint p = widget->mapTo( (QWidget *)topl, QPoint(0,0) );
-		    xofs = p.x();
-		    yofs = p.y();
-		  } break;
-		default:
-		      break;
-		}
-	    }
 	    QPainter p;
 	    p.begin( this );
 	    p.setPen( NoPen );

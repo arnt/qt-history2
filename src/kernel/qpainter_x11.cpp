@@ -87,36 +87,9 @@ void qt_erase_region( QWidget* w, const QRegion& region)
 
     if ( !w->isTopLevel() && w->backgroundPixmap()
 	    && w->backgroundOrigin() != QWidget::WidgetOrigin ) {
-	int ox = w->x();
-	int oy = w->y();
-	if ( w->backgroundOrigin() == QWidget::WindowOrigin ) {
-	    QWidget *topl = w;
-	    while(!topl->isTopLevel() && !topl->testWFlags(Qt::WSubWindow))
-		topl = topl->parentWidget(TRUE);
-	    QPoint p = w->mapTo( topl, QPoint(0, 0) );
-	    ox = p.x();
-	    oy = p.y();
-	} else if ( w->backgroundOrigin() == QWidget::AncestorOrigin ) {
-	    QWidget *topl = w;
-	    bool ancestorIsWindowOrigin = FALSE;
-	    while(!topl->isTopLevel() && !topl->testWFlags(Qt::WSubWindow)) {
-		if (!ancestorIsWindowOrigin) {
-		    if (topl->backgroundOrigin() == QWidget::WidgetOrigin)
-			break;
-		    if (topl->backgroundOrigin() == QWidget::ParentOrigin) {
-			topl = topl->parentWidget(TRUE);
-			break;
-		    }
-		    if (topl->backgroundOrigin() == QWidget::WindowOrigin)
-			ancestorIsWindowOrigin = TRUE;
-		}
-		topl = topl->parentWidget(TRUE);
-	    }
-
-	    QPoint p = w->mapTo( topl, QPoint(0,0) );
-	    ox = p.x();
-	    oy = p.y();
-	}
+	QPoint offset = w->backgroundOffset();
+	int ox = offset.x();
+	int oy = offset.y();
 
 	bool unclipped = w->testWFlags( Qt::WPaintUnclipped );
 	if ( unclipped )

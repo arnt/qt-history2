@@ -1309,21 +1309,13 @@ void QWidget::erase( int x, int y, int w, int h )
     } else {
 	tmphdc = FALSE;
     }
-    if ( backgroundOrigin() != WidgetOrigin && !isTopLevel() ) {
-	int ox = this->x();
-	int oy = this->y();
-	if ( backgroundOrigin() == QWidget::WindowOrigin ) {
-	    QWidget *topl = this;
-	    while(!topl->isTopLevel() && !topl->testWFlags(WSubWindow))
-		topl = topl->parentWidget(TRUE);
-	    QPoint p = mapTo( topl, QPoint(0,0) );
-	    ox = p.x();
-	    oy = p.y();
-	}
-	qt_erase_background( hdc, x, y, w, h, bg_col, backgroundPixmap(), ox, oy );
-    } else {
-	qt_erase_background( hdc, x, y, w, h, bg_col, backgroundPixmap(), 0, 0 );
-    }
+
+    QPoint offset = backgroundOffset();
+    int ox = offset.x();
+    int oy = offset.y();
+
+    qt_erase_background( hdc, x, y, w, h, bg_col, backgroundPixmap(), ox, oy );
+    
     if ( tmphdc ) {
 	ReleaseDC( winId(), hdc );
 	hdc = 0;
@@ -1345,23 +1337,14 @@ void QWidget::erase( const QRegion& rgn )
 	tmphdc = FALSE;
     }
     SelectClipRgn( hdc, rgn.handle() );
-    if ( backgroundOrigin() != WidgetOrigin && !isTopLevel() ) {
-	int ox = x();
-	int oy = y();
-	if ( backgroundOrigin() == QWidget::WindowOrigin ) {
-	    QWidget *topl = this;
-	    while(!topl->isTopLevel() && !topl->testWFlags(WSubWindow))
-		topl = topl->parentWidget(TRUE);
-	    QPoint p = mapTo( topl, QPoint(0,0) );
-	    ox = p.x();
-	    oy = p.y();
-	}
-	qt_erase_background( hdc, 0, 0, crect.width(), crect.height(), bg_col,
-			     backgroundPixmap(), ox, oy );
-    } else {
-	qt_erase_background( hdc, 0, 0, crect.width(), crect.height(), bg_col,
-		     backgroundPixmap(), 0, 0 );
-    }
+
+    QPoint offset = backgroundOffset();
+    int ox = offset.x();
+    int oy = offset.y();
+
+    qt_erase_background( hdc, 0, 0, crect.width(), crect.height(), bg_col,
+			 backgroundPixmap(), ox, oy );
+    
     SelectClipRgn( hdc, 0 );
     if ( tmphdc ) {
 	ReleaseDC( winId(), hdc );

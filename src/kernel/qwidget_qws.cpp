@@ -1144,18 +1144,10 @@ void QWidget::erase( const QRegion& reg )
     p.setClipRegion( reg );
     if ( extra && extra->bg_pix ) {
 	if ( !extra->bg_pix->isNull() ) {
-	    int xoff = 0;
-	    int yoff = 0;
-	    if ( !isTopLevel() ) {
-		if ( backgroundOrigin() == QWidget::ParentOrigin ) {
-		    xoff = x();
-		    yoff = y();
-		} else if ( backgroundOrigin() == QWidget::WindowOrigin ) {
-		    QPoint off = mapTo( topLevelWidget(), QPoint(0,0) );
-		    xoff = off.x();
-		    yoff = off.y();
-		}
-	    }
+	    QPoint offset = backgroundOffset();
+	    int xoff = offset.x();
+	    int yoff = offset.y();
+
 	    p.drawTiledPixmap(rect(),*extra->bg_pix,
 			      QPoint(xoff%extra->bg_pix->width(),
 				     yoff%extra->bg_pix->height()));

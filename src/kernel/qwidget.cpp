@@ -5062,6 +5062,54 @@ void QWidget::updateMask()
 {
 }
 
+/*!
+  \internal
+  Returns the offset of the widget from the backgroundOrigin.
+
+  \sa setBackgroundMode(), backgroundMode(), 
+*/
+QPoint QWidget::backgroundOffset() const
+{
+    if (!isTopLevel()) {
+	switch(backgroundOrigin()) {
+	    case WidgetOrigin:
+		break;
+	    case ParentOrigin:
+		return pos();
+	    case WindowOrigin: 
+		{
+		    const QWidget *topl = this;
+		    while(!topl->isTopLevel() && !topl->testWFlags(Qt::WSubWindow))
+			topl = topl->parentWidget(TRUE);
+		    return mapTo((QWidget *)topl, QPoint(0, 0) ); 
+		}
+	    case AncestorOrigin:
+		{
+		    const QWidget *topl = this;
+		    bool ancestorIsWindowOrigin = FALSE;
+		    while(!topl->isTopLevel() && !topl->testWFlags(Qt::WSubWindow)) 
+		    {
+			if (!ancestorIsWindowOrigin) {
+			    if (topl->backgroundOrigin() == QWidget::WidgetOrigin)
+				break;
+			    if (topl->backgroundOrigin() == QWidget::ParentOrigin) 
+			    {
+				topl = topl->parentWidget(TRUE);
+				break;
+			    }
+			    if (topl->backgroundOrigin() == QWidget::WindowOrigin)
+				ancestorIsWindowOrigin = TRUE;
+			}
+			topl = topl->parentWidget(TRUE);
+		    }
+
+		    return mapTo((QWidget *) topl, QPoint(0,0) );
+		}
+	}
+    }
+    // fall back
+    return QPoint(0,0);
+}
 
 /*!
   \fn QLayout* QWidget::layout () const
