@@ -2509,14 +2509,15 @@ void QFontCache::timerEvent(QTimerEvent *)
 // Converts a weight string to a value
 int QFontPrivate::getFontWeight(const QCString &weightString, bool adjustScore)
 {
-    // Test in decreasing order of commonness
-    if ( weightString == "medium" )       return QFont::Normal;
-    else if ( weightString == "bold" )    return QFont::Bold;
-    else if ( weightString == "demibold") return QFont::DemiBold;
-    else if ( weightString == "black" )   return QFont::Black;
-    else if ( weightString == "light" )   return QFont::Light;
-
     QCString s(weightString.lower());
+
+    // Test in decreasing order of commonness
+    if ( s == "medium" || s == "normal" ) return QFont::Normal;
+    else if ( s == "bold" )    return QFont::Bold;
+    else if ( s == "regular" ) return QFont::Normal;
+    else if ( s == "demibold") return QFont::DemiBold;
+    else if ( s == "black" )   return QFont::Black;
+    else if ( s == "light" )   return QFont::Light;
 
     if ( s.contains("bold") ) {
 	if ( adjustScore )
