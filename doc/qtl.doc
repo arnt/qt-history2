@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id: qtl.doc,v 1.5 1999/09/25 14:54:22 ettrich Exp $
 **
-** Qt template library classes documentation
+** Qt Template Library classes documentation
 **
 ** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
@@ -41,29 +41,28 @@
 The Qt Template Library (QTL) is a set of templates within Qt dealing
 with containers of objects.  If a suitable STL implementation is not
 available on your platform/compiler, the QTL can be used instead.  It
-provides a list of objects, a stack of objects, a map (or dictionary)
-from one type to another, and associated iterators and algorithms.  A
-container is an object which contains and manages other objects and
-provides iterators that allow the contained objects to be accessed.
+provides a list of objects, a vector (dynamic array) of objects, a map
+(or dictionary) from one type to another, and associated <a
+href="#Iterators">iterators</a> and <a
+href="#Algorithms">algorithms</a>.  A container is an object which
+contains and manages other objects and provides iterators that allow
+the contained objects to be accessed.
 
-<em>Important Note:</em> Qt is currently moving toward utilizing the
-STL in its public API.  The STL provides generic algorithms,
+<em>Important Note:</em> The Qt Template Libray is compatible with STL
+algorithms and containers.  The STL provides generic algorithms,
 iterators, containers and function objects for use in applications.
 For example, the QTL iterators can be used with STL algorithms, since
 the STL is extensible and customizable, without using inheritance.
 The STL provides a common, standard set of container classes which
-multiple 3rd party libraries can share.  Therefore, for maximum
-compatibility with other libraries, and with the C++ Standard itself,
-a future version of Qt will use STL container classes in its public
-API.  For historical reasons, the Qt value-based collection classes
-contain an API which is non-standard.  It is recommended that the
-STL-style API be used instead (see below).  This will ease the
-transition toward using the STL in a future version of Qt.
+multiple 3rd party libraries can share.  For historical reasons, the
+Qt value-based container classes contain an API which is non-standard.
+It is recommended that the STL-style API available in the QTL be used
+instead (see the class documentation for the QTL containers: QMap,
+QValueVector, QValueList, QStringList, QValueStack).
 
 Compared to the STL, the QTL contains only the most important features
-of the STL, has more regular function naming, has no platform
-differences, is often a little slower and often expands to less object
-code.
+of the STL container API, has no platform differences, is often a
+little slower and often expands to less object code.
 
 If you cannot make copies of the objects you want to store you are
 better off with QPtrCollection and friends. They were designed to handle
@@ -75,32 +74,33 @@ seems to be the better choice for this kind of application
 domain. QPtrList, like all other QPtrCollection based containers, provides
 far more sanity checking than a speed-optimized value based container.
 
-If you have objects that implement value semantics, use the Qt
-template library.  Value semantics require at least
-<ul>
-<li>a copy constructor,
-<li>an assignment operator and
-<li> a default constructor, i.e. a constructor that does not take
-any arguments.
+If you have objects that implement value semantics, and the STL is not
+available on your target platform, the Qt Template Library can be used
+instead.  Value semantics require at least 
+
+<ul> 
+	<li>a copy constructor, 
+	<li>an assignment operator and 
+	<li> a defaultconstructor, i.e. a constructor that does not take any arguments.
 </ul>
 
 Note that a fast copy constructor is absolutely crucial for a good
 overall performance of the container, since many copy operations are
 going to happen.
 
-Good candidates for value based classes are QRect, QPoint, QSize and
-all simple C++ types like int, bool or double.
+Good candidates for value based classes are QRect, QPoint, QSize,
+QString and all simple C++ types, such as int, bool or double.
 
-The Qt template library is designed for speed. Especially iterators
-are extremely fast. On the drawback side, less error checking is done
-than in the QPtrCollection based containers. A template library container
-for example does not track associated iterators. This makes certain
+The Qt Template Library is designed for speed. Iterators are extremely
+fast. On the drawback side, less error checking is done than in the
+QPtrCollection based containers. A template library container, for
+example, does not track any associated iterators. This makes certain
 validity checks, for example when removing items, impossible to
-perform automatically.
+perform automatically, however it provides extremely good performance.
 
-<h2> Iterators </h2>
+<a name="Iterators"></a><h2> Iterators </h2>
 
-The Qt template library deals with value objects, not with pointers.
+The Qt Template Library deals with value objects, not with pointers.
 For that reason, there is no other way of iterating over containers
 other than with iterators. This is no disadvantage as the size of an
 iterator matches the size of a normal pointer - 32 or 64 bits
@@ -128,12 +128,12 @@ The same concept applies to the other container classes:
 \code
 	typedef QMap<QString,QString> Map;
 	Map map;
-	for( Map::Iterator it = map.begin(); it != map.end(); ++it )
+	for( Map::iterator it = map.begin(); it != map.end(); ++it )
 		printf("Key=%s Data=%s\n", it.key().ascii(), it.data().ascii() );
 
-	typedef QArray<int> Array;
-	Array array;
-	for( Array::Iterator it = array.begin(); it != array.end(); ++it )
+	typedef QValueVector<int> Vector;
+	Vector vec;
+	for( Vec::iterator it = vec.begin(); it != vec.end(); ++it )
 		printf("Data=%i\n", *it );
 \endcode
 
@@ -144,11 +144,11 @@ whenever the container itself is const, such as a member variable
 inside a const function. Assigning a ConstIterator to a normal
 Iterator is not allowed as it would violate const semantics.
 
-<h2> Algorithms </h2>
+<a name="Algorithms"></a><h2> Algorithms </h2>
 
-The template library defines a number of algorithms that operate on
-its containers: qHeapSort(), qBubbleSort(), qSwap(), qCount(), qFind()
-and qCopy(). These algorithms are implemented as template functions.
+The Qt Template Library defines a number of algorithms that operate on
+its containers: These algorithms are implemented as template
+functions.
 
 qHeapSort() and qBubbleSort() provide the well known sorting
 algorithms. You can use them like this:
@@ -286,7 +286,7 @@ The above code is equivalent to:
   	m.insert( p );
 \endcode
 
-In addition, you can use any Qt template library iterator as the
+In addition, you can use any Qt Template Library iterator as the
 OutputIterator. Just make sure that the right hand of the iterator has
 as many elements present as you want to insert. The following example
 illustrates this:
