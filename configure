@@ -2252,8 +2252,6 @@ fi
 if [ "x$PLATFORM_MAC" = "xyes" ]; then
     [ "$CFG_ZLIB" = "yes" ] && CFG_ZLIB="system"
 fi
-if [ "$CFG_ZLIB" = "system" ]; then
-fi
 if [ "$CFG_ZLIB" = "no" ]; then
     QMAKE_CONFIG="$QMAKE_CONFIG no-zlib"
 elif [ "$CFG_ZLIB" = "yes" ]; then
