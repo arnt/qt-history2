@@ -437,13 +437,19 @@ bool QMenuBar::eventFilter( QObject *object, QEvent *event )
 	return FALSE;
     }
 
-    if ( ! isVisible() ||
-	 ! object->isWidgetType() ||
-	 ! ( event->type() == QEvent::Accel ||
-	     event->type() == QEvent::KeyPress ||
-	     event->type() == QEvent::KeyRelease ) ||
-	 ! style().styleHint(QStyle::SH_MenuBar_AltKeyNavigation, this) )
+    if ( ! isVisible() || ! object->isWidgetType() )
 	return FALSE;
+
+    if ( event->type() == QEvent::MouseButtonPress || 
+	event->type() == QEvent::MouseButtonRelease ) {
+	waitforalt = FALSE;
+	return FALSE;
+    } else if ( ! ( event->type() == QEvent::Accel ||
+	event->type() == QEvent::KeyPress ||
+	event->type() == QEvent::KeyRelease ) ||
+	! style().styleHint(QStyle::SH_MenuBar_AltKeyNavigation, this) ) {
+	return FALSE;
+    }
 
 #ifndef QT_NO_ACCEL
     // look for Alt press and Alt-anything press
