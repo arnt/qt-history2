@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.h#39 $
+** $Id: //depot/qt/main/src/kernel/qapplication.h#40 $
 **
 ** Definition of QApplication class
 **
@@ -33,7 +33,7 @@ public:
     static void	    setStyle( GUIStyle );
 
     static QCursor *cursor();
-    static void	    setCursor( const QCursor & );
+    static void	    setCursor( const QCursor &, bool replace=FALSE );
     static void	    restoreCursor();
 
     static QPalette *palette();

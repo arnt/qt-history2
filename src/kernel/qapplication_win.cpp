@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#32 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#33 $
 **
 ** Implementation of Windows startup routines and event handling
 **
@@ -18,7 +18,7 @@
 #include <ctype.h>
 #include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#32 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#33 $")
 
 
 /*****************************************************************************
@@ -375,7 +375,7 @@ typedef declare(QListM,QCursor) QCursorList;
 
 static QCursorList *cursorStack = 0;
 
-void QApplication::setCursor( const QCursor &cursor )
+void QApplication::setCursor( const QCursor &cursor, bool replace )
 {
     if ( !cursorStack ) {
 	cursorStack = new QCursorList;
@@ -384,6 +384,8 @@ void QApplication::setCursor( const QCursor &cursor )
     }
     app_cursor = new QCursor( cursor );
     CHECK_PTR( app_cursor );
+    if ( replace )
+	cursorStack->removeLast();
     cursorStack->append( app_cursor );
 }
 

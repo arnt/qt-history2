@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#142 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#143 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -45,7 +45,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #include <bstring.h> // bzero
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#142 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#143 $")
 
 
 /*****************************************************************************
@@ -639,7 +639,7 @@ static QCursorList *cursorStack = 0;
   \sa cursor(), restoreCursor(), QWidget::setCursor()
  ----------------------------------------------------------------------------*/
 
-void QApplication::setCursor( const QCursor &cursor )
+void QApplication::setCursor( const QCursor &cursor, bool replace )
 {
     if ( !cursorStack ) {
 	cursorStack = new QCursorList;
@@ -648,6 +648,8 @@ void QApplication::setCursor( const QCursor &cursor )
     }
     app_cursor = new QCursor( cursor );
     CHECK_PTR( app_cursor );
+    if ( replace )
+	cursorStack->removeLast();
     cursorStack->append( app_cursor );
     QWidgetIntDictIt it( *((QWidgetIntDict*)QWidget::mapper) );
     register QWidget *w;
