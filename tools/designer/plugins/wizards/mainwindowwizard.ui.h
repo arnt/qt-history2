@@ -24,6 +24,9 @@ void MainWindowWizardBase::init()
     dIface = 0;
     dfw = 0;
     widget = 0;
+    setHelpEnabled( menuToolbarPage, FALSE );
+    setHelpEnabled( toolbarsPage, FALSE );
+    setHelpEnabled( finishPage, FALSE );
     setFinishEnabled( finishPage, TRUE );
 }
 
