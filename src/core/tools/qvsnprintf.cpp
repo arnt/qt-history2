@@ -51,9 +51,7 @@ static sigjmp_buf bail;
 #define EXTRABYTES	2	/* XXX: why 2? you don't want to know */
 
 static char *
-msetup(str, n)
-	char *str;
-	size_t n;
+msetup(char *str, size_t n)
 {
 	char *e;
 
@@ -77,20 +75,17 @@ msetup(str, n)
 }
 
 static void
-mcatch()
+mcatch(int)
 {
 	siglongjmp(bail, 1);
 }
 
 static void
-mcleanup(str, n, p)
-	char *str;
-	size_t n;
-	char *p;
+mcleanup(char *str, size_t n, char *p)
 {
 	int l = strlen(p);
 
-	if (l > n - 1)
+	if (l > int(n - 1))
 	    l = n - 1;
 	memcpy(str, p, l);
 	str[l] = '\0';
