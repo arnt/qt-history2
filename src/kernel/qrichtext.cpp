@@ -73,6 +73,7 @@ class QTextFormatCollection;
 
 static QPtrDict<QTextFormatCollection> *qFormatCollectionDict = 0;
 const int QStyleSheetItem_WhiteSpaceNoCompression = 3; // ### belongs in QStyleSheetItem, fix 3.1
+const int QStyleSheetItem_WhiteSpaceNormalWithNewlines = 4; // ### belongs in QStyleSheetItem, fix 3.1
 
 const int border_tolerance = 2;
 
@@ -1849,7 +1850,6 @@ void QTextDocument::setRichTextInternal( const QString &text )
 			else if ( align == "justify" )
 			    curtag.alignment = Qt::AlignJustify;
 		    }
-		    curpar->setAlignment( curtag.alignment );
 		    if ( attr.contains( "dir" ) &&
 			 ( curtag.name == "p" ||
 			   curtag.name == "div" ||
@@ -1861,7 +1861,10 @@ void QTextDocument::setRichTextInternal( const QString &text )
 			else if ( dir == "ltr" )
 			    curtag.direction = QChar::DirL;
 		    }
-		    curpar->setDirection( (QChar::Direction)curtag.direction );
+		    if ( nstyle->displayMode() != QStyleSheetItem::DisplayInline ) {
+			curpar->setAlignment( curtag.alignment );
+			curpar->setDirection( (QChar::Direction)curtag.direction );
+		    }
 		}
 	    } else {
 		QString tagname = parseCloseTag( doc, length, pos );
@@ -1912,11 +1915,15 @@ void QTextDocument::setRichTextInternal( const QString &text )
 	    QString s;
 	    QChar c;
 	    while ( pos < length && !hasPrefix(doc, length, pos, QChar('<') ) ){
-		c = parseChar( doc, length, pos, curtag.wsm );
-
-		if ( c == '\n' ) // happens only in whitespacepre-mode.
-		    break;  // we want a new line in this case
-
+		QStyleSheetItem::WhiteSpaceMode wsm = curtag.wsm;
+		if ( s.length() > 4096 )
+		    wsm =  (QStyleSheetItem::WhiteSpaceMode)QStyleSheetItem_WhiteSpaceNormalWithNewlines;
+		
+		c = parseChar( doc, length, pos, wsm );
+		
+		if ( c == '\n' ) // happens only in whitespacepre-mode or with WhiteSpaceNormalWithNewlines.
+ 		    break;  // we want a new line in this case
+		
 		bool c_isSpace = c.isSpace() && c.unicode() != 0x00a0U;
 
 		if ( curtag.wsm == QStyleSheetItem::WhiteSpaceNormal && c_isSpace && space )
@@ -3352,7 +3359,7 @@ int QTextFormat::width( const QString &str, int pos ) const
 
 QTextString::QTextString()
 {
-    textChanged = FALSE;
+    bidiDirty = FALSE;
     bidi = FALSE;
     rightToLeft = FALSE;
     dir = QChar::DirON;
@@ -3360,7 +3367,7 @@ QTextString::QTextString()
 
 QTextString::QTextString( const QTextString &s )
 {
-    textChanged = s.textChanged;
+    bidiDirty = s.bidiDirty;
     bidi = s.bidi;
     rightToLeft = s.rightToLeft;
     dir = s.dir;
@@ -3385,7 +3392,7 @@ void QTextString::insert( int index, const QString &s, QTextFormat *f )
 	data[ (int)index + i ].c = s[ i ];
 	data[ (int)index + i ].setFormat( f );
     }
-    textChanged = TRUE;
+    bidiDirty = TRUE;
 }
 
 QTextString::~QTextString()
@@ -3408,7 +3415,7 @@ void QTextString::insert( int index, QTextStringChar *c )
     data[ (int)index ].d.format = 0;
     data[ (int)index ].type = QTextStringChar::Regular;
     data[ (int)index ].setFormat( c->format() );
-    textChanged = TRUE;
+    bidiDirty = TRUE;
 }
 
 void QTextString::truncate( int index )
@@ -3431,7 +3438,7 @@ void QTextString::truncate( int index )
 	}
     }
     data.truncate( index );
-    textChanged = TRUE;
+    bidiDirty = TRUE;
 }
 
 void QTextString::remove( int index, int len )
@@ -3452,7 +3459,7 @@ void QTextString::remove( int index, int len )
     memmove( data.data() + index, data.data() + index + len,
 	     sizeof( QTextStringChar ) * ( data.size() - index - len ) );
     data.resize( data.size() - len );
-    textChanged = TRUE;
+    bidiDirty = TRUE;
 }
 
 void QTextString::clear()
@@ -5139,9 +5146,7 @@ void QTextParag::setDirection( QChar::Direction d )
 {
     if ( str ) {
 	str->setDirection( d );
-	setChanged( TRUE );
 	invalidate( 0 );
-	format( -1, TRUE );
     }
 }
 
@@ -7152,6 +7157,13 @@ QChar QTextDocument::parseChar(const QChar* doc, int length, int& pos, QStyleShe
 		return c;
 	} else if ( wsm ==  QStyleSheetItem_WhiteSpaceNoCompression ) {
 	    return c;
+	} else if ( wsm == QStyleSheetItem_WhiteSpaceNormalWithNewlines ) {
+	    if ( c == '\n' )
+		return c;
+	    while ( pos< length &&
+		    doc[pos].isSpace()  && doc[pos] != QChar::nbsp && doc[pos] != '\n' )
+		pos++;
+	    return ' ';
 	} else { // non-pre mode: collapse whitespace except nbsp
 	    while ( pos< length &&
 		    doc[pos].isSpace()  && doc[pos] != QChar::nbsp )

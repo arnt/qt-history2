@@ -193,13 +193,11 @@ public:
 
     void setFormat( int index, QTextFormat *f, bool useCollection );
 
-    void setTextChanged( bool b ) { textChanged = b; }
     void setBidi( bool b ) { bidi = b; }
-    bool isTextChanged() const { return textChanged; }
     bool isBidi() const;
     bool isRightToLeft() const;
     QChar::Direction direction() const;
-    void setDirection( QChar::Direction d ) { dir = d; textChanged = TRUE; }
+    void setDirection( QChar::Direction d ) { dir = d; bidiDirty = TRUE; }
 
     QMemArray<QTextStringChar> subString( int start = 0, int len = 0xFFFFFF ) const;
     QMemArray<QTextStringChar> rawData() const { return data; }
@@ -212,7 +210,7 @@ private:
     void checkBidi() const;
 
     QMemArray<QTextStringChar> data;
-    uint textChanged : 1;
+    uint bidiDirty : 1;
     uint bidi : 1; // true when the paragraph has right to left characters
     uint rightToLeft : 1;
     uint dir : 5;
@@ -220,14 +218,14 @@ private:
 
 inline bool QTextString::isBidi() const
 {
-    if ( textChanged )
+    if ( bidiDirty )
 	checkBidi();
     return bidi;
 }
 
 inline bool QTextString::isRightToLeft() const
 {
-    if ( textChanged )
+    if ( bidiDirty )
 	checkBidi();
     return rightToLeft;
 }
