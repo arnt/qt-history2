@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter_win.cpp#3 $
+** $Id: //depot/qt/main/src/kernel/qprinter_win.cpp#4 $
 **
 ** Implementation of QPrinter class for Windows
 **
@@ -16,7 +16,7 @@
 #include <windows.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qprinter_win.cpp#3 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qprinter_win.cpp#4 $";
 #endif
 
 
@@ -32,9 +32,11 @@ QPrinter::QPrinter()
     : QPaintDevice( PDT_PRINTER | PDF_EXTDEV )	  // set device type
 {
     orient = Portrait;
+    page_size = A4;
     from_pg = to_pg  = ncopies = 1;
     min_pg  = max_pg = 0;
     state = PST_IDLE;
+    output_file = FALSE;
 }
 
 QPrinter::~QPrinter()
