@@ -2394,24 +2394,23 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 	    } else {				// to screen/pixmap
 		// this code is also used in bitBlt() in qpaintdevice_win.cpp
 		// (for the case that you have a selfmask)
-		// ### some exotic codes are still missing
 		DWORD ropCodes[] = {
 		    0x00b8074a, // PSDPxax,  CopyROP,
-		    0x00BA0B09, // DPSnao,   OrROP,
-		    0x009A0709, // DPSnax,   XorROP,
-		    0x008A0E06, // DSPnoa,   EraseROP=NotAndROP,
-		    0x00b8074a, //           NotCopyROP,
-		    0x00b8074a, //           NotOrROP,
-		    0x00b8074a, //           NotXorROP,
-		    0x00A803A9, // DPSoa,    NotEraseROP=AndROP,
-		    0x00A90189, // DPSoxn,   NotROP,
-		    0x008800C6, // DSa,      ClearROP,
-		    0x00BB0226, // DSno,     SetROP,
-		    0x00b8074a, //           NopROP,
-		    0x00b8074a, //           AndNotROP,
-		    0x00b8074a, //           OrNotROP,
-		    0x00b8074a, //           NandROP,
-		    0x00b8074a  //           NorROP,
+		    0x00ba0b09, // DPSnao,   OrROP,
+		    0x009a0709, // DPSnax,   XorROP,
+		    0x008a0e06, // DSPnoa,   EraseROP=NotAndROP,
+		    0x008b0666, // DSPDxoxn, NotCopyROP,
+		    0x00ab0889, // DPSono,   NotOrROP,
+		    0x00a90189, // DPSoxn,   NotXorROP,
+		    0x00a803a9, // DPSoa,    NotEraseROP=AndROP,
+		    0x00990066, // DSxn,     NotROP,
+		    0x008800c6, // DSa,      ClearROP,
+		    0x00bb0226, // DSno,     SetROP,
+		    0x00aa0029, // D,        NopROP,
+		    0x00981888, // SDPSonoxn,AndNotROP,
+		    0x00b906e6, // DSPDaoxn, OrNotROP,
+		    0x009b07a8, // SDPSoaxn, NandROP,
+		    0x00891b08  // SDPSnaoxn,NorROP,
 		};
 		HBRUSH b = CreateSolidBrush( COLOR_VALUE(cpen.data->color) );
 		COLORREF tc, bc;
