@@ -52,11 +52,11 @@ public:
     QValidator::State validate(QString &str, int &) const;
 };
 
-class HelpNavigationContentsItem : public QListViewItem
+class HelpNavigationContentsItem : public Q3ListViewItem
 {
 public:
-    HelpNavigationContentsItem(QListView *v, QListViewItem *after);
-    HelpNavigationContentsItem(QListViewItem *v, QListViewItem *after);
+    HelpNavigationContentsItem(Q3ListView *v, Q3ListViewItem *after);
+    HelpNavigationContentsItem(Q3ListViewItem *v, Q3ListViewItem *after);
 
     void setLink(const QString &lnk);
     QString link() const;
@@ -101,8 +101,8 @@ private slots:
     void showResultPage(QListBoxItem *);
 
     void showTopic(int, QListBoxItem *, const QPoint &);
-    void showTopic(int, QListViewItem *, const QPoint &);
-    void showTopic(QListViewItem *);
+    void showTopic(int, Q3ListViewItem *, const QPoint &);
+    void showTopic(Q3ListViewItem *);
     void loadIndexFile();
     void insertContents();
     void setupFullTextIndex();
@@ -110,8 +110,8 @@ private slots:
     void currentIndexChanged(QListBoxItem *i);
     void showTopic();
     void searchInIndex(const QString &s);
-    void currentBookmarkChanged(QListViewItem *i);
-    void currentContentsChanged(QListViewItem *i);
+    void currentBookmarkChanged(Q3ListViewItem *i);
+    void currentContentsChanged(Q3ListViewItem *i);
     void toggleContents();
     void toggleIndex();
     void toggleBookmarks();
@@ -119,7 +119,7 @@ private slots:
     void lastWinClosed();
     void setIndexingProgress(int prog);
     void showItemMenu(QListBoxItem *item, const QPoint &pos);
-    void showItemMenu(QListViewItem *item, const QPoint &pos);
+    void showItemMenu(Q3ListViewItem *item, const QPoint &pos);
     void insertBookmarks();
     void processEvents();
 

@@ -26,7 +26,7 @@
 #include <qeventloop.h>
 #include <qfile.h>
 #include <qfileinfo.h>
-#include <qheader.h>
+#include <q3header.h>
 #include <qlabel.h>
 #include <qlineedit.h>
 #include <qmessagebox.h>
@@ -129,13 +129,13 @@ void HelpNavigationListItem::addLink(const QString &link)
     linkList << link;
 }
 
-HelpNavigationContentsItem::HelpNavigationContentsItem(QListView *v, QListViewItem *after)
-    : QListViewItem(v, after)
+HelpNavigationContentsItem::HelpNavigationContentsItem(Q3ListView *v, Q3ListViewItem *after)
+    : Q3ListViewItem(v, after)
 {
 }
 
-HelpNavigationContentsItem::HelpNavigationContentsItem(QListViewItem *v, QListViewItem *after)
-    : QListViewItem(v, after)
+HelpNavigationContentsItem::HelpNavigationContentsItem(Q3ListViewItem *v, Q3ListViewItem *after)
+    : Q3ListViewItem(v, after)
 {
 }
 
@@ -161,18 +161,18 @@ void HelpDialog::initialize()
 {
     connect(ui.tabWidget, SIGNAL(currentChanged(int)),
              this, SLOT(currentTabChanged(int)));
-    connect(ui.listContents, SIGNAL(mouseButtonClicked(int, QListViewItem*, const QPoint &, int)),
-             this, SLOT(showTopic(int,QListViewItem*, const QPoint &)));
-    connect(ui.listContents, SIGNAL(currentChanged(QListViewItem*)),
-             this, SLOT(currentContentsChanged(QListViewItem*)));
-    connect(ui.listContents, SIGNAL(selectionChanged(QListViewItem*)),
-             this, SLOT(currentContentsChanged(QListViewItem*)));
-    connect(ui.listContents, SIGNAL(doubleClicked(QListViewItem*)),
-             this, SLOT(showTopic(QListViewItem*)));
-    connect(ui.listContents, SIGNAL(returnPressed(QListViewItem*)),
-             this, SLOT(showTopic(QListViewItem*)));
-    connect(ui.listContents, SIGNAL(contextMenuRequested(QListViewItem*, const QPoint&, int)),
-             this, SLOT(showItemMenu(QListViewItem*, const QPoint&)));
+    connect(ui.listContents, SIGNAL(mouseButtonClicked(int, Q3ListViewItem*, const QPoint &, int)),
+             this, SLOT(showTopic(int,Q3ListViewItem*, const QPoint &)));
+    connect(ui.listContents, SIGNAL(currentChanged(Q3ListViewItem*)),
+             this, SLOT(currentContentsChanged(Q3ListViewItem*)));
+    connect(ui.listContents, SIGNAL(selectionChanged(Q3ListViewItem*)),
+             this, SLOT(currentContentsChanged(Q3ListViewItem*)));
+    connect(ui.listContents, SIGNAL(doubleClicked(Q3ListViewItem*)),
+             this, SLOT(showTopic(Q3ListViewItem*)));
+    connect(ui.listContents, SIGNAL(returnPressed(Q3ListViewItem*)),
+             this, SLOT(showTopic(Q3ListViewItem*)));
+    connect(ui.listContents, SIGNAL(contextMenuRequested(Q3ListViewItem*, const QPoint&, int)),
+             this, SLOT(showItemMenu(Q3ListViewItem*, const QPoint&)));
     connect(ui.editIndex, SIGNAL(returnPressed()),
              this, SLOT(showTopic()));
     connect(ui.editIndex, SIGNAL(textChanged(const QString&)),
@@ -189,16 +189,16 @@ void HelpDialog::initialize()
     connect(ui.listIndex, SIGNAL(contextMenuRequested(QListBoxItem*, const QPoint&)),
              this, SLOT(showItemMenu(QListBoxItem*, const QPoint&)));
 
-    connect(ui.listBookmarks, SIGNAL(mouseButtonClicked(int, QListViewItem*, const QPoint&, int)),
-             this, SLOT(showTopic(int, QListViewItem*, const QPoint &)));
-    connect(ui.listBookmarks, SIGNAL(returnPressed(QListViewItem*)),
-             this, SLOT(showTopic(QListViewItem*)));
-    connect(ui.listBookmarks, SIGNAL(selectionChanged(QListViewItem*)),
-             this, SLOT(currentBookmarkChanged(QListViewItem*)));
-    connect(ui.listBookmarks, SIGNAL(currentChanged(QListViewItem*)),
-             this, SLOT(currentBookmarkChanged(QListViewItem*)));
-    connect(ui.listBookmarks, SIGNAL(contextMenuRequested(QListViewItem*, const QPoint&, int)),
-             this, SLOT(showItemMenu(QListViewItem*, const QPoint&)));
+    connect(ui.listBookmarks, SIGNAL(mouseButtonClicked(int, Q3ListViewItem*, const QPoint&, int)),
+             this, SLOT(showTopic(int, Q3ListViewItem*, const QPoint &)));
+    connect(ui.listBookmarks, SIGNAL(returnPressed(Q3ListViewItem*)),
+             this, SLOT(showTopic(Q3ListViewItem*)));
+    connect(ui.listBookmarks, SIGNAL(selectionChanged(Q3ListViewItem*)),
+             this, SLOT(currentBookmarkChanged(Q3ListViewItem*)));
+    connect(ui.listBookmarks, SIGNAL(currentChanged(Q3ListViewItem*)),
+             this, SLOT(currentBookmarkChanged(Q3ListViewItem*)));
+    connect(ui.listBookmarks, SIGNAL(contextMenuRequested(Q3ListViewItem*, const QPoint&, int)),
+             this, SLOT(showItemMenu(Q3ListViewItem*, const QPoint&)));
     connect(ui.resultBox, SIGNAL(contextMenuRequested(QListBoxItem*, const QPoint&)),
              this, SLOT(showItemMenu(QListBoxItem*, const QPoint&)));
 
@@ -565,14 +565,14 @@ void HelpDialog::showTopic(int button, QListBoxItem *item,
         showTopic();
 }
 
-void HelpDialog::showTopic(int button, QListViewItem *item,
+void HelpDialog::showTopic(int button, Q3ListViewItem *item,
                             const QPoint &)
 {
     if(button == LeftButton && item)
         showTopic();
 }
 
-void HelpDialog::showTopic(QListViewItem *item)
+void HelpDialog::showTopic(Q3ListViewItem *item)
 {
     if(item)
         showTopic();
@@ -734,7 +734,7 @@ void HelpDialog::insertBookmarks()
     showInitDoneMessage();
 }
 
-void HelpDialog::currentBookmarkChanged(QListViewItem *)
+void HelpDialog::currentBookmarkChanged(Q3ListViewItem *)
 {
 }
 
@@ -756,7 +756,7 @@ void HelpDialog::saveBookmarks()
     if (!f.open(IO_WriteOnly))
         return;
     QTextStream ts(&f);
-    QListViewItemIterator it(ui.listBookmarks);
+    Q3ListViewItemIterator it(ui.listBookmarks);
     for (; it.current(); ++it) {
         HelpNavigationContentsItem *i = (HelpNavigationContentsItem*)it.current();
         ts << i->text(0) << endl;
@@ -830,7 +830,7 @@ void HelpDialog::insertContents()
     showInitDoneMessage();
 }
 
-void HelpDialog::currentContentsChanged(QListViewItem *)
+void HelpDialog::currentContentsChanged(Q3ListViewItem *)
 {
 }
 
@@ -1095,7 +1095,7 @@ void HelpDialog::showItemMenu(QListBoxItem *item, const QPoint &pos)
     }
 }
 
-void HelpDialog::showItemMenu(QListViewItem *item, const QPoint &pos)
+void HelpDialog::showItemMenu(Q3ListViewItem *item, const QPoint &pos)
 {
     if (!item)
         return;

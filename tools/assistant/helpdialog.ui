@@ -54,7 +54,7 @@
         <number>6</number>
        </property>
        <item>
-        <widget class="QListView" name="listContents" >
+        <widget class="Q3ListView" name="listContents" >
          <property name="objectName" >
           <cstring>listContents</cstring>
          </property>
@@ -152,7 +152,7 @@
         <number>6</number>
        </property>
        <item>
-        <widget class="QListView" name="listBookmarks" >
+        <widget class="Q3ListView" name="listBookmarks" >
          <property name="objectName" >
           <cstring>listBookmarks</cstring>
          </property>
