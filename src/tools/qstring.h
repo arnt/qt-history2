@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#60 $
+** $Id: //depot/qt/main/src/tools/qstring.h#61 $
 **
 ** Definition of the QString class, extended char array operations,
 ** and QByteArray and Q1String classes
@@ -153,10 +153,11 @@ class QChar {
 public:
     QChar() : hi(0), lo(0) { }
     QChar( uchar l, uchar h=0 ) : hi(h), lo(l) { }
+    QChar( const QChar& c ) : hi(c.hi), lo(c.lo) { }
 
     operator char() const { return hi?0:lo; }
 
-    bool operator==( QChar c )
+    bool operator==( const QChar& c )
     {
 	return c.lo == lo
 	    && c.hi == hi;
@@ -166,7 +167,7 @@ public:
 	return c == lo && !hi;
     }
 
-    bool operator!=( QChar c )
+    bool operator!=( const QChar& c )
     {
 	return c.lo != lo
 	    || c.hi != hi;

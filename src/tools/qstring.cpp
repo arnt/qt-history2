@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#120 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#121 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** Q1String classes
@@ -544,7 +544,7 @@ QString::QString( const QString &s ) :
     d->ref();
 }
 
-/*    !
+/*!
   Constructs a string with room for \e size characters, including the
   '\0'-terminator.  Makes a null string if \e size == 0.
 
@@ -1022,6 +1022,21 @@ int QString::contains( const char* str, bool cs ) const
 }
 
 /*!
+  \fn int QString::contains (char c, bool cs=TRUE) const
+  \overload
+*/
+
+/*!
+  \fn int QString::find (char c, int index=0, bool cs=TRUE) const
+  \overload
+*/
+
+/*!
+  \fn int QString::findRev (char c, int index=-1, bool cs=TRUE) const
+  \overload
+*/
+
+/*!
   Returns the number of times \e str occurs in the string.
 
   The match is case sensitive if \e cs is TRUE, or case insensitive if \e
@@ -1428,6 +1443,11 @@ QString &QString::insert( uint index, QChar c )	// insert char
     buf[0] = c;
     return insert( index, buf );
 }
+
+/*!
+  \fn QString& QString::insert( uint index, char c )
+  \overload
+*/
 
 /*!
   \fn QString &QString::prepend( const QString &s )
