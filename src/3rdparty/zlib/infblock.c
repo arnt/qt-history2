@@ -155,7 +155,7 @@ int r;
                  s->last ? " (last)" : ""));
           {
             uInt bl, bd;
-            inflate_huft *tl, *td;
+            const inflate_huft *tl, *td;
 
             inflate_trees_fixed(&bl, &bd, &tl, &td, z);
             s->sub.decode.codes = inflate_codes_new(bl, bd, tl, td, z);
@@ -306,7 +306,7 @@ int r;
       s->sub.trees.tb = Z_NULL;
       {
         uInt bl, bd;
-        inflate_huft *tl, *td;
+        const inflate_huft *tl, *td;
         inflate_codes_statef *c;
 
         bl = 9;         /* must be <= 9 for lookahead assumptions */

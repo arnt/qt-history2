@@ -39,6 +39,16 @@ extern "C" {
 
 #define ZLIB_VERSION "1.1.4"
 
+#ifdef QT_MAKEDLL
+#define Q_ZEXPORT __declspec(dllexport)
+#else
+#if defined(QT_DLL) && !defined(QT_PLUGIN)
+#define Q_ZEXPORT __declspec(dllimport)
+#else
+#define Q_ZEXPORT ZEXPORT
+#endif
+#endif
+
 /* 
      The 'zlib' compression library provides in-memory compression and
   decompression functions, including integrity checks of the uncompressed
@@ -605,7 +615,7 @@ ZEXTERN int ZEXPORT inflateReset OF((z_streamp strm));
    utility functions can easily be modified if you need special options.
 */
 
-ZEXTERN int ZEXPORT compress OF((Bytef *dest,   uLongf *destLen,
+ZEXTERN int Q_ZEXPORT compress OF((Bytef *dest,   uLongf *destLen,
                                  const Bytef *source, uLong sourceLen));
 /*
      Compresses the source buffer into the destination buffer.  sourceLen is
@@ -635,7 +645,7 @@ ZEXTERN int ZEXPORT compress2 OF((Bytef *dest,   uLongf *destLen,
    Z_STREAM_ERROR if the level parameter is invalid.
 */
 
-ZEXTERN int ZEXPORT uncompress OF((Bytef *dest,   uLongf *destLen,
+ZEXTERN int Q_ZEXPORT uncompress OF((Bytef *dest,   uLongf *destLen,
                                    const Bytef *source, uLong sourceLen));
 /*
      Decompresses the source buffer into the destination buffer.  sourceLen is

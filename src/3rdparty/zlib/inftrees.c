@@ -31,7 +31,7 @@ local int huft_build OF((
     uInt,               /* number of "simple" codes */
     const uIntf *,      /* list of base values for non-simple codes */
     const uIntf *,      /* list of extra bits for non-simple codes */
-    inflate_huft * FAR*,/* result: starting table */
+    const inflate_huft * FAR*,/* result: starting table */
     uIntf *,            /* maximum lookup bits (returns actual) */
     inflate_huft *,     /* space for trees */
     uInt *,             /* hufts used in space */
@@ -96,7 +96,7 @@ uInt n;                 /* number of codes (assumed <= 288) */
 uInt s;                 /* number of simple-valued codes (0..s-1) */
 const uIntf *d;         /* list of base values for non-simple codes */
 const uIntf *e;         /* list of extra bits for non-simple codes */
-inflate_huft * FAR *t;  /* result: starting table */
+const inflate_huft * FAR *t;  /* result: starting table */
 uIntf *m;               /* maximum lookup bits, returns actual */
 inflate_huft *hp;       /* space for trees */
 uInt *hn;               /* hufts used in space */
@@ -293,7 +293,7 @@ uIntf *v;               /* working area: values in order of bit length */
 int inflate_trees_bits(c, bb, tb, hp, z)
 uIntf *c;               /* 19 code lengths */
 uIntf *bb;              /* bits tree desired/actual depth */
-inflate_huft * FAR *tb; /* bits tree result */
+const inflate_huft * FAR *tb; /* bits tree result */
 inflate_huft *hp;       /* space for trees */
 z_streamp z;            /* for messages */
 {
@@ -323,8 +323,8 @@ uInt nd;                /* number of distance codes */
 uIntf *c;               /* that many (total) code lengths */
 uIntf *bl;              /* literal desired/actual bit depth */
 uIntf *bd;              /* distance desired/actual bit depth */
-inflate_huft * FAR *tl; /* literal/length tree result */
-inflate_huft * FAR *td; /* distance tree result */
+const inflate_huft * FAR *tl; /* literal/length tree result */
+const inflate_huft * FAR *td; /* distance tree result */
 inflate_huft *hp;       /* space for trees */
 z_streamp z;            /* for messages */
 {
@@ -388,8 +388,8 @@ local int fixed_built = 0;
 local inflate_huft fixed_mem[FIXEDH];
 local uInt fixed_bl;
 local uInt fixed_bd;
-local inflate_huft *fixed_tl;
-local inflate_huft *fixed_td;
+local const inflate_huft *fixed_tl;
+local const inflate_huft *fixed_td;
 #else
 #include "inffixed.h"
 #endif
@@ -398,10 +398,11 @@ local inflate_huft *fixed_td;
 int inflate_trees_fixed(bl, bd, tl, td, z)
 uIntf *bl;               /* literal desired/actual bit depth */
 uIntf *bd;               /* distance desired/actual bit depth */
-inflate_huft * FAR *tl;  /* literal/length tree result */
-inflate_huft * FAR *td;  /* distance tree result */
+const inflate_huft * FAR *tl;  /* literal/length tree result */
+const inflate_huft * FAR *td;  /* distance tree result */
 z_streamp z;             /* for memory allocation */
 {
+  z = z;
 #ifdef BUILDFIXED
   /* build fixed tables if not already */
   if (!fixed_built)
