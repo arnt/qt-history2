@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/url/qftp.cpp#3 $
+** $Id: //depot/qt/main/tests/url/qftp.cpp#4 $
 **
 ** Implementation of QFileDialog class
 **
@@ -35,7 +35,7 @@ QFtp::QFtp()
 {
     commandSocket = new QSocket( this );
     dataSocket = new QSocket( this );
-    
+
     connect( commandSocket, SIGNAL( hostFound() ),
 	     this, SLOT( hostFound() ) );
     connect( commandSocket, SIGNAL( connected() ),
@@ -61,7 +61,7 @@ QFtp::~QFtp()
     delete commandSocket;
     delete dataSocket;
 }
-    
+
 void QFtp::openConnection( QUrl *u )
 {
     QNetworkProtocol::openConnection( u );
@@ -97,7 +97,7 @@ void QFtp::listEntries( const QString &/*nameFilter*/, int /*filterSpec*/, int /
 	    return;
 	}
     }
-    
+
     command = List;
     if ( connectionReady )
 	commandSocket->writeBlock( "PASV\r\n", strlen( "PASV\r\n") );
@@ -136,7 +136,10 @@ void QFtp::copy( const QStringList &/*files*/, const QString &/*dest*/, bool /*m
 
 QUrlInfo QFtp::makeInfo() const
 {
-    return QUrlInfo();
+    // #### todo
+    QUrlInfo inf;
+    inf.setDir( TRUE );
+    return inf;
 }
 
 QNetworkProtocol *QFtp::copy() const
@@ -147,11 +150,11 @@ QNetworkProtocol *QFtp::copy() const
 QString QFtp::toString() const
 {
     if ( !url->user().isEmpty() )
-	return url->protocol() + "://" + url->user() + ":" + url->pass() + "@" + url->host() + 
+	return url->protocol() + "://" + url->user() + ":" + url->pass() + "@" + url->host() +
 	    QDir::cleanDirPath( url->path() ).stripWhiteSpace(); // #### todo
     else
 	return url->protocol() + "://" + url->host() + QDir::cleanDirPath( url->path() ).stripWhiteSpace(); // #### todo
-    
+
     return QString::null;
 }
 
@@ -206,7 +209,7 @@ void QFtp::readyRead()
 	
     if ( !url )
 	return;
-    
+
     if ( s.contains( "220" ) ) { // expect USERNAME
 	QString user = url->user().isEmpty() ? QString( "anonymous" ) : url->user();
 	QString cmd = "USER " + user + "\r\n";
