@@ -440,7 +440,14 @@ static inline bool checkIndex( const char *method, const char * name,
     This constructor creates a popup list if the program uses Motif
     (or Aqua) look and feel; this is compatible with Motif 1.x and
     Aqua.
+
+    Note: If you use this constructor to create your QComboBox, then
+    the pixmap() function will always return 0. To workaround this,
+    use the other constructor.
+
 */
+
+
 
 QComboBox::QComboBox( QWidget *parent, const char *name )
     : QWidget( parent, name )
