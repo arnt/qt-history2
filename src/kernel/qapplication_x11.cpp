@@ -1913,11 +1913,6 @@ void qt_init_internal( int *argcptr, char **argv,
 		}
 	    }
 
-	    if (qt_alt_mask == 0) // no alt keys mapped
-		qt_alt_mask = Mod1Mask;
-	    if (qt_meta_mask == 0) // no meta keys mapped
-		qt_meta_mask = Mod4Mask;
-
 	    // not look for mode_switch in qt_alt_mask and qt_meta_mask - if it is
 	    // present in one or both, then we set qt_mode_switch_remove_mask.
 	    // see QETWidget::translateKeyEventInternal for an explanation
