@@ -164,6 +164,7 @@ public:
 
     // push buttons
     virtual void drawPushButton( QPushButton* btn, QPainter *p) = 0;
+    // virtual void drawPushButtonMask(QPushButton *btn, QPainter *p) = 0; // missing, add 3.0
     virtual void drawPushButtonLabel( QPushButton* btn, QPainter *p) = 0;
     QRect pushButtonContentsRect( QPushButton* btn ); // ### virtual/const 3.0
     int menuButtonIndicatorWidth( int h ); // ### virtual/const 3.0
@@ -256,7 +257,7 @@ protected:
     void setButtonDefaultIndicatorWidth( int w ); // ### remove 3.0
     void setButtonMargin( int w ); // ### remove 3.0
     void setSliderThickness(int t); // ### remove 3.0
-    
+
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
