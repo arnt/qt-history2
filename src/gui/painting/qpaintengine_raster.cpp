@@ -508,6 +508,12 @@ bool QRasterPaintEngine::begin(QPaintDevice *device)
                                                 -d->deviceRect.x(),
                                                 -d->deviceRect.y());
         }
+
+        // So that we get the benefits of caching, since gradients currently are
+        // a bit slow...
+        gccaps &= ~(QPaintEngine::LinearGradients
+                    | QPaintEngine::RadialGradientFill
+                    | QPaintEngine::ConicalGradientFill);
     }
 
     if (device->devType() == QInternal::Image) {
