@@ -715,7 +715,7 @@ void LayoutVerticalSplitCommand::unexecute()
 LayoutGridCommand::LayoutGridCommand( const QString &n, FormWindow *fw,
 				      QWidget *parent, QWidget *layoutBase,
 				      const QWidgetList &wl, int xres, int yres )
-    : Command( n, fw ), layout( wl, parent, fw, layoutBase, QSize( xres, yres ) )
+    : Command( n, fw ), layout( wl, parent, fw, layoutBase, QSize( QMAX(5,xres), QMAX(5,yres) ) )
 {
 }
 
@@ -748,7 +748,7 @@ BreakLayoutCommand::BreakLayoutCommand( const QString &n, FormWindow *fw,
     else if ( lay == WidgetFactory::VBox )
 	layout = new VerticalLayout( wl, layoutBase, fw, layoutBase, FALSE, layoutBase->inherits( "QSplitter" ) );
     else if ( lay == WidgetFactory::Grid )
-	layout = new GridLayout( wl, layoutBase, fw, layoutBase, QSize( fw->grid().x(), fw->grid().y()), FALSE );
+	layout = new GridLayout( wl, layoutBase, fw, layoutBase, QSize( QMAX( 5, fw->grid().x()), QMAX( 5, fw->grid().y()) ), FALSE );
 }
 
 void BreakLayoutCommand::execute()
