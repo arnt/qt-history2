@@ -3089,11 +3089,19 @@ void QFileDialog::okClicked()
 	    d->checkForFilter = FALSE;
 	} else {
 	    if ( !nameEdit->text().contains( "/" ) &&
-		 !nameEdit->text().contains( "\\" ) )
+		 !nameEdit->text().contains( "\\" ) 
+#if defined(_OS_WIN32_)
+		 && nameEdit->text()[ 1 ] != ':' 
+#endif
+		 )
 		addFilter( nameEdit->text() );
 	    else if ( nameEdit->text()[ 0 ] == '/' ||
-		      nameEdit->text()[ 0 ] == '\\' )
-		setDir( nameEdit->text() );
+		      nameEdit->text()[ 0 ] == '\\' 
+#if defined(_OS_WIN32_)
+		      || nameEdit->text()[ 1 ] == ':' 
+#endif
+		      )
+		      setDir( nameEdit->text() );
 	    nameEdit->setText( "" );
 	}
     }
