@@ -936,7 +936,10 @@ bool QSqlQuery::exec()
 	    for ( it = d->sqlResult->extension()->values.begin();
 		  it != d->sqlResult->extension()->values.end(); ++it ) {
 		QSqlField f( "", it.data().type() );
-		f.setValue( it.data() );
+		if ( it.data().isNull() )
+		    f.setNull();
+		else
+		    f.setValue( it.data() );
 		query = query.replace( it.key(), driver()->formatValue( &f ) ); 
 	    }
 	} else {
@@ -948,7 +951,10 @@ bool QSqlQuery::exec()
 		i = query.find( '?', i );
 		if ( i > -1 ) {
 		    QSqlField f( "", d->sqlResult->extension()->values[ it.data() ].type() );
-		    f.setValue( d->sqlResult->extension()->values[ it.data() ] );
+		    if ( d->sqlResult->extension()->values[ it.data() ].isNull() )
+			f.setNull();
+		    else
+			f.setValue( d->sqlResult->extension()->values[ it.data() ] );
 		    val = driver()->formatValue( &f );
 		    query = query.replace( i, 1, driver()->formatValue( &f ) );
 		    i += val.length();
