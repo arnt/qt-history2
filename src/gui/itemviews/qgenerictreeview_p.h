@@ -48,7 +48,6 @@ public:
     int indent;
     int editColumn;
 
-    //Expanded expanded;
     QVector<QGenericTreeViewItem> items;
     int itemHeight; // this is just a number; contentsHeight() / numItems
 

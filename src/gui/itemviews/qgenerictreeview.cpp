@@ -45,7 +45,13 @@ inline void collapse(QVector<T> &vec, int after, size_t n)
     }
     vec.resize(vec.size() - n);
 }
+/*
+template<typename T>
+inline void insertSorted(QVector<T> &vec, const T &item)
+{
 
+}
+*/
 /*!
   \class QGenericTreeViewItem qgenerictreeview.cpp
 
@@ -272,8 +278,6 @@ void QGenericTreeView::drawRow(QPainter *painter, QItemOptions *options, const Q
 
 void QGenericTreeView::drawBranches(QPainter *painter, const QRect &rect, const QModelIndex &index) const
 {
-//    painter->drawRect(rect);
-
     QModelIndex parent = model()->parent(index);
     QModelIndex current = parent;
     QModelIndex ancestor = model()->parent(current);
@@ -314,7 +318,7 @@ void QGenericTreeView::mousePressEvent(QMouseEvent *e)
     QModelIndex mi = d->modelIndex(vi);
 
     if (mi.isValid()) {
-        int indent = d->indentation(vi) - d->header->offset();
+        int indent = d->indentation(vi) - (reverse ? 0 : d->header->offset());
         if (column == 0 && cx < (indent - d->indent))
             return; // we are in the empty area in front of the tree - do nothing
         if (column != 0 || cx > indent) {
@@ -481,42 +485,25 @@ QRect QGenericTreeView::selectionViewportRect(const QItemSelection &selection) c
 
 void QGenericTreeView::scrollContentsBy(int dx, int dy)
 {
-    int hscroll = 0;
-    int vscroll = 0;
-    bool reverse = QApplication::reverseLayout();
+    if (dy) {
+        d->viewport->update();
+        return;
+    }
     if (dx) {
+        int hscroll = 0;
         int value = horizontalScrollBar()->value();
         int section = d->header->section(value / d->horizontalFactor);
         int left = (value % d->horizontalFactor) * d->header->sectionSize(section);
         int offset = (left / d->horizontalFactor) + d->header->sectionPosition(section);
-        hscroll = d->header->offset() - offset;
-        d->header->setOffset(offset);
-        //d->viewport->update();
-        //return;
-    } else
-    if (dy) {
-        /*
-        int factor = d->verticalFactor;
-        int value = verticalScrollBar()->value();
-        int nw = value / factor;
-        int old = (value + dy) / factor;
-        QItemOptions options;
-        getViewOptions(&options);
-        int i = nw;
-        if (i > old)
-            while (i > old)
-                vscroll += d->delegate->sizeHint(fontMetrics(), options, d->modelIndex(i--)).height();
-        else
-            while (i < old)
-                vscroll -= d->delegate->sizeHint(fontMetrics(), options, d->modelIndex(i++)).height();
-        int da = ((value % factor) * d->delegate->sizeHint(fontMetrics(), options, d->modelIndex(nw)).height())
-                 -((value % factor) * d->delegate->sizeHint(fontMetrics(), options, d->modelIndex(old)).height());
-        vscroll -= (da / factor);
-        */
-        d->viewport->update();
-        return;
+        if (QApplication::reverseLayout()) {
+            hscroll = offset + d->header->offset();
+            d->header->setOffset(offset - d->header->size() + d->viewport->x());
+        } else {
+            hscroll = d->header->offset() - offset;
+            d->header->setOffset(offset);
+        }
+        d->viewport->scroll(hscroll, 0);
     }
-    d->viewport->scroll(hscroll, vscroll);
 }
 
 void QGenericTreeView::contentsChanged()
@@ -646,9 +633,9 @@ void QGenericTreeView::updateGeometries()
     setViewportMargins(0, hint.height(), 0, 0);
 
     QRect vg = d->viewport->geometry();
-    d->header->setGeometry(vg.left(), vg.top() - hint.height(), vg.width(), hint.height());
     if (QApplication::reverseLayout())
-        d->header->setOffset(vg.right() - hint.width() + vg.left()/* + d->header->offset()*/);
+        d->header->setOffset(vg.width() - hint.width());
+    d->header->setGeometry(vg.left(), vg.top() - hint.height(), vg.width(), hint.height());
 
     // update sliders
     QItemOptions options;
@@ -810,15 +797,17 @@ void QGenericTreeViewPrivate::close(int i)
     QAbstractItemModel *model = q->model();
     int total = items.at(i).total;
     items[i].open = false;
+#if 1
     QModelIndex parent = modelIndex(i);
     int idx = i;
     int v = q->verticalScrollBar()->value();
-    while (parent.isValid()) { // FIXME: *really slow*
+    while (parent.isValid()) {
         items[idx].total -= total;
         parent = model->parent(parent);
         idx = viewIndex(parent, v);
     }
     collapse<QGenericTreeViewItem>(items, i, total);
+#endif
     q->updateGeometries();
     q->d->viewport->update();
 }

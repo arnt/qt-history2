@@ -124,17 +124,23 @@ void QGenericTableView::scrollContentsBy(int dx, int dy)
     int vscroll = 0;
     if (dx) { // horizontal
         int value = horizontalScrollBar()->value();
-        int column = d->topHeader->section(value / horizontalFactor());
-        int left = (value % horizontalFactor()) * d->topHeader->sectionSize(column);
-        int offset = (left / horizontalFactor()) + d->topHeader->sectionPosition(column);
-        hscroll = d->topHeader->offset() - offset;
-        d->topHeader->setOffset(offset);
+        int section = d->topHeader->section(value / horizontalFactor());
+        int left = (value % horizontalFactor()) * d->topHeader->sectionSize(section);
+        int offset = (left / horizontalFactor()) + d->topHeader->sectionPosition(section);
+        if (QApplication::reverseLayout()) {
+            int delta = d->viewport->width() + d->topHeader->sectionSize(section) + d->viewport->x() - 2;
+            hscroll = offset + d->topHeader->offset();
+            d->topHeader->setOffset(offset - delta);
+        } else {
+            hscroll = d->topHeader->offset() - offset;
+            d->topHeader->setOffset(offset);
+        }
     }
     if (dy) { // vetical
         int value = verticalScrollBar()->value();
-        int row = d->leftHeader->section(value / verticalFactor());
-        int above = (value % verticalFactor()) * d->leftHeader->sectionSize(row);
-        int offset = (above / verticalFactor()) + d->leftHeader->sectionPosition(row);
+        int section = d->leftHeader->section(value / verticalFactor());
+        int above = (value % verticalFactor()) * d->leftHeader->sectionSize(section);
+        int offset = (above / verticalFactor()) + d->leftHeader->sectionPosition(section);
         vscroll = d->leftHeader->offset() - offset;
         d->leftHeader->setOffset(offset);
     }
@@ -383,9 +389,10 @@ void QGenericTableView::updateGeometries()
     setViewportMargins(reverse ? 0 : width, topHint.height(), reverse ? width : 0, 0);
 
     QRect vg = d->viewport->geometry();
+    if (QApplication::reverseLayout())
+        d->topHeader->setOffset(vg.width() - topHint.width());
     d->leftHeader->setGeometry(reverse ? vg.right() + 1 : (vg.left() - 1 - width), vg.top(), width, vg.height());
-    d->topHeader->setGeometry(reverse ? vg.right() - topHint.width() : vg.left(),
-                              vg.top() - topHint.height() - 1, vg.width(), topHint.height());
+    d->topHeader->setGeometry(vg.left(), vg.top() - topHint.height() - 1, vg.width(), topHint.height());
 
     // update sliders
     QItemOptions options;
@@ -431,7 +438,7 @@ int QGenericTableView::rowSizeHint(int row) const
         index = model()->index(row, column, root());
         hint = qMax(hint, itemDelegate()->sizeHint(fontMetrics(), options, index).height());
     }
-    return hint;
+    return hint + 1; // add space for the grid
 }
 
 int QGenericTableView::columnSizeHint(int column) const
@@ -450,7 +457,7 @@ int QGenericTableView::columnSizeHint(int column) const
         index = model()->index(row, column, root());
         hint = qMax(hint, itemDelegate()->sizeHint(fontMetrics(), options, index).width());
     }
-    return hint;
+    return hint + 1; // add space for the grid
 }
 
 int QGenericTableView::rowViewportPosition(int row) const

@@ -13,20 +13,17 @@
 #define q q_func()
 
 template <typename T>
-int bsearch(const QVector<T> &vec, const T &item, int first, int last)
+int qBinarySearch(const QVector<T> &vec, const T &item, int start, int end)
 {
-    T val;
-    int mid;
-    while (true) {
-        mid = first + ((last - first) >> 1);
-        val = vec.at(mid);
-        if (val == item || (last - first) < 2)
-            return mid;
-        if (val > item)
-            last = mid;
-        if (val < item)
-            first = mid;
+    int idx = (start + end + 1) / 2;
+    while (end - start > 0) {
+        if (vec.at(idx) > item)
+            end = idx - 1;
+        else
+            start = idx;
+        idx = (start + end + 1) / 2;
     }
+    return idx;
 }
 
 template <class T>
@@ -339,7 +336,6 @@ void QGenericListView::setSelection(const QRect &rect, int selectionCommand)
 void QGenericListView::scrollContentsBy(int dx, int dy)
 {
     d->viewport->scroll(dx, dy);
-//    d->viewport->update();
 }
 
 void QGenericListView::resizeContents(int w, int h)
@@ -758,6 +754,7 @@ void QGenericListView::doStaticLayout(const QRect &bounds, int first, int last)
     int x = 0;
     int y = 0;
     d->initStaticLayout(x, y, first, bounds);
+    QPoint topLeft(x, y);
 
     int gw = d->gridSize.width() > 0 ? d->gridSize.width() : 0;
     int gh = d->gridSize.height() > 0 ? d->gridSize.height() : 0;
@@ -815,6 +812,8 @@ void QGenericListView::doStaticLayout(const QRect &bounds, int first, int last)
             d->yposVector.push_back(y);
             dx = (hint.width() > dx ? hint.width() : dx);
             y += spacing + dy;
+
+            qDebug("row %d", i);
         }
         // used when laying out next batch
         d->yposVector.push_back(y);
@@ -829,7 +828,8 @@ void QGenericListView::doStaticLayout(const QRect &bounds, int first, int last)
     }
 
     resizeContents(rect.width(), rect.height());
-    if (clipRegion().boundingRect().intersects(rect))
+    QRect changedRect(topLeft, rect.bottomRight());
+    if (clipRegion().boundingRect().intersects(changedRect))
         d->viewport->update();
 }
 
@@ -855,6 +855,7 @@ void QGenericListView::doDynamicLayout(const QRect &bounds, int first, int last)
             y += (gh ? gh : item.h) + spacing;
     }
 
+    QPoint topLeft(x, y);
     bool wrap = d->wrap;
     QRect rect(QPoint(0, 0), d->contentsSize);
     QModelIndex bottomRight = model()->bottomRight(root());
@@ -927,7 +928,8 @@ void QGenericListView::doDynamicLayout(const QRect &bounds, int first, int last)
         d->tree.climbTree(d->tree.item(i).rect(), &BinTree<QGenericListViewItem>::insert,
                           reinterpret_cast<void *>(i));
 
-    if (clipRegion().boundingRect().intersects(rect))
+    QRect changedRect(topLeft, rect.bottomRight());
+    if (clipRegion().boundingRect().intersects(changedRect))
         d->viewport->update();
 }
 
@@ -1003,25 +1005,25 @@ void QGenericListViewPrivate::intersectingStaticSet(const QRect &area) const
     if (flow == QGenericListView::LeftToRight) {
         if (yposVector.count() == 0)
             return;
-        j = bsearch<int>(yposVector, area.top(), 0, layoutWraps + 1); // index to the first xpos
-        for (; j < (layoutWraps + 1) && yposVector.at(j) < area.bottom(); ++j) {
+        j = qBinarySearch<int>(yposVector, area.top(), 0, layoutWraps); // index to the first ypos
+        for (; j <= layoutWraps && yposVector.at(j) < area.bottom(); ++j) {
             first = wrapVector.at(j);
-            count = (wraps ? wrapVector.at(j + 1) - wrapVector.at(j) : layoutStart);
+            count = (wraps && j < layoutWraps ? wrapVector.at(j + 1) : layoutStart) - first - 1;
             last = first + count;
-            i = bsearch<int>(xposVector, area.left(), first, first + count);
-            for (; i < last && xposVector.at(i) < area.right(); ++i)
+            i = qBinarySearch<int>(xposVector, area.left(), first, last);
+            for (; i <= last && xposVector.at(i) < area.right(); ++i)
                 intersectVector.push_back(model->index(i, 0, root));
         }
     } else { // flow == TopToBottom
         if (xposVector.count() == 0)
             return;
-        j = bsearch<int>(xposVector, area.left(), 0, layoutWraps + 1); // index to the first xpos
-        for (; j < (layoutWraps + 1) && xposVector.at(j) < area.right(); ++j) {
+        j = qBinarySearch<int>(xposVector, area.left(), 0, layoutWraps); // index to the first xpos
+        for (; j <= layoutWraps && xposVector.at(j) < area.right(); ++j) {
             first = wrapVector.at(j);
-            count = (wraps ? wrapVector.at(j + 1) - wrapVector.at(j) : layoutStart);
+            count = (wraps && j < layoutWraps ? wrapVector.at(j + 1) : layoutStart) - first - 1;
             last = first + count;
-            i = bsearch<int>(yposVector, area.top(), first, first + count);
-            for (; i < last && yposVector.at(i) < area.bottom(); ++i)
+            i = qBinarySearch<int>(yposVector, area.top(), first, last);
+            for (; i <= last && yposVector.at(i) < area.bottom(); ++i)
                 intersectVector.push_back(model->index(i, 0, root));
         }
     }
@@ -1030,8 +1032,7 @@ void QGenericListViewPrivate::intersectingStaticSet(const QRect &area) const
 void QGenericListViewPrivate::intersectingDynamicSet(const QRect &area) const
 {
     intersectVector.clear();
-//    intersectVector.reserve(500); // FIXME
-    QGenericListViewPrivate *that = const_cast<QGenericListViewPrivate *>(this); // FIXME
+    QGenericListViewPrivate *that = const_cast<QGenericListViewPrivate *>(this);
     that->tree.climbTree(area, &QGenericListViewPrivate::addLeaf, static_cast<void *>(that));
 }
 
@@ -1092,7 +1093,7 @@ QGenericListViewItem QGenericListViewPrivate::indexToListViewItem(const QModelIn
     QItemOptions options;
     q->getViewOptions(&options);
     QSize hint = q->itemDelegate()->sizeHint(q->fontMetrics(), options, item);
-    int i = bsearch<int>(wrapVector, item.row(), 0, layoutWraps + 1);
+    int i = qBinarySearch<int>(wrapVector, item.row(), 0, layoutWraps);
     QPoint pos;
     if (flow == QGenericListView::LeftToRight) {
         pos.setX(xposVector.at(item.row()));
@@ -1170,6 +1171,7 @@ void QGenericListViewPrivate::createStaticRow(int &x, int &y, int &dy, int &wrap
 void QGenericListViewPrivate::createStaticColumn(int &x, int &y, int &dx, int &wraps, int i,
                                                  const QRect &bounds, int spacing, int delta)
 {
+    qDebug("createStaticColumn");
     y = bounds.top() + spacing;
     x += spacing + dx;
     ++wraps;

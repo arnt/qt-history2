@@ -42,6 +42,8 @@ public:
         int section;
         uint hidden : 1;
         QGenericHeader::ResizeMode mode;
+        inline bool operator>(int position) const
+            { return (*this).position > position; }
     };
     QVector<HeaderSection> sections; // section = sections.at(index)
     QVector<int> indices; // index = indices.at(section)
@@ -104,7 +106,7 @@ void QGenericHeader::setOffset(int o)
     int ndelta = d->offset - o;
     d->offset = o;
     if (d->orientation == Horizontal)
-        d->viewport->scroll(ndelta, 0);
+        d->viewport->scroll(QApplication::reverseLayout() ? -ndelta : ndelta, 0);
     else
         d->viewport->scroll(0, ndelta);
 }
@@ -251,7 +253,7 @@ int QGenericHeader::indexAt(int position) const
     int start = 0;
     int end = count() - 1;
     int idx = (end + 1) / 2;
-    
+
     const QGenericHeaderPrivate::HeaderSection *sections = d->sections.constData();
     
     while (end - start > 0) {
