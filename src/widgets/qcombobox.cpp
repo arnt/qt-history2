@@ -314,7 +314,7 @@ public:
 
 };
 
-class QComboBoxPopupItem : public QCustomMenuItem 
+class QComboBoxPopupItem : public QCustomMenuItem
 {
     QListBoxItem *li;
 public:
@@ -322,7 +322,7 @@ public:
     virtual bool fullSpan() const { return TRUE; }
     virtual void paint( QPainter*, const QColorGroup&, bool, bool, int, int, int, int);
     virtual QSize sizeHint() { return QSize(li->width(li->listBox()), QMAX(25, li->height(li->listBox()))); }
-};    
+};
 void QComboBoxPopupItem::paint( QPainter* p, const QColorGroup&, bool,
 				bool, int x, int y, int, int)
 {
@@ -350,7 +350,7 @@ public:
     void setListBox( QListBox *l ) { lBox = l ; usingLBox = TRUE;
 				l->setMouseTracking( TRUE );}
 
-    void setPopupMenu( QComboBoxPopup * pm, bool isPopup=TRUE ) 
+    void setPopupMenu( QComboBoxPopup * pm, bool isPopup=TRUE )
 	{ pop = pm; if(isPopup) usingLBox = FALSE; }
 
     int		current;
@@ -442,7 +442,7 @@ QComboBox::QComboBox( QWidget *parent, const char *name )
     : QWidget( parent, name, WResizeNoErase )
 {
     d = new QComboBoxData( this );
-    if ( !style().styleHint(QStyle::SH_ComboBox_Popup) || 
+    if ( !style().styleHint(QStyle::SH_ComboBox_Popup) ||
 	 style().styleHint(QStyle::SH_GUIStyle) == Qt::MotifStyle) {
 	setUpListBox();
     } else {
@@ -959,7 +959,8 @@ void QComboBox::setCurrentItem( int index )
 	d->ed->setText( text( index ) );
 	d->updateLinedGeometry();
     }
-    if ( d->poppedUp && d->usingListBox() && d->listBox() ) {
+    // ### We want to keep ListBox's currentItem in sync, even if NOT popuped...
+    if ( d->usingListBox() && d->listBox() ) {
 	d->listBox()->setCurrentItem( index );
     } else {
 	internalHighlight( index );
@@ -1426,7 +1427,7 @@ void QComboBox::popup()
 			 SLOT(internalHighlight(int)) );
 	    }
 	    d->popup()->clear();
-	    for(unsigned int i = 0; i < d->listBox()->count(); i++) 
+	    for(unsigned int i = 0; i < d->listBox()->count(); i++)
 		d->popup()->insertItem(new QComboBoxPopupItem(d->listBox()->item(i)), i, i);
 	}
 	d->popup()->installEventFilter( this );
@@ -1692,7 +1693,7 @@ bool QComboBox::eventFilter( QObject *object, QEvent *event )
 	default:
 	    break;
 	}
-    } else if ( (!d->usingListBox() || style().styleHint(QStyle::SH_ComboBox_Popup)) && 
+    } else if ( (!d->usingListBox() || style().styleHint(QStyle::SH_ComboBox_Popup)) &&
 		object == d->popup() ) {
 	QMouseEvent *e = (QMouseEvent*)event;
 	switch ( event->type() ) {
