@@ -49,6 +49,12 @@
 #include <commdlg.h>
 #endif
 
+class QPrinterPrivate
+{
+public:
+    QPrinter::PrinterMode printerMode;
+};
+
 // QPrinter states
 
 #define PST_IDLE        0
@@ -108,6 +114,8 @@ static PaperSize paperSizes[QPrinter::NPageSize] =
 QPrinter::QPrinter( PrinterMode m )
     : QPaintDevice( QInternal::Printer | QInternal::ExternalDevice )
 {
+    d = new QPrinterPrivate;
+    d->printerMode = m;
     orient      = Portrait;
     page_size   = A4;
     page_order = FirstPageFirst;
@@ -179,6 +187,8 @@ QPrinter::~QPrinter()
         DeleteDC( hdc );
         hdc = 0;
     }
+
+    delete d;
 }
 
 
@@ -396,6 +406,8 @@ void QPrinter::readPdlg( void* pdv )
     // Note: Remember to reflect any changes here in readPdlgA below!
 
     PRINTDLG* pd = (PRINTDLG*)pdv;
+    if ( d->printerMode = HighResolution )
+	res = metric( QPaintDeviceMetrics::PdmPhysicalDpiY );
     output_file = (pd->Flags & PD_PRINTTOFILE) != 0;
     from_pg = pd->nFromPage;
     to_pg = pd->nToPage;
@@ -464,6 +476,8 @@ void QPrinter::readPdlgA( void* pdv )
 {
     // Note: Remember to reflect any changes here in readPdlg above!
     PRINTDLGA* pd = (PRINTDLGA*)pdv;
+    if ( d->printerMode = HighResolution )
+	res = metric( QPaintDeviceMetrics::PdmPhysicalDpiY );
     output_file = (pd->Flags & PD_PRINTTOFILE) != 0;
     from_pg = pd->nFromPage;
     to_pg = pd->nToPage;
