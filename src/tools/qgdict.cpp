@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.cpp#1 $
+** $Id: //depot/qt/main/src/tools/qgdict.cpp#2 $
 **
 ** Implementation of QGDict and QGDictIterator classes
 **
@@ -17,7 +17,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qgdict.cpp#1 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qgdict.cpp#2 $";
 #endif
 
 
@@ -121,7 +121,7 @@ GCI QGDict::look( const char *key, GCI d, bool ins )
     register Qbucket *n;
     int	 index;
     if ( trivial ) {				// when key is not a string
-	index = long(key) % size;		// don't call virtual hash func
+	index = (int)(long(key) % size);	// don't call virtual hash func
 	if ( !ins ) {				// find item in list
 	    for ( n=vec[index]; n; n=n->getNext() ) {
 		if ( n->getKey() == key )
@@ -162,7 +162,7 @@ bool QGDict::remove( const char *key )		// remove item from dictionary
     if ( numItems == 0 )			// nothing in dictionary
 	return FALSE;
     if ( trivial )
-	index = int(key) % size;
+	index = (int)(long(key) % size);
     else
 	index = hashKey( key ) % size;
     for ( n = vec[index]; n; n=n->getNext() ) { // find item in list
