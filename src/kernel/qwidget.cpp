@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#203 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#204 $
 **
 ** Implementation of QWidget class
 **
@@ -28,7 +28,7 @@
 #endif
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#203 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#204 $");
 
 
 /*!
@@ -1858,12 +1858,7 @@ void QWidget::setFocus()
     QFocusData * f = focusData(TRUE);
     if ( f->it.current() == this && qApp->focusWidget() == this )
 	return;
-    else if ( f->it.current() )
-	f->it.current()->clearFocus();
-    else if ( qApp->focusWidget() &&
-	      topLevelWidget() == qApp->focusWidget()->topLevelWidget() )
-	qApp->focusWidget()->clearFocus();
-	
+
     if ( isFocusEnabled() ) {
 	if ( testWFlags(WState_TabToFocus) ) {
 	    // move the tab focus pointer only if this widget can be
@@ -1882,6 +1877,14 @@ void QWidget::setFocus()
     }
 
     if ( isActiveWindow() ) {
+	if ( qApp->focus_widget && qApp->focus_widget != this &&
+	     topLevelWidget() == qApp->focus_widget->topLevelWidget() ) {
+	    QWidget * prev = qApp->focus_widget;
+	    qApp->focus_widget = this;
+	    QFocusEvent out( Event_FocusOut );
+	    QApplication::sendEvent( prev, &out );
+	}
+
 	qApp->focus_widget = this;
 	QFocusEvent in( Event_FocusIn );
 	QApplication::sendEvent( this, &in );
@@ -2688,7 +2691,6 @@ bool QWidget::event( QEvent *e )
 	    break;
 
 	case Event_FocusIn:
-	case Event_FocusRestore:
 	    focusInEvent( (QFocusEvent*)e );
 	    break;
 
