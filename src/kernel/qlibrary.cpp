@@ -52,25 +52,29 @@
 */
 
 /*!
-  \fn void QCleanupHandler::addCleanUp( Type* object )
+  \fn void QCleanupHandler::add( Type* object )
 
-  Adds an object to the list that will be destroyed upon
+  Adds \a object to the list that will be destroyed upon
   destruction of the cleanup handler itself.
 */
 
 /*!
-  \fn bool QCleanupHandler::isClean()
+  \fn void QCleanupHandler::remove( Type* object )
+
+  Removes \a object from this handler.
+*/
+
+/*!
+  \fn bool QCleanupHandler::isEmpty() const
 
   Return TRUE if there are any undeleted objects this handler
   has to care about.
-  This may be useful for plugins that do not want to be unloaded
-  until all memory allocated in the library's scope has been freed.
 */
 
 
 
 /*!
-  \class QLibrary qplugin.h
+  \class QLibrary qlibrary.h
 
   \brief This class provides a wrapper for library loading and unloading.
   \ingroup component
