@@ -2163,7 +2163,7 @@ bool QOpenType::supportsScript( unsigned int script )
     FT_Error error;
     if ( !gdef ) {
 	if ( (error = TT_Load_GDEF_Table( face, &gdef )) ) {
-// 	    qDebug("error loading gdef table: %d", error );
+//  	    qDebug("error loading gdef table: %d", error );
 	    hasGDef = FALSE;
 	}
     }
@@ -2171,10 +2171,10 @@ bool QOpenType::supportsScript( unsigned int script )
     if ( !gsub ) {
 	if ( (error = TT_Load_GSUB_Table( face, &gsub, gdef )) ) {
 	    if ( error != FT_Err_Table_Missing ) {
-// 		qDebug("error loading gsub table: %d", error );
+//  		qDebug("error loading gsub table: %d", error );
 		return FALSE;
 	    } else {
-// 		qDebug("face doesn't have a gsub table" );
+//  		qDebug("face doesn't have a gsub table" );
 		hasGSub = FALSE;
 	    }
 	}
@@ -2182,13 +2182,8 @@ bool QOpenType::supportsScript( unsigned int script )
 
     if ( !gpos ) {
 	if ( (error = TT_Load_GPOS_Table( face, &gpos, gdef )) ) {
-	    if ( error != FT_Err_Table_Missing ) {
-// 		qDebug("error loading gpos table: %d", error );
-		return FALSE;
-	    } else {
-// 		qDebug("face doesn't have a gpos table" );
-		hasGPos = FALSE;
-	    }
+//  		qDebug("error loading gpos table: %d", error );
+	    hasGPos = FALSE;
 	}
     }
 
@@ -2270,7 +2265,7 @@ bool QOpenType::loadTables( FT_ULong script)
 }
 
 void QOpenType::init(QGlyphLayout *glyphs, int num_glyphs,
-		     unsigned short *logClusters, int len, int char_offset)
+		     unsigned short *logClusters, int len, int /*char_offset*/)
 {
     if ( !str )
 	TT_GSUB_String_New(&str);

@@ -2159,6 +2159,13 @@ static inline unsigned char khmer_subscript_type(const QChar &uc) {
     return khmerSubscriptType[uc.unicode()-0x1780];
 }
 
+// #define KHMER_DEBUG
+#ifdef KHMER_DEBUG
+#define KHDEBUG qDebug
+#else
+#define KHDEBUG if(0) qDebug
+#endif
+
 // Khmer syllables are of the form:
 //     Cons +  {COENG + (Cons | IndV)} + [PreV | BlwV] + [Shift] + [AbvV] + {AbvS} + [PstV] + [PstS]
 //     IndV
@@ -2182,7 +2189,7 @@ static int khmer_nextSyllableBoundary(const QString &s, int start, int end, bool
 
     KhmerForm state = khmer_form(*uc);
 
-//     qDebug("state[%d]=%d (uc=%4x)", pos, state, uc[pos].unicode() );
+    KHDEBUG("state[%d]=%d (uc=%4x)", pos, state, uc[pos].unicode() );
     pos++;
 
     if (state != Khmer_Cons) {
@@ -2265,6 +2272,8 @@ static void khmer_shape_syllable( const QString &string, int from, int syllableL
     // ### the real value should be smaller
     assert(syllableLength < 13);
 
+    KHDEBUG("syllable from %d len %d, str='%s'", from, syllableLength,
+	    string.mid(from,syllableLength).utf8());
     int len = syllableLength;
 
     int i;
@@ -2289,7 +2298,7 @@ static void khmer_shape_syllable( const QString &string, int from, int syllableL
 
     if (len > 1) {
 	// rule 2, move COENG+Ro to front
-	for (i = 1; i < 4; i += 2) {
+	for (i = 1; i < 4 && i < len-1; i += 2) {
 	    if (khmer_form(reordered[i]) != Khmer_Coeng)
 		break;
 	    int t = khmer_subscript_type(reordered[i + 1]);
@@ -2298,8 +2307,10 @@ static void khmer_shape_syllable( const QString &string, int from, int syllableL
 	    } else if (t == 2) {
 		// move COENG + RO to beginning of syllable
 		unsigned short uc = reordered[i + 1];
-		for (int j = i + 1; j > 1; --j)
+		for (int j = i + 1; j > 1; --j) {
 		    reordered[j] = reordered[j - 2];
+		    properties[j] = properties[j - 2];
+		}
 		reordered[0] = Coeng;
 		reordered[1] = uc;
 		properties[0] = properties[1] = PreForm;
@@ -2309,30 +2320,30 @@ static void khmer_shape_syllable( const QString &string, int from, int syllableL
 	}
 
 	// Rule 3
-	int lastForm = 0;
-	for (i = 1; i < len; ++i) {
-	    int form = khmer_form(reordered[i]);
-	    if (form == Khmer_Shift) {
-		if (lastForm == Khmer_AbvV)
-		    properties[i] = BelowForm;
+	for (i = 1; i < len-1; ++i) {
+	    if (khmer_form(reordered[i]) == Khmer_Shift &&
+		khmer_form(reordered[i+1]) == Khmer_AbvV) {
+		properties[i] = BelowForm;
 		break;
 	    }
-	    lastForm = form;
 	}
 
 	// Rule 4 and 5
 	for (i = 1; i < len; ++i) {
 	    if (khmer_subscript_type(reordered[i]) == 0xff) {
+		KHDEBUG("split vowel at %d", i);
 		// ### Could be post form for some, but this is what the Uniscribe docs state.
 		properties[i] = AboveForm;
 		memmove(reordered+1, reordered, len*sizeof(unsigned short));
 		memmove(properties+1, properties, len*sizeof(unsigned char));
 		*reordered = VowelSignE;
 		++len;
+		++i;
 	    }
 	}
     }
 
+    KHDEBUG("length after shaping %d", len);
     for (i = 0; i < len; i++) {
 	glyphs[i].attributes.mark = FALSE;
 	glyphs[i].attributes.clusterStart = FALSE;
@@ -2401,6 +2412,8 @@ static void khmer_shape_syllable( const QString &string, int from, int syllableL
     } else
 #endif
     {
+	KHDEBUG("Not using openType");
+
 	Q_UNUSED(openType);
 	// can't do any shaping, copy the stuff to the script item.
 	engine->ensureSpace(len);
