@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/Makefile.inc#16 $
+# $Id: //depot/qt/main/Makefile.inc#17 $
 #
 # Win32 Makefile, requires Microsoft nmake.
 #
@@ -25,16 +25,16 @@ VCTEMPLATE = vcapp
 VCTEMPLATE = vclib
 !ENDIF
 
-!IF "$(MAKE)" != "NMAKE"
-MFILE = BMakefile
-ODIR = obj\borland
-TPATH = $(TMAKEPATH)\..\win32-borland
-CONSOLE = 
-!ELSE
+!IF "$(MAKE)" == "NMAKE" || "$(MAKE)" == "Nmake" || "$(MAKE)" == "nmake"
 MFILE = NMakefile
 ODIR = obj\msvc
 TPATH = $(TMAKEPATH)\..\win32-msvc
 CONSOLE = console
+!ELSE
+MFILE = BMakefile
+ODIR = obj\borland
+TPATH = $(TMAKEPATH)\..\win32-borland
+CONSOLE = 
 !ENDIF
 
 project: $(PROJECT).pro
