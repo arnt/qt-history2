@@ -77,4 +77,4 @@ public:
 };
 #endif
 
-#endif
+#endif // QEUCKRCODEC_P_H

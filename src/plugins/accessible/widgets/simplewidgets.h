@@ -23,7 +23,7 @@ class QToolButton;
 class QAccessibleButton : public QAccessibleWidget
 {
 public:
-    explicit QAccessibleButton(QWidget *w, Role r);
+    QAccessibleButton(QWidget *w, Role r);
 
     QString text(Text t, int child) const;
     State state(int child) const;
@@ -38,7 +38,7 @@ protected:
 class QAccessibleToolButton : public QAccessibleButton
 {
 public:
-    explicit QAccessibleToolButton(QWidget *w, Role role);
+    QAccessibleToolButton(QWidget *w, Role role);
 
     enum ToolButtonElements {
         ToolButtonSelf        = 0,

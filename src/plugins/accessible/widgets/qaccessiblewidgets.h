@@ -21,7 +21,7 @@ class QListBox;
 class QAccessibleScrollView : public QAccessibleWidget
 {
 public:
-    explicit QAccessibleScrollView(QWidget *w, Role role);
+    QAccessibleScrollView(QWidget *w, Role role);
 
     virtual int itemAt(int x, int y) const;
     virtual QRect itemRect(int item) const;
@@ -31,7 +31,7 @@ public:
 class QAccessibleViewport : public QAccessibleWidget
 {
 public:
-    explicit QAccessibleViewport(QWidget *o,QWidget *sv);
+    QAccessibleViewport(QWidget *o, QWidget *sv);
     ~QAccessibleViewport();
 
     int childAt(int x, int y) const;

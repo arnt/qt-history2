@@ -36,7 +36,7 @@ public:
 class QAccessibleListView : public Q3AccessibleScrollView
 {
 public:
-    QAccessibleListView(QWidget *o);
+    explicit QAccessibleListView(QWidget *o);
 
     int itemAt(int x, int y) const;
     QRect itemRect(int item) const;
@@ -58,7 +58,7 @@ protected:
 class QAccessibleIconView : public Q3AccessibleScrollView
 {
 public:
-    QAccessibleIconView(QWidget *o);
+    explicit QAccessibleIconView(QWidget *o);
 
     int itemAt(int x, int y) const;
     QRect itemRect(int item) const;
@@ -80,7 +80,7 @@ protected:
 class QAccessibleTextEdit : public Q3AccessibleScrollView
 {
 public:
-    QAccessibleTextEdit(QWidget *o);
+    explicit QAccessibleTextEdit(QWidget *o);
 
     int itemAt(int x, int y) const;
     QRect itemRect(int item) const;
@@ -99,7 +99,7 @@ class Q3WidgetStack;
 class QAccessibleWidgetStack : public QAccessibleWidget
 {
 public:
-    QAccessibleWidgetStack(QWidget *o);
+    explicit QAccessibleWidgetStack(QWidget *o);
 
     int childCount() const;
     int indexOfChild(const QAccessibleInterface*) const;
@@ -115,7 +115,7 @@ protected:
 class QAccessibleListBox : public Q3AccessibleScrollView
 {
 public:
-    QAccessibleListBox(QWidget *o);
+    explicit QAccessibleListBox(QWidget *o);
 
     int itemAt(int x, int y) const;
     QRect itemRect(int item) const;
@@ -133,6 +133,6 @@ protected:
     Q3ListBox *listBox() const;
 };
 
-
 #endif // QT_NO_ACCESSIBILITY
-#endif
+
+#endif // QACCESSIBLECOMPAT_H

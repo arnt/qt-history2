@@ -121,4 +121,4 @@ public:
 
 #endif // Q_WS_X11
 
-#endif
+#endif // QGB18030CODEC_H

@@ -67,4 +67,4 @@ protected:
     const QJpUnicodeConv *conv;
 };
 
-#endif
+#endif // QSJISCODEC_P_H

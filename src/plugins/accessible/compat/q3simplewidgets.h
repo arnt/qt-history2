@@ -19,7 +19,7 @@
 class Q3AccessibleDisplay : public QAccessibleWidget
 {
 public:
-    Q3AccessibleDisplay(QWidget *w, Role role = StaticText);
+    explicit Q3AccessibleDisplay(QWidget *w, Role role = StaticText);
 
     QString text(Text t, int child) const;
     Role role(int child) const;

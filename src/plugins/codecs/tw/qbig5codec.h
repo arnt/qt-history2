@@ -88,4 +88,4 @@ public:
 
 #endif // Q_WS_X11
 
-#endif
+#endif // QBIG5CODEC_P_H

@@ -10,6 +10,7 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
+
 #ifndef QFONTJPCODEC_H
 #define QFONTJPCODEC_H
 
@@ -56,4 +57,4 @@ private:
 };
 #endif
 
-#endif
+#endif // QFONTJPCODEC_H

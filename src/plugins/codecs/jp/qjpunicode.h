@@ -128,7 +128,7 @@ public:
     }
 
 protected:
-    QJpUnicodeConv(int r) : rule(r) {}
+    explicit QJpUnicodeConv(int r) : rule(r) {}
 
 private:
     int rule;

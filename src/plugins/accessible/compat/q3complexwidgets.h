@@ -22,7 +22,7 @@ class Q3TitleBar;
 class Q3AccessibleHeader : public QAccessibleWidget
 {
 public:
-    Q3AccessibleHeader(QWidget *w);
+    explicit Q3AccessibleHeader(QWidget *w);
 
     int childCount() const;
 
@@ -38,7 +38,7 @@ protected:
 class Q3AccessibleTitleBar : public QAccessibleWidget
 {
 public:
-    Q3AccessibleTitleBar(QWidget *w);
+    explicit Q3AccessibleTitleBar(QWidget *w);
 
     int childCount() const;
 
@@ -53,5 +53,4 @@ protected:
     Q3TitleBar *titleBar() const;
 };
 
-#endif
-
+#endif // Q3COMPLEXWIDGETS_H
