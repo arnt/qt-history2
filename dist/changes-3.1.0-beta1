@@ -24,6 +24,7 @@ aspects. The earlier, somewhat cluttered toolbars have been cleaned
 up. The property editor can operate on multiple widgets
 simultaneously. Designer now also offers proper WYSIWYG support for
 using QWidgetStacks in the created GUIs.
+##### more!
 
 Qt Assistant, the Qt help documentation browser, got support for
 adding custom documentation sets. This makes it easy to use it as the
@@ -56,7 +57,33 @@ support is greatly improved, and uses the hardware-accellerated
 drivers.
 
 Last, but not least: As all major Qt releases, the 3.1 release adds
-hundreds of minor improvements in the existing class library.
+hundreds of improvements in the existing class library. Here is a
+brief summary of some of the bigger changes:
+
+- QTextEdit got support for a new text format called LogText. This is
+a performance and memory optimized format that is useful for
+multicolored log viewers that need to display larger amounts of data
+fast.
+
+- A new class QSyntaxHighlighter makes it both easy and efficient to
+add syntax highlighting capabilities to a QTextEdit
+
+- QHttp and QFtp - previously "only" implementations of the
+QNetworkProtocol - have been extented to stand on their own merits. If
+you missed flexibility in the network protocol abstractions, QHttp and
+QFtp is the solution.
+
+- QAccel - the class handling keyboard shortcuts - is now able to
+handle clashing accelerators gracefully.  In the case of a clash, a
+new signal activatedAmbiguously() is emitted. Classes that uses
+QAccel, like QButton and QPopupMenu, make use of this new
+functionality. Futhermore QAccel is able to handle multi key sequences
+known from editors like GNU Emacs, e.g. "Ctrl+X,Ctrl+F".
+
+- QClipboard was extended to simplify data exchange between programs. ###
+
+
+##### SQL!!
 
 
 ****************************************************************************
@@ -67,11 +94,16 @@ New classes
 ================================
 
 - QIconFactory
-- QObjectUserData
 - QOCI9Result
 - QMutexLocker
 - QBackInsertIterator
 - QSyntaxHighlighter
+
+QAction
+------------------
+New functions:
+	void setVisible( bool );
+	bool isVisible() const;
 
 QCanvas
 ------------------
@@ -88,16 +120,6 @@ QColorDialog
 ------------------
 New functions:
 	static void setStandardColor( int, QRgb )
-
-QFileDialog
-------------------
-New functions:
-	bool isReadable( const QString & filename ) #####
-
-QIconViewItem
-------------------
-New functions:
-	QString tempText() const
 
 QAccel
 ------------------
@@ -159,12 +181,13 @@ New functions:
 	int numEnumerators( bool super ) const
 	static bool hasMetaObject( const char *class_name )
 
-QObject
+QMenuData
 ------------------
 New functions:
-	static uint registerUserData()
-	void setUserData( uint id, QObjectUserData* data )
-	QObjectUserData* userData( uint id ) const
+	bool isItemVisible( int id ) const;
+	void setItemVisible( int id, bool visible );
+Both functions are inherited by QMenuBar and QPopupMenu
+
 
 QPaintDevice
 ------------------
@@ -241,7 +264,6 @@ New enum values:
 QWidget
 ------------------
 New functions:
-	QPoint backgroundOffset() const
 	bool isFullScreen() const
 	void setSizePolicy( QSizePolicy::SizeType hor, QSizePolicy::SizeType ver, bool hfw = FALSE )
 
@@ -334,9 +356,9 @@ QCString
 ------------------
 New global functions
 	QByteArray qCompress( const uchar* data, int nbytes )
-	QByteArray qUncompress( const uchar* data, int nbytes, int expectedSize = -1 )
-	QByteArray qCompress( const QByteArray& data)
-	QByteArray qUncompress( const QByteArray& data, int expectedSize = -1 )
+	QByteArray qUncompress( const uchar* data, int nbytes )
+	QByteArray qCompress( const QByteArray& data )
+	QByteArray qUncompress( const QByteArray& data )
 
 QDate
 ------------------
@@ -375,10 +397,6 @@ QSettings
 New functions:
 	QSettings( Format format )
 	void setPath( const QString &domain, const QString &product, Scope = User )
-	static void setDefaultDomain( const QString &domain )
-	static QString defaultDomain()
-	static void setDefaultProduct( const QString &product )
-	static QString defaultProduct()
 	void beginGroup( const QString &group )
 	void endGroup()
 	void resetGroup()
@@ -411,15 +429,15 @@ New functions:
 	static QString fromUcs2( const unsigned short *ucs2 )
 	const unsigned short *ucs2() const
 
+Improvements:
+	find, findRef, contains use either a fast hashing
+	algorithmen (for short input) or an optimized Boyer-Moore
+	implementation
+
 QTextStream
 ------------------
 New functions:
 	QTextCodec *codec()
-
-QButton:
-------------------
-New functions:
-	void emulateClick()
 
 QDateTimeEdit:
 ------------------
@@ -448,7 +466,6 @@ QListBox
 ------------------
 New functions:
 	QListBoxItem* selectedItem() const
-	void repaintSelection()
 
 QListView
 ------------------
@@ -458,8 +475,8 @@ New functions:
 QSlider
 ------------------
 New functions:
-	void addLine()
-	void subtractLine()
+	void addLine() ( as slot)
+	void subtractLine() (as slot)
 
 QTextBrowser
 ------------------
@@ -481,8 +498,6 @@ New functions:
 	void setAllowTabs( bool b )
 	bool allowTabs() const
 	void insert( const QString &text, uint insertionFlags = CheckNewLines | RemoveSelected )
-	void normalCopy()
-	QTextDrag *dragObject( QWidget *parent = 0 ) const
 
 New signals:
 	void clicked( int parag, int index )
