@@ -102,7 +102,6 @@ public:
     QString mainWindowLayout() const { return mainWinLayout; }
     void setMainWindowLayout( const QString &layout ) { mainWinLayout = layout; }
 
-    bool isDifferentProfile() const { return profDiffer; }
     void saveProfile( Profile *profile, bool changed = FALSE );
     Profile* loadProfile( const QString &name );
     void removeProfile( const QString &name );
@@ -135,7 +134,6 @@ private:
     int fontSiz;
     bool maximized;
     bool linkUnder;
-    bool profDiffer;
     bool startWithProfile;
     bool profileNameValid;
     bool hideSidebar;

@@ -121,9 +121,13 @@ void Config::load( const QString &name )
 	saveProfile( profil, TRUE );
     } else {
 	profil = loadProfile( profName );
+	if ( !profil ) {
+	    profil = Profile::createDefaultProfile();
+	    saveProfile( profil, TRUE );
+	}
     }
 
-    const QString profkey = key + profil->props["name"] + "/";
+    const QString profkey = key + profName + "/";
 
     webBrows = settings.readEntry( key + "Webbrowser" );
     home = settings.readEntry( profkey + "Homepage" );
@@ -147,7 +151,6 @@ void Config::load( const QString &name )
     maximized = settings.readBoolEntry( key + "GeometryMaximized", FALSE );
     mainWinLayout = settings.readEntry( key + "MainwindowLayout" );
 
-    profDiffer = ( settings.readEntry( key + "LastProfile" ) != profil->props["name"] );
     profileNames = settings.entryList( key + "Profile" );
 }
 
