@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnumber.h#1 $
+** $Id: //depot/qt/main/src/widgets/qlcdnumber.h#2 $
 **
 ** Definition of QLCDNumber class
 **
 ** Author  : Eirik Eng
 ** Created : 940518
 **
-** Copyright (C) 1994 by Troll Tech as.  All rights reserved.
+** Copyright (C) 1994 by Troll Tech AS.	 All rights reserved.
 **
 *****************************************************************************/
 
@@ -14,61 +14,55 @@
 #define QLCDNUM_H
 
 #include "qwidget.h"
-
-class QBitArray;
+#include "qbitarry.h"
 
 
 class QLCDNumber : public QWidget		// LCD number widget
 {
     Q_OBJECT
 public:
-    QLCDNumber(QView *p,unsigned short noOfDigits = 1);
+    QLCDNumber( QView *p, int noOfDigits = 1 );
    ~QLCDNumber();
 
     enum Mode {HEXADECIMAL, DECIMAL, OCTAL, BINARY};
 
-    bool     overflow(double num);
-    bool     overflow(long   num);
+    bool    overflow( double num ) const;
+    bool    overflow( long   num ) const;
     
-    QLCDNumber::Mode mode(){return base;}
+    QLCDNumber::Mode mode() const { return base; }
 
-slots:
-    void     display(int    num) {display((long)   num);}
-    void     display(long   num);
-    void     display(float  num) {display((double) num);}
-    void     display(double num);
-    void     display(char *s);
-    void     setMode(Mode m);
-    void     smallDecimalPoint(bool b);
+slots:						/* methods!!! */
+    void    display( int num )	  { display((long)num); }
+    void    display( long num );
+    void    display( float num )  { display((double)num); }
+    void    display( double num );
+    void    display( const char *str );
+    void    setMode( Mode );
+    void    smallDecimalPoint( bool );
+
+protected:
+    void    resizeEvent( QResizeEvent * );
+    void    paintEvent( QPaintEvent * );
 
 private:
-    void     resizeEvent(QResizeEvent *e);
-    void     paintEvent(QPaintEvent *e);
+    void    drawString( const char *, QPainter &, QBitArray * = NULL,
+			bool = TRUE );
+    void    drawDigit( const QPoint &, char, QPainter &, QPen & );
+    void    drawDigit( const QPoint &, char, char, QPainter &, QPen & );
+    void    drawSegment( const QPoint &, int, QPainter &, QPen &, bool= FALSE);
+    int	    digitLength()     const;
+    int	    segmentXLength()  const;
+    int	    segmentYLength()  const;
+    int	    xSpace()	      const;
+    int	    xOffset()	      const;
+    int	    yOffset()	      const;
 
-    void     drawString(char *s,QPainter &p,QBitArray *newPoints = NULL,
-                                            bool       update    = TRUE);
-    void     drawDigit(QPoint pos, char ch,QPainter &p, QPen &pen);
-    void     drawDigit(QPoint pos, char oldCh,char newCh,
-                       QPainter &p, QPen &pen);
-    void     drawSegment(QPoint pos, int segmentNo,QPainter &p, QPen &pen,
-			 bool erase = FALSE);
-    void     eraseSegment(QPoint pos,int segmentNo, QPainter &p, QPen &pen)
-                                {drawSegment(pos,segmentNo,p,pen,TRUE);}
-    int     *getSegments(char ch);
-    int      digitLength();
-    int      segmentXLength();
-    int      segmentYLength();
-    int      xSpace();
-    int      xOffset();
-    int      yOffset();
-
-    unsigned short nDigits;
-    char      *digits;
-    QBitArray *points;
-    bool       smallPoint;
-    Mode       base;
+    int	     nDigits;
+    QString  digits;
+    QBitArray points;
+    bool     smallPoint;
+    Mode     base;
 };
 
 
 #endif // QLCDNUM_H
-
