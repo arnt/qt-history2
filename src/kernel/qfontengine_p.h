@@ -102,6 +102,7 @@ public:
     QCString _name;
     HDC		hdc;
     HFONT	hfont;
+    LOGFONT     logfont;
     uint	stockFont   : 1;
     uint	paintDevice : 1;
     uint        useTextOutA : 1;
@@ -407,7 +408,7 @@ public:
 class QFontEngineWin : public QFontEngine
 {
 public:
-    QFontEngineWin( const char *name, HDC, HFONT, bool );
+    QFontEngineWin( const char *name, HDC, HFONT, bool, LOGFONT );
 
     Error stringToCMap( const QChar *str, int len, glyph_t *glyphs, advance_t *advances, int *nglyphs ) const;
 

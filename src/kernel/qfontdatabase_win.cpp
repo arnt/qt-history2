@@ -481,6 +481,9 @@ QFontEngine *loadEngine( QFont::Script script, const QFontPrivate *fp,
     Q_UNUSED( foundry );
     Q_UNUSED( style );
 
+    LOGFONT lf;
+    memset( &lf, 0, sizeof(LOGFONT) );
+
     QPaintDevice *paintdevice = fp->paintdevice;
 
     HDC hdc;
@@ -554,9 +557,6 @@ QFontEngine *loadEngine( QFont::Script script, const QFontPrivate *fp,
 	    default:
 		break;
 	}
-
-	LOGFONT lf;
-	memset( &lf, 0, sizeof(LOGFONT) );
 
 	lf.lfHeight = -request.pixelSize;
 #ifdef Q_OS_TEMP
@@ -677,7 +677,7 @@ QFontEngine *loadEngine( QFont::Script script, const QFontPrivate *fp,
 
     }
 
-    QFontEngine *fe = new QFontEngineWin( family->name, hdc, hfont, stockFont );
+    QFontEngine *fe = new QFontEngineWin( family->name, hdc, hfont, stockFont, lf );
     if ( paintdevice )
 	fe->paintDevice = TRUE;
     return fe;

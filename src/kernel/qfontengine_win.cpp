@@ -129,7 +129,7 @@ void QFontEngine::getGlyphIndexes( const QChar *ch, int numChars, glyph_t *glyph
 
 // non Uniscribe engine
 
-QFontEngineWin::QFontEngineWin( const char * name, HDC _hdc, HFONT _hfont, bool stockFont )
+QFontEngineWin::QFontEngineWin( const char * name, HDC _hdc, HFONT _hfont, bool stockFont, LOGFONT lf )
 {
     //qDebug("regular windows font engine created!");
 
@@ -137,6 +137,7 @@ QFontEngineWin::QFontEngineWin( const char * name, HDC _hdc, HFONT _hfont, bool 
 
     hdc = _hdc;
     hfont = _hfont;
+    logfont = lf;
     SelectObject( hdc, hfont );
     stockFont = stockFont;
 
@@ -196,8 +197,15 @@ void QFontEngineWin::draw( QPainter *p, int x, int y, const glyph_t *glyphs,
 {
     Q_UNUSED( p );
     HDC hdc = dc();
-    SelectObject( hdc, hfont );
     unsigned int options =  ttf ? ETO_GLYPH_INDEX : 0;
+
+    if ( textFlags & Underline || textFlags & StrikeOut ) {
+	LOGFONT lf = logfont;
+	lf.lfUnderline = (textFlags & Underline);
+	lf.lfStrikeOut = (textFlags & StrikeOut);
+	HFONT hf = QT_WA_INLINE( CreateFontIndirectW( &lf ), CreateFontIndirectA( (LOGFONTA*)&lf ) );
+	SelectObject( hdc, hf );
+    }
 
     int xo = x;
 
@@ -258,19 +266,9 @@ void QFontEngineWin::draw( QPainter *p, int x, int y, const glyph_t *glyphs,
 	}
     }
 
+    if ( textFlags & Underline || textFlags & StrikeOut )
+	DeleteObject( SelectObject( hdc, hfont ) );
 
-    if ( textFlags & Underline ) {
-	int lw = lineThickness();
-	int yp = y + underlinePosition();
-	Rectangle( hdc, xo, yp, x, yp + lw );
-
-    }
-    if ( textFlags & Overline ) {
-	int lw = lineThickness();
-	int yp = y - ascent() - 1;
-	Rectangle( hdc, xo, yp, x, yp + lw );
-
-    }
     if ( textFlags & StrikeOut ) {
 	int lw = lineThickness();
 	int yp = y - ascent()/3;
