@@ -55,16 +55,20 @@ static bool registerServer( const QString &input )
     }, {
 	hdll = LoadLibraryA( input.local8Bit() );
     } );
-    if ( !hdll )
+    if ( !hdll ) {
+	fprintf(stderr, "Couldn't load library file %s\n", (const char*)input.local8Bit());
 	return FALSE;
+    }
     typedef HRESULT(__stdcall* RegServerProc)();
 #if defined(Q_CC_GNU)
     RegServerProc DllRegisterServer = (RegServerProc)GetProcAddress( hdll, (char *)3 );
 #else
     RegServerProc DllRegisterServer = (RegServerProc)GetProcAddress( hdll, "DllRegisterServer" );
 #endif
-    if ( !DllRegisterServer )
+    if ( !DllRegisterServer ) {
+	fprintf(stderr, "Library file %s doesn't appear to be a COM library\n", (const char*)input.local8Bit());
 	return FALSE;
+    }
     return DllRegisterServer() == S_OK;
 }
 
@@ -76,16 +80,20 @@ static bool unregisterServer( const QString &input )
     }, {
 	hdll = LoadLibraryA( input.local8Bit() );
     } );
-    if ( !hdll )
+    if ( !hdll ) {
+	fprintf(stderr, "Couldn't load library file %s\n", (const char*)input.local8Bit());
 	return FALSE;
+    }
     typedef HRESULT(__stdcall* RegServerProc)();
 #if defined(Q_CC_GNU)
     RegServerProc DllUnregisterServer = (RegServerProc)GetProcAddress( hdll, (char *)4 );
 #else
     RegServerProc DllUnregisterServer = (RegServerProc)GetProcAddress( hdll, "DllUnregisterServer" );
 #endif
-    if ( !DllUnregisterServer )
+    if ( !DllUnregisterServer ) {
+	fprintf(stderr, "Library file %s doesn't appear to be a COM library\n", (const char*)input.local8Bit());
 	return FALSE;
+    }
     return DllUnregisterServer() == S_OK;
 }
 
@@ -201,7 +209,7 @@ int main( int argc, char **argv )
 	    hdll = LoadLibraryA( input.local8Bit() );
 	} );
 	if ( !hdll ) {
-	     fprintf(stderr, "Couldn't load library file %s\n", (const char*)input.local8Bit());
+	    fprintf(stderr, "Couldn't load library file %s\n", (const char*)input.local8Bit());
 	    return 3;
 	}
 	typedef HRESULT(__stdcall* DumpIDLProc)(const QString&, const QString&);
