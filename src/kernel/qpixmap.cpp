@@ -1161,7 +1161,7 @@ QImage QImage::fromMimeSource( const QString &abs_name )
     Makes a call to QPixmap::convertToImage().
 */
 
-QImage QImage::operator=( const QPixmap &pixmap )
+QImage &QImage::operator=( const QPixmap &pixmap )
 {
     *this = pixmap.convertToImage();
     return *this;
