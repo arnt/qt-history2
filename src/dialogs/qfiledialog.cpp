@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#141 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#142 $
 **
 ** Implementation of QFileDialog class
 **
@@ -53,6 +53,9 @@
 #endif
 
 #endif
+
+// see comment near use of this variable
+static const char * egcsWorkaround = "%x  %X";
 
 static QFileIconProvider * fileIconProvider = 0;
 
@@ -289,10 +292,9 @@ QString QFileDialogPrivate::File::text( int column ) const
 	    char a[256];
 	    time_t t1 = epoch.secsTo( info.lastModified() );
 	    struct tm * t2 = ::localtime( &t1 );
-#if defined(_CC_GNU_)
-#warning "if a locale warning appears, ignore it - it is harmless but it can not be disabled."
-#endif
-	    if ( strftime( a, 255, "%x  %X", t2 ) > 0 )
+	    // use a static const char here, so that egcs will not see
+	    // the formatting string and give an incorrect warning.
+	    if ( strftime( a, 255, egcsWorkaround, t2 ) > 0 )
 		*tmpString = a;
 	    else
 		*tmpString = "????";
