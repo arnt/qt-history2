@@ -217,9 +217,8 @@ void DummyFramebuffer::keyEvent(QKeyEvent* e)
     int state = e->stateAfter();
     int c=e->count(); if ( !c ) c=1;
     for ( ; c; c-- ) {
-	int uc = text.isEmpty() ? 0x80000000+e->key() : text[0];
+	int uc = text[0].unicode() + ((e->key()&0xffff)<<16);
 	int i=0;
-qDebug("KEY %08x",uc);
 	while (uc) {
 	    server->sendKeyEvent(uc,state,e->type()==QEvent::KeyPress,e->isAutoRepeat());
 	    uc = text.isEmpty() ? 0 : text[++i];
