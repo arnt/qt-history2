@@ -1,0 +1,16 @@
+isEmpty(RESC_PREFIX):RESC_PREFIX = $$PWD
+!no_single_resource {
+    resc.CONFIG += combine
+    resc.output  = resources.cpp
+} else {
+   resc.output  = resource_${QMAKE_FILE_BASE}.cpp
+}
+isEmpty(QMAKE_RESC) {
+   win32:QMAKE_RESC = ..\bin\resc.exe
+   else:QMAKE_RESC = ../bin/resc
+}
+resc.commands = $$QMAKE_RESC -prefix $$RESC_PREFIX ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
+resc.depends = $$QMAKE_RESC
+resc.input = RESOURCES
+resc.variable_out = SOURCES
+QMAKE_EXTRA_COMPILERS += resc
