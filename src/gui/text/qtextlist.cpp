@@ -51,9 +51,9 @@ int QTextList::count() const
 */
 QTextBlockIterator QTextList::item(int i) const
 {
-    if (i < 1 || i > d->blocks.size())
+    if (i < 0 || i >= d->blocks.size())
         return QTextBlockIterator();
-    return d->blocks.at(i-1);
+    return d->blocks.at(i);
 }
 
 /*!
@@ -70,7 +70,7 @@ QTextBlockIterator QTextList::item(int i) const
 
 int QTextList::itemNumber(const QTextBlockIterator &blockIt) const
 {
-    return d->blocks.indexOf(blockIt) + 1;
+    return d->blocks.indexOf(blockIt);
 }
 
 QString QTextList::itemText(const QTextBlockIterator &blockIt) const
