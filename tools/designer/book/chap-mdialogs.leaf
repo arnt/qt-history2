@@ -493,6 +493,59 @@ Dialog}. This dialog provides information about Qt.
 Click the 'x' located at the top right corner of the dialog to close
 the dialog.
 
+\target dialog-save-project-settings
+\section1 Save Project Settings Dialog
+
+The \Dialog {Save Project Settings} dialog is invoked by clicking
+File|Close or File|Exit for an open project to which changes have been
+made, but not previously saved. The dialog displays the text 'Save
+changes to your project.pro'?. Click \Button Yes to save the changes.
+Click \Button No to close the project without saving any changes.
+Click \Button Cancel to leave the dialog without closing the project
+and without making any changes.
+
+\target dialog-save-form
+\section1 Save Form Dialog
+
+The \Dialog {Save Form} dialog is invoked in several ways. One way is
+to click File|Close for a form that has never been saved, or has been
+saved previously but has had changes made to it. The dialog is also
+invoked by clicking File|Exit for a form that has never been saved, or
+has been saved previously but has had changes made to it. The dialog
+displays 'Save Changes to the Form?'. Click \Button Yes to save the
+form. If the form has not been previously saved, the \Dialog{Save Form
+As Dialog} is invoked. Click \Button No to close the form without
+saving any changes or without saving the form if it has not been saved
+previously. Click \Button Cancel to leave the dialog without closing
+or exiting the form and without saving the form.
+
+\target dialog-save-form-as
+\section1 Save Form As
+
+The \Dialog {Save Form As} dialog is invoked in three different ways.
+One way is to click File|Save for a form in a project that has never
+saved. Another way to invoke the dialog is by clicking File|Close for
+a form that has not been previously saved and has had changes made to
+it. The third way to invoke the dialog is by clicking File|Exit for a
+form that has not been saved previously or that has been saved but has
+had changes made to it. File|Close and File|Exit invoke the
+\Dialog{Save Form Dialog}. Click \Button Yes to invoke the
+\Dialog{Save Form As} dialog. 
+
+The \Dialog{Save Form As} dialog defaults the directory and file type.
+To choose a different directory, click the 'Look In' combobox. Choose
+a file and the name will appear in the 'File Name' combobox. To choose
+a different file type, click the 'File Type'combobox. Click the
+'Create New Folder' toolbar button to create a new directory. Click
+the 'List View' toolbar button to view folders and files in a list
+with only the names showing. Click the 'Details' toolbar button to
+view the folders and file names along with their size, type, date, and
+attributes. Click the Size, Type, Date, or Attributes column headers
+to sort the folders or files.
+
+Click \Button Save to save the selected form. Click \CANCEL to leave
+the dialog without saving the form. 
+
 \target dialog-edit-connections
 \section1 Edit Connections Dialog
 
