@@ -349,6 +349,13 @@ void QIODevice::setOpenMode(OpenMode openMode)
     d->openMode = openMode;
 }
 
+/*!
+    If \a enabled is true, this function sets the \l Text flag on the device;
+    otherwise the \l Text flag is removed. This feature is useful for classes
+    that provide custom end-of-line handling on a QIODevice.
+
+    \sa open(), setOpenMode()
+ */
 void QIODevice::setTextModeEnabled(bool enabled)
 {
     if (enabled)
@@ -357,6 +364,11 @@ void QIODevice::setTextModeEnabled(bool enabled)
         d->openMode &= ~Text;
 }
 
+/*!
+    Returns true if the \l Text flag is enabled; otherwise returns false.
+
+    \sa setTextModeEnabled()
+*/
 bool QIODevice::isTextModeEnabled() const
 {
     return d->openMode & Text;
