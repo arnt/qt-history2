@@ -366,7 +366,7 @@ public_file () {
 	 # internal docs
 	 [ "$file_BASE" = "TODO.txt" ] ||
 	 [ "$file_BASE" = "BUGS.txt" ] ||
-	
+
 	 # no make.help
 	 [ "$file_BASE" = "make.help" ] ||
 
@@ -633,6 +633,7 @@ for plat in mac win x11 qws; do
 	    rm -rf $PLATDIR/doc/*sql*.doc $PLATDIR/include/qsql*.h
 	    rm -rf $PLATDIR/tools/designer/plugins/wizards/*sql* $PLATDIR/tools/designer/designer/propertyeditorsql.h
 	    rm -rf $PLATDIR/include/qdatetimeedit.h $PLATDIR/include/qeditorfactory.h
+	    rm -rf $PLATDIR/include/qdatatable.h $PLATDIR/include/qdatabrowser.h $PLATDIR/include/qdataview.h
 	    ;;
 	professional)
 	    #remove sql & table from the main file
@@ -646,6 +647,7 @@ for plat in mac win x11 qws; do
 	    done
 	    rm -rf $PLATDIR/doc/*sql*.doc $PLATDIR/include/qsql*.h
 	    rm -rf $PLATDIR/tools/designer/designer/propertyeditorsql.h $PLATDIR/tools/designer/plugins/wizards/*sql*
+	    rm -rf $PLATDIR/include/qdatatable.h $PLATDIR/include/qdatabrowser.h $PLATDIR/include/qdataview.h
 	    rm -rf $PLATDIR/doc/table.doc
 	    #move xml stuff into designer directory TBD ###
 	    ;;
