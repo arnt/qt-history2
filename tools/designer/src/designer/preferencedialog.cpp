@@ -1,5 +1,6 @@
 // Prototype preference dialog
 
+#include <QtCore/QSettings>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QStackedWidget>
@@ -21,15 +22,15 @@ PreferenceDialog::PreferenceDialog(QWidget *parent)
     QHBoxLayout *layout = new QHBoxLayout();
     mainLayout->addLayout(layout);
     m_stack = new QStackedWidget(this);
-    QTreeWidget *treeWidget = new QTreeWidget(this);
-    treeWidget->setColumnCount(1);
-    treeWidget->header()->setResizeMode(QHeaderView::Stretch);
-    treeWidget->header()->hide();
-    QTreeWidgetItem *root = new QTreeWidgetItem(treeWidget);
+    m_treeWidget = new QTreeWidget(this);
+    m_treeWidget->setColumnCount(1);
+    m_treeWidget->header()->setResizeMode(QHeaderView::Stretch);
+    m_treeWidget->header()->hide();
+    QTreeWidgetItem *root = new QTreeWidgetItem(m_treeWidget);
     root->setText(0, tr("Standard Preferences"));
-    layout->addWidget(treeWidget);
+    layout->addWidget(m_treeWidget);
     layout->addWidget(m_stack);
-    connect(treeWidget, SIGNAL(currentChanged(QTreeWidgetItem *, QTreeWidgetItem *)),
+    connect(m_treeWidget, SIGNAL(currentChanged(QTreeWidgetItem *, QTreeWidgetItem *)),
             this, SLOT(changePane(QTreeWidgetItem *)));
     QTreeWidgetItem *item;
     for (int listIndex = 0; listIndex < m_preferences.size(); ++listIndex) {
@@ -46,13 +47,26 @@ PreferenceDialog::PreferenceDialog(QWidget *parent)
     // add in all the dynamic things into the list here
     // ...
 
-    // ### Read in the preferences of the last item that was selected.
-    item = root->child(0);
-    if (item) {
-        treeWidget->setSelected(item, true);
-        treeWidget->setCurrentItem(item);
-        treeWidget->openItem(root);
+    QSettings settings;
+    QList<QCoreVariant> openItemList;
+    openItemList.append(QCoreVariant(0));
+    openItemList = settings.value("preferenceDialog/openItems", openItemList).toList();
+    foreach (QCoreVariant v, openItemList) {
+        item = m_treeWidget->topLevelItem(v.toInt());
+        if (item)
+            m_treeWidget->openItem(item);
     }
+
+    QTreeWidgetItem *topLevelItem = m_treeWidget->topLevelItem(
+                                        settings.value("preferenceDialog/parentIndex", 0).toInt());
+    if (topLevelItem) {
+        item = topLevelItem->child(settings.value("preferenceDialog/childIndex", 0).toInt());
+        if (item) {
+            m_treeWidget->setSelected(item, true);
+            m_treeWidget->setCurrentItem(item);
+        }
+    }
+
     layout = new QHBoxLayout();
     mainLayout->addLayout(layout);
     layout->addStretch();
@@ -69,7 +83,23 @@ PreferenceDialog::~PreferenceDialog()
 {
     //qDeleteAll(m_preferences);
 
-    // ### Save Preferences of last item viewed.
+    QSettings settings;
+    QTreeWidgetItem *parentItem;
+    QTreeWidgetItem *item = m_treeWidget->currentItem();
+    if (item)
+        parentItem = item->parent();
+    if (item && parentItem)
+        settings.setValue("preferenceDialog/childIndex", parentItem->indexOfChild(item));
+    // now go through the top level items and make sure we remember which ones were opened
+    QList<QCoreVariant> list;
+    for (int i = 0; i < m_treeWidget->topLevelItemCount(); ++i) {
+        item = m_treeWidget->topLevelItem(i);
+        if (item == parentItem)
+            settings.setValue("preferenceDialog/parentIndex", i);
+        if (m_treeWidget->isItemOpen(item))
+            list.append(i);
+    }
+    settings.setValue("preferenceDialog/openItems", list);
 }
 
 void PreferenceDialog::changePane(QTreeWidgetItem *item)

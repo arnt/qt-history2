@@ -7,7 +7,9 @@
 
 class PreferenceInterface;
 class QStackedWidget;
+class QTreeWidget;
 class QTreeWidgetItem;
+
 class PreferenceDialog : public QDialog
 {
     Q_OBJECT
@@ -23,5 +25,6 @@ private slots:
 private:
     QList<PreferenceInterface *> m_preferences;
     QStackedWidget *m_stack;
+    QTreeWidget *m_treeWidget;
 };
 #endif
