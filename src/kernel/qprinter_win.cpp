@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter_win.cpp#43 $
+** $Id: //depot/qt/main/src/kernel/qprinter_win.cpp#44 $
 **
 ** Implementation of QPrinter class for Win32
 **
@@ -27,6 +27,7 @@
 #include "qapplication.h"
 #include "qt_windows.h"
 
+extern Qt::WindowsVersion qt_winver;
 
 // QPrinter states
 
@@ -92,7 +93,10 @@ bool QPrinter::aborted() const
 static
 bool windowPrintDlg(PRINTDLG* pd)
 {
-    return (qt_winver == WV_NT ? PrintDlg( pd ) : PrintDlgA( pd ) ) != 0;
+    return
+	(qt_winver == Qt::WV_NT
+		? PrintDlg( pd )
+		: PrintDlgA( (PRINTDLGA*)pd ) ) != 0;
 }
 
 bool QPrinter::setup( QWidget *parent )
@@ -107,11 +111,16 @@ bool QPrinter::setup( QWidget *parent )
 	hdc = 0;
     }
 
-    PRINTDLG pd;
-    memset( &pd, 0, sizeof(PRINTDLG) );
+    PRINTDLG pd; memset( &pd, 0, sizeof(PRINTDLG) );
     pd.lStructSize = sizeof(PRINTDLG);
     pd.Flags	 = PD_RETURNDEFAULT;
     bool result = windowPrintDlg(&pd);
+
+    /* WARNING: PRINTDLG may be a PRINTDLGA or PRINTDLGW, so do not
+     * use the TCHAR fields unless you modify the code, or check
+     * qt_winver.  Either way, be sure to then test on Win95 and WinNT.
+     */
+
     if ( result ) {
 	pd.Flags	 = PD_RETURNDC;
 	if ( outputToFile() )
@@ -230,15 +239,21 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 	    if ( !hdc )
 		ok = FALSE;
 	}
-	DOCINFO di;
-	memset( &di, 0, sizeof(DOCINFO) );
-	di.cbSize = sizeof(DOCINFO);
-	di.lpszDocName = (TCHAR*)qt_winTchar(doc_name,TRUE);
-	if ( ok &&
-	    ( qt_winver == WV_NT
-		    ? StartDoc(hdc, &di)
-		    : StartDocA(hdc, &di) == SP_ERROR ) )
-	    ok = FALSE;
+	if ( qt_winver == WV_NT ) {
+	    DOCINFO di;
+	    memset( &di, 0, sizeof(DOCINFO) );
+	    di.cbSize = sizeof(DOCINFO);
+	    di.lpszDocName = (TCHAR*)qt_winTchar(doc_name,TRUE);
+	    if ( ok && StartDoc(hdc, &di) == SP_ERROR )
+		ok = FALSE;
+	} else {
+	    DOCINFOA di;
+	    memset( &di, 0, sizeof(DOCINFO) );
+	    di.cbSize = sizeof(DOCINFO);
+	    di.lpszDocName = doc_name.ascii();
+	    if ( ok && StartDocA(hdc, &di) == SP_ERROR )
+		ok = FALSE;
+	}
 	if ( ok && StartPage(hdc) == SP_ERROR )
 	    ok = FALSE;
 	if ( !ok ) {
