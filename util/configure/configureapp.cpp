@@ -623,7 +623,7 @@ bool Configure::displayHelp()
 	cout << "-no-style-*          Don't build the specified style" << endl;
 	cout << "                     where style is one of" << endl;
 	cout << "                         windows" << endl;
-	cout << "                         windowsxp (plugin only)" << endl;
+	cout << "                         windowsxp" << endl;
 	cout << "                         motif" << endl;
 	cout << "                         cde" << endl;
 	cout << "                         sgi" << endl;
