@@ -1,16 +1,24 @@
 /*! \page qaxserver-demo-menus.html
+    \preliminary
 
   \title Menubar merging
 
-  Nothing to see yet, sorry.
+  This example is not full functional at the moment.
 
 \raw html
+<object ID="QMenus" CLASSID="CLSID:4dc3f340-a6f7-44e4-a79b-3e9217695fbd">
+[Object not available! Did you forget to build and register the server?]
+</object>
 \endraw
 */
 
 /*! \page qaxserver-example-menus.html
+    \preliminary
 
   \title Menubar merging
+
+  This example demonstrates the use of QMenuBar and QStatusBar in
+  a QMainWindow to implement an in-place active control.
 
   To build the example you must first build the \link qaxserver.html
   QAxServer \endlink library. Then run qmake and your make tool in 
