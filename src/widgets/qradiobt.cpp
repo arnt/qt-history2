@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobt.cpp#60 $
+** $Id: //depot/qt/main/src/widgets/qradiobt.cpp#61 $
 **
 ** Implementation of QRadioButton class
 **
@@ -16,8 +16,9 @@
 #include "qpixmap.h"
 #include "qpmcache.h"
 #include "qbitmap.h"
+#include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qradiobt.cpp#60 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qradiobt.cpp#61 $");
 
 
 /*!
@@ -325,4 +326,16 @@ void QRadioButton::mouseReleaseEvent( QMouseEvent *e )
 	noHit = TRUE;
     QButton::mouseReleaseEvent( e );		// send to button handler
     noHit = FALSE;
+}
+
+
+/*!  Reimplemented to ignore toggle-off key events. */
+
+void QRadioButton::keyPressEvent( QKeyEvent * e )
+{
+    if ( isOn() && e->key() == Key_Space ) {
+	e->accept();
+	return;
+    }
+    QButton::keyPressEvent( e );
 }

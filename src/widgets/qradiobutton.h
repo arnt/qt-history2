@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobutton.h#17 $
+** $Id: //depot/qt/main/src/widgets/qradiobutton.h#18 $
 **
 ** Definition of QRadioButton class
 **
@@ -33,6 +33,7 @@ protected:
     void    drawButtonLabel( QPainter * );
 
     void    mouseReleaseEvent( QMouseEvent * );
+    void    keyPressEvent( QKeyEvent * );
 
 private:
     void    init();
