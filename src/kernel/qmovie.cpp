@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmovie.cpp#21 $
+** $Id: //depot/qt/main/src/kernel/qmovie.cpp#22 $
 **
 ** Implementation of movie classes
 **
@@ -735,7 +735,8 @@ void QMovie::connectResize(QObject* receiver, const char* member)
 
 /*!
   Disconnects the given member, or all members if member is zero,
-  from previously connections by connectResize().
+  previously connected by
+  connectResize().
 */
 void QMovie::disconnectResize(QObject* receiver, const char* member)
 {
@@ -758,7 +759,8 @@ void QMovie::connectUpdate(QObject* receiver, const char* member)
 
 /*!
   Disconnects the given member, or all members if member is zero,
-  from previously connections by connectUpdate().
+  previously connected by
+  connectUpdate().
 */
 void QMovie::disconnectUpdate(QObject* receiver, const char* member)
 {
@@ -797,7 +799,8 @@ void QMovie::connectStatus(QObject* receiver, const char* member)
 
 /*!
   Disconnects the given member, or all members if member is zero,
-  from previously connections by connectStatus().
+  previously connected by
+  connectStatus().
 */
 void QMovie::disconnectStatus(QObject* receiver, const char* member)
 {
@@ -814,7 +817,7 @@ void QMovie::disconnectStatus(QObject* receiver, const char* member)
 ** QMoviePrivate meta object code from reading C++ file 'qmovie.cpp'
 **
 ** Created: Thu Jun 26 16:21:01 1997
-**      by: The Qt Meta Object Compiler ($Revision: 1.21 $)
+**      by: The Qt Meta Object Compiler ($Revision: 1.22 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
