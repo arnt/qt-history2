@@ -772,7 +772,6 @@ QDir::filter() const
     return (FilterSpec)d->data->filterSpec;
 }
 
-// ### DOC: What's the functional difference between Dirs and AllDirs?
 /*!
     \enum QDir::FilterSpec
 
@@ -780,8 +779,9 @@ QDir::filter() const
     for entryList() and entryInfoList(). The filter value is specified
     by OR-ing together values from the following list:
 
-    \value Dirs  List directories only.
-    \value AllDirs List all the directories.
+    \value Dirs  List directories that match the filters.
+    \value AllDirs List all directories, i.e. don't apply the filters
+    to directory names.
     \value Files  List files only.
     \value  Drives  List disk drives (ignored under Unix).
     \value  NoSymLinks  Do not list symbolic links (ignored by operating
@@ -1193,7 +1193,8 @@ QDir::isRelative() const
 
 /*!
     Converts the directory path to an absolute path. If it is already
-    absolute nothing happens.
+    absolute nothing happens. Returns true if the conversion
+    succeeded; otherwise returns false.
 
     \sa isAbsolute() isAbsolutePath() isRelative() cleanPath()
 */
