@@ -472,7 +472,9 @@ void QDataStream::setByteOrder( int bo )
  *****************************************************************************/
 
 #ifdef Q_OS_HPUX
-#include <inttypes.h> // for __strtoll
+// #include <inttypes.h> // for __strtoll
+// broken header on HP-UX 10.20
+extern "C" long long __strtoll( const char *, char**, int );
 #endif
 
 static Q_INT64 read_int_ascii( QDataStream *s )
