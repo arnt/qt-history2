@@ -369,11 +369,11 @@ void QPainter::setFont( const QFont &font )
 {
 #if defined(QT_CHECK_STATE)
     if ( !isActive() )
-		qWarning( "QPainter::setFont: Will be reset by begin()" );
+	qWarning( "QPainter::setFont: Will be reset by begin()" );
 #endif
     if ( cfont.d != font.d || testf(VolatileDC) ) {
-		cfont = font;
-		setf(DirtyFont);
+	cfont = font;
+	setf(DirtyFont);
     }
 }
 
