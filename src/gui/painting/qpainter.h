@@ -46,7 +46,7 @@ public:
     enum CoordinateMode { CoordDevice, CoordPainter };
     enum TextDirection { Auto, RTL, LTR };
     enum RenderHint {
-	LineAntialiasing = 1,
+	LineAntialiasing = 1
     };
 
     Q_DECLARE_FLAGS(RenderHints, RenderHint);
