@@ -1886,152 +1886,26 @@ void QListViewItem::paintFocus( QPainter *p, const QColorGroup &cg,
 */
 
 void QListViewItem::paintBranches( QPainter * p, const QColorGroup & cg,
-				   int w, int y, int h, GUIStyle s )
+				   int w, int y, int h )
 {
     listView()->paintEmptyArea( p, QRect( 0, 0, w, h ) );
     if ( !visible )
 	return;
     QListViewItem * child = firstChild();
-    int linetop = 0, linebot = 0;
-
-    int dotoffset = (itemPos() + height() - y) %2;
-
-    // each branch needs at most two lines, ie. four end points
-    QPointArray dotlines( childCount() * 4 );
-    int c = 0;
-
     // skip the stuff above the exposed rectangle
     while ( child && y + child->height() <= 0 ) {
 	y += child->totalHeight();
 	child = child->nextSibling();
     }
 
-    int bx = w / 2;
-
     // paint stuff in the magical area
     while ( child && y < h ) {
-	linebot = y + child->height()/2;
-	if ( (child->expandable || child->childCount()) &&
-	     (child->height() > 0) ) {
-	    // needs a box
-	    p->setPen( cg.text() );
-	    p->drawRect( bx-4, linebot-4, 9, 9 );
-//	    p->setPen( cg.text() ); // ### windows uses black
-	    if ( s == WindowsStyle ) {
-		// plus or minus
-		p->drawLine( bx - 2, linebot, bx + 2, linebot );
-		if ( !child->isOpen() )
-		    p->drawLine( bx, linebot - 2, bx, linebot + 2 );
-	    } else {
-		QPointArray a;
-		if ( child->isOpen() )
-		    a.setPoints( 3, bx-2, linebot-2,
-				 bx, linebot+2,
-				 bx+2, linebot-2 ); //RightArrow
-		else
-		    a.setPoints( 3, bx-2, linebot-2,
-				 bx+2, linebot,
-				 bx-2, linebot+2 ); //DownArrow
-		p->setBrush( cg.text() );
-		p->drawPolygon( a );
-		p->setBrush( NoBrush );
-	    }
-	    // dotlinery
-	    dotlines[c++] = QPoint( bx, linetop );
-	    dotlines[c++] = QPoint( bx, linebot - 5 );
-	    dotlines[c++] = QPoint( bx + 5, linebot );
-	    dotlines[c++] = QPoint( w, linebot );
-	    linetop = linebot + 5;
-	} else if ( child->visible ) {
-	    // just dotlinery
-	    dotlines[c++] = QPoint( bx+1, linebot );
-	    dotlines[c++] = QPoint( w, linebot );
-	}
-
+	uint ctrls = QStyle::ListViewBranches;
+	if((child->expandable || child->childCount()) && child->height() > 0)
+	    ctrls |= QStyle::ListViewExpand;
+	listView()->style().drawListViewItem(p, 2, y, w, child->totalHeight(), cg, child, ctrls);
 	y += child->totalHeight();
 	child = child->nextSibling();
-    }
-
-    if ( child ) // there's a child, so move linebot to edge of rectangle
-	linebot = h;
-
-    if ( linetop < linebot ) {
-	dotlines[c++] = QPoint( bx, linetop );
-	dotlines[c++] = QPoint( bx, linebot );
-    }
-
-    p->setPen( cg.dark() );
-    if ( s == WindowsStyle ) {
-	if ( !verticalLine ) {
-	    // make 128*1 and 1*128 bitmaps that can be used for
-	    // drawing the right sort of lines.
-	    verticalLine = new QBitmap( 1, 129, TRUE );
-	    horizontalLine = new QBitmap( 128, 1, TRUE );
-	    QPointArray a( 64 );
-	    QPainter p;
-	    p.begin( verticalLine );
-	    int i;
-	    for( i=0; i<64; i++ )
-		a.setPoint( i, 0, i*2+1 );
-	    p.setPen( color1 );
-	    p.drawPoints( a );
-	    p.end();
-	    QApplication::flushX();
-	    verticalLine->setMask( *verticalLine );
-	    p.begin( horizontalLine );
-	    for( i=0; i<64; i++ )
-		a.setPoint( i, i*2+1, 0 );
-	    p.setPen( color1 );
-	    p.drawPoints( a );
-	    p.end();
-	    QApplication::flushX();
-	    horizontalLine->setMask( *horizontalLine );
-	    qlv_cleanup_bitmap.add( verticalLine );
-	    qlv_cleanup_bitmap.add( horizontalLine );
-	}
-	int line; // index into dotlines
-	for( line = 0; line < c; line += 2 ) {
-	    // assumptions here: lines are horizontal or vertical.
-	    // lines always start with the numerically lowest
-	    // coordinate.
-
-	    // point ... relevant coordinate of current point
-	    // end ..... same coordinate of the end of the current line
-	    // other ... the other coordinate of the current point/line
-	    if ( dotlines[line].y() == dotlines[line+1].y() ) {
-		int end = dotlines[line+1].x();
-		int point = dotlines[line].x();
-		int other = dotlines[line].y();
-		while( point < end ) {
-		    int i = 128;
-		    if ( i+point > end )
-			i = end-point;
-		    p->drawPixmap( point, other, *horizontalLine,
-				   0, 0, i, 1 );
-		    point += i;
-		}
-	    } else {
-		int end = dotlines[line+1].y();
-		int point = dotlines[line].y();
-		int other = dotlines[line].x();
-		int pixmapoffset = ((point & 1) != dotoffset ) ? 1 : 0;
-		while( point < end ) {
-		    int i = 128;
-		    if ( i+point > end )
-			i = end-point;
-		    p->drawPixmap( other, point, *verticalLine,
-				   0, pixmapoffset, 1, i );
-		    point += i;
-		}
-	    }
-	}
-    } else {
-	int line; // index into dotlines
-	p->setPen( cg.text() );
-	for( line = 0; line < c; line += 2 ) {
-	    p->drawLine( dotlines[line].x(), dotlines[line].y(),
-			 dotlines[line+1].x(), dotlines[line+1].y() );
-	}
     }
 }
 
@@ -2647,7 +2521,7 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 		p->save();
 		p->translate( rleft-ox, crtop-oy );
 		current->i->paintBranches( p, colorGroup(), treeStepSize(),
-					   rtop - crtop, r.height(), style() );
+					   rtop - crtop, r.height() );
 		p->restore();
 	    }
 	}
@@ -3796,7 +3670,8 @@ void QListView::contentsMousePressEvent( QMouseEvent * e )
 
 	if ( it.current() ) {
 	    x1 -= treeStepSize() * (it.current()->l - 1);
-	    if ( x1 >= 0 && x1 < treeStepSize() ) {
+	    QStyle::ListViewItemControl ctrl = style().listViewItemPointOver( i, QPoint(x1, e->pos().y()) );
+	    if( ctrl == QStyle::ListViewBranches || ctrl == QStyle::ListViewExpand) {
 		bool close = i->isOpen();
 		setOpen( i, !i->isOpen() );
 		d->makeCurrentVisibleOnUpdate = FALSE;

@@ -130,7 +130,7 @@ public:
     virtual void paintCell( QPainter *, const QColorGroup & cg,
 			    int column, int width, int alignment );
     virtual void paintBranches( QPainter * p, const QColorGroup & cg,
-				int w, int y, int h, GUIStyle s );
+				int w, int y, int h );
     virtual void paintFocus( QPainter *, const QColorGroup & cg,
 			     const QRect & r );
 

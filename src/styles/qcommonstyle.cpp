@@ -53,6 +53,7 @@
 #include "qspinbox.h"
 #include "qrangecontrol.h"
 #include "qgroupbox.h"
+#include "qlistview.h"
 #include <limits.h>
 #include "../widgets/qtitlebar_p.h"
 
@@ -555,6 +556,17 @@ QStyle::TitleControl QCommonStyle::titleBarPointOver( const QTitleBar*tb, const 
 	    return TitleSysMenu;
     }
     return TitleLabel;
+}
+
+/*!
+ \reimp
+ */
+QStyle::ListViewItemControl
+QCommonStyle::listViewItemPointOver( const QListViewItem *i, const QPoint &pos )
+{
+    if(pos.x() >= 0 && pos.x() < i->listView()->treeStepSize())
+       return ListViewExpand;
+    return ListViewNone;    
 }
 
 #endif

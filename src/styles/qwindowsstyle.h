@@ -170,6 +170,10 @@ public:
     // title bar
     QPixmap titleBarPixmap( const QTitleBar *, TitleControl );
 
+    // listview item
+    void drawListViewItem( QPainter *, int, int, int, int, const QColorGroup & cg,
+			   QListViewItem *, uint );
+
 protected:
     void drawWinShades( QPainter *p,
                         int x, int y, int w, int h,

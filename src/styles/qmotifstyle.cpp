@@ -51,6 +51,7 @@
 #include "qpushbutton.h"
 #include "qscrollbar.h"
 #include "qtabbar.h"
+#include "qlistview.h"
 #include <limits.h>
 
 /*!
@@ -1316,10 +1317,56 @@ void QMotifStyle::drawProgressChunk( QPainter *p, int x, int y, int w, int h, co
     p->fillRect( x, y, w, h, g.highlight() );
 }
 
-#define TITLEBAR_SEPARATION 1
-#define BUTTON_WIDTH 16
-#define BUTTON_HEIGHT 14
-#define RANGE 16
+/*!
+ \reimp
+ */
+void
+QMotifStyle::drawListViewItem( QPainter *p, int, int y, int w, int, const QColorGroup & cg,
+			       QListViewItem *child, uint ctrls)
+{
+    int bx = w / 2, linebot = y + child->height()/2;
+    if(ctrls & ListViewExpand) {
+	// needs a box
+	p->setPen( cg.text() );
+	p->drawRect( bx-4, linebot-4, 9, 9 );
+
+	QPointArray a;
+	if ( child->isOpen() )
+	    a.setPoints( 3, bx-2, linebot-2,
+			 bx, linebot+2,
+			 bx+2, linebot-2 ); //RightArrow
+	else
+	    a.setPoints( 3, bx-2, linebot-2,
+			 bx+2, linebot,
+			 bx-2, linebot+2 ); //DownArrow
+	p->setBrush( cg.text() );
+	p->drawPolygon( a );
+	p->setBrush( NoBrush );
+    }
+    if(ctrls & ListViewBranches) {
+	p->setPen( cg.text() );
+	QListView *lv = child->listView();
+	//parents
+	for( int line = 0; line < child->depth()-1; line++ ) 
+	    p->drawLine( line * lv->treeStepSize()-(lv->treeStepSize()/2), y, 
+			 line * lv->treeStepSize()-(lv->treeStepSize()/2), child->height());
+	
+	//myself
+	int end;
+	if(child->itemBelow() && child->itemBelow()->depth() >= child->depth())
+	    end = child->height();
+	else
+	    end = child->height() / 2;
+	if(child->childCount() || child->isExpandable()) {
+	    p->drawLine(bx, y, bx, linebot-4);
+	    p->drawLine(bx, y+linebot+4, bx, y + end);
+	    p->drawLine(bx+4, linebot, bx + w, linebot);
+	} else {
+	    p->drawLine(bx, y, bx, y + end);
+	    p->drawLine(bx, linebot, bx + w, linebot);
+	}
+    }
+}
 
 static const char * const qt_close_xpm[] = {
 "12 12 2 1",
@@ -1470,3 +1517,5 @@ QPixmap QMotifStyle::titleBarPixmap( const QTitleBar *, TitleControl ctrl)
 
 
 #endif
+
+

@@ -54,6 +54,7 @@
 #include "qrangecontrol.h"
 #include "qscrollbar.h"
 #include "qtabbar.h"
+#include "qlistview.h"
 #include <limits.h>
 
 
@@ -1683,6 +1684,49 @@ bool QWindowsStyle::eventFilter( QObject *o, QEvent *e )
     return QCommonStyle::eventFilter( o, e );
 }
 
+/*!
+ \reimp
+ */
+void
+QWindowsStyle::drawListViewItem( QPainter *p, int, int y, int w, int, const QColorGroup &cg,
+			       QListViewItem *child, uint ctrls )
+{
+    int bx = w / 2, linebot = y + child->height()/2;
+    if(ctrls & ListViewExpand) {
+	// needs a box
+	p->setPen( cg.text() );
+	p->drawRect( bx-4, linebot-4, 9, 9 );
+
+	// plus or minus
+	p->drawLine( bx - 2, linebot, bx + 2, linebot );
+	if ( !child->isOpen() )
+	    p->drawLine( bx, linebot - 2, bx, linebot + 2 );
+    }
+    if(ctrls & ListViewBranches) {
+	p->setPen( cg.text() );
+	p->setPen( DotLine );
+	QListView *lv = child->listView();
+	//parents
+	for( int line = 0; line < child->depth()-1; line++ ) 
+	    p->drawLine( line * lv->treeStepSize()-(lv->treeStepSize()/2), y, 
+			 line * lv->treeStepSize()-(lv->treeStepSize()/2), child->height());
+	
+	//myself
+	int end;
+	if(child->itemBelow() && child->itemBelow()->depth() >= child->depth())
+	    end = child->height();
+	else
+	    end = child->height() / 2;
+	if(child->childCount() || child->isExpandable()) {
+	    p->drawLine(bx, y, bx, linebot-4);
+	    p->drawLine(bx, y+linebot+4, bx, y + end);
+	    p->drawLine(bx+4, linebot, bx + w, linebot);
+	} else {
+	    p->drawLine(bx, y, bx, y + end);
+	    p->drawLine(bx, linebot, bx + w, linebot);
+	}
+    }
+}
 
 static const char * const qt_close_xpm[] = {
 "12 12 2 1",
@@ -1833,3 +1877,5 @@ QPixmap QWindowsStyle::titleBarPixmap( const QTitleBar *, TitleControl ctrl)
 }
 
 #endif
+
+

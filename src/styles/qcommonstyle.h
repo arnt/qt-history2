@@ -100,6 +100,8 @@ public:
 					uint controls, uint activeControl );
     virtual TitleControl titleBarPointOver( const QTitleBar*, const QPoint& );
 
+    ListViewItemControl listViewItemPointOver( const QListViewItem *, const QPoint & );
+
 private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QCommonStyle( const QCommonStyle & );

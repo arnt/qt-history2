@@ -56,6 +56,7 @@ class QSpinBox;
 class QGroupBox;
 class QRangeControlWidget;
 class QTitleBar;
+class QListViewItem;
 
 class Q_EXPORT QStyle: public QObject
 {
@@ -308,6 +309,14 @@ public:
     virtual void drawTitleBarControls( QPainter*,  const QTitleBar*,
 					uint controls, uint activeControl ) = 0;
     virtual TitleControl titleBarPointOver( const QTitleBar*, const QPoint& ) = 0;
+
+    // listviewitem
+    enum ListViewItemControl { ListViewNone = 0x00,
+			       ListViewCheckBox = 0x1, ListViewController = 0x2, ListViewRadio = 0x4,
+			       ListViewBranches = 0x8, ListViewExpand =0x10 };
+    virtual void drawListViewItem( QPainter *, int, int, int, int, const QColorGroup & cg,
+				   QListViewItem *, uint ) = 0;
+    virtual ListViewItemControl listViewItemPointOver( const QListViewItem *, const QPoint & ) = 0;
 
     // header
     virtual void drawHeaderSection( QPainter *p, int x, int y, int w, int h, const QColorGroup &g, bool down ) = 0;

@@ -157,6 +157,9 @@ public:
     // title bar
     QPixmap titleBarPixmap( const QTitleBar *, TitleControl );
 
+    // listview item
+    void drawListViewItem( QPainter *, int, int, int, int, const QColorGroup & cg,
+			   QListViewItem *, uint );
 private:
     bool highlightCols;
 private:        // Disabled copy constructor and operator=
