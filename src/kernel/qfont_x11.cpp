@@ -1929,7 +1929,7 @@ void QFontPrivate::computeLineWidth()
 // fill the actual fontdef with data from the loaded font
 void QFontPrivate::initFontInfo(QFont::Script script)
 {
-    if (script != QFont::Unicode && script != defaultScript && ! actual.dirty)
+    if (script != QFont::Unicode && script != defaultScript || !actual.dirty)
 	return;
 
     actual.lbearing = SHRT_MIN;
@@ -2215,17 +2215,15 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
 	    // while the application is running
 	    qfs->deref();
 	}
-
-	actual.dirty = TRUE;
     }
 
     QChar sample = sampleCharacter(script);
     // look for a unicode font first, and see if it has the script that we want...
     if (tryUnicode && loadUnicode(script, sample)) {
-	initFontInfo(script);
+	request.dirty = FALSE;
 	return;
     }
-    
+
     QFontStruct *qfs = 0;
     QCString fontname;
     QTextCodec *codec = 0;
@@ -2316,7 +2314,6 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
 
 	if (qfs != (QFontStruct *) -1) {
 	    qfs->ref();
-	    initFontInfo( script );
 	}
 
 	request.dirty = FALSE;
