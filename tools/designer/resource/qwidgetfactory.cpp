@@ -1113,7 +1113,6 @@ void QWidgetFactory::loadConnections( const QDomElement &e, QObject *connector )
 		n = n.nextSibling().toElement();
 		continue;
 	    }
-
 	    QObject::connect( sender, s, receiver, s2 );
 	} else if ( n.tagName() == "slot" ) {
 	    QString s = n.firstChild().toText().data();

@@ -27,7 +27,6 @@
 #include <qdataview.h>
 #include <qdatabrowser.h>
 #include <qsqlcursor.h>
-#include <qvector.h>
 #include <qstring.h>
 
 class QSqlDatabase;
@@ -42,15 +41,9 @@ public:
     void initPreview( const QString &connection, const QString &table, QObject *o,
 		      const QMap<QString, QString> &databaseControls );
 
-    QSqlCursor* defCursor();
-    QSqlForm* defForm();
-    virtual bool hasCursorSupport() { return TRUE; }
-
 protected:
-    QSqlDatabase* defaultConnection;
-    QSqlCursor* cursor;
-    QSqlForm* form;
-    QVector< QSqlCursor > autoDeleteCursors;
+    QSqlDatabase* con;
+    QSqlForm* frm;
     QString tbl;
     QMap<QString, QString> dbControls;
     QObject *parent;
@@ -64,12 +57,8 @@ class QDesignerDataBrowser : public QDataBrowser, public DatabaseSupport
 public:
     QDesignerDataBrowser( QWidget *parent, const char *name );
 
-    QSqlCursor* defaultCursor() { return DatabaseSupport::defCursor(); }
-    QSqlForm* defaultForm() { return DatabaseSupport::defForm(); }
-
 protected:
     bool event( QEvent* e );
-
 };
 
 class QDesignerDataView : public QDataView, public DatabaseSupport
@@ -78,7 +67,6 @@ class QDesignerDataView : public QDataView, public DatabaseSupport
 
 public:
     QDesignerDataView( QWidget *parent, const char *name );
-    bool hasCursorSupport() { return FALSE; }
 
 protected:
     bool event( QEvent* e );

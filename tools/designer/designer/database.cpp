@@ -29,6 +29,33 @@
 #include <qsqlcursor.h>
 #include <qsqlrecord.h>
 
+DatabaseSupport::DatabaseSupport()
+{
+    con = 0;
+    frm = 0;
+    parent = 0;
+}
+
+void DatabaseSupport::initPreview( const QString &connection, const QString &table, QObject *o,
+				   const QMap<QString, QString> &databaseControls )
+{
+    tbl = table;
+    dbControls = databaseControls;
+    parent = o;
+
+    if ( connection != "(default)" )
+	con = QSqlDatabase::database( connection );
+    else
+	con = QSqlDatabase::database();
+    frm = new QSqlForm( o, table );
+    for ( QMap<QString, QString>::Iterator it = dbControls.begin(); it != dbControls.end(); ++it ) {
+	QObject *chld = parent->child( it.key(), "QWidget" );
+	if ( !chld )
+	    continue;
+	frm->insert( (QWidget*)chld, *it );
+    }
+}
+
 QDesignerDataBrowser::QDesignerDataBrowser( QWidget *parent, const char *name )
     : QDataBrowser( parent, name )
 {
@@ -45,8 +72,9 @@ bool QDesignerDataBrowser::event( QEvent* e )
 #endif
 	) {
 	if ( e->type() == QEvent::Show ) {
-	    setSqlCursor( defCursor() );
-	    setForm( defForm() );
+	    QSqlCursor* cursor = new QSqlCursor( tbl, TRUE, con );
+	    setCursor( cursor, TRUE );
+	    setForm( frm );
 	    refresh();
 	    first();
 	    return TRUE;
@@ -65,62 +93,5 @@ bool QDesignerDataView::event( QEvent* e )
     return QDataView::event( e );
 }
 
-DatabaseSupport::DatabaseSupport()
-{
-    cursor = 0;
-    defaultConnection = 0;
-    form = 0;
-    parent = 0;
-}
-
-void DatabaseSupport::initPreview( const QString &connection, const QString &table, QObject *o,
-				   const QMap<QString, QString> &databaseControls )
-{
-    tbl = table;
-    dbControls = databaseControls;
-    parent = o;
-
-    if ( connection != "(default)" )
-	defaultConnection = QSqlDatabase::database( connection );
-    else
-	defaultConnection = QSqlDatabase::database();
-    cursor = 0;
-    form = new QSqlForm( o, table );
-    autoDeleteCursors.resize( 1 );
-    autoDeleteCursors.setAutoDelete( TRUE );
-    if ( !hasCursorSupport() ) {
-	for ( QMap<QString, QString>::Iterator it = dbControls.begin(); it != dbControls.end(); ++it ) {
-	    QObject *chld = parent->child( it.key(), "QWidget" );
-	    if ( !chld )
-		continue;
-	    form->insert( (QWidget*)chld, *it );
-	}
-    }
-}
-
-QSqlCursor* DatabaseSupport::defCursor()
-{
-    if ( !cursor ) {
-	cursor = new QSqlCursor( tbl );
-	autoDeleteCursors.insert( 0, cursor );
-	if ( form ) {
-	    for ( QMap<QString, QString>::Iterator it = dbControls.begin(); it != dbControls.end(); ++it ) {
-		QObject *chld = parent->child( it.key(), "QWidget" );
-		if ( !chld )
-		    continue;
-		form->insert( (QWidget*)chld, *it );
-	    }
-	    QSqlRecord* buf = cursor->editBuffer();
-	    form->setRecord( buf );
-	    form->readFields();
-	}
-    }
-    return cursor;
-}
-
-QSqlForm* DatabaseSupport::defForm()
-{
-    return form;
-}
 
 #endif
