@@ -1820,6 +1820,18 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
 	    res = wheel->isAccepted();
 	}
 	break;
+    case QEvent::ContextMenu:
+	{
+	    QWidget* w = (QWidget*)receiver;
+	    QContextMenuEvent *cevent = (QContextMenuEvent*) e;
+	    while ( w ) {
+		res = internalNotify( w, cevent );
+		if ( cevent->isAccepted() || w->isTopLevel() )
+		    break;		
+		w = w->parentWidget();
+	    }
+	}
+	break;
     default:
 	res = internalNotify( receiver, e );
 	break;
