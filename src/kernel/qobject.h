@@ -57,7 +57,6 @@ struct QObjectPrivate;
 class QObjectUserData;
 #endif
 class QObjectList;
-class QGuardedPtrData;
 class QEvent;
 class QTimerEvent;
 class QChildEvent;
@@ -202,7 +201,6 @@ private:
     friend class QBaseApplication;
     friend class QWidget;
     friend class QSignal;
-    friend class QGuardedPtrData;
 
 private: // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
@@ -217,6 +215,41 @@ public:
     virtual ~QObjectUserData();
 };
 #endif
+
+template <class T>
+class QPointer
+{
+    QObject *o;
+public:
+    inline QPointer() : o(0) {}
+    inline QPointer(T *obj) : o(obj)
+	{ QMetaObject::addGuard(&o); }
+    inline QPointer(const QPointer<T> &p) : o(p.o)
+	{ QMetaObject::addGuard(&o); }
+    inline ~QPointer()
+	{ QMetaObject::removeGuard(&o); }
+    inline QPointer<T> &operator=(const QPointer<T> &p)
+	{ QMetaObject::changeGuard(&o, p.o); return *this; }
+    inline QPointer<T> &operator=(T* obj)
+	{ QMetaObject::changeGuard(&o, obj); return *this; }
+
+    inline bool operator==( const QPointer<T> &p ) const
+	{ return (o == p.o); }
+    inline bool operator!= ( const QPointer<T>& p ) const
+	{ return (o != p.o); }
+
+    inline bool isNull() const
+	{ return !o; }
+
+    inline T* operator->() const
+	{ return static_cast<T*>(const_cast<QObject*>(o)); }
+    inline T& operator*() const
+	{ return *static_cast<T*>(const_cast<QObject*>(o)); }
+    inline operator T*() const
+	{ return static_cast<T*>(const_cast<QObject*>(o)); }
+};
+
+typedef QPointer<QObject> QObjectPointer;
 
 #define Q_DEFINED_QOBJECT
 #include "qwinexport.h"

@@ -175,6 +175,10 @@ struct QMetaObject
     // internal index-based signal activation
     static void activate(QObject *obj, int signal_index, void **argv);
     static void activate(QObject *obj, const QMetaObject *, int local_signal_index, void **argv);
+    // internal guarded pointers
+    static void addGuard(QObject **ptr);
+    static void removeGuard(QObject **ptr);
+    static void changeGuard(QObject **ptr, QObject *o);
 
     enum Call {
 	InvokeSlot = QSLOT_CODE,

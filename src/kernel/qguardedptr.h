@@ -42,42 +42,13 @@
 #include "qobject.h"
 #endif // QT_H
 
-class QGuardedPtrData
+template <class T> class QGuardedPtr : public QPointer<T>
 {
 public:
-    static void add(QObject **ptr);
-    static void remove(QObject **ptr);
-    static void replace(QObject **ptr, QObject *o);
+    inline QGuardedPtr(){}
+    inline QGuardedPtr(T *obj) : QPointer<T>(obj){}
+    inline QGuardedPtr(const QPointer<T> &p) : QPointer<T>(p) {}
 };
-
-template <class T>
-class QGuardedPtr
-{
-    QObject *o;
-public:
-    inline QGuardedPtr() : o(0) {}
-    inline QGuardedPtr(T *obj) : o(obj)
-	{ QGuardedPtrData::add(&o); }
-    inline QGuardedPtr(const QGuardedPtr<T> &p) : o(p.o)
-	{ QGuardedPtrData::add(&o); }
-    inline ~QGuardedPtr() { QGuardedPtrData::remove(&o); }
-    inline QGuardedPtr<T> &operator=(const QGuardedPtr<T> &p)
-	{ QGuardedPtrData::replace(&o, p.o); return *this; }
-    inline QGuardedPtr<T> &operator=(T* obj)
-	{ QGuardedPtrData::replace(&o, obj); return *this; }
-
-    inline bool operator==( const QGuardedPtr<T> &p ) const
-	{ return (o == p.o); }
-    inline bool operator!= ( const QGuardedPtr<T>& p ) const
-	{ return (o != p.o); }
-
-    inline bool isNull() const { return !o; }
-
-    inline T* operator->() const { return static_cast<T*>(const_cast<QObject*>(o)); }
-    inline T& operator*() const { return *static_cast<T*>(const_cast<QObject*>(o)); }
-    inline operator T*() const { return static_cast<T*>(const_cast<QObject*>(o)); }
-};
-
 #define Q_DEFINED_QGUARDEDPTR
 #include "qwinexport.h"
 #endif
