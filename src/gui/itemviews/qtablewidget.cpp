@@ -965,9 +965,6 @@ QDataStream &operator>>(QDataStream &stream, const QTableWidgetItem &item)
     by clicking on the horizontal header.
 */
 
-#define d d_func()
-#define q q_func()
-
 class QTableWidgetPrivate : public QTableViewPrivate
 {
     Q_DECLARE_PUBLIC(QTableWidget)
@@ -991,6 +988,7 @@ public:
 
 void QTableWidgetPrivate::setup()
 {
+    Q_Q(QTableWidget);
     // view signals
     QObject::connect(q, SIGNAL(pressed(QModelIndex)), q, SLOT(emitItemPressed(QModelIndex)));
     QObject::connect(q, SIGNAL(clicked(QModelIndex)), q, SLOT(emitItemClicked(QModelIndex)));
@@ -1010,37 +1008,44 @@ void QTableWidgetPrivate::setup()
 
 void QTableWidgetPrivate::emitItemPressed(const QModelIndex &index)
 {
+    Q_Q(QTableWidget);
     emit q->itemPressed(model()->item(index));
 }
 
 void QTableWidgetPrivate::emitItemClicked(const QModelIndex &index)
 {
+    Q_Q(QTableWidget);
     emit q->itemClicked(model()->item(index));
 }
 
 void QTableWidgetPrivate::emitItemDoubleClicked(const QModelIndex &index)
 {
+    Q_Q(QTableWidget);
     emit q->itemDoubleClicked(model()->item(index));
 }
 
 void QTableWidgetPrivate::emitItemActivated(const QModelIndex &index)
 {
+    Q_Q(QTableWidget);
     emit q->itemActivated(model()->item(index));
 }
 
 void QTableWidgetPrivate::emitItemEntered(const QModelIndex &index)
 {
+    Q_Q(QTableWidget);
     emit q->itemEntered(model()->item(index));
 }
 
 void QTableWidgetPrivate::emitItemChanged(const QModelIndex &index)
 {
+    Q_Q(QTableWidget);
     emit q->itemChanged(model()->item(index));
 }
 
 void QTableWidgetPrivate::emitCurrentItemChanged(const QModelIndex &current,
                                                  const QModelIndex &previous)
 {
+    Q_Q(QTableWidget);
     emit q->currentItemChanged(model()->item(current), model()->item(previous));
 }
 
@@ -1088,6 +1093,7 @@ void QTableWidgetPrivate::emitCurrentItemChanged(const QModelIndex &current,
 QTableWidget::QTableWidget(QWidget *parent)
     : QTableView(*new QTableWidgetPrivate, parent)
 {
+    Q_D(QTableWidget);
     setModel(new QTableModel(0, 0, this));
     d->setup();
 }
@@ -1098,6 +1104,7 @@ QTableWidget::QTableWidget(QWidget *parent)
 QTableWidget::QTableWidget(int rows, int columns, QWidget *parent)
     : QTableView(*new QTableWidgetPrivate, parent)
 {
+    Q_D(QTableWidget);
     setModel(new QTableModel(rows, columns, this));
     d->setup();
 }
@@ -1118,6 +1125,7 @@ QTableWidget::~QTableWidget()
 */
 void QTableWidget::setRowCount(int rows)
 {
+    Q_D(QTableWidget);
     d->model()->setRowCount(rows);
 }
 
@@ -1127,6 +1135,7 @@ void QTableWidget::setRowCount(int rows)
 
 int QTableWidget::rowCount() const
 {
+    Q_D(const QTableWidget);
     return d->model()->rowCount();
 }
 
@@ -1139,6 +1148,7 @@ int QTableWidget::rowCount() const
 */
 void QTableWidget::setColumnCount(int columns)
 {
+    Q_D(QTableWidget);
     d->model()->setColumnCount(columns);
 }
 
@@ -1148,6 +1158,7 @@ void QTableWidget::setColumnCount(int columns)
 
 int QTableWidget::columnCount() const
 {
+    Q_D(const QTableWidget);
     return d->model()->columnCount();
 }
 
@@ -1157,6 +1168,7 @@ int QTableWidget::columnCount() const
 int QTableWidget::row(const QTableWidgetItem *item) const
 {
     Q_ASSERT(item);
+    Q_D(const QTableWidget);
     return d->model()->index(item).row();
 }
 
@@ -1166,6 +1178,7 @@ int QTableWidget::row(const QTableWidgetItem *item) const
 int QTableWidget::column(const QTableWidgetItem *item) const
 {
     Q_ASSERT(item);
+    Q_D(const QTableWidget);
     return d->model()->index(item).column();
 }
 
@@ -1177,6 +1190,7 @@ int QTableWidget::column(const QTableWidgetItem *item) const
 */
 QTableWidgetItem *QTableWidget::item(int row, int column) const
 {
+    Q_D(const QTableWidget);
     return d->model()->item(row, column);
 }
 
@@ -1188,6 +1202,7 @@ QTableWidgetItem *QTableWidget::item(int row, int column) const
 void QTableWidget::setItem(int row, int column, QTableWidgetItem *item)
 {
     Q_ASSERT(item);
+    Q_D(QTableWidget);
     item->view = this;
     d->model()->setItem(row, column, item);
 }
@@ -1197,6 +1212,7 @@ void QTableWidget::setItem(int row, int column, QTableWidgetItem *item)
 */
 QTableWidgetItem *QTableWidget::takeItem(int row, int column)
 {
+    Q_D(QTableWidget);
     QTableWidgetItem *item = d->model()->takeItem(row, column);
     item->view = 0;
     return item;
@@ -1208,6 +1224,7 @@ QTableWidgetItem *QTableWidget::takeItem(int row, int column)
 void QTableWidget::removeItem(QTableWidgetItem *item)
 {
     Q_ASSERT(item);
+    Q_D(QTableWidget);
     d->model()->removeItem(item);
 }
 
@@ -1216,6 +1233,7 @@ void QTableWidget::removeItem(QTableWidgetItem *item)
 */
 QTableWidgetItem *QTableWidget::verticalHeaderItem(int row) const
 {
+    Q_D(const QTableWidget);
     return d->model()->verticalHeaderItem(row);
 }
 
@@ -1224,6 +1242,7 @@ QTableWidgetItem *QTableWidget::verticalHeaderItem(int row) const
 */
 void QTableWidget::setVerticalHeaderItem(int row, QTableWidgetItem *item)
 {
+    Q_D(QTableWidget);
     item->view = this;
     d->model()->setHorizontalHeaderItem(row, item);
 }
@@ -1233,6 +1252,7 @@ void QTableWidget::setVerticalHeaderItem(int row, QTableWidgetItem *item)
 */
 QTableWidgetItem *QTableWidget::horizontalHeaderItem(int column) const
 {
+    Q_D(const QTableWidget);
     return d->model()->horizontalHeaderItem(column);
 }
 
@@ -1241,6 +1261,7 @@ QTableWidgetItem *QTableWidget::horizontalHeaderItem(int column) const
 */
 void QTableWidget::setHorizontalHeaderItem(int column, QTableWidgetItem *item)
 {
+    Q_D(QTableWidget);
     item->view = this;
     d->model()->setVerticalHeaderItem(column, item);
 }
@@ -1250,6 +1271,7 @@ void QTableWidget::setHorizontalHeaderItem(int column, QTableWidgetItem *item)
 */
 void QTableWidget::setVerticalHeaderLabels(const QStringList &labels)
 {
+    Q_D(QTableWidget);
     QTableModel *model = d->model();
     QTableWidgetItem *item = 0;
     for (int i = 0; i < model->rowCount() && i < labels.count(); ++i) {
@@ -1267,6 +1289,7 @@ void QTableWidget::setVerticalHeaderLabels(const QStringList &labels)
 */
 void QTableWidget::setHorizontalHeaderLabels(const QStringList &labels)
 {
+    Q_D(QTableWidget);
     QTableModel *model = d->model();
     QTableWidgetItem *item = 0;
     for (int i = 0; i < model->columnCount() && i < labels.count(); ++i) {
@@ -1300,6 +1323,7 @@ int QTableWidget::currentColumn() const
 */
 QTableWidgetItem *QTableWidget::currentItem() const
 {
+    Q_D(const QTableWidget);
     return d->model()->item(currentIndex());
 }
 
@@ -1308,6 +1332,7 @@ QTableWidgetItem *QTableWidget::currentItem() const
 */
 void QTableWidget::setCurrentItem(QTableWidgetItem *item)
 {
+    Q_D(QTableWidget);
     setCurrentIndex(d->model()->index(item));
 }
 
@@ -1316,6 +1341,7 @@ void QTableWidget::setCurrentItem(QTableWidgetItem *item)
 */
 void QTableWidget::sortItems(int column, Qt::SortOrder order)
 {
+    Q_D(QTableWidget);
     d->model()->sort(column, order);
     horizontalHeader()->setSortIndicator(column, order);
 }
@@ -1327,6 +1353,7 @@ void QTableWidget::sortItems(int column, Qt::SortOrder order)
 
 void QTableWidget::setSortingEnabled(bool enable)
 {
+    Q_D(QTableWidget);
     d->sortingEnabled = enable;
     if (!enable && horizontalHeader()->isSortIndicatorShown())
         horizontalHeader()->setSortIndicatorShown(false);
@@ -1339,6 +1366,7 @@ void QTableWidget::setSortingEnabled(bool enable)
 
 bool QTableWidget::isSortingEnabled() const
 {
+    Q_D(const QTableWidget);
     return d->sortingEnabled;
 }
 
@@ -1350,6 +1378,7 @@ bool QTableWidget::isSortingEnabled() const
 void QTableWidget::openPersistentEditor(QTableWidgetItem *item)
 {
     Q_ASSERT(item);
+    Q_D(QTableWidget);
     QModelIndex index = d->model()->index(item);
     QAbstractItemView::openPersistentEditor(index);
 }
@@ -1362,6 +1391,7 @@ void QTableWidget::openPersistentEditor(QTableWidgetItem *item)
 void QTableWidget::closePersistentEditor(QTableWidgetItem *item)
 {
     Q_ASSERT(item);
+    Q_D(QTableWidget);
     QModelIndex index = d->model()->index(item);
     QAbstractItemView::closePersistentEditor(index);
 }
@@ -1372,6 +1402,7 @@ void QTableWidget::closePersistentEditor(QTableWidgetItem *item)
 
 bool QTableWidget::isItemSelected(const QTableWidgetItem *item) const
 {
+    Q_D(const QTableWidget);
     QModelIndex index = d->model()->index(item);
     return selectionModel()->isSelected(index) && !isIndexHidden(index);
 }
@@ -1381,6 +1412,7 @@ bool QTableWidget::isItemSelected(const QTableWidgetItem *item) const
 */
 void QTableWidget::setItemSelected(const QTableWidgetItem *item, bool select)
 {
+    Q_D(QTableWidget);
     QModelIndex index = d->model()->index(item);
     selectionModel()->select(index, select ? QItemSelectionModel::Select : QItemSelectionModel::Deselect);
 }
@@ -1425,6 +1457,7 @@ QList<QTableWidgetSelectionRange> QTableWidget::selectedRanges() const
 
 QList<QTableWidgetItem*> QTableWidget::selectedItems()
 {
+    Q_D(QTableWidget);
     QModelIndexList indexes = selectedIndexes();
     QList<QTableWidgetItem*> items;
     for (int i = 0; i < indexes.count(); ++i) {
@@ -1442,6 +1475,7 @@ QList<QTableWidgetItem*> QTableWidget::selectedItems()
 
 QList<QTableWidgetItem*> QTableWidget::findItems(const QRegExp &rx) const
 {
+    Q_D(const QTableWidget);
     return d->model()->find(rx);
 }
 
@@ -1469,6 +1503,7 @@ int QTableWidget::visualColumn(int logicalColumn) const
 
 QTableWidgetItem *QTableWidget::itemAt(const QPoint &p) const
 {
+    Q_D(const QTableWidget);
     return d->model()->item(indexAt(p));
 }
 
@@ -1478,6 +1513,7 @@ QTableWidgetItem *QTableWidget::itemAt(const QPoint &p) const
 QRect QTableWidget::visualItemRect(const QTableWidgetItem *item) const
 {
     Q_ASSERT(item);
+    Q_D(const QTableWidget);
     QModelIndex index = d->model()->index(const_cast<QTableWidgetItem*>(item));
     Q_ASSERT(index.isValid());
     return visualRect(index);
@@ -1490,6 +1526,7 @@ QRect QTableWidget::visualItemRect(const QTableWidgetItem *item) const
 void QTableWidget::scrollToItem(const QTableWidgetItem *item)
 {
     Q_ASSERT(item);
+    Q_D(QTableWidget);
     QModelIndex index = d->model()->index(const_cast<QTableWidgetItem*>(item));
     Q_ASSERT(index.isValid());
     QTableView::scrollTo(index);
@@ -1497,11 +1534,13 @@ void QTableWidget::scrollToItem(const QTableWidgetItem *item)
 
 const QTableWidgetItem *QTableWidget::itemPrototype() const
 {
+    Q_D(const QTableWidget);
     return d->model()->itemPrototype();
 }
 
 void QTableWidget::setItemPrototype(const QTableWidgetItem *item)
 {
+    Q_D(QTableWidget);
     d->model()->setItemPrototype(item);
 }
 
@@ -1510,6 +1549,7 @@ void QTableWidget::setItemPrototype(const QTableWidgetItem *item)
 */
 void QTableWidget::insertRow(int row)
 {
+    Q_D(QTableWidget);
     d->model()->insertRows(row);
 }
 
@@ -1518,6 +1558,7 @@ void QTableWidget::insertRow(int row)
 */
 void QTableWidget::insertColumn(int column)
 {
+    Q_D(QTableWidget);
     d->model()->insertColumns(column);
 }
 
@@ -1526,6 +1567,7 @@ void QTableWidget::insertColumn(int column)
 */
 void QTableWidget::removeRow(int row)
 {
+    Q_D(QTableWidget);
     d->model()->removeRows(row);
 }
 
@@ -1534,6 +1576,7 @@ void QTableWidget::removeRow(int row)
 */
 void QTableWidget::removeColumn(int column)
 {
+    Q_D(QTableWidget);
     d->model()->removeColumns(column);
 }
 
@@ -1543,6 +1586,7 @@ void QTableWidget::removeColumn(int column)
 
 void QTableWidget::clear()
 {
+    Q_D(QTableWidget);
     selectionModel()->clear();
     d->model()->clear();
 }
@@ -1555,4 +1599,6 @@ void QTableWidget::setModel(QAbstractItemModel *model)
     QTableView::setModel(model);
 }
 
+#define d d_func()
 #include "moc_qtablewidget.cpp"
+#undef d
