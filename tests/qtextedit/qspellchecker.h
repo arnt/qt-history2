@@ -7,23 +7,23 @@
 class QSpellChecker : public QTextSyntaxHighlighter
 {
 public:
-    QSpellChecker( QTextDocument *d );
+    QSpellChecker();
     virtual ~QSpellChecker() {}
-    void highlighte( QTextParag *string, int start, bool invalidate = TRUE );
+    void highlighte( QTextDocument *doc, QTextParag *string, int start, bool invalidate = TRUE );
 
 private:
     QTextFormat *format( int ) { return 0; }
     enum State {
 	Acceptable,
-	Intermediate, 
+	Intermediate,
 	Invalid
     };
     State findWordState(const QDawg::Node* n, const QString& s, int index = 0 ) const;
     bool checkWord( const QString &word, int i, QTextParag *string );
-    
+
     QTextFormat *invalidFormat;
     QDawg *dawg;
-    
+
 };
 
 #endif

@@ -15,9 +15,9 @@ public:
 	PreProcessor
     };
 
-    QCppSyntaxHighlighter( QTextDocument *d );
+    QCppSyntaxHighlighter();
     virtual ~QCppSyntaxHighlighter() {}
-    void highlighte( QTextParag *string, int start, bool invalidate = TRUE );
+    void highlighte( QTextDocument *doc, QTextParag *string, int start, bool invalidate = TRUE );
 
 private:
     QTextFormat *format( int id );
@@ -35,8 +35,8 @@ private:
 class QCppIndent : public QTextIndent
 {
 public:
-    QCppIndent( QTextDocument *d );
-    void indent( QTextParag *parag, int *oldIndent, int *newIndent );
+    QCppIndent();
+    void indent( QTextDocument *doc, QTextParag *parag, int *oldIndent, int *newIndent );
 
 };
 

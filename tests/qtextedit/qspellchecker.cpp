@@ -2,8 +2,8 @@
 
 #include <qfile.h>
 
-QSpellChecker::QSpellChecker( QTextDocument *d )
-    : QTextSyntaxHighlighter( d )
+QSpellChecker::QSpellChecker()
+    : QTextSyntaxHighlighter()
 {
     dawg = new QDawg;
     QFile dawgfile("udw.dawg");
@@ -23,7 +23,7 @@ QSpellChecker::QSpellChecker( QTextDocument *d )
     }
     if ( dump )
 	dawg->dump();
-    
+
 }
 
 bool QSpellChecker::checkWord( const QString &word, int i, QTextParag *string )
@@ -47,12 +47,12 @@ bool QSpellChecker::checkWord( const QString &word, int i, QTextParag *string )
     return TRUE;
 }
 
-void QSpellChecker::highlighte( QTextParag *string, int, bool )
+void QSpellChecker::highlighte( QTextDocument *doc, QTextParag *string, int, bool )
 {
     QString s = string->string()->toString();
     QChar c;
     QString lastWord;
-    
+
     for ( int i = 0; i < (int)s.length(); ++i ) {
 	c = s[ i ];
 	if ( c.isPunct() || c.isSpace() || c.isMark() || c.isNumber() || c.isDigit() || c.isNull() ) {
@@ -67,7 +67,7 @@ void QSpellChecker::highlighte( QTextParag *string, int, bool )
 	    lastWord += c;
 	}
     }
-    
+
     string->setFirstHighlighte( FALSE );
     string->setEndState( 0 );
 }

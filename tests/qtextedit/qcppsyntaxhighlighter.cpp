@@ -96,8 +96,8 @@ static QString keywords[] = {
 
 static QMap<int, QMap<QString, int > > *wordMap = 0;
 
-QCppSyntaxHighlighter::QCppSyntaxHighlighter( QTextDocument *d )
-    : QTextSyntaxHighlighter( d ), lastFormat( 0 ), lastFormatId( -1 )
+QCppSyntaxHighlighter::QCppSyntaxHighlighter()
+    : QTextSyntaxHighlighter(), lastFormat( 0 ), lastFormatId( -1 )
 {
     createFormats();
     if ( wordMap )
@@ -112,7 +112,6 @@ QCppSyntaxHighlighter::QCppSyntaxHighlighter( QTextDocument *d )
 	QMap<QString, int> &map = wordMap->operator[]( len );
 	map[ keywords[ i ] ] = Keyword;
     }
-    d->setUseFormatCollection( FALSE );
 }
 
 void QCppSyntaxHighlighter::createFormats()
@@ -137,7 +136,7 @@ void QCppSyntaxHighlighter::createFormats()
 	       new QTextFormat( QFont( normalFamily, normalSize, normalWeight ), Qt::darkBlue ) );
 }
 
-void QCppSyntaxHighlighter::highlighte( QTextParag *string, int, bool invalidate )
+void QCppSyntaxHighlighter::highlighte( QTextDocument *doc, QTextParag *string, int, bool invalidate )
 {
 
     QTextFormat *formatStandard = format( Standard );
@@ -220,7 +219,7 @@ void QCppSyntaxHighlighter::highlighte( QTextParag *string, int, bool invalidate
     int state = StateStandard;
     if ( string->prev() ) {
 	if ( string->prev()->endState() == -1 )
-	    highlighte( string->prev(), 0, FALSE );
+	    highlighte( doc, string->prev(), 0, FALSE );
 	state = string->prev()->endState();
     }
     int input;
@@ -458,8 +457,8 @@ void QCppSyntaxHighlighter::removeFormat( int id )
     formats.remove( id );
 }
 
-QCppIndent::QCppIndent( QTextDocument *d )
-    : QTextIndent( d )
+QCppIndent::QCppIndent()
+    : QTextIndent()
 {
 }
 
@@ -475,7 +474,7 @@ static void uncomment( QString &s )
     }
 }
 
-void QCppIndent::indent( QTextParag *parag, int *oldIndent, int *newIndent )
+void QCppIndent::indent( QTextDocument *, QTextParag *parag, int *oldIndent, int *newIndent )
 {
     // ####################
     // This is a very simple (and too simple for a good programming editor)
