@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#17 $
+** $Id: //depot/qt/main/src/moc/moc.y#18 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -42,7 +42,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/moc/moc.y#17 $";
+static char ident[] = "$Id: //depot/qt/main/src/moc/moc.y#18 $";
 #endif
 
 
@@ -549,6 +549,11 @@ lineNo );
 	fprintf( stderr, "moc: %s, line %d\n", msg, lineNo );
 }
 
+int yywrap()					// more files?
+{
+    return 1;					// end of file
+}
+
 
 char *stradd( const char *s1, const char *s2 )	// adds two strings
 {
@@ -642,6 +647,12 @@ void generate()					// generate C++ source code
 
     fprintf( out, "char *%s::className() const\n{\n    ", (pcchar)className );
     fprintf( out, "return \"%s\";\n}\n\n", (pcchar)className );
+
+//
+// Generate static metaObj variable
+//
+
+    fprintf( out, "QMetaObject *%s::metaObj;\n\n", (pcchar)className );
 
 //
 // Generate initMetaObject member function
