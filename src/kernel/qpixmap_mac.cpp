@@ -212,7 +212,7 @@ QImage QPixmap::convertToImage() const
     }
 #endif
 
-    QImage * image=new QImage( w, h, d, ncols, QImage::BigEndian );
+    QImage * image=new QImage( w, h, d, ncols, QImage::LittleEndian );
 
     //first we copy the clut
     //handle bitmap case, what about other indexed depths?
@@ -250,14 +250,14 @@ QImage QPixmap::convertToImage() const
 	    GetCPixel(loopc,loopc2,&r);
 	    q=qRgba(r.red/256,r.green/256,r.blue/256, 0); //FIXME, should I be doing that to the alpha?
 
-	    //UGH, fixme!!
-	    if(q && d == 1)
-		q = qRgba(255,255,255,0);
-
-	    if(ncols) {
-		image->setPixel(loopc,loopc2,get_index(image,q));
+	    if(d == 1) {
+		image->setPixel(loopc, loopc2, q ? 0 : 1);
 	    } else {
-		image->setPixel(loopc,loopc2,q);
+		if(ncols) {
+		    image->setPixel(loopc,loopc2,get_index(image,q));
+		} else {
+		    image->setPixel(loopc,loopc2,q);
+		}
 	    }
 	}
     }
@@ -470,7 +470,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 
 	QPixmap pm( w, h, depth(), NormalOptim );
 	scaledBitBlt(&pm, 0, 0, w, h, this, 0, 0, width(), height(), Qt::CopyROP, TRUE);
-	if ( 0 && data->mask ) {
+	if ( data->mask ) {
 	    QBitmap bm = data->selfmask ? *((QBitmap*)(&pm)) : data->mask->xForm(matrix);
 	    pm.setMask( bm );
 	}

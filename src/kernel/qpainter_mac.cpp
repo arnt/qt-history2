@@ -64,10 +64,51 @@ static void drawTile( QPainter *, int, int, int, int, const QPixmap &, int, int 
 QPoint posInWindow(QWidget *w);
 typedef QIntDict<QPaintDevice> QPaintDeviceDict;
 static QPaintDeviceDict *pdev_dict = 0;
-
 void unclippedBitBlt( QPaintDevice *dst, int dx, int dy, 
 		      const QPaintDevice *src, int sx, int sy, int sw, int sh, 
 		      Qt::RasterOp rop, bool imask);
+
+//
+// Generate a string that describes a transformed bitmap. This string is used
+// to insert and find bitmaps in the global pixmap cache.
+//
+
+static QString gen_text_bitmap_key( const QWMatrix &m, const QFont &font,
+				    const QString &str, int len )
+{
+    QString fk = font.key();
+    int sz = 4*2 + len*2 + fk.length()*2 + sizeof(double)*6;
+    QByteArray buf(sz);
+    uchar *p = (uchar *)buf.data();
+    *((double*)p)=m.m11();  p+=sizeof(double);
+    *((double*)p)=m.m12();  p+=sizeof(double);
+    *((double*)p)=m.m21();  p+=sizeof(double);
+    *((double*)p)=m.m22();  p+=sizeof(double);
+    *((double*)p)=m.dx();   p+=sizeof(double);
+    *((double*)p)=m.dy();   p+=sizeof(double);
+    QChar h1( '$' );
+    QChar h2( 'q' );
+    QChar h3( 't' );
+    QChar h4( '$' );
+    *((QChar*)p)=h1;  p+=2;
+    *((QChar*)p)=h2;  p+=2;
+    *((QChar*)p)=h3;  p+=2;
+    *((QChar*)p)=h4;  p+=2;
+    memcpy( (char*)p, (char*)str.unicode(), len*2 );  p += len*2;
+    memcpy( (char*)p, (char*)fk.unicode(), fk.length()*2 ); p += fk.length()*2;
+    return QString( (QChar*)buf.data(), buf.size()/2 );
+}
+
+static QBitmap *get_text_bitmap( const QString &key )
+{
+    return (QBitmap*)QPixmapCache::find( key );
+}
+
+static void ins_text_bitmap( const QString &key, QBitmap *bm )
+{
+    if ( !QPixmapCache::insert(key,bm) )	// cannot insert pixmap
+	delete bm;
+}
 
 /* paintevent magic to provide Windows semantics on MAC
  */
@@ -1419,11 +1460,9 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap, int sx, int sy, 
 			      m21(), m22(),
 			      dx(),  dy() );
 		mat = QPixmap::trueMatrix( mat, sw, sh );
-		qDebug("in");
 		QPixmap pm = pixmap.xForm( mat );
-		qDebug("out");
 		if ( !pm.mask() && txop == TxRotShear ) {
-		    QBitmap bm_clip( sw, sh, 1 );
+		    QBitmap bm_clip( sw, sh, TRUE );
 		    bm_clip.fill( color1 );
 		    pm.setMask( bm_clip.xForm(mat) );
 		}
@@ -1526,7 +1565,7 @@ void QPainter::drawText( int x, int y, const QString &str, int len, QPainter::Te
 	    QWMatrix mat1( m11(), m12(), m21(), m22(), dx(),  dy() );
 	    QFont dfont( cfont );
 	    QWMatrix mat2;
-	    if ( txop == TxScale ) {
+	    if ( txop <= TxScale && pdev->devType() != QInternal::Printer ) {
 		int newSize = qRound( m22() * (double)cfont.pointSize() ) - 1;
 		newSize = QMAX( 6, QMIN( newSize, 72 ) ); // empirical values
 		dfont.setPointSize( newSize );
@@ -1535,32 +1574,32 @@ void QPainter::drawText( int x, int y, const QString &str, int len, QPainter::Te
 		aw = abbox.width();
 		ah = abbox.height();
 		tx = -abbox.x();
-		ty = -abbox.y();        // text position - off-by-one?
+		ty = -abbox.y();	// text position - off-by-one?
 		if ( aw == 0 || ah == 0 )
 		    return;
 		double rx = (double)bbox.width() * mat1.m11() / (double)aw;
 		double ry = (double)bbox.height() * mat1.m22() /(double)ah;
 		mat2 = QWMatrix( rx, 0, 0, ry, 0, 0 );
-	    }
-	    else {
+	    } else {
 		mat2 = QPixmap::trueMatrix( mat1, w, h );
 		aw = w;
 		ah = h;
 	    }
 	    bool empty = aw == 0 || ah == 0;
-	    QBitmap * wx_bm=0;
+	    QString bm_key = gen_text_bitmap_key( mat2, dfont, str, len );
+	    QBitmap *wx_bm = get_text_bitmap( bm_key );
 	    bool create_new_bm = wx_bm == 0;
 	    if ( create_new_bm && !empty ) {    // no such cached bitmap
-		QBitmap bm( aw, ah );           // create bitmap
-		bm.fill( color0 );
-		QPainter paint;
-		paint.begin( &bm );             // draw text in bitmap
+		QBitmap bm( aw, ah, TRUE );	// create bitmap
+		QPainter paint(&bm); 		// draw text in bitmap
+		paint.setPen( color1 );
 		paint.setFont( dfont );
 		paint.drawText( tx, ty, str, len );
 		paint.end();
+
 		wx_bm = new QBitmap( bm.xForm(mat2) ); // transform bitmap
 		if ( wx_bm->isNull() ) {
-		    delete wx_bm;               // nothing to draw
+		    delete wx_bm;		// nothing to draw
 		    return;
 		}
 	    }
@@ -1590,6 +1629,9 @@ void QPainter::drawText( int x, int y, const QString &str, int len, QPainter::Te
 	    mat2.map( tfx, tfy, &dx, &dy );     // compute position of bitmap
 	    x = qRound(nfx-dx);
 	    y = qRound(nfy-dy);
+	    unclippedBitBlt(pdev, x, y, wx_bm, 0, 0, aw, ah, CopyROP, FALSE );
+	    if(create_new_bm)
+		ins_text_bitmap( bm_key, wx_bm );
 	    return;
 	}
 	if ( txop == TxTranslate )
