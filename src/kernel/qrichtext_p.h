@@ -1128,6 +1128,7 @@ public:
 
     QTextString *string() const;
     QTextStringChar *at( int i ) const; // maybe remove later
+    int leftGap() const;
     int length() const; // maybe remove later
 
     void setListStyle( QStyleSheetItem::ListStyle ls );

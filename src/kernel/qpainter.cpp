@@ -2762,10 +2762,8 @@ void qt_format_text( const QFont& font, const QRect &r,
     }
     if ( brect ) {
 	*brect = parag->rect();
-	// FIXME below is a bug.  sets left to x of first char.  if multi-line and first line isn't the
-	// longest this will truncate by too much.
 	if ( QApplication::horizontalAlignment( tf ) != Qt::AlignLeft )
-	    brect->setLeft( brect->left() + parag->at( 0 )->x );
+	    brect->setLeft( brect->left() + parag->leftGap());
 	brect->moveBy( xoff, yoff );
 #if defined(QT_FORMAT_TEXT_DEBUG)
 	qDebug("par: %d/%d", brect->width(), brect->height() );

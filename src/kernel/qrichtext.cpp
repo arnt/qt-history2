@@ -3748,6 +3748,24 @@ QTextStringChar *QTextParag::lineStartOfLine( int line, int *index ) const
     return 0;
 }
 
+int QTextParag::leftGap() const
+{
+    if ( !isValid() )
+	( (QTextParag*)this )->format();
+
+    int line = 0;
+    int x = *(&str->at(0).x);  /* set x to x of first char */
+
+    QMap<int, QTextParagLineStart*>::ConstIterator it = lineStarts.begin();
+    while (line < (int)lineStarts.count()) {
+	int i = it.key(); /* char index */
+	x = QMIN(x, *(&str->at(i).x));
+	++it;
+	++line;
+    }
+    return x;
+}
+
 void QTextParag::setFormat( int index, int len, QTextFormat *f, bool useCollection, int flags )
 {
     if ( index < 0 )
