@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#87 $
+** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#88 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -27,7 +27,7 @@
 #include <X11/extensions/XShm.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#87 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#88 $");
 
 
 /*****************************************************************************
@@ -405,15 +405,15 @@ bool QPixmap::isGloballyOptimized()
 /*!
   Sets the global pixmap optimization flag.
 
-  All new pixmaps that are created will be optimized if \e enable is
-  TRUE, or avoid optimization if \e enable is FALSE.
+  All new pixmaps that are created will be optimized (equivalent to
+  calling optimize() for each pixmap) if \e enable is TRUE. Global
+  optimization is turned off if \e enable is FALSE.
 
   Optimization can be overridden for individual pixmaps by optimize().
 
   The default value is TRUE.
 
-  \sa isGloballyOptimized(), optimize(), isOptimized()
-*/
+  \sa isGloballyOptimized(), optimize(), isOptimized() */
 
 void QPixmap::optimizeGlobally( bool enable )
 {
