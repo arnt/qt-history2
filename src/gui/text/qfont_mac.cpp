@@ -145,7 +145,7 @@ void QFontPrivate::load(QFont::Script script)
     engineData->engine = engine;
     if(!engine->fontref) {
 	//find the font
-	QStringList family_list = QStringList::split( ',', request.family );
+	QStringList family_list = request.family.split( ',' );
 	// append the substitute list for each family in family_list
 	{
 	    QStringList subs_list;

@@ -799,9 +799,7 @@ bool QProcess::start( QStringList *env )
 #else
 	    QString ld_library_path("LD_LIBRARY_PATH");
 #endif
-	    bool setLibraryPath =
-		env->grep( QRegExp( "^" + ld_library_path + "=" ) ).empty() &&
-		getenv( ld_library_path ) != 0;
+	    bool setLibraryPath = env->find( QRegExp( "^" + ld_library_path + "=" ) ).empty() && getenv( ld_library_path ) != 0;
 	    if ( setLibraryPath )
 		numEntries++;
 	    QByteArray *envlistQ = new QByteArray[ numEntries + 1 ];
@@ -823,7 +821,7 @@ bool QProcess::start( QStringList *env )
 	    if ( _arguments.count()>0 && getenv("PATH")!=0 ) {
 		QString command = _arguments[0];
 		if ( !command.contains( '/' ) ) {
-		    QStringList pathList = QStringList::split( ':', getenv( "PATH" ) );
+		    QStringList pathList = QString(getenv( "PATH" )).split( ':' );
 		    for (QStringList::Iterator it = pathList.begin(); it != pathList.end(); ++it ) {
 			QString dir = *it;
 #if defined(Q_OS_DARWIN) //look in a bundle

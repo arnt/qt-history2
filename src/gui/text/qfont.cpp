@@ -1646,7 +1646,7 @@ QString QFont::toString() const
 bool QFont::fromString(const QString &descrip)
 {
 #ifndef QT_NO_STRINGLIST
-    QStringList l(QStringList::split(',', descrip));
+    QStringList l(descrip.split(','));
 
     int count = l.count();
 #else

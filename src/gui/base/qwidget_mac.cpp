@@ -1183,7 +1183,7 @@ QPoint QWidget::mapFromGlobal(const QPoint &pos) const
     return QPoint(mac_p.h, mac_p.v);
 }
 
-void QWidget::setMicroFocusHint(int x, int y, int width, int height, bool, QFont *)
+void QWidget::setMicroFocusHint(int x, int y, int width, int height, bool text, QFont *)
 {
     if(!width) 
 	width = 1;

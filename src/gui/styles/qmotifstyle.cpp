@@ -1553,7 +1553,7 @@ QRect QMotifStyle::querySubControlMetrics( ComplexControl control,
 	    const QSlider * sl = (const QSlider *) widget;
 	    int tickOffset  = pixelMetric( PM_SliderTickmarkOffset, sl );
 	    int thickness   = pixelMetric( PM_SliderControlThickness, sl );
-	    int sliderPos   = sl->sliderStart();
+	    int sliderPos   = sl->sliderPosition();
 	    int len         = pixelMetric( PM_SliderLength, sl );
 	    int motifBorder = 3;
 
