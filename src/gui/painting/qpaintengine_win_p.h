@@ -158,7 +158,7 @@ public:
       use GDI+ for rendering
     */
     inline bool requiresGdiplus() {
-        return !forceGdi && (renderhints & QPainter::LineAntialiasing
+        return !forceGdi && ((renderhints & QPainter::LineAntialiasing)
                              || penAlphaColor
                              || brushAlphaColor
                              || forceGdiplus);
