@@ -95,7 +95,6 @@ public:
 
 private:
     QFontMetrics( const QPainter * );
-    static void reset( const QPainter * );
 
 #if defined(Q_WS_WIN)
     void   *textMetric() const;
@@ -115,10 +114,6 @@ private:
     QPainter      *painter;
     int		   flags;
 
-    bool    underlineFlag()  const { return (flags & 0x1) != 0; }
-    bool    strikeOutFlag()  const { return (flags & 0x2) != 0; }
-    void    setUnderlineFlag()	   { flags |= 0x1; }
-    void    setStrikeOutFlag()	   { flags |= 0x2; }
 };
 
 

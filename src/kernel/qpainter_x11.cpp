@@ -1227,10 +1227,6 @@ bool QPainter::end()                            // end painting
         return FALSE;
     }
     killPStack();
-    if ( testf(FontMet) )                       // remove references to this
-        QFontMetrics::reset( this );
-    if ( testf(FontInf) )                       // remove references to this
-        QFontInfo::reset( this );
 
     //#### This should not be necessary:
     if ( pdev->devType() == QInternal::Widget  &&       // #####
@@ -2998,7 +2994,7 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
         if ( testf(ExtDev) ) {
             QPDevCmdParam param[3];
 	    QPoint p(x, y);
-	    QString string = str;
+	    QString string = str.mid( pos,  len );
 	    param[0].point = &p;
 	    param[1].str = &string;
 	    param[2].ival = QFont::Latin;// #######

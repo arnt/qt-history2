@@ -842,10 +842,6 @@ bool QPainter::end()
     }
 
     killPStack();
-    if ( testf(FontMet) )			// remove references to this
-	QFontMetrics::reset( this );
-    if ( testf(FontInf) )			// remove references to this
-	QFontInfo::reset( this );
 
     if ( hpen ) {
 	SelectObject( hdc, stock_nullPen );

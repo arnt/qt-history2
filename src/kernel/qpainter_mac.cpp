@@ -578,7 +578,7 @@ bool QPainter::begin(const QPaintDevice *pd, bool unclipp)
     initPaintDevice(TRUE); //force setting paint device, this does unclipped fu
 
     if(testf(ExtDev)) {               // external device
-	ww = vw = pdev->metric(QPaintDeviceMetrics::PdmWidth); 
+	ww = vw = pdev->metric(QPaintDeviceMetrics::PdmWidth);
 	wh = vh = pdev->metric(QPaintDeviceMetrics::PdmHeight);
     }
 
@@ -612,11 +612,6 @@ bool QPainter::end()				// end painting
 
     if(testf(ExtDev))
 	pdev->cmd(QPaintDevice::PdcEnd, this, 0);
-
-    if(testf(FontMet))                       // remove references to this
-	QFontMetrics::reset(this);
-    if(testf(FontInf))                       // remove references to this
-	QFontInfo::reset(this);
 
     if(d->locked) {
 	if(pdev->devType() == QInternal::Widget)
@@ -978,7 +973,7 @@ void QPainter::moveTo(int x, int y)
   initPaintDevice();
   MoveTo(x+d->offx, y+d->offy);
 #ifndef QMAC_NO_QUARTZ
-  if(d->cg.context) 
+  if(d->cg.context)
       CGContextMoveToPoint(d->cg.context, d->cg.off_w - (x+d->offx),
 			   d->cg.off_h - (y+d->offy));
 #endif
@@ -1679,7 +1674,7 @@ void QPainter::drawPixmap(int x, int y, const QPixmap &pixmap, int sx, int sy, i
 	    if(d->cache.paintreg.isEmpty())
 		return;
 	    updatePen();
-	    unclippedScaledBitBlt(pdev, x, y, w, h, &pixmap, sx, sy, sw, sh, (RasterOp)rop, 
+	    unclippedScaledBitBlt(pdev, x, y, w, h, &pixmap, sx, sy, sw, sh, (RasterOp)rop,
 				   FALSE, FALSE);
 	    return;
 	} else if(testf(ExtDev) || txop == TxRotShear) {
@@ -2001,9 +1996,9 @@ void QPainter::initPaintDevice(bool force) {
 	if(!(remade_clip = force)) {
 	    if(pevent != d->cache.paintevent)
 		remade_clip = TRUE;
-	    else if(!w->isVisible()) 
+	    else if(!w->isVisible())
 		remade_clip = d->cache.clip_serial;
-	    else 
+	    else
 		remade_clip = (d->cache.clip_serial != w->clippedSerial(!d->unclipped));
 	}
 	if(remade_clip) {
@@ -2024,7 +2019,7 @@ void QPainter::initPaintDevice(bool force) {
 		d->cache.clippedreg = w->clippedRegion(!d->unclipped);
 		d->cache.clip_serial = w->clippedSerial(!d->unclipped);
 	    }
-	    if(pevent) 
+	    if(pevent)
 		d->cache.clippedreg &= pevent->region();
 	    d->cache.paintevent = pevent;
 	}
@@ -2063,7 +2058,7 @@ void QPainter::initPaintDevice(bool force) {
 	    QDAddRectToDirtyRegion(ptr, &mr);
 	}
 	d->cache.crgn_dirty = FALSE;
-    } 
+    }
     if(remade_clip || qt_mac_current_painter != this) {
 	QMacSavedPortInfo::setPaintDevice(pdev);
 	QMacSavedPortInfo::setClipRegion(d->cache.paintreg);

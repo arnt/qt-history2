@@ -1648,55 +1648,6 @@ QDataStream &operator>>( QDataStream &s, QFont &font )
   QFontMetrics member functions
  *****************************************************************************/
 
-// invariant: this list contains pointers to ALL QFontMetrics objects
-// with non-null painter pointers, and no other objects. Callers of
-// these functions must maintain this invariant.
-
-typedef QPtrList<QFontMetrics> QFontMetricsList;
-static QFontMetricsList *fm_list = 0;
-
-QSingleCleanupHandler<QFontMetricsList> qfont_cleanup_fontmetricslist;
-
-static void insertFontMetrics( QFontMetrics *fm ) {
-    if ( !fm_list ) {
-	fm_list = new QFontMetricsList;
-	Q_CHECK_PTR( fm_list );
-	qfont_cleanup_fontmetricslist.set( &fm_list );
-    }
-    fm_list->append( fm );
-}
-
-static void removeFontMetrics( QFontMetrics *fm )
-{
-    if ( !fm_list ) {
-#if defined(CHECK_NULL)
-	qWarning( "QFontMetrics::~QFontMetrics: Internal error" );
-#endif
-	return;
-    }
-    fm_list->removeRef( fm );
-}
-
-
-/*!
-    Resets all pointers to \a painter in all font metrics objects in
-    the application.
-*/
-void QFontMetrics::reset( const QPainter *painter )
-{
-    if ( fm_list ) {
-	QPtrListIterator<QFontMetrics> it( *fm_list );
-	QFontMetrics * fm;
-	while( (fm=it.current()) != 0 ) {
-	    ++it;
-	    if ( fm->painter == painter ) {
-		fm->painter = 0;                // detach from painter
-		removeFontMetrics( fm );
-	    }
-	}
-    }
-}
-
 
 /*!
     \class QFontMetrics qfontmetrics.h
@@ -1721,14 +1672,13 @@ void QFontMetrics::reset( const QPainter *painter )
     updated.
 
     \i QPainter::fontMetrics() returns the font metrics for a
-    painter's current font. The font metrics object is \e
-    automatically updated if you set a new painter font.
+    painter's current font. If the widget's font is changed later, the
+    font metrics object is \e not updated.
     \endlist
 
-    <sup>*</sup> If you use a printer font the values returned will
-    almost certainly be inaccurate. Printer fonts are not always
-    accessible so the nearest screen font is used if a printer font is
-    supplied.
+    <sup>*</sup> If you use a printer font the values returned may be
+    inaccurate. Printer fonts are not always accessible so the nearest
+    screen font is used if a printer font is supplied.
 
     Once created, the object provides functions to access the
     individual metrics of the font, its characters, and for strings
@@ -1779,9 +1729,9 @@ void QFontMetrics::reset( const QPainter *painter )
     passed in the constructor at the time it is created, and is not
     updated if the font's attributes are changed later.
 
-    Use QPainter::fontMetrics() to get the font metrics when painting.
-    This is a little slower than using this constructor, but it always
-    gives correct results because the font info data is updated.
+  Use QPainter::fontMetrics() to get the font metrics when painting.
+  This will give correct results also when painting on paint device
+  that is not screen-compatible.
 */
 QFontMetrics::QFontMetrics( const QFont &font )
 {
@@ -1792,21 +1742,17 @@ QFontMetrics::QFontMetrics( const QFont &font )
 
     painter = 0;
     flags = 0;
-
-    if (font.underline())
-	setUnderlineFlag();
-    if (font.strikeOut())
-	setStrikeOutFlag();
 }
 
 
 /*! \internal
 
-  Constructs a font metrics object for the painter \a p.
+  Constructs a font metrics object for the painter's font \a p.
 */
 QFontMetrics::QFontMetrics( const QPainter *p )
+    : painter ( 0 )
 {
-    painter = (QPainter *) p;
+    QPainter *painter = (QPainter *) p;
 
 #if defined(CHECK_STATE)
     if ( !painter->isActive() )
@@ -1836,8 +1782,6 @@ QFontMetrics::QFontMetrics( const QPainter *p )
     d->load();
 
     flags = 0;
-
-    insertFontMetrics( this );
 }
 
 
@@ -1845,11 +1789,9 @@ QFontMetrics::QFontMetrics( const QPainter *p )
     Constructs a copy of \a fm.
 */
 QFontMetrics::QFontMetrics( const QFontMetrics &fm )
-    : d(fm.d), painter(fm.painter), flags(fm.flags)
+    : d(fm.d), painter(0), flags(fm.flags)
 {
     d->ref();
-    if ( painter )
-	insertFontMetrics( this );
 }
 
 
@@ -1859,8 +1801,6 @@ QFontMetrics::QFontMetrics( const QFontMetrics &fm )
 */
 QFontMetrics::~QFontMetrics()
 {
-    if ( painter )
-	removeFontMetrics( this );
     if ( d->deref() )
 	delete d;
 }
@@ -1871,18 +1811,14 @@ QFontMetrics::~QFontMetrics()
 */
 QFontMetrics &QFontMetrics::operator=( const QFontMetrics &fm )
 {
-    if ( painter )
-	removeFontMetrics( this );
     if ( d != fm.d ) {
 	if ( d->deref() )
 	    delete d;
 	d = fm.d;
 	d->ref();
     }
-    painter = fm.painter;
+    painter = 0;
     flags = fm.flags;
-    if ( painter )
-	insertFontMetrics( this );
     return *this;
 }
 
@@ -1977,7 +1913,7 @@ QRect QFontMetrics::boundingRect( int x, int y, int w, int h, int flgs,
     QRect rb;
     QRect r(x, y, w, h);
     qt_format_text( QFont( d, (bool)FALSE ), r, flgs|Qt::DontPrint, str, len, &rb,
-		    tabstops, tabarray, tabarraylen, intern, painter );
+		    tabstops, tabarray, tabarraylen, intern, 0 );
 
     return rb;
 }
@@ -2024,56 +1960,6 @@ QSize QFontMetrics::size( int flgs, const QString &str, int len, int tabstops,
   QFontInfo member functions
  *****************************************************************************/
 
-// invariant: this list contains pointers to ALL QFontInfo objects
-// with non-null painter pointers, and no other objects. Callers of
-// these functions must maintain this invariant.
-
-typedef QPtrList<QFontInfo> QFontInfoList;
-static QFontInfoList *fi_list = 0;
-
-QSingleCleanupHandler<QFontInfoList> qfont_cleanup_fontinfolist;
-
-static void insertFontInfo( QFontInfo *fi )
-{
-    if ( !fi_list ) {
-	fi_list = new QFontInfoList;
-	Q_CHECK_PTR( fi_list );
-	qfont_cleanup_fontinfolist.set( &fi_list );
-    }
-    fi_list->append( fi );
-}
-
-static void removeFontInfo( QFontInfo *fi )
-{
-    if ( !fi_list ) {
-#if defined(CHECK_NULL)
-	qWarning( "QFontInfo::~QFontInfo: Internal error" );
-#endif
-	return;
-    }
-    fi_list->removeRef( fi );
-}
-
-
-/*!
-    Resets all pointers to \a painter in all font metrics objects in
-    the application.
-*/
-void QFontInfo::reset( const QPainter *painter )
-{
-    if ( fi_list ) {
-	QPtrListIterator<QFontInfo> it( *fi_list );
-	QFontInfo * fi;
-	while( (fi=it.current()) != 0 ) {
-	    ++it;
-	    if ( fi->painter == painter ) {
-		fi->painter = 0;                // detach from painter
-		removeFontInfo( fi );
-	    }
-	}
-    }
-}
-
 
 /*!
     \class QFontInfo qfontinfo.h
@@ -2108,14 +1994,13 @@ void QFontInfo::reset( const QPainter *painter )
     updated.
 
     \i QPainter::fontInfo() returns the font info for a painter's
-    current font. The font info object is \e automatically updated if
-    you set a new painter font.
+    current font. If the painter's font is changed later, the font
+    info object is \e not updated.
     \endlist
 
-    <sup>*</sup> If you use a printer font the values returned will
-    almost certainly be inaccurate. Printer fonts are not always
-    accessible so the nearest screen font is used if a printer font is
-    supplied.
+    <sup>*</sup> If you use a printer font the values returned may be
+    inaccurate. Printer fonts are not always accessible so the nearest
+    screen font is used if a printer font is supplied.
 
     \sa QFont QFontMetrics QFontDatabase
 */
@@ -2132,10 +2017,9 @@ void QFontInfo::reset( const QPainter *painter )
     passed in the constructor at the time it is created, and is not
     updated if the font's attributes are changed later.
 
-    Use the QPainter::fontInfo() function to get the font info when
-    painting. This is a little slower than using this constructor, but
-    it always gives correct results because the font info data is
-    updated.
+    Use QPainter::fontInfo() to get the font info when painting.
+    This will give correct results also when painting on paint device
+    that is not screen-compatible.
 */
 QFontInfo::QFontInfo( const QFont &font )
 {
@@ -2146,23 +2030,17 @@ QFontInfo::QFontInfo( const QFont &font )
 
     painter = 0;
     flags = 0;
-
-    if ( font.underline() )
-	setUnderlineFlag();
-    if ( font.strikeOut() )
-	setStrikeOutFlag();
-    if ( font.exactMatch() )
-	setExactMatchFlag();
 }
 
 
 /*! \internal
 
-  Constructs a font info object for the painter \a p.
+  Constructs a font info object from the painter's font \a p.
 */
 QFontInfo::QFontInfo( const QPainter *p )
+    : painter( 0 ),  flags( 0 )
 {
-    painter = (QPainter *) p;
+    QPainter *painter = (QPainter *) p;
 
 #if defined(CHECK_STATE)
     if ( !painter->isActive() )
@@ -2180,10 +2058,6 @@ QFontInfo::QFontInfo( const QPainter *p )
     d->ref();
 
     d->load();
-
-    flags = 0;
-
-    insertFontInfo( this );
 }
 
 
@@ -2191,11 +2065,9 @@ QFontInfo::QFontInfo( const QPainter *p )
     Constructs a copy of \a fi.
 */
 QFontInfo::QFontInfo( const QFontInfo &fi )
-    : d(fi.d), painter(fi.painter), flags(fi.flags)
+    : d(fi.d), painter(0), flags(fi.flags)
 {
     d->ref();
-    if ( painter )
-	insertFontInfo( this );
 }
 
 
@@ -2204,8 +2076,6 @@ QFontInfo::QFontInfo( const QFontInfo &fi )
 */
 QFontInfo::~QFontInfo()
 {
-    if ( painter )
-	removeFontInfo( this );
     if (d->deref())
 	delete d;
 }
@@ -2216,18 +2086,14 @@ QFontInfo::~QFontInfo()
 */
 QFontInfo &QFontInfo::operator=( const QFontInfo &fi )
 {
-    if ( painter )
-	removeFontInfo( this );
     if (d != fi.d) {
 	if (d->deref())
 	    delete d;
 	d = fi.d;
 	d->ref();
     }
-    painter = fi.painter;
+    painter = 0;
     flags = fi.flags;
-    if ( painter )
-	insertFontInfo( this );
     return *this;
 }
 
@@ -2307,7 +2173,7 @@ int QFontInfo::weight() const
 */
 bool QFontInfo::underline() const
 {
-    return painter ? painter->font().underline() : underlineFlag();
+    return d->request.underline;
 }
 
 
@@ -2321,7 +2187,7 @@ bool QFontInfo::underline() const
 */
 bool QFontInfo::strikeOut() const
 {
-    return painter ? painter->font().strikeOut() : strikeOutFlag();
+    return d->request.strikeOut;
 }
 
 
@@ -2373,7 +2239,7 @@ bool QFontInfo::rawMode() const
 */
 bool QFontInfo::exactMatch() const
 {
-    return painter ? painter->font().exactMatch() : exactMatchFlag();
+    return d->exactMatch;
 }
 
 

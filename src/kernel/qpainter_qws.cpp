@@ -560,10 +560,6 @@ bool QPainter::end()				// end painting
 	return FALSE;
     }
     killPStack();
-    if ( testf(FontMet) )			// remove references to this
-	QFontMetrics::reset( this );
-    if ( testf(FontInf) )			// remove references to this
-	QFontInfo::reset( this );
 
     if ( testf(ExtDev) )
 	pdev->cmd( QPaintDevice::PdcEnd, this, 0 );

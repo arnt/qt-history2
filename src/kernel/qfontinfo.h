@@ -69,18 +69,10 @@ public:
 
 private:
     QFontInfo( const QPainter * );
-    static void reset( const QPainter * );
 
     QFontPrivate *d;
     QPainter *painter;
     int flags;
-
-    bool    underlineFlag()  const { return (flags & 0x1) != 0; }
-    bool    strikeOutFlag()  const { return (flags & 0x2) != 0; }
-    bool    exactMatchFlag() const { return (flags & 0x4) != 0; }
-    void    setUnderlineFlag()	   { flags |= 0x1; }
-    void    setStrikeOutFlag()	   { flags |= 0x2; }
-    void    setExactMatchFlag()	   { flags |= 0x4; }
 
     friend class QWidget;
     friend class QPainter;
