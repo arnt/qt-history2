@@ -87,10 +87,7 @@ void MainForm::startChanges( QString label )
 	file += "/";
     file += "..." + label;
 
-    if ( incIntegrates )
-	args << "p4" << "changes" << "-i" << file;
-    else
-	args << "p4" << "changes" << file;
+    args << "p4" << "changes" << file;
 
     process.kill();
     start( args );
@@ -105,7 +102,6 @@ void MainForm::go()
     changeListTo = 0;
     changeDateTo = 0;
 
-    incIntegrates = includeIntegrates->isChecked();
     changeListFrom = new QValueList<int>;
     if ( allChanges->isChecked() ) {
 	changeListTo = new QValueList<int>;

@@ -32,7 +32,6 @@ private:
     QValueList<int> *changeListFrom;
     QValueList<int> *changeListTo;
     QMap<int,QString> *changeDateTo;
-    bool incIntegrates;
 };
 
 #endif // MAINFORM_H

@@ -181,14 +181,6 @@
                                 </size>
                             </property>
                         </spacer>
-                        <widget class="QCheckBox">
-                            <property name="name">
-                                <cstring>includeIntegrates</cstring>
-                            </property>
-                            <property name="text">
-                                <string>include integrates</string>
-                            </property>
-                        </widget>
                     </hbox>
                 </widget>
             </hbox>
@@ -391,7 +383,6 @@
     <tabstop>path</tabstop>
     <tabstop>changesFrom</tabstop>
     <tabstop>changesTo</tabstop>
-    <tabstop>includeIntegrates</tabstop>
     <tabstop>goButton</tabstop>
     <tabstop>changes</tabstop>
     <tabstop>quit</tabstop>
