@@ -79,6 +79,9 @@
 #include <qsettings.h>
 #include "pixmapcollection.h"
 #include "sourcefile.h"
+#include "qcompletionedit.h"
+#include <qaccel.h>
+#include <qtooltip.h>
 
 static int forms = 0;
 static bool mblockNewForms = FALSE;
@@ -336,9 +339,15 @@ void MainWindow::setupFormList()
     QDockWindow *dw = new QDockWindow;
     dw->setResizeEnabled( TRUE );
     dw->setCloseMode( QDockWindow::Always );
-    formList = new FormList( dw, this, currentProject );
+    QVBox *vbox = new QVBox( dw );
+    QCompletionEdit *edit = new QCompletionEdit( vbox );
+    QToolTip::add( edit, tr( "Start typing the buffer you want to switch to here (ALT+B)" ) );
+    QAccel *a = new QAccel( this );
+    a->connectItem( a->insertItem( ALT + Key_B ), edit, SLOT( setFocus() ) );
+    formList = new FormList( vbox, this, currentProject );
+    formList->setBufferEdit( edit );
     addToolBar( dw, Qt::Left );
-    dw->setWidget( formList );
+    dw->setWidget( vbox );
 
     dw->setCaption( tr( "Files" ) );
     QWhatsThis::add( formList, tr("<b>The File List</b>"

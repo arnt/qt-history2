@@ -50,7 +50,8 @@ HEADERS	= command.h \
 		  paletteeditoradvancedimpl.h \
 		  pixmapcollection.h \
 		  sourcefile.h \
-		  wizardeditorimpl.h
+		  wizardeditorimpl.h \
+		  qcompletionedit.h
 
 SOURCES	= command.cpp \
 		  formwindow.cpp \
@@ -99,7 +100,8 @@ SOURCES	= command.cpp \
 		  previewwidgetimpl.cpp \
 		  paletteeditoradvancedimpl.cpp \
 		  sourcefile.cpp \
-		  wizardeditorimpl.cpp
+		  wizardeditorimpl.cpp \
+		  qcompletionedit.cpp
 
 include( ../../../src/qt_professional.pri )
 
@@ -111,20 +113,22 @@ win32:LIBS	+= $(QTDIR)/lib/qui.lib
 DEFINES	+= DESIGNER
 DESTDIR	= ../../../bin
 win32-msvc:RC_FILE = designer.rc
-INTERFACES	= listboxeditor.ui connectioneditor.ui editslots.ui newform.ui listvieweditor.ui connectionviewer.ui customwidgeteditor.ui paletteeditor.ui iconvieweditor.ui preferences.ui multilineeditor.ui formsettings.ui about.ui pixmapfunction.ui createtemplate.ui actioneditor.ui projectsettings.ui finddialog.ui replacedialog.ui gotolinedialog.ui pixmapcollectioneditor.ui previewwidget.ui paletteeditoradvanced.ui wizardeditor.ui
-PROJECTNAME	= Designer
 
 sql {
 	SOURCES  +=		  database.cpp dbconnectionimpl.cpp dbconnectionsimpl.cpp
 	HEADERS += 		  database.h dbconnectionimpl.h dbconnectionsimpl.h   propertyeditorsql.h
-	INTERFACES	+= dbconnections.ui dbconnection.ui dbconnectioneditor.ui
-}
+	}
 table {
 	HEADERS += tableeditorimpl.h
 	SOURCES += tableeditorimpl.cpp
-	INTERFACES += tableeditor.ui
-}
+	}
 
 target.path=$$QT_INSTALL_BINPATH
 isEmpty(target.path):target.path=$$QT_PREFIX/bin
 INSTALLS        += target
+INTERFACES	= listboxeditor.ui connectioneditor.ui editslots.ui newform.ui listvieweditor.ui connectionviewer.ui customwidgeteditor.ui paletteeditor.ui iconvieweditor.ui preferences.ui multilineeditor.ui formsettings.ui about.ui pixmapfunction.ui createtemplate.ui actioneditor.ui projectsettings.ui finddialog.ui replacedialog.ui gotolinedialog.ui pixmapcollectioneditor.ui previewwidget.ui paletteeditoradvanced.ui wizardeditor.ui dbconnections.ui dbconnection.ui dbconnectioneditor.ui tableeditor.ui 
+INTERFACES	= listboxeditor.ui connectioneditor.ui editslots.ui newform.ui listvieweditor.ui connectionviewer.ui customwidgeteditor.ui paletteeditor.ui iconvieweditor.ui preferences.ui multilineeditor.ui formsettings.ui about.ui pixmapfunction.ui createtemplate.ui actioneditor.ui projectsettings.ui finddialog.ui replacedialog.ui gotolinedialog.ui pixmapcollectioneditor.ui previewwidget.ui paletteeditoradvanced.ui wizardeditor.ui dbconnections.ui dbconnection.ui dbconnectioneditor.ui tableeditor.ui 
+INTERFACES	= listboxeditor.ui connectioneditor.ui editslots.ui newform.ui listvieweditor.ui connectionviewer.ui customwidgeteditor.ui paletteeditor.ui iconvieweditor.ui preferences.ui multilineeditor.ui formsettings.ui about.ui pixmapfunction.ui createtemplate.ui actioneditor.ui projectsettings.ui finddialog.ui replacedialog.ui gotolinedialog.ui pixmapcollectioneditor.ui previewwidget.ui paletteeditoradvanced.ui wizardeditor.ui dbconnections.ui dbconnection.ui dbconnectioneditor.ui tableeditor.ui 
+DBFILE	= designer.db
+PROJECTNAME	= Designer
+LANGUAGE	= C++

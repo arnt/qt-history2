@@ -32,6 +32,7 @@ class QDragEnterEvent;
 class MainWindow;
 class Project;
 class SourceFile;
+class QCompletionEdit;
 
 class FormListItem : public QListViewItem
 {
@@ -89,6 +90,8 @@ public:
     void removeForm( FormWindow *fw );
     void formNameChanged( FormWindow *fw );
 
+    void setBufferEdit( QCompletionEdit *edit );
+
 public slots:
     void modificationChanged( bool m, FormWindow *fw );
     void fileNameChanged( const QString &s, FormWindow *fw );
@@ -104,6 +107,7 @@ signals:
 private slots:
     void itemClicked( int, QListViewItem *i );
     void rmbClicked( QListViewItem *i );
+    void bufferChosen( const QString &buffer );
 
 private:
     FormListItem *findItem( FormWindow *fw );
@@ -114,6 +118,7 @@ private:
     FormListItem *formsParent;
     FormListItem *imageParent;
     FormListItem *sourceParent;
+    QCompletionEdit *bufferEdit;
 
 };
 

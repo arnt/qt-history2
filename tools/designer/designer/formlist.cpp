@@ -39,6 +39,7 @@
 #include <qworkspace.h>
 #include <qpopupmenu.h>
 #include <qtextstream.h>
+#include "qcompletionedit.h"
 
 static const char * folder_xpm[]={
     "16 16 6 1",
@@ -146,6 +147,7 @@ FormList::FormList( QWidget *parent, MainWindow *mw, Project *pro )
 {
     init_colors();
 
+    bufferEdit = 0;
     header()->setMovingEnabled( FALSE );
     header()->setStretchEnabled( TRUE );
     header()->hide();
@@ -208,6 +210,8 @@ void FormList::setProject( Project *pro )
     imageParent->setPixmap( 0, *folderPixmap );
     imageParent->setOpen( TRUE );
 
+    bufferEdit->clear();
+
     LanguageInterface *iface = MetaDataBase::languageInterface( pro->language() );
 
     if ( iface && iface->supports( LanguageInterface::AdditionalFiles ) ) {
@@ -231,8 +235,11 @@ void FormList::setProject( Project *pro )
 	FormListItem *item = new FormListItem( formsParent, tr( "<unknown>" ), *it, 0 );
 	item->setType( FormListItem::Form );
 	QString className = project->formName( item->text( 1 ) );
-	if ( !className.isEmpty() )
+	bufferEdit->addCompletionEntry( item->text( 1 ) );
+	if ( !className.isEmpty() ) {
 	    item->setText( 0, className );
+	    bufferEdit->addCompletionEntry( className );
+	}
     }
 
     QObjectList *l = mainWindow->workSpace()->queryList( "FormWindow", 0, FALSE, TRUE );
@@ -249,6 +256,7 @@ void FormList::setProject( Project *pro )
 		 project->makeAbsolute( ( (FormWindow*)o )->fileName() ) ) {
 		( (FormListItem*)it.current() )->setFormWindow( ( (FormWindow*)o ) );
 		it.current()->setText( 0, o->name() );
+		bufferEdit->addCompletionEntry( o->name() );
 	    }
 	    ++it;
 	}
@@ -257,6 +265,7 @@ void FormList::setProject( Project *pro )
     QPtrList<FormWindow> forms = project->unnamedForms();
     for ( FormWindow *fw = forms.first(); fw; fw = forms.next() ) {
 	FormListItem *item = new FormListItem( formsParent, fw->mainContainer()->name(), "", fw );
+	bufferEdit->addCompletionEntry( fw->mainContainer()->name() );
 	item->setType( FormListItem::Form );
     }
 
@@ -277,8 +286,10 @@ void FormList::setProject( Project *pro )
 	return;
 
     QPtrList<SourceFile> sources = pro->sourceFiles();
-    for ( SourceFile *f = sources.first(); f; f = sources.next() )
+    for ( SourceFile *f = sources.first(); f; f = sources.next() ) {
 	(void)new FormListItem( sourceParent, pro->makeRelative( f->fileName() ), f );
+	bufferEdit->addCompletionEntry( pro->makeRelative( f->fileName() ) );
+    }
 }
 
 void FormList::addForm( FormWindow *fw )
@@ -289,8 +300,11 @@ void FormList::addForm( FormWindow *fw )
 	    ( (FormListItem*)currentItem() )->setFormWindow( fw );
 	    ( (FormListItem*)currentItem() )->setText( 0, fw->name() );
 	}
-	if ( project )
+	if ( project ) {
 	    project->setFormWindow( fw->fileName(), fw );
+	    bufferEdit->addCompletionEntry( fw->fileName() );
+	    bufferEdit->addCompletionEntry( fw->name() );
+	}
 	return;
     }
 
@@ -298,6 +312,8 @@ void FormList::addForm( FormWindow *fw )
     FormListItem *i = new FormListItem( formsParent, fw->name(), fn, 0 );
     i->setType( FormListItem::Form );
     i->setFormWindow( fw );
+    bufferEdit->addCompletionEntry( fw->name() );
+    bufferEdit->addCompletionEntry( fw->fileName() );
     if ( !project )
 	return;
     project->addUiFile( fn, fw );
@@ -309,6 +325,8 @@ void FormList::removeForm( FormWindow *fw )
     if ( !i )
 	return;
     project->removeUiFile( ( (FormListItem*)i )->text( 1 ), ( (FormListItem*)i )->formWindow() );
+    bufferEdit->removeCompletionEntry( i->text( 1 ) );
+    bufferEdit->removeCompletionEntry( i->text( 0 ) );
     delete i;
 }
 
@@ -323,12 +341,15 @@ void FormList::fileNameChanged( const QString &fn, FormWindow *fw )
 {
     QString s = project->makeRelative( fn );
     FormListItem *i = findItem( fw );
+    bufferEdit->removeCompletionEntry( i->text( 1 ) );
     if ( !i )
 	return;
-    if ( s.isEmpty() )
+    if ( s.isEmpty() ) {
 	i->setText( 1, tr( "(unnamed)" ) );
-    else
+    } else {
 	i->setText( 1, s );
+	bufferEdit->addCompletionEntry( s );
+    }
     if ( project )
 	project->setFormWindowFileName( fw, s );
 }
@@ -390,6 +411,26 @@ void FormList::itemClicked( int button, QListViewItem *i )
 	}
     } else if ( i->rtti() == FormListItem::Source ) {
 	mainWindow->editSource( ( (FormListItem*)i )->sourceFile() );
+    }
+}
+
+void FormList::bufferChosen( const QString &buffer )
+{
+    bufferEdit->setText( "" );
+    QListViewItemIterator it( this );
+    QListViewItem *res = 0;
+    while ( it.current() ) {
+	if ( it.current()->text( 0 ) == buffer ||
+	     it.current()->text( 1 ) == buffer ) {
+	    res = it.current();
+	    break;
+	}
+	++it;
+    }
+
+    if ( res ) {
+	setCurrentItem( res );
+	itemClicked( LeftButton, res );
     }
 }
 
@@ -519,10 +560,19 @@ void FormList::formNameChanged( FormWindow *fw )
 	if ( it.current()->rtti() == FormListItem::Form ) {
 	    FormListItem *i = (FormListItem*)it.current();
 	    if ( i->formWindow() == fw ) {
+		bufferEdit->removeCompletionEntry( i->text( 0 ) );
 		i->setText( 0, fw->name() );
+		bufferEdit->addCompletionEntry( i->text( 0 ) );
 		break;
 	    }
 	}
 	++it;
     }
+}
+
+void FormList::setBufferEdit( QCompletionEdit *edit )
+{
+    bufferEdit = edit;
+    connect( bufferEdit, SIGNAL( chosen( const QString & ) ),
+	     this, SLOT( bufferChosen( const QString & ) ) );
 }
