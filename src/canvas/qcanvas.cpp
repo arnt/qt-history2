@@ -3515,8 +3515,8 @@ QSize QCanvasView::sizeHint() const
   areaPointsAdvanced() to retrieve the bounding points the polygonal
   item \e will have after QCanvasItem::advance(1) has been called.
 
-  In case the shape of the polygonal item is about to change while the
-  item is visible call invalidate() before updating with a different
+  If the shape of the polygonal item is about to change while the
+  item is visible, call invalidate() before updating with a different
   result from \l areaPoints().
 
   By default, QCanvasPolygonalItem objects have a black pen and no brush
@@ -3602,10 +3602,10 @@ void QCanvasPolygonalItem::setWinding(bool enable)
 }
 
 /*! Invalidates all information about the area covered by the canvas
-  item. It will be updated again automatically on the next call that
-  changes the items status like e.g. move() or update(). Call this
-  function in case you are going to change the shape of the item (as
-  returned by areaPoints()) while the item is visible.
+  item. The item will be updated again automatically on the next call
+  that changes the item's status, for example, move() or update().
+  Call this function if you are going to change the shape of the item
+  (as returned by areaPoints()) while the item is visible.
  */
 void QCanvasPolygonalItem::invalidate()
 {
