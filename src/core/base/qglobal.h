@@ -87,7 +87,7 @@
 #  define Q_OS_RELIANT
 #elif defined(__linux__) || defined(__linux)
 #  define Q_OS_LINUX
-#elif defined(__FreeBSD__)
+#elif defined(__FreeBSD__) || defined(__DragonFly__)
 #  define Q_OS_FREEBSD
 #  define Q_OS_BSD4
 #elif defined(__NetBSD__)
