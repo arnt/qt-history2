@@ -337,26 +337,27 @@ Click the form, then press <indexterm><primary>Keypresses (Qt Designer)</primary
 <para id="andw">
 <indexterm><primary>Layouts</primary><secondary>Spacers</secondary></indexterm>
 
-The buttons expand to take up the full width of the form. It might look
-more attractive to use spacers with them. Click the OK button, then
-press <indexterm><primary>Keypresses (Qt Designer)</primary><secondary>Ctrl+B</secondary></indexterm>
-<keycap>Ctrl+B</> (break layout). Resize both buttons to
-make them narrower leaving space on either side of them. Click the
-<indexterm><primary>Toolbar Buttons</primary><secondary>Spacer</secondary></indexterm>
+The widgets will be laid out vertically, each one stretching to fill
+up the maximum space both vertically and horizontally. The buttons
+look rather large since they've expanded to take up the full width of
+the form. It might look more attractive to make the buttons smaller
+using spacers. Click the OK button, then press <indexterm><primary>Keypresses (Qt Designer)</primary><secondary>Ctrl+B</secondary></indexterm>
+<keycap>Ctrl+B</> (break
+layout). Resize both buttons to make them narrower leaving space on
+either side of them. Click the <indexterm><primary>Toolbar Buttons</primary><secondary>Spacer</secondary></indexterm>
 <indexterm><primary>Widgets</primary><secondary>Spacer</secondary></indexterm>
-<guibutton>Spacer</> toolbar button then click to the left of
-the OK button; click Horizontal from the pop up spacer menu. Copy this
-spacer and place the copy between the two buttons. Copy the spacer again
-and place the copy to the right of the Cancel button. (For the second
-and third spacers, click on the first spacer, press
-<indexterm><primary>Keypresses (Qt Designer)</primary><secondary>Ctrl+C</secondary></indexterm>
+<guibutton>Spacer</> toolbar button then
+click to the left of the OK button; click Horizontal from the pop up
+spacer menu. Copy this spacer and place the copy between the two
+buttons. Copy the spacer again and place the copy to the right of the
+Cancel button. (For the second and third spacers, click on the first
+spacer, press <indexterm><primary>Keypresses (Qt Designer)</primary><secondary>Ctrl+C</secondary></indexterm>
 <keycap>Ctrl+C</> then <indexterm><primary>Keypresses (Qt Designer)</primary><secondary>Ctrl+V</secondary></indexterm>
-<keycap>Ctrl+V</>. Drag the new
-spacer to the desired position.) Ctrl+Click the left most spacer and
-drag the rubber band so that it touches the buttons and the spacers,
-then release. Press <indexterm><primary>Keypresses (Qt Designer)</primary><secondary>Ctrl+H</secondary></indexterm>
-<keycap>Ctrl+H</>.
-Click the form then press <indexterm><primary>Keypresses (Qt Designer)</primary><secondary>Ctrl+L</secondary></indexterm>
+<keycap>Ctrl+V</>. Drag the new spacer to
+the desired position.) Ctrl+Click the left most spacer and drag the
+rubber band so that it touches the buttons and the spacers, then
+release. Press <indexterm><primary>Keypresses (Qt Designer)</primary><secondary>Ctrl+H</secondary></indexterm>
+<keycap>Ctrl+H</>. Click the form then press <indexterm><primary>Keypresses (Qt Designer)</primary><secondary>Ctrl+L</secondary></indexterm>
 <keycap>Ctrl+L</>.
 </para>
 </listitem>
