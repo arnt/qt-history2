@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#33 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#34 $
 **
 ** Tool Tips (or Balloon Help) for any widget or rectangle
 **
@@ -12,7 +12,7 @@
 #include "qptrdict.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtooltip.cpp#33 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtooltip.cpp#34 $");
 
 
 // Magic value meaning an entire widget - if someone tries to insert a
@@ -82,7 +82,7 @@ private:
 ** QTipManager meta object code from reading C++ file 'qtooltip.cpp'
 **
 ** Created: Mon Mar 17 12:39:34 1997
-**      by: The Qt Meta Object Compiler ($Revision: 2.28 $)
+**      by: The Qt Meta Object Compiler ($Revision: 2.29 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
@@ -870,6 +870,23 @@ void QToolTip::clear()
   a meal" while the relevant tool tips are being displayed.
 
   Deleting a tool tip group removes the tool tips in it.
+*/
+
+/*! \fn void QToolTipGroup::showTip (const char* longText)
+
+  This signal is emitted when one of the tool tips in the group is
+  displayed.  \a longText is the supplementary text for the displayed
+  tool tip.
+
+  \sa removeTip()
+*/
+
+/*! \fn void QToolTipGroup::removeTip ()
+
+  This signal is emitted when a tool tip in this group is hidden.  See
+  the QToolTipGroup documentation for an example of use.
+
+  \sa showTip()
 */
 
 

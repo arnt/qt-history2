@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#66 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#67 $
 **
 ** Implementation of QButton widget class
 **
@@ -18,7 +18,7 @@
 #include "qaccel.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#66 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#67 $");
 
 static const int autoRepeatPeriod = 200;
 
@@ -298,7 +298,7 @@ void QButton::setAutoResize( bool enable )
 }
 
 
-/*! \fn bool autoRepeat() const
+/*! \fn bool QButton::autoRepeat() const
 
   Returns TRUE if the button is auto-repeating, else FALSE.
 
