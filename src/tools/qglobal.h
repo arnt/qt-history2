@@ -152,6 +152,9 @@
 
 #if defined(__SC__)
 #define _CC_SYM_
+#elif defined( __KCC )
+#define _CC_KCC_
+#define HAS_BOOL_TYPE
 #elif defined(applec)
 #define _CC_MPW_
 #elif defined(__MWERKS__)
