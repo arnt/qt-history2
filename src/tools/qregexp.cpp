@@ -102,6 +102,7 @@
     <li><a href="#capturing-text">Capturing Text</a>
     <li><a href="#assertions">Assertions</a>
     <li><a href="#wildcard-matching">Wildcard Matching (globbing)</a>
+    <li><a href="#perl-users">Notes for Perl Users</a>
     <li><a href="#code-examples">Code Examples</a>
     <li><a href="#member-function-documentation">Member Function Documentation</a>
     </ul>
@@ -296,7 +297,7 @@
     more occurrences it will match no occurrences at all. For example if
     we want to match strings that end in whitespace and use the regexp
     <b>\s*$</b> we would get a match on every string. This is because we
-    have said find zero or more whitespace followed by the end of line,
+    have said find zero or more whitespace followed by the end of string,
     so even strings that don't end in whitespace will match. The regexp
     we want in this case is <b>\s+$</b> to match strings that have at
     least one whitespace at the end.
@@ -304,13 +305,13 @@
     <li><b><i>E</i>{n}</b> Matches exactly \e n occurrences of the
     expression. This is the same as repeating the expression \e n times.
     For example, <b>x{5}</b> is the same as <b>xxxxx</b>. It is also the
-    same as <b>{n,n}</b>, e.g. <b>x{5,5}</b>.
+    same as <b><i>E</i>{n,n}</b>, e.g. <b>x{5,5}</b>.
 
     <li><b><i>E</i>{n,}</b> Matches at least \e n occurrences of the
-    expression. This is the same as <b>{n,MAXINT}</b>.
+    expression. This is the same as <b><i>E</i>{n,MAXINT}</b>.
 
     <li><b><i>E</i>{,m}</b> Matches at most \e m occurrences of the
-    expression. This is the same as <b>{0,m}</b>.
+    expression. This is the same as <b><i>E</i>{0,m}</b>.
 
     <li><b><i>E</i>{n,m}</b> Matches at least \e n occurrences of the
     expression and at most \e m occurrences of the expression.
@@ -346,9 +347,9 @@
     We can use captured text within the regexp itself. To refer to the
     captured text we use \e backreferences which are indexed from 1 the
     same as for cap(). For example we could search for duplicate words
-    in a string using <b>\b(\w+)\s+\1\b</b> which means match a word
+    in a string using <b>\b(\w+)\W+\1\b</b> which means match a word
     boundary followed by one or more word characters followed by one or
-    more whitespaces followed by the same text as the first
+    more non-word characters followed by the same text as the first
     parenthesised expression followed by a word boundary.
 
     If we want to use parenthesis purely for grouping and not for
@@ -357,7 +358,8 @@
     ')'. In this example we match either 'green' or 'blue' but we do not
     capture the match so we can only know whether or not we matched but
     not which color we actually found. Using non-capturing parenthesis
-    is more efficient than using capturing parenthesis.
+    is more efficient than using capturing parenthesis since the regexp
+    engine has to do less book-keeping.
 
     Both capturing and non-capturing parenthesis may be nested.
 
@@ -448,13 +450,68 @@
     This will match zero or more characters followed by a dot followed
     by 'h', 't', 'm' and 'l'. 
 
+    <a name="perl-users"><b>Notes for Perl Users</b></a>
+
+    Most of the character class abbreviations supported by Perl are
+    supported by QRegExp, see 
+    <a href="#characters-and-abbreviations-for-sets-of-characters">
+    characters and abbreviations for sets of characters</a>.
+
+    QRegExp's quantifiers are the same as Perl's greedy quantifiers.
+    Non-greedy matching cannot be applied to individual quantifiers, but
+    can be applied to all the quantifiers in the pattern. For example,
+    to match the Perl regex <b>ro+?m</b> requires: 
+    \code
+    QRegExp rx( "ro+m" );
+    rx.setMinimal( TRUE );
+    \endcode
+
+    The equivalent of Perl's <tt>/i</tt> option is
+    setCaseSensitive(FALSE).
+
+    Perl's <tt>/g</tt> option can be emulated using a 
+    <a href="#cap_in_a_loop">loop</a>.
+
+    In QRegExp <b>.</b> matches any character, therefore all QRegExp
+    regexps have the equivalent of Perl's <tt>/s</tt> option. QRegExp
+    does not have an equivalent to Perl's <tt>/m</tt> option, but this
+    can be emulated in various ways for example by splitting the input
+    into lines or by looping with a regexp that searches for newlines.
+
+    Because QRegExp is string oriented there are no \A, \Z or \z
+    assertions. The \G assertion is not supported but can be emulated in
+    a loop.
+
+    Perl's $& is cap(0) or capturedTexts()[0]. There are no QRegExp
+    equivalents for $`, $' or $+. $1, $2 etc correspond to 
+    cap(1) or capturedTexts()[1], cap(2) or capturedTexts()[2], etc.
+
+    To substitute a pattern use QString::replace().
+
+    Perl's extended <tt>/x</tt> syntax is not supported, nor are regexp
+    comments (?#comment) or directives, e.g. (?i).
+
+    Both zero-width positive and zero-width negative lookahead
+    assertions (?=pattern) and (?!pattern) are supported with the same
+    syntax as Perl. Perl's lookbehind assertions, "independent"
+    subexpressions and conditional expressions are not supported.
+    
+    Non-capturing parenthesis are also supported, with the same
+    (?:pattern) syntax.
+
+    See QStringList::split() and QStringList::join() for equivalents to
+    Perl's split and join functions.
+
+    Note: because C++ transforms \\'s they must be written \e twice in
+    code, e.g. <b>\\</b><b>b</b> must be written <b>\\</b><b>\\</b><b>b</b>.
+
     <a name="code-examples"><b>Code Examples</b></a>
 
     \code
     QRegExp rx( "^\\d\\d?$" );	// Match integers 0 to 99
-    rx.match( "123" );		// Returns FALSE
-    rx.match( "-6" );		// Returns FALSE
-    rx.match( "6" );		// Returns TRUE 
+    rx.search( "123" );		// Returns -1 (no match)
+    rx.search( "-6" );		// Returns -1 (no match)
+    rx.search( "6" );		// Returns 0 (matched as position 0) 
     \endcode
 
     The third string matches '<u>6</u>'. This is a simple validation
@@ -462,8 +519,8 @@
 
     \code
     QRegExp rx( "^\\S+$" );	// Match strings which have no whitespace
-    rx.match( "Hello world" );	// Returns FALSE
-    rx.match( "This_is-OK" );	// Returns TRUE 
+    rx.search( "Hello world" );	// Returns -1 (no match)
+    rx.search( "This_is-OK" );	// Returns 0 (matched at position 0) 
     \endcode
 
     The second string matches '<u>This_is-OK</u>'. We've used the
@@ -476,8 +533,8 @@
 
     \code
     QRegExp rx( "\\b(mail|letter|correspondence)\\b" );
-    rx.match( "I sent you an email" );	    // Returns FALSE
-    rx.match( "Please write the letter" );  // Returns TRUE 
+    rx.search( "I sent you an email" );	    // Returns -1 (no match)
+    rx.search( "Please write the letter" ); // Returns 17 (matched at position 17) 
     \endcode
 
     The second string matches "Please write the <u>letter</u>". The word
@@ -536,7 +593,7 @@
     str = "Trolltech AS\twww.trolltech.com\tNorway";
     QString company, web, country;
     rx.setPattern( "^([^\t]+)\t([^\t]+)\t([^\t]+)$" );
-    if ( rx.match( str ) ) {
+    if ( rx.search( str ) != -1 ) {
 	company = rx.cap( 1 );
 	web	= rx.cap( 2 );
 	country = rx.cap( 3 );
@@ -562,9 +619,9 @@
     \code 
     QRegExp rx( "*.html" );	// Invalid regexp: * doesn't quantify anything
     rx.setWildcard( TRUE );	// Now its a valid wildcard regexp
-    rx.match( "index.html" );	// Returns TRUE
-    rx.match( "default.htm" );	// Returns FALSE
-    rx.match( "readme.txt" );	// Returns FALSE
+    rx.search( "index.html" );	// Returns 0 (matched at position 0)
+    rx.search( "default.htm" );	// Returns -1 (no match)
+    rx.search( "readme.txt" );	// Returns -1 (no match)
     \endcode
 
     Wildcard matching can be convenient because of its simplicity, but
@@ -581,8 +638,8 @@
     Captured text can be accessed using capturedTexts() which returns a
     string list of all captured strings, or using cap() which returns
     the captured string for the given index. The pos() function takes a
-    parenthesis index and returns the position in the string where the
-    match was made (or -1 if there was no match).
+    match index and returns the position in the string where the match
+    was made (or -1 if there was no match).
 
   \sa QRegExpValidator QString QStringList
 
@@ -3044,7 +3101,7 @@ static void derefEngine( QRegExpEngine *eng, const QString& pattern )
 }
 
 /*!
-  Constructs an empty expression.
+  Constructs an empty regexp.
 
   \sa isValid()
 */
@@ -3061,10 +3118,11 @@ QRegExp::QRegExp()
 }
 
 /*!
-  Constructs a regular expression object for a given \a pattern string.  The
-  pattern may be given according to wildcard notation, if \a wildcard is TRUE;
-  by default, the \a pattern is treated as a regular expression.  The pattern
-  is case sensitive, unless \a caseSensitive is false.  Matching is maximal.
+  Constructs a regular expression object for the given \a pattern
+  string.  The pattern must be given using wildcard notation if \a
+  wildcard is TRUE (default is FALSE). The pattern is case sensitive,
+  unless \a caseSensitive is FALSE.  Matching is greedy (maximal), but
+  can be changed by calling setMinimal().
 
   \sa setPattern() setCaseSensitive() setWildcard() setMinimal()
 */
@@ -3093,7 +3151,7 @@ QRegExp::QRegExp( const QRegExp& rx )
 }
 
 /*!
-  Destructs the regular expression and cleans up its internal data.
+  Destroys the regular expression and cleans up its internal data.
 */
 QRegExp::~QRegExp()
 {
@@ -3102,7 +3160,7 @@ QRegExp::~QRegExp()
 }
 
 /*!
-  Copies the regular expression \a rx and returns a reference to this QRegExp.
+  Copies the regular expression \a rx and returns a reference to the copy.
   The case sensitivity, wildcard and minimal matching options are copied as
   well.
 */
@@ -3126,10 +3184,12 @@ QRegExp& QRegExp::operator=( const QRegExp& rx )
 }
 
 /*!
-  Returns TRUE if this regular expression is equal to \a rx, otherwise FALSE.
+  Returns TRUE if this regular expression is equal to \a rx, otherwise
+  returns FALSE.
 
-  Two QRegExp objects are equal if they have equal pattern strings, and if case
-  sensitivity, wildcard and minimal matching options are identical.
+  Two QRegExp objects are equal if they have the same pattern strings
+  and the same settings for case sensitivity, wildcard and minimal
+  matching.
 */
 bool QRegExp::operator==( const QRegExp& rx ) const
 {
@@ -3153,7 +3213,7 @@ bool QRegExp::operator==( const QRegExp& rx ) const
   Returns TRUE if the pattern string is empty, otherwise FALSE.  An empty
   pattern matches an empty string.
 
-  This is the same as pattern().\link QString::isEmpty() isEmpty() \endlink.
+  See QString::isEmpty().
 */
 
 bool QRegExp::isEmpty() const
@@ -3166,7 +3226,11 @@ bool QRegExp::isEmpty() const
   invalid regular expression never matches.
 
   The pattern <b>[a-z</b> is an example of an invalid pattern, since it lacks
-  a closing bracket.
+  a closing square bracket.
+
+  Note that the validity of a regexp may also depend on the setting of
+  the wildcard flag, for example <b>*.html</b> is a valid wildcard
+  regexp but an invalid full regexp.
 */
 bool QRegExp::isValid() const
 {
@@ -3187,7 +3251,7 @@ QString QRegExp::pattern() const
 /*!
   Sets the pattern string to \a pattern and returns a reference to this regular
   expression.  The case sensitivity, wildcard and minimal matching options are
-  left alone.
+  not changed.
 
   \sa pattern()
 */
@@ -3213,8 +3277,8 @@ bool QRegExp::caseSensitive() const
 /*!
   Sets case sensitive matching to \a sensitive.
 
-  If case sensitivity is on, <b>T.X</b> matches <tt>TeX</tt> but not
-  <tt>Tex</tt>.
+  If \a sensitive is TRUE, <b>\\</b><b>.txt$</b> matches
+  <tt>readme.txt</tt> but not <tt>README.TXT</tt>.
 
   \sa caseSensitive()
 */
@@ -3236,12 +3300,14 @@ bool QRegExp::wildcard() const
     return priv->wc;
 }
 
-/*!  Sets the wildcard option for the regular expression.  The default is FALSE.
+/*!  Sets the wildcard mode for the regular expression.  The default is FALSE.
 
-  Setting \a wildcard to TRUE makes it convenient to match filenames.
+  Setting \a wildcard to TRUE enables simple shell-like wildcard
+  matching.
+  (See <a href="#wildcard-matching">wildcard matching (globbing)</a>.)
 
-  For example, <b>l*.tex</b> matches the string <tt>labels.tex</tt> in wildcard
-  mode, but not <tt>latex</tt>.
+  For example, <b>r*.txt</b> matches the string <tt>readme.txt</tt> in wildcard
+  mode, but does not match <tt>readme</tt>.
 
   \sa wildcard()
 */
@@ -3254,7 +3320,8 @@ void QRegExp::setWildcard( bool wildcard )
 }
 #endif
 
-/*!  Returns TRUE if minimal matching is enabled, otherwise FALSE.
+/*!  Returns TRUE if minimal (non-greedy) matching is enabled, otherwise
+    returns FALSE.
 
   \sa setMinimal()
 */
@@ -3265,11 +3332,18 @@ bool QRegExp::minimal() const
 
 /*!
   Enables or disables minimal matching.  If \a minimal is FALSE, matching is
-  maximal (the default).
+  greedy (maximal) which is the default.
 
-  For regular expression <b>\<.*\></b> and input string <tt>a\<b\>c\<d\>e</tt>,
-  the minimal match is <tt>\<b\></tt> and the maximal match is
-  <tt>\<b\>c\<d\></tt>.
+    For example, suppose we have the input string "We must be \<b>bold\</b>,
+    very \<b>bold\</b>!" and the pattern <b>\<b>.*\</b></b>. With
+    the default greedy (maximal) matching, the match is
+    "We must be <u>\<b>bold\</b>, very \<b>bold\</b></u>!". But with
+    minimal (non-greedy) matching the first match is:
+    "We must be <u>\<b>bold\</b></u>, very \<b>bold\</b>!" and the
+    second match is
+    "We must be \<b>bold\</b>, very <u>\<b>bold\</b></u>!".
+    In practice we might use the pattern <b>\<b>[^\<]+\</b></b>,
+    although this will still fail for nested tags.
 
   \sa minimal()
 */
@@ -3279,13 +3353,18 @@ void QRegExp::setMinimal( bool minimal )
 }
 
 /*!
-  Returns TRUE if \a str is matched exactly by this regular expression;
-  otherwise, it returns FALSE and you can know how much of the string was
-  matched correctly by calling matchedLength().
+  Returns TRUE if \a str is matched exactly by this regular expression
+  otherwise it returns FALSE. You can determine how much of the string was
+  matched by calling matchedLength().
 
-  For example, if the regular expression is <b>abc</b>, then this function
-  returns TRUE only for input <tt>abc</tt>.  For inputs <tt>abcd</tt>,
-  <tt>ab</tt> and <tt>hab</tt>, matchedLength() gives respectively 3, 2 and 0.
+    For a given regexp string, R, <tt>match("R")</tt> is the equivalent
+    of <tt>search("^R$")</tt> since match() effectively encloses the
+    regexp in the start of string and end of string anchors.
+
+  For example, if the regular expression is <b>blue</b>, then match()
+  returns TRUE only for input <tt>blue</tt>.  For inputs
+  <tt>bluebell</tt>, <tt>blutak</tt> and <tt>lightblue</tt>, match()
+  returns FALSE and matchedLength() will return 4, 3 and 0 respectively.
 
   \sa search() searchRev() QRegExpValidator
 */
@@ -3324,15 +3403,16 @@ bool QRegExp::match( const QString& str ) const
   The length of the match is stored in \a *len, unless \a len is a null pointer.
 
   If \a indexIsStart is TRUE (the default), the position \a index in the string
-  will match the start-of-input primitive (^) in the regexp, if present.
+  will match the start of string anchor, <b>^</b>, in the regexp, if present.
   Otherwise, position 0 in \a str will match.
 
-  It's a good idea to use search() and matchedLength() instead of this function.
+  Use search() and matchedLength() instead of this function.
+
   If you really need the \a indexIsStart functionality, try this:
 
   \code
-    QRegExp rx( "some text" );
-    int pos = rx.search( str.mid(index) );
+    QRegExp rx( "some pattern" );
+    int pos = rx.search( str.mid( index ) );
     if ( pos != -1 )
 	pos += index;
     int len = rx.matchedLength();
@@ -3368,13 +3448,19 @@ int QRegExp::match( const QString& str, int index, int *len,
   Returns the position of the first match, or -1 if there was no match.
 
   You might prefer to use QString::find(), QString::contains() or even
-  QStringList::grep().
+  QStringList::grep(). To replace matches use QString::replace().
 
   Example:
   \code
-    QRegExp rx( "[0-9]*\\.[0-9]+" );    // matches floating point
-    int pos = rx.search( "pi = 3.14" ); // pos == 5
-    int len = rx.matchedLength();       // len == 4
+    QString str = "offsets: 1.23 .50 71.00 6.00";
+    QRegExp rx( "\\d*\\.\\d+" );    // very simple floating point matching
+    int count = 0;
+    int pos = 0;
+    while ( pos >= 0 ) {
+	pos = rx.search( str, pos );
+	count++;
+    }
+    // pos will be 9, 14, 18 and finally 24; count will end up as 4.
   \endcode
 
   \sa searchRev() match() matchedLength() capturedTexts()
@@ -3469,22 +3555,44 @@ int QRegExp::matchedLength()
 /*!
   Returns a list of the captured text strings.
 
-  The returned list contains the entire matched string, followed by
-  the strings matched by each subexpression. For example:
+    The first string in the list is the entire matched string. Each
+    subsequent list element contains a string that matched a
+    (capturing) subexpression of the regexp.
 
+    For example:
   \code
-    QRegExp length( "(\d+)(cm|inch(es)?)" );
-    int pos = length.search( "only 42cm long" );
-    QStringList l = length.capturedTexts();
-    // l is now ( "42cm", "42", "cm" )
+    QRegExp rx( "(\\d+)(\\s*)(cm|inch(es)?)" );
+    int pos = rx.search( "Length: 36 inches" );
+    QStringList list = rx.capturedTexts();
+    // list is now ( "36 inches", "36", " ", "inches", "es" ). 
+    \endcode
+
+    The above example also captures elements
+    that may be present but which we have no interest in. This problem
+    can be solved by using non-capturing parenthesis:
+
+    \code
+    QRegExp rx( "(\\d+)(?:\\s*)(cm|inch(?:es)?)" );
+    int pos = rx.search( "Length: 36 inches" );
+    QStringList list = rx.capturedTexts();
+    // list is now ( "36 inches", "36", "inches" ). 
   \endcode
 
-  There is also a cap( n ) that returns the same as
-  capturedTexts()[n], and a pos( n ) that returns the position where
-  each match starts.
+  Some regexps can match an indeterminate number of times. For example
+  if the input string is "Offsets: 12 14 99 231 7" and the regexp,
+  <tt>rx</tt>, is <b>(</b><b>\\</b><b>d+)+</b>, we would hope to get a
+  list of all the numbers matched. However, after calling
+  <tt>rx.search(str)</tt>, capturedTexts() will return the list ( "12",
+  "12" ), i.e. the entire match was "12" and the first subexpression
+  matched was "12". The correct approach is to use cap() in a 
+  <a href="#cap_in_a_loop">loop</a>.
 
-  The string list is ordered by the order of the '(' characters in the
-  regular expression, as shown in the cap() documentation.
+  The order of elements in the string list is as follows. The first
+  element is the entire matching string. Each subsequent element
+  corresponds to the next capturing open left parenthesis. Thus
+  capturedTexts()[1] is the text of the first capturing parenthesis,
+  capturedTexts()[2] is the text of the second and so on (corresponding
+  to $1, $2 etc. in some other regexp languages).
 
   \sa cap() pos()
 */
@@ -3505,49 +3613,46 @@ QStringList QRegExp::capturedTexts()
     return priv->capturedCache;
 }
 
-/*! Returns the text captured by the \a nth subexpression. The regular
-  expression itself has index 0 and the parenthesised subexpression
-  have indices 1 and above.
+/*! Returns the text captured by the \a nth subexpression. The entire match
+  has index 0 and the parenthesised subexpressions have indices starting
+  from 1 (excluding non-capturing parenthesis).
 
   \code
-    QRegExp length( "(\d+)(cm|inch)" );
-    int pos = length.search( "Not John Holmes: 14cm" );
+    QRegExp rxlen( "(\\d+)(?:\\s*)(cm|inch)" );
+    int pos = rxlen.search( "Length: 189cm" );
     if ( pos > -1 ) {
-	QString number = length.cap( 1 ); // "14"
-        QString unit = length.cap( 2 ); // "cm"
-	...
+	QString value = rxlen.cap( 1 );	// "189"
+	QString unit  = rxlen.cap( 2 ); // "cm"
+	// ...
     }
   \endcode
 
-  Note that if the subexpression is used several times, the last match
-  is the one QRegExp remembers:
+    <a name="cap_in_a_loop">
+    Some patterns may lead to a number of matches which cannot be
+    determined in advance, for example:</a>
 
-  \code
-    QRegExp r( "results: ((\d+)(,\s)?)*" );
-    int pos = length.search( "Here are the results: 14, 15, 12, 13" );
-    if ( pos > -1 ) {
-        QString measured = r.cap( 2 ); // "13"
-	...
+    \code
+    QRegExp rx( "(\\d+)" );
+    str = "Offsets: 12 14 99 231 7";
+    QStringList list; 
+    pos = 0;
+    while ( pos >= 0 ) {
+	pos = rx.search( str, pos ); 
+	if ( pos > -1 ) {
+	    list += rx.cap( 1 );
+	    pos  += rx.matchedLength();
+	}
     }
-  \endcode
+    // list contains: ( "12", "14", "99", "231", "7" ).
+    \endcode
 
-  The last example is a bit hard, so we'll explain it more thoroughly.
-  The core of the regexp is <tt>(\d+)</tt>, which matches one
-  number. Around that, <tt>(\d+)(,\s)?</tt> matches a number
-  optionally followed by a comma and a space. Finally
-  <tt>((\d+)(,\s)?)*</tt> is a series of such numbers.
+  The order of elements matched by cap() is as follows. The first
+  element, cap( 0 ), is the entire matching string. Each subsequent
+  element corresponds to the next capturing open left parenthesis. Thus
+  cap( 1 ) is the text of the first capturing parenthesis, cap( 2 ) is
+  the text of the second and so on. 
 
-  cap() indexing follows the position of the '(' character. In this
-  expression, the first parenthesis wraps <tt>(\d+)(,\s)?</tt>, so
-  cap(1) returns the last number and its optional ", " suffix. The
-  second parenthesis wraps <tt>(\d+)</tt>, so cap(2) returns the last
-  number.
-
-  There is also a function, pos(), that returns the position of each
-  match, and one to return all of the subexpression matches,
-  capturedTexts().
-
-  \sa search()
+  \sa search() pos() capturedTexts()
 */
 QString QRegExp::cap( int nth )
 {
@@ -3557,17 +3662,17 @@ QString QRegExp::cap( int nth )
 	return capturedTexts()[nth];
 }
 
-/*! Returns the position of the \a nth captured text in the searched
-  string.  If \a nth is 0 (the default), pos() returns the position of
-  the whole match.
+/*! Returns the position of the \a nth captured text in the
+    searched string.  If \a nth is 0 (the default), pos() returns the
+    position of the whole match.
 
   Example:
   \code
     QRegExp rx( "/([a-z]+)/([a-z]+)" );
-    rx.search( "to /dev/null now" );    // 3 (position of /dev/null)
-    rx.pos( 0 );                        // 3 (position of /dev/null)
-    rx.pos( 1 );                        // 4 (position of dev)
-    rx.pos( 2 );                        // 8 (position of null)
+    rx.search( "Output /dev/null" );	// Returns  7 (position of /dev/null)
+    rx.pos( 0 );                        // Returns  7 (position of /dev/null)
+    rx.pos( 1 );                        // Returns  8 (position of dev)
+    rx.pos( 2 );                        // Returns 12 (position of null)
   \endcode
 
   Note that pos() returns -1 for zero-length matches. (For example, if
