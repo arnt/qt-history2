@@ -311,7 +311,7 @@ void QToolBarSeparator::paintEvent( QPaintEvent * )
 QToolBar::QToolBar( const QString &label,
 		    QMainWindow * parent, QMainWindow::ToolBarDock dock,
 		    bool newLine, const char * name )
-    : QDockWindow( InDock, parent, name )
+    : QDockWindow( InDock, parent, name, 0, TRUE )
 {
     mw = parent;
     init();
@@ -337,7 +337,7 @@ QToolBar::QToolBar( const QString &label,
 QToolBar::QToolBar( const QString &label, QMainWindow * mainWindow,
 		    QWidget * parent, bool newLine, const char * name,
 		    WFlags f )
-    : QDockWindow( InDock, parent, name, f )
+    : QDockWindow( InDock, parent, name, f, TRUE )
 {
     mw = mainWindow;
     init();
@@ -359,7 +359,7 @@ QToolBar::QToolBar( const QString &label, QMainWindow * mainWindow,
 */
 
 QToolBar::QToolBar( QMainWindow * parent, const char * name )
-    : QDockWindow( InDock, parent, name )
+    : QDockWindow( InDock, parent, name, 0, TRUE )
 {
     mw = parent;
     init();

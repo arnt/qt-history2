@@ -889,6 +889,7 @@ QDockWindow::QDockWindow( QWidget* parent, const char* name, WFlags f )
     : QFrame( parent, name, f | WType_Dialog | WStyle_Customize | WStyle_NoBorder )
 {
     curPlace = InDock;
+    isToolbar = FALSE;
     init();
 }
 
@@ -913,6 +914,18 @@ QDockWindow::QDockWindow( Place p, QWidget *parent, const char *name, WFlags f )
     : QFrame( parent, name, f | WType_Dialog | WStyle_Customize | WStyle_NoBorder )
 {
     curPlace = p;
+    isToolbar = FALSE;
+    init();
+}
+
+/*! \internal
+*/
+
+QDockWindow::QDockWindow( Place p, QWidget *parent, const char *name, WFlags f, bool toolbar )
+    : QFrame( parent, name, f | WType_Dialog | WStyle_Customize | WStyle_NoBorder )
+{
+    curPlace = p;
+    isToolbar = toolbar;
     init();
 }
 

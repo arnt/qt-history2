@@ -56,6 +56,8 @@ class QWidgetResizeHandler;
 class QMainWindow;
 class QDockAreaLayout;
 class QDockWindowPrivate;
+class QToolBar;
+class QWindowsXPStyle;
 
 class Q_EXPORT QDockWindow : public QFrame
 {
@@ -77,6 +79,8 @@ class Q_EXPORT QDockWindow : public QFrame
     friend class QDockArea;
     friend class QDockAreaLayout;
     friend class QMainWindow;
+    friend class QToolBar;
+    friend class QWindowsXPStyle;
 
 public:
     enum Place { InDock, OutsideDock };
@@ -166,6 +170,8 @@ private slots:
     void toggleVisible() { if ( !isVisible() ) show(); else hide(); }
 
 private:
+    QDockWindow( Place p, QWidget* parent, const char* name, WFlags f, bool toolbar );
+
     void handleMove( const QPoint &pos, const QPoint &gp, bool drawRect );
     void updateGui();
     void updateSplitterVisibility( bool visible );
@@ -191,6 +197,7 @@ private:
     bool moveEnabled : 1;
     bool nl : 1;
     bool opaque : 1;
+    bool isToolbar : 1;
     bool stretchable[ 3 ];
     Orientation startOrientation;
     int cMode;
