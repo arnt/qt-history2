@@ -1,6 +1,5 @@
 #include "qurl.h"
 #include "qurlinfo.h"
-#include "ftp.h"
 
 #include <stdio.h>
 #include <assert.h>
@@ -28,7 +27,6 @@ struct QUrlPrivate
     bool isMalformed;
     int port;
     QString nameFilter;
-    FTP ftp;
     QDir dir;
     QMap<QString, QUrlInfo> entryMap;
 };
@@ -60,10 +58,6 @@ QUrl::QUrl()
     d = new QUrlPrivate;
     d->isMalformed = TRUE;
     d->nameFilter = "*";
-    connect( &d->ftp, SIGNAL( newEntry( const QUrlInfo & ) ),
-	     this, SLOT( sendNewEntry( const QUrlInfo & ) ) );
-    connect( &d->ftp, SIGNAL( listFinished() ),
-	     this, SLOT( listFinished() ) );
 }
 
 QUrl::QUrl( const QString& url )
@@ -73,9 +67,6 @@ QUrl::QUrl( const QString& url )
     d->protocol = "file";
     d->port = -1;
     d->nameFilter = "*";
-    connect( &d->ftp, SIGNAL( newEntry( const QUrlInfo & ) ),
-	     this, SLOT( sendNewEntry( const QUrlInfo & ) ) );
-
     QString tmp = url.stripWhiteSpace();
     parse( tmp );
 }
@@ -91,9 +82,6 @@ QUrl::QUrl( const QUrl& url, const QString& relUrl_ )
 {
     d = new QUrlPrivate;
     QString relUrl = relUrl_.stripWhiteSpace();
-    connect( &d->ftp, SIGNAL( newEntry( const QUrlInfo & ) ),
-	     this, SLOT( sendNewEntry( const QUrlInfo & ) ) );
-
     // relUrl starts in the root ?
     if ( relUrl[0] == '/' ) {
 	*this = url;
@@ -864,20 +852,6 @@ void QUrl::listEntries( const QString &nameFilter, int filterSpec = QDir::Defaul
 	    addEntry( inf );
 	}
 	emit finished();
-    } else if ( d->protocol == "ftp" ) {
-	d->ftp.close();
-	if ( d->user.isEmpty() )
-	    d->ftp.open( d->host, 21, d->path.isEmpty() ? QString( "/" ) : d->path,
-			 "anonymous", "Qt@cool", FTP::List );
-	else {
-	    if ( d->pass.isEmpty() )
-		if ( !getPassword() )
-		    return;
-	    d->ftp.open( d->host, 21, d->path.isEmpty() ? QString( "/" ) : d->path,
-			 d->user, d->pass, FTP::List );
-	}
- 	    
-	emit start();
     }
 }
 
@@ -892,18 +866,6 @@ void QUrl::mkdir( const QString &dirname )
 			  fi.isSymLink(), fi.isWritable(), fi.isReadable(), fi.isExecutable() );
 	    emit entry( inf );
 	    emit createdDirectory( inf );
-	}
-    } else if ( d->protocol == "ftp" ) {
-	d->ftp.close();
-	if ( d->user.isEmpty() )
-	    d->ftp.open( d->host, 21, d->path.isEmpty() ? QString( "/" ) : d->path,
-			 "anonymous", "Qt@cool", FTP::Mkdir, dirname);
-	else {
-	    if ( d->pass.isEmpty() )
-		if ( !getPassword() )
-		    return;
-	    d->ftp.open( d->host, 21, d->path.isEmpty() ? QString( "/" ) : d->path,
-			 d->user, d->pass, FTP::Mkdir, dirname );
 	}
     }
 }
@@ -999,17 +961,17 @@ QUrlInfo QUrl::makeInfo() const
     return QUrlInfo();
 }
 
-QUrl::operator QString() const
+QString QUrl::toString() const
 {
     if ( isLocalFile() )
 	return d->protocol + ":" + QDir::cleanDirPath( d->path );
-    else if ( d->protocol = "ftp" ) {
-	if ( !d->user.isEmpty() )
-	    return d->protocol + "://" + +d->user + ":" + d->pass + "@" + d->host + QDir::cleanDirPath( d->path ).stripWhiteSpace(); // #### todo
-	else
-	    return d->protocol + "://" + d->host + QDir::cleanDirPath( d->path ).stripWhiteSpace(); // #### todo
-    } else
-	return QString::null;
+
+    return QString::null;
+}
+
+QUrl::operator QString() const
+{
+    return toString();
 }
 
 bool QUrl::cdUp()
@@ -1043,61 +1005,4 @@ QUrlInfo QUrl::info( const QString &entry ) const
 void QUrl::listFinished()
 {
     emit finished();
-}
-
-// class QPasswordDialog : public QVBox
-// {
-//     Q_OBJECT
-    
-// public:
-//     QPasswordDialog( const QWidget *parent, const QString &user );
-    
-// protected slots:
-//     void ok() { 
-// 	emit ok( this );
-//     }
-    
-// signals:
-//     void ok( QWidget * );
-//     void cancel();
-    
-// };
-
-// QPasswordDialog::QPasswordDialog(  const QWidget *parent, const QString &user )
-//     : QVBox( parent )
-// {
-//     setMargin( 5 );
-//     setSpacing( 5 );
-    
-//     QHBox *box;
-    
-//     box = new QHBox( this );
-//     box->setMargin( 5 );
-    
-//     (void)new QLabel( tr( "Username:" ), box );
-//     username = new QLineEdit( user, box );
-    
-//     box = new QHBox( this );
-//     box->setMargin( 5 );
-    
-//     (void)new QLabel( tr( "Password:" ), box );
-//     password = new QLineEdit( "", box );
-//     password->setEchoMode( QLineEdit::Password );
-    
-//     box = new QHBox( this );
-//     box->setMargin( 5 );
- 
-//     box->addStretch();
-//     connect( new QPushButton( tr( "&OK" ), box ), SIGNAL( clicked() ),
-// 	     this, SLOT( ok() ) );
-//     connect( new QPushButton( tr( "&Cancel" ), box ), SIGNAL( clicked() ),
-// 	     this, SIGNAL( cancel() ) );
-// }
-
-bool QUrl::getPassword()
-{
-//     QPasswordDialog dlg( 0, d->user );
-//     connect( dlg, SIGNAL( ok( QWidget * ) ), this, SLOT( setPassword( QWidget * ) ) );
-//     return 
-    return TRUE;
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/url/qfiledialog.cpp#19 $
+** $Id: //depot/qt/main/tests/url/qfiledialog.cpp#20 $
 **
 ** Implementation of QFileDialog class
 **
@@ -3552,59 +3552,59 @@ void QFileDialog::insertEntry( const QUrlInfo &inf )
 	    return;
     } else if ( inf.name() == "." )
 	return;
-    QListViewItemIterator it( files );
-    QListViewItem *item = 0;
-    if ( inf.isDir() ) {
-	for ( ; it.current(); ++it ) {
-	    if ( ( (QFileDialogPrivate::File*)it.current() )->info.isFile() )
-		break;
-	}
-	it = QListViewItemIterator( files );
-	for ( ; it.current(); ++it ) {
-	    item = it.current();
-	    if ( ( (QFileDialogPrivate::File*)it.current() )->info.name() < inf.name() ) {
-		item = it.current();
-		break;
-	    }
-	}
-    } else {
-	for ( ; it.current(); ++it ) {
-	    item = it.current();
-	    if ( ( (QFileDialogPrivate::File*)it.current() )->info.isDir() )
-		continue;
-	    if ( ( (QFileDialogPrivate::File*)it.current() )->info.name() < inf.name() ) {
-		item = it.current();
-		break;
-	    }
-	}
+//     QListViewItemIterator it( files );
+//     QListViewItem *item = 0;
+//     if ( inf.isDir() ) {
+// 	for ( ; it.current(); ++it ) {
+// 	    if ( ( (QFileDialogPrivate::File*)it.current() )->info.isFile() )
+// 		break;
+// 	}
+// 	it = QListViewItemIterator( files );
+// 	for ( ; it.current(); ++it ) {
+// 	    item = it.current();
+// 	    if ( ( (QFileDialogPrivate::File*)it.current() )->info.name() < inf.name() ) {
+// 		item = it.current();
+// 		break;
+// 	    }
+// 	}
+//     } else {
+// 	for ( ; it.current(); ++it ) {
+// 	    item = it.current();
+// 	    if ( ( (QFileDialogPrivate::File*)it.current() )->info.isDir() )
+// 		continue;
+// 	    if ( ( (QFileDialogPrivate::File*)it.current() )->info.name() < inf.name() ) {
+// 		item = it.current();
+// 		break;
+// 	    }
+// 	}
 	
-    }
+//     }
 
-    QListBoxItem *lbi = 0;
-    if ( inf.isDir() ) {
-	for ( unsigned int i = 0; i < d->moreFiles->count(); ++i ) {
-	    if (  ( (QFileDialogPrivate::File*)( (QFileDialogPrivate::MCItem*)d->moreFiles->item( i ) )->i )->info.isFile() )
-		break;
-	}
-	for ( unsigned int i = 0; i < d->moreFiles->count(); ++i ) {
-	    lbi = d->moreFiles->item( i );
-	    if ( ( (QFileDialogPrivate::File*)( (QFileDialogPrivate::MCItem*)d->moreFiles->item( i ) )->i )->info.name() < inf.name() ) {
-		break;
-	    }
-	}
-    } else {
-    }
+//     QListBoxItem *lbi = 0;
+//     if ( inf.isDir() ) {
+// 	for ( unsigned int i = 0; i < d->moreFiles->count(); ++i ) {
+// 	    if (  ( (QFileDialogPrivate::File*)( (QFileDialogPrivate::MCItem*)d->moreFiles->item( i ) )->i )->info.isFile() )
+// 		break;
+// 	}
+// 	for ( unsigned int i = 0; i < d->moreFiles->count(); ++i ) {
+// 	    lbi = d->moreFiles->item( i );
+// 	    if ( ( (QFileDialogPrivate::File*)( (QFileDialogPrivate::MCItem*)d->moreFiles->item( i ) )->i )->info.name() < inf.name() ) {
+// 		break;
+// 	    }
+// 	}
+//     } else {
+//     }
 
 
     QFileDialogPrivate::File * i = 0;
     QFileDialogPrivate::MCItem *i2 = 0;
-    if ( item )
-	i = new QFileDialogPrivate::File(d, &inf, files, item );
-    else
+//     if ( item )
+// 	i = new QFileDialogPrivate::File(d, &inf, files, item );
+//     else
 	i = new QFileDialogPrivate::File(d, &inf, files );
-    if ( lbi )
-	i2 = new QFileDialogPrivate::MCItem( d->moreFiles, i, lbi );
-    else
+//     if ( lbi )
+// 	i2 = new QFileDialogPrivate::MCItem( d->moreFiles, i, lbi );
+//     else
 	i2 = new QFileDialogPrivate::MCItem( d->moreFiles, i );
 	
     i->i = i2;

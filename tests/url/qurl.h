@@ -18,47 +18,47 @@ public:
     QUrl( const QString& url );
     QUrl( const QUrl& url );
     QUrl( const QUrl& url, const QString& relUrl_ );
-    ~QUrl();
+    virtual ~QUrl();
 
     QString protocol() const;
-    void setProtocol( const QString& protocol );
+    virtual void setProtocol( const QString& protocol );
 
     QString user() const;
-    void setUser( const QString& user );
+    virtual void setUser( const QString& user );
     bool hasUser() const;
 
     QString pass() const;
-    void setPass( const QString& pass );
+    virtual void setPass( const QString& pass );
     bool hasPass() const;
 
     QString host() const;
-    void setHost( const QString& user );
+    virtual void setHost( const QString& user );
     bool hasHost() const;
 
     int port() const;
-    void setPort( int port );
+    virtual void setPort( int port );
 
     QString path() const;
     QString path( int trailing ) const;
-    void setPath( const QString& path );
+    virtual void setPath( const QString& path );
     bool hasPath() const;
 
-    void setEncodedPathAndQuery( const QString& enc );
+    virtual void setEncodedPathAndQuery( const QString& enc );
     QString encodedPathAndQuery( int trailing = 0, bool noEmptyPath = FALSE );
 
-    void setQuery( const QString& txt );
+    virtual void setQuery( const QString& txt );
     QString query() const;
 
     QString ref() const;
-    void setRef( const QString& txt );
+    virtual void setRef( const QString& txt );
     bool hasRef() const;
 
     bool isMalformed() const;
 
     bool isLocalFile() const;
 
-    void addPath( const QString& path );
-    void setFileName( const QString& txt );
+    virtual void addPath( const QString& path );
+    virtual void setFileName( const QString& txt );
 
     QString filename( bool ignoreTrailingSlashInPath = TRUE );
     QString directory( bool stripTrailingSlashFromResult = TRUE,
@@ -72,29 +72,30 @@ public:
 
     bool operator==( const QUrl& url ) const;
     bool operator==( const QString& url ) const;
-    bool cmp( QUrl &url, bool ignoreTrailing = FALSE );
+    virtual bool cmp( QUrl &url, bool ignoreTrailing = FALSE );
 
     static void decode( QString& url );
     static void encode( QString& url );
 
-    void listEntries( int filterSpec = QDir::DefaultFilter,
-		      int sortSpec   = QDir::DefaultSort );
-    void listEntries( const QString &nameFilter, int filterSpec = QDir::DefaultFilter,
-		      int sortSpec   = QDir::DefaultSort );
-    void mkdir( const QString &dirname );
-    void remove( const QString &filename );
-    void rename( const QString &oldname, const QString &newname );
-    void copy( const QString &from, const QString &to );
-    void copy( const QStringList &files, const QString &dest, bool move );
+    virtual void listEntries( int filterSpec = QDir::DefaultFilter,
+			      int sortSpec   = QDir::DefaultSort );
+    virtual void listEntries( const QString &nameFilter, int filterSpec = QDir::DefaultFilter,
+			      int sortSpec   = QDir::DefaultSort );
+    virtual void mkdir( const QString &dirname );
+    virtual void remove( const QString &filename );
+    virtual void rename( const QString &oldname, const QString &newname );
+    virtual void copy( const QString &from, const QString &to );
+    virtual void copy( const QStringList &files, const QString &dest, bool move );
 
-    void setNameFilter( const QString &nameFilter );
+    virtual void setNameFilter( const QString &nameFilter );
     QString nameFilter() const;
 
-    QUrlInfo makeInfo() const;
-    QUrlInfo info( const QString &entry ) const;
+    virtual QUrlInfo makeInfo() const;
+    virtual QUrlInfo info( const QString &entry ) const;
     operator QString() const;
-
-    bool cdUp();
+    virtual QString toString() const;
+    
+    virtual bool cdUp();
 
 signals:
     void entry( const QUrlInfo & );
@@ -107,19 +108,17 @@ signals:
     void itemChanged( const QString &oldname, const QString &newname );
 
 protected:
-    void reset();
-    void parse( const QString& url );
-    void addEntry( const QUrlInfo &i );
-    void clearEntries();
-    bool getPassword();
-    
+    virtual void reset();
+    virtual void parse( const QString& url );
+    virtual void addEntry( const QUrlInfo &i );
+    virtual void clearEntries();
+
     static char hex2int( char c );
 
 protected slots:
-    void sendNewEntry( const QUrlInfo &i );
-    void listFinished();
-//     void setPassword( QWidget * );
-    
+    virtual void sendNewEntry( const QUrlInfo &i );
+    virtual void listFinished();
+
 private:
     QUrlPrivate *d;
 
