@@ -131,6 +131,8 @@ class Q_GUI_EXPORT QTreeWidget : public QTreeView
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QTreeWidget)
+    Q_PROPERTY(int columnCount READ columnCount WRITE setColumnCount)
+    Q_PROPERTY(bool sortingEnabled READ isSortingEnabled WRITE setSortingEnabled)
 
 public:
     QTreeWidget(QWidget *parent = 0);
@@ -147,7 +149,6 @@ public:
 
     QTreeWidgetItem *headerItem();
     void setHeaderItem(QTreeWidgetItem *item);
-
     void setHeaderLabels(const QStringList &labels);
 
     QTreeWidgetItem *currentItem() const;

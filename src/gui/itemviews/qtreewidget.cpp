@@ -1056,7 +1056,6 @@ public:
     void emitAboutToShowContextMenu(QMenu *menu, const QModelIndex &index);
     void emitItemChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
 
-private:
     bool sortingEnabled;
 };
 

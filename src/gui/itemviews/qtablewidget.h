@@ -106,6 +106,9 @@ class Q_GUI_EXPORT QTableWidget : public QTableView
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QTableWidget)
+    Q_PROPERTY(int rowCount READ rowCount WRITE setRowCount)
+    Q_PROPERTY(int columnCount READ columnCount WRITE setColumnCount)
+    Q_PROPERTY(bool sortingEnabled READ isSortingEnabled WRITE setSortingEnabled)
 
     friend class QTableModel;
 public:
@@ -132,7 +135,6 @@ public:
 
     QTableWidgetItem *horizontalHeaderItem(int column) const;
     void setHorizontalHeaderItem(int column, QTableWidgetItem *item);
-
     void setVerticalHeaderLabels(const QStringList &labels);
     void setHorizontalHeaderLabels(const QStringList &labels);
 
@@ -140,6 +142,8 @@ public:
     void setCurrentItem(QTableWidgetItem *item);
 
     void sortItems(int column, Qt::SortOrder order = Qt::AscendingOrder);
+    void setSortingEnabled(bool enable);
+    bool isSortingEnabled() const;
 
     void openPersistentEditor(QTableWidgetItem *item);
     void closePersistentEditor(QTableWidgetItem *item);

@@ -481,7 +481,7 @@ class QTableWidgetPrivate : public QTableViewPrivate
 {
     Q_DECLARE_PUBLIC(QTableWidget)
 public:
-    QTableWidgetPrivate() : QTableViewPrivate() {}
+    QTableWidgetPrivate() : QTableViewPrivate(), sortingEnabled(false) {}
     inline QTableModel *model() const { return ::qt_cast<QTableModel*>(q_func()->model()); }
     void emitPressed(const QModelIndex &index, Qt::ButtonState button);
     void emitClicked(const QModelIndex &index, Qt::ButtonState button);
@@ -492,6 +492,8 @@ public:
     void emitItemEntered(const QModelIndex &index, Qt::ButtonState state);
     void emitAboutToShowContextMenu(QMenu *menu, const QModelIndex &index);
     void emitItemChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
+
+    bool sortingEnabled;
 };
 
 void QTableWidgetPrivate::emitPressed(const QModelIndex &index, Qt::ButtonState button)
@@ -844,6 +846,29 @@ void QTableWidget::setCurrentItem(QTableWidgetItem *item)
 void QTableWidget::sortItems(int column, Qt::SortOrder order)
 {
     d->model()->sort(column, QModelIndex::Null, order);
+    horizontalHeader()->setSortIndicator(column, order);
+}
+
+/*!
+  If \a enable is true, the items in the widget will be sorted if the user
+  clicks on a horizontal header section; otherwise sorting is disabled.
+*/
+
+void QTableWidget::setSortingEnabled(bool enable)
+{
+    d->sortingEnabled = enable;
+    if (!enable && horizontalHeader()->isSortIndicatorShown())
+        horizontalHeader()->setSortIndicatorShown(false);
+}
+
+/*!
+  Returns if sorting is enabled; otherwise returns false.
+  Sorting is enabled when the user clicks on a horizontal header section.
+*/
+
+bool QTableWidget::isSortingEnabled() const
+{
+    return d->sortingEnabled;
 }
 
 /*!
