@@ -387,11 +387,15 @@ static bool block_set_alignment = FALSE;
 
 /*!  \fn QTextDocument *QTextEdit::document() const
 
+    \internal
+
   This function returns the QTextDocument which is used by the text
   edit.
 */
 
 /*!  \fn void QTextEdit::setDocument( QTextDocument *doc )
+
+    \internal
 
   This function sets the QTextDocument which should be used by the text
   edit to \a doc. This can be used, for example, if you want to
