@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#93 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#94 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -25,7 +25,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#93 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#94 $";
 #endif
 
 
@@ -237,7 +237,6 @@ Sets the pen color to \e c.
 
 void QPen::setColor( const QColor &c )		// set pen color
 {
-    ulong pixel = data->color.pixel();
     detach();
     data->color = c;
 }
@@ -503,7 +502,6 @@ Sets the brush color to \e c.
 
 void QBrush::setColor( const QColor &c )	// set brush color
 {
-    ulong pixel = data->color.pixel();
     detach();
     data->color = c;
 }
@@ -1635,14 +1633,14 @@ coordinates.
 
 QPoint QPainter::xForm( const QPoint &pv ) const
 {						// map point, virtual -> device
-    QPoint p = pv;
+    int x=pv.x(), y=pv.y();
     if ( testf(WxF) ) {				// world xform
-	WXFORM_P( p.rx(), p.ry() );
+	WXFORM_P( x, y );
     }
     else if ( testf(VxF) ) {			// view xform
-	VXFORM_P( p.rx(), p.ry() );
+	VXFORM_P( x, y );
     }
-    return p;
+    return QPoint( x, y );
 }
 
 /*!
@@ -1706,20 +1704,20 @@ coordinates.
 
 QPoint QPainter::xFormDev( const QPoint &pd ) const
 {						// map point, device -> virtual
-    QPoint p = pd;
+    int x=pd.x(), y=pd.y();
     if ( testf(WxF) ) {
-	int xx = im11*p.x()+im21*p.y()+idx;
+	int xx = im11*x+im21*y+idx;
 	xx += xx > 0 ? 32768 : -32768;
-	int yy = im12*p.x()+im22*p.y()+idy;
+	int yy = im12*x+im22*y+idy;
 	yy += yy > 0 ? 32768 : -32768;
-	p.rx() = xx/65536;
-	p.ry() = yy/65536;
+	x = xx/65536;
+	y = yy/65536;
     }
     else if ( testf(VxF) ) {
-	p.rx() = (ww*(p.x()-vx))/vw + wx;
-	p.ry() = (wh*(p.y()-vy))/vh + wy;
+	x = (ww*(x-vx))/vw + wx;
+	y = (wh*(y-vy))/vh + wy;
     }
-    return p;
+    return QPoint( x, y );
 }
 
 /*!
