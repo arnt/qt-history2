@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlined.cpp#63 $
+** $Id: //depot/qt/main/src/widgets/qlined.cpp#64 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -20,7 +20,7 @@
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlined.cpp#63 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlined.cpp#64 $");
 
 
 /*!
@@ -879,11 +879,10 @@ void QLineEdit::newMark( int pos, bool copy )
 
 void QLineEdit::markWord( int pos )
 {
-    int i = pos;
+    int i = pos - 1;
     while ( i >= 0 && isprint(tbuf.at(i)) && !isspace(tbuf.at(i)) )
 	i--;
-    if ( i != pos )
-	i++;
+    i++;
     markAnchor = i;
 
     int lim = tbuf.length();

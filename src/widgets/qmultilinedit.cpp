@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#32 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#33 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -1673,7 +1673,7 @@ void QMultiLineEdit::markWord( int posx, int posy )
 {
     QString *s = contents->at( posy );
     ASSERT( s );
-    int i = posx;
+    int i = posx - 1;
 
     if ( markIsOn ) {
 	if ( posy < markAnchorY || posy == markAnchorY && posx < markAnchorX )
@@ -1683,8 +1683,7 @@ void QMultiLineEdit::markWord( int posx, int posy )
     } else {
     while ( i >= 0 && isprint(s->at(i)) && !isspace(s->at(i)) )
 	i--;
-    if ( i != posx )
-	i++;
+    i++;
     markAnchorY = posy;
     markAnchorX = i;
 
