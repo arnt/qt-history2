@@ -392,14 +392,27 @@ int QFontMetrics::charWidth(const QString &str, int pos) const
     if (pos < 0 || pos > (int)str.length())
         return 0;
 
-    QTextEngine layout(str,  d);
-    layout.itemize(QTextEngine::WidthOnly);
-    int w = int(layout.width(pos, 1));
+    const QChar &ch = str.unicode()[ pos ];
+    if ( ::category( ch ) == QChar::Mark_NonSpacing )
+	return 0;
+    QFont::Script script;
+    SCRIPT_FOR_CHAR( script, ch );
 
-    if ((QSysInfo::WindowsVersion & QSysInfo::WV_NT_based) == 0) {
-        QFontEngine *engine = d->engineForScript((QFont::Script) fscript);
-        Q_ASSERT(engine != 0);
-        w -= TMX.tmOverhang;
+    int width;
+    if ( script >= QFont::Arabic && script <= QFont::Yi || script >= QFont::Han_Japanese) {
+	// complex script shaping. Have to do some hard work
+	int from = QMAX( 0,  pos - 8 );
+	int to = QMIN( (int)str.length(), pos + 8 );
+	QConstString cstr( str.unicode()+from, to-from);
+	QTextEngine layout( cstr.string(), d );
+	layout.itemize(QTextEngine::WidthOnly);
+	width = layout.width( pos-from, 1 );
+    } else {
+	QFontEngine *engine = d->engineForScript( script );
+ 	QGlyphLayout glyphs[8];
+	int nglyphs = 7;
+	engine->stringToCMap( &ch, 1, glyphs, &nglyphs, FALSE );
+	width = int(glyphs[0].advance.x());
     }
-    return w;
+    return width;
 }

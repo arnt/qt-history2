@@ -194,6 +194,7 @@ private:
     void checkBidi() const;
 
     QVector<Q3TextStringChar> data;
+    QString stringCache;
     uint bidiDirty : 1;
     uint bidi : 1; // true when the paragraph has right to left characters
     uint rightToLeft : 1;
@@ -216,7 +217,9 @@ inline bool Q3TextString::isRightToLeft() const
 
 inline QString Q3TextString::toString() const
 {
-    return toString(data);
+    if (bidiDirty)
+        checkBidi();
+    return stringCache;
 }
 
 inline QChar::Direction Q3TextString::direction() const

@@ -3837,6 +3837,8 @@ void Q3TextString::checkBidi() const
     const Q3TextStringChar *start = data.data();
     const Q3TextStringChar *end = start + length;
 
+    ((Q3TextString *)this)->stringCache = toString(data);
+
     // determines the properties we need for layouting
     QTextEngine textEngine;
     textEngine.setText(toString());
@@ -4002,23 +4004,16 @@ int Q3TextString::width(int idx) const
 #endif
      {
          int r = c->c.row();
-         if (r < 0x06 || (r > 0x1f && !(r > 0xd7 && r < 0xe0))) {
+         if(r < 0x06
+#ifndef Q_WS_WIN
+             // Uniscribe's handling of Asian makes the condition below fail.
+             || (r > 0x1f && !(r > 0xd7 && r < 0xe0))
+#endif
+             ) {
              w = c->format()->width(c->c);
          } else {
              // complex text. We need some hacks to get the right metric here
-             QString str;
-             int pos = 0;
-             if(idx > 8)
-                 pos = idx - 8;
-             int off = idx - pos;
-             int end = qMin(length(), idx + 8);
-             str.resize(end-pos);
-             QChar *uc = (QChar *)str.unicode();
-             while (pos < end) {
-                 *(uc++) = at(pos).c;
-                 pos++;
-             }
-             w = c->format()->width(str, off);
+             w = c->format()->width(toString(), idx);
          }
      }
      return w;
