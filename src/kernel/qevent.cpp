@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#6 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#7 $
 **
 ** Implementation of event classes
 **
@@ -13,7 +13,7 @@
 #include "qevent.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qevent.cpp#6 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qevent.cpp#7 $";
 #endif
 
 
@@ -283,12 +283,10 @@ The accept flag is set by default.
 \class QFocusEvent qevent.h
 \brief The QFocusEvent class contains event parameters for widget focus events.
 
-Focus events are sent to widgets when the text input focus is about to
-change.
+Focus events are sent to widgets when the keyboard input focus changes.
 
-\todo Not implemented yet.
-
-The virtual function QWidget::focusChangeEvent() receives focus events.
+The virtual functions QWidget::focusInEvent() and QWidget::focusOutEvent()
+receive focus events.
 
 \sa QWidget::setFocus().
 */
