@@ -578,15 +578,15 @@ bool QWidgetItem::isEmpty() const
   Constructs a new top-level QLayout with main widget \a
   parent, and name \a name.  \a parent may not be 0.
 
-  The \a border is the number of pixels between the edge of the widget and
-  the managed children.  The \a space sets the value of spacing(), which
-  gives the spacing between the managed widgets. If \a space is -1
-  (the default), spacing is set to the value of \a border.
+  The \a margin is the number of pixels between the edge of the widget and
+  the managed children.  The \a spacing sets the value of spacing(), which
+  gives the spacing between the managed widgets. If \a spacing is -1
+  (the default), spacing is set to the value of \a margin.
 
   There can be only one top-level layout for a widget. It is returned
   by QWidget::layout()
 */
-QLayout::QLayout( QWidget *parent, int border, int space, const char *name )
+QLayout::QLayout( QWidget *parent, int margin, int spacing, const char *name )
     : QObject( parent, name )
 {
     init();
@@ -604,11 +604,11 @@ QLayout::QLayout( QWidget *parent, int border, int space, const char *name )
 	    setWidgetLayout( parent, this );
 	}
     }
-    outsideBorder = border;
-    if ( space < 0 )
-	insideSpacing = border;
+    outsideBorder = margin;
+    if ( spacing < 0 )
+	insideSpacing = margin;
     else
-	insideSpacing = space;
+	insideSpacing = spacing;
 }
 
 void QLayout::init()
@@ -632,32 +632,32 @@ void QLayout::init()
   Constructs a new child QLayout called \a name, and places it inside
   \a parentLayout by using the default placement defined by addItem().
 
-  If \a space is -1, this QLayout inherits \a parentLayout's
-  spacing(), otherwise the value of \a space is used.
+  If \a spacing is -1, this QLayout inherits \a parentLayout's
+  spacing(), otherwise the value of \a spacing is used.
 
 */
-QLayout::QLayout( QLayout *parentLayout, int space, const char *name )
+QLayout::QLayout( QLayout *parentLayout, int spacing, const char *name )
     : QObject( parentLayout, name )
 
 {
     init();
-    insideSpacing = space < 0 ? parentLayout->insideSpacing : space;
+    insideSpacing = spacing < 0 ? parentLayout->insideSpacing : spacing;
     parentLayout->addItem( this );
 }
 
 /*!
   Constructs a new child QLayout called \a name.
-  If \a space is -1, this QLayout inherits its parent's
-  spacing(); otherwise the value of \a space is used.
+  If \a spacing is -1, this QLayout inherits its parent's
+  spacing(); otherwise the value of \a spacing is used.
 
   This layout has to be inserted into another layout before geometry
   management will work.
 */
-QLayout::QLayout( int space, const char *name )
+QLayout::QLayout( int spacing, const char *name )
     : QObject( 0, name )
 {
     init();
-    insideSpacing = space;
+    insideSpacing = spacing;
 }
 
 /*! \fn void QLayout::addItem( QLayoutItem *item )
@@ -721,9 +721,9 @@ QLayout::QLayout( int space, const char *name )
 
   \sa margin
 */
-void QLayout::setMargin( int border )
+void QLayout::setMargin( int margin )
 {
-    outsideBorder = border;
+    outsideBorder = margin;
     invalidate();
     if ( mainWidget() ) {
 	QEvent *lh = new QEvent( QEvent::LayoutHint );
@@ -732,9 +732,9 @@ void QLayout::setMargin( int border )
 }
 
 //##### bool recursive = FALSE ????
-void QLayout::setSpacing( int space )
+void QLayout::setSpacing( int spacing )
 {
-    insideSpacing = space;
+    insideSpacing = spacing;
     invalidate();
     if ( mainWidget() ) {
 	QEvent *lh = new QEvent( QEvent::LayoutHint );

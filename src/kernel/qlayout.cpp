@@ -931,13 +931,13 @@ private:
   with parent widget, \a  parent. \a parent may not be 0. The grid
   layout is called \a name.
 
-  \a border is the number of pixels between the edge of the widget and
+  \a margin is the number of pixels between the edge of the widget and
   its managed children. \a space is the default number of pixels
-  between cells.  If \a space is -1, the value of \a border is used.
+  between cells.  If \a space is -1, the value of \a margin is used.
 */
-QGridLayout::QGridLayout( QWidget *parent, int nRows, int nCols, int border,
+QGridLayout::QGridLayout( QWidget *parent, int nRows, int nCols, int margin,
 			  int space, const char *name )
-    : QLayout( parent, border, space, name )
+    : QLayout( parent, margin, space, name )
 {
     init( nRows, nCols );
 }
@@ -945,32 +945,32 @@ QGridLayout::QGridLayout( QWidget *parent, int nRows, int nCols, int border,
 /*!
   Constructs a new grid that is placed inside \a parentLayout
   with \a nRows rows and \a nCols columns.
-  If \a space is -1, this QGridLayout inherits its parent's
-  spacing(); otherwise \a space is used. The grid layout is called
+  If \a spacing is -1, this QGridLayout inherits its parent's
+  spacing(); otherwise \a spacing is used. The grid layout is called
   \a name.
 
   This grid is placed according to \a parentLayout's default placement
   rules.
 */
 QGridLayout::QGridLayout( QLayout *parentLayout, int nRows, int nCols,
-			  int space, const char *name )
-    : QLayout( parentLayout, space, name )
+			  int spacing, const char *name )
+    : QLayout( parentLayout, spacing, name )
 {
     init( nRows, nCols );
 }
 
 /*!
   Constructs a new grid with \a nRows rows and \a nCols columns. If \a
-  space is -1, this QGridLayout inherits its parent's spacing();
-  otherwise \a space is used. The grid layout is called \a name.
+  spacing is -1, this QGridLayout inherits its parent's spacing();
+  otherwise \a spacing is used. The grid layout is called \a name.
 
   You must insert this grid into another layout. You can insert
   widgets and layouts into this layout at any time, but layout will
   not be performed before this is inserted into another layout.
 */
 QGridLayout::QGridLayout( int nRows, int nCols,
-			  int space, const char *name )
-     : QLayout( space, name )
+			  int spacing, const char *name )
+     : QLayout( spacing, name )
 {
     init( nRows, nCols );
 }
@@ -1480,7 +1480,7 @@ private:
 
   \ingroup geomanagement
   \ingroup appearance
-  
+
   QBoxLayout takes the space it gets (from its parent layout or from
   the mainWidget()), divides it up into a row of boxes, and makes each
   managed widget fill one box.
@@ -1536,7 +1536,7 @@ private:
   \endlist
 
   The margin defaults to 0; the spacing defaults to the same as the
-  border width for a top-level layout, or otherwise to the same as
+  margin width for a top-level layout, or otherwise to the same as
   the parent layout.  Both are parameters to the constructor.
 
   To remove a widget from a layout, either delete it or reparent it
@@ -1572,18 +1572,18 @@ static inline bool horz( QBoxLayout::Direction dir )
   Constructs a new QBoxLayout with direction \a d and main widget \a
   parent.  \a parent may not be 0.
 
-  The \a border is the number of pixels between the edge of the widget and
-  its managed children.	 The \a space is the default number of pixels
-  between neighboring children.  If \a space is -1 the value
-  of \a border is used for \a space.
+  The \a margin is the number of pixels between the edge of the widget and
+  its managed children.	 The \a spacing is the default number of pixels
+  between neighboring children.  If \a spacing is -1 the value
+  of \a margin is used for \a spacing.
 
   \a name is the internal object name.
 
   \sa direction()
 */
 QBoxLayout::QBoxLayout( QWidget *parent, Direction d,
-			int border, int space, const char *name )
-    : QLayout( parent, border, space, name )
+			int margin, int spacing, const char *name )
+    : QLayout( parent, margin, spacing, name )
 {
     data = new QBoxLayoutData;
     dir = d;
@@ -1594,12 +1594,12 @@ QBoxLayout::QBoxLayout( QWidget *parent, Direction d,
   Constructs a new QBoxLayout with direction \a d and name \a name
   and inserts it into \a parentLayout.
 
-  The \a space is the default number of pixels between neighboring children.
-  If \a space is -1, this QBoxLayout will inherit its parent's spacing().
+  The \a spacing is the default number of pixels between neighboring children.
+  If \a spacing is -1, this QBoxLayout will inherit its parent's spacing().
 */
-QBoxLayout::QBoxLayout( QLayout *parentLayout, Direction d, int space,
+QBoxLayout::QBoxLayout( QLayout *parentLayout, Direction d, int spacing,
 			const char *name )
-    : QLayout( parentLayout, space, name )
+    : QLayout( parentLayout, spacing, name )
 {
     data = new QBoxLayoutData;
     dir = d;
@@ -1610,13 +1610,13 @@ QBoxLayout::QBoxLayout( QLayout *parentLayout, Direction d, int space,
   Constructs a new QBoxLayout with direction \a d and name \a
   name.
 
-  If \a space is -1, this QBoxLayout will inherit its parent's
-  spacing(); otherwise \a space is used.
+  If \a spacing is -1, this QBoxLayout will inherit its parent's
+  spacing(); otherwise \a spacing is used.
 
   You have to insert this box into another layout.
 */
-QBoxLayout::QBoxLayout( Direction d, int space, const char *name )
-    : QLayout( space, name )
+QBoxLayout::QBoxLayout( Direction d, int spacing, const char *name )
+    : QLayout( spacing, name )
 {
     data = new QBoxLayoutData;
     dir = d;
@@ -1815,7 +1815,7 @@ void QBoxLayout::insertItem( int index, QLayoutItem *item )
   Inserts a non-stretchable space at position \a index, with size \a size.
   If \a index is negative the space is added at the end.
 
-  The box layout has default border and spacing. This function adds
+  The box layout has default margin and spacing. This function adds
   additional space.
 
   \sa insertStretch()
@@ -1928,7 +1928,7 @@ void QBoxLayout::insertWidget( int index, QWidget *widget, int stretch,
 
 /*!
   Adds a non-stretchable space with size \a size to the end of this
-  box layout. QBoxLayout gives default border and spacing. This
+  box layout. QBoxLayout gives default margin and spacing. This
   function adds additional space.
 
   \sa insertSpacing(), addStretch()
@@ -2289,17 +2289,17 @@ int QBoxLayout::calcHfw( int w )
   Constructs a new top-level horizontal box with parent \a parent and name
   \a name.
 
-  The \a border is the number of pixels between the edge of the widget and
-  its managed children.	 The \a space is the default number of pixels
-  between neighboring children.  If \a space is -1 the value
-  of \a border is used for \a space.
+  The \a margin is the number of pixels between the edge of the widget and
+  its managed children.	 The \a spacing is the default number of pixels
+  between neighboring children.  If \a spacing is -1 the value
+  of \a margin is used for \a spacing.
 
 */
-QHBoxLayout::QHBoxLayout( QWidget *parent, int border,
-			  int space, const char *name )
+QHBoxLayout::QHBoxLayout( QWidget *parent, int margin,
+			  int spacing, const char *name )
     : QBoxLayout( parent,
 		  QApplication::reverseLayout() ? RightToLeft : LeftToRight,
-		  border, space, name )
+		  margin, spacing, name )
 {
 }
 
@@ -2307,15 +2307,15 @@ QHBoxLayout::QHBoxLayout( QWidget *parent, int border,
   Constructs a new horizontal box with the name \a name and adds it
   to \a parentLayout.
 
-  The \a space is the default number of pixels between neighboring
-  children. If \a space is -1, this QHBoxLayout will inherit its
+  The \a spacing is the default number of pixels between neighboring
+  children. If \a spacing is -1, this QHBoxLayout will inherit its
   parent's spacing().
 */
-QHBoxLayout::QHBoxLayout( QLayout *parentLayout, int space,
+QHBoxLayout::QHBoxLayout( QLayout *parentLayout, int spacing,
 			  const char *name )
     :QBoxLayout( parentLayout,
 		 QApplication::reverseLayout() ? RightToLeft : LeftToRight,
-		 space, name )
+		 spacing, name )
 {
 }
 
@@ -2323,12 +2323,12 @@ QHBoxLayout::QHBoxLayout( QLayout *parentLayout, int space,
   Constructs a new horizontal box with the name \a name.  You must
   add it to another layout.
 
-  The \a space is the default number of pixels between neighboring children.
-  If \a space is -1, this QHBoxLayout will inherit its parent's spacing().
+  The \a spacing is the default number of pixels between neighboring children.
+  If \a spacing is -1, this QHBoxLayout will inherit its parent's spacing().
 */
-QHBoxLayout::QHBoxLayout( int space, const char *name )
+QHBoxLayout::QHBoxLayout( int spacing, const char *name )
     : QBoxLayout( QApplication::reverseLayout() ? RightToLeft : LeftToRight,
-		  space, name )
+		  spacing, name )
 {
 }
 
@@ -2365,14 +2365,14 @@ QHBoxLayout::~QHBoxLayout()
   Constructs a new top-level vertical box with parent \a parent and
   name \a name.
 
-  The \a border is the number of pixels between the edge of the widget and
-  its managed children.	 The \a space is the default number of pixels
-  between neighboring children.  If \a space is -1 the value
-  of \a border is used for \a space.
+  The \a margin is the number of pixels between the edge of the widget and
+  its managed children.	 The \a spacing is the default number of pixels
+  between neighboring children.  If \a spacing is -1 the value
+  of \a margin is used for \a spacing.
 */
-QVBoxLayout::QVBoxLayout( QWidget *parent, int border,
-			  int space, const char *name )
-    : QBoxLayout( parent, TopToBottom, border, space, name )
+QVBoxLayout::QVBoxLayout( QWidget *parent, int margin,
+			  int spacing, const char *name )
+    : QBoxLayout( parent, TopToBottom, margin, spacing, name )
 {
 
 }
@@ -2381,12 +2381,12 @@ QVBoxLayout::QVBoxLayout( QWidget *parent, int border,
   Constructs a new vertical box with the name \a name and adds it
   to \a parentLayout.
 
-  The \a space is the default number of pixels between neighboring children.
-  If \a space is -1, this QVBoxLayout will inherit its parent's spacing().
+  The \a spacing is the default number of pixels between neighboring children.
+  If \a spacing is -1, this QVBoxLayout will inherit its parent's spacing().
 */
-QVBoxLayout::QVBoxLayout( QLayout *parentLayout, int space,
+QVBoxLayout::QVBoxLayout( QLayout *parentLayout, int spacing,
 			  const char *name )
-    :QBoxLayout( parentLayout, TopToBottom, space, name )
+    :QBoxLayout( parentLayout, TopToBottom, spacing, name )
 {
 
 }
@@ -2395,11 +2395,11 @@ QVBoxLayout::QVBoxLayout( QLayout *parentLayout, int space,
   Constructs a new vertical box with the name \a name. You must add it
   to another layout.
 
-  The \a space is the default number of pixels between neighboring children.
-  If \a space is -1, this QVBoxLayout will inherit its parent's spacing().
+  The \a spacing is the default number of pixels between neighboring children.
+  If \a spacing is -1, this QVBoxLayout will inherit its parent's spacing().
 */
-QVBoxLayout::QVBoxLayout( int space, const char *name )
-    :QBoxLayout( TopToBottom, space, name )
+QVBoxLayout::QVBoxLayout( int spacing, const char *name )
+    :QBoxLayout( TopToBottom, spacing, name )
 {
 }
 
