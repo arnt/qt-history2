@@ -556,7 +556,7 @@ int QFontEngineWin::minRightBearing() const
 	int mr = 0;
 	if ( ttf ) {
 	    HDC hdc = dc();
-	    HGDIOBJ oldobj = SelectObject( hdc, hfont );
+	    SelectObject( hdc, hfont );
 	    ABC *abc = 0;
 	    int n = QT_WA_INLINE( tm.w.tmLastChar - tm.w.tmFirstChar, tm.a.tmLastChar - tm.a.tmFirstChar );
 	    if ( n <= max_font_count ) {
