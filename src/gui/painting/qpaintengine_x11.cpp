@@ -496,7 +496,7 @@ QX11PaintEngine::QX11PaintEngine(const QPaintDevice *target)
     d->xinfo = 0;
 }
 
-QX11PaintEngine::QX11PaintEngine(QPaintEnginePrivate &dptr, const QPaintDevice *target)
+QX11PaintEngine::QX11PaintEngine(QX11PaintEnginePrivate &dptr, const QPaintDevice *target)
     : QPaintEngine(dptr, UsesFontEngine)
 {
     d->dpy = QX11Info::appDisplay();

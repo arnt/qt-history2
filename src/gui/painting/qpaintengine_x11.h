@@ -66,7 +66,7 @@ public:
     static void cleanup();
 
 protected:
-    QX11PaintEngine(QPaintEnginePrivate &dptr, const QPaintDevice *);
+    QX11PaintEngine(QX11PaintEnginePrivate &dptr, const QPaintDevice *);
 
     friend void qt_cleanup();
     friend void qt_draw_transformed_rect( QPaintEngine *pp,  int x, int y, int w,  int h, bool fill );
