@@ -33,7 +33,7 @@ QMAKE_INCDIR		= /usr/local/include \
 	/System/Library/Frameworks/HIToolbox.framework/Versions/A/Headers \
         /System/Library/Frameworks/QD.framework/Versions/A/Headers \
 	/System/Library/Frameworks/CarbonCore.framework/Versions/A/Headers \
-	/System/Library/Frameworks/CarbonSoundg.framework/Versions/A/Headers \
+	/System/Library/Frameworks/CarbonSoundg.framework/Versions/A/Headers 
 QMAKE_LIBDIR		= /usr/local/lib
 QMAKE_INCDIR_QT		= $(QTDIR)/include
 QMAKE_LIBDIR_QT		= $(QTDIR)/lib
