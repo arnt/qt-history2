@@ -1292,17 +1292,6 @@ long QAxBase::queryInterface(const QUuid &uuid, void **iface) const
     return E_NOTIMPL;
 }
 
-inline QByteArray replaceType(const char *type)
-{
-    int i = 0;
-    while (type_conversion[i][0]) {
-        if (!qstrcmp(type, type_conversion[i][0]))
-            return type_conversion[i][1];
-        ++i;
-    }
-    return type;
-}
-
 class MetaObjectGenerator
 {
 public:
@@ -1354,7 +1343,7 @@ private:
             Bindable            = 0x00200000
     };
     
-    QList<QByteArray> paramList(const QByteArray &proto)
+    inline QList<QByteArray> paramList(const QByteArray &proto)
     {
         QByteArray prototype(proto);
         QByteArray parameters = prototype.mid(prototype.indexOf('(') + 1);
@@ -1362,6 +1351,22 @@ private:
         
         QList<QByteArray> plist = parameters.split(',');
         return plist;
+    }
+    
+    inline QByteArray replaceType(const QByteArray &type)
+    {
+        int i = 0;
+        while (type_conversion[i][0]) {
+            int len = strlen(type_conversion[i][0]);
+            int ti;
+            if ((ti = type.indexOf(type_conversion[i][0])) != -1) {
+                QByteArray rtype(type);
+                rtype.replace(ti, len, type_conversion[i][1]);
+                return rtype;
+            }
+            ++i;
+        }
+        return type;
     }
     
     QByteArray replacePrototype(const QByteArray &prototype)
