@@ -19,8 +19,8 @@
 **********************************************************************/
 
 /*
-  This file is a self-contained interactive indenter for C
-  derivatives, in particular C++.
+  This file is a self-contained interactive indenter for C++ and Qt
+  Script.
 
   The general problem of indenting a C++ program is ill posed. On the
   one hand, an indenter has to analyze programs written in a
@@ -91,15 +91,15 @@ static int ppContinuationIndentSize = 8;
 
 static const int ppCommentOffset = 2;
 
-void setTabSize( int s )
+void setTabSize( int size )
 {
-    ppHardwareTabSize = s;
-    ppContinuationIndentSize = s;
+    ppHardwareTabSize = size;
+    ppContinuationIndentSize = 2 * size;
 }
 
-void setIndentSize( int s )
+void setIndentSize( int size )
 {
-    ppIndentSize = s;
+    ppIndentSize = size;
 }
 
 static QRegExp *literal = 0;
@@ -137,7 +137,7 @@ static bool isOnlyWhiteSpace( const QString& t )
   index. Column numbers and index are identical for strings that don't
   contain '\t's.
 */
-static int columnForIndex( const QString& t, int index )
+int columnForIndex( const QString& t, int index )
 {
     int col = 0;
     if ( index > (int) t.length() )
@@ -156,7 +156,7 @@ static int columnForIndex( const QString& t, int index )
 /*
   Returns the indentation size of string t.
 */
-static int indentOfLine( const QString& t )
+int indentOfLine( const QString& t )
 {
     return columnForIndex( t, t.find(firstNonWhiteSpace(t)) );
 }
