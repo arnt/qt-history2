@@ -33,6 +33,37 @@
 
 #define QFTP_MAX_BYTES 1024
 
+/*!
+  \class QFtp qftp.h
+  \brief The QFtp class implements the FTP protocol
+
+  \extension network
+
+  The QFtp class implements the FTP protocol. This class
+  is derived from QNetworkProtocol and can be
+  used with QUrlOperator. In fact, you normally will not
+  use the QFtp class directly, but rather use it through
+  the QUrlOperator like
+  
+  \code
+  QUrlOperator op( "ftp://ftp.troll.no" );
+  op.listChildren();
+  \endcode
+  
+  If you really need to use QFtp directly, don't forget
+  to set the QUrlOperator on which it works using
+  setUrl().
+  
+  See also the <a href="network.html">Qt Network Documentation</a>
+  
+  \sa QNetworkProtocol, QUrlOperator
+*/
+
+
+/*!
+  Constructs a QFtp object.
+*/
+
 QFtp::QFtp()
     : QNetworkProtocol(), connectionReady( FALSE ),
       passiveMode( FALSE ), startGetOnFail( FALSE )
@@ -60,6 +91,10 @@ QFtp::QFtp()
 	     this, SLOT( dataBytesWritten( int ) ) );
 }
 
+/*!
+  Destructor
+*/
+
 QFtp::~QFtp()
 {
     close();
@@ -67,10 +102,18 @@ QFtp::~QFtp()
     delete dataSocket;
 }
 
+/*!
+  \reimp
+*/
+
 void QFtp::operationListChildren( QNetworkOperation *op )
 {
     commandSocket->writeBlock( "PASV\r\n", strlen( "PASV\r\n") );
 }
+
+/*!
+  \reimp
+*/
 
 void QFtp::operationMkDir( QNetworkOperation *op )
 {
@@ -79,12 +122,20 @@ void QFtp::operationMkDir( QNetworkOperation *op )
     commandSocket->writeBlock( cmd, cmd.length() );
 }
 
+/*!
+  \reimp
+*/
+
 void QFtp::operationRemove( QNetworkOperation *op )
 {
     QString path = url()->path().isEmpty() ? QString( "/" ) : url()->path();
     QString cmd = "CWD " + path + "\r\n";
     commandSocket->writeBlock( cmd.latin1(), cmd.length() );
 }
+
+/*!
+  \reimp
+*/
 
 void QFtp::operationRename( QNetworkOperation *op )
 {
@@ -98,16 +149,28 @@ void QFtp::operationRename( QNetworkOperation *op )
     commandSocket->writeBlock( cmd, cmd.length() );
 }
 
+/*!
+  \reimp
+*/
+
 void QFtp::operationGet( QNetworkOperation *op )
 {
     commandSocket->writeBlock( "TYPE I\r\n", 8 );
 }
+
+/*!
+  \reimp
+*/
 
 void QFtp::operationPut( QNetworkOperation *op )
 {
     putToWrite = -1;
     commandSocket->writeBlock( "TYPE I\r\n", 8 );
 }
+
+/*!
+  \reimp
+*/
 
 bool QFtp::checkConnection( QNetworkOperation *op )
 {
@@ -136,6 +199,10 @@ bool QFtp::checkConnection( QNetworkOperation *op )
     return FALSE;
 }
 
+/*!
+  Closes the command and data connection to the FTP server
+*/
+
 void QFtp::close()
 {
     if ( !dataSocket->host().isEmpty() ) {
@@ -147,10 +214,20 @@ void QFtp::close()
     }
 }
 
+/*!
+  \reimp
+*/
+
 int QFtp::supportedOperations() const
 {
     return OpListChildren | OpMkdir | OpRemove | OpRename | OpGet | OpPut;
 }
+
+/*!
+  Parses \a buffer, which is one line of a directory list
+  which came from the FTP server, and sets the
+  values which have been parsed to \a info.
+*/
 
 void QFtp::parseDir( const QString &buffer, QUrlInfo &info )
 {
@@ -265,6 +342,10 @@ void QFtp::parseDir( const QString &buffer, QUrlInfo &info )
     }
 }
 
+/*!
+ \internal
+*/
+
 void QFtp::hostFound()
 {
     if ( url() )
@@ -272,6 +353,10 @@ void QFtp::hostFound()
     else
 	emit connectionStateChanged( ConHostFound, tr( "Host found" ) );
 }
+
+/*!
+ \internal
+*/
 
 void QFtp::connected()
 {
@@ -281,6 +366,10 @@ void QFtp::connected()
 	emit connectionStateChanged( ConConnected, tr( "Connected to host" ) );
 }
 
+/*!
+ \internal
+*/
+
 void QFtp::closed()
 {
     if ( url() )
@@ -288,6 +377,11 @@ void QFtp::closed()
     else
 	emit connectionStateChanged( ConClosed, tr( "Connection closed" ) );
 }
+
+/*!
+  If data arrived on the command socket, this slot is called. It looks at
+  the data and passes it to the correct method which can handle it
+*/
 
 void QFtp::readyRead()
 {
@@ -319,11 +413,20 @@ void QFtp::readyRead()
 	;// starnge things happen...
 }
 
+/*!
+  Handles responses from the server which which say that 
+  currently something couldn't be done and it should be tried later again.
+*/
+
 void QFtp::okButTryLater( int code, const QCString & )
 {
     switch ( code ) {
     }
 }
+
+/*!
+  Handles responses from the server which are the result of a success
+*/
 
 void QFtp::okGoOn( int code, const QCString &data )
 {
@@ -421,6 +524,10 @@ void QFtp::okGoOn( int code, const QCString &data )
     }
 }
 
+/*!
+  Handles responses from the server which needs more information about something
+*/
+
 void QFtp::okButNeedMoreInfo( int code, const QCString & )
 {
     switch ( code ) {
@@ -433,11 +540,19 @@ void QFtp::okButNeedMoreInfo( int code, const QCString & )
     }
 }
 
+/*!
+  Handles error messages from the server
+*/
+
 void QFtp::errorForNow( int code, const QCString & )
 {
     switch ( code ) {
     }
 }
+
+/*!
+  Handles fatal error messages from the server (after this nothing more can't be done)
+*/
 
 void QFtp::errorForgetIt( int code, const QCString &data )
 {
@@ -489,9 +604,18 @@ void QFtp::errorForgetIt( int code, const QCString &data )
     }
 }
 
+/*!
+  \internal
+*/
+
 void QFtp::dataHostFound()
 {
 }
+
+/*!
+  Some operations require a data connection to the server. If this connection
+  could be opened, this method handles the rest.
+*/
 
 void QFtp::dataConnected()
 {
@@ -543,6 +667,10 @@ void QFtp::dataConnected()
     }
 }
 
+/*!
+  Called when the data connection has been closed
+*/
+
 void QFtp::dataClosed()
 {
     emit connectionStateChanged( ConClosed, tr( "Connection closed" ) );
@@ -573,6 +701,10 @@ void QFtp::dataClosed()
 
     emit finished( operationInProgress() );
 }
+
+/*!
+  This method is called when new data arrived on the data socket.
+*/
 
 void QFtp::dataReadyRead()
 {
@@ -610,6 +742,11 @@ void QFtp::dataReadyRead()
     }
 }
 
+/*!
+  This method is called, when \a nbytes have been successfully written to the
+  data socket.
+*/
+
 void QFtp::dataBytesWritten( int nbytes )
 {
     if ( operationInProgress() && operationInProgress()->operation() == OpPut &&
@@ -636,6 +773,11 @@ void QFtp::dataBytesWritten( int nbytes )
 	}
     }
 }
+
+/*!
+  \internal
+  Reinitializes the command socket
+*/
 
 void QFtp::reinitCommandSocket()
 {
