@@ -32,6 +32,9 @@ void SetupWizardImpl::cleanDone()
 #  elif defined(Q_OS_UNIX)
     if (true) {
 #  endif
+	buildPage->compileProgress->show();
+	buildPage->restartBuild->show();
+
 	buildPage->compileProgress->setProgress( 0 );
         buildPage->compileProgress->setTotalSteps( int(double(filesToCompile) * 1.8) );
 	configDone();
@@ -322,6 +325,8 @@ void SetupWizardImpl::cleanDone()
 	buildPage->compileProgress->setTotalSteps( int(double(filesToCompile) * 2.6) );
 	buildPage->restartBuild->setText( "Stop configure" );
 	buildPage->restartBuild->setEnabled( TRUE );
+	buildPage->restartBuild->show();
+	buildPage->compileProgress->show();
 	if( !configure.start() ) {
 	    logOutput( "Could not start configure process" );
 	    emit wizardPageFailed( indexOf(currentPage()) );
@@ -1009,6 +1014,7 @@ void SetupWizardImpl::showPageBuild()
 	QStringList makeCmds = QStringList::split( ' ', "nmake make gmake make nmake" );
 
 	buildPage->compileProgress->hide();
+	buildPage->restartBuild->hide();
 
     	args << makeCmds[ globalInformation.sysId() ] << "clean";
 	logOutput( "Starting cleaning process" );
