@@ -562,14 +562,34 @@ bool QSvgDevice::cmd ( int c, QPainter *painter, QPDevCmdParam *p )
 	    e.setAttribute( "y", p[0].point->y() );
 	e.appendChild( doc.createTextNode( *p[1].str ) );
 	break;
-    case PdcDrawText2Formatted:
+    case PdcDrawText2Formatted: {
 	e = doc.createElement( "text" );
-	if ( p[0].rect->x() )
-	    e.setAttribute( "x", p[0].rect->x() );
-	if ( p[0].point->y() )
-	    e.setAttribute( "y", p[0].rect->y()+painter->fontMetrics().ascent() );
-	// ### int tf = p[1].ival;
+	const QRect *r = p[0].rect;
+	int tf = p[1].ival;
+	int x, y;
+	// horizontal text alignment
+	if ( ( tf & Qt::AlignHCenter ) != 0 ) {
+	    x = r->x() + r->width() / 2;
+	    e.setAttribute( "text-anchor", "middle" );
+	} else if ( ( tf & Qt::AlignRight ) != 0 ) {
+	    x = r->right();
+	    e.setAttribute( "text-anchor", "end" );
+	} else {
+	    x = r->x();
+	}
+	// vertical text alignment
+	if ( ( tf & Qt::AlignVCenter ) != 0 )
+	    y = r->y() + ( r->height() + painter->fontMetrics().ascent() ) / 2;
+	else if ( ( tf & Qt::AlignBottom ) != 0 )
+	    y = r->bottom();
+	else
+	    y = r->y() + painter->fontMetrics().ascent();
+	if ( x )
+	    e.setAttribute( "x", x );
+	if ( y )
+	    e.setAttribute( "y", y );
 	e.appendChild( doc.createTextNode( *p[2].str ) );
+    }
 	break;
     case PdcDrawPixmap:
     case PdcDrawImage:
