@@ -1059,9 +1059,9 @@ void QFontPrivate::textExtents( const QString &str, int pos, int len,
 
 // draw the text run cache... nonspacing marks, bidi reordering and all compositions
 // will have already been done by the time we get here
-void QFontPrivate::drawText( Display *dpy, int screen, Qt::HANDLE hd, Qt::HANDLE rendhd,
-			     GC gc, const QColor &pen, Qt::BGMode bgmode,
-			     const QColor &bgcolor, int x, int y,
+void QFontPrivate::drawText( Display *dpy, int /*screen*/, Qt::HANDLE hd, Qt::HANDLE /*rendhd*/,
+			     GC gc, const QColor &/*pen*/, Qt::BGMode bgmode,
+			     const QColor& /*bgcolor*/, int x, int y,
 			     const QFontPrivate::TextRun *cache )
 {
     Qt::HANDLE fid_last = 0;
