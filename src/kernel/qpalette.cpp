@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpalette.cpp#13 $
+** $Id: //depot/qt/main/src/kernel/qpalette.cpp#14 $
 **
 ** Implementation of QColorGroup and QPalette classes
 **
@@ -12,7 +12,7 @@
 #include "qpalette.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpalette.cpp#13 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpalette.cpp#14 $");
 
 
 /*****************************************************************************
@@ -297,7 +297,8 @@ QPalette QPalette::copy() const
 }
 
 
-/*!  Detaches this palette from any other QPalette objects with which
+/*!
+  Detaches this palette from any other QPalette objects with which
   it might implicitly share \link QColorGroup QColorGroups. \endlink
 
   Calling this should generally not be necessary; QPalette calls this
