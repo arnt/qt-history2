@@ -653,8 +653,6 @@ void QWin32PaintEngine::drawPolygon(const QPolygon &p, PolygonDrawMode mode)
     }
 
     if (mode == PolylineMode) {
-        Polyline(d->hdc, (POINT*)p.toPointArray().data(), p.size());
-        return;
         int x1, y1, x2, y2;
         int npoints = p.size();
         x1 = qRound(p.at(npoints-2).x());
