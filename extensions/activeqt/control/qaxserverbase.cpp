@@ -279,6 +279,7 @@ private:
     unsigned wasUIActive	:1;
     unsigned isBindable		:1;
     unsigned inDesignMode	:1;
+    unsigned canTakeFocus	:1;
     short freezeEvents;
 
     HWND m_hWnd;
@@ -732,6 +733,7 @@ QAxServerBase::QAxServerBase( const QString &classname )
     wasUIActive		= FALSE;
     isBindable		= FALSE;
     inDesignMode	= FALSE;
+    canTakeFocus	= FALSE;
     freezeEvents = 0;
 
     sizeExtent.cx = 2500;
@@ -1005,7 +1007,7 @@ LRESULT CALLBACK QAxServerBase::ActiveXProc(HWND hWnd, UINT uMsg, WPARAM wParam,
 	break;
 
     case WM_SETFOCUS:
-	if ( that->isInPlaceActive && that->m_spClientSite ) {
+	if ( that->isInPlaceActive && that->m_spClientSite && !that->inDesignMode && that->canTakeFocus ) {
 	    that->DoVerb(OLEIVERB_UIACTIVATE, NULL, that->m_spClientSite, 0, that->m_hWndCD, &that->rcPos);
 	    if ( that->isUIActive ) {
 		IOleControlSite *spSite = 0;
@@ -2904,38 +2906,38 @@ HRESULT QAxServerBase::internalActivate()
     frameInfo.cb = sizeof(OLEINPLACEFRAMEINFO);
     if ( isWidget ) {
 	HWND hwndParent;
-	    if ( m_spInPlaceSite->GetWindow(&hwndParent) == S_OK ) {
-		m_spInPlaceSite->GetWindowContext(&m_spInPlaceFrame, &spInPlaceUIWindow, &rcPos, &rcClip, &frameInfo);
+	if ( m_spInPlaceSite->GetWindow(&hwndParent) == S_OK ) {
+	    m_spInPlaceSite->GetWindowContext(&m_spInPlaceFrame, &spInPlaceUIWindow, &rcPos, &rcClip, &frameInfo);
 
-		if (m_hWndCD) {
-		    ::ShowWindow(m_hWndCD, SW_SHOW);
-		    if (!::IsChild(m_hWndCD, ::GetFocus()) && qt.widget->focusPolicy() != QWidget::NoFocus )
-			::SetFocus(m_hWndCD);
-		} else {
-		    create(hwndParent, rcPos);
-		}
-
-		if ( !qt.widget->testWState( WState_Resized ) )
-		    SetObjectRects(&rcPos, &rcClip);
+	    if (m_hWndCD) {
+		::ShowWindow(m_hWndCD, SW_SHOW);
+		if (!::IsChild(m_hWndCD, ::GetFocus()) && qt.widget->focusPolicy() != QWidget::NoFocus )
+		    ::SetFocus(m_hWndCD);
+	    } else {
+		create(hwndParent, rcPos);
 	    }
 
-	    // Gone active by now, take care of UIACTIVATE
-	    bool canTakeFocus = qt.widget->focusPolicy() != QWidget::NoFocus;
-	    if ( !canTakeFocus ) {
-		QObjectList *list = qt.widget->queryList();
-		if ( list ) {
-		    QObjectListIt it( *list );
-		    QObject *o = 0;
-		    while ( ( o = it.current() ) && !canTakeFocus ) {
-			++it;
-			if ( !o->isWidgetType() )
-			    continue;
-			QWidget *w = (QWidget*)o;
-			canTakeFocus = w->focusPolicy() != QWidget::NoFocus;		    
-		    }
-		    delete list;
+	    if ( !qt.widget->testWState( WState_Resized ) )
+		SetObjectRects(&rcPos, &rcClip);
+	}
+
+	// Gone active by now, take care of UIACTIVATE
+	canTakeFocus = qt.widget->focusPolicy() != QWidget::NoFocus && !inDesignMode;
+	if ( !canTakeFocus && !inDesignMode ) {
+	    QObjectList *list = qt.widget->queryList();
+	    if ( list ) {
+		QObjectListIt it( *list );
+		QObject *o = 0;
+		while ( ( o = it.current() ) && !canTakeFocus ) {
+		    ++it;
+		    if ( !o->isWidgetType() )
+			continue;
+		    QWidget *w = (QWidget*)o;
+		    canTakeFocus = w->focusPolicy() != QWidget::NoFocus;
 		}
+		delete list;
 	    }
+	}
 	if ( !isUIActive && canTakeFocus ) {
 	    isUIActive = TRUE;
 	    hr = m_spInPlaceSite->OnUIActivate();
