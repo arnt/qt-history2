@@ -1,3 +1,4 @@
+
 /****************************************************************************
 **
 ** Implementation of QLocale class.
@@ -12,13 +13,12 @@
 **
 ****************************************************************************/
 
-#include <stdlib.h>
-#include <math.h>
 #include <sys/types.h>
-#include <limits.h>
-#include <ctype.h>
 #include <ctype.h>
 #include <float.h>
+#include <limits.h>
+#include <math.h>
+#include <stdlib.h>
 
 #include "qlocale.h"
 #include "qlocale_p.h"
