@@ -355,28 +355,15 @@ QListView
 QComboBox
    updateWidth() to be able to bypass the cached sizeHint. cf. support/arc-14/29995
 
+QSettings (Brad, Volker)
+   Property to enable to read/write to global settings (only).
+
 
 New functionality
 -----------------
 
-Plugin System (Volker)
-    System for dynamically loading plugins. First used by designer
-    but offered as Qt class. Find a solution to fix qAddPostRoutine
-    and static meta object problems with unloading libs (maybe have a
-    look at the hacks done in KDE to see all problems)
-
 BiDi (Lars)
     Finish getting widgets right-to-left
-
-QSettings (Brad, Volker)
-    QSetting class to store Qt settings in a XML tree
-    structure. Offer API so that Qt apps can use that to store
-    settings. Allow to read/write all C++ and Qt datatypes
-    (QVariant). On windows do it either as Registry frontend or also
-    using XML. When done, get rid of all static QApplication methods
-    which are just settings and replace that by having a QSetting
-    object. Also write a tool which allows to set the Qt relevant
-    settings (default style, double click interval, etc.)
 
 QProcess (rms)
     Class to start and control external programs.
