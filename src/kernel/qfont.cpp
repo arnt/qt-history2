@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#95 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#96 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -120,7 +120,7 @@
   character set. \endlink Of course, the initialization algorithm has
   a default, too: The default default default font!
 
-  For more general information on fonts, see the 
+  For more general information on fonts, see the
   <a href="http://www.nwalsh.com/comp.fonts/FAQ/">comp.fonts FAQ.</a>
 
   \sa QFontMetrics QFontInfo QApplication::setFont()
@@ -826,11 +826,10 @@ void  QFont::setDefaultFont( const QFont &f )
  *****************************************************************************/
 
 
-#warning "fontSubst does not delete its entries."
 // #######
-// fixme: fontSubst does not delete its entries.  this is correct for
-// 1.4x, because insertSubstitution() doesn't do a deep copy either,
-// but should probably be changed in 2.0.
+// fontSubst does not delete its entries.  this is correct for 1.4x,
+// because insertSubstitution() doesn't do a deep copy either, but
+// should probably be changed in 2.0.
 
 typedef Q_DECLARE(QDictM,char)	       QFontSubst;
 typedef Q_DECLARE(QDictIteratorM,char) QFontSubstIt;
@@ -855,10 +854,8 @@ static void initFontSubst()			// create substitution dict
 
     if ( fontSubst )
 	return;
-    fontSubst = new QFontSubst( 17,
-				FALSE );	// case insensitive
+    fontSubst = new QFontSubst( 17, FALSE );	// case insensitive
     CHECK_PTR( fontSubst );
-    fontSubst->setAutoDelete( TRUE );
     for ( int i=0; initTbl[i] != 0; i += 2 )
 	fontSubst->insert( initTbl[i], initTbl[i+1] );
     qAddPostRoutine( cleanup );
