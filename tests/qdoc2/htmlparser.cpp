@@ -30,16 +30,16 @@ static int yyCh;
 /*
   Returns the string up to (and excluding) the terminator.  Parsing will resume
   after the terminator.
+
+  If the "<!-- eof -->" marker is reached, the result is the same as if EOF was
+  really reached.
 */
 static QString getBefore( const QString& terminator )
 {
     int matchedLen = 0;
     QString t;
 
-    while ( matchedLen < (int) terminator.length() ) {
-	if ( yyCh == EOF )
-	    break;
-
+    while ( matchedLen < (int) terminator.length() && yyCh != EOF ) {
 	t += QChar( yyCh );
 
 	if ( terminator[matchedLen] == QChar(yyCh) )
@@ -51,13 +51,17 @@ static QString getBefore( const QString& terminator )
     }
     t.truncate( t.length() - matchedLen );
     int k = t.find( QString("<!-- eof -->") );
-    if ( k != -1 )
+    if ( k != -1 ) {
 	t.truncate( k );
+	yyCh = EOF;
+    }
     return t;
 } 
 
 /*
   Skips until the terminator is met.  Parsing will resume after the terminator.
+  This is essentially the equivalent of calling getBefore() and ignoring the
+  result.
 */
 static void skipUntil( const QString& terminator )
 {
@@ -74,7 +78,7 @@ static void skipUntil( const QString& terminator )
 }
 
 /*
-  Parses a class reference HTML file (e.g., qframe.html).  Such a file has a
+  Parses a class reference HTML file (e.g., qwidget.html).  Such a file has a
   very peculiar structure, because it contains many Docs.
 */
 static void parseClass( Steering *steering )
@@ -125,7 +129,8 @@ static void parseOther( Steering *steering )
 
 /*
   Parses a HTML file.  Passes control to parseClass() or parseOther() to do the
-  real job, or maybe to neither in case of header files and member lists.
+  real job, or to neither if the HTML file is a verbatim header file or member
+  list.
 */
 void parseHtmlFile( Steering *steering, const QString& filePath )
 {

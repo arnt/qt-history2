@@ -165,7 +165,7 @@ Config::Config( int argc, char **argv )
 	    includedirs = val;
 	} else if ( key == QString("INTERNAL") ) {
 	    internal = isYes( key, val );
-	} else if ( key == QString("MAXSIMWARNINGS") ) {
+	} else if ( key == QString("MAXSIMILAR") ) {
 	    maxSim = singleton( key, val ).toInt();
 	} else if ( key == QString("MAXWARNINGS") ) {
 	    maxAll = singleton( key, val ).toInt();
@@ -241,7 +241,7 @@ Config::Config( int argc, char **argv )
 		setPattern( &falsesym, val, plus );
 	    } else if ( opt == QString("--internal") ) {
 		internal = isYes( val );
-	    } else if ( opt == QString("--max-sim-warnings") ) {
+	    } else if ( opt == QString("--max-similar") ) {
 		if ( !plus )
 		    maxSim = 0;
 		maxSim += val.toInt();
@@ -443,7 +443,7 @@ void Config::showHelp()
 	    "  --help                   Display this information\n"
 	    "  --help-short             Display short options\n"
 	    "  --internal=<yes|no>      Generate internal documentation [%s]\n"
-	    "  --max-sim-warnings=<num> Limit number of similar warnings [%d]\n"
+	    "  --max-similar=<num>      Limit number of similar warnings [%d]\n"
 	    "  --max-warnings=<num>     Limit number of warnings [%d]\n"
 	    "  --only=<regexp>          Process only specified classes\n"
 	    "  --output-dir=<path>      Set output directory\n"

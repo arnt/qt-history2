@@ -68,9 +68,12 @@ static QString htmlShortName( const Decl *decl )
 	html = QString( "<b>" ) + html + QString( "</b>" );
 
     if ( decl->doc() == 0 ) {
-	warning( 2, decl->location(), "Undocumented %s '%s'",
-		 decl->kind() == Decl::Function ? "function" : "member",
-		 decl->fullMangledName().latin1() );
+	if ( decl->kind() == Decl::Function )
+	    warning( 2, decl->location(), "Undocumented function '%s'",
+		     decl->fullMangledName().latin1() );
+	else
+	    warning( 3, decl->location(), "Undocumented member '%s'",
+		     decl->fullName().latin1() );
     } else if ( (config->isInternal() || !decl->internal()) &&
 		!decl->obsolete() ) {
 	html = QString( "<a href=\"#%1\">%2</a>" ).arg( decl->anchor() )
@@ -259,7 +262,7 @@ QString Decl::anchor( const QString& name )
 void Decl::setDoc( Doc *doc )
 {
     if ( d != 0 ) {
-	warning( 3, doc->location(), "Overrides a previous comment" );
+	warning( 3, doc->location(), "Overrides a previous doc comment" );
 	warning( 3, d->location(), "(the previous comment is here)" );
 	delete d;
     }
@@ -304,7 +307,7 @@ void Decl::buildPlainSymbolTables()
 
     if ( symTable[PlainSymTable].isEmpty() ) {
 	/*
-	  We want '::func' to be a synonym for 'func' in the root context.
+	  We want '::func' to mean 'func' in the root context.
 	*/
 	if ( this == rootContext() )
 	    symTable[PlainSymTable].insert( QString(""), this );
@@ -745,15 +748,8 @@ void ClassDecl::printHtmlLong( HtmlWriter& out ) const
 
     out.putsMeta( "<hr><a name=details></a><h2>Detailed Description</h2>\n" );
 
-    if ( classDoc() != 0 ) {
-	if ( !classDoc()->extension().isEmpty() )
-	    out.printfMeta( "<p> This class is defined in the"
-			    " <b>Qt %s Extension</b>, which can be found in"
-			    " the <tt>qt/extensions</tt> directory.  It is not"
-			    " included in the main Qt API.\n<p>",
-			    classDoc()->extension().latin1() );
+    if ( classDoc() != 0 )
 	classDoc()->printHtml( out );
-    }
 
     printHtmlLongMembers( out, memberTypes, "Member Type Documentation" );
     printHtmlLongMembers( out, memberFunctions,

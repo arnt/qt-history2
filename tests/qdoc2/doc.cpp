@@ -779,14 +779,13 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 	}
     }
 
-    yyOut += QString( "\n" );
+    yyOut += QChar( '\n' );
 
     if ( kindIs == Doc::Null ) {
-	if ( kindHasToBe == Doc::Null || kindHasToBe == Doc::Fn )
-	    kindIs = Doc::Fn;
-	else
+	if ( kindHasToBe != Doc::Null && kindHasToBe != Doc::Fn )
 	    warning( 3, loc, "Unexpected '%s' in doc comment",
 		     clueCommand.latin1() );
+	kindIs = Doc::Fn;
     }
 
     Doc *doc = 0;
@@ -807,7 +806,14 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 	sanitize( className );
 	sanitize( extName );
 	sanitize( moduleName );
-	sanitize( brief ); /// ### evil sanitize, put them inside class?
+	sanitize( brief ); /// ### don't assume !isNull() elsewhere
+
+	if ( !extName.isEmpty() )
+	    yyOut.prepend( QString("<p> This class is defined in the"
+		    " <b>Qt %1 Extension</b>, which can be found in the"
+		    " <tt>qt/extensions</tt> directory.  It is not included in"
+		    " the main Qt API.\n<p>").arg(extName) );
+
 	doc = new ClassDoc( loc, yyOut, className, brief, moduleName, extName,
 			    groups, headers, important );
 	break;
@@ -1172,7 +1178,7 @@ QString Doc::htmlClassList()
 	      Let's concentrate on a single (i columns, j paragraphs) pair; that
 	      is, how to break j paragraphs into i columns and minimize the
 	      number of rows.  We already know how to solve the related
-	      (i columns, j - 1 paragraphs) problem: end column (i - 1) at
+	      (i columns, j - 1 paragraphs) problem: end column i - 1 at
 	      prevEnd[i][j - 1].  If we add one paragraph, it might turn out
 	      that prevEnd[i][j - 1] is also the right place to end column
 	      i - 1.  But maybe column prevEnd[i][j - 1] + 1 is a better place,
@@ -1227,7 +1233,7 @@ QString Doc::htmlClassList()
     }
 
     /*
-      At this point, Professor Bellman leaves us and an unknown webmaster comes
+      At this point, Professor Bellman leaves us and Finn Arild Aasheim comes
       in.  Seriously, we have to generate all columns in parallel.  The offset
       array guides us.
     */
@@ -1238,33 +1244,32 @@ QString Doc::htmlClassList()
 	    if ( currentOffset[i] >= firstOffset[i + 1] ) {
 		// this column is finished
 		html += QString( "<td>\n<td>\n" );
-		continue;
+	    } else {
+		while ( paragraph[currentParagraphNo[i]].isEmpty() )
+		    currentParagraphNo[i]++;
+
+		html += QString( "<td>" );
+		if ( currentParagraphNo[i] > prevParagraphNo[i] ) {
+		    // start a new paragraph
+		    html += QString( "<b>" );
+		    html += paragraphName[currentParagraphNo[i]];
+		    html += QString( "</b>" );
+		    prevParagraphNo[i] = currentParagraphNo[i];
+		}
+		html += QChar( '\n' );
+
+		QMap<QString, QString>::Iterator first;
+		first = paragraph[currentParagraphNo[i]].begin();
+
+		QString text = *first;
+		if ( classext.contains(text) )
+		    text += QChar( '*' );
+
+		html += QString( "<td>%1\n" ).arg( href(*first, text) );
+
+		paragraph[currentParagraphNo[i]].remove( first );
+		currentOffset[i]++;
 	    }
-
-	    while ( paragraph[currentParagraphNo[i]].isEmpty() )
-		currentParagraphNo[i]++;
-
-	    html += QString( "<td>" );
-	    if ( currentParagraphNo[i] > prevParagraphNo[i] ) {
-		// start a new paragraph
-		html += QString( "<b>" );
-		html += paragraphName[currentParagraphNo[i]];
-		html += QString( "</b>" );
-		prevParagraphNo[i] = currentParagraphNo[i];
-	    }
-	    html += QChar( '\n' );
-
-	    QMap<QString, QString>::Iterator first;
-	    first = paragraph[currentParagraphNo[i]].begin();
-
-	    QString text = *first;
-	    if ( classext.contains(text) )
-		text += QChar( '*' );
-
-	    html += QString( "<td>%1\n" ).arg( href(*first, text) );
-
-	    paragraph[currentParagraphNo[i]].remove( first );
-	    currentOffset[i]++;
 	}
     }
     html += QString( "</table>\n" );
