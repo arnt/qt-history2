@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#47 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#48 $
 **
 ** Definition of QPainter class
 **
@@ -57,13 +57,13 @@ public:
     QFontMetrics fontMetrics()	const { return QFontMetrics(this); }
     QFontInfo	 fontInfo()	const { return QFontInfo(this); }
 
-    const QFont &font();			// get/set font
+    const QFont &font()		const;
     void	setFont( const QFont & );
-    const QPen &pen() { return cpen; }		// get/set pen
+    const QPen &pen()		const { return cpen; }
     void	setPen( const QPen & );
     void	setPen( PenStyle );
     void	setPen( const QColor & );
-    const QBrush &brush() { return cbrush; }	// get/set brush
+    const QBrush &brush()	const { return cbrush; }
     void	setBrush( const QBrush & );
     void	setBrush( BrushStyle );
     void	setBrush( const QColor & );
@@ -74,7 +74,7 @@ public:
     void	setBackgroundColor( const QColor & );
     BGMode	backgroundMode() const;
     void	setBackgroundMode( BGMode );
-    RasterOp	rasterOp() const;
+    RasterOp	rasterOp()	const;
     void	setRasterOp( RasterOp );
     const QPoint &brushOrigin() const;
     void	setBrushOrigin( int x, int y );
