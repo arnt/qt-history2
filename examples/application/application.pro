@@ -2,7 +2,7 @@ TEMPLATE	= app
 TARGET		= application
 
 CONFIG		+= qt warn_on release
-DEFINES         += QT_COMPAT_WARNINGS
+QT += compat
 DEPENDPATH	= ../../include
 
 QTDIR_build:REQUIRES	= "contains(QT_CONFIG, full-config)"

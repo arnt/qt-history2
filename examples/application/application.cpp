@@ -14,11 +14,11 @@
 
 #include <qimage.h>
 #include <qpixmap.h>
-#include <qtoolbar.h>
+#include <q3toolbar.h>
 #include <qtoolbutton.h>
 #include <qpopupmenu.h>
 #include <qmenubar.h>
-#include <qtextedit.h>
+#include <q3textedit.h>
 #include <qfile.h>
 #include <qfiledialog.h>
 #include <qstatusbar.h>
@@ -31,20 +31,23 @@
 #include <qpaintdevicemetrics.h>
 #include <qwhatsthis.h>
 #include <qsimplerichtext.h>
+#include <qmimefactory.h>
 #include <qevent.h>
 
 #include "filesave.xpm"
 #include "fileopen.xpm"
 #include "fileprint.xpm"
 
+using namespace Qt;
+
 
 ApplicationWindow::ApplicationWindow()
-    : QMainWindow( 0, "example application main window", WDestructiveClose | WGroupLeader )
+    : Q3MainWindow( 0, "example application main window", WDestructiveClose | WGroupLeader )
 {
     printer = new QPrinter( QPrinter::HighResolution );
     QPixmap openIcon, saveIcon, printIcon;
 
-    QToolBar * fileTools = new QToolBar( this, "file operations" );
+    Q3ToolBar * fileTools = new Q3ToolBar( this, "file operations" );
     fileTools->setLabel( "File Operations" );
 
     openIcon = QPixmap( fileopen );
@@ -131,7 +134,7 @@ ApplicationWindow::ApplicationWindow()
     help->insertSeparator();
     help->insertItem( "What's &This", this, SLOT(whatsThis()), SHIFT+Key_F1 );
 
-    e = new QTextEdit( this, "editor" );
+    e = new Q3TextEdit( this, "editor" );
     e->setFocus();
     setCentralWidget( e );
     statusBar()->message( "Ready", 2000 );
@@ -301,14 +304,14 @@ bool ApplicationWindow::event(QEvent *e)
         qDebug("%s", static_cast<QWhatsThisClickedEvent*>(e)->href().latin1());
         return true;
     }
-    return QMainWindow::event(e);
+    return Q3MainWindow::event(e);
 }
 
 void ApplicationWindow::about()
 {
     QMessageBox::about( this, "Qt Application Example",
 			"This example demonstrates simple use of "
-			"QMainWindow,\nQMenuBar and QToolBar.");
+			"Q3MainWindow,\nQMenuBar and Q3ToolBar.");
 }
 
 
