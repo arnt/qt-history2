@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#71 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#72 $
 **
 ** Implementation of QButton widget class
 **
@@ -18,7 +18,7 @@
 #include "qaccel.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#71 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#72 $");
 
 
 static const int autoRepeatPeriod = 200;
@@ -612,6 +612,30 @@ void QButton::paintEvent( QPaintEvent * )
     paint.begin( this );
     drawButton( &paint );
     paint.end();
+}
+
+#if QT_VERSION == 200
+#error "Remove QButton::focusInEvent/Out virtuals - they do nothing but bin compat."
+#endif
+
+/*!
+  Handles focus in events for the button.
+  \sa focusOutEvent()
+*/
+
+void QButton::focusInEvent( QFocusEvent *e )
+{
+    QWidget::focusInEvent( e );
+}
+
+/*!
+  Handles focus out events for the button.
+  \sa focusInEvent()
+*/
+
+void QButton::focusOutEvent( QFocusEvent *e )
+{
+    QWidget::focusOutEvent( e );
 }
 
 
