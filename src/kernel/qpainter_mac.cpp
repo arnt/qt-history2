@@ -865,11 +865,10 @@ void QPainter::drawRect( int x, int y, int w, int h )
     initPaintDevice();
     Rect rect;
     SetRect( &rect, x+offx, y+offy, x + w+offx, y + h+offy);
+    updateBrush();
     if( this->brush().style() == SolidPattern ) {
-	updateBrush();
 	PaintRect( &rect );
     } else { /* FIXME FIXME this needs to be copied all over the place! */
-	updateBrush();
         QPixmap *pm = cbrush.data->pixmap;
 	if(pm && !pm->isNull()) 
 	    drawTiledPixmap(x, y, w, h, *pm, x - bro.x(), y - bro.y());
