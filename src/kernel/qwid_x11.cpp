@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#86 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#87 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#86 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#87 $";
 #endif
 
 
@@ -268,27 +268,36 @@ void QWidget::recreate( QWidget *parent, WFlags f, const QPoint &p,
 }
 
 
-bool QWidget::setMouseTracking( bool enable )
-{
-    bool v = testWFlags( WMouseTracking );
-    ulong m;
-    if ( enable ) {
-	m = PointerMotionMask;
-	setWFlags( WMouseTracking );
-    }
-    else {
-	m = 0;
-	clearWFlags( WMouseTracking );
-    }
-    if ( testWFlags(WType_Desktop) ) {		// desktop widget?
-	if ( testWFlags(WPaintDesktop) )	// get desktop paint events
-	    XSelectInput( dpy, ident, ExposureMask );
-    }
-    else
-	XSelectInput( dpy, ident,		// specify events
-		      m | stdWidgetEventMask );
-    return v;
+/*!
+  Translates the widget coordinate \e pos to global screen coordinates.
+  \sa mapFromGlobal()
+*/
+
+QPoint QWidget::mapToGlobal( const QPoint &pos ) const
+{						// map to global coordinates
+    int    x, y;
+    Window child;
+    XTranslateCoordinates( dpy, id(), QApplication::desktop()->id(),
+			   pos.x(), pos.y(),
+			   &x, &y, &child );
+    return QPoint( x, y );
 }
+
+/*!
+  Translates the global screen coordinate \e pos to widget coordinates.
+  \sa mapToGlobal()
+*/
+
+QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
+{						// map from global coordinates
+    int    x, y;
+    Window child;
+    XTranslateCoordinates( dpy, QApplication::desktop()->id(), id(),
+			   pos.x(), pos.y(),
+			   &x, &y, &child );
+    return QPoint( x, y );
+}
+
 
 /*!
   Sets the background color of this widget.
@@ -345,6 +354,29 @@ void QWidget::setCursor( const QCursor &cursor )
     XDefineCursor( dpy, ident, appc ? appc->handle() : curs.handle() );
     setWFlags( WCursorSet );
     XFlush( dpy );
+}
+
+
+bool QWidget::setMouseTracking( bool enable )
+{
+    bool v = testWFlags( WMouseTracking );
+    ulong m;
+    if ( enable ) {
+	m = PointerMotionMask;
+	setWFlags( WMouseTracking );
+    }
+    else {
+	m = 0;
+	clearWFlags( WMouseTracking );
+    }
+    if ( testWFlags(WType_Desktop) ) {		// desktop widget?
+	if ( testWFlags(WPaintDesktop) )	// get desktop paint events
+	    XSelectInput( dpy, ident, ExposureMask );
+    }
+    else
+	XSelectInput( dpy, ident,		// specify events
+		      m | stdWidgetEventMask );
+    return v;
 }
 
 

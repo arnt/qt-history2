@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#68 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#69 $
 **
 ** Implementation of QWidget class
 **
@@ -21,7 +21,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#68 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#69 $";
 #endif
 
 /*!
@@ -335,6 +335,7 @@ void QWidget::setStyle( GUIStyle style )	// set widget GUI style
 void QWidget::enable()				// enable events
 {
     clearWFlags( WState_Disabled );
+    update();
 }
 
 /*!
@@ -345,6 +346,7 @@ void QWidget::enable()				// enable events
 void QWidget::disable()				// disable events
 {
     setWFlags( WState_Disabled );
+    update();
 }
 
 /*! \fn bool QWidget::isDisabled() const
@@ -657,38 +659,6 @@ void QWidget::setAcceptFocus( bool enable )
 	clearWFlags( WState_AcceptFocus );
 }
 
-
-/*!
-  Translates the widget coordinate \e pos to global screen coordinates.
-  \sa mapFromGlobal()
-*/
-
-QPoint QWidget::mapToGlobal( const QPoint &pos ) const
-{						// map to global coordinates
-    register QWidget *w = (QWidget*)this;
-    QPoint p = pos;
-    while ( w ) {
-	p += w->crect.topLeft();
-	w = w->parentWidget();
-    }
-    return p;
-}
-
-/*!
-  Translates the global screen coordinate \e pos to widget coordinates.
-  \sa mapToGlobal()
-*/
-
-QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
-{						// map from global coordinates
-    register QWidget *w = (QWidget*)this;
-    QPoint p = pos;
-    while ( w ) {
-	p -= w->crect.topLeft();
-	w = w->parentWidget();
-    }
-    return p;
-}
 
 /*!
   Translates the widget coordinate \e pos to a coordinate in the parent widget.
