@@ -641,6 +641,12 @@ void Project::save( bool onlyProjectFile )
 	    remove_contents( original, *it );
     }
 
+    if (!original.isEmpty()) {
+	// Removes any new lines at the beginning of the file
+	while (original.startsWith("\n"))
+	    original.remove(0, 1);
+    }
+
     // the contents of the saved file
     QString contents;
 
@@ -667,7 +673,6 @@ void Project::save( bool onlyProjectFile )
 	for ( QStringList::Iterator spit = sourceKeys.begin(); spit != sourceKeys.end(); ++spit )
 	    remove_multiline_contents( contents, *spit );
     }
-    contents += "\n";
 
     // libs, defines, includes
     writePlatformSettings( contents, "LIBS", lbs );
@@ -683,9 +688,8 @@ void Project::save( bool onlyProjectFile )
  	    "  UI_DIR = .ui\n"
  	    "  MOC_DIR = .moc\n"
  	    "  OBJECTS_DIR = .obj\n"
- 	    "}\n";
+ 	    "}\n\n";
     }
-    contents += "\n";
 
     // sources
     if ( !sourcefiles.isEmpty() && iface ) {
@@ -707,7 +711,7 @@ void Project::save( bool onlyProjectFile )
 		part += ++sit != lst.end() ? " \\\n\t" : "";
 		--sit;
 	    }
-	    part += "\n";
+	    part += "\n\n";
 	    contents += part;
 	}
     }
@@ -719,7 +723,7 @@ void Project::save( bool onlyProjectFile )
 	    contents += fit.current()->fileName() +
 		 (fit != formfiles.last() ? " \\\n\t" : "");
 	}
-	contents += "\n";
+	contents += "\n\n";
     }
 
     // images
@@ -732,13 +736,12 @@ void Project::save( bool onlyProjectFile )
 		  contents += ++it != pixmaps.end() ? " \\\n\t" : "";
 		  --it;
 	}
-	contents += "\n";
+	contents += "\n\n";
     }
 
     // database
     if ( !dbFile.isEmpty() )
 	contents += "DBFILE\t= " + dbFile + "\n";
-    contents += "\n";
 
     // custom settings
     for ( QStringList::Iterator it = csList.begin(); it != csList.end(); ++it ) {
@@ -1255,7 +1258,7 @@ void Project::writePlatformSettings( QString &contents, const QString &setting,
 	QMap<QString, QString>::ConstIterator it = input.find( key );
 	if ( it == input.end() || (*it).isEmpty() )
 	    continue;
-	contents += p + setting + "\t+= " + *it + "\n";
+	contents += p + setting + "\t+= " + *it + "\n\n";
     }
 }
 
