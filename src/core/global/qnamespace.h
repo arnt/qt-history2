@@ -23,7 +23,7 @@ namespace Qt {
 class Q_CORE_EXPORT Qt {
     Q_OBJECT
     Q_ENUMS(Orientation TextFormat BackgroundMode DateFormat ScrollBarPolicy FocusPolicy CaseSensitivity)
-    Q_FLAGS(AlignmentFlag)
+    Q_FLAGS(Alignment)
 public:
 #endif
     enum GlobalColor {
