@@ -2153,6 +2153,7 @@ bool QTable::rowMovingEnabled() const
 void QTable::resizeData( int len )
 {
     contents.resize( len );
+    widgets.resize( len );
 }
 
 /*! Swaps data of \a row1 and \a row2.
@@ -4339,6 +4340,8 @@ void QTable::restoreContents( QPtrVector<QTableItem> &tmp,
 		idx = w->row * oldNum + w->col;
 	    if ( (uint)idx < widgets.size() )
 		widgets.insert( idx, w->wid );
+	    else
+		delete w->wid;
 	    delete w;
 	}
     }
@@ -5266,7 +5269,7 @@ void QTable::takeItem( QTableItem *i )
 
 void QTable::setCellWidget( int row, int col, QWidget *e )
 {
-    if ( !e )
+    if ( !e || row >= numRows() || col >= numCols() )
 	return;
 
     QWidget *w = cellWidget( row, col );
