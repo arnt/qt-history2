@@ -234,7 +234,7 @@ void QDesktopWidgetPrivate::cleanup()
     rectangle of all the screens (see isVirtualDesktop()). For an
     application, one of the available screens is the primary screen, i.e.
     the screen where the main widget resides (see primaryScreen()). All
-    windows opened in the context of the application must be
+    windows opened in the context of the application should be
     constrained to the boundaries of the primary screen; for example,
     it would be inconvenient if a dialog box popped up on a different
     screen, or split over two screens.
