@@ -61,7 +61,7 @@ void ControlCentral::parse( const QString& filename )
     QTime t;
     t.start();
     for ( int i=0; i<10; i++ ) {
-	doc.setContent( &file );
+	doc.setContent( &file, TRUE );
 	file.reset();
     }
     double ms = ((double)t.elapsed()) / 10;
@@ -91,7 +91,7 @@ void ControlCentral::parse( const QString& filename )
 
     file.reset();
     QString errorStatus;
-    if ( doc.setContent( &file ) ) {
+    if ( doc.setContent( &file, TRUE ) ) {
 	errorStatus = "Ok";
     } else {
 	errorStatus = "Error";

@@ -24,7 +24,7 @@ DomTree::DomTree( const QString fileName, QWidget *parent, const char *name )
     if ( !file.open( IO_ReadOnly ) ) {
 	return;
     }
-    if ( !domTree.setContent( &file ) ) {
+    if ( !domTree.setContent( &file, TRUE ) ) {
 	file.close();
 	return;
     }
@@ -139,6 +139,44 @@ void DomTreeItem::init()
 QString DomTreeItem::contentString()
 {
     QString s;
+    s += "<h3>Namespace</h3>";
+    if ( _node.namespaceURI().isNull() ) {
+	s += "no namespace";
+	if ( !_node.prefix().isNull() )
+	    s += "<br/>Error: Prefix is not Null!";
+	if ( _node.nodeType()==QDomNode::ElementNode ||
+		_node.nodeType()==QDomNode::AttributeNode ) {
+	    if ( _node.localName().isNull() ) {
+		s += "<br/>Local name is Null!";
+	    } else {
+		s += "<br/><b>local name:</b> ";
+		s += _node.localName();
+	    }
+	} else {
+	    if ( !_node.localName().isNull() )
+		s += "<br/>Error: Local name is not Null!";
+	}
+	s += "<br/>";
+    } else {
+	s += "<b>local name:</b> ";
+	s += _node.localName();
+	s += "<br/>";
+	s += "<b>namespace URI:</b> ";
+	s += _node.namespaceURI();
+	s += "<br/>";
+	s += "<b>prefix:</b> ";
+	if ( _node.prefix().isEmpty() ) {
+	    if ( _node.prefix().isNull() ) {
+		s += "Error: Prefix is Null!";
+	    } else {
+		s += "default namespace";
+	    }
+	} else {
+	    s += _node.prefix();
+	}
+	s += "<br/>";
+    }
+    s += "<hr/>";
     switch ( _node.nodeType() ) {
 	case QDomNode::ElementNode:
 	    {
