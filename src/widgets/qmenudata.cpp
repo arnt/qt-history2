@@ -1220,15 +1220,17 @@ QMenuItem * QMenuData::findItem( int id, QMenuData ** parent ) const
 
     if ( id == -1 )				// bad identifier
 	return 0;
-    QMenuItemListIt it( *mitems );
+    QMenuItemListIt it = mitems->begin();
     QMenuItem *mi;
-    while ( (mi=it.current()) ) {		// search this menu
+    while ( it != mitems->end() ) {		// search this menu
+	mi = *it;
 	++it;
 	if ( mi->ident == id )			// found item
 	    return mi;
     }
     it.toFirst();
-    while ( (mi=it.current()) ) {		// search submenus
+    while ( it != mitems->end() ) {		// search submenus
+	mi = *it;
 	++it;
 #ifndef QT_NO_POPUPMENU
 	if ( mi->popup_menu ) {
@@ -1257,10 +1259,11 @@ int QMenuData::indexOf( int id ) const
 {
     if ( id == -1 )				// bad identifier
 	return -1;
-    QMenuItemListIt it( *mitems );
+    QMenuItemListIt it = mitems->begin();
     QMenuItem *mi;
     int index = 0;
-    while ( (mi=it.current()) ) {
+    while ( it != mitems->end() ) {
+	mi = *it;
 	if ( mi->ident == id )			// this one?
 	    return index;
 	++index;
