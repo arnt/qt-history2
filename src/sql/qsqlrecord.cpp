@@ -135,12 +135,12 @@ QSqlRecordShared::~QSqlRecordShared()
     \module sql
 
     The QSqlRecord class encapsulates the functionality and
-    characteristics of a database record (usually a table or view
-    within the database), such as adding or removing fields, setting
-    and retrieving field values, etc.  In addition, there are several
-    functions which alter other characteristics of the record, for
-    example, changing the display label associated with a particular
-    field when displaying that field on screen.
+    characteristics of a database record (usually a table or view within
+    the database). QSqlRecords support adding and removing fields as
+    well as setting and retrieving field values. Several  other
+    functions are also provided which alter other characteristics of the
+    record, for example, changing the display label associated with a
+    particular field when displaying that field on screen.
 
     QSqlRecord is implicitly shared. This means you can make copies of
     the record in time O(1). If multiple QSqlRecord instances share
@@ -217,7 +217,8 @@ QSqlRecord::~QSqlRecord()
 }
 
 /*!  Returns the value of the field located at position \a i in the
-  record.  It is up to you to check wether this item really exists.
+  record.  If field \a i does not exist the resultant behaviour is
+  undefined.
 
 */
 
@@ -226,9 +227,9 @@ QVariant QSqlRecord::value( int i ) const
     return field(i)->value();
 }
 
-/*!  Returns the value of the field named \a name in the record.  It
-  is up to you to check wether this item really exists.
-
+/*!  Returns the value of the field named \a name in the record.  
+    If field \a name does not exist the resultant behaviour is
+    undefined.
 */
 
 QVariant  QSqlRecord::value( const QString& name ) const
@@ -266,7 +267,7 @@ int QSqlRecord::position( const QString& name ) const
     return -1;
 }
 
-/*!  Returns a pointer to the field at position \a pos within the
+/*!  Returns a pointer to the field at position \a i within the
   record, or 0 if it cannot be found.
 
 */
