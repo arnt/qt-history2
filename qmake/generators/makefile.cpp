@@ -500,7 +500,7 @@ MakefileGenerator::init()
 	    if(imgfile.find(Option::dir_sep) != -1)
 		imgfile = imgfile.right(imgfile.findRev(Option::dir_sep) + 1);
 	    imgfile.prepend(project->first("UI_DIR"));
-	    v["QMAKE_IMAGE_FILE"] = QStringList(imgfile);
+	    v["QMAKE_IMAGE_COLLECTION"] = QStringList(imgfile);
 	}
 	logicWarn(imgfile, "SOURCES");
 	QStringList &l = v["IMAGES"];
@@ -830,7 +830,7 @@ MakefileGenerator::writeImageSrc(QTextStream &t, const QString &src)
     QStringList &l = project->variables()[src];
     for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
 	t << (*it) << ": " << depends[(*it)].join(" \\\n\t\t") << "\n\t"
-	  << "$(UIC) " << " -imagefile " << depends[(*it)].join(" ") << " -o " << (*it) << endl << endl;
+	  << "$(UIC) " << " -images " << depends[(*it)].join(" ") << " -o " << (*it) << endl << endl;
     }
 }
 
