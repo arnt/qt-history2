@@ -10,8 +10,10 @@ class QObject;
 class QActionInterface : public QPlugInInterface
 {
 public:
+    QString queryInterface() { return "QActionInterface"; }
+
     virtual QStringList actions() = 0;
-    virtual QAction* create( const QString&, bool& self, QObject* parent = 0 ) = 0;
+    virtual QAction* create( const QString&, QObject* parent = 0 ) = 0;
 };
 
 #endif // QACTIONINTERFACE_H

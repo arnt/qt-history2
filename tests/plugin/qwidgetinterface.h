@@ -9,20 +9,10 @@ class QWidget;
 class QWidgetInterface : public QPlugInInterface
 {
 public:
+    QString queryInterface() { return "QWidgetInterface"; }
+
     virtual QStringList widgets() = 0;
     virtual QWidget* create( const QString&, QWidget* parent = 0, const char* name = 0 ) = 0;
 };
 
-/*
-class QCustomWidgetInterface : public QWidgetInterface
-{
-public:
-    virtual QString iconSet( const QString& ) = 0;
-    virtual QCString includeFile( const QString& ) = 0;
-    virtual QString group( const QString & ) = 0;
-    virtual QString toolTip( const QString & ) { return QString::null; }
-    virtual QString whatsThis( const QString & ) { return QString::null; }
-    virtual bool isContainer( const QString & ) = 0;
-};
-*/
 #endif

@@ -14,6 +14,8 @@
 #include <qstatusbar.h>
 #include <qaction.h>
 
+#include <qarray.h>
+
 PlugMainWindow::PlugMainWindow( QWidget* parent, const char* name, WFlags f )
 : QMainWindow( parent, name, f ), menuIDs( 53 )
 {
@@ -238,23 +240,20 @@ void PlugMainWindow::runAction( int id )
 	++it;
     }
 
-    bool self = TRUE;
-    QAction* a = QActionFactory::create( it.currentKey(), self, this );
+    QAction* a = QActionFactory::create( it.currentKey(), this );
     if ( !a ) {
 	QMessageBox::information( this, "Error", tr("Couldn't create action\n%1").arg( it.currentKey() ) );
 	return;
     }
-    if ( !self ) {
-	if ( !pluginMenu ) {
-	    pluginMenu = new QPopupMenu( this );
-	    menuBar()->insertItem( "&PlugIn", pluginMenu );	
-	}
-	if ( !pluginTool ) {
-	    pluginTool = new QToolBar( this );
-	    pluginTool->show();
-	    addToolBar( pluginTool, "PlugIns" );
-	}
-	a->addTo( pluginTool );
-	a->addTo( pluginMenu );
+    if ( !pluginMenu ) {
+	pluginMenu = new QPopupMenu( this );
+	menuBar()->insertItem( "&PlugIn", pluginMenu );	
     }
+    if ( !pluginTool ) {
+	pluginTool = new QToolBar( this );
+	pluginTool->show();
+	addToolBar( pluginTool, "PlugIns" );
+    }
+    a->addTo( pluginTool );
+    a->addTo( pluginMenu );
 }

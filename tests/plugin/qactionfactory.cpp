@@ -113,7 +113,7 @@ QActionFactory* QActionFactory::actionFactory( const QString& actionname )
 
   \sa installActionFactory()
 */
-QAction* QActionFactory::create( const QString &description, bool& self, QObject *parent )
+QAction* QActionFactory::create( const QString &description, QObject *parent )
 {
     if ( description.isEmpty() )
 	return 0;
@@ -144,7 +144,7 @@ QAction* QActionFactory::create( const QString &description, bool& self, QObject
 	}
     }
     if ( fact )
-	return fact->newAction( description, self, parent );
+	return fact->newAction( description, parent );
     return 0;
 }
 

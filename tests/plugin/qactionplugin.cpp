@@ -53,12 +53,12 @@ bool QActionPlugIn::removeFromManager( QPlugInDict& dict )
 
 /*! \reimp
 */
-QAction* QActionPlugIn::create( const QString& classname, bool& self, QObject* parent )
+QAction* QActionPlugIn::create( const QString& classname, QObject* parent )
 {
     if ( !use() )
 	return 0;
 
-    QAction* w = ((QActionInterface*)iface())->create( classname, self, parent );
+    QAction* w = ((QActionInterface*)iface())->create( classname, parent );
     guard( w );
     return w;
 }
@@ -94,11 +94,11 @@ QActionPlugInManager::QActionPlugInManager( const QString& path, QPlugIn::Librar
 
 /*! \reimp
 */
-QAction* QActionPlugInManager::newAction( const QString& classname, bool& self, QObject* parent )
+QAction* QActionPlugInManager::newAction( const QString& classname, QObject* parent )
 {
     QActionPlugIn* plugin = (QActionPlugIn*)plugDict[ classname ];
     if ( plugin )
-	return plugin->create( classname, self, parent );
+	return plugin->create( classname, parent );
     return 0;
 }
 

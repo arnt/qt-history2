@@ -12,7 +12,7 @@ public:
 
     QActionPlugIn( const QString& filename, LibraryPolicy = Default );
 
-    QAction* create( const QString& classname, bool& self, QObject* parent = 0 );
+    QAction* create( const QString& classname, QObject* parent = 0 );
     QStringList actions();
     
     bool addToManager( QPlugInDict& dict );
@@ -27,7 +27,7 @@ public:
     QString factoryName() const { return "QActionPlugInManager"; }
 
 private:
-    QAction* newAction( const QString& classname, bool& self, QObject* parent = 0 );
+    QAction* newAction( const QString& classname, QObject* parent = 0 );
     QStringList actions();
 };
 #endif // QACTIONPLUGIN_H
