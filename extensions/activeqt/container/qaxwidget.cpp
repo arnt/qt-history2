@@ -827,11 +827,11 @@ HRESULT WINAPI QAxHostWindow::InsertMenus(HMENU /*hmenuShared*/, LPOLEMENUGROUPW
         QAction *action = actions.at(i);
 	QString text = action->text();
 	if (text == "&File") {
-	    // fileMenu = action->menu();
+            fileMenu = action->menu();
 	} else if (text == "&View") {
-	    // viewMenu = action->menu();
+	    viewMenu = action->menu();
 	} else if (text == "&Window") {
-	    // windowMenu = action->menu();
+	    windowMenu = action->menu();
 	}
     }
     if (fileMenu)
@@ -991,10 +991,10 @@ HRESULT WINAPI QAxHostWindow::SetMenu(HMENU hmenuShared, HOLEMENU /*holemenu*/, 
 	}
 	if (count) {
 	    const QMetaObject *mbmo = menuBar->metaObject();
-	    int index = mbmo->indexOfSignal("activated(int)");
+	    int index = mbmo->indexOfSignal("activated(QAction*)");
 	    Q_ASSERT(index != -1);
 	    menuBar->disconnect(SIGNAL(activated(int)), host);
-            QMetaObject::connect(menuBar, index, host, QSIGNAL_CODE, 0);
+            QMetaObject::connect(menuBar, index, host, QSIGNAL_CODE, index);
 	}
     } else if (menuBar) {
 	m_menuOwner = 0;
@@ -1010,17 +1010,18 @@ HRESULT WINAPI QAxHostWindow::SetMenu(HMENU hmenuShared, HOLEMENU /*holemenu*/, 
 
 int QAxHostWindow::qt_metacall(QMetaObject::Call call, int isignal, void **argv)
 {
-    if (!m_spOleObject || call != QMetaObject::EmitSignal)
+    if (!m_spOleObject || call != QMetaObject::EmitSignal || !menuBar)
         return -1;
-    /*
-    if (isignal != QMenu::staticMetaObject.indexOfSignal("activated(int)"))
+
+    if (isignal != menuBar->metaObject()->indexOfSignal("activated(QAction*)"))
         return -1;
-    
-    int qtid = *(int*)argv[0];
-    OleMenuItem oleItem = menuItemMap[qtid];
+
+    QAction *action = *(QAction**)argv[1];
+    QString test = action->text();
+
+    OleMenuItem oleItem = menuItemMap.value(action);
     if (oleItem.hMenu)
         ::PostMessageA(m_menuOwner, WM_COMMAND, oleItem.id, 0);
-    */
     return isignal;
 }
 
