@@ -973,7 +973,7 @@ void QTextHtmlParser::resolveParent()
     }
 
     // some elements are not allowed in certain contexts
-    while (p && !node->style->allowedInContext(at(p).style)
+    while (p && !node->allowedInContext(at(p).id)
            // ### make new styles aware of empty tags
            || at(p).id == Html_hr
            || at(p).id == Html_br

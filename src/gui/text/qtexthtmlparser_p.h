@@ -153,6 +153,19 @@ struct QTextHtmlParserNode {
     inline bool isNotSelfNesting() const
     { return id == Html_p || id == Html_li; }
 
+    inline bool allowedInContext(int parentId) const
+    {
+        switch (id) {
+            case Html_dd: return (parentId == Html_dt || parentId == Html_dl);
+            case Html_dt: return (parentId == Html_dl);
+            case Html_tr: return (parentId == Html_table);
+            case Html_th:
+            case Html_td: return (parentId == Html_tr);
+            default: break;
+        }
+        return true;
+    }
+
 private:
     void setAttributesFromId();
 
