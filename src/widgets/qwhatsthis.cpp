@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#29 $
+** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#30 $
 **
 ** Implementation of QWhatsThis class
 **
@@ -368,7 +368,6 @@ bool QWhatsThisPrivate::eventFilter( QObject * o, QEvent * e )
 		((QKeyEvent *)e)->accept();
 		return TRUE;
  	    }
- 	    return FALSE;
  	}
 	break;
     }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.h#21 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.h#22 $
 **
 ** Definition of QMainWindow class
 **
@@ -78,6 +78,8 @@ protected slots:
 
 protected:
     void paintEvent( QPaintEvent * );
+    void resizeEvent( QResizeEvent * );
+    void childEvent( QChildEvent * );
     bool event( QEvent * );
 
 private:

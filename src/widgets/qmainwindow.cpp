@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#39 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#40 $
 **
 ** Implementation of QMainWindow class
 **
@@ -495,6 +495,9 @@ static void addToolBarToLayout( QMainWindowPrivate::ToolBarDock * dock,
 	}
     }
 
+    //###
+    moreThanOneRow = TRUE;
+
     QBoxLayout * dockLayout;
     if ( mayNeedDockLayout && moreThanOneRow ) {
 	dockLayout = new QBoxLayout( dockDirection );
@@ -502,11 +505,18 @@ static void addToolBarToLayout( QMainWindowPrivate::ToolBarDock * dock,
     } else {
 	dockLayout = tl;
     }
-
+    
     QBoxLayout * toolBarRowLayout = 0;
     QMainWindowPrivate::ToolBar * t = dock->first();
+    int cw = 0;
     do {
-	if ( !toolBarRowLayout || t->nl ) {
+	bool nl = t->nl;
+	if (t->t->isVisible() && !t->t->testWFlags(WState_ForceHide))
+	    cw += t->t->sizeHint().width(); 
+	nl |= cw > tl->mainWidget()->width();
+	if (nl)
+	    cw = t->t->sizeHint().width();
+	if ( !toolBarRowLayout || nl ) {
 	    if ( toolBarRowLayout ) {
 		if ( !justify )
 		    toolBarRowLayout->addStretch( 1 );
@@ -580,6 +590,7 @@ void QMainWindow::setUpLayout()
 	d->tll->addWidget( d->sb, 0 );
     //debug( "act %d, %d", x(), y() );
     d->tll->activate();
+    
 }
 
 
@@ -639,9 +650,9 @@ void QMainWindow::paintEvent( QPaintEvent * )
 
 bool QMainWindow::eventFilter( QObject* o, QEvent *e )
 {
-    if ( e->type() == QEvent::Show || e->type() == QEvent::Hide ) {
+    if ( e->type() == QEvent::Show || e->type() == QEvent::Hide ||  e->type() == QEvent::LayoutHint) 
 	triggerLayout();
-    } else if ( ( e->type() == QEvent::MouseButtonPress ||
+    else if ( ( e->type() == QEvent::MouseButtonPress ||
 		  e->type() == QEvent::MouseMove ||
 		  e->type() == QEvent::MouseButtonRelease ) &&
 		0 && // 1.4x
@@ -655,28 +666,42 @@ bool QMainWindow::eventFilter( QObject* o, QEvent *e )
 /*!
   Monitors events to ensure layout is updated.
 */
+void QMainWindow::resizeEvent( QResizeEvent* )
+{
+    setUpLayout(); // #####
+}
 
-bool QMainWindow::event( QEvent * e )
+/*!
+  Monitors events to ensure layout is updated.
+*/
+void QMainWindow::childEvent( QChildEvent* e)
 {
     if ( e->type() == QEvent::ChildRemoved ) {
-	QChildEvent * c = (QChildEvent *) e;
-	if ( c->child() == 0 ||
-	     ((QWidget*)c->child())->testWFlags( WType_TopLevel ) ) {
+	if ( e->child() == 0 ||
+	     ((QWidget*)e->child())->testWFlags( WType_TopLevel ) ) {
 	    // nothing
-	} else if ( c->child() == d->sb ) {
+	} else if ( e->child() == d->sb ) {
 	    d->sb = 0;
 	    triggerLayout();
-	} else if ( c->child() == d->mb ) {
+	} else if ( e->child() == d->mb ) {
 	    d->mb = 0;
 	    triggerLayout();
-	} else if ( c->child() == d->mc ) {
+	} else if ( e->child() == d->mc ) {
 	    d->mc = 0;
 	    triggerLayout();
-	} else if ( c->child()->isWidgetType() ) {
-	    removeToolBar( (QToolBar *)(c->child()) );
+	} else if ( e->child()->isWidgetType() ) {
+	    removeToolBar( (QToolBar *)(e->child()) );
 	    triggerLayout();
 	}
     }
+}
+
+/*!
+  Monitors events to ensure layout is updated.
+*/
+
+bool QMainWindow::event( QEvent * e )
+{
     return QWidget::event( e );
 }
 
