@@ -3,7 +3,6 @@
 
     \ingroup step-by-step-examples
 
-
     \title A Complete Canvas Application
 
     This is a complete example program with a main window, menus and
@@ -38,6 +37,5 @@
     Main:
 
     \include chart/main.cpp
-
 
 */   
