@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qlist.doc,v 2.20 1999/03/08 17:33:20 weis Exp $
+** $Id: qlist.doc,v 2.21 1999/03/08 17:42:43 weis Exp $
 **
 ** QList and QListIterator class documentation
 **
@@ -46,8 +46,8 @@
     class Employee
     {
     public:
-        Employee( const char *name, int salary ) { n=name; s=salary; }
-        const char *name()   const		 { return n; }
+        Employee( const QString& name, int salary ) { n=name; s=salary; }
+        QString     name()   const		 { return n; }
         int	    salary() const		 { return s; }
     private:
         QString     n;
@@ -65,7 +65,7 @@
 
 	Employee *emp;
 	for ( emp=list.first(); emp != 0; emp=list.next() )
-	    printf( "%s earns %d\n", emp->name(), emp->salary() );
+	    printf( "%s earns %d\n", emp->name().ascii(), emp->salary() );
     }
   \endcode
 
