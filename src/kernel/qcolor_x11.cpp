@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#13 $
+** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#14 $
 **
 ** Implementation of QColor class for X11
 **
@@ -17,7 +17,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#13 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#14 $";
 #endif
 
 
@@ -38,16 +38,21 @@ typedef declare(QIntDictIteratorM,QColor) QColorDictIt;
 static QColorDict *colorDict = 0;		// dict of allocated colors
 static bool	   colorAvail = TRUE;		// X colors available
 
-static int	ncol = 0;			// number of colors
-static Colormap cmap = 0;			// application global colormap
-static XColor  *carr = 0;			// color array
+static int	g_ncols = 0;			// number of colors
+static Colormap g_cmap  = 0;			// application global colormap
+static XColor  *g_carr  = 0;			// color array
+static Visual  *g_vis   = 0;
+static bool	g_truecolor;
+static int	red_shift, green_shift, blue_shift;
+static uint	red_mask , green_mask , blue_mask;
+
 
 void qResetColorAvailFlag()			// OOPS: called from event loop
 {
     colorAvail = TRUE;
-    if ( carr ) {				// color array was allocated
-	delete carr;
-	carr = 0;				// reset
+    if ( g_carr ) {				// color array was allocated
+	delete g_carr;
+	g_carr = 0;				// reset
     }
 }
 
@@ -61,6 +66,14 @@ inline ulong _RGB( uint r, uint g, uint b )
     return (uchar)r | ((ushort)g << 8) | ((ulong)b << 16);
 }
 
+static int highest_bit( ulong v )
+{
+  ulong b = 1 << 31;				// get pos of highest bit in v
+  for ( int i=31; ((b & v) == 0) && i>=0;  i-- )
+      b >>= 1;
+  return i;
+}
+
 
 // --------------------------------------------------------------------------
 // QColor static member functions
@@ -68,15 +81,32 @@ inline ulong _RGB( uint r, uint g, uint b )
 
 void QColor::initialize()			// called from startup routines
 {
-    if ( cmap )					// already initialized
+    if ( g_cmap )				// already initialized
 	return;
-    Display *dpy = qXDisplay();
-    int screen = qXScreen();
-    cmap = DefaultColormap( dpy, screen );	// create colormap
-    ncol = DisplayCells( dpy, screen );		// number of colors
-    int dictsize = 211;				// standard dict size
-    if ( ncol > 256 )
+    Display *dpy    = qXDisplay();
+    int      screen = qXScreen();
+    int      dd;
+    Window   root;
+    root    = RootWindow( dpy, screen );
+    dd      = DefaultDepth( dpy, screen );	// default depth of display
+    g_cmap  = DefaultColormap( dpy, screen );	// create colormap
+    g_ncols = DisplayCells( dpy, screen );	// number of colors
+    g_vis   = DefaultVisual( dpy, screen );
+    g_truecolor = g_vis->c_class == TrueColor;
+
+    int dictsize = 419;				// standard dict size
+    if ( g_ncols > 256 || dd > 8 )
 	dictsize = 2113;
+
+    if ( g_truecolor ) {			// truecolor
+	dictsize    = 1;			// will not need color dict
+	red_mask    = g_vis->red_mask;
+	green_mask  = g_vis->green_mask;
+	blue_mask   = g_vis->blue_mask;
+	red_shift   = highest_bit( red_mask )   - 7;
+	green_shift = highest_bit( green_mask ) - 7;
+	blue_shift  = highest_bit( blue_mask )  - 7;	
+    }
     colorDict = new QColorDict(dictsize);	// create dictionary
     CHECK_PTR( colorDict );
 
@@ -164,21 +194,33 @@ bool QColor::alloc()				// allocate color
 	pix = 0;
 	return TRUE;
     }
+    int r, g, b;
+    if ( g_truecolor ) {			// truecolor: map to pixel
+	r = (int)(rgb & 0xff);
+	g = (int)((rgb >> 8) & 0xff);
+	b = (int)((rgb >> 16) & 0xff);
+	r = red_shift   > 0 ? r << red_shift   : r >> -red_shift;
+	g = green_shift > 0 ? g << green_shift : g >> -green_shift;
+	b = blue_shift  > 0 ? b << blue_shift  : b >> -blue_shift;
+	pix = (b & blue_mask) | (g & green_mask) | (r & red_mask);
+	rgb &= RGB_MASK;
+	return TRUE;
+    }
     register QColor *c = colorDict->find( (long)(rgb&RGB_MASK) );
     if ( c ) {					// found color in dictionary
 	rgb &= RGB_MASK;			// color ok
 	pix = c->pix;				// use same pixel value
 	return TRUE;
     }
-    int r = (int)(rgb & 0xff);
-    int g = (int)((rgb >> 8) & 0xff);
-    int b = (int)((rgb >> 16) & 0xff);
     XColor col;
     Display *dpy = qXDisplay();
+    r = (int)(rgb & 0xff);
+    g = (int)((rgb >> 8) & 0xff);
+    b = (int)((rgb >> 16) & 0xff);
     col.red   = r << 8;
     col.green = g << 8;
     col.blue  = b << 8;
-    if ( colorAvail && XAllocColor( dpy, cmap, &col ) ) {
+    if ( colorAvail && XAllocColor(dpy, g_cmap, &col) ) {
 	pix = col.pixel;			// allocated X11 color
 	rgb &= RGB_MASK;
     }
@@ -186,20 +228,20 @@ bool QColor::alloc()				// allocate color
 	int mincol = -1;
 	int mindist = 200000;
 	int rx, gx, bx, dist;
-	int i, maxi = ncol > 256 ? 256 : ncol;
+	int i, maxi = g_ncols > 256 ? 256 : g_ncols;
 	register XColor *xc;
 	colorAvail = FALSE;			// no more avail colors
-	if ( !carr ) {				// get colors in colormap
-	    carr = new XColor[maxi];
-	    CHECK_PTR( carr );
-	    xc = &carr[0];
+	if ( !g_carr ) {			// get colors in colormap
+	    g_carr = new XColor[maxi];
+	    CHECK_PTR( g_carr );
+	    xc = &g_carr[0];
 	    for ( i=0; i<maxi; i++ ) {
 		xc->pixel = i;			// carr[i] = color i
 		xc++;
 	    }
-	    XQueryColors( dpy, cmap, carr, maxi );
+	    XQueryColors( dpy, g_cmap, g_carr, maxi );
 	}
-	xc = &carr[0];
+	xc = &g_carr[0];
 	for ( i=0; i<maxi; i++ ) {		// find closest color
 	    rx = r - (xc->red >> 8);
 	    gx = g - (xc->green >> 8);
@@ -216,8 +258,8 @@ bool QColor::alloc()				// allocate color
 	    pix = BlackPixel( dpy, DefaultScreen(dpy) );
 	    return FALSE;
 	}
-	XAllocColor( dpy, cmap, &carr[mincol] );
-	pix = carr[mincol].pixel;		// allocated X11 color
+	XAllocColor( dpy, g_cmap, &g_carr[mincol] );
+	pix = g_carr[mincol].pixel;		// allocated X11 color
 	rgb &= RGB_MASK;
     }
     if ( colorDict->count() < colorDict->size() * 8 ) {
@@ -234,9 +276,9 @@ bool QColor::alloc()				// allocate color
 bool QColor::setNamedColor( const char *name )	// load color from database
 {
     bool ok = FALSE;
-    if ( cmap  ) {				// initialized
+    if ( g_cmap  ) {				// initialized
 	XColor col, hw_col;
-	if ( XLookupColor( qXDisplay(), cmap, name, &col, &hw_col ) )
+	if ( XLookupColor( qXDisplay(), g_cmap, name, &col, &hw_col ) )
 	    ok = setRGB( col.red>>8, col.green>>8, col.blue>>8 );
     }
     else {
@@ -256,7 +298,7 @@ bool QColor::setRGB( int r, int g, int b )	// set RGB value
     }
 #endif
     rgb = _RGB(r,g,b);
-    if ( !autoAlloc() || !cmap ) {
+    if ( !autoAlloc() || !g_cmap ) {
 	rgb |= RGB_DIRTY;			// alloc later
 	return TRUE;
     }
