@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#58 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#59 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QString classes
@@ -19,7 +19,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qstring.cpp#58 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qstring.cpp#59 $")
 
 
 /*****************************************************************************
@@ -570,9 +570,9 @@ int QString::find( char c, int index, bool cs ) const
 {
     if ( (uint)index >= size() )		// index outside string
 	return -1;
-    register char *d;
+    register const char *d;
     if ( cs )					// case sensitive
-	d = strchr( (const char *)data()+index, c );
+	d = strchr( data()+index, c );
     else {
 	d = data()+index;
 	c = tolower( c );
@@ -598,9 +598,9 @@ int QString::find( const char *str, int index, bool cs ) const
 {
     if ( (uint)index >= size() )		// index outside string
 	return -1;
-    register char *d;
+    register const char *d;
     if ( cs )					// case sensitive
-	d = strstr( (const char *)data()+index, str );
+	d = strstr( data()+index, str );
     else {					// case insensitive
 	d = data()+index;
 	int len = strlen( str );
@@ -627,13 +627,13 @@ int QString::find( const char *str, int index, bool cs ) const
 
 int QString::findRev( char c, int index, bool cs ) const
 {
-    char *b = data();
-    char *d;
+    const char *b = data();
+    const char *d;
     if ( index < 0 ) {				// neg index ==> start from end
 	if ( size() == 0 )
 	    return -1;
 	if ( cs ) {
-	    d = strrchr( (const char *)b, c );
+	    d = strrchr( b, c );
 	    return d ? (int)(d - b) : -1;
 	}
 	index = length();
@@ -1129,8 +1129,8 @@ QString &QString::insert( uint index, char c )	// insert char
   \e len is too large, the rest of the string is removed.
 
   \code
-    QString s = "It's a black rug";
-    s.remove( 8, 6 );				// s == "It's a bug"
+    QString s = "neutrino
+    s.remove( 1, 6 );				// s == "no"
   \endcode
 
   \sa insert(), replace()
@@ -1257,9 +1257,9 @@ ulong QString::toULong( bool *ok ) const
 /*----------------------------------------------------------------------------
   Returns the string converted to a <code>double</code> value.
 
-If \e ok is non-null, \e *ok is set to TRUE if there are no
-conceivable errors, and FALSE if the string is not a number at all, or
-if it has trailing garbage.
+  If \e ok is non-null, \e *ok is set to TRUE if there are no conceivable
+  errors, and FALSE if the string is not a number at all, or if it has
+  trailing garbage.
  ----------------------------------------------------------------------------*/
 
 double QString::toDouble( bool *ok ) const
@@ -1371,7 +1371,8 @@ QString &QString::setNum( ulong n )
 
 /*----------------------------------------------------------------------------
   Sets the string to the printed value of \e n.
-  \arg \e f is format specifier: 'f', 'F', 'e', 'E', 'g', 'G' (same
+
+  \arg \e f is the format specifier: 'f', 'F', 'e', 'E', 'g', 'G' (same
   as sprintf()).
   \arg \e prec is the precision.
 
@@ -1405,7 +1406,8 @@ QString &QString::setNum( double n, char f, int prec )
 /*----------------------------------------------------------------------------
   \fn QString &QString::setNum( float n, char f, int prec )
   Sets the string to the printed value of \e n.
-  \arg \e f is format specifier: 'f', 'F', 'e', 'E', 'g', 'G' (same
+
+  \arg \e f is the format specifier: 'f', 'F', 'e', 'E', 'g', 'G' (same
   as sprintf()).
   \arg \e prec is the precision.
 
@@ -1459,14 +1461,11 @@ QString& QString::operator+=( const char *str )
 {
     if ( !str )
 	return *this;				// nothing to append
-
     uint len1 = length();
     uint len2 = strlen(str);
     if ( !QByteArray::resize( len1 + len2 + 1 ) )
 	return *this;				// no memory
-
     memcpy( data() + len1, str, len2 + 1 );
-
     return *this;
 }
 
@@ -1479,10 +1478,8 @@ QString &QString::operator+=( char c )
     uint len = length();
     if ( !QByteArray::resize( len + 2 ) )
 	return *this;				// no memory
-
     *(data() + len) = c;
     *(data() + len+1) = '\0';
-
     return *this;
 }
 
