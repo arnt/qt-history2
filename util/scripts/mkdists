@@ -26,7 +26,7 @@ DO_FREE=yes
 #platforms
 DO_WIN=yes
 DO_X11=yes
-DO_MAC=no
+DO_MAC=yes
 DO_QWS=yes
 #other
 DO_GZIP=auto
@@ -674,7 +674,7 @@ for plat in mac win x11 qws; do
 
 	mkdir -p $PLATDIR/lib
 	echo "If this directory is empty, you forgot to build the Qt library" >$PLATDIR/lib/README
-	if [ "$plat" = "x11" ] || [ "$plat" = "qws" ]; then
+	if [ "$plat" = "x11" ] || [ "$plat" = "qws" ] || [ "$plat" = "mac" ]; then
 	    #configure.bat is for windows only
 	    rm -f "$PLATDIR/configure.bat"
 	    rm -f "$PLATDIR/bin/configure.exe"
@@ -682,12 +682,25 @@ for plat in mac win x11 qws; do
 	    rm -f "$PLATDIR/Makefile" "$PLATDIR/qmake/Makefile" "$PLATDIR/qmake/GNUmakefile"
 	    mv "$PLATDIR/GNUmakefile" "$PLATDIR/Makefile"
 
-	    if [ "$plat" = "x11" ]; then
+	    if [ "$plat" = "qws" ]; then
 		rm -rf "$PLATDIR/examples/biff"
 		rm -rf "$PLATDIR/examples/desktop"
 		rm -rf "$PLATDIR/examples/overlay_x11"
 		rm -rf "$PLATDIR/extensions/xt" "$PLATDIR/include/qxt.h"
-	    elif [ "$plat" = "qws" ]; then
+	    elif [ "$plat" = "x11" ]; then
+		rm -rf "$PLATDIR/examples/winmanager"
+		rm -rf "$PLATDIR/examples/compact"
+		rm -rf "$PLATDIR/examples/notepad"
+		rm -rf "$PLATDIR/examples/launcher"
+		rm -rf "$PLATDIR/extensions/imageio"
+		rm -rf "$PLATDIR/src/3rdparty/freetype2"
+		rm -f "$PLATDIR/src/widgets/qcompactstyle.h"
+		rm -f "$PLATDIR/src/widgets/qcompactstyle.cpp"
+            elif [ "$plat" = "mac" ]; then
+		rm -rf "$PLATDIR/examples/biff"
+		rm -rf "$PLATDIR/examples/desktop"
+		rm -rf "$PLATDIR/examples/overlay_x11"
+		rm -rf "$PLATDIR/extensions/xt" "$PLATDIR/include/qxt.h"
 		rm -rf "$PLATDIR/examples/winmanager"
 		rm -rf "$PLATDIR/examples/compact"
 		rm -rf "$PLATDIR/examples/notepad"
@@ -766,7 +779,7 @@ for plat in mac win x11 qws; do
 	#actually package
 	status "Packaging.." "1"
 	(cd "$DISTDIR"
-	if [ "$plat" = "x11" ] || [ "$plat" = "qws" ]; then
+	if [ "$plat" = "x11" ] || [ "$plat" = "qws" ] || [ "$plat" = "mac" ]; then
 	    status "Tar.."
 	    tar cf "$OUT_TREE/${PLATNAME}.tar" "${PLATNAME}"
 	    [ "$DO_GZIP" = "yes" ] && status "Gzip.." && gzip -c "$OUT_TREE/${PLATNAME}.tar" >"$OUT_TREE/${PLATNAME}.tar.gz"
