@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#4 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#5 $
 **
 ** Implementation of QWidget class
 **
 ** Author  : Haavard Nord
 ** Created : 931031
 **
-** Copyright (C) 1993,1994 by Troll Tech as.  All rights reserved.
+** Copyright (C) 1993,1994 by Troll Tech AS.  All rights reserved.
 **
 ** --------------------------------------------------------------------------
 ** IMPORTANT NOTE: Widget identifier should only be set with the set_id()
@@ -19,7 +19,7 @@
 #include "qcolor.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#4 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#5 $";
 #endif
 
 
@@ -101,19 +101,6 @@ inline bool QWidgetMapper::remove( WId id )
 // QWidget member functions
 //
 
-// Default GUI style
-
-#if defined(_WS_MAC_)
-GuiStyle QWidget::ggui = MacStyle;
-#elif defined(_WS_WIN_)
-GuiStyle QWidget::ggui = WindowsStyle;
-#elif defined(_WS_PM_)
-GuiStyle QWidget::ggui = PMStyle;
-#elif defined(_WS_X11_)
-GuiStyle QWidget::ggui = MotifStyle;
-#endif
-
-
 QWidget::QWidget( QView *parent, WFlags f )	// create widget with parent
 	: QObject( parent )
 {
@@ -121,7 +108,7 @@ QWidget::QWidget( QView *parent, WFlags f )	// create widget with parent
     isWidget = TRUE;				// is a widget
     ident = 0;					// default attributes
     flags = f;
-    gui = ggui;					// default GUI style
+    extra = 0;					// no extra widget info
     create();					// platform-dependent init
     if ( parent )
 	setBackgroundColor( parent->backgroundColor() );
@@ -132,6 +119,7 @@ QWidget::~QWidget()
     if ( QApplication::main_widget == this )	// reset main widget
 	QApplication::main_widget = 0;
     destroy();					// platform-dependent cleanup
+    delete extra;
 }
 
 
@@ -176,6 +164,18 @@ void QWidget::set_id( WId id )			// set widget identifier
 	mapper->insert( this );
 }
 
+void QWidget::createExtra()			// create extra data
+{
+    if ( !extra ) {				// if not exists
+	extra = new QWExtra;
+	CHECK_PTR( extra );
+	extra->guistyle = QApplication::style();// initialize
+	extra->minw = extra->minh = -1;
+	extra->maxw = extra->maxh = -1;
+	extra->incw = extra->inch = -1;
+    }
+}
+
 QWidget *QWidget::find( WId id )		// find widget with id
 {
     return mapper ? mapper->find( id ) : 0;
@@ -187,14 +187,15 @@ ulong QWidget::nWidgets()			// number of widgets
 }
 
 
-void QWidget::setGuiStyle( GuiStyle gs )	// set widget GUI style
+GUIStyle QWidget::style() const			// get widget GUI style
 {
-    gui = gs;
+    return extra ? extra->guistyle : QApplication::style();
 }
 
-void QWidget::setGlobalGuiStyle( GuiStyle gs )	// set global GUI style
+void QWidget::setStyle( GUIStyle gs )		// set widget GUI style
 {
-    ggui = gs;
+    createExtra();
+    extra->guistyle = gs;
 }
 
 
