@@ -1388,10 +1388,12 @@ QCoreApplication::setEventFilter(QCoreApplication::EventFilter filter)
 */
 bool QCoreApplication::filterEvent(void *message, long *result)
 {
+    if (result)
+        *result = 0;
     if (d->eventFilter)
         return d->eventFilter(message, result);
 #ifdef Q_OS_WIN
-    return winEventFilter(message, result);
+    return winEventFilter(reinterpret_cast<MSG *>(message), result);
 #else
     return false;
 #endif
