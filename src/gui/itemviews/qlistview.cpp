@@ -839,6 +839,7 @@ void QListView::paintEvent(QPaintEvent *e)
     const QStyle::StyleFlags state = option.state;
     QVector<QModelIndex>::iterator it = d->intersectVector.begin();
     for (; it != d->intersectVector.end(); ++it) {
+        Q_ASSERT((*it).isValid());
         option.rect = itemViewportRect(*it);
         option.state = state;
         option.state |= (selections && selections->isSelected(*it)
@@ -1629,8 +1630,11 @@ void QListViewPrivate::addLeaf(QVector<int> &leaf, const QRect &area,
         if (idx < 0)
             continue;
         vi = _this->tree.itemPtr(idx);
+        Q_ASSERT(vi);
         if (vi->rect().intersects(area) && vi->visited != visited) {
-            _this->intersectVector.append(_this->listViewItemToIndex(*vi));
+            QModelIndex index = _this->listViewItemToIndex(*vi);
+            Q_ASSERT(index.isValid());
+            _this->intersectVector.append(index);
             vi->visited = visited;
         }
     }

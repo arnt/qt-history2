@@ -297,7 +297,7 @@ public:
 
     QListViewItem indexToListViewItem(const QModelIndex &index) const;
     inline QModelIndex listViewItemToIndex(const QListViewItem &item) const
-        { return q_func()->model()->index(itemIndex(item), column, q_func()->root()); }
+        { return model->index(itemIndex(item), column, root); }
     
     int itemIndex(const QListViewItem &item) const;
     static void addLeaf(QVector<int> &leaf, const QRect &area,
