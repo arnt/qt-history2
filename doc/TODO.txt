@@ -93,6 +93,8 @@ QFtp (rms?)
   Support active transfers. E.g. ftp://ptgftp.nws.noaa.gov does not support
   passive transfers. See also support/arc-08/17164.
 
+QSpinBox
+  Grant access to the lineedit widget.
 
 Feature Requests
 ----------------
