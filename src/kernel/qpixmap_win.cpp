@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#4 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#5 $
 **
 ** Implementation of QPixmap class for Windows
 **
@@ -18,7 +18,7 @@
 #include <windows.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#4 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#5 $";
 #endif
 
 
@@ -224,16 +224,12 @@ bool QPixmap::optimized() const
 
 void QPixmap::setOptimization( bool enable )
 {
-    if ( paintingActive() ) {
-#if defined(DEBUG)
-	warning( "QPixmap::setOptimization: Cannot be done when painting" );
-#endif
-	return;
-    }
     if ( enable == (bool)data->optim )
 	return;
     data->optim = enable;
     data->dirty = FALSE;
+    if ( paintingActive() )			// wait until QPainter::end()
+	return;
     if ( enable )
 	allocMemDC();
     else
