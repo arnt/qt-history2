@@ -229,11 +229,12 @@ NmakeMakefileGenerator::init()
 	    project->variables()["QMAKE_LIBS"] += "oleacc.lib";
 	}
     }
+
     if ( project->isActiveConfig("debug") ) {
         if ( project->isActiveConfig("thread") ) {
 	    // use the DLL RT even here
-	    project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_MD_DLLDBG"];
-	    project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_MD_DLLDBG"];
+	    project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_MT_DLLDBG"];
+	    project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_MT_DLLDBG"];
         } else {
 	    project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_DEBUG"];
 	    project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_DEBUG"];
@@ -242,8 +243,8 @@ NmakeMakefileGenerator::init()
     } else if ( project->isActiveConfig("release") ) {
 	if ( project->isActiveConfig("thread") ) {
 	    // use the DLL RT even here
-	    project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_MD_DLL"];
-	    project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_MD_DLL"];
+	    project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_MT_DLL"];
+	    project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_MT_DLL"];
 	}
 	project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_RELEASE"];
 	project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_RELEASE"];
