@@ -12,8 +12,8 @@
 **
 ****************************************************************************/
 
-#ifndef QWIN32PAINTENGINE_H
-#define QWIN32PAINTENGINE_H
+#ifndef QPAINTENGINE_WIN_H
+#define QPAINTENGINE_WIN_H
 
 #include "qpaintengine.h"
 
@@ -136,4 +136,4 @@ public:
     static void cleanup();
 };
 
-#endif // QWIN32PAINTENGINE_H
+#endif // QPAINTENGINE_WIN_H

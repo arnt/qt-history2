@@ -12,8 +12,8 @@
 **
 ****************************************************************************/
 
-#ifndef QWIN32PAINTENGINE_P_H
-#define QWIN32PAINTENGINE_P_H
+#ifndef QPAINTENGINE_WIN_P_H
+#define QPAINTENGINE_WIN_P_H
 
 #include <windows.h>
 

@@ -1,5 +1,5 @@
-#ifndef QSHORTCUTMAP_H
-#define QSHORTCUTMAP_H
+#ifndef QSHORTCUTMAP_P_H
+#define QSHORTCUTMAP_P_H
 
 #include "qkeysequence.h"
 #include <qvector.h>
@@ -44,4 +44,4 @@ private:
     int translateModifiers(Qt::ButtonState state);
 };
 
-#endif // QSHORTCUTMAP_H
+#endif // QSHORTCUTMAP_P_H

@@ -11,7 +11,11 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
+
 #ifndef QT_NO_PRINTER
+
+#ifndef QPRINTER_P_H
+#define QPRINTER_P_H
 
 class QPrintEngine;
 
@@ -101,4 +105,6 @@ public:
 //};
 //
 //#endif
+
+#endif
 #endif // QT_NO_PRINTER

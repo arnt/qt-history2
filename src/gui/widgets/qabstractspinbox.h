@@ -1,5 +1,5 @@
-#ifndef QSPINBOX_H
-#define QSPINBOX_H
+#ifndef QABSTRACTSPINBOX_H
+#define QABSTRACTSPINBOX_H
 
 #include <qwidget.h>
 #include <qvalidator.h>

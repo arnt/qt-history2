@@ -1,5 +1,5 @@
-#ifndef Q_TEXTDOCUMENT_H
-#define Q_TEXTDOCUMENT_H
+#ifndef QTEXTDOCUMENT_H
+#define QTEXTDOCUMENT_H
 
 #ifndef QT_H
 #include <qobject.h>

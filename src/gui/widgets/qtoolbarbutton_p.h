@@ -1,5 +1,5 @@
-#ifndef QTOOLBARBUTTON_H
-#define QTOOLBARBUTTON_H
+#ifndef QTOOLBARBUTTON_P_H
+#define QTOOLBARBUTTON_P_H
 
 #include <qabstractbutton.h>
 
@@ -32,4 +32,4 @@ protected:
     void actionEvent(QActionEvent *event);
 };
 
-#endif // QTOOLBARBUTTON_H
+#endif // QTOOLBARBUTTON_P_H

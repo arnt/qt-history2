@@ -1,5 +1,5 @@
-#ifndef Q_TEXTPIECETABLE_H
-#define Q_TEXTPIECETABLE_H
+#ifndef QTEXTDOCUMENT_P_H
+#define QTEXTDOCUMENT_P_H
 
 #ifndef QT_H
 #include "qglobal.h"
@@ -240,5 +240,4 @@ private:
     QTextDocumentConfig docConfig;
 };
 
-
-#endif // QPIECEMAP_H
+#endif // QTEXTDOCUMENT_P_H

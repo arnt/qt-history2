@@ -11,8 +11,9 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
-#ifndef QX11PAINTENGINE_H
-#define QX11PAINTENGINE_H
+
+#ifndef QPAINTENGINE_X11_H
+#define QPAINTENGINE_X11_H
 
 #include "qpaintengine.h"
 
@@ -82,4 +83,5 @@ private:
     QX11PaintEngine &operator=(const QX11PaintEngine &);
 #endif
 };
-#endif // QX11PAINTENGINE_H
+
+#endif // QPAINTENGINE_X11_H

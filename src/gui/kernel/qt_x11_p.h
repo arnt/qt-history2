@@ -10,8 +10,8 @@
 **
 ****************************************************************************/
 
-#ifndef QT_X11_H
-#define QT_X11_H
+#ifndef QT_X11_P_H
+#define QT_X11_P_H
 
 
 //
@@ -418,4 +418,4 @@ enum {
 #undef FontChange
 #endif
 
-#endif // QT_X11_H
+#endif // QT_X11_P_H

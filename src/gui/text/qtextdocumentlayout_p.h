@@ -1,5 +1,5 @@
-#ifndef QTEXTLAYOUTER_H
-#define QTEXTLAYOUTER_H
+#ifndef QTEXTDOCUMENTLAYOUT_P_H
+#define QTEXTDOCUMENTLAYOUT_P_H
 
 #ifndef QT_H
 #include <qabstracttextdocumentlayout.h>
@@ -40,4 +40,4 @@ public:
     int blockTextFlags() const;
 };
 
-#endif // QTEXTLAYOUTER_H
+#endif // QTEXTDOCUMENTLAYOUT_P_H

@@ -12,8 +12,8 @@
 **
 ****************************************************************************/
 
-#ifndef Q4TABBAR_H
-#define Q4TABBAR_H
+#ifndef QTABBAR_H
+#define QTABBAR_H
 
 #ifndef QT_H
 #include "qwidget.h"
@@ -107,6 +107,5 @@ private:        // Disabled copy constructor and operator=
     QTabBar& operator=(const QTabBar &);
 #endif
 };
-
 
 #endif

@@ -12,8 +12,8 @@
 **
 ****************************************************************************/
 
-#ifndef QPRINTDIALOGWIN_H
-#define QPRINTDIALOGWIN_H
+#ifndef QPRINTDIALOG_WIN_H
+#define QPRINTDIALOG_WIN_H
 
 #ifdef Q_WS_WIN
 
@@ -37,4 +37,4 @@ private:
 
 #endif // Q_WS_WIN
 
-#endif QPRINTDIALOGWIN_H
+#endif QPRINTDIALOG_WIN_H

@@ -1,7 +1,5 @@
-
-#ifndef QPSPRINTER_P_H
-#define QPSPRINTER_P_H
-
+#ifndef QPSPRINTENGINE_PS_H
+#define QPSPRINTENGINE_PS_H
 
 //
 //  W A R N I N G
@@ -140,5 +138,4 @@ private:
 };
 
 #endif // QT_NO_PRINTER
-
-#endif // QPSPRINTER_P_H
+#endif // QPSPRINTENGINE_PS_H

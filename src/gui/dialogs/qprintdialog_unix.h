@@ -12,8 +12,8 @@
 **
 ****************************************************************************/
 
-#ifndef QPRINTDIALOGUNIX_H
-#define QPRINTDIALOGUNIX_H
+#ifndef QPRINTDIALOG_UNIX_H
+#define QPRINTDIALOG_UNIX_H
 
 #ifndef QT_H
 #include "qabstractprintdialog.h"
@@ -72,4 +72,4 @@ private:        // Disabled copy constructor and operator=
 
 #endif
 
-#endif // QPRINTDIALOGUNIX_H
+#endif // QPRINTDIALOG_UNIX_H

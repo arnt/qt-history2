@@ -1,5 +1,5 @@
-#ifndef QDIALOGPRIVATE_P_H
-#define QDIALOGPRIVATE_P_H
+#ifndef QDIALOG_P_H
+#define QDIALOG_P_H
 
 #include <private/qwidget_p.h>
 #include <qdialog.h>
@@ -42,4 +42,4 @@ public:
     uint        in_loop: 1;
 };
 
-#endif // QDIALOGPRIVATE_P_H
+#endif // QDIALOG_P_H

@@ -1,5 +1,5 @@
-#ifndef QFRAGMENTMAP_H
-#define QFRAGMENTMAP_H
+#ifndef QFRAGMENTMAP_P_H
+#define QFRAGMENTMAP_P_H
 
 #include <qglobal.h>
 
@@ -303,6 +303,5 @@ private:
     QFragmentMap(const QFragmentMap& m);
     QFragmentMap& operator= (const QFragmentMap& m);
 };
-
 
 #endif

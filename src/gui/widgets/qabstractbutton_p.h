@@ -1,5 +1,5 @@
-#ifndef QABSTRACBUTTON_P_H
-#define QABSTRACBUTTON_P_H
+#ifndef QABSTRACTBUTTON_P_H
+#define QABSTRACTBUTTON_P_H
 
 #ifndef QT_H
 #include <private/qwidget_p.h>

@@ -12,8 +12,8 @@
 **
 ****************************************************************************/
 
-#ifndef QX11PAINTENGINE_P_H
-#define QX11PAINTENGINE_P_H
+#ifndef QPAINTENGINE_X11_P_H
+#define QPAINTENGINE_X11_P_H
 
 #include "qregion.h"
 #include "qpen.h"
@@ -76,4 +76,4 @@ public:
     QPainter::TransformationCodes txop;
 };
 
-#endif // QX11PAINTENGINE_P_H
+#endif // QPAINTENGINE_X11_P_H

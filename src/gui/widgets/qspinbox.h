@@ -1,5 +1,5 @@
-#ifndef QDOUBLESPINBOX_H
-#define QDOUBLESPINBOX_H
+#ifndef QSPINBOX_H
+#define QSPINBOX_H
 
 #include <qabstractspinbox.h>
 class QSpinBoxPrivate;
@@ -129,6 +129,5 @@ signals:
     void valueChanged(double);
     void valueChanged(QString);
 };
-
 
 #endif

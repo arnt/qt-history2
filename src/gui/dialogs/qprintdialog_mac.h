@@ -12,8 +12,8 @@
 **
 ****************************************************************************/
 
-#ifndef QPRINTDIALOGMAC_H
-#define QPRINTDIALOGMAC_H
+#ifndef QPRINTDIALOG_MAC_H
+#define QPRINTDIALOG_MAC_H
 
 #include <qabstractprintdialog.h>
 
@@ -35,4 +35,4 @@ private:
 #endif
 };
 
-#endif // QABSTRACTPRINTMAC_H
+#endif // QPRINTDIALOG_MAC_H

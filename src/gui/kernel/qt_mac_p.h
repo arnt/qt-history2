@@ -12,8 +12,8 @@
 **
 ****************************************************************************/
 
-#ifndef QT_MAC_H
-#define QT_MAC_H
+#ifndef QT_MAC_P_H
+#define QT_MAC_P_H
 
 #include <private/qcore_mac_p.h>
 #include "qglobal.h"
@@ -199,4 +199,4 @@ inline QMacSavedPortInfo::~QMacSavedPortInfo()
 #endif
 }
 
-#endif // QT_MAC_H
+#endif // QT_MAC_P_H

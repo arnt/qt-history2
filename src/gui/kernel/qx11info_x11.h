@@ -1,5 +1,5 @@
-#ifndef Q_X11INFO_X11_H
-#define Q_X11INFO_X11_H
+#ifndef QX11INFO_X11_H
+#define QX11INFO_X11_H
 
 #include "qnamespace.h"
 
@@ -132,4 +132,4 @@ inline void *QX11Info::visual() const
 inline bool QX11Info::defaultVisual() const
 { return x11data ? x11data->x_defvisual : QX11Info::appDefaultVisual(); }
 
-#endif // Q_X11INFO_X11_H
+#endif // QX11INFO_X11_H

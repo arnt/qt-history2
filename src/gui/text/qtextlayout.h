@@ -10,8 +10,8 @@
 **
 ****************************************************************************/
 
-#ifndef QTEXTLAYOUT_P_H
-#define QTEXTLAYOUT_P_H
+#ifndef QTEXTLAYOUT_H
+#define QTEXTLAYOUT_H
 
 #ifndef QT_H
 #include "qstring.h"

@@ -12,8 +12,8 @@
 **
 ****************************************************************************/
 
-#ifndef QWSPAINTENGINE_QWS_H
-#define QWSPAINTENGINE_QWS_H
+#ifndef QPAINTENGINE_QWS_H
+#define QPAINTENGINE_QWS_H
 
 #include "qatomic.h"
 #include "qpaintengine.h"
@@ -117,6 +117,5 @@ struct QWSPaintEngineData {
     void *x_visual;
     bool x_defvisual;
 };
-
 
 #endif

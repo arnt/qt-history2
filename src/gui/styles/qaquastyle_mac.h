@@ -12,8 +12,8 @@
 **
 ****************************************************************************/
 
-#ifndef QAQUASTYLE_P_H
-#define QAQUASTYLE_P_H
+#ifndef QAQUASTYLE_MAC_H
+#define QAQUASTYLE_MAC_H
 
 //
 //  W A R N I N G
@@ -115,4 +115,4 @@ QAquaWidgetSize qt_aqua_size_constrain(const QWidget *widg,
                                        QSize szHint=QSize(-1, -1), QSize *insz=NULL);
 
 
-#endif /* QAQUASTYLE_P_H */
+#endif // QAQUASTYLE_MAC_H 

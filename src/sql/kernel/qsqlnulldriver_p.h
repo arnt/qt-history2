@@ -14,8 +14,8 @@
 
 #ifndef QT_NO_SQL
 
-#ifndef QSQLNULLDRIVER_H
-#define QSQLNULLDRIVER_H
+#ifndef QSQLNULLDRIVER_P_H
+#define QSQLNULLDRIVER_P_H
 
 //
 //  W A R N I N G
@@ -81,5 +81,5 @@ protected:
     inline void setLastError(const QSqlError&) {}
 };
 
-#endif //QSQLNULLDRIVER_H
+#endif //QSQLNULLDRIVER_P_H
 #endif //QT_NO_SQL
