@@ -92,7 +92,7 @@ void ConfigureApp::buildModulesList()
 
 void ConfigureApp::buildSqlList()
 {
-    QDir dir( qtDir + "/src/sql/src" );
+    QDir dir( qtDir + "/plugins/src/sqldrivers" );
     const QFileInfoList* fiList = dir.entryInfoList();
     QFileInfoListIterator listIter( *fiList );
     QFileInfo* fi;
