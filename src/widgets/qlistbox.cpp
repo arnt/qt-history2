@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#24 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#25 $
 **
 ** Implementation of QListBox widget class
 **
@@ -18,7 +18,7 @@
 #include "qpixmap.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlistbox.cpp#24 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlistbox.cpp#25 $";
 #endif
 
 
@@ -138,7 +138,7 @@ void QListBox::setStrList( const QStrList *list )
 	itemList->append( newAny(tmp,0) );
 	++it;
     }
-    updateNumRows();
+    updateNumRows( TRUE );
     updateCellWidth();
     setTopCell( 0 );
     if ( wasAuto ) {
@@ -165,7 +165,7 @@ void QListBox::setStrList( const char **strings, int numStrings )
     }
     for( int i=0 ; i<numStrings; i++ )
 	itemList->append( newAny( strings[i], 0 ) );
-    updateNumRows();
+    updateNumRows( TRUE );
     updateCellWidth();
     setTopCell( 0 );
     if ( wasAuto ) {
@@ -194,7 +194,7 @@ void QListBox::insertStrList( const QStrList *list, int index )
     const char *tmp;
     for( it.toLast(); (tmp=it.current()); --it )
 	insertAny( tmp, 0, 0, index, FALSE );
-    updateNumRows();
+    updateNumRows( TRUE );
     if ( autoUpdate() && itemVisible(index) )
 	update();	// optimize drawing (only the ones after index)
 }
@@ -218,7 +218,7 @@ void QListBox::insertStrList( const char **strings, int numStrings, int index )
     }
     for( int i=numStrings-1; i>=0; i-- )
 	insertAny( strings[i], 0, 0, index, FALSE );
-    updateNumRows();
+    updateNumRows( TRUE );
     if ( autoUpdate() && itemVisible(index) )
 	update();	// optimize drawing (only the ones after index)
 }
@@ -237,7 +237,7 @@ void QListBox::insertItem( const char *string, int index )
 #endif
 	return;
     }
-    insertAny( string, 0, 0, index );
+    insertAny( string, 0, 0, index, TRUE );
     updateNumRows( FALSE );
     if ( autoUpdate() && itemVisible( index ) ) {
 	update(); // Optimize drawing ( only the ones after index ) ###
@@ -262,7 +262,7 @@ void QListBox::insertItem( const QPixmap *pixmap, int index )
 	stringsOnly = FALSE;
 	setCellHeight( 0 );
     }
-    insertAny( 0, pixmap, 0, index );
+    insertAny( 0, pixmap, 0, index, TRUE );
     int w = pixmap->width() + 6;
     if ( w > cellWidth() )
 	setCellWidth( w );
@@ -376,22 +376,122 @@ void QListBox::changeItem( const QPixmap *pixmap, int index )
     changeAny( 0, pixmap, 0, index );
 }
 
-void QListBox::setStringCopy( bool b )
-{
-    if ( (bool)copyStrings == b )
-	return;
-    if ( count() != 0 ) {
-//	if ( !b ) {
-	    warning("QListBox::setStringCopy: Cannot change the value "
-		    "when the list box is not empty.");
-	    return;
-//	}
-    }
 
+/*!
+  Returns TRUE if the list box makes copies of strings that are
+  inserted.
+
+  The default value is TRUE.
+  \sa setStringCopy()
+*/
+
+bool QListBox::stringCopy() const
+{
+    return copyStrings;
 }
 
-/*! Scrolls the list box so the highlighted item is in the middle of
-  the visible box. */
+/*!
+  Specifies whether the list box should make copies of the strings
+  that are inserted.
+
+  If \e enable is TRUE, the list box makes copies of the inserted
+  strings. If \e enable is FALSE, the list box keeps references to the
+  inserted strings.
+
+  \warning If you choose to use references instead of copies, you will be
+  responsible for deleting the strings after the list box has been
+  destroyed.  Be careful and do not modify any string that is referenced
+  from the list box.  The advantage of using references is that it takes
+  less memory than making copies.
+
+  This function should only be called when the list box is empty.
+
+  Strings are copied by default.
+  \sa setStringCopy() */
+
+void QListBox::setStringCopy( bool enable )
+{
+    if ( (bool)copyStrings == enable )
+	return;
+    if ( count() != 0 ) {
+	warning( "QListBox::setStringCopy: Cannot change the value "
+		 "when the list box is not empty." );
+	return;
+    }
+}
+
+
+  /*!
+  Returns TRUE if the list box updates itself automatically when
+  items are inserted or removed.
+
+  The default setting is TRUE.
+  \sa setAutoUpdate() */
+
+bool QListBox::autoUpdate() const
+{
+    return QTableWidget::autoUpdate();
+}
+
+  /*!
+  Specifies whether the list box should update itself automatically
+  when items are inserted or removed.
+
+  If \e enable is TRUE, the list box will update itself.  If \e enable
+  is FALSE, the list box will not update itself.
+
+  Auto-update is enabled by default.
+  \sa autoUpdate() */
+
+void QListBox::setAutoUpdate( bool enable )
+{
+    QTableWidget::setAutoUpdate( enable );
+}
+
+
+/*! Returns the number of visible items.  This may change at any time
+  since the user may resize the widget. */
+
+int QListBox::numItemsVisible() const
+{
+    return (int)(lastRowVisible() - topCell() + 1);
+}
+
+/*!
+  Returns the index of the current (highlighted) item of the list box.
+  \sa topItem()
+*/
+
+int QListBox::currentItem() const
+{
+    return current;
+}
+
+/*!
+  Sets the highlighted item to the item at position \e index in the list.
+  The highlighting is moved and list scrolled as necessary.
+  \sa currentItem()
+*/
+
+void QListBox::setCurrentItem( int index )
+{
+    if ( index == current )
+	return;
+
+    if ( !checkIndex( "setCurrentItem", count(), index ) )
+	return;
+
+    int oldCurrent = current;
+    current	   = index;
+    updateItem( oldCurrent );
+    updateItem( current, FALSE ); // Do not clear, current marker covers item
+    emit highlighted( current );
+}
+
+/*! Scrolls the list box so the current (highlighted) item gets
+  centered in the list box.
+  \sa currentItem(), setTopItem()
+ */
 
 void QListBox::centerCurrentItem()
 {
@@ -408,13 +508,105 @@ void QListBox::centerCurrentItem()
     setTopItem( top );
 }
 
-/*! Returns the number of visible items.  This may change at any time
-  since the user may resize the widget. */
+/*!
+  Returns index of the item that is on the top line of the list box.
+  \sa setTopItem(), currentItem()
+*/
 
-int QListBox::numItemsVisible()
+int QListBox::topItem() const
 {
-    return (int)(lastRowVisible() - topCell() + 1);
+    return (int)topCell();
 }
+
+  /*!
+  Scrolls the list box so the item at position \e index in the list
+  becomes the top row of the list box.
+  \sa topItem(), centerCurrentItem() */
+
+void QListBox::setTopItem( int index )
+{
+    setTopCell( index );
+}
+
+
+/**********************************************************************
+ Scroll functions
+**********************************************************************/
+
+bool QListBox::dragSelect() const
+{
+    return doDrag;
+}
+
+void QListBox::setDragSelect( bool enable )
+{
+    doDrag = enable;
+}
+
+bool QListBox::autoScroll() const
+{
+    return doAutoScroll;
+}
+
+void QListBox::setAutoScroll( bool enable )
+{
+    doAutoScroll = enable;
+}
+
+bool QListBox::autoScrollBar() const
+{
+    return testTableFlags( Tbl_autoVScrollBar );
+}
+
+void QListBox::setAutoScrollBar( bool enable )
+{
+    if ( enable )
+	setTableFlags( Tbl_autoVScrollBar );
+    else
+	clearTableFlags( Tbl_autoVScrollBar );
+}
+
+bool QListBox::autoBottomScrollBar() const
+{
+    return testTableFlags( Tbl_autoHScrollBar );
+}
+
+void QListBox::setAutoBottomScrollBar( bool enable )
+{
+    if ( enable )
+	setTableFlags( Tbl_autoHScrollBar );
+    else
+	clearTableFlags( Tbl_autoHScrollBar );
+}
+
+bool QListBox::bottomScrollBar() const
+{
+    return testTableFlags( Tbl_hScrollBar );
+}
+
+void QListBox::setBottomScrollBar( bool enable )
+{
+    if ( enable )
+	setTableFlags( Tbl_hScrollBar );
+    else
+	clearTableFlags( Tbl_hScrollBar );
+}
+
+bool QListBox::smoothScrolling() const
+{
+    return testTableFlags( Tbl_smoothVScrolling );
+}
+
+void QListBox::setSmoothScrolling( bool enable )
+{
+    if ( enable )
+	setTableFlags( Tbl_smoothVScrolling );
+    else
+	clearTableFlags( Tbl_smoothVScrolling );
+}
+
+
+
 
 /*! Not implemented yet. */
 
@@ -462,7 +654,7 @@ void QListBox::insertItem( const QLBItem *lbi, int index )
 #endif
 	return;
     }
-    insertAny( 0, 0, lbi, index );
+    insertAny( 0, 0, lbi, index, TRUE );
     updateNumRows( FALSE );
     if ( autoUpdate() )
 	update();
@@ -560,24 +752,6 @@ int QListBox::itemWidth( QLBItem * )
     return 0;
 }
 
-/*! Sets the highlighted item to the item at position \e index.	 The
-  highlighting is moved and list scrolled as necessary.	 */
-
-void QListBox::setCurrentItem( int index )
-{
-    if ( index == current )
-	return;
-
-    if ( !checkIndex( "setCurrentItem", count(), index ) )
-	return;
-
-    int oldCurrent = current;
-    current	   = index;
-    updateItem( oldCurrent );
-    updateItem( current, FALSE ); // Do not clear, current marker covers item
-    emit highlighted( current );
-}
-
 
 /*! Returns TRUE if the item at position \e index is at least partly
   visible. */
@@ -627,8 +801,9 @@ void QListBox::paintCell( QPainter *p, long row, long column )
 	p->drawPixmap( 3, 2, *lbi->pixmap );
 }
 
-/*! This event handler moves the highlight to the clicked item, and
-  ignores mouse clicks that do not fall on an item. */
+/*!
+Handles mouse press events.  Makes the clicked item the current item.
+\sa currentItem() */
 
 void QListBox::mousePressEvent( QMouseEvent *e )
 {
@@ -637,6 +812,10 @@ void QListBox::mousePressEvent( QMouseEvent *e )
 	setCurrentItem( itemClicked );
     }
 }
+
+/*!
+Handles mouse release events.
+*/
 
 void QListBox::mouseReleaseEvent( QMouseEvent *e )
 {
@@ -648,9 +827,10 @@ void QListBox::mouseReleaseEvent( QMouseEvent *e )
     }
 }
 
-/*! This event handler emits the selected() signal for the
-  double-clicked item.	It ignores clicks that don't fall on an
-  item. */
+/*!
+Handles mouse double click events.  Emits the selected() signal for
+the item that was double-clicked.
+*/
 
 void QListBox::mouseDoubleClickEvent( QMouseEvent *e )
 {
@@ -658,6 +838,12 @@ void QListBox::mouseDoubleClickEvent( QMouseEvent *e )
     if ( currentItem() >= 0 )
 	emit selected( currentItem());
 }
+
+/*!
+Handles mouse move events.  Scrolls the list box is auto-scroll
+is enabled.
+\sa autoScroll()
+*/
 
 void QListBox::mouseMoveEvent( QMouseEvent *e )
 {
@@ -668,7 +854,7 @@ void QListBox::mouseMoveEvent( QMouseEvent *e )
 		killTimers();
 		isTiming = FALSE;
 	    }
-	    setCurrentItem( itemClicked ); //returns at once if already current
+	    setCurrentItem( itemClicked );	// already current -> return
 	    return;
 	} else {
 	    if ( !doAutoScroll )
@@ -685,15 +871,14 @@ void QListBox::mouseMoveEvent( QMouseEvent *e )
     }
 }
 
-/*! This event handler knows about the up and down arrow keys and
-  about enter.
+/*! Handles key press events.
 
-  Up and down arrow keys make the highlighted item move and if
-  necessary the list scroll.
+  \c Up and \c down arrow keys make the highlighted item move and if
+  necessary scroll the list box.
 
-  Enter makes the list box emit the selected() signal.
+  \c Enter makes the list box emit the selected() signal.
 
-  \sa selected(), setTopItem(). */
+  \sa selected(), setCurrentItem() */
 
 void QListBox::keyPressEvent( QKeyEvent *e )
 {
@@ -722,11 +907,19 @@ void QListBox::keyPressEvent( QKeyEvent *e )
     }
 }
 
+/*!
+Handles resize events.  Updates internal parameters for the new list box size.
+*/
+
 void QListBox::resizeEvent( QResizeEvent *e )
 {
     QTableWidget::resizeEvent( e );
     updateCellWidth();
 }
+
+/*!
+Handles timer events.  Does auto-scrolling.
+*/
 
 void QListBox::timerEvent( QTimerEvent * )
 {
@@ -743,7 +936,42 @@ void QListBox::timerEvent( QTimerEvent * )
     }
 }
 
-/*! Deletes all items in the list box. */
+
+/*!
+  Returns the vertical pixel-coordinate in \e *yPos, of the list box item at
+  position \e index in the list.
+  Returns FALSE if the item is outside the list box.
+  \sa findItem.
+*/
+
+bool QListBox::itemYPos( int index, int *yPos ) const
+{
+
+    return rowYPos( index, yPos );
+}
+
+/*!
+  Returns the index of the list box item the the vertical pixel-coordinate
+  \e yPos.
+  \sa itemYPos()
+*/
+
+int QListBox::findItem( int yPos ) const
+{
+    return (int)findRow( yPos );
+}
+
+/*!
+  Updates the item at position \e index in the list.
+  Erases the line first if \e erase is TRUE.
+*/
+
+void QListBox::updateItem( int index, bool erase )
+{
+    updateCell( index, 0,  erase );
+}
+
+/*! Deletes all items in the list. You would normally call clear() instead. */
 
 void QListBox::clearList()
 {
@@ -820,7 +1048,7 @@ void QListBox::changeAny( const char *s, const QPixmap *bm,
     if ( copyStrings && tmp->type == LBI_String )
 	delete [] (char*)tmp->string;
     deleteItem( tmp );
-    insertAny( s, bm, lbi, index );
+    insertAny( s, bm, lbi, index, TRUE );
 }
 
 void QListBox::updateNumRows( bool updateWidth )
@@ -834,6 +1062,10 @@ void QListBox::updateNumRows( bool updateWidth )
     if ( autoU )
 	setAutoUpdate( TRUE );
 }
+
+/*!
+  Traverses the list and finds an item with the maximum width.
+*/
 
 void QListBox::updateCellWidth()
 {
@@ -869,8 +1101,4 @@ int QListBox::internalItemWidth( const QLBItem	    *lbi,
 	    break;
     }
     return w;
-}
-
-void QListBox::init()
-{
 }
