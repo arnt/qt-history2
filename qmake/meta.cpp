@@ -138,15 +138,26 @@ QMakeMetaInfo::readLibtoolFile(const QString &f)
  		    break;
 	    }
 	} else if(it.key() == "dependency_libs") {
-	    QStringList &libs = vars["QMAKE_PRL_LIBS"];
 	    if(lst.count() == 1) {
 		QString dep = lst.first();
 		if((dep.startsWith("'") || dep.startsWith("\"")) && dep.endsWith(QString(dep[0])))
 		    dep = dep.mid(1, dep.length() - 2);
-		libs += QStringList::split(" ", dep.stripWhiteSpace());
-	    } else {
-		libs += lst;
+		lst = QStringList::split(" ", dep.stripWhiteSpace());
 	    }
+	    QMakeProject *conf = NULL;
+	    for(QStringList::Iterator lit = lst.begin(); lit != lst.end(); ++lit) {
+		if((*lit).startsWith("-R")) {
+		    if(!conf) {
+			conf = new QMakeProject;
+			conf->read(QMakeProject::ReadAll ^ QMakeProject::ReadProFile);
+		    }
+		    if(!conf->isEmpty("QMAKE_RPATH"))
+			(*lit) = conf->first("QMAKE_RPATH") + (*lit).mid(2);
+		}
+	    }
+	    if(conf)
+		delete conf;
+	    vars["QMAKE_PRL_LIBS"] += lst;
 	}
     }
     return TRUE;
