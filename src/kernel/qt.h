@@ -140,8 +140,9 @@
 #include <qheader.h>
 #include <qpixmapcache.h>
 #include <qplatinumstyle.h>
-#include "qplugininterface.h"
+#include <qcomponentinterface.h>
 #include "qplugin.h"
+#include "qinterfacemanager.h"
 #include "qdir.h"
 #include <qpngio.h>
 #include <qcursor.h>
@@ -189,7 +190,6 @@
 #include "qsqlfield.h"
 #include "qsql.h"
 #include "qsqldriverinterface.h"
-#include "qpluginmanager.h"
 #include <qsqleditor.h>
 #include <qsqleditorfactory.h>
 #include "qsqlindex.h"
@@ -203,7 +203,6 @@
 #include "qtable.h"
 #include <qstack.h>
 #include <qstatusbar.h>
-#include <qapplicationinterface.h>
 #include <qiconview.h>
 #include <qasyncimageio.h>
 #include <qstrvec.h>
