@@ -117,7 +117,7 @@ public:
 		      mng_uint32  iBottom,
 		      mng_uint32  iRight	)
     {
-	QRect r; r.setCoords(iTop,iLeft,iBottom,iRight);
+	QRect r; r.setCoords(iLeft,iTop,iRight,iBottom);
 	consumer->changed(r);
 	consumer->setFramePeriod(0);
 	consumer->frameDone();

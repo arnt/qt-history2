@@ -344,8 +344,15 @@ int QImageDecoder::decode(const uchar* buffer, int length)
 	    actual_decoder = f->decoderFor(d->header, d->count);
 	}
 
-	if (!actual_decoder) // not enough info yet (or failure)
-	    return i;
+	if (!actual_decoder) {
+	    if ( d->count < max_header ) {
+		// not enough info yet
+		return i;
+	    } else {
+		// failure - nothing matches max_header bytes
+		return -1;
+	    }
+	}
     }
     return actual_decoder->decode(img, consumer, buffer, length);
 }
