@@ -27,6 +27,8 @@
  * PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
  */
 
+#define GUI_Qt // define it here too
+
 #include <math.h>
 #include "video.h"
 #include "proto.h"

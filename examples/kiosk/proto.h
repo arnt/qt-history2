@@ -4,6 +4,11 @@
 # define P(s) ()
 #endif
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#define GUI_Qt
 
 /* util.c */
 void correct_underflow P((void ));
@@ -192,5 +197,8 @@ int MakeFloatClockTime P((
    unsigned long low4Bytes,
    double *floatClockTime));
 
+#ifdef __cplusplus
+}
+#endif
 
 #undef P

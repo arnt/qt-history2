@@ -1,3 +1,5 @@
+#define GUI_Qt // define it here too
+
 #include <qpainter.h>
 #include "qmpeg.h"
 #include "video.h"

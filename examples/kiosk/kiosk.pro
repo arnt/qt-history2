@@ -18,7 +18,7 @@ HEADERS		= decoders.h \
 		  kioskwidget.h
 SOURCES		= util.c video.c parseblock.c motionvector.c decoders.c \
                 fs2.c fs2fast.c fs4.c hybrid.c hybriderr.c 2x2.c floatdct.c\
-                gdith.c gray.c mono.c mainx.c jrevdct.c 16bit.c util32.c\
+                gdith.cpp gray.c mono.c mainx.c jrevdct.c 16bit.c util32.c\
                 ordered.c ordered2.c mb_ordered.c readfile.c \ 
 		main.cpp \
 		../themes/wood.cpp \

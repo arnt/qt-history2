@@ -5,6 +5,7 @@
 
 class QMpegWidgetPrivate;
 typedef struct vid_stream VidStream;
+extern "C" void ExecuteDisplay(VidStream *vid_stream);
 
 class QMpegWidget : public QFrame {
     Q_OBJECT;
