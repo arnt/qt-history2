@@ -32,6 +32,7 @@
 
   This class implements a table representation of a QGenericItemView working
   on a QAbstractItemModel.
+
 */
 
 QGenericTableView::QGenericTableView(QAbstractItemModel *model, QWidget *parent)
