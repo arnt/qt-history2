@@ -277,6 +277,7 @@ private:
     QLayout &operator=( const QLayout & );
 #endif
 
+    static void propagateSpacing( QLayout *layout );
 };
 
 inline void QLayoutIterator::deleteCurrent()

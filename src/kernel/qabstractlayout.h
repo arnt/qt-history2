@@ -39,7 +39,7 @@
 #define QABSTRACTLAYOUT_H
 
 /*
-  This header is provided for source compatibility only.
+  This header is provided for source compatibility only.
 */
 
 #ifndef QT_H
