@@ -1084,3 +1084,31 @@
 
     \sa QKeyEvent::key()
 */
+
+/*!
+    \enum Qt::HitTestAccuracy
+
+    This enum contains the types of accuracy that can be used by the
+    QTextDocument class when testing for mouse clicks on text documents.
+
+    \value ExactHit The point at which input occurred must coincide
+                    exactly with input-sensitive parts of the document.
+    \value FuzzyHit The point at which input occurred can lie close to
+                    input-sensitive parts of the document.
+*/
+
+/*!
+    \enum Qt::WhiteSpaceMode
+
+    This enum describes the types of whitespace mode that are used by
+    the QTextDocument class to meet the requirements of different kinds
+    of textual information.
+
+    \value WhiteSpaceNormal         The whitespace mode used to display
+                                    normal word wrapped text in paragraphs.
+    \value WhiteSpacePre            A preformatted text mode in which
+                                    whitespace is reproduced exactly.
+    \value WhiteSpaceNoWrap         
+
+    \omitvalue WhiteSpaceModeUndefined
+*/
