@@ -53,6 +53,9 @@
 #include <stdarg.h>
 #include <ctype.h>
 #include <limits.h>
+#if defined(Q_WS_WIN)
+#include "qt_windows.h"
+#endif
 #if !defined( QT_NO_COMPONENT ) && !defined( QT_LITE_COMPONENT )
 #include "qcleanuphandler.h"
 #endif
@@ -15344,7 +15347,39 @@ int QString::compare( const QString& s ) const
 */
 int QString::localeAwareCompare( const QString& s ) const
 {
+#if defined(Q_WS_WIN)
+#if defined(UNICODE)
+    int res;
+    if ( qWinVersion() & Qt::WV_NT_based ) {
+	TCHAR* s1 = new TCHAR[ length() ];
+	wcscpy( s1, (TCHAR*)qt_winTchar( *this, FALSE ) );
+	TCHAR* s2 = (TCHAR*)qt_winTchar( s, FALSE );
+	res = CompareStringW( LOCALE_USER_DEFAULT, 0, s1, length(), s2, s.length() );
+	delete[] s1;
+	switch ( res ) {
+	case CSTR_LESS_THAN:
+	    return -1;
+	case CSTR_GREATER_THAN:
+	    return 1;
+	default:
+	    return 0;
+	}
+    } else
+#endif
+    {
+	int res = CompareStringA( LOCALE_USER_DEFAULT, 0, local8Bit(), length(), s.local8Bit(), s.length() );
+	switch ( res ) {
+	case CSTR_LESS_THAN:
+	    return -1;
+	case CSTR_GREATER_THAN:
+	    return 1;
+	default:
+	    return 0;
+	}
+    }
+#else
     return ucstrcmp( *this, s );
+#endif
 }
 
 bool operator==( const QString &s1, const QString &s2 )
