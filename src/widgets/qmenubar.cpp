@@ -126,6 +126,11 @@ static bool inMenu = FALSE;
     Menu items may be removed with removeItem() and enabled or disabled
     with \link QMenuData::setItemEnabled() setItemEnabled()\endlink.
 
+    QMenuBar on Qt/Mac is a wrapper for talking to the system-wide
+    menubar. However if you have multiple menubars in one dialog the
+    outermost menubar (normally inside a widget with WType_TopLevel) will
+    be used for the global menubar. 
+
   <img src=qmenubar-m.png> <img src=qmenubar-w.png>
 
   \sa QPopupMenu QAccel QAction
