@@ -215,8 +215,6 @@ void P4Edit::fStatResults( const QString& filename, P4Info *p4i)
     if ( !p4i->controlled ) {
 	if ( silent )
 	    QMessageBox::information( 0, tr( "P4 Edit" ), tr( "Opening the file<pre>%1</pre>for edit failed!" ).arg( fileName() ) );
-	else
-	    emit showStatusBarMessage( tr( "P4: Opening file %1 for edit failed!" ).arg( fileName() ) );
 	return;
     } 
     if ( p4i->action == P4Info::None ) {
@@ -231,8 +229,6 @@ void P4Edit::fStatResults( const QString& filename, P4Info *p4i)
 		p4i->ignoreEdit = TRUE;
 		return;
 	    }
-	} else {
-	    emit showStatusBarMessage( tr( "P4: Opening file %1 for edit..." ).arg( fileName() ) );
 	}
 	run( QString("p4 edit \"%1\"").arg( fileName() ) );
     }
