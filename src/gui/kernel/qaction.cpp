@@ -208,7 +208,11 @@ QKeySequence QAction::shortcut() const
     \property QAction::font
     \brief the action's font
 
-    The font property is used to draw menu items.
+    The font property is used to render the text set on the
+    QAction. The font will can be considered a hint as it will not be
+    consulted in all cases based upon application and style.
+
+    \sa QAction::setText() QStyle
 */
 void QAction::setFont(const QFont &font)
 {
