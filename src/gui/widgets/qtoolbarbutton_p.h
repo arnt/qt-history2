@@ -15,6 +15,9 @@ public:
     QToolBarButton(QWidget *parent);
     ~QToolBarButton();
 
+    void setUsesTextLabel(bool enable);
+    bool usesTextLabel() const;
+
     void setMenu(QMenu *menu);
     QMenu *menu() const;
     void showMenu();

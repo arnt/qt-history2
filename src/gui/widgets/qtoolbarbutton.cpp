@@ -20,9 +20,10 @@ class QToolBarButtonPrivate : public QAbstractButtonPrivate
 
 public:
     QPointer<QMenu> menu;
+    uint usesTextLabel : 1;
 
     QToolBarButtonPrivate()
-    { menu = 0; }
+    { menu = 0; usesTextLabel = false; }
 
     // ### these should be done in the style, eventually
     void subRects(QRect &iconRect, QRect &textRect) const
@@ -33,12 +34,15 @@ public:
 
 	iconRect.setSize(icon.size() + QSize(4, 4));
 	iconRect.moveTopLeft(QPoint(1, 1));
-	textRect.setSize(QSize(fm.width(text), fm.lineSpacing()) + QSize(4, 4));
-	textRect.moveTopLeft(iconRect.topRight() + QPoint(1, 0));
+	if (usesTextLabel) {
+	    textRect.setSize(QSize(fm.width(text), fm.lineSpacing()) + QSize(4, 4));
+	    textRect.moveTopLeft(iconRect.topRight() + QPoint(1, 0));
+	}
 
 	int maxh = qMax(iconRect.height(), textRect.height());
 	iconRect.setHeight(maxh);
-	textRect.setHeight(maxh);
+	if (usesTextLabel)
+	    textRect.setHeight(maxh);
     }
 
     void drawButton(QPainter *p)
@@ -72,8 +76,9 @@ public:
 	d->subRects(iconRect, textRect);
 
         q->style().drawItem(p, iconRect, Qt::AlignCenter, q->palette(), q->isEnabled(), icon);
-        q->style().drawItem(p, textRect, Qt::AlignLeft | Qt::AlignVCenter,
-                            q->palette(), q->isEnabled(), text);
+	if (usesTextLabel)
+	    q->style().drawItem(p, textRect, Qt::AlignLeft | Qt::AlignVCenter,
+				q->palette(), q->isEnabled(), text);
 
         if (d->menu) {
             QStyleOption opt(0);
@@ -95,6 +100,16 @@ QToolBarButton::QToolBarButton(QWidget *parent)
 
 QToolBarButton::~QToolBarButton()
 { }
+
+void QToolBarButton::setUsesTextLabel(bool enable)
+{
+    d->usesTextLabel = enable;
+}
+
+bool QToolBarButton::usesTextLabel() const
+{
+    return d->usesTextLabel;
+}
 
 void QToolBarButton::setMenu(QMenu *menu)
 {
