@@ -38,6 +38,7 @@
 
 #ifdef Q_OS_MACX
 #define Q_NO_SEMAPHORE
+#include <sys/stat.h>
 #else
 #include <sys/sem.h>
 #if defined(__GNU_LIBRARY__) && !defined(_SEM_SEMUN_UNDEFINED) \
@@ -105,11 +106,14 @@ QLock::QLock( const QString &filename, char id, bool create )
     data = new QLockData;
     data->count = 0;
 #ifdef Q_NO_SEMAPHORE
-    int flags = O_RDWR;
-    if((data->created = create)) 
-	flags |= O_CREAT;
-    data->file = QString(filename+".qlock"+id).local8Bit();
-    data->id = open(data->file, flags);
+    data->file = QString(filename+id).local8Bit();
+    for(int x = 0; x < 2; x++) {
+	data->id = open(data->file, O_RDWR | (x ? O_CREAT : 0), S_IRWXU);
+	if(data->id != -1 || !create) {
+	    data->created = x;
+	    break;
+	}
+    }
 #else
     int semkey = ftok(filename, id);
     data->id = semget(semkey,0,0);
@@ -141,10 +145,11 @@ QLock::~QLock()
     if ( locked() )
 	unlock();
 #ifdef Q_NO_SEMAPHORE
-    if(isValid()) 
+    if(isValid()) {
 	close(data->id);
-    if( data->created )
-	unlink( data->file );
+	if( data->created )
+	    unlink( data->file );
+    }
 #endif
     delete data;
 #endif
