@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qstatusbar.cpp#31 $
+** $Id: //depot/qt/main/src/widgets/qstatusbar.cpp#32 $
 **
 ** Implementation of QStatusBar class
 **
@@ -224,6 +224,7 @@ void QStatusBar::reformat()
     l->addLayout( vproxy );
     vproxy->addStretch( 1 );
     vproxy->addWidget( d->resizer, 0 );
+    d->box->addSpacing( 2 );
     d->box->activate();
 }
 
