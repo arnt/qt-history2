@@ -1,0 +1,177 @@
+/*!
+    \page resources.html
+    \title The Qt Resource System
+
+    Qt's resource system is a platform-independent mechanism for
+    storing binary files in the application's executable. This is
+    useful if your application always needs a certain set of files
+    (icons, translation files, etc.) and you don't want to run the
+    risk of losing the files.
+
+    The resource system is based on tight cooperation between \c
+    qmake, \c rcc (the Qt resource compiler), \e{Qt Designer}, and
+    QFile. It obsoletes Qt 3's \c qembed tool and
+    \l{http://doc.trolltech.com/qq/qq05-iconography.html#imagestorage}{image
+    collection} mechanism.
+
+    \section1 Resource Collection Files (\c{.qrc})
+
+    The resources associated with an application are specified in a
+    \c .qrc file, an XML-based file format that lists files on the
+    disk and optionally assigns them a resource name that the
+    application must use to access the resource.
+
+    Here's an example \c .qrc file:
+
+    \include mainwindows/application/application.qrc
+
+    The resource files listed in the \c .qrc file are files that are
+    part of the application's source tree. Paths are relative to the
+    directory where the \c .qrc file is located.
+
+    The \c .qrc file must be mentioned in the application's \c .pro
+    file, so that \c qmake knows about it. For example:
+
+    \quotefromfile mainwindows/application/application.pro
+    \skipto RESOURCES
+    \printline RESOURCES
+
+    \c qmake will produce make rules to generate a file called \c
+    qrc_application.cpp that is linked into the application. This
+    file contains all the data for the images and other resources as
+    static C++ arrays of compressed binary data. The \c
+    qrc_application.cpp file is automatically regenerated whenever
+    the \c .qrc file changes or one of the files that it refers to
+    changes. If you don't use \c .pro files, you can either invoke \c
+    rcc manually or add build rules to your build system.
+
+    \image resources.png Building resources into an application
+
+    By default, resources are accessible in the application under the
+    same name as they have in the source tree, with a \c :/ prefix.
+    For example, the path \c :/image/cut.png would give access to the
+    \c cut.png file, whose location in the application's source tree
+    is \c images/cut.png. This can be changed using the \c file tag's
+    \c name attribute:
+
+    \code
+        <file name="cut-img.png">images/cut.png</file>
+    \endcode
+
+    The file is then accessible as \c :/cut-img.png from the
+    application. It is also possible to specify a path prefix for all
+    files in the \c .qrc file using the \c qresource tag's \c prefix
+    attribute:
+
+    \code
+        <qresource prefix="/myresources">
+            <file name="cut-img.png">images/cut.png</file>
+        </qresource>
+    \endcode
+
+    In this case, the file is accessible as \c
+    :/myresources/cut-img.png.
+
+    Some resources, such as translation files and icons, many need to
+    change based on the system's locale. This is possible using the
+    \c lang attribute. For example:
+
+    \code
+        <qresource>
+            <file>cut.jpg</file>
+        </qresource>
+        <qresource lang="de">
+            <file name="cut.jpg">cut_de.jpg</file>
+        </qresource>
+    \endcode
+
+    If QLocale::system() is \c de (i.e. German), the \c cut_de.jpg
+    image is exported as \c :/cut.jpg, overriding the previous entry.
+    For other locales, \c cut.jpg is used.
+
+    \section1 Using Resources in the Application
+
+    In the application, resource paths can be used anywhere instead
+    of file system paths. In particular, you can pass a resource path
+    instead of a file name to the QPixmap or QImage constructor:
+
+    \quotefromfile mainwindows/application/mainwindow.cpp
+    \skipto cutAct = new QAction(QPixmap(":/images/cut.png
+    \printline cutAct =
+
+    See the \c mainwindows/application example for an actual
+    application that uses Qt's resource system to store its icons.
+
+    In memory, resources are represented by a tree of QResource
+    objects. The tree is automatically built at startup and used by
+    QFile for resolving paths to resources. If you have resources in
+    a static library, you might need to force initialization of your
+    resources by calling \c qInitResources_application(), where \c
+    application is the name of your application. (This can be
+    overridden by setting the \c qmake \c QMAKE_RESOURCE_NAME
+    variable.) This function is generated as part for the \c
+    qrc_application.cpp file. For example:
+
+    \code
+    extern int qInitResources_application();
+
+    int main(int argc, char *argv[])
+    {
+        QApplication app(argc, argv);
+        qInitResources_application();
+        ...
+        return app.exec();
+    }
+    \endcode
+
+    \section1 Inspecting Resources
+
+    The \c lsqrc tool, located in Qt's \c tools/lsqrc directory,
+    allows you to inspect the resources stored in an executable. The
+    usage is
+
+    \code
+        lsqrc application.exe
+    \endcode
+
+    The output is a list of resources:
+
+    \code
+        ************ Resources *************
+        /images/copy.png
+        /images/cut.png
+        /images/delete.png
+        /images/new.png
+        /images/open.png
+        /images/paste.png
+        /images/save.png
+    \endcode
+
+    You can also extract specific resources by specifying the
+    resource path as additional command-line arguments to \c lsqrc, for example:
+
+    \code
+        lsqrc application.exe /images/new.png
+    \endcode
+
+    The output is a hexadecimal dump of the resource data.
+
+    \code
+        ****************** /images/new.png [386] ****************
+        89 50 4e 47 0d 0a 1a 0a 00 00 00 0d 49  48 44 52 00 00 00 16 00 00 00 16 08 04 00  |.PNG........IHDR...........|
+        00 00 6e bd a4 b0 00 00 00 04 67 41 4d  41 00 00 d6 d8 d4 4f 58 32 00 00 00 19 74  |..n.......gAMA.....OX2....t|
+        45 58 74 53 6f 66 74 77 61 72 65 00 41  64 6f 62 65 20 49 6d 61 67 65 52 65 61 64  |EXtSoftware.Adobe ImageRead|
+        79 71 c9 65 3c 00 00 01 14 49 44 41 54  28 cf bd d1 31 4b c3 40 14 c0 f1 ff 4b a2  |yq.e<....IDAT(...1K.@....K.|
+        36 ad 62 ab 4e e2 94 4f 50 4a e8 52 d0  41 ba fa 15 3a eb 07 12 47 47 37 9d 1c 95  |6.b.N..OPJ.R.A...:...GG7...|
+        2e 19 a4 ab 83 4b 71 aa 74 aa d4 60 d0  de 45 07 4d b8 e6 ae e0 e4 fb af 3f 1e 8f  |.....Kq.t..`..E.M.......?..|
+        3b ef 8b bf e7 f1 3b 22 12 48 4d 1a b2  55 b6 29 75 59 17 9f 72 4a 8c df 5f 1c 66  |;.....;".HM..U.)uY..rJ.._.f|
+        bd b4 37 ff a9 33 e7 ed e8 9e 16 a1 04  36 0e 3e b8 63 58 76 09 0c bb dd 5b 76 a9  |..7..3.......6.>.cXv....[v.|
+        17 dc d8 ac d1 a8 32 0d 5c f0 d0 89 6f  d8 29 b8 67 1e a4 8d 72 20 e4 9c 51 3b be  |......2.\...o.).g...r ..Q;.|
+        a6 45 4d 7c 13 b3 8c 15 30 e0 0c 18 b5  d9 a3 41 15 2f 8c 9a 24 24 24 5c 01 34 09  |.EM|....0......A./..$$$\.4.|
+        09 2a 58 19 78 9b 88 88 88 03 80 0d d6  f0 2c 6c a7 01 7c 04 b1 ce f8 74 e4 fa 94  |.*X.x.........,l..|....t...|
+        ca 19 45 7a 15 5e 38 fb f7 cd 2e aa 56  61 ed 7c 3c 27 7e e5 9d 67 ab d4 89 f3 47  |..Ez.^8.....Va.|<'...g....G|
+        8e 19 58 9d 02 64 28 72 13 6b f6 89 e9  73 62 d5 67 46 86 36 b1 22 65 c2 98 27 ab  |..X..d(r.k...sb.gF.6."e..'.|
+        31 13 52 d4 f2 e6 8c 19 53 5e ac a6 c5  e6 6f 4b dc e6 cd 70 3f e3 9e 00 00 00 00  |1.R.....S^....oK...p?......|
+        49 45 4e 44 ae 42 60 82                                                            |IEND.B`.                   |
+    \endcode
+*/
