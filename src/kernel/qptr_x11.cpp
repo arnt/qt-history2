@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#142 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#143 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#142 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#143 $")
 
 
 // --------------------------------------------------------------------------
@@ -2530,8 +2530,7 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 	    QPDevCmdParam param[3];
 	    QRect r( x, y, w, h );
 	    QString newstr = str;
-	    if ( len >= 0 )
-		newstr.truncate( len );
+	    newstr.truncate( len );
 	    param[0].rect = &r;
 	    param[1].ival = tf;
 	    param[2].str = newstr.data();
