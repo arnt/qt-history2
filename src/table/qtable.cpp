@@ -410,7 +410,7 @@ void QTableItem::updateEditor( int oldRow, int oldCol )
 
 /*!  Returns the edit type of an item.
 
-  \sa setEditType() EditType
+  \sa EditType
 */
 
 QTableItem::EditType QTableItem::editType() const
@@ -573,7 +573,7 @@ int QTableItem::col() const
 
   \brief A flexible and editable table widget.
 
-  QTable has been designed to us no more memory than strictly
+  QTable has been designed to use no more memory than strictly
   needed. Thus, for an empty cell, no memory at all is allocated.  In
   order to add data, create a QTableItem and fill it using
   setItem(). With QTableItem::setText() and QTableItem::setPixmap(),
@@ -644,8 +644,6 @@ int QTableItem::col() const
   case, repainting the cells using updateCell() after each change made
   is necessary. To make sure you don't waste memory, read the
   documentation of resizeData().
-
-
 */
 
 /*! \fn void QTable::currentChanged( int row, int col )
@@ -2426,8 +2424,9 @@ void QTable::setNumRows( int r )
 
     for ( i = 0; i < (int)tmp.size(); ++i ) {
 	QTableItem *it = tmp [ i ];
-	if ( it )
-	    contents.insert( indexOf( it->row(), it->col() ), it );
+	int idx = indexOf( it->row(), it->col() );
+	if ( it && idx < contents.size() )
+	    contents.insert( idx, it );
     }
 
     leftHeader->setUpdatesEnabled( TRUE );
@@ -2475,8 +2474,9 @@ void QTable::setNumCols( int c )
 
     for ( i = 0; i < (int)tmp.size(); ++i ) {
 	QTableItem *it = tmp[ i ];
-	if ( it )
-	    contents.insert( indexOf( it->row(), it->col() ), it );
+	int idx = indexOf( it->row(), it->col() );
+	if ( it && idx < contents.size() )
+	    contents.insert( idx, it );
     }
 
     topHeader->setUpdatesEnabled( TRUE );
