@@ -100,8 +100,6 @@ static SliderLastPosition sliderLastPosition;
 */
 QSGIStyle::QSGIStyle( bool useHighlightCols ) : QMotifStyle( useHighlightCols ), isApplicationStyle( 0 )
 {
-    setButtonDefaultIndicatorWidth( 4 ); // ### remove and reimplement virtual function
-    setScrollBarExtent( 21,21 );
 }
 
 /*!
@@ -109,6 +107,20 @@ QSGIStyle::QSGIStyle( bool useHighlightCols ) : QMotifStyle( useHighlightCols ),
 */
 QSGIStyle::~QSGIStyle()
 {
+}
+
+/*!\reimp
+*/
+int QSGIStyle::buttonDefaultIndicatorWidth() const
+{
+    return 4;
+}
+
+/*!\reimp
+*/
+QSize QSGIStyle::scrollBarExtent() const
+{
+    return QSize( 21, 21 );
 }
 
 /*! \reimp

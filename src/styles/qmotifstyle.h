@@ -134,6 +134,9 @@ public:
 			    QMenuItem* mi, const QPalette& pal, bool act,
 			    bool enabled, int x, int y, int w, int h );
 
+    int buttonDefaultIndicatorWidth() const;
+    int sliderThickness() const;
+
 private:
     bool highlightCols;
 private:	// Disabled copy constructor and operator=

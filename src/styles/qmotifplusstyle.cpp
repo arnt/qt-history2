@@ -95,11 +95,6 @@ QMotifPlusStyle::QMotifPlusStyle(bool hoveringHighlight) : QMotifStyle(TRUE)
     else
 	singleton->ref++;
 
-    setScrollBarExtent(15, 15);
-    setButtonDefaultIndicatorWidth(5);
-    setSliderThickness(15);
-    setButtonMargin(2);
-
     useHoveringHighlight = hoveringHighlight;
 }
 
@@ -113,6 +108,33 @@ QMotifPlusStyle::~QMotifPlusStyle()
     }
 }
 
+/*!\reimp
+*/
+QSize QMotifPlusStyle::scrollBarExtent() const
+{
+    return QSize( 15, 15 );
+}
+
+/*!\reimp
+*/
+int QMotifPlusStyle::buttonDefaultIndicatorWidth() const
+{
+    return 5;
+}
+
+/*!\reimp
+*/
+int QMotifPlusStyle::sliderThickness() const
+{
+    return 15;
+}
+
+/*!\reimp
+*/
+int QMotifPlusStyle::buttonMargin() const
+{
+    return 2;
+}
 
 /*!
   \reimp

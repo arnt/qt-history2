@@ -58,6 +58,8 @@ public:
 				       const QPalette& pal,
 				       bool act, bool enabled, int x, int y, int w, int h);
 
+    int buttonMargin() const;
+
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QCompactStyle( const QCompactStyle & );

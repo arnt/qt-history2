@@ -50,17 +50,8 @@ class QStylePrivate
 {
 public:
     QStylePrivate()
-	:sbextent(16,16),
-	 button_default_indicator_width(0),
-	 button_margin( 6 ),
-	 slider_thickness(16)
     {
     }
-
-    QSize sbextent;
-    int button_default_indicator_width;
-    int button_margin;
-    int slider_thickness;
 };
 
 
@@ -810,7 +801,7 @@ int QStyle::popupSubmenuIndicatorWidth( const QFontMetrics& fm  ) const
 */
 QSize QStyle::scrollBarExtent() const
 {
-    return d->sbextent.expandedTo( QApplication::globalStrut() );
+    return QSize( 16, 16 ).expandedTo( QApplication::globalStrut() );
 }
 
 /*!
@@ -858,24 +849,6 @@ void QStyle::drawToolBarHandle( QPainter *p, const QRect &r, Qt::Orientation ori
 
 
 /*!
-  Sets the width of a vertical scrollbar in this style to \a width and
-  the height of a horizontal scrollbar to \a height. If \a height is
-  negative, \a width will be used for both extents. By default both
-  extents are 16 pixels.
-
-  In a future version of the Qt library, this function will be removed
-  and subclasses will be able to reimplement scrollBarExtent().
-*/
-
-void QStyle::setScrollBarExtent( int width, int height )
-{
-//### TODO: pick up desktop settings on Windows
-    d->sbextent
-	= QSize( width, height ).expandedTo( QApplication::globalStrut() );
-}
-
-
-/*!
   Returns the width of the default-button indicator frame.
 
   In this version of the Qt library, subclasses must call
@@ -884,20 +857,8 @@ void QStyle::setScrollBarExtent( int width, int height )
 */
 int QStyle::buttonDefaultIndicatorWidth() const
 {
-    return d->button_default_indicator_width;
+    return 0;
 }
-
-/*!
-  Sets the width of the default-button indicator frame.
-
-  In a future version of the Qt library, this function will be removed
-  and subclasses will be able to reimplement buttonDefaultIndicatorWidth().
-*/
-void QStyle::setButtonDefaultIndicatorWidth( int w )
-{ //### TODO: pick up desktop settings on Windows
-    d->button_default_indicator_width = w;
-}
-
 
 /*!
   \fn QRect QStyle::pushButtonContentsRect( QPushButton* btn ) const
@@ -945,18 +906,7 @@ int QStyle::menuButtonIndicatorWidth( int h ) const
 */
 int QStyle::buttonMargin() const
 {
-    return d->button_margin;
-}
-
-/*!
-  Sets the button margin.
-
-  In a future version of the Qt library, this function may be removed
-  and subclasses will be able to reimplement buttonMargin().
-*/
-void QStyle::setButtonMargin( int m )
-{
-    d->button_margin = m;
+    return 6;
 }
 
 /*!
@@ -966,18 +916,7 @@ void QStyle::setButtonMargin( int m )
 */
 int QStyle::sliderThickness() const
 {
-    return d->slider_thickness;
-}
-
-/*!
-  Sets the slider thickness.
-
-  In a future version of the Qt library, this function may be removed
-  and subclasses will be able to reimplement sliderThickness().
-*/
-void QStyle::setSliderThickness(int t)
-{
-    d->slider_thickness = t;
+    return 16;
 }
 
 #endif // QT_NO_STYLE

@@ -76,16 +76,6 @@
 QMotifStyle::QMotifStyle( bool useHighlightCols ) : QCommonStyle(MotifStyle)
 {
     highlightCols = useHighlightCols;
-
-#define Q_NICE_MOTIF_DEFAULT_BUTTON
-#ifdef Q_NICE_MOTIF_DEFAULT_BUTTON
-    setButtonDefaultIndicatorWidth( 3 );
-#endif
-
-#define Q_NICE_MOTIF_SLIDER_THICKNESS
-#ifdef Q_NICE_MOTIF_SLIDER_THICKNESS
-    setSliderThickness(24);
-#endif
 }
 
 /*!\reimp
@@ -94,6 +84,25 @@ QMotifStyle::~QMotifStyle()
 {
 }
 
+/*!\reimp
+*/
+int QMotifStyle::buttonDefaultIndicatorWidth() const
+{
+#define Q_NICE_MOTIF_DEFAULT_BUTTON
+#ifdef Q_NICE_MOTIF_DEFAULT_BUTTON
+    return 3;
+#endif
+}
+
+/*!\reimp
+*/
+int QMotifStyle::sliderThickness() const
+{
+#define Q_NICE_MOTIF_SLIDER_THICKNESS
+#ifdef Q_NICE_MOTIF_SLIDER_THICKNESS
+    return 24;
+#endif
+}
 
 /*!
   If the argument is FALSE, then the style will polish the

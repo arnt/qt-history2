@@ -140,6 +140,10 @@ public:
                 bool act, bool enabled, int x, int y, int w, int h);
     void drawMenuBarItem( QPainter*, int x, int y, int w, int h,
 			  QMenuItem*, QColorGroup&, bool, bool );
+
+    int buttonDefaultIndicatorWidth() const;
+    QSize scrollBarExtent() const;
+
 protected:
     bool eventFilter( QObject*, QEvent*);
 

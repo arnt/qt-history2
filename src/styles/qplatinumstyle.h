@@ -116,6 +116,8 @@ public:
 			    const QPalette& pal, bool act, bool enabled,
 			    int x, int y, int w, int h);
 
+    int buttonDefaultIndicatorWidth() const;
+
 protected:
     void drawScrollBarBackground( QPainter *p, int x, int y, int w, int h,
 				  const QColorGroup &g, bool horizontal, const QBrush* fill = 0);

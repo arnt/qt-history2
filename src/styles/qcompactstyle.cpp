@@ -48,11 +48,16 @@
 
 QCompactStyle::QCompactStyle()
 {
-    setButtonMargin(2);
 }
 
 QCompactStyle::~QCompactStyle()
 {
+}
+
+/*! \reimp */
+int QCompactStyle::buttonMargin() const
+{
+    return 2;
 }
 
 static const int motifItemFrame		= 0;	// menu item frame width

@@ -124,6 +124,10 @@ public:
 			    bool highlight, const QColorGroup &cg,
 			    bool drawBorder = FALSE );
 
+    QSize scrollBarExtent() const;
+    int buttonDefaultIndicatorWidth() const;
+    int buttonMargin() const;
+    int sliderThickness() const;
 
 protected:
     bool eventFilter(QObject *, QEvent *);

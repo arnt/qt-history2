@@ -136,6 +136,9 @@ public:
     void drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, int tab,
 			    QMenuItem* mi, const QPalette& pal, bool act,
 			    bool enabled, int x, int y, int w, int h);
+
+    int buttonDefaultIndicatorWidth() const;
+
 protected:
     void drawWinShades( QPainter *p,
 			int x, int y, int w, int h,

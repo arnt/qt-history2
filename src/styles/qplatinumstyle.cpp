@@ -66,7 +66,6 @@
 */
 QPlatinumStyle::QPlatinumStyle()
 {
-    setButtonDefaultIndicatorWidth( 3 );
 }
 
 /*!\reimp
@@ -75,6 +74,12 @@ QPlatinumStyle::~QPlatinumStyle()
 {
 }
 
+/*! \reimp
+*/
+int QPlatinumStyle::buttonDefaultIndicatorWidth() const
+{
+    return 3;
+}
 
 /*! \reimp */
 void QPlatinumStyle::drawPopupPanel( QPainter *p, int x, int y, int w, int h,

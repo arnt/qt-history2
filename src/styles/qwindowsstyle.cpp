@@ -73,13 +73,18 @@
 */
 QWindowsStyle::QWindowsStyle() : QCommonStyle(WindowsStyle)
 {
-    setButtonDefaultIndicatorWidth( 1 );
 }
 
 /*!\reimp
 */
 QWindowsStyle::~QWindowsStyle()
 {
+}
+
+/*!\reimp */
+int QWindowsStyle::buttonDefaultIndicatorWidth() const
+{
+    return 1;
 }
 
 /*! \reimp */

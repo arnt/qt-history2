@@ -261,8 +261,8 @@ public:
 				  QMenuItem* mi, QColorGroup& g,
 				  bool enabled, bool active ) = 0;
 
-    QSize scrollBarExtent() const;
-    int buttonDefaultIndicatorWidth() const;
+    virtual QSize scrollBarExtent() const;
+    virtual int buttonDefaultIndicatorWidth() const;
     virtual int buttonMargin() const;
     virtual int toolBarHandleExtent() const;
     virtual int sliderThickness() const;
@@ -270,12 +270,6 @@ public:
 				    Qt::Orientation orientation,
 				    bool highlight, const QColorGroup &cg,
 				    bool drawBorder = FALSE );
-
-protected:
-    void setScrollBarExtent( int w, int h=-1 ); // ### remove 3.0
-    void setButtonDefaultIndicatorWidth( int w ); // ### remove 3.0
-    void setButtonMargin( int w ); // ### remove 3.0
-    void setSliderThickness(int t); // ### remove 3.0
 
 private:
     QStylePrivate * d;
