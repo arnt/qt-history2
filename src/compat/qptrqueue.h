@@ -84,8 +84,4 @@ template<class type> inline void QPtrQueue<type>::deleteItem( QPtrCollection::It
     if ( del_item ) delete (type *)d;
 }
 
-#ifndef QT_NO_COMPAT
-#define QQueue QPtrQueue
-#endif
-
 #endif // QPTRQUEUE_H

@@ -62,10 +62,6 @@
     \ingroup tools
     \ingroup shared
 
-    QCString inherits QMemArray<char>. Since QCString is a QMemArray,
-    it uses \link shclass.html explicit sharing\endlink with a
-    reference count.
-
     QCString tries to behave like a more convenient \c{const char *}.
     The price of doing this is that some algorithms will perform
     badly. For example, append() is O(length()) since it scans for a
