@@ -422,7 +422,11 @@ static const int LastButton = QMessageBox::NoAll;
   NOTE: The table of button texts correspond to the button enum.
 */
 
+#ifndef Q_OS_TEMP
 static const char * const mb_texts[] = {
+#else
+const char * mb_texts[] = {
+#endif
     0,
     QT_TRANSLATE_NOOP("QMessageBox","OK"),
     QT_TRANSLATE_NOOP("QMessageBox","Cancel"),
@@ -885,8 +889,17 @@ void QMessageBox::adjustSize()
     int btn_spacing = 7;
     if ( style().styleHint(QStyle::SH_GUIStyle) == MotifStyle )
         btn_spacing = border;
+#ifndef Q_OS_TEMP
     int buttons = mbd->numButtons * bw + (n-1) * btn_spacing;
     int h = bh;
+#else
+    int visibleButtons = 0;
+    for ( int i = 0; i < mbd->numButtons; ++i )
+	visibleButtons += mbd->pb[i]->isVisible() ? 1 : 0;
+    int buttons = visibleButtons == 0 ? 0 : visibleButtons * bw + (visibleButtons-1) * btn_spacing;
+    int h = visibleButtons == 0 ? 0 : bh;
+    n = visibleButtons;
+#endif
     if ( labelSize.height() )
         h += labelSize.height() + 3*border;
     else
@@ -895,7 +908,7 @@ void QMessageBox::adjustSize()
     if ( mbd->iconLabel.pixmap() && mbd->iconLabel.pixmap()->width() )  {
         mbd->iconLabel.adjustSize();
         lmargin += mbd->iconLabel.width() + border;
-        if ( h < mbd->iconLabel.height() + 3*border + bh )
+        if ( h < mbd->iconLabel.height() + 3*border + bh && n )
             h = mbd->iconLabel.height() + 3*border + bh;
     }
     int w = QMAX( buttons, labelSize.width() + lmargin ) + 2*border;
@@ -915,6 +928,14 @@ void QMessageBox::resizeEvent( QResizeEvent * )
     int n  = mbd->numButtons;
     int bw = mbd->buttonSize.width();
     int bh = mbd->buttonSize.height();
+#ifdef Q_OS_TEMP
+    int visibleButtons = 0;
+    for ( i = 0; i < n; ++i )
+	visibleButtons += mbd->pb[i]->isVisible() ? 1 : 0;
+    n  = visibleButtons;
+    bw = visibleButtons == 0 ? 0 : bw;
+    bh = visibleButtons == 0 ? 0 : bh;
+#endif
     int border = bh / 2 - style().pixelMetric(QStyle::PM_ButtonDefaultIndicator);
     if ( border <= 0 )
         border = 10;

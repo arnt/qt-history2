@@ -106,6 +106,8 @@ public:
 	Style = 91,				// internal style event
 	TabletPress = 92,			// tablet press
 	TabletRelease = 93,			// tablet release
+	OkRequest = 94,				// CE (Ok) button pressed
+	HelpRequest = 95,			// CE (?)  button pressed
 	User = 1000,				// first user event id
 	MaxUser = 65535				// last user event id
     };

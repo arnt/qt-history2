@@ -82,7 +82,7 @@
     types and the specialized classes for each type are these:
 
     \value None  Not an event.
-    \value Accessibility Accessibility information is requested
+    \value Accessibility  Accessibility information is requested
     \value Timer  Regular timer events, \l{QTimerEvent}.
     \value MouseButtonPress  Mouse press, \l{QMouseEvent}.
     \value MouseButtonRelease  Mouse release, \l{QMouseEvent}.
@@ -90,9 +90,9 @@
     \value MouseMove  Mouse move, \l{QMouseEvent}.
     \value KeyPress  Key press (including Shift, for example), \l{QKeyEvent}.
     \value KeyRelease  Key release, \l{QKeyEvent}.
-    \value IMStart The start of input method composition.
-    \value IMCompose Input method composition is taking place.
-    \value IMEnd The end of input method composition.
+    \value IMStart  The start of input method composition.
+    \value IMCompose  Input method composition is taking place.
+    \value IMEnd  The end of input method composition.
     \value FocusIn  Widget gains keyboard focus, \l{QFocusEvent}.
     \value FocusOut  Widget loses keyboard focus, \l{QFocusEvent}.
     \value Enter  Mouse enters widget's boundaries.
@@ -102,19 +102,19 @@
     \value Resize  Widget's size changed, \l{QResizeEvent}.
     \value Show  Widget was shown on screen, \l{QShowEvent}.
     \value Hide  Widget was hidden, \l{QHideEvent}.
-    \value ShowToParent A child widget has been shown.
-    \value HideToParent A child widget has been hidden.
+    \value ShowToParent  A child widget has been shown.
+    \value HideToParent  A child widget has been hidden.
     \value Close  Widget was closed (permanently), \l{QCloseEvent}.
-    \value ShowNormal Widget should be shown normally.
-    \value ShowMaximized Widget should be shown maximized.
-    \value ShowMinimized Widget should be shown minimized.
-    \value ShowFullScreen Widget should be shown full-screen.
-    \value ShowWindowRequest Widget's window should be shown (obsolete).
-    \value DeferredDelete The object will be deleted after it has
+    \value ShowNormal  Widget should be shown normally.
+    \value ShowMaximized  Widget should be shown maximized.
+    \value ShowMinimized  Widget should be shown minimized.
+    \value ShowFullScreen  Widget should be shown full-screen.
+    \value ShowWindowRequest  Widget's window should be shown (obsolete).
+    \value DeferredDelete  The object will be deleted after it has
     cleaned up.
     \value Accel  Key press in child for shortcut key handling, \l{QKeyEvent}.
     \value Wheel  Mouse wheel rolled, \l{QWheelEvent}.
-    \value ContextMenu context popup menu, \l{QContextMenuEvent}
+    \value ContextMenu  Context popup menu, \l{QContextMenuEvent}
     \value AccelOverride  Key press in child, for overriding shortcut key handling, \l{QKeyEvent}.
     \value AccelAvailable internal.
     \value WindowActivate  Window was activated.
@@ -138,21 +138,22 @@
     \value LayoutHint  Widget child has changed layout properties.
     \value ActivateControl  Internal event used by Qt on some platforms.
     \value DeactivateControl  Internal event used by Qt on some platforms.
-    \value LanguageChange The application translation changed, \l{QTranslator}
-    \value LayoutDirectionChange The direction of layouts changed
-    \value LocaleChange The system locale changed
+    \value LanguageChange  The application translation changed, \l{QTranslator}
+    \value LayoutDirectionChange  The direction of layouts changed
+    \value LocaleChange  The system locale changed
     \value Quit  Reserved.
     \value Create  Reserved.
     \value Destroy  Reserved.
     \value Reparent  Reserved.
-    \value Speech Reserved for speech input.
+    \value Speech  Reserved for speech input.
     \value TabletMove  A Wacom Tablet Move Event.
+    \value Style  Internal use only
+    \value TabletPress  A Wacom Tablet Press Event
+    \value TabletRelease  A Wacom Tablet Release Event
+    \value OkRequest  Internal event used by Qt on some platforms.
+    \value HelpRequest  Internal event used by Qt on some platforms.
     \value User  User defined event.
     \value MaxUser  Last user event id.
-    \value TabletPress A Wacom Tablet Press Event
-    \value TabletRelease A Wacom Tablet Release Event
-
-    \value Style Internal use only
 
     User events should have values between User and MaxUser inclusive.
 */

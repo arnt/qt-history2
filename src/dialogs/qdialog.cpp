@@ -289,6 +289,55 @@ void QDialog::hideDefault()
 #endif
 }
 
+#ifdef Q_OS_TEMP
+/*!
+  \internal
+  Hides special buttons which are rather shown in the titlebar
+  on WinCE, to conserve screen space.
+*/
+# include "qmessagebox.h"
+extern const char * mb_texts[]; // Defined in qmessagebox.cpp
+void QDialog::hideSpecial()
+{
+    // "OK"     buttons are hidden, and (Ok) shown on titlebar
+    // "Cancel" buttons are hidden, and (X)  shown on titlebar
+    // "Help"   buttons are hidden, and (?)  shown on titlebar
+    bool showOK = FALSE,
+	 showX  = FALSE,
+	 showQ  = FALSE;
+    QObjectList *list = queryList( "QPushButton" );
+    QObjectListIt it( *list );
+    QPushButton *pb;
+    while ( (pb = (QPushButton*)it.current()) ) {
+	if ( !showOK && 
+	     pb->text() == qApp->translate( "QMessageBox", mb_texts[QMessageBox::Ok] ) ) {
+	    pb->hide();
+	    showOK = TRUE;
+	} else if ( !showX && 
+		    pb->text() == qApp->translate( "QMessageBox", mb_texts[QMessageBox::Cancel] ) ) {
+	    pb->hide();
+	    showX = TRUE;
+	} else if ( !showQ &&
+		    pb->text() == qApp->tr("Help") ) {
+	    pb->hide();
+	    showQ = TRUE;
+	}
+        ++it;
+    }
+    delete list;
+    if ( showOK || showQ ) {
+	DWORD ext = GetWindowLong( winId(), GWL_EXSTYLE );
+	ext |= showOK ? WS_EX_CAPTIONOKBTN : 0;
+	ext |= showQ  ? WS_EX_CONTEXTHELP: 0;
+	SetWindowLong( winId(), GWL_EXSTYLE, ext );
+    }
+    if ( !showX ) {
+	DWORD ext = GetWindowLong( winId(), GWL_STYLE );
+	ext &= ~WS_SYSMENU;
+	SetWindowLong( winId(), GWL_STYLE, ext );
+    }
+}
+#endif
 
 /*!
   \fn int QDialog::result() const
@@ -525,6 +574,40 @@ void QDialog::closeEvent( QCloseEvent *e )
 	e->accept();
 }
 
+#ifdef Q_OS_TEMP
+/*! \internal
+    \reimp 
+*/
+bool QDialog::event( QEvent *e )
+{
+    switch ( e->type() ) {
+    case QEvent::OkRequest:
+    case QEvent::HelpRequest:
+	{
+	    QString bName = 
+		(e->type() == QEvent::OkRequest)
+		? qApp->translate( "QMessageBox", mb_texts[QMessageBox::Ok] )
+		: qApp->tr( "Help" );
+
+	    QObjectList *list = queryList( "QPushButton" );
+	    QObjectListIt it( *list );
+	    QPushButton *pb;
+	    while ( (pb = (QPushButton*)it.current()) ) {
+		if ( pb->text() == bName ) {
+		    delete list;
+		    if ( pb->isEnabled() )
+			emit pb->clicked();
+		    return pb->isEnabled();
+		}
+		++it;
+	    }
+	    delete list;
+	}
+    }
+    return QWidget::event( e );
+}
+#endif
+
 
 /*****************************************************************************
   Geometry management.
@@ -564,6 +647,9 @@ void QDialog::show()
     }
 #endif // Q_WS_X11
 
+#ifdef Q_OS_TEMP
+    hideSpecial();
+#endif
     QWidget::show();
     showExtension( d->doShowExtension );
 #ifndef QT_NO_PUSHBUTTON
@@ -683,6 +769,7 @@ void QDialog::adjustPositionInternal( QWidget*w, bool useRelPos)
     if ( useRelPos && w ) {
 	p = w->pos() + d->relPos;
     } else {
+#ifndef Q_OS_TEMP
 	if ( w ) {
 	    // Use mapToGlobal rather than geometry() in case w might
 	    // be embedded in another application
@@ -693,8 +780,8 @@ void QDialog::adjustPositionInternal( QWidget*w, bool useRelPos)
 	    // p = middle of the desktop
 	    p = QPoint( desk.x() + desk.width()/2, desk.y() + desk.height()/2 );
 	}
-#if defined( Q_OS_TEMP )
-	p = QPoint( 0, GetSystemMetrics( SM_CYCAPTION ) );
+#else
+	p = QPoint( desk.x() + desk.width()/2, desk.y() + desk.height()/2 );
 #endif
 
 	// p = origin of this

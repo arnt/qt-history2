@@ -65,6 +65,9 @@ public:
 
     void setModal( bool modal );
     bool isModal() const;
+#ifdef Q_OS_TEMP
+    bool	event( QEvent * );
+#endif
 
 public slots:
     int exec();
@@ -87,7 +90,11 @@ protected:
 
 private:
     void	setDefault( QPushButton * );
-    void		hideDefault();
+    void	hideDefault();
+#ifdef Q_OS_TEMP
+    void	hideSpecial();
+#endif
+
     int		rescode;
     uint	did_move   : 1;
     uint	has_relpos : 1;

@@ -2079,6 +2079,16 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	    }
             break;
         }
+#else
+	case WM_COMMAND:
+	    result = (wParam == 0x1);
+	    if ( result )
+		QApplication::postEvent( widget, new QEvent( QEvent::OkRequest ) );
+	    break;
+	case WM_HELP:
+	    QApplication::postEvent( widget, new QEvent( QEvent::HelpRequest ) );
+	    result = TRUE;
+	    break;
 #endif
 
 	case WM_MOUSELEAVE:
