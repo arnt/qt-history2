@@ -438,3 +438,12 @@ bool QPSQLDriver::rollbackTransaction()
     return TRUE;
 }
 
+QStringList QPSQLDriver::tables() const
+{
+    QSql t = createResult();
+    t << "select tablename from pg_tables;";
+    QStringList tl;
+    while ( t.next() )
+	tl.append( t[0].toString() );
+    return tl;
+}
