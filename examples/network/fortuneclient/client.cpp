@@ -35,8 +35,7 @@ Client::Client(QWidget *parent)
             this, SLOT(requestNewFortune()));
     connect(quitButton, SIGNAL(clicked()), this, SLOT(close()));
     connect(tcpSocket, SIGNAL(readyRead()), this, SLOT(readFortune()));
-    connect(tcpSocket, SIGNAL(error(int)), this, SLOT(displayError(int)));
-    connect(tcpSocket, SIGNAL(connected()), this, SLOT(booga()));
+    connect(tcpSocket, SIGNAL(error(SocketError)), this, SLOT(displayError(SocketError)));
 
     QHBoxLayout *buttonLayout = new QHBoxLayout;
     buttonLayout->addStretch(1);
@@ -92,9 +91,11 @@ void Client::readFortune()
     getFortuneButton->setEnabled(true);
 }
 
-void Client::displayError(int socketError)
+void Client::displayError(QTcpSocket::SocketError socketError)
 {
     switch (socketError) {
+    case QAbstractSocket::RemoteHostClosedError:
+        break;
     case QAbstractSocket::HostNotFoundError:
         QMessageBox::information(this, tr("Fortune Client"),
                                  tr("The host was not found. Please check the "

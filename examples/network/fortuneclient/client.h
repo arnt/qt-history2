@@ -2,6 +2,7 @@
 #define CLIENT_H
 
 #include <QDialog>
+#include <QTcpSocket>
 
 class QLabel;
 class QLineEdit;
@@ -18,9 +19,8 @@ public:
 private slots:
     void requestNewFortune();
     void readFortune();
-    void displayError(int socketError);
+    void displayError(QTcpSocket::SocketError socketError);
     void enableGetFortuneButton();
-    void booga() { qDebug("connected"); }
 
 private:
     QLabel *hostLabel;

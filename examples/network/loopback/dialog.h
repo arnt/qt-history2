@@ -24,7 +24,7 @@ public slots:
     void startTransfer();
     void updateServerProgress();
     void updateClientProgress(Q_LONGLONG numBytes);
-    void displayError(int socketError);
+    void displayError(QTcpSocket::SocketError socketError);
 
 private:
     QProgressBar *clientProgressBar;

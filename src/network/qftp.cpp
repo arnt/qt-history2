@@ -82,7 +82,7 @@ signals:
 private slots:
     void socketConnected();
     void socketReadyRead();
-    void socketError(int);
+    void socketError(QTcpSocket::SocketError);
     void socketConnectionClosed();
     void socketBytesWritten(Q_LONGLONG);
     void setupSocket();
@@ -152,7 +152,7 @@ private slots:
     void connectionClosed();
     void delayedCloseFinished();
     void readyRead();
-    void error(int);
+    void error(QTcpSocket::SocketError);
 
     void dtpConnectState(int);
 
@@ -296,7 +296,7 @@ void QFtpDTP::connectToHost(const QString & host, Q_UINT16 port)
     socket->setObjectName("QFtpDTP Passive state socket");
     connect(socket, SIGNAL(connected()), SLOT(socketConnected()));
     connect(socket, SIGNAL(readyRead()), SLOT(socketReadyRead()));
-    connect(socket, SIGNAL(error(int)), SLOT(socketError(int)));
+    connect(socket, SIGNAL(error(SocketError)), SLOT(socketError(SocketError)));
     connect(socket, SIGNAL(disconnected()), SLOT(socketConnectionClosed()));
     connect(socket, SIGNAL(bytesWritten(Q_LONGLONG)), SLOT(socketBytesWritten(Q_LONGLONG)));
 
@@ -617,7 +617,7 @@ void QFtpDTP::socketReadyRead()
     }
 }
 
-void QFtpDTP::socketError(int e)
+void QFtpDTP::socketError(QTcpSocket::SocketError e)
 {
     if (e == QTcpSocket::HostNotFoundError) {
 #if defined(QFTPDTP_DEBUG)
@@ -662,7 +662,7 @@ void QFtpDTP::setupSocket()
     socket->setObjectName("QFtpDTP Active state socket");
     connect(socket, SIGNAL(connected()), SLOT(socketConnected()));
     connect(socket, SIGNAL(readyRead()), SLOT(socketReadyRead()));
-    connect(socket, SIGNAL(error(int)), SLOT(socketError(int)));
+    connect(socket, SIGNAL(error(SocketError)), SLOT(socketError(SocketError)));
     connect(socket, SIGNAL(disconnected()), SLOT(socketConnectionClosed()));
     connect(socket, SIGNAL(bytesWritten(Q_LONGLONG)), SLOT(socketBytesWritten(Q_LONGLONG)));
 
@@ -700,8 +700,8 @@ QFtpPI::QFtpPI(QObject *parent) :
             SLOT(connectionClosed()));
     connect(&commandSocket, SIGNAL(readyRead()),
             SLOT(readyRead()));
-    connect(&commandSocket, SIGNAL(error(int)),
-            SLOT(error(int)));
+    connect(&commandSocket, SIGNAL(error(SocketError)),
+            SLOT(error(SocketError)));
 
     connect(&dtp, SIGNAL(connectState(int)),
              SLOT(dtpConnectState(int)));
@@ -787,7 +787,7 @@ void QFtpPI::delayedCloseFinished()
     emit connectState(QFtp::Unconnected);
 }
 
-void QFtpPI::error(int e)
+void QFtpPI::error(QTcpSocket::SocketError e)
 {
     if (e == QTcpSocket::HostNotFoundError) {
         emit connectState(QFtp::Unconnected);

@@ -114,8 +114,8 @@ signals:
     void hostFound();
     void connected();
     void disconnected();
-    void stateChanged(int);
-    void error(int);
+    void stateChanged(SocketState);
+    void error(SocketError);
 
 protected:
     Q_LONGLONG readData(char *data, Q_LONGLONG maxlen);

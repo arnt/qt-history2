@@ -24,7 +24,8 @@ Dialog::Dialog(QWidget *parent)
     connect(&tcpClient, SIGNAL(connected()), this, SLOT(startTransfer()));
     connect(&tcpClient, SIGNAL(bytesWritten(Q_LONGLONG)),
             this, SLOT(updateClientProgress(Q_LONGLONG)));
-    connect(&tcpClient, SIGNAL(error(int)), this, SLOT(displayError(int)));
+    connect(&tcpClient, SIGNAL(error(SocketError)),
+            this, SLOT(displayError(SocketError)));
 
     QHBoxLayout *buttonLayout = new QHBoxLayout;
     buttonLayout->addStretch(1);
@@ -70,8 +71,8 @@ void Dialog::acceptConnection()
     tcpServerConnection = tcpServer.nextPendingConnection();
     connect(tcpServerConnection, SIGNAL(readyRead()),
             this, SLOT(updateServerProgress()));
-    connect(tcpServerConnection, SIGNAL(error(int)),
-            this, SLOT(displayError(int)));
+    connect(tcpServerConnection, SIGNAL(error(SocketError)),
+            this, SLOT(displayError(SocketError)));
 
     serverStatusLabel->setText(tr("Accepted connection"));
     tcpServer.close();
@@ -112,8 +113,11 @@ void Dialog::updateClientProgress(Q_LONGLONG numBytes)
                                .arg(bytesWritten / (1024 * 1024)));
 }
 
-void Dialog::displayError(int /* socketError */)
+void Dialog::displayError(QTcpSocket::SocketError socketError)
 {
+    if (socketError == QTcpSocket::RemoteHostClosedError)
+        return;
+
     QMessageBox::information(this, tr("Network error"),
                              tr("The following error occurred: %1.")
                              .arg(tcpClient.errorString()));
