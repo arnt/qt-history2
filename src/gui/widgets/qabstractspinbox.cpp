@@ -1155,19 +1155,23 @@ void QAbstractSpinBoxPrivate::calculateSizeHints() const
         QSize hint(w, h);
         QSize extra(35,6);
         opt.rect.setSize(hint + extra);
-        extra += hint - q->style()->subControlRect(QStyle::CC_SpinBox, &opt,
-                                                   QStyle::SC_SpinBoxEditField, q).size();
+        QSize eh = q->style()->subControlRect(QStyle::CC_SpinBox, &opt,
+                                            QStyle::SC_SpinBoxEditField, q).size();
+        extra += hint - eh;
         // get closer to final result by repeating the calculation
         opt.rect.setSize(hint + extra);
-        extra += hint - q->style()->subControlRect(QStyle::CC_SpinBox, &opt,
-                                                   QStyle::SC_SpinBoxEditField, q).size();
+        eh = q->style()->subControlRect(QStyle::CC_SpinBox, &opt,
+                                        QStyle::SC_SpinBoxEditField, q).size();
+        extra += hint - eh;
+        if (eh.height() & 1)
+            extra += QSize(0,1);
         hint += extra;
 
         if (slider)
             hint.rheight() += q->style()->pixelMetric(QStyle::PM_SpinBoxSliderHeight, &opt, q);
         cachedsizehint = hint.expandedTo(QApplication::globalStrut());
         cachedminimumsizehint = hint.expandedTo(QApplication::globalStrut());
-        const_cast<QAbstractSpinBoxPrivate *>(this)->sizehintdirty = false;
+        sizehintdirty = false;
     }
 }
 

@@ -408,6 +408,9 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QP
         int dim = rect.width() < rect.height() ? rect.width() : rect.height();
         int colspec = 0x0000;
 
+        if (!(opt->state & State_Enabled))
+            dim -= 2;
+
         if (dim < 2)
             break;
 
@@ -422,32 +425,49 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QP
         }
 
         if (dim > 3) {
-            if (dim > 6)
-                bFill.resize(dim & 1 ? 3 : 4);
-            bTop.resize((dim/2)*2);
-            bBot.resize(dim & 1 ? dim + 1 : dim);
-            bLeft.resize(dim > 4 ? 4 : 2);
-            bLeft.putPoints(0, 2, 0,0, 0,dim-1);
-            if (dim > 4)
-                bLeft.putPoints(2, 2, 1,2, 1,dim-3);
-            bTop.putPoints(0, 4, 1,0, 1,1, 2,1, 3,1);
-            bBot.putPoints(0, 4, 1,dim-1, 1,dim-2, 2,dim-2, 3,dim-2);
+            if (pixelMetric(PM_DefaultFrameWidth) < 2) { // thin style
+                bFill.resize( dim & 1 ? 3 : 4 );
+                bTop.resize( 2 );
+                bBot.resize( 2 );
+                bLeft.resize( 2 );
+                bLeft.putPoints( 0, 2, 0, 0, 0, dim-1 );
+                bTop.putPoints( 0, 2, 1, 0, dim-1, dim/2 );
+                bBot.putPoints( 0, 2, 1, dim-1, dim-1, dim/2 );
 
-            for(int i=0; i<dim/2-2 ; i++) {
-                bTop.putPoints(i*2+4, 2, 2+i*2,2+i, 5+i*2, 2+i);
-                bBot.putPoints(i*2+4, 2, 2+i*2,dim-3-i, 5+i*2,dim-3-i);
+                if ( dim > 6 ) {                        // dim>6: must fill interior
+                    bFill.putPoints( 0, 2, 0, dim-1, 0, 0 );
+                    if ( dim & 1 )                      // if size is an odd number
+                        bFill.setPoint( 2, dim - 1, dim / 2 );
+                    else
+                        bFill.putPoints( 2, 2, dim-1, dim/2-1, dim-1, dim/2 );
+                }
+            } else {
+                if (dim > 6)
+                    bFill.resize(dim & 1 ? 3 : 4);
+                bTop.resize((dim/2)*2);
+                bBot.resize(dim & 1 ? dim + 1 : dim);
+                bLeft.resize(dim > 4 ? 4 : 2);
+                bLeft.putPoints(0, 2, 0,0, 0,dim-1);
+                if (dim > 4)
+                    bLeft.putPoints(2, 2, 1,2, 1,dim-3);
+                bTop.putPoints(0, 4, 1,0, 1,1, 2,1, 3,1);
+                bBot.putPoints(0, 4, 1,dim-1, 1,dim-2, 2,dim-2, 3,dim-2);
+
+                for(int i=0; i<dim/2-2 ; i++) {
+                    bTop.putPoints(i*2+4, 2, 2+i*2,2+i, 5+i*2, 2+i);
+                    bBot.putPoints(i*2+4, 2, 2+i*2,dim-3-i, 5+i*2,dim-3-i);
+                }
+                if (dim & 1)                          // odd number size: extra line
+                    bBot.putPoints(dim-1, 2, dim-3,dim/2, dim-1,dim/2);
+                if (dim > 6) {                        // dim>6: must fill interior
+                    bFill.putPoints(0, 2, 1,dim-3, 1,2);
+                    if (dim & 1)                      // if size is an odd number
+                        bFill.setPoint(2, dim - 3, dim / 2);
+                    else
+                        bFill.putPoints(2, 2, dim-4,dim/2-1, dim-4,dim/2);
+                }
             }
-            if (dim & 1)                          // odd number size: extra line
-                bBot.putPoints(dim-1, 2, dim-3,dim/2, dim-1,dim/2);
-            if (dim > 6) {                        // dim>6: must fill interior
-                bFill.putPoints(0, 2, 1,dim-3, 1,2);
-                if (dim & 1)                      // if size is an odd number
-                    bFill.setPoint(2, dim - 3, dim / 2);
-                else
-                    bFill.putPoints(2, 2, dim-4,dim/2-1, dim-4,dim/2);
-            }
-        }
-        else {
+        } else {
             if (dim == 3) {                       // 3x3 arrow pattern
                 bLeft.setPoints(4, 0,0, 0,2, 1,1, 1,1);
                 bTop .setPoints(2, 1,0, 1,0);
@@ -518,10 +538,10 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QP
             cols[4] = &opt->palette.dark().color();
         } else {
             cols[0] = 0;
-            cols[1] = &opt->palette.button().color();
-            cols[2] = &opt->palette.button().color();
-            cols[3] = &opt->palette.button().color();
-            cols[4] = &opt->palette.button().color();
+            cols[1] = &opt->palette.mid().color();
+            cols[2] = &opt->palette.mid().color();
+            cols[3] = &opt->palette.mid().color();
+            cols[4] = &opt->palette.mid().color();
         }
 
 #define CMID *cols[(colspec>>12) & 0xf]
