@@ -999,14 +999,14 @@ static void qt_mac_clip_cg(CGContextRef hd, const QRegion &rgn, const QPoint *pt
 
 QCoreGraphicsPaintEngine::QCoreGraphicsPaintEngine()
     : QQuickDrawPaintEngine(*(new QCoreGraphicsPaintEnginePrivate),
-                            PaintEngineFeatures(CoordTransform|PenWidthTransform|PixmapTransform|PainterPaths
+                            PaintEngineFeatures(CoordTransform|PenWidthTransform|PatternTransform|PixmapTransform|PainterPaths
                                                 |PixmapScale|UsesFontEngine|LinearGradients
                                                 |ClipTransform|AlphaStroke|AlphaFill))
 {
 }
 
 QCoreGraphicsPaintEngine::QCoreGraphicsPaintEngine(QPaintEnginePrivate &dptr)
-    : QQuickDrawPaintEngine(dptr, PaintEngineFeatures(CoordTransform|PenWidthTransform|PixmapTransform|PainterPaths
+    : QQuickDrawPaintEngine(dptr, PaintEngineFeatures(CoordTransform|PenWidthTransform|PatternTransform|PixmapTransform|PainterPaths
                                                       |PixmapScale|UsesFontEngine|LinearGradients
                                                       |ClipTransform|AlphaStroke|AlphaFill))
 {
