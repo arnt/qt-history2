@@ -976,7 +976,6 @@ void QTextLine::layout_helper(int maxGlyphs)
 //     qDebug("from: %d:   item=%d, total %d width available %d/%d", line.from, item, eng->items.size(), line.width.value(), line.width);
 
     while (item < eng->items.size()) {
-        eng->shape(item);
         const QCharAttributes *attributes = eng->attributes();
         const QScriptItem &current = eng->items[item];
         if (!current.num_glyphs)
