@@ -15,3 +15,5 @@ imagedirs	= $QTDIR/gif
 outputdir	= output/qt
 base		= file:$QTDIR/doc/html/
 versionsym	= QT_VERSION_STR
+defines		= Q_QDOC \
+		  QT_.*_SUPPORT
