@@ -56,25 +56,28 @@ static inline int qt_socket_bind(int s, struct sockaddr *addr, QT_SOCKLEN_T addr
 # undef bind
 #endif
 
-// POSIX Large File Support redefines open -> open64
-static inline int qt_open(const char *pathname, int flags, mode_t mode)
-{ return ::open(pathname, flags, mode); }
-#if defined(open)
-# undef open
-#endif
-
-// POSIX Large File Support redefines truncate -> truncate64
-static inline int qt_truncate(const char *pathname, off_t length)
-{ return ::truncate(pathname, length); }
-#if defined(truncate)
-# undef truncate
-#endif
-
+#ifdef QT_LARGEFILE_SUPPORT
+#define QT_STATBUF              struct stat64
+#define QT_STATBUF4TSTAT        struct stat64
+#define QT_STAT                 ::stat64
+#define QT_FSTAT                ::fstat64
+#define QT_LSTAT                ::lstat64
+#define QT_OPEN                 ::open64
+#define QT_TRUNCATE             ::truncate64
+#define QT_FTRUNCATE            ::ftruncate64
+#define QT_LSEEK                ::lseek64
+#else
 #define QT_STATBUF		struct stat
 #define QT_STATBUF4TSTAT	struct stat
 #define QT_STAT			::stat
 #define QT_FSTAT		::fstat
 #define QT_LSTAT		::lstat
+#define QT_OPEN                 ::open
+#define QT_TRUNCATE             ::truncate
+#define QT_FTRUNCATE            ::ftruncate
+#define QT_LSEEK                ::lseek
+#endif
+
 #define QT_STAT_REG		S_IFREG
 #define QT_STAT_DIR		S_IFDIR
 #define QT_STAT_MASK		S_IFMT
@@ -82,11 +85,6 @@ static inline int qt_truncate(const char *pathname, off_t length)
 #define QT_SOCKET_CONNECT	qt_socket_connect
 #define QT_SOCKET_BIND		::bind
 #define QT_FILENO		fileno
-#define QT_OPEN			qt_open
-#define QT_CLOSE		::close
-#define QT_TRUNCATE		qt_truncate
-#define QT_FTRUNCATE		::ftruncate
-#define QT_LSEEK		::lseek
 #define QT_READ			::read
 #define QT_WRITE		::write
 #define QT_ACCESS		::access

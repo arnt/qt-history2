@@ -48,11 +48,28 @@
 static inline int qt_socket_connect(int s, struct sockaddr *addr, QT_SOCKLEN_T addrlen)
 { return ::connect(s, addr, addrlen); }
 
-#define QT_STATBUF		struct stat
-#define QT_STATBUF4TSTAT	struct stat
-#define QT_STAT			::stat
-#define QT_FSTAT		::fstat
-#define QT_LSTAT		::lstat
+#ifdef QT_LARGEFILE_SUPPORT
+#define QT_STATBUF              struct stat64
+#define QT_STATBUF4TSTAT        struct stat64
+#define QT_STAT                 ::stat64
+#define QT_FSTAT                ::fstat64
+#define QT_LSTAT                ::lstat64
+#define QT_OPEN                 ::open64
+#define QT_TRUNCATE             ::truncate64
+#define QT_FTRUNCATE            ::ftruncate64
+#define QT_LSEEK                ::lseek64
+#else
+#define QT_STATBUF              struct stat
+#define QT_STATBUF4TSTAT        struct stat
+#define QT_STAT                 ::stat
+#define QT_FSTAT                ::fstat
+#define QT_LSTAT                ::lstat
+#define QT_OPEN                 ::open
+#define QT_TRUNCATE             ::truncate
+#define QT_FTRUNCATE            ::ftruncate
+#define QT_LSEEK                ::lseek
+#endif
+
 #define QT_STAT_REG		S_IFREG
 #define QT_STAT_DIR		S_IFDIR
 #define QT_STAT_MASK		S_IFMT
@@ -60,11 +77,6 @@ static inline int qt_socket_connect(int s, struct sockaddr *addr, QT_SOCKLEN_T a
 #define QT_SOCKET_CONNECT	qt_socket_connect
 #define QT_SOCKET_BIND		::bind
 #define QT_FILENO		fileno
-#define QT_OPEN			::open
-#define QT_CLOSE		::close
-#define QT_TRUNCATE		::truncate
-#define QT_FTRUNCATE		::ftruncate
-#define QT_LSEEK		::lseek
 #define QT_READ			::read
 #define QT_WRITE		::write
 #define QT_ACCESS		::access
