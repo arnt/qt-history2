@@ -856,7 +856,7 @@ void QDial::calcLines()
 }
 
 /*!
-  \property QDialog::minValue
+  \property QDial::minValue
   \brief the current minimum value
   \sa setRange()
 */
@@ -866,7 +866,7 @@ int QDial::minValue() const
 }
 
 /*!
-  \property QDialog::maxValue
+  \property QDial::maxValue
   \brief the current maximum value
   \sa setRange()
 */
