@@ -3478,14 +3478,8 @@ void QTable::selectRow( int row )
     row = qMin(numRows()-1, row);
     if ( row < 0 )
 	return;
-    bool isDataTable = FALSE;
-#ifndef QT_NO_SQL
-    isDataTable = ::qt_cast<QDataTable*>(this) != 0;
-#endif
-    {
-	QTableSelection sel( row, 0, row, numCols() - 1 );
-	addSelection( sel );
-    }
+    QTableSelection sel( row, 0, row, numCols() - 1 );
+    addSelection( sel );
 }
 
 /*! Selects the column \a col.
