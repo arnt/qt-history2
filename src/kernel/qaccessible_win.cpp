@@ -21,7 +21,7 @@ bool qt_notify_accessibility( QObject *o, int reason )
 	w = (QWidget*)o;
     } else {
 	QObject *p = o;
-	while ( ( p = o->parent() ) != 0 ) {
+	while ( ( p = p->parent() ) != 0 ) {
 	    if ( p->isWidgetType() ) {
 		w = (QWidget*)p;
 		break;
@@ -29,8 +29,14 @@ bool qt_notify_accessibility( QObject *o, int reason )
 	}
     }
 
-    if ( !w )
-	return FALSE;
+    if ( !w ) {
+	w = qApp->mainWidget();
+	if ( !w ) {
+	    w = qApp->focusWidget();
+	    if ( !w )
+		return FALSE;
+	}
+    }
 
     NotifyWinEvent( reason, w->winId(), OBJID_CLIENT, CHILDID_SELF );
 
