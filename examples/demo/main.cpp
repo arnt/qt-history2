@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/demo/main.cpp#11 $
+** $Id: //depot/qt/main/examples/demo/main.cpp#12 $
 **
 ** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
@@ -62,6 +62,12 @@ int main( int argc, char **argv )
     tab->addTab( w, "Graph Drawing" );
     tab->addTab( new DisplayWidget(), "Display" );
     frame.addCategory( tab, twodpix, "2D Graphics" );
+
+    // 3D Graphics
+    tab = new QTabWidget();
+    w = new QWidget( tab );
+    tab->addTab( w, "3d Demo" );
+    frame.addCategory( tab, pix, "3D Graphics" );
 
     // example 4
     tab = new QTabWidget();
