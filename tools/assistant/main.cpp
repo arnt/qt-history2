@@ -140,7 +140,7 @@ EditDocs::EditDocs()
 {
 }
 
-bool EditDocs::addDocFile( const QString &file )
+bool EditDocs::addDocFile( const QString & /*file*/ )
 {
 //     QFileInfo fi( file );
 //     if ( !fi.isReadable() ) {
@@ -174,7 +174,7 @@ bool EditDocs::addDocFile( const QString &file )
     return TRUE;
 }
 
-void EditDocs::addItemToList( const QString &rcEntry, const QString &item )
+void EditDocs::addItemToList( const QString & /*rcEntry*/, const QString & /*item*/ )
 {
 //     QSettings settings;
 //     settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
@@ -189,7 +189,7 @@ void EditDocs::addItemToList( const QString &rcEntry, const QString &item )
 //     settings.writeEntry( DocuParser::DocumentKey + "NewDoc", TRUE );
 }
 
-void EditDocs::removeDocFile( const QString &file )
+void EditDocs::removeDocFile( const QString & /*file*/ )
 {
 //     if ( file.isEmpty() )
 // 	return;

@@ -147,7 +147,7 @@ void MainWindow::setup()
     setupCompleted = TRUE;
 }
 
-void MainWindow::setupGoActions( const QStringList &docList, const QStringList &catList )
+void MainWindow::setupGoActions( const QStringList & /*docList*/, const QStringList &catList )
 {
     Config * config = Config::configuration();
     QStringList docFiles = config->docFiles();

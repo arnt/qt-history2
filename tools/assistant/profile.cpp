@@ -41,8 +41,8 @@ public:
     QString propertyName;
 };
 
-bool ProfileHandler::startElement( const QString &namespaceURI,
-				   const QString &localName,
+bool ProfileHandler::startElement( const QString & /*namespaceURI*/,
+				   const QString & /*localName*/,
 				   const QString &qName,
 				   const QXmlAttributes &attr )
 {
@@ -72,9 +72,9 @@ bool ProfileHandler::startElement( const QString &namespaceURI,
     return TRUE;
 }
 
-bool ProfileHandler::endElement( const QString & namespaceURI,
-				 const QString & localName,
-				 const QString & qName)
+bool ProfileHandler::endElement( const QString & /*namespaceURI*/,
+				 const QString & /*localName*/,
+				 const QString & /*qName*/)
 {
     switch( state ) {
     case StateNone:
@@ -165,7 +165,7 @@ void Profile::load( const QString &name )
     valid = read.parse( &insrc, FALSE );
 
     if( !valid ) {
-	qWarning( "Failed to parse profile: ", name.latin1() );
+	qWarning( "Failed to parse profile: %s", name.latin1() );
     } else if ( props["name"].isNull() ) {
 	qWarning( "Profile does not contain required property 'name'" );
 	valid = FALSE;

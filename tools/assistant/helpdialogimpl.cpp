@@ -852,7 +852,7 @@ void HelpDialog::toggleSearch()
 	parentWidget()->hide();
 }
 
-void HelpDialog::removeDocFile( const QString &fileName )
+void HelpDialog::removeDocFile( const QString & /*fileName*/ )
 {
 //     QSettings settings;
 //     settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
