@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#11 $
+** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#12 $
 **
 ** Implementation of QTextCodec class
 **
@@ -184,7 +184,7 @@ int QTextCodec::simpleHeuristicNameMatch(const char* name, const char* hint)
 */
 QTextCodec* QTextCodec::codecForIndex(int i)
 {
-    return all.at(i);
+    return (uint)i >= all.count() ? 0 : all.at(i);
 }
 
 /*!
@@ -416,26 +416,6 @@ class QTextCodecFromIOD : public QTextCodec {
     bool stateless() const { return !to_unicode_multibyte; }
 
 public:
-    ~QTextCodecFromIOD()
-    {
-	if ( from_unicode_page ) {
-	    for (int i=0; i<256; i++)
-		if (from_unicode_page[i])
-		    delete [] from_unicode_page[i];
-	}
-	if ( from_unicode_page_multibyte ) {
-	    for (int i=0; i<256; i++)
-		if (from_unicode_page_multibyte[i])
-		    for (int j=0; j<256; i++)
-			if (from_unicode_page_multibyte[i][j])
-			    delete [] from_unicode_page_multibyte[i][j];
-	}
-	if ( to_unicode )
-	    delete [] to_unicode;
-	if ( to_unicode_multibyte )
-	    delete [] to_unicode_multibyte;
-    }
-
     QTextCodecFromIOD(QIODevice* iod)
     {
 int mem=0;
@@ -459,6 +439,8 @@ int mem=0;
 	    } else if (0==strnicmp(line,"CHARMAP",7)) {
 		if (!from_unicode_page) {
 		    from_unicode_page = new char*[256];
+		    for (int i=0; i<256; i++)
+			from_unicode_page[i]=0;
 mem+=256;
 		}
 		if (!to_unicode) {
@@ -474,7 +456,7 @@ mem+=256;
 		int byte,unicode=-1;
 		ushort* mb_unicode=0;
 		const int maxmb=8; // more -> we'll need to improve datastructures
-		char mb[maxmb];
+		char mb[maxmb+1];
 		int nmb=0;
 
 		while (*cursor && *cursor!=' ')
@@ -491,7 +473,7 @@ mem+=256*sizeof(QMultiByteUnicodeTable);
 			    to_unicode_multibyte[i].unicode = to_unicode[i];
 			    to_unicode_multibyte[i].multibyte = 0;
 			}
-			delete to_unicode;
+			delete [] to_unicode;
 			to_unicode = 0;
 		    }
 		    QMultiByteUnicodeTable* mbut = to_unicode_multibyte+byte;
@@ -523,16 +505,22 @@ mem+=256*sizeof(QMultiByteUnicodeTable);
 		    QChar ch((ushort)unicode);
 		    if (!from_unicode_page[ch.row]) {
 			from_unicode_page[ch.row] = new char[256];
+			for (int i=0; i<256; i++)
+			    from_unicode_page[ch.row][i]=0;
 mem+=256;
 		    }
 		    if ( mb_unicode ) {
 			from_unicode_page[ch.row][ch.cell] = 0;
 			if (!from_unicode_page_multibyte) {
 			    from_unicode_page_multibyte = new char**[256];
+			    for (int i=0; i<256; i++)
+				from_unicode_page_multibyte[i]=0;
 mem+=256*4;
 			}
 			if (!from_unicode_page_multibyte[ch.row]) {
 			    from_unicode_page_multibyte[ch.row] = new char*[256];
+			    for (int i=0; i<256; i++)
+				from_unicode_page_multibyte[ch.row][i] = 0;
 mem+=256*4;
 			}
 			mb[nmb++] = 0;
@@ -552,6 +540,26 @@ mem+=256*4;
 	}
 	n = n.stripWhiteSpace();
 debug("name = \"%s\"   MEMORY=%2.2fK",n.data(),(float)mem/1024);
+    }
+
+    ~QTextCodecFromIOD()
+    {
+	if ( from_unicode_page ) {
+	    for (int i=0; i<256; i++)
+		if (from_unicode_page[i])
+		    delete [] from_unicode_page[i];
+	}
+	if ( from_unicode_page_multibyte ) {
+	    for (int i=0; i<256; i++)
+		if (from_unicode_page_multibyte[i])
+		    for (int j=0; j<256; i++)
+			if (from_unicode_page_multibyte[i][j])
+			    delete [] from_unicode_page_multibyte[i][j];
+	}
+	if ( to_unicode )
+	    delete [] to_unicode;
+	if ( to_unicode_multibyte )
+	    delete [] to_unicode_multibyte;
     }
 
     bool ok() const
@@ -626,20 +634,30 @@ debug("name = \"%s\"   MEMORY=%2.2fK",n.data(),(float)mem/1024);
 	    len_in_out = uc.length();
 	char* result = new char[len_in_out*max_bytes_per_char];
 	char* cursor = result;
+	char* s;
 	int l = len_in_out;
+	int lout = 0;
 	for (int i=0; i<l; i++) {
 	    QChar ch = uc[i];
-	    if ( from_unicode_page[ch.row] )
-		*cursor++ = from_unicode_page[ch.row][ch.cell];
-	    else if ( from_unicode_page_multibyte &&
-		      from_unicode_page_multibyte[ch.row] )
+	    if ( from_unicode_page[ch.row] &&
+		from_unicode_page[ch.row][ch.cell] )
 	    {
-		char* s = from_unicode_page_multibyte[ch.row][ch.cell];
-		while (*s)
+		*cursor++ = from_unicode_page[ch.row][ch.cell];
+		lout++;
+	    } else if ( from_unicode_page_multibyte &&
+		      from_unicode_page_multibyte[ch.row] &&
+		      (s=from_unicode_page_multibyte[ch.row][ch.cell]) )
+	    {
+		while (*s) {
 		    *cursor++ = *s++;
-	    } else
+		    lout++;
+		}
+	    } else {
 		*cursor++ = '?'; // #### Any better replacement char?
+		lout++;
+	    }
 	}
+	len_in_out = lout;
 	return result;
     }
 };
