@@ -2246,20 +2246,20 @@ static bool getDnsParamsFromRegistry( const QString &path,
 			  0, KEY_READ, &k );
     } , {
 	r = RegOpenKeyExA( HKEY_LOCAL_MACHINE,
-			   path,
+			   path.local8Bit(),
 			   0, KEY_READ, &k );
     } );
 
     if ( r == ERROR_SUCCESS ) {
-	*domainName = getWindowsRegString( k, "DhcpDomain" );
+	*domainName = getWindowsRegString( k, QLatin1String("DhcpDomain") );
 	if ( domainName->isEmpty() )
-	    *domainName = getWindowsRegString( k, "Domain" );
+	    *domainName = getWindowsRegString( k, QLatin1String("Domain") );
 
-	*nameServer = getWindowsRegString( k, "DhcpNameServer" );
+	*nameServer = getWindowsRegString( k, QLatin1String("DhcpNameServer") );
 	if ( nameServer->isEmpty() )
-	    *nameServer = getWindowsRegString( k, "NameServer" );
+	    *nameServer = getWindowsRegString( k, QLatin1String("NameServer") );
 
-	*searchList = getWindowsRegString( k, "SearchList" );
+	*searchList = getWindowsRegString( k, QLatin1String("SearchList") );
     }
     RegCloseKey( k );
     return r == ERROR_SUCCESS;
@@ -2290,6 +2290,7 @@ void QDns::doResInit()
 #else
 	GNP getNetworkParams = (GNP) GetProcAddress( hinstLib, "GetNetworkParams" );
 #endif
+
 	if ( getNetworkParams != 0 ) {
 	    ULONG l = 0;
 	    DWORD res;
@@ -2299,15 +2300,15 @@ void QDns::doResInit()
 		res = getNetworkParams( finfo, &l );
 		if ( res == ERROR_SUCCESS ) {
 		    domainName = finfo->DomainName;
-		    nameServer = "";
+		    nameServer = QLatin1String("");
 		    IP_ADDR_STRING *dnsServer = &finfo->DnsServerList;
 		    while ( dnsServer != 0 ) {
 			nameServer += dnsServer->IpAddress.String;
 			dnsServer = dnsServer->Next;
 			if ( dnsServer != 0 )
-			    nameServer += " ";
+			    nameServer += QLatin1String(" ");
 		    }
-		    searchList = "";
+		    searchList = QLatin1String("");
 		    separator = ' ';
 		    gotNetworkParams = TRUE;
 		}
@@ -2329,9 +2330,9 @@ void QDns::doResInit()
 	    separator = ',';
 	} else {
 	    // Could not access the TCP/IP parameters
-	    domainName = "";
-	    nameServer = "127.0.0.1";
-	    searchList = "";
+	    domainName = QLatin1String("");
+	    nameServer = QLatin1String("127.0.0.1");
+	    searchList = QLatin1String("");
 	    separator = ' ';
 	}
     }
@@ -2353,14 +2354,14 @@ void QDns::doResInit()
 	} while( first < (int)nameServer.length() );
     }
 
-    searchList = searchList + " " + domainName;
+    searchList = searchList + QLatin1String(" ") + domainName;
     searchList = searchList.simplifyWhiteSpace().toLower();
     first = 0;
     do {
 	last = searchList.find( separator, first );
 	if ( last < 0 )
 	    last = searchList.length();
-	domains->append( qstrdup( searchList.mid( first, last-first ) ) );
+	domains->append( qstrdup( searchList.mid( first, last-first ).latin1() ) );
 	first = last+1;
     } while( first < (int)searchList.length() );
 }
