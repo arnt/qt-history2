@@ -172,12 +172,10 @@ void TrayIcon::mouseReleaseEvent( QMouseEvent *e )
     switch ( e->button() ) {
     case RightButton:
 	if ( pop ) {
-	    // Those lines are necessary to make keyboard focus
+	    // Necessary to make keyboard focus
 	    // and menu closing work on Windows.
 	    pop->setActiveWindow();
-	    pop->grabMouse();
-	    pop->exec( e->globalPos() );
-	    pop->releaseMouse();
+	    pop->popup( e->globalPos() );
 	    pop->setActiveWindow();
 	    e->accept();
 	}

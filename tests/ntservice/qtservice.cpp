@@ -187,6 +187,7 @@ bool QtService::install()
     // tidy up
     ::CloseServiceHandle(hService);
     ::CloseServiceHandle(hSCM);
+    reportEvent( "Service installed" );
     return TRUE;
 }
 
@@ -220,6 +221,8 @@ bool QtService::uninstall()
     }
     
     ::CloseServiceHandle (hSCM);
+    if ( result )
+	reportEvent( "Service uninstalled" );
     return result;
 }
 
@@ -284,8 +287,7 @@ bool QtService::isRunning() const
 	    int res = QueryServiceStatus( hService, &info );
 	    if ( res )
 		result = info.dwCurrentState == SERVICE_RUNNING;
-	    else
-		qDebug( "Error reading QueryServiceStatus: %d", GetLastError() );
+
 	    ::CloseServiceHandle(hService);
 	}
 	::CloseServiceHandle(hSCM);
@@ -329,6 +331,8 @@ bool QtService::start()
 
 	res = ::StartServiceCtrlDispatcherA(st);
     }
+    if ( !res )
+	reportEvent( "The Service failed to start", Error );
     return res;
 }
 
@@ -357,4 +361,47 @@ QString QtService::serviceName() const
 QString QtService::filePath() const
 {
     return filepath;
+}
+
+void QtService::reportEvent( const QString &message, EventType type, uint category )
+{
+    HANDLE h;
+    WORD wType;
+    WORD dwEventID = 5;
+
+    switch ( type ) {
+    case Error:
+	wType = EVENTLOG_ERROR_TYPE;
+	break;
+
+    case Warning:
+	wType = EVENTLOG_WARNING_TYPE;
+	break;
+
+    case Information:
+	wType = EVENTLOG_INFORMATION_TYPE;
+
+    default:
+	wType = EVENTLOG_SUCCESS;
+	break;
+    }
+
+#if defined(UNICODE)
+    if ( QApplication::winVersion() & Qt::WV_NT_based ) {
+	h = RegisterEventSource( NULL, (TCHAR*)qt_winTchar( servicename, TRUE ) );
+	if ( !h )
+	    return;
+	const TCHAR* msg = (TCHAR*)qt_winTchar( message, TRUE );
+	ReportEvent( h, wType, category, dwEventID, NULL, 1, 0, (const TCHAR**)&msg, NULL );
+    } else
+#endif
+    {
+	h = RegisterEventSourceA( NULL, servicename.local8Bit() );
+	if ( !h )
+	    return;
+	const char* msg = message.local8Bit();
+	ReportEventA( h, wType, category, dwEventID, NULL, 1, 0, (const char**)&msg, NULL );
+    }
+
+    DeregisterEventSource( h );
 }
