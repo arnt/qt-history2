@@ -779,7 +779,7 @@ QTextCodec* QTextCodec::codecForLocale()
 	    localeMapper = codecForName( lang );
 
 	// 5. "@euro"
-	if ( strstr( ctype, "@euro" ) || strstr( lang, "@euro" ) )
+	if ( ctype && strstr( ctype, "@euro" ) || lang && strstr( lang, "@euro" ) )
 	    localeMapper = codecForName( "ISO 8859-15" );
 	
 	// 6. guess locale from ctype unless ctype is "C"
