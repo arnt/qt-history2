@@ -734,17 +734,21 @@ void QDateTimeEdit::keyPressEvent(QKeyEvent *e)
 	    d->setSelected(d->currentsection);
 	    return;
 
-#ifndef Q_WS_MAC
 	case Qt::Key_Left:
 	    forward = false;
 	case Qt::Key_Right:
+#ifdef Q_WS_MAC
+	    if (e->modifiers() & Qt::ControlModifier) {
+                select = false;
+                break;
+            }
+#endif
 	    if (!(e->modifiers() & Qt::ControlModifier)) {
 		const int selsize = d->edit->selectedText().size();
 		if (selsize == 0 || selsize != d->sectionSize(d->currentsection))
 		    break;
 		select = false;
 	    }
-#endif
 	case Qt::Key_Backtab:
 	case Qt::Key_Tab: {
 	    if (e->key() == Qt::Key_Backtab
@@ -843,6 +847,9 @@ void QDateTimeEdit::focusInEvent(QFocusEvent *e)
 
 bool QDateTimeEdit::focusNextPrevChild(bool next)
 {
+    if (!focusWidget())
+        return;
+
     const QDateTimeEditPrivate::Section newSection = d->nextPrevSection(d->currentsection, next).section;
     switch (newSection) {
     case QDateTimeEditPrivate::NoSection:
