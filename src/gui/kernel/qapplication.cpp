@@ -2774,6 +2774,7 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
                 }
             }
 
+            bool eventAccepted = mouse->isAccepted();
             while (w) {
                 QMouseEvent me(mouse->type(), relpos, mouse->globalPos(), mouse->button(), mouse->buttons(),
                                mouse->modifiers());
@@ -2793,17 +2794,15 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
                     res = notify_helper(w, w == receiver ? mouse : &me);
                     e->spont = false;
                 }
-                if (res && (w == receiver ? mouse : &me)->isAccepted())
+                eventAccepted = (w == receiver ? mouse : &me)->isAccepted();
+                if (res && eventAccepted)
                     break;
                 if (w->isWindow() || w->testAttribute(Qt::WA_NoMousePropagation))
                     break;
                 relpos += w->pos();
                 w = w->parentWidget();
             }
-            if (res)
-                mouse->accept();
-            else
-                mouse->ignore();
+            mouse->setAccepted(eventAccepted);
 
             if (e->type() == QEvent::MouseMove) {
                 w = static_cast<QWidget *>(receiver);
@@ -2829,6 +2828,7 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
             QWidget* w = static_cast<QWidget *>(receiver);
             QWheelEvent* wheel = static_cast<QWheelEvent*>(e);
             QPoint relpos = wheel->pos();
+            bool eventAccepted = wheel->isAccepted();
 
             if (e->spontaneous()) {
                 QWidget *fw = w;
@@ -2848,18 +2848,16 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
                                wheel->modifiers(), wheel->orientation());
                 we.spont = wheel->spontaneous();
                 res = notify_helper(w,  w == receiver ? wheel : &we);
+                eventAccepted = ((w == receiver) ? wheel : &we)->isAccepted();
                 e->spont = false;
-                if ((res && (w == receiver ? wheel : &we)->isAccepted())
+                if ((res && eventAccepted)
                     || w->isWindow() || w->testAttribute(Qt::WA_NoMousePropagation))
                     break;
 
                 relpos += w->pos();
                 w = w->parentWidget();
             }
-            if (res)
-                wheel->accept();
-            else
-                wheel->ignore();
+            wheel->setAccepted(eventAccepted);
         }
         break;
 #endif
@@ -2868,23 +2866,22 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
             QWidget* w = static_cast<QWidget *>(receiver);
             QContextMenuEvent *context = static_cast<QContextMenuEvent*>(e);
             QPoint relpos = context->pos();
+            bool eventAccepted = context->isAccepted();
             while (w) {
                 QContextMenuEvent ce(context->reason(), relpos, context->globalPos());
                 ce.spont = e->spontaneous();
                 res = notify_helper(w,  w == receiver ? context : &ce);
+                eventAccepted = ((w == receiver) ? context : &ce)->isAccepted();
                 e->spont = false;
 
-                if ((res && (w == receiver ? context : &ce)->isAccepted())
+                if ((res && eventAccepted)
                     || w->isWindow() || w->testAttribute(Qt::WA_NoMousePropagation))
                     break;
 
                 relpos += w->pos();
                 w = w->parentWidget();
             }
-            if (res)
-                context->accept();
-            else
-                context->ignore();
+            context->setAccepted(eventAccepted);
         }
         break;
     case QEvent::TabletMove:
@@ -2894,6 +2891,7 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
             QWidget *w = static_cast<QWidget *>(receiver);
             QTabletEvent *tablet = static_cast<QTabletEvent*>(e);
             QPoint relpos = tablet->pos();
+            bool eventAccepted = tablet->isAccepted();
             while (w) {
                 QTabletEvent te(tablet->type(), tablet->pos(), tablet->globalPos(),
                                 tablet->hiResGlobalPos(), tablet->device(), tablet->pressure(),
@@ -2901,18 +2899,17 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
                                 tablet->uniqueId());
                 te.spont = e->spontaneous();
                 res = notify_helper(w, w == receiver ? tablet : &te);
+                eventAccepted = ((w == receiver) ? tablet : &te)->isAccepted();
                 e->spont = false;
-                if ((res && (w == receiver ? tablet : &te)->isAccepted()
-                     || w->isWindow() || w->testAttribute(Qt::WA_NoMousePropagation)))
+                if ((res && eventAccepted)
+                     || w->isWindow()
+                     || w->testAttribute(Qt::WA_NoMousePropagation))
                     break;
 
                 relpos += w->pos();
                 w = w->parentWidget();
             }
-            if (res)
-                tablet->accept();
-            else
-                tablet->ignore();
+            tablet->setAccepted(eventAccepted);
             qt_tabletChokeMouse = tablet->isAccepted();
         }
         break;
@@ -2985,6 +2982,9 @@ bool QApplication::notify_helper(QObject *receiver, QEvent * e)
         // throw away mouse events to disabled widgets
         if (!widget->isEnabled()) {
             switch(e->type()) {
+            case QEvent::TabletPress:
+            case QEvent::TabletRelease:
+            case QEvent::TabletMove:
             case QEvent::MouseButtonPress:
             case QEvent::MouseButtonRelease:
             case QEvent::MouseButtonDblClick:
