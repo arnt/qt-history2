@@ -42,37 +42,32 @@ XML) interface plus an implementation of the DOM Level 1 (Document Object
 Model).
 
 This document assumes that you are familiar with the XML terminology. It
-provides you with information how to use the XML classes in Qt. For basic
-information on XML you should look at another place
-(e.g. <a href="http://www.w3.org/XML/">http://www.w3.org/XML/</a>).
-
+provides you with information on how to use the XML classes in Qt. 
+It is however not intended to teach XML basics. If you wish to learn 
+more about XML please refer to other sources like
+e.g. <a href="http://www.w3.org/XML/">http://www.w3.org/XML/</a>.
 
 
 <h2><a name="overview">Overview of the XML architecture in Qt</h2>
 
 The Qt XML Module provides two interfaces for XML: SAX2 and DOM Level 1.
 
-SAX2 is a very popular Java interface for XML parsers. It was also adopted
-for other languages. The interface in Qt is designed after the Java
-interface. The naming was adjusted to fit the Qt naming conventions.
+SAX2 is a very popular Java interface for XML parsers that was also adopted
+for other languages. The Qt interface follows the design of the Java
+interface. Its naming scheme was however adjusted to fit the Qt naming conventions.
 Details on SAX2 can be found at
 <a href="http://www.megginson.com/SAX/">http://www.megginson.com/SAX/</a>.
 
 Support for SAX2 filters and the reader factory are missing at the moment.
-Furthermore all classes that are in the Java interface for SAX1
-compatibility are omitted.
+The Qt implementation furthermore omits all SAX1 compatibility classes 
+present in the Java interface. 
+
+Refer to the "<a href="xml-sax.html">How to use the Qt SAX2 classes</a>" document
+for further information on how to use SAX2 with Qt.
 
 DOM Level 1 is a W3C Recommendation for XML interfaces. Details and the
 specification of DOM Level 1 can be found at
 <a href="http://www.w3.org/DOM/">http://www.w3.org/DOM/</a>.
-
-See also the file
-"<a href="xml-sax.html">How to use the Qt SAX2 classes</a>"
-for a description of the usage of SAX2.
-
-
-
-
 
 
 <h2><a name="introSAX2">Introduction to SAX2</h2>
@@ -80,75 +75,72 @@ for a description of the usage of SAX2.
 The SAX2 interface is a event-driven mechanism to provide the user with
 document information. "Event" in this context has nothing to do with the
 term "event" you probably know from windowing systems; it means that the
-parser reports certain document information while he parses the document.
+parser reports certain document information while parsing the document.
 These reported information is referred to as "event".
 
-The parser in SAX2 is normally referred to as "reader". There is an
-abstract class, \l QXmlReader, which defines the interface for all readers.
-At the moment Qt provides one implementation of a reader, \l
+The parser in SAX2 is usually referred to as "reader". There is an
+abstract class, \l QXmlReader, that defines the interface for potential readers.
+At the moment Qt provides one reader implementation, \l
 QXmlSimpleReader.
 
-The SAX2 interface gives you a serial access to the information in the
-document; i.e. the reader will parse the document serially and he will
-report the parsing events as soon as he finds the information in the
+The SAX2 interface provides serial access to the information in the
+document; i.e. the reader parses the document serially and 
+reports the parsing events as soon as it finds appropriate information in the
 document.
 
 The reader reports parsing events through special handler classes. The user
-has to install a certain handler class if he wants to get informed about
+has to install a certain handler class if he or she wants to be informed about
 parsing events. The following handler classes are available:
 <ul>
 <li>\l QXmlContentHandler
-    reports events related to the content of a document (e.g. a start tag,
-    characters, etc.)
+    reports events related to the content of a document (e.g. the start tag,
+    or characters).
 <li>\l QXmlDTDHandler
-    reports events related to the DTD (e.g. a notation declaration)
+    reports events related to the DTD (e.g. notation declarations).
 <li>\l QXmlErrorHandler
-    reports errors or warnings that occurred during parsing
+    reports errors or warnings that occurred during parsing.
 <li>\l QXmlEntityResolver
     reports external entities during parsing and allows the user to resolve
-    external entities himself instead of letting the reader to try it.
+    external entities him- or herself instead of leaving it to the reader.
 <li>\l QXmlDeclHandler
-    reports more DTD related events (e.g. an attribute declaration, etc.).
-    There might be rare occasions you are interested in these.
+    reports further DTD related events (e.g. attribute declarations).
+    Usually users are not interested in them, but under certain circumstances
+    this class comes handy.
 <li>\l QXmlLexicalHandler
-    reports events related to the lexical structure of the document (e.g.
-    the beginning of the DTD, comments, etc.) There might be rare occasions
-    you are interested in these.
+    reports events related to the lexical structure of the document
+    (the beginning of the DTD, comments etc.). Occasionally this
+    might be useful.
 </ul>
 
-These classes are all abstract classes describing the interface. SAX2
-provides a default implementation of all these handler classes (\l
-QXmlDefaultHandler). So a user has only to implement the functions he is
-really interested in. The default implementation is "do nothing".
+All of these are abstract classes describing the interface. With
+\l QXmlDefaultHandler "do nothing" default implementations are provided 
+so that a user needs to implement only functions he or she is
+interested in. 
 
-The input XML data is read through a special class, \l QXmlInputSource.
+To read input XML data a special class \l QXmlInputSource is used.
 
-There are some more classes for SAX2 support:
+Apart from the already mentioned classes the following SAX2 support classes 
+provide the user with useful functionality:
 <ul>
 <li> \l QXmlAttributes
      is used to pass attributes in a start element event.
 <li> \l QXmlLocator
-     is used to get the actual parsing position of an event.
+     is used to obtain the actual parsing position of an event.
 <li> \l QXmlNamespaceSupport
      is used to easily implement namespace support for a reader.
 </ul>
 
-For a more detailed description of the usage see the document
+For a more detailed description see the document
 "<a href="xml-sax.html">How to use the Qt SAX2 classes</a>".
-
-
-
-
 
 
 <h2><a name="introDOM">Introduction to DOM</h2>
 
-DOM provides an interface to access and change the content and structore of
-an XML file. DOM gives a hierarchical view of the document (tree). All
+DOM provides an interface to access and change the content and structure of
+an XML file. It makes a hierarchical view of the document (tree) available. All
 nodes in this tree are subclasses of \l QDomNode.
 
-The following table lists all node classes and the node classes that can be
-children of them:
+The following table lists all node classes and their potential children classes.
 <table>
 <tr>
     <th align="left">Node type</th>
@@ -156,7 +148,7 @@ children of them:
 </tr>
 <tr>
     <td>\l QDomDocument </td>
-    <td>\l QDomElement (maximum of one), \l QDomProcessingInstruction,
+    <td>\l QDomElement (maximum one), \l QDomProcessingInstruction,
 	\l QDomComment, \l QDomDocumentType </td>
 </tr>
 <tr>
@@ -200,14 +192,15 @@ children of them:
 </tr>
 </table>
 
-There are also two collection classes: \l QDomNodeList is a list of nodes
-and \l QDomNamedNodeMap is used to handle unordered sets of nodes
-(especially used for attributes).
+With \l QDomNodeList and \l QDomNamedNodeMap two collection classes 
+are provided: \l QDomNodeList is a list of nodes
+whereas \l QDomNamedNodeMap is used to handle unordered sets of nodes
+(often used for attributes).
 
-The class \l QDomImplementation allows to query features of the
+The \l QDomImplementation class allows the user to query features of the
 DOM implementation.
 
-For getting started and for a description of the basic usage, take a look
-at the documentation of \l QDomDocument.
+To get started please refer to the \l QDomDocument documentation that
+describes basic usage.
 
 */
