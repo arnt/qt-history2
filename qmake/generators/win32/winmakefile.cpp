@@ -211,6 +211,20 @@ Win32MakefileGenerator::processPrlFiles()
 
 void Win32MakefileGenerator::processVars()
 {
+    //If the TARGET looks like a path split it into DESTDIR and the resulting TARGET
+    if(!project->isEmpty("TARGET")) {
+        QString targ = project->first("TARGET");
+        int slsh = qMax(targ.lastIndexOf('/'), targ.lastIndexOf(Option::dir_sep));
+        if(slsh != -1) {
+            if(project->isEmpty("DESTDIR"))
+                project->values("DESTDIR").append("");
+            else if(project->first("DESTDIR").right(1) != Option::dir_sep)
+                project->variables()["DESTDIR"] = QStringList(project->first("DESTDIR") + Option::dir_sep);
+            project->variables()["DESTDIR"] = QStringList(project->first("DESTDIR") + targ.left(slsh+1));
+            project->variables()["TARGET"] = QStringList(targ.mid(slsh+1));
+        }
+    }
+
     project->variables()["QMAKE_ORIG_TARGET"] = project->variables()["TARGET"];
     if (!project->variables()["QMAKE_INCDIR"].isEmpty())
         project->variables()["INCLUDEPATH"] += project->variables()["QMAKE_INCDIR"];
@@ -417,6 +431,10 @@ void Win32MakefileGenerator::writeStandardParts(QTextStream &t)
     writeExtraVariables(t);
 
     t << "DIST          = " << varList("DISTFILES") << endl;
+    t << "QMAKE_TARGET  = " << var("QMAKE_ORIG_TARGET") << endl;
+    // The comment is important to maintain variable compatability with Unix
+    // Makefiles, while not interpreting a trailing-slash as a linebreak
+    t << "DESTDIR       = " << var("DESTDIR") << " #avoid trailing-slash linebreak" << endl;
     t << "TARGET        = ";
     if(!project->isEmpty("DESTDIR"))
         t << project->first("DESTDIR") 
