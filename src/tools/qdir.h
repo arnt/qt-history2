@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.h#15 $
+** $Id: //depot/qt/main/src/tools/qdir.h#16 $
 **
 ** Definition of QDir class
 **
@@ -161,7 +161,7 @@ inline const char *QDir::nameFilter() const
 
 inline QDir::FilterSpec QDir::filter() const
 {
-    return (FilterSpec) sortS;
+    return (FilterSpec) filtS;
 }
 
 inline QDir::SortSpec QDir::sorting() const
