@@ -194,7 +194,6 @@ struct QListViewPrivate
     QTimer *renameTimer;
 
     bool clearing;
-    bool makeCurrentVisibleOnUpdate;
     bool pressedSelected;
     bool useDoubleBuffer;
 
@@ -947,7 +946,6 @@ void QListViewItem::insertItem( QListViewItem * newChild )
     QListView *lv = listView();
     if ( !lv )
 	return;
-    lv->d->makeCurrentVisibleOnUpdate = FALSE;
     if ( lv && lv->hasFocus() && !lv->d->focusItem ) {
 	lv->d->focusItem = lv->firstChild();
 	lv->repaintItem( lv->d->focusItem );
@@ -1593,7 +1591,6 @@ void QListViewItem::setText( int column, const QString &text )
     widthChanged( column );
     if ( lv ) {
 	lv->d->useDoubleBuffer = TRUE;
-	lv->d->makeCurrentVisibleOnUpdate = FALSE;
 	lv->triggerUpdate();
     }
 }
@@ -1659,7 +1656,6 @@ void QListViewItem::setPixmap( int column, const QPixmap & pm )
     QListView *lv = listView();
     if ( lv ) {
 	lv->d->useDoubleBuffer = TRUE;
-	lv->d->makeCurrentVisibleOnUpdate = FALSE;
 	lv->triggerUpdate();
     }
 }
@@ -2174,7 +2170,6 @@ void QListView::init()
     d->ellipsisWidth = fontMetrics().width( "..." ) * 2;
     d->highlighted = 0;
     d->pressedItem = 0;
-    d->makeCurrentVisibleOnUpdate = TRUE;
     d->selectAnchor = 0;
     d->select = TRUE;
     d->useDoubleBuffer = FALSE;
@@ -3045,9 +3040,6 @@ void QListView::updateContents()
     viewport()->setUpdatesEnabled( TRUE );
     viewport()->repaint( FALSE );
     d->useDoubleBuffer = FALSE;
-    if ( d->makeCurrentVisibleOnUpdate )
-	ensureItemVisible( d->focusItem );
-    d->makeCurrentVisibleOnUpdate = TRUE;
 }
 
 
@@ -3658,7 +3650,6 @@ void QListView::contentsMousePressEvent( QMouseEvent * e )
 	    if( ctrl == QStyle::ListViewBranches || ctrl == QStyle::ListViewExpand) {
 		bool close = i->isOpen();
 		setOpen( i, !i->isOpen() );
-		d->makeCurrentVisibleOnUpdate = FALSE;
 		qApp->processEvents();
 		if ( !d->focusItem ) {
 		    d->focusItem = i;
