@@ -1,23 +1,8 @@
 TEMPLATE	= lib
 CONFIG		+= qt warn_on release plugin
-HEADERS		= cppeditor.h  \
-		  syntaxhighliter_cpp.h \
-		  cppcompletion.h \
-		  editorinterfaceimpl.h \
-		  languageinterfaceimpl.h \
-		  preferenceinterfaceimpl.h \
-		  yyreg.h \
-		  cppbrowser.h
-
-SOURCES		= cppeditor.cpp \
-		  syntaxhighliter_cpp.cpp \
-		  cppcompletion.cpp \
-		  editorinterfaceimpl.cpp \
-		  languageinterfaceimpl.cpp \
-		  common.cpp \
-		  preferenceinterfaceimpl.cpp \
-		  yyreg.cpp \
-		  cppbrowser.cpp
+INTERFACES	= projectsettings.ui
+SOURCES	+= cppeditor.cpp syntaxhighliter_cpp.cpp cppcompletion.cpp editorinterfaceimpl.cpp languageinterfaceimpl.cpp common.cpp preferenceinterfaceimpl.cpp yyreg.cpp cppbrowser.cpp projectsettingsinterfaceimpl.cpp
+HEADERS	+= cppeditor.h syntaxhighliter_cpp.h cppcompletion.h editorinterfaceimpl.h languageinterfaceimpl.h preferenceinterfaceimpl.h yyreg.h cppbrowser.h projectsettingsinterfaceimpl.h
 		
 TARGET		= cppeditor
 DESTDIR		= ../../../../plugins/designer

@@ -296,6 +296,58 @@ void DesignerProjectImpl::clearAllBreakpoints() const
     MainWindow::self->resetBreakPoints();
 }
 
+void DesignerProjectImpl::setIncludePath( const QString &platform, const QString &path )
+{
+    project->setIncludePath( platform, path );
+}
+
+void DesignerProjectImpl::setLibs( const QString &platform, const QString &path )
+{
+    project->setLibs( platform, path );
+}
+
+void DesignerProjectImpl::setDefines( const QString &platform, const QString &path )
+{
+    project->setDefines( platform, path );
+}
+
+void DesignerProjectImpl::setConfig( const QString &platform, const QString &config )
+{
+    project->setConfig( platform, config );
+}
+
+void DesignerProjectImpl::setTemplate( const QString &t )
+{
+    project->setTemplate( t );
+}
+
+QString DesignerProjectImpl::config( const QString &platform ) const
+{
+    return project->config( platform );
+}
+
+QString DesignerProjectImpl::libs( const QString &platform ) const
+{
+    return project->libs( platform );
+}
+
+QString DesignerProjectImpl::defines( const QString &platform ) const
+{
+    return project->defines( platform );
+}
+
+QString DesignerProjectImpl::includePath( const QString &platform ) const
+{
+    return project->includePath( platform );
+}
+
+QString DesignerProjectImpl::templte() const
+{
+    return project->templte();
+}
+
+
+
 
 
 
@@ -635,7 +687,7 @@ void DesignerFormWindowImpl::preview() const
 {
 }
 
-void DesignerFormWindowImpl::addSlot( const QCString &slot, const QString& specifier, 
+void DesignerFormWindowImpl::addSlot( const QCString &slot, const QString& specifier,
 				      const QString &access, const QString &language, const QString &returnType )
 {
     MetaDataBase::addSlot( formWindow, slot, specifier, access, language, returnType );

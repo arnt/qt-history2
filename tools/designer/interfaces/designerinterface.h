@@ -111,6 +111,17 @@ struct DesignerProject
     virtual DesignerPixmapCollection *pixmapCollection() const = 0;
     virtual void breakPoints( QMap<QString, QValueList<int> > &bps ) const = 0;
     virtual void clearAllBreakpoints() const = 0;
+    virtual void setIncludePath( const QString &platform, const QString &path ) = 0;
+    virtual void setLibs( const QString &platform, const QString &path ) = 0;
+    virtual void setDefines( const QString &platform, const QString &path ) = 0;
+    virtual void setConfig( const QString &platform, const QString &config ) = 0;
+    virtual void setTemplate( const QString &t ) = 0;
+    virtual QString config( const QString &platform ) const = 0;
+    virtual QString libs( const QString &platform ) const = 0;
+    virtual QString defines( const QString &platform ) const = 0;
+    virtual QString includePath( const QString &platform ) const = 0;
+    virtual QString templte() const = 0;
+
 };
 
 struct DesignerDatabase
@@ -186,7 +197,7 @@ struct DesignerFormWindow
     virtual void addAction( QAction * ) = 0;
     virtual void removeAction( QAction * ) = 0;
     virtual void preview() const = 0;
-    virtual void addSlot( const QCString &slot, const QString &specifier, const QString &access, 
+    virtual void addSlot( const QCString &slot, const QString &specifier, const QString &access,
 			  const QString &language, const QString &returnType ) = 0;
     virtual void addConnection( QObject *sender, const char *signal, QObject *receiver, const char *slot ) = 0;
     virtual void setProperty( QObject *o, const char *property, const QVariant &value ) = 0;

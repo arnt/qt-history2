@@ -180,10 +180,28 @@ public:
     QPtrList<FormWindow> unnamedForms() const;
     QPtrList<FormWindow> forms() const;
 
+    void setIncludePath( const QString &platform, const QString &path );
+    void setLibs( const QString &platform, const QString &path );
+    void setDefines( const QString &platform, const QString &path );
+    void setConfig( const QString &platform, const QString &config );
+    void setTemplate( const QString &t );
+
+    QString config( const QString &platform ) const;
+    QString libs( const QString &platform ) const;
+    QString defines( const QString &platform ) const;
+    QString includePath( const QString &platform ) const;
+    QString templte() const;
+
 private:
     void parse();
     void clear();
     void updateCustomSettings();
+    void readPlatformSettings( const QString &contents,
+			       const QString &setting,
+			       QMap<QString, QString> &res );
+    void removePlatformSettings( QString &contents, const QString &setting );
+    void writePlatformSettings( QString &contents, const QString &setting,
+				const QMap<QString, QString> &input );
 
 private:
     QString filename;
@@ -204,6 +222,8 @@ private:
     QString imgFile;
     PixmapCollection *pixCollection;
     QPtrList<SourceFile> sources;
+    QMap<QString, QString> inclPath, defs, lbs, cfg;
+    QString templ;
 
 };
 

@@ -194,6 +194,8 @@ Project::Project( const QString &fn, const QString &pName, QPluginManager<Projec
 	setCustomSetting( "CPP_ALWAYS_CREATE_SOURCE", "FALSE" );
     else
 	setCustomSetting( "CPP_ALWAYS_CREATE_SOURCE", "TRUE" );
+    cfg.insert( "(all)", "qt warn_on release" );
+    templ = "app";
 }
 
 Project::~Project()
@@ -280,7 +282,7 @@ static QString parse_part( const QString &part )
     for ( int i = 0; i < (int)part.length(); ++i ) {
 	QChar c = part[ i ];
 	if ( !inName ) {
-	    if ( c != ' ' && c != '\t' && c != '\n' && c != '=' && c != '\\' )
+	    if ( c != ' ' && c != '\t' && c != '\n' && c != '=' && c != '\\' && c != '+' )
 		inName = TRUE;
 	    else
 		continue;
@@ -394,6 +396,18 @@ void Project::parse()
 	QString part = contents.mid( i + QString( "LANGUAGE" ).length() );
 	lang = parse_part( part );
     }
+
+    i = contents.find( "TEMPLATE" );
+    if ( i != -1 ) {
+	templ = "";
+	QString part = contents.mid( i + QString( "TEMPLATE" ).length() );
+	templ = parse_part( part );
+    }
+
+    readPlatformSettings( contents, "CONFIG", cfg );
+    readPlatformSettings( contents, "LIBS", lbs );
+    readPlatformSettings( contents, "INCLUDEPATH", inclPath );
+    readPlatformSettings( contents, "DEFINES", defs );
 
     LanguageInterface *iface = MetaDataBase::languageInterface( lang );
     if ( iface ) {
@@ -594,7 +608,7 @@ void Project::save()
 	contents = ts.read();
 	f.close();
     } else {
-	contents += "TEMPLATE\t= app\nCONFIG\t+= qt warn_on release\nTARGET\t= " + fixedProjectName() + "\n";
+	contents += "TARGET\t= " + fixedProjectName() + "\n";
     }
 
     remove_multiline_contents( contents, "INTERFACES" );
@@ -610,6 +624,15 @@ void Project::save()
     remove_contents( contents, "IMAGEFILE" );
     remove_contents( contents, "PROJECTNAME" );
     remove_contents( contents, "LANGUAGE" );
+    remove_contents( contents, "TEMPLATE" );
+    removePlatformSettings( contents, "CONFIG" );
+    removePlatformSettings( contents, "DEFINES" );
+    removePlatformSettings( contents, "LIBS" );
+    removePlatformSettings( contents, "INCLUDEPATH" );
+
+    contents += "TEMPLATE\t=" + templ + "\n";
+    writePlatformSettings( contents, "CONFIG", cfg );
+
     LanguageInterface *iface = MetaDataBase::languageInterface( lang );
     if ( iface ) {
 	QStringList sourceKeys;
@@ -617,6 +640,11 @@ void Project::save()
 	for ( QStringList::Iterator spit = sourceKeys.begin(); spit != sourceKeys.end(); ++spit )
 	    remove_multiline_contents( contents, *spit );
     }
+
+    writePlatformSettings( contents, "DEFINES", defs );
+    writePlatformSettings( contents, "INCLUDEPATH", inclPath );
+    writePlatformSettings( contents, "LIBS", lbs );
+
     remove_contents( contents, "{SOURCES+=" );
     if ( !dbFile.isEmpty() )
 	contents += "DBFILE\t= " + dbFile + "\n";
@@ -1095,4 +1123,108 @@ QPtrList<FormWindow> Project::forms() const
     for ( QMap<FormWindow*, QString>::ConstIterator it = formWindows.begin(); it != formWindows.end(); ++it )
 	fws.append( it.key() );
     return fws;
+}
+
+void Project::setIncludePath( const QString &platform, const QString &path )
+{
+    inclPath.replace( platform, path );
+    save();
+}
+
+void Project::setLibs( const QString &platform, const QString &path )
+{
+    lbs.replace( platform, path );
+}
+
+void Project::setDefines( const QString &platform, const QString &path )
+{
+    defs.replace( platform, path );
+}
+
+void Project::setConfig( const QString &platform, const QString &config )
+{
+    cfg.replace( platform, config );
+}
+
+QString Project::config( const QString &platform ) const
+{
+    return cfg[ platform ];
+}
+
+QString Project::libs( const QString &platform ) const
+{
+    return lbs[ platform ];
+}
+
+QString Project::defines( const QString &platform ) const
+{
+    return defs[ platform ];
+}
+
+QString Project::includePath( const QString &platform ) const
+{
+    return inclPath[ platform ];
+}
+
+QString Project::templte() const
+{
+    return templ;
+}
+
+void Project::setTemplate( const QString &t )
+{
+    templ = t;
+}
+
+void Project::readPlatformSettings( const QString &contents,
+				    const QString &setting,
+				    QMap<QString, QString> &res )
+{
+    const QString platforms[] = { "", "win32", "unix", "mac", QString::null };
+    for ( int i = 0; platforms[ i ] != QString::null; ++i ) {
+	QString p = platforms[ i ];
+	if ( !p.isEmpty() )
+	    p += ":";
+	int j = contents.find( p + setting );
+	if ( j > 0 && contents[ j - 1 ] == ':' )
+	    j = -1;
+	QString s;
+	if ( j != -1 ) {
+	    QString part = contents.mid( j + QString( p + setting ).length() );
+	    s = parse_part( part );
+	}
+	QString key = platforms[ i ];
+	if ( key.isEmpty() )
+	    key = "(all)";
+	res.replace( key, s );
+    }
+}
+
+void Project::removePlatformSettings( QString &contents, const QString &setting )
+{
+    const QString platforms[] = { "win32", "unix", "mac", "", QString::null };
+    for ( int i = 0; platforms[ i ] != QString::null; ++i ) {
+	QString p = platforms[ i ];
+	if ( !p.isEmpty() )
+	    p += ":";
+	remove_contents( contents, p + setting );
+    }
+}
+
+void Project::writePlatformSettings( QString &contents, const QString &setting,
+				     const QMap<QString, QString> &input )
+{
+    const QString platforms[] = { "", "win32", "unix", "mac", QString::null };
+    for ( int i = 0; platforms[ i ] != QString::null; ++i ) {
+	QString p = platforms[ i ];
+	if ( !p.isEmpty() )
+	    p += ":";
+	QString key = platforms[ i ];
+	if ( key.isEmpty() )
+	    key = "(all)";
+	QMap<QString, QString>::ConstIterator it = input.find( key );
+	if ( it == input.end() || (*it).isEmpty() )
+	    continue;
+	contents += p + setting + "\t+= " + *it + "\n";
+    }
 }

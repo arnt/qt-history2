@@ -86,6 +86,16 @@ public:
     DesignerPixmapCollection *pixmapCollection() const;
     void breakPoints( QMap<QString, QValueList<int> > &bps ) const;
     void clearAllBreakpoints() const;
+    void setIncludePath( const QString &platform, const QString &path );
+    void setLibs( const QString &platform, const QString &path );
+    void setDefines( const QString &platform, const QString &path );
+    void setConfig( const QString &platform, const QString &config );
+    void setTemplate( const QString &t );
+    QString config( const QString &platform ) const;
+    QString libs( const QString &platform ) const;
+    QString defines( const QString &platform ) const;
+    QString includePath( const QString &platform ) const;
+    QString templte() const;
 
 private:
     Project *project;
@@ -183,7 +193,7 @@ public:
     void addAction( QAction * );
     void removeAction( QAction * );
     void preview() const;
-    void addSlot( const QCString &slot, const QString& specifier, const QString &access, 
+    void addSlot( const QCString &slot, const QString& specifier, const QString &access,
 		  const QString &language, const QString &returnType );
     void addConnection( QObject *sender, const char *signal, QObject *receiver, const char *slot );
     void setProperty( QObject *o, const char *property, const QVariant &value );
