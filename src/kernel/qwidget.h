@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#52 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#53 $
 **
 ** Definition of QWidget class
 **
@@ -100,6 +100,8 @@ public:
     void	 releaseMouse();
     void	 grabKeyboard();
     void	 releaseKeyboard();
+    static QWidget *mouseGrabber();
+    static QWidget *keyboardGrabber();
 
   // Update/refresh functions
 
