@@ -722,7 +722,7 @@ bool QAbstractButton::event(QEvent *e)
             animateClick();
         return true;
     }
-    return false;
+    return QWidget::event(e);
 }
 
 /*! \reimp */
