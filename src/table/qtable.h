@@ -207,6 +207,7 @@ class QM_EXPORT_TABLE QCheckTableItem : public QTableItem
 {
 public:
     QCheckTableItem( QTable *table, const QString &txt );
+    void setText( const QString &t );
     virtual QWidget *createEditor() const;
     virtual void setContentFromEditor( QWidget *w );
     virtual void paint( QPainter *p, const QColorGroup &cg,

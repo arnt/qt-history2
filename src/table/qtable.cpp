@@ -1379,6 +1379,17 @@ QCheckTableItem::QCheckTableItem( QTable *table, const QString &txt )
 
 /*! \reimp */
 
+void QCheckTableItem::setText( const QString &t )
+{
+    QTableItem::setText( t );
+    QWidget *w = table()->cellWidget( row(), col() );
+    if ( w && w->inherits( "QCheckBox" ) )
+	( (QCheckBox*)w )->setText( t );
+}
+
+
+/*! \reimp */
+
 QWidget *QCheckTableItem::createEditor() const
 {
     // create an editor - a combobox in our case
