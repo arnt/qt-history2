@@ -167,20 +167,20 @@ QMutex::~QMutex()
 */
 void QMutex::lock()
 {
-    const pthread_t self = pthread_self();
-    const pthread_t none = 0;
+    void *self = (void *) pthread_self();
+    void *none = 0;
 
     ++d->waiters;
-    while (!q_atomic_test_and_set_ptr(&d->owner, none, self)) {
-        if (d->recursive && d->owner == self) {
-            break;
-        } else if (d->owner == self) {
-            qWarning("QMutex::lock(): Deadlock detected in Thread %d", d->owner);
-        }
+    if (!q_atomic_test_and_set_ptr(&d->owner, none, self)) {
+        if (!d->recursive || d->owner != self) {
+            if (d->owner == self)
+                qWarning("QMutex::lock(): Deadlock detected in Thread %p", d->owner);
 
-        report_error(pthread_mutex_lock(&d->mutex), "QMutex::lock()", "mutex lock");
-        report_error(pthread_cond_wait(&d->cond, &d->mutex), "QMutex::lock()", "cv wait");
-        report_error(pthread_mutex_unlock(&d->mutex), "QMutex::lock()", "mutex unlock");
+            report_error(pthread_mutex_lock(&d->mutex), "QMutex::lock()", "mutex lock");
+            while (!q_atomic_test_and_set_ptr(&d->owner, none, self))
+                report_error(pthread_cond_wait(&d->cond, &d->mutex), "QMutex::lock()", "cv wait");
+            report_error(pthread_mutex_unlock(&d->mutex), "QMutex::lock()", "mutex unlock");
+        }
     }
     --d->waiters;
     ++d->count;
@@ -199,8 +199,8 @@ void QMutex::lock()
 */
 bool QMutex::tryLock()
 {
-    const pthread_t self = pthread_self();
-    const pthread_t none = 0;
+    void *self = (void *) pthread_self();
+    void *none = 0;
 
     if (!q_atomic_test_and_set_ptr(&d->owner, none, self)) {
         if (!d->recursive || d->owner != self)
@@ -220,9 +220,9 @@ bool QMutex::tryLock()
 */
 void QMutex::unlock()
 {
-    const pthread_t none = 0;
+    void *none = 0;
 
-    Q_ASSERT(d->owner == pthread_self());
+    Q_ASSERT(d->owner == (void *) pthread_self());
 
     if (!--d->count) {
         (void) q_atomic_set_ptr(&d->owner, none);

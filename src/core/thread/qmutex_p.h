@@ -31,7 +31,7 @@ struct QMutexPrivate
 {
     bool recursive;
 
-    pthread_t owner;
+    void *owner;
     unsigned int count;
     QAtomic waiters;
 
