@@ -8,13 +8,37 @@
 
 #if defined __cplusplus
 
-#include "../../../src/kernel/qt_pch.h"
+#include <private/qucomextra_p.h>
 #include <qaction.h>
-#include <qmainwindow.h>
+#include <qapplication.h>
+#include <qcheckbox.h>
+#include <qcombobox.h>
+#include <qdialog.h>
+#include <qheader.h>
+#include <qlabel.h>
+#include <qlayout.h>
+#include <qlineedit.h>
+#include <qlistbox.h>
+#include <qlistview.h>
+#include <qmap.h>
+#include <qmessagebox.h>
+#include <qmetaobject.h>
+#include <qobjectlist.h>
+#include <qpainter.h>
+#include <qpixmap.h>
+#include <qpushbutton.h>
+#include <qspinbox.h>
+#include <qstring.h>
+#include <qtooltip.h>
 #include <qvariant.h>
+#include <qwhatsthis.h>
+#include <qwidget.h>
 
-#include "metadatabase.h"
-#include "formfile.h"
+#include "command.h"
 #include "formwindow.h"
+#include "mainwindow.h"
+#include "metadatabase.h"
+#include "project.h"
+#include "widgetfactory.h"
 
 #endif
