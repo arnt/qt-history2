@@ -6,8 +6,15 @@
 	QFtpDTP::*;
 	QFtpPI*;
 	Q*Private::*;
-	QPSPrinterFont*;
+	QPSPrinter*;
 	Q*RegExpEngine::*;
 	Q*SvgDevice::*
+	QUnicodeTables::*
+	QFontDef::*
+	QFontStruct::*
+	QFont*Codec::*
+	QInputContext::*
   };
+  TT_*
+  TTO_*
 };
