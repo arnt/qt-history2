@@ -318,7 +318,7 @@ void QTreeView::setRowHidden(int row, const QModelIndex &parent, bool hide)
 }
 
 /*!
-  \reimpl
+  \reimp
 */
 
 void QTreeView::dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
