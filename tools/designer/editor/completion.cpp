@@ -29,6 +29,7 @@
 #include <qregexp.h>
 #include "arghintwidget.h"
 #include <qsizegrip.h>
+#include <qtimer.h>
 
 static QColor getColor( const QString &type )
 {
@@ -620,6 +621,7 @@ bool EditorCompletion::doArgumentHint( bool useIndex )
 	functionLabel->show();
 	curEditor->setFocus();
     }
+    QTimer::singleShot( 0, functionLabel, SLOT( relayout() ) );
 
     return TRUE;
 }

@@ -16,6 +16,9 @@ public:
     void setFunctionText( int func, const QString &text );
     void setNumFunctions( int num );
 
+public slots:
+    void relayout();
+
 private slots:
     void gotoPrev();
     void gotoNext();

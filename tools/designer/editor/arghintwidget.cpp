@@ -197,4 +197,10 @@ void ArgHintWidget::updateState()
     next->setEnabled( curFunc < numFuncs - 1 );
 }
 
+void ArgHintWidget::relayout()
+{
+    funcLabel->setText( "" );
+    funcLabel->setText( funcs[ curFunc ] );
+}
+
 #include "arghintwidget.moc"
