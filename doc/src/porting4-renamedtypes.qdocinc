@@ -1,4 +1,5 @@
 \row \o QApplication::ColorMode \o QApplication::ColorSpec
+\row \o QButton::ToggleState \o QCheckBox::ToggleState
 \row \o QCursorShape \o Qt::CursorShape
 \row \o QFile::FilterSpec \o QFile::Filters
 \row \o QFile::PermissionSpec \o QFile::Permission

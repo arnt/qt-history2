@@ -92,7 +92,7 @@
     \section1 Global Functions
 
     \table
-    \header \o Qt 3 function \o Qt 4 equivalent
+    \header \o Qt 3 function \o Qt 4 function
     \row \o cstrcmp() \o strcmp()
     \row \o cstrcpy() \o strcpy()
     \row \o cstrlen() \o strlen()
@@ -114,7 +114,7 @@
     QWidget::BackgroundOrigin compat
 \endomit
 
-    \section1 Class Names
+    \section1 Type Names
 
     The table below lists the classes that have been renamed in Qt 4.
     If you compile your applications with \c QT_COMPAT defined, the
@@ -125,11 +125,9 @@
     \l{porting tool} handles performs the conversion automatically.
 
     \table
-    \header \o Qt 3 name \o Qt 4 equivalent
-    \input porting4-classnames.qdocinc
+    \header \o Qt 3 class name \o Qt 4 class name
+    \input porting4-renamedclasses.qdocinc
     \endtable
-
-    \section1 Enum and Typedef Names
 
     The table below lists the enums and typedefs that have been
     renamed in Qt 4. If you compile your applications with \c
@@ -140,9 +138,13 @@
     \l{porting tool} handles performs the conversion automatically.
 
     \table
-    \header \o Qt 3 name \o Qt 4 equivalent
-    \input porting4-enumandtypedefnames.qdocinc
+    \header \o Qt 3 type name \o Qt 4 type name
+    \input porting4-renamedtypes.qdocinc
     \endtable
+
+    ###
+
+    \row \o QButton::ToggleState \o Use QCheckBox::ToggleState instead.
 
     \section1 Enum Values
 
@@ -155,8 +157,8 @@
     \l{porting tool} handles performs the conversion automatically.
 
     \table
-    \header \o Qt 3 name \o Qt 4 name
-    \input porting4-enumvalues.qdocinc
+    \header \o Qt 3 enum value name \o Qt 4 enum value name
+    \input porting4-renamedenumvalues.qdocinc
     \endtable
 
     In addition, the following \l{Qt::WFlag}{window flags} have been
@@ -165,10 +167,10 @@
 
     \table
     \header \o Qt 3 type \o Qt 4 equivalent
-    \row \o Qt::WDestructiveClose \o Use Qt::WA_DeleteOnClose instead.
-    \row \o Qt::WStaticContents \o{1,2} Use Qt::WA_StaticContents instead.
+    \row \o Qt::WDestructiveClose \o Use QWidget::setAttribute(Qt::WA_DeleteOnClose) instead.
+    \row \o Qt::WStaticContents \o{1,2} Use QWidget::setAttribute(Qt::WA_StaticContents) instead.
     \row \o Qt::WNorthWestGravity
-    \row \o Qt::WNoAutoErase \o{1,3} Use Qt::WA_NoBackground instead.
+    \row \o Qt::WNoAutoErase \o{1,3} Use QWidget::setAttribute(Qt::WA_NoBackground) instead.
     \row \o Qt::WResizeNoErase
     \row \o Qt::WRepaintNoErase 
     \row \o Qt::WPaintClever \o Unnecessary in Qt 4.
@@ -176,8 +178,6 @@
     \row \o Qt::WMacNoSheet \o Unnecessary in Qt 4.
          \omit ### Check with Sam \endomit
     \endtable
-
-    \omit ### Explain how to port from flag to attribute \endomit
 
     \section1 Properties
 
@@ -294,6 +294,22 @@
     \row \o QToolButton::offIconSet \o Use the \l{QIcon::Off}{off component} of QAbstractButton::icon instead.
     \row \o QToolButton::onIconSet \o Use the \l{QIcon::On}{on component} of QAbstractButton::icon instead.
     \row \o QWidget::microFocusHint \o N/A
+    \endtable
+
+    \section1 Virtual Functions
+
+    Virtual functions that changed their signature in Qt 4:
+
+    \table
+    \header \o Qt 3 function signature \o Qt 4 function signature
+    \input porting4-modifiedvirtual.qdocinc
+    \endtable
+
+    Virtual functions that are not virtual anymore in Qt 4:
+
+    \table
+    \header \o Qt 3 function
+    \input porting4-removedvirtual.qdocinc
     \endtable
 
 \omit
