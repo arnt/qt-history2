@@ -4,7 +4,7 @@
 #include <qsocket.h>
 #include <qlist.h>
 
-const int server_port = 9999;
+const int server_port = 7358;
 
 class Socket : public QSocket
 {
