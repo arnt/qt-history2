@@ -17,7 +17,7 @@ outline the concepts involved, and describe the architecture of the item
 view system. Each of the components in the architecture is explained,
 and examples are given that show how to use the classes provided.
 
-\section1 The model/view architecture
+\section1 The Model/View Architecture
 
 Model-View-Controller (MVC) is a design pattern originating from
 Smalltalk that is often used when building user interfaces.
@@ -82,7 +82,7 @@ Examples of such classes include \l QListWidget, \l QTreeWidget, and
 \l QTableWidget; these offer compatibility with the \c QListBox,
 \c QListView, and \c QTable classes from Qt 3.
 
-\section1 The model/view components
+\section1 The Model/View Components
 
 The following sections describe the way in which the model/view pattern
 is used in Qt. Each section provides an example of use, and is followed
@@ -484,7 +484,7 @@ The above image shows how a \l QListView represents the data in the
 string list model. Each item in the list can be edited with the default
 delegate.
 
-\section2 Using Multiple Views Onto The Same Model
+\section2 Using Multiple Views onto the Same Model
 
 Providing multiple views onto the same model is simply a matter of
 setting the same model for each view. In the following code, we create
@@ -669,7 +669,7 @@ could have provided different editors for different types of data in
 the model, in which case we'd need to determine the type used and cast
 accordingly.
 
-\section2 Submitting Data to The Model
+\section2 Submitting Data to the Model
 
 When the user has finished editing the value in the spin box, the view
 asks the delegate to store the edited value in the model by calling the
@@ -712,7 +712,7 @@ always contains integer values, but we can still use this
 delegate with different kinds of models because \l{QVariant}
 provides sensible default values for unexpected data.
 
-\section2 Updating The Editor's Geometry
+\section2 Updating the Editor's Geometry
 
 It is the responsibility of the delegate to manage the editor's
 geometry. The geometry must be set when the editor is created, and
@@ -886,7 +886,7 @@ efficiently by the selection model. The use of different selection
 flags to manipulate the selected items is described when we examine
 how to update a selection.
 
-\section2 Reading The Selection State
+\section2 Reading the Selection State
 
 The model indexes stored in the selection model can be read using
 the \l{QItemSelectionModel::selectedItems()}{selectedItems()}
@@ -1164,7 +1164,7 @@ items.
     \skipto ItemFlags flags
     \printuntil setData
 
-    \section2 Making The Model Editable
+    \section2 Making the Model Editable
 
     A delegate checks whether an item is editable before creating an
     editor. The model must let the delegate know that its items are

@@ -24,6 +24,8 @@
     Transfer Protocol) is a protocol used almost exclusively for
     browsing remote directories and transferring files.
 
+    \image httpstack.png HTTP Client and Server
+
     HTTP is a simpler protocol than FTP in many ways. It uses only
     one network connection, while FTP uses two (one for sending
     commands, and one for transferring data). HTTP is a stateless
@@ -85,13 +87,15 @@
     Writing your own HTTP or FTP server is possible using the
     lower-level classes QTcpSocket and QTcpServer.
 
-    \section1 Using TCP with QTcpSocket
+    \section1 Using TCP with QTcpSocket and QTcpServer
 
     TCP (Transmission Control Protocol) is a low-level network
     protocol used by most Internet protocols, including HTTP and FTP,
     for data transfer. It is a reliable, stream-oriented,
     connection-oriented transport protocol. It is especially well
     suited for continuous transmission of data.
+
+    \image tcpstream.png A TCP Stream
 
     The QTcpSocket class provides an interface for TCP. You can use
     QTcpSocket to implement standard network protocols such as POP3,
@@ -161,6 +165,8 @@
     reliability isn't important. For example, a server that reports
     the time of day could choose UDP. If a datagram with the time of
     day is lost, the client can simply make another request.
+
+    \image udppackets.png UDP Packets
 
     The QUdpSocket class allows you to send and receive UDP
     datagrams. It inherits QAbstractSocket, and it therefore shares

@@ -19,13 +19,14 @@
 The Qt Commercial Edition is the commercial version of
 \link aboutqt.html Qt\endlink.
 
-You may only write commercial, proprietary, or non-free software if
-you have purchased the Qt Commercial Edition. (If you want to develop
-Free or Open Source software for release using a recognized
-Open Source license, you can use the \link opensourceedition.html Open Source Edition\endlink.
-The purchase of the Qt Commercial Edition includes technical support and
-upgrades. Qt for Microsoft Windows is only available in the
-Qt Commercial Edition.
+You may write commercial, proprietary, or otherwise non-free software
+\e only if you have purchased the Qt Commercial Edition. The purchase of
+the Qt Commercial Edition includes technical support and upgrades. Qt
+for Microsoft Windows is only available in the Qt Commercial Edition.
+
+If you want to develop Free or Open Source software for release
+using a recognized Open Source license, you can use the \link
+opensourceedition.html Open Source Edition\endlink.
 
 Qt is supported on the following platforms:
 \list
@@ -49,7 +50,7 @@ a quote, or buy directly using a credit card.
 
 For further information and assistance, please contact Trolltech sales:
 
-Email: \link mailto:sales@trolltech.com sales@trolltech.com\endlink
+Email: \l{mailto:sales@trolltech.com}{sales@trolltech.com}.
 
 Phone, U.S. office (for North America): \bold{1-650-813-1676}.
 

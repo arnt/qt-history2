@@ -13,250 +13,449 @@
 ****************************************************************************/
 
 /*!
-\page layout.html
+    \page layout.html
 
-\title Layout Classes
+    \title Layout Classes
 
-The Qt layout system provides a simple and powerful way of specifying
-the layout of child widgets.
+    The Qt layout system provides a simple and powerful way of specifying
+    the layout of child widgets.
 
-By specifying the logical layout once, you get the following benefits:
-\list
-\i Positioning of child widgets.
-\i Sensible default sizes for top-level widgets.
-\i Sensible minimum sizes for top-level widgets.
-\i Resize handling.
-\i Automatic update when contents change:
-	\list
-	\i Font size, text or other contents of subwidgets.
-	\i Hiding or showing a subwidget.
-	\i Removal of subwidget.
-	\endlist
-\endlist
+    By specifying the logical layout once, you get the following benefits:
+    \list
+    \o Positioning of child widgets.
+    \o Sensible default sizes for top-level widgets.
+    \o Sensible minimum sizes for top-level widgets.
+    \o Resize handling.
+    \o Automatic update when contents change:
+	    \list
+	    \o Font size, text or other contents of subwidgets.
+	    \o Hiding or showing a subwidget.
+	    \o Removal of subwidget.
+	    \endlist
+    \endlist
 
-Qt's layout classes were designed for hand-written C++ code, so
-they're easy to understand and use. 
+    Qt's layout classes were designed for hand-written C++ code, so
+    they're easy to understand and use. 
 
-The disadvantage of hand-written layout code is that it isn't very
-convenient when you're experimenting with the design of a form and you
-have to go through the compile, link and run cycle for each change.
-Our solution is \link designer-manual.book Qt Designer\endlink, a GUI
-visual design tool which makes it fast and easy to experiment with
-layouts and which generates the C++ layout code for you.
+    The disadvantage of hand-written layout code is that it isn't very
+    convenient when you're experimenting with the design of a form and you
+    have to go through the compile, link and run cycle for each change.
+    Our solution is \link designer-manual.book Qt Designer\endlink, a GUI
+    visual design tool which makes it fast and easy to experiment with
+    layouts and which generates the C++ layout code for you.
 
-\section1 Layout Widgets
+    Topics:
 
-The easiest way to give your widgets a good layout is to use the
-layout widgets: \l QHBoxWidget, \l QVBoxWidget and \l QGridWidget.
-A layout widget automatically lays out its child widgets in the order
-they are constructed. To create more complex layouts, you can nest
-layout widgets inside each other. (Note that \l QWidget does not have a
-layout by default, you must add one if you want to lay out widgets
-inside a \l QWidget.)
+    \tableofcontents
 
-\list
-\i A \l QHBoxWidget lays out its child widgets in a horizontal row,
-   left to right.
+    \section1 Layout Widgets
 
-   \img qhbox-m.png Horizontal box with five child widgets
+    The easiest way to give your widgets a good layout is to use the
+    layout widgets: \l QHBoxWidget, \l QVBoxWidget and \l QGridWidget.
+    A layout widget automatically lays out its child widgets in the order
+    they are constructed. To create more complex layouts, you can nest
+    layout widgets inside each other. (Note that \l QWidget does not have a
+    layout by default, you must add one if you want to lay out widgets
+    inside a \l QWidget.)
 
-\i A \l QVBoxWidget lays out its child widgets in a vertical column,
-   top to bottom.
+    \list
+    \o A \l QHBoxWidget lays out its child widgets in a horizontal row,
+       left to right.
 
-   \img qvbox-m.png Vertical box with five child widgets
+       \img qhbox-m.png Horizontal box with five child widgets
 
-\i A \l QGridWidget lays out its child widgets in a two dimensional grid.
-You can specify how many columns the grid has, and it is populated left to
-right, beginning a new row when the previous row is full. The grid is
-fixed; the child widgets will not flow to other rows as the widget is
-resized.
-\endlist
+    \o A \l QVBoxWidget lays out its child widgets in a vertical column,
+       top to bottom.
 
-   \img qgrid-m.png Two-column grid with five child widgets
+       \img qvbox-m.png Vertical box with five child widgets
 
-The grid shown above can be produced by the following code:
-\code
-    QGridWidget *mainGrid = new QGridWidget(2); // a 2 x n grid
-    new QLabel("One", mainGrid);
-    new QLabel("Two", mainGrid);
-    new QLabel("Three", mainGrid);
-    new QLabel("Four", mainGrid);
-    new QLabel("Five", mainGrid);
-\endcode
+    \o A \l QGridWidget lays out its child widgets in a two dimensional grid.
+    You can specify how many columns the grid has, and it is populated left to
+    right, beginning a new row when the previous row is full. The grid is
+    fixed; the child widgets will not flow to other rows as the widget is
+    resized.
+    \endlist
 
-You can adjust the layout to some extent by calling
-QWidget::setMinimumSize() or QWidget::setFixedSize() on the child widgets.
+       \img qgrid-m.png Two-column grid with five child widgets
 
-\section1 Adding Widgets to a Layout
+    The grid shown above can be produced by the following code:
+    \code
+        QGridWidget *mainGrid = new QGridWidget(2); // a 2 x n grid
+        new QLabel("One", mainGrid);
+        new QLabel("Two", mainGrid);
+        new QLabel("Three", mainGrid);
+        new QLabel("Four", mainGrid);
+        new QLabel("Five", mainGrid);
+    \endcode
 
-When you add widgets to a layout the layout process works as follows:
-\list 1
-\i All the widgets will initially be allocated an amount of space in
-accordance with their QWidget::sizePolicy(). 
-\i If any of the widgets have stretch factors set, with a value
-greater than zero, then they are allocated space in proportion to
-their \link #stretch stretch factor\endlink. 
-\i If any of the widgets have stretch factors set to zero they will
-only get more space if no other widgets want the space. Of these,
-space is allocated to widgets with an \c Expanding size policy first.
-\i Any widgets that are allocated less space than their minimum size
-(or minimum size hint if no minimum size is specified) are allocated
-this minimum size they require. (Widgets don't have to have a minimum
-size or minimum size hint in which case the strech factor is their
-determining factor.)
-\i Any widgets that are allocated more space than their maximum size
-are allocated the maximum size space they require. (Widgets don't have
-to have a maximum size in which case the strech factor is their
-determining factor.)
-\endlist
+    You can adjust the layout to some extent by calling
+    QWidget::setMinimumSize() or QWidget::setFixedSize() on the child widgets.
 
-\target stretch
-\section2 Stretch Factors
-\keyword stretch factor
+    \section1 Adding Widgets to a Layout
 
-Widgets are normally created without any stretch factor set. When they
-are laid out in a layout the widgets are given a share of space in
-accordance with their QWidget::sizePolicy() or their minimum size hint
-whichever is the greater. Stretch factors are used to change how much
-space widgets are given in proportion to one another.
+    When you add widgets to a layout the layout process works as follows:
+    \list 1
+    \o All the widgets will initially be allocated an amount of space in
+    accordance with their QWidget::sizePolicy(). 
+    \o If any of the widgets have stretch factors set, with a value
+    greater than zero, then they are allocated space in proportion to
+    their \link #stretch stretch factor\endlink. 
+    \o If any of the widgets have stretch factors set to zero they will
+    only get more space if no other widgets want the space. Of these,
+    space is allocated to widgets with an \c Expanding size policy first.
+    \o Any widgets that are allocated less space than their minimum size
+    (or minimum size hint if no minimum size is specified) are allocated
+    this minimum size they require. (Widgets don't have to have a minimum
+    size or minimum size hint in which case the strech factor is their
+    determining factor.)
+    \o Any widgets that are allocated more space than their maximum size
+    are allocated the maximum size space they require. (Widgets don't have
+    to have a maximum size in which case the strech factor is their
+    determining factor.)
+    \endlist
 
-If we have three widgets laid out using a QHBoxWidget with no stretch
-factors set we will get a layout like this:
+    \target stretch
+    \section2 Stretch Factors
+    \keyword stretch factor
 
-\img layout1.png 3 widgets in a row
+    Widgets are normally created without any stretch factor set. When they
+    are laid out in a layout the widgets are given a share of space in
+    accordance with their QWidget::sizePolicy() or their minimum size hint
+    whichever is the greater. Stretch factors are used to change how much
+    space widgets are given in proportion to one another.
 
-If we apply stretch factors to each widget, they will be laid out in
-proportion (but never less than their minimum size hint), e.g.
+    If we have three widgets laid out using a QHBoxWidget with no stretch
+    factors set we will get a layout like this:
 
-\img layout2.png 3 stretch factored widgets in a row
+    \img layout1.png 3 widgets in a row
+
+    If we apply stretch factors to each widget, they will be laid out in
+    proportion (but never less than their minimum size hint), e.g.
+
+    \img layout2.png 3 stretch factored widgets in a row
 
 
-\section1 QLayout subclassing
+    \section1 QHBoxLayout, QVBoxLayout, and QGridLayout
 
-If you need more control over the layout, use a \link QLayout
-QLayout\endlink subclass. The layout classes included in Qt are \link
-QGridLayout QGridLayout\endlink and \link QBoxLayout
-QBoxLayout\endlink. (\link QHBoxLayout  QHBoxLayout\endlink and \link
-QVBoxLayout  QVBoxLayout\endlink are trivial subclasses of QBoxLayout,
-that are simpler to use and make the code easier to read.)
+    If you need more control over the layout, use a \link QLayout
+    QLayout\endlink subclass. The layout classes included in Qt are \link
+    QGridLayout QGridLayout\endlink and \link QBoxLayout
+    QBoxLayout\endlink. (\link QHBoxLayout  QHBoxLayout\endlink and \link
+    QVBoxLayout  QVBoxLayout\endlink are trivial subclasses of QBoxLayout,
+    that are simpler to use and make the code easier to read.)
 
-When you use a layout, you must insert each child both into its parent
-widget (done in the constructor) and into its layout (typically done
-with a function called addWidget()). This way, you can give layout
-parameters for each widget, specifying properties like alignment,
-stretch, and placement.
+    When you use a layout, you must insert each child both into its parent
+    widget (done in the constructor) and into its layout (typically done
+    with a function called addWidget()). This way, you can give layout
+    parameters for each widget, specifying properties like alignment,
+    stretch, and placement.
 
-The following code makes a grid like the one above, with a couple of
-improvements:
-\code
-    QWidget *main = new QWidget;
+    The following code makes a grid like the one above, with a couple of
+    improvements:
+    \code
+        QWidget *main = new QWidget;
 
-    // make a 1x1 grid; it will auto-expand
-    QGridLayout *grid = new QGridLayout( main, 1, 1 );
+        // make a 1x1 grid; it will auto-expand
+        QGridLayout *grid = new QGridLayout( main, 1, 1 );
 
-    // add the first four widgets with (row, column) addressing
-    grid->addWidget( new QLabel( "One", main ),   0, 0 );
-    grid->addWidget( new QLabel( "Two", main ),   0, 1 );
-    grid->addWidget( new QLabel( "Three", main ), 1, 0 );
-    grid->addWidget( new QLabel( "Four", main ),  1, 1 );
+        // add the first four widgets with (row, column) addressing
+        grid->addWidget( new QLabel( "One", main ),   0, 0 );
+        grid->addWidget( new QLabel( "Two", main ),   0, 1 );
+        grid->addWidget( new QLabel( "Three", main ), 1, 0 );
+        grid->addWidget( new QLabel( "Four", main ),  1, 1 );
 
-    // add the last widget on row 2, spanning from column 0 to
-    // column 1, and center aligned 
-    grid->addMultiCellWidget( new QLabel( "Five", main ), 2, 2, 0, 1,
-			      Qt::AlignCenter );
+        // add the last widget on row 2, spanning from column 0 to
+        // column 1, and center aligned 
+        grid->addMultiCellWidget( new QLabel( "Five", main ), 2, 2, 0, 1,
+			          Qt::AlignCenter );
 
-    // let the ratio between the widths of columns 0 and 1 be 2:3
-    grid->setColStretch( 0, 2 );
-    grid->setColStretch( 1, 3 );
-\endcode
+        // let the ratio between the widths of columns 0 and 1 be 2:3
+        grid->setColStretch( 0, 2 );
+        grid->setColStretch( 1, 3 );
+    \endcode
 
-You can insert layouts inside a layout by giving the parent layout as
-a parameter in the constructor.
-\code
-    QWidget *main = new QWidget;
-    QLineEdit *field = new QLineEdit( main );
-    QPushButton *ok = new QPushButton( "OK", main );
-    QPushButton *cancel = new QPushButton( "Cancel", main );
-    QLabel *label = new QLabel( "Write once, compile everywhere.", main );
+    You can insert layouts inside a layout by giving the parent layout as
+    a parameter in the constructor.
+    \code
+        QWidget *main = new QWidget;
+        QLineEdit *field = new QLineEdit( main );
+        QPushButton *ok = new QPushButton( "OK", main );
+        QPushButton *cancel = new QPushButton( "Cancel", main );
+        QLabel *label = new QLabel( "Write once, compile everywhere.", main );
 
-    // a layout on a widget
-    QVBoxLayout *vbox = new QVBoxLayout( main );
-    vbox->addWidget( label );
-    vbox->addWidget( field );
+        // a layout on a widget
+        QVBoxLayout *vbox = new QVBoxLayout( main );
+        vbox->addWidget( label );
+        vbox->addWidget( field );
 
-    // a layout inside a layout
-    QHBoxLayout *buttons = new QHBoxLayout( vbox );
-    buttons->addWidget( ok );
-    buttons->addWidget( cancel );
-\endcode
-If you are not satisfied with the default placement, you can create
-the layout without a parent and then insert it with addLayout().
-The inner layout then becomes a child of the layout it is inserted
-into.
+        // a layout inside a layout
+        QHBoxLayout *buttons = new QHBoxLayout( vbox );
+        buttons->addWidget( ok );
+        buttons->addWidget( cancel );
+    \endcode
+    If you are not satisfied with the default placement, you can create
+    the layout without a parent and then insert it with addLayout().
+    The inner layout then becomes a child of the layout it is inserted
+    into.
 
-\section1 Custom Layouts
+    \section1 Custom Widgets In Layouts
 
-If the built-in layout classes are not sufficient, you can define your
-own. Just make a subclass of \l QLayout that handles resizing and
-size calculations.
+    When you make your own widget class, you should also communicate its
+    layout properties. If the widget has a QLayout, this is already taken
+    care of. If the widget does not have any child widgets, or uses manual
+    layout, you should reimplement the following QWidget member functions:
 
-See the \link customlayout.html Custom Layout \endlink page for an
-in-depth description.
+    \list
+    \o QWidget::sizeHint() returns the preferred size of the widget.
+    \o QWidget::minimumSizeHint() returns the smallest size the widget can have.
+    \o QWidget::sizePolicy() returns a \l QSizePolicy; a value describing
+       the space requirements of the widget.
+    \endlist
 
-\section1 Custom Widgets In Layouts
+    Call QWidget::updateGeometry() whenever the size hint, minimum size
+    hint or size policy changes. This will cause a layout recalculation.
+    Multiple calls to updateGeometry() will only cause one recalculation.
 
-When you make your own widget class, you should also communicate its
-layout properties. If the widget has a QLayout, this is already taken
-care of. If the widget does not have any child widgets, or uses manual
-layout, you should reimplement the following QWidget member functions:
+    If the preferred height of your widget depends on its actual width
+    (e.g. a label with automatic word-breaking), set the \link
+    QSizePolicy::hasHeightForWidth() hasHeightForWidth\endlink() flag in
+    \link QWidget::sizePolicy() sizePolicy\endlink(), and reimplement \l
+    QWidget::heightForWidth().
 
-\list
-\i QWidget::sizeHint() returns the preferred size of the widget.
-\i QWidget::minimumSizeHint() returns the smallest size the widget can have.
-\i QWidget::sizePolicy() returns a \l QSizePolicy; a value describing
-   the space requirements of the widget.
-\endlist
+    Even if you implement heightForWidth(), it is still necessary to
+    provide a good sizeHint(). The sizeHint() provides the preferred width
+    of the widget, and it is used by QLayout subclasses that do not
+    support heightForWidth() (both QGridLayout and QBoxLayout support it).
 
-Call QWidget::updateGeometry() whenever the size hint, minimum size
-hint or size policy changes. This will cause a layout recalculation.
-Multiple calls to updateGeometry() will only cause one recalculation.
+    For further guidance when implementing these functions, see their
+    implementations in existing Qt classes that have similar layout
+    requirements to your new widget.
 
-If the preferred height of your widget depends on its actual width
-(e.g. a label with automatic word-breaking), set the \link
-QSizePolicy::hasHeightForWidth() hasHeightForWidth\endlink() flag in
-\link QWidget::sizePolicy() sizePolicy\endlink(), and reimplement \l
-QWidget::heightForWidth().
+    \section1 Manual Layout
 
-Even if you implement heightForWidth(), it is still necessary to
-provide a good sizeHint(). The sizeHint() provides the preferred width
-of the widget, and it is used by QLayout subclasses that do not
-support heightForWidth() (both QGridLayout and QBoxLayout support it).
+    If you are making a one-of-a-kind special layout, you can also make a
+    custom widget as described above. Reimplement QWidget::resizeEvent()
+    to calculate the required distribution of sizes and call \link
+    QWidget::setGeometry() setGeometry\endlink() on each child.
 
-For further guidance when implementing these functions, see their
-implementations in existing Qt classes that have similar layout
-requirements to your new widget.
+    The widget will get an event with \link QEvent::type() type \endlink
+    \c LayoutHint when the layout needs to be recalculated. Reimplement
+    QWidget::event() to be notified of \c LayoutHint events.
 
-\section1 Manual Layout
+    \section1 Layout Issues
 
-If you are making a one-of-a-kind special layout, you can also make a
-custom widget as described above. Reimplement QWidget::resizeEvent()
-to calculate the required distribution of sizes and call \link
-QWidget::setGeometry() setGeometry\endlink() on each child.
+    The use of rich text in a label widget can introduce some problems to
+    the layout of its parent widget. Problems occur due to the way rich text
+    is handled by Qt's layout managers when the label is word wrapped.
+    In certain cases the parent layout is put into QLayout::FreeResize mode,
+    meaning that it will not adapt the layout of its contents to fit inside
+    small sized windows, or even prevent the user from making the
+    window too small to be usable. This can be overcome by subclassing
+    the problematic widgets, and implementing suitable sizeHint() and
+    minimumSizeHint() functions.
 
-The widget will get an event with \link QEvent::type() type \endlink
-\c LayoutHint when the layout needs to be recalculated. Reimplement
-QWidget::event() to be notified of \c LayoutHint events.
+    \section1 Writing Custom Layout Managers
 
-\section1 Layout Issues
+    If the built-in layout classes are not sufficient, you can define your
+    own. Just make a subclass of \l QLayout that handles resizing and
+    size calculations.
 
-The use of rich text in a label widget can introduce some problems to
-the layout of its parent widget. Problems occur due to the way rich text
-is handled by Qt's layout managers when the label is word wrapped.
-In certain cases the parent layout is put into QLayout::FreeResize mode,
-meaning that it will not adapt the layout of its contents to fit inside
-small sized windows, or even prevent the user from making the
-window too small to be usable. This can be overcome by subclassing
-the problematic widgets, and implementing suitable sizeHint() and
-minimumSizeHint() functions.
+    The \c layouts/borderlayout and \c layouts/flowlayout examples in
+    Qt's \c examples directory show how to do this.
 
+    Here we present an example in detail. The class CardLayout is inspired
+    by the Java layout manager of the same name. It lays out the items
+    (widgets or nested layouts) on top of each other, each item offset by
+    QLayout::spacing().
+
+    To write your own layout class, you must define the following:
+    \list
+    \o A data structure to store the items handled by the layout. Each
+    item is a \link QLayoutItem QLayoutItem\endlink. We will use a
+    QList in this example.
+    \o \link QLayout::addItem() addItem() \endlink, how to add items to
+    the layout.
+    \o \link QLayout::setGeometry() setGeometry() \endlink, how to perform
+    the layout.
+    \o \link QLayout::sizeHint() sizeHint() \endlink, the preferred size
+    of the layout.
+    \o \link QLayout::itemAt() itemAt() \endlink, how to iterate over
+    the layout.
+    \o \link QLayout::takeAt() takeAt() \endlink, how to remove items
+     from the layout.
+    \endlist
+
+    In most cases, you will also implement \link QLayout::minimumSize()
+    minimumSize\endlink().
+
+    \section2 The Header File (\c card.h)
+
+    \code
+        #ifndef CARD_H
+        #define CARD_H
+
+        #include <qlayout.h>
+        #include <qlist.h>
+
+        class CardLayout : public QLayout
+        {
+        public:
+            CardLayout(QWidget *parent, int dist)
+	        : QLayout(parent, 0, dist) {}
+            CardLayout(QLayout* parent, int dist)
+	        : QLayout(parent, dist) {}
+            CardLayout(int dist)
+	        : QLayout(dist) {}
+            ~CardLayout();
+
+            void addItem(QLayoutItem *item);
+            QSize sizeHint() const;
+            QSize minimumSize() const;
+            QLayoutItem *itemAt(int) const;
+            QLayoutItem *takeAt(int);
+            void setGeometry(const QRect &rect);
+
+        private:
+            QList<QLayoutItem*> list;
+        };
+        #endif
+    \endcode
+
+    \section2 The Implementation File (\c card.cpp)
+
+    \code
+        #include "card.h"
+    \endcode
+
+    First we define two functions that iterate over the layout: 
+    itemAt() and takeAt(). These functions are used internally by the
+    layout system to handle deletion of widgets. They are also available
+    for application programmers. 
+
+    ItemAt() returns the item at the given index. takeAt() removes the
+    item at the given index, and returns it. In this case we use the list
+    index as the layout index. In other cases where we have a more complex
+    data structure, we may have to spend more effort defining a linear
+    order for the items.
+
+    \code
+        QLayoutItem *CardLayout::itemAt(int idx) const
+        {
+            // QList::value() performs index checking, and returns 0 if we are
+            // outside the valid range
+            return list.value(idx);
+        }
+
+        QLayoutItem *CardLayout::takeAt(int idx)
+        {
+            // QList::take does not do index checking
+            return idx >= 0 && idx < list.size() ? list.takeAt(idx) : 0;
+        }
+    \endcode
+
+    addItem() implements the default placement strategy for layout items.
+    It must be implemented. It is used by QLayout::add(), by the QLayout
+    constructor that takes a layout as parent. If your layout
+    has advanced placement options that require parameters, you must
+    provide extra access functions such as the row and column spanning
+    overloads of \l QGridLayout::addItem(), addWidget(), and addLayout().
+
+    \code
+        void CardLayout::addItem(QLayoutItem *item)
+        {
+            list.append(item);
+        }
+    \endcode
+
+    The layout takes over responsibility of the items added. Since
+    QLayoutItem does not inherit QObject, we must delete the items
+    manually. The function QLayout::deleteAllItems() uses takeAt()
+    defined above to delete all the items in the layout.
+
+    \code
+        CardLayout::~CardLayout()
+        {
+            deleteAllItems();
+        }
+    \endcode
+
+    The setGeometry() function actually performs the layout. The rectangle
+    supplied as an argument does not include margin(). If relevant, use
+    spacing() as the distance between items.
+
+    \code
+        void CardLayout::setGeometry(const QRect &r)
+        {
+            QLayout::setGeometry(r);
+
+            if (list.size() == 0)
+                return;
+
+            int w = r.width() - (list.count() - 1) * spacing();
+            int h = r.height() - (list.count() - 1) * spacing();
+            int i = 0;
+            while (i < list.size()) {
+                QLayoutItem *o = list.at(i);
+                QRect geom(r.x() + i * spacing(), r.y() + i * spacing(), w, h);
+                o->setGeometry(geom);
+                ++i;
+            }
+        }
+    \endcode
+
+    sizeHint() and minimumSize() are normally very similar in
+    implementation. The sizes returned by both functions should include
+    spacing(), but not margin().
+
+    \code
+        QSize CardLayout::sizeHint() const
+        {
+            QSize s(0,0);
+            int n = list.count();
+            if (n > 0)
+                s = QSize(100,70); //start with a nice default size
+            int i = 0;
+            while (i < n) {
+                QLayoutItem *o = list.at(i);
+                s = s.expandedTo(o->sizeHint());
+                ++i;
+            }
+            return s + n*QSize(spacing(), spacing());
+        }
+
+        QSize CardLayout::minimumSize() const
+        {
+            QSize s(0,0);
+            int n = list.count();
+            int i = 0;
+            while (i < n) {
+                QLayoutItem *o = list.at(i);
+                s = s.expandedTo(o->minimumSize());
+                ++i;
+            }
+            return s + n*QSize(spacing(), spacing());
+        }
+    \endcode
+
+    \section2 Further Notes
+
+    This layout does not implement heightForWidth().
+
+    We ignore QLayoutItem::isEmpty(), this means that the layout will
+    treat hidden widgets as visible.
+
+    For complex layouts, speed can be greatly increased by caching
+    calculated values. In that case, implement QLayoutItem::invalidate()
+    to mark the cached data as dirty.
+
+    Calling QLayoutItem::sizeHint(), etc. may be expensive, so you should
+    store the value in a local variable if you need it again later in the
+    same function.
+
+    You should not call QLayoutItem::setGeometry() twice on the same item
+    in the same function. That can be very expensive if the item has
+    several child widgets, because it will have to do a complete layout
+    every time. Instead, calculate the geometry and then set it. (This
+    doesn't only apply to layouts, you should do the same if you implement
+    your own resizeEvent().)
 */

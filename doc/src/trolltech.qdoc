@@ -12,23 +12,23 @@ cross-platform C++ GUI toolkit. Qt enables you to develop professional,
 efficient, portable, and maintainable GUI applications quickly and
 easily.
 
-\link http://www.trolltech.com/products/embedded/index.html
-Qt/Embedded\endlink, the embedded version of Qt, is designed to power
-todays new generation of embedded computers and electronic consumer
-devices. On top of that, \link
-http://www.trolltech.com/products/qtopia/index.html Qtopia\endlink
-provides a window system and application suite for handheld devices.
+\l{http://www.trolltech.com/products/embedded}{Qt/Embedded}, the embedded version
+of Qt, is designed to power todays new generation of embedded
+computers and electronic consumer devices such as mobile phones and
+PDAs. On top of that,
+\l{http://www.trolltech.com/products/qtopia/}{Qtopia} provides a
+window system and application suite for handheld devices.
+
+See the \l{http://www.trolltech.com/products/}{Product Overview}
+for a complete list of products.
 
 \section1 Software that Makes Sense
 
-Our motto expresses the vision behind our products. We design our
-products to give our customers the feeling of "this is the way
-that things were always meant to be".
-
-We know that it is crucial for our customers to have good tools for
-making good software. Therefore, we do not compromise our demands for
-superior design and technical quality when we develop our
-products.
+We design our products to give our customers the feeling of "this is
+the way that things were always meant to be". We know that it is
+crucial for our customers to have good tools for making good
+software. Therefore, we do not compromise our demands for superior
+design and technical quality when we develop our products.
 
 Trolltech is also known for providing top-quality technical support
 to our customers. At Trolltech, support inquiries are handled by the
@@ -79,7 +79,7 @@ Trolltech website\endlink.
  <td valign="top"> Comments about our web pages</td>
  <td ><br /></td>
  <td valign="top">
-  Use this address for bug reports; please read (the very short)
+  Use this address for bug reports; please read
   <a href="bughowto.html">How to Report a Bug</a> page first.
  </td>
 </tr><tr>
@@ -122,14 +122,14 @@ Trolltech website\endlink.
  <td rowspan="4"><br /></td>
 </tr><tr>
  <td ><br /></td>
- <td valign="top"> General inquiries: (+1) 650-813-1676</td>
+ <td valign="top"> General inquiries: 1-650-813-1676</td>
  <td rowspan="3"><br /></td>
  <td valign="top" rowspan="3"> 1860 Embarcadero Road<br /> Suite 100<br /> Palo Alto<br /> CA 94303<br /> USA</td>
 </tr><tr>
  <td colspan="2"><strong>Telefax</strong></td>
 </tr><tr>
  <td ><br /></td>
- <td valign="top"> All inquiries: (+1) 650-813-1851</td>
+ <td valign="top"> All inquiries: 1-650-813-1851</td>
 </tr>
 </table>
 \endraw

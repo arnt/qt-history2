@@ -17,22 +17,22 @@
 
 \title Qt Editions
 
-The \l{commercialedition.html}{Qt Commercial Edition} the commercial
+The \l{commercialedition.html}{Qt Commercial Edition} is the commercial
 version of \link aboutqt.html Qt\endlink.
 
 The \link opensourceedition.html Qt Open Source Edition\endlink is
-the non-commercial version of Qt. They are freely available for
+the non-commercial version of Qt. It is freely available for
 download.
 
-You may write commercial, proprietary, or non-free software only if you
+You may write commercial, proprietary, or otherwise non-free software only if you
 have purchased the \link commercialedition.html Commercial
 Edition\endlink. The Commercial Edition also
 entitles you to technical support and upgrades. Qt for Microsoft Windows
 is only available in the Commercial Edition.
 
 The two editions are functionally equivalent, with the exception of
-a few database drivers (Oracle, IBM DB2, and Sybase), which are not
+three database drivers (Oracle, IBM DB2, and Sybase), which are not
 included in the Open Source Edition because of license restrictions
-of the closed-source client libraries used to implement the drivers.
+in the closed-source client libraries used to implement the drivers.
 
 */

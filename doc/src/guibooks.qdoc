@@ -1,80 +1,70 @@
 /*! \page guibooks.html
 
-\title Books about GUI
+    \title Books about GUI Design
 
-This is not a comprehensive list -- there are many other books worth
-buying. Here we mention just a few user interface books that don't
-gather dust on our shelves.
+    This is not a comprehensive list -- there are many other books worth
+    buying. Here we mention just a few user interface books that don't
+    gather dust on our shelves.
 
-\bold{C++ GUI Programming with Qt 3} by Jasmin Blanchette and Mark
-Summerfield, ISBN 0-13-124072-2. This is the Official Qt book written
-by two veteran Trolls.
-\link http://www.amazon.com/exec/obidos/ASIN/0131240722/trolltech/
-(Read more about it or buy it.)\endlink
+    \bold{\l{http://www.amazon.com/exec/obidos/ASIN/0131240722/trolltech/}{C++ GUI Programming with Qt 3}}
+    by Jasmin Blanchette and Mark
+    Summerfield, ISBN 0-13-124072-2. This is the official Qt book written
+    by two veteran Trolls. It is also available
+    \l{http://phptr.com/content/images/0131240722/downloads/blanchette_book.pdf}{online}.
 
-\bold{The Design of Everyday Things} by Donald Norman,
-ISBN 0-38526774-6, is one of the classics of human interface design.
-Norman shows how badly something as simple as a kitchen stove can be
-designed, and everyone should read it who will design a dialog box,
-write an error message, or design just about anything else humans are
-supposed to use.
-\link http://www.amazon.com/exec/obidos/ASIN/0385267746/trolltech/t 
-(Read more about it or buy it.)\endlink
+    \bold{\l{http://www.amazon.com/exec/obidos/ASIN/0385267746/trolltech/t}{The Design of Everyday Things}}
+    by Donald Norman, ISBN 0-38526774-6, is one of the classics of human
+    interface design. Norman shows how badly something as simple as a
+    kitchen stove can be designed, and everyone should read it who will
+    design a dialog box, write an error message, or design just about
+    anything else humans are supposed to use.
 
-\target fowler
-\bold{GUI Design Handbook} by Susan Fowler, ISBN 0-07-059274-8, is an
-alphabetical dictionary of widgets and other user interface elements,
-with comprehensive coverage of each. Each chapter covers one widget
-or other element, contains the most important recommendation from the
-Macintosh, Windows and Motif style guides, notes about common
-problems, comparison with other widgets that can serve some of the
-same roles as this one, etc.
+    \target fowler
+    \bold{\l{http://www.amazon.com/exec/obidos/ASIN/0070592748/trolltech/t}{GUI Design Handbook}}
+    by Susan Fowler, ISBN 0-07-059274-8, is an
+    alphabetical dictionary of widgets and other user interface elements,
+    with comprehensive coverage of each. Each chapter covers one widget
+    or other element, contains the most important recommendation from the
+    Macintosh, Windows and Motif style guides, notes about common
+    problems, comparison with other widgets that can serve some of the
+    same roles as this one, etc.
 
-\link http://www.amazon.com/exec/obidos/ASIN/0070592748/trolltech/t 
-(Read more about it or buy it.)\endlink
+    \bold{\l{http://www.amazon.com/exec/obidos/ASIN/0201622165/trolltech/t}{Macintosh
+    Human Interface Guidelines}}, Second Edition, ISBN
+    0-201-62216-5, is worth buying for the \e {don't}s alone. Even
+    if you're not writing Macintosh software, avoiding most of what it
+    advises against will produce more easily comprehensible software.
+    Doing what it tells you to do may also help. This book is now available
+    \link http://developer.apple.com/techpubs/mac/HIGuidelines/HIGuidelines-2.html 
+    online\endlink and there is a
+    \link http://developer.apple.com/techpubs/mac/HIGOS8Guide/thig-2.html Mac
+    OS 8 addendum.\endlink
 
-\bold{Macintosh Human Interface Guidelines}, second edition, ISBN
-0-201-62216-5, is worth buying for the \e {don't}s alone. Even
-if you're not writing Macintosh software, avoiding most of what it
-advises against will produce more easily comprehensible software.
-Doing what it tells you to do may also help.
-\link http://www.amazon.com/exec/obidos/ASIN/0201622165/trolltech/t 
-(Read more about it or buy it.)\endlink
+    \bold{\l{http://www.amazon.com/exec/obidos/ASIN/047159900X/trolltech/t}{The
+    Microsoft Windows User Experience}}, ISBN 1-55615-679-0,
+    is Microsoft's look and feel bible. Indispensable for everyone who
+    has customers that worship Microsoft, and it's quite good, too.
+    It is also available
+    \link http://msdn.microsoft.com/library/en-us/dnwue/html/welcome.asp online\endlink.
 
-This book is now available
-\link http://developer.apple.com/techpubs/mac/HIGuidelines/HIGuidelines-2.html 
-on the web\endlink and there is a
-\link http://developer.apple.com/techpubs/mac/HIGOS8Guide/thig-2.html Mac
-OS 8 addendum.\endlink
+    \bold{\l{http://www.amazon.com/exec/obidos/ASIN/047159900X/trolltech/t}{The Icon Book}}
+    by William Horton, ISBN 0-471-59900-X, is perhaps the only thorough
+    coverage of icons and icon use in software. In order for icons to be
+    successful, people must be able to do four things with them: decode,
+    recognize, find and activate them. This book explains these goals
+    from scratch and how to reach them, both with single icons and icon
+    families. Some 500 examples are scattered throughout the text.
 
-\bold{The Microsoft Windows User Experience}, ISBN 1-55615-679-0,
-is Microsoft's look and feel Bible. Indispensable for everyone who
-has customers that worship Microsoft, and it's quite good, too.
-\link http://www.amazon.com/exec/obidos/ASIN/0735605661/trolltech/t 
-(Read more about it or buy it.)\endlink
-It is also available
-\link http://msdn.microsoft.com/library/en-us/dnwue/html/welcome.asp online\endlink.
 
-\bold{The Icon Book} by William Horton, ISBN 0-471-59900-X, is
-perhaps the only thorough coverage of icons and icon use in software.
-In order for icons to be successful, people must be able to do four
-things with them: decode, recognize, find and activate them. This
-book explains these goals from scratch and how to reach them, both
-with single icons and icon families. Some 500 examples are scattered
-throughout the text, generally in groups of four or five.
-\link http://www.amazon.com/exec/obidos/ASIN/047159900X/trolltech/t 
-(Read more about it or buy it.)\endlink
+    \section1 Buying these Books from Amazon.com
 
-\section1 Buying these books from \
-\l{http://www.amazon.com/}{Amazon.com}
-
-These books are made available in association with Amazon.com, our
-favorite online bookstore. Here is more information about
-\link http://www.amazon.com/exec/obidos/subst/help/shipping-policy.html/t 
-Amazon.com's shipping options\endlink and its
-\link http://www.amazon.com/exec/obidos/subst/help/desk.html/t 
-customer service.\endlink When you buy a book by following one of these
-links, Amazon.com gives about 15% of the purchase price to
-\link http://www.amnesty.org/ Amnesty International.\endlink
+    These books are made available in association with Amazon.com, our
+    favorite online bookstore. Here is more information about
+    \link http://www.amazon.com/exec/obidos/subst/help/shipping-policy.html/t 
+    Amazon.com's shipping options\endlink and its
+    \link http://www.amazon.com/exec/obidos/subst/help/desk.html/t 
+    customer service.\endlink When you buy a book by following one of these
+    links, Amazon.com gives about 15% of the purchase price to
+    \link http://www.amnesty.org/ Amnesty International.\endlink
 
 */
