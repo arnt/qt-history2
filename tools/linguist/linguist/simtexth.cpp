@@ -15,8 +15,6 @@
 
 #include <metatranslator.h>
 
-#include <qcstring.h>
-#include <qdict.h>
 #include <qmap.h>
 #include <qstring.h>
 #include <qstringlist.h>
@@ -114,37 +112,37 @@ struct CoMatrix
       words.  Some operations are performed on words for more efficiency.
     */
     union {
-	Q_UINT8 b[52];
-	Q_UINT32 w[13];
+    Q_UINT8 b[52];
+    Q_UINT32 w[13];
     };
 
     CoMatrix() { memset( b, 0, 52 ); }
     CoMatrix( const char *text ) {
-	char c = '\0', d;
-	memset( b, 0, 52 );
-	/*
-	  The Knuth books are not in the office only for show; they help make
-	  loops 30% faster and 20% as readable.
-	*/
-	while ( (d = *text) != '\0' ) {
-	    setCoocc( c, d );
-	    if ( (c = *++text) != '\0' ) {
-		setCoocc( d, c );
-		text++;
-	    }
-	}
+    char c = '\0', d;
+    memset( b, 0, 52 );
+    /*
+      The Knuth books are not in the office only for show; they help make
+      loops 30% faster and 20% as readable.
+    */
+    while ( (d = *text) != '\0' ) {
+        setCoocc( c, d );
+        if ( (c = *++text) != '\0' ) {
+        setCoocc( d, c );
+        text++;
+        }
+    }
     }
 
     void setCoocc( char c, char d ) {
-	int k = indexOf[(uchar) c] + 20 * indexOf[(uchar) d];
-	b[k >> 3] |= k & 0x7;
+    int k = indexOf[(uchar) c] + 20 * indexOf[(uchar) d];
+    b[k >> 3] |= k & 0x7;
     }
 
     int worth() const {
-	int w = 0;
-	for ( int i = 0; i < 50; i++ )
-	    w += bitCount[b[i]];
-	return w;
+    int w = 0;
+    for ( int i = 0; i < 50; i++ )
+        w += bitCount[b[i]];
+    return w;
     }
 };
 
@@ -152,7 +150,7 @@ static inline CoMatrix reunion( const CoMatrix& m, const CoMatrix& n )
 {
     CoMatrix p;
     for ( int i = 0; i < 13; i++ )
-	p.w[i] = m.w[i] | n.w[i];
+    p.w[i] = m.w[i] | n.w[i];
     return p;
 }
 
@@ -160,13 +158,13 @@ static inline CoMatrix intersection( const CoMatrix& m, const CoMatrix& n )
 {
     CoMatrix p;
     for ( int i = 0; i < 13; i++ )
-	p.w[i] = m.w[i] & n.w[i];
+    p.w[i] = m.w[i] & n.w[i];
     return p;
 }
 
 CandidateList similarTextHeuristicCandidates( const MetaTranslator *tor,
-					    const char *text,
-					    int maxCandidates )
+                        const char *text,
+                        int maxCandidates )
 {
     QList<int> scores;
     CandidateList candidates;
@@ -176,43 +174,43 @@ CandidateList similarTextHeuristicCandidates( const MetaTranslator *tor,
     TML all = tor->translatedMessages();
 
     foreach ( MetaTranslatorMessage mtm, all ) {
-	if ( mtm.type() == MetaTranslatorMessage::Unfinished ||
-	     mtm.translation().isEmpty() )
-	    continue;
+    if ( mtm.type() == MetaTranslatorMessage::Unfinished ||
+         mtm.translation().isEmpty() )
+        continue;
 
-	QString s = tor->toUnicode( mtm.sourceText(), mtm.utf8() );
-	CoMatrix cm( s.latin1() );
-	int delta = QABS( (int) s.length() - targetLen );
+    QString s = tor->toUnicode( mtm.sourceText(), mtm.utf8() );
+    CoMatrix cm( s.latin1() );
+    int delta = QABS( (int) s.length() - targetLen );
 
-	/*
-	  Here is the score formula. A comment above contains a
-	  discussion on a similar (but simpler) formula.
-	*/
-	int score = ( (intersection(cm, cmTarget).worth() + 1) << 10 ) /
-		    ( reunion(cm, cmTarget).worth() + (delta << 1) + 1 );
+    /*
+      Here is the score formula. A comment above contains a
+      discussion on a similar (but simpler) formula.
+    */
+    int score = ( (intersection(cm, cmTarget).worth() + 1) << 10 ) /
+            ( reunion(cm, cmTarget).worth() + (delta << 1) + 1 );
 
-	if ( (int) candidates.count() == maxCandidates &&
-	     score > scores[maxCandidates - 1] )
-	    candidates.removeAt( candidates.size()-1 );
-	if ( (int) candidates.count() < maxCandidates && score >= 190 ) {
-	    Candidate cand( s, mtm.translation() );
+    if ( (int) candidates.count() == maxCandidates &&
+         score > scores[maxCandidates - 1] )
+        candidates.removeAt( candidates.size()-1 );
+    if ( (int) candidates.count() < maxCandidates && score >= 190 ) {
+        Candidate cand( s, mtm.translation() );
 
-	    int i;
-	    for ( i = 0; i < (int) candidates.size(); i++ ) {
-		if ( score >= scores.at(i) ) {
-		    if ( score == scores.at(i) ) {
-			if ( candidates.at(i) == cand )
-			    goto continue_outer_loop;
-		    } else {
-			break;
-		    }
-		}
-	    }
-	    scores.insert( i, score );
-	    candidates.insert( i, cand );
-	}
+        int i;
+        for ( i = 0; i < (int) candidates.size(); i++ ) {
+        if ( score >= scores.at(i) ) {
+            if ( score == scores.at(i) ) {
+            if ( candidates.at(i) == cand )
+                goto continue_outer_loop;
+            } else {
+            break;
+            }
+        }
+        }
+        scores.insert( i, score );
+        candidates.insert( i, cand );
+    }
     continue_outer_loop:
-	;
+    ;
     }
     return candidates;
 }

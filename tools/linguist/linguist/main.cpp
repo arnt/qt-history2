@@ -23,49 +23,44 @@
 #include <qsettings.h>
 #include <qsplashscreen.h>
 #include <qcursor.h>
-#include <qmimefactory.h>
 
-int main( int argc, char **argv )
+int main(int argc, char **argv)
 {
-    QApplication app( argc, argv );
-    QApplication::setOverrideCursor( Qt::waitCursor );
+    QApplication app(argc, argv);
+    QApplication::setOverrideCursor(Qt::WaitCursor);
 
+    QTranslator translator(0);
+    translator.load(QString("linguist_") + QTextCodec::locale(), ".");
+    app.installTranslator(&translator);
 
-    QTranslator translator( 0 );
-    translator.load( QString( "linguist_" ) + QTextCodec::locale(), "." );
-    app.installTranslator( &translator );
-
-    bool showSplash = TRUE;
-
-    QString keybase("/Qt Linguist/3.1/");
+    QString keybase("/Qt Linguist/4.0/");
     QSettings config("Trolltech", "Linguist");
-    config.insertSearchPath( QSettings::Windows, "/Trolltech" );
 
-    QRect r( QApplication::desktop()->screenGeometry() );
-    r.setX( config.readNumEntry( keybase + "Geometry/MainwindowX", r.x() ) );
-    r.setY( config.readNumEntry( keybase + "Geometry/MainwindowY", r.y() ) );
-    r.setWidth( config.readNumEntry( keybase + "Geometry/MainwindowWidth", r.width() ) );
-    r.setHeight( config.readNumEntry( keybase + "Geometry/MainwindowHeight", r.height() ) );
+    QRect r(QApplication::desktop()->screenGeometry());
+    r.setX(config.value(keybase + "Geometry/MainwindowX", r.x()).toInt());
+    r.setY(config.value(keybase + "Geometry/MainwindowY", r.y()).toInt());
+    r.setWidth(config.value(keybase + "Geometry/MainwindowWidth", r.width()).toInt());
+    r.setHeight(config.value(keybase + "Geometry/MainwindowHeight", r.height()).toInt());
 
     QSplashScreen *splash = 0;
-    if ( showSplash ) {
-	splash = new QSplashScreen(qPixmapFromMimeSource("images/splash.png"));
-	splash->setAttribute(Qt::WA_DeleteOnClose);
-	splash->show();
-    }
+    splash = new QSplashScreen(QPixmap(":/images/splash.png"));
+    splash->setAttribute(Qt::WA_DeleteOnClose);
+    splash->show();
 
     TrWindow *tw = new TrWindow;
-    app.setMainWidget( tw );
+    app.setMainWidget(tw);
 
-    if ( app.argc() > 1 )
-	tw->openFile( QString(app.argv()[app.argc() - 1]) );
+    if (app.argc() > 1)
+    tw->openFile(QString(app.argv()[app.argc() - 1]));
 
-    if ( config.readBoolEntry( keybase + "Geometry/MainwindowMaximized", FALSE ) )
-	tw->showMaximized();
+    if (config.value(keybase + "Geometry/MainwindowMaximized", false).toBool())
+        tw->showMaximized();
     else
-	tw->show();
-    if ( splash )
-	splash->finish( tw );
+        tw->show();
+    
+    if (splash)
+        splash->finish(tw);
+    
     QApplication::restoreOverrideCursor();
 
     return app.exec();

@@ -11,25 +11,23 @@
 **
 ****************************************************************************/
 
-#ifndef FINDDIALOG_H
-#define FINDDIALOG_H
+#include "about.h"
 
-#include <qdialog.h>
-#include "ui_finddialog.h"
+#include <qvariant.h>
+#include <qimage.h>
+#include <qpixmap.h>
 
-class FindDialog : public QDialog, public Ui::FindDialog
+AboutDialog::AboutDialog(QWidget* parent, Qt::WFlags fl)
+    : QDialog(parent, fl)
 {
-    Q_OBJECT
-public:
-    enum {SourceText = 0x1, Translations = 0x2, Comments = 0x4};
+    setupUi(this);
+    setModal(true);
+    
+    PixmapLabel1->setPixmap(QPixmap(":/images/splash.png"));
+    connect(PushButton1, SIGNAL(clicked()), this, SLOT(accept()));
+}
 
-    FindDialog(QWidget *parent = 0);
-
-signals:
-    void findNext(const QString& text, int where, bool matchCase);
-
-private slots:
-    void emitFindNext();
-};
-
-#endif
+void AboutDialog::languageChange()
+{
+    retranslateUi(this);
+}

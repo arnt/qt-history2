@@ -19,90 +19,83 @@
 #include "msgedit.h"
 
 #include "trwindow.h"
-#include "phraselv.h"
 #include "simtexth.h"
+#include "messagemodel.h"
+#include "phrasemodel.h"
 
 #include <qapplication.h>
-#include <qcheckbox.h>
 #include <qclipboard.h>
 #include <qlabel.h>
 #include <qlayout.h>
-#include <q3textedit.h>
+#include <qtextedit.h>
 #include <qpalette.h>
-#include <qpushbutton.h>
 #include <qstring.h>
-#include <qtextview.h>
-#include <qwhatsthis.h>
-#include <qvbox.h>
-#include <qmainwindow.h>
-#include <q3header.h>
+#include <qlayout.h>
+#include <qpainter.h>
+#include <qscrollbar.h>
+#include <qheaderview.h>
+#include <qshortcut.h>
 #include <qregexp.h>
 #include <qdockwindow.h>
-#include <qscrollview.h>
+#include <qtextcursor.h>
 #include <qfont.h>
-#include <qaccel.h>
-#include <private/qrichtext_p.h>
+#include <qtreeview.h>
+#include <qwidgetview.h>
 
 static const int MaxCandidates = 5;
 
-class MED : public Q3TextEdit
+QString richMeta(const QString& text)
 {
-public:
-    MED( QWidget *parent, const char *name = 0 )
-        : Q3TextEdit( parent, name ) {}
-
-    int cursorX() const { return textCursor()->x(); }
-    int cursorY() const { return textCursor()->paragraph()->rect().y() +
-                                 textCursor()->y(); }
-};
-
-
-QString richMeta( const QString& text )
-{
-    return QString( "<small><font color=blue>(" ) + text +
-           QString( ")</font></small>" );
+    return QString("<small><font color=blue>(") + text + 
+        QString(")</font></small>");
 }
 
-QString richText( const QString& text )
+QString richText(const QString& text)
 {
     const char backTab[] = "\a\b\f\n\r\t";
     const char * const friendlyBackTab[] = {
-        QT_TRANSLATE_NOOP( "MessageEditor", "bell" ),
-        QT_TRANSLATE_NOOP( "MessageEditor", "backspace" ),
-        QT_TRANSLATE_NOOP( "MessageEditor", "new page" ),
-        QT_TRANSLATE_NOOP( "MessageEditor", "new line" ),
-        QT_TRANSLATE_NOOP( "MessageEditor", "carriage return" ),
-        QT_TRANSLATE_NOOP( "MessageEditor", "tab" )
+        QT_TRANSLATE_NOOP("MessageEditor", "bell"),
+        QT_TRANSLATE_NOOP("MessageEditor", "backspace"),
+        QT_TRANSLATE_NOOP("MessageEditor", "new page"),
+        QT_TRANSLATE_NOOP("MessageEditor", "new line"),
+        QT_TRANSLATE_NOOP("MessageEditor", "carriage return"),
+        QT_TRANSLATE_NOOP("MessageEditor", "tab")
     };
     QString rich;
 
-    for ( int i = 0; i < (int) text.length(); i++ ) {
+    for (int i = 0; i < (int) text.length(); ++i) {
         int ch = text[i].unicode();
 
-        if ( ch < 0x20 ) {
-            const char *p = strchr( backTab, ch );
-            if ( p == 0 )
-                rich += richMeta( QString::number(ch, 16) );
+        if (ch < 0x20) {
+            const char *p = strchr(backTab, ch);
+            if (p == 0)
+                rich += richMeta(QString::number(ch, 16));
             else
-                rich += richMeta( MessageEditor::tr(friendlyBackTab[p - backTab]) );
-        } else if ( ch == '<' ) {
-            rich += QString( "&lt;" );
-        } else if ( ch == '>' ) {
-            rich += QString( "&gt;" );
-        } else if ( ch == '&' ) {
-            rich += QString( "&amp;" );
-        } else if ( ch == ' ' ) {
-            if ( i == 0 || i == text.length() - 1 || text[i - 1].isSpace() ||
-                 text[i + 1].isSpace() ) {
-                rich += richMeta( MessageEditor::tr("sp") );
-            } else {
+                rich += richMeta(MessageEditor::tr(friendlyBackTab[p - backTab]));
+        }
+        else if (ch == '<') {
+            rich += QString("&lt;");
+        }
+        else if (ch == '>') {
+            rich += QString("&gt;");
+        }
+        else if (ch == '&') {
+            rich += QString("&amp;");
+        }
+        else if (ch == ' ') {
+            if (i == 0 || i == text.length() - 1 || text[i - 1].isSpace() ||
+                 text[i + 1].isSpace()) {
+                rich += richMeta(MessageEditor::tr("sp"));
+            }
+            else {
                 rich += ' ';
             }
-        } else {
-            rich += QChar( ch );
         }
-        if ( ch == '\n' )
-            rich += QString( "<br>" );
+        else {
+            rich += QChar(ch);
+        }
+        if (ch == '\n')
+            rich += QString("<br>");
     }
     return rich;
 }
@@ -112,64 +105,63 @@ QString richText( const QString& text )
 
    Used to create a shadow like effect for a widget
 */
-ShadowWidget::ShadowWidget(QWidget * parent)
-    : QWidget(parent), sWidth( 10 ), wMargin( 3 ), childWgt( 0 )
+ShadowWidget::ShadowWidget(QWidget *parent)
+    : QWidget(parent), sWidth(10), wMargin(3), childWgt(0)
 {
 }
 
-ShadowWidget::ShadowWidget( QWidget * child, QWidget * parent)
-    : QWidget( parent), sWidth( 10 ), wMargin( 3 ), childWgt( 0 )
+ShadowWidget::ShadowWidget(QWidget *child, QWidget *parent)
+    : QWidget(parent), sWidth(10), wMargin(3), childWgt(0)
 {
-    setWidget( child );
+    setWidget(child);
 }
 
-void ShadowWidget::setWidget( QWidget * child )
+void ShadowWidget::setWidget(QWidget *child)
 {
     childWgt = child;
-    if ( childWgt && childWgt->parent() != this ) {
+    if (childWgt && childWgt->parent() != this) {
         childWgt->setParent(this);
         childWgt->move(0,0);
         childWgt->show();
     }
 }
 
-void ShadowWidget::resizeEvent( QResizeEvent * )
+void ShadowWidget::resizeEvent(QResizeEvent *)
 {
-    if( childWgt ) {
-        childWgt->move( wMargin, wMargin );
-        childWgt->resize( width() - sWidth - wMargin, height() - sWidth -
-                          wMargin );
+    if(childWgt) {
+        childWgt->move(wMargin, wMargin);
+        childWgt->resize(width() - sWidth - wMargin, height() - sWidth - 
+            wMargin);
     }
 }
 
-void ShadowWidget::paintEvent( QPaintEvent * e )
+void ShadowWidget::paintEvent(QPaintEvent *e)
 {
     QPainter p;
     int w = width() - sWidth;
     int h = height() - sWidth;
 
 
-    if ( !((w > 0) && (h > 0)) )
+    if (!((w > 0) && (h > 0)))
         return;
 
-    if ( p.begin( this ) ) {
-        p.setPen( palette().color(QPalette::Shadow) );
+    if (p.begin(this)) {
+        p.setPen(palette().color(QPalette::Shadow));
 
-        p.drawPoint( w + 5, 6 );
-        p.drawLine( w + 3, 6, w + 5, 8 );
-        p.drawLine( w + 1, 6, w + 5, 10 );
+        p.drawPoint(w + 5, 6);
+        p.drawLine(w + 3, 6, w + 5, 8);
+        p.drawLine(w + 1, 6, w + 5, 10);
         int i;
-        for( i=7; i < h; i += 2 )
-            p.drawLine( w, i, w + 5, i + 5 );
-        for( i = w - i + h; i > 6; i -= 2 )
-            p.drawLine( i, h, i + 5, h + 5 );
-        for( ; i > 0 ; i -= 2 )
-            p.drawLine( 6, h + 6 - i, i + 5, h + 5 );
+        for (i=7; i < h; i += 2)
+            p.drawLine( w, i, w + 5, i + 5);
+        for (i = w - i + h; i > 6; i -= 2)
+            p.drawLine( i, h, i + 5, h + 5);
+        for (; i > 0 ; i -= 2)
+            p.drawLine( 6, h + 6 - i, i + 5, h + 5);
 
-//        p.eraseRect( w, 0, sWidth, 45 ); // Cheap hack for the page curl..
         p.end();
     }
-    QWidget::paintEvent( e );
+    QWidget::paintEvent(e);
 }
 
 /*
@@ -178,83 +170,86 @@ void ShadowWidget::paintEvent( QPaintEvent * e )
    A frame that contains the source text, translated text and any
    source code comments and hints.
 */
-EditorPage::EditorPage( QWidget * parent, const char * name )
-    : QFrame( parent, name )
+EditorPage::EditorPage(QWidget *parent, const char *name)
+    : QFrame(parent)
 {
-    setLineWidth( 1 );
-    setFrameStyle( QFrame::Box | QFrame::Plain );
+    setObjectName(name);
+    setLineWidth(1);
+    setFrameStyle(QFrame::Box | QFrame::Plain);
 
     // Use white explicitly as the background color for the editor page.
     QPalette p = palette();
-    p.setColor( QPalette::Active, QPalette::Base, QColor( Qt::white ) );
-    p.setColor( QPalette::Inactive, QPalette::Base, QColor( Qt::white ) );
-    p.setColor( QPalette::Disabled, QPalette::Base, QColor( Qt::white ) );
-    p.setColor( QPalette::Active, QPalette::Background,
-                p.color( QPalette::Active, QPalette::Base ) );
-    p.setColor( QPalette::Inactive, QPalette::Background,
-                p.color( QPalette::Inactive, QPalette::Base ) );
-    p.setColor( QPalette::Disabled, QPalette::Background,
-                p.color( QPalette::Disabled, QPalette::Base ) );
-    setPalette( p );
+    p.setColor(QPalette::Active, QPalette::Base, QColor(Qt::white));
+    p.setColor(QPalette::Inactive, QPalette::Base, QColor(Qt::white));
+    p.setColor(QPalette::Disabled, QPalette::Base, QColor(Qt::white));
+    p.setColor(QPalette::Active, QPalette::Background,
+                p.color(QPalette::Active, QPalette::Base));
+    p.setColor(QPalette::Inactive, QPalette::Background,
+                p.color(QPalette::Inactive, QPalette::Base));
+    p.setColor(QPalette::Disabled, QPalette::Background,
+                p.color(QPalette::Disabled, QPalette::Base));
+    setPalette(p);
 
-    srcTextLbl = new QLabel( tr("Source text"), this);
-    transLbl   = new QLabel( tr("Translation"), this);
+    srcTextLbl = new QLabel(tr("Source text"), this);
+    transLbl   = new QLabel(tr("Translation"), this);
 
     QFont fnt = font();
-    fnt.setBold( TRUE );
-    srcTextLbl->setFont( fnt );
-    transLbl->setFont( fnt );
+    fnt.setBold(true);
+    srcTextLbl->setFont(fnt);
+    transLbl->setFont(fnt);
 
-    srcText = new QTextView( this);
-    srcText->setFrameStyle( QFrame::NoFrame );
-    srcText->setSizePolicy( QSizePolicy( QSizePolicy::MinimumExpanding,
-                                         QSizePolicy::Minimum ) );
-    srcText->setResizePolicy( QScrollView::AutoOne );
-    srcText->setHScrollBarMode( QScrollView::AlwaysOff );
-    srcText->setVScrollBarMode( QScrollView::AlwaysOff );
+    srcText = new QTextEdit(this);
+    srcText->setFrameStyle(QFrame::NoFrame);
+    srcText->setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding,
+        QSizePolicy::Minimum));
+    srcText->setAutoFormatting(QTextEdit::AutoNone);
+    srcText->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    srcText->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     p = srcText->palette();
-    p.setColor( QPalette::Disabled, QPalette::Base, p.color(QPalette::Active, QPalette::Base));
+    p.setColor(QPalette::Disabled, QPalette::Base, p.color(QPalette::Active, QPalette::Base));
     srcText->setPalette( p );
-    connect( srcText, SIGNAL(textChanged()), SLOT(handleSourceChanges()) );
+    srcText->setEnabled(false);
+    connect(srcText->document(), SIGNAL(contentsChanged()), SLOT(handleSourceChanges()));
 
-    cmtText = new QTextView( this, "comment/context view" );
+    cmtText = new QTextEdit(this);
+    cmtText->setObjectName("comment/context view");
     cmtText->setFrameStyle( QFrame::NoFrame );
     cmtText->setSizePolicy( QSizePolicy( QSizePolicy::MinimumExpanding,
                                          QSizePolicy::Minimum ) );
-    cmtText->setResizePolicy( QScrollView::AutoOne );
-    cmtText->setHScrollBarMode( QScrollView::AlwaysOff );
-    cmtText->setVScrollBarMode( QScrollView::AlwaysOff );
+    cmtText->setAutoFormatting(QTextEdit::AutoNone);
+    cmtText->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    cmtText->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     p = cmtText->palette();
-    p.setColor( QPalette::Active, QPalette::Base, QColor( 236,245,255 ) );
-    p.setColor( QPalette::Inactive, QPalette::Base, QColor( 236,245,255 ) );
-    cmtText->setPalette( p );
-    connect( cmtText, SIGNAL(textChanged()), SLOT(handleCommentChanges()) );
+    p.setColor(QPalette::Active, QPalette::Base, QColor(236,245,255));
+    p.setColor(QPalette::Inactive, QPalette::Base, QColor(236,245,255));
+    cmtText->setPalette(p);
+    connect(cmtText->document(), SIGNAL(contentsChanged()), SLOT(handleCommentChanges()));
 
-    translationMed = new MED( this, "translation editor" );
-    translationMed->setFrameStyle( QFrame::NoFrame );
-    translationMed->setSizePolicy( QSizePolicy( QSizePolicy::MinimumExpanding,
-                                             QSizePolicy::MinimumExpanding ) );
-    translationMed->setHScrollBarMode( QScrollView::AlwaysOff );
-    translationMed->setVScrollBarMode( QScrollView::AlwaysOff );
-    translationMed->setResizePolicy( QScrollView::AutoOne );
-    translationMed->setWrapPolicy( QTextView::AtWhiteSpace );
-    translationMed->setWordWrap( QTextView::WidgetWidth );
-    translationMed->setTextFormat( Qt::PlainText );
-    p = translationMed->palette();
-    p.setColor( QPalette::Disabled, QPalette::Base, p.color(QPalette::Active, QPalette::Base));
-    translationMed->setPalette( p );
-    connect( translationMed, SIGNAL(textChanged()),
-             SLOT(handleTranslationChanges()) );
+    transText = new QTextEdit(this);
+    transText->setObjectName("translation editor");
+    transText->setFrameStyle(QFrame::NoFrame);
+    transText->setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding,
+                                             QSizePolicy::MinimumExpanding));
+    transText->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    transText->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    transText->setAutoFormatting(QTextEdit::AutoNone);
+    transText->setTabChangesFocus(true);
+    transText->setWordWrap(QTextEdit::WidgetWidth);
+    p = transText->palette();
+    p.setColor(QPalette::Disabled, QPalette::Base, p.color(QPalette::Active, QPalette::Base));
+    transText->setPalette(p);
+    connect(transText->document(), SIGNAL(contentsChanged()),
+             SLOT(handleTranslationChanges()));
 
     pageCurl = new PageCurl(this);
 
     // Focus
-    setFocusPolicy( Qt::StrongFocus );
-    transLbl->setFocusProxy( translationMed );
-    srcTextLbl->setFocusProxy( translationMed );
-    cmtText->setFocusProxy( translationMed );
-    srcText->setFocusProxy( translationMed );
-    setFocusProxy( translationMed );
+    setFocusPolicy(Qt::StrongFocus);
+    transLbl->setFocusProxy(transText);
+    srcTextLbl->setFocusProxy(transText);
+    cmtText->setFocusProxy(transText);
+    srcText->setFocusProxy(transText);
+    setFocusProxy(transText);
 
     updateCommentField();
 }
@@ -264,7 +259,7 @@ EditorPage::EditorPage( QWidget * parent, const char * name )
 */
 void EditorPage::updateCommentField()
 {
-    if( cmtText->text().isEmpty() )
+    if(cmtText->plainText().isEmpty())
         cmtText->hide();
     else
         cmtText->show();
@@ -281,43 +276,43 @@ void EditorPage::layoutWidgets()
     int space  = 2;
     int w = width();
 
-    pageCurl->move( width() - pageCurl->width(), 0 );
+    pageCurl->move(width() - pageCurl->width(), 0);
 
-    QFontMetrics fm( srcTextLbl->font() );
-    srcTextLbl->move( margin, margin );
-    srcTextLbl->resize( fm.width( srcTextLbl->text() ), srcTextLbl->height() );
+    QFontMetrics fm(srcTextLbl->font());
+    srcTextLbl->move(margin, margin);
+    srcTextLbl->resize(fm.width(srcTextLbl->text()), srcTextLbl->height());
 
-    srcText->move( margin, srcTextLbl->y() + srcTextLbl->height() + space );
-    srcText->resize( w - margin*2, srcText->height() );
+    srcText->move(margin, srcTextLbl->y() + srcTextLbl->height() + space);
+    srcText->resize(w - margin*2, srcText->height());
 
-    cmtText->move( margin, srcText->y() + srcText->height() + space );
-    cmtText->resize( w - margin*2, cmtText->height() );
+    cmtText->move(margin, srcText->y() + srcText->height() + space);
+    cmtText->resize(w - margin*2, cmtText->height());
 
-    if( cmtText->isHidden() )
-        transLbl->move( margin, srcText->y() + srcText->height() + space );
+    if (cmtText->isHidden())
+        transLbl->move(margin, srcText->y() + srcText->height() + space);
     else
-        transLbl->move( margin, cmtText->y() + cmtText->height() + space );
+        transLbl->move(margin, cmtText->y() + cmtText->height() + space);
     transLbl->resize( w - margin*2, transLbl->height() );
 
-    translationMed->move( margin, transLbl->y() + transLbl->height() + space );
-    translationMed->resize( w - margin*2, translationMed->height() );
+    transText->move(margin, transLbl->y() + transLbl->height() + space);
+    transText->resize(w - margin*2, transText->height());
 
     // Calculate the total height for the editor page - emit a signal
     // if the actual page size is larger/smaller
     int totHeight = margin + srcTextLbl->height() +
                     srcText->height() + space +
                     transLbl->height() + space +
-                    translationMed->height() + space +
+                    transText->height() + space +
                     frameWidth()*lineWidth()*2 + space * 3;
 
-    if( !cmtText->isHidden() )
+    if (!cmtText->isHidden())
         totHeight += cmtText->height() + space;
 
-     if( height() != totHeight )
-         emit pageHeightUpdated( totHeight );
+     if (height() != totHeight)
+         emit pageHeightUpdated(totHeight);
 }
 
-void EditorPage::resizeEvent( QResizeEvent * )
+void EditorPage::resizeEvent(QResizeEvent *)
 {
     handleTranslationChanges();
     handleSourceChanges();
@@ -327,47 +322,47 @@ void EditorPage::resizeEvent( QResizeEvent * )
 
 void EditorPage::handleTranslationChanges()
 {
-    calculateFieldHeight( (QTextView *) translationMed );
+    calculateFieldHeight(transText);
 }
 
 void EditorPage::handleSourceChanges()
 {
-    calculateFieldHeight( srcText );
+    calculateFieldHeight(srcText);
 }
 
 void EditorPage::handleCommentChanges()
 {
-    calculateFieldHeight( cmtText );
+    calculateFieldHeight(cmtText);
 }
 
 /*
    Check if the translation text field is big enough to show all text
    that has been entered. If it isn't, resize it.
 */
-void EditorPage::calculateFieldHeight( QTextView * field )
+void EditorPage::calculateFieldHeight(QTextEdit *field)
 {
-    field->sync(); // make sure the text formatting is done!
-    int contentsHeight = field->contentsHeight();
-
-    if( contentsHeight != field->height() ) {
+    int contentsHeight = field->heightForWidth(field->width());
+    
+    if (contentsHeight != field->height()) {
         int oldHeight = field->height();
-        if( contentsHeight < 30 )
+        if(contentsHeight < 30)
             contentsHeight = 30;
-        field->resize( field->width(), contentsHeight );
-        emit pageHeightUpdated( height() + (field->height() - oldHeight) );
+        field->resize(field->width(), contentsHeight);
+        emit pageHeightUpdated(height() + (field->height() - oldHeight));
     }
 }
 
-void EditorPage::fontChange( const QFont & )
+void EditorPage::fontChange(const QFont &)
 {
+    //keep the labels bold...
     QFont fnt = font();
 
-    fnt.setBold( TRUE );
-    QFontMetrics fm( fnt );
-    srcTextLbl->setFont( fnt );
-    srcTextLbl->resize( fm.width( srcTextLbl->text() ), srcTextLbl->height() );
-    transLbl->setFont( fnt );
-    transLbl->resize( fm.width( transLbl->text() ), transLbl->height() );
+    fnt.setBold(true);
+    QFontMetrics fm(fnt);
+    srcTextLbl->setFont(fnt);
+    srcTextLbl->resize(fm.width(srcTextLbl->text()), srcTextLbl->height());
+    transLbl->setFont(fnt);
+    transLbl->resize(fm.width(transLbl->text()), transLbl->height());
     update();
 }
 
@@ -376,49 +371,49 @@ void EditorPage::fontChange( const QFont & )
 
    Handle layout of dock windows and the editor page.
 */
-MessageEditor::MessageEditor( MetaTranslator * t, QMainWindow *parent )
-    : QWidget( parent),
-      tor( t )
+MessageEditor::MessageEditor(MetaTranslator *t, QMainWindow *parent)
+    : QWidget(parent), tor(t)
 {
-    doGuesses = TRUE;
-    v = new QVBoxLayout( this );
+    doGuesses = true;
+    v = new QVBoxLayout(this);
 
     topDockWnd = new QDockWindow(parent, Qt::DockWindowAreaTop);
     topDockWnd->setAllowedAreas(Qt::AllDockWindowAreas);
     topDockWnd->setFeatures(QDockWindow::AllDockWindowFeatures);
     topDockWnd->setWindowTitle(tr("Source text"));
 
-    srcTextList = new Q3ListView(topDockWnd);
-    srcTextList->setShowSortIndicator( TRUE );
-    srcTextList->setAllColumnsShowFocus( TRUE );
-    srcTextList->setSorting( 0 );
-    QFontMetrics fm( font() );
-    srcTextList->addColumn( tr("Done"), fm.width( tr("Done") ) + 10 );
-    srcTextList->addColumn( tr("Source text") );
-    srcTextList->addColumn( tr("Translation"), 300 );
-    srcTextList->setColumnAlignment( 0, Qt::AlignCenter );
-    srcTextList->setColumnWidthMode( 1, Q3ListView::Manual );
-    srcTextList->header()->setStretchEnabled( TRUE, 1 );
-    srcTextList->setMinimumSize( QSize( 50, 50 ) );
-    srcTextList->setHScrollBarMode( QScrollView::AlwaysOff );
-    srcTextList->installEventFilter( this );
-    topDockWnd->setWidget(srcTextList);
+    srcTextView = new QTreeView(topDockWnd);
+    srcMdl = new MessageModel(topDockWnd);
+    srcTextView->setModel(srcMdl);
+    srcTextView->setAlternatingRowColors(true);
+    srcTextView->setOddRowColor(TREEVIEW_ODD_COLOR);
+    srcTextView->setSelectionBehavior(QAbstractItemView::SelectRows);
+    srcTextView->setSelectionMode(QAbstractItemView::SingleSelection);
+    srcTextView->setRootIsDecorated(false);
+        
+    QFontMetrics fm(font());
+    srcTextView->header()->setResizeMode(QHeaderView::Stretch, 1);
+    srcTextView->header()->resizeSection(0, fm.width(MessageModel::tr("Done")) + 10);
+    srcTextView->header()->resizeSection(2, 300);
+    srcTextView->header()->setClickable(true);
 
-    sv = new QScrollView( this, "scroll view" );
-    sv->setHScrollBarMode( QScrollView::AlwaysOff );
-    sv->viewport()->setBackgroundRole(QPalette::Background);
+    topDockWnd->setWidget(srcTextView);
 
-    editorPage = new EditorPage( sv, "editor page" );
-    connect( editorPage, SIGNAL(pageHeightUpdated(int)),
-             SLOT(updatePageHeight(int)) );
+    sv = new QWidgetView(this);
+    sv->setObjectName("widget view");
+    sv->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    sv->setFrameStyle(QFrame::NoFrame);
 
-    editorPage->translationMed->installEventFilter( this );
+    editorPage = new EditorPage(sv, "editor page");
+    connect(editorPage, SIGNAL(pageHeightUpdated(int)),
+             SLOT(updatePageHeight(int)));
 
-    sw = new ShadowWidget( editorPage, sv);
-    sw->setSizePolicy( QSizePolicy( QSizePolicy::Expanding,
-                                    QSizePolicy::Expanding) );
-    sw->setMinimumSize( QSize( 100, 150 ) );
-    sv->addChild( sw );
+    editorPage->transText->installEventFilter(this);
+
+    sw = new ShadowWidget(editorPage, sv);
+    sw->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
+    sw->setMinimumSize(QSize(100, 150));
+    sv->setWidget(sw);
 
     bottomDockWnd = new QDockWindow(parent, Qt::DockWindowAreaBottom);
     bottomDockWnd->setAllowedAreas(Qt::AllDockWindowAreas);
@@ -426,52 +421,61 @@ MessageEditor::MessageEditor( MetaTranslator * t, QMainWindow *parent )
     bottomDockWnd->setWindowTitle(tr("Phrases"));
 
     QWidget *w = new QWidget(bottomDockWnd);
-    w->setSizePolicy( QSizePolicy( QSizePolicy::Minimum,
-                                   QSizePolicy::Minimum ) );
-    QHBoxLayout *hl = new QHBoxLayout( w, 6 );
-    QVBoxLayout *vl = new QVBoxLayout( 6 );
+    w->setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum));
+    QVBoxLayout *vl = new QVBoxLayout(w);
+    vl->setSpacing(6);
 
     phraseLbl = new QLabel( tr("Phrases and guesses:"), w );
-    phraseLv = new PhraseLV( w, "phrase list view" );
-    phraseLv->setSorting( PhraseLVI::DefinitionText );
-    phraseLv->installEventFilter( this );
-    hl->addLayout( vl );
-    vl->addWidget( phraseLbl );
-    vl->addWidget( phraseLv );
+    
+    phraseTv = new QTreeView(w);
+    phraseTv->setObjectName("phrase list view");
+    phrMdl = new PhraseModel(w);
+    phraseTv->setModel(phrMdl);
+    phraseTv->setAlternatingRowColors(true);
+    phraseTv->setOddRowColor(TREEVIEW_ODD_COLOR);
+    phraseTv->setSelectionBehavior(QAbstractItemView::SelectRows);
+    phraseTv->setSelectionMode(QAbstractItemView::SingleSelection);
+    phraseTv->setRootIsDecorated(false);
 
-    accel = new QAccel( this, "accel" );
-    connect( accel, SIGNAL(activated(int)), this, SLOT(guessActivated(int)) );
-    for ( int i = 0; i < 9; i++ )
-        accel->insertItem( Qt::CTRL + (Qt::Key_1 + i), i + 1 );
+    phraseTv->header()->setResizeMode(QHeaderView::Stretch);
 
+    vl->addWidget(phraseLbl);
+    vl->addWidget(phraseTv);
+
+    for (int i = 0; i < 9; ++i) {
+        (void) new GuessShortcut(i, this, SLOT(guessActivated(int)));
+    }
+    
     bottomDockWnd->setWidget(w);
-
-    v->addWidget( sv );
+    v->addWidget(sv);
 
     // Signals
-    connect( editorPage->pageCurl, SIGNAL(nextPage()),
-             SIGNAL(nextUnfinished()) );
-    connect( editorPage->pageCurl, SIGNAL(prevPage()),
-             SIGNAL(prevUnfinished()) );
+    connect(editorPage->pageCurl, SIGNAL(nextPage()),
+        SIGNAL(nextUnfinished()));
+    connect(editorPage->pageCurl, SIGNAL(prevPage()),
+        SIGNAL(prevUnfinished()));
 
-    connect( editorPage->translationMed, SIGNAL(textChanged()),
-             this, SLOT(emitTranslationChanged()) );
-    connect( editorPage->translationMed, SIGNAL(textChanged()),
-             this, SLOT(updateButtons()) );
-    connect( editorPage->translationMed, SIGNAL(undoAvailable(bool)),
-             this, SIGNAL(undoAvailable(bool)) );
-    connect( editorPage->translationMed, SIGNAL(redoAvailable(bool)),
-             this, SIGNAL(redoAvailable(bool)) );
-    connect( editorPage->translationMed, SIGNAL(copyAvailable(bool)),
-             this, SIGNAL(cutAvailable(bool)) );
-    connect( editorPage->translationMed, SIGNAL(copyAvailable(bool)),
-             this, SIGNAL(copyAvailable(bool)) );
-    connect( qApp->clipboard(), SIGNAL(dataChanged()),
-             this, SLOT(updateCanPaste()) );
-    connect( phraseLv, SIGNAL(doubleClicked(Q3ListViewItem *)),
-             this, SLOT(insertPhraseInTranslation(Q3ListViewItem *)) );
-    connect( phraseLv, SIGNAL(returnPressed(Q3ListViewItem *)),
-             this, SLOT(insertPhraseInTranslationAndLeave(Q3ListViewItem *)) );
+    connect(editorPage->transText->document(), SIGNAL(contentsChanged()),
+        this, SLOT(emitTranslationChanged()));
+    connect(editorPage->transText->document(), SIGNAL(contentsChanged()),
+        this, SLOT(updateButtons()));
+    connect(editorPage->transText->document(), SIGNAL(undoAvailable(bool)),
+        this, SIGNAL(undoAvailable(bool)));
+    connect(editorPage->transText->document(), SIGNAL(redoAvailable(bool)),
+        this, SIGNAL(redoAvailable(bool)));
+    connect(editorPage->transText, SIGNAL(copyAvailable(bool)),
+        this, SIGNAL(cutAvailable(bool)));
+    connect(editorPage->transText, SIGNAL(copyAvailable(bool)),
+        this, SIGNAL(copyAvailable(bool)));
+    connect(qApp->clipboard(), SIGNAL(dataChanged()),
+        this, SLOT(updateCanPaste()));
+    connect(phraseTv, SIGNAL(doubleClicked(const QModelIndex &, int)),
+        this, SLOT(insertPhraseInTranslation(const QModelIndex &, int)));
+    connect(phraseTv, SIGNAL(returnPressed(const QModelIndex &)),
+        this, SLOT(insertPhraseInTranslationAndLeave(const QModelIndex &)));
+
+    connect(srcTextView->selectionModel(), SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)),
+             parent, SLOT(showNewCurrent(const QModelIndex &, const QModelIndex &)));
 
     // What's this
     this->setWhatsThis(tr("This whole panel allows you to view and edit "
@@ -480,314 +484,238 @@ MessageEditor::MessageEditor( MetaTranslator * t, QMainWindow *parent )
     editorPage->cmtText->setWhatsThis(tr("This area shows a comment that"
                         " may guide you, and the context in which the text"
                         " occurs.") );
-    editorPage->translationMed->setWhatsThis(tr("This is where you can enter or modify"
+    editorPage->transText->setWhatsThis(tr("This is where you can enter or modify"
                         " the translation of some source text.") );
+
+    showNothing();
 }
 
-void MessageEditor::toggleFinished()
+bool MessageEditor::eventFilter(QObject *o, QEvent *e)
 {
-    if ( itemFinished )
-        itemFinished = FALSE;
-    else
-        itemFinished = TRUE;
-    emit finished( itemFinished );
-}
-
-bool MessageEditor::eventFilter( QObject *o, QEvent *e )
-{
-    static uchar doFocusChange = FALSE;
-
+    // TODO:
     // Handle keypresses in the message editor - scroll the view if the current
     // line is hidden.
-    if ( e->type() == QEvent::KeyPress || e->type() == QEvent::KeyRelease ) {
-        QKeyEvent * ke = (QKeyEvent*)e;
-        const int k = ke->key();
+    // handle the ESC key in the list views
 
-        if ( qt_cast<Q3TextEdit*>(o) ) {
-            if ( e->type() == QEvent::KeyPress ) {
-                // Hardcode the Tab key to do focus changes when pressed
-                // inside the editor
-                if ( doFocusChange ) {
-                    if ( k == Qt::Key_BackTab ) {
-                        emit focusSourceList();
-                        doFocusChange = FALSE;
-                        return TRUE;
-                    } else if ( k == Qt::Key_Tab ) {
-                        emit focusPhraseList();
-                        doFocusChange = FALSE;
-                        return TRUE;
-                    }
-                }
-            } else if ( e->type() == QEvent::KeyRelease ) {
-                MED * ed = (MED *) o;
-                switch( k ) {
-                case Qt::Key_Up:
-                    if (ed->cursorY() < 10)
-                        sv->verticalScrollBar()->triggerAction(QScrollBar::SliderSingleStepSub);
-                    break;
-
-                case Qt::Key_Down:
-                    if (ed->cursorY() >= ed->height() - 20)
-                        sv->verticalScrollBar()->triggerAction(QScrollBar::SliderSingleStepAdd);
-                    break;
-
-                case Qt::Key_PageUp:
-                    if (ed->cursorY() < 10)
-                        sv->verticalScrollBar()->triggerAction(QScrollBar::SliderPageStepSub);
-                    break;
-
-                case Qt::Key_PageDown:
-                    if (ed->cursorY() >= ed->height() - 50)
-                        sv->verticalScrollBar()->triggerAction(QScrollBar::SliderPageStepAdd);
-                    break;
-                default:
-                    sv->ensureVisible( sw->margin() + ed->x() + ed->cursorX(),
-                                       sw->margin() + ed->y() + ed->cursorY() );
-                    break;
-                }
-            }
-            doFocusChange = TRUE;
-        } else if ( qt_cast<Q3ListView*>(o) ) {
-            // handle the ESC key in the list views
-            if ( e->type() == QEvent::KeyRelease && k == Qt::Key_Escape )
-                editorPage->translationMed->setFocus();
-        }
-    }
-    return QWidget::eventFilter( o, e );
+    return QWidget::eventFilter(o, e);
 }
 
-void MessageEditor::updatePageHeight( int height )
+void MessageEditor::updatePageHeight(int height)
 {
-    sw->resize( sw->width(), height + sw->margin() + sw->shadowWidth() );
+    sw->resize(sw->width(), height + sw->margin() + sw->shadowWidth());
 }
 
-void MessageEditor::resizeEvent( QResizeEvent * )
+void MessageEditor::resizeEvent(QResizeEvent *)
 {
-    sw->resize( sv->viewport()->width(), sw->height() );
+    sw->resize(sv->viewport()->width(), sw->height());
 }
 
-Q3ListView * MessageEditor::sourceTextList() const
+QTreeView *MessageEditor::sourceTextView() const
 {
-    return srcTextList;
+    return srcTextView;
 }
 
-Q3ListView * MessageEditor::phraseList() const
+QTreeView *MessageEditor::phraseView() const
 {
-    return phraseLv;
+    return phraseTv;
 }
 
 void MessageEditor::showNothing()
 {
-    editorPage->srcText->setText( "" );
-    showContext( QString(""), FALSE );
-}
+    editorPage->srcText->clear();
 
-void MessageEditor::showContext( const QString& context, bool finished )
-{
-    setEditionEnabled( FALSE );
+    setEditionEnabled(false);
     sourceText = QString::null;
-    guesses.clear();
-
-    if( context.isEmpty() )
-        editorPage->cmtText->setText("");
-    else
-        editorPage->cmtText->setText( richText(context.simplified()) );
-    setTranslation( QString(""), FALSE );
-    setFinished( finished );
-    phraseLv->clear();
+    editorPage->cmtText->clear();
+    setTranslation(QString::null, false);
     editorPage->handleSourceChanges();
     editorPage->handleCommentChanges();
     editorPage->handleTranslationChanges();
     editorPage->updateCommentField();
 }
 
-void MessageEditor::showMessage( const QString& text,
-                                 const QString& comment,
-                                 const QString& fullContext,
-                                 const QString& translation,
-                                 MetaTranslatorMessage::Type type,
-                                 const QList<Phrase>& phrases )
+void MessageEditor::showMessage(const QString &text, 
+                                const QString &comment,
+                                const QString &fullContext,
+                                const QString &translation,
+                                MetaTranslatorMessage::Type type,
+                                const QList<Phrase> &phrases)
 {
-    bool obsolete = ( type == MetaTranslatorMessage::Obsolete );
-    setEditionEnabled( !obsolete );
+    bool obsolete = (type == MetaTranslatorMessage::Obsolete);
+    setEditionEnabled(!obsolete);
     sourceText = text;
-    guesses.clear();
 
-    editorPage->srcText->setText( QString("<p>") + richText( text ) +
-                                  QString("</p>") );
+    editorPage->srcText->setHtml(QString("<p>") + richText(text) +
+        QString("</p>"));
 
-    if ( !fullContext.isEmpty() && !comment.isEmpty() )
-        editorPage->cmtText->setText( richText(fullContext.simplified()) +
-                                      "\n" + richText(comment.simplified()) );
-    else if ( !fullContext.isEmpty() && comment.isEmpty() )
-        editorPage->cmtText->setText(richText(fullContext.simplified() ) );
-    else if ( fullContext.isEmpty() && !comment.isEmpty() )
-        editorPage->cmtText->setText( richText(comment.simplified() ) );
+    if (!fullContext.isEmpty() && !comment.isEmpty())
+        editorPage->cmtText->setHtml(richText(fullContext.simplified()) +
+            "\n" + richText(comment.simplified()));
+    else if (!fullContext.isEmpty() && comment.isEmpty())
+        editorPage->cmtText->setHtml(richText(fullContext.simplified()));
+    else if (fullContext.isEmpty() && !comment.isEmpty())
+        editorPage->cmtText->setHtml(richText(comment.simplified()));
     else
-        editorPage->cmtText->setText( "" );
+        editorPage->cmtText->clear();
 
-    setTranslation( translation, FALSE );
-    setFinished( type != MetaTranslatorMessage::Unfinished );
-    QList<Phrase>::ConstIterator p;
-    phraseLv->clear();
-    for ( p = phrases.begin(); p != phrases.end(); ++p )
-         (void) new PhraseLVI( phraseLv, *p );
+    setTranslation(translation, false);
+    phrMdl->removePhrases();
 
-    if ( doGuesses && !sourceText.isEmpty() ) {
-        CandidateList cl = similarTextHeuristicCandidates( tor,
-                                                           sourceText.latin1(),
-                                                           MaxCandidates );
+    foreach(Phrase p, phrases) {
+        phrMdl->addPhrase(p);
+    }
+
+    if (doGuesses && !sourceText.isEmpty()) {
+        CandidateList cl = similarTextHeuristicCandidates(tor,
+            sourceText.latin1(), MaxCandidates);
         int n = 0;
         QList<Candidate>::Iterator it = cl.begin();
-        while ( it != cl.end() ) {
+        while (it != cl.end()) {
             QString def;
-            if ( n < 9 )
-                def = tr( "Guess (%1)" ).arg( QString(QKeySequence(Qt::CTRL | (Qt::Key_0 + (n + 1)))) );
+            if (n < 9)
+                def = tr("Guess (%1)").arg(QString(QKeySequence(Qt::CTRL | (Qt::Key_0 + (n + 1)))));
             else
-                def = tr( "Guess" );
-            (void) new PhraseLVI( phraseLv,
-                                  Phrase((*it).source, (*it).target, def),
-                                  n + 1 );
-            n++;
+                def = tr("Guess");
+            phrMdl->addPhrase(Phrase((*it).source, (*it).target, def, n));
+            ++n;
             ++it;
         }
     }
+    phrMdl->resort();
+    phraseTv->clearSelection();
     editorPage->handleSourceChanges();
     editorPage->handleCommentChanges();
     editorPage->handleTranslationChanges();
     editorPage->updateCommentField();
 }
 
-void MessageEditor::setTranslation( const QString& translation, bool emitt )
+void MessageEditor::setTranslation(const QString &translation, bool emitt)
 {
-    // Block signals so that 'textChanged()' is not emitted when
+    // Block signals so that a signal is not emitted when
     // for example a new source text item is selected and *not*
     // the actual translation.
-    editorPage->translationMed->blockSignals( !emitt );
-    editorPage->translationMed->setText( translation );
-    editorPage->translationMed->blockSignals( FALSE );
-    if ( !emitt )
-         updateButtons();
-    emit cutAvailable( FALSE );
-    emit copyAvailable( FALSE );
+    editorPage->transText->document()->blockSignals(!emitt);
+    if (translation.isNull())
+        editorPage->transText->clear();
+    else
+        editorPage->transText->setPlainText(translation);
+    editorPage->transText->document()->blockSignals(false);
+    if (!emitt)
+        updateButtons();
+    emit cutAvailable(false);
+    emit copyAvailable(false);
 }
 
-void MessageEditor::setEditionEnabled( bool enabled )
+void MessageEditor::setEditionEnabled(bool enabled)
 {
-    editorPage->transLbl->setEnabled( enabled );
-    editorPage->translationMed->setReadOnly( !enabled );
+    editorPage->transLbl->setEnabled(enabled);
+    editorPage->transText->setReadOnly(!enabled);
 
-    phraseLbl->setEnabled( enabled );
-    phraseLv->setEnabled( enabled );
+    phraseLbl->setEnabled(enabled);
+    phraseTv->setEnabled(enabled);
     updateCanPaste();
 }
 
 void MessageEditor::undo()
 {
-    editorPage->translationMed->undo();
+    editorPage->transText->document()->undo();
 }
 
 void MessageEditor::redo()
 {
-    editorPage->translationMed->redo();
+    editorPage->transText->document()->redo();
 }
 
 void MessageEditor::cut()
 {
-    editorPage->translationMed->cut();
+    editorPage->transText->cut();
 }
 
 void MessageEditor::copy()
 {
-    editorPage->translationMed->copy();
+    editorPage->transText->copy();
 }
 
 void MessageEditor::paste()
 {
-    editorPage->translationMed->paste();
-}
-
-void MessageEditor::del()
-{
-    editorPage->translationMed->del();
+    editorPage->transText->paste();
 }
 
 void MessageEditor::selectAll()
 {
-    editorPage->translationMed->selectAll();
+    editorPage->transText->selectAll();
 }
 
 void MessageEditor::emitTranslationChanged()
 {
-    emit translationChanged( editorPage->translationMed->text() );
+    emit translationChanged(editorPage->transText->plainText());
 }
 
-void MessageEditor::guessActivated( int accelKey )
+void MessageEditor::guessActivated(int key)
 {
-    Q3ListViewItem *item = phraseLv->firstChild();
-    while ( item != 0 && ((PhraseLVI *) item)->accelKey() != accelKey )
-        item = item->nextSibling();
-    if ( item != 0 )
-        insertPhraseInTranslation( item );
+    QModelIndex mi;
+    Phrase p;
+
+    for (int i=0; i<phrMdl->phraseList().count(); ++i) {
+        mi = phrMdl->QAbstractTableModel::index(i, 0);
+        p = phrMdl->phrase(mi);
+        if (p.shortcut() == key) {
+            insertPhraseInTranslation(mi);
+            break;
+        }
+    }
 }
 
-void MessageEditor::insertPhraseInTranslation( Q3ListViewItem *item )
+void MessageEditor::insertPhraseInTranslation(const QModelIndex &index, int button)
 {
-    editorPage->translationMed->insert(((PhraseLVI *) item)->phrase().target());
-    emit translationChanged( editorPage->translationMed->text() );
+    if (button == Qt::LeftButton) {
+        editorPage->transText->textCursor().insertText(phrMdl->phrase(index).target());
+        emit translationChanged(editorPage->transText->plainText());
+    }
 }
 
-void MessageEditor::insertPhraseInTranslationAndLeave( Q3ListViewItem *item )
+void MessageEditor::insertPhraseInTranslationAndLeave(const QModelIndex &index)
 {
-    editorPage->translationMed->insert(((PhraseLVI *) item)->phrase().target());
-    emit translationChanged( editorPage->translationMed->text() );
-    editorPage->translationMed->setFocus();
+    editorPage->transText->textCursor().insertText(phrMdl->phrase(index).target());
+    emit translationChanged(editorPage->transText->plainText());
+    editorPage->transText->setFocus();
 }
 
 void MessageEditor::updateButtons()
 {
-    bool overwrite = ( !editorPage->translationMed->isReadOnly() &&
-             (editorPage->translationMed->text().trimmed().isEmpty() ||
-              mayOverwriteTranslation) );
-    mayOverwriteTranslation = FALSE;
-    emit updateActions( overwrite );
+    bool overwrite = (!editorPage->transText->isReadOnly() &&
+             (editorPage->transText->plainText().trimmed().isEmpty() ||
+              mayOverwriteTranslation));
+    mayOverwriteTranslation = false;
+    emit updateActions(overwrite);
 }
 
 void MessageEditor::beginFromSource()
 {
-    mayOverwriteTranslation = TRUE;
-    setTranslation( sourceText, TRUE );
-    if ( !editorPage->hasFocus() )
-        editorPage->setFocus();
+    mayOverwriteTranslation = true;
+    setTranslation(sourceText, true);
+    setEditorFocus();
 }
 
-void MessageEditor::finishAndNext()
+void MessageEditor::setEditorFocus()
 {
-    setFinished( TRUE );
-    emit nextUnfinished();
-    if ( !editorPage->hasFocus() )
+    if (!editorPage->hasFocus())
         editorPage->setFocus();
 }
 
 void MessageEditor::updateCanPaste()
 {
     bool oldCanPaste = canPaste;
-    canPaste = ( !editorPage->translationMed->isReadOnly() &&
-                 !qApp->clipboard()->text().isNull() );
-    if ( canPaste != oldCanPaste )
-        emit pasteAvailable( canPaste );
-}
-
-void MessageEditor::setFinished( bool finished )
-{
-    if ( !finished != !itemFinished )
-        toggleFinished();
+    canPaste = (!editorPage->transText->isReadOnly() &&
+        !qApp->clipboard()->text().isNull());
+    if (canPaste != oldCanPaste)
+        emit pasteAvailable(canPaste);
 }
 
 void MessageEditor::toggleGuessing()
 {
     doGuesses = !doGuesses;
-    if ( !doGuesses ) {
-        phraseLv->clear();
+    if (!doGuesses) {
+        phrMdl->removePhrases();
     }
 }

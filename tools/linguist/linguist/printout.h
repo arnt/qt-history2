@@ -39,7 +39,7 @@ public:
     void flushLine( bool mayBreak = FALSE );
     void addBox( int percent, const QString& text = QString::null,
                  Style style = Normal,
-                 int halign = Qt::AlignLeft | Qt::WordBreak );
+                 int halign = Qt::AlignLeft | Qt::TextWordWrap ); //NEW WordBread -> TextWordWrap
 
     int pageNum() const { return page; }
 

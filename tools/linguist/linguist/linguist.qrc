@@ -1,11 +1,12 @@
 <!DOCTYPE RCC><RCC version="1.0">
-<qresource prefix="/qt/q3mimesourcefactory/">
+<qresource>
 	<file>images/accelerator.png</file>
         <file>images/book.png</file>
         <file>images/s_check_danger.png</file>
         <file>images/s_check_obs.png</file>
         <file>images/s_check_off.png</file>
         <file>images/s_check_on.png</file>
+        <file>images/s_check_empty.png</file>
         <file>images/d_s_check_danger.png</file>
         <file>images/d_s_check_obs.png</file>
         <file>images/d_s_check_off.png</file>

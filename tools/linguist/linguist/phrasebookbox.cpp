@@ -18,7 +18,6 @@
 */
 
 #include "phrasebookbox.h"
-#include "phraselv.h"
 
 #include <qapplication.h>
 #include <qevent.h>
@@ -28,197 +27,208 @@
 #include <qmessagebox.h>
 #include <qpushbutton.h>
 #include <qwhatsthis.h>
+#include <qheaderview.h>
 
-PhraseBookBox::PhraseBookBox( const QString& filename,
-                              const PhraseBook& phraseBook, QWidget *parent,
-                              const char *name, bool modal )
-    : QDialog( parent, name, modal ), fn( filename ), pb( phraseBook )
+#define NewPhrase tr("(New Phrase)")
+
+PhraseBookBox::PhraseBookBox(const QString& filename,
+                             const PhraseBook& phraseBook, QWidget *parent)
+    : QDialog(parent), fn(filename), pb(phraseBook), blockListSignals(false)
 {
-    QGridLayout *gl = new QGridLayout( this, 4, 3, 11, 11,
-                                       "phrase book outer layout" );
-    QVBoxLayout *bl = new QVBoxLayout( 6, "phrase book button layout" );
+    setupUi(this);
+    setModal(false);
+    source->setBuddy(sourceLed);
+    target->setBuddy(targetLed);
+    definition->setBuddy(definitionLed);
 
-    sourceLed = new QLineEdit( this, "source line edit" );
-    QLabel *source = new QLabel( sourceLed, tr("S&ource phrase:"), this,
-                                 "source label" );
-    targetLed = new QLineEdit( this, "target line edit" );
-    QLabel *target = new QLabel( targetLed, tr("&Translation:"), this,
-                                 "target label" );
-    definitionLed = new QLineEdit( this, "definition line edit" );
-    QLabel *definition = new QLabel( definitionLed, tr("&Definition:"), this,
-                                     "target label" );
-    lv = new PhraseLV( this, "phrase book list view" );
+    phrMdl = new PhraseModel(this);
+    phraseList->setModel(phrMdl);
+    phraseList->setSelectionBehavior(QAbstractItemView::SelectRows);
+    phraseList->setSelectionMode(QAbstractItemView::SingleSelection);
+    phraseList->setRootIsDecorated(false);
+    phraseList->header()->setResizeMode(QHeaderView::Stretch);
 
-    newBut = new QPushButton( tr("&New Phrase"), this );
-    newBut->setDefault( TRUE );
+    connect(sourceLed, SIGNAL(textChanged(const QString&)),
+        this, SLOT(sourceChanged(const QString&)));
+    connect(targetLed, SIGNAL(textChanged(const QString&)),
+        this, SLOT(targetChanged(const QString&)));
+    connect(definitionLed, SIGNAL(textChanged(const QString&)),
+        this, SLOT(definitionChanged(const QString&)));
+    connect(phraseList->selectionModel(), SIGNAL(currentChanged(const QModelIndex &, 
+        const QModelIndex &)), this, SLOT(selectionChanged()));
+    connect(newBut, SIGNAL(clicked()), this, SLOT(newPhrase()));
+    connect(removeBut, SIGNAL(clicked()), this, SLOT(removePhrase()));
+    connect(saveBut, SIGNAL(clicked()), this, SLOT(save()));
+    connect(closeBut, SIGNAL(clicked()), this, SLOT(accept()));
 
-    removeBut = new QPushButton( tr("&Remove Phrase"), this );
-    removeBut->setEnabled( FALSE );
-    QPushButton *saveBut = new QPushButton( tr("&Save"), this );
-    QPushButton *closeBut = new QPushButton( tr("Close"), this );
+    connect(phraseList->header(), SIGNAL(sectionClicked(int, Qt::ButtonState)),
+        this, SLOT(sortPhrases(int, Qt::ButtonState)));
 
-    gl->addWidget( source, 0, 0 );
-    gl->addWidget( sourceLed, 0, 1 );
-    gl->addWidget( target, 1, 0 );
-    gl->addWidget( targetLed, 1, 1 );
-    gl->addWidget( definition, 2, 0 );
-    gl->addWidget( definitionLed, 2, 1 );
-    gl->addMultiCellWidget( lv, 3, 3, 0, 1 );
-    gl->addMultiCell( bl, 0, 3, 2, 2 );
+    foreach(Phrase p, phraseBook) {
+        phrMdl->addPhrase(p);
+    }
 
-    bl->addWidget( newBut );
-    bl->addWidget( removeBut );
-    bl->addWidget( saveBut );
-    bl->addWidget( closeBut );
-    bl->addStretch( 1 );
-
-    connect( sourceLed, SIGNAL(textChanged(const QString&)),
-             this, SLOT(sourceChanged(const QString&)) );
-    connect( targetLed, SIGNAL(textChanged(const QString&)),
-             this, SLOT(targetChanged(const QString&)) );
-    connect( definitionLed, SIGNAL(textChanged(const QString&)),
-             this, SLOT(definitionChanged(const QString&)) );
-    connect( lv, SIGNAL(selectionChanged(Q3ListViewItem *)),
-             this, SLOT(selectionChanged(Q3ListViewItem *)) );
-    connect( newBut, SIGNAL(clicked()), this, SLOT(newPhrase()) );
-    connect( removeBut, SIGNAL(clicked()), this, SLOT(removePhrase()) );
-    connect( saveBut, SIGNAL(clicked()), this, SLOT(save()) );
-    connect( closeBut, SIGNAL(clicked()), this, SLOT(accept()) );
-
-    PhraseBook::ConstIterator it;
-    for ( it = phraseBook.begin(); it != phraseBook.end(); ++it )
-        (void) new PhraseLVI( lv, (*it) );
+    sortPhrases(0, Qt::LeftButton);
     enableDisable();
-
-    this->setWhatsThis(tr("This window allows you to add, modify, or delete"
-                              " phrases in a phrase book.") );
-    sourceLed->setWhatsThis(tr("This is the phrase in the source"
-                                   " language.") );
-    targetLed->setWhatsThis(tr("This is the phrase in the target language"
-                                   " corresponding to the source phrase.") );
-    definitionLed->setWhatsThis(tr("This is a definition for the source"
-                                       " phrase.") );
-    newBut->setWhatsThis(tr("Click here to add the phrase to the phrase"
-                                " book.") );
-    removeBut->setWhatsThis(tr("Click here to remove the phrase from the"
-                                   " phrase book.") );
-    saveBut->setWhatsThis(tr("Click here to save the changes made.") );
-    closeBut->setWhatsThis(tr("Click here to close this window.") );
 }
 
-void PhraseBookBox::keyPressEvent( QKeyEvent *ev )
+void PhraseBookBox::sortPhrases(int section, Qt::ButtonState state)
 {
-    if ( ev->key() == Qt::Key_Down || ev->key() == Qt::Key_Up ||
-         ev->key() == Qt::Key_Next || ev->key() == Qt::Key_Prior )
-        QApplication::sendEvent( lv,
-                new QKeyEvent(ev->type(), ev->key(), ev->state(), ev->text(), ev->isAutoRepeat(), ev->count()) );
-    else
+    if ((state == Qt::LeftButton) && 
+        ((section >= 0) && (section <= 2))) {
+
+        Qt::SortOrder order;
+        int column;
+
+        if ((phrMdl->sortParameters(order, column))) {
+            if ((order == Qt::Ascending) && (column == section))
+                order = Qt::Descending;
+            else
+                order = Qt::Ascending;
+        }
+        else {
+            order = Qt::Ascending;
+        }
+
+        phraseList->header()->setSortIndicator(section, order);
+        phraseList->header()->setSortIndicatorShown(true);
+        phrMdl->sort(section, QModelIndex::Null, order);
+        phraseList->clearSelection();
+    }
+}
+
+void PhraseBookBox::keyPressEvent(QKeyEvent *ev)
+{
+    // TODO:
+    // does not work... 
+    /*if (ev->key() == Qt::Key_Down || ev->key() == Qt::Key_Up ||
+        ev->key() == Qt::Key_Next || ev->key() == Qt::Key_Prior)
+        QApplication::sendEvent(phraseList, new QKeyEvent(ev->type(), 
+        ev->key(), ev->state(), ev->text(), ev->isAutoRepeat(), ev->count()));
+    else*/
         QDialog::keyPressEvent( ev );
 }
 
 void PhraseBookBox::newPhrase()
 {
     Phrase ph;
-    ph.setSource( NewPhrase );
-    Q3ListViewItem *item = new PhraseLVI( lv, ph );
-    selectItem( item );
+    ph.setSource(NewPhrase);
+    selectItem(phrMdl->addPhrase(ph));
 }
 
 void PhraseBookBox::removePhrase()
 {
-    Q3ListViewItem *item = lv->currentItem();
-    Q3ListViewItem *next = item->itemBelow() != 0 ? item->itemBelow()
-                          : item->itemAbove();
-    delete item;
-    if ( next != 0 )
-        selectItem( next );
-    enableDisable();
+    phrMdl->removePhrase(phraseList->currentIndex());
 }
 
 void PhraseBookBox::save()
 {
     pb.clear();
-    Q3ListViewItem *item = lv->firstChild();
-    while ( item != 0 ) {
-        if ( !item->text(PhraseLVI::SourceTextShown).isEmpty() &&
-             item->text(PhraseLVI::SourceTextShown) != NewPhrase )
-            pb.append( Phrase(((PhraseLVI *) item)->phrase()) );
-        item = item->nextSibling();
+    
+    QList<Phrase> pl = phrMdl->phraseList();
+    Phrase p;
+
+    for (int i=0; i<pl.count(); i++) {
+        p = pl.at(i);
+        if (!p.source().isEmpty() && p.source() != NewPhrase) 
+            pb.append(pl.at(i));
     }
-    if ( !pb.save( fn ) )
-        QMessageBox::warning( this, tr("Qt Linguist"),
-                              tr("Cannot save phrase book '%1'.").arg(fn) );
+
+    if (!pb.save(fn))
+        QMessageBox::warning(this, tr("Qt Linguist"),
+        tr("Cannot save phrase book '%1'.").arg(fn));
 }
 
-void PhraseBookBox::sourceChanged( const QString& source )
+void PhraseBookBox::sourceChanged(const QString& source)
 {
-    if ( lv->currentItem() != 0 ) {
-        lv->currentItem()->setText( PhraseLVI::SourceTextShown,
-                                    source.trimmed() );
-        lv->currentItem()->setText( PhraseLVI::SourceTextOriginal, source );
-        lv->sort();
-        lv->ensureItemVisible( lv->currentItem() );
+    QModelIndex index = phraseList->currentIndex();
+    if (index.isValid()) {
+        Phrase ph = phrMdl->phrase(index);
+        ph.setSource(source);
+        phrMdl->setPhrase(index, ph);
+        sortAndSelectItem(index);
     }
 }
 
-void PhraseBookBox::targetChanged( const QString& target )
+void PhraseBookBox::targetChanged(const QString& target)
 {
-    if ( lv->currentItem() != 0 ) {
-        lv->currentItem()->setText( PhraseLVI::TargetTextShown,
-                                    target.trimmed() );
-        lv->currentItem()->setText( PhraseLVI::TargetTextOriginal, target );
-        lv->sort();
-        lv->ensureItemVisible( lv->currentItem() );
+    QModelIndex index = phraseList->currentIndex();
+    if (index.isValid()) {
+        Phrase ph = phrMdl->phrase(index);
+        ph.setTarget(target);
+        phrMdl->setPhrase(index, ph);
+        sortAndSelectItem(index);
     }
 }
 
 void PhraseBookBox::definitionChanged( const QString& definition )
 {
-    if ( lv->currentItem() != 0 ) {
-        lv->currentItem()->setText( PhraseLVI::DefinitionText, definition );
-        lv->sort();
-        lv->ensureItemVisible( lv->currentItem() );
+    QModelIndex index = phraseList->currentIndex();
+    if (index.isValid()) {
+        Phrase ph = phrMdl->phrase(index);
+        ph.setDefinition(definition);
+        phrMdl->setPhrase(index, ph);
+        sortAndSelectItem(index);
     }
 }
 
-void PhraseBookBox::selectionChanged( Q3ListViewItem * /* item */ )
+void PhraseBookBox::sortAndSelectItem(const QModelIndex &index)
 {
-    enableDisable();
+    Phrase curphr = phrMdl->phrase(index);
+    phrMdl->resort();
+    QModelIndex newIndex = phrMdl->index(curphr);
+
+    // TODO
+    // phraseList->blockSignals(bool) does not work (?)
+    blockListSignals = true;
+    selectItem(newIndex);
+    blockListSignals = false;
 }
 
-void PhraseBookBox::selectItem( Q3ListViewItem *item )
+void PhraseBookBox::selectionChanged()
 {
-    lv->setSelected( item, TRUE );
-    lv->ensureItemVisible( item );
+    if (!blockListSignals)
+        enableDisable();
+}
+
+void PhraseBookBox::selectItem(const QModelIndex &index)
+{
+    phraseList->ensureItemVisible(index);
+    phraseList->setCurrentIndex(index);
 }
 
 void PhraseBookBox::enableDisable()
 {
-    Q3ListViewItem *item = lv->currentItem();
+    QModelIndex index = phraseList->currentIndex();
 
-    sourceLed->blockSignals( TRUE );
-    targetLed->blockSignals( TRUE );
-    definitionLed->blockSignals( TRUE );
+    sourceLed->blockSignals(true);
+    targetLed->blockSignals(true);
+    definitionLed->blockSignals(true);
 
-    if ( item == 0 ) {
-        sourceLed->setText( QString::null );
-        targetLed->setText( QString::null );
-        definitionLed->setText( QString::null );
-    } else {
-        sourceLed->setText( item->text(0) );
-        targetLed->setText( item->text(1) );
-        definitionLed->setText( item->text(2) );
+    bool indexValid = index.isValid();
+
+    if (indexValid) {
+        Phrase p = phrMdl->phrase(index);
+        sourceLed->setText(p.source().simplified());
+        targetLed->setText(p.target().simplified());
+        definitionLed->setText(p.definition());
     }
-    sourceLed->setEnabled( item != 0 );
-    targetLed->setEnabled( item != 0 );
-    definitionLed->setEnabled( item != 0 );
-    removeBut->setEnabled( item != 0 );
+    else {
+        sourceLed->setText(QString::null);
+        targetLed->setText(QString::null);
+        definitionLed->setText(QString::null);
+    }
 
-    sourceLed->blockSignals( FALSE );
-    targetLed->blockSignals( FALSE );
-    definitionLed->blockSignals( FALSE );
+    sourceLed->setEnabled(indexValid);
+    targetLed->setEnabled(indexValid);
+    definitionLed->setEnabled(indexValid);
+    removeBut->setEnabled(indexValid);
 
-    QLineEdit *led = ( sourceLed->text() == NewPhrase ? sourceLed : targetLed );
+    sourceLed->blockSignals(false);
+    targetLed->blockSignals(false);
+    definitionLed->blockSignals(false);
+
+    QLineEdit *led = (sourceLed->text() == NewPhrase ? sourceLed : targetLed);
     led->setFocus();
     led->selectAll();
 }

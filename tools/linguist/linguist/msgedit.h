@@ -17,36 +17,56 @@
 #include "trwindow.h"
 #include "phrase.h"
 
-#include <metatranslator.h>
-
-#include <qsplitter.h>
 #include <qstring.h>
-#include <qstringlist.h>
-#include <qlist.h>
-#include <qscrollview.h>
 #include <qpixmap.h>
-#include <qbitmap.h>
 #include <qtooltip.h>
 #include <qevent.h>
+#include <qshortcut.h>
+#include <qframe.h>
 
-class QAccel;
+class QWidgetView;
+class QList;
+class QSplitter;
 class QDockWindow;
 class QLabel;
-class Q3ListView;
-class Q3ListViewItem;
-class QTextView;
+class QTreeView;
+class QTextEdit;
 class QVBoxLayout;
 
 class EditorPage;
-class MED;
-class PhraseLV;
+class MetaTranslator;
+
+class GuessShortcut : public QShortcut
+{
+    Q_OBJECT
+public:
+    GuessShortcut(int nkey, QWidget *parent, const char *member) 
+        : QShortcut(parent), nrkey(nkey)
+    {
+        setKey(Qt::CTRL + (Qt::Key_1 + nrkey));
+        connect(this, SIGNAL(activated()), this, SLOT(keyActivated()));
+        connect(this, SIGNAL(activated(int)), parent, member);
+    }
+
+private slots:
+    void keyActivated()
+    {
+        emit activated(nrkey);
+    }
+
+signals:
+    void activated(int nkey);
+
+private:
+    int nrkey;
+};
 
 class PageCurl : public QWidget
 {
     Q_OBJECT
 public:
-    PageCurl( QWidget *parent = 0 )
-        : QWidget( parent)
+    PageCurl(QWidget *parent = 0)
+        : QWidget(parent)
     {
         QPixmap px = TrWindow::pageCurl();
         if ( px.mask() ) {
@@ -62,30 +82,28 @@ protected:
     bool event(QEvent *e)
     {
         if (e->type() == QEvent::ToolTip && toolTip().isEmpty()) {
-            QRect r( 34, 0, width()-34, 19 );
+            QRect r(34, 0, width()-34, 19);
 
             QPoint pt = static_cast<QHelpEvent*>(e)->pos();
 
             if (r.contains(pt)) {
                 QToolTip::showText(static_cast<QHelpEvent*>(e)->globalPos(),
-                            tr("Next unfinished phrase"),
-                            this);
+                    tr("Next unfinished phrase"), this);
             }
 
-            r.setSize( QSize(width()-34, height()-20) );
-            r.setX( 0 );
-            r.setY( 20 );
+            r.setSize(QSize(width()-34, height()-20));
+            r.setX(0);
+            r.setY(20);
 
             if (r.contains(pt)) {
                 QToolTip::showText(static_cast<QHelpEvent*>(e)->globalPos(),
-                            tr("Previous unfinished phrase"),
-                            this);
+                    tr("Previous unfinished phrase"), this);
             }
         }
 
         return QWidget::event(e);
     }
-    void mouseReleaseEvent( QMouseEvent * e )
+    void mouseReleaseEvent(QMouseEvent *e)
     {
         int x = e->pos().x() - 14;
         int y = e->pos().y() - 8;
@@ -104,45 +122,45 @@ signals:
 class ShadowWidget : public QWidget
 {
 public:
-    ShadowWidget( QWidget * parent = 0 );
-    ShadowWidget( QWidget * child, QWidget * parent = 0 );
+    ShadowWidget(QWidget *parent = 0);
+    ShadowWidget(QWidget *child, QWidget *parent = 0);
 
-    void setShadowWidth( int width ) { sWidth = width; }
-    int  shadowWidth() const { return sWidth; }
-    void setMargin( int margin ){ wMargin = margin; }
-    int  margin() const { return wMargin; }
-    void setWidget( QWidget * child);
+    void setShadowWidth(int width) {sWidth = width;}
+    int  shadowWidth() const {return sWidth;}
+    void setMargin(int margin) {wMargin = margin;}
+    int  margin() const {return wMargin;}
+    void setWidget(QWidget *child);
 
 protected:
-    void resizeEvent( QResizeEvent * e );
-    void paintEvent( QPaintEvent * e );
+    void resizeEvent(QResizeEvent *e);
+    void paintEvent(QPaintEvent *e);
 
 private:
     int sWidth;
     int wMargin;
-    QWidget * childWgt;
+    QWidget *childWgt;
 };
 
 class EditorPage : public QFrame
 {
     Q_OBJECT
 public:
-    EditorPage( QWidget * parent = 0, const char * name = 0 );
+    EditorPage(QWidget *parent = 0, const char *name = 0);
 
 protected:
-    void resizeEvent( QResizeEvent * );
+    void resizeEvent(QResizeEvent *);
     void layoutWidgets();
     void updateCommentField();
-    void calculateFieldHeight( QTextView * field );
-    void fontChange( const QFont & );
+    void calculateFieldHeight(QTextEdit *field);
+    void fontChange(const QFont &);
 
 private:
-    PageCurl * pageCurl;
-    QLabel * srcTextLbl;
-    QLabel * transLbl;
-    QTextView * srcText;
-    QTextView * cmtText;
-    MED   * translationMed;
+    PageCurl *pageCurl;
+    QLabel *srcTextLbl;
+    QLabel *transLbl;
+    QTextEdit *srcText;
+    QTextEdit *cmtText;
+    QTextEdit *transText;
 
     friend class MessageEditor;
 
@@ -152,38 +170,36 @@ private slots:
     void handleCommentChanges();
 
 signals:
-    void pageHeightUpdated( int height );
+    void pageHeightUpdated(int height);
 };
 
 class MessageEditor : public QWidget
 {
     Q_OBJECT
 public:
-    MessageEditor( MetaTranslator * t, QMainWindow *parent = 0);
-    Q3ListView * sourceTextList() const;
-    Q3ListView * phraseList() const;
+    MessageEditor(MetaTranslator *t, QMainWindow *parent = 0);
+    QTreeView *sourceTextView() const;
+    QTreeView *phraseView() const;
 
     void showNothing();
-    void showContext( const QString& context, bool finished );
-    void showMessage( const QString& text, const QString& comment,
-                      const QString& fullContext, const QString& translation,
-                      MetaTranslatorMessage::Type type,
-                      const QList<Phrase>& phrases );
-    void setFinished( bool finished );
-    bool eventFilter( QObject *, QEvent * );
+    void showMessage(const QString &text, const QString &comment,
+        const QString &fullContext, const QString &translation,
+        MetaTranslatorMessage::Type type,
+        const QList<Phrase> &phrases);
+    bool eventFilter(QObject *, QEvent *);
 
 signals:
-    void translationChanged( const QString& translation );
-    void finished( bool finished );
+    void translationChanged(const QString &translation);
+    void finished(bool finished);
     void prevUnfinished();
     void nextUnfinished();
-    void updateActions( bool enable );
+    void updateActions(bool enable);
 
-    void undoAvailable( bool avail );
-    void redoAvailable( bool avail );
-    void cutAvailable( bool avail );
-    void copyAvailable( bool avail );
-    void pasteAvailable( bool avail );
+    void undoAvailable(bool avail);
+    void redoAvailable(bool avail);
+    void cutAvailable(bool avail);
+    void copyAvailable(bool avail);
+    void pasteAvailable(bool avail);
 
     void focusSourceList();
     void focusPhraseList();
@@ -194,46 +210,43 @@ public slots:
     void cut();
     void copy();
     void paste();
-    void del();
     void selectAll();
     void beginFromSource();
     void toggleGuessing();
-    void finishAndNext();
+    void setEditorFocus();
 
 private slots:
     void emitTranslationChanged();
-    void guessActivated( int accelKey );
-    void insertPhraseInTranslation( Q3ListViewItem *item );
-    void insertPhraseInTranslationAndLeave( Q3ListViewItem *item );
+    void guessActivated(int key);
+    void insertPhraseInTranslation(const QModelIndex &index, int button = Qt::LeftButton);
+    void insertPhraseInTranslationAndLeave(const QModelIndex &index);
     void updateButtons();
     void updateCanPaste();
-    void toggleFinished();
 
-    void updatePageHeight( int height );
+    void updatePageHeight(int height);
 
 protected:
-    void resizeEvent( QResizeEvent * );
+    void resizeEvent(QResizeEvent *);
 
 private:
-    void setTranslation( const QString& translation, bool emitt );
-    void setEditionEnabled( bool enabled );
+    void setTranslation(const QString &translation, bool emitt);
+    void setEditionEnabled(bool enabled);
 
-    Q3ListView * srcTextList;
-    QDockWindow * topDockWnd, *bottomDockWnd;
-    EditorPage * editorPage;
-    QVBoxLayout * v;
+    QTreeView *srcTextView;
+    MessageModel *srcMdl;
+    QDockWindow *topDockWnd, *bottomDockWnd;
+    EditorPage *editorPage;
+    QVBoxLayout *v;
 
     QLabel * phraseLbl;
-    PhraseLV * phraseLv;
-    QAccel * accel;
-    bool itemFinished;
+    QTreeView *phraseTv;
+    PhraseModel *phrMdl;
 
-    ShadowWidget * sw;
-    QScrollView * sv;
+    ShadowWidget *sw;
+    QWidgetView *sv;
 
     MetaTranslator *tor;
     QString sourceText;
-    QStringList guesses;
     bool mayOverwriteTranslation;
     bool canPaste;
     bool doGuesses;

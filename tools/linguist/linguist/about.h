@@ -11,25 +11,23 @@
 **
 ****************************************************************************/
 
-#ifndef FINDDIALOG_H
-#define FINDDIALOG_H
+#ifndef ABOUTDIALOG_H
+#define ABOUTDIALOG_H
 
-#include <qdialog.h>
-#include "ui_finddialog.h"
+#include <qvariant.h>
+#include "ui_about.h"
 
-class FindDialog : public QDialog, public Ui::FindDialog
+
+class AboutDialog : public QDialog, public Ui::AboutDialog
 {
     Q_OBJECT
+
 public:
-    enum {SourceText = 0x1, Translations = 0x2, Comments = 0x4};
+    AboutDialog(QWidget* parent = 0, Qt::WFlags fl = 0);
+    ~AboutDialog() {}
 
-    FindDialog(QWidget *parent = 0);
-
-signals:
-    void findNext(const QString& text, int where, bool matchCase);
-
-private slots:
-    void emitFindNext();
+protected slots:
+    virtual void languageChange();
 };
 
-#endif
+#endif // ABOUTDIALOG_H

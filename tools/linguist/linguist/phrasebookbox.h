@@ -15,50 +15,42 @@
 #define PHRASEBOOKBOX_H
 
 #include "phrase.h"
+#include "phrasemodel.h"
 
 #include <qdialog.h>
-#include <qlist.h>
+#include "ui_phrasebookbox.h"
 
-class QLineEdit;
-class QPushButton;
-class Q3ListViewItem;
-
-class PhraseLV;
-
-class PhraseBookBox : public QDialog
+class PhraseBookBox : public QDialog, public Ui::PhraseBookBox
 {
     Q_OBJECT
 public:
-    PhraseBookBox( const QString& filename, const PhraseBook& phraseBook,
-                   QWidget *parent = 0, const char *name = 0,
-                   bool modal = FALSE );
+    PhraseBookBox(const QString &filename, const PhraseBook &phraseBook,
+        QWidget *parent = 0);
 
-    const PhraseBook& phraseBook() const { return pb; }
+    const PhraseBook &phraseBook() const {return pb;}
 
 protected:
-    virtual void keyPressEvent( QKeyEvent *ev );
+    virtual void keyPressEvent(QKeyEvent *ev);
 
 private slots:
     void newPhrase();
     void removePhrase();
     void save();
-    void sourceChanged( const QString& source );
-    void targetChanged( const QString& target );
-    void definitionChanged( const QString& definition );
-    void selectionChanged( Q3ListViewItem *item );
+    void sourceChanged(const QString &source);
+    void targetChanged(const QString &target);
+    void definitionChanged(const QString &definition);
+    void selectionChanged();
+    void sortPhrases(int section, Qt::ButtonState state);
 
 private:
-    void selectItem( Q3ListViewItem *item );
+    void sortAndSelectItem(const QModelIndex &index);
+    void selectItem(const QModelIndex &index);
     void enableDisable();
+    bool blockListSignals;
 
-    QLineEdit *sourceLed;
-    QLineEdit *targetLed;
-    QLineEdit *definitionLed;
-    QPushButton *newBut;
-    QPushButton *removeBut;
-    PhraseLV *lv;
     QString fn;
     PhraseBook pb;
+    PhraseModel *phrMdl;
 };
 
 #endif

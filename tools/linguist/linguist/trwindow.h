@@ -17,58 +17,68 @@
 #include "phrase.h"
 
 #include <metatranslator.h>
-
 #include <qmainwindow.h>
-#include <qlist.h>
 #include <qhash.h>
-#include <qstringlist.h>
-#include <qpixmap.h>
-#include <q3listview.h>
-
 #include <qprinter.h>
 
+class QModelIndex;
+class QStringList;
+class QPixmap;
 class QAction;
 class QDialog;
 class QLabel;
-class Q3ListView;
-class Q3ListViewItem;
 class QMenu;
+class QList;
+class QIcon;
 
+class QTreeView;
+class PhraseModel;
+class PhraseItem;
+class MessageModel;
+class MessageItem;
+class ContextModel;
+class ContextItem;
 class FindDialog;
 class MessageEditor;
-
-class PhraseLV;
-class ContextLVI;
 class Statistics;
+
+#define TREEVIEW_ODD_COLOR QColor(235,245,255)
 
 class TrWindow : public QMainWindow
 {
     Q_OBJECT
 public:
-    static QPixmap * pxOn;
-    static QPixmap * pxOff;
-    static QPixmap * pxObsolete;
-    static QPixmap * pxDanger;
+    enum {PhraseCloseMenu, PhraseEditMenu, PhrasePrintMenu};
+
+    static QPixmap *pxOn;
+    static QPixmap *pxOff;
+    static QPixmap *pxObsolete;
+    static QPixmap *pxDanger;
+    static QPixmap *pxObs;
+    static QPixmap *pxEmpty;
     static const QPixmap pageCurl();
 
     TrWindow();
     ~TrWindow();
 
-    void openFile( const QString& name );
+    void openFile(const QString &name);
 
 protected:
     void readConfig();
     void writeConfig();
-    void closeEvent( QCloseEvent * );
+    void closeEvent(QCloseEvent *);
 
 signals:
-    void statsChanged( int w, int c, int cs, int w2, int c2, int cs2 );
+    void statsChanged(int w, int c, int cs, int w2, int c2, int cs2);
 
 private slots:
+    void sortContexts(int section, Qt::ButtonState state);
+    void sortMessages(int section, Qt::ButtonState state);
+    void sortPhrases(int section, Qt::ButtonState state);
     void doneAndNext();
     void prev();
     void next();
-    void recentFileActivated( int );
+    void recentFileActivated(QAction *action);
     void setupRecentFilesMenu();
     void open();
     void save();
@@ -77,12 +87,11 @@ private slots:
     void print();
     void find();
     void findAgain();
-    void replace();
     void newPhraseBook();
     void openPhraseBook();
-    void closePhraseBook( int id );
-    void editPhraseBook( int id );
-    void printPhraseBook( int id );
+    void closePhraseBook(QAction *action);
+    void editPhraseBook(QAction *action);
+    void printPhraseBook(QAction *action);
     void manual();
     void revertSorting();
     void about();
@@ -91,79 +100,88 @@ private slots:
     void setupPhrase();
     bool maybeSave();
     void updateCaption();
-    void showNewScope( Q3ListViewItem *item );
-    void showNewCurrent( Q3ListViewItem *item );
-    void updateTranslation( const QString& translation );
-    void updateFinished( bool finished );
-    void toggleFinished( Q3ListViewItem *item, const QPoint& p, int column );
+    void showNewScope(const QModelIndex &current, const QModelIndex &old);
+    void showNewCurrent(const QModelIndex &current, const QModelIndex &old);
+    void updateTranslation(const QString &translation);
+    void updateFinished(bool finished);
+    void toggleFinished(const QModelIndex &index, int button);
     void prevUnfinished();
     void nextUnfinished();
-    void findNext( const QString& text, int where, bool matchCase );
+    void findNext(const QString &text, int where, bool matchCase);
     void revalidate();
     void toggleGuessing();
     void focusSourceList();
     void focusPhraseList();
-    void updateClosePhraseBook();
     void toggleStatistics();
     void updateStatistics();
 
 private:
-    static QIconSet loadPixmap(const QString &imageName);
+    static QIcon loadPixmap(const QString &imageName);
 
-    typedef QList<PhraseBook> PBL;
     typedef QHash<QString, PhraseBook> PBD;
 
-    static QString friendlyString( const QString& str );
+    static QString friendlyString(const QString &str);
 
-    void addRecentlyOpenedFile( const QString & fn, QStringList & lst );
+    int findCurrentContextRow();
+    int findCurrentMessageRow();
+    bool setNextMessage(int *currentrow, bool checkUnfinished);
+    bool setPrevMessage(int *currentrow, bool checkUnfinished);
+    bool setNextContext(int *currentrow, bool checkUnfinished);
+    bool setPrevContext(int *currentrow, bool checkUnfinished);
+    bool next(bool checkUnfinished);
+    bool prev(bool checkUnfinished);
+
+    void addRecentlyOpenedFile(const QString &fn, QStringList &lst);
     void setupMenuBar();
     void setupToolBars();
-    void setCurrentContextItem( Q3ListViewItem *item );
-    void setCurrentMessageItem( Q3ListViewItem *item );
-    QString friendlyPhraseBookName( int k );
-    bool openPhraseBook( const QString& name );
-    bool savePhraseBook( QString& name, const PhraseBook& pb );
+    void setCurrentContextRow(int row);
+    void setCurrentMessageRow(int row);
+    void setCurrentContext(const QModelIndex &indx);
+    void setCurrentMessage(const QModelIndex &indx);
+    QString friendlyPhraseBookName(const PhraseBook &pb) const;
+    PhraseBook TrWindow::phraseBookFromFileName(QString name) const;
+    bool openPhraseBook(const QString &name);
+    bool phraseBooksContains(QString name);
+    bool savePhraseBook(QString &name, const PhraseBook &pb);
     void updateProgress();
     void updatePhraseDict();
-    PhraseBook getPhrases( const QString& source );
-    bool danger( const QString& source, const QString& translation,
-                 bool verbose = FALSE );
+    PhraseBook getPhrases(const QString &source);
+    bool danger(const QString &source, const QString &translation,
+        bool verbose = false);
 
-    int itemToIndex( Q3ListView * view, Q3ListViewItem * item );
-    Q3ListViewItem * indexToItem( Q3ListView * view, int index );
-    bool searchItem( const QString & searchWhat, Q3ListViewItem * j,
-                     Q3ListViewItem * k );
+    void insertMessage(MessageItem *m);
+    void printDanger(MessageItem *m);
+    bool updateDanger(MessageItem *m, bool verbose = false);
+        
+    bool searchItem(const QString &searchWhat, int c, int m);
     void doCharCounting( const QString& text, int& trW, int& trC, int& trCS );
 
-    Q3ListView     * plv;
-    Q3ListView     * lv;
-    Q3ListView     * slv;
+    QTreeView *tv;
+    ContextModel *cmdl;
+    QTreeView *stv;
+    MessageModel *mmdl;
+    QTreeView *ptv;
+    PhraseModel *pmdl;
     MessageEditor * me;
     QLabel        * progress;
     QLabel        * modified;
     MetaTranslator tor;
     bool dirty;
-    bool messageIsShown;
     int  numFinished;
     int  numNonobsolete;
     int  numMessages;
-    int  dirtyItem;
     QStringList recentFiles;
     QString     filename;
-
     PBD phraseDict;
-    PBL phraseBooks;
-    QStringList phraseBookNames;
-
+    QMap<QAction *, PhraseBook> phraseBooks[3];
     QPrinter printer;
 
-    FindDialog *f;
-    FindDialog *h;
+    FindDialog *finddlg;
     QString findText;
     int findWhere;
     bool findMatchCase;
-    int foundItem;
-    Q3ListViewItem *foundScope;
+//    int foundItem;
+//    int foundScope;
     int foundWhere;
     int foundOffset;
 

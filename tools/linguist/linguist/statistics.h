@@ -11,25 +11,29 @@
 **
 ****************************************************************************/
 
-#ifndef FINDDIALOG_H
-#define FINDDIALOG_H
+#ifndef STATISTICS_H
+#define STATISTICS_H
 
-#include <qdialog.h>
-#include "ui_finddialog.h"
+#include <qvariant.h>
+#include "ui_statistics.h"
 
-class FindDialog : public QDialog, public Ui::FindDialog
+class Statistics : public QDialog, public Ui::Statistics
 {
     Q_OBJECT
-public:
-    enum {SourceText = 0x1, Translations = 0x2, Comments = 0x4};
 
-    FindDialog(QWidget *parent = 0);
+public:
+    Statistics(QWidget *parent = 0, Qt::WFlags fl = 0);
+    ~Statistics() {}
+
+public slots:
+    virtual void updateStats(int w1, int c1, int cs1, int w2, int c2, int cs2);
+    virtual void closeEvent(QCloseEvent *e);
 
 signals:
-    void findNext(const QString& text, int where, bool matchCase);
+    void closed();
 
-private slots:
-    void emitFindNext();
+protected slots:
+    virtual void languageChange();
 };
 
-#endif
+#endif // STATISTICS_H
