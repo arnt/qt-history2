@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#68 $
+** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#69 $
 **
 ** Implementation of QGroupBox widget class
 **
@@ -124,9 +124,21 @@ void QGroupBox::init()
     accel = 0;
     vbox = 0;
     grid = 0;
+    d = 0;	//we use d directly to store a QSpacerItem
     lenvisible = 0;
 }
 
+void QGroupBox::setTextSpacer()
+{
+    QSpacerItem *sp = (QSpacerItem*)d;
+    if ( ! sp )
+	return;
+    QFontMetrics fm = fontMetrics();
+    int h = fm.height();
+    int w = fm.width( str, lenvisible ) + 2*fm.width(QChar(' '));
+	
+    sp->changeSize( w, h, QSizePolicy::Minimum, QSizePolicy::Fixed );
+}
 
 /*!
   Sets the group box title text to \a title, and add a focus-change
@@ -154,6 +166,7 @@ void QGroupBox::setTitle( const QString &title )
 			    this, SLOT(fixFocus()) );
     }
     calculateFrame();
+    setTextSpacer();
     if ( isVisible() )
 	repaint();
 }
@@ -305,12 +318,13 @@ void QGroupBox::setColumnLayout(int columns, Orientation direction)
 	nRows = -1;
 	return;
     }
+
+    QSpacerItem *spacer = new QSpacerItem( 0, 0, QSizePolicy::Minimum,
+					   QSizePolicy::Fixed );
+    d = (QGroupBoxPrivate*) spacer;
+    setTextSpacer();
+    vbox->addItem( spacer );
     
-    if ( !str.isEmpty() ) {
-	//### we should have a changeable spacer item
-	QFontMetrics fm = fontMetrics();
-	vbox->addSpacing( fm.lineSpacing() );
-    }
     dir = direction;
     if ( dir == Horizontal ) {
       nCols = columns;
@@ -350,7 +364,7 @@ void QGroupBox::insertWid( QWidget* _w )
     // not like the QGridLayout and associated magic.
     if ( nCols == -1 && nRows == -1 )
 	return;
-    
+
     if ( row >= nRows || col >= nCols )
         grid->expand( row+1, col+1 );
     grid->addWidget( _w, row, col );
@@ -477,7 +491,7 @@ bool QGroupBox::setConfiguration( const QDomElement& element )
 	    }
 	}
     }
-    
+
     if ( !QFrame::setConfiguration( element ) )
 	return FALSE;
 
