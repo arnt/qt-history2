@@ -561,11 +561,9 @@ QPixmap QIconSet::pixmap(Size size, Mode mode, State state) const
             }
         }
     }
-    if (icon->pixmap) {
+    if (icon->pixmap)
         return *icon->pixmap;
-    } else {
-        return QPixmap();
-    }
+    return QPixmap();
 }
 
 /*! \overload
@@ -781,7 +779,9 @@ QPixmap *QIconSet::createDisabled(Size size, State state) const
     QPixmap normalPix = pixmap(size, Normal, state);
     if (normalPix.isNull())
         return 0;
-    return new QPixmap(QApplication::style().stylePixmap(QStyle::PT_Disabled, normalPix, QApplication::palette()));
+
+    QPixmap disabledPix = QApplication::style().stylePixmap(QStyle::PT_Disabled, normalPix, QApplication::palette());
+    return new QPixmap(disabledPix);
 }
 
 #endif // QT_NO_ICONSET
