@@ -1442,6 +1442,11 @@ void Q3Header::paintSection(QPainter *p, int index, const QRect& fr)
 
     opt.state = (orient == Qt::Horizontal ? QStyle::State_Horizontal : QStyle::State_None);
     //pass in some hint about the sort indicator if it is used
+    if (d->sortSection == section)
+        opt.sortIndicator = d->sortSection ? QStyleOptionHeader::SortDown : QStyleOptionHeader::SortUp;
+    else
+        opt.sortIndicator = QStyleOptionHeader::None;
+
     if (d->sortSection != section)
         opt.state |= QStyle::State_Off;
     else if (!d->sortDirection)
