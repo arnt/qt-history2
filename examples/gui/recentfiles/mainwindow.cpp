@@ -18,6 +18,7 @@ MainWindow::MainWindow()
     windowList.append(this);
 
     setWindowTitle(tr("Recent Files"));
+    resize(400, 300);
 }
 
 MainWindow::~MainWindow()
@@ -208,6 +209,8 @@ void MainWindow::setCurrentFile(const QString &fileName)
 #endif
     files.removeAll(fileName);
     files.prepend(fileName);
+    while (files.size() > MaxRecentFiles)
+        files.removeLast();
 
 #if 0
     settings.setValue("recentFileList", files);
