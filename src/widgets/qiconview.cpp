@@ -2818,11 +2818,21 @@ void QIconView::clearSelection()
 }
 
 /*!
-  If \a select is TRUE, all items are selected, else all are unselected.
+  If \a select is TRUE, all items get selected, else all get unselected.
+  This works only in the selection modes Multi and Extended. In
+  Single and NoSelection mode the selection of the current item is 
+  just set to \a select.
 */
 
 void QIconView::selectAll( bool select )
 {
+    if ( d->selectionMode == Single ||
+	 d->selectionMode == NoSelection ) {
+	if ( d->currentItem )
+	    d->currentItem->setSelected( select );
+	return;
+    }
+	
     bool b = signalsBlocked();
     blockSignals( TRUE );
     QIconViewItem *item = d->firstItem;
@@ -3773,8 +3783,7 @@ void QIconView::keyPressEvent( QKeyEvent *e )
 	return;
     }
 
-    switch ( e->key() )
-    {
+    switch ( e->key() ) {
     case Key_Home: {
 	d->currInputString = QString::null;
 	if ( !d->firstItem )
@@ -4049,10 +4058,18 @@ void QIconView::keyPressEvent( QKeyEvent *e )
 	}
     } break;
     default:
-	if ( !e->text().isEmpty() && e->text()[ 0 ].isPrint() )
+	if ( !e->text().isEmpty() && e->text()[ 0 ].isPrint() ) {
 	    findItemByName( e->text() );
-	else
+	} else {
 	    d->currInputString = QString::null;
+	    if ( e->state() & ControlButton ) {
+		switch ( e->key() ) {
+		case Key_A:
+		    selectAll( TRUE );
+		    break;
+		}
+	    }
+	}
     }
 
     if ( e->key() != Key_Shift &&

@@ -3456,7 +3456,7 @@ void QListView::keyPressEvent( QKeyEvent * e )
 	e->ignore(); // For QDialog
 	break;
     default:
-	if ( e->text().length() > 0 ) {
+	if ( e->text().length() > 0 && e->text()[ 0 ].isPrint() ) {
 	    QString input( d->currentPrefix );
 	    QListViewItem * keyItem = i;
 	    QTime now( QTime::currentTime() );
@@ -3479,7 +3479,7 @@ void QListView::keyPressEvent( QKeyEvent * e )
 			    d->currentPrefix = input;
 			    d->currentPrefixTime = now;
 			    i = keyItem;
-			    // nonoptimal double-break...
+				// nonoptimal double-break...
 			    keyItem = 0;
 			    input.truncate( 0 );
 			    tryFirst = FALSE;
@@ -3501,6 +3501,14 @@ void QListView::keyPressEvent( QKeyEvent * e )
 	    }
 	} else {
 	    d->currentPrefix.truncate( 0 );
+	    if ( e->state() & ControlButton ) {
+		d->currentPrefix = QString::null;
+		switch ( e->key() ) {
+		case Key_A:
+		    selectAll( TRUE );
+		    break;
+		}
+	    }
 	    e->ignore();
 	    return;
 	}
@@ -3680,6 +3688,18 @@ items.
 
 void QListView::clearSelection()
 {
+    selectAll( FALSE );
+}
+
+/*!
+  If \a select is TRUE, all items get selected, else all get unselected.
+  This works only in the selection modes Multi and Extended. In
+  Single and NoSelection mode the selection of the current item is 
+  just set to \a select.
+*/
+
+void QListView::selectAll( bool select )
+{
     if ( isMultiSelection() ) {
 	bool b = signalsBlocked();
 	blockSignals( TRUE );
@@ -3689,10 +3709,8 @@ void QListView::clearSelection()
 	while ( i ) {
 	    if ( i->childItem )
 		s.push( i->childItem );
-	    if ( i->isSelected() ) {
-		//anything = TRUE;
-		setSelected( i, FALSE );
-	    }
+	    //anything = TRUE;
+	    setSelected( i, select );
 	    i = i->siblingItem;
 	    if ( !i )
 		i = s.pop();
@@ -3700,9 +3718,9 @@ void QListView::clearSelection()
 	blockSignals( b );
 	if ( anything )
 	    emit selectionChanged();
-    } else if ( d->currentSelected ) {
-	QListViewItem * i = d->currentSelected;
-	setSelected( i, FALSE );
+    } else if ( d->focusItem ) {
+	QListViewItem * i = d->focusItem;
+	setSelected( i, select );
     }
 }
 

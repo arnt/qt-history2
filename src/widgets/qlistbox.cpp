@@ -2041,6 +2041,13 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 		d->findItemByName( e->text() );
 	    } else {
 		d->currInputString = QString::null;
+		if ( e->state() & ControlButton ) {
+		    switch ( e->key() ) {
+		    case Key_A:
+			selectAll( TRUE );
+			break;
+		    }
+		}
 	    }
 	}
     }
@@ -2275,16 +2282,28 @@ bool QListBox::isSelected( const QListBoxItem * i ) const
 
 void QListBox::clearSelection()
 {
-    if ( selectionMode() != Single ) {
+    selectAll( FALSE );
+}
+
+/*!
+  If \a select is TRUE, all items get selected, else all get unselected.
+  This works only in the selection modes Multi and Extended. In
+  Single and NoSelection mode the selection of the current item is 
+  just set to \a select.
+*/
+
+void QListBox::selectAll( bool select )
+{
+    if ( isMultiSelection() ) {
 	bool b = signalsBlocked();
 	blockSignals( TRUE );
 	for ( int i = 0; i < (int)count(); i++ )
-	    setSelected( i, FALSE );
+	    setSelected( i, select );
 	blockSignals( b );
 	emit selectionChanged();
     } else if ( d->current ) {
 	QListBoxItem * i = d->current;
-	setSelected( i, FALSE );
+	setSelected( i, select );
     }
 }
 

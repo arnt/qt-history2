@@ -198,7 +198,7 @@ public:
     virtual void setColumnWidthMode( int column, WidthMode );
     WidthMode columnWidthMode( int column ) const;
     int columns() const;
-    
+
     virtual void setColumnAlignment( int, int );
     int columnAlignment( int ) const;
 
@@ -219,9 +219,7 @@ public:
     void setSelectionMode( SelectionMode mode );
     SelectionMode selectionMode() const;
 
-    virtual void clearSelection();
     virtual void setSelected( QListViewItem *, bool );
-    void invertSelection(); // ###### make virtual
     bool isSelected( const QListViewItem * ) const;
     QListViewItem * selectedItem() const;
     virtual void setOpen( QListViewItem *, bool );
@@ -258,6 +256,9 @@ public:
     bool showSortIndicator() const;
 
 public slots:
+    virtual void clearSelection();
+    void invertSelection(); // ###### make virtual
+    void selectAll( bool select ); // make virtual
     void triggerUpdate();
     void setContentsPos( int x, int y );
 
