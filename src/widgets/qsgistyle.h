@@ -126,6 +126,11 @@ protected:
 
 private:
     QGuardedPtr<QWidget> lastWidget;
+#if defined(Q_DISABLE_COPY)
+    QSGIStyle( const QSGIStyle & );
+    QSGIStyle& operator=( const QSGIStyle & );
+#endif
+
 };
 
 #endif // QT_FEATURE_STYLE_SGI
