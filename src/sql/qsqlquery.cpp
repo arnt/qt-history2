@@ -379,7 +379,7 @@ int QSqlQuery::at() const
     Returns the text of the current query being used, or QString::null
     if there is no current query text.
     
-    /sa executedQuery()
+    \sa executedQuery()
 */
 
 QString QSqlQuery::lastQuery() const
@@ -933,6 +933,7 @@ bool QSqlQuery::prepare( const QString& query )
 		}
 	    }
 	}
+	d->executedQuery = q;
 	return d->sqlResult->extension()->prepare( q );
     } else {
 	int i = 0;
@@ -960,7 +961,6 @@ bool QSqlQuery::exec()
 	return FALSE;
     if ( driver()->hasFeature( QSqlDriver::PreparedQueries ) ) {
 	ret = d->sqlResult->extension()->exec();
-	d->executedQuery = d->sqlResult->lastQuery();
     } else {
 	// fake preparation - just replace the placeholders..
 	QString query = d->sqlResult->lastQuery();
@@ -1111,12 +1111,33 @@ QVariant QSqlQuery::boundValue( int pos ) const
 }
 
 /*!
-    Returns a list of the bound values.
+    Returns a map of the bound values.
+    
+    The bound values can be examined the following way:
+    \code
+    QSqlQuery query;
+    ...
+    // Examine the bound values - bound using named binding
+    QMap<QString, QVariant>::ConstIterator it;
+    QMap<QString, QVariant> vals = query.boundValues();
+    for ( it = vals.begin(); it != vals.end(); ++it )
+        qWarning( "Placeholder: " + it.key() + ", Value: " + (*it).toString() );
+    ...
+    
+    // Examine the bound values - bound using positional binding
+    QValueList<QVariant>::ConstIterator it;
+    QValueList<QVariant> list = query.boundValues().values();
+    int i = 0;
+    for ( it = list.begin(); it != list.end(); ++it )
+        qWarning( "Placeholder pos: %d, Value: " + (*it).toString(), ++i );
+    ...
+	
+    \endcode
 */
-QValueList<QVariant> QSqlQuery::boundValues() const
+QMap<QString,QVariant> QSqlQuery::boundValues() const
 {
     if ( !d->sqlResult || !d->sqlResult->extension() )
-	return QValueList<QVariant>();
+	return QMap<QString,QVariant>();
     return d->sqlResult->extension()->boundValues();
 }
 
@@ -1130,7 +1151,7 @@ QValueList<QVariant> QSqlQuery::boundValues() const
     values to form a new query. This function returns the modified
     query. Useful for debugging purposes.
     
-    /sa lastQuery()
+    \sa lastQuery()
 */
 QString QSqlQuery::executedQuery() const
 {

@@ -110,7 +110,7 @@ public:
     void		addBindValue( const QVariant& val, QSql::ParameterType type );
     QVariant		boundValue( const QString& placeholder ) const;
     QVariant		boundValue( int pos ) const;
-    QValueList<QVariant> boundValues() const;
+    QMap<QString, QVariant> boundValues() const;
     QString             executedQuery() const;
     
 protected:

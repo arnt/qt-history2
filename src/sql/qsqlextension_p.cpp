@@ -124,13 +124,22 @@ QVariant QSqlExtension::boundValue( int pos ) const
     return values[ index[ pos ] ].value;
 }
 
-QValueList<QVariant> QSqlExtension::boundValues() const
+QMap<QString, QVariant> QSqlExtension::boundValues() const
 {
     QMap<QString, Param>::ConstIterator it;
-    QValueList<QVariant> l;
-    for ( it = values.begin(); it != values.end(); ++it )
-	l.append( it.data().value );
-    return l;
+    QMap<QString, QVariant> m;
+    if ( bindm == BindByName ) {
+	for ( it = values.begin(); it != values.end(); ++it )
+	    m.insert( it.key(), it.data().value );
+    } else {
+	QString key, tmp, fmt;
+	fmt.sprintf( "%%0%dd", QString::number( values.count()-1 ).length() );
+	for ( it = values.begin(); it != values.end(); ++it ) {
+	    tmp.sprintf( fmt.ascii(), it.key().toInt() );
+	    m.insert( tmp, it.data().value );
+	}
+    }
+    return m;
 }
 
 QSqlExtension::BindMethod QSqlExtension::bindMethod()
