@@ -37,6 +37,8 @@ protected slots:
 
 private:
     void readFromTable();
+    void readColumns();
+    void readRows();
 
 private:
     QTable *editTable;

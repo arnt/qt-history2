@@ -24,6 +24,16 @@ TableEditor::~TableEditor()
 
 void TableEditor::columnDownClicked()
 {
+    if ( listColumns->currentItem() == -1 ||
+	 listColumns->currentItem() == (int)listColumns->count() - 1 ||
+	 listColumns->count() < 2 )
+	return;
+    int index = listColumns->currentItem() + 1;
+    QListBoxItem *i = listColumns->item( listColumns->currentItem() );
+    listColumns->takeItem( i );
+    listColumns->insertItem( i, index );
+    listColumns->setCurrentItem( i );
+    readColumns();
 }
 
 void TableEditor::columnTextChanged( const QString &s )
@@ -40,6 +50,15 @@ void TableEditor::columnTextChanged( const QString &s )
 
 void TableEditor::columnUpClicked()
 {
+    if ( listColumns->currentItem() <= 0 ||
+	 listColumns->count() < 2 )
+	return;
+    int index = listColumns->currentItem() - 1;
+    QListBoxItem *i = listColumns->item( listColumns->currentItem() );
+    listColumns->takeItem( i );
+    listColumns->insertItem( i, index );
+    listColumns->setCurrentItem( i );
+    readColumns();
 }
 
 void TableEditor::currentColumnChanged( QListBoxItem *i )
@@ -79,14 +98,8 @@ void TableEditor::deleteColumnClicked()
     if ( listColumns->currentItem() == -1 )
 	return;
     table->setNumCols( table->numCols() - 1 );
-    int j = 0;
     delete listColumns->item( listColumns->currentItem() );
-    for ( QListBoxItem *i = listColumns->firstItem(); i; i = i->next(), ++j ) {
-	if ( i->pixmap() )
-	    table->horizontalHeader()->setLabel( j, *i->pixmap(), i->text() );
-	else
-	    table->horizontalHeader()->setLabel( j, i->text() );
-    }
+    readColumns();
     if ( listColumns->firstItem() ) {
 	listColumns->setCurrentItem( listColumns->firstItem() );
 	listColumns->setSelected( listColumns->firstItem(), TRUE );
@@ -98,14 +111,8 @@ void TableEditor::deleteRowClicked()
     if ( listRows->currentItem() == -1 )
 	return;
     table->setNumRows( table->numRows() - 1 );
-    int j = 0;
     delete listRows->item( listRows->currentItem() );
-    for ( QListBoxItem *i = listRows->firstItem(); i; i = i->next(), ++j ) {
-	if ( i->pixmap() )
-	    table->verticalHeader()->setLabel( j, *i->pixmap(), i->text() );
-	else
-	    table->verticalHeader()->setLabel( j, i->text() );
-    }
+    readRows();
     if ( listRows->firstItem() ) {
 	listRows->setCurrentItem( listRows->firstItem() );
 	listRows->setSelected( listRows->firstItem(), TRUE );
@@ -138,6 +145,16 @@ void TableEditor::okClicked()
 
 void TableEditor::rowDownClicked()
 {
+    if ( listRows->currentItem() == -1 ||
+	 listRows->currentItem() == (int)listRows->count() - 1 ||
+	 listRows->count() < 2 )
+	return;
+    int index = listRows->currentItem() + 1;
+    QListBoxItem *i = listRows->item( listRows->currentItem() );
+    listRows->takeItem( i );
+    listRows->insertItem( i, index );
+    listRows->setCurrentItem( i );
+    readRows();
 }
 
 void TableEditor::rowTextChanged( const QString &s )
@@ -154,6 +171,15 @@ void TableEditor::rowTextChanged( const QString &s )
 
 void TableEditor::rowUpClicked()
 {
+    if ( listRows->currentItem() <= 0 ||
+	 listRows->count() < 2 )
+	return;
+    int index = listRows->currentItem() - 1;
+    QListBoxItem *i = listRows->item( listRows->currentItem() );
+    listRows->takeItem( i );
+    listRows->insertItem( i, index );
+    listRows->setCurrentItem( i );
+    readRows();
 }
 
 void TableEditor::applyClicked()
@@ -214,5 +240,27 @@ void TableEditor::readFromTable()
     if ( listRows->firstItem() ) {
 	listRows->setCurrentItem( listRows->firstItem() );
 	listRows->setSelected( listRows->firstItem(), TRUE );
+    }
+}
+
+void TableEditor::readColumns()
+{
+    int j = 0;
+    for ( QListBoxItem *i = listColumns->firstItem(); i; i = i->next(), ++j ) {
+	if ( i->pixmap() )
+	    table->horizontalHeader()->setLabel( j, *i->pixmap(), i->text() );
+	else
+	    table->horizontalHeader()->setLabel( j, i->text() );
+    }
+}
+
+void TableEditor::readRows()
+{
+    int j = 0;
+    for ( QListBoxItem *i = listRows->firstItem(); i; i = i->next(), ++j ) {
+	if ( i->pixmap() )
+	    table->verticalHeader()->setLabel( j, *i->pixmap(), i->text() );
+	else
+	    table->verticalHeader()->setLabel( j, i->text() );
     }
 }
