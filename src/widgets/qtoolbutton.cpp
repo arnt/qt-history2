@@ -76,7 +76,7 @@ QToolButton::QToolButton( QWidget * parent, const char *name )
     : QButton( parent, name )
 {
     init();
-    if ( parent->inherits( "QToolBar" ) ) {
+    if ( parent && parent->inherits( "QToolBar" ) ) {
 	setAutoRaise( TRUE );
 	QToolBar* tb = (QToolBar*)parent;
 	if ( tb->mainWindow() ) {
