@@ -75,7 +75,6 @@ void PlugMainWindow::fileOpen()
 		QMessageBox::information( this, "Error", tr("Couldn't create action\n%1").arg( al[a] ) );
 	    }
 	}
-	plugin->requestApplicationInterface( "PlugMainWindowInterface" );
     } else {
 	QMessageBox::information( this, "Error", tr("Couldn't load plugin\n%1").arg( file ) );
 	return;
@@ -230,10 +229,13 @@ bool PlugMainWindow::addAction( QAction* action )
 void PlugMainWindowInterface::requestSetProperty( const QCString& p, const QVariant& v )
 {
     ((PlugMainWindow*)qApp->mainWidget())->setProperty( p, v );
-
 }
 
-void PlugMainWindowInterface::requestProperty( const QCString& p )
+void PlugMainWindowInterface::requestProperty( const QCString& p, QVariant& v )
 {
-    emit setProperty( p, ((PlugMainWindow*)qApp->mainWidget())->property( p ) );
+    if ( p == "usesTextLabel" ) {
+	v = ((PlugMainWindow*)qApp->mainWidget())->property( p );
+    } else if ( p == "mainWindow" ) {
+	v = QVariant( (uint)qApp->mainWidget() );
+    }
 }
