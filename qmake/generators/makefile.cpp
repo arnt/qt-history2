@@ -1435,12 +1435,14 @@ MakefileGenerator::write()
        project->isActiveConfig("link_prl")) //load up prl's'
 	processPrlFiles();
 
+#if 0
     if((Option::qmake_mode == Option::QMAKE_GENERATE_MAKEFILE || //write prl
        Option::qmake_mode == Option::QMAKE_GENERATE_PRL) &&
        project->isActiveConfig("libtool") &&
        project->first("TEMPLATE") == "lib") {
 	writeLibtoolFile(var("TARGET"));
     }
+#endif
 
     if(Option::qmake_mode == Option::QMAKE_GENERATE_MAKEFILE ||
        Option::qmake_mode == Option::QMAKE_GENERATE_PROJECT) {

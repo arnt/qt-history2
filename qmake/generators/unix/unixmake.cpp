@@ -82,6 +82,8 @@ UnixMakefileGenerator::init()
 	project->variables()["QMAKE_COPY_FILE"].append( "$(COPY) -p" );
     if( project->isEmpty("QMAKE_COPY_DIR") )
 	project->variables()["QMAKE_COPY_DIR"].append( "$(COPY) -pR" );
+    if( project->isEmpty("QMAKE_LIBTOOL") ) 
+	project->variables()["QMAKE_LIBTOOL"].append( "libtool --silent" );
     //If the TARGET looks like a path split it into DESTDIR and the resulting TARGET
     if(!project->isEmpty("TARGET")) {
 	QString targ = project->first("TARGET");
@@ -184,6 +186,8 @@ UnixMakefileGenerator::init()
 	else
 	    project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_OPENGL"];
     }
+    if ( project->isActiveConfig("x11inc") )
+	project->variables()["INCLUDEPATH"] += project->variables()["QMAKE_INCDIR_X11"];
     if ( extern_libs && (project->isActiveConfig("qt") || project->isActiveConfig("opengl")) ) {
 	if(configs.findIndex("x11lib") == -1)
 	    configs.append("x11lib");
@@ -196,8 +200,6 @@ UnixMakefileGenerator::init()
 	if(configs.findIndex("x11inc") == -1)
 	    configs.append("x11inc");
     }
-    if ( project->isActiveConfig("x11inc") )
-	project->variables()["INCLUDEPATH"] += project->variables()["QMAKE_INCDIR_X11"];
     if ( project->isActiveConfig("x11lib") ) {
 	if(!project->isEmpty("QMAKE_LIBDIR_X11"))
 	    project->variables()["QMAKE_LIBDIR_FLAGS"] += varGlue("QMAKE_LIBDIR_X11", "-L", " -L", "");
@@ -239,6 +241,8 @@ UnixMakefileGenerator::init()
     }
     if( project->isActiveConfig("GNUmake") && !project->isEmpty("QMAKE_CFLAGS_DEPS"))
 	include_deps = TRUE; //do not generate deps
+    if(project->isActiveConfig("libtool"))
+	Option::obj_ext = ".lo"; //override the .o
 
     MakefileGenerator::init();
     if ( project->isActiveConfig("resource_fork") && !project->isActiveConfig("console")) {
@@ -291,6 +295,49 @@ UnixMakefileGenerator::init()
 	if(!ar_sublibs.isEmpty()) {
 	    project->variables()["QMAKE_AR_SUBLIBS"] = ar_sublibs;
 	    project->variables()["QMAKE_INTERNAL_PRL_LIBS"] << "QMAKE_AR_SUBLIBS";
+	}
+    }
+
+    if(project->isActiveConfig("libtool")) {
+	const QString libtoolify[] = { "QMAKE_RUN_CC", "QMAKE_RUN_CC_IMP", 
+				       "QMAKE_RUN_CXX", "QMAKE_RUN_CXX_IMP", 
+				       "QMAKE_LINK_THREAD", "QMAKE_LINK", "QMAKE_AR_CMD", "QMAKE_LINK_SHLIB_CMD",
+				       QString::null };
+	for(int i = 0; !libtoolify[i].isNull(); i++) {
+	    QStringList &l = project->variables()[libtoolify[i]];
+	    if(!l.isEmpty()) {
+		QString libtool_flags, comp_flags; 
+		if(libtoolify[i].startsWith("QMAKE_LINK") || libtoolify[i] == "QMAKE_AR_CMD") {
+		    libtool_flags += " --mode=link";
+		    if(project->isActiveConfig("staticlib")) {
+			libtool_flags += " -static";
+		    } else { 
+			if(!project->isEmpty("QMAKE_LIB_FLAG")) {
+			    int maj = project->first("VER_MAJ").toInt();
+			    int min = project->first("VER_MIN").toInt();
+			    int pat = project->first("VER_PAT").toInt();
+			    comp_flags += " -version-info " + QString::number(10*maj + min) + 
+					  ":" + QString::number(pat) + ":0";
+			    if(libtoolify[i] != "QMAKE_AR_CMD") {
+				QString rpath = Option::output_dir;
+				if(!project->isEmpty("DESTDIR")) {
+				    rpath = project->first("DESTDIR");
+				    if(QDir::isRelativePath(rpath))
+					rpath.prepend(Option::output_dir + Option::dir_sep);
+				}
+				comp_flags += " -rpath " + Option::fixPathToTargetOS(rpath, FALSE);
+			    }
+			}
+		    }
+		    if(project->isActiveConfig("plugin"))
+			libtool_flags += " -module";
+		} else {
+		    libtool_flags += " --mode=compile";
+		}
+		l.first().prepend("$(LIBTOOL)" + libtool_flags + " ");
+		if(!comp_flags.isEmpty())
+		    l.first() += comp_flags;
+	    }
 	}
     }
 }
@@ -378,7 +425,6 @@ UnixMakefileGenerator::combineSetLFlags(const QStringList &list1, const QStringL
     return ret;
 }
 
-
 void
 UnixMakefileGenerator::processPrlVariable(const QString &var, const QStringList &l)
 {
@@ -433,7 +479,7 @@ UnixMakefileGenerator::findLibraries()
 		}
 	    }
 	    if(!stub.isEmpty()) {
-		const QString modifs[] = { "-mt", QString::null };
+		const QString modifs[] = { "", "-mt", QString::null };
 		for(int modif = 0; !modifs[modif].isNull(); modif++) {
 		    bool found = FALSE;
 		    QStringList extens;
@@ -464,8 +510,18 @@ UnixMakefileGenerator::findLibraries()
 			    }
 			}
 		    }
+		    if(!found && project->isActiveConfig("libtool")) {
+			for(MakefileDependDir *mdd = libdirs.first(); mdd; mdd = libdirs.next() ) {
+			    if(QFile::exists(mdd->local_dir + Option::dir_sep + "lib" + stub + modifs[modif] + ".la")) {
+				(*it) = mdd->real_dir + Option::dir_sep + "lib" + stub + modifs[modif] + ".la";
+				found = TRUE;
+				break;
+			    }
+			}
+		    }
 		    if(found)
 			break;
+
 		}
 	    }
 	}
@@ -493,12 +549,19 @@ UnixMakefileGenerator::processPrlFiles()
 			fixEnvVariables(l);
 			libdirs.append(new MakefileDependDir(r.replace("\"",""),
 							     l.replace("\"","")));
-		    } else if(opt.startsWith("-l")) {
-			if(processed[opt])
-			    continue;
-			QString lib = opt.right(opt.length() - 2), prl;
+		    } else if(opt.startsWith("-l") && !processed[opt]) {
+			QString lib = opt.right(opt.length() - 2);
 			for(MakefileDependDir *mdd = libdirs.first(); mdd; mdd = libdirs.next() ) {
-			    prl = mdd->local_dir + Option::dir_sep + "lib" + lib + Option::prl_ext;
+ 			    if(!project->isActiveConfig("libtool")) { //give them the .libs..
+ 				QString la = mdd->local_dir + Option::dir_sep + "lib" + lib + ".la";
+ 				if(QFile::exists(la) && QFile::exists(mdd->local_dir + Option::dir_sep + ".libs")) {
+ 				    l_out.append("-L" + mdd->real_dir + Option::dir_sep + ".libs");
+ 				    libdirs.append(new MakefileDependDir(mdd->real_dir +  Option::dir_sep + ".libs",
+ 									 mdd->local_dir + Option::dir_sep + ".libs"));
+ 				}
+ 			    }
+
+			    QString prl = mdd->local_dir + Option::dir_sep + "lib" + lib + Option::prl_ext;
 			    if(processPrlFile(prl)) {
 				if(prl.startsWith(mdd->local_dir))
 				    prl.replace(0, mdd->local_dir.length(), mdd->real_dir);
@@ -524,7 +587,7 @@ UnixMakefileGenerator::processPrlFiles()
 			    ret = TRUE;
 			l_out.append("-framework");
 		    }
-		    if(!opt.isEmpty()) 
+		    if(!opt.isEmpty())
 			l_out.append(opt);
 		    l_out = combineSetLFlags(l_out, project->variables()["QMAKE_CURRENT_PRL_LIBS"]);
 		} else {
@@ -593,50 +656,64 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
 	    }
 	}
     }
-    QString src_targ = target;
-    if(!destdir.isEmpty())
-	src_targ = Option::fixPathToTargetOS(destdir + target, FALSE);
-    QString dst_targ = root + fileFixify(targetdir + target);
-    if(!ret.isEmpty())
-	ret += "\n\t";
-    if(resource) {
-	ret += "$(DEL_DIR) \"" + dst_targ + "\"" + "\n\t";
-	ret += "-$(COPY_DIR) \"" + src_targ + "\" \"" + dst_targ + "\"";
+
+    if(!resource && project->isActiveConfig("libtool")) {
+	QString src_targ = target;
+	if(src_targ == "$(TARGET)")
+	    src_targ = "$(TARGETL)";
+	QString dst_dir = fileFixify(targetdir);
+	if(QDir::isRelativePath(dst_dir)) 
+	    dst_dir = Option::fixPathToTargetOS(Option::output_dir + Option::dir_sep + dst_dir);
+	ret = "-$(LIBTOOL) --mode=install cp \"" + src_targ + "\" \"" + root + dst_dir + "\"";
+	uninst.append("-$(LIBTOOL) --mode=uninstall \"" + src_targ + "\"");
     } else {
-	ret += "-$(COPY) \"" + src_targ + "\" \"" + dst_targ + "\"";
-    }
-    if(!project->isActiveConfig("debug") && !project->isEmpty("QMAKE_STRIP")) {
-	ret += "\n\t-" + var("QMAKE_STRIP");
-	if(project->first("TEMPLATE") == "lib" && !project->isEmpty("QMAKE_STRIPFLAGS_LIB"))
-	    ret += " " + var("QMAKE_STRIPFLAGS_LIB");
-	else if(project->first("TEMPLATE") == "app" && !project->isEmpty("QMAKE_STRIPFLAGS_APP"))
-	    ret += " " + var("QMAKE_STRIPFLAGS_APP");
+	QString src_targ = target;
+	if(!destdir.isEmpty())
+	    src_targ = Option::fixPathToTargetOS(destdir + target, FALSE);
+	QString dst_targ = root + fileFixify(targetdir + target);
+	if(!ret.isEmpty())
+	    ret += "\n\t";
+    	if(resource) {
+	    ret += "$(DEL_DIR) \"" + dst_targ + "\"" + "\n\t";
+	    ret += "-$(COPY_DIR) \"" + src_targ + "\" \"" + dst_targ + "\"";
+        } else {
+	    ret += "-$(COPY) \"" + src_targ + "\" \"" + dst_targ + "\"";
+        }
+	ret += QString(resource ? "-$(COPY_DIR)" : "-$(COPY)") + " \"" +
+	       src_targ + "\" \"" + dst_targ + "\"";
+	if(!project->isActiveConfig("debug") && !project->isEmpty("QMAKE_STRIP")) {
+	    ret += "\n\t-" + var("QMAKE_STRIP");
+	    if(project->first("TEMPLATE") == "lib" && !project->isEmpty("QMAKE_STRIPFLAGS_LIB"))
+		ret += " " + var("QMAKE_STRIPFLAGS_LIB");
+	    else if(project->first("TEMPLATE") == "app" && !project->isEmpty("QMAKE_STRIPFLAGS_APP"))
+		ret += " " + var("QMAKE_STRIPFLAGS_APP");
+	    if(resource)
+		ret = " \"" + dst_targ + "/Contents/MacOS/$(QMAKE_TARGET)\"";
+	    else
+		ret += " \"" + dst_targ + "\"";
+	}
+	if(!uninst.isEmpty())
+	    uninst.append("\n\t");
 	if(resource)
-	    ret = " \"" + dst_targ + "/Contents/MacOS/$(QMAKE_TARGET)\"";
+	    uninst.append("-$(DEL_FILE) -r \"" + dst_targ + "\"");
 	else
-	    ret += " \"" + dst_targ + "\"";
-    }
-    if(!uninst.isEmpty())
-	uninst.append("\n\t");
-    if(resource)
-	uninst.append("-$(DEL_FILE) -r \"" + dst_targ + "\"");
-    else
-	uninst.append("-$(DEL_FILE) \"" + dst_targ + "\"");
-    if(!links.isEmpty()) {
-	for(QStringList::Iterator it = links.begin(); it != links.end(); it++) {
-	    if(Option::target_mode == Option::TARG_WIN_MODE ||
-	       Option::target_mode == Option::TARG_MAC9_MODE) {
-	    } else if(Option::target_mode == Option::TARG_UNIX_MODE ||
-		      Option::target_mode == Option::TARG_MACX_MODE) {
-		QString link = Option::fixPathToTargetOS(destdir + (*it), FALSE);
-		int lslash = link.findRev(Option::dir_sep);
-		if(lslash != -1)
-		    link = link.right(link.length() - (lslash + 1));
-		QString dst_link = root + fileFixify(targetdir + link);
-		ret += "\n\t-$(SYMLINK) \"$(TARGET)\" \"" + dst_link + "\"";
-		if(!uninst.isEmpty())
-		    uninst.append("\n\t");
-		uninst.append("-$(DEL_FILE) \"" + dst_link + "\"");
+	    uninst.append("-$(DEL_FILE) \"" + dst_targ + "\"");
+	if(!links.isEmpty()) {
+	    for(QStringList::Iterator it = links.begin(); it != links.end(); it++) {
+		if(Option::target_mode == Option::TARG_WIN_MODE ||
+		   Option::target_mode == Option::TARG_MAC9_MODE) {
+		} else if(Option::target_mode == Option::TARG_UNIX_MODE ||
+			  Option::target_mode == Option::TARG_MACX_MODE) {
+		    QString link = Option::fixPathToTargetOS(destdir + (*it), FALSE);
+		    int lslash = link.findRev(Option::dir_sep);
+		    if(lslash != -1)
+			link = link.right(link.length() - (lslash + 1));
+		    QString dst_link = root + fileFixify(targetdir + link);
+		    ret += "\n\t-$(SYMLINK) \"$(TARGET)\" \"" + dst_link + "\"";
+		    if(!uninst.isEmpty())
+			uninst.append("\n\t");
+		    uninst.append("-$(DEL_FILE) \"" + dst_link + "\"");
+		}
 	    }
 	}
     }
