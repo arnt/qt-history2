@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprn.cpp#7 $
+** $Id: //depot/qt/main/src/kernel/qpsprn.cpp#8 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -20,7 +20,14 @@
 #include "qbuffer.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpsprn.cpp#7 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpsprn.cpp#8 $";
+#endif
+
+
+#if !defined(QT_HEADER_PS)
+static char *ps_header =
+#include "qtheader.cpp"
+;
 #endif
 
 
@@ -68,9 +75,9 @@ static void ps_setFont( QTextStream *s, const QFont *f, QString *fonts )
 
     QString family = f->family();
     QString ps;
-    int  weight = f->weight();
+    int	 weight = f->weight();
     bool italic = f->italic();
-    bool times  = FALSE;
+    bool times	= FALSE;
     bool symbol = FALSE;
     family = family.lower();
     if ( family == "courier" )
@@ -105,7 +112,7 @@ static void ps_setFont( QTextStream *s, const QFont *f, QString *fonts )
     QString fontMatrix;
     fontMatrix.sprintf( "[ %d 0 0 -%d 0 0 ]", f->pointSize(), f->pointSize() );
     *s << ps << " findfont " << fontMatrix << " makefont setfont\n";
-    ps.remove( 0, 1 );  // removes the '/'
+    ps.remove( 0, 1 );	// removes the '/'
     ps += ' ';
     if ( !fonts->contains(ps) )
 	*fonts += ps;
@@ -114,7 +121,7 @@ static void ps_setFont( QTextStream *s, const QFont *f, QString *fonts )
 static void hexOut( QTextStream &stream, int i )
 {
     if ( i < 0x10 )
-        stream << '0';
+	stream << '0';
     stream << i;
 }
 
@@ -129,35 +136,35 @@ static void ps_dumpTransparentBitmapData( QTextStream &stream, QImage &img )
     int x,y;
     int count = -1;
     for( y = 0 ; y < height ; y++ ) {
-        scanLine = img.scanLine(y);
-        for( x = 0 ; x < numBytes ; x++ ) {
-            hexOut( stream, scanLine[x] );
-            if ( !(count++ % 66) )
-                stream << '\n';
+	scanLine = img.scanLine(y);
+	for( x = 0 ; x < numBytes ; x++ ) {
+	    hexOut( stream, scanLine[x] );
+	    if ( !(count++ % 66) )
+		stream << '\n';
 	}
     }
     if ( --count % 66 )
-        stream << '\n';
+	stream << '\n';
 
     stream.setf( QTextStream::dec );
 }
 
-static void ps_dumpPixmapData( QTextStream &stream, QImage img, 
-                               QColor fgCol, QColor bgCol )
+static void ps_dumpPixmapData( QTextStream &stream, QImage img,
+			       QColor fgCol, QColor bgCol )
 {
     stream.setf( QTextStream::hex );
 
     if ( img.depth() == 1 ) {
-        img.convertDepth( 8 );
-        if ( img.color(0) == 0 ) {			// black
-            img.setColor( 0, fgCol.rgb() );
-            img.setColor( 1, bgCol.rgb() );
+	img.convertDepth( 8 );
+	if ( img.color(0) == 0 ) {			// black
+	    img.setColor( 0, fgCol.rgb() );
+	    img.setColor( 1, bgCol.rgb() );
 	} else {
-            img.setColor( 0, bgCol.rgb() );
-            img.setColor( 1, fgCol.rgb() );
+	    img.setColor( 0, bgCol.rgb() );
+	    img.setColor( 1, fgCol.rgb() );
 	}
     }
-    
+
     int width  = img.width();
     int height = img.height();
     int pixWidth = img.depth() == 8 ? 1 : 3;
@@ -166,24 +173,24 @@ static void ps_dumpPixmapData( QTextStream &stream, QImage img,
     int x,y;
     int count = -1;
     for( y = 0 ; y < height ; y++ ) {
-        scanLine = img.scanLine(y);
-        for( x = 0 ; x < width ; x++ ) {
-            if ( pixWidth == 1 ) {
-                cval = img.color( scanLine[x] );
-                hexOut( stream, QRED(cval) );
-                hexOut( stream, QGREEN(cval) );
-                hexOut( stream, QBLUE(cval) );
+	scanLine = img.scanLine(y);
+	for( x = 0 ; x < width ; x++ ) {
+	    if ( pixWidth == 1 ) {
+		cval = img.color( scanLine[x] );
+		hexOut( stream, QRED(cval) );
+		hexOut( stream, QGREEN(cval) );
+		hexOut( stream, QBLUE(cval) );
 	    } else {
-                hexOut( stream, scanLine[3*x] );
-                hexOut( stream, scanLine[3*x + 1] );
-                hexOut( stream, scanLine[3*x + 2] );
+		hexOut( stream, scanLine[3*x] );
+		hexOut( stream, scanLine[3*x + 1] );
+		hexOut( stream, scanLine[3*x + 2] );
 	    }
-            if ( !(count++ % 11) )
-                stream << '\n';
+	    if ( !(count++ % 11) )
+		stream << '\n';
 	}
     }
     if ( --count % 11 )
-        stream << '\n';
+	stream << '\n';
 
     stream.setf( QTextStream::dec );
 }
@@ -206,7 +213,7 @@ static void ps_dumpPixmapData( QTextStream &stream, QImage img,
 			YCOORD(p[index].point->y()) << ' '
 #define RECT(index)	XCOORD(p[index].rect->x())  << ' ' <<		\
 			YCOORD(p[index].rect->y())  << ' ' <<		\
-			WIDTH (p[index].rect->width())  << ' ' <<	\
+			WIDTH (p[index].rect->width())	<< ' ' <<	\
 			HEIGHT(p[index].rect->height()) << ' '
 #define INT_ARG(index)	p[index].ival << ' '
 #define COLOR(x)	(x).red()   << ' ' <<	\
@@ -229,7 +236,7 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	stream.setDevice( device );
 	stream << "%!PS-Adobe-1.0\n";		// write document header
 	stream << "%%Creator: " << creator << '\n';
-	stream << "%%Title: "   << title   << '\n';
+	stream << "%%Title: "	<< title   << '\n';
 	stream << "%%CreationDate:" << QDateTime::currentDateTime().toString()
 	  << '\n';
 	stream << "%%Pages: (atend)\n";
@@ -238,6 +245,7 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	if ( printer->numCopies() > 1 )
 	    stream << "/#copies " << printer->numCopies() << " def\n";
 
+#if defined(QT_HEADER_PS)
 	QFile f( "/usr/lib/qtheader.ps" );	// read predefined PS header
 	if ( !f.open(IO_ReadOnly|IO_Raw) )
 	    fatal( "Cannot open /usr/lib/qtheader.ps" );
@@ -245,10 +253,14 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	f.readBlock( a.data(), f.size() );
 	f.close();
 	stream.writeRawBytes( a.data(), a.size() );
+#else
+	stream << ps_header;
+#endif
+
 	stream << "\n%%Page: " << pageCount << ' ' << pageCount << endl;
 	return TRUE;
     }
-    
+
     if ( c == PDC_END ) {			// painting done
 	stream << "QtFinish\n";
 	stream << "%%Trailer\n";
@@ -275,7 +287,7 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	    stream << "[ "
 		   << tmp.m11() << ' ' << tmp.m12() << ' '
 		   << tmp.m21() << ' ' << tmp.m22() << ' '
-		   << tmp.dx()  << ' ' << tmp.dy()  << " ] ST\n";
+		   << tmp.dx()	<< ' ' << tmp.dy()  << " ] ST\n";
 	    dirtyMatrix = FALSE;
 	}
     }
@@ -363,60 +375,60 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	case PDC_DRAWBEZIER:
 	    if ( p[0].ptarr->size() > 0 ) {
 		QPointArray a = p[0].ptarr->bezier();
-                QPDevCmdParam param;
-                param.ptarr = &a;
-                cmd( PDC_DRAWPOLYLINE, paint, &param );
-	    }                     
+		QPDevCmdParam param;
+		param.ptarr = &a;
+		cmd( PDC_DRAWPOLYLINE, paint, &param );
+	    }
 	    break;
 	case PDC_DRAWTEXT:
 	    stream << POINT(0) << "(" << p[1].str << ") T\n";
 	    break;
 	case PDC_DRAWTEXTFRMT:;
 	    return FALSE;			// uses Qt instead
-        case PDC_DRAWPIXMAP: {
-            if ( p[1].pixmap->isNull() )
-                break;
-            int depth = p[1].pixmap->depth();
+	case PDC_DRAWPIXMAP: {
+	    if ( p[1].pixmap->isNull() )
+		break;
+	    int depth = p[1].pixmap->depth();
 	    if ( depth == 1 ) {
 		warning( "QPrinter: Sorry, pixmaps with depth 1 are not ",
 			 "supported in Qt 0.92 - Try an 8 bit pixmap." );
 		return FALSE;
 	    }
-            if ( depth != 1 && depth != 8 && depth != 32 ) {
-                warning( "QPrinter::cmd: Unsupported image depth "
-                         "(1, 8 or 24 supported).");
-                break;
+	    if ( depth != 1 && depth != 8 && depth != 32 ) {
+		warning( "QPrinter::cmd: Unsupported image depth "
+			 "(1, 8 or 24 supported).");
+		break;
 	    }
-            
-            QPoint pnt = *(p[0].point);
-            stream << pnt.x() << " " << pnt.y() << " TR\n";
-            QImage img;
-            img = *(p[1].pixmap);
-            bool mask = ( paint->backgroundMode() == TransparentMode && 
-                          depth == 1 );
-            int width  = img.width();
-            int height = img.height();
 
-            QColor fgCol = paint->pen().color();
-            QColor bgCol = paint->backgroundColor();
-            if ( mask )
-                stream << COLOR(fgCol) << "CRGB SRGB\n";
-            stream << "/sl " << (mask ? (width + 7)/8 : width*3)
-                   << " string def\n";
-            stream << width << " " << height;
-            if ( !mask )
-                stream << " 8 ";
-            stream << "[1 0 0 1 0 0] { currentfile sl readhexstring pop }\n";
+	    QPoint pnt = *(p[0].point);
+	    stream << pnt.x() << " " << pnt.y() << " TR\n";
+	    QImage img;
+	    img = *(p[1].pixmap);
+	    bool mask = ( paint->backgroundMode() == TransparentMode &&
+			  depth == 1 );
+	    int width  = img.width();
+	    int height = img.height();
+
+	    QColor fgCol = paint->pen().color();
+	    QColor bgCol = paint->backgroundColor();
+	    if ( mask )
+		stream << COLOR(fgCol) << "CRGB SRGB\n";
+	    stream << "/sl " << (mask ? (width + 7)/8 : width*3)
+		   << " string def\n";
+	    stream << width << " " << height;
+	    if ( !mask )
+		stream << " 8 ";
+	    stream << "[1 0 0 1 0 0] { currentfile sl readhexstring pop }\n";
 	    if ( mask ) {
-                stream << "imagemask\n";
-                QColor fgCol = paint->pen().color();
-                ps_dumpTransparentBitmapData( stream, img ); 
-            } else {
-                stream << "false 3 colorimage\n";
-                ps_dumpPixmapData( stream, img, fgCol, bgCol ); 
+		stream << "imagemask\n";
+		QColor fgCol = paint->pen().color();
+		ps_dumpTransparentBitmapData( stream, img );
+	    } else {
+		stream << "false 3 colorimage\n";
+		ps_dumpPixmapData( stream, img, fgCol, bgCol );
 	    }
-            stream << -pnt.x() << " " << -pnt.y() << " TR\n";
-            break;
+	    stream << -pnt.x() << " " << -pnt.y() << " TR\n";
+	    break;
 	}
 	case PDC_SAVE:
 	    stream << "SV\n";
@@ -445,13 +457,13 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	    break;
 	case PDC_SETFONT:
 	    ps_setFont( &stream, p[0].font, &fontsUsed );
-	    break;	    
+	    break;
 	case PDC_SETPEN:
 	    if ( p[0].pen->width() == 0 )
 		stream << p[0].pen->style()	       << " 0.3 "
 		       << COLOR(p[0].pen->color()) << "PE\n";
 	    else
-		stream << p[0].pen->style() << ' ' << p[0].pen->width() 
+		stream << p[0].pen->style() << ' ' << p[0].pen->width()
 		       << COLOR(p[0].pen->color()) << "PE\n";
 	    break;
 	case PDC_SETBRUSH:
@@ -459,7 +471,7 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 		warning( "QPrinter: Pixmap brush not supported" );
 		return FALSE;
 	    }
-	    stream << p[0].brush->style() << ' ' 
+	    stream << p[0].brush->style() << ' '
 		   << COLOR(p[0].brush->color()) << "B\n";
 	    break;
 	case PDC_SETTABSTOPS:
