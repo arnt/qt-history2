@@ -132,6 +132,7 @@ struct Q_EXPORT QMapData
 	return d;
     }
 
+    static QMapData shared_null;
 };
 
 template<class Key, class T>
@@ -270,7 +271,8 @@ public:
 
     QMap()
     {
-	d = QMapData::init(new QMapData);
+	d = &QMapData::shared_null;
+	++d->ref;
     }
     QMap( const QMap<Key,T>& m )
     {

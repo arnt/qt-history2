@@ -37,6 +37,11 @@
 
 #include "qmap.h"
 
+QMapData QMapData::shared_null =
+{ Q_ATOMIC_INIT(1), 0,
+  { &QMapData::shared_null.header, &QMapData::shared_null.header, 0, QMapData::Red, 1 }
+};
+
 static void rotateLeft( QMapData::Node * x, QMapData::Node *& root)
 {
     register QMapData::Node * y = x->right;
