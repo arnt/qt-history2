@@ -46,10 +46,10 @@ Tutorial chapters:
 \endlist
 
 This little game doesn't look much like a modern GUI application. It
-uses a good few of the GUI techniques, but after you've worked through
+uses a some GUI techniques, but after you've worked through
 it, we recommend reading \link tutorial2.html Tutorial #2\endlink. The
 second tutorial is a little more formal and covers the features of
-typical application including menubars, toolbars, loading and saving,
+a typical application including menubars, toolbars, loading and saving,
 dialogs, etc.
 
 */

@@ -39,7 +39,7 @@ if you have queries.}
 
 Note: You must compile with \e both Xft and XRender support to get
 alpha transparency support for pixmaps and images.  Configuring with
-XRender support only is not enough.
+XRender support alone is not enough.
 
 \target win
 \section1 Qt/Windows
@@ -52,10 +52,11 @@ if you have queries.}
 \target macosx
 \section1 Qt/Mac OS X
 
-When compiling for this platform, the macro \c{Q_WS_MACX} is defined.
+When compiling for this platform, the macro \c{Q_WS_MAC} is defined.
 
 \list
- \i \link mac-differences.html Qt/Mac issues\endlink
+\i \link mac-differences.html Qt/Mac issues\endlink
+\i \link qtmac-as-native.html Qt/Mac is Mac OS X Native\endlink
 \endlist
 
 \target qws

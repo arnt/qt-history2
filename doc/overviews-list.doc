@@ -61,12 +61,13 @@
 \i
     \list
     \i \link installation.html Installation \endlink
+    \i \link containers.html Generic Containers \endlink
+    \i \link datastreamformat.html Format of the QDataStream Operators \endlink
+    \i \link debug.html Debugging Techniques \endlink
     \i \link plugins-howto.html Qt Plugins\endlink
     \omit
     \i \link component.html The Qt Component Model \endlink
     \endomit
-    \i \link datastreamformat.html Format of the QDataStream Operators \endlink
-    \i \link debug.html Debugging Techniques \endlink
     \i \link dnd.html Drag and Drop \endlink
     \i \link eventsandfilters.html Events and Event Filters \endlink
     \i \link focus.html Keyboard Focus Overview \endlink
@@ -79,7 +80,6 @@
     \i \link session.html Session Management \endlink
     \i \link shclass.html Shared Classes \endlink
     \i \link customstyles.html Style overview \endlink
-    \i \link qt-template-lib.html Qt Template Library\endlink
     \i \link threads.html Thread Support in Qt \endlink
     \i \link timers.html Timers \endlink
     \i \link pictures.html Pictures of Most Qt Widgets \endlink

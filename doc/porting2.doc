@@ -904,11 +904,10 @@ the Qt 1.x "TRUE" optimization.
 <h3><a name="QMenuData">QMenuData / QPopupMenu</a></h3>
 
 In Qt 1.x, new menu items were assigned either an application-wide
-unique identifier or an identifier equal to the index of the item, depending on the
-\link QMenuData::insertItem() insertItem(...)\endlink function used.
-In Qt 2.x this confusing
-situation has been cleaned up: generated identifiers are always
-unique across the entire application.
+unique identifier or an identifier equal to the index of the item,
+depending on the insertItem(...) function used. In Qt 2.x this
+confusing situation has been cleaned up: generated identifiers are
+always unique across the entire application.
 
 If your code depends on generated ids
 being equal to the item's index, a quick fix is to use

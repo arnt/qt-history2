@@ -407,7 +407,7 @@ for the \c echo parameter.
 
 \section1 QLayout and Other Abstract Layout Classes
 
-The definitions of \l QGLayoutIterator, \l QLayout, \l QLayoutItem, \l
+The definitions of QGLayoutIterator, \l QLayout, \l QLayoutItem,
 QLayoutIterator, \l QSpacerItem and \l QWidgetItem have been moved from \c
 <qabstractlayout.h> to \c <qlayout.h>. The header \c
 <qabstractlayout.h> now includes \c <qlayout.h> for compatibility. It
