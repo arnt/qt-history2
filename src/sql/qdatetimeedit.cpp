@@ -59,8 +59,8 @@ QDateTimeEditBase::QDateTimeEditBase( QWidget * parent, const char * name )
     sep[1]->setBackgroundColor( ed[0]->backgroundColor() );
     setBackgroundColor( ed[0]->backgroundColor() );
 
-    up   = new QToolButton( this );
-    down = new QToolButton( this );
+    up   = new QPushButton( this );
+    down = new QPushButton( this );
     up->setAutoRepeat( TRUE );
     down->setAutoRepeat( TRUE );
 
@@ -72,7 +72,6 @@ QDateTimeEditBase::QDateTimeEditBase( QWidget * parent, const char * name )
     ed[2]->installEventFilter( this );
 
     setFocusProxy( ed[0] );
-    ed[0]->selectAll();
 }
 
 /*!
@@ -296,7 +295,7 @@ void QDateTimeEditBase::layoutWidgets( int numDigits )
 QDateEdit::QDateEdit( QWidget * parent, const char * name )
     : QDateTimeEditBase( parent, name )
 {
-    ed[0]->setRange( 1900, 3000 );
+    ed[0]->setRange( 1753, 3000 );
     ed[1]->setRange( 1, 12 );
     ed[2]->setRange( 1, 31 );
     sep[0]->setText( "-" );
@@ -305,13 +304,32 @@ QDateEdit::QDateEdit( QWidget * parent, const char * name )
 
 /*!
   
-  Set the date in this QTimeEdit.
+  Set the date in this QDateEdit.
  */
 void QDateEdit::setDate( const QDate & d )
 {
-    ed[0]->setText( QString::number( d.year() ) );
-    ed[1]->setText( QString::number( d.month() ) );
-    ed[2]->setText( QString::number( d.day() ) );
+    QIntValidator * v[3];
+    int yy = d.year();
+    int mm = d.month();
+    int dd = d.day();
+    
+    v[0] = (QIntValidator *) ed[0]->validator();
+    v[1] = (QIntValidator *) ed[1]->validator();
+    v[2] = (QIntValidator *) ed[2]->validator();
+
+    if( (yy > v[0]->top()) || (yy < v[0]->bottom()) || 
+	(mm > v[1]->top()) || (mm < v[1]->bottom()) || 
+	(dd > v[2]->top()) || (dd < v[2]->bottom()) )
+    {
+	// Date out of range - leave it blank
+	ed[0]->setText( "" );
+	ed[1]->setText( "" );
+	ed[2]->setText( "" );
+    } else {
+	ed[0]->setText( QString::number( yy ) );
+	ed[1]->setText( QString::number( mm ) );
+	ed[2]->setText( QString::number( dd ) );
+    }
 
     ed[0]->setFocus();
     ed[0]->selectAll();
@@ -319,11 +337,12 @@ void QDateEdit::setDate( const QDate & d )
 
 /*!
   
-  Returns the date in this QTimeEdit.
+  Returns the date in this QDateEdit.
  */
 QDate QDateEdit::date() const
 {
     ((QDateEdit *) this)->fixup(); // Fix invalid dates
+    
     return QDate( ed[0]->text().toInt(), ed[1]->text().toInt(),
 		  ed[2]->text().toInt() );
 }
@@ -336,6 +355,10 @@ QDate QDateEdit::date() const
 void QDateEdit::fixup()
 {
     int yy, mm, dd;
+    QIntValidator * v[3];
+    v[0] = (QIntValidator *) ed[0]->validator();
+    v[1] = (QIntValidator *) ed[1]->validator();
+    v[2] = (QIntValidator *) ed[2]->validator();
 
     yy = ed[0]->text().toInt();
     mm = ed[1]->text().toInt();
@@ -343,14 +366,14 @@ void QDateEdit::fixup()
     
     if( !QDate::isValid( yy, mm, dd) ){
 	if( !QDate::isValid( yy, 1, 1 ) )
-	    if( yy > 3000 ) yy = 3000;
-	    else if( yy < 1900 ) yy = 1900;
+	    if( yy > v[0]->top() ) yy = v[0]->top();
+	    else if( yy < v[0]->bottom() ) yy = v[0]->bottom();
 	if( !QDate::isValid( yy, mm, 1 ) )
-	    if( mm > 12 ) mm = 12;
-	    else if( mm < 1 ) mm = 1;
+	    if( mm > v[1]->top() ) mm = v[1]->top();
+	    else if( mm < v[1]->bottom() ) mm = v[1]->bottom();
+	if( dd > v[2]->top() ) dd = v[2]->top();
+	else if( dd < v[2]->bottom() ) dd = v[2]->bottom();
 	
-	if( dd < 1 ) dd = 1;
-	else if( dd > 31 ) dd = 31;
 	while( !QDate::isValid( yy, mm, dd ) ){
 	    dd--;
 	}

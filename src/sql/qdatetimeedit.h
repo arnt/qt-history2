@@ -28,7 +28,7 @@ protected:
     void updateArrows();
     void layoutWidgets( int digits );
     
-    QToolButton * up, * down;
+    QPushButton * up, * down;
     NumEdit     * ed[3];
     QLabel      * sep[2];
     QString lastValid[3];
