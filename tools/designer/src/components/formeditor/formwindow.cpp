@@ -48,6 +48,7 @@
 #include <qextensionmanager.h>
 
 #include <QtGui/QtGui>
+#include <QtCore/qdebug.h>
 
 class FriendlyWidget: public QWidget
 {
@@ -359,7 +360,7 @@ bool FormWindow::handleMousePressEvent(QWidget *, QWidget *managedWidget, QMouse
     return true;
 }
 
-bool FormWindow::handleMouseMoveEvent(QWidget *, QWidget *managedWidget, QMouseEvent *e)
+bool FormWindow::handleMouseMoveEvent(QWidget *www, QWidget *managedWidget, QMouseEvent *e)
 {
     e->accept();
 
@@ -372,6 +373,9 @@ bool FormWindow::handleMouseMoveEvent(QWidget *, QWidget *managedWidget, QMouseE
     }
 
     QPoint pos = mapFromGlobal(e->globalPos());
+    if (startPos.isNull())
+        return true;
+
     bool canStartDrag = (startPos - pos).manhattanLength() > QApplication::startDragDistance();
 
     if (canStartDrag == false) {
@@ -440,6 +444,7 @@ bool FormWindow::handleMouseReleaseEvent(QWidget *, QWidget *, QMouseEvent *e)
         drawRubber = false;
     }
 
+    startPos = QPoint();
     emitSelectionChanged(); // inform about selection changes
 
     return true;
