@@ -192,7 +192,7 @@ public:
     {
 	return QPopupMenu::itemHeight( index );
     }
-    
+
 };
 
 
@@ -959,7 +959,7 @@ QSize QComboBox::sizeHint() const
     int sw, sh;
     if ( d->usingListBox() ) {
 	sw = 4 + 4 + maxW;
-	sh = 5 + 5 + maxH;
+	sh = 2 + 2 + maxH;
 	QRect cr = style().comboButtonRect( 0, 0, sw, sh );
 	sw += sw - cr.width();
     } else {
@@ -1154,7 +1154,7 @@ void QComboBox::paintEvent( QPaintEvent * )
 	    p.setPen( g.foreground() );
 	    QListBoxItem * item = d->listBox()->item( d->current );
 	    if ( item ) {
-		int itemh = item->height( d->listBox() ); 
+		int itemh = item->height( d->listBox() );
 		p.translate( clip.x(), clip.y() + (clip.height() - itemh)/2  );
 		item->paint( &p );
 	    }
@@ -1188,7 +1188,7 @@ void QComboBox::paintEvent( QPaintEvent * )
 	}
 	QListBoxItem * item = d->listBox()->item( d->current );
 	if ( item ) {
-	    int itemh = item->height( d->listBox() ); 
+	    int itemh = item->height( d->listBox() );
 	    p.translate( textR.x(), textR.y() + (textR.height() - itemh)/2  );
 	    item->paint( &p );
 	}
