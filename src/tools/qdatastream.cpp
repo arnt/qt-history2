@@ -494,7 +494,7 @@ QDataStream &QDataStream::operator>>( Q_INT32 &i )
     } else if ( noswap ) {			// no conversion needed
 	dev->readBlock( (char *)&i, sizeof(Q_INT32) );
     } else {					// swap bytes
-	register uchar *p = (uchar *)(&i);
+	uchar *p = (uchar *)(&i);
 	char b[4];
 	dev->readBlock( b, 4 );
 	*p++ = b[3];
@@ -561,7 +561,7 @@ QDataStream &QDataStream::operator>>( float &f )
     } else if ( noswap ) {			// no conversion needed
 	dev->readBlock( (char *)&f, sizeof(float) );
     } else {					// swap bytes
-	register uchar *p = (uchar *)(&f);
+	uchar *p = (uchar *)(&f);
 	char b[4];
 	dev->readBlock( b, 4 );
 	*p++ = b[3];
