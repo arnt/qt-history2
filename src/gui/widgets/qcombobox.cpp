@@ -487,7 +487,7 @@ QComboBox::QComboBox(bool rw, QWidget *parent, const char *name) :
     <img src="qcombo3-m.png">(Motif 2, read-only)<br clear=all>
     <img src="qcombo1-w.png">(Windows style)
 
-    \sa QLineEdit QListBox QSpinBox QRadioButton QButtonGroup
+    \sa QLineEdit QSpinBox QRadioButton QButtonGroup
     \link guibooks.html#fowler GUI Design Handbook: Combo Box,\endlink
     \link guibooks.html#fowler GUI Design Handbook: Drop-Down List Box.\endlink
 */

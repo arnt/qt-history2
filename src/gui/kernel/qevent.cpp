@@ -1540,8 +1540,9 @@ QDragMoveEvent::~QDragMoveEvent()
 /*!
     \fn QRect QDragMoveEvent::answerRect() const
 
-    Returns the rectangle for which the acceptance of the move event
-    applies.
+    Returns the rectangle in the widget where the drop will occur if accepted.
+    You can use this information to restrict drops to certain places on the
+    widget.
 */
 
 
@@ -1823,8 +1824,15 @@ QDragResponseEvent::~QDragResponseEvent()
     When a widget \link QWidget::setAcceptDrops() accepts drop
     events \endlink, it will receive this event repeatedly while the
     drag is within the widget's boundaries. The widget should examine
-    the event to see what data it \link QDragMoveEvent::provides()
-    provides \endlink, and accept() the drop if appropriate.
+    the event to see what kind of data it \link QDragMoveEvent::provides()
+    provides \endlink, and call the accept() function to accept the drop
+    if appropriate.
+
+    The rectangle supplied by the answerRect() function can be used to restrict
+    drops to certain parts of the widget. For example, we can check whether the
+    rectangle intersects with the geometry of a certain child widget and only
+    call \l{QDropEvent::acceptProposedAction()}{acceptProposedAction()} if that
+    is the case.
 
     Note that this class inherits most of its functionality from
     QDropEvent.
