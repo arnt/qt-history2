@@ -25,6 +25,22 @@
 #include "qregexp.h"
 #include "qvector.h"
 #include "qmap.h"
+#include "qobject.h"
+#include "qshared.h"
+
+class Q_EXPORT QSqlResultShared : public QObject, public QShared
+{
+    Q_OBJECT
+public:
+    QSqlResultShared( QSqlResult* result );
+    virtual ~QSqlResultShared();
+    QSqlResult* sqlResult;
+    QString executedQuery;
+private slots:
+    void slotResultDestroyed();
+};
+
+#include "qsqlquery.moc"
 
 /*!
 \internal

@@ -86,7 +86,7 @@ QString qWhereClause( QSqlRecord* rec, const QString& prefix, const QString& sep
     static QString blank( " " );
     QString filter;
     bool separator = FALSE;
-    for ( uint j = 0; j < rec->count(); ++j ) {
+    for ( int j = 0; j < rec->count(); ++j ) {
         QSqlField* f = rec->field( j );
         if ( rec->isGenerated( j ) ) {
             if ( separator )

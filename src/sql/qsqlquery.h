@@ -16,8 +16,6 @@
 #define QSQLQUERY_H
 
 #ifndef QT_H
-#include "qobject.h"
-#include "qshared.h"
 #include "qsql.h"
 #include "qsqlerror.h"
 #include "qsqlfield.h"
@@ -32,17 +30,7 @@ class QSqlResult;
 class QSqlResultInfo;
 class QSqlDatabase;
 
-class Q_EXPORT QSqlResultShared : public QObject, public QShared
-{
-    Q_OBJECT
-public:
-    QSqlResultShared( QSqlResult* result );
-    virtual ~QSqlResultShared();
-    QSqlResult* sqlResult;
-    QString executedQuery;
-private slots:
-    void slotResultDestroyed();
-};
+class QSqlResultShared;
 
 class Q_EXPORT QSqlQuery
 {
