@@ -407,6 +407,18 @@ public:
 	    }
 	}
     }
+    void enabledChange(bool notenabled)
+    {
+	Q3DateEdit *de = qt_cast<Q3DateEdit*>(parentWidget());
+	if (de && !notenabled) {
+	    setUpEnabled(de->date() < de->maxValue());
+	    setDownEnabled(de->date() > de->minValue());
+	} else {
+	    setUpEnabled(!notenabled);
+	    setDownEnabled(!notenabled);
+	}
+    }
+
 
 protected:
 #ifndef QT_NO_WHEELEVENT
