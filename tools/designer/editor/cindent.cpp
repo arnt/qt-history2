@@ -57,6 +57,8 @@ void CIndent::untabify( QString &s )
 
 int CIndent::indentation( const QString &s ) const
 {
+    if ( s.simplifyWhiteSpace().length() == 0 )
+	return 0;
     int i = 0;
     int ind = 0;
     while ( i < (int)s.length() ) {
