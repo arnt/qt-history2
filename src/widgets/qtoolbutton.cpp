@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#68 $
+** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#69 $
 **
 ** Implementation of QToolButton class
 **
@@ -36,6 +36,7 @@
 #include "qiconset.h"
 #include "qtimer.h"
 #include "qpopupmenu.h"
+#include "qguardedptr.h"
 
 static QToolButton * threeDeeButton = 0;
 
@@ -44,7 +45,7 @@ class QToolButtonPrivate
 {
     // ### add tool tip magic here
 public:
-    QPopupMenu* popup;
+    QGuardedPtr<QPopupMenu> popup;
     QTimer* popupTimer;
     int delay;
     bool autoraise;
@@ -59,10 +60,9 @@ public:
   has been tailored for use in a QToolBar.
 
   \ingroup realwidgets
+  
+  ### describe at least: setIconSet, setAutoRaise, setPopup, setPopupDelay, usesBigPixmaps, usesTextLabel
 
-  This means that it implements the ridiculous Microsoft auto-raise
-  feature using QIconSet.  Apart from that, it's pretty much like a
-  QPushButton.  The two classes may at some point be merged.
 
   \sa QPushButton QToolButton
   <a href="guibooks.html#fowler">GUI Design Handbook: Push Button</a>
@@ -365,8 +365,8 @@ void QToolButton::drawButton( QPainter * p )
 				&colorGroup().brush( QColorGroup::Button ) );
     } else if ( parentWidget() && parentWidget()->backgroundPixmap() ){
 	// pseudo tranparency
-	p->drawTiledPixmap( 0, 0, width(), height(), 
-			   *parentWidget()->backgroundPixmap(), 
+	p->drawTiledPixmap( 0, 0, width(), height(),
+			   *parentWidget()->backgroundPixmap(),
 			   x(), y() );
     }
     drawButtonLabel( p );
@@ -464,13 +464,13 @@ void QToolButton::leaveEvent( QEvent * e )
 
 
 
-/*! 
+/*!
   Reimplemented to handle pseudo transparency in case the toolbars has
   a fancy pixmap background.
  */
 void QToolButton::moveEvent( QMoveEvent * )
 {
-    if ( parentWidget() && parentWidget()->backgroundPixmap() && 
+    if ( parentWidget() && parentWidget()->backgroundPixmap() &&
 	 autoRaise() && !uses3D() )
 	repaint( FALSE );
 }
