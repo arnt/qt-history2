@@ -30,6 +30,9 @@
 
     \internal
 */
+QInputEvent::QInputEvent(Type type)
+    : QEvent(type), accpt(true)
+{}
 
 /*!
     \fn bool QInputEvent::isAccepted() const
@@ -108,8 +111,6 @@
 */
 
 /*!
-    \fn QMouseEvent::QMouseEvent(Type type, const QPoint &position, int button, int state)
-
     Constructs a mouse event object.
 
     The \a type parameter must be one of \c QEvent::MouseButtonPress,
@@ -130,6 +131,13 @@
     position explicitly.
 */
 
+QMouseEvent::QMouseEvent(Type type, const QPoint &pos, Qt::MouseButton button,
+                         Qt::MouseButtons buttons, Qt::KeyboardModifiers modifiers)
+    : QInputEvent(type), p(pos), b(button), mouseState(buttons), keyState(modifiers)
+{
+    g = QCursor::pos();
+}
+
 #ifdef QT_COMPAT
 QMouseEvent::QMouseEvent(Type type, const QPoint &pos, Qt::ButtonState button, int state)
     : QInputEvent(type), p(pos), b((Qt::MouseButton)button)
@@ -149,25 +157,14 @@ QMouseEvent::QMouseEvent(Type type, const QPoint &pos, const QPoint &globalPos,
 #endif
 
 
-
-QMouseEvent::QMouseEvent(Type type, const QPoint &pos, Qt::MouseButton button,
-                         Qt::MouseButtons buttons, Qt::KeyboardModifiers modifiers)
-    : QInputEvent(type), p(pos), b(button), mouseState(buttons), keyState(modifiers)
-{
-        g = QCursor::pos();
-}
-
-
 /*!
-    \fn QMouseEvent::QMouseEvent(Type type, const QPoint &position, const QPoint &globalPos, int button, int state)
-
     Constructs a mouse event object.
 
     The \a type parameter must be \c QEvent::MouseButtonPress,
     \c QEvent::MouseButtonRelease, \c QEvent::MouseButtonDblClick,
     or \c QEvent::MouseMove.
 
-    The \a position is the mouse cursor's position relative to the
+    The \a pos is the mouse cursor's position relative to the
     receiving widget. The cursor's position in global coordinates
     is specified by \a globalPos.
     The \a button that caused the event is given as a value from
@@ -178,6 +175,11 @@ QMouseEvent::QMouseEvent(Type type, const QPoint &pos, Qt::MouseButton button,
     at the time of the event.
 
 */
+QMouseEvent::QMouseEvent(Type type, const QPoint &pos, const QPoint &globalPos,
+                         Qt::MouseButton button, Qt::MouseButtons buttons,
+                         Qt::KeyboardModifiers modifiers)
+    : QInputEvent(type), p(pos), g(globalPos), b(button), mouseState(buttons), keyState(modifiers)
+{}
 
 /*!
     \fn const QPoint &QMouseEvent::pos() const
@@ -321,12 +323,20 @@ QMouseEvent::QMouseEvent(Type type, const QPoint &pos, Qt::MouseButton button,
     which is usually, but not always, correct.
     Use the other constructor if you need to specify the global
     position explicitly. \a delta contains the rotation distance,
-    \a state holds the keyboard modifier flags at the time of the
+    \a modifiers holds the keyboard modifier flags at the time of the
     event, and \a orient holds the wheel's orientation.
 
     \sa pos() delta() state()
 */
 #ifndef QT_NO_WHEELEVENT
+QWheelEvent::QWheelEvent(const QPoint &pos, int delta,
+                         Qt::MouseButtons buttons, Qt::KeyboardModifiers modifiers,
+                         Qt::Orientation orient)
+    : QInputEvent(Wheel), p(pos), d(delta), mouseState(buttons),
+      keyState(modifiers), o(orient)
+{
+    g = QCursor::pos();
+}
 
 #ifdef QT_COMPAT
 QWheelEvent::QWheelEvent(const QPoint &pos, int delta, int state, Qt::Orientation orient)
@@ -336,7 +346,27 @@ QWheelEvent::QWheelEvent(const QPoint &pos, int delta, int state, Qt::Orientatio
     mouseState = Qt::MouseButtons(state & Qt::MouseButtonMask);
     keyState = Qt::KeyboardModifiers(state & Qt::KeyboardModifierMask);
 }
+#endif
 
+/*!
+    Constructs a wheel event object.
+
+    The \a pos provides the location of the mouse cursor
+    within the widget. The position in global coordinates is specified
+    by \a globalPos. \a delta contains the rotation distance, \a modifiers
+    holds the keyboard modifier flags at the time of the event, and
+    \a orient holds the wheel's orientation.
+
+    \sa pos() globalPos() delta() state()
+*/
+QWheelEvent::QWheelEvent(const QPoint &pos, const QPoint& globalPos, int delta,
+                         Qt::MouseButtons buttons, Qt::KeyboardModifiers modifiers,
+                         Qt::Orientation orient)
+    : QInputEvent(Wheel), p(pos), g(globalPos), d(delta), mouseState(buttons),
+      keyState(modifiers), o(orient)
+{}
+
+#ifdef QT_COMPAT
 QWheelEvent::QWheelEvent(const QPoint &pos, const QPoint& globalPos, int delta, int state,
                          Qt::Orientation orient)
     : QInputEvent(Wheel), p(pos), g(globalPos), d(delta), o(orient)
@@ -345,29 +375,7 @@ QWheelEvent::QWheelEvent(const QPoint &pos, const QPoint& globalPos, int delta, 
     keyState = Qt::KeyboardModifiers(state & Qt::KeyboardModifierMask);
 }
 #endif
-
-QWheelEvent::QWheelEvent(const QPoint &pos, int delta,
-                         Qt::MouseButtons buttons, Qt::KeyboardModifiers modifiers,
-                         Qt::Orientation orient)
-    : QInputEvent(Wheel), p(pos), d(delta), mouseState(buttons),
-      keyState(modifiers), o(orient)
-{
-    g = QCursor::pos();
-}
-#endif
-/*!
-    \fn QWheelEvent::QWheelEvent(const QPoint &position, const QPoint &globalPos, int delta, Qt::MouseButtons buttons, Qt::KeyboardModifiers modifiers, Qt::Orientation orient = Qt::Vertical )
-
-    Constructs a wheel event object.
-
-    The \a position provides the location of the mouse cursor
-    within the widget. The position in global coordinates is specified
-    by \a globalPos. \a delta contains the rotation distance, \a state
-    holds the keyboard modifier flags at the time of the event, and
-    \a orient holds the wheel's orientation.
-
-    \sa pos() globalPos() delta() state()
-*/
+#endif // QT_NO_WHEELEVENT
 
 /*!
     \fn int QWheelEvent::delta() const
@@ -500,8 +508,6 @@ QWheelEvent::QWheelEvent(const QPoint &pos, int delta,
 */
 
 /*!
-    \fn QKeyEvent::QKeyEvent(Type type, int key, Qt::KeyboardModifiers modifiers, const QString& text, bool autorep, ushort count)
-
     Constructs a key event object.
 
     The \a type parameter must be \c QEvent::KeyPress or \c
@@ -512,6 +518,13 @@ QWheelEvent::QWheelEvent(const QPoint &pos, int delta,
     key generated. If \a autorep is true, isAutoRepeat() will be
     true. \a count is the number of keys involved in the event.
 */
+QKeyEvent::QKeyEvent(Type type, int key, Qt::KeyboardModifiers modifiers, const QString& text,
+                     bool autorep, ushort count)
+    : QInputEvent(type), txt(text), k(key), m(modifiers), c(count), autor(autorep)
+{
+    if(key >= Qt::Key_Back && key <= Qt::Key_MediaLast)
+        ignore();
+}
 
 /*!
     \fn int QKeyEvent::key() const
@@ -881,15 +894,14 @@ Qt::KeyboardModifiers QKeyEvent::modifiers() const
 */
 
 /*!
-    \fn QFocusEvent::QFocusEvent(Type type)
-
     Constructs a focus event object.
 
     The \a type parameter must be either \c QEvent::FocusIn or \c
     QEvent::FocusOut.
 */
-
-
+QFocusEvent::QFocusEvent(Type type)
+    : QEvent(type)
+{}
 
 QFocusEvent::Reason QFocusEvent::m_reason = QFocusEvent::Other;
 QFocusEvent::Reason QFocusEvent::prev_reason = QFocusEvent::Other;
@@ -985,27 +997,30 @@ void QFocusEvent::resetReason()
 */
 
 /*!
-    \fn QPaintEvent::QPaintEvent(const QRegion &paintRegion)
-
     Constructs a paint event object with the region that needs to
     be updated. The region is specified by \a paintRegion.
 */
+QPaintEvent::QPaintEvent(const QRegion& paintRegion)
+    : QEvent(Paint), rec(paintRegion.boundingRect()), reg(paintRegion)
+{}
 
 /*!
-    \fn QPaintEvent::QPaintEvent(const QRect &paintRect)
-
     Constructs a paint event object with the rectangle that needs
     to be updated. The region is specified by \a paintRect.
 */
+QPaintEvent::QPaintEvent(const QRect &paintRect)
+    : QEvent(Paint), rec(paintRect),reg(paintRect)
+{}
 
 /*!
-    \fn QPaintEvent::QPaintEvent(const QRegion &region, const QRect &rectangle)
-
     Constructs a paint event object with both a \a region and
     a \a rectangle, both of which represent the area of the
     widget that needs to be updated.
 
 */
+QPaintEvent::QPaintEvent(const QRegion &paintRegion, const QRect &rectangle)
+    : QEvent(Paint), rec(rectangle), reg(paintRegion)
+{}
 
 /*!
     \fn const QRect &QPaintEvent::rect() const
@@ -1023,6 +1038,18 @@ void QFocusEvent::resetReason()
     \sa rect() QPainter::setClipRegion()
 */
 
+
+#ifdef Q_WS_QWS
+QWSUpdateEvent::QWSUpdateEvent(const QRegion& paintRegion)
+    : QPaintEvent(paintRegion)
+{ t = QWSUpdate; }
+
+QWSUpdateEvent::QWSUpdateEvent(const QRect &paintRect)
+    : QPaintEvent(paintRect)
+{ t = QWSUpdate; }
+#endif
+
+
 /*!
     \class QMoveEvent qevent.h
     \brief The QMoveEvent class contains event parameters for move events.
@@ -1038,11 +1065,12 @@ void QFocusEvent::resetReason()
 */
 
 /*!
-    \fn QMoveEvent::QMoveEvent(const QPoint &pos, const QPoint &oldPos)
-
     Constructs a move event with the new and old widget positions,
     \a pos and \a oldPos respectively.
 */
+QMoveEvent::QMoveEvent(const QPoint &pos, const QPoint &oldPos)
+    : QEvent(Move), p(pos), oldp(oldPos)
+{}
 
 /*!
     \fn const QPoint &QMoveEvent::pos() const
@@ -1072,11 +1100,12 @@ void QFocusEvent::resetReason()
 */
 
 /*!
-    \fn QResizeEvent::QResizeEvent(const QSize &size, const QSize &oldSize)
-
     Constructs a resize event with the new and old widget sizes, \a
     size and \a oldSize respectively.
 */
+QResizeEvent::QResizeEvent(const QSize &size, const QSize &oldSize)
+    : QEvent(Resize), s(size), olds(oldSize)
+{}
 
 /*!
     \fn const QSize &QResizeEvent::size() const
@@ -1148,13 +1177,13 @@ void QFocusEvent::resetReason()
 */
 
 /*!
-    \fn QCloseEvent::QCloseEvent()
-
     Constructs a close event object.
 
     \sa accept()
 */
-
+QCloseEvent::QCloseEvent()
+    : QInputEvent(Close)
+{}
 
 /*!
    \class QIconDragEvent qevent.h
@@ -1174,13 +1203,14 @@ void QFocusEvent::resetReason()
 */
 
 /*!
-    \fn QIconDragEvent::QIconDragEvent()
-
     Constructs an icon drag event object with the accept flag set to
     false.
 
     \sa accept()
 */
+QIconDragEvent::QIconDragEvent()
+    : QEvent(IconDrag), accpt(FALSE)
+{}
 
 /*!
     \fn bool QIconDragEvent::isAccepted() const
@@ -1239,7 +1269,7 @@ void QFocusEvent::resetReason()
 */
 
 /*!
-    \fn QContextMenuEvent::QContextMenuEvent(Reason reason, const QPoint &pos, const QPoint &globalPos, int state)
+    \fn QContextMenuEvent::QContextMenuEvent(Reason reason, const QPoint &pos, const QPoint &globalPos)
 
     Constructs a context menu event object with the accept parameter
     flag set to false.
@@ -1249,26 +1279,20 @@ void QFocusEvent::resetReason()
 
     The \a pos parameter specifies the mouse position relative to the
     receiving widget. \a globalPos is the mouse position in absolute
-    coordinates. \a state is the Qt::ButtonState at the time of the event.
+    coordinates.
 */
+QContextMenuEvent::QContextMenuEvent(Reason reason, const QPoint &pos, const QPoint &globalPos)
+    : QInputEvent(ContextMenu), p(pos), gp(globalPos), reas(reason)
+{}
 
 #ifdef QT_COMPAT
-Qt::ButtonState QContextMenuEvent::state() const
-{
-    return Qt::ButtonState(int(QApplication::keyboardModifiers())|QApplication::mouseButtons());
-}
-
-QContextMenuEvent::QContextMenuEvent(Reason reason, const QPoint &pos, int)
-    : QInputEvent(ContextMenu), p(pos), reas(reason)
-{
-    gp = QCursor::pos();
-}
+QContextMenuEvent::QContextMenuEvent(Reason reason, const QPoint &pos, const QPoint &globalPos,
+                                     int)
+    : QInputEvent(ContextMenu), p(pos), gp(globalPos), reas(reason)
+{}
 #endif
 
-
 /*!
-    \fn QContextMenuEvent::QContextMenuEvent(Reason reason, const QPoint &pos, int state)
-
     Constructs a context menu event object with the accept parameter
     flag set to false.
 
@@ -1276,19 +1300,30 @@ QContextMenuEvent::QContextMenuEvent(Reason reason, const QPoint &pos, int)
     QContextMenuEvent::Keyboard.
 
     The \a pos parameter specifies the mouse position relative to the
-    receiving widget. \a state is the Qt::ButtonState at the time of the
-    event.
+    receiving widget.
 
     The globalPos() is initialized to QCursor::pos(), which may not be
     appropriate. Use the other constructor to specify the global
     position explicitly.
 */
-
 QContextMenuEvent::QContextMenuEvent(Reason reason, const QPoint &pos)
     : QInputEvent(ContextMenu), p(pos), reas(reason)
 {
     gp = QCursor::pos();
 }
+
+#ifdef QT_COMPAT
+QContextMenuEvent::QContextMenuEvent(Reason reason, const QPoint &pos, int)
+    : QInputEvent(ContextMenu), p(pos), reas(reason)
+{
+    gp = QCursor::pos();
+}
+
+Qt::ButtonState QContextMenuEvent::state() const
+{
+    return Qt::ButtonState(int(QApplication::keyboardModifiers())|QApplication::mouseButtons());
+}
+#endif
 
 /*!
     \fn const QPoint &QContextMenuEvent::pos() const
@@ -1449,14 +1484,15 @@ QContextMenuEvent::QContextMenuEvent(Reason reason, const QPoint &pos)
 */
 
 /*!
-    \fn QIMEvent::QIMEvent(Type type, const QString &text, int cursorPosition, int selLength)
-
     Constructs a new QIMEvent with the accept flag set to false.  The
     event \a type can be QEvent::IMStart, QEvent::IMCompose, or
     QEvent::IMEnd. The \a text contains the current compostion string,
     and \a cursorPosition is the current position of the cursor inside
     the \a text.  \a selLength characters are selected (default is 0).
 */
+QIMEvent::QIMEvent(Type type, const QString &text, int cursorPosition, int selLength)
+    : QInputEvent(type), txt(text), cpos(cursorPosition), selLen(selLength)
+{}
 
 /*!
     \fn const QString &QIMEvent::text() const
@@ -1713,14 +1749,15 @@ QTabletEvent::QTabletEvent(Type t, const QPoint &pos, const QPoint &globalPos, c
 */
 
 /*!
-    \fn QDragMoveEvent::QDragMoveEvent(const QPoint &point, Type type)
-
     Creates a QDragMoveEvent of the required \a type indicating
     that the mouse is at the \a point given within a widget.
 
     \warning Do not create a QDragMoveEvent yourself since these
     objects rely on Qt's internal state.
 */
+QDragMoveEvent::QDragMoveEvent(const QPoint& pos, Type type)
+    : QDropEvent(pos, type), rect(pos, QSize(1, 1))
+{}
 
 /*!
     \fn void QDragMoveEvent::accept(bool y)
@@ -1767,6 +1804,9 @@ QTabletEvent::QTabletEvent(Type t, const QPoint &pos, const QPoint &globalPos, c
 */
 
 
+QDropEvent::QDropEvent(const QPoint& pos, Type typ)
+    : QEvent(typ), p(pos), act(0), accpt(0), accptact(0), resv(0)
+{}
 
 /*!
     \fn const QPoint& QDropEvent::pos() const
@@ -1884,14 +1924,19 @@ QTabletEvent::QTabletEvent(Type t, const QPoint &pos, const QPoint &globalPos, c
 */
 
 /*!
-    \fn QDragEnterEvent::QDragEnterEvent (const QPoint &point)
-
     Constructs a QDragEnterEvent that represents a drag entering
     a widget at the given \a point.
 
     \warning Do not create a QDragEnterEvent yourself since these
     objects rely on Qt's internal state.
 */
+QDragEnterEvent::QDragEnterEvent(const QPoint& point)
+    : QDragMoveEvent(point, DragEnter)
+{}
+
+QDragResponseEvent::QDragResponseEvent(bool accepted)
+    : QEvent(DragResponse), a(accepted)
+{}
 
 /*!
     \class QDragLeaveEvent qevent.h
@@ -1908,13 +1953,32 @@ QTabletEvent::QTabletEvent(Type t, const QPoint &pos, const QPoint &globalPos, c
 */
 
 /*!
-    \fn QDragLeaveEvent::QDragLeaveEvent()
-
     Constructs a QDragLeaveEvent.
 
     \warning Do not create a QDragLeaveEvent yourself since these
     objects rely on Qt's internal state.
 */
+QDragLeaveEvent::QDragLeaveEvent()
+    : QEvent(DragLeave)
+{}
+
+
+QHelpEvent::QHelpEvent(Type type, const QPoint &pos, const QPoint &globalPos)
+    : QEvent(type), p(pos), gp(globalPos)
+{}
+
+QStatusTipEvent::QStatusTipEvent(const QString &tip)
+    : QEvent(StatusTip), s(tip)
+{}
+
+QWhatsThisClickedEvent::QWhatsThisClickedEvent(const QString &href)
+    : QEvent(WhatsThisClicked), s(href)
+{}
+
+QActionEvent::QActionEvent(int type, QAction *action, QAction *before)
+    : QEvent(static_cast<QEvent::Type>(type)), act(action), bef(before)
+{}
+
 
 /*!
     \class QHideEvent qevent.h
@@ -1936,10 +2000,11 @@ QTabletEvent::QTabletEvent(Type t, const QPoint &pos, const QPoint &globalPos, c
 */
 
 /*!
-    \fn QHideEvent::QHideEvent()
-
     Constructs a QHideEvent.
 */
+QHideEvent::QHideEvent()
+    : QEvent(Hide)
+{}
 
 /*!
     \class QShowEvent qevent.h
@@ -1958,10 +2023,11 @@ QTabletEvent::QTabletEvent(Type t, const QPoint &pos, const QPoint &globalPos, c
 */
 
 /*!
-    \fn QShowEvent::QShowEvent()
-
     Constructs a QShowEvent.
 */
+QShowEvent::QShowEvent()
+    : QEvent(Show)
+{}
 
 
 /*!
@@ -1991,12 +2057,13 @@ QTabletEvent::QTabletEvent(Type t, const QPoint &pos, const QPoint &globalPos, c
 */
 
 /*!
-    \fn QFileOpenEvent::QFileOpenEvent(const QString &file)
-
     \internal
 
     Constructs a file open event for the given \a file.
 */
+QFileOpenEvent::QFileOpenEvent(const QString &file)
+    : QEvent(FileOpen), f(file)
+{}
 
 /*!
     \fn QString QFileOpenEvent::file() const
@@ -2018,12 +2085,13 @@ QTabletEvent::QTabletEvent(Type t, const QPoint &pos, const QPoint &globalPos, c
 */
 
 /*
-    \fn QToolBarChangeEvent::QToolBarChangeEvent(int state)
-
     \internal
 
     Construct a QToolBarChangeEvent given the current button state in \a state.
 */
+QToolBarChangeEvent::QToolBarChangeEvent(bool t)
+    : QEvent(ToolBarChange), tog(t)
+{}
 
 /*
     \fn Qt::ButtonState QToolBarChangeEvent::state() const
@@ -2034,6 +2102,11 @@ QTabletEvent::QTabletEvent(Type t, const QPoint &pos, const QPoint &globalPos, c
     combined using the OR operator:
     \c Qt::ShiftButton, \c Qt::ControlButton, \c Qt::MetaButton, and \c Qt::AltButton.
 */
+
+QShortcutEvent::QShortcutEvent(const QKeySequence &key, int id, bool ambiguous)
+    : QEvent(Shortcut), sequence(key), ambig(ambiguous), sid(id)
+{}
+
 
 #ifndef QT_NO_DEBUG
 QDebug operator<<(QDebug dbg, const QEvent *e) {

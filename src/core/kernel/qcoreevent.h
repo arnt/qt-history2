@@ -16,6 +16,7 @@
 
 #include <qnamespace.h>
 
+class QEventPrivate;
 class Q_CORE_EXPORT QEvent           // event base class
 {
 public:
@@ -155,12 +156,15 @@ public:
         MaxUser = 65535                         // last user event id
     };
 
-    QEvent(Type type) : t(type), posted(FALSE), spont(FALSE) {}
+    QEvent(Type type);
     virtual ~QEvent();
     inline Type type() const { return static_cast<Type>(t); }
     inline bool spontaneous() const { return spont; }
+
 protected:
-    ushort  t;
+    ushort t;
+    QEventPrivate *d;
+
 private:
     ushort posted : 1;
     ushort spont : 1;
@@ -176,11 +180,10 @@ private:
 class Q_CORE_EXPORT QTimerEvent : public QEvent
 {
 public:
-    QTimerEvent( int timerId )
-        : QEvent(Timer), id(timerId) {}
-    int   timerId()     const   { return id; }
+    QTimerEvent( int timerId );
+    int timerId() const { return id; }
 protected:
-    int   id;
+    int id;
 };
 
 class QObject;
@@ -188,8 +191,7 @@ class QObject;
 class Q_CORE_EXPORT QChildEvent : public QEvent
 {
 public:
-    QChildEvent( Type type, QObject *child )
-        : QEvent(type), c(child) {}
+    QChildEvent( Type type, QObject *child );
     QObject *child() const { return c; }
     bool added() const { return type() == ChildAdded; }
 #ifdef QT_COMPAT
@@ -201,15 +203,14 @@ protected:
     QObject *c;
 };
 
-class Q_CORE_EXPORT QCustomEvent : public QEvent
+#ifdef QT_COMPAT
+class QT_COMPAT Q_CORE_EXPORT QCustomEvent : public QEvent
 {
 public:
-    QCustomEvent(int type, void *data = 0)
-        : QEvent(static_cast<Type>(type)), d(data) {}
-    void       *data()  const   { return d; }
-    void        setData( void* data )   { d = data; }
-private:
-    void       *d;
+    QCustomEvent(int type, void *data = 0);
+    void *data()  const { return d; }
+    void setData(void* data) { d = reinterpret_cast<QEventPrivate *>(data); }
 };
+#endif // QT_COMPAT
 
 #endif // QCOREEVENT_H

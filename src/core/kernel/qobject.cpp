@@ -875,17 +875,17 @@ void QObject::childEvent(QChildEvent *)
 
 
 /*!
-    \fn void QObject::customEvent(QCustomEvent *event)
+    \fn void QObject::customEvent(QEvent *event)
 
     This event handler can be reimplemented in a subclass to receive
     custom events. Custom events are user-defined events with a type
     value at least as large as the \c User item of the \l QEvent::Type
-    enum, and is typically a QCustomEvent or QCustomEvent subclass.
+    enum, and is typically a QEvent subclass.
     The event is passed in the \a event parameter.
 
-    \sa event(), QCustomEvent
+    \sa event(), QEvent
 */
-void QObject::customEvent(QCustomEvent *)
+void QObject::customEvent(QEvent *)
 {
 }
 

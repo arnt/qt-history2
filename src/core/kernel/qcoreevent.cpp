@@ -189,11 +189,13 @@
 
     User events should have values between User and MaxUser inclusive.
 */
-/*!
-    \fn QEvent::QEvent(Type type)
 
+/*!
     Contructs an event object of type \a type.
 */
+QEvent::QEvent(Type type)
+    : t(type), d(0), posted(FALSE), spont(FALSE)
+{}
 
 /*!
   Destroys the event. If it was \link
@@ -242,11 +244,12 @@ QEvent::~QEvent()
 */
 
 /*!
-    \fn QTimerEvent::QTimerEvent(int timerId)
-
     Constructs a timer event object with the timer identifier set to
     \a timerId.
 */
+QTimerEvent::QTimerEvent(int timerId)
+    : QEvent(Timer), id(timerId)
+{}
 
 /*!
     \fn int QTimerEvent::timerId() const
@@ -274,11 +277,12 @@ QEvent::~QEvent()
 */
 
 /*!
-    \fn QChildEvent::QChildEvent(Type type, QObject *child)
-
     Constructs a child event object of a particular \a type for the
     \a child.
 */
+QChildEvent::QChildEvent(Type type, QObject *child)
+    : QEvent(type), c(child)
+{}
 
 /*!
     \fn QObject *QChildEvent::child() const
@@ -373,12 +377,21 @@ QEvent::~QEvent()
 /*!
     \fn QCustomEvent::QCustomEvent(int type, void *data)
 
+    \compat
+
     Constructs a custom event object with the event \a type and a
     pointer to \a data. The value of \a type must be at least as
     large as QEvent::User. By default, the data pointer is set to 0.
 
 
 */
+#ifdef QT_COMPAT
+QCustomEvent::QCustomEvent(int type, void *data)
+    : QEvent(static_cast<Type>(type))
+{
+    d = reinterpret_cast<QEventPrivate *>(data);
+}
+#endif // QT_COMPAT
 
 /*!
     \fn void QCustomEvent::setData(void *data)
