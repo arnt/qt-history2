@@ -75,7 +75,7 @@ bool AnalogClockPlugin::isForm() const
 
 QString AnalogClockPlugin::domXml() const
 {
-    return QLatin1String("<widget class=\"AnalogClock\" name=\"AnalogClock\">\n"
+    return QLatin1String("<widget class=\"AnalogClock\" name=\"analogClock\">\n"
                          " <property name=\"geometry\">\n"
                          "  <rect>\n"
                          "   <x>0</x>\n"
