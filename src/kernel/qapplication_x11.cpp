@@ -1451,15 +1451,19 @@ void qt_init_internal( int *argcptr, char **argv,
 
 	// Read global settings file
 #if !defined(QT_NO_XIM)
-	QString ximInputStyle = QSettings().readEntry( "/qt/XIMInputStyle", "On the Spot" ).lower();
-	if ( ximInputStyle == "on the spot" )
-	    xim_preferred_style = XIMPreeditCallbacks | XIMStatusNothing;
-	else if ( ximInputStyle == "over the spot" )
-	    xim_preferred_style = XIMPreeditPosition | XIMStatusNothing;
-	else if ( ximInputStyle == "off the spot" )
-	    xim_preferred_style = XIMPreeditArea | XIMStatusArea;
-	else if ( ximInputStyle == "root" )
-	    xim_preferred_style = XIMPreeditNothing | XIMStatusNothing;
+	if ( QApplication::desktopSettingsAware() ) {
+	    QString ximInputStyle =
+		QSettings().readEntry( "/qt/XIMInputStyle",
+				       QObject::trUtf8( "On The Spot" ) ).lower();
+	    if ( ximInputStyle == "on the spot" )
+		xim_preferred_style = XIMPreeditCallbacks | XIMStatusNothing;
+	    else if ( ximInputStyle == "over the spot" )
+		xim_preferred_style = XIMPreeditPosition | XIMStatusNothing;
+	    else if ( ximInputStyle == "off the spot" )
+		xim_preferred_style = XIMPreeditArea | XIMStatusArea;
+	    else if ( ximInputStyle == "root" )
+		xim_preferred_style = XIMPreeditNothing | XIMStatusNothing;
+	}
 #endif
 
 	// Get command line params
@@ -2131,31 +2135,32 @@ void qt_init_internal( int *argcptr, char **argv,
     } else {
 	// read some non-GUI settings when not using the X server...
 
-	QSettings settings;
+	if ( QApplication::desktopSettingsAware() ) {
+	    QSettings settings;
 
-	// read library (ie. plugin) path list
-	QString libpathkey =
-	    QString("/qt/%1.%2/libraryPath").arg( QT_VERSION >> 16 ).arg( (QT_VERSION & 0xff00 ) >> 8 );
-	QStringList pathlist =
-	    settings.readListEntry(libpathkey, ':');
-	if (! pathlist.isEmpty()) {
-	    QStringList::ConstIterator it = pathlist.begin();
-	    while (it != pathlist.end())
-		QApplication::addLibraryPath(*it++);
+	    // read library (ie. plugin) path list
+	    QString libpathkey = QString("/qt/%1.%2/libraryPath")
+				 .arg( QT_VERSION >> 16 )
+				 .arg( (QT_VERSION & 0xff00 ) >> 8 );
+	    QStringList pathlist =
+		settings.readListEntry(libpathkey, ':');
+	    if (! pathlist.isEmpty()) {
+		QStringList::ConstIterator it = pathlist.begin();
+		while (it != pathlist.end())
+		    QApplication::addLibraryPath(*it++);
+	    }
+
+	    QString defaultcodec = settings.readEntry("/qt/defaultCodec", "none");
+	    if (defaultcodec != "none") {
+		QTextCodec *codec = QTextCodec::codecForName(defaultcodec);
+		if (codec)
+		    qApp->setDefaultCodec(codec);
+	    }
+
+	    qt_resolve_symlinks =
+		settings.readBoolEntry("/qt/resolveSymlinks", TRUE);
 	}
-
-	QString defaultcodec = settings.readEntry("/qt/defaultCodec", "none");
-	if (defaultcodec != "none") {
-	    QTextCodec *codec = QTextCodec::codecForName(defaultcodec);
-	    if (codec)
-		qApp->setDefaultCodec(codec);
-	}
-
-	qt_resolve_symlinks =
-	    settings.readBoolEntry("/qt/resolveSymlinks", TRUE);
     }
-
-
 }
 
 
