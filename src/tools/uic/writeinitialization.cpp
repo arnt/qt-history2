@@ -160,7 +160,7 @@ void WriteInitialization::accept(DomWidget *node)
 
     QString label = fixString(QLatin1String("Page"));
     if (attributes.contains("label"))
-        title = fixString(attributes.value("label")->elementString());
+        label = fixString(attributes.value("label")->elementString());
 
     int id = -1;
     if (attributes.contains("id"))
