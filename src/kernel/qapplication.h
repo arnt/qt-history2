@@ -225,6 +225,9 @@ public:
     static bool	    isEffectEnabled( Qt::UIEffect );
     static void	    setEffectEnabled( Qt::UIEffect, bool enable = TRUE );
 
+    static bool	    metaComposedUnicode();
+    static void	    setMetaComposedUnicode( bool enable = TRUE );
+
 #if defined(Q_WS_MAC)
     virtual bool     macEventFilter( EventHandlerCallRef, EventRef );
 #endif
@@ -351,6 +354,7 @@ private:
     static int	     cursor_flash_time;
     static int	     mouse_double_click_time;
     static int	     wheel_scroll_lines;
+    static int	     composedUnicode; // Value, meta-composed character
 
     static bool	     animate_ui;
     static bool	     animate_menu;
@@ -359,6 +363,7 @@ private:
     static bool	     fade_menu;
     static bool	     fade_tooltip;
     static bool	     widgetCount; // Coupled with -widgetcount switch
+    static bool	     metaComposeUnicode;
 
     QValueList<QTranslator*> *translators;
 #ifndef QT_NO_SESSIONMANAGER

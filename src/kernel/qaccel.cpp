@@ -173,6 +173,7 @@ public:
     void unregisterAccel( QAccelPrivate* a ) { accels.removeRef( a ); if ( accels.isEmpty() ) delete this; }
     bool tryAccelEvent( QWidget* w, QKeyEvent* e );
     bool dispatchAccelEvent( QWidget* w, QKeyEvent* e );
+    bool tryComposeUnicode( QWidget* w, QKeyEvent* e );
 
 private:
     QAccelManager():currentState(Qt::NoMatch), clash(-1) { self_ptr = this; }
@@ -196,6 +197,10 @@ bool Q_EXPORT qt_tryAccelEvent( QWidget* w, QKeyEvent*  e){
 
 bool Q_EXPORT qt_dispatchAccelEvent( QWidget* w, QKeyEvent*  e){
     return QAccelManager::self()->dispatchAccelEvent( w, e );
+}
+
+bool Q_EXPORT qt_tryComposeUnicode( QWidget* w, QKeyEvent*  e){
+    return QAccelManager::self()->tryComposeUnicode( w, e );
 }
 
 /*
@@ -315,6 +320,55 @@ bool QAccelManager::tryAccelEvent( QWidget* w, QKeyEvent* e )
     QApplication::sendSpontaneousEvent( w, e );
     if ( e->isAccepted() )
 	return TRUE;
+    return FALSE;
+}
+
+bool QAccelManager::tryComposeUnicode( QWidget* w, QKeyEvent* e )
+{
+    if ( QApplication::metaComposeUnicode ) {
+	int value = e->key() - Key_0;
+	// Ignore acceloverrides so we don't trigger
+	// accels on keypad when Meta compose is on
+	if ( (e->type() == QEvent::AccelOverride) &&
+	     (e->state() == Qt::Keypad + Qt::MetaButton) ) {
+	    e->accept();
+	// Meta compose start/continue
+	} else if ( (e->type() == QEvent::KeyPress) &&
+	     (e->state() == Qt::Keypad + Qt::MetaButton) ) {
+	    if ( value >= 0 && value <= 9 ) {
+		QApplication::composedUnicode *= 10;
+		QApplication::composedUnicode += value;
+		return TRUE;
+	    } else {
+		// Composing interrupted, dispatch!
+		if ( QApplication::composedUnicode ) {
+		    QChar ch( QApplication::composedUnicode );
+		    QString s( ch );
+		    QKeyEvent kep( QEvent::KeyPress, 0, ch.row() ? 0 : ch.cell(), 0, s );
+		    QKeyEvent ker( QEvent::KeyRelease, 0, ch.row() ? 0 : ch.cell(), 0, s );
+		    QApplication::sendEvent( w, &kep );
+		    QApplication::sendEvent( w, &ker );
+		}
+		QApplication::composedUnicode = 0;
+		return TRUE;
+	    }
+	// Meta compose end, dispatch
+	} else if ( (e->type() == QEvent::KeyRelease) &&
+		    (e->key() == Key_Meta) &&
+		    (QApplication::composedUnicode != 0) ) {
+	    if ( (QApplication::composedUnicode > 0) && 
+		 (QApplication::composedUnicode < 0xFFFE) ) {
+		QChar ch( QApplication::composedUnicode );
+		QString s( ch );
+		QKeyEvent kep( QEvent::KeyPress, 0, ch.row() ? 0 : ch.cell(), 0, s );
+		QKeyEvent ker( QEvent::KeyRelease, 0, ch.row() ? 0 : ch.cell(), 0, s );
+		QApplication::sendEvent( w, &kep );
+		QApplication::sendEvent( w, &ker );
+	    }
+	    QApplication::composedUnicode = 0;
+	    return TRUE;
+	}
+    }
     return FALSE;
 }
 

@@ -356,6 +356,8 @@ QApplication::Type qt_appType=QApplication::Tty;
 #ifndef QT_NO_COMPONENT
 QStringList *QApplication::app_libpaths = 0;
 #endif
+bool	  QApplication::metaComposeUnicode = FALSE;
+int	  QApplication::composedUnicode   = 0;
 
 #ifdef QT_THREAD_SUPPORT
 QMutex *QApplication::qt_mutex		= 0;
@@ -365,6 +367,7 @@ static QMutex *postevent_mutex		= 0;
 QEventLoop *QApplication::eventloop = 0;	// application event loop
 
 extern bool qt_dispatchAccelEvent( QWidget*, QKeyEvent* ); // def in qaccel.cpp
+extern bool qt_tryComposeUnicode( QWidget*, QKeyEvent* ); // def in qaccel.cpp
 
 
 #if defined(QT_TABLET_SUPPORT)
@@ -2278,6 +2281,10 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
 	{
 	    QWidget* w = (QWidget*)receiver;
 	    QKeyEvent* key = (QKeyEvent*) e;
+
+	    if ( qt_tryComposeUnicode( w, key ) )
+		break;
+
 	    bool def = key->isAccepted();
 	    while ( w ) {
 		if ( def )
@@ -3890,6 +3897,33 @@ void QApplication::setReverseLayout( bool b )
 bool QApplication::reverseLayout()
 {
     return reverse_layout;
+}
+
+
+/*!
+    If TRUE the user may compose unicode characters by holding down
+    the meta key and enter the unicode value with the keypad. This
+    mode will override any Meta + <number> accelerator by using the
+    numeric pad, but these accelerators may still be triggered by
+    using the numeric values on the main keyboard.
+    The composed characters cannot be used to trigger accelerators.
+
+  \sa metaComposedUnicode()
+*/
+void QApplication::setMetaComposedUnicode( bool enable )
+{
+    metaComposeUnicode = enable;
+}
+
+/*!
+    Returns TRUE if user may compose unicode characters by holding
+    down the meta key and enter the unicode value with the keypad.
+
+  \sa setMetaComposedUnicode()
+*/
+bool QApplication::metaComposedUnicode()
+{
+    return metaComposeUnicode;
 }
 
 
