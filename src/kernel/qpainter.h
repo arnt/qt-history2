@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#110 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#111 $
 **
 ** Definition of QPainter class
 **
@@ -308,7 +308,7 @@ protected:
     friend class QFontMetrics;
     friend class QFontInfo;
     friend void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
-		     int tf, const char *str, int len, QRect *brect,
+		     int tf, QString str, int len, QRect *brect,
 		     int tabstops, int* tabarray, int tabarraylen,
 		     char **internal, QPainter* painter );
 

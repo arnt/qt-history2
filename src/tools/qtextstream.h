@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.h#30 $
+** $Id: //depot/qt/main/src/tools/qtextstream.h#31 $
 **
 ** Definition of QTextStream class
 **
@@ -38,7 +38,7 @@ public:
 	Ascii,
 	UnicodeBigEndian,
 	UnicodeLittleEndian,
-	Unicode=UnicodeBigEndian,
+	Unicode=UnicodeLittleEndian,
     };
 
     void	 setCharacterMode(CharacterMode);

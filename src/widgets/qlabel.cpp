@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#80 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#81 $
 **
 ** Implementation of QLabel widget class
 **
@@ -128,7 +128,7 @@ QLabel::QLabel( QWidget *parent, const char *name, WFlags f )
   \sa setAlignment(), setFrameStyle(), setMargin(), setAutoResize()
 */
 
-QLabel::QLabel( const char *text, QWidget *parent, const char *name, WFlags f )
+QLabel::QLabel( QString text, QWidget *parent, const char *name, WFlags f )
 	: QFrame( parent, name, f ), ltext(text)
 {
     lpixmap    = 0;
@@ -164,7 +164,7 @@ QLabel::QLabel( const char *text, QWidget *parent, const char *name, WFlags f )
   \sa setText(), setBuddy()
 */
 
-QLabel::QLabel( QWidget *buddy,  const char *text,
+QLabel::QLabel( QWidget *buddy,  QString text,
 		QWidget *parent, const char *name, WFlags f )
     : QFrame( parent, name, f ), ltext("")
 {
@@ -191,7 +191,7 @@ QLabel::~QLabel()
 
 
 /*!
-  \fn const char *QLabel::text() const
+  \fn QString QLabel::text() const
   Returns the label text.
   \sa setText()
 */
@@ -206,7 +206,7 @@ QLabel::~QLabel()
   \sa text(), setPixmap(), setAutoResize()
 */
 
-void QLabel::setText( const char *text )
+void QLabel::setText( QString text )
 {
     unsetMovie();
     if ( ltext == text )

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdrawutil.cpp#28 $
+** $Id: //depot/qt/main/src/kernel/qdrawutil.cpp#29 $
 **
 ** Implementation of draw utilities
 **
@@ -532,7 +532,7 @@ void qDrawItem( QPainter *p, GUIStyle gs,
 		int flags, 
 		const QColorGroup &g, bool enabled,
 		const QPixmap *pixmap,
-		const char *text, int len )
+		QString text, int len )
 {
     p->setPen( g.text() );
     if ( pixmap ) {
@@ -583,7 +583,7 @@ void qDrawItem( QPainter *p, GUIStyle gs,
 	p->drawPixmap( x, y, pm );
 	if ( clip )
 	    p->setClipping( FALSE );
-    } else if ( text ) {
+    } else if ( !text.isNull() ) {
 	if ( gs == WindowsStyle && !enabled ) {
 	    p->setPen( g.light() );
 	    p->drawText( x+1, y+1, w, h, flags, text, len );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#143 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#144 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -1821,7 +1821,7 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
     if ( !isActive() )
 	return;
     if ( len < 0 )
-	len = strlen( str );
+	len = str.length();
     if ( len == 0 )				// empty string
 	return;
 
@@ -1855,7 +1855,7 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 
 
 void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
-		     int tf, const char *str, int len, QRect *brect,
+		     int tf, QString str, int len, QRect *brect,
 		     int tabstops, int* tabarray, int tabarraylen,
 		     char **internal, QPainter* painter )
 {
@@ -1873,27 +1873,32 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
 	int   codelen;				// length of encoding
     };
 
-    ushort codearray[200];
+    uint codearray[200];
     int	   codelen    = 200;
     bool   code_alloc = FALSE;
-    ushort *codes     = codearray;
-    ushort cc;					// character code
+    uint *codes     = codearray;
+    uint cc;					// character code
     bool   decode     = internal && *internal;	// decode from internal data
     bool   encode     = internal && !*internal; // build internal data
 
     if ( len > 150 && !decode ) {		// need to alloc code array
-	codelen = len + len/2;
-	codes	= (ushort *)malloc( codelen*sizeof(ushort) );
+	codelen = len + len/2; // ### enough? 200 != 150*1.5 -- WWA
+	codes	= (uint *)malloc( codelen*sizeof(uint) );
 	code_alloc = TRUE;
     }
 
-    const int BEGLINE  = 0x8000;		// encoding 0x8zzz, zzz=width
-    const int TABSTOP  = 0x4000;		// encoding 0x4zzz, zzz=tab pos
-    const int PREFIX   = 0x2000;		// encoding 0x20zz, zz=char
-    const int WIDTHBITS= 0x1fff;		// bits for width encoding
-    const int MAXWIDTH = 0x1fff;		// max width value
+    const int BEGLINE  = 0x80000000UL;	// encoding 0x8000zzzz, z=width
+    const int TABSTOP  = 0x40000000UL;	// encoding 0x4000zzzz, z=tab pos
+    const int PREFIX   = 0x20000000UL;	// encoding 0x2000hilo
+    const int HI       = 0x0000ff00UL;	//  hi,lo=QChar
+    const int LO       = 0x000000ffUL;
+    const int HI_SHIFT = 8;
+    const int LO_SHIFT = 0;
+    // An advanced display function might provide for different fonts, etc.
+    const int WIDTHBITS= 0x1fffffff;	// bits for width encoding
+    const int MAXWIDTH = 0x1fffffff;	// max width value
 
-    char *p = (char *)str;
+    QChar *p = str.unicode();
     int nlines;					// number of lines
     int index;					// index for codes
     int begline;				// index at beginning of line
@@ -1905,19 +1910,19 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
     int cw;					// character width
     int k;					// index for p
     int tw;					// text width
-    short charwidth[255];			// character widths
-    memset( charwidth, -1, 255*sizeof(short) );
 
-#undef	UCHAR
-#define UCHAR(x)  (uchar)(x)
-#define CWIDTH(x) (charwidth[UCHAR(x)]>=0 ? charwidth[UCHAR(x)] : (charwidth[UCHAR(x)]=fm.width(x)))
+#define CWIDTH(x) fm.width(x) // Could cache, but put that it in fm
+#define ENCCHAR(x) (((x).lo << LO_SHIFT) | ((x).hi << HI_SHIFT))
+#define DECCHAR(x) QChar(((x)&LO)>>LO_SHIFT,((x)&HI)>>HI_SHIFT)
+#define ISPRINT(x) ((x).hi || (x).lo>' ')
+// ##### should use (unicode) QChar::isPrint() -- WWA to AG
 
     bool wordbreak  = (tf & WordBreak)	== WordBreak;
     bool expandtabs = (tf & ExpandTabs) == ExpandTabs;
     bool singleline = (tf & SingleLine) == SingleLine;
     bool showprefix = (tf & ShowPrefix) == ShowPrefix;
 
-    int	 spacewidth = CWIDTH( (int)' ' );	// width of space char
+    int	 spacewidth = CWIDTH( ' ' );	// width of space char
 
     nlines = 0;
     index  = 1;					// first index contains BEGLINE
@@ -1935,23 +1940,23 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
 
     while ( k < len ) {				// convert string to codes
 
-	if ( UCHAR(*p) > 32 ) {			// printable character
+	if ( ISPRINT(*p) ) {			// printable character
 	    if ( *p == '&' && showprefix ) {
 		cc = '&';			// assume ampersand
 		if ( k < len-1 ) {
 		    k++;
 		    p++;
-		    if ( *p != '&' && UCHAR(*p) > 32 )
-			cc = PREFIX | UCHAR(*p);// use prefix char
+		    if ( *p != '&' && ISPRINT(*p) )
+			cc = PREFIX | ENCCHAR(*p);// use prefix char
 		}
 	    } else {
-		cc = UCHAR(*p);
+		cc = ENCCHAR(*p);
 	    }
-	    cw = CWIDTH( cc & 0xff );
+	    cw = CWIDTH(*p);
 
 	} else {				// not printable (except ' ')
 
-	    if ( *p == 32 ) {			// the space character
+	    if ( *p == ' ' ) {			// the space character
 		cc = ' ';
 		cw = spacewidth;
 	    } else if ( *p == '\n' ) {		// newline
@@ -2023,9 +2028,9 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
 	if ( index >= codelen - 1 ) {		// grow code array
 	    codelen *= 2;
 	    if ( code_alloc ) {
-		codes = (ushort *)realloc( codes, sizeof(ushort)*codelen );
+		codes = (uint *)realloc( codes, sizeof(uint)*codelen );
 	    } else {
-		codes = (ushort *)malloc( sizeof(ushort)*codelen );
+		codes = (uint *)malloc( sizeof(uint)*codelen );
 		code_alloc = TRUE;
 	    }
 	}
@@ -2046,7 +2051,7 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
 	maxwidth = ti->maxwidth;		// get internal values
 	nlines	 = ti->nlines;
 	codelen	 = ti->codelen;
-	codes	 = (ushort *)(data + sizeof(text_info));
+	codes	 = (uint *)(data + sizeof(text_info));
     } else {
 	codes[begline] = BEGLINE | QMIN(tw,MAXWIDTH);
 	maxwidth = QMAX(maxwidth,tw);
@@ -2056,7 +2061,7 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
     }
 
     if ( encode ) {				// build internal data
-	char	  *data = new char[sizeof(text_info)+codelen*sizeof(ushort)];
+	char	  *data = new char[sizeof(text_info)+codelen*sizeof(uint)];
 	text_info *ti	= (text_info*)data;
 	strncpy( ti->tag, "qptr", 4 );		// set tag
 	ti->w	     = w;			// save parameters
@@ -2066,7 +2071,7 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
 	ti->maxwidth = maxwidth;
 	ti->nlines   = nlines;
 	ti->codelen  = codelen;
-	memcpy( data+sizeof(text_info), codes, codelen*sizeof(ushort) );
+	memcpy( data+sizeof(text_info), codes, codelen*sizeof(uint) );
 	*internal = data;
     }
 
@@ -2074,8 +2079,6 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
     int	    fheight  = fm.height();
     int	    xp, yp;
     int	    xc;					// character xp
-    char    p_array[200];
-    bool    p_alloc;
 
     if ( (tf & AlignVCenter) == AlignVCenter )	// vertically centered text
 	yp = h/2 - nlines*fheight/2;
@@ -2135,15 +2138,6 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
     QRegion save_rgn = painter->crgn;		// save the current region
     bool    clip_on  = painter->testf(QPainter::ClipOn);
 
-    if ( len > 200 ) {
-	p = new char[len];			// buffer for printable string
-	CHECK_PTR( p );
-	p_alloc = TRUE;
-    } else {
-	p = p_array;
-	p_alloc = FALSE;
-    }
-
     if ( br.x() >= x && br.y() >= y && br.width() < w && br.height() < h )
 	tf |= DontClip;				// no need to clip
 
@@ -2186,10 +2180,9 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
 
     yp += fascent;
 
-    register ushort *cp = codes;
+    register uint *cp = codes;
 
     while ( *cp ) {				// finally, draw the text
-
 	tw = *cp++ & WIDTHBITS;			// text width
 
 	if ( tw == 0 ) {			// ignore empty line
@@ -2213,25 +2206,26 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
 
 	int bxc = xc;				// base x position (chars)
 	while ( TRUE ) {
-	    k = 0;
+	    QString chunk;
 	    while ( *cp && (*cp & (BEGLINE|TABSTOP)) == 0 ) {
 		if ( (*cp & PREFIX) == PREFIX ) {
-		    int xcpos = fm.width( p, k );
+		    int xcpos = fm.width( chunk );
 		    if ( pp )			// gray text
 			pp->fillRect( xc+xcpos, fascent+fm.underlinePos(),
-				      CWIDTH( *cp&0xff ), fm.lineWidth(),
+				      CWIDTH(DECCHAR(*cp)), fm.lineWidth(),
 				      color1 );
 		    else
 			painter->fillRect( x+xc+xcpos, y+yp+fm.underlinePos(),
-				  CWIDTH( *cp&0xff ), fm.lineWidth(),
+				  CWIDTH(DECCHAR(*cp)), fm.lineWidth(),
 				  painter->cpen.color() );
 		}
-		p[k++] = (char)*cp++;
+		chunk += DECCHAR(*cp);
+		++cp;
 	    }
 	    if ( pp )				// gray text
-		pp->drawText( xc, fascent, p, k );
+		pp->drawText( xc, fascent, chunk );
 	    else
-		painter->drawText( x+xc, y+yp, p, k );	// draw the text
+		painter->drawText( x+xc, y+yp, chunk );// draw the text
 	    if ( (*cp & TABSTOP) == TABSTOP ) {
 		int w = (*cp++ & WIDTHBITS);
 		xc = bxc + w;
@@ -2268,8 +2262,6 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
 	}
     }
 
-    if ( p_alloc )
-	delete [] p;
     if ( code_alloc )
 	free( codes );
 }

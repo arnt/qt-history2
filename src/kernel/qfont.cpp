@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#97 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#98 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -1755,12 +1755,6 @@ const QFont &QFontInfo::font() const
     return f;
 }
 
-// From qpainter.cpp
-void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
-		     int tf, const char *str, int len, QRect *brect,
-		     int tabstops, int* tabarray, int tabarraylen,
-		     char **internal, QPainter* painter );
-
 /*!
   Returns the bounding rectangle of the first \e len characters of \e str,
   which is the set of pixels the text would cover if drawn at (0,0).
@@ -1817,7 +1811,7 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
   \sa width(), QPainter::boundingRect() */
 
 QRect QFontMetrics::boundingRect( int x, int y, int w, int h, int flags,
-				  const char *str, int len, int tabstops,
+				  QString str, int len, int tabstops,
 				  int *tabarray, char **intern ) const
 {
     if ( len < 0 )

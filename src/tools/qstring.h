@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#58 $
+** $Id: //depot/qt/main/src/tools/qstring.h#59 $
 **
 ** Definition of the QString class, extended char array operations,
 ** and QByteArray and Q1String classes
@@ -149,6 +149,37 @@ QDataStream &operator>>( QDataStream &, QByteArray & );
 
 class QRegExp;
 
+class QChar {
+public:
+    QChar() : hi(0), lo(0) { }
+    QChar( uchar l, uchar h=0 ) : hi(h), lo(l) { }
+
+    operator char() const { return hi?0:lo; }
+
+    bool operator==( QChar c )
+    {
+	return c.lo == lo
+	    && c.hi == hi;
+    }
+    bool operator==( char c )
+    {
+	return c == lo && !hi;
+    }
+
+    bool operator!=( QChar c )
+    {
+	return c.lo != lo
+	    || c.hi != hi;
+    }
+    bool operator!=( char c )
+    {
+	return c != lo || hi;
+    }
+
+    uchar hi;
+    uchar lo;
+};
+
 class QString
 {
 public:
@@ -170,23 +201,29 @@ public:
     void	truncate( uint pos );
     void	setLength( uint pos );
     void	resize( uint pos ); // OBS
-    void	fill( ushort c, int len = -1 );
+    void	fill( QChar c, int len = -1 );
 
     QString	copy()	const;
 
     QString    &sprintf( const char* format, ... );
 
-    int		find( ushort c, int index=0, bool cs=TRUE ) const;
+    int		find( QChar c, int index=0, bool cs=TRUE ) const;
+    int		find( char c, int index=0, bool cs=TRUE ) const
+		    { return find(QChar(c), index, cs); }
     int		find( const QString &str, int index=0, bool cs=TRUE ) const;
     int		find( const QRegExp &, int index=0 ) const;
     int		find( const char* str, int index=0 ) const
 		    { return find(QString(str), index); }
-    int		findRev( ushort c, int index=-1, bool cs=TRUE) const;
+    int		findRev( QChar c, int index=-1, bool cs=TRUE) const;
+    int		findRev( char c, int index=-1, bool cs=TRUE) const
+		    { return findRev( QChar(c), index, cs ); }
     int		findRev( const QString &str, int index=-1, bool cs=TRUE) const;
     int		findRev( const QRegExp &, int index=-1 ) const;
     int		findRev( const char* str, int index=-1 ) const
 		    { return findRev(QString(str), index); }
-    int		contains( ushort c, bool cs=TRUE ) const;
+    int		contains( QChar c, bool cs=TRUE ) const;
+    int		contains( char c, bool cs=TRUE ) const
+		    { return contains(QChar(c), cs); }
     int		contains( const char* str, bool cs=TRUE ) const;
     int		contains( const QString &str, bool cs=TRUE ) const;
     int		contains( const QRegExp & ) const;
@@ -195,8 +232,8 @@ public:
     QString	right( uint len ) const;
     QString	mid( uint index, uint len=0xffffffff) const;
 
-    QString	leftJustify( uint width, ushort fill=' ', bool trunc=FALSE)const;
-    QString	rightJustify( uint width, ushort fill=' ',bool trunc=FALSE)const;
+    QString	leftJustify( uint width, QChar fill=' ', bool trunc=FALSE)const;
+    QString	rightJustify( uint width, QChar fill=' ',bool trunc=FALSE)const;
 
     QString	lower() const;
     QString	upper() const;
@@ -205,7 +242,8 @@ public:
     QString	simplifyWhiteSpace()	const;
 
     QString    &insert( uint index, const QString& );
-    QString    &insert( uint index, ushort );
+    QString    &insert( uint index, QChar );
+    QString    &insert( uint index, char c ) { return insert(index,QChar(c)); }
     QString    &append( const QString& );
     QString    &prepend( const QString& );
     QString    &remove( uint index, uint len );
@@ -231,24 +269,25 @@ public:
     QString    &setNum( float, char f='g', int prec=6 );
     QString    &setNum( double, char f='g', int prec=6 );
 
-    void	setExpand( uint index, ushort c );
+    void	setExpand( uint index, QChar c );
 
     QString    &operator+=( const QString&str );
-    QString    &operator+=( ushort c );
+    QString    &operator+=( QChar c );
+    QString    &operator+=( char c );
 
     // Your compiler is smart enough to use the const one if it can.
-    ushort at( uint i ) const { return i<d->len ? unicode()[i] : 0; }
-    ushort& at( uint i ); // detaches, enlarges
-    ushort operator[]( int i ) const { return at(i); }
-    ushort& operator[]( int i ) { return at(i); }
+    QChar at( uint i ) const { return i<d->len ? unicode()[i] : QChar(); }
+    QChar& at( uint i ); // detaches, enlarges
+    QChar operator[]( int i ) const { return at(i); }
+    QChar& operator[]( int i ) { return at(i); }
 
-    const ushort* unicode() const { return d->unicode; }
+    const QChar* unicode() const { return d->unicode; }
     const char* ascii() const;
 		operator const char *() const { return ascii(); }
 
-    static ushort* asciiToUnicode( const char*, uint& len );
-    static ushort* asciiToUnicode( const QByteArray&, uint& len );
-    static char* unicodeToAscii( const ushort*, uint len );
+    static QChar* asciiToUnicode( const char*, uint& len );
+    static QChar* asciiToUnicode( const QByteArray&, uint& len );
+    static char* unicodeToAscii( const QChar*, uint len );
 
     friend QDataStream &operator>>( QDataStream &, QString & );
 
@@ -265,11 +304,11 @@ private:
     struct Data : public QShared {
 	Data() :
 	    unicode(0), ascii(0), len(0), maxl(0), dirtyascii(0) { }
-	Data(ushort *u, uint l, uint m) :
+	Data(QChar *u, uint l, uint m) :
 	    unicode(u), ascii(0), len(l), maxl(m), dirtyascii(0) { }
 	~Data() { if ( unicode ) delete [] unicode;
 		  if ( ascii ) delete [] ascii; }
-	ushort *unicode;
+	QChar *unicode;
 	char *ascii;
 	uint len;
 	uint maxl:30;
@@ -384,10 +423,25 @@ inline QString operator+( const char *s1, const QString &s2 )
     return tmp;
 }
 
+inline QString operator+( const QString &s1, QChar c2 )
+{
+    QString tmp( s1 );
+    tmp += c2;
+    return tmp;
+}
+
 inline QString operator+( const QString &s1, char c2 )
 {
     QString tmp( s1 );
     tmp += c2;
+    return tmp;
+}
+
+inline QString operator+( QChar c1, const QString &s2 )
+{
+    QString tmp;
+    tmp += c1;
+    tmp += s2;
     return tmp;
 }
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#251 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#252 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -2450,7 +2450,7 @@ void QPainter::drawText( int x, int y, QString str, int len )
     if ( !isActive() )
 	return;
     if ( len < 0 )
-	len = strlen( str );
+	len = str.length();
     if ( len == 0 )				// empty string
 	return;
 
@@ -2556,8 +2556,9 @@ void QPainter::drawText( int x, int y, QString str, int len )
 	    XFillRectangle( dpy, hd, gc, x, y-fm.strikeOutPos(),
 			    tw, lw );
     }
+    XChar2b* x2b = (XChar2b*)str.unicode();
     if ( bg_mode == TransparentMode )
-	XDrawString( dpy, hd, gc, x, y, str, len );
+	XDrawString16( dpy, hd, gc, x, y, x2b, len );
     else
-	XDrawImageString( dpy, hd, gc, x, y, str, len );
+	XDrawImageString16( dpy, hd, gc, x, y, x2b, len );
 }

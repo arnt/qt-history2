@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#55 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#56 $
 **
 ** Implementation of QTextStream class
 **
@@ -477,7 +477,7 @@ QTextStream::~QTextStream()
   The availables modes are:
   <ol>
     <li>Ascii - 8-bit text
-    <li>Unicode - big endian Unicode text
+    <li>Unicode - little endian Unicode text
     <li>UnicodeBigEndian - big endian Unicode text
     <li>UnicodeLittleEndian - little endian Unicode text
   </ol>
@@ -1437,7 +1437,7 @@ QTextStream &QTextStream::writeBlock( const char *p, uint len )
 	break;
       case UnicodeBigEndian: {
 	    ushort *u = new ushort[len];
-	    for (int i=0; i<len; i++)
+	    for (uint i=0; i<len; i++)
 		u[i] = p[i];
 	    dev->writeBlock( (char*)u, len*sizeof(ushort) );
 	    delete [] u;
@@ -1445,7 +1445,7 @@ QTextStream &QTextStream::writeBlock( const char *p, uint len )
 	break;
       case UnicodeLittleEndian: {
 	    ushort *u = new ushort[len];
-	    for (int i=0; i<len; i++)
+	    for (uint i=0; i<len; i++)
 		u[i] = p[i] << 8;
 	    dev->writeBlock( (char*)u, len*sizeof(ushort) );
 	    delete [] u;
