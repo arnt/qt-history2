@@ -454,13 +454,8 @@ QPoint QCursor::pos()
 
 void QCursor::setPos( int, int )
 {
-
+    qDebug("Not yet implemented, but probably not called either.. %s:%d", __FILE__, __LINE__);
 }
-
-/*!
-  \overload void QCursor::setPos ( const QPoint & )
-*/
-
 
 /*!
   \internal Creates the cursor.

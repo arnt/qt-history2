@@ -280,9 +280,66 @@ void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
   \sa getWFlags()
 */
 
-void QWidget::reparent( QWidget *, WFlags, const QPoint &,
-			bool )
+void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
+			bool showIt )
 {
+    QCursor oldcurs;
+    bool setcurs=testWState(WState_OwnCursor);
+    if ( setcurs ) {
+	oldcurs = cursor();
+	unsetCursor();
+    }
+
+    WId old_winid = winid;
+    if ( testWFlags(WType_Desktop) )
+	old_winid = 0;
+    setWinId( 0 );
+    reparentFocusWidgets( parent );		// fix focus chains
+
+//    setAllocatedRegionDirty(); // affects my siblings
+
+    if ( parentObj ) {				// remove from parent
+	parentObj->removeChild( this );
+	if ( old_winid && testWFlags(WType_TopLevel) ) 
+	    DisposeWindow( (WindowPtr)old_winid );
+    }
+    if ( parent ) {				// insert into new parent
+	parentObj = parent;			// avoid insertChild warning
+	parent->insertChild( this );
+    }
+    bool     enable = isEnabled();		// remember status
+    FocusPolicy fp = focusPolicy();
+    QSize    s	    = size();
+    QString capt= caption();
+    widget_flags = f;
+    clearWState( WState_Created | WState_Visible );
+    create();
+    setGeometry( p.x(), p.y(), s.width(), s.height() );
+    setEnabled( enable );
+    setFocusPolicy( fp );
+    if ( !capt.isNull() ) {
+	extra->topextra->caption = QString::null;
+	setCaption( capt );
+    }
+    if ( showIt )
+	show();
+    if ( setcurs ) {
+	setCursor(oldcurs);
+    }
+
+    QObjectList	*accelerators = queryList( "QAccel" );
+    QObjectListIt it( *accelerators );
+    QObject *obj;
+    while ( (obj=it.current()) != 0 ) {
+	++it;
+	((QAccel*)obj)->repairEventFilter();
+    }
+    delete accelerators;
+    if ( !parent ) {
+	QFocusData *fd = focusData( TRUE );
+	if ( fd->focusWidgets.findRef(this) < 0 )
+ 	    fd->focusWidgets.append( this );
+    }
 }
 
 
