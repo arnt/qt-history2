@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#89 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#90 $
 **
 ** Implementation of QListBox widget class
 **
@@ -17,7 +17,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#89 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#90 $");
 
 
 Q_DECLARE(QListM, QListBoxItem);
@@ -467,14 +467,13 @@ void QListBox::insertStrList( const QStrList *list, int index )
     const char *txt;
     if ( index < 0 )
 	index = itemList->count();
-    int firstIndex = index;
     while ( (txt=it.current()) ) {
 	++it;
 	QListBoxText *tmp = new QListBoxText( txt );
 	insertDangerously( tmp, index++, FALSE );
     }
     updateNumRows( TRUE );
-    if ( autoUpdate() && itemVisible(firstIndex) )
+    if ( autoUpdate() && isVisible() )
 	repaint();
 }
 
@@ -507,7 +506,7 @@ void QListBox::insertStrList( const char **strings, int numStrings, int index )
 	i++;
     }
     updateNumRows( TRUE );
-    if ( autoUpdate() && itemVisible(index) )
+    if ( autoUpdate() && isVisible() )
 	repaint();
 }
 
