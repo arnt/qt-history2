@@ -1709,6 +1709,8 @@ void QCoreVariant::load(QDataStream &s)
         QByteArray name;
         s >> name;
         u = QMetaType::type(name);
+        if (!u)
+            qFatal("QCoreVariant::load(QDataStream &s): type %s unknown to QCoreVariant.", name.data());
     }
     create(static_cast<int>(u), 0);
     d.is_null = false;
