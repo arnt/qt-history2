@@ -766,10 +766,10 @@ void QObject::customEvent( QCustomEvent * )
     }
     \endcode
 
-    Notice in the example above that unhandled events should be
-    passed to the base class's eventFilter() function, since the
-    base class might have reimplemented eventFilter() for its own
-    internal purposes.
+    Notice in the example above that unhandled events are passed to
+    the base class's eventFilter() function, since the base class
+    might have reimplemented eventFilter() for its own internal
+    purposes.
 
     \warning If you delete the receiver object in this function, be
     sure to return TRUE. Otherwise, Qt will forward the event to the
